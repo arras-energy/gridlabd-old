@@ -37,7 +37,7 @@
 #include "currdump.h"
 #include "recloser.h"
 #include "sectionalizer.h"
-#include "emissions.h"
+//#include "emissions.h"
 #include "load_tracker.h"
 #include "triplex_load.h"
 #include "impedance_dump.h"
@@ -143,7 +143,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new currdump(module);
 	new recloser(module);
 	new sectionalizer(module);
-	new emissions(module);
+	//new emissions(module);
 	new load_tracker(module);
 	new triplex_load(module);
 	new impedance_dump(module);
