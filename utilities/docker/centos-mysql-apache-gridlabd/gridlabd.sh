@@ -22,6 +22,16 @@ echo '
 
 cd /usr/local/src
 git clone https://github.com/dchassin/gridlabd gridlabd
+git clone https://github.com/dchassin/ieee123-aws ieee123
+cd ieee123/config/
+cp default.php local.php 
+mv /usr/local/src/ieee123/* /var/www/html
+cd /var/www/html
+mkdir data
+mkdir output
+chmod 777 output data
+chmod 777 config 
+
 
 # install xercesc
 cd /usr/local/src/gridlabd/third_party
