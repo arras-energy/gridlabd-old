@@ -19,5 +19,5 @@ RUN chmod +wx *.sh
 EXPOSE 80/tcp 6267/tcp
 RUN mysqld --initialize-insecure
 
-#RUN bash gridlabd.sh
+RUN bash gridlabd.sh
 CMD [ "sh", "-c", "/tmp/startup.sh" ]
