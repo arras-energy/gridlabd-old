@@ -1,26 +1,16 @@
-To create a docker image run the command
+All the capabilities needed to install, build, update and manage the required docker images are handled by the makefile.  To obtain a list of the current targets, type
 ~~~
-localhost% docker build -f DockerFile -t gridlabd .
+localhost% make
 ~~~
-   
-If the build succeeds and passes validation, the container will be created.
-
-To save the docker image use the following command
+or
 ~~~
-localhost% docker save gridlabd -o gridlabd
+localhost% make help
 ~~~
 
-To run gridlabd after mapping a local folder to a docker folder, use the following command
-~~~
-localhost% docker run -it -v <localpath>:<dockerpath> gridlabd gridlabd -W <dockerpath> <your-options>
-~~~
-   
-To run a shell instead of gridlabd, use the following command
-~~~
-localhost% docker run -it -v <localpath>:<dockerpath> gridlabd bash
-~~~
-   
-If you want to use an alias, try this one:
-~~~
-localhost% alias gridlabd='docker run -it -v $(pwd):/gridlabd gridlabd gridlabd -W /gridlabd'
-~~~
+Some oftens used targets are
+
+* __install__: pulls and installs all the needed images to run the services
+* __status__: lists the status of the services
+* __start__: starts the services
+* __stop__: stops the services
+* __restart__: restarts the services
