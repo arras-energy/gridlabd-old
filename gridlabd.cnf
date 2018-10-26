@@ -1,0 +1,19 @@
+# gridlabd daemon configuration file
+
+log=/usr/local/var/gridlabd-log
+pid=/usr/local/var/gridlabd-pid
+workdir=/
+user=gridlabd.gridlabd
+output=
+verbose=
+error=
+warning=
+debug=
+profile=
+progress=
+maxbacklog=4
+clientmask=0.0.0.0
+port=6266
+umask=0
+keepalive=1
+timeout=10
