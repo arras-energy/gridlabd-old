@@ -749,6 +749,34 @@ char *global_today(char *buffer, int size)
 		return NULL;
 	}
 }
+char *global_urand(char *buffer, int size)
+{
+	if ( size > 32 )
+	{
+		sprintf(buffer,"%f",random_uniform(NULL,0.0,1.0));
+		return buffer;
+	}
+	else
+	{
+		output_error("global_today(...): buffer too small");
+		return NULL;
+	}
+
+}
+char *global_nrand(char *buffer, int size)
+{
+	if ( size > 32 )
+	{
+		sprintf(buffer,"%f",random_normal(NULL,0.0,1.0));
+		return buffer;
+	}
+	else
+	{
+		output_error("global_today(...): buffer too small");
+		return NULL;
+	}
+
+}
 char *global_true(char *buffer, int size)
 {
 	if ( size>1 )
@@ -1037,6 +1065,8 @@ char *global_getvar(char *name, char *buffer, int size)
 		{"NOW",global_now},
 		{"TODAY",global_today},
 		{"RUN",global_run},
+		{"URAND",global_urand},
+		{"NRAND",global_nrand},
 #if defined WIN32
 		{"WINDOWS",global_true},
 #elif defined __APPLE__
