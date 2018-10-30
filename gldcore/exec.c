@@ -3011,8 +3011,7 @@ int exec_add_scriptexport(const char *name)
 {
 	SIMPLELIST *item = (SIMPLELIST*)malloc(sizeof(SIMPLELIST));
 	if ( !item ) return 0;
-	item->data = (void*)malloc(strlen(name)+1);
-	strcpy(item->data,name);
+	item->data = strdup(name);
 	item->next = script_exports;
 	script_exports = item;
 	return 1;
@@ -3027,9 +3026,9 @@ static int update_exports(void)
 		if ( global_getvar(name,value,sizeof(value)) )
 		{
 			char env[2048];
-			sprintf(env,"%s=%s",name,value);
-			if ( putenv(env)!=0 )
-				output_warning("unable to update script export '%s' with value '%s'", name, value);
+			IN_MYCONTEXT output_debug("export %s=%s",name,value);
+			if ( setenv(name,value,true)!=0 )
+				IN_MYCONTEXT output_error("unable to update script export '%s' with value '%s'", name, value);
 		}
 	}
 	return 1;
@@ -3058,6 +3057,7 @@ static EXITCODE run_scripts(SIMPLELIST *list)
 	update_exports();
 	for ( item=list ; item!=NULL ; item=item->next )
 	{
+		IN_MYCONTEXT output_debug("running %s",item->data);
 		EXITCODE rc = system(item->data);
 		if ( rc!=XC_SUCCESS )
 		{
