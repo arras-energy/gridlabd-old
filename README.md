@@ -1,9 +1,10 @@
-The repository is only for building and installing GridLAB-D from source.  The 
+The repository is only for building and installing GridLAB-D from source. The
 installers for released versions are available at http://sourceforge.net/projects/gridlab-d/files/.
 
 # Installing from source
 
 Download the source code, build, install and validate (you will need autotools)
+
 ```
   host% git clone git@code.stanford.edu:/gridlabd/gridlabd source
   host% cd source
@@ -16,7 +17,7 @@ Download the source code, build, install and validate (you will need autotools)
 
 # Using docker
 
-See https://github.com/dchassin/gridlabd/tree/master/utilities/docker for DockerFile and readme.
+See https://github.com/dchassin/gridlabd/tree/master/utilities/docker for Dockerfile and readme.
 
 ## Windows build
 
@@ -26,7 +27,7 @@ for details.
 
 ## Eclipse Editor Setup
 
-You can setup Eclipse as your GridLAB-D modeling editor.  See 
+You can setup Eclipse as your GridLAB-D modeling editor. See
 http://gridlab-d.sourceforge.net/wiki/index.php/Eclipse for details.
 
 # Online Documentation
