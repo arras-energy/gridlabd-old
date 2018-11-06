@@ -4,7 +4,7 @@
 #
 # Building this docker image
 #
-#   host% docker build -f DockerFile .
+#   host% docker build -f Dockerfile .
 #   host% docker save > centos-gridlabd
 #
 # Starting docker on the host
