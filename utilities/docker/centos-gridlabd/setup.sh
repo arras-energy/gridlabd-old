@@ -54,7 +54,7 @@ cp -Ru ${MYSQL}/lib/* /usr/local/lib
 
 # install armadillo
 cd /usr/local/src/gridlabd/third_party
-ARMA=armadillo-7.800.1
+ARMAgit pu=armadillo-7.800.1
 gunzip ${ARMA}.tar.gz
 tar xf ${ARMA}.tar
 cd ${ARMA}
