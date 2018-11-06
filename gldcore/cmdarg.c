@@ -1211,6 +1211,47 @@ static int workdir(int argc, char *argv[])
 	return 1;
 }
 
+static int local_daemon(int argc, char *argv[])
+{
+	if ( argc < 2 )
+	{
+		output_error("--daemon requires a command");
+		return CMDERR;
+	}
+	else if ( strcmp(argv[1],"start") == 0 )
+	{
+		return daemon_start(argc-1,argv+1);
+	}
+	else if ( strcmp(argv[1],"stop") == 0 )
+	{
+		return daemon_stop(argc-1,argv+1);
+	}
+	else if ( strcmp(argv[1],"restart") == 0 )
+	{
+		return daemon_restart(argc-1,argv+1);
+	}
+	else if ( strcmp(argv[1],"status") == 0 )
+	{
+		return daemon_status(argc-1,argv+1);
+	}
+	else
+	{
+		output_error("%s is not a valid daemon command", argv[1]);
+		return CMDERR;
+	}
+}
+
+static int remote_client(int argc, char *argv[])
+{
+	if ( argc < 2 )
+	{
+		output_error("--remote requires hostname");
+		return CMDERR;
+	}
+	else
+		return daemon_remote_client(argc,argv);
+}
+
 static int printenv(int argc, char *argv[])
 {
 	system("printenv");
@@ -1325,7 +1366,7 @@ static CMDARG main[] = {
 	{"define",		"D",	define,			"<name>=[<module>:]<value>", "Defines or sets a global (or module) variable" },
 	{"globals",		NULL,	globals,		NULL, "Displays a sorted list of all global variables" },
 	{"libinfo",		"L",	libinfo,		"<module>", "Displays information about a module" },
-	{"printenv",		"E",	printenv,		NULL, "Displays the default environment variables" },
+	{"printenv",	"E",	printenv,		NULL, "Displays the default environment variables" },
 
 	{NULL,NULL,NULL,NULL, "Information"},
 	{"copyright",	NULL,	copyright,		NULL, "Displays copyright" },

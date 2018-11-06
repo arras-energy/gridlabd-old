@@ -1,5 +1,5 @@
 #!/bin/bash
-# DockerFile preprocessor
+# Dockerfile preprocessor
 
 function cleanup {
 	rm -f .tmp$$

@@ -91,10 +91,10 @@ clean-gridlabd: stop-mysqld
 	rm -f gridlabd.img dockerfile.tmp
 	docker system prune -f
 	
-gridlabd.img: DockerFile system.sh gridlabd.sh Makefile.conf
+gridlabd.img: Dockerfile system.sh gridlabd.sh Makefile.conf
 	@# build a new image from scripts
 	@[ ! -f dockerfile.tmp ] || ( echo "ERROR: a build is already running or was stopped before it finished (dockerfile.tmp exists--try 'make clean')."; fail)
-	./make_dockerfile DockerFile Makefile.conf dockerfile.tmp
+	./make_dockerfile Dockerfile Makefile.conf dockerfile.tmp
 	docker build --no-cache -f dockerfile.tmp -t $(GRIDLABD_IMAGE) . && docker save $(GRIDLABD_IMAGE) -o gridlabd.img ; rm -f dockerfile.tmp
 	@[ -f gridlabd.img ] || ( echo "ERROR: build failed--cleaning up image"; docker rmi -f $$(docker images -q | head -n 1) )
 
