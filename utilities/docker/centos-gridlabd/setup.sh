@@ -61,7 +61,7 @@ source ~/.bashrc
 
 # install armadillo
 cd /usr/local/src/gridlabd/third_party
-ARMAgit pu=armadillo-7.800.1
+ARMA=armadillo-7.800.1
 gunzip ${ARMA}.tar.gz
 tar xf ${ARMA}.tar
 cd ${ARMA}
