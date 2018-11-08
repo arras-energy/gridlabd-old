@@ -18,7 +18,6 @@
 # Install needed tools
 yum update -y
 yum groupinstall "Development Tools" -y
-yum install which -y
 
 yum install cmake -y 
 yum install https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm -y
@@ -52,15 +51,10 @@ tar xf ${MYSQL}.tar
 cp -u ${MYSQL}/bin/* /usr/local/bin
 cp -Ru ${MYSQL}/include/* /usr/local/include
 cp -Ru ${MYSQL}/lib/* /usr/local/lib
-echo 'LD_LIBRARY_PATH="/usr/local/lib:$LD_LIBRARY_PATH"' >> ~/.bashrc
-source ~/.bashrc
-
-# To use the MySQL CLI from Docker
-# yum install mysql -y
 
 # install armadillo
 cd /usr/local/src/gridlabd/third_party
-ARMA=armadillo-7.800.1
+ARMAgit pu=armadillo-7.800.1
 gunzip ${ARMA}.tar.gz
 tar xf ${ARMA}.tar
 cd ${ARMA}
@@ -75,3 +69,6 @@ make install
 
 # Validate GridLAB-D
 gridlabd --validate
+
+
+
