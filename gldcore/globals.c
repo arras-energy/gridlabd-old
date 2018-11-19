@@ -300,6 +300,7 @@ static struct s_varmap {
 	{"literal_if", PT_bool, &global_literal_if, PA_PUBLIC, "do not interpret lhs of #if macro as a variable name"},
 	{"validto_context", PT_enumeration, &global_validto_context, PA_PUBLIC, "events to which valid_to time applies, rather than just sync passes", vtc_keys},
 	{"daemon_configfile", PT_char1024, &global_daemon_configfile, PA_PUBLIC, "name of configuration file used by the daemon"},
+	{"timezone_locale", PT_char1024, &global_timezone_locale, PA_REFERENCE, "timezone specified by the clock directive"},
 	/* add new global variables here */
 };
 
@@ -872,25 +873,6 @@ int parameter_expansion(char *buffer, int size, char *spec)
 			return 0;
 	}
 
-	/* ${name/offset/length} */
-	if ( sscanf(spec,"%63[^/]/%63[^/]/%63[^}]",name,pattern,string)>=2 )
-	{
-		char temp[1024], *ptr;
-		size_t start;
-		if ( global_getvar(name,temp,sizeof(temp)-1)==NULL )
-			return 0;
-		strcpy(buffer,"");
-		ptr = strstr(temp,pattern);
-		if ( ptr!=NULL )
-		{
-			start = ptr - temp;
-			strncpy(buffer,temp,size);
-			strncpy(buffer+start,string,size-start);
-			strncpy(buffer+start+strlen(string),temp+start+strlen(pattern),size-start-strlen(string));
-		}
-		return 1;
-	}
-
 	/* ${name//offset/length} */
 	if ( sscanf(spec,"%63[^/]//%63[^/]/%63[^}]",name,pattern,string)==2 )
 	{
@@ -909,6 +891,25 @@ int parameter_expansion(char *buffer, int size, char *spec)
 			strncpy(buffer+start,string,size-start);
 			strncpy(buffer+start+strlen(string),temp+start+strlen(pattern),size-start-strlen(string));
 			strncpy(temp,buffer,sizeof(temp));
+		}
+		return 1;
+	}
+
+	/* ${name/offset/length} */
+	if ( sscanf(spec,"%63[^/]/%63[^/]/%63[^}]",name,pattern,string)>=2 )
+	{
+		char temp[1024], *ptr;
+		size_t start;
+		if ( global_getvar(name,temp,sizeof(temp)-1)==NULL )
+			return 0;
+		strcpy(buffer,"");
+		ptr = strstr(temp,pattern);
+		if ( ptr!=NULL )
+		{
+			start = ptr - temp;
+			strncpy(buffer,temp,size);
+			strncpy(buffer+start,string,size-start);
+			strncpy(buffer+start+strlen(string),temp+start+strlen(pattern),size-start-strlen(string));
 		}
 		return 1;
 	}

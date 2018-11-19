@@ -55,6 +55,8 @@ private:
 	double wire_moment;		// (see Section F)
 	double wind_pressure;		// (see Section D)
 	double wire_tension;	// (see Section G)
+	double pole_stress;	// ratio of total to resisting moment
+	double susceptibility;	// d(pole_stress)/d(wind_speed)
 	object cable_configuration;
 	bool is_deadend;
 private:
