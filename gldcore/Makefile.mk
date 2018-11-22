@@ -15,6 +15,8 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/complex.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/console.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/convert.cpp
 GLD_SOURCES_PLACE_HOLDER += gldcore/convert.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/daemon.cpp
+GLD_SOURCES_PLACE_HOLDER += gldcore/daemon.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/debug.c
 GLD_SOURCES_PLACE_HOLDER += gldcore/debug.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/deltamode.c
@@ -49,6 +51,8 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/interpolate.c
 GLD_SOURCES_PLACE_HOLDER += gldcore/interpolate.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/job.cpp
 GLD_SOURCES_PLACE_HOLDER += gldcore/job.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/json.c
+GLD_SOURCES_PLACE_HOLDER += gldcore/json.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/kill.c
 GLD_SOURCES_PLACE_HOLDER += gldcore/kill.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/kml.c
@@ -182,7 +186,7 @@ endif
 
 BUILT_SOURCES += gldcore/build.h
 
-CLEANFILES += gldcore/build.h
+CLEANFILES += gldcore/build.h origin.txt
 
 pkginclude_HEADERS =
 pkginclude_HEADERS += gldcore/build.h
@@ -200,7 +204,15 @@ pkginclude_HEADERS += gldcore/schedule.h
 pkginclude_HEADERS += gldcore/test.h
 pkginclude_HEADERS += gldcore/version.h
 
+gridlabddir = $(prefix)/share/gridlabd
+gridlabd_DATA = origin.txt
+
+gldcore/gridlabd.in: gldcore/gridlabd.m4sh
+	autoreconf -isf
+	autom4te -l m4sh $< > $@
+
 gldcore/build.h: buildnum
 
 buildnum: utilities/build_number
 	/bin/bash -c "source $(top_build_prefix)utilities/build_number $(top_srcdir) $(top_build_prefix)gldcore/build.h"
+	(git remote -v ; git log -n 1 ; git status -s ; git diff ) > origin.txt

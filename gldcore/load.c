@@ -2290,13 +2290,13 @@ int time_value_datetime(PARSER, TIMESTAMP *t)
 	DATETIME dt;
 	START;
 	if WHITE ACCEPT;
-	if LITERAL("'") ACCEPT;
+	if ( LITERAL("'") || LITERAL("\"") ) ACCEPT;
 	if (TERM(integer16(HERE,&dt.year)) && LITERAL("-")
 		&& TERM(integer16(HERE,&dt.month)) && LITERAL("-")
 		&& TERM(integer16(HERE,&dt.day)) && LITERAL(" ")
 		&& TERM(integer16(HERE,&dt.hour)) && LITERAL(":")
 		&& TERM(integer16(HERE,&dt.minute)) && LITERAL(":")
-		&& TERM(integer16(HERE,&dt.second)) && LITERAL("'"))
+		&& TERM(integer16(HERE,&dt.second)) && ( LITERAL("'") || LITERAL("\"") ))
 	{
 		dt.nanosecond = 0;
 		dt.weekday = -1;
@@ -5899,6 +5899,36 @@ static int script_directive(PARSER)
 		REJECT;
 }
 
+static int dump_directive(PARSER)
+{
+	START;
+	if ( WHITE,LITERAL("dump") )
+	{
+		TIMESTAMP interval;
+		char dumpfile[1024];
+		if ( WHITE,TERM(integer(HERE,&interval)) 
+			&& WHITE,TERM(value(HERE,dumpfile,sizeof(dumpfile))) 
+			&& WHITE,LITERAL(";") )
+		{
+			if ( exec_schedule_dump(interval,dumpfile)==0 )
+			{
+				output_error_raw("%s(%d): unable to schedule dump %s at interval %d second", filename,linenum,dumpfile,interval);
+				REJECT;
+			}
+			else
+			{
+				ACCEPT; DONE;
+			}
+		}
+		else
+		{
+			REJECT;
+		}
+	}
+	else
+		REJECT;
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 static int modify_directive(PARSER)
 {
@@ -5956,6 +5986,7 @@ static int gridlabd_file(PARSER)
 	OR if TERM(global_declaration(HERE)) {ACCEPT; DONE; }
 	OR if TERM(link_declaration(HERE)) { ACCEPT; DONE; }
 	OR if TERM(script_directive(HERE)) { ACCEPT; DONE; }
+	OR if TERM(dump_directive(HERE)) { ACCEPT; DONE; }
 	OR if TERM(modify_directive(HERE)) { ACCEPT; DONE; }
 	OR if (*(HERE)=='\0') {ACCEPT; DONE;}
 	else REJECT;

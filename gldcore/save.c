@@ -14,6 +14,7 @@
 #include "gui.h"
 #include "schedule.h"
 #include "transform.h"
+#include "json.h"
 
 SET_MYCONTEXT(DMC_LOAD)
 
@@ -21,6 +22,7 @@ SET_MYCONTEXT(DMC_LOAD)
 
 static int saveglm(char *filename, FILE *fp);
 static int savexml(char *filename, FILE *fp);
+static int savejson(char *filename, FILE *fp);
 static int savexml_strict(char *filename, FILE *fp);
 
 int saveall(char *filename)
@@ -31,9 +33,11 @@ int saveall(char *filename)
 		char *format;
 		int (*save)(char*,FILE*);
 	} map[] = {
+		{"gld", saveglm},
 		{"glm", saveglm},
 		//{"xml", savexml_strict},
 		{"xml", savexml},
+		{"json", savejson},
 	};
 	int i;
 
@@ -56,12 +60,15 @@ int saveall(char *filename)
 		return 0;
 	}
 
+	output_debug("starting dump to %s",filename);
 	/* internal streaming used */
 	if (global_streaming_io_enabled)
 	{
 		int res = stream(fp,SF_OUT)>0 ? SUCCESS : FAILED;
 		if (res==FAILED)
 			output_error("stream context is %s",stream_context());
+		if ( fp != stdout ) 
+			fclose(fp);
 		return res;
 	}
 
@@ -70,7 +77,11 @@ int saveall(char *filename)
 	{
 		if (strcmp(ext,map[i].format)==0)
 		{
-			return (*(map[i].save))(filename,fp);
+			int rc = (*(map[i].save))(filename,fp);
+			if ( fp != stdout ) 
+				fclose(fp);
+			output_debug("dump to %s completed ok (%d bytes written)",filename,rc);
+			return rc;
 		}
 	}
 
@@ -81,6 +92,8 @@ int saveall(char *filename)
 		extension entirely to force use of the default format.
 	*/
 	errno = EINVAL;
+	if ( fp != stdout ) 
+		fclose(fp);
 	return FAILED;
 }
 
@@ -158,8 +171,7 @@ int saveglm(char *filename,FILE *fp)
 	count += fprintf(fp,"\n////////////////////////////////////////////////////////\n");
 	count += fprintf(fp,"// END");
 	count += fprintf(fp,"\n////////////////////////////////////////////////////////\n");
-	if (fp!=stdout)
-		fclose(fp);
+
 	return count;
 }
 
@@ -322,9 +334,6 @@ int savexml_strict(char *filename,FILE *fp)
 
 	count += fprintf(fp,"</gridlabd>\n");
 
-	if (fp!=stdout)
-		fclose(fp);
-
 	global_suppress_deprecated_messages = old_suppress_deprecated;
 
 	return count;
@@ -372,7 +381,10 @@ int savexml(char *filename,FILE *fp)
 	module_saveall_xml(fp);
 
 	count += fprintf(fp,"</load>\n");
-	if (fp!=stdout)
-		fclose(fp);
 	return count;
+}
+
+int savejson(char *filename, FILE *fp)
+{
+	return json_output(fp);
 }

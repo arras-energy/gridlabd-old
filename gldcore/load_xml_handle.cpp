@@ -23,6 +23,8 @@
 
 #define _CRT_SECURE_NO_DEPRECATE 1
 
+
+
 gld_loadHndl::gld_loadHndl() : fFormatter("LATIN1", 0, this, XMLFormatter::NoEscapes, (const XMLFormatter::UnRepFlags) 0),
 		fExpandNS ( false ){
 	depth = 0;
@@ -910,7 +912,8 @@ void gld_loadHndl::startElement(const XMLCh* const uri, const XMLCh* const local
 */
 char *gld_loadHndl::build_object_vect(int start, int end){
 	int count = 0, i = 0;
-	obj_vect.clear();
+	obj_vect = new vector<OBJECT *>;
+	obj_vect->clear();
 	if(start == end){
 		if((*oclass->create)(&obj, NULL) == 0){
 			//output_error("XML_Load: Unable to create a lone object with ID = %i.", start);
@@ -941,11 +944,11 @@ char *gld_loadHndl::build_object_vect(int start, int end){
 			return errmsg;
 		}
 	}
-	obj_vect.reserve(count);
+	obj_vect->reserve(count);
 	for(i = (start == -1) ? 0 : start; i <= last; ++i){ /* "if start == -1, use 0, else use start" */
-		if((*oclass->create)((obj_vect[i]), NULL) != 0){
+		if((*oclass->create)(((*obj_vect)[i]), NULL) != 0){
 			if(start != -1){
-				if(load_set_index(obj_vect[i], (OBJECTNUM)i) == 0){
+				if(load_set_index((*obj_vect)[i], (OBJECTNUM)i) == 0){
 					sprintf(errmsg, "Unable to index a batch item in build_object_vect(%i, %i)", start, end);
 					load_state = false;
 					// cleanup all items?
