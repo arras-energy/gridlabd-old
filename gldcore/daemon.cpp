@@ -28,10 +28,17 @@ static bool enable_jail = false;
 static char clientmask[32] = "127.0.0.1";
 static char port[8] = "6266";
 static char maxbacklog[8] = "4";
-static char logfile[1024] = "/usr/local/var/gridlabd-log";
-static char pidfile[1024] = "/usr/local/var/gridlabd-pid";
-static char workdir[1024] = "/";
+#ifdef MACOSX
 static char user[1024] = "";
+static char logfile[1024] = "/tmp/gridlabd-log";
+static char pidfile[1024] = "/tmp/gridlabd-pid";
+static char workdir[1024] = "/tmp";
+#else
+static char user[1024] = "gridlabd";
+static char logfile[1024] = "/usr/local/var/gridlabd/gridlabd-log";
+static char pidfile[1024] = "/usr/local/var/gridlabd/gridlabd-pid";
+static char workdir[1024] = "/usr/local/var/gridlabd";
+#endif
 
 // gridlabd stream specifications
 static char output[1024] = "";
@@ -428,8 +435,7 @@ static void daemon_loadconfig(void)
 	FILE *fp = fopen(global_daemon_configfile,"rt");
 	if ( fp == NULL )
 	{
-		output_warning("daemon_loadconfig(): '%s' open failed: %s",(const char*)global_daemon_configfile,strerror(errno));
-		output_warning("daemon_loadconfig(): using default configuration");
+		output_warning("daemon_loadconfig(): using default configuration because '%s' open failed -- %s",(const char*)global_daemon_configfile,strerror(errno));
 		return;
 	}
 	output_debug("daemon_loadconfig(): loading '%s'",(const char*)global_daemon_configfile);
@@ -591,10 +597,10 @@ static int daemon_configure()
 	// set the user/group id
 	if ( strcmp(user,"") != 0 )
 	{
-		output_debug("changing to user '%s'",workdir);
 		struct passwd *pwd = getpwnam(user);
 		if ( pwd != NULL )
 		{
+			output_debug("changing to user '%s' (uid=%d, gid=%d)",workdir,pwd->pw_uid,pwd->pw_gid);
 			if ( setgid(pwd->pw_gid)!=0 || setuid(pwd->pw_uid)!=0 )
 			{
 				output_error("unable to change user/group to '%s' to uid=%d and gid=%d -- %s",user,pwd->pw_uid,pwd->pw_gid,strerror(errno));
@@ -606,6 +612,10 @@ static int daemon_configure()
 			output_error("unable to change user/group to '%s' -- %s",user,strerror(errno));
 			exit(XC_INIERR);
 		}
+	}
+	else
+	{
+		output_debug("running as uid=%d, gid=%d",getuid(),getgid());
 	}
 
 	// check process euid
