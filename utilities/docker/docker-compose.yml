@@ -1,0 +1,21 @@
+version: '3.7'
+services:
+  mysql:
+    image: mysql/mysql-server:latest
+    ports:
+      - "3306:3306"
+    volumes:
+      - ../..:/usr/local/src/gridlabd
+    #init: true
+  httpd:
+    image: httpd:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ../..:/usr/local/src/gridlabd
+    #init: true
+  gridlabd:
+    image: gridlabd/slac-master:latest
+    ports:
+      - "6266-6999:6266-6999"
+    #init: true
