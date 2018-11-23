@@ -915,7 +915,6 @@ int daemon_remote_client(int argc, char *argv[])
 		}
 		if ( p > buffer )
 			fprintf(out,"%s",buffer);
-		fclose(out);
 	}
 	shutdown(sockfd,SHUT_RDWR);
 	close(sockfd);
