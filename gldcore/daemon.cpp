@@ -26,6 +26,7 @@ static int daemon_pid = 0;
 static bool daemon_wait = false;
 static bool enable_jail = false;
 static char clientmask[32] = "127.0.0.1";
+static char addr[32] = "127.0.0.1";
 static char port[8] = "6266";
 static char maxbacklog[8] = "4";
 #ifdef MACOSX
@@ -69,6 +70,7 @@ static struct s_config {
 	{"progress",progress},
 	{"maxbacklog",maxbacklog},
 	{"clientmask",clientmask},
+	{"listen",addr},
 	{"port",port},
 	{"keepalive",keepalive},
 	{"timeout",timeout},
@@ -357,7 +359,7 @@ static void daemon_process(void)
 	}
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	inet_pton(AF_INET,clientmask,&serv_addr.sin_addr);
+	inet_pton(AF_INET,addr,&serv_addr.sin_addr);
 	serv_addr.sin_port = htons(portno);
 	if ( bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0 ) 
 	{
