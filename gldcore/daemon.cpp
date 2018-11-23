@@ -21,6 +21,7 @@
 #include "globals.h"
 
 static int daemon_pid = 0;
+static bool daemon_wait = false;
 static char clientmask[32] = "0.0.0.0";
 static char port[8] = "6266";
 static char maxbacklog[8] = "4";
@@ -532,6 +533,10 @@ static int daemon_arguments(int argc, char *argv[])
 				exit(XC_PRCERR);
 			}
 		}
+		else if ( strcmp(*argv,"-w")==0 )
+		{
+			daemon_wait = true;
+		}
 		else
 		{
 			output_error("argument '%s' is not recognized",*argv);			
@@ -615,6 +620,12 @@ int daemon_start(int argc, char *argv[])
 			output_warning("daemon pid %d died without cleanup its pidfile", pid);
 		}
 	}	
+
+	if ( daemon_wait )
+	{
+		daemon_process();
+		return nargs+1;
+	}
 
 	// fork the daemon process
 	pid = fork();
