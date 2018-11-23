@@ -14,15 +14,18 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <pwd.h>
 #include "gridlabd.h"
 #include "output.h"
 #include "cmdarg.h"
 #include "daemon.h"
 #include "globals.h"
 
+static int disable_daemon_command = false;
 static int daemon_pid = 0;
 static bool daemon_wait = false;
-static char clientmask[32] = "0.0.0.0";
+static bool enable_jail = false;
+static char clientmask[32] = "127.0.0.1";
 static char port[8] = "6266";
 static char maxbacklog[8] = "4";
 static char logfile[1024] = "/usr/local/var/gridlabd-log";
@@ -403,6 +406,7 @@ static void daemon_process(void)
 		else // child
 		{
 			atexit(daemon_cleanup_run);
+			disable_daemon_command = true;
 			int code = daemon_run(server_sockfd);
 			if ( code != XC_SUCCESS )
 			{
@@ -488,7 +492,7 @@ static int daemon_arguments(int argc, char *argv[])
 	// process args
 	while ( argc > 0 )
 	{
-		if ( strcmp(*argv,"-f")==0 )
+		if ( strcmp(*argv,"-f")==0 || strcmp(*argv,"--configfile")==0 )
 		{
 			NEXT;
 			if ( argc > 0 )
@@ -510,7 +514,7 @@ static int daemon_arguments(int argc, char *argv[])
 				exit(XC_PRCERR);
 			}
 		}
-		else if ( strcmp(*argv,"-p")==0 )
+		else if ( strcmp(*argv,"-p")==0 || strcmp(*argv,"--port")==0 )
 		{
 			NEXT;
 			if ( argc > 0 )
@@ -533,9 +537,27 @@ static int daemon_arguments(int argc, char *argv[])
 				exit(XC_PRCERR);
 			}
 		}
-		else if ( strcmp(*argv,"-w")==0 )
+		else if ( strcmp(*argv,"-w")==0 || strcmp(*argv,"--wait")==0 )
 		{
 			daemon_wait = true;
+			NEXT;
+		}
+		else if ( strcmp(*argv,"-j")==0 || strcmp(*argv,"--jail")==0 )
+		{
+			enable_jail = true;
+			NEXT;
+		}
+		else if ( strcmp(*argv,"-h")==0 || strcmp(*argv,"--help")==0 )
+		{
+			output_message("Syntax: gridlabd --daemon start <options>\n"
+				"Options:\n"
+				"  --configfile <filename>  use <filename> as the configuration file instead of %s\n"
+				"  --help                   display this help information\n"
+				"  --jail                   isolate the daemon in workdir '%s'\n"
+				"  --port <number>          use <portnum> instead of default %d\n"
+				"  --wait                   wait for daemon to stop before exiting", 
+				(const char*)global_daemon_configfile, workdir, portno);
+			exit(XC_SUCCESS);
 		}
 		else
 		{
@@ -551,7 +573,16 @@ static int daemon_configure()
 	pid_t pid, sid;
 
 	// change the working folder
-	if ( chdir(workdir) < 0 )
+	if ( enable_jail )
+	{
+		output_debug("jailing daemon in workdir '%s'",workdir);
+		if ( chroot(workdir) != 0 || chdir("/") != 0 )
+		{
+			output_error("unable to jail daemon in workdir '%s' -- %s", workdir, strerror(errno));
+			exit(XC_INIERR);
+		}
+	}
+	else if ( chdir(workdir) != 0 )
 	{
 		output_error("unable to change to workdir '%s' -- %s", workdir, strerror(errno));
 		exit(XC_INIERR);
@@ -560,15 +591,25 @@ static int daemon_configure()
 	// set the user/group id
 	if ( strcmp(user,"") != 0 )
 	{
-		if ( geteuid() != 0 )
+		output_debug("changing to user '%s'",workdir);
+		struct passwd *pwd = getpwnam(user);
+		if ( pwd != NULL )
 		{
-			output_error("unable to change user/group to '%s' unless running as root",user);
+			if ( setgid(pwd->pw_gid)!=0 || setuid(pwd->pw_uid)!=0 )
+			{
+				output_error("unable to change user/group to '%s' to uid=%d and gid=%d -- %s",user,pwd->pw_uid,pwd->pw_gid,strerror(errno));
+				exit(XC_INIERR);
+			}
+		}
+		else
+		{
+			output_error("unable to change user/group to '%s' -- %s",user,strerror(errno));
 			exit(XC_INIERR);
 		}
-
 	}
+
 	// check process euid
-	if ( geteuid() == 0 )
+	if ( getuid() == 0 )
 	{
 		output_error("running as root is forbidden");
 		exit(XC_INIERR);
@@ -592,6 +633,12 @@ static int daemon_configure()
 
 int daemon_start(int argc, char *argv[])
 {
+	if ( disable_daemon_command )
+	{
+		output_error("daemon commands not permitted");
+		exit(XC_INIERR);
+	}
+
 	int nargs = 0;
 	if ( argc > 0 )
 	{
@@ -648,6 +695,12 @@ int daemon_start(int argc, char *argv[])
 
 int daemon_stop(int argc, char *argv[])
 {
+	if ( disable_daemon_command )
+	{
+		output_error("daemon commands not permitted");
+		exit(XC_INIERR);
+	}
+	
 	int nargs = 0;
 	if ( argc > 0 )
 	{
@@ -688,6 +741,12 @@ int daemon_stop(int argc, char *argv[])
 
 int daemon_restart(int argc, char *argv[])
 {
+	if ( disable_daemon_command )
+	{
+		output_error("daemon commands not permitted");
+		exit(XC_INIERR);
+	}
+	
 	int nargs = 0;
 	if ( argc > 0 )
 	{
@@ -707,6 +766,12 @@ int daemon_restart(int argc, char *argv[])
 
 int daemon_status(int argc, char *argv[])
 {
+	if ( disable_daemon_command )
+	{
+		output_error("daemon commands not permitted");
+		exit(XC_INIERR);
+	}
+	
 	int nargs = 0;
 	if ( argc > 0 )
 	{
