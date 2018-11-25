@@ -1,0 +1,121 @@
+#!/bin/bash
+
+CLEAN=false
+KEEP=false
+VERBOSE=false
+
+EXE="$0"
+CNF="${EXE/-start/.cnf}"
+source "${EXE/-start/-util}"
+
+while [ $# -gt 0 ]; do
+	case $1 in
+	("-h"|"--help")
+		cat <<END 
+Syntax: $0 [options]
+Options:
+  -c|--clean   start mysql from a clean database (warning: deletes all existing data!)
+  -h|--help    output this help text
+  -k|--keep    keep the instance after failures ('${EXE/-start/-stop -a}'' will remove the instance)
+  -v|--verbose produce more informational output
+END
+		exit
+		;;
+	("-c"|"--clean")
+		CLEAN=true		
+		shift
+		;;
+	("-k"|"--keep")
+		KEEP=true
+		shift
+		;;
+	("-v"|"--verbose")
+		VERBOSE=true
+		shift
+		;;
+	(*)
+		error 1 "option '$1' is invalid"
+	esac
+done
+
+# check for service already running
+verbose -n "$EXE: checking state of instance of $NAME..." 
+if [ "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == "healthy" ]; then
+	verbose -c "$(docker inspect -f '{{.State.Health.Status}}' ${NAME})"
+	verbose "$NAME is already running ('mysql-stop' will kill it)";
+	exit 0
+elif [ -z "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" ]; then
+	verbose -c "ready to start"
+elif [ "$CLEAN" == "true" ]; then
+	verbose -c "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)"
+	error 1 "cannot clean $DATADIR while $NAME is $(docker inspect -f '{{.State.Health.Status}}' ${NAME}) ('mysql-stop -a' will remove it)"
+else
+	verbose -c "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)"
+fi
+
+# check for port availability
+verbose -n "$EXE: checking for availability of port 3306..." 
+if [ ! -z "$(netstat -vatn | grep -w 3306 | grep -w LISTEN)" ]; then
+	verbose "error"
+	error 2 "cannot start $NAME because another service is currently listening on port 3306"
+fi
+verbose -c "ok"
+
+# cleanup data directory
+if [ "$CLEAN" == "true" -a -d "$DATADIR" ]; then
+	verbose -n "$EXE: cleaning up data folder '$DATADIR'..."
+	rm -rf ${DATADIR}
+	if [ -d "$DATADIR" ]; then
+		verbose "error"
+		error 3 "unable to create '$DATADIR' folder"
+	else
+		echo "ok"
+	fi
+fi
+
+# create datadir
+verbose -n "$EXE: checking data folder '$DATADIR'..." 
+if [ ! -d "${DATADIR}" ]; then
+	verbose "not found"
+	verbose -n "$EXE: creating data folder '${DATADIR}'..."
+	mkdir -p "${DATADIR}" || exit 1
+fi
+verbose -c "ok"
+
+SINCE=$(date -u '+%Y-%m-%dT%H:%M:%SZ') 
+if [ ! -z "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" ]; then
+	verbose "container $NAME already exists"
+else
+	verbose -n "starting container for $NAME..."
+	ID=$(docker run --name=${NAME} -id -v ${PWD}/${DATADIR}:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=gridlabd -p 3306:3306 ${IMAGE})
+	if [ $? -ne 0 ]; then
+		verbose -c "failed"
+		error 4 "unable to start container for $NAME"
+	else
+		verbose -c "ok"
+		verbose "container id $ID"
+	fi
+fi
+
+verbose -n "$EXE: waiting for $NAME to start..."
+while [ "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == "starting" ]; do 
+	sleep 1
+	verbose -c -n "."
+done
+if [ ! "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == "healthy" ]; then
+	verbose -c "failed (status is $(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null))" || echo "$EXE: $NAME start failed"
+
+	error NOEXIT "container $NAME failed to start correctly -- log follows"
+	docker logs --since "$SINCE" ${NAME} >> /dev/stderr
+	error 5 "$NAME start failed -- try using '${EXE/-start/-restart} -a' to fix it"
+fi
+verbose -c "done"
+
+verbose -n "$EXE: setting up gridlabd access..."
+docker exec -i mysql1 mysql -uroot -pgridlabd < mysql-setup.sql 
+if [ $? -ne 0 -a ! $KEEP ]; then
+	verbose "failed"
+	verbose -n "$EXE: cleaning up instances... "
+	docker rm -f ${NAME}
+fi
+verbose -c "done"

@@ -1,0 +1,48 @@
+if [ -f "$CNF" ]; then
+	. $CNF
+else
+	echo $EXE: unable to load $CNF
+	exit 1
+fi
+
+IMAGE=${REPO}:${TAG}
+
+function error () {
+	CODE="$1"
+	shift
+	echo "$EXE [ERROR] $(date -u '+%Y-%m-%dT%H:%M:%S+00:00Z'): $*"
+	if [ ! "$CODE" == "NOEXIT" ]; then
+		exit $CODE
+	fi
+} >> /dev/stderr
+
+VERBOSE=false
+function verbose () {
+	if [ "$1" == "ENABLE" ]; then
+		VERBOSE=true
+		return
+	elif [ "$1" == "DISABLE" ]; then
+		VERBOSE=false
+		return
+	elif [ ! "$VERBOSE" == "true" ]; then
+		return
+	fi
+	NL=""
+	CONTINUE=false
+	if [ "$1" == "-c" ]; then
+		shift
+		CONTINUE=true
+	fi
+	if [ "$1" == "-n" ]; then
+		shift
+		NL="-n"
+	fi
+	if [ "$1" == "-c" ]; then
+		shift
+		CONTINUE=true
+	fi
+	if [ "$CONTINUE" == "false" ]; then
+		echo -n "$EXE [VERBOSE]: "
+	fi
+	echo $NL "$*"
+} >> /dev/stdout

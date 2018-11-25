@@ -1,0 +1,69 @@
+#!/bin/bash
+
+ALL=false
+CLEAN=false
+
+EXE="$0"
+CNF="${EXE/-stop/.cnf}"
+source "${EXE/-stop/-util}"
+
+while [ $# -gt 0 ]; do
+	case $1 in
+	("-h"|"--help")
+		cat <<END
+Syntax: $0 [options]
+Options:
+  -a|--all     remove the instance also
+  -c|--clean   start mysql from a clean database (warning: deletes all existing data!)
+  -h|--help    output this help text
+  -v|--verbose produce more informational output 
+END
+		exit
+		;;
+	("-a"|"--all")
+		ALL=true
+		shift
+		;;
+	("-c"|"--clean")
+		CLEAN=true
+		shift
+		;;
+	("-v"|"--verbose")
+		verbose ENABLE
+		shift
+		;;
+	(*)
+		error 1 "option '$1' is invalid"
+	esac
+done
+
+if [ -z "$NAME" ]; then
+	error 2 "${0/-start/.cnf} missing NAME"
+fi
+
+verbose -n "Checking status of $NAME..."
+if [ "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == "healthy" ]; then
+	verbose -c "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)"
+	verbose -n "Killing $NAME..."
+	docker kill $NAME || error 2 "unable to kill $NAME"
+fi
+verbose -c "killed"
+
+verbose -n "Checking instance $NAME..."
+if [ "$ALL" == "true" -a ! -z "$(docker inspect -f '{{.State.Health.Status}}' $NAME 2>/dev/null)" ]; then
+	verbose -c "found it"
+	verbose -n "Removing $NAME..."
+	docker rm -f $NAME || error 3 "unable to remove $NAME"
+fi
+verbose -c "deleted"
+
+if [ "$CLEAN" == "true" ]; then
+	if [ -d "$DATADIR" ]; then
+		verbose -n "cleaning up data folder '$DATADIR'..."
+		rm -rf "$DATADIR" || error 4 "cleanup failed"
+		verbose -c "done"
+	else
+		verbose "data folder '$DATADIR' is already cleaned up"
+	fi
+fi
+
