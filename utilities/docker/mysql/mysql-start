@@ -39,7 +39,7 @@ END
 done
 
 # check for service already running
-verbose -n "$EXE: checking state of instance of $NAME..." 
+verbose -n "checking state of instance of $NAME..." 
 if [ "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == "healthy" ]; then
 	verbose -c "$(docker inspect -f '{{.State.Health.Status}}' ${NAME})"
 	verbose "$NAME is already running ('mysql-stop' will kill it)";
@@ -54,7 +54,7 @@ else
 fi
 
 # check for port availability
-verbose -n "$EXE: checking for availability of port 3306..." 
+verbose -n "checking for availability of port 3306..." 
 if [ ! -z "$(netstat -vatn | grep -w 3306 | grep -w LISTEN)" ]; then
 	verbose "error"
 	error 2 "cannot start $NAME because another service is currently listening on port 3306"
@@ -63,7 +63,7 @@ verbose -c "ok"
 
 # cleanup data directory
 if [ "$CLEAN" == "true" -a -d "$DATADIR" ]; then
-	verbose -n "$EXE: cleaning up data folder '$DATADIR'..."
+	verbose -n "cleaning up data folder '$DATADIR'..."
 	rm -rf ${DATADIR}
 	if [ -d "$DATADIR" ]; then
 		verbose "error"
@@ -74,10 +74,10 @@ if [ "$CLEAN" == "true" -a -d "$DATADIR" ]; then
 fi
 
 # create datadir
-verbose -n "$EXE: checking data folder '$DATADIR'..." 
+verbose -n "checking data folder '$DATADIR'..." 
 if [ ! -d "${DATADIR}" ]; then
 	verbose "not found"
-	verbose -n "$EXE: creating data folder '${DATADIR}'..."
+	verbose -n "creating data folder '${DATADIR}'..."
 	mkdir -p "${DATADIR}" || exit 1
 fi
 verbose -c "ok"
@@ -97,13 +97,13 @@ else
 	fi
 fi
 
-verbose -n "$EXE: waiting for $NAME to start..."
+verbose -n "waiting for $NAME to start..."
 while [ "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == "starting" ]; do 
 	sleep 1
 	verbose -c -n "."
 done
 if [ ! "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == "healthy" ]; then
-	verbose -c "failed (status is $(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null))" || echo "$EXE: $NAME start failed"
+	verbose -c "failed (status is $(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null))" || echo "$NAME start failed"
 
 	error NOEXIT "container $NAME failed to start correctly -- log follows"
 	docker logs --since "$SINCE" ${NAME} >> /dev/stderr
@@ -111,11 +111,11 @@ if [ ! "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == 
 fi
 verbose -c "done"
 
-verbose -n "$EXE: setting up gridlabd access..."
+verbose -n "setting up gridlabd access..."
 docker exec -i mysql1 mysql -uroot -pgridlabd < mysql-setup.sql 
 if [ $? -ne 0 -a ! $KEEP ]; then
 	verbose "failed"
-	verbose -n "$EXE: cleaning up instances... "
+	verbose -n "cleaning up instances... "
 	docker rm -f ${NAME}
 fi
 verbose -c "done"
