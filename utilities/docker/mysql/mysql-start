@@ -106,13 +106,13 @@ if [ ! "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == 
 	verbose -c "failed (status is $(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null))" || echo "$NAME start failed"
 
 	error NOEXIT "container $NAME failed to start correctly -- log follows"
-	docker logs --since "$SINCE" ${NAME} >> /dev/stderr
+	docker logs --since "$SINCE" ${NAME} > /dev/stderr
 	error 5 "$NAME start failed -- try using '${EXE/-start/-restart} -a' to fix it"
 fi
 verbose -c "done"
 
 verbose -n "setting up gridlabd access..."
-docker exec -i mysql1 mysql -uroot -pgridlabd < mysql-setup.sql 
+docker exec -i mysql1 mysql -uroot -pgridlabd < mysql-setup.sql 2>/dev/null
 if [ $? -ne 0 -a ! $KEEP ]; then
 	verbose "failed"
 	verbose -n "cleaning up instances... "

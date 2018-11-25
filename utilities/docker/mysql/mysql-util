@@ -1,11 +1,11 @@
 if [ -f "$CNF" ]; then
 	. $CNF
 else
-	echo $EXE: unable to load $CNF
+	echo ${EXE:-$0}: unable to load ${CNF:-configuration file}
 	exit 1
 fi
 
-IMAGE=${REPO}:${TAG}
+IMAGE=${REPO:-mysql/mysql-server}:${TAG:-latest}
 
 function error () {
 	CODE="$1"
@@ -14,7 +14,7 @@ function error () {
 	if [ ! "$CODE" == "NOEXIT" ]; then
 		exit $CODE
 	fi
-} >> /dev/stderr
+} > /dev/stderr
 
 VERBOSE=false
 function verbose () {
@@ -45,4 +45,4 @@ function verbose () {
 		echo -n "$EXE [VERBOSE]: "
 	fi
 	echo $NL "$*"
-} >> /dev/stdout
+} > /dev/stdout

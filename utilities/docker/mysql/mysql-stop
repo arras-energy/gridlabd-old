@@ -45,7 +45,8 @@ verbose -n "Checking status of $NAME..."
 if [ "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)" == "healthy" ]; then
 	verbose -c "$(docker inspect -f '{{.State.Health.Status}}' ${NAME} 2>/dev/null)"
 	verbose -n "Killing $NAME..."
-	docker kill $NAME || error 2 "unable to kill $NAME"
+	docker kill $NAME 1>/dev/null 2>&1 || error 2 "unable to kill $NAME"
+	verbose -c "done"
 fi
 verbose -c "killed"
 
@@ -53,7 +54,8 @@ verbose -n "Checking instance $NAME..."
 if [ "$ALL" == "true" -a ! -z "$(docker inspect -f '{{.State.Health.Status}}' $NAME 2>/dev/null)" ]; then
 	verbose -c "found it"
 	verbose -n "Removing $NAME..."
-	docker rm -f $NAME || error 3 "unable to remove $NAME"
+	docker rm -f $NAME 1>/dev/null 2>&1 || error 3 "unable to remove $NAME"
+	verbose -c "done"
 fi
 verbose -c "deleted"
 
