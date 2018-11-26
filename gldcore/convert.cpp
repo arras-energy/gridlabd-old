@@ -1282,4 +1282,23 @@ int convert_to_method (	const char *buffer, /**< a pointer to the string buffer 
 	IN_MYCONTEXT output_debug("gldcore/convert_to_method(buffer='%s', object='%s', prop='%s') -> %d", buffer, obj->name?obj->name:"(anon)", prop->name, rc);
 	return rc;
 }
+
+int convert_from_string(char *buffer, int size, void *data, PROPERTY *prop)
+{
+	STRING *s = (STRING*)data;
+	size_t len = strlcpy(buffer,(s->buf?s->buf:""),size);
+	return len < size ? len : -size;
+}
+int convert_to_string(const char *buffer, void *data, PROPERTY *prop)
+{
+	STRING *s = (STRING*)data;
+	size_t len = (strlen(buffer)/8+1)*8;
+	if ( len >= s->len )
+	{
+		s->len = len;
+		s->buf = (char*)realloc(s->buf,s->len);
+	}
+	return strlcpy(s->buf,buffer,s->len-1);
+}
+
 /**@}**/

@@ -39,10 +39,10 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"int16", "integer", sizeof(int16), 6, convert_from_int16,convert_to_int16,NULL,NULL,{TCOPS(uint16)},},
 	{"int32", "integer", sizeof(int32), 12, convert_from_int32,convert_to_int32,NULL,NULL,{TCOPS(uint32)},},
 	{"int64", "integer", sizeof(int64), 24, convert_from_int64,convert_to_int64,NULL,NULL,{TCOPS(uint64)},},
-	{"char8", "string", sizeof(char8), 8, convert_from_char8,convert_to_char8,NULL,NULL,{TCOPS(string)},},
-	{"char32", "string", sizeof(char32), 32, convert_from_char32,convert_to_char32,NULL,NULL,{TCOPS(string)},},
-	{"char256", "string", sizeof(char256), 256, convert_from_char256,convert_to_char256,NULL,NULL,{TCOPS(string)},},
-	{"char1024", "string", sizeof(char1024), 1024, convert_from_char1024,convert_to_char1024,NULL,NULL,{TCOPS(string)},},
+	{"char8", "string", sizeof(STRING), 0, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
+	{"char32", "string", sizeof(STRING), 0, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
+	{"char256", "string", sizeof(STRING), 0, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
+	{"char1024", "string", sizeof(STRING), 0, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
 	{"object", "string", sizeof(OBJECT*), sizeof(OBJECTNAME), convert_from_object,convert_to_object,NULL,NULL,{TCOPB(object)},object_get_part},
 	{"delegated", "string", (unsigned int)-1, 0, convert_from_delegated, convert_to_delegated},
 	{"bool", "string", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,{TCOPB(bool)},},
@@ -54,7 +54,8 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"loadshape", "string", sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, loadshape_create,NULL,{TCOPS(double)},},
 	{"enduse", "string", sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part},
 	{"randomvar", "string", sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part},
-	{"method","string", -1, 0, convert_from_method,convert_to_method},
+	{"method","string", (unsigned int)-1, 0, convert_from_method,convert_to_method},
+	{"string","string",sizeof(STRING), 0, convert_from_string, convert_to_string, string_create, NULL, {TCOPS(string)},},
 };
 
 PROPERTYSPEC *property_getspec(PROPERTYTYPE ptype)
@@ -391,6 +392,14 @@ double complex_array_get_part(void *x, char *name)
 	return QNAN;
 }
 
-
+/*********************************************************
+ * STRINGS
+ *********************************************************/
+int string_create(STRING *s)
+{
+	s->buf = NULL;
+	s->len = 0;
+	return 1;
+}
 
 // EOF

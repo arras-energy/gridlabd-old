@@ -66,6 +66,9 @@ int convert_to_struct(const char *buffer, void *data, PROPERTY *prop);
 int convert_from_method(char *buffer, int size, void *data, PROPERTY *prop);
 int convert_to_method(const char *buffer, void *data, PROPERTY *prop);
 
+int convert_from_string(char *buffer, int size, void *data, PROPERTY *prop);
+int convert_to_string(const char *buffer, void *data, PROPERTY *prop);
+
 #ifdef __cplusplus
 }
 #endif

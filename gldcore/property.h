@@ -837,7 +837,8 @@ typedef enum {_PT_FIRST=-1,
 	PT_loadshape,	/**< Loadshapes are state machines driven by schedules */
 	PT_enduse,		/**< Enduse load data */
 	PT_random,		/**< Randomized number */
-	PT_method,		/**< Method *
+	PT_method,		/**< Method */
+	PT_string,		/**< STRING */
 	/* add new property types here - don't forget to add them also to rt/gridlabd.h and property.c */
 #ifdef USE_TRIPLETS
 	PT_triple, /**< triplet of doubles (not supported) */
@@ -957,6 +958,11 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	// @todo for greater generality this should be implemented as a linked list
 } PROPERTYSPEC;
 
+typedef struct s_string {
+	char *buf;
+	unsigned int len;
+} STRING;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -986,6 +992,8 @@ complex *get_complex_array_value(complex_array*,unsigned int n, unsigned int m);
 void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, complex *x);
 complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
 double complex_array_get_part(void *x, char *name);
+
+int string_create(STRING *s);
 
 #ifdef __cplusplus
 }
