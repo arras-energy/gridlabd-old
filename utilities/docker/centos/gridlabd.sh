@@ -36,7 +36,7 @@ else # use newer version
 	fi
 	tar xvfz ${XERCES}.tar.gz
 	cd ${XERCES}
-	./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2'
+	./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2' --with-mysql
 	make install
 	echo "${XERCES} installed ok"
 fi
