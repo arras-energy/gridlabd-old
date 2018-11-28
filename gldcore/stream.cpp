@@ -544,7 +544,7 @@ size_t stream(FILE *fileptr,int opts)
 		struct s_stream *s;
 		for ( s=stream_list ; s!=NULL ; s=s->next )
 		{	
-			s->call((int)flags,(STREAMCALLBACK)stream_callback);
+			s->call(fileptr,(int)flags,(STREAMCALLBACK)stream_callback);
 		}
 		IN_MYCONTEXT output_debug("done processing stream on file %d with options %x", fileno(fp), flags);
 		return stream_pos;

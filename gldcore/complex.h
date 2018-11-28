@@ -26,10 +26,16 @@ typedef enum {I='i',J='j',A='d', R='r'} CNOTATION; /**< complex number notation 
 #include <math.h>
 #include "platform.h"
 
+double complex_get_part(void *c, char *name);
+#define complex_set_polar(X,M,A) ((X).r=((M)*cos(A)),(X).i=((M)*sin(A)),(X))
+#define complex_set_power_factor(X,M,P)	complex_set_polar((X),(M)/(P),acos(P))
+#define complex_get_mag(X) (sqrt((X).r*(X).r + (X).i*(X).i))
+#define complex_get_arg(X) ((X).r==0 ? ( (X).i > 0 ? PI/2 : ((X).i<0 ? -PI/2 : 0) ) : ( (X).r>0 ? atan((X).i/(X).r) : PI+atan((X).i/(X).r) ))
+
 /* only cpp code may actually do complex math */
 #ifndef __cplusplus
 typedef struct s_complex {
-#else
+#else !__cplusplus
 class complex { 
 private:
 #endif
@@ -38,11 +44,6 @@ private:
 	CNOTATION f; /**< the default notation to use */
 #ifndef __cplusplus
 } complex;
-#define complex_set_polar(X,M,A) ((X).r=((M)*cos(A)),(X).i=((M)*sin(A)),(X))
-#define complex_set_power_factor(X,M,P)	complex_set_polar((X),(M)/(P),acos(P))
-#define complex_get_mag(X) (sqrt((X).r*(X).r + (X).i*(X).i))
-#define complex_get_arg(X) ((X).r==0 ? ( (X).i > 0 ? PI/2 : ((X).i<0 ? -PI/2 : 0) ) : ( (X).r>0 ? atan((X).i/(X).r) : PI+atan((X).i/(X).r) ))
-double complex_get_part(void *c, char *name);
 #else
 public:
 	/** Construct a complex number with zero magnitude */

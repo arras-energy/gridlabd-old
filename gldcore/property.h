@@ -947,7 +947,7 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	int (*data_to_string)(char *,int,void*,PROPERTY*); /**< the function to convert from data to a string */
 	int (*string_to_data)(const char *,void*,PROPERTY*); /**< the function to convert from a string to data */
 	int (*create)(void*); /**< the function used to create the property, if any */
-	size_t (*stream)(FILE*,int,void*,PROPERTY*); /**< the function to read data from a stream */
+	size_t (*stream)(void*,size_t,PROPERTY*); /**< the function to read data from a stream */
 	struct {
 		PROPERTYCOMPAREOP op;
 		char str[16];
@@ -980,30 +980,33 @@ PROPERTYTYPE property_get_type(char *name);
 double property_get_part(struct s_object_list *obj, PROPERTY *prop, char *part);
 
 /* double array */
-int double_array_create(double_array*a);
+int double_array_create(void *);
 double get_double_array_value(double_array*,unsigned int n, unsigned int m);
 void set_double_array_value(double_array*,unsigned int n, unsigned int m, double x);
 double *get_double_array_ref(double_array*,unsigned int n, unsigned int m);
 double double_array_get_part(void *x, char *name);
 
 /* complex array */
-int complex_array_create(complex_array*a);
+int complex_array_create(void *);
 complex *get_complex_array_value(complex_array*,unsigned int n, unsigned int m);
 void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, complex *x);
 complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
 double complex_array_get_part(void *x, char *name);
 
-/* strings */
-int string_create(STRING *s);
-void string_copy(STRING to, const char *text);
-STRING string_new(const char *text);
-void string_append(STRING to, const char *text);
-STRING string_dup(STRING from);
-void string_clear(STRING str);
-void string_delete(STRING *s);
-
 #ifdef __cplusplus
 }
+#endif
+
+/* strings */
+#ifdef __cplusplus
+int string_create(void *s);
+void string_set(STRING to, const char *text=NULL);
+STRING string_new(const char *text=NULL);
+void string_append(STRING to, const char *text=NULL);
+STRING string_dup(STRING from);
+int string_compare(const STRING str, const char *with);
+void string_clear(STRING str);
+void string_del(STRING *s);
 #endif
 
 #endif //_PROPERTY_H
