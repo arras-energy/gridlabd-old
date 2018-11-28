@@ -993,7 +993,14 @@ void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, comp
 complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
 double complex_array_get_part(void *x, char *name);
 
+/* strings */
 int string_create(STRING *s);
+void string_copy(STRING to, const char *text);
+STRING string_new(const char *text);
+void string_append(STRING to, const char *text);
+STRING string_dup(STRING from);
+void string_clear(STRING str);
+void string_delete(STRING *s);
 
 #ifdef __cplusplus
 }

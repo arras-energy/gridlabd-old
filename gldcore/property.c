@@ -395,11 +395,79 @@ double complex_array_get_part(void *x, char *name)
 /*********************************************************
  * STRINGS
  *********************************************************/
+#define SMALL 8
+#define LARGE 1024
+#define BLOCKSIZE(L) ((L<LARGE) ? (((L)/(SMALL)+1)*SMALL) : (((L)/(LARGE)+1)*LARGE))
+
 int string_create(STRING *s)
 {
 	s->buf = NULL;
 	s->len = 0;
 	return 1;
+}
+
+void string_set(STRING to, const char *text)
+{
+	size_t len = BLOCKSIZE(strlen(text));
+	if ( len >= to.len /* too small */
+		|| ( to.len > LARGE && len <= LARGE ) /* way too big */
+		)
+	{
+		to.len = len;
+		to.buf = (char*)realloc(to.buf,to.len);
+		THROW("gldcore/property.c/string_copy(): memory allocation failed");
+	}
+	strlcpy(to.buf,text,to.len-1);
+}
+
+const char *string_get(const STRING from)
+{
+	return from.buf;
+}
+
+STRING string_new(const char *text)
+{
+	STRING *s = malloc(sizeof(STRING));
+	if ( ! s ) THROW("gldcore/property.c/string_new(): memory allocation failed");
+	string_set(*s,text);
+	return *s;
+}
+
+void string_append(STRING to, const char *text)
+{
+	size_t len = ( to.buf!=NULL ? strlen(to.buf) : 0 ) + strlen(text) + 1;
+	if ( to.len < len )
+	{
+		len = BLOCKSIZE(len);
+		to.buf = (char*)realloc(to.buf,len);
+		to.len = len;
+		if ( to.buf == NULL ) THROW("gldcore/property.c/string_append(): memory allocation failed");
+	}
+	strlcpy(to.buf,text,to.len-1);
+}
+
+STRING string_dup(const STRING from)
+{
+	STRING *to = malloc(sizeof(STRING));
+	to->buf = ( from.buf == NULL ? NULL : malloc(from.len) );
+	if ( to->buf == NULL ) THROW("gldcore/property.c/string_dup(): memory allocation failed");
+	to->len = from.len;
+	return *to;
+}
+
+void string_clear(STRING str)
+{
+	if ( str.buf != NULL ) 
+	{
+		free(str.buf);
+		str.len = 0;
+	}
+}
+
+void string_del(STRING *s)
+{
+	if ( s->buf != NULL ) free(s->buf);
+	free(s);
 }
 
 // EOF
