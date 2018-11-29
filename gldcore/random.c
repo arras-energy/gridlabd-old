@@ -1150,7 +1150,7 @@ static randomvar *randomvar_list = NULL;
 static unsigned int n_randomvars = 0;
 clock_t randomvar_synctime = 0;
 
-int convert_to_randomvar(char *string, void *data, PROPERTY *prop)
+int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 {
 	randomvar *var = (randomvar*)data;
 	char buffer[1024];
@@ -1277,8 +1277,9 @@ int convert_from_randomvar(char *string,int size,void *data, PROPERTY *prop)
 	return sprintf(string,"%lf",var->value);
 }
 
-int randomvar_create(randomvar *var)
+int randomvar_create(void *p)
 {
+	randomvar *var = (randomvar*)p;
 	memset(var,0,sizeof(randomvar));
 	var->next = randomvar_list;
 	var->state = randwarn(NULL);

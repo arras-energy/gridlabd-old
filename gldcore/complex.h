@@ -37,7 +37,7 @@ double complex_get_part(void *c, char *name);
 typedef struct s_complex {
 #else !__cplusplus
 class complex { 
-private:
+public:
 #endif
 	double r; /**< the real part */
 	double i; /**< the imaginary part */

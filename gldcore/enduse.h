@@ -88,12 +88,12 @@ typedef struct s_enduse {
 #endif
 } enduse;
 
-int enduse_create(enduse *addr);
+int enduse_create(void *addr);
 int enduse_init(enduse *e);
 int enduse_initall(void);
 TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1);
 TIMESTAMP enduse_syncall(TIMESTAMP t1);
-int convert_to_enduse(char *string, void *data, PROPERTY *prop);
+int convert_to_enduse(const char *string, void *data, PROPERTY *prop);
 int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop);
 int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, char *prefix);
 int enduse_test(void);

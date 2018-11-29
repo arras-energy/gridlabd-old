@@ -31,7 +31,7 @@
 SET_MYCONTEXT(DMC_PROPERTY)
 
 /* IMPORTANT: this list must match PROPERTYTYPE enum in property.h */
-PROPERTYSPEC property_type[_PT_LAST] = {
+PROPERTYSPEC property_type[] = {
 	{"void", "string", 0, 0, convert_from_void,convert_to_void},
 	{"double", "decimal", sizeof(double), 24, convert_from_double,convert_to_double,NULL,stream_double,{TCOPS(double)},},
 	{"complex", "string", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,{TCOPS(double)},complex_get_part},
@@ -71,7 +71,7 @@ int property_check(void)
 {
 	PROPERTYTYPE ptype;
 	int status = 1;
-	for ( ptype=_PT_FIRST+1 ; ptype<_PT_LAST ; ptype++ )
+	for ( ptype=get_first_propertytype() ; ptype<=get_last_propertytype() ; ptype=get_next_propertytype(ptype) )
 	{
 		size_t sz = 0;
 		switch (ptype) {
@@ -183,7 +183,7 @@ Error:
  **/
 uint32 property_size(PROPERTY *prop)
 {
-	if (prop && prop->ptype>_PT_FIRST && prop->ptype<_PT_LAST)
+	if (prop && prop->ptype>_PT_FIRST && prop->ptype<get_last_propertytype())
 		return property_type[prop->ptype].size;
 	else
 		return 0;
@@ -196,7 +196,7 @@ uint32 property_size_by_type(PROPERTYTYPE type)
 
 int property_create(PROPERTY *prop, void *addr)
 {
-	if (prop && prop->ptype>_PT_FIRST && prop->ptype<_PT_LAST)
+	if (prop && prop->ptype>_PT_FIRST && prop->ptype<get_last_propertytype())
 	{
 		if (property_type[prop->ptype].create)
 			return property_type[prop->ptype].create(addr);
@@ -226,7 +226,7 @@ PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, char *opstr)
 	int n;
 	for ( n=0; n<_TCOP_LAST; n++)
 		if (strcmp(property_type[ptype].compare[n].str,opstr)==0)
-			return n;
+			return (PROPERTYCOMPAREOP)n;
 	return TCOP_ERR;
 }
 
@@ -257,7 +257,7 @@ bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, v
 PROPERTYTYPE property_get_type(char *name)
 {
 	PROPERTYTYPE ptype;
-	for ( ptype = _PT_FIRST+1 ; ptype<_PT_LAST ; ptype++ )
+	for ( ptype = get_first_propertytype() ; ptype<get_last_propertytype() ; get_next_propertytype(ptype) )
 	{
 		if ( strcmp(property_type[ptype].name,name)==0)
 			return ptype;
@@ -408,7 +408,7 @@ int string_create(void *p)
 	return 1;
 }
 
-void string_set(STRING to, const char *text=NULL)
+void string_set(STRING to, const char *text)
 {
 	if ( text == NULL )
 	{
@@ -423,7 +423,7 @@ void string_set(STRING to, const char *text=NULL)
 	{
 		to.len = len;
 		to.buf = (char*)realloc(to.buf,to.len);
-		THROW("gldcore/property.c/string_copy(): memory allocation failed");
+		throw "gldcore/property.c/string_copy(): memory allocation failed";
 	}
 	strlcpy(to.buf,text,to.len-1);
 }
@@ -433,10 +433,11 @@ const char *string_get(const STRING from)
 	return from.buf;
 }
 
-STRING string_new(const char *text=NULL)
+STRING string_new(const char *text)
 {
-	STRING *s = malloc(sizeof(STRING));
-	if ( ! s ) THROW("gldcore/property.c/string_new(): memory allocation failed");
+	STRING *s = (STRING*)malloc(sizeof(STRING));
+	if ( ! s ) 
+		throw "gldcore/property.c/string_new(): memory allocation failed";
 	string_set(*s,text);
 	return *s;
 }
@@ -449,16 +450,18 @@ void string_append(STRING to, const char *text)
 		len = BLOCKSIZE(len);
 		to.buf = (char*)realloc(to.buf,len);
 		to.len = len;
-		if ( to.buf == NULL ) THROW("gldcore/property.c/string_append(): memory allocation failed");
+		if ( to.buf == NULL ) 
+			throw "gldcore/property.c/string_append(): memory allocation failed";
 	}
 	strlcpy(to.buf,text,to.len-1);
 }
 
 STRING string_dup(const STRING from)
 {
-	STRING *to = malloc(sizeof(STRING));
-	to->buf = ( from.buf == NULL ? NULL : malloc(from.len) );
-	if ( to->buf == NULL ) THROW("gldcore/property.c/string_dup(): memory allocation failed");
+	STRING *to = (STRING*)malloc(sizeof(STRING));
+	to->buf = ( from.buf == NULL ? NULL : (char*)malloc(from.len) );
+	if ( to->buf == NULL ) 
+		throw "gldcore/property.c/string_dup(): memory allocation failed";
 	to->len = from.len;
 	return *to;
 }

@@ -115,7 +115,7 @@ public:
 	}
 };
 class double_array {
-private:
+public:
 #else
 typedef struct s_doublearray {
 #endif
@@ -129,7 +129,7 @@ typedef struct s_doublearray {
 } double_array;
 #else
 	friend class double_vector;
-private:
+public:
 
 	inline void exception(const char *msg,...) const
 	{ 
@@ -577,7 +577,7 @@ public:
 typedef struct s_complexarray {
 #else
 class complex_array {
-private:
+public:
 #endif
 	size_t n, m;
 	size_t max; /** current allocation size max x max */
@@ -586,7 +586,7 @@ private:
 #ifndef __cplusplus
 } complex_array;
 #else
-private:
+public:
 	inline void set_rows(size_t i) { n=i; };
 	inline void set_cols(size_t i) { m=i; };
 	inline void set_flag(size_t r, size_t c, unsigned char b) {f[r*m+c]|=b;};
@@ -999,6 +999,7 @@ double complex_array_get_part(void *x, char *name);
 
 /* strings */
 #ifdef __cplusplus
+
 int string_create(void *s);
 void string_set(STRING to, const char *text=NULL);
 STRING string_new(const char *text=NULL);
@@ -1007,6 +1008,11 @@ STRING string_dup(STRING from);
 int string_compare(const STRING str, const char *with);
 void string_clear(STRING str);
 void string_del(STRING *s);
+
+inline PROPERTYTYPE get_first_propertytype(void) { return (PROPERTYTYPE)(_PT_FIRST+1); };
+inline PROPERTYTYPE get_last_propertytype(void) { return (PROPERTYTYPE)(_PT_LAST-1); };
+inline PROPERTYTYPE get_next_propertytype(PROPERTYTYPE ptype) { return (PROPERTYTYPE)((int)ptype+1);};
+
 #endif
 
 #endif //_PROPERTY_H

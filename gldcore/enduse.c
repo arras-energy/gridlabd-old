@@ -79,8 +79,9 @@ double enduse_get_part(void *x, char *name)
 static unsigned int enduse_magic = 0x8c3d7762;
 #endif
 
-int enduse_create(enduse *data)
+int enduse_create(void *p)
 {
+	enduse *data = (enduse*)p;
 	memset(data,0,sizeof(enduse));
 	data->next = enduse_list;
 	enduse_list = data;
@@ -540,7 +541,7 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, char *prefix)
 	return result;
 }
 
-int convert_to_enduse(char *string, void *data, PROPERTY *prop)
+int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
 {
 	enduse *e = (enduse*)data;
 	char buffer[1024];
