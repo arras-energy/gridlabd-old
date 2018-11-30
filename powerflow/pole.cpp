@@ -145,16 +145,16 @@ int pole::init(OBJECT *parent)
 			}
 			overhead_line_conductor *phaseA = OBJECTDATA(line_config->phaseA_conductor,overhead_line_conductor);
 			if ( phaseA != NULL )
-				add_wire(spacing->distance_AtoE,phaseA->cable_diameter,0.0,4430,line->length/2);
+				add_wire(line,spacing->distance_AtoE,phaseA->cable_diameter,0.0,4430,line->length/2);
 			overhead_line_conductor *phaseB = OBJECTDATA(line_config->phaseB_conductor,overhead_line_conductor);
 			if ( phaseB != NULL )
-				add_wire(spacing->distance_BtoE,phaseB->cable_diameter,0.0,4430,line->length/2);
+				add_wire(line,spacing->distance_BtoE,phaseB->cable_diameter,0.0,4430,line->length/2);
 			overhead_line_conductor *phaseC = OBJECTDATA(line_config->phaseC_conductor,overhead_line_conductor);
 			if ( phaseC != NULL )
-				add_wire(spacing->distance_CtoE,phaseC->cable_diameter,0.0,4430,line->length/2);
+				add_wire(line,spacing->distance_CtoE,phaseC->cable_diameter,0.0,4430,line->length/2);
 			overhead_line_conductor *phaseN = OBJECTDATA(line_config->phaseN_conductor,overhead_line_conductor);
 			if ( phaseN != NULL )
-				add_wire(spacing->distance_NtoE,phaseN->cable_diameter,0.0,2190,line->length/2);
+				add_wire(line,spacing->distance_NtoE,phaseN->cable_diameter,0.0,2190,line->length/2);
 			verbose("found link %s",(const char*)(line->get_name()));
 		}
 	}
@@ -171,6 +171,9 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 {
 	if ( pole_status == PS_FAILED && down_time+config->repair_time > gl_globalclock )
 	{
+		WIREDATA *wire;
+		for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
+			wire->line->link_fault_off(&wire->fault,wire->fault_type,&wire->data);
 		warning("pole repaired");
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
@@ -216,7 +219,12 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		{
 			warning("pole failed at %.0f%% loading",total_moment/resisting_moment*100);
 			down_time = gl_globalclock;
-			
+			WIREDATA *wire;
+			for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
+			{
+				wire->repair = config->repair_time;
+				wire->line->link_fault_on(&wire->protection,wire->fault_type,&wire->fault,&wire->repair,&wire->data);
+			}
 		}
 		last_wind_speed = *wind_speed;
 
@@ -224,7 +232,6 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
 		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
-
 	}
 	TIMESTAMP t1 = node::presync(t0);
 	TIMESTAMP t2 = ( pole_status == PS_FAILED ? down_time + config->repair_time : TS_NEVER );

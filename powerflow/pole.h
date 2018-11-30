@@ -5,26 +5,41 @@
 #define _POLE_H
 
 #include "node.h"
+#include "line.h"
+#include "overhead_line.h"
 #include "pole_configuration.h"
 
 class pole : public node
 {
 public:
 	typedef struct s_wiredata {
-		double height;
-		double diameter;
-		double heading;
-		double tension;
-		double span;
+		overhead_line *line; // overhead line object
+		double height; // height of wire
+		double diameter; // diameter of wire
+		double heading; // direction of wire from pole
+		double tension; // tension on wire
+		double span; // distance wire spans
+		OBJECT *protection; // protection object selected by fault
+		int fault; // fault code
+		char fault_type[8]; // fault name
+		TIMESTAMP repair; // fault repair time
+		char data[32]; // extra data space
 		struct s_wiredata *next;
 	} WIREDATA;
-	inline void add_wire(double height, double diameter, double heading, double tension, double span) {
+	inline void add_wire(overhead_line *line, double height, double diameter, double heading, double tension, double span) {
 		WIREDATA *item = new WIREDATA;
+		item->line = line;
 		item->height = height;
 		item->diameter = diameter;
 		item->heading = heading;
 		item->tension = tension;
 		item->span = span;
+		item->protection = NULL;
+		item->fault = 0;
+		memset(item->fault_type,0,sizeof(item->fault_type));
+		strcpy(item->fault_type,"TLL");
+		item->repair = TS_NEVER;
+		memset(item->data,0,sizeof(item->data));
 		if ( wire_data != NULL )
 			wire_data->next = item;
 		wire_data = item;
