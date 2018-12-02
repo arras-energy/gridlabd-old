@@ -1165,7 +1165,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 {
 	/* try date-time format */
 	int Y=0,m=0,d=0,H=0,M=0,S=0;
-	char tz[5]="";
+	char tz[12]="";
 	if (*value=='\'' || *value=='"') value++;
 	/* scan ISO format date/time */
 	if (sscanf(value,"%d-%d-%d %d:%d:%d %[-+:A-Za-z0-9]",&Y,&m,&d,&H,&M,&S,tz)>=3)
@@ -1176,15 +1176,34 @@ TIMESTAMP convert_to_timestamp(const char *value)
 		return mkdatetime(&dt);
 	}
 	/* scan ISO format date/time */
-	else if (global_dateformat==DF_ISO && sscanf(value,"%d/%d/%d %d:%d:%d %[-+:A-Za-z0-9]",&Y,&m,&d,&H,&M,&S,tz)>=3)
+	else if (global_dateformat==DF_ISO && sscanf(value,"%d/%d/%d %d:%d:%d %11[-+:A-Za-z0-9]",&Y,&m,&d,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
 		DATETIME dt = {Y,m,d,H,M,S,0,isdst}; /* use locale TZ if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
+	else if (global_dateformat==DF_ISO && sscanf(value,"%d/%d/%d[ T]%d:%d:%d%11[-+:0-9Z]",&Y,&m,&d,&H,&M,&S,tz)>=3)
+	{
+		DATETIME dt = {Y,m,d,H,M,S,0,0}; /* use locale TZ if tz is omitted */
+		int zh=0, zm=0;
+		if ( tz[0] == '\0' || tz[0] == 'Z' )
+		{
+			dt.tzoffset = 0;
+		}
+		else if ( sscanf(tz,"%d:%d") >= 1 )
+		{
+			dt.tzoffset = zh*60+zm;
+		}
+		else
+		{
+			output_error("convert_to_timestamp_delta(value='%s'): invalid ISO timezone specification", value);
+			return TS_INVALID;
+		}
+		return mkdatetime(&dt);
+	}
 	/* scan US format date/time */
-	else if (global_dateformat==DF_US && sscanf(value,"%d/%d/%d %d:%d:%d %[-+:A-Za-z0-9]",&m,&d,&Y,&H,&M,&S,tz)>=3)
+	else if (global_dateformat==DF_US && sscanf(value,"%d/%d/%d %d:%d:%d %11[-+:A-Za-z0-9]",&m,&d,&Y,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
 		DATETIME dt = {Y,m,d,H,M,S,0,isdst}; /* use locale TZ if tz is omitted */
@@ -1192,7 +1211,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 		return mkdatetime(&dt);
 	}
 	/* scan EURO format date/time */
-	else if (global_dateformat==DF_EURO && sscanf(value,"%d/%d/%d %d:%d:%d %[-+:A-Za-z0-9]",&d,&m,&Y,&H,&M,&S,tz)>=3)
+	else if (global_dateformat==DF_EURO && sscanf(value,"%d/%d/%d %d:%d:%d %11[-+:A-Za-z0-9]",&d,&m,&Y,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
 		DATETIME dt = {Y,m,d,H,M,S,0,isdst}; /* use locale TZ if tz is omitted */
@@ -1246,7 +1265,7 @@ TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanosecond
 	DATETIME dt;
 	double seconds_w_nano, t;
 	const char *p;
-	char tz[5]="";
+	char tz[12]="";
 	TIMESTAMP output_value;
 
 	if (*value=='\'' || *value=='"') value++;
@@ -1274,7 +1293,7 @@ TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanosecond
 	output_value = TS_NEVER;
 
 	/* scan ISO format date/time -- nanosecond inclusive */
-	if (sscanf(value,"%d-%d-%d %d:%d:%lf %[-+:A-Za-z0-9]",&dt.year,&dt.month,&dt.day,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
+	if (sscanf(value,"%d-%d-%d %d:%d:%lf %11[-+:A-Za-z0-9]",&dt.year,&dt.month,&dt.day,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
 	{
 		dt.second = (unsigned int)seconds_w_nano;
 		dt.nanosecond = (unsigned int)(1e9*(seconds_w_nano-(double)dt.second)+0.5);
@@ -1284,7 +1303,7 @@ TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanosecond
 		output_value = mkdatetime(&dt);
 	}
 	/* scan ISO format date/time -- nanosecond inclusive */
-	else if (global_dateformat==DF_ISO && sscanf(value,"%d/%d/%d %d:%d:%lf %[-+:A-Za-z0-9]",&dt.year,&dt.month,&dt.day,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
+	else if (global_dateformat==DF_ISO && sscanf(value,"%d/%d/%d %d:%d:%lf %11[-+:A-Za-z0-9]",&dt.year,&dt.month,&dt.day,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
 	{
 		dt.second = (unsigned int)seconds_w_nano;
 		dt.nanosecond = (unsigned int)(1e9*(seconds_w_nano-(double)dt.second)+0.5);
@@ -1293,8 +1312,13 @@ TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanosecond
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		output_value = mkdatetime(&dt);
 	}
+	else if (global_dateformat==DF_ISO && sscanf(value,"%d/%d/%d[ T]%d:%d:%lf%11[-+:0-9Z]",&dt.year,&dt.month,&dt.day,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
+	{
+		output_error("convert_to_timestamp_delta(value='%s'): general ISO date time is not implemented yet", value);
+		output_value = TS_INVALID;
+	}
 	/* scan US format date/time -- nanosecond inclusive */
-	else if (global_dateformat==DF_US && sscanf(value,"%d/%d/%d %d:%d:%lf %[-+:A-Za-z0-9]",&dt.month,&dt.day,&dt.year,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
+	else if (global_dateformat==DF_US && sscanf(value,"%d/%d/%d %d:%d:%lf %11[-+:A-Za-z0-9]",&dt.month,&dt.day,&dt.year,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
 	{
 		dt.second = (unsigned int)seconds_w_nano;
 		dt.nanosecond = (unsigned int)(1e9*(seconds_w_nano-(double)dt.second)+0.5);
@@ -1304,7 +1328,7 @@ TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanosecond
 		output_value = mkdatetime(&dt);
 	}
 	/* scan EURO format date/time -- nanosecond inclusive */
-	else if (global_dateformat==DF_EURO && sscanf(value,"%d/%d/%d %d:%d:%lf %[-+:A-Za-z0-9]",&dt.day,&dt.month,&dt.year,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
+	else if (global_dateformat==DF_EURO && sscanf(value,"%d/%d/%d %d:%d:%lf %11[-+:A-Za-z0-9]",&dt.day,&dt.month,&dt.year,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
 	{
 		dt.second = (unsigned int)seconds_w_nano;
 		dt.nanosecond = (unsigned int)(1e9*(seconds_w_nano-(double)dt.second)+0.5);
