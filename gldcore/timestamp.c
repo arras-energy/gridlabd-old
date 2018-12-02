@@ -1183,7 +1183,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
-	else if (global_dateformat==DF_ISO && sscanf(value,"%d/%d/%d[ T]%d:%d:%d%11[-+:0-9Z]",&Y,&m,&d,&H,&M,&S,tz)>=3)
+	else if (global_dateformat==DF_ISO && sscanf(value,"%d-%d-%dT%d:%d:%d%11[-+:0-9Z]",&Y,&m,&d,&H,&M,&S,tz)>=3)
 	{
 		DATETIME dt = {Y,m,d,H,M,S,0,0}; /* use locale TZ if tz is omitted */
 		int zh=0, zm=0;
