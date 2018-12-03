@@ -1,4 +1,4 @@
-#SET GLOBAL validate_password_policy=low;
+SET GLOBAL validate_password_policy=low;
 
 CREATE USER gridlabd_a@'%' IDENTIFIED BY 'gridlabd';
 GRANT ALL PRIVILEGES ON *.* TO gridlabd_a@'%' WITH GRANT OPTION;
