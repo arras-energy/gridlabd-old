@@ -1,0 +1,7 @@
+module commercial;
+
+object ceus {
+	filename "test_ceus.csv";
+	floor_area 100 ksf;
+	composition "Heating:{ZR:0.9;PR:0.1;PI:0.01}";
+}
