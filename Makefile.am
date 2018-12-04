@@ -8,16 +8,16 @@ CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
 AM_CPPFLAGS =
-AM_CPPFLAGS += -I$(top_srcdir)/gldcore
-AM_CPPFLAGS += $(GLD_CPPFLAGS)
+AM_CPPFLAGS += -I$(top_srcdir)/gldcore 
+AM_CPPFLAGS += $(GLD_CPPFLAGS)  -I$(top_srcdir)/build-dir/gldcore
 
 AM_CFLAGS =
 AM_CFLAGS += $(PTHREAD_CFLAGS)
-AM_CFLAGS += $(GLD_CFLAGS)
+AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
 
 AM_CXXFLAGS =
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
-AM_CXXFLAGS += $(GLD_CXXFLAGS)
+AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
 
 AM_LDFLAGS =
 AM_LDFLAGS += -no-undefined

@@ -31,7 +31,6 @@ public:
 	typedef struct s_ceusdata 
 	{
 		char *filename;
-		char *segment;
 		char *enduse;
 		double data[2016];
 		struct s_ceusdata *next;
@@ -39,18 +38,14 @@ public:
 	static CEUSDATA *repository;
 	static CEUSDATA *get_first_repository(void);
 	static CEUSDATA *get_next_repository(CEUSDATA *repo);
-	static CEUSDATA *find_repository(char *filename=NULL, char *segment=NULL, char *enduse=NULL);
-	static CEUSDATA *new_repository();
-	static CEUSDATA *set_repository_filename(CEUSDATA *repo, char *filename);
-	static CEUSDATA *set_repository_segment(CEUSDATA *repo, char *segment);
-	static CEUSDATA *set_repository_enduse(CEUSDATA *repo, char *enduse);
+	static CEUSDATA *find_repository(char *filename, char *enduse=NULL);
+	static CEUSDATA *new_repository(char *filename, char *enduse);
 	static CEUSDATA *set_repository_value(CEUSDATA *repo, int month, int day, int hour, double value);
 	static double get_repository_value(CEUSDATA *repo, TIMESTAMP ts, double scalar=1.0);
-	CEUSDATA *data;
 public:
 	typedef struct s_component 
 	{
-		char *enduse;  // enduse name
+		CEUSDATA *data; // enduse name
 		double Zr, Zi; // constant impedance factors (real, imaginary)
 		double Ir, Ii; // constant current factors (real, imaginary)
 		double Pr, Pi; // constant power factors (real, imaginary)

@@ -34,22 +34,19 @@ ceus::CEUSDATA *ceus::get_next_repository(CEUSDATA *repo)
 {
 	return repo->next;
 }
-ceus::CEUSDATA *ceus::find_repository(char *filename, char *segment, char *enduse)
+ceus::CEUSDATA *ceus::find_repository(char *filename, char *enduse)
 {
 	CEUSDATA *repo;
 	for ( repo = get_first_repository() ; repo != NULL ; repo = get_next_repository(repo) ) 
 	{
-		if ( filename==NULL || strcmp(filename,repo->filename)!=0 )
+		if ( strcmp(filename,repo->filename)!=0 )
 			continue;
-		if ( segment==NULL || strcmp(segment,repo->segment)!= 0 )
-			continue;
-		if ( enduse==NULL || strcmp(enduse,repo->enduse)!=0 )
-			continue;
-		return repo;
+		if ( enduse==NULL || strcmp(enduse,repo->enduse)==0 )
+			return repo;
 	}
 	return NULL;
 }
-ceus::CEUSDATA *ceus::new_repository()
+ceus::CEUSDATA *ceus::new_repository(char *filename, char *enduse)
 {
 	CEUSDATA *repo = (CEUSDATA*)malloc(sizeof(CEUSDATA));
 	if ( repo != NULL ) 
@@ -130,9 +127,12 @@ int ceus::composition(char *buffer, size_t len)
 bool ceus::load_data(void)
 {
 	// link to existing data if already loaded
-	data = find_repository(filename);
+	CEUSDATA *data = find_repository(filename);
 	if ( data != NULL )
+	{
+		gl_verbose("CEUS repository '%s' already loaded", (const char*)filename);
 		return true;
+	}
 
 	// open file
 	FILE *fp = fopen(filename,"r");
