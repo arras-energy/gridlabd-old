@@ -62,22 +62,27 @@ ceus::CEUSDATA *ceus::find_file(const char *filename)
 	}
 	return NULL;
 }
-ceus::CEUSDATA *ceus::add_enduse(const char *filename, const char *enduse)
+ceus::CEUSDATA * ceus::add_enduse(const char *filename, const char *enduse)
 {
 	CEUSDATA *repo = find_file(filename);
 	if ( repo == NULL )
 		repo = add_file(filename);
 	return add_enduse(repo,enduse);
 }
-ceus::CEUSDATA *ceus::add_enduse(CEUSDATA *repo, const char *enduse)
+ceus::CEUSDATA * ceus::add_enduse(CEUSDATA *repo, const char *enduse)
 {
-	if ( repo->enduse != NULL )
+	while ( repo->next_enduse != NULL && repo->enduse != NULL )
 	{
-		CEUSDATA *next = (CEUSDATA*)malloc(sizeof(CEUSDATA));
-		memset(next,0,sizeof(CEUSDATA));
-		next->filename = repo->filename;
-		next->next_enduse = repo;
-		repo = next;
+		repo = repo->next_enduse;
+	}
+	if ( repo->enduse != NULL ) // this is aleady in use
+	{
+		CEUSDATA *item = (CEUSDATA*)malloc(sizeof(CEUSDATA));
+		memset(item,0,sizeof(CEUSDATA));
+		item->filename = repo->filename;
+		item->next_file = repo->next_file;
+		repo->next_enduse = item;
+		repo = item;
 	}
 	repo->enduse = strdup(enduse);
 	return repo;
@@ -101,7 +106,9 @@ ceus::CEUSDATA *ceus::find_enduse(CEUSDATA *repo, const char *enduse)
 	while ( repo != NULL )
 	{
 		if ( strcmp(repo->enduse,enduse) == 0 )
+		{
 			break;
+		}
 		repo = repo->next_enduse;
 	}
 	return repo;
@@ -171,13 +178,12 @@ ceus::COMPONENT *ceus::add_component(const char *enduse, const char *composition
 	{
 		char term[64];
 		double value = 0;
-		debug("parsing enduse '%s' component '%s'",enduse,item);
 		if ( sscanf(item,"%63[^:]:%lg",term,&value) < 2 )
 		{
 			error("unable to parse term '%s' of enduse '%s' ", item, enduse);
 			goto Error;
 		}
-		debug("setting enduse '%s' composition '%s' to %lg",enduse,term,value);
+		debug("%s.%s <- %lg",enduse,term,value);
 		if ( ! set_component(c,term,value) )
 		{
 			error("unable to set term '%s' of enduse '%s' ", item, enduse);
@@ -464,7 +470,7 @@ int ceus::filename(const char *filename)
 			map[max_column].format = "%lg";
 			if ( enduse_ndx == 0 )
 				enduse_ndx = max_column;
-			data = map[max_column].data = add_enduse(data,item);
+			map[max_column].data = add_enduse(data,item);
 		}
 		max_column++;
 		if ( last == NULL ) 
