@@ -1,5 +1,10 @@
 module commercial;
 
+clock {
+	timezone US/CA/Los Angeles;
+	starttime '2018-01-01 00:00:00 PST';
+	stoptime '2018-01-02 00:00:00 PST';
+}
 object ceus:..2 {
 	filename "test_ceus.csv";
 	floor_area 100 ksf;
