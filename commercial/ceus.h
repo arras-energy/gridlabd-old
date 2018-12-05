@@ -21,6 +21,7 @@ public:
 	static complex default_nominal_voltage_A;
 	static complex default_nominal_voltage_B;
 	static complex default_nominal_voltage_C;
+	static double default_nominal_voltage;
 public:
 	typedef struct s_ceusdata 
 	{
@@ -76,6 +77,7 @@ private:
 	complex *voltage_A;
 	complex *voltage_B;
 	complex *voltage_C;
+	double *nominal_voltage;
 public:
 	ceus(MODULE *module);
 	int create(void);
