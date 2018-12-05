@@ -102,6 +102,7 @@ ceus::CEUSDATA *ceus::find_enduse(CEUSDATA *repo, const char *enduse)
 	{
 		if ( strcmp(repo->enduse,enduse) == 0 )
 			break;
+		repo = repo->next_enduse;
 	}
 	return repo;
 }
@@ -171,13 +172,13 @@ ceus::COMPONENT *ceus::add_component(const char *enduse, const char *composition
 	{
 		char term[64];
 		double value = 0;
-		//debug("parsing enduse '%s' component '%s'",enduse,item);
+		debug("parsing enduse '%s' component '%s'",enduse,item);
 		if ( sscanf(item,"%63[^:]:%lg",term,&value) < 2 )
 		{
 			error("unable to parse term '%s' of enduse '%s' ", item, enduse);
 			goto Error;
 		}
-		//debug("setting enduse '%s' composition '%s' to %lg",enduse,term,value);
+		debug("setting enduse '%s' composition '%s' to %lg",enduse,term,value);
 		if ( ! set_component(c,term,value) )
 		{
 			error("unable to set term '%s' of enduse '%s' ", item, enduse);
@@ -466,7 +467,7 @@ int ceus::filename(const char *filename)
 			map[max_column].format = "%lg";
 			if ( enduse_ndx == 0 )
 				enduse_ndx = max_column;
-			map[max_column].data = add_enduse(data,item);
+			data = map[max_column].data = add_enduse(data,item);
 		}
 		max_column++;
 		if ( last == NULL ) break;

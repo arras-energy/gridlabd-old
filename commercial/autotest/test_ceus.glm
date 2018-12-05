@@ -23,9 +23,9 @@ object ceus {
 	composition "Motors:{ZR:0.9;PR:0.1;PI:0.01}";
 	composition "AirComp:{ZR:0.9;PR:0.1;PI:0.01}";
 	object recorder {
-		filename test_ceus_small_office.csv;
+		file test_ceus_small_office.csv;
 		property total_power_A,total_power_B,total_power_C,total_real_power,total_reactive_power;
-		interval -1;
+		interval 1h;
 	};
 }
 object ceus {
@@ -33,4 +33,20 @@ object ceus {
 	filename "test_ceus.csv";
 	floor_area 100 ksf;
 	composition "Heating:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Cooling:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Vent:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "WaterHeat:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Refrig:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "ExtLight:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "IntLight:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "OfficeEquip:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Misc:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Process:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Motors:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "AirComp:{ZR:0.9;PR:0.1;PI:0.01}";
+	object recorder {
+		file test_ceus_large_office.csv;
+		property total_power_A,total_power_B,total_power_C,total_real_power,total_reactive_power;
+		interval 1h;
+	};
 }
