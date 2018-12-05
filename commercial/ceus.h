@@ -55,6 +55,10 @@ public:
 		double Zr, Zi; // constant impedance factors (real, imaginary)
 		double Ir, Ii; // constant current factors (real, imaginary)
 		double Pr, Pi; // constant power factors (real, imaginary)
+		double fraction; // fraction of total floor area affected by this component
+		double Tn, Tb, Tm; // nominal, balance, and min/max temperatures
+		double Ts; // temperature sensitivity
+		double E[24]; // price elasticities
 		struct s_component *next;
 	} COMPONENT;
 	COMPONENT *components;
@@ -67,6 +71,7 @@ public:
 public:
 	GL_ATOMIC(char32,building_type);
 	GL_ATOMIC(double,floor_area);
+	GL_ATOMIC(object,weather);
 	GL_ATOMIC(complex,total_power_A);
 	GL_ATOMIC(complex,total_power_B);
 	GL_ATOMIC(complex,total_power_C);
@@ -74,10 +79,29 @@ public:
 	GL_ATOMIC(double,total_reactive_power);
 	GL_METHOD(ceus,composition);
 private:
+	template<class T> void link_property(T *&ptr, gld_object *obj, char *name)
+	{
+		return link_property(ptr,obj->my(),name);
+	}
+	template<class T> void link_property(T *&ptr, gld_object &obj, char *name)
+	{
+		return link_property(ptr,obj.my(),name);
+	}
+	template<class T> void link_property(T *&ptr, OBJECT *obj, char *name)
+	{
+		gld_property prop(obj,name);
+		if ( prop.is_valid() )
+			ptr = (T*)prop.get_addr();
+		else
+			exception("unable to link property '%s' in object '%s'",name,get_object(obj)->get_name());
+	}
 	complex *voltage_A;
 	complex *voltage_B;
 	complex *voltage_C;
 	double *nominal_voltage;
+	double *temperature;
+	double *price;
+	double *price_base;
 public:
 	ceus(MODULE *module);
 	int create(void);

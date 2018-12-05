@@ -122,7 +122,6 @@ size_t ceus::get_index(TIMESTAMP ts)
 		bool is_weekend = (weekday==0 || weekday>5);
 		unsigned int daytype = 10 + (is_weekend?1:0);
 		index = get_index(dt.get_month(),daytype,dt.get_hour()+1);
-		//gl_verbose("CEUS (month=%d, daytype=%d, hour=%d) index %d",dt.get_month(),daytype,dt.get_hour(),index);
 	}
 	return index;
 }
@@ -139,7 +138,6 @@ double ceus::get_value(CEUSDATA *repo, TIMESTAMP ts, double scalar)
 {
 	size_t index = get_index(ts);
 	double value = repo->data[index]*scalar;
-	//gl_verbose("%s/%s[%d] = %lg",repo->filename,repo->enduse,index,value);
 	return value;
 }
 
@@ -165,6 +163,7 @@ ceus::COMPONENT *ceus::add_component(const char *enduse, const char *composition
 
 	COMPONENT *c = (COMPONENT*)malloc(sizeof(COMPONENT));
 	memset(c,0,sizeof(COMPONENT));
+	c->fraction = 1.0;
 	c->data = data;
 	char *buffer = strdup(composition);
 	char *item, *last = NULL;
@@ -214,6 +213,11 @@ bool ceus::set_component(COMPONENT *component, const char *term, double value)
 		{"Ii", component->Ii},
 		{"Pr", component->Pr},
 		{"Pi", component->Pi},
+		{"Area", component->fraction},
+		{"Tn", component->Tn},
+		{"Tb", component->Tb},
+		{"Tm", component->Tm},
+		{"Ts", component->Ts},
 	};
 	size_t n;
 	for ( n = 0 ; n < sizeof(map)/sizeof(map[0]) ; n++ )
@@ -272,15 +276,14 @@ ceus::ceus(MODULE *module)
 		gl_global_create("default_nominal_voltage_B",PT_complex,&default_nominal_voltage_B,NULL);
 		gl_global_create("default_nominal_voltage_C",PT_complex,&default_nominal_voltage_C,NULL);
 		gl_global_create("default_nominal_voltage",PT_double,&default_nominal_voltage,NULL);
-		memset(this,0,sizeof(ceus));
 	}
 }
 
 int ceus::create(void) 
 {
+
 	memcpy(this,defaults,sizeof(*this));
-	// TODO
-	return 1; /* return 1 on success, 0 on failure */
+	return 1; 
 }
 
 int ceus::init(OBJECT *parent)
@@ -300,26 +303,22 @@ int ceus::init(OBJECT *parent)
 	}
 	else if ( ! get_parent()->isa("meter") )
 	{
-		gld_property VA(get_parent(),"voltage_A");
-		gld_property VB(get_parent(),"voltage_B");
-		gld_property VC(get_parent(),"voltage_C");
-		gld_property NV(get_parent(),"nominal_voltage");
-		if ( VA.is_valid() ) 
-			voltage_A = (complex*)VA.get_addr();
-		else
-			exception("unable to find 'voltage_A' in meter '%s'",get_parent()->get_name());
-		if ( VB.is_valid() ) 
-			voltage_B = (complex*)VB.get_addr();
-		else
-			exception("unable to find 'voltage_B' in meter '%s'",get_parent()->get_name());
-		if ( VC.is_valid() ) 
-			voltage_C = (complex*)VC.get_addr();
-		else
-			exception("unable to find 'voltage_C' in meter '%s'",get_parent()->get_name());
-		if ( NV.is_valid() )
-			nominal_voltage = (double*)NV.get_addr();
+		link_property(voltage_A,get_parent(),"voltage_A");
+		link_property(voltage_B,get_parent(),"voltage_B");
+		link_property(voltage_C,get_parent(),"voltage_C");
+		link_property(nominal_voltage,get_parent(),"nominal_voltage");
+		link_property(price,get_parent(),"price");
+		link_property(price_base,get_parent(),"price_base");
 	}
-	return data ? 1 : 0 ; /* return 1 on success, 0 on failure */
+	if ( weather != NULL )
+	{
+		link_property(temperature,weather,"temperature");
+	}
+	if ( data == NULL )
+	{
+		exception("filename not specified");
+	}
+	return 1; 
 }
 
 TIMESTAMP ceus::presync(TIMESTAMP t1)
@@ -333,19 +332,17 @@ TIMESTAMP ceus::sync(TIMESTAMP t1)
 	total_power_A = total_power_B = total_power_C = complex(0,0,J);
 	for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
 	{
-		total_power_A.Re() += ((voltage_A->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_A->Re()/(*nominal_voltage) + c->Pr) * load;
-		total_power_B.Re() += ((voltage_B->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_B->Re()/(*nominal_voltage) + c->Pr) * load;
-		total_power_C.Re() += ((voltage_C->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_C->Re()/(*nominal_voltage) + c->Pr) * load;
-		total_power_A.Im() += ((voltage_A->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_A->Im()/(*nominal_voltage) + c->Pi) * load;
-		total_power_B.Im() += ((voltage_B->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_B->Im()/(*nominal_voltage) + c->Pi) * load;
-		total_power_C.Im() += ((voltage_C->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_C->Im()/(*nominal_voltage) + c->Pi) * load;
-	//	verbose("%s:%s{Zr:%lg;Zi:%lg;Ir:%lg;Ii:%lg;Pr:%lg;Pi:%lg,L:%lg",
-	//		c->data->filename, c->data->enduse,
-	//		c->Zr, c->Zi, c->Ir, c->Ii, c->Pr, c->Pi, load);
+		double scalar = load * c->fraction;
+		// TODO: add temperature and price sensitivity calcs
+		total_power_A.Re() += ((voltage_A->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_A->Re()/(*nominal_voltage) + c->Pr) * scalar;
+		total_power_B.Re() += ((voltage_B->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_B->Re()/(*nominal_voltage) + c->Pr) * scalar;
+		total_power_C.Re() += ((voltage_C->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_C->Re()/(*nominal_voltage) + c->Pr) * scalar;
+		total_power_A.Im() += ((voltage_A->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_A->Im()/(*nominal_voltage) + c->Pi) * scalar;
+		total_power_B.Im() += ((voltage_B->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_B->Im()/(*nominal_voltage) + c->Pi) * scalar;
+		total_power_C.Im() += ((voltage_C->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_C->Im()/(*nominal_voltage) + c->Pi) * scalar;
 	}
 	total_real_power = total_power_A.Re()+total_power_A.Re()+total_power_C.Re();
 	total_reactive_power = total_power_A.Im()+total_power_A.Im()+total_power_C.Im();
-	//verbose("total P=%lg, Q=%lg",total_real_power, total_reactive_power);
 	return (gl_globalclock/3600+1)*3600;
 }
 TIMESTAMP ceus::postsync(TIMESTAMP t1)
@@ -371,12 +368,13 @@ int ceus::composition(char *buffer, size_t len)
 			return 0;
 		}
 		add_component(enduse,composition);
+		return 1; 
 	}
 	else // write
 	{
 		// TODO
+		return 0;
 	}
-	return 1; /* return non-zero on success, 0 on failure */
 }
 
 int ceus::filename(const char *filename)
@@ -429,7 +427,6 @@ int ceus::filename(const char *filename)
 	size_t enduse_ndx = 0;
 	while ( (item=strtok_r(last?NULL:header,",",&last)) != NULL )
 	{
-		//debug("column %d: name '%s'", max_column, item);
 		if ( max_column >= MAXDATA )
 		{
 			error("too many columns of data in file '%s' (maximum is %d)",(const char*)filename, MAXDATA);
@@ -470,7 +467,8 @@ int ceus::filename(const char *filename)
 			data = map[max_column].data = add_enduse(data,item);
 		}
 		max_column++;
-		if ( last == NULL ) break;
+		if ( last == NULL ) 
+			break;
 	}
 	debug("%s: found %d columns", filename, max_column);
 
@@ -479,7 +477,6 @@ int ceus::filename(const char *filename)
 	size_t count = 0;
 	while ( fgets(line,sizeof(line),fp) != NULL )
 	{
-		// debug("%s: processing line '%s'", filename, line);
 		if ( count >= DATASIZE )
 		{
 			error("ignoring extra data in '%s' after line %d",(const char*)filename,count);
@@ -489,7 +486,6 @@ int ceus::filename(const char *filename)
 		size_t column = 0;
 		while ( (item=strtok_r(last?NULL:line,",\n",&last)) != NULL)
 		{
-			//debug("column %d, value '%s', format '%s', ", column, item, map[column].format);
 			if ( column == max_column )
 			{
 				error("too many columns of data in '%s' at line %d",(const char*)filename, count+1);
@@ -503,7 +499,8 @@ int ceus::filename(const char *filename)
 				return 0;
 			}
 			column++;
-			if ( last == NULL ) break;
+			if ( last == NULL ) 
+				break;
 		}
 		size_t n;
 		unsigned int month = map[month_ndx].buffer.integer;
@@ -512,7 +509,6 @@ int ceus::filename(const char *filename)
 		for ( n = enduse_ndx ; n < column ; n++ )
 		{
 			map[n].data->data[count] = map[n].buffer.real;
-			//debug("%s/%s[%d] = %lg", map[n].data->filename, map[n].data->enduse, count, map[n].data->data[count]);
 		}
 		count++;
 	}
