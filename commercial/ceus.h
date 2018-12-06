@@ -14,7 +14,8 @@
 
 DECL_METHOD(ceus,composition);
 
-#define DATASIZE 2016
+#define DATASIZE 576 
+
 class ceus : public gld_object 
 {
 public:
@@ -22,6 +23,8 @@ public:
 	static complex default_nominal_voltage_B;
 	static complex default_nominal_voltage_C;
 	static double default_nominal_voltage;
+	static int16 default_weekday_daytype;
+	static int16 default_weekend_daytype;
 public:
 	typedef struct s_ceusdata 
 	{

@@ -27,6 +27,8 @@ double ceus::default_nominal_voltage = 240.0;
 complex ceus::default_nominal_voltage_A(240.0,0.0,A);
 complex ceus::default_nominal_voltage_B(240.0,-120.0,A);
 complex ceus::default_nominal_voltage_C(240.0,+120.0,A);
+int16 ceus::default_weekday_type = 10;
+int16 ceus::default_weekend_type = 11;
 
 //////////////////////////
 // CEUS DATA REPOSITORY
@@ -66,7 +68,9 @@ ceus::CEUSDATA * ceus::add_enduse(const char *filename, const char *enduse)
 {
 	CEUSDATA *repo = find_file(filename);
 	if ( repo == NULL )
+	{
 		repo = add_file(filename);
+	}
 	return add_enduse(repo,enduse);
 }
 ceus::CEUSDATA * ceus::add_enduse(CEUSDATA *repo, const char *enduse)
@@ -126,8 +130,8 @@ size_t ceus::get_index(TIMESTAMP ts)
 	{
 		dt = gld_clock(ts);
 		unsigned int weekday = dt.get_weekday();
-		bool is_weekend = (weekday==0 || weekday>5);
-		unsigned int daytype = 10 + (is_weekend?1:0);
+		bool is_weekend = ( weekday==0 || weekday>5 );
+		unsigned int daytype = ( is_weekend ? default_weekend_daytype : default_weekday_daytype);
 		index = get_index(dt.get_month(),daytype,dt.get_hour()+1);
 	}
 	return index;
@@ -190,7 +194,9 @@ ceus::COMPONENT *ceus::add_component(const char *enduse, const char *composition
 			goto Error;
 		}
 		if ( last == NULL )
+		{
 			break;
+		}
 	}
 	c->next = components;
 	components = c;
@@ -244,7 +250,9 @@ ceus::COMPONENT *ceus::find_component(const char *enduse)
 	for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
 	{
 		if ( strcmp(c->data->enduse,enduse) == 0 )
+		{
 			break;
+		}
 	}
 	return c;
 }
@@ -273,7 +281,8 @@ ceus::ceus(MODULE *module)
 			PT_complex,"total_power_A[W]", get_total_power_A_offset(), PT_DESCRIPTION, "total complex power on phase A",
 			PT_complex,"total_power_B[W]", get_total_power_B_offset(), PT_DESCRIPTION, "total complex power on phase B",
 			PT_complex,"total_power_C[W]", get_total_power_C_offset(), PT_DESCRIPTION, "total complex power on phase C",
-			NULL)<1){
+			NULL)<1)
+		{
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
 				throw msg;
@@ -474,7 +483,9 @@ int ceus::filename(const char *filename)
 		}
 		max_column++;
 		if ( last == NULL ) 
+		{
 			break;
+		}
 	}
 	debug("%s: found %d columns", filename, max_column);
 
@@ -483,11 +494,6 @@ int ceus::filename(const char *filename)
 	size_t count = 0;
 	while ( fgets(line,sizeof(line),fp) != NULL )
 	{
-		if ( count >= DATASIZE )
-		{
-			error("ignoring extra data in '%s' after line %d",(const char*)filename,count);
-			fclose(fp);
-		}
 		last = NULL;
 		size_t column = 0;
 		while ( (item=strtok_r(last?NULL:line,",\n",&last)) != NULL)
@@ -506,11 +512,22 @@ int ceus::filename(const char *filename)
 			}
 			column++;
 			if ( last == NULL ) 
+			{
 				break;
+			}
 		}
 		size_t n;
-		unsigned int month = map[month_ndx].buffer.integer;
 		unsigned int daytype = map[daytype_ndx].buffer.integer;
+		if ( daytype != default_weekend_daytype && daytype != default_weekday_daytype ) 
+		{
+			continue; // only accept weekend and weekday records
+		}
+		if ( count >= DATASIZE )
+		{
+			error("ignore extra data in '%s' after '%s'",(const char*)filename,line);
+			fclose(fp);
+		}
+		unsigned int month = map[month_ndx].buffer.integer;
 		unsigned int hour = map[hour_ndx].buffer.integer;
 		for ( n = enduse_ndx ; n < column ; n++ )
 		{
@@ -519,9 +536,13 @@ int ceus::filename(const char *filename)
 		count++;
 	}
 	if ( count != DATASIZE )
+	{
 		error("missing data in CEUS file '%s' (only %d records found, expected %d",(const char*)filename,count,DATASIZE);
+	}
 	else
+	{
 		verbose("%d records loaded from file '%s'", count, (const char*)filename);
+	}
 	fclose(fp);
 	return 1;
 }
