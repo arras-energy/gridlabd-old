@@ -124,7 +124,7 @@ ceus::CEUSDATA *ceus::find_enduse(CEUSDATA *repo, const char *enduse)
 }
 size_t ceus::get_index(unsigned int month, unsigned int daytype, unsigned int hour)
 {
-	size_t index = ((((month-1)*7)+(daytype-0))*24)+(hour-1);
+	size_t index = ((((month-1)*_DT_SIZE)+(daytype-0))*24)+hour;
 	return index;
 }
 size_t ceus::get_index(TIMESTAMP ts)
@@ -150,7 +150,7 @@ size_t ceus::get_index(TIMESTAMP ts)
 		case 6:
 			daytype = DT_SATURDAY;
 		}
-		index = get_index(dt.get_month(), daytype, dt.get_hour()+1);
+		index = get_index(dt.get_month(), daytype, dt.get_hour());
 	}
 	return index;
 }
@@ -556,7 +556,7 @@ int ceus::filename(const char *filename)
 				break;
 			}
 		}
-		if ( n == _DT_LAST )
+		if ( n == _DT_SIZE )
 		{
 			error("%s[%d,%d] -- '%s' is not a valid daytype code (must one of ceus::default_{weekday,saturday,sunday,holiday}_code globals)", (const char*)filename, count+1, column+1, map[daytype_ndx].buffer.string);
 			fclose(fp);

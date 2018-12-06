@@ -14,7 +14,7 @@
 
 DECL_METHOD(ceus,composition);
 
-#define DATASIZE (12*4*24)
+#define DATASIZE (12*_DT_SIZE*24)
 
 class ceus : public gld_object 
 {
@@ -36,7 +36,7 @@ public:
 		DT_SATURDAY = 1,
 		DT_SUNDAY = 2,
 		DT_HOLIDAY = 3,
-		_DT_LAST
+		_DT_SIZE
 	} DAYTYPE;
 public:
 	typedef struct s_ceusdata 
