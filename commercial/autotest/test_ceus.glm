@@ -4,24 +4,22 @@ module tape;
 clock {
 	timezone US/CA/Los Angeles;
 	starttime '2018-01-01 00:00:00 PST';
-	stoptime '2018-02-01 00:00:00 PST';
+	stoptime '2019-01-01 00:00:00 PST';
 }
 object ceus {
 	name small_office;
-	filename "test_ceus.csv";
+	filename "FCZ01_SOFF.csv";
 	floor_area 10 ksf;
 	composition "Heating:{ZR:0.9;PR:0.1;PI:0.01}";
 	composition "Cooling:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Vent:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "WaterHeat:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Refrig:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "ExtLight:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "IntLight:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "OfficeEquip:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Misc:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Process:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Ventilation:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Water_Heating:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Refrigeration:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Exterior_Lighting:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Interior_Lighting:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Office_Equipment:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Miscellaneous:{ZR:0.9;PR:0.1;PI:0.01}";
 	composition "Motors:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "AirComp:{ZR:0.9;PR:0.1;PI:0.01}";
 	object recorder {
 		file test_ceus_small_office.csv;
 		property total_power_A,total_power_B,total_power_C,total_real_power,total_reactive_power;
@@ -30,20 +28,18 @@ object ceus {
 }
 object ceus {
 	name large_office;
-	filename "test_ceus.csv";
+	filename "FCZ01_LOFF.csv";
 	floor_area 100 ksf;
-	composition "Heating:{ZR:0.9;PR:0.1;PI:0.01}";
 	composition "Cooling:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Vent:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "WaterHeat:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Refrig:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "ExtLight:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "IntLight:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "OfficeEquip:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Misc:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "Process:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Ventilation:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Water_Heating:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Refrigeration:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Exterior_Lighting:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Interior_Lighting:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Office_Equipment:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Miscellaneous:{ZR:0.9;PR:0.1;PI:0.01}";
 	composition "Motors:{ZR:0.9;PR:0.1;PI:0.01}";
-	composition "AirComp:{ZR:0.9;PR:0.1;PI:0.01}";
+	composition "Air_Compressors:{ZR:0.9;PR:0.1;PI:0.01}";
 	object recorder {
 		file test_ceus_large_office.csv;
 		property total_power_A,total_power_B,total_power_C,total_real_power,total_reactive_power;

@@ -27,8 +27,13 @@ double ceus::default_nominal_voltage = 240.0;
 complex ceus::default_nominal_voltage_A(240.0,0.0,A);
 complex ceus::default_nominal_voltage_B(240.0,-120.0,A);
 complex ceus::default_nominal_voltage_C(240.0,+120.0,A);
-int16 ceus::default_weekday_type = 10;
-int16 ceus::default_weekend_type = 11;
+char32 ceus::default_weekday_code ="WEEKDAY";
+char32 ceus::default_saturday_code ="SATURDAY";
+char32 ceus::default_sunday_code ="SUNDAY";
+char32 ceus::default_holiday_code ="HOLIDAY";
+char32 ceus::default_month_heading = "Month";
+char32 ceus::default_daytype_heading = "Daytype";
+char32 ceus::default_hour_heading = "Hour";
 
 //////////////////////////
 // CEUS DATA REPOSITORY
@@ -119,7 +124,8 @@ ceus::CEUSDATA *ceus::find_enduse(CEUSDATA *repo, const char *enduse)
 }
 size_t ceus::get_index(unsigned int month, unsigned int daytype, unsigned int hour)
 {
-	return ((((month-1)*7)+(daytype-10))*24)+(hour-1);
+	size_t index = ((((month-1)*7)+(daytype-0))*24)+(hour-1);
+	return index;
 }
 size_t ceus::get_index(TIMESTAMP ts)
 {
@@ -129,10 +135,22 @@ size_t ceus::get_index(TIMESTAMP ts)
 	if ( (TIMESTAMP)dt != ts )
 	{
 		dt = gld_clock(ts);
-		unsigned int weekday = dt.get_weekday();
-		bool is_weekend = ( weekday==0 || weekday>5 );
-		unsigned int daytype = ( is_weekend ? default_weekend_daytype : default_weekday_daytype);
-		index = get_index(dt.get_month(),daytype,dt.get_hour()+1);
+		unsigned int daytype;
+		switch ( dt.get_weekday() ) {
+		case 0:
+			daytype = DT_SUNDAY;
+			break;
+		case 1:
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+			daytype = DT_WEEKDAY;
+			break;
+		case 6:
+			daytype = DT_SATURDAY;
+		}
+		index = get_index(dt.get_month(), daytype, dt.get_hour()+1);
 	}
 	return index;
 }
@@ -178,7 +196,7 @@ ceus::COMPONENT *ceus::add_component(const char *enduse, const char *composition
 	c->data = data;
 	char *buffer = strdup(composition);
 	char *item, *last = NULL;
-	while ( (item=strtok_r((last?NULL:buffer),";",&last)) != NULL )
+	while ( (item=strtok_r((last?NULL:buffer),";}",&last)) != NULL )
 	{
 		char term[64];
 		double value = 0;
@@ -291,6 +309,13 @@ ceus::ceus(MODULE *module)
 		gl_global_create("default_nominal_voltage_B",PT_complex,&default_nominal_voltage_B,NULL);
 		gl_global_create("default_nominal_voltage_C",PT_complex,&default_nominal_voltage_C,NULL);
 		gl_global_create("default_nominal_voltage",PT_double,&default_nominal_voltage,NULL);
+		gl_global_create("default_weekday_code",PT_char32,&default_weekday_code,NULL);
+		gl_global_create("default_saturday_code",PT_char32,&default_saturday_code,NULL);
+		gl_global_create("default_sunday_code",PT_char32,&default_sunday_code,NULL);
+		gl_global_create("default_holiday_code",PT_char32,&default_holiday_code,NULL);
+		gl_global_create("default_month_heading",PT_char32,&default_month_heading,NULL);
+		gl_global_create("default_daytype_heading",PT_char32,&default_daytype_heading,NULL);
+		gl_global_create("default_hour_heading",PT_char32,&default_hour_heading,NULL);
 	}
 }
 
@@ -342,19 +367,23 @@ TIMESTAMP ceus::presync(TIMESTAMP t1)
 }
 TIMESTAMP ceus::sync(TIMESTAMP t1)
 {
-	COMPONENT *c;
-	double load = get_value(data,gl_globalclock,floor_area)/3.0;
 	total_power_A = total_power_B = total_power_C = complex(0,0,J);
-	for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
+	CEUSDATA *enduse;
+	for ( enduse = data ; enduse != NULL ; enduse = get_next_enduse(enduse) )
 	{
-		double scalar = load * c->fraction;
-		// TODO: add temperature and price sensitivity calcs
-		total_power_A.Re() += ((voltage_A->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_A->Re()/(*nominal_voltage) + c->Pr) * scalar;
-		total_power_B.Re() += ((voltage_B->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_B->Re()/(*nominal_voltage) + c->Pr) * scalar;
-		total_power_C.Re() += ((voltage_C->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_C->Re()/(*nominal_voltage) + c->Pr) * scalar;
-		total_power_A.Im() += ((voltage_A->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_A->Im()/(*nominal_voltage) + c->Pi) * scalar;
-		total_power_B.Im() += ((voltage_B->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_B->Im()/(*nominal_voltage) + c->Pi) * scalar;
-		total_power_C.Im() += ((voltage_C->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_C->Im()/(*nominal_voltage) + c->Pi) * scalar;
+		COMPONENT *c;
+		double load = get_value(enduse,gl_globalclock,floor_area)/3.0;
+		for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
+		{
+			double scalar = load * c->fraction;
+			// TODO: add temperature and price sensitivity calcs
+			total_power_A.Re() += ((voltage_A->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_A->Re()/(*nominal_voltage) + c->Pr) * scalar;
+			total_power_B.Re() += ((voltage_B->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_B->Re()/(*nominal_voltage) + c->Pr) * scalar;
+			total_power_C.Re() += ((voltage_C->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_C->Re()/(*nominal_voltage) + c->Pr) * scalar;
+			total_power_A.Im() += ((voltage_A->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_A->Im()/(*nominal_voltage) + c->Pi) * scalar;
+			total_power_B.Im() += ((voltage_B->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_B->Im()/(*nominal_voltage) + c->Pi) * scalar;
+			total_power_C.Im() += ((voltage_C->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_C->Im()/(*nominal_voltage) + c->Pi) * scalar;
+		}
 	}
 	total_real_power = total_power_A.Re()+total_power_A.Re()+total_power_C.Re();
 	total_reactive_power = total_power_A.Im()+total_power_A.Im()+total_power_C.Im();
@@ -369,7 +398,6 @@ int ceus::composition(char *buffer, size_t len)
 {
 	if ( len == 0 ) // read
 	{
-		verbose("processing composition '%s'",buffer);
 		char enduse[1024];
 		char composition[1024];
 		if ( sscanf(buffer,"%[^:]:{%[^}]}",enduse,composition) < 2 )
@@ -435,12 +463,11 @@ int ceus::filename(const char *filename)
 	} map[MAXDATA];
 	size_t max_column = 0;
 	memset(map,sizeof(map),0);
-	size_t segment_ndx = 0;
 	size_t month_ndx = 0;
 	size_t daytype_ndx = 0;
 	size_t hour_ndx = 0;
 	size_t enduse_ndx = 0;
-	while ( (item=strtok_r(last?NULL:header,",",&last)) != NULL )
+	while ( (item=strtok_r(last?NULL:header,",\r\n",&last)) != NULL )
 	{
 		if ( max_column >= MAXDATA )
 		{
@@ -449,25 +476,19 @@ int ceus::filename(const char *filename)
 			return false;
 		}
 		map[max_column].name = strdup(item);
-		if ( strcmp(item,"SegID")==0 )
-		{
-			map[max_column].type = DT_STRING;
-			map[max_column].format = "%s";
-			segment_ndx = max_column;
-		}
-		else if ( strcmp(item,"Mth")==0 )
+		if ( strcmp(item,default_month_heading)==0 )
 		{
 			map[max_column].type = DT_INTEGER;
 			map[max_column].format = "%d";
 			month_ndx = max_column;
 		}
-		else if ( strcmp(item,"Dy")==0 )
+		else if ( strcmp(item,default_daytype_heading)==0 )
 		{
-			map[max_column].type = DT_INTEGER;
-			map[max_column].format = "%d";
+			map[max_column].type = DT_STRING;
+			map[max_column].format = "%s";
 			daytype_ndx = max_column;
 		}
-		else if ( strcmp(item,"Hr")==0 )
+		else if ( strcmp(item,default_hour_heading)==0 )
 		{
 			map[max_column].type = DT_INTEGER;
 			map[max_column].format = "%d";
@@ -492,11 +513,20 @@ int ceus::filename(const char *filename)
 	// load records
 	char line[1024];
 	size_t count = 0;
+	struct {
+		char *label;
+		DAYTYPE code;
+	} codes[] = {
+		{default_weekday_code,  DT_WEEKDAY},
+		{default_saturday_code, DT_SATURDAY},
+		{default_sunday_code,   DT_SUNDAY},
+		{default_holiday_code,  DT_HOLIDAY},
+	};
 	while ( fgets(line,sizeof(line),fp) != NULL )
 	{
 		last = NULL;
 		size_t column = 0;
-		while ( (item=strtok_r(last?NULL:line,",\n",&last)) != NULL)
+		while ( (item=strtok_r(last?NULL:line,",\r\n",&last)) != NULL)
 		{
 			if ( column == max_column )
 			{
@@ -517,10 +547,20 @@ int ceus::filename(const char *filename)
 			}
 		}
 		size_t n;
-		unsigned int daytype = map[daytype_ndx].buffer.integer;
-		if ( daytype != default_weekend_daytype && daytype != default_weekday_daytype ) 
+		unsigned int daytype = 0;
+		for ( n = 0 ; n < sizeof(codes)/sizeof(codes[0]) ; n++ )
 		{
-			continue; // only accept weekend and weekday records
+			if ( strcmp(codes[n].label,map[daytype_ndx].buffer.string) == 0 )
+			{
+				daytype = codes[n].code;
+				break;
+			}
+		}
+		if ( n == _DT_LAST )
+		{
+			error("%s[%d,%d] -- '%s' is not a valid daytype code (must one of ceus::default_{weekday,saturday,sunday,holiday}_code globals)", (const char*)filename, count+1, column+1, map[daytype_ndx].buffer.string);
+			fclose(fp);
+			return 0;
 		}
 		if ( count >= DATASIZE )
 		{

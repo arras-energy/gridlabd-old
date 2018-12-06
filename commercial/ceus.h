@@ -14,23 +14,36 @@
 
 DECL_METHOD(ceus,composition);
 
-#define DATASIZE 576 
+#define DATASIZE (12*4*24)
 
 class ceus : public gld_object 
 {
-public:
+public: // globals
 	static complex default_nominal_voltage_A;
 	static complex default_nominal_voltage_B;
 	static complex default_nominal_voltage_C;
 	static double default_nominal_voltage;
-	static int16 default_weekday_daytype;
-	static int16 default_weekend_daytype;
+	static char32 default_month_heading;
+	static char32 default_daytype_heading;
+	static char32 default_hour_heading;
+	static char32 default_weekday_code;
+	static char32 default_saturday_code;
+	static char32 default_sunday_code;
+	static char32 default_holiday_code;
+public:
+	typedef enum {
+		DT_WEEKDAY = 0,
+		DT_SATURDAY = 1,
+		DT_SUNDAY = 2,
+		DT_HOLIDAY = 3,
+		_DT_LAST
+	} DAYTYPE;
 public:
 	typedef struct s_ceusdata 
 	{
 		char *filename;
 		char *enduse;
-		double data[2016];
+		double data[DATASIZE];
 		struct s_ceusdata *next_file;
 		struct s_ceusdata *next_enduse;
 	} CEUSDATA;
