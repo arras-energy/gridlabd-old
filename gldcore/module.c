@@ -58,10 +58,6 @@
 #define DLSYM(H,S) dlsym(H,S)
 #endif
 
-#if !defined(HAVE_CONFIG_H) || defined(HAVE_MALLOC_H)
-#include <malloc.h>
-#endif
-
 #if HAVE_SCHED_H
 #include <sched.h>
 #endif
