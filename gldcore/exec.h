@@ -73,6 +73,11 @@ EXITCODE exec_run_termscripts(void);
 int exec_schedule_dump(TIMESTAMP interval,char *filename);
 int64 exec_clock(void);
 
+void exec_rlock_sync(void);
+void exec_runlock_sync(void);
+void exec_wlock_sync(void);
+void exec_wunlock_sync(void);
+
 #ifdef __cplusplus
 }
 #endif

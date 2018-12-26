@@ -1721,6 +1721,25 @@ void exec_clock_update_modules()
 	exec_sync_set(NULL,t1,false);
 }
 
+/** Main loop sync lock control **/
+static long sync_lock;
+void exec_rlock_sync(void)
+{
+	rlock(&sync_lock);
+}
+void exec_runlock_sync(void)
+{
+	runlock(&sync_lock);
+}
+void exec_wlock_sync(void)
+{
+	wlock(&sync_lock);
+}
+void exec_wunlock_sync(void)
+{
+	wunlock(&sync_lock);
+}
+
 /******************************************************************
  *  MAIN EXEC LOOP
  ******************************************************************/
@@ -1947,11 +1966,13 @@ STATUS exec_start(void)
 	cstart = (clock_t)exec_clock();
 
 	/* main loop exception handler */
+	exec_wlock_sync();
 	TRY {
 
 		/* main loop runs for iteration limit, or when nothing futher occurs (ignoring soft events) */
 		while ( iteration_counter>0 && exec_sync_isrunning(NULL) && exec_getexitcode()==XC_SUCCESS ) 
 		{
+			exec_wunlock_sync();
 			TIMESTAMP internal_synctime;
 			IN_MYCONTEXT output_debug("*** main loop event at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", exec_sync_get(NULL), global_stoptime, exec_sync_getevents(NULL), exec_getexitcode());
 
@@ -1963,6 +1984,8 @@ STATUS exec_start(void)
 				exec_mls_suspend();
 
 			do_checkpoint();
+
+			exec_wlock_sync();
 
 			/* realtime control of global clock */
 			if (global_run_realtime==0 && global_clock >= global_enter_realtime)
@@ -2397,6 +2420,7 @@ STATUS exec_start(void)
 		 */
 	}
 	ENDCATCH
+	exec_wunlock_sync();
 	IN_MYCONTEXT output_debug("*** main loop ended at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", exec_sync_get(NULL), global_stoptime, exec_sync_getevents(NULL), exec_getexitcode());
 	if(global_multirun_mode == MRM_MASTER)
 	{
