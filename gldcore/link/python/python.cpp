@@ -1,30 +1,46 @@
 
+#include <pthread.h>
 #include "gridlabd.h"
-#include "cmdarg.h"
 #include <Python.h>
+#include "exec.h"
+#include "save.h"
+#include "cmdarg.h"
 
-static char module_docstring[] =
-    "This module provides an interface to GridLAB-D.";
-
-static char gridlabd_command_docstring[] =
-    "Send a command to the gridlabd instance.";
-
-static char gridlabd_start_docstring[] =
-    "Start the gridlabd instance.";
-
+void gridlabd_exception(const char *format, ...);
+static PyObject *gridlabd_reset(PyObject *self, PyObject *args);
 static PyObject *gridlabd_command(PyObject *self, PyObject *args);
 static PyObject *gridlabd_start(PyObject *self, PyObject *args);
+static PyObject *gridlabd_wait(PyObject *self, PyObject *args);
+static PyObject *gridlabd_cancel(PyObject *self, PyObject *args);
+static PyObject *gridlabd_pause(PyObject *self, PyObject *args);
+static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args);
+static PyObject *gridlabd_resume(PyObject *self, PyObject *args);
+static PyObject *gridlabd_get_global(PyObject *self, PyObject *args);
+static PyObject *gridlabd_get_value(PyObject *self, PyObject *args);
+static PyObject *gridlabd_save(PyObject *self, PyObject *args);
+static PyObject *gridlabd_set_global(PyObject *self, PyObject *args);
+static PyObject *gridlabd_set_value(PyObject *self, PyObject *args);
 
 static PyMethodDef module_methods[] = {
-    {"command", gridlabd_command, METH_VARARGS, gridlabd_command_docstring},
-    {"start", gridlabd_start, METH_VARARGS, gridlabd_start_docstring},
+    {"command", gridlabd_command, METH_VARARGS, "Send a command argument to the GridLAB-D instance"},
+    {"start", gridlabd_start, METH_VARARGS, "Start the GridLAB-D instance"},
+    {"wait", gridlabd_wait, METH_VARARGS, "Wait for the GridLAB-D instance to stop"},
+    {"cancel", gridlabd_cancel, METH_VARARGS, "Cancel the GridLAB-D instance"},
+    {"pause", gridlabd_pause, METH_VARARGS, "Pause the GridLAB-D instance"},
+    {"pauseat",gridlabd_pauseat, METH_VARARGS, "Pause the GridLAB-D instance at a specified time"},
+    {"resume",gridlabd_resume, METH_VARARGS, "Resume the GridLAB-D instance"},
+    {"save", gridlabd_save, METH_VARARGS, "Dump model to a file"},
+    {"get_global", gridlabd_get_global, METH_VARARGS, "Get a GridLAB-D global variable"},
+    {"get_value", gridlabd_get_value, METH_VARARGS, "Get a GridLAB-D object property"},
+    {"set_global", gridlabd_set_global, METH_VARARGS, "Set a GridLAB-D global variable"},
+    {"set_value", gridlabd_set_value, METH_VARARGS, "Set a GridLAB-D object property"},
     {NULL, NULL, 0, NULL}
 };
 
 static struct PyModuleDef gridlabdmodule = {
     PyModuleDef_HEAD_INIT,
     "gridlabd",   /* name of module */
-    module_docstring, /* module documentation, may be NULL */
+    "GridLAB-D simulation", /* module documentation, may be NULL */
     -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
     module_methods,
@@ -43,7 +59,7 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
     return mod;
 }
 
-static void gridlabd_exception(const char *format, ...)
+void gridlabd_exception(const char *format, ...)
 {
     char buffer[1024];
     va_list arg;
@@ -53,28 +69,223 @@ static void gridlabd_exception(const char *format, ...)
     va_end(arg);
 }
 
+extern "C" char **environ;
+char **saved_environ = NULL;
+void save_environ(void)
+{
+    saved_environ = (char**)malloc(sizeof(char*)*1024);
+    int i;
+    for ( i = 0 ; i < 1023 ; i++ )
+    {
+        if ( environ[i] == NULL )
+            break;
+        saved_environ[i] = strdup(environ[i]);
+    }
+    saved_environ[i] = NULL;
+}
+void restore_environ(void)
+{
+    if ( saved_environ )
+        environ = saved_environ;
+}
+
 int argc = 1;
 char *argv[1024] = {"gridlabd"};
+bool is_started = false;
+bool is_stopped = false;
+pthread_t main_thread;
+int return_code = 0;
+
+static PyObject *gridlabd_reset(PyObject *self, PyObject *args)
+{
+    gridlabd_exception("reset not implemented yet");
+    return NULL;
+}
 
 static PyObject *gridlabd_command(PyObject *self, PyObject *args)
 {
     const char *command;
     int code = 0;
+    restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &command) )
         return NULL;
-    argv[argc++] = strdup(command);
+    if ( argc < (int)(sizeof(argv)/sizeof(argv[0])) )
+        argv[argc++] = strdup(command);
+    else
+        gridlabd_exception("too many commands (limit is %d)", sizeof(argv)/sizeof(argv[0]));
     return PyLong_FromLong(code);
 }
 
+void *gridlabd_main(void *)
+{
+    int main(int, char*[]);
+    int code = main(argc,argv);
+    return (void*)code;
+}
 static PyObject *gridlabd_start(PyObject *self, PyObject *args)
 {
     const char *command;
     int code = -1;
+    restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &command) )
         return NULL;
-    cmdarg_load(argc,argv);
-    if ( strcmp(command,"batch") == 0 )
-        return PyLong_FromLong(code);
-    gridlabd_exception("start mode '%s' is not supported", command);
-    Py_UNREACHABLE();
+    else if ( is_started )
+    {
+        gridlabd_exception("gridlabd already started");
+        return NULL;
+    }
+    else if ( strcmp(command,"thread") == 0 )
+    {
+        PyEval_InitThreads();
+        save_environ();
+        is_started = true;
+        pthread_create(&main_thread, NULL, gridlabd_main, NULL);
+        pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
+        return PyLong_FromLong(0);
+    }
+    else if ( strcmp(command, "wait") == 0 )
+    {
+        return PyLong_FromLong((long)gridlabd_main(NULL));
+    }
+    else
+        gridlabd_exception("start mode '%s' is not recognized", command);
+    return NULL;
+}
+static PyObject *gridlabd_wait(PyObject *self, PyObject *args)
+{
+    if ( ! is_stopped )
+    {
+        int code = pthread_join(main_thread, NULL);
+        restore_environ();
+    }
+    return PyLong_FromLong(0);
+}
+static PyObject *gridlabd_cancel(PyObject *self, PyObject *args)
+{
+    if ( is_started && ! is_stopped )
+    {
+        pthread_cancel(main_thread);
+    }
+    return PyLong_FromLong(0);
+}
+
+static PyObject *gridlabd_pause(PyObject *self, PyObject *args)
+{
+    exec_mls_resume(global_clock);
+    return PyLong_FromLong(0);
+}
+static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args)
+{
+    gridlabd_exception("pauseat is not implemented");
+    return NULL;
+}
+static PyObject *gridlabd_resume(PyObject *self, PyObject *args)
+{
+    exec_mls_resume(TS_NEVER);
+    return PyLong_FromLong(0);
+}
+
+static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
+{
+    char *name;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args, "s", &name) )
+        return NULL;
+    char value[1024];
+    exec_rlock_sync();
+    char *result = global_getvar(name,value,sizeof(value));
+    exec_runlock_sync();
+    if ( result == NULL )
+    {
+        gridlabd_exception("unable to get global '%s'",name);
+        return NULL;
+    }
+    return PyBytes_FromString(value);
+}
+
+static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
+{
+    char *name;
+    char *value;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args, "ss", &name, &value) )
+        return NULL;
+    exec_wlock_sync();
+    STATUS result = global_setvar(name,value);
+    exec_wunlock_sync();
+    if ( result == FAILED )
+    {
+        gridlabd_exception("unable to set global '%s' to value '%s'",name,value);
+        return NULL;
+    }
+    return PyBytes_FromString(value);
+}
+
+static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
+{
+    char *name;
+    char *property;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args, "ss", &name, &property) )
+        return NULL;
+    OBJECT *obj = object_find_name(name);
+    if ( obj == NULL )
+    {
+        gridlabd_exception("object '%s' not found", name);
+        return NULL;
+    }
+
+    char value[1024];
+    exec_rlock_sync();
+    int len = object_get_value_by_name(obj,property,value,sizeof(value));
+    exec_runlock_sync();
+    if ( len < 0 )
+    {
+        gridlabd_exception("object '%s' property '%s' not found", name, property);
+        return NULL;
+    }
+    return PyBytes_FromString(value);
+}
+
+static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
+{
+    char *name;
+    char *property;
+    char *value;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args, "sss", &name, &property, &value) )
+        return NULL;
+    OBJECT *obj = object_find_name(name);
+    if ( obj == NULL )
+    {
+        gridlabd_exception("object '%s' not found", name);
+        return NULL;
+    }
+
+    exec_wlock_sync();
+    int len = object_set_value_by_name(obj,property,value);
+    exec_wunlock_sync();
+    if ( len < 0 )
+    {
+        gridlabd_exception("cannot set object '%s' property '%s' to value '%s'", name, property, value);
+        return NULL;
+    }
+    return PyBytes_FromString(value);
+}
+
+static PyObject *gridlabd_save(PyObject *self, PyObject *args)
+{
+    char *name;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args,"s", &name) )
+        return NULL;
+    exec_rlock_sync();
+    int len = saveall(name);
+    exec_runlock_sync();
+    if ( len <= 0 )
+    {
+       gridlabd_exception("uname to save '%s'", name);
+       return NULL;
+    }
+    return PyLong_FromLong(len);
 }

@@ -1,0 +1,13 @@
+clock {
+	starttime '2018-01-01 00:00:00';
+	stoptime '2019-01-01 00:00:00';
+}
+
+class test {
+	randomvar x[MW];
+}
+
+object test {
+	name "my_test";
+	x "type:lognormal(0,1); refresh:1min";
+}
