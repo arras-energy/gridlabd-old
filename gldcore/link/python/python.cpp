@@ -120,6 +120,8 @@ void *gridlabd_main(void *)
 {
     int main(int, char*[]);
     int code = main(argc,argv);
+    exec_mls_done();
+    is_stopped = true;
     return (void*)code;
 }
 
@@ -142,8 +144,12 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         is_started = true;
         global_multirun_mode = MRM_LIBRARY;
         pthread_create(&main_thread, NULL, gridlabd_main, NULL);
-        exec_mls_statewait(MLS_RUNNING);
-        pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
+        printf("gridlabd_state('thread'): global_mainloopstate=%d, is_stopped=%d\n", global_mainloopstate, is_stopped);
+        if ( ! is_stopped )
+        {
+            exec_mls_statewait(~MLS_INIT);
+            pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
+        }
         return PyLong_FromLong(0);
     }
     else if ( strcmp(command,"pause") == 0 )
@@ -153,7 +159,8 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         is_started = true;
         global_multirun_mode = MRM_LIBRARY;
         pthread_create(&main_thread, NULL, gridlabd_main, NULL);
-        exec_mls_statewait(MLS_RUNNING);
+        printf("gridlabd_state('pause'): global_mainloopstate=%d, is_stopped=%d\n", global_mainloopstate, is_stopped);
+        exec_mls_statewait(~MLS_INIT);
         global_mainloopstate = MLS_PAUSED;
         pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
         return PyLong_FromLong(0);

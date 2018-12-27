@@ -104,7 +104,10 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 
 	/* main initialization */
 	if (!output_init(argc,argv) || !exec_init())
+	{
+		exec_mls_done();
 		return(XC_INIERR);
+	}		
 
 	/* set thread count equal to processor count if not passed on command-line */
 	if (global_threadcount == 0)
@@ -121,6 +124,7 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 			complete its startup procedure.  Correct the problem
 			with the command line and try again.
 		 */
+		exec_mls_done();
 		return(XC_ARGERR);
 	}
 
@@ -156,6 +160,7 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 				the location indicated in the message.  Create and/or
 				modify access rights to the path for that file and try again.
 			 */
+			exec_mls_done();
 			return(XC_PRCERR);
 		}
 #ifdef WIN32
@@ -241,6 +246,7 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 	/* compute elapsed runtime */
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
 	IN_MYCONTEXT output_verbose("exit code %d", exec_getexitcode());
+	exec_mls_done();
 	return(exec_getexitcode());
 }
 

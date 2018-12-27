@@ -1573,6 +1573,8 @@ void exec_mls_statewait(unsigned states)
 void exec_mls_done(void)
 {
 	int rv = 0;
+	if ( global_mainloopstate == MLS_DONE )
+		return;
 	rv = pthread_mutex_lock(&mls_svr_lock);
 	if (rv != 0 && rv!=EINVAL)
 	{
