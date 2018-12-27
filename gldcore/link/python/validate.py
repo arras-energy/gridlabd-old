@@ -4,13 +4,13 @@ import time
 import gridlabd
 
 def showme(context):
-	print("%s: global.clock = '%s', my_test.x = '%s'" % (context,gridlabd.get_global('clock'),gridlabd.get_value('my_test','x')))
+	print("\n%s:\n\tglobal.clock.... %s\n\tmy_test.x....... %s" % (context,gridlabd.get_global('clock'),gridlabd.get_value('my_test','x')))
 
 
 #gridlabd.command('--debug')
 gridlabd.command('validate.glm')
-gridlabd.command('-D')
-gridlabd.command('show_progress=FALSE')
+#gridlabd.command('-D')
+#gridlabd.command('show_progress=FALSE')
 gridlabd.start('thread')
 
 showme('started')
