@@ -19,7 +19,6 @@ if not os.path.exists('build.h') :
 
 gridlabd = Extension('gridlabd', 
 	include_dirs = ['link/python','.'],
-	libraries = ['boost_python37'],
 	sources = ['link/python/python.cpp',
 		'aggregate.c',
 		'class.c',

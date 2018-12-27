@@ -1432,14 +1432,14 @@ void exec_mls_create(void)
 
 	IN_MYCONTEXT output_debug("exec_mls_create()");
 	rv = pthread_mutex_init(&mls_svr_lock,NULL);
-	if (rv != 0)
+	if ( rv != 0 )
 	{
-		output_error("error with pthread_mutex_init() in exec_mls_init()");
+		output_error("gldcore/exec.c/exec_mls_create(): pthread_mutex_init() error %d (%s)", rv, strerror(rv));
 	}
 	rv = pthread_cond_init(&mls_svr_signal,NULL);
-	if (rv != 0)
+	if ( rv != 0 )
 	{
-		output_error("error with pthread_cond_init() in exec_mls_init()");
+		output_error("gldcore/exec.c/exec_mls_create(): pthread_cond_init() error %d (%s)", rv, strerror(rv));
 	}
 }
 
@@ -1459,20 +1459,20 @@ void exec_mls_start()
 {
 	int rv = 0;
 	rv = pthread_mutex_lock(&mls_svr_lock);
-	if (rv != 0)
+	if ( rv != 0 )
 	{
-		output_error("error in pthread_mutex_lock() in exec_mls_start() (error %i)", rv);
+		output_error("gldcore/exec.c/exec_mls_start(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	sched_update(global_clock,global_mainloopstate = MLS_RUNNING);
 	rv = pthread_mutex_unlock(&mls_svr_lock);
-	if (rv != 0)
+	if ( rv != 0 && rv != EINVAL )
 	{
-		output_error("error in pthread_mutex_unlock() in exec_mls_start()");
+		output_error("gldcore/exec.c/exec_mls_start(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
 	}
 	rv = pthread_cond_broadcast(&mls_svr_signal);
-	if (rv != 0)
+	if ( rv != 0 && rv != EINVAL )
 	{
-		output_error("error in pthread_cond_broadcast() in exec_mls_start()");
+		output_error("gldcore/exec.c/exec_mls_start(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
 	}
 }
 void exec_mls_suspend(void)
@@ -1486,7 +1486,7 @@ void exec_mls_suspend(void)
 	rv = pthread_mutex_lock(&mls_svr_lock);
 	if (0 != rv)
 	{
-		output_error("error with pthread_mutex_lock() in exec_mls_suspend()");
+		output_error("gldcore/exec.c/exec_mls_suspend(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	IN_MYCONTEXT output_debug("sched update_");
 	sched_update(global_clock,global_mainloopstate=MLS_PAUSED);
@@ -1497,9 +1497,9 @@ void exec_mls_suspend(void)
 			IN_MYCONTEXT output_debug(" * tick (%i)", --loopctr);
 		}
 		rv = pthread_cond_wait(&mls_svr_signal, &mls_svr_lock);
-		if (rv != 0)
+		if ( rv != 0 && rv != EINVAL )
 		{
-			output_error("error with pthread_cond_wait() in exec_mls_suspend()");
+			output_error("gldcore/exec.c/exec_mls_suspend(): pthread_cond_wait() error %d (%s)", rv, strerror(rv));
 		}
 	}
 	IN_MYCONTEXT output_debug("sched update_");
@@ -1508,7 +1508,7 @@ void exec_mls_suspend(void)
 	rv = pthread_mutex_unlock(&mls_svr_lock);
 	if (rv != 0)
 	{
-		output_error("error with pthread_mutex_unlock() in exec_mls_suspend()");
+		output_error("gldcore/exec.c/exec_mls_suspend(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
 	}
 }
 
@@ -1516,20 +1516,23 @@ void exec_mls_resume(TIMESTAMP ts)
 {
 	int rv = 0;
 	rv = pthread_mutex_lock(&mls_svr_lock);
-	if (rv != 0)
+	if (rv != 0 && rv != EINVAL )
 	{
-		output_error("error in pthread_mutex_lock() in exec_mls_resume() (error %i)", rv);
+		output_error("gldcore/exec.c/exec_mls_resume(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	global_mainlooppauseat = ts;
-	rv = pthread_mutex_unlock(&mls_svr_lock);
-	if (rv != 0)
+	if ( rv != EINVAL )
 	{
-		output_error("error in pthread_mutex_unlock() in exec_mls_resume()");
-	}
-	rv = pthread_cond_broadcast(&mls_svr_signal);
-	if (rv != 0)
-	{
-		output_error("error in pthread_cond_broadcast() in exec_mls_resume()");
+		rv = pthread_mutex_unlock(&mls_svr_lock);
+		if (rv != 0)
+		{
+			output_error("gldcore/exec.c/exec_mls_resume(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+		}
+		rv = pthread_cond_broadcast(&mls_svr_signal);
+		if (rv != 0)
+		{
+		output_error("gldcore/exec.c/exec_mls_suspend(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
+		}
 	}
 }
 
@@ -1539,21 +1542,31 @@ void exec_mls_statewait(unsigned states)
 
 	int rv = 0;
 	rv = pthread_mutex_lock(&mls_svr_lock);
-	if (rv != 0)
+	if (rv != 0 && rv!=EINVAL)
 	{
-		output_error("error in pthread_mutex_lock() in exec_mls_statewait() (error %i)", rv);
+		output_error("gldcore/exec.c/exec_mls_statewait(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
-	while ( (global_mainloopstate&states) == 0 ) 
+	if ( rv != EINVAL )
 	{
-		if ( pthread_cond_wait(&mls_svr_signal, &mls_svr_lock) != 0 )
+		while ( (global_mainloopstate&states) == 0 ) 
 		{
-			output_error("error in pthread_cond_wait() in exec_mls_statewait() (error %i)", rv);
+			rv = pthread_cond_wait(&mls_svr_signal, &mls_svr_lock);
+			if ( rv != 0 && rv != EINVAL )
+			{
+				output_error("gldcore/exec.c/exec_mls_statewait(): pthread_cond_wait() error %d (%s)", rv, strerror(rv));
+			}
+		}
+		rv = pthread_mutex_unlock(&mls_svr_lock);
+		if ( rv != 0 && rv != EINVAL )
+		{
+			output_error("gldcore/exec.c/exec_mls_statewait(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
 		}
 	}
-	rv = pthread_mutex_unlock(&mls_svr_lock);
-	if (rv != 0)
-	{
-		output_error("error in pthread_mutex_unlock() in exec_mls_statewait()");
+	else
+	{	// very inefficient fallback method
+		output_debug("mutex lock failed (%s) -- using usleep(100) instead",strerror(rv));
+		while ( (global_mainloopstate&states) == 0 )
+			usleep(100);
 	}
 }
 
@@ -1561,20 +1574,23 @@ void exec_mls_done(void)
 {
 	int rv = 0;
 	rv = pthread_mutex_lock(&mls_svr_lock);
-	if (rv != 0)
+	if (rv != 0 && rv!=EINVAL)
 	{
-		output_error("error in pthread_mutex_lock() in exec_mls_done() (error %i)", rv);
+		output_error("gldcore/exec.c/exec_mls_done(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	sched_update(global_clock,global_mainloopstate=MLS_DONE);
-	rv = pthread_mutex_unlock(&mls_svr_lock);
-	if (rv != 0)
+	if ( rv != EINVAL )
 	{
-		output_error("error in pthread_mutex_unlock() in exec_mls_done()");
-	}
-	rv = pthread_cond_broadcast(&mls_svr_signal);
-	if (rv != 0)
-	{
-		output_error("error in pthread_cond_broadcast() in exec_mls_done()");
+		rv = pthread_mutex_unlock(&mls_svr_lock);
+		if ( rv != 0 && rv != EINVAL )
+		{
+			output_error("gldcore/exec.c/exec_mls_done(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+		}
+		rv = pthread_cond_broadcast(&mls_svr_signal);
+		if ( rv != 0 && rv != EINVAL )
+		{
+			output_error("gldcore/exec.c/exec_mls_suspend(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
+		}
 	}
 	pthread_mutex_destroy(&mls_svr_lock);
 	pthread_cond_destroy(&mls_svr_signal);
