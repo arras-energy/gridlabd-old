@@ -1613,7 +1613,7 @@ static struct sync_data main_sync = {TS_NEVER,0,SUCCESS};
 void exec_sync_reset(struct sync_data *d) /**< sync data to reset (NULL to reset main)  **/
 {
 	if ( d==NULL ) d=&main_sync;
-	d->step_to = TS_NEVER;
+	d->step_to = ( global_mainlooppauseat > global_clock ? global_mainlooppauseat : TS_NEVER );
 	d->hard_event = 0;
 	d->status = SUCCESS;
 }
