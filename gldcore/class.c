@@ -1099,6 +1099,8 @@ int class_saveall(FILE *fp) /**< a pointer to the stream FILE structure */
 	{	CLASS	*oclass;
 		for (oclass=class_get_first_class(); oclass!=NULL; oclass=oclass->next)
 		{
+			if ( (global_glm_save_options&GSO_NOINTERNALS) == GSO_NOINTERNALS && oclass->module != NULL )
+				continue;
 			PROPERTY *prop;
 			FUNCTION *func;
 			count += fprintf(fp,"class %s {\n",oclass->name);
