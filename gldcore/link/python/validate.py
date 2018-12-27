@@ -11,8 +11,9 @@ def showme(context):
 gridlabd.command('validate.glm')
 #gridlabd.command('-D')
 #gridlabd.command('show_progress=FALSE')
-gridlabd.start('thread')
-
+gridlabd.start('pause')
+gridlabd.set_global('glm_save_options','MINIMAL')
+gridlabd.resume()
 showme('started')
 
 gridlabd.save('running.json');
