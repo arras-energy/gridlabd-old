@@ -1455,6 +1455,26 @@ void exec_mls_init(void)
 		sched_update(global_clock,global_mainloopstate);
 }
 
+void exec_mls_start()
+{
+	int rv = 0;
+	rv = pthread_mutex_lock(&mls_svr_lock);
+	if (rv != 0)
+	{
+		output_error("error in pthread_mutex_lock() in exec_mls_start() (error %i)", rv);
+	}
+	sched_update(global_clock,global_mainloopstate = MLS_RUNNING);
+	rv = pthread_mutex_unlock(&mls_svr_lock);
+	if (rv != 0)
+	{
+		output_error("error in pthread_mutex_unlock() in exec_mls_start()");
+	}
+	rv = pthread_cond_broadcast(&mls_svr_signal);
+	if (rv != 0)
+	{
+		output_error("error in pthread_cond_broadcast() in exec_mls_start()");
+	}
+}
 void exec_mls_suspend(void)
 {
 	int loopctr = 10;
@@ -1515,15 +1535,47 @@ void exec_mls_resume(TIMESTAMP ts)
 
 void exec_mls_statewait(unsigned states)
 {
-	pthread_mutex_lock(&mls_svr_lock);
-	while ( ((global_mainloopstate&states)|states)==0 ) 
-		pthread_cond_wait(&mls_svr_signal, &mls_svr_lock);
-	pthread_mutex_unlock(&mls_svr_lock);
+	exec_mls_init();
+
+	int rv = 0;
+	rv = pthread_mutex_lock(&mls_svr_lock);
+	if (rv != 0)
+	{
+		output_error("error in pthread_mutex_lock() in exec_mls_statewait() (error %i)", rv);
+	}
+	while ( (global_mainloopstate&states) == 0 ) 
+	{
+		if ( pthread_cond_wait(&mls_svr_signal, &mls_svr_lock) != 0 )
+		{
+			output_error("error in pthread_cond_wait() in exec_mls_statewait() (error %i)", rv);
+		}
+	}
+	rv = pthread_mutex_unlock(&mls_svr_lock);
+	if (rv != 0)
+	{
+		output_error("error in pthread_mutex_unlock() in exec_mls_statewait()");
+	}
 }
 
 void exec_mls_done(void)
 {
+	int rv = 0;
+	rv = pthread_mutex_lock(&mls_svr_lock);
+	if (rv != 0)
+	{
+		output_error("error in pthread_mutex_lock() in exec_mls_done() (error %i)", rv);
+	}
 	sched_update(global_clock,global_mainloopstate=MLS_DONE);
+	rv = pthread_mutex_unlock(&mls_svr_lock);
+	if (rv != 0)
+	{
+		output_error("error in pthread_mutex_unlock() in exec_mls_done()");
+	}
+	rv = pthread_cond_broadcast(&mls_svr_signal);
+	if (rv != 0)
+	{
+		output_error("error in pthread_cond_broadcast() in exec_mls_done()");
+	}
 	pthread_mutex_destroy(&mls_svr_lock);
 	pthread_cond_destroy(&mls_svr_signal);
 }
@@ -1977,7 +2029,7 @@ STATUS exec_start(void)
 			IN_MYCONTEXT output_debug("*** main loop event at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", exec_sync_get(NULL), global_stoptime, exec_sync_getevents(NULL), exec_getexitcode());
 
 			/* update the process table info */
-			sched_update(global_clock,MLS_RUNNING);
+			exec_mls_start();
 
 			/* main loop control */
 			if ( global_clock>=global_mainlooppauseat && global_mainlooppauseat<TS_NEVER )
@@ -2406,8 +2458,6 @@ STATUS exec_start(void)
 			IN_MYCONTEXT output_verbose("simulation at steady state at %s", convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"invalid time");
 		}
 
-		/* terminate main loop state control */
-		exec_mls_done();
 	}
 	CATCH(char *msg)
 	{
@@ -2420,6 +2470,9 @@ STATUS exec_start(void)
 		 */
 	}
 	ENDCATCH
+
+	/* terminate main loop state control */
+	exec_mls_done();
 	exec_wunlock_sync();
 	IN_MYCONTEXT output_debug("*** main loop ended at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", exec_sync_get(NULL), global_stoptime, exec_sync_getevents(NULL), exec_getexitcode());
 	if(global_multirun_mode == MRM_MASTER)
@@ -2544,8 +2597,6 @@ STATUS exec_start(void)
 		output_profile("\n");
 		object_synctime_profile_dump(NULL);
 	}
-
-	sched_update(global_clock,MLS_DONE);
 
 	/* terminate links */
 	return exec_sync_getstatus(NULL);

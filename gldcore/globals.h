@@ -272,6 +272,7 @@ typedef enum {
 	MRM_STANDALONE, /**< multirun is not enabled (standalone run) */
 	MRM_MASTER,     /**< multirun is enabled and this run is the master run */
 	MRM_SLAVE,      /**< multirun is enabled and this run is the slace run */
+	MRM_LIBRARY,	/**< running as a library in another system */
 } MULTIRUNMODE; /**< determines the type of run */
 GLOBAL MULTIRUNMODE global_multirun_mode INIT(MRM_STANDALONE);	/**< multirun mode */
 typedef enum {

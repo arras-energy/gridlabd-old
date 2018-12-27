@@ -1,44 +1,34 @@
 import sys
 assert(sys.version_info.major>2)
-
+import time
 import gridlabd
+
+def showme(context):
+	print("%s: global.clock = '%s', my_test.x = '%s'" % (context,gridlabd.get_global('clock'),gridlabd.get_value('my_test','x')))
+
+
+#gridlabd.command('--debug')
 gridlabd.command('validate.glm')
 gridlabd.command('-D')
 gridlabd.command('show_progress=FALSE')
 gridlabd.start('thread')
-#gridlabd.start('wait')
 
-import time
-time.sleep(1)
-clock = gridlabd.get_global('clock')
-print("global.clock = '%s'\n" % clock)
-value = gridlabd.get_value('my_test','x')
-print("my_test.x = '%s'\n"%value)
+showme('started')
+
 gridlabd.save('running.json');
+gridlabd.pauseat('2018-02-01 00:00:00')
 
-gridlabd.pause()
-
-print("global.clock = %s\n" % gridlabd.get_global('clock'))
-value = gridlabd.get_value('my_test','x')
-print("my_test.x = '%s'\n"%value)
-
-print("global.clock = %s\n" % gridlabd.get_global('clock'))
-value = gridlabd.get_value('my_test','x')
-print("my_test.x = '%s'\n"%value)
+showme('pauseat(2018-02-01 00:00:00)')
 
 gridlabd.resume()
 
 time.sleep(1)
 
-print("global.clock = %s\n" % gridlabd.get_global('clock'))
-value = gridlabd.get_value('my_test','x')
-print("my_test.x = '%s'\n"%value)
+showme('sleep(1)')
 
 gridlabd.wait()
 
-print("global.clock = %s\n" % gridlabd.get_global('clock'))
-value = gridlabd.get_value('my_test','x')
-print("my_test.x = '%s'\n"%value)
+showme('wait')
 
 gridlabd.save('done.json');
 gridlabd.save('done.glm');

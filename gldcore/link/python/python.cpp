@@ -122,6 +122,7 @@ void *gridlabd_main(void *)
     int code = main(argc,argv);
     return (void*)code;
 }
+
 static PyObject *gridlabd_start(PyObject *self, PyObject *args)
 {
     const char *command;
@@ -139,7 +140,21 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         PyEval_InitThreads();
         save_environ();
         is_started = true;
+        global_multirun_mode = MRM_LIBRARY;
         pthread_create(&main_thread, NULL, gridlabd_main, NULL);
+        exec_mls_statewait(MLS_RUNNING);
+        pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
+        return PyLong_FromLong(0);
+    }
+    else if ( strcmp(command,"pause") == 0 )
+    {
+        PyEval_InitThreads();
+        save_environ();
+        is_started = true;
+        global_multirun_mode = MRM_LIBRARY;
+        pthread_create(&main_thread, NULL, gridlabd_main, NULL);
+        exec_mls_statewait(MLS_RUNNING);
+        global_mainloopstate = MLS_PAUSED;
         pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, 0);
         return PyLong_FromLong(0);
     }
@@ -172,12 +187,21 @@ static PyObject *gridlabd_cancel(PyObject *self, PyObject *args)
 static PyObject *gridlabd_pause(PyObject *self, PyObject *args)
 {
     exec_mls_resume(global_clock);
+    exec_mls_statewait(MLS_PAUSED);
     return PyLong_FromLong(0);
 }
 static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args)
 {
-    gridlabd_exception("pauseat is not implemented");
-    return NULL;
+    char *value;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args, "s", &value) )
+        return NULL;
+    TIMESTAMP ts = convert_to_timestamp(value);
+    exec_mls_resume(ts);
+    if ( global_mainloopstate != MLS_RUNNING )
+        exec_mls_statewait(MLS_RUNNING);
+    exec_mls_statewait(MLS_PAUSED);
+    return PyLong_FromLong(0);
 }
 static PyObject *gridlabd_resume(PyObject *self, PyObject *args)
 {
