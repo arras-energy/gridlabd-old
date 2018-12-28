@@ -539,6 +539,10 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
                     PyDict_SetItemString(keywords,key->name,PyBytes_FromFormat("%p",(unsigned long long)key->value));
                 PyDict_SetItemString(property,"keywords",keywords);
             }
+            if ( prop->unit != NULL )
+            {
+                PyDict_SetItemString(property,"unit",PyBytes_FromString(prop->unit->name));
+            }
             PyDict_SetItemString(data,prop->name,property);
         }
     }
@@ -570,8 +574,30 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     }
 
     PyObject *data = PyDict_New();
-    PyDict_SetItemString(data,"name",PyBytes_FromString(obj->name));
-    // TODO add other header data
+    if ( obj->oclass->name != NULL )
+        PyDict_SetItemString(data,"class",PyBytes_FromString(obj->oclass->name));
+    if ( obj->parent != NULL )
+    {
+        if ( obj->parent->name == NULL )
+            PyDict_SetItemString(data,"parent",PyBytes_FromFormat("%s:%d",obj->parent->oclass->name,obj->parent->id));
+        else
+            PyDict_SetItemString(data,"parent",PyBytes_FromString(obj->parent->name));
+    }
+    if ( ! isnan(obj->latitude) ) PyDict_SetItemString(data,"latitude",PyBytes_FromFormat("%f",obj->latitude));
+    if ( ! isnan(obj->longitude) ) PyDict_SetItemString(data,"longitude",PyBytes_FromFormat("%f",obj->longitude));
+    if ( obj->groupid[0] != '\0' ) PyDict_SetItemString(data,"groupid",PyBytes_FromString(obj->groupid));
+    PyDict_SetItemString(data,"rank",PyBytes_FromFormat("%u",(unsigned int)obj->rank));
+    char buffer[64];
+    if ( convert_from_timestamp(obj->clock,buffer,sizeof(buffer)) )
+        PyDict_SetItemString(data,"clock",PyBytes_FromString(buffer));
+    if ( obj->valid_to > TS_ZERO && obj->valid_to < TS_NEVER ) PyDict_SetItemString(data,"valid_to",PyBytes_FromFormat("%u",(int64)(obj->valid_to)));
+    PyDict_SetItemString(data,"schedule_skew",PyBytes_FromFormat("%u",obj->schedule_skew));
+    if ( obj->in_svc > TS_ZERO && obj->in_svc < TS_NEVER ) PyDict_SetItemString(data,"in",PyBytes_FromFormat("%u",(int64)(obj->in_svc)));
+    if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) PyDict_SetItemString(data,"out",PyBytes_FromFormat("%u",(int64)(obj->out_svc)));
+    PyDict_SetItemString(data,"rng_state",PyBytes_FromFormat("%u",(int64)(obj->rng_state)));
+    PyDict_SetItemString(data,"heartbeat",PyBytes_FromFormat("%u",(int64)(obj->heartbeat)));
+    PyDict_SetItemString(data,"guid",PyBytes_FromFormat("%p",(int64)(obj->guid[0])));
+    PyDict_SetItemString(data,"flags",PyBytes_FromFormat("%p",(int64)(obj->flags)));
 
     exec_rlock_sync();
     PROPERTY *prop;
