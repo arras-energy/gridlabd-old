@@ -23,6 +23,8 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args);
 static PyObject *gridlabd_get(PyObject *self, PyObject *args);
 static PyObject *gridlabd_get_class(PyObject *self, PyObject *args);
 static PyObject *gridlabd_get_object(PyObject *self, PyObject *args);
+static PyObject *gridlabd_get_transform(PyObject *self, PyObject *args);
+static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args);
 
 static PyMethodDef module_methods[] = {
     {"command", gridlabd_command, METH_VARARGS, "Send a command argument to the GridLAB-D instance"},
@@ -40,6 +42,8 @@ static PyMethodDef module_methods[] = {
     {"get", gridlabd_get, METH_VARARGS, "Get a list of items"},
     {"get_class", gridlabd_get_class, METH_VARARGS, "Get a GridLAB-D class"},
     {"get_object", gridlabd_get_object, METH_VARARGS, "Get a GridLAB-D object"},
+    {"get_transform", gridlabd_get_transform, METH_VARARGS, "Get a GridLAB-D filter"},
+    {"get_schedule", gridlabd_get_schedule, METH_VARARGS, "Get a GridLAB-D schedule"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -412,7 +416,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
     {
         if ( strcmp(type,"objects") == 0 )
         {
-            data = PyList_New(0);
+            data = PyList_New(NULL);
             OBJECT *obj;
             for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
             {
@@ -428,7 +432,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"classes") == 0 )
         {
-            data = PyList_New(0);
+            data = PyList_New(NULL);
             CLASS *oclass;
             for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
             {
@@ -437,7 +441,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"modules") == 0 )
         {
-            data = PyList_New(0);
+            data = PyList_New(NULL);
             MODULE *mod;
             for ( mod = module_get_first() ; mod != NULL ; mod = mod->next )
             {
@@ -446,12 +450,27 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"globals") == 0 )
         {
-            data = PyList_New(0);
+            data = PyList_New(NULL);
             GLOBALVAR *var;
             for ( var = global_find(NULL) ; var != NULL ; var = var->next )
             {
                 PyList_Append(data,PyBytes_FromString(var->prop->name));
             } 
+        }
+        else if ( strcmp(type,"transforms") == 0 )
+        {
+            gridlabd_exception("get('transforms') not implemented yet");
+            return NULL;
+        }
+        else if ( strcmp(type,"schedules") == 0 )
+        {
+            data = PyList_New(NULL);
+            SCHEDULE *sch;
+            for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
+            {
+                PyList_Append(data,PyBytes_FromString(sch->name));
+            }
+            return data;
         }
         else
             gridlabd_exception("get(type='%s'): type '%s' is not valid", type);
@@ -614,3 +633,60 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     exec_runlock_sync();
     return data;
 }
+
+static PyObject *gridlabd_get_transform(PyObject *self, PyObject *args)
+{
+    if ( gridlabd_module_status < GMS_RUNNING )
+    {
+        gridlabd_exception("cannot get unless running");
+        return NULL;
+    }
+    char *name;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args,"s", &name) )
+        return NULL;
+    gridlabd_exception("not implemented yet");
+    return NULL;
+ }
+
+static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
+{
+    if ( gridlabd_module_status < GMS_RUNNING )
+    {
+        gridlabd_exception("cannot get unless running");
+        return NULL;
+    }
+    char *name;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args,"s", &name) )
+        return NULL;
+    SCHEDULE *sch = schedule_find_byname(name);
+    if ( sch == NULL )
+    {
+        gridlabd_exception("schedule '%s' not found",name);
+        return NULL;
+    }
+    PyObject *data = PyDict_New();
+    PyDict_SetItemString(data,"definition",PyBytes_FromString(sch->definition));
+    PyObject *calendars = PyList_New(NULL);
+    size_t calendar;
+    for ( calendar = 0 ; calendar < 14 ; calendar++ )
+    {
+        PyObject *values = PyDict_New();
+        size_t minute;
+        double last = NaN;
+        for ( minute = 0 ; minute < sizeof(sch->index[calendar])/sizeof(sch->index[calendar][0]) ; minute++ )
+        {
+            double value = sch->data[sch->index[calendar][minute]];
+            if ( last != value )
+            {
+                PyDict_SetItem(values,PyLong_FromLong(minute),PyFloat_FromDouble(value));
+                last = value;
+            }
+        }
+        PyList_Append(calendars,values);
+    }
+    PyDict_SetItemString(data,"calendars",calendars);
+    return data;
+}
+
