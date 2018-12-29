@@ -175,7 +175,10 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 	/* do legal stuff */
 #ifdef LEGAL_NOTICE
 	if (strcmp(global_pidfile,"")==0 && legal_notice()==FAILED)
+	{
+		exec_mls_done();
 		return(XC_USRERR);
+	}
 #endif
 	
 	/* start the processing environment */
