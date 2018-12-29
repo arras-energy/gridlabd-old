@@ -2,9 +2,10 @@
 #include <pthread.h>
 #include "gridlabd.h"
 #include <Python.h>
+#include "cmdarg.h"
+#include "load.h"
 #include "exec.h"
 #include "save.h"
-#include "cmdarg.h"
 
 void gridlabd_exception(const char *format, ...);
 static PyObject *gridlabd_reset(PyObject *self, PyObject *args);
@@ -17,17 +18,11 @@ static PyObject *gridlabd_pause(PyObject *self, PyObject *args);
 static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args);
 static PyObject *gridlabd_resume(PyObject *self, PyObject *args);
 
-// static PyObject *gridlabd_load_module(PyObject *self, PyObject *args);
-// static PyObject *gridlabd_create_global(PyObject *self, PyObject *args);
-// static PyObject *gridlabd_create_class(PyObject *self, PyObject *args);
-// static PyObject *gridlabd_create_object(PyObject *self, PyObject *args);
-// static PyObject *gridlabd_create_transform(PyObject *self, PyObject *args);
-// static PyObject *gridlabd_create_schedule(PyObject *self, PyObject *args);
-// static PyObject *gridlabd_load(PyObject *self, PyObject *args);
+static PyObject *gridlabd_add(PyObject *self, PyObject *args);
+static PyObject *gridlabd_load(PyObject *self, PyObject *args);
 static PyObject *gridlabd_save(PyObject *self, PyObject *args);
 
 static PyObject *gridlabd_get(PyObject *self, PyObject *args);
-
 static PyObject *gridlabd_get_global(PyObject *self, PyObject *args);
 static PyObject *gridlabd_get_value(PyObject *self, PyObject *args);
 static PyObject *gridlabd_get_class(PyObject *self, PyObject *args);
@@ -38,8 +33,10 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args);
 static PyObject *gridlabd_set_global(PyObject *self, PyObject *args);
 static PyObject *gridlabd_set_value(PyObject *self, PyObject *args);
 
+static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args);
 
 static PyMethodDef module_methods[] = {
+    // simulation control
     {"command", gridlabd_command, METH_VARARGS, "Send a command argument to the GridLAB-D instance"},
     {"start", gridlabd_start, METH_VARARGS, "Start the GridLAB-D instance"},
     {"wait", gridlabd_wait, METH_VARARGS, "Wait for the GridLAB-D instance to stop"},
@@ -47,16 +44,11 @@ static PyMethodDef module_methods[] = {
     {"pause", gridlabd_pause, METH_VARARGS, "Pause the GridLAB-D instance"},
     {"pauseat",gridlabd_pauseat, METH_VARARGS, "Pause the GridLAB-D instance at a specified time"},
     {"resume",gridlabd_resume, METH_VARARGS, "Resume the GridLAB-D instance"},
-
-//    {"load_module", gridlabd_load_module, METH_VARARGS, "Load model from a file"},
-//    {"create_class", gridlabd_create_global, METH_VARARGS, "Load model from a file"},
-//    {"create_class", gridlabd_create_class, METH_VARARGS, "Load model from a file"},
-//    {"create_class", gridlabd_create_object, METH_VARARGS, "Load model from a file"},
-//    {"create_class", gridlabd_create_transform, METH_VARARGS, "Load model from a file"},
-//    {"create_class", gridlabd_create_schedule, METH_VARARGS, "Load model from a file"},
-//    {"load", gridlabd_load, METH_VARARGS, "Load model from a file"},
+    // model editing
+    {"add", gridlabd_add, METH_VARARGS, "Add an element to the current model"}, 
+    {"load", gridlabd_load, METH_VARARGS, "Load model from a file"},
     {"save", gridlabd_save, METH_VARARGS, "Save model to a file"},
-    
+    // gets
     {"get", gridlabd_get, METH_VARARGS, "Get a list of items"},
     {"get_global", gridlabd_get_global, METH_VARARGS, "Get a GridLAB-D global variable"},
     {"get_value", gridlabd_get_value, METH_VARARGS, "Get a GridLAB-D object property"},
@@ -64,9 +56,11 @@ static PyMethodDef module_methods[] = {
     {"get_object", gridlabd_get_object, METH_VARARGS, "Get a GridLAB-D object"},
     {"get_transform", gridlabd_get_transform, METH_VARARGS, "Get a GridLAB-D filter"},
     {"get_schedule", gridlabd_get_schedule, METH_VARARGS, "Get a GridLAB-D schedule"},
-
+    // sets
     {"set_global", gridlabd_set_global, METH_VARARGS, "Set a GridLAB-D global variable"},
     {"set_value", gridlabd_set_value, METH_VARARGS, "Set a GridLAB-D object property"},
+    // utilities
+    {"convert_unit", gridlabd_convert_unit, METH_VARARGS, "Convert units of a float, complex or string"},
 
     {NULL, NULL, 0, NULL}
 };
@@ -90,6 +84,10 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
     gridlabdException = PyErr_NewException("gridlabd.exception",NULL,NULL);
     Py_XINCREF(gridlabdException);
     PyModule_AddObject(mod,"exception",gridlabdException);
+
+    // adjustments for python modules
+    global_glm_save_options = GSO_MINIMAL;
+
     return mod;
 }
 
@@ -103,6 +101,13 @@ void gridlabd_exception(const char *format, ...)
     va_end(arg);
 }
 
+//
+// NOTE: environ is damanged by multithreading
+//
+// save and restore are necessary to preserve
+// python's environment while gridlabd makes
+// changes necessary for its operation
+//
 extern "C" char **environ;
 char **saved_environ = NULL;
 void save_environ(void)
@@ -192,6 +197,179 @@ void *gridlabd_main(void *)
 }
 
 //
+// >>> gridlabd.create(blockname,blockdata)
+//
+// Return: temporary GLM filename
+//
+static FILE *glmfh = NULL;
+static char glmname[1024] = "";
+static void cleanup_glm(void)
+{
+    if ( strcmp(glmname,"") != 0 )
+    {
+        unlink(glmname);
+    }    
+}
+static PyObject *gridlabd_add(PyObject *self, PyObject *args)
+{
+    if ( gridlabd_module_status > GMS_STARTED )
+    {
+        gridlabd_exception("cannot add after start");
+        return NULL;
+    }
+    if ( glmfh == NULL )
+    {
+        snprintf(glmname,sizeof(glmname)-1,"tmp_%05u.glm",getpid());
+        glmfh = fopen(glmname,"w");
+        if ( glmfh == NULL )
+        {
+            gridlabd_exception("unable to create model file '%s'",glmname);
+            return NULL;
+        }
+        atexit(cleanup_glm);
+        argv[argc++] = glmname;
+        gridlabd_module_status = GMS_COMMAND;
+    }
+
+    char *block;
+    PyObject *data;
+    if ( !PyArg_ParseTuple(args,"sO", &block, &data) )
+        return NULL;
+    if ( strcmp(block,"global") == 0 )
+    {
+        PyObject *type = PyDict_GetItemString(data,"type");
+        if ( type == NULL )
+        {
+            gridlabd_exception("global type not specified");
+            return NULL;
+        }
+        PyObject *unit = PyDict_GetItemString(data,"unit");
+        PyObject *name = PyDict_GetItemString(data,"name");
+        if ( name == NULL )
+        {
+            gridlabd_exception("global name not specified");
+            return NULL;
+        }
+        PyObject *value = PyDict_GetItemString(data,"value");
+        if ( value == NULL )
+        {
+            gridlabd_exception("global value not specified");
+            return NULL;
+        }
+        fprintf(glmfh,"global ");
+        PyObject_Print(type,glmfh,Py_PRINT_RAW);
+        fprintf(glmfh," ");
+        PyObject_Print(name,glmfh,Py_PRINT_RAW);
+        if ( unit ) 
+        {
+            fprintf(glmfh,"[");
+            PyObject_Print(unit,glmfh,Py_PRINT_RAW);
+            fprintf(glmfh,"]");
+        }
+        fprintf(glmfh," ");
+        PyObject_Print(value,glmfh,Py_PRINT_RAW);
+        fprintf(glmfh,";\n");
+    }
+    else if ( strcmp(block,"clock") == 0 )
+    {
+        fprintf(glmfh,"clock {\n");
+        Py_ssize_t pos = 0;
+        PyObject *key, *value;
+        while ( PyDict_Next(data,&pos,&key,&value) )
+        {
+            fprintf(glmfh,"\t");
+            PyObject_Print(key,glmfh,Py_PRINT_RAW);
+            fprintf(glmfh," \"");
+            PyObject_Print(value,glmfh,Py_PRINT_RAW);
+            fprintf(glmfh,"\";\n");
+        }
+        fprintf(glmfh,"}\n");
+    }
+    else if ( strcmp(block,"module") == 0 )
+    {
+        PyObject *name = PyDict_GetItemString(data,"name");
+        if ( name == NULL )
+        {
+            gridlabd_exception("module name not specified");
+            return NULL;
+        }
+        fprintf(glmfh,"module ");
+        PyObject_Print(name,glmfh,Py_PRINT_RAW);
+        fprintf(glmfh," {\n");
+        Py_ssize_t pos = 0;
+        PyObject *key, *value;
+        while ( PyDict_Next(data,&pos,&key,&value) )
+        {
+            if ( PyObject_RichCompareBool(key,Py_BuildValue("s","name"),Py_EQ) )
+                continue;
+            fprintf(glmfh,"\t");
+            PyObject_Print(key,glmfh,Py_PRINT_RAW);
+            fprintf(glmfh," \"");
+            PyObject_Print(value,glmfh,Py_PRINT_RAW);
+            fprintf(glmfh,"\";\n");
+        }
+        fprintf(glmfh,"}\n");
+    }
+    else if ( strcmp(block,"class") == 0 )
+    {
+        PyObject *name = PyDict_GetItemString(data,"name");
+        if ( name == NULL )
+        {
+            gridlabd_exception("class name not specified");
+            return NULL;
+        }
+        fprintf(glmfh,"class ");
+        PyObject_Print(name,glmfh,Py_PRINT_RAW);
+        fprintf(glmfh," {\n");
+        Py_ssize_t pos = 0;
+        PyObject *key, *value;
+        while ( PyDict_Next(data,&pos,&key,&value) )
+        {
+            if ( PyObject_RichCompareBool(key,Py_BuildValue("s","name"),Py_EQ) )
+                continue;
+            fprintf(glmfh,"\t");
+            PyObject_Print(key,glmfh,Py_PRINT_RAW);
+            fprintf(glmfh," ");
+            PyObject_Print(value,glmfh,Py_PRINT_RAW);
+            fprintf(glmfh,";\n");
+        }
+        fprintf(glmfh,"}\n");
+    }
+    else if ( strcmp(block,"object") == 0 )
+    {
+        PyObject *oclass = PyDict_GetItemString(data,"class");
+        if ( oclass == NULL )
+        {
+            gridlabd_exception("object class not specified");
+            return NULL;
+        }
+        fprintf(glmfh,"object ");
+        PyObject_Print(oclass,glmfh,Py_PRINT_RAW);
+        fprintf(glmfh," {\n");
+        Py_ssize_t pos = 0;
+        PyObject *key, *value;
+        while ( PyDict_Next(data,&pos,&key,&value) )
+        {
+            if ( PyObject_RichCompareBool(key,Py_BuildValue("s","class"),Py_EQ) )
+                continue;
+            fprintf(glmfh,"\t");
+            PyObject_Print(key,glmfh,Py_PRINT_RAW);
+            fprintf(glmfh," \"");
+            PyObject_Print(value,glmfh,Py_PRINT_RAW);
+            fprintf(glmfh,"\";\n");
+        }
+        fprintf(glmfh,"}\n");
+    }
+    else
+    {
+        gridlabd_exception("block/class not recognized");
+        return NULL;
+    }
+    fflush(glmfh);
+    return Py_BuildValue("s",glmname);
+}
+
+//
 // >>> gridlabd.start('thread')
 // >>> gridlabd.start('pause')
 // >>> gridlabd.start('wait')
@@ -202,7 +380,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
 {
     if ( gridlabd_module_status < GMS_COMMAND )
     {
-        gridlabd_exception("cannot start unless commands have been received");
+        gridlabd_exception("cannot start unless commands received or objects defined");
         return NULL;
     }
     else if ( gridlabd_module_status > GMS_COMMAND )
@@ -215,7 +393,9 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &command) )
         return NULL;
-    else if ( strcmp(command,"thread") == 0 || strcmp(command,"pause") == 0 )
+    if ( glmfh != NULL )
+        fclose(glmfh);
+    if ( strcmp(command,"thread") == 0 || strcmp(command,"pause") == 0 )
     {
         PyEval_InitThreads();
         save_environ();
@@ -305,7 +485,7 @@ static PyObject *gridlabd_pause(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args)
 {
-     if ( gridlabd_module_status != GMS_RUNNING )
+    if ( gridlabd_module_status != GMS_RUNNING )
     {
         gridlabd_exception("cannot pause unless running");
         return NULL;
@@ -345,11 +525,6 @@ static PyObject *gridlabd_resume(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_save(PyObject *self, PyObject *args)
 {
-   if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        gridlabd_exception("cannot save unless running");
-        return NULL;
-    }
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
@@ -377,11 +552,6 @@ static PyObject *gridlabd_save(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_get(PyObject *self, PyObject *args)
 {
-   if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        gridlabd_exception("cannot get unless running");
-        return NULL;
-    }
     char *type;
     PyObject *data = NULL;
     restore_environ();
@@ -464,11 +634,6 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
 {
-    if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        gridlabd_exception("cannot get unless running");
-        return NULL;
-    }
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &name) )
@@ -492,11 +657,6 @@ static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
 {
-   if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        gridlabd_exception("cannot set unless running");
-        return NULL;
-    }
     char *name;
     char *value;
     restore_environ();
@@ -527,11 +687,6 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
 {
-    if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        gridlabd_exception("cannot get unless running");
-        return NULL;
-    }
     char *name;
     char *property;
     restore_environ();
@@ -563,11 +718,6 @@ static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
 {
-   if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        gridlabd_exception("cannot set unless running");
-        return NULL;
-    }
     char *name;
     char *property;
     char *value;
@@ -712,11 +862,6 @@ static int get_property_value(OBJECT *obj, PROPERTY *prop, char *buffer, size_t 
 //
 static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
 {
-    if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        gridlabd_exception("cannot get unless running");
-        return NULL;
-    }
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
@@ -783,11 +928,6 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_get_transform(PyObject *self, PyObject *args)
 {
-    if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        gridlabd_exception("cannot get unless running");
-        return NULL;
-    }
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
@@ -803,11 +943,6 @@ static PyObject *gridlabd_get_transform(PyObject *self, PyObject *args)
 //
 static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
 {
-    if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        gridlabd_exception("cannot get unless running");
-        return NULL;
-    }
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
@@ -842,3 +977,86 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
     return data;
 }
 
+static PyObject *gridlabd_load(PyObject *self, PyObject *args)
+{
+    char *file;
+    if ( ! PyArg_ParseTuple(args,"s", &file) )
+        return NULL;
+    size_t before = object_get_count();
+    if ( loadall(file) != SUCCESS )
+    {
+        gridlabd_exception("load failed");
+        return NULL;
+    }
+    size_t after = object_get_count();
+    return PyLong_FromLong(after-before);
+}
+
+//
+// >>> gridlabd.convert_unit(float,from,to)
+// >>> gridlabd.convert_unit(complex,from,to)
+// >>> gridlabd.convert_unit(string,to)
+//
+// Returns: float or complex
+//
+static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
+{
+    char *value, *from, *to;
+    double real;
+    complex cmplx;
+    restore_environ();
+    if ( PyArg_ParseTuple(args,"dss", &real, &from, &to) )
+    {
+        UNIT *pFrom = unit_find(from);
+        if ( pFrom == NULL )
+        {
+            gridlabd_exception("unit '%s' not found", from);
+            return NULL;
+        }
+        UNIT *pTo = unit_find(to);
+        if ( pTo == NULL )
+        {
+            gridlabd_exception("unit '%s' not found", to);
+            return NULL;
+        }
+        if ( ! unit_convert_ex(pFrom,pTo,&real) )
+        {
+            gridlabd_exception("unable to convert '%s' from '%s' to '%s'", value, from, to);
+            return NULL;
+        }
+        return Py_BuildValue("d",real);
+    }
+    else if ( PyArg_ParseTuple(args,"Dss", &cmplx, &from, &to) )
+    {
+        gridlabd_exception("complex unit conversion not implemented");
+        return NULL;       
+    }
+    else if ( PyArg_ParseTuple(args,"ss",&value,&to) )
+    {
+        PyErr_Clear();
+        char unit[1024]="";
+        if ( sscanf(value,"%lf %1023s",&real,&unit) < 2 )
+        {
+            gridlabd_exception("unable to parse value and unit of '%s'", value);
+            return NULL;
+        }
+        UNIT *pFrom = unit_find(unit);
+        if ( pFrom == NULL )
+        {
+            gridlabd_exception("unit '%s' not found", from);
+            return NULL;
+        }
+        UNIT *pTo = unit_find(to);
+        if ( pTo == NULL )
+        {
+            gridlabd_exception("unit '%s' not found", to);
+            return NULL;
+        }
+        if ( ! unit_convert_ex(pFrom,pTo,&real) )
+        {
+            gridlabd_exception("unable to convert '%s' from '%s' to '%s'", value, from, to);
+            return NULL;
+        }
+        return Py_BuildValue("d",real);
+    }
+}
