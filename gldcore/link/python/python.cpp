@@ -7,7 +7,16 @@
 #include "exec.h"
 #include "save.h"
 
-void gridlabd_exception(const char *format, ...);
+#define TITLE "GridLAB-D for Python"
+#define VERSION "1.0"
+
+static void gridlabd_exception(const char *format, ...);
+
+static PyObject *gridlabd_title(PyObject *self, PyObject *args);
+static PyObject *gridlabd_copyright(PyObject *self, PyObject *args);
+static PyObject *gridlabd_credits(PyObject *self, PyObject *args);
+static PyObject *gridlabd_license(PyObject *self, PyObject *args);
+
 static PyObject *gridlabd_reset(PyObject *self, PyObject *args);
 static PyObject *gridlabd_command(PyObject *self, PyObject *args);
 
@@ -36,6 +45,10 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args);
 static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args);
 
 static PyMethodDef module_methods[] = {
+    {"title", gridlabd_title, METH_VARARGS, "Get the software title"},
+    {"copyright", gridlabd_copyright, METH_VARARGS, "Get the software copyrights"},
+    {"credits", gridlabd_credits, METH_VARARGS, "Get the software credits"},
+    {"license", gridlabd_license, METH_VARARGS, "Get the software license"},
     // simulation control
     {"command", gridlabd_command, METH_VARARGS, "Send a command argument to the GridLAB-D instance"},
     {"start", gridlabd_start, METH_VARARGS, "Start the GridLAB-D instance"},
@@ -68,11 +81,87 @@ static PyMethodDef module_methods[] = {
 static struct PyModuleDef gridlabdmodule = {
     PyModuleDef_HEAD_INIT,
     "gridlabd",   /* name of module */
-    "GridLAB-D simulation", /* module documentation, may be NULL */
+    "Python GridLAB-D simulation", /* module documentation, may be NULL */
     -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
     module_methods,
 };
+
+static PyObject *gridlabd_title(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("s", TITLE " " VERSION);
+}
+
+static PyObject *gridlabd_copyright(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("s",
+        TITLE " " VERSION "\n"
+        "\n"
+        "Copyright (C) 2008-2017, Battelle Memorial Institute.\n"
+        "Copyright (C) 2016-2019, The Board of Trustees of the Leland Stanford Junior University.\n"
+        "All Rights Reserved.\n"
+         "For additional information, see http://www.gridlabd.us/.\n");
+}
+
+static PyObject *gridlabd_credits(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("s",
+        TITLE " " VERSION "\n"
+        "\n"
+        "GridLAB-D was developed with funding from the US Department of Energy and the California Energy Commission.\n"
+        "For additional information, see http://www.gridlabd.us/.\n");
+}
+
+static PyObject *gridlabd_license(PyObject *self, PyObject *args)
+{
+    return Py_BuildValue("s",
+        TITLE " " VERSION "\n"
+        "\n"
+        "License Version 2.0, January 2019\n"
+        "http://www.gridlabd.us/\n"
+        "\n"
+        "1. The Copyright Holders hereby grant permission to any person or entity\n"
+        "   lawfully obtaining a copy of this software and associated documentation\n" 
+        "   files (hereinafter \"the Software\") to redistribute and use the Software\n"
+        "   in source andbinary forms, with or without modification.  Such person or\n"
+        "   entity may use, copy, modify, merge, publish, distribute, sublicense,\n"
+        "   and/or sell copies of the Software, and may permit others to do so,\n"
+        "   subject to the following conditions:\n"
+        "   - Redistributions of source code must retain the above copyright\n"
+        "     notice, this list of conditions and the following disclaimers.\n"
+        "   - Redistributions in binary form must reproduce the above copyright\n"
+        "     notice, this list of conditions and the following disclaimer in\n"
+        "     the documentation and/or other materials provided with the\n"
+        "     distribution.\n"
+        "   - Other than as used herein, the names of the Copyright Holders\n"
+        "     shall not be used in any form whatsoever without their express\n"
+        "     written consent.\n"
+        "2. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
+        "   \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
+        "   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n"
+        "   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL BATTELLE OR\n"
+        "   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,\n"
+        "   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n"
+        "   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n"
+        "   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY\n"
+        "   OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING\n"
+        "   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n"
+        "   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
+        "3. The Software was originally produced by Battelle under Contract No.\n"
+        "   DE-AC05-76RL01830 with the Department of Energy.  The U.S. Government\n"
+        "   is granted for itself and others acting on its behalf a nonexclusive,\n"
+        "   paid-up, irrevocable worldwide license in this data to reproduce,\n"
+        "   prepare derivative works, distribute copies to the public, perform\n"
+        "   publicly and display publicly, and to permit others to do so.  The\n"
+        "   specific term of the license can be identified by inquiry made to\n"
+        "   Battelle or DOE.  Neither the United States nor the United States\n"
+        "   Department of Energy, nor any of their employees, makes any warranty,\n"
+        "   express or implied, or assumes any legal liability or responsibility\n"
+        "   for the accuracy, completeness or usefulness of any data, apparatus,\n"
+        "   product or process disclosed, or represents that its use would not\n"
+        "   infringe privately owned rights.\n"
+        );
+}
 
 static PyObject *gridlabdException;
 
@@ -91,7 +180,7 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
     return mod;
 }
 
-void gridlabd_exception(const char *format, ...)
+static void gridlabd_exception(const char *format, ...)
 {
     char buffer[1024];
     va_list arg;
@@ -109,8 +198,8 @@ void gridlabd_exception(const char *format, ...)
 // changes necessary for its operation
 //
 extern "C" char **environ;
-char **saved_environ = NULL;
-void save_environ(void)
+static char **saved_environ = NULL;
+static void save_environ(void)
 {
     saved_environ = (char**)malloc(sizeof(char*)*1024);
     int i;
@@ -122,15 +211,15 @@ void save_environ(void)
     }
     saved_environ[i] = NULL;
 }
-void restore_environ(void)
+static void restore_environ(void)
 {
     if ( saved_environ )
         environ = saved_environ;
 }
 
-int argc = 1;
-char *argv[1024] = {"gridlabd"};
-enum {
+static int argc = 1;
+static char *argv[1024] = {"gridlabd"};
+static enum {
     GMS_NEW = 0, // module has been newly loaded 
     GMS_COMMAND, // module has received at least one command
     GMS_STARTED, // module has started simulation
@@ -139,7 +228,7 @@ enum {
     GMS_SUCCESS, // module has completed successfully
     GMS_CANCELLED, // module simulation was cancelled
 } gridlabd_module_status = GMS_NEW;
-char *gridlabd_module_status_msg[] = {
+static char *gridlabd_module_status_msg[] = {
     "module is new but not received commands yet", // NEW
     "module has received commands but not started yet", // COMMAND
     "module has started simulation but it is not running yet", // STARTED
@@ -148,8 +237,8 @@ char *gridlabd_module_status_msg[] = {
     "simulation has completed", // SUCCESS
     "simulation was cancelled", // CANCELLED
 };
-pthread_t main_thread;
-int return_code = 0;
+static pthread_t main_thread;
+static int return_code = 0;
 
 static PyObject *gridlabd_reset(PyObject *self, PyObject *args)
 {
@@ -186,7 +275,7 @@ static PyObject *gridlabd_command(PyObject *self, PyObject *args)
     }
 }
 
-void *gridlabd_main(void *)
+static void *gridlabd_main(void *)
 {
     int main(int, char*[]);
     gridlabd_module_status = GMS_RUNNING;
