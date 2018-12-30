@@ -380,8 +380,16 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
 {
     if ( gridlabd_module_status < GMS_COMMAND )
     {
-        gridlabd_exception("cannot start unless commands received or objects defined");
-        return NULL;
+        if ( object_get_count() == 0 )
+        {
+            gridlabd_exception("cannot start unless commands received or objects defined");
+            return NULL;
+        }
+        else
+        {
+            argv[argc++] = "-e";
+            argv[argc++] = "batch";
+        }
     }
     else if ( gridlabd_module_status > GMS_COMMAND )
     {
