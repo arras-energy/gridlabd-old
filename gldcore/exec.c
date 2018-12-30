@@ -2112,9 +2112,9 @@ STATUS exec_start(void)
 			if ( global_clock>=global_mainlooppauseat && global_mainlooppauseat<TS_NEVER )
 				exec_mls_suspend();
 
+			exec_rlock_sync();
 			do_checkpoint();
-
-			exec_wlock_sync();
+			exec_runlock_sync();
 
 			/* realtime control of global clock */
 			if (global_run_realtime==0 && global_clock >= global_enter_realtime)
@@ -2131,7 +2131,6 @@ STATUS exec_start(void)
 					IN_MYCONTEXT output_verbose("waiting %d msec", 1000-tv.millitm);
 					Sleep(1000-tv.millitm );
 					metric = (1000-tv.millitm)/1000.0;
-					global_clock += global_run_realtime;
 				}
 				else
 					output_error("simulation failed to keep up with real time");
@@ -2143,12 +2142,13 @@ STATUS exec_start(void)
 					IN_MYCONTEXT output_verbose("waiting %d usec", 1000000-tv.tv_usec);
 					usleep(1000000-tv.tv_usec);
 					metric = (1000000-tv.tv_usec)/1000000.0;
-					global_clock += global_run_realtime;
 				}
 				else
 					output_error("simulation failed to keep up with real time");
 #endif
 #define IIR 0.9 /* about 30s for 95% unit step response */
+				exec_wlock_sync();
+				global_clock += global_run_realtime;
 				global_realtime_metric = global_realtime_metric*IIR + metric*(1-IIR);
 				exec_sync_reset(NULL);
 				exec_sync_set(NULL,global_clock,false);
@@ -2157,7 +2157,10 @@ STATUS exec_start(void)
 
 			/* internal control of global clock */
 			else
+			{
+				exec_wlock_sync();
 				global_clock = exec_sync_get(NULL);
+			}
 
 			/* operate delta mode if necessary (but only when event mode is active, e.g., not right after init) */
 			/* note that delta mode cannot be supported for realtime simulation */
