@@ -68,6 +68,6 @@ object house{
 }
 
 object climate{
-	tmyfile "../WA-Yakima.tmy2";
+	tmyfile "../WA-Yakima.tmy3";
 }
 
