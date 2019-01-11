@@ -52,7 +52,7 @@ object triplex_meter{
 			target "panel.energy";
 			in '2001-01-06 5:00:47';
 			once ONCE_TRUE;
-			value 100.155+0i;
+			value 61.9347+0i;
 			within 0.500775;//asserting house_e within 0.5 percent of Rob's ETP result
 		};
 	};
@@ -66,7 +66,7 @@ object triplex_meter{
 		target "measured_real_energy";
 		in '2001-01-06 5:00:47';
 		once ONCE_TRUE;
-		value 100155;
+		value 61934.7;
 		within 500.775;//asserting house_e within 0.5 percent of Rob's ETP result
 	};
 }

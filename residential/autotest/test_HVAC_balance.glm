@@ -20,15 +20,16 @@ clock{
 
 
 object climate{
+	name climate;
 	tmyfile "../WA-Yakima.tmy3";
 }
 
 schedule heatspt{
-	* * * * * 60;
+	* * * * * 55;
 }
 
 schedule coolspt{
-	* * * * * 75;
+	* * * * * 90;
 }
 
 object triplex_meter{
@@ -44,14 +45,14 @@ object triplex_meter{
 		heating_setpoint heatspt*1;
 		cooling_setpoint coolspt*1;
 		object recorder{
-			property panel.energy;
-			file "test_HVAC_balance.csv";
-			interval 1;
-			limit 86444;
+			property panel.energy, system_mode;
+			file "test_HVAC_balance_panel_energy.csv";
+			interval -1;
+			//limit 86444;
 		};
 		object complex_assert{
 			target "panel.energy";
-			in '2001-05-6 5:00:00';
+			in '2001-05-2 5:00:00';
 			once ONCE_TRUE;
 			value 0+0i;
 			within 0.001;//asserting house_e within 1 percent of Rob's ETP result
@@ -59,15 +60,20 @@ object triplex_meter{
 	};
 	object recorder{
 		property measured_real_power,measured_real_energy;
-		file "test_HVAC_balance.csv";
-		interval 1;
-		limit 86444;
+		file "test_HVAC_balance_measured_power_energy.csv";
+		interval -1;
+	//	limit 86444;
 	};
 	object double_assert{
 		target "measured_real_energy";
-		in '2001-05-6 5:00:00';
+		in '2001-05-2 5:00:00';
 		once ONCE_TRUE;
 		value 0;
 		within 0.001;//asserting house_e within 1 percent of Rob's ETP result
 	};
 }
+
+//object multi_recorder{
+//	property climate:temperature;
+//	file "output_temp.o";
+//}
