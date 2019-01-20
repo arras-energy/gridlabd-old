@@ -423,9 +423,12 @@ static void daemon_loadconfig(void)
 	FILE *fp = fopen(global_daemon_configfile,"rt");
 	if ( fp == NULL )
 	{
-		output_warning("daemon_loadconfig(): '%s' open failed: %s",(const char*)global_daemon_configfile,strerror(errno));
-		output_warning("daemon_loadconfig(): using default configuration");
-		return;
+		if ( find_file(global_daemon_configfile,NULL,R_OK,global_daemon_configfile,sizeof(global_daemon_configfile)-1) == NULL || (fp=fopen(global_daemon_configfile,"rt")) == NULL )
+		{
+			output_warning("daemon_loadconfig(): '%s' open failed: %s",(const char*)global_daemon_configfile,strerror(errno));
+			output_warning("daemon_loadconfig(): using default configuration");
+			return;
+		}
 	}
 	output_debug("daemon_loadconfig(): loading '%s'",(const char*)global_daemon_configfile);
 

@@ -3,7 +3,7 @@
 log=/usr/local/var/gridlabd-log
 pid=/usr/local/var/gridlabd-pid
 workdir=/
-user=gridlabd.gridlabd
+user=
 output=
 verbose=
 error=

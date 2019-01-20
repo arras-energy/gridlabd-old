@@ -1,5 +1,6 @@
 dist_pkgdata_DATA += gldcore/tzinfo.txt
 dist_pkgdata_DATA += gldcore/unitfile.txt
+dist_pkgdata_DATA += gldcore/gridlabd.cnf
 
 GLD_SOURCES_PLACE_HOLDER = 
 GLD_SOURCES_PLACE_HOLDER += gldcore/aggregate.c
