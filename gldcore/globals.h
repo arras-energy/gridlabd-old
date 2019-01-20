@@ -60,18 +60,24 @@ typedef int EXITCODE;
 #define XC_SIGTERM (XC_SIGNAL|SIGTERM) /* SIGTERM caught */
 #define XC_EXCEPTION 255 /* exception caught */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 STATUS global_init(void);
 GLOBALVAR *global_getnext(GLOBALVAR *previous);
-GLOBALVAR *global_find(char *name);
-GLOBALVAR *global_create(char *name, ...);
+GLOBALVAR *global_find(const char *name);
+GLOBALVAR *global_create(const char *name, ...);
 STATUS global_setvar(char *def,...);
-char *global_getvar(char *name, char *buffer, int size);
-int global_isdefined(char *name);
+const char *global_getvar(const char *name, char *buffer, size_t size);
+int global_isdefined(const char *name);
 void global_dump(void);
 size_t global_getcount(void);
 void global_restore(GLOBALVAR *pos);
 void global_push(char *name, char *value);
 size_t global_saveall(FILE *fp);
+#ifdef __cplusplus
+}
+#endif
 
 /* MAJOR and MINOR version */
 GLOBAL unsigned global_version_major INIT(REV_MAJOR); /**< The software's major version */
@@ -412,6 +418,39 @@ GLOBAL GLMSAVEOPTIONS global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mo
 
 #undef GLOBAL
 #undef INIT
+
+#ifdef __cplusplus
+class GldMain;
+class GldGlobals 
+{
+private:
+	GldMain &instance;
+	GLOBALVAR *varlist;
+	GLOBALVAR *last;
+public:
+	GldGlobals(GldMain *inst);
+	~GldGlobals(void);
+public:
+	STATUS init(void);
+	GLOBALVAR *find(const char *name);
+	GLOBALVAR *getnext(const GLOBALVAR *previous);
+	void restore(GLOBALVAR *previous);
+	void push(char *name, char *value);
+	GLOBALVAR *create(const char *name, ...);
+	GLOBALVAR *create_v(const char *name, va_list ptr);
+	STATUS setvar(const char *def, ...);
+	STATUS setvar_v(const char *def, va_list ptr);
+	bool isdefined(const char *name);
+	const char *getvar(const char *name, char *buffer, size_t size);
+	size_t getcount(void);
+	void dump(void);
+	void *remote_read(void *local, GLOBALVAR *var);
+	void remote_write(void *local, GLOBALVAR *var);
+	size_t saveall(FILE *fp);
+private:
+	bool parameter_expansion(char *buffer, size_t size, const char *spec);
+};
+#endif
 
 #endif /* _GLOBAL_H */
 /**@}**/

@@ -41,7 +41,7 @@ SET_MYCONTEXT(DMC_MAIN)
 #if defined WIN32 && _DEBUG 
 /** Implements a pause on exit capability for Windows consoles
  **/
-void GldMain::ause_at_exit(void) 
+void GldMain::pause_at_exit(void) 
 {
 	if (global_pauseatexit)
 		system("pause");
@@ -51,14 +51,19 @@ void GldMain::ause_at_exit(void)
 /** The main entry point of GridLAB-D
     @returns Exit codes XC_SUCCESS, etc. (see gridlabd.h)
  **/
+GldMain *my_instance = NULL; // TODO: move this to main to make main reentrant
 extern "C" int main(int argc, /**< the number entries on command-line argument list \p argv */
 		 char *argv[]) /**< a list of pointers to the command-line arguments */
 {
-	GldMain instance(argc,argv);
-	instance.mainloop(argc,argv);
+	my_instance = new GldMain(argc,argv);
+	if ( my_instance == NULL )
+		output_error("unable to create new instance");
+	else
+		my_instance->mainloop(argc,argv);
 }
 
 GldMain::GldMain(int argc,char *argv[])
+	: globals(this)
 {
 	set_global_browser();
 

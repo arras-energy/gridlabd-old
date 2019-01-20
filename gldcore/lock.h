@@ -9,12 +9,13 @@
 extern "C" {
 #endif
 
-void rlock(unsigned int *lock);
-void wlock(unsigned int *lock);
-void runlock(unsigned int *lock);
-void wunlock(unsigned int *lock);
+typedef unsigned int LOCKVAR;
+void rlock(LOCKVAR *lock);
+void wlock(LOCKVAR *lock);
+void runlock(LOCKVAR *lock);
+void wunlock(LOCKVAR *lock);
 
-void register_lock(const char *name, unsigned int *lock);
+void register_lock(const char *name, LOCKVAR *lock);
 
 #ifdef __cplusplus
 }

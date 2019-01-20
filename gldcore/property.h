@@ -996,7 +996,7 @@ int property_check(void);
 PROPERTYSPEC *property_getspec(PROPERTYTYPE ptype);
 PROPERTYTYPE property_getfirst_type(void);
 PROPERTYTYPE property_getnext_type(PROPERTYTYPE ptype);
-PROPERTY *property_malloc(PROPERTYTYPE, CLASS *, char *, void *, DELEGATEDTYPE *);
+PROPERTY *property_malloc(PROPERTYTYPE, CLASS *, const char *, void *, DELEGATEDTYPE *);
 uint32 property_size(PROPERTY *);
 uint32 property_size_by_type(PROPERTYTYPE);
 size_t property_minimum_buffersize(PROPERTY *);
