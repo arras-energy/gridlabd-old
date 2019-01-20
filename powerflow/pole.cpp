@@ -33,10 +33,13 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "equipment_area[sf]", PADDR(equipment_area), PT_DESCRIPTION, "equipment cross sectional area",
 			PT_double, "equipment_height[ft]", PADDR(equipment_height), PT_DESCRIPTION, "equipment height on pole",
 			PT_double, "pole_stress[pu]", PADDR(pole_stress), PT_DESCRIPTION, "ratio of actual stress to critical stress",
+			PT_double, "pole_stress_polynomial_a[ft*lb]", PADDR(pole_stress_polynomial_a), PT_DESCRIPTION, "constant a of the pole stress polynomial function",
+			PT_double, "pole_stress_polynomial_b[ft*lb]", PADDR(pole_stress_polynomial_b), PT_DESCRIPTION, "constant b of the pole stress polynomial function",
+			PT_double, "pole_stress_polynomial_c[ft*lb]", PADDR(pole_stress_polynomial_c), PT_DESCRIPTION, "constant c of the pole stress polynomial function",
 			PT_double, "susceptibility[pu*s/m]", PADDR(susceptibility), PT_DESCRIPTION, "susceptibility of pole to wind stress (derivative of pole stress w.r.t wind speed)",
 			PT_double, "total_moment[ft*lb]", PADDR(total_moment), PT_DESCRIPTION, "the total moment on the pole.",
 			PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
-			PT_double, "wind_failure[m/s]", PADDR(wind_failure), PT_DESCRIPTION, "wind speed at pole failure.",
+			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure.",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 	}
 }
@@ -180,8 +183,8 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 	if ( pole_status == PS_OK && last_wind_speed != *wind_speed )
 	{
 		gld_clock dt;
-		wind_pressure = 0.00256*2.24 * (*wind_speed)*(*wind_speed);
-		wind_failure = *wind_speed;
+		wind_pressure = 0.00256*2.24 * (*wind_speed)*(*wind_speed); //2.24 account for m/s to mph conversion
+		critical_wind_speed = 0.0;
 		double pole_height = config->pole_length - config->pole_depth;
 		pole_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		equipment_moment = wind_pressure * equipment_area * equipment_height * config->overload_factor_transverse_general;
@@ -192,7 +195,6 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		wire_tension = 0.0;
 		wire_load_nowind = 0.0;
 		wire_moment_nowind = 0.0;
-		wire_tension_nowind = 0.0;
 		for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
 		{
 			double load = wind_pressure * (wire->diameter+2*ice_thickness)/12;
@@ -200,15 +202,17 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 			wire_moment += wire->span * load * wire->height * config->overload_factor_transverse_wire;
 			wire_tension += wire->tension * config->overload_factor_transverse_wire * sin(tilt_angle/2) * wire->height;
 
+
 			double load_nowind = (wire->diameter+2*ice_thickness)/12;
 			wire_load_nowind += load_nowind;
 			wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
-			wire_tension_nowind += wire->tension * config->overload_factor_transverse_wire * sin(tilt_angle/2) * wire->height;
+
 		}
+
 		total_moment = pole_moment + equipment_moment + wire_moment + wire_tension;
 		pole_stress = total_moment/resisting_moment;
 		if ( (*wind_speed) > 0 )
-			susceptibility = 2*(pole_moment+equipment_moment+wire_moment)/resisting_moment/(*wind_speed);
+			susceptibility = 2*(pole_moment+equipment_moment+wire_moment)/resisting_moment/(*wind_speed)/(0.00256)/(2.24);
 		else
 			susceptibility = 0.0;
 		verbose("wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, margin %.0f%%", (const char*)(dt.get_string()), wind_pressure, pole_moment, equipment_moment, wire_moment, pole_stress*100);
@@ -223,8 +227,11 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 
 		pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
-		double wind_pressure_failure = (resisting_moment) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind + wire_tension_nowind);
-		wind_failure = sqrt(wind_pressure_failure / (0.00256 * 2.24));
+		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
+		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
+		pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind;
+		pole_stress_polynomial_b = 0.0;
+		pole_stress_polynomial_c = wire_tension;
 
 	}
 	TIMESTAMP t1 = node::presync(t0);

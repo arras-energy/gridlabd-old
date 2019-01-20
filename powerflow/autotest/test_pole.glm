@@ -10,7 +10,7 @@ clock {
 
 object climate {
 	name weather;
-	tmyfile WA-Yakima.tmy2;
+	tmyfile "../CA-Chino_Airport.tmy3";
 }
 
 object pole_configuration {
@@ -21,6 +21,7 @@ object pole_configuration {
 	ground_diameter (32.5/3.14);
 	top_diameter (19/3.14);
 	fiber_strength 8000 psi;
+	repair_time 1 h;
 }
 
 object pole {
@@ -65,15 +66,15 @@ object pole {
 	configuration "WOOD-C-45/5"; 
 	phases ABC;
 	nominal_voltage 12470;
-	tilt_angle 5 deg;
+	tilt_angle 0.4;
 	tilt_direction 270;
-	equipment_area 5 sf;
-	equipment_height 25 ft;
+//	equipment_area 5 sf;
+//	equipment_height 25 ft;
 }
 
 module tape;
 object multi_recorder {
 	interval 3600;
-	property "weather:wind_speed,pole1:pole_stress,pole1:susceptibility, pole1:total_moment, pole1:resisting_moment, pole2:pole_stress,pole2:susceptibility, pole1:wind_failure, pole2:wind_failure, pole2:total_moment, pole2:resisting_moment";
+	property "weather:wind_speed,pole1:pole_stress,pole1:susceptibility, pole1:total_moment, pole1:resisting_moment, pole2:pole_stress,pole2:susceptibility, pole1:critical_wind_speed, pole2:critical_wind_speed, pole2:total_moment, pole2:resisting_moment";
 	file test_pole.csv;
 }
