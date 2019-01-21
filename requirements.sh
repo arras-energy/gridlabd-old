@@ -20,17 +20,18 @@ case "$UNAME" in
 	brew install mysql-connector-c
 	brew install armadillo
 	;;
-(Linux)
-	if [ ! -z $(yum version) ]; then
-		yum update -y
-		yum install systemd -y
-		yum groupinstall "Development Tools" -y
-		yum install cmake -y 	
-		yum clean all
-	else
-		error 1 "package manager not recognized"
-	fi
-	;;
+# (Linux)
+# 	if [ "$(yum version)||echo none" != "none" ]; then
+# 		yum update -y
+# 		yum install systemd -y
+# 		yum groupinstall "Development Tools" -y
+# 		yum install cmake -y
+# 		yum install xerces-c -y
+# 		yum clean all
+# 	else
+# 		error 1 "package manager not recognized"
+# 	fi
+# 	;;
 (*)	# other
 	error 1 "unable to verify requirements for $UNAME"
 	;;
