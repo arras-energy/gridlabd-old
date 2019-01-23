@@ -61,7 +61,7 @@ function install-CentOS-Linux ()
 
 	cd /usr/local/src
 	if [ ! -d gridlabd ]; then
-		$GITCLONE gridlabd
+		git clone $GITCLONE gridlabd
 	fi
 	cd -
 
