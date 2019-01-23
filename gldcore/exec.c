@@ -611,6 +611,21 @@ static STATUS init_by_creation()
 					 */
 				}
 			}
+			/* determine when clock gets synced */
+			if ( obj->oclass->commit || obj->events.commit )
+				obj->clock_event = CES_COMMIT;
+			else if ( obj->oclass->sync )
+			{
+				if ( (obj->oclass->passconfig&PC_POSTTOPDOWN)==PC_POSTTOPDOWN || obj->events.postsync )
+					obj->clock_event = CES_POSTSYNC;
+				else if ( (obj->oclass->passconfig&PC_BOTTOMUP)==PC_BOTTOMUP || obj->events.sync )
+					obj->clock_event = CES_SYNC;
+				else if ( (obj->oclass->passconfig&PC_PRETOPDOWN)==PC_PRETOPDOWN || obj->events.presync )
+					obj->clock_event = CES_PRESYNC;
+			}
+			else if ( obj->oclass->precommit || obj->events.precommit )
+				obj->clock_event = CES_PRECOMMIT;
+			obj->clock = global_starttime;
 		}
 	} CATCH (char *msg) {
 		output_error("init failure: %s", msg);

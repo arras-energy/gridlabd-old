@@ -79,6 +79,13 @@ typedef struct s_eventhandlers {
 	char *commit;
 	char *finalize;
 } EVENTHANDLERS;
+typedef enum {
+	CES_PRECOMMIT,
+	CES_PRESYNC,
+	CES_SYNC,
+	CES_POSTSYNC,
+	CES_COMMIT,
+} CLOCKEVENTSYNC;
 typedef struct s_object_list {
 	OBJECTNUM id; /**< object id number; globally unique */
 	CLASS *oclass; /**< object class; determine structure of object data */
@@ -106,6 +113,7 @@ typedef struct s_object_list {
 	TIMESTAMP heartbeat; /**< heartbeat call interval (in sim-seconds) */
 	uint64 guid[1]; /**< globally unique identifier */
 	EVENTHANDLERS events;
+	CLOCKEVENTSYNC clock_event; /**< event on which local clock is synced */
 	/* IMPORTANT: flags must be last */
 	uint64 flags; /**< object flags */
 } OBJECT; /**< Object header structure */
