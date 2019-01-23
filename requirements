@@ -61,11 +61,10 @@ if [ -z "$REPO" ]; then
 	REPO="https://raw.githubusercontent.com/$PROJECT/$BRANCH"
 fi
 FUNCTIONS=$EXENAME-${OS// /-}
-if [ -f "$FUNCTIONS" ]; then
-	source "$FUNCTIONS"
-else
+if [ ! -f "$FUNCTIONS" ]; then
 	curl $REPO/${FUNCTIONS} > ${FUNCTIONS}
 fi
+source "$FUNCTIONS"
 
 if [ $# -eq 0 ]; then
 	syntax 0 short
