@@ -1,0 +1,80 @@
+#!/bin/bash
+
+EXENAME="$(basename $0)"
+# determine the OS info
+if [ -f /etc/os-release ]; then
+    # freedesktop.org and systemd
+    . /etc/os-release
+    OS=$NAME
+    VER=$VERSION_ID
+elif type lsb_release >/dev/null 2>&1; then
+    # linuxbase.org
+    OS=$(lsb_release -si)
+    VER=$(lsb_release -sr)
+elif [ -f /etc/lsb-release ]; then
+    # For some versions of Debian/Ubuntu without lsb_release command
+    . /etc/lsb-release
+    OS=$DISTRIB_ID
+    VER=$DISTRIB_RELEASE
+elif [ -f /etc/debian_version ]; then
+    # Older Debian/Ubuntu/etc.
+    OS=Debian
+    VER=$(cat /etc/debian_version)
+# elif [ -f /etc/SuSe-release ]; then
+#     # Older SuSE/etc.
+#     ...
+# elif [ -f /etc/redhat-release ]; then
+#     # Older Red Hat, CentOS, etc.
+#     ...
+else
+    # Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
+    OS=$(uname -s)
+    VER=$(uname -r)
+fi
+
+function error()
+{
+	echo "ERROR $1 [$EXENAME $(date)]: $2"
+	exit $1
+}
+
+function warning()
+{
+	echo "WARNING [$EXENAME $(date)]: $1"
+}
+
+function syntax()
+{
+	echo "Syntax: $EXENAME command [options]"
+	if [ ! -z "$1" ]; then
+		exit $1
+	fi
+}
+
+if [ -f "$EXENAME.cnf" ]; then
+	source "$EXENAME.cnf"
+else
+	PROJECT="gridlab-d/gridlab-d"
+	BRANCH="master"
+fi
+if [ -z "$REPO" ]; then
+	REPO="https://raw.githubusercontent.com/$PROJECT/$BRANCH"
+fi
+FUNCTIONS=$EXENAME-${OS// /-}
+if [ -f "$FUNCTIONS" ]; then
+	source "$FUNCTIONS"
+else
+	curl $REPO/${FUNCTIONS} > ${FUNCTIONS}
+fi
+
+if [ $# -eq 0 ]; then
+	syntax 0 short
+else
+	CMD=$1-${OS// /-}
+	if [ "$(type -t $CMD)" != "function" ]; then
+		error 1 "command '$1' is not available for operating system '$OS' version '$VER' (function '$CMD' not found)"
+	else
+		shift
+		$CMD $@
+	fi
+fi

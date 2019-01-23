@@ -1,0 +1,107 @@
+if [ "$(yum version)||echo none" == "none" ]; then
+	error 1 "yum not found"
+fi
+
+function help-CentOS-Linux ()
+{
+	syntax
+	echo "
+Commands:
+  help
+  install
+  info
+  reinstall
+  remove
+  upgrade
+  verify
+"
+}
+
+function install-CentOS-Linux ()
+{
+	yum install systemd -y
+	yum groupinstall "Development Tools" -y
+	yum install cmake -y
+	yum install xerces-c -y
+	echo "${OS} ${VER} system ready"
+
+	cd /usr/local/src
+	XERCES=xerces-c-3.2.0
+	if [ ! -f ${XERCES}.tar.gz ]; then
+		curl -L https://archive.apache.org/dist/xerces/c/3/sources/${XERCES}.tar.gz > ${XERCES}.tar.gz
+	fi
+	if [ ! -d ${XERCES} ]; then
+		tar xvfz ${XERCES}.tar.gz
+	fi
+	cd ${XERCES}
+	if [ ! -f Makefile ]; then
+		./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2'
+	fi
+	make install && echo "${XERCES} installed ok"
+
+	cd /usr/local/src
+	MYSQL=mysql-connector-c-6.1.11-linux-glibc2.12-x86_64
+	if [ ! -f "${MYSQL}.tar.gz" ]; then
+		curl -L https://downloads.mysql.com/archives/get/file/mysql-connector-c-6.1.11-linux-glibc2.12-x86_64.tar.gz -o ${MYSQL}.tar.gz
+	fi
+	if [ ! -f "${MYSQL}.tar" ]; then
+		gunzip ${MYSQL}.tar.gz
+	fi
+	if [ ! -d "${MYSQL}/bin" ]; then
+		tar xf ${MYSQL}.tar
+	fi
+	cp -u ${MYSQL}/bin/* /usr/local/bin
+	cp -Ru ${MYSQL}/include/* /usr/local/include
+	cp -Ru ${MYSQL}/lib/* /usr/local/lib
+	echo "${MYSQL} installed ok"
+
+	cd /usr/local/src
+	if [ ! -d gridlabd ]; then
+		git clone $REPO gridlabd
+	fi
+	cd gridlabd
+	autoreconf -isf
+	./configure --enable-silent-rules --prefix=/usr/local CFLAGS=-w CXXFLAGS=-w
+	make -j10 install
+	echo "gridlabd installed ok"
+}
+
+function info-CentOS-Linux ()
+{
+	yum info systemd
+	yum info cmake
+	yum info xerces-c
+	yum groupinfo "Development Tools"
+	gridlabd --version
+	gridlabd --origin
+}
+
+function remove-CentOS-Linux ()
+{
+	yum remove xerces-c -y
+	yum remove cmake -y
+	yum group remove "Development Tools" -y
+	yum remove systemd -y
+}
+
+function upgrade-CentOS-Linux ()
+{
+	yum upgrade xerces-c -y
+	yum upgrade cmake -y
+	yum group upgrade "Development Tools" -y
+	yum upgrade systemd -y
+}
+
+function reinstall-CentOS-Linux ()
+{
+	yum reinstall xerces-c -y
+	yum reinstall cmake -y
+	yum group reinstall "Development Tools" -y
+	yum reinstall systemd -y
+
+}
+
+function verify-CentOS-Linux ()
+{
+	gridlabd --validate
+}
