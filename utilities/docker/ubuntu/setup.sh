@@ -4,25 +4,19 @@
 #
 # Starting docker on the host
 #
-#   host% docker run -it centos bash
-#   Password: ...
-#   ...
-#   [root@... /]# cd /tmp
-#   [root@... /tmp]# curl https://raw.githubusercontent.com/dchassin/gridlabd/master/utilities/docker/centos-setup.sh -o setup.sh
-#   [root@... /tmp]# chmod +x setup.sh
-#   [root@... /tmp]# ./setup.sh
-#
+#   host% docker run -it -v $(pwd):/tmp ubuntu bash
+#.  host%
+#  
 
 ### Docker commands to build gridlabd
 
 # Install needed tools
-yum update -y
-yum groupinstall "Development Tools" -y
-
-yum install cmake -y 
-yum install https://dev.mysql.com/get/mysql57-community-release-el7-9.noarch.rpm -y
-#yum install mysql56-server -y 
-yum install mysql-libs -y
+apt-get update -y
+apt-get install autoconf -y
+apt-get install libtools -y
+apt-get install autoconf -y
+apt-get install g++ -y
+apt-get install cmake -y 
 
 cd /usr/local/src
 git clone https://github.com/dchassin/gridlabd gridlabd
