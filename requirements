@@ -57,14 +57,21 @@ else
 	PROJECT="gridlab-d/gridlab-d"
 	BRANCH="master"
 fi
-if [ -z "$REPO" ]; then
-	REPO="https://raw.githubusercontent.com/$PROJECT/$BRANCH"
+if [ -z "$GITRAW" ]; then
+	GITRAW="https://raw.githubusercontent.com/$PROJECT/$BRANCH"
 fi
-FUNCTIONS=$EXENAME-${OS// /-}
+if [ -z "$GITCLONE" ]; then
+	GITCLONE="https://github.com/$PROJECT -b $BRANCH"
+fi
+if [ -z "$GITPULL" ]; then
+	GITPULL="https://github.com/$PROJECT"
+fi
+
+FUNCTIONS="$EXENAME-${OS// /-}"
 if [ ! -f "$FUNCTIONS" ]; then
-	curl $REPO/${FUNCTIONS} > ${FUNCTIONS}
+	curl "$GITRAW/${FUNCTIONS}" > "${FUNCTIONS}"
 fi
-source "$FUNCTIONS"
+source "${FUNCTIONS}"
 
 if [ $# -eq 0 ]; then
 	syntax 0 short

@@ -33,11 +33,14 @@ function install-CentOS-Linux ()
 	if [ ! -d ${XERCES} ]; then
 		tar xvfz ${XERCES}.tar.gz
 	fi
+	cd -
+
 	cd ${XERCES}
 	if [ ! -f Makefile ]; then
 		./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2'
 	fi
 	make install && echo "${XERCES} installed ok"
+	cd -
 
 	cd /usr/local/src
 	MYSQL=mysql-connector-c-6.1.11-linux-glibc2.12-x86_64
@@ -54,16 +57,20 @@ function install-CentOS-Linux ()
 	cp -Ru ${MYSQL}/include/* /usr/local/include
 	cp -Ru ${MYSQL}/lib/* /usr/local/lib
 	echo "${MYSQL} installed ok"
+	cd -
 
 	cd /usr/local/src
 	if [ ! -d gridlabd ]; then
-		git clone $REPO gridlabd
+		$GITCLONE gridlabd
 	fi
-	cd gridlabd
+	cd -
+
+	cd /usr/local/src/gridlabd
 	autoreconf -isf
 	./configure --enable-silent-rules --prefix=/usr/local CFLAGS=-w CXXFLAGS=-w
 	make -j10 install
 	echo "gridlabd installed ok"
+	cd -
 }
 
 function info-CentOS-Linux ()
@@ -78,6 +85,9 @@ function info-CentOS-Linux ()
 
 function remove-CentOS-Linux ()
 {
+	cd /usr/local/src/gridlabd
+	make uninstall
+	cd -
 	yum remove xerces-c -y
 	yum remove cmake -y
 	yum group remove "Development Tools" -y
@@ -90,6 +100,12 @@ function upgrade-CentOS-Linux ()
 	yum upgrade cmake -y
 	yum group upgrade "Development Tools" -y
 	yum upgrade systemd -y
+
+	cd /usr/local/src/gridlabd
+	$GITPULL
+	make clean
+	make -j10 install
+	cd -
 }
 
 function reinstall-CentOS-Linux ()
@@ -99,6 +115,13 @@ function reinstall-CentOS-Linux ()
 	yum group reinstall "Development Tools" -y
 	yum reinstall systemd -y
 
+	cd /usr/local/src/gridlabd
+	$GITPULL
+	make distclean
+	autoreconf -isf
+	./configure --enable-silent-rules --prefix=/usr/local CFLAGS=-w CXXFLAGS=-w
+	make -j10 install
+	cd -
 }
 
 function verify-CentOS-Linux ()
