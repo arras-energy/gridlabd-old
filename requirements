@@ -54,8 +54,10 @@ function syntax()
 if [ -f "$EXENAME.cnf" ]; then
 	source "$EXENAME.cnf"
 else
-	PROJECT="gridlab-d/gridlab-d"
-	BRANCH="master"
+	#PROJECT="gridlab-d/gridlab-d"
+	#BRANCH="master"
+	PROJECT="dchassin/gridlabd" # change to gridlab-d/gridlab-d when merged
+	BRANCH="dchassin/requirements_script" # change to master when merged
 fi
 if [ -z "$GITRAW" ]; then
 	GITRAW="https://raw.githubusercontent.com/$PROJECT/$BRANCH"
