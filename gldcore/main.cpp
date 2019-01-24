@@ -60,6 +60,8 @@ extern "C" int main(int argc, /**< the number entries on command-line argument l
 		output_error("unable to create new instance");
 	else
 		my_instance->mainloop(argc,argv);
+	delete my_instance;
+	my_instance = NULL;
 }
 
 GldMain::GldMain(int argc,char *argv[])
