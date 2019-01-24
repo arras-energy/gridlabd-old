@@ -122,7 +122,7 @@ extern "C" {
 #endif
 
 int link_create(char *name);
-int link_initall(void);
+STATUS link_initall(void);
 TIMESTAMP link_syncall(TIMESTAMP t0);
 int link_termall();
 

@@ -80,7 +80,7 @@ int test_request(char *name)
 	return FAILED;
 }
 
-int test_exec(void)
+STATUS test_exec(void)
 {
 	TESTLIST *item;
 	for ( item=test_list ; item!=NULL ; item=item->next )

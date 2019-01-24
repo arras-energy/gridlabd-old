@@ -5,12 +5,14 @@
 #define _MAIN_H
 
 #include "globals.h"
+#include "exec.h"
 
 class GldMain {
 public:		// public variables
 
 public:	// private variables
 	GldGlobals globals;
+	GldExec exec;
 
 public:		// constructor/destructor
 	GldMain(int argc = 0, char *argv[] = NULL);
