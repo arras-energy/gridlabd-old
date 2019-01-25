@@ -86,9 +86,8 @@ private:
 	GldMain &instance;
 	char dumpfile[1024];
 	TIMESTAMP dumpinterval;
-
-public:
 	INDEX **ranks;
+	struct thread_data *thread_data;
 
 public:
 	GldExec(GldMain *main);
@@ -98,9 +97,12 @@ public:
 	int schedule_dump(TIMESTAMP interval, const char *filename = "gridlabd.json");
 	void run_dump(void);
 	// ranks
-	INDEX **getranks(void);
+	inline INDEX **getranks(void) { return ranks;};
 	void initranks(void);
-	void setranks(INDEX **ranks);
+	inline void setranks(INDEX **ptr) { ranks = ptr;};
+	// threads
+	inline struct thread_data *get_thread_data(void) { return thread_data;};
+	void init_thread_data(void);
 };
 
 #endif

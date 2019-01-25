@@ -140,6 +140,25 @@
 
 SET_MYCONTEXT(DMC_EXEC)
 
+/* TODO: remove these when reentrant code is completed */
+extern GldMain *my_instance;
+void exec_run_dump(void)
+{
+	my_instance->exec.run_dump();
+}
+int exec_schedule_dump(TIMESTAMP interval,char *filename)
+{
+	return my_instance->exec.schedule_dump(interval,filename);
+}
+struct thread_data *exec_get_thread_data(void)
+{
+	return my_instance->exec.get_thread_data(); 
+}
+void exec_init_thread_data(void)
+{
+	my_instance->exec.init_thread_data();
+}
+
 /* forward declaration */
 void exec_run_dump(void);
 
@@ -263,7 +282,6 @@ clock_t cstart, cend;
 #define PASSCMP(i, p) (p % 2 ? i <= ranks[p]->last_used : i >= ranks[p]->first_used)
 #define PASSINC(p) (p % 2 ? 1 : -1)
 
-static struct thread_data *thread_data = NULL;
 extern "C" const PASSCONFIG passtype[] = {PC_PRETOPDOWN, PC_BOTTOMUP, PC_POSTTOPDOWN};
 static unsigned int pass;
 int iteration_counter = 0;   /* number of redos completed */
@@ -284,10 +302,6 @@ struct arg_data {
 };
 struct arg_data arg_data_array[2];
 
-INDEX **GldExec::getranks(void)
-{
-	return ranks;
-}
 INDEX **exec_getranks(void)
 {
 	return my_instance->exec.getranks();
@@ -298,7 +312,7 @@ void exec_setranks(INDEX **ranks)
 }
 void exec_initranks(void)
 {
-	sizeof(passtype)/sizeof(passtype[0])
+	size_t sz = sizeof(passtype)/sizeof(passtype[0]);
 	INDEX **passlist = new INDEX*[sz+1];
 	memset(passlist,0,sizeof(INDEX*)*(sz+1));
 	exec_setranks(passlist);
@@ -455,6 +469,7 @@ void do_checkpoint(void)
 //sjin: implement new ss_do_object_sync for pthreads
 static void ss_do_object_sync(int thread, void *item)
 {
+	struct thread_data *thread_data = exec_get_thread_data();
 	struct sync_data *data = &thread_data->data[thread];
 	OBJECT *obj = (OBJECT *) item;
 	TIMESTAMP this_t;
@@ -1845,8 +1860,8 @@ extern "C" STATUS exec_start(void)
 						 * global_threadcount);
 
 		/* allocate thread synchronization data */
-		thread_data = (struct thread_data *) malloc(sizeof(struct thread_data) +
-					  sizeof(struct sync_data) * global_threadcount);
+		exec_init_thread_data();
+		struct thread_data * thread_data = exec_get_thread_data();
 		if (!thread_data) {
 			output_error("thread memory allocation failed");
 			/* TROUBLESHOOT
@@ -2123,6 +2138,7 @@ extern "C" STATUS exec_start(void)
 			/* prepare multithreading */
 			if (!global_debug_mode)
 			{
+				struct thread_data * thread_data = exec_get_thread_data();
 				for (j = 0; j < thread_data->count; j++) {
 					thread_data->data[j].hard_event = 0;
 					thread_data->data[j].step_to = TS_NEVER;
@@ -2269,6 +2285,7 @@ extern "C" STATUS exec_start(void)
 							pthread_mutex_unlock(&donelock[iObjRankList]);
 						}
 
+						struct thread_data * thread_data = exec_get_thread_data();
 						for (j = 0; j < thread_data->count; j++) {
 							if (thread_data->data[j].status == FAILED) 
 							{
@@ -2290,6 +2307,7 @@ extern "C" STATUS exec_start(void)
 
 			if (!global_debug_mode)
 			{
+				struct thread_data * thread_data = exec_get_thread_data();
 				for (j = 0; j < thread_data->count; j++) 
 				{
 					exec_sync_merge(NULL,&thread_data->data[j]);
@@ -2446,6 +2464,7 @@ extern "C" STATUS exec_start(void)
 	/* deallocate threadpool */
 	if (!global_debug_mode)
 	{
+		struct thread_data * thread_data = exec_get_thread_data();
 		free(thread_data);
 		thread_data = NULL;
 
@@ -3166,6 +3185,7 @@ GldExec::GldExec(GldMain *main)
 	strcpy(dumpfile,"");
 	dumpinterval = TS_NEVER;
 	ranks = NULL;
+	thread_data = NULL;
 }
 
 GldExec::~GldExec(void)
@@ -3173,6 +3193,11 @@ GldExec::~GldExec(void)
 
 }
 
+void GldExec::init_thread_data(void)
+{
+	thread_data = (struct thread_data *) malloc(sizeof(struct thread_data) +
+					  sizeof(struct sync_data) * global_threadcount);
+}
 int GldExec::schedule_dump(TIMESTAMP interval, const char *filename)
 {
 	output_verbose("scheduling dump to %s every %d seconds",filename,interval);
@@ -3180,6 +3205,7 @@ int GldExec::schedule_dump(TIMESTAMP interval, const char *filename)
 	strcpy(dumpfile,filename);
 	return 1;
 }
+
 void GldExec::run_dump(void)
 {
 	if ( dumpfile[0] == '\0' || dumpinterval==TS_NEVER )
@@ -3190,19 +3216,5 @@ void GldExec::run_dump(void)
 		output_error("dump to %s at %s failed",dumpfile,convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"unknown time");
 	}
 }
-void GldExec::setranks(INDEX **ptr)
-{
-	ranks = ptr;
-}
 
-/* TODO: remove these when reentrant code is completed */
-extern GldMain *my_instance;
-void exec_run_dump(void)
-{
-	my_instance->exec.run_dump();
-}
-int exec_schedule_dump(TIMESTAMP interval,char *filename)
-{
-	return my_instance->exec.schedule_dump(interval,filename);
-}
 /**@}*/
