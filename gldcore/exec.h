@@ -75,6 +75,8 @@ EXITCODE exec_run_termscripts(void);
 int exec_schedule_dump(TIMESTAMP interval,char *filename);
 int64 exec_clock(void);
 
+void exec_setranks(INDEX **ranks);
+
 #ifdef __cplusplus
 }
 
@@ -84,12 +86,21 @@ private:
 	GldMain &instance;
 	char dumpfile[1024];
 	TIMESTAMP dumpinterval;
+
+public:
+	INDEX **ranks;
+
 public:
 	GldExec(GldMain *main);
 	~GldExec(void);
+
 public:
 	int schedule_dump(TIMESTAMP interval, const char *filename = "gridlabd.json");
 	void run_dump(void);
+	// ranks
+	INDEX **getranks(void);
+	void initranks(void);
+	void setranks(INDEX **ranks);
 };
 
 #endif

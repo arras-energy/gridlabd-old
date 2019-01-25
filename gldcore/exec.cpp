@@ -264,7 +264,6 @@ clock_t cstart, cend;
 #define PASSINC(p) (p % 2 ? 1 : -1)
 
 static struct thread_data *thread_data = NULL;
-static INDEX **ranks = NULL;
 extern "C" const PASSCONFIG passtype[] = {PC_PRETOPDOWN, PC_BOTTOMUP, PC_POSTTOPDOWN};
 static unsigned int pass;
 int iteration_counter = 0;   /* number of redos completed */
@@ -285,19 +284,34 @@ struct arg_data {
 };
 struct arg_data arg_data_array[2];
 
-INDEX **exec_getranks(void)
+INDEX **GldExec::getranks(void)
 {
 	return ranks;
 }
-
+INDEX **exec_getranks(void)
+{
+	return my_instance->exec.getranks();
+}
+void exec_setranks(INDEX **ranks)
+{
+	my_instance->exec.setranks(ranks);
+}
+void exec_initranks(void)
+{
+	sizeof(passtype)/sizeof(passtype[0])
+	INDEX **passlist = new INDEX*[sz+1];
+	memset(passlist,0,sizeof(INDEX*)*(sz+1));
+	exec_setranks(passlist);
+}
 static STATUS setup_ranks(void)
 {
 	OBJECT *obj;
 	int i;
-	static INDEX *passlist[] = {NULL,NULL,NULL,NULL}; /* extra NULL marks the end of the list */
+
+	exec_initranks();
+	INDEX **ranks = exec_getranks();
 
 	/* create index object */
-	ranks = passlist;
 	ranks[0] = index_create(0,10);
 	ranks[1] = index_create(0,10);
 	ranks[2] = index_create(0,10);
@@ -1270,6 +1284,7 @@ STATUS t_sync_all(PASSCONFIG pass)
 {
 	struct sync_data sync = {TS_NEVER,0,SUCCESS};
 	int pass_index = ((int)(pass/2)); /* 1->0, 2->1, 4->2; NB: if a fourth pass is added this won't work right */
+	INDEX **ranks = exec_getranks();
 
 	/* scan the ranks of objects */
 	if (ranks[pass_index] != NULL)
@@ -1750,6 +1765,7 @@ extern "C" STATUS exec_start(void)
 	LISTITEM *ptr;
 	int incr;
 	struct arg_data *arg_data_array;
+	INDEX **ranks = exec_getranks();
 
 	// Only setup threadpool for each object rank list at the first iteration;
 	// After the first iteration, setTP = false;
@@ -1791,6 +1807,10 @@ extern "C" STATUS exec_start(void)
 			the guidance for that message and try again.
 		 */
 		return FAILED;
+	}
+	else
+	{
+		ranks = exec_getranks();
 	}
 
 	/* run checks */
@@ -3145,6 +3165,7 @@ GldExec::GldExec(GldMain *main)
 {
 	strcpy(dumpfile,"");
 	dumpinterval = TS_NEVER;
+	ranks = NULL;
 }
 
 GldExec::~GldExec(void)
@@ -3168,6 +3189,10 @@ void GldExec::run_dump(void)
 		char buffer[64];
 		output_error("dump to %s at %s failed",dumpfile,convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"unknown time");
 	}
+}
+void GldExec::setranks(INDEX **ptr)
+{
+	ranks = ptr;
 }
 
 /* TODO: remove these when reentrant code is completed */
