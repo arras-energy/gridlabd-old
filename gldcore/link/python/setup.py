@@ -19,7 +19,7 @@ if not os.path.exists('gldcore/build.h') :
 
 gridlabd = Extension('gridlabd', 
 	include_dirs = ['gldcore/link/python','gldcore'],
-	extra_compile_args = ["-w","-O3","-DHAVE_CONFIG_H"],
+	extra_compile_args = ["-w","-O3","-DHAVE_CONFIG_H","-DHAVE_PYTHON"],
 	libraries = ['ncurses'],
 	sources = ['gldcore/link/python/python.cpp',
 		'gldcore/aggregate.c',

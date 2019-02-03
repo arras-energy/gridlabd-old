@@ -8,6 +8,7 @@ def showme(context):
 
 
 #gridlabd.command('--debug')
+gridlabd.module('my_test.py')
 gridlabd.command('validate.glm')
 #gridlabd.command('-D')
 #gridlabd.command('show_progress=FALSE')

@@ -27,6 +27,7 @@ static PyObject *gridlabd_pause(PyObject *self, PyObject *args);
 static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args);
 static PyObject *gridlabd_resume(PyObject *self, PyObject *args);
 
+static PyObject *gridlabd_module(PyObject *self, PyObject *args);
 static PyObject *gridlabd_add(PyObject *self, PyObject *args);
 static PyObject *gridlabd_load(PyObject *self, PyObject *args);
 static PyObject *gridlabd_save(PyObject *self, PyObject *args);
@@ -58,6 +59,7 @@ static PyMethodDef module_methods[] = {
     {"pauseat",gridlabd_pauseat, METH_VARARGS, "Pause the GridLAB-D instance at a specified time"},
     {"resume",gridlabd_resume, METH_VARARGS, "Resume the GridLAB-D instance"},
     // model editing
+    {"module",gridlabd_module, METH_VARARGS, "Load a python GridLAB-D module"},
     {"add", gridlabd_add, METH_VARARGS, "Add an element to the current model"}, 
     {"load", gridlabd_load, METH_VARARGS, "Load model from a file"},
     {"save", gridlabd_save, METH_VARARGS, "Save model to a file"},
@@ -1156,4 +1158,53 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
         }
         return Py_BuildValue("d",real);
     }
+}
+
+/////////////////////
+// module interface
+////////////////////
+static PyObject *gridlabd_module(PyObject *self, PyObject *args)
+{
+    gridlabd_exception("unable to import module");
+    return NULL;
+}
+
+extern "C" int python_is_module(const char *file)
+{
+    return 1;
+}
+ 
+extern "C" int python_import_file(const char *file)
+{
+    return 0;
+}
+extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
+{
+    MODULE *mod = new MODULE;
+    strcpy(mod->name,file);
+    mod->oclass = NULL;
+    mod->major = 4;
+    mod->minor = 0;
+    mod->getvar = NULL;
+    mod->setvar = NULL;
+    mod->import_file = python_import_file;
+    mod->export_file = NULL;
+    mod->check = NULL;
+    /* deltamode */
+    mod->deltadesired = NULL;
+    mod->preupdate = NULL;
+    mod->interupdate = NULL;
+    mod->deltaClockUpdate = NULL;
+    mod->postupdate = NULL;
+    /* clock hook*/
+    mod->clockupdate = NULL;
+    mod->cmdargs = NULL;
+    mod->kmldump = NULL;
+    mod->test = NULL;
+    mod->subload = NULL;
+    mod->globals = NULL;
+    mod->term = NULL;
+    mod->stream = NULL;
+    mod->next = NULL;
+    return mod;
 }

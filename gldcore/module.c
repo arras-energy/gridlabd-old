@@ -245,6 +245,39 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 							   int argc, /**< count of arguments in \p argv */
 							   char *argv[]) /**< arguments passed from the command line */
 {
+#ifdef HAVE_PYTHON
+	extern int python_is_module(const char*);
+	extern MODULE *python_module_load(const char *, int, char *[]);
+	if ( python_is_module(file) )
+	{
+		MODULE *mod = python_module_load(file,argc,argv);
+		if ( mod == NULL )
+			output_error("unable to load module %s", file);
+
+		mod->hLib = NULL;
+		
+		/* attach to list of known modules */
+		if (first_module==NULL)
+		{
+			mod->id = 0;
+			first_module = mod;
+		}
+		else
+		{
+			last_module->next = mod;
+			mod->id = last_module->id + 1;
+		}
+		last_module = mod;
+		module_count++;
+
+		/* register the module stream, if any */
+		if ( mod->stream!=NULL )
+			stream_register(mod->stream);
+
+		return mod;
+	}
+#endif
+
 	/* check for already loaded */
 	MODULE *mod = module_find((char *)file);
 	char buffer[FILENAME_MAX+1];
