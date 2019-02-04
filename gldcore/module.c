@@ -247,7 +247,6 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 {
 	MODULE *mod;
 #ifdef HAVE_PYTHON
-	extern int python_is_module(const char*);
 	extern MODULE *python_module_load(const char *, int, char *[]);
 	mod = python_module_load(file,argc,argv);
 	if ( mod != NULL )
@@ -565,7 +564,11 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			}
 		}
 	}
+	return module_add(mod);
+}
 
+MODULE *module_add(MODULE *mod)
+{
 	/* attach to list of known modules */
 	if (first_module==NULL)
 	{

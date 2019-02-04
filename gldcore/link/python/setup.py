@@ -15,11 +15,11 @@ from distutils.core import setup, Extension
 
 import os
 if not os.path.exists('gldcore/build.h') :
-	raise Exception("python module must be built from project source folder")
+	raise Exception("python module must be built from project folder after the main build is completed (gldcore/build.h is missing)")
 
 gridlabd = Extension('gridlabd', 
 	include_dirs = ['gldcore/link/python','gldcore'],
-	extra_compile_args = ["-w","-O0","-glldb","-DHAVE_CONFIG_H","-DHAVE_PYTHON"],
+	extra_compile_args = ["-w","-O3","-DHAVE_CONFIG_H","-DHAVE_PYTHON"],
 	libraries = ['ncurses'],
 	sources = ['gldcore/link/python/python.cpp',
 		'gldcore/aggregate.c',
@@ -85,7 +85,7 @@ gridlabd = Extension('gridlabd',
 	)
 
 setup (	name = 'GridLAB-D',
-		version = '4.0',
+		version = '4.2',
 		description = 'GridLAB-D Power System Simulator',
 		author = 'David P. Chassin',
 		author_email = 'dchassin@stanford.edu',
