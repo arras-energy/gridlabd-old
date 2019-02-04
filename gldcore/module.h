@@ -44,6 +44,13 @@ struct s_module_list {
 #else
 	void *stream;
 #endif
+	bool (*on_init)(void);
+	TIMESTAMP (*on_precommit)(TIMESTAMP t);
+	TIMESTAMP (*on_presync)(TIMESTAMP t);
+	TIMESTAMP (*on_sync)(TIMESTAMP t);
+	TIMESTAMP (*on_postsync)(TIMESTAMP t);
+	bool (*on_commit)(TIMESTAMP t);
+	void (*on_term)(void);
 	struct s_module_list *next;
 }; /* MODULE */
 

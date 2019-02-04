@@ -245,17 +245,15 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 							   int argc, /**< count of arguments in \p argv */
 							   char *argv[]) /**< arguments passed from the command line */
 {
+	MODULE *mod;
 #ifdef HAVE_PYTHON
 	extern int python_is_module(const char*);
 	extern MODULE *python_module_load(const char *, int, char *[]);
-	if ( python_is_module(file) )
+	mod = python_module_load(file,argc,argv);
+	if ( mod != NULL )
 	{
-		MODULE *mod = python_module_load(file,argc,argv);
-		if ( mod == NULL )
-			output_error("unable to load module %s", file);
-
 		mod->hLib = NULL;
-		
+
 		/* attach to list of known modules */
 		if (first_module==NULL)
 		{
@@ -279,7 +277,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 #endif
 
 	/* check for already loaded */
-	MODULE *mod = module_find((char *)file);
+	mod = module_find((char *)file);
 	char buffer[FILENAME_MAX+1];
 	char *fmod;
 	bool isforeign = false;

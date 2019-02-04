@@ -59,7 +59,7 @@ static PyMethodDef module_methods[] = {
     {"pauseat",gridlabd_pauseat, METH_VARARGS, "Pause the GridLAB-D instance at a specified time"},
     {"resume",gridlabd_resume, METH_VARARGS, "Resume the GridLAB-D instance"},
     // model editing
-    {"module",gridlabd_module, METH_VARARGS, "Load a python GridLAB-D module"},
+    {"module", gridlabd_module, METH_VARARGS, "Load a python GridLAB-D module"},
     {"add", gridlabd_add, METH_VARARGS, "Add an element to the current model"}, 
     {"load", gridlabd_load, METH_VARARGS, "Load model from a file"},
     {"save", gridlabd_save, METH_VARARGS, "Save model to a file"},
@@ -1163,10 +1163,79 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
 /////////////////////
 // module interface
 ////////////////////
+static MODULE python_module;
+static bool on_init(void)
+{
+
+}
+static TIMESTAMP on_precommit(TIMESTAMP t)
+{
+
+}
+static TIMESTAMP on_presync(TIMESTAMP t)
+{
+
+}
+static TIMESTAMP on_sync(TIMESTAMP t)
+{
+
+}
+static TIMESTAMP on_postsync(TIMESTAMP t)
+{
+
+}
+static bool on_commit(TIMESTAMP t)
+{
+
+}
+static void on_term(void)
+{
+
+}
+
+//
+// >>> gridlabd.module(module)
+// 
+// Links the specified module to the gridlabd core
+//
+static PyObject *modlist = NULL;
 static PyObject *gridlabd_module(PyObject *self, PyObject *args)
 {
-    gridlabd_exception("unable to import module");
-    return NULL;
+    PyObject *mod = NULL;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args,"O", &mod) )
+    {
+        gridlabd_exception("unable to import python module");
+        return NULL;
+    }
+    if ( ! PyModule_Check(mod) )
+    {
+        gridlabd_exception("object is not a module");
+        return NULL;
+    }
+    if ( modlist == NULL )
+        modlist = PyList_New(0);
+    int n;
+    for ( n = 0 ; n < PyList_Size(modlist) ; n++ )
+    {
+        if ( PyList_GetItem(modlist,n) == mod )
+            return PyLong_FromLong(n);
+    }
+
+    // TODO: link module to core
+    PyObject *dict = PyModule_GetDict(mod);
+    if ( dict == NULL || ! PyDict_Check(dict) )
+    {
+        gridlabd_exception("module does not have a namespace dict");
+        return NULL;       
+    }
+    if ( PyDict_GetItemString(dict,"on_commit"))
+    {
+        python_module.on_commit = on_commit;
+        printf("on_commit found\n");
+    }
+    PyList_Append(modlist,mod);
+    return PyLong_FromLong(PyList_Size(modlist)-1);
 }
 
 extern "C" int python_is_module(const char *file)
@@ -1180,31 +1249,51 @@ extern "C" int python_import_file(const char *file)
 }
 extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
-    MODULE *mod = new MODULE;
-    strcpy(mod->name,file);
-    mod->oclass = NULL;
-    mod->major = 4;
-    mod->minor = 0;
-    mod->getvar = NULL;
-    mod->setvar = NULL;
-    mod->import_file = python_import_file;
-    mod->export_file = NULL;
-    mod->check = NULL;
+    PyObject *mod = PyImport_ImportModule(file);
+    if ( mod == NULL )
+        return NULL;
+    if ( modlist == NULL )
+        modlist = PyList_New(0);
+    int n;
+    for ( n = 0 ; n < PyList_Size(modlist) ; n++ )
+    {
+        if ( PyList_GetItem(modlist,n) == mod )
+            return &python_module;
+    }
+    PyList_Append(modlist,mod);
+
+    strcpy(python_module.name,file);
+    python_module.oclass = NULL;
+    python_module.major = 4;
+    python_module.minor = 0;
+    python_module.getvar = NULL;
+    python_module.setvar = NULL;
+    python_module.import_file = python_import_file;
+    python_module.export_file = NULL;
+    python_module.check = NULL;
     /* deltamode */
-    mod->deltadesired = NULL;
-    mod->preupdate = NULL;
-    mod->interupdate = NULL;
-    mod->deltaClockUpdate = NULL;
-    mod->postupdate = NULL;
+    python_module.deltadesired = NULL;
+    python_module.preupdate = NULL;
+    python_module.interupdate = NULL;
+    python_module.deltaClockUpdate = NULL;
+    python_module.postupdate = NULL;
     /* clock hook*/
-    mod->clockupdate = NULL;
-    mod->cmdargs = NULL;
-    mod->kmldump = NULL;
-    mod->test = NULL;
-    mod->subload = NULL;
-    mod->globals = NULL;
-    mod->term = NULL;
-    mod->stream = NULL;
-    mod->next = NULL;
-    return mod;
+    python_module.clockupdate = NULL;
+    python_module.cmdargs = NULL;
+    python_module.kmldump = NULL;
+    python_module.test = NULL;
+    python_module.subload = NULL;
+    python_module.globals = NULL;
+    python_module.term = NULL;
+    python_module.stream = NULL;
+    python_module.next = NULL;
+    python_module.on_init = NULL;
+    python_module.on_precommit = NULL;
+    python_module.on_presync = NULL;
+    python_module.on_sync = NULL;
+    python_module.on_postsync = NULL;
+    python_module.on_commit = NULL;
+    python_module.on_term = NULL;
+
+    return &python_module;
 }
