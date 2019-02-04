@@ -53,6 +53,7 @@ include commercial/Makefile.mk
 include connection/Makefile.mk
 include gldcore/link/engine/Makefile.mk
 include gldcore/link/matlab/Makefile.mk
+include gldcore/link/python/Makefile.mk
 include gldcore/Makefile.mk
 include gldcore/rt/Makefile.mk
 include gldcore/solvers/Makefile.mk
