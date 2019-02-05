@@ -1163,6 +1163,7 @@ static TIMESTAMP on_postsync(TIMESTAMP t)
 }
 static bool on_commit(TIMESTAMP t)
 {
+    output_debug("python.cpp/on_commit(t=%d)",t);
     size_t n;
     bool final = true;
     for ( n = 0 ; n < PyList_Size(python_commit) ; n++ )
@@ -1175,6 +1176,10 @@ static bool on_commit(TIMESTAMP t)
         {
             output_error("python module on_commit did not return a Boolean value (assuming false)");
             return false;
+        }
+        if ( ! retval )
+        {
+            output_error("python commit failed");
         }
         final &= retval;
     }

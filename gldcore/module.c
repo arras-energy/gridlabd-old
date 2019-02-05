@@ -505,6 +505,13 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->stream = (STREAMCALL)DLSYM(hLib,"stream");
 	mod->globals = NULL;
 	mod->term = (void(*)(void))DLSYM(hLib,"term");
+	mod->on_init = NULL;
+	mod->on_precommit = NULL;
+	mod->on_presync = NULL;
+	mod->on_sync = NULL;
+	mod->on_postsync = NULL;
+	mod->on_commit = NULL;
+	mod->on_term = NULL;
 	strcpy(mod->name,file);
 	mod->next = NULL;
 
@@ -1142,6 +1149,32 @@ void module_termall(void)
 	}
 }
 
+TIMESTAMP module_precommitall(TIMESTAMP t)
+{
+	TIMESTAMP result = TS_NEVER;
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_precommit ) 
+		{
+			TIMESTAMP next = mod->on_precommit(t);
+			if ( absolute_timestamp(next) < absolute_timestamp(result) )
+				result = next;
+		}
+	}
+	return result;
+}
+
+bool module_commitall(TIMESTAMP t)
+{
+	bool result = true;
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_commit ) result &= mod->on_commit(t);
+	}
+	return result;
+}
 
 /***************************************************************************
  * EXTERNAL COMPILER SUPPORT

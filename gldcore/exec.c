@@ -981,7 +981,7 @@ static STATUS precommit_all(TIMESTAMP t0)
 		 */
 		rv=FAILED;
 	} ENDCATCH;
-	return rv;
+	return rv && module_precommitall(t0);
 }
 
 /**************************************************************************
@@ -1182,7 +1182,8 @@ static TIMESTAMP commit_all(TIMESTAMP t0, TIMESTAMP t2)
 		result = TS_INVALID;
 	}
 	ENDCATCH;
-	return result;
+
+	return result && module_commitall(t0) ? TS_NEVER : TS_INVALID;
 }
 
 /**************************************************************************

@@ -2,7 +2,6 @@ import sys
 assert(sys.version_info.major>2)
 import time
 import gridlabd
-import my_test
 
 def showme(context):
 	print("\n%s:\n\tglobal.clock.... %s\n\tmy_test.x....... %s" % (context,gridlabd.get_global('clock'),gridlabd.get_value('my_test','x')))
@@ -15,6 +14,7 @@ def showme(context):
 # sys.stdout.flush()
 
 #gridlabd.command('--debug')
+#gridlabd.module('my_test')
 gridlabd.command('validate.glm')
 #gridlabd.command('-D')
 #gridlabd.command('show_progress=FALSE')
