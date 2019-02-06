@@ -201,6 +201,9 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
     // adjustments for python modules
     global_glm_save_options = GSO_MINIMAL;
 
+    // important constants needed by python modules
+    PyModule_AddObject(this_module,"NEVER",PyLong_FromLong(TS_NEVER));
+
     return this_module;
 }
 
@@ -1153,23 +1156,28 @@ static PyObject *python_commit = NULL;
 static PyObject *python_term = NULL;
 static bool on_init(void)
 {
-
+    Callback("on_init");
+    return TS_NEVER;
 }
 static TIMESTAMP on_precommit(TIMESTAMP t)
 {
-
+    Callback("on_precommit");
+    return TS_NEVER;
 }
 static TIMESTAMP on_presync(TIMESTAMP t)
 {
-
+    Callback("on_presync");
+    return TS_NEVER;
 }
 static TIMESTAMP on_sync(TIMESTAMP t)
 {
-
+    Callback("on_sync");
+    return TS_NEVER;
 }
 static TIMESTAMP on_postsync(TIMESTAMP t)
 {
-
+    Callback("on_postsync");
+    return TS_NEVER;
 }
 static bool on_commit(TIMESTAMP t)
 {
@@ -1179,7 +1187,7 @@ static bool on_commit(TIMESTAMP t)
     for ( n = 0 ; n < PyList_Size(python_commit) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_commit,n);
-        PyObject *arg = Py_BuildValue("(Oi)",this_module,t);
+        PyObject *arg = Py_BuildValue("(i)",t);
         PyObject *result = PyEval_CallObject(call,arg);
         Py_DECREF(arg);
         bool retval = false; 
@@ -1198,7 +1206,8 @@ static bool on_commit(TIMESTAMP t)
 }
 static void on_term(void)
 {
-
+    Callback("on_term");
+    return;
 }
 static int python_import_file(const char *file)
 {
@@ -1288,6 +1297,7 @@ extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
         output_message("%s.on_commit() not found",file);
 
     PyList_Append(modlist,mod);
+    PyModule_AddObject(mod,"gridlabd",this_module);
 
     return &python_module;
 }
