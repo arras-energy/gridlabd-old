@@ -1169,9 +1169,13 @@ bool module_commitall(TIMESTAMP t)
 {
 	bool result = true;
 	MODULE *mod;
-	for (mod=first_module; mod!=NULL; mod=mod->next)
+	for ( mod = first_module ; mod != NULL ; mod = mod->next )
 	{
-		if ( mod->on_commit ) result &= mod->on_commit(t);
+		if ( mod->on_commit ) 
+		{
+			bool ok = mod->on_commit(t);
+			result &= ok;
+		}
 	}
 	return result;
 }

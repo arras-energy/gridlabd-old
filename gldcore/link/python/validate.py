@@ -13,9 +13,12 @@ def showme(context):
 # print("mod = %d"%gridlabd.module(my_test))
 # sys.stdout.flush()
 
-#gridlabd.command('--debug')
-#gridlabd.module('my_test')
+gridlabd.module('my_test')
+
 gridlabd.command('validate.glm')
+gridlabd.start('wait')
+quit()
+
 #gridlabd.command('-D')
 #gridlabd.command('show_progress=FALSE')
 gridlabd.start('pause')

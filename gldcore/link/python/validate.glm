@@ -1,7 +1,7 @@
 //module my_test.py;
 clock {
 	starttime '2018-01-01 00:00:00';
-	stoptime '2019-01-01 00:00:00';
+	stoptime '2018-01-01 01:00:00';
 }
 
 class test {

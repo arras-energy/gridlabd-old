@@ -178,20 +178,30 @@ static PyObject *gridlabd_license(PyObject *self, PyObject *args)
 }
 
 static PyObject *gridlabdException;
+static PyObject *this_module = NULL;
+
+class Callback {
+    static const char *name;
+public:
+    inline Callback(const char *str) { name = str; };
+    inline ~Callback(void) { name = NULL; };
+    static inline bool is_active(void) { return name==NULL; };
+};
+const char * Callback::name = NULL;
 
 PyMODINIT_FUNC PyInit_gridlabd(void)
 {
-    PyObject *mod = PyModule_Create(&gridlabdmodule);
-    if ( mod == NULL )
+    this_module = PyModule_Create(&gridlabdmodule);
+    if ( this_module == NULL )
         return NULL;
     gridlabdException = PyErr_NewException("gridlabd.exception",NULL,NULL);
     Py_XINCREF(gridlabdException);
-    PyModule_AddObject(mod,"exception",gridlabdException);
+    PyModule_AddObject(this_module,"exception",gridlabdException);
 
     // adjustments for python modules
     global_glm_save_options = GSO_MINIMAL;
 
-    return mod;
+    return this_module;
 }
 
 static PyObject *gridlabd_exception(const char *format, ...)
@@ -730,9 +740,9 @@ static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
     if ( ! PyArg_ParseTuple(args, "s", &name) )
         return NULL;
     char value[1024];
-    exec_rlock_sync();
+    if ( ! Callback::is_active() ) exec_rlock_sync();
     char *result = global_getvar(name,value,sizeof(value));
-    exec_runlock_sync();
+    if ( ! Callback::is_active() ) exec_runlock_sync();
     if ( result == NULL )
     {
         return gridlabd_exception("unable to get global '%s'",name);
@@ -1163,27 +1173,28 @@ static TIMESTAMP on_postsync(TIMESTAMP t)
 }
 static bool on_commit(TIMESTAMP t)
 {
-    output_debug("python.cpp/on_commit(t=%d)",t);
+    Callback("on_commit");
+
     size_t n;
-    bool final = true;
     for ( n = 0 ; n < PyList_Size(python_commit) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_commit,n);
-        PyObject *arg = Py_BuildValue("i",t);
+        PyObject *arg = Py_BuildValue("(Oi)",this_module,t);
         PyObject *result = PyEval_CallObject(call,arg);
-        bool retval;
-        if ( result == NULL || ! PyBool_Check(result) || ! PyArg_ParseTuple(result,"p",&retval) )
+        Py_DECREF(arg);
+        bool retval = false; 
+        if ( result ) 
         {
-            output_error("python module on_commit did not return a Boolean value (assuming false)");
-            return false;
+            retval = PyObject_IsTrue(result);
+            Py_DECREF(result);
         }
         if ( ! retval )
         {
-            output_error("python commit failed");
+            output_error("python on_commit failed");
+            return false;
         }
-        final &= retval;
     }
-    return final;
+    return true;
 }
 static void on_term(void)
 {
@@ -1216,31 +1227,6 @@ extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
     }
 
     // TODO: link module to core
-    PyObject *dict = PyModule_GetDict(mod);
-    if ( dict == NULL || ! PyDict_Check(dict) )
-    {
-        gridlabd_exception("module does not have a namespace dict");       
-        return NULL;
-    }
-
-    if ( python_commit == NULL )
-        python_commit = PyList_New(0);
-    PyObject *call = PyDict_GetItemString(dict,"on_commit");
-    if ( call )
-    {
-        if ( PyCallable_Check(call) )
-        {
-            python_module.on_commit = on_commit;
-            PyList_Append(python_commit,call);
-        }
-        else 
-        {
-            gridlabd_exception("on_commit is not callable");
-            return NULL;
-        }
-    }
-    PyList_Append(modlist,mod);
-
     strcpy(python_module.name,file);
     python_module.oclass = NULL;
     python_module.major = global_version_major;
@@ -1274,6 +1260,35 @@ extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
     python_module.on_commit = NULL;
     python_module.on_term = NULL;
 
+    PyObject *dict = PyModule_GetDict(mod);
+    if ( dict == NULL || ! PyDict_Check(dict) )
+    {
+        gridlabd_exception("module does not have a namespace dict");       
+        return NULL;
+    }
+
+    if ( python_commit == NULL )
+        python_commit = PyList_New(0);
+    PyObject *call = PyDict_GetItemString(dict,"on_commit");
+    if ( call )
+    {
+        output_message("%s.on_commit() found",file);
+        if ( PyCallable_Check(call) )
+        {
+            python_module.on_commit = on_commit;
+            PyList_Append(python_commit,call);
+        }
+        else 
+        {
+            gridlabd_exception("on_commit is not callable");
+            return NULL;
+        }
+    }
+    else
+        output_message("%s.on_commit() not found",file);
+
+    PyList_Append(modlist,mod);
+
     return &python_module;
 }
 
@@ -1290,6 +1305,11 @@ static PyObject *gridlabd_module(PyObject *self, PyObject *args)
         return gridlabd_exception("unable to import python module (name not given)");
     MODULE *mod = python_module_load(name,0,NULL);
     if ( ! module_find(name) )
+    {
+        output_message("python module '%s' loaded ok", name);
         module_add(mod);
+    }
+    else
+        output_message("python module '%s' already loaded", name);
     return PyLong_FromLong(PyList_Size(modlist)-1);
 }
