@@ -1148,38 +1148,39 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
 ////////////////////
 static PyObject *modlist = NULL;
 static MODULE python_module;
+static PyObject *python_init = NULL;
 static PyObject *python_precommit = NULL;
 static PyObject *python_presync = NULL;
 static PyObject *python_sync = NULL;
 static PyObject *python_postsync = NULL;
 static PyObject *python_commit = NULL;
 static PyObject *python_term = NULL;
-static bool on_init(void)
+extern "C" bool on_init(void)
 {
     Callback("on_init");
     return TS_NEVER;
 }
-static TIMESTAMP on_precommit(TIMESTAMP t)
+extern "C" TIMESTAMP on_precommit(TIMESTAMP t)
 {
     Callback("on_precommit");
     return TS_NEVER;
 }
-static TIMESTAMP on_presync(TIMESTAMP t)
+extern "C" TIMESTAMP on_presync(TIMESTAMP t)
 {
     Callback("on_presync");
     return TS_NEVER;
 }
-static TIMESTAMP on_sync(TIMESTAMP t)
+extern "C" TIMESTAMP on_sync(TIMESTAMP t)
 {
     Callback("on_sync");
     return TS_NEVER;
 }
-static TIMESTAMP on_postsync(TIMESTAMP t)
+extern "C" TIMESTAMP on_postsync(TIMESTAMP t)
 {
     Callback("on_postsync");
     return TS_NEVER;
 }
-static bool on_commit(TIMESTAMP t)
+extern "C" bool on_commit(TIMESTAMP t)
 {
     Callback("on_commit");
 
@@ -1204,7 +1205,7 @@ static bool on_commit(TIMESTAMP t)
     }
     return true;
 }
-static void on_term(void)
+extern "C" void on_term(void)
 {
     Callback("on_term");
     return;
@@ -1213,6 +1214,35 @@ static int python_import_file(const char *file)
 {
     // TODO
     return false;
+}
+static bool get_callback(
+    PyObject *mod,
+    const char *file,
+    const char *name, 
+    const char *def, 
+    PyObject **list)
+{
+    PyObject *dict = PyModule_GetDict(mod);
+    if ( dict == NULL || ! PyDict_Check(dict) )
+    {
+        output_error("module does not have a namespace dict");       
+        return false;
+    }
+
+    if ( *list == NULL )
+        *list = PyList_New(0);
+    PyObject *call = PyDict_GetItemString(dict,def);
+    if ( call )
+    {
+        if ( PyCallable_Check(call) )
+            PyList_Append(*list,call);
+        else 
+        {
+            output_error("%s.%s is not callable",file,def);
+            return false;
+        }
+    }
+    return true;    
 }
 extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
@@ -1261,40 +1291,14 @@ extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
     python_module.term = NULL;
     python_module.stream = NULL;
     python_module.next = NULL;
-    python_module.on_init = NULL;
-    python_module.on_precommit = NULL;
-    python_module.on_presync = NULL;
-    python_module.on_sync = NULL;
-    python_module.on_postsync = NULL;
-    python_module.on_commit = NULL;
-    python_module.on_term = NULL;
-
-    PyObject *dict = PyModule_GetDict(mod);
-    if ( dict == NULL || ! PyDict_Check(dict) )
-    {
-        gridlabd_exception("module does not have a namespace dict");       
-        return NULL;
-    }
-
-    if ( python_commit == NULL )
-        python_commit = PyList_New(0);
-    PyObject *call = PyDict_GetItemString(dict,"on_commit");
-    if ( call )
-    {
-        output_message("%s.on_commit() found",file);
-        if ( PyCallable_Check(call) )
-        {
-            python_module.on_commit = on_commit;
-            PyList_Append(python_commit,call);
-        }
-        else 
-        {
-            gridlabd_exception("on_commit is not callable");
-            return NULL;
-        }
-    }
-    else
-        output_message("%s.on_commit() not found",file);
+#define GET_CALLBACK(X) (get_callback(mod,file,#X,"on_"#X,&python_##X) ? on_##X : NULL)
+    python_module.on_init = GET_CALLBACK(init);
+    python_module.on_precommit = GET_CALLBACK(precommit);
+    python_module.on_presync = GET_CALLBACK(presync);
+    python_module.on_sync = GET_CALLBACK(sync);
+    python_module.on_postsync = GET_CALLBACK(postsync);
+    python_module.on_commit = GET_CALLBACK(commit);
+    python_module.on_term = GET_CALLBACK(term);
 
     PyList_Append(modlist,mod);
     PyModule_AddObject(mod,"gridlabd",this_module);
