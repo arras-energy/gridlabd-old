@@ -108,7 +108,7 @@ extern "C" {
 	int module_compile(char *name, char *code, int flags, char *prefix, char *file, int line);
 	void module_profiles(void);
 	CALLBACKS *module_callbacks(void);
-	bool module_initall(TIMESTAMP t);
+	bool module_initall();
 	TIMESTAMP module_precommitall(TIMESTAMP t);
 	TIMESTAMP module_presyncall(TIMESTAMP t);
 	TIMESTAMP module_syncall(TIMESTAMP t);

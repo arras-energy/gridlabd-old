@@ -1157,28 +1157,143 @@ static PyObject *python_commit = NULL;
 static PyObject *python_term = NULL;
 extern "C" bool on_init(void)
 {
-    Callback("on_init");
-    return TS_NEVER;
+    size_t n;
+    for ( n = 0 ; n < PyList_Size(python_init) ; n++ )
+    {
+        PyObject *call = PyList_GetItem(python_init,n);
+        PyObject *arg = Py_BuildValue("(i)",global_clock);
+        PyObject *result = PyEval_CallObject(call,arg);
+        Py_DECREF(arg);
+        bool retval = false; 
+        if ( result ) 
+        {
+            retval = PyObject_IsTrue(result);
+            Py_DECREF(result);
+        }
+        if ( ! retval )
+        {
+            output_error("python on_init() failed");
+            return false;
+        }
+    }
+    return true;
 }
-extern "C" TIMESTAMP on_precommit(TIMESTAMP t)
+extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
 {
     Callback("on_precommit");
-    return TS_NEVER;
+
+    size_t n;
+    TIMESTAMP t1 = TS_NEVER;
+    for ( n = 0 ; n < PyList_Size(python_precommit) ; n++ )
+    {
+        PyObject *call = PyList_GetItem(python_precommit,n);
+        PyObject *arg = Py_BuildValue("(i)",t0);
+        PyObject *result = PyEval_CallObject(call,arg);
+        Py_DECREF(arg);
+        TIMESTAMP t2 = TS_INVALID; 
+        if ( result ) 
+        {
+            if ( PyLong_Check(result) )
+                t2 = PyLong_AsLong(result);
+            else
+                output_error("python on_precommit(%d) returned an invalid type (expected long)",t0);
+            Py_DECREF(result);
+        }
+        else
+            output_error("python on_precommit(%d) returned nothing (expected long)",t0);
+        if ( t2 == TS_INVALID )
+            return t2;
+        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+            t1 = t2;
+    }
+    return t1;
 }
-extern "C" TIMESTAMP on_presync(TIMESTAMP t)
+extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
 {
     Callback("on_presync");
-    return TS_NEVER;
+    size_t n;
+    TIMESTAMP t1 = TS_NEVER;
+    for ( n = 0 ; n < PyList_Size(python_presync) ; n++ )
+    {
+        PyObject *call = PyList_GetItem(python_presync,n);
+        PyObject *arg = Py_BuildValue("(i)",t0);
+        PyObject *result = PyEval_CallObject(call,arg);
+        Py_DECREF(arg);
+        TIMESTAMP t2 = TS_INVALID; 
+        if ( result ) 
+        {
+            if ( PyLong_Check(result) )
+                t2 = PyLong_AsLong(result);
+            else
+                output_error("python on_presync(%d) returned an invalid type (expected long)",t0);
+            Py_DECREF(result);
+        }
+        else
+            output_error("python on_presync(%d) returned nothing (expected long)",t0);
+        if ( t2 == TS_INVALID )
+            return t2;
+        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+            t1 = t2;
+    }
+    return t1;
 }
-extern "C" TIMESTAMP on_sync(TIMESTAMP t)
+extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
 {
     Callback("on_sync");
-    return TS_NEVER;
+    size_t n;
+    TIMESTAMP t1 = TS_NEVER;
+    for ( n = 0 ; n < PyList_Size(python_sync) ; n++ )
+    {
+        PyObject *call = PyList_GetItem(python_sync,n);
+        PyObject *arg = Py_BuildValue("(i)",t0);
+        PyObject *result = PyEval_CallObject(call,arg);
+        Py_DECREF(arg);
+        TIMESTAMP t2 = TS_INVALID; 
+        if ( result ) 
+        {
+            if ( PyLong_Check(result) )
+                t2 = PyLong_AsLong(result);
+            else
+                output_error("python on_sync(%d) returned an invalid type (expected long)",t0);
+            Py_DECREF(result);
+        }
+        else
+            output_error("python on_sync(%d) returned nothing (expected long)",t0);
+        if ( t2 == TS_INVALID )
+            return t2;
+        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+            t1 = t2;
+    }
+    return t1;
 }
-extern "C" TIMESTAMP on_postsync(TIMESTAMP t)
+extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
 {
     Callback("on_postsync");
-    return TS_NEVER;
+    size_t n;
+    TIMESTAMP t1 = TS_NEVER;
+    for ( n = 0 ; n < PyList_Size(python_postsync) ; n++ )
+    {
+        PyObject *call = PyList_GetItem(python_postsync,n);
+        PyObject *arg = Py_BuildValue("(i)",t0);
+        PyObject *result = PyEval_CallObject(call,arg);
+        Py_DECREF(arg);
+        TIMESTAMP t2 = TS_INVALID; 
+        if ( result ) 
+        {
+            if ( PyLong_Check(result) )
+                t2 = PyLong_AsLong(result);
+            else
+                output_error("python on_postsync(%d) returned an invalid type (expected long)",t0);
+            Py_DECREF(result);
+        }
+        else
+            output_error("python on_postsync(%d) returned nothing (expected long)",t0);
+        if ( t2 == TS_INVALID )
+            return t2;
+        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+            t1 = t2;
+    }
+    return t1;
 }
 extern "C" bool on_commit(TIMESTAMP t)
 {
@@ -1199,7 +1314,7 @@ extern "C" bool on_commit(TIMESTAMP t)
         }
         if ( ! retval )
         {
-            output_error("python on_commit failed");
+            output_error("python on_commit(%d) failed",t);
             return false;
         }
     }
@@ -1208,7 +1323,21 @@ extern "C" bool on_commit(TIMESTAMP t)
 extern "C" void on_term(void)
 {
     Callback("on_term");
+    size_t n;
+    for ( n = 0 ; n < PyList_Size(python_term) ; n++ )
+    {
+        PyObject *call = PyList_GetItem(python_term,n);
+        PyObject *arg = Py_BuildValue("(i)",global_clock);
+        PyObject *result = PyEval_CallObject(call,arg);
+        Py_DECREF(arg);
+        if ( result && result != Py_None ) 
+        {
+            Py_DECREF(result);
+            output_warning("python on_term() return an unexpected type (expected None)");
+        }    
+    }
     return;
+
 }
 static int python_import_file(const char *file)
 {

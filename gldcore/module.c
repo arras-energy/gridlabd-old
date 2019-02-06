@@ -1145,8 +1145,23 @@ void module_termall(void)
 	MODULE *mod;
 	for (mod=first_module; mod!=NULL; mod=mod->next)
 	{
+		if ( mod->on_term ) mod->on_term();
 		if ( mod->term ) mod->term();
 	}
+}
+
+bool module_initall()
+{
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_init ) 
+		{
+			if ( ! mod->on_init() )
+				return false;
+		}
+	}
+	return true;
 }
 
 TIMESTAMP module_precommitall(TIMESTAMP t)
@@ -1164,6 +1179,55 @@ TIMESTAMP module_precommitall(TIMESTAMP t)
 	}
 	return result;
 }
+
+TIMESTAMP module_presyncall(TIMESTAMP t)
+{
+	TIMESTAMP result = TS_NEVER;
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_presync ) 
+		{
+			TIMESTAMP next = mod->on_presync(t);
+			if ( absolute_timestamp(next) < absolute_timestamp(result) )
+				result = next;
+		}
+	}
+	return result;
+}
+
+TIMESTAMP module_syncall(TIMESTAMP t)
+{
+	TIMESTAMP result = TS_NEVER;
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_sync ) 
+		{
+			TIMESTAMP next = mod->on_sync(t);
+			if ( absolute_timestamp(next) < absolute_timestamp(result) )
+				result = next;
+		}
+	}
+	return result;
+}
+
+TIMESTAMP module_postsyncall(TIMESTAMP t)
+{
+	TIMESTAMP result = TS_NEVER;
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_postsync ) 
+		{
+			TIMESTAMP next = mod->on_postsync(t);
+			if ( absolute_timestamp(next) < absolute_timestamp(result) )
+				result = next;
+		}
+	}
+	return result;
+}
+
 
 bool module_commitall(TIMESTAMP t)
 {

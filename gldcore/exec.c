@@ -837,6 +837,10 @@ static STATUS init_all(void)
 	STATUS rv = SUCCESS;
 	IN_MYCONTEXT output_verbose("initializing objects...");
 
+	/* initialize modules */
+	if ( ! module_initall() )
+		return FAILED;
+
 	/* initialize instances */
 	if ( instance_initall()==FAILED )
 		return FAILED;
@@ -2283,6 +2287,26 @@ STATUS exec_start(void)
 			{
 				int i;
 
+				/* top-down module events */
+				if ( pass == 0 )
+				{
+					TIMESTAMP mt = module_presyncall(global_clock);
+					if ( mt == TS_INVALID )
+					{
+						THROW("module on_presync failed");
+					}
+					exec_sync_set(NULL,mt,false);
+				}
+				else if ( pass == 2 )
+				{
+					TIMESTAMP mt = module_postsyncall(global_clock);
+					if ( mt == TS_INVALID )
+					{
+						THROW("module on_postsync failed");
+					}
+					exec_sync_set(NULL,mt,false);
+				}
+
 				/* process object in order of rank using index */
 				for (i = PASSINIT(pass); PASSCMP(i, pass); i += PASSINC(pass))
 				{
@@ -2406,6 +2430,16 @@ STATUS exec_start(void)
 					}
 				}
 
+				/* bottom-up module event */
+				if ( pass == 1 )
+				{
+					TIMESTAMP mt = module_syncall(global_clock);
+					if ( mt == TS_INVALID )
+					{
+						THROW("module on_sync failed");
+					}
+					exec_sync_set(NULL,mt,false);
+				}
 
 				/* run all non-schedule transforms */
 				{
