@@ -1,4 +1,4 @@
-//module my_test.py;
+module my_test;
 clock {
 	starttime '2018-01-01 00:00:00';
 	stoptime '2018-01-01 01:00:00';
@@ -10,5 +10,5 @@ class test {
 
 object test {
 	name "my_test";
-	x "type:lognormal(0,1); refresh:1min";
+	x "type:lognormal(0,1); refresh:5min";
 }

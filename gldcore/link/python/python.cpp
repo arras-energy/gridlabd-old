@@ -6,6 +6,7 @@
 #include "load.h"
 #include "exec.h"
 #include "save.h"
+#include "gldobject.h"
 
 static PyObject *gridlabd_exception(const char *format, ...);
 
@@ -79,7 +80,7 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef gridlabdmodule = {
+static struct PyModuleDef gridlabd_module_def = {
     PyModuleDef_HEAD_INIT,
     "gridlabd",   /* name of module */
     "Python GridLAB-D simulation", /* module documentation, may be NULL */
@@ -188,10 +189,51 @@ public:
     static inline bool is_active(void) { return name==NULL; };
 };
 const char * Callback::name = NULL;
+class ReadLock {
+public:
+    inline ReadLock() { if ( ! Callback::is_active() ) exec_rlock_sync(); };
+    inline ~ReadLock() { if ( ! Callback::is_active() ) exec_runlock_sync(); };
+};
+class WriteLock {
+public:
+    inline WriteLock() { if ( ! Callback::is_active() ) exec_wlock_sync(); };
+    inline ~WriteLock() { if ( ! Callback::is_active() ) exec_wunlock_sync(); };
+};
 
+// ////////////////////////
+// // gridlabd base class
+// ////////////////////////
+// extern "C" PyTypeObject gridlabd_class;
+// extern "C" void gridlabd_class_dealloc(PyObject *obj)
+// {
+//     // underlying object is static
+// }
+// extern "C" PyObject *gridlabd_class_repr(PyObject *obj)
+// {
+//     return PyUnicode_FromFormat("<GldObject>");
+// }
+// extern "C" PyObject *gridlabd_class_str(PyObject *obj)
+// {
+//     return PyUnicode_FromFormat("<GldObject>");
+// }
+// extern "C" PyObject *gridlabd_class_create(PyObject *mod)
+// {
+//     if ( gridlabd_class.tp_name == NULL )
+//     {
+//         gridlabd_class.tp_name = "GldObject";
+//         gridlabd_class.tp_dealloc = gridlabd_class_dealloc;
+//         gridlabd_class.tp_repr = gridlabd_class_repr;
+//         gridlabd_class.tp_str = gridlabd_class_str;
+//     }
+//     return &gridlabd_class;
+// }
+
+///////////////////////////
+// Module initiatlization
+///////////////////////////
 PyMODINIT_FUNC PyInit_gridlabd(void)
 {
-    this_module = PyModule_Create(&gridlabdmodule);
+    this_module = PyModule_Create(&gridlabd_module_def);
     if ( this_module == NULL )
         return NULL;
     gridlabdException = PyErr_NewException("gridlabd.exception",NULL,NULL);
@@ -203,6 +245,8 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
 
     // important constants needed by python modules
     PyModule_AddObject(this_module,"NEVER",PyLong_FromLong(TS_NEVER));
+
+    //PyModule_AddObject(this_module,"GldObject",gridlabd_class_create(&this_module));
 
     return this_module;
 }
@@ -634,9 +678,8 @@ static PyObject *gridlabd_save(PyObject *self, PyObject *args)
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
         return NULL;
-    exec_rlock_sync();
+    ReadLock();
     int len = saveall(name);
-    exec_runlock_sync();
     if ( len <= 0 )
     {
        return gridlabd_exception("uname to save '%s'", name);
@@ -743,9 +786,8 @@ static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
     if ( ! PyArg_ParseTuple(args, "s", &name) )
         return NULL;
     char value[1024];
-    if ( ! Callback::is_active() ) exec_rlock_sync();
+    ReadLock();
     char *result = global_getvar(name,value,sizeof(value));
-    if ( ! Callback::is_active() ) exec_runlock_sync();
     if ( result == NULL )
     {
         return gridlabd_exception("unable to get global '%s'",name);
@@ -766,14 +808,10 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
     if ( ! PyArg_ParseTuple(args, "ss", &name, &value) )
         return NULL;
     char previous[1024]="";
-    exec_wlock_sync();
+    WriteLock();
     if ( ! global_getvar(name,previous,sizeof(previous)) )
-    {
-        exec_wunlock_sync();
         return gridlabd_exception("unable to get old value of global '%s'",name);
-    }
     STATUS result = global_setvar(name,value);
-    exec_wunlock_sync();
     if ( result == FAILED )
     {
         return gridlabd_exception("unable to set global '%s' to value '%s'",name,value);
@@ -795,18 +833,13 @@ static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
         return NULL;
     OBJECT *obj = object_find_name(name);
     if ( obj == NULL )
-    {
         return gridlabd_exception("object '%s' not found", name);
-    }
 
     char value[1024];
-    exec_rlock_sync();
+    ReadLock();
     int len = object_get_value_by_name(obj,property,value,sizeof(value));
-    exec_runlock_sync();
     if ( len < 0 )
-    {
         return gridlabd_exception("object '%s' property '%s' not found", name, property);
-    }
     return Py_BuildValue("s",value);
 }
 
@@ -825,20 +858,14 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
         return NULL;
     OBJECT *obj = object_find_name(name);
     if ( obj == NULL )
-    {
         return gridlabd_exception("object '%s' not found", name);
-    }
 
     char previous[1024]="";
-    exec_wlock_sync();
+    WriteLock();
     int len = object_get_value_by_name(obj,property,value,sizeof(value));
     if ( len < 0 )
-    {
-        exec_wunlock_sync();
         return gridlabd_exception("unable to get old value of '%s.%s'", name,property);
-    }
     len = object_set_value_by_name(obj,property,value);
-    exec_wunlock_sync();
     if ( len < 0 )
     {
         return gridlabd_exception("cannot set object '%s' property '%s' to value '%s'", name, property, value);
@@ -998,7 +1025,7 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     snprintf(buffer,sizeof(buffer),"%llx",(unsigned long long)obj->flags);
     PyDict_SetItemString(data,"guid",Py_BuildValue("s",buffer));
 
-    exec_rlock_sync();
+    ReadLock();
     PROPERTY *prop;
     for ( prop = get_first_property(obj) ; prop != NULL ; prop = get_next_property(prop) )
     {
@@ -1010,7 +1037,6 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
                 PyDict_SetItemString(data,prop->name,Py_BuildValue("s",value));
         }
     }
-    exec_runlock_sync();
     return data;
 }
 
@@ -1145,7 +1171,7 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
 
 /////////////////////
 // module interface
-////////////////////
+/////////////////////
 static PyObject *modlist = NULL;
 static MODULE python_module;
 static PyObject *python_init = NULL;
