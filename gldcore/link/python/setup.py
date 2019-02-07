@@ -9,6 +9,7 @@ To install the python module use the following command:
 
 """
 import sys
+from compile_options import *
 assert(sys.version_info.major>2)
 
 from distutils.core import setup, Extension
@@ -19,9 +20,10 @@ if not os.path.exists('gldcore/build.h') :
 
 gridlabd = Extension('gridlabd', 
 	include_dirs = ['gldcore/link/python','gldcore'],
-	extra_compile_args = ["-w","-O3","-DHAVE_CONFIG_H","-DHAVE_PYTHON"],
+	extra_compile_args = compile_options,
 	libraries = ['ncurses'],
 	sources = ['gldcore/link/python/python.cpp',
+		#'gldcore/link/python/gldobject.c',
 		'gldcore/aggregate.c',
 		'gldcore/class.c',
 		'gldcore/cmdarg.c',
