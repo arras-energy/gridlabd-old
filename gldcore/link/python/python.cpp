@@ -244,7 +244,11 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
     global_glm_save_options = GSO_MINIMAL;
 
     // important constants needed by python modules
+    PyModule_AddObject(this_module,"ZERO",PyLong_FromLong(TS_ZERO));
+    PyModule_AddObject(this_module,"INIT",PyLong_FromLong(global_starttime));
+    PyModule_AddObject(this_module,"STOP",PyLong_FromLong(global_stoptime));
     PyModule_AddObject(this_module,"NEVER",PyLong_FromLong(TS_NEVER));
+    PyModule_AddObject(this_module,"INVALID",PyLong_FromLong(TS_INVALID));
 
     //PyModule_AddObject(this_module,"GldObject",gridlabd_class_create(&this_module));
 
@@ -1364,6 +1368,79 @@ extern "C" void on_term(void)
     }
     return;
 
+}
+
+extern "C" int python_event(OBJECT *obj, const char *function)
+{
+    char objname[64];
+    if ( obj->name )
+        strcpy(objname,obj->name);
+    else
+        sprintf(objname,"%s:%d",obj->oclass->name, obj->id);
+
+    char modname[1024], method[1024];
+    if ( sscanf(function,"%[^.].%[^\n]",modname,method) < 2 )
+    {
+        output_error("python_event(obj='%s',function='%s') has an invalid function (expected 'module.method')",objname,function);
+        return -1;
+    }
+
+    size_t n;
+    PyObject *mod;
+    for ( n = 0 ; n < PyList_Size(modlist) ; n++ )
+    {
+        mod = PyList_GetItem(modlist,n);
+        if ( strcmp(PyModule_GetName(mod),modname) == 0 )
+            break;
+        mod = NULL;
+    }
+    if ( mod == NULL )
+    {
+        output_error("python_event(obj='%s',function='%s') module %s is not found",objname,function,modname);
+        return -1;
+    }
+
+    PyObject *dict = PyModule_GetDict(mod);
+    if ( dict == NULL || ! PyDict_Check(dict) )
+    {
+        output_error("module does not have a namespace dict");       
+        return -1;
+    }
+    PyObject *call = PyDict_GetItemString(dict,method);
+    if ( call )
+    {
+        if ( PyCallable_Check(call) )
+        {
+            char name[1024];
+            if ( obj->name == NULL )
+                sprintf(name,"%s:%d", obj->oclass->name, obj->id);
+            PyObject *args = Py_BuildValue("(si)",obj->name?obj->name:name,global_clock);
+            PyObject *result = PyEval_CallObject(call,args);
+            Py_DECREF(args);
+            bool retval = TS_INVALID; 
+            if ( result ) 
+            {
+                if ( ! PyLong_Check(result) )
+                    output_error("python %s(%s) returned something other than a long",function,objname);
+                else
+                    retval = PyLong_AsLong(result);
+                Py_DECREF(result);
+            }
+            if ( retval == TS_INVALID)
+                output_error("python %s(%s) signalled stop (TS_INVALID)",function,objname);
+            return retval == TS_INVALID ? -1 : 0;
+        }    
+        else 
+        {
+            output_error("%s is not callable",function);
+            return -1;
+        }
+    }
+    else
+    {
+        output_error("%s method not found",function);
+        return -1;
+    }
 }
 static int python_import_file(const char *file)
 {

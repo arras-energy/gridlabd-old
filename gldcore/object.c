@@ -1484,19 +1484,33 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 
 int object_event(OBJECT *obj, char *event)
 {
-	char buffer[1024];
-	sprintf(buffer,"%d",global_clock);
-	setenv("CLOCK",buffer,1);
-	sprintf(buffer,"%s",global_hostname);
-	setenv("HOSTNAME",buffer,1);
-	sprintf(buffer,"%d",global_server_portnum);
-	setenv("PORT",buffer,1);
-	if ( obj->name )	
-		sprintf(buffer,"%s",obj->name);
+	char function[1024];
+	if ( sscanf(event,"python:%s",function) ==  1 )
+	{
+#ifdef HAVE_PYTHON
+		extern int python_event(OBJECT *obj, const char *);
+		return python_event(obj,function);
+#else
+		output_error("python system not linked, event '%s' is not callable", event);
+		return -1;
+#endif
+	}
 	else
-		sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
-	setenv("OBJECT",buffer,1);
-	return system(event);
+	{
+		char buffer[1024];
+		sprintf(buffer,"%d",global_clock);
+		setenv("CLOCK",buffer,1);
+		sprintf(buffer,"%s",global_hostname);
+		setenv("HOSTNAME",buffer,1);
+		sprintf(buffer,"%d",global_server_portnum);
+		setenv("PORT",buffer,1);
+		if ( obj->name )	
+			sprintf(buffer,"%s",obj->name);
+		else
+			sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
+		setenv("OBJECT",buffer,1);
+		return system(event);
+	}
 }
 
 /** Synchronize an object.  The timestamp given is the desired increment.

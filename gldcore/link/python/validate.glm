@@ -11,4 +11,5 @@ class test {
 object test {
 	name "my_test";
 	x "type:lognormal(0,1); refresh:5min";
+	on_commit python:my_test.commit;
 }
