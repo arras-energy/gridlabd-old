@@ -1,2 +1,2 @@
 install-exec-hook:
-	python3 gldcore/link/python/setup.py install
+	( export SRCDIR=$(top_srcdir); python3 $(top_srcdir)/gldcore/link/python/setup.py install)

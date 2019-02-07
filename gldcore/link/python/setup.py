@@ -9,21 +9,25 @@ To install the python module use the following command:
 
 """
 import sys
-from compile_options import *
 assert(sys.version_info.major>2)
-
-from distutils.core import setup, Extension
 
 import os
 if not os.path.exists('gldcore/build.h') :
 	raise Exception("python module must be built from project folder after the main build is completed (gldcore/build.h is missing)")
+srcdir = os.getenv('SRCDIR')
 
+try:
+	from compile_options import *
+except:
+	compile_options=['-w','-O3']
+compile_options.extend(['-I'+srcdir+'/gldcore',"-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
+
+from distutils.core import setup, Extension
 gridlabd = Extension('gridlabd', 
 	include_dirs = ['gldcore/link/python','gldcore'],
 	extra_compile_args = compile_options,
 	libraries = ['ncurses'],
-	sources = ['gldcore/link/python/python.cpp',
-		#'gldcore/link/python/gldobject.c',
+	sources = list(map(lambda x: srcdir+'/'+x,['gldcore/link/python/python.cpp',
 		'gldcore/aggregate.c',
 		'gldcore/class.c',
 		'gldcore/cmdarg.c',
@@ -83,7 +87,7 @@ gridlabd = Extension('gridlabd',
 		'gldcore/test_framework.cpp',
 		'gldcore/validate.cpp',
 		# add gridlabd source code here
-		],
+		])),
 	)
 
 setup (	name = 'GridLAB-D',

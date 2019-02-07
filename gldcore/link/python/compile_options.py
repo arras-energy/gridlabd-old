@@ -1,1 +1,1 @@
-compile_options = ["-w","-O3","-DHAVE_CONFIG_H","-DHAVE_PYTHON"]
+compile_options = ["-w","-O3"]

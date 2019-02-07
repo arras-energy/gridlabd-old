@@ -26,6 +26,7 @@ if [ -z "${mod}" ]; then
 else
 	branch="$new:$branchname"
 fi
+cd -
 if test -f $2 ; then 
 	oldnum=`cat $2 | sed -ne 's/^#define BUILDNUM //p'`
 	oldbranch=`cat $2 | sed -ne 's/^#define BRANCH //p' | sed -e 's/\"//g'`
@@ -40,4 +41,3 @@ if test -z "$oldnum" -o "$rev" -ne "$oldnum" -o -z "$oldbranch" -o "$oldbranch" 
 	fi
 	echo "#define REV_YEAR $(date +%Y)" >> $2
 fi
-cd -
