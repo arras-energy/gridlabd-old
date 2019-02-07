@@ -6,7 +6,6 @@
 #include "load.h"
 #include "exec.h"
 #include "save.h"
-#include "gldobject.h"
 
 static PyObject *gridlabd_exception(const char *format, ...);
 
