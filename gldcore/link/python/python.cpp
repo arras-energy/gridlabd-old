@@ -15,6 +15,11 @@ static PyObject *gridlabd_copyright(PyObject *self, PyObject *args);
 static PyObject *gridlabd_credits(PyObject *self, PyObject *args);
 static PyObject *gridlabd_license(PyObject *self, PyObject *args);
 
+static PyObject *gridlabd_output(PyObject *self, PyObject *args);
+static PyObject *gridlabd_debug(PyObject *self, PyObject *args);
+static PyObject *gridlabd_warning(PyObject *self, PyObject *args);
+static PyObject *gridlabd_error(PyObject *self, PyObject *args);
+
 static PyObject *gridlabd_reset(PyObject *self, PyObject *args);
 static PyObject *gridlabd_command(PyObject *self, PyObject *args);
 
@@ -49,6 +54,11 @@ static PyMethodDef module_methods[] = {
     {"copyright", gridlabd_copyright, METH_VARARGS, "Get the software copyrights"},
     {"credits", gridlabd_credits, METH_VARARGS, "Get the software credits"},
     {"license", gridlabd_license, METH_VARARGS, "Get the software license"},
+    // output streams
+    {"output", gridlabd_output, METH_VARARGS, "Output a standard message"},
+    {"debug", gridlabd_debug, METH_VARARGS, "Output a debug message"},
+    {"warning", gridlabd_warning, METH_VARARGS, "Output a warning message"},
+    {"error", gridlabd_error, METH_VARARGS, "Output an error message"},
     // simulation control
     {"command", gridlabd_command, METH_VARARGS, "Send a command argument to the GridLAB-D instance"},
     {"start", gridlabd_start, METH_VARARGS, "Start the GridLAB-D instance"},
@@ -177,6 +187,40 @@ static PyObject *gridlabd_license(PyObject *self, PyObject *args)
         );
 }
 
+static PyObject *gridlabd_output(PyObject *self, PyObject *args)
+{
+    char *text;
+    if ( ! PyArg_ParseTuple(args,"s",&text) )
+        return gridlabd_exception("missing text argument");
+    return PyLong_FromLong(output_message("%s",text));
+
+}
+
+static PyObject *gridlabd_debug(PyObject *self, PyObject *args)
+{
+    char *text;
+    if ( ! PyArg_ParseTuple(args,"s",&text) )
+        return gridlabd_exception("missing text argument");
+    return PyLong_FromLong(output_debug("%s",text));
+}
+
+static PyObject *gridlabd_warning(PyObject *self, PyObject *args)
+{
+    char *text;
+    if ( ! PyArg_ParseTuple(args,"s",&text) )
+        return gridlabd_exception("missing text argument");
+    return PyLong_FromLong(output_warning("%s",text));
+}
+
+static PyObject *gridlabd_error(PyObject *self, PyObject *args)
+{
+    char *text;
+    if ( ! PyArg_ParseTuple(args,"s",&text) )
+        return gridlabd_exception("missing text argument");
+    return PyLong_FromLong(output_error("%s",text));
+
+}
+
 static PyObject *gridlabdException;
 static PyObject *this_module = NULL;
 
@@ -198,34 +242,6 @@ public:
     inline WriteLock() { if ( ! Callback::is_active() ) exec_wlock_sync(); };
     inline ~WriteLock() { if ( ! Callback::is_active() ) exec_wunlock_sync(); };
 };
-
-// ////////////////////////
-// // gridlabd base class
-// ////////////////////////
-// extern "C" PyTypeObject gridlabd_class;
-// extern "C" void gridlabd_class_dealloc(PyObject *obj)
-// {
-//     // underlying object is static
-// }
-// extern "C" PyObject *gridlabd_class_repr(PyObject *obj)
-// {
-//     return PyUnicode_FromFormat("<GldObject>");
-// }
-// extern "C" PyObject *gridlabd_class_str(PyObject *obj)
-// {
-//     return PyUnicode_FromFormat("<GldObject>");
-// }
-// extern "C" PyObject *gridlabd_class_create(PyObject *mod)
-// {
-//     if ( gridlabd_class.tp_name == NULL )
-//     {
-//         gridlabd_class.tp_name = "GldObject";
-//         gridlabd_class.tp_dealloc = gridlabd_class_dealloc;
-//         gridlabd_class.tp_repr = gridlabd_class_repr;
-//         gridlabd_class.tp_str = gridlabd_class_str;
-//     }
-//     return &gridlabd_class;
-// }
 
 ///////////////////////////
 // Module initiatlization
