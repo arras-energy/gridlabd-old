@@ -278,7 +278,7 @@ static int json_objects(FILE *fp)
 		if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) TUPLE("out","%llu",(int64)(obj->out_svc));
 		TUPLE("rng_state","%llu",(int64)(obj->rng_state));
 		TUPLE("heartbeat","%llu",(int64)(obj->heartbeat));
-		TUPLE("guid","0x%llx",(int64)(obj->guid[0]));
+		(len += json_write(",\n\t\t\t\"%s\" : \"0x%llx%llx\"","guid",(int64)(obj->guid[0]),(int64)(obj->guid[1])));
 		TUPLE("flags","0x%llx",(int64)(obj->flags));
 		for ( pclass = obj->oclass ; pclass != NULL ; pclass = pclass->parent )
 		{
