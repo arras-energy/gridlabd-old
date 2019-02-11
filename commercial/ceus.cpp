@@ -186,7 +186,7 @@ ceus::COMPONENT *ceus::add_component(const char *enduse, const char *composition
 	CEUSDATA *e = find_enduse(data, enduse);
 	if ( e == NULL )
 	{
-		error("unable to add composition '%s' -- enduse '%s' unknown",composition,enduse);
+		warning("unable to add composition '%s' -- enduse '%s' not found",composition,enduse);
 		return NULL;	
 	}
 

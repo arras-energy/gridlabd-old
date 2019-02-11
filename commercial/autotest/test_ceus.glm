@@ -1,5 +1,9 @@
 module commercial;
-module tape;
+module tape {
+	csv_data_only 1;
+}
+
+script on_term "python3 test_ceus_saveplots.py";
 
 clock {
 	timezone US/CA/Los Angeles;

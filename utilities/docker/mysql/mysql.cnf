@@ -1,0 +1,4 @@
+REPO=mysql/mysql-server
+TAG=latest
+NAME=mysql1
+DATADIR=./data

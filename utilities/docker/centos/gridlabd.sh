@@ -1,5 +1,6 @@
 REPO=${REPO:-https://github.com/dchassin/gridlabd}
 BRANCH=${BRANCH:-master}
+WEATHER='CA WA'
 echo "
 #####################################
 # DOCKER BUILD
@@ -7,16 +8,9 @@ echo "
 #####################################
 "
 
+# gridlabd source
 cd /usr/local/src
 git clone $REPO gridlabd -b $BRANCH
-# https://github.com/dchassin/gridlabd/archive/powernet/master.zip
-#curl -L $REPO/archive/$BRANCH.zip -o gridlabd.zip && unzip gridlabd.zip -d tmp
-#if [ -d tmp ]; then
-#	mv tmp/* gridlabd
-#else
-#	echo "ERROR: unable to download gridlabd source into ./$BRANCH"
-#	exit 1
-#fi
 
 # install xercesc
 cd /usr/local/src/gridlabd/third_party
@@ -42,7 +36,7 @@ else # use newer version
 	fi
 	tar xvfz ${XERCES}.tar.gz
 	cd ${XERCES}
-	./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2'
+	./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2' --with-mysql
 	make install
 	echo "${XERCES} installed ok"
 fi
@@ -87,4 +81,36 @@ fi
 autoreconf -isf
 ./configure --enable-silent-rules --prefix=/usr/local --with-mysql=$MYSQLOPT 'CXXFLAGS=-w -O3' 'CFLAGS=-w -O3'
 make install
+if [ "$BRANCH" = "master" ]
+then 
+	make validate 
+fi
+
+# download weather data
+if [ -d /usr/local/share/gridlabd ]; then
+	git clone https://github.com/dchassin/weather /usr/local/src/weather
+	for state in ${WEATHER}; do
+		ln /usr/local/src/weather/US/${state}*.tmy3  /usr/local/share/gridlabd
+	done
+else
+	echo "WARNING: /usr/local/share/gridlabd not found -- no weather data downloaded" >/dev/stderr
+fi
+
+# daemon setup
+echo '# gridlabd daemon configuration for docker 
+workdir=/usr/local/var/gridlabd
+log=/usr/local/var/gridlabd/gridlabd-log
+pid=/usr/local/var/gridlabd/gridlabd-pid
+user=gridlabd
+listen=0.0.0.0
+' > /usr/local/etc/gridlabd.cnf
+mkdir -p /usr/local/var
+adduser -d /usr/local/var/gridlabd gridlabd
+
+# clean up
+echo "Cleaning up cloned repositories"
+rm -rf /usr/local/src/*
+
+# done
+echo "Build of $REPO/$BRANCH done"
 

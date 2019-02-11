@@ -71,6 +71,7 @@ void global_dump(void);
 size_t global_getcount(void);
 void global_restore(GLOBALVAR *pos);
 void global_push(char *name, char *value);
+size_t global_saveall(FILE *fp);
 
 /* MAJOR and MINOR version */
 GLOBAL unsigned global_version_major INIT(REV_MAJOR); /**< The software's major version */
@@ -90,7 +91,7 @@ GLOBAL int global_debug_output INIT(FALSE); /**< Enables debug output */
 GLOBAL int global_keep_progress INIT(FALSE); /**< Flag to keep progress reports */
 GLOBAL unsigned global_iteration_limit INIT(100); /**< The global iteration limit */
 GLOBAL char global_workdir[1024] INIT("."); /**< The current working directory */
-GLOBAL char global_dumpfile[1024] INIT("gridlabd.xml"); /**< The dump file name */
+GLOBAL char global_dumpfile[1024] INIT("gridlabd.json"); /**< The dump file name */
 GLOBAL char global_savefile[1024] INIT(""); /**< The save file name */
 GLOBAL int global_dumpall INIT(FALSE);	/**< Flags all modules to dump data after run complete */
 GLOBAL int global_runchecks INIT(FALSE); /**< Flags module check code to be called after initialization */
@@ -326,7 +327,7 @@ GLOBAL bool global_reinclude INIT(false); /**< allow the same include file to be
 GLOBAL bool global_relax_undefined_if INIT(false); /**< allow #if macro to handle undefined global variables */
 GLOBAL bool global_literal_if INIT(false); /**< do not interpret lhs of #if as a variable name */
 
-GLOBAL char1024 global_daemon_configfile INIT("/usr/local/etc/gridlabd.cnf"); /**< name of daemon configuration file */
+GLOBAL char1024 global_daemon_configfile INIT("gridlabd.cnf"); /**< name of daemon configuration file */
 typedef enum {
 	DMC_MAIN		= 0x0000000000000001,
 	DMC_CMDARG		= 0x0000000000000002,
@@ -395,6 +396,15 @@ typedef enum {
 GLOBAL bool global_validto_context INIT(VTC_SYNC); /**< events for which valid_to applies, rather than just sync passes */
 
 GLOBAL char1024 global_timezone_locale INIT("UTC"); /**< timezone specification */
+typedef enum {
+	GSO_LEGACY 		= 0x0000,
+	GSO_NOINTERNALS = 0x0001,
+	GSO_NOMACROS 	= 0x0002,
+	GSO_NOGLOBALS	= 0x0004,
+	GSO_NODEFAULTS	= 0x0008,
+	GSO_MINIMAL 	= 0x000f,
+} GLMSAVEOPTIONS;
+GLOBAL GLMSAVEOPTIONS global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */
 
 #ifdef __cplusplus
 }

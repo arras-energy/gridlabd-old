@@ -1,0 +1,33 @@
+#!/bin/bash
+
+EXE="$0"
+CNF="${EXE/-status/.cnf}"
+source "${EXE/-status/-util}"
+
+STATUS="$(docker inspect -f '{{.State.Health.Status}}' $NAME 2>/dev/null)" 
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+	("-h"|"--help")
+		cat <<END
+Syntax: $0 [options]
+Options:
+  -h|--help    output this help text
+  -l|--logs    display the logs 
+END
+		exit
+		;;
+	("-l"|"--logs")
+		shift
+		test -z "$STATUS" || docker logs $NAME 1>/dev/stdout 2>/dev/null
+		;;
+	(*)
+		error 1 "option '$1' is invalid"
+	esac
+done
+
+if [ -z "$STATUS" ]; then
+	echo "$NAME is not found"
+else
+	echo "$NAME is $STATUS"
+fi
