@@ -44,6 +44,9 @@ public:
 	object configuration;
 	double equipment_area;		// (see Section E)
 	double equipment_height;	// (see Section E)
+	double degradation_alpha;
+	double degradation_beta;
+	double degradation_probability;
 private:
 	double ice_thickness;
 	double wind_loading;

@@ -40,6 +40,8 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "total_moment[ft*lb]", PADDR(total_moment), PT_DESCRIPTION, "the total moment on the pole.",
 			PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
 			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure.",
+			PT_double, "degradation_alpha", PADDR(degradation_alpha), PT_DESCRIPTION, "alpha component of the probabilistic parameter of degradation model", 
+			PT_double, "degradation_beta", PADDR(degradation_beta), PT_DESCRIPTION, "beta component of the propabilistic parameter of degradation model",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 	}
 }
@@ -63,6 +65,8 @@ int pole::create(void)
 	wire_data = NULL;
 	equipment_area = 0.0;
 	equipment_height = 0.0;
+	degradation_alpha = 75.48;
+	degradation_beta = 4.46; 
 	return node::create();
 }
 
