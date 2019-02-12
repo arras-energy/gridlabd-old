@@ -19,7 +19,10 @@ srcdir = os.getenv('SRCDIR')
 try:
 	from compile_options import *
 except:
-	compile_options=['-w','-O3']
+	import os
+	compile_options = os.getenv("CFLAGS").split(" ")
+	if not compile_options :
+		compile_options=['-w','-O3']
 compile_options.extend(['-I'+srcdir+'/gldcore',"-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
 
 from distutils.core import setup, Extension
