@@ -108,12 +108,12 @@ extern "C" {
 	int module_compile(char *name, char *code, int flags, char *prefix, char *file, int line);
 	void module_profiles(void);
 	CALLBACKS *module_callbacks(void);
-	bool module_initall();
+	int module_initall(void);
 	TIMESTAMP module_precommitall(TIMESTAMP t);
 	TIMESTAMP module_presyncall(TIMESTAMP t);
 	TIMESTAMP module_syncall(TIMESTAMP t);
 	TIMESTAMP module_postsyncall(TIMESTAMP t);
-	bool module_commitall(TIMESTAMP t);
+	int module_commitall(TIMESTAMP t);
 	void module_termall(void);
 	MODULE *module_get_next(MODULE*);
 

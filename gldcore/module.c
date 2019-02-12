@@ -1150,7 +1150,7 @@ void module_termall(void)
 	}
 }
 
-bool module_initall()
+int module_initall()
 {
 	MODULE *mod;
 	for (mod=first_module; mod!=NULL; mod=mod->next)
@@ -1229,15 +1229,15 @@ TIMESTAMP module_postsyncall(TIMESTAMP t)
 }
 
 
-bool module_commitall(TIMESTAMP t)
+int module_commitall(TIMESTAMP t)
 {
-	bool result = true;
+	int result = true;
 	MODULE *mod;
 	for ( mod = first_module ; mod != NULL ; mod = mod->next )
 	{
 		if ( mod->on_commit ) 
 		{
-			bool ok = mod->on_commit(t);
+			int ok = mod->on_commit(t);
 			result &= ok;
 		}
 	}
