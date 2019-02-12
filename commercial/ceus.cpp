@@ -34,6 +34,17 @@ char32 ceus::default_holiday_code ="HOLIDAY";
 char32 ceus::default_month_heading = "Month";
 char32 ceus::default_daytype_heading = "Daytype";
 char32 ceus::default_hour_heading = "Hour";
+char1024 ceus::temperature_variable_name = "temperature";
+char1024 ceus::solargain_variable_name = "solar_direct";
+char1024 ceus::price_variable_name = "energy_price";
+char1024 ceus::occupancy_variable_name = "occupancy_fraction";
+double ceus::default_temperature_cooling_balance = 70.0;
+double ceus::default_temperature_cooling_base = 70.0;
+double ceus::default_temperature_heating_balance = 55.0;
+double ceus::default_temperature_heating_base = 55.0;
+double ceus::default_solargain_base = 0.0;
+double ceus::default_price_base = 0.0;
+double ceus::default_occupancy_base = 1.0;
 
 //////////////////////////
 // CEUS DATA REPOSITORY
@@ -299,6 +310,18 @@ ceus::ceus(MODULE *module)
 			PT_complex,"total_power_A[W]", get_total_power_A_offset(), PT_DESCRIPTION, "total complex power on phase A",
 			PT_complex,"total_power_B[W]", get_total_power_B_offset(), PT_DESCRIPTION, "total complex power on phase B",
 			PT_complex,"total_power_C[W]", get_total_power_C_offset(), PT_DESCRIPTION, "total complex power on phase C",
+			PT_object,"weather",get_weather_offset(), PT_DESCRIPTION, "weather object for temperature and solar gain",
+			PT_double,"temperature_heating_balance[degF]",get_temperature_heating_balance_offset(), PT_DESCRIPTION, "lowest temperature at which heating is not required",
+			PT_double,"temperature_cooling_balance[degF]",get_temperature_cooling_balance_offset(), PT_DESCRIPTION, "highest temperature at which cooling is not required",
+			PT_double,"temperature_heating_base[degF]",get_temperature_heating_balance_offset(), PT_DESCRIPTION, "temperature at which heating base load is observed",
+			PT_double,"temperature_cooling_base[degF]",get_temperature_cooling_balance_offset(), PT_DESCRIPTION, "temperature at which cooling base load is observed",
+			PT_double,"temperature_heating_sensitivity[W/degF]",get_temperature_heating_sensitivity_offset(), PT_DESCRIPTION, "temperature heating sensitivity",
+			PT_double,"temperature_cooling_sensitivity[W/degF]",get_temperature_cooling_sensitivity_offset(), PT_DESCRIPTION, "temperature cooling sensitivity",
+			PT_double,"solargain_base[W/W/m^2]",get_solargain_base_offset(), PT_DESCRIPTION, "solar gain at which base load is observed",
+			PT_double,"solargain_sensitivity[W/W/m^2]",get_solargain_sensitivity_offset(), PT_DESCRIPTION, "solar gain sensitivity",
+			PT_object,"tariff",get_tariff_offset(), PT_DESCRIPTION, "tariff object for energy price sensitivity",
+			PT_double,"price_base[$/MWh]",get_price_base_offset(), PT_DESCRIPTION,"price at which base load is observed",
+			PT_double,"price_sensitivity[$/MWh]",get_price_sensitivity_offset(), PT_DESCRIPTION,"energy price_sensitivity",
 			NULL)<1)
 		{
 				char msg[256];
@@ -316,6 +339,17 @@ ceus::ceus(MODULE *module)
 		gl_global_create("default_month_heading",PT_char32,&default_month_heading,NULL);
 		gl_global_create("default_daytype_heading",PT_char32,&default_daytype_heading,NULL);
 		gl_global_create("default_hour_heading",PT_char32,&default_hour_heading,NULL);
+		gl_global_create("default_temperature_heating_balance",PT_double,&default_temperature_heating_balance,NULL);
+		gl_global_create("default_temperature_cooling_balance",PT_double,&default_temperature_cooling_balance,NULL);
+		gl_global_create("default_temperature_heating_base",PT_double,&default_temperature_heating_base,NULL);
+		gl_global_create("default_temperature_cooling_base",PT_double,&default_temperature_cooling_base,NULL);
+		gl_global_create("default_solargain_base",PT_double,&default_solargain_base,NULL);
+		gl_global_create("default_price_base",PT_double,&default_price_base,NULL);
+		gl_global_create("default_occupancy_base",PT_double,&default_occupancy_base,NULL);
+		gl_global_create("temperature_variable_name",PT_char1024,&temperature_variable_name,NULL);
+		gl_global_create("solargain_variable_name",PT_char1024,&solargain_variable_name,NULL);
+		gl_global_create("price_variable_name",PT_char1024,&price_variable_name,NULL);
+		gl_global_create("occupancy_variable_name",PT_char1024,&occupancy_variable_name,NULL);
 	}
 }
 
@@ -323,6 +357,13 @@ int ceus::create(void)
 {
 
 	memcpy(this,defaults,sizeof(*this));
+	temperature_heating_balance = default_temperature_heating_balance;
+	temperature_cooling_balance = default_temperature_cooling_balance;
+	temperature_heating_base = default_temperature_heating_base;
+	temperature_cooling_base = default_temperature_cooling_base;
+	solargain_base = default_solargain_base;
+	price_base = default_price_base;
+	occupancy_base = default_occupancy_base;
 	return 1; 
 }
 
@@ -334,29 +375,35 @@ int ceus::init(OBJECT *parent)
 		floor_area = 0.0;
 	}
 	if ( get_parent() == NULL )
-	{
-		warning("parent is not a meter -- using default_nominal_voltages");
-		voltage_A = &default_nominal_voltage_A;
-		voltage_B = &default_nominal_voltage_B;
-		voltage_C = &default_nominal_voltage_C;
-		nominal_voltage = &default_nominal_voltage;
-	}
-	else if ( ! get_parent()->isa("meter") )
-	{
+		warning("parent is not specified -- using default voltages");
+	else {
+		if ( ! get_parent()->isa("meter") )
+			warning("parent is not a meter -- using default voltages if necessary");
 		link_property(voltage_A,get_parent(),"voltage_A");
 		link_property(voltage_B,get_parent(),"voltage_B");
 		link_property(voltage_C,get_parent(),"voltage_C");
 		link_property(nominal_voltage,get_parent(),"nominal_voltage");
-		link_property(price,get_parent(),"price");
-		link_property(price_base,get_parent(),"price_base");
 	}
-	if ( weather != NULL )
+	if ( ! voltage_A ) voltage_A = &default_nominal_voltage_A;
+	if ( ! voltage_B ) voltage_B = &default_nominal_voltage_B;
+	if ( ! voltage_C ) voltage_C = &default_nominal_voltage_C;
+	if ( ! nominal_voltage) nominal_voltage = &default_nominal_voltage;
+	if ( weather )
 	{
-		link_property(temperature,weather,"temperature");
+		link_property(temperature, weather, temperature_variable_name);
+		link_property(solar, weather, solargain_variable_name);
 	}
-	if ( data == NULL )
+	if ( tariff )
+		link_property(price, tariff, price_variable_name);
+	if ( occupants != NULL )
+		link_property(occupancy, occupants, occupancy_variable_name);
+	if ( ! data )
 	{
 		exception("filename not specified");
+	}
+	if ( temperature_heating_base >= temperature_cooling_base )
+	{
+		exception("temperature_heating_base is not less than temperature_cooling_base");
 	}
 	return 1; 
 }
@@ -376,6 +423,25 @@ TIMESTAMP ceus::sync(TIMESTAMP t1)
 		for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
 		{
 			double scalar = load * c->fraction;
+			if ( temperature ) 
+			{
+				if ( *temperature > temperature_cooling_balance )
+					scalar += ( *temperature - temperature_cooling_base ) * temperature_cooling_sensitivity;
+				else if ( *temperature < temperature_heating_balance )
+					scalar += ( *temperature - temperature_heating_base ) * temperature_heating_sensitivity;
+			}
+			if ( solar )
+			{
+				scalar += ( *solar - solargain_base ) * solargain_sensitivity;
+			}
+			if ( price )
+			{
+				scalar += ( *price - price_base ) * price_sensitivity;
+			}
+			if ( occupancy )
+			{
+				scalar += ( *occupancy - occupancy_base ) * occupancy_sensitivity;
+			}
 			// TODO: add temperature and price sensitivity calcs
 			total_power_A.Re() += ((voltage_A->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_A->Re()/(*nominal_voltage) + c->Pr) * scalar;
 			total_power_B.Re() += ((voltage_B->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_B->Re()/(*nominal_voltage) + c->Pr) * scalar;

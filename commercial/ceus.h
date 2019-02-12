@@ -14,7 +14,7 @@
 
 DECL_METHOD(ceus,composition);
 
-#define DATASIZE (12*_DT_SIZE*24)
+#define DATASIZE (12*_DT_SIZE*24) // N_months x N_daytypes x N_hours (e.g., 1152)
 
 class ceus : public gld_object 
 {
@@ -30,6 +30,17 @@ public: // globals
 	static char32 default_saturday_code;
 	static char32 default_sunday_code;
 	static char32 default_holiday_code;
+	static char1024 temperature_variable_name;
+	static char1024 solargain_variable_name;
+	static char1024 price_variable_name;
+	static char1024 occupancy_variable_name;
+	static double default_temperature_heating_balance;
+	static double default_temperature_cooling_balance;
+	static double default_temperature_heating_base;
+	static double default_temperature_cooling_base;
+	static double default_solargain_base;
+	static double default_price_base;
+	static double default_occupancy_base;
 public:
 	typedef enum {
 		DT_WEEKDAY = 0,
@@ -48,6 +59,7 @@ public:
 		struct s_ceusdata *next_enduse;
 	} CEUSDATA;
 	static CEUSDATA *repository;
+public:
 	static CEUSDATA *add_file(const char *filename);
 	static CEUSDATA *get_first_file(void);
 	inline static CEUSDATA *get_next_file(CEUSDATA *repo);
@@ -63,7 +75,6 @@ public:
 	static size_t get_index(void);
 	void set_value(CEUSDATA *repo, TIMESTAMP ts, double value);
 	static double get_value(CEUSDATA *repo, TIMESTAMP ts, double scalar=1.0);
-	CEUSDATA *data;
 public:
 	typedef struct s_component 
 	{
@@ -78,6 +89,7 @@ public:
 		struct s_component *next;
 	} COMPONENT;
 	COMPONENT *components;
+public:
 	COMPONENT *get_first_component();
 	inline COMPONENT *get_next_component(COMPONENT *c);
 	COMPONENT *add_component(const char *enduse, const char* composition=NULL);
@@ -87,7 +99,9 @@ public:
 public:
 	GL_ATOMIC(char32,building_type);
 	GL_ATOMIC(double,floor_area);
-	GL_ATOMIC(object,weather);
+	GL_ATOMIC(object,weather); // source of temperature and solar sensitivity variables
+	GL_ATOMIC(object,tariff); // source of price variable
+	GL_ATOMIC(object,occupants); // source of occupancy variable
 	GL_ATOMIC(complex,total_power_A);
 	GL_ATOMIC(complex,total_power_B);
 	GL_ATOMIC(complex,total_power_C);
@@ -97,27 +111,48 @@ public:
 private:
 	template<class T> void link_property(T *&ptr, gld_object *obj, char *name)
 	{
-		return link_property(ptr,obj->my(),name);
+		if ( obj ) link_property(ptr,obj->my(),name);
 	}
 	template<class T> void link_property(T *&ptr, gld_object &obj, char *name)
 	{
-		return link_property(ptr,obj.my(),name);
+		link_property(ptr,obj.my(),name);
 	}
-	template<class T> void link_property(T *&ptr, OBJECT *obj, char *name)
+	template<class T> void link_property(T *&ptr, OBJECT *obj, char *name, bool no_exception = true)
 	{
+		if ( ! obj ) return;
 		gld_property prop(obj,name);
 		if ( prop.is_valid() )
 			ptr = (T*)prop.get_addr();
-		else
+		else if ( ! no_exception )
 			exception("unable to link property '%s' in object '%s'",name,get_object(obj)->get_name());
+		else
+			warning("unable to link property '%s' in object '%s'",name,get_object(obj)->get_name());
 	}
 	complex *voltage_A;
 	complex *voltage_B;
 	complex *voltage_C;
 	double *nominal_voltage;
+public:
+	GL_ATOMIC(double,temperature_heating_sensitivity);
+	GL_ATOMIC(double,temperature_cooling_sensitivity);
 	double *temperature;
+	GL_ATOMIC(double,temperature_cooling_balance);
+	GL_ATOMIC(double,temperature_heating_balance);
+	GL_ATOMIC(double,temperature_cooling_base);
+	GL_ATOMIC(double,temperature_heating_base);
+public:
+	GL_ATOMIC(double,price_sensitivity);
 	double *price;
-	double *price_base;
+	GL_ATOMIC(double,price_base);
+public:
+	GL_ATOMIC(double,solargain_sensitivity);
+	double *solar;
+	GL_ATOMIC(double,solargain_base);
+public:
+	GL_ATOMIC(double,occupancy_sensitivity);
+	double *occupancy;
+	GL_ATOMIC(double,occupancy_base);
+	CEUSDATA *data;
 public:
 	ceus(MODULE *module);
 	int create(void);

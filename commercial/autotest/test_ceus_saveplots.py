@@ -1,6 +1,5 @@
 import glob
 files = glob.glob("test_ceus_*.csv")
-
 for csvname in files:
 	pngname = csvname.replace('.csv','.png')
 	with open(csvname,'r') as fh:
