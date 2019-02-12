@@ -1914,10 +1914,20 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 			char32 oname = "(unidentified)";
 			OBJECT *parent = obj->parent;
 			OBJECT **topological_parent = object_get_object_by_name(obj,"topological_parent");
-			if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
-				count += fprintf(fp, "object %s.%s:%d {\n", mod->name, oclass->name, obj->id);
+			if ( mod )
+			{
+				if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
+					count += fprintf(fp, "object %s.%s:%d {\n", mod->name, oclass->name, obj->id);
+				else
+					count += fprintf(fp, "object %s.%s {\n", mod->name, oclass->name);
+			}
 			else
-				count += fprintf(fp, "object %s.%s {\n", mod->name, oclass->name);
+			{
+				if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
+					count += fprintf(fp, "object %s:%d {\n", oclass->name, obj->id);
+				else
+					count += fprintf(fp, "object %s {\n", oclass->name);
+			}
 
 			/* this is an unfortunate special case arising from how the powerflow module is implemented */
 			if ( topological_parent != NULL )
