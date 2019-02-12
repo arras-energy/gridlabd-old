@@ -14,20 +14,32 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <pwd.h>
 #include "gridlabd.h"
 #include "output.h"
 #include "cmdarg.h"
 #include "daemon.h"
 #include "globals.h"
 
+static int disable_daemon_command = false;
 static int daemon_pid = 0;
-static char clientmask[32] = "0.0.0.0";
+static bool daemon_wait = false;
+static bool enable_jail = false;
+static char clientmask[32] = "127.0.0.1";
+static char addr[32] = "127.0.0.1";
 static char port[8] = "6266";
 static char maxbacklog[8] = "4";
-static char logfile[1024] = "/usr/local/var/gridlabd-log";
-static char pidfile[1024] = "/usr/local/var/gridlabd-pid";
-static char workdir[1024] = "/";
+#ifdef MACOSX
 static char user[1024] = "";
+static char logfile[1024] = "/tmp/gridlabd-log";
+static char pidfile[1024] = "/tmp/gridlabd-pid";
+static char workdir[1024] = "/tmp";
+#else
+static char user[1024] = "gridlabd";
+static char logfile[1024] = "/usr/local/var/gridlabd/gridlabd-log";
+static char pidfile[1024] = "/usr/local/var/gridlabd/gridlabd-pid";
+static char workdir[1024] = "/usr/local/var/gridlabd";
+#endif
 
 // gridlabd stream specifications
 static char output[1024] = "";
@@ -58,6 +70,7 @@ static struct s_config {
 	{"progress",progress},
 	{"maxbacklog",maxbacklog},
 	{"clientmask",clientmask},
+	{"listen",addr},
 	{"port",port},
 	{"keepalive",keepalive},
 	{"timeout",timeout},
@@ -346,7 +359,7 @@ static void daemon_process(void)
 	}
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	inet_pton(AF_INET,clientmask,&serv_addr.sin_addr);
+	inet_pton(AF_INET,addr,&serv_addr.sin_addr);
 	serv_addr.sin_port = htons(portno);
 	if ( bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0 ) 
 	{
@@ -402,6 +415,7 @@ static void daemon_process(void)
 		else // child
 		{
 			atexit(daemon_cleanup_run);
+			disable_daemon_command = true;
 			int code = daemon_run(server_sockfd);
 			if ( code != XC_SUCCESS )
 			{
@@ -423,9 +437,14 @@ static void daemon_loadconfig(void)
 	FILE *fp = fopen(global_daemon_configfile,"rt");
 	if ( fp == NULL )
 	{
-		output_warning("daemon_loadconfig(): '%s' open failed: %s",(const char*)global_daemon_configfile,strerror(errno));
-		output_warning("daemon_loadconfig(): using default configuration");
-		return;
+
+		if ( find_file(global_daemon_configfile,NULL,R_OK,global_daemon_configfile,sizeof(global_daemon_configfile)-1) == NULL || (fp=fopen(global_daemon_configfile,"rt")) == NULL )
+		{
+			output_warning("daemon_loadconfig(): '%s' open failed: %s",(const char*)global_daemon_configfile,strerror(errno));
+			output_warning("daemon_loadconfig(): using default configuration");
+			return;
+		}
+
 	}
 	output_debug("daemon_loadconfig(): loading '%s'",(const char*)global_daemon_configfile);
 
@@ -487,7 +506,7 @@ static int daemon_arguments(int argc, char *argv[])
 	// process args
 	while ( argc > 0 )
 	{
-		if ( strcmp(*argv,"-f")==0 )
+		if ( strcmp(*argv,"-f")==0 || strcmp(*argv,"--configfile")==0 )
 		{
 			NEXT;
 			if ( argc > 0 )
@@ -509,7 +528,7 @@ static int daemon_arguments(int argc, char *argv[])
 				exit(XC_PRCERR);
 			}
 		}
-		else if ( strcmp(*argv,"-p")==0 )
+		else if ( strcmp(*argv,"-p")==0 || strcmp(*argv,"--port")==0 )
 		{
 			NEXT;
 			if ( argc > 0 )
@@ -532,6 +551,28 @@ static int daemon_arguments(int argc, char *argv[])
 				exit(XC_PRCERR);
 			}
 		}
+		else if ( strcmp(*argv,"-w")==0 || strcmp(*argv,"--wait")==0 )
+		{
+			daemon_wait = true;
+			NEXT;
+		}
+		else if ( strcmp(*argv,"-j")==0 || strcmp(*argv,"--jail")==0 )
+		{
+			enable_jail = true;
+			NEXT;
+		}
+		else if ( strcmp(*argv,"-h")==0 || strcmp(*argv,"--help")==0 )
+		{
+			output_message("Syntax: gridlabd --daemon start <options>\n"
+				"Options:\n"
+				"  --configfile <filename>  use <filename> as the configuration file instead of %s\n"
+				"  --help                   display this help information\n"
+				"  --jail                   isolate the daemon in workdir '%s'\n"
+				"  --port <number>          use <portnum> instead of default %d\n"
+				"  --wait                   wait for daemon to stop before exiting", 
+				(const char*)global_daemon_configfile, workdir, portno);
+			exit(XC_SUCCESS);
+		}
 		else
 		{
 			output_error("argument '%s' is not recognized",*argv);			
@@ -546,7 +587,16 @@ static int daemon_configure()
 	pid_t pid, sid;
 
 	// change the working folder
-	if ( chdir(workdir) < 0 )
+	if ( enable_jail )
+	{
+		output_debug("jailing daemon in workdir '%s'",workdir);
+		if ( chroot(workdir) != 0 || chdir("/") != 0 )
+		{
+			output_error("unable to jail daemon in workdir '%s' -- %s", workdir, strerror(errno));
+			exit(XC_INIERR);
+		}
+	}
+	else if ( chdir(workdir) != 0 )
 	{
 		output_error("unable to change to workdir '%s' -- %s", workdir, strerror(errno));
 		exit(XC_INIERR);
@@ -555,15 +605,29 @@ static int daemon_configure()
 	// set the user/group id
 	if ( strcmp(user,"") != 0 )
 	{
-		if ( geteuid() != 0 )
+		struct passwd *pwd = getpwnam(user);
+		if ( pwd != NULL )
 		{
-			output_error("unable to change user/group to '%s' unless running as root",user);
+			output_debug("changing to user '%s' (uid=%d, gid=%d)",workdir,pwd->pw_uid,pwd->pw_gid);
+			if ( setgid(pwd->pw_gid)!=0 || setuid(pwd->pw_uid)!=0 )
+			{
+				output_error("unable to change user/group to '%s' to uid=%d and gid=%d -- %s",user,pwd->pw_uid,pwd->pw_gid,strerror(errno));
+				exit(XC_INIERR);
+			}
+		}
+		else
+		{
+			output_error("unable to change user/group to '%s' -- %s",user,strerror(errno));
 			exit(XC_INIERR);
 		}
-
 	}
+	else
+	{
+		output_debug("running as uid=%d, gid=%d",getuid(),getgid());
+	}
+
 	// check process euid
-	if ( geteuid() == 0 )
+	if ( getuid() == 0 )
 	{
 		output_error("running as root is forbidden");
 		exit(XC_INIERR);
@@ -587,6 +651,12 @@ static int daemon_configure()
 
 int daemon_start(int argc, char *argv[])
 {
+	if ( disable_daemon_command )
+	{
+		output_error("daemon commands not permitted");
+		exit(XC_INIERR);
+	}
+
 	int nargs = 0;
 	if ( argc > 0 )
 	{
@@ -616,6 +686,12 @@ int daemon_start(int argc, char *argv[])
 		}
 	}	
 
+	if ( daemon_wait )
+	{
+		daemon_process();
+		return nargs+1;
+	}
+
 	// fork the daemon process
 	pid = fork();
 	if ( pid < 0 )
@@ -637,6 +713,12 @@ int daemon_start(int argc, char *argv[])
 
 int daemon_stop(int argc, char *argv[])
 {
+	if ( disable_daemon_command )
+	{
+		output_error("daemon commands not permitted");
+		exit(XC_INIERR);
+	}
+	
 	int nargs = 0;
 	if ( argc > 0 )
 	{
@@ -677,6 +759,12 @@ int daemon_stop(int argc, char *argv[])
 
 int daemon_restart(int argc, char *argv[])
 {
+	if ( disable_daemon_command )
+	{
+		output_error("daemon commands not permitted");
+		exit(XC_INIERR);
+	}
+	
 	int nargs = 0;
 	if ( argc > 0 )
 	{
@@ -696,6 +784,12 @@ int daemon_restart(int argc, char *argv[])
 
 int daemon_status(int argc, char *argv[])
 {
+	if ( disable_daemon_command )
+	{
+		output_error("daemon commands not permitted");
+		exit(XC_INIERR);
+	}
+	
 	int nargs = 0;
 	if ( argc > 0 )
 	{
@@ -829,7 +923,6 @@ int daemon_remote_client(int argc, char *argv[])
 		}
 		if ( p > buffer )
 			fprintf(out,"%s",buffer);
-		fclose(out);
 	}
 	shutdown(sockfd,SHUT_RDWR);
 	close(sockfd);

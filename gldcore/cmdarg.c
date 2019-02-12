@@ -1256,7 +1256,7 @@ static int remote_client(int argc, char *argv[])
 static int printenv(int argc, char *argv[])
 {
 	system("printenv");
-	return CMDOK;
+	return 0;
 }
 
 static int origin(int argc, char *argv[])
