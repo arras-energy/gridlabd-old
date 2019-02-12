@@ -255,10 +255,6 @@ bool ceus::set_component(COMPONENT *component, const char *term, double value)
 		{"Pr", component->Pr},
 		{"Pi", component->Pi},
 		{"Area", component->fraction},
-		{"Tn", component->Tn},
-		{"Tb", component->Tb},
-		{"Tm", component->Tm},
-		{"Ts", component->Ts},
 	};
 	size_t n;
 	for ( n = 0 ; n < sizeof(map)/sizeof(map[0]) ; n++ )
@@ -317,11 +313,11 @@ ceus::ceus(MODULE *module)
 			PT_double,"temperature_cooling_base[degF]",get_temperature_cooling_balance_offset(), PT_DESCRIPTION, "temperature at which cooling base load is observed",
 			PT_double,"temperature_heating_sensitivity[W/degF]",get_temperature_heating_sensitivity_offset(), PT_DESCRIPTION, "temperature heating sensitivity",
 			PT_double,"temperature_cooling_sensitivity[W/degF]",get_temperature_cooling_sensitivity_offset(), PT_DESCRIPTION, "temperature cooling sensitivity",
-			PT_double,"solargain_base[W/W/m^2]",get_solargain_base_offset(), PT_DESCRIPTION, "solar gain at which base load is observed",
-			PT_double,"solargain_sensitivity[W/W/m^2]",get_solargain_sensitivity_offset(), PT_DESCRIPTION, "solar gain sensitivity",
+			PT_double,"solargain_base[W/m^2]",get_solargain_base_offset(), PT_DESCRIPTION, "solar gain at which base load is observed",
+			PT_double,"solargain_sensitivity[m^2]",get_solargain_sensitivity_offset(), PT_DESCRIPTION, "solar gain sensitivity",
 			PT_object,"tariff",get_tariff_offset(), PT_DESCRIPTION, "tariff object for energy price sensitivity",
 			PT_double,"price_base[$/MWh]",get_price_base_offset(), PT_DESCRIPTION,"price at which base load is observed",
-			PT_double,"price_sensitivity[$/MWh]",get_price_sensitivity_offset(), PT_DESCRIPTION,"energy price_sensitivity",
+			PT_double,"price_sensitivity[W*MWh/$]",get_price_sensitivity_offset(), PT_DESCRIPTION,"energy price_sensitivity",
 			NULL)<1)
 		{
 				char msg[256];
@@ -392,11 +388,19 @@ int ceus::init(OBJECT *parent)
 	{
 		link_property(temperature, weather, temperature_variable_name);
 		link_property(solar, weather, solargain_variable_name);
+		if ( temperature_heating_sensitivity > 0.0 )
+			exception("heating temperature sensitivity must be zero or negative");
+		if ( temperature_cooling_sensitivity < 0.0 )
+			exception("cooling temperature sensitivity must be zero or position");
 	}
 	if ( tariff )
+	{
 		link_property(price, tariff, price_variable_name);
+	}
 	if ( occupants != NULL )
+	{
 		link_property(occupancy, occupants, occupancy_variable_name);
+	}
 	if ( ! data )
 	{
 		exception("filename not specified");

@@ -83,9 +83,6 @@ public:
 		double Ir, Ii; // constant current factors (real, imaginary)
 		double Pr, Pi; // constant power factors (real, imaginary)
 		double fraction; // fraction of total floor area affected by this component
-		double Tn, Tb, Tm; // nominal, balance, and min/max temperatures
-		double Ts; // temperature sensitivity
-		double E[24]; // price elasticities
 		struct s_component *next;
 	} COMPONENT;
 	COMPONENT *components;
