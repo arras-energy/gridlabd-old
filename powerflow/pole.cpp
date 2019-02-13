@@ -41,7 +41,7 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
 			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure.",
 			PT_double, "degradation_rate[in/yr]", PADDR(degradation_rate), PT_DESCRIPTION, "rate of pole degradation.", 
-			PT_double, "pole_age[yr]", PADDR(pole_age), PT_DESCRIPTION, "age of the pole since installation.",
+			PT_double, "pole_install_year[yr]", PADDR(pole_age), PT_DESCRIPTION, "the year of pole since installation.",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 	}
 }
@@ -65,7 +65,7 @@ int pole::create(void)
 	wire_data = NULL;
 	equipment_area = 0.0;
 	equipment_height = 0.0;
-	pole_age = 0;
+	pole_install_year = 0;
 	current_hollow_diameter = 0.0;
 	return node::create();
 }
@@ -118,17 +118,7 @@ int pole::init(OBJECT *parent)
 		gl_error("weather object does not provide wind gust data");
 		return 0;
 	}
-
-	degradation_rate = config->minimum_shell_thickness/config->pole_lifetime;
-	current_hollow_diameter = 2 * pole_age * degradation_rate;
-	// calculation resisting moment
-	resisting_moment = 0.008186 // constant * pi^3
-		* config->strength_factor_250b_wood 
-		* config->fiber_strength
-		* (( config->ground_diameter * config->ground_diameter * config->ground_diameter)
-			- (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
-	verbose("resisting moment %.0f ft*lb",resisting_moment);
-
+	
 
 	// collect wire data
 	static FINDLIST *all_ohls = NULL;
@@ -195,20 +185,52 @@ int pole::init(OBJECT *parent)
 	pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
 	pole_stress_polynomial_b = 0.0;
 	pole_stress_polynomial_c = wire_tension;
-
-	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
-	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	return node::init(parent);
 }
 
 TIMESTAMP pole::presync(TIMESTAMP t0)
 {
+	//degradation model - requires pole_install_year to be defined by the user to enable degradation
+	if (pole_install_year > 0)
+	{	
+		degradation_rate = config->minimum_shell_thickness/config->pole_lifetime;
+		current_hollow_diameter = 2 * pole_age * degradation_rate;
+	}
+	else 
+	{
+		gl_warning("degradation model is disabled, specify the pole_install_year.");
+		degradation_rate = 0.0;
+		current_hollow_diameter = 0;
+	}
+	// calculation resisting moment
+	resisting_moment = 0.008186 // constant * pi^3
+		* config->strength_factor_250b_wood 
+		* config->fiber_strength
+		* (( config->ground_diameter * config->ground_diameter * config->ground_diameter)
+			- (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
+	verbose("resisting moment %.0f ft*lb",resisting_moment);
+
+	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
+	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
+
+	t0_year = t0/86400.0/365.24; //timestamp in years
+
+	if (pole_install_year <= t0_year) // pole installed before the simulation time
+	{
+		pole_age = t0_year - pole_install_year;
+	}
+	else 
+	{
+		gl_error("pole install year is in the future.");
+	}
+
 	if ( pole_status == PS_FAILED && down_time+config->repair_time > gl_globalclock )
 	{
 		warning("pole repaired");
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
 		pole_status = PS_OK;
+		pole_install_year = t0_year;
 
 	}
 	if ( pole_status == PS_OK && last_wind_speed != *wind_speed )
