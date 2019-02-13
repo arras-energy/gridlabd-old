@@ -54,8 +54,14 @@ void delete_pidfile(void)
 /** The main entry point of GridLAB-D
     @returns Exit codes XC_SUCCESS, etc. (see gridlabd.h)
  **/
-int main(int argc, /**< the number entries on command-line argument list \p argv */
-		 char *argv[]) /**< a list of pointers to the command-line arguments */
+int
+#ifdef HAVE_PYTHON
+	main_python
+#else
+	main
+#endif
+(	int argc, /**< the number entries on command-line argument list \p argv */
+	char *argv[]) /**< a list of pointers to the command-line arguments */
 {
 	char *pd1, *pd2;
 	int i, pos=0;

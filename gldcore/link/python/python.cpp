@@ -363,11 +363,11 @@ static PyObject *gridlabd_command(PyObject *self, PyObject *args)
     }
 }
 
+extern "C" int main_python(int, char*[]);
 static void *gridlabd_main(void *)
 {
-    int main(int, char*[]);
     gridlabd_module_status = GMS_RUNNING;
-    return_code = main(argc,argv);
+    return_code = main_python(argc,argv);
     gridlabd_module_status = ( return_code==0 ? GMS_SUCCESS : GMS_FAILED );
     exec_mls_done();
     return (void*)&return_code;

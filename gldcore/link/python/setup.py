@@ -20,7 +20,10 @@ try:
 	from compile_options import *
 except:
 	import os
-	compile_options = os.getenv("CFLAGS").split(" ")
+	try :
+		compile_options = os.getenv("CFLAGS").split(" ")
+	except :
+		compile_options = None
 	if not compile_options :
 		compile_options=['-w','-O3']
 compile_options.extend(['-I'+srcdir+'/gldcore',"-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
