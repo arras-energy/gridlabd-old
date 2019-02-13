@@ -44,9 +44,8 @@ public:
 	object configuration;
 	double equipment_area;		// (see Section E)
 	double equipment_height;	// (see Section E)
-	double degradation_alpha;
-	double degradation_beta;
-	double degradation_probability;
+	double degradation_rate;
+	double pole_age;
 private:
 	double ice_thickness;
 	double wind_loading;
@@ -72,6 +71,7 @@ private:
 	double wind_pressure_failure;
 	object cable_configuration;
 	bool is_deadend;
+	double current_hollow_diameter;
 private:
 	pole_configuration *config;
 	double last_wind_speed;

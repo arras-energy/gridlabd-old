@@ -40,8 +40,8 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "total_moment[ft*lb]", PADDR(total_moment), PT_DESCRIPTION, "the total moment on the pole.",
 			PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
 			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure.",
-			PT_double, "degradation_alpha", PADDR(degradation_alpha), PT_DESCRIPTION, "alpha component of the probabilistic parameter of degradation model", 
-			PT_double, "degradation_beta", PADDR(degradation_beta), PT_DESCRIPTION, "beta component of the propabilistic parameter of degradation model",
+			PT_double, "degradation_rate[in/yr]", PADDR(degradation_rate), PT_DESCRIPTION, "rate of pole degradation.", 
+			PT_double, "pole_age[yr]", PADDR(pole_age), PT_DESCRIPTION, "age of the pole since installation.",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 	}
 }
@@ -65,8 +65,8 @@ int pole::create(void)
 	wire_data = NULL;
 	equipment_area = 0.0;
 	equipment_height = 0.0;
-	degradation_alpha = 75.48;
-	degradation_beta = 4.46; 
+	pole_age = 0;
+	current_hollow_diameter = 0.0;
 	return node::create();
 }
 
@@ -119,12 +119,16 @@ int pole::init(OBJECT *parent)
 		return 0;
 	}
 
+	degradation_rate = config->minimum_shell_thickness/config->pole_lifetime;
+	current_hollow_diameter = 2 * pole_age * degradation_rate;
 	// calculation resisting moment
-	resisting_moment = 0.008186 
+	resisting_moment = 0.008186 // constant * pi^3
 		* config->strength_factor_250b_wood 
 		* config->fiber_strength
-		* ( config->ground_diameter * config->ground_diameter * config->ground_diameter);
+		* (( config->ground_diameter * config->ground_diameter * config->ground_diameter)
+			- (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
 	verbose("resisting moment %.0f ft*lb",resisting_moment);
+
 
 	// collect wire data
 	static FINDLIST *all_ohls = NULL;

@@ -44,6 +44,8 @@ public: // wood pole model parameters
 	double wire_height_N;
 	double wire_height_P;
 	double wire_height_T;
+	double minimum_shell_thickness;
+	double pole_lifetime;
 public:
 	pole_configuration(MODULE *mod);
 	inline pole_configuration(CLASS *cl=oclass) : powerflow_library(cl) {};
