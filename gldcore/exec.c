@@ -999,7 +999,7 @@ static int commit_init(void)
 	/* build commit list */
 	for ( obj=object_get_first() ; obj!=NULL ; obj=object_get_next(obj) )
 	{
-		if ( obj->oclass->commit!=NULL || obj->events.commit!=NULL || obj->clock_event == CES_COMMIT )
+		if ( obj->oclass->commit!=NULL || obj->events.commit!=NULL )
 		{
 			/* separate observers */
 			unsigned int pc = ((obj->oclass->passconfig&PC_OBSERVER)==PC_OBSERVER)?1:0;
