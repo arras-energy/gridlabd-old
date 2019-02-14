@@ -41,7 +41,7 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
 			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure.",
 			PT_double, "degradation_rate[in/yr]", PADDR(degradation_rate), PT_DESCRIPTION, "rate of pole degradation.", 
-			PT_double, "pole_install_year[yr]", PADDR(pole_age), PT_DESCRIPTION, "the year of pole since installation.",
+			PT_double, "pole_install_year[yr]", PADDR(pole_install_year), PT_DESCRIPTION, "the year of pole since installation.",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 	}
 }
@@ -73,6 +73,15 @@ int pole::create(void)
 int pole::init(OBJECT *parent)
 {
 	OBJECT *my = (OBJECT*)(this)-1;
+	double *pRepairTime = (double*)gl_get_addr(configuration, "repair_time");
+	if ( pRepairTime )
+		gl_warning("repair time, %4.0f", *pRepairTime);
+	else
+	{
+		static double default_repair_time = 86400.0;
+		pRepairTime = &default_repair_time;
+		gl_warning("can't find repair time, using default %4.0f", *pRepairTime);
+	}
 
 	// configuration
 	if ( configuration == NULL || ! gl_object_isa(configuration,"pole_configuration") )
@@ -118,7 +127,6 @@ int pole::init(OBJECT *parent)
 		gl_error("weather object does not provide wind gust data");
 		return 0;
 	}
-	
 
 	// collect wire data
 	static FINDLIST *all_ohls = NULL;
@@ -190,6 +198,9 @@ int pole::init(OBJECT *parent)
 
 TIMESTAMP pole::presync(TIMESTAMP t0)
 {
+	t0_year = 1970 + (double)t0/(86400*365.24);
+	pole_age = t0_year - pole_install_year;
+	gl_warning("pole_age, %4.0f",pole_age );
 	//degradation model - requires pole_install_year to be defined by the user to enable degradation
 	if (pole_install_year > 0)
 	{	
@@ -202,6 +213,12 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		degradation_rate = 0.0;
 		current_hollow_diameter = 0;
 	}
+	if ((int64)pole_age < 0) 
+	{
+		gl_error("pole install year is in the future,  %4.0f > %4.0f, pole_age, %4.0f", pole_install_year, t0_year, pole_age );
+		return 0;
+	}
+
 	// calculation resisting moment
 	resisting_moment = 0.008186 // constant * pi^3
 		* config->strength_factor_250b_wood 
@@ -213,18 +230,16 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 
-	t0_year = t0/86400.0/365.24; //timestamp in years
+	//if (pole_install_year <= t0_year) // pole installed before the simulation time
+	//{
+//		pole_age = t0_year - pole_install_year;/
+//	}
+//	else 
+//	{
+//		gl_error("pole install year is in the future.");
+//	}
 
-	if (pole_install_year <= t0_year) // pole installed before the simulation time
-	{
-		pole_age = t0_year - pole_install_year;
-	}
-	else 
-	{
-		gl_error("pole install year is in the future.");
-	}
-
-	if ( pole_status == PS_FAILED && down_time+config->repair_time > gl_globalclock )
+	if ( pole_status == PS_FAILED && down_time+config->repair_time >= gl_globalclock )
 	{
 		warning("pole repaired");
 		tilt_angle = 0.0;
