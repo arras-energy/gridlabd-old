@@ -611,20 +611,6 @@ static STATUS init_by_creation()
 					 */
 				}
 			}
-			/* determine when clock gets synced */
-			if ( obj->oclass->commit || obj->events.commit )
-				obj->clock_event = CES_COMMIT;
-			else if ( obj->oclass->sync )
-			{
-				if ( (obj->oclass->passconfig&PC_POSTTOPDOWN)==PC_POSTTOPDOWN || obj->events.postsync )
-					obj->clock_event = CES_POSTSYNC;
-				else if ( (obj->oclass->passconfig&PC_BOTTOMUP)==PC_BOTTOMUP || obj->events.sync )
-					obj->clock_event = CES_SYNC;
-				else if ( (obj->oclass->passconfig&PC_PRETOPDOWN)==PC_PRETOPDOWN || obj->events.presync )
-					obj->clock_event = CES_PRESYNC;
-			}
-			else if ( obj->oclass->precommit || obj->events.precommit )
-				obj->clock_event = CES_PRECOMMIT;
 			obj->clock = global_starttime;
 		}
 	} CATCH (char *msg) {
@@ -1013,7 +999,7 @@ static int commit_init(void)
 	/* build commit list */
 	for ( obj=object_get_first() ; obj!=NULL ; obj=object_get_next(obj) )
 	{
-		if ( obj->oclass->commit!=NULL || obj->events.commit!=NULL )
+		if ( obj->oclass->commit!=NULL || obj->events.commit!=NULL || obj->clock_event == CES_COMMIT )
 		{
 			/* separate observers */
 			unsigned int pc = ((obj->oclass->passconfig&PC_OBSERVER)==PC_OBSERVER)?1:0;
@@ -1054,7 +1040,7 @@ static void commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
 	else if ((*t0 == obj->in_svc) && (obj->in_svc_micro != 0))
 		*t2 = obj->in_svc + 1;
 	else if ( obj->out_svc>=*t0 )
-		*t2 = obj->oclass->commit(obj,*t0);
+		*t2 = object_commit(obj,*t0,*t2);
 	else
 		*t2 = TS_NEVER;
 }
@@ -2314,6 +2300,7 @@ STATUS exec_start(void)
 			/* check for clock advance (indicating last pass) */
 			if ( exec_sync_get(NULL)!=global_clock )
 			{
+				OBJECT *obj;
 				TIMESTAMP commit_time = TS_NEVER;
 				commit_time = commit_all(global_clock, exec_sync_get(NULL));
 				if ( absolute_timestamp(commit_time) <= global_clock)
@@ -2331,6 +2318,11 @@ STATUS exec_start(void)
 				{
 					exec_sync_set(NULL,commit_time,false);
 				}
+
+				/* make sure all clocks are set */
+				for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
+					obj->clock = global_clock;
+
 				/* reset iteration count */
 				iteration_counter = global_iteration_limit;
 

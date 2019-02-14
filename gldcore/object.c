@@ -1564,22 +1564,6 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		output_error("object %s:%d pass %s at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,pass<0||pass>4?"(invalid)":passname[pass],ts,rc);
 		return TS_ZERO;
 	}
-	switch (pass) {
-	case PC_PRETOPDOWN:
-		if ( obj->clock_event == CES_PRESYNC )
-			obj->clock = ts;
-		break;
-	case PC_BOTTOMUP:
-		if ( obj->clock_event == CES_SYNC )
-			obj->clock = ts;
-		break;
-	case PC_POSTTOPDOWN:
-		if ( obj->clock_event == CES_POSTSYNC )
-			obj->clock = ts;
-		break;
-	default:
-		break;
-	}
 	return t2;
 }
 
@@ -1660,8 +1644,6 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	{
 		IN_MYCONTEXT output_debug("object %s:%d precommit -> %s", obj->oclass->name, obj->id, rv?"ok":"failed");
 	}
-	if ( obj->clock_event == CES_PRECOMMIT )
-		obj->clock = t1;
 	return rv;
 }
 
@@ -1692,8 +1674,6 @@ TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		char dt[64]="(invalid)"; if ( rv!=TS_INVALID ) convert_from_timestamp(absolute_timestamp(rv),dt,sizeof(dt)); else strcpy(dt,"ERROR");
 		IN_MYCONTEXT output_debug("object %s:%d commit -> %s %s", obj->oclass->name, obj->id, is_soft_timestamp(rv)?"SOFT":"HARD", dt);
 	}
-	if ( obj->clock_event == CES_COMMIT )
-		obj->clock = t2;
 	return rv;
 }
 
