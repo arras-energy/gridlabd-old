@@ -42,6 +42,7 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure.",
 			PT_double, "degradation_rate[in/yr]", PADDR(degradation_rate), PT_DESCRIPTION, "rate of pole degradation.", 
 			PT_double, "pole_install_year[yr]", PADDR(pole_install_year), PT_DESCRIPTION, "the year of pole since installation.",
+			PT_double, "deterioration_zone", PADDR(deterioration_zone), PT_DESCRIPTION, "Zones 1 to 5 (5 being most severe) for pole deterioration rate.",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 	}
 }
@@ -67,12 +68,42 @@ int pole::create(void)
 	equipment_height = 0.0;
 	pole_install_year = 0;
 	current_hollow_diameter = 0.0;
+	deterioration_zone = 1;
+	if (deterioration_zone == 1)
+	{
+		degradation_rate = 0.035;
+	}
+	if (deterioration_zone == 2)
+	{
+		degradation_rate = 0.04;
+	}
+	if (deterioration_zone == 3)
+	{
+		degradation_rate = 0.044;
+	}
+	if (deterioration_zone == 4)
+	{
+		degradation_rate = 0.047;
+	}
+	if (deterioration_zone == 5)
+	{
+		degradation_rate = 0.05; // minimum shell thickness of 2" / typical pole lifetime of 40 years ["/yr]
+	}
 	return node::create();
 }
 
 int pole::init(OBJECT *parent)
 {
 	OBJECT *my = (OBJECT*)(this)-1;
+	
+	// configuration
+	if ( configuration == NULL || ! gl_object_isa(configuration,"pole_configuration") )
+	{
+		gl_error("configuration is not set to a pole_configuration object");
+		return 0;		
+	}
+	config = OBJECTDATA(configuration,pole_configuration);
+
 	double *pRepairTime = (double*)gl_get_addr(configuration, "repair_time");
 	if ( pRepairTime )
 		gl_warning("repair time, %4.0f", *pRepairTime);
@@ -83,13 +114,16 @@ int pole::init(OBJECT *parent)
 		gl_warning("can't find repair time, using default %4.0f", *pRepairTime);
 	}
 
-	// configuration
-	if ( configuration == NULL || ! gl_object_isa(configuration,"pole_configuration") )
-	{
-		gl_error("configuration is not set to a pole_configuration object");
-		return 0;		
+	if (pole_install_year > 0)
+	{	
+		current_hollow_diameter = 2 * pole_age * degradation_rate;
 	}
-	config = OBJECTDATA(configuration,pole_configuration);
+	else 
+	{
+		gl_warning("degradation model is disabled, specify the pole_install_year.");
+		degradation_rate = 0.0;
+		current_hollow_diameter = 0;
+	}
 
 	// tilt
 	if ( tilt_angle < 0 || tilt_angle > 90 )
@@ -200,19 +234,9 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 {
 	t0_year = 1970 + (double)t0/(86400*365.24);
 	pole_age = t0_year - pole_install_year;
-	gl_warning("pole_age, %4.0f",pole_age );
+	//gl_warning("pole_age, %4.0f",pole_age );
 	//degradation model - requires pole_install_year to be defined by the user to enable degradation
-	if (pole_install_year > 0)
-	{	
-		degradation_rate = config->minimum_shell_thickness/config->pole_lifetime;
-		current_hollow_diameter = 2 * pole_age * degradation_rate;
-	}
-	else 
-	{
-		gl_warning("degradation model is disabled, specify the pole_install_year.");
-		degradation_rate = 0.0;
-		current_hollow_diameter = 0;
-	}
+	
 	if ((int64)pole_age < 0) 
 	{
 		gl_error("pole install year is in the future,  %4.0f > %4.0f, pole_age, %4.0f", pole_install_year, t0_year, pole_age );
@@ -230,18 +254,9 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 
-	//if (pole_install_year <= t0_year) // pole installed before the simulation time
-	//{
-//		pole_age = t0_year - pole_install_year;/
-//	}
-//	else 
-//	{
-//		gl_error("pole install year is in the future.");
-//	}
-
 	if ( pole_status == PS_FAILED && down_time+config->repair_time >= gl_globalclock )
 	{
-		warning("pole repaired");
+		warning("pole repaired, down time %.0f, repair_time %.0f, gl_globalclock %.0f", down_time, config->repair_time, gl_globalclock);
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
 		pole_status = PS_OK;

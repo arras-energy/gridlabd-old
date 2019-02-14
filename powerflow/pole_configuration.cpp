@@ -41,7 +41,7 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 			PT_double, "top_diameter[in]", PADDR(top_diameter), PT_DESCRIPTION, "diameter of pole at top",
 			PT_double, "fiber_strength[psi]", PADDR(fiber_strength), PT_DESCRIPTION, "pole structural strength",
 			PT_double, "repair_time[s]", PADDR(repair_time), PT_DESCRIPTION, "pole repair time",
-			PT_double, "minimum_shell_thickness[in]", PADDR(minimum_shell_thickness), PT_DESCRIPTION, "minimum shell thickness at degradation threshold.",
+	//		PT_double, "minimum_shell_thickness[in]", PADDR(minimum_shell_thickness), PT_DESCRIPTION, "minimum shell thickness at degradation threshold.",
 			PT_double, "pole_lifetime[yr]", PADDR(pole_lifetime), PT_DESCRIPTION, "number of years for the pole to reach minimum shell thickness of less than 2 inches.",
             NULL) < 1) GL_THROW("unable to publish pole_configuration properties in %s",__FILE__);
     }

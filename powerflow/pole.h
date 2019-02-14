@@ -47,6 +47,7 @@ public:
 	double degradation_rate;
 	double pole_age;
 	double pole_install_year;
+	double deterioration_zone;
 private:
 	double ice_thickness;
 	double wind_loading;
