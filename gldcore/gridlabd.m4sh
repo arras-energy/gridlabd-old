@@ -62,11 +62,20 @@ fi
 if test "x$1" = "x--gdb" ; then :
   shift
   gdb -ex "run $@" $bindir/gridlabd.bin
+  exit 0
 elif test "x$1" = "x--lldb" ; then :
   shift
   echo "run $@" > /tmp/gridlabd-$$
   lldb -s /tmp/gridlabd-$$ $bindir/gridlabd.bin
   rm /tmp/gridlabd-$$
+  exit 0
+elif test "x$1" = "x--valgrind" ; then :
+  shift
+  if test -z "${VALGRIND_OPTIONS}" ; then :
+    echo "warning: VALGRIND_OPTIONS is not set, using default valgrind options"
+  fi
+  valgrind ${VALGRIND_OPTIONS} $bindir/gridlabd.bin $@
+  exit 0
 fi
 
 AS_IF([test "x$GLPATH" = x],

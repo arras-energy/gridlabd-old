@@ -15,16 +15,15 @@
 cd $1
 declare -i rev
 declare -i num
-dir=`git remote -v | grep "(fetch)" | sed -n 's/^.*\t//; $s/ .*$//p'`
-new=`git log -n 1 | sed -n '1s/^commit //p' | cut -c1-8`
+dir=`git remote -v | head -n 1 | sed -n 's/^.*\t//; $s/ .*$//p'`
+new=`git log -n 1 | sed -n '1s/^commit //p'`
 mod=`git status -s | cut -c1-3 | sort -u | sed 's/ //g'`
-num=`git log --max-count=1 --pretty=format:"%ad" --date=raw | sed -ne 's/ [\+\-][0-9]\{4\}$//p'`
-rev=$((${num}/86400))
+rev=`git log --max-count=1 --pretty=format:"%ai" | cut -c3,4,6,7,9,10`
 branchname=`git rev-parse --abbrev-ref HEAD`
-if [ -z "${mod}" ]; then
-	branch="${dir}:${new}"
+if [ -z "${mod}" -a -z "$(git status | grep 'Your branch is ahead')" ]; then
+	branch="${dir}/commit/${new}"
 else
-	branch="$new:$branchname"
+	branch="$(hostname):${PWD/$HOME/~$USER}:$branchname:$new"
 fi
 if test -f $2 ; then 
 	oldnum=`cat $2 | sed -ne 's/^#define BUILDNUM //p'`
