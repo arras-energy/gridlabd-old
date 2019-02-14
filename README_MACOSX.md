@@ -1,6 +1,6 @@
 1. Prepare your system
 ~~~
-macosx% curl https://raw.githubusercontent.com/dchassin/gridlabd/dchassin/master/requirements.sh | bash
+macosx% curl https://raw.githubusercontent.com/dchassin/gridlabd/dchassin/master/requirements | bash
 ~~~
 
 2. Download the source
