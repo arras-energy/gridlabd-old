@@ -54,8 +54,14 @@ void delete_pidfile(void)
 /** The main entry point of GridLAB-D
     @returns Exit codes XC_SUCCESS, etc. (see gridlabd.h)
  **/
-int main(int argc, /**< the number entries on command-line argument list \p argv */
-		 char *argv[]) /**< a list of pointers to the command-line arguments */
+int
+#ifdef HAVE_PYTHON
+	main_python
+#else
+	main
+#endif
+(	int argc, /**< the number entries on command-line argument list \p argv */
+	char *argv[]) /**< a list of pointers to the command-line arguments */
 {
 	char *pd1, *pd2;
 	int i, pos=0;
@@ -104,7 +110,10 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 
 	/* main initialization */
 	if (!output_init(argc,argv) || !exec_init())
-		exit(XC_INIERR);
+	{
+		exec_mls_done();
+		return(XC_INIERR);
+	}		
 
 	/* set thread count equal to processor count if not passed on command-line */
 	if (global_threadcount == 0)
@@ -121,7 +130,8 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 			complete its startup procedure.  Correct the problem
 			with the command line and try again.
 		 */
-		exit(XC_ARGERR);
+		exec_mls_done();
+		return(XC_ARGERR);
 	}
 
 	/* stitch clock */
@@ -156,7 +166,8 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 				the location indicated in the message.  Create and/or
 				modify access rights to the path for that file and try again.
 			 */
-			exit(XC_PRCERR);
+			exec_mls_done();
+			return(XC_PRCERR);
 		}
 #ifdef WIN32
 #define getpid _getpid
@@ -170,7 +181,10 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 	/* do legal stuff */
 #ifdef LEGAL_NOTICE
 	if (strcmp(global_pidfile,"")==0 && legal_notice()==FAILED)
-		exit(XC_USRERR);
+	{
+		exec_mls_done();
+		return(XC_USRERR);
+	}
 #endif
 	
 	/* start the processing environment */
@@ -241,7 +255,8 @@ int main(int argc, /**< the number entries on command-line argument list \p argv
 	/* compute elapsed runtime */
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
 	IN_MYCONTEXT output_verbose("exit code %d", exec_getexitcode());
-	exit(exec_getexitcode());
+	exec_mls_done();
+	return(exec_getexitcode());
 }
 
 /** @} **/

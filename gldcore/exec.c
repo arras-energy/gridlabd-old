@@ -837,6 +837,10 @@ static STATUS init_all(void)
 	STATUS rv = SUCCESS;
 	IN_MYCONTEXT output_verbose("initializing objects...");
 
+	/* initialize modules */
+	if ( ! module_initall() )
+		return FAILED;
+
 	/* initialize instances */
 	if ( instance_initall()==FAILED )
 		return FAILED;
@@ -981,7 +985,7 @@ static STATUS precommit_all(TIMESTAMP t0)
 		 */
 		rv=FAILED;
 	} ENDCATCH;
-	return rv;
+	return rv && module_precommitall(t0);
 }
 
 /**************************************************************************
@@ -1182,7 +1186,8 @@ static TIMESTAMP commit_all(TIMESTAMP t0, TIMESTAMP t2)
 		result = TS_INVALID;
 	}
 	ENDCATCH;
-	return result;
+
+	return result && module_commitall(t0) ? TS_NEVER : TS_INVALID;
 }
 
 /**************************************************************************
@@ -1423,28 +1428,40 @@ static void *obj_syncproc(void *ptr)
 /*static*/ pthread_mutex_t mls_svr_lock;
 /*static*/ pthread_cond_t mls_svr_signal;
 int mls_created = 0;
+int mls_destroyed = 0;
 
 void exec_mls_create(void)
 {
+	if ( mls_destroyed )
+	{
+		output_error("gldcore/exec.c/exec_mls_create(): cannot create mutex after it was destroyed");
+		return;
+	}
 	int rv = 0;
 
 	mls_created = 1;
-
+	global_mainloopstate = MLS_INIT;
+	
 	IN_MYCONTEXT output_debug("exec_mls_create()");
 	rv = pthread_mutex_init(&mls_svr_lock,NULL);
-	if (rv != 0)
+	if ( rv != 0 )
 	{
-		output_error("error with pthread_mutex_init() in exec_mls_init()");
+		output_error("gldcore/exec.c/exec_mls_create(): pthread_mutex_init() error %d (%s)", rv, strerror(rv));
 	}
 	rv = pthread_cond_init(&mls_svr_signal,NULL);
-	if (rv != 0)
+	if ( rv != 0 )
 	{
-		output_error("error with pthread_cond_init() in exec_mls_init()");
+		output_error("gldcore/exec.c/exec_mls_create(): pthread_cond_init() error %d (%s)", rv, strerror(rv));
 	}
 }
 
 void exec_mls_init(void)
 {
+	if ( mls_destroyed )
+	{
+		output_error("gldcore/exec.c/exec_mls_init(): cannot init mutex after it was destroyed");
+		return;
+	}
 	if (mls_created == 0)
 	{
 		exec_mls_create();
@@ -1455,8 +1472,48 @@ void exec_mls_init(void)
 		sched_update(global_clock,global_mainloopstate);
 }
 
+void exec_mls_start()
+{
+	if ( mls_destroyed )
+	{
+		output_error("gldcore/exec.c/exec_mls_start(): cannot start mutex after it was destroyed");
+		return;
+	}
+	if ( ! mls_created )
+	{
+		output_error("gldcore/exec.c/exec_mls_start(): cannot start mutex before it was created");
+		return;
+	}
+	int rv = 0;
+	rv = pthread_mutex_lock(&mls_svr_lock);
+	if ( rv != 0 )
+	{
+		output_error("gldcore/exec.c/exec_mls_start(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
+	}
+	sched_update(global_clock,global_mainloopstate = MLS_RUNNING);
+	rv = pthread_mutex_unlock(&mls_svr_lock);
+	if ( rv != 0 && rv != EINVAL )
+	{
+		output_error("gldcore/exec.c/exec_mls_start(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+	}
+	rv = pthread_cond_broadcast(&mls_svr_signal);
+	if ( rv != 0 && rv != EINVAL )
+	{
+		output_error("gldcore/exec.c/exec_mls_start(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
+	}
+}
 void exec_mls_suspend(void)
 {
+	if ( mls_destroyed )
+	{
+		output_error("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex after it was destroyed");
+		return;
+	}
+	if ( ! mls_created )
+	{
+		output_error("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex before it was created");
+		return;
+	}
 	int loopctr = 10;
 	int rv = 0;
 	IN_MYCONTEXT output_debug("pausing simulation");
@@ -1466,7 +1523,7 @@ void exec_mls_suspend(void)
 	rv = pthread_mutex_lock(&mls_svr_lock);
 	if (0 != rv)
 	{
-		output_error("error with pthread_mutex_lock() in exec_mls_suspend()");
+		output_error("gldcore/exec.c/exec_mls_suspend(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	IN_MYCONTEXT output_debug("sched update_");
 	sched_update(global_clock,global_mainloopstate=MLS_PAUSED);
@@ -1477,9 +1534,9 @@ void exec_mls_suspend(void)
 			IN_MYCONTEXT output_debug(" * tick (%i)", --loopctr);
 		}
 		rv = pthread_cond_wait(&mls_svr_signal, &mls_svr_lock);
-		if (rv != 0)
+		if ( rv != 0 && rv != EINVAL )
 		{
-			output_error("error with pthread_cond_wait() in exec_mls_suspend()");
+			output_error("gldcore/exec.c/exec_mls_suspend(): pthread_cond_wait() error %d (%s)", rv, strerror(rv));
 		}
 	}
 	IN_MYCONTEXT output_debug("sched update_");
@@ -1488,42 +1545,119 @@ void exec_mls_suspend(void)
 	rv = pthread_mutex_unlock(&mls_svr_lock);
 	if (rv != 0)
 	{
-		output_error("error with pthread_mutex_unlock() in exec_mls_suspend()");
+		output_error("gldcore/exec.c/exec_mls_suspend(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
 	}
 }
 
 void exec_mls_resume(TIMESTAMP ts)
 {
+	if ( mls_destroyed )
+	{
+		output_error("gldcore/exec.c/exec_mls_resume(): cannot resume mutex after it was destroyed");
+		return;
+	}
+	if ( ! mls_created )
+	{
+		output_error("gldcore/exec.c/exec_mls_resume(): cannot resume mutex before it was created");
+		return;
+	}
 	int rv = 0;
 	rv = pthread_mutex_lock(&mls_svr_lock);
-	if (rv != 0)
+	if (rv != 0 && rv != EINVAL )
 	{
-		output_error("error in pthread_mutex_lock() in exec_mls_resume() (error %i)", rv);
+		output_error("gldcore/exec.c/exec_mls_resume(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	global_mainlooppauseat = ts;
-	rv = pthread_mutex_unlock(&mls_svr_lock);
-	if (rv != 0)
+	if ( rv != EINVAL )
 	{
-		output_error("error in pthread_mutex_unlock() in exec_mls_resume()");
-	}
-	rv = pthread_cond_broadcast(&mls_svr_signal);
-	if (rv != 0)
-	{
-		output_error("error in pthread_cond_broadcast() in exec_mls_resume()");
+		rv = pthread_mutex_unlock(&mls_svr_lock);
+		if (rv != 0)
+		{
+			output_error("gldcore/exec.c/exec_mls_resume(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+		}
+		rv = pthread_cond_broadcast(&mls_svr_signal);
+		if (rv != 0)
+		{
+		output_error("gldcore/exec.c/exec_mls_suspend(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
+		}
 	}
 }
 
 void exec_mls_statewait(unsigned states)
 {
-	pthread_mutex_lock(&mls_svr_lock);
-	while ( ((global_mainloopstate&states)|states)==0 ) 
-		pthread_cond_wait(&mls_svr_signal, &mls_svr_lock);
-	pthread_mutex_unlock(&mls_svr_lock);
+	if ( mls_destroyed )
+	{
+		output_error("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex after it was destroyed");
+		return;
+	}
+	if ( ! mls_created )
+	{
+		output_error("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex before it was created");
+		return;
+	}
+
+	int rv = 0;
+	rv = pthread_mutex_lock(&mls_svr_lock);
+	if (rv != 0 && rv!=EINVAL)
+	{
+		output_error("gldcore/exec.c/exec_mls_statewait(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
+	}
+	if ( rv != EINVAL )
+	{
+		while ( (global_mainloopstate&states) == 0 ) 
+		{
+			rv = pthread_cond_wait(&mls_svr_signal, &mls_svr_lock);
+			if ( rv != 0 && rv != EINVAL )
+			{
+				output_error("gldcore/exec.c/exec_mls_statewait(): pthread_cond_wait() error %d (%s)", rv, strerror(rv));
+			}
+		}
+		rv = pthread_mutex_unlock(&mls_svr_lock);
+		if ( rv != 0 && rv != EINVAL )
+		{
+			output_error("gldcore/exec.c/exec_mls_statewait(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+		}
+	}
+	else
+	{	// very inefficient fallback method
+		output_debug("mutex lock failed (%s) -- using usleep(100) instead",strerror(rv));
+		while ( (global_mainloopstate&states) == 0 )
+			usleep(100);
+	}
 }
 
 void exec_mls_done(void)
 {
+	if ( mls_destroyed )
+		return;
+	if ( ! mls_created )
+	{
+		output_error("gldcore/exec.c/exec_mls_destroy(): cannot destroy mutex before it was created");
+		return;
+	}
+	int rv = 0;
+	if ( global_mainloopstate == MLS_DONE )
+		return;
+	rv = pthread_mutex_lock(&mls_svr_lock);
+	if (rv != 0 && rv!=EINVAL)
+	{
+		output_error("gldcore/exec.c/exec_mls_done(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
+	}
 	sched_update(global_clock,global_mainloopstate=MLS_DONE);
+	if ( rv != EINVAL )
+	{
+		rv = pthread_mutex_unlock(&mls_svr_lock);
+		if ( rv != 0 && rv != EINVAL )
+		{
+			output_error("gldcore/exec.c/exec_mls_done(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+		}
+		rv = pthread_cond_broadcast(&mls_svr_signal);
+		if ( rv != 0 && rv != EINVAL )
+		{
+			output_error("gldcore/exec.c/exec_mls_suspend(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
+		}
+	}
+	mls_destroyed = 1;
 	pthread_mutex_destroy(&mls_svr_lock);
 	pthread_cond_destroy(&mls_svr_signal);
 }
@@ -1545,7 +1679,7 @@ static struct sync_data main_sync = {TS_NEVER,0,SUCCESS};
 void exec_sync_reset(struct sync_data *d) /**< sync data to reset (NULL to reset main)  **/
 {
 	if ( d==NULL ) d=&main_sync;
-	d->step_to = TS_NEVER;
+	d->step_to = ( global_mainlooppauseat > global_clock ? global_mainlooppauseat : TS_NEVER );
 	d->hard_event = 0;
 	d->status = SUCCESS;
 }
@@ -1719,6 +1853,25 @@ void exec_clock_update_modules()
 		}
 	}
 	exec_sync_set(NULL,t1,false);
+}
+
+/** Main loop sync lock control **/
+static long sync_lock;
+void exec_rlock_sync(void)
+{
+	rlock(&sync_lock);
+}
+void exec_runlock_sync(void)
+{
+	runlock(&sync_lock);
+}
+void exec_wlock_sync(void)
+{
+	wlock(&sync_lock);
+}
+void exec_wunlock_sync(void)
+{
+	wunlock(&sync_lock);
 }
 
 /******************************************************************
@@ -1947,22 +2100,26 @@ STATUS exec_start(void)
 	cstart = (clock_t)exec_clock();
 
 	/* main loop exception handler */
+	exec_wlock_sync();
 	TRY {
 
 		/* main loop runs for iteration limit, or when nothing futher occurs (ignoring soft events) */
 		while ( iteration_counter>0 && exec_sync_isrunning(NULL) && exec_getexitcode()==XC_SUCCESS ) 
 		{
+			exec_wunlock_sync();
 			TIMESTAMP internal_synctime;
 			IN_MYCONTEXT output_debug("*** main loop event at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", exec_sync_get(NULL), global_stoptime, exec_sync_getevents(NULL), exec_getexitcode());
 
 			/* update the process table info */
-			sched_update(global_clock,MLS_RUNNING);
+			exec_mls_start();
 
 			/* main loop control */
 			if ( global_clock>=global_mainlooppauseat && global_mainlooppauseat<TS_NEVER )
 				exec_mls_suspend();
 
+			exec_rlock_sync();
 			do_checkpoint();
+			exec_runlock_sync();
 
 			/* realtime control of global clock */
 			if (global_run_realtime==0 && global_clock >= global_enter_realtime)
@@ -1979,7 +2136,6 @@ STATUS exec_start(void)
 					IN_MYCONTEXT output_verbose("waiting %d msec", 1000-tv.millitm);
 					Sleep(1000-tv.millitm );
 					metric = (1000-tv.millitm)/1000.0;
-					global_clock += global_run_realtime;
 				}
 				else
 					output_error("simulation failed to keep up with real time");
@@ -1991,12 +2147,13 @@ STATUS exec_start(void)
 					IN_MYCONTEXT output_verbose("waiting %d usec", 1000000-tv.tv_usec);
 					usleep(1000000-tv.tv_usec);
 					metric = (1000000-tv.tv_usec)/1000000.0;
-					global_clock += global_run_realtime;
 				}
 				else
 					output_error("simulation failed to keep up with real time");
 #endif
 #define IIR 0.9 /* about 30s for 95% unit step response */
+				exec_wlock_sync();
+				global_clock += global_run_realtime;
 				global_realtime_metric = global_realtime_metric*IIR + metric*(1-IIR);
 				exec_sync_reset(NULL);
 				exec_sync_set(NULL,global_clock,false);
@@ -2005,7 +2162,10 @@ STATUS exec_start(void)
 
 			/* internal control of global clock */
 			else
+			{
+				exec_wlock_sync();
 				global_clock = exec_sync_get(NULL);
+			}
 
 			/* operate delta mode if necessary (but only when event mode is active, e.g., not right after init) */
 			/* note that delta mode cannot be supported for realtime simulation */
@@ -2126,6 +2286,26 @@ STATUS exec_start(void)
 			for (pass = 0; ranks[pass] != NULL; pass++)
 			{
 				int i;
+
+				/* top-down module events */
+				if ( pass == 0 )
+				{
+					TIMESTAMP mt = module_presyncall(global_clock);
+					if ( mt == TS_INVALID )
+					{
+						THROW("module on_presync failed");
+					}
+					exec_sync_set(NULL,mt,false);
+				}
+				else if ( pass == 2 )
+				{
+					TIMESTAMP mt = module_postsyncall(global_clock);
+					if ( mt == TS_INVALID )
+					{
+						THROW("module on_postsync failed");
+					}
+					exec_sync_set(NULL,mt,false);
+				}
 
 				/* process object in order of rank using index */
 				for (i = PASSINIT(pass); PASSCMP(i, pass); i += PASSINC(pass))
@@ -2250,6 +2430,16 @@ STATUS exec_start(void)
 					}
 				}
 
+				/* bottom-up module event */
+				if ( pass == 1 )
+				{
+					TIMESTAMP mt = module_syncall(global_clock);
+					if ( mt == TS_INVALID )
+					{
+						THROW("module on_sync failed");
+					}
+					exec_sync_set(NULL,mt,false);
+				}
 
 				/* run all non-schedule transforms */
 				{
@@ -2383,8 +2573,6 @@ STATUS exec_start(void)
 			IN_MYCONTEXT output_verbose("simulation at steady state at %s", convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"invalid time");
 		}
 
-		/* terminate main loop state control */
-		exec_mls_done();
 	}
 	CATCH(char *msg)
 	{
@@ -2397,6 +2585,10 @@ STATUS exec_start(void)
 		 */
 	}
 	ENDCATCH
+
+	/* terminate main loop state control */
+	exec_mls_done();
+	exec_wunlock_sync();
 	IN_MYCONTEXT output_debug("*** main loop ended at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", exec_sync_get(NULL), global_stoptime, exec_sync_getevents(NULL), exec_getexitcode());
 	if(global_multirun_mode == MRM_MASTER)
 	{
@@ -2520,8 +2712,6 @@ STATUS exec_start(void)
 		output_profile("\n");
 		object_synctime_profile_dump(NULL);
 	}
-
-	sched_update(global_clock,MLS_DONE);
 
 	/* terminate links */
 	return exec_sync_getstatus(NULL);

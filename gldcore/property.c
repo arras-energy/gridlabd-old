@@ -309,7 +309,6 @@ PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, char *opstr)
 	return TCOP_ERR;
 }
 
-
 bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, char *part)
 {
 	if ( part==NULL && property_type[ptype].compare[op].fn!=NULL )
