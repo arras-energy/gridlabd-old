@@ -72,7 +72,7 @@ int pole::create(void)
 int pole::init(OBJECT *parent)
 {
 	OBJECT *my = (OBJECT*)(this)-1;
-
+	
 	// configuration
 	if ( configuration == NULL || ! gl_object_isa(configuration,"pole_configuration") )
 	{
@@ -80,6 +80,16 @@ int pole::init(OBJECT *parent)
 		return 0;		
 	}
 	config = OBJECTDATA(configuration,pole_configuration);
+
+	double *pRepairTime = (double*)gl_get_addr(configuration, "repair_time");
+	if ( pRepairTime )
+		gl_warning("repair time, %4.0f", *pRepairTime);
+	else
+	{
+		static double default_repair_time = 86400.0;
+		pRepairTime = &default_repair_time;
+		gl_warning("can't find repair time, using default %4.0f", *pRepairTime);
+	}
 
 	// tilt
 	if ( tilt_angle < 0 || tilt_angle > 90 )
@@ -214,9 +224,9 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 
-	if ( pole_status == PS_FAILED && down_time+config->repair_time > gl_globalclock )
+	if ( pole_status == PS_FAILED && down_time+config->repair_time >= gl_globalclock )
 	{
-		warning("pole repaired");
+		warning("pole repaired, down time %.0f, repair_time %.0f, gl_globalclock %.0f", down_time, config->repair_time, gl_globalclock);
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
 		pole_status = PS_OK;

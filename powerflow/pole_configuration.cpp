@@ -19,17 +19,16 @@ KEYWORD pole_configuration::kw_ciz[_CIZ_SIZE] = {
 	{"HIGH",pole_configuration::CIZ_HIGH, kw_ciz+5},
 	{"EXTREME",pole_configuration::CIZ_EXTREME, NULL},	
 };
-
 static double pole_degredation_rate_data[pole_configuration::_CIZ_SIZE][pole_configuration::_PTM_SIZE] = {
 	// specifies pole degradation rate in inches per year for each climate impact zone
 	// Treatment methods:
 	//  none, 		creosote,   penta,		cca 
 	{	0.00 ,		0.00 ,		0.00 ,		0.00 	}, // CIZ_NONE
-	{	0.00 ,		0.00 ,		0.00 ,		0.00 	}, // CIZ_LOW
-	{	0.00 ,		0.00 ,		0.00 ,		0.00 	}, // CIZ_MODERATE
-	{	0.00 ,		0.00 ,		0.00 ,		0.00 	}, // CIZ_INTERMEDATE
-	{	0.00 ,		0.00 ,		0.00 ,		0.00 	}, // CIZ_HIGH
-	{	0.00 ,		0.00 ,		0.00 ,		0.00 	}, // CIZ_EXTREME
+	{	0.00 ,		0.00 ,		0.00 ,		0.035 	}, // CIZ_LOW
+	{	0.00 ,		0.00 ,		0.00 ,		0.040 	}, // CIZ_MODERATE
+	{	0.00 ,		0.00 ,		0.00 ,		0.044 	}, // CIZ_INTERMEDATE
+	{	0.00 ,		0.00 ,		0.00 ,		0.047 	}, // CIZ_HIGH
+	{	0.00 ,		0.00 ,		0.00 ,		0.05 	}, // CIZ_EXTREME
 };
 
 pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
