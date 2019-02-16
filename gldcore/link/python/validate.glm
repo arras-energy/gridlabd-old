@@ -1,4 +1,5 @@
 module my_test;
+#define my_test=yes
 clock {
 	starttime '2018-01-01 00:00:00';
 	stoptime '2018-01-01 01:00:00';
