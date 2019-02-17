@@ -38,6 +38,8 @@ public: // globals
 	static double default_temperature_cooling_balance;
 	static double default_temperature_heating_base;
 	static double default_temperature_cooling_base;
+	static double default_temperature_heating_design;
+	static double default_temperature_cooling_design;
 	static double default_solargain_base;
 	static double default_price_base;
 	static double default_occupancy_base;
@@ -76,6 +78,17 @@ public:
 	void set_value(CEUSDATA *repo, TIMESTAMP ts, double value);
 	static double get_value(CEUSDATA *repo, TIMESTAMP ts, double scalar=1.0);
 public:
+	typedef struct s_minmax {
+		double min;
+		double max;
+	} MINMAX;
+	typedef struct s_sensitivity {
+		double base; // variable basis value
+		double intercept; // intercept value
+		double slope; // slope value
+		MINMAX domain; // domain (input min/max)
+		MINMAX range; // range (output min/max)
+	} SENSITIVITY;
 	typedef struct s_component 
 	{
 		CEUSDATA *data; // enduse name
@@ -83,6 +96,11 @@ public:
 		double Ir, Ii; // constant current factors (real, imaginary)
 		double Pr, Pi; // constant power factors (real, imaginary)
 		double fraction; // fraction of total floor area affected by this component
+		SENSITIVITY heating; // heating temperature sensitivity
+		SENSITIVITY cooling; // cooling temperature sensitivity
+		SENSITIVITY solar; // solar gain sensitivity
+		SENSITIVITY price; // price sensitivity
+		SENSITIVITY occupancy; // occupancy sensitivity
 		struct s_component *next;
 	} COMPONENT;
 	COMPONENT *components;
@@ -93,6 +111,7 @@ public:
 	bool set_component(const char *enduse, const char *term, double value);
 	bool set_component(COMPONENT *component, const char *term, double value);
 	COMPONENT *find_component(const char *enduse);
+	double apply_sensitivity(SENSITIVITY &component, double *variable);
 public:
 	GL_ATOMIC(char32,building_type);
 	GL_ATOMIC(double,floor_area);
@@ -125,31 +144,27 @@ private:
 		else
 			warning("unable to link property '%s' in object '%s'",name,get_object(obj)->get_name());
 	}
+private:
 	complex *voltage_A;
 	complex *voltage_B;
 	complex *voltage_C;
 	double *nominal_voltage;
-public:
-	GL_ATOMIC(double,temperature_heating_sensitivity);
-	GL_ATOMIC(double,temperature_cooling_sensitivity);
+private:
 	double *temperature;
-	GL_ATOMIC(double,temperature_cooling_balance);
-	GL_ATOMIC(double,temperature_heating_balance);
-	GL_ATOMIC(double,temperature_cooling_base);
-	GL_ATOMIC(double,temperature_heating_base);
-public:
-	GL_ATOMIC(double,price_sensitivity);
 	double *price;
-	GL_ATOMIC(double,price_base);
-public:
-	GL_ATOMIC(double,solargain_sensitivity);
 	double *solar;
-	GL_ATOMIC(double,solargain_base);
-public:
-	GL_ATOMIC(double,occupancy_sensitivity);
 	double *occupancy;
-	GL_ATOMIC(double,occupancy_base);
 	CEUSDATA *data;
+private:
+	complex *power_A;
+	complex *power_B;
+	complex *power_C;
+	complex *current_A;
+	complex *current_B;
+	complex *current_C;
+	complex *shunt_A;
+	complex *shunt_B;
+	complex *shunt_C;
 public:
 	ceus(MODULE *module);
 	int create(void);

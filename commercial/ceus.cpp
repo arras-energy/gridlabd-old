@@ -40,8 +40,10 @@ char1024 ceus::price_variable_name = "energy_price";
 char1024 ceus::occupancy_variable_name = "occupancy_fraction";
 double ceus::default_temperature_cooling_balance = 70.0;
 double ceus::default_temperature_cooling_base = 70.0;
+double ceus::default_temperature_cooling_design = 100.0;
 double ceus::default_temperature_heating_balance = 55.0;
 double ceus::default_temperature_heating_base = 55.0;
+double ceus::default_temperature_heating_design = 0.0;
 double ceus::default_solargain_base = 0.0;
 double ceus::default_price_base = 0.0;
 double ceus::default_occupancy_base = 1.0;
@@ -250,10 +252,43 @@ bool ceus::set_component(COMPONENT *component, const char *term, double value)
 	} map[] = {
 		{"Zr", component->Zr},
 		{"Zi", component->Zi},
+
 		{"Ir", component->Ir},
 		{"Ii", component->Ii},
+
 		{"Pr", component->Pr},
 		{"Pi", component->Pi},
+
+		{"Th", component->heating.slope},
+		{"Thb", component->heating.base},
+		{"Thc", component->heating.intercept},
+		{"Th0", component->heating.domain.min},
+		{"Th1", component->heating.domain.max},
+
+		{"Tc", component->cooling.slope},
+		{"Tcb", component->cooling.base},
+		{"Tcc", component->cooling.intercept},
+		{"Tc0", component->cooling.domain.min},
+		{"Tc1", component->cooling.domain.max},
+
+		{"S", component->solar.slope},
+		{"Sb", component->solar.base},
+		{"Sb", component->solar.intercept},
+		{"S0", component->solar.domain.min},
+		{"S1", component->solar.domain.max},
+
+		{"E", component->price.slope},
+		{"Eb", component->price.base},
+		{"Eb", component->price.intercept},
+		{"E0", component->price.domain.min},
+		{"E1", component->price.domain.max},
+
+		{"O", component->occupancy.slope},
+		{"Ob", component->occupancy.base},
+		{"Ob", component->occupancy.intercept},
+		{"O0", component->occupancy.domain.min},
+		{"O1", component->occupancy.domain.max},
+
 		{"Area", component->fraction},
 	};
 	size_t n;
@@ -307,17 +342,7 @@ ceus::ceus(MODULE *module)
 			PT_complex,"total_power_B[W]", get_total_power_B_offset(), PT_DESCRIPTION, "total complex power on phase B",
 			PT_complex,"total_power_C[W]", get_total_power_C_offset(), PT_DESCRIPTION, "total complex power on phase C",
 			PT_object,"weather",get_weather_offset(), PT_DESCRIPTION, "weather object for temperature and solar gain",
-			PT_double,"temperature_heating_balance[degF]",get_temperature_heating_balance_offset(), PT_DESCRIPTION, "lowest temperature at which heating is not required",
-			PT_double,"temperature_cooling_balance[degF]",get_temperature_cooling_balance_offset(), PT_DESCRIPTION, "highest temperature at which cooling is not required",
-			PT_double,"temperature_heating_base[degF]",get_temperature_heating_balance_offset(), PT_DESCRIPTION, "temperature at which heating base load is observed",
-			PT_double,"temperature_cooling_base[degF]",get_temperature_cooling_balance_offset(), PT_DESCRIPTION, "temperature at which cooling base load is observed",
-			PT_double,"temperature_heating_sensitivity[W/degF]",get_temperature_heating_sensitivity_offset(), PT_DESCRIPTION, "temperature heating sensitivity",
-			PT_double,"temperature_cooling_sensitivity[W/degF]",get_temperature_cooling_sensitivity_offset(), PT_DESCRIPTION, "temperature cooling sensitivity",
-			PT_double,"solargain_base[W/m^2]",get_solargain_base_offset(), PT_DESCRIPTION, "solar gain at which base load is observed",
-			PT_double,"solargain_sensitivity[m^2]",get_solargain_sensitivity_offset(), PT_DESCRIPTION, "solar gain sensitivity",
 			PT_object,"tariff",get_tariff_offset(), PT_DESCRIPTION, "tariff object for energy price sensitivity",
-			PT_double,"price_base[$/MWh]",get_price_base_offset(), PT_DESCRIPTION,"price at which base load is observed",
-			PT_double,"price_sensitivity[W*MWh/$]",get_price_sensitivity_offset(), PT_DESCRIPTION,"energy price_sensitivity",
 			NULL)<1)
 		{
 				char msg[256];
@@ -339,6 +364,8 @@ ceus::ceus(MODULE *module)
 		gl_global_create("default_temperature_cooling_balance",PT_double,&default_temperature_cooling_balance,NULL);
 		gl_global_create("default_temperature_heating_base",PT_double,&default_temperature_heating_base,NULL);
 		gl_global_create("default_temperature_cooling_base",PT_double,&default_temperature_cooling_base,NULL);
+		gl_global_create("default_temperature_heating_design",PT_double,&default_temperature_heating_design,NULL);
+		gl_global_create("default_temperature_cooling_design",PT_double,&default_temperature_cooling_design,NULL);
 		gl_global_create("default_solargain_base",PT_double,&default_solargain_base,NULL);
 		gl_global_create("default_price_base",PT_double,&default_price_base,NULL);
 		gl_global_create("default_occupancy_base",PT_double,&default_occupancy_base,NULL);
@@ -353,13 +380,6 @@ int ceus::create(void)
 {
 
 	memcpy(this,defaults,sizeof(*this));
-	temperature_heating_balance = default_temperature_heating_balance;
-	temperature_cooling_balance = default_temperature_cooling_balance;
-	temperature_heating_base = default_temperature_heating_base;
-	temperature_cooling_base = default_temperature_cooling_base;
-	solargain_base = default_solargain_base;
-	price_base = default_price_base;
-	occupancy_base = default_occupancy_base;
 	return 1; 
 }
 
@@ -378,6 +398,15 @@ int ceus::init(OBJECT *parent)
 		link_property(voltage_A,get_parent(),"voltage_A");
 		link_property(voltage_B,get_parent(),"voltage_B");
 		link_property(voltage_C,get_parent(),"voltage_C");
+		link_property(power_A,get_parent(),"power_A");
+		link_property(power_B,get_parent(),"power_B");
+		link_property(power_C,get_parent(),"power_C");
+		link_property(current_A,get_parent(),"current_A");
+		link_property(current_B,get_parent(),"current_B");
+		link_property(current_C,get_parent(),"current_C");
+		link_property(shunt_A,get_parent(),"shunt_A");
+		link_property(shunt_B,get_parent(),"shunt_B");
+		link_property(shunt_C,get_parent(),"shunt_C");
 		link_property(nominal_voltage,get_parent(),"nominal_voltage");
 	}
 	if ( ! voltage_A ) voltage_A = &default_nominal_voltage_A;
@@ -388,10 +417,6 @@ int ceus::init(OBJECT *parent)
 	{
 		link_property(temperature, weather, temperature_variable_name);
 		link_property(solar, weather, solargain_variable_name);
-		if ( temperature_heating_sensitivity > 0.0 )
-			exception("heating temperature sensitivity must be zero or negative");
-		if ( temperature_cooling_sensitivity < 0.0 )
-			exception("cooling temperature sensitivity must be zero or position");
 	}
 	if ( tariff )
 	{
@@ -405,10 +430,6 @@ int ceus::init(OBJECT *parent)
 	{
 		exception("filename not specified");
 	}
-	if ( temperature_heating_base >= temperature_cooling_base )
-	{
-		exception("temperature_heating_base is not less than temperature_cooling_base");
-	}
 	return 1; 
 }
 
@@ -416,8 +437,34 @@ TIMESTAMP ceus::presync(TIMESTAMP t1)
 {
 	return TS_NEVER;
 }
+double ceus::apply_sensitivity(SENSITIVITY &component, double *variable)
+{
+	if ( variable == NULL || component.slope == 0.0 )
+		return ( component.range.min + component.range.max ) / 2.0; 
+	double dir = ( component.slope > 0.0 ? +1.0 : -1.0 );
+	double x = *variable;
+	if ( component.domain.min < component.domain.max ) // domain is valid
+	{
+		if ( x * dir < component.domain.min * dir ) // below domain min
+			x = component.domain.min;
+		else if ( x * dir > component.domain.max * dir ) // above domain max
+			x = component.domain.max;
+	}
+	double y = ( x - component.base ) * component.slope + component.intercept;
+	if ( component.range.min < component.range.max )
+	{
+		if ( y < component.range.min )
+			return component.range.min;
+		else if ( y > component.range.max )
+			return component.range.max;
+	}
+	return y;
+}
 TIMESTAMP ceus::sync(TIMESTAMP t1)
 {
+	double Pr = 0.0, Pi = 0.0;
+	double Ir = 0.0, Ii = 0.0;
+	double Zr = 0.0, Zi = 0.0;
 	total_power_A = total_power_B = total_power_C = complex(0,0,J);
 	CEUSDATA *enduse;
 	for ( enduse = data ; enduse != NULL ; enduse = get_next_enduse(enduse) )
@@ -426,37 +473,37 @@ TIMESTAMP ceus::sync(TIMESTAMP t1)
 		double load = get_value(enduse,gl_globalclock,floor_area)/3.0;
 		for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
 		{
-			double scalar = load * c->fraction;
-			if ( temperature ) 
-			{
-				if ( *temperature > temperature_cooling_balance )
-					scalar += ( *temperature - temperature_cooling_base ) * temperature_cooling_sensitivity;
-				else if ( *temperature < temperature_heating_balance )
-					scalar += ( *temperature - temperature_heating_base ) * temperature_heating_sensitivity;
-			}
-			if ( solar )
-			{
-				scalar += ( *solar - solargain_base ) * solargain_sensitivity;
-			}
-			if ( price )
-			{
-				scalar += ( *price - price_base ) * price_sensitivity;
-			}
-			if ( occupancy )
-			{
-				scalar += ( *occupancy - occupancy_base ) * occupancy_sensitivity;
-			}
-			// TODO: add temperature and price sensitivity calcs
-			total_power_A.Re() += ((voltage_A->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_A->Re()/(*nominal_voltage) + c->Pr) * scalar;
-			total_power_B.Re() += ((voltage_B->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_B->Re()/(*nominal_voltage) + c->Pr) * scalar;
-			total_power_C.Re() += ((voltage_C->Re()/(*nominal_voltage)*c->Zr + c->Ir)*voltage_C->Re()/(*nominal_voltage) + c->Pr) * scalar;
-			total_power_A.Im() += ((voltage_A->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_A->Im()/(*nominal_voltage) + c->Pi) * scalar;
-			total_power_B.Im() += ((voltage_B->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_B->Im()/(*nominal_voltage) + c->Pi) * scalar;
-			total_power_C.Im() += ((voltage_C->Im()/(*nominal_voltage)*c->Zi + c->Ii)*voltage_C->Im()/(*nominal_voltage) + c->Pi) * scalar;
+			double scalar = load * c->fraction / 3.0 ;
+			scalar += apply_sensitivity(c->cooling,temperature);
+			scalar += apply_sensitivity(c->heating,temperature);
+			scalar += apply_sensitivity(c->solar,solar);
+			scalar += apply_sensitivity(c->price,price);
+			scalar += apply_sensitivity(c->occupancy,occupancy);
+			Pr += c->Pr * scalar;
+			Ir += c->Ir * scalar;
+			Zr += c->Zr * scalar;
+			Pi += c->Pi * scalar;
+			Ii += c->Ii * scalar;
+			Zi += c->Zi * scalar;
 		}
 	}
-	total_real_power = total_power_A.Re()+total_power_A.Re()+total_power_C.Re();
-	total_reactive_power = total_power_A.Im()+total_power_A.Im()+total_power_C.Im();
+	complex P(Pr,Pi,J);
+	*power_A += P;
+	*power_B += P;
+	*power_C += P;
+	complex I(Ir,Ii,J);
+	*current_A += I;
+	*current_B += I;
+	*current_C += I;
+	complex S = complex(1,0,J)/complex(Zr,Zi,J);
+	*shunt_A += S;
+	*shunt_B += S;
+	*shunt_C += S;
+	total_power_A = ((*voltage_A/(*nominal_voltage)*S + I)*(*voltage_A)/(*nominal_voltage) + P);
+	total_power_B = ((*voltage_B/(*nominal_voltage)*S + I)*(*voltage_B)/(*nominal_voltage) + P);
+	total_power_C = ((*voltage_C/(*nominal_voltage)*S + I)*(*voltage_C)/(*nominal_voltage) + P);
+	total_real_power = total_power_A.Re() + total_power_B.Re() + total_power_C.Re();
+	total_reactive_power = total_power_A.Im() + total_power_B.Im() + total_power_C.Im();
 	return (gl_globalclock/3600+1)*3600;
 }
 TIMESTAMP ceus::postsync(TIMESTAMP t1)

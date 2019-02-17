@@ -360,6 +360,11 @@ int meter::check_prices(){
 
 TIMESTAMP meter::presync(TIMESTAMP t0)
 {
+	// clear accumulators before starting next sync passes
+	power[0] = power[1] = power[2] = complex(0,0,J);
+	current[0] = current[1] = current[2] = complex(0,0,J);
+	shunt[0] = shunt[1] = shunt[2] = complex(0,0,J);
+
 	if ( meter_power_consumption != complex(0,0) )
 		power[0] = power[1] = power[2] = 0.0;
 
