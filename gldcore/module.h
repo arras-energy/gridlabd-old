@@ -44,6 +44,13 @@ struct s_module_list {
 #else
 	void *stream;
 #endif
+	bool (*on_init)(void);
+	TIMESTAMP (*on_precommit)(TIMESTAMP t);
+	TIMESTAMP (*on_presync)(TIMESTAMP t);
+	TIMESTAMP (*on_sync)(TIMESTAMP t);
+	TIMESTAMP (*on_postsync)(TIMESTAMP t);
+	bool (*on_commit)(TIMESTAMP t);
+	void (*on_term)(void);
 	struct s_module_list *next;
 }; /* MODULE */
 
@@ -60,6 +67,7 @@ extern "C" {
 	int module_get_exe_path(char *buf, int len);
 	int module_get_path(char *buf, int len, MODULE *mod);
 	MODULE *module_find(char *module_name);
+	MODULE *module_add(MODULE *);
 	MODULE *module_load(const char *file, int argc, char *argv[]);
 	void module_list(void);
 	size_t module_getcount(void);
@@ -85,8 +93,6 @@ extern "C" {
 	void *module_malloc(size_t size);
 	void module_free(void *ptr);
 
-#if defined WIN32 && !defined __MINGW32__
-	// added in module.c because it has WIN32 API
 	void sched_init(int readonly);
 	void sched_clear(void);
 	void sched_print(int flags);
@@ -95,7 +101,6 @@ extern "C" {
 	void sched_controller(void);
 	unsigned short sched_get_cpuid(unsigned short n);
 	pid_t sched_get_procid();
-#endif
 
 	int module_load_function_list(char *libname, char *fnclist);
 	TRANSFORMFUNCTION module_get_transform_function(const char *function);
@@ -103,8 +108,15 @@ extern "C" {
 	int module_compile(char *name, char *code, int flags, char *prefix, char *file, int line);
 	void module_profiles(void);
 	CALLBACKS *module_callbacks(void);
+	int module_initall(void);
+	TIMESTAMP module_precommitall(TIMESTAMP t);
+	TIMESTAMP module_presyncall(TIMESTAMP t);
+	TIMESTAMP module_syncall(TIMESTAMP t);
+	TIMESTAMP module_postsyncall(TIMESTAMP t);
+	int module_commitall(TIMESTAMP t);
 	void module_termall(void);
 	MODULE *module_get_next(MODULE*);
+
 
 #ifdef __cplusplus
 }

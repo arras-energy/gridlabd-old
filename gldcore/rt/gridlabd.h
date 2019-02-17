@@ -616,6 +616,13 @@ struct s_module_list {
 	PROPERTY *globals;
 	void (*term)(void);
 	size_t (*stream)(FILE *fp, int flags);
+	bool (*on_init)(void);
+	TIMESTAMP (*on_precommit)(TIMESTAMP t);
+	TIMESTAMP (*on_presync)(TIMESTAMP t);
+	TIMESTAMP (*on_sync)(TIMESTAMP t);
+	TIMESTAMP (*on_postsync)(TIMESTAMP t);
+	bool (*on_commit)(TIMESTAMP t);
+	void (*on_term)(void);
 	MODULE *next;
 };
 

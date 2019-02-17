@@ -3,6 +3,8 @@
 Makefile.in
 origin.txt
 *.xml
+build
+*.pyc
 
 # http://www.gnu.org/software/autoconf
 /autom4te.cache
