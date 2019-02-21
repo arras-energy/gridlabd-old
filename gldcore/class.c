@@ -81,6 +81,30 @@ PROPERTY *class_get_first_property(CLASS *oclass) /**< the object class */
 	return oclass->pmap;
 }
 
+PROPERTY *class_get_first_property_inherit(CLASS *oclass) /**< the object class */
+{
+	while ( oclass->pmap == NULL )
+	{
+		oclass = oclass->parent;
+		if ( oclass == NULL )
+			return NULL;
+	}
+	return oclass->pmap;
+}
+PROPERTY *class_get_next_property_inherit(PROPERTY *prop)
+{
+	PROPERTY *next = prop->next;
+	CLASS *oclass = prop->oclass;	
+	if ( next == NULL || oclass != next->oclass )
+	{
+		return oclass->parent ? oclass->parent->pmap : NULL;
+	}
+	else
+	{
+		return next;
+	}
+}
+
 /** Get the next property of within the current class
 	@return a pointer to the PROPERTY, or \p NULL if there are no properties left
  **/
@@ -195,7 +219,7 @@ PROPERTY *class_find_property(CLASS *oclass,     /**< the object class */
 	if(oclass == NULL)
 		return NULL;
 
-	for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
 		if (strcmp(name,prop->name)==0)
 		{
@@ -369,10 +393,7 @@ int class_string_to_property(PROPERTY *prop, /**< the type of the property at th
                              void *addr,     /**< the address of the property's data */
                              char *value)    /**< the string from which the data is read */
 {
-	if (prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST)
-		return (*property_type[prop->ptype].string_to_data)(value,addr,prop);
-	else
-		return 0;
+	return property_read(prop, addr, value);
 }
 
 /** Convert a property value to a string.
@@ -394,10 +415,10 @@ int class_property_to_string(PROPERTY *prop, /**< the property type */
 		 */
 		return 0;
 	}
-	else if (prop->ptype>_PT_FIRST && prop->ptype<_PT_LAST){
-		// note, need to append unit type
-		rv = (*property_type[prop->ptype].data_to_string)(value,size,addr,prop);
-		if(rv > 0 && prop->unit != 0)
+	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST )
+	{
+		rv = property_write(prop,addr,value,size);
+		if ( rv > 0 && prop->unit != 0 )
 		{
 			strcat(value+rv," ");
 			strcat(value+rv+1,prop->unit->name);
@@ -797,6 +818,10 @@ int class_define_map(CLASS *oclass, /**< the object class */
 					break;
 				}
 			}
+			else if (proptype==PT_DEFAULT)
+			{
+				prop->default_value = va_arg(arg,char*);
+			}
 			else if (proptype==PT_SIZE)
 			{
 				prop->size = va_arg(arg,uint32);
@@ -964,6 +989,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 				prop->addr = 0;
 				prop->method = (METHODCALL*)addr;
 			}
+			prop->default_value = property_getspec(proptype)->default_value;
 
 			/* attach to property list */
 			class_add_property(oclass,prop);
@@ -1092,22 +1118,27 @@ int class_saveall(FILE *fp) /**< a pointer to the stream FILE structure */
 	{	CLASS	*oclass;
 		for (oclass=class_get_first_class(); oclass!=NULL; oclass=oclass->next)
 		{
+			if ( (global_glm_save_options&GSO_NOINTERNALS) == GSO_NOINTERNALS && oclass->module != NULL )
+				continue;
 			PROPERTY *prop;
 			FUNCTION *func;
 			count += fprintf(fp,"class %s {\n",oclass->name);
-			if (oclass->parent)
-				count += fprintf(fp,"#ifdef INCLUDE_PARENT_CLASS\n\tparent %s;\n#endif\n", oclass->parent->name);
-			for (func=oclass->fmap; func!=NULL && func->oclass==oclass; func=func->next)
-				count += fprintf(fp, "#ifdef INCLUDE_FUNCTIONS\n\tfunction %s();\n#endif\n", func->name);
-			for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
+			if ( (global_glm_save_options&GSO_NOMACROS)==GSO_NOMACROS )
 			{
-				char *ptype = class_get_property_typename(prop->ptype);
-				if ( ptype != NULL )
+				if (oclass->parent)
+					count += fprintf(fp,"#ifdef INCLUDE_PARENT_CLASS\n\tparent %s;\n#endif\n", oclass->parent->name);
+				for (func=oclass->fmap; func!=NULL && func->oclass==oclass; func=func->next)
+					count += fprintf(fp, "#ifdef INCLUDE_FUNCTIONS\n\tfunction %s();\n#endif\n", func->name);
+				for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 				{
-					if ( strchr(prop->name,'.') == NULL )
-						count += fprintf(fp,"\t%s %s;\n", ptype, prop->name);
-					else
-						count += fprintf(fp,"#ifdef INCLUDE_DOTTED_PROPERTIES\n\t%s %s;\n#endif\n", ptype, prop->name);
+					char *ptype = class_get_property_typename(prop->ptype);
+					if ( ptype != NULL )
+					{
+						if ( strchr(prop->name,'.') == NULL )
+							count += fprintf(fp,"\t%s %s;\n", ptype, prop->name);
+						else
+							count += fprintf(fp,"#ifdef INCLUDE_DOTTED_PROPERTIES\n\t%s %s;\n#endif\n", ptype, prop->name);
+					}
 				}
 			}
 			count += fprintf(fp,"}\n");

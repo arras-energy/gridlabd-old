@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#ifdef WIN32 && !(__MINGW__)
+#if defined WIN32 && !defined __MINGW__
 #include <direct.h>
 #else
 #include <unistd.h>
@@ -35,6 +35,7 @@
 #include "sanitize.h"
 #include "exec.h"
 #include "daemon.h"
+#include "module.h"
 
 SET_MYCONTEXT(DMC_CMDARG)
 
@@ -702,7 +703,7 @@ static int globals(int argc, char *argv[])
 	/* load the list into the array */
 	while ((var=global_getnext(var))!=NULL)
 	{
-		if (n<sizeof(list)/sizeof(list[0]))
+		if ( n < (int)(sizeof(list)/sizeof(list[0])) )
 			list[n++] = var->prop->name;
 		else
 		{
@@ -906,7 +907,7 @@ static int xsl(int argc, char *argv[])
 	{
 		char fname[1024];
 		char *p_arg = *++argv;
-		char n_args=1;
+		int n_args=1;
 		char **p_args;
 		argc--;
 		while (*p_arg++!='\0') if (*p_arg==',')	n_args++;
@@ -1255,7 +1256,7 @@ static int remote_client(int argc, char *argv[])
 static int printenv(int argc, char *argv[])
 {
 	system("printenv");
-	return CMDOK;
+	return 0;
 }
 
 static int origin(int argc, char *argv[])
@@ -1404,7 +1405,7 @@ int cmdarg_runoption(const char *value)
 	char option[64], params[1024]="";
 	if ( (n=sscanf(value,"%63s %1023[^\n]", option,params))>0 )
 	{
-		for ( i=0 ; i<sizeof(main)/sizeof(main[0]) ; i++ )
+		for ( i=0 ; i<(int)(sizeof(main)/sizeof(main[0])) ; i++ )
 		{
 			if ( main[i].lopt!=NULL && strcmp(main[i].lopt,option)==0 )
 				return main[i].call(n,(void*)&params);
@@ -1421,14 +1422,14 @@ static int help(int argc, char *argv[])
 	global_suppress_repeat_messages = 0;
 	output_message("Syntax: gridlabd [<options>] file1 [file2 [...]]");
 
-	for ( i=0 ; i<sizeof(main)/sizeof(main[0]) ; i++ )
+	for ( i=0 ; i<(int)(sizeof(main)/sizeof(main[0])) ; i++ )
 	{
 		CMDARG arg = main[i];
 		size_t len = (arg.sopt?strlen(arg.sopt):0) + (arg.lopt?strlen(arg.lopt):0) + (arg.args?strlen(arg.args):0);
 		if (len>indent) indent = len;
 	}
 
-	for ( i=0 ; i<sizeof(main)/sizeof(main[0]) ; i++ )
+	for ( i=0 ; i<(int)(sizeof(main)/sizeof(main[0])) ; i++ )
 	{
 		CMDARG arg = main[i];
 
@@ -1501,7 +1502,7 @@ STATUS cmdarg_load(int argc, /**< the number of arguments in \p argv */
 	{
 		int found = 0;
 		int i;
-		for ( i=0 ; i<sizeof(main)/sizeof(main[0]) ; i++ )
+		for ( i=0 ; i<(int)(sizeof(main)/sizeof(main[0])) ; i++ )
 		{
 			CMDARG arg = main[i];
 			char tmp[1024];

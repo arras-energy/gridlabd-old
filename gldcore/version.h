@@ -4,7 +4,7 @@
 #define _GRIDLABD_VERSION_H
 
 #define REV_MAJOR 4
-#define REV_MINOR 0
+#define REV_MINOR 2
 #define REV_PATCH 0
 
 #ifdef HAVE_CONFIG_H
