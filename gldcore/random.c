@@ -245,7 +245,6 @@ TryAgain:
 	if ( u<=0 || u>=1 ){
 		if( state!=0 && *state == 0){
 			*state = randwarn(0);
-		//	output_verbose("randunit() introducing extra randomness to prevent state stagnation and infinite loops");
 		}
 		goto TryAgain;
 	}
