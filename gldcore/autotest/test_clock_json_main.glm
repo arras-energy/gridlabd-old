@@ -1,0 +1,1 @@
+script on_term "gridlabd xyz.glm -o ../test_clock_json.json";
