@@ -611,6 +611,7 @@ static STATUS init_by_creation()
 					 */
 				}
 			}
+			obj->clock = global_starttime;
 		}
 	} CATCH (char *msg) {
 		output_error("init failure: %s", msg);
@@ -1043,7 +1044,7 @@ static void commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
 	else if ((*t0 == obj->in_svc) && (obj->in_svc_micro != 0))
 		*t2 = obj->in_svc + 1;
 	else if ( obj->out_svc>=*t0 )
-		*t2 = obj->oclass->commit(obj,*t0);
+		*t2 = object_commit(obj,*t0,*t2);
 	else
 		*t2 = TS_NEVER;
 }
@@ -2489,6 +2490,7 @@ STATUS exec_start(void)
 			/* check for clock advance (indicating last pass) */
 			if ( exec_sync_get(NULL)!=global_clock )
 			{
+				OBJECT *obj;
 				TIMESTAMP commit_time = TS_NEVER;
 				commit_time = commit_all(global_clock, exec_sync_get(NULL));
 				if ( absolute_timestamp(commit_time) <= global_clock)
@@ -2506,6 +2508,11 @@ STATUS exec_start(void)
 				{
 					exec_sync_set(NULL,commit_time,false);
 				}
+
+				/* make sure all clocks are set */
+				for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
+					obj->clock = global_clock;
+
 				/* reset iteration count */
 				iteration_counter = global_iteration_limit;
 
@@ -3267,7 +3274,7 @@ static EXITCODE run_gridlabd_script(char *call)
 	char name[1024];
 	char arg[1024];
 	int narg = sscanf(call,"%s %[^\n]",name,arg);
-	if ( narg > 0 && strcmp(name,"dump") )
+	if ( narg > 0 && strcmp(name,"dump")==0 )
 	{
 		return saveall(arg) > 0 ? XC_SUCCESS : XC_IOERR;
 	}
@@ -3290,7 +3297,7 @@ static EXITCODE run_scripts(SIMPLELIST *list)
 	{
 		char group[1024] = "system";
 		char call[1024] = "";
-		if ( sscanf(item->data,"%s:%[^\n]",group,call) == 2 && strcmp(group,"system") != 0 )
+		if ( sscanf(item->data,"%[a-z]:%[^\n]",group,call) == 2 && strcmp(group,"system") != 0 )
 		{
 			// special access
 			if ( strcmp(group,"gridlabd") == 0 )
