@@ -58,10 +58,6 @@
 #define DLSYM(H,S) dlsym(H,S)
 #endif
 
-#if !defined(HAVE_CONFIG_H) || defined(HAVE_MALLOC_H)
-#include <malloc.h>
-#endif
-
 #if HAVE_SCHED_H
 #include <sched.h>
 #endif
@@ -249,8 +245,38 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 							   int argc, /**< count of arguments in \p argv */
 							   char *argv[]) /**< arguments passed from the command line */
 {
+	MODULE *mod;
+#ifdef HAVE_PYTHON
+	extern MODULE *python_module_load(const char *, int, char *[]);
+	mod = python_module_load(file,argc,argv);
+	if ( mod != NULL )
+	{
+		mod->hLib = NULL;
+
+		/* attach to list of known modules */
+		if (first_module==NULL)
+		{
+			mod->id = 0;
+			first_module = mod;
+		}
+		else
+		{
+			last_module->next = mod;
+			mod->id = last_module->id + 1;
+		}
+		last_module = mod;
+		module_count++;
+
+		/* register the module stream, if any */
+		if ( mod->stream!=NULL )
+			stream_register(mod->stream);
+
+		return mod;
+	}
+#endif
+
 	/* check for already loaded */
-	MODULE *mod = module_find((char *)file);
+	mod = module_find((char *)file);
 	char buffer[FILENAME_MAX+1];
 	char *fmod;
 	bool isforeign = false;
@@ -479,6 +505,13 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->stream = (STREAMCALL)DLSYM(hLib,"stream");
 	mod->globals = NULL;
 	mod->term = (void(*)(void))DLSYM(hLib,"term");
+	mod->on_init = NULL;
+	mod->on_precommit = NULL;
+	mod->on_presync = NULL;
+	mod->on_sync = NULL;
+	mod->on_postsync = NULL;
+	mod->on_commit = NULL;
+	mod->on_term = NULL;
 	strcpy(mod->name,file);
 	mod->next = NULL;
 
@@ -538,7 +571,11 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			}
 		}
 	}
+	return module_add(mod);
+}
 
+MODULE *module_add(MODULE *mod)
+{
 	/* attach to list of known modules */
 	if (first_module==NULL)
 	{
@@ -757,27 +794,37 @@ int module_saveall(FILE *fp)
 	MODULE *mod;
 	int count=0;
 	CLASS *oclass = NULL;
-	char varname[1024];
 	char buffer[1024];
 	count += fprintf(fp,"\n////////////////////////////////////////////////////////\n");
 	count += fprintf(fp,"// modules\n");
 	for (mod=first_module; mod!=NULL; mod=mod->next)
 	{
-		varname[0] = '\0';
+		GLOBALVAR *var=NULL;
 		oclass = NULL;
 
 		count += fprintf(fp,"module %s {\n",mod->name);
-		if (mod->major>0 || mod->minor>0)
-			count += fprintf(fp,"\tmajor %d;\n\tminor %d;\n",mod->major,mod->minor);
-		for (oclass=mod->oclass; oclass!=NULL ; oclass=oclass->next)
+		if ( (global_glm_save_options&GSO_NOINTERNALS)==0 )
 		{
-			if (oclass->module==mod)
-				count += fprintf(fp,"\tclass %s;\n",oclass->name);
-		}
-
-		while (module_getvar(mod,varname,buffer,sizeof(buffer)))
+			if (mod->major>0 || mod->minor>0)
+				count += fprintf(fp,"\tmajor %d;\n\tminor %d;\n",mod->major,mod->minor);
+			for (oclass=mod->oclass; oclass!=NULL ; oclass=oclass->next)
+			{
+				if (oclass->module==mod)
+					count += fprintf(fp,"\tclass %s;\n",oclass->name);
+			}
+		}		
+		while ( (var=global_getnext(var)) != NULL )
 		{
-			count += fprintf(fp,"\t%s %s;\n",varname,buffer);
+			char modname[256]="", varname[256]="";
+			if ( sscanf(var->prop->name,"%[^:]::%[^\n]",modname,varname) == 2
+				&& strcmp(modname,mod->name) == 0 
+				&& global_getvar(var->prop->name,buffer,sizeof(buffer)-1) != NULL )
+			{
+				if ( buffer[0] == '"' )
+					count += fprintf(fp,"\t%s %s;\n",varname,buffer);
+				else
+					count += fprintf(fp,"\t%s \"%s\";\n",varname,buffer);
+			}
 		}
 		count += fprintf(fp,"}\n");
 	}
@@ -1098,10 +1145,104 @@ void module_termall(void)
 	MODULE *mod;
 	for (mod=first_module; mod!=NULL; mod=mod->next)
 	{
+		if ( mod->on_term ) mod->on_term();
 		if ( mod->term ) mod->term();
 	}
 }
 
+int module_initall()
+{
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_init ) 
+		{
+			if ( ! mod->on_init() )
+				return false;
+		}
+	}
+	return true;
+}
+
+TIMESTAMP module_precommitall(TIMESTAMP t)
+{
+	TIMESTAMP result = TS_NEVER;
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_precommit ) 
+		{
+			TIMESTAMP next = mod->on_precommit(t);
+			if ( absolute_timestamp(next) < absolute_timestamp(result) )
+				result = next;
+		}
+	}
+	return result;
+}
+
+TIMESTAMP module_presyncall(TIMESTAMP t)
+{
+	TIMESTAMP result = TS_NEVER;
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_presync ) 
+		{
+			TIMESTAMP next = mod->on_presync(t);
+			if ( absolute_timestamp(next) < absolute_timestamp(result) )
+				result = next;
+		}
+	}
+	return result;
+}
+
+TIMESTAMP module_syncall(TIMESTAMP t)
+{
+	TIMESTAMP result = TS_NEVER;
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_sync ) 
+		{
+			TIMESTAMP next = mod->on_sync(t);
+			if ( absolute_timestamp(next) < absolute_timestamp(result) )
+				result = next;
+		}
+	}
+	return result;
+}
+
+TIMESTAMP module_postsyncall(TIMESTAMP t)
+{
+	TIMESTAMP result = TS_NEVER;
+	MODULE *mod;
+	for (mod=first_module; mod!=NULL; mod=mod->next)
+	{
+		if ( mod->on_postsync ) 
+		{
+			TIMESTAMP next = mod->on_postsync(t);
+			if ( absolute_timestamp(next) < absolute_timestamp(result) )
+				result = next;
+		}
+	}
+	return result;
+}
+
+
+int module_commitall(TIMESTAMP t)
+{
+	int result = true;
+	MODULE *mod;
+	for ( mod = first_module ; mod != NULL ; mod = mod->next )
+	{
+		if ( mod->on_commit ) 
+		{
+			int ok = mod->on_commit(t);
+			result &= ok;
+		}
+	}
+	return result;
+}
 
 /***************************************************************************
  * EXTERNAL COMPILER SUPPORT

@@ -61,7 +61,8 @@ static KEYWORD mls_keys[] = {
 static KEYWORD mrm_keys[] = {
 	{"STANDALONE", MRM_STANDALONE, mrm_keys+1}, /**< run is standalone */
 	{"MASTER", MRM_MASTER, mrm_keys+2}, /**< run is a master of multirun */
-	{"SLAVE", MRM_SLAVE, NULL}, /**< run is a slave of a multirun */
+	{"SLAVE", MRM_SLAVE, mrm_keys+3}, /**< run is a slave of a multirun */
+	{"LIBRARY", MRM_LIBRARY, NULL},	/**< run is a library in another system */
 };
 
 static KEYWORD mrc_keys[] = {
@@ -166,6 +167,13 @@ static KEYWORD vtc_keys[] = {
 	{"SYNC",		VTC_SYNC,		vtc_keys+1},
 	{"PRECOMMIT",	VTC_PRECOMMIT,	vtc_keys+2},
 	{"COMMIT",		VTC_COMMIT,		NULL},
+};
+static KEYWORD gso_keys[] = {
+	{"LEGACY",		GSO_LEGACY,		gso_keys+1},
+	{"MINIMAL",		GSO_MINIMAL,	gso_keys+2},
+	{"NOGLOBALS",	GSO_NOGLOBALS,	gso_keys+3},
+	{"NODEFAULTS",	GSO_NODEFAULTS, gso_keys+4},
+	{"NOMACROS",	GSO_NOMACROS,	NULL},
 };
 
 static struct s_varmap {
@@ -301,6 +309,7 @@ static struct s_varmap {
 	{"validto_context", PT_enumeration, &global_validto_context, PA_PUBLIC, "events to which valid_to time applies, rather than just sync passes", vtc_keys},
 	{"daemon_configfile", PT_char1024, &global_daemon_configfile, PA_PUBLIC, "name of configuration file used by the daemon"},
 	{"timezone_locale", PT_char1024, &global_timezone_locale, PA_REFERENCE, "timezone specified by the clock directive"},
+	{"glm_save_options", PT_set, &global_glm_save_options, PA_PUBLIC, "options to control GLM file save format", gso_keys},
 	/* add new global variables here */
 };
 
@@ -678,7 +687,7 @@ STATUS global_setvar(char *def, ...) /**< the definition */
 	}
 	else
 	{
-		output_error("global variable definition '%s' not formatted correctedly", def);
+		output_error("global variable definition '%s' not formatted correctly", def);
 		/* TROUBLESHOOT
 			A request to set a global variable was not formatted properly.  Use the
 			proper format, i.e. name=value, and try again.
@@ -1185,6 +1194,22 @@ void global_remote_write(void *local, /** local memory for data */
 	{
 		/* @todo remote object write for multihost */
 	}
+}
+
+size_t global_saveall(FILE *fp)
+{
+	size_t count = 0;
+	GLOBALVAR *var = NULL;
+	char buffer[1024];
+	while ( (var=global_getnext(var)) != NULL )
+	{
+		if ( strstr(var->prop->name,"::") == NULL
+			&& global_getvar(var->prop->name,buffer,sizeof(buffer)-1) != NULL )
+		{
+			count += fprintf(fp,"#set %s=%s;\n",var->prop->name,buffer);
+		}
+	}
+	return count;
 }
 
 /**@}**/

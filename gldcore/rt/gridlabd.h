@@ -560,6 +560,7 @@ struct s_property_map {
 	FUNCTIONADDR notify;
 	METHODCALL method; /**< method call, addr must be 0 */
 	bool notify_override;
+	void *default_value; /**< default value to use when creating objects; NULL is memset(0) is desired (default default) */
 }; /**< property definition item */
 
 typedef struct s_property_struct {
@@ -615,6 +616,13 @@ struct s_module_list {
 	PROPERTY *globals;
 	void (*term)(void);
 	size_t (*stream)(FILE *fp, int flags);
+	bool (*on_init)(void);
+	TIMESTAMP (*on_precommit)(TIMESTAMP t);
+	TIMESTAMP (*on_presync)(TIMESTAMP t);
+	TIMESTAMP (*on_sync)(TIMESTAMP t);
+	TIMESTAMP (*on_postsync)(TIMESTAMP t);
+	bool (*on_commit)(TIMESTAMP t);
+	void (*on_term)(void);
 	MODULE *next;
 };
 
@@ -737,7 +745,7 @@ typedef struct s_eventhandlers {
 	unsigned int lock; /**< object lock */
 	unsigned int rng_state; /**< random number generator state */
 	TIMESTAMP heartbeat; /**< heartbeat call interval (in sim-seconds) */
-	unsigned int64 guid; /**< globally unique identifier */
+	unsigned int64 guid[2]; /**< globally unique identifier */
 	EVENTHANDLERS events;
 	/* IMPORTANT: flags must be last */
 	unsigned int64 flags; /**< object flags */

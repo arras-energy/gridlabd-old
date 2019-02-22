@@ -25,8 +25,7 @@ public:
 		item->heading = heading;
 		item->tension = tension;
 		item->span = span;
-		if ( wire_data != NULL )
-			wire_data->next = item;
+		item->next = wire_data;
 		wire_data = item;
 	};
 	inline WIREDATA *get_next_wire(WIREDATA *wire) { return wire->next;};
@@ -61,6 +60,9 @@ private:
 	double wire_tension;	// (see Section G)
 	double wire_tension_nowind; // wire moment without the wind component for wind speed at failure calc
 	double pole_stress;	// ratio of total to resisting moment
+	double pole_stress_polynomial_a; //polynomial components of pole stress function
+	double pole_stress_polynomial_b; //polynomial components of pole stress function
+	double pole_stress_polynomial_c; //polynomial components of pole stress function
 	double susceptibility;	// d(pole_stress)/d(wind_speed)
 	double total_moment;
 	double critical_wind_speed;

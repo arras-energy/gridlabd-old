@@ -56,6 +56,7 @@ typedef struct {
 typedef struct s_recobjmap {
 	OBJECT *obj;
 	PROPERTY prop; // must be an instance
+	double scale;
 	struct s_recobjmap *next;
 } RECORDER_MAP;
 
@@ -157,7 +158,8 @@ struct recorder {
 	double dInterval;
 	TIMESTAMP interval;
 	int32 limit;
-	char1024 property;
+	char* property;
+	size_t property_len;
 	char1024 out_property;
 	PLOTFILE output; /* {EPS|GIF|JPG|PDF|PNG|SVG} More can be added */
 	char1024 plotcommands;
@@ -201,7 +203,8 @@ struct collector {
 	double dInterval;
 	TIMESTAMP interval;
 	int32 limit;
-	char1024 property;
+	char *property;
+	size_t property_len;
 	PLOTFILE output; /* {EPS|GIF|JPG|PDF|PNG|SVG} More can be added */
 	char1024 plotcommands;
 	char32 xdata;

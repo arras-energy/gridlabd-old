@@ -290,19 +290,14 @@ char *object_get_unit(OBJECT *obj, char *name)
 	- \p EINVAL type is not valid
 	- \p ENOMEM memory allocation failed
  **/
-OBJECT *object_create_single(CLASS *oclass){ /**< the class of the object */
-	/* @todo support threadpool during object creation by calling this malloc from the appropriate thread */
+OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
+{
 	OBJECT *obj = 0;
-	static int tp_next = 0;
-	static int tp_count = 0;
 	PROPERTY *prop;
 	int sz = sizeof(OBJECT);
 
-	if(tp_count == 0){
-		tp_count = processor_count();
-	}
-
-	if(oclass == NULL){
+	if ( oclass == NULL )
+	{
 		throw_exception("object_create_single(CLASS *oclass=NULL): class is NULL");
 		/* TROUBLESHOOT
 			An attempt to create an object was given a NULL pointer for the class.  
@@ -319,17 +314,14 @@ OBJECT *object_create_single(CLASS *oclass){ /**< the class of the object */
 	}
 
 	obj = (OBJECT*)malloc(sz + oclass->size);
-
-	if(obj == NULL){
+	if ( obj == NULL )
+	{
 		throw_exception("object_create_single(CLASS *oclass='%s'): memory allocation failed", oclass->name);
 		/* TROUBLESHOOT
 			The system has run out of memory and is unable to create the object requested.  Try freeing up system memory and try again.
 		 */
 	}
-
-	memset(obj, 0, sz + oclass->size);
-
-	tp_next %= tp_count;
+	memset(obj, 0, sz+oclass->size);
 
 	obj->id = next_object_id++;
 	obj->oclass = oclass;
@@ -354,11 +346,14 @@ OBJECT *object_create_single(CLASS *oclass){ /**< the class of the object */
 	random_key(obj->guid,sizeof(obj->guid)/sizeof(obj->guid[0]));
 
 	for ( prop=obj->oclass->pmap; prop!=NULL; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)))
-		property_create(prop,(void*)((char *)(obj+1)+(int64)(prop->addr)));
+		property_create(prop,property_addr(obj,prop));
 	
-	if(first_object == NULL){
+	if ( first_object == NULL )
+	{
 		first_object = obj;
-	} else {
+	} 
+	else 
+	{
 		last_object->next = obj;
 	}
 	
@@ -1242,97 +1237,35 @@ OBJECT *object_get_next(OBJECT *obj){ /**< the object from which to start */
 	the request to prevent looping.  This will prevent
 	an object_set_parent call from creating a parent loop.
  */
-static int _set_rank(OBJECT *obj, OBJECTRANK rank, OBJECT *first)
-{
-	OBJECTRANK parent_rank = -1;
-	if(obj == NULL){
-		output_error("set_rank called for a null object");
-		return -1;
-	}
-	if(rank >= object_get_count()){
-		char b[74];
-		output_error("%s: set_rank internal error, rank > object count", object_name(first, b, 64));
-		/*	TROUBLESHOOT
-			As a sanity check, the rank of an object should not exceed the number of objects in the model.  If the model
-			is deliberately playing with the ranks, please either reduce the manual rank adjustment, or add a number of
-			"harmless" objects to inflate the number of objects in the model.
-		 */
-		return -1;
-	}
-	if(obj==first)
-	{
-		char b[64];
-		output_error("%s: set_rank failed, parent loopback has occurred", object_name(first, b, 63));
-		return -1;
-	}
-	if(obj->flags & OF_RERANK){
-		char b[64];
-		output_error("%s: object flagged as already re-ranked", object_name(obj, b, 63));
-		return -1;
-	} else {
-		obj->flags |= OF_RERANK;
-	}
-	if(rank >= obj->rank)
-		obj->rank = rank+1;
-	if(obj->parent != NULL)
-	{
-		parent_rank = _set_rank(obj->parent,obj->rank,first?first:obj);
-		if(parent_rank == -1)
-			return -1;
-	}
-	obj->flags &= ~OF_RERANK;
-	return obj->rank;
-}
-/* this version is fast, blind to errors, and not recursive -- it's only used when global_fastrank is TRUE */
-static int _set_rankx(OBJECT *obj, OBJECTRANK rank, OBJECT *first)
-{
-	int n = object_get_count();
-	if ( obj == NULL )
-	{
-		output_error("set_rank called for a null object");
-		return -1;
-	}
-	while ( obj!=NULL )
-	{
-		if ( n--<0 )
-		{
-			char tmp[64];
-			output_error("%s: set_rank internal error, rank > object count", object_name(first, tmp, sizeof(tmp)));
-			/*	TROUBLESHOOT
-				As a sanity check, the rank of an object should not exceed the number of objects in the model.  If the model
-				is deliberately playing with the ranks, please either reduce the manual rank adjustment, or add a number of
-				"harmless" objects to inflate the number of objects in the model.
-			 */
-			return -1;
-		}
-		if ( first==NULL )
-			first = obj;
-		else if ( first==obj )
-		{
-			char tmp[64];
-			output_error("%s: set_rank failed, parent loopback has occurred", object_name(first, tmp, sizeof(tmp)));
-			return -1;
-		}
-		if ( rank >= obj->rank )
-		{
-			if ( obj->flags & OF_RERANK )
-			{
-				char b[64];
-				output_error("%s: object flagged as already re-ranked", object_name(obj, b, 63));
-				return -1;
-			}
-			else
-				obj->flags |= OF_RERANK;
-			obj->rank = ++rank;
-		}
-		obj = obj->parent;
-	}
-	for ( obj=first ; obj!=NULL ; obj=obj->parent )
-		obj->flags &= ~OF_RERANK;
-}
 static int set_rank(OBJECT *obj, OBJECTRANK rank, OBJECT *first)
 {
-	global_bigranks==TRUE ? _set_rankx(obj,rank,NULL) : _set_rank(obj,rank,NULL);
+	// check for loopback
+	if ( obj == first )
+	{
+		char tmp1[1024], tmp2[1024];
+		object_name(obj,tmp1,sizeof(tmp1));
+		object_name(first,tmp2,sizeof(tmp2));
+		output_error("gldcore/object.c:set_rank(obj='%s', rank=%d, first='%s'): loopback error", tmp1, rank, tmp2);
+		return -1;
+	}
+	else if ( first == NULL )
+	{
+		first = obj;
+	}
+
+	// promote the parent 
+	if ( obj->parent != NULL && set_rank(obj->parent, rank+1, first) <= rank )
+	{
+		char tmp1[1024], tmp2[1024], tmp3[1024];
+		object_name(obj,tmp1,sizeof(tmp1));
+		object_name(first,tmp2,sizeof(tmp2));
+		object_name(obj->parent,tmp3,sizeof(tmp3));
+		output_error("gldcore/object.c:set_rank(obj='%s', rank=%d, first='%s'): unable to set rank of parent '%s'", tmp1, rank, tmp2, tmp3);
+		return -1;
+	}
+	if ( rank > obj->rank )
+		obj->rank = rank;
+	return obj->rank;
 }
 
 /** Set the rank of an object but forcing it's parent
@@ -1342,11 +1275,8 @@ static int set_rank(OBJECT *obj, OBJECTRANK rank, OBJECT *first)
 int object_set_rank(OBJECT *obj, /**< the object to set */
 					OBJECTRANK rank) /**< the object */
 {
-	/* prevent rank from decreasing */
-	if(obj == NULL)
-		return 0;
-	if(rank<=obj->rank)
-		return obj->rank;
+	if ( obj == NULL )
+		return -1;
 	return set_rank(obj,rank,NULL);
 }
 
@@ -1358,19 +1288,26 @@ int object_set_rank(OBJECT *obj, /**< the object to set */
 int object_set_parent(OBJECT *obj, /**< the object to set */
 					  OBJECT *parent) /**< the new parent of the object */
 {
-	if(obj == NULL){
-		output_error("object_set_parent was called with a null pointer");
-		return -1;
-	}
-	if(obj == parent){
-		char b[64];
-		output_error("object %s tried to set itself as its parent", object_name(obj, b, 63));
+	int prank = -1;
+	if(obj == NULL)
+		return obj->rank;
+	if(obj == parent)
+	{
+		char tmp[64];
+		object_name(obj,tmp,sizeof(tmp));
+		output_error("gldcore/object.c:object_set_parent(obj='%s',parent='%s'): attempt to set self as a parent", tmp,tmp);
 		return -1;
 	}
 	obj->parent = parent;
 	obj->child_count++;
-	if(parent!=NULL)
-		return set_rank(parent,obj->rank,NULL);
+	if ( object_set_rank(parent,obj->rank+1) < obj->rank )
+	{
+		char tmp1[64], tmp2[64];
+		object_name(obj,tmp1,sizeof(tmp1));
+		object_name(parent,tmp2,sizeof(tmp2));
+		output_error("gldcore/object.c:object_set_parent(obj='%s',parent='%s'): parent rank not valid (%s.rank=%d < %s.rank=%d)", tmp1,tmp2, tmp2, parent->rank, tmp1, obj->rank);
+		return -1;
+	}
 	return obj->rank;
 }
 
@@ -1419,6 +1356,17 @@ char *object_property_to_string(OBJECT *obj, char *name, char *buffer, int sz)
 	{
 		return prop->delegation->to_string(addr,buffer,sz) ? buffer : NULL;
 	}
+	else if ( prop->ptype == PT_method )
+	{
+		if ( class_property_to_string(prop,obj,buffer,sz) )
+			return buffer;
+		else
+		{
+			output_error("gldcore/object.c:object_property_to_string(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property into buffer",
+				obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
+			return "";
+		}
+	}
 	else if ( class_property_to_string(prop,addr,buffer,sz) )
 	{
 		return buffer;
@@ -1450,16 +1398,13 @@ void object_synctime_profile_dump(char *filename)
 		output_warning("unable to access object profile dumpfile '%s'", fname);
 		return;
 	}
-	fprintf(fp,"%s","object,presync,sync,postsync,init,heartbeat,precommit,commit,finalize\n");
+	fprintf(fp,"%s","class,id,name,presync,sync,postsync,init,heartbeat,precommit,commit,finalize\n");
 	for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
 	{
 		int i;
-		if ( obj->name )
-			fprintf(fp,"%s",obj->name);
-		else
-			fprintf(fp,"%s:%d",obj->oclass->name);
+		fprintf(fp,"%s,%u,%s",obj->oclass->name,obj->id,obj->name?obj->name:"");
 		for ( i = 0 ; i < _OPI_NUMITEMS ; i++ )
-			fprintf(fp,",%d",(int)obj->synctime[i]);
+			fprintf(fp,",%llu",(unsigned long long)obj->synctime[i]);
 		fprintf(fp,"\n");
 	}
 	fclose(fp);
@@ -1542,19 +1487,33 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 
 int object_event(OBJECT *obj, char *event)
 {
-	char buffer[1024];
-	sprintf(buffer,"%d",global_clock);
-	setenv("CLOCK",buffer,1);
-	sprintf(buffer,"%s",global_hostname);
-	setenv("HOSTNAME",buffer,1);
-	sprintf(buffer,"%d",global_server_portnum);
-	setenv("PORT",buffer,1);
-	if ( obj->name )	
-		sprintf(buffer,"%s",obj->name);
+	char function[1024];
+	if ( sscanf(event,"python:%s",function) ==  1 )
+	{
+#ifdef HAVE_PYTHON
+		extern int python_event(OBJECT *obj, const char *);
+		return python_event(obj,function);
+#else
+		output_error("python system not linked, event '%s' is not callable", event);
+		return -1;
+#endif
+	}
 	else
-		sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
-	setenv("OBJECT",buffer,1);
-	return system(event);
+	{
+		char buffer[1024];
+		sprintf(buffer,"%d",global_clock);
+		setenv("CLOCK",buffer,1);
+		sprintf(buffer,"%s",global_hostname);
+		setenv("HOSTNAME",buffer,1);
+		sprintf(buffer,"%d",global_server_portnum);
+		setenv("PORT",buffer,1);
+		if ( obj->name )	
+			sprintf(buffer,"%s",obj->name);
+		else
+			sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
+		setenv("OBJECT",buffer,1);
+		return system(event);
+	}
 }
 
 /** Synchronize an object.  The timestamp given is the desired increment.
@@ -1616,7 +1575,7 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 	}
 	if ( rc != 0 )
 	{
-		IN_MYCONTEXT output_error("object %s:%d pass %s at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,pass<0||pass>4?"(invalid)":passname[pass],ts,rc);
+		output_error("object %s:%d pass %s at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,pass<0||pass>4?"(invalid)":passname[pass],ts,rc);
 		return TS_ZERO;
 	}
 	return t2;
@@ -1652,7 +1611,7 @@ int object_init(OBJECT *obj) /**< the object to initialize */
 		int rc = object_event(obj,obj->events.init);
 		if ( rc != 0 )
 		{
-			IN_MYCONTEXT output_error("object %s:%d init at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d init at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
 			rv = 0;
 		}
 	}
@@ -1690,7 +1649,7 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 		int rc = object_event(obj,obj->events.precommit);
 		if ( rc != 0 )
 		{
-			IN_MYCONTEXT output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
 			rv = FAILED;
 		}
 	}
@@ -1719,7 +1678,7 @@ TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		int rc = object_event(obj,obj->events.commit);
 		if ( rc != 0 )
 		{
-			IN_MYCONTEXT output_error("object %s:%d commit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d commit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
 			rv = TS_INVALID;
 		}
 	}
@@ -1753,7 +1712,7 @@ STATUS object_finalize(OBJECT *obj)
 		int rc = object_event(obj,obj->events.precommit);
 		if ( rc != 0 )
 		{
-			IN_MYCONTEXT output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
 			rv = FAILED;
 		}
 	}
@@ -1950,42 +1909,89 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 		{
 			PROPERTYACCESS access=PA_PUBLIC;
 			PROPERTY *prop = NULL;
+			CLASS *oclass = obj->oclass;
+			MODULE *mod = oclass->module;
 			char32 oname = "(unidentified)";
-			if ( obj->oclass->name )
-				count += fprintf(fp, "object %s:%d {\n", obj->oclass->name, obj->id);
-
-			/* dump internal properties */
-			if ( obj->parent != NULL )
+			OBJECT *parent = obj->parent;
+			OBJECT **topological_parent = object_get_object_by_name(obj,"topological_parent");
+			if ( mod )
 			{
-				if ( obj->parent->name != NULL )
-					count += fprintf(fp, "\tparent %s;\n", obj->parent->name);
+				if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
+					count += fprintf(fp, "object %s.%s:%d {\n", mod->name, oclass->name, obj->id);
 				else
-					count += fprintf(fp, "\tparent %s:%d;\n", obj->parent->oclass->name, obj->parent->id);
+					count += fprintf(fp, "object %s.%s {\n", mod->name, oclass->name);
 			}
 			else
+			{
+				if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
+					count += fprintf(fp, "object %s:%d {\n", oclass->name, obj->id);
+				else
+					count += fprintf(fp, "object %s {\n", oclass->name);
+			}
+
+			/* this is an unfortunate special case arising from how the powerflow module is implemented */
+			if ( topological_parent != NULL )
+			{
+				output_debug("<%s:%d> (name='%s') found topological parent",obj->oclass->name, obj->id, obj->name);
+				parent = *topological_parent;
+				if ( parent != NULL )
+					output_debug("<%s:%d> (name='%s') -- original parent is at %p", 
+						obj->oclass->name, obj->id, obj->name, parent);
+			}
+
+			/* dump internal properties */
+			if ( parent != NULL )
+			{
+				if ( parent->name != NULL )
+					count += fprintf(fp, "\tparent \"%s\";\n", parent->name);
+				else
+					count += fprintf(fp, "\tparent \"%s:%d\";\n", parent->oclass->name, parent->id);
+			}
+			else if ( (global_glm_save_options&GSO_NOMACROS)==0 )
 			{
 				count += fprintf(fp,"#ifdef INCLUDE_ROOT\n\troot;\n#endif\n");
 			}
-			count += fprintf(fp, "\trank %d;\n", obj->rank);
+			if ( (global_glm_save_options&GSO_NOINTERNALS)==0 )
+			{
+				count += fprintf(fp, "\trank \"%d\";\n", obj->rank);
+			}
 			if ( obj->name != NULL )
-				count += fprintf(fp, "\tname %s;\n", obj->name);
-			if ( convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) )
-				count += fprintf(fp,"\tclock %s;\n",  buffer);
+				count += fprintf(fp, "\tname \"%s\";\n", obj->name);
+			else if ( (global_glm_save_options&GSO_NOINTERNALS)==GSO_NOINTERNALS )
+				count += fprintf(fp, "\tname \"%s:%d\";\n", oclass->name, obj->id);
+			if ( (global_glm_save_options&GSO_NOINTERNALS)==0 && convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) )
+				count += fprintf(fp,"\tclock '%s';\n",  buffer);
 			if ( !isnan(obj->latitude) )
-				count += fprintf(fp, "\tlatitude %s;\n", convert_from_latitude(obj->latitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
+				count += fprintf(fp, "\tlatitude \"%s\";\n", convert_from_latitude(obj->latitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
 			if ( !isnan(obj->longitude) )
-				count += fprintf(fp, "\tlongitude %s;\n", convert_from_longitude(obj->longitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
-			if ( convert_from_set(buffer, sizeof(buffer), &(obj->flags), object_flag_property()) > 0 )
-				count += fprintf(fp, "\tflags %s;\n",  buffer);
-			else
-				count += fprintf(fp, "\tflags %lld;\n", obj->flags);
+				count += fprintf(fp, "\tlongitude \"%s\";\n", convert_from_longitude(obj->longitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
+			if ( (global_glm_save_options&GSO_NOINTERNALS)==0 )
+			{
+				if ( convert_from_set(buffer, sizeof(buffer), &(obj->flags), object_flag_property()) > 0 )
+					count += fprintf(fp, "\tflags \"%s\";\n",  buffer);
+				else
+					count += fprintf(fp, "\tflags \"%lld\";\n", obj->flags);
+			}
 
 			/* dump properties */
-			for ( prop=obj->oclass->pmap; prop!=NULL; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)) )
+			CLASS *last = oclass;
+			output_debug("dumping properties of '%s' (pmap=%p)", oclass->name, oclass->pmap);
+			for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 			{
+				output_debug("dumping property '%s' of '%s'",prop->name, prop->oclass->name);
+				if ( last != prop->oclass )
+				{
+					count += fprintf(fp,"\t// class.parent = %s.%s\n", prop->oclass->module->name, prop->oclass->name);
+					last = prop->oclass;
+				}
+				if ( (global_glm_save_options&GSO_NODEFAULTS)==GSO_NODEFAULTS && property_is_default(obj,prop) )
+					continue;
+				if ( (global_glm_save_options&GSO_NOINTERNALS)==GSO_NOINTERNALS && prop->access!=PA_PUBLIC )
+					continue;
+				buffer[0]='\0';
 				if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
 				{
-					if ( prop->access != access )
+					if ( prop->access != access && (global_glm_save_options&GSO_NOMACROS)==0 )
 					{
 						if ( access != PA_PUBLIC )
 							count += fprintf(fp, "#endif\n");
@@ -1999,12 +2005,18 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 							count += fprintf(fp, "#ifdef INCLUDE_HIDDEN\n");
 						access = prop->access;
 					}
-					count += fprintf(fp, "\t%s %s;\n", prop->name, buffer);
+					if ( prop->ptype==PT_object && strcmp(buffer,"")==0 )
+						continue; // never output empty object names -- they have special meaning to the loader
+					if ( buffer[0]=='"' )
+						count += fprintf(fp, "\t%s %s;\n", prop->name, buffer);
+					else
+						count += fprintf(fp, "\t%s \"%s\";\n", prop->name, buffer);
 				}
 			}
-			if ( access != PA_PUBLIC )
+			if ( access != PA_PUBLIC && (global_glm_save_options&GSO_NOMACROS)==0 )
 				count += fprintf(fp, "#endif\n");
 			count += fprintf(fp,"}\n");
+			if ( global_debug_output ) fflush(fp);
 		}
 	}
 	return count;	
@@ -2240,193 +2252,128 @@ double convert_to_longitude(char *buffer)
  OBJECT NAME TREE
  ***************************************************************************/
 
+#define TREESIZE 65536*16
 typedef struct s_objecttree {
-	char name[64];
+	char *name;
 	OBJECT *obj;
-	struct s_objecttree *before, *after;
-	int balance; /* unused */
+	struct s_objecttree *next;
 } OBJECTTREE;
+static OBJECTTREE *top[TREESIZE];
+typedef unsigned long long HASH;
 
-static OBJECTTREE *top=NULL;
-
-void debug_traverse_tree(OBJECTTREE *tree){
-	if(tree == NULL){
-		tree = top;
-		if(top == NULL){
-			return;
-		}
-	}
-	if(tree->before != NULL){
-		debug_traverse_tree(tree->before);
-	}
-	output_test("%s", tree->name);
-	if(tree->after != NULL){
-		debug_traverse_tree(tree->after);
-	}
-}
-
-/* returns the height of the tree */
-int tree_get_height(OBJECTTREE *tree){
-	if(tree == NULL){
-		return 0;
-	} else {
-		int left = tree_get_height(tree->before);
-		int right = tree_get_height(tree->after);
-		if(left > right)
-			return left+1;
-		else return right+1;
-	}
-}
-
-/* returns the node to point to instead of tree */
-void rotate_tree_right(OBJECTTREE **tree){ /* move one object from left to right */
-	OBJECTTREE *root, *pivot, *child;
-	root = *tree;
-	pivot = root->before;
-	child = root->before->after;
-	*tree = pivot;
-	pivot->after = root;
-	root->before = child;
-	root->balance += 2;
-	pivot->balance += 1;
-}
-
-/* returns the node to point to instead of tree */
-void rotate_tree_left(OBJECTTREE **tree){ /* move one object from right to left */
-	OBJECTTREE *root, *pivot, *child;
-	root = *tree;
-	pivot = root->after;
-	child = root->after->before;
-	*tree = pivot;
-	pivot->before = root;
-	root->after = child;
-	root->balance -= 2;
-	pivot->balance -= 1;
-}
-
-/*  Rebalance the tree to make searching more efficient
-	It's a good idea to this after the tree is built
- */
-int object_tree_rebalance(OBJECTTREE *tree) /* AVL logic */
+static HASH hash(OBJECTNAME name)
 {
-	/* currently being done during insertions & deletions */
-	return 0;
+	static HASH A = 55711, B = 45131, C = 60083;
+	HASH h = 18443;
+	HASH *p;
+	bool ok = true;
+	for ( p = name ; ok ; p++ )
+	{
+		unsigned long long c = *p;
+		if ( (c&0xff) == 0 )
+			break;
+		else if ( (c&0xff00) == 0 )
+		{
+			ok = false;
+			c &= 0x00000000000000ff;
+		}
+		else if ( (c&0xff0000) == 0 )
+		{
+			ok = false;
+			c &= 0x000000000000ffff;
+		}
+		else if ( (c&0xff000000) == 0 )
+		{
+			ok = false;
+			c &= 0x0000000000ffffff;
+		}
+		else if ( (c&0xff00000000) == 0 )
+		{
+			ok = false;
+			c &= 0x00000000ffffffff;
+		}
+		else if ( (c&0xff0000000000) == 0 )
+		{
+			ok = false;
+			c &= 0x000000ffffffffff;
+		}
+		else if ( (c&0xff000000000000) == 0 )
+		{
+			ok = false;
+			c &= 0x0000ffffffffffff;
+		}
+		else if ( (c&0xff00000000000000) == 0 )
+		{
+			ok = false;
+			c &= 0x00ffffffffffffff;
+		}
+		h = ((h*A)^(c*B));
+	}
+	h %= TREESIZE;
+	if ( global_debug_output )
+	{
+		IN_MYCONTEXT output_debug("hash(name='%s') = %llu",name,h);
+	}	
+	return h;
 }
 
-/*	Add an item to the tree
-	returns the "correct" root node for the subtree that an object was added to.
- */
-static int addto_tree(OBJECTTREE **tree, OBJECTTREE *item){
-	int rel = strcmp((*tree)->name, item->name);
-	int right = 0, left = 0, ir = 0, il = 0, rv = 0, height = 0;
-
-	// find location to insert new object
-	if(rel > 0){
-		if((*tree)->before == NULL){
-			(*tree)->before = item;
-		} else {
-			rv = addto_tree(&((*tree)->before), item);
-			if(global_no_balance){
-				return rv + 1;
-			}
-		}
-	} else if(rel<0) {
-		if((*tree)->after == NULL) {
-			(*tree)->after = item;
-		} else {
-			rv = addto_tree(&((*tree)->after),item);
-			if(global_no_balance){
-				return rv + 1;
-			}
-		}
-	} else {
-		return (*tree)->obj==item->obj;
+OBJECTTREE *hash_find(HASH h, OBJECTNAME name)
+{
+	OBJECTTREE *item;
+	for ( item = top[h] ; item != NULL ; item = item->next )
+	{
+		if ( strcmp(item->name,name) == 0 )
+			return item;
 	}
-
-	// check balance
-	right = tree_get_height((*tree)->after);
-	left = tree_get_height((*tree)->before);
-	(*tree)->balance = right - left;
-
-	// rotations needed?
-	if((*tree)->balance > 1){
-		if((*tree)->after->balance < 0){ /* inner left is heavy */
-			rotate_tree_right(&((*tree)->after));
-		}
-		rotate_tree_left(tree);	//	was left/right
-	} else if((*tree)->balance < -1){
-		if((*tree)->before->balance > 0){ /* inner right is heavy */
-			rotate_tree_left(&((*tree)->before));
-		}
-		rotate_tree_right(tree);
-	}
-	return tree_get_height(*tree); /* verify after rotations */
+	if ( global_debug_output )
+	{
+		IN_MYCONTEXT output_debug("hash_find(HASH h=%lld, OBJECTNAME name='%s'): name not found",h,name);
+	}	
+	return NULL;
 }
 
 /*	Add an object to the object tree.  Throws exceptions on memory errors.
 	Returns a pointer to the object tree item if successful, NULL on failure (usually because name already used)
  */
-static OBJECTTREE *object_tree_add(OBJECT *obj, OBJECTNAME name){
+static OBJECTTREE *object_tree_add(OBJECT *obj, OBJECTNAME name)
+{
 	OBJECTTREE *item = (OBJECTTREE*)malloc(sizeof(OBJECTTREE));
-
-	if(item == NULL) {
-		output_fatal("object_tree_add(obj='%s:%d', name='%s'): memory allocation failed (%s)", obj->oclass->name, obj->id, name, strerror(errno));
+	item->name = (char*)malloc(strlen(name)+1);
+	if ( item->name == NULL )
+	{
+		output_fatal("object_tree_add(OBJECT *obj=<%s:%d>, OBJECTNAME name='%s'): memory allocation failed", obj->oclass->name, obj->id, name);
 		return NULL;
-		/* TROUBLESHOOT
-			The memory required to add this object to the object index is not available.  Try freeing up system memory and try again.
-		 */
 	}
-	
+	strcpy(item->name,name);
 	item->obj = obj;
-	item->balance = 0;
-	strncpy(item->name, name, sizeof(item->name));
-	item->before = item->after = NULL;
-
-	if(top == NULL){
-		top = item;
-		return top;
-	} else {
-		if(addto_tree(&top, item) != 0){
-			return item;
-		} else {
-			return NULL;
+	HASH h = hash(name);
+	item->next = top[h];
+	if ( global_debug_output )
+	{
+		if ( top[h] == NULL )
+		{
+			IN_MYCONTEXT output_debug("object_tree_add(OBJECT *obj=<%s:%d>, OBJECTNAME name='%s'): added to hash %d", obj->oclass->name, obj->id, name, h);
+		}
+		else
+		{
+			IN_MYCONTEXT output_debug("object_tree_add(OBJECT *obj=<%s:%d>, OBJECTNAME name='%s'): added to hash %d after '%s'", obj->oclass->name, obj->id, name, h, top[h]->name);
 		}
 	}
+	top[h] = item;
+	return item;
 }
 
 /*	Finds a name in the tree
  */
-static OBJECTTREE **findin_tree(OBJECTTREE *tree, OBJECTNAME name)
+static OBJECTTREE *findin_tree(OBJECTTREE *tree, OBJECTNAME name)
 {
-	static OBJECTTREE **temptree = NULL;
-	if(tree == NULL){
-		return NULL;
-	} else {
-		int rel = strcmp(tree->name, name);
-		if(rel > 0){
-			if(tree->before != NULL){
-				if(strcmp(tree->before->name, name) == 0){
-					return &(tree->before);
-				} else {
-					return findin_tree(tree->before, name);
-				}
-			} else {
-				return NULL;
-			}
-		} else if(rel<0) {
-			if(tree->after != NULL){
-				if(strcmp(tree->after->name, name) == 0){
-					return &(tree->after);
-				} else {
-					return findin_tree(tree->after, name);
-				}
-			} else {
-				return NULL;
-			}
-		} else {
-			return (temptree = &tree);
-		}
+	HASH h = hash(name);
+	OBJECTTREE *item = hash_find(h,name);
+	if ( global_debug_output )
+	{
+		IN_MYCONTEXT output_debug("findin_tree(OBJECTTREE *tree=%p, OBJECTNAME name='%s'): item=%p", tree, name, item);
 	}
+	return item;
 }
 
 /*	Deletes a name from the tree
@@ -2434,60 +2381,31 @@ static OBJECTTREE **findin_tree(OBJECTTREE *tree, OBJECTNAME name)
  */
 void object_tree_delete(OBJECT *obj, OBJECTNAME name)
 {
-	OBJECTTREE **item = findin_tree(top,name);
-	OBJECTTREE *temp = NULL, **dtemp = NULL;
-
-	if(item != NULL && strcmp((*item)->name, name)!=0){
-		if((*item)->after == NULL && (*item)->before == NULL){ /* no children -- nuke */
-			free(*item);
-			*item = NULL;
-		} else if((*item)->after != NULL && (*item)->before != NULL){ /* two children -- find a replacement */
-			dtemp = &((*item)->before);
-			while(temp->after != NULL)
-				dtemp = &(temp->after);
-			temp = (*dtemp)->before;
-			(*dtemp)->before = (*item)->before;
-			(*dtemp)->after = (*item)->after;
-			free(*item);
-			*item = *dtemp;
-			*dtemp = temp;
-			/* replace item with the rightmost left element.*/
-
-		} else if((*item)->after == NULL || (*item)->before == NULL){ /* one child -- promotion time! */
-			if((*item)->after != NULL){
-				temp = (*item)->after;
-				free(*item);
-				*item = temp;
-			} else if((*item)->before != NULL){
-				temp = (*item)->before;
-				free(*item);
-				*item = temp;
-			} else {
-				output_fatal("unexpected branch result in object_tree_delete");
-				/*	TROUBLESHOOT
-					This should never happen and if it does, the system has become unstable and the problem should be reported.
-				 */
-			}
+	HASH h = hash(name);
+	OBJECTTREE *item, *last = NULL;
+	for ( item = top[h] ; item != NULL ; item = item->next )
+	{
+		if ( strcmp(item->name, name) == 0 )
+		{
+			if ( last != NULL )
+				last->next = item->next;
+			else
+				top[h] = item->next;
+			free(item->name);
+			free(item);
 		}
-
-		/* throw_exception("object_tree_delete(obj=%s:%d, name='%s'): rename of objects in tree is not supported yet", obj->oclass->name, obj->id, name); */
+		else
+			last = item;
 	}
 }
 
 /** Find an object from a name.  This only works for named objects.  See object_set_name().
 	@return a pointer to the OBJECT structure
  **/
-OBJECT *object_find_name(OBJECTNAME name){
-	OBJECTTREE **item = NULL;
-
-	item = findin_tree(top, name);
-	
-	if(item != NULL && *item != NULL){
-		return (*item)->obj;
-	} else {
-		/* normal operation, remain silent */
-		return NULL;
-	}
+OBJECT *object_find_name(OBJECTNAME name)
+{
+	OBJECTTREE *item = findin_tree(top, name);
+	return item == NULL ? NULL : item->obj;
 }
 
 int object_build_name(OBJECT *obj, char *buffer, int len){
