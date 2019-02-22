@@ -1,1 +1,32 @@
-script on_term "gridlabd xyz.glm -o ../test_clock_json.json";
+module tape;
+module climate; 
+module assert;
+
+#option server
+//#set global_dumpfile = 1
+//= "test_clock_json.json"
+
+clock {
+	timezone EST+5EDT;
+	starttime '2000-01-01 00:00:00 EST';
+	stoptime '2000-01-02 02:00:00 EST';
+}
+
+class test {
+	double test_var;
+};
+
+ class climate {
+ 	randomvar clouds;
+ } 
+
+object climate{
+	clouds "type:weibull(0.5,0.5); min:0.0; max:1.0; refresh:1h;";
+}
+
+object test {
+	name Test;	
+};
+
+
+script on_term "python ../test_clock_json.py";

@@ -1,6 +1,7 @@
 import time 
 import json
 import datetime
+import gridlabd
 
 class GridlabdModel :
 	def __init__(self,jsonfile):
