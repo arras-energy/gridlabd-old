@@ -3255,21 +3255,64 @@ static int add_script(SIMPLELIST **list, const char *file)
 	*list = item;
 	return 1;
 }
+static EXITCODE run_system_script(char *call)
+{
+	EXITCODE rc = system(call);
+	if ( rc != XC_SUCCESS )
+	{
+		output_error("script '%s' return with exit code %d", call,rc);
+		return rc;
+	}
+	else
+	{
+		IN_MYCONTEXT output_verbose("script '%s'' returned ok", call);
+		return 0;
+	}	
+}
+static EXITCODE run_gridlabd_script(char *call)
+{
+	char name[1024];
+	char arg[1024];
+	int narg = sscanf(call,"%s %[^\n]",name,arg);
+	if ( narg > 0 && strcmp(name,"dump") )
+	{
+		return saveall(arg) > 0 ? XC_SUCCESS : XC_IOERR;
+	}
+	else if ( narg > 0 )
+	{
+		output_error("script '%s' is not valid in environment 'gridlabd'", name);
+		return XC_RUNERR;
+	}
+	else
+	{
+		output_error("script missing for environment 'gridlabd'", name);
+		return XC_RUNERR;
+	}
+}
 static EXITCODE run_scripts(SIMPLELIST *list)
 {
 	SIMPLELIST *item;
 	update_exports();
 	for ( item=list ; item!=NULL ; item=item->next )
 	{
-		EXITCODE rc = system(item->data);
-		if ( rc!=XC_SUCCESS )
+		char group[1024] = "system";
+		char call[1024] = "";
+		if ( sscanf(item->data,"%s:%[^\n]",group,call) == 2 && strcmp(group,"system") != 0 )
 		{
-			output_error("script '%s' return with exit code %d", item->data,rc);
-			return rc;
+			// special access
+			if ( strcmp(group,"gridlabd") == 0 )
+			{
+				return run_gridlabd_script(call);
+			}
+			else 
+			{
+				output_error("script '%s' is not recognized in environment '%s'", call, group);
+				return XC_SHFAILED;
+			}
 		}
 		else
 		{
-			IN_MYCONTEXT output_verbose("script '%s'' returned ok", item->data);
+			return run_system_script(item->data);
 		}
 	}
 	return XC_SUCCESS;
