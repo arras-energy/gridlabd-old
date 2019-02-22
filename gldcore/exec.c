@@ -3274,7 +3274,7 @@ static EXITCODE run_gridlabd_script(char *call)
 	char name[1024];
 	char arg[1024];
 	int narg = sscanf(call,"%s %[^\n]",name,arg);
-	if ( narg > 0 && strcmp(name,"dump") )
+	if ( narg > 0 && strcmp(name,"dump")==0 )
 	{
 		return saveall(arg) > 0 ? XC_SUCCESS : XC_IOERR;
 	}
@@ -3297,7 +3297,7 @@ static EXITCODE run_scripts(SIMPLELIST *list)
 	{
 		char group[1024] = "system";
 		char call[1024] = "";
-		if ( sscanf(item->data,"%s:%[^\n]",group,call) == 2 && strcmp(group,"system") != 0 )
+		if ( sscanf(item->data,"%[a-z]:%[^\n]",group,call) == 2 && strcmp(group,"system") != 0 )
 		{
 			// special access
 			if ( strcmp(group,"gridlabd") == 0 )

@@ -1,7 +1,7 @@
 import time 
 import json
 import datetime
-import gridlabd
+
 
 class GridlabdModel :
 	def __init__(self,jsonfile):
@@ -11,7 +11,7 @@ class GridlabdModel :
 		assert(self.model["version"]>='4.0.0')
 
 if __name__ == '__main__' :
-	model = GridlabdModel('test_clock_json.json')
+	model = GridlabdModel('../test_clock.json')
 	global_stop = model.model["globals"]["stoptime"]["value"]
 	object_clock = {}
 	for i,value in model.model["objects"].items() :
