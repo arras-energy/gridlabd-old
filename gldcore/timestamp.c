@@ -1191,7 +1191,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 		{
 			dt.tzoffset = 0;
 		}
-		else if ( sscanf(tz,"%d:%d") >= 1 )
+		else if ( sscanf(tz,"%d:%d", &zh, &zm) >= 1 )
 		{
 			dt.tzoffset = zh*60+zm;
 		}
