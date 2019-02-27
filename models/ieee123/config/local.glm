@@ -1,10 +1,7 @@
 // do not edit -- updated automatically by 'save' action to setup.php at Tue, 09 Jan 2018 20:05:18 +0000 
 #define DOCROOT=/ieee123
-#define HOSTNAME=localhost
-#define MYSQLHOST=${HOSTNAME}
 #define NAME=ieee123.glm
 #define PORT=3306
-#define WEATHER=CA-Bakersfield_Meadows_Field.tmy3
 #define TIMEZONE=US/CA/Los Angeles
 #define LOADS=on
 #define SOLAR=on
@@ -13,10 +10,19 @@
 #define DR_DISHWASHER=none
 #define DR_WASHER=none
 #define DR_DRYER=none
+#define USER=grip
+
+#ifdef USER 
+#define WEATHER=CA-Bakersfield_Meadows_Field_high_wind.tmy3
+#else
+#define HOSTNAME=localhost
+#define MYSQLHOST=${HOSTNAME}
+#define WEATHER=CA-Bakersfield_Meadows_Field.tmy3
 #define MYSQL_ENABLE='on'
 #define MYSQL_NAME=ieee123
 #define MYSQL_SCADA=on
 #define MYSQL_AMI=on
+#endif // USER
 
-#define STARTTIME=2018-01-01 00:00:00 PST
-#define STOPTIME=2019-01-01 00:00:00 PST
+#define STARTTIME=2003-02-01 00:00:00 PST
+#define STOPTIME=2003-02-01 00:05:00 PST

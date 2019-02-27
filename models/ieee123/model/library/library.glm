@@ -410,3 +410,51 @@ object regulator_configuration {
 	tap_pos_B 1;
 	tap_pos_C 5;
 }
+
+#ifdef USER 
+object pole_configuration {
+	name pole_default;
+	design_ice_thickness +0.25 in;
+	design_wind_loading +4 psi;
+	design_temperature +15 degF;
+	overload_factor_vertical +1.9;
+	overload_factor_transverse_general +1.75;
+	overload_factor_transverse_crossing +2.2;
+	overload_factor_transverse_wire +1.65;
+	overload_factor_longitudinal_general +1;
+	overload_factor_longitudinal_deadend +1.3;
+	strength_factor_250b_wood +0.85;
+	strength_factor_250b_support +1;
+	strength_factor_250c_wood +0.75;
+	strength_factor_250c_support +1;
+	pole_length +45 ft;
+	pole_depth +4.5 ft;
+	ground_diameter +10.3503 in;
+	top_diameter +6.05096 in;
+	fiber_strength +8000 psi;
+	repair_time +86400 s;
+}
+object pole_configuration {
+	name pole_steel;
+	pole_type STEEL;
+	design_ice_thickness +0.25 in;
+	design_wind_loading +4 psi;
+	design_temperature +15 degF;
+	overload_factor_vertical +1.9;
+	overload_factor_transverse_general +1.75;
+	overload_factor_transverse_crossing +2.2;
+	overload_factor_transverse_wire +1.65;
+	overload_factor_longitudinal_general +1;
+	overload_factor_longitudinal_deadend +1.3;
+	strength_factor_250b_wood +1.25;
+	strength_factor_250b_support +1;
+	strength_factor_250c_wood +0.75;
+	strength_factor_250c_support +1;
+	pole_length +45 ft;
+	pole_depth +4.5 ft;
+	ground_diameter +10.3503 in;
+	top_diameter +6.05096 in;
+	fiber_strength +8000 psi;
+	repair_time +86400 s;
+}
+#endif //USER
