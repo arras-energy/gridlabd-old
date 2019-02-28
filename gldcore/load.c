@@ -2296,7 +2296,7 @@ int time_value_datetime(PARSER, TIMESTAMP *t)
 		&& TERM(integer16(HERE,&dt.day)) && (LITERAL(" ") || LITERAL("T"))
 		&& TERM(integer16(HERE,&dt.hour)) && LITERAL(":")
 		&& TERM(integer16(HERE,&dt.minute)) && LITERAL(":")
-		&& TERM(integer16(HERE,&dt.second)) && ( LITERAL("'") || LITERAL("\"") ))
+		&& TERM(integer16(HERE,&dt.second)) && ( LITERAL("'") || LITERAL("\"") || LITERAL("Z'") || LITERAL("Z\"") ))
 	{
 		dt.nanosecond = 0;
 		dt.weekday = -1;
@@ -2326,7 +2326,7 @@ int time_value_datetimezone(PARSER, TIMESTAMP *t)
 		&& TERM(integer16(HERE,&dt.day)) && (LITERAL(" ") || LITERAL("T"))
 		&& TERM(integer16(HERE,&dt.hour)) && LITERAL(":")
 		&& TERM(integer16(HERE,&dt.minute)) && LITERAL(":")
-		&& TERM(integer16(HERE,&dt.second)) && LITERAL(" ")
+		&& TERM(integer16(HERE,&dt.second)) && (LITERAL(" ") || LITERAL("+") || LITERAL("-"))
 		&& TERM(name(HERE,dt.tz,sizeof(dt.tz))) && (LITERAL("'")||LITERAL("\"")))
 	{
 		dt.nanosecond = 0;
