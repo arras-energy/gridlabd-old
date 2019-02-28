@@ -808,10 +808,9 @@ static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
     ReadLock();
     char *result = global_getvar(name,value,sizeof(value));
     if ( result == NULL )
-    {
-        return gridlabd_exception("unable to get global '%s'",name);
-    }
-    return Py_BuildValue("s",value);
+        return Py_None;
+    else
+        return Py_BuildValue("s",value);
 }
 
 //
