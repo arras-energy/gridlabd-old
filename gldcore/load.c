@@ -2293,7 +2293,7 @@ int time_value_datetime(PARSER, TIMESTAMP *t)
 	if ( LITERAL("'") || LITERAL("\"") ) ACCEPT;
 	if (TERM(integer16(HERE,&dt.year)) && LITERAL("-")
 		&& TERM(integer16(HERE,&dt.month)) && LITERAL("-")
-		&& TERM(integer16(HERE,&dt.day)) && LITERAL(" ")
+		&& TERM(integer16(HERE,&dt.day)) && (LITERAL(" ") || LITERAL("T"))
 		&& TERM(integer16(HERE,&dt.hour)) && LITERAL(":")
 		&& TERM(integer16(HERE,&dt.minute)) && LITERAL(":")
 		&& TERM(integer16(HERE,&dt.second)) && ( LITERAL("'") || LITERAL("\"") ))
@@ -2323,7 +2323,7 @@ int time_value_datetimezone(PARSER, TIMESTAMP *t)
 	if (LITERAL("'")||LITERAL("\"")) ACCEPT;
 	if (TERM(integer16(HERE,&dt.year)) && LITERAL("-")
 		&& TERM(integer16(HERE,&dt.month)) && LITERAL("-")
-		&& TERM(integer16(HERE,&dt.day)) && LITERAL(" ")
+		&& TERM(integer16(HERE,&dt.day)) && (LITERAL(" ") || LITERAL("T"))
 		&& TERM(integer16(HERE,&dt.hour)) && LITERAL(":")
 		&& TERM(integer16(HERE,&dt.minute)) && LITERAL(":")
 		&& TERM(integer16(HERE,&dt.second)) && LITERAL(" ")
@@ -2446,13 +2446,17 @@ static int clock_properties(PARSER)
 	}
 	OR if (LITERAL("starttime") && WHITE)
 	{
+		output_error_raw("TEST 1 %d", tsval);
 		if (TERM(time_value(HERE,&tsval)))
 		{
+			output_error_raw("TEST %d", tsval);
 			global_starttime = tsval;
 			ACCEPT;
 			goto Next;
 		}
 		output_error_raw("%s(%d): expected time value", filename, linenum);
+		output_error_raw("%s(%d): expected time value, starttime is %d", filename, linenum, global_starttime);
+
 		REJECT;
 	}
 	OR if (LITERAL("stoptime") && WHITE)
@@ -2464,6 +2468,8 @@ static int clock_properties(PARSER)
 			goto Next;
 		}
 		output_error_raw("%s(%d): expected time value", filename, linenum);
+		output_error_raw("%s(%d): expected time value, stoptime is %d", filename, linenum, global_stoptime);
+
 		REJECT;
 	}
 	OR if (LITERAL("timezone") && WHITE)
