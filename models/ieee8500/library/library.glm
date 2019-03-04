@@ -1,4 +1,8 @@
-#ifdef POLE_TYPE
+#ifndef POLE_TYPE
+#define POLE_TYPE=node
+#endif
+
+#if POLE_TYPE==pole
 object pole_configuration {
      name pole_default;
      pole_type WOOD;

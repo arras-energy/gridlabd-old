@@ -1,4 +1,8 @@
-#ifdef POLE_TYPE
+#ifndef POLE_TYPE
+#define POLE_TYPE=node
+#endif
+
+#if POLE_TYPE==pole
 object multi_recorder {
 
       file ieee8500_pole_vulnerability.csv;
@@ -17,7 +21,7 @@ object ${POLE_TYPE:-node} {
      phases ABCN;
      name "node_HVMV_Sub_LSB";
      nominal_voltage 7199.558;
-#ifdef POLE_TYPE
+#if POLE_TYPE==pole
      configuration pole_default;
      weather weather;
 #endif
@@ -2175,7 +2179,7 @@ object ${POLE_TYPE:-node} {
      phases ABCN;
      name "node_HVMV_Sub_48332";
      nominal_voltage 7199.558;
-#ifdef POLE_TYPE
+#if POLE_TYPE==pole
      configuration pole_default;
      weather weather;
 #endif
