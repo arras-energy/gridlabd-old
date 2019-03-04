@@ -14,8 +14,6 @@
 #define POLE_TYPE=node
 #endif
 
-#print Pole type is ${POLE_TYPE}
-
 object ${POLE_TYPE} {
 	name node_3;
 	groupid nodevolts;
