@@ -2,6 +2,12 @@
 // Copyright (C) 2016, Stanford University
 // Author: dchassin@slac.stanford.edu
 
+#ifndef POLE_TYPE
+#define POLE_TYPE=node
+#endif
+
+#print Pole type is ${POLE_TYPE}
+
 //Conductors
 object overhead_line_conductor {
 	name olc301c;	//336,400 26/7 ACSR
@@ -411,7 +417,7 @@ object regulator_configuration {
 	tap_pos_C 5;
 }
 
-#ifdef POLE_TYPE 
+#if POLE_TYPE==pole 
 object pole_configuration {
 	name pole_default;
 	design_ice_thickness +0.25 in;

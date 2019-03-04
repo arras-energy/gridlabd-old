@@ -17,7 +17,7 @@ object multi_recorder {
 #endif //POLE_TYPE
 
 // Node Objects
-object ${POLE_TYPE:-node} {
+object ${POLE_TYPE} {
      phases ABCN;
      name "node_HVMV_Sub_LSB";
      nominal_voltage 7199.558;
@@ -2175,7 +2175,7 @@ object node {
      nominal_voltage 7199.558;
 }
 
-object ${POLE_TYPE:-node} {
+object ${POLE_TYPE} {
      phases ABCN;
      name "node_HVMV_Sub_48332";
      nominal_voltage 7199.558;
