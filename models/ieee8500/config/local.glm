@@ -3,7 +3,7 @@
 #else // POLE_TYPE is defined
 #if POLE_TYPE!=node
 #if POLE_TYPE!=pole
-#warning changing invalid POLE_TYPE to pole
+#warning changing invalid POLE_TYPE to node
 #set POLE_TYPE=node
 #endif // POLE_TYPE!=pole
 #endif // POLE_TYPE!=node
