@@ -411,7 +411,7 @@ object regulator_configuration {
 	tap_pos_C 5;
 }
 
-#ifdef USER 
+#ifdef POLE_TYPE 
 object pole_configuration {
 	name pole_default;
 	design_ice_thickness +0.25 in;
@@ -457,4 +457,5 @@ object pole_configuration {
 	fiber_strength +8000 psi;
 	repair_time +86400 s;
 }
-#endif //USER
+#endif //POLE_TYPE
+

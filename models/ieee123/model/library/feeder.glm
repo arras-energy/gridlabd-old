@@ -9,66 +9,48 @@
 //
 
 //Pure nodes
-#ifdef USER
-object pole {
+
+object ${POLE_TYPE:-node} {
 	name node_3;
 	groupid nodevolts;
 	phases CN;
 	latitude 35N23.076; 
 	longitude 119W0.132;
 	nominal_voltage 2401.7771;
+#ifdef POLE_TYPE
     configuration pole_default;
     weather weather;
+#endif
 }
-#else
-object node {
-	name node_3;
-	groupid nodevolts;
-	phases CN;
-	nominal_voltage 2401.7771;
-}
-#endif //USER
 
 
-#ifdef USER
-object pole {
+
+object ${POLE_TYPE:-node} {
 	name node_8;
 	groupid nodevolts;
     phases ABCN;
     nominal_voltage 2401.7771;
     latitude 35N23.117; 
     longitude 119W0.031;
+#ifdef POLE_TYPE
 	configuration pole_steel;
     weather weather;
+#endif
 }
-#else 
-object node {
-	name node_8;
-	groupid nodevolts;
-	phases ABCN;
-	nominal_voltage 2401.7771;
-}
-#endif //USER
 
-#ifdef USER
-object pole {
+
+object ${POLE_TYPE:-node} {
 	name node_13;
 	groupid nodevolts;
     nominal_voltage 2401.7771;
     phases ABCN;
     latitude 35N23.117; 
     longitude 118W59.971; 
+#ifdef POLE_TYPE
     configuration pole_default;
     weather weather;
+#endif
 }
-#else
-object node {
-	name node_13;
-	groupid nodevolts;
-	phases ABCN;
-	nominal_voltage 2401.7771;
-}
-#endif //USER
 
 object substation {
 	name node_14;
@@ -89,25 +71,18 @@ object meter {
 	nominal_voltage 2401.7771;
 }
 
-#ifdef USER 
-object pole {
+object ${POLE_TYPE:-node} {
     name node_15;
     phases CN;
 	latitude 35N23.076; 
 	longitude 118W59.971;
 	groupid nodevolts;
     nominal_voltage 2401.7771;
+#ifdef POLE_TYPE
     configuration pole_default;
     weather weather;
+#endif
 }
-#else
-object node {
-	name node_15;
-	groupid nodevolts;
-	phases CN;
-	nominal_voltage 2401.7771;
-}
-#endif //USER
 
 object node {
 	name node_18;
@@ -116,45 +91,31 @@ object node {
 	nominal_voltage 2401.7771;
 }
 
-#ifdef USER 
-object pole {
+object ${POLE_TYPE:-node} {
 	name node_21;
 	groupid nodevolts;
 	phases ABCN;
 	latitude 35N23.302; 
 	longitude 118W59.971;
 	nominal_voltage 2401.7771;
+#ifdef POLE_TYPE
 	configuration pole_steel;
 	weather weather;
+#endif
 }
-#else
-object node {
-	name node_21;
-	groupid nodevolts;
-	phases ABCN;
-	nominal_voltage 2401.7771;
-}
-#endif //USER
 
-#ifdef USER
-object pole {
+object ${POLE_TYPE:-node} {
 	name node_23;
 	groupid nodevolts;
 	phases ABCN;
 	latitude 35N23.343; 
 	longitude 118W59.971;
 	nominal_voltage 2401.7771;
+#ifdef POLE_TYPE
 	configuration pole_default;
 	weather weather;
+#endif
 }
-#else 
-object node {
-	name node_23;
-	groupid nodevolts;
-	phases ABCN;
-	nominal_voltage 2401.7771;
-}
-#endif //USER
 
 object node {
 	name node_25;
@@ -310,26 +271,18 @@ object node {
 	nominal_voltage 2401.7771;
 }
 
-#ifdef USER 
-object pole {
+object ${POLE_TYPE:-node} {
 	name node_149;
 	groupid nodevolts;
 	phases ABCN;
 	latitude 35N23.409; 
 	longitude 118W59.643;
 	nominal_voltage 2401.7771;
+#ifdef POLE_TYPE
 	configuration pole_default;
     weather weather;
-
+#endif
 }
-#else 
-object node {
-	name node_149;
-	groupid nodevolts;
-	phases ABCN;
-	nominal_voltage 2401.7771;
-}
-#endif //USER
 
 object node {
 	name node_150;
@@ -398,25 +351,18 @@ object node {
 	nominal_voltage 2401.7771;
 }
 
-#ifdef USER
-object pole {
+object ${POLE_TYPE:-node} {
 	name node_901;
 	groupid nodevolts;
 	phases AN;
 	latitude 35N23.388; 
 	longitude 118W59.971;
 	nominal_voltage 2401.7771;
+#ifdef POLE_TYPE
 	configuration pole_steel;
 	weather weather;
+#endif
 }
-#else
-object node {
-	name node_901;
-	groupid nodevolts;
-	phases AN;
-	nominal_voltage 2401.7771;
-}
-#endif //USER
 
 object node {
 	name node_2501;
@@ -432,25 +378,18 @@ object node {
 	nominal_voltage 2401.7771;
 }
 
-#ifdef USER
-object pole {
+object ${POLE_TYPE:-node} {
 	name node_15001;
 	groupid nodevolts;
 	phases ABCN;
 	latitude 35N23.141; 
 	longitude 118W59.679;
 	nominal_voltage 2401.7771;
+#ifdef POLE_TYPE
     configuration pole_default;
     weather weather;
-}
-#else
-object node {
-	name node_15001;
-	groupid nodevolts;
-	phases ABCN;
-	nominal_voltage 2401.7771;
-}
 #endif
+}
 
 object node {
 	name node_16001;

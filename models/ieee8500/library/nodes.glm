@@ -1,4 +1,4 @@
-#ifdef USER
+#ifdef POLE_TYPE
 object multi_recorder {
 
       file ieee8500_pole_vulnerability.csv;
@@ -10,24 +10,18 @@ object multi_recorder {
       property HVMV_Sub_connector:power_out_real;
      interval 3600;
 };
-#endif //USER
+#endif //POLE_TYPE
 
 // Node Objects
-#ifdef USER
-object pole {
+object ${POLE_TYPE:-node} {
      phases ABCN;
      name "node_HVMV_Sub_LSB";
      nominal_voltage 7199.558;
+#ifdef POLE_TYPE
      configuration pole_default;
      weather weather;
+#endif
 }
-#else 
-object node {
-     phases ABCN;
-     name "node_HVMV_Sub_LSB";
-     nominal_voltage 7199.558;
-}
-#endif //USER
 
 object node {
      phases ABCN;
@@ -2177,21 +2171,15 @@ object node {
      nominal_voltage 7199.558;
 }
 
-#ifdef USER 
-object pole {
+object ${POLE_TYPE:-node} {
      phases ABCN;
      name "node_HVMV_Sub_48332";
      nominal_voltage 7199.558;
+#ifdef POLE_TYPE
      configuration pole_default;
      weather weather;
+#endif
 }
-#else 
-object pole {
-     phases ABCN;
-     name "node_HVMV_Sub_48332";
-     nominal_voltage 7199.558;
-}
-#endif //USER
 
 object node {
      phases ABCN;

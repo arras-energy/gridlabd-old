@@ -1,4 +1,4 @@
-#ifdef USER
+#ifdef POLE_TYPE
 object pole_configuration {
      name pole_default;
      pole_type WOOD;
@@ -8,7 +8,7 @@ object pole_configuration {
      top_diameter (19/3.14);
      fiber_strength 8000 psi;
 }
-#endif //USER
+#endif //POLE_TYPE
 
 
 object regulator_configuration {

@@ -10,19 +10,20 @@
 #define DR_DISHWASHER=none
 #define DR_WASHER=none
 #define DR_DRYER=none
-#define USER=grip
+#define POLE_TYPE=pole
 
-#ifdef USER 
 #define WEATHER=CA-Bakersfield_Meadows_Field_high_wind.tmy3
-#else
+
+
+//#define MYSQL_ENABLE='on'
+#ifdef MYSQL_ENABLE
 #define HOSTNAME=localhost
 #define MYSQLHOST=${HOSTNAME}
-#define WEATHER=CA-Bakersfield_Meadows_Field.tmy3
-#define MYSQL_ENABLE='on'
 #define MYSQL_NAME=ieee123
 #define MYSQL_SCADA=on
 #define MYSQL_AMI=on
-#endif // USER
+#endif //MYSQL_ENABLE
+
 
 #define STARTTIME=2003-02-01 00:00:00 PST
 #define STOPTIME=2003-02-01 00:05:00 PST
