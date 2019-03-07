@@ -307,7 +307,8 @@ libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
 install-exec-hook:
+	@( export SRCDIR=$(top_srcdir); python3 $(top_srcdir)/gldcore/link/python/setup.py install)
 	@if [ "`which gridlabd`" != "$(DESTDIR)$(bindir)/gridlabd" ]; then \
-		echo >&2 "WARNING: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
+		echo >&2 "***WARNING***: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
 	fi
 
