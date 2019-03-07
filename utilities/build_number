@@ -21,7 +21,7 @@ mod=`git status -s | cut -c1-3 | sort -u | sed 's/ //g'`
 rev=`git log --max-count=1 --pretty=format:"%ai" | cut -c3,4,6,7,9,10`
 branchname=`git rev-parse --abbrev-ref HEAD`
 if [ -z "${mod}" -a -z "$(git status | grep 'Your branch is ahead')" ]; then
-	branch="${dir}/commit/${new}"
+	branch="${dir/\.git/}/commit/${new}"
 else
 	branch="$(hostname):${PWD/$HOME/~$USER}:$branchname:$new"
 fi
