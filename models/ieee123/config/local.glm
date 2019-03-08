@@ -10,6 +10,9 @@
 #define DR_DISHWASHER=none
 #define DR_WASHER=none
 #define DR_DRYER=none
+#define VOLT_POWERDUMP
+
+#define POLE_TYPE=node
 
 #ifndef POLE_TYPE
 #define POLE_TYPE=node
@@ -35,5 +38,5 @@
 #endif //MYSQL_ENABLE
 
 
-#define STARTTIME=2003-02-01 00:00:00 PST
-#define STOPTIME=2003-02-01 00:05:00 PST
+#define STARTTIME=2018-03-01 00:00:00 PST
+#define STOPTIME=2018-03-03 00:00:00 PST
