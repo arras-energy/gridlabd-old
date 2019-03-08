@@ -10,7 +10,7 @@
 #define DR_DISHWASHER=none
 #define DR_WASHER=none
 #define DR_DRYER=none
-#define VOLT_POWERDUMP
+#define VOLT_POWERDUMP = on
 
 #define POLE_TYPE=node
 
