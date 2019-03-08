@@ -3994,6 +3994,20 @@ char *makecopy(char *s)
 	strcpy(copy,s);
 	return copy;
 }
+static int json_block(PARSER, OBJECT *obj, const char *propname)
+{
+	START;
+	if ( WHITE,LITERAL("{") )
+	{
+		output_error_raw("%s(%d): unable to parse JSON data", filename, linenum);
+		REJECT;
+	}
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
 static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
@@ -4045,6 +4059,10 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				output_error_raw("%s(%d): unable to parse value for load method '%s/%s::%s'", filename, linenum, obj->oclass->module->name,obj->oclass->name,propname);
 				REJECT;
 			}
+		}
+		else if (TERM(json_block(HERE,obj,propname)))
+		{
+			ACCEPT;
 		}
 		else {
 			PROPERTY *prop = class_find_property(oclass,propname);

@@ -1,0 +1,7 @@
+class test {
+	enduse test;
+}
+
+object test {
+	test {power: 1};
+}
