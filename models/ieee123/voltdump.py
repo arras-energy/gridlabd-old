@@ -4,6 +4,7 @@ import datetime
 
 data = {}
 nodes = []
+lastnodes = []
 timestamp = None
 timezone = "UTC"
 with open('output/volt_dump.csv', 'r') as dumpfile:
@@ -20,6 +21,10 @@ with open('output/volt_dump.csv', 'r') as dumpfile:
 		elif not header :
 			header = row
 			assert(header==['node_name', 'voltA_real', 'voltA_imag', 'voltB_real', 'voltB_imag', 'voltC_real', 'voltC_imag'])
+			if lastnodes :
+				assert(lastnodes==nodes)
+			elif nodes :
+				lastnodes = nodes
 		else :
 			try :
 				node = row[0]
