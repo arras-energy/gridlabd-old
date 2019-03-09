@@ -1,6 +1,8 @@
 import os 
 import csv
 import datetime
+import re
+import math
 
 data = {}
 nodes = []
@@ -40,6 +42,47 @@ with open('output/volt_dump.csv', 'r') as dumpfile:
 with open('output/voltages.csv','w') as voltages:
 	writer = csv.writer(voltages)
 	writer.writerow(nodes)
+	for key,values in data.items() :
+		data = [key.strftime("%Y-%m-%dT%H:%M:%S%z")]
+		for value in values:
+			data.append("%g%+gj" % (value.real,value.imag))
+		writer.writerow(data)
+
+headers = []
+data = {}
+re_complex = re.compile("([+-][0-9]*\\.?[0-9]+|[+-][0-9]+.[0-9]+[eE][0-9]+)([+-][0-9]*\\.?[0-9]+|[+-][0-9]+.[0-9]+[eE][0-9]+)([ijdr])")
+def to_complex(s) :
+	r = re.split(re_complex,s)
+	if type(r) is list and len(r) > 4 :
+		if r[3] == 'd' :
+			m = float(r[1])
+			a = float(r[2])*3.1415926/180.0
+			return complex(m*math.cos(a),m*math.sin(a))
+		elif r[3] == 'r' :
+			m = float(r[1])
+			a = float(r[2])
+			return complex(m*math.cos(a),m*math.sin(a))
+	try :
+		return complex(s)
+	except :
+		raise Exception("complex('%s') is not valid" % s)
+for filename in os.listdir("output") :
+	if filename.startswith("power_dump_") :
+		with open("output/"+filename,"r") as dumpfile :
+			reader = csv.reader(dumpfile)
+			for row in reader:
+				if row[0][0] == '#' :
+					if row[0]=="# timestamp" :
+						headers.extend(row[1:])
+					continue
+				timestamp = datetime.datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S %Z")
+				if not timestamp in data.keys() :
+					data[timestamp] = []
+				data[timestamp].extend(list(map(lambda x:to_complex(x),row[1:])))
+
+with open("output/powers.csv","w") as powers:
+	writer = csv.writer(powers)
+	writer.writerow(headers)
 	for key,values in data.items() :
 		data = [key.strftime("%Y-%m-%dT%H:%M:%S%z")]
 		for value in values:
