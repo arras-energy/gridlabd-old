@@ -1,4 +1,4 @@
-script on_term "python3 voltdump.py";
+script on_term "python voltdump.py";
 
 object voltdump {
 	filemode "a";
@@ -7,7 +7,9 @@ object voltdump {
 	filename "output/volt_dump.csv";
 	on_init "mkdir -p output; rm -rf output/power_dump_*.csv output/volt_dump.csv";
 }
-module tape;
+module tape {
+	flush_interval 0;
+}
 
 object multi_recorder {
 	property substation_meter:measured_power, meter_1:measured_power, meter_2:measured_power, meter_3:measured_power, meter_4:measured_power, meter_5:measured_power, meter_6:measured_power, meter_7:measured_power, meter_8:measured_power, meter_9:measured_power, meter_10:measured_power, meter_11:measured_power, meter_12:measured_power, meter_13:measured_power, meter_14:measured_power, meter_15:measured_power, meter_16:measured_power, meter_17:measured_power, meter_18:measured_power, meter_19:measured_power, meter_20:measured_power, meter_21:measured_power, meter_22:measured_power, meter_23:measured_power, meter_24:measured_power, meter_25:measured_power, meter_26:measured_power, meter_27:measured_power, meter_28:measured_power, meter_29:measured_power, meter_30:measured_power;
