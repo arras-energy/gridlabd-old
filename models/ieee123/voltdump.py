@@ -78,7 +78,10 @@ for filename in os.listdir("output") :
 				timestamp = datetime.datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S %Z")
 				if not timestamp in data.keys() :
 					data[timestamp] = []
-				data[timestamp].extend(list(map(lambda x:to_complex(x),row[1:])))
+				try :
+					data[timestamp].extend(list(map(lambda x:to_complex(x),row[1:])))
+				except:
+					print("%s: error parsing row '%s', values ignored" % (filename,row))
 
 with open("output/powers.csv","w") as powers:
 	writer = csv.writer(powers)
