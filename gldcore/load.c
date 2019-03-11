@@ -3994,10 +3994,243 @@ char *makecopy(char *s)
 	strcpy(copy,s);
 	return copy;
 }
-static int json_block(PARSER, OBJECT *obj, const char *propname)
+
+typedef struct s_jsondata {
+	char *name;
+	char *value;
+	struct s_jsondata *next;
+} *JSONDATA;
+void json_free(JSONDATA data)
 {
+	if ( data == NULL )
+		return;
+	if ( data->next != NULL )
+		json_free(data->next);
+	free(data->name);
+	free(data->value);
+	free(data);
+}
+JSONDATA json_append(JSONDATA data, char *name, size_t namelen, char *value, size_t valuelen)
+{
+	if ( data != NULL )
+		data->next = data;
+	data = (JSONDATA*)malloc(sizeof(JSONDATA));
+	data->next = NULL;
+	data->name = strndup(name,namelen);
+	data->value = strndup(value,valuelen);
+	return data;
+}
+static int json_data(PARSER,JSONDATA *data)
+{
+	// this parser is for simple json "dict" data only
+	// and will not accept json lists or nested data
 	START;
 	if ( WHITE,LITERAL("{") )
+	{
+		enum {OPEN, ESCAPE, NAME, COLON, VALUE, SEMICOLON, CLOSE} state = OPEN;
+		char quote = NULL; // quote character (if any, NULL for none)
+		char *str = NULL; // start of next string 
+		char *name = NULL, *value = NULL;
+		size_t namelen = 0, valuelen = 0;
+		for ( state = OPEN ; state != CLOSE ; _m++ )
+		{
+			char c = *HERE;
+			if ( state == ESCAPE )
+			{
+				if ( str == NULL )
+					str = HERE;
+				continue;
+			}
+			else if ( state == OPEN )
+			{
+				if ( isspace(c) )
+				{
+					// ignore white space
+					continue;
+				}
+				else if ( c == '"' || c == '\'' )
+				{
+					// start quoted string
+					quote = c;
+					str = HERE+1;
+					state = NAME;
+					continue;
+				}
+				else if ( str == NULL ) 
+				{
+					// start bare string
+					str = HERE;
+					state = NAME;
+					continue;
+				}
+				else if ( c == '}' )
+				{
+					// close list
+					state = CLOSE;
+					continue;
+				}
+				else
+				{
+					// invalid state
+					break; 
+				}
+			}
+			else if ( state == NAME )
+			{
+				if ( c == '\\' )
+				{
+					// escape the next character
+					state = ESCAPE;
+					continue;
+				}
+				else if ( quote != NULL && c == quote ) 
+				{
+					// end quoted string
+					name = str;
+					namelen = HERE-str;
+					str = NULL;
+					quote = NULL;
+					state = COLON;
+					continue;
+				}
+				else if ( quote == NULL && isspace(c) ) 
+				{
+					// end bare string
+					name = str;
+					namelen = HERE-str;
+					str = NULL;
+					state = COLON;
+					continue;
+				}
+				else if ( quote == NULL && c == ':' ) 
+				{	
+					// end bare string without space
+					name = str;
+					str = NULL;
+					state = VALUE;
+					continue;
+				}
+				else
+				{	
+					// accept anything else
+					continue; 
+				}
+			}
+			else if ( state == COLON )
+			{
+				if ( isspace(c) )
+				{	// ignore white space
+					continue; 
+				}
+				else if ( c == ':' )
+				{	// accept colon
+					state = VALUE;
+					continue;
+				}
+				else
+				{	// reject anything else
+					break; 
+				}
+
+			}
+			else if ( state == VALUE )
+			{
+				if ( c == '\\' )
+				{
+					// escape the next character
+					state = ESCAPE;
+					continue;
+				}
+				else if ( quote != NULL && c == quote ) 
+				{
+					// end quoted string
+					value = str;
+					valuelen = HERE-str;
+					str = NULL;
+					quote = NULL;
+					state = OPEN;
+					continue;
+				}
+				else if ( quote == NULL && isspace(c) ) 
+				{
+					// end bare string
+					value = str;
+					valuelen = HERE-str;
+					str = NULL;
+					state = SEMICOLON;
+					continue;
+				}
+				else if ( quote == NULL && c == ';' ) 
+				{	
+					// end bare string without space
+					value = str;
+					valuelen = HERE-str;
+					str = NULL;
+					state = OPEN;
+					continue;
+				}
+				else if ( quote == NULL && c == '}' ) 
+				{	
+					// end bare string without space
+					value = str;
+					valuelen = HERE-str;
+					str = NULL;
+					state = CLOSE;
+					continue;
+				}
+				else
+				{	
+					// accept anything else
+					continue; 
+				}
+			}
+			else if ( state == SEMICOLON )
+			{
+				if ( isspace(c) )
+				{
+					// ignore white spaces
+					continue;
+				}
+				else if ( c == ';' )
+				{
+					// ready for next term or close
+					state = OPEN;
+					continue;
+				}
+				else
+				{
+					// anything else is invalid
+					break; 
+				}
+			}
+			else
+			{
+				// state is invalid
+				break;
+			}
+		}
+		if ( state == CLOSE ) 
+		{
+			ACCEPT;
+		}
+		else
+		{
+			json_free(data);
+			REJECT;
+		}
+	}
+	else 
+	{
+		json_free(data);
+		REJECT;
+	}
+	DONE;
+}
+static int json_block(PARSER, OBJECT *obj, const char *propname)
+{
+	JSONDATA jsondata = NULL;
+	START;
+	if ( WHITE,json_data(HERE,&jsondata) )
 	{
 		output_error_raw("%s(%d): unable to parse JSON data", filename, linenum);
 		REJECT;

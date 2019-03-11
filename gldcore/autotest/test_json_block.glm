@@ -3,5 +3,5 @@ class test {
 }
 
 object test {
-	test {power: 1};
+	test {power:1; energy:0.5; };
 }
