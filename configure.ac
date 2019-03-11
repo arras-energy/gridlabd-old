@@ -600,6 +600,9 @@ AC_SUBST([MYSQL_CPPFLAGS])
 AC_SUBST([MYSQL_LDFLAGS])
 AC_SUBST([MYSQL_LIBS])
 
+# Verify python version
+AM_PATH_PYTHON(3.6)
+
 ###############################################################################
 # The End
 ###############################################################################

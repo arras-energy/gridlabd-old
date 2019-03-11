@@ -26,6 +26,8 @@ except:
 		compile_options = None
 	if not compile_options :
 		compile_options=['-w','-O3']
+if not srcdir :
+	raise Exception("SRCDIR environment variable was not set -- try the command 'export SRCDIR=$PWD' before running setup.py")
 compile_options.extend(['-I'+srcdir+'/gldcore',"-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
 
 from distutils.core import setup, Extension
