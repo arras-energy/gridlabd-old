@@ -1,39 +1,5 @@
-// do not edit -- updated automatically by 'save' action to setup.php at Tue, 09 Jan 2018 20:05:18 +0000 
-#define DOCROOT=/ieee123
-#define NAME=ieee123.glm
-#define PORT=3306
-#define TIMEZONE=US/CA/Los Angeles
-#define LOADS=on
-#define SOLAR=on
-#define DR_HVAC=none
-#define DR_WATERHEATER=none
-#define DR_DISHWASHER=none
-#define DR_WASHER=none
-#define DR_DRYER=none
-
-#ifndef POLE_TYPE
 #define POLE_TYPE=node
-#else // POLE_TYPE is defined
-#if POLE_TYPE!=node
-#if POLE_TYPE!=pole
-#warning changing invalid POLE_TYPE to node
-#set POLE_TYPE=node
-#endif // POLE_TYPE!=pole
-#endif // POLE_TYPE!=node
-#endif // POLE_TYPE defined
-
-#define WEATHER=CA-Bakersfield_Meadows_Field_high_wind.tmy3
-
-
-//#define MYSQL_ENABLE='on'
-#ifdef MYSQL_ENABLE
-#define HOSTNAME=localhost
-#define MYSQLHOST=${HOSTNAME}
-#define MYSQL_NAME=ieee123
-#define MYSQL_SCADA=on
-#define MYSQL_AMI=on
-#endif //MYSQL_ENABLE
-
-
-#define STARTTIME=2003-02-01 00:00:00 PST
-#define STOPTIME=2003-02-01 00:05:00 PST
+#define VOLTDUMP=all
+#define LOADS=on
+#define STARTTIME=2018-03-01 00:00:00 PST
+#define STOPTIME=2018-03-03 00:00:00 PST

@@ -1,0 +1,28 @@
+// this file is used if local.glm is not found
+#define DOCROOT=${DOCROOT:-/ieee123}
+#define NAME=${NAME:-ieee123.glm}
+#define PORT=${PORT:-3306}
+#define TIMEZONE=${TIMEZONE:-US/CA/Los Angeles}
+#define LOADS=${LOADS:-off}
+#define SOLAR=${SOLAR:-off}
+#define DR_HVAC=${DR_HVAC:-off}
+#define DR_WATERHEATER=${DR_WATERHEATER:-off}
+#define DR_DISHWASHER=${DR_DISHWASHER:-off}
+#define DR_WASHER=${DR_WASHER:-off}
+#define DR_DRYER=${DR_DRYER:-off}
+
+#define WEATHER=${WEATHER:-CA-Bakersfield_Meadows_Field_high_wind.tmy3}
+
+#define MYSQL_ENABLE=${MYSQL_ENABLE:-off}
+#define HOSTNAME=${HOSTNAME:-localhost}
+#define MYSQLHOST=${MYSQLHOST:-localhost}
+#define MYSQL_NAME=${MYSQL_NAME:-ieee123}
+#define MYSQL_SCADA=${MYSQL_SCADA:-off}
+#define MYSQL_AMI=${MYSQL_AMI:-off}
+#define MYSQL_MODEL=${MYSQL_MODEL:-off}
+#define MYSQL_GRAPH=${MYSQL_GRAPH:-off}
+
+#define POLE_TYPE=${POLE_TYPE:-node}
+#define VOLTDUMP=${VOLTDUMP:-off}
+#define CURRDUMP=${CURRDUMP:-off}
+

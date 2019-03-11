@@ -506,6 +506,10 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 		my->samples++;
 
 	/* at this point we've written the sample to the normal recorder output */
+	if ( my->flush==0 || ( my->flush > 0 && gl_globalclock % my->flush == 0 ) )
+	{
+		my->ops->flush(my);
+	}
 
 	// if file based
 	if(my->multifp != NULL){

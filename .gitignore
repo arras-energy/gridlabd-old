@@ -110,3 +110,5 @@ third_party/xerces*/*
 .*.swp
 .DS_Store
 *.json
+output/
+models/ieee123/config/local.glm
