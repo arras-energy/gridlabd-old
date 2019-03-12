@@ -2834,10 +2834,43 @@ double object_get_part(void *x, char *name)
 	return QNAN;
 }
 
+int object_set_part(void *x, char *name, char *value)
+{
+	// TODO
+	return false;
+}
+
+
 int object_loadmethod(OBJECT *obj, char *name, char *value)
 {
 	LOADMETHOD *method = class_get_loadmethod(obj->oclass,name);
 	return method ? method->call(obj,value) : 0;
 }
+
+bool object_set_property_part(OBJECT *obj, PROPERTY *prop, char *name, char *value)
+{
+	PROPERTYSPEC *spec = property_getspec(prop->ptype);
+	if ( spec == NULL )	
+		return false;
+	if ( spec->set_part == NULL )
+		return false;
+	void *ptr = (void*)((char*)(obj+1)+(size_t)prop->addr);
+	return spec->set_part(ptr,name,value);
+}
+
+bool object_set_json(OBJECT *obj, char *propname, JSONDATA *data)
+{
+	PROPERTY *prop = object_get_property(obj,propname,NULL);
+	if ( prop == NULL )
+		return false;
+	for ( ; data != NULL ; data = data->next )
+	{
+		output_debug("%s:%d.%s -- setting part '%s' = '%s'", obj->oclass->name, obj->id, propname,data->name,data->value);
+		if ( ! object_set_property_part(obj,prop,data->name,data->value) )
+			return false;
+	}
+	return true;
+}
+
 
 /** @} **/

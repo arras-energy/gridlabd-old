@@ -985,6 +985,7 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 		int trinary;
 	} compare[_TCOP_LAST]; /**< the list of comparison operators available for this type */
 	double (*get_part)(void*,char *name); /**< the function to get a part of a property */
+	int (*set_part)(void*,char *name,char *value);
 	// @todo for greater generality this should be implemented as a linked list
 } PROPERTYSPEC;
 
@@ -1023,6 +1024,7 @@ complex *get_complex_array_value(complex_array*,unsigned int n, unsigned int m);
 void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, complex *x);
 complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
 double complex_array_get_part(void *x, char *name);
+int complex_set_part(void *c, char *name, char *value);
 
 #ifdef __cplusplus
 }

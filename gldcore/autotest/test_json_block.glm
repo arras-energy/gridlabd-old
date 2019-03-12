@@ -1,7 +1,21 @@
+#set suppress_repeat_messages=FALSE
 class test {
 	enduse test;
+	randomvar var;
 }
 
 object test {
 	test {power:1; energy:0.5; };
+	var {type:normal(0,1)};
+}
+
+object test {
+	test {"power":"1";"energy":"0.5";};
+}
+object test {
+	test { power : 1 ; energy : 0.5 };
+}
+
+object test {
+	test { "power" : "1+0j" ; "energy" : "0.5" };
 }

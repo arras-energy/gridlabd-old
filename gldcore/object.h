@@ -448,9 +448,17 @@ void *object_remote_read(void *local, OBJECT *obj, PROPERTY *prop); /** access r
 void object_remote_write(void *local, OBJECT *obj, PROPERTY *prop); /** access remote object data */
 
 double object_get_part(void *x, char *name);
+int object_set_part(void *x, char *name, char *value);
 TIMESTAMP object_heartbeat(OBJECT *obj);
 
 int object_loadmethod(OBJECT *obj, char *name, char *value);
+
+typedef struct s_jsondata {
+	char *name;
+	char *value;
+	struct s_jsondata *next;
+} JSONDATA;
+bool object_set_json(OBJECT *obj, char *propname, JSONDATA *data);
 
 #ifdef __cplusplus
 }

@@ -1375,6 +1375,37 @@ double random_get_part(void *x, char *name)
 	return QNAN;
 }
 
+int random_set_part(void *x, char *name, char *value)
+{
+	// TODO
+	randomvar *v = (randomvar*)x;
+#define SCAN(X,F) if ( strcmp(name,#X)==0 ) { return sscanf(value,F,&(v->X)); }
+	SCAN(value,"%g");
+	SCAN(a,"%g");
+	SCAN(b,"%g");
+	SCAN(low,"%g");
+	SCAN(high,"%g");
+	SCAN(state,"%lu");
+	SCAN(update_rate,"%lu");
+	SCAN(flags,"%lu");
+	if ( strcmp(name,"type")==0 )
+	{
+		RANDOMTYPE type = random_type(value);
+		if ( value != RT_INVALID )
+		{
+			v->type = type;
+			return 1;
+		}
+		else
+		{
+			output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): type is not valid",x,name,value);
+			return 0;
+		}
+	}
+	output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): name is not valid",x,name,value);
+	return 0;
+}
+
 
 /** @} **/
 

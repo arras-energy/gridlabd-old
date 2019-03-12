@@ -33,7 +33,7 @@ SET_MYCONTEXT(DMC_PROPERTY)
 PROPERTYSPEC property_type[_PT_LAST] = {
 	{"void", "string", NULL, 0, 0, convert_from_void,convert_to_void},
 	{"double", "decimal", "0.0", sizeof(double), 24, convert_from_double,convert_to_double,NULL,stream_double,{TCOPS(double)},},
-	{"complex", "string", "0+0i", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,{TCOPS(double)},complex_get_part},
+	{"complex", "string", "0+0i", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,{TCOPS(double)},complex_get_part,complex_set_part},
 	{"enumeration", "string", "0", sizeof(enumeration), 1024, convert_from_enumeration,convert_to_enumeration,NULL,NULL,{TCOPS(uint64)},},
 	{"set", "string", "0", sizeof(set), 1024, convert_from_set,convert_to_set,NULL,NULL,{TCOPS(uint64)},},
 	{"int16", "integer", "0", sizeof(int16), 6, convert_from_int16,convert_to_int16,NULL,NULL,{TCOPS(uint16)},},
@@ -43,17 +43,17 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"char32", "string", "", sizeof(char32), 32, convert_from_char32,convert_to_char32,NULL,NULL,{TCOPS(string)},},
 	{"char256", "string", "", sizeof(char256), 256, convert_from_char256,convert_to_char256,NULL,NULL,{TCOPS(string)},},
 	{"char1024", "string", "", sizeof(char1024), 1024, convert_from_char1024,convert_to_char1024,NULL,NULL,{TCOPS(string)},},
-	{"object", "string", NULL, sizeof(OBJECT*), 64, convert_from_object,convert_to_object,NULL,NULL,{TCOPB(object)},object_get_part},
+	{"object", "string", NULL, sizeof(OBJECT*), 64, convert_from_object,convert_to_object,NULL,NULL,{TCOPB(object)},object_get_part,object_set_part},
 	{"delegated", "string", NULL, (unsigned int)-1, 0, convert_from_delegated, convert_to_delegated},
 	{"bool", "string", "FALSE", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,{TCOPB(bool)},},
-	{"timestamp", "string", "TS_ZERO", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,{TCOPS(uint64)},timestamp_get_part},
-	{"double_array", "string", "", sizeof(double_array), 1024, convert_from_double_array, convert_to_double_array,double_array_create,NULL,{TCNONE},double_array_get_part},
-	{"complex_array", "string", "", sizeof(complex_array), 1024, convert_from_complex_array, convert_to_complex_array,complex_array_create,NULL,{TCNONE},complex_array_get_part},
+	{"timestamp", "string", "TS_ZERO", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,{TCOPS(uint64)},timestamp_get_part,timestamp_set_part},
+	{"double_array", "string", "", sizeof(double_array), 1024, convert_from_double_array, convert_to_double_array,double_array_create,NULL,{TCNONE},double_array_get_part,NULL},
+	{"complex_array", "string", "", sizeof(complex_array), 1024, convert_from_complex_array, convert_to_complex_array,complex_array_create,NULL,{TCNONE},complex_array_get_part,NULL},
 	{"real", "decimal", "0.0", sizeof(real), 24, convert_from_real, convert_to_real},
 	{"float", "decimal", "0.0", sizeof(float), 24, convert_from_float, convert_to_float},
 	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, loadshape_create,NULL,{TCOPS(double)},},
-	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part},
-	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part},
+	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part,enduse_set_part},
+	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part},
 	{"method","string", NULL, 0, 0, convert_from_method,convert_to_method},
 };
 
@@ -401,6 +401,44 @@ double complex_get_part(void *x, char *name)
 	if ( strcmp(name,"arg")==0) return complex_get_arg(*c);
 	if ( strcmp(name,"ang")==0) return (complex_get_arg(*c)*180/PI);
 	return QNAN;
+}
+int complex_set_part(void *x, char *name, char *value)
+{
+	complex *c = (complex*)x;
+	if ( strcmp(name,"real")==0 ) { complex_set_real(*c,atof(value)); return 1; } else 
+	if ( strcmp(name,"imag")==0 ) { complex_set_imag(*c,atof(value)); return 1; } else
+	if ( strcmp(name,"mag") ==0 ) { complex_set_mag(*c,atof(value));  return 1; } else
+	if ( strcmp(name,"arg") ==0 ) { complex_set_arg(*c,atof(value));  return 1; } else
+	if ( strcmp(name,"ang") ==0 ) { complex_set_ang(*c,atof(value));  return 1; } else
+	return 0;
+}
+int complex_from_string(void *x, char *str)
+{
+	double a,b = 0.0;
+	char notation[2] = "i";
+	complex *c = (complex*)x;
+	size_t n = sscanf(str,"%g%g%1[ijdr]",&a,&b,notation);
+	if ( n == 1 || n == 3 )
+	{
+		switch (notation[0])
+		{
+			case 'i':
+			case 'j':
+				complex_set_rect(*c,a,b);
+				return 1;
+			case 'r':
+				complex_set_polar(*c,a,b);
+				return 1;
+			case 'd':
+				complex_set_polar(*c,a,b*180/PI);
+				return 1;
+			default:
+				output_debug("complex_from_string(void *x=%p, char *str='%s') notation '%s' is invalid", x,str,notation);
+				return 0;
+		}
+	}
+	output_debug("complex_from_string(void *x=%p, char *str='%s') complex parse failed (n=%d)", x,str, n);
+	return 0;
 }
 
 /*********************************************************

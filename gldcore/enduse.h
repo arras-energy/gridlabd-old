@@ -99,5 +99,6 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, char *prefix);
 int enduse_test(void);
 
 double enduse_get_part(void *c, char *name);
+int enduse_set_part(void *x, char *name, char *value);
 
 #endif

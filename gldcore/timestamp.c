@@ -1484,6 +1484,12 @@ double timestamp_get_part(void *x, char *name)
 	return QNAN;
 }
 
+int timestamp_set_part(void *x, char *name, char *value)
+{
+	// TODO
+	return 0;
+}
+
 /** Compute the absolute timestamp (removes soft/hard time distinction)
  **/
 TIMESTAMP absolute_timestamp(TIMESTAMP t)
