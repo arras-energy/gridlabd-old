@@ -6599,8 +6599,11 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 	else if (strncmp(line,MACRO "if",3)==0)
 	{
 		char var[32], op[4], *value;
-		char val[1024];
-		if (sscanf(line+4,"%[a-zA-Z_0-9]%[!<>=]%[^\n]",var,op,val)!=3)
+		char val[1024], junk[1024]="";
+		if ( ( sscanf(line+4,"%31[a-zA-Z0-9_:.] %3[!<>=] \"%1023[^\"]\" %1023[^\n]\n",var,op,val,junk) < 3
+				&& sscanf(line+4,"%31[a-zA-Z0-9_:.] %3[!<>=] '%1023[^']' %1023[^\n]\n",var,op,val,junk) < 3
+				&& sscanf(line+4,"%31[a-zA-Z_0-9_:.] %3[!<>=] %1023[^ \t\n] %1023[^\n]\n",var,op,val,junk) < 3 )
+				|| strcmp(junk,"") != 0 )
 		{
 			output_error_raw("%s(%d): %sif macro statement syntax error", filename,linenum,MACRO);
 			strcpy(line,"\n");

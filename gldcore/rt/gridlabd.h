@@ -720,7 +720,8 @@ typedef struct s_eventhandlers {
 	char *postsync;
 	char *commit;
 	char *finalize;
-} EVENTHANDLERS;struct s_object_list {
+} EVENTHANDLERS;
+struct s_object_list {
 	OBJECTNUM id; /**< object id number; globally unique */
 	CLASS *oclass; /**< object class; determine structure of object data */
 	OBJECTNAME name;

@@ -23,7 +23,7 @@
 //
  
 // connect dynamics load
-#ifdef LOADS
+#if LOADS==on
 #debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
 modify load_${LOADID}.groupid area_${AREA};
 modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
@@ -31,8 +31,7 @@ modify load_${LOADID}.constant_current_${PHASE} 0+0j;
 modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
 #define XLOAD=yes
 #else
-#ifdef MYSQL_ENABLE
-#ifdef MYSQL_AMI
+#if MYSQL_AMI==on
 object recorder {
 	parent load_${LOADID};
 	connection ami;
@@ -42,11 +41,10 @@ object recorder {
 	header_fieldnames "name";
 };
 #endif // MYSQL_AMI
-#endif // MYSQL_ENABLE
 #endif // LOADS
 
 // add solar panel installation rank
-#ifdef SOLAR
+#if SOLAR==on
 #ifndef XLOAD
 #define XLOAD=yes
 #endif // XLOAD
@@ -85,8 +83,7 @@ object triplex_meter:..${COUNT} {
 		name `house_{SEQ_CUSTID}`;
 	}; 
 #endif // LOADS
-#ifdef MYSQL_ENABLE
-#ifdef MYSQL_AMI
+#if MYSQL_AMI==on
 	object recorder {
 		connection ami;
 		table meter;
@@ -95,8 +92,7 @@ object triplex_meter:..${COUNT} {
 		header_fieldnames "name,groupid";
 	};
 #endif // MYSQL_AMI
-#endif // MYSQL_ENABLE
-#ifdef SOLAR
+#if SOLAR==on
 	object inverter {
 		name `inverter_{SEQ_CUSTID}`;
 		phases ${PHASE}S;
@@ -121,7 +117,6 @@ object triplex_meter:..${COUNT} {
 #endif // PVPROB
 			generator_mode SUPPLY_DRIVEN;
 			panel_type SINGLE_CRYSTAL_SILICON;
-#ifdef MYSQL_ENABLE
 #ifdef MYSQL_AMI
 			object recorder {
 				connection ami;
@@ -131,10 +126,8 @@ object triplex_meter:..${COUNT} {
 				header_fieldnames "name";
 			};
 #endif // MYSQL_AMI
-#endif // MYSQL_ENABLE
 		};
-#ifdef MYSQL_ENABLE
-#ifdef MYSQL_AMI
+#if MYSQL_AMI==on
 		object recorder {
 			connection ami;
 			table inverter;
@@ -143,7 +136,6 @@ object triplex_meter:..${COUNT} {
 			header_fieldnames "name";
 		};
 #endif // MYSQL_AMI
-#endif // MYSQL_ENABLE
 	};
 #endif // SOLAR
 }

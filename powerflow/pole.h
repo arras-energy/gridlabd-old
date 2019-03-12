@@ -51,7 +51,6 @@ public:
 	static CLASS *pclass;
 public:
 	enum {PT_WOOD=0, PT_STEEL=1, PT_CONCRETE=2};
-	enumeration pole_type;
 	enum {PS_OK=0, PS_FAILED=1,};
 	enumeration pole_status;
 	double tilt_angle;
