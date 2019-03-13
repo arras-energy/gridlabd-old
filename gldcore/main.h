@@ -8,9 +8,11 @@
 
 class GldMain {
 public:		// public variables
-
-public:	// private variables
 	GldGlobals globals;
+
+private:	// private variables
+	static unsigned int next_id; // next instance id
+	unsigned int id; // instance id
 
 public:		// constructor/destructor
 	GldMain(int argc = 0, char *argv[] = NULL);
@@ -31,6 +33,8 @@ private:	// private methods
 	void create_pidfile(void);
 	static void delete_pidfile(void);
 
+public: // instance accessors
+	inline pid_t get_id() { return id; }
 public:		// global methods
 	inline STATUS global_init(void) { return globals.init();};
 	inline GLOBALVAR *global_getfirst(void) { return globals.getnext(NULL);};
@@ -49,6 +53,31 @@ public:		// global methods
 	inline void remote_write(void *local, GLOBALVAR *var) { return globals.remote_write(local,var);};
 	inline size_t global_saveall(FILE *fp) { return globals.saveall(fp);};
 
+};
+
+#include <string>
+class GldException 
+{
+private:
+	std::string msg;
+public:
+	inline GldException(const char *format, ...)
+	{
+		va_list ptr;
+		va_start(ptr,format);
+		size_t size = vsnprintf(nullptr,0,format,ptr);
+		std::unique_ptr<char[]> buf( new char[ size ] );
+		vsnprintf(buf.get(),size,format,ptr);
+		va_end(ptr);
+		msg = std::string(buf.get(),buf.get()+size-1);
+	};
+	inline ~GldException(void)
+	{
+	};
+	inline const char *get_message(void)
+	{
+		return msg.c_str();
+	}
 };
 extern GldMain *my_instance; // TODO: move this into main() to make system globally reentrant
 

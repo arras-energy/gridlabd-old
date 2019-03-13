@@ -440,9 +440,9 @@ static bool copyfile(char *from, char *to)
 }
 
 /** routine to run a validation test */
-static counters run_test(char *file, double *elapsed_time=NULL)
+static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 {
-	IN_MYCONTEXT output_debug("run_test(char *file='%s') starting", file);
+	IN_MYCONTEXT output_debug("(proc %d) run_test(char *file='%s') starting", id, file);
 	counters result;
 
 	bool is_err = strstr(file,"_err.")!=NULL || strstr(file,"_err_")!=NULL;
@@ -462,7 +462,7 @@ static counters run_test(char *file, double *elapsed_time=NULL)
 	char *name = strrchr(dir,'/')+1;
 	if ( ext==NULL || strcmp(ext,".glm")!=0 ) 
 	{
-		output_error("run_test(char *file='%s'): file is not a GLM", file);
+		output_error("(proc %d) run_test(char *file='%s'): file is not a GLM", id, file);
 		return result;
 	}
 	*ext = '\0'; // remove extension from dir
@@ -470,7 +470,7 @@ static counters run_test(char *file, double *elapsed_time=NULL)
 	getcwd(cwd,sizeof(cwd));	
 	if ( clean && !destroy_dir(dir) )
 	{
-		output_error("run_test(char *file='%s'): unable to destroy test folder", dir);
+		output_error("(proc %d) run_test(char *file='%s'): unable to destroy test folder", id, dir);
 		result.inc_access(file);
 		return result;
     } else {
@@ -483,19 +483,19 @@ static counters run_test(char *file, double *elapsed_time=NULL)
 	if ( (0 != mkdir(dir,0750)) && clean )
 #endif
 	{
-		output_error("run_test(char *file='%s'): unable to create test folder", dir);
+		output_error("(proc %d) run_test(char *file='%s'): unable to create test folder", id, dir);
 		result.inc_access(file);
 		return result;
 	}
 	else
 	{
-		IN_MYCONTEXT output_debug("created test folder '%s'", dir);
+		IN_MYCONTEXT output_debug("(proc %d) created test folder '%s'", id, dir);
 	}
 	char out[1024];
 	sprintf(out,"%s/%s.glm",dir,name);
 	if ( !copyfile(file,out) )
 	{
-		output_error("run_test(char *file='%s'): unable to copy to test folder %s", file, dir);
+		output_error("(proc %d) run_test(char *file='%s'): unable to copy to test folder %s", id, file, dir);
 		result.inc_access(file);
 		return result;
 	}
@@ -520,35 +520,35 @@ static counters run_test(char *file, double *elapsed_time=NULL)
 	if ( exited )
 	{
 		code = WEXITSTATUS(code);
-		IN_MYCONTEXT output_debug("exit code %d received from %s", code, name);
+		IN_MYCONTEXT output_debug("(proc %d) exit code %d received from %s", id, code, name);
 		if ( code==XC_SIGINT ) // ctrl-c caught
 			return result;
 		else if ( is_opt ) // no expected outcome
 		{
 			if ( code==XC_SUCCESS ) 
 			{
-				IN_MYCONTEXT output_verbose("optional test %s succeeded, code %d in %.1f seconds", name, code, t);
+				IN_MYCONTEXT output_verbose("(proc %d) optional test %s succeeded, code %d in %.1f seconds", id, name, code, t);
 			}
 			else if ( code==XC_EXCEPTION )
 			{
-				output_warning("optional test %s exception, code %d in %.1f seconds", name, code, t);
+				output_warning("(proc %d) optional test %s exception, code %d in %.1f seconds", id, name, code, t);
 			}
 			else 
 			{
-				output_warning("optional test %s error, code %d in %.1f seconds", name, code, t);
+				output_warning("(proc %d) optional test %s error, code %d in %.1f seconds", id, name, code, t);
 			}
 		}
 		else if ( is_exc && code==XC_EXCEPTION ) // expected exception
 		{
-			IN_MYCONTEXT output_verbose("%s exception was expected, code %d in %.1f seconds", name, code, t);
+			IN_MYCONTEXT output_verbose("(proc %d) %s exception was expected, code %d in %.1f seconds", id, name, code, t);
 		}
 		else if ( is_err && code!=XC_SUCCESS ) // expected error
 		{
-			IN_MYCONTEXT output_verbose("%s error was expected, code %d in %.1f seconds", name, code, t);
+			IN_MYCONTEXT output_verbose("(proc %d) %s error was expected, code %d in %.1f seconds", id, name, code, t);
 		}
 		else if ( code==XC_SUCCESS ) // expected success
 		{
-			IN_MYCONTEXT output_verbose("%s success was expected, code %d in %.1f seconds", name, code, t);
+			IN_MYCONTEXT output_verbose("(proc %d) %s success was expected, code %d in %.1f seconds", id, name, code, t);
 		}
         else if ( code==XC_EXCEPTION ){ // unexpected exception
 			result.inc_exceptions(file,code,t);
@@ -564,20 +564,20 @@ static counters run_test(char *file, double *elapsed_time=NULL)
 	else // signaled
 	{
 		code = WTERMSIG(code);
-		IN_MYCONTEXT output_debug("signal %d received from %s", code, name);
+		IN_MYCONTEXT output_debug("(proc %d) signal %d received from %s", id, code, name);
 		if ( is_opt ) // no expected outcome
-			output_warning("optional test %s exception, code %d in %.1f seconds", name, code, t);
+			output_warning("(proc %d) optional test %s exception, code %d in %.1f seconds", id, name, code, t);
 		else if ( is_exc ) // expected exception
-			output_warning("%s exception expected, code %d in %.1f seconds", name, code, t);
+			output_warning("(proc %d) %s exception expected, code %d in %.1f seconds", id, name, code, t);
         else {
 			result.inc_exceptions(file,code,t);
             problem = true;
         }
 	} 
-	IN_MYCONTEXT output_debug("run_test(char *file='%s') done", file);
+	IN_MYCONTEXT output_debug("(proc %d) run_test(char *file='%s') done", id, file);
     if ( !problem && clean && !destroy_dir(dir) )
     {
-        output_error("run_test(char *file='%s'): unable to destroy test folder after the test", dir);
+        output_error("(proc %d) run_test(char *file='%s'): unable to destroy test folder after the test", id, dir);
         result.inc_access(file);
         return result;
     } else {
@@ -654,7 +654,7 @@ void *(run_test_proc)(void *arg)
 	{
 		IN_MYCONTEXT output_debug("process %d picked up '%s'", id, item->name);
 		double dt;
-		counters result = run_test(item->name,&dt);
+		counters result = run_test(item->name,id,&dt);
 		if ( result.get_nerrors()>0 ) passed=false;
 		if ( global_validateoptions&VO_RPTGLM )
 		{
@@ -854,17 +854,32 @@ int validate(int argc, char *argv[])
 		report_newtable("FILE TEST RESULTS");
 	int n_procs = global_threadcount;
 	if ( n_procs==0 ) n_procs = processor_count();
-	n_procs = MIN(final.get_tested(),(unsigned)n_procs);
+
 	pthread_t *pid = new pthread_t[n_procs];
 	IN_MYCONTEXT output_debug("starting validation with cmdargs '%s' using %d threads", validate_cmdargs, n_procs);
 	for ( i=0 ; i<n_procs ; i++ )
-		pthread_create(&pid[i],NULL,run_test_proc,(void*)i);
+	{
+		if ( pthread_create(&pid[i],NULL,run_test_proc,(void*)i) != 0 )
+		{
+			output_error("unable to create thread for process %d (%s)",i,strerror(errno));
+		}
+		else
+		{
+			IN_MYCONTEXT output_debug("process %d started ok", i);
+		}
+	}	
 	void *rc;
 	IN_MYCONTEXT output_debug("begin waiting process");
 	for ( i=0 ; i<n_procs ; i++ )
 	{
-		pthread_join(pid[i],&rc);
-		IN_MYCONTEXT output_debug("process %d done", i);
+		if ( pthread_join(pid[i],&rc) != 0 )
+		{
+			output_error("unable to create thread for process %d (%s)",i,strerror(errno));
+		}
+		else
+		{
+			IN_MYCONTEXT output_debug("process %d done", i);
+		}
 	}
 	delete [] pid;
 	final.print();

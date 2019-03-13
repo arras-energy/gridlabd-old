@@ -59,12 +59,16 @@ extern "C" int main(int argc, /**< the number entries on command-line argument l
 	if ( my_instance == NULL )
 		output_error("unable to create new instance");
 	else
+	{
 		my_instance->mainloop(argc,argv);
+	}
 }
-
+unsigned int GldMain::next_id = 0;
 GldMain::GldMain(int argc,char *argv[])
 	: globals(this)
 {
+	id = next_id++;
+
 	set_global_browser();
 
 	/* set the default timezone */

@@ -1237,7 +1237,77 @@ GldGlobals::~GldGlobals(void)
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// GldGlobalvar class implementation
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, const char *value, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', const char *value='%s', ...): create failed",instance->get_id(), name, value);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, int64 *value, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', int64 *value='%lld', ...): create failed",instance->get_id(), name, *value);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, int32 *value, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', int32 *value='%d', ...): create failed",instance->get_id(), name, *value);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, int16 *value, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', int16 *value='%hd', ...): create failed",instance->get_id(), name, *value);	
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, double *value, const char *unit, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	if ( unit )
+		spec = instance->global_create(name,value,PT_ACCESS,access,PT_UNITS,unit,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	else
+		spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', double *value='%lf', const char *unit='%s'...): create failed",instance->get_id(), name, *value, unit);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, complex *value, const char *unit, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	if ( unit )
+		spec = instance->global_create(name,value,PT_ACCESS,access,PT_UNITS,unit,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	else
+		spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', complex *value='%lf%+lfi', const char *unit='%s'...): create failed",instance->get_id(), name, value->Re(), value->Im(), unit);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, enumeration *value, KEYWORD *keys, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', enumeration *value='%llu', ...): create failed",instance->get_id(), name, (uint64)(*value));	
+	if ( keys )
+		spec->prop->keywords = keys;
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', set *value='%llu', ...): create failed",instance->get_id(), name, (uint64)(*value));	
+	if ( keys )
+		spec->prop->keywords = keys;
+}
+GldGlobalvar::~GldGlobalvar(void)
+{
+	if ( spec != NULL )
+		delete spec;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 // TODO: these functions are deprecated and need to be removed after GldMain->my_instance is removed
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 STATUS global_init(void)
 {

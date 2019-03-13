@@ -7,6 +7,8 @@
 #ifndef _GLOBALS_H
 #define _GLOBALS_H
 
+#include <assert.h>
+
 #include "version.h"
 #include "class.h"
 #include "validate.h"
@@ -421,6 +423,26 @@ GLOBAL GLMSAVEOPTIONS global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mo
 
 #ifdef __cplusplus
 class GldMain;
+
+class GldGlobalvar 
+{
+private:
+	GldMain *my_instance;
+	GLOBALVAR *spec;
+public:
+	GldGlobalvar(GldMain *instance, const char *name, const char *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, int64 *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, int32 *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, int16 *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, double *value, const char *unit = NULL, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, complex *value, const char *unit = NULL, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, enumeration *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	~GldGlobalvar(void);
+public: // accessors
+	inline void set_callback(void (*callback)(char *)) { assert(spec); spec->callback = callback;};
+};
+
 class GldGlobals 
 {
 private:

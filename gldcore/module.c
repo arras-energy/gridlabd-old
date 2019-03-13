@@ -1643,9 +1643,17 @@ void sched_update(TIMESTAMP clock, enumeration status)
 }
 int sched_isdefunct(pid_t pid)
 {
+	output_debug("checking status of pid %d",pid);
 	/* signal 0 only checks process existence */
-	if(pid != 0)
-		return kill(pid,0)==-1 && errno!=EPERM;
+	if ( pid != 0 )
+	{
+		if ( kill(pid,0) == 0 ) // process is found
+			return 0;
+		else if ( errno == EPERM ) // access denied (process therefore exists)
+			return 0;
+		else
+			return -1; // process not found or other error
+	}
 	else
 		return 0;
 }
@@ -1678,7 +1686,7 @@ void sched_clear(void)
 			if (sched_isdefunct(process_map[n].pid) )
 			{
 				sched_lock(n);
-				output_debug("module.c:sched_clear(): process_map[n].pid <- 0", n);
+				output_debug("module.c:sched_clear(): process_map[n].pid %d (proc %d) <- 0", process_map[n].pid, n);
 				process_map[n].pid = 0;
 				sched_unlock(n);
 			}
@@ -1891,13 +1899,15 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 		output_warning("unable to access current process info, err code %d--job not added to process map", err);
 		return NULL;
 	}
-#elif defined MACOSX
-	int cpu;
 #elif defined DYN_PROC_AFFINITY
 	cpu_set_t *cpuset = CPU_ALLOC(n_procs);
 #elif defined HAVE_CPU_SET_T && defined HAVE_CPU_SET_MACROS
 	cpu_set_t *cpuset = malloc(sizeof(cpu_set_t));
 	CPU_ZERO(cpuset);
+#elif defined MACOSX
+	int cpu;
+#else
+	#error "no processor allocation method available on this platform"	
 #endif
 
 	if ( n_threads==0 ) n_threads = n_procs;
@@ -1931,13 +1941,13 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 #ifdef WIN32
 		// TODO add this cpu to affinity
 		cpu = n;
-#elif defined MACOSX
-		// TODO add this cpu to affinity
-		cpu = n;
 #elif defined DYN_PROC_AFFINITY /* linux */
 		CPU_SET_S(n,CPU_ALLOC_SIZE(n_procs),cpuset);	
 #elif defined HAVE_CPU_SET_T && defined HAVE_CPU_SET_MACROS
 		CPU_SET(n,cpuset);
+#elif defined MACOSX
+		// TODO add this cpu to affinity
+		cpu = n;
 #endif
 	}
 #ifdef WIN32
@@ -1948,20 +1958,20 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 		output_error("unable to set current process affinity mask, err code %d", err);
 	}
 	CloseHandle(hProc);
-#elif defined MACOSX
-	// TODO set mp affinity
-	if ( global_threadcount==1 )
-	{
-		policy.affinity_tag = cpu;
-		if ( thread_policy_set(mach_thread_self(), THREAD_AFFINITY_POLICY, &policy, THREAD_AFFINITY_POLICY_COUNT)!=KERN_SUCCESS )
-			output_warning("unable to set thread policy: %s", strerror(errno));
-	}
 #elif defined DYN_PROC_AFFINITY
 	if (sched_setaffinity(pid,CPU_ALLOC_SIZE(n_procs),cpuset) )
 		output_warning("unable to set current process affinity mask: %s", strerror(errno));
 #elif defined HAVE_SCHED_SETAFFINITY
 	if (sched_setaffinity(pid,sizeof(cpu_set_t),cpuset) )
 		output_warning("unable to set current process affinity mask: %s", strerror(errno));
+#elif defined MACOSX
+	// TODO set mp affinity
+	//if ( global_threadcount==1 )
+	{
+		policy.affinity_tag = cpu;
+		if ( thread_policy_set(mach_thread_self(), THREAD_AFFINITY_POLICY, &policy, THREAD_AFFINITY_POLICY_COUNT)!=KERN_SUCCESS )
+			output_warning("unable to set thread policy: %s", strerror(errno));
+	}
 #endif
 	return my_proc;
 Error:
@@ -2069,6 +2079,7 @@ void sched_init(int readonly)
 #else
 	n_procs = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
+	output_debug("sched_init(): sysconf(_SC_NPROCESSORS_ONLN) = %d", n_procs);
 	mapsize = sizeof(GLDPROCINFO)*n_procs;
 
 	if(has_run == 0){
