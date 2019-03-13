@@ -4,6 +4,9 @@ ENV container docker
 ENV REPO=<<<GRIDLABD_ORIGIN>>>
 ENV BRANCH=<<<GRIDLABD_BRANCH>>>
 ENV ENABLE=<<<GRIDLABD_ENABLE>>>
+ENV GET_WEATHER=<<<GET_WEATHER>>>
+ENV KEEP_SOURCE=<<<KEEP_SOURCE>>>
+ENV ENABLE_GDB=<<<ENABLE_GDB>>>
 ENV LD_LIBRARY_PATH /usr/local/lib
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
