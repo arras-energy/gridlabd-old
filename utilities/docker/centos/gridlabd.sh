@@ -96,6 +96,7 @@ if [ -f customize -a ! -z "${ENABLE}" ]; then
 fi
 autoreconf -isf
 ./configure --enable-silent-rules --prefix=/usr/local --with-mysql=$MYSQLOPT
+git checkout "$BRANCH" 
 make install
 if [ "$BRANCH" = "master" ]
 then 
@@ -103,13 +104,15 @@ then
 fi
 
 # download weather data
-if [ -d /usr/local/share/gridlabd ]; then
-	git clone https://github.com/dchassin/weather /usr/local/src/weather
-	for state in ${WEATHER}; do
-		ln /usr/local/src/weather/US/${state}*.tmy3  /usr/local/share/gridlabd
-	done
-else
-	echo "WARNING: /usr/local/share/gridlabd not found -- no weather data downloaded" >/dev/stderr
+if [ "${GET_WEATHER:-no}" == "yes" ]; then
+	if [ -d /usr/local/share/gridlabd ]; then
+		git clone https://github.com/dchassin/weather /usr/local/src/weather
+		for state in ${WEATHER}; do
+			ln /usr/local/src/weather/US/${state}*.tmy3  /usr/local/share/gridlabd
+		done
+	else
+		echo "WARNING: /usr/local/share/gridlabd not found -- no weather data downloaded" >/dev/stderr
+	fi
 fi
 
 # daemon setup
