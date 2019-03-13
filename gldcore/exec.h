@@ -30,7 +30,7 @@ extern "C" {
 #endif
 int exec_init(void);
 STATUS exec_start(void);
-char *simtime(void);
+const char *simtime(void);
 STATUS t_setup_ranks(void);
 INDEX **exec_getranks(void);
 void exec_sleep(unsigned int usec);
@@ -61,11 +61,13 @@ const char *exec_getexitcodestr(EXITCODE);
 
 int exec_add_createscript(const char *file);
 int exec_add_initscript(const char *file);
+int exec_add_precommitscript(const char *file);
 int exec_add_syncscript(const char *file);
 int exec_add_commitscript(const char *file);
 int exec_add_termscript(const char *file);
 int exec_add_scriptexport(const char *file);
 EXITCODE exec_run_initscripts(void);
+EXITCODE exec_run_precommitscripts(void);
 EXITCODE exec_run_syncscripts(void);
 EXITCODE exec_run_commitscripts(void);
 EXITCODE exec_run_termscripts(void);
@@ -73,8 +75,36 @@ EXITCODE exec_run_termscripts(void);
 int exec_schedule_dump(TIMESTAMP interval,char *filename);
 int64 exec_clock(void);
 
+void exec_setranks(INDEX **ranks);
+
 #ifdef __cplusplus
 }
+
+class GldExec
+{
+private:
+	GldMain &instance;
+	char dumpfile[1024];
+	TIMESTAMP dumpinterval;
+	INDEX **ranks;
+	struct thread_data *thread_data;
+
+public:
+	GldExec(GldMain *main);
+	~GldExec(void);
+
+public:
+	int schedule_dump(TIMESTAMP interval, const char *filename = "gridlabd.json");
+	void run_dump(void);
+	// ranks
+	inline INDEX **getranks(void) { return ranks;};
+	void initranks(void);
+	inline void setranks(INDEX **ptr) { ranks = ptr;};
+	// threads
+	inline struct thread_data *get_thread_data(void) { return thread_data;};
+	void init_thread_data(void);
+};
+
 #endif
 
 #ifndef max

@@ -1,5 +1,6 @@
 dist_pkgdata_DATA += gldcore/tzinfo.txt
 dist_pkgdata_DATA += gldcore/unitfile.txt
+dist_pkgdata_DATA += gldcore/gridlabd.cnf
 
 GLD_SOURCES_PLACE_HOLDER = 
 GLD_SOURCES_PLACE_HOLDER += gldcore/aggregate.c
@@ -25,8 +26,7 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/environment.c
 GLD_SOURCES_PLACE_HOLDER += gldcore/environment.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/exception.c
 GLD_SOURCES_PLACE_HOLDER += gldcore/exception.h
-GLD_SOURCES_PLACE_HOLDER += gldcore/exec.c
-GLD_SOURCES_PLACE_HOLDER += gldcore/exec.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/exec.cpp gldcore/exec.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/find.c
 GLD_SOURCES_PLACE_HOLDER += gldcore/find.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/gld_sock.h

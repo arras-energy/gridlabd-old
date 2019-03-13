@@ -5,10 +5,12 @@
 #define _MAIN_H
 
 #include "globals.h"
+#include "exec.h"
 
 class GldMain {
 public:		// public variables
 	GldGlobals globals;
+	GldExec exec;
 
 private:	// private variables
 	static unsigned int next_id; // next instance id

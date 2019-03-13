@@ -452,6 +452,8 @@ TIMESTAMP object_heartbeat(OBJECT *obj);
 
 int object_loadmethod(OBJECT *obj, char *name, char *value);
 
+void object_synctime_profile_dump(char *filename);
+
 #ifdef __cplusplus
 }
 #endif
@@ -469,8 +471,6 @@ int object_loadmethod(OBJECT *obj, char *name, char *value);
 #define MYPARENT (MY->parent) /**< get the parent from the object's data structure */
 #define MYCLOCK (MY->clock) /**< get an object's own clock */
 #define MYRANK (MY->rank) /**< get an object's own rank */
-
-void object_synctime_profile_dump(char *filename);
 
 #endif
 

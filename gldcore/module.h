@@ -32,7 +32,7 @@ struct s_module_list {
 	SIMULATIONMODE (*deltaClockUpdate)(void *, double, unsigned long, SIMULATIONMODE);
 	STATUS (*postupdate)(void*,int64,unsigned int64);
 	/* clock hook*/
-	TIMESTAMP (*clockupdate)(TIMESTAMP *);
+	TIMESTAMP (*clockupdate)(TIMESTAMP);
 	int (*cmdargs)(int,char**);
 	int (*kmldump)(int(*)(const char*,...),OBJECT*);
 	void (*test)(int argc, char *argv[]);	

@@ -61,13 +61,17 @@ extern "C" int main(int argc, /**< the number entries on command-line argument l
 	else
 	{
 		my_instance->mainloop(argc,argv);
+		delete my_instance;
+		my_instance = NULL;
 	}
 }
 unsigned int GldMain::next_id = 0;
 GldMain::GldMain(int argc,char *argv[])
-	: globals(this)
+	: globals(this), exec(this)
 {
 	id = next_id++;
+	// TODO: remove this when reetrant code is done
+	my_instance = this;
 
 	set_global_browser();
 
@@ -209,6 +213,10 @@ GldMain::~GldMain(void)
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
 	IN_MYCONTEXT output_verbose("exit code %d", exec_getexitcode());
 	exit(exec_getexitcode());
+
+	// TODO: remove this when reetrant code is done
+	my_instance = NULL;
+
 	return;
 }
 

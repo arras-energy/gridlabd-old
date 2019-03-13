@@ -119,7 +119,7 @@ int link_create(char *file)
 }
 
 /* initialize modules */
-int link_initall(void)
+STATUS link_initall(void)
 {
 	IN_MYCONTEXT output_debug("link_initall(): link startup in progress...");
 	glxlink *mod;
@@ -251,12 +251,12 @@ int link_initall(void)
 		{
 			output_error("link_initall(): link startup failed");
 			link_termall();
-			return 0;
+			return FAILED;
 		}
 	}
 	IN_MYCONTEXT output_debug("link_initall(): link startup done ok");
 	atexit((void(*)(void))link_termall);
-	return 1;
+	return SUCCESS;
 }
 
 TIMESTAMP link_syncall(TIMESTAMP t0)

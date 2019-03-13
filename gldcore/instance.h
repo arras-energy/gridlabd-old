@@ -151,6 +151,10 @@ typedef struct s_instance_pickle {
 	TIMESTAMP		ts;
 } INSTANCE_PICKLE;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 STATUS messagewrapper_init(MESSAGEWRAPPER **msgwpr,	MESSAGE *msg);
 instance *instance_create(char *name);
 STATUS instance_init(instance *inst);
@@ -174,4 +178,7 @@ STATUS linkage_slave_to_master(char *buffer, linkage *lnk);
 
 void printcontent(unsigned char *data, size_t len);
 
+#ifdef __cplusplus
+}
+#endif
 #endif
