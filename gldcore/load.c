@@ -1255,9 +1255,9 @@ static int resolve_list(UNRESOLVED *item)
 #define HERE (_p+_m)
 #define OR {_m=0;}
 #define REJECT { linenum=_l; return 0; }
-//#define WHITE (_m+=white(HERE))
 #define WHITE (TERM(white(HERE)))
 #define LITERAL(X) (_mm=literal(HERE,(X)),_m+=_mm,_mm>0)
+#define PEEK(C) (_p[_m]==(C))
 #define TERM(X) (_mm=(X),_m+=_mm,_mm>0)
 #define COPY(X) {size--; (X)[_n++]=*_p++;}
 #define DONE return _n;
@@ -4041,83 +4041,91 @@ static int json_data(PARSER,JSONDATA **data)
 	char *name = NULL, *value = NULL;
 	size_t namelen = 0, valuelen = 0;
 	START;
-	for ( state = BEGIN ; state != END ; _m++ )
+	WHITE;
+	if ( PEEK('{') )
 	{
-		char c = *HERE;
-		if ( state == BEGIN )
+		for ( state = BEGIN ; state != END ; _m++ )
 		{
-			if ( isspace(c) ) { continue; }
-			if ( c == '{' ) { state = OPEN; continue; }
-			state = ERROR; break;
+			char c = *HERE;
+			if ( state == BEGIN )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == '{' ) { state = OPEN; continue; }
+				state = ERROR; break;
+			}
+			else if ( state == OPEN )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == '"' ) { name = HERE + 1; namelen = 0; state = QNAME; continue; }
+				if ( c == '}' ) { state = END; continue; }
+				name = HERE; namelen = 1; state = BNAME; continue;
+			}
+			else if ( state == BNAME )
+			{
+				if ( isspace(c) ) { state = COLON; continue; }
+				if ( c == ':' ) {state = VALUE; continue; }
+				namelen++;
+				continue;
+			}
+			else if ( state == QNAME )
+			{
+				// TODO: handle escape
+				if ( c == '"' ) { state = COLON; continue; }
+				namelen++;
+				continue;
+			}
+			else if ( state == COLON )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == ':' ) { state = VALUE; continue; }
+				state = ERROR; break;
+			}
+			else if ( state == VALUE )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == '"' ) { value = HERE+1; valuelen = 0; state = QVALUE; continue; }
+				state = BVALUE; value = HERE; valuelen = 1; continue;
+			}
+			else if ( state == BVALUE )
+			{ 
+				if ( isspace(c) ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = CLOSE; continue; }
+				if ( c == ';' || c == ',' ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = OPEN; continue; }
+				if ( c == '}' ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = END; continue; }
+				valuelen++;
+				continue;
+			}
+			else if ( state == QVALUE )
+			{
+				// TODO: handle escape
+				if ( c == '"') { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = CLOSE; continue; }
+				valuelen++;
+				continue;
+			}
+			else if ( state == CLOSE )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == ';' ) { state = OPEN; continue; }
+				if ( c == '}' ) { state = END; continue; }
+			}
+			else
+			{
+				// state is invalid
+				break;
+			}
 		}
-		else if ( state == OPEN )
+		if ( state == END ) 
 		{
-			if ( isspace(c) ) { continue; }
-			if ( c == '"' ) { name = HERE + 1; namelen = 0; state = QNAME; continue; }
-			if ( c == '}' ) { state = END; continue; }
-			name = HERE; namelen = 1; state = BNAME; continue;
+			ACCEPT;
 		}
-		else if ( state == BNAME )
+		else 
 		{
-			if ( isspace(c) ) { state = COLON; continue; }
-			if ( c == ':' ) {state = VALUE; continue; }
-			namelen++;
-			continue;
-		}
-		else if ( state == QNAME )
-		{
-			// TODO: handle escape
-			if ( c == '"' ) { state = COLON; continue; }
-			namelen++;
-			continue;
-		}
-		else if ( state == COLON )
-		{
-			if ( isspace(c) ) { continue; }
-			if ( c == ':' ) { state = VALUE; continue; }
-			state = ERROR; break;
-		}
-		else if ( state == VALUE )
-		{
-			if ( isspace(c) ) { continue; }
-			if ( c == '"' ) { value = HERE+1; valuelen = 0; state = QVALUE; continue; }
-			state = BVALUE; value = HERE; valuelen = 1; continue;
-		}
-		else if ( state == BVALUE )
-		{ 
-			if ( isspace(c) ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = CLOSE; continue; }
-			if ( c == ';' ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = OPEN; continue; }
-			if ( c == '}' ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = END; continue; }
-			valuelen++;
-			continue;
-		}
-		else if ( state == QVALUE )
-		{
-			// TODO: handle escape
-			if ( c == '"') { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = CLOSE; continue; }
-			valuelen++;
-			continue;
-		}
-		else if ( state == CLOSE )
-		{
-			if ( isspace(c) ) { continue; }
-			if ( c == ';' ) { state = OPEN; continue; }
-			if ( c == '}' ) { state = END; continue; }
-		}
-		else
-		{
-			// state is invalid
-			break;
+			output_error_raw("%s(%d): JSON parse error at or near '%20s...'",filename,linenum,HERE);
+			json_free(data);
+			REJECT;
 		}
 	}
-	if ( state == END ) 
+	else
 	{
-		ACCEPT;
-	}
-	else 
-	{
-		output_error_raw("%s(%d): JSON parse error at or near '%20s...'",filename,linenum,HERE);
-		json_free(data);
 		REJECT;
 	}
 	DONE;

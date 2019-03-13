@@ -2836,8 +2836,7 @@ double object_get_part(void *x, char *name)
 
 int object_set_part(void *x, char *name, char *value)
 {
-	// TODO
-	return false;
+	return 0;
 }
 
 
@@ -2855,7 +2854,13 @@ bool object_set_property_part(OBJECT *obj, PROPERTY *prop, char *name, char *val
 	if ( spec->set_part == NULL )
 		return false;
 	void *ptr = (void*)((char*)(obj+1)+(size_t)prop->addr);
-	return spec->set_part(ptr,name,value);
+	if ( ! spec->set_part(ptr,name,value) )
+	{
+		char tmp[64];	
+		output_error("object_set_property_part(OBJECT *obj={name:%s}, PROPERTY *prop={name:%s}, char *name='%s', char *value='%s'): set failed",object_name(obj,tmp,sizeof(tmp)),prop->name,name,value);
+		return false;
+	}
+	return true;
 }
 
 bool object_set_json(OBJECT *obj, char *propname, JSONDATA *data)

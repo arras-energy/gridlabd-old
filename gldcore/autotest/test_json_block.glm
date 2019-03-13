@@ -2,11 +2,14 @@
 class test {
 	enduse test;
 	randomvar var;
+	timestamp tval;
 }
 
 object test {
 	test {power:1; energy:0.5; };
-	var {type:normal(0,1)};
+	var {type:normal;};
+	tval "2000-01-01 00:00:00";
+	tval {year:2010; month:6; day:20; hour:8; minute:12; second:42; isdst:1; nanosecond:1000000; tzoffset:-25200};
 }
 
 object test {
