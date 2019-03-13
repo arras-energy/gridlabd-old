@@ -49,7 +49,6 @@ int pole::create(void)
 {
 	int res = node::create();
 
-	pole_type = PT_WOOD;
 	pole_status = PS_OK;
 	tilt_angle = 0.0;
 	tilt_direction = 0.0;
