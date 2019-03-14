@@ -1,0 +1,5 @@
+#!/bin/bash
+cd /tmp
+curl --no-sessionid https://raw.githubusercontent.com/dchassin/gridlabd/master/requirements > requirements
+chmod +x requirements
+./requirements install
