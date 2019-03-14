@@ -96,8 +96,8 @@ if [ -f customize -a ! -z "${ENABLE}" ]; then
 fi
 autoreconf -isf
 ./configure --enable-silent-rules --prefix=/usr/local --with-mysql=$MYSQLOPT
-git checkout "$BRANCH" 
 make install
+git checkout "$BRANCH"
 if [ "$BRANCH" = "master" ]
 then 
 	make validate 
@@ -127,7 +127,7 @@ mkdir -p /usr/local/var
 adduser -d /usr/local/var/gridlabd gridlabd
 
 # clean up
-if [ "${REMOVE_SOURCE:-no}" == "yes" ]; then
+if [ "${REMOVE_SOURCE:-yes}" == "yes" ]; then
 	echo "Cleaning up source code"
 	rm -rf /usr/local/src/*
 fi
