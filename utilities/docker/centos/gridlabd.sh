@@ -96,11 +96,13 @@ if [ -f customize -a ! -z "${ENABLE}" ]; then
 fi
 autoreconf -isf
 ./configure --enable-silent-rules --prefix=/usr/local --with-mysql=$MYSQLOPT
-make install
 git rm --cached third_party/armadillo-7.800.1.tar.gz
 git rm --cached third_party/mysql-connector-c-6.1.11-linux-glibc2.12-x86_64.tar.gz
 git rm --cached third_party/xerces-c-src_2_8_0.tar.gz
 git pull origin $BRANCH
+git reset --hard
+make install
+
 
 if [ "$BRANCH" = "master" ]
 then 
