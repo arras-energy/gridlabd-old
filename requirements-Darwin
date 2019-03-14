@@ -21,57 +21,73 @@ Commands:
 function install-Darwin ()
 {
 	brew install gnu-sed
-	sudo ln -s /usr/local/bin/gsed /usr/local/bin/sed
+	if [ ! -L /usr/local/bin/sed -o "$(readlink /usr/local/bin/sed)" != "/usr/local/bin/gsed" ]; then 
+		sudo ln -s /usr/local/bin/gsed /usr/local/bin/sed
+	fi
 	export PATH=/usr/local/bin:$PATH
 	brew install autoconf
 	brew install automake
 	brew install libtool
 	echo "${OS} ${VER} system ready"
 
+	if [ ! -d /usr/local/src ]; then
+		sudo mkdir -p /usr/local/src
+	fi
 	cd /usr/local/src
+	if [ "$PWD" != "/usr/local/src" ]; then
+		echo "ERROR: unable to cd to /usr/local/src"
+		exit 1
+	fi
+	touch .tmp-$$ 2>/dev/null
+	if [ ! -f .tmp-$$ ]; then
+		sudo chmod 777 /usr/local/src
+	else
+		rm .tmp-$$
+	fi
 	XERCES=xerces-c-3.2.0
-	if [ ! -f ${XERCES}.tar.gz ]; then
-		curl -L https://archive.apache.org/dist/xerces/c/3/sources/${XERCES}.tar.gz > ${XERCES}.tar.gz
-	fi
 	if [ ! -d ${XERCES} ]; then
-		tar xvfz ${XERCES}.tar.gz
+		if [ ! -f ${XERCES}.tar.gz ]; then
+			curl -L https://archive.apache.org/dist/xerces/c/3/sources/${XERCES}.tar.gz > ${XERCES}.tar.gz || exit 1
+		fi
+		tar xfz ${XERCES}.tar.gz || exit 1
+		rm ${XERCES}.tar.gz
 	fi
+	echo "${XERCES} download ok"
 	cd -
 
-	cd ${XERCES}
+	cd /usr/local/src/${XERCES}
 	if [ ! -f Makefile ]; then
-		./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2'
+		./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2' || exit 1
 	fi
 	make install && echo "${XERCES} installed ok"
-	cd -
 
 	cd /usr/local/src
 	MYSQL=mysql-connector-c-6.1.11-linux-glibc2.12-x86_64
-	if [ ! -f "${MYSQL}.tar.gz" ]; then
-		curl -L https://downloads.mysql.com/archives/get/file/mysql-connector-c-6.1.11-linux-glibc2.12-x86_64.tar.gz -o ${MYSQL}.tar.gz
+	if [ ! -d ${MYSQL} ]; then
+		if [ ! -f "${MYSQL}.tar.gz" ]; then
+			curl -L https://downloads.mysql.com/archives/get/file/mysql-connector-c-6.1.11-linux-glibc2.12-x86_64.tar.gz -o ${MYSQL}.tar.gz || exit 1
+		fi
+		tar xfz ${MYSQL}.tar.gz || exit 1
+		rm ${MYSQL}.tar.gz
+		sudo cp -u ${MYSQL}/bin/* /usr/local/bin || exit 1
+		sudo cp -Ru ${MYSQL}/include/* /usr/local/include || exit 1
+		sudo cp -Ru ${MYSQL}/lib/* /usr/local/lib || exit 1
 	fi
-	if [ ! -f "${MYSQL}.tar" ]; then
-		gunzip ${MYSQL}.tar.gz
-	fi
-	if [ ! -d "${MYSQL}/bin" ]; then
-		tar xf ${MYSQL}.tar
-	fi
-	cp -u ${MYSQL}/bin/* /usr/local/bin
-	cp -Ru ${MYSQL}/include/* /usr/local/include
-	cp -Ru ${MYSQL}/lib/* /usr/local/lib
-	echo "${MYSQL} installed ok"
+	echo "${MYSQL} ok"
 	cd -
 
 	cd /usr/local/src
 	if [ ! -d gridlabd ]; then
-		git clone $GITCLONE gridlabd
+		git clone $GITCLONE gridlabd || exit 1
+	else
+		( cd gridlabd ; git pull ) || exit 1
 	fi
 	cd -
 
 	cd /usr/local/src/gridlabd
-	autoreconf -isf
-	./configure --enable-silent-rules --prefix=/usr/local CFLAGS=-w CXXFLAGS=-w
-	make -j10 install
+	autoreconf -isf || exit 1
+	./configure --enable-silent-rules --prefix=/usr/local CFLAGS=-w CXXFLAGS=-w --with-xerces=/usr/local --with-mysql=/usr/local || exit 1
+	make -j10 install || exit 1
 	echo "gridlabd installed ok"
 	cd -
 }
