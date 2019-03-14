@@ -127,7 +127,7 @@ mkdir -p /usr/local/var
 adduser -d /usr/local/var/gridlabd gridlabd
 
 # clean up
-if [ "${KEEP_SOURCE:-no}" == "yes" ]; then
+if [ "${KEEP_SOURCE}" == "no" ]; then
 	echo "Cleaning up source code"
 	rm -rf /usr/local/src/*
 fi
