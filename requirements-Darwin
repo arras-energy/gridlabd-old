@@ -69,9 +69,9 @@ function install-Darwin ()
 		fi
 		tar xfz ${MYSQL}.tar.gz || exit 1
 		rm ${MYSQL}.tar.gz
-		sudo cp -u ${MYSQL}/bin/* /usr/local/bin || exit 1
-		sudo cp -Ru ${MYSQL}/include/* /usr/local/include || exit 1
-		sudo cp -Ru ${MYSQL}/lib/* /usr/local/lib || exit 1
+		sudo cp  ${MYSQL}/bin/* /usr/local/bin || exit 1
+		sudo cp -R ${MYSQL}/include/* /usr/local/include || exit 1
+		sudo cp -R ${MYSQL}/lib/* /usr/local/lib || exit 1
 	fi
 	echo "${MYSQL} ok"
 	cd -
