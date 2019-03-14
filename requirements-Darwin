@@ -20,14 +20,17 @@ Commands:
 
 function install-Darwin ()
 {
-	brew install gnu-sed
+	brew install gnu-sed > /dev/null 
 	if [ ! -L /usr/local/bin/sed -o "$(readlink /usr/local/bin/sed)" != "/usr/local/bin/gsed" ]; then 
 		sudo ln -s /usr/local/bin/gsed /usr/local/bin/sed
 	fi
 	export PATH=/usr/local/bin:$PATH
-	brew install autoconf
-	brew install automake
-	brew install libtool
+	brew install autoconf > /dev/null 
+	brew install automake > /dev/null 
+	brew install libtool > /dev/null 
+	brew install python3 > /dev/null 
+	brew install doxygen > /dev/null
+	brew cask install mactex-no-gui > /dev/null
 	echo "${OS} ${VER} system ready"
 
 	if [ ! -d /usr/local/src ]; then
@@ -57,15 +60,15 @@ function install-Darwin ()
 
 	cd /usr/local/src/${XERCES}
 	if [ ! -f Makefile ]; then
-		./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2' || exit 1
+		./configure --disable-static 'CFLAGS=-O2' 'CXXFLAGS=-O2' >/dev/null || exit 1
 	fi
-	make install && echo "${XERCES} installed ok"
+	make install > /dev/null && echo "${XERCES} installed ok"
 
 	cd /usr/local/src
-	MYSQL=mysql-connector-c-6.1.11-linux-glibc2.12-x86_64
+	MYSQL=mysql-connector-c-6.1.11-macos10.12-x86_64
 	if [ ! -d ${MYSQL} ]; then
 		if [ ! -f "${MYSQL}.tar.gz" ]; then
-			curl -L https://downloads.mysql.com/archives/get/file/mysql-connector-c-6.1.11-linux-glibc2.12-x86_64.tar.gz -o ${MYSQL}.tar.gz || exit 1
+			curl -L https://downloads.mysql.com/archives/get/file/${MYSQL}.tar.gz -o ${MYSQL}.tar.gz || exit 1
 		fi
 		tar xfz ${MYSQL}.tar.gz || exit 1
 		rm ${MYSQL}.tar.gz
@@ -77,17 +80,22 @@ function install-Darwin ()
 	cd -
 
 	cd /usr/local/src
-	if [ ! -d gridlabd ]; then
+	if [ ! -d /usr/local/src/gridlabd ]; then
 		git clone $GITCLONE gridlabd || exit 1
 	else
-		( cd gridlabd ; git pull ) || exit 1
+		( cd /usr/local/src/gridlabd ; git pull ) || exit 1
+		if [ -f gridlabd/Makefile ]; then
+			( cd /usr/local/src/gridlabd; make distclean > /dev/null  )
+		fi
 	fi
 	cd -
 
 	cd /usr/local/src/gridlabd
-	autoreconf -isf || exit 1
-	./configure --enable-silent-rules --prefix=/usr/local CFLAGS=-w CXXFLAGS=-w --with-xerces=/usr/local --with-mysql=/usr/local || exit 1
-	make -j10 install || exit 1
+	autoreconf -isf  > /dev/null || exit 1
+	export CFLAGS='-w -O3 -g -I/usr/local/include'
+	export CXXFLAGS=$CFLAGS
+	./configure --enable-silent-rules --prefix=/usr/local --with-xerces=/usr/local --with-mysql=/usr/local >/dev/null || exit 1
+	make -j10 install > /dev/null  || exit 1
 	echo "gridlabd installed ok"
 	cd -
 }
@@ -108,7 +116,7 @@ function remove-Darwin ()
 function upgrade-Darwin ()
 {
 	cd /usr/local/src/gridlabd
-	$GITPULL
+	git pull
 	make clean
 	make -j10 install
 	cd -
@@ -117,7 +125,7 @@ function upgrade-Darwin ()
 function reinstall-Darwin ()
 {
 	cd /usr/local/src/gridlabd
-	$GITPULL
+	git pull
 	make distclean
 	autoreconf -isf
 	./configure --enable-silent-rules --prefix=/usr/local CFLAGS=-w CXXFLAGS=-w
