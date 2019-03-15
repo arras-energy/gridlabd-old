@@ -282,11 +282,14 @@ static PyObject *gridlabd_exception(const char *format, ...)
 }
 
 //
-// NOTE: environ is damanged by multithreading
+// NOTE: environ is damaged by multithreading
 //
-// save and restore are necessary to preserve
+// Save and restore are necessary to preserve
 // python's environment while gridlabd makes
 // changes necessary for its operation
+//
+// However, this is not 100% effective when
+// python and gridlabd are running in parallel.
 //
 extern "C" char **environ;
 static char **saved_environ = NULL;
