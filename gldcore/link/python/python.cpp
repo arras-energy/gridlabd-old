@@ -227,8 +227,8 @@ static PyObject *this_module = NULL;
 class Callback {
     static const char *name;
 public:
-    inline Callback(const char *str) { name = str; };
-    inline ~Callback(void) { name = NULL; };
+    inline Callback(const char *str) { output_debug("entering python:%s...",str); name = str; };
+    inline ~Callback(void) { output_debug("exiting python:%s...",name); name = NULL; };
     static inline bool is_active(void) { return name==NULL; };
 };
 const char * Callback::name = NULL;
@@ -1201,23 +1201,34 @@ static PyObject *python_commit = NULL;
 static PyObject *python_term = NULL;
 extern "C" bool on_init(void)
 {
+    Callback("on_init");
+
     size_t n;
     for ( n = 0 ; n < PyList_Size(python_init) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_init,n);
-        PyObject *arg = Py_BuildValue("(i)",global_clock);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        bool retval = false; 
-        if ( result ) 
+        if ( PyCallable_Check(call) )
         {
-            retval = PyObject_IsTrue(result);
-            Py_DECREF(result);
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",global_clock);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            bool retval = false; 
+            if ( result ) 
+            {
+                retval = PyObject_IsTrue(result);
+                Py_DECREF(result);
+            }
+            if ( ! retval )
+            {
+                output_error("python on_init() failed");
+                return false;
+            }
         }
-        if ( ! retval )
+        else
         {
-            output_error("python on_init() failed");
-            return false;
+            output_warning("python on_init() is not callable");
         }
     }
     return true;
@@ -1231,111 +1242,150 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
     for ( n = 0 ; n < PyList_Size(python_precommit) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_precommit,n);
-        PyObject *arg = Py_BuildValue("(i)",t0);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        TIMESTAMP t2 = TS_INVALID; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
-            if ( PyLong_Check(result) )
-                t2 = PyLong_AsLong(result);
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            TIMESTAMP t2 = TS_INVALID; 
+            if ( result ) 
+            {
+                if ( PyLong_Check(result) )
+                    t2 = PyLong_AsLong(result);
+                else
+                    output_error("python on_precommit(%d) returned an invalid type (expected long)",t0);
+                Py_DECREF(result);
+            }
             else
-                output_error("python on_precommit(%d) returned an invalid type (expected long)",t0);
-            Py_DECREF(result);
+                output_error("python on_precommit(%d) returned nothing (expected long)",t0);
+            if ( t2 == TS_INVALID )
+                return t2;
+            else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+                t1 = t2;
         }
         else
-            output_error("python on_precommit(%d) returned nothing (expected long)",t0);
-        if ( t2 == TS_INVALID )
-            return t2;
-        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
-            t1 = t2;
+        {
+            output_warning("python on_postsync() is not callable");
+        }
     }
     return t1;
 }
 extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
 {
     Callback("on_presync");
+
     size_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_presync) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_presync,n);
-        PyObject *arg = Py_BuildValue("(i)",t0);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        TIMESTAMP t2 = TS_INVALID; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
-            if ( PyLong_Check(result) )
-                t2 = PyLong_AsLong(result);
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            TIMESTAMP t2 = TS_INVALID; 
+            if ( result ) 
+            {
+                if ( PyLong_Check(result) )
+                    t2 = PyLong_AsLong(result);
+                else
+                    output_error("python on_presync(%d) returned an invalid type (expected long)",t0);
+                Py_DECREF(result);
+            }
             else
-                output_error("python on_presync(%d) returned an invalid type (expected long)",t0);
-            Py_DECREF(result);
+                output_error("python on_presync(%d) returned nothing (expected long)",t0);
+            if ( t2 == TS_INVALID )
+                return t2;
+            else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+                t1 = t2;
         }
         else
-            output_error("python on_presync(%d) returned nothing (expected long)",t0);
-        if ( t2 == TS_INVALID )
-            return t2;
-        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
-            t1 = t2;
+        {
+            output_warning("python on_presync() is not callable");
+        }
     }
     return t1;
 }
 extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
 {
     Callback("on_sync");
+
     size_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_sync) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_sync,n);
-        PyObject *arg = Py_BuildValue("(i)",t0);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        TIMESTAMP t2 = TS_INVALID; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
-            if ( PyLong_Check(result) )
-                t2 = PyLong_AsLong(result);
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            TIMESTAMP t2 = TS_INVALID; 
+            if ( result ) 
+            {
+                if ( PyLong_Check(result) )
+                    t2 = PyLong_AsLong(result);
+                else
+                    output_error("python on_sync(%d) returned an invalid type (expected long)",t0);
+                Py_DECREF(result);
+            }
             else
-                output_error("python on_sync(%d) returned an invalid type (expected long)",t0);
-            Py_DECREF(result);
+                output_error("python on_sync(%d) returned nothing (expected long)",t0);
+            if ( t2 == TS_INVALID )
+                return t2;
+            else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+                t1 = t2;
         }
         else
-            output_error("python on_sync(%d) returned nothing (expected long)",t0);
-        if ( t2 == TS_INVALID )
-            return t2;
-        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
-            t1 = t2;
+        {
+            output_warning("python on_sync() is not callable");
+        }
     }
     return t1;
 }
 extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
 {
     Callback("on_postsync");
+
     size_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_postsync) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_postsync,n);
-        PyObject *arg = Py_BuildValue("(i)",t0);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        TIMESTAMP t2 = TS_INVALID; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
-            if ( PyLong_Check(result) )
-                t2 = PyLong_AsLong(result);
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            TIMESTAMP t2 = TS_INVALID; 
+            if ( result ) 
+            {
+                if ( PyLong_Check(result) )
+                    t2 = PyLong_AsLong(result);
+                else
+                    output_error("python on_postsync(%d) returned an invalid type (expected long)",t0);
+                Py_DECREF(result);
+            }
             else
-                output_error("python on_postsync(%d) returned an invalid type (expected long)",t0);
-            Py_DECREF(result);
+                output_error("python on_postsync(%d) returned nothing (expected long)",t0);
+            if ( t2 == TS_INVALID )
+                return t2;
+            else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+                t1 = t2;
         }
         else
-            output_error("python on_postsync(%d) returned nothing (expected long)",t0);
-        if ( t2 == TS_INVALID )
-            return t2;
-        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
-            t1 = t2;
+        {
+            output_warning("python on_postsync() is not callable");
+        }
     }
     return t1;
 }
@@ -1347,19 +1397,28 @@ extern "C" bool on_commit(TIMESTAMP t)
     for ( n = 0 ; n < PyList_Size(python_commit) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_commit,n);
-        PyObject *arg = Py_BuildValue("(i)",t);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        bool retval = false; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
-            retval = PyObject_IsTrue(result);
-            Py_DECREF(result);
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            bool retval = false; 
+            if ( result ) 
+            {
+                retval = PyObject_IsTrue(result);
+                Py_DECREF(result);
+            }
+            if ( ! retval )
+            {
+                output_error("python on_commit(%d) failed",t);
+                return false;
+            }
         }
-        if ( ! retval )
+        else
         {
-            output_error("python on_commit(%d) failed",t);
-            return false;
+            output_warning("python on_commit() is not callable");
         }
     }
     return true;
@@ -1367,18 +1426,28 @@ extern "C" bool on_commit(TIMESTAMP t)
 extern "C" void on_term(void)
 {
     Callback("on_term");
+
     size_t n;
     for ( n = 0 ; n < PyList_Size(python_term) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_term,n);
-        PyObject *arg = Py_BuildValue("(i)",global_clock);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        if ( result && result != Py_None ) 
+        if ( call && PyCallable_Check(call) )
         {
-            Py_DECREF(result);
-            output_warning("python on_term() return an unexpected type (expected None)");
-        }    
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",global_clock);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            if ( result && result != Py_None ) 
+            {
+                Py_DECREF(result);
+                output_warning("python on_term() return an unexpected type (expected None)");
+            }
+        }
+        else
+        {
+            output_warning("python on_term() is not callable");
+        }
     }
     return;
 
@@ -1494,7 +1563,10 @@ extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
     PyObject *mod = PyImport_ImportModule(file);
     if ( mod == NULL)
+    {
+        PyErr_Clear();
         return NULL;
+    }
 
     if ( ! PyModule_Check(mod) )
     {
