@@ -593,7 +593,9 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     }
     else if ( strcmp(command, "wait") == 0 )
     {
-        return PyLong_FromLong((long)gridlabd_main(NULL));
+        code = *(int*)gridlabd_main(NULL);
+        output_debug("gridlabd_main(NULL) returned code %d",code);
+        return PyLong_FromLong((long)code);
     }
     else
         return gridlabd_exception("start mode '%s' is not recognized", command);
