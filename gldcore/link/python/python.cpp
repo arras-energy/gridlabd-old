@@ -264,6 +264,10 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
     PyModule_AddObject(this_module,"STOP",PyLong_FromLong(global_stoptime));
     PyModule_AddObject(this_module,"NEVER",PyLong_FromLong(TS_NEVER));
     PyModule_AddObject(this_module,"INVALID",PyLong_FromLong(TS_INVALID));
+    PyModule_AddObject(this_module,"__title__",Py_BuildValue("s", PACKAGE_NAME));
+    char version[1024];
+    sprintf(version,"%d.%d.%d-%d (%s)",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
+    PyModule_AddObject(this_module,"__version__",Py_BuildValue("s",version));
 
     //PyModule_AddObject(this_module,"GldObject",gridlabd_class_create(&this_module));
 
