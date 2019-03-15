@@ -12,9 +12,12 @@ import sys
 assert(sys.version_info.major>2)
 
 import os
-if not os.path.exists('gldcore/build.h') :
-	raise Exception("python module must be built from project folder after the main build is completed (gldcore/build.h is missing)")
 srcdir = os.getenv('SRCDIR')
+if not srcdir :
+	raise Exception("SRCDIR environment variable was not set -- try the command 'export SRCDIR=$PWD' before running setup.py")
+
+if not os.path.exists(srcdir+'/gldcore/build.h') :
+	raise Exception("python module must be built after the main build is completed (%s/gldcore/build.h is missing)" % srcdir)
 
 try:
 	from compile_options import *
@@ -26,8 +29,6 @@ except:
 		compile_options = None
 	if not compile_options :
 		compile_options=['-w','-O3']
-if not srcdir :
-	raise Exception("SRCDIR environment variable was not set -- try the command 'export SRCDIR=$PWD' before running setup.py")
 compile_options.extend(['-I'+srcdir+'/gldcore',"-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
 
 from distutils.core import setup, Extension
