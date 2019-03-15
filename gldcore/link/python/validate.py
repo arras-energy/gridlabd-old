@@ -1,6 +1,8 @@
 import sys, os
 assert(sys.version_info.major>2)
 
+show_failure = True
+
 n_tested = 0
 n_passed = 0
 
@@ -44,27 +46,33 @@ def runtest(workdir,glmname) :
 	sys.stdout.flush()
 	owd = os.getcwd()
 	os.system("mkdir -p " + workdir)
-	os.system("cp %s/../%s %s" % (workdir,glmname,workdir))
 	os.chdir(workdir)
+	os.system("rm -f *")
+	os.system("cp ../%s ." % glmname)
 	rc = ( os.system("%s %s 1>gridlabd.out 2>&1" % (exename,glmname)) >> 8)
 	if rc == 255 :
 		print("FAIL %s exit %d" % ("/".join([workdir,glmname]),rc))
-		os.system("cat gridlabd.out")
+		if show_failure:
+			os.system("cat gridlabd.out")
 	elif not "_opt" in glmname :
 		if rc == 0 :
 			if "_err" in glmname or "_exc" in glmname :
 				print("FAIL %s exit %d" % ("/".join([workdir,glmname]),rc))
+				if show_failure:
+					os.system("cat gridlabd.out")
 			else :
-				print("PASS %s exit %d" % ("/".join([workdir,glmname]),rc))
+				#print("PASS %s exit %d" % ("/".join([workdir,glmname]),rc))
 				n_passed += 1
 		else :
 			if "_err" in glmname or "_exc" in glmname :
-				print("PASS %s exit %d" % ("/".join([workdir,glmname]),rc))
+				#print("PASS %s exit %d" % ("/".join([workdir,glmname]),rc))
 				n_passed += 1
 			else :
 				print("FAIL %s exit %d" % ("/".join([workdir,glmname]),rc))
+				if show_failure:
+					os.system("cat gridlabd.out")
 	else :
-		print("PASS %s exit %d" % ("/".join([workdir,glmname]),rc))
+		#print("PASS %s exit %d" % ("/".join([workdir,glmname]),rc))
 		n_passed += 1
 	os.chdir(owd)
 
@@ -75,6 +83,8 @@ if __name__ == '__main__':
 #	exename = "gridlabd"
 	exename = "/".join([owd,"gridlabd_python.py"])
 	os.chdir('../../..')
+	print("Validating %s, please wait..." % os.getcwd())
 	validate(os.getcwd())
 	print("Tested.... %d" % n_tested)
 	print("Passed.... %d (%f%%)" % (n_passed,n_passed/n_tested*100))
+	os.chdir(owd)
