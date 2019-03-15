@@ -1435,7 +1435,7 @@ void exec_mls_create(void)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_create(): cannot create mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_create(): cannot create mutex after it was destroyed");
 		return;
 	}
 	int rv = 0;
@@ -1460,7 +1460,7 @@ void exec_mls_init(void)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_init(): cannot init mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_init(): cannot init mutex after it was destroyed");
 		return;
 	}
 	if (mls_created == 0)
@@ -1477,12 +1477,12 @@ void exec_mls_start()
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_start(): cannot start mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_start(): cannot start mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_start(): cannot start mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_start(): cannot start mutex before it was created");
 		return;
 	}
 	int rv = 0;
@@ -1507,12 +1507,12 @@ void exec_mls_suspend(void)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex before it was created");
 		return;
 	}
 	int loopctr = 10;
@@ -1554,12 +1554,12 @@ void exec_mls_resume(TIMESTAMP ts)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_resume(): cannot resume mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_resume(): cannot resume mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_resume(): cannot resume mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_resume(): cannot resume mutex before it was created");
 		return;
 	}
 	int rv = 0;
@@ -1588,12 +1588,12 @@ void exec_mls_statewait(unsigned states)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex before it was created");
 		return;
 	}
 
@@ -1630,10 +1630,13 @@ void exec_mls_statewait(unsigned states)
 void exec_mls_done(void)
 {
 	if ( mls_destroyed )
+	{
+		output_debug("gldcore/exec.c/exec_mls_statewait(): cannot destroy mutex after it was destroyed");
 		return;
+	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_destroy(): cannot destroy mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_destroy(): cannot destroy mutex before it was created");
 		return;
 	}
 	int rv = 0;
