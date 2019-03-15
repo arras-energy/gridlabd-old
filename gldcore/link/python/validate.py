@@ -116,6 +116,6 @@ if __name__ == '__main__':
 	os.chdir(owd)
 	stop = timeit.default_timer()
 	print("Tested.... %d" % n_tested)
-	print("Failed.... %d" % n_tested-n_passed)
+	print("Failed.... %d" % (n_tested-n_passed))
 	print("Passed.... %d (%.1f%%)" % (n_passed,n_passed/n_tested*100))
-	print("Time...... %d sec" % stop-start)
+	print("Time...... %.1f sec" % (stop-start))
