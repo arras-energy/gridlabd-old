@@ -806,7 +806,7 @@ static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
         return NULL;
     char value[1024];
     ReadLock();
-    char *result = global_getvar(name,value,sizeof(value));
+    const char *result = global_getvar(name,value,sizeof(value));
     if ( result == NULL )
         return Py_None;
     else
