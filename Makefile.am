@@ -50,6 +50,7 @@ include third_party/superLU_MT/Makefile_combined.mk
 include third_party/jsonCpp/Makefile.mk
 include gldcore/link/engine/Makefile.mk
 include gldcore/link/matlab/Makefile.mk
+include gldcore/link/python/Makefile.mk
 include gldcore/Makefile.mk
 include gldcore/rt/Makefile.mk
 include gldcore/solvers/Makefile.mk
@@ -304,4 +305,10 @@ rpm-prep:
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
+
+install-exec-hook:
+	@( export SRCDIR=$(top_srcdir); python3 $(top_srcdir)/gldcore/link/python/setup.py install)
+	@if [ "`which gridlabd`" != "$(DESTDIR)$(bindir)/gridlabd" ]; then \
+		echo >&2 "***WARNING***: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
+	fi
 

@@ -62,7 +62,8 @@ static KEYWORD mls_keys[] = {
 static KEYWORD mrm_keys[] = {
 	{"STANDALONE", MRM_STANDALONE, mrm_keys+1}, /**< run is standalone */
 	{"MASTER", MRM_MASTER, mrm_keys+2}, /**< run is a master of multirun */
-	{"SLAVE", MRM_SLAVE, NULL}, /**< run is a slave of a multirun */
+	{"SLAVE", MRM_SLAVE, mrm_keys+3}, /**< run is a slave of a multirun */
+	{"LIBRARY", MRM_LIBRARY, NULL},	/**< run is a library in another system */
 };
 
 static KEYWORD mrc_keys[] = {

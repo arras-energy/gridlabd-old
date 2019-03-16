@@ -76,6 +76,10 @@ int exec_schedule_dump(TIMESTAMP interval,char *filename);
 int64 exec_clock(void);
 
 void exec_setranks(INDEX **ranks);
+void exec_rlock_sync(void);
+void exec_runlock_sync(void);
+void exec_wlock_sync(void);
+void exec_wunlock_sync(void);
 
 #ifdef __cplusplus
 }

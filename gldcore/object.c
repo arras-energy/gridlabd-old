@@ -1487,19 +1487,33 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 
 int object_event(OBJECT *obj, char *event)
 {
-	char buffer[1024];
-	sprintf(buffer,"%d",global_clock);
-	setenv("CLOCK",buffer,1);
-	sprintf(buffer,"%s",global_hostname);
-	setenv("HOSTNAME",buffer,1);
-	sprintf(buffer,"%d",global_server_portnum);
-	setenv("PORT",buffer,1);
-	if ( obj->name )	
-		sprintf(buffer,"%s",obj->name);
+	char function[1024];
+	if ( sscanf(event,"python:%s",function) ==  1 )
+	{
+#ifdef HAVE_PYTHON
+		extern int python_event(OBJECT *obj, const char *);
+		return python_event(obj,function);
+#else
+		output_error("python system not linked, event '%s' is not callable", event);
+		return -1;
+#endif
+	}
 	else
-		sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
-	setenv("OBJECT",buffer,1);
-	return system(event);
+	{
+		char buffer[1024];
+		sprintf(buffer,"%d",global_clock);
+		setenv("CLOCK",buffer,1);
+		sprintf(buffer,"%s",global_hostname);
+		setenv("HOSTNAME",buffer,1);
+		sprintf(buffer,"%d",global_server_portnum);
+		setenv("PORT",buffer,1);
+		if ( obj->name )	
+			sprintf(buffer,"%s",obj->name);
+		else
+			sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
+		setenv("OBJECT",buffer,1);
+		return system(event);
+	}
 }
 
 /** Synchronize an object.  The timestamp given is the desired increment.
@@ -1900,10 +1914,20 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 			char32 oname = "(unidentified)";
 			OBJECT *parent = obj->parent;
 			OBJECT **topological_parent = object_get_object_by_name(obj,"topological_parent");
-			if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
-				count += fprintf(fp, "object %s.%s:%d {\n", mod->name, oclass->name, obj->id);
+			if ( mod )
+			{
+				if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
+					count += fprintf(fp, "object %s.%s:%d {\n", mod->name, oclass->name, obj->id);
+				else
+					count += fprintf(fp, "object %s.%s {\n", mod->name, oclass->name);
+			}
 			else
-				count += fprintf(fp, "object %s.%s {\n", mod->name, oclass->name);
+			{
+				if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
+					count += fprintf(fp, "object %s:%d {\n", oclass->name, obj->id);
+				else
+					count += fprintf(fp, "object %s {\n", oclass->name);
+			}
 
 			/* this is an unfortunate special case arising from how the powerflow module is implemented */
 			if ( topological_parent != NULL )

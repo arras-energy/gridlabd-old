@@ -174,11 +174,9 @@ int saveglm(char *filename,FILE *fp)
 		count += global_saveall(fp);
 	}
 	count += module_saveall(fp);
+	count += class_saveall(fp);
 	if ( (global_glm_save_options&GSO_NOINTERNALS)==0 )
-	{
-		count += class_saveall(fp);
 		count += schedule_saveall(fp);
-	}
 	count += transform_saveall(fp);
 	count += object_saveall(fp);
 

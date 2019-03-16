@@ -235,11 +235,11 @@ int property_write(PROPERTY *prop, void *addr, char *string, size_t size)
 	{
 		OBJECT *obj = (OBJECT*)addr;
 		/* TODO: implement iterator */
-		output_error("gldcore/property.c:property_write(prop='%s', addr=<%s:%d>(name='%s'), string=%p, size=%u): no iterator available",
+		output_warning("gldcore/property.c:property_write(prop='%s', addr=<%s:%d>(name='%s'), string=%p, size=%u): no iterator available",
 			prop->name, obj->oclass->name, obj->id, obj->name?obj->name:"(none)", string, size);
 		/*	TROUBLESHOOT
 			Method properties require iterators to extract data. The request to extract data cannot
-			be fulfilled because using this function call. This is most likely an internal error due
+			be fulfilled using this function call. This is most likely an internal error due
 			to improper or legacy implementation.
 		 */
 		return 0;
@@ -308,7 +308,6 @@ PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, char *opstr)
 			return n;
 	return TCOP_ERR;
 }
-
 
 bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, char *part)
 {
