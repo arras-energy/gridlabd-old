@@ -15,6 +15,10 @@
 #include "exception.h"
 #include <stdio.h>
 
+/* TODO: remove these when reentrant code is completed */
+#include "main.h"
+extern GldMain *my_instance;
+
 //#define LOCKTRACE // enable this to trace locking events back to variables
 #define MAXSPIN 1000000000
 
@@ -155,12 +159,11 @@ extern "C" void rlock(unsigned int *lock)
 {
 	unsigned int timeout = MAXSPIN;
 	unsigned int value;
-	extern unsigned int rlock_count, rlock_spin;
 	check_lock(lock,false,false);
-	atomic_increment(&rlock_count);
+	atomic_increment(&my_instance->exec.rlock_count);
 	do {
 		value = (*lock);
-		atomic_increment(&rlock_spin);
+		atomic_increment(&my_instance->exec.rlock_spin);
 		if ( timeout--==0 ) 
 			throw_exception("read lock timeout");
 	} while ((value&1) || !atomic_compare_and_swap(lock, value, value + 1));
@@ -170,13 +173,11 @@ extern "C" void rlock(unsigned int *lock)
 extern "C" void wlock(unsigned int *lock)
 {
 	unsigned int timeout = MAXSPIN;
-	unsigned int value;
-	extern unsigned int wlock_count, wlock_spin;
-	check_lock(lock,true,false);
-	atomic_increment(&wlock_count);
+	unsigned int value;	check_lock(lock,true,false);
+	atomic_increment(&my_instance->exec.wlock_count);
 	do {
 		value = (*lock);
-		atomic_increment(&wlock_spin);
+		atomic_increment(&my_instance->exec.wlock_spin);
 		if ( timeout--==0 ) 
 			throw_exception("write lock timeout");
 	} while ((value&1) || !atomic_compare_and_swap(lock, value, value + 1));

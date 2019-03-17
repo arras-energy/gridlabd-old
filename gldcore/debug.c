@@ -228,10 +228,6 @@
 #define _MAX_PATH 1024
 #endif
 
-/* these are defined in exec.c */
-extern const PASSCONFIG passtype[];
-extern int iteration_counter;
-
 /* these are the signals that will trigger the debugger to start */
 int siglist[] = {SIGABRT, SIGINT, SIGFPE, SIGSEGV, SIGTERM};
 
@@ -490,9 +486,9 @@ DEBUGCMD exec_debug_cmd(struct sync_data *data, /**< the current sync status of 
 	
 	output_debug("time %s\r", convert_from_timestamp(global_clock,tmp,sizeof(tmp))?tmp:"(invalid)");
 	output_debug("pass %s, rank %d, object %s, iteration %d", 
-		passtype[pass]==PC_PRETOPDOWN?"PRETOPDOWN":(passtype[pass]==PC_BOTTOMUP?"BOTTOMUP":(passtype[pass]==PC_POSTTOPDOWN?"POSTTOPDOWN":"(invalid)")),
+		exec_get_passtype(pass)==PC_PRETOPDOWN?"PRETOPDOWN":(exec_get_passtype(pass)==PC_BOTTOMUP?"BOTTOMUP":(exec_get_passtype(pass)==PC_POSTTOPDOWN?"POSTTOPDOWN":"(invalid)")),
 		index, get_objname(obj),
-		global_iteration_limit-iteration_counter+1);
+		global_iteration_limit-exec_get_iteration_counter()+1);
 	{
 		extern void (*notify_error)(void);
 		if (notify_error != NULL)
@@ -1419,7 +1415,7 @@ int exec_debug(struct sync_data *data, /**< the current sync status of the mail 
 	}
 	else if (global_clock<=obj->out_svc)
 	{
-		this_t = object_sync(obj, global_clock, passtype[pass]);
+		this_t = object_sync(obj, global_clock, exec_get_passtype(pass));
 		if (debug_active || watch_sync) 
 		{
 			char buffer[64]="(error)";
@@ -1454,12 +1450,14 @@ int exec_debug(struct sync_data *data, /**< the current sync status of the mail 
 			data->status = FAILED; /* the debugger isn't going to handle the error so make exec handle it */
 	} else {
 		/* check for iteration limit approach */
-		if (iteration_counter == 2 && this_t == global_clock) {
+		if ( exec_get_iteration_counter() == 2 && this_t == global_clock ) 
+		{
 			char b[64];
 			output_verbose("%s: object %s iteration limit imminent",
 								simtime(), object_name(obj, b, 63));
 		}
-		else if (iteration_counter == 1 && this_t == global_clock) {
+		else if ( exec_get_iteration_counter() == 1 && this_t == global_clock ) 
+		{
 			output_error("convergence iteration limit reached for object %s (debug)", get_objname(obj));
 			/* TROUBLESHOOT
 				This indicates that the core's solver was unable to determine
