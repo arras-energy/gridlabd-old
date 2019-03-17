@@ -1305,7 +1305,7 @@ static int origin(int argc, char *argv[])
 /* CMDARG structure below                    */
 /*********************************************/
 
-static CMDARG main[] = {
+static CMDARG main_commands[] = {
 
 	/* NULL,NULL,NULL,NULL, "Section heading */
 	{NULL,NULL,NULL,NULL, "Command-line options"},
@@ -1405,10 +1405,10 @@ int cmdarg_runoption(const char *value)
 	char option[64], params[1024]="";
 	if ( (n=sscanf(value,"%63s %1023[^\n]", option,params))>0 )
 	{
-		for ( i=0 ; i<(int)(sizeof(main)/sizeof(main[0])) ; i++ )
+		for ( i=0 ; i<(int)(sizeof(main_commands)/sizeof(main_commands[0])) ; i++ )
 		{
-			if ( main[i].lopt!=NULL && strcmp(main[i].lopt,option)==0 )
-				return main[i].call(n,(void*)&params);
+			if ( main_commands[i].lopt!=NULL && strcmp(main_commands[i].lopt,option)==0 )
+				return main_commands[i].call(n,(char**)&params);
 		}
 	}
 	return 0;
@@ -1422,16 +1422,16 @@ static int help(int argc, char *argv[])
 	global_suppress_repeat_messages = 0;
 	output_message("Syntax: gridlabd [<options>] file1 [file2 [...]]");
 
-	for ( i=0 ; i<(int)(sizeof(main)/sizeof(main[0])) ; i++ )
+	for ( i=0 ; i<(int)(sizeof(main_commands)/sizeof(main_commands[0])) ; i++ )
 	{
-		CMDARG arg = main[i];
+		CMDARG arg = main_commands[i];
 		size_t len = (arg.sopt?strlen(arg.sopt):0) + (arg.lopt?strlen(arg.lopt):0) + (arg.args?strlen(arg.args):0);
 		if (len>indent) indent = len;
 	}
 
-	for ( i=0 ; i<(int)(sizeof(main)/sizeof(main[0])) ; i++ )
+	for ( i=0 ; i<(int)(sizeof(main_commands)/sizeof(main_commands[0])) ; i++ )
 	{
-		CMDARG arg = main[i];
+		CMDARG arg = main_commands[i];
 
 		/* if this entry is a heading */
 		if ( arg.lopt==NULL && arg.sopt==NULL && arg.call==NULL && arg.args==NULL)
@@ -1502,9 +1502,9 @@ STATUS cmdarg_load(int argc, /**< the number of arguments in \p argv */
 	{
 		int found = 0;
 		int i;
-		for ( i=0 ; i<(int)(sizeof(main)/sizeof(main[0])) ; i++ )
+		for ( i=0 ; i<(int)(sizeof(main_commands)/sizeof(main_commands[0])) ; i++ )
 		{
-			CMDARG arg = main[i];
+			CMDARG arg = main_commands[i];
 			char tmp[1024];
 			sprintf(tmp,"%s=",arg.lopt);
 			if ( ( arg.sopt && strncmp(*argv,"-",1)==0 && strcmp((*argv)+1,arg.sopt)==0 ) 
