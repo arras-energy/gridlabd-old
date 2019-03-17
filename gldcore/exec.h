@@ -92,17 +92,21 @@ int exec_get_passtype(int pass);
 #ifdef __cplusplus
 }
 
+// TODO: replace with C++ std list
 typedef struct s_simplelist 
 {
 	char *data;
 	struct s_simplelist *next;
 } SIMPLELIST;
+void exec_free_simplelist(SIMPLELIST *list);
 
+// TODO: replace with C++ std list
 typedef struct s_simplelinklist 
 { 
 	void *data;
 	struct s_simplelinklist *next;
 } SIMPLELINKLIST;
+void exec_free_simplelinklist(SIMPLELINKLIST *list);
 
 typedef struct s_objsyncdata 
 {
@@ -117,6 +121,12 @@ typedef struct s_objsyncdata
 	int i; // index of mutex or cond this object rank list uses 
 } OBJSYNCDATA;
 
+struct arg_data {
+	int thread;
+	void *item;
+	int incr;
+};
+
 class GldExec
 {
 private:
@@ -126,12 +136,7 @@ private:
 	INDEX **ranks;
 	struct thread_data *thread_data;
 	clock_t cstart, cend;
-	struct arg_data {
-		int thread;
-		void *item;
-		int incr;
-	};
-	struct arg_data arg_data_array[2];
+	struct arg_data *arg_data_array;
 	OBJECT **object_heartbeats;
 	unsigned int n_object_heartbeats;
 	unsigned int max_object_heartbeats;
@@ -142,6 +147,7 @@ private:
 	SIMPLELIST *sync_scripts;
 	SIMPLELIST *commit_scripts;
 	SIMPLELIST *term_scripts;
+	SIMPLELIST *script_exports;
 	pthread_mutex_t mls_svr_lock;
 	pthread_cond_t mls_svr_signal;
 	int mls_created;
@@ -156,7 +162,6 @@ private:
 	sync_data main_sync;
 	LOCKVAR sync_lock;
 	double realtime_metric_decay;
-	SIMPLELIST *script_exports;
 	unsigned int pass;
 
 public: // TODO: make private once lock.cpp is reentrant
@@ -239,6 +244,7 @@ public:
 	void runlock_sync(void);
 	void wlock_sync(void);
 	void wunlock_sync(void);
+	void create_threaddata(int nObjRankList);
 	STATUS exec_start(void);
 	STATUS test(struct sync_data *data, int pass, OBJECT *obj);
 	void *slave_node_proc(void *args);

@@ -168,7 +168,7 @@ GldExec::GldExec(GldMain *main)
 	thread_data = NULL;
 	cstart = 0;
 	cend = 0;
-	memset(arg_data_array,0,sizeof(arg_data_array));
+	arg_data_array = NULL;
 	object_heartbeats = NULL;
 	n_object_heartbeats = 0;
 	max_object_heartbeats = 0;
@@ -210,7 +210,50 @@ GldExec::GldExec(GldMain *main)
 
 GldExec::~GldExec(void)
 {
+	if ( object_heartbeats ) free(object_heartbeats);
+	exec_free_simplelinklist(commit_list[0]);
+	exec_free_simplelinklist(commit_list[1]);
+	exec_free_simplelist(create_scripts);
+	exec_free_simplelist(init_scripts);
+	exec_free_simplelist(precommit_scripts);
+	exec_free_simplelist(sync_scripts);
+	exec_free_simplelist(commit_scripts);
+	exec_free_simplelist(term_scripts);
+	exec_free_simplelist(script_exports);
+	if ( thread_data ) free(thread_data);
+	if ( arg_data_array ) free(arg_data_array);
+	if ( next_t1 ) free(next_t1);
+	if ( donecount ) free(donecount);
+	if ( n_threads ) free(n_threads);
+	if ( startlock ) free(startlock);
+	if ( donelock ) free(donelock);
+	if ( start ) free(start);
+	if ( done ) free(done);
+}
 
+void exec_free_simplelist(SIMPLELIST *list)
+{
+	SIMPLELIST *next = list->next;
+	free(list->data);
+	free(list);
+	if ( next ) exec_free_simplelist(next);
+}
+
+void exec_free_simplelinklist(SIMPLELINKLIST *list)
+{
+	SIMPLELINKLIST *next = list->next;
+	free(list);
+	if ( next ) exec_free_simplelinklist(next);
+}
+
+struct thread_data *exec_create_threaddata(size_t count)
+{
+	return (struct thread_data *)malloc(sizeof(struct thread_data)+sizeof(struct sync_data)*count);
+}
+
+struct arg_data *exec_create_argdata(size_t count)
+{
+	return (struct arg_data *)malloc(sizeof(struct arg_data)*count);
 }
 
 void exec_run_dump(void)
@@ -251,8 +294,7 @@ void exec_init_thread_data(void)
 }
 void GldExec::init_thread_data(void)
 {
-	thread_data = (struct thread_data *) malloc(sizeof(struct thread_data) +
-					  sizeof(struct sync_data) * global_threadcount);
+	thread_data = exec_create_threaddata(global_threadcount);
 }
 
 /** Set/get exit code **/
@@ -1202,6 +1244,7 @@ static MTIDATA exec_commit_set(MTIDATA to, MTIDATA from)
 MTIDATA GldExec::commit_set(MTIDATA to, MTIDATA from)
 {
 	/* allocation request */
+	// TODO: it's not clear how this malloc is freed
 	if ( to==NULL ) to = (MTIDATA)malloc(sizeof(TIMESTAMP));
 
 	/* clear request (may follow allocation request) */
@@ -2137,6 +2180,22 @@ void GldExec::wunlock_sync(void)
 	wunlock(&sync_lock);
 }
 
+void GldExec::create_threaddata(int nObjRankList)
+{
+	size_t k;
+	startlock = (pthread_mutex_t*)malloc(sizeof(startlock[0])*nObjRankList);
+	donelock = (pthread_mutex_t*)malloc(sizeof(donelock[0])*nObjRankList);
+	start = (pthread_cond_t*)malloc(sizeof(start[0])*nObjRankList);
+	done = (pthread_cond_t*)malloc(sizeof(done[0])*nObjRankList);
+	for ( k = 0 ; k < nObjRankList ; k++ ) 
+	{
+		pthread_mutex_init(&startlock[k], NULL);
+		pthread_mutex_init(&donelock[k], NULL);
+		pthread_cond_init(&start[k], NULL);
+		pthread_cond_init(&done[k], NULL);
+	}
+}
+
 /******************************************************************
  *  MAIN EXEC LOOP
  ******************************************************************/
@@ -2236,9 +2295,8 @@ STATUS GldExec::exec_start(void)
 			IN_MYCONTEXT output_verbose("using %d helper thread(s)", global_threadcount);
 		}
 
-		//sjin: allocate arg_data_array to store pthreads creation argument
-		arg_data_array = (struct arg_data *) malloc(sizeof(struct arg_data) 
-						 * global_threadcount);
+		/* allocate arg_data_array to store pthreads creation argument */
+		arg_data_array = exec_create_argdata(global_threadcount);
 
 		/* allocate thread synchronization data */
 		exec_init_thread_data();
@@ -2346,17 +2404,7 @@ STATUS GldExec::exec_start(void)
 	memset(n_threads,0,sizeof(n_threads[0])*nObjRankList);
 
 	// allocation and nitialize mutex and cond for object rank lists
-	startlock = (pthread_mutex_t*)malloc(sizeof(startlock[0])*nObjRankList);
-	donelock = (pthread_mutex_t*)malloc(sizeof(donelock[0])*nObjRankList);
-	start = (pthread_cond_t*)malloc(sizeof(start[0])*nObjRankList);
-	done = (pthread_cond_t*)malloc(sizeof(done[0])*nObjRankList);
-	for ( k = 0 ; k < nObjRankList ; k++ ) 
-	{
-		pthread_mutex_init(&startlock[k], NULL);
-		pthread_mutex_init(&donelock[k], NULL);
-		pthread_cond_init(&start[k], NULL);
-		pthread_cond_init(&done[k], NULL);
-	}
+	create_threaddata(nObjRankList);
 
 	// global test mode
 	if ( global_test_mode==TRUE )
@@ -2885,6 +2933,7 @@ STATUS GldExec::exec_start(void)
 	if ( exec_run_termscripts()!=XC_SUCCESS )
 	{
 		output_error("term script(s) failed");
+		if ( thread ) free(thread);
 		return FAILED;
 	}
 
@@ -2986,6 +3035,7 @@ STATUS GldExec::exec_start(void)
 	}
 
 	/* terminate links */
+	if ( thread ) free(thread);
 	return exec_sync_getstatus(NULL);
 }
 
@@ -3356,7 +3406,7 @@ void GldExec::slave_node()
 	static SOCKET sockfd = -1;
 	SOCKET *args[4];
 	struct sockaddr_in server_addr;
-	struct sockaddr_in *inaddr;
+	struct sockaddr_in *inaddr = NULL;
 	int inaddrsz;
 	fd_set reader_fdset, master_fdset;
 	struct timeval timer;
@@ -3435,7 +3485,7 @@ void GldExec::slave_node()
 		} 
 		else if (rct > 0)
 		{
-			inaddr = (struct sockaddr_in*)malloc(inaddrsz);
+			if ( ! inaddr ) inaddr = (struct sockaddr_in*)malloc(inaddrsz);
 			args[3] = (SOCKET *)inaddr;
 			//IN_MYCONTEXT output_debug("esn(): got client");
 			memset(inaddr, 0, inaddrsz);
@@ -3447,6 +3497,7 @@ void GldExec::slave_node()
 				perror("accept()");
 				node_done = TRUE;
 				closesocket(sockfd);
+				free(inaddr);
 				return;
 			}
 
@@ -3462,6 +3513,7 @@ void GldExec::slave_node()
 				node_done = TRUE;
 				closesocket(sockfd);
 				closesocket(*(SOCKET*)(args[2]));
+				free(inaddr);
 				return;
 			}
 			//IN_MYCONTEXT output_debug("esn(): thread created");
@@ -3471,11 +3523,13 @@ void GldExec::slave_node()
 				node_done = TRUE;
 				closesocket(sockfd);
 				closesocket(*(SOCKET*)(args[2]));
+				free(inaddr);
 				return;
 			}
 			//IN_MYCONTEXT output_debug("esn(): thread detached");
 		} // end if rct
 	} // end while
+	if ( inaddr ) free(inaddr);
 }
 
 /*************************************
