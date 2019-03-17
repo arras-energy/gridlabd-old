@@ -27,6 +27,10 @@
 
 SET_MYCONTEXT(DMC_VALIDATE)
 
+/* TODO: remove these when reentrant code is completed */
+#include "main.h"
+extern GldMain *my_instance;
+
 #ifndef MIN
 #define MIN(X,Y) ((X)<(Y)?(X):(Y))
 #endif
@@ -120,8 +124,8 @@ public:
 	};
 	void inc_access(const char *name) { IN_MYCONTEXT output_debug("%s folder access failure", name); wlock(); n_access++; wunlock(); };
 	void inc_success(const char *name, int code, double t) { output_error("%s success unexpected, code %d in %.1f seconds",name, code, t); wlock(); n_success++; wunlock(); };
-	void inc_failed(const char *name, int code, double t) { output_error("%s error unexpected, code %d (%s) in %.1f seconds",name, code, exec_getexitcodestr(code), t); wlock(); n_failed++; wunlock(); };
-	void inc_exceptions(const char *name, int code, double t) { output_error("%s exception unexpected, code %d (%s) in %.1f seconds",name, code, exec_getexitcodestr(code), t); wlock(); n_exceptions++; wunlock(); };
+	void inc_failed(const char *name, int code, double t) { output_error("%s error unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->exec.getexitcodestr(code), t); wlock(); n_failed++; wunlock(); };
+	void inc_exceptions(const char *name, int code, double t) { output_error("%s exception unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->exec.getexitcodestr(code), t); wlock(); n_exceptions++; wunlock(); };
 	void print(void) 
 	{
 		rlock();
@@ -499,7 +503,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 		result.inc_access(file);
 		return result;
 	}
-	int64 dt = exec_clock();
+	int64 dt = my_instance->exec.clock();
 	result.inc_files(file);
 	unsigned int code = vsystem("%s -W %s %s %s.glm ", 
 #ifdef WIN32
@@ -508,7 +512,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 		"gridlabd",
 #endif
 		dir,validate_cmdargs, name);
-	dt = exec_clock() - dt;
+	dt = my_instance->exec.clock() - dt;
 	double t = (double)dt/(double)CLOCKS_PER_SEC;
 	if ( elapsed_time!=NULL ) *elapsed_time = t;
 //#ifdef WIN32
@@ -883,13 +887,13 @@ int validate(int argc, char *argv[])
 	}
 	delete [] pid;
 	final.print();
-	double dt = (double)exec_clock()/(double)CLOCKS_PER_SEC;
+	double dt = (double)my_instance->exec.clock()/(double)CLOCKS_PER_SEC;
 	output_message("Total validation elapsed time: %.1f seconds", dt);
 	if ( report_fp ) output_message("See '%s/%s' for details", global_workdir, report_file);
 	if ( final.get_nerrors()==0 )
-		exec_setexitcode(XC_SUCCESS);
+		my_instance->exec.setexitcode(XC_SUCCESS);
 	else
-		exec_setexitcode(XC_TSTERR);
+		my_instance->exec.setexitcode(XC_TSTERR);
 
 	report_newtable("OVERALL RESULTS");
 

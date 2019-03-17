@@ -84,7 +84,7 @@ GldMain::GldMain(int argc,char *argv[])
 	/* set the default timezone */
 	timestamp_set_tz(NULL);
 
-	exec_clock(); /* initialize the wall clock */
+	exec.clock(); /* initialize the wall clock */
 	realtime_starttime(); /* mark start */
 	
 	/* set the process info */
@@ -110,9 +110,9 @@ GldMain::GldMain(int argc,char *argv[])
 	set_global_command_line(argc,argv);
 
 	/* main initialization */
-	if (!output_init(argc,argv) || !exec_init())
+	if (!output_init(argc,argv) || !exec.init())
 	{
-		exec_mls_done();
+		exec.mls_done();
 		return;
 	}		
 
@@ -131,7 +131,7 @@ GldMain::GldMain(int argc,char *argv[])
 			complete its startup procedure.  Correct the problem
 			with the command line and try again.
 		 */
-		exec_mls_done();
+		exec.mls_done();
 		return;
 	}
 
@@ -162,7 +162,7 @@ GldMain::GldMain(int argc,char *argv[])
 #ifdef LEGAL_NOTICE
 	if (strcmp(global_pidfile,"")==0 && legal_notice()==FAILED)
 	{
-		exec_mls_done();
+		exec.mls_done();
 		return;
 	}
 #endif
@@ -224,9 +224,9 @@ GldMain::~GldMain(void)
 
 	/* compute elapsed runtime */
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
-	IN_MYCONTEXT output_verbose("exit code %d", exec_getexitcode());
+	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
 
-	exit(exec_getexitcode());
+	exit(exec.getexitcode());
 
 	// TODO: remove this when reetrant code is done
 	my_instance = NULL;
@@ -247,8 +247,8 @@ void GldMain::mainloop(int argc, char *argv[])
 			follows a more specific message regarding the startup problem.
 			Follow the recommendation for the indicated problem.
 		 */
-		if ( exec_getexitcode()==XC_SUCCESS )
-			exec_setexitcode(XC_ENVERR);
+		if ( exec.getexitcode()==XC_SUCCESS )
+			exec.setexitcode(XC_ENVERR);
 	}
 	return;
 }

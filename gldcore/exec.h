@@ -98,7 +98,6 @@ typedef struct s_simplelist
 	char *data;
 	struct s_simplelist *next;
 } SIMPLELIST;
-void exec_free_simplelist(SIMPLELIST *list);
 
 // TODO: replace with C++ std list
 typedef struct s_simplelinklist 
@@ -106,7 +105,6 @@ typedef struct s_simplelinklist
 	void *data;
 	struct s_simplelinklist *next;
 } SIMPLELINKLIST;
-void exec_free_simplelinklist(SIMPLELINKLIST *list);
 
 typedef struct s_objsyncdata 
 {
@@ -182,6 +180,10 @@ public:
 	static STATUS show_progress(void);
 
 public:
+	void free_simplelist(SIMPLELIST *list);
+	void free_simplelinklist(SIMPLELINKLIST *list);
+	struct thread_data *create_threaddata(size_t count);
+	struct arg_data *create_argdata(size_t count);
 	int schedule_dump(TIMESTAMP interval, const char *filename = "gridlabd.json");
 	void run_dump(void);
 	// ranks
@@ -244,7 +246,7 @@ public:
 	void runlock_sync(void);
 	void wlock_sync(void);
 	void wunlock_sync(void);
-	void create_threaddata(int nObjRankList);
+	void create_lockdata(int nObjRankList);
 	STATUS exec_start(void);
 	STATUS test(struct sync_data *data, int pass, OBJECT *obj);
 	void *slave_node_proc(void *args);
