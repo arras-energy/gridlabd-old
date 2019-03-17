@@ -138,8 +138,49 @@ SET_MYCONTEXT(DMC_EXEC)
 
 /* TODO: remove these when reentrant code is completed */
 extern GldMain *my_instance;
+static MTIITEM exec_commit_get0(MTIITEM item)
+{
+	return my_instance->exec.commit_get0(item);
+}
+static MTIITEM exec_commit_get1(MTIITEM item)
+{
+	return my_instance->exec.commit_get1(item);
+}
+static void exec_commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
+{
+	my_instance->exec.commit_call(output,item,input);
+}
+static MTIDATA exec_commit_set(MTIDATA to, MTIDATA from)
+{
+	return my_instance->exec.commit_set(to,from);
+}
+static int exec_commit_compare(MTIDATA a, MTIDATA b)
+{
+	return my_instance->exec.commit_compare(a,b);
+}
+static void exec_commit_gather(MTIDATA a, MTIDATA b)
+{
+	my_instance->exec.commit_gather(a,b);
+}
+static int exec_commit_reject(MTI *mti, MTIDATA value)
+{
+	return my_instance->exec.commit_reject(mti,value);
+}
+static void *exec_obj_syncproc(void *ptr)
+{
+	OBJSYNCDATA *data = (OBJSYNCDATA*)ptr;
+	return data->main->exec.obj_syncproc(data);
+}
+void *exec_slave_node_proc(void *args)
+{
+	return my_instance->exec.slave_node_proc(args);
+}
 
-/* TODO: embed in GldExec when debug.c is reentrant */
+/* TODO: remove then debug.c is reentrant */
+const char *exec_simtime(void)
+{
+	return my_instance->exec.simtime();
+}
 int exec_get_iteration_counter(void)
 {
 	return my_instance->exec.iteration_counter;
@@ -169,6 +210,95 @@ int exec_setexitcode(int xc)
 STATUS exec_start(void)
 {
 	return my_instance->exec.exec_start();
+}
+
+/* TODO: remove when enduse.c, instance.c, loadshape.c, object.c, random.c, schedule.c, threadpool.c, and transform.c are reentrant */
+int64 exec_clock(void)
+{
+	return my_instance->exec.clock();
+}
+
+/* TODO: remove when cmex.c is reentrant */
+int exec_init()
+{
+	return my_instance->exec.init();
+}
+
+/* TODO: remove when save.c is reentrant */
+INDEX **exec_getranks(void)
+{
+	return my_instance->exec.getranks();
+}
+
+/* TODO: remove when gui.c, test.c, and load.c are reentrant */
+void exec_sleep(unsigned int usec)
+{
+	my_instance->exec.sleep(usec);
+}
+int exec_add_scriptexport(const char *name)
+{
+	return my_instance->exec.add_scriptexport(name);
+}
+int exec_add_createscript(const char *file)
+{
+	return my_instance->exec.add_createscript(file);
+}
+int exec_add_initscript(const char *file)
+{
+	return my_instance->exec.add_initscript(file);
+}
+int exec_add_syncscript(const char *file)
+{
+	return my_instance->exec.add_syncscript(file);
+}
+int exec_add_precommitscript(const char *file)
+{
+	return my_instance->exec.add_precommitscript(file);
+}
+int exec_add_commitscript(const char *file)
+{
+	return my_instance->exec.add_commitscript(file);
+}
+int exec_add_termscript(const char *file)
+{
+	return my_instance->exec.add_termscript(file);
+}
+
+/* TODO: remove when instance_slave.c is reentrant */
+void exec_mls_create(void)
+{
+	my_instance->exec.mls_create();
+}
+void exec_sync_reset(struct sync_data *d) /**< sync data to reset (NULL to reset main)  **/
+{
+	my_instance->exec.sync_reset(d);
+}
+void exec_sync_merge(struct sync_data *to, /**< sync data to merge to (NULL to update main)  **/
+					struct sync_data *from) /**< sync data to merge from */
+{
+	my_instance->exec.sync_merge(to,from);
+}
+void exec_sync_set(struct sync_data *d, /**< sync data to update (NULL to update main) */
+				  TIMESTAMP t,/**< timestamp to update with (negative time means soft event, 0 means failure) */
+				  bool deltaflag)/**< flag to let us know this was a deltamode exit - force it forward, otherwise can fail to exit */
+{
+	my_instance->exec.sync_set(d,t,deltaflag);
+}
+TIMESTAMP exec_sync_get(struct sync_data *d) /**< Sync data to get sync time from (NULL to read main)  */
+{
+	return my_instance->exec.sync_get(d);
+}
+
+/* TODO: remove when server.c is reentrant */
+void exec_mls_resume(TIMESTAMP ts)
+{
+	my_instance->exec.mls_resume(ts);
+}
+
+/* TODO: remove when cmdarg.c is reentrant */
+void exec_slave_node()
+{
+	my_instance->exec.slave_node();
 }
 
 ////////////////////////////////////////////
@@ -313,10 +443,6 @@ int GldExec::getexitcode(void)
 	return global_exit_code;
 }
 
-const char *exec_getexitcodestr(EXITCODE xc)
-{
-	return my_instance->exec.getexitcodestr(xc);
-}
 const char *GldExec::getexitcodestr(EXITCODE xc)
 {
 	switch (xc) {
@@ -339,11 +465,6 @@ const char *GldExec::getexitcodestr(EXITCODE xc)
 	}
 }
 
-/** Elapsed wallclock **/
-int64 exec_clock(void)
-{
-	return my_instance->exec.clock();
-}
 int64 GldExec::clock(void)
 {
 	static struct timeb t0;
@@ -362,10 +483,6 @@ int64 GldExec::clock(void)
 	@return 1 on success, 0 on failure
  **/
 
-int exec_init()
-{
-	return my_instance->exec.init();
-}
 int GldExec::init()
 {
 	size_t glpathlen=0;
@@ -392,18 +509,6 @@ int GldExec::init()
 	return 1;
 }
 
-INDEX **exec_getranks(void)
-{
-	return my_instance->exec.getranks();
-}
-void exec_setranks(INDEX **ranks)
-{
-	my_instance->exec.setranks(ranks);
-}
-void exec_initranks(void)
-{
-	my_instance->exec.initranks();
-}
 void GldExec::initranks(void)
 {
 	size_t sz = sizeof(passtype)/sizeof(passtype[0]);
@@ -411,10 +516,7 @@ void GldExec::initranks(void)
 	memset(passlist,0,sizeof(INDEX*)*(sz+1));
 	setranks(passlist);
 }
-STATUS setup_ranks(void)
-{
-	return my_instance->exec.setup_ranks();
-}
+
 STATUS GldExec::setup_ranks(void)
 {
 	OBJECT *obj;
@@ -458,20 +560,12 @@ STATUS GldExec::setup_ranks(void)
 	return SUCCESS;
 }
 
-const char *simtime(void)
-{
-	return my_instance->exec.simtime();
-}
 const char *GldExec::simtime(void)
 {
 	static char buffer[64];
 	return convert_from_timestamp(global_clock,buffer,sizeof(buffer))>0?buffer:"(invalid)";
 }
 
-static STATUS show_progress(void)
-{
-	return my_instance->exec.show_progress();
-}
 STATUS GldExec::show_progress(void)
 {
 	extern GUIACTIONSTATUS wait_status;
@@ -483,11 +577,6 @@ STATUS GldExec::show_progress(void)
 
 /***********************************************************************/
 /* CHECKPOINTS (DPC Apr 2011) */
-
-static void do_checkpoint(void)
-{
-	my_instance->exec.do_checkpoint();
-}
 void GldExec::do_checkpoint(void)
 {
 	/* last checkpoint value */
@@ -576,11 +665,7 @@ void GldExec::do_checkpoint(void)
 }
 
 /***********************************************************************/
-//sjin: implement new ss_do_object_sync for pthreads
-static void ss_do_object_sync(int thread, void *item)
-{
-	return my_instance->exec.ss_do_object_sync(thread,item);
-}
+// implement new ss_do_object_sync for pthreads
 void GldExec::ss_do_object_sync(int thread, void *item)
 {
 	struct thread_data *thread_data = get_thread_data();
@@ -704,11 +789,7 @@ void GldExec::ss_do_object_sync(int thread, void *item)
 	}
 }
 
-//sjin: implement new ss_do_object_sync_list for pthreads
-static void *ss_do_object_sync_list(void *threadarg)
-{
-	return my_instance->exec.ss_do_object_sync_list(threadarg);
-}
+// implement new ss_do_object_sync_list for pthreads
 void *GldExec::ss_do_object_sync_list(void *threadarg)
 {
 	LISTITEM *ptr;
@@ -729,10 +810,6 @@ void *GldExec::ss_do_object_sync_list(void *threadarg)
 	return NULL;
 }
 
-STATUS init_by_creation(void)
-{
-	return my_instance->exec.init_by_creation();
-}
 STATUS GldExec::init_by_creation(void)
 {
 	OBJECT *obj;
@@ -781,10 +858,6 @@ STATUS GldExec::init_by_creation(void)
 	return rv;
 }
 
-static STATUS init_by_deferral_retry(OBJECT **def_array, int def_ct)
-{
-	return my_instance->exec.init_by_deferral_retry(def_array,def_ct);
-}
 STATUS GldExec::init_by_deferral_retry(OBJECT **def_array, int def_ct)
 {
 	OBJECT *obj;
@@ -902,10 +975,6 @@ STATUS GldExec::init_by_deferral_retry(OBJECT **def_array, int def_ct)
 	return rv;
 }
 
-static STATUS init_by_deferral()
-{
-	return my_instance->exec.init_by_deferral();
-}
 STATUS GldExec::init_by_deferral()
 {
 	OBJECT **def_array = 0;
@@ -992,10 +1061,6 @@ STATUS GldExec::init_by_deferral()
 	return SUCCESS;
 }
 
-extern "C" STATUS init_all(void)
-{
-	return my_instance->exec.init_all();
-}
 STATUS GldExec::init_all(void)
 {
 	OBJECT *obj;
@@ -1083,10 +1148,6 @@ STATUS GldExec::init_all(void)
 /**************************************************************************
  ** PRECOMMIT ITERATOR
  **************************************************************************/
-static STATUS precommit_all(TIMESTAMP t0)
-{
-	return my_instance->exec.precommit_all(t0);
-}
 STATUS GldExec::precommit_all(TIMESTAMP t0)
 {
 	STATUS rv=SUCCESS;
@@ -1158,10 +1219,6 @@ STATUS GldExec::precommit_all(TIMESTAMP t0)
  ** COMMIT ITERATOR
  **************************************************************************/
 /* initialize commit_list - must be called only once */
-static int exec_commit_init(void)
-{
-	return my_instance->exec.commit_init();
-}
 int GldExec::commit_init(void)
 {
 	int n_commits = 0;
@@ -1187,20 +1244,12 @@ int GldExec::commit_init(void)
 	return n_commits;
 }
 /* commit_list iterator */
-static MTIITEM exec_commit_get0(MTIITEM item)
-{
-	return my_instance->exec.commit_get0(item);
-}
 MTIITEM GldExec::commit_get0(MTIITEM item)
 {
 	if ( item==NULL )
 		return (MTIITEM)commit_list[0];
 	else
 		return (MTIITEM)(((SIMPLELINKLIST*)item)->next);
-}
-static MTIITEM exec_commit_get1(MTIITEM item)
-{
-	return my_instance->exec.commit_get1(item);
 }
 MTIITEM GldExec::commit_get1(MTIITEM item)
 {
@@ -1210,10 +1259,6 @@ MTIITEM GldExec::commit_get1(MTIITEM item)
 		return (MTIITEM)(((SIMPLELINKLIST*)item)->next);
 }
 /* commit function call */
-static void exec_commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
-{
-	my_instance->exec.commit_call(output,item,input);
-}
 void GldExec::commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
 {
 	OBJECT *obj = (OBJECT*)(((SIMPLELINKLIST*)item)->data);
@@ -1229,10 +1274,6 @@ void GldExec::commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
 		*t2 = TS_NEVER;
 }
 /* commit data set accessor */
-static MTIDATA exec_commit_set(MTIDATA to, MTIDATA from)
-{
-	return my_instance->exec.commit_set(to,from);
-}
 MTIDATA GldExec::commit_set(MTIDATA to, MTIDATA from)
 {
 	/* allocation request */
@@ -1248,10 +1289,6 @@ MTIDATA GldExec::commit_set(MTIDATA to, MTIDATA from)
 	return to;
 }
 /* commit data compare accessor */
-static int exec_commit_compare(MTIDATA a, MTIDATA b)
-{
-	return my_instance->exec.commit_compare(a,b);
-}
 int GldExec::commit_compare(MTIDATA a, MTIDATA b)
 {
 	TIMESTAMP t0 = (a?*(TIMESTAMP*)a:TS_NEVER);
@@ -1261,10 +1298,6 @@ int GldExec::commit_compare(MTIDATA a, MTIDATA b)
 	return 0;
 }
 /* commit data gather accessor */
-static void exec_commit_gather(MTIDATA a, MTIDATA b)
-{
-	my_instance->exec.commit_gather(a,b);
-}
 void GldExec::commit_gather(MTIDATA a, MTIDATA b)
 {
 	TIMESTAMP *t0 = (TIMESTAMP*)a;
@@ -1273,10 +1306,6 @@ void GldExec::commit_gather(MTIDATA a, MTIDATA b)
 	if ( *t1<*t0 ) *t0 = *t1;
 }
 /* commit iterator reject test */
-static int exec_commit_reject(MTI *mti, MTIDATA value)
-{
-	return my_instance->exec.commit_reject(mti,value);
-}
 int GldExec::commit_reject(MTI *mti, MTIDATA value)
 {
 	TIMESTAMP *t1 = (TIMESTAMP*)value;
@@ -1285,10 +1314,6 @@ int GldExec::commit_reject(MTI *mti, MTIDATA value)
 	return ( *t2>*t1 && *t2<TS_NEVER ) ? 1 : 0;
 }
 /* single threaded version of commit_all */
-static TIMESTAMP exec_commit_all_st(TIMESTAMP t0, TIMESTAMP t2)
-{
-	return my_instance->exec.commit_all_st(t0,t2);
-}
 TIMESTAMP GldExec::commit_all_st(TIMESTAMP t0, TIMESTAMP t2)
 {
 	TIMESTAMP result = TS_NEVER;
@@ -1327,10 +1352,6 @@ TIMESTAMP GldExec::commit_all_st(TIMESTAMP t0, TIMESTAMP t2)
 	return result;
 }
 /* multi-threaded version of commit_all */
-static TIMESTAMP exec_commit_all(TIMESTAMP t0, TIMESTAMP t2)
-{
-	return my_instance->exec.commit_all(t0,t2);
-}
 TIMESTAMP GldExec::commit_all(TIMESTAMP t0, TIMESTAMP t2)
 {
 	static int n_commits = -1;
@@ -1398,10 +1419,6 @@ TIMESTAMP GldExec::commit_all(TIMESTAMP t0, TIMESTAMP t2)
 /**************************************************************************
  ** FINALIZE ITERATOR
  **************************************************************************/
-static STATUS exec_finalize_all()
-{
-	return my_instance->exec.finalize_all();
-}
 STATUS GldExec::finalize_all()
 {
 	STATUS rv=SUCCESS;
@@ -1466,16 +1483,6 @@ STATUS GldExec::finalize_all()
 	return rv;
 }
 
-STATUS exec_test(struct sync_data *data, int pass, OBJECT *obj);
- 
-STATUS t_setup_ranks(void)
-{
-	return my_instance->exec.setup_ranks();
-}
-STATUS t_sync_all(PASSCONFIG pass)
-{
-	return my_instance->exec.t_sync_all(pass);
-}
 STATUS GldExec::t_sync_all(PASSCONFIG pass)
 {
 	struct sync_data sync = {TS_NEVER,0,SUCCESS};
@@ -1515,10 +1522,6 @@ STATUS GldExec::t_sync_all(PASSCONFIG pass)
 	return SUCCESS;
 }
 
-TIMESTAMP sync_heartbeats(void)
-{
-	return my_instance->exec.sync_heartbeats();
-}
 TIMESTAMP GldExec::sync_heartbeats(void)
 {
 	TIMESTAMP t1 = TS_NEVER;
@@ -1534,10 +1537,6 @@ TIMESTAMP GldExec::sync_heartbeats(void)
 }
 
 /* this function synchronizes all internal behaviors */
-TIMESTAMP syncall_internals(TIMESTAMP t1)
-{
-	return my_instance->exec.syncall_internals(t1);
-}
 TIMESTAMP GldExec::syncall_internals(TIMESTAMP t1)
 {
 	TIMESTAMP h1, h2, s1, s2, s3, s4, s5, s6, se, sa;
@@ -1573,10 +1572,6 @@ TIMESTAMP GldExec::syncall_internals(TIMESTAMP t1)
 	return sa;
 }
 
-void exec_sleep(unsigned int usec)
-{
-	my_instance->exec.sleep(usec);
-}
 void GldExec::sleep(unsigned int usec)
 {
 #ifdef WIN32
@@ -1586,11 +1581,6 @@ void GldExec::sleep(unsigned int usec)
 #endif
 }
 
-static void *exec_obj_syncproc(void *ptr)
-{
-	OBJSYNCDATA *data = (OBJSYNCDATA*)ptr;
-	return data->main->exec.obj_syncproc(data);
-}
 void *GldExec::obj_syncproc(OBJSYNCDATA *data)
 {
 	LISTITEM *s;
@@ -1635,11 +1625,6 @@ void *GldExec::obj_syncproc(OBJSYNCDATA *data)
 }
 
 /** MAIN LOOP CONTROL ******************************************************************/
-
-void exec_mls_create(void)
-{
-	my_instance->exec.mls_create();
-}
 void GldExec::mls_create(void)
 {
 	if ( mls_destroyed )
@@ -1665,10 +1650,6 @@ void GldExec::mls_create(void)
 	}
 }
 
-void exec_mls_init(void)
-{
-	my_instance->exec.mls_init();
-}
 void GldExec::mls_init(void)
 {
 	if ( mls_destroyed )
@@ -1686,10 +1667,6 @@ void GldExec::mls_init(void)
 		sched_update(global_clock,global_mainloopstate);
 }
 
-void exec_mls_start()
-{
-	my_instance->exec.mls_start();
-}
 void GldExec::mls_start()
 {
 	if ( mls_destroyed )
@@ -1720,10 +1697,7 @@ void GldExec::mls_start()
 		output_error("gldcore/exec.c/GldExec::mls_start(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
 	}
 }
-void exec_mls_suspend(void)
-{
-	my_instance->exec.mls_suspend();
-}
+
 void GldExec::mls_suspend(void)
 {
 	if ( mls_destroyed )
@@ -1771,10 +1745,6 @@ void GldExec::mls_suspend(void)
 	}
 }
 
-void exec_mls_resume(TIMESTAMP ts)
-{
-	my_instance->exec.mls_resume(ts);
-}
 void GldExec::mls_resume(TIMESTAMP ts)
 {
 	if ( mls_destroyed )
@@ -1809,10 +1779,6 @@ void GldExec::mls_resume(TIMESTAMP ts)
 	}
 }
 
-void exec_mls_statewait(unsigned states)
-{
-	my_instance->exec.mls_statewait(states);
-}
 void GldExec::mls_statewait(unsigned states)
 {
 	if ( mls_destroyed )
@@ -1856,10 +1822,6 @@ void GldExec::mls_statewait(unsigned states)
 	}
 }
 
-void exec_mls_done(void)
-{
-	return my_instance->exec.mls_done();
-}
 void GldExec::mls_done(void)
 {
 	if ( mls_destroyed )
@@ -1909,10 +1871,6 @@ void GldExec::mls_done(void)
 	which usually means the simulation stops at
 	steady state.
  **/
-void exec_sync_reset(struct sync_data *d) /**< sync data to reset (NULL to reset main)  **/
-{
-	my_instance->exec.sync_reset(d);
-}
 void GldExec::sync_reset(struct sync_data *d)
 {
 	if ( d==NULL ) d=&main_sync;
@@ -1930,15 +1888,10 @@ void GldExec::sync_reset(struct sync_data *d)
 	set to \p TS_INVALID.  If the time of \p from
 	is \p TS_NEVER, then \p to is not updated.  In
 	all other cases, the \p to sync time is updated
-	with #exec_sync_set.
+	with #sync_set.
 
-	@see #exec_sync_set
+	@see #sync_set
  **/
-void exec_sync_merge(struct sync_data *to, /**< sync data to merge to (NULL to update main)  **/
-					struct sync_data *from) /**< sync data to merge from */
-{
-	my_instance->exec.sync_merge(to,from);
-}
 void GldExec::sync_merge(struct sync_data *to, /**< sync data to merge to (NULL to update main)  **/
 					struct sync_data *from) /**< sync data to merge from */
 {
@@ -1967,12 +1920,6 @@ void GldExec::sync_merge(struct sync_data *to, /**< sync data to merge to (NULL 
 	Otherwise, if the event is soft, then if the time is earlier it is posted.
 	Otherwise, the event status is changed to FAILED.
  **/
-void exec_sync_set(struct sync_data *d, /**< sync data to update (NULL to update main) */
-				  TIMESTAMP t,/**< timestamp to update with (negative time means soft event, 0 means failure) */
-				  bool deltaflag)/**< flag to let us know this was a deltamode exit - force it forward, otherwise can fail to exit */
-{
-	my_instance->exec.sync_set(d,t,deltaflag);
-}
 void GldExec::sync_set(struct sync_data *d, /**< sync data to update (NULL to update main) */
 				  TIMESTAMP t,/**< timestamp to update with (negative time means soft event, 0 means failure) */
 				  bool deltaflag)/**< flag to let us know this was a deltamode exit - force it forward, otherwise can fail to exit */
@@ -2024,10 +1971,6 @@ void GldExec::sync_set(struct sync_data *d, /**< sync data to update (NULL to up
 /** Get the current sync time
 	@return the proper (positive) event sync time, TS_NEVER, or TS_INVALID.
  **/
-TIMESTAMP exec_sync_get(struct sync_data *d) /**< Sync data to get sync time from (NULL to read main)  */
-{
-	return my_instance->exec.sync_get(d);
-}
 TIMESTAMP GldExec::sync_get(struct sync_data *d) /**< Sync data to get sync time from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
@@ -2038,10 +1981,6 @@ TIMESTAMP GldExec::sync_get(struct sync_data *d) /**< Sync data to get sync time
 /** Get the current hard event count 
 	@return the number of hard events associated with this sync event.
  **/
-unsigned int exec_sync_getevents(struct sync_data *d) /**< Sync data to get sync events from (NULL to read main)  */
-{
-	return my_instance->exec.sync_getevents(d);
-}
 unsigned int GldExec::sync_getevents(struct sync_data *d) /**< Sync data to get sync events from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
@@ -2050,10 +1989,6 @@ unsigned int GldExec::sync_getevents(struct sync_data *d) /**< Sync data to get 
 /** Determine whether the current sync data is a hard sync
 	@return non-zero if the event is a hard event, 0 if the event is a soft event
  **/
-int exec_sync_ishard(struct sync_data *d) /**< Sync data to read hard sync status from (NULL to read main)  */
-{
-	return my_instance->exec.sync_ishard(d);
-}
 int GldExec::sync_ishard(struct sync_data *d) /**< Sync data to read hard sync status from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
@@ -2062,10 +1997,6 @@ int GldExec::sync_ishard(struct sync_data *d) /**< Sync data to read hard sync s
 /** Determine whether the current sync data time is never 
 	@return non-zero if the event is NEVER, 0 otherwise
  **/
-int exec_sync_isnever(struct sync_data *d) /**< Sync data to read never sync status from (NULL to read main)  */
-{
-	return my_instance->exec.sync_isnever(d);
-}
 int GldExec::sync_isnever(struct sync_data *d) /**< Sync data to read never sync status from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
@@ -2074,10 +2005,6 @@ int GldExec::sync_isnever(struct sync_data *d) /**< Sync data to read never sync
 /** Determine whether the currenet sync time is invalid (NULL to read main)
     @return non-zero if the status if FAILED, 0 otherwise
  **/
-int exec_sync_isinvalid(struct sync_data *d) /**< Sync data to read invalid sync status from */
-{
-	return my_instance->exec.sync_isinvalid(d);
-}
 int GldExec::sync_isinvalid(struct sync_data *d) /**< Sync data to read invalid sync status from */
 {
 	if ( d==NULL ) d=&main_sync;
@@ -2086,10 +2013,6 @@ int GldExec::sync_isinvalid(struct sync_data *d) /**< Sync data to read invalid 
 /** Determine the current sync status
 	@return the event status (SUCCESS or FAILED)
  **/
-STATUS exec_sync_getstatus(struct sync_data *d) /**< Sync data to read sync status from (NULL to read main)  */
-{
-	return my_instance->exec.sync_getstatus(d);
-}
 STATUS GldExec::sync_getstatus(struct sync_data *d) /**< Sync data to read sync status from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
@@ -2098,19 +2021,11 @@ STATUS GldExec::sync_getstatus(struct sync_data *d) /**< Sync data to read sync 
 /** Determine whether sync time is a running simulation
     @return true if the simulation should keep going, false if it should stop
  **/
-bool exec_sync_isrunning(struct sync_data *d)
-{
-	return my_instance->exec.sync_isrunning(d);
-}
 bool GldExec::sync_isrunning(struct sync_data *d)
 {
 	return sync_get(d)<=global_stoptime && !sync_isnever(d) && sync_ishard(d);
 }
 
-void exec_clock_update_modules()
-{
-	my_instance->exec.clock_update_modules();
-}
 void GldExec::clock_update_modules()
 {
 	TIMESTAMP t1 = sync_get(NULL);
@@ -2136,37 +2051,21 @@ void GldExec::clock_update_modules()
 }
 
 /** Main loop sync lock control **/
-void exec_rlock_sync(void)
-{
-	my_instance->exec.rlock_sync();
-}
 void GldExec::rlock_sync(void)
 {
 	rlock(&sync_lock);
 }
 
-void exec_runlock_sync(void)
-{
-	my_instance->exec.runlock_sync();
-}
 void GldExec::runlock_sync(void)
 {
 	runlock(&sync_lock);
 }
 
-void exec_wlock_sync(void)
-{
-	my_instance->exec.wlock_sync();
-}
 void GldExec::wlock_sync(void)
 {
 	wlock(&sync_lock);
 }
 
-void exec_wunlock_sync(void)
-{
-	my_instance->exec.wunlock_sync();
-}
 void GldExec::wunlock_sync(void)
 {
 	wunlock(&sync_lock);
@@ -2478,54 +2377,50 @@ STATUS GldExec::exec_start(void)
 			/* operate delta mode if necessary (but only when event mode is active, e.g., not right after init) */
 			/* note that delta mode cannot be supported for realtime simulation */
 			global_deltaclock = 0;
-//			if ( global_run_realtime==0 )
-			{
-				/* determine whether any modules seek delta mode */
-				DELTAMODEFLAGS flags=DMF_NONE;
-				DT delta_dt = delta_modedesired(&flags);
-				TIMESTAMP t = TS_NEVER;
-				IN_MYCONTEXT output_debug("delta_dt is %d", (int)delta_dt);
-				switch ( delta_dt ) {
-				case DT_INFINITY: /* no dt -> event mode */
-					global_simulation_mode = SM_EVENT;
-					t = TS_NEVER;
-					break; 
-				case DT_INVALID: /* error dt  */
+
+			/* determine whether any modules seek delta mode */
+			DELTAMODEFLAGS flags=DMF_NONE;
+			DT delta_dt = delta_modedesired(&flags);
+			TIMESTAMP t = TS_NEVER;
+			IN_MYCONTEXT output_debug("delta_dt is %d", (int)delta_dt);
+			switch ( delta_dt ) {
+			case DT_INFINITY: /* no dt -> event mode */
+				global_simulation_mode = SM_EVENT;
+				t = TS_NEVER;
+				break; 
+			case DT_INVALID: /* error dt  */
+				global_simulation_mode = SM_ERROR;
+				t = TS_INVALID;
+				break; /* simulation mode error */
+			default: /* valid dt */
+				if ( global_minimum_timestep>1 )
+				{
 					global_simulation_mode = SM_ERROR;
+					output_error("minimum_timestep must be 1 second to operate in deltamode");
 					t = TS_INVALID;
-					break; /* simulation mode error */
-				default: /* valid dt */
-					if ( global_minimum_timestep>1 )
-					{
-						global_simulation_mode = SM_ERROR;
-						output_error("minimum_timestep must be 1 second to operate in deltamode");
-						t = TS_INVALID;
-						break;
-					}
-					else
-					{
-						if (delta_dt==0)	/* Delta mode now */
-						{
-							global_simulation_mode = SM_DELTA;
-							t = global_clock;
-						}
-						else	/* Normal sync - get us to delta point */
-						{
-							global_simulation_mode = SM_EVENT;
-							t = global_clock + delta_dt;
-						}
-					}
 					break;
 				}
-				if ( global_simulation_mode==SM_ERROR )
+				else
 				{
-					output_error("a simulation mode error has occurred");
-					break; /* terminate main loop immediately */
+					if (delta_dt==0)	/* Delta mode now */
+					{
+						global_simulation_mode = SM_DELTA;
+						t = global_clock;
+					}
+					else	/* Normal sync - get us to delta point */
+					{
+						global_simulation_mode = SM_EVENT;
+						t = global_clock + delta_dt;
+					}
 				}
-				sync_set(NULL,t,false);
+				break;
 			}
-//			else
-//				global_simulation_mode = SM_EVENT;
+			if ( global_simulation_mode==SM_ERROR )
+			{
+				output_error("a simulation mode error has occurred");
+				break; /* terminate main loop immediately */
+			}
+			sync_set(NULL,t,false);
 			
 			/* synchronize all internal schedules */
 			if ( global_clock < 0 )
@@ -2568,10 +2463,6 @@ STATUS GldExec::exec_start(void)
 					thread_data->data[j].step_to = TS_NEVER;
 				}
 			}
-#ifdef _DEBUG
-			if ( global_clock>=global_runaway_time ) 
-				throw_exception("running clock detected");
-#endif
 
 			/* run precommit only on first iteration */
 			if (iteration_counter == global_iteration_limit)
@@ -3030,12 +2921,6 @@ STATUS GldExec::exec_start(void)
 /** Starts the executive test loop 
 	@return STATUS is SUCCESS if all test passed, FAILED is any test failed.
  **/
-STATUS exec_test(struct sync_data *data, /**< the synchronization state data */
-				 int pass, /**< the pass number */
-				 OBJECT *obj)  /**< the current object */
-{
-	return my_instance->exec.test(data,pass,obj);
-}
 STATUS GldExec::test(struct sync_data *data, /**< the synchronization state data */
 				 int pass, /**< the pass number */
 				 OBJECT *obj)  /**< the current object */
@@ -3095,10 +2980,6 @@ STATUS GldExec::test(struct sync_data *data, /**< the synchronization state data
 	return data->status;
 }
 
-void *exec_slave_node_proc(void *args)
-{
-	return my_instance->exec.slave_node_proc(args);
-}
 void *GldExec::slave_node_proc(void *args)
 {
 	SOCKET **args_in = (SOCKET **)args;
@@ -3110,7 +2991,6 @@ void *GldExec::slave_node_proc(void *args)
 	char buffer[1024], response[1024], addrstr[17], *paddrstr, *token_to, *params;
 	char cmd[1024], dirname[256], filename[256], filepath[256], ippath[256];
 	unsigned int64 mtr_port, id;
-//	char *tok_to;
 	char *token[5]={
 		HS_CMD,
 		"dir=\"", // CMD absorbs dir's leading whitespace
@@ -3379,15 +3259,11 @@ void *GldExec::slave_node_proc(void *args)
 	return NULL;
 }
 
-/**	exec_slave_node
+/**	slave_node
 	Variant startup mode for GridLAB-D that causes the system to run a simple
 	server that will spawn new instances of GridLAB-D as requested to run as
 	remote slave nodes (see cmdarg.c:slave() )
  **/
-void exec_slave_node()
-{
-	my_instance->exec.slave_node();
-}
 void GldExec::slave_node()
 {
 	static bool node_done = FALSE;
@@ -3524,10 +3400,6 @@ void GldExec::slave_node()
  * Script support
  *************************************/
 
-int exec_add_scriptexport(const char *name)
-{
-	return my_instance->exec.add_scriptexport(name);
-}
 int GldExec::add_scriptexport(const char *name)
 {
 	SIMPLELIST *item = (SIMPLELIST*)malloc(sizeof(SIMPLELIST));
@@ -3560,10 +3432,6 @@ int GldExec::update_exports(void)
 	return 1;
 }
 
-static int add_script(SIMPLELIST **list, const char *file)
-{
-	return my_instance->exec.add_script(list,file);
-}
 int GldExec::add_script(SIMPLELIST **list, const char *file)
 {
 	SIMPLELIST *item = (SIMPLELIST*)malloc(sizeof(SIMPLELIST));
@@ -3574,10 +3442,7 @@ int GldExec::add_script(SIMPLELIST **list, const char *file)
 	*list = item;
 	return 1;
 }
-static EXITCODE run_system_script(char *call)
-{
-	return my_instance->exec.run_system_script(call);
-}
+
 EXITCODE GldExec::run_system_script(char *call)
 {
 	EXITCODE rc = system(call);
@@ -3592,10 +3457,7 @@ EXITCODE GldExec::run_system_script(char *call)
 		return 0;
 	}	
 }
-static EXITCODE run_gridlabd_script(char *call)
-{
-	return my_instance->exec.run_gridlabd_script(call);
-}
+
 EXITCODE GldExec::run_gridlabd_script(char *call)
 {
 	char name[1024];
@@ -3616,10 +3478,7 @@ EXITCODE GldExec::run_gridlabd_script(char *call)
 		return XC_RUNERR;
 	}
 }
-static EXITCODE run_scripts(SIMPLELIST *list)
-{
-	return my_instance->exec.run_scripts(list);
-}
+
 EXITCODE GldExec::run_scripts(SIMPLELIST *list)
 {
 	SIMPLELIST *item;
@@ -3649,115 +3508,67 @@ EXITCODE GldExec::run_scripts(SIMPLELIST *list)
 	return XC_SUCCESS;
 }
 
-int exec_add_createscript(const char *file)
-{
-	return my_instance->exec.add_createscript(file);
-}
 int GldExec::add_createscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding create script '%s'", file);
 	return add_script(&create_scripts,file);
 }
 
-int exec_add_initscript(const char *file)
-{
-	return my_instance->exec.add_initscript(file);
-}
 int GldExec::add_initscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding init script '%s'", file);
 	return add_script(&init_scripts,file);
 }
 
-int exec_add_syncscript(const char *file)
-{
-	return my_instance->exec.add_syncscript(file);
-}
 int GldExec::add_syncscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding sync script '%s'", file);
 	return add_script(&sync_scripts,file);
 }
 
-int exec_add_precommitscript(const char *file)
-{
-	return my_instance->exec.add_precommitscript(file);
-}
 int GldExec::add_precommitscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding precommit script '%s'", file);
 	return add_script(&precommit_scripts,file);
 }
 
-int exec_add_commitscript(const char *file)
-{
-	return my_instance->exec.add_commitscript(file);
-}
 int GldExec::add_commitscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding commit script '%s'", file);
 	return add_script(&commit_scripts,file);
 }
 
-int exec_add_termscript(const char *file)
-{
-	return my_instance->exec.add_termscript(file);
-}
 int GldExec::add_termscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding term script '%s'", file);
 	return add_script(&term_scripts,file);
 }
 
-int exec_run_createscripts(void)
-{
-	return my_instance->exec.run_createscripts();
-}
 int GldExec::run_createscripts(void)
 {
 	return run_scripts(create_scripts);
 }
 
-int exec_run_initscripts(void)
-{
-	return my_instance->exec.run_initscripts();
-}
 int GldExec::run_initscripts(void)
 {
 	return run_scripts(init_scripts);
 }
 
-int exec_run_precommitscripts(void)
-{
-	return my_instance->exec.run_precommitscripts();
-}
 int GldExec::run_precommitscripts(void)
 {
 	return run_scripts(precommit_scripts);
 }
 
-int exec_run_syncscripts(void)
-{
-	return my_instance->exec.run_syncscripts();
-}
 int GldExec::run_syncscripts(void)
 {
 	return run_scripts(sync_scripts);
 }
 
-int exec_run_commitscripts(void)
-{
-	return my_instance->exec.run_commitscripts();
-}
 int GldExec::run_commitscripts(void)
 {
 	return run_scripts(commit_scripts);
 }
 
-int exec_run_termscripts(void)
-{
-	return my_instance->exec.run_termscripts();
-}
 int GldExec::run_termscripts(void)
 {
 	return run_scripts(term_scripts);

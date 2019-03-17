@@ -35,7 +35,7 @@ extern "C" {
 
 int exec_init(void);
 STATUS exec_start(void);
-const char *simtime(void);
+const char *exec_simtime(void);
 STATUS t_setup_ranks(void);
 INDEX **exec_getranks(void);
 void exec_sleep(unsigned int usec);
@@ -61,9 +61,7 @@ int exec_sync_isinvalid(struct sync_data *d);
 STATUS exec_sync_getstatus(struct sync_data *d);
 
 EXITCODE exec_setexitcode(EXITCODE);
-EXITCODE exec_getexitcode(void);
-const char *exec_getexitcodestr(EXITCODE);
-
+	
 int exec_add_createscript(const char *file);
 int exec_add_initscript(const char *file);
 int exec_add_precommitscript(const char *file);
@@ -80,7 +78,6 @@ EXITCODE exec_run_termscripts(void);
 int exec_schedule_dump(TIMESTAMP interval,char *filename);
 int64 exec_clock(void);
 
-void exec_setranks(INDEX **ranks);
 void exec_rlock_sync(void);
 void exec_runlock_sync(void);
 void exec_wlock_sync(void);

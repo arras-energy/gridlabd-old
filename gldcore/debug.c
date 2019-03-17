@@ -1438,7 +1438,7 @@ int exec_debug(struct sync_data *data, /**< the current sync status of the mail 
 	/* check for stopped clock */
 	if (this_t < global_clock) {
 		char b[64];
-		output_error("%s: object %s stopped its clock (debug)!", simtime(), object_name(obj, b, 63));
+		output_error("%s: object %s stopped its clock (debug)!", exec_simtime(), object_name(obj, b, 63));
 		/* TROUBLESHOOT
 			This indicates that one of the objects in the simulator has encountered a
 			state where it cannot calculate the time to the next state.  This usually
@@ -1454,7 +1454,7 @@ int exec_debug(struct sync_data *data, /**< the current sync status of the mail 
 		{
 			char b[64];
 			output_verbose("%s: object %s iteration limit imminent",
-								simtime(), object_name(obj, b, 63));
+								exec_simtime(), object_name(obj, b, 63));
 		}
 		else if ( exec_get_iteration_counter() == 1 && this_t == global_clock ) 
 		{
