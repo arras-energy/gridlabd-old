@@ -35,7 +35,7 @@ static char *sanitize_name(OBJECT *obj)
 
     @returns 0 on success, -2 on error
  **/
-extern "C" int sanitize(int argc, char *argv[])
+int sanitize(void *main, int argc, char *argv[])
 {
 	OBJECT *obj;
 	FILE *fp;

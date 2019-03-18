@@ -751,7 +751,7 @@ char *encode_result(char *data,size_t sz)
 }
 
 /** main validation routine */
-int validate(int argc, char *argv[])
+int validate(void *main, int argc, char *argv[])
 {
 	size_t i;
 	int redirect_found = 0;
