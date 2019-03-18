@@ -110,3 +110,4 @@ third_party/xerces*/*
 .*.swp
 .DS_Store
 *.json
+*.tmp
