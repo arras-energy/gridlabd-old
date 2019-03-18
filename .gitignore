@@ -122,3 +122,4 @@ third_party/xerces-c-src_2_8_0.tar
 output/
 models/ieee123/config/local.glm
 .bash_profile
+*.tmp
