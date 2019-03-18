@@ -39,15 +39,40 @@
 
 SET_MYCONTEXT(DMC_CMDARG)
 
+/* TODO: remove when reentrant code is completed */
+#include "main.h"
+extern GldMain *my_instance;
+
+/* TODO: remove when daemon.cpp is reentrant */
+STATUS cmdarg_load(int argc, /**< the number of arguments in \p argv */
+				   char *argv[]) /**< a list pointers to the argument string */
+{
+	return my_instance->cmdarg.load(argc,argv);
+}
+
+///////////////////////////////////////////////
+// Command argument processor implementation
+///////////////////////////////////////////////
+
+GldCmdarg::GldCmdarg(GldMain *main)
+{
+	instance = main;
+	loader_time = 0;
+}
+
+GldCmdarg::~GldCmdarg(void)
+{
+
+}
+
 clock_t loader_time = 0;
 
 STATUS load_module_list(FILE *fd,int* test_mod_num)
 {
-	/*
-
-	sprintf(mod_test,"mod_test%d=%s",test_mod_num++,*++argv);
-	if (global_setvar(mod_test)==SUCCESS)
-	*/
+	return my_instance->cmdarg.load_module_list(fd,test_mod_num);
+}
+STATUS GldCmdarg::load_module_list(FILE *fd,int* test_mod_num)
+{
 	char mod_test[100];
 	char line[100];
 	while(fscanf(fd,"%s",line) != EOF)
@@ -70,13 +95,12 @@ STATUS load_module_list(FILE *fd,int* test_mod_num)
 	return SUCCESS;
 }
 
-typedef struct s_pntree{
-	char *name;
-	CLASS *oclass;
-	struct s_pntree *left, *right;
-} pntree;
-
-void modhelp_alpha(pntree **ctree, CLASS *oclass){
+void modhelp_alpha(pntree **ctree, CLASS *oclass)
+{
+	my_instance->cmdarg.modhelp_alpha(ctree,oclass);
+}
+void GldCmdarg::modhelp_alpha(pntree **ctree, CLASS *oclass)
+{
 	int cmpval = 0;
 	pntree *targ = *ctree;
 	
@@ -109,7 +133,12 @@ void modhelp_alpha(pntree **ctree, CLASS *oclass){
 	}
 }
 
-void set_tabs(char *tabs, int tabdepth){
+void set_tabs(char *tabs, int tabdepth)
+{
+	my_instance->cmdarg.set_tabs(tabs,tabdepth);
+}
+void GldCmdarg::set_tabs(char *tabs, int tabdepth)
+{
 	if(tabdepth > 32){
 		throw_exception("print_class_d: tabdepth > 32, which is mightily deep!");
 		/* TROUBLESHOOT
@@ -124,7 +153,12 @@ void set_tabs(char *tabs, int tabdepth){
 	}
 }
 
-void print_class_d(CLASS *oclass, int tabdepth){
+void print_class_d(CLASS *oclass, int tabdepth)
+{
+	my_instance->cmdarg.print_class_d(oclass,tabdepth);
+}
+void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
+{
 	PROPERTY *prop;
 	FUNCTION *func;
 	char tabs[33];
@@ -169,11 +203,21 @@ void print_class_d(CLASS *oclass, int tabdepth){
 	printf("%s}\n\n", tabs);
 }
 
-void print_class(CLASS *oclass){
+void print_class(CLASS *oclass)
+{
+	my_instance->cmdarg.print_class(oclass);
+}
+void GldCmdarg::print_class(CLASS *oclass)
+{
 	print_class_d(oclass, 0);
 }
 
-void print_modhelp_tree(pntree *ctree){
+void print_modhelp_tree(pntree *ctree)
+{
+	my_instance->cmdarg.print_modhelp_tree(ctree);
+}
+void GldCmdarg::print_modhelp_tree(pntree *ctree)
+{
 	if(ctree->left != NULL){
 		print_modhelp_tree(ctree->left);
 		free(ctree->left);
@@ -192,13 +236,6 @@ int compare(const void *a, const void *b)
 	return stricmp(*(char**)a,*(char**)b);
 }
 
-typedef struct s_cmdarg {
-	char *lopt;
-	char *sopt;
-	int (*call)(int argc, char *argv[]);
-	char *args;
-	char *desc;
-} CMDARG;
 static int help(int argc, char *argv[]);
 
 /************************************************************************/
@@ -213,7 +250,7 @@ static int help(int argc, char *argv[]);
  *
  */
 
-static STATUS no_cmdargs()
+STATUS GldCmdarg::no_cmdargs(void)
 {
 	char htmlfile[1024];
 	if ( global_autostartgui && find_file("gridlabd.htm",NULL,R_OK,htmlfile,sizeof(htmlfile)-1)!=NULL )
@@ -1488,8 +1525,7 @@ static int help(int argc, char *argv[])
 	@endcode
 	will load \p model1 with warnings on, and \p model2 with warnings off.
  **/
-STATUS cmdarg_load(int argc, /**< the number of arguments in \p argv */
-				   char *argv[]) /**< a list pointers to the argument string */
+STATUS GldCmdarg::load(int argc,char *argv[])
 {
 	STATUS status = SUCCESS;
 

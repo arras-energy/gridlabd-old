@@ -73,7 +73,7 @@ int
 }
 unsigned int GldMain::next_id = 0;
 GldMain::GldMain(int argc,char *argv[])
-	: globals(this), exec(this)
+	: globals(this), exec(this), cmdarg(this)
 {
 	id = next_id++;
 	// TODO: remove this when reetrant code is done
@@ -123,7 +123,7 @@ GldMain::GldMain(int argc,char *argv[])
 	IN_MYCONTEXT output_verbose("using %d helper thread(s)", global_threadcount);
 
 	/* process command line arguments */
-	if (cmdarg_load(argc,argv)==FAILED)
+	if (cmdarg.load(argc,argv)==FAILED)
 	{
 		output_fatal("shutdown after command line rejected");
 		/*	TROUBLESHOOT
