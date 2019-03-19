@@ -2414,10 +2414,10 @@ OBJECT *object_find_name(OBJECTNAME name)
 			IN_MYCONTEXT output_debug("object_find_name(name='%s') object id %lu not found", name, id);
 			return NULL;
 		}
-		else if ( strcmp(obj->oclass->name,oclass) != 0 ) 
+		else if ( oclass[0] != '\0' && strcmp(obj->oclass->name,oclass) != 0 ) // allows ":id" syntax to ignore class name and find by id only
 		{
-			IN_MYCONTEXT output_warning("object_find_name(name='%s') id %s:%lu not of class '%s'", name, obj->oclass->name, id, oclass);
-			return obj;
+			IN_MYCONTEXT output_debug("object_find_name(name='%s') id %s:%lu not of class '%s'", name, obj->oclass->name, id, oclass);
+			return NULL;
 		}
 		else
 		{
