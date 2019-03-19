@@ -244,7 +244,7 @@ typedef enum {
 GLOBAL int global_mainloopstate INIT(MLS_INIT); /**< main loop processing state */
 GLOBAL TIMESTAMP global_mainlooppauseat INIT(TS_NEVER); /**< time at which to pause main loop */
 
-GLOBAL char global_infourl[1024] INIT("http://gridlab-d.sourceforge.net/info.php?title=Special:Search/"); /**< URL for info calls */
+GLOBAL char global_infourl[1024] INIT("http://gridlab-d.shoutwiki.com/w/index.php?title=Special%3ASearch&fulltext=Search&search="); /**< URL for info calls */
 
 GLOBAL char global_hostname[1024] INIT("localhost"); /**< machine hostname */
 GLOBAL char global_hostaddr[32] INIT("127.0.0.1"); /**< machine ip addr */
