@@ -12,7 +12,7 @@
 #include "globals.h"
 #include "output.h"
 
-#ifdef __cplusplus {
+#ifdef __cplusplus 
 extern "C" {
 #endif
 
