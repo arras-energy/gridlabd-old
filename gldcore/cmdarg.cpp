@@ -444,7 +444,7 @@ int GldCmdarg::mt_profile(int argc, char *argv[])
 
 static int pauseatexit(void *main, int argc, char *argv[])
 {
-	((GldMain*)main)->cmdarg.pauseatexit(argc,argv);
+	return ((GldMain*)main)->cmdarg.pauseatexit(argc,argv);
 }
 int GldCmdarg::pauseatexit(int argc, char *argv[])
 {

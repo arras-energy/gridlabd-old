@@ -20,17 +20,17 @@ STATUS cmdarg_load(int argc,char *argv[]);
 int cmdarg_runoption(const char *value);
 
 typedef struct s_pntree{
-	char *name;
+	const char *name;
 	CLASS *oclass;
 	struct s_pntree *left, *right;
 } pntree;
 
 typedef struct s_cmdarg {
-	char *lopt;
-	char *sopt;
+	const char *lopt;
+	const char *sopt;
 	int (*call)(void*,int,char*[]);
-	char *args;
-	char *desc;
+	const char *args;
+	const char *desc;
 } CMDARG;
 
 #ifdef __cplusplus
