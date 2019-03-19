@@ -69,11 +69,32 @@ public:
 	{
 		va_list ptr;
 		va_start(ptr,format);
-		size_t size = vsnprintf(nullptr,0,format,ptr);
-		std::unique_ptr<char[]> buf( new char[ size ] );
-		vsnprintf(buf.get(),size,format,ptr);
+		size_t size = vsnprintf(NULL,0,format,ptr);
+		char *buf = new char[size];
+		try {
+			if ( buf )
+			{
+				if ( vsnprintf(buf,sizeof(buf),format,ptr) < 0 )
+				{
+					msg = std::string("GldException::GldException(): vsnprintf() failed");
+				}
+				else
+				{
+					msg = std::string(buf);
+				}
+			}
+			else
+			{
+				msg = std::string("GldException::GldException(): memory allocation failed");
+			}
+		}
+		catch (...) 
+		{
+			msg = std::string("GldException::GldException(): unknown exception in constructor");
+		}
+		if ( buf ) 
+			delete [] buf;
 		va_end(ptr);
-		msg = std::string(buf.get(),buf.get()+size-1);
 	};
 	inline ~GldException(void)
 	{

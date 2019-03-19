@@ -7,8 +7,6 @@
 #ifndef _GLOBALS_H
 #define _GLOBALS_H
 
-#include <assert.h>
-
 #include "version.h"
 #include "class.h"
 #include "validate.h"
@@ -443,7 +441,7 @@ public:
 	GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
 	~GldGlobalvar(void);
 public: // accessors
-	inline void set_callback(void (*callback)(char *)) { assert(spec); spec->callback = callback;};
+	inline void set_callback(void (*callback)(char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
 };
 
 class GldGlobals 
