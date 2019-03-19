@@ -178,11 +178,11 @@ static KEYWORD gso_keys[] = {
 };
 
 static struct s_varmap {
-	char *name;
+	const char *name;
 	PROPERTYTYPE type;
 	void *addr;
 	PROPERTYACCESS access;
-	char *description;
+	const char *description;
 	KEYWORD *keys;
 	void (*callback)(char *name);
 } map[] = {
@@ -329,13 +329,13 @@ static struct s_varmap {
 
 static void buildtmp(void)
 {
-	char *tmp, *home, *user;
+	const char *tmp, *home, *user;
 
 	if ((tmp = getenv("GLTEMP"))) {
 		snprintf(global_tmp, sizeof(global_tmp), "%s", tmp);
 		return;
 	}
-	if (home = getenv(HOMEVAR)) {
+	if ((home = getenv(HOMEVAR))) {
 #ifdef WIN32
 		char *drive;
 		if (!(drive = getenv("HOMEDRIVE")))
@@ -466,7 +466,8 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 	GLOBALVAR *var = NULL;
 
 	/* don't create duplicate entries */
-	if(global_find(name) != NULL){
+	if ( global_find(name) != NULL )
+	{
 		errno = EINVAL;
 		output_error("tried to create global variable '%s' a second time", name);
 		/* TROUBLESHOOT
@@ -481,7 +482,8 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 	var = (GLOBALVAR *)malloc(sizeof(GLOBALVAR));
 	memset(var,0,sizeof(GLOBALVAR));
 	
-	if(var == NULL){
+	if ( var == NULL )
+	{
 		errno = ENOMEM;
 		throw_exception("global_create(char *name='%s',...): unable to allocate memory for global variable", name);
 		/* TROUBLESHOOT
@@ -493,15 +495,21 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 	var->prop = NULL;
 	var->next = NULL;
 
-	while ((proptype = va_arg(arg,PROPERTYTYPE)) != 0){
-		if(proptype > _PT_LAST){
-			if(prop == NULL){
+	while ( (proptype = (PROPERTYTYPE)va_arg(arg,int)) != 0 ) // PROPERTYTYPE
+	{
+		if ( proptype > _PT_LAST )
+		{
+			if ( prop == NULL )
+			{
 				throw_exception("global_create(char *name='%s',...): property keyword not specified after an enumeration property definition", name);
-			} else if(proptype == PT_KEYWORD && prop->ptype == PT_enumeration) {
+			} 
+			else if ( proptype == PT_KEYWORD && prop->ptype == PT_enumeration ) 
+			{
 				char *keyword = va_arg(arg, char *);
 				int32 keyvalue = va_arg(arg, int32);
 				KEYWORD *key = (KEYWORD *)malloc(sizeof(KEYWORD));
-				if(key == NULL){
+				if ( key == NULL )
+				{
 					throw_exception("global_create(char *name='%s',...): property keyword could not be stored", name);
 					/* TROUBLESHOOT
 						The memory needed to store the property's keyword is not available.  Try freeing up memory and try again.
@@ -511,11 +519,14 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 				strncpy(key->name, keyword, sizeof(key->name));
 				key->value = keyvalue;
 				prop->keywords = key;
-			} else if(proptype == PT_KEYWORD && prop->ptype == PT_set){
+			} 
+			else if ( proptype == PT_KEYWORD && prop->ptype == PT_set )
+			{
 				char *keyword = va_arg(arg, char *);
 				unsigned int64 keyvalue = va_arg(arg, int64); /* uchars are promoted to int by GCC */
 				KEYWORD *key = (KEYWORD *)malloc(sizeof(KEYWORD));
-				if(key == NULL){
+				if ( key == NULL )
+				{
 					throw_exception("global_create(char *name='%s',...): property keyword could not be stored", name);
 					/* TROUBLESHOOT
 						The memory needed to store the property's keyword is not available.  Try freeing up memory and try again.
@@ -525,9 +536,12 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 				strncpy(key->name, keyword, sizeof(key->name));
 				key->value = keyvalue;
 				prop->keywords = key;
-			} else if(proptype == PT_ACCESS){
-				PROPERTYACCESS pa = va_arg(arg, PROPERTYACCESS);
-				switch (pa){
+			} 
+			else if ( proptype == PT_ACCESS )
+			{
+				PROPERTYACCESS pa = (PROPERTYACCESS)va_arg(arg, int); // PROPERTYACCESS
+				switch (pa)
+				{
 					case PA_PUBLIC:
 					case PA_REFERENCE:
 					case PA_PROTECTED:
@@ -543,41 +557,59 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 						 */
 						break;
 				}
-			} else if(proptype == PT_SIZE){
+			} 
+			else if ( proptype == PT_SIZE )
+			{
 				prop->size = va_arg(arg, uint32);
-				if(prop->addr == 0){
-					if (prop->size > 0){
+				if ( prop->addr == 0 ) 
+				{
+					if ( prop->size > 0 ) 
+					{
 						prop->addr = (PROPERTYADDR)malloc(prop->size * property_size(prop));
-					} else {
+					} 
+					else 
+					{
 						throw_exception("global_create(char *name='%s',...): property size must be greater than 0 to allocate memory", name);
 						/* TROUBLESHOOT
 							The size of the property must be positive.
 						 */
 					}
 				}
-			} else if(proptype == PT_UNITS){
+			} 
+			else if ( proptype == PT_UNITS ) 
+			{
 				char *unitspec = va_arg(arg, char *);
-				if((prop->unit = unit_find(unitspec)) == NULL){
+				if ( (prop->unit = unit_find(unitspec)) == NULL )
+				{
 					output_warning("global_create(char *name='%s',...): property %s unit '%s' is not recognized",name, prop->name,unitspec);
 					/* TROUBLESHOOT
 						The property definition uses a unit that is not found.  Check the unit and try again.  
 						If you wish to define a new unit, try adding it to <code>.../etc/unitfile.txt</code>.
 					 */
 				}
-			} else if (proptype == PT_DESCRIPTION) {
+			} 
+			else if ( proptype == PT_DESCRIPTION ) 
+			{
 				prop->description = va_arg(arg,char*);
-			} else if (proptype == PT_DEPRECATED) {
+			} 
+			else if ( proptype == PT_DEPRECATED ) 
+			{
 				prop->flags |= PF_DEPRECATED;
-			} else {
+			} 
+			else 
+			{
 				throw_exception("global_create(char *name='%s',...): property extension code not recognized (PROPERTYTYPE=%d)", name, proptype);
 				/* TROUBLESHOOT
 					The property extension code used is not valid.  This is probably a bug and should be reported.
 				 */
 			}
-		} else {
+		} 
+		else 
+		{
 
 			PROPERTYADDR addr = va_arg(arg,PROPERTYADDR);
-			if(strlen(name) >= sizeof(prop->name)){
+			if ( strlen(name) >= sizeof(prop->name) )
+			{
 				throw_exception("global_create(char *name='%s',...): property name '%s' is too big to store", name, name);
 				/* TROUBLESHOOT
 					The property name cannot be longer than the size of the internal buffer used to store it (currently this is 63 characters).
@@ -586,28 +618,41 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 			}
 
 			prop = property_malloc(proptype,NULL,name,addr,NULL);
-			if (prop==NULL)
+			if ( prop == NULL )
+			{
 				throw_exception("global_create(char *name='%s',...): property '%s' could not be stored", name, name);
-			if (var->prop==NULL)
+			}
+			if ( var->prop == NULL )
+			{
 				var->prop = prop;
+			}
 
 			/* link map to oclass if not yet done */
-			if (lastprop!=NULL)
+			if ( lastprop != NULL )
+			{
 				lastprop->next = prop;
+			}
 			else
+			{
 				lastprop = prop;
+			}
 
 			/* save enum property in case keywords come up */
 			if (prop->ptype>_PT_LAST)
+			{
 				prop = NULL;
+			}
 		}
 	}
 
-	if (lastvar==NULL)
+	if ( lastvar == NULL )
+	{
 		/* first variable */
 		global_varlist = lastvar = var;
+	}
 	else
-	{	/* not first */
+	{	
+		/* not first */
 		lastvar->next = var;
 		lastvar = var;
 	}
@@ -1053,7 +1098,7 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	int len = 0;
 	GLOBALVAR *var = NULL;
 	struct {
-		char *name;
+		const char *name;
 		char *(*call)(char *buffer,int size);
 	} map[] = {
 		{"GUID",global_guid},
