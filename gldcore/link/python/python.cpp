@@ -1022,6 +1022,14 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
 
     PyObject *data = PyDict_New();
     PyDict_SetItemString(data,"id",Py_BuildValue("L",(unsigned long long)obj->id));
+    if ( obj->name )
+        PyDict_SetItemString(data,"name",Py_BuildValue("s",obj->name));
+    else
+    {
+        char buffer[1024];
+        sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
+        PyDict_SetItemString(data,"name",Py_BuildValue("s",buffer));
+    }
     if ( obj->oclass->name != NULL )
         PyDict_SetItemString(data,"class",Py_BuildValue("s",obj->oclass->name));
     if ( obj->parent != NULL )
@@ -1065,6 +1073,7 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
                 PyDict_SetItemString(data,prop->name,Py_BuildValue("s",value));
         }
     }
+    PyErr_Clear();
     return data;
 }
 
