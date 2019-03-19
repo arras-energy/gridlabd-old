@@ -77,6 +77,10 @@ struct s_randomvar {
 	randomvar *next;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int randomvar_update(randomvar *var);
 int randomvar_create(randomvar *var);
 int randomvar_init(randomvar *var);
@@ -90,6 +94,10 @@ double random_get_part(void *x, char *name);
 unsigned entropy_source(void);
 randomvar *randomvar_getnext(randomvar *var);
 size_t randomvar_getspec(char *str, size_t size, const randomvar *var);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

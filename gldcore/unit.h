@@ -21,15 +21,16 @@ typedef struct s_unit {
 #ifdef __cplusplus
 extern "C" {
 #endif
-	int unit_convert(char *from, char *to, double *pValue);
-	int unit_convert_ex(UNIT *from, UNIT *to, double *pValue);
-	int unit_convert_complex(UNIT *from, UNIT *to, complex *pValue);
-	UNIT *unit_find(char *);
+
+int unit_convert(char *from, char *to, double *pValue);
+int unit_convert_ex(UNIT *from, UNIT *to, double *pValue);
+int unit_convert_complex(UNIT *from, UNIT *to, complex *pValue);
+UNIT *unit_find(char *);
+int unit_test(void);
+
 #ifdef __cplusplus
 }
 #endif
-
-int unit_test(void);
 
 #endif
 

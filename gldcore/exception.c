@@ -100,7 +100,7 @@ void delete_exception_handler(EXCEPTIONHANDLER *ptr) /**< a pointer to the excep
 
 /** Throw an exception
  **/
-void throw_exception(char *format, /**< the format string */
+void throw_exception(const char *format, /**< the format string */
 					 ...) /**< the parameters of the message */
 {
 	char buffer[1024];

@@ -284,8 +284,16 @@ const char * http_get_header_data(HTTPRESULT *result, const char* param)
 
 unsigned int http_get_status(HTTPRESULT *result)
 {
-	IN_MYCONTEXT output_debug("http_get_status(): '%s'", result->header.data+9);
-	return atoi(result->header.data+9);
+	if ( result->header.data != NULL )
+	{
+		IN_MYCONTEXT output_debug("http_get_status(): '%s'", result->header.data+9);
+		return atoi(result->header.data+9);
+	}
+	else 
+	{
+		IN_MYCONTEXT output_debug("http_get_status(): not connected");
+		return 0;
+	}
 }
 
 static unsigned int64 wget_maxsize = 100000000;

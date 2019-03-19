@@ -16,15 +16,7 @@ typedef enum {
 	JO_DEFAULT	= JO_SORTA,	///< default job options
 } JOBOPTIONS;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-int job(int argc, char *argv[]);
-
-#ifdef __cplusplus
-}
-#endif
+int job(void *main, int argc, char *argv[]);
 
 #endif
 

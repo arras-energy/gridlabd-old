@@ -1,6 +1,6 @@
 /** $Id: exec.c 1188 2009-01-02 21:51:07Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file exec.c
+	@file exec.cpp
 	@addtogroup exec Main execution loop
 	@ingroup core
 	
@@ -87,6 +87,7 @@
 #include <signal.h>
 #include <ctype.h>
 #include <string.h>
+#include <sys/time.h>
 #include <sys/timeb.h>
 #ifdef WIN32
 #include <windows.h>
@@ -105,15 +106,14 @@
 #endif
 
 #include "platform.h"
+#include "main.h"
 #include "output.h"
 #include "exec.h"
 #include "class.h"
 #include "convert.h"
-#include "object.h"
 #include "index.h"
 #include "realtime.h"
 #include "module.h"
-#include "threadpool.h"
 #include "debug.h"
 #include "exception.h"
 #include "random.h"	
@@ -122,10 +122,8 @@
 #include "transform.h"
 #include "loadshape.h"
 #include "enduse.h"
-#include "globals.h"
 #include "math.h"
 #include "time.h"
-#include "lock.h"
 #include "deltamode.h"
 #include "stream.h"
 #include "instance.h"
@@ -133,16 +131,313 @@
 #include "test.h"
 #include "link.h"
 #include "save.h"
-
+#include "lock.h"
 #include "pthread.h"
 
 SET_MYCONTEXT(DMC_EXEC)
 
-/* forward declaration */
-void exec_run_dump(void);
+/* TODO: remove these when reentrant code is completed */
+extern GldMain *my_instance;
+static MTIITEM exec_commit_get0(MTIITEM item)
+{
+	return my_instance->exec.commit_get0(item);
+}
+static MTIITEM exec_commit_get1(MTIITEM item)
+{
+	return my_instance->exec.commit_get1(item);
+}
+static void exec_commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
+{
+	my_instance->exec.commit_call(output,item,input);
+}
+static MTIDATA exec_commit_set(MTIDATA to, MTIDATA from)
+{
+	return my_instance->exec.commit_set(to,from);
+}
+static int exec_commit_compare(MTIDATA a, MTIDATA b)
+{
+	return my_instance->exec.commit_compare(a,b);
+}
+static void exec_commit_gather(MTIDATA a, MTIDATA b)
+{
+	my_instance->exec.commit_gather(a,b);
+}
+static int exec_commit_reject(MTI *mti, MTIDATA value)
+{
+	return my_instance->exec.commit_reject(mti,value);
+}
+static void *exec_obj_syncproc(void *ptr)
+{
+	OBJSYNCDATA *data = (OBJSYNCDATA*)ptr;
+	return data->main->exec.obj_syncproc(data);
+}
+void *exec_slave_node_proc(void *args)
+{
+	return my_instance->exec.slave_node_proc(args);
+}
 
-/** Set/get exit code **/
+/* TODO: remove then debug.c is reentrant */
+const char *exec_simtime(void)
+{
+	return my_instance->exec.simtime();
+}
+int exec_get_iteration_counter(void)
+{
+	return my_instance->exec.iteration_counter;
+}
+int exec_get_passtype(int pass)
+{
+	return my_instance->exec.passtype[pass];
+}
+
+/* TODO: remove when instance.c is reentrant */
+extern pthread_mutex_t mls_inst_lock;
+extern pthread_cond_t mls_inst_signal;
+
+/* TODO: remove when load.c is reentrant */
+int exec_schedule_dump(TIMESTAMP interval,char *filename)
+{
+	return my_instance->exec.schedule_dump(interval,filename);
+}
+
+/* TODO: remove when debug.c, instance_slave.c, server.c, and job.c are reentrant */
 int exec_setexitcode(int xc)
+{
+	return my_instance->exec.setexitcode(xc);
+}
+
+/* TODO: remove when environment.c is reentrant */
+STATUS exec_start(void)
+{
+	return my_instance->exec.exec_start();
+}
+
+/* TODO: remove when enduse.c, instance.c, loadshape.c, object.c, random.c, schedule.c, threadpool.c, and transform.c are reentrant */
+int64 exec_clock(void)
+{
+	return my_instance->exec.clock();
+}
+
+/* TODO: remove when cmex.c is reentrant */
+int exec_init()
+{
+	return my_instance->exec.init();
+}
+
+/* TODO: remove when save.c is reentrant */
+INDEX **exec_getranks(void)
+{
+	return my_instance->exec.getranks();
+}
+
+/* TODO: remove when gui.c, test.c, and load.c are reentrant */
+void exec_sleep(unsigned int usec)
+{
+	my_instance->exec.sleep(usec);
+}
+int exec_add_scriptexport(const char *name)
+{
+	return my_instance->exec.add_scriptexport(name);
+}
+int exec_add_createscript(const char *file)
+{
+	return my_instance->exec.add_createscript(file);
+}
+int exec_add_initscript(const char *file)
+{
+	return my_instance->exec.add_initscript(file);
+}
+int exec_add_syncscript(const char *file)
+{
+	return my_instance->exec.add_syncscript(file);
+}
+int exec_add_precommitscript(const char *file)
+{
+	return my_instance->exec.add_precommitscript(file);
+}
+int exec_add_commitscript(const char *file)
+{
+	return my_instance->exec.add_commitscript(file);
+}
+int exec_add_termscript(const char *file)
+{
+	return my_instance->exec.add_termscript(file);
+}
+
+/* TODO: remove when instance_slave.c is reentrant */
+void exec_mls_create(void)
+{
+	my_instance->exec.mls_create();
+}
+void exec_sync_reset(struct sync_data *d) /**< sync data to reset (NULL to reset main)  **/
+{
+	my_instance->exec.sync_reset(d);
+}
+void exec_sync_merge(struct sync_data *to, /**< sync data to merge to (NULL to update main)  **/
+					struct sync_data *from) /**< sync data to merge from */
+{
+	my_instance->exec.sync_merge(to,from);
+}
+void exec_sync_set(struct sync_data *d, /**< sync data to update (NULL to update main) */
+				  TIMESTAMP t,/**< timestamp to update with (negative time means soft event, 0 means failure) */
+				  bool deltaflag)/**< flag to let us know this was a deltamode exit - force it forward, otherwise can fail to exit */
+{
+	my_instance->exec.sync_set(d,t,deltaflag);
+}
+TIMESTAMP exec_sync_get(struct sync_data *d) /**< Sync data to get sync time from (NULL to read main)  */
+{
+	return my_instance->exec.sync_get(d);
+}
+
+/* TODO: remove when server.c is reentrant */
+void exec_mls_resume(TIMESTAMP ts)
+{
+	my_instance->exec.mls_resume(ts);
+}
+
+/* TODO: remove when cmdarg.c is reentrant */
+void exec_slave_node()
+{
+	my_instance->exec.slave_node();
+}
+void throwf(const char *format, ...)
+{
+	char buffer[1024];
+	va_list ptr;
+	va_start(ptr,format);
+	vsprintf(buffer,format,ptr);
+	va_end(ptr);
+	throw(buffer);
+}
+
+////////////////////////////////////////////
+// GldExec implementation
+////////////////////////////////////////////
+
+const PASSCONFIG GldExec::passtype[3] = {PC_PRETOPDOWN, PC_BOTTOMUP, PC_POSTTOPDOWN};
+
+GldExec::GldExec(GldMain *main)
+	: instance(*main)
+{
+	memset(dumpfile,0,sizeof(dumpfile));
+	dumpinterval = TS_NEVER;
+	ranks = NULL;
+	thread_data = NULL;
+	cstart = 0;
+	cend = 0;
+	arg_data_array = NULL;
+	object_heartbeats = NULL;
+	n_object_heartbeats = 0;
+	max_object_heartbeats = 0;
+	memset(commit_list,0,sizeof(commit_list));
+	create_scripts = NULL;
+	init_scripts = NULL;
+	precommit_scripts = NULL;
+	sync_scripts = NULL;
+	commit_scripts = NULL;
+	term_scripts = NULL;
+	pthread_mutex_init(&mls_svr_lock,NULL);
+	pthread_cond_init(&mls_svr_signal,NULL);
+	mls_created = 0;
+	mls_destroyed = 0;
+	startlock = NULL;
+	donelock = NULL;
+	start = NULL;
+	done = NULL;
+	next_t1 = NULL;
+	donecount = NULL;
+	n_threads = NULL; 
+	main_sync.step_to = TS_NEVER;
+	main_sync.hard_event = 0;
+	main_sync.status = SUCCESS;
+	sync_lock = 0;
+	realtime_metric_decay = 0.9;
+	script_exports = NULL;
+	rlock_count = 0;
+	rlock_spin = 0;
+	wlock_count = 0;
+	wlock_spin = 0;
+	pass = 0;
+	iteration_counter = 0;
+}
+
+#define PASSINIT(p) (p % 2 ? ranks[p]->first_used : ranks[p]->last_used)
+#define PASSCMP(i, p) (p % 2 ? i <= ranks[p]->last_used : i >= ranks[p]->first_used)
+#define PASSINC(p) (p % 2 ? 1 : -1)
+
+GldExec::~GldExec(void)
+{
+	if ( object_heartbeats ) free(object_heartbeats);
+	free_simplelinklist(commit_list[0]);
+	free_simplelinklist(commit_list[1]);
+	free_simplelist(create_scripts);
+	free_simplelist(init_scripts);
+	free_simplelist(precommit_scripts);
+	free_simplelist(sync_scripts);
+	free_simplelist(commit_scripts);
+	free_simplelist(term_scripts);
+	free_simplelist(script_exports);
+	if ( thread_data ) free(thread_data);
+	if ( arg_data_array ) free(arg_data_array);
+	if ( next_t1 ) free(next_t1);
+	if ( donecount ) free(donecount);
+	if ( n_threads ) free(n_threads);
+	if ( startlock ) free(startlock);
+	if ( donelock ) free(donelock);
+	if ( start ) free(start);
+	if ( done ) free(done);
+}
+
+void GldExec::free_simplelist(SIMPLELIST *list)
+{
+	SIMPLELIST *next = list->next;
+	free(list->data);
+	free(list);
+	if ( next ) free_simplelist(next);
+}
+
+void GldExec::free_simplelinklist(SIMPLELINKLIST *list)
+{
+	SIMPLELINKLIST *next = list->next;
+	free(list);
+	if ( next ) free_simplelinklist(next);
+}
+
+struct thread_data *GldExec::create_threaddata(size_t count)
+{
+	return (struct thread_data *)malloc(sizeof(struct thread_data)+sizeof(struct sync_data)*count);
+}
+
+struct arg_data *GldExec::create_argdata(size_t count)
+{
+	return (struct arg_data *)malloc(sizeof(struct arg_data)*count);
+}
+
+void GldExec::run_dump(void)
+{
+	if ( dumpfile[0] == '\0' || dumpinterval==TS_NEVER )
+		return;
+	else if ( ( dumpinterval == 0 || global_clock % dumpinterval == 0 ) && saveall(dumpfile) <= 0 )
+	{
+		char buffer[64];
+		output_error("dump to %s at %s failed",dumpfile,convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"unknown time");
+	}
+}
+
+int GldExec::schedule_dump(TIMESTAMP interval, const char *filename)
+{
+	output_verbose("scheduling dump to %s every %d seconds",filename,interval);
+	dumpinterval = interval;
+	strcpy(dumpfile,filename);
+	return 1;
+}
+
+void GldExec::init_thread_data(void)
+{
+	thread_data = create_threaddata(global_threadcount);
+}
+
+int GldExec::setexitcode(int xc)
 {
 	int oldxc = global_exit_code;
 	if ( oldxc!=XC_SUCCESS )
@@ -151,12 +446,13 @@ int exec_setexitcode(int xc)
 	IN_MYCONTEXT output_debug("exit code %d", xc);
 	return oldxc;
 }
-int exec_getexitcode(void)
+
+int GldExec::getexitcode(void)
 {
 	return global_exit_code;
 }
 
-const char *exec_getexitcodestr(EXITCODE xc)
+const char *GldExec::getexitcodestr(EXITCODE xc)
 {
 	switch (xc) {
 	case XC_SUCCESS: /* per system(3) */ return "ok";
@@ -178,9 +474,7 @@ const char *exec_getexitcodestr(EXITCODE xc)
 	}
 }
 
-
-/** Elapsed wallclock **/
-int64 exec_clock(void)
+int64 GldExec::clock(void)
 {
 	static struct timeb t0;
 	struct timeb t1={0,0,0,0};
@@ -198,14 +492,8 @@ int64 exec_clock(void)
 	@return 1 on success, 0 on failure
  **/
 
-int exec_init()
+int GldExec::init()
 {
-#if 0
-#ifdef WIN32
-	char glpathvar[1024];
-#endif
-#endif
-
 	size_t glpathlen=0;
 
 	/* set thread count equal to processor count if not passed on command-line */
@@ -225,77 +513,28 @@ int exec_init()
 	/* save locale for simulation */
 	locale_push();
 
-#if 0 /* isn't cooperating for strange reasons -mh */
-#ifdef WIN32
-	glpathlen=strlen("GLPATH=");
-	sprintf(glpathvar, "GLPATH=");
-	ExpandEnvironmentStrings(getenv("GLPATH"), glpathvar+glpathlen, (DWORD)(1024-glpathlen));
-#endif
-#endif
-
 	if (global_init()==FAILED)
 		return 0;
 	return 1;
 }
 
-//sjin: GetMachineCycleCount
-/*int mc_start_time;
-int mc_end_time;
-int GetMachineCycleCount(void)
-{      
-   __int64 cycles;
-   _asm rdtsc; // won't work on 486 or below - only pentium or above
-
-   _asm lea ebx,cycles;
-   _asm mov [ebx],eax;
-   _asm mov [ebx+4],edx;
-   return cycles;
-}*/
-clock_t cstart, cend;
-
-#ifndef _MAX_PATH
-#define _MAX_PATH 1024
-#endif
-
-#define PASSINIT(p) (p % 2 ? ranks[p]->first_used : ranks[p]->last_used)
-#define PASSCMP(i, p) (p % 2 ? i <= ranks[p]->last_used : i >= ranks[p]->first_used)
-#define PASSINC(p) (p % 2 ? 1 : -1)
-
-static struct thread_data *thread_data = NULL;
-static INDEX **ranks = NULL;
-const PASSCONFIG passtype[] = {PC_PRETOPDOWN, PC_BOTTOMUP, PC_POSTTOPDOWN};
-static unsigned int pass;
-int iteration_counter = 0;   /* number of redos completed */
-
-#ifndef NOLOCKS
-int64 rlock_count = 0, rlock_spin = 0;
-int64 wlock_count = 0, wlock_spin = 0;
-#endif
-
-extern pthread_mutex_t mls_inst_lock;
-extern pthread_cond_t mls_inst_signal;
-
-//sjin: struct for pthread_create arguments
-struct arg_data {
-	int thread;
-	void *item;
-	int incr;
-};
-struct arg_data arg_data_array[2];
-
-INDEX **exec_getranks(void)
+void GldExec::initranks(void)
 {
-	return ranks;
+	size_t sz = sizeof(passtype)/sizeof(passtype[0]);
+	INDEX **passlist = new INDEX*[sz+1];
+	memset(passlist,0,sizeof(INDEX*)*(sz+1));
+	setranks(passlist);
 }
 
-static STATUS setup_ranks(void)
+STATUS GldExec::setup_ranks(void)
 {
 	OBJECT *obj;
 	int i;
-	static INDEX *passlist[] = {NULL,NULL,NULL,NULL}; /* extra NULL marks the end of the list */
+
+	initranks();
+	INDEX **ranks = getranks();
 
 	/* create index object */
-	ranks = passlist;
 	ranks[0] = index_create(0,10);
 	ranks[1] = index_create(0,10);
 	ranks[2] = index_create(0,10);
@@ -330,13 +569,13 @@ static STATUS setup_ranks(void)
 	return SUCCESS;
 }
 
-char *simtime(void)
+const char *GldExec::simtime(void)
 {
 	static char buffer[64];
 	return convert_from_timestamp(global_clock,buffer,sizeof(buffer))>0?buffer:"(invalid)";
 }
 
-static STATUS show_progress(void)
+STATUS GldExec::show_progress(void)
 {
 	extern GUIACTIONSTATUS wait_status;
 	output_progress();
@@ -347,8 +586,7 @@ static STATUS show_progress(void)
 
 /***********************************************************************/
 /* CHECKPOINTS (DPC Apr 2011) */
-
-void do_checkpoint(void)
+void GldExec::do_checkpoint(void)
 {
 	/* last checkpoint value */
 	static TIMESTAMP last_checkpoint = 0;
@@ -436,9 +674,10 @@ void do_checkpoint(void)
 }
 
 /***********************************************************************/
-//sjin: implement new ss_do_object_sync for pthreads
-static void ss_do_object_sync(int thread, void *item)
+// implement new ss_do_object_sync for pthreads
+void GldExec::ss_do_object_sync(int thread, void *item)
 {
+	struct thread_data *thread_data = get_thread_data();
 	struct sync_data *data = &thread_data->data[thread];
 	OBJECT *obj = (OBJECT *) item;
 	TIMESTAMP this_t;
@@ -459,7 +698,6 @@ static void ss_do_object_sync(int thread, void *item)
 		{
 			IN_MYCONTEXT output_verbose("%s: object %s calling for re-sync", simtime(), object_name(obj, b, 63));
 		}
-
 
 #ifdef _DEBUG
 		/* sync dumpfile */
@@ -560,15 +798,15 @@ static void ss_do_object_sync(int thread, void *item)
 	}
 }
 
-//sjin: implement new ss_do_object_sync_list for pthreads
-static void *ss_do_object_sync_list(void *threadarg)
+// implement new ss_do_object_sync_list for pthreads
+void *GldExec::ss_do_object_sync_list(void *threadarg)
 {
 	LISTITEM *ptr;
 	int iPtr;
 
 	struct arg_data *mydata = (struct arg_data *) threadarg;
 	int thread = mydata->thread;
-	void *item = mydata->item;
+	LISTITEM *item = (LISTITEM*)mydata->item;
 	int incr = mydata->incr;
 
 	iPtr = 0;
@@ -581,15 +819,16 @@ static void *ss_do_object_sync_list(void *threadarg)
 	return NULL;
 }
 
-static STATUS init_by_creation()
+STATUS GldExec::init_by_creation(void)
 {
 	OBJECT *obj;
 	char b[64];
 	STATUS rv = SUCCESS;
-	TRY {
-		for (obj=object_get_first(); obj!=NULL; obj=object_get_next(obj))
+	try 
+	{
+		for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
 		{
-			if (object_init(obj)==FAILED)
+			if ( object_init(obj) == FAILED )
 			{
 				memset(b, 0, 64);
 				output_error("init_all(): object %s initialization failed", object_name(obj, b, 63));
@@ -613,7 +852,9 @@ static STATUS init_by_creation()
 			}
 			obj->clock = global_starttime;
 		}
-	} CATCH (char *msg) {
+	} 
+	catch (const char *msg) 
+	{
 		output_error("init failure: %s", msg);
 		/* TROUBLESHOOT
 			The initialization procedure failed.  This is usually preceded 
@@ -621,16 +862,17 @@ static STATUS init_by_creation()
 			the guidance for that message and try again.
 		 */
 		rv = FAILED;
-	} ENDCATCH;
+	}
+	
 	return rv;
 }
 
-static int init_by_deferral_retry(OBJECT **def_array, int def_ct)
+STATUS GldExec::init_by_deferral_retry(OBJECT **def_array, int def_ct)
 {
 	OBJECT *obj;
 	int ct = 0, i = 0, obj_rv = 0;
 	OBJECT **next_arr, **tarray;
-	int rv = SUCCESS;
+	STATUS rv = SUCCESS;
 	char b[64];
 	int retry = 1, tries = 0;
 	tarray = NULL;
@@ -742,7 +984,7 @@ static int init_by_deferral_retry(OBJECT **def_array, int def_ct)
 	return rv;
 }
 
-static int init_by_deferral()
+STATUS GldExec::init_by_deferral()
 {
 	OBJECT **def_array = 0;
 	int i = 0, obj_rv = 0, def_ct = 0;
@@ -828,11 +1070,7 @@ static int init_by_deferral()
 	return SUCCESS;
 }
 
-OBJECT **object_heartbeats = NULL;
-unsigned int n_object_heartbeats = 0;
-unsigned int max_object_heartbeats = 0;
-
-static STATUS init_all(void)
+STATUS GldExec::init_all(void)
 {
 	OBJECT *obj;
 	STATUS rv = SUCCESS;
@@ -915,15 +1153,11 @@ static STATUS init_all(void)
  *		of a timestep, before the sync process.  This callback is only triggered
  *		once per timestep, and will not fire between iterations.
  */
-typedef struct s_simplelinklist { 
-	void *data;
-	struct s_simplelinklist *next;
-} SIMPLELINKLIST;
 
 /**************************************************************************
  ** PRECOMMIT ITERATOR
  **************************************************************************/
-static STATUS precommit_all(TIMESTAMP t0)
+STATUS GldExec::precommit_all(TIMESTAMP t0)
 {
 	STATUS rv=SUCCESS;
 	static int first=1;
@@ -956,7 +1190,8 @@ static STATUS precommit_all(TIMESTAMP t0)
 		first = 0;
 	}
 
-	TRY {
+	try 
+	{
 		for ( item=precommit_list ; item!=NULL ; item=item->next )
 		{
 			OBJECT *obj = (OBJECT*)item->data;
@@ -976,7 +1211,7 @@ static STATUS precommit_all(TIMESTAMP t0)
 			}
 		}
 	} 
-	CATCH(const char *msg)
+	catch (const char *msg)
 	{
 		output_error("precommit_all() failure: %s", msg);
 		/* TROUBLESHOOT
@@ -985,16 +1220,15 @@ static STATUS precommit_all(TIMESTAMP t0)
 			the guidance for that message and try again.
 		 */
 		rv=FAILED;
-	} ENDCATCH;
-	return rv && module_precommitall(t0);
+	}
+	return ( rv && module_precommitall(t0) ) ? SUCCESS : FAILED;
 }
 
 /**************************************************************************
  ** COMMIT ITERATOR
  **************************************************************************/
-static SIMPLELINKLIST *commit_list[2] = {NULL, NULL};
 /* initialize commit_list - must be called only once */
-static int commit_init(void)
+int GldExec::commit_init(void)
 {
 	int n_commits = 0;
 	OBJECT *obj;
@@ -1019,14 +1253,14 @@ static int commit_init(void)
 	return n_commits;
 }
 /* commit_list iterator */
-static MTIITEM commit_get0(MTIITEM item)
+MTIITEM GldExec::commit_get0(MTIITEM item)
 {
 	if ( item==NULL )
 		return (MTIITEM)commit_list[0];
 	else
 		return (MTIITEM)(((SIMPLELINKLIST*)item)->next);
 }
-static MTIITEM commit_get1(MTIITEM item)
+MTIITEM GldExec::commit_get1(MTIITEM item)
 {
 	if ( item==NULL )
 		return (MTIITEM)commit_list[1];
@@ -1034,7 +1268,7 @@ static MTIITEM commit_get1(MTIITEM item)
 		return (MTIITEM)(((SIMPLELINKLIST*)item)->next);
 }
 /* commit function call */
-static void commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
+void GldExec::commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
 {
 	OBJECT *obj = (OBJECT*)(((SIMPLELINKLIST*)item)->data);
 	TIMESTAMP *t2 = (TIMESTAMP*)output;
@@ -1049,9 +1283,10 @@ static void commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
 		*t2 = TS_NEVER;
 }
 /* commit data set accessor */
-static MTIDATA commit_set(MTIDATA to, MTIDATA from)
+MTIDATA GldExec::commit_set(MTIDATA to, MTIDATA from)
 {
 	/* allocation request */
+	// TODO: it's not clear how this malloc is freed
 	if ( to==NULL ) to = (MTIDATA)malloc(sizeof(TIMESTAMP));
 
 	/* clear request (may follow allocation request) */
@@ -1063,7 +1298,7 @@ static MTIDATA commit_set(MTIDATA to, MTIDATA from)
 	return to;
 }
 /* commit data compare accessor */
-static int commit_compare(MTIDATA a, MTIDATA b)
+int GldExec::commit_compare(MTIDATA a, MTIDATA b)
 {
 	TIMESTAMP t0 = (a?*(TIMESTAMP*)a:TS_NEVER);
 	TIMESTAMP t1 = (b?*(TIMESTAMP*)b:TS_NEVER);
@@ -1072,7 +1307,7 @@ static int commit_compare(MTIDATA a, MTIDATA b)
 	return 0;
 }
 /* commit data gather accessor */
-static void commit_gather(MTIDATA a, MTIDATA b)
+void GldExec::commit_gather(MTIDATA a, MTIDATA b)
 {
 	TIMESTAMP *t0 = (TIMESTAMP*)a;
 	TIMESTAMP *t1 = (TIMESTAMP*)b;
@@ -1080,7 +1315,7 @@ static void commit_gather(MTIDATA a, MTIDATA b)
 	if ( *t1<*t0 ) *t0 = *t1;
 }
 /* commit iterator reject test */
-static int commit_reject(MTI *mti, MTIDATA value)
+int GldExec::commit_reject(MTI *mti, MTIDATA value)
 {
 	TIMESTAMP *t1 = (TIMESTAMP*)value;
 	TIMESTAMP *t2 = (TIMESTAMP*)mti->output;
@@ -1088,7 +1323,7 @@ static int commit_reject(MTI *mti, MTIDATA value)
 	return ( *t2>*t1 && *t2<TS_NEVER ) ? 1 : 0;
 }
 /* single threaded version of commit_all */
-static TIMESTAMP commit_all_st(TIMESTAMP t0, TIMESTAMP t2)
+TIMESTAMP GldExec::commit_all_st(TIMESTAMP t0, TIMESTAMP t2)
 {
 	TIMESTAMP result = TS_NEVER;
 	SIMPLELINKLIST *item;
@@ -1126,7 +1361,7 @@ static TIMESTAMP commit_all_st(TIMESTAMP t0, TIMESTAMP t2)
 	return result;
 }
 /* multi-threaded version of commit_all */
-static TIMESTAMP commit_all(TIMESTAMP t0, TIMESTAMP t2)
+TIMESTAMP GldExec::commit_all(TIMESTAMP t0, TIMESTAMP t2)
 {
 	static int n_commits = -1;
 	static MTI *mti[] = {NULL,NULL};
@@ -1135,7 +1370,8 @@ static TIMESTAMP commit_all(TIMESTAMP t0, TIMESTAMP t2)
 	MTIDATA output = (MTIDATA)&t2;
 	TIMESTAMP result = TS_NEVER;
 
-	TRY {
+	try 
+	{
 		unsigned int pc;
 
 		/* build commit list */
@@ -1155,8 +1391,8 @@ static TIMESTAMP commit_all(TIMESTAMP t0, TIMESTAMP t2)
 				{
 					/* build mti */
 					static MTIFUNCTIONS fns[] = {
-						{commit_get0, commit_call, commit_set,commit_compare, commit_gather, commit_reject},
-						{commit_get1, commit_call, commit_set,commit_compare, commit_gather, commit_reject},
+						{exec_commit_get0, exec_commit_call, exec_commit_set, exec_commit_compare, exec_commit_gather, exec_commit_reject},
+						{exec_commit_get1, exec_commit_call, exec_commit_set, exec_commit_compare, exec_commit_gather, exec_commit_reject},
 					};
 					mti[pc] = mti_init("commit",&fns[pc],8);
 					if ( mti[pc]==NULL )
@@ -1176,7 +1412,7 @@ static TIMESTAMP commit_all(TIMESTAMP t0, TIMESTAMP t2)
 			}
 		}
 	}
-	CATCH(const char *msg)
+	catch (const char *msg)
 	{
 		output_error("commit_all() failure: %s", msg);
 		/* TROUBLESHOOT
@@ -1186,15 +1422,13 @@ static TIMESTAMP commit_all(TIMESTAMP t0, TIMESTAMP t2)
 		 */
 		result = TS_INVALID;
 	}
-	ENDCATCH;
-
 	return result && module_commitall(t0) ? TS_NEVER : TS_INVALID;
 }
 
 /**************************************************************************
  ** FINALIZE ITERATOR
  **************************************************************************/
-static STATUS finalize_all()
+STATUS GldExec::finalize_all()
 {
 	STATUS rv=SUCCESS;
 	static int first=1;
@@ -1227,7 +1461,8 @@ static STATUS finalize_all()
 		first = 0;
 	}
 
-	TRY {
+	try 
+	{
 		for ( item=finalize_list ; item!=NULL ; item=item->next )
 		{
 			OBJECT *obj = (OBJECT*)item->data;
@@ -1244,7 +1479,7 @@ static STATUS finalize_all()
 			}
 		}
 	} 
-	CATCH(const char *msg)
+	catch (const char *msg)
 	{
 		output_error("finalize_all() failure: %s", msg);
 		/* TROUBLESHOOT
@@ -1253,20 +1488,15 @@ static STATUS finalize_all()
 			the guidance for that message and try again.
 		 */
 		rv=FAILED;
-	} ENDCATCH;
+	}
 	return rv;
 }
 
-STATUS exec_test(struct sync_data *data, int pass, OBJECT *obj);
- 
-STATUS t_setup_ranks(void)
-{
-	return setup_ranks();
-}
-STATUS t_sync_all(PASSCONFIG pass)
+STATUS GldExec::t_sync_all(PASSCONFIG pass)
 {
 	struct sync_data sync = {TS_NEVER,0,SUCCESS};
 	int pass_index = ((int)(pass/2)); /* 1->0, 2->1, 4->2; NB: if a fourth pass is added this won't work right */
+	INDEX **ranks = getranks();
 
 	/* scan the ranks of objects */
 	if (ranks[pass_index] != NULL)
@@ -1284,8 +1514,8 @@ STATUS t_sync_all(PASSCONFIG pass)
 			
 			for (item=ranks[pass_index]->ordinal[i]->first; item!=NULL; item=item->next)
 			{
-				OBJECT *obj = item->data;
-				if (exec_test(&sync,pass,obj)==FAILED)
+				OBJECT *obj = (OBJECT*)(item->data);
+				if (test(&sync,pass,obj)==FAILED)
 					return FAILED;
 			}
 		}
@@ -1293,7 +1523,7 @@ STATUS t_sync_all(PASSCONFIG pass)
 
 	/* run all non-schedule transforms */
 	{
-		TIMESTAMP st = transform_syncall(global_clock,XS_DOUBLE|XS_COMPLEX|XS_ENDUSE);// if (abs(t)<t2) t2=t;
+		TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_DOUBLE|XS_COMPLEX|XS_ENDUSE));// if (abs(t)<t2) t2=t;
 		if (st<sync.step_to)
 			sync.step_to = st;
 	}
@@ -1301,7 +1531,7 @@ STATUS t_sync_all(PASSCONFIG pass)
 	return SUCCESS;
 }
 
-TIMESTAMP sync_heartbeats(void)
+TIMESTAMP GldExec::sync_heartbeats(void)
 {
 	TIMESTAMP t1 = TS_NEVER;
 	unsigned int n;
@@ -1316,7 +1546,7 @@ TIMESTAMP sync_heartbeats(void)
 }
 
 /* this function synchronizes all internal behaviors */
-TIMESTAMP syncall_internals(TIMESTAMP t1)
+TIMESTAMP GldExec::syncall_internals(TIMESTAMP t1)
 {
 	TIMESTAMP h1, h2, s1, s2, s3, s4, s5, s6, se, sa;
 
@@ -1328,7 +1558,7 @@ TIMESTAMP syncall_internals(TIMESTAMP t1)
 	s1 = randomvar_syncall(t1);
 	s2 = schedule_syncall(t1);
 	s3 = loadshape_syncall(t1);
-	s4 = transform_syncall(t1,XS_SCHEDULE|XS_LOADSHAPE);
+	s4 = transform_syncall(t1,(TRANSFORMSOURCE)(XS_SCHEDULE|XS_LOADSHAPE));
 	s5 = enduse_syncall(t1);
 
 	/* heartbeats go last */
@@ -1351,7 +1581,7 @@ TIMESTAMP syncall_internals(TIMESTAMP t1)
 	return sa;
 }
 
-void exec_sleep(unsigned int usec)
+void GldExec::sleep(unsigned int usec)
 {
 #ifdef WIN32
 	Sleep(usec/1000);
@@ -1360,29 +1590,8 @@ void exec_sleep(unsigned int usec)
 #endif
 }
 
-typedef struct s_objsyncdata {
-	unsigned int n; // thread id 0~n_threads for this object rank list
-	pthread_t pt;
-	bool ok;
-	//void *item;
-	LISTITEM *ls;
-	unsigned int nObj; // number of obj in this object rank list
-	unsigned int t0;
-	int i; // index of mutex or cond this object rank list uses 
-} OBJSYNCDATA;
-
-static pthread_mutex_t *startlock;
-static pthread_mutex_t *donelock;
-static pthread_cond_t *start;
-static pthread_cond_t *done;
-
-static unsigned int *next_t1;
-static unsigned int *donecount;
-static unsigned int *n_threads; //number of thread used in the threadpool of an object rank list
-
-static void *obj_syncproc(void *ptr)
+void *GldExec::obj_syncproc(OBJSYNCDATA *data)
 {
-	OBJSYNCDATA *data = (OBJSYNCDATA*)ptr;
 	LISTITEM *s;
 	unsigned int n;
 	int i = data->i;
@@ -1400,9 +1609,10 @@ static void *obj_syncproc(void *ptr)
 		pthread_mutex_unlock(&startlock[i]);
 
 		// process the list for this thread
-		for (s=data->ls, n=0; s!=NULL, n<data->nObj; s=s->next,n++) {
-			OBJECT *obj = s->data;
-			ss_do_object_sync(data->n, s->data);
+		for ( s = data->ls, n = 0 ; s != NULL || n < data->nObj ; s = s->next, n++ ) 
+		{
+			OBJECT *obj = (OBJECT*)(s->data);
+			my_instance->exec.ss_do_object_sync(data->n, s->data);
 		}
 
 		// signal completed condition
@@ -1425,17 +1635,11 @@ static void *obj_syncproc(void *ptr)
 }
 
 /** MAIN LOOP CONTROL ******************************************************************/
-
-/*static*/ pthread_mutex_t mls_svr_lock;
-/*static*/ pthread_cond_t mls_svr_signal;
-int mls_created = 0;
-int mls_destroyed = 0;
-
-void exec_mls_create(void)
+void GldExec::mls_create(void)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_create(): cannot create mutex after it was destroyed");
+		output_error("gldcore/exec.c/GldExec::mls_create(): cannot create mutex after it was destroyed");
 		return;
 	}
 	int rv = 0;
@@ -1443,76 +1647,77 @@ void exec_mls_create(void)
 	mls_created = 1;
 	global_mainloopstate = MLS_INIT;
 	
-	IN_MYCONTEXT output_debug("exec_mls_create()");
+	IN_MYCONTEXT output_debug("GldExec::mls_create()");
 	rv = pthread_mutex_init(&mls_svr_lock,NULL);
 	if ( rv != 0 )
 	{
-		output_error("gldcore/exec.c/exec_mls_create(): pthread_mutex_init() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_create(): pthread_mutex_init() error %d (%s)", rv, strerror(rv));
 	}
 	rv = pthread_cond_init(&mls_svr_signal,NULL);
 	if ( rv != 0 )
 	{
-		output_error("gldcore/exec.c/exec_mls_create(): pthread_cond_init() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_create(): pthread_cond_init() error %d (%s)", rv, strerror(rv));
 	}
 }
 
-void exec_mls_init(void)
+void GldExec::mls_init(void)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_init(): cannot init mutex after it was destroyed");
+		output_error("gldcore/exec.c/GldExec::mls_init(): cannot init mutex after it was destroyed");
 		return;
 	}
 	if (mls_created == 0)
 	{
-		exec_mls_create();
+		my_instance->exec.mls_create();
 	}
 	if (global_mainloopstate==MLS_PAUSED)
-		exec_mls_suspend();
+		my_instance->exec.mls_suspend();
 	else
 		sched_update(global_clock,global_mainloopstate);
 }
 
-void exec_mls_start()
+void GldExec::mls_start()
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_start(): cannot start mutex after it was destroyed");
+		output_error("gldcore/exec.c/GldExec::mls_start(): cannot start mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_start(): cannot start mutex before it was created");
+		output_error("gldcore/exec.c/GldExec::mls_start(): cannot start mutex before it was created");
 		return;
 	}
 	int rv = 0;
 	rv = pthread_mutex_lock(&mls_svr_lock);
 	if ( rv != 0 )
 	{
-		output_error("gldcore/exec.c/exec_mls_start(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_start(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	sched_update(global_clock,global_mainloopstate = MLS_RUNNING);
 	rv = pthread_mutex_unlock(&mls_svr_lock);
 	if ( rv != 0 && rv != EINVAL )
 	{
-		output_error("gldcore/exec.c/exec_mls_start(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_start(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
 	}
 	rv = pthread_cond_broadcast(&mls_svr_signal);
 	if ( rv != 0 && rv != EINVAL )
 	{
-		output_error("gldcore/exec.c/exec_mls_start(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_start(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
 	}
 }
-void exec_mls_suspend(void)
+
+void GldExec::mls_suspend(void)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex after it was destroyed");
+		output_error("gldcore/exec.c/GldExec::mls_suspend(): cannot suspend mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex before it was created");
+		output_error("gldcore/exec.c/GldExec::mls_suspend(): cannot suspend mutex before it was created");
 		return;
 	}
 	int loopctr = 10;
@@ -1524,7 +1729,7 @@ void exec_mls_suspend(void)
 	rv = pthread_mutex_lock(&mls_svr_lock);
 	if (0 != rv)
 	{
-		output_error("gldcore/exec.c/exec_mls_suspend(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_suspend(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	IN_MYCONTEXT output_debug("sched update_");
 	sched_update(global_clock,global_mainloopstate=MLS_PAUSED);
@@ -1537,7 +1742,7 @@ void exec_mls_suspend(void)
 		rv = pthread_cond_wait(&mls_svr_signal, &mls_svr_lock);
 		if ( rv != 0 && rv != EINVAL )
 		{
-			output_error("gldcore/exec.c/exec_mls_suspend(): pthread_cond_wait() error %d (%s)", rv, strerror(rv));
+			output_error("gldcore/exec.c/GldExec::mls_suspend(): pthread_cond_wait() error %d (%s)", rv, strerror(rv));
 		}
 	}
 	IN_MYCONTEXT output_debug("sched update_");
@@ -1546,27 +1751,27 @@ void exec_mls_suspend(void)
 	rv = pthread_mutex_unlock(&mls_svr_lock);
 	if (rv != 0)
 	{
-		output_error("gldcore/exec.c/exec_mls_suspend(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_suspend(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
 	}
 }
 
-void exec_mls_resume(TIMESTAMP ts)
+void GldExec::mls_resume(TIMESTAMP ts)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_resume(): cannot resume mutex after it was destroyed");
+		output_error("gldcore/exec.c/GldExec::mls_resume(): cannot resume mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_resume(): cannot resume mutex before it was created");
+		output_error("gldcore/exec.c/GldExec::mls_resume(): cannot resume mutex before it was created");
 		return;
 	}
 	int rv = 0;
 	rv = pthread_mutex_lock(&mls_svr_lock);
 	if (rv != 0 && rv != EINVAL )
 	{
-		output_error("gldcore/exec.c/exec_mls_resume(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_resume(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	global_mainlooppauseat = ts;
 	if ( rv != EINVAL )
@@ -1574,26 +1779,26 @@ void exec_mls_resume(TIMESTAMP ts)
 		rv = pthread_mutex_unlock(&mls_svr_lock);
 		if (rv != 0)
 		{
-			output_error("gldcore/exec.c/exec_mls_resume(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+			output_error("gldcore/exec.c/GldExec::mls_resume(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
 		}
 		rv = pthread_cond_broadcast(&mls_svr_signal);
 		if (rv != 0)
 		{
-		output_error("gldcore/exec.c/exec_mls_suspend(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_suspend(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
 		}
 	}
 }
 
-void exec_mls_statewait(unsigned states)
+void GldExec::mls_statewait(unsigned states)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex after it was destroyed");
+		output_error("gldcore/exec.c/GldExec::mls_statewait(): cannot statewait mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex before it was created");
+		output_error("gldcore/exec.c/GldExec::mls_statewait(): cannot statewait mutex before it was created");
 		return;
 	}
 
@@ -1601,7 +1806,7 @@ void exec_mls_statewait(unsigned states)
 	rv = pthread_mutex_lock(&mls_svr_lock);
 	if (rv != 0 && rv!=EINVAL)
 	{
-		output_error("gldcore/exec.c/exec_mls_statewait(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_statewait(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	if ( rv != EINVAL )
 	{
@@ -1610,13 +1815,13 @@ void exec_mls_statewait(unsigned states)
 			rv = pthread_cond_wait(&mls_svr_signal, &mls_svr_lock);
 			if ( rv != 0 && rv != EINVAL )
 			{
-				output_error("gldcore/exec.c/exec_mls_statewait(): pthread_cond_wait() error %d (%s)", rv, strerror(rv));
+				output_error("gldcore/exec.c/GldExec::mls_statewait(): pthread_cond_wait() error %d (%s)", rv, strerror(rv));
 			}
 		}
 		rv = pthread_mutex_unlock(&mls_svr_lock);
 		if ( rv != 0 && rv != EINVAL )
 		{
-			output_error("gldcore/exec.c/exec_mls_statewait(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+			output_error("gldcore/exec.c/GldExec::mls_statewait(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
 		}
 	}
 	else
@@ -1627,13 +1832,13 @@ void exec_mls_statewait(unsigned states)
 	}
 }
 
-void exec_mls_done(void)
+void GldExec::mls_done(void)
 {
 	if ( mls_destroyed )
 		return;
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/exec_mls_destroy(): cannot destroy mutex before it was created");
+		output_error("gldcore/exec.c/GldExec::mls_destroy(): cannot destroy mutex before it was created");
 		return;
 	}
 	int rv = 0;
@@ -1642,7 +1847,7 @@ void exec_mls_done(void)
 	rv = pthread_mutex_lock(&mls_svr_lock);
 	if (rv != 0 && rv!=EINVAL)
 	{
-		output_error("gldcore/exec.c/exec_mls_done(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
+		output_error("gldcore/exec.c/GldExec::mls_done(): pthread_mutex_lock() error %d (%s)", rv, strerror(rv));
 	}
 	sched_update(global_clock,global_mainloopstate=MLS_DONE);
 	if ( rv != EINVAL )
@@ -1650,12 +1855,12 @@ void exec_mls_done(void)
 		rv = pthread_mutex_unlock(&mls_svr_lock);
 		if ( rv != 0 && rv != EINVAL )
 		{
-			output_error("gldcore/exec.c/exec_mls_done(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
+			output_error("gldcore/exec.c/GldExec::mls_done(): pthread_mutex_unlock() error %d (%s)", rv, strerror(rv));
 		}
 		rv = pthread_cond_broadcast(&mls_svr_signal);
 		if ( rv != 0 && rv != EINVAL )
 		{
-			output_error("gldcore/exec.c/exec_mls_suspend(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
+			output_error("gldcore/exec.c/GldExec::mls_suspend(): pthread_cond_broadcast() error %d (%s)", rv, strerror(rv));
 		}
 	}
 	mls_destroyed = 1;
@@ -1666,7 +1871,6 @@ void exec_mls_done(void)
 /******************************************************************
  SYNC HANDLING API
  *******************************************************************/
-static struct sync_data main_sync = {TS_NEVER,0,SUCCESS};
 
 /** Reset the sync time data structure 
 
@@ -1677,7 +1881,7 @@ static struct sync_data main_sync = {TS_NEVER,0,SUCCESS};
 	which usually means the simulation stops at
 	steady state.
  **/
-void exec_sync_reset(struct sync_data *d) /**< sync data to reset (NULL to reset main)  **/
+void GldExec::sync_reset(struct sync_data *d)
 {
 	if ( d==NULL ) d=&main_sync;
 	d->step_to = ( global_mainlooppauseat > global_clock ? global_mainlooppauseat : TS_NEVER );
@@ -1694,24 +1898,24 @@ void exec_sync_reset(struct sync_data *d) /**< sync data to reset (NULL to reset
 	set to \p TS_INVALID.  If the time of \p from
 	is \p TS_NEVER, then \p to is not updated.  In
 	all other cases, the \p to sync time is updated
-	with #exec_sync_set.
+	with #sync_set.
 
-	@see #exec_sync_set
+	@see #sync_set
  **/
-void exec_sync_merge(struct sync_data *to, /**< sync data to merge to (NULL to update main)  **/
+void GldExec::sync_merge(struct sync_data *to, /**< sync data to merge to (NULL to update main)  **/
 					struct sync_data *from) /**< sync data to merge from */
 {
 	if ( to==NULL ) to = &main_sync;
 	if ( from==NULL ) from = &main_sync;
 	if ( from==to ) return;
-	if ( exec_sync_isinvalid(from) ) 
-		exec_sync_set(to,TS_INVALID,false);
-	else if ( exec_sync_isnever(from) ) 
+	if ( sync_isinvalid(from) ) 
+		sync_set(to,TS_INVALID,false);
+	else if ( sync_isnever(from) ) 
 		{} /* do nothing */	
-	else if ( exec_sync_ishard(from) )
-		exec_sync_set(to,exec_sync_get(from),false);
+	else if ( sync_ishard(from) )
+		sync_set(to,sync_get(from),false);
 	else
-		exec_sync_set(to,-exec_sync_get(from),false);
+		sync_set(to,-sync_get(from),false);
 }
 /** Update the sync data structure 
 
@@ -1726,7 +1930,7 @@ void exec_sync_merge(struct sync_data *to, /**< sync data to merge to (NULL to u
 	Otherwise, if the event is soft, then if the time is earlier it is posted.
 	Otherwise, the event status is changed to FAILED.
  **/
-void exec_sync_set(struct sync_data *d, /**< sync data to update (NULL to update main) */
+void GldExec::sync_set(struct sync_data *d, /**< sync data to update (NULL to update main) */
 				  TIMESTAMP t,/**< timestamp to update with (negative time means soft event, 0 means failure) */
 				  bool deltaflag)/**< flag to let us know this was a deltamode exit - force it forward, otherwise can fail to exit */
 {
@@ -1777,17 +1981,17 @@ void exec_sync_set(struct sync_data *d, /**< sync data to update (NULL to update
 /** Get the current sync time
 	@return the proper (positive) event sync time, TS_NEVER, or TS_INVALID.
  **/
-TIMESTAMP exec_sync_get(struct sync_data *d) /**< Sync data to get sync time from (NULL to read main)  */
+TIMESTAMP GldExec::sync_get(struct sync_data *d) /**< Sync data to get sync time from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
-	if ( exec_sync_isnever(d) ) return TS_NEVER;
-	if ( exec_sync_isinvalid(d) ) return TS_INVALID;
+	if ( sync_isnever(d) ) return TS_NEVER;
+	if ( sync_isinvalid(d) ) return TS_INVALID;
 	return absolute_timestamp(d->step_to);
 }
 /** Get the current hard event count 
 	@return the number of hard events associated with this sync event.
  **/
-unsigned int exec_sync_getevents(struct sync_data *d) /**< Sync data to get sync events from (NULL to read main)  */
+unsigned int GldExec::sync_getevents(struct sync_data *d) /**< Sync data to get sync events from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
 	return d->hard_event;
@@ -1795,7 +1999,7 @@ unsigned int exec_sync_getevents(struct sync_data *d) /**< Sync data to get sync
 /** Determine whether the current sync data is a hard sync
 	@return non-zero if the event is a hard event, 0 if the event is a soft event
  **/
-int exec_sync_ishard(struct sync_data *d) /**< Sync data to read hard sync status from (NULL to read main)  */
+int GldExec::sync_ishard(struct sync_data *d) /**< Sync data to read hard sync status from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
 	return d->hard_event>0;
@@ -1803,7 +2007,7 @@ int exec_sync_ishard(struct sync_data *d) /**< Sync data to read hard sync statu
 /** Determine whether the current sync data time is never 
 	@return non-zero if the event is NEVER, 0 otherwise
  **/
-int exec_sync_isnever(struct sync_data *d) /**< Sync data to read never sync status from (NULL to read main)  */
+int GldExec::sync_isnever(struct sync_data *d) /**< Sync data to read never sync status from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
 	return d->step_to==TS_NEVER;
@@ -1811,15 +2015,15 @@ int exec_sync_isnever(struct sync_data *d) /**< Sync data to read never sync sta
 /** Determine whether the currenet sync time is invalid (NULL to read main)
     @return non-zero if the status if FAILED, 0 otherwise
  **/
-int exec_sync_isinvalid(struct sync_data *d) /**< Sync data to read invalid sync status from */
+int GldExec::sync_isinvalid(struct sync_data *d) /**< Sync data to read invalid sync status from */
 {
 	if ( d==NULL ) d=&main_sync;
-	return exec_sync_getstatus(d)==FAILED;
+	return sync_getstatus(d)==FAILED;
 }
 /** Determine the current sync status
 	@return the event status (SUCCESS or FAILED)
  **/
-STATUS exec_sync_getstatus(struct sync_data *d) /**< Sync data to read sync status from (NULL to read main)  */
+STATUS GldExec::sync_getstatus(struct sync_data *d) /**< Sync data to read sync status from (NULL to read main)  */
 {
 	if ( d==NULL ) d=&main_sync;
 	return d->status;
@@ -1827,14 +2031,14 @@ STATUS exec_sync_getstatus(struct sync_data *d) /**< Sync data to read sync stat
 /** Determine whether sync time is a running simulation
     @return true if the simulation should keep going, false if it should stop
  **/
-bool exec_sync_isrunning(struct sync_data *d)
+bool GldExec::sync_isrunning(struct sync_data *d)
 {
-	return exec_sync_get(d)<=global_stoptime && !exec_sync_isnever(d) && exec_sync_ishard(d);
+	return sync_get(d)<=global_stoptime && !sync_isnever(d) && sync_ishard(d);
 }
 
-void exec_clock_update_modules()
+void GldExec::clock_update_modules()
 {
-	TIMESTAMP t1 = exec_sync_get(NULL);
+	TIMESTAMP t1 = sync_get(NULL);
 	MODULE *mod;
 	int ok = 0;
 	while ( !ok )
@@ -1853,26 +2057,44 @@ void exec_clock_update_modules()
 			}
 		}
 	}
-	exec_sync_set(NULL,t1,false);
+	sync_set(NULL,t1,false);
 }
 
 /** Main loop sync lock control **/
-static long sync_lock;
-void exec_rlock_sync(void)
+void GldExec::rlock_sync(void)
 {
 	rlock(&sync_lock);
 }
-void exec_runlock_sync(void)
+
+void GldExec::runlock_sync(void)
 {
 	runlock(&sync_lock);
 }
-void exec_wlock_sync(void)
+
+void GldExec::wlock_sync(void)
 {
 	wlock(&sync_lock);
 }
-void exec_wunlock_sync(void)
+
+void GldExec::wunlock_sync(void)
 {
 	wunlock(&sync_lock);
+}
+
+void GldExec::create_lockdata(int nObjRankList)
+{
+	size_t k;
+	startlock = (pthread_mutex_t*)malloc(sizeof(startlock[0])*nObjRankList);
+	donelock = (pthread_mutex_t*)malloc(sizeof(donelock[0])*nObjRankList);
+	start = (pthread_cond_t*)malloc(sizeof(start[0])*nObjRankList);
+	done = (pthread_cond_t*)malloc(sizeof(done[0])*nObjRankList);
+	for ( k = 0 ; k < nObjRankList ; k++ ) 
+	{
+		pthread_mutex_init(&startlock[k], NULL);
+		pthread_mutex_init(&donelock[k], NULL);
+		pthread_cond_init(&start[k], NULL);
+		pthread_cond_init(&done[k], NULL);
+	}
 }
 
 /******************************************************************
@@ -1883,18 +2105,19 @@ void exec_wunlock_sync(void)
 	@return STATUS is SUCCESS if the simulation reached equilibrium, 
 	and FAILED if a problem was encountered.
  **/
-STATUS exec_start(void)
+STATUS GldExec::exec_start(void)
 {
 	int64 passes = 0, tsteps = 0;
 	int ptc_rv = 0; // unused
 	int ptj_rv = 0; // unused
 	int pc_rv = 0; // precommit return value
-	STATUS fnl_rv = 0; // finalize all return value
+	STATUS fnl_rv = FAILED; // finalize all return value
 	time_t started_at = realtime_now(); // for profiler
 	int j, k;
 	LISTITEM *ptr;
 	int incr;
 	struct arg_data *arg_data_array;
+	INDEX **ranks = getranks();
 
 	// Only setup threadpool for each object rank list at the first iteration;
 	// After the first iteration, setTP = false;
@@ -1905,14 +2128,14 @@ STATUS exec_start(void)
 	int nObjRankList, iObjRankList;
 
 	/* run create scripts, if any */
-	if ( exec_run_createscripts()!=XC_SUCCESS )
+	if ( run_createscripts()!=XC_SUCCESS )
 	{
 		output_error("create script(s) failed");
 		return FAILED;
 	}
 
 	/* initialize the main loop state control */
-	exec_mls_init();
+	mls_init();
 
 	/* perform object initialization */
 	if (init_all() == FAILED)
@@ -1937,10 +2160,14 @@ STATUS exec_start(void)
 		 */
 		return FAILED;
 	}
+	else
+	{
+		ranks = getranks();
+	}
 
 	/* run checks */
 	if (global_runchecks)
-		return module_checkall();
+		return module_checkall() > 0 ? SUCCESS : FAILED ;
 
 	/* compile only check */
 	if (global_compileonly)
@@ -1965,13 +2192,12 @@ STATUS exec_start(void)
 			IN_MYCONTEXT output_verbose("using %d helper thread(s)", global_threadcount);
 		}
 
-		//sjin: allocate arg_data_array to store pthreads creation argument
-		arg_data_array = (struct arg_data *) malloc(sizeof(struct arg_data) 
-						 * global_threadcount);
+		/* allocate arg_data_array to store pthreads creation argument */
+		arg_data_array = create_argdata(global_threadcount);
 
 		/* allocate thread synchronization data */
-		thread_data = (struct thread_data *) malloc(sizeof(struct thread_data) +
-					  sizeof(struct sync_data) * global_threadcount);
+		init_thread_data();
+		struct thread_data * thread_data = get_thread_data();
 		if (!thread_data) {
 			output_error("thread memory allocation failed");
 			/* TROUBLESHOOT
@@ -1992,7 +2218,7 @@ STATUS exec_start(void)
 	}
 
 	/* run init scripts, if any */
-	if ( exec_run_initscripts()!=XC_SUCCESS )
+	if ( run_initscripts()!=XC_SUCCESS )
 	{
 		output_error("init script(s) failed");
 		return FAILED;
@@ -2014,22 +2240,22 @@ STATUS exec_start(void)
 	if (global_multirun_mode == MRM_SLAVE)
 	{
 		pthread_cond_broadcast(&mls_inst_signal); // tell slaveproc() it's time to get rolling
-		IN_MYCONTEXT output_debug("exec_start(), slave waiting for first time signal");
+		IN_MYCONTEXT output_debug("GldExec::start(), slave waiting for first time signal");
 		pthread_mutex_lock(&mls_inst_lock);
 		pthread_cond_wait(&mls_inst_signal, &mls_inst_lock);
 		pthread_mutex_unlock(&mls_inst_lock);
 		// will have copied data down and updated step_to with slave_cache
 		//global_clock = exec_sync_get(NULL); // copy time signal to gc
-		IN_MYCONTEXT output_debug("exec_start(), slave received first time signal of %lli", global_clock);
+		IN_MYCONTEXT output_debug("GldExec::start(), slave received first time signal of %lli", global_clock);
 	}
 	// maybe that's all we need...
 	iteration_counter = global_iteration_limit;
 
 	/* reset sync event */
-	exec_sync_reset(NULL);
-	exec_sync_set(NULL,global_clock,false);
+	sync_reset(NULL);
+	sync_set(NULL,global_clock,false);
 	if ( global_stoptime<TS_NEVER )
-		exec_sync_set(NULL,global_stoptime+1,false);
+		sync_set(NULL,global_stoptime+1,false);
 
 	/* signal handler */
 	signal(SIGABRT, exec_sighandler);
@@ -2065,27 +2291,17 @@ STATUS exec_start(void)
 	/* allocate and initialize thread data */
 	IN_MYCONTEXT output_debug("nObjRankList=%d ",nObjRankList);
 
-	next_t1 = malloc(sizeof(next_t1[0])*nObjRankList);
+	next_t1 = (unsigned int*)malloc(sizeof(next_t1[0])*nObjRankList);
 	memset(next_t1,0,sizeof(next_t1[0])*nObjRankList);
 
-	donecount = malloc(sizeof(donecount[0])*nObjRankList);
+	donecount = (unsigned int*)malloc(sizeof(donecount[0])*nObjRankList);
 	memset(donecount,0,sizeof(donecount[0])*nObjRankList);
 
-	n_threads = malloc(sizeof(n_threads[0])*nObjRankList);
+	n_threads = (unsigned int*)malloc(sizeof(n_threads[0])*nObjRankList);
 	memset(n_threads,0,sizeof(n_threads[0])*nObjRankList);
 
 	// allocation and nitialize mutex and cond for object rank lists
-	startlock = malloc(sizeof(startlock[0])*nObjRankList);
-	donelock = malloc(sizeof(donelock[0])*nObjRankList);
-	start = malloc(sizeof(start[0])*nObjRankList);
-	done = malloc(sizeof(done[0])*nObjRankList);
-	for(k=0;k<nObjRankList;k++) 
-	{
-		pthread_mutex_init(&startlock[k], NULL);
-		pthread_mutex_init(&donelock[k], NULL);
-		pthread_cond_init(&start[k], NULL);
-		pthread_cond_init(&done[k], NULL);
-	}
+	create_lockdata(nObjRankList);
 
 	// global test mode
 	if ( global_test_mode==TRUE )
@@ -2098,29 +2314,30 @@ STATUS exec_start(void)
 		return SUCCESS;
 
 	//sjin: GetMachineCycleCount
-	cstart = (clock_t)exec_clock();
+	cstart = (clock_t)clock();
 
 	/* main loop exception handler */
-	exec_wlock_sync();
-	TRY {
+	wlock_sync();
+	try 
+	{
 
 		/* main loop runs for iteration limit, or when nothing futher occurs (ignoring soft events) */
-		while ( iteration_counter>0 && exec_sync_isrunning(NULL) && exec_getexitcode()==XC_SUCCESS ) 
+		while ( iteration_counter>0 && sync_isrunning(NULL) && getexitcode()==XC_SUCCESS ) 
 		{
-			exec_wunlock_sync();
+			wunlock_sync();
 			TIMESTAMP internal_synctime;
-			IN_MYCONTEXT output_debug("*** main loop event at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", exec_sync_get(NULL), global_stoptime, exec_sync_getevents(NULL), exec_getexitcode());
+			IN_MYCONTEXT output_debug("*** main loop event at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", sync_get(NULL), global_stoptime, sync_getevents(NULL), getexitcode());
 
 			/* update the process table info */
-			exec_mls_start();
+			mls_start();
 
 			/* main loop control */
 			if ( global_clock>=global_mainlooppauseat && global_mainlooppauseat<TS_NEVER )
-				exec_mls_suspend();
+				mls_suspend();
 
-			exec_rlock_sync();
+			rlock_sync();
 			do_checkpoint();
-			exec_runlock_sync();
+			runlock_sync();
 
 			/* realtime control of global clock */
 			if (global_run_realtime==0 && global_clock >= global_enter_realtime)
@@ -2152,73 +2369,68 @@ STATUS exec_start(void)
 				else
 					output_error("simulation failed to keep up with real time");
 #endif
-#define IIR 0.9 /* about 30s for 95% unit step response */
-				exec_wlock_sync();
+				wlock_sync();
 				global_clock += global_run_realtime;
-				global_realtime_metric = global_realtime_metric*IIR + metric*(1-IIR);
-				exec_sync_reset(NULL);
-				exec_sync_set(NULL,global_clock,false);
+				global_realtime_metric = global_realtime_metric*realtime_metric_decay + metric*(1-realtime_metric_decay);
+				sync_reset(NULL);
+				sync_set(NULL,global_clock,false);
 				IN_MYCONTEXT output_verbose("realtime clock advancing to %d", (int)global_clock);
 			}
 
 			/* internal control of global clock */
 			else
 			{
-				exec_wlock_sync();
-				global_clock = exec_sync_get(NULL);
+				wlock_sync();
+				global_clock = sync_get(NULL);
 			}
 
 			/* operate delta mode if necessary (but only when event mode is active, e.g., not right after init) */
 			/* note that delta mode cannot be supported for realtime simulation */
 			global_deltaclock = 0;
-//			if ( global_run_realtime==0 )
-			{
-				/* determine whether any modules seek delta mode */
-				DELTAMODEFLAGS flags=DMF_NONE;
-				DT delta_dt = delta_modedesired(&flags);
-				TIMESTAMP t = TS_NEVER;
-				IN_MYCONTEXT output_debug("delta_dt is %d", (int)delta_dt);
-				switch ( delta_dt ) {
-				case DT_INFINITY: /* no dt -> event mode */
-					global_simulation_mode = SM_EVENT;
-					t = TS_NEVER;
-					break; 
-				case DT_INVALID: /* error dt  */
+
+			/* determine whether any modules seek delta mode */
+			DELTAMODEFLAGS flags=DMF_NONE;
+			DT delta_dt = delta_modedesired(&flags);
+			TIMESTAMP t = TS_NEVER;
+			IN_MYCONTEXT output_debug("delta_dt is %d", (int)delta_dt);
+			switch ( delta_dt ) {
+			case DT_INFINITY: /* no dt -> event mode */
+				global_simulation_mode = SM_EVENT;
+				t = TS_NEVER;
+				break; 
+			case DT_INVALID: /* error dt  */
+				global_simulation_mode = SM_ERROR;
+				t = TS_INVALID;
+				break; /* simulation mode error */
+			default: /* valid dt */
+				if ( global_minimum_timestep>1 )
+				{
 					global_simulation_mode = SM_ERROR;
+					output_error("minimum_timestep must be 1 second to operate in deltamode");
 					t = TS_INVALID;
-					break; /* simulation mode error */
-				default: /* valid dt */
-					if ( global_minimum_timestep>1 )
-					{
-						global_simulation_mode = SM_ERROR;
-						output_error("minimum_timestep must be 1 second to operate in deltamode");
-						t = TS_INVALID;
-						break;
-					}
-					else
-					{
-						if (delta_dt==0)	/* Delta mode now */
-						{
-							global_simulation_mode = SM_DELTA;
-							t = global_clock;
-						}
-						else	/* Normal sync - get us to delta point */
-						{
-							global_simulation_mode = SM_EVENT;
-							t = global_clock + delta_dt;
-						}
-					}
 					break;
 				}
-				if ( global_simulation_mode==SM_ERROR )
+				else
 				{
-					output_error("a simulation mode error has occurred");
-					break; /* terminate main loop immediately */
+					if (delta_dt==0)	/* Delta mode now */
+					{
+						global_simulation_mode = SM_DELTA;
+						t = global_clock;
+					}
+					else	/* Normal sync - get us to delta point */
+					{
+						global_simulation_mode = SM_EVENT;
+						t = global_clock + delta_dt;
+					}
 				}
-				exec_sync_set(NULL,t,false);
+				break;
 			}
-//			else
-//				global_simulation_mode = SM_EVENT;
+			if ( global_simulation_mode==SM_ERROR )
+			{
+				output_error("a simulation mode error has occurred");
+				break; /* terminate main loop immediately */
+			}
+			sync_set(NULL,t,false);
 			
 			/* synchronize all internal schedules */
 			if ( global_clock < 0 )
@@ -2232,53 +2444,49 @@ STATUS exec_start(void)
 			output_set_time_context(global_clock);
 
 			/* reset for a new sync event */
-			exec_sync_reset(NULL);
+			sync_reset(NULL);
 
 			/* account for stoptime only if global clock is not already at stoptime */
 			if ( global_clock<=global_stoptime && global_stoptime!=TS_NEVER )
-				exec_sync_set(NULL,global_stoptime+1,false);
+				sync_set(NULL,global_stoptime+1,false);
 
 			/* synchronize all internal schedules */
 			internal_synctime = syncall_internals(global_clock);
 			if( internal_synctime!=TS_NEVER && absolute_timestamp(internal_synctime)<global_clock )
 			{
 				// must be able to force reiterations for m/s mode.
-				THROW("internal property sync failure");
+				throw("internal property sync failure");
 				/* TROUBLESHOOT
 					An internal property such as schedule, enduse or loadshape has failed to synchronize and the simulation aborted.
 					This message should be preceded by a more informative message that explains which element failed and why.
 					Follow the troubleshooting recommendations for that message and try again.
 				 */
 			}
-			exec_sync_set(NULL,internal_synctime,false);
+			sync_set(NULL,internal_synctime,false);
 
 			/* prepare multithreading */
 			if (!global_debug_mode)
 			{
+				struct thread_data * thread_data = get_thread_data();
 				for (j = 0; j < thread_data->count; j++) {
 					thread_data->data[j].hard_event = 0;
 					thread_data->data[j].step_to = TS_NEVER;
 				}
 			}
-#ifdef _DEBUG
-			if ( global_clock>=global_runaway_time ) 
-				throw_exception("running clock detected");
-#endif
 
 			/* run precommit only on first iteration */
 			if (iteration_counter == global_iteration_limit)
 			{
 				/* run commit scripts, if any */
-				if ( exec_sync_get(NULL)!=global_clock && exec_run_precommitscripts()!=XC_SUCCESS )
+				if ( sync_get(NULL)!=global_clock && run_precommitscripts()!=XC_SUCCESS )
 				{
-					output_error("precommit script(s) failed");
-					THROW("script precommit failure");
+					throw("script precommit failure");
 				}
 			
 				pc_rv = precommit_all(global_clock);
 				if(SUCCESS != pc_rv)
 				{
-					THROW("precommit failure");
+					throw("precommit failure");
 				}
 			}
 			iObjRankList = -1;
@@ -2294,18 +2502,18 @@ STATUS exec_start(void)
 					TIMESTAMP mt = module_presyncall(global_clock);
 					if ( mt == TS_INVALID )
 					{
-						THROW("module on_presync failed");
+						throw("module on_presync failed");
 					}
-					exec_sync_set(NULL,mt,false);
+					sync_set(NULL,mt,false);
 				}
 				else if ( pass == 2 )
 				{
 					TIMESTAMP mt = module_postsyncall(global_clock);
 					if ( mt == TS_INVALID )
 					{
-						THROW("module on_postsync failed");
+						throw("module on_postsync failed");
 					}
-					exec_sync_set(NULL,mt,false);
+					sync_set(NULL,mt,false);
 				}
 
 				/* process object in order of rank using index */
@@ -2322,11 +2530,11 @@ STATUS exec_start(void)
 						LISTITEM *item;
 						for (item=ranks[pass]->ordinal[i]->first; item!=NULL; item=item->next)
 						{
-							OBJECT *obj = item->data;
+							OBJECT *obj = (OBJECT*)(item->data);
 							// @todo change debug so it uses sync API
 							if (exec_debug(&main_sync,pass,i,obj)==FAILED)
 							{
-								THROW("debugger quit");
+								throw("debugger quit");
 							}
 						}
 					}
@@ -2336,7 +2544,7 @@ STATUS exec_start(void)
 						if (global_threadcount == 1) 
 						{
 							for (ptr = ranks[pass]->ordinal[i]->first; ptr != NULL; ptr=ptr->next) {
-								OBJECT *obj = ptr->data;
+								OBJECT *obj = (OBJECT*)(ptr->data);
 								ss_do_object_sync(0, ptr->data);					
 								
 								if (obj->valid_to == TS_INVALID)
@@ -2367,9 +2575,9 @@ STATUS exec_start(void)
 									n_threads[iObjRankList] = (int)ceil((float) n_obj / incr);
 									n_items = incr;
 								}
-								if ((int)n_threads[iObjRankList] > global_threadcount) {
-									output_error("Running threads > global_threadcount");
-									exit(0);
+								if ( (int)n_threads[iObjRankList] > global_threadcount ) 
+								{
+									throw("Running threads > global_threadcount");
 								}
 
 								// allocate thread list
@@ -2389,7 +2597,8 @@ STATUS exec_start(void)
 								for (n=0; n<n_threads[iObjRankList]; n++) {
 									thread[n].ok = true;
 									thread[n].i = iObjRankList;
-									if (pthread_create(&(thread[n].pt),NULL,obj_syncproc,&(thread[n]))!=0) {
+									thread[n].main = &instance;
+									if (pthread_create(&(thread[n].pt),NULL,exec_obj_syncproc,&(thread[n]))!=0) {
 										output_fatal("obj_sync thread creation failed");
 										thread[n].ok = false;
 									} else
@@ -2422,10 +2631,12 @@ STATUS exec_start(void)
 							pthread_mutex_unlock(&donelock[iObjRankList]);
 						}
 
+						struct thread_data * thread_data = get_thread_data();
 						for (j = 0; j < thread_data->count; j++) {
-							if (thread_data->data[j].status == FAILED) {
-								exec_sync_set(NULL,TS_INVALID,false);
-								THROW("synchronization failed");
+							if (thread_data->data[j].status == FAILED) 
+							{
+								sync_set(NULL,TS_INVALID,false);
+								throw("synchronization failed");
 							}
 						}
 					}
@@ -2437,24 +2648,25 @@ STATUS exec_start(void)
 					TIMESTAMP mt = module_syncall(global_clock);
 					if ( mt == TS_INVALID )
 					{
-						THROW("module on_sync failed");
+						throw("module on_sync failed");
 					}
-					exec_sync_set(NULL,mt,false);
+					sync_set(NULL,mt,false);
 				}
 
 				/* run all non-schedule transforms */
 				{
-					TIMESTAMP st = transform_syncall(global_clock,XS_DOUBLE|XS_COMPLEX|XS_ENDUSE);// if (abs(t)<t2) t2=t;
-					exec_sync_set(NULL,st,false);
+					TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_DOUBLE|XS_COMPLEX|XS_ENDUSE));// if (abs(t)<t2) t2=t;
+					sync_set(NULL,st,false);
 				}
 			}
 			setTP = false;
 
 			if (!global_debug_mode)
 			{
+				struct thread_data * thread_data = get_thread_data();
 				for (j = 0; j < thread_data->count; j++) 
 				{
-					exec_sync_merge(NULL,&thread_data->data[j]);
+					sync_merge(NULL,&thread_data->data[j]);
 				}
 
 				/* report progress */
@@ -2467,8 +2679,8 @@ STATUS exec_start(void)
 			/**** LOOPED SLAVE PAUSE HERE ****/
 			if(global_multirun_mode == MRM_SLAVE)
 			{
-				IN_MYCONTEXT output_debug("step_to = %lli", exec_sync_get(NULL));
-				IN_MYCONTEXT output_debug("exec_start(), slave waiting for looped time signal");
+				IN_MYCONTEXT output_debug("step_to = %lli", sync_get(NULL));
+				IN_MYCONTEXT output_debug("GldExec::start(), slave waiting for looped time signal");
 
 				pthread_cond_broadcast(&mls_inst_signal);
 
@@ -2476,37 +2688,35 @@ STATUS exec_start(void)
 				pthread_cond_wait(&mls_inst_signal, &mls_inst_lock);
 				pthread_mutex_unlock(&mls_inst_lock);
 
-				IN_MYCONTEXT output_debug("exec_start(), slave received looped time signal (%lli)", exec_sync_get(NULL));
+				IN_MYCONTEXT output_debug("GldExec::start(), slave received looped time signal (%lli)", sync_get(NULL));
 			}
 
 			/* run sync scripts, if any */
-			if ( exec_run_syncscripts()!=XC_SUCCESS )
+			if ( run_syncscripts()!=XC_SUCCESS )
 			{
-				output_error("sync script(s) failed");
-				THROW("script synchronization failure");
+				throw("script synchronization failure");
 			}
 
 
 			/* check for clock advance (indicating last pass) */
-			if ( exec_sync_get(NULL)!=global_clock )
+			if ( sync_get(NULL)!=global_clock )
 			{
 				OBJECT *obj;
 				TIMESTAMP commit_time = TS_NEVER;
-				commit_time = commit_all(global_clock, exec_sync_get(NULL));
+				commit_time = commit_all(global_clock, sync_get(NULL));
 				if ( absolute_timestamp(commit_time) <= global_clock)
 				{
 					// commit cannot force reiterations, and any event where the time is less than the global clock
 					//  indicates that the object is reporting a failure
-					output_error("model commit failed");
+					throw("model commit failed");
 					/* TROUBLESHOOT
 						The commit procedure failed.  This is usually preceded 
 						by a more detailed message that explains why it failed.  Follow
 						the guidance for that message and try again.
 					 */
-					THROW("commit failure");
-				} else if( absolute_timestamp(commit_time) < exec_sync_get(NULL) )
+				} else if( absolute_timestamp(commit_time) < sync_get(NULL) )
 				{
-					exec_sync_set(NULL,commit_time,false);
+					sync_set(NULL,commit_time,false);
 				}
 
 				/* make sure all clocks are set */
@@ -2523,29 +2733,27 @@ STATUS exec_start(void)
 			/* check iteration limit */
 			else if (--iteration_counter == 0)
 			{
-				output_error("convergence iteration limit reached at %s (exec)", simtime());
+				sync_set(NULL,TS_INVALID,false);
+				throwf("convergence iteration limit reached at %s (exec)", simtime());
 				/* TROUBLESHOOT
 					This indicates that the core's solver was unable to determine
 					a steady state for all objects for any time horizon.  Identify
 					the object that is causing the convergence problem and contact
 					the developer of the module that implements that object's class.
 				 */
-				exec_sync_set(NULL,TS_INVALID,false);
-				THROW("convergence failure");
 			}
 
 			/* run commit scripts, if any */
-			if ( exec_sync_get(NULL)!=global_clock && exec_run_commitscripts()!=XC_SUCCESS )
+			if ( sync_get(NULL)!=global_clock && run_commitscripts()!=XC_SUCCESS )
 			{
-				output_error("commit script(s) failed");
-				THROW("script commit failure");
+				throw("commit script(s) failed");
 			}
 
 			/* run scheduled dump, if any */
-			exec_run_dump();
+			run_dump();
 			
 			/* handle delta mode operation */
-			if ( global_simulation_mode==SM_DELTA && exec_sync_get(NULL)>=global_clock )
+			if ( global_simulation_mode==SM_DELTA && sync_get(NULL)>=global_clock )
 			{
 				DT deltatime = delta_update();
 				if ( deltatime==DT_INVALID )
@@ -2557,16 +2765,15 @@ STATUS exec_start(void)
 					If the error persists, please submit your code and a bug report via the trac website.
 					*/
 					global_simulation_mode = SM_ERROR;
-					THROW("Deltamode simulation failure");
-					break;	//Just in case, but probably not needed
+					throw("Deltamode simulation failure");
 				}
-				exec_sync_set(NULL,global_clock + deltatime,true);
+				sync_set(NULL,global_clock + deltatime,true);
 				global_simulation_mode = SM_EVENT;
 			}
 
 			/* clock update is the very last chance to change the next time */
-			if(exec_sync_get(NULL) != global_clock){
-				exec_clock_update_modules();
+			if(sync_get(NULL) != global_clock){
+				clock_update_modules();
 			}
 		} // end of while loop
 
@@ -2574,36 +2781,36 @@ STATUS exec_start(void)
 		signal(SIGINT,NULL);
 
 		/* check end state */
-		if ( exec_sync_isnever(NULL) )
+		if ( sync_isnever(NULL) )
 		{
 			char buffer[64];
 			IN_MYCONTEXT output_verbose("simulation at steady state at %s", convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"invalid time");
 		}
 
 	}
-	CATCH(char *msg)
+	catch (const char *msg)
 	{
 		output_error("exec halted: %s", msg);
-		exec_sync_set(NULL,TS_INVALID,false);
+		sync_set(NULL,TS_INVALID,false);
 		/* TROUBLESHOOT
 			This indicates that the core's solver shut down.  This message
 			is usually preceded by more detailed messages.  Follow the guidance
 			for those messages and try again.
 		 */
 	}
-	ENDCATCH
 
 	/* terminate main loop state control */
-	exec_mls_done();
-	exec_wunlock_sync();
-	IN_MYCONTEXT output_debug("*** main loop ended at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", exec_sync_get(NULL), global_stoptime, exec_sync_getevents(NULL), exec_getexitcode());
+	mls_done();
+	wunlock_sync();
+
+	IN_MYCONTEXT output_debug("*** main loop ended at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", sync_get(NULL), global_stoptime, sync_getevents(NULL), getexitcode());
 	if(global_multirun_mode == MRM_MASTER)
 	{
 		instance_master_done(TS_NEVER); // tell everyone to pack up and go home
 	}
 
 	//sjin: GetMachineCycleCount
-	cend = (clock_t)exec_clock();
+	cend = (clock_t)clock();
 
 	fnl_rv = finalize_all();
 	if(FAILED == fnl_rv)
@@ -2612,23 +2819,19 @@ STATUS exec_start(void)
 	}
 
 	/* run term scripts, if any */
-	if ( exec_run_termscripts()!=XC_SUCCESS )
+	if ( run_termscripts()!=XC_SUCCESS )
 	{
 		output_error("term script(s) failed");
+		if ( thread ) free(thread);
 		return FAILED;
 	}
 
 	/* deallocate threadpool */
 	if (!global_debug_mode)
 	{
+		struct thread_data * thread_data = get_thread_data();
 		free(thread_data);
 		thread_data = NULL;
-
-#ifdef NEVER
-		/* wipe out progress report */
-		if (!global_keep_progress)
-			output_raw("                                                           \r"); 
-#endif
 	}
 
 	// Destroy mutex and cond
@@ -2640,7 +2843,7 @@ STATUS exec_start(void)
 	}
 
 	/* report performance */
-	if (global_profiler && !exec_sync_isinvalid(NULL) )
+	if (global_profiler && !sync_isinvalid(NULL) )
 	{
 		double elapsed_sim = timestamp_to_hours(global_clock)-timestamp_to_hours(global_starttime);
 		double elapsed_wall = (double)(realtime_now()-started_at+1);
@@ -2721,13 +2924,14 @@ STATUS exec_start(void)
 	}
 
 	/* terminate links */
-	return exec_sync_getstatus(NULL);
+	if ( thread ) free(thread);
+	return sync_getstatus(NULL);
 }
 
 /** Starts the executive test loop 
 	@return STATUS is SUCCESS if all test passed, FAILED is any test failed.
  **/
-STATUS exec_test(struct sync_data *data, /**< the synchronization state data */
+STATUS GldExec::test(struct sync_data *data, /**< the synchronization state data */
 				 int pass, /**< the pass number */
 				 OBJECT *obj)  /**< the current object */
 {
@@ -2786,19 +2990,18 @@ STATUS exec_test(struct sync_data *data, /**< the synchronization state data */
 	return data->status;
 }
 
-void *slave_node_proc(void *args)
+void *GldExec::slave_node_proc(void *args)
 {
 	SOCKET **args_in = (SOCKET **)args;
 	SOCKET	*sockfd_ptr = (SOCKET *)args_in[1],
-			 masterfd = (SOCKET)(args_in[2]);
+			 masterfd = *(SOCKET*)(args_in[2]);
 	bool *done_ptr = (bool *)(args_in[0]);
 	struct sockaddr_in *addrin = (struct sockaddr_in *)(args_in[3]);
 
 	char buffer[1024], response[1024], addrstr[17], *paddrstr, *token_to, *params;
 	char cmd[1024], dirname[256], filename[256], filepath[256], ippath[256];
 	unsigned int64 mtr_port, id;
-//	char *tok_to;
-	char *token[5]={
+	const char *token[5]={
 		HS_CMD,
 		"dir=\"", // CMD absorbs dir's leading whitespace
 		" file=\"",
@@ -2945,7 +3148,7 @@ void *slave_node_proc(void *args)
 	if (tok_len > 0)
 	{
 		char temp[256];
-		sprintf(temp, "%%d offset and %%d len for \'%%%ds\'", tok_len);
+		sprintf(temp, "%%d offset and %%d len for \'%%%lus\'", tok_len);
 		IN_MYCONTEXT output_debug(temp, offset, tok_len, buffer+offset);
 		memcpy(dirname, buffer+offset, (tok_len > sizeof(dirname) ? sizeof(dirname) : tok_len));
 	} else {
@@ -2969,7 +3172,7 @@ void *slave_node_proc(void *args)
 		char temp[256];
 		memcpy(filename, buffer+offset, (tok_len > sizeof(filename) ? sizeof(filename) : tok_len));
 		filename[tok_len]=0;
-		sprintf(temp, "%%d offset and %%d len for \'%%%ds\'", tok_len);
+		sprintf(temp, "%%d offset and %%d len for \'%%%lus\'", tok_len);
 		IN_MYCONTEXT output_debug(temp, offset, tok_len, buffer+offset);
 	} 
 	else 
@@ -3066,19 +3269,19 @@ void *slave_node_proc(void *args)
 	return NULL;
 }
 
-
-/**	exec_slave_node
+/**	slave_node
 	Variant startup mode for GridLAB-D that causes the system to run a simple
 	server that will spawn new instances of GridLAB-D as requested to run as
 	remote slave nodes (see cmdarg.c:slave() )
  **/
-void exec_slave_node()
+void GldExec::slave_node()
 {
 	static bool node_done = FALSE;
 	static SOCKET sockfd = -1;
+	static SOCKET cnx;
 	SOCKET *args[4];
 	struct sockaddr_in server_addr;
-	struct sockaddr_in *inaddr;
+	struct sockaddr_in *inaddr = NULL;
 	int inaddrsz;
 	fd_set reader_fdset, master_fdset;
 	struct timeval timer;
@@ -3094,7 +3297,7 @@ void exec_slave_node()
 	IN_MYCONTEXT output_debug("starting WS2");
 	if (WSAStartup(MAKEWORD(2,0),&wsaData)!=0)
 	{
-		output_error("exec_slave_node(): socket library initialization failed: %s",strerror(GetLastError()));
+		output_error("GldExec::slave_node(): socket library initialization failed: %s",strerror(GetLastError()));
 		return;	
 	}
 #endif
@@ -3103,7 +3306,7 @@ void exec_slave_node()
 	sockfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (INVALID_SOCKET == sockfd)
 	{
-		output_fatal("exec_slave_node(): unable to open IPv4 TCP socket");
+		output_fatal("GldExec::slave_node(): unable to open IPv4 TCP socket");
 		return;
 	}
 
@@ -3115,7 +3318,7 @@ void exec_slave_node()
 	server_addr.sin_port = htons(global_slave_port);
 	if (0 != bind(sockfd, (struct sockaddr *)&server_addr, inaddrsz))
 	{
-		output_fatal("exec_slave_node(): unable to bind socket to port %d", global_slave_port);
+		output_fatal("GldExec::slave_node(): unable to bind socket to port %d", global_slave_port);
 		perror("bind()");
 		closesocket(sockfd);
 		return;
@@ -3124,11 +3327,11 @@ void exec_slave_node()
 	// listen
 	if ( 0 != listen(sockfd, 5))
 	{
-		output_fatal("exec_slave_node(): unable to listen to socket");
+		output_fatal("GldExec::slave_node(): unable to listen to socket");
 		closesocket(sockfd);
 		return;
 	}
-	IN_MYCONTEXT output_debug("exec_slave_node(): listening on port %d", global_slave_port);
+	IN_MYCONTEXT output_debug("GldExec::slave_node(): listening on port %d", global_slave_port);
 
 	// set up fd_set
 	FD_ZERO(&master_fdset);
@@ -3157,11 +3360,12 @@ void exec_slave_node()
 		} 
 		else if (rct > 0)
 		{
-			inaddr = malloc(inaddrsz);
+			if ( ! inaddr ) inaddr = (struct sockaddr_in*)malloc(inaddrsz);
 			args[3] = (SOCKET *)inaddr;
 			//IN_MYCONTEXT output_debug("esn(): got client");
 			memset(inaddr, 0, inaddrsz);
-			args[2] = (SOCKET *)accept(sockfd, (struct sockaddr *)inaddr, &inaddrsz);
+			cnx = accept(sockfd, (struct sockaddr *)inaddr, (socklen_t*)&inaddrsz);
+			args[2] = (SOCKET *)&cnx;
 			IN_MYCONTEXT output_debug("esn(): accepted client");
 			if (-1 == (int64)(args[2]))
 			{
@@ -3169,6 +3373,7 @@ void exec_slave_node()
 				perror("accept()");
 				node_done = TRUE;
 				closesocket(sockfd);
+				free(inaddr);
 				return;
 			}
 
@@ -3178,12 +3383,13 @@ void exec_slave_node()
 			//	* detatch, since we don't care about it after we start it
 			//	! I have no idea if the reuse of slave_thread will fly. Change
 			//	!  this if strange things start to happen.
-			if ( pthread_create(&slave_thread, NULL, slave_node_proc, (void *)args) )
+			if ( pthread_create(&slave_thread, NULL, exec_slave_node_proc, (void *)args) )
 			{
 				output_error("slavenode unable to thread off connection");
 				node_done = TRUE;
 				closesocket(sockfd);
-				closesocket((SOCKET)(args[2]));
+				closesocket(*(SOCKET*)(args[2]));
+				free(inaddr);
 				return;
 			}
 			//IN_MYCONTEXT output_debug("esn(): thread created");
@@ -3192,35 +3398,35 @@ void exec_slave_node()
 				output_error("slavenode unable to detach connection thread");
 				node_done = TRUE;
 				closesocket(sockfd);
-				closesocket((SOCKET)(args[2]));
+				closesocket(*(SOCKET*)(args[2]));
+				free(inaddr);
 				return;
 			}
 			//IN_MYCONTEXT output_debug("esn(): thread detached");
 		} // end if rct
 	} // end while
+	if ( inaddr ) free(inaddr);
 }
 
 /*************************************
  * Script support
  *************************************/
 
-typedef struct s_simplelist {
-	char *data;
-	struct s_simplelist *next;
-} SIMPLELIST;
-
-SIMPLELIST *script_exports = NULL;
-int exec_add_scriptexport(const char *name)
+int GldExec::add_scriptexport(const char *name)
 {
 	SIMPLELIST *item = (SIMPLELIST*)malloc(sizeof(SIMPLELIST));
 	if ( !item ) return 0;
-	item->data = (void*)malloc(strlen(name)+1);
+	item->data = (char*)malloc(strlen(name)+1);
 	strcpy(item->data,name);
 	item->next = script_exports;
 	script_exports = item;
 	return 1;
 }
 static int update_exports(void)
+{
+	return my_instance->exec.update_exports();
+}
+int GldExec::update_exports(void)
 {
 	SIMPLELIST *item;
 	for ( item=script_exports ; item!=NULL ; item=item->next )
@@ -3238,24 +3444,18 @@ static int update_exports(void)
 	return 1;
 }
 
-SIMPLELIST *create_scripts = NULL;
-SIMPLELIST *init_scripts = NULL;
-SIMPLELIST *precommit_scripts = NULL;
-SIMPLELIST *sync_scripts = NULL;
-SIMPLELIST *commit_scripts = NULL;
-SIMPLELIST *term_scripts = NULL;
-
-static int add_script(SIMPLELIST **list, const char *file)
+int GldExec::add_script(SIMPLELIST **list, const char *file)
 {
 	SIMPLELIST *item = (SIMPLELIST*)malloc(sizeof(SIMPLELIST));
 	if ( !item ) return 0;
-	item->data = (void*)malloc(strlen(file)+1);
+	item->data = (char*)malloc(strlen(file)+1);
 	strcpy(item->data,file);
 	item->next = *list;
 	*list = item;
 	return 1;
 }
-static EXITCODE run_system_script(char *call)
+
+EXITCODE GldExec::run_system_script(char *call)
 {
 	EXITCODE rc = system(call);
 	if ( rc != XC_SUCCESS )
@@ -3269,7 +3469,8 @@ static EXITCODE run_system_script(char *call)
 		return 0;
 	}	
 }
-static EXITCODE run_gridlabd_script(char *call)
+
+EXITCODE GldExec::run_gridlabd_script(char *call)
 {
 	char name[1024];
 	char arg[1024];
@@ -3289,7 +3490,8 @@ static EXITCODE run_gridlabd_script(char *call)
 		return XC_RUNERR;
 	}
 }
-static EXITCODE run_scripts(SIMPLELIST *list)
+
+EXITCODE GldExec::run_scripts(SIMPLELIST *list)
 {
 	SIMPLELIST *item;
 	update_exports();
@@ -3317,78 +3519,71 @@ static EXITCODE run_scripts(SIMPLELIST *list)
 	}
 	return XC_SUCCESS;
 }
-int exec_add_createscript(const char *file)
+
+int GldExec::add_createscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding create script '%s'", file);
 	return add_script(&create_scripts,file);
 }
-int exec_add_initscript(const char *file)
+
+int GldExec::add_initscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding init script '%s'", file);
 	return add_script(&init_scripts,file);
 }
-int exec_add_syncscript(const char *file)
+
+int GldExec::add_syncscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding sync script '%s'", file);
 	return add_script(&sync_scripts,file);
 }
-int exec_add_precommitscript(const char *file)
+
+int GldExec::add_precommitscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding precommit script '%s'", file);
 	return add_script(&precommit_scripts,file);
 }
-int exec_add_commitscript(const char *file)
+
+int GldExec::add_commitscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding commit script '%s'", file);
 	return add_script(&commit_scripts,file);
 }
-int exec_add_termscript(const char *file)
+
+int GldExec::add_termscript(const char *file)
 {
 	IN_MYCONTEXT output_debug("adding term script '%s'", file);
 	return add_script(&term_scripts,file);
 }
-int exec_run_createscripts(void)
+
+int GldExec::run_createscripts(void)
 {
 	return run_scripts(create_scripts);
 }
-int exec_run_initscripts(void)
+
+int GldExec::run_initscripts(void)
 {
 	return run_scripts(init_scripts);
 }
-int exec_run_precommitscripts(void)
+
+int GldExec::run_precommitscripts(void)
 {
 	return run_scripts(precommit_scripts);
 }
-int exec_run_syncscripts(void)
+
+int GldExec::run_syncscripts(void)
 {
 	return run_scripts(sync_scripts);
 }
-int exec_run_commitscripts(void)
+
+int GldExec::run_commitscripts(void)
 {
 	return run_scripts(commit_scripts);
 }
-int exec_run_termscripts(void)
+
+int GldExec::run_termscripts(void)
 {
 	return run_scripts(term_scripts);
 }
 
-static char dumpfile[1024] = "";
-TIMESTAMP dumpinterval = TS_NEVER;
-int exec_schedule_dump(TIMESTAMP interval,char *filename)
-{
-	output_verbose("scheduling dump to %s every %d seconds",filename,interval);
-	dumpinterval = interval;
-	strcpy(dumpfile,filename);
-	return 1;
-}
-void exec_run_dump(void)
-{
-	if ( dumpfile[0] == '\0' || dumpinterval==TS_NEVER )
-		return;
-	else if ( dumpinterval == 0 || global_clock % dumpinterval == 0  && saveall(dumpfile) <= 0 )
-	{
-		char buffer[64];
-		output_error("dump to %s at %s failed",dumpfile,convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"unknown time");
-	}
-}
 /**@}*/

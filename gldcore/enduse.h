@@ -88,6 +88,10 @@ typedef struct s_enduse {
 #endif
 } enduse;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int enduse_create(enduse *addr);
 int enduse_init(enduse *e);
 int enduse_initall(void);
@@ -97,7 +101,10 @@ int convert_to_enduse(char *string, void *data, PROPERTY *prop);
 int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop);
 int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, char *prefix);
 int enduse_test(void);
-
 double enduse_get_part(void *c, char *name);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -13,10 +13,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include "main.h"
 #include "output.h"
-#include "globals.h"
 #include "module.h"
 #include "lock.h"
+#include "assert.h"
 
 SET_MYCONTEXT(DMC_GLOBALS)
 
@@ -177,11 +178,11 @@ static KEYWORD gso_keys[] = {
 };
 
 static struct s_varmap {
-	char *name;
+	const char *name;
 	PROPERTYTYPE type;
 	void *addr;
 	PROPERTYACCESS access;
-	char *description;
+	const char *description;
 	KEYWORD *keys;
 	void (*callback)(char *name);
 } map[] = {
@@ -314,27 +315,27 @@ static struct s_varmap {
 };
 
 #ifdef WIN32
-#	define TMP "C:\\WINDOWS\\TEMP"
-#	define PATHSEP "\\"
-#	define HOMEVAR "HOMEPATH"
-#	define USERVAR "USERNAME"
-#	define snprintf _snprintf
+	#define TMP "C:\\WINDOWS\\TEMP"
+	#define PATHSEP "\\"
+	#define HOMEVAR "HOMEPATH"
+	#define USERVAR "USERNAME"
+	#define snprintf _snprintf
 #else
-#	define TMP "/tmp"
-#	define PATHSEP "/"
-#	define HOMEVAR "HOME"
-#	define USERVAR "USER"
+	#define TMP "/tmp"
+	#define PATHSEP "/"
+	#define HOMEVAR "HOME"
+	#define USERVAR "USER"
 #endif
 
 static void buildtmp(void)
 {
-	char *tmp, *home, *user;
+	const char *tmp, *home, *user;
 
 	if ((tmp = getenv("GLTEMP"))) {
 		snprintf(global_tmp, sizeof(global_tmp), "%s", tmp);
 		return;
 	}
-	if (home = getenv(HOMEVAR)) {
+	if ((home = getenv(HOMEVAR))) {
 #ifdef WIN32
 		char *drive;
 		if (!(drive = getenv("HOMEDRIVE")))
@@ -356,7 +357,7 @@ static void buildtmp(void)
 /** Register global variables
 	@return SUCCESS or FAILED
  **/
-STATUS global_init(void)
+STATUS GldGlobals::init(void)
 {
 	unsigned int i;
 
@@ -390,7 +391,7 @@ STATUS global_init(void)
 /** Find a global variable
 	@return a pointer to the GLOBALVAR struct if found, NULL if not found
  **/
-GLOBALVAR *global_find(char *name) /**< name of global variable to find */
+GLOBALVAR *GldGlobals::find(const char *name) /**< name of global variable to find */
 {
 	GLOBALVAR *var = NULL;
 	if ( name==NULL ) /* get first global in list */
@@ -411,23 +412,27 @@ GLOBALVAR *global_find(char *name) /**< name of global variable to find */
 
 	@return a pointer to the first character in the next variable name, or NULL of none found.
  **/
-GLOBALVAR *global_getnext(GLOBALVAR *previous){ /**< a pointer to the previous variable name (NULL for first) */
-	if(previous == NULL){
+GLOBALVAR *GldGlobals::getnext(const GLOBALVAR *previous) /**< a pointer to the previous variable name (NULL for first) */
+{
+	if ( previous == NULL ) 
+	{
 		return global_varlist;
-	} else {
+	} 
+	else 
+	{
 		return previous->next;
 	}
 }
 
 /** Restores global varlist to a previous start position **/
-void global_restore(GLOBALVAR *pos)
+void GldGlobals::restore(GLOBALVAR *pos)
 {
 	global_varlist = pos;
 }
-void global_push(char *name, char *value)
+void GldGlobals::push(char *name, char *value)
 {
 	GLOBALVAR *var = (GLOBALVAR *)malloc(sizeof(GLOBALVAR));
-	char *val = malloc(sizeof(char1024));
+	char *val = (char*)malloc(sizeof(char1024));
 	strcpy(val,value);
 	memset(var,0,sizeof(GLOBALVAR));
 	var->next = global_varlist;
@@ -447,14 +452,22 @@ void global_push(char *name, char *value)
 	@todo this does not support module globals but needs to (no ticket)
 
  **/
-GLOBALVAR *global_create(char *name, ...){
+GLOBALVAR *GldGlobals::create(const char *name, ...)
+{
 	va_list arg;
+	/* read the property args */
+	va_start(arg, name);
+	return create_v(name,arg);
+}
+GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
+{	
 	PROPERTY *prop = NULL, *lastprop = NULL;
 	PROPERTYTYPE proptype;
 	GLOBALVAR *var = NULL;
 
 	/* don't create duplicate entries */
-	if(global_find(name) != NULL){
+	if ( global_find(name) != NULL )
+	{
 		errno = EINVAL;
 		output_error("tried to create global variable '%s' a second time", name);
 		/* TROUBLESHOOT
@@ -469,7 +482,8 @@ GLOBALVAR *global_create(char *name, ...){
 	var = (GLOBALVAR *)malloc(sizeof(GLOBALVAR));
 	memset(var,0,sizeof(GLOBALVAR));
 	
-	if(var == NULL){
+	if ( var == NULL )
+	{
 		errno = ENOMEM;
 		throw_exception("global_create(char *name='%s',...): unable to allocate memory for global variable", name);
 		/* TROUBLESHOOT
@@ -481,18 +495,21 @@ GLOBALVAR *global_create(char *name, ...){
 	var->prop = NULL;
 	var->next = NULL;
 
-	/* read the property args */
-	va_start(arg, name);
-
-	while ((proptype = va_arg(arg,PROPERTYTYPE)) != 0){
-		if(proptype > _PT_LAST){
-			if(prop == NULL){
+	while ( (proptype = (PROPERTYTYPE)va_arg(arg,int)) != 0 ) // PROPERTYTYPE
+	{
+		if ( proptype > _PT_LAST )
+		{
+			if ( prop == NULL )
+			{
 				throw_exception("global_create(char *name='%s',...): property keyword not specified after an enumeration property definition", name);
-			} else if(proptype == PT_KEYWORD && prop->ptype == PT_enumeration) {
+			} 
+			else if ( proptype == PT_KEYWORD && prop->ptype == PT_enumeration ) 
+			{
 				char *keyword = va_arg(arg, char *);
 				int32 keyvalue = va_arg(arg, int32);
 				KEYWORD *key = (KEYWORD *)malloc(sizeof(KEYWORD));
-				if(key == NULL){
+				if ( key == NULL )
+				{
 					throw_exception("global_create(char *name='%s',...): property keyword could not be stored", name);
 					/* TROUBLESHOOT
 						The memory needed to store the property's keyword is not available.  Try freeing up memory and try again.
@@ -502,11 +519,14 @@ GLOBALVAR *global_create(char *name, ...){
 				strncpy(key->name, keyword, sizeof(key->name));
 				key->value = keyvalue;
 				prop->keywords = key;
-			} else if(proptype == PT_KEYWORD && prop->ptype == PT_set){
+			} 
+			else if ( proptype == PT_KEYWORD && prop->ptype == PT_set )
+			{
 				char *keyword = va_arg(arg, char *);
 				unsigned int64 keyvalue = va_arg(arg, int64); /* uchars are promoted to int by GCC */
 				KEYWORD *key = (KEYWORD *)malloc(sizeof(KEYWORD));
-				if(key == NULL){
+				if ( key == NULL )
+				{
 					throw_exception("global_create(char *name='%s',...): property keyword could not be stored", name);
 					/* TROUBLESHOOT
 						The memory needed to store the property's keyword is not available.  Try freeing up memory and try again.
@@ -516,9 +536,12 @@ GLOBALVAR *global_create(char *name, ...){
 				strncpy(key->name, keyword, sizeof(key->name));
 				key->value = keyvalue;
 				prop->keywords = key;
-			} else if(proptype == PT_ACCESS){
-				PROPERTYACCESS pa = va_arg(arg, PROPERTYACCESS);
-				switch (pa){
+			} 
+			else if ( proptype == PT_ACCESS )
+			{
+				PROPERTYACCESS pa = (PROPERTYACCESS)va_arg(arg, int); // PROPERTYACCESS
+				switch (pa)
+				{
 					case PA_PUBLIC:
 					case PA_REFERENCE:
 					case PA_PROTECTED:
@@ -534,41 +557,59 @@ GLOBALVAR *global_create(char *name, ...){
 						 */
 						break;
 				}
-			} else if(proptype == PT_SIZE){
+			} 
+			else if ( proptype == PT_SIZE )
+			{
 				prop->size = va_arg(arg, uint32);
-				if(prop->addr == 0){
-					if (prop->size > 0){
+				if ( prop->addr == 0 ) 
+				{
+					if ( prop->size > 0 ) 
+					{
 						prop->addr = (PROPERTYADDR)malloc(prop->size * property_size(prop));
-					} else {
+					} 
+					else 
+					{
 						throw_exception("global_create(char *name='%s',...): property size must be greater than 0 to allocate memory", name);
 						/* TROUBLESHOOT
 							The size of the property must be positive.
 						 */
 					}
 				}
-			} else if(proptype == PT_UNITS){
+			} 
+			else if ( proptype == PT_UNITS ) 
+			{
 				char *unitspec = va_arg(arg, char *);
-				if((prop->unit = unit_find(unitspec)) == NULL){
+				if ( (prop->unit = unit_find(unitspec)) == NULL )
+				{
 					output_warning("global_create(char *name='%s',...): property %s unit '%s' is not recognized",name, prop->name,unitspec);
 					/* TROUBLESHOOT
 						The property definition uses a unit that is not found.  Check the unit and try again.  
 						If you wish to define a new unit, try adding it to <code>.../etc/unitfile.txt</code>.
 					 */
 				}
-			} else if (proptype == PT_DESCRIPTION) {
+			} 
+			else if ( proptype == PT_DESCRIPTION ) 
+			{
 				prop->description = va_arg(arg,char*);
-			} else if (proptype == PT_DEPRECATED) {
+			} 
+			else if ( proptype == PT_DEPRECATED ) 
+			{
 				prop->flags |= PF_DEPRECATED;
-			} else {
+			} 
+			else 
+			{
 				throw_exception("global_create(char *name='%s',...): property extension code not recognized (PROPERTYTYPE=%d)", name, proptype);
 				/* TROUBLESHOOT
 					The property extension code used is not valid.  This is probably a bug and should be reported.
 				 */
 			}
-		} else {
+		} 
+		else 
+		{
 
 			PROPERTYADDR addr = va_arg(arg,PROPERTYADDR);
-			if(strlen(name) >= sizeof(prop->name)){
+			if ( strlen(name) >= sizeof(prop->name) )
+			{
 				throw_exception("global_create(char *name='%s',...): property name '%s' is too big to store", name, name);
 				/* TROUBLESHOOT
 					The property name cannot be longer than the size of the internal buffer used to store it (currently this is 63 characters).
@@ -577,29 +618,41 @@ GLOBALVAR *global_create(char *name, ...){
 			}
 
 			prop = property_malloc(proptype,NULL,name,addr,NULL);
-			if (prop==NULL)
+			if ( prop == NULL )
+			{
 				throw_exception("global_create(char *name='%s',...): property '%s' could not be stored", name, name);
-			if (var->prop==NULL)
+			}
+			if ( var->prop == NULL )
+			{
 				var->prop = prop;
+			}
 
 			/* link map to oclass if not yet done */
-			if (lastprop!=NULL)
+			if ( lastprop != NULL )
+			{
 				lastprop->next = prop;
+			}
 			else
+			{
 				lastprop = prop;
+			}
 
 			/* save enum property in case keywords come up */
 			if (prop->ptype>_PT_LAST)
+			{
 				prop = NULL;
+			}
 		}
 	}
-	va_end(arg);
 
-	if (lastvar==NULL)
+	if ( lastvar == NULL )
+	{
 		/* first variable */
 		global_varlist = lastvar = var;
+	}
 	else
-	{	/* not first */
+	{	
+		/* not first */
 		lastvar->next = var;
 		lastvar = var;
 	}
@@ -616,16 +669,21 @@ GLOBALVAR *global_create(char *name, ...){
 	and the second argument is read as a pointer to a string the contains
 	the new value.
  **/
-STATUS global_setvar(char *def, ...) /**< the definition */
+STATUS GldGlobals::setvar(const char *def, ...) /**< the definition */
+{
+	va_list ptr;
+	va_start(ptr,def);
+	STATUS res = setvar_v(def,ptr);
+	va_end(ptr);
+	return res;
+}
+STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 {
 	char name[65]="", value[1024]="";
 	if (sscanf(def,"%[^=]=%[^\r\n]",name,value)<2)
 	{
-		va_list ptr;
 		char *v;
-		va_start(ptr,def);
 		v = va_arg(ptr,char*);
-		va_end(ptr);
 		if (v!=NULL) 
 		{
 			strncpy(value,v,sizeof(value));
@@ -640,7 +698,7 @@ STATUS global_setvar(char *def, ...) /**< the definition */
 	if (strcmp(name,"")!=0) /* something was defined */
 	{
 		GLOBALVAR *var = global_find(name);
-		static int globalvar_lock = 0;
+		static LOCKVAR globalvar_lock = 0; // TODO: this is non-reentrant
 		int retval;
 		if (var==NULL)
 		{
@@ -770,7 +828,7 @@ char *global_true(char *buffer, int size)
 	}
 }
 
-char *global_seq(char *buffer, int size, char *name)
+const char *global_seq(char *buffer, int size, const char *name)
 {
 	char seq[64], opt[64]="";
 	if ( sscanf(name,"%63[^:]:%63s",seq,opt)==2 )
@@ -817,12 +875,12 @@ char *global_seq(char *buffer, int size, char *name)
 	}
 }
 
-int global_isdefined(char *name)
+bool GldGlobals::isdefined(const char *name)
 {
-	return global_find(name)!=NULL;
+	return find(name)!=NULL;
 }
 
-int parameter_expansion(char *buffer, int size, char *spec)
+bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec)
 {
 	char name[64], value[1024], pattern[64], op[64], string[64]="", yes[1024]="1", no[1024]="0";
 	int offset, length;
@@ -930,7 +988,7 @@ int parameter_expansion(char *buffer, int size, char *spec)
 		int32 *addr;
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
-		addr = var->prop->addr;
+		addr = (int32*)var->prop->addr;
 		sprintf(buffer,"%d",++(*addr));
 		return 1;
 	}
@@ -942,7 +1000,7 @@ int parameter_expansion(char *buffer, int size, char *spec)
 		int32 *addr;
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
-		addr = var->prop->addr;
+		addr = (int32*)var->prop->addr;
 		sprintf(buffer,"%d",--(*addr));
 		return 1;
 	}
@@ -954,7 +1012,7 @@ int parameter_expansion(char *buffer, int size, char *spec)
 		int32 *addr;
 		if ( var==NULL || var->prop->ptype!=PT_int32 )
 			return 0;
-		addr = var->prop->addr;
+		addr = (int32*)var->prop->addr;
 		sprintf(buffer,"%d",(*addr));
 		if ( strcmp(op,"++")==0 ) { (*addr)++; return 1; }
 		else if ( strcmp(op,"--")==0 ) { (*addr)--; return 1; }
@@ -966,7 +1024,7 @@ int parameter_expansion(char *buffer, int size, char *spec)
 		GLOBALVAR *var = global_find(name);
 		if ( var!=NULL && var->prop->ptype==PT_int32 )
 		{
-			int32 *addr = var->prop->addr;
+			int32 *addr = (int32*)var->prop->addr;
 			if ( strcmp(op,"==")==0 ) { strcpy(buffer,(*addr==number)?yes:no); return 1; }
 			else if ( strcmp(op,"!=")==0 || strcmp(op,"<>")==0 ) { strcpy(buffer,(*addr!=number)?yes:no); return 1; }
 			else if ( strcmp(op,"<=")==0 ) { strcpy(buffer,(*addr<=number)?yes:no); return 1; }
@@ -984,7 +1042,7 @@ int parameter_expansion(char *buffer, int size, char *spec)
 		GLOBALVAR *var = global_find(name);
 		if ( var!=NULL && var->prop->ptype==PT_int32 )
 		{
-			int32 *addr = var->prop->addr;
+			int32 *addr = (int32*)var->prop->addr;
 			sprintf(buffer,"%d",(*addr));
 			if ( strcmp(op,"+=")==0 ) { sprintf(buffer,"%d",(*addr)+=number); return 1; }
 			if ( strcmp(op,"-=")==0 ) { sprintf(buffer,"%d",(*addr)-=number); return 1; }
@@ -1011,7 +1069,7 @@ int parameter_expansion(char *buffer, int size, char *spec)
 				var = global_create(name,PT_int32,addr,PT_ACCESS,PA_PUBLIC,NULL);
 		}
 		else
-			addr = var->prop->addr;
+			addr = (int32*)var->prop->addr;
 		*addr = number;
 		sprintf(buffer,"%d",number);
 		return 1;
@@ -1034,13 +1092,13 @@ int parameter_expansion(char *buffer, int size, char *spec)
 
 	This function searches global, user-defined, and module variables for a match.
 **/
-char *global_getvar(char *name, char *buffer, int size)
+const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 {
 	char temp[1024];
 	int len = 0;
 	GLOBALVAR *var = NULL;
 	struct {
-		char *name;
+		const char *name;
 		char *(*call)(char *buffer,int size);
 	} map[] = {
 		{"GUID",global_guid},
@@ -1109,7 +1167,7 @@ char *global_getvar(char *name, char *buffer, int size)
 	return NULL; /* NULL if insufficient buffer space */
 }
 
-size_t global_getcount(void)
+size_t GldGlobals::getcount(void)
 {
 	size_t count = 0;
 	GLOBALVAR *var = NULL;
@@ -1118,7 +1176,7 @@ size_t global_getcount(void)
 	return count;
 }
 
-void global_dump(void)
+void GldGlobals::dump(void)
 {
 	GLOBALVAR *var=NULL;
 	int old = global_suppress_repeat_messages;
@@ -1133,7 +1191,7 @@ void global_dump(void)
 }
 
 /** threadsafe remote global read **/
-void *global_remote_read(void *local, /** local memory for data (must be correct size for global */
+void *GldGlobals::remote_read(void *local, /** local memory for data (must be correct size for global */
 						 GLOBALVAR *var) /** global variable from which to get data */
 {
 	int size = property_size(var->prop);
@@ -1166,7 +1224,7 @@ void *global_remote_read(void *local, /** local memory for data (must be correct
 	}
 }
 /** threadsafe remote global write **/
-void global_remote_write(void *local, /** local memory for data */
+void GldGlobals::remote_write(void *local, /** local memory for data */
 						 GLOBALVAR *var) /** global variable to which data is written */
 {
 	int size = property_size(var->prop);
@@ -1196,7 +1254,7 @@ void global_remote_write(void *local, /** local memory for data */
 	}
 }
 
-size_t global_saveall(FILE *fp)
+size_t GldGlobals::saveall(FILE *fp)
 {
 	size_t count = 0;
 	GLOBALVAR *var = NULL;
@@ -1212,4 +1270,153 @@ size_t global_saveall(FILE *fp)
 	return count;
 }
 
+GldGlobals::GldGlobals(GldMain *inst) :
+	instance(*inst)
+{
+	assert(inst!=NULL);
+	varlist = NULL;
+	last = NULL;
+}
+
+GldGlobals::~GldGlobals(void)
+{
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// GldGlobalvar class implementation
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, const char *value, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', const char *value='%s', ...): create failed",instance->get_id(), name, value);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, int64 *value, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', int64 *value='%lld', ...): create failed",instance->get_id(), name, *value);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, int32 *value, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', int32 *value='%d', ...): create failed",instance->get_id(), name, *value);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, int16 *value, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', int16 *value='%hd', ...): create failed",instance->get_id(), name, *value);	
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, double *value, const char *unit, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	if ( unit )
+		spec = instance->global_create(name,value,PT_ACCESS,access,PT_UNITS,unit,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	else
+		spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', double *value='%lf', const char *unit='%s'...): create failed",instance->get_id(), name, *value, unit);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, complex *value, const char *unit, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	if ( unit )
+		spec = instance->global_create(name,value,PT_ACCESS,access,PT_UNITS,unit,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	else
+		spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', complex *value='%lf%+lfi', const char *unit='%s'...): create failed",instance->get_id(), name, value->Re(), value->Im(), unit);
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, enumeration *value, KEYWORD *keys, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', enumeration *value='%llu', ...): create failed",instance->get_id(), name, (uint64)(*value));	
+	if ( keys )
+		spec->prop->keywords = keys;
+}
+GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access, const char *description, bool is_deprecated)
+{
+	spec = instance->global_create(name,value,PT_ACCESS,access,PT_DESCRIPTION,description,is_deprecated?PT_DEPRECATED:NULL,NULL);
+	if (  spec == NULL )
+		throw GldException("GldGlobalvar::GldGlobalvar(instance={pid:%d},name='%s', set *value='%llu', ...): create failed",instance->get_id(), name, (uint64)(*value));	
+	if ( keys )
+		spec->prop->keywords = keys;
+}
+GldGlobalvar::~GldGlobalvar(void)
+{
+	if ( spec != NULL )
+		delete spec;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+// TODO: these functions are deprecated and need to be removed after GldMain->my_instance is removed
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+STATUS global_init(void)
+{
+	return my_instance->globals.init();
+}
+GLOBALVAR *global_find(const char *name)
+{
+	return my_instance->globals.find(name);
+}
+GLOBALVAR *global_getnext(GLOBALVAR *var)
+{
+	return my_instance->globals.getnext(var);
+}
+void global_restore(GLOBALVAR *pos)
+{
+	return my_instance->globals.restore(pos);
+}
+void global_push(char *name, char *value)
+{
+	return my_instance->globals.push(name,value);
+}
+GLOBALVAR *global_create(const char *name, ...)
+{
+	va_list ptr;
+	va_start(ptr,name);
+	GLOBALVAR *var = my_instance->globals.create_v(name,ptr);
+	va_end(ptr);
+	return var;
+}
+STATUS global_setvar(char *def, ...)
+{
+	va_list ptr;
+	va_start(ptr,def);
+	STATUS res = my_instance->globals.setvar_v(def,ptr);
+	va_end(ptr);
+	return res;
+}
+int global_isdefined(const char *name)
+{
+	return my_instance->globals.isdefined(name);
+}
+const char *global_getvar(const char *name, char *buffer, size_t size) 
+{
+	return my_instance->globals.getvar(name,buffer,size);
+}
+size_t global_getcount(void) 
+{ 
+	return my_instance->globals.getcount();
+}
+size_t global_saveall(FILE *fp) 
+{ 
+	return my_instance->globals.saveall(fp);
+}
+void global_dump(void)
+{
+	return my_instance->globals.dump();
+}
+void *global_remote_read(void *local, GLOBALVAR *var)
+{
+	return my_instance->globals.remote_read(local,var);
+}
+void global_remote_write(void *local, GLOBALVAR *var)
+{
+	return my_instance->globals.remote_write(local,var);
+}
 /**@}**/
