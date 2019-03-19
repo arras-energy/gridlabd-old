@@ -300,6 +300,15 @@ void exec_slave_node()
 {
 	my_instance->exec.slave_node();
 }
+void throwf(const char *format, ...)
+{
+	char buffer[1024];
+	va_list ptr;
+	va_start(ptr,format);
+	vsprintf(buffer,format,ptr);
+	va_end(ptr);
+	throw(buffer);
+}
 
 ////////////////////////////////////////////
 // GldExec implementation
@@ -408,7 +417,7 @@ void GldExec::run_dump(void)
 {
 	if ( dumpfile[0] == '\0' || dumpinterval==TS_NEVER )
 		return;
-	else if ( dumpinterval == 0 || global_clock % dumpinterval == 0  && saveall(dumpfile) <= 0 )
+	else if ( ( dumpinterval == 0 || global_clock % dumpinterval == 0 ) && saveall(dumpfile) <= 0 )
 	{
 		char buffer[64];
 		output_error("dump to %s at %s failed",dumpfile,convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"unknown time");
@@ -1600,7 +1609,8 @@ void *GldExec::obj_syncproc(OBJSYNCDATA *data)
 		pthread_mutex_unlock(&startlock[i]);
 
 		// process the list for this thread
-		for (s=data->ls, n=0; s!=NULL, n<data->nObj; s=s->next,n++) {
+		for ( s = data->ls, n = 0 ; s != NULL || n < data->nObj ; s = s->next, n++ ) 
+		{
 			OBJECT *obj = (OBJECT*)(s->data);
 			my_instance->exec.ss_do_object_sync(data->n, s->data);
 		}
@@ -2724,7 +2734,7 @@ STATUS GldExec::exec_start(void)
 			else if (--iteration_counter == 0)
 			{
 				sync_set(NULL,TS_INVALID,false);
-				throw("convergence iteration limit reached at %s (exec)", simtime());
+				throwf("convergence iteration limit reached at %s (exec)", simtime());
 				/* TROUBLESHOOT
 					This indicates that the core's solver was unable to determine
 					a steady state for all objects for any time horizon.  Identify
@@ -2991,7 +3001,7 @@ void *GldExec::slave_node_proc(void *args)
 	char buffer[1024], response[1024], addrstr[17], *paddrstr, *token_to, *params;
 	char cmd[1024], dirname[256], filename[256], filepath[256], ippath[256];
 	unsigned int64 mtr_port, id;
-	char *token[5]={
+	const char *token[5]={
 		HS_CMD,
 		"dir=\"", // CMD absorbs dir's leading whitespace
 		" file=\"",
@@ -3138,7 +3148,7 @@ void *GldExec::slave_node_proc(void *args)
 	if (tok_len > 0)
 	{
 		char temp[256];
-		sprintf(temp, "%%d offset and %%d len for \'%%%ds\'", tok_len);
+		sprintf(temp, "%%d offset and %%d len for \'%%%lus\'", tok_len);
 		IN_MYCONTEXT output_debug(temp, offset, tok_len, buffer+offset);
 		memcpy(dirname, buffer+offset, (tok_len > sizeof(dirname) ? sizeof(dirname) : tok_len));
 	} else {
@@ -3162,7 +3172,7 @@ void *GldExec::slave_node_proc(void *args)
 		char temp[256];
 		memcpy(filename, buffer+offset, (tok_len > sizeof(filename) ? sizeof(filename) : tok_len));
 		filename[tok_len]=0;
-		sprintf(temp, "%%d offset and %%d len for \'%%%ds\'", tok_len);
+		sprintf(temp, "%%d offset and %%d len for \'%%%lus\'", tok_len);
 		IN_MYCONTEXT output_debug(temp, offset, tok_len, buffer+offset);
 	} 
 	else 
@@ -3268,6 +3278,7 @@ void GldExec::slave_node()
 {
 	static bool node_done = FALSE;
 	static SOCKET sockfd = -1;
+	static SOCKET cnx;
 	SOCKET *args[4];
 	struct sockaddr_in server_addr;
 	struct sockaddr_in *inaddr = NULL;
@@ -3353,7 +3364,8 @@ void GldExec::slave_node()
 			args[3] = (SOCKET *)inaddr;
 			//IN_MYCONTEXT output_debug("esn(): got client");
 			memset(inaddr, 0, inaddrsz);
-			args[2] = (SOCKET *)accept(sockfd, (struct sockaddr *)inaddr, (socklen_t*)&inaddrsz);
+			cnx = accept(sockfd, (struct sockaddr *)inaddr, (socklen_t*)&inaddrsz);
+			args[2] = (SOCKET *)&cnx;
 			IN_MYCONTEXT output_debug("esn(): accepted client");
 			if (-1 == (int64)(args[2]))
 			{
