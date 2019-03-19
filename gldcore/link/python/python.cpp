@@ -1021,6 +1021,7 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     }
 
     PyObject *data = PyDict_New();
+    PyDict_SetItemString(data,"id",Py_BuildValue("L",(unsigned long long)obj->id));
     if ( obj->oclass->name != NULL )
         PyDict_SetItemString(data,"class",Py_BuildValue("s",obj->oclass->name));
     if ( obj->parent != NULL )

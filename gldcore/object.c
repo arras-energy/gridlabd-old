@@ -2404,8 +2404,39 @@ void object_tree_delete(OBJECT *obj, OBJECTNAME name)
  **/
 OBJECT *object_find_name(OBJECTNAME name)
 {
-	OBJECTTREE *item = findin_tree(top, name);
-	return item == NULL ? NULL : item->obj;
+	char oclass[64];
+	unsigned int id;
+	if ( sscanf(name,"%63[^:]:%lu",oclass,&id) == 2 )
+	{
+		OBJECT *obj = object_find_by_id(id);
+		if ( obj == NULL )
+		{
+			IN_MYCONTEXT output_debug("object_find_name(name='%s') object id %lu not found", name, id);
+			return NULL;
+		}
+		else if ( strcmp(obj->oclass->name,oclass) != 0 ) 
+		{
+			IN_MYCONTEXT output_warning("object_find_name(name='%s') id %s:%lu not of class '%s'", name, obj->oclass->name, id, oclass);
+			return obj;
+		}
+		else
+		{
+			return obj;
+		}
+	}
+	else 
+	{
+		OBJECTTREE *item = findin_tree(top, name);
+		if ( item == NULL )
+		{
+			IN_MYCONTEXT output_debug("object_find_name(name='%s') name '%s' not found in tree", name, name);
+			return NULL;
+		}
+		else
+		{
+			return item->obj;
+		}
+	}
 }
 
 int object_build_name(OBJECT *obj, char *buffer, int len){
