@@ -662,7 +662,7 @@ void *(run_test_proc)(void *arg)
 		if ( result.get_nerrors()>0 ) passed=false;
 		if ( global_validateoptions&VO_RPTGLM )
 		{
-			char *flags[] = {"","E","S","X"};
+			const char *flags[] = {"","E","S","X"};
 			char code = 0;
 			if ( result.get_nerrors() ) code=1;
 			if ( result.get_nsuccess() ) code=2;
@@ -897,7 +897,7 @@ int validate(void *main, int argc, char *argv[])
 
 	report_newtable("OVERALL RESULTS");
 
-	char *flag="!!!";
+	const char *flag="!!!";
 	report_data();
 	report_data("Directory results");
 	report_newrow();
