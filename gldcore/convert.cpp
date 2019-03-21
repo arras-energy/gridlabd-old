@@ -568,7 +568,7 @@ int convert_from_int32(char *buffer, /**< pointer to the string buffer */
 					    PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
 	char temp[1025];
-	int count = sprintf(temp,"%ld",*(int*)data);
+	int count = sprintf(temp,"%d",*(int*)data);
 	if ( count < size - 1 ) 
 	{
 		memcpy(buffer, temp, count);
@@ -589,7 +589,7 @@ int convert_to_int32(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
 					    PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
-	return sscanf(buffer,"%ld",(int*)data);
+	return sscanf(buffer,"%d",(int*)data);
 }
 
 /** Convert from an \e int64
