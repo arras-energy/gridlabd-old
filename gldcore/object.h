@@ -101,7 +101,7 @@ typedef struct s_object_list {
 	double out_svc_double;	/**< Double value representation of out of service time */
 	clock_t synctime[_OPI_NUMITEMS]; /**< total time used by this object */
 	NAMESPACE *space; /**< namespace of object */
-	unsigned int lock; /**< object lock */
+	LOCKVAR lock; /**< object lock */
 	unsigned int rng_state; /**< random number generator state */
 	TIMESTAMP heartbeat; /**< heartbeat call interval (in sim-seconds) */
 	uint64 guid[2]; /**< globally unique identifier */
@@ -232,8 +232,8 @@ typedef struct s_callbacks {
 		GLOBALVAR *(*find)(char *name);
 	} global;
 	struct {
-		void (*read)(unsigned int *);
-		void (*write)(unsigned int *);
+		void (*read)(LOCKVAR *);
+		void (*write)(LOCKVAR *);
 	} lock, unlock;
 	struct {
 		char *(*find_file)(char *name, char *path, int mode, char *buffer, int len);

@@ -5,11 +5,15 @@
 #ifndef _LOCK_H
 #define _LOCK_H
 
+#include "platform.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef unsigned int LOCKVAR;
+#include <sys/types.h>
+
+typedef int64_t LOCKVAR;
 void rlock(LOCKVAR *lock);
 void wlock(LOCKVAR *lock);
 void runlock(LOCKVAR *lock);

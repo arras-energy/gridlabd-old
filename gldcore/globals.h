@@ -11,7 +11,7 @@
 #include "class.h"
 #include "validate.h"
 #include "sanitize.h"
-
+#include "lock.h"
 #include "build.h"
 
 #ifdef _MAIN_C
@@ -38,7 +38,7 @@ typedef struct s_globalvar {
 	struct s_globalvar *next;
 	uint32 flags;
 	void (*callback)(char *); // this function will be called whenever the globalvar is set
-	unsigned int lock;
+	LOCKVAR lock;
 } GLOBALVAR;
 
 /* Exit codes */

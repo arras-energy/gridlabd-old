@@ -54,7 +54,7 @@ public:
 	};
 	counters operator+=(counters a) { *this = *this+a; return *this; };
 private:
-	unsigned int _lock;
+	LOCKVAR _lock;
 	// directories
 	unsigned int n_scanned; // number of directories scanned
 	unsigned int n_tested; // number of autotest directories tested
@@ -158,7 +158,7 @@ static const char *report_eol="\n";
 static const char *report_eot="\f";
 static unsigned int report_cols=0;
 static unsigned int report_rows=0;
-static unsigned int report_lock=0;
+static LOCKVAR report_lock=0;
 static bool report_open(void)
 {
 	wlock(&report_lock);
@@ -600,7 +600,7 @@ typedef struct s_dirstack {
 static DIRLIST *dirstack = NULL;
 static unsigned short next_id = 0;
 static char *result_code = NULL;
-static unsigned int dirlock = 0;
+static LOCKVAR dirlock = 0;
 static void pushdir(char *dir)
 {
 	IN_MYCONTEXT output_debug("adding %s to process stack", dir);

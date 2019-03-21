@@ -27,6 +27,9 @@
 #define int64 long long /**< standard version of 64-bit integers */
 #endif
 
+#include <sys/types.h>
+typedef int64_t LOCKVAR;
+
 typedef enum {I='i',J='j',A='d'} CNOTATION; /**< complex number notation to use */
 #define CNOTATION_DEFAULT J /* never set this to A */
 #define PI 3.1415926535897932384626433832795
@@ -518,7 +521,7 @@ typedef struct s_globalvar {
 	struct s_globalvar *next;
 	uint32 flags;
 	void (*callback)(char*);
-	unsigned int lock;
+	LOCKVAR lock;
 } GLOBALVAR;
 
 typedef enum {
@@ -672,7 +675,7 @@ struct s_class_list {
 	LOADMETHOD loadmethods;
 	CLASS *parent;			/**< parent class from which properties should be inherited */
 	struct {
-		unsigned int lock;
+		LOCKVAR lock;
 		int32 numobjs;
 		int64 clocks;
 		int32 count;
@@ -743,7 +746,7 @@ struct s_object_list {
 	double out_svc_double;	/**< Double value representation of out of service time */
 	clock_t synctime[_OPI_NUMITEMS]; /**< total time used by this object */
 	NAMESPACE *space; /**< namespace of object */
-	unsigned int lock; /**< object lock */
+	LOCKVAR lock; /**< object lock */
 	unsigned int rng_state; /**< random number generator state */
 	TIMESTAMP heartbeat; /**< heartbeat call interval (in sim-seconds) */
 	unsigned int64 guid[2]; /**< globally unique identifier */

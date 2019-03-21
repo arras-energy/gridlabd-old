@@ -1264,10 +1264,10 @@ inline void gl_write(void *local, /** local memory for data */
 #define READUNLOCK(X) ::runlock(X); /**< Unlocks an read lock */
 #define WRITEUNLOCK(X) ::wunlock(X); /**< Unlocks a write lock */
 
-inline void rlock(unsigned int* lock) { callback->lock.read(lock); }
-inline void wlock(unsigned int* lock) { callback->lock.write(lock); }
-inline void runlock(unsigned int* lock) { callback->unlock.read(lock); }
-inline void wunlock(unsigned int* lock) { callback->unlock.write(lock); }
+inline void rlock(LOCKVAR* lock) { callback->lock.read(lock); }
+inline void wlock(LOCKVAR* lock) { callback->lock.write(lock); }
+inline void runlock(LOCKVAR* lock) { callback->unlock.read(lock); }
+inline void wunlock(LOCKVAR* lock) { callback->unlock.write(lock); }
 
 #else
 #define READLOCK(X) rlock(X); /**< Locks an item for reading (allows other reads but blocks write) */
@@ -1321,7 +1321,7 @@ extern set module_message_flags;
 class gld_string {
 private: // data
 	typedef struct strbuf {
-		unsigned int lock; // TODO implement locking
+		LOCKVAR lock; // TODO implement locking
 		size_t len;
 		unsigned int nrefs;
 		char *str;
