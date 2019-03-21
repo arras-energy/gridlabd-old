@@ -596,13 +596,13 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         {
             return gridlabd_exception("start('%s'): %s", command, gridlabd_module_status_msg[gridlabd_module_status]);
         }
-        return PyLong_FromLong(0);
+        return PyErr_Occurred() ? NULL : PyLong_FromLong(0);
     }
     else if ( strcmp(command, "wait") == 0 )
     {
         code = *(int*)gridlabd_main(NULL);
         output_debug("gridlabd_main(NULL) returned code %d",code);
-        return PyLong_FromLong((long)code);
+        return PyErr_Occurred() ? NULL : PyLong_FromLong((long)code);
     }
     else
         return gridlabd_exception("start mode '%s' is not recognized", command);
@@ -638,7 +638,7 @@ static PyObject *gridlabd_cancel(PyObject *self, PyObject *args)
     }
     pthread_cancel(main_thread);
     gridlabd_module_status = GMS_CANCELLED;
-    return PyLong_FromLong(0);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(0);
 }
 
 //
@@ -654,7 +654,7 @@ static PyObject *gridlabd_pause(PyObject *self, PyObject *args)
     }
     exec_mls_resume(global_clock);
     exec_mls_statewait(MLS_PAUSED);
-    return PyLong_FromLong(global_clock);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(global_clock);
 }
 
 //
@@ -677,7 +677,7 @@ static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args)
     if ( global_mainloopstate != MLS_RUNNING )
         exec_mls_statewait(MLS_RUNNING);
     exec_mls_statewait(MLS_PAUSED);
-    return PyLong_FromLong(global_clock);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(global_clock);
 }
 
 //
@@ -692,7 +692,7 @@ static PyObject *gridlabd_resume(PyObject *self, PyObject *args)
         return gridlabd_exception("cannot resume unless running");
     }
     exec_mls_resume(TS_NEVER);
-    return PyLong_FromLong(0);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(0);
 }
 
 //
@@ -712,7 +712,7 @@ static PyObject *gridlabd_save(PyObject *self, PyObject *args)
     {
        return gridlabd_exception("uname to save '%s'", name);
     }
-    return PyLong_FromLong(len);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(len);
 }
 
 //
@@ -1233,12 +1233,11 @@ extern "C" bool on_init(void)
             PyObject *arg = Py_BuildValue("(i)",global_clock);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
+            if ( ! result )
+                return false;
             bool retval = false; 
-            if ( result ) 
-            {
-                retval = PyObject_IsTrue(result);
-                Py_DECREF(result);
-            }
+            retval = PyObject_IsTrue(result);
+            Py_DECREF(result);
             if ( ! retval )
             {
                 output_error("python on_init() failed");
@@ -1268,17 +1267,14 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
+            if ( ! result )
+                return TS_INVALID;
             TIMESTAMP t2 = TS_INVALID; 
-            if ( result ) 
-            {
-                if ( PyLong_Check(result) )
-                    t2 = PyLong_AsLong(result);
-                else
-                    output_error("python on_precommit(%d) returned an invalid type (expected long)",t0);
-                Py_DECREF(result);
-            }
+            if ( PyLong_Check(result) )
+                t2 = PyLong_AsLong(result);
             else
-                output_error("python on_precommit(%d) returned nothing (expected long)",t0);
+                output_error("python on_precommit(%d) returned an invalid type (expected long)",t0);
+            Py_DECREF(result);
             if ( t2 == TS_INVALID )
                 return t2;
             else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
@@ -1307,17 +1303,14 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
+            if ( ! result )
+                return TS_INVALID;
             TIMESTAMP t2 = TS_INVALID; 
-            if ( result ) 
-            {
-                if ( PyLong_Check(result) )
-                    t2 = PyLong_AsLong(result);
-                else
-                    output_error("python on_presync(%d) returned an invalid type (expected long)",t0);
-                Py_DECREF(result);
-            }
+            if ( PyLong_Check(result) )
+                t2 = PyLong_AsLong(result);
             else
-                output_error("python on_presync(%d) returned nothing (expected long)",t0);
+                output_error("python on_presync(%d) returned an invalid type (expected long)",t0);
+            Py_DECREF(result);
             if ( t2 == TS_INVALID )
                 return t2;
             else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
@@ -1346,17 +1339,14 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
+            if ( ! result )
+                return TS_INVALID;
             TIMESTAMP t2 = TS_INVALID; 
-            if ( result ) 
-            {
-                if ( PyLong_Check(result) )
-                    t2 = PyLong_AsLong(result);
-                else
-                    output_error("python on_sync(%d) returned an invalid type (expected long)",t0);
-                Py_DECREF(result);
-            }
+            if ( PyLong_Check(result) )
+                t2 = PyLong_AsLong(result);
             else
-                output_error("python on_sync(%d) returned nothing (expected long)",t0);
+                output_error("python on_sync(%d) returned an invalid type (expected long)",t0);
+            Py_DECREF(result);
             if ( t2 == TS_INVALID )
                 return t2;
             else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
@@ -1385,17 +1375,14 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
+            if ( ! result )
+                return TS_INVALID;
             TIMESTAMP t2 = TS_INVALID; 
-            if ( result ) 
-            {
-                if ( PyLong_Check(result) )
-                    t2 = PyLong_AsLong(result);
-                else
-                    output_error("python on_postsync(%d) returned an invalid type (expected long)",t0);
-                Py_DECREF(result);
-            }
+            if ( PyLong_Check(result) )
+                t2 = PyLong_AsLong(result);
             else
-                output_error("python on_postsync(%d) returned nothing (expected long)",t0);
+                output_error("python on_postsync(%d) returned an invalid type (expected long)",t0);
+            Py_DECREF(result);
             if ( t2 == TS_INVALID )
                 return t2;
             else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
@@ -1423,12 +1410,10 @@ extern "C" bool on_commit(TIMESTAMP t)
             PyObject *arg = Py_BuildValue("(i)",t);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
-            bool retval = false; 
-            if ( result ) 
-            {
-                retval = PyObject_IsTrue(result);
-                Py_DECREF(result);
-            }
+            if ( ! result )
+                return false;
+            bool retval =  PyObject_IsTrue(result);
+            Py_DECREF(result);
             if ( ! retval )
             {
                 output_error("python on_commit(%d) failed",t);
@@ -1457,7 +1442,9 @@ extern "C" void on_term(void)
             PyObject *arg = Py_BuildValue("(i)",global_clock);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
-            if ( result && result != Py_None ) 
+            if ( ! result )
+                return;
+            if ( result != Py_None ) 
             {
                 Py_DECREF(result);
                 output_warning("python on_term() return an unexpected type (expected None)");
@@ -1519,15 +1506,14 @@ extern "C" int python_event(OBJECT *obj, const char *function)
             PyObject *args = Py_BuildValue("(si)",obj->name?obj->name:name,global_clock);
             PyObject *result = PyEval_CallObject(call,args);
             Py_DECREF(args);
+            if ( ! result )
+                return -1;
             bool retval = TS_INVALID; 
-            if ( result ) 
-            {
-                if ( ! PyLong_Check(result) )
-                    output_error("python %s(%s) returned something other than a long",function,objname);
-                else
-                    retval = PyLong_AsLong(result);
-                Py_DECREF(result);
-            }
+            if ( ! PyLong_Check(result) )
+                output_error("python %s(%s) returned something other than a long",function,objname);
+            else
+                retval = PyLong_AsLong(result);
+            Py_DECREF(result);
             if ( retval == TS_INVALID)
                 output_error("python %s(%s) signalled stop (TS_INVALID)",function,objname);
             return retval == TS_INVALID ? -1 : 0;
@@ -1585,11 +1571,13 @@ extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
     struct stat sbuf;
     if ( stat(pathname,&sbuf) )
     {
+        errno = ENOENT;
         return NULL;
     }
     PyObject *mod = PyImport_ImportModule(file);
     if ( mod == NULL)
     {
+        errno = EINVAL;
         return NULL;
     }
 

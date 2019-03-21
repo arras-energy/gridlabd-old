@@ -1158,7 +1158,10 @@ int module_initall()
 		if ( mod->on_init ) 
 		{
 			if ( ! mod->on_init() )
+			{
+				output_error("module %s on_init() failed", mod->name);
 				return false;
+			}
 		}
 	}
 	return true;
