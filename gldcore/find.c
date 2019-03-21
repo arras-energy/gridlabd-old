@@ -11,9 +11,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
-#ifdef WIN32 && !(__MINGW__)
+#if defined WIN32 && ! defined __MINGW__
 #include <io.h>
-#	define snprintf _snprintf
+#define snprintf _snprintf
+#else
+#include <unistd.h>
 #endif
 #include "globals.h"
 #include "output.h"
@@ -171,85 +173,6 @@ static int compare_property(OBJECT *obj, char *propname, FINDOP op, void *value)
 	return compare_string(propval,op,(char*)value);
 }
 
-/**	Fetches the property requested and uses the appropriate op on the value.
-	@return boolean value
-**/
-static int compare_property_alt(OBJECT *obj, char *propname, FINDOP op, void *value){
-	complex *complex_target = NULL;
-	char *char_target = NULL;
-	int16 *int16_target = NULL;
-	int32 *int32_target = NULL;
-	int64 *int64_target = NULL;
-	PROPERTY *prop = object_get_property(obj, propname,NULL);
-
-	if(prop == NULL){
-		/* property not found in object ~ normal operation */
-		return 0;
-	}
-
-	switch(prop->ptype){
-		case PT_void:
-			return 0;	/* no comparsion to be made */
-		case PT_double:
-			break;
-		case PT_complex:
-			complex_target = object_get_complex(obj, prop);
-			if(complex_target == NULL)
-				return 0; /* error value */
-			break;
-		case PT_enumeration:
-		case PT_set:
-			break;		/* not 100% sure how to make these cooperate yet */
-		case PT_int16:
-			int16_target = (int16 *)object_get_int16(obj, prop);
-			if(int16_target == NULL)
-				return 0;
-			return compare_int16(*int16_target, op, *(int64 *)value);
-		case PT_int32:
-			int32_target = (int32 *)object_get_int32(obj, prop);
-			return compare_int32(*int32_target, op, *(int64 *)value);
-			break;
-		case PT_int64:
-			int64_target = (int64 *)object_get_int64(obj, prop);
-			return compare_int64(*int64_target, op, *(int64 *)value);
-			break;
-		case PT_char8:
-		case PT_char32:
-		case PT_char256:
-		case PT_char1024:
-			char_target = (char *)object_get_string(obj, prop);
-			if(char_target == NULL)
-				return 0;
-			return compare_string(char_target, op, value);
-			break;
-		case PT_object:
-
-			break;
-		case PT_bool:
-			break;
-		case PT_timestamp:
-		case PT_double_array:
-		case PT_complex_array:
-			break;
-#ifdef USE_TRIPLETS
-		case PT_triple:
-		case PT_triplex:
-			break;
-#endif
-		default:
-			output_error("comparison operators not supported for property type %s", class_get_property_typename(prop->ptype));
-			/* TROUBLESHOOT
-				This error is caused when an object find procedure uses a comparison operator
-			that isn't allowed on a that type of property.  Make sure the property type
-			and the comparison operator are compatible and try again.  If your GLM file
-			isn't the cause of the problem, try reducing the complexity of the GLM file 
-			you are using to isolate which module is causing the error and file a report 
-			with the GLM file attached.
-			 */
-			return 0;
-	}
-}
-
 static int compare(OBJECT *obj, FINDTYPE ftype, FINDOP op, void *value, char *propname)
 {
 	switch (ftype) {
@@ -396,7 +319,7 @@ FINDLIST *find_objects(FINDLIST *start, ...)
 		{
 			int invert=0;
 			int parent=0;
-			FINDOP conj=AND;
+			FINDTYPE conj=AND;
 			FINDOP op;
 			char *propname = NULL;
 			void *value;
@@ -837,7 +760,7 @@ static int literal(PARSER, char *text)
 static int name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
-	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p=='_') COPY(result);
+	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1227,7 +1150,7 @@ static int expression(PARSER, FINDPGM **pgm)
 		{
 			FINDVALUE v;
 			v.integer = convert_to_timestamp(pvalue);
-			printf("find insvc=%i\n", v.integer);
+			printf("find insvc=%lli\n", v.integer);
 			if(v.integer == TS_NEVER)
 				REJECT;
 			add_pgm(pgm, comparemap[op].integer, OFFSET(in_svc), v, NULL, findlist_del);
@@ -1314,7 +1237,7 @@ char *find_file(const char *name, /**< the name of the file to find */
 	char filepath[1024];
 	char tempfp[1024];
 	char envbuf[1024];
-	char *glpath;
+	const char *glpath;
 	char *dir;
 
 #ifdef WIN32
