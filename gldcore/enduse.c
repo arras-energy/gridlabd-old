@@ -236,7 +236,7 @@ void *enduse_syncproc(void *ptr)
 
 		// process the list for this thread
 		t2 = TS_NEVER;
-		for ( e=data->e, n=0 ; e!=NULL, n<data->ne ; e=e->next, n++ )
+		for ( e = data->e, n = 0 ; e != NULL && n < data->ne ; e = e->next, n++ )
 		{
 			TIMESTAMP t = enduse_sync(e, PC_PRETOPDOWN, next_t1_ed);
 			if (t<t2) t2 = t;
@@ -425,10 +425,10 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, char *prefix)
 	int result = 0;
 	struct s_map_enduse{
 		PROPERTYTYPE type;
-		char *name;
+		const char *name;
 		char *addr;
-		char *description;
-		int flags;
+		const char *description;
+		int64_t flags;
 	}*p, prop_list[]={
 		{PT_complex, "energy[kVAh]", (char *)PADDR(energy), "the total energy consumed since the last meter reading"},
 		{PT_complex, "power[kVA]", (char *)PADDR(total), "the total power consumption of the load"},
@@ -446,8 +446,8 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, char *prefix)
 		{PT_double, "voltage_factor[pu]", (char *)PADDR(voltage_factor), "the voltage change factor"},
 		{PT_double, "breaker_amps[A]", (char *)PADDR(breaker_amps), "the rated breaker amperage"},
 		{PT_set, "configuration", (char *)PADDR(config), "the load configuration options"},
-			{PT_KEYWORD, "IS110", (set)EUC_IS110},
-			{PT_KEYWORD, "IS220", (set)EUC_IS220},
+			{PT_KEYWORD, "IS110", NULL, NULL, (set)EUC_IS110},
+			{PT_KEYWORD, "IS220", NULL, NULL, (set)EUC_IS220},
 	}, *last=NULL;
 
 	// publish the enduse load itself
@@ -503,7 +503,7 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, char *prefix)
 				}
 				break;
 			case PT_set:
-				if (!class_define_set_member(oclass,lastname,p->name,(int64)p->addr))
+				if (!class_define_set_member(oclass,lastname,p->name,p->flags))
 				{
 					output_error("unable to publish set member '%s' of enduse '%s'", p->name,last->name);
 					/* TROUBLESHOOT

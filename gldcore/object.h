@@ -113,6 +113,7 @@ typedef struct s_object_list {
 /* this is the callback table for modules
  * the table is initialized in module.cpp
  */
+struct s_enduse;
 typedef struct s_callbacks {
 	TIMESTAMP *global_clock;
 	double *global_delta_curr_clock;

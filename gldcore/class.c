@@ -1012,8 +1012,8 @@ Error:
 	@return 0 on failure, 1 on success
  **/
 int class_define_enumeration_member(CLASS *oclass, /**< pointer to the class which implements the enumeration */
-                                    char *property_name, /**< property name of the enumeration */
-                                    char *member, /**< member name to define */
+                                    const char *property_name, /**< property name of the enumeration */
+                                    const char *member, /**< member name to define */
                                     enumeration value) /**< enum value to associate with the name */
 {
 	PROPERTY *prop = class_find_property(oclass,property_name);
@@ -1029,8 +1029,8 @@ int class_define_enumeration_member(CLASS *oclass, /**< pointer to the class whi
 /** Define a set member
  **/
 int class_define_set_member(CLASS *oclass, /**< pointer to the class which implements the set */
-                            char *property_name, /**< property name of the set */
-                            char *member, /**< member name to define */
+                            const char *property_name, /**< property name of the set */
+                            const char *member, /**< member name to define */
                             unsigned int64 value) /**< set value to associate with the name */
 {
 	PROPERTY *prop = class_find_property(oclass,property_name);
