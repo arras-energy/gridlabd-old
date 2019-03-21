@@ -22,6 +22,7 @@
 #include "complex.h"
 #include "unit.h"
 #include "property.h"
+#include "lock.h"
 
 //typedef struct s_class_list CLASS;
 
@@ -111,7 +112,7 @@ struct s_class_list {
 	LOADMETHOD *loadmethods;
 	CLASS *parent;			/**< parent class from which properties should be inherited */
 	struct {
-		unsigned int lock;
+		LOCKVAR lock;
 		int32 numobjs;
 		int64 clocks;
 		int32 count;
