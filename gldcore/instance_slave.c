@@ -612,6 +612,8 @@ STATUS instance_slave_init_mem(){
 	return SUCCESS;
 #else
 	// @todo linux/unix slave signalling
+	output_error("instance_slave_init_mem() not implemented in linux/macos");
+	return FAILED;
 #endif
 }
 
