@@ -135,7 +135,7 @@ STATUS link_initall(void)
 			GLOBALVAR *var = NULL;
 			while ( (var=global_getnext(var))!=NULL )
 			{
-				if ( var->prop!=NULL && var->prop->name!=NULL )
+				if ( var->prop!=NULL )
 				{
 					LINKLIST *item = mod->add_global(var->prop->name);
 					if ( item!=NULL )
