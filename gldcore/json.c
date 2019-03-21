@@ -118,7 +118,7 @@ static int json_classes(FILE *fp)
 			len += json_write(",");
 		len += json_write("\n\t\t\"%s\" : {",oclass->name);
 		FIRST("object_size","%u",oclass->size);
-		if ( oclass->parent && oclass->parent->name )
+		if ( oclass->parent )
 		{
 			TUPLE("parent","%s",oclass->parent->name );
 		}
@@ -251,8 +251,7 @@ static int json_objects(FILE *fp)
 		else
 			len += json_write("\n\t\t\"%s:%d\" : {", obj->oclass->name, obj->id);
 		FIRST("id","%d",obj->id);
-		if ( obj->oclass->name != NULL )
-			TUPLE("class","%s",obj->oclass->name);
+		TUPLE("class","%s",obj->oclass->name);
 
 		/* handle special case for powerflow module handling of parent */
 		OBJECT **topological_parent = object_get_object_by_name(obj,"topological_parent");
