@@ -319,14 +319,14 @@ FINDLIST *find_objects(FINDLIST *start, ...)
 		{
 			int invert=0;
 			int parent=0;
-			FINDTYPE conj=AND;
+			FINDTYPE conj=FT_AND;
 			FINDOP op;
 			char *propname = NULL;
 			void *value;
 			OBJECT *target=obj;
 
 			/* conjunction */
-			if (ftype==AND || ftype==OR)
+			if (ftype==FT_AND || ftype==FT_OR)
 			{	/* expect another op */
 				conj=ftype;
 				ftype = va_arg(ptr, FINDTYPE);
@@ -407,12 +407,12 @@ FINDLIST *find_objects(FINDLIST *start, ...)
 				/* match */
 				if (compare(target,ftype,op,value,propname)!=invert)
 				{
-					if (conj==OR) 
+					if (conj==FT_OR) 
 						ADDOBJ(*result,obj->id);
 				}
 				else
 				{
-					if (conj==AND) 
+					if (conj==FT_AND) 
 						DELOBJ(*result,obj->id);
 				}
 			}
