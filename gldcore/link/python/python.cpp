@@ -1580,10 +1580,16 @@ static bool get_callback(
 }
 extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
+    char pathname[1024];
+    sprintf(pathname,"%s.py",file);
+    struct stat sbuf;
+    if ( stat(pathname,&sbuf) )
+    {
+        return NULL;
+    }
     PyObject *mod = PyImport_ImportModule(file);
     if ( mod == NULL)
     {
-        PyErr_Clear();
         return NULL;
     }
 
