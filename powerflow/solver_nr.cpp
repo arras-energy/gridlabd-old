@@ -31,7 +31,7 @@ Initialization after returning to service?
 ***********************************************************************
 */
 
-
+#include <unistd.h>
 
 #include "solver_nr.h"
 
@@ -221,6 +221,320 @@ void sparse_tonr(SPARSE* sm, NR_SOLVER_VARS *matrices_LU)
 	}
 }
 
+/** Solver modeling
+    Enable modeling of solution to improve performance
+ **/
+
+// default configuration settings
+double maximum_distance = 0.0; // default is to never use solver model unless the problem is identical
+char solver_model_logfile[1024] = "solver_model.log";
+int solver_model_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
+size_t maximum_models = 100; // maximum number of models to keep
+
+typedef unsigned long long PROBLEMID;
+typedef struct s_solution {
+	PROBLEMID id;
+	unsigned int bus_count;
+	BUSDATA *bus;
+	unsigned int branch_count;
+	BRANCHDATA *branch;
+	NR_SOLVER_STRUCT *powerflow_values;
+	NRSOLVERMODE powerflow_type;
+	NR_MESHFAULT_IMPEDANCE *mesh_imped_values;
+	bool *bad_computations;
+	int64 iterations; 
+	struct s_solution *prev;
+	struct s_solution *next;
+} SOLVERMODEL;
+typedef enum {SMS_INIT, SMS_READY, SMS_DISABLED, SMS_FAILED} SOLVERMODELSTATUS;
+SOLVERMODELSTATUS solver_model_status = SMS_INIT;
+SOLVERMODEL *last = NULL, *first = NULL;
+size_t solver_model_count = 0;
+FILE *solver_model_logfh = NULL;
+
+SOLVERMODELSTATUS solver_model_config(const char *configname = "/usr/local/share/gridlabd/solver_model.cfg")
+{
+	SOLVERMODELSTATUS status = SMS_INIT;
+	FILE *fp = fopen(configname,"r");
+	if ( fp != NULL )
+	{
+		char line[1024];
+		while ( fgets(line,sizeof(line),fp) != NULL )
+		{
+			char tag[1024],value[1024];
+			if ( sscanf(line,"%s%s",tag,value) == 2 )
+			{
+				if ( strcmp(tag,"maximum_metric") == 0 )
+				{
+					maximum_distance = atof(value);
+				}
+				else if ( strcmp(tag,"logfile") == 0 )
+				{
+					strcpy(solver_model_logfile,value);
+				}
+				else if ( strcmp(tag,"loglevel") == 0 )
+				{
+					solver_model_loglevel = atoi(value);
+				}
+				else if ( strcmp(tag,"method") == 0 )
+				{
+					if ( strcmp(value,"none") == 0 )
+					{
+						status = SMS_DISABLED;
+					}
+					else if ( strcmp(value,"basic") == 0 )
+					{
+						status = SMS_READY;
+					}
+					else 
+					{
+						status = SMS_FAILED;
+						fprintf(stdout,"solver_model_config(configname='%s'): method '%s' is not known\n",configname,value);
+					}
+				}
+				else
+				{
+					fprintf(stdout,"solver_model_config(configname='%s'): tag '%s' is not valid\n",configname,tag);
+				}
+			}
+		}
+		fclose(fp);
+	}
+	return status;
+}
+
+int solver_model_init(void)
+{
+	switch ( solver_model_status )
+	{
+		case SMS_INIT:
+			solver_model_status = solver_model_config();
+			if ( solver_model_status == SMS_INIT )
+			{
+				if ( solver_model_logfh != NULL )
+					fclose(solver_model_logfh);
+				solver_model_logfh = NULL;
+				if ( solver_model_loglevel > 0 )
+					solver_model_logfh = fopen(solver_model_logfile,"w");
+				else
+					unlink(solver_model_logfile);
+				solver_model_status = SMS_READY;
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
+		case SMS_READY:
+			return 1;
+		case SMS_DISABLED:
+		case SMS_FAILED:
+		default:
+			return 0;
+	}
+}
+
+void solver_model_log(unsigned int level, const char *format, ...)
+{
+	if ( level <= solver_model_loglevel && solver_model_logfh != NULL )
+	{
+		va_list ptr;
+		va_start(ptr,format);
+		vfprintf(solver_model_logfh,format,ptr);
+		fprintf(solver_model_logfh,"\n");
+		va_end(ptr);
+	}
+}
+
+#define MAXDIST 9.999999e99
+#define ALPHA 0.5 // parameter to tune how much more important bus metric is than branch metric
+double solver_get_metric(SOLVERMODEL *model, // use NULL to get absolute metric for problem id
+						 unsigned int &bus_count,
+						 BUSDATA *&bus,
+						 unsigned int &branch_count,
+						 BRANCHDATA *&branch)
+{
+	if ( model && ( model->bus_count != bus_count || model->branch_count != branch_count) )
+	{
+		return MAXDIST;
+	}
+	double bus_dist = 0, branch_dist = 0;
+	size_t n;
+	for ( n = 0 ; n < bus_count ; n++ )
+	{
+		double d = 0.0;
+		size_t m;
+		for ( m = 0 ; m < 3 ; m++ )
+		{
+			// load contribution to power distance
+			double dP = bus[n].PL[m] - ( model ? model->bus[n].PL[m] : 0.0 );
+			double dQ = bus[n].QL[m] - ( model ? model->bus[n].QL[m] : 0.0 );
+			// TODO: not sure magnitude is the best approach
+			bus_dist += sqrt(dP*dP + dQ*dQ); 
+			
+			// TODO: generation contribution to power distance
+		}
+	}
+	for ( n = 0 ; n < branch_count ; n ++ )
+	{
+		// TODO: calculate impedance distance
+	}
+	double metric = ALPHA*sqrt(bus_dist)/bus_count + (1.0-ALPHA)*sqrt(branch_dist)/branch_count;
+	solver_model_log(1,"metric for model %llx (%dx%d) is %g",(model?model->id:0),bus_count,branch_count,metric);
+	return metric;
+}
+
+PROBLEMID solver_problem_id(unsigned int bus_count,
+							BUSDATA *bus, 
+							unsigned int branch_count, 
+							BRANCHDATA *branch)
+{
+	double metric = solver_get_metric(NULL,bus_count,bus,branch_count,branch);
+	return (PROBLEMID)metric;
+}
+
+
+void *memdup(const void *mem, size_t bytes)
+{
+	if ( mem == NULL )
+	{
+		return NULL;
+	}
+	void *ptr = (void*) new char[bytes];
+	if ( ! ptr )
+	{
+		return NULL;
+	}
+	return memcpy(ptr,mem,bytes);
+}
+
+void solver_model_del(SOLVERMODEL *model)
+{
+	solver_model_log(1,"deleting model %x (%dx%d)", model->id, model->bus_count, model->branch_count);
+	if ( first == model )
+	{
+		first = model->prev;
+	}
+	if ( last == model )
+	{
+		last = model->next;
+	}
+	if ( model->prev )
+	{
+		model->prev->next = model->next;
+	}
+	if ( model->next )
+	{
+		model->next->prev = model->prev;
+	}
+	delete [] model->bus;
+	delete [] model->branch;
+	delete [] model->mesh_imped_values;
+	if ( model->bad_computations ) 
+	{
+		delete [] model->bad_computations;
+	}
+	delete model;
+	solver_model_count--;
+}
+
+SOLVERMODEL *solver_model_new(unsigned int bus_count,
+							  BUSDATA *bus, 
+							  unsigned int branch_count, 
+							  BRANCHDATA *branch, 
+							  NR_SOLVER_STRUCT *powerflow_values, 
+							  NRSOLVERMODE powerflow_type , 
+							  NR_MESHFAULT_IMPEDANCE *mesh_imped_values, 
+							  bool *bad_computations,
+							  int64 iterations)
+{
+	SOLVERMODEL *model = new SOLVERMODEL;
+	if ( ! model )
+	{
+		solver_model_log(0,"memory allocation failed");
+		return NULL;
+	}
+	model->id = solver_problem_id(bus_count,bus,branch_count,branch);
+	model->bus_count = bus_count;
+	model->bus = (BUSDATA*)memdup((void*)bus,sizeof(BUSDATA)*bus_count);
+	// TODO: check to see if any contents also should be duplicated (e.g., links)
+	model->branch_count = branch_count;
+	model->branch = (BRANCHDATA*)memdup((void*)branch,sizeof(BRANCHDATA)*branch_count);
+	// TODO: check to see if any contents also should be duplicated (e.g., Y values)
+	model->powerflow_values = (NR_SOLVER_STRUCT*)memdup((void*)powerflow_values,sizeof(NR_SOLVER_STRUCT));
+	model->powerflow_type = powerflow_type;
+	model->mesh_imped_values = (NR_MESHFAULT_IMPEDANCE*)memdup((void*)mesh_imped_values,sizeof(NR_MESHFAULT_IMPEDANCE));
+	model->bad_computations = ( bad_computations ? NULL : (bool*)memdup((void*)bad_computations,sizeof(bool)) );
+	model->iterations = iterations;
+	model->next = last;
+	model->prev = NULL;
+	solver_model_count++;
+	if ( first == NULL )
+	{
+		first = model;
+	}
+	else if ( solver_model_count > maximum_models )
+	{
+		solver_model_del(first);
+	}
+	if ( last != NULL )
+	{
+		last->prev = model;
+	}
+	last = model;
+	solver_model_log(1,"adding model %x (%dx%d)", model->id, bus_count, branch_count);
+	return last;
+}
+
+// iterators
+SOLVERMODEL *solver_model_getfirst()
+{
+	return last; // LIFO
+}
+SOLVERMODEL *solver_model_getnext(SOLVERMODEL *model)
+{
+	return model->next;
+}
+bool solver_model_islast(SOLVERMODEL *model)
+{
+	return model ? model->next == NULL : NULL;
+}
+
+// solver_find_model(SOLVERMODEL): identifies a satisfactory model and return the distance metric
+double solver_model_find(SOLVERMODEL *&model,
+						 unsigned int &bus_count,
+						 BUSDATA *&bus,
+						 unsigned int &branch_count,
+						 BRANCHDATA *&branch)
+{
+	double dist = MAXDIST;
+	SOLVERMODEL *m;
+	for ( m = solver_model_getfirst() ; solver_model_islast(m) ; m = solver_model_getnext(m) )
+	{
+		double n = solver_get_metric(m,bus_count,bus,branch_count,branch);
+		if ( n < dist )
+		{
+			model = m;
+			dist = n;
+		}
+	}
+	return dist; 
+}
+
+int64 solver_model_apply(SOLVERMODEL *model,
+						NR_SOLVER_STRUCT *&powerflow_values,
+						NRSOLVERMODE powerflow_type,
+						NR_MESHFAULT_IMPEDANCE *&mesh_imped_values,
+						bool *&bad_computations,
+						int64 iterations)
+{
+	powerflow_values = model->powerflow_values;
+	powerflow_type = powerflow_type;
+	mesh_imped_values = model->mesh_imped_values;
+	bad_computations = model->bad_computations;
+	return model->iterations; 
+}
+
 /** Newton-Raphson solver
 	Solves a power flow problem using the Newton-Raphson method
 	
@@ -228,10 +542,32 @@ void sparse_tonr(SPARSE* sm, NR_SOLVER_VARS *matrices_LU)
 	n>0 to indicate success after n interations, or 
 	n<0 to indicate failure after n iterations
  **/
-int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count, BRANCHDATA *branch, NR_SOLVER_STRUCT *powerflow_values, NRSOLVERMODE powerflow_type , NR_MESHFAULT_IMPEDANCE *mesh_imped_vals, bool *bad_computations)
+int64 solver_nr(unsigned int bus_count, 
+				BUSDATA *bus, 
+				unsigned int branch_count, 
+				BRANCHDATA *branch, 
+				NR_SOLVER_STRUCT *powerflow_values, 
+				NRSOLVERMODE powerflow_type , 
+				NR_MESHFAULT_IMPEDANCE *mesh_imped_vals, 
+				bool *bad_computations)
 {
 	//Internal iteration counter - just NR limits
 	int64 Iteration;
+
+	// Support solution modeling
+	if ( solver_model_init() )
+	{
+		SOLVERMODEL *model = NULL;
+		if ( solver_model_find(model,bus_count,bus,branch_count,branch) < maximum_distance && model != NULL )
+		{
+			// model found
+			if ( solver_model_apply(model,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration) > 0 )
+			{
+				// model is ok
+				return Iteration;
+			}
+		}
+	}
 
 	//File pointer for debug outputs
 	FILE *FPoutVal;
@@ -3950,7 +4286,10 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 		return 0;					//Just return some arbitrary value
 	}
 	else	//Must have converged 
+	{
+		solver_model_new(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
 		return Iteration;
+	}
 }
 
 //Performs the load calculation portions of the current injection or Jacobian update
