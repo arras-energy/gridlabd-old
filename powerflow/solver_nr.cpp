@@ -225,10 +225,14 @@ void sparse_tonr(SPARSE* sm, NR_SOLVER_VARS *matrices_LU)
     Enable modeling of solution to improve performance
  **/
 
+#define CONFIGLOG "solver_model.log"
+#define CONFIGNAME "solver_model.cfg"
+#define CONFIGPATH "/usr/local/src/gridlabd/"
+
 // default configuration settings
-double maximum_distance = 0.0; // default is to never use solver model unless the problem is identical
-char solver_model_logfile[1024] = "solver_model.log";
-int solver_model_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
+double maximum_distance = 1.0; // default is to never use solver model unless the problem is identical
+char solver_model_logfile[1024] = CONFIGLOG;
+int solver_model_loglevel = 9; // -1=disable, 0 = minimal ... 9 = everything,
 size_t maximum_models = 100; // maximum number of models to keep
 
 typedef unsigned long long PROBLEMID;
@@ -252,10 +256,17 @@ SOLVERMODEL *last = NULL, *first = NULL;
 size_t solver_model_count = 0;
 FILE *solver_model_logfh = NULL;
 
-SOLVERMODELSTATUS solver_model_config(const char *configname = "/usr/local/share/gridlabd/solver_model.cfg")
+SOLVERMODELSTATUS solver_model_config(const char *localconfig = CONFIGNAME, 
+									  const char *shareconfig = CONFIGPATH CONFIGNAME)
 {
 	SOLVERMODELSTATUS status = SMS_INIT;
+	const char *configname = localconfig;
 	FILE *fp = fopen(configname,"r");
+	if ( fp == NULL )
+	{
+		configname = shareconfig;
+		fp = fopen(configname,"r");
+	}
 	if ( fp != NULL )
 	{
 		char line[1024];
@@ -288,8 +299,7 @@ SOLVERMODELSTATUS solver_model_config(const char *configname = "/usr/local/share
 					}
 					else 
 					{
-						status = SMS_FAILED;
-						fprintf(stdout,"solver_model_config(configname='%s'): method '%s' is not known\n",configname,value);
+						fprintf(stdout,"solver_model_config(configname='%s'): method '%s' is not known, using basic method\n",configname,value);
 					}
 				}
 				else
@@ -312,12 +322,18 @@ int solver_model_init(void)
 			if ( solver_model_status == SMS_INIT )
 			{
 				if ( solver_model_logfh != NULL )
+				{
 					fclose(solver_model_logfh);
+				}
 				solver_model_logfh = NULL;
 				if ( solver_model_loglevel > 0 )
+				{
 					solver_model_logfh = fopen(solver_model_logfile,"w");
+				}
 				else
+				{
 					unlink(solver_model_logfile);
+				}
 				solver_model_status = SMS_READY;
 				return 1;
 			}
@@ -380,7 +396,14 @@ double solver_get_metric(SOLVERMODEL *model, // use NULL to get absolute metric 
 		// TODO: calculate impedance distance
 	}
 	double metric = ALPHA*sqrt(bus_dist)/bus_count + (1.0-ALPHA)*sqrt(branch_dist)/branch_count;
-	solver_model_log(1,"metric for model %llx (%dx%d) is %g",(model?model->id:0),bus_count,branch_count,metric);
+	if ( model )
+	{
+		solver_model_log(1,"metric for model %llx (%dx%d) is %g",(model?model->id:0),bus_count,branch_count,metric);
+	}
+	else
+	{
+		solver_model_log(1,"metric new model (%dx%d) is %g",bus_count,branch_count,metric);
+	}
 	return metric;
 }
 
@@ -390,27 +413,23 @@ PROBLEMID solver_problem_id(unsigned int bus_count,
 							BRANCHDATA *branch)
 {
 	double metric = solver_get_metric(NULL,bus_count,bus,branch_count,branch);
-	return (PROBLEMID)metric;
+	return (PROBLEMID)(metric*1000.0);
 }
 
 
 void *memdup(const void *mem, size_t bytes)
 {
-	if ( mem == NULL )
+	if ( mem == NULL || bytes == 0 )
 	{
 		return NULL;
 	}
 	void *ptr = (void*) new char[bytes];
-	if ( ! ptr )
-	{
-		return NULL;
-	}
-	return memcpy(ptr,mem,bytes);
+	return ptr ? memcpy(ptr,mem,bytes) : NULL;
 }
 
 void solver_model_del(SOLVERMODEL *model)
 {
-	solver_model_log(1,"deleting model %x (%dx%d)", model->id, model->bus_count, model->branch_count);
+	solver_model_log(1,"deleted model %x (%dx%d)", model->id, model->bus_count, model->branch_count);
 	if ( first == model )
 	{
 		first = model->prev;
@@ -419,18 +438,18 @@ void solver_model_del(SOLVERMODEL *model)
 	{
 		last = model->next;
 	}
-	if ( model->prev )
+	if ( model->prev != NULL )
 	{
 		model->prev->next = model->next;
 	}
-	if ( model->next )
+	if ( model->next != NULL )
 	{
 		model->next->prev = model->prev;
 	}
 	delete [] model->bus;
 	delete [] model->branch;
 	delete [] model->mesh_imped_values;
-	if ( model->bad_computations ) 
+	if ( model->bad_computations != NULL ) 
 	{
 		delete [] model->bad_computations;
 	}
@@ -517,6 +536,10 @@ double solver_model_find(SOLVERMODEL *&model,
 			model = m;
 			dist = n;
 		}
+	}
+	if ( model != NULL )
+	{
+		solver_model_log(1,"found model %x (%dx%d) metric %g", model->id, bus_count, branch_count, dist);
 	}
 	return dist; 
 }
