@@ -482,9 +482,9 @@ int sample_from_diversity(unsigned int *state, double *param, char *value)
 /** Create a loadshape
 	@return 1 on success, 0 on failure
  **/
-int loadshape_create(loadshape *data)
+int loadshape_create(void *ptr)
 {
-	//loadshape *s = (loadshape*)data;
+	loadshape *data = (loadshape*)ptr;
 	memset(data,0,sizeof(loadshape));
 	data->next = loadshape_list;
 	loadshape_list = data;
@@ -1124,7 +1124,7 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 	}
 	return 1;
 } 
-int convert_to_loadshape(char *string, void *data, PROPERTY *prop)
+int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 {
 	loadshape *ls = (loadshape*)data;
 	char buffer[1024];

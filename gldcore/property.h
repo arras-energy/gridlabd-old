@@ -988,6 +988,20 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	// @todo for greater generality this should be implemented as a linked list
 } PROPERTYSPEC;
 
+/* double array */
+int double_array_create(void*a);
+double get_double_array_value(double_array*,unsigned int n, unsigned int m);
+void set_double_array_value(double_array*,unsigned int n, unsigned int m, double x);
+double *get_double_array_ref(double_array*,unsigned int n, unsigned int m);
+double double_array_get_part(void *x, char *name);
+
+/* complex array */
+int complex_array_create(void*a);
+complex *get_complex_array_value(complex_array*,unsigned int n, unsigned int m);
+void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, complex *x);
+complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
+double complex_array_get_part(void *x, char *name);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1009,20 +1023,6 @@ bool property_is_default(struct s_object_list *obj, PROPERTY *prop);
 void *property_addr(struct s_object_list *obj, PROPERTY *prop);
 int property_read(PROPERTY *prop, void *addr, char *string);
 int property_write(PROPERTY *prop, void *addr, char *string, size_t size);
-
-/* double array */
-int double_array_create(double_array*a);
-double get_double_array_value(double_array*,unsigned int n, unsigned int m);
-void set_double_array_value(double_array*,unsigned int n, unsigned int m, double x);
-double *get_double_array_ref(double_array*,unsigned int n, unsigned int m);
-double double_array_get_part(void *x, char *name);
-
-/* complex array */
-int complex_array_create(complex_array*a);
-complex *get_complex_array_value(complex_array*,unsigned int n, unsigned int m);
-void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, complex *x);
-complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
-double complex_array_get_part(void *x, char *name);
 
 #ifdef __cplusplus
 }
