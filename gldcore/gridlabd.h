@@ -2032,8 +2032,8 @@ private: // data
 	OBJECT *obj;
 
 public: // constructors/casts
-	inline gld_property(void) : obj(NULL), pstruct(nullpstruct) {};
-	inline gld_property(gld_object *o, char *n) : obj(o->my()), pstruct(nullpstruct)  
+	inline gld_property(void) : pstruct(nullpstruct), obj(NULL) {};
+	inline gld_property(gld_object *o, char *n) : pstruct(nullpstruct), obj(o->my())
 	{ 
 		if (o) 
 			callback->properties.get_property(o->my(),n,&pstruct); 
@@ -2043,7 +2043,7 @@ public: // constructors/casts
 			pstruct.prop= (v?v->prop:NULL);
 		} 
 	};
-	inline gld_property(OBJECT *o, char *n) : obj(o), pstruct(nullpstruct)  
+	inline gld_property(OBJECT *o, char *n) : pstruct(nullpstruct), obj(o)
 	{ 
 		if (o) 
 			callback->properties.get_property(o,n,&pstruct); 
@@ -2053,10 +2053,10 @@ public: // constructors/casts
 			pstruct.prop= (v?v->prop:NULL);
 		} 
 	};
-	inline gld_property(OBJECT *o) : obj(o), pstruct(nullpstruct) { pstruct.prop=o->oclass->pmap; };
-	inline gld_property(OBJECT *o, PROPERTY *p) : obj(o), pstruct(nullpstruct) { pstruct.prop=p; };
-	inline gld_property(GLOBALVAR *v) : obj(NULL), pstruct(nullpstruct) { pstruct.prop=v->prop; };
-	inline gld_property(char *n) : obj(NULL), pstruct(nullpstruct)
+	inline gld_property(OBJECT *o) : pstruct(nullpstruct), obj(o) { pstruct.prop=o->oclass->pmap; };
+	inline gld_property(OBJECT *o, PROPERTY *p) : pstruct(nullpstruct), obj(o) { pstruct.prop=p; };
+	inline gld_property(GLOBALVAR *v) : pstruct(nullpstruct), obj(NULL) { pstruct.prop=v->prop; };
+	inline gld_property(char *n) : pstruct(nullpstruct), obj(NULL)
 	{
 		char oname[256], vname[256];
 		if ( sscanf(n,"%[A-Za-z0-9_].%[A-Za-z0-9_.]",oname,vname)==2 )
@@ -2071,7 +2071,7 @@ public: // constructors/casts
 		GLOBALVAR *v=callback->global.find(n); 
 		pstruct.prop = (v?v->prop:NULL);  
 	};
-	inline gld_property(char *m, char *n) : obj(NULL), pstruct(nullpstruct) 
+	inline gld_property(char *m, char *n) : pstruct(nullpstruct), obj(NULL)
 	{
 		obj = callback->get_object(m);
 		if ( obj != NULL ) {
