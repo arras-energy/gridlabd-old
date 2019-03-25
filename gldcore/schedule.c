@@ -74,7 +74,7 @@ SCHEDULE *schedule_find_byname(char *name) /**< the name of the schedule */
 	 ...,...
 	 
  */
-int schedule_matcher(char *pattern, unsigned char *table, int max, int base)
+int schedule_matcher(char *pattern, char *table, int max, int base)
 {
 	int go=0;
 	int start=0;
@@ -518,7 +518,7 @@ int schedule_compile(SCHEDULE *sch)
 static pthread_cond_t sc_active = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t sc_activelock = PTHREAD_MUTEX_INITIALIZER;
 static STATUS sc_status = SUCCESS;
-static sc_running=0, sc_started=0, sc_done=0;
+static bool sc_running=0, sc_started=0, sc_done=0;
 
 void *schedule_createproc(void *args)
 {
@@ -1106,7 +1106,7 @@ void *schedule_syncproc(void *ptr)
 
 		// process the list for this thread
 		t2 = TS_NEVER;
-		for ( sch=data->sch, n=0 ; sch!=NULL, n<data->nsch ; sch=sch->next, n++ )
+		for ( sch = data->sch, n=0 ; sch != NULL && n < data->nsch ; sch = sch->next, n++ )
 		{
 			TIMESTAMP t = schedule_sync(sch,next_t1_sch);
 			if (t<t2) t2 = t;
