@@ -43,7 +43,7 @@
 
 SET_MYCONTEXT(DMC_STREAM)
 
-static unsigned long output_lock = 0;
+static LOCKVAR output_lock = 0;
 static char buffer[65536];
 #define CHECK 0xcdcd
 int overflow=CHECK;
@@ -911,7 +911,7 @@ int output_xsl(char *fname, int n_mods, char *p_mods[])
 				/* global variable dump */
 				fprintf(fp,"<H2><A NAME=\"global_variables\">GridLAB-D system variables</A></H2>\n");
 				fprintf(fp,"<TABLE BORDER=\"1\">\n");
-				while (var=global_getnext(var))
+				while ( (var=global_getnext(var)) )
 				{
 					if (strstr(var->prop->name,"::"))
 						continue; /* skip module globals (they'll get dumped later) */
@@ -953,7 +953,7 @@ int output_xsl(char *fname, int n_mods, char *p_mods[])
 					fprintf(fp,"<TABLE BORDER=\"1\">\n");
 					fprintf(fp,"<TR><TH>version.major</TH><TD><xsl:value-of select=\"%s/version.major\"/></TD></TR>",mod->name);
 					fprintf(fp,"<TR><TH>version.minor</TH><TD><xsl:value-of select=\"%s/version.minor\"/></TD></TR>",mod->name);
-					while (var=global_getnext(var))
+					while ( (var=global_getnext(var)) )
 					{
 						if (strncmp(var->prop->name,mod->name,strlen(mod->name))==0)
 						{
@@ -1025,7 +1025,7 @@ int output_xsl(char *fname, int n_mods, char *p_mods[])
 							fprintf(fp,"module %s {\n", mod->name);
 							fprintf(fp,"\tversion.major <xsl:value-of select=\"version.major\"/>;\n");
 							fprintf(fp,"\tversion.minor <xsl:value-of select=\"version.minor\"/>;\n");
-							while (var=global_getnext(var))
+							while ( (var=global_getnext(var)) )
 							{
 								if (strncmp(var->prop->name,mod->name,strlen(mod->name))==0)
 								{
