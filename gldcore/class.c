@@ -173,8 +173,8 @@ int property_create(PROPERTY *prop, void *addr)
 /* though improbable, this is to prevent more complicated, specifically crafted
 	inheritence loops.  these should be impossible if a class_register call is
 	immediately followed by a class_define_map call. -d3p988 */
-PROPERTY *class_find_property_rec(CLASS *oclass, 
-                                  PROPERTYNAME name, 
+static PROPERTY *class_find_property_rec(CLASS *oclass, 
+                                  const PROPERTYNAME name, 
                                   CLASS *pclass)
 {
 	PROPERTY *prop;
@@ -200,9 +200,10 @@ PROPERTY *class_find_property_rec(CLASS *oclass,
 }
 
 static PROPERTY *find_header_property(CLASS *oclass, 
-                                      PROPERTYNAME name)
+                                      const PROPERTYNAME name)
 {
 	PROPERTY *prop = NULL;
+	// TODO: handle header properties
 	return prop;
 }
 
@@ -211,7 +212,7 @@ static PROPERTY *find_header_property(CLASS *oclass,
 	@return a pointer to the PROPERTY, or \p NULL if the property is not found.
  **/
 PROPERTY *class_find_property(CLASS *oclass,     /**< the object class */
-                              PROPERTYNAME name) /**< the property name */
+                              const PROPERTYNAME name) /**< the property name */
 {
 	PROPERTY *prop = find_header_property(oclass,name);
 	if ( prop ) return prop;
