@@ -24,6 +24,10 @@
 #include "histogram.h"
 #include "group_recorder.h"
 
+void new_violation_recorder(MODULE *);
+void new_metrics_collector(MODULE *);
+void new_metrics_collector_writer(MODULE *);
+
 #define _TAPE_C
 
 #include "tape.h"
