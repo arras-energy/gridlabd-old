@@ -1175,17 +1175,17 @@ inline size_t nextpow2(register size_t x)
 ///
 /// Catchall for sync
 ///
-#define SYNC_CATCHALL(C) catch (char *msg) { gl_error("sync_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (const char *msg) { gl_error("sync_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (...) { gl_error("sync_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return TS_INVALID; }
+#define SYNC_CATCHALL(C) catch (const char *msg) { gl_error("sync_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (...) { gl_error("sync_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return TS_INVALID; }
 ///
 /// Catchall for init
 ///
-#define INIT_CATCHALL(C) catch (char *msg) { gl_error("init_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return 0; } catch (const char *msg) { gl_error("init_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return 0; } catch (...) { gl_error("init_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return 0; }
+#define INIT_CATCHALL(C) catch (const char *msg) { gl_error("init_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return 0; } catch (...) { gl_error("init_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return 0; }
 ///
 /// Catchall for create
 ///
-#define CREATE_CATCHALL(C) catch (char *msg) { gl_error("create_" #C ": %s", msg); return 0; } catch (const char *msg) { gl_error("create_" #C ": %s", msg); return 0; } catch (...) { gl_error("create_" #C ": unhandled exception"); return 0; }
-#define I_CATCHALL(T,C) catch (char *msg) { gl_error(#T "_" #C ": %s", msg); return 0; } catch (const char *msg) { gl_error(#T "_" #C ": %s", msg); return 0; } catch (...) { gl_error(#T "_" #C ": unhandled exception"); return 0; }
-#define T_CATCHALL(T,C) catch (char *msg) { gl_error(#T "_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (const char *msg) { gl_error(#T "_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (...) { gl_error(#T "_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return TS_INVALID; }
+#define CREATE_CATCHALL(C) catch (const char *msg) { gl_error("create_" #C ": %s", msg); return 0; } catch (...) { gl_error("create_" #C ": unhandled exception"); return 0; }
+#define I_CATCHALL(T,C) catch (const char *msg) { gl_error(#T "_" #C ": %s", msg); return 0; } catch (...) { gl_error(#T "_" #C ": unhandled exception"); return 0; }
+#define T_CATCHALL(T,C) catch (const char *msg) { gl_error(#T "_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (...) { gl_error(#T "_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return TS_INVALID; }
 /**@}*/
 
 /****************************
