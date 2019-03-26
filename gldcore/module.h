@@ -71,7 +71,7 @@ extern "C" {
 	MODULE *module_load(const char *file, int argc, char *argv[]);
 	void module_list(void);
 	size_t module_getcount(void);
-	void* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size);
+	const char* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size);
 	double *module_getvar_addr(MODULE *mod, const char *varname);
 	int module_depends(const char *name, unsigned char major, unsigned char minor, unsigned short build);
 	int module_setvar(MODULE *mod, const char *varname, char *value);
@@ -117,9 +117,12 @@ extern "C" {
 	void module_termall(void);
 	MODULE *module_get_next(MODULE*);
 
-
 #ifdef __cplusplus
 }
+#endif
+
+#ifndef WIN32
+int GetLastError();
 #endif
 
 #endif
