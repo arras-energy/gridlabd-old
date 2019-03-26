@@ -717,7 +717,7 @@ int metrics_collector::read_line(OBJECT *obj){
 				break;
 			}
 
-			char * oclassName = obj->oclass->name;
+			const char * oclassName = obj->oclass->name;
 			if (strcmp(oclassName, "overhead_line") == 0 || strcmp(oclassName, "underground_line") == 0 || strcmp(oclassName, "triplex_line") == 0 || strcmp(oclassName, "transformer") == 0 || strcmp(oclassName, "regulator") == 0 || strcmp(oclassName, "switch") == 0 || strcmp(oclassName, "fuse") == 0) {
 
 				// Obtain the link data

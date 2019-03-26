@@ -491,7 +491,7 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 	oclass->magic = CLASSVALID;
 	oclass->id = 	class_count++;
 	oclass->module = module;
-	strncpy(oclass->name,name,sizeof(oclass->name));
+	oclass->name = strdup(name);
 	oclass->size = size;
 	oclass->passconfig = passconfig;
 	oclass->profiler.numobjs=0;
@@ -519,7 +519,7 @@ CLASS *class_get_first_class(void)
 	@return a pointer to the class registered to that module
 	having that \p name, or \p NULL if no match found.
  **/
-CLASS *class_get_class_from_classname_in_module(char *name, MODULE *mod){
+CLASS *class_get_class_from_classname_in_module(CLASSNAME name, MODULE *mod){
 	CLASS *oclass = NULL;
 	if(name == NULL) return NULL;
 	if(mod == NULL) return NULL;
@@ -591,7 +591,7 @@ size_t class_get_extendedcount(CLASS *oclass)
 	@return a pointer to the class having that \p name,
 	or \p NULL if no match found.
  **/
-CLASS *class_get_class_from_classname(char *name) /**< a pointer to a \p NULL -terminated string containing the class name */
+CLASS *class_get_class_from_classname(CLASSNAME name) /**< a pointer to a \p NULL -terminated string containing the class name */
 {
 	CLASS *oclass = NULL;
 	MODULE *mod = NULL;
@@ -1095,7 +1095,7 @@ FUNCTION *class_define_function(CLASS *oclass, FUNCTIONNAME functionname, FUNCTI
 
 /* Get the entry point of a class function
  */
-FUNCTIONADDR class_get_function(char *classname, char *functionname)
+FUNCTIONADDR class_get_function(CLASSNAME classname, char *functionname)
 {
 	CLASS *oclass = class_get_class_from_classname(classname);
 	FUNCTION *func;

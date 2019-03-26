@@ -860,7 +860,8 @@ typedef enum {_PT_FIRST=-1,
 	PT_HAS_NOTIFY_OVERRIDE, /* as PT_HAS_NOTIFY, but instructs the core not to set the property to the value being set */
 	PT_DEFAULT, /* identifies the default value to use when creating the object property */
 } PROPERTYTYPE; /**< property types */
-typedef char CLASSNAME[64]; /**< the name a GridLAB class */
+typedef const char *CLASSNAME; /**< the name a GridLAB class */
+#define MAXCLASSNAMELEN 64
 typedef void* PROPERTYADDR; /**< the offset of a property from the end of the OBJECT header */
 typedef const char *PROPERTYNAME; /**< the name of a property */
 #define MAXPROPNAMELEN 64

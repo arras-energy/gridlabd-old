@@ -137,7 +137,7 @@ typedef struct s_callbacks {
 	PROPERTY *(*class_add_extended_property)(CLASS *,char *,PROPERTYTYPE,char *);
 	struct {
 		FUNCTION *(*define)(CLASS*,FUNCTIONNAME,FUNCTIONADDR);
-		FUNCTIONADDR (*get)(char*,char*);
+		FUNCTIONADDR (*get)(const char*,const char*);
 	} function;
 	int (*define_enumeration_member)(CLASS*,char*,char*,enumeration);
 	int (*define_set_member)(CLASS*,char*,char*,unsigned int64);

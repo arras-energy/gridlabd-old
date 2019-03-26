@@ -439,7 +439,7 @@ void stream(CLASS *oclass)
 	size_t n;
 	for ( n=0 ; n<count ; n++ )
 	{
-		CLASSNAME name; if ( oclass ) strcpy(name,oclass->name);
+		char name[MAXCLASSNAMELEN+1]; if ( oclass ) strncpy(name,oclass->name,MAXCLASSNAMELEN);
 		stream(name,sizeof(name));
 
 		unsigned int size; if ( oclass ) size = oclass->size;

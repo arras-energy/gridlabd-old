@@ -1627,7 +1627,7 @@ public: // constructors
 
 public: // read accessors
 	/// Get class name
-	inline char* get_name(void) { return core.name; };
+	inline const char* get_name(void) { return core.name; };
 	/// Get class size
 	inline size_t get_size(void) { return core.size; };
 	/// Get class parent
@@ -1651,7 +1651,7 @@ public: // write accessors
 
 public: // special functions
 	/// Register a class	
-	static inline CLASS *create(MODULE *m, char *n, size_t s, unsigned int f) { return callback->register_class(m,n,(unsigned int)s,f); };
+	static inline CLASS *create(MODULE *m, const char *n, size_t s, unsigned int f) { return callback->register_class(m,n,(unsigned int)s,f); };
 	
 public: // iterators
 	/// Check if last class registered
