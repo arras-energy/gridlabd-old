@@ -22,7 +22,7 @@
 typedef unsigned int OBJECTRANK; /**< Object rank number */
 typedef unsigned short OBJECTSIZE; /** Object data size */
 typedef unsigned int OBJECTNUM; /** Object id number */
-typedef char * OBJECTNAME; /** Object name */
+typedef const char * OBJECTNAME; /** Object name */
 typedef char FULLNAME[1024]; /** Full object name (including space name) */
 
 /* object flags */
@@ -152,14 +152,14 @@ typedef struct s_callbacks {
 		int (*set_value_by_addr)(OBJECT *, void*, char*,PROPERTY*);
 		int (*get_value_by_addr)(OBJECT *, void*, char*, int size,PROPERTY*);
 		int (*set_value_by_name)(OBJECT *, char*, char*);
-		int (*get_value_by_name)(OBJECT *, char*, char*, int size);
+		int (*get_value_by_name)(OBJECT *, const char*, char*, int size);
 		OBJECT *(*get_reference)(OBJECT *, char*);
 		char *(*get_unit)(OBJECT *, char *);
 		void *(*get_addr)(OBJECT *, char *);
 		int (*set_value_by_type)(PROPERTYTYPE,void *data,char *);
 		bool (*compare_basic)(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void* x, void* a, void* b, char *part);
 		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, char *opstr);
-		double (*get_part)(OBJECT*,PROPERTY*,char*);
+		double (*get_part)(OBJECT*,PROPERTY*,const char*);
 		PROPERTYSPEC *(*get_spec)(PROPERTYTYPE);
 	} properties;
 	struct {
@@ -227,10 +227,10 @@ typedef struct s_callbacks {
 		char *(*exception_msg)(void);
 	} exception;
 	struct {
-		GLOBALVAR *(*create)(char *name, ...);
-		STATUS (*setvar)(char *def,...);
-		char *(*getvar)(char *name, char *buffer, int size);
-		GLOBALVAR *(*find)(char *name);
+		GLOBALVAR *(*create)(const char *name, ...);
+		STATUS (*setvar)(const char *def,...);
+		char *(*getvar)(const char *name, char *buffer, int size);
+		GLOBALVAR *(*find)(const char *name);
 	} global;
 	struct {
 		void (*read)(LOCKVAR *);
@@ -268,7 +268,7 @@ typedef struct s_callbacks {
 		int (*property_to_string)(PROPERTY *prop, void *addr, char *value, int size);
 	} convert;
 	MODULE *(*module_find)(char *name);
-	OBJECT *(*get_object)(char *name);
+	OBJECT *(*get_object)(const char *name);
 	OBJECT *(*object_find_by_id)(OBJECTNUM);
 	int (*name_object)(OBJECT *obj, char *buffer, int len);
 	int (*get_oflags)(KEYWORD **extflags);
@@ -360,7 +360,7 @@ STATUS object_finalize(OBJECT *obj);
 int object_set_dependent(OBJECT *obj, OBJECT *dependent);
 int object_set_parent(OBJECT *obj, OBJECT *parent);
 unsigned int object_get_child_count(OBJECT *obj);
-void *object_get_addr(OBJECT *obj, char *name);
+void *object_get_addr(OBJECT *obj, const char *name);
 PROPERTY *object_get_property(OBJECT *obj, PROPERTYNAME name, PROPERTYSTRUCT *part);
 PROPERTY *object_prop_in_class(OBJECT *obj, PROPERTY *prop);
 int object_set_value_by_name(OBJECT *obj, PROPERTYNAME name, char *value);
@@ -406,7 +406,7 @@ complex *object_get_complex_quick(OBJECT *pObj, PROPERTY *prop);
 char *object_get_string(OBJECT *pObj, PROPERTY *prop);
 char *object_get_string_by_name(OBJECT *obj, char *name);
 FUNCTIONADDR object_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
-char *object_property_to_string(OBJECT *obj, char *name, char *buffer, int sz);
+char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz);
 char *object_get_unit(OBJECT *obj, char *name);
 int object_set_rank(OBJECT *obj, OBJECTRANK rank);
 

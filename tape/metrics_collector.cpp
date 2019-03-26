@@ -189,7 +189,7 @@ int metrics_collector::init(OBJECT *parent){
 		// Get the name of the waterheater for actual load
 		char tname[32];
 		sprintf(tname, "%i", parent->id);
-		char *namestr = (parent->name ? parent->name : tname);
+		const char *namestr = (parent->name ? parent->name : tname);
 		sprintf(waterheaterName, "waterheater_%s_actual_load", namestr);
 	}
 	else if (strcmp(parent_string, "inverter") == 0)

@@ -1122,8 +1122,8 @@ static int resolve_object(UNRESOLVED *item, char *filename)
 }
 static int resolve_double(UNRESOLVED *item, char *context)
 {
-	FULLNAME oname;
-	PROPERTYNAME pname;
+	char oname[65];
+	char pname[65];
 	char *filename = (item->file ? item->file : context);
 
 	if (sscanf(item->id,"%64[^.].%64s",oname,pname)==2)
@@ -3420,7 +3420,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 	char buffer[64];
 	CLASS *eclass;
 	PROPERTYTYPE type;
-	PROPERTYNAME propname;
+	char propname[64];
 	KEYWORD *keys = NULL;
 	UNIT *pUnit=NULL;
 	START;
@@ -3787,7 +3787,7 @@ static int schedule_ref(PARSER, SCHEDULE **sch)
 static int property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *from)
 {
 	FULLNAME oname;
-	PROPERTYNAME pname;
+	char pname[64];
 	START;
 	if WHITE ACCEPT;
 	if (TERM(name(HERE,oname,sizeof(oname))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))))
@@ -4001,7 +4001,7 @@ char *makecopy(char *s)
 static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
-	PROPERTYNAME propname;
+	char propname[64];
 	char1024 propval;
 	double dval;
 	complex cval;

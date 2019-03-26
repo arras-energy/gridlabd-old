@@ -123,6 +123,7 @@ int property_check(void)
 PROPERTY *property_malloc(PROPERTYTYPE proptype, CLASS *oclass, const char *name, void *addr, DELEGATEDTYPE *delegation)
 {
 	char unitspec[1024];
+	char propname[1024];
 	PROPERTY *prop = (PROPERTY*)malloc(sizeof(PROPERTY));
 
 	if (prop==NULL)
@@ -148,7 +149,7 @@ PROPERTY *property_malloc(PROPERTYTYPE proptype, CLASS *oclass, const char *name
 	prop->notify = 0;
 	prop->notify_override = false;
 	prop->default_value = NULL;
-	if (sscanf(name,"%[^[][%[^]]]",prop->name,unitspec)==2)
+	if (sscanf(name,"%[^[][%[^]]]",propname,unitspec)==2)
 	{
 		/* detect when a unit is associated with non-double/complex property */
 		if (prop->ptype!=PT_double && prop->ptype!=PT_complex)
@@ -170,6 +171,7 @@ PROPERTY *property_malloc(PROPERTYTYPE proptype, CLASS *oclass, const char *name
 				 */
 		}
 	}
+	prop->name = strdup(propname);
 	prop->addr = addr;
 	prop->delegation = delegation;
 	prop->next = NULL;

@@ -98,7 +98,7 @@ GUIENTITY *gui_get_last(void);
 GUIENTITYTYPE gui_get_type(GUIENTITY *entity);
 GUIENTITY *gui_get_parent(GUIENTITY *entity);
 GUIENTITY *gui_get_next(GUIENTITY *entity);
-char *gui_get_name(GUIENTITY *entity);
+const char *gui_get_name(GUIENTITY *entity);
 OBJECT *gui_get_object(GUIENTITY *entity);
 PROPERTY *gui_get_property(GUIENTITY *entity);
 char *gui_get_value(GUIENTITY *entity);

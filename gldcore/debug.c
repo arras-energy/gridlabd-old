@@ -231,7 +231,7 @@
 /* these are the signals that will trigger the debugger to start */
 int siglist[] = {SIGABRT, SIGINT, SIGFPE, SIGSEGV, SIGTERM};
 
-static char *get_objname(OBJECT *obj)
+static const char *get_objname(OBJECT *obj)
 {
 	static char buf[1024];
 	if (obj->name) return obj->name;

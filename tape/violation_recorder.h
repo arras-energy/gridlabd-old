@@ -155,6 +155,8 @@ public:
 
 class uniqueList{
 public:
+	const char *name;
+	uniqueList *next;
 	uniqueList(){
 		name = 0;
 		next = 0;
@@ -164,7 +166,7 @@ public:
 		next = 0;
 	}
 	~uniqueList(){if(next != 0) delete next;}
-	void insert(char *n) {
+	void insert(const char *n) {
 		if (name && strcmp(name, n) != 0) {
 			if(next){
 				next->insert(n);
@@ -197,8 +199,6 @@ public:
 		}
 		return 0;
 	}
-	char *name;
-	uniqueList *next;
 };
 
 class violation_recorder{

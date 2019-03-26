@@ -12732,7 +12732,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 	int temp_branch_fc, temp_node, current_branch, temp_connection_type;;
 	unsigned int temp_table_loc;
 	unsigned char temp_branch_phases;
-	char *temp_branch_name;
+	const char *temp_branch_name;
 	OBJECT *temp_transformer, **temp_transformer_configuration;
 	PROPERTY *temp_trans_config, *temp_con_typ;
 	double temp_v_ratio;

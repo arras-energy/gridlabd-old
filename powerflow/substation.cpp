@@ -121,7 +121,7 @@ void substation::fetch_complex(complex **prop, char *name, OBJECT *parent){
 	*prop = gl_get_complex_by_name(parent, name);
 	if(*prop == NULL){
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "substation:%i", hdr->id);
 		if(*name == NULL)
@@ -137,7 +137,7 @@ void substation::fetch_double(double **prop, char *name, OBJECT *parent){
 	*prop = gl_get_double_by_name(parent, name);
 	if(*prop == NULL){
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "substation:%i", hdr->id);
 		if(*name == NULL)

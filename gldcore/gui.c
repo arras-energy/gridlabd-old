@@ -261,7 +261,7 @@ PROPERTY *gui_get_property(GUIENTITY *entity)
 	}
 	return entity->prop;
 }
-char *gui_get_name(GUIENTITY *entity)
+const char *gui_get_name(GUIENTITY *entity)
 {
 	if (gui_get_object(entity))
 	{

@@ -134,17 +134,17 @@ PROPERTY *object_get_property(OBJECT *obj, /**< a pointer to the object */
 		return NULL;
 	} else {
 		char *part;
-		PROPERTYNAME root;
+		char root[1024];
 		PROPERTY *prop = class_find_property(obj->oclass, name);
 		PROPERTYSPEC *spec;
-		if ( pstruct ) { pstruct->prop=prop; pstruct->part[0]='\0'; }
+		if ( pstruct ) { pstruct->prop=prop; pstruct->part = ""; }
 		if ( prop ) return prop;
 
 		/* property not found, but part structure was not requested either */
 		if ( pstruct==NULL ) return NULL;
 
 		/* possible part specified, so search for it */
-		strcpy(root,name);
+		strncpy(root,name,sizeof(root)-1);
 		part = strrchr(root,'.');
 		if ( !part ) return NULL; /* no part, no result */
 		
@@ -161,7 +161,7 @@ PROPERTY *object_get_property(OBJECT *obj, /**< a pointer to the object */
 		
 		/* part is valid */
 		pstruct->prop = prop;
-		strncpy(pstruct->part,part,sizeof(pstruct->part));
+		pstruct->part = strdup(part);
 
 		return prop;
 	}
@@ -435,7 +435,7 @@ void object_stream_fixup(OBJECT *obj, char *classname, char *objname)
 {
 	obj->oclass = class_get_class_from_classname(classname);
 	obj->name = (char*)malloc(strlen(objname)+1);
-	strcpy(obj->name,objname);
+	obj->name = strdup(objname);
 	obj->next = NULL;
 	if ( first_object==NULL )
 		first_object = obj;
@@ -500,7 +500,7 @@ OBJECT *object_remove_by_id(OBJECTNUM id){
 	@return \e void pointer to the data; \p NULL is not found
  **/
 void *object_get_addr(OBJECT *obj, /**< object to look in */
-					  char *name){ /**< name of property to find */
+					  const char *name){ /**< name of property to find */
 	PROPERTY *prop;
 	if(obj == NULL)
 		return NULL;
@@ -817,7 +817,7 @@ int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 	return result;
 }
 
-static int set_header_value(OBJECT *obj, char *name, char *value)
+static int set_header_value(OBJECT *obj, const char *name, char *value)
 {
 	unsigned int temp_microseconds;
 	TIMESTAMP tval;
@@ -1349,7 +1349,7 @@ int object_set_dependent(OBJECT *obj, /**< the object to set */
 
 /* Convert the value of an object property to a string
  */
-char *object_property_to_string(OBJECT *obj, char *name, char *buffer, int sz)
+char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz)
 {
 	//static char buffer[4096];
 	void *addr;
@@ -2283,7 +2283,7 @@ static HASH hash(OBJECTNAME name)
 {
 	static HASH A = 55711, B = 45131, C = 60083;
 	HASH h = 18443;
-	char *p;
+	const char *p;
 	bool ok = true;
 	for ( p = name ; ok ; p++ )
 	{
@@ -2428,7 +2428,7 @@ OBJECT *object_find_name(OBJECTNAME name)
 
 int object_build_name(OBJECT *obj, char *buffer, int len){
 	char b[256];
-	char *ptr = 0;
+	const char *ptr = 0;
 	int L; // to not confuse l and 1 visually
 
 	if(obj == 0){

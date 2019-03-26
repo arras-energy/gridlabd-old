@@ -118,7 +118,7 @@ int controller_dg::init(OBJECT *parent)
 	int index = 0;
 	if(dgs != NULL){
 		pDG = (diesel_dg **)gl_malloc(dgs->hit_count*sizeof(diesel_dg*));
-		DGpNdName = (char **)gl_malloc(dgs->hit_count*sizeof(char*));
+		DGpNdName = (const char **)gl_malloc(dgs->hit_count*sizeof(char*));
 		if(pDG == NULL){
 			gl_error("Failed to allocate diesel_dg array.");
 			return TS_NEVER;
@@ -221,8 +221,8 @@ int controller_dg::init(OBJECT *parent)
 
 			// Obtain the voltage and frequency values for each switch
 			// Get the switch from node object
-			char *temp_from_name = temp_switch->from->name;
-			char *temp_to_name = temp_switch->to->name;
+			const char *temp_from_name = temp_switch->from->name;
+			const char *temp_to_name = temp_switch->to->name;
 
 			bool found = false;
 			for (int i = 0; i < dgs->hit_count; i++) {

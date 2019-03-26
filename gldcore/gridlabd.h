@@ -236,7 +236,7 @@ CDECL EXTERN CALLBACKS *callback INIT(NULL);
 	- Outside a #GL_TRY or GL_CATCH(Msg) block, control is transfered to the main core exception handler.
  **/
 #ifdef __cplusplus
-inline void GL_THROW(char *format, ...)
+inline void GL_THROW(const char *format, ...)
 {
 	static char buffer[1024];
 	va_list ptr;
@@ -2033,7 +2033,7 @@ private: // data
 
 public: // constructors/casts
 	inline gld_property(void) : pstruct(nullpstruct), obj(NULL) {};
-	inline gld_property(gld_object *o, char *n) : pstruct(nullpstruct), obj(o->my())
+	inline gld_property(gld_object *o, const char *n) : pstruct(nullpstruct), obj(o->my())
 	{ 
 		if (o) 
 			callback->properties.get_property(o->my(),n,&pstruct); 
@@ -2043,7 +2043,7 @@ public: // constructors/casts
 			pstruct.prop= (v?v->prop:NULL);
 		} 
 	};
-	inline gld_property(OBJECT *o, char *n) : pstruct(nullpstruct), obj(o)
+	inline gld_property(OBJECT *o, const char *n) : pstruct(nullpstruct), obj(o)
 	{ 
 		if (o) 
 			callback->properties.get_property(o,n,&pstruct); 
@@ -2056,7 +2056,7 @@ public: // constructors/casts
 	inline gld_property(OBJECT *o) : pstruct(nullpstruct), obj(o) { pstruct.prop=o->oclass->pmap; };
 	inline gld_property(OBJECT *o, PROPERTY *p) : pstruct(nullpstruct), obj(o) { pstruct.prop=p; };
 	inline gld_property(GLOBALVAR *v) : pstruct(nullpstruct), obj(NULL) { pstruct.prop=v->prop; };
-	inline gld_property(char *n) : pstruct(nullpstruct), obj(NULL)
+	inline gld_property(const char *n) : pstruct(nullpstruct), obj(NULL)
 	{
 		char oname[256], vname[256];
 		if ( sscanf(n,"%[A-Za-z0-9_].%[A-Za-z0-9_.]",oname,vname)==2 )
@@ -2071,7 +2071,7 @@ public: // constructors/casts
 		GLOBALVAR *v=callback->global.find(n); 
 		pstruct.prop = (v?v->prop:NULL);  
 	};
-	inline gld_property(char *m, char *n) : pstruct(nullpstruct), obj(NULL)
+	inline gld_property(const char *m, const char *n) : pstruct(nullpstruct), obj(NULL)
 	{
 		obj = callback->get_object(m);
 		if ( obj != NULL ) {
@@ -2090,7 +2090,7 @@ public: // read accessors
 	inline OBJECT *get_object(void) { return obj; };
 	inline PROPERTY *get_property(void) { return pstruct.prop; };
 	inline gld_class* get_class(void) { return (gld_class*)pstruct.prop->oclass; };
-	inline char *get_name(void) { return pstruct.prop->name; };
+	inline const char *get_name(void) { return pstruct.prop->name; };
 	inline gld_type get_type(void) { return gld_type(pstruct.prop->ptype); };
 	inline size_t get_size(void) { return (size_t)(pstruct.prop->size); };
 	inline size_t get_width(void) { return (size_t)(pstruct.prop->width); };
@@ -2112,7 +2112,7 @@ public: // read accessors
 		return res;
 	};
 	inline int from_string(char *string) { return callback->convert.string_to_property(pstruct.prop,get_addr(),string); };
-	inline char *get_partname(void) { return pstruct.part; };
+	inline const char *get_partname(void) { return pstruct.part; };
 	inline double get_part(char *part=NULL) { return callback->properties.get_part(obj,pstruct.prop,part?part:pstruct.part); };
 
 public: // write accessors
@@ -2368,7 +2368,7 @@ CDECL int gld_major=MAJOR, gld_minor=MINOR;
 CDECL int dllinit() __attribute__((constructor));
 CDECL int dllkill() __attribute__((destructor));
 CDECL int dllinit() { return 0; }
-CDECL int dllkill() { do_kill(NULL); }
+CDECL int dllkill() { return do_kill(NULL); }
 
 #endif // !WIN32
 

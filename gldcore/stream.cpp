@@ -411,8 +411,8 @@ void stream(CLASS *oclass, PROPERTY *prop)
 	size_t n;
 	for ( n=0 ; n<count ; n++ )
 	{
-		PROPERTYNAME name; if ( prop ) strcpy(name,prop->name);
-		stream(name,sizeof(name));
+		char name[64]; if ( prop ) strcpy(name,prop->name);
+		stream(prop->name,strlen(prop->name));
 
 		PROPERTYTYPE ptype; if ( prop ) ptype = prop->ptype;
 		stream(ptype);
@@ -504,7 +504,7 @@ void stream(GLOBALVAR *var)
 	size_t n;
 	for ( n=0 ; n<count ; n++ )
 	{
-		PROPERTYNAME name; if ( var ) strcpy(name,var->prop->name);
+		char name[64]; if ( var ) strcpy(name,var->prop->name);
 		stream(name,sizeof(name));
 
 		char value[1024]; if ( var ) global_getvar(name,value,sizeof(value));

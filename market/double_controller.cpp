@@ -122,14 +122,14 @@ void double_controller::fetch(double **value, char *name, OBJECT *parent, PROPER
 	}
 	if(*prop == NULL){
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		sprintf(tname, "double_controller:%i", hdr->id);
 		GL_THROW("%s: double_controller unable to find property \'%s\'", namestr, name);
 	} else {
 		*value = gl_get_double(parent, *prop);
 		if(*value == 0){
 			char tname[32];
-			char *namestr = (hdr->name ? hdr->name : tname);
+			const char *namestr = (hdr->name ? hdr->name : tname);
 			sprintf(tname, "double_controller:%i", hdr->id);
 			GL_THROW("%s: property \'%s\' is not a double", namestr, name);
 		}
@@ -139,7 +139,7 @@ void double_controller::fetch(double **value, char *name, OBJECT *parent, PROPER
 int double_controller::init(OBJECT *parent){
 	OBJECT *hdr = OBJECTHDR(this);
 	char tname[32];
-	char *namestr = (hdr->name ? hdr->name : tname);
+	const char *namestr = (hdr->name ? hdr->name : tname);
 
 	sprintf(tname, "double_controller:%i", hdr->id);
 

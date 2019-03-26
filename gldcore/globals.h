@@ -37,7 +37,7 @@ typedef struct s_globalvar {
 	PROPERTY *prop;
 	struct s_globalvar *next;
 	uint32 flags;
-	void (*callback)(char *); // this function will be called whenever the globalvar is set
+	void (*callback)(const char *); // this function will be called whenever the globalvar is set
 	LOCKVAR lock;
 } GLOBALVAR;
 
@@ -441,7 +441,7 @@ public:
 	GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
 	~GldGlobalvar(void);
 public: // accessors
-	inline void set_callback(void (*callback)(char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
+	inline void set_callback(void (*callback)(const char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
 };
 
 class GldGlobals 

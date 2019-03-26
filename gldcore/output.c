@@ -957,7 +957,7 @@ int output_xsl(char *fname, int n_mods, char *p_mods[])
 					{
 						if (strncmp(var->prop->name,mod->name,strlen(mod->name))==0)
 						{
-							char *name = var->prop->name + strlen(mod->name)+2; // offset name to after ::
+							const char *name = var->prop->name + strlen(mod->name)+2; // offset name to after ::
 							fprintf(fp,"<TR><TH>%s</TH><TD><xsl:value-of select=\"%s/%s\"/></TD></TR>",name,mod->name,name);
 						}
 					}
@@ -1029,7 +1029,7 @@ int output_xsl(char *fname, int n_mods, char *p_mods[])
 							{
 								if (strncmp(var->prop->name,mod->name,strlen(mod->name))==0)
 								{
-									char *name = var->prop->name + strlen(mod->name)+2; // offset name to after ::
+									const char *name = var->prop->name + strlen(mod->name)+2; // offset name to after ::
 									fprintf(fp,"\t%s <xsl:value-of select=\"%s\"/>;\n",name,name);
 								}
 							}

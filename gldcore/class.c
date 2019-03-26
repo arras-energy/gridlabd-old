@@ -309,7 +309,7 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	prop->keywords = NULL;
 	prop->description = NULL;
 	prop->unit = pUnit;
-	strncpy(prop->name,name,sizeof(prop->name));
+	prop->name = strdup(name);
 	prop->next = NULL;
 	prop->oclass = oclass;
 	prop->ptype = ptype;
@@ -925,7 +925,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			DELEGATEDTYPE *delegation=(proptype==PT_delegated?va_arg(arg,DELEGATEDTYPE*):NULL);
 			char *name = va_arg(arg,char*);
 			PROPERTYADDR addr = va_arg(arg,PROPERTYADDR);
-			if (prop!=NULL && strlen(name)>=sizeof(prop->name))
+			if ( prop != NULL && strlen(name) >= MAXPROPNAMELEN )
 			{
 				output_error("class_define_map(oclass='%s',...): property name '%s' is too big", oclass->name, name);
 				/*	TROUBLESHOOT

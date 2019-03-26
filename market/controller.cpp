@@ -323,7 +323,7 @@ int controller::fetch_property(gld_property **prop, char *propName, OBJECT *obj)
 int controller::init(OBJECT *parent){
 	OBJECT *hdr = OBJECTHDR(this);
 	char tname[32];
-	char *namestr = (hdr->name ? hdr->name : tname);
+	const char *namestr = (hdr->name ? hdr->name : tname);
 	gld_property *pInitPrice = NULL;
 
 	sprintf(tname, "controller:%i", hdr->id);

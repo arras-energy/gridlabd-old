@@ -132,7 +132,7 @@ PROPERTY *class_get_next_property(PROPERTY *prop);
 PROPERTY *class_get_first_property_inherit(CLASS *oclass);
 PROPERTY *class_get_next_property_inherit(PROPERTY *prop);
 PROPERTY *class_prop_in_class(CLASS *oclass, PROPERTY *prop);
-PROPERTY *class_find_property(CLASS *oclass, const PROPERTYNAME name);
+PROPERTY *class_find_property(CLASS *oclass, PROPERTYNAME name);
 void class_add_property(CLASS *oclass, PROPERTY *prop);
 PROPERTY *class_add_extended_property(CLASS *oclass, char *name, PROPERTYTYPE ptype, char *unit);
 PROPERTYTYPE class_get_propertytype_from_typename(char *name);

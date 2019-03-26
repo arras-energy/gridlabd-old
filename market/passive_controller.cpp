@@ -210,7 +210,7 @@ void passive_controller::fetch_double(double **prop, char *name, OBJECT *parent)
 	*prop = gl_get_double_by_name(parent, name);
 	if(*prop == NULL){
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "passive_controller:%i", hdr->id);
 		if(*name == NULL)
@@ -226,7 +226,7 @@ void passive_controller::fetch_int(int **prop, char *name, OBJECT *parent){
 	*prop = gl_get_int32_by_name(parent, name);
 	if(*prop == NULL){
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "passive_controller:%i", hdr->id);
 		if(*name == NULL)
