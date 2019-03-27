@@ -476,7 +476,7 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 			IN_MYCONTEXT output_verbose("module %s is registering a 2nd class %s, previous one in module %s", module->name, name, oclass->module->name);
 		}
 	}
-	if (strlen(name)>=sizeof(oclass->name) )
+	if (strlen(name)>=MAXCLASSNAMELEN )
 	{
 		errno = E2BIG;
 		return 0;
