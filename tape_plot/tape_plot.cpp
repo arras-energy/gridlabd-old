@@ -484,9 +484,9 @@ EXPORT void close_recorder(struct recorder *my)
 {
 	char gnuplot[1024];
 #ifdef WIN32
-	char *plotcmd = "start wgnuplot";
+	const char *plotcmd = "start wgnuplot";
 #else
-	char *plotcmd = "gnuplot";
+	const char *plotcmd = "gnuplot";
 #endif
 	if(my->output == SCREEN)
 		sprintf(gnuplot,"%s -persist", plotcmd);
@@ -591,7 +591,7 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 #endif
 	count += fprintf(my->fp,"# group..... %s\n", my->group.get_string());
 	count += fprintf(my->fp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger.get_string());
-	count += fprintf(my->fp,"# interval.. %d\n", my->interval);
+	count += fprintf(my->fp,"# interval.. %lld\n", my->interval);
 	count += fprintf(my->fp,"# limit..... %d\n", my->limit);
 	count += fprintf(my->fp,"# property.. timestamp,%s\n", (const char*)my->property);
 
@@ -640,7 +640,7 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 
 	write_default_plot_commands_col(my, extension);
 	if (my->columns){
-		sscanf(my->columns,"%s %s", columnlist);
+		sscanf(my->columns,"%s", columnlist);
 		fprintf(my->fp, "plot \'-\' using %s with lines;\n", columnlist);
 	}
 
