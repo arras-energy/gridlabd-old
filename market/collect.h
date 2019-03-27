@@ -12,21 +12,21 @@ public:
 		double power;	/**< bid power */
 		double voltage_deviation;	/**< bid voltage deviation */
 		int state;	/**< bid state */
-		bool operator<(const supervisor_bid& rhs) const {
-			if (sort_by == 1) {  // sort by power increasing
+		bool operator<(const supervisor_bid& rhs) const 
+		{
+			switch ( sort_by )
+			{
+			case 1: // sort by power increasing
 				return power < rhs.power;
-			}
-			else if (sort_by == 2) {  // sort by power decreasing
+			case 2: // sort by power decreasing
 				return power > rhs.power;
-			}
-			else if (sort_by == 3) { // sort by deviation of voltage from nominal
+			case 3: // sort by deviation of voltage from nominal
 				return voltage_deviation < rhs.voltage_deviation; 
-			}
-			else if (sort_by == 4) { // sort by furtherst away from nominal in each direction
+			case 4: // sort by furtherst away from nominal in each direction
 				return voltage_deviation < rhs.voltage_deviation; 
-			}
-			else {
+			default:
 				gl_error("sort method is not defined!");
+				return false;
 			}
 		}
 	} SUPERVISORBID;
