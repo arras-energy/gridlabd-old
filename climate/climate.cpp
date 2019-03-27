@@ -1,5 +1,4 @@
-/** $Id: climate.cpp 4738 2014-07-03 00:55:39Z dchassin $
-/** $Id: climate.cpp 1182 2008-12-22 22:08:36Z dchassin $
+/** climate/climate.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file climate.cpp
 	@author David P. Chassin

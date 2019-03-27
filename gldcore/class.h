@@ -160,7 +160,7 @@ int class_define_map(CLASS *oclass, ...);
 int class_define_enumeration_member(CLASS *oclass,const char *property_name,const char *member,enumeration value);
 int class_define_set_member(CLASS *oclass,const char *property_name,const char *member,unsigned int64 value);
 FUNCTION *class_define_function(CLASS *oclass, FUNCTIONNAME functionname, FUNCTIONADDR call);
-FUNCTIONADDR class_get_function(CLASSNAME classname, char *functionname);
+FUNCTIONADDR class_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
 DELEGATEDTYPE *class_register_type(CLASS *oclass, char *type,int (*from_string)(void*,char*),int (*to_string)(void*,char*,int));
 int class_define_type(CLASS *oclass, DELEGATEDTYPE *delegation, ...);
 

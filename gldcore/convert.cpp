@@ -875,7 +875,7 @@ int convert_to_object(const char *buffer, /**< a pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
 					    PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
-	CLASSNAME cname;
+	char cname[MAXCLASSNAMELEN];
 	OBJECTNUM id;
 	OBJECT **target = (OBJECT**)data;
 	char oname[256];

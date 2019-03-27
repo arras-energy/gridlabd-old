@@ -1074,7 +1074,7 @@ FUNCTION *class_define_function(CLASS *oclass, FUNCTIONNAME functionname, FUNCTI
 		return NULL;
 	}
 	func->addr = call;
-	strcpy(func->name,functionname);
+	func->name = strdup(functionname);
 	func->next = NULL;
 	func->oclass = oclass;
 	if (oclass->fmap==NULL)
@@ -1095,7 +1095,7 @@ FUNCTION *class_define_function(CLASS *oclass, FUNCTIONNAME functionname, FUNCTI
 
 /* Get the entry point of a class function
  */
-FUNCTIONADDR class_get_function(CLASSNAME classname, char *functionname)
+FUNCTIONADDR class_get_function(CLASSNAME classname, FUNCTIONNAME functionname)
 {
 	CLASS *oclass = class_get_class_from_classname(classname);
 	FUNCTION *func;

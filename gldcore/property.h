@@ -865,7 +865,7 @@ typedef const char *CLASSNAME; /**< the name a GridLAB class */
 typedef void* PROPERTYADDR; /**< the offset of a property from the end of the OBJECT header */
 typedef const char *PROPERTYNAME; /**< the name of a property */
 #define MAXPROPNAMELEN 64
-typedef char FUNCTIONNAME[64]; /**< the name of a function (not used) */
+typedef const char *FUNCTIONNAME; /**< the name of a function (not used) */
 
 /* property access rights (R/W apply to modules only, core always has all rights) */
 typedef enum {

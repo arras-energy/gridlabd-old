@@ -1676,7 +1676,7 @@ public: // constructors
 
 public: // read accessors
 	/// Get function name
-	inline char *get_name(void) { return core.name; };
+	inline FUNCTIONNAME get_name(void) { return core.name; };
 	/// Get function class
 	inline gld_class* get_class(void) { return (gld_class*)core.oclass; };
 	/// Get function address
