@@ -444,7 +444,7 @@ inline FUNCTION *gl_publish_function(CLASS *oclass, /**< class to which function
 									 FUNCTIONNAME functionname, /**< name of function */
 									 FUNCTIONADDR call) /**< address of function entry */
 { return (*callback->function.define)(oclass, functionname, call);}
-inline FUNCTIONADDR gl_get_function(OBJECT *obj, char *name)
+inline FUNCTIONADDR gl_get_function(OBJECT *obj, FUNCTIONNAME name)
 { return obj?(*callback->function.get)(obj->oclass->name,name):NULL;}
 #else
 #define gl_publish_function (*callback->function.define)
