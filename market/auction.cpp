@@ -205,7 +205,7 @@ auction::auction(MODULE *module)
 }
 
 
-int auction::isa(char *classname)
+int auction::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"auction")==0;
 }

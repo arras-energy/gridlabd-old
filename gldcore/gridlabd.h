@@ -1929,7 +1929,7 @@ public:
 	inline gld_object &operator=(gld_object&o) { exception("copy constructor is forbidden on gld_object"); return *this;};
 
 public: // constructors
-	inline static gld_object *find_object(char *n) { OBJECT *obj = callback->get_object(n); if (obj) return (gld_object*)(obj+1); else return NULL; };
+	inline static gld_object *find_object(const char *n) { OBJECT *obj = callback->get_object(n); if (obj) return (gld_object*)(obj+1); else return NULL; };
 
 public: // header read accessors (no locking)
 	inline OBJECTNUM get_id(void) { return my()->id; };
@@ -1994,7 +1994,7 @@ public: // core interface
 	inline int set_dependent(OBJECT *obj) { return callback->object.set_dependent(my(),obj); };
 	inline int set_parent(OBJECT *obj) { return callback->object.set_parent(my(),obj); };
 	inline int set_rank(unsigned int r) { return callback->object.set_rank(my(),r); };
-	inline bool isa(char *type) { return callback->object_isa(my(),type) ? true : false; };
+	inline bool isa(const char *type) { return callback->object_isa(my(),type) ? true : false; };
 	inline bool is_valid(void) { return my()!=NULL && my()==OBJECTHDR(this); };
 
 public: // iterators
@@ -2434,7 +2434,7 @@ CDECL int dllkill() { return do_kill(NULL); }
 /// Implement class sync export
 #define EXPORT_SYNC(X) EXPORT_SYNC_C(X,X)
 
-#define EXPORT_ISA_C(X,C) EXPORT int isa_##X(OBJECT *obj, char *name) { \
+#define EXPORT_ISA_C(X,C) EXPORT int isa_##X(OBJECT *obj, const char *name) { \
 	return ( obj!=0 && name!=0 ) ? OBJECTDATA(obj,C)->isa(name) : 0; }
 /// Implement class isa export
 #define EXPORT_ISA(X) EXPORT_ISA_C(X,X)

@@ -265,7 +265,7 @@ public:
 	climate(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	TIMESTAMP presync(TIMESTAMP t0);
 	inline TIMESTAMP sync(TIMESTAMP t0) { return TS_NEVER; };
 	inline TIMESTAMP postsync(TIMESTAMP t0) { return TS_NEVER; };

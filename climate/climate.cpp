@@ -636,7 +636,7 @@ void climate::set_defaults(bool is_template)
 		defaults = this;
 }
 
-int climate::isa(char *classname)
+int climate::isa(CLASSNAME classname)
 {
 	if(classname != 0)
 		return (0 == strcmp(classname,"climate"));
