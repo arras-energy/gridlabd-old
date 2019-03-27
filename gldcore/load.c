@@ -2751,7 +2751,7 @@ static int clock_block(PARSER)
 static int module_properties(PARSER, MODULE *mod)
 {
 	int64 val;
-	CLASSNAME classname;
+	char classname[MAXCLASSNAMELEN+1];
 	char256 propname;
 	char256 propvalue;
 	START;
@@ -3371,7 +3371,7 @@ static int class_explicit_definition(PARSER, CLASS *oclass)
 
 static int class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *fname, int fsize)
 {
-	CLASSNAME classname;
+	char classname[MAXCLASSNAMELEN+1];
 	START;
 	if (LITERAL("function") 
 		&& WHITE 
@@ -3515,7 +3515,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 
 static int class_block(PARSER)
 {
-	CLASSNAME classname;
+	char classname[MAXCLASSNAMELEN+1];
 	CLASS *oclass;
 	int startline;
 	int64 functions = 0;
@@ -4509,7 +4509,7 @@ static int object_name_id(PARSER,char *classname, int64 *id)
 {
 	START;
 	if WHITE ACCEPT;
-	if TERM(dotted_name(HERE,classname,sizeof(CLASSNAME)))
+	if TERM(dotted_name(HERE,classname,MAXCLASSNAMELEN))
 	{
 		*id = -1; /* anonymous object */
 		if LITERAL(":")
@@ -4519,7 +4519,7 @@ static int object_name_id(PARSER,char *classname, int64 *id)
 		ACCEPT;
 		DONE;
 	}
-	else if TERM(name(HERE,classname,sizeof(CLASSNAME)))
+	else if TERM(name(HERE,classname,MAXCLASSNAMELEN))
 	{
 		*id = -1; /* anonymous object */
 		if LITERAL(":")
@@ -4537,8 +4537,8 @@ static int object_name_id_range(PARSER,char *classname, int64 *from, int64 *to)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(dotted_name(HERE,classname,sizeof(CLASSNAME))) && LITERAL(":") && TERM(integer(HERE,from)) && LITERAL("..")) ACCEPT
-	else if (TERM(name(HERE,classname,sizeof(CLASSNAME))) && LITERAL(":") && TERM(integer(HERE,from)) && LITERAL("..")) ACCEPT
+	if (TERM(dotted_name(HERE,classname,MAXCLASSNAMELEN)) && LITERAL(":") && TERM(integer(HERE,from)) && LITERAL("..")) ACCEPT
+	else if (TERM(name(HERE,classname,MAXCLASSNAMELEN)) && LITERAL(":") && TERM(integer(HERE,from)) && LITERAL("..")) ACCEPT
 	else REJECT;
 	if (TERM(integer(HERE,to))) ACCEPT else
 	{
@@ -4552,8 +4552,8 @@ static int object_name_id_count(PARSER,char *classname, int64 *count)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(dotted_name(HERE,classname,sizeof(CLASSNAME))) && LITERAL(":") && LITERAL("..")) ACCEPT
-	else if (TERM(name(HERE,classname,sizeof(CLASSNAME))) && LITERAL(":") && LITERAL("..")) ACCEPT
+	if (TERM(dotted_name(HERE,classname,MAXCLASSNAMELEN)) && LITERAL(":") && LITERAL("..")) ACCEPT
+	else if (TERM(name(HERE,classname,MAXCLASSNAMELEN)) && LITERAL(":") && LITERAL("..")) ACCEPT
 	else REJECT;
 	if (TERM(integer(HERE,count))) ACCEPT else
 	{
@@ -4570,7 +4570,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 	static OBJECT nameobj;
 #endif
 	FULLNAME space;
-	CLASSNAME classname;
+	char classname[MAXCLASSNAMELEN+1];
 	CLASS *oclass;
 	OBJECT *obj=NULL;
 	int64 id=-1, id2=-1;

@@ -205,7 +205,7 @@ auction::auction(MODULE *module)
 }
 
 
-int auction::isa(char *classname)
+int auction::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"auction")==0;
 }
@@ -695,8 +695,10 @@ int auction::check_next_market(TIMESTAMP t1){
 		next_frame.seller_min_price = nframe->seller_min_price;
 		next_frame.marginal_frac = nframe->marginal_frac;
 		next_frame.cap_ref_unrep = nframe->cap_ref_unrep;
-		if(statistic_mode == ST_ON){
-			for(i = 0, stat = this->stats; i < statistic_count, stat != 0; ++i, stat = stat->next){
+		if(statistic_mode == ST_ON)
+		{
+			for ( i = 0, stat = this->stats ; i < statistic_count || stat != 0 ; ++i, stat = stat->next )
+			{
 				gl_set_value(obj, stat->prop, frame->statistics[i]);
 			}
 		}
@@ -740,8 +742,10 @@ TIMESTAMP auction::pop_market_frame(TIMESTAMP t1){
 	current_frame.seller_min_price = frame->seller_min_price;
 	current_frame.marginal_frac = frame->marginal_frac;
 	// copy statistics
-	if(statistic_mode == ST_ON){
-		for(i = 0, stat = this->stats; i < statistic_count, stat != 0; ++i, stat = stat->next){
+	if ( statistic_mode == ST_ON )
+	{
+		for ( i = 0, stat = this->stats ; i < statistic_count || stat != 0 ; ++i, stat = stat->next )
+		{
 			gl_set_value(obj, stat->prop, frame->statistics[i]);
 		}
 	}
@@ -1455,14 +1459,14 @@ void auction::clear_market(void)
 
 void auction::record_bid(char *from, double quantity, double real_price, BIDDERSTATE state){
 	char name_buffer[256];
-	char *unkState = "unknown";
-	char *offState = "off";
-	char *onState = "on";
-	char *unk = "unknown time";
+	const char *unkState = "unknown";
+	const char *offState = "off";
+	const char *onState = "on";
+	const char *unk = "unknown time";
 	char buffer[256];
 	char bigbuffer[1024];
-	char *pState;
-	char *tStr;
+	const char *pState;
+	const char *tStr;
 	DATETIME dt;
 	TIMESTAMP submit_time = gl_globalclock;
 	if(trans_file){ // copied from version below
@@ -1610,6 +1614,7 @@ int auction::submit_nolock(char *from, double quantity, double real_price, KEY k
 		}
 		return 1;
 	}
+	return 0;
 }
 
 TIMESTAMP auction::nextclear(void) const

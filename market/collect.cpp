@@ -125,34 +125,46 @@ int collect::sort(int sort_mode) {
 	return 0;
 }
 
-void collect::fetch_double(double **prop, char *name, OBJECT *parent){
+void collect::fetch_double(double **prop, PROPERTYNAME name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_double_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
-		char msg[256];
+		static char msg[256];
 		sprintf(tname, "collect:%i", hdr->id);
-		if(*name == NULL)
+		if ( name == NULL )
+		{
 			sprintf(msg, "%s: collect unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: collect unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
 
-void collect::fetch_int(int **prop, char *name, OBJECT *parent){
+void collect::fetch_int(int **prop, PROPERTYNAME name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_int32_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
-		char msg[256];
+		static char msg[256];
 		sprintf(tname, "collect:%i", hdr->id);
-		if(*name == NULL)
+		if ( name == NULL )
+		{
 			sprintf(msg, "%s: collect unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: collect unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }

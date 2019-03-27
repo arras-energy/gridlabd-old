@@ -131,13 +131,13 @@ typedef struct s_callbacks {
 		OBJECT *(*foreign)(OBJECT *);
 	} create;
 	int (*define_map)(CLASS*,...);
-	int (*loadmethod)(CLASS*,char*,int (*call)(OBJECT*,char*));
+	int (*loadmethod)(CLASS*,const char*,int (*call)(OBJECT*,char*));
 	CLASS *(*class_getfirst)(void);
 	CLASS *(*class_getname)(char*);
 	PROPERTY *(*class_add_extended_property)(CLASS *,char *,PROPERTYTYPE,char *);
 	struct {
 		FUNCTION *(*define)(CLASS*,FUNCTIONNAME,FUNCTIONADDR);
-		FUNCTIONADDR (*get)(char*,char*);
+		FUNCTIONADDR (*get)(const char*,const char*);
 	} function;
 	int (*define_enumeration_member)(CLASS*,char*,char*,enumeration);
 	int (*define_set_member)(CLASS*,char*,char*,unsigned int64);
@@ -155,7 +155,7 @@ typedef struct s_callbacks {
 		int (*get_value_by_name)(OBJECT *, const char*, char*, int size);
 		OBJECT *(*get_reference)(OBJECT *, char*);
 		char *(*get_unit)(OBJECT *, char *);
-		void *(*get_addr)(OBJECT *, char *);
+		void *(*get_addr)(OBJECT *, const char *);
 		int (*set_value_by_type)(PROPERTYTYPE,void *data,char *);
 		bool (*compare_basic)(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void* x, void* a, void* b, char *part);
 		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, char *opstr);
@@ -200,7 +200,7 @@ typedef struct s_callbacks {
 		double (*weibull)(unsigned int *rng,double a, double b);
 		double (*rayleigh)(unsigned int *rng,double a);
 	} random;
-	int (*object_isa)(OBJECT *obj, char *type);
+	int (*object_isa)(OBJECT *obj, const char *type);
 	DELEGATEDTYPE* (*register_type)(CLASS *oclass, char *type,int (*from_string)(void*,char*),int (*to_string)(void*,char*,int));
 	int (*define_type)(CLASS*,DELEGATEDTYPE*,...);
 	struct {
@@ -217,9 +217,9 @@ typedef struct s_callbacks {
 		int (*convert_from_timestamp)(TIMESTAMP ts, char *buffer, int size);
 		int (*convert_from_deltatime_timestamp)(double ts_v, char *buffer, int size);
 	} time;
-	int (*unit_convert)(char *from, char *to, double *value);
+	int (*unit_convert)(const char *from, const char *to, double *value);
 	int (*unit_convert_ex)(UNIT *pFrom, UNIT *pTo, double *pValue);
-	UNIT *(*unit_find)(char *unit_name);
+	UNIT *(*unit_find)(const char *unit_name);
 	struct {
 		EXCEPTIONHANDLER *(*create_exception_handler)();
 		void (*delete_exception_handler)(EXCEPTIONHANDLER *ptr);
@@ -252,22 +252,22 @@ typedef struct s_callbacks {
 		OBJECT **(*object_var)(OBJECT *obj, PROPERTY *prop);
 	} objvar;
 	struct s_objvar_name_struct {
-		bool *(*bool_var)(OBJECT *obj, char *name);
-		complex *(*complex_var)(OBJECT *obj, char *name);
-		enumeration *(*enum_var)(OBJECT *obj, char *name);
-		set *(*set_var)(OBJECT *obj, char *name);
-		int16 *(*int16_var)(OBJECT *obj, char *name);
-		int32 *(*int32_var)(OBJECT *obj, char *name);
-		int64 *(*int64_var)(OBJECT *obj, char *name);
-		double *(*double_var)(OBJECT *obj, char *name);
-		char *(*string_var)(OBJECT *obj, char *name);
-		OBJECT **(*object_var)(OBJECT *obj, char *name);
+		bool *(*bool_var)(OBJECT *obj, const char *name);
+		complex *(*complex_var)(OBJECT *obj, const char *name);
+		enumeration *(*enum_var)(OBJECT *obj, const char *name);
+		set *(*set_var)(OBJECT *obj, const char *name);
+		int16 *(*int16_var)(OBJECT *obj, const char *name);
+		int32 *(*int32_var)(OBJECT *obj, const char *name);
+		int64 *(*int64_var)(OBJECT *obj, const char *name);
+		double *(*double_var)(OBJECT *obj, const char *name);
+		char *(*string_var)(OBJECT *obj, const char *name);
+		OBJECT **(*object_var)(OBJECT *obj, const char *name);
 	} objvarname;
 	struct {
-		int (*string_to_property)(PROPERTY *prop, void *addr, char *value);
+		int (*string_to_property)(PROPERTY *prop, void *addr, const char *value);
 		int (*property_to_string)(PROPERTY *prop, void *addr, char *value, int size);
 	} convert;
-	MODULE *(*module_find)(char *name);
+	MODULE *(*module_find)(const char *name);
 	OBJECT *(*get_object)(const char *name);
 	OBJECT *(*object_find_by_id)(OBJECTNUM);
 	int (*name_object)(OBJECT *obj, char *buffer, int len);
@@ -376,7 +376,7 @@ int object_get_value_by_name(OBJECT *obj, PROPERTYNAME name, char *value, int si
 int object_get_value_by_addr(OBJECT *obj, void *addr, char *value, int size, PROPERTY *prop);
 int object_set_value_by_type(PROPERTYTYPE,void *addr, char *value);
 OBJECT *object_get_reference(OBJECT *obj, char *name);
-int object_isa(OBJECT *obj, char *type);
+int object_isa(OBJECT *obj, const char *type);
 OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name);
 OBJECT *object_find_name(OBJECTNAME name);
 int object_build_name(OBJECT *obj, char *buffer, int len);

@@ -90,7 +90,8 @@ int metrics_collector_writer::init(OBJECT *parent){
 
 	// Go through each metrics_coolector object, and check its time interval given
 	obj = NULL;
-	while(obj = gl_find_next(metrics_collectors,obj)){
+	while( (obj=gl_find_next(metrics_collectors,obj)) )
+	{
 		if(index >= metrics_collectors->hit_count){
 			break;
 		}
@@ -302,7 +303,8 @@ int metrics_collector_writer::write_line(TIMESTAMP t1){
 
 	// Go through each metrics_coolector object, and check its time interval given
 	OBJECT *obj = NULL;
-	while(obj = gl_find_next(metrics_collectors,obj)){
+	while(  (obj=gl_find_next(metrics_collectors,obj)) )
+	{
 		if(index >= metrics_collectors->hit_count){
 			break;
 		}
@@ -540,9 +542,6 @@ EXPORT int create_metrics_collector_writer(OBJECT **obj, OBJECT *parent){
 			rv = my->create();
 		}
 	}
-	catch (char *msg){
-		gl_error("create_metrics_collector_writer: %s", msg);
-	}
 	catch (const char *msg){
 		gl_error("create_metrics_collector_writer: %s", msg);
 	}
@@ -557,9 +556,6 @@ EXPORT int init_metrics_collector_writer(OBJECT *obj){
 	int rv = 0;
 	try {
 		rv = my->init(obj->parent);
-	}
-	catch (char *msg){
-		gl_error("init_metrics_collector_writer: %s", msg);
 	}
 	catch (const char *msg){
 		gl_error("init_metrics_collector_writer: %s", msg);
@@ -586,9 +582,6 @@ EXPORT TIMESTAMP sync_metrics_collector_writer(OBJECT *obj, TIMESTAMP t0, PASSCO
 				throw "invalid pass request";
 		}
 	}
-	catch(char *msg){
-		gl_error("sync_metrics_collector_writer: %s", msg);
-	}
 	catch(const char *msg){
 		gl_error("sync_metrics_collector_writer: %s", msg);
 	}
@@ -600,9 +593,6 @@ EXPORT int commit_metrics_collector_writer(OBJECT *obj){
 	metrics_collector_writer *my = OBJECTDATA(obj, metrics_collector_writer);
 	try {
 		rv = my->commit(obj->clock);
-	}
-	catch (char *msg){
-		gl_error("commit_metrics_collector_writer: %s", msg);
 	}
 	catch (const char *msg){
 		gl_error("commit_metrics_collector_writer: %s", msg);

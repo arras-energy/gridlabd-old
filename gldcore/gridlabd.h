@@ -420,8 +420,8 @@ inline int gl_module_depends(char *name, /**< module name */
  **/
 #ifdef __cplusplus
 inline bool gl_object_isa(OBJECT *obj, /**< object to test */
-						  char *type,
-						  char *modname=NULL) /**< type to test */
+						  const char *type,
+						  const char *modname=NULL) /**< type to test */
 {	bool rv = (*callback->object_isa)(obj,type)!=0;
 	bool mv = modname ? obj->oclass->module == (*callback->module_find)(modname) : true;
 	return (rv && mv);}
@@ -444,7 +444,7 @@ inline FUNCTION *gl_publish_function(CLASS *oclass, /**< class to which function
 									 FUNCTIONNAME functionname, /**< name of function */
 									 FUNCTIONADDR call) /**< address of function entry */
 { return (*callback->function.define)(oclass, functionname, call);}
-inline FUNCTIONADDR gl_get_function(OBJECT *obj, char *name)
+inline FUNCTIONADDR gl_get_function(OBJECT *obj, FUNCTIONNAME name)
 { return obj?(*callback->function.get)(obj->oclass->name,name):NULL;}
 #else
 #define gl_publish_function (*callback->function.define)
@@ -1175,17 +1175,17 @@ inline size_t nextpow2(register size_t x)
 ///
 /// Catchall for sync
 ///
-#define SYNC_CATCHALL(C) catch (char *msg) { gl_error("sync_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (const char *msg) { gl_error("sync_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (...) { gl_error("sync_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return TS_INVALID; }
+#define SYNC_CATCHALL(C) catch (const char *msg) { gl_error("sync_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (...) { gl_error("sync_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return TS_INVALID; }
 ///
 /// Catchall for init
 ///
-#define INIT_CATCHALL(C) catch (char *msg) { gl_error("init_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return 0; } catch (const char *msg) { gl_error("init_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return 0; } catch (...) { gl_error("init_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return 0; }
+#define INIT_CATCHALL(C) catch (const char *msg) { gl_error("init_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return 0; } catch (...) { gl_error("init_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return 0; }
 ///
 /// Catchall for create
 ///
-#define CREATE_CATCHALL(C) catch (char *msg) { gl_error("create_" #C ": %s", msg); return 0; } catch (const char *msg) { gl_error("create_" #C ": %s", msg); return 0; } catch (...) { gl_error("create_" #C ": unhandled exception"); return 0; }
-#define I_CATCHALL(T,C) catch (char *msg) { gl_error(#T "_" #C ": %s", msg); return 0; } catch (const char *msg) { gl_error(#T "_" #C ": %s", msg); return 0; } catch (...) { gl_error(#T "_" #C ": unhandled exception"); return 0; }
-#define T_CATCHALL(T,C) catch (char *msg) { gl_error(#T "_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (const char *msg) { gl_error(#T "_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (...) { gl_error(#T "_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return TS_INVALID; }
+#define CREATE_CATCHALL(C) catch (const char *msg) { gl_error("create_" #C ": %s", msg); return 0; } catch (...) { gl_error("create_" #C ": unhandled exception"); return 0; }
+#define I_CATCHALL(T,C) catch (const char *msg) { gl_error(#T "_" #C ": %s", msg); return 0; } catch (...) { gl_error(#T "_" #C ": unhandled exception"); return 0; }
+#define T_CATCHALL(T,C) catch (const char *msg) { gl_error(#T "_" #C "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg); return TS_INVALID; } catch (...) { gl_error(#T "_" #C "(obj=%d;%s): unhandled exception", obj->id, obj->name?obj->name:"unnamed"); return TS_INVALID; }
 /**@}*/
 
 /****************************
@@ -1627,7 +1627,7 @@ public: // constructors
 
 public: // read accessors
 	/// Get class name
-	inline char* get_name(void) { return core.name; };
+	inline const char* get_name(void) { return core.name; };
 	/// Get class size
 	inline size_t get_size(void) { return core.size; };
 	/// Get class parent
@@ -1651,7 +1651,7 @@ public: // write accessors
 
 public: // special functions
 	/// Register a class	
-	static inline CLASS *create(MODULE *m, char *n, size_t s, unsigned int f) { return callback->register_class(m,n,(unsigned int)s,f); };
+	static inline CLASS *create(MODULE *m, const char *n, size_t s, unsigned int f) { return callback->register_class(m,n,(unsigned int)s,f); };
 	
 public: // iterators
 	/// Check if last class registered
@@ -1676,7 +1676,7 @@ public: // constructors
 
 public: // read accessors
 	/// Get function name
-	inline char *get_name(void) { return core.name; };
+	inline FUNCTIONNAME get_name(void) { return core.name; };
 	/// Get function class
 	inline gld_class* get_class(void) { return (gld_class*)core.oclass; };
 	/// Get function address
@@ -1929,7 +1929,7 @@ public:
 	inline gld_object &operator=(gld_object&o) { exception("copy constructor is forbidden on gld_object"); return *this;};
 
 public: // constructors
-	inline static gld_object *find_object(char *n) { OBJECT *obj = callback->get_object(n); if (obj) return (gld_object*)(obj+1); else return NULL; };
+	inline static gld_object *find_object(const char *n) { OBJECT *obj = callback->get_object(n); if (obj) return (gld_object*)(obj+1); else return NULL; };
 
 public: // header read accessors (no locking)
 	inline OBJECTNUM get_id(void) { return my()->id; };
@@ -1994,7 +1994,7 @@ public: // core interface
 	inline int set_dependent(OBJECT *obj) { return callback->object.set_dependent(my(),obj); };
 	inline int set_parent(OBJECT *obj) { return callback->object.set_parent(my(),obj); };
 	inline int set_rank(unsigned int r) { return callback->object.set_rank(my(),r); };
-	inline bool isa(char *type) { return callback->object_isa(my(),type) ? true : false; };
+	inline bool isa(const char *type) { return callback->object_isa(my(),type) ? true : false; };
 	inline bool is_valid(void) { return my()!=NULL && my()==OBJECTHDR(this); };
 
 public: // iterators
@@ -2434,7 +2434,7 @@ CDECL int dllkill() { return do_kill(NULL); }
 /// Implement class sync export
 #define EXPORT_SYNC(X) EXPORT_SYNC_C(X,X)
 
-#define EXPORT_ISA_C(X,C) EXPORT int isa_##X(OBJECT *obj, char *name) { \
+#define EXPORT_ISA_C(X,C) EXPORT int isa_##X(OBJECT *obj, const char *name) { \
 	return ( obj!=0 && name!=0 ) ? OBJECTDATA(obj,C)->isa(name) : 0; }
 /// Implement class isa export
 #define EXPORT_ISA(X) EXPORT_ISA_C(X,X)
