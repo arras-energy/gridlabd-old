@@ -252,19 +252,19 @@ typedef struct s_callbacks {
 		OBJECT **(*object_var)(OBJECT *obj, PROPERTY *prop);
 	} objvar;
 	struct s_objvar_name_struct {
-		bool *(*bool_var)(OBJECT *obj, char *name);
-		complex *(*complex_var)(OBJECT *obj, char *name);
-		enumeration *(*enum_var)(OBJECT *obj, char *name);
-		set *(*set_var)(OBJECT *obj, char *name);
-		int16 *(*int16_var)(OBJECT *obj, char *name);
-		int32 *(*int32_var)(OBJECT *obj, char *name);
-		int64 *(*int64_var)(OBJECT *obj, char *name);
-		double *(*double_var)(OBJECT *obj, char *name);
-		char *(*string_var)(OBJECT *obj, char *name);
-		OBJECT **(*object_var)(OBJECT *obj, char *name);
+		bool *(*bool_var)(OBJECT *obj, const char *name);
+		complex *(*complex_var)(OBJECT *obj, const char *name);
+		enumeration *(*enum_var)(OBJECT *obj, const char *name);
+		set *(*set_var)(OBJECT *obj, const char *name);
+		int16 *(*int16_var)(OBJECT *obj, const char *name);
+		int32 *(*int32_var)(OBJECT *obj, const char *name);
+		int64 *(*int64_var)(OBJECT *obj, const char *name);
+		double *(*double_var)(OBJECT *obj, const char *name);
+		char *(*string_var)(OBJECT *obj, const char *name);
+		OBJECT **(*object_var)(OBJECT *obj, const char *name);
 	} objvarname;
 	struct {
-		int (*string_to_property)(PROPERTY *prop, void *addr, char *value);
+		int (*string_to_property)(PROPERTY *prop, void *addr, const char *value);
 		int (*property_to_string)(PROPERTY *prop, void *addr, char *value, int size);
 	} convert;
 	MODULE *(*module_find)(const char *name);
