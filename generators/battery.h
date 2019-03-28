@@ -179,9 +179,9 @@ public:
 	complex *get_complex(OBJECT *obj, const char *name);
 	complex calculate_v_terminal(complex v, complex i);
 
-	void fetch_double(double **prop, char *name, OBJECT *parent);
-	void fetch_enumeration(enumeration **prop, char *name, OBJECT *parent);
-	void fetch_complex(complex **prop, char *name, OBJECT *parent);
+	void fetch_double(double **prop, const char *name, OBJECT *parent);
+	void fetch_enumeration(enumeration **prop, const char *name, OBJECT *parent);
+	void fetch_complex(complex **prop, const char *name, OBJECT *parent);
 
 public:
 	static CLASS *oclass;
