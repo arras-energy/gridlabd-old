@@ -311,7 +311,7 @@ int house::init(OBJECT *parent)
 	// construct circuit variable map to meter
 	struct {
 		complex **var;
-		char *varname;
+		const char *varname;
 	} map[] = {
 		// local object name,	meter object name
 		{&pCircuit_V,			"voltage_12"}, // assumes 1N and 2N follow immediately in memory
