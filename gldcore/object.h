@@ -274,11 +274,11 @@ typedef struct s_callbacks {
 	int (*get_oflags)(KEYWORD **extflags);
 	unsigned int (*object_count)(void);
 	struct {
-		SCHEDULE *(*create)(char *name, char *definition);
+		SCHEDULE *(*create)(const char *name, const char *definition);
 		SCHEDULEINDEX (*index)(SCHEDULE *sch, TIMESTAMP ts);
 		double (*value)(SCHEDULE *sch, SCHEDULEINDEX index);
 		int32 (*dtnext)(SCHEDULE *sch, SCHEDULEINDEX index);
-		SCHEDULE *(*find)(char *name);
+		SCHEDULE *(*find)(const char *name);
 		SCHEDULE *(*getfirst)(void);
 	} schedule;
 	struct {

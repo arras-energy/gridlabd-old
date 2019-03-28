@@ -1226,7 +1226,6 @@ void waterheater::update_T_and_or_h(double nHours)
 			// things are moving (RECOVERING vs DEPLETING)...
 SingleZone:
 			Tw = new_temp_1node(Tw, nHours);
-			/*Tupper*/ Tw = Tw;
 			Tlower = Tinlet;
 			break;
 
@@ -1285,7 +1284,6 @@ SingleZone:
 				// adjust Tlower, even if the Tinlet has changed.  This avoids
 				// the headache of adjusting h and is of minimal consequence because
 				// Tinlet changes so slowly...
-				/*Tupper*/ Tw = Tw;
 			}
 			break;
 
@@ -1494,7 +1492,7 @@ double waterheater::get_Tambient(enumeration loc)
 
 void waterheater::wrong_model(WRONGMODEL msg)
 {
-	char *errtxt[] = {"model is not one-zone","model is not two-zone"};
+	const char *errtxt[] = {"model is not one-zone", "model is not two-zone"};
 	OBJECT *obj = OBJECTHDR(this);
 	gl_warning("%s (waterheater:%d): %s", obj->name?obj->name:"(anonymous object)", obj->id, errtxt[msg]);
 	throw msg; // this must be caught by the waterheater code, not by the core
