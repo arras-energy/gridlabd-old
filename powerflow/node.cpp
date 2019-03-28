@@ -226,7 +226,7 @@ node::node(MODULE *mod) : powerflow_object(mod)
 	}
 }
 
-int node::isa(char *classname)
+int node::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"node")==0 || powerflow_object::isa(classname);
 }
@@ -2946,7 +2946,7 @@ int node::kmldump(int (*stream)(const char*,...))
 //Notify function
 //NOTE: The NR-based notify stuff may no longer be needed after NR is "flattened", since it will
 //      effectively be like FBS at that point.
-int node::notify(int update_mode, PROPERTY *prop, char *value)
+int node::notify(int update_mode, PROPERTY *prop, const char *value)
 {
 	complex diff_val;
 
@@ -3081,7 +3081,7 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		}
 		return TS_NEVER;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("%s (node:%d): %s", pNode->get_name(), pNode->get_id(), msg);
 		return 0; 
@@ -3139,7 +3139,7 @@ EXPORT TIMESTAMP sync_node(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 * node_type_value is the class name
 * main_swing determines if we're looking for SWING or SWING_PQ (swing parses first)
 */
-OBJECT *node::NR_master_swing_search(char *node_type_value,bool main_swing)
+OBJECT *node::NR_master_swing_search(const char *node_type_value,bool main_swing)
 {
 	OBJECT *return_val = NULL;
 	OBJECT *temp_obj = NULL;
@@ -4909,7 +4909,7 @@ STATUS node::link_VFD_functions(OBJECT *linkVFD)
 //////////////////////////////////////////////////////////////////////////
 // IMPLEMENTATION OF OTHER EXPORT FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
-EXPORT int isa_node(OBJECT *obj, char *classname)
+EXPORT int isa_node(OBJECT *obj, CLASSNAME classname)
 {
 	if(obj != 0 && classname != 0){
 		return OBJECTDATA(obj,node)->isa(classname);
@@ -4918,7 +4918,7 @@ EXPORT int isa_node(OBJECT *obj, char *classname)
 	}
 }
 
-EXPORT int notify_node(OBJECT *obj, int update_mode, PROPERTY *prop, char *value){
+EXPORT int notify_node(OBJECT *obj, int update_mode, PROPERTY *prop, const char *value){
 	node *n = OBJECTDATA(obj, node);
 	int rv = 1;
 	
@@ -4946,7 +4946,7 @@ EXPORT SIMULATIONMODE interupdate_node(OBJECT *obj, unsigned int64 delta_time, u
 		status = my->inter_deltaupdate_node(delta_time,dt,iteration_count_val,interupdate_pos);
 		return status;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("interupdate_node(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;

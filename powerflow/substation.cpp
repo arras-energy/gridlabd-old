@@ -93,7 +93,7 @@ substation::substation(MODULE *mod) : node(mod)
 	}
 }
 
-int substation::isa(char *classname)
+int substation::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"substation")==0 || node::isa(classname);
 }
@@ -116,34 +116,43 @@ int substation::create()
 	return result;
 }
 
-void substation::fetch_complex(complex **prop, char *name, OBJECT *parent){
+void substation::fetch_complex(complex **prop, const char *name, OBJECT *parent){
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_complex_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "substation:%i", hdr->id);
-		if(*name == NULL)
+		if ( name[0] == '\0' )
+		{
 			sprintf(msg, "%s: substation unable to find property: name is NULL", namestr);
+		}
 		else
 			sprintf(msg, "%s: substation unable to find %s", namestr, name);
 		throw(msg);
 	}
 }
 
-void substation::fetch_double(double **prop, char *name, OBJECT *parent){
+void substation::fetch_double(double **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_double_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
 		const char *namestr = (hdr->name ? hdr->name : tname);
-		char msg[256];
+		static char msg[256];
 		sprintf(tname, "substation:%i", hdr->id);
-		if(*name == NULL)
+		if ( name[0] == '\0' )
+		{
 			sprintf(msg, "%s: substation unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: substation unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
@@ -393,7 +402,7 @@ SIMULATIONMODE substation::inter_deltaupdate_substation(unsigned int64 delta_tim
 		//calculate the energy used
 		if(iteration_count_val == 0){
 			total_load = last_power_A.Re() + last_power_B.Re() + last_power_C.Re();
-			distribution_real_energy += total_load*dt/(3600*DT_SECOND);
+			distribution_real_energy += total_load*dt/(3600.0*DT_SECOND);
 		}
 		NR_node_presync_fxn(0);
 
@@ -457,7 +466,7 @@ SIMULATIONMODE substation::inter_deltaupdate_substation(unsigned int64 delta_tim
 // IMPLEMENTATION OF CORE LINKAGE
 //////////////////////////////////////////////////////////////////////////
 
-EXPORT int isa_substation(OBJECT *obj, char *classname)
+EXPORT int isa_substation(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,substation)->isa(classname);
 }
@@ -510,7 +519,8 @@ EXPORT TIMESTAMP sync_substation(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	SYNC_CATCHALL(substation);
 }
 
-EXPORT int notify_substation(OBJECT *obj, int update_mode, PROPERTY *prop, char *value){
+EXPORT int notify_substation(OBJECT *obj, int update_mode, PROPERTY *prop, const char *value)
+{
 	substation *n = OBJECTDATA(obj, substation);
 	int rv = 1;
 
@@ -529,7 +539,7 @@ EXPORT SIMULATIONMODE interupdate_substation(OBJECT *obj, unsigned int64 delta_t
 		status = my->inter_deltaupdate_substation(delta_time,dt,iteration_count_val,interupdate_pos);
 		return status;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("interupdate_substation(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;
