@@ -1447,7 +1447,7 @@ public: // constructors
 	/// Clock constructor for an arbitrary TIMESTAMP
 	gld_clock(TIMESTAMP ts) { if ( !callback->time.local_datetime(ts,&dt)) memset(&dt,0,sizeof(dt)); };
 	/// Clock constructor for a time string
-	gld_clock(char *str) { from_string(str); };
+	gld_clock(const char *str) { from_string(str); };
 	/// Clock constructor for year, month, day, hour, minute, second, nanosecond values
 	gld_clock(unsigned short y, unsigned short m=0, unsigned short d=0, unsigned short H=0, unsigned short M=0, unsigned short S=0, unsigned short int ms=0, char *tz=NULL, int dst=-1)
 	{
@@ -1537,7 +1537,7 @@ public: // write accessors
 	inline TIMESTAMP set_is_dst(bool i) { dt.is_dst=i; return callback->time.mkdatetime(&dt); };
 public: // special functions
 	/// Convert from string
-	inline bool from_string(char *str) { return callback->time.local_datetime(callback->time.convert_to_timestamp(str),&dt)?true:false; };
+	inline bool from_string(const char *str) { return callback->time.local_datetime(callback->time.convert_to_timestamp(str),&dt)?true:false; };
 	/// Convert to string
 	inline unsigned int to_string(char *str, int size) {return callback->time.convert_from_timestamp(dt.timestamp,str,size); };
 	/// Extract the total number of days since 1/1/1970 0:00:00 UTC
@@ -2111,7 +2111,7 @@ public: // read accessors
 			res = buf;
 		return res;
 	};
-	inline int from_string(char *string) { return callback->convert.string_to_property(pstruct.prop,get_addr(),string); };
+	inline int from_string(const char *string) { return callback->convert.string_to_property(pstruct.prop,get_addr(),string); };
 	inline const char *get_partname(void) { return pstruct.part; };
 	inline double get_part(char *part=NULL) { return callback->properties.get_part(obj,pstruct.prop,part?part:pstruct.part); };
 
@@ -2227,8 +2227,8 @@ private: // data
 public: // constructors
 	inline gld_global(void) { var=callback->global.find(NULL); };
 	inline gld_global(GLOBALVAR *v) : var(v) {};
-	inline gld_global(char *n) { var=callback->global.find(n); };
-	inline gld_global(char *n, PROPERTYTYPE t, void *p) { var=callback->global.create(n,t,p,NULL); };
+	inline gld_global(const char *n) { var=callback->global.find(n); };
+	inline gld_global(const char *n, PROPERTYTYPE t, void *p) { var=callback->global.create(n,t,p,NULL); };
 
 public: // read accessors
 	inline operator GLOBALVAR*(void) { return var; };
@@ -2254,7 +2254,7 @@ public: // read accessors
 	inline TIMESTAMP get_timestamp(void) { return *(TIMESTAMP*)(var->prop->addr); };
 
 public: // write accessors
-	inline size_t from_string(char *bp) { if (!var) return -1; gld_property p(var); return p.from_string(bp); };
+	inline size_t from_string(const char *bp) { if (!var) return -1; gld_property p(var); return p.from_string(bp); };
 	inline bool get(char *n) { var=callback->global.find(n); return var!=NULL; };
 	inline bool create(char *n, PROPERTYTYPE t, void *p) { var=callback->global.create(n,t,p,NULL); return var!=NULL; };
 

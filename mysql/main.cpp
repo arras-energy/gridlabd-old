@@ -529,13 +529,12 @@ static bool import_objects(MYSQL *mysql)
 		}
 		if ( row[2]!=NULL )
 		{
-			obj->name = (char*)malloc(strlen(row[2])+1);
+			obj->name = strdup(row[2]);
 			if ( obj->name==NULL )
 			{
 				gl_error("memory allocation failed");
 				return false;
 			}
-			strcpy(obj->name,row[2]);
 		}
 		if ( row[3]!=NULL ) strncpy(obj->groupid,row[3],sizeof(obj->groupid));
 		obj->parent = row[4]==NULL ? NULL : gl_object_find_by_id(atoi(row[4]));
