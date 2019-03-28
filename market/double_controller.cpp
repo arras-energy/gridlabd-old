@@ -114,7 +114,7 @@ void double_controller::cheat(){
 	}
 }
 
-void double_controller::fetch(double **value, char *name, OBJECT *parent, PROPERTY **prop, char *goal){
+void double_controller::fetch(double **value, const char *name, OBJECT *parent, PROPERTY **prop, const char *goal){
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_property(parent, name);
 	if(*name == 0){
@@ -226,7 +226,7 @@ int double_controller::init(OBJECT *parent){
 }
 
 
-int double_controller::isa(char *classname)
+int double_controller::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"double_controller")==0;
 }
@@ -412,10 +412,10 @@ TIMESTAMP double_controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 				} else {
 					controller_bid.state = BS_OFF;
 				}
-				((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)gl_name(pMarket, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+				((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))(gl_name(hdr, ctrname, 1024), gl_name(pMarket, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 			} else {
 				controller_bid.state = BS_UNKNOWN;
-				((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)gl_name(pMarket, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+				((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))(gl_name(hdr, ctrname, 1024), gl_name(pMarket, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 			}
 			if(controller_bid.bid_accepted == false){
 				return TS_INVALID;
@@ -565,7 +565,7 @@ EXPORT int init_double_controller(OBJECT *obj, OBJECT *parent)
 	INIT_CATCHALL(double_controller);
 }
 
-EXPORT int isa_double_controller(OBJECT *obj, char *classname)
+EXPORT int isa_double_controller(OBJECT *obj, CLASSNAME classname)
 {
 	if(obj != 0 && classname != 0){
 		return OBJECTDATA(obj,double_controller)->isa(classname);
