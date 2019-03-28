@@ -463,6 +463,8 @@ extern void    cPrintPerf(SuperMatrix *, SuperMatrix *, superlu_memusage_t *,
 extern void    cCompRow_to_CompCol(int m, int n, int nnz, 
                            complex *a, int *colind, int *rowptr,
                            complex **at, int **rowind, int **colptr);
+extern void	   sp_colorder(SuperMatrix *A, int *perm_c, superlumt_options_t *options,
+	    	 SuperMatrix *AC=NULL)
 
 
 /* -----------------------
