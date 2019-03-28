@@ -15,7 +15,8 @@
 #include <errno.h>
 #include <math.h>
 
-#include "house_a.h"
+#include "residential.h"
+#include "house_e.h"
 #include "occupantload.h"
 
 
@@ -104,7 +105,7 @@ int occupantload::init(OBJECT *parent)
 	}
 	// Needed to pass heat gain up to the house
 	// "true" on 220 keeps the circuits "balanced"
-	((CIRCUIT *(*)(OBJECT *, ENDUSELOAD *, double, int))(*attach))(hdr->parent, &(this->load), 20, true);
+	((CIRCUIT *(*)(OBJECT *, enduse *, double, int))(*attach))(hdr->parent, &(this->load), 20, true);
 
 	load.heatgain = number_of_occupants * occupancy_fraction * heatgain_per_person;
 

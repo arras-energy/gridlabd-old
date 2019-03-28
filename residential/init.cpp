@@ -84,7 +84,6 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 
 	new residential_enduse(module);
 	new appliance(module);
-	// obsolete as of 3.0: new house(module);
 	new house_e(module);
 	new waterheater(module);
 	new lights(module);
