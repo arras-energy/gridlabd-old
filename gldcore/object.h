@@ -156,7 +156,7 @@ typedef struct s_callbacks {
 		OBJECT *(*get_reference)(OBJECT *, char*);
 		char *(*get_unit)(OBJECT *, char *);
 		void *(*get_addr)(OBJECT *, const char *);
-		int (*set_value_by_type)(PROPERTYTYPE,void *data,char *);
+		int (*set_value_by_type)(PROPERTYTYPE,void *data,const char *);
 		bool (*compare_basic)(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void* x, void* a, void* b, char *part);
 		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, char *opstr);
 		double (*get_part)(OBJECT*,PROPERTY*,const char*);
@@ -237,7 +237,7 @@ typedef struct s_callbacks {
 		void (*write)(LOCKVAR *);
 	} lock, unlock;
 	struct {
-		char *(*find_file)(char *name, char *path, int mode, char *buffer, int len);
+		char *(*find_file)(const char *name, const char *path, int mode, char *buffer, int len);
 	} file;
 	struct s_objvar_struct {
 		bool *(*bool_var)(OBJECT *obj, PROPERTY *prop);

@@ -737,7 +737,7 @@ complex battery::calculate_v_terminal(complex v, complex i){
 }
 
 
-complex *battery::get_complex(OBJECT *obj, char *name)
+complex *battery::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)

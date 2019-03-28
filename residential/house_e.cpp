@@ -253,7 +253,7 @@ int house_e::smart_breaker(char *buffer, size_t len)
 // implicit loadshapes - these are enabled by using implicit_enduses global
 //////////////////////////////////////////////////////////////////////////
 typedef struct s_implicit_enduse_list {
-	char *implicit_name;
+	const char *implicit_name;
 	struct {
 		double breaker_amps; 
 		int circuit_is220;
@@ -263,9 +263,9 @@ typedef struct s_implicit_enduse_list {
 		double power_factor;
 		double heat_fraction;
 	} load;
-	char *shape;
-	char *schedule_name;
-	char *schedule_definition;
+	const char *shape;
+	const char *schedule_name;
+	const char *schedule_definition;
 } IMPLICITENDUSEDATA;
 #include "elcap1990.h"
 #include "elcap2010.h"
@@ -936,7 +936,7 @@ int house_e::init_climate()
 			pRhout = (double*)GETADDR(obj,gl_get_property(obj,"humidity"));
 			pSolar = (double*)GETADDR(obj,gl_get_property(obj,"solar_flux"));
 			struct {
-				char *name;
+				const char *name;
 				double *dst;
 			} map[] = {
 				{"record.high",&cooling_design_temperature},
@@ -1378,7 +1378,7 @@ int house_e::init(OBJECT *parent)
 	// local object name,	meter object name
 	struct {
 			complex **var;
-			char *varname;
+			const char *varname;
 			} map[] = { {&pCircuit_V,			"voltage_12"}, // assumes 1N and 2N follow immediately in memory
 						{&pLine_I,				"residential_nominal_current_1"}, // assumes 2 and 3(12) follow immediately in memory - off-nominal angles are handled externally
 						{&pShunt,				"shunt_1"},		// assumes 2 and 3 (12) follow immediately in memory
@@ -1897,7 +1897,7 @@ CIRCUIT *house_e::attach(OBJECT *obj, ///< object to attach
 	// get voltage
 	c->pV = &(pCircuit_V[(int)c->type]);
 	// get frequency
-	c->pfrequency;
+	//TODO: ??? c->pfrequency;
 	// close breaker
 	c->status = BRK_CLOSED;
 
@@ -2977,9 +2977,9 @@ TIMESTAMP house_e::sync_thermostat(TIMESTAMP t0, TIMESTAMP t1)
 			/* if (aux deadband OR timer tripped) AND below aux lockout, go auxiliary */
 			if(thermostat_mode == TM_HEAT || thermostat_mode == TM_AUTO){ //heating is allowed
 				if(re_override == OV_NORMAL){
-					if ( auxiliary_system_type != AT_NONE	 && 
+					if ( (auxiliary_system_type != AT_NONE	 && 
 						((auxiliary_strategy & AX_DEADBAND	 && Tair < TauxOn)
-						 || (auxiliary_strategy & AX_TIMER	 && t0 >= thermostat_last_cycle_time + aux_heat_time_delay))
+						 || (auxiliary_strategy & AX_TIMER	 && t0 >= thermostat_last_cycle_time + aux_heat_time_delay)))
 						 || (auxiliary_strategy & AX_LOCKOUT && *pTout <= aux_heat_temp_lockout)
 						){
 						last_system_mode = system_mode = SM_AUX;
@@ -3346,7 +3346,7 @@ void house_e::check_controls(void)
 	}
 }
 
-complex *house_e::get_complex(OBJECT *obj, char *name)
+complex *house_e::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)
@@ -3354,7 +3354,7 @@ complex *house_e::get_complex(OBJECT *obj, char *name)
 	return (complex*)GETADDR(obj,p);
 }
 
-bool *house_e::get_bool(OBJECT *obj, char *name)
+bool *house_e::get_bool(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_bool)
@@ -3362,7 +3362,7 @@ bool *house_e::get_bool(OBJECT *obj, char *name)
 	return (bool*)GETADDR(obj,p);
 }
 
-int *house_e::get_enum(OBJECT *obj, char *name)
+int *house_e::get_enum(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_enumeration)

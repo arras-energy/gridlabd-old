@@ -470,9 +470,9 @@ public:
 	inline double get_Tout () { return *pTout; };
 	inline double get_Tair () { return Tair; };
 
-	complex *get_complex(OBJECT *obj, char *name);
-	bool *get_bool(OBJECT *obj, char *name);
-	int *get_enum(OBJECT *obj, char *name);
+	complex *get_complex(OBJECT *obj, const char *name);
+	bool *get_bool(OBJECT *obj, const char *name);
+	int *get_enum(OBJECT *obj, const char *name);
 // smartfuse implementation
 public:
 	GL_METHOD(house_e,smart_breaker);

@@ -574,14 +574,14 @@ double *central_dg_control::get_double(OBJECT *obj, char *name)
 		return NULL;
 	return (double*)GETADDR(obj,p);
 }
-bool *central_dg_control::get_bool(OBJECT *obj, char *name)
+bool *central_dg_control::get_bool(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_bool)
 		return NULL;
 	return (bool*)GETADDR(obj,p);
 }
-int *central_dg_control::get_enum(OBJECT *obj, char *name)
+int *central_dg_control::get_enum(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_enumeration)

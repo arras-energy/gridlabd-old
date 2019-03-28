@@ -1980,8 +1980,8 @@ protected: // special functions
 	inline bool operator == (OBJECT *o) { return o!=NULL && my()==o; };
 
 public: // member lookup functions
-	inline PROPERTY* get_property(char *name, PROPERTYSTRUCT *pstruct=NULL) { return callback->properties.get_property(my(),name,pstruct); };
-	inline FUNCTIONADDR get_function(char *name) { return (*callback->function.get)(my()->oclass->name,name); };
+	inline PROPERTY* get_property(PROPERTYNAME name, PROPERTYSTRUCT *pstruct=NULL) { return callback->properties.get_property(my(),name,pstruct); };
+	inline FUNCTIONADDR get_function(const char *name) { return (*callback->function.get)(my()->oclass->name,name); };
 
 public: // external accessors
 	template <class T> inline void getp(PROPERTY &prop, T &value) { rlock(); value=*(T*)(GETADDR(my(),&prop)); wunlock(); };
@@ -2520,8 +2520,8 @@ class glsolver {
 public:
 	int (*init)(void*);
 	int (*solve)(void*);
-	int (*set)(char*,...);
-	int (*get)(char*,...);
+	int (*set)(const char*,...);
+	int (*get)(const char*,...);
 private:
 	inline void exception(const char *fmt,...)
 	{
@@ -2535,7 +2535,7 @@ private:
 		throw (const char*)buffer;
 	};
 public:
-	inline glsolver(char *name, char *lib="glsolvers" DLEXT)
+	inline glsolver(const char *name, const char *lib="glsolvers" DLEXT)
 	{
 		char path[1024];
 		errno = 0;
@@ -2549,7 +2549,7 @@ public:
 			{
 				char fname[64];
 				struct {
-					char *part;
+					const char *part;
 					void **func;
 				} map[] = {
 					{"init", (void**)&init},
