@@ -243,7 +243,8 @@ int dishwasher::init(OBJECT *parent)
 	pulse_interval[18] = 1150;
 
 
-	if (coil_power[0]==-1) coil_power[0] = 5800;
+	if (coil_power[0]==-1) 
+		coil_power[0] = 5800; // WARNING: this value is overwritten by the next instruction
 
 	coil_power[0] = 10;
 	coil_power[1] = 580;
