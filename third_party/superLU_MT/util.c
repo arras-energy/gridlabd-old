@@ -12,9 +12,9 @@
 #include "pdsp_defs.h"
 
 
-void superlu_abort_and_exit(char* msg)
+void superlu_abort_and_exit(const char* msg)
 {
-    fprintf(stderr, msg);
+    fprintf(stderr, "%s", msg);
     exit (-1);
 }
 
@@ -801,7 +801,7 @@ int ParallelProfile(const int n, const int supers, const int panels,
     printf("%25s%8d,\tper-panel %.1f\n", "total #delays in pipeline",
 	    waits, (float)waits/panels);
     temp = waittime / procs;
-    printf("%25s%8.2f\t[%.1f%]\n", "mean spin time per-proc", 
+    printf("%25s%8.2f\t[%.1f%%]\n", "mean spin time per-proc", 
 	   temp, temp/utime[FACT]*100);
     
     /* Delays due to scheduling. */
@@ -812,7 +812,7 @@ int ParallelProfile(const int n, const int supers, const int panels,
     }
     printf("%25s%8d\n", "total #delays in schedule", waits);
     temp = waittime / procs;
-    printf("%25s%8.2f\t[%.1f%]\n", "mean sched. time per-proc", 
+    printf("%25s%8.2f\t[%.1f%%]\n", "mean sched. time per-proc", 
 	   temp, temp/utime[FACT]*100);
 
     /* estimated overhead in spin-locks */
@@ -834,7 +834,7 @@ int ParallelProfile(const int n, const int supers, const int panels,
     temp = cs_numbers * TMUTEX;
     printf("mutex-lock overhead (est.) %8.2f, #locks %d, equiv. flops %e\n", 
 	   temp, cs_numbers, (float) itemp);
-    printf("time in critical section   %8.2f\t[%.1f%]\n",
+    printf("time in critical section   %8.2f\t[%.1f%%]\n",
 	   cs_time/procs, cs_time/procs/utime[FACT]*100);
 
     printf("\n---- Parallel Profile Per Panel ----\n");
