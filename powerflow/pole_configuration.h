@@ -11,6 +11,17 @@ class pole_configuration : public powerflow_library
 public:
 	static CLASS *oclass;
 	static CLASS *pclass;
+	typedef enum {
+		CIZ_NONE = 0,
+		CIZ_LOW = 1,
+		CIZ_MODERATE = 2,
+		CIZ_INTERMEDIATE = 3,
+		CIZ_HIGH = 4,
+		CIZ_EXTREME = 5,
+		_CIZ_SIZE,
+	} CLIMATEIMPACTZONE;
+	static KEYWORD kw_ciz[_CIZ_SIZE];
+	static enumeration climate_impact_zone;
 public:
 	enum {PT_WOOD=0, PT_STEEL=1, PT_CONCRETE=2};
 	enumeration pole_type;
@@ -44,12 +55,22 @@ public: // wood pole model parameters
 	double wire_height_N;
 	double wire_height_P;
 	double wire_height_T;
+	double degradation_rate;
+	typedef enum {
+		PTM_NONE = 0,
+		PTM_CREOSOTE = 1,
+		PTM_PENTA = 2,
+		PTM_CCA = 3,
+		_PTM_SIZE,
+	} POLETREATMENTMETHOD;
+	enumeration treatment_method;
 public:
 	pole_configuration(MODULE *mod);
 	inline pole_configuration(CLASS *cl=oclass) : powerflow_library(cl) {};
 	double get_pole_diameter(double);
 	int isa(CLASSNAME classname);
 	int create(void);
+	int init(OBJECT *obj);
 
 };
 
