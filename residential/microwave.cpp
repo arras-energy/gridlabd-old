@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <math.h>
 
-#include "residential.h"
+#include "house_a.h"
 #include "microwave.h"
 
 //////////////////////////////////////////////////////////////////////////

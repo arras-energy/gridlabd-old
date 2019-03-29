@@ -57,11 +57,11 @@ PROPERTYTYPE gldvar_gettype(GLDVAR *var, unsigned int n)
 {
 	return var[n].prop->ptype;
 }
-const char *gldvar_getname(GLDVAR *var, unsigned int n)
+char *gldvar_getname(GLDVAR *var, unsigned int n)
 {
 	return var[n].prop->name;
 }
-const char *gldvar_getstring(GLDVAR *var, unsigned int n, char *buffer, int size)
+char *gldvar_getstring(GLDVAR *var, unsigned int n, char *buffer, int size)
 {
 	if ( gldvar_isset(var,n) )
 	{

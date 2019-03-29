@@ -82,12 +82,12 @@ extern "C" {
 #endif
 
 int randomvar_update(randomvar *var);
-int randomvar_create(void *ptr);
+int randomvar_create(randomvar *var);
 int randomvar_init(randomvar *var);
 int randomvar_initall(void);
 TIMESTAMP randomvar_sync(randomvar *var, TIMESTAMP t1);
 TIMESTAMP randomvar_syncall(TIMESTAMP t1);
-int convert_to_randomvar(const char *string, void *data, PROPERTY *prop);
+int convert_to_randomvar(char *string, void *data, PROPERTY *prop);
 int convert_from_randomvar(char *string,int size,void *data, PROPERTY *prop);
 unsigned int64 random_id(void);
 double random_get_part(void *x, char *name);

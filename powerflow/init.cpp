@@ -618,7 +618,7 @@ EXPORT int check()
 	/* per-object checks */
 
 	/* check from/to info on links */
-	while ( (obj=gl_find_next(list,obj)) != NULL )
+	while (obj=gl_find_next(list,obj))
 	{
 		if (gl_object_isa(obj,"node"))
 		{
@@ -786,11 +786,9 @@ EXPORT int check()
 		front->next = NULL;
 		front->ptr = _node;
 		back = front;
-		while (front != NULL) 
-		{
+		while(front != NULL){
 			// find all links from the node
-			for ( OBJECT *now=gl_find_next(list, NULL) ; now != NULL ; now = gl_find_next(list, now) )
-			{
+			for(OBJECT *now=gl_find_next(list, NULL); now != NULL; now = gl_find_next(list, now)){
 				link_object *l;
 				if(!gl_object_isa(now, "link"))
 					continue;

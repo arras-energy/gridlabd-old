@@ -33,27 +33,47 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	gl_global_create("generators::enable_subsecond_models", PT_bool, &enable_subsecond_models,PT_DESCRIPTION,"Enable deltamode capabilities within the generators module",NULL);
 	gl_global_create("generators::deltamode_timestep", PT_double, &deltamode_timestep_publish,PT_UNITS,"ns",PT_DESCRIPTION,"Desired minimum timestep for deltamode-related simulations",NULL);
 
-	try {
-		new diesel_dg(module);
-		new windturb_dg(module);
-		new power_electronics(module);
-		new energy_storage(module);
-		new inverter(module);
-		new dc_dc_converter(module);
-		new rectifier(module);
-		new microturbine(module);
-		new battery(module);
-		new solar(module);
-		new central_dg_control(module);
-		new controller_dg(module);
-	}
-	catch (const char *msg)
-	{
-		gl_error(msg);
-		return NULL;
-	}
+	CLASS *first =
+	/*** DO NOT EDIT NEXT LINE ***/
+	//NEWCLASS
+	(new diesel_dg(module))->oclass;
+	NULL;
+
+	(new windturb_dg(module))->oclass;
+	NULL;
+
+	(new power_electronics(module))->oclass;
+	NULL;
+
+	(new energy_storage(module))->oclass;
+	NULL;
+
+	(new inverter(module))->oclass;
+	NULL;
+
+	(new dc_dc_converter(module))->oclass;
+	NULL;
+
+	(new rectifier(module))->oclass;
+	NULL;
+
+	(new microturbine(module))->oclass;
+	NULL;
+
+	(new battery(module))->oclass;
+	NULL;
+
+	(new solar(module))->oclass;
+	NULL;
+
+	(new central_dg_control(module))->oclass;
+	NULL;
+
+	(new controller_dg(module))->oclass;
+	NULL;
+
 	/* always return the first class registered */
-	return diesel_dg::oclass;
+	return first;
 }
 
 //Call function for scheduling deltamode

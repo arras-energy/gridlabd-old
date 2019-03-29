@@ -23,7 +23,7 @@
 #include <errno.h>
 #include <math.h>
 
-#include "house_e.h"
+#include "house_a.h"
 #include "clotheswasher.h"
 
 //////////////////////////////////////////////////////////////////////////

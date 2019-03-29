@@ -442,8 +442,7 @@ int power_electronics::init(OBJECT *parent)
 		}
 
 
-	return 1; // return 1 on success, 0 on failure
-	*/
+	return 1; /* return 1 on success, 0 on failure */
 
 	return 1;
 }

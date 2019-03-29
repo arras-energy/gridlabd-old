@@ -31,7 +31,7 @@ public:
 	double heat_fraction;				///< internal gain fraction of installed power
 	TIMESTAMP time_state;				///< time in current state
 	bool starttime;
-	typedef enum e_clotheswasher_state {
+	typedef enum {
 		STOPPED=0,						///< motor is stopped
 		RUNNING=1,						///< motor is running
 		STALLED=2,						///< motor is stalled
@@ -42,7 +42,7 @@ public:
 		SPIN2=7,
 		SPIN3=8,
 		SPIN4=9
-	} CLOTHESWASHERSTATE;
+	};
 	enumeration state;							///< control state
 
 public:
@@ -104,13 +104,12 @@ public:
 
 	double clotheswasher_run_prob;
 
-	typedef enum s_clotheswasher_mode {
-		SPIN_LOW=0,						///< low power spin
-		SPIN_MEDIUM=1,					///< medium power spin
-		SPIN_HIGH=2,					///< high power spin
-		SPIN_WASH=3,							///< wash mode
-		SMALLWASH=4,					///< small wash modes in between
-	} CLOTHESWASHERMODE;
+	enum {  SPIN_LOW=0,						///< low power spin
+			SPIN_MEDIUM=1,					///< medium power spin
+			SPIN_HIGH=2,					///< high power spin
+			SPIN_WASH=3,							///< wash mode
+			SMALLWASH=4,					///< small wash modes in between
+	};
 	enumeration spin_mode;
 
 	enum {  NORMAL=0,						///< Normal wash

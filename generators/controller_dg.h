@@ -57,7 +57,7 @@ private:
 	double *prev_Pref_val;		   //Previous value of x - used for delta-exiting convergence check
 	double *prev_Vset_val;		   // Previous value of Vset - used for delta-exiting convergence check
 
-	const char **DGpNdName;              // Store the generator parent node names
+	char **DGpNdName;              // Store the generator parent node names
 	OBJECT **dgSwitchObj;		   // Store the switch objects that connected to the generators
 	int dgswitchFound; 		   // Index for storing found switches that connected to the generators
 

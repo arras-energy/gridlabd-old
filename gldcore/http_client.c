@@ -2,7 +2,7 @@
  */
 
 #include <stdio.h>
-#include <ctype.h>
+
 
 #include "output.h"
 #include "http_client.h"
@@ -314,7 +314,7 @@ void http_get_options(void)
 				if ( n>1 )
 				{
 					char unit[1024]="";
-					int m = sscanf(value,"%llu%[A-Za-z]",&wget_maxsize,unit);
+					int m = sscanf(value,"%lu%[A-Za-z]",&wget_maxsize,unit);
 					if ( m==2 )
 					{
 						if ( strcmp(unit,"kB")==0 ) wget_maxsize*=1000;

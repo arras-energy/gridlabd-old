@@ -57,13 +57,13 @@ int stub_bidder::init(OBJECT *parent)
 	}
 	submit = (FUNCTIONADDR)(gl_get_function(market, "submit_bid_state"));
 	if(submit == NULL){
-		gl_error("Unable to find function, submit_bid_state(), for object %s.", gl_name(market, mktname, 1024));
+		gl_error("Unable to find function, submit_bid_state(), for object %s.", (char *)gl_name(market, mktname, 1024));
 		return 0;
 	}
 	return SUCCESS;
 }
 
-int stub_bidder::isa(CLASSNAME classname)
+int stub_bidder::isa(char *classname)
 {
 	return strcmp(classname,"stub_bidder")==0;
 }
@@ -89,7 +89,7 @@ TIMESTAMP stub_bidder::sync(TIMESTAMP t0, TIMESTAMP t1)
 			controller_bid.quantity = quantity;
 		}
 		controller_bid.state = BS_UNKNOWN;
-		((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))(gl_name(hdr, ctrname, 1023), gl_name(market, mktname, 1023), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+		((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1023), (char *)gl_name(market, mktname, 1023), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 		if(controller_bid.bid_accepted == false){
 			return TS_INVALID;
 		}
@@ -143,7 +143,7 @@ EXPORT int init_stub_bidder(OBJECT *obj, OBJECT *parent)
 	return 1;
 }
 
-EXPORT int isa_stub_bidder(OBJECT *obj, CLASSNAME classname)
+EXPORT int isa_stub_bidder(OBJECT *obj, char *classname)
 {
 	if(obj != 0 && classname != 0){
 		return OBJECTDATA(obj,stub_bidder)->isa(classname);

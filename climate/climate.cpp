@@ -1,4 +1,5 @@
-/** climate/climate.cpp
+/** $Id: climate.cpp 4738 2014-07-03 00:55:39Z dchassin $
+/** $Id: climate.cpp 1182 2008-12-22 22:08:36Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file climate.cpp
 	@author David P. Chassin
@@ -636,7 +637,7 @@ void climate::set_defaults(bool is_template)
 		defaults = this;
 }
 
-int climate::isa(CLASSNAME classname)
+int climate::isa(char *classname)
 {
 	if(classname != 0)
 		return (0 == strcmp(classname,"climate"));
@@ -1774,7 +1775,7 @@ void climate::write_out_cloud_pattern( char pattern){ //Used only for verificati
 	ofstream out_file;
 
 	char buffer [100];
-	sprintf (buffer, "cloud_pattern_%010lld.csv", prev_NTime);
+	sprintf (buffer, "cloud_pattern_%010ld.csv", prev_NTime);
 	std::string file_string = buffer;
 	out_file.open(file_string.c_str(), ios::out);
 

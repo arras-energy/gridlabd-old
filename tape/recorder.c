@@ -168,7 +168,7 @@ static int recorder_open(OBJECT *obj)
 #endif
 			fprintf(my->multifp,"# target.... %s %d\n", obj->parent->oclass->name, obj->parent->id);
 			fprintf(my->multifp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger);
-			fprintf(my->multifp,"# interval.. %lld\n", my->interval);
+			fprintf(my->multifp,"# interval.. %d\n", my->interval);
 			fprintf(my->multifp,"# limit..... %d\n", my->limit);
 			fprintf(my->multifp,"# flush..... %d\n", my->flush);
 			fprintf(my->multifp,"# property.. %s\n", my->property);

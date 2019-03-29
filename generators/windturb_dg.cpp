@@ -463,7 +463,7 @@ int windturb_dg::init(OBJECT *parent)
 	// construct circuit variable map to meter -- copied from 'House' module
 	struct {
 		complex **var;
-		const char *varname;
+		char *varname;
 	} map[] = {
 		// local object name,	meter object name
 		{&pCircuit_V,			"voltage_A"}, // assumes 2 and 3 follow immediately in memory
@@ -1169,7 +1169,7 @@ TIMESTAMP windturb_dg::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 
-bool *windturb_dg::get_bool(OBJECT *obj, const char *name)
+bool *windturb_dg::get_bool(OBJECT *obj, char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_bool)
@@ -1177,7 +1177,7 @@ bool *windturb_dg::get_bool(OBJECT *obj, const char *name)
 	return (bool*)GETADDR(obj,p);
 }
 
-complex *windturb_dg::get_complex(OBJECT *obj, const char *name)
+complex *windturb_dg::get_complex(OBJECT *obj, char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)

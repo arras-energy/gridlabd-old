@@ -922,7 +922,7 @@ static int globals(void *main, int argc, char *argv[])
 }
 int GldCmdarg::globals(int argc, char *argv[])
 {
-	const char *list[65536];
+	char *list[65536];
 	int i, n=0;
 	GLOBALVAR *var = NULL;
 

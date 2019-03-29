@@ -54,7 +54,7 @@ public:
 	};
 	counters operator+=(counters a) { *this = *this+a; return *this; };
 private:
-	LOCKVAR _lock;
+	unsigned int _lock;
 	// directories
 	unsigned int n_scanned; // number of directories scanned
 	unsigned int n_tested; // number of autotest directories tested
@@ -158,7 +158,7 @@ static const char *report_eol="\n";
 static const char *report_eot="\f";
 static unsigned int report_cols=0;
 static unsigned int report_rows=0;
-static LOCKVAR report_lock=0;
+static unsigned int report_lock=0;
 static bool report_open(void)
 {
 	wlock(&report_lock);
@@ -600,7 +600,7 @@ typedef struct s_dirstack {
 static DIRLIST *dirstack = NULL;
 static unsigned short next_id = 0;
 static char *result_code = NULL;
-static LOCKVAR dirlock = 0;
+static unsigned int dirlock = 0;
 static void pushdir(char *dir)
 {
 	IN_MYCONTEXT output_debug("adding %s to process stack", dir);
@@ -662,7 +662,7 @@ void *(run_test_proc)(void *arg)
 		if ( result.get_nerrors()>0 ) passed=false;
 		if ( global_validateoptions&VO_RPTGLM )
 		{
-			const char *flags[] = {"","E","S","X"};
+			char *flags[] = {"","E","S","X"};
 			char code = 0;
 			if ( result.get_nerrors() ) code=1;
 			if ( result.get_nsuccess() ) code=2;
@@ -897,7 +897,7 @@ int validate(void *main, int argc, char *argv[])
 
 	report_newtable("OVERALL RESULTS");
 
-	const char *flag="!!!";
+	char *flag="!!!";
 	report_data();
 	report_data("Directory results");
 	report_newrow();

@@ -261,7 +261,7 @@ PROPERTY *gui_get_property(GUIENTITY *entity)
 	}
 	return entity->prop;
 }
-const char *gui_get_name(GUIENTITY *entity)
+char *gui_get_name(GUIENTITY *entity)
 {
 	if (gui_get_object(entity))
 	{
@@ -716,7 +716,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 	switch (entity->type) {
 
 	case GUI_PAGE:
-		if ( !gui_html_source_page(entity->source) )
+		if ( entity->source && !gui_html_source_page(entity->source) )
 			gui_html_output(fp,"ERROR: page '%s' not found: %s",entity->source,strerror(errno));
 		break;
 
@@ -1002,7 +1002,7 @@ size_t gui_glm_write(FILE *fp, GUIENTITY *entity, int indent)
 		else if (entity->value[0]!='\0')
 			count += fprintf(fp,"%s\tvalue \"%s\";\n", tabs,entity->value);
 		if (entity->unit)
-			count += fprintf(fp,"%s\tunit \"%s\";\n", tabs,entity->unit->name);
+			count += fprintf(fp,"%s\tunit \"%s\";\n", tabs,entity->unit);
 		if (entity->size>0)
 			count += fprintf(fp,"%s\tsize %d;\n", tabs,entity->size);
 		if (entity->action[0]!='\0')

@@ -48,7 +48,8 @@ int64 default_etp_iterations = 100;
 
 //Deltamode inclusion
 bool enable_subsecond_models = false; 				/* normally not operating in delta mode */
-bool all_house_delta = false;					/* Cheater flag -- may not make it into the merge -- basically allows all houses to use deltamode */
+bool all_house_delta = false;					/* Cheater flag -- may not make it into the merge -- basically allows all houses to use deltamode
+unsigned long deltamode_timestep = 10000000; 		/* 10 ms timestep */
 double deltamode_timestep_publish = 10000000.0; 	/* 10 ms timestep */
 unsigned long deltamode_timestep = 10000000; 		/* 10 ms timestep */
 OBJECT **delta_objects = NULL;						/* Array pointer objects that need deltamode interupdate calls */
@@ -84,6 +85,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 
 	new residential_enduse(module);
 	new appliance(module);
+	// obsolete as of 3.0: new house(module);
 	new house_e(module);
 	new waterheater(module);
 	new lights(module);

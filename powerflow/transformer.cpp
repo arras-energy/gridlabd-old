@@ -116,7 +116,7 @@ void transformer::fetch_double(double **prop, char *name, OBJECT *parent){
 	*prop = gl_get_double_by_name(parent, name);
 	if(*prop == NULL){
 		char tname[32];
-		const char *namestr = (hdr->name ? hdr->name : tname);
+		char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "transformer:%i", hdr->id);
 		if(*name == NULL)

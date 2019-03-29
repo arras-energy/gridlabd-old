@@ -61,31 +61,15 @@ int
 (	int argc, /**< the number entries on command-line argument list \p argv */
 	char *argv[]) /**< a list of pointers to the command-line arguments */
 {
-	int return_code;
-	try {
-		my_instance = new GldMain(argc,argv);
-	}
-	catch (const char *msg)
-	{
-		output_fatal("uncaught exception: %s", msg);
-		return errno;
-	}
+	my_instance = new GldMain(argc,argv);
 	if ( my_instance == NULL )
 		output_error("unable to create new instance");
 	else
 	{
-		try {
-			return_code = my_instance->mainloop(argc,argv);
-		}
-		catch (const char *msg)
-		{
-			output_fatal("uncaught exception: %s", msg);
-			return errno;
-		}
+		my_instance->mainloop(argc,argv);
 		delete my_instance;
 		my_instance = NULL;
 	}
-	return return_code;
 }
 unsigned int GldMain::next_id = 0;
 GldMain::GldMain(int argc,char *argv[])
@@ -250,7 +234,7 @@ GldMain::~GldMain(void)
 	return;
 }
 
-int GldMain::mainloop(int argc, char *argv[])
+void GldMain::mainloop(int argc, char *argv[])
 {
 	/* start the processing environment */
 	IN_MYCONTEXT output_verbose("load time: %d sec", realtime_runtime());
@@ -266,7 +250,7 @@ int GldMain::mainloop(int argc, char *argv[])
 		if ( exec.getexitcode()==XC_SUCCESS )
 			exec.setexitcode(XC_ENVERR);
 	}
-	return exec.getexitcode();
+	return;
 }
 
 void GldMain::set_global_browser(const char *path)

@@ -307,7 +307,7 @@ void controller::cheat(){
 
 /** convenience shorthand
  **/
-int controller::fetch_property(gld_property **prop, PROPERTYNAME propName, OBJECT *obj){
+int controller::fetch_property(gld_property **prop, char *propName, OBJECT *obj){
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = new gld_property(obj, propName);
 	if(!(*prop)->is_valid()){
@@ -323,7 +323,7 @@ int controller::fetch_property(gld_property **prop, PROPERTYNAME propName, OBJEC
 int controller::init(OBJECT *parent){
 	OBJECT *hdr = OBJECTHDR(this);
 	char tname[32];
-	const char *namestr = (hdr->name ? hdr->name : tname);
+	char *namestr = (hdr->name ? hdr->name : tname);
 	gld_property *pInitPrice = NULL;
 
 	sprintf(tname, "controller:%i", hdr->id);
@@ -1333,11 +1333,11 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 				} else {
 					controller_bid.state = BS_OFF;
 				}
-				((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+				((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 				controller_bid.rebid = true;
 			} else {
 				controller_bid.state = BS_UNKNOWN;
-				((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+				((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 				controller_bid.rebid = true;
 			}
 			if(controller_bid.bid_accepted == false){
@@ -1582,7 +1582,7 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 				controller_bid2.price = last_p;
 				controller_bid2.quantity = last_q;
 				controller_bid2.state = BS_UNKNOWN;
-				((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit2))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt2), "submit_bid_state", "auction", (void *)&controller_bid2, (size_t)sizeof(controller_bid2));
+				((void (*)(char *, char *, char *, char *, void *, size_t))(*submit2))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt2), "submit_bid_state", "auction", (void *)&controller_bid2, (size_t)sizeof(controller_bid2));
 				controller_bid2.rebid = true;
 				if(controller_bid2.bid_accepted == false){
 					return TS_INVALID;
@@ -1596,7 +1596,7 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 					controller_bid.price = pCap;
 					controller_bid.quantity = last_q;
 					controller_bid.state = BS_UNKNOWN;
-					((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+					((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 					controller_bid.rebid = true;
 					if(controller_bid.bid_accepted == false){
 						return TS_INVALID;
@@ -1618,7 +1618,7 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 				controller_bid.price = last_p;
 				controller_bid.quantity = last_q;
 				controller_bid.state = BS_UNKNOWN;
-				((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+				((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 				controller_bid.rebid = true;
 				if(controller_bid.bid_accepted == false){
 					return TS_INVALID;
@@ -1632,7 +1632,7 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 					controller_bid2.price = pCap2;
 					controller_bid2.quantity = last_q;
 					controller_bid2.state = BS_UNKNOWN;
-					((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit2))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt2), "submit_bid_state", "auction", (void *)&controller_bid2, (size_t)sizeof(controller_bid2));
+					((void (*)(char *, char *, char *, char *, void *, size_t))(*submit2))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt2), "submit_bid_state", "auction", (void *)&controller_bid2, (size_t)sizeof(controller_bid2));
 					controller_bid2.rebid = true;
 					if(controller_bid2.bid_accepted == false){
 						return TS_INVALID;
@@ -1754,18 +1754,13 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 			}
 
 			// apply overrides
-			if ( use_override == OU_ON )
-			{
-				if ( last_q != 0.0 )
-				{
-					if ( clear_price == last_p && clear_price != pCap )
-					{
+			if((use_override == OU_ON)){
+				if(last_q != 0.0){
+					if(clear_price == last_p && clear_price != pCap){
 						if ( marginMode==AM_DENY )
 						{
 							override_prop.setp(OV_OFF->get_enumeration_value()); // *pOverride = -1;
-						} 
-						else if ( marginMode == AM_PROB )
-						{
+						} else if(marginMode == AM_PROB){
 							double r = gl_random_uniform(RNGSTATE,0, 1.0);
 							if ( r<marginalFraction )
 							{
@@ -1776,8 +1771,7 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 								override_prop.setp(OV_OFF->get_enumeration_value()); // *pOverride = -1;
 							}
 						}
-					} 
-					else if ( clrP<=last_p )
+					} else if ( clrP<=last_p )
 					{
 						override_prop.setp(OV_ON->get_enumeration_value()); // *pOverride = 1;
 					}
@@ -1877,11 +1871,11 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 				} else {
 					controller_bid.state = BS_OFF;
 				}
-				((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+				((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 				controller_bid.rebid = true;
 			} else {
 				controller_bid.state = BS_UNKNOWN;
-				((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+				((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 				controller_bid.rebid = true;
 			}
 			if(controller_bid.bid_accepted == false){
@@ -1890,26 +1884,20 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 		}
 		else
 		{
-			if ( last_pState != ps )
+			if (last_pState != ps)
 			{
 				KEY bid = (KEY)(lastmkt_id == marketId ? lastbid_id : -1);
 				double my_bid = -pCap;
 				if ( ps != *PS_OFF  )
-				{
 					my_bid = last_p;
-				}
 
-				if ( ps == *PS_ON ) 
-				{
+				if ( ps == *PS_ON ) {
 					controller_bid.state = BS_ON;
-				} 
-				else 
-				{
+				} else {
 					controller_bid.state = BS_OFF;
 				}
-				((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
-				if ( controller_bid.bid_accepted == false )
-				{
+				((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(hdr, ctrname, 1024), (char *)(&pMkt), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+				if(controller_bid.bid_accepted == false){
 					return TS_INVALID;
 				}
 				controller_bid.rebid = true;
@@ -1918,90 +1906,71 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 	}
 
 	if ( powerstate_prop.is_valid() )
-	{
 		last_pState = ps;
-	}
 
 	char timebuf[128];
 	gl_printtime(t1,timebuf,127);
 	//gl_verbose("controller:%i::sync(): bid $%f for %f kW at %s",hdr->id,last_p,last_q,timebuf);
 	//return postsync(t0, t1);
 
-	if ( control_mode == CN_DEV_LEVEL ) 
-	{		
+	if (control_mode == CN_DEV_LEVEL) {		
 		return fast_reg_run;
 	}
 
 	return TS_NEVER;
 }
 
-TIMESTAMP controller::postsync(TIMESTAMP t0, TIMESTAMP t1)
-{
+TIMESTAMP controller::postsync(TIMESTAMP t0, TIMESTAMP t1){
 	TIMESTAMP rv = next_run - bid_delay;
-	if ( last_setpoint != setpoint0 && control_mode == CN_RAMP )
-	{
+	if(last_setpoint != setpoint0 && control_mode == CN_RAMP){
 		last_setpoint = setpoint0;
 	}
-	if ( last_setpoint != setpoint0 && control_mode == CN_DEV_LEVEL )
-	{
+	if(last_setpoint != setpoint0 && control_mode == CN_DEV_LEVEL){
 		last_setpoint = setpoint0;
 	}
-	if ( last_heating_setpoint != heating_setpoint0 && control_mode == CN_DOUBLE_RAMP )
-	{
+	if(last_heating_setpoint != heating_setpoint0 && control_mode == CN_DOUBLE_RAMP){
 		last_heating_setpoint = heating_setpoint0;
 	}
-	if ( last_cooling_setpoint != cooling_setpoint0 && control_mode == CN_DOUBLE_RAMP )
-	{
+	if(last_cooling_setpoint != cooling_setpoint0 && control_mode == CN_DOUBLE_RAMP){
 		last_cooling_setpoint = cooling_setpoint0;
 	}
 
 	// Determine the system_mode the HVAC is in
-	if ( t1 < next_run-bid_delay )
-	{
+	if(t1 < next_run-bid_delay){
 		return next_run-bid_delay;
 	}
 
-	if ( resolve_mode == RM_SLIDING )
-	{
+	if(resolve_mode == RM_SLIDING){
 		double auxState = 0;
 		double heatState = 0;
 		double coolState = 0;
 		pAuxState->getp(auxState);
 		pHeatState->getp(heatState);
 		pCoolState->getp(coolState);
-		if ( heatState == 1 || auxState == 1 )
-		{
+		if(heatState == 1 || auxState == 1){
 			thermostat_mode = TM_HEAT;
 			if(last_mode == TM_OFF)
 				time_off = TS_NEVER;
-		} 
-		else if ( coolState == 1 )
-		{
+		} else if(coolState == 1){
 			thermostat_mode = TM_COOL;
 			if(last_mode == TM_OFF)
 				time_off = TS_NEVER;
-		} 
-		else if ( heatState == 0 && auxState == 0 && coolState == 0 )
-		{
+		} else if(heatState == 0 && auxState == 0 && coolState == 0){
 			thermostat_mode = TM_OFF;
 			if(previous_mode != TM_OFF)
 				time_off = t1 + dtime_delay;
-		} 
-		else 
-		{
+		} else {
 			gl_error("The HVAC is in two or more modes at once. This is impossible");
 			if(resolve_mode == RM_SLIDING)
 				return TS_INVALID; // If the HVAC is in two modes at once then the sliding resolve mode will have conflicting state input so stop the simulation.
 		}
 	}
 
-	if ( t1 - next_run < bid_delay )
-	{
+	if (t1 - next_run < bid_delay){
 		rv = next_run;
 	}
 
-	if ( next_run == t1 )
-	{
+	if(next_run == t1){
 		next_run += (TIMESTAMP)(this->period);
 		rv = next_run - bid_delay;
 	}
@@ -2009,45 +1978,32 @@ TIMESTAMP controller::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	return rv;
 }
 
-int controller::dev_level_ctrl(TIMESTAMP t0, TIMESTAMP t1)
-{
-	if ( engaged == 1 )
-	{
+int controller::dev_level_ctrl(TIMESTAMP t0, TIMESTAMP t1){
+	if (engaged == 1)
 		if (last_market == 1)
-		{
 			is_engaged = 1;
-		}
 		else
-		{
 			is_engaged = -1;
-		}
-	}
 	else
-	{
 		is_engaged = 0;
-	}
 	
 	OBJECT *hdr = OBJECTHDR(this);
 	double my_id = hdr->id;
 
 	// Not sure if this is needed, but lets clean up the Override signal if we are entering a new market
 	//  We'll catch the new signal one reg signal too late for now
-	if ( ((t1-last_run) % int(dPeriod)) == 0 ) 
-	{
+	if(((t1-last_run) % int(dPeriod)) == 0) {
 		override_prop.setp(OV_NORMAL->get_enumeration_value());
 		last_override = 0;
 	}
 	// If engaged and during the first pass, check to see if we should override
-	else if ( engaged == 1 )
-	{ 
-		if ( t0 < t1 ) 
-		{
+	else if (engaged==1)	{ 
+		if ( t0 < t1 ) {
 			// Only re-calculate this stuff on the defined regulation time
-			if ( ((t1-last_run) % reg_period) == 0 )
-			{
+			if(((t1-last_run) % reg_period) == 0){
+
 				// First time through this market period, grab some of the initial data
-				if ( t1 <=last_run + reg_period ) 
-				{
+				if (t1 <=last_run + reg_period) {
 					P_ON_init = P_ON;
 					delta_u = fast_reg_signal*P_ON_init;		
 					locked = 0;
@@ -2055,135 +2011,87 @@ int controller::dev_level_ctrl(TIMESTAMP t0, TIMESTAMP t1)
 					last_override = 0;
 					u_last = (1+fast_reg_signal)*P_ON_init;
 				}
-				else 
-				{
+				else {
 					delta_u = (1+fast_reg_signal)*P_ON_init - u_last;
 					u_last = (1+fast_reg_signal)*P_ON_init;
 				}
 
 				// if we are part of the OFF->ON market
-				if (delta_u > 0 && last_market == 0) 
-				{
-					if (locked == 0) 
-					{
+				if (delta_u > 0 && last_market == 0) {
+					if (locked == 0) {
 						if (P_OFF != 0)
-						{
 							mu0 = delta_u/P_OFF;
-						}
 						else
-						{
 							mu0 = 0;
-						}
 						mu1 = 0;
 
 						r1 = gl_random_uniform(RNGSTATE,0, 1.0);
 
-						if ( r1 < mu0 )
-						{
+						if(r1 < mu0){
 							override_prop.setp(OV_ON->get_enumeration_value());
 							locked = 1;
 						} 
-						else 
-						{
+						else {
 							if (use_override == OU_ON)
-							{
 								override_prop.setp(OV_OFF->get_enumeration_value()); //keep it in the OFF position
-							}
 							else
-							{
 								override_prop.setp(OV_NORMAL->get_enumeration_value());	 //else operate normally is probably not needed
-							}
 						}
 					}
-					else if (use_override == OU_ON) 
-					{
+					else if (use_override == OU_ON) {
 						override_prop.setp(OV_ON->get_enumeration_value()); //keep it in the ON position
 					}
 				}
 				// Ensure that it stays in the position we have decided on
-				else if (last_market == 0) 
-				{
+				else if (last_market == 0) {
 					mu0=0;
 					if (P_ON != 0.0)
-					{
 						mu1=-delta_u/P_ON;
-					}
 					else
-					{
 						mu1 = 0;
-					}
-					if ( use_override == OU_ON ) 
-					{
-						if ( locked == 1 )
-						{
+					if (use_override == OU_ON) {
+						if (locked == 1)
 							override_prop.setp(OV_ON->get_enumeration_value()); //keep it in the ON position
-						}
 						else
-						{
 							override_prop.setp(OV_OFF->get_enumeration_value()); //keep it in the OFF position
-						}
 					}
 				}
 				// If we are part of the ON->OFF market
-				else if (delta_u < 0 && last_market == 1) 
-				{
-					if (locked == 0) 
-					{
+				else if (delta_u < 0 && last_market == 1) {
+					if (locked == 0) {
 						mu0=0;
 						if (P_ON != 0.0)
-						{
 							mu1=-delta_u/P_ON;
-						}
 						else
-						{
 							mu1 = 0;
-						}
 
 						r1 = gl_random_uniform(RNGSTATE,0, 1.0);
 
-						if ( r1 < mu1 )
-						{
+						if(r1 < mu1){
 							override_prop.setp(OV_OFF->get_enumeration_value());
 							locked = 1;
-						} 
-						else 
-						{
+						} else {
 							if (use_override == OU_ON)
-							{
 								override_prop.setp(OV_ON->get_enumeration_value()); // keep it in the ON position
-							}
 							else
-							{
 								override_prop.setp(OV_NORMAL->get_enumeration_value());	// operate normally is probably not needed
-							}
 						}	
 					}
-					else if ( use_override == OU_ON ) 
-					{
+					else if (use_override == OU_ON) {
 						override_prop.setp(OV_OFF->get_enumeration_value()); //keep it in the OFF position
 					}
 				}
-				else if (last_market == 1) 
-				{
+				else if (last_market == 1) {
 					if (P_OFF != 0)
-					{
-						mu0 = delta_u/P_OFF;
-					}
-					else
-					{
-						mu0 = 0;
-					}
-					mu1 = 0;
-					if (use_override == OU_ON) 
-					{
-						if (locked == 1)
-						{
-							override_prop.setp(OV_OFF->get_enumeration_value()); //keep it in the OFF position
-						}
+							mu0 = delta_u/P_OFF;
 						else
-						{
+							mu0 = 0;
+						mu1 = 0;
+					if (use_override == OU_ON) {
+						if (locked == 1)
+							override_prop.setp(OV_OFF->get_enumeration_value()); //keep it in the OFF position
+						else
 							override_prop.setp(OV_ON->get_enumeration_value()); //keep it in the ON position
-						}
 					}
 				}
 				else {
@@ -2199,13 +2107,11 @@ int controller::dev_level_ctrl(TIMESTAMP t0, TIMESTAMP t1)
 				P_ONLOCK = P_ONLOCK + mu0*P_OFF;
 				P_OFF = (1-mu0)*P_OFF; 
 			}
-			else 
-			{
+			else {
 				override_prop.setp(last_override);
 			}
 		}
-		else 
-		{
+		else {
 			override_prop.setp(last_override);
 		}
 	}

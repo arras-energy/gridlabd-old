@@ -94,8 +94,7 @@ void currdump::dump(TIMESTAMP t){
 	//vA=gl_find_property(nodeclass, "
 
 	int link_count = 0;
-	while ( (obj=gl_find_next(links, obj)) != NULL )
-	{
+	while(obj = gl_find_next(links, obj)){
 		if(gl_object_isa(obj, "link", "powerflow")){
 			++link_count;
 		}
@@ -110,8 +109,7 @@ void currdump::dump(TIMESTAMP t){
 		fprintf(outfile,"link_name,currA_mag,currA_angle,currB_mag,currB_angle,currC_mag,currC_angle\n");
 	}
 	obj = 0;
-	while ( (obj=gl_find_next(links,obj)) != NULL )
-	{
+	while (obj=gl_find_next(links,obj)){
 		if(gl_object_isa(obj, "link", "powerflow")){
 			plink = OBJECTDATA(obj,link_object);
 			if(obj->name == NULL){

@@ -45,7 +45,7 @@ SET_MYCONTEXT(DMC_LINK)
 
 glxlink *glxlink::first = NULL;
 
-LINKLIST * glxlink::add_global(const char *name)
+LINKLIST * glxlink::add_global(char *name)
 {
 	LINKLIST *item = new LINKLIST;
 	if ( item==NULL ) return NULL;
@@ -55,12 +55,12 @@ LINKLIST * glxlink::add_global(const char *name)
 	item->addr = NULL;
 	item->size = 0;
 	if ( item->name==NULL ) return NULL;
-	item->name = strdup(name);
+	strcpy(item->name,name);
 	globals = item;
 	return item;
 }
 
-LINKLIST * glxlink::add_object(const char *name)
+LINKLIST * glxlink::add_object(char *name)
 {
 	LINKLIST *item = new LINKLIST;
 	item->next = objects;
@@ -68,12 +68,12 @@ LINKLIST * glxlink::add_object(const char *name)
 	item->name = (char*)malloc(strlen(name)+1);
 	item->addr = NULL;
 	item->size = 0;
-	item->name = strdup(name);
+	strcpy(item->name,name);
 	objects = item;
 	return item;
 }
 
-LINKLIST * glxlink::add_export(const char *name)
+LINKLIST * glxlink::add_export(char *name)
 {
 	LINKLIST *item = new LINKLIST;
 	item->next = exports;
@@ -81,12 +81,12 @@ LINKLIST * glxlink::add_export(const char *name)
 	item->name = (char*)malloc(strlen(name)+1);
 	item->addr = NULL;
 	item->size = 0;
-	item->name = strdup(name);
+	strcpy(item->name,name);
 	exports = item;
 	return item;
 }
 
-LINKLIST * glxlink::add_import(const char *name)
+LINKLIST * glxlink::add_import(char *name)
 {
 	LINKLIST *item = new LINKLIST;
 	item->next = imports;
@@ -94,13 +94,13 @@ LINKLIST * glxlink::add_import(const char *name)
 	item->name = (char*)malloc(strlen(name)+1);
 	item->addr = NULL;
 	item->size = 0;
-	item->name = strdup(name);
+	strcpy(item->name,name);
 	imports = item;
 	return item;
 }
 
 /* create a link module */
-int link_create(const char *file)
+int link_create(char *file)
 {
 	try {
 		glxlink *lt = new glxlink(file);
@@ -135,7 +135,7 @@ STATUS link_initall(void)
 			GLOBALVAR *var = NULL;
 			while ( (var=global_getnext(var))!=NULL )
 			{
-				if ( var->prop!=NULL )
+				if ( var->prop!=NULL && var->prop->name!=NULL )
 				{
 					LINKLIST *item = mod->add_global(var->prop->name);
 					if ( item!=NULL )
@@ -210,7 +210,7 @@ STATUS link_initall(void)
 					else
 					{
 						item->data = objprop;
-						item->name = strdup(varname);
+						strcpy(item->name,varname);
 					}
 				}
 				else
@@ -236,7 +236,7 @@ STATUS link_initall(void)
 					else
 					{
 						item->data = objprop;
-						item->name = strdup(varname);
+						strcpy(item->name,varname);
 					}
 				}
 				else
@@ -284,7 +284,7 @@ int link_termall(void)
 }
 
 
-glxlink::glxlink(const char *filename)
+glxlink::glxlink(char *filename)
 {
 	bool ok = true;
 	globals = NULL;
@@ -363,7 +363,7 @@ glxlink::glxlink(const char *filename)
 		throw "cannot establish link";
 }
 
-bool glxlink::set_target(const char *name)
+bool glxlink::set_target(char *name)
 {
 	char libname[1024];
 	char path[1024];
@@ -388,7 +388,7 @@ bool glxlink::set_target(const char *name)
 		bool (*create)(glxlink*,CALLBACKS*) = (bool(*)(glxlink*,CALLBACKS*))DLSYM(handle,"glx_create");
 		if ( create!=NULL && create(this,module_callbacks()) )
 		{
-			target = strdup(name);
+			strcpy(target,name);
 			return true;
 		}
 		else

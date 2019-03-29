@@ -21,7 +21,6 @@
 #include <time.h>
 #include <float.h>
 #include <ctype.h>
-#include <sys/time.h>
 
 #include "random.h"
 #include "find.h"
@@ -36,14 +35,10 @@
 SET_MYCONTEXT(DMC_RANDOM)
 
 #ifdef WIN32
-#define isfinite _finite
+#define finite _finite
 #include <process.h>
 #define getpid _getpid
-#else
-#include <unistd.h>
 #endif
-
-static LOCKVAR random_lock=0;
 
 #ifdef __MINGW32__
 inline char* strtok_t(char *str, const char *delim, char **nextp)
@@ -234,6 +229,7 @@ double randunit(unsigned int *state)
 {
 	double u;
 	unsigned int ur;
+	static int random_lock=0;
 
 	if ( state==NULL || state==ur_state )
 	{
@@ -900,7 +896,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_degenerate(NULL,a);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0);
@@ -918,7 +914,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_uniform(NULL,a,b);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0);
@@ -935,7 +931,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_bernoulli(NULL,a);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -953,7 +949,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_normal(NULL,a,b);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -968,7 +964,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_exponential(NULL,a);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -985,7 +981,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_lognormal(NULL,a,b);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -1002,7 +998,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_pareto(NULL,a,b);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -1019,7 +1015,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_rayleigh(NULL,a);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -1035,7 +1031,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_beta(NULL,a,b);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -1051,7 +1047,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_gamma(NULL,a,b);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -1067,7 +1063,7 @@ int random_test(void)
 	for (i=0; i<count; i++)
 	{
 		sample[i] = random_triangle(NULL,a,b);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -1082,7 +1078,7 @@ int random_test(void)
 	{
 		double set[10]={0,1,2,3,4,5,6,7,8,9};
 		sample[i] = random_sampled(NULL,10,set);
-		if (!isfinite(sample[i]))
+		if (!finite(sample[i]))
 			failed++,output_test("Sample %d is not a finite number!",i--);
 	}
 	errorcount+=report(NULL,0,0,0.01);
@@ -1154,7 +1150,7 @@ static randomvar *randomvar_list = NULL;
 static unsigned int n_randomvars = 0;
 clock_t randomvar_synctime = 0;
 
-int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
+int convert_to_randomvar(char *string, void *data, PROPERTY *prop)
 {
 	randomvar *var = (randomvar*)data;
 	char buffer[1024];
@@ -1281,9 +1277,8 @@ int convert_from_randomvar(char *string,int size,void *data, PROPERTY *prop)
 	return sprintf(string,"%lf",var->value);
 }
 
-int randomvar_create(void *ptr)
+int randomvar_create(randomvar *var)
 {
-	randomvar *var = (randomvar*)ptr;
 	memset(var,0,sizeof(randomvar));
 	var->next = randomvar_list;
 	var->state = randwarn(NULL);

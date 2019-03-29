@@ -41,6 +41,9 @@
 	#define stricmp strcasecmp	/**< deprecated stricmp */
 	#define strnicmp strncasecmp /**< deprecated strnicmp */
 	#define strtok_s strtok_r
+	#ifndef isfinite
+		#define isfinite finite
+	#endif
 	#ifdef __cplusplus
 		template <class T> inline T min(T a, T b) { return a < b ? a : b; };
 		template <class T> inline T max(T a, T b) { return a > b ? a : b; };

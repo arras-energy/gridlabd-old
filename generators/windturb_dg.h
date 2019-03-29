@@ -150,7 +150,7 @@ public:
 
 public:
 	/* required implementations */
-	bool *get_bool(OBJECT *obj, const char *name);
+	bool *get_bool(OBJECT *obj, char *name);
 	windturb_dg(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
@@ -163,7 +163,7 @@ public:
 public:
 	static CLASS *oclass;
 	static windturb_dg *defaults;
-	complex *get_complex(OBJECT *obj, const char *name);
+	complex *get_complex(OBJECT *obj, char *name);
 	static CLASS *pclass;
 };
 #endif

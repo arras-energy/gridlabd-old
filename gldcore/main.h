@@ -26,7 +26,7 @@ public:		// constructor/destructor
 #endif
 
 public:		// public methods
-	int mainloop(int argc = 0, char *argv[] = NULL);
+	void mainloop(int argc = 0, char *argv[] = NULL);
 
 private:	// private methods
 	void set_global_browser(const char *path = NULL);

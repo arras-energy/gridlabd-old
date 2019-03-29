@@ -117,8 +117,7 @@ void billdump::dump(TIMESTAMP t){
 		gl_printtime(t, timestr, 64);
 		fprintf(outfile,"# %s run at %s on %i triplex meters\n", filename.get_string(), timestr, nodes->hit_count);
 		fprintf(outfile,"meter_name,previous_monthly_bill,previous_monthly_energy\n");
-		while ( (obj=gl_find_next(nodes,obj)) != NULL )
-		{
+		while (obj=gl_find_next(nodes,obj)){
 			if(gl_object_isa(obj, "triplex_meter", "powerflow")){
 				pnode = OBJECTDATA(obj,triplex_meter);
 				if(obj->name == NULL){
@@ -134,8 +133,7 @@ void billdump::dump(TIMESTAMP t){
 		gl_printtime(t, timestr, 64);
 		fprintf(outfile,"# %s run at %s on %i meters\n", filename.get_string(), timestr, nodes->hit_count);
 		fprintf(outfile,"meter_name,previous_monthly_bill,previous_monthly_energy\n");
-		while ( (obj=gl_find_next(nodes,obj)) != NULL )
-		{
+		while (obj=gl_find_next(nodes,obj)){
 			if(gl_object_isa(obj, "meter", "powerflow")){
 				qnode = OBJECTDATA(obj,meter);
 				if(obj->name == NULL){

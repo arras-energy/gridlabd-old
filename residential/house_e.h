@@ -25,7 +25,7 @@ typedef struct s_implicit_enduse {
 	struct s_implicit_enduse *next;
 } IMPLICITENDUSE;
 
-typedef enum e_implicit_enduse_flag {
+typedef enum {
 	// analog loads (continuous load) - bits 0-15
 	IEU_LIGHTS			= 0x00000001, ///< implicit lights load
 	IEU_PLUGS			= 0x00000002, ///< implicit plugs load
@@ -50,7 +50,7 @@ typedef enum e_implicit_enduse_flag {
 	IEU_ALL				= 0x03170303, ///< all (needed to filter)
 } IMPLICITENDUSEFLAGS; ///< values for implicit_enduses_active set
 
-typedef enum e_implicit_enduse_source {
+typedef enum {
 	IES_ELCAP1990	= 0,	///< implicit enduse data source is ELCAP 1990
 	IES_ELCAP2010	= 1,	///< implicit enduse data source is ELCAP 2010
 	IES_RBSA2014	= 2,	///< implicit enduse data source is RBSA 2014
@@ -115,13 +115,13 @@ public:
 	
 	// additional reverse etp parameters
 	set include_solar_quadrant;
-	typedef enum e_heating_cop_curve {HC_DEFAULT=0, HC_FLAT=1, HC_LINEAR=2, HC_CURVED=3} HEATINGCOPCURVE;
+	typedef enum {HC_DEFAULT=0, HC_FLAT=1, HC_LINEAR=2, HC_CURVED=3};
 	enumeration heating_cop_curve;
-	typedef enum e_heating_cap_curve {HP_DEFAULT=0, HP_FLAT=1, HP_LINEAR=2, HP_CURVED=3} HEATINGCAPCURVE;
+	typedef enum {HP_DEFAULT=0, HP_FLAT=1, HP_LINEAR=2, HP_CURVED=3};
 	enumeration heating_cap_curve;
-	typedef enum e_cooling_cop_curve {CC_DEFAULT=0, CC_FLAT=1, CC_LINEAR=2, CC_CURVED=3} COOLINGCOPCURVE;
+	typedef enum {CC_DEFAULT=0, CC_FLAT=1, CC_LINEAR=2, CC_CURVED=3};
 	enumeration cooling_cop_curve;
-	typedef enum e_cooling_cap_curve {CP_DEFAULT=0, CP_FLAT=1, CP_LINEAR=2, CP_CURVED=3} COOLINGCAPCURVE;
+	typedef enum {CP_DEFAULT=0, CP_FLAT=1, CP_LINEAR=2, CP_CURVED=3};
 	enumeration cooling_cap_curve;
 	bool use_latent_heat;
 	bool include_fan_heatgain;
@@ -170,7 +170,7 @@ public:
 	double dlc_offset;
 
 	// hvac control variable
-	typedef enum e_thermostat_control {TC_FULL=0, TC_BAND=1, TC_NONE=2} THERMOSTATCONTROL;
+	typedef enum {TC_FULL=0, TC_BAND=1, TC_NONE=2};
 	enumeration thermostat_control;	///< method of HVAC control
 	double TcoolOn;		///< temperature above which cooling turns on
 	double TcoolOff;	///< temperature below which cooling turns off
@@ -245,7 +245,7 @@ public:
 	double thermal_storage_present;		//Indication of if thermal storage is present and available for drawing
 	double thermal_storage_inuse;		//Flag to indicate thermal storage is being pulled at the moment
 
-	typedef enum e_system_type {
+	typedef enum {
 		ST_NONE = 0x00000000,	///< flag to indicate no system is installed
 		ST_GAS	= 0x00000001,	///< flag to indicate gas heating is used
 		ST_AC	= 0x00000002,	///< flag to indicate the air-conditioning is used
@@ -256,7 +256,7 @@ public:
 	set system_type;///< system type
 	/* obsolete? -MH */
 
-	typedef enum e_auxiliary_strategy {
+	typedef enum  {
 		AX_NONE = 0x0,
 		AX_DEADBAND = 0x1,
 		AX_TIMER = 0x2,
@@ -264,14 +264,14 @@ public:
 	} AUXSTRATEGY;
 	set auxiliary_strategy;
 
-	typedef enum e_auxiliary_system_type {
+	typedef enum{
 		AT_UNKNOWN = 0,
 		AT_NONE = 1,
 		AT_ELECTRIC = 2,
 	} AUXILIARYSYSTEMTYPE;
 	enumeration auxiliary_system_type;
 
-	typedef enum e_heating_system_type {
+	typedef enum{
 		HT_UNKNOWN = 0,
 		HT_NONE = 1,
 		HT_GAS = 2,
@@ -280,14 +280,14 @@ public:
 	} HEATSYSTEMTYPE;
 	enumeration heating_system_type;
 
-	typedef enum e_cooling_system_type {
+	typedef enum {
 		CT_UNKNOWN = 0,
 		CT_NONE = 1,
 		CT_ELECTRIC = 2,
 	} COOLSYSTEMTYPE;
 	enumeration cooling_system_type;
 
-	typedef enum e_fan_type {
+	typedef enum {
 		FT_UNKNOWN = 0,
 		FT_NONE = 1,
 		FT_ONE_SPEED = 2,
@@ -295,14 +295,14 @@ public:
 	} FANTYPE;
 	enumeration fan_type;
 
-	typedef enum e_glass_type {
+	typedef enum {
 		GM_OTHER = 0,
 		GM_GLASS = 1,
 		GM_LOW_E_GLASS = 2,
 	} GLASSTYPE;
 	enumeration glass_type;
 
-	typedef enum e_window_frame {
+	typedef enum {
 		WF_NONE = 0,
 		WF_ALUMINUM = 1,
 		WF_THERMAL_BREAK = 2,
@@ -311,7 +311,7 @@ public:
 	} WINDOWFRAME;
 	enumeration window_frame;
 
-	typedef enum e_glazing_treatment {
+	typedef enum {
 		GT_OTHER = 0,
 		GT_CLEAR = 1,
 		GT_ABS = 2,
@@ -321,7 +321,7 @@ public:
 	} GLAZINGTREATMENT;
 	enumeration glazing_treatment;
 
-	typedef enum e_glazing_layers {
+	typedef enum {
 		GL_ONE=1,
 		GL_TWO=2,
 		GL_THREE=3,
@@ -329,7 +329,7 @@ public:
 	} GLAZINGLAYERS;
 	enumeration glazing_layers;
 
-	typedef enum e_thermal_integrity_level { ///< Thermal integrity level is an "easy" to use
+	typedef enum {				///< Thermal integrity level is an "easy" to use
 		TI_VERY_LITTLE  =0,		///< parameter, which gives reasonable defaults
 		TI_LITTLE	    =1,		///< for R-values and air exchange rates to broadly
 		TI_BELOW_NORMAL =2,		///< represent generic types of buildings, ranging
@@ -341,7 +341,7 @@ public:
 	} THERMAL_INTEGRITY;
 	enumeration thermal_integrity_level;
 
-	typedef enum e_motor_model {
+	typedef enum {
 		MM_NONE		= 0,		///< Motor model describes the level of detail to be assigned
 		MM_BASIC	= 1,		///< in calculating the efficiency of the hvac motor.  NONE will
 		MM_FULL		= 2			///< indicate that the electrical motor is 100% electrically efficient.
@@ -353,7 +353,7 @@ public:
 	double hvac_motor_loss_power_factor; ///< Between this and efficiency, derives the real and reactive losses
 	double hvac_motor_real_loss;		 ///< Actual real power loss of motor at rated voltage
 	double hvac_motor_reactive_loss;	 ///< Actual reactive power loss of motor at rated voltage
-	typedef enum e_motor_efficiency {
+	typedef enum {
 		ME_VERY_POOR	= 0,	///< Gives an "easy" to use parameter for specifying the efficiency
 		ME_POOR			= 1,	///< level of the motor when using motor_model BASIC or FULL
 		ME_AVERAGE		= 2,
@@ -362,7 +362,7 @@ public:
 	} MOTOREFFICIENCY;
 	enumeration motor_efficiency;
 
-	typedef enum e_system_mode {	
+	typedef enum {	
 		SM_UNKNOWN	=0,				///< unknown mode
 		SM_OFF		=1,				///< off
 		SM_HEAT		=2,				///< heating mode
@@ -407,7 +407,7 @@ public:
 
 	double is_AUX_on,is_HEAT_on,is_COOL_on;	// A logic statement so that the population dynamics of the AC can be observed with collectors.
 
-	typedef enum e_thermostat_mode {
+	typedef enum {
 		TM_OFF = 0,
 		TM_AUTO = 1,
 		TM_HEAT = 2,
@@ -470,9 +470,9 @@ public:
 	inline double get_Tout () { return *pTout; };
 	inline double get_Tair () { return Tair; };
 
-	complex *get_complex(OBJECT *obj, const char *name);
-	bool *get_bool(OBJECT *obj, const char *name);
-	int *get_enum(OBJECT *obj, const char *name);
+	complex *get_complex(OBJECT *obj, char *name);
+	bool *get_bool(OBJECT *obj, char *name);
+	int *get_enum(OBJECT *obj, char *name);
 // smartfuse implementation
 public:
 	GL_METHOD(house_e,smart_breaker);

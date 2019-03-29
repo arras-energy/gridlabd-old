@@ -16,7 +16,7 @@
 #include "csv_reader.h"
 #include <vector>
 
-typedef enum e_compass_ptr {
+typedef enum{
 	CP_H    = 0,
     CP_N    = 1,
 	CP_NE   = 2,
@@ -29,11 +29,11 @@ typedef enum e_compass_ptr {
 	CP_LAST = 9
 } COMPASS_PTS;
 
-typedef enum e_climate_interpolation {
+typedef enum{
 	CI_NONE = 0,
 	CI_LINEAR,
 	CI_QUADRATIC
-} CLIMATEINTERPOLATION;
+};
 
 typedef enum{
 	CM_NONE = 0,
@@ -160,7 +160,7 @@ public:
 
 };
 
-typedef struct s_climate_record {
+typedef struct {
 	double low;
 	double low_day;
 	double high;
@@ -168,11 +168,11 @@ typedef struct s_climate_record {
 	double solar;
 } CLIMATERECORD;
 
-typedef	enum e_record_type {
+typedef	enum {
 		RT_NONE,
 		RT_TMY2,
 		RT_CSV,
-} RECORDTYPE;
+};
 
 class climate : public gld_object 
 {
@@ -265,7 +265,7 @@ public:
 	climate(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
-	int isa(CLASSNAME classname);
+	int isa(char *classname);
 	TIMESTAMP presync(TIMESTAMP t0);
 	inline TIMESTAMP sync(TIMESTAMP t0) { return TS_NEVER; };
 	inline TIMESTAMP postsync(TIMESTAMP t0) { return TS_NEVER; };

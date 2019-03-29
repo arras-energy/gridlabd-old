@@ -482,9 +482,9 @@ int sample_from_diversity(unsigned int *state, double *param, char *value)
 /** Create a loadshape
 	@return 1 on success, 0 on failure
  **/
-int loadshape_create(void *ptr)
+int loadshape_create(loadshape *data)
 {
-	loadshape *data = (loadshape*)ptr;
+	//loadshape *s = (loadshape*)data;
 	memset(data,0,sizeof(loadshape));
 	data->next = loadshape_list;
 	loadshape_list = data;
@@ -909,7 +909,7 @@ void *loadshape_syncproc(void *ptr)
 
 		// process the list for this thread
 		t2 = TS_NEVER;
-		for ( s=data->ls, n=0 ; s!=NULL && n<data->ns ; s=s->next, n++ )
+		for ( s=data->ls, n=0 ; s!=NULL, n<data->ns ; s=s->next, n++ )
 		{
 			TIMESTAMP t = loadshape_sync(s,next_t1_ls);
 			if (t<t2) t2 = t;
@@ -1080,10 +1080,10 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 		break;
 	case MT_PULSED:
 		if (ls->params.pulsed.pulsetype==MPT_TIME)
-			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; duration: %g s",
+			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %d; duration: %g s",
 			ls->schedule->name, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->params.pulsed.pulsevalue);
 		else if (ls->params.pulsed.pulsetype==MPT_POWER)
-			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; power: %g kW",
+			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %d; power: %g kW",
 			ls->schedule->name, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->params.pulsed.pulsevalue);
 		else
 		{
@@ -1093,10 +1093,10 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 		break;
 	case MT_MODULATED:
 		if (ls->params.pulsed.pulsetype==MPT_TIME)
-			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %g; duration: %g s; pulse: %g kWh; modulation: %s",
+			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %d; duration: %g s; pulse: %g kWh; modulation: %s",
 			ls->schedule->name, ls->params.modulated.energy, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, modulation[ls->params.modulated.modulation]);
 		else if (ls->params.pulsed.pulsetype==MPT_POWER)
-			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %g; power: %g kW; pulse: %g kWh; modulation: %s",
+			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %d; power: %g kW; pulse: %g kWh; modulation: %s",
 			ls->schedule->name, ls->params.modulated.energy, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, modulation[ls->params.modulated.modulation]);
 		else
 		{
@@ -1106,10 +1106,10 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 		break;
 	case MT_QUEUED:
 		if (ls->params.pulsed.pulsetype==MPT_TIME)
-			return sprintf(string,"type: queue; schedule: %s; energy: %g kWh; count: %g; duration: %g s; q_on: %g; q_off: %g",
+			return sprintf(string,"type: queue; schedule: %s; energy: %g kWh; count: %d; duration: %g s; q_on: %g; q_off: %g",
 			ls->schedule->name, ls->params.queued.energy, ls->params.queued.scalar, ls->params.queued.pulsevalue, ls->params.queued.q_on, ls->params.queued.q_off);
 		else if (ls->params.pulsed.pulsetype==MPT_POWER)
-			return sprintf(string,"type: queued; schedule: %s; energy: %g kWh; count: %g; power: %g kW; q_on: %g; q_off: %g",
+			return sprintf(string,"type: queued; schedule: %s; energy: %g kWh; count: %d; power: %g kW; q_on: %g; q_off: %g",
 			ls->schedule->name, ls->params.queued.energy, ls->params.queued.scalar, ls->params.queued.pulsevalue, ls->params.queued.q_on, ls->params.queued.q_off);
 		else
 		{
@@ -1120,11 +1120,11 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 	case MT_SCHEDULED:
 		return sprintf(string,"type: scheduled; weekdays: %s; on-time: %.3g; off-time: %.3g; on-ramp: %.3g; off-ramp: %.3g; low: %.3g; high: %.3g; dt: %.3g m",
 			schedule_weekday_to_string(ls->params.scheduled.weekdays, buffer,sizeof(buffer)), ls->params.scheduled.on_time, ls->params.scheduled.off_time, 
-			ls->params.scheduled.on_ramp, ls->params.scheduled.off_ramp, ls->params.scheduled.low, ls->params.scheduled.high, (double)ls->params.scheduled.dt/60);
+			ls->params.scheduled.on_ramp, ls->params.scheduled.off_ramp, ls->params.scheduled.low, ls->params.scheduled.high, ls->params.scheduled.dt/60);
 	}
 	return 1;
 } 
-int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
+int convert_to_loadshape(char *string, void *data, PROPERTY *prop)
 {
 	loadshape *ls = (loadshape*)data;
 	char buffer[1024];
@@ -1205,9 +1205,7 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 				ls->params.scheduled.off_ramp = -1.0; // 1/h
 			}
 			else if (strcmp(value,"unknown")==0)
-			{
-				memset(ls,0,sizeof(ls[0]));
-			}
+				memset(ls,0,sizeof(ls));
 			else
 			{
 				output_error("convert_to_loadshape(string='%-.64s...', ...) type '%s' is invalid",string,value);

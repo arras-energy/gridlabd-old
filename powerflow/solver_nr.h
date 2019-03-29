@@ -44,7 +44,7 @@ typedef struct  {
 	double Jacob_D[3];		// Element d in equation (40), which is used to update the Jacobian matrix at each iteration
 	unsigned int Matrix_Loc;// Starting index of this object's place in all matrices/equations
 	double max_volt_error;	///< Maximum voltage error specified for that node
-	const char *name;				///< original name
+	char *name;				///< original name
 	OBJECT *obj;			///< Link to original object header
 	FUNCTIONADDR ExtraCurrentInjFunc;	///< Link to extra functions of current injection updates -- mostly VSI current updates
 	OBJECT *ExtraCurrentInjFuncObject;	///< Link to the object that mapped the current injection function - needed for function calls
@@ -64,7 +64,7 @@ typedef struct {
 	enumeration *status;	///< status of the object, if it is a switch (restoration module usage)
 	unsigned char lnk_type;	///< type of link the object is - 0 = UG/OH line, 1 = Triplex line, 2 = switch, 3 = fuse, 4 = transformer, 5 = sectionalizer, 6 = recloser
 	double v_ratio;			///< voltage ratio (v_from/v_to)
-	const char *name;				///< original name
+	char *name;				///< original name
 	OBJECT *obj;			///< Link to original object header
 	complex *If_from;		///< 3 phase fault currents on the from side
 	complex *If_to;			///< 3 phase fault currents on the to side 

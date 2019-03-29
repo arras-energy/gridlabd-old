@@ -20,7 +20,7 @@ typedef struct s_linkage {
 		PROPERTY *prop; ///<
 	} target;
 	struct {
-		OBJECTNAME obj; ///<
+		char obj[64]; ///<
 		PROPERTYNAME prop; ///<
 	} local,  ///<
 	  remote; ///<

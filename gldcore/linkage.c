@@ -25,12 +25,12 @@ int linkage_create_writer(instance *inst, char *fromobj, char *fromvar, char *to
 	lnk->type = LT_MASTERTOSLAVE;
 
 	/* copy local info */
-	lnk->local.obj = fromobj;
-	lnk->local.prop = fromvar;
+	strcpy(lnk->local.obj,fromobj);
+	strcpy(lnk->local.prop,fromvar);
 
 	/* copy remote info */
-	lnk->remote.obj = toobj;
-	lnk->remote.prop = tovar;
+	strcpy(lnk->remote.obj,toobj);
+	strcpy(lnk->remote.prop,tovar);
 
 	/* attach to instance cache */
 	if ( !instance_add_linkage(inst, lnk) )
@@ -62,12 +62,12 @@ int linkage_create_reader(instance *inst, char *fromobj, char *fromvar, char *to
 	lnk->type = LT_SLAVETOMASTER;
 
 	/* copy local info */
-	lnk->local.obj = toobj;
-	lnk->local.prop = tovar;
+	strcpy(lnk->local.obj,toobj);
+	strcpy(lnk->local.prop,tovar);
 
 	/* copy remote info */
-	lnk->remote.obj = fromobj;
-	lnk->remote.prop = fromvar;
+	strcpy(lnk->remote.obj,fromobj);
+	strcpy(lnk->remote.prop,fromvar);
 
 	/* attach to instance cache */
 	if ( !instance_add_linkage(inst, lnk) )

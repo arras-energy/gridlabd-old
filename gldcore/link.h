@@ -12,7 +12,7 @@ typedef struct {
 } OBJECTPROPERTY;
 
 typedef struct s_linklist {
-	const char *name; // spec for link
+	char *name; // spec for link
 	void *data; // local data
 	void *addr; // remote data
 	size_t size; // size of data
@@ -27,7 +27,7 @@ private: // target data link
 typedef struct s_glxlink {
 #define glxlink struct s_glxlink
 #endif
-	const char *target; ///< name of target
+	char target[64]; ///< name of target
 	LINKLIST *globals; ///< list of globals to publish  
 	LINKLIST *objects; ///< list of objects to publish  
 	LINKLIST *exports; ///< list of objects to export
@@ -55,21 +55,21 @@ public: // link list accessors
 	inline class glxlink *get_next() { return next; };
 
 public: // construction/destruction
-	glxlink(const char *file);
+	glxlink(char *file);
 	~glxlink(void);
 
 public: // accessors
-	bool set_target(const char *data);
-	inline const char *get_target(void) { return target; };
-	LINKLIST *add_global(const char *name);
-	LINKLIST *add_object(const char *name);
-	LINKLIST *add_export(const char *name);
-	LINKLIST *add_import(const char *name);
+	bool set_target(char *data);
+	inline char *get_target(void) { return target; };
+	LINKLIST *add_global(char *name);
+	LINKLIST *add_object(char *name);
+	LINKLIST *add_export(char *name);
+	LINKLIST *add_import(char *name);
 	inline void set_data(void *ptr) { data=ptr; };
 	void *get_data(void) { return data; };
 
 	// linklist accessors
-	inline const char *get_name(LINKLIST *item) { return (const char*)item->name; }; 
+	inline char *get_name(LINKLIST *item) { return (char*)item->name; }; 
 	inline LINKLIST *get_next(LINKLIST *item) { return item->next; };
 	inline void *get_data(LINKLIST *item) { return item->data; };
 	inline void set_data(LINKLIST *item, void *ptr) { item->data=ptr; };
@@ -121,7 +121,7 @@ extern "C" {
 } glxlink;
 #endif
 
-int link_create(const char *name);
+int link_create(char *name);
 STATUS link_initall(void);
 TIMESTAMP link_syncall(TIMESTAMP t0);
 int link_termall();

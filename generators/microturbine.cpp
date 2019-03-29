@@ -209,7 +209,7 @@ int microturbine::init(OBJECT *parent)
 
 	struct {
 		complex **var;
-		const char *varname;
+		char *varname;
 	} map[] = {
 		// local object name,	meter object name
 		{&pCircuit_V_A,			"voltage_A"}, 
@@ -296,22 +296,18 @@ int microturbine::init(OBJECT *parent)
 
 
 
-complex *microturbine::get_complex(OBJECT *obj, const char *name)
+complex *microturbine::get_complex(OBJECT *obj, char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL )
 	{	
 		gl_error("property %s is not found in meter %s", name, obj->name);
-		static char buffer[1024];
-		sprintf(buffer,"get_complex(obj='%s', name='%s') failed",obj->name,name);
-		throw(buffer);
+		throw("get_complex(obj='%s', name='%s') failed",obj->name,name);
 	}
 	if ( p->ptype!=PT_complex)
 	{
 		gl_error("property %s is in meter %s is not complex", name, obj->name);
-		static char buffer[1024];
-		sprintf(buffer,"get_complex(obj='%s', name='%s') failed",obj->name,name);
-		throw(buffer);
+		throw("get_complex(obj='%s', name='%s') failed",obj->name,name);
 	}
 	return (complex*)GETADDR(obj,p);
 }

@@ -124,7 +124,7 @@ public:
 
 	SIMULATIONMODE inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);
 
-	complex *get_complex(OBJECT *obj, const char *name);
+	complex *get_complex(OBJECT *obj, char *name);
 public:
 	static CLASS *oclass;
 	static solar *defaults;

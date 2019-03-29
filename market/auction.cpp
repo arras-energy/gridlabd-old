@@ -205,7 +205,7 @@ auction::auction(MODULE *module)
 }
 
 
-int auction::isa(CLASSNAME classname)
+int auction::isa(char *classname)
 {
 	return strcmp(classname,"auction")==0;
 }
@@ -695,10 +695,8 @@ int auction::check_next_market(TIMESTAMP t1){
 		next_frame.seller_min_price = nframe->seller_min_price;
 		next_frame.marginal_frac = nframe->marginal_frac;
 		next_frame.cap_ref_unrep = nframe->cap_ref_unrep;
-		if(statistic_mode == ST_ON)
-		{
-			for ( i = 0, stat = this->stats ; i < statistic_count || stat != 0 ; ++i, stat = stat->next )
-			{
+		if(statistic_mode == ST_ON){
+			for(i = 0, stat = this->stats; i < statistic_count, stat != 0; ++i, stat = stat->next){
 				gl_set_value(obj, stat->prop, frame->statistics[i]);
 			}
 		}
@@ -742,10 +740,8 @@ TIMESTAMP auction::pop_market_frame(TIMESTAMP t1){
 	current_frame.seller_min_price = frame->seller_min_price;
 	current_frame.marginal_frac = frame->marginal_frac;
 	// copy statistics
-	if ( statistic_mode == ST_ON )
-	{
-		for ( i = 0, stat = this->stats ; i < statistic_count || stat != 0 ; ++i, stat = stat->next )
-		{
+	if(statistic_mode == ST_ON){
+		for(i = 0, stat = this->stats; i < statistic_count, stat != 0; ++i, stat = stat->next){
 			gl_set_value(obj, stat->prop, frame->statistics[i]);
 		}
 	}
@@ -921,7 +917,7 @@ void auction::clear_market(void)
 		}
 		//unresponsive.from = linkref;
 		char capname[1024];
-		unresponsive.from = gl_name(capacity_reference_object, capname, sizeof(capname));
+		unresponsive.from = (char *)gl_name(capacity_reference_object, capname, sizeof(capname));
 		unresponsive.price = pricecap;
 		unresponsive.state = BS_UNKNOWN;
 		unresponsive.quantity = (refload - asks.get_total_on() - maybe_on); /* estimate load on as 1/2 unknown load */
@@ -956,7 +952,7 @@ void auction::clear_market(void)
 					sprintf(msg, "capacity_reference_property %s uses units of %s and is incompatible with auction units (%s)", capacity_reference_property->name, capacity_reference_property->unit->name, unit.get_string());
 					throw msg;
 				} else {
-					submit_nolock((const char *)OBJECTHDR(this)->name, max_capacity_reference_bid_quantity, capacity_reference_bid_price, (int64)OBJECTHDR(this)->id, BS_ON, false, market_id);
+					submit_nolock((char *)OBJECTHDR(this)->name, max_capacity_reference_bid_quantity, capacity_reference_bid_price, (int64)OBJECTHDR(this)->id, BS_ON, false, market_id);
 					if (verbose) gl_output("Capacity reference object: %s bids %.2f at %.2f", capacity_reference_object->name, max_capacity_reference_bid_quantity, capacity_reference_bid_price);
 				}
 			}
@@ -1074,7 +1070,7 @@ void auction::clear_market(void)
 				gl_warning("Seller-only auction was given purchasing bids");
 			}
 			asks.clear();
-			submit((const char *)OBJECTHDR(this)->name, -fixed_quantity, fixed_price, (int64)OBJECTHDR(this)->id, BS_ON, false, market_id);
+			submit((char *)OBJECTHDR(this)->name, -fixed_quantity, fixed_price, (int64)OBJECTHDR(this)->id, BS_ON, false, market_id);
 			break;
 		case MD_FIXED_BUYER:
 			asks.sort(true);
@@ -1082,7 +1078,7 @@ void auction::clear_market(void)
 				gl_warning("Buyer-only auction was given offering bids");
 			}
 			offers.clear();
-			submit((const char *)OBJECTHDR(this)->name, fixed_quantity, fixed_price, (int64)OBJECTHDR(this)->id, BS_ON, false, market_id);
+			submit((char *)OBJECTHDR(this)->name, fixed_quantity, fixed_price, (int64)OBJECTHDR(this)->id, BS_ON, false, market_id);
 			break;
 		case MD_NONE:
 			offers.sort(false);
@@ -1457,16 +1453,16 @@ void auction::clear_market(void)
 	}
 }
 
-void auction::record_bid(const char *from, double quantity, double real_price, BIDDERSTATE state){
+void auction::record_bid(char *from, double quantity, double real_price, BIDDERSTATE state){
 	char name_buffer[256];
-	const char *unkState = "unknown";
-	const char *offState = "off";
-	const char *onState = "on";
-	const char *unk = "unknown time";
+	char *unkState = "unknown";
+	char *offState = "off";
+	char *onState = "on";
+	char *unk = "unknown time";
 	char buffer[256];
 	char bigbuffer[1024];
-	const char *pState;
-	const char *tStr;
+	char *pState;
+	char *tStr;
 	DATETIME dt;
 	TIMESTAMP submit_time = gl_globalclock;
 	if(trans_file){ // copied from version below
@@ -1495,12 +1491,12 @@ void auction::record_bid(const char *from, double quantity, double real_price, B
 	}
 }
 
-int auction::submit(const char *from, double quantity, double real_price, KEY key, BIDDERSTATE state, bool rebid, int64 mkt_id)
+int auction::submit(char *from, double quantity, double real_price, KEY key, BIDDERSTATE state, bool rebid, int64 mkt_id)
 {
 	gld_wlock lock(my());
 	return submit_nolock(from,quantity,real_price,key,state, rebid, mkt_id);
 }
-int auction::submit_nolock(const char *from, double quantity, double real_price, KEY key, BIDDERSTATE state, bool rebid, int64 mkt_id)
+int auction::submit_nolock(char *from, double quantity, double real_price, KEY key, BIDDERSTATE state, bool rebid, int64 mkt_id)
 {
 	char myname[64];
 	TIMESTAMP submit_time = gl_globalclock;
@@ -1614,7 +1610,6 @@ int auction::submit_nolock(const char *from, double quantity, double real_price,
 		}
 		return 1;
 	}
-	return 0;
 }
 
 TIMESTAMP auction::nextclear(void) const
@@ -1655,7 +1650,7 @@ EXPORT int init_auction(OBJECT *obj, OBJECT *parent)
 	INIT_CATCHALL(auction);
 }
 
-EXPORT int isa_auction(OBJECT *obj, CLASSNAME classname)
+EXPORT int isa_auction(OBJECT *obj, char *classname)
 {
 	if(obj != 0 && classname != 0){
 		return OBJECTDATA(obj,auction)->isa(classname);

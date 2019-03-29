@@ -16,17 +16,18 @@
 class dishwasher : public residential_enduse
 {
 public:
-	typedef enum s_dishwasher_state {	
-		dishwasher_STOPPED=0, ///< motor is stopped
-		dishwasher_STALLED=1, ///< motor is stalled
-		dishwasher_TRIPPED=2, ///< motor is tripped
-		dishwasher_COIL_ONLY=3, //<only the coil and motor are operating
-		dishwasher_MOTOR_COIL_ONLY=4,	
-		dishwasher_MOTOR_ONLY=5, ///< only the motor is running (air fluff)
-		dishwasher_CONTROL_ONLY=6,
-		dishwasher_HEATEDDRY_ONLY=7
-	} DISHWASHERSTATE; ///< control state
+	typedef enum {	dishwasher_STOPPED=0,		///< motor is stopped
+			dishwasher_STALLED=1,						///< motor is stalled
+			dishwasher_TRIPPED=2,						///< motor is tripped
+			dishwasher_COIL_ONLY=3,				//<only the coil and motor are operating
+			dishwasher_MOTOR_COIL_ONLY=4,	
+			dishwasher_MOTOR_ONLY=5,						///< only the motor is running (air fluff)
+			dishwasher_CONTROL_ONLY=6,
+			dishwasher_HEATEDDRY_ONLY=7
+	};										///< control state
 	enumeration state;
+
+
 
 	double circuit_split;				///< -1=100% negative, 0=balanced, +1=100% positive
 	bool is_240;						///< load connected at 220 
@@ -74,9 +75,10 @@ public:
 	bool coil_only_check3;
 	bool Heateddry_option_check;
 
+
 	double zero_power;
 	double motor_power;					///< installed dishwasher motor power [W] (default = random uniform between 150-350 W)
-	double coil_power[4];					///< installed heating coil power [W] (default = random uniform between 3500-5000 W, 0 for gas)
+	double coil_power[3];					///< installed heating coil power [W] (default = random uniform between 3500-5000 W, 0 for gas)
 	double controls_power;
 	double dishwasher_demand;				///< amount of demand added per hour (units/hr)
 	double enduse_queue;				///< accumulated demand (units)

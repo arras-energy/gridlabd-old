@@ -173,8 +173,8 @@ int property_create(PROPERTY *prop, void *addr)
 /* though improbable, this is to prevent more complicated, specifically crafted
 	inheritence loops.  these should be impossible if a class_register call is
 	immediately followed by a class_define_map call. -d3p988 */
-static PROPERTY *class_find_property_rec(CLASS *oclass, 
-                                  const PROPERTYNAME name, 
+PROPERTY *class_find_property_rec(CLASS *oclass, 
+                                  PROPERTYNAME name, 
                                   CLASS *pclass)
 {
 	PROPERTY *prop;
@@ -200,10 +200,9 @@ static PROPERTY *class_find_property_rec(CLASS *oclass,
 }
 
 static PROPERTY *find_header_property(CLASS *oclass, 
-                                      const PROPERTYNAME name)
+                                      PROPERTYNAME name)
 {
 	PROPERTY *prop = NULL;
-	// TODO: handle header properties
 	return prop;
 }
 
@@ -212,7 +211,7 @@ static PROPERTY *find_header_property(CLASS *oclass,
 	@return a pointer to the PROPERTY, or \p NULL if the property is not found.
  **/
 PROPERTY *class_find_property(CLASS *oclass,     /**< the object class */
-                              const PROPERTYNAME name) /**< the property name */
+                              PROPERTYNAME name) /**< the property name */
 {
 	PROPERTY *prop = find_header_property(oclass,name);
 	if ( prop ) return prop;
@@ -309,7 +308,7 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	prop->keywords = NULL;
 	prop->description = NULL;
 	prop->unit = pUnit;
-	prop->name = strdup(name);
+	strncpy(prop->name,name,sizeof(prop->name));
 	prop->next = NULL;
 	prop->oclass = oclass;
 	prop->ptype = ptype;
@@ -476,7 +475,7 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 			IN_MYCONTEXT output_verbose("module %s is registering a 2nd class %s, previous one in module %s", module->name, name, oclass->module->name);
 		}
 	}
-	if (strlen(name)>=MAXCLASSNAMELEN )
+	if (strlen(name)>=sizeof(oclass->name) )
 	{
 		errno = E2BIG;
 		return 0;
@@ -491,7 +490,7 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 	oclass->magic = CLASSVALID;
 	oclass->id = 	class_count++;
 	oclass->module = module;
-	oclass->name = strdup(name);
+	strncpy(oclass->name,name,sizeof(oclass->name));
 	oclass->size = size;
 	oclass->passconfig = passconfig;
 	oclass->profiler.numobjs=0;
@@ -519,7 +518,7 @@ CLASS *class_get_first_class(void)
 	@return a pointer to the class registered to that module
 	having that \p name, or \p NULL if no match found.
  **/
-CLASS *class_get_class_from_classname_in_module(CLASSNAME name, MODULE *mod){
+CLASS *class_get_class_from_classname_in_module(char *name, MODULE *mod){
 	CLASS *oclass = NULL;
 	if(name == NULL) return NULL;
 	if(mod == NULL) return NULL;
@@ -591,7 +590,7 @@ size_t class_get_extendedcount(CLASS *oclass)
 	@return a pointer to the class having that \p name,
 	or \p NULL if no match found.
  **/
-CLASS *class_get_class_from_classname(CLASSNAME name) /**< a pointer to a \p NULL -terminated string containing the class name */
+CLASS *class_get_class_from_classname(char *name) /**< a pointer to a \p NULL -terminated string containing the class name */
 {
 	CLASS *oclass = NULL;
 	MODULE *mod = NULL;
@@ -925,7 +924,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			DELEGATEDTYPE *delegation=(proptype==PT_delegated?va_arg(arg,DELEGATEDTYPE*):NULL);
 			char *name = va_arg(arg,char*);
 			PROPERTYADDR addr = va_arg(arg,PROPERTYADDR);
-			if ( prop != NULL && strlen(name) >= MAXPROPNAMELEN )
+			if (prop!=NULL && strlen(name)>=sizeof(prop->name))
 			{
 				output_error("class_define_map(oclass='%s',...): property name '%s' is too big", oclass->name, name);
 				/*	TROUBLESHOOT
@@ -988,7 +987,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			if ( proptype==PT_method )
 			{
 				prop->addr = 0;
-				prop->method = (METHODCALL)addr;
+				prop->method = (METHODCALL*)addr;
 			}
 			prop->default_value = property_getspec(proptype)->default_value;
 
@@ -1013,8 +1012,8 @@ Error:
 	@return 0 on failure, 1 on success
  **/
 int class_define_enumeration_member(CLASS *oclass, /**< pointer to the class which implements the enumeration */
-                                    const char *property_name, /**< property name of the enumeration */
-                                    const char *member, /**< member name to define */
+                                    char *property_name, /**< property name of the enumeration */
+                                    char *member, /**< member name to define */
                                     enumeration value) /**< enum value to associate with the name */
 {
 	PROPERTY *prop = class_find_property(oclass,property_name);
@@ -1030,8 +1029,8 @@ int class_define_enumeration_member(CLASS *oclass, /**< pointer to the class whi
 /** Define a set member
  **/
 int class_define_set_member(CLASS *oclass, /**< pointer to the class which implements the set */
-                            const char *property_name, /**< property name of the set */
-                            const char *member, /**< member name to define */
+                            char *property_name, /**< property name of the set */
+                            char *member, /**< member name to define */
                             unsigned int64 value) /**< set value to associate with the name */
 {
 	PROPERTY *prop = class_find_property(oclass,property_name);
@@ -1074,7 +1073,7 @@ FUNCTION *class_define_function(CLASS *oclass, FUNCTIONNAME functionname, FUNCTI
 		return NULL;
 	}
 	func->addr = call;
-	func->name = strdup(functionname);
+	strcpy(func->name,functionname);
 	func->next = NULL;
 	func->oclass = oclass;
 	if (oclass->fmap==NULL)
@@ -1095,7 +1094,7 @@ FUNCTION *class_define_function(CLASS *oclass, FUNCTIONNAME functionname, FUNCTI
 
 /* Get the entry point of a class function
  */
-FUNCTIONADDR class_get_function(CLASSNAME classname, FUNCTIONNAME functionname)
+FUNCTIONADDR class_get_function(char *classname, char *functionname)
 {
 	CLASS *oclass = class_get_class_from_classname(classname);
 	FUNCTION *func;
