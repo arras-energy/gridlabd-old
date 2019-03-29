@@ -54,30 +54,38 @@ supervisory_control::supervisory_control(MODULE *module) {
 	}
 }
 
-void supervisory_control::fetch_double(double **prop, char *name, OBJECT *parent){
+void supervisory_control::fetch_double(double **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_double_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "supervisory_control:%i", hdr->id);
-		if(*name == NULL)
+		if ( *name == '\0' )
+		{
 			sprintf(msg, "%s: supervisory_control unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: supervisory_control unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
 
 /* Object creation is called once for each object that is created by the core */
-int supervisory_control::create(void) {
+int supervisory_control::create(void) 
+{
 	memcpy(this,defaults,sizeof(supervisory_control));
 	return 1; /* return 1 on success, 0 on failure */
 }
 
 /* Object initialization is called once after all object have been created */
-int supervisory_control::init(OBJECT *parent) {
+int supervisory_control::init(OBJECT *parent) 
+{
 	OBJECT *obj=OBJECTHDR(this);
 	market_id = 0;
 	n_bids_on = 0;
@@ -90,7 +98,7 @@ int supervisory_control::init(OBJECT *parent) {
 }
 
 
-int supervisory_control::isa(char *classname) {
+int supervisory_control::isa(CLASSNAME classname) {
 	return strcmp(classname,"supervisory_control")==0;
 }
 
@@ -200,7 +208,7 @@ EXPORT int init_supervisory_control(OBJECT *obj, OBJECT *parent) {
 	INIT_CATCHALL(supervisory_control);
 }
 
-EXPORT int isa_supervisory_control(OBJECT *obj, char *classname) {
+EXPORT int isa_supervisory_control(OBJECT *obj, CLASSNAME classname) {
 	if(obj != 0 && classname != 0){
 		return OBJECTDATA(obj,supervisory_control)->isa(classname);
 	} else {

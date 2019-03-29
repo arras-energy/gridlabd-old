@@ -81,7 +81,7 @@
 
 #include <gridlabd.h>
 
-#include "house_a.h"
+#include "house_e.h"
 #include "evcharger.h"
 
 /////////////////////////////////////////////////////////////////////
@@ -409,8 +409,9 @@ double evcharger::update_state(double dt /* seconds */)
 
 		int hour = now.hour;
 		int daytype = 0;
-		if(pDemand != NULL){
-			pDemand->n_daytypes>0 ? (now.weekday>0&&now.weekday<6) : 0;
+		if(pDemand != NULL)
+		{
+			daytype = ( pDemand->n_daytypes>0 ? (now.weekday>0&&now.weekday<6) : 0 );
 
 			demand.home = pDemand->home[daytype][DEPART][hour];
 			demand.work = pDemand->home[daytype][ARRIVE][hour];

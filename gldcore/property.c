@@ -32,7 +32,7 @@ SET_MYCONTEXT(DMC_PROPERTY)
 /* IMPORTANT: this list must match PROPERTYTYPE enum in property.h */
 PROPERTYSPEC property_type[_PT_LAST] = {
 	{"void", "string", NULL, 0, 0, convert_from_void,convert_to_void},
-	{"double", "decimal", "0.0", sizeof(double), 24, convert_from_double,convert_to_double,NULL,stream_double,{TCOPS(double)},},
+	{"double", "decimal", "0.0", sizeof(double), 24, convert_from_double,convert_to_double,NULL,NULL,{TCOPS(double)},},
 	{"complex", "string", "0+0i", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,{TCOPS(double)},complex_get_part},
 	{"enumeration", "string", "0", sizeof(enumeration), 1024, convert_from_enumeration,convert_to_enumeration,NULL,NULL,{TCOPS(uint64)},},
 	{"set", "string", "0", sizeof(set), 1024, convert_from_set,convert_to_set,NULL,NULL,{TCOPS(uint64)},},
@@ -123,6 +123,7 @@ int property_check(void)
 PROPERTY *property_malloc(PROPERTYTYPE proptype, CLASS *oclass, const char *name, void *addr, DELEGATEDTYPE *delegation)
 {
 	char unitspec[1024];
+	char propname[1024];
 	PROPERTY *prop = (PROPERTY*)malloc(sizeof(PROPERTY));
 
 	if (prop==NULL)
@@ -148,7 +149,7 @@ PROPERTY *property_malloc(PROPERTYTYPE proptype, CLASS *oclass, const char *name
 	prop->notify = 0;
 	prop->notify_override = false;
 	prop->default_value = NULL;
-	if (sscanf(name,"%[^[][%[^]]]",prop->name,unitspec)==2)
+	if (sscanf(name,"%[^[][%[^]]]",propname,unitspec)==2)
 	{
 		/* detect when a unit is associated with non-double/complex property */
 		if (prop->ptype!=PT_double && prop->ptype!=PT_complex)
@@ -170,6 +171,7 @@ PROPERTY *property_malloc(PROPERTYTYPE proptype, CLASS *oclass, const char *name
 				 */
 		}
 	}
+	prop->name = strdup(propname);
 	prop->addr = addr;
 	prop->delegation = delegation;
 	prop->next = NULL;
@@ -193,9 +195,13 @@ Error:
 uint32 property_size(PROPERTY *prop)
 {
 	if (prop && prop->ptype>_PT_FIRST && prop->ptype<_PT_LAST)
+	{
 		return property_type[prop->ptype].size;
+	}
 	else
+	{
 		return 0;
+	}
 }
 
 /** Get the physical address of a property
@@ -267,7 +273,9 @@ int property_create(PROPERTY *prop, void *addr)
 	if (prop && prop->ptype>_PT_FIRST && prop->ptype<_PT_LAST)
 	{
 		if (property_type[prop->ptype].create)
+		{
 			return property_type[prop->ptype].create(addr);
+		}
 		if ( (int)property_type[prop->ptype].size>0 )
 		{
 			if ( prop->default_value != NULL )
@@ -279,19 +287,25 @@ int property_create(PROPERTY *prop, void *addr)
 				}
 			}	
 			else
+			{
 				memset(addr,0,property_type[prop->ptype].size);
+			}
 		}
 		return 1;
 	}
 	else
+	{
 		return 0;
+	}
 }
 
 size_t property_minimum_buffersize(PROPERTY *prop)
 {
 	size_t size = property_type[prop->ptype].csize;
 	if ( size>0 )
+	{
 		return size;
+	}
 	switch (prop->ptype) {
 	/* @todo dynamic sizing */
 	default:
@@ -304,8 +318,12 @@ PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, char *opstr)
 {
 	int n;
 	for ( n=0; n<_TCOP_LAST; n++)
+	{
 		if (strcmp(property_type[ptype].compare[n].str,opstr)==0)
+		{
 			return n;
+		}
+	}
 	return TCOP_ERR;
 }
 
@@ -395,26 +413,44 @@ bool property_is_default(OBJECT *obj, PROPERTY *prop)
 double complex_get_part(void *x, char *name)
 {
 	complex *c = (complex*)x;
-	if ( strcmp(name,"real")==0) return c->r;
-	if ( strcmp(name,"imag")==0) return c->i;
-	if ( strcmp(name,"mag")==0) return complex_get_mag(*c);
-	if ( strcmp(name,"arg")==0) return complex_get_arg(*c);
-	if ( strcmp(name,"ang")==0) return (complex_get_arg(*c)*180/PI);
+	if ( strcmp(name,"real")==0) 
+	{
+		return c->r;
+	}
+	if ( strcmp(name,"imag")==0) 
+	{
+		return c->i;
+	}
+	if ( strcmp(name,"mag")==0) 
+	{
+		return complex_get_mag(*c);
+	}
+	if ( strcmp(name,"arg")==0) 
+	{
+		return complex_get_arg(*c);
+	}
+	if ( strcmp(name,"ang")==0) 
+	{
+		return (complex_get_arg(*c)*180/PI);
+	}
 	return QNAN;
 }
 
 /*********************************************************
  * DOUBLE ARRAYS
  *********************************************************/
-int double_array_create(double_array*a)
+int double_array_create(void*ptr)
 {
+	double_array *a = (double_array*)ptr;
 	int n;
 	a->n = a->m = 0;
 	a->max = 1;
 	a->x = (double***)malloc(sizeof(double**)*a->max);
 	a->f = (unsigned char*)malloc(sizeof(unsigned char)*a->max);
 	if ( a->x==NULL || a->f==NULL )
+	{
 		return 0;
+	}
 	memset(a->x,0,sizeof(double**)*a->max);
 	memset(a->f,0,sizeof(unsigned char)*a->max);
 	return 1;
@@ -422,23 +458,38 @@ int double_array_create(double_array*a)
 double get_double_array_value(double_array*a,unsigned int n, unsigned int m)
 {
 	if ( a->n>n && a->m>m )
+	{
 		return *(a->x[n][m]);
+	}
 	else
+	{
 		throw_exception("get_double_array_value(double_array*a='n=%d,m=%d,...',unsigned int n=%d,unsigned int m=%d): array index out of range",a->n,a->m,n,m);
+		return QNAN;
+	}
 }
 void set_double_array_value(double_array*a,unsigned int n, unsigned int m, double x)
 {
 	if ( a->n>n && a->m>m )
+	{
 		*(a->x[n][m])=x;
+	}
 	else
+	{
 		throw_exception("get_double_array_value(double_array*a='n=%d,m=%d,...',unsigned int n=%d,unsigned int m=%d): array index out of range",a->n,a->m,n,m);
+		return;
+	}
 }
 double *get_double_array_ref(double_array*a,unsigned int n, unsigned int m)
 {
 	if ( a->n>n && a->m>m )
+	{
 		return a->x[n][m];
+	}
 	else
+	{
 		throw_exception("get_double_array_value(double_array*a='n=%d,m=%d,...',unsigned int n=%d,unsigned int m=%d): array index out of range",a->n,a->m,n,m);
+		return NULL;
+	}
 }
 double double_array_get_part(void *x, char *name)
 {
@@ -455,15 +506,18 @@ double double_array_get_part(void *x, char *name)
 /*********************************************************
  * COMPLEX ARRAYS
  *********************************************************/
-int complex_array_create(complex_array *a)
+int complex_array_create(void *ptr)
 {
+	complex_array *a = (complex_array*)ptr;
 	int n;
 	a->n = a->m = 0;
 	a->max = 1;
 	a->x = (complex***)malloc(sizeof(complex**)*a->max);
 	a->f = (unsigned char*)malloc(sizeof(unsigned char)*a->max);
 	if ( a->x==NULL || a->f==NULL )
+	{
 		return 0;
+	}
 	memset(a->x,0,sizeof(complex**)*a->max);
 	memset(a->f,0,sizeof(unsigned char)*a->max);
 	return 1;
@@ -471,23 +525,38 @@ int complex_array_create(complex_array *a)
 complex *get_complex_array_value(complex_array *a,unsigned int n, unsigned int m)
 {
 	if ( a->n>n && a->m>m )
+	{
 		return a->x[n][m];
+	}
 	else
+	{
 		throw_exception("get_complex_array_value(complex_array*a='n=%d,m=%d,...',unsigned int n=%d,unsigned int m=%d): array index out of range",a->n,a->m,n,m);
+		return NULL;
+	}
 }
 void set_complex_array_value(complex_array *a,unsigned int n, unsigned int m, complex *x)
 {
 	if ( a->n>n && a->m>m )
+	{
 		*(a->x[n][m]) = *x;
+	}
 	else
+	{
 		throw_exception("get_complex_array_value(complex_array*a='n=%d,m=%d,...',unsigned int n=%d,unsigned int m=%d): array index out of range",a->n,a->m,n,m);
+		return;
+	}
 }
 complex *get_complex_array_ref(complex_array *a,unsigned int n, unsigned int m)
 {
 	if ( a->n>n && a->m>m )
+	{
 		return a->x[n][m];
+	}
 	else
+	{
 		throw_exception("get_complex_array_value(complex_array*a='n=%d,m=%d,...',unsigned int n=%d,unsigned int m=%d): array index out of range",a->n,a->m,n,m);
+		return NULL;
+	}
 }
 double complex_array_get_part(void *x, char *name)
 {
@@ -498,9 +567,18 @@ double complex_array_get_part(void *x, char *name)
 		complex_array *a = (complex_array*)x;
 		if ( n<a->n && m<a->m && a->x[n][m]!=NULL )
 		{
-			if ( strcmp(subpart,"real")==0 ) return a->x[n][m]->r;
-			else if ( strcmp(subpart,"imag")==0 ) return a->x[n][m]->i;
-			else return QNAN;
+			if ( strcmp(subpart,"real")==0 ) 
+			{
+				return a->x[n][m]->r;
+			}
+			else if ( strcmp(subpart,"imag")==0 ) 
+			{
+				return a->x[n][m]->i;
+			}
+			else 
+			{
+				return QNAN;
+			}
 		}
 	}
 	return QNAN;

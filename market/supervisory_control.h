@@ -46,14 +46,14 @@ public:
 	supervisory_control(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
 public:
 	static CLASS *oclass;
 	static supervisory_control *defaults;
 private:
-	void fetch_double(double **prop, char *name, OBJECT *parent);
+	void fetch_double(double **prop, const char *name, OBJECT *parent);
 	int submit_nolock(OBJECT *from, double power, double PFC_state, int key=-1, int state=-1);
 	collect PFC_collect;
 	int n_bids_on;

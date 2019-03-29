@@ -173,7 +173,7 @@ static bool do_quit(void)
 }
 
 typedef struct {
-	char *name;
+	const char *name;
 	int (*edit)(void);
 } SETUPGROUP;
 SETUPGROUP group[] = {

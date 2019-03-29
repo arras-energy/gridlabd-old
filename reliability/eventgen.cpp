@@ -1153,7 +1153,7 @@ char *eventgen::obj_token(char *start_token, OBJECT **obj_val)
 }
 
 //Function to add new event into structure - since externally called, presumes calling object will handle mean_repair_time calls
-int eventgen::add_unhandled_event(OBJECT *obj_to_fault, char *event_type, TIMESTAMP fail_time, TIMESTAMP rest_length, int implemented_fault, bool fault_state)
+int eventgen::add_unhandled_event(OBJECT *obj_to_fault, const char *event_type, TIMESTAMP fail_time, TIMESTAMP rest_length, int implemented_fault, bool fault_state)
 {
 	OBJECT *obj = OBJECTHDR(this);
 	RELEVANTSTRUCT *new_struct;
@@ -1268,7 +1268,7 @@ int eventgen::add_unhandled_event(OBJECT *obj_to_fault, char *event_type, TIMEST
 }
 
 //Retrieve the address of a double
-double *eventgen::get_double(OBJECT *obj, char *name)
+double *eventgen::get_double(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_double)
@@ -1450,11 +1450,11 @@ void eventgen::do_event(TIMESTAMP t1_ts, double t1_dbl, bool entry_type)
 
 				if (metrics_obj != NULL)
 				{
-					returnval = ((int (*)(OBJECT *, OBJECT **, char *, int *, TIMESTAMP *, void *))(*funadd))(UnreliableObjs[index].obj_of_int,&UnreliableObjs[index].obj_made_int,fault_type.get_string(),&UnreliableObjs[index].implemented_fault,&mean_repair_time,metrics_obj->Extra_Data);
+					returnval = ((int (*)(OBJECT *, OBJECT **, const char *, int *, TIMESTAMP *, void *))(*funadd))(UnreliableObjs[index].obj_of_int,&UnreliableObjs[index].obj_made_int,fault_type.get_string(),&UnreliableObjs[index].implemented_fault,&mean_repair_time,metrics_obj->Extra_Data);
 				}
 				else
 				{
-					returnval = ((int (*)(OBJECT *, OBJECT **, char *, int *, TIMESTAMP *, void *))(*funadd))(UnreliableObjs[index].obj_of_int,&UnreliableObjs[index].obj_made_int,fault_type.get_string(),&UnreliableObjs[index].implemented_fault,&mean_repair_time,Extra_Data);
+					returnval = ((int (*)(OBJECT *, OBJECT **, const char *, int *, TIMESTAMP *, void *))(*funadd))(UnreliableObjs[index].obj_of_int,&UnreliableObjs[index].obj_made_int,fault_type.get_string(),&UnreliableObjs[index].implemented_fault,&mean_repair_time,Extra_Data);
 				}
 
 				if (returnval == 0)	//Failed :(
@@ -1587,11 +1587,11 @@ void eventgen::do_event(TIMESTAMP t1_ts, double t1_dbl, bool entry_type)
 
 			if (metrics_obj != NULL)
 			{
-				returnval = ((int (*)(OBJECT *, int *, char *, void *))(*funadd))(UnreliableObjs[index].obj_of_int,&UnreliableObjs[index].implemented_fault,impl_fault,metrics_obj->Extra_Data);
+				returnval = ((int (*)(OBJECT *, int *, const char *, void *))(*funadd))(UnreliableObjs[index].obj_of_int,&UnreliableObjs[index].implemented_fault,impl_fault,metrics_obj->Extra_Data);
 			}
 			else
 			{
-				returnval = ((int (*)(OBJECT *, int *, char *, void *))(*funadd))(UnreliableObjs[index].obj_of_int,&UnreliableObjs[index].implemented_fault,impl_fault,Extra_Data);
+				returnval = ((int (*)(OBJECT *, int *, const char *, void *))(*funadd))(UnreliableObjs[index].obj_of_int,&UnreliableObjs[index].implemented_fault,impl_fault,Extra_Data);
 			}
 
 			if (returnval == 0)	//Restoration is no go :(
@@ -1780,11 +1780,11 @@ void eventgen::do_event(TIMESTAMP t1_ts, double t1_dbl, bool entry_type)
 
 				if (metrics_obj != NULL)
 				{
-					returnval = ((int (*)(OBJECT *, OBJECT **, char *, int *, TIMESTAMP *, void *))(*funadd))(temp_struct->objdetails.obj_of_int,&temp_struct->objdetails.obj_made_int,temp_struct->event_type,&temp_struct->objdetails.implemented_fault,&mean_repair_time,metrics_obj->Extra_Data);
+					returnval = ((int (*)(OBJECT *, OBJECT **, const char *, int *, TIMESTAMP *, void *))(*funadd))(temp_struct->objdetails.obj_of_int,&temp_struct->objdetails.obj_made_int,temp_struct->event_type,&temp_struct->objdetails.implemented_fault,&mean_repair_time,metrics_obj->Extra_Data);
 				}
 				else
 				{
-					returnval = ((int (*)(OBJECT *, OBJECT **, char *, int *, TIMESTAMP *, void *))(*funadd))(temp_struct->objdetails.obj_of_int,&temp_struct->objdetails.obj_made_int,temp_struct->event_type,&temp_struct->objdetails.implemented_fault,&mean_repair_time,Extra_Data);
+					returnval = ((int (*)(OBJECT *, OBJECT **, const char *, int *, TIMESTAMP *, void *))(*funadd))(temp_struct->objdetails.obj_of_int,&temp_struct->objdetails.obj_made_int,temp_struct->event_type,&temp_struct->objdetails.implemented_fault,&mean_repair_time,Extra_Data);
 				}
 
 				if (returnval == 0)	//Failed :(
@@ -1865,11 +1865,11 @@ void eventgen::do_event(TIMESTAMP t1_ts, double t1_dbl, bool entry_type)
 
 				if (metrics_obj != NULL)
 				{
-					returnval = ((int (*)(OBJECT *, int *, char *, void *))(*funadd))(temp_struct->objdetails.obj_of_int,&temp_struct->objdetails.implemented_fault,impl_fault,metrics_obj->Extra_Data);
+					returnval = ((int (*)(OBJECT *, int *, const char *, void *))(*funadd))(temp_struct->objdetails.obj_of_int,&temp_struct->objdetails.implemented_fault,impl_fault,metrics_obj->Extra_Data);
 				}
 				else
 				{
-					returnval = ((int (*)(OBJECT *, int *, char *, void *))(*funadd))(temp_struct->objdetails.obj_of_int,&temp_struct->objdetails.implemented_fault,impl_fault,Extra_Data);
+					returnval = ((int (*)(OBJECT *, int *, const char *, void *))(*funadd))(temp_struct->objdetails.obj_of_int,&temp_struct->objdetails.implemented_fault,impl_fault,Extra_Data);
 				}
 
 				if (returnval == 0)	//Restoration is no go :(
@@ -2088,7 +2088,7 @@ EXPORT TIMESTAMP sync_eventgen(OBJECT *obj, TIMESTAMP t1, PASSCONFIG pass)
 }
 
 //Exposed function to add items
-EXPORT int add_event(OBJECT *event_obj, OBJECT *obj_to_fault, char *event_type, TIMESTAMP fail_time, TIMESTAMP rest_length, int implemented_fault, bool fault_state)
+EXPORT int add_event(OBJECT *event_obj, OBJECT *obj_to_fault, const char *event_type, TIMESTAMP fail_time, TIMESTAMP rest_length, int implemented_fault, bool fault_state)
 {
 	int ret_value;
 	eventgen *eventgenobj = OBJECTDATA(event_obj,eventgen);

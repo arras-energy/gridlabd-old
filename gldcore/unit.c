@@ -471,7 +471,8 @@ int unit_derived(char *name,char *derivation)
  **/
 void unit_init(void)
 {
-	static int tried=0, trylock=0;
+	static int tried=0;
+	static LOCKVAR trylock=0;
 	char *glpath = getenv("GLPATH");
 	FILE *fp = NULL;
 	char tpath[1024];

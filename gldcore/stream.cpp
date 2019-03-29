@@ -63,7 +63,7 @@ char *stream_context()
 	//sprintf(buffer,"block %d, token %d",b,t);
 	return buffer;
 }
-int stream_error(char *format, ...)
+int stream_error(const char *format, ...)
 {
 	char buffer[1024];
 	va_list ptr;
@@ -74,7 +74,7 @@ int stream_error(char *format, ...)
 	return -1;
 }
 
-int stream_warning(char *format, ...)
+int stream_warning(const char *format, ...)
 {
 	char buffer[1024];
 	va_list ptr;
@@ -411,8 +411,8 @@ void stream(CLASS *oclass, PROPERTY *prop)
 	size_t n;
 	for ( n=0 ; n<count ; n++ )
 	{
-		PROPERTYNAME name; if ( prop ) strcpy(name,prop->name);
-		stream(name,sizeof(name));
+		char name[64]; if ( prop ) strcpy(name,prop->name);
+		stream(prop->name,strlen(prop->name));
 
 		PROPERTYTYPE ptype; if ( prop ) ptype = prop->ptype;
 		stream(ptype);
@@ -439,7 +439,7 @@ void stream(CLASS *oclass)
 	size_t n;
 	for ( n=0 ; n<count ; n++ )
 	{
-		CLASSNAME name; if ( oclass ) strcpy(name,oclass->name);
+		char name[MAXCLASSNAMELEN+1]; if ( oclass ) strncpy(name,oclass->name,MAXCLASSNAMELEN);
 		stream(name,sizeof(name));
 
 		unsigned int size; if ( oclass ) size = oclass->size;
@@ -504,7 +504,7 @@ void stream(GLOBALVAR *var)
 	size_t n;
 	for ( n=0 ; n<count ; n++ )
 	{
-		PROPERTYNAME name; if ( var ) strcpy(name,var->prop->name);
+		char name[64]; if ( var ) strcpy(name,var->prop->name);
 		stream(name,sizeof(name));
 
 		char value[1024]; if ( var ) global_getvar(name,value,sizeof(value));

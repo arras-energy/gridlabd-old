@@ -124,8 +124,8 @@ STATUS instance_slave_parse_prop_list(char *line, linkage **root, LINKAGETYPE ty
 		}
 		memset(link, 0, sizeof(linkage));
 		IN_MYCONTEXT output_verbose("making link for \'%s.%s\'", objname, propname);
-		strcpy(link->remote.obj, objname);
-		strcpy(link->remote.prop, propname);
+		link->remote.obj = strdup(objname);
+		link->remote.prop = strdup(propname);
 		link->target.obj = obj;
 		link->target.prop = prop;
 		link->type = type;
@@ -612,6 +612,8 @@ STATUS instance_slave_init_mem(){
 	return SUCCESS;
 #else
 	// @todo linux/unix slave signalling
+	output_error("instance_slave_init_mem() not implemented in linux/macos");
+	return FAILED;
 #endif
 }
 
