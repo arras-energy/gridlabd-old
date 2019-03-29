@@ -186,7 +186,7 @@ link_object::link_object(MODULE *mod) : powerflow_object(mod)
 	}
 }
 
-int link_object::isa(char *classname)
+int link_object::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"link")==0 || powerflow_object::isa(classname);
 }
@@ -221,7 +221,7 @@ int link_object::create(void)
 
 	current_in[0] = current_in[1] = current_in[2] = complex(0,0);
 
-	link_limits[0][0] = link_limits[0][1] = link_limits[0][2] = link_limits[1][0] = link_limits[1][2] = link_limits[1][3] = NULL;
+	link_limits[0][0] = link_limits[0][1] = link_limits[0][2] = link_limits[1][0] = link_limits[1][1] = link_limits[1][2] = NULL;
 	
 	link_rating[0][0] = link_rating[0][1] = link_rating[0][2] = 1000;	//Replicates current defaults of line objects
 	link_rating[1][0] = link_rating[1][1] = link_rating[1][2] = 2000;
@@ -2114,7 +2114,7 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 			unsigned int *LinkTableLoc = NULL;
 			unsigned int TempTableIndex;
 			unsigned char working_phase;
-			char *temp_phase;
+			const char *temp_phase;
 			int IndVal = 0;
 			int resultval;
 			bool *temp_empty;
@@ -3051,7 +3051,7 @@ TIMESTAMP link_object::postsync(TIMESTAMP t0)
 	TIMESTAMP TRET=TS_NEVER;
 	//double temp_power_check;
 
-	if ((solver_method==SM_FBS))
+	if ( solver_method == SM_FBS )
 	{
 		node *f;
 		node *t; //@# make else/if statement for solver method NR; & set current_out->to t->node current_inj;
@@ -3389,7 +3389,7 @@ EXPORT TIMESTAMP sync_link(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	SYNC_CATCHALL(link);
 }
 
-EXPORT int isa_link(OBJECT *obj, char *classname)
+EXPORT int isa_link(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,link_object)->isa(classname);
 }
@@ -3404,7 +3404,7 @@ EXPORT SIMULATIONMODE interupdate_link(OBJECT *obj, unsigned int64 delta_time, u
 		status = my->inter_deltaupdate_link(delta_time,dt,iteration_count_val,interupdate_pos);
 		return status;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("interupdate_link(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;
@@ -4788,7 +4788,7 @@ void link_object::calculate_power()
 }
 
 //Retrieve value of a double
-double *link_object::get_double(OBJECT *obj, char *name)
+double *link_object::get_double(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_double)
@@ -4831,7 +4831,7 @@ double *link_object::get_double(OBJECT *obj, char *name)
 // 30 - FUS-AC or FUS-CA - Fuse action CA
 // 31 - FUS-ABC - Fuse action ABC
 // 32 - TLL - all lines fault - phases A, B, and C
-int link_object::link_fault_on(OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
+int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
 {
 	unsigned char phase_remove = 0x00;	//Default is no phases removed
 	unsigned char rand_phases,temp_phases, work_phases;			//Working variable

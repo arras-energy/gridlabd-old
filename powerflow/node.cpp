@@ -1268,7 +1268,7 @@ TIMESTAMP node::NR_node_presync_fxn(TIMESTAMP t0_val)
 	}//End inrush enabled
 	//Defaulted else -- no in-rush or not deltamode
 
-	if ((SubNode==DIFF_PARENT))	//Differently connected parent - zero our accumulators
+	if ( SubNode==DIFF_PARENT )	//Differently connected parent - zero our accumulators
 	{
 		//Zero them.  Row 1 is power, row 2 is admittance, row 3 is current
 		Extra_Data[0] = Extra_Data[1] = Extra_Data[2] = 0.0;
@@ -1415,7 +1415,10 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 			will be updated in future versions.
 			*/
 		}
-		if (((phase_to_check & (busphasesIn | busphasesOut) != phase_to_check) && (busphasesIn != 0 && busphasesOut != 0) && (solver_method == SM_NR)))
+		if ( (phase_to_check & (busphasesIn | busphasesOut)) != phase_to_check 
+			&&  busphasesIn != 0 
+			&& busphasesOut != 0 
+			&& solver_method == SM_NR )
 		{
 			GL_THROW("node:%d (%s) has more phases leaving than entering",obj->id,obj->name);
 			/* TROUBLESHOOT
@@ -1457,7 +1460,7 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 	{
 		if (prev_NTime==0)	//First run, if we are a child, make sure no one linked us before we knew that
 		{
-			if (((SubNode == CHILD) || (SubNode == DIFF_CHILD)) && (NR_connected_links))
+			if ( SubNode == CHILD || SubNode == DIFF_CHILD ) 
 			{
 				node *parNode = OBJECTDATA(SubNodeParent,node);
 
@@ -3147,7 +3150,7 @@ OBJECT *node::NR_master_swing_search(const char *node_type_value,bool main_swing
 	FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,node_type_value,FT_END);
 
 	//Parse the findlist
-	while(temp_obj=gl_find_next(bus_list,temp_obj))
+	while ( (temp_obj=gl_find_next(bus_list,temp_obj)) )
 	{
 		list_node = OBJECTDATA(temp_obj,node);
 

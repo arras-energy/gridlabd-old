@@ -84,7 +84,7 @@ transformer::transformer(MODULE *mod) : link_object(mod)
     }
 }
 
-int transformer::isa(char *classname)
+int transformer::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"transformer")==0 || link_object::isa(classname);
 }
@@ -111,7 +111,7 @@ int transformer::create()
 	return result;
 }
 
-void transformer::fetch_double(double **prop, char *name, OBJECT *parent){
+void transformer::fetch_double(double **prop, const char *name, OBJECT *parent){
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_double_by_name(parent, name);
 	if(*prop == NULL){
@@ -119,10 +119,14 @@ void transformer::fetch_double(double **prop, char *name, OBJECT *parent){
 		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "transformer:%i", hdr->id);
-		if(*name == NULL)
+		if( name == NULL )
+		{
 			sprintf(msg, "%s: transformer unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: transformer unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
@@ -1006,14 +1010,16 @@ int transformer::init(OBJECT *parent)
 				R = config->full_load_loss/config->no_load_loss;
 			} else if(config->impedance.Re()!=0 && config->shunt_impedance.Re()!=0)
 				R = config->impedance.Re()*config->shunt_impedance.Re();
-			if(config->t_W==NULL || config->dtheta_TO_R==NULL){
+			if ( config->t_W == 0.0 || config->dtheta_TO_R == 0.0 )
+			{
 				GL_THROW("winding time constant or rated top-oil hotspot rise for transformer configuration %s must be nonzero",configuration->name);
 				/*  TROUBLESHOOT
 				When using the thermal aging model, the rated_winding_time_constant or the rated_top_oil_rise must be given as a non-zero value.
 				Please specify one or the other in your transformer configuration.
 				*/
 			}
-			if(config->t_W<=0){
+			if ( config->t_W <= 0 )
+			{
 				GL_THROW("%s: transformer_configuration winding time constant must be greater than zero",configuration->name);
 				/*  TROUBLESHOOT
 				When using the thermal aging model, the rated_winding_time_constant must be given as a greater-than-zero value.
@@ -2043,7 +2049,7 @@ EXPORT int recalc_deltamode_saturation(OBJECT *obj,bool *deltaIsat)
 	return result;
 }
 
-EXPORT int isa_transformer(OBJECT *obj, char *classname)
+EXPORT int isa_transformer(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,transformer)->isa(classname);
 }
