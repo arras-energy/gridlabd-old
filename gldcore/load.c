@@ -1031,7 +1031,7 @@ static int resolve_object(UNRESOLVED *item, char *filename)
 		for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
 		{
 			char value[1024];
-			if ( object_get_child_count(obj)==0 && !object_get_value_by_name(obj,propname,value,sizeof(value)) && strcmp(value,target)==0 )
+			if ( object_get_child_count(obj)==0 && object_get_value_by_name(obj,propname,value,sizeof(value))!=NULL && strcmp(value,target)==0 )
 			{
 				object_set_parent(*(OBJECT**)(item->ref),obj);
 				break;
@@ -1122,8 +1122,8 @@ static int resolve_object(UNRESOLVED *item, char *filename)
 }
 static int resolve_double(UNRESOLVED *item, char *context)
 {
-	char oname[65];
-	char pname[65];
+	FULLNAME oname;
+	PROPERTYNAME pname;
 	char *filename = (item->file ? item->file : context);
 
 	if (sscanf(item->id,"%64[^.].%64s",oname,pname)==2)
@@ -1331,7 +1331,7 @@ static int dashed_name(PARSER, char *result, int size)
 	START;
 	/* names cannot start with a digit */
 	if (isdigit(*_p)) return 0;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='-') COPY(result);
+	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p=='_' || *_p=='-') COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1341,7 +1341,7 @@ static int name(PARSER, char *result, int size)
 	START;
 	/* names cannot start with a digit */
 	if (isdigit(*_p)) return 0;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_') COPY(result);
+	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1350,7 +1350,7 @@ static int namelist(PARSER, char *result, int size)
 	START;
 	/* names cannot start with a digit */
 	if (isdigit(*_p)) return 0;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p==',' || *_p=='@' || *_p==' ' || *_p=='_') COPY(result);
+	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p==',' || *_p=='@' || *_p==' ' || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1359,7 +1359,7 @@ static int variable_list(PARSER, char *result, int size)
 	START;
 	/* names cannot start with a digit */
 	if (isdigit(*_p)) return 0;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p==',' || *_p==' ' || *_p=='.' || *_p=='_') COPY(result);
+	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p==',' || *_p==' ' || *_p=='.' || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1369,7 +1369,7 @@ static int property_list(PARSER, char *result, int size)
 	START;
 	/* names cannot start with a digit */
 	if (isdigit(*_p)) return 0;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p==',' || *_p==' ' || *_p=='.' || *_p=='_' || *_p==':') COPY(result);
+	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p==',' || *_p==' ' || *_p=='.' || *_p=='_' || *_p==':') COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1379,7 +1379,7 @@ static int unitspec(PARSER, UNIT **unit)
 	char result[1024];
 	size_t size = sizeof(result);
 	START;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='$' || *_p=='%' || *_p=='*' || *_p=='/' || *_p=='^') COPY(result);
+	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p=='$' || *_p=='%' || *_p=='*' || *_p=='/' || *_p=='^') COPY(result);
 	result[_n]='\0';
 	TRY {
 		if ((*unit=unit_find(result))==NULL){
@@ -1428,7 +1428,7 @@ static int nameunit(PARSER,char *result,int size,UNIT **unit)
 static int dotted_name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='.') COPY(result);
+	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p=='_' || *_p=='.') COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1436,7 +1436,7 @@ static int dotted_name(PARSER, char *result, int size)
 static int hostname(PARSER, char *result, int size)
 {	/* full path name */
 	START;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='.' || *_p=='-' || *_p==':' ) COPY(result);
+	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p=='_' || *_p=='.' || *_p=='-' || *_p==':' ) COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1450,7 +1450,7 @@ static int delim_value(PARSER, char *result, int size, char *delims)
 	if (*_p=='"')
 	{
 		quote=1;
-		_p++;
+		*_p++;
 		size--;
 	}
 	while (size>1 && *_p!='\0' && ((quote&&*_p!='"') || strchr(delims,*_p)==NULL) && *_p!='\n') 
@@ -1495,7 +1495,7 @@ static int value(PARSER, char *result, int size)
 		}
 		else if (*_p=='"')
 		{
-			_p++;
+			*_p++;
 			size--;
 			quote = (1+quote) % 2;
 		}
@@ -1766,7 +1766,7 @@ static int functional(PARSER, double *pValue)
 				}
 				else if (nargs==3)
 				{
-					if ( (WHITE,LITERAL(",")) && (WHITE,TERM(real_value(HERE,&b))) && (WHITE,LITERAL(",")) && (WHITE,TERM(real_value(HERE,&c))) && (WHITE,LITERAL(")")))
+					if ( (WHITE,LITERAL(",")) && (WHITE,TERM(real_value(HERE,&b))) && WHITE,LITERAL(",") && (WHITE,TERM(real_value(HERE,&c))) && (WHITE,LITERAL(")")))
 					{
 						*pValue = random_value(rtype,a,b,c);
 						ACCEPT;
@@ -2291,12 +2291,12 @@ int time_value_datetime(PARSER, TIMESTAMP *t)
 	START;
 	if WHITE ACCEPT;
 	if ( LITERAL("'") || LITERAL("\"") ) ACCEPT;
-	if (TERM(integer16(HERE,(short*)&dt.year)) && LITERAL("-")
-		&& TERM(integer16(HERE,(short*)&dt.month)) && LITERAL("-")
-		&& TERM(integer16(HERE,(short*)&dt.day)) && LITERAL(" ")
-		&& TERM(integer16(HERE,(short*)&dt.hour)) && LITERAL(":")
-		&& TERM(integer16(HERE,(short*)&dt.minute)) && LITERAL(":")
-		&& TERM(integer16(HERE,(short*)&dt.second)) && ( LITERAL("'") || LITERAL("\"") ))
+	if (TERM(integer16(HERE,&dt.year)) && LITERAL("-")
+		&& TERM(integer16(HERE,&dt.month)) && LITERAL("-")
+		&& TERM(integer16(HERE,&dt.day)) && LITERAL(" ")
+		&& TERM(integer16(HERE,&dt.hour)) && LITERAL(":")
+		&& TERM(integer16(HERE,&dt.minute)) && LITERAL(":")
+		&& TERM(integer16(HERE,&dt.second)) && ( LITERAL("'") || LITERAL("\"") ))
 	{
 		dt.nanosecond = 0;
 		dt.weekday = -1;
@@ -2321,12 +2321,12 @@ int time_value_datetimezone(PARSER, TIMESTAMP *t)
 	START;
 	if WHITE ACCEPT;
 	if (LITERAL("'")||LITERAL("\"")) ACCEPT;
-	if (TERM(integer16(HERE,(short*)&dt.year)) && LITERAL("-")
-		&& TERM(integer16(HERE,(short*)&dt.month)) && LITERAL("-")
-		&& TERM(integer16(HERE,(short*)&dt.day)) && LITERAL(" ")
-		&& TERM(integer16(HERE,(short*)&dt.hour)) && LITERAL(":")
-		&& TERM(integer16(HERE,(short*)&dt.minute)) && LITERAL(":")
-		&& TERM(integer16(HERE,(short*)&dt.second)) && LITERAL(" ")
+	if (TERM(integer16(HERE,&dt.year)) && LITERAL("-")
+		&& TERM(integer16(HERE,&dt.month)) && LITERAL("-")
+		&& TERM(integer16(HERE,&dt.day)) && LITERAL(" ")
+		&& TERM(integer16(HERE,&dt.hour)) && LITERAL(":")
+		&& TERM(integer16(HERE,&dt.minute)) && LITERAL(":")
+		&& TERM(integer16(HERE,&dt.second)) && LITERAL(" ")
 		&& TERM(name(HERE,dt.tz,sizeof(dt.tz))) && (LITERAL("'")||LITERAL("\"")))
 	{
 		dt.nanosecond = 0;
@@ -2751,7 +2751,7 @@ static int clock_block(PARSER)
 static int module_properties(PARSER, MODULE *mod)
 {
 	int64 val;
-	char classname[MAXCLASSNAMELEN+1];
+	CLASSNAME classname;
 	char256 propname;
 	char256 propvalue;
 	START;
@@ -2951,7 +2951,7 @@ static int property_specs(PARSER, KEYWORD **keys)
 		if WHITE ACCEPT;
 		if LITERAL(",") ACCEPT;
 		if WHITE ACCEPT;
-		if TERM(property_specs(HERE, &((*keys)->next))) {}
+		if TERM(property_specs(HERE, &((*keys)->next)));
 		ACCEPT;
 		strcpy((*keys)->name,keyname);
 		(*keys)->value = keyvalue;
@@ -3223,7 +3223,7 @@ static int class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, cha
 	int startline;
 	START;
 	if WHITE ACCEPT;
-	if (LITERAL("intrinsic") && WHITE && TERM(class_intrinsic_function_name(HERE,oclass,functions,&ftype,&fname)) && (WHITE,TERM(argument_list(HERE,arglist,sizeof(arglist)))) && (startline=linenum,(WHITE,TERM(source_code(HERE,source,sizeof(source))))) && (WHITE,LITERAL(";")))
+	if (LITERAL("intrinsic") && WHITE && TERM(class_intrinsic_function_name(HERE,oclass,functions,&ftype,&fname)) && (WHITE,TERM(argument_list(HERE,arglist,sizeof(arglist)))) && (startline=linenum,WHITE,TERM(source_code(HERE,source,sizeof(source)))) && (WHITE,LITERAL(";")))
 	{
 		if (oclass->module==NULL)
 		{
@@ -3258,7 +3258,7 @@ static int class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, 
 	if (LITERAL("export") 
 		&& (WHITE,TERM(name(HERE,fname,fsize)))
 		&& (WHITE,TERM(argument_list(HERE,arglist,asize))) 
-		&& (startline=linenum,(WHITE,TERM(source_code(HERE,code,csize)))) && (WHITE,LITERAL(";")))
+		&& (startline=linenum,WHITE,TERM(source_code(HERE,code,csize))) && (WHITE,LITERAL(";")))
 	{
 		if (oclass->module==NULL)
 		{
@@ -3371,13 +3371,9 @@ static int class_explicit_definition(PARSER, CLASS *oclass)
 
 static int class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *fname, int fsize)
 {
-	char classname[MAXCLASSNAMELEN+1];
+	CLASSNAME classname;
 	START;
-	if (LITERAL("function") 
-		&& WHITE 
-		&& TERM(name(HERE,classname,sizeof(classname))) 
-		&& LITERAL("::") 
-		&& TERM(name(HERE,fname,fsize)) && (WHITE,LITERAL(";")))
+	if (LITERAL("function") && WHITE && TERM(name(HERE,classname,sizeof(classname))) && LITERAL("::") && TERM(name(HERE,fname,fsize)) && WHITE,LITERAL(";"))
 	{
 		if (oclass->module==NULL)
 		{
@@ -3420,7 +3416,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 	char buffer[64];
 	CLASS *eclass;
 	PROPERTYTYPE type;
-	char propname[64];
+	PROPERTYNAME propname;
 	KEYWORD *keys = NULL;
 	UNIT *pUnit=NULL;
 	START;
@@ -3515,7 +3511,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 
 static int class_block(PARSER)
 {
-	char classname[MAXCLASSNAMELEN+1];
+	CLASSNAME classname;
 	CLASS *oclass;
 	int startline;
 	int64 functions = 0;
@@ -3787,7 +3783,7 @@ static int schedule_ref(PARSER, SCHEDULE **sch)
 static int property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *from)
 {
 	FULLNAME oname;
-	char pname[64];
+	PROPERTYNAME pname;
 	START;
 	if WHITE ACCEPT;
 	if (TERM(name(HERE,oname,sizeof(oname))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))))
@@ -3968,13 +3964,13 @@ static int linear_transform(PARSER, TRANSFORMSOURCE *xstype, void **source, doub
 	/* bias + schedule_name [* scale] */
 	if (TERM(functional(HERE,bias)) && (WHITE,LITERAL("+")) && (WHITE,TERM(transform_source(HERE,xstype, source,from))))
 	{
-		if ((WHITE,LITERAL("*")) && (WHITE,TERM(functional(HERE,scale)))) { ACCEPT; }
+		if (WHITE,LITERAL("*") && WHITE,TERM(functional(HERE,scale))) { ACCEPT; }
 		else { ACCEPT; *scale = 1;}
 		DONE;
 	}
 	OR
 	/* bias - schedule_name [* scale] */
-	if (TERM(functional(HERE,bias)) && (WHITE,LITERAL("-")) && (WHITE,TERM(transform_source(HERE,xstype, source,from))))
+	if (TERM(functional(HERE,bias)) && WHITE,LITERAL("-") && WHITE,TERM(transform_source(HERE,xstype, source,from)))
 	{
 		if ((WHITE,LITERAL("*")) && (WHITE,TERM(functional(HERE,scale)))) { ACCEPT; *scale *= -1; }
 		else { ACCEPT; *scale = 1;}
@@ -4001,7 +3997,7 @@ char *makecopy(char *s)
 static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
-	char propname[64];
+	PROPERTYNAME propname;
 	char1024 propval;
 	double dval;
 	complex cval;
@@ -4079,7 +4075,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				for ( target = object_get_first() ; target != NULL ; target = object_get_next(target) )
 				{
 					char value[1024];
-					if ( object_get_child_count(target)==0 && !object_get_value_by_name(target,targetprop,value,sizeof(value)) && strcmp(value,targetvalue)==0 )
+					if ( object_get_child_count(target)==0 && object_get_value_by_name(target,targetprop,value,sizeof(value))!=NULL && strcmp(value,targetvalue)==0 )
 					{
 						object_set_parent(obj,target);
 						break;
@@ -4103,7 +4099,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					output_error_raw("%s(%d): cannot inherit from an parent that hasn't been resolved yet or isn't specified", filename, linenum);
 					REJECT;
 				}
-				else if ( ! object_get_value_by_name(obj->parent,propname,value,sizeof(value)) )
+				else if ( object_get_value_by_name(obj->parent,propname,value,sizeof(value))==NULL )
 				{
 					output_error_raw("%s(%d): unable to get value of inherit property '%s'", filename, linenum, propname);
 					REJECT;
@@ -4509,7 +4505,7 @@ static int object_name_id(PARSER,char *classname, int64 *id)
 {
 	START;
 	if WHITE ACCEPT;
-	if TERM(dotted_name(HERE,classname,MAXCLASSNAMELEN))
+	if TERM(dotted_name(HERE,classname,sizeof(CLASSNAME)))
 	{
 		*id = -1; /* anonymous object */
 		if LITERAL(":")
@@ -4519,7 +4515,7 @@ static int object_name_id(PARSER,char *classname, int64 *id)
 		ACCEPT;
 		DONE;
 	}
-	else if TERM(name(HERE,classname,MAXCLASSNAMELEN))
+	else if TERM(name(HERE,classname,sizeof(CLASSNAME)))
 	{
 		*id = -1; /* anonymous object */
 		if LITERAL(":")
@@ -4537,8 +4533,8 @@ static int object_name_id_range(PARSER,char *classname, int64 *from, int64 *to)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(dotted_name(HERE,classname,MAXCLASSNAMELEN)) && LITERAL(":") && TERM(integer(HERE,from)) && LITERAL("..")) ACCEPT
-	else if (TERM(name(HERE,classname,MAXCLASSNAMELEN)) && LITERAL(":") && TERM(integer(HERE,from)) && LITERAL("..")) ACCEPT
+	if (TERM(dotted_name(HERE,classname,sizeof(CLASSNAME))) && LITERAL(":") && TERM(integer(HERE,from)) && LITERAL("..")) ACCEPT
+	else if (TERM(name(HERE,classname,sizeof(CLASSNAME))) && LITERAL(":") && TERM(integer(HERE,from)) && LITERAL("..")) ACCEPT
 	else REJECT;
 	if (TERM(integer(HERE,to))) ACCEPT else
 	{
@@ -4552,8 +4548,8 @@ static int object_name_id_count(PARSER,char *classname, int64 *count)
 {
 	START;
 	if WHITE ACCEPT;
-	if (TERM(dotted_name(HERE,classname,MAXCLASSNAMELEN)) && LITERAL(":") && LITERAL("..")) ACCEPT
-	else if (TERM(name(HERE,classname,MAXCLASSNAMELEN)) && LITERAL(":") && LITERAL("..")) ACCEPT
+	if (TERM(dotted_name(HERE,classname,sizeof(CLASSNAME))) && LITERAL(":") && LITERAL("..")) ACCEPT
+	else if (TERM(name(HERE,classname,sizeof(CLASSNAME))) && LITERAL(":") && LITERAL("..")) ACCEPT
 	else REJECT;
 	if (TERM(integer(HERE,count))) ACCEPT else
 	{
@@ -4570,7 +4566,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 	static OBJECT nameobj;
 #endif
 	FULLNAME space;
-	char classname[MAXCLASSNAMELEN+1];
+	CLASSNAME classname;
 	CLASS *oclass;
 	OBJECT *obj=NULL;
 	int64 id=-1, id2=-1;
@@ -4808,7 +4804,7 @@ static int export(PARSER)
 						output_error_raw("%s(%d): module %s not loaded", filename, linenum, modname);
 						REJECT;
 					}
-					if ( !load_resolve_all() )
+					if ( !load_resolve_all(first_unresolved) )
 						output_error_raw("%s(%d): module export encountered before all object names were resolved", filename, linenum, modname);
 					result = module_export(module,fname);
 					if (result < 0)
@@ -4904,7 +4900,7 @@ static int schedule(PARSER)
 	char schedname[64];
 	START;
 	if WHITE ACCEPT;
-	if (LITERAL("schedule") && WHITE && TERM(name(HERE,schedname,sizeof(schedname))) && (WHITE,LITERAL("{")))
+	if (LITERAL("schedule") && WHITE && TERM(name(HERE,schedname,sizeof(schedname))) && WHITE,LITERAL("{"))
 	{
 		char buffer[65536], *p=buffer;
 		int nest=0;
@@ -4946,7 +4942,7 @@ static int linkage_term(PARSER,instance *inst)
 	START;
 	if WHITE ACCEPT;
 	if ( TERM(name(HERE,fromobj,sizeof(fromobj))) && LITERAL(":") && TERM(name(HERE,fromvar,sizeof(fromvar))) 
-		&& (WHITE,LITERAL("->")) && (WHITE,TERM(name(HERE,toobj,sizeof(toobj)))) && LITERAL(":") && TERM(name(HERE,tovar,sizeof(tovar)))
+		&& WHITE,LITERAL("->") && WHITE,TERM(name(HERE,toobj,sizeof(toobj))) && LITERAL(":") && TERM(name(HERE,tovar,sizeof(tovar)))
 		&& LITERAL(";"))
 	{
 		if ( linkage_create_writer(inst,fromobj,fromvar,toobj,tovar) ) ACCEPT 
@@ -4957,7 +4953,7 @@ static int linkage_term(PARSER,instance *inst)
 		DONE;
 	}
 	OR if ( TERM(name(HERE,toobj,sizeof(toobj))) && LITERAL(":") && TERM(name(HERE,tovar,sizeof(tovar))) 
-		&& (WHITE,LITERAL("<-")) && (WHITE,TERM(name(HERE,fromobj,sizeof(fromobj)))) && LITERAL(":") && TERM(name(HERE,fromvar,sizeof(fromvar)))
+		&& WHITE,LITERAL("<-") && WHITE,TERM(name(HERE,fromobj,sizeof(fromobj))) && LITERAL(":") && TERM(name(HERE,fromvar,sizeof(fromvar)))
 		&& LITERAL(";"))
 	{
 		if ( linkage_create_reader(inst,fromobj,fromvar,toobj,tovar) ) ACCEPT 
@@ -4967,27 +4963,27 @@ static int linkage_term(PARSER,instance *inst)
 		}
 		DONE;
 	}
-	OR if ( LITERAL("model") && WHITE && TERM(value(HERE,inst->model,sizeof(inst->model))) && (WHITE,LITERAL(";")))
+	OR if ( LITERAL("model") && WHITE && TERM(value(HERE,inst->model,sizeof(inst->model))) && WHITE,LITERAL(";"))
 	{
 		ACCEPT;
 		DONE;
 	}
-	OR if ( LITERAL("cacheid") && WHITE && TERM(integer(HERE,(long long*)&(inst->cacheid))) && (WHITE,LITERAL(";")))
+	OR if ( LITERAL("cacheid") && WHITE && TERM(integer(HERE,&(inst->cacheid))) && WHITE,LITERAL(";"))
 	{
 		ACCEPT;
 		DONE;
 	}
-	OR if ( LITERAL("mode") && WHITE && TERM(value(HERE,inst->cnxtypestr,sizeof(inst->cnxtypestr))) && (WHITE, LITERAL(";")))
+	OR if ( LITERAL("mode") && WHITE && TERM(value(HERE,inst->cnxtypestr,sizeof(inst->cnxtypestr))) && WHITE, LITERAL(";"))
 	{
 		ACCEPT;
 		DONE;
 	}
-	OR if ( LITERAL("execdir") && WHITE && TERM(value(HERE,inst->execdir,sizeof(inst->execdir))) && (WHITE, LITERAL(";")))
+	OR if ( LITERAL("execdir") && WHITE && TERM(value(HERE,inst->execdir,sizeof(inst->execdir))) && WHITE, LITERAL(";"))
 	{
 		ACCEPT;
 		DONE;
 	}
-	OR if ( LITERAL("return_port") && WHITE && TERM(integer16(HERE,(short*)&(inst->return_port))) && (WHITE, LITERAL(";")))
+	OR if ( LITERAL("return_port") && WHITE && TERM(integer16(HERE,&(inst->return_port))) && WHITE, LITERAL(";"))
 	{
 		IN_MYCONTEXT output_debug("linkage_term(): return_port = %d", inst->return_port);
 		ACCEPT;
@@ -5011,7 +5007,7 @@ static int instance_block(PARSER)
 	char instance_host[256];
 	START;
 	if WHITE ACCEPT;
-	if ( LITERAL("instance") && WHITE && TERM(hostname(HERE,instance_host,sizeof(instance_host))) && (WHITE,LITERAL("{")))
+	if ( LITERAL("instance") && WHITE && TERM(hostname(HERE,instance_host,sizeof(instance_host))) && WHITE,LITERAL("{"))
 	{
 		instance *inst = instance_create(instance_host);
 		if ( !inst ) 
@@ -5022,7 +5018,7 @@ static int instance_block(PARSER)
 		}
 		ACCEPT;
 		while ( TERM(linkage_term(HERE,inst)) ) ACCEPT;
-		if ( (WHITE,LITERAL("}")) ) { ACCEPT; DONE }
+		if ( WHITE,LITERAL("}") ) { ACCEPT; DONE }
 		else REJECT;
 	}
 	else
@@ -5053,7 +5049,7 @@ static int gui_link_globalvar(PARSER, GLOBALVAR **var)
 {
 	char varname[64];
 	START;
-	if (LITERAL("link") && (WHITE,LITERAL(":")) && name(HERE,varname,sizeof(varname)))
+	if (LITERAL("link") && WHITE,LITERAL(":") && name(HERE,varname,sizeof(varname)))
 	{
 		*var = global_find(varname);
 		ACCEPT;
@@ -5108,7 +5104,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	{
 		ACCEPT;
 		if WHITE ACCEPT;
-		if (TERM(name(HERE,objname,sizeof(objname))) && LITERAL(":") && TERM(name(HERE,propname,sizeof(propname))) && (WHITE,LITERAL(";")))
+		if (TERM(name(HERE,objname,sizeof(objname))) && LITERAL(":") && TERM(name(HERE,propname,sizeof(propname))) && WHITE,LITERAL(";"))
 		{
 			gui_set_objectname(entity,objname);
 			gui_set_propertyname(entity,propname);
@@ -5125,7 +5121,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	{ 
 		ACCEPT;
 		if WHITE ACCEPT;
-		if (TERM(value(HERE,buffer,sizeof(buffer))) && (WHITE,LITERAL(";")))
+		if (TERM(value(HERE,buffer,sizeof(buffer))) && WHITE,LITERAL(";"))
 		{
 			gui_set_value(entity,buffer);
 			ACCEPT; 
@@ -5141,7 +5137,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	{ 
 		ACCEPT;
 		if WHITE ACCEPT;
-		if (TERM(value(HERE,buffer,sizeof(buffer))) && (WHITE,LITERAL(";")))
+		if (TERM(value(HERE,buffer,sizeof(buffer))) && WHITE,LITERAL(";"))
 		{
 			gui_set_source(entity,buffer);
 			ACCEPT; 
@@ -5157,7 +5153,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	{ 
 		ACCEPT;
 		if WHITE ACCEPT;
-		if (TERM(value(HERE,buffer,sizeof(buffer))) && (WHITE,LITERAL(";")))
+		if (TERM(value(HERE,buffer,sizeof(buffer))) && WHITE,LITERAL(";"))
 		{
 			gui_set_options(entity,buffer);
 			ACCEPT; 
@@ -5172,7 +5168,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	{ 
 		ACCEPT;
 		if WHITE ACCEPT;
-		if (TERM(value(HERE,buffer,sizeof(buffer))) && (WHITE,LITERAL(";")))
+		if (TERM(value(HERE,buffer,sizeof(buffer))) && WHITE,LITERAL(";"))
 		{
 			gui_set_unit(entity,buffer);
 			if (gui_get_unit(entity))
@@ -5198,7 +5194,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	{ 
 		ACCEPT;
 		if WHITE ACCEPT;
-		if (TERM(integer32(HERE,&entity->size)) && (WHITE,LITERAL(";")))
+		if (TERM(integer32(HERE,&entity->size)) && WHITE,LITERAL(";"))
 		{
 			ACCEPT; 
 			DONE;
@@ -5215,7 +5211,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	{ 
 		ACCEPT;
 		if WHITE ACCEPT;
-		if (TERM(integer32(HERE,&entity->height)) && (WHITE,LITERAL(";")))
+		if (TERM(integer32(HERE,&entity->height)) && WHITE,LITERAL(";"))
 		{
 			ACCEPT; 
 			DONE;
@@ -5232,7 +5228,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	{ 
 		ACCEPT;
 		if WHITE ACCEPT;
-		if (TERM(integer32(HERE,&entity->width)) && (WHITE,LITERAL(";")))
+		if (TERM(integer32(HERE,&entity->width)) && WHITE,LITERAL(";"))
 		{
 			ACCEPT; 
 			DONE;
@@ -5245,7 +5241,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 		ACCEPT;  
 		DONE;
 	}
-	OR if ( LITERAL("gnuplot") && (WHITE,LITERAL("{")) )
+	OR if ( LITERAL("gnuplot") && WHITE,LITERAL("{") )
 	{
 		ACCEPT;
 		if ( TERM(gnuplot(HERE,entity)) )
@@ -5268,12 +5264,12 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 			REJECT;
 		}
 	}
-	OR if ( LITERAL("wait") && (WHITE,TERM(value(HERE,entity->wait_for,sizeof(entity->wait_for)))) && (WHITE,LITERAL(";"))  )
+	OR if ( LITERAL("wait") && WHITE,TERM(value(HERE,entity->wait_for,sizeof(entity->wait_for))) && WHITE,LITERAL(";")  )
 	{
 		ACCEPT;
 		DONE;
 	}
-	OR if ( LITERAL("hold") && (WHITE,LITERAL(";")) )
+	OR if ( LITERAL("hold") && WHITE,LITERAL(";") )
 	{
 		ACCEPT;
 		entity->hold = 1;
@@ -5294,7 +5290,7 @@ static int gui_entity_action(PARSER, GUIENTITY *parent)
 		entity->parent = parent;
 		ACCEPT;
 		if WHITE ACCEPT;
-		if (TERM(value(HERE,entity->action,sizeof(entity->action))) && (WHITE,LITERAL(";")))
+		if (TERM(value(HERE,entity->action,sizeof(entity->action))) && WHITE,LITERAL(";"))
 		{
 			ACCEPT;
 			DONE;
@@ -5376,7 +5372,7 @@ static int gui(PARSER)
 {
 	START;
 	if WHITE ACCEPT;
-	if (LITERAL("gui") && (WHITE,LITERAL("{")))
+	if (LITERAL("gui") && WHITE,LITERAL("{"))
 	{
 		while TERM(gui_entity(HERE,NULL)) ACCEPT;
 		if (WHITE,LITERAL("}")) 
@@ -5417,7 +5413,7 @@ static int C_code_block(PARSER, char *buffer, int size)
 		}
 		*d++ = *_p;
 		if (skip) _n++,*d++=*++_p;
-	} while ( *++_p!='\0' && _n++<size && n_curly>=0 );
+	} while ( *++_p!='\0', _n++<size, n_curly>=0 );
 	*--d='\0'; _n--; // don't include the last curly
 //	IN_MYCONTEXT output_debug("*** Begin external 'C' code ***\n%s\n *** End external 'C' code ***\n", buffer);
 	DONE;
@@ -5428,7 +5424,7 @@ static int filter_name(PARSER, char *result, int size)
 	START;
 	/* names cannot start with a digit */
 	if (isdigit(*_p)) return 0;
-	while ((size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_') COPY(result);
+	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -5474,7 +5470,7 @@ static int filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 	memset(x,0,sizeof(x));
 	if ( WHITE,(first||LITERAL("+")||(LITERAL("-")&&(sign=-1,true)))
 		&& (WHITE,TERM(real_value(HERE,&coeff))||(coeff=1,true))
-		&& ((WHITE,LITERAL(domain)&&(power=1,true) && (LITERAL("^") && TERM(integer(HERE,&power))))||true) )
+		&& (WHITE,LITERAL(domain)&&(power=1,true) && (LITERAL("^") && TERM(integer(HERE,&power)))||true) )
 	{
 		first = 0;
 		if ( power > 63 )
@@ -5522,7 +5518,7 @@ static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 			int64 power = 0;
 			if ( WHITE,(first||LITERAL("+")||(LITERAL("-")&&(sign=-1,true)))
 				&& (WHITE,TERM(real_value(HERE,&coeff))||(coeff=1,true))
-				&& ((WHITE,LITERAL(domain)&&(power=1,true) && (LITERAL("^") && TERM(integer(HERE,&power))))||true) )
+				&& (WHITE,LITERAL(domain)&&(power=1,true) && (LITERAL("^") && TERM(integer(HERE,&power)))||true) )
 			{
 				first = 0;
 				if ( power > 63 )
@@ -5632,11 +5628,11 @@ static int extern_block(PARSER)
 
 	START;
 	if WHITE ACCEPT;
-	if ( LITERAL("extern") && (WHITE,LITERAL("\"C\"") ))
+	if ( LITERAL("extern") && WHITE,LITERAL("\"C\"") )
 	{
 		int startline=0;
 		if WHITE ACCEPT;
-		if ( TERM(name(HERE,libname,sizeof(libname))) && (WHITE,LITERAL(":")) && (WHITE,TERM(namelist(HERE,fnclist,sizeof(fnclist)))) )
+		if ( TERM(name(HERE,libname,sizeof(libname))) && WHITE,LITERAL(":") && WHITE,TERM(namelist(HERE,fnclist,sizeof(fnclist))) )
 		{
 			ACCEPT;
 		}
@@ -5762,7 +5758,7 @@ static int script_directive(PARSER)
 		char command[1024];
 		if WHITE { ACCEPT; }
 		if ( LITERAL("on_create") )
-		{	if ( WHITE,TERM(value(HERE,command,sizeof(command))) && (WHITE,LITERAL(";")) )
+		{	if ( WHITE,TERM(value(HERE,command,sizeof(command))) && WHITE,LITERAL(";") )
 			{
 				if ( exec_add_createscript(command)==0 )
 				{
@@ -5779,7 +5775,7 @@ static int script_directive(PARSER)
 		}
 		if ( LITERAL("on_init") )
 		{	
-			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && (WHITE,LITERAL(";")) )
+			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && WHITE,LITERAL(";") )
 			{
 				if ( exec_add_initscript(command)==0 )
 				{
@@ -5796,7 +5792,7 @@ static int script_directive(PARSER)
 		}
 		if ( LITERAL("on_sync") )
 		{	
-			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && (WHITE,LITERAL(";")) )
+			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && WHITE,LITERAL(";") )
 			{
 				if ( exec_add_syncscript(command)==0 )
 				{
@@ -5813,7 +5809,7 @@ static int script_directive(PARSER)
 		}
 		if ( LITERAL("on_precommit") )
 		{
-			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && (WHITE,LITERAL(";")) )
+			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && WHITE,LITERAL(";") )
 			{
 				if ( exec_add_precommitscript(command)==0 )
 				{
@@ -5830,7 +5826,7 @@ static int script_directive(PARSER)
 		}
 		if ( LITERAL("on_commit") )
 		{
-			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && (WHITE,LITERAL(";")) )
+			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && WHITE,LITERAL(";") )
 			{
 				if ( exec_add_commitscript(command)==0 )
 				{
@@ -5847,7 +5843,7 @@ static int script_directive(PARSER)
 		}
 		if ( LITERAL("on_term") )
 		{
-			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && (WHITE,LITERAL(";")) )
+			if ( WHITE,TERM(value(HERE,command,sizeof(command))) && WHITE,LITERAL(";") )
 			{
 				if ( exec_add_termscript(command)==0 )
 				{
@@ -5864,7 +5860,7 @@ static int script_directive(PARSER)
 		}
 		if ( LITERAL("export") )
 		{
-			if ( WHITE,TERM(name(HERE,command,sizeof(command))) && (WHITE,LITERAL(";")) )
+			if ( WHITE,TERM(name(HERE,command,sizeof(command))) && WHITE,LITERAL(";") )
 			{
 				if ( exec_add_scriptexport(command)==0 )
 				{
@@ -5879,7 +5875,7 @@ static int script_directive(PARSER)
 			else
 				REJECT;
 		}
-		if ( TERM(value(HERE,command,sizeof(command))) && (WHITE,LITERAL(";")) )
+		if ( TERM(value(HERE,command,sizeof(command))) && WHITE,LITERAL(";") )
 		{
 			int rc;
 			IN_MYCONTEXT output_verbose("running command [%s]", command);
@@ -5910,9 +5906,9 @@ static int dump_directive(PARSER)
 	{
 		TIMESTAMP interval;
 		char dumpfile[1024];
-		if ( (WHITE,TERM(integer(HERE,&interval)) )
-			&& (WHITE,TERM(value(HERE,dumpfile,sizeof(dumpfile))) )
-			&& (WHITE,LITERAL(";")) )
+		if ( WHITE,TERM(integer(HERE,&interval)) 
+			&& WHITE,TERM(value(HERE,dumpfile,sizeof(dumpfile))) 
+			&& WHITE,LITERAL(";") )
 		{
 			if ( exec_schedule_dump(interval,dumpfile)==0 )
 			{
@@ -6007,7 +6003,7 @@ int replace_variables(char *to,char *from,int len,int warn)
 		if (sscanf(p+2,"%1024[^}]",varname)==1)
 		{
 			char *env = getenv(varname);
-			const char *var;
+			char *var;
 			int m = (int)(p-e);
 			strncpy(to+n,e,m);
 			n += m;
@@ -6311,7 +6307,7 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 	else
 	{
 		IN_MYCONTEXT output_verbose("include_file(char *incname='%s', char *buffer=0x%p, int size=%d): search of GLPATH='%s' result is '%s'",
-			incname, buffer, size, getenv("GLPATH") ? getenv("GLPATH") : "NULL", ff);
+			incname, buffer, size, getenv("GLPATH") ? getenv("GLPATH") : "NULL", ff ? ff : "NULL");
 	}
 
 	old_linenum = linenum;
@@ -6602,8 +6598,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if (strncmp(line,MACRO "if",3)==0)
 	{
-		char var[32], op[4];
-		const char *value;
+		char var[32], op[4], *value;
 		char val[1024], junk[1024]="";
 		if ( ( sscanf(line+4,"%31[a-zA-Z0-9_:.] %3[!<>=] \"%1023[^\"]\" %1023[^\n]\n",var,op,val,junk) < 3
 				&& sscanf(line+4,"%31[a-zA-Z0-9_:.] %3[!<>=] '%1023[^']' %1023[^\n]\n",var,op,val,junk) < 3

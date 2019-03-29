@@ -35,9 +35,9 @@
 #include "timestamp.h"
 #include "load.h"
 #include "find.h"
-#include "json.h"
+
 #include "legal.h"
-#include "kml.h"
+
 #include "gui.h"
 
 SET_MYCONTEXT(DMC_SERVER)
@@ -137,7 +137,7 @@ static void *server_routine(void *arg)
 		int clilen = sizeof(cli_addr);
 
 		/* accept client request and get client address */
-		newsockfd = accept(sockfd,(struct sockaddr *)&cli_addr,(socklen_t*)&clilen);
+		newsockfd = accept(sockfd,(struct sockaddr *)&cli_addr,&clilen);
 		if ((int)newsockfd<0 && errno!=EINTR)
 		{
 			status = GetLastError();
@@ -156,7 +156,7 @@ static void *server_routine(void *arg)
 			IN_MYCONTEXT output_verbose("accepting connection from %s on port %d",saddr, cli_addr.sin_port);
 			if ( active )
 				pthread_join(thread_id,&result);
-			if ( pthread_create(&thread_id,NULL, http_response,(void*)(int64)newsockfd)!=0 )
+			if ( pthread_create(&thread_id,NULL, http_response,(void*)newsockfd)!=0 )
 				output_error("unable to start http response thread");
 			if (global_server_quit_on_close)
 				shutdown_now();
@@ -264,7 +264,7 @@ Retry:
 	}
 
 	/* start the new thread */
-	if (pthread_create(&thread,NULL,server_routine,(void*)(int64)sockfd))
+	if (pthread_create(&thread,NULL,server_routine,(void*)sockfd))
 	{
 		output_error("server thread startup failed: %s",strerror(GetLastError()));
 		return FAILED;
@@ -368,8 +368,6 @@ static void http_reset(HTTPCNX *http)
 #define HTTP_GATEWAYTIMEOUT "504 Gateway Time-out"
 #define HTTP_VERSIONNOTSUPPORTED "505 HTTPCNX Version not supported"
 
-int http_copy(HTTPCNX *http, char *context, char *source, int cook, size_t pos);
-
 /** Set the HTTPCNX response status code **/
 static void http_status(HTTPCNX *http, char *status)
 {
@@ -387,7 +385,7 @@ static void http_send(HTTPCNX *http)
 	int len=0;
 	len += sprintf(header+len, "HTTP/1.1 %s", http->status?http->status:HTTP_INTERNALSERVERERROR);
 	IN_MYCONTEXT output_verbose("%s (len=%d, mime=%s)",header,http->len,http->type?http->type:"none");
-	len += sprintf(header+len, "\nContent-Length: %zu\n", http->len);
+	len += sprintf(header+len, "\nContent-Length: %d\n", http->len);
 	if (http->type && http->type[0]!='\0')
 		len += sprintf(header+len, "Content-Type: %s\n", http->type);
 	len += sprintf(header+len, "Cache-Control: no-cache\n");
@@ -956,10 +954,7 @@ int http_json_request(HTTPCNX *http,char *uri)
 	char *id;
 
 	/* value */
-	if (value) 
-	{
-		value++;
-	}
+	if (value) *value++;
 
 	/* decode %.. */
 	http_decode(arg1);
@@ -976,7 +971,7 @@ int http_json_request(HTTPCNX *http,char *uri)
 		{
 			char action[1024];
 			strcpy(action,global_modelname);
-			char *ext = strstr(action,".glm");
+			char *ext = strchr(action,".glm");
 			if ( ext ) 
 				strcpy(ext,".json");
 			else
@@ -1219,7 +1214,7 @@ int http_read_request(HTTPCNX *http, char *uri)
  **/
 int http_gui_request(HTTPCNX *http,char *uri)
 {
-	gui_set_html_stream((void*)http,(GUISTREAMFN)http_format);
+	gui_set_html_stream((void*)http,http_format);
 	if (gui_html_output_page(uri)>=0)
 	{
 		http_type(http,"text/html");
@@ -1728,7 +1723,7 @@ int http_get_rt(HTTPCNX *http,char *uri)
 	char fullpath[1024];
 	char filename[1024];
 	size_t pos = 0;
-	if ( sscanf(uri,"%1023[^:]:%zu",filename,&pos)==0 )
+	if ( sscanf(uri,"%1023[^:]:%d",filename,&pos)==0 )
 		strncpy(filename,uri,sizeof(filename)-1);
 	if (!find_file(filename,NULL,R_OK,fullpath,sizeof(fullpath)))
 	{
@@ -1777,7 +1772,7 @@ int http_kml_request(HTTPCNX *http, char *action)
 			http_status(http,HTTP_NOTACCEPTABLE);
 			return 0;
 		}
-		p = strchr(propname,'=');
+		p = strchr(propname,"=");
 		object_get_value_by_name(obj,propname,buffer,sizeof(buffer));
 		if ( p!=NULL )
 		{	// set the value

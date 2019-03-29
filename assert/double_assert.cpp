@@ -49,7 +49,9 @@ double_assert::double_assert(MODULE *module)
 			PT_double, "within", get_within_offset(),PT_DESCRIPTION,"Tolerance for a successful assert",
 			PT_char1024, "target", get_target_offset(),PT_DESCRIPTION,"Property to perform the assert upon",
 			NULL)<1){
-				throw "unable to publish properties in "__FILE__;
+				char msg[256];
+				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				throw msg;
 		}
 
 		defaults = this;
@@ -72,8 +74,9 @@ int double_assert::create(void)
 
 int double_assert::init(OBJECT *parent)
 {
+	char *msg = "A non-positive value has been specified for within.";
 	if (within <= 0.0)
-		throw "A non-positive value has been specified for within.";
+		throw msg;
 		/*  TROUBLESHOOT
 		Within is the range in which the check is being performed.  Please check to see that you have
 		specified a value for "within" and it is positive.
@@ -264,7 +267,7 @@ EXPORT SIMULATIONMODE update_double_assert(OBJECT *obj, TIMESTAMP t0, unsigned i
 					else if ( strcmp(dateformat,"EURO")==0)
 						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else
-						sprintf(datebuff,"ERROR    %.09f : ",del_clock);
+						sprintf(datebuff,"ERROR    .09f : ",del_clock);
 
 					//Actual error part
 					sprintf(error_output_buff,"Assert failed on %s - %s (%g) not within %f of given value %g",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_within(), da->get_value());
@@ -305,7 +308,7 @@ EXPORT SIMULATIONMODE update_double_assert(OBJECT *obj, TIMESTAMP t0, unsigned i
 					else if ( strcmp(dateformat,"EURO")==0)
 						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else
-						sprintf(datebuff,"ERROR    %.09f : ",del_clock);
+						sprintf(datebuff,"ERROR    .09f : ",del_clock);
 
 					//Actual error part
 					sprintf(error_output_buff,"Assert failed on %s - %s (%g) not within %f of given value %g",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_within(), da->get_value());

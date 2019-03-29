@@ -36,32 +36,29 @@ extern GldMain *my_instance;
    have a native (often better) implementation of atomic operations.
  **************************************************************************************/
 #if defined(__APPLE__)
-	//#include <libkern/OSAtomic.h>
-	#include <atomic>
-	//#define atomic_compare_and_swap(thevalue, oldvalue, newvalue) OSAtomicCompareAndSwap32Barrier(oldvalue, newvalue, (volatile int32_t *) thevalue)
-	#define atomic_compare_and_swap(thevalue, oldvalue, newvalue) std::atomic_compare_exchange_strong((std::atomic<int32_t>*)thevalue,(int32_t*)&oldvalue,(int32_t)newvalue)
-	//#define atomic_increment(ptr) OSAtomicIncrement32Barrier((volatile int32_t *) ptr)
-	#define atomic_increment(ptr) std::atomic_fetch_add((std::atomic<int32_t>*)ptr,1)
+	#include <libkern/OSAtomic.h>
+	#define atomic_compare_and_swap(dest, comp, xchg) OSAtomicCompareAndSwap32Barrier(comp, xchg, (volatile int32_t *) dest)
+	#define atomic_increment(ptr) OSAtomicIncrement32Barrier((volatile int32_t *) ptr)
 #elif defined(WIN32) && !defined __MINGW32__
 	#include <intrin.h>
 	#pragma intrinsic(_InterlockedCompareExchange)
 	#pragma intrinsic(_InterlockedIncrement)
-	#define atomic_compare_and_swap(dest, comp, xchg) (_InterlockedCompareExchange((volatile LOCKVAR *) dest, xchg, comp) == comp)
-	#define atomic_increment(ptr) _InterlockedIncrement((volatile LOCKVAR *) ptr)
+	#define atomic_compare_and_swap(dest, comp, xchg) (_InterlockedCompareExchange((volatile long *) dest, xchg, comp) == comp)
+	#define atomic_increment(ptr) _InterlockedIncrement((volatile long *) ptr)
 	#ifndef inline
 		#define inline __inline
 	#endif
 #elif defined HAVE___SYNC_BOOL_COMPARE_AND_SWAP
 	#define atomic_compare_and_swap __sync_bool_compare_and_swap
 	#ifdef HAVE___SYNC_ADD_AND_FETCH
-		#define atomic_increment(ptr) __sync_add_and_fetch((volatile LOCKVAR *)ptr, 1)
+		#define atomic_increment(ptr) __sync_add_and_fetch((volatile long *)ptr, 1)
 	#else
-		static inline LOCKVAR atomic_increment(LOCKVAR *ptr)
+		static inline unsigned int atomic_increment(unsigned int *ptr)
 		{
 			unsigned int value;
 			do {
-				value = *(volatile LOCKVAR *)ptr;
-			} while (!__sync_bool_compare_and_swap((volatile LOCKVAR*)ptr, value, value + 1));
+				value = *(volatile long *)ptr;
+			} while (!__sync_bool_compare_and_swap((volatile long*)ptr, value, value + 1));
 			return value;
 		}
 	#endif
@@ -81,7 +78,7 @@ typedef struct s_locklist {
 LOCKLIST *locklist = NULL;
 /** Register a lock trave
  **/
-void register_lock(const char *name, LOCKVAR *lock)
+void register_lock(const char *name, unsigned int *lock)
 {
 	LOCKLIST *item = (LOCKLIST*)malloc(sizeof(LOCKLIST));
 	item->name = name;
@@ -94,7 +91,7 @@ void register_lock(const char *name, LOCKVAR *lock)
 }
 /** Check a lock trace
  **/
-void check_lock(LOCKVAR *lock, bool write, bool unlock)
+void check_lock(unsigned int *lock, bool write, bool unlock)
 {
 	LOCKLIST *item;
 
@@ -138,7 +135,7 @@ void check_lock(LOCKVAR *lock, bool write, bool unlock)
 }
 #else
 #define check_lock(X,Y,Z)
-void register_lock(LOCKVAR *lock)
+void register_lock(unsigned int *lock)
 {
 	// do nothing
 }
@@ -158,10 +155,10 @@ void register_lock(LOCKVAR *lock)
  */
 /** Read lock
  **/
-extern "C" void rlock(LOCKVAR *lock)
+extern "C" void rlock(unsigned int *lock)
 {
-	LOCKVAR timeout = MAXSPIN;
-	LOCKVAR value;
+	unsigned int timeout = MAXSPIN;
+	unsigned int value;
 	check_lock(lock,false,false);
 	atomic_increment(&my_instance->exec.rlock_count);
 	do {
@@ -173,10 +170,10 @@ extern "C" void rlock(LOCKVAR *lock)
 }
 /** Write lock 
  **/
-extern "C" void wlock(LOCKVAR *lock)
+extern "C" void wlock(unsigned int *lock)
 {
-	LOCKVAR timeout = MAXSPIN;
-	LOCKVAR value;	check_lock(lock,true,false);
+	unsigned int timeout = MAXSPIN;
+	unsigned int value;	check_lock(lock,true,false);
 	atomic_increment(&my_instance->exec.wlock_count);
 	do {
 		value = (*lock);
@@ -187,17 +184,17 @@ extern "C" void wlock(LOCKVAR *lock)
 }
 /** Read unlock
  **/
-extern "C" void runlock(LOCKVAR *lock)
+extern "C" void runlock(unsigned int *lock)
 {
-	LOCKVAR value = *lock;
+	unsigned int value = *lock;
 	check_lock(lock,false,true);
 	atomic_increment(lock);
 }
 /** Write unlock
  **/
-extern "C" void wunlock(LOCKVAR *lock)
+extern "C" void wunlock(unsigned int *lock)
 {
-	LOCKVAR value = *lock;
+	unsigned int value = *lock;
 	check_lock(lock,true,true);
 	atomic_increment(lock);
 }

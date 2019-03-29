@@ -18,12 +18,13 @@ private:
 	double *pTout;
 public:
 	
-	typedef enum e_refrigerator_state {	
+	typedef enum e_state {	
 			RS_DEFROST=1,			
 			RS_COMPRESSSOR_OFF_NORMAL=2,		
 			RS_COMPRESSSOR_ON_NORMAL=3,		
 			RS_COMPRESSSOR_ON_LONG=4,
 	} REFRIGERATOR_STATE;	
+
 
 public:
 	double size;  ///< refrigerator volume (cf) 
@@ -105,20 +106,19 @@ public:
 	
 	double Tevent;	///< Temperature we will switch the motor on or off.  Available for SmartGrid PLC code to nudge.
 
-	typedef enum e_refrigerator_mode {
-		DM_UNKNOWN=0,						///< mode is unknown
-		DM_LOW=1,							///< low signal
-		DM_NORMAL=2,						///< normal signal
-		DM_HIGH=3,							///< high demand response signal
-		DM_CRITICAL=4,						///< critical demand response signal 
-	} REFRIGERATORMODE;
+	typedef enum {  DM_UNKNOWN=0,						///< mode is unknown
+			DM_LOW=1,							///< low signal
+			DM_NORMAL=2,						///< normal signal
+			DM_HIGH=3,							///< high demand response signal
+			DM_CRITICAL=4,						///< critical demand response signal 
+	};
 	enumeration dr_mode;
 
-	typedef enum e_defrost_criterion {  
-		DC_TIMED=1,						///< For the timed option
-		DC_DOOR_OPENINGS=2,				///< For the door openings option
-		DC_COMPRESSOR_TIME=3,				///< For the compressor time option		
-	} DEFROSTCRITERION;
+	typedef enum {  
+			DC_TIMED=1,						///< For the timed option
+			DC_DOOR_OPENINGS=2,				///< For the door openings option
+			DC_COMPRESSOR_TIME=3,				///< For the compressor time option		
+	};
 	enumeration defrost_criterion;
 
 	double dr_mode_double; ///temporary variable for testing

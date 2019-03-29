@@ -124,7 +124,7 @@ int saveglm(char *filename,FILE *fp)
 		getenv("HOSTNAME")
 #endif
 		);
-	count += fprintf(fp,"// modules.... %zu\n", module_getcount());
+	count += fprintf(fp,"// modules.... %d\n", module_getcount());
 	count += fprintf(fp,"// classes.... %d\n", class_get_count());
 	count += fprintf(fp,"// objects.... %d\n", object_get_count());
 	if ( global_getvar("glm_save_options",buffer,sizeof(buffer)-1) )

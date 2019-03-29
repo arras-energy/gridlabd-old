@@ -88,14 +88,14 @@ public:
 	int create(void);
 	int init(OBJECT *parent);
 
-	void iterative_IV(complex VA, const char* phase_designation);
+	void iterative_IV(complex VA, char* phase_designation);
 
 	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
 
-	complex *get_complex(OBJECT *obj, const char *name);
-	double *get_double(OBJECT *obj, const char *name);
+	complex *get_complex(OBJECT *obj, char *name);
+	double *get_double(OBJECT *obj, char *name);
 public:
 	static CLASS *oclass;
 	static rectifier *defaults;

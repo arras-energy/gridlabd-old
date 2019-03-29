@@ -54,7 +54,7 @@
 #include <errno.h>
 #include <math.h>
 
-#include "house_e.h"
+#include "house_a.h"
 #include "refrigerator.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -241,10 +241,7 @@ int refrigerator::init(OBJECT *parent)
 	long_compressor_cycle_due=false;
 	door_energy_calc = false;
 
-	ice_making_time = new double[3]; 
-	ice_making_time[0] = 1.0;
-	ice_making_time[1] = 2.0;
-	ice_making_time[3] = 3.0;
+	ice_making_time = new double[1,2,3]; 
 
 	icemaker_running = false;
 	check_defrost = false;

@@ -27,11 +27,11 @@ public:
 	inline TIMESTAMP postsync(TIMESTAMP t1) { return TS_NEVER; };
 	inline TIMESTAMP presync(TIMESTAMP t1) { return TS_NEVER; };
 	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
-	inline int prenotify(PROPERTY *prop, const char *value=NULL) { return 1; };
-	int postnotify(PROPERTY *prop, const char *value=NULL);
-	int connect(const char *name);
-	int arm(const char *name);
-	int disarm(const char *name);
+	inline int prenotify(PROPERTY *prop, char *value=NULL) { return 1; };
+	int postnotify(PROPERTY *prop, char *value=NULL);
+	int connect(char *name);
+	int arm(char *name);
+	int disarm(char *name);
 
 public:
 	static CLASS *oclass;

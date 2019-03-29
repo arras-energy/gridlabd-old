@@ -10,7 +10,7 @@ public:
 	stub_bidder(MODULE *);
 	int create(void);
 	int init(OBJECT *parent);
-	int isa(CLASSNAME classname);
+	int isa(char *classname);
 	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);

@@ -49,7 +49,7 @@ int sock_created = 0;
 
 #define MSGALLOCSZ 1024
 
-void printcontent(char *data, size_t len){
+void printcontent(unsigned char *data, size_t len){
 	// needed for debugging, but only when things are really not cooperating. -mh
 #if 0
 	size_t i = 0;

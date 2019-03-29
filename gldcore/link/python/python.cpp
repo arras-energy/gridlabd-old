@@ -60,7 +60,6 @@ static PyMethodDef module_methods[] = {
     {"warning", gridlabd_warning, METH_VARARGS, "Output a warning message"},
     {"error", gridlabd_error, METH_VARARGS, "Output an error message"},
     // simulation control
-    {"reset", gridlabd_reset, METH_VARARGS, "Reset the simulation to initial conditions"},
     {"command", gridlabd_command, METH_VARARGS, "Send a command argument to the GridLAB-D instance"},
     {"start", gridlabd_start, METH_VARARGS, "Start the GridLAB-D instance"},
     {"wait", gridlabd_wait, METH_VARARGS, "Wait for the GridLAB-D instance to stop"},
@@ -310,7 +309,7 @@ static void restore_environ(void)
 }
 
 static int argc = 1;
-static const char *argv[1024] = {"gridlabd"};
+static char *argv[1024] = {"gridlabd"};
 static enum {
     GMS_NEW = 0, // module has been newly loaded 
     GMS_COMMAND, // module has received at least one command
@@ -320,7 +319,7 @@ static enum {
     GMS_SUCCESS, // module has completed successfully
     GMS_CANCELLED, // module simulation was cancelled
 } gridlabd_module_status = GMS_NEW;
-static const char *gridlabd_module_status_msg[] = {
+static char *gridlabd_module_status_msg[] = {
     "module is new but not received commands yet", // NEW
     "module has received commands but not started yet", // COMMAND
     "module has started simulation but it is not running yet", // STARTED
@@ -364,7 +363,7 @@ static PyObject *gridlabd_command(PyObject *self, PyObject *args)
     }
 }
 
-extern "C" int main_python(int, const char*[]);
+extern "C" int main_python(int, char*[]);
 static void *gridlabd_main(void *)
 {
     gridlabd_module_status = GMS_RUNNING;
@@ -564,6 +563,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         return gridlabd_exception("gridlabd already started");
     }
     const char *command;
+    int code = -1;
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &command) )
         return NULL;
@@ -1012,7 +1012,8 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     }
 
     PyObject *data = PyDict_New();
-    PyDict_SetItemString(data,"class",Py_BuildValue("s",obj->oclass->name));
+    if ( obj->oclass->name != NULL )
+        PyDict_SetItemString(data,"class",Py_BuildValue("s",obj->oclass->name));
     if ( obj->parent != NULL )
     {
         if ( obj->parent->name == NULL )
@@ -1152,7 +1153,7 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
         }
         if ( ! unit_convert_ex(pFrom,pTo,&real) )
         {
-            return gridlabd_exception("unable to convert '%g' from '%s' to '%s'", real, from, to);
+            return gridlabd_exception("unable to convert '%s' from '%s' to '%s'", value, from, to);
         }
         return Py_BuildValue("d",real);
     }
@@ -1164,7 +1165,7 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
     {
         PyErr_Clear();
         char unit[1024]="";
-        if ( sscanf(value,"%lf %1023s",&real,unit) < 2 )
+        if ( sscanf(value,"%lf %1023s",&real,&unit) < 2 )
         {
             return gridlabd_exception("unable to parse value and unit of '%s'", value);
         }
@@ -1183,10 +1184,6 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
             return gridlabd_exception("unable to convert '%s' from '%s' to '%s'", value, from, to);
         }
         return Py_BuildValue("d",real);
-    }
-    else
-    {
-        return gridlabd_exception("unable to convert unit -- internal error");
     }
 }
 
@@ -1434,7 +1431,7 @@ extern "C" int python_event(OBJECT *obj, const char *function)
             PyObject *args = Py_BuildValue("(si)",obj->name?obj->name:name,global_clock);
             PyObject *result = PyEval_CallObject(call,args);
             Py_DECREF(args);
-            TIMESTAMP retval = TS_INVALID; 
+            bool retval = TS_INVALID; 
             if ( result ) 
             {
                 if ( ! PyLong_Check(result) )
@@ -1443,15 +1440,9 @@ extern "C" int python_event(OBJECT *obj, const char *function)
                     retval = PyLong_AsLong(result);
                 Py_DECREF(result);
             }
-            if ( retval == TS_INVALID )
-            {
+            if ( retval == TS_INVALID)
                 output_error("python %s(%s) signalled stop (TS_INVALID)",function,objname);
-                return 0;
-            }
-            else
-            {
-                return retval;
-            }
+            return retval == TS_INVALID ? -1 : 0;
         }    
         else 
         {

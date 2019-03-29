@@ -11,7 +11,7 @@
 #include "tape.h"
 extern "C" VARMAP varmap[];
 
-EXPORT int setvar(char *varname, char *value)
+CDECL EXPORT int setvar(char *varname, char *value)
 {
 	VARMAP *p;
 

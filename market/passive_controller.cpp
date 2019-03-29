@@ -205,52 +205,39 @@ passive_controller::passive_controller(MODULE *mod)
 	}
 }
 
-void passive_controller::fetch_double(double **prop, const char *name, OBJECT *parent)
-{
+void passive_controller::fetch_double(double **prop, char *name, OBJECT *parent){
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_double_by_name(parent, name);
-	if ( *prop == NULL )
-	{
+	if(*prop == NULL){
 		char tname[32];
-		const char *namestr = (hdr->name ? hdr->name : tname);
+		char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "passive_controller:%i", hdr->id);
-		if ( *name == '\0' )
-		{
+		if(*name == NULL)
 			sprintf(msg, "%s: passive_controller unable to find property: name is NULL", namestr);
-		}
 		else
-		{
 			sprintf(msg, "%s: passive_controller unable to find %s", namestr, name);
-		}
 		throw(msg);
 	}
 }
 
-void passive_controller::fetch_int(int **prop, const char *name, OBJECT *parent)
-{
+void passive_controller::fetch_int(int **prop, char *name, OBJECT *parent){
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_int32_by_name(parent, name);
-	if ( *prop == NULL )
-	{
+	if(*prop == NULL){
 		char tname[32];
-		const char *namestr = (hdr->name ? hdr->name : tname);
+		char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "passive_controller:%i", hdr->id);
-		if ( *name == '\0' )
-		{
+		if(*name == NULL)
 			sprintf(msg, "%s: passive_controller unable to find property: name is NULL", namestr);
-		}
 		else
-		{
 			sprintf(msg, "%s: passive_controller unable to find %s", namestr, name);
-		}
 		throw(msg);
 	}
 }
 
-int passive_controller::create()
-{
+int passive_controller::create(){
 	memset(this, 0, sizeof(passive_controller));
 	sensitivity = 1.0;
 	comfort_level = 1.0;
@@ -261,8 +248,8 @@ int passive_controller::create()
 	return 1;
 }
 
-int passive_controller::init(OBJECT *parent)
-{	
+int passive_controller::init(OBJECT *parent){
+	
 	OBJECT *hdr = OBJECTHDR(this);
 	PROPERTY *enduseProperty;
 
@@ -677,7 +664,7 @@ int passive_controller::init(OBJECT *parent)
 }
 
 
-int passive_controller::isa(CLASSNAME classname)
+int passive_controller::isa(char *classname)
 {
 	return strcmp(classname,"passive_controller")==0;
 }
@@ -808,7 +795,7 @@ TIMESTAMP passive_controller::postsync(TIMESTAMP t0, TIMESTAMP t1){
 			} else {
 				controller_bid.state = BS_OFF;
 			}
-			submit_bid_state(gl_name(hdr, ctrname, 1024),gl_name(observation_object, spvrname, 1024), "submit_bid_state", "supervisor", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+			submit_bid_state((char *)gl_name(hdr, ctrname, 1024),(char *)gl_name(observation_object, spvrname, 1024), "submit_bid_state", "supervisor", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 			controller_bid.rebid = true;
 			if(!controller_bid.bid_accepted) {
 				return TS_INVALID;
@@ -1671,7 +1658,7 @@ EXPORT int init_passive_controller(OBJECT *obj, OBJECT *parent)
 	INIT_CATCHALL(passive_controller);
 }
 
-EXPORT int isa_passive_controller(OBJECT *obj, CLASSNAME classname)
+EXPORT int isa_passive_controller(OBJECT *obj, char *classname)
 {
 	if(obj != 0 && classname != 0){
 		return OBJECTDATA(obj,passive_controller)->isa(classname);

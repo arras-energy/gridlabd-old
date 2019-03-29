@@ -500,7 +500,7 @@ int metrics::init(OBJECT *parent)
 	if (funadd != NULL)
 	{
 		//Do the extra printing
-		returnval = ((int (*)(OBJECT *, const char *))(*funadd))(module_metrics_obj,workbuffer);
+		returnval = ((int (*)(OBJECT *, char *))(*funadd))(module_metrics_obj,workbuffer);
 
 		//Make sure it worked
 		if (returnval==0)
@@ -694,7 +694,7 @@ TIMESTAMP metrics::postsync(TIMESTAMP t0, TIMESTAMP t1)
 }
 
 //Perform post-event analysis (update computations, write event file if necessary) - no secondary count
-void metrics::event_ended(OBJECT *event_obj, OBJECT *fault_obj, OBJECT *faulting_obj, TIMESTAMP event_start_time, TIMESTAMP event_end_time, const char *fault_type, const char *impl_fault, int number_customers_int)
+void metrics::event_ended(OBJECT *event_obj, OBJECT *fault_obj, OBJECT *faulting_obj, TIMESTAMP event_start_time, TIMESTAMP event_end_time, char *fault_type, char *impl_fault, int number_customers_int)
 {
 	DATETIME start_dt, end_dt;
 	TIMESTAMP outage_length;
@@ -751,7 +751,7 @@ void metrics::event_ended(OBJECT *event_obj, OBJECT *fault_obj, OBJECT *faulting
 }
 
 //Perform post-event analysis (update computations, write event file if necessary) - assumes secondary count wanted
-void metrics::event_ended_sec(OBJECT *event_obj, OBJECT *fault_obj, OBJECT *faulting_obj, TIMESTAMP event_start_time, TIMESTAMP event_end_time, const char *fault_type, const char *impl_fault, int number_customers_int, int number_customers_int_secondary)
+void metrics::event_ended_sec(OBJECT *event_obj, OBJECT *fault_obj, OBJECT *faulting_obj, TIMESTAMP event_start_time, TIMESTAMP event_end_time, char *fault_type, char *impl_fault, int number_customers_int, int number_customers_int_secondary)
 {
 	DATETIME start_dt, end_dt;
 	TIMESTAMP outage_length;
@@ -911,7 +911,7 @@ void metrics::write_metrics(void)
 }
 
 //Retrieve the address of a metric
-double *metrics::get_metric(OBJECT *obj, const char *name)
+double *metrics::get_metric(OBJECT *obj, char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_double)
@@ -920,7 +920,7 @@ double *metrics::get_metric(OBJECT *obj, const char *name)
 }
 
 //Function to extract address of outage flag
-bool *metrics::get_outage_flag(OBJECT *obj, const char *name)
+bool *metrics::get_outage_flag(OBJECT *obj, char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_bool)

@@ -322,6 +322,7 @@ Retry:
 		trim(tbuf, timebuf);
 		trim(valbuf, value);
 		if (sscanf(timebuf,"%d-%d-%d %d:%d:%lf %4s",&Y,&m,&d,&H,&M,&S, tz)==7){
+			//struct tm dt = {S,M,H,d,m-1,Y-1900,0,0,0};
 			DATETIME dt;
 			switch ( dateformat ) {
 			case ISO:
@@ -338,9 +339,6 @@ Retry:
 				dt.year = d;
 				dt.month = m;
 				dt.day = Y;
-				break;
-			case UNKNOWN:
-			default:
 				break;
 			}
 			dt.hour = H;
@@ -379,9 +377,6 @@ Retry:
 				dt.year = d;
 				dt.month = m;
 				dt.day = Y;
-				break;
-			case UNKNOWN:
-			default:
 				break;
 			}
 			dt.hour = H;

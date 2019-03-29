@@ -102,7 +102,7 @@ struct s_loadshape {
 extern "C" {
 #endif
 
-int loadshape_create(void *ptr);
+int loadshape_create(loadshape *shape);
 int loadshape_init(loadshape *shape);
 int loadshape_initall(void);
 TIMESTAMP loadshape_sync(loadshape *m, TIMESTAMP t1);
@@ -111,7 +111,7 @@ TIMESTAMP loadshape_syncall(TIMESTAMP t1);
 int loadshape_test(void);
 
 int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop); /**< convert from a loadshape to a string */
-int convert_to_loadshape(const char *string, void *data, PROPERTY *prop); /**< convert from a string to a loadshape */
+int convert_to_loadshape(char *string, void *data, PROPERTY *prop); /**< convert from a string to a loadshape */
 
 #ifdef __cplusplus
 }

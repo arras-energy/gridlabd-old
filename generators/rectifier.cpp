@@ -315,14 +315,14 @@ int rectifier::init(OBJECT *parent)
 }
 
 
-complex *rectifier::get_complex(OBJECT *obj, const char *name)
+complex *rectifier::get_complex(OBJECT *obj, char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)
 		return NULL;
 	return (complex*)GETADDR(obj,p);
 }
-double *rectifier::get_double(OBJECT *obj, const char *name)
+double *rectifier::get_double(OBJECT *obj, char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_double)
@@ -332,8 +332,7 @@ double *rectifier::get_double(OBJECT *obj, const char *name)
 
 
 
-void rectifier::iterative_IV(complex VA, const char* phase_designation)
-{
+void rectifier::iterative_IV(complex VA, char* phase_designation){
 	/*complex Vdet = complex(0,0);
 	complex increment = complex(0,0);
 	complex Idet = complex(0,0);

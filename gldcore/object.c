@@ -32,8 +32,6 @@
 
 #ifdef WIN32
 #define isnan _isnan  /* map isnan to appropriate function under Windows */
-#else
-#include <unistd.h>
 #endif
 
 #include "object.h"
@@ -134,17 +132,17 @@ PROPERTY *object_get_property(OBJECT *obj, /**< a pointer to the object */
 		return NULL;
 	} else {
 		char *part;
-		char root[1024];
+		PROPERTYNAME root;
 		PROPERTY *prop = class_find_property(obj->oclass, name);
 		PROPERTYSPEC *spec;
-		if ( pstruct ) { pstruct->prop=prop; pstruct->part = ""; }
+		if ( pstruct ) { pstruct->prop=prop; pstruct->part[0]='\0'; }
 		if ( prop ) return prop;
 
 		/* property not found, but part structure was not requested either */
 		if ( pstruct==NULL ) return NULL;
 
 		/* possible part specified, so search for it */
-		strncpy(root,name,sizeof(root)-1);
+		strcpy(root,name);
 		part = strrchr(root,'.');
 		if ( !part ) return NULL; /* no part, no result */
 		
@@ -161,7 +159,7 @@ PROPERTY *object_get_property(OBJECT *obj, /**< a pointer to the object */
 		
 		/* part is valid */
 		pstruct->prop = prop;
-		pstruct->part = strdup(part);
+		strncpy(pstruct->part,part,sizeof(pstruct->part));
 
 		return prop;
 	}
@@ -256,7 +254,7 @@ char *object_name(OBJECT *obj, char *oname, int size){ /**< a pointer to the obj
 char *object_get_unit(OBJECT *obj, char *name)
 {
 	static UNIT *dimless = NULL;
-	LOCKVAR unitlock = 0;
+	unsigned int unitlock = 0;
 	PROPERTY *prop = object_get_property(obj, name,NULL);
 	
 	if(prop == NULL){
@@ -435,7 +433,7 @@ void object_stream_fixup(OBJECT *obj, char *classname, char *objname)
 {
 	obj->oclass = class_get_class_from_classname(classname);
 	obj->name = (char*)malloc(strlen(objname)+1);
-	obj->name = strdup(objname);
+	strcpy(obj->name,objname);
 	obj->next = NULL;
 	if ( first_object==NULL )
 		first_object = obj;
@@ -500,7 +498,7 @@ OBJECT *object_remove_by_id(OBJECTNUM id){
 	@return \e void pointer to the data; \p NULL is not found
  **/
 void *object_get_addr(OBJECT *obj, /**< object to look in */
-					  const char *name){ /**< name of property to find */
+					  char *name){ /**< name of property to find */
 	PROPERTY *prop;
 	if(obj == NULL)
 		return NULL;
@@ -747,17 +745,12 @@ static PROPERTY *get_property_at_addr(OBJECT *obj, void *addr)
 		return prop;
 
 	/* scan through properties of this class and stop when no more properties or class changes */
-	for ( prop = obj->oclass->pmap ; prop != NULL ; prop = (prop->next->oclass==prop->oclass?prop->next:NULL) )
+	for (prop=obj->oclass->pmap; prop!=NULL; prop=(prop->next->oclass==prop->oclass?prop->next:NULL))
 	{
-		if ( (int64)(prop->addr) == offset ) 
-		{
-			/* warning: cast from pointer to integer of different size */
-			if ( prop->access != PA_PRIVATE )
-			{
+		if((int64)(prop->addr)==offset) /* warning: cast from pointer to integer of different size */
+			if(prop->access != PA_PRIVATE)
 				return prop;
-			}
-			else 
-			{
+			else {
 				output_error("trying to get the private property %s in %s", prop->name, obj->oclass->name);
 				/*	TROUBLESHOOT
 					The specified property was published by its object as private.  Though it may be read at the end of the simulation
@@ -765,7 +758,6 @@ static PROPERTY *get_property_at_addr(OBJECT *obj, void *addr)
 				*/
 				return 0;
 			}
-		}
 	}
 	return NULL;
 }
@@ -817,7 +809,7 @@ int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 	return result;
 }
 
-static int set_header_value(OBJECT *obj, const char *name, char *value)
+static int set_header_value(OBJECT *obj, char *name, char *value)
 {
 	unsigned int temp_microseconds;
 	TIMESTAMP tval;
@@ -1349,7 +1341,7 @@ int object_set_dependent(OBJECT *obj, /**< the object to set */
 
 /* Convert the value of an object property to a string
  */
-char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz)
+char *object_property_to_string(OBJECT *obj, char *name, char *buffer, int sz)
 {
 	//static char buffer[4096];
 	void *addr;
@@ -1509,7 +1501,7 @@ int object_event(OBJECT *obj, char *event)
 	else
 	{
 		char buffer[1024];
-		sprintf(buffer,"%lld",global_clock);
+		sprintf(buffer,"%d",global_clock);
 		setenv("CLOCK",buffer,1);
 		sprintf(buffer,"%s",global_hostname);
 		setenv("HOSTNAME",buffer,1);
@@ -1644,17 +1636,12 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 {
 	clock_t t = (clock_t)exec_clock();
 	STATUS rv = SUCCESS;
-	if ( (global_validto_context&VTC_PRECOMMIT) == VTC_PRECOMMIT )
-	{
+	if ( global_validto_context&VTC_PRECOMMIT == VTC_PRECOMMIT )
 		return rv;
-	}
-	if ( obj->oclass->precommit != NULL )
-	{
+	if(obj->oclass->precommit != NULL){
 		rv = (STATUS)(*(obj->oclass->precommit))(obj, t1);
 	}
-	if ( rv == 1 )
-	{ 
-		// if 'old school' or no precommit callback,
+	if(rv == 1){ // if 'old school' or no precommit callback,
 		rv = SUCCESS;
 	}
 	if ( rv == 1 && obj->events.precommit != NULL )
@@ -1678,17 +1665,12 @@ TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 {
 	clock_t t = (clock_t)exec_clock();
 	TIMESTAMP rv = 1;
-	if ( (global_validto_context&VTC_COMMIT) == VTC_COMMIT )
-	{
+	if ( global_validto_context&VTC_COMMIT == VTC_COMMIT )
 		return TS_NEVER;
-	}
-	if ( obj->oclass->commit != NULL )
-	{
+	if(obj->oclass->commit != NULL){
 		rv = (TIMESTAMP)(*(obj->oclass->commit))(obj, t1, t2);
 	}
-	if ( rv == 1 )
-	{ 
-		// if 'old school' or no commit callback,
+	if(rv == 1){ // if 'old school' or no commit callback,
 		rv =TS_NEVER;
 	} 
 	if ( obj->events.commit != NULL )
@@ -1701,7 +1683,7 @@ TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		}
 	}
 	object_profile(obj,OPI_COMMIT,t);
-	if ( global_debug_output > 0 )
+	if ( global_debug_output>0 )
 	{
 		char dt[64]="(invalid)"; if ( rv!=TS_INVALID ) convert_from_timestamp(absolute_timestamp(rv),dt,sizeof(dt)); else strcpy(dt,"ERROR");
 		IN_MYCONTEXT output_debug("object %s:%d commit -> %s %s", obj->oclass->name, obj->id, is_soft_timestamp(rv)?"SOFT":"HARD", dt);
@@ -1745,7 +1727,7 @@ STATUS object_finalize(OBJECT *obj)
 /** Tests the type of an object
  **/
 int object_isa(OBJECT *obj, /**< the object to test */
-			   const char *type){ /**< the type of test */
+			   char *type){ /**< the type of test */
 	if(obj == 0){
 		return 0;
 	}
@@ -1934,14 +1916,14 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 			OBJECT **topological_parent = object_get_object_by_name(obj,"topological_parent");
 			if ( mod )
 			{
-				if ( (global_glm_save_options&GSO_NOINTERNALS) == 0 )
+				if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
 					count += fprintf(fp, "object %s.%s:%d {\n", mod->name, oclass->name, obj->id);
 				else
 					count += fprintf(fp, "object %s.%s {\n", mod->name, oclass->name);
 			}
 			else
 			{
-				if ( (global_glm_save_options&GSO_NOINTERNALS) == 0 )
+				if ( oclass->name && (global_glm_save_options&GSO_NOINTERNALS)==0 )
 					count += fprintf(fp, "object %s:%d {\n", oclass->name, obj->id);
 				else
 					count += fprintf(fp, "object %s {\n", oclass->name);
@@ -2068,7 +2050,7 @@ int object_saveall_xml(FILE *fp){ /**< the stream to write to */
 			count += fprintf(fp,"\t\t\t<parent>root</parent>\n");
 		}
 		count += fprintf(fp,"\t\t\t<rank>%d</rank>\n", obj->rank);
-		count += fprintf(fp,"\t\t\t<clock>\n");
+		count += fprintf(fp,"\t\t\t<clock>\n", obj->clock);
 		count += fprintf(fp,"\t\t\t\t <timestamp>%s</timestamp>\n", convert_from_timestamp(obj->clock,buffer, sizeof(buffer)) > 0 ? buffer : "(invalid)");
 		count += fprintf(fp,"\t\t\t</clock>\n");
 		/* why do latitude/longitude have 2 values?  I currently only store as float in the schema... */
@@ -2140,7 +2122,7 @@ int object_saveall_xml_old(FILE *fp){ /**< the stream to write to */
 				count += fprintf(fp,"\t\t\t<parent>root</parent>\n");
 			}
 			count += fprintf(fp, "\t\t\t<rank>%d</rank>\n", obj->rank);
-			count += fprintf(fp, "\t\t\t<clock>\n");
+			count += fprintf(fp, "\t\t\t<clock>\n", obj->clock);
 			count += fprintf(fp, "\t\t\t\t <timestamp>%s</timestamp>\n", (convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) > 0) ? buffer : "(invalid)");
 			count += fprintf(fp, "\t\t\t</clock>\n");
 				/* why do latitude/longitude have 2 values?  I currently only store as float in the schema... */
@@ -2283,7 +2265,7 @@ static HASH hash(OBJECTNAME name)
 {
 	static HASH A = 55711, B = 45131, C = 60083;
 	HASH h = 18443;
-	const char *p;
+	HASH *p;
 	bool ok = true;
 	for ( p = name ; ok ; p++ )
 	{
@@ -2422,13 +2404,13 @@ void object_tree_delete(OBJECT *obj, OBJECTNAME name)
  **/
 OBJECT *object_find_name(OBJECTNAME name)
 {
-	OBJECTTREE *item = findin_tree(NULL, name);
+	OBJECTTREE *item = findin_tree(top, name);
 	return item == NULL ? NULL : item->obj;
 }
 
 int object_build_name(OBJECT *obj, char *buffer, int len){
 	char b[256];
-	const char *ptr = 0;
+	char *ptr = 0;
 	int L; // to not confuse l and 1 visually
 
 	if(obj == 0){

@@ -76,7 +76,7 @@ public:
 	double Xsfilter_total;
 	double Xgfilter_total;
 
-	const char* parent_string;
+	char* parent_string;
 
 
 	double Cinternal;

@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <math.h>
 
-#include "house_e.h"
+#include "house_a.h"
 #include "range.h"
 
 #define HEIGHT_PRECISION 0.01
@@ -1058,6 +1058,7 @@ void range::update_T_and_or_h(double nHours)
 			// things are moving (RECOVERING vs DEPLETING)...
 SingleZone:
 			Tw = new_temp_1node(Tw, nHours);
+			/*Tupper*/ Tw = Tw;
 			Tlower = Tinlet;
 			break;
 
@@ -1083,6 +1084,10 @@ SingleZone:
 				Tlower = Tinlet;
 				h = height;
 			} 
+			else 
+			{
+				Tw = Tw;
+			}
 			break;
 
 		default:
@@ -1213,7 +1218,7 @@ double range::get_Tambient(enumeration loc)
 
 void range::wrong_model(enumeration msg)
 {
-	const char *errtxt[] = {"model is not one-zone","model is not two-zone"};
+	char *errtxt[] = {"model is not one-zone","model is not two-zone"};
 	OBJECT *obj = OBJECTHDR(this);
 	gl_warning("%s (range:%d): %s", obj->name?obj->name:"(anonymous object)", obj->id, errtxt[msg]);
 	throw msg; // this must be caught by the range code, not by the core

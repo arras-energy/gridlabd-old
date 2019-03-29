@@ -184,7 +184,7 @@ static struct s_varmap {
 	PROPERTYACCESS access;
 	const char *description;
 	KEYWORD *keys;
-	void (*callback)(const char *name);
+	void (*callback)(char *name);
 } map[] = {
 	/** @todo make this list the authorative list and retire the global_* list (ticket #25) */
 	{"version.major", PT_int32, &global_version_major, PA_REFERENCE, "major version"},
@@ -226,7 +226,7 @@ static struct s_varmap {
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},
 	{"website", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string (deprecated)"}, /** @todo deprecate use of 'website' */
 	{"urlbase", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string"},
-	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*))random_init},
+	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(char*))random_init},
 	{"include", PT_char1024, &global_include, PA_REFERENCE, "include folder path"},
 	{"trace", PT_char1024, &global_trace, PA_PUBLIC, "trace function list"},
 	{"gdb_window", PT_bool, &global_gdb_window, PA_PUBLIC, "gdb window enable flag"},
@@ -608,7 +608,7 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 		{
 
 			PROPERTYADDR addr = va_arg(arg,PROPERTYADDR);
-			if ( strlen(name) >= MAXPROPNAMELEN )
+			if ( strlen(name) >= sizeof(prop->name) )
 			{
 				throw_exception("global_create(char *name='%s',...): property name '%s' is too big to store", name, name);
 				/* TROUBLESHOOT

@@ -22,7 +22,6 @@
 #include "complex.h"
 #include "unit.h"
 #include "property.h"
-#include "lock.h"
 
 //typedef struct s_class_list CLASS;
 
@@ -112,7 +111,7 @@ struct s_class_list {
 	LOADMETHOD *loadmethods;
 	CLASS *parent;			/**< parent class from which properties should be inherited */
 	struct {
-		LOCKVAR lock;
+		unsigned int lock;
 		int32 numobjs;
 		int64 clocks;
 		int32 count;
@@ -141,8 +140,8 @@ int class_string_to_propertytype(PROPERTYTYPE type, void *addr, char *value);
 int class_property_to_string(PROPERTY *prop, void *addr, char *value, int size);
 CLASS *class_get_first_class(void);
 CLASS *class_get_last_class(void);
-CLASS *class_get_class_from_classname(CLASSNAME name);
-CLASS *class_get_class_from_classname_in_module(CLASSNAME name, MODULE *mod);
+CLASS *class_get_class_from_classname(char *name);
+CLASS *class_get_class_from_classname_in_module(char *name, MODULE *mod);
 char *class_get_property_typename(PROPERTYTYPE type);
 char *class_get_property_typexsdname(PROPERTYTYPE type);
 int class_saveall(FILE *fp);
@@ -157,10 +156,10 @@ size_t class_get_extendedcount(CLASS *oclass);
 
 CLASS *class_register(MODULE *module,CLASSNAME classname,unsigned int datasize,PASSCONFIG passconfig);
 int class_define_map(CLASS *oclass, ...);
-int class_define_enumeration_member(CLASS *oclass,const char *property_name,const char *member,enumeration value);
-int class_define_set_member(CLASS *oclass,const char *property_name,const char *member,unsigned int64 value);
+int class_define_enumeration_member(CLASS *oclass,char *property_name,char *member,enumeration value);
+int class_define_set_member(CLASS *oclass,char *property_name,char *member,unsigned int64 value);
 FUNCTION *class_define_function(CLASS *oclass, FUNCTIONNAME functionname, FUNCTIONADDR call);
-FUNCTIONADDR class_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
+FUNCTIONADDR class_get_function(char *classname, char *functionname);
 DELEGATEDTYPE *class_register_type(CLASS *oclass, char *type,int (*from_string)(void*,char*),int (*to_string)(void*,char*,int));
 int class_define_type(CLASS *oclass, DELEGATEDTYPE *delegation, ...);
 

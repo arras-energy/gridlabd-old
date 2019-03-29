@@ -50,7 +50,7 @@ typedef struct {
 #define DT_DIR 0x01
 static const char *GetLastErrorMsg(void)
 {
-	static LOCKVAR lock = 0;
+	static unsigned int lock = 0;
 	wlock(&lock);
     static TCHAR szBuf[256]; 
     LPVOID lpMsgBuf;
@@ -270,7 +270,7 @@ typedef struct s_jobstack {
 	struct s_jobstack *next;
 } JOBLIST;
 static JOBLIST *jobstack = NULL;
-static LOCKVAR joblock = 0;
+static unsigned int joblock = 0;
 static void pushjob(char *dir)
 {
 	IN_MYCONTEXT output_debug("adding %s to job list", dir);

@@ -16,14 +16,15 @@
 class dryer : public residential_enduse
 {
 public:
-	typedef enum e_dryer_state {
-		DRYER_STOPPED=0, ///< motor is stopped
-		DRYER_STALLED=1, ///< motor is stalled
-		DRYER_TRIPPED=2, ///< motor is tripped
-		DRYER_MOTOR_COIL_ONLY=3, ///<only the coil and motor are operating
-		DRYER_MOTOR_ONLY=4, ///< only the motor is running (air fluff)
-		DRYER_CONTROL_ONLY=5 ///< only the controls are running
-	} DRYERSTATE; ///< control state
+	typedef enum {	DRYER_STOPPED=0,		///< motor is stopped
+			DRYER_STALLED=1,						///< motor is stalled
+			DRYER_TRIPPED=2,						///< motor is tripped
+			DRYER_MOTOR_COIL_ONLY=3,				///<only the coil and motor are operating
+			DRYER_MOTOR_ONLY=4,						///< only the motor is running (air fluff)
+			DRYER_CONTROL_ONLY=5					///< only the controls are running
+	};										///< control state
+
+
 
 	double circuit_split;				///< -1=100% negative, 0=balanced, +1=100% positive
 	bool is_240;						///< load connected at 220 
@@ -48,6 +49,8 @@ public:
 	bool dryer_on;
 	bool dryer_check;
 	bool dryer_ready;
+
+
 
 	double motor_power;					///< installed dryer motor power [W] (default = random uniform between 150-350 W)
 	double coil_power[1];				///< installed heating coil power [W] (default = random uniform between 4500-6000 W, 0 for gas)
@@ -86,6 +89,7 @@ public:
 	double total_power;					///< instaneous power draw of the unit
 	double motor_on_off;				///< boolean logic to track the state of dryer
 	double motor_coil_on_off;
+
 
 	TIMESTAMP time_state;				///< time in current state
 

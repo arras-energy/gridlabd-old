@@ -75,7 +75,7 @@ public:
 	capacitor(MODULE *mod);
 	inline capacitor(CLASS *cl=oclass):node(cl){};
 	int init(OBJECT *parent);
-	int isa(CLASSNAME classname);
+	int isa(char *classname);
 	int kmldata(int (*stream)(const char*,...));
 	
 private:

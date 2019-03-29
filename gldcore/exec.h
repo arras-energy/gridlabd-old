@@ -15,7 +15,8 @@
 #include "index.h"
 #include "object.h"
 #include "threadpool.h"
-#include "lock.h"
+
+typedef unsigned int LOCKVAR;
 
 struct sync_data {
 	TIMESTAMP step_to; /**< time to advance to */

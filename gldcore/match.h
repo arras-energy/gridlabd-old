@@ -5,17 +5,9 @@
 #ifndef GLD_MATCH
 #define GLD_MATCH
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 int match(char *regexp, char *text);
 int matchhere(char *regexp, char *text);
 int matchstar(int c, char *regexp, char *text);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
 

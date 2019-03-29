@@ -181,15 +181,12 @@ int central_dg_control::init(OBJECT *parent)
 	inverter_count = battery_count + solar_count;
 
 	//Fill in addresses for pointer arrays relating to batteries using the battery findlist
-	while( (obj=gl_find_next(battery_list,obj)) )
-	{
-		if ( index >= battery_count )
-		{
+	while(obj = gl_find_next(battery_list,obj)){
+		if(index >= battery_count){
 			break;
 		}
 		battery_set[index] = OBJECTDATA(obj,battery);
-		if ( battery_set[index] == NULL )
-		{
+		if(battery_set[index] == NULL){
 			gl_error("Unable to map object as battery.");
 			/*  TROUBLESHOOT
 			While trying to map a battery from the list as a battery object, a null pointer was returned.
@@ -197,8 +194,7 @@ int central_dg_control::init(OBJECT *parent)
 			return 0;
 		}
 		inverter_set[inverter_filled_to + 1] = OBJECTDATA(obj->parent, inverter);
-		if ( inverter_set[inverter_filled_to + 1] == NULL ) 
-		{
+		if(inverter_set[inverter_filled_to + 1] == NULL){
 			gl_error("Unable to map object as inverter.");
 			/*  TROUBLESHOOT
 			While trying to map an inverter from the list as an inveter object, a null pointer was returned.
@@ -207,8 +203,7 @@ int central_dg_control::init(OBJECT *parent)
 		}
 		inverter_filled_to++;
 		battery_inverter_set[index] = &inverter_set[inverter_filled_to];
-		if ( battery_inverter_set[index] == NULL ) 
-		{
+		if (battery_inverter_set[index] == NULL) {
 			gl_error("Unable to map battery parent object as inverter.");
 			/*  TROUBLESHOOT
 			While trying to map an inverter from the listof inverters with battery children as an inverter object, a null pointer was returned.
@@ -222,15 +217,12 @@ int central_dg_control::init(OBJECT *parent)
 	
 	//Fill in addresses for pointer arrays relating to solars using the solar findlist
 	index = 0;
-	while ( (obj=gl_find_next(solar_list,obj)) )
-	{
-		if ( index >= solar_count ) 
-		{
+	while(obj = gl_find_next(solar_list,obj)){
+		if(index >= solar_count){
 			break;
 		}
 		solar_set[index] = OBJECTDATA(obj,solar);
-		if ( solar_set[index] == NULL ) 
-		{
+		if(solar_set[index] == NULL){
 			gl_error("Unable to map object as solar.");
 			/*  TROUBLESHOOT
 			While trying to map a solar from the list as a solar object, a null pointer was returned.
@@ -238,8 +230,7 @@ int central_dg_control::init(OBJECT *parent)
 			return 0;
 		}
 		inverter_set[inverter_filled_to + 1] = OBJECTDATA(obj->parent, inverter);
-		if ( inverter_set[inverter_filled_to + 1] == NULL ) 
-		{
+		if(inverter_set[inverter_filled_to + 1] == NULL){
 			gl_error("Unable to map object as inverter.");
 			/*  TROUBLESHOOT
 			While trying to map an inverter from the listof inverters an inverter object, a null pointer was returned.
@@ -248,8 +239,7 @@ int central_dg_control::init(OBJECT *parent)
 		}
 		inverter_filled_to++;
 		solar_inverter_set[index] = &inverter_set[inverter_filled_to];
-		if ( solar_inverter_set[index] == NULL ) 
-		{
+		if (solar_inverter_set[index] == NULL) {
 			gl_error("Unable to map solar parent object as inverter.");
 			/*  TROUBLESHOOT
 			While trying to map an inverter from the listof inverters with solar children as an inverter object, a null pointer was returned.
@@ -262,6 +252,9 @@ int central_dg_control::init(OBJECT *parent)
 	}
 
 	all_inverter_S_rated = all_solar_S_rated + all_battery_S_rated;
+
+	
+
 
 	P_disp_3p = 0.0;
 	Q_disp_3p = 0.0;
@@ -380,14 +373,13 @@ TIMESTAMP central_dg_control::sync(TIMESTAMP t0, TIMESTAMP t1)
 	//lowest rank mode is checked. After all have been checked with no action taken, the
 	//controller returns TS_NEVER indicating it is ok to move on.
 	i=3;
-	while ( i > -1 )
+	while (i>-1)
 	{
-		if ( control_mode_setting[i] != NO_CONTROL )
+		if (control_mode_setting[i]!=NULL)
 		{
-			switch ( control_mode_setting[i] )
+			switch(control_mode_setting[i])
 			{
 				//If we get here, exit the loop.
-				case NO_SETTING:
 				case NO_CONTROL:
 					break;
 				//Control mode to maintain power factor measured at feederhead
@@ -582,14 +574,14 @@ double *central_dg_control::get_double(OBJECT *obj, char *name)
 		return NULL;
 	return (double*)GETADDR(obj,p);
 }
-bool *central_dg_control::get_bool(OBJECT *obj, const char *name)
+bool *central_dg_control::get_bool(OBJECT *obj, char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_bool)
 		return NULL;
 	return (bool*)GETADDR(obj,p);
 }
-int *central_dg_control::get_enum(OBJECT *obj, const char *name)
+int *central_dg_control::get_enum(OBJECT *obj, char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_enumeration)
