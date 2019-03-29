@@ -361,7 +361,7 @@ PROPERTYTYPE property_get_type(char *name)
 	return PT_void;
 }
 
-double property_get_part(OBJECT *obj, PROPERTY *prop, char *part)
+double property_get_part(OBJECT *obj, PROPERTY *prop, const char *part)
 {
 	PROPERTYSPEC *spec = property_getspec(prop->ptype);
 	if ( spec && spec->get_part )

@@ -270,9 +270,9 @@ void class_add_property(CLASS *oclass,  /**< the class to which the property is 
     @return the property pointer
  **/
 PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to which the property is to be added */
-                                      char *name,         /**< the name of the property */
+                                      const char *name,   /**< the name of the property */
                                       PROPERTYTYPE ptype, /**< the type of the property */
-                                      char *unit)         /**< the unit of the property */
+                                      const char *unit)   /**< the unit of the property */
 {
 	PROPERTY *prop = malloc(sizeof(PROPERTY));
 	UNIT *pUnit = NULL;
@@ -379,7 +379,7 @@ PROPERTYTYPE class_get_propertytype_from_typename(char *name) /**< a string cont
  **/
 int class_string_to_propertytype(PROPERTYTYPE type, 
                                  void *addr, 
-                                 char *value)
+                                 const char *value)
 {
 	if (type > _PT_FIRST && type < _PT_LAST)
 		return (*property_type[type].string_to_data)(value,addr,NULL);
@@ -1270,17 +1270,17 @@ DELEGATEDTYPE *class_register_type(CLASS *oclass, /**< the object class */
 	return dt;
 }
 
-int class_add_loadmethod(CLASS *oclass, char *name, int (*call)(void*,char*))
+int class_add_loadmethod(CLASS *oclass, const char *name, LOADMETHODCALL call)
 {
 	LOADMETHOD *method = (LOADMETHOD*)malloc(sizeof(LOADMETHOD));
-	method->name = name;
+	method->name = strdup(name);
 	method->call = call;
 	method->next = oclass->loadmethods;
 	oclass->loadmethods = method;
 	return 1;
 }
 
-LOADMETHOD *class_get_loadmethod(CLASS *oclass,char *name)
+LOADMETHOD *class_get_loadmethod(CLASS *oclass,const char *name)
 {
 	LOADMETHOD *method;
 	for ( method=oclass->loadmethods ; method!=NULL ; method=method->next )

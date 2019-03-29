@@ -780,7 +780,7 @@ void* module_getvar_old(MODULE *mod, const char *varname, char *value, unsigned 
 		return 0;
 }
 
-double* module_getvar_addr(MODULE *mod, const char *varname)
+void* module_getvar_addr(MODULE *mod, const char *varname)
 {
 	char modvarname[1024];
 	GLOBALVAR *var;

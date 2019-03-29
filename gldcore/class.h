@@ -57,9 +57,10 @@ typedef struct s_function_map {
 	struct s_function_map *next;
 } FUNCTION;
 
+typedef int (*LOADMETHODCALL)(struct s_object_list*,const char*);
 typedef struct s_loadmethod {
-	char *name;
-	int (*call)(void*,char*);
+	const char *name;
+	LOADMETHODCALL call;
 	struct s_loadmethod *next;
 } LOADMETHOD;
 
@@ -134,10 +135,10 @@ PROPERTY *class_get_next_property_inherit(PROPERTY *prop);
 PROPERTY *class_prop_in_class(CLASS *oclass, PROPERTY *prop);
 PROPERTY *class_find_property(CLASS *oclass, PROPERTYNAME name);
 void class_add_property(CLASS *oclass, PROPERTY *prop);
-PROPERTY *class_add_extended_property(CLASS *oclass, char *name, PROPERTYTYPE ptype, char *unit);
+PROPERTY *class_add_extended_property(CLASS *oclass, const char *name, PROPERTYTYPE ptype, const char *unit);
 PROPERTYTYPE class_get_propertytype_from_typename(char *name);
 int class_string_to_property(PROPERTY *prop, void *addr, char *value);
-int class_string_to_propertytype(PROPERTYTYPE type, void *addr, char *value);
+int class_string_to_propertytype(PROPERTYTYPE type, void *addr, const char *value);
 int class_property_to_string(PROPERTY *prop, void *addr, char *value, int size);
 CLASS *class_get_first_class(void);
 CLASS *class_get_last_class(void);
@@ -164,8 +165,8 @@ FUNCTIONADDR class_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
 DELEGATEDTYPE *class_register_type(CLASS *oclass, char *type,int (*from_string)(void*,char*),int (*to_string)(void*,char*,int));
 int class_define_type(CLASS *oclass, DELEGATEDTYPE *delegation, ...);
 
-int class_add_loadmethod(CLASS *oclass, char *name, int (*call)(void*,char*));
-LOADMETHOD *class_get_loadmethod(CLASS *oclass,char *name);
+int class_add_loadmethod(CLASS *oclass, const char *name, LOADMETHODCALL call);
+LOADMETHOD *class_get_loadmethod(CLASS *oclass,const char *name);
 
 #ifdef __cplusplus
 }

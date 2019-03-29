@@ -253,7 +253,7 @@ char *object_name(OBJECT *obj, char *oname, int size){ /**< a pointer to the obj
 
 /** Get the unit of an object, if any
  **/
-char *object_get_unit(OBJECT *obj, char *name)
+const char *object_get_unit(OBJECT *obj, const char *name)
 {
 	static UNIT *dimless = NULL;
 	LOCKVAR unitlock = 0;
@@ -550,7 +550,7 @@ bool *object_get_bool(OBJECT *obj, PROPERTY *prop)
 	return NULL;
 }
 
-bool *object_get_bool_by_name(OBJECT *obj, char *name)
+bool *object_get_bool_by_name(OBJECT *obj, const char *name)
 {
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if(prop!=NULL && prop->access != PA_PRIVATE)
@@ -775,7 +775,7 @@ static PROPERTY *get_property_at_addr(OBJECT *obj, void *addr)
  **/
 int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 							 void *addr, /**< the address of the property */
-							 char *value, /**< the value to set */
+							 const char *value, /**< the value to set */
 							 PROPERTY *prop) /**< the property to use or NULL if unknown */
 {
 	int result=0;
@@ -1020,7 +1020,7 @@ static int set_header_value(OBJECT *obj, const char *name, char *value)
  **/
 int object_set_value_by_name(OBJECT *obj, /**< the object to change */
 							 PROPERTYNAME name, /**< the name of the property to change */
-							 char *value) /**< the value to set */
+							 const char *value) /**< the value to set */
 {
 	void *addr;
 	PROPERTY *prop = class_find_property(obj->oclass,name);
@@ -1166,7 +1166,7 @@ int object_set_complex_by_name(OBJECT *obj, PROPERTYNAME name, complex value)
  **/
 int object_get_value_by_addr(OBJECT *obj, /**< the object from which to get the data */
 							 void *addr, /**< the addr of the data to get */
-							 char *value, /**< the buffer to which to write the result */
+							 const char *value, /**< the buffer to which to write the result */
 							 int size, /**< the size of the buffer */
 							 PROPERTY *prop) /**< the property to use or NULL if unknown */
 {
@@ -1184,7 +1184,7 @@ int object_get_value_by_addr(OBJECT *obj, /**< the object from which to get the 
 /** Get a value by reference to its property name
 	@return the number of characters written to the buffer; 0 if failed
  **/
-int object_get_value_by_name(OBJECT *obj, PROPERTYNAME name, char *value, int size)
+int object_get_value_by_name(OBJECT *obj, PROPERTYNAME name, const char *value, int size)
 {
 	char temp[1024];
 	char *buffer;
@@ -1206,7 +1206,7 @@ int object_get_value_by_name(OBJECT *obj, PROPERTYNAME name, char *value, int si
 
 /** Get a reference to another object 
  **/
-OBJECT *object_get_reference(OBJECT *obj, char *name){
+OBJECT *object_get_reference(OBJECT *obj, const char *name){
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if(prop == NULL || prop->access == PA_PRIVATE || prop->ptype != PT_object)
 	{

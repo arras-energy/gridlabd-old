@@ -72,7 +72,7 @@ extern "C" {
 	void module_list(void);
 	size_t module_getcount(void);
 	const char* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size);
-	double *module_getvar_addr(MODULE *mod, const char *varname);
+	void *module_getvar_addr(MODULE *mod, const char *varname);
 	int module_depends(const char *name, unsigned char major, unsigned char minor, unsigned short build);
 	int module_setvar(MODULE *mod, const char *varname, char *value);
 	int module_import(MODULE *mod, const char *filename);
