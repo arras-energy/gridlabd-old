@@ -72,7 +72,7 @@ private:
 	int push_market_frame(TIMESTAMP t1);
 	int check_next_market(TIMESTAMP t1);
 	TIMESTAMP pop_market_frame(TIMESTAMP t1);
-	void record_bid(char *from, double quantity, double real_price, BIDDERSTATE state);
+	void record_bid(const char *from, double quantity, double real_price, BIDDERSTATE state);
 	void record_curve(double, double);
 	// variables
 	curve asks;			/**< demand curve */ 
@@ -154,9 +154,9 @@ private:
 	FILE *curve_file;
 	int64 curve_log_count;
 public:
-	int submit(char *from, double quantity, double real_price, KEY key, BIDDERSTATE state, bool rebid, int64 mkt_id);
+	int submit(const char *from, double quantity, double real_price, KEY key, BIDDERSTATE state, bool rebid, int64 mkt_id);
 private:
-	int submit_nolock(char *from, double quantity, double real_price, KEY key, BIDDERSTATE state, bool rebid, int64 mkt_id);
+	int submit_nolock(const char *from, double quantity, double real_price, KEY key, BIDDERSTATE state, bool rebid, int64 mkt_id);
 public:
 	TIMESTAMP nextclear() const;
 private:
@@ -166,7 +166,7 @@ public:
 	auction(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);

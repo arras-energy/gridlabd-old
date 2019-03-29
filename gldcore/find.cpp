@@ -11,9 +11,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <stdio.h>
-#ifdef WIN32 && !(__MINGW__)
+#if defined WIN32 && ! defined __MINGW__
 #include <io.h>
-#	define snprintf _snprintf
+#define snprintf _snprintf
+#else
+#include <unistd.h>
 #endif
 #include "globals.h"
 #include "output.h"
@@ -24,7 +26,7 @@
 
 SET_MYCONTEXT(DMC_FIND)
 
-static FINDTYPE invar_types[] = {FT_ID, FT_SIZE, FT_CLASS, FT_PARENT, FT_RANK, FT_NAME, FT_LAT, FT_LONG, FT_INSVC, FT_OUTSVC, FT_MODULE, FT_ISA, 0};
+static FINDTYPE invar_types[] = {FT_ID, FT_SIZE, FT_CLASS, FT_PARENT, FT_RANK, FT_NAME, FT_LAT, FT_LONG, FT_INSVC, FT_OUTSVC, FT_MODULE, FT_ISA, FT_END};
 
 static int compare_int(int64 a, FINDOP op, int64 b)
 {
@@ -99,7 +101,7 @@ static int compare_int16(int16 a, FINDOP op, int64 b)
 	}
 }
 
-static int compare_double(double a, FINDOP op, double b)
+extern "C" int compare_double(double a, FINDOP op, double b)
 {
 	switch (op) {
 	case EQ: return a==b;
@@ -171,85 +173,6 @@ static int compare_property(OBJECT *obj, char *propname, FINDOP op, void *value)
 	return compare_string(propval,op,(char*)value);
 }
 
-/**	Fetches the property requested and uses the appropriate op on the value.
-	@return boolean value
-**/
-static int compare_property_alt(OBJECT *obj, char *propname, FINDOP op, void *value){
-	complex *complex_target = NULL;
-	char *char_target = NULL;
-	int16 *int16_target = NULL;
-	int32 *int32_target = NULL;
-	int64 *int64_target = NULL;
-	PROPERTY *prop = object_get_property(obj, propname,NULL);
-
-	if(prop == NULL){
-		/* property not found in object ~ normal operation */
-		return 0;
-	}
-
-	switch(prop->ptype){
-		case PT_void:
-			return 0;	/* no comparsion to be made */
-		case PT_double:
-			break;
-		case PT_complex:
-			complex_target = object_get_complex(obj, prop);
-			if(complex_target == NULL)
-				return 0; /* error value */
-			break;
-		case PT_enumeration:
-		case PT_set:
-			break;		/* not 100% sure how to make these cooperate yet */
-		case PT_int16:
-			int16_target = (int16 *)object_get_int16(obj, prop);
-			if(int16_target == NULL)
-				return 0;
-			return compare_int16(*int16_target, op, *(int64 *)value);
-		case PT_int32:
-			int32_target = (int32 *)object_get_int32(obj, prop);
-			return compare_int32(*int32_target, op, *(int64 *)value);
-			break;
-		case PT_int64:
-			int64_target = (int64 *)object_get_int64(obj, prop);
-			return compare_int64(*int64_target, op, *(int64 *)value);
-			break;
-		case PT_char8:
-		case PT_char32:
-		case PT_char256:
-		case PT_char1024:
-			char_target = (char *)object_get_string(obj, prop);
-			if(char_target == NULL)
-				return 0;
-			return compare_string(char_target, op, value);
-			break;
-		case PT_object:
-
-			break;
-		case PT_bool:
-			break;
-		case PT_timestamp:
-		case PT_double_array:
-		case PT_complex_array:
-			break;
-#ifdef USE_TRIPLETS
-		case PT_triple:
-		case PT_triplex:
-			break;
-#endif
-		default:
-			output_error("comparison operators not supported for property type %s", class_get_property_typename(prop->ptype));
-			/* TROUBLESHOOT
-				This error is caused when an object find procedure uses a comparison operator
-			that isn't allowed on a that type of property.  Make sure the property type
-			and the comparison operator are compatible and try again.  If your GLM file
-			isn't the cause of the problem, try reducing the complexity of the GLM file 
-			you are using to isolate which module is causing the error and file a report 
-			with the GLM file attached.
-			 */
-			return 0;
-	}
-}
-
 static int compare(OBJECT *obj, FINDTYPE ftype, FINDOP op, void *value, char *propname)
 {
 	switch (ftype) {
@@ -280,7 +203,7 @@ static int compare(OBJECT *obj, FINDTYPE ftype, FINDOP op, void *value, char *pr
 FINDLIST *new_list(unsigned int n)
 {
 	unsigned int size = (n>>3)+1;
-	FINDLIST *list = module_malloc(sizeof(FINDLIST)+size-1);
+	FINDLIST *list = (FINDLIST*)module_malloc(sizeof(FINDLIST)+size-1);
 	if (list==NULL)
 	{
 		errno=ENOMEM;
@@ -392,42 +315,42 @@ FINDLIST *find_objects(FINDLIST *start, ...)
 		FINDTYPE ftype;
 		va_list(ptr);
 		va_start(ptr,start);
-		while ((ftype=va_arg(ptr,FINDTYPE)) != FT_END)
+		while ((ftype=(FINDTYPE)va_arg(ptr,int)) != FT_END)
 		{
 			int invert=0;
 			int parent=0;
-			FINDOP conj=AND;
+			FINDTYPE conj=FT_AND;
 			FINDOP op;
 			char *propname = NULL;
 			void *value;
 			OBJECT *target=obj;
 
 			/* conjunction */
-			if (ftype==AND || ftype==OR)
+			if (ftype==FT_AND || ftype==FT_OR)
 			{	/* expect another op */
 				conj=ftype;
-				ftype = va_arg(ptr, FINDTYPE);
+				ftype = (FINDTYPE)va_arg(ptr, int);
 			}
 
 			/* follow to parent */
 			while (ftype==FT_PARENT)
 			{
-				ftype=va_arg(ptr,FINDTYPE);
+				ftype = (FINDTYPE)va_arg(ptr,int);
 				parent++;
 			}
 
 			/* property option require property name */
 			if (ftype==FT_PROPERTY)
-				propname=va_arg(ptr,char*);
+				propname = va_arg(ptr,char*);
 
 			/* read operation */
-			op = va_arg(ptr,FINDOP);
+			op = (FINDOP)va_arg(ptr,int);
 
 			/* negation */
 			if (op==NOT)
 			{	/* expect another op */
 				invert=1;
-				op = va_arg(ptr,FINDOP);
+				op = (FINDOP)va_arg(ptr,int);
 			}
 
 			/* read value */
@@ -484,12 +407,12 @@ FINDLIST *find_objects(FINDLIST *start, ...)
 				/* match */
 				if (compare(target,ftype,op,value,propname)!=invert)
 				{
-					if (conj==OR) 
+					if (conj==FT_OR) 
 						ADDOBJ(*result,obj->id);
 				}
 				else
 				{
-					if (conj==AND) 
+					if (conj==FT_AND) 
 						DELOBJ(*result,obj->id);
 				}
 			}
@@ -548,136 +471,175 @@ OBJECT *find_next(FINDLIST *list, /**< the search list to scan */
 
 #define VALUE(X,T,M) ((X).isconstant?(X).value.constant.M:*((X).value.ref.T))
 
-int compare_pointer_eq(void *a, FINDVALUE b) { return *(void**)a==b.pointer;}
-int compare_pointer_ne(void *a, FINDVALUE b) { return *(void**)a!=b.pointer;}
-int compare_pointer_lt(void *a, FINDVALUE b) { return *(void**)a<b.pointer;}
-int compare_pointer_gt(void *a, FINDVALUE b) { return *(void**)a>b.pointer;}
-int compare_pointer_le(void *a, FINDVALUE b) { return *(void**)a<=b.pointer;}
-int compare_pointer_ge(void *a, FINDVALUE b) { return *(void**)a>=b.pointer;}
+int compare_pointer_eq(void *a, FINDVALUE b) { return *(void**)a==b.pointer; }
+int compare_pointer_ne(void *a, FINDVALUE b) { return *(void**)a!=b.pointer; }
+int compare_pointer_lt(void *a, FINDVALUE b) { return *(void**)a<b.pointer; }
+int compare_pointer_gt(void *a, FINDVALUE b) { return *(void**)a>b.pointer; }
+int compare_pointer_le(void *a, FINDVALUE b) { return *(void**)a<=b.pointer; }
+int compare_pointer_ge(void *a, FINDVALUE b) { return *(void**)a>=b.pointer; }
 
-int compare_integer16_eq(void *a, FINDVALUE b) { return *(int16*)a==(int16)b.integer;}
-int compare_integer16_ne(void *a, FINDVALUE b) { return *(int16*)a!=(int16)b.integer;}
-int compare_integer16_lt(void *a, FINDVALUE b) { return *(int16*)a<(int16)b.integer;}
-int compare_integer16_gt(void *a, FINDVALUE b) { return *(int16*)a>(int16)b.integer;}
-int compare_integer16_le(void *a, FINDVALUE b) { return *(int16*)a<=(int16)b.integer;}
-int compare_integer16_ge(void *a, FINDVALUE b) { return *(int16*)a>=(int16)b.integer;}
+int compare_integer16_eq(void *a, FINDVALUE b) { return *(int16*)a==(int16)b.integer; }
+int compare_integer16_ne(void *a, FINDVALUE b) { return *(int16*)a!=(int16)b.integer; }
+int compare_integer16_lt(void *a, FINDVALUE b) { return *(int16*)a<(int16)b.integer; }
+int compare_integer16_gt(void *a, FINDVALUE b) { return *(int16*)a>(int16)b.integer; }
+int compare_integer16_le(void *a, FINDVALUE b) { return *(int16*)a<=(int16)b.integer; }
+int compare_integer16_ge(void *a, FINDVALUE b) { return *(int16*)a>=(int16)b.integer; }
 
-int compare_integer32_eq(void *a, FINDVALUE b) { return *(int32*)a==(int32)b.integer;}
-int compare_integer32_ne(void *a, FINDVALUE b) { return *(int32*)a!=(int32)b.integer;}
-int compare_integer32_lt(void *a, FINDVALUE b) { return *(int32*)a<(int32)b.integer;}
-int compare_integer32_gt(void *a, FINDVALUE b) { return *(int32*)a>(int32)b.integer;}
-int compare_integer32_le(void *a, FINDVALUE b) { return *(int32*)a<=(int32)b.integer;}
-int compare_integer32_ge(void *a, FINDVALUE b) { return *(int32*)a>=(int32)b.integer;}
+int compare_integer32_eq(void *a, FINDVALUE b) { return *(int32*)a==(int32)b.integer; }
+int compare_integer32_ne(void *a, FINDVALUE b) { return *(int32*)a!=(int32)b.integer; }
+int compare_integer32_lt(void *a, FINDVALUE b) { return *(int32*)a<(int32)b.integer; }
+int compare_integer32_gt(void *a, FINDVALUE b) { return *(int32*)a>(int32)b.integer; }
+int compare_integer32_le(void *a, FINDVALUE b) { return *(int32*)a<=(int32)b.integer; }
+int compare_integer32_ge(void *a, FINDVALUE b) { return *(int32*)a>=(int32)b.integer; }
 
-int compare_integer64_eq(void *a, FINDVALUE b) { return *(int64*)a==(int64)b.integer;}
-int compare_integer64_ne(void *a, FINDVALUE b) { return *(int64*)a!=(int64)b.integer;}
-int compare_integer64_lt(void *a, FINDVALUE b) { return *(int64*)a<(int64)b.integer;}
-int compare_integer64_gt(void *a, FINDVALUE b) { return *(int64*)a>(int64)b.integer;}
-int compare_integer64_le(void *a, FINDVALUE b) { return *(int64*)a<=(int64)b.integer;}
-int compare_integer64_ge(void *a, FINDVALUE b) { return *(int64*)a>=(int64)b.integer;}
+int compare_integer64_eq(void *a, FINDVALUE b) { return *(int64*)a==(int64)b.integer; }
+int compare_integer64_ne(void *a, FINDVALUE b) { return *(int64*)a!=(int64)b.integer; }
+int compare_integer64_lt(void *a, FINDVALUE b) { return *(int64*)a<(int64)b.integer; }
+int compare_integer64_gt(void *a, FINDVALUE b) { return *(int64*)a>(int64)b.integer; }
+int compare_integer64_le(void *a, FINDVALUE b) { return *(int64*)a<=(int64)b.integer; }
+int compare_integer64_ge(void *a, FINDVALUE b) { return *(int64*)a>=(int64)b.integer; }
 
-int compare_integer_eq(void *a, FINDVALUE b) { return *(int32*)a==(int32)b.integer;}
-int compare_integer_ne(void *a, FINDVALUE b) { return *(int32*)a!=(int32)b.integer;}
-int compare_integer_lt(void *a, FINDVALUE b) { return *(int32*)a<(int32)b.integer;}
-int compare_integer_gt(void *a, FINDVALUE b) { return *(int32*)a>(int32)b.integer;}
-int compare_integer_le(void *a, FINDVALUE b) { return *(int32*)a<=(int32)b.integer;}
-int compare_integer_ge(void *a, FINDVALUE b) { return *(int32*)a>=(int32)b.integer;}
+int compare_integer_eq(void *a, FINDVALUE b) { return *(int32*)a==(int32)b.integer; }
+int compare_integer_ne(void *a, FINDVALUE b) { return *(int32*)a!=(int32)b.integer; }
+int compare_integer_lt(void *a, FINDVALUE b) { return *(int32*)a<(int32)b.integer; }
+int compare_integer_gt(void *a, FINDVALUE b) { return *(int32*)a>(int32)b.integer; }
+int compare_integer_le(void *a, FINDVALUE b) { return *(int32*)a<=(int32)b.integer; }
+int compare_integer_ge(void *a, FINDVALUE b) { return *(int32*)a>=(int32)b.integer; }
 
-int compare_real_eq(void *a, FINDVALUE b) { return *(double*)a==b.real;}
-int compare_real_ne(void *a, FINDVALUE b) { return *(double*)a!=b.real;}
-int compare_real_lt(void *a, FINDVALUE b) { return *(double*)a<b.real;}
-int compare_real_gt(void *a, FINDVALUE b) { return *(double*)a>b.real;}
-int compare_real_le(void *a, FINDVALUE b) { return *(double*)a<=b.real;}
-int compare_real_ge(void *a, FINDVALUE b) { return *(double*)a>=b.real;}
+int compare_real_eq(void *a, FINDVALUE b) { return *(double*)a==b.real; }
+int compare_real_ne(void *a, FINDVALUE b) { return *(double*)a!=b.real; }
+int compare_real_lt(void *a, FINDVALUE b) { return *(double*)a<b.real; }
+int compare_real_gt(void *a, FINDVALUE b) { return *(double*)a>b.real; }
+int compare_real_le(void *a, FINDVALUE b) { return *(double*)a<=b.real; }
+int compare_real_ge(void *a, FINDVALUE b) { return *(double*)a>=b.real; }
 
-int compare_isa(void *a, FINDVALUE b) { return object_isa((OBJECT*)a,b.string); }
+int compare_isa(void *a, FINDVALUE b) 
+{ 
+	return object_isa((OBJECT*)a,b.string); 
+}
 
 /* NOTE: this only works with short-circuiting logic! */
-int compare_string_eq(void *a, FINDVALUE b) {
+int compare_string_eq(void *a, FINDVALUE b) 
+{
 	int one = (char **)a != NULL;
 	int two = strcmp((char*)a,b.string)==0;
 	return (char *)a != NULL && strcmp((char*)a,b.string)==0;
 }
-int compare_string_ne(void *a, FINDVALUE b) { return *(char **)a != NULL && strcmp(*(char**)a,b.string)!=0;}
-int compare_string_lt(void *a, FINDVALUE b) { return *(char **)a != NULL && strcmp(*(char**)a,b.string)<0;}
-int compare_string_gt(void *a, FINDVALUE b) { return *(char **)a != NULL && strcmp(*(char**)a,b.string)>0;}
-int compare_string_le(void *a, FINDVALUE b) { return *(char **)a != NULL && strcmp(*(char**)a,b.string)<=0;}
-int compare_string_ge(void *a, FINDVALUE b) { return *(char **)a != NULL && strcmp(*(char**)a,b.string)>=0;}
+int compare_string_ne(void *a, FINDVALUE b) 
+{ 
+	return *(char **)a != NULL && strcmp(*(char**)a,b.string)!=0;
+}
+int compare_string_lt(void *a, FINDVALUE b) 
+{ 
+	return *(char **)a != NULL && strcmp(*(char**)a,b.string)<0;
+}
+int compare_string_gt(void *a, FINDVALUE b) 
+{ 
+	return *(char **)a != NULL && strcmp(*(char**)a,b.string)>0;
+}
+int compare_string_le(void *a, FINDVALUE b) 
+{ 
+	return *(char **)a != NULL && strcmp(*(char**)a,b.string)<=0;
+}
+int compare_string_ge(void *a, FINDVALUE b) 
+{ 
+	return *(char **)a != NULL && strcmp(*(char**)a,b.string)>=0;
+}
 
-int compare_pointer_li(void *a, FINDVALUE b) {return 0;}
+int compare_pointer_li(void *a, FINDVALUE b) 
+{
+	return 0;
+}
 
-int compare_integer_li(void *a, FINDVALUE b) {
+int compare_integer_li(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_int64(temp, 256, &(b.integer), NULL))
 		return match(*(char **)a, temp);
 	return 0;
 }
 
-int compare_real_li(void *a, FINDVALUE b) {
+int compare_real_li(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_double(temp, 256, &(b.real), NULL))
 		return match(*(char **)a, temp);
 	return 0;
 }
 
-int compare_string_li(void *a, FINDVALUE b) {return match(b.string, (char *)a);}
+int compare_string_li(void *a, FINDVALUE b) 
+{
+	return match(b.string, (char *)a);
+}
 
-int compare_integer16_li(void *a, FINDVALUE b) {
+int compare_integer16_li(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_int16(temp, 256, &(b.integer), NULL))
 		return match(*(char **)a, temp);
 	return 0;
 }
 
-int compare_integer32_li(void *a, FINDVALUE b) {
+int compare_integer32_li(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_int32(temp, 256, &(b.integer), NULL))
 		return match(*(char **)a, temp);
 	return 0;
 }
 
-int compare_integer64_li(void *a, FINDVALUE b) {
+int compare_integer64_li(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_int64(temp, 256, &(b.integer), NULL))
 		return match(*(char **)a, temp);
 	return 0;
 }
 
-int compare_pointer_nl(void *a, FINDVALUE b) {return 1;}
+int compare_pointer_nl(void *a, FINDVALUE b) 
+{
+	return 1;
+}
 
-int compare_integer_nl(void *a, FINDVALUE b) {
+int compare_integer_nl(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_int64(temp, 256, &(b.integer), NULL))
 		return 1 != match(*(char **)a, temp);
 	return 0;
 }
 
-int compare_real_nl(void *a, FINDVALUE b) {
+int compare_real_nl(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_double(temp, 256, &(b.real), NULL))
 		return 1 != match(*(char **)a, temp);
 	return 0;
 }
 
-int compare_string_nl(void *a, FINDVALUE b) {
+int compare_string_nl(void *a, FINDVALUE b) 
+{
 	return 1 != match(*(char **)a, b.string);
 }
 
-int compare_integer16_nl(void *a, FINDVALUE b) {
+int compare_integer16_nl(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_int16(temp, 256, &(b.integer), NULL))
 		return 1 != match(*(char **)a, temp);
 	return 0;
 }
 
-int compare_integer32_nl(void *a, FINDVALUE b) {
+int compare_integer32_nl(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_int32(temp, 256, &(b.integer), NULL))
 		return 1 != match(*(char **)a, temp);
 	return 0;
 }
 
-int compare_integer64_nl(void *a, FINDVALUE b) {
+int compare_integer64_nl(void *a, FINDVALUE b) 
+{
 	char temp[256];
 	if(convert_from_int64(temp, 256, &(b.integer), NULL))
 		return 1 != match(*(char **)a, temp);
@@ -694,7 +656,7 @@ int compare_integer64_nl(void *a, FINDVALUE b) {
 FINDLIST *findlist_copy(FINDLIST *list)
 {
 	unsigned int size = sizeof(FINDLIST)+(list->result_size>>3);
-	FINDLIST *new_list = module_malloc(size);
+	FINDLIST *new_list = (FINDLIST*)module_malloc(size);
 	memcpy(new_list,list,size);
 	return new_list;
 }
@@ -714,6 +676,7 @@ void findlist_clear(FINDLIST *list)
 
 static void findlist_nop(FINDLIST *list, OBJECT *obj)
 {
+	return;
 }
 
 PGMCONSTFLAGS find_pgmconstants(FINDPGM *pgm)
@@ -791,7 +754,7 @@ FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm)
 #define OR {_m=0;}
 #define REJECT { return 0; }
 #define WHITE (_m+=white(HERE))
-#define LITERAL(X) ((_m+=literal(HERE,(X)))>0)
+#define LITERAL(X) ((_m+=literal(HERE,(const char*)(X)))>0)
 #define TERM(X) ((_m+=(X))>0)
 #define COPY(X) {size--; (X)[_n++]=*_p++;}
 #define DONE return _n;
@@ -827,7 +790,7 @@ static int comment(PARSER)
 	return _n;
 }
 
-static int literal(PARSER, char *text)
+static int literal(PARSER, const char *text)
 {
 	if (strncmp(_p,text,strlen(text))==0)
 		return (int)strlen(text);
@@ -837,7 +800,7 @@ static int literal(PARSER, char *text)
 static int name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
-	while (size>1 && isalpha(*_p) || isdigit(*_p) || *_p=='_') COPY(result);
+	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1036,7 +999,7 @@ static int expression(PARSER, FINDPGM **pgm)
 			FINDVALUE v;
 			CLASS *oclass = class_get_class_from_classname(pvalue);
 			if (oclass==NULL)
-				output_error("class '%s' not found", pvalue);
+				output_error("class '%s' not found", (const char*)pvalue);
 				/*	TROUBLESHOOT
 					A search rule specified a class that doesn't exist.  
 					Check the class name to make sure it exists and try again.
@@ -1054,7 +1017,7 @@ static int expression(PARSER, FINDPGM **pgm)
 			FINDVALUE v;
 			CLASS *oclass = class_get_class_from_classname(pvalue);
 			if (oclass==NULL)
-				output_error("class '%s' not found", pvalue);
+				output_error("class '%s' not found", (const char*)pvalue);
 				/*	TROUBLESHOOT
 					A search rule specified a class that doesn't exist.  
 					Check the class name to make sure it exists and try again.
@@ -1082,7 +1045,7 @@ static int expression(PARSER, FINDPGM **pgm)
 			FINDVALUE v;
 			MODULE *mod = module_find(pvalue);
 			if (mod==NULL)
-				output_error("module '%s' not found", pvalue);
+				output_error("module '%s' not found", (const char*)pvalue);
 				/* TROUBLESHOOT
 					A search rule specified a module that hasn't been loaded.
 					Check the module name to make sure it's been loaded and try again.
@@ -1128,7 +1091,7 @@ static int expression(PARSER, FINDPGM **pgm)
 			FINDVALUE v;
 			OBJECT *parent = object_find_name(pvalue);
 			if (parent==NULL && strcmp(pvalue, "root") != 0 && strcmp(pvalue, "ROOT") != 0)
-				output_error("parent '%s' not found", pvalue);
+				output_error("parent '%s' not found", (const char*)pvalue);
 				/* TROUBLESHOOT 
 					A search rule specified a parent that isn't defined.
 					Check the parent name and try again.
@@ -1146,7 +1109,7 @@ static int expression(PARSER, FINDPGM **pgm)
 			FINDVALUE v;
 			int rank = atoi(pvalue);
 			if (rank<0)
-				output_error("rank %s is invalid", pvalue);
+				output_error("rank %s is invalid", (const char*)pvalue);
 				/* TROUBLESHOOT
 					A search rule specified an object rank that is negative.
 					Make sure the rank is zero or positive and try again.
@@ -1227,7 +1190,7 @@ static int expression(PARSER, FINDPGM **pgm)
 		{
 			FINDVALUE v;
 			v.integer = convert_to_timestamp(pvalue);
-			printf("find insvc=%i\n", v.integer);
+			printf("find insvc=%lli\n", v.integer);
 			if(v.integer == TS_NEVER)
 				REJECT;
 			add_pgm(pgm, comparemap[op].integer, OFFSET(in_svc), v, NULL, findlist_del);
@@ -1248,14 +1211,14 @@ static int expression(PARSER, FINDPGM **pgm)
 		{
 			/** @todo support searches on flags (PLC, lock) */
 			/* still need to think about how to input flags without hardcoding the flag name. -mh */
-			output_error("find expression on %s not supported", pname);
+			output_error("find expression on %s not supported", (const char*)pname);
 			/* TROUBLESHOOT
 				A search criteria attempted to search on the flags of an object, which is supported yet.
 				Remove the "flags" criteria and try again.
 			 */
 		}
 		else
-			output_error("find expression refers to unknown or unsupported property '%s'", pname);
+			output_error("find expression refers to unknown or unsupported property '%s'", (const char*)pname);
 			/* TROUBLESHOOT
 				A search criteria used an expression that isn't recognized.  
 				Fix the search rule and try again.
@@ -1314,7 +1277,7 @@ char *find_file(const char *name, /**< the name of the file to find */
 	char filepath[1024];
 	char tempfp[1024];
 	char envbuf[1024];
-	char *glpath;
+	const char *glpath;
 	char *dir;
 
 #ifdef WIN32
@@ -1406,16 +1369,25 @@ char *find_file(const char *name, /**< the name of the file to find */
 
 OBJLIST *objlist_create(CLASS *oclass, PROPERTY *match_property, char *part, char *match_op, void *match_value1, void *match_value2 )
 {
-	OBJLIST *list = malloc(sizeof(OBJLIST));
+	OBJLIST *list = (OBJLIST*)malloc(sizeof(OBJLIST));
 	
 	/* check parameters */
-	if ( !list ) return output_error("find_create(): memory allocation failed"),NULL;
+	if ( !list ) 
+	{
+		output_error("find_create(): memory allocation failed");
+		return NULL;
+	}
 	
 	/* setup object list structure */
 	list->asize = INITSIZE;
 	list->size = 0;
-	list->objlist = malloc(sizeof(OBJECT*)*INITSIZE);
-	if ( !list->objlist ) return output_error("find_create(): memory allocation failed"),free(list),NULL;
+	list->objlist = (struct s_object_list**)malloc(sizeof(OBJECT*)*INITSIZE);
+	if ( !list->objlist ) 
+	{
+		output_error("find_create(): memory allocation failed");
+		free(list);
+		return NULL;
+	}
 	list->oclass = oclass;
 
 	/* perform search */
@@ -1440,11 +1412,11 @@ OBJLIST *objlist_search(char *group)
 	{
 		return NULL;
 	}
-	list = malloc(sizeof(OBJLIST));
+	list = (OBJLIST*)malloc(sizeof(OBJLIST));
 	if ( !list ) return NULL;
 	list->oclass = NULL;
 	list->asize = list->size = result->hit_count;
-	list->objlist = malloc(sizeof(OBJECT*)*result->hit_count);
+	list->objlist = (struct s_object_list**)malloc(sizeof(OBJECT*)*result->hit_count);
 	if ( !list->objlist ) return NULL;
 	for ( obj=find_first(result),n=0 ; obj!=NULL ; obj=find_next(result,obj),n++ )
 		list->objlist[n] = obj;

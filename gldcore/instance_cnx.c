@@ -216,7 +216,8 @@ STATUS instance_cnx_socket(instance *inst){
 	}
 	// get listener port
 	slt = sizeof(ss);
-	if(-1 == getsockname(insockfd, (struct sockaddr *)&ss, &slt)){
+	if ( getsockname(insockfd, (struct sockaddr *)&ss, (socklen_t*)&slt) == -1 )
+	{
 		output_error("instance_cnx_socket(): error getting insockfd name");
 #ifdef WIN32
 		WSAGetLastError();
@@ -305,7 +306,7 @@ STATUS instance_cnx_socket(instance *inst){
 		return FAILED;
 	}
 	
-	inst->sockfd = (int)accept(insockfd, (struct sockaddr *)&return_addr, &return_addr_sz);
+	inst->sockfd = (int)accept(insockfd, (struct sockaddr *)&return_addr, (socklen_t*)&return_addr_sz);
 	if(-1 == inst->sockfd){
 		// error
 		output_error("instance_cnx_socket(): error accept()ing connection on callback socket");

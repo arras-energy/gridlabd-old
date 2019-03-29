@@ -25,7 +25,7 @@ except:
 	except :
 		compile_options = None
 	if not compile_options :
-		compile_options=['-w','-O3']
+		compile_options=['-O2','-g']
 if not srcdir :
 	raise Exception("SRCDIR environment variable was not set -- try the command 'export SRCDIR=$PWD' before running setup.py")
 compile_options.extend(['-I'+srcdir+'/gldcore',"-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
@@ -46,7 +46,7 @@ gridlabd = Extension('gridlabd',
 		'gldcore/environment.c',
 		'gldcore/exception.c',
 		'gldcore/exec.cpp',
-		'gldcore/find.c',
+		'gldcore/find.cpp',
 		'gldcore/globals.cpp',
 		'gldcore/gui.c',
 		'gldcore/http_client.c',

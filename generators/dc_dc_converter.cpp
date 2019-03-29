@@ -173,7 +173,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 	
 	struct {
 		complex **var;
-		char *varname;
+		const char *varname;
 	} map[] = {
 		// local object name,	meter object name
 		{&pCircuit_V,			"V_In"},
@@ -317,7 +317,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 
 
 
-complex *dc_dc_converter::get_complex(OBJECT *obj, char *name)
+complex *dc_dc_converter::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)
@@ -456,10 +456,13 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 			}
 */
 			
-			if(parent_string = "meter"){
+			if ( strcmp(parent_string,"meter") == 0 )
+			{
 				VA_Out = complex(P_Out,Q_Out);
 				gl_verbose("dc_dc_c sync: VA_Out set is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
-			}else{
+			}
+			else
+			{
 				I_Out = pLine_I[0];
 				gl_verbose("dc_dc_c sync: V_In requested is: (%f , %f)", V_In.Re(), V_In.Im());
 				VA_Out = V_Out * ~ I_Out;

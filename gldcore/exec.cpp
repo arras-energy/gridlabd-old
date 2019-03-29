@@ -390,17 +390,21 @@ GldExec::~GldExec(void)
 
 void GldExec::free_simplelist(SIMPLELIST *list)
 {
-	SIMPLELIST *next = list->next;
-	free(list->data);
-	free(list);
-	if ( next ) free_simplelist(next);
+	if ( list )
+	{
+		free_simplelist(list->next);
+		if ( list->data ) free(list->data);
+		free(list);
+	}	
 }
 
 void GldExec::free_simplelinklist(SIMPLELINKLIST *list)
 {
-	SIMPLELINKLIST *next = list->next;
-	free(list);
-	if ( next ) free_simplelinklist(next);
+	if ( list )
+	{
+		free_simplelinklist(list->next);
+		free(list);
+	}
 }
 
 struct thread_data *GldExec::create_threaddata(size_t count)

@@ -118,15 +118,16 @@ int controller_dg::init(OBJECT *parent)
 	int index = 0;
 	if(dgs != NULL){
 		pDG = (diesel_dg **)gl_malloc(dgs->hit_count*sizeof(diesel_dg*));
-		DGpNdName = (char **)gl_malloc(dgs->hit_count*sizeof(char*));
+		DGpNdName = (const char **)gl_malloc(dgs->hit_count*sizeof(char*));
 		if(pDG == NULL){
 			gl_error("Failed to allocate diesel_dg array.");
-			return TS_NEVER;
+			return 0;
 		}
 
 		GenPobj = (node **)gl_malloc(dgs->hit_count*sizeof(node*));
 
-		while(obj = gl_find_next(dgs,obj)){
+		while ( (obj = gl_find_next(dgs,obj)) )
+		{
 
 			// Store each generator parented node name,
 			// so that the corresponding connected switch can be found
@@ -208,10 +209,11 @@ int controller_dg::init(OBJECT *parent)
 		pSwitch = (switch_object **)gl_malloc(dgs->hit_count*sizeof(switch_object*));
 		if(pSwitch == NULL){
 			gl_error("Failed to allocate switch array.");
-			return TS_NEVER;
+			return 0;
 		}
 
-		while(obj = gl_find_next(switches,obj)){
+		while ( (obj = gl_find_next(switches,obj)) )
+		{
 			if(index >= switches->hit_count){
 				break;
 			}
@@ -221,8 +223,8 @@ int controller_dg::init(OBJECT *parent)
 
 			// Obtain the voltage and frequency values for each switch
 			// Get the switch from node object
-			char *temp_from_name = temp_switch->from->name;
-			char *temp_to_name = temp_switch->to->name;
+			const char *temp_from_name = temp_switch->from->name;
+			const char *temp_to_name = temp_switch->to->name;
 
 			bool found = false;
 			for (int i = 0; i < dgs->hit_count; i++) {
@@ -489,9 +491,9 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 
 
 		// Check whether the voltage and frequency is out of limit when the switch is closed
-		if ((phase_A_state_check == 1 || phase_B_state_check == 1 || phase_C_state_check == 1) &&
-			(((*mapped_freq_variable > omega_ref/(2.0*PI)*1.01) || vtemp[0].Mag() > 1.2*nominal_voltage || vtemp[1].Mag() > 1.2*nominal_voltage || vtemp[2].Mag() > 1.2*nominal_voltage)) ||
-			(phase_A_P > 0 || phase_B_P > 0 || phase_C_P > 0))
+		if (((phase_A_state_check == 1 || phase_B_state_check == 1 || phase_C_state_check == 1) 
+				&& (((*mapped_freq_variable > omega_ref/(2.0*PI)*1.01) || vtemp[0].Mag() > 1.2*nominal_voltage || vtemp[1].Mag() > 1.2*nominal_voltage || vtemp[2].Mag() > 1.2*nominal_voltage)))
+			|| (phase_A_P > 0 || phase_B_P > 0 || phase_C_P > 0))
 		{
 
 			if ((flag_switchOn == false) || (controlTime == delta_time)) {
@@ -534,7 +536,7 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 				}
 
 				// Set delay so that all switches will not be opened together
-				controlTime == delta_time + 100*dt;
+				controlTime = delta_time + 100*dt;
 
 			}
 		}

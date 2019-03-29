@@ -104,7 +104,7 @@ STATUS test_exec(void)
 
 static volatile unsigned int *count = NULL;
 static volatile unsigned int total = 0;
-static unsigned int key = 0;
+static LOCKVAR key = 0;
 static volatile int done = 0;
 
 static void *test_lock_proc(void *ptr)

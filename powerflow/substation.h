@@ -15,11 +15,11 @@ protected:
 	TIMESTAMP last_t;
 public:
 	complex positive_sequence_voltage;				///< The positive sequence voltage of the substation object
-	typedef enum {
+	typedef enum e_reference_phase {
 		R_PHASE_A,
 		R_PHASE_B,
 		R_PHASE_C
-	};
+	} REFERENCEPHASE;
 	enumeration reference_phase;						///< The point of reference for the positive sequence voltage conversion
 	complex average_transmission_power_load;		///<the average constant power load to be posted directly to the pw_load object
 	complex average_transmission_impedance_load;	///<the average constant impedance load to be posted directly to the pw_load object
@@ -57,9 +57,9 @@ public:
 	int init(OBJECT *parent);
 	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
-	void fetch_complex(complex **prop, char *name, OBJECT *parent);
-	void fetch_double(double **prop, char *name, OBJECT *parent);
-	int isa(char *classname);
+	void fetch_complex(complex **prop, const char *name, OBJECT *parent);
+	void fetch_double(double **prop, const char *name, OBJECT *parent);
+	int isa(CLASSNAME classname);
 	SIMULATIONMODE inter_deltaupdate_substation(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
 };
 
