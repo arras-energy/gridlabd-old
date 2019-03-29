@@ -109,7 +109,7 @@ EXPORT int create_pole_configuration(OBJECT **obj, OBJECT *parent)
 	CREATE_CATCHALL(pole_configuration);
 }
 
-EXPORT int isa_pole_configuration(OBJECT *obj, char *classname)
+EXPORT int isa_pole_configuration(OBJECT *obj, CLASSNAME classname)
 {
 	return strcmp(classname,"pole_configuration") == 0;
 }

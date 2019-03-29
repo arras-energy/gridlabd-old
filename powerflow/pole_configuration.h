@@ -48,7 +48,7 @@ public:
 	pole_configuration(MODULE *mod);
 	inline pole_configuration(CLASS *cl=oclass) : powerflow_library(cl) {};
 	double get_pole_diameter(double);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	int create(void);
 
 };
