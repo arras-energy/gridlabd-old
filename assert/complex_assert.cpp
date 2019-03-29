@@ -225,7 +225,7 @@ TIMESTAMP complex_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 	}
 }
 
-int complex_assert::postnotify(PROPERTY *prop, char *value)
+int complex_assert::postnotify(PROPERTY *prop, const char *value)
 {
 	if ( once==ONCE_DONE && strcmp(prop->name, "value")==0 )
 	{

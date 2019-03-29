@@ -176,7 +176,7 @@ TIMESTAMP int_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
     
 }
 
-int int_assert::postnotify(PROPERTY *prop, char *value)
+int int_assert::postnotify(PROPERTY *prop, const char *value)
 {
 	if ( once==ONCE_DONE && strcmp(prop->name, "value")==0 )
 	{
