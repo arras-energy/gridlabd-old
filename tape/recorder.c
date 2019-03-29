@@ -506,7 +506,9 @@ EXPORT int method_recorder_property(OBJECT *obj, ...)
 	// extended syntax
 	if ( arg0 == MC_EXTRACT ) // iterator
 	{
-		return method_extract(my->property,args);
+		gl_warning("recorder does not implement method extraction yet");
+		return -1;
+		//return method_extract(my->property,args);
 	}
 
 	// legacy calls

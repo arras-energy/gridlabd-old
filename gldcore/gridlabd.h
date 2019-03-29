@@ -2578,9 +2578,7 @@ public:
 	};
 };
 
-#endif // __cplusplus
-
-static int method_extract(char *value, va_list args)
+inline int method_extract(char *value, va_list args)
 {
 	char *buffer = va_arg(args,char*);
 	size_t size = va_arg(args,size_t);
@@ -2595,6 +2593,8 @@ static int method_extract(char *value, va_list args)
 	}
 	return -1;
 }
+
+#endif // __cplusplus
 
 /** @} **/
 #endif
