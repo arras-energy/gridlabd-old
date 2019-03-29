@@ -82,7 +82,7 @@ int pole_configuration::create(void)
 	return 1;
 }
 
-int pole_configuration::isa(char *classname)
+int pole_configuration::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"pole_configuration") == 0;
 }
