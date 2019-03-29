@@ -57,7 +57,7 @@ typedef struct{
 	int month, nth, day, hour, minute;
 } SPEC; /**< the specification of a DST event */
 
-static daysinmonth[] = {31,28,31,30,31,30,31,31,30,31,30,31};
+static int daysinmonth[] = {31,28,31,30,31,30,31,31,30,31,30,31};
 static char *dow[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat"};
 
 #define YEAR0 (1970) /* basis year is 1970 */
@@ -740,9 +740,9 @@ char *tz_locale(char *country, char *province, char *city)
 	{
 		char *locale = buffer;
 		if ( locale[0]==';' || locale[0]=='\0' ) continue;
-		if ( iswspace(locale[0]) )
+		if ( isspace(locale[0]) )
 		{
-			while ( iswspace(locale[0]) && locale[0]!='\0' ) locale++; /* trim left white */
+			while ( isspace(locale[0]) && locale[0]!='\0' ) locale++; /* trim left white */
 			if ( strnicmp(locale,target,len)==0 )
 			{
 				fclose(fp);
@@ -917,12 +917,12 @@ void load_tzspecs(char *tz){
 		/* remove trailing whitespace */
 		p = buffer + strlen(buffer) - 1;
 
-		while (iswspace(*p) && p > buffer){
+		while (isspace(*p) && p > buffer){
 			*p-- = '\0';
 		}
 
 		/* ignore blank lines or lines starting with white space*/
-		if (buffer[0] == '\0' || iswspace(buffer[0])){
+		if (buffer[0] == '\0' || isspace(buffer[0])){
 			continue;
 		}
 
@@ -984,7 +984,7 @@ char *timestamp_set_tz(char *tz_name)
 	if(tz_name == NULL)
 	{
 		static char guess[64];
-		static unsigned int tzlock=0;
+		static LOCKVAR tzlock=0;
 
 		if (strcmp(_tzname[0], "") == 0){
 			THROW("timezone not identified");
@@ -1274,7 +1274,7 @@ TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanosecond
 	output_value = TS_NEVER;
 
 	/* scan ISO format date/time -- nanosecond inclusive */
-	if (sscanf(value,"%d-%d-%d %d:%d:%lf %[-+:A-Za-z0-9]",&dt.year,&dt.month,&dt.day,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
+	if (sscanf(value,"%hd-%hd-%hd %hd:%hd:%lf %[-+:A-Za-z0-9]",&dt.year,&dt.month,&dt.day,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
 	{
 		dt.second = (unsigned int)seconds_w_nano;
 		dt.nanosecond = (unsigned int)(1e9*(seconds_w_nano-(double)dt.second)+0.5);
@@ -1284,7 +1284,7 @@ TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanosecond
 		output_value = mkdatetime(&dt);
 	}
 	/* scan ISO format date/time -- nanosecond inclusive */
-	else if (global_dateformat==DF_ISO && sscanf(value,"%d/%d/%d %d:%d:%lf %[-+:A-Za-z0-9]",&dt.year,&dt.month,&dt.day,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
+	else if (global_dateformat==DF_ISO && sscanf(value,"%hd/%hd/%hd %hd:%hd:%lf %[-+:A-Za-z0-9]",&dt.year,&dt.month,&dt.day,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
 	{
 		dt.second = (unsigned int)seconds_w_nano;
 		dt.nanosecond = (unsigned int)(1e9*(seconds_w_nano-(double)dt.second)+0.5);
@@ -1294,7 +1294,7 @@ TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanosecond
 		output_value = mkdatetime(&dt);
 	}
 	/* scan US format date/time -- nanosecond inclusive */
-	else if (global_dateformat==DF_US && sscanf(value,"%d/%d/%d %d:%d:%lf %[-+:A-Za-z0-9]",&dt.month,&dt.day,&dt.year,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
+	else if (global_dateformat==DF_US && sscanf(value,"%hd/%hd/%hd %hd:%hd:%lf %[-+:A-Za-z0-9]",&dt.month,&dt.day,&dt.year,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
 	{
 		dt.second = (unsigned int)seconds_w_nano;
 		dt.nanosecond = (unsigned int)(1e9*(seconds_w_nano-(double)dt.second)+0.5);
@@ -1304,7 +1304,7 @@ TIMESTAMP convert_to_timestamp_delta(const char *value, unsigned int *nanosecond
 		output_value = mkdatetime(&dt);
 	}
 	/* scan EURO format date/time -- nanosecond inclusive */
-	else if (global_dateformat==DF_EURO && sscanf(value,"%d/%d/%d %d:%d:%lf %[-+:A-Za-z0-9]",&dt.day,&dt.month,&dt.year,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
+	else if (global_dateformat==DF_EURO && sscanf(value,"%hd/%hd/%hd %hd:%hd:%lf %[-+:A-Za-z0-9]",&dt.day,&dt.month,&dt.year,&dt.hour,&dt.minute,&seconds_w_nano,tz)>=3)
 	{
 		dt.second = (unsigned int)seconds_w_nano;
 		dt.nanosecond = (unsigned int)(1e9*(seconds_w_nano-(double)dt.second)+0.5);

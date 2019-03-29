@@ -11,6 +11,8 @@
 #ifndef __APPLE__
 #define _GNU_SOURCE
 #include <features.h>
+#else
+#include <mach/thread_act.h>
 #endif
 #endif
 
@@ -21,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #else
+#include <ctype.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -145,7 +148,7 @@ void dlload_error(const char *filename)
 }
 
 /* MALLOC/FREE - GL threadsafe versions */
-static int malloc_lock = 0;
+static LOCKVAR malloc_lock = 0;
 void *module_malloc(size_t size)
 {
 	void *ptr;
@@ -749,7 +752,7 @@ int module_setvar(MODULE *mod, const char *varname, char *value)
 	return global_setvar(modvarname,value)==SUCCESS;
 }
 
-void* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size)
+const char* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size)
 {
 	char modvarname[1024];
 	sprintf(modvarname,"%s::%s",mod->name,varname);
@@ -904,7 +907,7 @@ int module_saveobj_xml(FILE *fp, MODULE *mod){ /**< the stream to write to */
 			count += fprintf(fp,"\t\t\t<parent>root</parent>\n");
 		}
 		count += fprintf(fp,"\t\t\t<rank>%d</rank>\n", obj->rank);
-		count += fprintf(fp,"\t\t\t<clock>\n", obj->clock);
+		count += fprintf(fp,"\t\t\t<clock>\n");
 		count += fprintf(fp,"\t\t\t\t <timestamp>%s</timestamp>\n", convert_from_timestamp(obj->clock,buffer,sizeof(buffer))>0?buffer:"(invalid)");
 		count += fprintf(fp,"\t\t\t</clock>\n");
 		/* why do latitude/longitude have 2 values?  I currently only store as float in the schema... -dc */
@@ -983,7 +986,7 @@ int module_saveall_xml_old(FILE *fp)
 			if (module_getvar(mod,varname,value,sizeof(value)))
 			{	/* TODO: support other types (ticket #46) */
 				count += fprintf(fp,"\t\t\t\t<property> \n");
-				count += fprintf(fp,"\t\t\t\t\t <type>double</type>\n", varname);
+				count += fprintf(fp,"\t\t\t\t\t <type>double</type>\n");
 				count += fprintf(fp,"\t\t\t\t\t <name>%s</name>\n", value);
 				count += fprintf(fp,"\t\t\t\t</property> \n");
 			}
@@ -1124,13 +1127,23 @@ int module_depends(const char *name, unsigned char major, unsigned char minor, u
 	for (mod=first_module; mod!=NULL; mod=mod->next)
 	{
 		if (strcmp(mod->name,name)==0)
+		{
 			if( major>0 && mod->major>0 )
+			{
 				if( mod->major==major && mod->minor>=minor )
+				{
 					return 1; // version matched
+				}
 				else
+				{
 					return 0; // version mismatched
+				}
+			}
 			else
+			{
 				return 1; // indifferent to version
+			}
+		}
 	}
 	return module_load(name,0,NULL)!=NULL;
 }
@@ -1564,8 +1577,10 @@ const char *module_find_transform_function(TRANSFORMFUNCTION function)
 	EXTERNALFUNCTION *item;
 	for ( item=external_function_list; item!=NULL ; item=item->next )
 	{
-		if ( strcmp(item->call,function)==0 )
+		if ( item->call == function )
+		{
 			return item->fname;
+		}
 	}
 	errno = ENOENT;
 	return NULL;
@@ -1602,7 +1617,6 @@ void module_profiles(void)
 			if ( n_ranks < obj->rank + 1 )
 				n_ranks = obj->rank + 1;
 		}
-		n_ranks;
 
 		/* allocate working buffers */
 		rankdata = (struct s_rankdata*)malloc(n_ranks*sizeof(struct s_rankdata));
@@ -1691,11 +1705,11 @@ struct thread_affinity_policy policy;
 #include "gui.h"
 
 static unsigned char procs[65536]; /* processor map */
-static unsigned char n_procs=0; /* number of processors in map */
+static unsigned short n_procs=0; /* number of processors in map */
 
 #define MAPNAME "gridlabd-pmap-3" /* TODO: change the pmap number each time the structure changes */
 typedef struct s_gldprocinfo {
-	unsigned int lock;		/* field lock */
+	LOCKVAR lock;		/* field lock */
 	pid_t pid;			/* process id */
 	TIMESTAMP progress;		/* current simtime */
 	TIMESTAMP starttime;		/* sim starttime */
@@ -2100,7 +2114,7 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 	//if ( global_threadcount==1 )
 	{
 		policy.affinity_tag = cpu;
-		if ( thread_policy_set(mach_thread_self(), THREAD_AFFINITY_POLICY, &policy, THREAD_AFFINITY_POLICY_COUNT)!=KERN_SUCCESS )
+		if ( thread_policy_set(mach_thread_self(), THREAD_AFFINITY_POLICY, (thread_policy_t)&policy, THREAD_AFFINITY_POLICY_COUNT)!=KERN_SUCCESS )
 			output_warning("unable to set thread policy: %s", strerror(errno));
 	}
 #endif
@@ -2313,7 +2327,7 @@ ARGS* get_args(char *line)
 		output_fatal("memory allocation error");
 		return NULL;
 	}
-	memset(args,0,sizeof(args));
+	memset(args,0,sizeof(ARGS));
 
 	/* determine maximum number of args needed */
 	for ( p=line ; *p!='\0' ; p++ )
@@ -2517,7 +2531,7 @@ void sched_controller(void)
 	{
 		ARGS *args;
 		sched_stop = 0;
-		while ( printf("\ngridlabd>> "), fgets(command,sizeof(command),stdin)==NULL );
+		while ( printf("\ngridlabd>> "), fgets(command,sizeof(command),stdin)==NULL ) {}
  		args = get_args(command);
 		if ( args->n==0 ) { free_args(args); args=NULL; }
 		if ( args==NULL && last!=NULL ) { args=last; printf("gridlabd>> %s\n", last->arg[0]); }

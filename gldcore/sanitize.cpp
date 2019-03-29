@@ -11,16 +11,16 @@
 SET_MYCONTEXT(DMC_SANITIZE)
 
 typedef struct s_safename {
-	char *name;
-	char *old;
+	const char *name;
+	const char *old;
 	struct s_safename *next;
 } SAFENAME;
 static SAFENAME *safename_list = NULL;
-static char *sanitize_name(OBJECT *obj)
+static const char *sanitize_name(OBJECT *obj)
 {
 	SAFENAME *safe = (SAFENAME*)malloc(sizeof(SAFENAME));
 	if ( !safe ) return NULL;
-	safe->old = obj->name;
+	safe->old = strdup(obj->name);
 	char buffer[1024];
 	sprintf(buffer,"%s%llX",global_sanitizeprefix.get_string(),(unsigned int64)safe);
 	safe->name = object_set_name(obj,buffer);

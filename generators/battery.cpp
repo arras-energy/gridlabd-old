@@ -211,50 +211,68 @@ int battery::create(void)
 	return 1; /* return 1 on success, 0 on failure */
 }
 
-void battery::fetch_double(double **prop, char *name, OBJECT *parent){
+void battery::fetch_double(double **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_double_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "battery:%i", hdr->id);
-		if(*name == NULL)
+		if ( name == NULL )
+		{
 			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
 
-void battery::fetch_enumeration(enumeration **prop, char *name, OBJECT *parent){
+void battery::fetch_enumeration(enumeration **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_enum_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "battery:%i", hdr->id);
-		if(*name == NULL)
+		if ( name == NULL )
+		{
 			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
 
-void battery::fetch_complex(complex **prop, char *name, OBJECT *parent){
+void battery::fetch_complex(complex **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_complex_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "battery:%i", hdr->id);
-		if(*name == NULL)
+		if ( name == NULL )
+		{
 			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
@@ -265,8 +283,10 @@ int battery::init(OBJECT *parent)
 {
 	OBJECT *obj = OBJECTHDR(this);
 
-	if(parent != NULL){
-		if((parent->flags & OF_INIT) != OF_INIT){
+	if ( parent != NULL )
+	{
+		if ( (parent->flags & OF_INIT) != OF_INIT )
+		{
 			char objname[256];
 			gl_verbose("battery::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
@@ -321,7 +341,7 @@ int battery::init(OBJECT *parent)
 			// attach meter variables to each circuit
 			struct {
 				complex **var;
-				char *varname;
+				const char *varname;
 			}
 			map[] = {
 			// local object name,	meter object name
@@ -385,7 +405,7 @@ int battery::init(OBJECT *parent)
 		{
 			struct {
 				complex **var;
-				char *varname;
+				const char *varname;
 			}
 			map[] = {
 				// local object name,	meter object name
@@ -435,7 +455,7 @@ int battery::init(OBJECT *parent)
 			phases = 0x00;
 			struct {
 				complex **var;
-				char *varname;
+				const char *varname;
 			} 
 		
 			map[] = {
@@ -624,7 +644,7 @@ int battery::init(OBJECT *parent)
 		}
 
 		// find parent inverter, if not defined, use a default meter (using static variable 'default_meter')
-		if(parent != NULL && strcmp(parent->oclass->name,"inverter") != 0 || parent == NULL)
+		if( ( parent != NULL && strcmp(parent->oclass->name,"inverter") != 0 ) || parent == NULL )
 		{
 			GL_THROW("Battery must have an inverter as it's parent");
 			/*  TROUBLESHOOT
@@ -737,7 +757,7 @@ complex battery::calculate_v_terminal(complex v, complex i){
 }
 
 
-complex *battery::get_complex(OBJECT *obj, char *name)
+complex *battery::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)

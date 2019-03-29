@@ -46,7 +46,12 @@ public:
 	int solar_count;
 	int battery_inverter_count;
 	int solar_inverter_count;
-	typedef enum CONTROL_MODE {NO_SETTING=-1, NO_CONTROL=0, CONSTANT_PF=1, PEAK_SHAVING=2} control_mode;
+	typedef enum CONTROL_MODE { // TODO: this typedef does not conform the GridLAB-D enum typedef convention
+		NO_SETTING=-1, 
+		NO_CONTROL=0, 
+		CONSTANT_PF=1, 
+		PEAK_SHAVING=2,
+	} control_mode;
 	control_mode control_mode_setting[4];
 	control_mode active_control_mode;
 	bool pf_is_low;
@@ -94,19 +99,21 @@ public:
 	double all_battery_S_rated;
 	double all_solar_S_rated;
 
-	
-
-	enum INVERTER_TYPE {TWO_PULSE=0, SIX_PULSE=1, TWELVE_PULSE=2, PWM=3, FOUR_QUADRANT = 4};
+	enum INVERTER_TYPE {
+		TWO_PULSE=0, 
+		SIX_PULSE=1, 
+		TWELVE_PULSE=2, 
+		PWM=3, 
+		FOUR_QUADRANT = 4,
+	};
 	enumeration inverter_type_v;
 	
-	
 	complex VA_Out;
-				//Tracking variable for previous "new time" run
-
+	//Tracking variable for previous "new time" run
 
 public:
 	/* required implementations */
-	bool *get_bool(OBJECT *obj, char *name);
+	bool *get_bool(OBJECT *obj, const char *name);
 	central_dg_control(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
@@ -115,7 +122,7 @@ public:
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
 	SIMULATIONMODE inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);
 	STATUS post_deltaupdate(complex *useful_value, unsigned int mode_pass);
-	int *get_enum(OBJECT *obj, char *name);
+	int *get_enum(OBJECT *obj, const char *name);
 public:
 	static CLASS *oclass;
 	static central_dg_control *defaults;

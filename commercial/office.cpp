@@ -389,7 +389,7 @@ int office::init(OBJECT *parent)
 
 	/* sanity check the initial values (no ticket) */
 	struct {
-		char *desc;
+		const char *desc;
 		bool test;
 	} map[] = {
 		/* list simple tests to be made on data (no ticket) */

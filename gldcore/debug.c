@@ -231,7 +231,7 @@
 /* these are the signals that will trigger the debugger to start */
 int siglist[] = {SIGABRT, SIGINT, SIGFPE, SIGSEGV, SIGTERM};
 
-static char *get_objname(OBJECT *obj)
+static const char *get_objname(OBJECT *obj)
 {
 	static char buf[1024];
 	if (obj->name) return obj->name;
@@ -1130,10 +1130,10 @@ Retry:
 			for (var=global_getnext(NULL); var!=NULL; var=global_getnext(var))
 			{
 				char buffer[256];
-				char *val = global_getvar(var->prop->name, buffer, 255);
+				const char *val = global_getvar(var->prop->name, buffer, 255);
 				if (val!=NULL && strlen(val)>64)
-					strcpy(val+28,"...");
-				output_message("%-32.32s: \"%s\"", var->prop->name, val==NULL?"(error)":val);
+					strcpy(buffer+28,"...");
+				output_message("%-32.32s: \"%s\"", var->prop->name, val==NULL?"(error)":buffer);
 			}
 		}
 		else if (strncmp(cmd,"set",max(1,strlen(cmd)))==0)

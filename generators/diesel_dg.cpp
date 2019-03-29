@@ -712,6 +712,9 @@ int diesel_dg::create(void)
 	frequency_deviation_energy = 0;
 	frequency_deviation_max = 0;
 
+	dg_1000_a = 0.067;	// Parameter to calculate fuel usage (gal)based on VA power output (for 1000 kVA rating dg)
+	dg_1000_b = 6.5544;	// Parameter to calculate fuel usage (gal)based on VA power output (for 1000 kVA rating dg)
+
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -731,7 +734,7 @@ int diesel_dg::init(OBJECT *parent)
 	// construct circuit variable map to meter -- copied from 'House' module
 	struct {
 		complex **var;
-		char *varname;
+		const char *varname;
 	} map[] = {
 		// local object name,	meter object name
 		{&pCircuit_V,			"voltage_A"}, // assumes 2 and 3 follow immediately in memory
@@ -1880,7 +1883,7 @@ TIMESTAMP diesel_dg::postsync(TIMESTAMP t0, TIMESTAMP t1)
 }
 
 //Retrieves the pointer for a complex variable from another object
-complex *diesel_dg::get_complex(OBJECT *obj, char *name)
+complex *diesel_dg::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)
@@ -1889,7 +1892,7 @@ complex *diesel_dg::get_complex(OBJECT *obj, char *name)
 }
 
 //Retrieves the pointer for a double variable from another object
-double *diesel_dg::get_double(OBJECT *obj, char *name)
+double *diesel_dg::get_double(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_double)

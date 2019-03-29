@@ -860,19 +860,21 @@ typedef enum {_PT_FIRST=-1,
 	PT_HAS_NOTIFY_OVERRIDE, /* as PT_HAS_NOTIFY, but instructs the core not to set the property to the value being set */
 	PT_DEFAULT, /* identifies the default value to use when creating the object property */
 } PROPERTYTYPE; /**< property types */
-typedef char CLASSNAME[64]; /**< the name a GridLAB class */
+typedef const char *CLASSNAME; /**< the name a GridLAB class */
+#define MAXCLASSNAMELEN 64
 typedef void* PROPERTYADDR; /**< the offset of a property from the end of the OBJECT header */
-typedef char PROPERTYNAME[64]; /**< the name of a property */
-typedef char FUNCTIONNAME[64]; /**< the name of a function (not used) */
+typedef const char *PROPERTYNAME; /**< the name of a property */
+#define MAXPROPNAMELEN 64
+typedef const char *FUNCTIONNAME; /**< the name of a function (not used) */
 
 /* property access rights (R/W apply to modules only, core always has all rights) */
-#define PA_N 0x00 /**< no access permitted */
-#define PA_R 0x01 /**< read access--modules can read the property */
-#define PA_W 0x02 /**< write access--modules can write the property */
-#define PA_S 0x04 /**< save access--property is saved to output */
-#define PA_L 0x08 /**< load access--property is loaded from input */
-#define PA_H 0x10 /**< hidden access--property is not revealed by modhelp */
 typedef enum {
+	PA_N = 0x00, /**< no access permitted */
+	PA_R = 0x01, /**< read access--modules can read the property */
+	PA_W = 0x02, /**< write access--modules can write the property */
+	PA_S = 0x04, /**< save access--property is saved to output */
+	PA_L = 0x08, /**< load access--property is loaded from input */
+	PA_H = 0x10, /**< hidden access--property is not revealed by modhelp */
 	PA_PUBLIC = (PA_R|PA_W|PA_S|PA_L), /**< property is public (readable, writable, saved, and loaded) */
 	PA_REFERENCE = (PA_R|PA_S|PA_L), /**< property is FYI (readable, saved, and loaded */
 	PA_PROTECTED = (PA_R), /**< property is semipublic (readable, but not saved or loaded) */
@@ -933,7 +935,7 @@ typedef struct s_property_map {
 	PROPERTYADDR addr; /**< property location, offset from OBJECT header; OBJECT header itself for methods */
 	DELEGATEDTYPE *delegation; /**< property delegation, if any; \p NULL if none */
 	KEYWORD *keywords; /**< keyword list, if any; \p NULL if none (only for set and enumeration types)*/
-	char *description; /**< description of property */
+	const char *description; /**< description of property */
 	struct s_property_map *next; /**< next property in property list */
 	PROPERTYFLAGS flags; /**< property flags (e.g., PF_RECALC) */
 	FUNCTIONADDR notify;
@@ -988,6 +990,20 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	// @todo for greater generality this should be implemented as a linked list
 } PROPERTYSPEC;
 
+/* double array */
+int double_array_create(void*a);
+double get_double_array_value(double_array*,unsigned int n, unsigned int m);
+void set_double_array_value(double_array*,unsigned int n, unsigned int m, double x);
+double *get_double_array_ref(double_array*,unsigned int n, unsigned int m);
+double double_array_get_part(void *x, char *name);
+
+/* complex array */
+int complex_array_create(void*a);
+complex *get_complex_array_value(complex_array*,unsigned int n, unsigned int m);
+void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, complex *x);
+complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
+double complex_array_get_part(void *x, char *name);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -1009,20 +1025,6 @@ bool property_is_default(struct s_object_list *obj, PROPERTY *prop);
 void *property_addr(struct s_object_list *obj, PROPERTY *prop);
 int property_read(PROPERTY *prop, void *addr, char *string);
 int property_write(PROPERTY *prop, void *addr, char *string, size_t size);
-
-/* double array */
-int double_array_create(double_array*a);
-double get_double_array_value(double_array*,unsigned int n, unsigned int m);
-void set_double_array_value(double_array*,unsigned int n, unsigned int m, double x);
-double *get_double_array_ref(double_array*,unsigned int n, unsigned int m);
-double double_array_get_part(void *x, char *name);
-
-/* complex array */
-int complex_array_create(complex_array*a);
-complex *get_complex_array_value(complex_array*,unsigned int n, unsigned int m);
-void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, complex *x);
-complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
-double complex_array_get_part(void *x, char *name);
 
 #ifdef __cplusplus
 }
