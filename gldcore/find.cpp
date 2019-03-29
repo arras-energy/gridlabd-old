@@ -124,7 +124,7 @@ extern "C" int compare_double(double a, FINDOP op, double b)
 	}
 }
 
-static int compare_string(char *a, FINDOP op, char *b)
+static int compare_string(const char *a, FINDOP op, const char *b)
 {
 	if ( a==NULL || b==NULL ) return 0;
 	switch (op) {
@@ -168,9 +168,9 @@ static int compare_property(OBJECT *obj, char *propname, FINDOP op, void *value)
 {
 	/** @todo comparisons should type based and not using string representation (ticket #20) */
 	char buffer[1024];
-	char *propval = object_property_to_string(obj,propname, buffer, 1023);
+	const char *propval = object_property_to_string(obj,propname, buffer, 1023);
 	if (propval==NULL) return 0;
-	return compare_string(propval,op,(char*)value);
+	return compare_string(propval,op,(const char*)value);
 }
 
 static int compare(OBJECT *obj, FINDTYPE ftype, FINDOP op, void *value, char *propname)
@@ -223,7 +223,7 @@ FINDLIST *new_list(unsigned int n)
 #define DELALL(L) ((L).hit_count=object_get_count(),memset((L).result,0x00,(L).result_size))
 
 FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm);
-FINDPGM *find_mkpgm(char *expression);
+FINDPGM *find_mkpgm(const char *expression);
 
 /** Search for objects that match criteria
 	\p start may be a previous search result, or \p FT_NEW.
@@ -747,7 +747,7 @@ FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm)
 	return list;
 }
 
-#define PARSER char *_p
+#define PARSER const char *_p
 #define START int _m=0, _n=0;
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
@@ -1247,11 +1247,11 @@ static int expression_list(PARSER, FINDPGM **pgm)
 }
 
 /** Constructs a search engine for find_objects **/
-FINDPGM *find_mkpgm(char *search)
+FINDPGM *find_mkpgm(const char *search)
 {
 	STATUS status=FAILED;
 	FINDPGM *pgm = NULL;
-	char *p = search;
+	const char *p = search;
 	while (*p!='\0')
 	{
 		int move = expression_list(p,&pgm);
@@ -1268,7 +1268,7 @@ FINDPGM *find_mkpgm(char *search)
 	@return the first occurance of the file
 	having the desired access mode
  **/
-char *find_file(const char *name, /**< the name of the file to find */
+const char *find_file(const char *name, /**< the name of the file to find */
 				const char *path, /**< the path to search (or NULL to search the GLPATH environment) */
 				int mode, /**< the file access mode to use, see access() for valid modes */
 				char *buffer, /**< the buffer into which the full path is written */
@@ -1367,7 +1367,7 @@ char *find_file(const char *name, /**< the name of the file to find */
  ***********************************************************************************/
 #define INITSIZE 256
 
-OBJLIST *objlist_create(CLASS *oclass, PROPERTY *match_property, char *part, char *match_op, void *match_value1, void *match_value2 )
+OBJLIST *objlist_create(CLASS *oclass, PROPERTY *match_property, const char *part, const char *match_op, void *match_value1, void *match_value2 )
 {
 	OBJLIST *list = (OBJLIST*)malloc(sizeof(OBJLIST));
 	
@@ -1394,7 +1394,7 @@ OBJLIST *objlist_create(CLASS *oclass, PROPERTY *match_property, char *part, cha
 	objlist_add(list,match_property,part,match_op,match_value1,match_value2);
 	return list;
 }
-OBJLIST *objlist_search(char *group)
+OBJLIST *objlist_search(const char *group)
 {
 	FINDLIST *result;
 	OBJECT *obj;
@@ -1432,7 +1432,7 @@ void objlist_destroy(OBJLIST *list)
 	}
 }
 
-size_t objlist_add(OBJLIST *list, PROPERTY *match, char *match_part, char *match_op, void *match_value1, void *match_value2)
+size_t objlist_add(OBJLIST *list, PROPERTY *match, const char *match_part, const char *match_op, void *match_value1, void *match_value2)
 {
 	OBJECT *obj;
 	PROPERTYCOMPAREOP op = property_compare_op(match->ptype, match_op);
@@ -1457,7 +1457,7 @@ size_t objlist_add(OBJLIST *list, PROPERTY *match, char *match_part, char *match
 	return list->size;
 }
 
-size_t objlist_del(OBJLIST *list, PROPERTY *match, char *match_part, char *match_op, void *match_value1, void *match_value2)
+size_t objlist_del(OBJLIST *list, PROPERTY *match, const char *match_part, const char *match_op, void *match_value1, void *match_value2)
 {
 	PROPERTYCOMPAREOP op = property_compare_op(match->ptype, match_op);
 	int n, m;

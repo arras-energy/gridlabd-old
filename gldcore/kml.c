@@ -101,7 +101,7 @@ int kml_document(FILE *fp)
 				kml_write("          <TABLE><TR>\n");
 				for (prop=oclass->pmap;prop!=NULL && prop->oclass==oclass; prop=prop->next)
 				{
-					char *value = object_property_to_string(obj,prop->name, buffer, 1023);
+					const char *value = object_property_to_string(obj,prop->name, buffer, 1023);
 					if (value!=NULL)
 						kml_write("<TR><TH ALIGN=LEFT>%s</TH><TD ALIGN=RIGHT>%s</TD></TR>",
 							prop->name, value);

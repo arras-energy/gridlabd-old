@@ -1461,7 +1461,7 @@ int timestamp_test(void)
 	return failed;
 }
 
-double timestamp_get_part(void *x, char *name)
+double timestamp_get_part(void *x, const char *name)
 {
 	TIMESTAMP ts = *(TIMESTAMP*)x;
 	DATETIME dt;

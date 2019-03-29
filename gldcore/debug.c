@@ -1321,7 +1321,7 @@ int exec_debug(struct sync_data *data, /**< the current sync status of the mail 
 				else
 				{
 					char temp[1024];
-					char *tmp = object_property_to_string(obj,wp->prop->name, temp, 1023);
+					const char *tmp = object_property_to_string(obj,wp->prop->name, temp, 1023);
 					if (tmp!=NULL && strcmp(tmp,wp->buffer)!=0)
 					{
 						output_debug("watchpoint %d stopped on object %s property %s", wp->num, get_objname(obj), wp->prop->name);

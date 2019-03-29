@@ -133,7 +133,7 @@ void throw_exception(const char *format, /**< the format string */
 /** Retrieves the message of the most recently thrown exception
 	@return a \e char* pointer to the message
  **/
-char *exception_msg(void)
+const char *exception_msg(void)
 {
 	return handlers->msg;
 }

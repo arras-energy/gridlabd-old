@@ -2322,22 +2322,18 @@ public:
 };
 
 /// Web data container
+#include "http_client.h"
+
 class gld_webdata {
 private:
-	struct s_http {
-		struct {
-			char *data;
-			int size;
-		} header, body; // keep consistent with struct s_http_result in core/http_client.h
-		int status;
-	} *result;
+	HTTPRESULT *result;
 public:
 	inline gld_webdata(void) {result=NULL;};
 	inline gld_webdata(char *url, size_t maxlen=4096) {open(url,maxlen);};
 	inline ~gld_webdata(void) {};
 public:
-	inline bool open(char *url, size_t maxlen=4096) { result = (struct s_http*)callback->http.read(url,(int)maxlen); return is_valid();};
-	inline void close(void) { callback->http.free((void*)result);};
+	inline bool open(char *url, size_t maxlen=4096) { result=callback->http.read(url,(int)maxlen); return is_valid();};
+	inline void close(void) { callback->http.free(result);};
 	inline bool is_valid(void) { return result!=NULL; };
 	inline char *get_header(void) { return result->header.data;};
 	inline size_t get_header_size(void) { return result->header.size; };

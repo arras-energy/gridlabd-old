@@ -923,18 +923,23 @@ int module_saveobj_xml(FILE *fp, MODULE *mod){ /**< the stream to write to */
 		/* dump properties */
 		for (prop=oclass->pmap;prop!=NULL && prop->oclass==oclass;prop=prop->next)
 		{
-			char *value = NULL;
-			if((prop->access != PA_PUBLIC) && (prop->access != PA_REFERENCE))
+			const char *value = NULL;
+			if ( (prop->access != PA_PUBLIC) && (prop->access != PA_REFERENCE) )
+			{
 				continue;
+			}
 			value = object_property_to_string(obj,prop->name, buffer, 1023);
-			if (value!=NULL){
+			if ( value != NULL) 
+			{
 				count += fprintf(fp, "\t\t\t<%s>%s</%s>\n", prop->name, value, prop->name);
 			}
 		}
 		pclass = oclass->parent;
-		while(pclass != NULL){ /* inherited properties */
+		while ( pclass != NULL )
+		{ 
+			/* inherited properties */
 			for (prop=pclass->pmap;prop!=NULL && prop->oclass==pclass;prop=prop->next){
-				char *value = object_property_to_string(obj,prop->name, buffer, 1023);
+				const char *value = object_property_to_string(obj,prop->name, buffer, 1023);
 				if (value!=NULL){
 					count += fprintf(fp, "\t\t\t<%s>%s</%s>\n", prop->name, value, prop->name);
 				}
@@ -998,7 +1003,7 @@ int module_saveall_xml_old(FILE *fp)
 	return count;
 }
 
-MODULE *module_find(char *modname)
+MODULE *module_find(const char *modname)
 {
 	MODULE *mod = NULL;
 	for (mod=first_module; mod!=NULL; mod=mod->next)

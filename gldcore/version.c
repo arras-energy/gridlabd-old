@@ -49,7 +49,7 @@ unsigned int version_patch(void)
 {
 	return REV_PATCH;
 }
-const unsigned int version_build(void)
+unsigned int version_build(void)
 {
 	return BUILDNUM;
 }

@@ -69,7 +69,7 @@ STATUS global_init(void);
 GLOBALVAR *global_getnext(GLOBALVAR *previous);
 GLOBALVAR *global_find(const char *name);
 GLOBALVAR *global_create(const char *name, ...);
-STATUS global_setvar(char *def,...);
+STATUS global_setvar(const char *def,...);
 const char *global_getvar(const char *name, char *buffer, size_t size);
 int global_isdefined(const char *name);
 void global_dump(void);

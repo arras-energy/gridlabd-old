@@ -288,7 +288,7 @@ static int json_objects(FILE *fp)
 					continue;
 				if ( prop->ptype == PT_enduse )
 					continue;
-				char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
+				const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
 				if ( value == NULL )
 					continue; // ignore values that don't convert propertly
 				int len = strlen(value);

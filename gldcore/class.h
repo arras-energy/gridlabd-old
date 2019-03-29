@@ -137,7 +137,7 @@ PROPERTY *class_find_property(CLASS *oclass, PROPERTYNAME name);
 void class_add_property(CLASS *oclass, PROPERTY *prop);
 PROPERTY *class_add_extended_property(CLASS *oclass, const char *name, PROPERTYTYPE ptype, const char *unit);
 PROPERTYTYPE class_get_propertytype_from_typename(char *name);
-int class_string_to_property(PROPERTY *prop, void *addr, char *value);
+int class_string_to_property(PROPERTY *prop, void *addr, const char *value);
 int class_string_to_propertytype(PROPERTYTYPE type, void *addr, const char *value);
 int class_property_to_string(PROPERTY *prop, void *addr, char *value, int size);
 CLASS *class_get_first_class(void);
@@ -162,7 +162,7 @@ int class_define_enumeration_member(CLASS *oclass,const char *property_name,cons
 int class_define_set_member(CLASS *oclass,const char *property_name,const char *member,unsigned int64 value);
 FUNCTION *class_define_function(CLASS *oclass, FUNCTIONNAME functionname, FUNCTIONADDR call);
 FUNCTIONADDR class_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
-DELEGATEDTYPE *class_register_type(CLASS *oclass, char *type,int (*from_string)(void*,char*),int (*to_string)(void*,char*,int));
+DELEGATEDTYPE *class_register_type(CLASS *oclass, const char *type,int (*from_string)(void*,const char*),int (*to_string)(void*,char*,int));
 int class_define_type(CLASS *oclass, DELEGATEDTYPE *delegation, ...);
 
 int class_add_loadmethod(CLASS *oclass, const char *name, LOADMETHODCALL call);

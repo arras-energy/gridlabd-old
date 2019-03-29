@@ -1507,7 +1507,7 @@ int GldCmdarg::mclassdef(int argc, char *argv[])
 	for ( prop = oclass->pmap ; prop!=NULL && prop->oclass==oclass ; prop=prop->next )
 	{
 		char temp[1024];
-		char *value = object_property_to_string(obj, prop->name, temp, 1023);
+		const char *value = object_property_to_string(obj, prop->name, temp, 1023);
 		if ( strchr(prop->name,'.')!=NULL )
 			continue; /* do not output structures */
 		if ( value!=NULL )

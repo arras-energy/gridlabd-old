@@ -280,7 +280,7 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	TRY {
 		if (unit)
 			pUnit = unit_find(unit);
-	} CATCH (char *msg) {
+	} CATCH (const char *msg) {
 		// will get picked up later
 	} ENDCATCH;
 
@@ -392,7 +392,7 @@ int class_string_to_propertytype(PROPERTYTYPE type,
  **/
 int class_string_to_property(PROPERTY *prop, /**< the type of the property at the \p addr */
                              void *addr,     /**< the address of the property's data */
-                             char *value)    /**< the string from which the data is read */
+                             const char *value)    /**< the string from which the data is read */
 {
 	return property_read(prop, addr, value);
 }
@@ -1249,8 +1249,8 @@ void class_profiles(void)
 	data type to be implemented, including enumerations, sets, and special objects.
  **/
 DELEGATEDTYPE *class_register_type(CLASS *oclass, /**< the object class */
-                                   char *type, /**< the property type */
-                                   int (*from_string)(void*,char*), /**< the converter from string to data */
+                                   const char *type, /**< the property type */
+                                   int (*from_string)(void*,const char*), /**< the converter from string to data */
                                    int (*to_string)(void*,char*,int)) /**< the converter from data to string */
 {
 	DELEGATEDTYPE *dt = (DELEGATEDTYPE*)malloc(sizeof(DELEGATEDTYPE));

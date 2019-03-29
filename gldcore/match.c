@@ -17,7 +17,7 @@
 SET_MYCONTEXT(DMC_MATCH)
 
 /* match: search for regexp anywhere in text */ 
-int match(char *regexp, char *text){
+int match(const char *regexp, const char *text){
 	if(regexp[0] == '^')
 		return matchhere(regexp+1, text);
 	do {    /* must look even if string is empty */
@@ -28,7 +28,7 @@ int match(char *regexp, char *text){
 }
 
 /* matchhere: search for regexp at beginning of text */
-int matchhere(char *regexp, char *text){
+int matchhere(const char *regexp, const char *text){
 	int force = 0;
 	if(regexp[0] == '\\')
 		force = 1;
@@ -43,7 +43,7 @@ int matchhere(char *regexp, char *text){
 	return 0;
 }
 
-int matchhere_orig(char *regexp, char *text){
+int matchhere_orig(const char *regexp, const char *text){
 	if(regexp[0] == '\0')
 		return 1;
 	if(regexp[1] == '*')
@@ -56,7 +56,7 @@ int matchhere_orig(char *regexp, char *text){
 }
 
 /* matchstar: search for c*regexp at beginning of text */
-int matchstar(int c, char *regexp, char *text){
+int matchstar(int c, const char *regexp, const char *text){
 	do{     /* a * matches zero or more instances */
 		if(matchhere(regexp, text))
 			return 1;

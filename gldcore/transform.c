@@ -265,7 +265,7 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 
 int transform_add_external(	OBJECT *target_obj,		/* pointer to the target object (lhs) */
 							PROPERTY *target_prop,	/* pointer to the target property */
-							char *function,			/* function name to use */
+							const char *function,			/* function name to use */
 							OBJECT *source_obj,		/* object containing source value (rhs) */
 							PROPERTY *source_prop)		/* schedule object associated with target value, used if stype == XS_SCHEDULE */
 {

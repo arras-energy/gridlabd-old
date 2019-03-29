@@ -9,9 +9,9 @@
 extern "C" {
 #endif
 
-int match(char *regexp, char *text);
-int matchhere(char *regexp, char *text);
-int matchstar(int c, char *regexp, char *text);
+int match(const char *regexp, const char *text);
+int matchhere(const char *regexp, const char *text);
+int matchstar(int c, const char *regexp, const char *text);
 
 #ifdef __cplusplus
 }

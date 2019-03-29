@@ -150,15 +150,15 @@ typedef struct s_callbacks {
 	struct {
 		PROPERTY *(*get_property)(OBJECT*,PROPERTYNAME,PROPERTYSTRUCT*);
 		int (*set_value_by_addr)(OBJECT *, void*, const char*,PROPERTY*);
-		int (*get_value_by_addr)(OBJECT *, void*, const char*, int size,PROPERTY*);
+		int (*get_value_by_addr)(OBJECT *, void*, char*, int size,PROPERTY*);
 		int (*set_value_by_name)(OBJECT *, const char *, const char *);
-		int (*get_value_by_name)(OBJECT *, const char *, const char *, int size);
+		int (*get_value_by_name)(OBJECT *, const char *, char *, int size);
 		OBJECT *(*get_reference)(OBJECT *, const char *);
 		const char *(*get_unit)(OBJECT *, const char *);
 		void *(*get_addr)(OBJECT *, const char *);
 		int (*set_value_by_type)(PROPERTYTYPE,void *data,const char *);
-		bool (*compare_basic)(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void* x, void* a, void* b, char *part);
-		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, char *opstr);
+		bool (*compare_basic)(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void* x, void* a, void* b, const char *part);
+		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, const char *opstr);
 		double (*get_part)(OBJECT*,PROPERTY*,const char*);
 		PROPERTYSPEC *(*get_spec)(PROPERTYTYPE);
 	} properties;
@@ -174,7 +174,7 @@ typedef struct s_callbacks {
 	void *(*malloc)(size_t);
 	void (*free)(void*);
 	struct {
-		struct s_aggregate *(*create)(char *aggregator, char *group_expression);
+		struct s_aggregate *(*create)(const char *aggregator, const char *group_expression);
 		double (*refresh)(struct s_aggregate *aggregate);
 	} aggregate;
 	struct {
@@ -191,7 +191,7 @@ typedef struct s_callbacks {
 		double (*lognormal)(unsigned int *rng,double m, double s);
 		double (*sampled)(unsigned int *rng,unsigned int n, double *x);
 		double (*exponential)(unsigned int *rng,double l);
-		RANDOMTYPE (*type)(char *name);
+		RANDOMTYPE (*type)(const char *name);
 		double (*value)(RANDOMTYPE type, ...);
 		double (*pseudo)(RANDOMTYPE type, unsigned int *state, ...);
 		double (*triangle)(unsigned int *rng,double a, double b);
@@ -201,7 +201,7 @@ typedef struct s_callbacks {
 		double (*rayleigh)(unsigned int *rng,double a);
 	} random;
 	int (*object_isa)(OBJECT *obj, const char *type);
-	DELEGATEDTYPE* (*register_type)(CLASS *oclass, char *type,int (*from_string)(void*,char*),int (*to_string)(void*,char*,int));
+	DELEGATEDTYPE* (*register_type)(CLASS *oclass, const char *type,int (*from_string)(void*,const char *),int (*to_string)(void*,char*,int));
 	int (*define_type)(CLASS*,DELEGATEDTYPE*,...);
 	struct {
 		TIMESTAMP (*mkdatetime)(DATETIME *dt);
@@ -223,13 +223,13 @@ typedef struct s_callbacks {
 	struct {
 		EXCEPTIONHANDLER *(*create_exception_handler)();
 		void (*delete_exception_handler)(EXCEPTIONHANDLER *ptr);
-		void (*throw_exception)(char *msg, ...);
-		char *(*exception_msg)(void);
+		void (*throw_exception)(const char *msg, ...);
+		const char *(*exception_msg)(void);
 	} exception;
 	struct {
 		GLOBALVAR *(*create)(const char *name, ...);
 		STATUS (*setvar)(const char *def,...);
-		char *(*getvar)(const char *name, char *buffer, int size);
+		const char *(*getvar)(const char *name, char *buffer, size_t size);
 		GLOBALVAR *(*find)(const char *name);
 	} global;
 	struct {
@@ -237,7 +237,7 @@ typedef struct s_callbacks {
 		void (*write)(LOCKVAR *);
 	} lock, unlock;
 	struct {
-		char *(*find_file)(const char *name, const char *path, int mode, char *buffer, int len);
+		const char *(*find_file)(const char *name, const char *path, int mode, char *buffer, int len);
 	} file;
 	struct s_objvar_struct {
 		bool *(*bool_var)(OBJECT *obj, PROPERTY *prop);
@@ -248,7 +248,7 @@ typedef struct s_callbacks {
 		int32 *(*int32_var)(OBJECT *obj, PROPERTY *prop);
 		int64 *(*int64_var)(OBJECT *obj, PROPERTY *prop);
 		double *(*double_var)(OBJECT *obj, PROPERTY *prop);
-		char *(*string_var)(OBJECT *obj, PROPERTY *prop);
+		const char *(*string_var)(OBJECT *obj, PROPERTY *prop);
 		OBJECT **(*object_var)(OBJECT *obj, PROPERTY *prop);
 	} objvar;
 	struct s_objvar_name_struct {
@@ -260,7 +260,7 @@ typedef struct s_callbacks {
 		int32 *(*int32_var)(OBJECT *obj, const char *name);
 		int64 *(*int64_var)(OBJECT *obj, const char *name);
 		double *(*double_var)(OBJECT *obj, const char *name);
-		char *(*string_var)(OBJECT *obj, const char *name);
+		const char *(*string_var)(OBJECT *obj, const char *name);
 		OBJECT **(*object_var)(OBJECT *obj, const char *name);
 	} objvarname;
 	struct {
@@ -282,11 +282,11 @@ typedef struct s_callbacks {
 		SCHEDULE *(*getfirst)(void);
 	} schedule;
 	struct {
-		int (*create)(struct s_loadshape *s);
+		int (*create)(void *s);
 		int (*init)(struct s_loadshape *s);
 	} loadshape;
 	struct {
-		int (*create)(struct s_enduse *e);
+		int (*create)(void *e);
 		TIMESTAMP (*sync)(struct s_enduse *e, PASSCONFIG pass, TIMESTAMP t1);
 	} enduse;
 	struct {
@@ -294,8 +294,8 @@ typedef struct s_callbacks {
 		double (*quadratic)(double t, double x0, double y0, double x1, double y1, double x2, double y2);
 	} interpolate;
 	struct {
-		FORECAST *(*create)(OBJECT *obj, char *specs); /**< create a forecast using the specifications and append it to the object's forecast block */
-		FORECAST *(*find)(OBJECT *obj, char *name); /**< find the forecast for the named property, if any */
+		FORECAST *(*create)(OBJECT *obj, const char *specs); /**< create a forecast using the specifications and append it to the object's forecast block */
+		FORECAST *(*find)(OBJECT *obj, const char *name); /**< find the forecast for the named property, if any */
 		double (*read)(FORECAST *fc, TIMESTAMP ts); /**< read the forecast value for the time ts */
 		void (*save)(FORECAST *fc, TIMESTAMP ts, int32 tstep, int n_values, double *data);
 	} forecast;
@@ -306,11 +306,11 @@ typedef struct s_callbacks {
 		void (*writevar)(void *local, GLOBALVAR *var);
 	} remote;
 	struct {
-		struct s_objlist *(*create)(CLASS *oclass, PROPERTY *match_property, char *match_part, char *match_op, void *match_value1, void *match_value2);
-		struct s_objlist *(*search)(char *group);
+		struct s_objlist *(*create)(CLASS *oclass, PROPERTY *match_property, const char *match_part, const char *match_op, void *match_value1, void *match_value2);
+		struct s_objlist *(*search)(const char *group);
 		void (*destroy)(struct s_objlist *list);
-		size_t (*add)(struct s_objlist *list, PROPERTY *match_property, char *match_part, char *match_op, void *match_value1, void *match_value2);
-		size_t (*del)(struct s_objlist *list, PROPERTY *match_property, char *match_part, char *match_op, void *match_value1, void *match_value2);
+		size_t (*add)(struct s_objlist *list, PROPERTY *match_property, const char *match_part, const char *match_op, void *match_value1, void *match_value2);
+		size_t (*del)(struct s_objlist *list, PROPERTY *match_property, const char *match_part, const char *match_op, void *match_value1, void *match_value2);
 		size_t (*size)(struct s_objlist *list);
 		struct s_object_list *(*get)(struct s_objlist *list,size_t n);
 		int (*apply)(struct s_objlist *list, void *arg, int (*function)(struct s_object_list *,void *,int pos));
@@ -318,12 +318,12 @@ typedef struct s_callbacks {
 	struct {
 		struct {
 			int (*to_string)(double v, char *buffer, size_t size);
-			double (*from_string)(char *buffer);
+			double (*from_string)(const char *buffer);
 		} latitude, longitude;
 	} geography;
 	struct {
-		void* (*read)(char *url, int maxlen);
-		void (*free)(void *result);
+		struct s_http_result* (*read)(char *url, int maxlen);
+		void (*free)(struct s_http_result *result);
 	} http;
 	struct {
 		TRANSFORM *(*getnext)(TRANSFORM*);
@@ -372,9 +372,9 @@ int object_set_double_by_name(OBJECT *obj, PROPERTYNAME name, double value);
 bool *object_get_bool(OBJECT *obj, PROPERTY *prop);
 bool *object_get_bool_by_name(OBJECT *obj, const char *name);
 int object_set_complex_by_name(OBJECT *obj, PROPERTYNAME name, complex value);
-int object_get_value_by_name(OBJECT *obj, PROPERTYNAME name, const char *value, int size);
-int object_get_value_by_addr(OBJECT *obj, void *addr, const char *value, int size, PROPERTY *prop);
-int object_set_value_by_type(PROPERTYTYPE,void *addr, char *value);
+int object_get_value_by_name(OBJECT *obj, PROPERTYNAME name, char *value, int size);
+int object_get_value_by_addr(OBJECT *obj, void *addr, char *value, int size, PROPERTY *prop);
+
 OBJECT *object_get_reference(OBJECT *obj, const char *name);
 int object_isa(OBJECT *obj, const char *type);
 OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name);
@@ -386,27 +386,27 @@ int object_get_oflags(KEYWORD **extflags);
 
 TIMESTAMP object_sync(OBJECT *obj, TIMESTAMP to,PASSCONFIG pass);
 OBJECT **object_get_object(OBJECT *obj, PROPERTY *prop);
-OBJECT **object_get_object_by_name(OBJECT *obj, char *name);
+OBJECT **object_get_object_by_name(OBJECT *obj, const char *name);
 enumeration *object_get_enum(OBJECT *obj, PROPERTY *prop);
-enumeration *object_get_enum_by_name(OBJECT *obj, char *name);
+enumeration *object_get_enum_by_name(OBJECT *obj, const char *name);
 set *object_get_set(OBJECT *obj, PROPERTY *prop);
-set *object_get_set_by_name(OBJECT *obj, char *name);
+set *object_get_set_by_name(OBJECT *obj, const char *name);
 int16 *object_get_int16(OBJECT *obj, PROPERTY *prop);
-int16 *object_get_int16_by_name(OBJECT *obj, char *name);
+int16 *object_get_int16_by_name(OBJECT *obj, const char *name);
 int32 *object_get_int32(OBJECT *obj, PROPERTY *prop);
-int32 *object_get_int32_by_name(OBJECT *obj, char *name);
+int32 *object_get_int32_by_name(OBJECT *obj, const char *name);
 int64 *object_get_int64(OBJECT *obj, PROPERTY *prop);
-int64 *object_get_int64_by_name(OBJECT *obj, char *name);
+int64 *object_get_int64_by_name(OBJECT *obj, const char *name);
 double *object_get_double(OBJECT *pObj, PROPERTY *prop);
-double *object_get_double_by_name(OBJECT *pObj, char *name);
+double *object_get_double_by_name(OBJECT *pObj, const char *name);
 complex *object_get_complex(OBJECT *pObj, PROPERTY *prop);
-complex *object_get_complex_by_name(OBJECT *pObj, char *name);
+complex *object_get_complex_by_name(OBJECT *pObj, const char *name);
 double *object_get_double_quick(OBJECT *pObj, PROPERTY *prop);
 complex *object_get_complex_quick(OBJECT *pObj, PROPERTY *prop);
-char *object_get_string(OBJECT *pObj, PROPERTY *prop);
-char *object_get_string_by_name(OBJECT *obj, char *name);
+const char *object_get_string(OBJECT *pObj, PROPERTY *prop);
+const char *object_get_string_by_name(OBJECT *obj, const char *name);
 FUNCTIONADDR object_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
-char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz);
+const char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz);
 const char *object_get_unit(OBJECT *obj, const char *name);
 int object_set_rank(OBJECT *obj, OBJECTRANK rank);
 
@@ -418,13 +418,13 @@ int object_dump(char *buffer, int size, OBJECT *obj);
 int object_save(char *buffer, int size, OBJECT *obj);
 int object_saveall(FILE *fp);
 int object_saveall_xml(FILE *fp);
-void object_stream_fixup(OBJECT *obj, char *classname, char *objname);
+void object_stream_fixup(OBJECT *obj, CLASSNAME classname, const char *objname);
 
-char *object_name(OBJECT *obj, char *, int);
-int convert_from_latitude(double,void*,size_t);
-int convert_from_longitude(double,void*,size_t);
-double convert_to_latitude(char *buffer);
-double convert_to_longitude(char *buffer);
+const char *object_name(OBJECT *obj, char *, int);
+int convert_from_latitude(double,char*,size_t);
+int convert_from_longitude(double,char*,size_t);
+double convert_to_latitude(const char *buffer);
+double convert_to_longitude(const char *buffer);
 
 PROPERTY *object_flag_property(void);
 PROPERTY *object_access_property(void);
@@ -432,15 +432,15 @@ PROPERTY *object_access_property(void);
 NAMESPACE *object_current_namespace(); /**< access the current namespace */
 void object_namespace(char *buffer, int size); /**< get the namespace */
 int object_get_namespace(OBJECT *obj, char *buffer, int size); /**< get the object's namespace */
-int object_open_namespace(char *space); /**< open a new namespace and make it current */
+int object_open_namespace(const char *space); /**< open a new namespace and make it current */
 int object_close_namespace(); /**< close the current namespace and restore the previous one */
-int object_select_namespace(char *space); /**< change to another namespace */
-int object_push_namespace(char *space); /**< change to another namespace and push the one onto a stack */
+int object_select_namespace(const char *space); /**< change to another namespace */
+int object_push_namespace(const char *space); /**< change to another namespace and push the one onto a stack */
 NAMESPACE *object_pop_namespace(); /**< restore the previous namespace from stack */
 
 /* forecasting API */
-FORECAST *forecast_create(OBJECT *obj, char *specs); /**< create a forecast using the specifications and append it to the object's forecast block */
-FORECAST *forecast_find(OBJECT *obj, char *name); /**< find the forecast for the named property, if any */
+FORECAST *forecast_create(OBJECT *obj, const char *specs); /**< create a forecast using the specifications and append it to the object's forecast block */
+FORECAST *forecast_find(OBJECT *obj, const char *name); /**< find the forecast for the named property, if any */
 double forecast_read(FORECAST *fc, TIMESTAMP ts); /**< read the forecast value for the time ts */
 void forecast_save(FORECAST *fc, TIMESTAMP ts, int32 tstep, int n_values, double *data);
 
@@ -448,12 +448,12 @@ void forecast_save(FORECAST *fc, TIMESTAMP ts, int32 tstep, int n_values, double
 void *object_remote_read(void *local, OBJECT *obj, PROPERTY *prop); /** access remote object data */
 void object_remote_write(void *local, OBJECT *obj, PROPERTY *prop); /** access remote object data */
 
-double object_get_part(void *x, char *name);
+double object_get_part(void *x, const char *name);
 TIMESTAMP object_heartbeat(OBJECT *obj);
 
-int object_loadmethod(OBJECT *obj, char *name, char *value);
+int object_loadmethod(OBJECT *obj, const char *name, const char *value);
 
-void object_synctime_profile_dump(char *filename);
+void object_synctime_profile_dump(const char *filename);
 
 #ifdef __cplusplus
 }

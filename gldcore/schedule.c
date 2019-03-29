@@ -55,7 +55,7 @@ SCHEDULE *schedule_getnext(SCHEDULE *sch) /**< the schedule (or NULL to get firs
 /** Find a schedule by its name 
 	@return the schedule pointer
  **/
-SCHEDULE *schedule_find_byname(char *name) /**< the name of the schedule */
+SCHEDULE *schedule_find_byname(const char *name) /**< the name of the schedule */
 {
 	SCHEDULE *sch;
 	for (sch=schedule_list; sch!=NULL; sch=sch->next)
@@ -680,8 +680,8 @@ int schedule_createwait(void)
 	
 	@return a pointer to the new schedule, NULL if failed
  **/
-SCHEDULE *schedule_create(char *name,		/**< the name of the schedule */
-						  char *definition)	/**< the definition of the schedule (using crontab format with semicolon delimiters), NULL is only a search */
+SCHEDULE *schedule_create(const char *name,		/**< the name of the schedule */
+						  const char *definition)	/**< the definition of the schedule (using crontab format with semicolon delimiters), NULL is only a search */
 {
 	/* find the schedule is already defined (by name) */
 	SCHEDULE *sch = schedule_find_byname(name);
