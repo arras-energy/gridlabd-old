@@ -6,7 +6,7 @@
 
 #include "powerflow.h"
 
-EXPORT int isa_link(OBJECT *obj, char *classname);
+EXPORT int isa_link(OBJECT *obj, CLASSNAME classname);
 EXPORT SIMULATIONMODE interupdate_link(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
 EXPORT int updatepowercalc_link(OBJECT *obj);
 EXPORT int calculate_overlimit_link(OBJECT *obj, double *overload_value, bool *overloaded);
@@ -60,12 +60,12 @@ public: /// @todo make this private and create interfaces to control values
 	void calculate_power();
 	void calculate_power_splitphase();
 	void set_flow_directions();
-	int link_fault_on(OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data);		//Function to create fault on line
+	int link_fault_on(OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data);		//Function to create fault on line
 	int link_fault_off(int *implemented_fault, char *imp_fault_name, void *Extra_Data);	//Function to remove fault from line
 	double mean_repair_time;
 	double *link_limits[2][3];		/**< pointers for line limits (emergency vs. continuous) for link objects and by phase - pointered for variation */
 	double link_rating[2][3];		/**< Values for current line rating - gives individual segments the ability to set */
-	double *get_double(OBJECT *obj, char *name);	/**< Gets address of double - mainly for mean_repair_time */
+	double *get_double(OBJECT *obj, const char *name);	/**< Gets address of double - mainly for mean_repair_time */
 public:
 	enumeration status;	///< link status (open disconnect nodes)
 	enumeration prev_status;	///< Previous link status (used for recalculation detection)
@@ -100,7 +100,7 @@ public:
 	link_object(CLASS *cl=oclass):powerflow_object(cl){};
 	static CLASS *oclass;
 	static CLASS *pclass;
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 public:
 	/* status values */
 	set affected_phases;				/* use this to determine which phases are affected by status change */

@@ -35,13 +35,14 @@
 #include "output.h"
 #include "find.h"
 
-SET_MYCONTEXT(DMC_AGGREGATE)
+//TODO: uncomment if context warnings 
+// SET_MYCONTEXT(DMC_AGGREGATE)
 
 /** This function builds an collection of objects into an aggregation.  
 	The aggregation can be run using aggregate_value(AGGREGATION*)
  **/
-AGGREGATION *aggregate_mkgroup(char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
-							   char *group_expression) /**< grouping rule; see find_mkpgm(char *)*/
+AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
+							   const char *group_expression) /**< grouping rule; see find_mkpgm(char *)*/
 {
 	AGGREGATOR op = AGGR_NOP;
 	AGGREGATION *result=NULL;
@@ -345,8 +346,7 @@ double arg(complex *x)
 double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
 {
 	OBJECT *obj;
-	double numerator=0, denominator=0, secondary=0, third=0, fourth=0;
-	double scale = (aggr->punit ? aggr->scale : 1.0);
+	double numerator=0, denominator=0, secondary=0;
 
 	/* non-constant groups need search program rerun */
 	if ((aggr->group->constflags & CF_CONSTANT) != CF_CONSTANT){
@@ -454,7 +454,6 @@ double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
 		}
 	}
 	switch (aggr->op) {
-		double v = 0.0, t = 0.0, m = 0.0;
 	case AGGR_GAMMA:
 		return 1 + numerator/(denominator-numerator*log(secondary));
 	case AGGR_STD:

@@ -218,7 +218,7 @@ uint32 property_size_by_type(PROPERTYTYPE type)
 	return property_type[type].size;
 }
 
-int property_read(PROPERTY *prop, void *addr, char *string)
+int property_read(PROPERTY *prop, void *addr, const char *string)
 {
 	if (prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST)
 		return property_type[prop->ptype].string_to_data ? property_type[prop->ptype].string_to_data(string,addr,prop) : 0;
@@ -314,7 +314,7 @@ size_t property_minimum_buffersize(PROPERTY *prop)
 	return 0;
 }
 
-PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, char *opstr)
+PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, const char *opstr)
 {
 	int n;
 	for ( n=0; n<_TCOP_LAST; n++)
@@ -327,7 +327,7 @@ PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, char *opstr)
 	return TCOP_ERR;
 }
 
-bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, char *part)
+bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, const char *part)
 {
 	if ( part==NULL && property_type[ptype].compare[op].fn!=NULL )
 		return property_type[ptype].compare[op].fn(x,a,b);
@@ -361,7 +361,7 @@ PROPERTYTYPE property_get_type(char *name)
 	return PT_void;
 }
 
-double property_get_part(OBJECT *obj, PROPERTY *prop, char *part)
+double property_get_part(OBJECT *obj, PROPERTY *prop, const char *part)
 {
 	PROPERTYSPEC *spec = property_getspec(prop->ptype);
 	if ( spec && spec->get_part )
@@ -410,7 +410,7 @@ bool property_is_default(OBJECT *obj, PROPERTY *prop)
 /*********************************************************
  * PROPERTY PARTS
  *********************************************************/
-double complex_get_part(void *x, char *name)
+double complex_get_part(void *x, const char *name)
 {
 	complex *c = (complex*)x;
 	if ( strcmp(name,"real")==0) 
@@ -491,7 +491,7 @@ double *get_double_array_ref(double_array*a,unsigned int n, unsigned int m)
 		return NULL;
 	}
 }
-double double_array_get_part(void *x, char *name)
+double double_array_get_part(void *x, const char *name)
 {
 	int n,m;
 	if (sscanf(name,"%d.%d",&n,&m)==2)
@@ -558,7 +558,7 @@ complex *get_complex_array_ref(complex_array *a,unsigned int n, unsigned int m)
 		return NULL;
 	}
 }
-double complex_array_get_part(void *x, char *name)
+double complex_array_get_part(void *x, const char *name)
 {
 	int n,m;
 	char subpart[32];

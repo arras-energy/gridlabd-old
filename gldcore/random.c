@@ -126,7 +126,7 @@ static struct {
 };
 /** Converts a distribution name to a #RANDOMTYPE
  **/
-RANDOMTYPE random_type(char *name) /**< the name of the distribution */
+RANDOMTYPE random_type(const char *name) /**< the name of the distribution */
 {
 	for (p=map; p<map+sizeof(map)/sizeof(map[0]); p++)
 	{
@@ -137,7 +137,7 @@ RANDOMTYPE random_type(char *name) /**< the name of the distribution */
 }
 /** Gets the number of arguments required by distribution (0=failed, -1=variable)
  **/
-int random_nargs(char *name)
+int random_nargs(const char *name)
 {
 	for (p=map; p<map+sizeof(map)/sizeof(map[0]); p++)
 	{
@@ -756,8 +756,8 @@ int _random_specs(RANDOMTYPE type, double a, double b,char *buffer,int size)
 /** Apply a random number to property of a group of objects
 	@return the number of objects changed
  **/
-int random_apply(char *group_expression, /**< the group definition; see find_objects() */
-				 char *property, /**< the property to update */
+int random_apply(const char *group_expression, /**< the group definition; see find_objects() */
+				 const char *property, /**< the property to update */
 				 RANDOMTYPE type, /**< the distribution type */
 				 ...) /**< the distribution's parameters */
 {
@@ -858,7 +858,7 @@ static double stdev(double sample[], unsigned int count)
 static void sort(double sample[], unsigned int count)
 {
 }
-static int report(char *parameter, double actual, double expected, double error)
+static int report(const char *parameter, double actual, double expected, double error)
 {
 	if (parameter==NULL)
 	{
@@ -1370,7 +1370,7 @@ TIMESTAMP randomvar_syncall(TIMESTAMP t1)
 		return TS_NEVER;
 }
 
-double random_get_part(void *x, char *name)
+double random_get_part(void *x, const char *name)
 {
 	randomvar *v = (randomvar*)x;
 	if ( strcmp(name,"a")==0 ) return v->a;

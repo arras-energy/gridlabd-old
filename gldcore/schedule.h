@@ -96,8 +96,8 @@ extern "C" {
 #endif
 
 SCHEDULE *schedule_getnext(SCHEDULE *sch);
-SCHEDULE *schedule_find_byname(char *name);
-SCHEDULE *schedule_create(char *name, char *definition);
+SCHEDULE *schedule_find_byname(const char *name);
+SCHEDULE *schedule_create(const char *name, const char *definition);
 SCHEDULE *schedule_new(void);
 void schedule_add(SCHEDULE *sch);
 int schedule_validate(SCHEDULE *sch, int flags);

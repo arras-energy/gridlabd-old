@@ -1383,7 +1383,7 @@ GLOBALVAR *global_create(const char *name, ...)
 	va_end(ptr);
 	return var;
 }
-STATUS global_setvar(char *def, ...)
+STATUS global_setvar(const char *def, ...)
 {
 	va_list ptr;
 	va_start(ptr,def);

@@ -13,15 +13,15 @@
 #define int64 __int64
 #endif
 #else
-	#include <sys/types.h>
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <arpa/inet.h>
-	#include <unistd.h>
-	#include <sys/errno.h>
-	#include <netdb.h>
-	#define SOCKET int
-	#define INVALID_SOCKET (-1)
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/errno.h>
+#include <netdb.h>
+#define SOCKET int
+#define INVALID_SOCKET (-1)
 #endif
 
 typedef struct s_http {

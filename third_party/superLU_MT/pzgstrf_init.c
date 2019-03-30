@@ -1,6 +1,10 @@
 
 #include "pzsp_defs.h"
 
+extern void    heap_relax_snode(const     int n,
+                    superlumt_options_t *superlumt_options,
+                    pxgstrf_relax_t *pxgstrf_relax /* relaxed s-nodes */
+                    );
 
 void
 pzgstrf_init(int nprocs, fact_t fact, trans_t trans, yes_no_t refact,

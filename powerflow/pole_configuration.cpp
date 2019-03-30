@@ -111,9 +111,13 @@ int pole_configuration::create(void)
     // defaults from chart 5 - southern yellow pine
     fiber_strength = 8000;
 
-	repair_time = 86400; // one day
-
+	repair_time = 86400;
 	return 1;
+}
+
+int pole_configuration::isa(CLASSNAME classname)
+{
+	return strcmp(classname,"pole_configuration") == 0;
 }
 
 int pole_configuration::init(OBJECT *parent)
@@ -134,11 +138,6 @@ int pole_configuration::init(OBJECT *parent)
 	else if ( degradation_rate == 0 )
 		degradation_rate = pole_degredation_rate_data[climate_impact_zone][treatment_method];
 	return 1;	
-}
-
-int pole_configuration::isa(char *classname)
-{
-	return strcmp(classname,"pole_configuration") == 0;
 }
 
 double pole_configuration::get_pole_diameter(double height)

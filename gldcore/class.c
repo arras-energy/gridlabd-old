@@ -270,9 +270,9 @@ void class_add_property(CLASS *oclass,  /**< the class to which the property is 
     @return the property pointer
  **/
 PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to which the property is to be added */
-                                      char *name,         /**< the name of the property */
+                                      const char *name,   /**< the name of the property */
                                       PROPERTYTYPE ptype, /**< the type of the property */
-                                      char *unit)         /**< the unit of the property */
+                                      const char *unit)   /**< the unit of the property */
 {
 	PROPERTY *prop = malloc(sizeof(PROPERTY));
 	UNIT *pUnit = NULL;
@@ -280,7 +280,7 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	TRY {
 		if (unit)
 			pUnit = unit_find(unit);
-	} CATCH (char *msg) {
+	} CATCH (const char *msg) {
 		// will get picked up later
 	} ENDCATCH;
 
@@ -379,7 +379,7 @@ PROPERTYTYPE class_get_propertytype_from_typename(char *name) /**< a string cont
  **/
 int class_string_to_propertytype(PROPERTYTYPE type, 
                                  void *addr, 
-                                 char *value)
+                                 const char *value)
 {
 	if (type > _PT_FIRST && type < _PT_LAST)
 		return (*property_type[type].string_to_data)(value,addr,NULL);
@@ -392,7 +392,7 @@ int class_string_to_propertytype(PROPERTYTYPE type,
  **/
 int class_string_to_property(PROPERTY *prop, /**< the type of the property at the \p addr */
                              void *addr,     /**< the address of the property's data */
-                             char *value)    /**< the string from which the data is read */
+                             const char *value)    /**< the string from which the data is read */
 {
 	return property_read(prop, addr, value);
 }
@@ -1249,8 +1249,8 @@ void class_profiles(void)
 	data type to be implemented, including enumerations, sets, and special objects.
  **/
 DELEGATEDTYPE *class_register_type(CLASS *oclass, /**< the object class */
-                                   char *type, /**< the property type */
-                                   int (*from_string)(void*,char*), /**< the converter from string to data */
+                                   const char *type, /**< the property type */
+                                   int (*from_string)(void*,const char*), /**< the converter from string to data */
                                    int (*to_string)(void*,char*,int)) /**< the converter from data to string */
 {
 	DELEGATEDTYPE *dt = (DELEGATEDTYPE*)malloc(sizeof(DELEGATEDTYPE));
@@ -1270,17 +1270,17 @@ DELEGATEDTYPE *class_register_type(CLASS *oclass, /**< the object class */
 	return dt;
 }
 
-int class_add_loadmethod(CLASS *oclass, char *name, int (*call)(void*,char*))
+int class_add_loadmethod(CLASS *oclass, const char *name, LOADMETHODCALL call)
 {
 	LOADMETHOD *method = (LOADMETHOD*)malloc(sizeof(LOADMETHOD));
-	method->name = name;
+	method->name = strdup(name);
 	method->call = call;
 	method->next = oclass->loadmethods;
 	oclass->loadmethods = method;
 	return 1;
 }
 
-LOADMETHOD *class_get_loadmethod(CLASS *oclass,char *name)
+LOADMETHOD *class_get_loadmethod(CLASS *oclass,const char *name)
 {
 	LOADMETHOD *method;
 	for ( method=oclass->loadmethods ; method!=NULL ; method=method->next )

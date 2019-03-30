@@ -115,7 +115,7 @@ UNITSCALAR *scalar_list = NULL;
 /* unit_find_raw is both used to detect the presence and absence of units in the list.
 	not finding a given unit is normal behavior, and this function should run silently.
 */
-UNIT *unit_find_raw(char *unit){
+UNIT *unit_find_raw(const char *unit){
 	UNIT *p;
 	/* scan list for existing entry */
 	for (p = unit_list; p != NULL; p = p->next){
@@ -125,10 +125,10 @@ UNIT *unit_find_raw(char *unit){
 	}
 	return NULL;
 }
-UNIT *unit_primary(char *name,double c,double e,double h,double k,double m,double s,double a,double b,int prec);
+UNIT *unit_primary(const char *name,double c,double e,double h,double k,double m,double s,double a,double b,int prec);
 
 /* locate an underived unit */
-UNIT *unit_find_underived(char *unit)
+UNIT *unit_find_underived(const char *unit)
 {
 	UNIT *p;
 	UNITSCALAR *s;
@@ -166,7 +166,7 @@ UNIT *unit_find_underived(char *unit)
 }
 
 /* define a unit scalar */
-int unit_scalar(char *name,int scalar)
+int unit_scalar(const char *name,int scalar)
 {
 	UNITSCALAR *ptr = (UNITSCALAR *)malloc(sizeof(UNITSCALAR));
 	if (ptr == NULL){
@@ -225,7 +225,7 @@ int unit_constant(char name, double value)
 }
 
 /* define a primary unit */
-UNIT *unit_primary(char *name, double c, double e, double h, double k, double m, double s, double a, double b, int prec){
+UNIT *unit_primary(const char *name, double c, double e, double h, double k, double m, double s, double a, double b, int prec){
 	UNIT *p = unit_find_raw(name);
 #if 0
 	){
@@ -271,7 +271,7 @@ UNIT *unit_primary(char *name, double c, double e, double h, double k, double m,
 }
 
 /* determine the precision of a term */
-int unit_precision(char *term)
+int unit_precision(const char *term)
 {
 	char* p;
 	char mant[256];
@@ -289,7 +289,7 @@ int unit_precision(char *term)
 }
 
 /* define a derived unit */
-int unit_derived(char *name,char *derivation)
+int unit_derived(const char *name,const char *derivation)
 {
 	double c = 0, e = 0, h = 0, k = 0, m = 0, s = 0, a = 0, b = 0;
 	int prec = 0;
@@ -297,7 +297,7 @@ int unit_derived(char *name,char *derivation)
 	char lastOp = '\0', nextOp = '\0';
 	UNIT *lastUnit = NULL;
 	UNIT local;
-	char *p = derivation;
+	const char *p = derivation;
 	
 	if (unit_find_raw(name) != NULL){
 		throw_exception("%s(%d): derived definition of '%s' failed; unit already defined", filepath, linenum, name);
@@ -473,7 +473,7 @@ void unit_init(void)
 {
 	static int tried=0;
 	static LOCKVAR trylock=0;
-	char *glpath = getenv("GLPATH");
+	const char *glpath = getenv("GLPATH");
 	FILE *fp = NULL;
 	char tpath[1024];
 
@@ -493,7 +493,7 @@ void unit_init(void)
 	/* locate unit file on GLPATH if not found locally */
 	if (fp == NULL && glpath != NULL){
 		char envbuf[1024];
-		char *dir;
+		const char *dir;
 		strcpy(envbuf, glpath);
 		dir = strtok(envbuf, ";");
 		while(dir != NULL){
@@ -617,7 +617,7 @@ void unit_init(void)
 /** Convert a value from one unit to another
 	@return 1 if successful, 0 if failed
  **/
-int unit_convert(char *from, char *to, double *pValue)
+int unit_convert(const char *from, const char *to, double *pValue)
 {
 	if (strcmp(from,to)==0)
 		return 1;
@@ -696,7 +696,7 @@ int unit_convert_complex(UNIT *pFrom, UNIT *pTo, complex *pValue)
 /** Find a unit
 	@return a pointer to the UNIT structure
  **/
-UNIT *unit_find(char *unit) /**< the name of the unit */
+UNIT *unit_find(const char *unit) /**< the name of the unit */
 {
 	UNIT *p;
 	int rv = 0;
@@ -704,8 +704,8 @@ UNIT *unit_find(char *unit) /**< the name of the unit */
 	TRY {
 		/* first time */
 		if (unit_list==NULL) unit_init();
-	} CATCH (char *msg) {
-		output_error("unit_find(char *unit='%s'): %s", unit,msg);
+	} CATCH (const char *msg) {
+		output_error("unit_find(const char *unit='%s'): %s", unit,msg);
 	}
 	ENDCATCH;
 
@@ -718,8 +718,8 @@ UNIT *unit_find(char *unit) /**< the name of the unit */
 	/* derive entry if possible */
 	TRY {
 		rv = unit_derived(unit, unit);
-	} CATCH (char *msg) {
-		output_error("unit_find(char *unit='%s'): %s", unit,msg);
+	} CATCH (const char *msg) {
+		output_error("unit_find(const char *unit='%s'): %s", unit,msg);
 	}
 	ENDCATCH;
 
@@ -737,7 +737,7 @@ UNIT *unit_find(char *unit) /**< the name of the unit */
  **/
 int unit_test(void)
 {
-	typedef struct {double value; char *unit;} VALUE;
+	typedef struct {double value; const char *unit;} VALUE;
 	typedef struct {VALUE from; VALUE to; double precision;} TEST;
 #ifndef PI
 #define PI 3.141592635

@@ -117,9 +117,9 @@ int jprintf(char *buffer, size_t len, ...)
 	while ( p < buffer + len-2 )
 	{
 		char t[1024];
-		char *token = va_arg(ptr,char*);
+		const char *token = va_arg(ptr,char*);
 		if ( token == NULL ) break;
-		char *value = va_arg(ptr,char*);
+		const char *value = va_arg(ptr,char*);
 		if ( value == NULL ) 
 		{
 			gl_error("jprintf(): unexpected NULL value");
@@ -958,7 +958,7 @@ int house_e::init_climate()
 	return 1;
 }
 
-int house_e::isa(char *classname)
+int house_e::isa(CLASSNAME classname)
 {
 	return (strcmp(classname,"house")==0 || residential_enduse::isa(classname));
 }

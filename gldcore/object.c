@@ -243,7 +243,7 @@ OBJECT *object_find_by_id(OBJECTNUM id){ /**< object id number */
 
 	@return a pointer to the object name string
  **/
-char *object_name(OBJECT *obj, char *oname, int size){ /**< a pointer to the object */
+const char *object_name(OBJECT *obj, char *oname, int size){ /**< a pointer to the object */
 	//static char32 oname="(invalid)";
 	
 	convert_from_object(oname, size, &obj, NULL);
@@ -253,7 +253,7 @@ char *object_name(OBJECT *obj, char *oname, int size){ /**< a pointer to the obj
 
 /** Get the unit of an object, if any
  **/
-char *object_get_unit(OBJECT *obj, char *name)
+const char *object_get_unit(OBJECT *obj, const char *name)
 {
 	static UNIT *dimless = NULL;
 	LOCKVAR unitlock = 0;
@@ -431,7 +431,7 @@ OBJECT *object_create_foreign(OBJECT *obj) /**< a pointer to the OBJECT data str
 
 /** Stream fixup object
  **/
-void object_stream_fixup(OBJECT *obj, char *classname, char *objname)
+void object_stream_fixup(OBJECT *obj, CLASSNAME classname, const char *objname)
 {
 	obj->oclass = class_get_class_from_classname(classname);
 	obj->name = (char*)malloc(strlen(objname)+1);
@@ -530,7 +530,7 @@ OBJECT **object_get_object(OBJECT *obj, PROPERTY *prop)
 	}
 }
 
-OBJECT **object_get_object_by_name(OBJECT *obj, char *name)
+OBJECT **object_get_object_by_name(OBJECT *obj, const char *name)
 {
 	PROPERTY *prop = class_find_property(obj->oclass, name);
 	
@@ -550,7 +550,7 @@ bool *object_get_bool(OBJECT *obj, PROPERTY *prop)
 	return NULL;
 }
 
-bool *object_get_bool_by_name(OBJECT *obj, char *name)
+bool *object_get_bool_by_name(OBJECT *obj, const char *name)
 {
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if(prop!=NULL && prop->access != PA_PRIVATE)
@@ -567,7 +567,7 @@ enumeration *object_get_enum(OBJECT *obj, PROPERTY *prop){
 	}
 }
 
-enumeration *object_get_enum_by_name(OBJECT *obj, char *name){
+enumeration *object_get_enum_by_name(OBJECT *obj, const char *name){
 	PROPERTY *prop = class_find_property(obj->oclass, name);
 
 	if(prop != NULL && prop->access != PA_PRIVATE){
@@ -587,7 +587,7 @@ set *object_get_set(OBJECT *obj, PROPERTY *prop){
 	}
 }
 
-set *object_get_set_by_name(OBJECT *obj, char *name){
+set *object_get_set_by_name(OBJECT *obj, const char *name){
 	PROPERTY *prop = class_find_property(obj->oclass, name);
 
 	if(prop != NULL && prop->access != PA_PRIVATE){
@@ -611,7 +611,7 @@ int16 *object_get_int16(OBJECT *obj, PROPERTY *prop)
 	}
 }
 
-int16 *object_get_int16_by_name(OBJECT *obj, char *name)
+int16 *object_get_int16_by_name(OBJECT *obj, const char *name)
 {
 	PROPERTY *prop = class_find_property(obj->oclass, name);
 	
@@ -636,7 +636,7 @@ int32 *object_get_int32(OBJECT *obj, PROPERTY *prop)
 	}
 }
 
-int32 *object_get_int32_by_name(OBJECT *obj, char *name)
+int32 *object_get_int32_by_name(OBJECT *obj, const char *name)
 {
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if(prop!=NULL && prop->access != PA_PRIVATE)
@@ -658,7 +658,7 @@ int64 *object_get_int64(OBJECT *obj, PROPERTY *prop)
 	}
 }
 
-int64 *object_get_int64_by_name(OBJECT *obj, char *name)
+int64 *object_get_int64_by_name(OBJECT *obj, const char *name)
 {
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if(prop!=NULL && prop->access != PA_PRIVATE)
@@ -683,7 +683,7 @@ double *object_get_double(OBJECT *obj, PROPERTY *prop)
 	return NULL;
 }
 
-double *object_get_double_by_name(OBJECT *obj, char *name)
+double *object_get_double_by_name(OBJECT *obj, const char *name)
 {
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if(prop!=NULL && prop->access != PA_PRIVATE)
@@ -708,7 +708,7 @@ complex *object_get_complex(OBJECT *obj, PROPERTY *prop)
 	return NULL;
 }
 
-complex *object_get_complex_by_name(OBJECT *obj, char *name)
+complex *object_get_complex_by_name(OBJECT *obj, const char *name)
 {
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if(prop!=NULL && prop->access != PA_PRIVATE)
@@ -717,7 +717,7 @@ complex *object_get_complex_by_name(OBJECT *obj, char *name)
 	return NULL;
 }
 
-char *object_get_string(OBJECT *obj, PROPERTY *prop){
+const char *object_get_string(OBJECT *obj, PROPERTY *prop){
 	if(object_prop_in_class(obj, prop) && prop->ptype >= PT_char8 && prop->ptype <= PT_char1024 && prop->access != PA_PRIVATE)
 		return (char *)((char*)obj+sizeof(OBJECT)+(int64)(prop->addr)); /* warning: cast from pointer to integer of different size */
 	errno = ENOENT;
@@ -727,7 +727,7 @@ char *object_get_string(OBJECT *obj, PROPERTY *prop){
 /* Get the pointer to the value of a string property. 
  * Returns NULL if the property is not found or if the value the right type.
  */
-char *object_get_string_by_name(OBJECT *obj, char *name)
+const char *object_get_string_by_name(OBJECT *obj, const char *name)
 {
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if(prop!=NULL && prop->access != PA_PRIVATE)
@@ -775,7 +775,7 @@ static PROPERTY *get_property_at_addr(OBJECT *obj, void *addr)
  **/
 int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 							 void *addr, /**< the address of the property */
-							 char *value, /**< the value to set */
+							 const char *value, /**< the value to set */
 							 PROPERTY *prop) /**< the property to use or NULL if unknown */
 {
 	int result=0;
@@ -817,7 +817,7 @@ int object_set_value_by_addr(OBJECT *obj, /**< the object to alter */
 	return result;
 }
 
-static int set_header_value(OBJECT *obj, const char *name, char *value)
+static int set_header_value(OBJECT *obj, const char *name, const char *value)
 {
 	unsigned int temp_microseconds;
 	TIMESTAMP tval;
@@ -1020,7 +1020,7 @@ static int set_header_value(OBJECT *obj, const char *name, char *value)
  **/
 int object_set_value_by_name(OBJECT *obj, /**< the object to change */
 							 PROPERTYNAME name, /**< the name of the property to change */
-							 char *value) /**< the value to set */
+							 const char *value) /**< the value to set */
 {
 	void *addr;
 	PROPERTY *prop = class_find_property(obj->oclass,name);
@@ -1187,7 +1187,7 @@ int object_get_value_by_addr(OBJECT *obj, /**< the object from which to get the 
 int object_get_value_by_name(OBJECT *obj, PROPERTYNAME name, char *value, int size)
 {
 	char temp[1024];
-	char *buffer;
+	const char *buffer;
 	if(value == 0){
 		output_error("object_get_value_by_name: 'value' is a null pointer");
 		return 0;
@@ -1206,7 +1206,7 @@ int object_get_value_by_name(OBJECT *obj, PROPERTYNAME name, char *value, int si
 
 /** Get a reference to another object 
  **/
-OBJECT *object_get_reference(OBJECT *obj, char *name){
+OBJECT *object_get_reference(OBJECT *obj, const char *name){
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if(prop == NULL || prop->access == PA_PRIVATE || prop->ptype != PT_object)
 	{
@@ -1349,7 +1349,7 @@ int object_set_dependent(OBJECT *obj, /**< the object to set */
 
 /* Convert the value of an object property to a string
  */
-char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz)
+const char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz)
 {
 	//static char buffer[4096];
 	void *addr;
@@ -1396,9 +1396,9 @@ void object_profile(OBJECT *obj, OBJECTPROFILEITEM pass, clock_t t)
 	}
 }
 
-void object_synctime_profile_dump(char *filename)
+void object_synctime_profile_dump(const char *filename)
 {
-	char *fname = filename?filename:"object_profile.txt";
+	const char *fname = filename?filename:"object_profile.txt";
 	FILE *fp = fopen(fname,"wt");
 	OBJECT *obj;
 	if ( fp == NULL )
@@ -1438,7 +1438,7 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 	{
 		char buffer[64];
 		char buffer2[64];
-		char *passname = (pass==PC_PRETOPDOWN?"PC_PRETOPDOWN":(pass==PC_BOTTOMUP?"PC_BOTTOMUP":(pass==PC_POSTTOPDOWN?"PC_POSTTOPDOWN":"<unknown>")));
+		const char *passname = (pass==PC_PRETOPDOWN?"PC_PRETOPDOWN":(pass==PC_BOTTOMUP?"PC_BOTTOMUP":(pass==PC_POSTTOPDOWN?"PC_POSTTOPDOWN":"<unknown>")));
 		output_fatal("object_sync(OBJECT *obj='%s', TIMESTAMP ts='%s', PASSCONFIG pass=%s): int64 sync_%s(OBJECT*,TIMESTAMP,PASSCONFIG) is not implemented in module %s", object_name(obj, buffer2, 63), convert_from_timestamp(ts,buffer,sizeof(buffer))?buffer:"<invalid>", passname, oclass->name, oclass->module->name);
 		/*	TROUBLESHOOT
 			The indicated sync function is not implemented by the class given.  
@@ -1798,9 +1798,11 @@ int object_dump(char *outbuffer, /**< the destination buffer */
 	count += sprintf(buffer + count, "\tflags = %s;\n", convert_from_set(tmp, sizeof(tmp), &(obj->flags), object_flag_property()) ? tmp : "(invalid)");
 
 	/* dump properties */
-	for(prop = obj->oclass->pmap; prop != NULL && prop->oclass == obj->oclass; prop = prop->next){
-		char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
-		if(value != NULL){
+	for (prop = obj->oclass->pmap; prop != NULL && prop->oclass == obj->oclass; prop = prop->next)
+	{
+		const char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
+		if ( value != NULL )
+		{
 			count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
 			if(count > size){
 				throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
@@ -1814,9 +1816,11 @@ int object_dump(char *outbuffer, /**< the destination buffer */
 
 	/* dump inherited properties */
 	pclass = obj->oclass;
-	while((pclass = pclass->parent) != NULL){
-		for(prop = pclass->pmap; prop != NULL && prop->oclass == pclass; prop = prop->next){
-			char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
+	while ((pclass = pclass->parent) != NULL)
+	{
+		for (prop = pclass->pmap; prop != NULL && prop->oclass == pclass; prop = prop->next)
+		{
+			const char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
 			if(value != NULL){
 				count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
 				if(count > size){
@@ -1851,7 +1855,7 @@ static int object_save_x(char *temp, int size, OBJECT *obj, CLASS *oclass)
 	int count = sprintf(temp, "\t// %s properties\n", oclass->name);
 	for ( prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next )
 	{
-		char *value = object_property_to_string(obj, prop->name, buffer, 1023);
+		const char *value = object_property_to_string(obj, prop->name, buffer, 1023);
 		if ( value!=NULL )
 		{
 			if ( prop->ptype==PT_timestamp)  // timestamps require single quotes
@@ -2082,7 +2086,7 @@ int object_saveall_xml(FILE *fp){ /**< the stream to write to */
 		/* dump inherited properties */
 		if(oclass->parent != NULL){
 			for (prop = oclass->parent->pmap; prop != NULL && prop->oclass == oclass->parent; prop = prop->next){
-				char *value = object_property_to_string(obj, prop->name, buffer, 1023);
+				const char *value = object_property_to_string(obj, prop->name, buffer, 1023);
 				if(value != NULL){
 					count += fprintf(fp, "\t\t\t<%s>%s</%s>\n", prop->name, value, prop->name);
 				}
@@ -2091,7 +2095,7 @@ int object_saveall_xml(FILE *fp){ /**< the stream to write to */
 
 		/* dump properties */
 		for(prop = oclass->pmap; prop != NULL && prop->oclass == oclass; prop = prop->next){
-			char *value = object_property_to_string(obj, prop->name, buffer, 1023);
+			const char *value = object_property_to_string(obj, prop->name, buffer, 1023);
 			if(value!=NULL){
 				count += fprintf(fp, "\t\t\t<%s>%s</%s>\n", prop->name, value, prop->name);
 			}
@@ -2154,7 +2158,7 @@ int object_saveall_xml_old(FILE *fp){ /**< the stream to write to */
 			/* dump properties */
 			count += fprintf(fp, "\t\t\t<properties>\n");
 			for (prop = oclass->pmap; prop != NULL && prop->oclass == oclass; prop = prop->next){
-				char *value = object_property_to_string(obj, prop->name, buffer, 1023);
+				const char *value = object_property_to_string(obj, prop->name, buffer, 1023);
 
 				if(value != NULL){
 					count += fprintf(fp, "\t\t\t\t<property>\n");
@@ -2171,7 +2175,7 @@ int object_saveall_xml_old(FILE *fp){ /**< the stream to write to */
 	return count;	
 }
 
-int convert_from_latitude(double v, void *buffer, size_t bufsize)
+int convert_from_latitude(double v, char *buffer, size_t bufsize)
 {
 	double d = floor(fabs(v));
 	double r = fabs(v) - d;
@@ -2185,7 +2189,7 @@ int convert_from_latitude(double v, void *buffer, size_t bufsize)
 		return sprintf(buffer, "%.0f%c%.0f:%.2f", d, ns, m, s);
 }
 
-int convert_from_longitude(double v, void *buffer, size_t bufsize){
+int convert_from_longitude(double v, char *buffer, size_t bufsize){
 	double d = floor(fabs(v));
 	double r = fabs(v)-d;
 	double m = floor(r*60);
@@ -2198,7 +2202,7 @@ int convert_from_longitude(double v, void *buffer, size_t bufsize){
 		return sprintf(buffer, "%.0f%c%.0f:%.2f", d, ns, m, s);
 }
 
-double convert_to_latitude(char *buffer)
+double convert_to_latitude(const char *buffer)
 {
 	int m = 0;
 	double v = 0;
@@ -2232,7 +2236,7 @@ double convert_to_latitude(char *buffer)
 		return QNAN;
 }
 
-double convert_to_longitude(char *buffer)
+double convert_to_longitude(const char *buffer)
 {
 	int m = 0;
 	double v = 0;
@@ -2272,7 +2276,7 @@ double convert_to_longitude(char *buffer)
 
 #define TREESIZE 65536*16
 typedef struct s_objecttree {
-	char *name;
+	const char *name;
 	OBJECT *obj;
 	struct s_objecttree *next;
 } OBJECTTREE;
@@ -2356,13 +2360,12 @@ OBJECTTREE *hash_find(HASH h, OBJECTNAME name)
 static OBJECTTREE *object_tree_add(OBJECT *obj, OBJECTNAME name)
 {
 	OBJECTTREE *item = (OBJECTTREE*)malloc(sizeof(OBJECTTREE));
-	item->name = (char*)malloc(strlen(name)+1);
+	item->name = strdup(name);
 	if ( item->name == NULL )
 	{
 		output_fatal("object_tree_add(OBJECT *obj=<%s:%d>, OBJECTNAME name='%s'): memory allocation failed", obj->oclass->name, obj->id, name);
 		return NULL;
 	}
-	strcpy(item->name,name);
 	item->obj = obj;
 	HASH h = hash(name);
 	item->next = top[h];
@@ -2409,7 +2412,7 @@ void object_tree_delete(OBJECT *obj, OBJECTNAME name)
 				last->next = item->next;
 			else
 				top[h] = item->next;
-			free(item->name);
+			free((void*)item->name);
 			free(item);
 		}
 		else
@@ -2568,12 +2571,12 @@ NAMESPACE *object_current_namespace()
 /** Opens a new namespace within the current name space
 	@return 1 on success, 0 on failure
  **/
-int object_open_namespace(char *space)
+int object_open_namespace(const char *space)
 {
 	NAMESPACE *ns = malloc(sizeof(NAMESPACE));
 	if(ns==NULL)
 	{
-		throw_exception("object_open_namespace(char *space='%s'): memory allocation failure", space);
+		throw_exception("object_open_namespace(const char *space='%s'): memory allocation failure", space);
 		/* TROUBLESHOOT
 			The memory required to create the indicated namespace is not available.  Try freeing up system memory and try again.
 		 */
@@ -2606,7 +2609,7 @@ int object_close_namespace()
 /** Makes the namespace active
     @return 1 on success, 0 on failure
  **/
-int object_select_namespace(char *space)
+int object_select_namespace(const char *space)
 {
 	output_error("namespace selection not yet supported");
 	return 0;
@@ -2660,7 +2663,7 @@ int object_locate_property(void *addr, OBJECT **pObj, PROPERTY **pProp)
 	presync to suppress update of the forecast when 'external' is set.
 		
  **/
-FORECAST *forecast_create(OBJECT *obj, char *specs)
+FORECAST *forecast_create(OBJECT *obj, const char *specs)
 {
 	//FORECAST *f;
 	FORECAST *fc;
@@ -2693,7 +2696,7 @@ FORECAST *forecast_create(OBJECT *obj, char *specs)
 
 /** Forecast find
  **/
-FORECAST *forecast_find(OBJECT *obj, char *name)
+FORECAST *forecast_find(OBJECT *obj, const char *name)
 {
 	FORECAST *fc;
 	for ( fc=obj->forecast; fc!=NULL; fc=fc->next )
@@ -2821,7 +2824,7 @@ void object_remote_write(void *local, /** local memory for data */
 	}
 }
 
-double object_get_part(void *x, char *name)
+double object_get_part(void *x, const char *name)
 {
 	OBJECT *obj = (OBJECT*)x;
 	char root[64], part[64];
@@ -2835,7 +2838,7 @@ double object_get_part(void *x, char *name)
 	if ( sscanf(name,"%[^. ].%s",root,part)==2 ) // has part
 	{
 		struct {
-			char *name;
+			const char *name;
 			TIMESTAMP *addr;
 		} *p, map[]={
 			{"clock",&(obj->clock)},
@@ -2852,7 +2855,7 @@ double object_get_part(void *x, char *name)
 	return QNAN;
 }
 
-int object_loadmethod(OBJECT *obj, char *name, char *value)
+int object_loadmethod(OBJECT *obj, const char *name, const char *value)
 {
 	LOADMETHOD *method = class_get_loadmethod(obj->oclass,name);
 	return method ? method->call(obj,value) : 0;

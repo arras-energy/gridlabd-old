@@ -15,7 +15,7 @@ public:
 	triplex_line(MODULE *mod);
 	void recalc(void);
 	inline triplex_line(CLASS *cl=oclass):line(cl){};
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	int create(void);
 	void phase_conductor_checks(void);
 };

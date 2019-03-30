@@ -2322,22 +2322,18 @@ public:
 };
 
 /// Web data container
+#include "http_client.h"
+
 class gld_webdata {
 private:
-	struct s_http {
-		struct {
-			char *data;
-			int size;
-		} header, body; // keep consistent with struct s_http_result in core/http_client.h
-		int status;
-	} *result;
+	HTTPRESULT *result;
 public:
 	inline gld_webdata(void) {result=NULL;};
 	inline gld_webdata(char *url, size_t maxlen=4096) {open(url,maxlen);};
 	inline ~gld_webdata(void) {};
 public:
-	inline bool open(char *url, size_t maxlen=4096) { result = (struct s_http*)callback->http.read(url,(int)maxlen); return is_valid();};
-	inline void close(void) { callback->http.free((void*)result);};
+	inline bool open(char *url, size_t maxlen=4096) { result=callback->http.read(url,(int)maxlen); return is_valid();};
+	inline void close(void) { callback->http.free(result);};
 	inline bool is_valid(void) { return result!=NULL; };
 	inline char *get_header(void) { return result->header.data;};
 	inline size_t get_header_size(void) { return result->header.size; };
@@ -2411,7 +2407,7 @@ CDECL int dllkill() { return do_kill(NULL); }
 /// Implement class commit export
 #define EXPORT_COMMIT(X) EXPORT_COMMIT_C(X,X)
 
-#define EXPORT_NOTIFY_C(X,C) EXPORT int notify_##X(OBJECT *obj, int notice, PROPERTY *prop, char *value) \
+#define EXPORT_NOTIFY_C(X,C) EXPORT int notify_##X(OBJECT *obj, int notice, PROPERTY *prop, const char *value) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
 	switch (notice) { \
 	case NM_POSTUPDATE: return my->postnotify(prop,value); \
@@ -2434,7 +2430,7 @@ CDECL int dllkill() { return do_kill(NULL); }
 /// Implement class sync export
 #define EXPORT_SYNC(X) EXPORT_SYNC_C(X,X)
 
-#define EXPORT_ISA_C(X,C) EXPORT int isa_##X(OBJECT *obj, const char *name) { \
+#define EXPORT_ISA_C(X,C) EXPORT int isa_##X(OBJECT *obj, CLASSNAME name) { \
 	return ( obj!=0 && name!=0 ) ? OBJECTDATA(obj,C)->isa(name) : 0; }
 /// Implement class isa export
 #define EXPORT_ISA(X) EXPORT_ISA_C(X,X)
@@ -2458,7 +2454,7 @@ CDECL int dllkill() { return do_kill(NULL); }
 /// Implement class finalize export
 #define EXPORT_FINALIZE(X) EXPORT_FINALIZE_C(X,X)
 
-#define EXPORT_NOTIFY_C_P(X,C,P) EXPORT int notify_##X##_##P(OBJECT *obj, char *value) \
+#define EXPORT_NOTIFY_C_P(X,C,P) EXPORT int notify_##X##_##P(OBJECT *obj, const char *value) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
 	return my->notify_##P(value); \
 	} else return 0; } \
@@ -2466,7 +2462,7 @@ CDECL int dllkill() { return do_kill(NULL); }
 /// Implement property notify export
 #define EXPORT_NOTIFY_PROP(X,P) EXPORT_NOTIFY_C_P(X,X,P)
 
-#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, char *value) \
+#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, const char *value) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
 	return my->N(value); \
 	} else return 0; } \
@@ -2578,9 +2574,7 @@ public:
 	};
 };
 
-#endif // __cplusplus
-
-static int method_extract(char *value, va_list args)
+inline int method_extract(char *value, va_list args)
 {
 	char *buffer = va_arg(args,char*);
 	size_t size = va_arg(args,size_t);
@@ -2595,6 +2589,8 @@ static int method_extract(char *value, va_list args)
 	}
 	return -1;
 }
+
+#endif // __cplusplus
 
 /** @} **/
 #endif

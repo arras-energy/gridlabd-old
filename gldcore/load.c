@@ -1389,7 +1389,7 @@ static int unitspec(PARSER, UNIT **unit)
 			_n = (int)strlen(result);
 		}
 	}
-	CATCH (char *msg) {
+	CATCH (const char *msg) {
 		linenum=_l;
 		_n = 0;
 	}
