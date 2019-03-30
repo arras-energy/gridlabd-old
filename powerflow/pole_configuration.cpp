@@ -140,11 +140,6 @@ int pole_configuration::init(OBJECT *parent)
 	return 1;	
 }
 
-EXPORT int isa_pole_configuration(OBJECT *obj, CLASSNAME classname)
-{
-	return strcmp(classname,"pole_configuration") == 0;
-}
-
 double pole_configuration::get_pole_diameter(double height)
 {
 	return (pole_length-height)*(ground_diameter-top_diameter)/(pole_length-pole_depth);
