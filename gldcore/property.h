@@ -866,6 +866,8 @@ typedef void* PROPERTYADDR; /**< the offset of a property from the end of the OB
 typedef const char *PROPERTYNAME; /**< the name of a property */
 #define MAXPROPNAMELEN 64
 typedef const char *FUNCTIONNAME; /**< the name of a function (not used) */
+#define MAXPROPERTYVALUELEN 1024
+#define MAXOBJECTNAMELEN 64
 
 /* property access rights (R/W apply to modules only, core always has all rights) */
 typedef enum {

@@ -250,7 +250,7 @@ static int list_unnamed = 1; /**< flag indicating that listing includes unnamed 
 static int list_inactive = 1; /**< flag indicating that listing includes inactive objects */
 static int list_sync = 1; /**< flag indicating that listing includes objects that have syncs */
 
-static STATUS exec(char *format,...)
+static STATUS exec(const char *format,...)
 {
 	char cmd[1024];
 	va_list ptr;
@@ -1138,9 +1138,9 @@ Retry:
 		}
 		else if (strncmp(cmd,"set",max(1,strlen(cmd)))==0)
 		{
-			char256 objname;
-			char256 propname;
-			char256 value;
+			char objname[MAXOBJECTNAMELEN];
+			char propname[MAXPROPNAMELEN];
+			char value[MAXPROPERTYVALUELEN];
 			int scanct = 0;
 			value[0] = '\0';
 			if ((scanct=sscanf(buffer,"%*s %s %s %s",objname,propname,value))>=2)
