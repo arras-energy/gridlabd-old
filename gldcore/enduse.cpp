@@ -32,11 +32,11 @@ double enduse_get_part(void *x, const char *name)
 	enduse *e = (enduse*)x;
 #define _DO_DOUBLE(X,Y) if ( strcmp(name,Y)==0) return e->X;
 #define _DO_COMPLEX(X,Y) \
-	if ( strcmp(name,Y".real")==0) return e->X.r; \
-	if ( strcmp(name,Y".imag")==0) return e->X.i; \
-	if ( strcmp(name,Y".mag")==0) return complex_get_mag(e->X); \
-	if ( strcmp(name,Y".arg")==0) return complex_get_arg(e->X); \
-	if ( strcmp(name,Y".ang")==0) return complex_get_arg(e->X)*180/PI; 
+	if ( strcmp(name,Y".real")==0) return e->X.Re(); \
+	if ( strcmp(name,Y".imag")==0) return e->X.Im(); \
+	if ( strcmp(name,Y".mag")==0) return e->X.Mag(); \
+	if ( strcmp(name,Y".arg")==0) return e->X.Arg(); \
+	if ( strcmp(name,Y".ang")==0) return e->X.Ang(); 
 #define DO_DOUBLE(X) _DO_DOUBLE(X,#X)
 #define DO_COMPLEX(X) _DO_COMPLEX(X,#X)
 	DO_COMPLEX(total);
@@ -132,8 +132,7 @@ TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1)
 		if (e->t_last>TS_ZERO)
 		{
 			double dt = (double)(t1-e->t_last)/(double)3600;
-			e->energy.r += e->total.r * dt;
-			e->energy.i += e->total.i * dt;
+			e->energy += e->total*dt;
 			e->cumulative_heatgain += e->heatgain * dt;
 			if(dt > 0.0)
 				e->heatgain = 0; /* heat is a dt thing, so dt=0 -> Q*dt = 0 */
@@ -154,22 +153,23 @@ TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1)
 			else
 			{
 				double P = e->voltage_factor>0 ? e->shape->load * (e->power_fraction + e->current_fraction + e->impedance_fraction) : 0.0;
-				e->total.r = P;
+				e->total.Re() = P;
 				if (fabs(e->power_factor)<1)
-					e->total.i = (e->power_factor<0?-1:1)*P*sqrt(1/(e->power_factor*e->power_factor)-1);
+					e->total.Im() = (e->power_factor<0?-1:1)*P*sqrt(1/(e->power_factor*e->power_factor)-1);
 				else
-					e->total.i = 0;
+					e->total.Im() = 0;
 
 				// beware: these are misnomers (they are e->constant_power, e->constant_current, ...)
-				e->power.r = e->total.r * e->power_fraction; e->power.i = e->total.i * e->power_fraction;
-				e->current.r = e->total.r * e->current_fraction; e->current.i = e->total.i * e->current_fraction;
-				e->admittance.r = e->total.r * e->impedance_fraction; e->admittance.i = e->total.i * e->impedance_fraction;
+				e->power.Re() = e->total.Re() * e->power_fraction; 
+				e->power.Im() = e->total.Im() * e->power_fraction;
+				e->current.Re() = e->total.Re() * e->current_fraction; e->current.Im() = e->total.Im() * e->current_fraction;
+				e->admittance.Re() = e->total.Re() * e->impedance_fraction; e->admittance.Im() = e->total.Im() * e->impedance_fraction;
 			}
 		}
 		else if (e->voltage_factor > 0 && !(e->config&EUC_HEATLOAD)) // no shape electric - use ZIP component directly
 		{
-			e->total.r = e->power.r + e->current.r + e->admittance.r;
-			e->total.i = e->power.i + e->current.i + e->admittance.i;
+			e->total.Re() = e->power.Re() + e->current.Re() + e->admittance.Re();
+			e->total.Im() = e->power.Im() + e->current.Im() + e->admittance.Im();
 		}
 		else
 		{
@@ -185,9 +185,9 @@ TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1)
 		// electric load
 		else
 		{
-			if (e->total.r > e->demand.r) e->demand = e->total;
+			if (e->total.Re() > e->demand.Re()) e->demand = e->total;
 			if(e->heatgain_fraction > 0.0)
-				e->heatgain = e->total.r * e->heatgain_fraction * 3412.1416 /* Btu/h/kW */;
+				e->heatgain = e->total.Re() * e->heatgain_fraction * 3412.1416 /* Btu/h/kW */;
 		}
 
 		e->t_last = t1;
@@ -415,14 +415,14 @@ int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 	OUTPUT_NZ(current_fraction);
 	OUTPUT_NZ(power_fraction);
 	OUTPUT(power_factor);
-	OUTPUT(power.r);
-	OUTPUT_NZ(power.i);
+	OUTPUT(power.Re());
+	OUTPUT_NZ(power.Im());
 	return len;
 }
 
 int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefix)
 {
-	enduse *this=NULL; // temporary enduse structure used for mapping variables
+	enduse *my=NULL; // temporary enduse structure used for mapping variables
 	int result = 0;
 	struct s_map_enduse{
 		PROPERTYTYPE type;
@@ -431,22 +431,22 @@ int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefi
 		const char *description;
 		int64_t flags;
 	}*p, prop_list[]={
-		{PT_complex, "energy[kVAh]", (char *)PADDR(energy), "the total energy consumed since the last meter reading"},
-		{PT_complex, "power[kVA]", (char *)PADDR(total), "the total power consumption of the load"},
-		{PT_complex, "peak_demand[kVA]", (char *)PADDR(demand), "the peak power consumption since the last meter reading"},
-		{PT_double, "heatgain[Btu/h]", (char *)PADDR(heatgain), "the heat transferred from the enduse to the parent"},
-		{PT_double, "cumulative_heatgain[Btu]", (char *)PADDR(cumulative_heatgain), "the cumulative heatgain from the enduse to the parent"},
-		{PT_double, "heatgain_fraction[pu]", (char *)PADDR(heatgain_fraction), "the fraction of the heat that goes to the parent"},
-		{PT_double, "current_fraction[pu]", (char *)PADDR(current_fraction),"the fraction of total power that is constant current"},
-		{PT_double, "impedance_fraction[pu]", (char *)PADDR(impedance_fraction), "the fraction of total power that is constant impedance"},
-		{PT_double, "power_fraction[pu]", (char *)PADDR(power_fraction), "the fraction of the total power that is constant power"},
-		{PT_double, "power_factor", (char *)PADDR(power_factor), "the power factor of the load"},
-		{PT_complex, "constant_power[kVA]", (char *)PADDR(power), "the constant power portion of the total load"},
-		{PT_complex, "constant_current[kVA]", (char *)PADDR(current), "the constant current portion of the total load"},
-		{PT_complex, "constant_admittance[kVA]", (char *)PADDR(admittance), "the constant admittance portion of the total load"},
-		{PT_double, "voltage_factor[pu]", (char *)PADDR(voltage_factor), "the voltage change factor"},
-		{PT_double, "breaker_amps[A]", (char *)PADDR(breaker_amps), "the rated breaker amperage"},
-		{PT_set, "configuration", (char *)PADDR(config), "the load configuration options"},
+		{PT_complex, "energy[kVAh]", (char *)PADDR_X(energy,my), "the total energy consumed since the last meter reading"},
+		{PT_complex, "power[kVA]", (char *)PADDR_X(total,my), "the total power consumption of the load"},
+		{PT_complex, "peak_demand[kVA]", (char *)PADDR_X(demand,my), "the peak power consumption since the last meter reading"},
+		{PT_double, "heatgain[Btu/h]", (char *)PADDR_X(heatgain,my), "the heat transferred from the enduse to the parent"},
+		{PT_double, "cumulative_heatgain[Btu]", (char *)PADDR_X(cumulative_heatgain,my), "the cumulative heatgain from the enduse to the parent"},
+		{PT_double, "heatgain_fraction[pu]", (char *)PADDR_X(heatgain_fraction,my), "the fraction of the heat that goes to the parent"},
+		{PT_double, "current_fraction[pu]", (char *)PADDR_X(current_fraction,my),"the fraction of total power that is constant current"},
+		{PT_double, "impedance_fraction[pu]", (char *)PADDR_X(impedance_fraction,my), "the fraction of total power that is constant impedance"},
+		{PT_double, "power_fraction[pu]", (char *)PADDR_X(power_fraction,my), "the fraction of the total power that is constant power"},
+		{PT_double, "power_factor", (char *)PADDR_X(power_factor,my), "the power factor of the load"},
+		{PT_complex, "constant_power[kVA]", (char *)PADDR_X(power,my), "the constant power portion of the total load"},
+		{PT_complex, "constant_current[kVA]", (char *)PADDR_X(current,my), "the constant current portion of the total load"},
+		{PT_complex, "constant_admittance[kVA]", (char *)PADDR_X(admittance,my), "the constant admittance portion of the total load"},
+		{PT_double, "voltage_factor[pu]", (char *)PADDR_X(voltage_factor,my), "the voltage change factor"},
+		{PT_double, "breaker_amps[A]", (char *)PADDR_X(breaker_amps,my), "the rated breaker amperage"},
+		{PT_set, "configuration", (char *)PADDR_X(config,my), "the load configuration options"},
 			{PT_KEYWORD, "IS110", NULL, NULL, (set)EUC_IS110},
 			{PT_KEYWORD, "IS220", NULL, NULL, (set)EUC_IS220},
 	}, *last=NULL;
@@ -546,6 +546,7 @@ int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
 	enduse *e = (enduse*)data;
 	char buffer[1024];
 	char *token = NULL;
+	char one[] = "1";
 
 	/* use structure conversion if opens with { */
 	if ( string[0]=='{')
@@ -556,7 +557,7 @@ int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
 			{NULL,"energy",PT_complex,0,0,PA_PUBLIC,unit,(PROPERTYADDR)((char*)(&e->energy)-(char*)e),NULL,NULL,NULL,eus+2},
 			{NULL,"demand",PT_complex,0,0,PA_PUBLIC,unit,(PROPERTYADDR)((char*)(&e->demand)-(char*)e),NULL,NULL,NULL,NULL},
 		};
-		return convert_to_struct(string,data,(void*)&eus);
+		return convert_to_struct(string,data,(PROPERTY*)&eus);
 	}
 
 	/* check string length before copying to buffer */
@@ -577,7 +578,7 @@ int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
 		/* isolate param and token and eliminte leading whitespaces */
 		while (isspace(*param) || iscntrl(*param)) param++;
 		if (value==NULL)
-			value="1";
+			value = one;
 		else
 			*value++ = '\0'; /* separate value from param */
 		while (isspace(*value) || iscntrl(*value)) value++;
@@ -592,9 +593,9 @@ int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
 		else if (strcmp(param,"power_factor")==0)
 			e->power_factor = atof(value);
 		else if ( strcmp(param,"power.r")==0 )
-			e->power.r = atof(value);
+			e->power.Re() = atof(value);
 		else if ( strcmp(param,"power.i")==0 )
-			e->power.i = atof(value);
+			e->power.Im() = atof(value);
 		else if (strcmp(param,"loadshape")==0)
 		{
 			PROPERTY *pref = class_find_property(prop->oclass,value);
@@ -630,7 +631,7 @@ int enduse_test(void)
 
 	/* tests */
 	struct s_test {
-		char *name;
+		const char *name;
 	} *p, test[] = {
 		"TODO",
 	};

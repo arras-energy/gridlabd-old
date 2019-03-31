@@ -181,7 +181,8 @@ CDECL EXTERN CALLBACKS *callback INIT(NULL);
 //#define PUBLISH_SET(C,N,E) (*callback->define_set_member)(C##_class,#N,#E,C::E)
 /** @} **/
 
-#define PADDR(X) ((char*)&(this->X)-(char*)this)
+#define PADDR_X(X,T) ((char*)&((T)->X)-(char*)(T))
+#define PADDR(X) PADDR_X(X,this)
 
 /******************************************************************************
  * Exception handling
