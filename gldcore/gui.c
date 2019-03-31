@@ -712,7 +712,7 @@ static int gui_html_source_page(char *source)
 }
 static void gui_entity_html_content(GUIENTITY *entity)
 {
-	char *ptype = gui_get_property(entity) ? class_get_property_typename(entity->prop->ptype) : "";
+	const char *ptype = gui_get_property(entity) ? class_get_property_typename(entity->prop->ptype) : "";
 	switch (entity->type) {
 
 	case GUI_PAGE:

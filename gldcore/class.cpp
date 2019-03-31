@@ -274,15 +274,18 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
                                       PROPERTYTYPE ptype, /**< the type of the property */
                                       const char *unit)   /**< the unit of the property */
 {
-	PROPERTY *prop = malloc(sizeof(PROPERTY));
+	PROPERTY *prop = (PROPERTY*)malloc(sizeof(PROPERTY));
 	UNIT *pUnit = NULL;
 
-	TRY {
+	try 
+	{
 		if (unit)
 			pUnit = unit_find(unit);
-	} CATCH (const char *msg) {
+	} 
+	catch (const char *msg) 
+	{
 		// will get picked up later
-	} ENDCATCH;
+	}
 
 	if (prop==NULL)
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): memory allocation failed", oclass->name, name);
@@ -340,7 +343,7 @@ unsigned int class_get_count(void)
 /** Get the name of a property from its type
 	@return a pointer to a string containing the name of the property type
  **/
-char *class_get_property_typename(PROPERTYTYPE type) /**< the property type */
+const char *class_get_property_typename(PROPERTYTYPE type) /**< the property type */
 {
 	if (type<=_PT_FIRST || type>=_PT_LAST)
 		return "//UNDEF//";
@@ -351,7 +354,7 @@ char *class_get_property_typename(PROPERTYTYPE type) /**< the property type */
 /** Get the name of a property from its type
 	@return a pointer to a string containing the name of the property type
  **/
-char *class_get_property_typexsdname(PROPERTYTYPE type) /**< the property type */
+const char *class_get_property_typexsdname(PROPERTYTYPE type) /**< the property type */
 {
 	if (type<=_PT_FIRST || type>=_PT_LAST)
 		return "//UNDEF//";
@@ -369,7 +372,7 @@ PROPERTYTYPE class_get_propertytype_from_typename(char *name) /**< a string cont
 	for (i=0; i<sizeof(property_type)/sizeof(property_type[0]); i++)
 	{
 		if (strcmp(property_type[i].name,name)==0)
-			return i;
+			return (PROPERTYTYPE) i;
 	}
 	return PT_void;
 }
@@ -667,7 +670,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 	PROPERTY *prop=NULL;
 	va_start(arg,oclass);
 	errno = 0;
-	while ((proptype=va_arg(arg,PROPERTYTYPE))!=0)
+	while ( (proptype=(PROPERTYTYPE)va_arg(arg,int)) != 0 )
 	{
 		if (proptype>_PT_LAST)
 		{
@@ -799,7 +802,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			}
 			else if (proptype==PT_ACCESS)
 			{
-				PROPERTYACCESS pa = va_arg(arg,PROPERTYACCESS);
+				PROPERTYACCESS pa = (PROPERTYACCESS)va_arg(arg,int);
 				switch (pa) {
 				case PA_PUBLIC:
 				case PA_PROTECTED:
@@ -856,10 +859,13 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			else if (proptype==PT_UNITS)
 			{
 				char *unitspec = va_arg(arg,char*);
-				TRY {
+				try 
+				{
 					if ((prop->unit = unit_find(unitspec))==NULL)
 						throw_exception("unable to define unit '%s'", unitspec); 
-				} CATCH (const char *msg) {
+				} 
+				catch (const char *msg) 
+				{
 						output_error("class_define_map(oclass='%s',...): property %s unit '%s' is not recognized: %s",oclass->name, prop->name,unitspec,msg);
 						/*	TROUBLESHOOT
 							A class is attempting to publish a variable using a unit that is not defined.
@@ -867,7 +873,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 							Units are defined in the unit file located in the GridLAB-D <b>etc</b> folder.
 							This error immediately follows a throw event with the same message.
 						 */
-				} ENDCATCH;
+				};
 			}
 			else if (proptype==PT_DESCRIPTION)
 			{
@@ -892,7 +898,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			else
 			{
 				char tcode[32];
-				char *ptypestr=class_get_property_typename(proptype);
+				const char *ptypestr=class_get_property_typename(proptype);
 				sprintf(tcode,"%d",proptype);
 				if (strcmp(ptypestr,"//UNDEF//")==0)
 					ptypestr = tcode;
@@ -1132,7 +1138,7 @@ int class_saveall(FILE *fp) /**< a pointer to the stream FILE structure */
 					count += fprintf(fp, "#ifdef INCLUDE_FUNCTIONS\n\tfunction %s();\n#endif\n", func->name);
 				for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 				{
-					char *ptype = class_get_property_typename(prop->ptype);
+					const char *ptype = class_get_property_typename(prop->ptype);
 					if ( ptype != NULL )
 					{
 						if ( strchr(prop->name,'.') == NULL )
@@ -1167,7 +1173,7 @@ int class_saveall_xml(FILE *fp) /**< a pointer to the stream FILE structure */
 				count += fprintf(fp, "\t\t<function>%s</function>\n", func->name);
 			for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 			{
-				char *propname = class_get_property_typename(prop->ptype);
+				const char *propname = class_get_property_typename(prop->ptype);
 				if (propname!=NULL)
 					count += fprintf(fp,"\t\t\t<property type=\"%s\">%s</property>\n", propname, prop->name);
 			}
@@ -1309,7 +1315,7 @@ static int check = 0;  /* there must be a better way to do this, but this works.
  **/
 static int buffer_write(char *buffer, /**< buffer into which string is written */
                         size_t len,   /**< size of the buffer into which the string is written */
-                        char *format, /**< format of string to write into buffer, followed by the variable arguments */
+                        const char *format, /**< format of string to write into buffer, followed by the variable arguments */
                         ...)
 {
 	char temp[1025];
@@ -1349,8 +1355,8 @@ int class_get_xsd(CLASS *oclass, /**< a pointer to the class to convert to XSD *
 	CLASS *oc = oclass;
 	extern KEYWORD oflags[];
 	struct {
-		char *name;
-		char *type;
+		const char *name;
+		const char *type;
 		KEYWORD *keys;
 	} attribute[]={
 		{"id", "integer",NULL},
@@ -1392,7 +1398,7 @@ int class_get_xsd(CLASS *oclass, /**< a pointer to the class to convert to XSD *
 	for(; oc != 0; oc = oc->parent){
 		for (prop=oc->pmap; prop!=NULL && prop->oclass==oc; prop=prop->next)
 		{
-			char *proptype=class_get_property_typexsdname(prop->ptype);
+			const char *proptype=class_get_property_typexsdname(prop->ptype);
 			if (prop->unit!=NULL){
 				n += buffer_write(buffer+n, len-n, "\t\t\t\t<xs:element name=\"%s\" type=\"xs:string\"/>\n", prop->name);
 			} else {

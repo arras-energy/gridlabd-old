@@ -180,7 +180,7 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 		printf( "%s\tfunction %s();\n", tabs, func->name);
 	for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 	{
-		char *propname = class_get_property_typename(prop->ptype);
+		const char *propname = class_get_property_typename(prop->ptype);
 		if (propname!=NULL)
 		{
 			if ( (prop->access&PA_HIDDEN)==PA_HIDDEN )
@@ -736,7 +736,7 @@ int GldCmdarg::modhelp(int argc, char *argv[])
 			while ((var=global_getnext(var))!=NULL)
 			{
 				PROPERTY *prop = var->prop;
-				char *proptype = class_get_property_typename(prop->ptype);
+				const char *proptype = class_get_property_typename(prop->ptype);
 				if ( strncmp(var->prop->name,mod->name,strlen(mod->name))!=0 )
 					continue;
 				if ( (prop->access&PA_HIDDEN)==PA_HIDDEN )

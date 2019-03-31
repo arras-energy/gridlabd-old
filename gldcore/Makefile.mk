@@ -4,9 +4,7 @@ dist_pkgdata_DATA += gldcore/gridlabd.cnf
 
 GLD_SOURCES_PLACE_HOLDER = 
 GLD_SOURCES_PLACE_HOLDER += gldcore/aggregate.cpp gldcore/aggregate.h
-GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
-GLD_SOURCES_PLACE_HOLDER += gldcore/class.c
-GLD_SOURCES_PLACE_HOLDER += gldcore/class.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/class.cpp gldcore/class.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/cmdarg.cpp gldcore/cmdarg.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/compare.c
 GLD_SOURCES_PLACE_HOLDER += gldcore/compare.h
@@ -116,7 +114,6 @@ GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.c
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.h
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
-
 if HAVE_MINGW
 
 bin_SCRIPTS += gldcore/gridlabd
@@ -168,8 +165,8 @@ EXTRA_gridlabd_bin_SOURCES =
 EXTRA_gridlabd_bin_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
 endif
 
+GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
 BUILT_SOURCES += gldcore/build.h
-
 CLEANFILES += gldcore/build.h origin.txt
 
 pkginclude_HEADERS =

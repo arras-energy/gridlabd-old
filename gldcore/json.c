@@ -132,7 +132,7 @@ static int json_classes(FILE *fp)
 		for ( prop = oclass->pmap ; prop != NULL ; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)) )
 		{
 			KEYWORD *key;
-			char *ptype = class_get_property_typename(prop->ptype);
+			const char *ptype = class_get_property_typename(prop->ptype);
 			if ( ptype == NULL )
 				continue;
 			if ( prop != oclass->pmap )
