@@ -46,9 +46,10 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 {
 	AGGREGATOR op = AGGR_NOP;
 	AGGREGATION *result=NULL;
-	char aggrop[9], aggrval[257], *aggrpart;
+	char aggrop[9], aggrval[257], *aggrpart, nulpart[1];
 	char aggrprop[33], aggrunit[9];
 	unsigned char flags=0x00;
+	nulpart[0] = '\0';
 
 	//Change made for collector to handle propeties of objects
 	OBJECT *obj;
@@ -89,11 +90,11 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 					if (aggrpart!=NULL)
 						*aggrpart++ = '\0';	// split the value and the part
 					else
-						aggrpart=""; // no part given
+						aggrpart=nulpart; // no part given
 				}
 					else
 				{
-					aggrpart=""; // no part given
+					aggrpart=nulpart; // no part given
 				}
 			}
 		}
@@ -333,12 +334,12 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 
 double mag(complex *x)
 {
-	return sqrt(x->r*x->r + x->i*x->i);
+	return sqrt(x->Re()*x->Re() + x->Im()*x->Im());
 }
 
 double arg(complex *x)
 {
-	return (x->r==0) ? (x->i>0 ? PI/2 : (x->i==0 ? 0 : -PI/2)) : ((x->i>0) ? (x->r>0 ? atan(x->i/x->r) : PI-atan(x->i/x->r)) : (x->r>0 ? -atan(x->i/x->r) : PI+atan(x->i/x->r)));
+	return (x->Re()==0) ? (x->Im()>0 ? PI/2 : (x->Im()==0 ? 0 : -PI/2)) : ((x->Im()>0) ? (x->Re()>0 ? atan(x->Im()/x->Re()) : PI-atan(x->Im()/x->Re())) : (x->Re()>0 ? -atan(x->Im()/x->Re()) : PI+atan(x->Im()/x->Re())));
 }
 
 /** This function performs an aggregate calculation given by the aggregation 
@@ -369,8 +370,8 @@ double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
 			if (pcomplex!=NULL)
 			{
 				switch (aggr->part) {
-				case AP_REAL: value=pcomplex->r; break;
-				case AP_IMAG: value=pcomplex->i; break;
+				case AP_REAL: value=pcomplex->Re(); break;
+				case AP_IMAG: value=pcomplex->Im(); break;
 				case AP_MAG: value=mag(pcomplex); break;
 				case AP_ARG: value=arg(pcomplex); break;
 				case AP_ANG: value=arg(pcomplex)*180/PI;  break;

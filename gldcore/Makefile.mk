@@ -3,8 +3,7 @@ dist_pkgdata_DATA += gldcore/unitfile.txt
 dist_pkgdata_DATA += gldcore/gridlabd.cnf
 
 GLD_SOURCES_PLACE_HOLDER = 
-GLD_SOURCES_PLACE_HOLDER += gldcore/aggregate.c
-GLD_SOURCES_PLACE_HOLDER += gldcore/aggregate.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/aggregate.cpp gldcore/aggregate.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/class.c
 GLD_SOURCES_PLACE_HOLDER += gldcore/class.h
