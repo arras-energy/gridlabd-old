@@ -72,6 +72,10 @@ typedef struct s_guientity {
 	UNIT *unit;
 } GUIENTITY;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 GUIENTITY *gui_create_entity();
 typedef  int (*GUISTREAMFN)(void*,char*,...);
 void gui_set_html_stream(void *ref,GUISTREAMFN stream);
@@ -128,5 +132,9 @@ size_t gui_glm_write_all(FILE *fp);
 
 int gui_wait(void);
 
+#ifdef __cplusplus
+}
+#endif
+	
 #endif
 

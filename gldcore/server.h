@@ -14,7 +14,15 @@ int filelength(int fd);
 #include <io.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+	
 STATUS server_startup(int argc, char *argv[]);
 STATUS server_join(void);
 
+#ifdef __cplusplus
+}
+#endif
+	
 #endif
