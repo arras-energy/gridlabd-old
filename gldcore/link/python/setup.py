@@ -25,7 +25,7 @@ except:
 	except :
 		compile_options = None
 	if not compile_options :
-		compile_options=['-O2','-g']
+		compile_options=['-O2','-g','-Wunused_function','-Wunused_variable']
 if not srcdir :
 	raise Exception("SRCDIR environment variable was not set -- try the command 'export SRCDIR=$PWD' before running setup.py")
 compile_options.extend(['-I'+srcdir+'/gldcore',"-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
@@ -44,13 +44,13 @@ gridlabd = Extension('gridlabd',
 		'gldcore/deltamode.cpp',
 		'gldcore/enduse.cpp',
 		'gldcore/environment.cpp',
-		'gldcore/exception.c',
+		'gldcore/exception.cpp',
 		'gldcore/exec.cpp',
 		'gldcore/find.cpp',
 		'gldcore/globals.cpp',
-		'gldcore/gui.c',
-		'gldcore/http_client.c',
-		'gldcore/index.c',
+		'gldcore/gui.cpp',
+		'gldcore/http_client.cpp',
+		'gldcore/index.cpp',
 		'gldcore/instance.c',
 		'gldcore/instance_cnx.c',
 		'gldcore/instance_slave.c',

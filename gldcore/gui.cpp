@@ -33,7 +33,7 @@ GUIACTIONSTATUS wait_status = GUIACT_NONE;
 #define TABLEOPTIONS 
 #endif
 
-static int gui_default_stream(void *ref,char *format,...)
+static int gui_default_stream(void *ref,const char *format,...)
 {
 	int len;
 	va_list ptr;
@@ -84,7 +84,7 @@ GUIENTITYTYPE gui_get_type(GUIENTITY *entity)
 	return entity->type;
 }
 
-char *gui_get_typename(GUIENTITY *entity)
+const char *gui_get_typename(GUIENTITY *entity)
 {
 	switch (entity->type) {
 #define CASE(X) case X: return #X;
@@ -750,7 +750,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 			for (key=prop->keywords; key!=NULL; key=key->next)
 			{
 				int value = *(int*)gui_get_data(entity);
-				char *checked = (value==key->value)?"checked":"";
+				const char *checked = (value==key->value)?"checked":"";
 				char label[64], *p;
 				strcpy(label,key->name);
 				for (p=label; *p!='\0'; p++) if (*p=='_') *p=' '; else if (p>label && *p>='A' && *p<='Z') *p+='a'-'A';
@@ -768,7 +768,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 			for (key=prop->keywords; key!=NULL; key=key->next)
 			{
 				int value = *(int*)gui_get_data(entity);
-				char *checked = (value==key->value)?"checked":"";
+				const char *checked = (value==key->value)?"checked":"";
 				char label[64], *p;
 				strcpy(label,key->name);
 				for (p=label; *p!='\0'; p++) if (*p=='_') *p=' '; else if (p>label && *p>='A' && *p<='Z') *p+='a'-'A';
@@ -781,7 +781,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 		{
 			PROPERTY *prop = gui_get_property(entity);
 			KEYWORD *key = NULL;
-			char *multiple = (prop->ptype==PT_set?"multiple":"");
+			const char *multiple = (prop->ptype==PT_set?"multiple":"");
 			char size[64] = "";
 			if (entity->size>0) sprintf(size,"size=\"%d\"",entity->size);
 			if (!entity->parent || gui_get_type(entity->parent)!=GUI_SPAN) newcol(entity);
@@ -789,7 +789,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 			for (key=prop->keywords; key!=NULL; key=key->next)
 			{
 				int value = *(int*)gui_get_data(entity);
-				char *checked = (value==key->value)?"selected":"";
+				const char *checked = (value==key->value)?"selected":"";
 				char label[64], *p;
 				strcpy(label,key->name);
 				for (p=label; *p!='\0'; p++) if (*p=='_') *p=' '; else if (p>label && *p>='A' && *p<='Z') *p+='a'-'A';
@@ -875,7 +875,7 @@ void gui_html_output_children(GUIENTITY *entity)
 	if (entity!=NULL) gui_entity_html_close(entity);
 }
 
-void gui_include_element(char *tag, char *options, char *file)
+void gui_include_element(const char *tag, const char *options, const char *file)
 {
 	char path[1024];
 	if (!find_file(file,NULL,R_OK,path,sizeof(path)))
@@ -901,7 +901,7 @@ void gui_include_element(char *tag, char *options, char *file)
 	}
 }
 
-int gui_html_output_page(char *page)
+int gui_html_output_page(const char *page)
 {
 	GUIENTITY *entity;
 	int len = 0;
@@ -962,9 +962,9 @@ STATUS gui_html_output_all(void)
 /**************************************************************************/
 /* GLM OPERATIONS */
 /**************************************************************************/
-char *gui_glm_typename(GUIENTITYTYPE type)
+const char *gui_glm_typename(GUIENTITYTYPE type)
 {
-	char *typename[] = {
+	const char *typemap[] = {
 		NULL, 
 		"row", "tab", "page", "group", "span", NULL,
 		"title", "status", "text", NULL,
@@ -972,8 +972,8 @@ char *gui_glm_typename(GUIENTITYTYPE type)
 		"browse", "table", "graph", NULL,
 		NULL,
 	};
-	if (type>=0 || type<sizeof(typename)/sizeof(typename[0]))
-		return typename[type];
+	if (type>=0 || type<sizeof(typemap)/sizeof(typemap[0]))
+		return typemap[type];
 	else
 		return NULL;
 }
@@ -981,10 +981,10 @@ size_t gui_glm_write(FILE *fp, GUIENTITY *entity, int indent)
 {
 	size_t count=0;
 	GUIENTITY *parent = entity;
-	char *typename = gui_glm_typename(parent->type);
+	const char *type = gui_glm_typename(parent->type);
 	char tabs[] = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 	if (indent<0) tabs[0]='\0'; else if (indent<sizeof(tabs)) tabs[indent]='\0';
-	if (typename==NULL)
+	if (type==NULL)
 		return FAILED;
 	
 	if (entity->type==GUI_ACTION)
@@ -993,7 +993,7 @@ size_t gui_glm_write(FILE *fp, GUIENTITY *entity, int indent)
 	}
 	else
 	{
-		count += fprintf(fp,"%s%s {\n",tabs,typename);
+		count += fprintf(fp,"%s%s {\n",tabs,type);
 
 		if (gui_get_object(entity))
 			count += fprintf(fp,"%s\tlink %s:%s;\n", tabs,entity->objectname,entity->propertyname);

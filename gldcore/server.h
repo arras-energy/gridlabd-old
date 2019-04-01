@@ -9,7 +9,6 @@
 
 #ifndef WIN32
 #include <sys/stat.h>
-int filelength(int fd);
 #else
 #include <io.h>
 #endif
@@ -20,6 +19,10 @@ extern "C" {
 	
 STATUS server_startup(int argc, char *argv[]);
 STATUS server_join(void);
+
+#ifndef WIN32
+int filelength(int fd);
+#endif
 
 #ifdef __cplusplus
 }

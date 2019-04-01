@@ -2336,9 +2336,9 @@ public:
 	inline bool open(char *url, size_t maxlen=4096) { result=callback->http.read(url,(int)maxlen); return is_valid();};
 	inline void close(void) { callback->http.free(result);};
 	inline bool is_valid(void) { return result!=NULL; };
-	inline char *get_header(void) { return result->header.data;};
+	inline const char *get_header(void) { return result->header.data;};
 	inline size_t get_header_size(void) { return result->header.size; };
-	inline char *get_body(void) { return result->body.data; };
+	inline const char *get_body(void) { return result->body.data; };
 	inline size_t get_body_size(void) { return result->body.size; };
 	inline int get_status(void) { return result->status; };
 };

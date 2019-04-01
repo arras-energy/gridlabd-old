@@ -26,7 +26,7 @@ INDEX *index_create(int first_ordinal, /**< the first ordinal */
 					int last_ordinal) /**< the last ordinal */
 {
 	int size = (unsigned int)(last_ordinal - first_ordinal + 1);
-	INDEX *index = malloc(sizeof(INDEX));
+	INDEX *index = (INDEX*)malloc(sizeof(INDEX));
 	if (index!=NULL)
 	{
 		if (size<1)
@@ -34,7 +34,7 @@ INDEX *index_create(int first_ordinal, /**< the first ordinal */
 			errno = EINVAL;
 			goto Undo;
 		}
-		index->ordinal = malloc(sizeof(GLLIST*)*size);
+		index->ordinal = (GLLIST**)malloc(sizeof(GLLIST*)*size);
 		if (index->ordinal==NULL)
 		{
 			errno = ENOMEM;
@@ -95,7 +95,7 @@ STATUS index_insert(INDEX *index,	/**< the index to which the item is added */
 		GLLIST **newblock = NULL;
 		while (ordinal >= index->first_ordinal + newsize)
 			newsize *= 2;	/* double until it fits */
-		newblock = malloc(sizeof(GLLIST*)*newsize);
+		newblock = (GLLIST**)malloc(sizeof(GLLIST*)*newsize);
 		if (newblock==NULL)
 		{
 			output_fatal("unable to grow index %d: %s",index->id, strerror(errno));

@@ -165,7 +165,7 @@ size_t hread(char *buffer, size_t size, HTTP* http)
 /* URL access */
 HTTPRESULT *http_new_result(void)
 {
-	HTTPRESULT *result = malloc(sizeof(HTTPRESULT));
+	HTTPRESULT *result = (HTTPRESULT*)malloc(sizeof(HTTPRESULT));
 	result->body.data = NULL;
 	result->body.size = 0;
 	result->header.data = NULL;
@@ -225,18 +225,18 @@ HTTPRESULT *http_read(char *url, int maxlen)
 //					}
 //					else
 //					{
-						result->body.data = malloc(result->body.size+1);
+						result->body.data = (char*)malloc(result->body.size+1);
 //					}
 					memcpy(result->body.data,data,result->body.size);
 					result->body.data[result->body.size] = '\0';
 				}
 				else
 				{
-					result->body.data = "";
+					result->body.data = strdup("");
 					result->body.size = 0;
 				}
 				result->header.size = (int)hlen;
-				result->header.data = malloc(hlen+1);
+				result->header.data = (char*)malloc(hlen+1);
 				strcpy(result->header.data,buffer);
 				result->status = 0;
 			}
@@ -255,7 +255,7 @@ HTTPRESULT *http_read(char *url, int maxlen)
 		else
 		{
 			result->body.size = filelength(fileno(fp))+1;
-			result->body.data = malloc(result->body.size);
+			result->body.data = (char*)malloc(result->body.size);
 			memset(result->body.data,0,result->body.size);
 			if ( fread(result->body.data,1,result->body.size,fp)<=0 )
 			{
@@ -371,7 +371,7 @@ time_t http_read_datetime(const char *timestamp)
 	/* WWW, dd mmm yyyy HH:MM:SS GMT */
 	struct tm dt;
 	char month[4], tzone[16];
-	char *months[]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	const char *months[]={"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 	if ( timestamp==NULL ) return 0;
 	if ( sscanf(timestamp,"%*[A-Za-z], %d %3s %d %d:%d:%d %15s", &dt.tm_mday, month, &dt.tm_year, &dt.tm_hour, &dt.tm_min, &dt.tm_sec, tzone)!=7 )
 	{

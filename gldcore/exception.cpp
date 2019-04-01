@@ -66,7 +66,7 @@ EXCEPTIONHANDLER *handlers = NULL;
  **/
 EXCEPTIONHANDLER *create_exception_handler(void)
 {
-	EXCEPTIONHANDLER *ptr = malloc(sizeof(EXCEPTIONHANDLER));
+	EXCEPTIONHANDLER *ptr = (EXCEPTIONHANDLER*)malloc(sizeof(EXCEPTIONHANDLER));
 	if(ptr == NULL){
 		output_fatal("create_exception_handler(): malloc failure");
 		return NULL;
