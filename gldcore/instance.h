@@ -112,7 +112,7 @@ typedef struct s_instance {
 	int16 reader_count;
 
 	/* connection information */
-	char32 cnxtypestr;
+	char cnxtypestr[32];
 	CNXTYPE cnxtype;
 	union {
 #ifdef WIN32 // windows
