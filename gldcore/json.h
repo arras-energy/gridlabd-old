@@ -8,7 +8,15 @@
 #ifndef _JSON_H
 #define _JSON_H
 
-int json_dump(char *filename);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int json_dump(const char *filename);
 int json_output(FILE *fp);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _JSON_H

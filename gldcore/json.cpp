@@ -86,7 +86,7 @@ static int json_properties(FILE *fp)
 		len += json_write(",\n\t\t\t\"has_create\" : \"%s\"",spec->create?"True":"False");
 		len += json_write(",\n\t\t\t\"has_stream\" : \"%s\"",spec->stream?"True":"False");
 		len += json_write(",\n\t\t\t\"compareops\" : {");
-		for ( op = _TCOP_FIRST ; op < _TCOP_LAST ; op++ )
+		for ( op = _TCOP_FIRST ; op < _TCOP_LAST ; op = PROPERTYCOMPAREOP(op+1) )
 		{
 			if ( spec->compare[op].fn != NULL )
 			{
@@ -267,7 +267,7 @@ static int json_objects(FILE *fp)
 		}
 		if ( ! isnan(obj->latitude) ) TUPLE("latitude","%f",obj->latitude);
 		if ( ! isnan(obj->longitude) ) TUPLE("longitude","%f",obj->longitude);
-		if ( obj->groupid[0] != '\0' ) TUPLE("groupid","%s",obj->groupid);
+		if ( obj->groupid[0] != '\0' ) TUPLE("groupid","%s",(const char*)obj->groupid);
 		TUPLE("rank","%u",(unsigned int)obj->rank);
 		if ( convert_from_timestamp(obj->clock,buffer,sizeof(buffer)) )
 			TUPLE("clock","%s",buffer);
@@ -327,9 +327,9 @@ int json_output(FILE *fp)
 
 
 // returns 0 on success, non-zero on failure
-int json_dump(char *filename)
+int json_dump(const char *filename)
 {
-	char *ext, *basename;
+	const char *ext, *basename;
 	size_t b;
 	char fname[1024];
 	FILE *fp;
@@ -359,7 +359,7 @@ int json_dump(char *filename)
 	/* open file */
 	fp = fopen(fname,"w");
 	if (fp==NULL)
-		throw_exception("json_dump(char *filename='%s'): %s", filename, strerror(errno));
+		throw_exception("json_dump(const char *filename='%s'): %s", filename, strerror(errno));
 		/* TROUBLESHOOT
 			The system was unable to output the json data to the specified file.  
 			Follow the recommended solution based on the error message provided and try again.
