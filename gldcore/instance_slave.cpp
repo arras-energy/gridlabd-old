@@ -150,13 +150,13 @@ STATUS instance_slave_parse_prop_list(char *line, linkage **root, LINKAGETYPE ty
 
 /** instance_slave_link_properties
  **/
-STATUS instance_slave_link_properties(){
+STATUS instance_slave_link_properties()
+{
 	char *buffer = 0;
-//	char *work, *write;
 	char *read = 0;
 	OBJECT *obj = 0;
 	PROPERTY *prop = 0;
-	STATUS rv = 0;
+	STATUS rv = FAILED;
 	size_t offset = 0;
 	linkage *link = 0;
 	size_t maxlen = 0;
@@ -487,7 +487,7 @@ void *instance_slaveproc(void *ptr)
 		//IN_MYCONTEXT output_debug("slave %d controller resuming exec with %lli", slave_id, local_inst.cache->ts);
 		IN_MYCONTEXT output_debug("slave %d controller resuming exec with %lli", local_inst.cache->id, local_inst.cache->ts);
 		IN_MYCONTEXT output_debug("slave %d controller setting step_to %lli to cache->ts %lli", local_inst.cache->id, exec_sync_get(NULL), local_inst.cache->ts);
-		exec_sync_merge(NULL,(void*)&local_inst.cache);
+		exec_sync_merge(NULL,(struct sync_data*)&local_inst.cache);
 
 		pthread_cond_broadcast(&mls_inst_signal);
 
@@ -515,8 +515,8 @@ void *instance_slaveproc(void *ptr)
 
 		/* copy the next time stamp */
 		/* how about we copy the time we want to step to and see what the master says, instead? -MH */
-		exec_sync_reset((void*)&local_inst.cache);
-		exec_sync_set((void*)&local_inst.cache,0,false);
+		exec_sync_reset((struct sync_data*)&local_inst.cache);
+		exec_sync_set((struct sync_data*)&local_inst.cache,0,false);
 
 		instance_slave_done();
 	} while (global_clock != TS_NEVER && rv == SUCCESS);
@@ -724,8 +724,8 @@ STATUS instance_slave_init_socket(){
 	local_inst.cache->name_size = (int16)local_inst.name_size;
 	local_inst.cache->data_size = (int16)local_inst.prop_size;
 	local_inst.cache->id = local_inst.id;
-	exec_sync_set((void*)&local_inst.cache,pickle.ts,false);
-	exec_sync_merge(NULL,(void*)&local_inst.cache);
+	exec_sync_set((struct sync_data*)&local_inst.cache,pickle.ts,false);
+	exec_sync_merge(NULL,(struct sync_data*)&local_inst.cache);
 	if(0 == local_inst.buffer){
 		output_error("malloc() error with li.buffer");
 		return FAILED;
