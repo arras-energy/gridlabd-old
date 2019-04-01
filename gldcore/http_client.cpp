@@ -232,7 +232,12 @@ HTTPRESULT *http_read(char *url, int maxlen)
 				}
 				else
 				{
-					result->body.data = strdup("");
+					static char *nul = NULL;
+					if ( ! nul )
+					{
+						nul = strdup("");
+					}
+					result->body.data = nul;
 					result->body.size = 0;
 				}
 				result->header.size = (int)hlen;
@@ -303,7 +308,7 @@ static char wget_cachedir[1024]="-";
 void http_get_options(void)
 {
 	char *option=NULL, *last=NULL;
-	while ( (option=strtok_s(option==NULL?global_wget_options:NULL,";",&last))!=NULL )
+	while ( (option=global_wget_options.token(option,";",&last))!=NULL )
 	{
 		char name[1024], value[1024];
 		int n = sscanf(option,"%[^:]:%[^\n\r]",name,value);

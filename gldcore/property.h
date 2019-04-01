@@ -70,7 +70,7 @@ public:
 	inline char *find(const char c) { return strchr(buffer,c); };
 	inline char *find(const char *s) { return strstr(buffer,s); };
 	inline char *findrev(const char c) { return strrchr(buffer,c); };
-	inline char *token(char *from, const char *delim, char **context) { this->strtok_s(from,delim,context); };
+	inline char *token(const char *from, const char *delim, char **context) { return ::strtok_r(from==NULL?this->buffer:NULL,delim,context); };
 	inline size_t format(char *fmt, ...) { va_list ptr; va_start(ptr,fmt); size_t len=vsnprintf(buffer,size,fmt,ptr); va_end(ptr); return len; };
 	inline size_t vformat(char *fmt, va_list ptr) { return vsnprintf(buffer,size,fmt,ptr); };
 };
