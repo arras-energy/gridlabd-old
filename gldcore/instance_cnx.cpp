@@ -118,7 +118,7 @@ STATUS instance_cnx_socket(instance *inst){
 	struct sockaddr_storage ss;
 	int slt;
 	char blank[8];
-	char *args[7] = {"--profile", "--relax", "--debug", "--verbose",
+	const char *args[7] = {"--profile", "--relax", "--debug", "--verbose",
 		"--warn", "--quiet", "--avlbalance"};
 #ifdef WIN32
 	static WSADATA wsaData;
