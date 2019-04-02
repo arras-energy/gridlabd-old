@@ -322,7 +322,7 @@ typedef struct s_callbacks {
 		} latitude, longitude;
 	} geography;
 	struct {
-		struct s_http_result* (*read)(char *url, int maxlen);
+		struct s_http_result* (*read)(const char *url, int maxlen);
 		void (*free)(struct s_http_result *result);
 	} http;
 	struct {

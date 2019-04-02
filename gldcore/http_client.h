@@ -46,14 +46,14 @@ typedef struct s_http_result
 extern "C" {
 #endif
 
-HTTP* hopen(char *url, int maxlen);
+HTTP* hopen(const char *url, int maxlen);
 int hclose(HTTP*http);
 size_t hread(char *buffer, size_t size, HTTP* http);
 
-HTTPRESULT *http_read(char *url, int maxlen); 
+HTTPRESULT *http_read(const char *url, int maxlen); 
 void http_delete_result(HTTPRESULT *result);
 HTTPRESULT *http_new_result(void);
-int http_saveas(char *url, char *file);
+int http_saveas(const char *url, const char *file);
 
 #ifdef __cplusplus
 }

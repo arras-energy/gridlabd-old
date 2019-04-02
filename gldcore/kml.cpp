@@ -138,9 +138,9 @@ int kml_output(FILE *fp)
 	return 0;
 }
 
-int kml_dump(char *filename)
+int kml_dump(const char *filename)
 {
-	char *ext, *basename;
+	const char *ext, *basename;
 	size_t b;
 	char fname[1024];
 	FILE *fp;

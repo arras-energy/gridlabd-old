@@ -10,7 +10,7 @@
 
 SET_MYCONTEXT(DMC_HTTPCLIENT)
 
-HTTP* hopen(char *url, int maxlen)
+HTTP* hopen(const char *url, int maxlen)
 {
 	struct sockaddr_in serv_addr;
 	struct hostent *server;
@@ -183,7 +183,7 @@ void http_delete_result(HTTPRESULT *result)
 	free(result);
 }
 
-HTTPRESULT *http_read(char *url, int maxlen)
+HTTPRESULT *http_read(const char *url, int maxlen)
 {
 	HTTPRESULT *result = http_new_result();
 	
@@ -398,7 +398,7 @@ time_t http_read_datetime(const char *timestamp)
 		return mktime(&dt);
 }
 
-int http_saveas(char *url, char *file)
+int http_saveas(const char *url, const char *file)
 {
 	HTTPRESULT *result;
 	unsigned int status;
