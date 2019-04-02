@@ -80,7 +80,7 @@ static void sync_pulsed(loadshape *ls, double dt)
 		}
 TurnOff:
 		/* load is off */
-		ls->s = 0;
+		ls->s = MS_OFF;
 
 		/* no load when off */
 		ls->load = 0;
@@ -118,7 +118,7 @@ TurnOff:
 		}
 TurnOn:	
 		/* the load is on */
-		ls->s = 1;
+		ls->s = MS_ON;
 
 		/* fixed power pulse */
 		if (ls->params.pulsed.pulsetype==MPT_POWER)
@@ -163,7 +163,7 @@ static void sync_modulated(loadshape *ls, double dt)
 			goto TurnOn;
 		}
 TurnOff:
-		ls->s = 0;
+		ls->s = MS_OFF;
 		ls->load = 0;
 
 		// amplitude modulation
@@ -234,7 +234,7 @@ TurnOff:
 			goto TurnOff;
 		}
 TurnOn:	
-		ls->s = 1;
+		ls->s = MS_ON;
 
 		// amplitude modulation
 		if (ls->params.modulated.modulation==MMT_AMPLITUDE) 
@@ -295,14 +295,14 @@ static void sync_queued(loadshape *ls, double dt)
 	/* update s and r */
 	if (ls->q > ls->d[0])
 	{
-		ls->s = 1;
+		ls->s = MS_ON;
 
 		ls->r = -1/duration;
 		
 	}
 	else if (ls->q < ls->d[1])
 	{
-		ls->s = 0;
+		ls->s = MS_OFF;
 		ls->r = 1/random_exponential(&(ls->rng_state),ls->schedule->value*ls->params.pulsed.scalar*queue_value);
 	}
 	/* else state remains unchanged */
@@ -409,7 +409,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 /** Convert a scheduled loadshape weekday parameter to string representing the weekdays (UMTWRFSH)
 	@return A string containing bits found in the bitfield (U=0, M=1, T=2, W=3, R=4, F=5, S=6, H=7)
  **/
-static char *weekdays="UMTWRFSH";
+static const char *weekdays="UMTWRFSH";
 char *schedule_weekday_to_string(unsigned char days, char *result, int len)
 {
 	int i;
@@ -609,7 +609,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) modulated energy must be a positive number",ls->schedule->name);
 			return 1;
 		}
-		if (ls->params.modulated.pulsetype==MT_UNKNOWN)
+		if (ls->params.modulated.pulsetype==MPT_UNKNOWN)
 		{
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) modulated pulse type could not be inferred because either duration or power is missing",ls->schedule->name);
 			return 1;
@@ -646,7 +646,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 		}
 		if (ls->params.modulated.modulation<=MMT_UNKNOWN || ls->params.modulated.modulation>MMT_FREQUENCY)
 		{
-			char *modulation[] = {"unknown","amplitude","pulsewidth","frequency"};
+			const char *modulation[] = {"unknown","amplitude","pulsewidth","frequency"};
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) modulation type %s is invalid",ls->schedule->name,modulation[ls->params.modulated.modulation]);
 			return 1;
 		}
@@ -657,7 +657,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) queue energy must be a positive number",ls->schedule->name);
 			return 1;
 		}
-		if (ls->params.queued.pulsetype==MT_UNKNOWN)
+		if (ls->params.queued.pulsetype==MPT_UNKNOWN)
 		{
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) queue pulse type could not be inferred because either duration or power is missing",ls->schedule->name);
 			return 1;
@@ -1064,7 +1064,7 @@ TIMESTAMP loadshape_syncall(TIMESTAMP t1)
 
 int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 {
-	char *modulation[] = {"unknown","amplitude","pulsewidth","frequency"};
+	const char *modulation[] = {"unknown","amplitude","pulsewidth","frequency"};
 	char buffer[9];
 	loadshape *ls = (loadshape*)data;
 	switch (ls->type) {
@@ -1151,7 +1151,14 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 		/* isolate param and token and eliminte leading whitespaces */
 		while (*param!='\0' && (isspace(*param) || iscntrl(*param))) param++;		
 		if (value==NULL)
-			value="1";
+		{
+			static char *one = NULL;
+			if ( ! one )
+			{
+				one = strdup("1");
+			}
+			value = one;
+		}
 		else
 			*value++ = '\0'; /* separate value from param */
 		while (isspace(*value) || iscntrl(*value)) value++;
@@ -1169,7 +1176,7 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 				ls->type = MT_PULSED;
 				ls->params.pulsed.energy = 0.0;
 				ls->params.pulsed.pulsetype = MPT_UNKNOWN;
-				ls->params.pulsed.pulsetype = 0.0;
+				ls->params.pulsed.pulsevalue = 0.0;
 				ls->params.pulsed.scalar = 0,0;
 			}
 			else if (strcmp(value,"modulated")==0)
@@ -1177,7 +1184,7 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 				ls->type = MT_MODULATED;
 				ls->params.modulated.energy = 0.0;
 				ls->params.modulated.pulsetype = MPT_UNKNOWN;
-				ls->params.modulated.pulsetype = 0.0;
+				ls->params.modulated.pulsevalue = 0.0;
 				ls->params.modulated.scalar = 0,0;
 			}
 			else if (strcmp(value,"queued")==0)
@@ -1185,7 +1192,7 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 				ls->type = MT_QUEUED;
 				ls->params.queued.energy = 0.0;
 				ls->params.queued.pulsetype = MPT_UNKNOWN;
-				ls->params.queued.pulsetype = 0.0;
+				ls->params.queued.pulsevalue = 0.0;
 				ls->params.queued.scalar = 0,0;
 				ls->params.queued.q_on = 0,0;
 				ls->params.queued.q_off = 0,0;
@@ -1612,7 +1619,7 @@ int loadshape_test(void)
 
 	/* tests */
 	struct s_test {
-		char *name;
+		const char *name;
 	} *p, test[] = {
 		"TODO",
 	};
