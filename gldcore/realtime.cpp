@@ -37,7 +37,7 @@ static EVENT *eventlist = NULL;
 
 STATUS realtime_schedule_event(time_t at, STATUS (*callback)(void))
 {
-	EVENT *event = malloc(sizeof(EVENT));
+	EVENT *event = (EVENT*)malloc(sizeof(EVENT));
 	if (event==NULL)
 	{
 		errno=ENOMEM;
