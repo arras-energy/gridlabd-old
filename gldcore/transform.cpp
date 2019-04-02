@@ -190,7 +190,7 @@ TRANSFERFUNCTION *find_filter(char *name)
 	}
 	return NULL;
 }
-int get_source_type(PROPERTY *prop)
+TRANSFORMSOURCE get_source_type(PROPERTY *prop)
 {
 	/* TODO extend this to support multiple sources */
 	switch ( prop->ptype ) {
@@ -202,7 +202,7 @@ int get_source_type(PROPERTY *prop)
 	default:
 		output_error("tranform/get_source_type(PROPERTY *prop='%s'): unsupported source property type '%s'",
 			prop->name,property_getspec(prop->ptype)->name);
-		return 0;
+		return XS_UNKNOWN;
 	}
 }
 int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (lhs) */
@@ -243,13 +243,13 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 	memset(xform->x,0,sizeof(double)*(tf->n-1));
 
 	// build tranform
-	xform->source = object_get_addr(source_obj,source_prop->name);
+	xform->source = object_get_double_by_name(source_obj,source_prop->name);
 	xform->source_type = get_source_type(source_prop);
 	xform->target_obj = target_obj;
 	xform->target_prop = target_prop;
 	xform->function_type = XT_FILTER;
 	xform->tf = tf;
-	xform->y = object_get_addr(target_obj,target_prop->name);
+	xform->y = object_get_double_by_name(target_obj,target_prop->name);
 	xform->t2 = (int64)(global_starttime/tf->timestep)*tf->timestep + tf->timeskew;
 	xform->next = schedule_xformlist;
 	schedule_xformlist = xform;
@@ -326,7 +326,7 @@ int transform_add_linear(	TRANSFORMSOURCE stype,	/* specifies the type of source
 	xform->source_schedule = sched;
 	xform->target_obj = obj;
 	xform->target_prop = prop;
-	xform->target = target;
+	xform->target = (double*)target;
 	xform->scale = scale;
 	xform->bias = bias;
 	xform->function_type = XT_LINEAR;
@@ -341,7 +341,7 @@ void cast_from_double(PROPERTYTYPE ptype, void *addr, double value)
 	switch ( ptype ) {
 	case PT_void: break;
 	case PT_double: *(double*)addr = value; break;
-	case PT_complex: ((complex*)addr)->r = value; ((complex*)addr)->i = 0; break;
+	case PT_complex: ((complex*)addr)->Re() = value; ((complex*)addr)->Im() = 0; break;
 	case PT_bool: *(int32*)addr = (value!=0); 
 	case PT_int16: *(int16*)addr = (int16)value; break;
 	case PT_int32: *(int32*)addr = (int32)value; break;
@@ -352,7 +352,7 @@ void cast_from_double(PROPERTYTYPE ptype, void *addr, double value)
 	case PT_timestamp: *(int64*)addr = (int64)value; break;
 	case PT_float: *(float*)addr = (float)value; break;
 	case PT_loadshape: ((loadshape*)addr)->load = value; break;
-	case PT_enduse: ((enduse*)addr)->total.r = value; break;
+	case PT_enduse: ((enduse*)addr)->total.Re() = value; ((enduse*)addr)->total.Im() = 0; break;
 	default: break;
 	}
 }
