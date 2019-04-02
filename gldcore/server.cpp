@@ -125,7 +125,7 @@ static void *server_routine(void *arg)
 		return NULL;
 	}
 	started = 1;
-	sockfd = (SOCKET)arg;
+	sockfd = *(SOCKET*)arg;
 	// repeat forever..
 	static int active = 0;
 	void *result = NULL;
@@ -156,12 +156,12 @@ static void *server_routine(void *arg)
 			IN_MYCONTEXT output_verbose("accepting connection from %s on port %d",saddr, cli_addr.sin_port);
 			if ( active )
 				pthread_join(thread_id,&result);
-			if ( pthread_create(&thread_id,NULL, http_response,(void*)(int64)newsockfd)!=0 )
+			if ( pthread_create(&thread_id,NULL, http_response,(void*)&newsockfd)!=0 )
 				output_error("unable to start http response thread");
 			if (global_server_quit_on_close)
 				shutdown_now();
 			else
-				gui_wait_status(0);
+				gui_wait_status(GUIACT_NONE);
 			active = 1;
 		}
 	}
@@ -264,7 +264,7 @@ Retry:
 	}
 
 	/* start the new thread */
-	if (pthread_create(&thread,NULL,server_routine,(void*)(int64)sockfd))
+	if (pthread_create(&thread,NULL,server_routine,(void*)&sockfd))
 	{
 		output_error("server thread startup failed: %s",strerror(GetLastError()));
 		return FAILED;
@@ -275,9 +275,9 @@ Retry:
 }
 STATUS server_join(void)
 {
-	void *result;
-	if (pthread_join(thread,&result)==0)
-		return (STATUS) result;	
+	STATUS *result;
+	if (pthread_join(thread,(void**)&result)==0)
+		return *result;	
 	else
 	{
 		output_error("server thread join failed: %s", strerror(GetLastError()));
@@ -294,8 +294,8 @@ typedef struct s_httpcnx {
 	char *buffer;
 	size_t len;
 	size_t max;
-	char *status;
-	char *type;
+	const char *status;
+	const char *type;
 	SOCKET s;
 	bool cooked;
 } HTTPCNX;
@@ -309,7 +309,7 @@ static HTTPCNX *http_create(SOCKET s)
 	memset(http,0,sizeof(HTTPCNX));
 	http->s = s;
 	http->max = 65536;
-	http->buffer = malloc(http->max);
+	http->buffer = (char*)malloc(http->max);
 	return http;
 }
 
@@ -368,15 +368,15 @@ static void http_reset(HTTPCNX *http)
 #define HTTP_GATEWAYTIMEOUT "504 Gateway Time-out"
 #define HTTP_VERSIONNOTSUPPORTED "505 HTTPCNX Version not supported"
 
-int http_copy(HTTPCNX *http, char *context, char *source, int cook, size_t pos);
+int http_copy(HTTPCNX *http, const char *context, const char *source, int cook, size_t pos);
 
 /** Set the HTTPCNX response status code **/
-static void http_status(HTTPCNX *http, char *status)
+static void http_status(HTTPCNX *http, const char *status)
 {
 	http->status = status;
 }
 /** Set the HTTPCNX response message type **/
-static void http_type(HTTPCNX *http, char *type)
+static void http_type(HTTPCNX *http, const char *type)
 {
 	http->type = type;
 }
@@ -400,7 +400,7 @@ static void http_send(HTTPCNX *http)
 	http->len = 0;
 }
 /** Cook the contents of the HTTPCNX message buffer, if limit==0 returns only bytes needed to store result */
-static size_t http_rewrite(char *out, char *in, size_t len, size_t limit)
+static size_t http_rewrite(char *out, const char *in, size_t len, size_t limit)
 {
 	char name[64], *n;
 	size_t count = 0;
@@ -450,7 +450,7 @@ static size_t http_rewrite(char *out, char *in, size_t len, size_t limit)
 }
 
 /** Write the contents of the HTTPCNX message buffer **/
-static void http_write(HTTPCNX *http, char *data, size_t len)
+static void http_write(HTTPCNX *http, const char *data, size_t len)
 {
 	char *tmp = NULL;
 	if ( http->cooked )
@@ -471,7 +471,7 @@ static void http_write(HTTPCNX *http, char *data, size_t len)
 		{
 			http->max = http->len+len+1;
 		}
-		http->buffer = malloc(http->max);
+		http->buffer = (char*)malloc(http->max);
 		memcpy(http->buffer,old,http->len);
 		free(old);
 	}
@@ -494,12 +494,12 @@ static void http_close(HTTPCNX *http)
 	free(http->buffer);
 }
 /** Set the response MIME type **/
-static void http_mime(HTTPCNX *http, char *path)
+static void http_mime(HTTPCNX *http, const char *path)
 {
 	size_t len = strlen(path);
 	static struct s_map {
-		char *ext;
-		char *mime;
+		const char *ext;
+		const char *mime;
 	} map[] = {
 		{".png","image/png"},
 		{".js","text/javascript"},
@@ -527,7 +527,7 @@ static void http_mime(HTTPCNX *http, char *path)
 }
 
 /** Format HTTPCNX message content **/
-static int http_format(HTTPCNX *http, char *format, ...)
+static int http_format(HTTPCNX *http, const char *format, ...)
 {
 	int len;
 	char data[65536];
@@ -633,7 +633,14 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 		if ( spec!=NULL )
 			*spec++ = '\0';
 		else
-			spec = "4g";
+		{
+			static char *spec4g = NULL;
+			if ( ! spec4g )
+			{
+				spec4g = strdup("4g");
+			}
+			spec = spec4g;
+		}
 
 		/* check spec for conformance */
 		if ( strchr("0123456789",spec[0])==NULL || strchr("aAfFgGeE",spec[1])==NULL )
@@ -672,45 +679,45 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 				output_error("object '%s' property '%s' conversion from '%s' to '%s' failed", arg1, arg2, prop->unit->name, unit);
 				return 0;
 			}
-			switch ( spec[2]=='\0' ? cvalue.f : spec[2] ) {
+			switch ( spec[2]=='\0' ? cvalue.Notation() : spec[2] ) {
 			case I: // i-notation
 				sprintf(fmt,"%%.%c%c%%+.%c%ci %%s",spec[0],spec[1],spec[0],spec[1]);
-				snprintf(buffer,len,fmt,cvalue.r,cvalue.i,uname);
+				snprintf(buffer,len,fmt,cvalue.Re(),cvalue.Im(),uname);
 				break;
 			case J: // j-notation
 				sprintf(fmt,"%%.%c%c%%+.%c%cj %%s",spec[0],spec[1],spec[0],spec[1]);
-				snprintf(buffer,len,fmt,cvalue.r,cvalue.i,uname);
+				snprintf(buffer,len,fmt,cvalue.Re(),cvalue.Im(),uname);
 				break;
 			case A: // degrees
 				sprintf(fmt,"%%.%c%c%%+.%c%cd %%s",spec[0],spec[1],spec[0],spec[1]);
-				snprintf(buffer,len,fmt,complex_get_mag(cvalue),complex_get_arg(cvalue)*180/PI,uname);
+				snprintf(buffer,len,fmt,cvalue.Mag(),cvalue.Ang(),uname);
 				break;
 			case R: // radians
 				sprintf(fmt,"%%.%c%c%%+.%c%cr %%s",spec[0],spec[1],spec[0],spec[1]);
-				snprintf(buffer,len,fmt,complex_get_mag(cvalue),complex_get_arg(cvalue),uname);
+				snprintf(buffer,len,fmt,cvalue.Mag(),cvalue.Arg(),uname);
 				break;
 			case 'M': // magnitude only
 				sprintf(fmt,"%%.%c%c %%s",spec[0],spec[1]);
-				snprintf(buffer,len,fmt,complex_get_mag(cvalue),uname);
+				snprintf(buffer,len,fmt,cvalue.Mag(),uname);
 				break;
 			case 'D': // angle only in degrees
 				sprintf(fmt,"%%.%c%c deg",spec[0],spec[1]);
-				snprintf(buffer,len,fmt,complex_get_arg(cvalue)*180/PI,uname);
+				snprintf(buffer,len,fmt,cvalue.Ang(),uname);
 				break;
 			case 'R': // angle only in radians
 				sprintf(fmt,"%%.%c%c rad",spec[0],spec[1]);
-				sprintf(buffer,fmt,complex_get_arg(cvalue),uname);
+				sprintf(buffer,fmt,cvalue.Arg(),uname);
 				break;
 			case 'X': // real part only
 				sprintf(fmt,"%%.%c%c %%s",spec[0],spec[1]);
-				sprintf(buffer,fmt,cvalue.r,uname);
+				sprintf(buffer,fmt,cvalue.Re(),uname);
 				break;
 			case 'Y': // imaginary part only
 				sprintf(fmt,"%%.%c%c %%s",spec[0],spec[1]);
-				sprintf(buffer,fmt,cvalue.i,uname);
+				sprintf(buffer,fmt,cvalue.Im(),uname);
 				break;
 			default:
-				output_error("object '%s' property '%s' complex angle notation '%c' is not valid", arg1, arg2, spec[2]=='\0' ? cvalue.f : spec[3]);
+				output_error("object '%s' property '%s' complex angle notation '%c' is not valid", arg1, arg2, spec[2]=='\0' ? cvalue.Notation() : spec[3]);
 				return 0;
 			}
 		}
@@ -883,7 +890,7 @@ int http_xml_request(HTTPCNX *http,char *uri)
 			PROPERTY("id","%d",obj->id);
 			PROPERTY("class","%s",obj->oclass->name);
 			if ( obj->name ) PROPERTY("name","%s",object_name(obj,buffer,sizeof(buffer)));
-			if ( strlen(obj->groupid)>0 ) PROPERTY("groupid","%s",obj->groupid);
+			if ( strlen(obj->groupid)>0 ) PROPERTY("groupid","%s",(const char*)obj->groupid);
 			if ( obj->parent ) PROPERTY("parent","%s",object_name(obj->parent,buffer,sizeof(buffer)));
 			PROPERTY("rank","%d",obj->rank);
 			PROPERTY("clock","%lld",obj->clock);
@@ -1034,7 +1041,7 @@ int http_json_request(HTTPCNX *http,char *uri)
 			PROPERTY("id","%d",obj->id);
 			PROPERTY("class","%s",obj->oclass->name);
 			if ( obj->name ) PROPERTY("name","%s",object_name(obj,buffer,sizeof(buffer)));
-			if ( strlen(obj->groupid)>0 ) PROPERTY("groupid","%s",obj->groupid);
+			if ( strlen(obj->groupid)>0 ) PROPERTY("groupid","%s",(const char*)obj->groupid);
 			if ( obj->parent ) PROPERTY("parent","%s",object_name(obj->parent,buffer,sizeof(buffer)));
 			PROPERTY("rank","%d",obj->rank);
 			PROPERTY("clock","%lld",obj->clock);
@@ -1246,7 +1253,7 @@ int filelength(int fd)
 /** Copy the content of a file to the client
 	@returns the number of bytes sent
  **/
-int http_copy(HTTPCNX *http, char *context, char *source, int cook, size_t pos)
+int http_copy(HTTPCNX *http, const char *context, const char *source, int cook, size_t pos)
 {
 	char *buffer;
 	size_t len;
@@ -1896,7 +1903,7 @@ int http_favicon(HTTPCNX *http)
  **/
 void *http_response(void *ptr)
 {
-	SOCKET fd = (SOCKET)ptr;
+	SOCKET fd = *(SOCKET*)ptr;
 	HTTPCNX *http = http_create(fd);
 	size_t len;
 	int content_length = 0;
@@ -1906,16 +1913,16 @@ void *http_response(void *ptr)
 	char *connection = NULL;
 	char *accept = NULL;
 	struct s_map {
-		char *name;
+		const char *name;
 		enum {INTEGER,STRING} type;
 		void *value;
 		size_t sz;
 	} map[] = {
-		{"Content-Length", INTEGER, (void*)&content_length, 0},
-		{"Host", STRING, (void*)&host, 0},
-		{"Keep-Alive", INTEGER, (void*)&keep_alive, 0},
-		{"Connection", STRING, (void*)&connection, 0},
-		{"Accept", STRING, (void*)&accept, 0},
+		{"Content-Length", s_map::INTEGER, (void*)&content_length, 0},
+		{"Host", s_map::STRING, (void*)&host, 0},
+		{"Keep-Alive", s_map::INTEGER, (void*)&keep_alive, 0},
+		{"Connection", s_map::STRING, (void*)&connection, 0},
+		{"Accept", s_map::STRING, (void*)&accept, 0},
 	};
 
 	while ( (int)(len=recv_data(fd,http->query,sizeof(http->query)))>0 )
@@ -1950,8 +1957,8 @@ void *http_response(void *ptr)
 				if (map[v].sz==0) map[v].sz = strlen(map[v].name);
 				if (strnicmp(map[v].name,p,map[v].sz)==0 && strncmp(p+map[v].sz,": ",2)==0)
 				{
-					if (map[v].type==INTEGER) { *(int*)(map[v].value) = atoi(p+map[v].sz+2); break; }
-					else if (map[v].type==STRING) { *(char**)map[v].value = p+map[v].sz+2; break; }
+					if (map[v].type==s_map::INTEGER) { *(int*)(map[v].value) = atoi(p+map[v].sz+2); break; }
+					else if (map[v].type==s_map::STRING) { *(char**)map[v].value = p+map[v].sz+2; break; }
 				}
 			}
 		}
@@ -1978,10 +1985,10 @@ void *http_response(void *ptr)
 		}
 		else {
 			static struct s_map {
-				char *path;
+				const char *path;
 				int (*request)(HTTPCNX*,char*);
-				char *success;
-				char *failure;
+				const char *success;
+				const char *failure;
 			} map[] = {
 				/* this is the map of recognize request types */
 				{"/control/",	http_control_request,	HTTP_ACCEPTED, HTTP_NOTFOUND},
