@@ -74,11 +74,9 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/test_framework.cpp gldcore/test_framework.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/threadpool.cpp gldcore/threadpool.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/timestamp.cpp gldcore/timestamp.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/transform.cpp gldcore/transform.h
-GLD_SOURCES_PLACE_HOLDER += gldcore/unit.c
-GLD_SOURCES_PLACE_HOLDER += gldcore/unit.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/unit.cpp gldcore/unit.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/validate.cpp gldcore/validate.h
-GLD_SOURCES_PLACE_HOLDER += gldcore/version.c
-GLD_SOURCES_PLACE_HOLDER += gldcore/version.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/version.cpp gldcore/version.h
 
 GLD_SOURCES_EXTRA_PLACE_HOLDER =
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.c

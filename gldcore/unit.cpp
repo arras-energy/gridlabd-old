@@ -273,7 +273,7 @@ UNIT *unit_primary(const char *name, double c, double e, double h, double k, dou
 /* determine the precision of a term */
 int unit_precision(const char *term)
 {
-	char* p;
+	const char* p;
 	char mant[256];
 
 	/* get mantissa */
@@ -684,8 +684,8 @@ int unit_convert_complex(UNIT *pFrom, UNIT *pTo, complex *pValue)
 	}
 	
 	if (pTo->c == pFrom->c && pTo->e == pFrom->e && pTo->h == pFrom->h && pTo->k == pFrom->k && pTo->m == pFrom->m && pTo->s == pFrom->s){
-		pValue->r = (pValue->r - pFrom->b) * (pFrom->a / pTo->a) + pTo->b;
-		pValue->i = (pValue->i - pFrom->b) * (pFrom->a / pTo->a) + pTo->b;
+		pValue->Re() = (pValue->Re() - pFrom->b) * (pFrom->a / pTo->a) + pTo->b;
+		pValue->Im() = (pValue->Im() - pFrom->b) * (pFrom->a / pTo->a) + pTo->b;
 		return 1;
 	} else {
 		output_error("could not convert units from %s to %s, mismatched constant values", pFrom->name, pTo->name);
@@ -701,13 +701,15 @@ UNIT *unit_find(const char *unit) /**< the name of the unit */
 	UNIT *p;
 	int rv = 0;
 
-	TRY {
+	try 
+	{
 		/* first time */
 		if (unit_list==NULL) unit_init();
-	} CATCH (const char *msg) {
+	} 
+	catch (const char *msg) 
+	{
 		output_error("unit_find(const char *unit='%s'): %s", unit,msg);
 	}
-	ENDCATCH;
 
 	/* scan list for existing entry */
 	p = unit_find_raw(unit);
@@ -716,12 +718,14 @@ UNIT *unit_find(const char *unit) /**< the name of the unit */
 	}
 	
 	/* derive entry if possible */
-	TRY {
+	try 
+	{
 		rv = unit_derived(unit, unit);
-	} CATCH (const char *msg) {
+	} 
+	catch (const char *msg) 
+	{
 		output_error("unit_find(const char *unit='%s'): %s", unit,msg);
 	}
-	ENDCATCH;
 
 	//if (unit_derived(unit,unit)){
 	if(rv){

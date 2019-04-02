@@ -91,9 +91,9 @@ gridlabd = Extension('gridlabd',
 		'gldcore/threadpool.cpp',
 		'gldcore/timestamp.cpp',
 		'gldcore/transform.cpp',
-		'gldcore/unit.c',
+		'gldcore/unit.cpp',
 		'gldcore/validate.cpp',
-		'gldcore/version.c',
+		'gldcore/version.cpp',
 		# add gridlabd source code here
 		])),
 	)

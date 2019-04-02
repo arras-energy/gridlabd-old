@@ -8,7 +8,7 @@
 
 SET_MYCONTEXT(DMC_HTTP)
 
-UFILE *uopen(char *fname, void *arg)
+UFILE *uopen(const char *fname, void *arg)
 {
 	UFILE *rp = NULL;
 	errno = 0;
