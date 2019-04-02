@@ -20,18 +20,18 @@ SET_MYCONTEXT(DMC_LOAD)
 
 #define DEFAULT_FORMAT "gld"
 
-static int saveglm(char *filename, FILE *fp);
-static int savexml(char *filename, FILE *fp);
-static int savejson(char *filename, FILE *fp);
-static int savexml_strict(char *filename, FILE *fp);
+int saveglm(const char *filename, FILE *fp);
+int savexml(const char *filename, FILE *fp);
+int savejson(const char *filename, FILE *fp);
+int savexml_strict(const char *filename, FILE *fp);
 
-int saveall(char *filename)
+int saveall(const char *filename)
 {
 	FILE *fp;
-	char *ext = strrchr(filename,'.');
+	const char *ext = strrchr(filename,'.');
 	struct {
-		char *format;
-		int (*save)(char*,FILE*);
+		const char *format;
+		int (*save)(const char*,FILE*);
 	} map[] = {
 		{"gld", saveglm},
 		{"glm", saveglm},
@@ -97,7 +97,7 @@ int saveall(char *filename)
 	return FAILED;
 }
 
-int saveglm(char *filename,FILE *fp)
+int saveglm(const char *filename,FILE *fp)
 {
 	unsigned int count = 0;
 	time_t now = time(NULL);
@@ -187,7 +187,7 @@ int saveglm(char *filename,FILE *fp)
 	return count;
 }
 
-int savexml_strict(char *filename,FILE *fp)
+int savexml_strict(const char *filename,FILE *fp)
 {
 	unsigned int count = 0;
 	char buffer[1024];
@@ -228,7 +228,7 @@ int savexml_strict(char *filename,FILE *fp)
 			PASSCONFIG pass;
 			for (pass=0; ranks!=NULL && ranks[pass]!=NULL; pass++)
 			{
-				char *passname[]={"pretopdown","bottomup","posttopdown"};
+				const char *passname[]={"pretopdown","bottomup","posttopdown"};
 				int lastrank=-1;
 				fprintf(fp,"\t\t<pass>\n\t\t\t<name>%s</name>\n",passname[pass]);
 				for (i = PASSINIT(pass); PASSCMP(i, pass); i += PASSINC(pass))
@@ -237,7 +237,7 @@ int savexml_strict(char *filename,FILE *fp)
 					{
 						for (item=ranks[pass]->ordinal[i]->first; item!=NULL; item=item->next)
 						{
-							OBJECT *obj = item->data;
+							OBJECT *obj = (OBJECT*)(item->data);
 							if (obj->rank!=lastrank)
 							{
 								if (lastrank>=0)
@@ -329,7 +329,7 @@ int savexml_strict(char *filename,FILE *fp)
 								{
 									complex *pval = object_get_complex(obj,prop);
 									if (pval)
-										pval->f = A;
+										pval->Notation() = A;
 								}
 								if (object_get_value_by_name(obj,prop->name,buffer,sizeof(buffer))>0 && strcmp(buffer,"")!=0)
 									count += fprintf(fp,"\t\t\t\t<%s>%s</%s>\n",prop->name,buffer,prop->name);
@@ -356,7 +356,7 @@ int savexml_strict(char *filename,FILE *fp)
  *	of savexml_strict results in output that cannot be parsed back in, but can be parsed by automatically
  *	generated XSD files.
  */
-int savexml(char *filename,FILE *fp)
+int savexml(const char *filename,FILE *fp)
 {
 	unsigned int count = 0;
 	time_t now = time(NULL);
@@ -373,7 +373,7 @@ int savexml(char *filename,FILE *fp)
 	count += fprintf(fp,"\t\t<object_count>%d</object_count>\n", object_get_count());
 	/* add global variables */
 	while(gvptr != NULL){
-		char *testp = strchr(gvptr->prop->name, ':');
+		const char *testp = strchr(gvptr->prop->name, ':');
 		if(testp == NULL){
 			count += fprintf(fp, "\t\t<%s>%s</%s>\n", gvptr->prop->name, class_property_to_string(gvptr->prop,(void*)gvptr->prop->addr,buffer,1024)>0 ? buffer : "...", gvptr->prop->name);
 		} // else we have a module::prop name
@@ -396,7 +396,7 @@ int savexml(char *filename,FILE *fp)
 	return count;
 }
 
-int savejson(char *filename, FILE *fp)
+int savejson(const char *filename, FILE *fp)
 {
 	return json_output(fp);
 }
