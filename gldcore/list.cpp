@@ -24,7 +24,7 @@ static LISTITEM *create_item(void *data,	/* a pointer to the data */
 							 LISTITEM *prev,	/* the item preceding the new item */
 							 LISTITEM *next)	/* the item following the new item */
 {
-	LISTITEM *item = malloc(sizeof(LISTITEM));
+	LISTITEM *item = (LISTITEM*)malloc(sizeof(LISTITEM));
 	if (item!=NULL)
 	{
 		item->data = data;
@@ -55,7 +55,7 @@ static void destroy_item(LISTITEM *item) /**< a pointer to the LISTITEM structur
  **/
 GLLIST *list_create(void)
 {
-	GLLIST *list = malloc(sizeof(GLLIST));
+	GLLIST *list = (GLLIST*)malloc(sizeof(GLLIST));
 	if (list!=NULL)
 	{
 		list->first = NULL;
