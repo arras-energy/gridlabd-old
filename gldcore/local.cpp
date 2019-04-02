@@ -18,7 +18,7 @@ SET_MYCONTEXT(DMC_LOCALE)
 static LOCALE *stack=NULL;
 void locale_push(void)
 {
-	char *tz = timestamp_current_timezone();
+	const char *tz = timestamp_current_timezone();
 	LOCALE *locale = (LOCALE*)malloc(sizeof(LOCALE));
 	if (locale==NULL)
 	{

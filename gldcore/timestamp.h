@@ -69,7 +69,7 @@ extern "C" {
 #endif
 
 /* basic date and time functions */
-char *timestamp_current_timezone(void);
+const char *timestamp_current_timezone(void);
 TIMESTAMP mkdatetime(DATETIME *dt);
 int strdatetime(DATETIME *t, char *buffer, int size);
 int convert_from_timestamp(TIMESTAMP ts, char *buffer, int size);
@@ -86,7 +86,7 @@ int local_datetime_delta(double tsdbl, DATETIME *dt);
 
 int timestamp_test(void);
 
-char *timestamp_set_tz(char *tzname);
+const char *timestamp_set_tz(const char *tzname);
 TIMESTAMP timestamp_from_local(time_t t);
 time_t timestamp_to_local(TIMESTAMP t);
 
