@@ -102,7 +102,7 @@ extern "C" {
 	unsigned short sched_get_cpuid(unsigned short n);
 	pid_t sched_get_procid();
 
-	int module_load_function_list(char *libname, char *fnclist);
+	int module_load_function_list(const char *libname, const char *fnclist);
 	TRANSFORMFUNCTION module_get_transform_function(const char *function);
 
 	int module_compile(char *name, char *code, int flags, char *prefix, char *file, int line);

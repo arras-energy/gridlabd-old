@@ -355,7 +355,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			return last_module;
 		} else {
 			struct {
-				char *name;
+				const char *name;
 				LOADER loader;
 			} fmap[] = {
 				{"matlab",NULL},
@@ -536,7 +536,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 		char fname[1024];
 		struct {
 			FUNCTIONADDR *func;
-			char *name;
+			const char *name;
 			int optional;
 		} map[] = {
 			{&c->create,"create",FALSE},
@@ -711,21 +711,20 @@ static void _module_list (char *path)
 
 void module_list(void)
 {
-	char *glpath = getenv("GLPATH");
-	char *gridlabd = getenv("GRIDLABD");
+	const char *glpath = getenv("GLPATH");
+	const char *gridlabd = getenv("GRIDLABD");
 	char *tokPath = NULL;
 	char *tokPathPtr = NULL;
 #ifdef WIN32
-	char *pathDelim = ";";
+	const char *pathDelim = ";";
 #else
-	char *pathDelim = ":";
+	const char *pathDelim = ":";
 #endif
 
 	_module_list(global_workdir);
 	_module_list(global_execdir);
 	if(glpath != NULL){
-		char *glPath = malloc(sizeof(char) * (unsigned)strlen(glpath));
-		strncpy(glPath, glpath, (unsigned)strlen(glpath));
+		char *glPath = strdup(glpath);
 		tokPath = strtok_r(glPath, pathDelim, &tokPathPtr);
 		while (tokPath != NULL){
 			_module_list(tokPath);
@@ -735,8 +734,7 @@ void module_list(void)
 		free(glPath);
 	}
 	if(gridlabd != NULL){
-		char *gridLabD = malloc(sizeof(char) * (unsigned)strlen(gridlabd));
-		strncpy(gridLabD, gridlabd, (unsigned)strlen(gridlabd));
+		char *gridLabD = strdup(gridlabd);
 		tokPath = strtok_r(gridLabD, pathDelim, &tokPathPtr);
 		while (tokPath != NULL){
 			_module_list(tokPath);
@@ -857,7 +855,7 @@ int module_saveall_xml(FILE *fp){
 		count += fprintf(fp, "\t\t<properties>\n");
 		while(gvptr != NULL){
 			if(strncmp(tname, gvptr->prop->name, tlen) == 0){
-				count += fprintf(fp, "\t\t\t<%s>%s</%s>\n", gvptr->prop->name+tlen, class_property_to_string(gvptr->prop,(void*)gvptr->prop->addr,buffer,1024)>0 ? buffer : "...", gvptr->prop->name+tlen);
+				count += fprintf(fp, "\t\t\t<%s>%s</%s>\n", gvptr->prop->name+tlen, class_property_to_string(gvptr->prop,(void*)gvptr->prop->addr,buffer,1024)>0 ? (const char*)buffer : "...", gvptr->prop->name+tlen);
 			} // else we have a module::prop name
 			gvptr = global_getnext(gvptr);
 		}
@@ -881,7 +879,7 @@ int module_saveobj_xml(FILE *fp, MODULE *mod){ /**< the stream to write to */
 	CLASS *pclass = NULL;
 
 	for(obj = object_get_first(); obj != NULL; obj = obj->next){
-		char32 oname = "(unidentified)";
+		char oname[32] = "(unidentified)";
 		if(obj->oclass->module != mod){
 			continue;
 		}
@@ -987,7 +985,7 @@ int module_saveall_xml_old(FILE *fp)
 		count += fprintf(fp,"\t\t\t<properties>\n");
 		while (module_getvar(mod,varname,NULL,0))
 		{
-			char32 value;
+			char value[32];
 			if (module_getvar(mod,varname,value,sizeof(value)))
 			{	/* TODO: support other types (ticket #46) */
 				count += fprintf(fp,"\t\t\t\t<property> \n");
@@ -1104,7 +1102,7 @@ void module_libinfo(const char *module_name)
 		{
 			if (strncmp(v->prop->name,module_name,strlen(module_name))==0)
 			{
-				char *vn = strstr(v->prop->name,"::");
+				const char *vn = strstr(v->prop->name,"::");
 				if (vn!=NULL)
 					output_raw("%s ", vn+2);
 			}
@@ -1314,7 +1312,7 @@ static time_t file_modtime(char *file) /**< file name to query */
 /** Execute a command using formatted strings
     @return command return code
  **/
-static int execf(char *format, /**< format string  */
+static int execf(const char *format, /**< format string  */
 				 ...) /**< parameters  */
 {
 	char command[4096];
@@ -1346,15 +1344,15 @@ int module_compile(char *name,	/**< name of library */
 	char cfile[1024];
 	char ofile[1024];
 	char afile[1024];
-	char *cc = getenv("CC")?getenv("CC"):CC;
-	char *ccflags = getenv("CCFLAGS")?getenv("CCFLAGS"):CCFLAGS;
-	char *ldflags = getenv("LDFLAGS")?getenv("LDFLAGS"):LDFLAGS;
+	const char *cc = getenv("CC")?getenv("CC"):CC;
+	const char *ccflags = getenv("CCFLAGS")?getenv("CCFLAGS"):CCFLAGS;
+	const char *ldflags = getenv("LDFLAGS")?getenv("LDFLAGS"):LDFLAGS;
 	int rc;
 	size_t codesize = strlen(code), len;
 	FILE *fp;
 	char srcfile[1024];
 	char mopt[8] = "";
-	char *libs = "-lstdc++";
+	const char *libs = "-lstdc++";
 #ifdef WIN32
 	snprintf(mopt,sizeof(mopt),"-m%d",sizeof(void*)*8);
 	libs = "";
@@ -1457,13 +1455,13 @@ static int add_external_function(char *fctname, char *libname, void *lib)
 	{
 		int ordinal;
 		char function[1024];
-		EXTERNALFUNCTION *item = malloc(sizeof(EXTERNALFUNCTION));
+		EXTERNALFUNCTION *item = (EXTERNALFUNCTION*)malloc(sizeof(EXTERNALFUNCTION));
 		if ( item==NULL ) 
 		{
 			output_error("add_external_function(char *fn='%s',lib='%s',...): memory allocation failed", fctname, libname);
 			return 0;
 		}
-		item->fname = malloc(strlen(fctname)+1);
+		item->fname = (char*)malloc(strlen(fctname)+1);
 		if ( item->fname==NULL )
 		{
 			output_error("add_external_function(char *fn='%s',lib='%s',...): memory allocation failed", fctname, libname);
@@ -1507,10 +1505,10 @@ static int add_external_function(char *fctname, char *libname, void *lib)
 }
 
 /* loads the DLL and maps the comma separate function list */
-int module_load_function_list(char *libname, char *fnclist)
+int module_load_function_list(const char *libname, const char *fnclist)
 {
 	char libpath[1024];
-	char *static_name = malloc(strlen(libname)+1);
+	char *static_name = (char*)malloc(strlen(libname)+1);
 	void *lib;
 	char *s, *e;
 	
@@ -1524,7 +1522,9 @@ int module_load_function_list(char *libname, char *fnclist)
 		snprintf(libpath,sizeof(libpath),"%s" DLEXT, libname);
 
 	lib = DLLOAD(libpath);
+#ifdef WIN32
 	errno = GetLastError();
+#endif
 	if (lib==NULL)
 	{
 #ifdef WIN32
@@ -1547,7 +1547,8 @@ int module_load_function_list(char *libname, char *fnclist)
 	IN_MYCONTEXT output_debug("loaded external function library '%s' ok",libname);
 
 	/* map the functions */
-	for ( s=fnclist; *s!='\0' ; s++ )
+	char *mylist = strdup(fnclist);
+	for ( s=mylist; *s!='\0' ; s++ )
 	{
 		if ( !isspace(*s) && *s!=',' ) // start of a name
 		{
@@ -1560,7 +1561,7 @@ int module_load_function_list(char *libname, char *fnclist)
 			if ( c=='\0' ) break;
 		}
 	}
-
+	free(mylist);
 	return 1; // ok
 }
 
@@ -1571,7 +1572,7 @@ TRANSFORMFUNCTION module_get_transform_function(const char *function)
 	for ( item=external_function_list; item!=NULL ; item=item->next )
 	{
 		if ( strcmp(item->fname,function)==0 )
-			return item->call;
+			return (TRANSFORMFUNCTION)(item->call);
 	}
 	errno = ENOENT;
 	return NULL;
@@ -1855,7 +1856,7 @@ static char HEADING_R[] = "PROC PID   RUNTIME    STATE   CLOCK                  
 static char HEADING_P[] = "PROC PID   PROGRESS   STATE   CLOCK                   MODEL" ;
 int sched_getinfo(int n,char *buf, size_t sz)
 {
-	char *status;
+	const char *status = NULL;
 	char ts[64];
 	struct tm *tm;
 	time_t ptime;
@@ -2061,8 +2062,8 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 #endif
 
 	if ( n_threads==0 ) n_threads = n_procs;
-	my_proc = malloc(sizeof(MYPROCINFO));
-	my_proc->list = malloc(sizeof(unsigned short)*n_threads);
+	my_proc = (MYPROCINFO*)malloc(sizeof(MYPROCINFO));
+	my_proc->list = (unsigned short *)malloc(sizeof(unsigned short)*n_threads);
 	my_proc->n_procs = n_threads;
 	if ( n_threads==0 )
 		output_message("module.c:sched_allocate_procs(): n_threads is zero");
@@ -2214,7 +2215,7 @@ void sched_init(int readonly)
 void sched_init(int readonly)
 {
 	static int has_run = 0;
-	char *mfile = "/tmp/" MAPNAME;
+	const char *mfile = "/tmp/" MAPNAME;
 	unsigned long mapsize;
 	int fd = open(mfile,O_CREAT,0666);
 	key_t shmkey = ftok(mfile,sizeof(GLDPROCINFO));
