@@ -5,6 +5,6 @@
 #ifndef _SETUP_H
 #define _SETUP_H
 
-int setup(void *main, int argc, char *argv[]);
+int setup(void *main, int argc, const char *argv[]);
 
 #endif

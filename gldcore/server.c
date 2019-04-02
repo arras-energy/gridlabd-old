@@ -176,7 +176,7 @@ Done:
  **/
 #define DEFAULT_PORTNUM 6267
 static pthread_t thread;
-STATUS server_startup(int argc, char *argv[])
+STATUS server_startup(int argc, const char *argv[])
 {
 	static int started = 0;
 	int enable = 1;

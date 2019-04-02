@@ -30,7 +30,7 @@ SET_MYCONTEXT(DMC_ENVIRONMENT)
 /** Starts the environment selected by the global_environment variable
  **/
 STATUS environment_start(int argc, /**< the number of arguments to pass to the environment */
-						 char *argv[]) /**< the arguments to pass to the environment */
+						 const char *argv[]) /**< the arguments to pass to the environment */
 {
 	if (strcmp(global_environment,"batch")==0)
 	{

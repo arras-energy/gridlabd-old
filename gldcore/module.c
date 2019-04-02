@@ -243,7 +243,7 @@ size_t module_getcount(void) { return module_count; }
     - \p EINVAL to indicate call to init failed
     - \p ENOENT to indicate class not defined by module
  **/
-typedef MODULE *(*LOADER)(const char *, int, char *[]);
+typedef MODULE *(*LOADER)(const char *, int, const char *[]);
 MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 							   int argc, /**< count of arguments in \p argv */
 							   char *argv[]) /**< arguments passed from the command line */
@@ -371,7 +371,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 					isforeign = true;
 					if (p->loader!=NULL)
 						/* use external loader */
-						return p->loader(modname,argc,argv);
+						return p->loader(modname,argc,(const char**)argv);
 
 					/* use a module with command args */
 					argv = args;
@@ -501,7 +501,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->postupdate = (STATUS(*)(void*,int64,unsigned int64))DLSYM(hLib,"postupdate");
 	/* clock  update */
 	mod->clockupdate = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"clock_update");
-	mod->cmdargs = (int(*)(int,char**))DLSYM(hLib,"cmdargs");
+	mod->cmdargs = (int(*)(int,const char**))DLSYM(hLib,"cmdargs");
 	mod->kmldump = (int(*)(int(*)(const char*,...),OBJECT*))DLSYM(hLib,"kmldump");
 	mod->subload = (MODULE *(*)(char *, MODULE **, CLASS **, int, char **))DLSYM(hLib, "subload");
 	mod->test = (void(*)(int,char*[]))DLSYM(hLib,"test");
@@ -1115,7 +1115,7 @@ void module_libinfo(const char *module_name)
 		output_error("Module %s load failed", module_name);
 }
 
-int module_cmdargs(int argc, char **argv)
+int module_cmdargs(int argc, const char **argv)
 {
 	MODULE *mod;
 	for (mod=first_module; mod!=NULL; mod=mod->next)

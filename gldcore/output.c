@@ -199,7 +199,7 @@ static void prep_stream(){
 	return;
 }
 
-int output_init(int argc,char *argv[])
+int output_init(int argc,const char *argv[])
 {
 	atexit(output_cleanup);
 	return 1;
@@ -785,7 +785,7 @@ int output_raw(const char *format,...) /**< \bprintf style argument list */
 #include "module.h"
 
 /** Output the XSD snippet of a class */
-int output_xsd(char *spec)
+int output_xsd(const char *spec)
 {
 	MODULE *mod = NULL;
 	CLASS *oclass = NULL;

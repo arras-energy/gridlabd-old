@@ -21,7 +21,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-STATUS loadall(char *filename);
+STATUS loadall(const char *filename);
 #ifdef __cplusplus
 }
 #endif

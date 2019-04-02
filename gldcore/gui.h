@@ -94,7 +94,7 @@ void gui_set_source(GUIENTITY *entity, char *source);
 void gui_set_options(GUIENTITY *entity, char *source);
 void gui_set_wait(GUIENTITY *entity, char *wait);
 
-STATUS gui_startup(int argc, char *argv[]);
+STATUS gui_startup(int argc, const char *argv[]);
 int gui_post_action(char *action);
 
 GUIENTITY *gui_get_root(void);

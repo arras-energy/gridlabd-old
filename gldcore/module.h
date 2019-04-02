@@ -33,7 +33,7 @@ struct s_module_list {
 	STATUS (*postupdate)(void*,int64,unsigned int64);
 	/* clock hook*/
 	TIMESTAMP (*clockupdate)(TIMESTAMP);
-	int (*cmdargs)(int,char**);
+	int (*cmdargs)(int,const char**);
 	int (*kmldump)(int(*)(const char*,...),OBJECT*);
 	void (*test)(int argc, char *argv[]);	
 	MODULE *(*subload)(char *, MODULE **, CLASS **, int, char **);
@@ -87,7 +87,7 @@ extern "C" {
 #ifndef _NO_CPPUNIT
 	int module_test(TEST_CALLBACKS *callbacks,int argc,char* argv[]);
 #endif
-	int module_cmdargs(int argc, char **argv);
+	int module_cmdargs(int argc, const char **argv);
 	int module_saveobj_xml(FILE *fp, MODULE *mod);
 	MODULE *module_get_first(void);
 	void *module_malloc(size_t size);

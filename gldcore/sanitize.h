@@ -25,6 +25,14 @@ typedef enum {
 	SO_ALL			= 0x0ff0,	///< option to sanitize all info
 } SANITIZEOPTIONS;
 
-int sanitize(void *main, int argc, char *argv[]);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int sanitize(void *main, int argc, const char *argv[]);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

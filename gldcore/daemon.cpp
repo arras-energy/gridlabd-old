@@ -294,7 +294,7 @@ static int daemon_run(int sockfd)
 		strcat(global_command_line,argv[n]);
 	}
 
-	if ( argc > 1 && cmdarg_load(argc,argv) == SUCCESS )
+	if ( argc > 1 && cmdarg_load(argc,(const char**)argv) == SUCCESS )
 	{
 		// write result
 		daemon_log("running command [%s] on socket %d", global_command_line, sockfd);
@@ -502,7 +502,7 @@ static void daemon_loadconfig(void)
 	global_suppress_repeat_messages = old_repeat;
 }
 
-static int daemon_arguments(int argc, char *argv[])
+static int daemon_arguments(int argc, const char *argv[])
 {
 	int nargs = 0, portno = atoi(port);
 #define NEXT (argc--,argv++,++nargs)
@@ -655,7 +655,7 @@ static int daemon_configure()
 	return 0;
 }
 
-int daemon_start(int argc, char *argv[])
+int daemon_start(int argc, const char *argv[])
 {
 	if ( disable_daemon_command )
 	{
@@ -720,7 +720,7 @@ int daemon_start(int argc, char *argv[])
 	return 0;
 }
 
-int daemon_stop(int argc, char *argv[])
+int daemon_stop(int argc, const char *argv[])
 {
 	if ( disable_daemon_command )
 	{
@@ -766,7 +766,7 @@ int daemon_stop(int argc, char *argv[])
 		return nargs+1;
 }
 
-int daemon_restart(int argc, char *argv[])
+int daemon_restart(int argc, const char *argv[])
 {
 	if ( disable_daemon_command )
 	{
@@ -791,7 +791,7 @@ int daemon_restart(int argc, char *argv[])
 	return daemon_start(0,NULL);
 }
 
-int daemon_status(int argc, char *argv[])
+int daemon_status(int argc, const char *argv[])
 {
 	if ( disable_daemon_command )
 	{
@@ -828,7 +828,7 @@ static void daemon_remote_kill(int sig)
 }
 
 // this is the only code that does not run on the daemon/server side
-int daemon_remote_client(int argc, char *argv[])
+int daemon_remote_client(int argc, const char *argv[])
 {
 	char hostname[1024];
 	int sockfd, portno = 6266, n;

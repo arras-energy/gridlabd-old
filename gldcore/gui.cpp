@@ -1036,7 +1036,7 @@ size_t gui_glm_write_all(FILE *fp)
 /**************************************************************************/
 /* LOAD OPERATIONS */
 /**************************************************************************/
-STATUS gui_startup(int argc, char *argv[])
+STATUS gui_startup(int argc, const char *argv[])
 {
 	static int started = 0;
 	char cmd[1024];

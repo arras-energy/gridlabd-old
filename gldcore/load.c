@@ -7311,7 +7311,7 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
 	@todo Rollback the model data if the load failed (ticket #32)
 	@todo Support nested loads and maintain context during subloads (ticket #33)
  **/
-STATUS loadall(char *file){
+STATUS loadall(const char *file){
 	char *buffer = NULL, *p = NULL;
 	char *ext = file?strrchr(file,'.'):NULL;
 	unsigned int old_obj_count = object_get_count();

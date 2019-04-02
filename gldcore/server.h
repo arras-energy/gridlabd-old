@@ -17,7 +17,7 @@
 extern "C" {
 #endif
 	
-STATUS server_startup(int argc, char *argv[]);
+STATUS server_startup(int argc, const char *argv[]);
 STATUS server_join(void);
 
 #ifndef WIN32

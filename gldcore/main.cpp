@@ -59,7 +59,7 @@ int
 	main
 #endif
 (	int argc, /**< the number entries on command-line argument list \p argv */
-	char *argv[]) /**< a list of pointers to the command-line arguments */
+	const char *argv[]) /**< a list of pointers to the command-line arguments */
 {
 	int return_code;
 	try {
@@ -88,7 +88,7 @@ int
 	return return_code;
 }
 unsigned int GldMain::next_id = 0;
-GldMain::GldMain(int argc,char *argv[])
+GldMain::GldMain(int argc, const char *argv[])
 	: globals(this), exec(this), cmdarg(this)
 {
 	id = next_id++;
@@ -250,7 +250,7 @@ GldMain::~GldMain(void)
 	return;
 }
 
-int GldMain::mainloop(int argc, char *argv[])
+int GldMain::mainloop(int argc, const char *argv[])
 {
 	/* start the processing environment */
 	IN_MYCONTEXT output_verbose("load time: %d sec", realtime_runtime());
@@ -295,7 +295,7 @@ void GldMain::set_global_execdir(const char *path)
 	return;
 }
 
-void GldMain::set_global_command_line(int argc,char *argv[])
+void GldMain::set_global_command_line(int argc, const char *argv[])
 {
 	int i, pos=0;
 	for (i=0; i<argc; i++)

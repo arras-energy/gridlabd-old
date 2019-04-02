@@ -17,7 +17,7 @@
 SET_MYCONTEXT(DMC_TEST)
 
 typedef struct s_testlist {
-	char name[64];
+	const char *name;
 	TESTFUNCTION call;
 	int enabled;
 	struct s_testlist *next;
@@ -33,7 +33,7 @@ static TESTLIST test_list[] = {
 	/* add new core test routines before this line */
 }, *last_test = test_list+sizeof(test_list)/sizeof(test_list[0])-1;
 
-int test_register(char *name, TESTFUNCTION call)
+int test_register(const char *name, TESTFUNCTION call)
 {
 	TESTLIST *item = (TESTLIST*)malloc(sizeof(TESTLIST));
 	if ( item==NULL )
@@ -42,7 +42,7 @@ int test_register(char *name, TESTFUNCTION call)
 		return FAILED;
 	}
 	last_test->next = item;
-	strncpy(item->name,name,sizeof(item->name));
+	item->name = strdup(name);
 	item->call = call;
 	item->enabled = 0;
 	item->next = NULL;
@@ -50,7 +50,7 @@ int test_register(char *name, TESTFUNCTION call)
 	return SUCCESS;
 }
 
-int test_request(char *name)
+int test_request(const char *name)
 {
 	TESTLIST *item;
 	MODULE *mod;
