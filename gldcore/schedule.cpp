@@ -181,8 +181,14 @@ int find_value_index (SCHEDULE *sch, /// schedule to search
    returns 1 on success, 0 on failure 
  */
 
-int schedule_compile_block(SCHEDULE *sch, char *blockname, char *blockdef)
+int schedule_compile_block(SCHEDULE *sch, const char *blockname, const char *blockdef)
 {
+	char *blockcopy = strdup(blockdef);
+	if ( ! blockcopy )
+	{
+		output_error("schedule_compile(SCHEDULE *sch='{name=%s, ...}') memory allocation failed", sch->name);
+		return 0;
+	}
 	char *token = NULL;
 	unsigned int minute=0;
 
@@ -193,15 +199,17 @@ int schedule_compile_block(SCHEDULE *sch, char *blockname, char *blockdef)
 		/* TROUBLESHOOT
 		   The schedule definition has too many blocks to compile.  Consolidate your schedule and try again.
 		 */
+		free(blockcopy);
 		return 0;
 	}
 
 	/* first index is always default value 0 */
 	sch->count[sch->block]=1;
-	while ( (token=strtok(token==NULL?blockdef:NULL,";\r\n"))!=NULL )
+	char *last = NULL;
+	while ( (token=strtok_r(token==NULL?blockcopy:NULL,";\r\n",&last))!=NULL )
 	{
 		struct {
-			char *name;
+			const char *name;
 			int base;
 			int max;
 			char pattern[256];
@@ -238,7 +246,7 @@ int schedule_compile_block(SCHEDULE *sch, char *blockname, char *blockdef)
 			sch->flags |= SN_INTERPOLATED;
 			interpolated_schedules = TRUE;
 		}
-		else if (sscanf(token,"%s%*[ \t]%s%*[ \t]%s%*[ \t]%s%*[ \t]%s%*[ \t]%lf",matcher[0].pattern,matcher[1].pattern,matcher[2].pattern,matcher[3].pattern,matcher[4].pattern,&value)<5) /* value can be missing -> defaults to 1.0 */
+		else if (sscanf(token,"%255s%*[ \t]%255s%*[ \t]%255s%*[ \t]%255s%*[ \t]%255s%*[ \t]%lf",matcher[0].pattern,matcher[1].pattern,matcher[2].pattern,matcher[3].pattern,matcher[4].pattern,&value)<5) /* value can be missing -> defaults to 1.0 */
 		{
 			output_error("schedule_compile(SCHEDULE *sch='{name=%s, ...}') ignored an invalid definition '%s'", sch->name, token);
 			/* TROUBLESHOOT
@@ -255,6 +263,7 @@ int schedule_compile_block(SCHEDULE *sch, char *blockname, char *blockdef)
 				if(ndx > MAXVALUES-1)
 				{
 					output_error("schedule_compile(SCHEDULE *sch='{name=%s, ...}') maximum number of values reached in block %i", sch->name, sch->block);
+					free(blockcopy);
 					return 0;
 				}
 				sch->data[sch->block*MAXVALUES+ndx] = value;
@@ -273,6 +282,7 @@ int schedule_compile_block(SCHEDULE *sch, char *blockname, char *blockdef)
 				/* TROUBLESHOOT
 					The schedule definition is not valid and has been ignored.  Check the syntax of your schedule and try again.
 				*/
+				free(blockcopy);
 				return 0;
 			}
 		}
@@ -319,11 +329,12 @@ int schedule_compile_block(SCHEDULE *sch, char *blockname, char *blockdef)
 							{
 								if (sch->index[calendar][minute]>0)
 								{
-									char *dayofweek[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Hol"};
+									const char *dayofweek[] = {"Sun","Mon","Tue","Wed","Thu","Fri","Sat","Sun","Hol"};
 									output_error("schedule_compile(SCHEDULE *sch={name='%s', ...}) '%s' in block '%s' has a conflict with value %g on %s %d/%d %02d:%02d", sch->name, token, blockname, sch->data[sch->index[calendar][minute]], dayofweek[weekday], month+1, day+1, hour, minute%60);
 									/* TROUBLESHOOT
 									   The schedule definition is not valid and has been ignored.  Check the syntax of your schedule and try again.
 									 */
+									free(blockcopy);
 									return 0;
 								}
 								else
@@ -343,6 +354,7 @@ int schedule_compile_block(SCHEDULE *sch, char *blockname, char *blockdef)
 		}
 	}
 	strcpy(sch->blockname[sch->block],blockname);
+	free(blockcopy);
 	return 1;
 }
 
@@ -518,7 +530,7 @@ int schedule_compile(SCHEDULE *sch)
 static pthread_cond_t sc_active = PTHREAD_COND_INITIALIZER;
 static pthread_mutex_t sc_activelock = PTHREAD_MUTEX_INITIALIZER;
 static STATUS sc_status = SUCCESS;
-static bool sc_running=0, sc_started=0, sc_done=0;
+static int sc_running=0, sc_started=0, sc_done=0;
 
 void *schedule_createproc(void *args)
 {
@@ -650,8 +662,7 @@ Done:
 	{
 		output_error("deferred creation of schedule '%s' failed", sch->name);
 	}
-	rv = (void *)status;
-	return rv;
+	return new bool(status==SUCCESS) ;
 }
 
 /** Wait for deferred schedule creations to finish 
@@ -743,7 +754,9 @@ SCHEDULE *schedule_create(const char *name,		/**< the name of the schedule */
 	/* singlethreaded creation */
 	if ( global_threadcount<=1 )
 	{
-		result = (STATUS)schedule_createproc(sch);
+		bool *rv = (bool*)schedule_createproc(sch);
+		result = (*rv) ? SUCCESS : FAILED;
+		delete rv;
 		if (SUCCESS == result)
 		{
 			return sch;
@@ -1271,8 +1284,8 @@ int schedule_test(void)
 
 	/* tests */
 	struct s_test {
-		char *name, *def;
-		char *t1, *t2;
+		const char *name, *def;
+		const char *t1, *t2;
 		int normalize;
 		double value;
 	} *p, test[] = {
@@ -1345,14 +1358,14 @@ int schedule_test(void)
 	return failed;
 }
 
-void schedule_dumpall(char *file)
+void schedule_dumpall(const char *file)
 {
 	SCHEDULE *sch;
 	for (sch=schedule_list; sch!=NULL; sch=sch->next)
 		schedule_dump(sch, file, sch==schedule_list?"w":"a");
 }
 
-void schedule_dump(SCHEDULE *sch, char *file, char *mode)
+void schedule_dump(SCHEDULE *sch, const char *file, const char *mode)
 {
 	FILE *fp = fopen(file,mode);
 	int calendar;
@@ -1363,7 +1376,7 @@ void schedule_dump(SCHEDULE *sch, char *file, char *mode)
 	{
 		int year=0, month, y;
 		int daysinmonth[] = {31,((calendar&1)?29:28),31,30,31,30,31,31,30,31,30,31};
-		char *monthname[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+		const char *monthname[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 		fprintf(fp,"\nYears:");
 		for (y=1970; y<2039; y++)
 		{
