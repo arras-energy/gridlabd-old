@@ -103,7 +103,7 @@ int random_init(void)
 /** Converts a distribution name to a #RANDOMTYPE
  **/
 static struct {
-	char *name;
+	const char *name;
 	RANDOMTYPE type;
 	int nargs;
 } *p, map[] = {
@@ -640,7 +640,7 @@ double random_triangle(unsigned int *state, /**< the rng state */
 }
 
 /* internal function that generates a random number */
-static double _random_value(RANDOMTYPE type, unsigned int *state, va_list ptr)
+double _random_value(RANDOMTYPE type, unsigned int *state, va_list ptr)
 {
 	switch (type) {
 	case RT_DEGENERATE:/* ... double value */
@@ -758,7 +758,7 @@ int _random_specs(RANDOMTYPE type, double a, double b,char *buffer,int size)
  **/
 int random_apply(const char *group_expression, /**< the group definition; see find_objects() */
 				 const char *property, /**< the property to update */
-				 RANDOMTYPE type, /**< the distribution type */
+				 int type, /**< the distribution type */
 				 ...) /**< the distribution's parameters */
 {
 	FINDLIST *list = find_objects(FL_GROUP, group_expression);
@@ -769,7 +769,7 @@ int random_apply(const char *group_expression, /**< the group definition; see fi
 	for (obj=find_first(list); obj!=NULL; find_next(list,obj))
 	{
 		/* this is quite slow and should use a class property lookup */
-		object_set_double_by_name(obj,property,_random_value(type,NULL,ptr));
+		object_set_double_by_name(obj,property,_random_value((RANDOMTYPE)type,NULL,ptr));
 		count++;
 	}
 	va_end(ptr);
@@ -779,13 +779,13 @@ int random_apply(const char *group_expression, /**< the group definition; see fi
 /** Generate a random value
 	@return a double containing the random number
  **/
-double random_value(RANDOMTYPE type, /**< the type of distribution desired */
+double random_value(int type, /**< the type of distribution desired */
 					...) /**< the distribution's parameters */
 {
 	double x;
 	va_list ptr;
 	va_start(ptr,type);
-	x = _random_value(type,NULL,ptr);
+	x = _random_value((RANDOMTYPE)type,NULL,ptr);
 	va_end(ptr);
 	return x;
 }
@@ -1184,7 +1184,12 @@ int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 		/* isolate param and token and eliminate leading whitespaces */
 		while (*param!='\0' && (isspace(*param) || iscntrl(*param))) param++;		
 		if (value==NULL)
-			value="1";
+		{
+			char *one = NULL;
+			if ( ! one )
+				one = strdup("1");
+			value = one;
+		}
 		else
 			*value++ = '\0'; /* separate value from param */
 		while (isspace(*value) || iscntrl(*value)) value++;

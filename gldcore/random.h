@@ -53,10 +53,10 @@ extern "C" {
 	double random_rayleigh(unsigned int *state, double s);
 	double random_triangle(unsigned int *state, double a, double b);
 	double random_triangle_asy(unsigned int *state, double a, double b, double c);
-	int random_apply(const char *group_expression, const char *property, RANDOMTYPE type, ...);
+	int random_apply(const char *group_expression, const char *property, int type, ...);
 	RANDOMTYPE random_type(const char *name);
 	int random_nargs(const char *name);
-	double random_value(RANDOMTYPE type, ...);
+	double random_value(int type, ...);
 	double pseudorandom_value(RANDOMTYPE, unsigned int *state, ...);
 #ifdef __cplusplus
 }
