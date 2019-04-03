@@ -600,7 +600,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     }
     else if ( strcmp(command, "wait") == 0 )
     {
-        code = *(int*)gridlabd_main(NULL);
+        int code = *(int*)gridlabd_main(NULL);
         output_debug("gridlabd_main(NULL) returned code %d",code);
         return PyErr_Occurred() ? NULL : PyLong_FromLong((long)code);
     }
@@ -1463,7 +1463,7 @@ extern "C" void on_term(void)
 
 }
 
-extern "C" int python_event(OBJECT *obj, const char *function)
+int python_event(OBJECT *obj, const char *function)
 {
     char objname[64];
     if ( obj->name )
@@ -1574,7 +1574,7 @@ static bool get_callback(
     }
     return true;    
 }
-extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
+MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
     char pathname[1024];
     sprintf(pathname,"%s.py",file);

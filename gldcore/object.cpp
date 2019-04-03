@@ -2386,13 +2386,13 @@ static OBJECTTREE *object_tree_add(OBJECT *obj, OBJECTNAME name)
 
 /*	Finds a name in the tree
  */
-static OBJECTTREE *findin_tree(OBJECTTREE *tree, OBJECTNAME name)
+static OBJECTTREE *findin_tree(OBJECTNAME name)
 {
 	HASH h = hash(name);
 	OBJECTTREE *item = hash_find(h,name);
 	if ( global_debug_output )
 	{
-		IN_MYCONTEXT output_debug("findin_tree(OBJECTTREE *tree=%p, OBJECTNAME name='%s'): item=%p", tree, name, item);
+		IN_MYCONTEXT output_debug("findin_tree(OBJECTNAME name='%s'): item=%p", name, item);
 	}
 	return item;
 }
@@ -2427,7 +2427,7 @@ OBJECT *object_find_name(OBJECTNAME name)
 {
 	char oclass[64];
 	unsigned int id;
-	if ( sscanf(name,"%63[^:]:%lu",oclass,&id) == 2 )
+	if ( sscanf(name,"%63[^:]:%u",oclass,&id) == 2 )
 	{
 		OBJECT *obj = object_find_by_id(id);
 		if ( obj == NULL )
@@ -2447,7 +2447,7 @@ OBJECT *object_find_name(OBJECTNAME name)
 	}
 	else 
 	{
-		OBJECTTREE *item = findin_tree(top, name);
+		OBJECTTREE *item = findin_tree(name);
 		if ( item == NULL )
 		{
 			IN_MYCONTEXT output_debug("object_find_name(name='%s') name '%s' not found in tree", name, name);
