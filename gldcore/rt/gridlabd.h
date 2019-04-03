@@ -21,11 +21,7 @@
 #define isfinite _finite
 #endif
 
-# if __WORDSIZE == 64
-#define int64 long int /**< standard version of 64-bit integers */
-#else
 #define int64 long long /**< standard version of 64-bit integers */
-#endif
 
 #include <sys/types.h>
 typedef int64_t LOCKVAR;
