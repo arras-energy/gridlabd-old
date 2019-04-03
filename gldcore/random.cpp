@@ -212,7 +212,7 @@ unsigned int64 random_id(void)
 }
 
 /* generate a random key */
-void random_key(unsigned int64 *ptr, size_t len)
+void random_key(unsigned long long *ptr, size_t len)
 {
 	static unsigned int state = 0;
 	int64 rv = 0;
