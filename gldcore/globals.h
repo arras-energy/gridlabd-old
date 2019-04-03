@@ -11,7 +11,7 @@
 #include "class.h"
 #include "validate.h"
 #include "sanitize.h"
-
+#include "lock.h"
 #include "build.h"
 
 #ifdef _MAIN_C
@@ -37,8 +37,8 @@ typedef struct s_globalvar {
 	PROPERTY *prop;
 	struct s_globalvar *next;
 	uint32 flags;
-	void (*callback)(char *); // this function will be called whenever the globalvar is set
-	unsigned int lock;
+	void (*callback)(const char *); // this function will be called whenever the globalvar is set
+	LOCKVAR lock;
 } GLOBALVAR;
 
 /* Exit codes */
@@ -62,18 +62,24 @@ typedef int EXITCODE;
 #define XC_SIGTERM (XC_SIGNAL|SIGTERM) /* SIGTERM caught */
 #define XC_EXCEPTION 255 /* exception caught */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 STATUS global_init(void);
 GLOBALVAR *global_getnext(GLOBALVAR *previous);
-GLOBALVAR *global_find(char *name);
-GLOBALVAR *global_create(char *name, ...);
-STATUS global_setvar(char *def,...);
-char *global_getvar(char *name, char *buffer, int size);
-int global_isdefined(char *name);
+GLOBALVAR *global_find(const char *name);
+GLOBALVAR *global_create(const char *name, ...);
+STATUS global_setvar(const char *def,...);
+const char *global_getvar(const char *name, char *buffer, size_t size);
+int global_isdefined(const char *name);
 void global_dump(void);
 size_t global_getcount(void);
 void global_restore(GLOBALVAR *pos);
 void global_push(char *name, char *value);
 size_t global_saveall(FILE *fp);
+#ifdef __cplusplus
+}
+#endif
 
 /* MAJOR and MINOR version */
 GLOBAL unsigned global_version_major INIT(REV_MAJOR); /**< The software's major version */
@@ -236,7 +242,7 @@ typedef enum {
 GLOBAL int global_mainloopstate INIT(MLS_INIT); /**< main loop processing state */
 GLOBAL TIMESTAMP global_mainlooppauseat INIT(TS_NEVER); /**< time at which to pause main loop */
 
-GLOBAL char global_infourl[1024] INIT("http://gridlab-d.sourceforge.net/info.php?title=Special:Search/"); /**< URL for info calls */
+GLOBAL char global_infourl[1024] INIT("http://gridlab-d.shoutwiki.com/w/index.php?title=Special%3ASearch&fulltext=Search&search="); /**< URL for info calls */
 
 GLOBAL char global_hostname[1024] INIT("localhost"); /**< machine hostname */
 GLOBAL char global_hostaddr[32] INIT("127.0.0.1"); /**< machine ip addr */
@@ -415,6 +421,59 @@ GLOBAL GLMSAVEOPTIONS global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mo
 
 #undef GLOBAL
 #undef INIT
+
+#ifdef __cplusplus
+class GldMain;
+
+class GldGlobalvar 
+{
+private:
+	GldMain *my_instance;
+	GLOBALVAR *spec;
+public:
+	GldGlobalvar(GldMain *instance, const char *name, const char *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, int64 *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, int32 *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, int16 *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, double *value, const char *unit = NULL, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, complex *value, const char *unit = NULL, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, enumeration *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	~GldGlobalvar(void);
+public: // accessors
+	inline void set_callback(void (*callback)(const char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
+};
+
+class GldGlobals 
+{
+private:
+	GldMain &instance;
+	GLOBALVAR *varlist;
+	GLOBALVAR *last;
+public:
+	GldGlobals(GldMain *inst);
+	~GldGlobals(void);
+public:
+	STATUS init(void);
+	GLOBALVAR *find(const char *name);
+	GLOBALVAR *getnext(const GLOBALVAR *previous);
+	void restore(GLOBALVAR *previous);
+	void push(char *name, char *value);
+	GLOBALVAR *create(const char *name, ...);
+	GLOBALVAR *create_v(const char *name, va_list ptr);
+	STATUS setvar(const char *def, ...);
+	STATUS setvar_v(const char *def, va_list ptr);
+	bool isdefined(const char *name);
+	const char *getvar(const char *name, char *buffer, size_t size);
+	size_t getcount(void);
+	void dump(void);
+	void *remote_read(void *local, GLOBALVAR *var);
+	void remote_write(void *local, GLOBALVAR *var);
+	size_t saveall(FILE *fp);
+private:
+	bool parameter_expansion(char *buffer, size_t size, const char *spec);
+};
+#endif
 
 #endif /* _GLOBAL_H */
 /**@}**/

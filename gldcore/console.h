@@ -191,6 +191,11 @@ long getheight(void)
 #define ts_cols ws_col
 #define ts_lines ws_row
 #endif
+#ifdef __cplusplus
+inline
+#else
+static
+#endif
 long getwidth(void)
 {
 	struct ttysize ws;
@@ -199,6 +204,11 @@ long getwidth(void)
 	else
 		return -1;
 }
+#ifdef __cplusplus
+inline
+#else
+static
+#endif
 long getheight(void)
 {
 	struct ttysize ws;

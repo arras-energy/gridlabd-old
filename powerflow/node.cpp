@@ -226,7 +226,7 @@ node::node(MODULE *mod) : powerflow_object(mod)
 	}
 }
 
-int node::isa(char *classname)
+int node::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"node")==0 || powerflow_object::isa(classname);
 }
@@ -1268,7 +1268,7 @@ TIMESTAMP node::NR_node_presync_fxn(TIMESTAMP t0_val)
 	}//End inrush enabled
 	//Defaulted else -- no in-rush or not deltamode
 
-	if ((SubNode==DIFF_PARENT))	//Differently connected parent - zero our accumulators
+	if ( SubNode==DIFF_PARENT )	//Differently connected parent - zero our accumulators
 	{
 		//Zero them.  Row 1 is power, row 2 is admittance, row 3 is current
 		Extra_Data[0] = Extra_Data[1] = Extra_Data[2] = 0.0;
@@ -1415,7 +1415,10 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 			will be updated in future versions.
 			*/
 		}
-		if (((phase_to_check & (busphasesIn | busphasesOut) != phase_to_check) && (busphasesIn != 0 && busphasesOut != 0) && (solver_method == SM_NR)))
+		if ( (phase_to_check & (busphasesIn | busphasesOut)) != phase_to_check 
+			&&  busphasesIn != 0 
+			&& busphasesOut != 0 
+			&& solver_method == SM_NR )
 		{
 			GL_THROW("node:%d (%s) has more phases leaving than entering",obj->id,obj->name);
 			/* TROUBLESHOOT
@@ -1457,7 +1460,7 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 	{
 		if (prev_NTime==0)	//First run, if we are a child, make sure no one linked us before we knew that
 		{
-			if (((SubNode == CHILD) || (SubNode == DIFF_CHILD)) && (NR_connected_links))
+			if ( SubNode == CHILD || SubNode == DIFF_CHILD ) 
 			{
 				node *parNode = OBJECTDATA(SubNodeParent,node);
 
@@ -2946,7 +2949,7 @@ int node::kmldump(int (*stream)(const char*,...))
 //Notify function
 //NOTE: The NR-based notify stuff may no longer be needed after NR is "flattened", since it will
 //      effectively be like FBS at that point.
-int node::notify(int update_mode, PROPERTY *prop, char *value)
+int node::notify(int update_mode, PROPERTY *prop, const char *value)
 {
 	complex diff_val;
 
@@ -3081,7 +3084,7 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		}
 		return TS_NEVER;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("%s (node:%d): %s", pNode->get_name(), pNode->get_id(), msg);
 		return 0; 
@@ -3139,7 +3142,7 @@ EXPORT TIMESTAMP sync_node(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 * node_type_value is the class name
 * main_swing determines if we're looking for SWING or SWING_PQ (swing parses first)
 */
-OBJECT *node::NR_master_swing_search(char *node_type_value,bool main_swing)
+OBJECT *node::NR_master_swing_search(const char *node_type_value,bool main_swing)
 {
 	OBJECT *return_val = NULL;
 	OBJECT *temp_obj = NULL;
@@ -3147,7 +3150,7 @@ OBJECT *node::NR_master_swing_search(char *node_type_value,bool main_swing)
 	FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,node_type_value,FT_END);
 
 	//Parse the findlist
-	while(temp_obj=gl_find_next(bus_list,temp_obj))
+	while ( (temp_obj=gl_find_next(bus_list,temp_obj)) )
 	{
 		list_node = OBJECTDATA(temp_obj,node);
 
@@ -4909,7 +4912,7 @@ STATUS node::link_VFD_functions(OBJECT *linkVFD)
 //////////////////////////////////////////////////////////////////////////
 // IMPLEMENTATION OF OTHER EXPORT FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
-EXPORT int isa_node(OBJECT *obj, char *classname)
+EXPORT int isa_node(OBJECT *obj, CLASSNAME classname)
 {
 	if(obj != 0 && classname != 0){
 		return OBJECTDATA(obj,node)->isa(classname);
@@ -4918,7 +4921,7 @@ EXPORT int isa_node(OBJECT *obj, char *classname)
 	}
 }
 
-EXPORT int notify_node(OBJECT *obj, int update_mode, PROPERTY *prop, char *value){
+EXPORT int notify_node(OBJECT *obj, int update_mode, PROPERTY *prop, const char *value){
 	node *n = OBJECTDATA(obj, node);
 	int rv = 1;
 	
@@ -4946,7 +4949,7 @@ EXPORT SIMULATIONMODE interupdate_node(OBJECT *obj, unsigned int64 delta_time, u
 		status = my->inter_deltaupdate_node(delta_time,dt,iteration_count_val,interupdate_pos);
 		return status;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("interupdate_node(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;

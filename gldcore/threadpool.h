@@ -127,10 +127,6 @@ struct s_mtiteratorlist {
     MTIPROC *process;           /**< list of iterator processes */
 }; /** iterator list structure */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /** Multithread iterator initialization
 
     Call this function to create a multithread iterator (MTI).
@@ -158,9 +154,6 @@ int mti_run(MTIDATA result,   /**< result of iterator */
             MTIDATA input);   /**< data to send to iterator call function */
 
 int processor_count(void);
-#ifdef __cplusplus
-}
-#endif
 
 #endif /**@} _THREADPOOL_H */
 

@@ -189,7 +189,7 @@ int metrics_collector::init(OBJECT *parent){
 		// Get the name of the waterheater for actual load
 		char tname[32];
 		sprintf(tname, "%i", parent->id);
-		char *namestr = (parent->name ? parent->name : tname);
+		const char *namestr = (parent->name ? parent->name : tname);
 		sprintf(waterheaterName, "waterheater_%s_actual_load", namestr);
 	}
 	else if (strcmp(parent_string, "inverter") == 0)
@@ -712,12 +712,13 @@ int metrics_collector::read_line(OBJECT *obj){
 		int index = 0;
 		obj = NULL;
 		complex lossesSum = 0.0;
-		while(obj = gl_find_next(link_objects,obj)){
+		while( (obj=gl_find_next(link_objects,obj)) )
+		{
 			if(index >= link_objects->hit_count){
 				break;
 			}
 
-			char * oclassName = obj->oclass->name;
+			const char * oclassName = obj->oclass->name;
 			if (strcmp(oclassName, "overhead_line") == 0 || strcmp(oclassName, "underground_line") == 0 || strcmp(oclassName, "triplex_line") == 0 || strcmp(oclassName, "transformer") == 0 || strcmp(oclassName, "regulator") == 0 || strcmp(oclassName, "switch") == 0 || strcmp(oclassName, "fuse") == 0) {
 
 				// Obtain the link data
@@ -1147,9 +1148,6 @@ EXPORT int create_metrics_collector(OBJECT **obj, OBJECT *parent){
 			rv = my->create();
 		}
 	}
-	catch (char *msg){
-		gl_error("create_metrics_collector: %s", msg);
-	}
 	catch (const char *msg){
 		gl_error("create_metrics_collector: %s", msg);
 	}
@@ -1164,9 +1162,6 @@ EXPORT int init_metrics_collector(OBJECT *obj){
 	int rv = 0;
 	try {
 		rv = my->init(obj->parent);
-	}
-	catch (char *msg){
-		gl_error("init_metrics_collector: %s", msg);
 	}
 	catch (const char *msg){
 		gl_error("init_metrics_collector: %s", msg);
@@ -1193,9 +1188,6 @@ EXPORT TIMESTAMP sync_metrics_collector(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pa
 				throw "invalid pass request";
 		}
 	}
-	catch(char *msg){
-		gl_error("sync_metrics_collector: %s", msg);
-	}
 	catch(const char *msg){
 		gl_error("sync_metrics_collector: %s", msg);
 	}
@@ -1207,9 +1199,6 @@ EXPORT int commit_metrics_collector(OBJECT *obj){
 	metrics_collector *my = OBJECTDATA(obj, metrics_collector);
 	try {
 		rv = my->commit(obj->clock);
-	}
-	catch (char *msg){
-		gl_error("commit_metrics_collector: %s", msg);
 	}
 	catch (const char *msg){
 		gl_error("commit_metrics_collector: %s", msg);

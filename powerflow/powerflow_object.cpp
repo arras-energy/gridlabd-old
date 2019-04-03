@@ -144,7 +144,7 @@ powerflow_object::powerflow_object(CLASS *oclass)
 	gl_create_foreign((OBJECT*)this);
 }
 
-int powerflow_object::isa(char *classname)
+int powerflow_object::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"powerflow_object")==0;
 }

@@ -146,7 +146,7 @@
 
 /*     Quick return if possible. */
 
-    if (*n == 0 || *alpha == 0. && *beta == 1.) {
+    if (*n == 0 || ( *alpha == 0. && *beta == 1.) ) {
 	return 0;
     }
 

@@ -155,6 +155,8 @@ public:
 
 class uniqueList{
 public:
+	const char *name;
+	uniqueList *next;
 	uniqueList(){
 		name = 0;
 		next = 0;
@@ -164,7 +166,7 @@ public:
 		next = 0;
 	}
 	~uniqueList(){if(next != 0) delete next;}
-	void insert(char *n) {
+	void insert(const char *n) {
 		if (name && strcmp(name, n) != 0) {
 			if(next){
 				next->insert(n);
@@ -197,8 +199,6 @@ public:
 		}
 		return 0;
 	}
-	char *name;
-	uniqueList *next;
 };
 
 class violation_recorder{
@@ -210,7 +210,7 @@ public:
 	int create();
 	int init(OBJECT *);
 	int finalize(OBJECT *obj);
-	int isa(char *);
+	int isa(CLASSNAME);
 	TIMESTAMP postsync(TIMESTAMP, TIMESTAMP);
 
 	int commit(TIMESTAMP);
@@ -260,18 +260,18 @@ private:
 	int check_violation_8(TIMESTAMP);
 	int check_line_thermal_limit(TIMESTAMP, vobjlist *, uniqueList *, int, double, double);
 	int check_xfrmr_thermal_limit(TIMESTAMP, vobjlist *, uniqueList *, int, double, double);
-	int check_reverse_flow_violation(TIMESTAMP, int, double, char*);
-	int write_to_stream (TIMESTAMP, bool, char *, ...);
+	int check_reverse_flow_violation(TIMESTAMP, int, double, const char*);
+	int write_to_stream (TIMESTAMP, bool, const char *, ...);
 	double get_observed_double_value(OBJECT *, PROPERTY *);
 	complex get_observed_complex_value(OBJECT *, PROPERTY *);
-	int make_object_list(int, char *, vobjlist *);
+	int make_object_list(int, const char *, vobjlist *);
 	int assoc_meter_w_xfrmr_node(vobjlist *, vobjlist *, vobjlist *);
 	int find_substation_node(char256, vobjlist *);
 	int has_phase(OBJECT *, int);
-	int fails_static_condition (OBJECT *, char *, double, double, double, double *);
+	int fails_static_condition (OBJECT *, PROPERTYNAME, double, double, double, double *);
 	int fails_static_condition (double, double, double, double, double *);
-	int fails_dynamic_condition (vobjlist *, int, char *, TIMESTAMP, double, double, double, double, double *);
-	int fails_continuous_condition (vobjlist *, int, char *, TIMESTAMP, double, double, double, double, double *);
+	int fails_dynamic_condition (vobjlist *, int, PROPERTYNAME, TIMESTAMP, double, double, double, double, double *);
+	int fails_continuous_condition (vobjlist *, int, PROPERTYNAME, TIMESTAMP, double, double, double, double, double *);
 	int increment_violation (int);
 	int increment_violation (int, int);
 	int get_violation_count(int);

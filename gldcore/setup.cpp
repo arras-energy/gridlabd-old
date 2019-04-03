@@ -173,7 +173,7 @@ static bool do_quit(void)
 }
 
 typedef struct {
-	char *name;
+	const char *name;
 	int (*edit)(void);
 } SETUPGROUP;
 SETUPGROUP group[] = {
@@ -184,7 +184,7 @@ SETUPGROUP group[] = {
 };
 #endif
 
-extern "C" int setup(int argc, char *argv[])
+int setup(void *main, int argc, const char *argv[])
 {
 #ifdef HAVE_CURSES
 	if ( !loadall(NULL) )

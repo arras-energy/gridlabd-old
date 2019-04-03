@@ -26,6 +26,10 @@
 
 SET_MYCONTEXT(DMC_JOB)
 
+/* TODO: remove these when reentrant code is completed */
+#include "main.h"
+extern GldMain *my_instance;
+
 #ifndef MIN
 #define MIN(X,Y) ((X)<(Y)?(X):(Y))
 #endif
@@ -46,7 +50,7 @@ typedef struct {
 #define DT_DIR 0x01
 static const char *GetLastErrorMsg(void)
 {
-	static unsigned int lock = 0;
+	static LOCKVAR lock = 0;
 	wlock(&lock);
     static TCHAR szBuf[256]; 
     LPVOID lpMsgBuf;
@@ -240,7 +244,7 @@ static bool run_job(char *file, double *elapsed_time=NULL)
 		blank[len]='\0';
 		len = output_raw("%s\rProcessing %s...\r",blank,name)-len; 
 	}
-	int64 dt = exec_clock();
+	int64 dt = my_instance->exec.clock();
 	unsigned int code = vsystem("%s %s %s ", 
 #ifdef WIN32
 		_pgmptr,
@@ -248,7 +252,7 @@ static bool run_job(char *file, double *elapsed_time=NULL)
 		"gridlabd",
 #endif
 		job_cmdargs, name);
-	dt = exec_clock() - dt;
+	dt = my_instance->exec.clock() - dt;
 	double t = (double)dt/(double)CLOCKS_PER_SEC;
 	if ( elapsed_time!=NULL ) *elapsed_time = t;
 	if ( code!=0 )
@@ -266,7 +270,7 @@ typedef struct s_jobstack {
 	struct s_jobstack *next;
 } JOBLIST;
 static JOBLIST *jobstack = NULL;
-static unsigned int joblock = 0;
+static LOCKVAR joblock = 0;
 static void pushjob(char *dir)
 {
 	IN_MYCONTEXT output_debug("adding %s to job list", dir);
@@ -330,7 +334,7 @@ static size_t process_dir(const char *path)
 }
 
 /** main validation routine */
-extern "C" int job(int argc, char *argv[])
+int job(void *main, int argc, const char *argv[])
 {
 	size_t i;
 	int redirect_found = 0;
@@ -374,7 +378,7 @@ extern "C" int job(int argc, char *argv[])
 	}
 	delete [] pid;
 
-	double dt = (double)exec_clock()/(double)CLOCKS_PER_SEC;
+	double dt = (double)my_instance->exec.clock()/(double)CLOCKS_PER_SEC;
 	output_message("Total job elapsed time: %.1f seconds", dt);
 	if ( final_result==0 )
 		exec_setexitcode(XC_SUCCESS);

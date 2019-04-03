@@ -55,7 +55,7 @@ int triplex_line::create(void)
 	return result;
 }
 
-int triplex_line::isa(char *classname)
+int triplex_line::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"triplex_line")==0 || line::isa(classname);
 }
@@ -531,7 +531,7 @@ EXPORT int init_triplex_line(OBJECT *obj)
 	INIT_CATCHALL(triplex_line);
 }
 
-EXPORT int isa_triplex_line(OBJECT *obj, char *classname)
+EXPORT int isa_triplex_line(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,triplex_line)->isa(classname);
 }

@@ -448,7 +448,7 @@ extern int     sp_ienv(int);
 extern double  slamch_();
 extern int     lsame_(char *, char *);
 extern int     xerbla_(char *, int *);
-extern void    superlu_abort_and_exit(char *);
+extern void    superlu_abort_and_exit(const char *);
 extern void    ifill(int *, int, int);
 extern void    cfill(complex *, int, complex);
 extern void    cinf_norm_error(int, SuperMatrix *, complex *);
@@ -463,7 +463,6 @@ extern void    cPrintPerf(SuperMatrix *, SuperMatrix *, superlu_memusage_t *,
 extern void    cCompRow_to_CompCol(int m, int n, int nnz, 
                            complex *a, int *colind, int *rowptr,
                            complex **at, int **rowind, int **colptr);
-
 
 /* -----------------------
    Routines for debugging

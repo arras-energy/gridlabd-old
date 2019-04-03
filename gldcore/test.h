@@ -8,11 +8,19 @@
 
 typedef int (*TESTFUNCTION)(void);
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* general testing API */
-int test_register(char *name, TESTFUNCTION call);
-int test_request(char *name);
-int test_exec(void);
+int test_register(const char *name, TESTFUNCTION call);
+int test_request(const char *name);
+STATUS test_exec(void);
 
 int test_lock(void);
- 
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

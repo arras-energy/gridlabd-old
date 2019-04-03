@@ -96,7 +96,7 @@ int recorder::init(OBJECT *parent)
 	{
 		options = 0xffffffff;
 		struct {
-			char *str;
+			const char *str;
 			set bits;
 		} modes[] = {
 			{"r",	0xffff},
@@ -204,7 +204,7 @@ int recorder::init(OBJECT *parent)
 			(*property_unit).push_back(unit);
 			n_properties++;
 
-			char *sqltype = db->get_sqltype(prop);
+			const char *sqltype = db->get_sqltype(prop);
 			if ( sqltype==NULL )
 				exception("property '%s' has an unknown SQL type", prop.get_name());
 
@@ -277,7 +277,7 @@ int recorder::init(OBJECT *parent)
 				if ( isnan(get_parent()->get_longitude()) )
 					header_pos += sprintf(header_data+header_pos,",%s","NULL");
 				else
-					header_pos += sprintf(header_data+header_pos,",%.6f", get_parent()->get_oclass()->get_name());
+					header_pos += sprintf(header_data+header_pos,",%.6s", get_parent()->get_oclass()->get_name());
 				strcat(property_list,"longitude DOUBLE, index i_longitude (longitude), ");
 				if ( !is_ok && (options&MO_NOADD)==0 && db->query_ex("ALTER TABLE `%s` ADD COLUMN `longitude` DOUBLE;", get_table(), get_parent()->get_name()) )
 					warning("automatically added missing header field 'longitude' to '%s'", get_table());

@@ -1,6 +1,20 @@
 
 #include "pdsp_defs.h"
 
+void heap_relax_snode (
+          const     int n,
+          superlumt_options_t *superlumt_options,
+          pxgstrf_relax_t *pxgstrf_relax /* relaxed s-nodes */
+          );
+void pxgstrf_relax_snode(
+            const int n, /* number of columns in the matrix */
+            superlumt_options_t *superlumt_options,
+            pxgstrf_relax_t *pxgstrf_relax /* relaxed s-nodes */
+            );
+int ParallelInit(int n, pxgstrf_relax_t *pxgstrf_relax, 
+         superlumt_options_t *superlumt_options, 
+         pxgstrf_shared_t *pxgstrf_shared);
+
 pdgstrf_threadarg_t *
 pdgstrf_thread_init(SuperMatrix *A, SuperMatrix *L, SuperMatrix *U,
 		    superlumt_options_t *options, 
