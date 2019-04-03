@@ -85,7 +85,7 @@ int property_check(void)
 {
 	PROPERTYTYPE ptype;
 	int status = 1;
-	for ( ptype = _PT_FIRST ; ptype < _PT_LAST ; ptype = PROPERTYTYPE(ptype+1) )
+	for ( ptype = PROPERTYTYPE(_PT_FIRST+1) ; ptype < _PT_LAST ; ptype = PROPERTYTYPE(ptype+1) )
 	{
 		size_t sz = 0;
 		switch (ptype) {
@@ -200,7 +200,7 @@ Error:
  **/
 uint32 property_size(PROPERTY *prop)
 {
-	if (prop && prop->ptype>_PT_FIRST && prop->ptype<_PT_LAST)
+	if (prop && prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST)
 	{
 		return property_type[prop->ptype].size;
 	}
@@ -226,8 +226,10 @@ uint32 property_size_by_type(PROPERTYTYPE type)
 
 int property_read(PROPERTY *prop, void *addr, const char *string)
 {
-	if (prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST)
+	if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST )
+	{
 		return property_type[prop->ptype].string_to_data ? property_type[prop->ptype].string_to_data(string,addr,prop) : 0;
+	}
 	else
 	{
 		output_error("gldcore/property.c:property_read(prop='%s', addr=%p, string=%p): read operation not supported",
@@ -359,7 +361,7 @@ bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, v
 PROPERTYTYPE property_get_type(const char *name)
 {
 	PROPERTYTYPE ptype;
-	for ( ptype = _PT_FIRST ; ptype < _PT_LAST ; ptype = PROPERTYTYPE(ptype+1) )
+	for ( ptype = PROPERTYTYPE(_PT_FIRST+1) ; ptype < _PT_LAST ; ptype = PROPERTYTYPE(ptype+1) )
 	{
 		if ( strcmp(property_type[ptype].name,name)==0)
 			return ptype;
