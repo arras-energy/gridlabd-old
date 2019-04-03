@@ -1189,7 +1189,7 @@ int GldCmdarg::xsl(int argc, const char *argv[])
 			}
 		}
 		sprintf(fname,"gridlabd-%d_%d.xsl",global_version_major,global_version_minor);
-		output_xsl(fname,n_args,p_args);
+		output_xsl(fname,n_args,(const char**)p_args);
 		free(buffer);
 		return CMDOK;
 	}

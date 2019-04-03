@@ -92,9 +92,9 @@ static struct s_redirection {
 FILE* output_redirect_stream(const char *name, FILE *fp)
 {
 	struct {
-		char *name;
+		const char *name;
 		FILE **file;
-		char *defaultfile;
+		const char *defaultfile;
 	} map[] = {
 		{"output",&redirect.output,"gridlabd.out"},
 		{"error",&redirect.error,"gridlabd.err"},
@@ -109,7 +109,7 @@ FILE* output_redirect_stream(const char *name, FILE *fp)
 	{
 		if (strcmp(name,map[i].name)==0)
 		{
-			char *mode = "w";
+			const char *mode = "w";
 			FILE *oldfp = *(map[i].file);
 			*(map[i].file) = fp;
 #ifndef WIN32
@@ -149,7 +149,7 @@ FILE* output_redirect(const char *name, const char *path)
 	{
 		if (strcmp(name,map[i].name)==0)
 		{
-			char *mode = "w";
+			const char *mode = "w";
 			if (*(map[i].file)!=NULL)
 				fclose(*(map[i].file));
 			
@@ -216,7 +216,7 @@ void output_cleanup(void)
 	output_debug(NULL);
 }
 
-static int default_printstd(char *format,...)
+static int default_printstd(const char *format,...)
 {
 	int count;
 	va_list ptr;
@@ -228,7 +228,7 @@ static int default_printstd(char *format,...)
 	return count;
 }
 
-static int default_printerr(char *format,...)
+static int default_printerr(const char *format,...)
 {
 	int count;
 	va_list ptr;
@@ -298,7 +298,7 @@ void output_set_delta_time_context(TIMESTAMP ts, DELTAT delta_ts)
 {
 	convert_from_timestamp_delta(ts,delta_ts,time_context,sizeof(time_context)-1);
 }
-char *output_get_time_context(void)
+const char *output_get_time_context(void)
 {
 	return time_context;
 }
@@ -718,7 +718,7 @@ int output_progress()
 {
 	char buffer[64];
 	int res = 0;
-	char *ts; 
+	const char *ts; 
 
 	/* handle delta mode highres time */
 	if ( global_simulation_mode==SM_DELTA )
@@ -846,7 +846,7 @@ int output_xsd(const char *spec)
 	return 0;
 }
 
-int output_xsl(char *fname, int n_mods, char *p_mods[])
+int output_xsl(const char *fname, int n_mods, const char *p_mods[])
 {
 	FILE *fp;
 
