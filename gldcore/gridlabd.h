@@ -181,7 +181,8 @@ CDECL EXTERN CALLBACKS *callback INIT(NULL);
 //#define PUBLISH_SET(C,N,E) (*callback->define_set_member)(C##_class,#N,#E,C::E)
 /** @} **/
 
-#define PADDR(X) ((char*)&(this->X)-(char*)this)
+#define PADDR_X(X,T) ((char*)&((T)->X)-(char*)(T))
+#define PADDR(X) PADDR_X(X,this)
 
 /******************************************************************************
  * Exception handling
@@ -1950,7 +1951,7 @@ public: // header read accessors (no locking)
 	inline unsigned int get_lock(void) { return my()->lock; };
 	inline unsigned int get_rng_state(void) { return my()->rng_state; };
 	inline TIMESTAMP get_heartbeat(void) { return my()->heartbeat; };
-	inline uint64* get_guid(void) { return my()->guid; };
+	inline unsigned long long* get_guid(void) { return my()->guid; };
 	inline size_t get_guid_size(void) { OBJECT *_t=my(); return sizeof(_t->guid)/sizeof(_t->guid[0]); };
 	inline uint64 get_flags(uint64 mask=0xffffffffffffffff) { return (my()->flags)&mask; };
 
@@ -2335,9 +2336,9 @@ public:
 	inline bool open(char *url, size_t maxlen=4096) { result=callback->http.read(url,(int)maxlen); return is_valid();};
 	inline void close(void) { callback->http.free(result);};
 	inline bool is_valid(void) { return result!=NULL; };
-	inline char *get_header(void) { return result->header.data;};
+	inline const char *get_header(void) { return result->header.data;};
 	inline size_t get_header_size(void) { return result->header.size; };
-	inline char *get_body(void) { return result->body.data; };
+	inline const char *get_body(void) { return result->body.data; };
 	inline size_t get_body_size(void) { return result->body.size; };
 	inline int get_status(void) { return result->status; };
 };

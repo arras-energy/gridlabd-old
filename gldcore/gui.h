@@ -72,8 +72,12 @@ typedef struct s_guientity {
 	UNIT *unit;
 } GUIENTITY;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 GUIENTITY *gui_create_entity();
-typedef  int (*GUISTREAMFN)(void*,char*,...);
+typedef  int (*GUISTREAMFN)(void*,const char*,...);
 void gui_set_html_stream(void *ref,GUISTREAMFN stream);
 
 void gui_set_srcref(GUIENTITY *entity, char *filename, int linenum);
@@ -90,7 +94,7 @@ void gui_set_source(GUIENTITY *entity, char *source);
 void gui_set_options(GUIENTITY *entity, char *source);
 void gui_set_wait(GUIENTITY *entity, char *wait);
 
-STATUS gui_startup(int argc, char *argv[]);
+STATUS gui_startup(int argc, const char *argv[]);
 int gui_post_action(char *action);
 
 GUIENTITY *gui_get_root(void);
@@ -121,12 +125,16 @@ void gui_X11_start(void);
 
 void gui_wait_status(GUIACTIONSTATUS status);
 
-int gui_html_output_page(char *page);
+int gui_html_output_page(const char *page);
 STATUS gui_html_output_all(void);
 
 size_t gui_glm_write_all(FILE *fp);
 
 int gui_wait(void);
 
+#ifdef __cplusplus
+}
+#endif
+	
 #endif
 

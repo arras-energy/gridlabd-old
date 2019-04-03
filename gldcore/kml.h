@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 	
-int kml_dump(char *filename);
+int kml_dump(const char *filename);
 
 #ifdef __cplusplus
 }

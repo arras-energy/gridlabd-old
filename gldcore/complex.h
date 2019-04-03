@@ -128,11 +128,20 @@ public:
 		else
 			return PI+atan(i/r);
 	};
+	inline double Ang(void)
+	{
+		return Arg()*180.0/PI;
+	}
 	inline double Arg(double a)  /**< set angle */
 	{
 		SetPolar(Mag(),a,f);
 		return a;
 	};
+	inline double Ang(double a)
+	{
+		SetPolar(Mag(),a*PI/180.0);
+		return a;
+	}
 	inline complex Log(void) const /**< compute log */
 	{ 
 		return complex(log(Mag()),Arg(),f);

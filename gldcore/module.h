@@ -33,7 +33,7 @@ struct s_module_list {
 	STATUS (*postupdate)(void*,int64,unsigned int64);
 	/* clock hook*/
 	TIMESTAMP (*clockupdate)(TIMESTAMP);
-	int (*cmdargs)(int,char**);
+	int (*cmdargs)(int,const char**);
 	int (*kmldump)(int(*)(const char*,...),OBJECT*);
 	void (*test)(int argc, char *argv[]);	
 	MODULE *(*subload)(char *, MODULE **, CLASS **, int, char **);
@@ -87,7 +87,7 @@ extern "C" {
 #ifndef _NO_CPPUNIT
 	int module_test(TEST_CALLBACKS *callbacks,int argc,char* argv[]);
 #endif
-	int module_cmdargs(int argc, char **argv);
+	int module_cmdargs(int argc, const char **argv);
 	int module_saveobj_xml(FILE *fp, MODULE *mod);
 	MODULE *module_get_first(void);
 	void *module_malloc(size_t size);
@@ -102,10 +102,10 @@ extern "C" {
 	unsigned short sched_get_cpuid(unsigned short n);
 	pid_t sched_get_procid();
 
-	int module_load_function_list(char *libname, char *fnclist);
+	int module_load_function_list(const char *libname, const char *fnclist);
 	TRANSFORMFUNCTION module_get_transform_function(const char *function);
 
-	int module_compile(char *name, char *code, int flags, char *prefix, char *file, int line);
+	int module_compile(const char *name, const char *code, int flags, const char *prefix,const char *file, int line);
 	void module_profiles(void);
 	CALLBACKS *module_callbacks(void);
 	int module_initall(void);

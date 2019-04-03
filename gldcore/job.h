@@ -16,7 +16,7 @@ typedef enum {
 	JO_DEFAULT	= JO_SORTA,	///< default job options
 } JOBOPTIONS;
 
-int job(void *main, int argc, char *argv[]);
+int job(void *main, int argc, const char *argv[]);
 
 #endif
 

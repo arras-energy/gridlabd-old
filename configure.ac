@@ -30,7 +30,7 @@ m4_define([svnversion], sbuild_m4_esyscmd_s([build-aux/version.sh --svn]))
 
 AC_PREREQ([2.63])
 AC_INIT([GridLAB-D], pkgversion, [gridlabd@pnnl.gov], [gridlabd])
-AC_CONFIG_SRCDIR([gldcore/aggregate.c])
+AC_CONFIG_SRCDIR([gldcore/gridlabd.h])
 AC_CONFIG_HEADER([gldcore/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])

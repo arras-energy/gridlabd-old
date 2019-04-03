@@ -32,7 +32,15 @@ typedef enum {
 
 } VALIDATEOPTIONS;
 
-int validate(void *main, int argc, char *argv[]);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int validate(void *main, int argc, const char *argv[]);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

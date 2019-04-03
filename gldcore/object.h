@@ -104,7 +104,7 @@ typedef struct s_object_list {
 	LOCKVAR lock; /**< object lock */
 	unsigned int rng_state; /**< random number generator state */
 	TIMESTAMP heartbeat; /**< heartbeat call interval (in sim-seconds) */
-	uint64 guid[2]; /**< globally unique identifier */
+	unsigned long long guid[2]; /**< globally unique identifier */
 	EVENTHANDLERS events;
 	/* IMPORTANT: flags must be last */
 	uint64 flags; /**< object flags */
@@ -192,7 +192,7 @@ typedef struct s_callbacks {
 		double (*sampled)(unsigned int *rng,unsigned int n, double *x);
 		double (*exponential)(unsigned int *rng,double l);
 		RANDOMTYPE (*type)(const char *name);
-		double (*value)(RANDOMTYPE type, ...);
+		double (*value)(int type, ...);
 		double (*pseudo)(RANDOMTYPE type, unsigned int *state, ...);
 		double (*triangle)(unsigned int *rng,double a, double b);
 		double (*beta)(unsigned int *rng,double a, double b);
@@ -322,7 +322,7 @@ typedef struct s_callbacks {
 		} latitude, longitude;
 	} geography;
 	struct {
-		struct s_http_result* (*read)(char *url, int maxlen);
+		struct s_http_result* (*read)(const char *url, int maxlen);
 		void (*free)(struct s_http_result *result);
 	} http;
 	struct {

@@ -45,7 +45,7 @@ extern GldMain *my_instance;
 
 /* TODO: remove when daemon.cpp is reentrant */
 STATUS cmdarg_load(int argc, /**< the number of arguments in \p argv */
-				   char *argv[]) /**< a list pointers to the argument string */
+				   const char *argv[]) /**< a list pointers to the argument string */
 {
 	return my_instance->cmdarg.load(argc,argv);
 }
@@ -180,7 +180,7 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 		printf( "%s\tfunction %s();\n", tabs, func->name);
 	for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 	{
-		char *propname = class_get_property_typename(prop->ptype);
+		const char *propname = class_get_property_typename(prop->ptype);
 		if (propname!=NULL)
 		{
 			if ( (prop->access&PA_HIDDEN)==PA_HIDDEN )
@@ -242,7 +242,7 @@ static int compare(const void *a, const void *b)
 	return stricmp(*(char**)a,*(char**)b);
 }
 
-static int help(void *main, int argc, char *argv[]);
+static int help(void *main, int argc, const char *argv[]);
 
 /************************************************************************/
 /* COMMAND LINE PARSING ROUTINES 
@@ -294,41 +294,41 @@ STATUS GldCmdarg::no_cmdargs(void)
 	return SUCCESS;
 }
 
-static int copyright(void *main, int argc, char *argv[])
+static int copyright(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.copyright(argc,argv);
 }
-int GldCmdarg::copyright(int argc, char *argv[])
+int GldCmdarg::copyright(int argc, const char *argv[])
 {
 	legal_notice();
 	return 0;
 }
 
-static int warn(void *main, int argc, char *argv[])
+static int warn(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.warn(argc,argv);
 }
-int GldCmdarg::warn(int argc, char *argv[])
+int GldCmdarg::warn(int argc, const char *argv[])
 {
 	global_warn_mode = !global_warn_mode;
 	return 0;
 }
 
-static int bothstdout(void *main, int argc, char *argv[])
+static int bothstdout(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.bothstdout(argc,argv);
 }
-int GldCmdarg::bothstdout(int argc, char *argv[])
+int GldCmdarg::bothstdout(int argc, const char *argv[])
 {
 	output_both_stdout();
 	return 0;
 }
 
-static int check(void *main, int argc, char *argv[])
+static int check(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.check(argc,argv);
 }
-int GldCmdarg::check(int argc, char *argv[])
+int GldCmdarg::check(int argc, const char *argv[])
 {
 	/* check main core implementation */
 	if ( property_check()==FAILED )
@@ -340,82 +340,82 @@ int GldCmdarg::check(int argc, char *argv[])
 	return 0;
 }
 
-static int debug(void *main, int argc, char *argv[])
+static int debug(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.debug(argc,argv);
 }
-int GldCmdarg::debug(int argc, char *argv[])
+int GldCmdarg::debug(int argc, const char *argv[])
 {
 	global_debug_output = !global_debug_output;
 	return 0;
 }
 
-static int debugger(void *main, int argc, char *argv[])
+static int debugger(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.debugger(argc,argv);
 }
-int GldCmdarg::debugger(int argc, char *argv[])
+int GldCmdarg::debugger(int argc, const char *argv[])
 {
 	global_debug_mode = 1;
 	global_debug_output = 1;
 	return 0;
 }
 
-static int dumpall(void *main, int argc, char *argv[])
+static int dumpall(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.dumpall(argc,argv);
 }
-int GldCmdarg::dumpall(int argc, char *argv[])
+int GldCmdarg::dumpall(int argc, const char *argv[])
 {
 	global_dumpall = !global_dumpall;
 	return 0;
 }
 
-static int quiet(void *main, int argc, char *argv[])
+static int quiet(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.quiet(argc,argv);
 }
-int GldCmdarg::quiet(int argc, char *argv[])
+int GldCmdarg::quiet(int argc, const char *argv[])
 {
 	global_quiet_mode = !global_quiet_mode;
 	return 0;
 }
 
-static int verbose(void *main, int argc, char *argv[])
+static int verbose(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.verbose(argc,argv);
 }
-int GldCmdarg::verbose(int argc, char *argv[])
+int GldCmdarg::verbose(int argc, const char *argv[])
 {
 	global_verbose_mode=!global_verbose_mode;
 	return 0;
 }
 
-static int _check_version(void *main, int argc, char *argv[])
+static int _check_version(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg._check_version(argc,argv);
 }
-int GldCmdarg::_check_version(int argc, char *argv[])
+int GldCmdarg::_check_version(int argc, const char *argv[])
 {
 	check_version(0);
 	return 0;
 }
 
-static int profile(void *main, int argc, char *argv[])
+static int profile(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.profile(argc,argv);
 }
-int GldCmdarg::profile(int argc, char *argv[])
+int GldCmdarg::profile(int argc, const char *argv[])
 {
 	global_profiler = !global_profiler;
 	return 0;
 }
 
-static int mt_profile(void *main, int argc, char *argv[])
+static int mt_profile(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.mt_profile(argc,argv);
 }
-int GldCmdarg::mt_profile(int argc, char *argv[])
+int GldCmdarg::mt_profile(int argc, const char *argv[])
 {
 	if ( argc>1 )
 	{
@@ -442,40 +442,40 @@ int GldCmdarg::mt_profile(int argc, char *argv[])
 	}
 }
 
-static int pauseatexit(void *main, int argc, char *argv[])
+static int pauseatexit(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.pauseatexit(argc,argv);
 }
-int GldCmdarg::pauseatexit(int argc, char *argv[])
+int GldCmdarg::pauseatexit(int argc, const char *argv[])
 {
 	global_pauseatexit = !global_pauseatexit;
 	return 0;
 }
 
-static int compile(void *main, int argc, char *argv[])
+static int compile(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.compile(argc,argv);
 }
-int GldCmdarg::compile(int argc, char *argv[])
+int GldCmdarg::compile(int argc, const char *argv[])
 {
 	global_compileonly = !global_compileonly;
 	return 0;
 }
-static int license(void *main, int argc, char *argv[])
+static int license(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.license(argc,argv);
 }
-int GldCmdarg::license(int argc, char *argv[])
+int GldCmdarg::license(int argc, const char *argv[])
 {
 	legal_license();
 	return 0;
 }
 
-static int server_portnum(void *main, int argc, char *argv[])
+static int server_portnum(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.server_portnum(argc,argv);
 }
-int GldCmdarg::server_portnum(int argc, char *argv[])
+int GldCmdarg::server_portnum(int argc, const char *argv[])
 {
 	if (argc>1)
 	{
@@ -494,11 +494,11 @@ int GldCmdarg::server_portnum(int argc, char *argv[])
 	}
 }
 
-static int server_inaddr(void *main, int argc, char *argv[])
+static int server_inaddr(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.server_inaddr(argc,argv);
 }
-int GldCmdarg::server_inaddr(int argc, char *argv[])
+int GldCmdarg::server_inaddr(int argc, const char *argv[])
 {
 	if ( argc>1 )
 	{
@@ -517,11 +517,11 @@ int GldCmdarg::server_inaddr(int argc, char *argv[])
 	}
 }
 
-static int version(void *main, int argc, char *argv[])
+static int version(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.version(argc,argv);
 }
-int GldCmdarg::version(int argc, char *argv[])
+int GldCmdarg::version(int argc, const char *argv[])
 {
 	output_message("GridLAB-D %d.%d.%d-%d (%s) %d-bit %s %s", 
 		global_version_major, global_version_minor, global_version_patch, 
@@ -536,104 +536,104 @@ int GldCmdarg::version(int argc, char *argv[])
 	return 0;
 }
 
-static int dsttest(void *main, int argc, char *argv[])
+static int dsttest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.dsttest(argc,argv);
 }
-int GldCmdarg::dsttest(int argc, char *argv[])
+int GldCmdarg::dsttest(int argc, const char *argv[])
 {
 	timestamp_test();
 	return 0;
 }
 
-static int randtest(void *main, int argc, char *argv[])
+static int randtest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.randtest(argc,argv);
 }
-int GldCmdarg::randtest(int argc, char *argv[])
+int GldCmdarg::randtest(int argc, const char *argv[])
 {
 	random_test();
 	return 0;
 }
 
-static int unitstest(void *main, int argc, char *argv[])
+static int unitstest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.unitstest(argc,argv);
 }
-int GldCmdarg::unitstest(int argc, char *argv[])
+int GldCmdarg::unitstest(int argc, const char *argv[])
 {
 	unit_test();
 	return 0;
 }
 
-static int scheduletest(void *main, int argc, char *argv[])
+static int scheduletest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.scheduletest(argc,argv);
 }
-int GldCmdarg::scheduletest(int argc, char *argv[])
+int GldCmdarg::scheduletest(int argc, const char *argv[])
 {
 	schedule_test();
 	return 0;
 }
 
-static int loadshapetest(void *main, int argc, char *argv[])
+static int loadshapetest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.loadshapetest(argc,argv);
 }
-int GldCmdarg::loadshapetest(int argc, char *argv[])
+int GldCmdarg::loadshapetest(int argc, const char *argv[])
 {
 	loadshape_test();
 	return 0;
 }
 
-static int endusetest(void *main, int argc, char *argv[])
+static int endusetest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.endusetest(argc,argv);
 }
-int GldCmdarg::endusetest(int argc, char *argv[])
+int GldCmdarg::endusetest(int argc, const char *argv[])
 {
 	enduse_test();
 	return 0;
 }
 
-static int xmlstrict(void *main, int argc, char *argv[])
+static int xmlstrict(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.xmlstrict(argc,argv);
 }
-int GldCmdarg::xmlstrict(int argc, char *argv[])
+int GldCmdarg::xmlstrict(int argc, const char *argv[])
 {
 	global_xmlstrict = !global_xmlstrict;
 	IN_MYCONTEXT output_verbose("xmlstrict is %s", global_xmlstrict?"enabled":"disabled");
 	return 0;
 }
 
-static int globaldump(void *main, int argc, char *argv[])
+static int globaldump(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.globaldump(argc,argv);
 }
-int GldCmdarg::globaldump(int argc, char *argv[])
+int GldCmdarg::globaldump(int argc, const char *argv[])
 {
 	global_dump();
 	return CMDOK;
 }
 
-static int relax(void *main, int argc, char *argv[])
+static int relax(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.relax(argc,argv);
 }
-int GldCmdarg::relax(int argc, char *argv[])
+int GldCmdarg::relax(int argc, const char *argv[])
 {
 	global_strictnames = FALSE;
 	return 0;
 }
 
-static int pidfile(void *main, int argc, char *argv[])
+static int pidfile(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.pidfile(argc,argv);
 }
-int GldCmdarg::pidfile(int argc, char *argv[])
+int GldCmdarg::pidfile(int argc, const char *argv[])
 {
-	char *filename = strchr(*argv,'=');
+	const char *filename = strchr(*argv,'=');
 	if (filename==NULL)
 		strcpy(global_pidfile,"gridlabd.pid");
 	else
@@ -641,13 +641,13 @@ int GldCmdarg::pidfile(int argc, char *argv[])
 	return 0;
 }
 
-static int kml(void *main, int argc, char *argv[])
+static int kml(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.kml(argc,argv);
 }
-int GldCmdarg::kml(int argc, char *argv[])
+int GldCmdarg::kml(int argc, const char *argv[])
 {
-	char *filename = strchr(*argv,'=');
+	const char *filename = strchr(*argv,'=');
 	if (filename)
 		strcpy(global_kmlfile,filename+1);
 	else
@@ -655,21 +655,21 @@ int GldCmdarg::kml(int argc, char *argv[])
 	return 0;
 }
 
-static int avlbalance(void *main, int argc, char *argv[])
+static int avlbalance(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.avlbalance(argc,argv);
 }
-int GldCmdarg::avlbalance(int argc, char *argv[])
+int GldCmdarg::avlbalance(int argc, const char *argv[])
 {
 	global_no_balance = !global_no_balance;
 	return 0;
 }
 
-static int testall(void *main, int argc, char *argv[])
+static int testall(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.testall(argc,argv);
 }
-int GldCmdarg::testall(int argc, char *argv[])
+int GldCmdarg::testall(int argc, const char *argv[])
 {
 	int test_mod_num = 1;
 	FILE *fd = NULL;
@@ -702,24 +702,28 @@ int GldCmdarg::testall(int argc, char *argv[])
 	return 1;
 }
 
-static int modhelp(void *main, int argc, char *argv[])
+static int modhelp(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.modhelp(argc,argv);
 }
-int GldCmdarg::modhelp(int argc, char *argv[])
+int GldCmdarg::modhelp(int argc, const char *argv[])
 {
 	if(argc > 1){
 		MODULE *mod = NULL;
 		CLASS *oclass = NULL;
 		argv++;
 		argc--;
-		if(strchr(argv[0], ':') == 0){ // no class
+		const char *cname = strchr(argv[0], ':');
+		if ( cname == NULL )
+		{ 
+			// no class
 			mod = module_load(argv[0],0,NULL);
-		} else {
+		} 
+		else 
+		{
 			GLOBALVAR *var=NULL;
-			char *cname;
-			cname = strchr(argv[0], ':')+1;
-			mod = module_load(strtok(argv[0],":"),0,NULL);
+			cname++;
+			mod = module_load(cname,0,NULL);
 			oclass = class_get_class_from_classname(cname);
 			if(oclass == NULL){
 				output_fatal("Unable to find class '%s' in module '%s'", cname, argv[0]);
@@ -736,7 +740,7 @@ int GldCmdarg::modhelp(int argc, char *argv[])
 			while ((var=global_getnext(var))!=NULL)
 			{
 				PROPERTY *prop = var->prop;
-				char *proptype = class_get_property_typename(prop->ptype);
+				const char *proptype = class_get_property_typename(prop->ptype);
 				if ( strncmp(var->prop->name,mod->name,strlen(mod->name))!=0 )
 					continue;
 				if ( (prop->access&PA_HIDDEN)==PA_HIDDEN )
@@ -811,21 +815,21 @@ int GldCmdarg::modhelp(int argc, char *argv[])
 	return 1;
 }
 
-static int modlist(void *main, int argc, char *argv[])
+static int modlist(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.modlist(argc,argv);
 }
-int GldCmdarg::modlist(int arvc, char *argv[])
+int GldCmdarg::modlist(int arvc, const char *argv[])
 {
 	module_list();
 	return 1;
 }
 
-static int modtest(void *main, int argc, char *argv[])
+static int modtest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.modtest(argc,argv);
 }
-int GldCmdarg::modtest(int argc, char *argv[])
+int GldCmdarg::modtest(int argc, const char *argv[])
 {
 	if (argc>1)
 	{
@@ -870,11 +874,11 @@ int GldCmdarg::modtest(int argc, char *argv[])
 	return 1;
 }
 
-static int test(void *main, int argc, char *argv[])
+static int test(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.test(argc,argv);
 }
-int GldCmdarg::test(int argc, char *argv[])
+int GldCmdarg::test(int argc, const char *argv[])
 {
 	int n=0;
 	global_test_mode = TRUE;
@@ -887,11 +891,11 @@ int GldCmdarg::test(int argc, char *argv[])
 	return n;
 }
 
-static int define(void *main, int argc, char *argv[])
+static int define(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.define(argc,argv);
 }
-int GldCmdarg::define(int argc, char *argv[])
+int GldCmdarg::define(int argc, const char *argv[])
 {
 	if (argc>1)
 	{
@@ -916,11 +920,11 @@ int GldCmdarg::define(int argc, char *argv[])
 	}
 }
 
-static int globals(void *main, int argc, char *argv[])
+static int globals(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.globals(argc,argv);
 }
-int GldCmdarg::globals(int argc, char *argv[])
+int GldCmdarg::globals(int argc, const char *argv[])
 {
 	const char *list[65536];
 	int i, n=0;
@@ -956,11 +960,11 @@ int GldCmdarg::globals(int argc, char *argv[])
 	return 0;
 }
 
-static int redirect(void *main, int argc, char *argv[])
+static int redirect(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.redirect(argc,argv);
 }
-int GldCmdarg::redirect(int argc, char *argv[])
+int GldCmdarg::redirect(int argc, const char *argv[])
 {
 	if (argc>1)
 	{
@@ -1030,11 +1034,11 @@ int GldCmdarg::redirect(int argc, char *argv[])
 	return 1;
 }
 
-static int libinfo(void *main, int argc, char *argv[])
+static int libinfo(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.libinfo(argc,argv);
 }
-int GldCmdarg::libinfo(int argc, char *argv[])
+int GldCmdarg::libinfo(int argc, const char *argv[])
 {
 	if (argc-1>0)
 	{	argc--;
@@ -1053,11 +1057,11 @@ int GldCmdarg::libinfo(int argc, char *argv[])
 	return CMDERR;
 }
 
-static int threadcount(void *main, int argc, char *argv[])
+static int threadcount(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.threadcount(argc,argv);
 }
-int GldCmdarg::threadcount(int argc, char *argv[])
+int GldCmdarg::threadcount(int argc, const char *argv[])
 {
 	if (argc>1)
 		global_threadcount = (argc--,atoi(*++argv));
@@ -1074,11 +1078,11 @@ int GldCmdarg::threadcount(int argc, char *argv[])
 	return 1;
 }
 
-static int output(void *main, int argc, char *argv[])
+static int output(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.output(argc,argv);
 }
-int GldCmdarg::output(int argc, char *argv[])
+int GldCmdarg::output(int argc, const char *argv[])
 {
 	if (argc>1)
 	{
@@ -1097,11 +1101,11 @@ int GldCmdarg::output(int argc, char *argv[])
 	}
 }
 
-static int environment(void *main, int argc, char *argv[])
+static int environment(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.environment(argc,argv);
 }
-int GldCmdarg::environment(int argc, char *argv[])
+int GldCmdarg::environment(int argc, const char *argv[])
 {
 	if (argc>1)
 		strcpy(global_environment,(argc--,*++argv));
@@ -1118,11 +1122,11 @@ int GldCmdarg::environment(int argc, char *argv[])
 	return 1;
 }
 
-static int xmlencoding(void *main, int argc, char *argv[])
+static int xmlencoding(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.xmlencoding(argc,argv);
 }
-int GldCmdarg::xmlencoding(int argc, char *argv[])
+int GldCmdarg::xmlencoding(int argc, const char *argv[])
 {
 	if (argc>1)
 	{
@@ -1142,11 +1146,11 @@ int GldCmdarg::xmlencoding(int argc, char *argv[])
 	return 1;
 }
 
-static int xsd(void *main, int argc, char *argv[])
+static int xsd(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.xsd(argc,argv);
 }
-int GldCmdarg::xsd(int argc, char *argv[])
+int GldCmdarg::xsd(int argc, const char *argv[])
 {
 	if (argc>0)
 	{
@@ -1163,30 +1167,30 @@ int GldCmdarg::xsd(int argc, char *argv[])
 	}
 }
 
-static int xsl(void *main, int argc, char *argv[])
+static int xsl(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.xsl(argc,argv);
 }
-int GldCmdarg::xsl(int argc, char *argv[])
+int GldCmdarg::xsl(int argc, const char *argv[])
 {
 	if (argc-1>0)
 	{
 		char fname[1024];
-		char *p_arg = *++argv;
-		int n_args=1;
-		char **p_args;
-		argc--;
-		while (*p_arg++!='\0') if (*p_arg==',')	n_args++;
-		p_args = (char**)malloc(sizeof(char*)*n_args);
-		p_arg = strtok(*argv,",");
-		n_args=0;
-		while (p_arg!=NULL)
+		int n_args = 0;
+		char *p_args[256];
+		char *buffer = strdup(argv[1]);
+		p_args[n_args++] = buffer;
+		for ( char *p = buffer ; *p != '\0' ; p++ )
 		{
-			p_args[n_args++] = p_arg;
-			p_arg = strtok(NULL,",");
+			if ( *p == ',' )
+			{
+				*p++ = '\0';
+				p_args[n_args] = p;
+			}
 		}
 		sprintf(fname,"gridlabd-%d_%d.xsl",global_version_major,global_version_minor);
-		output_xsl(fname,n_args,p_args);
+		output_xsl(fname,n_args,(const char**)p_args);
+		free(buffer);
 		return CMDOK;
 	}
 	else
@@ -1201,52 +1205,52 @@ int GldCmdarg::xsl(int argc, char *argv[])
 	}
 }
 
-static int _stream(void *main, int argc, char *argv[])
+static int _stream(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg._stream(argc,argv);
 }
-int GldCmdarg::_stream(int argc, char *argv[])
+int GldCmdarg::_stream(int argc, const char *argv[])
 {
 	global_streaming_io_enabled = !global_streaming_io_enabled;
 	return 0;
 }
 
-static int server(void *main, int argc, char *argv[])
+static int server(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.server(argc,argv);
 }
-int GldCmdarg::server(int argc, char *argv[])
+int GldCmdarg::server(int argc, const char *argv[])
 {
 	strcpy(global_environment,"server");
 	return 0;
 }
 
-static int clearmap(void *main, int argc, char *argv[])
+static int clearmap(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.clearmap(argc,argv);
 }
-int GldCmdarg::clearmap(int argc, char *argv[])
+int GldCmdarg::clearmap(int argc, const char *argv[])
 {
 	sched_clear();
 	return 0;
 }
 
-static int pstatus(void *main, int argc, char *argv[])
+static int pstatus(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.pstatus(argc,argv);
 }
-int GldCmdarg::pstatus(int argc, char *argv[])
+int GldCmdarg::pstatus(int argc, const char *argv[])
 {
 	sched_init(1);
 	sched_print(0);
 	return 0;
 }
 
-static int pkill(void *main, int argc, char *argv[])
+static int pkill(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.pkill(argc,argv);
 }
-int GldCmdarg::pkill(int argc, char *argv[])
+int GldCmdarg::pkill(int argc, const char *argv[])
 {
 	if (argc>0)
 	{
@@ -1266,33 +1270,33 @@ int GldCmdarg::pkill(int argc, char *argv[])
 	}
 }
 
-static int plist(void *main, int argc, char *argv[])
+static int plist(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.plist(argc,argv);
 }
-int GldCmdarg::plist(int argc, char *argv[])
+int GldCmdarg::plist(int argc, const char *argv[])
 {
 	sched_init(1);
 	sched_print(0);
 	return 0;
 }
 
-static int pcontrol(void *main, int argc, char *argv[])
+static int pcontrol(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.pcontrol(argc,argv);
 }
-int GldCmdarg::pcontrol(int argc, char *argv[])
+int GldCmdarg::pcontrol(int argc, const char *argv[])
 {
 	sched_init(1);
 	sched_controller();
 	return 0;
 }
 
-static int info(void *main, int argc, char *argv[])
+static int info(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.info(argc,argv);
 }
-int GldCmdarg::info(int argc, char *argv[])
+int GldCmdarg::info(int argc, const char *argv[])
 {
 	if ( argc>1 )
 	{
@@ -1328,11 +1332,11 @@ int GldCmdarg::info(int argc, char *argv[])
 	}
 }
 
-static int slave(void *main, int argc, char *argv[])
+static int slave(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.slave(argc,argv);
 }
-int GldCmdarg::slave(int argc, char *argv[])
+int GldCmdarg::slave(int argc, const char *argv[])
 {
 	char host[256], port[256];
 
@@ -1369,21 +1373,21 @@ int GldCmdarg::slave(int argc, char *argv[])
 	return 1;
 }
 
-static int slavenode(void *main, int argc, char *argv[])
+static int slavenode(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.slavenode(argc,argv);
 }
-int GldCmdarg::slavenode(int argc, char *argv[])
+int GldCmdarg::slavenode(int argc, const char *argv[])
 {
 	exec_slave_node();
 	return CMDOK;
 }
 
-static int slave_id(void *main, int argc, char *argv[])
+static int slave_id(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.slave_id(argc,argv);
 }
-int GldCmdarg::slave_id(int argc, char *argv[])
+int GldCmdarg::slave_id(int argc, const char *argv[])
 {
 	if(argc < 2){
 		output_error("--id requires an ID number argument");
@@ -1397,11 +1401,11 @@ int GldCmdarg::slave_id(int argc, char *argv[])
 	return 1;
 }
 
-static int example(void *main, int argc, char *argv[])
+static int example(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.example(argc,argv);
 }
-int GldCmdarg::example(int argc, char *argv[])
+int GldCmdarg::example(int argc, const char *argv[])
 {
 	MODULE *module;
 	CLASS *oclass;
@@ -1451,11 +1455,11 @@ int GldCmdarg::example(int argc, char *argv[])
 		output_warning("no output generated for object");
 	return CMDOK;
 }
-static int mclassdef(void *main, int argc, char *argv[])
+static int mclassdef(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.mclassdef(argc,argv);
 }
-int GldCmdarg::mclassdef(int argc, char *argv[])
+int GldCmdarg::mclassdef(int argc, const char *argv[])
 {
 	MODULE *module;
 	CLASS *oclass;
@@ -1518,21 +1522,21 @@ int GldCmdarg::mclassdef(int argc, char *argv[])
         return CMDOK;
 }
 
-static int locktest(void *main, int argc, char *argv[])
+static int locktest(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.locktest(argc,argv);
 }
-int GldCmdarg::locktest(int argc, char *argv[])
+int GldCmdarg::locktest(int argc, const char *argv[])
 {
 	test_lock();
 	return CMDOK;
 }
 
-static int workdir(void *main, int argc, char *argv[])
+static int workdir(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.workdir(argc,argv);
 }
-int GldCmdarg::workdir(int argc, char *argv[])
+int GldCmdarg::workdir(int argc, const char *argv[])
 {
 	if ( argc<2 )
 	{
@@ -1550,11 +1554,11 @@ int GldCmdarg::workdir(int argc, char *argv[])
 	return 1;
 }
 
-static int local_daemon(void *main, int argc, char *argv[])
+static int local_daemon(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.local_daemon(argc,argv);
 }
-int GldCmdarg::local_daemon(int argc, char *argv[])
+int GldCmdarg::local_daemon(int argc, const char *argv[])
 {
 	if ( argc < 2 )
 	{
@@ -1584,11 +1588,11 @@ int GldCmdarg::local_daemon(int argc, char *argv[])
 	}
 }
 
-static int remote_client(void *main, int argc, char *argv[])
+static int remote_client(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.remote_client(argc,argv);
 }
-int GldCmdarg::remote_client(int argc, char *argv[])
+int GldCmdarg::remote_client(int argc, const char *argv[])
 {
 	if ( argc < 2 )
 	{
@@ -1599,21 +1603,21 @@ int GldCmdarg::remote_client(int argc, char *argv[])
 		return daemon_remote_client(argc,argv);
 }
 
-static int printenv(void *main, int argc, char *argv[])
+static int printenv(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.printenv(argc,argv);
 }
-int GldCmdarg::printenv(int argc, char *argv[])
+int GldCmdarg::printenv(int argc, const char *argv[])
 {
 	system("printenv");
 	return 0;
 }
 
-static int origin(void *main, int argc, char *argv[])
+static int origin(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.origin(argc,argv);
 }
-int GldCmdarg::origin(int argc, char *argv[])
+int GldCmdarg::origin(int argc, const char *argv[])
 {
 	FILE *fp;
 	char originfile[1024];
@@ -1762,18 +1766,18 @@ int GldCmdarg::runoption(const char *value)
 		for ( i=0 ; i<(int)(sizeof(main_commands)/sizeof(main_commands[0])) ; i++ )
 		{
 			if ( main_commands[i].lopt!=NULL && strcmp(main_commands[i].lopt,option)==0 )
-				return main_commands[i].call(instance,n,(char**)&params);
+				return main_commands[i].call(instance,n,(const char**)&params);
 		}
 	}
 	return 0;
 }
 
-static int help(void *main,int argc, char *argv[])
+static int help(void *main,int argc, const char *argv[])
 {
 	return ((GldMain*)main)->cmdarg.help(argc,argv);
 }
 
-int GldCmdarg::help(int argc, char *argv[])
+int GldCmdarg::help(int argc, const char *argv[])
 {
 	int i;
 	int old = global_suppress_repeat_messages;
@@ -1847,7 +1851,7 @@ int GldCmdarg::help(int argc, char *argv[])
 	@endcode
 	will load \p model1 with warnings on, and \p model2 with warnings off.
  **/
-STATUS GldCmdarg::load(int argc,char *argv[])
+STATUS GldCmdarg::load(int argc,const char *argv[])
 {
 	STATUS status = SUCCESS;
 
