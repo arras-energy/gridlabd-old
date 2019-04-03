@@ -105,7 +105,7 @@ extern "C" {
 	int module_load_function_list(const char *libname, const char *fnclist);
 	TRANSFORMFUNCTION module_get_transform_function(const char *function);
 
-	int module_compile(char *name, char *code, int flags, char *prefix, char *file, int line);
+	int module_compile(const char *name, const char *code, int flags, const char *prefix,const char *file, int line);
 	void module_profiles(void);
 	CALLBACKS *module_callbacks(void);
 	int module_initall(void);

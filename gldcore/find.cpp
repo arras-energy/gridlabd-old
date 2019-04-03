@@ -759,7 +759,7 @@ FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm)
 #define COPY(X) {size--; (X)[_n++]=*_p++;}
 #define DONE return _n;
 
-void syntax_error(char *p)
+void syntax_error(const char *p)
 {
 	char context[16], *nl;
 	strncpy(context,p,15);

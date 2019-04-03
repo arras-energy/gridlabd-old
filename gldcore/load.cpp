@@ -232,7 +232,7 @@ int inline_code_init(void)
 {
 	if ( code_block==NULL )
 	{
-		code_block = malloc(global_inline_block_size);
+		code_block = (char *)malloc(global_inline_block_size);
 		if ( code_block==NULL ) {
 			output_error("code_block malloc failed (inline_block_size=%d)", global_inline_block_size);
 			/* TROUBLESHOOT
@@ -245,7 +245,7 @@ int inline_code_init(void)
 	}
 	if ( global_block==NULL )
 	{
-		global_block = malloc(global_inline_block_size);
+		global_block = (char*)malloc(global_inline_block_size);
 		if ( global_block==NULL ) {
 			output_error("global_block malloc failed (inline_block_size=%d)", global_inline_block_size);
 			/* TROUBLESHOOT
@@ -258,7 +258,7 @@ int inline_code_init(void)
 	}
 	if ( init_block==NULL )
 	{
-		init_block = malloc(global_inline_block_size);
+		init_block = (char*)malloc(global_inline_block_size);
 		if ( init_block==NULL ) {
 			output_error("init_block malloc failed (inline_block_size=%d)", global_inline_block_size);
 			/* TROUBLESHOOT
@@ -382,7 +382,7 @@ static void filename_parts(char *fullname, char *path, char *name, char *ext)
 }
 
 
-static int append_init(char* format,...)
+static int append_init(const char* format,...)
 {
 	static char code[1024];
 	va_list ptr;
@@ -405,7 +405,7 @@ static int append_init(char* format,...)
 	strcat(init_block,code);
 	return ++code_used;
 }
-static int append_code(char* format,...)
+static int append_code(const char* format,...)
 {
 	static char code[65536];
 	va_list ptr;
@@ -428,7 +428,7 @@ static int append_code(char* format,...)
 	strcat(code_block,code);
 	return ++code_used;
 }
-static int append_global(char* format,...)
+static int append_global(const char* format,...)
 {
 	static char code[1024];
 	va_list ptr;
@@ -451,17 +451,21 @@ static int append_global(char* format,...)
 	strcat(global_block,code);
 	return ++code_used;
 }
-static void mark_linex(char *filename, int linenum)
+static void mark_linex(const char *filename, int linenum)
 {
 	char buffer[64];
 	if (global_getvar("noglmrefs",buffer, 63)==NULL)
-		append_code("#line %d \"%s\"\n", linenum, forward_slashes(filename));
+	{
+		char fname[1024];
+		strcpy(fname,filename);
+		append_code("#line %d \"%s\"\n", linenum, forward_slashes(fname));
+	}
 }
 static void mark_line()
 {
 	mark_linex(filename,linenum);
 }
-static STATUS exec(char *format,...)
+static STATUS exec(const char *format,...)
 {
 	char cmd[1024];
 	va_list ptr;
@@ -472,7 +476,7 @@ static STATUS exec(char *format,...)
 	return system(cmd)==0?SUCCESS:FAILED;
 }
 
-static STATUS debugger(char *target)
+static STATUS debugger(const char *target)
 {
 	int result;
 	IN_MYCONTEXT output_debug("Starting debugger");
@@ -484,7 +488,7 @@ static STATUS debugger(char *target)
 	IN_MYCONTEXT output_debug("Use 'dll-symbols %s' to load symbols",target);
 	result = exec("gdb --quiet %s --pid=%d &",target,global_process_id)>=0?SUCCESS:FAILED;
 #endif
-	return result;
+	return result == 0 ? SUCCESS : FAILED;
 }
 
 static char *setup_class(CLASS *oclass)
@@ -519,7 +523,7 @@ static char *setup_class(CLASS *oclass)
 
 static int outlinenum = 0;
 static char *outfilename = NULL;
-static int write_file(FILE *fp, char *data, ...)
+static int write_file(FILE *fp, const char *data, ...)
 {
 	char buffer[65536];
 	char var_buf[64];
@@ -554,11 +558,15 @@ static int write_file(FILE *fp, char *data, ...)
 	}
 	return len;
 }
-static void reset_line(FILE *fp, char *file)
+static void reset_line(FILE *fp, const char *file)
 {
 	char buffer[64];
 	if (global_getvar("noglmrefs", buffer, 63)==NULL)
-		write_file(fp,"#line %s \"%s\"\n", outlinenum,forward_slashes(file));
+	{
+		char fname[1024];
+		strcpy(fname,file);
+		write_file(fp,"#line %s \"%s\"\n", outlinenum,forward_slashes(fname));
+	}
 }
 
 // Recursively make directories if they don't exist
@@ -784,7 +792,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				char execstr[1024];
 				char ldstr[1024];
 				char mopt[8]="";
-				char *libs = "-lstdc++";
+				const char *libs = "-lstdc++";
 #ifdef WIN32
 				snprintf(mopt,sizeof(mopt),"-m%d",sizeof(void*)*8);
 				libs = "";
@@ -926,23 +934,23 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 
 
 static OBJECT **object_index = NULL;
-static unsigned char *object_linked = NULL;
+static char *object_linked = NULL;
 static unsigned int object_index_size = 65536;
 /*static*/ STATUS load_set_index(OBJECT *obj, OBJECTNUM id)
 {
 	if (object_index==NULL)
 	{
-		object_index = malloc(sizeof(OBJECT*)*object_index_size);
+		object_index = (OBJECT**)malloc(sizeof(OBJECT*)*object_index_size);
 		memset(object_index,0,sizeof(OBJECT*)*object_index_size);
-		object_linked = malloc(sizeof(unsigned char)*object_index_size);
+		object_linked = (char *)malloc(sizeof(unsigned char)*object_index_size);
 		memset(object_linked,0,sizeof(unsigned char)*object_index_size);
 	}
 	if (id>=object_index_size) /* index needs to grow */
 	{
 		int new_size = (id/object_index_size+1)*object_index_size;
-		object_index = realloc(object_index,sizeof(OBJECT*)*new_size);
+		object_index = (OBJECT**)realloc(object_index,sizeof(OBJECT*)*new_size);
 //		memset(object_index+object_index_size*sizeof(OBJECT *),0,sizeof(OBJECT*)*(new_size-object_index_size));
-		object_linked = realloc(object_linked,sizeof(unsigned char)*new_size);
+		object_linked = (char *)realloc(object_linked,sizeof(unsigned char)*new_size);
 //		memset(object_linked+object_index_size*sizeof(unsigned char),0,sizeof(unsigned char)*(new_size-object_index_size));
 		object_index_size = new_size;
 	}
@@ -991,13 +999,13 @@ static UNRESOLVED *first_unresolved = NULL;
 		output_error("add_unresolved(...): id '%s' is too long to resolve", id);
 		return NULL;
 	}
-	item = malloc(sizeof(UNRESOLVED));
+	item = (UNRESOLVED*)malloc(sizeof(UNRESOLVED));
 	if (item==NULL) { errno = ENOMEM; return NULL; }
 	item->by = by;
 	item->ptype = ptype;
 	item->ref = ref;
 	item->oclass = oclass;
-	strncpy(item->id,id,sizeof(item->id));
+	item->id = strdup(id);
 	if (first_unresolved!=NULL && strcmp(first_unresolved->file,file)==0)
 	{
 		item->file = first_unresolved->file; // means keep using the same file
@@ -1006,7 +1014,7 @@ static UNRESOLVED *first_unresolved = NULL;
 	else
 	{
 		item->file = (char*)malloc(strlen(file)+1);
-		strcpy(item->file,file);
+		item->file = strdup(file);
 	}
 	item->line = line;
 	item->next = first_unresolved;
@@ -1014,7 +1022,7 @@ static UNRESOLVED *first_unresolved = NULL;
 	first_unresolved = item;
 	return item;
 }
-static int resolve_object(UNRESOLVED *item, char *filename)
+static int resolve_object(UNRESOLVED *item, const char *filename)
 {
 	OBJECT *obj;
 	char classname[65];
@@ -1045,7 +1053,7 @@ static int resolve_object(UNRESOLVED *item, char *filename)
 	}
 	else if (sscanf(item->id,"%64[^.].%64[^:]:",classname,propname)==2)
 	{
-		char *value = strchr(item->id,':');
+		const char *value = strchr(item->id,':');
 		FINDLIST *match;
 		if (value++==NULL)
 		{
@@ -1120,11 +1128,11 @@ static int resolve_object(UNRESOLVED *item, char *filename)
 		object_set_rank(obj,item->by->rank);
 	return SUCCESS;
 }
-static int resolve_double(UNRESOLVED *item, char *context)
+static int resolve_double(UNRESOLVED *item, const char *context)
 {
 	char oname[65];
 	char pname[65];
-	char *filename = (item->file ? item->file : context);
+	const char *filename = (item->file ? item->file : context);
 
 	if (sscanf(item->id,"%64[^.].%64s",oname,pname)==2)
 	{
@@ -1175,7 +1183,7 @@ static int resolve_double(UNRESOLVED *item, char *context)
 			if (xform) xform->source_type = XS_DOUBLE;
 			break;
 		case PT_complex:
-			*ref = &(((complex*)object_get_addr(obj,prop->name))->r);
+			*ref = &(((complex*)object_get_addr(obj,prop->name))->Re());
 			if (xform) xform->source_type = XS_COMPLEX;
 			break;
 		case PT_loadshape:
@@ -1183,7 +1191,7 @@ static int resolve_double(UNRESOLVED *item, char *context)
 			if (xform) xform->source_type = XS_LOADSHAPE;
 			break;
 		case PT_enduse:
-			*ref = &(((enduse*)object_get_addr(obj,prop->name))->total.r);
+			*ref = &(((enduse*)object_get_addr(obj,prop->name))->total.Re());
 			if (xform) xform->source_type = XS_ENDUSE;
 			break;
 		default:
@@ -1198,10 +1206,10 @@ static int resolve_double(UNRESOLVED *item, char *context)
 	return FAILED;
 }
 
-static int resolve_list(UNRESOLVED *item)
+static STATUS resolve_list(UNRESOLVED *item)
 {
 	UNRESOLVED *next;
-	char *filename = NULL;
+	const char *filename = NULL;
 	while (item!=NULL)
 	{	
 		// context file name changes
@@ -1209,7 +1217,7 @@ static int resolve_list(UNRESOLVED *item)
 		{
 			// free last context file name
 			if (filename!=NULL){
-				free(filename); // last one - not used again
+				free((void*)filename); // last one - not used again
 				filename = NULL;
 			}
 
@@ -1239,17 +1247,17 @@ static int resolve_list(UNRESOLVED *item)
 		item=next;
 	}
 	if ( filename!=NULL )
-		free(filename);
+		free((void*)filename);
 	return SUCCESS;
 }
-/*static*/ int load_resolve_all()
+/*static*/ STATUS load_resolve_all()
 {
-	int result = resolve_list(first_unresolved);
+	STATUS result = resolve_list(first_unresolved);
 	first_unresolved = NULL;
 	return result;
 }
 
-#define PARSER char *_p
+#define PARSER const char *_p
 #define START int _mm=0, _m=0, _n=0, _l=linenum;
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
@@ -1261,11 +1269,11 @@ static int resolve_list(UNRESOLVED *item)
 #define TERM(X) (_mm=(X),_m+=_mm,_mm>0)
 #define COPY(X) {size--; (X)[_n++]=*_p++;}
 #define DONE return _n;
-#define BEGIN_REPEAT {char *__p=_p; int __mm=_mm, __m=_m, __n=_n, __l=_l; int __ln=linenum;
+#define BEGIN_REPEAT {const char *__p=_p; int __mm=_mm, __m=_m, __n=_n, __l=_l; int __ln=linenum;
 #define REPEAT _p=__p;_m=__m; _mm=__mm; _n=__n; _l=__l; linenum=__ln;
 #define END_REPEAT }
 
-static void syntax_error(char *p)
+static void syntax_error(const char *p)
 {
 	char context[16], *nl;
 	strncpy(context,p,15);
@@ -1301,7 +1309,7 @@ static int comment(PARSER)
 	return _n;
 }
 
-static int pattern(PARSER, char *pattern, char *result, int size)
+static int pattern(PARSER, const char *pattern, char *result, int size)
 {
 	char format[64];
 	START;
@@ -1319,7 +1327,7 @@ static int scan(PARSER, char *format, char *result, int size)
 	DONE;
 }
 
-static int literal(PARSER, char *text)
+static int literal(PARSER, const char *text)
 {
 	if (strncmp(_p,text,strlen(text))==0)
 		return (int)strlen(text);
@@ -1381,7 +1389,7 @@ static int unitspec(PARSER, UNIT **unit)
 	START;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='$' || *_p=='%' || *_p=='*' || *_p=='/' || *_p=='^') COPY(result);
 	result[_n]='\0';
-	TRY {
+	try {
 		if ((*unit=unit_find(result))==NULL){
 			linenum=_l;
 			_n = 0;
@@ -1389,11 +1397,11 @@ static int unitspec(PARSER, UNIT **unit)
 			_n = (int)strlen(result);
 		}
 	}
-	CATCH (const char *msg) {
+	catch (const char *msg) 
+	{
 		linenum=_l;
 		_n = 0;
 	}
-	ENDCATCH
 	DONE;
 }
 
@@ -1441,11 +1449,11 @@ static int hostname(PARSER, char *result, int size)
 	DONE;
 }
 
-static int delim_value(PARSER, char *result, int size, char *delims)
+static int delim_value(PARSER, char *result, int size, const char *delims)
 {
 	/* everything to any of delims */
 	int quote=0;
-	char *start=_p;
+	const char *start=_p;
 	START;
 	if (*_p=='"')
 	{
@@ -1464,7 +1472,7 @@ static int delim_value(PARSER, char *result, int size, char *delims)
 static int structured_value(PARSER, char *result, int size)
 {
 	int depth=0;
-	char *start=_p;
+	const char *start=_p;
 	START;
 	if (*_p!='{') return 0;
 	while (size>1 && *_p!='\0' && !(*_p=='}'&&depth==1) ) 
@@ -1482,7 +1490,7 @@ static int value(PARSER, char *result, int size)
 {
 	/* everything to a semicolon */
 	char delim=';';
-	char *start=_p;
+	const char *start=_p;
 	int quote=0;
 	START;
 	if ( *_p=='{' ) 
@@ -1683,7 +1691,7 @@ static int real_value(PARSER, double *value)
 
 static int functional(PARSER, double *pValue)
 {
-	char32 fname;
+	char fname[32];
 	START;
 	if WHITE ACCEPT;
 	if (LITERAL("random.") && TERM(name(HERE,fname,sizeof(fname))))
@@ -1844,7 +1852,7 @@ struct s_rpn {
 };
 
 struct s_rpn_func {
-	char *name;
+	const char *name;
 	int args; /* use a mode instead? else assume only doubles */
 	int index;
 	double (*fptr)(double);
@@ -2185,45 +2193,45 @@ static int complex_value(PARSER, complex *pValue)
 	START;
 	if ((WHITE,TERM(real_value(HERE,&r))) && (WHITE,TERM(real_value(HERE,&i))) && LITERAL("i"))
 	{
-		pValue->r = r;
-		pValue->i = i;
-		pValue->f = I;
+		pValue->Re() = r;
+		pValue->Im() = i;
+		pValue->Notation() = I;
 		ACCEPT;
 		DONE;
 	}
 	OR
 	if ((WHITE,TERM(real_value(HERE,&r))) && (WHITE,TERM(real_value(HERE,&i))) && LITERAL("j"))
 	{
-		pValue->r = r;
-		pValue->i = i;
-		pValue->f = J;
+		pValue->Re() = r;
+		pValue->Im() = i;
+		pValue->Notation() = J;
 		ACCEPT;
 		DONE;
 	}
 	OR
 	if ((WHITE,TERM(real_value(HERE,&m))) && (WHITE,TERM(real_value(HERE,&a))) && LITERAL("d"))
 	{
-		pValue->r = m*cos(a*PI/180);
-		pValue->i = m*sin(a*PI/180);
-		pValue->f = A;
+		pValue->Re() = m*cos(a*PI/180);
+		pValue->Im() = m*sin(a*PI/180);
+		pValue->Notation() = A;
 		ACCEPT;
 		DONE;
 	}
 	OR
 	if ((WHITE,TERM(real_value(HERE,&m))) && (WHITE,TERM(real_value(HERE,&a))) && LITERAL("r"))
 	{
-		pValue->r = m*cos(a);
-		pValue->i = m*sin(a);
-		pValue->f = R;
+		pValue->Re() = m*cos(a);
+		pValue->Im() = m*sin(a);
+		pValue->Notation() = R;
 		ACCEPT;
 		DONE;
 	} 
 	OR
 	if ((WHITE,TERM(real_value(HERE,&m))))
 	{
-		pValue->r = m;
-		pValue->i = 0.0;
-		pValue->f = I;
+		pValue->Re() = m;
+		pValue->Im() = 0.0;
+		pValue->Notation() = I;
 		ACCEPT;
 		DONE;
 	}
@@ -2413,7 +2421,7 @@ double load_longitude(char *buffer)
 static int clock_properties(PARSER)
 {
 	TIMESTAMP tsval;
-	char32 timezone;
+	char timezone[64];
 	double realval;
 	START;
 	if WHITE ACCEPT;
@@ -2515,7 +2523,7 @@ static int pathname(PARSER, char *path, int size)
  **/
 static OBJECT *current_object = NULL; /* context object */
 static MODULE *current_module = NULL; /* context module */
-static int expanded_value(char *text, char *result, int size, char *delims)
+static int expanded_value(const char *text, char *result, int size, const char *delims)
 {
 	int n=0;
 	if (text[n] == '`')
@@ -2751,9 +2759,9 @@ static int clock_block(PARSER)
 static int module_properties(PARSER, MODULE *mod)
 {
 	int64 val;
-	char classname[MAXCLASSNAMELEN+1];
-	char256 propname;
-	char256 propvalue;
+	char classname[MAXCLASSNAMELEN];
+	char propname[MAXPROPNAMELEN];
+	char propvalue[MAXPROPERTYVALUELEN];
 	START;
 	if WHITE ACCEPT;
 	if (LITERAL("major") && (WHITE))
@@ -2946,7 +2954,7 @@ static int property_specs(PARSER, KEYWORD **keys)
 	if WHITE ACCEPT;
 	if ( TERM(name(HERE,keyname,sizeof(keyname))) && (WHITE,LITERAL("=")) && TERM(integer32(HERE,&keyvalue)))
 	{
-		*keys = malloc(sizeof(KEYWORD));
+		*keys = (KEYWORD*)malloc(sizeof(KEYWORD));
 		(*keys)->next = NULL;
 		if WHITE ACCEPT;
 		if LITERAL(",") ACCEPT;
@@ -2963,7 +2971,7 @@ static int property_specs(PARSER, KEYWORD **keys)
 
 static int property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
 {
-	char32 type;
+	char type[32];
 	START;
 	if WHITE ACCEPT;
 	if TERM(name(HERE,type,sizeof(type)))
@@ -2988,7 +2996,7 @@ static int property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
 	DONE;
 }
 
-static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function, char **ftype, char **fname)
+static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function, const char **ftype, const char **fname)
 {
 	char buffer[1024];
 	START;
@@ -3216,8 +3224,8 @@ static int source_code(PARSER, char *code, int size)
 
 static int class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, char *code, int size)
 {
-	char *fname = NULL;
-	char *ftype = NULL;
+	const char *fname = NULL;
+	const char *ftype = NULL;
 	char arglist[1024];
 	char source[65536];
 	int startline;
@@ -3826,21 +3834,21 @@ static int property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *fro
 			}
 			else if (prop->ptype==PT_loadshape)
 			{
-				loadshape *ls = (void*)object_get_addr(obj,pname);
+				loadshape *ls = (loadshape*)object_get_addr(obj,pname);
 				*ref = &(ls->load);
 				*xstype = XS_LOADSHAPE;
 				ACCEPT;
 			}
 			else if (prop->ptype==PT_enduse)
 			{
-				enduse *eu = (void*)object_get_addr(obj,pname);
-				*ref = &(eu->total.r);
+				enduse *eu = (enduse*)object_get_addr(obj,pname);
+				*ref = &(eu->total.Re());
 				*xstype = XS_ENDUSE;
 				ACCEPT;
 			}
 			else if ( prop->ptype==PT_random )
 			{
-				randomvar *rv = (void*)object_get_addr(obj,pname);
+				randomvar *rv = (randomvar*)object_get_addr(obj,pname);
 				*ref = &(rv->value);
 				*xstype = XS_RANDOMVAR;
 				ACCEPT;
@@ -4002,7 +4010,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
 	char propname[64];
-	char1024 propval;
+	char propval[1024];
 	double dval;
 	complex cval;
 	void *source=NULL;
@@ -4123,7 +4131,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_complex_by_name(obj,propname,cval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to complex value '%g%+gi'", filename, linenum, propname, format_object(obj), cval.r, cval.i);
+					output_error_raw("%s(%d): property %s of %s %s could not be set to complex value '%g%+gi'", filename, linenum, propname, format_object(obj), cval.Re(), cval.Im());
 					REJECT;
 				}
 				else
@@ -4211,7 +4219,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				void *target = (void*)((char*)(obj+1) + (int64)prop->addr);
 
 				/* add the transform list */
-				if (!transform_add_linear(xstype,source,target,scale,bias,obj,prop,(xstype == XS_SCHEDULE ? source : 0)))
+				if (!transform_add_linear(xstype,(double*)source,target,scale,bias,obj,prop,(xstype == XS_SCHEDULE ? (SCHEDULE*)source : 0)))
 				{
 					output_error_raw("%s(%d): schedule transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
 					REJECT;
@@ -4726,8 +4734,8 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 
 static int import(PARSER)
 {
-	char32 modname;
-	char1024 fname;
+	char modname[32];
+	char fname[1024];
 	START;
 	if WHITE ACCEPT;
 	if (LITERAL("import") && WHITE) /* enforced whitespace */
@@ -4785,10 +4793,10 @@ static int import(PARSER)
 	DONE
 }
 
-static int export(PARSER)
+static int export_model(PARSER)
 {
-	char32 modname;
-	char1024 fname;
+	char modname[32];
+	char fname[1024];
 	START;
 	if WHITE ACCEPT;
 	if (LITERAL("export") && WHITE) /* enforced whitespace */
@@ -5336,10 +5344,10 @@ static int gui_entity_type(PARSER, GUIENTITYTYPE *type)
 static int gui_entity(PARSER, GUIENTITY *parent)
 {
 	//char buffer[1024];
-	int type;
+	GUIENTITYTYPE type;
 	START;
 	if WHITE ACCEPT;
-	if TERM(gui_entity_type(HERE,(GUIENTITYTYPE *)&type))
+	if TERM(gui_entity_type(HERE,&type))
 	{ 
 		GUIENTITY *entity = gui_create_entity();
 		gui_set_type(entity,type);
@@ -5980,7 +5988,7 @@ static int gridlabd_file(PARSER)
 	OR if TERM(module_block(HERE)) {ACCEPT; DONE;}
 	OR if TERM(clock_block(HERE)) {ACCEPT; DONE;}
 	OR if TERM(import(HERE)) {ACCEPT; DONE; }
-	OR if TERM(export(HERE)) {ACCEPT; DONE; }
+	OR if TERM(export_model(HERE)) {ACCEPT; DONE; }
 	OR if TERM(library(HERE)) {ACCEPT; DONE; }
 	OR if TERM(schedule(HERE)) {ACCEPT; DONE; }
 	OR if TERM(instance_block(HERE)) {ACCEPT; DONE; }
@@ -6259,10 +6267,10 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 	unsigned int old_linenum = _linenum;
 	/* check include list */
 	INCLUDELIST *list;
-	INCLUDELIST *this = (INCLUDELIST *)malloc(sizeof(INCLUDELIST));//={incname,include_list}; /* REALLY BAD IDEA ~~ "this" is a reserved C++ keyword */
+	INCLUDELIST *my = (INCLUDELIST *)malloc(sizeof(INCLUDELIST));//={incname,include_list}; /* REALLY BAD IDEA ~~ "this" is a reserved C++ keyword */
 
-	strcpy(this->file, incname);
-	this->next = include_list;
+	strcpy(my->file, incname);
+	my->next = include_list;
 
 	buffer2[0]=0;
 	
@@ -6287,8 +6295,8 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 					return 0;
 				}
 			}
-			this->next = header_list;
-			header_list = this;
+			my->next = header_list;
+			header_list = my;
 		}
 	} else { /* no extension */
 		for (list = header_list; list != NULL; list = list->next){
@@ -6297,8 +6305,8 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 				return 0;
 			}
 		}
-		this->next = header_list;
-		header_list = this;
+		my->next = header_list;
+		header_list = my;
 	}
 
 	/* open file */
@@ -6336,7 +6344,7 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 	IN_MYCONTEXT output_verbose("%s(%d): included file is %d bytes long", incname, old_linenum, stat.st_size);
 
 	/* reset line counter for parser */
-	include_list = this;
+	include_list = my;
 	//count = buffer_read(fp,buffer,incname,size); // fread(buffer,1,stat.st_size,fp);
 
 	move = buffer_read_alt(fp, buffer2, incname, 20479);
@@ -6358,7 +6366,7 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 		move = buffer_read_alt(fp, buffer2, incname, 20479);
 	}
 
-	//include_list = this.next;
+	//include_list = my.next;
 
 	linenum = old_linenum;
 	fclose(fp);
@@ -6435,7 +6443,7 @@ void* start_process(const char *cmd)
 	static bool first = true;
 	pthread_t *pThreadInfo = (pthread_t*)malloc(sizeof(pthread_t));
 	struct s_threadlist *thread = (struct s_threadlist*)malloc(sizeof(struct s_threadlist));
-	char *args = malloc(strlen(cmd)+1);
+	char *args = (char*)malloc(strlen(cmd)+1);
 	strcpy(args,cmd);
 	if ( thread==NULL || pThreadInfo==NULL || pthread_create(pThreadInfo,NULL,(void*(*)(void*))system,args)!=0 )
 	{
@@ -7124,7 +7132,7 @@ STATUS loadall_glm(char *file) /**< a pointer to the first character in the file
 	{
 		modtime = stat.st_mtime;
 		fsize = stat.st_size;
-		buffer = malloc(BUFFERSIZE); /* lots of space */
+		buffer = (char*)malloc(BUFFERSIZE); /* lots of space */
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	if (buffer==NULL)
@@ -7189,8 +7197,10 @@ Done:
 }
 
 /**/
-STATUS loadall_glm_roll(char *file) /**< a pointer to the first character in the file name string */
+STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character in the file name string */
 {
+	char file[1024];
+	strcpy(file,fname);
 	OBJECT *obj, *first = object_get_first();
 	//char *buffer = NULL, *p = NULL;
 	char *p = NULL;
@@ -7247,8 +7257,15 @@ STATUS loadall_glm_roll(char *file) /**< a pointer to the first character in the
 		char *eol = NULL;
 		if(p){
 			eol = strchr(p,'\n');
-		} else {
-			p = "";
+		} 
+		else 
+		{
+			static char *nulstr = NULL;
+			if ( nulstr == NULL )
+			{
+				nulstr = strdup("");
+			}
+			p = nulstr;
 		}
 		if (eol!=NULL){
 			*eol='\0';
@@ -7288,7 +7305,7 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
 	CLASS *oclass;
 
 	// start optimistically 
-	technology_readiness_level = TRL_PROVEN; 
+	TECHNOLOGYREADINESSLEVEL technology_readiness_level = TRL_PROVEN; 
 	
 	// examine each class loaded
 	for ( oclass=class_get_first_class() ; oclass!=NULL ; oclass=oclass->next )
@@ -7311,9 +7328,15 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
 	@todo Rollback the model data if the load failed (ticket #32)
 	@todo Support nested loads and maintain context during subloads (ticket #33)
  **/
-STATUS loadall(const char *file){
+STATUS loadall(const char *fname)
+{
+	char file[1024] = "";
+	if ( fname )
+	{
+		strcpy(file,fname);
+	}
 	char *buffer = NULL, *p = NULL;
-	char *ext = file?strrchr(file,'.'):NULL;
+	char *ext = fname ? strrchr(file,'.') : NULL ;
 	unsigned int old_obj_count = object_get_count();
 	unsigned int new_obj_count = 0;
 //	unsigned int i;
@@ -7340,7 +7363,7 @@ STATUS loadall(const char *file){
 				Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
 			 */
 		else{
-			sprintf(filename, "gridlabd.conf");
+			strcpy(filename, "gridlabd.conf");
 			if(loadall_glm_roll(conf)==FAILED){
 				return FAILED;
 			}
@@ -7364,7 +7387,7 @@ STATUS loadall(const char *file){
 	}
 
 	/* if nothing requested only config files are loaded */
-	if ( file==NULL )
+	if ( fname == NULL )
 		return SUCCESS;
 
 	/* handle default extension */
