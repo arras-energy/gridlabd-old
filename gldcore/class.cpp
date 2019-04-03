@@ -996,7 +996,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 				prop->addr = 0;
 				prop->method = (METHODCALL)addr;
 			}
-			prop->default_value = property_getspec(proptype)->default_value;
+			prop->default_value = property_getdefault(proptype);
 
 			/* attach to property list */
 			class_add_property(oclass,prop);

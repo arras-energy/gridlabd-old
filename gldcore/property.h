@@ -114,8 +114,8 @@ public:
 		return *data[n];
 	}
 };
-class double_array {
-private:
+class double_array { // TODO: make this a template class
+public: // TODO make this private
 #else
 typedef struct s_doublearray {
 #endif
@@ -576,8 +576,8 @@ public:
 #ifndef __cplusplus
 typedef struct s_complexarray {
 #else
-class complex_array {
-private:
+class complex_array { // TODO: make this a template class
+public:
 #endif
 	size_t n, m;
 	size_t max; /** current allocation size max x max */
@@ -943,7 +943,7 @@ typedef struct s_property_map {
 	FUNCTIONADDR notify;
 	METHODCALL method; /**< method call, addr must be 0 */
 	bool notify_override;
-	void *default_value; /**< default value to use when creating objects; NULL is memset(0) is desired (default default) */
+	const char *default_value; /**< default value to use when creating objects; NULL is memset(0) is desired (default default) */
 } PROPERTY; /**< property definition item */
 
 typedef struct s_property_struct {
@@ -973,9 +973,9 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 								It is critical that the order of entries in this list must match 
 								the order of entries in the enumeration #PROPERTYTYPE 
 						  **/
-	char *name; /**< the property type name */
-	char *xsdname;
-	char *default_value;
+	const char *name; /**< the property type name */
+	const char *xsdname;
+	const char *default_value;
 	unsigned int size; /**< the size of 1 instance */
 	unsigned int csize; /**< the minimum size of a converted instance (not including '\0' or unit, 0 means a call to property_minimum_buffersize() is necessary) */ 
 	int (*data_to_string)(char *,int,void*,PROPERTY*); /**< the function to convert from data to a string */
@@ -1012,6 +1012,7 @@ extern "C" {
 
 int property_check(void);
 PROPERTYSPEC *property_getspec(PROPERTYTYPE ptype);
+const char *property_getdefault(PROPERTYTYPE ptype);
 PROPERTYTYPE property_getfirst_type(void);
 PROPERTYTYPE property_getnext_type(PROPERTYTYPE ptype);
 PROPERTY *property_malloc(PROPERTYTYPE, CLASS *, const char *, void *, DELEGATEDTYPE *);
@@ -1021,7 +1022,7 @@ size_t property_minimum_buffersize(PROPERTY *);
 int property_create(PROPERTY *, void *);
 bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, const char *part);
 PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, const char *opstr);
-PROPERTYTYPE property_get_type(char *name);
+PROPERTYTYPE property_get_type(const char *name);
 double property_get_part(struct s_object_list *obj, PROPERTY *prop, const char *part);
 bool property_is_default(struct s_object_list *obj, PROPERTY *prop);
 void *property_addr(struct s_object_list *obj, PROPERTY *prop);

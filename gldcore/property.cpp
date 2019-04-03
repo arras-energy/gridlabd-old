@@ -29,6 +29,8 @@
 
 SET_MYCONTEXT(DMC_PROPERTY)
 
+double complex_get_part(void *x, const char *name);
+
 /* IMPORTANT: this list must match PROPERTYTYPE enum in property.h */
 PROPERTYSPEC property_type[_PT_LAST] = {
 	{"void", "string", NULL, 0, 0, convert_from_void,convert_to_void},
@@ -71,6 +73,10 @@ PROPERTYSPEC *property_getspec(PROPERTYTYPE ptype)
 {
 	return &(property_type[ptype]);
 }
+const char *property_getdefault(PROPERTYTYPE ptype)
+{
+	return property_type[ptype].default_value;
+}
 
 /** Check whether the properties as defined are mapping safely to memory
     @return 0 on failure, 1 on success
@@ -79,7 +85,7 @@ int property_check(void)
 {
 	PROPERTYTYPE ptype;
 	int status = 1;
-	for ( ptype=_PT_FIRST+1 ; ptype<_PT_LAST ; ptype++ )
+	for ( ptype = _PT_FIRST ; ptype < _PT_LAST ; ptype = PROPERTYTYPE(ptype+1) )
 	{
 		size_t sz = 0;
 		switch (ptype) {
@@ -316,10 +322,10 @@ size_t property_minimum_buffersize(PROPERTY *prop)
 
 PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, const char *opstr)
 {
-	int n;
-	for ( n=0; n<_TCOP_LAST; n++)
+	PROPERTYCOMPAREOP n;
+	for ( n = _TCOP_FIRST ; n < _TCOP_LAST ; n = PROPERTYCOMPAREOP(n+1) )
 	{
-		if (strcmp(property_type[ptype].compare[n].str,opstr)==0)
+		if ( strcmp(property_type[ptype].compare[n].str,opstr) == 0 )
 		{
 			return n;
 		}
@@ -350,10 +356,10 @@ bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, v
 	}
 }
 
-PROPERTYTYPE property_get_type(char *name)
+PROPERTYTYPE property_get_type(const char *name)
 {
 	PROPERTYTYPE ptype;
-	for ( ptype = _PT_FIRST+1 ; ptype<_PT_LAST ; ptype++ )
+	for ( ptype = _PT_FIRST ; ptype < _PT_LAST ; ptype = PROPERTYTYPE(ptype+1) )
 	{
 		if ( strcmp(property_type[ptype].name,name)==0)
 			return ptype;
@@ -415,23 +421,23 @@ double complex_get_part(void *x, const char *name)
 	complex *c = (complex*)x;
 	if ( strcmp(name,"real")==0) 
 	{
-		return c->r;
+		return c->Re();
 	}
 	if ( strcmp(name,"imag")==0) 
 	{
-		return c->i;
+		return c->Im();
 	}
 	if ( strcmp(name,"mag")==0) 
 	{
-		return complex_get_mag(*c);
+		return c->Mag();
 	}
 	if ( strcmp(name,"arg")==0) 
 	{
-		return complex_get_arg(*c);
+		return c->Arg();
 	}
 	if ( strcmp(name,"ang")==0) 
 	{
-		return (complex_get_arg(*c)*180/PI);
+		return c->Ang();
 	}
 	return QNAN;
 }
@@ -569,11 +575,11 @@ double complex_array_get_part(void *x, const char *name)
 		{
 			if ( strcmp(subpart,"real")==0 ) 
 			{
-				return a->x[n][m]->r;
+				return a->x[n][m]->Re();
 			}
 			else if ( strcmp(subpart,"imag")==0 ) 
 			{
-				return a->x[n][m]->i;
+				return a->x[n][m]->Im();
 			}
 			else 
 			{
