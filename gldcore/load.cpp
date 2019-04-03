@@ -993,13 +993,7 @@ static void free_index(void)
 static UNRESOLVED *first_unresolved = NULL;
 /*static*/ UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags)
 {
-	UNRESOLVED *item;
-	if ( strlen(id)>=sizeof(item->id))
-	{
-		output_error("add_unresolved(...): id '%s' is too long to resolve", id);
-		return NULL;
-	}
-	item = (UNRESOLVED*)malloc(sizeof(UNRESOLVED));
+	UNRESOLVED *item = (UNRESOLVED*)malloc(sizeof(UNRESOLVED));
 	if (item==NULL) { errno = ENOMEM; return NULL; }
 	item->by = by;
 	item->ptype = ptype;
