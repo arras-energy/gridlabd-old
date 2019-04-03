@@ -1263,7 +1263,7 @@ DELEGATEDTYPE *class_register_type(CLASS *oclass, /**< the object class */
 	if (dt!=NULL)
 	{
 		dt->oclass = oclass;
-		strncpy(dt->type,type,sizeof(dt->type));
+		dt->type = strdup(type);
 		dt->from_string = (int (*)(void*,const char*))from_string;
 		dt->to_string = to_string;
 	}

@@ -799,7 +799,7 @@ typedef unsigned char bool;
  */
 typedef struct s_delegatedtype
 {
-	char32 type; /**< the name of the delegated type */
+	const char *type; /**< the name of the delegated type */
 	CLASS *oclass; /**< the class implementing the delegated type */
 	int (*from_string)(void *addr, const char *value); /**< the function that converts from a string to the data */
 	int (*to_string)(void *addr, char *value, int size); /**< the function that converts from the data to a string */

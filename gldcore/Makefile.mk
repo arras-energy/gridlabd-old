@@ -47,8 +47,7 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/main.cpp gldcore/main.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/match.cpp gldcore/match.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/matlab.cpp gldcore/matlab.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/module.cpp gldcore/module.h
-GLD_SOURCES_PLACE_HOLDER += gldcore/object.c
-GLD_SOURCES_PLACE_HOLDER += gldcore/object.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/object.cpp gldcore/object.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/output.cpp gldcore/output.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/platform.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/property.cpp gldcore/property.h
@@ -72,8 +71,8 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/validate.cpp gldcore/validate.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/version.cpp gldcore/version.h
 
 GLD_SOURCES_EXTRA_PLACE_HOLDER =
-GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.c
-GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.h
+GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.c gldcore/cmex.h
+GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/ufile.c gldcore/ufile.h
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
 if HAVE_MINGW

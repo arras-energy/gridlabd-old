@@ -74,7 +74,7 @@ KEYWORD oflags[] = {
 int object_get_oflags(KEYWORD **extflags){
 	int flag_size = sizeof(oflags);
 	
-	*extflags = module_malloc(flag_size);
+	*extflags = (KEYWORD*)module_malloc(flag_size);
 	
 	if(extflags == NULL){
 		output_error("object_get_oflags: malloc failure");
@@ -149,7 +149,7 @@ PROPERTY *object_get_property(OBJECT *obj, /**< a pointer to the object */
 		if ( !part ) return NULL; /* no part, no result */
 		
 		/* part is apparently valid */
-		*part++='\0';
+		*part++ = '\0';
 
 		/* check the root */
 		prop = class_find_property(obj->oclass, root);
@@ -182,7 +182,7 @@ int object_build_object_array(){
 		object_array = NULL;
 	}
 	
-	object_array = malloc(sizeof(OBJECT *) * tcount);
+	object_array = (OBJECT**)malloc(sizeof(OBJECT *) * tcount);
 	
 	if(object_array == NULL){
 		return 0;
@@ -1803,7 +1803,7 @@ int object_dump(char *outbuffer, /**< the destination buffer */
 		const char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
 		if ( value != NULL )
 		{
-			count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
+			count += sprintf(buffer + count, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
 			if(count > size){
 				throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
 				/* TROUBLESHOOT
@@ -1822,7 +1822,7 @@ int object_dump(char *outbuffer, /**< the destination buffer */
 		{
 			const char *value = object_property_to_string(obj, prop->name, tmp2, 1023);
 			if(value != NULL){
-				count += sprintf(buffer + count, "\t%s %s = %s;\n", prop->ptype == PT_delegated ? prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
+				count += sprintf(buffer + count, "\t%s %s = %s;\n", (prop->ptype == PT_delegated) ? (const char*)prop->delegation->type : class_get_property_typename(prop->ptype), prop->name, value);
 				if(count > size){
 					throw_exception("object_dump(char *buffer=%x, int size=%d, OBJECT *obj=%s:%d) buffer overrun", outbuffer, size, obj->oclass->name, obj->id);
 					/* TROUBLESHOOT
@@ -1871,7 +1871,7 @@ static int object_save_x(char *temp, int size, OBJECT *obj, CLASS *oclass)
 int object_save(char *buffer, int size, OBJECT *obj)
 {
 	char temp[65536];
-	char32 oname="";
+	char oname[MAXOBJECTNAMELEN] = "";
 	CLASS *pclass;
 	int count = sprintf(temp,"object %s:%d {\n\n\t// header properties\n", obj->oclass->name, obj->id);
 
@@ -2055,7 +2055,7 @@ int object_saveall_xml(FILE *fp){ /**< the stream to write to */
 	CLASS *oclass = NULL;
 
 	for(obj = first_object; obj != NULL; obj = obj->next){
-		char32 oname = "(unidentified)";
+		char oname[MAXOBJECTNAMELEN] = "(unidentified)";
 		convert_from_object(oname, sizeof(oname), &obj, NULL); /* what if we already have a name? -mh */
 		if((oclass == NULL) || (obj->oclass != oclass)){
 			oclass = obj->oclass;
@@ -2120,7 +2120,7 @@ int object_saveall_xml_old(FILE *fp){ /**< the stream to write to */
 
 		for (obj = first_object; obj != NULL; obj = obj->next){
 			PROPERTY *prop = NULL;
-			char32 oname = "(unidentified)";
+			char oname[MAXOBJECTNAMELEN] = "(unidentified)";
 
 			convert_from_object(oname, sizeof(oname), &obj, NULL);
 			
@@ -2573,7 +2573,7 @@ NAMESPACE *object_current_namespace()
  **/
 int object_open_namespace(const char *space)
 {
-	NAMESPACE *ns = malloc(sizeof(NAMESPACE));
+	NAMESPACE *ns = (NAMESPACE*)malloc(sizeof(NAMESPACE));
 	if(ns==NULL)
 	{
 		throw_exception("object_open_namespace(const char *space='%s'): memory allocation failure", space);
@@ -2669,7 +2669,7 @@ FORECAST *forecast_create(OBJECT *obj, const char *specs)
 	FORECAST *fc;
 
 	/* crate forecast entity */
-	fc = malloc(sizeof(FORECAST));
+	fc = (FORECAST*)malloc(sizeof(FORECAST));
 	if ( fc==NULL ) 
 		throw_exception("forecast_create(): memory allocation failed");
 		/* TROUBLESHOOT
@@ -2743,7 +2743,7 @@ void forecast_save(FORECAST *fc, TIMESTAMP ts, int32 tstep, int n_values, double
 	if ( fc->n_values != n_values )
 	{
 		if ( fc->values ) free(fc->values);
-		fc->values = malloc( n_values * sizeof(double) );
+		fc->values = (double*)malloc( n_values * sizeof(double) );
 		if ( fc->values == NULL ) 
 			throw_exception("forecast_save(): memory allocation failed");
 			/* TROUBLESHOOT
