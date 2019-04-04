@@ -602,6 +602,7 @@ AC_SUBST([MYSQL_LIBS])
 
 # Verify python version
 AM_PATH_PYTHON(3.6)
+HAVE_PYTHON=$(which python3)
 
 ###############################################################################
 # The End
@@ -638,6 +639,7 @@ AC_MSG_RESULT([
     matlab: ..................... $HAVE_MATLAB
     mysql-connector-c: .......... $HAVE_MYSQL
     curses: ..................... $HAVE_CURSES
+    python: ..................... $HAVE_PYTHON
 
   Atomic Builtins:
 

@@ -14,7 +14,7 @@
 #include "output.h"
 #include "globals.h"
 
-SET_MYCONTEXT(DMC_MATCH)
+// SET_MYCONTEXT(DMC_MATCH) // used only if IN_MYCONTEXT is present in this module
 
 /* match: search for regexp anywhere in text */ 
 int match(const char *regexp, const char *text){

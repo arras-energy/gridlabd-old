@@ -19,7 +19,7 @@
 #include "class.h"
 #include "object.h"
 
-SET_MYCONTEXT(DMC_MATLAB)
+// SET_MYCONTEXT(DMC_MATLAB) // used only if IN_MYCONTEXT is present in this module
 
 STATUS matlab_startup(int argc, const char *argv[])
 {

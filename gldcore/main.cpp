@@ -52,26 +52,28 @@ void GldMain::pause_at_exit(void)
     @returns Exit codes XC_SUCCESS, etc. (see gridlabd.h)
  **/
 GldMain *my_instance = NULL; // TODO: move this to main to make main reentrant
-int
 #ifdef HAVE_PYTHON
-	main_python
+extern "C" int main_python
 #else
-	main
+int main
 #endif
 (	int argc, /**< the number entries on command-line argument list \p argv */
 	const char *argv[]) /**< a list of pointers to the command-line arguments */
 {
-	int return_code;
+	int return_code = XC_SUCCESS;
 	try {
 		my_instance = new GldMain(argc,argv);
 	}
 	catch (const char *msg)
 	{
 		output_fatal("uncaught exception: %s", msg);
-		return errno;
+		return_code = errno ? errno : XC_SHFAILED;
 	}
 	if ( my_instance == NULL )
+	{
 		output_error("unable to create new instance");
+		return_code = XC_SHFAILED;	
+	}
 	else
 	{
 		try {
@@ -80,7 +82,7 @@ int
 		catch (const char *msg)
 		{
 			output_fatal("uncaught exception: %s", msg);
-			return errno;
+			return_code = errno ? errno : XC_SHFAILED;
 		}
 		delete my_instance;
 		my_instance = NULL;

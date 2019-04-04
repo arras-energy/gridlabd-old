@@ -1296,7 +1296,6 @@ int object_set_rank(OBJECT *obj, /**< the object to set */
 int object_set_parent(OBJECT *obj, /**< the object to set */
 					  OBJECT *parent) /**< the new parent of the object */
 {
-	int prank = -1;
 	if(obj == NULL)
 		return obj->rank;
 	if(obj == parent)
@@ -1493,14 +1492,15 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 	return obj->valid_to;
 }
 
-int object_event(OBJECT *obj, char *event)
+int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 {
 	char function[1024];
 	if ( sscanf(event,"python:%s",function) ==  1 )
 	{
 #ifdef HAVE_PYTHON
-		extern int python_event(OBJECT *obj, const char *);
-		return python_event(obj,function);
+		// implemented in gldcore/link/python/python.cpp
+		extern int python_event(OBJECT *obj, const char *, long long *);
+		return python_event(obj,function,p_retval) ? 0 : 255;
 #else
 		output_error("python system not linked, event '%s' is not callable", event);
 		return -1;
@@ -1563,7 +1563,7 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		break;
 	}
 	if ( event != NULL )
-		rc = object_event(obj,event);
+		rc = object_event(obj,event,&t2);
 
 	/* do profiling, if needed */
 	if ( global_profiler==1 )
@@ -1616,10 +1616,11 @@ int object_init(OBJECT *obj) /**< the object to initialize */
 		rv = (int)(*(obj->oclass->init))(obj, obj->parent);
 	if ( rv == 1 && obj->events.init != NULL )
 	{
-		int rc = object_event(obj,obj->events.init);
-		if ( rc != 0 )
+		long long ok = 0;
+		int rc = object_event(obj,obj->events.init,&ok);
+		if ( rc != 0 || ok != 0 )
 		{
-			output_error("object %s:%d init at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d init at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,ok);
 			rv = 0;
 		}
 	}
@@ -1659,10 +1660,11 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	}
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
-		int rc = object_event(obj,obj->events.precommit);
-		if ( rc != 0 )
+		long long ok = 0;
+		int rc = object_event(obj,obj->events.precommit,&ok);
+		if ( rc != 0 || ok != 0 )
 		{
-			output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d precommit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,ok);
 			rv = FAILED;
 		}
 	}
@@ -1693,10 +1695,10 @@ TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 	} 
 	if ( obj->events.commit != NULL )
 	{
-		int rc = object_event(obj,obj->events.commit);
-		if ( rc != 0 )
+		int rc = object_event(obj,obj->events.commit,&rv);
+		if ( rc != 0 || rv == TS_INVALID )
 		{
-			output_error("object %s:%d commit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d commit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,rv);
 			rv = TS_INVALID;
 		}
 	}
@@ -2285,7 +2287,7 @@ typedef unsigned long long HASH;
 
 static HASH hash(OBJECTNAME name)
 {
-	static HASH A = 55711, B = 45131, C = 60083;
+	static HASH A = 55711, B = 45131; //, C = 60083; isn't used but should be in principle
 	HASH h = 18443;
 	const char *p;
 	bool ok = true;
@@ -2386,13 +2388,13 @@ static OBJECTTREE *object_tree_add(OBJECT *obj, OBJECTNAME name)
 
 /*	Finds a name in the tree
  */
-static OBJECTTREE *findin_tree(OBJECTTREE *tree, OBJECTNAME name)
+static OBJECTTREE *findin_tree(OBJECTNAME name)
 {
 	HASH h = hash(name);
 	OBJECTTREE *item = hash_find(h,name);
 	if ( global_debug_output )
 	{
-		IN_MYCONTEXT output_debug("findin_tree(OBJECTTREE *tree=%p, OBJECTNAME name='%s'): item=%p", tree, name, item);
+		IN_MYCONTEXT output_debug("findin_tree(OBJECTNAME name='%s'): item=%p", name, item);
 	}
 	return item;
 }
@@ -2425,8 +2427,39 @@ void object_tree_delete(OBJECT *obj, OBJECTNAME name)
  **/
 OBJECT *object_find_name(OBJECTNAME name)
 {
-	OBJECTTREE *item = findin_tree(NULL, name);
-	return item == NULL ? NULL : item->obj;
+	char oclass[64];
+	unsigned int id;
+	if ( sscanf(name,"%63[^:]:%u",oclass,&id) == 2 )
+	{
+		OBJECT *obj = object_find_by_id(id);
+		if ( obj == NULL )
+		{
+			IN_MYCONTEXT output_debug("object_find_name(name='%s') object id %lu not found", name, id);
+			return NULL;
+		}
+		else if ( oclass[0] != '\0' && strcmp(obj->oclass->name,oclass) != 0 ) // allows ":id" syntax to ignore class name and find by id only
+		{
+			IN_MYCONTEXT output_debug("object_find_name(name='%s') id %s:%lu not of class '%s'", name, obj->oclass->name, id, oclass);
+			return NULL;
+		}
+		else
+		{
+			return obj;
+		}
+	}
+	else 
+	{
+		OBJECTTREE *item = findin_tree(name);
+		if ( item == NULL )
+		{
+			IN_MYCONTEXT output_debug("object_find_name(name='%s') name '%s' not found in tree", name, name);
+			return NULL;
+		}
+		else
+		{
+			return item->obj;
+		}
+	}
 }
 
 int object_build_name(OBJECT *obj, char *buffer, int len){

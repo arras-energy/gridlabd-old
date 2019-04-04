@@ -2,7 +2,7 @@
 #include "output.h"
 #include "globals.h"
 
-SET_MYCONTEXT(DMC_INTERPOLATE)
+// SET_MYCONTEXT(DMC_INTERPOLATE) // use only is IN_MYCONTEXT appears in this module
 
 double interpolate_linear(double t, double x0, double y0, double x1, double y1)
 {

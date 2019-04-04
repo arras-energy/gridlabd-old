@@ -176,7 +176,8 @@ extern "C" void rlock(LOCKVAR *lock)
 extern "C" void wlock(LOCKVAR *lock)
 {
 	LOCKVAR timeout = MAXSPIN;
-	LOCKVAR value;	check_lock(lock,true,false);
+	LOCKVAR value;	
+	check_lock(lock,true,false);
 	atomic_increment(&my_instance->exec.wlock_count);
 	do {
 		value = (*lock);
@@ -189,7 +190,6 @@ extern "C" void wlock(LOCKVAR *lock)
  **/
 extern "C" void runlock(LOCKVAR *lock)
 {
-	LOCKVAR value = *lock;
 	check_lock(lock,false,true);
 	atomic_increment(lock);
 }
@@ -197,7 +197,6 @@ extern "C" void runlock(LOCKVAR *lock)
  **/
 extern "C" void wunlock(LOCKVAR *lock)
 {
-	LOCKVAR value = *lock;
 	check_lock(lock,true,true);
 	atomic_increment(lock);
 }

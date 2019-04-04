@@ -57,7 +57,7 @@
 #include "exception.h"
 #include "output.h"
 
-SET_MYCONTEXT(DMC_EXCEPTION)
+// SET_MYCONTEXT(DMC_EXCEPTION) // only needed if contexts are used
 
 EXCEPTIONHANDLER *handlers = NULL;
 
@@ -67,7 +67,8 @@ EXCEPTIONHANDLER *handlers = NULL;
 EXCEPTIONHANDLER *create_exception_handler(void)
 {
 	EXCEPTIONHANDLER *ptr = (EXCEPTIONHANDLER*)malloc(sizeof(EXCEPTIONHANDLER));
-	if(ptr == NULL){
+	if ( ptr == NULL )
+	{
 		output_fatal("create_exception_handler(): malloc failure");
 		return NULL;
 	}
@@ -83,7 +84,8 @@ EXCEPTIONHANDLER *create_exception_handler(void)
 void delete_exception_handler(EXCEPTIONHANDLER *ptr) /**< a pointer to the exception handler */
 {
 	EXCEPTIONHANDLER *target;
-	if(ptr == NULL){
+	if ( ptr == NULL )
+	{
 		output_fatal("delete_exception_handler(): ending an exception handler block where no exception handler was present");
 		return;
 	}

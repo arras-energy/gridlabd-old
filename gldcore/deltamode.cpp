@@ -473,7 +473,7 @@ DT delta_update(void)
 	return seconds_advance;
 }
 
-static DT delta_preupdate(void)
+DT delta_preupdate(void)
 {
 	clock_t t = clock();
 	DT timestep = global_deltamode_timestep;
@@ -496,7 +496,7 @@ static DT delta_preupdate(void)
 	return timestep;
 }
 
-static SIMULATIONMODE delta_interupdate(DT timestep,unsigned int iteration_count_val)
+SIMULATIONMODE delta_interupdate(DT timestep,unsigned int iteration_count_val)
 {
 	clock_t t = clock();
 	SIMULATIONMODE mode = SM_EVENT;
@@ -526,7 +526,7 @@ static SIMULATIONMODE delta_interupdate(DT timestep,unsigned int iteration_count
 	return mode;
 }
 
-static SIMULATIONMODE delta_clockupdate(DT timestep, SIMULATIONMODE interupdate_result)
+SIMULATIONMODE delta_clockupdate(DT timestep, SIMULATIONMODE interupdate_result)
 {
 	clock_t t = clock();
 	double nextTime = 0;
@@ -596,7 +596,7 @@ static SIMULATIONMODE delta_clockupdate(DT timestep, SIMULATIONMODE interupdate_
 	return rv;
 }
 
-static STATUS delta_postupdate(void)
+STATUS delta_postupdate(void)
 {
 	clock_t t = clock();
 	MODULE **module;

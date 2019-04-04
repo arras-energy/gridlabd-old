@@ -310,6 +310,41 @@ void throwf(const char *format, ...)
 	throw(buffer);
 }
 
+// TODO: remove when python.cpp is reentrant
+void exec_mls_done(void)
+{
+	my_instance->exec.mls_done();
+}
+void exec_mls_statewait(unsigned states)
+{
+	my_instance->exec.mls_statewait(states);
+}
+void exec_mls_suspend(void)
+{
+	my_instance->exec.mls_suspend();
+}
+void exec_rlock_sync(void)
+{
+	my_instance->exec.rlock_sync();
+}
+
+void exec_runlock_sync(void)
+{
+	my_instance->exec.runlock_sync();
+}
+
+void exec_wlock_sync(void)
+{
+	my_instance->exec.wlock_sync();
+}
+
+void exec_wunlock_sync(void)
+{
+	my_instance->exec.wunlock_sync();
+}
+
+
+
 ////////////////////////////////////////////
 // GldExec implementation
 ////////////////////////////////////////////
@@ -498,8 +533,6 @@ int64 GldExec::clock(void)
 
 int GldExec::init()
 {
-	size_t glpathlen=0;
-
 	/* set thread count equal to processor count if not passed on command-line */
 	if (global_threadcount == 0)
 		global_threadcount = processor_count();
@@ -991,7 +1024,7 @@ STATUS GldExec::init_by_deferral_retry(OBJECT **def_array, int def_ct)
 STATUS GldExec::init_by_deferral()
 {
 	OBJECT **def_array = 0;
-	int i = 0, obj_rv = 0, def_ct = 0;
+	int obj_rv = 0, def_ct = 0;
 	OBJECT *obj = 0;
 	STATUS rv = SUCCESS;
 	char b[64];
@@ -1615,7 +1648,6 @@ void *GldExec::obj_syncproc(OBJSYNCDATA *data)
 		// process the list for this thread
 		for ( s = data->ls, n = 0 ; s != NULL || n < data->nObj ; s = s->next, n++ ) 
 		{
-			OBJECT *obj = (OBJECT*)(s->data);
 			my_instance->exec.ss_do_object_sync(data->n, s->data);
 		}
 
@@ -1643,7 +1675,7 @@ void GldExec::mls_create(void)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_create(): cannot create mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_create(): cannot create mutex after it was destroyed");
 		return;
 	}
 	int rv = 0;
@@ -1668,7 +1700,7 @@ void GldExec::mls_init(void)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_init(): cannot init mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_init(): cannot init mutex after it was destroyed");
 		return;
 	}
 	if (mls_created == 0)
@@ -1685,12 +1717,12 @@ void GldExec::mls_start()
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_start(): cannot start mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_start(): cannot start mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_start(): cannot start mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_start(): cannot start mutex before it was created");
 		return;
 	}
 	int rv = 0;
@@ -1716,12 +1748,12 @@ void GldExec::mls_suspend(void)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_suspend(): cannot suspend mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_suspend(): cannot suspend mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex before it was created");
 		return;
 	}
 	int loopctr = 10;
@@ -1763,12 +1795,12 @@ void GldExec::mls_resume(TIMESTAMP ts)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_resume(): cannot resume mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_resume(): cannot resume mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_resume(): cannot resume mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_resume(): cannot resume mutex before it was created");
 		return;
 	}
 	int rv = 0;
@@ -1797,12 +1829,12 @@ void GldExec::mls_statewait(unsigned states)
 {
 	if ( mls_destroyed )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_statewait(): cannot statewait mutex after it was destroyed");
+		output_debug("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_statewait(): cannot statewait mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex before it was created");
 		return;
 	}
 
@@ -1839,10 +1871,13 @@ void GldExec::mls_statewait(unsigned states)
 void GldExec::mls_done(void)
 {
 	if ( mls_destroyed )
+	{
+		output_debug("gldcore/exec.c/exec_mls_statewait(): cannot destroy mutex after it was destroyed");
 		return;
+	}
 	if ( ! mls_created )
 	{
-		output_error("gldcore/exec.c/GldExec::mls_destroy(): cannot destroy mutex before it was created");
+		output_debug("gldcore/exec.c/exec_mls_destroy(): cannot destroy mutex before it was created");
 		return;
 	}
 	int rv = 0;
@@ -2112,8 +2147,6 @@ void GldExec::create_lockdata(int nObjRankList)
 STATUS GldExec::exec_start(void)
 {
 	int64 passes = 0, tsteps = 0;
-	int ptc_rv = 0; // unused
-	int ptj_rv = 0; // unused
 	int pc_rv = 0; // precommit return value
 	STATUS fnl_rv = FAILED; // finalize all return value
 	time_t started_at = realtime_now(); // for profiler
@@ -3003,7 +3036,7 @@ void *GldExec::slave_node_proc(void *args)
 	struct sockaddr_in *addrin = (struct sockaddr_in *)(args_in[3]);
 
 	char buffer[1024], response[1024], addrstr[17], *paddrstr, *token_to, *params;
-	char cmd[1024], dirname[256], filename[256], filepath[256], ippath[256];
+	char dirname[256], filename[256];
 	unsigned int64 mtr_port, id;
 	const char *token[5]={
 		HS_CMD,
@@ -3021,7 +3054,6 @@ void *GldExec::slave_node_proc(void *args)
 	};
 	int /* rsp_port = global_server_portnum,*/ rv = 0;
 	size_t offset = 0, tok_len = 0;
-	SOCKET sockfd = *sockfd_ptr;
 
 	// input checks
 	if(0 == sockfd_ptr)
@@ -3426,10 +3458,7 @@ int GldExec::add_scriptexport(const char *name)
 	script_exports = item;
 	return 1;
 }
-static int update_exports(void)
-{
-	return my_instance->exec.update_exports();
-}
+
 int GldExec::update_exports(void)
 {
 	SIMPLELIST *item;

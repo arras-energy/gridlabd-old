@@ -633,7 +633,7 @@ int enduse_test(void)
 	struct s_test {
 		const char *name;
 	} *p, test[] = {
-		"TODO",
+		{"TODO"},
 	};
 
 	output_test("\nBEGIN: enduse tests");

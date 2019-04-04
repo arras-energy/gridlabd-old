@@ -244,11 +244,18 @@ static int report_newtable(const char *table)
 	}
 	return len;
 }
+
 static int report_close(void)
 {
 	wlock(&report_lock);
-	if ( report_fp ) fclose(report_fp);
-	report_fp = NULL;
+	if ( report_fp ) 
+	{
+		fclose(report_fp);
+	}
+	else
+	{
+		report_fp = NULL;
+	}
 	wunlock(&report_lock);
 	return report_rows;
 }
@@ -663,7 +670,7 @@ void *(run_test_proc)(void *arg)
 		if ( global_validateoptions&VO_RPTGLM )
 		{
 			const char *flags[] = {"","E","S","X"};
-			char code = 0;
+			size_t code = 0;
 			if ( result.get_nerrors() ) code=1;
 			if ( result.get_nsuccess() ) code=2;
 			if ( result.get_nexceptions() ) code=3;
@@ -702,7 +709,7 @@ static size_t process_dir(const char *path, bool runglms=false)
 	while ( (dp=readdir(dirp))!=NULL )
 	{
 		char item[1024];
-		size_t len = sprintf(item,"%s/%s",path,dp->d_name);
+		sprintf(item,"%s/%s",path,dp->d_name);
 		char *ext = strrchr(item,'.');
 		if ( dp->d_name[0]=='.' ) continue; // ignore anything that starts with a dot
 		if ( dp->d_type==DT_DIR && strcmp(dp->d_name,"autotest")==0 )
@@ -744,7 +751,7 @@ char *encode_result(char *data,size_t sz)
 	for ( i=0 ; i<len ; i++ )
 	{
 		static char t[] = "0123456789ABCDEF";
-		code[i] = t[code[i]];
+		code[i] = t[(size_t)code[i]];
 	}
 	code[len]='\0';
 	return code;
@@ -985,7 +992,7 @@ int validate(void *main, int argc, const char *argv[])
 	report_title("END TEST REPORT");
 	report_newrow();
 
-	fclose(report_fp);
+	report_close();
 
 #ifndef WIN32
 #ifdef __APPLE__

@@ -535,7 +535,6 @@ static int sc_running=0, sc_started=0, sc_done=0;
 void *schedule_createproc(void *args)
 {
 	STATUS status = SUCCESS;
-	void *rv = 0;
 	SCHEDULE *sch = (SCHEDULE *)args;
 
 	pthread_mutex_lock(&sc_activelock);
@@ -773,7 +772,6 @@ SCHEDULE *schedule_create(const char *name,		/**< the name of the schedule */
 	/* multithreaded creation */
 	else
 	{
-		static unsigned int n_threads = 0;
 		static pthread_t thread_id;
 		if ( pthread_create(&thread_id,NULL,schedule_createproc,(void*)sch)!=0 )
 		{
@@ -1410,7 +1408,6 @@ void schedule_dump(SCHEDULE *sch, const char *file, const char *mode)
 				fprintf(fp,"      %c %2d",wd[dt.weekday],day+1);
 				for (hour=0; hour<24; hour++)
 				{
-					int minute=0;
 					DATETIME dt = {year,month+1,day+1,hour,0,0};
 					TIMESTAMP ts = mkdatetime(&dt);
 					SCHEDULEINDEX ndx = schedule_index(sch,ts);

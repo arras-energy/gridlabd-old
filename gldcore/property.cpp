@@ -393,7 +393,7 @@ bool property_is_default(OBJECT *obj, PROPERTY *prop)
 #ifdef DEBUG
 	if ( global_debug_output )
 	{
-		char buf1[1024] = "<???>", buf2[1024] = "<???>";
+		char buf1[1024] = "<?" "?" "?>", buf2[1024] = "<?" "?" "?>"; // avoid trigraph usage
 		property_write(prop,a,buf1,sizeof(buf1));
 		property_write(prop,b,buf2,sizeof(buf2));
 		if ( obj->name == NULL )
@@ -450,7 +450,6 @@ double complex_get_part(void *x, const char *name)
 int double_array_create(void*ptr)
 {
 	double_array *a = (double_array*)ptr;
-	int n;
 	a->n = a->m = 0;
 	a->max = 1;
 	a->x = (double***)malloc(sizeof(double**)*a->max);
@@ -517,7 +516,6 @@ double double_array_get_part(void *x, const char *name)
 int complex_array_create(void *ptr)
 {
 	complex_array *a = (complex_array*)ptr;
-	int n;
 	a->n = a->m = 0;
 	a->max = 1;
 	a->x = (complex***)malloc(sizeof(complex**)*a->max);

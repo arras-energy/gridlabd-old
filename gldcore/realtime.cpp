@@ -9,7 +9,7 @@
 #include "output.h"
 #include "globals.h"
 
-SET_MYCONTEXT(DMC_REALTIME)
+// SET_MYCONTEXT(DMC_REALTIME) // used only if IN_MYCONTEXT is present
 
 time_t realtime_now(void)
 {

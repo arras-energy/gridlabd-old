@@ -109,7 +109,6 @@ FILE* output_redirect_stream(const char *name, FILE *fp)
 	{
 		if (strcmp(name,map[i].name)==0)
 		{
-			const char *mode = "w";
 			FILE *oldfp = *(map[i].file);
 			*(map[i].file) = fp;
 #ifndef WIN32
@@ -658,7 +657,6 @@ int output_message(const char *format,...) /**< \bprintf style argument list */
 		/* check for repeated message */
 		static char lastfmt[4096] = "";
 		static int count=0;
-		size_t sz = strlen(format?format:"");
 		int result = 0;
 		wlock(&output_lock);
 		if (format!=NULL && strcmp(lastfmt,format)==0 && global_suppress_repeat_messages && !global_verbose_mode)

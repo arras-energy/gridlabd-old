@@ -13,7 +13,7 @@
 #include "output.h"
 #include "globals.h"
 
-SET_MYCONTEXT(DMC_LIST)
+// SET_MYCONTEXT(DMC_LIST) // used only when IN_MYCONTEXT is present in this module
 
 /** Create a list item and attach it to a list
 	@return a pointer to the LISTITEM structure,

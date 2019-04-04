@@ -398,7 +398,6 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 **/
 TIMESTAMP transform_apply(TIMESTAMP t1, TRANSFORM *xform, double *source)
 {
-	char buffer[1024];
 	TIMESTAMP t2;
 	switch (xform->function_type) {
 	case XT_LINEAR:
@@ -442,7 +441,7 @@ TIMESTAMP transform_syncall(TIMESTAMP t1, TRANSFORMSOURCE source)
 	TRANSFORM *xform;
 	clock_t start = (clock_t)exec_clock();
 	TIMESTAMP t2 = TS_NEVER;
-	TIMESTAMP tskew, tSkewSince, tSkewNext, t;
+	TIMESTAMP tskew, t;
 
 	/* process the schedule transformations */
 	for (xform=schedule_xformlist; xform!=NULL; xform=xform->next)
