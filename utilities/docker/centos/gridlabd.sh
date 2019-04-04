@@ -82,11 +82,11 @@ git checkout .
 if [ "${ENABLE_GDB}" == "yes" ]; then
 	echo "Added support for gdb"
 	debuginfo-install glibc-2.17-222.el7.x86_64 libgcc-4.8.5-28.el7_5.1.x86_64 libstdc++-4.8.5-28.el7_5.1.x86_64
-	CFLAGS='-w -O0 -g'
-	CXXFLAGS='-w -O0 -g'
+	CFLAGS='-O0 -g'
+	CXXFLAGS='-O0 -g'
 else
-	CFLAGS='-w -O3'
-	CXXFLAGS='-w -O3'
+	CFLAGS='-O2 -g'
+	CXXFLAGS='-O2 -g'
 fi
 
 # install gridlabd
