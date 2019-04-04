@@ -35,7 +35,7 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 {
 	if(oclass == NULL)
 	{
-		oclass = oclass = gl_register_class(mod,"pole_configuration",sizeof(pole_configuration),0x00);
+		oclass = oclass = gl_register_class(mod,"pole_configuration",sizeof(pole_configuration),PC_NOSYNC);
 		if (oclass==NULL)
 			throw "unable to register class pole_configuration";
 		else

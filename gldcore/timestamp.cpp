@@ -1185,7 +1185,7 @@ int convert_from_deltatime_timestamp(double ts_v, char *buffer, int size)
 TIMESTAMP convert_to_timestamp(const char *value)
 {
 	/* try date-time format */
-	int Y=0,m=0,d=0,H=0,M=0,S=0;
+	unsigned short Y=0,m=0,d=0,H=0,M=0,S=0;
 	char tz[5]="";
 	if (*value=='\'' || *value=='"') value++;
 	/* scan ISO format date/time */
