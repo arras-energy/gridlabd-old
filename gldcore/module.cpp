@@ -9,7 +9,9 @@
 /* absolutely nothing must be placed before this per feature_test_macros(7) man page */
 #ifndef WIN32
 #ifndef __APPLE__
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #include <features.h>
 #else
 #include <mach/thread_act.h>
