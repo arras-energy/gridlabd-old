@@ -393,7 +393,7 @@ bool property_is_default(OBJECT *obj, PROPERTY *prop)
 #ifdef DEBUG
 	if ( global_debug_output )
 	{
-		char buf1[1024] = "<???>", buf2[1024] = "<???>";
+		char buf1[1024] = "<?" "?" "?>", buf2[1024] = "<?" "?" "?>"; // avoid trigraph usage
 		property_write(prop,a,buf1,sizeof(buf1));
 		property_write(prop,b,buf2,sizeof(buf2));
 		if ( obj->name == NULL )
