@@ -1463,7 +1463,7 @@ extern "C" void on_term(void)
 
 }
 
-int python_event(OBJECT *obj, const char *function)
+int python_event(OBJECT *obj, const char *function, TIMESTAMP *ts)
 {
     char objname[64];
     if ( obj->name )

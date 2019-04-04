@@ -1493,14 +1493,14 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 	return obj->valid_to;
 }
 
-int object_event(OBJECT *obj, char *event)
+int object_event(OBJECT *obj, char *event, TIMESTAMP *ts=NULL)
 {
 	char function[1024];
 	if ( sscanf(event,"python:%s",function) ==  1 )
 	{
 #ifdef HAVE_PYTHON
-		extern int python_event(OBJECT *obj, const char *);
-		return python_event(obj,function);
+		extern int python_event(OBJECT *obj, const char *, TIMESTAMP *);
+		return python_event(obj,function,ts);
 #else
 		output_error("python system not linked, event '%s' is not callable", event);
 		return -1;
@@ -1563,7 +1563,7 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		break;
 	}
 	if ( event != NULL )
-		rc = object_event(obj,event);
+		rc = object_event(obj,event,&t2);
 
 	/* do profiling, if needed */
 	if ( global_profiler==1 )
@@ -1693,7 +1693,7 @@ TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 	} 
 	if ( obj->events.commit != NULL )
 	{
-		int rc = object_event(obj,obj->events.commit);
+		int rc = object_event(obj,obj->events.commit,&rv);
 		if ( rc != 0 )
 		{
 			output_error("object %s:%d commit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
