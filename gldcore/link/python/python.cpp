@@ -1238,13 +1238,18 @@ extern "C" bool on_init(void)
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
+            {
+                output_error("python on_init() failed");
+                PyErr_PrintEx(0);
                 return false;
+            }
             bool retval = false; 
             retval = PyObject_IsTrue(result);
             Py_DECREF(result);
             if ( ! retval )
             {
-                output_error("python on_init() failed");
+                output_error("python on_init() return False");
+                PyErr_PrintEx(0);
                 return false;
             }
         }
@@ -1272,7 +1277,11 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
+            {
+                output_error("python on_precommit(%d) failed",t0);
+                PyErr_PrintEx(0);                
                 return TS_INVALID;
+            }
             TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
                 t2 = PyLong_AsLong(result);
@@ -1308,7 +1317,11 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
+            {
+                output_error("python on_presync(%d) failed",t0);
+                PyErr_PrintEx(0);                
                 return TS_INVALID;
+            }
             TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
                 t2 = PyLong_AsLong(result);
@@ -1344,7 +1357,11 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
+            {
+                output_error("python on_presync(%d) failed",t0);
+                PyErr_PrintEx(0);                
                 return TS_INVALID;
+            }
             TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
                 t2 = PyLong_AsLong(result);
@@ -1380,7 +1397,11 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
+            {
+                output_error("python on_postsync(%d) failed",t0);
+                PyErr_PrintEx(0);                
                 return TS_INVALID;
+            }
             TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
                 t2 = PyLong_AsLong(result);
@@ -1415,12 +1436,16 @@ extern "C" bool on_commit(TIMESTAMP t)
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
+            {
+                output_error("python on_commit(%d) failed",t);
+                PyErr_PrintEx(0);                
                 return false;
+            }
             bool retval =  PyObject_IsTrue(result);
             Py_DECREF(result);
             if ( ! retval )
             {
-                output_error("python on_commit(%d) failed",t);
+                output_error("python on_commit(%d) return False",t);
                 return false;
             }
         }
@@ -1447,7 +1472,11 @@ extern "C" void on_term(void)
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
+            {
+                output_error("python on_term() failed");
+                PyErr_PrintEx(0);                
                 return;
+            }
             if ( result != Py_None ) 
             {
                 Py_DECREF(result);
@@ -1515,14 +1544,20 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             {
                 if ( ! result || ! PyLong_Check(result) )
                 {
-
-                    output_error("python %s(%s) did not return an integer value as expected",function,objname);
-                    Py_DECREF(result);
+                    output_error("python %s(%s) did not return an integer value as expected, traceback is as follows",function,objname);
+                    PyErr_PrintEx(0);
+                    if ( result ) 
+                    {
+                        Py_DECREF(result);
+                    }
                     return 0;
                 }
                 *p_retval = PyLong_AsLong(result);
             }
-            Py_DECREF(result);
+            if ( result )
+            {
+                Py_DECREF(result);
+            }
             return 1;
         }    
         else 
