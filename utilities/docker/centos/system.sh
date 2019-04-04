@@ -15,4 +15,4 @@ yum install epel-release -y
 yum install which -y
 yum --disablerepo="*" --enablerepo="epel" install python36 -y
 yum install python36-devel -y
-ln -s /usr/bin/python3.6 /usr/bin/python3
+[ -f /usr/bin/python3 ] || ln -s /usr/bin/python3.6 /usr/bin/python3
