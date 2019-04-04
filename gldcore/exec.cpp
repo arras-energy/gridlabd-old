@@ -310,6 +310,41 @@ void throwf(const char *format, ...)
 	throw(buffer);
 }
 
+// TODO: remove when python.cpp is reentrant
+void exec_mls_done(void)
+{
+	my_instance->exec.mls_done();
+}
+void exec_mls_statewait(unsigned states)
+{
+	my_instance->exec.mls_statewait(states);
+}
+void exec_mls_suspend(void)
+{
+	my_instance->exec.mls_suspend();
+}
+void exec_rlock_sync(void)
+{
+	my_instance->exec.rlock_sync();
+}
+
+void exec_runlock_sync(void)
+{
+	my_instance->exec.runlock_sync();
+}
+
+void exec_wlock_sync(void)
+{
+	my_instance->exec.wlock_sync();
+}
+
+void exec_wunlock_sync(void)
+{
+	my_instance->exec.wunlock_sync();
+}
+
+
+
 ////////////////////////////////////////////
 // GldExec implementation
 ////////////////////////////////////////////

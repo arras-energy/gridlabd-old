@@ -52,11 +52,10 @@ void GldMain::pause_at_exit(void)
     @returns Exit codes XC_SUCCESS, etc. (see gridlabd.h)
  **/
 GldMain *my_instance = NULL; // TODO: move this to main to make main reentrant
-int
 #ifdef HAVE_PYTHON
-	main_python
+extern "C" int main_python
 #else
-	main
+int main
 #endif
 (	int argc, /**< the number entries on command-line argument list \p argv */
 	const char *argv[]) /**< a list of pointers to the command-line arguments */
