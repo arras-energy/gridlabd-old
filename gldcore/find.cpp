@@ -922,7 +922,7 @@ int compare_op(PARSER, FINDOP *op)
 	return 0;
 }
 
-struct {
+struct s_comparemap {
 	COMPAREFUNC pointer, integer, real, string;
 } comparemap[] = /** @todo add other integer sizes  (ticket #23) */
 {	{compare_pointer_eq, compare_integer_eq, compare_real_eq, compare_string_eq}, // EQ=0
