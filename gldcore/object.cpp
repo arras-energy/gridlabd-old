@@ -1493,14 +1493,15 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 	return obj->valid_to;
 }
 
-int object_event(OBJECT *obj, char *event, TIMESTAMP *ts=NULL)
+int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 {
 	char function[1024];
 	if ( sscanf(event,"python:%s",function) ==  1 )
 	{
 #ifdef HAVE_PYTHON
-		extern int python_event(OBJECT *obj, const char *, TIMESTAMP *);
-		return python_event(obj,function,ts);
+		// implemented in gldcore/link/python/python.cpp
+		extern int python_event(OBJECT *obj, const char *, long long *);
+		return python_event(obj,function,p_retval) ? 0 : 255;
 #else
 		output_error("python system not linked, event '%s' is not callable", event);
 		return -1;
@@ -1616,10 +1617,11 @@ int object_init(OBJECT *obj) /**< the object to initialize */
 		rv = (int)(*(obj->oclass->init))(obj, obj->parent);
 	if ( rv == 1 && obj->events.init != NULL )
 	{
-		int rc = object_event(obj,obj->events.init);
-		if ( rc != 0 )
+		long long ok = 0;
+		int rc = object_event(obj,obj->events.init,&ok);
+		if ( rc != 0 || ok != 0 )
 		{
-			output_error("object %s:%d init at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d init at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,ok);
 			rv = 0;
 		}
 	}
@@ -1659,10 +1661,11 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	}
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
-		int rc = object_event(obj,obj->events.precommit);
-		if ( rc != 0 )
+		long long ok = 0;
+		int rc = object_event(obj,obj->events.precommit,&ok);
+		if ( rc != 0 || ok != 0 )
 		{
-			output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d precommit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,ok);
 			rv = FAILED;
 		}
 	}
@@ -1694,9 +1697,9 @@ TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 	if ( obj->events.commit != NULL )
 	{
 		int rc = object_event(obj,obj->events.commit,&rv);
-		if ( rc != 0 )
+		if ( rc != 0 || rv == TS_INVALID )
 		{
-			output_error("object %s:%d commit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
+			output_error("object %s:%d commit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,rv);
 			rv = TS_INVALID;
 		}
 	}

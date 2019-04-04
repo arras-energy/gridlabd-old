@@ -37,7 +37,7 @@ def commit(obj,t) :
 	gridlabd.set_global("sample_count",str(sample_count))
 
 	# successful commit
-	return True
+	return gridlabd.NEVER
 
 def on_term(t) :
 	global sample_data

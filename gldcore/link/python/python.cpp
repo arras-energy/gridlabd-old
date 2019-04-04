@@ -1463,7 +1463,8 @@ extern "C" void on_term(void)
 
 }
 
-int python_event(OBJECT *obj, const char *function, TIMESTAMP *ts)
+// dispatch to python module event handler - return 0 on failure, non-zero on success
+int python_event(OBJECT *obj, const char *function, long long *p_retval)
 {
     char objname[64];
     if ( obj->name )
@@ -1475,7 +1476,7 @@ int python_event(OBJECT *obj, const char *function, TIMESTAMP *ts)
     if ( sscanf(function,"%[^.].%[^\n]",modname,method) < 2 )
     {
         output_error("python_event(obj='%s',function='%s') has an invalid function (expected 'module.method')",objname,function);
-        return -1;
+        return 0;
     }
 
     size_t n;
@@ -1490,14 +1491,14 @@ int python_event(OBJECT *obj, const char *function, TIMESTAMP *ts)
     if ( mod == NULL )
     {
         output_error("python_event(obj='%s',function='%s') module %s is not found",objname,function,modname);
-        return -1;
+        return 0;
     }
 
     PyObject *dict = PyModule_GetDict(mod);
     if ( dict == NULL || ! PyDict_Check(dict) )
     {
         output_error("module does not have a namespace dict");       
-        return -1;
+        return 0;
     }
     PyObject *call = PyDict_GetItemString(dict,method);
     if ( call )
@@ -1510,34 +1511,30 @@ int python_event(OBJECT *obj, const char *function, TIMESTAMP *ts)
             PyObject *args = Py_BuildValue("(si)",obj->name?obj->name:name,global_clock);
             PyObject *result = PyEval_CallObject(call,args);
             Py_DECREF(args);
-            if ( ! result )
-                return -1;
-            bool retval = TS_INVALID; 
-            if ( ! PyLong_Check(result) )
-                output_error("python %s(%s) returned something other than a long",function,objname);
-            else
-                retval = PyLong_AsLong(result);
+            if ( p_retval != NULL )
+            {
+                if ( ! result || ! PyLong_Check(result) )
+                {
+
+                    output_error("python %s(%s) did not return an integer value as expected",function,objname);
+                    Py_DECREF(result);
+                    return 0;
+                }
+                *p_retval = PyLong_AsLong(result);
+            }
             Py_DECREF(result);
-            if ( retval == TS_INVALID)
-            {
-                output_error("python %s(%s) signalled stop (TS_INVALID)",function,objname);
-                return 0;
-            }
-            else
-            {
-                return retval;
-            }
+            return 1;
         }    
         else 
         {
             output_error("%s is not callable",function);
-            return -1;
+            return 0;
         }
     }
     else
     {
         output_error("%s method not found",function);
-        return -1;
+        return 0;
     }
 }
 static int python_import_file(const char *file)
