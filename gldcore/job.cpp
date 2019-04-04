@@ -160,7 +160,7 @@ static int vsystem(const char *fmt, ...)
 }
 
 /** routine to destroy the contents of a directory */
-static bool destroy_dir(char *name)
+bool job_destroy_dir(char *name)
 {
 	DIR *dirp = opendir(name);
 	if ( dirp==NULL ) return true; // directory does not exist
@@ -189,7 +189,7 @@ static bool destroy_dir(char *name)
 }
 
 /** copyfile routine */
-static bool copyfile(char *from, char *to)
+bool job_copyfile(char *from, char *to)
 {
 	IN_MYCONTEXT output_debug("copying '%s' to '%s'", from, to);
 	FILE *in = fopen(from,"r");
@@ -298,7 +298,6 @@ void *(run_job_proc)(void *arg)
 	size_t id = (size_t)arg;
 	IN_MYCONTEXT output_debug("starting run_test_proc id %d", id);
 	JOBLIST *item;
-	bool passed = true;
 	while ( (item=popjob())!=NULL )
 	{
 		IN_MYCONTEXT output_debug("process %d picked up '%s'", id, item->name);
@@ -320,7 +319,7 @@ static size_t process_dir(const char *path)
 	while ( (dp=readdir(dirp))!=NULL )
 	{
 		char item[1024];
-		size_t len = sprintf(item,"%s/%s",path,dp->d_name);
+		sprintf(item,"%s/%s",path,dp->d_name);
 		char *ext = strrchr(dp->d_name,'.');
 		if ( dp->d_name[0]=='.' ) continue; // ignore anything that starts with a dot
 		if ( ext && strcmp(ext,".glm")==0 )

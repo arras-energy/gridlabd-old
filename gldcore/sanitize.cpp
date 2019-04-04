@@ -8,7 +8,7 @@
 #include "sanitize.h"
 #include "globals.h"
 
-SET_MYCONTEXT(DMC_SANITIZE)
+// SET_MYCONTEXT(DMC_SANITIZE) // only used if IN_MYCONTEXT is present in this module
 
 typedef struct s_safename {
 	const char *name;

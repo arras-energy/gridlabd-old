@@ -16,7 +16,7 @@
 #include "transform.h"
 #include "json.h"
 
-SET_MYCONTEXT(DMC_LOAD)
+// SET_MYCONTEXT(DMC_SAVE) // only used if IN_MYCONTEXT is present in this module
 
 #define DEFAULT_FORMAT "gld"
 
@@ -359,7 +359,6 @@ int savexml_strict(const char *filename,FILE *fp)
 int savexml(const char *filename,FILE *fp)
 {
 	unsigned int count = 0;
-	time_t now = time(NULL);
 	char buffer[1024];
 	GLOBALVAR *gvptr = global_getnext(NULL);
 

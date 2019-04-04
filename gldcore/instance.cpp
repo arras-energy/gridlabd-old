@@ -428,13 +428,14 @@ void instance_master_done_mmap(instance *inst){
 #endif
 }
 
-void instance_master_done_shmem(instance *inst){
+void instance_master_done_shmem(instance *inst)
+{
 	;	// send
 }
 
-void instance_master_done_socket(instance *inst){
+void instance_master_done_socket(instance *inst)
+{
 	int rv = 0;
-	int sz = 0;
 	int offset = 0;
 
 	if(0 == inst){

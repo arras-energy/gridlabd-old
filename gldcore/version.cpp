@@ -12,7 +12,7 @@
 #include "output.h"
 #include "globals.h"
 
-SET_MYCONTEXT(DMC_VERSION)
+// SET_MYCONTEXT(DMC_VERSION) // used only if IN_MYCONTEXT is present in this module
 
 #ifndef BRANCH
 #define BRANCH "Keeler" // update this from legal.h each time trunk is branched

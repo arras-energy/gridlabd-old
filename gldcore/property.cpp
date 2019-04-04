@@ -450,7 +450,6 @@ double complex_get_part(void *x, const char *name)
 int double_array_create(void*ptr)
 {
 	double_array *a = (double_array*)ptr;
-	int n;
 	a->n = a->m = 0;
 	a->max = 1;
 	a->x = (double***)malloc(sizeof(double**)*a->max);
@@ -517,7 +516,6 @@ double double_array_get_part(void *x, const char *name)
 int complex_array_create(void *ptr)
 {
 	complex_array *a = (complex_array*)ptr;
-	int n;
 	a->n = a->m = 0;
 	a->max = 1;
 	a->x = (complex***)malloc(sizeof(complex**)*a->max);

@@ -9,7 +9,7 @@
 #include "globals.h"
 #include "local.h"
 
-SET_MYCONTEXT(DMC_LOCALE)
+// SET_MYCONTEXT(DMC_LOCALE) // used only when IN_MYCONTEXT is present in this module
 
 #ifdef WIN32
 #define tzset _tzset

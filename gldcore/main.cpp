@@ -60,17 +60,20 @@ int main
 (	int argc, /**< the number entries on command-line argument list \p argv */
 	const char *argv[]) /**< a list of pointers to the command-line arguments */
 {
-	int return_code;
+	int return_code = XC_SUCCESS;
 	try {
 		my_instance = new GldMain(argc,argv);
 	}
 	catch (const char *msg)
 	{
 		output_fatal("uncaught exception: %s", msg);
-		return errno;
+		return_code = errno ? errno : XC_SHFAILED;
 	}
 	if ( my_instance == NULL )
+	{
 		output_error("unable to create new instance");
+		return_code = XC_SHFAILED;	
+	}
 	else
 	{
 		try {
@@ -79,7 +82,7 @@ int main
 		catch (const char *msg)
 		{
 			output_fatal("uncaught exception: %s", msg);
-			return errno;
+			return_code = errno ? errno : XC_SHFAILED;
 		}
 		delete my_instance;
 		my_instance = NULL;

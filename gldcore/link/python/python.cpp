@@ -1489,7 +1489,6 @@ extern "C" void on_term(void)
         }
     }
     return;
-
 }
 
 // dispatch to python module event handler - return 0 on failure, non-zero on success

@@ -843,7 +843,7 @@ const char *global_seq(char *buffer, int size, const char *name)
 			else
 			{
 				int32 *addr = (int32*)malloc(sizeof(int32));
-				GLOBALVAR *var = global_create(seq,PT_int32,addr,PT_ACCESS,PA_PUBLIC,NULL);
+				global_create(seq,PT_int32,addr,PT_ACCESS,PA_PUBLIC,NULL);
 				*addr = 0;
 				return global_getvar(seq,buffer,size);
 			}
@@ -1276,6 +1276,7 @@ GldGlobals::GldGlobals(GldMain *inst) :
 	assert(inst!=NULL);
 	varlist = NULL;
 	last = NULL;
+	IN_MYCONTEXT output_debug("GldGlobals::GldGlobals(GldMain *inst=%x) ok", &instance);
 }
 
 GldGlobals::~GldGlobals(void)
@@ -1348,7 +1349,10 @@ GldGlobalvar::GldGlobalvar(GldMain *instance, const char *name, set *value, KEYW
 GldGlobalvar::~GldGlobalvar(void)
 {
 	if ( spec != NULL )
+	{
+		IN_MYCONTEXT output_debug("GldGlobalvar::~GldGlobalvar(): instance %x deleting %s", my_instance, spec->prop->name);
 		delete spec;
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////

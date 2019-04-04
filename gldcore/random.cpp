@@ -215,7 +215,6 @@ unsigned int64 random_id(void)
 void random_key(unsigned long long *ptr, size_t len)
 {
 	static unsigned int state = 0;
-	int64 rv = 0;
 	if ( state == 0 ) state = (unsigned int)time(NULL);
 	while ( len-- > 0 )
 	{
@@ -408,7 +407,7 @@ double random_sampled(unsigned int *state, /**< the rng state */
 	{
 		double v = x[(unsigned)(randunit(state)*n)];
 		double av = fabs(v);
-		if (v!=0 && (v<1e-30 || v>1e30))
+		if (v!=0 && (av<1e-30 || av>1e30))
 			output_warning("random_sampled(n=%d,...): sampled value is not within normal bounds of +/-1e(+/-30)",n);
 		/* TROUBLESHOOT
 			An attempt to generate a random number used a parameter that was outside the expected range of real numbers.  
@@ -523,7 +522,6 @@ double random_weibull(unsigned int *state, /**< the rng state */
 					  double lambda, /**< scale parameter */
 					  double k) /**< rate shape parameter */
 {
-	double r = randunit(state);
 	if (k<=0)
 		throw_exception("random_weibull(l=%g, k=%g): k must be greater than 0", lambda, k);
 		/* TROUBLESHOOT
@@ -766,7 +764,7 @@ int random_apply(const char *group_expression, /**< the group definition; see fi
 	unsigned count=0;
 	va_list ptr;
 	va_start(ptr,type);
-	for (obj=find_first(list); obj!=NULL; find_next(list,obj))
+	for ( obj = find_first(list) ; obj != NULL ; obj = find_next(list,obj) )
 	{
 		/* this is quite slow and should use a class property lookup */
 		object_set_double_by_name(obj,property,_random_value((RANDOMTYPE)type,NULL,ptr));
@@ -854,9 +852,6 @@ static double stdev(double sample[], unsigned int count)
 		sum += delta*(sample[i]-mean);
 	}
 	return sqrt(sum/(n-1));
-}
-static void sort(double sample[], unsigned int count)
-{
 }
 static int report(const char *parameter, double actual, double expected, double error)
 {

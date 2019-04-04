@@ -113,7 +113,6 @@ int client_allowed(char *saddr)
 /** Main server wait loop 
     @returns a pointer to the status flag
  **/
-static unsigned int n_threads = 0;
 static pthread_t thread_id;
 static void *server_routine(void *arg)
 {
@@ -142,7 +141,6 @@ static void *server_routine(void *arg)
 		{
 			status = GetLastError();
 			output_warning("server accept failed on socket %d: code %d", sockfd, status);
-			//goto Done;
 		}
 		else if ((int)newsockfd > 0)
 		{
@@ -166,7 +164,6 @@ static void *server_routine(void *arg)
 		}
 	}
 	IN_MYCONTEXT output_verbose("server shutdown");
-Done:
 	started = 0;
 	return (void*)&status;
 }
@@ -616,7 +613,6 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 		double rvalue;
 		complex cvalue;
 		char *spec = NULL;
-		int prec = 4;
 		char fmt[64];
 
 		/* find the end of the unit definition */
@@ -1907,7 +1903,6 @@ void *http_response(void *ptr)
 	HTTPCNX *http = http_create(fd);
 	size_t len;
 	int content_length = 0;
-	char *user_agent = NULL;
 	char *host = NULL;
 	int keep_alive = 0;
 	char *connection = NULL;

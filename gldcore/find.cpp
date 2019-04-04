@@ -24,11 +24,9 @@
 #include "module.h"
 #include "timestamp.h"
 
-SET_MYCONTEXT(DMC_FIND)
+//SET_MYCONTEXT(DMC_FIND) // 
 
-static FINDTYPE invar_types[] = {FT_ID, FT_SIZE, FT_CLASS, FT_PARENT, FT_RANK, FT_NAME, FT_LAT, FT_LONG, FT_INSVC, FT_OUTSVC, FT_MODULE, FT_ISA, FT_END};
-
-static int compare_int(int64 a, FINDOP op, int64 b)
+int compare_int(int64 a, FINDOP op, int64 b)
 {
 	switch (op) {
 	case EQ: return a==b;
@@ -51,11 +49,11 @@ static int compare_int(int64 a, FINDOP op, int64 b)
 	}
 }
 
-static int compare_int64(int64 a, FINDOP op, int64 b){
+int compare_int64(int64 a, FINDOP op, int64 b){
 	return compare_int(a, op, b);
 }
 
-static int compare_int32(int32 a, FINDOP op, int64 b)
+int compare_int32(int32 a, FINDOP op, int64 b)
 {
 	switch (op) {
 	case EQ: return a==b;
@@ -78,7 +76,7 @@ static int compare_int32(int32 a, FINDOP op, int64 b)
 	}
 }
 
-static int compare_int16(int16 a, FINDOP op, int64 b)
+int compare_int16(int16 a, FINDOP op, int64 b)
 {
 	switch (op) {
 	case EQ: return a==b;
@@ -124,7 +122,7 @@ extern "C" int compare_double(double a, FINDOP op, double b)
 	}
 }
 
-static int compare_string(const char *a, FINDOP op, const char *b)
+int compare_string(const char *a, FINDOP op, const char *b)
 {
 	if ( a==NULL || b==NULL ) return 0;
 	switch (op) {
@@ -164,7 +162,7 @@ CompareInt:
 
 }
 
-static int compare_property(OBJECT *obj, char *propname, FINDOP op, void *value)
+int compare_property(OBJECT *obj, char *propname, FINDOP op, void *value)
 {
 	/** @todo comparisons should type based and not using string representation (ticket #20) */
 	char buffer[1024];
@@ -173,7 +171,7 @@ static int compare_property(OBJECT *obj, char *propname, FINDOP op, void *value)
 	return compare_string(propval,op,(const char*)value);
 }
 
-static int compare(OBJECT *obj, FINDTYPE ftype, FINDOP op, void *value, char *propname)
+int compare(OBJECT *obj, FINDTYPE ftype, FINDOP op, void *value, char *propname)
 {
 	switch (ftype) {
 	case FT_ID: return compare_int((int64)obj->id,op,(int64)*(OBJECTNUM*)value);
@@ -521,8 +519,6 @@ int compare_isa(void *a, FINDVALUE b)
 /* NOTE: this only works with short-circuiting logic! */
 int compare_string_eq(void *a, FINDVALUE b) 
 {
-	int one = (char **)a != NULL;
-	int two = strcmp((char*)a,b.string)==0;
 	return (char *)a != NULL && strcmp((char*)a,b.string)==0;
 }
 int compare_string_ne(void *a, FINDVALUE b) 
@@ -674,7 +670,7 @@ void findlist_clear(FINDLIST *list)
 	DELALL(*list);
 }
 
-static void findlist_nop(FINDLIST *list, OBJECT *obj)
+void findlist_nop(FINDLIST *list, OBJECT *obj)
 {
 	return;
 }
@@ -690,7 +686,7 @@ PGMCONSTFLAGS find_pgmconstants(FINDPGM *pgm)
 
 }
 
-static FINDPGM *add_pgm(FINDPGM **pgm, COMPAREFUNC op, unsigned short target, FINDVALUE value, FOUNDACTION pos, FOUNDACTION neg)
+FINDPGM *add_pgm(FINDPGM **pgm, COMPAREFUNC op, unsigned short target, FINDVALUE value, FOUNDACTION pos, FOUNDACTION neg)
 {
 	/* create program entry */
 	FINDPGM *item = (FINDPGM*)malloc(sizeof(FINDPGM));
@@ -748,7 +744,7 @@ FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm)
 }
 
 #define PARSER const char *_p
-#define START int _m=0, _n=0;
+#define START int _m, _n; {_m=0, _n=0;}
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
 #define OR {_m=0;}
@@ -771,7 +767,7 @@ void syntax_error(const char *p)
 		output_message("find expression syntax error");
 }
 
-static int white(PARSER)
+int white(PARSER)
 {
 	if (*_p=='\0' || !isspace(*_p))
 		return 0;
@@ -779,7 +775,7 @@ static int white(PARSER)
 	return white(_p+1)+1;
 }
 
-static int comment(PARSER)
+int comment(PARSER)
 {
 	int _n = white(_p);
 	if (_p[_n]=='#')
@@ -790,14 +786,14 @@ static int comment(PARSER)
 	return _n;
 }
 
-static int literal(PARSER, const char *text)
+int literal(PARSER, const char *text)
 {
 	if (strncmp(_p,text,strlen(text))==0)
 		return (int)strlen(text);
 	return 0;
 }
 
-static int name(PARSER, char *result, int size)
+int name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_') COPY(result);
@@ -805,7 +801,7 @@ static int name(PARSER, char *result, int size)
 	DONE;
 }
 
-static int value(PARSER, char *result, int size)
+int value(PARSER, char *result, int size)
 {	/* everything to a semicolon */
 	START;
 	while (size>1 && *_p!='\0' && *_p!=';' && *_p!='\n') COPY(result);
@@ -813,7 +809,7 @@ static int value(PARSER, char *result, int size)
 	return _n;
 }
 
-static int token(PARSER, char *result, int size)
+int token(PARSER, char *result, int size)
 {	/* everything to a semicolon */
 	START;
 	while (size>1 && *_p!='\0' && *_p!=';' && *_p!='\n' && !isspace(*_p) ) COPY(result);
@@ -821,7 +817,7 @@ static int token(PARSER, char *result, int size)
 	return _n;
 }
 
-static int integer(PARSER, int64 *value)
+int integer(PARSER, int64 *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -832,7 +828,7 @@ static int integer(PARSER, int64 *value)
 	return _n;
 }
 
-static int _real(PARSER, double *value)
+int _real(PARSER, double *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -849,7 +845,7 @@ static int _real(PARSER, double *value)
 	return _n;
 }
 
-static int time_value_seconds(PARSER, TIMESTAMP *t)
+int time_value_seconds(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -859,7 +855,7 @@ static int time_value_seconds(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_minutes(PARSER, TIMESTAMP *t)
+int time_value_minutes(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -869,7 +865,7 @@ static int time_value_minutes(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_hours(PARSER, TIMESTAMP *t)
+int time_value_hours(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -879,7 +875,7 @@ static int time_value_hours(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_days(PARSER, TIMESTAMP *t)
+int time_value_days(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -889,7 +885,7 @@ static int time_value_days(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_datetime(PARSER, TIMESTAMP *t)
+int time_value_datetime(PARSER, TIMESTAMP *t)
 {
 	int64 Y,m,d,H,M,S;
 	START;
@@ -909,26 +905,7 @@ static int time_value_datetime(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value(PARSER, TIMESTAMP *t)
-{
-	START;
-	if WHITE ACCEPT;
-	if TERM(time_value_seconds(HERE,t)) {ACCEPT; DONE; }
-	OR
-	if TERM(time_value_minutes(HERE,t)) {ACCEPT; DONE; }
-	OR
-	if TERM(time_value_hours(HERE,t)) {ACCEPT; DONE; }
-	OR
-	if TERM(time_value_days(HERE,t)) {ACCEPT; DONE; }
-	OR
-	if TERM(time_value_datetime(HERE,t)) {ACCEPT; DONE; }
-	OR
-		if TERM(integer(HERE,t)) { ACCEPT; DONE; }
-	else REJECT;
-	DONE;
-}
-
-static int compare_op(PARSER, FINDOP *op)
+int compare_op(PARSER, FINDOP *op)
 {
 	/* these first! */
 	if (strncmp(_p,"!=", 2)==0) {*op=NE; return 2;}
@@ -958,22 +935,7 @@ struct {
 	{compare_pointer_nl, compare_integer_nl, compare_real_nl, compare_string_nl},
 };
 
-struct {
-	COMPAREFUNC pointer, integer, real, string, int_16, int_32, int_64;	/*	int_size to avoid #define int64 (platform.h) */
-} comparemap_ext[] =
-{	{compare_pointer_eq, compare_integer_eq, compare_real_eq, compare_string_eq, compare_integer16_eq, compare_integer32_eq, compare_integer64_eq},
-	{compare_pointer_lt, compare_integer_lt, compare_real_lt, compare_string_lt, compare_integer16_lt, compare_integer32_lt, compare_integer64_lt},
-	{compare_pointer_gt, compare_integer_gt, compare_real_gt, compare_string_gt, compare_integer16_gt, compare_integer32_gt, compare_integer64_gt},
-	{compare_pointer_ne, compare_integer_ne, compare_real_ne, compare_string_ne, compare_integer16_ne, compare_integer32_ne, compare_integer64_ne},
-	{compare_pointer_le, compare_integer_le, compare_real_le, compare_string_le, compare_integer16_le, compare_integer32_le, compare_integer64_le},
-	{compare_pointer_ge, compare_integer_ge, compare_real_ge, compare_string_ge, compare_integer16_ge, compare_integer32_ge, compare_integer64_ge},
-	{compare_pointer_li, compare_integer_li, compare_real_li, compare_string_li, compare_integer16_li, compare_integer32_li, compare_integer64_li},
-	{compare_pointer_nl, compare_integer_nl, compare_real_nl, compare_string_nl, compare_integer16_nl, compare_integer32_nl, compare_integer64_nl},
-};
-
-/* int compare_integer32_eq(void *a, FINDVALUE b) { return *(int32*)a==(int32)b.integer;} */
-
-static int expression(PARSER, FINDPGM **pgm)
+int expression(PARSER, FINDPGM **pgm)
 {
 	char32 pname;
 	char256 pvalue;
@@ -1227,7 +1189,7 @@ static int expression(PARSER, FINDPGM **pgm)
 	REJECT;
 }
 
-static int expression_list(PARSER, FINDPGM **pgm)
+int expression_list(PARSER, FINDPGM **pgm)
 {
 	START;
 	if TERM(expression(HERE,pgm)) ACCEPT;
@@ -1249,7 +1211,6 @@ static int expression_list(PARSER, FINDPGM **pgm)
 /** Constructs a search engine for find_objects **/
 FINDPGM *find_mkpgm(const char *search)
 {
-	STATUS status=FAILED;
 	FINDPGM *pgm = NULL;
 	const char *p = search;
 	while (*p!='\0')

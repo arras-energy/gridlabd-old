@@ -24,7 +24,7 @@
 
 #include "kml.h"
 
-SET_MYCONTEXT(DMC_KML)
+// SET_MYCONTEXT(DMC_KML) // used only when IN_MYCONTEXT is present in this module
 
 FILE *kml = NULL;
 int kml_write(const char *fmt,...)
@@ -42,7 +42,6 @@ int kml_document(FILE *fp)
 	CLASS *oclass, *openclass=NULL;
 	MODULE *mod;
 	char buffer[1024];
-	time_t now = time(NULL);
 	kml_write("%s","  <Document>\n");
 	kml_write("    <name>%s</name>\n", global_modelname);
 	kml_write("    <description>GridLAB-D results for %s</description>\n",

@@ -192,8 +192,6 @@ static unsigned int linenum=1;
 static int include_fail = 0;
 static char filename[1024];
 static time_t modtime = 0;
-static int last_good_depth = -1;
-static int current_depth = -1;
 
 static char start_ts[64];
 static char stop_ts[64];
@@ -558,6 +556,8 @@ static int write_file(FILE *fp, const char *data, ...)
 	}
 	return len;
 }
+
+#if 0 // unused function
 static void reset_line(FILE *fp, const char *file)
 {
 	char buffer[64];
@@ -568,6 +568,7 @@ static void reset_line(FILE *fp, const char *file)
 		write_file(fp,"#line %s \"%s\"\n", outlinenum,forward_slashes(fname));
 	}
 }
+#endif
 
 // Recursively make directories if they don't exist
 static int mkdirs(char *path)
@@ -1074,7 +1075,7 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 	{
 		CLASS *oclass = class_get_class_from_classname(classname);
 		obj = object_find_by_id(item->by->id + (op[0]=='+'?+1:-1)*id);
-		if (obj==NULL)
+		if ( oclass == NULL || obj==NULL )
 		{
 			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
@@ -1252,7 +1253,7 @@ static STATUS resolve_list(UNRESOLVED *item)
 }
 
 #define PARSER const char *_p
-#define START int _mm=0, _m=0, _n=0, _l=linenum;
+#define START int _mm, _m, _n, _l; {_mm = 0; _m = 0; _n = 0; _l = linenum;}
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
 #define OR {_m=0;}
@@ -1290,7 +1291,7 @@ static int white(PARSER)
 	return len;
 }
 
-
+#if 0 // unused function
 static int comment(PARSER)
 {
 	int _n = white(_p);
@@ -1302,6 +1303,7 @@ static int comment(PARSER)
 	}
 	return _n;
 }
+#endif
 
 static int pattern(PARSER, const char *pattern, char *result, int size)
 {
@@ -1313,6 +1315,7 @@ static int pattern(PARSER, const char *pattern, char *result, int size)
 	DONE;
 }
 
+#if 0 // usused function
 static int scan(PARSER, char *format, char *result, int size)
 {
 	START;
@@ -1320,6 +1323,7 @@ static int scan(PARSER, char *format, char *result, int size)
 		_n = (int)strlen(result);
 	DONE;
 }
+#endif
 
 static int literal(PARSER, const char *text)
 {
@@ -1867,8 +1871,8 @@ struct s_rpn_func {
 	{"ceil", 1, -13, ceil}
 };
 
-static int rpnfunc(PARSER, int *val){
-	struct s_rpn_func *ptr = rpn_map;
+static int rpnfunc(PARSER, int *val)
+{
 	int i = 0, count = 0;
 	START;
 	count = (sizeof(rpn_map)/sizeof(rpn_map[0]));
@@ -2287,7 +2291,7 @@ static int time_value_days(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-int time_value_datetime(PARSER, TIMESTAMP *t)
+static int time_value_datetime(PARSER, TIMESTAMP *t)
 {
 	DATETIME dt;
 	START;
@@ -2317,7 +2321,7 @@ int time_value_datetime(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-int time_value_datetimezone(PARSER, TIMESTAMP *t)
+static int time_value_datetimezone(PARSER, TIMESTAMP *t)
 {
 	DATETIME dt;
 	START;
@@ -2347,7 +2351,7 @@ int time_value_datetimezone(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-/*static*/ int time_value(PARSER, TIMESTAMP *t)
+static int time_value(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -4876,6 +4880,7 @@ static int library(PARSER)
 	REJECT;
 }
 
+#if 0 // unused function
 static int comment_block(PARSER)
 {
 	int startline = linenum;
@@ -4899,6 +4904,7 @@ static int comment_block(PARSER)
 	}
 	return 0;
 }
+#endif
 
 static int schedule(PARSER)
 {
@@ -5051,6 +5057,7 @@ static int gnuplot(PARSER, GUIENTITY *entity)
 	return _n;
 }
 
+#if 0 // unused function
 static int gui_link_globalvar(PARSER, GLOBALVAR **var)
 {
 	char varname[64];
@@ -5064,6 +5071,7 @@ static int gui_link_globalvar(PARSER, GLOBALVAR **var)
 		REJECT;
 	DONE;
 }
+#endif
 
 static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 {
@@ -6131,7 +6139,6 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[10240];
-	char *buf = buffer;
 	int n = 0, i = 0;
 	int _linenum=0;
 	int startnest = nesting;
@@ -6400,7 +6407,8 @@ int is_autodef(char *value)
 /* started processes */
 #include "threadpool.h"
 #include "signal.h"
-struct s_threadlist {
+struct s_threadlist 
+{
 	pthread_t *data;
 	struct s_threadlist *next;
 } *threadlist = NULL;
@@ -6408,7 +6416,6 @@ void kill_processes(void)
 {
 	while ( threadlist!=NULL )
 	{
-		void *ptr;
 		struct s_threadlist *next = threadlist->next;
 		int sig = SIGTERM;
 		int rc = pthread_kill(*(threadlist->data),sig);
@@ -6494,7 +6501,6 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 {
 #ifndef WIN32
 	char *var, *val, *save;	// used by *nix
-	int i, count;			// used by *nix
 #endif
 	char buffer[64];
 	if (strncmp(line,MACRO "endif",6)==0)
@@ -6707,7 +6713,6 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			++term;
 		if (sscanf(term,"\"%[^\"]\"",value)==1)
 		{
-			char *start=line;
 			int len = sprintf(line,"@%s;%d\n",value,0);
 			line+=len; size-=len;
 			strcpy(oldfile, filename);	// push old filename
@@ -7054,7 +7059,6 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 	{
 		char url[1024], file[1024];
 		size_t n = sscanf(line+5,"%s %[^\n\r]",url,file);
-		HTTPRESULT *http;
 		strcpy(line,"\n");
 		if ( n<1 )
 		{
@@ -7114,7 +7118,6 @@ STATUS loadall_glm(char *file) /**< a pointer to the first character in the file
 	int fsize = 0;
 	STATUS status=FAILED;
 	STAT stat;
-	char *ext = strrchr(file,'.');
 	FILE *fp;
 	int move=0;
 	errno = 0;
@@ -7202,7 +7205,6 @@ STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character
 	int fsize = 0;
 	STATUS status=FAILED;
 	STAT stat;
-	char *ext = strrchr(file,'.');
 	FILE *fp;
 	int move = 0;
 	errno = 0;
@@ -7329,11 +7331,8 @@ STATUS loadall(const char *fname)
 	{
 		strcpy(file,fname);
 	}
-	char *buffer = NULL, *p = NULL;
 	char *ext = fname ? strrchr(file,'.') : NULL ;
 	unsigned int old_obj_count = object_get_count();
-	unsigned int new_obj_count = 0;
-//	unsigned int i;
 	char conf[1024];
 	static int loaded_files = 0;
 	STATUS load_status = FAILED;

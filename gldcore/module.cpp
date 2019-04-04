@@ -88,24 +88,38 @@
 
 SET_MYCONTEXT(DMC_MODULE)
 
-int get_exe_path(char *buf, int len, void *mod){	/* void for GetModuleFileName, a windows func */
-	int rv = 0, i = 0;
-	if(buf == NULL)
+int get_exe_path(char *buf, 
+				 int len, 
+				 void *mod) /* void for GetModuleFileName, a windows func */
+{	
+	/* void for GetModuleFileName, a windows func */
+	int rv = 0;
+	if ( buf == NULL )
+	{
 		return 0;
-	if(len < 1)
+	}
+	if ( len < 1 )
+	{
 		return 0;
+	}
 #if defined WIN32 && ! defined __MINGW32__
 	rv = GetModuleFileName((HMODULE) mod, buf, len);
-	if(rv){
-		for(i = rv; ((buf[i] != '/') && (buf[i] != '\\') && (i >= 0)); --i){
+	if ( rv )
+	{
+		for ( i = rv; ((buf[i] != '/') && (buf[i] != '\\') && (i >= 0)); --i)
+		{
 			buf[i] = 0;
 			--rv;
 		}
 	}
 #else /* POSIX */
-	if(mod == NULL){ /* "/bin/gridlabd"?*/
+	if ( mod == NULL )
+	{ 
+		/* "/bin/gridlabd"?*/
 		;
-	} else {
+	} 
+	else 
+	{
 		;
 	}
 #endif
@@ -619,7 +633,6 @@ static void _module_list (char *path)
 {
 	struct stat info;
 	static int count = 0;
-	int gsrm = global_suppress_repeat_messages;
 #ifdef WIN32
 	char search[1024];
 	HANDLE hFind;
@@ -663,7 +676,6 @@ static void _module_list (char *path)
 		char *ext;
 		void *hLib = NULL;
 		int *pMajor = NULL, *pMinor = NULL;
-		LIBINIT init = NULL;
 		global_suppress_repeat_messages = 0;
 #ifdef WIN32
 		strcat(fname,sFind.cFileName);
@@ -1300,7 +1312,7 @@ static int cc_keepwork=0;
 /** Get file modify time
     @return modification time in seconds of epoch, 0 on missing file or fstat failure
  **/
-static time_t file_modtime(char *file) /**< file name to query */
+time_t file_modtime(char *file) /**< file name to query */
 {
 	FILE *fp = fopen(file,"r");
 	if (fp)
@@ -1355,10 +1367,8 @@ int module_compile(const char *name,	/**< name of library */
 	FILE *fp;
 	char srcfile[1024];
 	char mopt[8] = "";
-	const char *libs = "-lstdc++";
 #ifdef WIN32
 	snprintf(mopt,sizeof(mopt),"-m%d",sizeof(void*)*8);
-	libs = "";
 #endif
 
 	/* normalize source file name */
@@ -1713,7 +1723,6 @@ struct thread_affinity_policy policy;
 
 #include "gui.h"
 
-static unsigned char procs[65536]; /* processor map */
 static unsigned short n_procs=0; /* number of processors in map */
 
 #define MAPNAME "gridlabd-pmap-3" /* TODO: change the pmap number each time the structure changes */
@@ -2017,7 +2026,6 @@ void sched_print(int flags) /* flag=0 for single listing, flag=1 for continuous 
 	if ( process_map!=NULL )
 	{
 		unsigned int n;
-		int first=1;
 		if ( flags==1 )
 		{
 			sched_getinfo(-1,line,sizeof(line));
@@ -2224,7 +2232,6 @@ void sched_init(int readonly)
 	key_t shmkey = ftok(mfile,sizeof(GLDPROCINFO));
 	pid_t pid = getpid();
 	int shmid;
-	int n;
 	output_debug("shmkey = %d", (int)shmkey);
 
 	/* get total number of processors */

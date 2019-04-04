@@ -5,13 +5,14 @@
 #include "load.h"
 #include "convert.h"
 
-SET_MYCONTEXT(DMC_SETUP)
+// SET_MYCONTEXT(DMC_SETUP) // only used if IN_MYCONTEXT is present in this module
 
 #ifdef HAVE_CURSES
 int height=0, width=0;
 char status[1024] = "Ready";
 char blank[1024];
 
+#if 0 // not used yet 
 static bool edit_bool(int row, int col, int len, PROPERTY *prop)
 {
 	bool value;
@@ -28,6 +29,7 @@ static bool edit_bool(int row, int col, int len, PROPERTY *prop)
 	}
 	return value;
 }
+#endif
 
 static bool edit_in_place(int row, int col, int len, PROPERTY *prop)
 {

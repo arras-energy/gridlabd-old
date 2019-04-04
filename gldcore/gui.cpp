@@ -382,7 +382,6 @@ int gui_cmd_entity(int item, GUIENTITY *entity)
 void gui_cmd_prompt(GUIENTITY *parent)
 {
 	char buffer[1024];
-	int item=0, ans=-1;
 	char *label;
 	GUIENTITY *entity;
 	for ( entity=gui_root ; entity!=NULL ; entity=entity->next )
@@ -414,9 +413,9 @@ Retry:
 	}
 	else if (entity->env)
 	{
-		char env[1024];
 #ifdef WIN32
-		sprintf("%s=%s",entity->env,buffer);
+		char env[1024];
+		sprintf(env,"%s=%s",entity->env,buffer);
 		putenv(env);
 #else
 		setenv(entity->env,buffer,1);
@@ -591,7 +590,6 @@ static void gui_output_html_table(GUIENTITY *entity)
 	FILE *src = fopen(entity->source,"r");
 	char line[65536];
 	int row=0;
-	int col=0;
 	char header[1024];
 	gui_html_output(fp,"<table class=\"data\" %s>\n",entity->options);
 	if (src==NULL)

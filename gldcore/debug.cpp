@@ -244,7 +244,6 @@ static int debug_active = 1; /**< flag indicating that the debugger is currently
 static int error_caught = 0; /**< flag indicating that the debugger has seen an error */
 static int watch_sync = 0; /**< flag indicating that sync times should be reported */
 static int sigint_caught = 0; /**< flag indicating that \p SIGINT has been caught */
-static int sigterm_caught = 0; /**< flag indicating that \p SIGTERM has been caught */
 static int list_details = 0; /**< flag indicating that listing includes details */
 static int list_unnamed = 1; /**< flag indicating that listing includes unnamed objects */
 static int list_inactive = 1; /**< flag indicating that listing includes inactive objects */

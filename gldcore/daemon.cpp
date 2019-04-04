@@ -77,7 +77,7 @@ static struct s_config {
 	{"keepalive",keepalive},
 	{"timeout",timeout},
 	{"umask",umaskstr},
-	NULL, NULL // required to end loop
+	{NULL, NULL} // required to end loop
 };
 
 static void daemon_log(const char *format, ...)
@@ -155,8 +155,6 @@ static void daemon_cleanup(void)
 {
 	if ( daemon_pid == getpid() )
 	{
-		struct stat fs;
-
 		// remove the pid file
 		if ( unlink(pidfile) == 0 )
 			daemon_log("deleted pidfile '%s'",pidfile);
@@ -351,7 +349,6 @@ static void daemon_process(void)
 	int sockfd, portno=atoi(port);
 	socklen_t clilen;
 	struct sockaddr_in serv_addr, cli_addr;
-	int n;
 	if ( portno <= 0 )
 	{
 		daemon_log("invalid port number (port=%s)",port);
@@ -590,7 +587,7 @@ static int daemon_arguments(int argc, const char *argv[])
 
 static int daemon_configure()
 {
-	pid_t pid, sid;
+	pid_t sid;
 
 	// change the working folder
 	if ( enable_jail )

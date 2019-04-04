@@ -1296,7 +1296,6 @@ int object_set_rank(OBJECT *obj, /**< the object to set */
 int object_set_parent(OBJECT *obj, /**< the object to set */
 					  OBJECT *parent) /**< the new parent of the object */
 {
-	int prank = -1;
 	if(obj == NULL)
 		return obj->rank;
 	if(obj == parent)
@@ -2288,7 +2287,7 @@ typedef unsigned long long HASH;
 
 static HASH hash(OBJECTNAME name)
 {
-	static HASH A = 55711, B = 45131, C = 60083;
+	static HASH A = 55711, B = 45131; //, C = 60083; isn't used but should be in principle
 	HASH h = 18443;
 	const char *p;
 	bool ok = true;

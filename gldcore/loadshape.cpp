@@ -183,9 +183,6 @@ TurnOff:
 			else if (ls->params.modulated.modulation==MMT_PULSEWIDTH) 
 			{
 				// PWM off time
-				double power = (ls->params.modulated.pulsetype==MPT_TIME)
-					? ls->params.modulated.energy * 3600 / ls->params.modulated.pulsevalue
-					: ls->params.modulated.pulsevalue;
 				double period = ls->schedule->duration / ls->params.modulated.scalar;
 				double ton = ls->schedule->value * ls->params.modulated.scalar / ls->params.modulated.energy / ls->params.modulated.scalar;
 				ls->r = 3600 / (period - ton);
@@ -256,7 +253,6 @@ TurnOn:
 				? ls->params.modulated.energy * 3600 / ls->params.modulated.pulsevalue
 				: ls->params.modulated.pulsevalue;
 			double pulsecount = ls->params.modulated.energy / power * ls->schedule->duration / 3600;
-			double period = ls->schedule->duration / pulsecount;
 			double ton = ls->schedule->value * ls->params.modulated.scalar / ls->params.modulated.energy / pulsecount;
 			ls->r = -3600 / ton;
 			ls->load = power;
@@ -1621,7 +1617,7 @@ int loadshape_test(void)
 	struct s_test {
 		const char *name;
 	} *p, test[] = {
-		"TODO",
+		{"TODO"},
 	};
 
 	output_test("\nBEGIN: loadshape tests");

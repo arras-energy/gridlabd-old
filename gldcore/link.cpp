@@ -103,7 +103,7 @@ LINKLIST * glxlink::add_import(const char *name)
 int link_create(const char *file)
 {
 	try {
-		glxlink *lt = new glxlink(file);
+		new glxlink(file);
 		return 1;
 	}
 	catch (char *msg)
@@ -187,7 +187,6 @@ STATUS link_initall(void)
 			for ( item=mod->get_objects() ; item!=NULL ; item=mod->get_next(item) )
 			{
 				if ( strcmp(item->name,"")==0 ) continue;
-				OBJECT *obj = NULL;
 				item->data = (void*)object_find_name(item->name);
 				if ( item->data==NULL)
 					output_error("link_initall(target='%s'): object '%s' is not found", mod->get_target(), item->name);

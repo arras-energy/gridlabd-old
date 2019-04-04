@@ -15,7 +15,6 @@ extern int inst_created;
 /////////////////////////////////////////////////////////////////////
 // SLAVE INSTANCE
 
-static MESSAGE *slave_cache;
 unsigned int slave_id;
 pthread_t slave_tid;
 static instance local_inst;
@@ -154,8 +153,6 @@ STATUS instance_slave_link_properties()
 {
 	char *buffer = 0;
 	char *read = 0;
-	OBJECT *obj = 0;
-	PROPERTY *prop = 0;
 	STATUS rv = FAILED;
 	size_t offset = 0;
 	linkage *link = 0;
@@ -245,7 +242,6 @@ STATUS instance_slave_link_properties()
 
 int instance_slave_wait_mmap(){
 	int status = 0;
-	MESSAGE *tc = 0;
 #ifdef WIN32
 	DWORD rc = 0;
 	tc = (MESSAGE *)(local_inst.filemap);
@@ -627,7 +623,6 @@ STATUS instance_slave_init_socket(){
 	int rv = 0;
 	struct sockaddr_in connaddr;
 	char cmd[1024];
-	FILE *refile = 0;
 	INSTANCE_PICKLE pickle;
 #ifdef WIN32
 	static WSADATA wsaData;
@@ -858,12 +853,9 @@ STATUS instance_slave_init_pthreads(){
 STATUS instance_slave_init(void)
 {
 	int rv = 0;
-//	STATUS stat;
-	size_t cacheSize = sizeof(MESSAGE)+MSGALLOCSZ; /* @todo size instance cache dynamically from linkage list */
 
 	IN_MYCONTEXT output_debug("instance_slave_init()");
 
-//	memset(&local_inst, 0, sizeof(local_inst));
 	local_inst.cacheid = global_slave_id;
 	global_multirun_mode = MRM_SLAVE;
 	IN_MYCONTEXT output_debug("slave %lli setting prefixes", local_inst.cacheid);
