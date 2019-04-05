@@ -147,7 +147,7 @@ typedef struct s_callbacks {
 		OBJECT *(*get_first)(void);
 		int (*set_dependent)(OBJECT*,OBJECT*);
 		int (*set_parent)(OBJECT*,OBJECT*);
-		int (*set_rank)(OBJECT*,unsigned int);
+		OBJECTRANK (*set_rank)(OBJECT*,OBJECTRANK);
 	} object;
 	struct {
 		PROPERTY *(*get_property)(OBJECT*,PROPERTYNAME,PROPERTYSTRUCT*);
@@ -410,14 +410,14 @@ const char *object_get_string_by_name(OBJECT *obj, const char *name);
 FUNCTIONADDR object_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
 const char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz);
 const char *object_get_unit(OBJECT *obj, const char *name);
-int object_set_rank(OBJECT *obj, OBJECTRANK rank);
+OBJECTRANK object_set_rank(OBJECT *obj, OBJECTRANK rank);
 
 OBJECT *object_find_by_id(OBJECTNUM id);
 OBJECT *object_get_first(void);
 OBJECT *object_get_next(OBJECT *obj);
 unsigned int object_get_count(void);
-int object_dump(char *buffer, int size, OBJECT *obj);
-int object_save(char *buffer, int size, OBJECT *obj);
+size_t object_dump(char *buffer, size_t size, OBJECT *obj);
+size_t object_save(char *buffer, size_t size, OBJECT *obj);
 int object_saveall(FILE *fp);
 int object_saveall_xml(FILE *fp);
 void object_stream_fixup(OBJECT *obj, CLASSNAME classname, const char *objname);

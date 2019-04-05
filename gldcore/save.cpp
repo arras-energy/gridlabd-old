@@ -39,7 +39,7 @@ int saveall(const char *filename)
 		{"xml", savexml},
 		{"json", savejson},
 	};
-	int i;
+	size_t i;
 
 	/* identify output format */
 	if (ext==NULL)
@@ -229,7 +229,7 @@ int savexml_strict(const char *filename,FILE *fp)
 			for (pass=0; ranks!=NULL && ranks[pass]!=NULL; pass++)
 			{
 				const char *passname[]={"pretopdown","bottomup","posttopdown"};
-				int lastrank=-1;
+				OBJECTRANK lastrank=-1;
 				fprintf(fp,"\t\t<pass>\n\t\t\t<name>%s</name>\n",passname[pass]);
 				for (i = PASSINIT(pass); PASSCMP(i, pass); i += PASSINC(pass))
 				{

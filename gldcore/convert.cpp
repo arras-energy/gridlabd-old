@@ -299,7 +299,7 @@ int convert_from_enumeration(char *buffer, /**< pointer to the string buffer */
 	int count = 0;
 	char temp[1025];
 	/* get the true value */
-	int value = *(uint32*)data;
+	uint64 value = *(uint64*)data;
 
 	/* process the keyword list, if any */
 	for ( ; keys!=NULL ; keys=keys->next )
@@ -316,7 +316,7 @@ int convert_from_enumeration(char *buffer, /**< pointer to the string buffer */
 	/* no keyword found, return the numeric value instead */
 	if ( count == 0 )
 	{
-		 count = sprintf(temp,"%d",value);
+		 count = sprintf(temp,"%llu",value);
 	}
 	if ( count < size - 1 )
 	{
@@ -847,7 +847,7 @@ int convert_from_object(char *buffer, /**< pointer to the string buffer */
 	if ( obj->name != NULL )
 	{
 		size_t a = strlen(obj->name);
-		if ( (a != 0) && (a+1 < size) )
+		if ( (a != 0) && (a+1 < (size_t)size) )
 		{
 			strcat(buffer, obj->name);
 			return (int)(a+1);
@@ -856,7 +856,7 @@ int convert_from_object(char *buffer, /**< pointer to the string buffer */
 
 	/* construct the object's name */
 	size_t a = sprintf(temp,global_object_format,obj->oclass->name,obj->id);
-	if ( a+1 < size )
+	if ( a+1 < (size_t)size )
 	{
 		strcat(buffer,temp);
 		return a+1;

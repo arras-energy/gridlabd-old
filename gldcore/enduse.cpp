@@ -282,7 +282,7 @@ TIMESTAMP enduse_syncall(TIMESTAMP t1)
 	if (n_threads_ed==0)
 	{
 		enduse *e;
-		int n_items, en = 0;
+		size_t n_items, en = 0;
 
 		IN_MYCONTEXT output_debug("enduse_syncall setting up for %d enduses", n_enduses);
 

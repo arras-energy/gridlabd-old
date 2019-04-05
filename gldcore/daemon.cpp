@@ -713,9 +713,6 @@ int daemon_start(int argc, const char *argv[])
 		daemon_process();
 		return nargs+1;
 	}
-	output_fatal("unreachable code reached");
-	abort();	
-	return 0;
 }
 
 int daemon_stop(int argc, const char *argv[])

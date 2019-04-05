@@ -567,7 +567,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			{&c->update,"update",TRUE},
 			{&c->heartbeat,"heartbeat",TRUE},
 		};
-		int i;
+		size_t i;
 		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
 		{
 			snprintf(fname, sizeof(fname) ,"%s_%s",map[i].name,isforeign?fmod:c->name);
@@ -1905,7 +1905,7 @@ int sched_getinfo(int n,char *buf, size_t sz)
 	{
 		for ( n=0 ; n<width ; n++ )
 		{
-			if ( n>0 && n<HEADING_SZ-1 && HEADING[n]==' ' && HEADING[n+1]!=' ' )
+			if ( n>0 && n<(int)HEADING_SZ-1 && HEADING[n]==' ' && HEADING[n+1]!=' ' )
 				buf[n] = ' ';
 			else
 				buf[n]='-';
@@ -2527,13 +2527,17 @@ void sched_continuous(void)
 #endif
 }
 
+bool continuous_schedule_controller = true;
 void sched_controller(void)
 {
 	char command[1024];
 	ARGS *last = NULL;
 
-	sched_continuous();
-	return;
+	if ( continuous_schedule_controller )
+	{
+		sched_continuous();
+		return;
+	}
 
 	global_suppress_repeat_messages = 0;
 #ifdef WIN32

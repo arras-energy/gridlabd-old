@@ -602,7 +602,7 @@ void *schedule_createproc(void *args)
 			int ingap = 0;
 			for (calendar=0; calendar<14; calendar++)
 			{
-				int t;
+				unsigned long t;
 				for ( t=0; t<sizeof(sch->dtnext[calendar])/sizeof(sch->dtnext[calendar][0])-1; t++ )
 				{
 					if ( sch->dtnext[calendar][t] == 0 && !ingap)
@@ -1162,7 +1162,7 @@ TIMESTAMP schedule_syncall(TIMESTAMP t1) /**< the time to which the schedule is 
 	if (n_threads_sch==0) 
 	{
 		SCHEDULE *sch;
-		int n_items, schn=0;
+		size_t n_items, schn=0;
 
 		IN_MYCONTEXT output_debug("loadshape_syncall setting up for %d shapes", n_schedules);
 

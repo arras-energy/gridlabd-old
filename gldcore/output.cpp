@@ -104,7 +104,7 @@ FILE* output_redirect_stream(const char *name, FILE *fp)
 		{"profile",&redirect.profile,"gridlabd.pro"},
 		{"progress",&redirect.progress,"gridlabd.prg"},
 	};
-	int i;
+	size_t i;
 	for (i=0; i<sizeof(map)/sizeof(map[0]); i++) 
 	{
 		if (strcmp(name,map[i].name)==0)
@@ -143,7 +143,7 @@ FILE* output_redirect(const char *name, const char *path)
 		{"profile",&redirect.profile,"gridlabd.pro"},
 		{"progress",&redirect.progress,"gridlabd.prg"},
 	};
-	int i;
+	size_t i;
 	for (i=0; i<sizeof(map)/sizeof(map[0]); i++) 
 	{
 		if (strcmp(name,map[i].name)==0)

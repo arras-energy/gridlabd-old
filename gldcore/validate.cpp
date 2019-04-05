@@ -763,7 +763,7 @@ int validate(void *main, int argc, const char *argv[])
 	size_t i;
 	int redirect_found = 0;
 	strcpy(validate_cmdargs,"");
-	for ( i=1 ; i<argc ; i++ )
+	for ( i = 1 ; i < (size_t)argc ; i++ )
 	{
 		if ( strcmp(argv[i],"--redirect")==0 ) redirect_found = 1;
 		strcat(validate_cmdargs,argv[i]);
@@ -868,7 +868,7 @@ int validate(void *main, int argc, const char *argv[])
 
 	pthread_t *pid = new pthread_t[n_procs];
 	IN_MYCONTEXT output_debug("starting validation with cmdargs '%s' using %d threads", validate_cmdargs, n_procs);
-	for ( i=0 ; i<n_procs ; i++ )
+	for ( i = 0 ; i < (size_t)n_procs ; i++ )
 	{
 		if ( pthread_create(&pid[i],NULL,run_test_proc,(void*)i) != 0 )
 		{
@@ -881,7 +881,7 @@ int validate(void *main, int argc, const char *argv[])
 	}	
 	void *rc;
 	IN_MYCONTEXT output_debug("begin waiting process");
-	for ( i=0 ; i<n_procs ; i++ )
+	for ( i = 0 ; i < (size_t)n_procs ; i++ )
 	{
 		if ( pthread_join(pid[i],&rc) != 0 )
 		{

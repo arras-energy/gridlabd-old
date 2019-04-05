@@ -1421,7 +1421,7 @@ size_t objlist_add(OBJLIST *list, PROPERTY *match, const char *match_part, const
 size_t objlist_del(OBJLIST *list, PROPERTY *match, const char *match_part, const char *match_op, void *match_value1, void *match_value2)
 {
 	PROPERTYCOMPAREOP op = property_compare_op(match->ptype, match_op);
-	int n, m;
+	size_t n, m;
 
 	// scan list and mark objects to be removed
 	for ( n=0 ; n<list->size ; n++ )
@@ -1505,7 +1505,7 @@ int objlist_apply(OBJLIST *list, /**< object list */
 				  void *arg, /**< pointer to additional data given to function */
 				  int (*function)(OBJECT *,void *,int)) /**< function to call */
 {
-	int n;
+	size_t n;
 	for ( n=0 ; n<list->size ; n++ )
 	{
 		OBJECT *obj = list->objlist[n];

@@ -1971,7 +1971,7 @@ public: // external accessors
 public: // core interface
 	inline int set_dependent(OBJECT *obj) { return callback->object.set_dependent(my(),obj); };
 	inline int set_parent(OBJECT *obj) { return callback->object.set_parent(my(),obj); };
-	inline int set_rank(unsigned int r) { return callback->object.set_rank(my(),r); };
+	inline OBJECTRANK set_rank(unsigned int r) { return callback->object.set_rank(my(),r); };
 	inline bool isa(const char *type) { return callback->object_isa(my(),type) ? true : false; };
 	inline bool is_valid(void) { return my()!=NULL && my()==OBJECTHDR(this); };
 

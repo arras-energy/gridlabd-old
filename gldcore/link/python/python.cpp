@@ -1226,7 +1226,7 @@ extern "C" bool on_init(void)
 {
     Callback("on_init");
 
-    size_t n;
+    Py_ssize_t n;
     for ( n = 0 ; n < PyList_Size(python_init) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_init,n);
@@ -1264,7 +1264,7 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
 {
     Callback("on_precommit");
 
-    size_t n;
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_precommit) ; n++ )
     {
@@ -1304,7 +1304,7 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
 {
     Callback("on_presync");
 
-    size_t n;
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_presync) ; n++ )
     {
@@ -1344,7 +1344,7 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
 {
     Callback("on_sync");
 
-    size_t n;
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_sync) ; n++ )
     {
@@ -1384,7 +1384,7 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
 {
     Callback("on_postsync");
 
-    size_t n;
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_postsync) ; n++ )
     {
@@ -1424,7 +1424,7 @@ extern "C" bool on_commit(TIMESTAMP t)
 {
     Callback("on_commit");
 
-    size_t n;
+    Py_ssize_t n;
     for ( n = 0 ; n < PyList_Size(python_commit) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_commit,n);
@@ -1460,7 +1460,7 @@ extern "C" void on_term(void)
 {
     Callback("on_term");
 
-    size_t n;
+    Py_ssize_t n;
     for ( n = 0 ; n < PyList_Size(python_term) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_term,n);
@@ -1507,7 +1507,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
         return 0;
     }
 
-    size_t n;
+    Py_ssize_t n;
     PyObject *mod;
     for ( n = 0 ; n < PyList_Size(modlist) ; n++ )
     {

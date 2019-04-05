@@ -824,7 +824,7 @@ int unit_test(void)
 		{{1, "Ohm"},	{1,"V/A"}},
 		{{1, "H"},		{1,"Ohm*s"}},
 	};
-	int n, failed = 0, succeeded = 0;
+	size_t n, failed = 0, succeeded = 0;
 	output_test("\nBEGIN: units tests");
 	for (n = 0; n < sizeof(test)/sizeof(test[0]); n++){
 		double v = test[n].from.value;

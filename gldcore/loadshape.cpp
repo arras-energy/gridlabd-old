@@ -947,7 +947,7 @@ TIMESTAMP loadshape_syncall(TIMESTAMP t1)
 	if (n_threads_ls==0) 
 	{
 		loadshape *s;
-		int n_items, ln=0;
+		size_t n_items, ln=0;
 
 		IN_MYCONTEXT output_debug("loadshape_syncall setting up for %d shapes", n_shapes);
 

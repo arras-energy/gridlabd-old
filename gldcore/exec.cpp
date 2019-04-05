@@ -566,7 +566,7 @@ void GldExec::initranks(void)
 STATUS GldExec::setup_ranks(void)
 {
 	OBJECT *obj;
-	int i;
+	size_t i;
 
 	initranks();
 	INDEX **ranks = getranks();
@@ -2127,7 +2127,7 @@ void GldExec::create_lockdata(int nObjRankList)
 	donelock = (pthread_mutex_t*)malloc(sizeof(donelock[0])*nObjRankList);
 	start = (pthread_cond_t*)malloc(sizeof(start[0])*nObjRankList);
 	done = (pthread_cond_t*)malloc(sizeof(done[0])*nObjRankList);
-	for ( k = 0 ; k < nObjRankList ; k++ ) 
+	for ( k = 0 ; k < (size_t)nObjRankList ; k++ ) 
 	{
 		pthread_mutex_init(&startlock[k], NULL);
 		pthread_mutex_init(&donelock[k], NULL);
@@ -3537,7 +3537,11 @@ EXITCODE GldExec::run_scripts(SIMPLELIST *list)
 			// special access
 			if ( strcmp(group,"gridlabd") == 0 )
 			{
-				return run_gridlabd_script(call);
+				EXITCODE rc = run_gridlabd_script(call);
+				if ( rc != XC_SUCCESS )
+				{
+					return rc;
+				}
 			}
 			else 
 			{
@@ -3547,7 +3551,11 @@ EXITCODE GldExec::run_scripts(SIMPLELIST *list)
 		}
 		else
 		{
-			return run_system_script(item->data);
+			EXITCODE rc = run_system_script(item->data);
+			if ( rc != XC_SUCCESS )
+			{
+				return rc;
+			}
 		}
 	}
 	return XC_SUCCESS;

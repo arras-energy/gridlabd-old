@@ -747,7 +747,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 			if (!entity->parent || gui_get_type(entity->parent)!=GUI_SPAN) newcol(entity);
 			for (key=prop->keywords; key!=NULL; key=key->next)
 			{
-				int value = *(int*)gui_get_data(entity);
+				uint64 value = *(uint64*)gui_get_data(entity);
 				const char *checked = (value==key->value)?"checked":"";
 				char label[64], *p;
 				strcpy(label,key->name);
@@ -765,7 +765,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 			if (!entity->parent || gui_get_type(entity->parent)!=GUI_SPAN) newcol(entity);
 			for (key=prop->keywords; key!=NULL; key=key->next)
 			{
-				int value = *(int*)gui_get_data(entity);
+				uint64 value = *(uint64*)gui_get_data(entity);
 				const char *checked = (value==key->value)?"checked":"";
 				char label[64], *p;
 				strcpy(label,key->name);
@@ -786,7 +786,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 			gui_html_output(fp,"<select class=\"%s\" name=\"%s\" %s %s onchange=\"update_%s(this)\">\n", ptype, gui_get_name(entity),multiple,size,ptype);
 			for (key=prop->keywords; key!=NULL; key=key->next)
 			{
-				int value = *(int*)gui_get_data(entity);
+				uint64 value = *(uint64*)gui_get_data(entity);
 				const char *checked = (value==key->value)?"selected":"";
 				char label[64], *p;
 				strcpy(label,key->name);
@@ -981,9 +981,18 @@ size_t gui_glm_write(FILE *fp, GUIENTITY *entity, int indent)
 	GUIENTITY *parent = entity;
 	const char *type = gui_glm_typename(parent->type);
 	char tabs[] = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-	if (indent<0) tabs[0]='\0'; else if (indent<sizeof(tabs)) tabs[indent]='\0';
+	if ( indent < 0 ) 
+	{
+		tabs[0]='\0'; 
+	}
+	else if ( (size_t)indent < sizeof(tabs) ) 
+	{
+		tabs[indent]='\0';
+	}
 	if (type==NULL)
+	{
 		return FAILED;
+	}
 	
 	if (entity->type==GUI_ACTION)
 	{

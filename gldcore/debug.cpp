@@ -497,7 +497,7 @@ DEBUGCMD exec_debug_cmd(struct sync_data *data, /**< the current sync status of 
 	{
 		char cmd[32]=""; 
 		char buffer[1024]="";
-		int i;
+		size_t i;
 Retry:
 		/* add signals to signal handler */
 		for (i=0; i<sizeof(siglist)/sizeof(siglist[0]); i++)

@@ -844,8 +844,9 @@ const char *tz_dst(const char *tzspec ) {
 
 /** Apply a timezone spec to the current tz rules
  **/
-void set_tzspec(int year, const char *tzname, SPEC *pStart, SPEC *pEnd ) {
-	int y;
+void set_tzspec(int year, const char *tzname, SPEC *pStart, SPEC *pEnd ) 
+{
+	size_t y;
 
 
 	for (y = year - YEAR0; y < sizeof(tszero) / sizeof(tszero[0]); y++)
@@ -871,14 +872,15 @@ void set_tzspec(int year, const char *tzname, SPEC *pStart, SPEC *pEnd ) {
 
 /** Load a timezone from the timezone info file
  **/
-void load_tzspecs(const char *tz ) {
+void load_tzspecs(const char *tz ) 
+{
 	char filepath[1024];
 	const char *pTzname = NULL;
 	FILE *fp = NULL;
 	char buffer[1024];
 	int linenum = 0;
 	int year = YEAR0;
-	int y;
+	size_t y;
 	int found;
 
 	found = 0;

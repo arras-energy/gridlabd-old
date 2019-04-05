@@ -1245,7 +1245,7 @@ OBJECT *object_get_next(OBJECT *obj){ /**< the object from which to start */
 	the request to prevent looping.  This will prevent
 	an object_set_parent call from creating a parent loop.
  */
-static int set_rank(OBJECT *obj, OBJECTRANK rank, OBJECT *first)
+static OBJECTRANK set_rank(OBJECT *obj, OBJECTRANK rank, OBJECT *first)
 {
 	// check for loopback
 	if ( obj == first )
@@ -1280,7 +1280,7 @@ static int set_rank(OBJECT *obj, OBJECTRANK rank, OBJECT *first)
 	to increase rank if necessary.
 	@return object rank; -1 if failed 
  **/
-int object_set_rank(OBJECT *obj, /**< the object to set */
+OBJECTRANK object_set_rank(OBJECT *obj, /**< the object to set */
 					OBJECTRANK rank) /**< the object */
 {
 	if ( obj == NULL )
@@ -1763,16 +1763,17 @@ int object_isa(OBJECT *obj, /**< the object to test */
 /** Dump an object to a buffer
 	@return the number of characters written to the buffer
  **/
-int object_dump(char *outbuffer, /**< the destination buffer */
-				int size, /**< the size of the buffer */
+size_t object_dump(char *outbuffer, /**< the destination buffer */
+				size_t size, /**< the size of the buffer */
 				OBJECT *obj){ /**< the object to dump */
 	char buffer[65536];
 	char tmp[256];
 	char tmp2[1024];
-	int count = 0;
+	size_t count = 0;
 	PROPERTY *prop = NULL;
 	CLASS *pclass = NULL;
-	if(size>sizeof(buffer)){
+	if ( size>sizeof(buffer) )
+	{
 		size = sizeof(buffer);
 	}
 	
@@ -1850,7 +1851,7 @@ int object_dump(char *outbuffer, /**< the destination buffer */
 /** Save an object to the buffer provided
     @return the number of bytes written to the buffer, 0 on error, with errno set
  **/
-static int object_save_x(char *temp, int size, OBJECT *obj, CLASS *oclass)
+static size_t object_save_x(char *temp, size_t size, OBJECT *obj, CLASS *oclass)
 {
 	char buffer[1024];
 	PROPERTY *prop;
@@ -1870,12 +1871,12 @@ static int object_save_x(char *temp, int size, OBJECT *obj, CLASS *oclass)
 	}
 	return count;
 }
-int object_save(char *buffer, int size, OBJECT *obj)
+size_t object_save(char *buffer, size_t size, OBJECT *obj)
 {
 	char temp[65536];
 	char oname[MAXOBJECTNAMELEN] = "";
 	CLASS *pclass;
-	int count = sprintf(temp,"object %s:%d {\n\n\t// header properties\n", obj->oclass->name, obj->id);
+	size_t count = sprintf(temp,"object %s:%d {\n\n\t// header properties\n", obj->oclass->name, obj->id);
 
 	IN_MYCONTEXT output_debug("saving object %s:%d", obj->oclass->name, obj->id);
 
@@ -2490,9 +2491,6 @@ int object_build_name(OBJECT *obj, char *buffer, int len){
 		strcpy(buffer, ptr);
 		return L;
 	}
-
-	output_error("object_build_name(): control unexpectedly reached end of method");
-	return 0; // shouldn't reach this
 }
 
 /** Sets the name of an object.  This is useful if the internal name cannot be relied upon, 
