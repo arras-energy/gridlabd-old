@@ -111,7 +111,6 @@ TIMESTAMP g_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 			gld_property relation_prop(my(),"relation");
 			gld_keyword *pKeyword = relation_prop.find_keyword(relation);
 			char buf[1024];
-			char *p = get_part();
 			gl_error("%s: assert failed on %s %s.%s.%s %s %s %s %s", get_name(), status==AS_TRUE?"":"NOT",
 				get_parent()?get_parent()->get_name():"global variable", get_target(), get_part(), target_prop.to_string(buf,sizeof(buf))?buf:"(void)", pKeyword->get_name(), get_value(), get_value2());
 			return 0;
