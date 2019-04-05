@@ -52,39 +52,12 @@
 #ifndef _GRIDLABD_H
 #define _GRIDLABD_H
 
-/* permanently disable use of CPPUNIT */
-#ifndef _NO_CPPUNIT
-#define _NO_CPPUNIT
-#endif
-
-// module version info (must match core version info)
+// core version info (must match version info in config.h)
 #define MAJOR 4
 #define MINOR 2
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef WIN32
-#define HAVE_LIBCPPUNIT
-#endif
-
-#ifdef __cplusplus
-	#ifndef CDECL
-		/** Defines a function as a C-type function **/
-		#define CDECL extern "C"
-	#endif
-#else
-	#define CDECL
-#endif
-
-#ifdef WIN32
-#ifndef EXPORT
-/** Defines a function as exported to core **/
-#define EXPORT CDECL __declspec(dllexport)
-#endif
-#else
-#define EXPORT CDECL
 #endif
 
 #include <stdarg.h>
@@ -97,20 +70,23 @@
 #define STREAM_MODULE
 #include "stream.h"
 
+#ifdef __cplusplus
+#define CDECL extern "C" /* TODO: obsolete as of 4.2 */
+#else
+#define CDECL 
+#endif
+
+#define EXPORT CDECL /* TODO:obsolete as of 4.2 */
+
 #ifdef DLMAIN
 #define EXTERN
-#define INIT(X) =(X)
-#else
-#ifdef __cplusplus
-#define EXTERN
+#define INIT(X) = X
 #else
 #define EXTERN extern
-#endif /* __cplusplus */
 #define INIT(X)
 #endif
-CDECL EXTERN CALLBACKS *callback INIT(NULL);
-#undef INIT
-#undef EXTERN
+
+EXTERN CALLBACKS *callback INIT(NULL);
 
 #ifndef MODULENAME
 #define MODULENAME(obj) (obj->oclass->module->name)
@@ -181,8 +157,9 @@ CDECL EXTERN CALLBACKS *callback INIT(NULL);
 //#define PUBLISH_SET(C,N,E) (*callback->define_set_member)(C##_class,#N,#E,C::E)
 /** @} **/
 
-#define PADDR_X(X,T) ((char*)&((T)->X)-(char*)(T))
+#ifdef __cplusplus
 #define PADDR(X) PADDR_X(X,this)
+#endif
 
 /******************************************************************************
  * Exception handling
@@ -2343,7 +2320,7 @@ public:
 	inline int get_status(void) { return result->status; };
 };
 ////////////////////////////////////////////////////////////////////////////////////
-// Module-Core Linkage Export Macros
+// Module-Core Linkage Macros
 ////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef DLMAIN
@@ -2356,16 +2333,16 @@ set module_message_flags = MMF_ALL;
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-EXPORT int gld_major=MAJOR, gld_minor=MINOR; 
+int gld_major=MAJOR, gld_minor=MINOR; 
 BOOL APIENTRY DllMain(HANDLE h, DWORD r) { if (r==DLL_PROCESS_DETACH) do_kill(h); return TRUE; }
 
 #else // !WIN32
 
-CDECL int gld_major=MAJOR, gld_minor=MINOR; 
-CDECL int dllinit() __attribute__((constructor));
-CDECL int dllkill() __attribute__((destructor));
-CDECL int dllinit() { return 0; }
-CDECL int dllkill() { return do_kill(NULL); }
+int gld_major=MAJOR, gld_minor=MINOR; 
+int dllinit() __attribute__((constructor));
+int dllkill() __attribute__((destructor));
+int dllinit() { return 0; }
+int dllkill() { return do_kill(NULL); }
 
 #endif // !WIN32
 
@@ -2436,7 +2413,7 @@ CDECL int dllkill() { return do_kill(NULL); }
 /// Implement class isa export
 #define EXPORT_ISA(X) EXPORT_ISA_C(X,X)
 
-#define EXPORT_PLC_C(X,C) EXPORT TIMESTAMP plc_##X(OBJECT *obj, TIMESTAMP t1) { \
+#define EXPORT_PLC_C(X,C) TIMESTAMP plc_##X(OBJECT *obj, TIMESTAMP t1) { \
 	try { return OBJECTDATA(obj,C)->plc(t1); } \
 	T_CATCHALL(plc,X); }
 /// Implement class plc export

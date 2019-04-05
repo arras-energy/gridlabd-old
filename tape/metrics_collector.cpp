@@ -18,7 +18,7 @@ CLASS *metrics_collector::oclass = NULL;
 CLASS *metrics_collector::pclass = NULL;
 metrics_collector *metrics_collector::defaults = NULL;
 
-void new_metrics_collector(MODULE *mod){
+CDECL void new_metrics_collector(MODULE *mod){
 	new metrics_collector(mod);
 }
 

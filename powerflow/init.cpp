@@ -7,10 +7,7 @@
 #include <math.h>
 
 #include "gridlabd.h"
-
-#define _POWERFLOW_CPP
 #include "powerflow.h"
-#undef  _POWERFLOW_CPP
 
 #include "triplex_meter.h"
 #include "capacitor.h"

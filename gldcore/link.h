@@ -4,6 +4,9 @@
 #ifndef _LINK_H
 #define _LINK_H
 
+#include "property.h"
+#include "output.h"
+
 #define LF_SKIPSAFE 0x01
 
 typedef struct {

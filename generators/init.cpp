@@ -7,9 +7,7 @@
 #include <math.h>
 #include "gridlabd.h"
 
-#define _GENERATORS_GLOBALS
 #include "generators.h"
-#undef  _GENERATORS_GLOBALS
 
 //Define defaults, since many use them and they aren't here yet
 complex default_line_voltage[3] = {complex(480.0,0.0),complex(-240.0,-415.69219),complex(-240.0,415.69219)};

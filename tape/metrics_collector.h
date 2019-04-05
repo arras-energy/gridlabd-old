@@ -101,7 +101,7 @@
 #define REG_OPERATION_CNT   0
 #define REG_ARRAY_SIZE      1
 
-EXPORT void new_metrics_collector(MODULE *);
+CDECL void new_metrics_collector(MODULE *);
 
 #ifdef __cplusplus
 

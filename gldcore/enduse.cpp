@@ -19,7 +19,10 @@
 #include "random.h"
 #include "schedule.h"
 #include "enduse.h"
-#include "gridlabd.h"
+#include "main.h"
+#include "class.h"
+#include "property.h"
+#include "object.h"
 #include "exec.h"
 
 SET_MYCONTEXT(DMC_ENDUSE)

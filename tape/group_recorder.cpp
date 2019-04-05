@@ -5,7 +5,8 @@ CLASS *group_recorder::oclass = NULL;
 CLASS *group_recorder::pclass = NULL;
 group_recorder *group_recorder::defaults = NULL;
 
-void new_group_recorder(MODULE *mod){
+CDECL void new_group_recorder(MODULE *mod)
+{
 	new group_recorder(mod);
 }
 

@@ -9,7 +9,7 @@
 #include "../powerflow/line.h"
 #include <new>
 
-EXPORT void new_violation_recorder(MODULE *);
+CDECL void new_violation_recorder(MODULE *);
 
 #ifdef __cplusplus
 

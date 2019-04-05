@@ -231,8 +231,16 @@ struct collector {
 	AGGREGATION *aggr;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void enable_deltamode(TIMESTAMP t1); /* indicate when deltamode is needed */
 EXPORT int delta_add_tape_device(OBJECT *obj, DELTATAPEOBJ tape_type);
 void set_csv_options(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

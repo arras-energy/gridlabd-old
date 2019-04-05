@@ -24,7 +24,7 @@ histogram *histogram::defaults = NULL;
 // histogram CLASS FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
 
-void new_histogram(MODULE *mod){
+CDECL void new_histogram(MODULE *mod){
 	new histogram(mod);
 }
 

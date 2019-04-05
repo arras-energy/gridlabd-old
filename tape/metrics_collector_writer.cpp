@@ -9,7 +9,7 @@
 
 CLASS *metrics_collector_writer::oclass = NULL;
 
-void new_metrics_collector_writer(MODULE *mod){
+CDECL void new_metrics_collector_writer(MODULE *mod){
 	new metrics_collector_writer(mod);
 }
 

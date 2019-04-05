@@ -15,7 +15,8 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <pwd.h>
-#include "gridlabd.h"
+#include "main.h"
+#include "class.h"
 #include "output.h"
 #include "cmdarg.h"
 #include "daemon.h"

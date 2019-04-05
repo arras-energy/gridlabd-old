@@ -1,13 +1,12 @@
 /* $Id: link.cpp 4738 2014-07-03 00:55:39Z dchassin $
  */
 
-#include "gridlabd.h"
 #include <stdio.h>
 #include "platform.h"
 #include "output.h"
 #include "find.h"
 #include "timestamp.h"
-
+#include "module.h"
 #include "link.h"
 
 SET_MYCONTEXT(DMC_LINK)

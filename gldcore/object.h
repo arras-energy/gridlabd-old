@@ -25,6 +25,8 @@ typedef unsigned int OBJECTNUM; /** Object id number */
 typedef const char * OBJECTNAME; /** Object name */
 typedef char FULLNAME[1024]; /** Full object name (including space name) */
 
+#define PADDR_X(X,T) ((char*)&((T)->X)-(char*)(T))
+
 /* object flags */
 #define OF_NONE			0x00000000	/**< Object flag; none set */
 #define OF_HASPLC		0x00000001	/**< Object flag; external PLC is attached, disables local PLC */
