@@ -116,7 +116,7 @@ public:
 	complex VA_In; //power in (DC)
 
 	enum PF_REG {INCLUDED=1, EXCLUDED=2, INCLUDED_ALT=3} pf_reg;
-	enum PF_REG_STATUS {REGULATING = 1, IDLING = 2} pf_reg_status;
+	enum PF_REG_STATUS {PFRS_UNKNOWN = 0, REGULATING = 1, IDLING = 2} pf_reg_status;
 	enum LOAD_FOLLOW_STATUS {IDLE=0, DISCHARGE=1, CHARGE=2} load_follow_status;	//Status variable for what the load_following mode is doing
 
 	complex VA_Out;

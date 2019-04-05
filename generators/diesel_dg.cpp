@@ -793,7 +793,7 @@ int diesel_dg::init(OBJECT *parent)
 		}
 
 		//Map phases
-		set *phaseInfo;
+		set *phaseInfo = NULL;
 		PROPERTY *tempProp;
 		tempProp = gl_get_property(parent,"phases");
 
@@ -855,7 +855,6 @@ int diesel_dg::init(OBJECT *parent)
 	{
 		if (Gen_mode==UNKNOWN)
 		{
-			OBJECT *obj = OBJECTHDR(this);
 			GL_THROW("Generator control mode is not specified");
 			/*  TROUBLESHOOT
 			The generator is in the mode of UNKNOWN.  Please change this mode and try again.
@@ -3195,7 +3194,6 @@ STATUS diesel_dg::apply_dynamics(MAC_STATES *curr_time, MAC_STATES *curr_delta, 
 	double temp_double_1, temp_double_2, temp_double_3, delomega, x0; 
 	double torquenow, x5a_now;
 	complex temp_current_val[3];
-	double diff_f, temp_Vfd;
 
 	//Convert current as well
 	current_pu[0] = (IGenerated[0] - generator_admittance[0][0]*pCircuit_V[0] - generator_admittance[0][1]*pCircuit_V[1] - generator_admittance[0][2]*pCircuit_V[2])/current_base;

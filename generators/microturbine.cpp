@@ -277,7 +277,6 @@ int microturbine::init(OBJECT *parent)
 	//complex tst;
 		if (gen_mode_v==UNKNOWN)
 	{
-		OBJECT *obj = OBJECTHDR(this);
 		throw("Generator control mode is not specified");
 	}
 		if (gen_status_v==0)

@@ -24,7 +24,6 @@
 CLASS *battery::oclass = NULL;
 battery *battery::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */
@@ -355,7 +354,7 @@ int battery::init(OBJECT *parent)
 				*(map[i].var) = get_complex(parent,map[i].varname);
 
 			//Map phases
-			set *phaseInfo;
+			set *phaseInfo = NULL;
 			PROPERTY *tempProp;
 			tempProp = gl_get_property(parent,"phases");
 
@@ -416,7 +415,7 @@ int battery::init(OBJECT *parent)
 			};
 
 			//Map phases
-			set *phaseInfo;
+			set *phaseInfo = NULL;
 			PROPERTY *tempProp;
 			tempProp = gl_get_property(parent,"phases");
 
@@ -2138,7 +2137,6 @@ TIMESTAMP battery::postsync(TIMESTAMP t0, TIMESTAMP t1)
 //Preupdate
 STATUS battery::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 {
-	STATUS stat_val;
 	OBJECT *obj = OBJECTHDR(this);
 
 	// Battery delta mode operation is only when enableDelta is true
@@ -2227,7 +2225,7 @@ void battery::update_soc(unsigned int64 delta_time)
 
 double battery::check_state_change_time_delta(unsigned int64 delta_time, unsigned long dt)
 {
-	double time_return;
+	double time_return = 0.0;
 
 	// Update battery output based on true inverter output
 	if ((*inverter_VA_Out).Re() > 0.0)	//Discharging

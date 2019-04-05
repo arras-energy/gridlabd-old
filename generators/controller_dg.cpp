@@ -473,7 +473,6 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 		enumeration phase_C_state_check = pSwitch[index]->phase_C_state;
 
 		// Obtain switch real power value of each phase
-		int total_phase_P = pSwitch[index]->power_in.Re();
 		int phase_A_P = pSwitch[index]->indiv_power_out[0].Re();
 		int phase_B_P = pSwitch[index]->indiv_power_out[1].Re();
 		int phase_C_P = pSwitch[index]->indiv_power_out[2].Re();
@@ -669,9 +668,6 @@ STATUS controller_dg::apply_dynamics(CTRL_VARS *curr_time, CTRL_VARS *curr_delta
 //curr_time is the initial states/information
 STATUS controller_dg::init_dynamics(CTRL_VARS *curr_time, int index)
 {
-	OBJECT *obj = NULL;
-	double omega = *mapped_freq_variable*2*PI; // not used here since speed of each generator deirectly used
-
 	curr_time->w_measured = pDG[index]->curr_state.omega/pDG[index]->omega_ref;
 	curr_time->x = pDG[index]->gen_base_set_vals.Pref;
 	curr_time->wref_ctrl = omega_ref;

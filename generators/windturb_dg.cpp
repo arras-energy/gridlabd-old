@@ -190,7 +190,7 @@ int windturb_dg::init_climate()
 		gl_warning("windturb_dg (id:%d)::init_climate(): no climate data found, using static data",hdr->id);
 
 		//default to mock data
-		static double air_dens = std_air_dens, avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
+		static double avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
 		pWS = &avgWS;
 		pPress = &Press;
 		pTemp = &Temp;
@@ -207,7 +207,7 @@ int windturb_dg::init_climate()
 		{
 			//default to mock data
 			gl_warning("windturb_dg (id:%d)::init_climate(): no climate data found, using static data",hdr->id);
-			static double air_dens = std_air_dens, avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
+			static double avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
 			pWS = &avgWS;
 			pPress = &Press;
 			pTemp = &Temp;
@@ -244,7 +244,7 @@ int windturb_dg::init(OBJECT *parent)
 {
 	OBJECT *obj = OBJECTHDR(this);
 
-	double ZB, SB, EB;
+	double ZB, SB = 0.0, EB;
 	complex tst, tst2, tst3, tst4;
 
 	switch (Turbine_Model)	{
@@ -475,7 +475,7 @@ int windturb_dg::init(OBJECT *parent)
 	int i;
 
 	//Map phases
-	set *phaseInfo;
+	set *phaseInfo = NULL;
 	PROPERTY *tempProp;
 	tempProp = gl_get_property(parent,"phases");
 
@@ -537,7 +537,7 @@ int windturb_dg::init(OBJECT *parent)
 		*/
 
 			//Map the voltages
-			double *parNominalVoltage;
+			double *parNominalVoltage = NULL;
 
 			tempProp = gl_get_property(parent,"nominal_voltage");
 			if ((tempProp==NULL || tempProp->ptype!=PT_double))
@@ -603,7 +603,7 @@ int windturb_dg::init(OBJECT *parent)
 		{
 
 			//Map the voltages
-			double *parNominalVoltage;
+			double *parNominalVoltage = NULL;
 
 			tempProp = gl_get_property(parent,"V_Rated");
 			if ((tempProp==NULL || tempProp->ptype!=PT_double))
@@ -764,7 +764,6 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 		}
 		WSadj = *pWS * log(turbine_height/roughness_l)/log(ref_height/roughness_l); 
 
-		double test = *pPress;
 		/* TODO:  import previous and future wind data 
 		and then pseudo-randomize the wind speed values beween 1st and 2nd
 		WSadj = gl_pseudorandomvalue(RT_RAYLEIGH,&c,(WS1/sqrt(PI/2)));*/
