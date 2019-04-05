@@ -8,20 +8,6 @@
  */
 int await(volatile int *status)
 {
-    register int i, j, k, randnum;
-
-    /* randnum = ( random() & 0xff ); */
-    randnum = 0;
     while ( *status ) ;
-#if 0
-    {
-	/* Length better be adaptive to the number of processors */
-	k = randnum;
-	for (i = 0; i < randnum; ++i) {
-	    j += k;
-	    k = -k;
-	}
-    }
-#endif
     return 0;
 }

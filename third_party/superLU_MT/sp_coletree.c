@@ -213,10 +213,11 @@ sp_coletree(
  *  Based on code written by John Gilbert at CMI in 1987.
  */
 
-static
 /*
  * Depth-first search from vertex v.
  */
+#ifdef UNUSED_FUNCTION
+static
 void etdfs (
 	    int	  v,
 	    int   first_kid[],
@@ -233,7 +234,7 @@ void etdfs (
 	/* post[postnum++] = v; in Matlab */
 	post[v] = (*postnum)++;    /* Modified by X. Li on 08/10/07 */
 }
-
+#endif
 
 static
 /*

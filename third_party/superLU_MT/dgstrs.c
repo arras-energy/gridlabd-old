@@ -85,7 +85,7 @@ dgstrs(trans_t trans, SuperMatrix *L, SuperMatrix *U,
     SCPformat *Lstore;
     NCPformat *Ustore;
     double   *Lval, *Uval, *Bmat;
-    double   *work, *work_col, *rhs_work, *soln;
+    double   *work, *rhs_work, *soln;
     flops_t  solve_ops;
     void dprint_soln();
 

@@ -46,7 +46,6 @@ pdgstrf_bmod1D_mv2(
  */
 
     double      zero = 0.0;
-    double      one = 1.0;
 
 #if ( MACH==CRAY_PVP )
     _fcd ftcs1 = _cptofcd("L", strlen("L")),

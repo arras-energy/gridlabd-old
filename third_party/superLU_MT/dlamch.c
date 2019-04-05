@@ -404,7 +404,6 @@ L30:
    ===================================================================== 
 */
     /* Table of constant values */
-    static int c__1 = 1;
     
     /* Initialized data */
     static int first = TRUE_;
