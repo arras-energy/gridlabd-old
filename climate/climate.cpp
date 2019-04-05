@@ -215,13 +215,9 @@ EXPORT int64 calc_solar_solpos_shading_position_rad(OBJECT *obj, double tilt, do
 	return 1;
 }
 
-EXPORT int64 calc_solar_ideal_shading_position_radians(OBJECT *obj, double tilt, double latitude, double longitude, double shading_value, double *value) {
+EXPORT int64 calc_solar_ideal_shading_position_radians(OBJECT *obj, double tilt, double latitude, double longitude, double shading_value, double *value) 
+{
 	double ghr, dhr, dnr;
-	double cos_incident;
-	double temp_value;
-	DATETIME dt;
-	TIMESTAMP offsetclock;
-
 	climate *cli;
 	if(obj == 0 || value == 0){
 		return 0;
@@ -250,12 +246,12 @@ EXPORT int64 calc_solar_ideal_shading_position_radians(OBJECT *obj, double tilt,
 	http://rredc.nrel.gov/solar/pubs/tmy2/tab3-2.html
  @{
  **/
-int tmy2_reader::open(const char *file){
+int tmy2_reader::open(const char *file)
+{
 	char temp_lat_hem[2];
 	char temp_long_hem[2];
-	int sscan_rv;
-  char location_data[10];
-	char ld[10],tz[10],tlad[10],tlod[10],el[10];
+	int sscan_rv = 0;
+	char tz[10],tlad[10],tlod[10],el[10];
 	float lat_degrees_temp;
 	float long_degrees_temp;
 	float tz_offset_temp;
@@ -395,8 +391,8 @@ int tmy2_reader::read_data(double *dnr, double *dhr, double *ghr, double *tdb, d
 	int rct_hm = 0;
 	int tmp_dnr, tmp_dhr, tmp_tot_sky_cov, tmp_opq_sky_cov, tmp_tdb, tmp_rh, tmp_wd, tmp_ws, tmp_precip, tmp_sf, tmp_ghr, tmp_extra_ghr, tmp_extra_dni, tmp_press;
 	//sscanf(buf, "%*2s%2d%2d%2d%*14s%4d%*2s%4d%*40s%4d%8*s%3d%*s",month,day,hour,&tmp_dnr,&tmp_dhr,&tmp_tdb,&tmp_rh);
-	int tmh, tday, thr, t_mon, t_d,t_hr;
-	char t_ymd[11],t_hm[10],t_ehr[10],t_dni[10],t_ghr[10],t_dnr[10],t_dhr[10],t_tkc[10],t_osc[10],t_tdb[10],t_rh[10],t_press[10],t_wd[10],t_ws[10],t_precip[10],t_sf[10],t_month[2],t_day[2],t_year[5],t_hour[2],t_min[2];
+	int tmh, tday, thr;
+	char t_ymd[11],t_hm[10],t_ehr[10],t_dni[10],t_ghr[10],t_dnr[10],t_dhr[10],t_tkc[10],t_osc[10],t_tdb[10],t_rh[10],t_press[10],t_wd[10],t_ws[10],t_precip[10],t_sf[10];
 	if(month == NULL) month = &tmh;
 	if(day == NULL) day = &tday;
 	if(hour == NULL) hour = &thr;
@@ -646,7 +642,6 @@ int climate::isa(CLASSNAME classname)
 
 int climate::init(OBJECT *parent)
 {
-	char *dot = 0;
 	OBJECT *obj=OBJECTHDR(this);
 	TIMESTAMP t0 = obj->clock;
 	double meter_to_feet = 1.0;
@@ -980,7 +975,8 @@ int climate::init(OBJECT *parent)
 	return 1;
 }
 
-int climate::get_solar_for_location(double latitude, double longitude, double *direct, double *global, double *diffuse) {
+int climate::get_solar_for_location(double latitude, double longitude, double *direct, double *global, double *diffuse) 
+{
 	int retval = 1;
 	//int cloud = 0; //binary cloud
 	double cloud = 0; //fuzzy cloud
@@ -1025,7 +1021,8 @@ int climate::get_solar_for_location(double latitude, double longitude, double *d
 	return retval;
 }
 
-int climate::get_binary_cloud_value_for_location(double latitude, double longitude, int *cloud) {
+int climate::get_binary_cloud_value_for_location(double latitude, double longitude, int *cloud) 
+{
 	int pixel_x = floor(gl_lerp(latitude, MIN_LAT, MIN_LAT_INDEX, MAX_LAT, MAX_LAT_INDEX));
 	int pixel_y = floor(gl_lerp(longitude, MIN_LON, MIN_LON_INDEX, MAX_LON, MAX_LON_INDEX));
 	*cloud = binary_cloud_pattern[pixel_x][pixel_y];
@@ -1038,11 +1035,11 @@ int climate::get_binary_cloud_value_for_location(double latitude, double longitu
 	return 1;
 }
 
-int climate::get_fuzzy_cloud_value_for_location(double latitude, double longitude, double *cloud) {
+int climate::get_fuzzy_cloud_value_for_location(double latitude, double longitude, double *cloud) 
+{
 	//write_out_cloud_pattern('F');
 	int pixel_x = floor(gl_lerp(latitude, MIN_LAT, MIN_LAT_INDEX, MAX_LAT, MAX_LAT_INDEX));
 	int pixel_y = floor(gl_lerp(longitude, MIN_LON, MIN_LON_INDEX, MAX_LON, MAX_LON_INDEX));
-	double value = fuzzy_cloud_pattern[0][pixel_x][pixel_y];
 	*cloud = fuzzy_cloud_pattern[0][pixel_x][pixel_y];
 	//Debugging and validation
 //	write_out_cloud_pattern('F');
@@ -1479,8 +1476,6 @@ void climate::convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers
 		double rand_lower = (((double)(i+1)-1)/(double)num_fuzzy_layers)*cut_elevation;
 		for (int j = 0; j < cloud_pattern_size; j++){
 			for (int kk = 0; kk < cloud_pattern_size; kk++){
-				double binary = binary_cloud_pattern[j][kk];
-				double normalized = normalized_cloud_pattern[j][kk];
 				double fuzzy = fuzzy_cloud_pattern[0][j][kk];
 				if (binary_cloud_pattern[j][kk] == 0.0 && normalized_cloud_pattern[j][kk] != EMPTY_VALUE && fuzzy_cloud_pattern[0][j][kk] != EMPTY_VALUE){ //Areas with 0 in the binary pattern are cloudy
 					if (normalized_cloud_pattern[j][kk] <= cut_elevation - ((i+1)*shade_step_size)){ //only values below the cut elevation accumulate
@@ -1500,7 +1495,6 @@ void climate::convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers
 	double min_value = fuzzy_cloud_pattern[0][0][0];
 	for (int j = 0; j < cloud_pattern_size; j++){
 		for (int k = 0; k < cloud_pattern_size; k++){
-			double value = fuzzy_cloud_pattern[0][j][k];
 			if (fuzzy_cloud_pattern[0][j][k] > max_value){
 				max_value = fuzzy_cloud_pattern[0][j][k];
 			}
@@ -1950,10 +1944,9 @@ int climate::calc_cloud_pattern_size(std::vector< std::vector<double> > &locatio
 
 void climate::update_forecasts(TIMESTAMP t0)
 {
+#if 0
 	static const int Nh = 72; /* number of hours in forecast */
 	static const int dt = 3600; /* number of seconds in forecast interval */
-
-#if 0
 	FORECAST *fc;
 	
 	for ( fc=get_forecast() ; fc!=NULL ; fc=fc->next )
