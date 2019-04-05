@@ -274,12 +274,16 @@ static void occupancy_schedule(char *text, char occupied[24])
 		}
 		else if (*p==',' || *p==' ' || *p==';' || *p=='\0')
 		{
-			char n;
+			size_t n;
 			stop = next;
-			for (n=start; n<=(stop>=0?stop:(target==days?8:24)); n++)
+			for ( n = start ; n <= (stop>=0?stop:(target==days?8:24)) ; n++ )
+			{
 				target[n]=1;
+			}
 			if (*p==',')
+			{
 				continue;
+			}
 			else if (*p==' ')
 			{
 				target = hours;
@@ -288,16 +292,26 @@ static void occupancy_schedule(char *text, char occupied[24])
 			}
 			else if (*p==';' || *p=='\0')
 			{
-				char d,h;
-				for (d=0; d<8; d++)
-					for (h=0; h<24; h++)
-						if (days[d] && hours[h])
+				size_t d,h;
+				for ( d = 0; d < 8; d++ )
+				{
+					for ( h = 0 ; h < 24 ; h++ ) 
+					{
+						if ( days[d] && hours[h] )
+						{
 							SET_OCCUPIED(d,h);
+						}
+					}
+				}
 				if (*p=='\0')
+				{
 					break;
+				}
 				else
 				{
-					start = -1; stop = -1; next = -1;
+					start = -1; 
+					stop = -1; 
+					next = -1;
 					continue;
 				}
 			}
@@ -699,7 +713,6 @@ double office::update_hvac()
 	const double Trange = 40;	/* range over which HP works in heating mode */
 	const double Taux = zone.hvac.heating.balance_temperature-Trange;
 	const double &Tecon = zone.hvac.cooling.balance_temperature;
-	const double &TbalHeat = zone.hvac.heating.balance_temperature;
 	const double &TmaxCool = zone.hvac.cooling.design_temperature;
 	HCMODE &mode = zone.hvac.mode;
 
@@ -778,7 +791,6 @@ double office::update_hvac()
 
 TIMESTAMP office::plc(TIMESTAMP t1)
 {
-	TIMESTAMP t0 = get_clock();
 
 	const double &Tout = *(zone.current.pTemperature);
 	const double &Tair = zone.current.air_temperature;
