@@ -2413,7 +2413,7 @@ int dllkill() { return do_kill(NULL); }
 /// Implement class isa export
 #define EXPORT_ISA(X) EXPORT_ISA_C(X,X)
 
-#define EXPORT_PLC_C(X,C) TIMESTAMP plc_##X(OBJECT *obj, TIMESTAMP t1) { \
+#define EXPORT_PLC_C(X,C) EXPORT TIMESTAMP plc_##X(OBJECT *obj, TIMESTAMP t1) { \
 	try { return OBJECTDATA(obj,C)->plc(t1); } \
 	T_CATCHALL(plc,X); }
 /// Implement class plc export
