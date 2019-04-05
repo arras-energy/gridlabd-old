@@ -458,8 +458,9 @@ int controller::init(OBJECT *parent){
 			if(fetch_property(&pClearingType2, "current_market.clearing_type", pMarket2) == 0) {
 				return 0;
 			}
-			gld_property *marketunit2;
-			if(fetch_property(&pClearingType2, "unit", pMarket2) == 0) {
+			gld_property *marketunit2 = NULL;
+			if ( fetch_property(&pClearingType2, "unit", pMarket2) == 0) 
+			{
 				return 0;
 			}
 			mku = marketunit2->get_string();
@@ -1000,20 +1001,15 @@ TIMESTAMP controller::presync(TIMESTAMP t0, TIMESTAMP t1){
 	return TS_NEVER;
 }
 
-TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
+TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1)
+{
 	double bid = -1.0;
 	int64 no_bid = 0; // flag gets set when the current temperature drops in between the the heating setpoint and cooling setpoint curves
-	double rampify = 0.0;
 	extern double bid_offset;
 	double deadband_shift = 0.0;
 	double shift_direction = 0.0;
-	double shift_setpoint = 0.0;
-	double prediction_ramp = 0.0;
-	double prediction_range = 0.0;
-	double midpoint = 0.0;
 	TIMESTAMP fast_reg_run;
 	OBJECT *hdr = OBJECTHDR(this);
-	char mktname[1024];
 	char ctrname[1024];
 	double avgP = 0.0;
 	double stdP = 0.0;
@@ -1812,7 +1808,6 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 		}
 		
 		// submit bids
-		double previous_q = last_q; //store the last value, in case we need it
 		last_p = 0.0;
 		last_q = 0.0;
 		
@@ -1892,7 +1887,6 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 		{
 			if ( last_pState != ps )
 			{
-				KEY bid = (KEY)(lastmkt_id == marketId ? lastbid_id : -1);
 				double my_bid = -pCap;
 				if ( ps != *PS_OFF  )
 				{
@@ -2027,9 +2021,6 @@ int controller::dev_level_ctrl(TIMESTAMP t0, TIMESTAMP t1)
 		is_engaged = 0;
 	}
 	
-	OBJECT *hdr = OBJECTHDR(this);
-	double my_id = hdr->id;
-
 	// Not sure if this is needed, but lets clean up the Override signal if we are entering a new market
 	//  We'll catch the new signal one reg signal too late for now
 	if ( ((t1-last_run) % int(dPeriod)) == 0 ) 
