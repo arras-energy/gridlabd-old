@@ -191,7 +191,6 @@ int recorder::init(OBJECT *parent)
 
 			(*property_target).push_back(prop);
 			debug("adding field from property '%s'", buffer);
-			double scale = 1.0;
 			gld_unit unit;
 			if ( spec.size()>1 )
 			{

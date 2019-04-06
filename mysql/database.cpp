@@ -204,7 +204,6 @@ TIMESTAMP database::commit(TIMESTAMP t0, TIMESTAMP t1)
 		int mod = ts.get_localtimestamp()%(TIMESTAMP)get_sync_interval();
 		if ( strcmp(get_on_sync(),"")!=0 && mod==0 )
 		{
-			int mod1 = t1%86400, mod2 = ts.get_timestamp()%86400, mod3 = ts.get_localtimestamp()%86400;
 			gld_clock ts(t0);
 			char buffer[64];
 			gl_verbose("%s running on_init script '%s' at %s", get_name(), get_on_sync(), ts.to_string(buffer,sizeof(buffer))?buffer:"(unknown time)");
@@ -571,7 +570,6 @@ int database::run_script(const char *file)
 			}
 		}
 	}
-Done:
 	fclose(fp);
 	return num;
 }
@@ -700,7 +698,6 @@ size_t database::dump(const char *table, const char *file, unsigned long options
 		if ( options&TD_BACKUP )
 			fprintf(fp,"%s",";\n");
 	}
-Done:
 	gl_verbose("dumped %u rows from table '%s' to file '%s'", nrows, table, file);
 	mysql_free_result(result);
 	fclose(fp);

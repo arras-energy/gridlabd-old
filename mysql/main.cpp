@@ -450,7 +450,6 @@ static bool import_classes(MYSQL *mysql)
 	for ( unsigned long n=0 ; n<n_rows ; n++ )
 	{
 		MYSQL_ROW row = mysql_fetch_row(data);
-		MYSQL_FIELD *fields = mysql_fetch_fields(data);
 		unsigned int flags = atoi(row[4]);
 		if ( (flags&PF_EXTENDED)==0 ) continue; // ignore classes that are not runtime extensions
 		const char *name = row[0];
@@ -501,7 +500,6 @@ static bool import_objects(MYSQL *mysql)
 	for ( unsigned long n=0 ; n<n_rows ; n++ )
 	{
 		MYSQL_ROW row = mysql_fetch_row(data);
-		MYSQL_FIELD *fields = mysql_fetch_fields(data);
 		gl_verbose("import_objects(MYSQL*): row %d, id=%s, class=%s, name=%s, groupid=%s, parent=%s, rank=%s, clock='%s', valid_to='%s', schedule_skew='%s',"
 				" latitude=%s, longtitude=%s, in_svc='%s', in_svc_micro=%s, out_svc='%s', out_svc_micro=%s, rngstate=%s, heartbeat='%s', flags=%s", n,
 				row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -603,7 +601,6 @@ static bool import_objects(MYSQL *mysql)
 	for ( unsigned long n=0 ; n<n_rows ; n++ )
 	{
 		MYSQL_ROW row = mysql_fetch_row(data);
-		MYSQL_FIELD *fields = mysql_fetch_fields(data);
 		gl_verbose("import_objects(MYSQL*): row %d, id=%s, parent=%s", n, row[0], row[1]);
 		if ( row[0]!=NULL && row[1]!=NULL )
 		{
@@ -643,11 +640,9 @@ bool import_properties(MYSQL *mysql)
 	gl_debug("properties table: %d rows x %d fields", n_rows, n_fields);
 
 	// scan result
-	OBJECT *first_object = NULL;
 	for ( unsigned long n=0 ; n<n_rows ; n++ )
 	{
 		MYSQL_ROW row = mysql_fetch_row(data);
-		MYSQL_FIELD *fields = mysql_fetch_fields(data);
 		gl_verbose("import_objects(MYSQL*): row %d, id=%s, property=%s, type=%s, specs=%s",
 				n, row[0], row[1], row[2], row[3]);
 		if ( row[0]==NULL || row[1]==NULL || row[2]==NULL || row[3]==NULL )
@@ -1227,7 +1222,7 @@ bool export_transforms(MYSQL *mysql)
 		}
 
 		char specs[65536]="";
-		size_t len;
+		size_t len = 0;
 		const char *function;
 		switch (xform->function_type) {
 		case XT_LINEAR:
@@ -1340,7 +1335,6 @@ bool export_graph_transaction(MYSQL *mysql)
 {
 	for ( OBJECT *obj = gl_object_get_first(); obj!=NULL ; obj=obj->next )
 	{
-		CLASS *cls = obj->oclass;
 		if ( !query(mysql,"INSERT INTO `%s` (`id`,`type`) VALUES (%llu,'%s')", get_table_name("node"), 
 			use_guid ? obj->guid[0] : obj->id, obj->oclass->name) ) return false;
 		if ( obj->name && !query(mysql,"INSERT INTO `%s` (`id`,`name`,`value`) VALUES (%llu,'%s','%s')", get_table_name("nodeattr"), 

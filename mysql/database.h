@@ -27,14 +27,6 @@
 
 #include <mysql.h>
 
-#ifdef DLMAIN
-#define EXTERN
-#define INIT(A) = A
-#else
-#define EXTERN extern
-#define INIT(A)
-#endif
-
 EXTERN char default_hostname[256] INIT("127.0.0.1");
 EXTERN char default_username[32] INIT("gridlabd");
 EXTERN char default_password[32] INIT("");
