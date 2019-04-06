@@ -1409,8 +1409,7 @@ void auction::clear_market(void)
 	cleared_frame.cap_ref_unrep = cap_ref_unrep;
 
 	if(latency > 0){
-		TIMESTAMP rt;
-		rt = pop_market_frame(gl_globalclock);
+		pop_market_frame(gl_globalclock);
 		update_statistics();
 		push_market_frame(gl_globalclock);
 		check_next_market(gl_globalclock);
@@ -1460,7 +1459,7 @@ void auction::record_bid(const char *from, double quantity, double real_price, B
 	const char *unk = "unknown time";
 	char buffer[256];
 	char bigbuffer[1024];
-	const char *pState;
+	const char *pState = NULL;
 	const char *tStr;
 	DATETIME dt;
 	TIMESTAMP submit_time = gl_globalclock;

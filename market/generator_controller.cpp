@@ -1404,7 +1404,7 @@ void generator_controller::parse_bid_curve(OBJECT *thisobj, TIMESTAMP t0)
 	char *curr_ptr, *end_ptr;
 	size_t temp_index;			//Index for temp_char_value
 	char temp_char_value[33];	//Assumes no number in the bid curve will ever be over 32 characters
-	FILE *FHandle;
+	FILE *FHandle = NULL;
 
 	//See which mode we are in
 	if (curve_file_mode == true)	//File import
