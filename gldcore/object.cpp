@@ -1995,7 +1995,7 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 				if ( convert_from_set(buffer, sizeof(buffer), &(obj->flags), object_flag_property()) > 0 )
 					count += fprintf(fp, "\tflags \"%s\";\n",  buffer);
 				else
-					count += fprintf(fp, "\tflags \"%ld\";\n", obj->flags);
+					count += fprintf(fp, "\tflags \"%lld\";\n", (unsigned long long)obj->flags);
 			}
 
 			/* dump properties */
