@@ -347,7 +347,7 @@ void fault_check::search_links(int node_int)
 {
 	unsigned int index, indexb;
 	bool both_handled, from_val, proceed_in;
-	int branch_val;
+	int branch_val = 0;
 	BRANCHDATA temp_branch;
 	unsigned char work_phases;
 

@@ -754,9 +754,10 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 					else if (prop->ptype==PT_set || prop->ptype==PT_enumeration)
 					{
 						KEYWORD *key;
+						const char *fmt = ( sizeof(uint64) < sizeof(long long) ? "%s=%lu%s" : "%s=%llu%s");
 						printf("\t%s {", proptype);
 						for (key=prop->keywords; key!=NULL; key=key->next)
-							printf("%s=%lu%s", key->name, key->value, key->next==NULL?"":", ");
+							printf(fmt, key->name, key->value, key->next==NULL?"":", ");
 						printf("} %s;", strrchr(prop->name,':')+1);
 					} 
 					else 

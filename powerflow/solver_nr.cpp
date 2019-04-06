@@ -280,7 +280,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 	bool swing_is_a_swing;
 
 	//Deltamode initial dynamics run - swing convergence flag (symmetry)
-	bool swing_converged;
+	bool swing_converged = false;
 
 	//Deltamode intermediate variables
 	complex temp_complex_0, temp_complex_1, temp_complex_2, temp_complex_3, temp_complex_4, temp_complex_5;
