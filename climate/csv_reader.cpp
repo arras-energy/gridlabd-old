@@ -40,7 +40,7 @@ csv_reader::csv_reader(MODULE *module)
 	memset(this, 0, sizeof(csv_reader));
 	if (oclass==NULL)
 	{
-		oclass = gl_register_class(module,"csv_reader",sizeof(csv_reader),NULL);
+		oclass = gl_register_class(module,"csv_reader",sizeof(csv_reader),PC_NOSYNC);
 		if (gl_publish_variable(oclass,
 			PT_int32,"index",PADDR(index),PT_ACCESS,PA_REFERENCE,
 			PT_char32,"city_name",PADDR(city_name),
