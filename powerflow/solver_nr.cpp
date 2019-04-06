@@ -258,10 +258,10 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 	double tempQbus; //tempQbus store the temporary value of reactive power load at each bus
 
 	//Miscellaneous index variable
-	unsigned int indexer, tempa, tempb, jindexer, kindexer;
-	char jindex, kindex;
-	char temp_index, temp_index_b;
-	unsigned int temp_index_c;
+	size_t indexer, tempa, tempb, jindexer, kindexer;
+	size_t jindex, kindex;
+	size_t temp_index, temp_index_b;
+	size_t temp_index_c;
 
 	//Working matrix for admittance collapsing/determinations
 	complex tempY[3][3];
@@ -287,7 +287,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 	complex aval, avalsq;
 
 	//Temporary size variable
-	char temp_size, temp_size_b, temp_size_c;
+	size_t temp_size, temp_size_b, temp_size_c;
 
 	//Temporary admittance variables
 	complex Temp_Ad_A[3][3];
@@ -302,7 +302,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 
 	//Miscellaneous working variable
 	double work_vals_double_0, work_vals_double_1,work_vals_double_2,work_vals_double_3,work_vals_double_4;
-	char work_vals_char_0;
+	size_t work_vals_char_0;
 
 	//Sizing variable
 	unsigned int size_diag_update;
@@ -3097,7 +3097,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 						kindexer = jindexer + 2*powerflow_values->BA_diag[indexer].size - 1;
 
 						//Print them out
-						fprintf(FPoutVal,"%d,%d,%s\n",jindexer,kindexer,bus[indexer].name);
+						fprintf(FPoutVal,"%lu,%lu,%s\n",jindexer,kindexer,bus[indexer].name);
 					}
 
 					//Add in a blank line so it looks pretty
@@ -3128,7 +3128,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 					if (temp_element != NULL)
 					{
 						//Print this value
-						fprintf(FPoutVal,"%d,%d,%f\n",temp_element->row_ind,jindexer,temp_element->value);
+						fprintf(FPoutVal,"%d,%lu,%f\n",temp_element->row_ind,jindexer,temp_element->value);
 
 						//Loop
 						while (temp_element->next != NULL)
@@ -3137,7 +3137,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 							temp_element = temp_element->next;
 
 							//Repeat the print
-							fprintf(FPoutVal,"%d,%d,%f\n",temp_element->row_ind,jindexer,temp_element->value);
+							fprintf(FPoutVal,"%d,%lu,%f\n",temp_element->row_ind,jindexer,temp_element->value);
 						}
 					}
 					//If it is null, go next.  Implies we have an invalid matrix size, but that may be what we're looking for
@@ -3959,14 +3959,14 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 // For the second approach, calculate the elements of a,b,c,d in equations(14),(15),(16),(17).
 void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT *powerflow_values, bool jacobian_pass)
 {
-	unsigned int indexer;
+	size_t indexer;
 	double adjust_nominal_voltage_val, adjust_nominal_voltaged_val;
 	double tempPbus, tempQbus;
 	double adjust_temp_voltage_mag[6];
 	complex adjust_temp_nominal_voltage[6], adjusted_constant_current[6];
 	complex delta_current[3], voltageDel[3], undeltacurr[3];
 	complex temp_current[3], temp_store[3];
-	char jindex, temp_index, temp_index_b;
+	size_t jindex, temp_index, temp_index_b;
 
 	//Loop through the buses
 	for (indexer=0; indexer<bus_count; indexer++)

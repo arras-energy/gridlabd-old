@@ -1557,7 +1557,6 @@ int volt_var_control::init(OBJECT *parent)
 
 TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP tret = powerflow_object::presync(t0);
 	TIMESTAMP treg_min;
 	double vmin[3], VDrop[3], VSet[3], VRegTo[3];
@@ -2328,7 +2327,6 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 
 TIMESTAMP volt_var_control::postsync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP tret = powerflow_object::postsync(t0);
 	complex link_power_vals;
 	int index;
@@ -2629,7 +2627,7 @@ char *volt_var_control::dbl_token(char *start_token, double *dbl_val)
 {
 	char workArray[64];	//If we ever need over 64, this will need changing
 	char *outIndex, *workIndex, *end_token;
-	char index;
+	size_t index;
 
 	//Initialize work variable
 	for (index=0; index<64; index++)
@@ -2675,7 +2673,7 @@ char *volt_var_control::obj_token(char *start_token, OBJECT **obj_val)
 {
 	char workArray[64];	//Hopefully, names will never be over 64 characters - seems to get upset if we do more
 	char *outIndex, *workIndex, *end_token;
-	char index;
+	size_t index;
 
 	//Initialize work variable
 	for (index=0; index<64; index++)

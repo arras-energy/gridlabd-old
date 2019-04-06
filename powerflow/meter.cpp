@@ -427,7 +427,6 @@ TIMESTAMP meter::sync(TIMESTAMP t0)
 
 TIMESTAMP meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	complex temp_current;
 	TIMESTAMP tretval;
 
@@ -940,7 +939,6 @@ EXPORT SIMULATIONMODE interupdate_meter(OBJECT *obj, unsigned int64 delta_time, 
 int meter::kmldata(int (*stream)(const char*,...))
 {
 	int phase[3] = {has_phase(PHASE_A),has_phase(PHASE_B),has_phase(PHASE_C)};
-	double basis[3] = {0,240,120};
 
 	// power
 	stream("<TR><TH ALIGN=LEFT>Power</TH>");

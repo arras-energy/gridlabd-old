@@ -158,7 +158,6 @@ int fault_check::init(OBJECT *parent)
 
 TIMESTAMP fault_check::sync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP tret = powerflow_object::sync(t0);
 	unsigned int index;
 	int return_val;

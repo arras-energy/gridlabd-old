@@ -590,8 +590,7 @@ EXPORT int check()
 		*tomap;		/* counts the number of references to any given node */
 	int errcount = 0;
 	int objct = 0;
-	int queuef = 0, queueb = 0, queuect = 0;
-	int islandct = 0;
+	int queuect = 0;
 
 	GLOBALVAR *gvroot = NULL;
 	PFLIST anchor, *tlist = NULL;
@@ -635,8 +634,6 @@ EXPORT int check()
 			link_object *pLink = OBJECTDATA(obj,link_object);
 			OBJECT *from = pLink->from;
 			OBJECT *to = pLink->to;
-			node *tNode = OBJECTDATA(to, node);
-			node *fNode = OBJECTDATA(from, node);
 			/* count 'to' reference */
 			tomap[to->id]++;
 			/* check link connections */
@@ -767,9 +764,7 @@ EXPORT int check()
 	if(gvroot != NULL){
 		PFLIST *front=NULL, *back=NULL, *del=NULL; /* node queue */
 		OBJECT *_node = gl_get_object((char *)gvroot->prop->addr);
-		OBJECT *_link = NULL;
 		int *rankmap = (int *)malloc((size_t)(objct*sizeof(int)));
-		int bct = 0;
 		if(_node == NULL){
 			gl_error("powerflow check(): Unable to do directionality check, root node name not found.");
 		} else {

@@ -1341,7 +1341,6 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 	TIMESTAMP t1 = powerflow_object::presync(t0); 
 	TIMESTAMP temp_time_value, temp_t1_value;
 	node *temp_par_node = NULL;
-	FUNCTIONADDR temp_funadd = NULL;
 
 	//Determine the flag state - see if a schedule is overriding us
 	if (service_status_dbl>-1.0)
@@ -3190,7 +3189,6 @@ int node::NR_populate(void)
 {
 	//Object header for names
 	OBJECT *me = OBJECTHDR(this);
-	node *temp_par_node = NULL;
 
 	//Lock the SWING for global operations
 	if ( NR_swing_bus!=me ) LOCK_OBJECT(NR_swing_bus);
@@ -4460,7 +4458,7 @@ double node::perform_GFA_checks(double timestepvalue)
 	bool voltage_violation, frequency_violation, trigger_disconnect, check_phase;
 	double temp_pu_voltage;
 	double return_time_freq, return_time_volt, return_value;
-	char indexval;
+	size_t indexval;
 	unsigned char phasevals;
 	OBJECT *hdr = OBJECTHDR(this);
 

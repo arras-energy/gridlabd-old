@@ -75,15 +75,11 @@ int impedance_dump::dump(TIMESTAMP t)
 {
 	FINDLIST *capacitors, *fuses, *ohlines, *reclosers, *regulators, *relays, *sectionalizers, *series_reactors, *switches, *transformers, *tplines, *uglines;
 	OBJECT *obj = NULL;
-	char buffer[1024];
 	FILE *fn = NULL;
 	int index = 0;
-	int count = 0;
 	int x = 0;
 	int y = 0;
-	CLASS *obj_class;
 	char timestr[64];
-	PROPERTY *xfmrconfig;
 
 	//find the link objects
 	if(group[0] == '\0'){

@@ -65,7 +65,7 @@ int underground_line::init(OBJECT *parent)
 	double *temp_rating_value = NULL;
 	double temp_rating_continuous = 10000.0;
 	double temp_rating_emergency = 20000.0;
-	char index;
+	size_t index;
 	OBJECT *temp_obj;
 
 	int result = line::init(parent);
@@ -1051,7 +1051,7 @@ int underground_line::isa(CLASSNAME classname)
 */
 void underground_line::test_phases(line_configuration *config, const char ph)
 {
-	bool condCheck, condNotPres;
+	bool condCheck = false, condNotPres = false;
 	OBJECT *obj = GETOBJECT(this);
 
 	if (ph=='A')

@@ -895,7 +895,7 @@ void link_object::NR_link_presync_fxn(void)
 	complex work_vector_A[6], work_vector_B[6], work_vector_C[6];
 	complex work_vector_D[3];
 	complex temp_value_A, temp_value_B;
-	char jindex, kindex;
+	size_t jindex, kindex;
 	FUNCTIONADDR transformer_calc_function;	
 
 	//See if a frequency dependence is desired -- if so, update it
@@ -2702,18 +2702,16 @@ TIMESTAMP link_object::sync(TIMESTAMP t0)
 	fNode=OBJECTDATA(from,node);
 	tNode=OBJECTDATA(to,node);
 #endif
-	OBJECT *obj = OBJECTHDR(this);
 
 	if (is_closed())
 	{
 		if (solver_method==SM_FBS)
 		{
-			node *f;
-			node *t;
-			set reverse = get_flow(&f,&t);
+			node *f = OBJECTDATA(from,node);
+			node *t = OBJECTDATA(to,node);
 
 #ifdef SUPPORT_OUTAGES
-			tNode->condition=fNode->condition;
+			tNode->condition =fNode->condition;
 #endif
 			/* compute currents */
 			READLOCK_OBJECT(to);
@@ -3053,9 +3051,8 @@ TIMESTAMP link_object::postsync(TIMESTAMP t0)
 
 	if ( solver_method == SM_FBS )
 	{
-		node *f;
-		node *t; //@# make else/if statement for solver method NR; & set current_out->to t->node current_inj;
-		set reverse = get_flow(&f,&t);
+		node *f = OBJECTDATA(from,node);;
+		node *t = OBJECTDATA(to,node);; //@# make else/if statement for solver method NR; & set current_out->to t->node current_inj;
 
 		// update published current_out values;
 		READLOCK_OBJECT(to);
@@ -3208,8 +3205,6 @@ int link_object::kmldump(int (*stream)(const char*,...))
 	HANDLE(meter)
 	{
 		// values
-		node *pFrom = OBJECTDATA(from,node);
-		node *pTo = OBJECTDATA(to,node);
 		int phase[3] = {has_phase(PHASE_A),has_phase(PHASE_B),has_phase(PHASE_C)};
 		complex flow[3];
 		complex current[3];
@@ -4835,7 +4830,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 {
 	unsigned char phase_remove = 0x00;	//Default is no phases removed
 	unsigned char rand_phases,temp_phases, work_phases;			//Working variable
-	char numphase, phaseidx;
+	size_t numphase, phaseidx;
 	double randval, ext_result_dbl;
 	double tempphase[3];
 	double *temp_double_val;
@@ -4846,7 +4841,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 	OBJECT *tmpobj;
 	FUNCTIONADDR funadd = NULL;
 	double *Recloser_Counts;
-	double type_fault;
+	double type_fault = 0.0;
 	bool switch_val;
 	complex C_mat[7][7];
 	int64 pf_resultval;
@@ -10526,7 +10521,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 {
 	unsigned char phase_restore = 0x00;	//Default is no phases restored
 	unsigned char temp_phases, temp_phases_B, work_phases;			//Working variable
-	char phaseidx, indexval;
+	size_t phaseidx, indexval;
 	int temp_node, ext_result;
 	double ext_result_dbl;
 	OBJECT *objhdr = OBJECTHDR(this);

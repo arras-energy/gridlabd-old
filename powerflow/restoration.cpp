@@ -3019,7 +3019,6 @@ void restoration::modifyModel(int counter)
 	FUNCTIONADDR switching_fxn;
 	int return_val;
 	double return_val_double;
-	OBJECT *thisobj = OBJECTHDR(this);
 	OBJECT *swobj;
 	bool switch_occurred, return_is_int_val;
 

@@ -83,7 +83,7 @@ int regulator::create()
 int regulator::init(OBJECT *parent)
 {
 	bool TapInitialValue[3];
-	char jindex;
+	size_t jindex;
 	int result = link_object::init(parent);
 
 	OBJECT *obj = OBJECTHDR(this);
@@ -325,7 +325,6 @@ int regulator::init(OBJECT *parent)
 TIMESTAMP regulator::presync(TIMESTAMP t0) 
 {
 	regulator_configuration *pConfig = OBJECTDATA(configuration, regulator_configuration);
-	node *pTo = OBJECTDATA(to, node);
 	char phaseWarn;
 
 	//Toggle the iteration variable -- only for voltage-type adjustments (since it's in presync now)
@@ -891,7 +890,6 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 TIMESTAMP regulator::postsync(TIMESTAMP t0)
 {
 	regulator_configuration *pConfig = OBJECTDATA(configuration, regulator_configuration);
-	node *pTo = OBJECTDATA(to, node);
 
 	TIMESTAMP t1 = link_object::postsync(t0);
 	

@@ -154,7 +154,7 @@ int transformer::init(OBJECT *parent)
 		return 2; // defer
 	}
 	double V_base,za_basehi,za_baselo,V_basehi;
-	double sa_base;
+	double sa_base = 0.0;
 	double nt, nt_a, nt_b, nt_c, inv_nt_a, inv_nt_b, inv_nt_c;
 	complex zt, zt_a, zt_b, zt_c, z0, z1, z2, zc;
 	FINDLIST *climate_list = NULL;
@@ -889,9 +889,9 @@ int transformer::init(OBJECT *parent)
 				a_mat[2][2] = (z2*zc+z1*zc+z1*z2*nt*nt);	//z1+z2;
 
 				//Form it into b_mat
-				for (char xindex=0; xindex<3; xindex++)
+				for (size_t xindex=0; xindex<3; xindex++)
 				{
-					for (char yindex=0; yindex<3; yindex++)
+					for (size_t yindex=0; yindex<3; yindex++)
 					{
 						b_mat[xindex][yindex]=a_mat[xindex][yindex]*indet;
 						a_mat[xindex][yindex]=0.0;
@@ -1298,7 +1298,6 @@ int transformer::transformer_inrush_mat_update(void)
 	complex Zo;
 	double A_sat, B_sat, C_sat;
 	complex work_val_cplex;
-	OBJECT *obj = OBJECTHDR(this);
 
 	//Set neutral impedance, arbitrarily
 	Zo = 1e8;

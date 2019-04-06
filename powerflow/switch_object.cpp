@@ -108,7 +108,7 @@ int switch_object::create()
 int switch_object::init(OBJECT *parent)
 {
 	double phase_total, switch_total;
-	char indexa, indexb;
+	size_t indexa, indexb;
 
 	OBJECT *obj = OBJECTHDR(this);
 
@@ -1181,7 +1181,7 @@ void switch_object::switch_sync_function(void)
 //Function to replicate sync_switch_function, but not call anything (just for reliability checks)
 unsigned char switch_object::switch_expected_sync_function(void)
 {
-	unsigned char phases_out;
+	unsigned char phases_out = 0x00;
 	double phase_total, switch_total;
 	SWITCHSTATE temp_A_state, temp_B_state, temp_C_state;
 	enumeration temp_status;

@@ -908,7 +908,7 @@ STATUS vfd::alloc_freq_arrays(double delta_t_val)
 //Module-level deltamode call
 SIMULATIONMODE vfd::inter_deltaupdate_vfd(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	double dt_value, deltatimedbl;
+	double dt_value;
 	STATUS ret_value;
 
 	//See if we're the very first pass/etc

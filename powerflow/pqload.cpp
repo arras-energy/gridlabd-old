@@ -262,7 +262,6 @@ TIMESTAMP pqload::presync(TIMESTAMP t0)
 TIMESTAMP pqload::sync(TIMESTAMP t0)
 {
 	TIMESTAMP result = TS_NEVER;
-	double SysFreq = 376.991118431;		//System frequency in radians/sec, nominalized 60 Hz for now.
 
 	int i = 0;
 
