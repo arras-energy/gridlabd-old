@@ -743,7 +743,7 @@ int diesel_dg::init(OBJECT *parent)
 	};
 
 	static complex default_line123_voltage[3], default_line1_current[3];
-	int i;
+	size_t i;
 
 	//Set the deltamode flag, if desired
 	if ((obj->flags & OF_DELTAMODE) == OF_DELTAMODE)
@@ -1325,7 +1325,7 @@ TIMESTAMP diesel_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 	TIMESTAMP tret_value;
 	double vdiff;
 	double voltage_mag_curr;
-	double real_diff;     // Temporary variable representing difference between reference real power and actual real power output
+	double real_diff = 0.0;     // Temporary variable representing difference between reference real power and actual real power output
 	double reactive_diff; // Temporary variable representing difference between reference reactive power and actual reactive power output
 	complex temp_power_val[3];
 
@@ -1570,13 +1570,9 @@ TIMESTAMP diesel_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 		if (Gen_type == SYNCHRONOUS)	
 		{											//sg ef mode is not working yet
-			double Mxef, Mnef, PoutA, PoutB, PoutC, QoutA, QoutB, QoutC;
+			double PoutA, PoutB, PoutC, QoutA, QoutB, QoutC;
 			complex SoutA, SoutB, SoutC;
 			complex lossesA, lossesB, lossesC;
-
-			Mxef = Max_Ef * Rated_V/sqrt(3.0);
-			Mnef = Min_Ef * Rated_V/sqrt(3.0);
-
 			
 			if (Gen_mode == CONSTANTE)	//Ef is controllable to give a needed power output.
 			{

@@ -181,7 +181,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 	 
 
 	static complex default_line_voltage[1], default_line_current[1];
-	int i;
+	size_t i;
 
 	// find parent meter, if not defined, use a default meter (using static variable 'default_meter')
 	if (parent!=NULL && strcmp(parent->oclass->name,"meter")==0)

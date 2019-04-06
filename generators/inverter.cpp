@@ -572,7 +572,7 @@ int inverter::init(OBJECT *parent)
 	double *nominal_voltage;
 	FINDLIST *batteries;
 	OBJECT *objBattery = NULL;
-	int index = 0;
+	size_t index = 0;
 
 	if ( parent != NULL )
 	{
@@ -585,7 +585,7 @@ int inverter::init(OBJECT *parent)
 	// construct circuit variable map to meter
 	static complex default_line123_voltage[3], default_line1_current[3];
 	static int default_meter_status;	//Not really a good place to do this, but keep consistent
-	int i;
+	size_t i;
 	std::string tempV, tempQ, tempf, tempP;
 	std::string VoltVArSchedInput, freq_pwrSchedInput;
 
@@ -933,7 +933,7 @@ int inverter::init(OBJECT *parent)
 					//std::string tempV = "";
 					tempV = "";
 					tempQ = "";
-					for(int i = 0; i < VoltVArSchedInput.length(); i++)	{
+					for(size_t i = 0; i < VoltVArSchedInput.length(); i++)	{
 						if(VoltVArSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
 								tempV += VoltVArSchedInput[i];
@@ -970,7 +970,7 @@ int inverter::init(OBJECT *parent)
 					int cntr = 0;
 					tempf = "";
 					tempP = "";
-					for(int i = 0; i < freq_pwrSchedInput.length(); i++)	{
+					for(size_t i = 0; i < freq_pwrSchedInput.length(); i++)	{
 						if(freq_pwrSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
 								tempf += freq_pwrSchedInput[i];
@@ -2088,7 +2088,6 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 	STATUS fxn_return_status;
 	
 	complex rotate_value;
-	complex calculated_iO[3];
 
 	complex temp_current_val[3];
 	complex power_val[3];
@@ -2887,7 +2886,7 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 		else	//FOUR_QUADRANT code
 		{
 			//FOUR_QUADRANT model (originally written for NAS/CES, altered for PV)
-			double VA_Efficiency, temp_PF, temp_QVal, P_in, net_eff; //Ab added last two
+			double VA_Efficiency, temp_PF, temp_QVal, P_in = 0.0, net_eff = 0.0; //Ab added last two
 			complex temp_VA;
 			complex battery_power_out = complex(0,0);
 			if (four_quadrant_control_mode != FQM_VOLT_VAR) {
@@ -3819,9 +3818,9 @@ TIMESTAMP inverter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP t2 = TS_NEVER;		//By default, we're done forever!
-	LOAD_FOLLOW_STATUS new_lf_status;
+	LOAD_FOLLOW_STATUS new_lf_status = IDLE;
 	PF_REG_STATUS new_pf_reg_status = PFRS_UNKNOWN;
-	double new_lf_dispatch_power, curr_power_val, diff_power_val;				
+	double new_lf_dispatch_power = 0.0, curr_power_val, diff_power_val;				
 	double new_pf_reg_distpatch_VAR = 0.0, curr_real_power_val, curr_reactive_power_val, curr_pf, Q_out, Q_available;
 	double scaling_factor, Q_target;
 	complex temp_current_val[3];
@@ -4882,10 +4881,9 @@ STATUS inverter::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 //Module-level call
 SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val)
 {
-	double deltat, deltath;
+	double deltat;
 	unsigned char pass_mod;
 	int indexval;
-	complex derror[3];
 	complex pid_out[3];
 	double temp_val_d, temp_val_q;
 	complex work_power_vals;
@@ -4894,7 +4892,7 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 	double prev_error_eq;
 	bool ramp_change;
 	int i = 0;
-	double ieee_1547_double;
+	double ieee_1547_double = 0.0;
 	complex temp_current_val[3];
 	complex power_val[3];
 
@@ -4902,7 +4900,6 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 
 	//Get timestep value
 	deltat = (double)dt/(double)DT_SECOND;
-	deltath = deltat/2.0;
 
 	// See what we're on, for tracking
 	pass_mod = iteration_count_val - ((iteration_count_val >> 1) << 1);
@@ -6658,9 +6655,6 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 
 STATUS inverter::post_deltaupdate(complex *useful_value, unsigned int mode_pass)
 {
-	complex temp_current_val[3];
-	complex power_val[3];
-
 	if (inverter_dyn_mode == PI_CONTROLLER)
 	{
 		if (four_quadrant_control_mode != FQM_VSI) {
@@ -7301,7 +7295,7 @@ void inverter::update_control_references(void)
 //Functionalized routine to perform the IEEE 1547-2003 checks
 double inverter::perform_1547_checks(double timestepvalue)
 {
-	bool voltage_violation, frequency_violation, trigger_disconnect, check_phase;
+	bool voltage_violation, frequency_violation, trigger_disconnect = false, check_phase;
 	bool uv_low_hit, uv_mid_hit, uv_high_hit, ov_low_hit, ov_high_hit;
 	double temp_pu_voltage;
 	double return_time_freq, return_time_volt, return_value;
