@@ -257,9 +257,9 @@ void underground_line::recalc(void)
 		double rad_14, rad_25, rad_36;
 				double dia[7], res[7], gmr[7], gmrcn[3], rcn[3], gmrs[3], ress[3], tap[8];
 		double d[7][7];
-		double perm_A, perm_B, perm_C, c_an, c_bn, c_cn, temp_denom;
+		double perm_A = 0.0, perm_B = 0.0, perm_C = 0.0, c_an, c_bn, c_cn, temp_denom;
 		complex cap_freq_coeff;
-		complex z[7][7],z_ts[3][3]; //, z_ij[3][3], z_in[3][3], z_nj[3][3], z_nn[3][3], z_abc[3][3];
+		complex z[7][7]; //, z_ij[3][3], z_in[3][3], z_nj[3][3], z_nn[3][3], z_abc[3][3];
 		double freq_coeff_real, freq_coeff_imag, freq_additive_term;
 		double miles = length / 5280.0;
 

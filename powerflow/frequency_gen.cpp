@@ -152,7 +152,7 @@ int frequency_gen::init(OBJECT *parent)
 	CurrEquations[0].endtime = TS_NEVER;
 	CurrEquations[0].enteredtime = TS_NEVER;
 
-	for (index=1; index<Num_Resp_Eqs; index++)
+	for (index=1; index<(size_t)Num_Resp_Eqs; index++)
 	{
 		CurrEquations[index].coeffa = 0.0;
 		CurrEquations[index].coeffb = 0.0;
