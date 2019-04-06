@@ -390,13 +390,27 @@ int tmy2_reader::read_data(double *dnr, double *dhr, double *ghr, double *tdb, d
 	int rct = 0;
 	int tmp_dnr, tmp_dhr, tmp_tot_sky_cov, tmp_opq_sky_cov, tmp_tdb, tmp_rh, tmp_wd, tmp_ws, tmp_precip, tmp_sf, tmp_ghr, tmp_extra_ghr, tmp_extra_dni, tmp_press;
 	//sscanf(buf, "%*2s%2d%2d%2d%*14s%4d%*2s%4d%*40s%4d%8*s%3d%*s",month,day,hour,&tmp_dnr,&tmp_dhr,&tmp_tdb,&tmp_rh);
-	int tmh, tday, thr;
+	int tmh = -1, tday = -1, thr = -1;
 	char t_ymd[11],t_hm[10],t_ehr[10],t_dni[10],t_ghr[10],t_dnr[10],t_dhr[10],t_tkc[10],t_osc[10],t_tdb[10],t_rh[10],t_press[10],t_wd[10],t_ws[10],t_precip[10],t_sf[10];
-	if(month == NULL) month = &tmh;
-	if(day == NULL) day = &tday;
-	if(hour == NULL) hour = &thr;
-	if(buf[2] == '/') {
+	if ( month == NULL ) 
+	{
+		month = &tmh;
+	}
+	if ( day == NULL ) 
+	{
+		day = &tday;
+	}
+	if ( hour == NULL ) 
+	{
+		hour = &thr;
+	}
+	if ( buf[2] == '/' ) 
+	{
 		rct = sscanf(buf, "%[^','],%[^','],%[^','],%[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*s",t_ymd,t_hm,t_ehr,t_dni,t_ghr,t_dnr,t_dhr,t_tkc,t_osc,t_tdb,t_rh,t_press,t_wd,t_ws,t_precip,t_sf);
+		if ( sscanf(t_ymd,"%d/%d/%*d",month,day) != 2 )
+			gl_error("TMY reader did not read a complete date from '%s'", t_ymd);
+		if ( sscanf(t_hm,"%d:%*d",hour) != 1 )
+			gl_error("TMY reader did not read a complete time from '%s'", t_hm);
 		tmp_extra_ghr = atoi(t_ehr);
 		tmp_extra_dni = atoi(t_dni);
 		tmp_ghr = atoi(t_ghr);
@@ -413,50 +427,90 @@ int tmy2_reader::read_data(double *dnr, double *dhr, double *ghr, double *tdb, d
 		tmp_sf = atoi(t_sf);		
 		rct = rct+1;
 		tmp_sf = 0; //tmy3 doesnt have this field (snow depth). so set to 0
-
 	}
-	else {
-	rct = sscanf(buf, "%*2s%2d%2d%2d%4d%4d%4d%*2s%4d%*2s%4d%*26s%2d%*2s%2d%*2s%4d%*8s%3d%*2s%4d%*2s%3d%*2s%3d%*25s%3d%*7s%3d",month,day,hour,&tmp_extra_ghr,&tmp_extra_dni,&tmp_ghr,&tmp_dnr,&tmp_dhr,&tmp_tot_sky_cov,&tmp_opq_sky_cov,&tmp_tdb,&tmp_rh,&tmp_press,&tmp_wd,&tmp_ws,&tmp_precip,&tmp_sf);
+	else 
+	{
+		rct = sscanf(buf, "%*2s%2d%2d%2d%4d%4d%4d%*2s%4d%*2s%4d%*26s%2d%*2s%2d%*2s%4d%*8s%3d%*2s%4d%*2s%3d%*2s%3d%*25s%3d%*7s%3d",month,day,hour,&tmp_extra_ghr,&tmp_extra_dni,&tmp_ghr,&tmp_dnr,&tmp_dhr,&tmp_tot_sky_cov,&tmp_opq_sky_cov,&tmp_tdb,&tmp_rh,&tmp_press,&tmp_wd,&tmp_ws,&tmp_precip,&tmp_sf);
 					/* 3__5__7__9__13__17_20_23_27__29_33___67_71_79__82__85__95_98_ */
 	}
-	if(rct != 17 ) {
-		gl_warning("TMY reader did not get 17 values for line time %d/%d %d00", *month, *day, *hour);
+	if ( rct != 17 ) 
+	{
+		gl_error("TMY reader did not get 17 values for line time %d/%d %d00", *month, *day, *hour);
 	}
-	if(dnr) *dnr = tmp_dnr;
-	if(dhr) *dhr = tmp_dhr;
-	if(ghr) *ghr = tmp_ghr;
+	if ( dnr ) 
+	{
+		*dnr = tmp_dnr;
+	}
+	if ( dhr ) 
+	{
+		*dhr = tmp_dhr;
+	}
+	if ( ghr ) 
+	{
+		*ghr = tmp_ghr;
+	}
 
 	//Assign extra_dni and pressure - extra DNI converted outside with other solar values
-	if (extra_terr_dni) *extra_terr_dni = tmp_extra_dni;
-	if (pressure) *pressure = tmp_press;
+	if ( extra_terr_dni) 
+	{
+		*extra_terr_dni = tmp_extra_dni;
+	}
+	if ( pressure ) 
+	{
+		*pressure = tmp_press;
+	}
 
-	if(tdb)
+	if ( tdb )
 	{
 		*tdb = ((double)tmp_tdb)/10.0;
 		if (*tdb<low_temp || low_temp==0) low_temp = *tdb;
 		else if (*tdb>high_temp || high_temp==0) high_temp = *tdb;
 	}
 	/* *tdb = ((double)tmp_tdb)/10.0 * 9.0 / 5.0 + 32.0; */
-	if(rh) *rh = ((double)tmp_rh)/100.0;
-	if(wind) *wind = tmp_ws/10.0;
+	if ( rh ) 
+	{
+		*rh = ((double)tmp_rh)/100.0;
+	}
+	if (wind ) 
+	{
+		*wind = tmp_ws/10.0;
+	}
 
 	// COnvert precip in mm to in/h
-	if(precip) *precip = ((double)tmp_precip) * 0.03937;
+	if ( precip )
+	{
+		*precip = ((double)tmp_precip) * 0.03937;
+	}
 
 	//convert snowfall in cm to in
-	if(snowDepth) *snowDepth =  ((double)tmp_sf) * 0.3937;
+	if ( snowDepth ) 
+	{
+		*snowDepth =  ((double)tmp_sf) * 0.3937;
+	}
 
 	// extraterrestrial global horizontal
-	if (extra_terr_ghi) *extra_terr_ghi = tmp_extra_ghr;
+	if (extra_terr_ghi) 
+	{
+		*extra_terr_ghi = tmp_extra_ghr;
+	}
 
 	// total sky cover
-	if (tot_sky_cov) *tot_sky_cov = tmp_tot_sky_cov/10.0;
+	if (tot_sky_cov) 
+	{
+		*tot_sky_cov = tmp_tot_sky_cov/10.0;
+	}
 
 	// opaque sky cover
-	if (opq_sky_cov) *opq_sky_cov = tmp_opq_sky_cov/10.0;
+	if (opq_sky_cov) 
+	{
+		*opq_sky_cov = tmp_opq_sky_cov/10.0;
+	}
 
 	// wind direction
-	if (winddir) *winddir = tmp_wd;
+	if (winddir) 
+	{
+		*winddir = tmp_wd;
+	}
 
 	return 1;
 }
@@ -775,7 +829,7 @@ int climate::init(OBJECT *parent)
 	}
 	
 	// begin parsing the TMY file
-	int line=0;
+	size_t line=0;
 	tmy = (TMYDATA*)malloc(sizeof(TMYDATA)*8760);
 	if (tmy==NULL)
 	{
@@ -873,10 +927,10 @@ int climate::init(OBJECT *parent)
 				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
-			if(0 == gl_convert("m/s", "m/s", &(wspeed)) ) {
-				gl_error("climate::init unable to gl_convert() 'm/s' to 'miles/h'!");
-				return 0;
-			}
+			// if(0 == gl_convert("m/s", "m/s", &(wspeed)) ) {
+			// 	gl_error("climate::init unable to gl_convert() 'm/s' to 'miles/h'!");
+			// 	return 0;
+			// }
 			tmy[hoy].temp_raw = temperature;
 			tmy[hoy].temp = temperature;
 			// post-conversion of copy of temperature from C to F
@@ -932,7 +986,9 @@ int climate::init(OBJECT *parent)
 
 		}
 		else
-			gl_error("%s(%d): day %d, hour %d is out of allowed range 0-8759 hours", tmyfile.get_string(),line,day,hour);
+		{
+			gl_warning("%s(%d): hour %d is out of allowed range 0-8759 hours (month=%d, day=%d, hour=%d)", tmyfile.get_string(),line,hoy,month,day,hour);
+		}
 
 		line++;
 	}
