@@ -900,7 +900,7 @@ int
 CPprofile(const int n, cp_panel_t *cp_panel, pxgstrf_shared_t *pxgstrf_shared)
 {
     Gstat_t *Gstat = pxgstrf_shared->Gstat;
-    register int maxpan, i, j, treecnt;
+    register int maxpan=0, i, j, treecnt;
     register float eft, maxeft; /* earliest (possible) finish time */
     flops_t  *ops;
 

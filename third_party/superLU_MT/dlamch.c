@@ -707,7 +707,7 @@ double dlamc3_(double *a, double *b)
    ===================================================================== 
 */
     /* System generated locals */
-    int i__1;
+
     double d__1;
     /* Local variables */
     static double zero, a;
@@ -738,7 +738,7 @@ L10:
 	d__1 = b1 * *base;
 	c1 = dlamc3_(&d__1, &zero);
 	d1 = zero;
-	i__1 = *base;
+
 	for (i = 1; i <= *base; ++i) {
 	    d1 += b1;
 /* L20: */
@@ -748,7 +748,7 @@ L10:
 	d__1 = b2 / rbase;
 	c2 = dlamc3_(&d__1, &zero);
 	d2 = zero;
-	i__1 = *base;
+
 	for (i = 1; i <= *base; ++i) {
 	    d2 += b2;
 /* L30: */
@@ -819,7 +819,7 @@ L10:
     static double c_b5 = 0.;
     
     /* System generated locals */
-    int i__1;
+
     double d__1;
     /* Local variables */
     static int lexp;
@@ -908,7 +908,7 @@ it
     recbas = 1. / *beta;
     z = *beta - 1.;
     y = 0.;
-    i__1 = *p;
+
     for (i = 1; i <= *p; ++i) {
 	z *= recbas;
 	if (y < 1.) {
@@ -923,7 +923,7 @@ it
 
 /*     Now multiply by BETA**EMAX to get RMAX. */
 
-    i__1 = *emax;
+
     for (i = 1; i <= *emax; ++i) {
 	d__1 = y * *beta;
 	y = dlamc3_(&d__1, &c_b5);
