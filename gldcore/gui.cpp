@@ -382,7 +382,7 @@ int gui_cmd_entity(int item, GUIENTITY *entity)
 void gui_cmd_prompt(GUIENTITY *parent)
 {
 	char buffer[1024];
-	char *label;
+	char *label = NULL;
 	GUIENTITY *entity;
 	for ( entity=gui_root ; entity!=NULL ; entity=entity->next )
 	{

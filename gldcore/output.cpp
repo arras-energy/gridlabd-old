@@ -157,7 +157,7 @@ FILE* output_redirect(const char *name, const char *path)
 			{	mode = "a";
 				path++;
 			}
-			*(map[i].file) = fopen(path?path:map[i].defaultfile,"w");
+			*(map[i].file) = fopen(path?path:map[i].defaultfile,mode);
 #ifndef WIN32
 			if (*(map[i].file))
 				setlinebuf(*(map[i].file));
@@ -884,7 +884,7 @@ int output_xsl(const char *fname, int n_mods, const char *p_mods[])
 				if (stylesheet==NULL || stylesheet->prop->ptype!=PT_char1024) /* only char1024 is allowed */
 					fprintf(fp,"<link rel=\"stylesheet\" href=\"%sgridlabd-%d_%d.css\" type=\"text/css\"/>\n",global_urlbase,global_version_major,global_version_minor);
 				else
-					fprintf(fp,"<link rel=\"stylesheet\" href=\"%s.css\" type=\"text/css\"/>\n",stylesheet->prop->addr);
+					fprintf(fp,"<link rel=\"stylesheet\" href=\"%s.css\" type=\"text/css\"/>\n",stylesheet->prop->name);
 			}
 			fprintf(fp,"</head>\n");
 			fprintf(fp,"<body>\n");

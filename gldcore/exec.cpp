@@ -614,7 +614,6 @@ const char *GldExec::simtime(void)
 
 STATUS GldExec::show_progress(void)
 {
-	extern GUIACTIONSTATUS wait_status;
 	output_progress();
 	/* reschedule report */
 	realtime_schedule_event(realtime_now()+1,show_progress);
@@ -2153,7 +2152,6 @@ STATUS GldExec::exec_start(void)
 	int j, k;
 	LISTITEM *ptr;
 	int incr;
-	struct arg_data *arg_data_array;
 	INDEX **ranks = getranks();
 
 	// Only setup threadpool for each object rank list at the first iteration;
@@ -3035,7 +3033,10 @@ void *GldExec::slave_node_proc(void *args)
 	bool *done_ptr = (bool *)(args_in[0]);
 	struct sockaddr_in *addrin = (struct sockaddr_in *)(args_in[3]);
 
-	char buffer[1024], response[1024], addrstr[17], *paddrstr, *token_to, *params;
+	char buffer[1024], response[1024], addrstr[17], *paddrstr, *token_to;
+#ifdef WIN32
+	char *params;
+#endif
 	char dirname[256], filename[256];
 	unsigned int64 mtr_port, id;
 	const char *token[5]={
@@ -3260,8 +3261,11 @@ void *GldExec::slave_node_proc(void *args)
 	{
 		IN_MYCONTEXT output_debug("id = %llu", id);
 	}
+
+#ifdef WIN32
 	// then zero or more CL args
 	params = 1 + token_to;
+#endif
 
 	// if unable to locate model file,
 	//	* request model

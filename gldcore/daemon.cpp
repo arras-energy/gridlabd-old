@@ -768,12 +768,11 @@ int daemon_restart(int argc, const char *argv[])
 		output_error("daemon commands not permitted");
 		exit(XC_INIERR);
 	}
-	
-	int nargs = 0;
+
 	if ( argc > 0 )
 	{
 		// process command arguments
-		nargs = daemon_arguments(argc,argv);
+		daemon_arguments(argc,argv);
 
 		// access config file
 		daemon_loadconfig();

@@ -664,7 +664,7 @@ void *(run_test_proc)(void *arg)
 	while ( (item=popdir())!=NULL )
 	{
 		IN_MYCONTEXT output_debug("process %d picked up '%s'", id, item->name);
-		double dt;
+		double dt = 0;
 		counters result = run_test(item->name,id,&dt);
 		if ( result.get_nerrors()>0 ) passed=false;
 		if ( global_validateoptions&VO_RPTGLM )

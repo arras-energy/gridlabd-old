@@ -202,7 +202,7 @@ int savexml_strict(const char *filename,FILE *fp)
 	if (stylesheet==NULL || stylesheet->prop->ptype!=PT_char1024) /* only char1024 is allowed */
 		count += fprintf(fp,"<?xml-stylesheet href=\"%sgridlabd-%d_%d.xsl\" type=\"text/xsl\"?>\n",global_urlbase,global_version_major,global_version_minor);
 	else 
-		count += fprintf(fp,"<?xml-stylesheet href=\"%s.xsl\" type=\"text/xsl\"?>\n",stylesheet->prop->addr);
+		count += fprintf(fp,"<?xml-stylesheet href=\"%s.xsl\" type=\"text/xsl\"?>\n",stylesheet->prop->name);
 	count += fprintf(fp,"<gridlabd>\n");
 	
 		/* globals */

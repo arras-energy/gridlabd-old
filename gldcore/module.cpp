@@ -2334,7 +2334,7 @@ typedef struct s_args {
 ARGS* get_args(char *line)
 {
 	int n=0;
-	char *p, *tag;
+	char *p, *tag = NULL;
 	enum {P_INIT, P_SPACE, P_TEXT, P_QUOTE, P_QUOTES} state = P_INIT;
 	ARGS *args = (ARGS*)malloc(sizeof(ARGS));
 

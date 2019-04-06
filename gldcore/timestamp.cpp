@@ -1194,7 +1194,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	if (sscanf(value,"%hu-%hu-%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&Y,&m,&d,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
-		DATETIME dt = {Y,m,d,H,M,S,0,isdst}; /* use GMT if tz is omitted */
+		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst}; /* use GMT if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
@@ -1202,7 +1202,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	else if (global_dateformat==DF_ISO && sscanf(value,"%hu/%hu/%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&Y,&m,&d,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
-		DATETIME dt = {Y,m,d,H,M,S,0,isdst}; /* use locale TZ if tz is omitted */
+		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst}; /* use locale TZ if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
@@ -1210,7 +1210,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	else if (global_dateformat==DF_US && sscanf(value,"%hu/%hu/%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&m,&d,&Y,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
-		DATETIME dt = {Y,m,d,H,M,S,0,isdst}; /* use locale TZ if tz is omitted */
+		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst}; /* use locale TZ if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
@@ -1218,7 +1218,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	else if (global_dateformat==DF_EURO && sscanf(value,"%hu/%hu/%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&d,&m,&Y,&H,&M,&S,tz)>=3)
 	{
 		int isdst = (strcmp(tz,tzdst)==0) ? 1 : 0;
-		DATETIME dt = {Y,m,d,H,M,S,0,isdst}; /* use locale TZ if tz is omitted */
+		DATETIME dt = {Y,m,d,H,M,S,0,(unsigned short)isdst}; /* use locale TZ if tz is omitted */
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}

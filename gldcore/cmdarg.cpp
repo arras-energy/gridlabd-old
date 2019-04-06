@@ -756,7 +756,7 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 						KEYWORD *key;
 						printf("\t%s {", proptype);
 						for (key=prop->keywords; key!=NULL; key=key->next)
-							printf("%s=%"FMT_INT64"d%s", key->name, key->value, key->next==NULL?"":", ");
+							printf("%s=%lu%s", key->name, key->value, key->next==NULL?"":", ");
 						printf("} %s;", strrchr(prop->name,':')+1);
 					} 
 					else 

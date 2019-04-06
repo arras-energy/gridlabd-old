@@ -46,7 +46,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 {
 	AGGREGATOR op = AGGR_NOP;
 	AGGREGATION *result=NULL;
-	char aggrop[9], aggrval[257], *aggrpart, nulpart[1];
+	char aggrop[9], aggrval[257], *aggrpart = NULL, nulpart[1];
 	char aggrprop[33], aggrunit[9];
 	unsigned char flags=0x00;
 	nulpart[0] = '\0';
