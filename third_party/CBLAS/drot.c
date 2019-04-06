@@ -12,6 +12,7 @@
 
 
     /* System generated locals */
+    integer i__1;
 
     /* Local variables */
     static integer i;

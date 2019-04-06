@@ -11,6 +11,7 @@ doublereal dnrm2_(integer *n, doublereal *x, integer *incx)
 
 
     /* System generated locals */
+    integer i__1, i__2;
     doublereal ret_val, d__1;
 
     /* Builtin functions */

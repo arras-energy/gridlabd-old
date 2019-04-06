@@ -11,7 +11,7 @@ integer idamax_(integer *n, doublereal *dx, integer *incx)
 
 
     /* System generated locals */
-    integer ret_val;
+    integer ret_val, i__1;
     doublereal d__1;
 
     /* Local variables */

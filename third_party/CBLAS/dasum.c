@@ -11,6 +11,7 @@ doublereal dasum_(integer *n, doublereal *dx, integer *incx)
 
 
     /* System generated locals */
+    integer i__1, i__2;
     doublereal ret_val, d__1, d__2, d__3, d__4, d__5, d__6;
 
     /* Local variables */

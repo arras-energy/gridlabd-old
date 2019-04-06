@@ -12,6 +12,7 @@ doublereal ddot_(integer *n, doublereal *dx, integer *incx, doublereal *dy,
 
 
     /* System generated locals */
+    integer i__1;
     doublereal ret_val;
 
     /* Local variables */
