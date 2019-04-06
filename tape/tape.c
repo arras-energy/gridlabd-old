@@ -24,6 +24,8 @@
 #include "histogram.h"
 #include "group_recorder.h"
 
+char timestamp_format[32]="%Y-%m-%d %H:%M:%S";
+
 void new_violation_recorder(MODULE *);
 void new_metrics_collector(MODULE *);
 void new_metrics_collector_writer(MODULE *);
@@ -694,8 +696,8 @@ EXPORT STATUS postupdate(MODULE *module, TIMESTAMP t0, unsigned int64 dt)
 	/* determine the timestamp */
 	char recorder_timestamp[64];
 	DATETIME rec_date_time;
-	TIMESTAMP rec_integer_clock;
-	int rec_microseconds;
+	TIMESTAMP rec_integer_clock = TS_NEVER;
+	int rec_microseconds = 0;
 	bool recorder_init_items = false;
 	char global_dateformat[8]="";
 	int return_val;

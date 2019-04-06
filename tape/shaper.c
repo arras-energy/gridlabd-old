@@ -128,7 +128,6 @@ static void close_shaper(struct shaper *my)
 static TIMESTAMP shaper_read(OBJECT *obj, TIMESTAMP t0, unsigned int n)
 {
 	struct shaper *my = OBJECTDATA(obj,struct shaper);
-	TIMESTAMP t1 = TS_NEVER;
 
 	/* determine shape time */
 	time_t t = (time_t)(t0/TS_SECOND);
@@ -141,7 +140,7 @@ static TIMESTAMP shaper_read(OBJECT *obj, TIMESTAMP t0, unsigned int n)
 		my->targets[n].value = my->magnitude * my->shape[tval->tm_mon][tval->tm_mday][tval->tm_wday][tval->tm_hour] * my->scale;
 
 		/* determine time of next change in shape */
-		t1 = my->targets[n].ts = ((t0 / my->step) + 1)*my->step;
+		// t1 = my->targets[n].ts = ((t0 / my->step) + 1)*my->step;
 	}
 	else /* shape queue */
 	{

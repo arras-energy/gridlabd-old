@@ -39,7 +39,7 @@ int metrics_collector_writer::init(OBJECT *parent)
 {
 
 	OBJECT *obj = OBJECTHDR(this);
-	int index = 0;
+	size_t index = 0;
 	char time_str[64];
 	DATETIME dt;
 
@@ -283,7 +283,7 @@ int metrics_collector_writer::commit(TIMESTAMP t1)
 int metrics_collector_writer::write_line(TIMESTAMP t1)
 {
 	char time_str[64];
-	int index = 0;
+	size_t index = 0;
 
 	double *metrics;
 	Json::Value metrics_writer_Output_time;

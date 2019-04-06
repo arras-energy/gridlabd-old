@@ -372,7 +372,7 @@ static int multi_recorder_open(OBJECT *obj)
 						strcpy(propstr, bigpropstr);
 					} else {
 						// has explicit unit
-						if(2 == sscanf(bigpropstr, "%[A-Za-z0-9_.][%[^]\n,\0]", propstr, unitstr)){
+						if(2 == sscanf(bigpropstr, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr)){
 							unit = gl_find_unit(unitstr);
 							if(unit == 0){
 								gl_error("multi_recorder:%d: unable to find unit '%s' for property '%s'", obj->id, unitstr, propstr);
@@ -430,7 +430,7 @@ static int multi_recorder_open(OBJECT *obj)
 			case HU_NONE:
 				strcpy(unit_buffer, my->property);
 				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
-					if(2 == sscanf(token, "%[A-Za-z0-9_:.][%[^]\n,\0]", propstr, unitstr)){
+					if(2 == sscanf(token, "%[A-Za-z0-9_:.][%[^]\n,]]", propstr, unitstr)){
 						; // no logic change
 					}
 					// print just the property, regardless of type or explicitly declared property
