@@ -159,8 +159,9 @@ int microwave::isa(char *classname)
 // periodically activates for the tail demand % of a cycle_time period.  Has a random offset to prevent
 //	lock-step behavior across uniform devices
 // start ....... on .. off
-TIMESTAMP microwave::update_state_cycle(TIMESTAMP t0, TIMESTAMP t1){
-	double ti0 = (double)t0, ti1 = (double)t1;
+TIMESTAMP microwave::update_state_cycle(TIMESTAMP t0, TIMESTAMP t1)
+{
+	double ti1 = (double)t1;
 
 	if(shape.load == 0){
 		state = OFF;
@@ -270,7 +271,6 @@ TIMESTAMP microwave::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP ct = 0;
 	double dt = 0;
-	double val = 0.0;
 	TIMESTAMP t2 = TS_NEVER;
 
 	if (t0 <= 0)

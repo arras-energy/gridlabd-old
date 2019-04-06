@@ -240,7 +240,6 @@ int waterheater::init(OBJECT *parent)
 
 	static double sTair = 74;
 	static double sTout = 68;
-	static double sRH = 0.05;
 
 	if(current_model == FORTRAN){
 		tank_setpoint = 126.05;
@@ -665,11 +664,14 @@ TIMESTAMP waterheater::presync(TIMESTAMP t0, TIMESTAMP t1){
 	DATETIME t_next;
 	gl_localtime(t1,&t_next);
 	
+#if 0 // not sure why this is here
 	if (t_next.day > 7 ) {
 		if (t_next.hour >= 8) {
 				double temp = 2;
 		}
 	}
+#endif
+
 	if(current_model != FORTRAN){
 		// update temperature and height
 		update_T_and_or_h(nHours);
@@ -758,7 +760,6 @@ TIMESTAMP waterheater::presync(TIMESTAMP t0, TIMESTAMP t1){
 TIMESTAMP waterheater::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
 	double internal_gain = 0.0;
-	double nHours = (gl_tohours(t1) - gl_tohours(t0))/TS_SECOND;
 	double Tamb = get_Tambient(location);
 	int i = 0;
 	// use re_override to control heat_needed state
@@ -818,10 +819,6 @@ TIMESTAMP waterheater::sync(TIMESTAMP t0, TIMESTAMP t1)
 			}
 			ambient_temp = (Tamb - 32.0) * (5.0 / 9.0);
 			ambient_rh = *pRH/100;
-			int dr_sig = (int)dr_signal;
-			int op_mode = (int)operating_mode;
-			double sim_time = simulation_time/3600.0;
-			double t_in = (Tinlet - 32.0) * (5.0 / 9.0);
 			for(i = 0; i < coarse_tank_grid*fine_tank_grid; i++){
 				init_tank_temp[i] = tank_water_temp[i];
 			}
@@ -1472,7 +1469,6 @@ inline double waterheater::new_h_2zone(double h0, double delta_t)
 double waterheater::get_Tambient(enumeration loc)
 {
 	double ratio;
-	OBJECT *parent = OBJECTHDR(this)->parent;
 
 	switch (loc) {
 	case GARAGE: // temperature is about 1/2 way between indoor and outdoor

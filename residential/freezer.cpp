@@ -171,9 +171,10 @@ int freezer::isa(char *classname)
 	return (strcmp(classname,"freezer")==0 || residential_enduse::isa(classname));
 }
 
-TIMESTAMP freezer::presync(TIMESTAMP t0, TIMESTAMP t1){
+TIMESTAMP freezer::presync(TIMESTAMP t0, TIMESTAMP t1)
+{
 	OBJECT *hdr = OBJECTHDR(this);
-	double *pTout = 0, t = 0.0, dt = 0.0;
+	double *pTout = 0;
 	double nHours = (gl_tohours(t1)- gl_tohours(t0))/TS_SECOND;
 
 	pTout = gl_get_double(hdr->parent, pTempProp);

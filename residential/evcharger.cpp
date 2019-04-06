@@ -330,9 +330,7 @@ int evcharger::create()
 }
 
 // LOW, MEDIUM, HIGH settings
-static double fuse[] = {15,35,70};
 static double amps[] = {12,28,55};
-static bool hiV[] = {false,true,true};
 
 int evcharger::init(OBJECT *parent)
 {
@@ -469,7 +467,7 @@ double evcharger::update_state(double dt /* seconds */)
 		if (charge<1.0 && obj->clock>0)
 		{
 			// compute the charging power
-			double charge_kw;
+			double charge_kw = 0.0;
 			switch (charger_type) {
 			case CT_LOW:
 			case CT_MEDIUM:
