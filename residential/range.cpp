@@ -1076,7 +1076,8 @@ void range::update_T_and_or_h(double nHours)
 				double vol_over = oven_volume/GALPCF * (h-height)/height;
 				double energy_over = vol_over * food_density * specificheat_food * (/*Tupper*/ Tw - Tlower);
 				double Tnew = /*Tupper*/ Tw + energy_over/Cw;
-				Tw = /*Tupper*/ Tw = Tnew;
+				// Tw = Tupper;
+				Tw = Tnew;
 				Tlower = Tinlet;
 				h = height;
 			} 

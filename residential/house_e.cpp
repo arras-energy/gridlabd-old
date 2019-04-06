@@ -238,7 +238,7 @@ int house_e::smart_breaker(char *buffer, size_t len)
 			jprintf(reply,sizeof(reply),"status","error","data","command rejected",NULL);
 		}
 	}
-	int rv = strlen(reply);
+	size_t rv = strlen(reply);
 	if ( rv >= len )
 	{
 		// note this can occur is a closing NULL is missing from the jprintf call
@@ -940,7 +940,7 @@ int house_e::init_climate()
 				{"record.high",&cooling_design_temperature},
 				{"record.low",&heating_design_temperature},
 			};
-			int i;
+			size_t i;
 			for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
 			{
 				double *src = (double*)GETADDR(obj,gl_get_property(obj,map[i].name));
@@ -1386,7 +1386,7 @@ int house_e::init(OBJECT *parent)
 
 	extern complex default_line_voltage[3], default_line_current[3], default_line_power[3], default_line_shunt[3];
 	extern int default_meter_status;
-	int i;
+	size_t i;
 
 	// find parent meter, if not defined, use a default meter (using static variable 'default_meter')
 	OBJECT *obj = OBJECTHDR(this);

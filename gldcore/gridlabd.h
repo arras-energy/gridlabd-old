@@ -2525,7 +2525,7 @@ public:
 					{"set", (void**)&set},
 					{"get", (void**)&get},
 				};
-				int n;
+				size_t n;
 				for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )
 				{
 					strcpy(fname,name);
@@ -2552,7 +2552,7 @@ inline int method_extract(char *value, va_list args)
 	size_t size = va_arg(args,size_t);
 	int offset = va_arg(args,int);
 	char *delims = va_arg(args,char*);
-	int len = strcspn(value+offset,delims);
+	size_t len = strcspn(value+offset,delims);
 	if ( len < size ) // result will fit in buffer
 	{
 		strncpy(buffer,value+offset,len);
