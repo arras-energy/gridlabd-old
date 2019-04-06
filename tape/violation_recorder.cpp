@@ -465,7 +465,7 @@ int violation_recorder::check_violation_1(TIMESTAMP t1)
 int violation_recorder::check_line_thermal_limit(TIMESTAMP t1, vobjlist *list, uniqueList *uniq_list, int type, double upper_bound, double lower_bound) {
 
 	vobjlist *curr = 0;
-	double nominal, nominalA, nominalB, nominalC;
+	double nominal, nominalA=0, nominalB=0, nominalC=0;
 	char objname[128];
 	double retval;
 
@@ -1223,12 +1223,13 @@ int violation_recorder::fails_continuous_condition (vobjlist *curr, int i, PROPE
 	return 0;
 }
 
-int violation_recorder::has_phase(OBJECT *obj, int phase) {
+int violation_recorder::has_phase(OBJECT *obj, int phase) 
+{
 	PROPERTY *p_ptr;
 	set *phases;
 	p_ptr = gl_get_property(obj, "phases");
 	phases = gl_get_set(obj, p_ptr);
-	if ((*phases & phase) == phase)
+	if (((int)*phases & phase) == phase)
 		return true;
 	return 0;
 }

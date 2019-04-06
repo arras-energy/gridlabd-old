@@ -1231,7 +1231,7 @@ bool export_transforms(MYSQL *mysql)
 		case XT_EXTERNAL:
 			if ( xform->nlhs>1 )
 				len += sprintf(specs+len,"%s","(");
-			for ( unsigned int n=1 ; n<xform->nlhs ; n++)
+			for ( int n = 1 ; n < xform->nlhs ; n++)
 			{
 				gld_property prop = find_property_at_addr(xform->plhs[n].addr);
 				if ( !prop.is_valid() )
@@ -1250,7 +1250,7 @@ bool export_transforms(MYSQL *mysql)
 				return false;
 			}
 			len += sprintf(specs+len,"=%s(",function);
-			for ( unsigned int n=1; n<xform->nrhs ; n++ )
+			for ( int n = 1; n < xform->nrhs ; n++ )
 			{
 				gld_property prop = find_property_at_addr(xform->prhs[n].addr);
 				if ( !prop.is_valid() )

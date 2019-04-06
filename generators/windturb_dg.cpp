@@ -181,12 +181,10 @@ int windturb_dg::init_climate()
 
 	// link to climate data
 	static FINDLIST *climates = NULL;
-	int not_found = 0;
 
 	climates = gl_find_objects(FL_NEW,FT_CLASS,SAME,"climate",FT_END);
 	if (climates==NULL)
 	{
-		not_found = 1;
 		gl_warning("windturb_dg (id:%d)::init_climate(): no climate data found, using static data",hdr->id);
 
 		//default to mock data
@@ -244,7 +242,7 @@ int windturb_dg::init(OBJECT *parent)
 {
 	OBJECT *obj = OBJECTHDR(this);
 
-	double ZB, SB = 0.0, EB;
+	double ZB, SB = 0.0, EB = 0.0;
 	complex tst, tst2, tst3, tst4;
 
 	switch (Turbine_Model)	{
@@ -472,7 +470,7 @@ int windturb_dg::init(OBJECT *parent)
 	};
 
 	static complex default_line123_voltage[3], default_line1_current[3];
-	int i;
+	size_t i;
 
 	//Map phases
 	set *phaseInfo = NULL;
@@ -980,12 +978,9 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 			else if (Gen_type == SYNCHRONOUS)			//synch gen is NOT solved in pu
 			{											//sg ef mode is not working yet
-				double Mxef, Mnef, PoutA, PoutB, PoutC, QoutA, QoutB, QoutC;
+				double PoutA, PoutB, PoutC, QoutA, QoutB, QoutC;
 				complex SoutA, SoutB, SoutC;
 				complex lossesA, lossesB, lossesC;
-
-				Mxef = Max_Ef * Rated_V/sqrt(3.0);
-				Mnef = Min_Ef * Rated_V/sqrt(3.0);
 
 				//TODO: convert to a convergence
 				if (Gen_mode == CONSTANTE)	//Ef is controllable to give a needed power output.
@@ -1121,8 +1116,6 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 			
 			complex testCurrent;
 			testCurrent = pLine_I[0];
-			complex *testCurrentPointer;
-			testCurrentPointer = pLine_I;
 
 			pLine_I[0] += current_A;
 			pLine_I[1] += current_B;

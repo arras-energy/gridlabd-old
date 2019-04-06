@@ -159,7 +159,7 @@ void appliance::update_state(void)
 		double rn = gl_random_uniform(&my()->rng_state,0,1);
 
 		// find the state that correspond to that cumulative probabilities
-		int n;
+		size_t n;
 		for ( n=0 ; n<n_states ; n++ )
 		{
 			rn -= transition_probabilities[n];

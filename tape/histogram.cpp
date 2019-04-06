@@ -95,7 +95,7 @@ void eat_white(char **pos){
 */
 int parse_bin_val(char *tok, BIN *bin){
 	char *pos = tok;
-	int low_set = 0, high_set = 0;
+	int low_set = 0;
 	
 	eat_white(&pos);
 
@@ -141,7 +141,7 @@ int parse_bin_val(char *tok, BIN *bin){
 	
 	if(isdigit(*pos)){
 		bin->high_val = strtod(pos, &pos);
-		high_set = 1;
+		// high_set = 1;
 		if(low_set == 0)
 			bin->high_inc = 1;
 	} else {

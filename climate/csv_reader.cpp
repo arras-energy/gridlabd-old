@@ -465,15 +465,12 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 	now.nanosecond = 0;
 	then.nanosecond = 0;
 
-	int localres;
-
 	if ( t0 < next_ts ) 
 	{ /* still good ~ go home */
 		return -next_ts;
 	}
-
-	localres = gl_localtime(t0, &now); // error check
-
+	gl_localtime(t0,&now);
+	
 	gl_debug("csv_reader::get_data start");
 	if ( next_ts == 0 ) {
 		//	initialize to the correct index & next_ts

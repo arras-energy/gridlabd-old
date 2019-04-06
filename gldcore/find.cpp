@@ -744,7 +744,9 @@ FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm)
 }
 
 #define PARSER const char *_p
-#define START int _m, _n; {_m=0, _n=0;}
+#define START int _m=0, _n=0;
+#define STARTM int _m=0;
+#define STARTN int _n=0;
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
 #define OR {_m=0;}
@@ -795,7 +797,7 @@ int literal(PARSER, const char *text)
 
 int name(PARSER, char *result, int size)
 {	/* basic name */
-	START;
+	STARTN;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -803,7 +805,7 @@ int name(PARSER, char *result, int size)
 
 int value(PARSER, char *result, int size)
 {	/* everything to a semicolon */
-	START;
+	STARTN;
 	while (size>1 && *_p!='\0' && *_p!=';' && *_p!='\n') COPY(result);
 	result[_n]='\0';
 	return _n;
@@ -811,7 +813,7 @@ int value(PARSER, char *result, int size)
 
 int token(PARSER, char *result, int size)
 {	/* everything to a semicolon */
-	START;
+	STARTN;
 	while (size>1 && *_p!='\0' && *_p!=';' && *_p!='\n' && !isspace(*_p) ) COPY(result);
 	result[_n]='\0';
 	return _n;
@@ -821,7 +823,7 @@ int integer(PARSER, int64 *value)
 {
 	char result[256];
 	int size=sizeof(result);
-	START;
+	STARTN;
 	while (size>1 && isdigit(*_p)) COPY(result);
 	result[_n]='\0';
 	*value=atoi64(result);
@@ -832,7 +834,7 @@ int _real(PARSER, double *value)
 {
 	char result[256];
 	int size=sizeof(result);
-	START;
+	STARTN;
 	if (*_p=='+' || *_p=='-') COPY(result);
 	while (size>1 && isdigit(*_p)) COPY(result);
 	if (*_p=='.') COPY(result);

@@ -1004,7 +1004,6 @@ void fuse::fuse_check(set phase_to_check, complex *fcurr)
 {
 	size_t indexval;
 	char phase_verbose;
-	unsigned char work_phase;
 	FUSESTATE *valstate;
 	TIMESTAMP *fixtime;
 	OBJECT *hdr = OBJECTHDR(this);
@@ -1043,7 +1042,7 @@ void fuse::fuse_check(set phase_to_check, complex *fcurr)
 	//See which phases we need to check
 	if ((phases & phase_to_check) == phase_to_check)	//Check phase
 	{
-		work_phase = 0x04 >> indexval;	//Working variable, primarily for NR
+		// work_phase = 0x04 >> indexval;	//Working variable, primarily for NR
 
 		if (*valstate == GOOD)	//Only bother if we are in service
 		{

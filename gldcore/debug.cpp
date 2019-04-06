@@ -593,7 +593,7 @@ Retry:
 		else if (strncmp(cmd,"details",max(1,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			int n = sscanf(buffer,"%*s %[^\0]", cmd);
+			int n = sscanf(buffer,"%*s %[^\n]", cmd);
 			if (n==1)
 			{
 				if (strcmp(cmd,"on")==0)
@@ -620,7 +620,7 @@ Retry:
 		else if (strncmp(cmd,"inactive",max(1,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			int n = sscanf(buffer,"%*s %[^\0]", cmd);
+			int n = sscanf(buffer,"%*s %[^\n]", cmd);
 			if (n==1)
 			{
 				if (strcmp(cmd,"on")==0)
@@ -647,7 +647,7 @@ Retry:
 		else if (strncmp(cmd,"unnamed",max(1,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			int n = sscanf(buffer,"%*s %[^\0]", cmd);
+			int n = sscanf(buffer,"%*s %[^\n]", cmd);
 			if (n==1)
 			{
 				if (strcmp(cmd,"on")==0)
@@ -674,7 +674,7 @@ Retry:
 		else if (strncmp(cmd,"nsync",max(2,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			int n = sscanf(buffer,"%*s %[^\0]", cmd);
+			int n = sscanf(buffer,"%*s %[^\n]", cmd);
 			if (n==1)
 			{
 				if (strcmp(cmd,"on")==0)
@@ -723,7 +723,7 @@ Retry:
 		else if (strncmp(cmd,"system",max(2,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			if (sscanf(buffer,"%*s %[^\0]", cmd)==1)
+			if (sscanf(buffer,"%*s %[^\n]", cmd)==1)
 				system(cmd);
 #ifdef WIN32
 			else if (getenv("COMSPEC")!=NULL)
@@ -741,7 +741,7 @@ Retry:
 		{
 			char bptype[256]="";
 			char bpval[256]="";
-			if (sscanf(buffer,"%*s %s %[^\0]", bptype, bpval)==0)
+			if (sscanf(buffer,"%*s %s %[^\n]", bptype, bpval)==0)
 			{
 				/* display all breakpoints */
 				BREAKPOINT *bp;
@@ -972,7 +972,7 @@ Retry:
 			char wptype[256]="";
 			char wpval[256]="";
 			OBJECT *obj;
-			if (sscanf(buffer,"%*s %s %[^\0]", wptype, wpval)==0)
+			if (sscanf(buffer,"%*s %s %[^\n]", wptype, wpval)==0)
 			{
 				/* display all watchpoints */
 				WATCHPOINT *wp;

@@ -237,7 +237,7 @@ void freezer::thermostat(TIMESTAMP t0, TIMESTAMP t1){
 TIMESTAMP freezer::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
 	double nHours = (gl_tohours(t1)- gl_tohours(t0))/TS_SECOND;
-	double t = 0.0, dt = 0.0;
+	double t = 0.0;
 
 	const double COP = COPcoef*((-3.5/45)*(Tout-70)+4.5);
 
@@ -263,11 +263,11 @@ TIMESTAMP freezer::sync(TIMESTAMP t0, TIMESTAMP t1)
 	}
 
 	// compute constants
-	const double C1 = Cf/(UAr+UAf);
-	const double C2 = Tout - Qr/UAr;
+	// const double C1 = Cf/(UAr+UAf);
+	// const double C2 = Tout - Qr/UAr;
 	
 	// compute time to next internal event
-	dt = t = -log((Tevent - C2)/(Tair-C2))*C1;
+	// dt = t = -log((Tevent - C2)/(Tair-C2))*C1;
 
 	if(t == 0){
 		GL_THROW("freezer control logic error, dt = 0");

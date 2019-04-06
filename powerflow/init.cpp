@@ -255,7 +255,7 @@ EXPORT SIMULATIONMODE interupdate(MODULE *module, TIMESTAMP t0, unsigned int64 d
 	bool delta_iter = false;
 	bool bad_computation=false;
 	NRSOLVERMODE powerflow_type;
-	int64 pf_result;
+	int64 pf_result = -1;
 	int64 simple_iter_test, limit_minus_one;
 	bool error_state;
 

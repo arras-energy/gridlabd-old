@@ -580,19 +580,22 @@ int metrics_collector::commit(TIMESTAMP t1){
 /**
 	@return 0 on failure, 1 on success
  **/
-int metrics_collector::read_line(OBJECT *obj){
+int metrics_collector::read_line(OBJECT *obj)
+{
 
 	// synch curr_index to the simulator time
 	curr_index = gl_globalclock - last_write;
     if (curr_index > last_index) --curr_index;
 
 	// Check curr_index value
-	if (curr_index < 0 || curr_index >= interval_length) {
+	if (curr_index < 0 || curr_index >= interval_length) 
+	{
 		gl_error("metrics_collector::curr_index value exceeds the limit");
 		return 0;
 	}
 
-	if (strcmp(parent_string, "triplex_meter") == 0) {
+	if (strcmp(parent_string, "triplex_meter") == 0) 
+	{
 		// Get power values
 		double realPower = *gl_get_double_by_name(obj->parent, "measured_real_power");
 		double reactivePower = *gl_get_double_by_name(obj->parent, "measured_reactive_power");
@@ -709,7 +712,7 @@ int metrics_collector::read_line(OBJECT *obj){
 		interpolate (reactive_power_array, last_index, curr_index, (double)VAfeeder.Im());
 		// Get feeder loss values
 		// Losses calculation
-		int index = 0;
+		size_t index = 0;
 		obj = NULL;
 		complex lossesSum = 0.0;
 		while( (obj=gl_find_next(link_objects,obj)) )

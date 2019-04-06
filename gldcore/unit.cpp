@@ -321,7 +321,7 @@ int unit_derived(const char *name,const char *derivation)
 	while (*p != '\0')
 	{
 		char term[32];
-		UNIT *pUnit;
+		UNIT *pUnit = NULL;
 
 		/* extract operation */
 		if (sscanf(p,"%[^-*/^+]",term)!=1){
@@ -333,7 +333,8 @@ int unit_derived(const char *name,const char *derivation)
 		}
 
 		/* non-exponential ops */
-		if (nextOp != '^'){
+		if (nextOp != '^')
+		{
 			/* find unit */
 			pUnit = unit_find_underived(term);
 
@@ -363,7 +364,8 @@ int unit_derived(const char *name,const char *derivation)
 		p += strlen(term);
 
 		/* add this term to result */
-		switch(nextOp){
+		switch(nextOp)
+		{
 			case '\0':
 				/* first term */
 				if (a == 0)

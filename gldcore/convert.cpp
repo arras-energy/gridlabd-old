@@ -316,7 +316,7 @@ int convert_from_enumeration(char *buffer, /**< pointer to the string buffer */
 	/* no keyword found, return the numeric value instead */
 	if ( count == 0 )
 	{
-		 count = sprintf(temp,"%llu",value);
+		 count = sprintf(temp,"%lu",value);
 	}
 	if ( count < size - 1 )
 	{
@@ -454,11 +454,11 @@ int convert_to_set(const char *buffer, /**< a pointer to the string buffer */
 	/* directly convert numeric strings */
 	if ( strnicmp(buffer,"0x",2) == 0 )
 	{
-		return sscanf(buffer,"0x%llx",(uint64*)data);
+		return sscanf(buffer,"0x%lx",(uint64*)data);
 	}
 	else if ( isdigit(buffer[0]) )
 	{
-		return sscanf(buffer,"%lld",(uint64*)data);
+		return sscanf(buffer,"%ld",(uint64*)data);
 	}
 
 	/* prevent long buffer from being scanned */

@@ -180,8 +180,8 @@ EVDEMAND *load_demand_profile(char *filename)
 		{
 			char dir[4], trip[5];
 			int event;
-			int nhdr = 0;
-			int offset=0;
+			size_t nhdr = 0;
+			size_t offset=0;
 			while (sscanf(line+offset,"%3s%4s",dir,trip)==2)
 			{
 				if (nhdr>sizeof(hdr)/sizeof(hdr[0]))

@@ -1271,7 +1271,7 @@ SingleZone:
 				double vol_over = tank_volume/GALPCF * (h-height)/height;
 				double energy_over = vol_over * RHOWATER * Cp * (/*Tupper*/ Tw - Tlower);
 				double Tnew = /*Tupper*/ Tw + energy_over/Cw;
-				Tw = /*Tupper*/ Tw = Tnew;
+				Tw = Tnew;
 				Tlower = Tinlet;
 				h = height;
 			} 

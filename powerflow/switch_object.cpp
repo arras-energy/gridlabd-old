@@ -1859,7 +1859,7 @@ int switch_object::kmldata(int (*stream)(const char*,...))
 
 	// switch state
 	stream("<TR><TH ALIGN=LEFT>Status</TH>");
-	for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+	for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 	{
 		if ( phase[i] )
 			stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><NOBR>%s</NOBR></TD>", state[i]?"CLOSED":"OPEN");
@@ -1875,7 +1875,7 @@ int switch_object::kmldata(int (*stream)(const char*,...))
 	if ( run_realtime.get_bool() )
 	{
 		stream("<TR><TH ALIGN=LEFT>Control</TH>");
-		for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
 				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"http://%s:%d/kml/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"switchA\" VALUE=\"%s\" /></FORM></TD>",

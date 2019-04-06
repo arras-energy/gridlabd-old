@@ -82,9 +82,6 @@ int recloser::init(OBJECT *parent)
 {
 	int result = switch_object::init(parent);
 
-	TIMESTAMP next_ret;
-	next_ret = gl_globalclock;
-
 	if(ntries<0)
 	{
 		gl_warning("The number of recloser tries is less than 0 resetting to zero");

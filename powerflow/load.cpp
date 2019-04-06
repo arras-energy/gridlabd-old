@@ -406,10 +406,10 @@ TIMESTAMP load::sync(TIMESTAMP t0)
 {
 	//bool all_three_phases;
 	bool fault_mode;
-	TIMESTAMP tresults_val, result;
+	TIMESTAMP result;
 
 	//Initialize time
-	tresults_val = TS_NEVER;
+	// tresults_val = TS_NEVER;
 
 	//See if we're reliability-enabled
 	if (fault_check_object == NULL)
@@ -3114,7 +3114,7 @@ int load::kmldata(int (*stream)(const char*,...))
 
 	// impedance demand
 	stream("<TR><TH ALIGN=LEFT>Z</TH>");
-	for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+	for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 	{
 		if ( phase[i] )
 			stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>kVA</TD>", constant_impedance[i].Mag()/1000);
@@ -3125,7 +3125,7 @@ int load::kmldata(int (*stream)(const char*,...))
 
 	// current demand
 	stream("<TR><TH ALIGN=LEFT>I</TH>");
-	for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+	for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 	{
 		if ( phase[i] )
 			stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>kVA</TD>", constant_current[i].Mag()/1000);
@@ -3136,7 +3136,7 @@ int load::kmldata(int (*stream)(const char*,...))
 
 	// power demand
 	stream("<TR><TH ALIGN=LEFT>P</TH>");
-	for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+	for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 	{
 		if ( phase[i] )
 			stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>kVA</TD>", constant_power[i].Mag()/1000);

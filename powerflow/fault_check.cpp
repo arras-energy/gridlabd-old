@@ -283,7 +283,7 @@ TIMESTAMP fault_check::sync(TIMESTAMP t0)
 
 			//Overall check -- catches the first run, but we'll keep it here anyways
 			//Internal check, for random "islands"
-			if (NR_curr_bus != NR_bus_count)
+			if (NR_curr_bus != (int)NR_bus_count)
 			{
 				GL_THROW("fault_check: Incomplete initialization detected - this will cause issues");
 				/*  TROUBLESHOOT
@@ -346,7 +346,7 @@ TIMESTAMP fault_check::sync(TIMESTAMP t0)
 void fault_check::search_links(int node_int)
 {
 	unsigned int index, indexb;
-	bool both_handled, from_val, first_resto, proceed_in;
+	bool both_handled, from_val, proceed_in;
 	int branch_val;
 	BRANCHDATA temp_branch;
 	unsigned char work_phases;
@@ -356,7 +356,6 @@ void fault_check::search_links(int node_int)
 	{
 		temp_branch = NR_branchdata[NR_busdata[node_int].Link_Table[index]];	//Get connecting link information
 
-		first_resto = false;		//Flag that restoration hasn't gone off
 		proceed_in = false;			//Flag that we need to go the next link in
 
 		//Check for no phase condition
@@ -656,7 +655,7 @@ void fault_check::reset_support_check(void)
 
 void fault_check::write_output_file(TIMESTAMP tval, double tval_delta)
 {
-	unsigned int index, ret_value;
+	unsigned int index;
 	DATETIME temp_time;
 	bool headerwritten = false;
 	bool supportheaderwritten = false;
@@ -713,7 +712,7 @@ void fault_check::write_output_file(TIMESTAMP tval, double tval_delta)
 				if (deltamodeflag == true)
 				{
 					//Convert the current time to an output
-					ret_value = gl_printtimedelta(tval_delta,deltaprint_buffer,64);
+					gl_printtimedelta(tval_delta,deltaprint_buffer,64);
 
 					//Write it
 					fprintf(FPOutput,"Unsupported at timestamp %0.9f - %s =\n\n",tval_delta,deltaprint_buffer);
@@ -794,7 +793,7 @@ void fault_check::write_output_file(TIMESTAMP tval, double tval_delta)
 					if (deltamodeflag == true)
 					{
 						//Convert the current time to an output
-						ret_value = gl_printtimedelta(tval_delta,deltaprint_buffer,64);
+						gl_printtimedelta(tval_delta,deltaprint_buffer,64);
 
 						//Write it
 						fprintf(FPOutput,"Supported at timestamp %0.9f - %s =\n\n",tval_delta,deltaprint_buffer);
@@ -1076,7 +1075,7 @@ void fault_check::support_search_links_mesh(int baselink_int, bool impact_mode)
 {
 	unsigned int indexval, index;
 	int device_index;
-	unsigned char temp_phases, work_phases, remove_phases, add_phases;
+	unsigned char temp_phases, work_phases, add_phases;
 
 	//First things first -- figure out how to flag ourselves
 	if (impact_mode == false)	//Removal mode
@@ -1087,7 +1086,7 @@ void fault_check::support_search_links_mesh(int baselink_int, bool impact_mode)
 			temp_phases = ((valid_phases[NR_branchdata[baselink_int].from] ^ valid_phases[NR_branchdata[baselink_int].to]) & 0x07);
 
 			//Cast by our original phases, in case something else broke us first
-			remove_phases = temp_phases & NR_branchdata[baselink_int].origphases;
+			// remove_phases = temp_phases & NR_branchdata[baselink_int].origphases;
 
 			//Flag us as handled
 			Alteration_Links[baselink_int] = 1;
@@ -1095,7 +1094,7 @@ void fault_check::support_search_links_mesh(int baselink_int, bool impact_mode)
 		else	//Swing node -- add it in
 		{
 			//See what phases were removed from us
-			remove_phases = ((NR_busdata[0].origphases ^ NR_busdata[0].phases) & 0x07);
+			// remove_phases = ((NR_busdata[0].origphases ^ NR_busdata[0].phases) & 0x07);
 
 			//Flag us as handled
 			Alteration_Nodes[0] = 1;
@@ -1203,7 +1202,7 @@ void fault_check::support_search_links_mesh(int baselink_int, bool impact_mode)
 				work_phases = work_phases & valid_phases[indexval];
 
 				//Figure out what was just removed -- assumes it was a removal
-				remove_phases = ((NR_busdata[indexval].phases ^ work_phases) & 0x07);
+				// remove_phases = ((NR_busdata[indexval].phases ^ work_phases) & 0x07);
 
 				//Loop through our link table -- if we don't have a support phase, they shouldn't be valid either
 				for (index=0; index<NR_busdata[indexval].Link_Table_Size; index++)	//parse through our connected link
@@ -1997,7 +1996,7 @@ void fault_check::search_associated_grids(unsigned int node_int, int grid_counte
 	for (index=0; index<NR_busdata[node_int].Link_Table_Size; index++)
 	{
 		//See which end of the link we are
-		if (NR_branchdata[NR_busdata[node_int].Link_Table[index]].from == node_int)	//From end
+		if (NR_branchdata[NR_busdata[node_int].Link_Table[index]].from == (int)node_int)	//From end
 		{
 			//Set the node-ref - must be other end
 			node_ref = NR_branchdata[NR_busdata[node_int].Link_Table[index]].to;

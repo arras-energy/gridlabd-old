@@ -1008,7 +1008,7 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 	extern double bid_offset;
 	double deadband_shift = 0.0;
 	double shift_direction = 0.0;
-	TIMESTAMP fast_reg_run;
+	TIMESTAMP fast_reg_run = TS_NEVER;
 	OBJECT *hdr = OBJECTHDR(this);
 	char ctrname[1024];
 	double avgP = 0.0;
@@ -1887,10 +1887,9 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 		{
 			if ( last_pState != ps )
 			{
-				double my_bid = -pCap;
 				if ( ps != *PS_OFF  )
 				{
-					my_bid = last_p;
+					// my_bid = last_p;
 				}
 
 				if ( ps == *PS_ON ) 

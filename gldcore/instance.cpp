@@ -125,10 +125,10 @@ static instance *instance_list = NULL;
 int instances_count = 0;
 int instances_exited = 0;
 
-void *instance_runproc_socket(void *ptr){
+void *instance_runproc_socket(void *ptr)
+{
 	int running = 1;
 	int rv = 0;
-	int got_data = 0;
 	instance *inst = (instance*)ptr;
 	inst->has_data = 0;
 
@@ -144,7 +144,7 @@ void *instance_runproc_socket(void *ptr){
 		}
 		pthread_mutex_lock(&inst->sock_lock);
 		if(0 == memcmp(inst->buffer, MSG_DATA, strlen(MSG_DATA))){
-			got_data = 1;
+			// got_data = 1;
 //			wlock(&inst->has_data_lock);
 			inst->has_data += 1;
 //			wunlock(&inst->has_data_lock);
