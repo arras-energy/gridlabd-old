@@ -12,7 +12,7 @@
 
 
     /* System generated locals */
-    integer a_dim1, a_offset, i__1, i__2;
+    integer a_dim1, a_offset;
 
     /* Local variables */
     static integer info;
@@ -215,14 +215,12 @@
 	    }
 	} else {
 	    if (*incx == 1) {
-		i__1 = *n;
 		for (j = 1; j <= *n; ++j) {
 		    if (X(j) != 0.f) {
 			if (nounit) {
 			    X(j) /= A(j,j);
 			}
 			temp = X(j);
-			i__2 = *n;
 			for (i = j + 1; i <= *n; ++i) {
 			    X(i) -= temp * A(i,j);
 /* L50: */
@@ -232,7 +230,6 @@
 		}
 	    } else {
 		jx = kx;
-		i__1 = *n;
 		for (j = 1; j <= *n; ++j) {
 		    if (X(jx) != 0.f) {
 			if (nounit) {
@@ -240,7 +237,6 @@
 			}
 			temp = X(jx);
 			ix = jx;
-			i__2 = *n;
 			for (i = j + 1; i <= *n; ++i) {
 			    ix += *incx;
 			    X(ix) -= temp * A(i,j);
@@ -258,10 +254,8 @@
 
 	if (lsame_(uplo, "U")) {
 	    if (*incx == 1) {
-		i__1 = *n;
 		for (j = 1; j <= *n; ++j) {
 		    temp = X(j);
-		    i__2 = j - 1;
 		    for (i = 1; i <= j-1; ++i) {
 			temp -= A(i,j) * X(i);
 /* L90: */
@@ -274,11 +268,9 @@
 		}
 	    } else {
 		jx = kx;
-		i__1 = *n;
 		for (j = 1; j <= *n; ++j) {
 		    temp = X(jx);
 		    ix = kx;
-		    i__2 = j - 1;
 		    for (i = 1; i <= j-1; ++i) {
 			temp -= A(i,j) * X(ix);
 			ix += *incx;
@@ -296,7 +288,6 @@
 	    if (*incx == 1) {
 		for (j = *n; j >= 1; --j) {
 		    temp = X(j);
-		    i__1 = j + 1;
 		    for (i = *n; i >= j+1; --i) {
 			temp -= A(i,j) * X(i);
 /* L130: */
@@ -313,7 +304,6 @@
 		for (j = *n; j >= 1; --j) {
 		    temp = X(jx);
 		    ix = kx;
-		    i__1 = j + 1;
 		    for (i = *n; i >= j+1; --i) {
 			temp -= A(i,j) * X(ix);
 			ix -= *incx;
