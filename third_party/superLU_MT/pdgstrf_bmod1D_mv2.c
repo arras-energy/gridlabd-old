@@ -67,8 +67,11 @@ pdgstrf_bmod1D_mv2(
     int  *repfnz_col, *repfnz_col1; /* repfnz[] for a column in the panel */
     double *dense_col, *dense_col1;  /* dense[] for a column in the panel */
     double *tri[2], *matvec[2];
-    int  *col_marker, *col_marker1; /* each column of the spa_marker[*,w] */
-    int  *col_lsub, *col_lsub1;   /* each column of the panel_lsub[*,w] */
+    int  *col_marker;
+    int  *col_lsub;   /* each column of the panel_lsub[*,w] */
+#ifdef SCATTER_FOUND		
+	int *col_marker1, *col_lsub1; /* each column of the spa_marker[*,w] */
+#endif
     int          *lsub, *xlsub_end;
     double	*lusup;
     int          *xlusup;
@@ -305,8 +308,10 @@ if (krep == BADCOL && jj == -1) {
 		for (j = 0; j < 2; ++j) {
 		    i = n * (jj2[j] - jcol);
 		    dense_col1  = &dense[i];
+#ifdef SCATTER_FOUND		
 		    col_marker1 = &spa_marker[i];
 		    col_lsub1   = &panel_lsub[i];
+#endif
 		    no_zeros = kfnz2[j] - fsupc;
 		    segsze = krep - kfnz2[j] + 1;
 		    
@@ -354,8 +359,10 @@ if (krep == BADCOL && jj == -1) {
 	i = n * (jj2[0] - jcol);
 	repfnz_col1 = &repfnz[i];
 	dense_col1  = &dense[i];
+#ifdef SCATTER_FOUND		
 	col_marker1 = &spa_marker[i];
 	col_lsub1   = &panel_lsub[i];
+#endif
 	kfnz = repfnz_col1[krep];		    
 	no_zeros = kfnz - fsupc;
 	segsze = krep - kfnz + 1;
