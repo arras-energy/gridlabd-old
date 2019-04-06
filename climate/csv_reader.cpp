@@ -469,7 +469,8 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 	{ /* still good ~ go home */
 		return -next_ts;
 	}
-
+	gl_localtime(t0,&now);
+	
 	gl_debug("csv_reader::get_data start");
 	if ( next_ts == 0 ) {
 		//	initialize to the correct index & next_ts
