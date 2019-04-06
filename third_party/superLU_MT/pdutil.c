@@ -328,7 +328,7 @@ dGenXtrue(int n, int nrhs, double *x, int ldx)
 void
 dFillRHS(trans_t trans, int nrhs, double *x, int ldx, SuperMatrix *A, SuperMatrix *B)
 {
-    NCformat *Astore;
+
 
     DNformat *Bstore;
     double   *rhs;
@@ -337,7 +337,7 @@ dFillRHS(trans_t trans, int nrhs, double *x, int ldx, SuperMatrix *A, SuperMatri
     int      ldc;
     char     trans_c[1];
 
-    Astore = A->Store;
+
 
     Bstore = B->Store;
     rhs    = Bstore->nzval;
