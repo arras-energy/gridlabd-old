@@ -94,7 +94,7 @@ public:
 	bool table_exists(const char *table);
 	bool query(const char *query,...);
 	bool query_ex(const char *query,...);
-	unsigned int64 get_last_index(void);
+	size_t get_last_index(void);
 	MYSQL_RES *select(const char *query,...);
 	MYSQL_RES get_next(MYSQL_RES*res);
 	int run_script(const char *file);

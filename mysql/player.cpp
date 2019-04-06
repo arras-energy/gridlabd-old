@@ -66,7 +66,7 @@ int player::init(OBJECT *parent)
 	// check mode
 	if ( strlen(mode)>0 )
 	{
-		int options = 0xffffffff;
+		unsigned int options = 0xffffffff;
 		struct {
 			const char *str;
 			set bits;
@@ -78,7 +78,7 @@ int player::init(OBJECT *parent)
 			{"a",	0xffff},
 			{"a+",	0xffff},
 		};
-		int n;
+		size_t n;
 		for ( n=0 ; n<sizeof(modes)/sizeof(modes[0]) ; n++ )
 		{
 			if ( strcmp(mode,modes[n].str)==0 )
@@ -87,7 +87,7 @@ int player::init(OBJECT *parent)
 				break;
 			}
 		}
-		if ( options==0xffffffff )
+		if ( options == 0xffffffff )
 			exception("mode '%s' is not recognized",(const char*)mode);
 		else if ( options==0xffff )
 			exception("mode '%s' is not valid for a recorder", (const char*)mode);

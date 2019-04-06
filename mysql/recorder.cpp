@@ -106,7 +106,7 @@ int recorder::init(OBJECT *parent)
 			{"a",	0x0000},
 			{"a+",	0x0000},
 		};
-		int n;
+		size_t n;
 		for ( n=0 ; n<sizeof(modes)/sizeof(modes[0]) ; n++ )
 		{
 			if ( strcmp(mode,modes[n].str)==0 )
@@ -397,7 +397,7 @@ TIMESTAMP recorder::commit(TIMESTAMP t0, TIMESTAMP t1)
 
 
 		// check limit
-		if ( get_limit()>0 && db->get_last_index()>=get_limit() )
+		if ( get_limit() > 0 && db->get_last_index() >= (size_t)get_limit() )
 		{
 			// shut off recorder
 			enabled=false;
