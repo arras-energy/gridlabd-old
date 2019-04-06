@@ -251,8 +251,8 @@ static void occupancy_schedule(char *text, char occupied[24])
 	memset(hours,0,sizeof(hours));
 
 	char *p = text;
-	char next=-1;
-	char start=-1, stop=-1;
+	int next=-1;
+	int start=-1, stop=-1;
 	char *target = days;
 
 	for (p=text; true; p++)
@@ -274,7 +274,7 @@ static void occupancy_schedule(char *text, char occupied[24])
 		}
 		else if (*p==',' || *p==' ' || *p==';' || *p=='\0')
 		{
-			size_t n;
+			int n;
 			stop = next;
 			for ( n = start ; n <= (stop>=0?stop:(target==days?8:24)) ; n++ )
 			{
@@ -422,7 +422,7 @@ int office::init(OBJECT *parent)
 		{"auxiliary cutin is not positive", zone.control.auxiliary_cutin<=0},
 		{"economizer cutin is above cooling setpoint deadband", zone.control.economizer_cutin>=zone.control.cooling_setpoint-zone.control.setpoint_deadband},
 	};
-	int i;
+	size_t i;
 	for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
 	{
 		if (map[i].test)
