@@ -1265,14 +1265,8 @@ inline void wunlock(LOCKVAR* lock) { callback->unlock.write(lock); }
 
 #define LOCKED(X,C) {WRITELOCK_OBJECT(X);(C);WRITEUNLOCK_OBJECT(X);} /**< @todo this is deprecated and should not be used anymore */
 
-static unsigned long _nan[] = { 0xffffffff, 0x7fffffff, };
-#ifdef WIN32
-#define NaN (*(double*)&_nan)
-#else// UNIX/LINUX
 #include <math.h>
 #define NaN NAN
-#endif
-
 
 #ifdef __cplusplus
 
