@@ -72,8 +72,6 @@ private:
 	TIMESTAMP last_write;
 	bool interval_write;
 
-	char* parent_string;
-
 	FINDLIST *metrics_collectors;
 
 	int interval_length;			//integer averaging length (seconds)

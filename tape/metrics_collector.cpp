@@ -771,11 +771,10 @@ int metrics_collector::read_line(OBJECT *obj){
 	@return 1 on successful write, 0 on unsuccessful write, error, or when not ready
  **/
 
-int metrics_collector::write_line(TIMESTAMP t1, OBJECT *obj){
+int metrics_collector::write_line(TIMESTAMP t1, OBJECT *obj)
+{
 	// In the metrics_collector object, values are rearranged in write_line into dictionary
 	// Writing to JSON output file is executed in metrics_collector_writer object
-	char time_str[64];
-	DATETIME dt;
 	double svP, svQ, svPL, svQL, svHVAC, svTotal, svWH, svAir; // these are to wrap arrays that were passed to findMedian
 
 	if ((strcmp(parent_string, "triplex_meter") == 0) || (strcmp(parent_string, "meter") == 0)) {

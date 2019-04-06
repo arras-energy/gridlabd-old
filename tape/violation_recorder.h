@@ -327,9 +327,7 @@ private:
 	TIMESTAMP last_flush;
 	TIMESTAMP write_interval;
 	TIMESTAMP flush_interval;
-	int32 write_ct;
 	TAPESTATUS tape_status; // TS_INIT/OPEN/DONE/ERROR
-	char *prev_line_buffer;
 	char *line_buffer;
 	size_t line_size;
 	bool interval_write;

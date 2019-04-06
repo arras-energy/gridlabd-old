@@ -35,10 +35,10 @@ int metrics_collector_writer::create(){
 	return 1;
 }
 
-int metrics_collector_writer::init(OBJECT *parent){
+int metrics_collector_writer::init(OBJECT *parent)
+{
 
 	OBJECT *obj = OBJECTHDR(this);
-	FILE *fn = NULL;
 	int index = 0;
 	char time_str[64];
 	DATETIME dt;
@@ -262,8 +262,8 @@ TIMESTAMP metrics_collector_writer::postsync(TIMESTAMP t0, TIMESTAMP t1){
 	return TS_NEVER;
 }
 
-int metrics_collector_writer::commit(TIMESTAMP t1){
-	OBJECT *obj = OBJECTHDR(this);
+int metrics_collector_writer::commit(TIMESTAMP t1)
+{
 
 	// if periodic interval, check for write
 	if(interval_write){
@@ -280,9 +280,9 @@ int metrics_collector_writer::commit(TIMESTAMP t1){
 /**
 	@return 1 on successful write, 0 on unsuccessful write, error, or when not ready
  **/
-int metrics_collector_writer::write_line(TIMESTAMP t1){
+int metrics_collector_writer::write_line(TIMESTAMP t1)
+{
 	char time_str[64];
-	time_t now = time(NULL);
 	int index = 0;
 
 	double *metrics;

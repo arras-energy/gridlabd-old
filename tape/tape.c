@@ -556,8 +556,6 @@ EXPORT SIMULATIONMODE interupdate(MODULE *module, TIMESTAMP t0, unsigned int64 d
 		{
 			OBJECT *obj = index_item->obj;
 			struct player *my = (struct player *)OBJECTDATA(obj,struct player);
-			int y=0,m=0,d=0,H=0,M=0,S=0,ms=0, n=0;
-			char *fmt = "%d/%d/%d %d:%d:%d.%d,%*s";
 			double t = (double)my->next.ts + (double)my->next.ns/1e9;
 			char256 curr_value;
 

@@ -217,7 +217,6 @@ int histogram::init(OBJECT *parent)
 	PROPERTY *prop = NULL;
 	OBJECT *obj = OBJECTHDR(this);
 	char tprop[64], tpart[8];
-	int e = 0;
 	TAPEFUNCS *tf = 0;
 	tprop[0]=0;
 	tpart[0] = 0;
@@ -470,8 +469,6 @@ int histogram::feed_bins(OBJECT *obj)
 
 TIMESTAMP histogram::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	int i = 0;
-	double value = 0.0;
 	OBJECT *obj = OBJECTHDR(this);
 
 	if((sampling_interval == -1.0 && t_count > t1) ||

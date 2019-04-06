@@ -185,7 +185,6 @@ EXPORT int create_player(OBJECT **obj, OBJECT *parent)
 
 static int player_open(OBJECT *obj)
 {
-	char32 type="file";
 	char1024 fname="";
 	char32 flags="r";
 	struct player *my = OBJECTDATA(obj,struct player);

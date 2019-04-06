@@ -108,7 +108,6 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 
 static int recorder_open(OBJECT *obj)
 {
-	char32 type="file";
 	char1024 fname="";
 	char32 flags="w";
 	TAPEFUNCS *f = 0;
@@ -303,7 +302,7 @@ static int recorder_open(OBJECT *obj)
 	// set out_property here
 	{size_t offset = 0;
 		char unit_buffer[1024];
-		char *token = 0, *prop_ptr = 0, *unit_ptr = 0;
+		char *token = 0;
 		char propstr[1024], unitstr[64];
 		PROPERTY *prop = 0;
 		UNIT *unit = 0;

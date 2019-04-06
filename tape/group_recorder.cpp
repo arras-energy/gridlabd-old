@@ -366,11 +366,11 @@ int group_recorder::isa(char *classname){
 /**
 	@return 0 on failure, 1 on success
  **/
-int group_recorder::write_header(){
+int group_recorder::write_header()
+{
 //	size_t name_size;
 	time_t now = time(NULL);
 	quickobjlist *qol = 0;
-	OBJECT *obj=OBJECTHDR(this);
 
 	if(TS_OPEN != tape_status){
 		// could be ERROR or CLOSED
@@ -417,8 +417,9 @@ int group_recorder::write_header(){
 /**
 	@return 0 on failure, 1 on success
  **/
-int group_recorder::read_line(){
-	size_t index = 0, offset = 0, unit_len = 0;
+int group_recorder::read_line()
+{
+	size_t index = 0, offset = 0;
 	quickobjlist *curr = 0;
 	char *swap_ptr = 0;
 	char buffer[128];

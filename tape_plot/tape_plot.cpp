@@ -558,7 +558,6 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 	char extension[sizeof(char32)];
 	char columnlist[sizeof(char1024)];
 	char **columns;
-	OBJECT *obj=OBJECTHDR(my);
 
 	columns = (char **)calloc(MAXCOLUMNS, sizeof(char *));
 	for(int i=0; i<MAXCOLUMNS; i++){
