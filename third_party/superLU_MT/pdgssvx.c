@@ -370,7 +370,6 @@ pdgssvx(int nprocs, superlumt_options_t *superlumt_options, SuperMatrix *A,
  *
  */
 
-    NCformat  *Astore;
     DNformat  *Bstore, *Xstore;
     double    *Bmat, *Xmat;
     int       ldb, ldx, nrhs;
@@ -391,7 +390,6 @@ pdgssvx(int nprocs, superlumt_options_t *superlumt_options, SuperMatrix *A,
     extern double dlangs(char *, SuperMatrix *);
     extern double dlamch_(char *);
 
-    Astore = A->Store;
     Bstore = B->Store;
     Xstore = X->Store;
     Bmat   = Bstore->nzval;
