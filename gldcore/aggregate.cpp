@@ -44,7 +44,7 @@ DEPRECATED CDECL AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< agg
 	try 
 	{
 		GldAggregator *aggr = new GldAggregator(aggregator,group_expression);
-		return (AGGREGATION*)aggr;
+		return aggr->get_aggregator();
 	}
 	catch (...)
 	{
@@ -53,7 +53,7 @@ DEPRECATED CDECL AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< agg
 }
 DEPRECATED CDECL double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
 {
-	return GldAggregator(aggr).value();
+	return GldAggregator(aggr).get_value();
 }
 
 /** This function builds an collection of objects into an aggregation.  
@@ -62,11 +62,13 @@ DEPRECATED CDECL double aggregate_value(AGGREGATION *aggr) /**< the aggregation 
 GldAggregator::GldAggregator(AGGREGATION *a)
 {
 	aggr = a;
+	refcnt++;
 }
 
 GldAggregator::~GldAggregator(void)
 {
-	delete aggr;
+	if ( --refcnt == 0 )
+		delete aggr;
 }
 
 GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
@@ -76,11 +78,11 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 	AGGREGATION *result=NULL;
 	char aggrop[9], aggrval[257], *aggrpart = NULL, nulpart[1];
 	char aggrprop[33], aggrunit[9];
-	unsigned char flags=0x00;
+	AGGRFLAGS flags = AF_NONE;
 	nulpart[0] = '\0';
 
 	//Change made for collector to handle propeties of objects
-	OBJECT *obj;
+	OBJECT *obj = NULL;
 	PROPERTY *pinfo=NULL;
 	FINDPGM *pgm = NULL;
 	FINDLIST *list=NULL;	
@@ -90,7 +92,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 	double scale = 1.0;
 
 	if (sscanf(aggregator," %8[A-Za-z0-9_](%256[][A-Za-z0-9_.^])",aggrop,aggrval)!=2 &&
-		(flags|=AF_ABS,
+		(flags=AF_ABS,
 		sscanf(aggregator," %8[A-Za-z0-9_]|%256[][A-Za-z0-9_.^]|",aggrop,aggrval)!=2 
 		))
 	{
@@ -357,12 +359,13 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 		}
 	}
 
+	refcnt++;
 	aggr = result;
 }
 
 /** This function performs an aggregate calculation given by the aggregation 
  **/
-double GldAggregator::value(void)
+double GldAggregator::get_value(void)
 {
 	OBJECT *obj;
 	double numerator=0, denominator=0, secondary=0;
