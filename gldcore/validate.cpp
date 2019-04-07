@@ -89,7 +89,11 @@ public:
 	{
 		char pname[1024];
 		char cwd[1024];
-		getcwd(cwd,sizeof(cwd));
+		if ( getcwd(cwd,sizeof(cwd)) == NULL )
+		{
+			output_error("inc_filed(name='%s'): unable to change working directory",name);
+			return;
+		}
 		strcpy(pname,name);
 		char *pwd = cwd;
 		char *ptr = pname;
@@ -478,7 +482,12 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 	}
 	*ext = '\0'; // remove extension from dir
 	char cwd[1024];
-	getcwd(cwd,sizeof(cwd));	
+	if ( getcwd(cwd,sizeof(cwd)) == NULL )
+	{
+		output_warning("(proc %d) run_test(char *file='%s'): unable to read current working directory", id, file);
+		return result;
+	}
+
 	if ( clean && !destroy_dir(dir) )
 	{
 		output_error("(proc %d) run_test(char *file='%s'): unable to destroy test folder", id, dir);
@@ -494,7 +503,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 	if ( (0 != mkdir(dir,0750)) && clean )
 #endif
 	{
-		output_error("(proc %d) run_test(char *file='%s'): unable to create test folder", id, dir);
+		output_error("(proc %d) run_test(char *file='%s'): unable to create test folder", id, file);
 		result.inc_access(file);
 		return result;
 	}
