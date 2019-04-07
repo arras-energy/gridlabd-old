@@ -21,14 +21,14 @@
 
 SET_MYCONTEXT(DMC_GLOBALS)
 
-static GLOBALVAR *global_varlist = NULL, *lastvar = NULL;
+DEPRECATED static GLOBALVAR *global_varlist = NULL, *lastvar = NULL;
 
-static KEYWORD df_keys[] = {
+DEPRECATED static KEYWORD df_keys[] = {
 	{"ISO", DF_ISO, df_keys+1},
 	{"US", DF_US, df_keys+2},
 	{"EURO", DF_EURO, NULL},
 };
-static KEYWORD trl_keys[] = {
+DEPRECATED static KEYWORD trl_keys[] = {
 	{"PRINCIPLE",	TRL_PRINCIPLE, trl_keys+1},
 	{"CONCEPT",		TRL_CONCEPT, trl_keys+2},
 	{"PROOF",		TRL_PROOF, trl_keys+3},
@@ -40,18 +40,18 @@ static KEYWORD trl_keys[] = {
 	{"PROVEN",		TRL_PROVEN, trl_keys+9},
 	{"UNKNOWN",		TRL_UNKNOWN, NULL},
 };
-static KEYWORD cpt_keys[] = {
+DEPRECATED static KEYWORD cpt_keys[] = {
 	{"NONE", CPT_NONE, cpt_keys+1},	/**< no checkpoint done */
 	{"WALL", CPT_WALL, cpt_keys+2},	/**< checkpoint on wall clock interval */
 	{"SIM",  CPT_SIM,  NULL},		/**< checkpoint on simulation clock interval */
 };
 
-static KEYWORD rng_keys[] = {
+DEPRECATED static KEYWORD rng_keys[] = {
 	{"RNG2", RNG2, rng_keys+1},		/**< version 2 random number generator (stateless) */
 	{"RNG3", RNG3, NULL,},			/**< version 3 random number generator (statefull) */
 };
 
-static KEYWORD mls_keys[] = {
+DEPRECATED static KEYWORD mls_keys[] = {
 	{"INIT", MLS_INIT, mls_keys+1},			/**< main loop hasn't started yet */
 	{"RUNNING", MLS_RUNNING, mls_keys+2},	/**< main loop is running */
 	{"PAUSED", MLS_PAUSED, mls_keys+3},		/**< main loop is paused */
@@ -59,34 +59,34 @@ static KEYWORD mls_keys[] = {
 	{"LOCKED", MLS_LOCKED, NULL},			/**< main loop is locked */
 };
 
-static KEYWORD mrm_keys[] = {
+DEPRECATED static KEYWORD mrm_keys[] = {
 	{"STANDALONE", MRM_STANDALONE, mrm_keys+1}, /**< run is standalone */
 	{"MASTER", MRM_MASTER, mrm_keys+2}, /**< run is a master of multirun */
 	{"SLAVE", MRM_SLAVE, mrm_keys+3}, /**< run is a slave of a multirun */
 	{"LIBRARY", MRM_LIBRARY, NULL},	/**< run is a library in another system */
 };
 
-static KEYWORD mrc_keys[] = {
+DEPRECATED static KEYWORD mrc_keys[] = {
 	{"NONE", MRC_NONE, mrc_keys+1},		/**< isn't actually connected upwards */
 	{"MEMORY", MRC_MEM, mrc_keys+2},	/**< use shared mem or the like */
 	{"SOCKET", MRC_SOCKET, NULL},		/**< use a socket */
 };
 
-static KEYWORD isc_keys[] = {
+DEPRECATED static KEYWORD isc_keys[] = {
 	{"CREATION", IS_CREATION, isc_keys+1},
 	{"DEFERRED", IS_DEFERRED, isc_keys+2},
 	{"BOTTOMUP", IS_BOTTOMUP, isc_keys+3},
 	{"TOPDOWN", IS_TOPDOWN, NULL}
 };
 
-static KEYWORD mcf_keys[] = {
+DEPRECATED static KEYWORD mcf_keys[] = {
 	{"NONE", MC_NONE, mcf_keys+1},		/**< no module compiler flags set */
 	{"CLEAN", MC_CLEAN, mcf_keys+2},	/**< flag to rebuild everything (no reuse of previous work) */
 	{"KEEPWORK", MC_KEEPWORK, mcf_keys+3},	/**< flag to keep everything (do not delete intermediate files) */
 	{"DEBUG", MC_DEBUG, mcf_keys+4},	/**< flag to build with debugging turned on */
 	{"VERBOSE", MC_VERBOSE, NULL},		/**< flag to output commands as they are executed */
 };
-static KEYWORD vo_keys[] = {
+DEPRECATED static KEYWORD vo_keys[] = {
 	{"NONE", VO_NONE, vo_keys+1},
 	{"TSTD", VO_TSTSTD, vo_keys+2},
 	{"TALL", VO_TSTALL, vo_keys+3},
@@ -98,18 +98,18 @@ static KEYWORD vo_keys[] = {
 	{"RDIR", VO_RPTDIR, vo_keys+9},
 	{"RGLM", VO_RPTGLM, NULL},
 };
-static KEYWORD so_keys[] = {
+DEPRECATED static KEYWORD so_keys[] = {
 	{"NAMES", SO_NAMES, so_keys+1},
 	{"POSITIONS", SO_GEOCOORDS, NULL},
 };
-static KEYWORD sm_keys[] = {
+DEPRECATED static KEYWORD sm_keys[] = {
 	{"INIT", SM_INIT, sm_keys+1},
 	{"EVENT", SM_EVENT, sm_keys+2},
 	{"DELTA", SM_DELTA, sm_keys+3},
 	{"DELTA_ITER", SM_DELTA_ITER, sm_keys+4},
 	{"ERROR", SM_ERROR, NULL},
 };
-static KEYWORD dmc_keys[] = {
+DEPRECATED static KEYWORD dmc_keys[] = {
 		{"NONE", 		DMC_NONE, 			dmc_keys+1},
 		{"ALL", 		DMC_ALL, 			dmc_keys+2},
 		{"LOAD",		DMC_LOAD,			dmc_keys+3},
@@ -164,12 +164,12 @@ static KEYWORD dmc_keys[] = {
 		{"MAIN",		DMC_MAIN,			dmc_keys+52},
 		{"CMDARG",		DMC_CMDARG,			NULL},
 };
-static KEYWORD vtc_keys[] = {
+DEPRECATED static KEYWORD vtc_keys[] = {
 	{"SYNC",		VTC_SYNC,		vtc_keys+1},
 	{"PRECOMMIT",	VTC_PRECOMMIT,	vtc_keys+2},
 	{"COMMIT",		VTC_COMMIT,		NULL},
 };
-static KEYWORD gso_keys[] = {
+DEPRECATED static KEYWORD gso_keys[] = {
 	{"LEGACY",		GSO_LEGACY,		gso_keys+1},
 	{"MINIMAL",		GSO_MINIMAL,	gso_keys+2},
 	{"NOGLOBALS",	GSO_NOGLOBALS,	gso_keys+3},
@@ -177,7 +177,7 @@ static KEYWORD gso_keys[] = {
 	{"NOMACROS",	GSO_NOMACROS,	NULL},
 };
 
-static struct s_varmap {
+DEPRECATED static struct s_varmap {
 	const char *name;
 	PROPERTYTYPE type;
 	void *addr;
@@ -327,7 +327,7 @@ static struct s_varmap {
 	#define USERVAR "USER"
 #endif
 
-static void buildtmp(void)
+DEPRECATED static void buildtmp(void)
 {
 	const char *tmp, *home, *user;
 
@@ -698,7 +698,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 	if (strcmp(name,"")!=0) /* something was defined */
 	{
 		GLOBALVAR *var = global_find(name);
-		static LOCKVAR globalvar_lock = 0; // TODO: this is non-reentrant
+		DEPRECATED static LOCKVAR globalvar_lock = 0; // TODO: this is non-reentrant
 		int retval;
 		if (var==NULL)
 		{
@@ -754,8 +754,8 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 	}
 }
 
-static int guid_first=1;
-char *global_guid(char *buffer, int size)
+DEPRECATED static int guid_first=1;
+DEPRECATED char *global_guid(char *buffer, int size)
 {
 	if ( size>36 )
 	{
@@ -774,9 +774,9 @@ char *global_guid(char *buffer, int size)
 		return NULL;
 	}
 }
-char *global_run(char *buffer, int size)
+DEPRECATED char *global_run(char *buffer, int size)
 {
-	static char value[37]="";
+	DEPRECATED static char value[37]="";
 	if ( value[0]=='\0' )
 		global_guid(value,sizeof(value));
 	if ( size>36 )
@@ -787,7 +787,7 @@ char *global_run(char *buffer, int size)
 	else
 		return NULL;
 }
-char *global_now(char *buffer, int size)
+DEPRECATED char *global_now(char *buffer, int size)
 {
 	if ( size>32 )
 	{
@@ -802,7 +802,7 @@ char *global_now(char *buffer, int size)
 		return NULL;
 	}
 }
-char *global_today(char *buffer, int size)
+DEPRECATED char *global_today(char *buffer, int size)
 {
 	if ( size>32 )
 	{
@@ -817,7 +817,7 @@ char *global_today(char *buffer, int size)
 		return NULL;
 	}
 }
-char *global_true(char *buffer, int size)
+DEPRECATED char *global_true(char *buffer, int size)
 {
 	if ( size>1 )
 		return strcpy(buffer,"1");
@@ -828,7 +828,7 @@ char *global_true(char *buffer, int size)
 	}
 }
 
-const char *global_seq(char *buffer, int size, const char *name)
+DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 {
 	char seq[64], opt[64]="";
 	if ( sscanf(name,"%63[^:]:%63s",seq,opt)==2 )
@@ -1359,68 +1359,68 @@ GldGlobalvar::~GldGlobalvar(void)
 // TODO: these functions are deprecated and need to be removed after GldMain->my_instance is removed
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
-STATUS global_init(void)
+DEPRECATED STATUS global_init(void)
 {
-	return my_instance->globals.init();
+	return my_instance->get_globals()->init();
 }
-GLOBALVAR *global_find(const char *name)
+DEPRECATED GLOBALVAR *global_find(const char *name)
 {
-	return my_instance->globals.find(name);
+	return my_instance->get_globals()->find(name);
 }
-GLOBALVAR *global_getnext(GLOBALVAR *var)
+DEPRECATED GLOBALVAR *global_getnext(GLOBALVAR *var)
 {
-	return my_instance->globals.getnext(var);
+	return my_instance->get_globals()->getnext(var);
 }
-void global_restore(GLOBALVAR *pos)
+DEPRECATED void global_restore(GLOBALVAR *pos)
 {
-	return my_instance->globals.restore(pos);
+	return my_instance->get_globals()->restore(pos);
 }
-void global_push(char *name, char *value)
+DEPRECATED void global_push(char *name, char *value)
 {
-	return my_instance->globals.push(name,value);
+	return my_instance->get_globals()->push(name,value);
 }
-GLOBALVAR *global_create(const char *name, ...)
+DEPRECATED GLOBALVAR *global_create(const char *name, ...)
 {
 	va_list ptr;
 	va_start(ptr,name);
-	GLOBALVAR *var = my_instance->globals.create_v(name,ptr);
+	GLOBALVAR *var = my_instance->get_globals()->create_v(name,ptr);
 	va_end(ptr);
 	return var;
 }
-STATUS global_setvar(const char *def, ...)
+DEPRECATED STATUS global_setvar(const char *def, ...)
 {
 	va_list ptr;
 	va_start(ptr,def);
-	STATUS res = my_instance->globals.setvar_v(def,ptr);
+	STATUS res = my_instance->get_globals()->setvar_v(def,ptr);
 	va_end(ptr);
 	return res;
 }
-int global_isdefined(const char *name)
+DEPRECATED int global_isdefined(const char *name)
 {
-	return my_instance->globals.isdefined(name);
+	return my_instance->get_globals()->isdefined(name);
 }
-const char *global_getvar(const char *name, char *buffer, size_t size) 
+DEPRECATED const char *global_getvar(const char *name, char *buffer, size_t size) 
 {
-	return my_instance->globals.getvar(name,buffer,size);
+	return my_instance->get_globals()->getvar(name,buffer,size);
 }
-size_t global_getcount(void) 
+DEPRECATED size_t global_getcount(void) 
 { 
-	return my_instance->globals.getcount();
+	return my_instance->get_globals()->getcount();
 }
-size_t global_saveall(FILE *fp) 
+DEPRECATED size_t global_saveall(FILE *fp) 
 { 
-	return my_instance->globals.saveall(fp);
+	return my_instance->get_globals()->saveall(fp);
 }
-void global_dump(void)
+DEPRECATED void global_dump(void)
 {
-	return my_instance->globals.dump();
+	return my_instance->get_globals()->dump();
 }
-void *global_remote_read(void *local, GLOBALVAR *var)
+DEPRECATED void *global_remote_read(void *local, GLOBALVAR *var)
 {
-	return my_instance->globals.remote_read(local,var);
+	return my_instance->get_globals()->remote_read(local,var);
 }
-void global_remote_write(void *local, GLOBALVAR *var)
+DEPRECATED void global_remote_write(void *local, GLOBALVAR *var)
 {
-	return my_instance->globals.remote_write(local,var);
+	return my_instance->get_globals()->remote_write(local,var);
 }
 /**@}**/
