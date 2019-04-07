@@ -1285,7 +1285,7 @@ int http_copy(HTTPCNX *http, const char *context, const char *source, int cook, 
 		fclose(fp);
 		return 0;
 	}
-	if (fread(buffer,1,len,fp)<0)
+	if ( fread(buffer,1,len,fp) < len )
 	{
 		output_error("%s output '%s' read failed", context, source);
 		free(buffer);

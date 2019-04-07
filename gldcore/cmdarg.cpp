@@ -1550,9 +1550,16 @@ int GldCmdarg::workdir(int argc, const char *argv[])
 		output_error("%s is not a valid workdir", global_workdir);
 		return CMDERR;
 	}
-	getcwd(global_workdir,sizeof(global_workdir));
-	IN_MYCONTEXT output_verbose("working directory is '%s'", global_workdir);
-	return 1;
+	if ( getcwd(global_workdir,sizeof(global_workdir)) )
+	{
+		IN_MYCONTEXT output_verbose("working directory is '%s'", global_workdir);
+		return 1;
+	}
+	else
+	{
+		output_error("unable to read current working directory");
+		return CMDERR;
+	}
 }
 
 static int local_daemon(void *main, int argc, const char *argv[])
@@ -1610,8 +1617,7 @@ static int printenv(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::printenv(int argc, const char *argv[])
 {
-	system("printenv");
-	return 0;
+	return system("printenv") == 0 ? 0 : CMDERR;
 }
 
 static int origin(void *main, int argc, const char *argv[])

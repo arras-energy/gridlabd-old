@@ -734,7 +734,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
     {
         if ( strcmp(type,"objects") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             OBJECT *obj;
             for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
             {
@@ -750,7 +750,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"classes") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             CLASS *oclass;
             for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
             {
@@ -759,7 +759,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"modules") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             MODULE *mod;
             for ( mod = module_get_first() ; mod != NULL ; mod = mod->next )
             {
@@ -768,7 +768,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"globals") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             GLOBALVAR *var;
             for ( var = global_find(NULL) ; var != NULL ; var = var->next )
             {
@@ -777,7 +777,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"transforms") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             TRANSFORM *transform = NULL;
             while ( (transform = transform_getnext(NULL)) != NULL )
             {
@@ -788,7 +788,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"schedules") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             SCHEDULE *sch;
             for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
             {
@@ -1109,7 +1109,7 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
     }
     PyObject *data = PyDict_New();
     PyDict_SetItemString(data,"definition",Py_BuildValue("s",sch->definition));
-    PyObject *calendars = PyList_New(NULL);
+    PyObject *calendars = PyList_New(0);
     size_t calendar;
     for ( calendar = 0 ; calendar < 14 ; calendar++ )
     {

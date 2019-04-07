@@ -397,7 +397,8 @@ void gui_cmd_prompt(GUIENTITY *parent)
 Retry:
 	fprintf(stdout,"\n%s> [%s] ",label, gui_get_value(entity));
 	fflush(stdout);
-	fgets(buffer,sizeof(buffer),stdin);
+	if ( fgets(buffer,sizeof(buffer),stdin) == NULL )
+		output_error("gui_cmd_prompt read failed");
 	buffer[strlen(buffer)-1]='\0';
 	if (strcmp(buffer,"")==0)
 		return;
@@ -463,7 +464,8 @@ void gui_cmd_menu(GUIENTITY *parent)
 Retry:
 		fprintf(stdout,"\nGLM> [%d] ",ans<item?ans+1:0);
 		fflush(stdout);
-		fgets(buffer,sizeof(buffer),stdin);
+		if ( fgets(buffer,sizeof(buffer),stdin) == NULL )
+			output_error("gui_cmd_menu read failed");
 		buffer[strlen(buffer)-1]='\0';
 		ans = atoi(buffer);
 		if (ans<0 || ans>item)

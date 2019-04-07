@@ -508,8 +508,10 @@ Retry:
 			sigint_caught=0;
 			fflush(stdout);
 		
-			fgets(buffer, 1023, stdin);	/* "gets() is dangerous and should not be used" -gcc */
-			output_verbose("debug command '%s'", buffer);
+			if ( fgets(buffer, 1023, stdin) )
+				output_verbose("debug command '%s'", buffer);
+			else
+				output_warning("command read failed");
 		}
 		else{ /* Load from file */
 			char* nl;
@@ -723,18 +725,21 @@ Retry:
 		else if (strncmp(cmd,"system",max(2,strlen(cmd)))==0)
 		{
 			char cmd[1024];
+			int rc = 0;
 			if (sscanf(buffer,"%*s %[^\n]", cmd)==1)
-				system(cmd);
+				rc = system(cmd);
 #ifdef WIN32
 			else if (getenv("COMSPEC")!=NULL)
-				system(getenv("COMSPEC"));
+				rc = system(getenv("COMSPEC"));
 			else
-				system("cmd");
+				rc = system("cmd");
 #else
 			else if (getenv("SHELL")!=NULL)
-				system(getenv("SHELL"));
+				rc = system(getenv("SHELL"));
 			else
-				system("/bin/sh");
+				rc = system("/bin/sh");
+			if ( rc != 0 )
+				output_warning("command failed");
 #endif
 		}
 		else if (strncmp(cmd,"break",max(1,strlen(cmd)))==0)
