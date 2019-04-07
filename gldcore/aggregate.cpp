@@ -38,11 +38,39 @@
 //TODO: uncomment if context warnings 
 // SET_MYCONTEXT(DMC_AGGREGATE)
 
+DEPRECATED CDECL AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
+							   const char *group_expression) /**< grouping rule; see find_mkpgm(char *)*/
+{
+	try 
+	{
+		GldAggregator *aggr = new GldAggregator(aggregator,group_expression);
+		return (AGGREGATION*)aggr;
+	}
+	catch (...)
+	{
+		return NULL;
+	}
+}
+DEPRECATED CDECL double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
+{
+	return GldAggregator(aggr).value();
+}
+
 /** This function builds an collection of objects into an aggregation.  
 	The aggregation can be run using aggregate_value(AGGREGATION*)
  **/
-AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
-							   const char *group_expression) /**< grouping rule; see find_mkpgm(char *)*/
+GldAggregator::GldAggregator(AGGREGATION *a)
+{
+	aggr = a;
+}
+
+GldAggregator::~GldAggregator(void)
+{
+	delete aggr;
+}
+
+GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
+							 const char *group_expression) /**< grouping rule; see find_mkpgm(char *)*/
 {
 	AGGREGATOR op = AGGR_NOP;
 	AGGREGATION *result=NULL;
@@ -72,7 +100,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 			Check the aggregation's syntax and make sure it conforms to the required syntax.
 		 */
 		errno = EINVAL;
-		return NULL;
+		throw NULL;
 	}
 
 	//Change made for collector to handle propeties of objects
@@ -110,7 +138,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 				Check your aggregations and make sure all the units are defined.
 			 */
 			errno = EINVAL;
-			return NULL;
+			throw NULL;
 		}
 		strcpy(aggrval, aggrprop); // write property back into value, sans unit
 	}
@@ -136,7 +164,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 			Check that all your aggregators used allowed functions (e.g., min, max, avg, std, sum, count, etc.).
 		 */
 		errno = EINVAL;
-		return NULL;
+		throw NULL;
 	}
 	if (op!=AGGR_NOP)
 	{		
@@ -150,7 +178,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 				Check that all your groups are correctly defined.
 			 */
 			errno = EINVAL;
-			return NULL;
+			throw NULL;
 		}
 		else
 		{
@@ -168,7 +196,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 				errno = EINVAL;
 				free(pgm);
 				pgm = NULL;
-				return NULL;
+				throw NULL;
 			}
 			else
 			{				
@@ -182,7 +210,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 					free(pgm);
 					pgm = NULL;
 					errno=EINVAL;
-					return NULL;
+					throw NULL;
 				}
 				
 				if (obj==NULL)
@@ -197,7 +225,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 					free(list);
 					list = NULL;
 					errno=EINVAL;
-					return NULL;
+					throw NULL;
 				}
 				pinfo = class_find_property(obj->oclass,aggrval);
 				if (pinfo==NULL)
@@ -212,7 +240,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					return NULL;
+					throw NULL;
 				}
 				else if (pinfo->ptype==PT_double || pinfo->ptype==PT_random || pinfo->ptype==PT_loadshape )
 				{
@@ -228,7 +256,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 						pgm = NULL;
 						free(list);
 						list = NULL;
-						return NULL;
+						throw NULL;
 					}
 					part = AP_NONE;
 				}
@@ -256,7 +284,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 						pgm = NULL;
 						free(list);
 						list = NULL;
-						return NULL;
+						throw NULL;
 					}
 				}
 				else
@@ -271,7 +299,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					return NULL;
+					throw NULL;
 				}
 				from_unit = pinfo->unit;
 				if(to_unit != NULL && from_unit == NULL){
@@ -285,7 +313,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					return NULL;
+					throw NULL;
 				}
 				if (from_unit != NULL && to_unit != NULL && unit_convert_ex(from_unit, to_unit, &scale) == 0){
 					output_error("aggregate group property '%s' cannot use units '%s'", aggrval, aggrunit);
@@ -299,7 +327,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					return NULL;
+					throw NULL;
 				}
 			}
 		}
@@ -325,26 +353,16 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 			pgm = NULL;
 			free(list);
 			list = NULL;
-			return NULL;
+			throw NULL;
 		}
 	}
 
-	return result;
-}
-
-double mag(complex *x)
-{
-	return sqrt(x->Re()*x->Re() + x->Im()*x->Im());
-}
-
-double arg(complex *x)
-{
-	return (x->Re()==0) ? (x->Im()>0 ? PI/2 : (x->Im()==0 ? 0 : -PI/2)) : ((x->Im()>0) ? (x->Re()>0 ? atan(x->Im()/x->Re()) : PI-atan(x->Im()/x->Re())) : (x->Re()>0 ? -atan(x->Im()/x->Re()) : PI+atan(x->Im()/x->Re())));
+	aggr = result;
 }
 
 /** This function performs an aggregate calculation given by the aggregation 
  **/
-double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
+double GldAggregator::value(void)
 {
 	OBJECT *obj;
 	double numerator=0, denominator=0, secondary=0;
@@ -370,11 +388,11 @@ double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
 			if (pcomplex!=NULL)
 			{
 				switch (aggr->part) {
-				case AP_REAL: value=pcomplex->Re(); break;
-				case AP_IMAG: value=pcomplex->Im(); break;
-				case AP_MAG: value=mag(pcomplex); break;
-				case AP_ARG: value=arg(pcomplex); break;
-				case AP_ANG: value=arg(pcomplex)*180/PI;  break;
+				case AP_REAL: value = pcomplex->Re(); break;
+				case AP_IMAG: value = pcomplex->Im(); break;
+				case AP_MAG: value = pcomplex->Mag(); break;
+				case AP_ARG: value = pcomplex->Arg(); break;
+				case AP_ANG: value = pcomplex->Ang();  break;
 				default: pcomplex = NULL; break; /* invalidate the result */
 				}
 			}

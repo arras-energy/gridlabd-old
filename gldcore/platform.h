@@ -53,5 +53,19 @@
 	#endif
 	#include <math.h>
 	#define QNAN NAN
+
+// migration support for 4.2
+#define DEPRECATED // used to identify deprecated functions
+
+#ifdef __cplusplus
+#define CDECL extern "C" /* TODO: obsolete as of 4.2 */
+#else
+#define CDECL 
+#endif
+
+#define EXPORT CDECL /* TODO:obsolete as of 4.2 */
+
+
+
 #endif
 /**@}**/

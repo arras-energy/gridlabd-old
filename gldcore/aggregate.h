@@ -28,16 +28,27 @@ typedef struct s_aggregate {
 	struct s_aggregate *next; /**< the next aggregation in the core's list of aggregators */
 } AGGREGATION; /**< the aggregation type */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// deprecated as of 4.2
+DEPRECATED CDECL AGGREGATION *aggregate_mkgroup(const char *aggregator, const char *group_expression);
+DEPRECATED CDECL double aggregate_value(AGGREGATION *aggregate);
 
-AGGREGATION *aggregate_mkgroup(const char *aggregator, const char *group_expression);
-double aggregate_value(AGGREGATION *aggregate);
+#ifdef __cplusplus // DEPRECATED
 
-#ifdef __cplusplus
-}
-#endif
+class GldAggregator 
+{
+private:
+	AGGREGATION *aggr;
+public:
+	GldAggregator(AGGREGATION *a);
+	GldAggregator(const char *aggregator, const char *group_expression);
+	~GldAggregator(void);
+public:
+	double value(void);
+public:
+	inline operator AGGREGATION*(void) { return aggr; };
+};
+
+#endif // DEPRECATED
 
 #endif
 

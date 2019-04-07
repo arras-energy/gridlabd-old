@@ -70,14 +70,6 @@
 #define STREAM_MODULE
 #include "stream.h"
 
-#ifdef __cplusplus
-#define CDECL extern "C" /* TODO: obsolete as of 4.2 */
-#else
-#define CDECL 
-#endif
-
-#define EXPORT CDECL /* TODO:obsolete as of 4.2 */
-
 #ifdef DLMAIN
 #define EXTERN
 #define INIT(X) = X
