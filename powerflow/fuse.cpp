@@ -79,7 +79,7 @@ fuse::fuse(MODULE *mod) : link_object(mod)
     }
 }
 
-int fuse::isa(char *classname)
+int fuse::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"fuse")==0 || link_object::isa(classname);
 }
@@ -592,7 +592,7 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 			if (event_schedule != NULL)	//Function was mapped - go for it!
 			{
 				//Call the function
-				result_val = ((int (*)(OBJECT *, OBJECT *, char *, TIMESTAMP, TIMESTAMP, int, bool))(*event_schedule))(*eventgen_obj,obj,fault_val,t0,0,-1,false);
+				result_val = ((int (*)(OBJECT *, OBJECT *, const char *, TIMESTAMP, TIMESTAMP, int, bool))(*event_schedule))(*eventgen_obj,obj,fault_val,t0,0,-1,false);
 
 				//Make sure it worked
 				if (result_val != 1)
@@ -977,7 +977,7 @@ void fuse::set_fuse_full_reliability(unsigned char desired_status)
 }
 
 //Retrieve the address of an object
-OBJECT **fuse::get_object(OBJECT *obj, char *name)
+OBJECT **fuse::get_object(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_object)
@@ -1195,7 +1195,7 @@ EXPORT TIMESTAMP sync_fuse(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 *
 * @return true (1) if obj is a subtype of this class
 */
-EXPORT int isa_fuse(OBJECT *obj, char *classname)
+EXPORT int isa_fuse(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,fuse)->isa(classname);
 }
@@ -1258,7 +1258,7 @@ EXPORT int fuse_reliability_operation(OBJECT *thisobj, unsigned char desired_pha
 	return 1;	//This will always succeed...because I say so!
 }
 
-EXPORT int create_fault_fuse(OBJECT *thisobj, OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
+EXPORT int create_fault_fuse(OBJECT *thisobj, OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
 {
 	int retval;
 

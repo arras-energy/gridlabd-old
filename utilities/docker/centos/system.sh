@@ -12,6 +12,7 @@ yum groupinstall "Development Tools" -y
 yum install cmake -y 
 yum install ncurses-devel -y
 yum install epel-release -y
+yum install which -y
 yum --disablerepo="*" --enablerepo="epel" install python36 -y
-ln -s /usr/bin/python3.6 /usr/bin/python3
 yum install python36-devel -y
+[ -f /usr/bin/python3 ] || ln -s /usr/bin/python3.6 /usr/bin/python3

@@ -61,7 +61,7 @@ regulator::regulator(MODULE *mod) : link_object(mod)
 	}
 }
 
-int regulator::isa(char *classname)
+int regulator::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"regulator")==0 || link_object::isa(classname);
 }
@@ -282,16 +282,15 @@ int regulator::init(OBJECT *parent)
 	prev_tap[2] = tap[2];
 
 	//Get global_minimum_timestep value and set the appropriate flag
-	unsigned int glob_min_timestep, temp_val;
+	unsigned int temp_val;
 	char temp_buff[128];
-	char indexval;
 
 	//Retrieve the global value, only does so as a text string for some reason
 	gl_global_getvar("minimum_timestep",temp_buff,sizeof(temp_buff));
 
 	//Initialize our parsing variables
-	indexval = 0;
-	glob_min_timestep = 0;
+	unsigned int indexval = 0;
+	unsigned int glob_min_timestep = 0;
 
 	//Loop through the buffer
 	while ((indexval < 128) && (temp_buff[indexval] != 0))
@@ -1207,7 +1206,7 @@ EXPORT TIMESTAMP sync_regulator(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	SYNC_CATCHALL(regulator);
 }
 
-EXPORT int isa_regulator(OBJECT *obj, char *classname)
+EXPORT int isa_regulator(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,regulator)->isa(classname);
 }

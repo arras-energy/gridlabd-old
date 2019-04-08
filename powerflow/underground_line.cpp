@@ -1037,7 +1037,7 @@ void underground_line::recalc(void)
 #endif
 }
 
-int underground_line::isa(char *classname)
+int underground_line::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"underground_line")==0 || line::isa(classname);
 }
@@ -1189,7 +1189,7 @@ EXPORT int init_underground_line(OBJECT *obj)
 	INIT_CATCHALL(underground_line);
 }
 
-EXPORT int isa_underground_line(OBJECT *obj, char *classname)
+EXPORT int isa_underground_line(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,underground_line)->isa(classname);
 }
@@ -1200,7 +1200,7 @@ EXPORT int recalc_underground_line(OBJECT *obj)
 	return 1;
 }
 
-EXPORT int create_fault_ugline(OBJECT *thisobj, OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
+EXPORT int create_fault_ugline(OBJECT *thisobj, OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
 {
 	int retval;
 

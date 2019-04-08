@@ -46,4 +46,14 @@
 #define MACH OPENMP
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int xerbla_(char *srname, int *info);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* __SUPERLU_MACHINES */

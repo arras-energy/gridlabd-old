@@ -266,10 +266,10 @@ pdgstrf(superlumt_options_t *superlumt_options, SuperMatrix *A, int *perm_r,
     thread_id = (pthread_t *) SUPERLU_MALLOC(nprocs * sizeof(pthread_t));
     
     for (i = 0; i < nprocs; ++i) {
-	if ( iinfo = pthread_create(&thread_id[i],
-				    NULL,
-				    pdgstrf_thread, 
-				    &(pdgstrf_threadarg[i])) ) {
+	if ( ( iinfo = pthread_create(&thread_id[i],
+              NULL,
+              pdgstrf_thread, 
+              &(pdgstrf_threadarg[i])) ) ) {
 	    fprintf(stderr, "pthread_create: %d\n", iinfo);
 	    SUPERLU_ABORT("pthread_create()");
 	}

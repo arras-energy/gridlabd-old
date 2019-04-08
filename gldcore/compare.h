@@ -2,6 +2,12 @@
 
 #ifndef _COMPARE_H
 
+#ifdef __cplusplus
+#define CDECL extern "C"
+#else
+#define CDECL
+#endif
+
 #define TCNONE \
 	{TCOP_NOP,"",NULL},\
 	{TCOP_NOP,"",NULL},\
@@ -30,14 +36,14 @@
 	{TCOP_IN,"inside",compare_tc_##X##_in,1}, \
 	{TCOP_NI,"outside",compare_tc_##X##_ni,1}
 #define TCOPD(X) \
-	int compare_tc_##X##_eq(void*,void*,void*); \
-	int compare_tc_##X##_le(void*,void*,void*); \
-	int compare_tc_##X##_ge(void*,void*,void*); \
-	int compare_tc_##X##_ne(void*,void*,void*); \
-	int compare_tc_##X##_lt(void*,void*,void*); \
-	int compare_tc_##X##_gt(void*,void*,void*); \
-	int compare_tc_##X##_in(void*,void*,void*); \
-	int compare_tc_##X##_ni(void*,void*,void*); 
+	CDECL int compare_tc_##X##_eq(void*,void*,void*); \
+	CDECL int compare_tc_##X##_le(void*,void*,void*); \
+	CDECL int compare_tc_##X##_ge(void*,void*,void*); \
+	CDECL int compare_tc_##X##_ne(void*,void*,void*); \
+	CDECL int compare_tc_##X##_lt(void*,void*,void*); \
+	CDECL int compare_tc_##X##_gt(void*,void*,void*); \
+	CDECL int compare_tc_##X##_in(void*,void*,void*); \
+	CDECL int compare_tc_##X##_ni(void*,void*,void*); 
 
 TCOPD(double);
 TCOPD(float);

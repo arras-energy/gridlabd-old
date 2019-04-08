@@ -21,7 +21,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-STATUS loadall(char *filename);
+STATUS loadall(const char *filename);
 #ifdef __cplusplus
 }
 #endif
@@ -32,8 +32,8 @@ typedef struct s_unresolved {
 	void *ref;
 	int flags;
 	CLASS *oclass;
-	char256 id;
-	char *file;
+	const char *id;
+	const char *file;
 	unsigned int line;
 	struct s_unresolved *next;
 } UNRESOLVED;
@@ -65,7 +65,7 @@ int time_value_datetime(char *c, TIMESTAMP *t);
 int time_value_datetimezone(char *c, TIMESTAMP *t);
 int set_flags(OBJECT *obj, char *propval);
 UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags);
-int load_resolve_all();
+STATUS load_resolve_all();
 OBJECT *load_get_current_object(void);
 MODULE *load_get_current_module(void);
 

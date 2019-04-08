@@ -10,11 +10,13 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-int saveall(char *);
+#endif // __cplusplus
+
+int saveall(const char *);
+
 #ifdef __cplusplus
 }
-#endif
-
-#endif
+#endif // __cplusplus
+	
+#endif // _SAVE_H
 

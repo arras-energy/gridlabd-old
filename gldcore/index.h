@@ -21,9 +21,17 @@ typedef struct s_index {
 	int first_used;		/**< the first ordinal in use */
 } INDEX;	/**< the index structure */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 INDEX *index_create(int first_ordinal, int last_ordinal);
 STATUS index_insert(INDEX *index, void *data, int ordinal);
 void index_shuffle(INDEX *index);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

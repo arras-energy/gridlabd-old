@@ -8,14 +8,6 @@
 #include <stdarg.h>
 #include "gridlabd.h"
 
-#ifdef _GENERATORS_GLOBALS
-#define GLOBAL
-#define INIT(A) = (A)
-#else
-#define GLOBAL extern
-#define INIT(A)
-#endif
-
 //Phase definitions pilfered from powerflow_object.h for readability
 #define PHASE_A		0x0001		/**< A phase connection */
 #define PHASE_B		0x0002		/**< B phase connection */
@@ -33,6 +25,14 @@
 #define PHASE_S		0x0070		/**< Split phase connection */
 #define TSNVRDBL 9223372036854775808.0
 
+#ifdef _GENERATORS_GLOBALS
+#define GLOBAL
+#define INIT(A) = (A)
+#else
+#define GLOBAL extern
+#define INIT(A)
+#endif
+
 GLOBAL bool enable_subsecond_models INIT(false); /* normally not operating in delta mode */
 GLOBAL unsigned long deltamode_timestep INIT(10000000); /* 10 ms timestep */
 GLOBAL double deltamode_timestep_publish INIT(10000000.0); /* 10 ms timestep */
@@ -47,6 +47,9 @@ GLOBAL TIMESTAMP deltamode_endtime INIT(TS_NEVER);		/* Tracking variable to see 
 GLOBAL double deltamode_endtime_dbl INIT(TSNVRDBL);		/* Tracking variable to see when deltamode ended - double valued for explicit movement calculations */
 GLOBAL TIMESTAMP deltamode_supersec_endtime INIT(TS_NEVER);	/* Tracking variable to indicate the "floored" time of detamode_endtime */
 GLOBAL double deltatimestep_running INIT(-1.0);			/** Value of the current deltamode simulation - used primarily to tell if we're in deltamode or not for VSI */
+
+#undef GLOBAL
+#undef INIT
 
 void schedule_deltamode_start(TIMESTAMP tstart);	/* Anticipated time for a deltamode start, even if it is now */
 void allocate_deltamode_arrays(void);				/* Overall function to allocate deltamode capabilities - rather than having to edit everything */

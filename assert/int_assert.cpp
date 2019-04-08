@@ -74,7 +74,7 @@ int int_assert::create(void)
 
 int int_assert::init(OBJECT *parent)
 {
-	char *msg = "A negative value has been specified for within.";
+	const char *msg = "A negative value has been specified for within.";
 	if (within < 0)
 		throw msg;
     /*  TROUBLESHOOT
@@ -176,7 +176,7 @@ TIMESTAMP int_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
     
 }
 
-int int_assert::postnotify(PROPERTY *prop, char *value)
+int int_assert::postnotify(PROPERTY *prop, const char *value)
 {
 	if ( once==ONCE_DONE && strcmp(prop->name, "value")==0 )
 	{
