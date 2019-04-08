@@ -65,7 +65,5 @@
 
 #define EXPORT CDECL /* TODO:obsolete as of 4.2 */
 
-
-
 #endif
 /**@}**/

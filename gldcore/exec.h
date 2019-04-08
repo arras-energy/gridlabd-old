@@ -28,65 +28,58 @@ DEPRECATED struct thread_data {
 	struct sync_data *data; /**< pointer to the sync state structure */
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+DEPRECATED CDECL int exec_init(void);
+DEPRECATED CDECL STATUS exec_start(void);
+DEPRECATED CDECL const char *exec_simtime(void);
+DEPRECATED CDECL STATUS t_setup_ranks(void);
+DEPRECATED CDECL INDEX **exec_getranks(void);
+DEPRECATED CDECL void exec_sleep(unsigned int usec);
+DEPRECATED CDECL int64 exec_clock(void);
 
-DEPRECATED int exec_init(void);
-DEPRECATED STATUS exec_start(void);
-DEPRECATED const char *exec_simtime(void);
-DEPRECATED STATUS t_setup_ranks(void);
-DEPRECATED INDEX **exec_getranks(void);
-DEPRECATED void exec_sleep(unsigned int usec);
-DEPRECATED int64 exec_clock(void);
+DEPRECATED CDECL void exec_mls_create(void);
+DEPRECATED CDECL void exec_mls_init(void);
+DEPRECATED CDECL void exec_mls_suspend(void);
+DEPRECATED CDECL void exec_mls_resume(TIMESTAMP next_pause);
+DEPRECATED CDECL void exec_mls_done(void);
+DEPRECATED CDECL void exec_mls_statewait(unsigned states);
+DEPRECATED CDECL void exec_slave_node();
+DEPRECATED CDECL int exec_run_createscripts(void);
 
-DEPRECATED void exec_mls_create(void);
-DEPRECATED void exec_mls_init(void);
-DEPRECATED void exec_mls_suspend(void);
-DEPRECATED void exec_mls_resume(TIMESTAMP next_pause);
-DEPRECATED void exec_mls_done(void);
-DEPRECATED void exec_mls_statewait(unsigned states);
-DEPRECATED void exec_slave_node();
-DEPRECATED int exec_run_createscripts(void);
+DEPRECATED CDECL void exec_sync_reset(struct sync_data *d);
+DEPRECATED CDECL void exec_sync_merge(struct sync_data *to, struct sync_data *from);
+DEPRECATED CDECL void exec_sync_set(struct sync_data *d, TIMESTAMP t,bool deltaflag);
+DEPRECATED CDECL TIMESTAMP exec_sync_get(struct sync_data *d);
+DEPRECATED CDECL unsigned int exec_sync_getevents(struct sync_data *d);
+DEPRECATED CDECL int exec_sync_ishard(struct sync_data *d);
+DEPRECATED CDECL int exec_sync_isnever(struct sync_data *d);
+DEPRECATED CDECL int exec_sync_isinvalid(struct sync_data *d);
+DEPRECATED CDECL STATUS exec_sync_getstatus(struct sync_data *d);
 
-DEPRECATED void exec_sync_reset(struct sync_data *d);
-DEPRECATED void exec_sync_merge(struct sync_data *to, struct sync_data *from);
-DEPRECATED void exec_sync_set(struct sync_data *d, TIMESTAMP t,bool deltaflag);
-DEPRECATED TIMESTAMP exec_sync_get(struct sync_data *d);
-DEPRECATED unsigned int exec_sync_getevents(struct sync_data *d);
-DEPRECATED int exec_sync_ishard(struct sync_data *d);
-DEPRECATED int exec_sync_isnever(struct sync_data *d);
-DEPRECATED int exec_sync_isinvalid(struct sync_data *d);
-DEPRECATED STATUS exec_sync_getstatus(struct sync_data *d);
-
-DEPRECATED EXITCODE exec_setexitcode(EXITCODE);
+DEPRECATED CDECL EXITCODE exec_setexitcode(EXITCODE);
 	
-DEPRECATED int exec_add_createscript(const char *file);
-DEPRECATED int exec_add_initscript(const char *file);
-DEPRECATED int exec_add_precommitscript(const char *file);
-DEPRECATED int exec_add_syncscript(const char *file);
-DEPRECATED int exec_add_commitscript(const char *file);
-DEPRECATED int exec_add_termscript(const char *file);
-DEPRECATED int exec_add_scriptexport(const char *file);
-DEPRECATED EXITCODE exec_run_initscripts(void);
-DEPRECATED EXITCODE exec_run_precommitscripts(void);
-DEPRECATED EXITCODE exec_run_syncscripts(void);
-DEPRECATED EXITCODE exec_run_commitscripts(void);
-DEPRECATED EXITCODE exec_run_termscripts(void);
+DEPRECATED CDECL int exec_add_createscript(const char *file);
+DEPRECATED CDECL int exec_add_initscript(const char *file);
+DEPRECATED CDECL int exec_add_precommitscript(const char *file);
+DEPRECATED CDECL int exec_add_syncscript(const char *file);
+DEPRECATED CDECL int exec_add_commitscript(const char *file);
+DEPRECATED CDECL int exec_add_termscript(const char *file);
+DEPRECATED CDECL int exec_add_scriptexport(const char *file);
+DEPRECATED CDECL EXITCODE exec_run_initscripts(void);
+DEPRECATED CDECL EXITCODE exec_run_precommitscripts(void);
+DEPRECATED CDECL EXITCODE exec_run_syncscripts(void);
+DEPRECATED CDECL EXITCODE exec_run_commitscripts(void);
+DEPRECATED CDECL EXITCODE exec_run_termscripts(void);
 
-DEPRECATED int exec_schedule_dump(TIMESTAMP interval,char *filename);
-DEPRECATED int64 exec_clock(void);
+DEPRECATED CDECL int exec_schedule_dump(TIMESTAMP interval,char *filename);
+DEPRECATED CDECL int64 exec_clock(void);
 
-DEPRECATED void exec_rlock_sync(void);
-DEPRECATED void exec_runlock_sync(void);
-DEPRECATED void exec_wlock_sync(void);
-DEPRECATED void exec_wunlock_sync(void);
+DEPRECATED CDECL void exec_rlock_sync(void);
+DEPRECATED CDECL void exec_runlock_sync(void);
+DEPRECATED CDECL void exec_wlock_sync(void);
+DEPRECATED CDECL void exec_wunlock_sync(void);
 
-DEPRECATED int exec_get_iteration_counter(void);
-DEPRECATED int exec_get_passtype(int pass);
-
-#ifdef __cplusplus
-}
+DEPRECATED CDECL int exec_get_iteration_counter(void);
+DEPRECATED CDECL int exec_get_passtype(int pass);
 
 // TODO: replace with C++ std list
 DEPRECATED typedef struct s_simplelist 
@@ -268,12 +261,6 @@ public:
 	int run_commitscripts(void);
 	int run_termscripts(void);
 };
-
-#endif
-
-#ifndef max
-#define max(n, m) DEPRECATED ((n) > (m) ? (n) : (m))
-#endif
 
 #endif
 
