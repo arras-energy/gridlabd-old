@@ -63,7 +63,7 @@ generator_controller::generator_controller(MODULE *module){
 	}
 }
 
-int generator_controller::isa(char *classname)
+int generator_controller::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"generator_controller")==0;
 }
@@ -318,7 +318,7 @@ int generator_controller::init(OBJECT *parent)
 	submit = (FUNCTIONADDR)(gl_get_function(market_object, "submit_bid_state"));
 	if(submit == NULL){
 		char buf[256];
-		gl_error("Unable to find function, submit_bid_state(), for object %s.", (char *)gl_name(market_object, buf, 255));
+		gl_error("Unable to find function, submit_bid_state(), for object %s.", gl_name(market_object, buf, 255));
 		return 0;
 	}
 
@@ -1047,7 +1047,7 @@ TIMESTAMP generator_controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 					} else {
 						controller_bid.state = BS_OFF;
 					}
-					((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(obj, ctrname, 1024), (char *)gl_name(market_object, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+					((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))(gl_name(obj, ctrname, 1024), gl_name(market_object, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 					if(controller_bid.bid_accepted == false){
 						return TS_INVALID;
 					}
@@ -1087,7 +1087,7 @@ TIMESTAMP generator_controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 					} else {
 						controller_bid.state = BS_OFF;
 					}
-					((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(obj, ctrname, 1024), (char *)gl_name(market_object, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+					((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))(gl_name(obj, ctrname, 1024), gl_name(market_object, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 					if(controller_bid.bid_accepted == false){
 						return TS_INVALID;
 					}
@@ -1989,7 +1989,7 @@ EXPORT TIMESTAMP sync_generator_controller(OBJECT *obj, TIMESTAMP t1, PASSCONFIG
 	return t2;
 }
 
-EXPORT int isa_generator_controller(OBJECT *obj, char *classname)
+EXPORT int isa_generator_controller(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,generator_controller)->isa(classname);
 }

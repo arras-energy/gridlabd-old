@@ -607,7 +607,7 @@ int inverter::init(OBJECT *parent)
 		parent_string = "meter";
 		struct {
 			complex **var;
-			char *varname;
+			const char *varname;
 		}
 		map[] = {
 		// local object name,	meter object name
@@ -663,7 +663,7 @@ int inverter::init(OBJECT *parent)
 
 		struct {
 			complex **var;
-			char *varname;
+			const char *varname;
 		}
 		map[] = {
 			// local object name,	meter object name
@@ -733,7 +733,7 @@ int inverter::init(OBJECT *parent)
 		
 		struct {
 			complex **var;
-			char *varname;
+			const char *varname;
 		}
 		map[] = {
 		// local object name,	meter object name
@@ -1700,7 +1700,8 @@ int inverter::init(OBJECT *parent)
 				*/
 			}
 			else {
-				while(objBattery = gl_find_next(batteries,objBattery)){
+				while( (objBattery = gl_find_next(batteries,objBattery)) )
+				{
 					if(index >= batteries->hit_count){
 						gl_warning("VSI: %s does not find a battery attached to it. Now assume VSI: %s is attached with infinite input power.", (obj->name ? obj->name : "Unnamed"), (obj->name ? obj->name : "Unnamed"));
 						break;
@@ -2590,11 +2591,11 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 					//Q_Out is either set or input from elsewhere
 					//Gather Rload
 
-					if(parent_string == "meter")
+					if ( strcmp(parent_string,"meter") == 0 )
 					{
 						VA_Out = complex(P_Out,Q_Out);
 					}
-					else if (parent_string == "triplex_meter")
+					else if ( strcmp(parent_string,"triplex_meter") == 0 )
 					{
 						VA_Out = complex(P_Out,Q_Out);
 					}
@@ -7850,28 +7851,28 @@ complex inverter::complex_exp(double angle)
 }
 
 //Retrieves the pointer for a double variable from another object
-double *inverter::get_double(OBJECT *obj, char *name)
+double *inverter::get_double(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_double)
 		return NULL;
 	return (double*)GETADDR(obj,p);
 }
-bool *inverter::get_bool(OBJECT *obj, char *name)
+bool *inverter::get_bool(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_bool)
 		return NULL;
 	return (bool*)GETADDR(obj,p);
 }
-int *inverter::get_enum(OBJECT *obj, char *name)
+int *inverter::get_enum(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_enumeration)
 		return NULL;
 	return (int*)GETADDR(obj,p);
 }
-complex * inverter::get_complex(OBJECT *obj, char *name)
+complex * inverter::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)

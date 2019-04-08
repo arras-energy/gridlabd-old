@@ -1,0 +1,25 @@
+// load the custom python module
+module my_test;
+
+// define a global variable in gridlabd
+global int32 sample_count 0;
+
+// setup the clock to run only 1 hour
+clock {
+	starttime "2018-01-01 00:00:00";
+	stoptime "2018-01-02 00:00:00";
+}
+
+// create a custom class that generates a random power
+class test {
+	randomvar x[MW];
+}
+
+// create an instance of the custom class
+object test {
+	name "my_test";
+	x "type:lognormal(0,1); refresh:5min";
+
+	// dispatch commit calls to the python module
+	on_commit "python:my_test.commit";
+}

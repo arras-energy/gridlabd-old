@@ -58,12 +58,12 @@ int impedance_dump::init(OBJECT *parent)
 	return 1;
 }
 
-int impedance_dump::isa(char *classname)
+int impedance_dump::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"impedance_dump")==0;
 }
 
-complex * impedance_dump::get_complex(OBJECT *obj, char *name)
+complex * impedance_dump::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)
@@ -124,7 +124,7 @@ int impedance_dump::dump(TIMESTAMP t)
 	//open file for writing
 	fn = fopen(filename,"w");
 	if(fn == NULL){
-		gl_error("Unable to open %s for writing.",(char *)(&filename));
+		gl_error("Unable to open %s for writing.",(const char *)filename);
 		return 0;
 	}
 
@@ -140,9 +140,10 @@ int impedance_dump::dump(TIMESTAMP t)
 		pFuse = (link_object **)gl_malloc(fuses->hit_count*sizeof(link_object*));
 		if(pFuse == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(fuses,obj)){
+		while((obj = gl_find_next(fuses,obj)))
+		{
 			if(index >= fuses->hit_count){
 				break;
 			}
@@ -405,9 +406,10 @@ int impedance_dump::dump(TIMESTAMP t)
 		pOhLine = (line **)gl_malloc(ohlines->hit_count*sizeof(line*));
 		if(pOhLine == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(ohlines,obj)){
+		while((obj = gl_find_next(ohlines,obj)))
+		{
 			if(index >= ohlines->hit_count){
 				break;
 			}
@@ -673,9 +675,10 @@ int impedance_dump::dump(TIMESTAMP t)
 		pRecloser = (link_object **)gl_malloc(reclosers->hit_count*sizeof(link_object*));
 		if(pRecloser == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(reclosers,obj)){
+		while((obj = gl_find_next(reclosers,obj)))
+		{
 			if(index >= reclosers->hit_count){
 				break;
 			}
@@ -938,9 +941,10 @@ int impedance_dump::dump(TIMESTAMP t)
 		pRegulator = (regulator **)gl_malloc(regulators->hit_count*sizeof(regulator*));
 		if(pRegulator == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(regulators,obj)){
+		while((obj = gl_find_next(regulators,obj)))
+		{
 			if(index >= regulators->hit_count){
 				break;
 			}
@@ -1207,9 +1211,10 @@ int impedance_dump::dump(TIMESTAMP t)
 		pRelay = (link_object **)gl_malloc(relays->hit_count*sizeof(link_object*));
 		if(pRelay == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(relays,obj)){
+		while((obj = gl_find_next(relays,obj)))
+		{
 			if(index >= relays->hit_count){
 				break;
 			}
@@ -1472,9 +1477,10 @@ int impedance_dump::dump(TIMESTAMP t)
 		pSectionalizer = (link_object **)gl_malloc(sectionalizers->hit_count*sizeof(link_object*));
 		if(pSectionalizer == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(sectionalizers,obj)){
+		while((obj = gl_find_next(sectionalizers,obj)))
+		{
 			if(index >= sectionalizers->hit_count){
 				break;
 			}
@@ -1737,9 +1743,10 @@ int impedance_dump::dump(TIMESTAMP t)
 		pSeriesReactor = (link_object **)gl_malloc(series_reactors->hit_count*sizeof(link_object*));
 		if(pSeriesReactor == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(series_reactors,obj)){
+		while((obj = gl_find_next(series_reactors,obj)))
+		{
 			if(index >= series_reactors->hit_count){
 				break;
 			}
@@ -2002,9 +2009,10 @@ int impedance_dump::dump(TIMESTAMP t)
 		pSwitch = (switch_object **)gl_malloc(switches->hit_count*sizeof(switch_object*));
 		if(pSwitch == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(switches,obj)){
+		while((obj = gl_find_next(switches,obj)))
+		{
 			if(index >= switches->hit_count){
 				break;
 			}
@@ -2269,9 +2277,9 @@ int impedance_dump::dump(TIMESTAMP t)
 		pTransformer = (transformer **)gl_malloc(transformers->hit_count*sizeof(transformer*));
 		if(pTransformer == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(transformers,obj)){
+		while((obj = gl_find_next(transformers,obj))){
 			if(index >= transformers->hit_count){
 				break;
 			}
@@ -2408,18 +2416,13 @@ int impedance_dump::dump(TIMESTAMP t)
 			}
 
 			//write power rating
-			if(pTransformer[index]->config->kVA_rating!=NULL){
-				fprintf(fn,"\t\t<power_rating>%.6f</power_rating>\n",pTransformer[index]->config->kVA_rating);
-			}
+			fprintf(fn,"\t\t<power_rating>%.6f</power_rating>\n",pTransformer[index]->config->kVA_rating);
 
 
 			//write impedance
-			if(pTransformer[index]->config->impedance.Re()!=NULL){
-				fprintf(fn,"\t\t<resistance>%.6f</resistance>\n",pTransformer[index]->config->impedance.Re());
-			}
-			if(pTransformer[index]->config->impedance.Im()!=NULL){
-				fprintf(fn,"\t\t<reactance>%.6f</reactance>\n",pTransformer[index]->config->impedance.Im());
-			}
+			fprintf(fn,"\t\t<resistance>%.6f</resistance>\n",pTransformer[index]->config->impedance.Re());
+			fprintf(fn,"\t\t<reactance>%.6f</reactance>\n",pTransformer[index]->config->impedance.Im());
+
 			//write a_mat
 			fprintf(fn,"\t\t<a_matrix>\n");
 			for(x = 0; x < 3; x++){
@@ -2558,9 +2561,9 @@ int impedance_dump::dump(TIMESTAMP t)
 		pTpLine = (line **)gl_malloc(tplines->hit_count*sizeof(line*));
 		if(pTpLine == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(tplines,obj)){
+		while((obj = gl_find_next(tplines,obj))){
 			if(index >= tplines->hit_count){
 				break;
 			}
@@ -2598,10 +2601,10 @@ int impedance_dump::dump(TIMESTAMP t)
 			}
 
 			//write the from node's voltage
-			fprintf(fn,"\t\t<from_voltage>%f</from_voltage>\n",120);
+			fprintf(fn,"\t\t<from_voltage>%f</from_voltage>\n",120.0);
 
 			//write the to node's voltage
-			fprintf(fn,"\t\t<to_voltage>%f</to_voltage>\n",120);
+			fprintf(fn,"\t\t<to_voltage>%f</to_voltage>\n",120.0);
 
 			//write the phases
 			if(pTpLine[index]->phases == 0x0001){//A
@@ -2800,9 +2803,9 @@ int impedance_dump::dump(TIMESTAMP t)
 		pUgLine = (line **)gl_malloc(uglines->hit_count*sizeof(line*));
 		if(pUgLine == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(uglines,obj)){
+		while((obj = gl_find_next(uglines,obj))){
 			if(index >= uglines->hit_count){
 				break;
 			}
@@ -3068,9 +3071,9 @@ int impedance_dump::dump(TIMESTAMP t)
 		pCapacitor = (capacitor **)gl_malloc(capacitors->hit_count*sizeof(capacitor*));
 		if(pCapacitor == NULL){
 			gl_error("Failed to allocate fuse array.");
-			return TS_NEVER;
+			return 0;
 		}
-		while(obj = gl_find_next(capacitors,obj)){
+		while((obj = gl_find_next(capacitors,obj))){
 			if(index >= capacitors->hit_count){
 				break;
 			}
@@ -3259,7 +3262,7 @@ EXPORT TIMESTAMP commit_impedance_dump(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2){
 	I_CATCHALL(commit,impedance_dump);
 }
 
-EXPORT int isa_impedance_dump(OBJECT *obj, char *classname)
+EXPORT int isa_impedance_dump(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,impedance_dump)->isa(classname);
 }

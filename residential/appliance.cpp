@@ -213,7 +213,7 @@ TIMESTAMP appliance::presync(TIMESTAMP t1)
 	return next_t;
 }
 
-int appliance::postnotify(PROPERTY *prop, char *value)
+int appliance::postnotify(PROPERTY *prop, const char *value)
 {
 	// TODO reset state when duration or transition changes
 	return 1;

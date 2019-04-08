@@ -70,7 +70,7 @@ int collector::init(OBJECT *parent)
 	{
 		options = 0xffffffff;
 		struct {
-			char *str;
+			const char *str;
 			set bits;
 		} modes[] = {
 			{"r",	0xffff},

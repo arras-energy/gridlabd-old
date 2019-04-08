@@ -111,7 +111,7 @@ int line::init(OBJECT *parent)
 	return result;
 }
 
-int line::isa(char *classname)
+int line::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"line")==0 || link_object::isa(classname);
 }
@@ -378,7 +378,7 @@ EXPORT int init_line(OBJECT *obj)
 	INIT_CATCHALL(line);
 }
 
-EXPORT int isa_line(OBJECT *obj, char *classname)
+EXPORT int isa_line(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,line)->isa(classname);
 }

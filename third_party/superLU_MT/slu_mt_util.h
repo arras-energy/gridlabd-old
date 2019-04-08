@@ -75,8 +75,12 @@
  * Constants 
  */
 #define EMPTY	(-1)
+#ifndef FALSE
 #define FALSE	0
+#endif
+#ifndef TRUE
 #define TRUE	1
+#endif
 
 /**********************
   Enumerated constants
@@ -430,7 +434,7 @@ extern "C" {
 #endif
 
 extern int  xerbla_ (char *, int *);
-extern void superlu_abort_and_exit(char*);
+extern void superlu_abort_and_exit(const char*);
 extern void *superlu_malloc (size_t);
 extern void superlu_free (void*);
 extern void PrintStat(Gstat_t *);

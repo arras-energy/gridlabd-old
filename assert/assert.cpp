@@ -134,7 +134,7 @@ g_assert::ASSERTSTATUS g_assert::evaluate_status(void)
 		return target_prop.compare(relation,get_value(),get_value2(),get_part()) ? AS_TRUE : AS_FALSE ;
 }
 
-int g_assert::postnotify(PROPERTY *prop, char *value)
+int g_assert::postnotify(PROPERTY *prop, const char *value)
 {
 	// TODO notify handler for changed value
 	return 1;

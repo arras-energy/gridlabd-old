@@ -35,7 +35,6 @@ public:
 	static CLASS *pclass;
 public:
 	enum {PT_WOOD=0, PT_STEEL=1, PT_CONCRETE=2};
-	enumeration pole_type;
 	enum {PS_OK=0, PS_FAILED=1,};
 	enumeration pole_status;
 	double tilt_angle;
@@ -44,6 +43,8 @@ public:
 	object configuration;
 	double equipment_area;		// (see Section E)
 	double equipment_height;	// (see Section E)
+	double degradation_rate;
+	int install_year; // year pole was installed
 private:
 	double ice_thickness;
 	double wind_loading;
@@ -69,6 +70,7 @@ private:
 	double wind_pressure_failure;
 	object cable_configuration;
 	bool is_deadend;
+	double current_hollow_diameter;
 private:
 	pole_configuration *config;
 	double last_wind_speed;

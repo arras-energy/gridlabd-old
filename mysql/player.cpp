@@ -68,7 +68,7 @@ int player::init(OBJECT *parent)
 	{
 		int options = 0xffffffff;
 		struct {
-			char *str;
+			const char *str;
 			set bits;
 		} modes[] = {
 			{"r",	0x0000},

@@ -673,7 +673,7 @@ int solar::init(OBJECT *parent)
 	{
 		struct {
 			complex **var;
-			char *varname;
+			const char *varname;
 		} map[] = {
 			// map the V & I from the inverter
 			{&pCircuit_V,			"V_In"}, // assumes 2 and 3 follow immediately in memory
@@ -737,7 +737,7 @@ int solar::init(OBJECT *parent)
 		gl_warning("solar panel:%d has no parent defined. Using static voltages.", obj->id);
 		struct {
 			complex **var;
-			char *varname;
+			const char *varname;
 		} map[] = {
 			// map the V & I from the inverter
 			{&pCircuit_V,			"V_In"}, // assumes 2 and 3 follow immediately in memory
@@ -1063,7 +1063,7 @@ TIMESTAMP solar::postsync(TIMESTAMP t0, TIMESTAMP t1)
 return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 
-complex *solar::get_complex(OBJECT *obj, char *name)
+complex *solar::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)

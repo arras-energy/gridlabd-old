@@ -174,7 +174,7 @@ static int multi_recorder_open(OBJECT *obj)
 				fprintf(my->multifp,"# target.... (none)\n");
 			}
 			fprintf(my->multifp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger);
-			fprintf(my->multifp,"# interval.. %d\n", my->interval);
+			fprintf(my->multifp,"# interval.. %lld\n", my->interval);
 			fprintf(my->multifp,"# limit..... %d\n", my->limit);
 			fprintf(my->multifp,"# property.. %s\n", my->property);
 			//fprintf(my->multifp,"# timestamp,%s\n", my->property);
@@ -506,6 +506,10 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 		my->samples++;
 
 	/* at this point we've written the sample to the normal recorder output */
+	if ( my->flush==0 || ( my->flush > 0 && gl_globalclock % my->flush == 0 ) )
+	{
+		my->ops->flush(my);
+	}
 
 	// if file based
 	if(my->multifp != NULL){

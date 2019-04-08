@@ -112,7 +112,7 @@ typedef struct s_instance {
 	int16 reader_count;
 
 	/* connection information */
-	char32 cnxtypestr;
+	char cnxtypestr[32];
 	CNXTYPE cnxtype;
 	union {
 #ifdef WIN32 // windows
@@ -151,6 +151,10 @@ typedef struct s_instance_pickle {
 	TIMESTAMP		ts;
 } INSTANCE_PICKLE;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 STATUS messagewrapper_init(MESSAGEWRAPPER **msgwpr,	MESSAGE *msg);
 instance *instance_create(char *name);
 STATUS instance_init(instance *inst);
@@ -172,6 +176,9 @@ STATUS linkage_init(instance *inst, linkage *lnk);
 STATUS linkage_master_to_slave(char *buffer, linkage *lnk);
 STATUS linkage_slave_to_master(char *buffer, linkage *lnk);
 
-void printcontent(unsigned char *data, size_t len);
+void printcontent(char *data, size_t len);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

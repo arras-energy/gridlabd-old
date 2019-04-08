@@ -10,7 +10,7 @@ typedef struct s_ufile {
 	void *handle;
 } UFILE;
 
-UFILE *uopen(char *fname, void *arg);
+UFILE *uopen(const char *fname, void *arg);
 size_t uread(void *buffer, size_t count, UFILE *rp);
 
 #endif

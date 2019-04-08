@@ -71,7 +71,7 @@ vfd::vfd(MODULE *mod) : link_object(mod)
     }
 }
 
-int vfd::isa(char *classname)
+int vfd::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"vfd")==0 || link_object::isa(classname);
 }
@@ -712,6 +712,7 @@ STATUS vfd::VFD_current_injection(void)
 			tNode->voltage[index_val] = settleVoltOut[index_val];
 		}//End phase FOR loop
 	}//End not off
+	return SUCCESS;
 }
 
 TIMESTAMP vfd::presync(TIMESTAMP t0)
@@ -1045,7 +1046,7 @@ EXPORT TIMESTAMP sync_vfd(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	SYNC_CATCHALL(vfd);
 }
 
-EXPORT int isa_vfd(OBJECT *obj, char *classname)
+EXPORT int isa_vfd(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,vfd)->isa(classname);
 }
@@ -1060,7 +1061,7 @@ EXPORT SIMULATIONMODE interupdate_vfd(OBJECT *obj, unsigned int64 delta_time, un
 		status = my->inter_deltaupdate_vfd(delta_time,dt,iteration_count_val,interupdate_pos);
 		return status;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("interupdate_vfd(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;
@@ -1077,7 +1078,7 @@ EXPORT STATUS postupdate_vfd(OBJECT *obj)
 		status_val = my->post_deltaupdate_vfd();
 		return status_val;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("postupdate_vfd(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status_val;

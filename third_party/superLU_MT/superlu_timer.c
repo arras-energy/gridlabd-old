@@ -13,6 +13,7 @@
  *
  */
 
+#include <stdio.h>
 
 #ifdef SUN 
 /*
@@ -54,6 +55,7 @@ double usertimer_()
     tmp += use.tms_stime;
     return (double)(tmp) / CLK_TCK;*/
 	//return (double) time(NULL); //sj
+  return 0;
 }
 
 #if 0
