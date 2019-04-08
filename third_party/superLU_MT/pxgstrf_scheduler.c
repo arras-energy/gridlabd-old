@@ -73,7 +73,6 @@ pxgstrf_scheduler(const int pnum, const int n, const int *etree,
     register int dad, dad_ukids, jcol, w, j;
     int *fb_cols = pxgstrf_shared->fb_cols;
     queue_t *taskq = &pxgstrf_shared->taskq;
-    Gstat_t *Gstat = pxgstrf_shared->Gstat;
 #ifdef PROFILE
     double t;
 #endif

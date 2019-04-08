@@ -3,10 +3,10 @@
 
 #include <stdlib.h>
 
+#define DLMAIN
+
 #include "engine.h"
-
-CALLBACKS *callback = NULL;
-
+#include "gridlabd.h"
 #include "link.h"
 #include "build.h"
 
@@ -16,6 +16,10 @@ unsigned int sync_index_size = 0;
 typedef enum {ELS_INIT=0, ELS_OK=1, ELS_ERROR=2, ELS_TERM=3} ENGINELINKSTATUS;
 const char *enginelinkstatus[] = {"INIT","OK","ERROR","TERM"};
 
+int do_kill(void*)
+{
+	return 0;
+}
 
 unsigned long get_addr(struct sockaddr_in *data, unsigned int part)
 {
@@ -37,7 +41,7 @@ unsigned short get_port(struct sockaddr_in *data)
 	return ntohs(data->sin_port);
 }
 
-EXPORT bool glx_create(glxlink *mod, CALLBACKS *fntable)
+bool glx_create(glxlink *mod, CALLBACKS *fntable)
 {
 	callback = fntable;
 
@@ -65,7 +69,7 @@ EXPORT bool glx_create(glxlink *mod, CALLBACKS *fntable)
 	return true;
 }
 
-EXPORT bool glx_settag(glxlink *mod, char *tag, char *data)
+bool glx_settag(glxlink *mod, char *tag, char *data)
 {
 	ENGINELINK *engine = (ENGINELINK*)mod->get_data();
 	if ( strcmp(tag,"timeout")==0 )
@@ -370,7 +374,7 @@ bool add_export(ENGINELINK *engine, unsigned int index, OBJECTPROPERTY *objprop)
 	if(gl_name(prop->get_object(),buffname,255)==NULL){
 		strcpy(buffname,"NULL");
 	}
-	int len = sprintf(buffer,"EXPORT %d %d %zu %s %s %s", index,
+	int len = sprintf(buffer,"%d %d %zu %s %s %s", index,
 		(PROPERTYTYPE)prop->get_type(), // TODO convert this to text
 		prop->get_size(),buffname, prop->get_name(), prop->get_string().get_buffer());
 	return engine_send(engine,buffer,len+1) > 0;
@@ -379,7 +383,7 @@ bool add_export(ENGINELINK *engine, unsigned int index, OBJECTPROPERTY *objprop)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // INITIALIZATION SEQUENCE
-EXPORT bool glx_init(glxlink *mod)
+bool glx_init(glxlink *mod)
 {
 	ENGINELINK *engine = (ENGINELINK*)mod->get_data();
 	gl_verbose("initializing engine link");
@@ -453,7 +457,7 @@ EXPORT bool glx_init(glxlink *mod)
 		OBJECTPROPERTY *objprop = mod->get_export(item);
 		if ( objprop!=NULL && !add_export(engine,index++,objprop) )
 		{
-			gl_error("unable to send export specs for %s.%s", objprop->obj->name, objprop->prop->name);
+			gl_error("unable to send specs for %s.%s", objprop->obj->name, objprop->prop->name);
 			return false;
 		}
 	}
@@ -489,7 +493,7 @@ EXPORT bool glx_init(glxlink *mod)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // SYNCHRONIZATION SEQUENCE
-EXPORT TIMESTAMP glx_sync(glxlink* mod,TIMESTAMP t0)
+TIMESTAMP glx_sync(glxlink* mod,TIMESTAMP t0)
 {
 	ENGINELINK *engine = (ENGINELINK*)mod->get_data();
 	TIMESTAMP t1 = TS_NEVER;
@@ -525,7 +529,7 @@ EXPORT TIMESTAMP glx_sync(glxlink* mod,TIMESTAMP t0)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 // TERMINATION SEQUENCE
-EXPORT bool glx_term(glxlink* mod)
+bool glx_term(glxlink* mod)
 {
 	ENGINELINK *engine = (ENGINELINK*)mod->get_data();
 

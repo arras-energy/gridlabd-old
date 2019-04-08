@@ -1065,7 +1065,7 @@ char *eventgen::time_token(char *start_token, TIMESTAMP *time_val, unsigned int 
 {
 	char workArray[64];	//If we ever need over 64, this will need changing
 	char *outIndex, *workIndex, *end_token;
-	char index;
+	size_t index;
 
 	//Initialize work variable
 	for (index=0; index<64; index++)

@@ -445,7 +445,7 @@ int http_saveas(const char *url, const char *file)
 		}
 		else
 		{
-			if ( result->header.size+result->body.size<len )
+			if ( (size_t)(result->header.size+result->body.size) < len )
 			{
 				output_warning("URL '%s' is larger than maxsize %d", url, wget_maxsize);
 			}

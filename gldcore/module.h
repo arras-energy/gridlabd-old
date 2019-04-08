@@ -11,7 +11,6 @@
 #include "gui.h"
 #include "transform.h"
 #include "stream.h"
-#include "test_callbacks.h"
 
 struct s_module_list {
 	void *hLib;
@@ -84,9 +83,6 @@ extern "C" {
 	int module_dumpall();
 	void module_libinfo(const char *module_name);
 	const char *module_find_transform_function(TRANSFORMFUNCTION function);
-#ifndef _NO_CPPUNIT
-	int module_test(TEST_CALLBACKS *callbacks,int argc,char* argv[]);
-#endif
 	int module_cmdargs(int argc, const char **argv);
 	int module_saveobj_xml(FILE *fp, MODULE *mod);
 	MODULE *module_get_first(void);

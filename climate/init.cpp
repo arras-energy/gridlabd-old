@@ -30,7 +30,6 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	return climate::oclass;
 }
 
-
 CDECL int do_kill()
 {
 	/* if global memory needs to be released, this is a good time to do it */

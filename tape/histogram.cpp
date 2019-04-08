@@ -24,7 +24,7 @@ histogram *histogram::defaults = NULL;
 // histogram CLASS FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
 
-void new_histogram(MODULE *mod){
+CDECL void new_histogram(MODULE *mod){
 	new histogram(mod);
 }
 
@@ -95,7 +95,7 @@ void eat_white(char **pos){
 */
 int parse_bin_val(char *tok, BIN *bin){
 	char *pos = tok;
-	int low_set = 0, high_set = 0;
+	int low_set = 0;
 	
 	eat_white(&pos);
 
@@ -141,7 +141,7 @@ int parse_bin_val(char *tok, BIN *bin){
 	
 	if(isdigit(*pos)){
 		bin->high_val = strtod(pos, &pos);
-		high_set = 1;
+		// high_set = 1;
 		if(low_set == 0)
 			bin->high_inc = 1;
 	} else {
@@ -217,7 +217,6 @@ int histogram::init(OBJECT *parent)
 	PROPERTY *prop = NULL;
 	OBJECT *obj = OBJECTHDR(this);
 	char tprop[64], tpart[8];
-	int e = 0;
 	TAPEFUNCS *tf = 0;
 	tprop[0]=0;
 	tpart[0] = 0;
@@ -470,8 +469,6 @@ int histogram::feed_bins(OBJECT *obj)
 
 TIMESTAMP histogram::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	int i = 0;
-	double value = 0.0;
 	OBJECT *obj = OBJECTHDR(this);
 
 	if((sampling_interval == -1.0 && t_count > t1) ||

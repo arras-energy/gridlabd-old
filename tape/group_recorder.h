@@ -5,8 +5,8 @@
 
 #include "tape.h"
 
-EXPORT void new_group_recorder(MODULE *);
-EXPORT int group_recorder_postroutine(OBJECT *obj, double timedbl);
+CDECL void new_group_recorder(MODULE *);
+CDECL int group_recorder_postroutine(OBJECT *obj, double timedbl);
 
 #ifdef __cplusplus
 
@@ -62,7 +62,6 @@ private:
 	TIMESTAMP last_flush;
 	TIMESTAMP write_interval;
 	TIMESTAMP flush_interval;
-	int32 write_ct;
 	TAPESTATUS tape_status; // TS_INIT/OPEN/DONE/ERROR
 	char *prev_line_buffer;
 	char *line_buffer;

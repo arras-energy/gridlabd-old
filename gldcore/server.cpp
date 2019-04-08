@@ -509,7 +509,7 @@ static void http_mime(HTTPCNX *http, const char *path)
 		{".php","text/plain"},
 		{".json","text/json"},
 	};
-	int n;
+	size_t n;
 	for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )
 	{
 		if (strcmp(path+len-strlen(map[n].ext),map[n].ext)==0)
@@ -1285,7 +1285,7 @@ int http_copy(HTTPCNX *http, const char *context, const char *source, int cook, 
 		fclose(fp);
 		return 0;
 	}
-	if (fread(buffer,1,len,fp)<0)
+	if ( fread(buffer,1,len,fp) < len )
 	{
 		output_error("%s output '%s' read failed", context, source);
 		free(buffer);
@@ -1928,7 +1928,7 @@ void *http_response(void *ptr)
 		char uri[1024];
 		char version[32];
 		char *p = strchr(http->query,'\r');
-		int v;
+		size_t v;
 		
 		/* initialize the response */
 		http_reset(http);
@@ -2008,7 +2008,7 @@ void *http_response(void *ptr)
 				{"/modify/",	http_modify_request,	HTTP_OK, HTTP_NOTFOUND},
 				{"/read/",	http_read_request,	HTTP_OK, HTTP_NOTFOUND},
 			};
-			int n;
+			size_t n;
 			for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )
 			{
 				size_t len = strlen(map[n].path);

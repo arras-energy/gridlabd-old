@@ -6,9 +6,8 @@
 
 #include <stdlib.h>
 #include "gridlabd.h"
-
-
 #include "tape.h"
+
 extern "C" VARMAP varmap[];
 
 EXPORT int setvar(char *varname, char *value)
@@ -42,4 +41,3 @@ EXPORT int setvar(char *varname, char *value)
 	}
 	return 0;
 }
-

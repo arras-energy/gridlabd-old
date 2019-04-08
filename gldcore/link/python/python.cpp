@@ -734,7 +734,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
     {
         if ( strcmp(type,"objects") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             OBJECT *obj;
             for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
             {
@@ -750,7 +750,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"classes") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             CLASS *oclass;
             for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
             {
@@ -759,7 +759,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"modules") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             MODULE *mod;
             for ( mod = module_get_first() ; mod != NULL ; mod = mod->next )
             {
@@ -768,7 +768,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"globals") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             GLOBALVAR *var;
             for ( var = global_find(NULL) ; var != NULL ; var = var->next )
             {
@@ -777,7 +777,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"transforms") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             TRANSFORM *transform = NULL;
             while ( (transform = transform_getnext(NULL)) != NULL )
             {
@@ -788,7 +788,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"schedules") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             SCHEDULE *sch;
             for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
             {
@@ -1109,7 +1109,7 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
     }
     PyObject *data = PyDict_New();
     PyDict_SetItemString(data,"definition",Py_BuildValue("s",sch->definition));
-    PyObject *calendars = PyList_New(NULL);
+    PyObject *calendars = PyList_New(0);
     size_t calendar;
     for ( calendar = 0 ; calendar < 14 ; calendar++ )
     {
@@ -1226,7 +1226,7 @@ extern "C" bool on_init(void)
 {
     Callback("on_init");
 
-    size_t n;
+    Py_ssize_t n;
     for ( n = 0 ; n < PyList_Size(python_init) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_init,n);
@@ -1264,7 +1264,7 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
 {
     Callback("on_precommit");
 
-    size_t n;
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_precommit) ; n++ )
     {
@@ -1304,7 +1304,7 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
 {
     Callback("on_presync");
 
-    size_t n;
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_presync) ; n++ )
     {
@@ -1344,7 +1344,7 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
 {
     Callback("on_sync");
 
-    size_t n;
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_sync) ; n++ )
     {
@@ -1384,7 +1384,7 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
 {
     Callback("on_postsync");
 
-    size_t n;
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_postsync) ; n++ )
     {
@@ -1424,7 +1424,7 @@ extern "C" bool on_commit(TIMESTAMP t)
 {
     Callback("on_commit");
 
-    size_t n;
+    Py_ssize_t n;
     for ( n = 0 ; n < PyList_Size(python_commit) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_commit,n);
@@ -1460,7 +1460,7 @@ extern "C" void on_term(void)
 {
     Callback("on_term");
 
-    size_t n;
+    Py_ssize_t n;
     for ( n = 0 ; n < PyList_Size(python_term) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_term,n);
@@ -1507,7 +1507,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
         return 0;
     }
 
-    size_t n;
+    Py_ssize_t n;
     PyObject *mod;
     for ( n = 0 ; n < PyList_Size(modlist) ; n++ )
     {

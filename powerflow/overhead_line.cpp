@@ -66,7 +66,7 @@ int overhead_line::init(OBJECT *parent)
 	double *temp_rating_value = NULL;
 	double temp_rating_continuous = 10000.0;
 	double temp_rating_emergency = 20000.0;
-	char index;
+	size_t index;
 	OBJECT *temp_obj;
 	line::init(parent);
 	
@@ -252,7 +252,7 @@ void overhead_line::recalc(void)
 		double dab, dbc, dac, dan, dbn, dcn;
 		double gmr_a, gmr_b, gmr_c, gmr_n, res_a, res_b, res_c, res_n;
 		complex z_aa, z_ab, z_ac, z_an, z_bb, z_bc, z_bn, z_cc, z_cn, z_nn;
-		double p_aa, p_ab, p_ac, p_an, p_bb, p_bc, p_bn, p_cc, p_cn, p_nn;
+		double p_aa=0, p_ab=0, p_ac=0, p_an=0, p_bb=0, p_bc=0, p_bn=0, p_cc=0, p_cn=0, p_nn=0;
 		double daap, dabp, dacp, danp, dbbp, dbcp, dbnp, dccp, dcnp, dnnp, diamA, diamB, diamC, diamN;
 		complex P_mat[3][3];
 		bool valid_capacitance = false;	//Assume capacitance is invalid by default
@@ -825,7 +825,7 @@ int overhead_line::isa(char *classname)
 */
 void overhead_line::test_phases(line_configuration *config, const char ph)
 {
-	bool condCheck, condNotPres;
+	bool condCheck = false, condNotPres = false;
 	OBJECT *obj = GETOBJECT(this);
 
 	if (ph=='A')

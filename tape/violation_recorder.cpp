@@ -6,7 +6,7 @@ CLASS *violation_recorder::oclass = NULL;
 CLASS *violation_recorder::pclass = NULL;
 violation_recorder *violation_recorder::defaults = NULL;
 
-void new_violation_recorder(MODULE *mod){
+CDECL void new_violation_recorder(MODULE *mod){
 	new violation_recorder(mod);
 }
 
@@ -382,11 +382,11 @@ int violation_recorder::isa(CLASSNAME classname){
 /**
 	@return 0 on failure, 1 on success
  **/
-int violation_recorder::write_header(){
+int violation_recorder::write_header()
+{
 
 	time_t now = time(NULL);
 	//quickobjlist *qol = 0;
-	OBJECT *obj=OBJECTHDR(this);
 
 	if(TS_OPEN != tape_status){
 		// could be ERROR or CLOSED
@@ -451,10 +451,8 @@ int violation_recorder::check_violations(TIMESTAMP t1) {
 }
 
 // Exceeding device thermal limit
-int violation_recorder::check_violation_1(TIMESTAMP t1) {
-//	gl_output("VIOLATION 1");
-	vobjlist *curr = 0;
-
+int violation_recorder::check_violation_1(TIMESTAMP t1) 
+{
 	check_xfrmr_thermal_limit(t1, xfrmr_obj_list, xfrmr_list_v1, XFMR, xfrmr_thermal_limit_upper, xfrmr_thermal_limit_lower);
 	check_line_thermal_limit(t1, ohl_obj_list, ohl_list_v1, OHLN, line_thermal_limit_upper, line_thermal_limit_lower);
 	check_line_thermal_limit(t1, ugl_obj_list, ugl_list_v1, UGLN, line_thermal_limit_upper, line_thermal_limit_lower);
@@ -467,7 +465,7 @@ int violation_recorder::check_violation_1(TIMESTAMP t1) {
 int violation_recorder::check_line_thermal_limit(TIMESTAMP t1, vobjlist *list, uniqueList *uniq_list, int type, double upper_bound, double lower_bound) {
 
 	vobjlist *curr = 0;
-	double nominal, nominalA, nominalB, nominalC;
+	double nominal, nominalA=0, nominalB=0, nominalC=0;
 	char objname[128];
 	double retval;
 
@@ -634,13 +632,12 @@ int violation_recorder::check_xfrmr_thermal_limit(TIMESTAMP t1, vobjlist *list, 
 }
 
 // Instantaneous voltage of node over 1.1pu
-int violation_recorder::check_violation_2(TIMESTAMP t1) {
-//	gl_output("VIOLATION 2");
+int violation_recorder::check_violation_2(TIMESTAMP t1) 
+{
 	vobjlist *curr = 0;
 	PROPERTY *p_ptr;
 	double nominal;
 	char objname[128];
-	int c = 0;
 	double node_upper_bound = node_instantaneous_voltage_limit_upper;
 	double node_lower_bound = node_instantaneous_voltage_limit_lower;
 	double retval;
@@ -730,13 +727,12 @@ int violation_recorder::check_violation_2(TIMESTAMP t1) {
 }
 
 // Voltage of node over 1.05pu or under 0.95pu for 5 minutes or more
-int violation_recorder::check_violation_3(TIMESTAMP t1) {
-//	gl_output("VIOLATION 3");
+int violation_recorder::check_violation_3(TIMESTAMP t1) 
+{
 	vobjlist *curr = 0;
 	PROPERTY *p_ptr;
 	double nominal;
 	char objname[128];
-	int c = 0;
 	double node_upper_bound = node_continuous_voltage_limit_upper;
 	double node_lower_bound = node_continuous_voltage_limit_lower;
 	double interval = node_continuous_voltage_interval;
@@ -1055,15 +1051,14 @@ int violation_recorder::check_violation_7(TIMESTAMP t1) {
 }
 
 // Powerfactor at substation is below limit
-int violation_recorder::check_violation_8(TIMESTAMP t1) {
-
+int violation_recorder::check_violation_8(TIMESTAMP t1) 
+{
 	if (link_monitor_obj == 0)
 			return 0;
 
 	double retval;
 	char objname[128];
 
-	double nominal = 1.;
 	PROPERTY *p_ptr;
 	p_ptr = gl_get_property(link_monitor_obj, "power_in");
 
@@ -1228,12 +1223,13 @@ int violation_recorder::fails_continuous_condition (vobjlist *curr, int i, PROPE
 	return 0;
 }
 
-int violation_recorder::has_phase(OBJECT *obj, int phase) {
+int violation_recorder::has_phase(OBJECT *obj, int phase) 
+{
 	PROPERTY *p_ptr;
 	set *phases;
 	p_ptr = gl_get_property(obj, "phases");
 	phases = gl_get_set(obj, p_ptr);
-	if ((*phases & phase) == phase)
+	if (((int)*phases & phase) == phase)
 		return true;
 	return 0;
 }
@@ -1365,7 +1361,8 @@ int violation_recorder::flush_line(){
 	@return 0 on failure, 1 on success
  **/
 
-int violation_recorder::write_summary() {
+int violation_recorder::write_summary() 
+{
 	FILE *f;
 
 	f = fopen(summary.get_string(), "w");
@@ -1374,7 +1371,6 @@ int violation_recorder::write_summary() {
 		return 0;
 	}
 
-	char buffer[1024];
 	time_t now = time(NULL);
 
 	if(0 > fprintf(f,"# file...... %s\n", summary.get_string())){ return 0; }

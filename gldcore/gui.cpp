@@ -382,7 +382,7 @@ int gui_cmd_entity(int item, GUIENTITY *entity)
 void gui_cmd_prompt(GUIENTITY *parent)
 {
 	char buffer[1024];
-	char *label;
+	char *label = NULL;
 	GUIENTITY *entity;
 	for ( entity=gui_root ; entity!=NULL ; entity=entity->next )
 	{
@@ -397,7 +397,8 @@ void gui_cmd_prompt(GUIENTITY *parent)
 Retry:
 	fprintf(stdout,"\n%s> [%s] ",label, gui_get_value(entity));
 	fflush(stdout);
-	fgets(buffer,sizeof(buffer),stdin);
+	if ( fgets(buffer,sizeof(buffer),stdin) == NULL )
+		output_error("gui_cmd_prompt read failed");
 	buffer[strlen(buffer)-1]='\0';
 	if (strcmp(buffer,"")==0)
 		return;
@@ -463,7 +464,8 @@ void gui_cmd_menu(GUIENTITY *parent)
 Retry:
 		fprintf(stdout,"\nGLM> [%d] ",ans<item?ans+1:0);
 		fflush(stdout);
-		fgets(buffer,sizeof(buffer),stdin);
+		if ( fgets(buffer,sizeof(buffer),stdin) == NULL )
+			output_error("gui_cmd_menu read failed");
 		buffer[strlen(buffer)-1]='\0';
 		ans = atoi(buffer);
 		if (ans<0 || ans>item)
@@ -747,7 +749,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 			if (!entity->parent || gui_get_type(entity->parent)!=GUI_SPAN) newcol(entity);
 			for (key=prop->keywords; key!=NULL; key=key->next)
 			{
-				int value = *(int*)gui_get_data(entity);
+				uint64 value = *(uint64*)gui_get_data(entity);
 				const char *checked = (value==key->value)?"checked":"";
 				char label[64], *p;
 				strcpy(label,key->name);
@@ -765,7 +767,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 			if (!entity->parent || gui_get_type(entity->parent)!=GUI_SPAN) newcol(entity);
 			for (key=prop->keywords; key!=NULL; key=key->next)
 			{
-				int value = *(int*)gui_get_data(entity);
+				uint64 value = *(uint64*)gui_get_data(entity);
 				const char *checked = (value==key->value)?"checked":"";
 				char label[64], *p;
 				strcpy(label,key->name);
@@ -786,7 +788,7 @@ static void gui_entity_html_content(GUIENTITY *entity)
 			gui_html_output(fp,"<select class=\"%s\" name=\"%s\" %s %s onchange=\"update_%s(this)\">\n", ptype, gui_get_name(entity),multiple,size,ptype);
 			for (key=prop->keywords; key!=NULL; key=key->next)
 			{
-				int value = *(int*)gui_get_data(entity);
+				uint64 value = *(uint64*)gui_get_data(entity);
 				const char *checked = (value==key->value)?"selected":"";
 				char label[64], *p;
 				strcpy(label,key->name);
@@ -981,9 +983,18 @@ size_t gui_glm_write(FILE *fp, GUIENTITY *entity, int indent)
 	GUIENTITY *parent = entity;
 	const char *type = gui_glm_typename(parent->type);
 	char tabs[] = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-	if (indent<0) tabs[0]='\0'; else if (indent<sizeof(tabs)) tabs[indent]='\0';
+	if ( indent < 0 ) 
+	{
+		tabs[0]='\0'; 
+	}
+	else if ( (size_t)indent < sizeof(tabs) ) 
+	{
+		tabs[indent]='\0';
+	}
 	if (type==NULL)
+	{
 		return FAILED;
+	}
 	
 	if (entity->type==GUI_ACTION)
 	{

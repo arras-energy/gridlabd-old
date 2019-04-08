@@ -543,8 +543,6 @@ TIMESTAMP range::presync(TIMESTAMP t0, TIMESTAMP t1){
 TIMESTAMP range::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
 	double internal_gain = 0.0;
-	double nHours = (gl_tohours(t1) - gl_tohours(t0))/TS_SECOND;
-	double Tamb = get_Tambient(location);
 	double dt = gl_toseconds(t0>0?t1-t0:0);
 
 	if (oven_check == true || remainon == true)	
@@ -581,7 +579,7 @@ TIMESTAMP range::sync(TIMESTAMP t0, TIMESTAMP t1)
 		is_range_on = 0;
 	}
 
-	TIMESTAMP t2 = residential_enduse::sync(t0,t1);
+	residential_enduse::sync(t0,t1);
 	
 	set_time_to_transition();
 
@@ -1056,7 +1054,6 @@ void range::update_T_and_or_h(double nHours)
 		case ONENODE:
 			// Handy that the 1-node model doesn't care which way
 			// things are moving (RECOVERING vs DEPLETING)...
-SingleZone:
 			Tw = new_temp_1node(Tw, nHours);
 			Tlower = Tinlet;
 			break;
@@ -1079,7 +1076,8 @@ SingleZone:
 				double vol_over = oven_volume/GALPCF * (h-height)/height;
 				double energy_over = vol_over * food_density * specificheat_food * (/*Tupper*/ Tw - Tlower);
 				double Tnew = /*Tupper*/ Tw + energy_over/Cw;
-				Tw = /*Tupper*/ Tw = Tnew;
+				// Tw = Tupper;
+				Tw = Tnew;
 				Tlower = Tinlet;
 				h = height;
 			} 
@@ -1110,9 +1108,11 @@ double range::dhdt(double h)
 	const double mdot = oven_demand * 60 * food_density / GALPCF;		// lbm/hr...
     const double c1 = food_density * specificheat_food * area * (/*Tupper*/ Tw - Tlower);	// Btu/ft...
 
+#if 0 // not sure why this is here
 	if (oven_demand > 0.0)
 		double aaa=1;
-	
+#endif
+
     // check c1 before dividing by it
     if (c1 <= ROUNDOFF)
         return 0.0; //Possible only when /*Tupper*/ Tw and Tlower are very close, and the difference is negligible
@@ -1193,7 +1193,6 @@ inline double range::new_temp_1node(double T0, double delta_t)
 double range::get_Tambient(enumeration loc)
 {
 	double ratio;
-	OBJECT *parent = OBJECTHDR(this)->parent;
 
 	switch (loc) {
 	case GARAGE: // temperature is about 1/2 way between indoor and outdoor

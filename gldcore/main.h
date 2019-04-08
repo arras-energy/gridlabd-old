@@ -74,7 +74,7 @@ public:
 		try {
 			if ( buf )
 			{
-				if ( vsnprintf(buf,sizeof(buf),format,ptr) < 0 )
+				if ( vsnprintf(buf,size-1,format,ptr) < 0 )
 				{
 					msg = std::string("GldException::GldException(): vsnprintf() failed");
 				}

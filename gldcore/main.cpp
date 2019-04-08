@@ -312,8 +312,8 @@ void GldMain::set_global_workdir(const char *path)
 {
 	if ( path )
 		strncpy(global_workdir,path,sizeof(global_workdir)-1);
-	else
-		getcwd(global_workdir,sizeof(global_workdir)-1);
+	else if ( getcwd(global_workdir,sizeof(global_workdir)-1) == NULL )
+		output_error("unable to read current working directory");
 	return;
 }
 

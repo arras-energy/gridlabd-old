@@ -754,9 +754,10 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 					else if (prop->ptype==PT_set || prop->ptype==PT_enumeration)
 					{
 						KEYWORD *key;
+						const char *fmt = ( sizeof(uint64) < sizeof(long long) ? "%s=%lu%s" : "%s=%llu%s");
 						printf("\t%s {", proptype);
 						for (key=prop->keywords; key!=NULL; key=key->next)
-							printf("%s=%"FMT_INT64"d%s", key->name, key->value, key->next==NULL?"":", ");
+							printf(fmt, key->name, key->value, key->next==NULL?"":", ");
 						printf("} %s;", strrchr(prop->name,':')+1);
 					} 
 					else 
@@ -1549,9 +1550,16 @@ int GldCmdarg::workdir(int argc, const char *argv[])
 		output_error("%s is not a valid workdir", global_workdir);
 		return CMDERR;
 	}
-	getcwd(global_workdir,sizeof(global_workdir));
-	IN_MYCONTEXT output_verbose("working directory is '%s'", global_workdir);
-	return 1;
+	if ( getcwd(global_workdir,sizeof(global_workdir)) )
+	{
+		IN_MYCONTEXT output_verbose("working directory is '%s'", global_workdir);
+		return 1;
+	}
+	else
+	{
+		output_error("unable to read current working directory");
+		return CMDERR;
+	}
 }
 
 static int local_daemon(void *main, int argc, const char *argv[])
@@ -1609,8 +1617,7 @@ static int printenv(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::printenv(int argc, const char *argv[])
 {
-	system("printenv");
-	return 0;
+	return system("printenv") == 0 ? 0 : CMDERR;
 }
 
 static int origin(void *main, int argc, const char *argv[])

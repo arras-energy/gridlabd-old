@@ -22,7 +22,6 @@
 CLASS *power_electronics::oclass = NULL;
 power_electronics *power_electronics::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 power_electronics::power_electronics(){}

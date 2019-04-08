@@ -28,13 +28,19 @@ double e2solve(double a,/**< the parameter \p a */
 	// check for degenerate cases (1 exponential term is dominant)
 	// solve for t in dominant exponential, but only when a solution exists
 	// (c must be opposite sign of scalar and have less magnitude than scalar)
-	if (fabs(a/b)<p) // a is dominant
+	if (fabs(a/b)<p) 
+	{
+		// a is dominant
 		return c*b<0 && fabs(c)<fabs(b) ? log(-c/b)/m : NaN;
-	else if (fabs(b/a)<p) // b is dominant
+	}
+	else if (fabs(b/a)<p) 
+	{
+		// b is dominant
 		return c*a<0 && fabs(c)<fabs(a) ? log(-c/a)/n : NaN;
+	}
 
 	// is there an extremum/inflexion to consider
-	if (a*b<0)
+	if ( a*b < 0 )
 	{
 		// compute the time t and value fi at which it occurs
 		double an_bm = -a*n/(b*m);
@@ -42,41 +48,69 @@ double e2solve(double a,/**< the parameter \p a */
 		double fm = EVAL(tm,a,n,b,m,c);
 		double ti = log(an_bm*n/m)/(m-n);
 		double fi = EVAL(ti,a,n,b,m,c);
-		if (tm>0) // extremum in domain
+		if ( tm > 0 ) // extremum in domain
 		{
-			if (f*fm<0) // first solution is in range
+			if ( f*fm < 0 ) 
+			{
+				// first solution is in range
 				t = 0;
-			else if (c*fm<0) // second solution is in range
+			}
+			else if ( c*fm < 0 )
+			{ 
+				// second solution is in range
 				t = ti;
-			else // no solution is in range
+			}
+			else
+			{ 
+				// no solution is in range
 				return NaN;
+			}
 		}
-		else if (tm<0 && ti>0) // no extremum but inflexion in domain
+		else if (tm<0 && ti>0) 
 		{
-			if (fm*c<0) // solution in range
+			// no extremum but inflexion in domain
+			if (fm*c<0) 
+			{
+				// solution in range
 				t = ti;
-			else // no solution in range
+			}
+			else 
+			{
+				// no solution in range
 				return NaN;
+			}
 		}
 		else if (ti<0) // no extremum or inflexion in domain
 		{
-			if (fi*c<0) // solution in range
+			if (fi*c<0) 
+			{
+				// solution in range
 				t = ti;
-			else // no solution in range
+			}
+			else 
+			{
+				// no solution in range
 				return NaN;
+			}
 		}
-		else // no solution possible (includes tm==0 and ti==0)
+		else 
+		{
+			// no solution possible (includes tm==0 and ti==0)
 			return NaN;
+		}
 	}
-	else if (f*c>0) // solution is not reachable from t=0 (same sign)
+	else if (f*c>0) 
 	{
+		// solution is not reachable from t=0 (same sign)
 		return NaN;
 	}
 
 	// solve using Newton's method
 	int iter = 100;
-	if (t!=0) // initial t changed to inflexion point
-		double f = EVAL(t,a,n,b,m,c);
+	if ( t != 0 ) // initial t changed to inflexion point
+	{
+		f = EVAL(t,a,n,b,m,c);
+	}
 	double dfdt = EVAL(t,a*n,n,b*m,m,0); 
 	while ( fabs(f)>p && isfinite(t) && iter-->0)
 	{
@@ -90,7 +124,9 @@ double e2solve(double a,/**< the parameter \p a */
 		return NaN;	// failed to catch limit condition above
 	}
 	if (e!=NULL)
+	{
 		*e = p/dfdt;
+	}
 	return t>0?t:NaN;
 }
 

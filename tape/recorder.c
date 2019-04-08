@@ -108,7 +108,6 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 
 static int recorder_open(OBJECT *obj)
 {
-	char32 type="file";
 	char1024 fname="";
 	char32 flags="w";
 	TAPEFUNCS *f = 0;
@@ -303,7 +302,7 @@ static int recorder_open(OBJECT *obj)
 	// set out_property here
 	{size_t offset = 0;
 		char unit_buffer[1024];
-		char *token = 0, *prop_ptr = 0, *unit_ptr = 0;
+		char *token = 0;
 		char propstr[1024], unitstr[64];
 		PROPERTY *prop = 0;
 		UNIT *unit = 0;
@@ -319,7 +318,7 @@ static int recorder_open(OBJECT *obj)
 					prop = 0;
 					unitstr[0] = 0;
 					propstr[0] = 0;
-					if(2 == sscanf(token, "%[A-Za-z0-9_.][%[^]\n,\0]", propstr, unitstr)){
+					if(2 == sscanf(token, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr)){
 						unit = gl_find_unit(unitstr);
 						if(unit == 0){
 							gl_error("recorder:%d: unable to find unit '%s' for property '%s'", obj->id, unitstr, propstr);
@@ -344,7 +343,7 @@ static int recorder_open(OBJECT *obj)
 			case HU_NONE:
 				strcpy(unit_buffer, my->property);
 				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
-					if(2 == sscanf(token, "%[A-Za-z0-9_.][%[^]\n,\0]", propstr, unitstr)){
+					if(2 == sscanf(token, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr)){
 						; // no logic change
 					}
 					// print just the property, regardless of type or explicitly declared property
@@ -588,7 +587,7 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 
 		// everything that looks like a property name, then read units up to ]
 		while (isspace(*item)) item++;
-		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,\0]", pstr, ustr)){
+		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,]]", pstr, ustr)){
 			unit = gl_find_unit(ustr);
 			if(unit == NULL){
 				gl_error("recorder:%d: unable to find unit '%s' for property '%s'",obj->id, ustr,pstr);
@@ -667,7 +666,7 @@ int read_properties(struct recorder *my, OBJECT *obj, PROPERTY *prop, char *buff
 	PROPERTY fake;
 	char tmp[1024];
 	int count = 0;
-	int sz;
+	int sz = 0;
 	memset(&fake, 0, sizeof(PROPERTY));
 	fake.ptype = PT_double;
 	fake.unit = 0;
@@ -753,7 +752,7 @@ EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 
 	if(obj->parent == NULL){
 		char tb[32];
-		sprintf(buffer, "'%s' lacks a parent object", obj->name ? obj->name : tb, sprintf(tb, "recorder:%i", obj->id));
+		sprintf(buffer, "'%s' lacks a parent object", obj->name ? obj->name : (sprintf(tb, "recorder:%i", obj->id),tb));
 		close_recorder(my);
 		my->status = TS_ERROR;
 		goto Error;

@@ -433,7 +433,6 @@ TIMESTAMP emissions::postsync(TIMESTAMP t0)
 	complex temp_power;
 	complex energy_for_calc;
 	bool energy_requirement;
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP tret = powerflow_object::postsync(t0);
 
 	//First cycle, set up the interval

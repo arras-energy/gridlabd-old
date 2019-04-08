@@ -39,7 +39,7 @@ int saveall(const char *filename)
 		{"xml", savexml},
 		{"json", savejson},
 	};
-	int i;
+	size_t i;
 
 	/* identify output format */
 	if (ext==NULL)
@@ -202,7 +202,7 @@ int savexml_strict(const char *filename,FILE *fp)
 	if (stylesheet==NULL || stylesheet->prop->ptype!=PT_char1024) /* only char1024 is allowed */
 		count += fprintf(fp,"<?xml-stylesheet href=\"%sgridlabd-%d_%d.xsl\" type=\"text/xsl\"?>\n",global_urlbase,global_version_major,global_version_minor);
 	else 
-		count += fprintf(fp,"<?xml-stylesheet href=\"%s.xsl\" type=\"text/xsl\"?>\n",stylesheet->prop->addr);
+		count += fprintf(fp,"<?xml-stylesheet href=\"%s.xsl\" type=\"text/xsl\"?>\n",stylesheet->prop->name);
 	count += fprintf(fp,"<gridlabd>\n");
 	
 		/* globals */
@@ -229,7 +229,7 @@ int savexml_strict(const char *filename,FILE *fp)
 			for (pass=0; ranks!=NULL && ranks[pass]!=NULL; pass++)
 			{
 				const char *passname[]={"pretopdown","bottomup","posttopdown"};
-				int lastrank=-1;
+				OBJECTRANK lastrank=-1;
 				fprintf(fp,"\t\t<pass>\n\t\t\t<name>%s</name>\n",passname[pass]);
 				for (i = PASSINIT(pass); PASSCMP(i, pass); i += PASSINC(pass))
 				{

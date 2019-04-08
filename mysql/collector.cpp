@@ -80,7 +80,7 @@ int collector::init(OBJECT *parent)
 			{"a",	0x0000},
 			{"a+",	0x0000},
 		};
-		int n;
+		size_t n;
 		for ( n=0 ; n<sizeof(modes)/sizeof(modes[0]) ; n++ )
 		{
 			if ( strcmp(mode,modes[n].str)==0 )
@@ -118,7 +118,7 @@ int collector::init(OBJECT *parent)
 	names = new char*[n_aggregates];
 
 	// load property structs
-	int n;
+	size_t n;
 	for ( p=propspecs,n=0 ; n<n_aggregates ; n++ )
 	{
 		char *np = strchr(p,',');
@@ -151,7 +151,7 @@ int collector::init(OBJECT *parent)
 			size_t eos = sprintf(buffer,"CREATE TABLE IF NOT EXISTS `%s` ("
 				"id INT AUTO_INCREMENT PRIMARY KEY, "
 				"t TIMESTAMP, ", get_table());
-			int n;
+			size_t n;
 			for ( n=0 ; n<n_aggregates ; n++ )
 				eos += sprintf(buffer+eos,"`%s` double, ",names[n]);
 			eos += sprintf(buffer+eos,"%s","INDEX i_t (t))");
@@ -209,7 +209,7 @@ TIMESTAMP collector::commit(TIMESTAMP t0, TIMESTAMP t1)
 	{
 		char buffer[4096];
 		size_t eos = sprintf(buffer,"INSERT INTO `%s` (t", get_table());
-		int n;
+		size_t n;
 		for ( n=0 ; n<n_aggregates ; n++ )
 			eos += sprintf(buffer+eos,",`%s`",names[n]);
 		eos += sprintf(buffer+eos,") VALUES (from_unixtime(%lli)",db->convert_to_dbtime(gl_globalclock));
@@ -223,7 +223,7 @@ TIMESTAMP collector::commit(TIMESTAMP t0, TIMESTAMP t1)
 			gl_verbose("%s: sample added to '%s' ok", get_name(), get_table());
 
 		// check limit
-		if ( get_limit()>0 && db->get_last_index()>=get_limit() )
+		if ( get_limit()>0 && db->get_last_index()>=(size_t)get_limit() )
 		{
 			gl_verbose("%s: limit of %d records reached", get_name(), get_limit());
 			next_t = TS_NEVER;

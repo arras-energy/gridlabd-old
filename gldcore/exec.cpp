@@ -566,7 +566,7 @@ void GldExec::initranks(void)
 STATUS GldExec::setup_ranks(void)
 {
 	OBJECT *obj;
-	int i;
+	size_t i;
 
 	initranks();
 	INDEX **ranks = getranks();
@@ -614,7 +614,6 @@ const char *GldExec::simtime(void)
 
 STATUS GldExec::show_progress(void)
 {
-	extern GUIACTIONSTATUS wait_status;
 	output_progress();
 	/* reschedule report */
 	realtime_schedule_event(realtime_now()+1,show_progress);
@@ -2127,7 +2126,7 @@ void GldExec::create_lockdata(int nObjRankList)
 	donelock = (pthread_mutex_t*)malloc(sizeof(donelock[0])*nObjRankList);
 	start = (pthread_cond_t*)malloc(sizeof(start[0])*nObjRankList);
 	done = (pthread_cond_t*)malloc(sizeof(done[0])*nObjRankList);
-	for ( k = 0 ; k < nObjRankList ; k++ ) 
+	for ( k = 0 ; k < (size_t)nObjRankList ; k++ ) 
 	{
 		pthread_mutex_init(&startlock[k], NULL);
 		pthread_mutex_init(&donelock[k], NULL);
@@ -2153,7 +2152,6 @@ STATUS GldExec::exec_start(void)
 	int j, k;
 	LISTITEM *ptr;
 	int incr;
-	struct arg_data *arg_data_array;
 	INDEX **ranks = getranks();
 
 	// Only setup threadpool for each object rank list at the first iteration;
@@ -3035,7 +3033,10 @@ void *GldExec::slave_node_proc(void *args)
 	bool *done_ptr = (bool *)(args_in[0]);
 	struct sockaddr_in *addrin = (struct sockaddr_in *)(args_in[3]);
 
-	char buffer[1024], response[1024], addrstr[17], *paddrstr, *token_to, *params;
+	char buffer[1024], response[1024], addrstr[17], *paddrstr, *token_to;
+#ifdef WIN32
+	char *params;
+#endif
 	char dirname[256], filename[256];
 	unsigned int64 mtr_port, id;
 	const char *token[5]={
@@ -3260,8 +3261,11 @@ void *GldExec::slave_node_proc(void *args)
 	{
 		IN_MYCONTEXT output_debug("id = %llu", id);
 	}
+
+#ifdef WIN32
 	// then zero or more CL args
 	params = 1 + token_to;
+#endif
 
 	// if unable to locate model file,
 	//	* request model
@@ -3537,7 +3541,11 @@ EXITCODE GldExec::run_scripts(SIMPLELIST *list)
 			// special access
 			if ( strcmp(group,"gridlabd") == 0 )
 			{
-				return run_gridlabd_script(call);
+				EXITCODE rc = run_gridlabd_script(call);
+				if ( rc != XC_SUCCESS )
+				{
+					return rc;
+				}
 			}
 			else 
 			{
@@ -3547,7 +3555,11 @@ EXITCODE GldExec::run_scripts(SIMPLELIST *list)
 		}
 		else
 		{
-			return run_system_script(item->data);
+			EXITCODE rc = run_system_script(item->data);
+			if ( rc != XC_SUCCESS )
+			{
+				return rc;
+			}
 		}
 	}
 	return XC_SUCCESS;

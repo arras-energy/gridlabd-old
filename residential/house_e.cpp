@@ -238,7 +238,7 @@ int house_e::smart_breaker(char *buffer, size_t len)
 			jprintf(reply,sizeof(reply),"status","error","data","command rejected",NULL);
 		}
 	}
-	int rv = strlen(reply);
+	size_t rv = strlen(reply);
 	if ( rv >= len )
 	{
 		// note this can occur is a closing NULL is missing from the jprintf call
@@ -270,12 +270,10 @@ typedef struct s_implicit_enduse_list {
 #include "elcap1990.h"
 #include "elcap2010.h"
 #include "rbsa2014.h"
-static IMPLICITENDUSEDATA *implicit_enduse_data = elcap1990;
 
 EXPORT CIRCUIT *attach_enduse_house_e(OBJECT *obj, enduse *target, double breaker_amps, int is220)
 {
 	house_e *pHouse = 0;
-	CIRCUIT *c = 0;
 
 	if(obj == NULL){
 		GL_THROW("attach_house_a: null object reference");
@@ -707,7 +705,7 @@ int house_e::create()
 	if (strcmp(active_enduses,"NONE")!=0)
 	{
 		char *eulist[64];
-		char n_eu=0;
+		size_t n_eu=0;
 
 		// extract the implicit_enduse list
 		while ((token=strtok(token?NULL:active_enduses,"|"))!=NULL)
@@ -942,7 +940,7 @@ int house_e::init_climate()
 				{"record.high",&cooling_design_temperature},
 				{"record.low",&heating_design_temperature},
 			};
-			int i;
+			size_t i;
 			for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
 			{
 				double *src = (double*)GETADDR(obj,gl_get_property(obj,map[i].name));
@@ -1388,7 +1386,7 @@ int house_e::init(OBJECT *parent)
 
 	extern complex default_line_voltage[3], default_line_current[3], default_line_power[3], default_line_shunt[3];
 	extern int default_meter_status;
-	int i;
+	size_t i;
 
 	// find parent meter, if not defined, use a default meter (using static variable 'default_meter')
 	OBJECT *obj = OBJECTHDR(this);
@@ -1929,7 +1927,6 @@ void house_e::update_model(double dt)
 	south_east_incident_solar_radiation = 0;
 	east_incident_solar_radiation = 0;
 	north_east_incident_solar_radiation = 0;
-	double number_of_quadrants = 0;
 
 	// recalculate the constants of the ETP equations based off of the ETP parameters.
 	if (Ca<=0)
@@ -2173,7 +2170,6 @@ void house_e::update_system(double dt)
 
 	adj_cooling_cap = cooling_capacity_adj;
 	adj_heating_cap = heating_capacity_adj;
-#pragma warning("house_e: add update_system voltage adjustment for heating")
 	double voltage_adj = (((pCircuit_V[0]).Mag() * (pCircuit_V[0]).Mag()) / (240.0 * 240.0) * load.impedance_fraction + ((pCircuit_V[0]).Mag() / 240.0) * load.current_fraction + load.power_fraction);
 	double voltage_adj_resistive = ((pCircuit_V[0]).Mag() * (pCircuit_V[0]).Mag()) / (240.0 * 240.0);
 	
@@ -2620,7 +2616,6 @@ Also synchronizes the voltages and current in the panel with the meter.
 **/
 TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP t2 = TS_NEVER, t;
 	const double dt1 = (double)(t1-t0)*TS_SECOND;
 	
@@ -2792,7 +2787,6 @@ TIMESTAMP house_e::postsync(TIMESTAMP t0, TIMESTAMP t1)
 
 void house_e::update_Tevent()
 {
-	OBJECT *obj = OBJECTHDR(this);
 
 	// Tevent is based on temperature bracket and assumes state is correct
 	switch(system_mode) {

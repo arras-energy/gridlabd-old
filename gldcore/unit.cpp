@@ -321,7 +321,7 @@ int unit_derived(const char *name,const char *derivation)
 	while (*p != '\0')
 	{
 		char term[32];
-		UNIT *pUnit;
+		UNIT *pUnit = NULL;
 
 		/* extract operation */
 		if (sscanf(p,"%[^-*/^+]",term)!=1){
@@ -333,7 +333,8 @@ int unit_derived(const char *name,const char *derivation)
 		}
 
 		/* non-exponential ops */
-		if (nextOp != '^'){
+		if (nextOp != '^')
+		{
 			/* find unit */
 			pUnit = unit_find_underived(term);
 
@@ -363,7 +364,8 @@ int unit_derived(const char *name,const char *derivation)
 		p += strlen(term);
 
 		/* add this term to result */
-		switch(nextOp){
+		switch(nextOp)
+		{
 			case '\0':
 				/* first term */
 				if (a == 0)
@@ -824,7 +826,7 @@ int unit_test(void)
 		{{1, "Ohm"},	{1,"V/A"}},
 		{{1, "H"},		{1,"Ohm*s"}},
 	};
-	int n, failed = 0, succeeded = 0;
+	size_t n, failed = 0, succeeded = 0;
 	output_test("\nBEGIN: units tests");
 	for (n = 0; n < sizeof(test)/sizeof(test[0]); n++){
 		double v = test[n].from.value;

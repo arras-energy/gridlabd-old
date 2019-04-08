@@ -84,8 +84,7 @@ sp_dtrsv(char *uplo, char *trans, char *diag, SuperMatrix *L,
     SCPformat *Lstore;
     NCPformat *Ustore;
     double   *Lval, *Uval;
-    int incx = 1, incy = 1;
-    double alpha = 1.0, beta = 1.0;
+    int incx = 1;
     register int fsupc, luptr, istart, irow, k, iptr, jcol, nsuper;
     int          nsupr, nsupc, nrow, i;
     double *work;

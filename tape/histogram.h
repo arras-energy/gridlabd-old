@@ -8,7 +8,7 @@
 
 #include "tape.h"
 
-EXPORT void new_histogram(MODULE *mod);
+CDECL void new_histogram(MODULE *mod);
 
 #ifdef __cplusplus
 typedef struct s_histogram_bin {

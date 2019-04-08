@@ -383,8 +383,8 @@ void vfd::CheckParameters()
 //Function to perform the current update - called by a node object, after they've updated (so current is accurate)
 STATUS vfd::VFD_current_injection(void)
 {
-	complex currRat, lossCurr[3];
-	int index_val, index_val_inner, index_new_limit;
+	complex currRat;
+	size_t index_val, index_val_inner, index_new_limit;
 	double z_val, driveCurrPower, temp_coeff, settleVolt, avg_freq_value;
 	complex temp_power_val, powerOutElectrical, powerInElectrical;
 	complex settleVoltOut[3];
@@ -831,7 +831,7 @@ complex vfd::complex_exp(double angle)
 STATUS vfd::alloc_freq_arrays(double delta_t_val)
 {
 	OBJECT *obj = OBJECTHDR(this);
-	int a_index;
+	size_t a_index;
 	
 	//See if we were commanded to reallocate -- this would be done on a zero-th pass of interupdate, most likely (or in postupdate, when transitioning out)
 	if (force_array_realloc == true)
@@ -908,7 +908,7 @@ STATUS vfd::alloc_freq_arrays(double delta_t_val)
 //Module-level deltamode call
 SIMULATIONMODE vfd::inter_deltaupdate_vfd(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	double dt_value, deltatimedbl;
+	double dt_value;
 	STATUS ret_value;
 
 	//See if we're the very first pass/etc

@@ -52,39 +52,12 @@
 #ifndef _GRIDLABD_H
 #define _GRIDLABD_H
 
-/* permanently disable use of CPPUNIT */
-#ifndef _NO_CPPUNIT
-#define _NO_CPPUNIT
-#endif
-
-// module version info (must match core version info)
+// core version info (must match version info in config.h)
 #define MAJOR 4
 #define MINOR 2
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif
-
-#ifdef WIN32
-#define HAVE_LIBCPPUNIT
-#endif
-
-#ifdef __cplusplus
-	#ifndef CDECL
-		/** Defines a function as a C-type function **/
-		#define CDECL extern "C"
-	#endif
-#else
-	#define CDECL
-#endif
-
-#ifdef WIN32
-#ifndef EXPORT
-/** Defines a function as exported to core **/
-#define EXPORT CDECL __declspec(dllexport)
-#endif
-#else
-#define EXPORT CDECL
 #endif
 
 #include <stdarg.h>
@@ -97,20 +70,23 @@
 #define STREAM_MODULE
 #include "stream.h"
 
+#ifdef __cplusplus
+#define CDECL extern "C" /* TODO: obsolete as of 4.2 */
+#else
+#define CDECL 
+#endif
+
+#define EXPORT CDECL /* TODO:obsolete as of 4.2 */
+
 #ifdef DLMAIN
 #define EXTERN
-#define INIT(X) =(X)
-#else
-#ifdef __cplusplus
-#define EXTERN
+#define INIT(X) = X
 #else
 #define EXTERN extern
-#endif /* __cplusplus */
 #define INIT(X)
 #endif
-CDECL EXTERN CALLBACKS *callback INIT(NULL);
-#undef INIT
-#undef EXTERN
+
+EXTERN CALLBACKS *callback INIT(NULL);
 
 #ifndef MODULENAME
 #define MODULENAME(obj) (obj->oclass->module->name)
@@ -181,8 +157,9 @@ CDECL EXTERN CALLBACKS *callback INIT(NULL);
 //#define PUBLISH_SET(C,N,E) (*callback->define_set_member)(C##_class,#N,#E,C::E)
 /** @} **/
 
-#define PADDR_X(X,T) ((char*)&((T)->X)-(char*)(T))
+#ifdef __cplusplus
 #define PADDR(X) PADDR_X(X,this)
+#endif
 
 /******************************************************************************
  * Exception handling
@@ -1288,14 +1265,8 @@ inline void wunlock(LOCKVAR* lock) { callback->unlock.write(lock); }
 
 #define LOCKED(X,C) {WRITELOCK_OBJECT(X);(C);WRITEUNLOCK_OBJECT(X);} /**< @todo this is deprecated and should not be used anymore */
 
-static unsigned long _nan[] = { 0xffffffff, 0x7fffffff, };
-#ifdef WIN32
-#define NaN (*(double*)&_nan)
-#else// UNIX/LINUX
 #include <math.h>
 #define NaN NAN
-#endif
-
 
 #ifdef __cplusplus
 
@@ -1994,7 +1965,7 @@ public: // external accessors
 public: // core interface
 	inline int set_dependent(OBJECT *obj) { return callback->object.set_dependent(my(),obj); };
 	inline int set_parent(OBJECT *obj) { return callback->object.set_parent(my(),obj); };
-	inline int set_rank(unsigned int r) { return callback->object.set_rank(my(),r); };
+	inline OBJECTRANK set_rank(unsigned int r) { return callback->object.set_rank(my(),r); };
 	inline bool isa(const char *type) { return callback->object_isa(my(),type) ? true : false; };
 	inline bool is_valid(void) { return my()!=NULL && my()==OBJECTHDR(this); };
 
@@ -2343,7 +2314,7 @@ public:
 	inline int get_status(void) { return result->status; };
 };
 ////////////////////////////////////////////////////////////////////////////////////
-// Module-Core Linkage Export Macros
+// Module-Core Linkage Macros
 ////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef DLMAIN
@@ -2356,16 +2327,16 @@ set module_message_flags = MMF_ALL;
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-EXPORT int gld_major=MAJOR, gld_minor=MINOR; 
+int gld_major=MAJOR, gld_minor=MINOR; 
 BOOL APIENTRY DllMain(HANDLE h, DWORD r) { if (r==DLL_PROCESS_DETACH) do_kill(h); return TRUE; }
 
 #else // !WIN32
 
-CDECL int gld_major=MAJOR, gld_minor=MINOR; 
-CDECL int dllinit() __attribute__((constructor));
-CDECL int dllkill() __attribute__((destructor));
-CDECL int dllinit() { return 0; }
-CDECL int dllkill() { return do_kill(NULL); }
+int gld_major=MAJOR, gld_minor=MINOR; 
+int dllinit() __attribute__((constructor));
+int dllkill() __attribute__((destructor));
+int dllinit() { return 0; }
+int dllkill() { return do_kill(NULL); }
 
 #endif // !WIN32
 
@@ -2554,7 +2525,7 @@ public:
 					{"set", (void**)&set},
 					{"get", (void**)&get},
 				};
-				int n;
+				size_t n;
 				for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )
 				{
 					strcpy(fname,name);
@@ -2581,7 +2552,7 @@ inline int method_extract(char *value, va_list args)
 	size_t size = va_arg(args,size_t);
 	int offset = va_arg(args,int);
 	char *delims = va_arg(args,char*);
-	int len = strcspn(value+offset,delims);
+	size_t len = strcspn(value+offset,delims);
 	if ( len < size ) // result will fit in buffer
 	{
 		strncpy(buffer,value+offset,len);

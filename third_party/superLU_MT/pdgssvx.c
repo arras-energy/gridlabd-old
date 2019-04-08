@@ -370,7 +370,6 @@ pdgssvx(int nprocs, superlumt_options_t *superlumt_options, SuperMatrix *A,
  *
  */
 
-    NCformat  *Astore;
     DNformat  *Bstore, *Xstore;
     double    *Bmat, *Xmat;
     int       ldb, ldx, nrhs;
@@ -380,7 +379,7 @@ pdgssvx(int nprocs, superlumt_options_t *superlumt_options, SuperMatrix *A,
     char      norm[1];
     trans_t   trant;
     int       i, j, info1;
-    double amax, anorm, bignum, smlnum, colcnd, rowcnd, rcmax, rcmin;
+    double amax, anorm, bignum=0, smlnum=0, colcnd, rowcnd, rcmax, rcmin;
     int       n, relax, panel_size;
     Gstat_t   Gstat;
     double    t0;      /* temporary time */
@@ -391,7 +390,6 @@ pdgssvx(int nprocs, superlumt_options_t *superlumt_options, SuperMatrix *A,
     extern double dlangs(char *, SuperMatrix *);
     extern double dlamch_(char *);
 
-    Astore = A->Store;
     Bstore = B->Store;
     Xstore = X->Store;
     Bmat   = Bstore->nzval;

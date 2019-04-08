@@ -1095,7 +1095,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 {
 	char temp[1024];
-	int len = 0;
+	size_t len = 0;
 	GLOBALVAR *var = NULL;
 	struct {
 		const char *name;
@@ -1121,7 +1121,7 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 		{"MYSQL",global_true},
 #endif
 	};
-	int i;	
+	size_t i;	
 	if(buffer == NULL){
 		output_error("global_getvar: buffer not supplied");
 		return 0;

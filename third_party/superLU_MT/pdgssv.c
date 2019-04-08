@@ -118,9 +118,9 @@ pdgssv(int nprocs, SuperMatrix *A, int *perm_c, int *perm_r,
  *   
  */
     trans_t  trans;
-    NCformat *Astore;
+
     DNformat *Bstore;
-    SuperMatrix *AA; /* A in NC format used by the factorization routine.*/
+    SuperMatrix *AA = NULL; /* A in NC format used by the factorization routine.*/
     SuperMatrix AC; /* Matrix postmultiplied by Pc */
     int i, n, panel_size, relax;
     fact_t   fact;
@@ -137,7 +137,7 @@ pdgssv(int nprocs, SuperMatrix *A, int *perm_c, int *perm_r,
     /* ------------------------------------------------------------
        Test the input parameters.
        ------------------------------------------------------------*/
-    Astore = A->Store;
+
     Bstore = B->Store;
     *info = 0;
     if ( nprocs <= 0 ) *info = -1;

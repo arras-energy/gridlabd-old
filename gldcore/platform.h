@@ -51,7 +51,7 @@
 	#else
 		#define NATIVE int32	/**< native integer size */
 	#endif
-	static int64 _qnan = 0xffffffffffffffffLL;
-	#define QNAN (*(double*)&_qnan)
+	#include <math.h>
+	#define QNAN NAN
 #endif
 /**@}**/

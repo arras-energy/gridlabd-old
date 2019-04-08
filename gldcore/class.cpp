@@ -368,7 +368,7 @@ const char *class_get_property_typexsdname(PROPERTYTYPE type) /**< the property 
  **/
 PROPERTYTYPE class_get_propertytype_from_typename(char *name) /**< a string containing the name of the property type */
 {
-	int i;
+	size_t i;
 	for (i=0; i<sizeof(property_type)/sizeof(property_type[0]); i++)
 	{
 		if (strcmp(property_type[i].name,name)==0)
@@ -1351,7 +1351,7 @@ int class_get_xsd(CLASS *oclass, /**< a pointer to the class to convert to XSD *
 {
 	size_t n=0;
 	PROPERTY *prop;
-	int i;
+	size_t i;
 	CLASS *oc = oclass;
 	extern KEYWORD oflags[];
 	struct {
@@ -1374,7 +1374,7 @@ int class_get_xsd(CLASS *oclass, /**< a pointer to the class to convert to XSD *
 	n += buffer_write(buffer+n, len-n, "<xs:element name=\"%s\">\n", oclass->name);
 	n += buffer_write(buffer+n, len-n, "\t<xs:complexType>\n");
 	n += buffer_write(buffer+n, len-n, "\t\t<xs:all>\n");
-	for (i=0; i < sizeof(attribute) / sizeof(attribute[0]); i++)
+	for ( i = 0 ; i < sizeof(attribute) / sizeof(attribute[0]) ; i++ )
 	{
 		n += buffer_write(buffer+n, len-n, "\t\t\t<xs:element name=\"%s\">\n", attribute[i].name);
 		n += buffer_write(buffer+n, len-n, "\t\t\t\t<xs:simpleType>\n");

@@ -188,7 +188,7 @@ int line_sensor::init(OBJECT *parent)
 	{
 		double diag[4];
 		cholesky(4,(double*)L,diag);
-		size_t i, j;
+		size_t i;
 		for ( i = 0 ; i < 4 ; i++ )
 		{
 			L[i][i] = diag[i];
