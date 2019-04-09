@@ -10,6 +10,7 @@ lastnodes = []
 timestamp = None
 timezone = "UTC"
 with open('output/volt_dump.csv', 'r') as dumpfile:
+	print("Reading volt_dump...")
 	reader = csv.reader(dumpfile)
 	for row in reader:
 		if row[0].startswith("#") :
@@ -40,13 +41,14 @@ with open('output/volt_dump.csv', 'r') as dumpfile:
 				print("ERROR: ignored row '%s'" % row)
 
 with open('output/voltages.csv','w') as voltages:
+	print("Writing voltages...")
 	writer = csv.writer(voltages)
 	writer.writerow(nodes)
-	for key,values in data.items() :
-		data = [key.strftime("%Y-%m-%dT%H:%M:%S%z")]
-		for value in values:
-			data.append("%g%+gj" % (value.real,value.imag))
-		writer.writerow(data)
+	for key in sorted(data.keys()) :
+		row = [key.strftime("%Y-%m-%dT%H:%M:%S%z")]
+		for value in data[key]:
+			row.append("%g%+gj" % (value.real,value.imag))
+		writer.writerow(row)
 
 headers = ["Timestamp"]
 data = {}
@@ -69,6 +71,7 @@ def to_complex(s) :
 for filename in os.listdir("output") :
 	if filename.startswith("power_dump_") :
 		with open("output/"+filename,"r") as dumpfile :
+			print("Read %s..." % filename)
 			reader = csv.reader(dumpfile)
 			for row in reader:
 				if row[0][0] == '#' :
@@ -84,6 +87,7 @@ for filename in os.listdir("output") :
 					print("%s: error parsing row '%s', values ignored" % (filename,row))
 
 with open("output/powers.csv","w") as powers:
+	print("Writing powers...")
 	writer = csv.writer(powers)
 	writer.writerow(headers)
 	for key,values in data.items() :
