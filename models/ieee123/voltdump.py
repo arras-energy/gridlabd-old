@@ -5,7 +5,7 @@ import re
 import math
 
 data = {}
-nodes = []
+nodes = ["Timestamp"]
 lastnodes = []
 timestamp = None
 timezone = "UTC"
@@ -48,7 +48,7 @@ with open('output/voltages.csv','w') as voltages:
 			data.append("%g%+gj" % (value.real,value.imag))
 		writer.writerow(data)
 
-headers = []
+headers = ["Timestamp"]
 data = {}
 re_complex = re.compile("([+-][0-9]*\\.?[0-9]+|[+-][0-9]+.[0-9]+[eE][0-9]+)([+-][0-9]*\\.?[0-9]+|[+-][0-9]+.[0-9]+[eE][0-9]+)([ijdr])")
 def to_complex(s) :

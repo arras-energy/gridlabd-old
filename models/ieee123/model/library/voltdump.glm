@@ -1,4 +1,4 @@
-script on_term "python voltdump.py";
+script on_commit "python voltdump.py";
 
 object voltdump {
 	filemode "a";
