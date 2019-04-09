@@ -3,24 +3,25 @@
 // Author: DP Chassin
 //
 
-#include "gridlabd.h"
 #include "output.h"
 #include "sanitize.h"
 #include "globals.h"
+#include "random.h"
+#include "object.h"
 
-SET_MYCONTEXT(DMC_SANITIZE)
+// SET_MYCONTEXT(DMC_SANITIZE) // only used if IN_MYCONTEXT is present in this module
 
 typedef struct s_safename {
-	char *name;
-	char *old;
+	const char *name;
+	const char *old;
 	struct s_safename *next;
 } SAFENAME;
 static SAFENAME *safename_list = NULL;
-static char *sanitize_name(OBJECT *obj)
+static const char *sanitize_name(OBJECT *obj)
 {
 	SAFENAME *safe = (SAFENAME*)malloc(sizeof(SAFENAME));
 	if ( !safe ) return NULL;
-	safe->old = obj->name;
+	safe->old = strdup(obj->name);
 	char buffer[1024];
 	sprintf(buffer,"%s%llX",global_sanitizeprefix.get_string(),(unsigned int64)safe);
 	safe->name = object_set_name(obj,buffer);
@@ -35,7 +36,7 @@ static char *sanitize_name(OBJECT *obj)
 
     @returns 0 on success, -2 on error
  **/
-extern "C" int sanitize(int argc, char *argv[])
+int sanitize(void *main, int argc, const char *argv[])
 {
 	OBJECT *obj;
 	FILE *fp;

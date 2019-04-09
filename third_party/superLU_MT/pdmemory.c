@@ -205,7 +205,7 @@ pdgstrf_MemInit(int n, int annz, superlumt_options_t *superlumt_options,
     register int panel_size = superlumt_options->panel_size;
     register int lwork = superlumt_options->lwork;
     void     *work = superlumt_options->work;
-    int      iword, dword, retries = 0;
+    int      iword, dword;
     SCPformat *Lstore;
     NCPformat *Ustore;
     int      *xsup, *xsup_end, *supno;

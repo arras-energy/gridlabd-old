@@ -96,8 +96,8 @@ extern "C" {
 #endif
 
 SCHEDULE *schedule_getnext(SCHEDULE *sch);
-SCHEDULE *schedule_find_byname(char *name);
-SCHEDULE *schedule_create(char *name, char *definition);
+SCHEDULE *schedule_find_byname(const char *name);
+SCHEDULE *schedule_create(const char *name, const char *definition);
 SCHEDULE *schedule_new(void);
 void schedule_add(SCHEDULE *sch);
 int schedule_validate(SCHEDULE *sch, int flags);
@@ -108,8 +108,8 @@ int32 schedule_dtnext(SCHEDULE *sch, SCHEDULEINDEX index);
 TIMESTAMP schedule_sync(SCHEDULE *sch, TIMESTAMP t);
 TIMESTAMP schedule_syncall(TIMESTAMP t);
 int schedule_test(void);
-void schedule_dump(SCHEDULE *sch, char *file, char *mode);
-void schedule_dumpall(char *file);
+void schedule_dump(SCHEDULE *sch, const char *file, const char *mode);
+void schedule_dumpall(const char *file);
 int schedule_createwait(void);
 SCHEDULE *schedule_getfirst(void);
 int schedule_saveall(FILE *fp);

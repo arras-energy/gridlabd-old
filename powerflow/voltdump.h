@@ -29,7 +29,7 @@ public:
 	int create(void);
 	int init(OBJECT *parent);
 	TIMESTAMP commit(TIMESTAMP t);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 
 	void dump(TIMESTAMP t);
 };

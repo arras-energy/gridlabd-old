@@ -48,8 +48,6 @@ private:
 #define complex_set_mag(C,M) (NULL) // TODO
 #define complex_set_arg(C,R) (NULL) // TODO
 #define complex_set_ang(C,D) (NULL) // TODO
-double complex_get_part(void *c, char *name);
-int complex_from_string(void *c, char *str);
 #else
 public:
 	/** Construct a complex number with zero magnitude */
@@ -100,12 +98,27 @@ public:
 	{
 		return r;
 	};
+	inline double Re(double x)
+	{
+		r = x;
+		return r;
+	};
 	inline double & Im(void) /**< access to imaginary part */
 	{
 		return i;
 	};
+	inline double Im(double y)
+	{
+		i = y;
+		return i;
+	};
 	inline CNOTATION & Notation(void) /**< access to notation */
 	{
+		return f;
+	};
+	inline CNOTATION Notation(CNOTATION s)
+	{
+		f = s;
 		return f;
 	};
 	inline double Mag(void) const /**< compute magnitude */
@@ -135,11 +148,20 @@ public:
 		else
 			return PI+atan(i/r);
 	};
+	inline double Ang(void)
+	{
+		return Arg()*180.0/PI;
+	}
 	inline double Arg(double a)  /**< set angle */
 	{
 		SetPolar(Mag(),a,f);
 		return a;
 	};
+	inline double Ang(double a)
+	{
+		SetPolar(Mag(),a*PI/180.0);
+		return a;
+	}
 	inline complex Log(void) const /**< compute log */
 	{ 
 		return complex(log(Mag()),Arg(),f);
@@ -336,6 +358,9 @@ public:
 	inline bool IsFinite(void) { return isfinite(r) && isfinite(i); };
 };
 #endif
+
+int complex_from_string(void *c, const char *str);
+int complex_set_part(void *c, const char *name, const char *value);
 
 #endif
  /**@}**/

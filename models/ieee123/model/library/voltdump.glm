@@ -1,0 +1,83 @@
+script on_term "python voltdump.py";
+
+object voltdump {
+	filemode "a";
+	runtime TS_NEVER;
+	maxcount 3000;
+	filename "output/volt_dump.csv";
+	on_init "mkdir -p output; rm -rf output/power_dump_*.csv output/volt_dump.csv";
+}
+module tape {
+	flush_interval 0;
+}
+
+object multi_recorder {
+	property substation_meter:measured_power, meter_1:measured_power, meter_2:measured_power, meter_3:measured_power, meter_4:measured_power, meter_5:measured_power, meter_6:measured_power, meter_7:measured_power, meter_8:measured_power, meter_9:measured_power, meter_10:measured_power, meter_11:measured_power, meter_12:measured_power, meter_13:measured_power, meter_14:measured_power, meter_15:measured_power, meter_16:measured_power, meter_17:measured_power, meter_18:measured_power, meter_19:measured_power, meter_20:measured_power, meter_21:measured_power, meter_22:measured_power, meter_23:measured_power, meter_24:measured_power, meter_25:measured_power, meter_26:measured_power, meter_27:measured_power, meter_28:measured_power, meter_29:measured_power, meter_30:measured_power;
+	file "output/power_dump_1.csv";
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_31:measured_power, meter_32:measured_power, meter_33:measured_power, meter_34:measured_power, meter_35:measured_power, meter_36:measured_power, meter_37:measured_power, meter_38:measured_power, meter_39:measured_power, meter_40:measured_power, meter_41:measured_power, meter_42:measured_power, meter_43:measured_power, meter_44:measured_power, meter_45:measured_power, meter_46:measured_power, meter_47:measured_power, meter_48:measured_power, meter_49:measured_power, meter_50:measured_power, meter_51:measured_power, meter_52:measured_power, meter_53:measured_power, meter_54:measured_power, meter_55:measured_power, meter_56:measured_power, meter_57:measured_power, meter_58:measured_power, meter_59:measured_power, meter_60:measured_power;
+	file "output/power_dump_2.csv";
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_61:measured_power, meter_62:measured_power, meter_63:measured_power, meter_64:measured_power, meter_65:measured_power, meter_66:measured_power, meter_67:measured_power, meter_68:measured_power, meter_69:measured_power, meter_70:measured_power, meter_71:measured_power, meter_72:measured_power, meter_73:measured_power, meter_74:measured_power, meter_75:measured_power, meter_76:measured_power, meter_77:measured_power, meter_78:measured_power, meter_79:measured_power, meter_80:measured_power, meter_81:measured_power, meter_82:measured_power, meter_83:measured_power, meter_84:measured_power, meter_85:measured_power, meter_86:measured_power, meter_87:measured_power, meter_88:measured_power, meter_89:measured_power, meter_90:measured_power;
+	file "output/power_dump_3.csv";
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_91:measured_power, meter_92:measured_power, meter_93:measured_power, meter_94:measured_power, meter_95:measured_power, meter_96:measured_power, meter_97:measured_power, meter_98:measured_power, meter_99:measured_power, meter_100:measured_power, meter_101:measured_power, meter_102:measured_power, meter_103:measured_power, meter_104:measured_power, meter_105:measured_power, meter_106:measured_power, meter_107:measured_power, meter_108:measured_power, meter_109:measured_power, meter_110:measured_power, meter_111:measured_power, meter_112:measured_power, meter_113:measured_power, meter_114:measured_power, meter_115:measured_power, meter_116:measured_power, meter_117:measured_power, meter_118:measured_power, meter_119:measured_power, meter_120:measured_power;
+	file "output/power_dump_4.csv";
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_121:measured_power, meter_122:measured_power, meter_123:measured_power, meter_124:measured_power, meter_125:measured_power, meter_126:measured_power, meter_127:measured_power, meter_128:measured_power, meter_129:measured_power, meter_130:measured_power, meter_131:measured_power, meter_132:measured_power, meter_133:measured_power, meter_134:measured_power, meter_135:measured_power, meter_136:measured_power, meter_137:measured_power, meter_138:measured_power, meter_139:measured_power, meter_140:measured_power, meter_141:measured_power, meter_142:measured_power, meter_143:measured_power, meter_144:measured_power, meter_145:measured_power, meter_146:measured_power, meter_147:measured_power, meter_148:measured_power, meter_149:measured_power, meter_150:measured_power;
+	file "output/power_dump_5.csv";
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_151:measured_power, meter_152:measured_power, meter_153:measured_power, meter_154:measured_power, meter_155:measured_power, meter_156:measured_power, meter_157:measured_power, meter_158:measured_power, meter_159:measured_power, meter_160:measured_power, meter_161:measured_power, meter_162:measured_power, meter_163:measured_power, meter_164:measured_power, meter_165:measured_power, meter_166:measured_power, meter_167:measured_power, meter_168:measured_power, meter_169:measured_power, meter_170:measured_power, meter_171:measured_power, meter_172:measured_power, meter_173:measured_power, meter_174:measured_power, meter_175:measured_power, meter_176:measured_power, meter_177:measured_power, meter_178:measured_power, meter_179:measured_power, meter_180:measured_power;
+	file "output/power_dump_6.csv";
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_181:measured_power, meter_182:measured_power, meter_183:measured_power, meter_184:measured_power, meter_185:measured_power, meter_186:measured_power, meter_187:measured_power, meter_188:measured_power, meter_189:measured_power, meter_190:measured_power, meter_191:measured_power, meter_192:measured_power, meter_193:measured_power, meter_194:measured_power, meter_195:measured_power, meter_196:measured_power, meter_197:measured_power, meter_198:measured_power, meter_199:measured_power, meter_200:measured_power, meter_201:measured_power, meter_202:measured_power, meter_203:measured_power, meter_204:measured_power, meter_205:measured_power, meter_206:measured_power, meter_207:measured_power, meter_208:measured_power, meter_209:measured_power, meter_210:measured_power;
+	file "output/power_dump_7.csv";
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_211:measured_power, meter_212:measured_power, meter_213:measured_power, meter_214:measured_power, meter_215:measured_power, meter_216:measured_power, meter_217:measured_power, meter_218:measured_power, meter_219:measured_power, meter_220:measured_power, meter_221:measured_power, meter_222:measured_power, meter_223:measured_power, meter_224:measured_power, meter_225:measured_power, meter_226:measured_power, meter_227:measured_power, meter_228:measured_power, meter_229:measured_power, meter_230:measured_power, meter_231:measured_power, meter_232:measured_power, meter_233:measured_power, meter_234:measured_power, meter_235:measured_power, meter_236:measured_power, meter_237:measured_power, meter_238:measured_power, meter_239:measured_power, meter_240:measured_power;
+	file "output/power_dump_8.csv";
+	interval -1;
+}
+object multi_recorder {
+	file "output/power_dump_9.csv";
+	property meter_241:measured_power, meter_242:measured_power, meter_243:measured_power, meter_244:measured_power, meter_245:measured_power, meter_246:measured_power, meter_247:measured_power, meter_248:measured_power, meter_249:measured_power, meter_250:measured_power, meter_251:measured_power, meter_252:measured_power, meter_253:measured_power, meter_254:measured_power, meter_255:measured_power, meter_256:measured_power, meter_257:measured_power, meter_258:measured_power, meter_259:measured_power, meter_260:measured_power, meter_261:measured_power, meter_262:measured_power, meter_263:measured_power, meter_264:measured_power, meter_265:measured_power, meter_266:measured_power, meter_267:measured_power, meter_268:measured_power, meter_269:measured_power, meter_270:measured_power;
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_271:measured_power, meter_272:measured_power, meter_273:measured_power, meter_274:measured_power, meter_275:measured_power, meter_276:measured_power, meter_277:measured_power, meter_278:measured_power, meter_279:measured_power, meter_280:measured_power, meter_281:measured_power, meter_282:measured_power, meter_283:measured_power, meter_284:measured_power, meter_285:measured_power, meter_286:measured_power, meter_287:measured_power, meter_288:measured_power, meter_289:measured_power, meter_290:measured_power, meter_291:measured_power, meter_292:measured_power, meter_293:measured_power, meter_294:measured_power, meter_295:measured_power, meter_296:measured_power, meter_297:measured_power, meter_298:measured_power, meter_299:measured_power, meter_300:measured_power;
+	file "output/power_dump_10.csv";
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_301:measured_power, meter_302:measured_power, meter_303:measured_power, meter_304:measured_power, meter_305:measured_power, meter_306:measured_power, meter_307:measured_power, meter_308:measured_power, meter_309:measured_power, meter_310:measured_power, meter_311:measured_power, meter_312:measured_power, meter_313:measured_power, meter_314:measured_power, meter_315:measured_power, meter_316:measured_power, meter_317:measured_power, meter_318:measured_power, meter_319:measured_power, meter_320:measured_power, meter_321:measured_power, meter_322:measured_power, meter_323:measured_power, meter_324:measured_power, meter_325:measured_power, meter_326:measured_power, meter_327:measured_power, meter_328:measured_power, meter_329:measured_power, meter_330:measured_power;
+	file "output/power_dump_11.csv";
+	interval -1;
+}
+
+object multi_recorder {
+	property meter_331:measured_power, meter_332:measured_power, meter_333:measured_power, meter_334:measured_power, meter_335:measured_power, meter_336:measured_power, meter_337:measured_power, meter_338:measured_power, meter_339:measured_power, meter_340:measured_power, meter_341:measured_power, meter_342:measured_power, meter_343:measured_power, meter_344:measured_power;
+	file "output/power_dump_12.csv";
+	interval -1;
+}

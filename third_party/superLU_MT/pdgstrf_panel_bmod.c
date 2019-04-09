@@ -433,6 +433,7 @@ if ( jcol==BADCOL )
 
 }
 
+#ifdef UNUSED_FUNCTION
 static int
 check_panel_dfs_list(int pnum, char *msg, int jcol, int nseg, int *segrep)
 {
@@ -446,3 +447,4 @@ check_panel_dfs_list(int pnum, char *msg, int jcol, int nseg, int *segrep)
     fflush(stdout);
     return 0;
 }
+#endif

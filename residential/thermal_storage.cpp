@@ -23,8 +23,8 @@
 // Default schedules - enacted if not driven externall
 //////////////////////////////////////////////////////////////////////////
 struct s_thermal_default_schedule_list {
-	char *schedule_name;
-	char *schedule_definition;
+	const char *schedule_name;
+	const char *schedule_definition;
 } thermal_default_schedule_list[] =
 {
 	{	"thermal_storage_discharge_default", 
@@ -169,7 +169,7 @@ int thermal_storage::init(OBJECT *parent)
 	thermal_storage_active = &house_lnk->thermal_storage_inuse;
 
 	//Check the cooling capacity
-	if (*design_cooling_capacity == NULL)
+	if ( design_cooling_capacity == NULL )
 	{
 		gl_warning("\'design_cooling_capacity\' not specified in parent ~ default to 5 ton or 60,000 Btu/hr");
 		/* TROUBLESHOOT
@@ -302,7 +302,6 @@ int thermal_storage::isa(char *classname)
 
 TIMESTAMP thermal_storage::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	double val = 0.0;
 	TIMESTAMP t2 = TS_NEVER;
 	next_timestep = TS_NEVER;
 	double actual_recharge_power;

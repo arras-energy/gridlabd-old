@@ -46,7 +46,6 @@ private:
 	double std_air_press;
 	complex *pCircuit_V;		//< pointer to the three voltages on three lines
 	complex *pLine_I;			//< pointer to the three current on three lines
-	bool last_NR_mode;		//Toggle to keep track of last NR mode - needed to differentiate between FBS and NR
 	
 protected:
 	/* TODO: put unpublished but inherited variables */
@@ -150,7 +149,7 @@ public:
 
 public:
 	/* required implementations */
-	bool *get_bool(OBJECT *obj, char *name);
+	bool *get_bool(OBJECT *obj, const char *name);
 	windturb_dg(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
@@ -163,7 +162,7 @@ public:
 public:
 	static CLASS *oclass;
 	static windturb_dg *defaults;
-	complex *get_complex(OBJECT *obj, char *name);
+	complex *get_complex(OBJECT *obj, const char *name);
 	static CLASS *pclass;
 };
 #endif

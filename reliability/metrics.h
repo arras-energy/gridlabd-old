@@ -47,8 +47,8 @@ private:
 
 	TIMESTAMP curr_time;	//Time tracking variable
 	
-	double *get_metric(OBJECT *obj, char *name);	//Function to extract address of double value (metric)
-	bool *get_outage_flag(OBJECT *obj, char *name);	//Function to extract address of outage flag
+	double *get_metric(OBJECT *obj, const char *name);	//Function to extract address of double value (metric)
+	bool *get_outage_flag(OBJECT *obj, const char *name);	//Function to extract address of outage flag
 public:
 	static bool report_event_log;
 
@@ -66,8 +66,8 @@ public:
 	double metric_interval_dbl;
 	double report_interval_dbl;
 	void *Extra_Data;		//Pointer to extra data array - if needed
-	void event_ended(OBJECT *event_obj,OBJECT *fault_obj,OBJECT *faulting_obj,TIMESTAMP event_start_time,TIMESTAMP event_end_time,char *fault_type,char *impl_fault,int number_customers_int);
-	void event_ended_sec(OBJECT *event_obj,OBJECT *fault_obj,OBJECT *faulting_obj,TIMESTAMP event_start_time,TIMESTAMP event_end_time,char *fault_type,char *impl_fault,int number_customers_int, int number_customers_int_secondary);
+	void event_ended(OBJECT *event_obj,OBJECT *fault_obj,OBJECT *faulting_obj,TIMESTAMP event_start_time,TIMESTAMP event_end_time,const char *fault_type,const char *impl_fault,int number_customers_int);
+	void event_ended_sec(OBJECT *event_obj,OBJECT *fault_obj,OBJECT *faulting_obj,TIMESTAMP event_start_time,TIMESTAMP event_end_time,const char *fault_type,const char *impl_fault,int number_customers_int, int number_customers_int_secondary);
 	int get_interrupted_count(void);
 	void get_interrupted_count_secondary(int *in_outage, int *in_outage_secondary);
 	void write_metrics(void);

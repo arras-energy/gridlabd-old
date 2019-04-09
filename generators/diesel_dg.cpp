@@ -712,6 +712,9 @@ int diesel_dg::create(void)
 	frequency_deviation_energy = 0;
 	frequency_deviation_max = 0;
 
+	dg_1000_a = 0.067;	// Parameter to calculate fuel usage (gal)based on VA power output (for 1000 kVA rating dg)
+	dg_1000_b = 6.5544;	// Parameter to calculate fuel usage (gal)based on VA power output (for 1000 kVA rating dg)
+
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -731,7 +734,7 @@ int diesel_dg::init(OBJECT *parent)
 	// construct circuit variable map to meter -- copied from 'House' module
 	struct {
 		complex **var;
-		char *varname;
+		const char *varname;
 	} map[] = {
 		// local object name,	meter object name
 		{&pCircuit_V,			"voltage_A"}, // assumes 2 and 3 follow immediately in memory
@@ -740,7 +743,7 @@ int diesel_dg::init(OBJECT *parent)
 	};
 
 	static complex default_line123_voltage[3], default_line1_current[3];
-	int i;
+	size_t i;
 
 	//Set the deltamode flag, if desired
 	if ((obj->flags & OF_DELTAMODE) == OF_DELTAMODE)
@@ -790,7 +793,7 @@ int diesel_dg::init(OBJECT *parent)
 		}
 
 		//Map phases
-		set *phaseInfo;
+		set *phaseInfo = NULL;
 		PROPERTY *tempProp;
 		tempProp = gl_get_property(parent,"phases");
 
@@ -852,7 +855,6 @@ int diesel_dg::init(OBJECT *parent)
 	{
 		if (Gen_mode==UNKNOWN)
 		{
-			OBJECT *obj = OBJECTHDR(this);
 			GL_THROW("Generator control mode is not specified");
 			/*  TROUBLESHOOT
 			The generator is in the mode of UNKNOWN.  Please change this mode and try again.
@@ -1323,7 +1325,7 @@ TIMESTAMP diesel_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 	TIMESTAMP tret_value;
 	double vdiff;
 	double voltage_mag_curr;
-	double real_diff;     // Temporary variable representing difference between reference real power and actual real power output
+	double real_diff = 0.0;     // Temporary variable representing difference between reference real power and actual real power output
 	double reactive_diff; // Temporary variable representing difference between reference reactive power and actual reactive power output
 	complex temp_power_val[3];
 
@@ -1568,13 +1570,9 @@ TIMESTAMP diesel_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 		if (Gen_type == SYNCHRONOUS)	
 		{											//sg ef mode is not working yet
-			double Mxef, Mnef, PoutA, PoutB, PoutC, QoutA, QoutB, QoutC;
+			double PoutA, PoutB, PoutC, QoutA, QoutB, QoutC;
 			complex SoutA, SoutB, SoutC;
 			complex lossesA, lossesB, lossesC;
-
-			Mxef = Max_Ef * Rated_V/sqrt(3.0);
-			Mnef = Min_Ef * Rated_V/sqrt(3.0);
-
 			
 			if (Gen_mode == CONSTANTE)	//Ef is controllable to give a needed power output.
 			{
@@ -1880,7 +1878,7 @@ TIMESTAMP diesel_dg::postsync(TIMESTAMP t0, TIMESTAMP t1)
 }
 
 //Retrieves the pointer for a complex variable from another object
-complex *diesel_dg::get_complex(OBJECT *obj, char *name)
+complex *diesel_dg::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)
@@ -1889,7 +1887,7 @@ complex *diesel_dg::get_complex(OBJECT *obj, char *name)
 }
 
 //Retrieves the pointer for a double variable from another object
-double *diesel_dg::get_double(OBJECT *obj, char *name)
+double *diesel_dg::get_double(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_double)
@@ -3192,7 +3190,6 @@ STATUS diesel_dg::apply_dynamics(MAC_STATES *curr_time, MAC_STATES *curr_delta, 
 	double temp_double_1, temp_double_2, temp_double_3, delomega, x0; 
 	double torquenow, x5a_now;
 	complex temp_current_val[3];
-	double diff_f, temp_Vfd;
 
 	//Convert current as well
 	current_pu[0] = (IGenerated[0] - generator_admittance[0][0]*pCircuit_V[0] - generator_admittance[0][1]*pCircuit_V[1] - generator_admittance[0][2]*pCircuit_V[2])/current_base;

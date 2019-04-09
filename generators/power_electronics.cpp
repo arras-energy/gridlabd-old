@@ -22,7 +22,6 @@
 CLASS *power_electronics::oclass = NULL;
 power_electronics *power_electronics::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 power_electronics::power_electronics(){}
@@ -442,7 +441,8 @@ int power_electronics::init(OBJECT *parent)
 		}
 
 
-	return 1; /* return 1 on success, 0 on failure */
+	return 1; // return 1 on success, 0 on failure
+	*/
 
 	return 1;
 }

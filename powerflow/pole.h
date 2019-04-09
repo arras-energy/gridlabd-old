@@ -35,7 +35,6 @@ public:
 	static CLASS *pclass;
 public:
 	enum {PT_WOOD=0, PT_STEEL=1, PT_CONCRETE=2};
-	enumeration pole_type;
 	enum {PS_OK=0, PS_FAILED=1,};
 	enumeration pole_status;
 	double tilt_angle;
@@ -44,9 +43,10 @@ public:
 	object configuration;
 	double equipment_area;		// (see Section E)
 	double equipment_height;	// (see Section E)
+	double degradation_rate;
+	int install_year; // year pole was installed
 private:
 	double ice_thickness;
-	double wind_loading;
 	double resisting_moment; 	// (see Section B)
 	double pole_moment;		// (see Section D)
 	double pole_moment_nowind; // wire moment without the wind component for wind speed at failure calc
@@ -58,7 +58,6 @@ private:
 	double wire_moment_nowind; // wire moment without the wind component for wind speed at failure calc
 	double wind_pressure;		// (see Section D)
 	double wire_tension;	// (see Section G)
-	double wire_tension_nowind; // wire moment without the wind component for wind speed at failure calc
 	double pole_stress;	// ratio of total to resisting moment
 	double pole_stress_polynomial_a; //polynomial components of pole stress function
 	double pole_stress_polynomial_b; //polynomial components of pole stress function
@@ -66,9 +65,8 @@ private:
 	double susceptibility;	// d(pole_stress)/d(wind_speed)
 	double total_moment;
 	double critical_wind_speed;
-	double wind_pressure_failure;
-	object cable_configuration;
 	bool is_deadend;
+	double current_hollow_diameter;
 private:
 	pole_configuration *config;
 	double last_wind_speed;

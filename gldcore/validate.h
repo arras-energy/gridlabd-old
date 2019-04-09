@@ -36,7 +36,7 @@ typedef enum {
 extern "C" {
 #endif
 
-int validate(int argc, char *argv[]);
+int validate(void *main, int argc, const char *argv[]);
 
 #ifdef __cplusplus
 }

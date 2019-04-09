@@ -36,7 +36,7 @@ extern "C" {
 	int random_init(void);
 	int random_test(void);
 	int randwarn(unsigned int *state);
-	void random_key(unsigned int64 *ptr, size_t len);
+	void random_key(unsigned long long *ptr, size_t len);
 	double randunit(unsigned int *state);
 	double random_degenerate(unsigned int *state, double a);
 	double random_uniform(unsigned int *state, double a, double b);
@@ -46,17 +46,17 @@ extern "C" {
 	double random_pareto(unsigned int *state, double base, double gamma);
 	double random_lognormal(unsigned int *state, double gmu, double gsigma);
 	double random_exponential(unsigned int *state, double lambda);
-	double random_functional(char *text);
+	double random_functional(const char *text);
 	double random_beta(unsigned int *state, double alpha, double beta);
 	double random_gamma(unsigned int *state, double alpha, double beta);
 	double random_weibull(unsigned int *state, double l, double k);
 	double random_rayleigh(unsigned int *state, double s);
 	double random_triangle(unsigned int *state, double a, double b);
 	double random_triangle_asy(unsigned int *state, double a, double b, double c);
-	int random_apply(char *group_expression, char *property, RANDOMTYPE type, ...);
-	RANDOMTYPE random_type(char *name);
-	int random_nargs(char *name);
-	double random_value(RANDOMTYPE type, ...);
+	int random_apply(const char *group_expression, const char *property, int type, ...);
+	RANDOMTYPE random_type(const char *name);
+	int random_nargs(const char *name);
+	double random_value(int type, ...);
 	double pseudorandom_value(RANDOMTYPE, unsigned int *state, ...);
 #ifdef __cplusplus
 }
@@ -77,20 +77,28 @@ struct s_randomvar {
 	randomvar *next;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 int randomvar_update(randomvar *var);
-int randomvar_create(randomvar *var);
+int randomvar_create(void *ptr);
 int randomvar_init(randomvar *var);
 int randomvar_initall(void);
 TIMESTAMP randomvar_sync(randomvar *var, TIMESTAMP t1);
 TIMESTAMP randomvar_syncall(TIMESTAMP t1);
-int convert_to_randomvar(char *string, void *data, PROPERTY *prop);
+int convert_to_randomvar(const char *string, void *data, PROPERTY *prop);
 int convert_from_randomvar(char *string,int size,void *data, PROPERTY *prop);
 unsigned int64 random_id(void);
-double random_get_part(void *x, char *name);
-int random_set_part(void *x, char *name, char *value);
+double random_get_part(void *x, const char *name);
+int random_set_part(void *x, const char *name, const char *value);
 unsigned entropy_source(void);
 randomvar *randomvar_getnext(randomvar *var);
 size_t randomvar_getspec(char *str, size_t size, const randomvar *var);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

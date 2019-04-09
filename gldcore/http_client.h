@@ -13,15 +13,15 @@
 #define int64 __int64
 #endif
 #else
-	#include <sys/types.h>
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <arpa/inet.h>
-	#include <unistd.h>
-	#include <sys/errno.h>
-	#include <netdb.h>
-	#define SOCKET int
-	#define INVALID_SOCKET (-1)
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/errno.h>
+#include <netdb.h>
+#define SOCKET int
+#define INVALID_SOCKET (-1)
 #endif
 
 typedef struct s_http {
@@ -46,14 +46,14 @@ typedef struct s_http_result
 extern "C" {
 #endif
 
-HTTP* hopen(char *url, int maxlen);
+HTTP* hopen(const char *url, int maxlen);
 int hclose(HTTP*http);
 size_t hread(char *buffer, size_t size, HTTP* http);
 
-HTTPRESULT *http_read(char *url, int maxlen); 
+HTTPRESULT *http_read(const char *url, int maxlen); 
 void http_delete_result(HTTPRESULT *result);
 HTTPRESULT *http_new_result(void);
-int http_saveas(char *url, char *file);
+int http_saveas(const char *url, const char *file);
 
 #ifdef __cplusplus
 }

@@ -34,7 +34,7 @@ load_tracker::load_tracker(MODULE *mod)
 	}
 }
 
-int load_tracker::isa(char *classname)
+int load_tracker::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"load_tracker")==0;
 }
@@ -102,6 +102,8 @@ int load_tracker::init(OBJECT *parent)
 		break;
 	case PT_int64:
 		pointer.i64 = gl_get_int64_by_name(target, target_prop.get_string());
+		break;
+	default:
 		break;
 	}
 
@@ -190,6 +192,8 @@ void load_tracker::update_feedback_variable()
 		case PT_int64:
 			feedback = (double)(*(pointer.i64));
 			break;
+		default:
+			break;
 		}
 	//Unlock
 	READUNLOCK_OBJECT(target);
@@ -277,7 +281,7 @@ TIMESTAMP load_tracker::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	return TS_NEVER;
 }
 
-EXPORT int isa_load_tracker(OBJECT *obj, char *classname)
+EXPORT int isa_load_tracker(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,load_tracker)->isa(classname);
 }

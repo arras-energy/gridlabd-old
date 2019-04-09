@@ -186,7 +186,7 @@ link_object::link_object(MODULE *mod) : powerflow_object(mod)
 	}
 }
 
-int link_object::isa(char *classname)
+int link_object::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"link")==0 || powerflow_object::isa(classname);
 }
@@ -221,7 +221,7 @@ int link_object::create(void)
 
 	current_in[0] = current_in[1] = current_in[2] = complex(0,0);
 
-	link_limits[0][0] = link_limits[0][1] = link_limits[0][2] = link_limits[1][0] = link_limits[1][2] = link_limits[1][3] = NULL;
+	link_limits[0][0] = link_limits[0][1] = link_limits[0][2] = link_limits[1][0] = link_limits[1][1] = link_limits[1][2] = NULL;
 	
 	link_rating[0][0] = link_rating[0][1] = link_rating[0][2] = 1000;	//Replicates current defaults of line objects
 	link_rating[1][0] = link_rating[1][1] = link_rating[1][2] = 2000;
@@ -891,11 +891,10 @@ void link_object::NR_link_presync_fxn(void)
 	bool require_inrush_update, transf_from_stdy_state;
 	complex work_matrix_A[6][6], work_matrix_B[6][6], work_matrix_C[6][6];
 	complex work_matrix_D[3][3],work_matrix_E[3][3],work_matrix_F[3][3];
-	complex work_matrix_G[6][6], work_matrix_H[6][6], work_matrix_I[6][6];
-	complex work_vector_A[6], work_vector_B[6], work_vector_C[6];
+	complex work_vector_A[6], work_vector_C[6];
 	complex work_vector_D[3];
 	complex temp_value_A, temp_value_B;
-	char jindex, kindex;
+	size_t jindex, kindex;
 	FUNCTIONADDR transformer_calc_function;	
 
 	//See if a frequency dependence is desired -- if so, update it
@@ -2114,7 +2113,7 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 			unsigned int *LinkTableLoc = NULL;
 			unsigned int TempTableIndex;
 			unsigned char working_phase;
-			char *temp_phase;
+			const char *temp_phase;
 			int IndVal = 0;
 			int resultval;
 			bool *temp_empty;
@@ -2702,18 +2701,16 @@ TIMESTAMP link_object::sync(TIMESTAMP t0)
 	fNode=OBJECTDATA(from,node);
 	tNode=OBJECTDATA(to,node);
 #endif
-	OBJECT *obj = OBJECTHDR(this);
 
 	if (is_closed())
 	{
 		if (solver_method==SM_FBS)
 		{
-			node *f;
-			node *t;
-			set reverse = get_flow(&f,&t);
+			node *f = OBJECTDATA(from,node);
+			node *t = OBJECTDATA(to,node);
 
 #ifdef SUPPORT_OUTAGES
-			tNode->condition=fNode->condition;
+			tNode->condition =fNode->condition;
 #endif
 			/* compute currents */
 			READLOCK_OBJECT(to);
@@ -3051,11 +3048,10 @@ TIMESTAMP link_object::postsync(TIMESTAMP t0)
 	TIMESTAMP TRET=TS_NEVER;
 	//double temp_power_check;
 
-	if ((solver_method==SM_FBS))
+	if ( solver_method == SM_FBS )
 	{
-		node *f;
-		node *t; //@# make else/if statement for solver method NR; & set current_out->to t->node current_inj;
-		set reverse = get_flow(&f,&t);
+		node *f = OBJECTDATA(from,node);;
+		node *t = OBJECTDATA(to,node);; //@# make else/if statement for solver method NR; & set current_out->to t->node current_inj;
 
 		// update published current_out values;
 		READLOCK_OBJECT(to);
@@ -3199,7 +3195,6 @@ int link_object::kmldump(int (*stream)(const char*,...))
 			"<TH WIDTH=\"25%\" COLSPAN=2 ALIGN=CENTER><NOBR>Phase B</NOBR><HR></TH>"
 			"<TH WIDTH=\"25%\" COLSPAN=2 ALIGN=CENTER><NOBR>Phase C</NOBR><HR></TH></TR>\n", get_oclass()->get_name(), get_id());
 
-	int status = 2; // green
 #define HANDLE_EX(X,Y)if ( gl_object_isa(my(),Y) ) status = ((X*)this)->kmldata(stream); else
 #define HANDLE(X) HANDLE_EX(X,#X)
 	HANDLE_EX(switch_object,"switch")
@@ -3208,8 +3203,6 @@ int link_object::kmldump(int (*stream)(const char*,...))
 	HANDLE(meter)
 	{
 		// values
-		node *pFrom = OBJECTDATA(from,node);
-		node *pTo = OBJECTDATA(to,node);
 		int phase[3] = {has_phase(PHASE_A),has_phase(PHASE_B),has_phase(PHASE_C)};
 		complex flow[3];
 		complex current[3];
@@ -3389,7 +3382,7 @@ EXPORT TIMESTAMP sync_link(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	SYNC_CATCHALL(link);
 }
 
-EXPORT int isa_link(OBJECT *obj, char *classname)
+EXPORT int isa_link(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,link_object)->isa(classname);
 }
@@ -3404,7 +3397,7 @@ EXPORT SIMULATIONMODE interupdate_link(OBJECT *obj, unsigned int64 delta_time, u
 		status = my->inter_deltaupdate_link(delta_time,dt,iteration_count_val,interupdate_pos);
 		return status;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("interupdate_link(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;
@@ -4661,7 +4654,7 @@ void link_object::calculate_power_splitphase()
 	{
 		// A little different for split-phase transformers since it goes from one phase to three indiv. powers
 		// We'll treat "power losses" in the ABC sense, not phase 123.
-		int j;
+		int j = -1;
 		if (has_phase(PHASE_A))
 			j = 0;
 		else if (has_phase(PHASE_B))
@@ -4788,7 +4781,7 @@ void link_object::calculate_power()
 }
 
 //Retrieve value of a double
-double *link_object::get_double(OBJECT *obj, char *name)
+double *link_object::get_double(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_double)
@@ -4831,11 +4824,11 @@ double *link_object::get_double(OBJECT *obj, char *name)
 // 30 - FUS-AC or FUS-CA - Fuse action CA
 // 31 - FUS-ABC - Fuse action ABC
 // 32 - TLL - all lines fault - phases A, B, and C
-int link_object::link_fault_on(OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
+int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
 {
 	unsigned char phase_remove = 0x00;	//Default is no phases removed
 	unsigned char rand_phases,temp_phases, work_phases;			//Working variable
-	char numphase, phaseidx;
+	size_t numphase, phaseidx;
 	double randval, ext_result_dbl;
 	double tempphase[3];
 	double *temp_double_val;
@@ -4846,7 +4839,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, char *fault_type, int *impl
 	OBJECT *tmpobj;
 	FUNCTIONADDR funadd = NULL;
 	double *Recloser_Counts;
-	double type_fault;
+	double type_fault = 0.0;
 	bool switch_val;
 	complex C_mat[7][7];
 	int64 pf_resultval;
@@ -10526,13 +10519,12 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 {
 	unsigned char phase_restore = 0x00;	//Default is no phases restored
 	unsigned char temp_phases, temp_phases_B, work_phases;			//Working variable
-	char phaseidx, indexval;
+	size_t phaseidx, indexval;
 	int temp_node, ext_result;
 	double ext_result_dbl;
 	OBJECT *objhdr = OBJECTHDR(this);
 	OBJECT *tmpobj;
 	FUNCTIONADDR funadd = NULL;
-	double *Recloser_Counts;
 	bool switch_val;
 
 	//Check our operations mode
@@ -10542,7 +10534,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 		switch_val = false;
 
 		//Link up recloser counts for manipulation
-		Recloser_Counts = (double *)Extra_Data;
+		// Recloser_Counts = (double *)Extra_Data;
 
 		//Less logic here - just undo what we did before - find the fault type and clear it out
 		switch (*implemented_fault)
@@ -11553,7 +11545,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 		switch_val = false;
 
 		//Link up recloser counts for manipulation
-		Recloser_Counts = (double *)Extra_Data;
+		// Recloser_Counts = (double *)Extra_Data;
 
 		//Less logic here - just undo what we did before - find the fault type and clear it out
 		switch (*implemented_fault)
@@ -12732,7 +12724,6 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 	int temp_branch_fc, temp_node, current_branch, temp_connection_type;;
 	unsigned int temp_table_loc;
 	unsigned char temp_branch_phases;
-	char *temp_branch_name;
 	OBJECT *temp_transformer, **temp_transformer_configuration;
 	PROPERTY *temp_trans_config, *temp_con_typ;
 	double temp_v_ratio;
@@ -12748,10 +12739,6 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 	complex A_t[3][3];
     complex d_t[3][3];
 	complex IP[7];
-	complex L[7][7];
-	complex U[7][7];
-	complex zz[7];
-	complex xx[7];
 	complex det;
 
 	// zero Z_thevenin !
@@ -12802,7 +12789,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 	while(NR_branchdata[temp_branch_fc].fault_link_below != -1){
 		temp_branch_phases = NR_branchdata[temp_branch_fc].phases & 0x07;
 		if(NR_branchdata[temp_branch_fc].lnk_type == 4){//transformer
-			temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
+			// temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
 			temp_transformer = NR_branchdata[temp_branch_fc].obj;	//get the transformer object
 			if(gl_object_isa(temp_transformer, "transformer", "powerflow")){ // tranformer
 				temp_trans_config = gl_get_property(temp_transformer,"configuration");//get pointer to the configuration property
@@ -12953,7 +12940,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 	//include the faulted link's impedance in the equivalent system impedance
 	temp_branch_phases = removed_phase | NR_branchdata[temp_branch_fc].phases;
 	if(NR_branchdata[temp_branch_fc].lnk_type == 4){//transformer
-		temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
+		// temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
 		temp_transformer = NR_branchdata[temp_branch_fc].obj;//get the transformer object
 		if(gl_object_isa(temp_transformer, "transformer", "powerflow")){ // tranformer
 			temp_trans_config = gl_get_property(temp_transformer,"configuration");//get pointer to the configuration property
@@ -13221,7 +13208,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 	while (NR_busdata[temp_node].type != 2)
 	{
 		if(NR_branchdata[temp_branch_fc].lnk_type == 4){//transformer
-			temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
+			// temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
 			temp_transformer = NR_branchdata[temp_branch_fc].obj;//get the transformer object
 			if(gl_object_isa(temp_transformer, "transformer", "powerflow")){ // tranformer
 				temp_trans_config = gl_get_property(temp_transformer,"configuration");//get pointer to the configuration property
@@ -13294,7 +13281,7 @@ void link_object::fault_current_calc(complex C[7][7],unsigned int removed_phase,
 
 	//update the fault current variables in link object connected to the swing bus
 	if(NR_branchdata[temp_branch_fc].lnk_type == 4){//transformer
-		temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
+		// temp_branch_name = NR_branchdata[temp_branch_fc].name;//get the name of the transformer object
 		temp_transformer = NR_branchdata[temp_branch_fc].obj;//get the transformer object
 		if(gl_object_isa(temp_transformer, "transformer", "powerflow")){ // tranformer
 			temp_trans_config = gl_get_property(temp_transformer,"configuration");//get pointer to the configuration property

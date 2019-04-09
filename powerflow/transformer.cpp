@@ -84,7 +84,7 @@ transformer::transformer(MODULE *mod) : link_object(mod)
     }
 }
 
-int transformer::isa(char *classname)
+int transformer::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"transformer")==0 || link_object::isa(classname);
 }
@@ -111,18 +111,22 @@ int transformer::create()
 	return result;
 }
 
-void transformer::fetch_double(double **prop, char *name, OBJECT *parent){
+void transformer::fetch_double(double **prop, const char *name, OBJECT *parent){
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_double_by_name(parent, name);
 	if(*prop == NULL){
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "transformer:%i", hdr->id);
-		if(*name == NULL)
+		if( name == NULL )
+		{
 			sprintf(msg, "%s: transformer unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: transformer unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
@@ -150,7 +154,7 @@ int transformer::init(OBJECT *parent)
 		return 2; // defer
 	}
 	double V_base,za_basehi,za_baselo,V_basehi;
-	double sa_base;
+	double sa_base = 0.0;
 	double nt, nt_a, nt_b, nt_c, inv_nt_a, inv_nt_b, inv_nt_c;
 	complex zt, zt_a, zt_b, zt_c, z0, z1, z2, zc;
 	FINDLIST *climate_list = NULL;
@@ -885,9 +889,9 @@ int transformer::init(OBJECT *parent)
 				a_mat[2][2] = (z2*zc+z1*zc+z1*z2*nt*nt);	//z1+z2;
 
 				//Form it into b_mat
-				for (char xindex=0; xindex<3; xindex++)
+				for (size_t xindex=0; xindex<3; xindex++)
 				{
-					for (char yindex=0; yindex<3; yindex++)
+					for (size_t yindex=0; yindex<3; yindex++)
 					{
 						b_mat[xindex][yindex]=a_mat[xindex][yindex]*indet;
 						a_mat[xindex][yindex]=0.0;
@@ -1006,14 +1010,16 @@ int transformer::init(OBJECT *parent)
 				R = config->full_load_loss/config->no_load_loss;
 			} else if(config->impedance.Re()!=0 && config->shunt_impedance.Re()!=0)
 				R = config->impedance.Re()*config->shunt_impedance.Re();
-			if(config->t_W==NULL || config->dtheta_TO_R==NULL){
+			if ( config->t_W == 0.0 || config->dtheta_TO_R == 0.0 )
+			{
 				GL_THROW("winding time constant or rated top-oil hotspot rise for transformer configuration %s must be nonzero",configuration->name);
 				/*  TROUBLESHOOT
 				When using the thermal aging model, the rated_winding_time_constant or the rated_top_oil_rise must be given as a non-zero value.
 				Please specify one or the other in your transformer configuration.
 				*/
 			}
-			if(config->t_W<=0){
+			if ( config->t_W <= 0 )
+			{
 				GL_THROW("%s: transformer_configuration winding time constant must be greater than zero",configuration->name);
 				/*  TROUBLESHOOT
 				When using the thermal aging model, the rated_winding_time_constant must be given as a greater-than-zero value.
@@ -1292,7 +1298,6 @@ int transformer::transformer_inrush_mat_update(void)
 	complex Zo;
 	double A_sat, B_sat, C_sat;
 	complex work_val_cplex;
-	OBJECT *obj = OBJECTHDR(this);
 
 	//Set neutral impedance, arbitrarily
 	Zo = 1e8;
@@ -2043,7 +2048,7 @@ EXPORT int recalc_deltamode_saturation(OBJECT *obj,bool *deltaIsat)
 	return result;
 }
 
-EXPORT int isa_transformer(OBJECT *obj, char *classname)
+EXPORT int isa_transformer(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,transformer)->isa(classname);
 }

@@ -159,7 +159,7 @@ void appliance::update_state(void)
 		double rn = gl_random_uniform(&my()->rng_state,0,1);
 
 		// find the state that correspond to that cumulative probabilities
-		int n;
+		size_t n;
 		for ( n=0 ; n<n_states ; n++ )
 		{
 			rn -= transition_probabilities[n];
@@ -213,7 +213,7 @@ TIMESTAMP appliance::presync(TIMESTAMP t1)
 	return next_t;
 }
 
-int appliance::postnotify(PROPERTY *prop, char *value)
+int appliance::postnotify(PROPERTY *prop, const char *value)
 {
 	// TODO reset state when duration or transition changes
 	return 1;

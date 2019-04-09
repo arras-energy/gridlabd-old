@@ -63,7 +63,7 @@ generator_controller::generator_controller(MODULE *module){
 	}
 }
 
-int generator_controller::isa(char *classname)
+int generator_controller::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"generator_controller")==0;
 }
@@ -318,7 +318,7 @@ int generator_controller::init(OBJECT *parent)
 	submit = (FUNCTIONADDR)(gl_get_function(market_object, "submit_bid_state"));
 	if(submit == NULL){
 		char buf[256];
-		gl_error("Unable to find function, submit_bid_state(), for object %s.", (char *)gl_name(market_object, buf, 255));
+		gl_error("Unable to find function, submit_bid_state(), for object %s.", gl_name(market_object, buf, 255));
 		return 0;
 	}
 
@@ -664,7 +664,6 @@ TIMESTAMP generator_controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	OBJECT *obj = OBJECTHDR(this);
 	int index;
-	int64 bidID_val;
 	double per_phase_power, per_phase_old_power, shutdown_cost_temp, prev_section_power, prev_section_price, temp_time_var, temp_power_value;
 	char mktname[1024];
 	char ctrname[1024];
@@ -1047,7 +1046,7 @@ TIMESTAMP generator_controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 					} else {
 						controller_bid.state = BS_OFF;
 					}
-					((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(obj, ctrname, 1024), (char *)gl_name(market_object, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+					((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))(gl_name(obj, ctrname, 1024), gl_name(market_object, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 					if(controller_bid.bid_accepted == false){
 						return TS_INVALID;
 					}
@@ -1087,7 +1086,7 @@ TIMESTAMP generator_controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 					} else {
 						controller_bid.state = BS_OFF;
 					}
-					((void (*)(char *, char *, char *, char *, void *, size_t))(*submit))((char *)gl_name(obj, ctrname, 1024), (char *)gl_name(market_object, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+					((void (*)(const char *, const char *, const char *, const char *, void *, size_t))(*submit))(gl_name(obj, ctrname, 1024), gl_name(market_object, mktname, 1024), "submit_bid_state", "auction", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 					if(controller_bid.bid_accepted == false){
 						return TS_INVALID;
 					}
@@ -1403,9 +1402,9 @@ void generator_controller::parse_bid_curve(OBJECT *thisobj, TIMESTAMP t0)
 	int index, num_delims, num_entries, result_val;
 	bool last_was_space;
 	char *curr_ptr, *end_ptr;
-	char temp_index;			//Index for temp_char_value
+	size_t temp_index;			//Index for temp_char_value
 	char temp_char_value[33];	//Assumes no number in the bid curve will ever be over 32 characters
-	FILE *FHandle;
+	FILE *FHandle = NULL;
 
 	//See which mode we are in
 	if (curve_file_mode == true)	//File import
@@ -1989,7 +1988,7 @@ EXPORT TIMESTAMP sync_generator_controller(OBJECT *obj, TIMESTAMP t1, PASSCONFIG
 	return t2;
 }
 
-EXPORT int isa_generator_controller(OBJECT *obj, char *classname)
+EXPORT int isa_generator_controller(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,generator_controller)->isa(classname);
 }

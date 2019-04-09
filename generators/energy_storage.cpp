@@ -24,7 +24,6 @@
 CLASS *energy_storage::oclass = NULL;
 energy_storage *energy_storage::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 

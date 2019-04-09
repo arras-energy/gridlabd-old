@@ -24,7 +24,7 @@ histogram *histogram::defaults = NULL;
 // histogram CLASS FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
 
-void new_histogram(MODULE *mod){
+CDECL void new_histogram(MODULE *mod){
 	new histogram(mod);
 }
 
@@ -95,7 +95,7 @@ void eat_white(char **pos){
 */
 int parse_bin_val(char *tok, BIN *bin){
 	char *pos = tok;
-	int low_set = 0, high_set = 0;
+	int low_set = 0;
 	
 	eat_white(&pos);
 
@@ -141,7 +141,7 @@ int parse_bin_val(char *tok, BIN *bin){
 	
 	if(isdigit(*pos)){
 		bin->high_val = strtod(pos, &pos);
-		high_set = 1;
+		// high_set = 1;
 		if(low_set == 0)
 			bin->high_inc = 1;
 	} else {
@@ -199,7 +199,7 @@ void histogram::test_for_complex(char *tprop, char *tpart){
 		else if(0 == memcmp(tpart, "ang", 3)){comp_part = ANG;}
 		else {
 			comp_part = NONE;
-			throw("Unable to resolve complex part for \'%s\'", property.get_string());
+			gl_error("Unable to resolve complex part for '%s'", property.get_string());
 			return;
 		}
 		strtok(property, "."); /* "quickly" replaces the dot with a space */
@@ -217,7 +217,6 @@ int histogram::init(OBJECT *parent)
 	PROPERTY *prop = NULL;
 	OBJECT *obj = OBJECTHDR(this);
 	char tprop[64], tpart[8];
-	int e = 0;
 	TAPEFUNCS *tf = 0;
 	tprop[0]=0;
 	tpart[0] = 0;
@@ -226,7 +225,8 @@ int histogram::init(OBJECT *parent)
 	{
 		OBJECT *group_obj = NULL;
 		CLASS *oclass = NULL;
-		if(group[0] == NULL){
+		if ( group[0] == '\0' )
+		{
 			gl_error("Histogram has no parent and no group");
 			return 0;
 		}
@@ -244,7 +244,8 @@ int histogram::init(OBJECT *parent)
 		/* parse complex part of property */
 		test_for_complex(tprop, tpart);
 	
-		while(group_obj = gl_find_next(group_list, group_obj)){
+		while( (group_obj=gl_find_next(group_list, group_obj)) )
+		{
 			prop = gl_find_property(group_obj->oclass, property.get_string());
 			if(prop == NULL){
 				gl_error("Histogram group is unable to find prop '%s' in class '%s' for group '%s'", property.get_string(), group_obj->oclass->name, group.get_string());
@@ -383,7 +384,8 @@ int histogram::init(OBJECT *parent)
 	return ops->open(this, fname, flags);
 }
 
-int histogram::feed_bins(OBJECT *obj){
+int histogram::feed_bins(OBJECT *obj)
+{
 	double value = 0.0;
 	complex cval = 0.0; //gl_get_complex(obj, ;
 	int64 ival = 0;
@@ -458,6 +460,8 @@ int histogram::feed_bins(OBJECT *obj){
 				}
 			}
 			break;
+		default:
+			break;
 	}
 
 	return 0;
@@ -465,8 +469,6 @@ int histogram::feed_bins(OBJECT *obj){
 
 TIMESTAMP histogram::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	int i = 0;
-	double value = 0.0;
 	OBJECT *obj = OBJECTHDR(this);
 
 	if((sampling_interval == -1.0 && t_count > t1) ||

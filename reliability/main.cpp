@@ -18,3 +18,4 @@ MODULE:reliability
 
 #include <stdlib.h>
 #include "gridlabd.h"
+#include "reliability.h"

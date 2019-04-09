@@ -87,7 +87,7 @@ int mpi_network::init(OBJECT *parent)
 	return 1;
 }
 
-int mpi_network::isa(char *classname){
+int mpi_network::isa(CLASSNAME classname){
 	return strcmp(classname,"mpi_network")==0;
 }
 
