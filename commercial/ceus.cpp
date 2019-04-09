@@ -247,7 +247,7 @@ bool ceus::set_component(const char *enduse, const char *term, double value)
 bool ceus::set_component(COMPONENT *component, const char *term, double value)
 {
 	struct {
-		char *item;
+		const char *item;
 		double &value;
 	} map[] = {
 		{"Zr", component->Zr},
@@ -568,8 +568,8 @@ int ceus::filename(const char *filename)
 	typedef enum {DT_STRING, DT_INTEGER, DT_REAL} DATATYPE;
 #define MAXDATA 32
 	struct s_colspec {
-		char *name;
-		char *format;
+		const char *name;
+		const char *format;
 		DATATYPE type;
 		union {
 			char string[32];
@@ -684,8 +684,8 @@ int ceus::filename(const char *filename)
 			error("ignore extra data in '%s' after '%s'",(const char*)filename,line);
 			fclose(fp);
 		}
-		unsigned int month = map[month_ndx].buffer.integer;
-		unsigned int hour = map[hour_ndx].buffer.integer;
+		// unsigned int month = map[month_ndx].buffer.integer;
+		// unsigned int hour = map[hour_ndx].buffer.integer;
 		for ( n = enduse_ndx ; n < column ; n++ )
 		{
 			map[n].data->data[count] = map[n].buffer.real;

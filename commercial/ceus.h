@@ -125,15 +125,15 @@ public:
 	GL_ATOMIC(double,total_reactive_power);
 	GL_METHOD(ceus,composition);
 private:
-	template<class T> void link_property(T *&ptr, gld_object *obj, char *name)
+	template<class T> void link_property(T *&ptr, gld_object *obj, const char *name)
 	{
 		if ( obj ) link_property(ptr,obj->my(),name);
 	}
-	template<class T> void link_property(T *&ptr, gld_object &obj, char *name)
+	template<class T> void link_property(T *&ptr, gld_object &obj, const char *name)
 	{
 		link_property(ptr,obj.my(),name);
 	}
-	template<class T> void link_property(T *&ptr, OBJECT *obj, char *name, bool no_exception = true)
+	template<class T> void link_property(T *&ptr, OBJECT *obj, const char *name, bool no_exception = true)
 	{
 		if ( ! obj ) return;
 		gld_property prop(obj,name);
