@@ -20,8 +20,8 @@
 
 typedef enum {I='i',J='j',A='d', R='r'} CNOTATION; /**< complex number notation to use */
 #define CNOTATION_DEFAULT J /* never set this to A */
-static double PI = 3.1415926535897932384626433832795;
-static double E = 2.71828182845905;
+#define PI (3.1415926535897932384626433832795)
+#define E (2.71828182845905)
 
 #include <math.h>
 #include "platform.h"
