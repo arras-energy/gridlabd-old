@@ -1,0 +1,355 @@
+///////////////////////////////////////////////////////
+//
+// Simplified Virtual Islanding simulation model
+// Copyright (C) 2016, Stanford University
+// Author: aivanova@slac.stanford.edu
+//
+///////////////////////////////////////////////////////
+
+#define STARTTIME=2018-01-01 00:00:00 PST
+#define STOPTIME=2019-01-01 00:00:00 PST
+
+#define WEATHER=CA-Bakersfield_Meadows_Field.tmy3
+#define TIMEZONE=US/CA/Los Angeles
+
+#ifdef TIMEZONE
+clock {
+	timezone ${TIMEZONE};
+#ifdef STARTTIME
+	starttime ${STARTTIME};
+#endif
+#ifdef STOPTIME
+	stoptime ${STOPTIME};
+#endif
+}
+#else
+#error No timezone specified
+#endif // TIMEZONE
+
+///////////////////////////////////////////////////////
+//
+// WEATHER
+//
+///////////////////////////////////////////////////////
+#ifexist data/${WEATHER}
+module climate;
+object climate {
+        name weather;
+        tmyfile "data/${WEATHER}";
+        interpolate QUADRATIC;
+}
+#else
+#error No weather specified.
+#endif // exist WEATHER
+
+///////////////////////////////////////////////////////
+//
+// POWER SYSTEM MODEL
+//
+///////////////////////////////////////////////////////
+module powerflow {
+	solver_method NR;
+	line_capacitance true;
+	convergence_error_handling IGNORE;
+}
+
+module generators; // ENABLES SOLAR
+module tape;
+
+#ifdef VOLTDUMP
+object voltdump {
+	filename ${VOLTDUMP};
+	group "nodevolts";
+	mode polar;
+}
+#endif // VOLTDUMP
+
+#ifdef CURRDUMP
+object currdump {
+	filename ${CURRDUMP};
+	mode rect;
+}
+#endif // CURRDUMP
+
+//
+// Powerflow component configurations
+//
+
+
+/// OVERHEAD LINE CONDUCTORS
+object overhead_line_conductor {
+	name olc301c;	//336,400 26/7 ACSR
+	geometric_mean_radius 0.0244;
+	resistance 0.306;
+	diameter 0.721;
+}
+/// UNDERGROUND LINE CONDUCTORS
+object underground_line_conductor {
+	name ulc312;	//1/0 AA, CN
+	outer_diameter 1.06;
+	conductor_gmr 0.0111;
+	conductor_diameter 0.368;
+	conductor_resistance 0.97;
+	neutral_gmr 0.00208;
+	neutral_resistance 14.8722;
+	neutral_diameter 0.0640837;
+	neutral_strands 16.0;
+}
+
+//Transformer configurations
+object transformer_configuration {
+	name tc500;
+	connect_type DELTA_DELTA;
+	install_type PADMOUNT;
+	power_rating 150.0 kVA;
+	primary_voltage 4160.0;
+	secondary_voltage 480.0;
+	resistance 0.0127;
+	reactance 0.0272;
+}
+
+// Regulator configs
+object regulator_configuration {
+	name rc501;
+	connect_type WYE_WYE;
+	band_center 2400.000;
+	band_width 40.0;
+	time_delay 30.0;
+	raise_taps 16;
+	lower_taps 16;
+	current_transducer_ratio 700;
+	power_transducer_ratio 20;
+	compensator_r_setting_A 3.0;
+	compensator_x_setting_A 7.5;
+	CT_phase "A";
+	PT_phase "A";
+	regulation 0.10;
+	Control OUTPUT_VOLTAGE;
+	Type A;
+	tap_pos_A 0;
+	tap_pos_B 0;
+	tap_pos_C 0;
+}
+
+
+//
+// Power system topology
+//
+//Pure nodes
+
+object node {
+	name node_001;
+	phases ABCN;
+	bustype SWING;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_002;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+//TF between node 2 and 3
+object node {
+	name node_003;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_101;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_102;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_103;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_201;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_202;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_203;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_301;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_302;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_303;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+
+
+//Pure spot loads
+
+//object load {
+//	name load_1;
+//	groupid nodevolts;
+//	phases ABCN;
+//	constant_power_A 40000.000000+20000.000000j;
+//	nominal_voltage 2401.7771;
+//}
+
+// Lines 
+
+object overhead_line {
+	name line1to2;
+	phases BN;
+	from load_1;
+	to load_2;
+	length 175.00;
+	configuration lc310;
+}
+
+//Capacitors
+
+object capacitor {
+	name cap_83;
+	parent load_83;
+	phases ABC;
+	phases_connected ABC;
+	nominal_voltage 2401.7771;
+	control MANUAL;
+	capacitor_A 200000.0000;
+	capacitor_B 200000.0000;
+	capacitor_C 200000.0000;
+	switchA OPEN;
+	switchB OPEN;
+	switchC OPEN;
+};
+
+
+///////////////////////////////////////////////////////
+//
+// LOAD MODEL
+//
+///////////////////////////////////////////////////////
+module residential;
+object transformer_configuration {
+	name xfmr_config;
+	connect_type SINGLE_PHASE_CENTER_TAPPED;
+	install_type POLETOP;
+	powerA_rating 75;
+	powerB_rating 75;
+	powerC_rating 75;
+	primary_voltage 2401;
+	secondary_voltage 120.000;
+	impedance 0.006+0.0136j;
+}
+
+class solar {
+	double installed;
+}
+
+
+// load/solar connection
+object transformer {
+	name xfrm_1A;
+	phases AS;
+	from load_1;
+	to node_1A;
+	configuration xfmr_config;
+}
+object triplex_node {
+	name node_1A;
+	phases AS;
+	nominal_voltage 120;
+}
+object triplex_meter:..4 { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	groupid load_1;
+	parent node_1A;
+	phases AS;
+	nominal_voltage 120;
+	latitude (load_1.latitude);
+	longitude (load_1.longitude);
+#ifdef LOADS
+	object house { 
+		floor_area random.triangle(1000,2000);
+		name `house_{SEQ_CUSTID}`;
+	}; 
+#endif // LOADS
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases AS;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases AS;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+		};
+	};
+}
+
+
+//
+// Switch coordinator
+//
+object switch_coordinator {
+	name scheme_1;
+	connect sw13to152;
+	connect sw18to135;
+	connect sw54to94;
+	connect sw60to160;
+	connect sw61to6101;
+	connect sw97to197;
+	connect sw151to300;
+	connect sw15001to149;
+	connect sw250to251;
+	connect sw300to350;
+	connect sw450to451;
+	connect sw95to195;
+	object recorder {
+		file "switch_output.csv";
+		property "armed,status";
+		interval -1;
+	};
+
+}
