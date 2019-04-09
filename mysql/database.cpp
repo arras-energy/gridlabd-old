@@ -204,7 +204,6 @@ TIMESTAMP database::commit(TIMESTAMP t0, TIMESTAMP t1)
 		int mod = ts.get_localtimestamp()%(TIMESTAMP)get_sync_interval();
 		if ( strcmp(get_on_sync(),"")!=0 && mod==0 )
 		{
-			int mod1 = t1%86400, mod2 = ts.get_timestamp()%86400, mod3 = ts.get_localtimestamp()%86400;
 			gld_clock ts(t0);
 			char buffer[64];
 			gl_verbose("%s running on_init script '%s' at %s", get_name(), get_on_sync(), ts.to_string(buffer,sizeof(buffer))?buffer:"(unknown time)");
@@ -337,7 +336,8 @@ char *database::get_sqldata(char *buffer, size_t size, gld_property &prop, doubl
 		if ( prop.get_unit() )
 		{
 			double *value = (double*)prop.get_addr();
-			if ( sprintf(buffer,"%g",*value*scale)>size )
+			int len = snprintf(buffer,size,"%g",*value*scale);
+			if ( len < 0 || (size_t)len > size )
 				return NULL;
 			return buffer;
 		}
@@ -345,13 +345,13 @@ char *database::get_sqldata(char *buffer, size_t size, gld_property &prop, doubl
 		return NULL;
 	}
 	char tmp[65536];
-	if ( prop.to_string(tmp,sizeof(tmp))<size )
+	if ( prop.to_string(tmp,sizeof(tmp)) < (int)size )
 	{
-		sprintf(buffer,"'%s'",tmp);
+		snprintf(buffer,size,"'%s'",tmp);
 	}
 	else
 	{
-		strcpy(buffer,"NULL");
+		snprintf(buffer,size,"NULL");
 	}
 	return buffer;
 }
@@ -384,13 +384,13 @@ char *database::get_sqldata(char *buffer, size_t size, gld_property &prop, gld_u
 		return NULL;
 	}
 	char tmp[65536];
-	if ( prop.to_string(tmp,sizeof(tmp))<size )
+	if ( prop.to_string(tmp,sizeof(tmp)) < (int)size )
 	{
-		sprintf(buffer,"'%s'",tmp);
+		snprintf(buffer,size,"'%s'",tmp);
 	}
 	else
 	{
-		strcpy(buffer,"NULL");
+		snprintf(buffer,size,"NULL");
 	}
 	return buffer;
 }
@@ -473,7 +473,7 @@ MYSQL_RES *database::select(const char *fmt,...)
 	return res;
 }
 
-unsigned int64 database::get_last_index(void)
+size_t database::get_last_index(void)
 {
 	return mysql_insert_id(mysql);
 }
@@ -483,7 +483,7 @@ int database::run_script(const char *file)
 	int num=0;
 	char line[1024];
 	char buffer[65536]="";
-	int eol=0;
+	size_t eol=0;
 	FILE *fp = fopen(file,"r");
 	if ( fp == NULL )
 	{
@@ -492,7 +492,7 @@ int database::run_script(const char *file)
 	while ( fgets(line,sizeof(line)-1,fp) != NULL )
 	{
 		num++;
-		int len = strlen(line);
+		size_t len = strlen(line);
 		if ( len+eol >= sizeof(buffer) )
 		{
 			exception("run_script(const char *file='%s'): line '%s' command too long", num, file); 
@@ -571,7 +571,6 @@ int database::run_script(const char *file)
 			}
 		}
 	}
-Done:
 	fclose(fp);
 	return num;
 }
@@ -700,7 +699,6 @@ size_t database::dump(const char *table, const char *file, unsigned long options
 		if ( options&TD_BACKUP )
 			fprintf(fp,"%s",";\n");
 	}
-Done:
 	gl_verbose("dumped %u rows from table '%s' to file '%s'", nrows, table, file);
 	mysql_free_result(result);
 	fclose(fp);
@@ -725,7 +723,7 @@ size_t database::backup(const char *file)
 	}
 	size_t ntables = mysql_num_rows(res);
 	char **tables = new char*[ntables];
-	int n;
+	size_t n;
 	for ( n=0 ; n<ntables ; n++ )
 	{
 		MYSQL_ROW row;

@@ -174,7 +174,7 @@ dreadhb(int *nrow, int *ncol, int *nonz,
  *
  */
 
-    register int i, numer_lines, rhscrd = 0;
+    register int i, numer_lines=0, rhscrd = 0;
     int tmp, colnum, colsize, rownum, rowsize, valnum, valsize;
     char buf[100], type[4], key[10];
     FILE *fp;

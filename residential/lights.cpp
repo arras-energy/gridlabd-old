@@ -37,11 +37,11 @@ double lights::power_factor[_MAXTYPES] = {
 
 double lights::power_fraction[_MAXTYPES][3] = {
 	// Z I P - should add to 1
-	1, 0, 0,// INCANDESCENT
-	0.4, 0, 0.6,// FLUORESCENT
-	0.4, 0, 0.6,// CFL
-	0.80, 0.1, 0.1,// SSL - these values are unvalidated
-	0.80, 0.1, 0.1,// HID - these values are unvalidated
+	{1, 0, 0},// INCANDESCENT
+	{0.4, 0, 0.6},// FLUORESCENT
+	{0.4, 0, 0.6},// CFL
+	{0.80, 0.1, 0.1},// SSL - these values are unvalidated
+	{0.80, 0.1, 0.1},// HID - these values are unvalidated
 };
 
 // the constructor registers the class and properties and sets the defaults
@@ -221,7 +221,6 @@ TIMESTAMP lights::sync(TIMESTAMP t0, TIMESTAMP t1)
 	t2 = residential_enduse::sync(t0,t1);
 
 	if(shape.type == MT_UNKNOWN){ /* manual power calculation*/
-		double frac = shape.load * (1-curtailment);
 		if(shape.load < 0){
 			gl_warning("lights shape demand is negative, capping to 0");
 			shape.load = 0.0;

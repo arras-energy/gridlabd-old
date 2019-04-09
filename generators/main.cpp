@@ -17,3 +17,4 @@ MODULE:generators
 
 #include <stdlib.h>
 #include "gridlabd.h"
+#include "generators.h"

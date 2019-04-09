@@ -338,7 +338,7 @@ int job(void *main, int argc, const char *argv[])
 	size_t i;
 	int redirect_found = 0;
 	strcpy(job_cmdargs,"");
-	for ( i=1 ; i<argc ; i++ )
+	for ( i = 1 ; i < (size_t)argc ; i++ )
 	{
 		if ( strcmp(argv[i],"--redirect")==0 ) redirect_found = 1;
 		strcat(job_cmdargs,argv[i]);

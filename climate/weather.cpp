@@ -20,7 +20,7 @@ weather::weather(MODULE *module)
 	set_defaults();
 	if (oclass==NULL)
 	{
-		oclass = gl_register_class(module,"weather",sizeof(weather),NULL);
+		oclass = gl_register_class(module,"weather",sizeof(weather),PC_NOSYNC);
 		if (oclass==NULL)
 			throw "unable to register class weather";
 		else

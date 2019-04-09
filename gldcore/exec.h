@@ -160,7 +160,7 @@ private:
 
 public: // TODO: make private once lock.cpp is reentrant
 	static const PASSCONFIG passtype[3];
-	int iteration_counter;
+	size_t iteration_counter;
 #ifndef NOLOCKS
 	int64 rlock_count;
 	int64 rlock_spin;

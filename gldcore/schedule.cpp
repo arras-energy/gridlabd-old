@@ -223,7 +223,7 @@ int schedule_compile_block(SCHEDULE *sch, const char *blockname, const char *blo
 		}, *match;
 		unsigned int calendar;
 		double value=1.0; /* default value is 1.0 */
-		int ndx;
+		int ndx = 0;
 
 		/* remove leading whitespace */
 		while (isspace(*token)) token++;
@@ -294,7 +294,7 @@ int schedule_compile_block(SCHEDULE *sch, const char *blockname, const char *blo
 			unsigned int is_leapyear = (calendar>=7?1:0);
 			unsigned int calendar = weekday*2+is_leapyear;
 			unsigned int month;
-			unsigned int days[] = {31,(is_leapyear?29:28),31,30,31,30,31,31,30,31,30,31};
+			unsigned int days[] = {31,(unsigned int)(is_leapyear?29:28),31,30,31,30,31,31,30,31,30,31};
 			unsigned int n = sch->block*MAXVALUES + ndx;
 			minute = 0;
 			for (month=0; month<12; month++)
@@ -602,7 +602,7 @@ void *schedule_createproc(void *args)
 			int ingap = 0;
 			for (calendar=0; calendar<14; calendar++)
 			{
-				int t;
+				unsigned long t;
 				for ( t=0; t<sizeof(sch->dtnext[calendar])/sizeof(sch->dtnext[calendar][0])-1; t++ )
 				{
 					if ( sch->dtnext[calendar][t] == 0 && !ingap)
@@ -1162,7 +1162,7 @@ TIMESTAMP schedule_syncall(TIMESTAMP t1) /**< the time to which the schedule is 
 	if (n_threads_sch==0) 
 	{
 		SCHEDULE *sch;
-		int n_items, schn=0;
+		size_t n_items, schn=0;
 
 		IN_MYCONTEXT output_debug("loadshape_syncall setting up for %d shapes", n_schedules);
 
@@ -1366,7 +1366,7 @@ void schedule_dumpall(const char *file)
 void schedule_dump(SCHEDULE *sch, const char *file, const char *mode)
 {
 	FILE *fp = fopen(file,mode);
-	int calendar;
+	unsigned int calendar;
 
 	fprintf(fp,"schedule %s { %s }\n", sch->name, sch->definition);
 	fprintf(fp,"sizeof(SCHEDULE) = %.3f MB\n", (double)sizeof(SCHEDULE)/1024/1024);
@@ -1378,7 +1378,7 @@ void schedule_dump(SCHEDULE *sch, const char *file, const char *mode)
 		fprintf(fp,"\nYears:");
 		for (y=1970; y<2039; y++)
 		{
-			DATETIME dt = {y,0,1,0,0,0};
+			DATETIME dt = {(unsigned short)y,0,1,0,0,0};
 			TIMESTAMP ts = mkdatetime(&dt);
 			SCHEDULEINDEX ndx = schedule_index(sch,ts);
 			if (GET_CALENDAR(ndx)==calendar)
@@ -1402,13 +1402,13 @@ void schedule_dump(SCHEDULE *sch, const char *file, const char *mode)
 			{
 				int hour;
 				char wd[] = "SMTWTFSH";
-				DATETIME dt = {year,month,day,0,0,0,0,0,""};
+				DATETIME dt = {(unsigned short)year,(unsigned short)month,(unsigned short)day,0,0,0,0,0,""};
 				TIMESTAMP ts = mkdatetime(&dt);
 				local_datetime(ts,&dt);
 				fprintf(fp,"      %c %2d",wd[dt.weekday],day+1);
 				for (hour=0; hour<24; hour++)
 				{
-					DATETIME dt = {year,month+1,day+1,hour,0,0};
+					DATETIME dt = {(unsigned short)year,(unsigned short)(month+1),(unsigned short)(day+1),(unsigned short)hour,0,0};
 					TIMESTAMP ts = mkdatetime(&dt);
 					SCHEDULEINDEX ndx = schedule_index(sch,ts);
 					unsigned int dtn = schedule_dtnext(sch,ndx);

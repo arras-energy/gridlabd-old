@@ -3,6 +3,7 @@
 // DP Chassin
 
 #define DLMAIN
+
 #include "gridlabd.h"
 
 EXPORT int do_kill(void*)

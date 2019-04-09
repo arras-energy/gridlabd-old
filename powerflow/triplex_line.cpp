@@ -65,7 +65,7 @@ int triplex_line::init(OBJECT *parent)
 	double *temp_rating_value = NULL;
 	double temp_rating_continuous = 10000.0;
 	double temp_rating_emergency = 20000.0;
-	char index;
+	size_t index;
 	OBJECT *temp_obj;
 	OBJECT *obj = OBJECTHDR(this);
 	triplex_line_configuration *temp_config = NULL;

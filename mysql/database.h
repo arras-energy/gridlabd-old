@@ -27,14 +27,6 @@
 
 #include <mysql.h>
 
-#ifdef DLMAIN
-#define EXTERN
-#define INIT(A) = A
-#else
-#define EXTERN extern
-#define INIT(A)
-#endif
-
 EXTERN char default_hostname[256] INIT("127.0.0.1");
 EXTERN char default_username[32] INIT("gridlabd");
 EXTERN char default_password[32] INIT("");
@@ -102,7 +94,7 @@ public:
 	bool table_exists(const char *table);
 	bool query(const char *query,...);
 	bool query_ex(const char *query,...);
-	unsigned int64 get_last_index(void);
+	size_t get_last_index(void);
 	MYSQL_RES *select(const char *query,...);
 	MYSQL_RES get_next(MYSQL_RES*res);
 	int run_script(const char *file);

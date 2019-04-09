@@ -121,7 +121,7 @@ pqload::pqload(MODULE *mod) : load(mod)
 int pqload::build_sched(char *instr = NULL, SCHED_LIST *end = NULL){
 	char *sc_end = 0;
 	char *start = instr ? instr : schedule.get_string(); /* doesn't copy but doesn't use strtok */
-	int rv = 0, scanct = 0;
+	int rv = 0;
 	SCHED_LIST *endptr = NULL;
 
 	/* eat whitespace between schedules */
@@ -147,7 +147,7 @@ int pqload::build_sched(char *instr = NULL, SCHED_LIST *end = NULL){
 		gl_error("schedule token \"%s\" not semicolon terminated", start);
 	}
 	char moh_v[257], moh_w[257], hod_v[257], hod_w[257], dom_v[257], dom_w[257], moy_v[257], moy_w[257], dow_v[257], lpu[257], sc[257];
-	scanct = sscanf(start, "%256[-0-9*]%256[ \t]%256[-0-9*]%256[ \t]%256[-0-9*]%256[ \t]%256[-0-9*]%256[ \t]%256[-0-9*]:%256[0-9\\.]%[;]",
+	sscanf(start, "%256[-0-9*]%256[ \t]%256[-0-9*]%256[ \t]%256[-0-9*]%256[ \t]%256[-0-9*]%256[ \t]%256[-0-9*]:%256[0-9\\.]%[;]",
 		moh_v, moh_w, hod_v, hod_w, dom_v, dom_w, moy_v, moy_w, dow_v, lpu, sc);
 
 	/* parse the individual fields */
@@ -262,7 +262,6 @@ TIMESTAMP pqload::presync(TIMESTAMP t0)
 TIMESTAMP pqload::sync(TIMESTAMP t0)
 {
 	TIMESTAMP result = TS_NEVER;
-	double SysFreq = 376.991118431;		//System frequency in radians/sec, nominalized 60 Hz for now.
 
 	int i = 0;
 

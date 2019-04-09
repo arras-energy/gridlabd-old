@@ -125,7 +125,7 @@ int fuse::create()
 */
 int fuse::init(OBJECT *parent)
 {
-	char jindex, kindex;
+	size_t jindex, kindex;
 	OBJECT *obj = OBJECTHDR(this);
 
 	if ((phases & PHASE_S) == PHASE_S)
@@ -631,8 +631,7 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 
 TIMESTAMP fuse::postsync(TIMESTAMP t0)
 {
-	OBJECT *hdr = OBJECTHDR(this);
-	char jindex;
+	size_t jindex;
 	unsigned char goodphases = 0x00;
 	TIMESTAMP Ret_Val[3], t1;
 
@@ -1003,9 +1002,8 @@ void fuse::set_fuse_faulted_phases(unsigned char desired_status)
 */
 void fuse::fuse_check(set phase_to_check, complex *fcurr)
 {
-	char indexval;
+	size_t indexval;
 	char phase_verbose;
-	unsigned char work_phase;
 	FUSESTATE *valstate;
 	TIMESTAMP *fixtime;
 	OBJECT *hdr = OBJECTHDR(this);
@@ -1044,7 +1042,7 @@ void fuse::fuse_check(set phase_to_check, complex *fcurr)
 	//See which phases we need to check
 	if ((phases & phase_to_check) == phase_to_check)	//Check phase
 	{
-		work_phase = 0x04 >> indexval;	//Working variable, primarily for NR
+		// work_phase = 0x04 >> indexval;	//Working variable, primarily for NR
 
 		if (*valstate == GOOD)	//Only bother if we are in service
 		{

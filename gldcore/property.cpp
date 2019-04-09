@@ -500,8 +500,8 @@ double *get_double_array_ref(double_array*a,unsigned int n, unsigned int m)
 }
 double double_array_get_part(void *x, const char *name)
 {
-	int n,m;
-	if (sscanf(name,"%d.%d",&n,&m)==2)
+	size_t n,m;
+	if (sscanf(name,"%lu.%lu",&n,&m)==2)
 	{
 		double_array *a = (double_array*)x;
 		if ( n<a->n && m<a->m && a->x[n][m]!=NULL )
@@ -566,9 +566,9 @@ complex *get_complex_array_ref(complex_array *a,unsigned int n, unsigned int m)
 }
 double complex_array_get_part(void *x, const char *name)
 {
-	int n,m;
+	size_t n,m;
 	char subpart[32];
-	if (sscanf(name,"%d.%d.%31s",&n,&m,subpart)==2)
+	if (sscanf(name,"%lu.%lu.%31s",&n,&m,subpart)==2)
 	{
 		complex_array *a = (complex_array*)x;
 		if ( n<a->n && m<a->m && a->x[n][m]!=NULL )

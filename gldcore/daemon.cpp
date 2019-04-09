@@ -15,7 +15,8 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <pwd.h>
-#include "gridlabd.h"
+#include "main.h"
+#include "class.h"
 #include "output.h"
 #include "cmdarg.h"
 #include "daemon.h"
@@ -712,9 +713,6 @@ int daemon_start(int argc, const char *argv[])
 		daemon_process();
 		return nargs+1;
 	}
-	output_fatal("unreachable code reached");
-	abort();	
-	return 0;
 }
 
 int daemon_stop(int argc, const char *argv[])
@@ -770,12 +768,11 @@ int daemon_restart(int argc, const char *argv[])
 		output_error("daemon commands not permitted");
 		exit(XC_INIERR);
 	}
-	
-	int nargs = 0;
+
 	if ( argc > 0 )
 	{
 		// process command arguments
-		nargs = daemon_arguments(argc,argv);
+		daemon_arguments(argc,argv);
 
 		// access config file
 		daemon_loadconfig();

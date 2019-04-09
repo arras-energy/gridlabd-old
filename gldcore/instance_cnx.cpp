@@ -107,7 +107,7 @@ STATUS instance_cnx_socket(instance *inst){
 	char *colon;
 	int rv, return_addr_sz;
 	unsigned int64 check_id;
-	size_t bytes_to_send, msg_link_sz, idx;
+	size_t msg_link_sz, idx;
 //	size_t sent_bytes;
 	SOCKET outsockfd, insockfd;
 	struct sockaddr_in outaddr, return_addr;
@@ -272,8 +272,6 @@ STATUS instance_cnx_socket(instance *inst){
 	// * identify files to send (will require loader changes)
 	// * package files together (at least are sending GLM)
 	// * loop bite-sized pieces of package
-	bytes_to_send = 0;
-
 
 	// recv receipt of file xfer
 	// * come up with receipt message

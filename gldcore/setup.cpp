@@ -56,7 +56,7 @@ Return:
 
 static int edit_globals(void)
 {
-	int i;
+	size_t i;
 
 	// global variable list
 	static GLOBALVAR **var = NULL;
@@ -78,12 +78,12 @@ static int edit_globals(void)
 	}
 
 	// window pos and selection
-	static int first=0, sel=0, vsize=height-5;
-	int last = first+vsize;
+	static size_t first=0, sel=0, vsize=height-5;
+	size_t last = first+vsize;
 	if ( last>=nvars ) last=(int)(nvars-1);
 
 	// write data
-	int row=4;
+	size_t row=4;
 	for ( i=first ; i<last ; i++, row++ )
 	{
 		char value[1024];

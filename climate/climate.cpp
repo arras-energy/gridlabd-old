@@ -77,7 +77,7 @@ EXPORT int64 calculate_solar_radiation_degrees(OBJECT *obj, double tilt, double 
 	return calculate_solar_radiation_shading_radians(obj, RAD(tilt), RAD(orientation), 1.0, value);
 }
 
-EXPORT int64 calculate_solar_radiation_radians(OBJECT *obj, double tilt, double orientation, double *value){
+EXPORT int64 calculate_solar_radiation_radians(OBJECT *obj, double tilt, double orientation, double *value ) {
 	return calculate_solar_radiation_shading_radians(obj, tilt, orientation, 1.0, value);
 }
 
@@ -85,11 +85,11 @@ EXPORT int64 calculate_solar_radiation_shading_degrees(OBJECT *obj, double tilt,
 	return calculate_solar_radiation_shading_radians(obj, RAD(tilt), RAD(orientation), shading_value, value);
 }
 
-EXPORT int64 calculate_solar_radiation_shading_radians(OBJECT *obj, double tilt, double orientation, double shading_value, double *value){
+EXPORT int64 calculate_solar_radiation_shading_radians(OBJECT *obj, double tilt, double orientation, double shading_value, double *value ) {
 	return calculate_solar_radiation_shading_position_radians(obj, tilt, orientation, NaN, NaN, shading_value, value);
 }
 
-EXPORT int64 calculate_solar_radiation_shading_position_radians(OBJECT *obj, double tilt, double orientation, double latitude, double longitude, double shading_value, double *value){
+EXPORT int64 calculate_solar_radiation_shading_position_radians(OBJECT *obj, double tilt, double orientation, double latitude, double longitude, double shading_value, double *value ) {
 	static SolarAngles sa; // just for the functions
 	double ghr, dhr, dnr = 0.0;
 	double cos_incident = 0.0;
@@ -99,12 +99,12 @@ EXPORT int64 calculate_solar_radiation_shading_position_radians(OBJECT *obj, dou
 	DATETIME dt;
 
 	climate *cli;
-	if(obj == 0 || value == 0){
+	if(obj == 0 || value == 0 ) {
 		//throw "climate/calc_solar: null object pointer in argument";
 		return 0;
 	}
 	cli = OBJECTDATA(obj, climate);
-	if(gl_object_isa(obj, "climate", "climate") == 0){
+	if(gl_object_isa(obj, "climate", "climate") == 0 ) {
 		//throw "climate/calc_solar: input object is not a climate object";
 		return 0;
 	}
@@ -144,11 +144,11 @@ EXPORT int64 calc_solar_solpos_shading_position_rad(OBJECT *obj, double tilt, do
 	TIMESTAMP offsetclock;
 
 	climate *cli;
-	if(obj == 0 || value == 0){
+	if(obj == 0 || value == 0 ) {
 		return 0;
 	}
 	cli = OBJECTDATA(obj, climate);
-	if(gl_object_isa(obj, "climate", "climate") == 0){
+	if(gl_object_isa(obj, "climate", "climate") == 0 ) {
 		return 0;
 	}
 
@@ -215,19 +215,15 @@ EXPORT int64 calc_solar_solpos_shading_position_rad(OBJECT *obj, double tilt, do
 	return 1;
 }
 
-EXPORT int64 calc_solar_ideal_shading_position_radians(OBJECT *obj, double tilt, double latitude, double longitude, double shading_value, double *value) {
+EXPORT int64 calc_solar_ideal_shading_position_radians(OBJECT *obj, double tilt, double latitude, double longitude, double shading_value, double *value) 
+{
 	double ghr, dhr, dnr;
-	double cos_incident;
-	double temp_value;
-	DATETIME dt;
-	TIMESTAMP offsetclock;
-
 	climate *cli;
-	if(obj == 0 || value == 0){
+	if(obj == 0 || value == 0 ) {
 		return 0;
 	}
 	cli = OBJECTDATA(obj, climate);
-	if(gl_object_isa(obj, "climate", "climate") == 0){
+	if(gl_object_isa(obj, "climate", "climate") == 0 ) {
 		return 0;
 	}
 
@@ -250,12 +246,12 @@ EXPORT int64 calc_solar_ideal_shading_position_radians(OBJECT *obj, double tilt,
 	http://rredc.nrel.gov/solar/pubs/tmy2/tab3-2.html
  @{
  **/
-int tmy2_reader::open(const char *file){
+int tmy2_reader::open(const char *file)
+{
 	char temp_lat_hem[2];
 	char temp_long_hem[2];
-	int sscan_rv;
-  char location_data[10];
-	char ld[10],tz[10],tlad[10],tlod[10],el[10];
+	int sscan_rv = 0;
+	char tz[10],tlad[10],tlod[10],el[10];
 	float lat_degrees_temp;
 	float long_degrees_temp;
 	float tz_offset_temp;
@@ -274,13 +270,13 @@ int tmy2_reader::open(const char *file){
 
 	fp = fopen(file, "r");
 
-	if(fp == NULL){
+	if(fp == NULL ) {
 		gl_error("tmy2_reader::open() -- fopen failed on \"%s\"", file);
 		return 0;
 	}
 
 	// read in the header (use the c code given in the manual)
-	if(fgets(buf,500,fp)){
+	if(fgets(buf,500,fp) ) {
 
 		//Initialize variables - so comparison functions work better
 		temp_lat_hem[0] = temp_lat_hem[1] = '\0';
@@ -389,30 +385,32 @@ int tmy2_reader::header_info(char* city, char* state, int* degrees, int* minutes
 	@param hour hour of day
 */
 
-int tmy2_reader::read_data(double *dnr, double *dhr, double *ghr, double *tdb, double *rh, int* month, int* day, int* hour, double *wind, double *winddir, double *precip, double *snowDepth, double *pressure, double *extra_terr_dni, double *extra_terr_ghi, double *tot_sky_cov, double *opq_sky_cov){
+int tmy2_reader::read_data(double *dnr, double *dhr, double *ghr, double *tdb, double *rh, int* month, int* day, int* hour, double *wind, double *winddir, double *precip, double *snowDepth, double *pressure, double *extra_terr_dni, double *extra_terr_ghi, double *tot_sky_cov, double *opq_sky_cov)
+{
 	int rct = 0;
-	int rct_ymd = 0;
-	int rct_hm = 0;
 	int tmp_dnr, tmp_dhr, tmp_tot_sky_cov, tmp_opq_sky_cov, tmp_tdb, tmp_rh, tmp_wd, tmp_ws, tmp_precip, tmp_sf, tmp_ghr, tmp_extra_ghr, tmp_extra_dni, tmp_press;
 	//sscanf(buf, "%*2s%2d%2d%2d%*14s%4d%*2s%4d%*40s%4d%8*s%3d%*s",month,day,hour,&tmp_dnr,&tmp_dhr,&tmp_tdb,&tmp_rh);
-	int tmh, tday, thr, t_mon, t_d,t_hr;
-	char t_ymd[11],t_hm[10],t_ehr[10],t_dni[10],t_ghr[10],t_dnr[10],t_dhr[10],t_tkc[10],t_osc[10],t_tdb[10],t_rh[10],t_press[10],t_wd[10],t_ws[10],t_precip[10],t_sf[10],t_month[2],t_day[2],t_year[5],t_hour[2],t_min[2];
-	if(month == NULL) month = &tmh;
-	if(day == NULL) day = &tday;
-	if(hour == NULL) hour = &thr;
-	if(buf[2] == '/') {
-		//rct = sscanf(buf, "%d/%d/%*s,%d:%*s,%*s,%d,%d,%*s,%*s,%d,%*s,%*s,%d,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%d,%*s,%*s,%*s,%*s,%*s,%d,%*s,%*s,%d,%*s,%*s,%*s,%*s,%*s,%d,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%d,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%*s,%d",month,day,hour,&tmp_extra_dni,&tmp_ghr,&tmp_dnr,&tmp_dhr,&tmp_tdb,&tmp_rh,&tmp_press,&tmp_ws,&tmp_precip,&tmp_sf);
+	int tmh = -1, tday = -1, thr = -1;
+	char t_ymd[11],t_hm[10],t_ehr[10],t_dni[10],t_ghr[10],t_dnr[10],t_dhr[10],t_tkc[10],t_osc[10],t_tdb[10],t_rh[10],t_press[10],t_wd[10],t_ws[10],t_precip[10],t_sf[10];
+	if ( month == NULL ) 
+	{
+		month = &tmh;
+	}
+	if ( day == NULL ) 
+	{
+		day = &tday;
+	}
+	if ( hour == NULL ) 
+	{
+		hour = &thr;
+	}
+	if ( buf[2] == '/' ) 
+	{
 		rct = sscanf(buf, "%[^','],%[^','],%[^','],%[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%*[^','],%[^','],%*[^','],%*[^','],%*[^','],%*s",t_ymd,t_hm,t_ehr,t_dni,t_ghr,t_dnr,t_dhr,t_tkc,t_osc,t_tdb,t_rh,t_press,t_wd,t_ws,t_precip,t_sf);
-		//rct_ymd = sscanf(t_ymd,"%[^'/']/%[^'/']/%*s",t_month,t_day);
-		//rct_hm = sscanf(t_hm,"%[^':']:%*s",t_hour);
-		//t_mon = atoi(t_month);
-		//t_d = atoi(t_day);
-		//t_hr = atoi(t_hour);
-		//month = &t_mon;
-		//day = &t_d;
-		//hour = &t_hr;
-		rct_ymd = sscanf(t_ymd,"%d/%d/%*d",month,day);
-		rct_hm = sscanf(t_hm,"%d:%*d",hour);
+		if ( sscanf(t_ymd,"%d/%d/%*d",month,day) != 2 )
+			gl_error("TMY reader did not read a complete date from '%s'", t_ymd);
+		if ( sscanf(t_hm,"%d:%*d",hour) != 1 )
+			gl_error("TMY reader did not read a complete time from '%s'", t_hm);
 		tmp_extra_ghr = atoi(t_ehr);
 		tmp_extra_dni = atoi(t_dni);
 		tmp_ghr = atoi(t_ghr);
@@ -429,51 +427,90 @@ int tmy2_reader::read_data(double *dnr, double *dhr, double *ghr, double *tdb, d
 		tmp_sf = atoi(t_sf);		
 		rct = rct+1;
 		tmp_sf = 0; //tmy3 doesnt have this field (snow depth). so set to 0
-
 	}
-	else {
-	//rct = sscanf(buf, "%*2s%2d%2d%2d%*4s%4d%4d%*2s%4d%*2s%4d%*34s%4d%*8s%3d%*2s%4d%*7s%3d%*25s%3d%*7s%3d",month,day,hour,&tmp_extra_dni,&tmp_ghr,&tmp_dnr,&tmp_dhr,&tmp_tdb,&tmp_rh,&tmp_press,&tmp_ws,&tmp_precip,&tmp_sf);
-	rct = sscanf(buf, "%*2s%2d%2d%2d%4d%4d%4d%*2s%4d%*2s%4d%*26s%2d%*2s%2d%*2s%4d%*8s%3d%*2s%4d%*2s%3d%*2s%3d%*25s%3d%*7s%3d",month,day,hour,&tmp_extra_ghr,&tmp_extra_dni,&tmp_ghr,&tmp_dnr,&tmp_dhr,&tmp_tot_sky_cov,&tmp_opq_sky_cov,&tmp_tdb,&tmp_rh,&tmp_press,&tmp_wd,&tmp_ws,&tmp_precip,&tmp_sf);
+	else 
+	{
+		rct = sscanf(buf, "%*2s%2d%2d%2d%4d%4d%4d%*2s%4d%*2s%4d%*26s%2d%*2s%2d%*2s%4d%*8s%3d%*2s%4d%*2s%3d%*2s%3d%*25s%3d%*7s%3d",month,day,hour,&tmp_extra_ghr,&tmp_extra_dni,&tmp_ghr,&tmp_dnr,&tmp_dhr,&tmp_tot_sky_cov,&tmp_opq_sky_cov,&tmp_tdb,&tmp_rh,&tmp_press,&tmp_wd,&tmp_ws,&tmp_precip,&tmp_sf);
 					/* 3__5__7__9__13__17_20_23_27__29_33___67_71_79__82__85__95_98_ */
 	}
-	if(rct != 17){
-		gl_warning("TMY reader did not get 17 values for line time %d/%d %d00", *month, *day, *hour);
+	if ( rct != 17 ) 
+	{
+		gl_error("TMY reader did not get 17 values for line time %d/%d %d00", *month, *day, *hour);
 	}
-	if(dnr) *dnr = tmp_dnr;
-	if(dhr) *dhr = tmp_dhr;
-	if(ghr) *ghr = tmp_ghr;
+	if ( dnr ) 
+	{
+		*dnr = tmp_dnr;
+	}
+	if ( dhr ) 
+	{
+		*dhr = tmp_dhr;
+	}
+	if ( ghr ) 
+	{
+		*ghr = tmp_ghr;
+	}
 
 	//Assign extra_dni and pressure - extra DNI converted outside with other solar values
-	if (extra_terr_dni) *extra_terr_dni = tmp_extra_dni;
-	if (pressure) *pressure = tmp_press;
+	if ( extra_terr_dni) 
+	{
+		*extra_terr_dni = tmp_extra_dni;
+	}
+	if ( pressure ) 
+	{
+		*pressure = tmp_press;
+	}
 
-	if(tdb)
+	if ( tdb )
 	{
 		*tdb = ((double)tmp_tdb)/10.0;
 		if (*tdb<low_temp || low_temp==0) low_temp = *tdb;
 		else if (*tdb>high_temp || high_temp==0) high_temp = *tdb;
 	}
 	/* *tdb = ((double)tmp_tdb)/10.0 * 9.0 / 5.0 + 32.0; */
-	if(rh) *rh = ((double)tmp_rh)/100.0;
-	if(wind) *wind = tmp_ws/10.0;
+	if ( rh ) 
+	{
+		*rh = ((double)tmp_rh)/100.0;
+	}
+	if (wind ) 
+	{
+		*wind = tmp_ws/10.0;
+	}
 
 	// COnvert precip in mm to in/h
-	if(precip) *precip = ((double)tmp_precip) * 0.03937;
+	if ( precip )
+	{
+		*precip = ((double)tmp_precip) * 0.03937;
+	}
 
 	//convert snowfall in cm to in
-	if(snowDepth) *snowDepth =  ((double)tmp_sf) * 0.3937;
+	if ( snowDepth ) 
+	{
+		*snowDepth =  ((double)tmp_sf) * 0.3937;
+	}
 
 	// extraterrestrial global horizontal
-	if (extra_terr_ghi) *extra_terr_ghi = tmp_extra_ghr;
+	if (extra_terr_ghi) 
+	{
+		*extra_terr_ghi = tmp_extra_ghr;
+	}
 
 	// total sky cover
-	if (tot_sky_cov) *tot_sky_cov = tmp_tot_sky_cov/10.0;
+	if (tot_sky_cov) 
+	{
+		*tot_sky_cov = tmp_tot_sky_cov/10.0;
+	}
 
 	// opaque sky cover
-	if (opq_sky_cov) *opq_sky_cov = tmp_opq_sky_cov/10.0;
+	if (opq_sky_cov) 
+	{
+		*opq_sky_cov = tmp_opq_sky_cov/10.0;
+	}
 
 	// wind direction
-	if (winddir) *winddir = tmp_wd;
+	if (winddir) 
+	{
+		*winddir = tmp_wd;
+	}
 
 	return 1;
 }
@@ -507,7 +544,7 @@ double tmy2_reader::calc_solar(COMPASS_PTS cpt, short doy, double lat, double so
 /**
 	Closes the readers internal file pointer
 */
-void tmy2_reader::close(){
+void tmy2_reader::close( ) {
 	fclose(fp);
 }
 
@@ -646,7 +683,6 @@ int climate::isa(CLASSNAME classname)
 
 int climate::init(OBJECT *parent)
 {
-	char *dot = 0;
 	OBJECT *obj=OBJECTHDR(this);
 	TIMESTAMP t0 = obj->clock;
 	double meter_to_feet = 1.0;
@@ -669,37 +705,37 @@ int climate::init(OBJECT *parent)
 
 	if (cloud_model != CM_NONE) {
 		//Cloud model input error checking.
-		if (cloud_opacity > 1){
+		if (cloud_opacity > 1 ) {
 			gl_warning("climate:%s - Cloud opacity must be no greater than 1.0, setting to 1.0",obj->name);
 			cloud_opacity = 1.0;
 		}
-		else if (cloud_opacity < 0){
+		else if (cloud_opacity < 0 ) {
 			gl_warning("climate:%s - Cloud opacity must be no less than 0.0, setting to 0.0",obj->name);
 			cloud_opacity = 0.0;
 		}
 		/*
-		if (cloud_reflectivity > 1){
+		if (cloud_reflectivity > 1 ) {
 			gl_warning("climate:%s - Cloud reflectivity must be no greater than 1.0, setting to 1.0",obj->name);
 			cloud_opacity = 1.0;
 		}
-		else if (cloud_reflectivity < 0){
+		else if (cloud_reflectivity < 0 ) {
 			gl_warning("climate:%s - Cloud reflectivity must be no less than 0.0, setting to 0.0",obj->name);
 			cloud_opacity = 0.0;
 		}
 		*/
-		if (cloud_speed_factor < 0){
+		if (cloud_speed_factor < 0 ) {
 			gl_warning("climate:%s - Cloud speed adjustment cannot be negative, setting to 1.0",obj->name);
 			cloud_speed_factor = 1.0;
 		}
-		if (cloud_alpha < cloud_num_layers){
+		if (cloud_alpha < cloud_num_layers ) {
 				gl_warning("climate:%s - Cloud model alpha value must be less than or equal to cloud_num_layers, setting to cloud_num_layers",obj->name);
 				cloud_alpha = cloud_num_layers;
 		}
-		if (cloud_aerosol_transmissivity < 0){
+		if (cloud_aerosol_transmissivity < 0 ) {
 				gl_warning("climate:%s - Cloud model aerosol transmissivity must be greater than or equal to 0, setting to default value of 0.9",obj->name);
 				cloud_aerosol_transmissivity = 0.9;
 		}
-		if (cloud_aerosol_transmissivity > 1){
+		if (cloud_aerosol_transmissivity > 1 ) {
 				gl_warning("climate:%s - Cloud model aerosol transmissivity must be less than or equal to 1, setting to 1",obj->name);
 				cloud_aerosol_transmissivity = 1.0;
 		}
@@ -712,20 +748,20 @@ int climate::init(OBJECT *parent)
 		prev_NTime = t0-60;
 	}
 	
-	if(strstr(tmyfile, ".tmy2") || strstr(tmyfile,".tmy")){
+	if(strstr(tmyfile, ".tmy2") || strstr(tmyfile,".tmy") ) {
 		reader_type = RT_TMY2;
-	} else if(strstr(tmyfile, ".csv")){
+	} else if(strstr(tmyfile, ".csv") ) {
 		reader_type = RT_CSV;
 	} else {
 		gl_warning("climate: unrecognized filetype, assuming TMY2");
 	}
 
-	if(reader_type == RT_CSV){
+	if(reader_type == RT_CSV ) {
 		// may or may not have an object,
 		// have not called open()
 		int rv = 0;
 
-		if(reader == NULL){
+		if(reader == NULL ) {
 			gl_error("climate::init(): no csv_reader specified for tmyfile %s", tmyfile.get_string());
 			/* TROUBLESHOOT
 				The weather file provided is for the csv_reader object but not csv_reader object was specified in the reader property. 
@@ -733,7 +769,7 @@ int climate::init(OBJECT *parent)
 			*/
 			return 0;
 		} else {
-			if((reader->flags & OF_INIT) != OF_INIT){
+			if((reader->flags & OF_INIT) != OF_INIT ) {
 				char objname[256];
 				gl_verbose("climate::init(): deferring initialization on %s", gl_name(reader, objname, 255));
 				return 2; // defer
@@ -787,13 +823,13 @@ int climate::init(OBJECT *parent)
 	}
 
 	// implicit if(reader_type == RT_TMY2) ~ do the following
-	if( file->open(found_file) < 3 ){
+	if( file->open(found_file) < 3  ) {
 		gl_error("climate::init() -- weather file header improperly formed");
 		return 0;
 	}
 	
 	// begin parsing the TMY file
-	int line=0;
+	size_t line=0;
 	tmy = (TMYDATA*)malloc(sizeof(TMYDATA)*8760);
 	if (tmy==NULL)
 	{
@@ -853,7 +889,7 @@ int climate::init(OBJECT *parent)
 		//Defined above
 	}
 
-	if(0 == gl_convert("m", "ft", &meter_to_feet)){
+	if(0 == gl_convert("m", "ft", &meter_to_feet) ) {
 		gl_error("climate::init unable to gl_convert() 'm' to 'ft'!");
 		return 0;
 	}
@@ -869,36 +905,36 @@ int climate::init(OBJECT *parent)
 
 		int doy = sa->day_of_yr(month,day);
 		int hoy = (doy - 1) * 24 + (hour-1);
-		if (hoy>=0 && hoy<8760){
+		if (hoy>=0 && hoy<8760 ) {
 			// pre-conversion of solar data from W/m^2 to W/sf
-			if(0 == gl_convert("W/m^2", "W/sf", &(dnr))){
+			if(0 == gl_convert("W/m^2", "W/sf", &(dnr)) ) {
 				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
-			if(0 == gl_convert("W/m^2", "W/sf", &(dhr))){
+			if(0 == gl_convert("W/m^2", "W/sf", &(dhr)) ) {
 				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
-			if(0 == gl_convert("W/m^2", "W/sf", &(ghr))){
+			if(0 == gl_convert("W/m^2", "W/sf", &(ghr)) ) {
 				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
-			if(0 == gl_convert("W/m^2", "W/sf", &(extra_dni))){
+			if(0 == gl_convert("W/m^2", "W/sf", &(extra_dni)) ) {
 				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
-			if(0 == gl_convert("W/m^2", "W/sf", &(extra_ghi))){
+			if(0 == gl_convert("W/m^2", "W/sf", &(extra_ghi)) ) {
 				gl_error("climate::init unable to gl_convert() 'W/m^2' to 'W/sf'!");
 				return 0;
 			}
-			if(0 == gl_convert("m/s", "m/s", &(wspeed))){
-				gl_error("climate::init unable to gl_convert() 'm/s' to 'miles/h'!");
-				return 0;
-			}
+			// if(0 == gl_convert("m/s", "m/s", &(wspeed)) ) {
+			// 	gl_error("climate::init unable to gl_convert() 'm/s' to 'miles/h'!");
+			// 	return 0;
+			// }
 			tmy[hoy].temp_raw = temperature;
 			tmy[hoy].temp = temperature;
 			// post-conversion of copy of temperature from C to F
-			if(0 == gl_convert("degC", "degF", &(tmy[hoy].temp))){
+			if(0 == gl_convert("degC", "degF", &(tmy[hoy].temp)) ) {
 				gl_error("climate::init unable to gl_convert() 'degC' to 'degF'!");
 				return 0;
 			}
@@ -926,7 +962,7 @@ int climate::init(OBJECT *parent)
 			tmy[hoy].solar_azimuth = sa->azimuth(doy, RAD(obj->latitude), sol_time);
 			tmy[hoy].solar_zenith = (90. * PI_OVER_180)-tmy[hoy].solar_elevation;
 
-			for(COMPASS_PTS c_point = CP_H; c_point < CP_LAST;c_point=COMPASS_PTS(c_point+1)){
+			for(COMPASS_PTS c_point = CP_H; c_point < CP_LAST;c_point=COMPASS_PTS(c_point+1) ) {
 				if(c_point == CP_H)
 					sol_rad = file->calc_solar(CP_E,doy,RAD(get_latitude()),sol_time,dnr,dhr,ghr,ground_reflectivity,0.0);//(double)dnr * cos_incident + dhr;
 				else
@@ -950,12 +986,14 @@ int climate::init(OBJECT *parent)
 
 		}
 		else
-			gl_error("%s(%d): day %d, hour %d is out of allowed range 0-8759 hours", tmyfile.get_string(),line,day,hour);
+		{
+			gl_warning("%s(%d): hour %d is out of allowed range 0-8759 hours (month=%d, day=%d, hour=%d)", tmyfile.get_string(),line,hoy,month,day,hour);
+		}
 
 		line++;
 	}
 	file->close();
-	if(strstr(tmyfile, ".tmy2")){
+	if(strstr(tmyfile, ".tmy2") ) {
 		gl_error("TMY2 files exhibit unpredictable behavior, please use TMY3 file format.");
 	}
 	/* initialize climate to starttime */
@@ -980,12 +1018,12 @@ int climate::init(OBJECT *parent)
 	return 1;
 }
 
-int climate::get_solar_for_location(double latitude, double longitude, double *direct, double *global, double *diffuse) {
+int climate::get_solar_for_location(double latitude, double longitude, double *direct, double *global, double *diffuse) 
+{
 	int retval = 1;
 	//int cloud = 0; //binary cloud
 	double cloud = 0; //fuzzy cloud
 	double f;
-	double ETR;
 	double ETRN;
 	double sol_z;
 	OBJECT *obj=OBJECTHDR(this);
@@ -1003,9 +1041,8 @@ int climate::get_solar_for_location(double latitude, double longitude, double *d
 			//f = cloud ? 1.-cloud_opacity : 1.;
 			sol_z = get_solar_zenith();
 			ETRN = get_direct_normal_extra();
-			ETR = ETRN * cos(sol_z);
 			//std::cout << dt.month <<"," << dt.day <<"," << dt.hour <<"," << dt.minute <<"," << sol_z << std::endl;
-			if (sol_z > RAD(90)){ //When sun is below the horizon, DNI must be zero.
+			if (sol_z > RAD(90) ) { //When sun is below the horizon, DNI must be zero.
         *direct = 0;
       }else{
         *direct = f*(global_transmissivity)*ETRN;
@@ -1025,7 +1062,8 @@ int climate::get_solar_for_location(double latitude, double longitude, double *d
 	return retval;
 }
 
-int climate::get_binary_cloud_value_for_location(double latitude, double longitude, int *cloud) {
+int climate::get_binary_cloud_value_for_location(double latitude, double longitude, int *cloud) 
+{
 	int pixel_x = floor(gl_lerp(latitude, MIN_LAT, MIN_LAT_INDEX, MAX_LAT, MAX_LAT_INDEX));
 	int pixel_y = floor(gl_lerp(longitude, MIN_LON, MIN_LON_INDEX, MAX_LON, MAX_LON_INDEX));
 	*cloud = binary_cloud_pattern[pixel_x][pixel_y];
@@ -1038,11 +1076,11 @@ int climate::get_binary_cloud_value_for_location(double latitude, double longitu
 	return 1;
 }
 
-int climate::get_fuzzy_cloud_value_for_location(double latitude, double longitude, double *cloud) {
+int climate::get_fuzzy_cloud_value_for_location(double latitude, double longitude, double *cloud) 
+{
 	//write_out_cloud_pattern('F');
 	int pixel_x = floor(gl_lerp(latitude, MIN_LAT, MIN_LAT_INDEX, MAX_LAT, MAX_LAT_INDEX));
 	int pixel_y = floor(gl_lerp(longitude, MIN_LON, MIN_LON_INDEX, MAX_LON, MAX_LON_INDEX));
-	double value = fuzzy_cloud_pattern[0][pixel_x][pixel_y];
 	*cloud = fuzzy_cloud_pattern[0][pixel_x][pixel_y];
 	//Debugging and validation
 //	write_out_cloud_pattern('F');
@@ -1061,14 +1099,14 @@ void climate::init_cloud_pattern() {
 	// find the solar objects and count them
 	OBJECT *gr_obj = 0;
 	FINDLIST *items = gl_find_objects(FL_GROUP, "class=solar");
-	for(gr_obj = gl_find_next(items, 0); gr_obj != 0; gr_obj = gl_find_next(items, gr_obj) ){
+	for(gr_obj = gl_find_next(items, 0); gr_obj != 0; gr_obj = gl_find_next(items, gr_obj)  ) {
 		num_points++;
 	}
 
 	// resize the container to the max number of objects
 	vector<vector<double > > coord_list;
 	coord_list.resize(num_points);
-	for (int i = 0; i < num_points; ++i){
+	for (int i = 0; i < num_points; ++i ) {
 	    coord_list[i].resize(2);
 	}
 
@@ -1076,7 +1114,7 @@ void climate::init_cloud_pattern() {
 	PROPERTY *p_ptr;
 	double latitude, longitude;
 	num_points = 0;
-	for(gr_obj = gl_find_next(items, 0); gr_obj != 0; gr_obj = gl_find_next(items, gr_obj) ){
+	for(gr_obj = gl_find_next(items, 0); gr_obj != 0; gr_obj = gl_find_next(items, gr_obj)  ) {
 		p_ptr = gl_get_property(gr_obj, "latitude");
 		latitude = *gl_get_double(gr_obj, p_ptr);
 		p_ptr = gl_get_property(gr_obj, "longitude");
@@ -1100,7 +1138,7 @@ void climate::init_cloud_pattern() {
 	cloud_pattern.resize(cloud_pattern_size);
 	binary_cloud_pattern.resize(cloud_pattern_size);
 	normalized_cloud_pattern.resize(cloud_pattern_size);
-	for (int i = 0; i < cloud_pattern_size; ++i){
+	for (int i = 0; i < cloud_pattern_size; ++i ) {
 	    cloud_pattern[i].resize(cloud_pattern_size);
 	    binary_cloud_pattern[i].resize(cloud_pattern_size);
 	    normalized_cloud_pattern[i].resize(cloud_pattern_size);
@@ -1108,16 +1146,16 @@ void climate::init_cloud_pattern() {
 
 	//Initializing array to EMPTY_VALUE
   //TDH: trivially parallelizable
-	for (int i = 0; i < cloud_pattern_size; i++ ){
-			for (int j = 0; j < cloud_pattern_size; j++){
+	for (int i = 0; i < cloud_pattern_size; i++  ) {
+			for (int j = 0; j < cloud_pattern_size; j++ ) {
 				cloud_pattern[i][j] = EMPTY_VALUE;
 				binary_cloud_pattern[i][j] = EMPTY_VALUE;
 				normalized_cloud_pattern[i][j] = EMPTY_VALUE;
 			}
 	}
 
-	for (int i = 0; i < num_tile_edge; i++ ){
-		for (int j = 0; j < num_tile_edge; j++){
+	for (int i = 0; i < num_tile_edge; i++  ) {
+		for (int j = 0; j < num_tile_edge; j++ ) {
 			//Building pattern as a series of tiles
 			int col_min = i*CLOUD_TILE_SIZE;
 			int col_max = ((i+1)*CLOUD_TILE_SIZE);
@@ -1161,7 +1199,7 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 	wind_direct = -1 * (wind_direct -90);
 	if (wind_direct <= -360) {
 		wind_direct = wind_direct + 360;
-	} else if (wind_direct >= 360){
+	} else if (wind_direct >= 360 ) {
 		wind_direct = wind_direct - 360;
 	}
 	wind_direct = RAD(wind_direct);
@@ -1192,22 +1230,22 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 	int col = 0;
 	int row = 0;
 
-	if (row_shift != 0 || col_shift != 0){
-		if (row_shift >= 0 && col_shift >= 0 ){ //Wind blows from SW to NE
+	if (row_shift != 0 || col_shift != 0 ) {
+		if (row_shift >= 0 && col_shift >= 0  ) { //Wind blows from SW to NE
 			if (col_shift > 0) {
 				col = CLOUD_TILE_SIZE - col_boundary;
 				//Checking to see if barely off-screen values are empty before shifting the pattern.
 				// If check is not done, may result in EMPTY_VALUES getting shifted on_screen.
-				for (row = CLOUD_TILE_SIZE; row < CLOUD_TILE_SIZE + on_screen_size; row++){
+				for (row = CLOUD_TILE_SIZE; row < CLOUD_TILE_SIZE + on_screen_size; row++ ) {
 					if (cloud_pattern[row][col] == EMPTY_VALUE) {
 						rebuild_cloud_pattern_edge('W');
 						break;
 					}
 				}
 			}
-			if (row_shift > 0){
+			if (row_shift > 0 ) {
 				row = CLOUD_TILE_SIZE - row_boundary;
-				for (col = CLOUD_TILE_SIZE; col < CLOUD_TILE_SIZE + on_screen_size; col++){
+				for (col = CLOUD_TILE_SIZE; col < CLOUD_TILE_SIZE + on_screen_size; col++ ) {
 					if (cloud_pattern[row][col] == EMPTY_VALUE) {
 						rebuild_cloud_pattern_edge('S');
 						break;
@@ -1215,11 +1253,11 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 				}
 			}
 			//Shifting pattern (after any edges have been rebuilt).
-			for (row = cloud_pattern_size - 1; row >= 0; row--){
-				for (col = cloud_pattern_size - 1; col >= 0; col--){
-					if (row + row_shift > cloud_pattern_size -1 ){
+			for (row = cloud_pattern_size - 1; row >= 0; row-- ) {
+				for (col = cloud_pattern_size - 1; col >= 0; col-- ) {
+					if (row + row_shift > cloud_pattern_size -1  ) {
 						cloud_pattern[row][col] = EMPTY_VALUE;
-					}else if (col + col_shift > cloud_pattern_size -1 ){
+					}else if (col + col_shift > cloud_pattern_size -1  ) {
 						cloud_pattern[row][col] = EMPTY_VALUE;
 					} else {
 						cloud_pattern[row + row_shift][col + col_shift] = cloud_pattern[row][col];
@@ -1227,21 +1265,21 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 					}
 				}
 			}
-		} else if (row_shift >= 0 && col_shift <= 0 ){ //Wind blows from SE to NW
+		} else if (row_shift >= 0 && col_shift <= 0  ) { //Wind blows from SE to NW
 			if (col_shift < 0) {
 				col = CLOUD_TILE_SIZE + on_screen_size +  col_boundary;
 				//Checking to see if barely off-screen values are empty before shifting the pattern.
 				// If check is not done, may result in EMPTY_VALUES getting shifted on_screen.
-				for (row = CLOUD_TILE_SIZE; row < CLOUD_TILE_SIZE + on_screen_size; row++){
+				for (row = CLOUD_TILE_SIZE; row < CLOUD_TILE_SIZE + on_screen_size; row++ ) {
 					if (cloud_pattern[row][col] == EMPTY_VALUE) {
 						rebuild_cloud_pattern_edge('E');
 						break;
 					}
 				}
 			}
-			if (row_shift > 0){
+			if (row_shift > 0 ) {
 				row = CLOUD_TILE_SIZE - row_boundary;
-				for (col = CLOUD_TILE_SIZE; col < CLOUD_TILE_SIZE + on_screen_size; col++){
+				for (col = CLOUD_TILE_SIZE; col < CLOUD_TILE_SIZE + on_screen_size; col++ ) {
 					if (cloud_pattern[row][col] == EMPTY_VALUE) {
 						rebuild_cloud_pattern_edge('S');
 						break;
@@ -1249,11 +1287,11 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 				}
 			}
 			//Shifting pattern (after any edges have been rebuilt).
-			for (row = cloud_pattern_size - 1; row >= 0; row--){
-				for (col = 0; col < cloud_pattern_size; col++){
-					if (row + row_shift > cloud_pattern_size -1 ){
+			for (row = cloud_pattern_size - 1; row >= 0; row-- ) {
+				for (col = 0; col < cloud_pattern_size; col++ ) {
+					if (row + row_shift > cloud_pattern_size -1  ) {
 						cloud_pattern[row][col] = EMPTY_VALUE;
-					}else if (col + col_shift < 0 ){
+					}else if (col + col_shift < 0  ) {
 						cloud_pattern[row][col] = EMPTY_VALUE;
 					} else {
 						cloud_pattern[row + row_shift][col + col_shift] = cloud_pattern[row][col];
@@ -1261,21 +1299,21 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 					}
 				}
 			}
-		} else if (row_shift <= 0 && col_shift >= 0 ){ //Wind blows from NW to SE
+		} else if (row_shift <= 0 && col_shift >= 0  ) { //Wind blows from NW to SE
 			if (col_shift > 0) {
 				col = CLOUD_TILE_SIZE - col_boundary;
 				//Checking to see if barely off-screen values are empty before shifting the pattern.
 				// If check is not done, may result in EMPTY_VALUES getting shifted on_screen.
-				for (row = CLOUD_TILE_SIZE; row <= CLOUD_TILE_SIZE + on_screen_size; row++){
+				for (row = CLOUD_TILE_SIZE; row <= CLOUD_TILE_SIZE + on_screen_size; row++ ) {
 					if (cloud_pattern[row][col] == EMPTY_VALUE) {
 						rebuild_cloud_pattern_edge('W');
 						break;
 					}
 				}
 			}
-			if (row_shift < 0){
+			if (row_shift < 0 ) {
 				row = CLOUD_TILE_SIZE + on_screen_size + row_boundary;
-				for (col = CLOUD_TILE_SIZE; col < CLOUD_TILE_SIZE + on_screen_size; col++){
+				for (col = CLOUD_TILE_SIZE; col < CLOUD_TILE_SIZE + on_screen_size; col++ ) {
 					if (cloud_pattern[row][col] == EMPTY_VALUE) {;
 						rebuild_cloud_pattern_edge('N');
 						break;
@@ -1283,11 +1321,11 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 				}
 			}
 			//Shifting pattern (after any edges have been rebuilt).
-			for (row = 0; row < cloud_pattern_size ; row++){
-				for (col = cloud_pattern_size - 1; col >= 0; col--){
-					if (row + row_shift <  0 ){
+			for (row = 0; row < cloud_pattern_size ; row++ ) {
+				for (col = cloud_pattern_size - 1; col >= 0; col-- ) {
+					if (row + row_shift <  0  ) {
 						cloud_pattern[row][col] = EMPTY_VALUE;
-					}else if (col + col_shift > cloud_pattern_size -1 ){
+					}else if (col + col_shift > cloud_pattern_size -1  ) {
 						cloud_pattern[row][col] = EMPTY_VALUE;
 					} else {
 						cloud_pattern[row + row_shift][col + col_shift] = cloud_pattern[row][col];
@@ -1295,21 +1333,21 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 					}
 				}
 			}
-		} else if (row_shift <= 0 && col_shift <= 0 ){ //Wind blows from NE to SW
+		} else if (row_shift <= 0 && col_shift <= 0  ) { //Wind blows from NE to SW
 			if (col_shift < 0) {
 				col = CLOUD_TILE_SIZE + on_screen_size + col_boundary;
 				//Checking to see if barely off-screen values are empty before shifting the pattern.
 				// If check is not done, may result in EMPTY_VALUES getting shifted on_screen.
-				for (row = CLOUD_TILE_SIZE; row < CLOUD_TILE_SIZE + on_screen_size; row++){
+				for (row = CLOUD_TILE_SIZE; row < CLOUD_TILE_SIZE + on_screen_size; row++ ) {
 					if (cloud_pattern[row][col] == EMPTY_VALUE) {
 						rebuild_cloud_pattern_edge('E');
 						break;
 					}
 				}
 			}
-			if (row_shift < 0){
+			if (row_shift < 0 ) {
 				row = CLOUD_TILE_SIZE + on_screen_size + row_boundary;
-				for (col = CLOUD_TILE_SIZE; col < CLOUD_TILE_SIZE + on_screen_size; col++){
+				for (col = CLOUD_TILE_SIZE; col < CLOUD_TILE_SIZE + on_screen_size; col++ ) {
 					if (cloud_pattern[row][col] == EMPTY_VALUE) {
 						rebuild_cloud_pattern_edge('N');
 						break;
@@ -1317,11 +1355,11 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 				}
 			}
 			//Shifting pattern (after any edges have been rebuilt).
-			for (row = 0; row < cloud_pattern_size ; row++){
-				for (col = 0; col < cloud_pattern_size; col++){
-					if (row + row_shift <  0 ){
+			for (row = 0; row < cloud_pattern_size ; row++ ) {
+				for (col = 0; col < cloud_pattern_size; col++ ) {
+					if (row + row_shift <  0  ) {
 						cloud_pattern[row][col] = EMPTY_VALUE;
-					}else if (col + col_shift < 0 ){
+					}else if (col + col_shift < 0  ) {
 						cloud_pattern[row][col] = EMPTY_VALUE;
 					} else {
 						cloud_pattern[row + row_shift][col + col_shift] = cloud_pattern[row][col];
@@ -1346,7 +1384,7 @@ void climate::update_cloud_pattern(TIMESTAMP delta_t) {
 	}
 
 }
-double climate::convert_to_binary_cloud(){
+double climate::convert_to_binary_cloud( ) {
 	//Convert fractal cloud pattern to binary value based on TMY2 opaque sky value.
 	//Place-holder location.  Eventually needs to be driven by objects asking for updated
 	//  cloud values.  If the time since the last conversion is non-zero, this function needs
@@ -1362,7 +1400,7 @@ double climate::convert_to_binary_cloud(){
 	 * or less works.
 	*/
 	cloud_value = cloud_value * 2.0;
-	if (cloud_value >= 1){
+	if (cloud_value >= 1 ) {
 		cloud_value = 0.99;
 	}
 
@@ -1377,13 +1415,13 @@ double climate::convert_to_binary_cloud(){
 	 double cloud_pattern_max = cloud_pattern[CLOUD_TILE_SIZE][CLOUD_TILE_SIZE];
 	 double cloud_pattern_min = cloud_pattern[CLOUD_TILE_SIZE][CLOUD_TILE_SIZE];
 	 //Finding max and min value
-	 for (int i = 0; i < cloud_pattern_size; i++){
-		for (int j = 0; j < cloud_pattern_size; j++){
-			if (cloud_pattern[i][j] != EMPTY_VALUE){
-				if (cloud_pattern[i][j] > cloud_pattern_max){
+	 for (int i = 0; i < cloud_pattern_size; i++ ) {
+		for (int j = 0; j < cloud_pattern_size; j++ ) {
+			if (cloud_pattern[i][j] != EMPTY_VALUE ) {
+				if (cloud_pattern[i][j] > cloud_pattern_max ) {
 					cloud_pattern_max = cloud_pattern[i][j];
 				}
-				if (cloud_pattern[i][j] < cloud_pattern_min){
+				if (cloud_pattern[i][j] < cloud_pattern_min ) {
 					cloud_pattern_min = cloud_pattern[i][j];
 				}
 			}
@@ -1399,9 +1437,9 @@ double climate::convert_to_binary_cloud(){
 	 double min_cut_elevation = cloud_pattern_min;
 
 	 //Creating normalized cloud pattern
-	 for (int i = 0; i < cloud_pattern_size; i++){
-		for (int j = 0; j < cloud_pattern_size; j++){
-			if (cloud_pattern[i][j] != EMPTY_VALUE){
+	 for (int i = 0; i < cloud_pattern_size; i++ ) {
+		for (int j = 0; j < cloud_pattern_size; j++ ) {
+			if (cloud_pattern[i][j] != EMPTY_VALUE ) {
 				normalized_cloud_pattern[i][j] = (cloud_pattern[i][j] - cloud_pattern_min)/cloud_pattern_range;
 			}
 		}
@@ -1410,9 +1448,9 @@ double climate::convert_to_binary_cloud(){
 	 do{
 		 cut_elevation += step_size;
 		 running_count = 0;
-		 for (int i = CLOUD_TILE_SIZE; i < CLOUD_TILE_SIZE + on_screen_size; i++){
-			 for (int j = CLOUD_TILE_SIZE; j < CLOUD_TILE_SIZE + on_screen_size; j++){
-				 if (normalized_cloud_pattern[i][j] != EMPTY_VALUE && normalized_cloud_pattern[i][j] <= cut_elevation){//Values less than cut elevation are clouds
+		 for (int i = CLOUD_TILE_SIZE; i < CLOUD_TILE_SIZE + on_screen_size; i++ ) {
+			 for (int j = CLOUD_TILE_SIZE; j < CLOUD_TILE_SIZE + on_screen_size; j++ ) {
+				 if (normalized_cloud_pattern[i][j] != EMPTY_VALUE && normalized_cloud_pattern[i][j] <= cut_elevation ) {//Values less than cut elevation are clouds
 					 running_count++;
 				 }
 			 }
@@ -1420,10 +1458,10 @@ double climate::convert_to_binary_cloud(){
 		 measured_coverage = double(running_count)/(on_screen_size * on_screen_size); //Factor, range [0 1]
 
 		 //Calculating next cut elevation.
-		 if (measured_coverage > (cloud_value + search_tolerance)){
+		 if (measured_coverage > (cloud_value + search_tolerance) ) {
 			 max_cut_elevation = cut_elevation;
 			 step_size = (max_cut_elevation - min_cut_elevation)/-2;
-		 }else if (measured_coverage < (cloud_value - search_tolerance)){
+		 }else if (measured_coverage < (cloud_value - search_tolerance) ) {
 			 min_cut_elevation = cut_elevation;
 			 step_size = (max_cut_elevation - min_cut_elevation)/2;
 		 }
@@ -1431,13 +1469,13 @@ double climate::convert_to_binary_cloud(){
 
 	 //Converting cloud_pattern to binary_cloud_pattern
  //TDH: trivially parallelizable
-	 for (int i = 0; i < cloud_pattern_size; i++){
-		 for (int j = 0; j < cloud_pattern_size; j++){
+	 for (int i = 0; i < cloud_pattern_size; i++ ) {
+		 for (int j = 0; j < cloud_pattern_size; j++ ) {
 			 if (normalized_cloud_pattern[i][j] == EMPTY_VALUE) {
 				 binary_cloud_pattern[i][j] = EMPTY_VALUE;
-			 }else if (normalized_cloud_pattern[i][j] <= cut_elevation){
+			 }else if (normalized_cloud_pattern[i][j] <= cut_elevation ) {
 				 binary_cloud_pattern[i][j] = 0; //Cloud
-			 }else if (normalized_cloud_pattern[i][j] > cut_elevation){
+			 }else if (normalized_cloud_pattern[i][j] > cut_elevation ) {
 				 binary_cloud_pattern[i][j] = 1; //Blue sky
 			 }
 		 }
@@ -1446,26 +1484,26 @@ double climate::convert_to_binary_cloud(){
 
 }
 
-void climate::convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers, double alpha){
+void climate::convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers, double alpha ) {
 
 	double shade_step_size = 1.0/alpha;
 
-	if (cut_elevation == EMPTY_VALUE){ //Initialization call uses EMPTY_VALUE as the cut elevation.
+	if (cut_elevation == EMPTY_VALUE ) { //Initialization call uses EMPTY_VALUE as the cut elevation.
     //TDH: trivially parallelizable
 		//Resizing fuzzy cloud pattern
 		fuzzy_cloud_pattern.resize(num_fuzzy_layers);
-		for (int i = 0; i < num_fuzzy_layers; ++i){
+		for (int i = 0; i < num_fuzzy_layers; ++i ) {
 			fuzzy_cloud_pattern[i].resize(cloud_pattern_size);
-			for(int j = 0; j < cloud_pattern_size; j++){
+			for(int j = 0; j < cloud_pattern_size; j++ ) {
 				fuzzy_cloud_pattern[i][j].resize(cloud_pattern_size);
 			}
 		}
 
 		//Initializing fuzzy cloud pattern
     //TDH: trivially parallelizable
-		for (int i = 0; i < num_fuzzy_layers; i++){
-			for (int j = 0; j < cloud_pattern_size; j++){
-				for (int k = 0; k < cloud_pattern_size; k++){
+		for (int i = 0; i < num_fuzzy_layers; i++ ) {
+			for (int j = 0; j < cloud_pattern_size; j++ ) {
+				for (int k = 0; k < cloud_pattern_size; k++ ) {
 					fuzzy_cloud_pattern[i][j][k] = 0;
 				 }
 			 }
@@ -1474,20 +1512,26 @@ void climate::convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers
 
 	//Filling in fuzzy pattern with random values
   //TDH: trivially parallelizable
-	for (int i = 0; i < num_fuzzy_layers; i++){
+	for (int i = 0; i < num_fuzzy_layers; i++ ) 
+	{
 		double rand_upper = ((double)(i+1)/(double)num_fuzzy_layers)*cut_elevation;
 		double rand_lower = (((double)(i+1)-1)/(double)num_fuzzy_layers)*cut_elevation;
-		for (int j = 0; j < cloud_pattern_size; j++){
-			for (int kk = 0; kk < cloud_pattern_size; kk++){
-				double binary = binary_cloud_pattern[j][kk];
-				double normalized = normalized_cloud_pattern[j][kk];
-				double fuzzy = fuzzy_cloud_pattern[0][j][kk];
-				if (binary_cloud_pattern[j][kk] == 0.0 && normalized_cloud_pattern[j][kk] != EMPTY_VALUE && fuzzy_cloud_pattern[0][j][kk] != EMPTY_VALUE){ //Areas with 0 in the binary pattern are cloudy
-					if (normalized_cloud_pattern[j][kk] <= cut_elevation - ((i+1)*shade_step_size)){ //only values below the cut elevation accumulate
+		for (int j = 0; j < cloud_pattern_size; j++ ) 
+		{
+			for (int kk = 0; kk < cloud_pattern_size; kk++ ) 
+			{
+				if (binary_cloud_pattern[j][kk] == 0.0 && normalized_cloud_pattern[j][kk] != EMPTY_VALUE && fuzzy_cloud_pattern[0][j][kk] != EMPTY_VALUE ) 
+				{ 
+					//Areas with 0 in the binary pattern are cloudy
+					if (normalized_cloud_pattern[j][kk] <= cut_elevation - ((i+1)*shade_step_size) ) 
+					{ 
+						//only values below the cut elevation accumulate
 						fuzzy_cloud_pattern[0][j][kk] = gl_random_uniform(RNGSTATE,rand_lower, rand_upper)  + fuzzy_cloud_pattern[0][j][kk];
-						fuzzy = fuzzy_cloud_pattern[0][j][kk];
 					}
-				}else { //EMPTY_VALUES get coerced into 0.
+				}
+				else 
+				{ 
+					//EMPTY_VALUES get coerced into 0.
 					fuzzy_cloud_pattern[0][j][kk] = 0;
 				}
 			}
@@ -1498,21 +1542,20 @@ void climate::convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers
 	//Normalizing fuzzy pattern
 	double max_value = fuzzy_cloud_pattern[0][0][0];
 	double min_value = fuzzy_cloud_pattern[0][0][0];
-	for (int j = 0; j < cloud_pattern_size; j++){
-		for (int k = 0; k < cloud_pattern_size; k++){
-			double value = fuzzy_cloud_pattern[0][j][k];
-			if (fuzzy_cloud_pattern[0][j][k] > max_value){
+	for (int j = 0; j < cloud_pattern_size; j++ ) {
+		for (int k = 0; k < cloud_pattern_size; k++ ) {
+			if (fuzzy_cloud_pattern[0][j][k] > max_value ) {
 				max_value = fuzzy_cloud_pattern[0][j][k];
 			}
-			if (fuzzy_cloud_pattern[0][j][k] < min_value){
+			if (fuzzy_cloud_pattern[0][j][k] < min_value ) {
 				min_value = fuzzy_cloud_pattern[0][j][k];
 			}
 		}
 	}
 	double range = max_value - min_value;
-	if (range != 0){
-		for (int j = 0; j < cloud_pattern_size; j++){
-			for (int k = 0; k < cloud_pattern_size; k++){
+	if (range != 0 ) {
+		for (int j = 0; j < cloud_pattern_size; j++ ) {
+			for (int k = 0; k < cloud_pattern_size; k++ ) {
 				double value = (fuzzy_cloud_pattern[0][j][k] - min_value)/range;
 				fuzzy_cloud_pattern[0][j][k] = value;
 			}
@@ -1524,9 +1567,9 @@ void climate::convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers
 	///
 	//Put EMPTY_VALUEs back in before calling it good.
   //TDH: trivially parallelizable
-	for (int j = 0; j < cloud_pattern_size; j++){
-		for (int k = 0; k < cloud_pattern_size; k++){
-			if (cloud_pattern[j][k] == EMPTY_VALUE){
+	for (int j = 0; j < cloud_pattern_size; j++ ) {
+		for (int k = 0; k < cloud_pattern_size; k++ ) {
+			if (cloud_pattern[j][k] == EMPTY_VALUE ) {
 				fuzzy_cloud_pattern[0][j][k] = EMPTY_VALUE;
 			}
 
@@ -1537,43 +1580,43 @@ void climate::convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers
 }
 
 
-void climate::rebuild_cloud_pattern_edge( char edge_needing_rebuilt){
+void climate::rebuild_cloud_pattern_edge( char edge_needing_rebuilt ) {
 	int col_min = 0;
 	int row_min = 0;
 	int i = 0;
 
-	if (edge_needing_rebuilt == 'W'){
+	if (edge_needing_rebuilt == 'W' ) {
 		col_min = 0;
 		row_min = 0;
 		erase_off_screen_pattern('W');
-		for (i = 0; i < 1 + on_screen_size/CLOUD_TILE_SIZE + 1; i++ ){
+		for (i = 0; i < 1 + on_screen_size/CLOUD_TILE_SIZE + 1; i++  ) {
 			build_cloud_pattern(col_min, col_min + CLOUD_TILE_SIZE, row_min, row_min + CLOUD_TILE_SIZE); //Min/Max x/y must always define a 2^x + 1 region of cloud_pattern
 			row_min = row_min + CLOUD_TILE_SIZE;
 		}
 		trim_pattern_edge('W');
-	} else if (edge_needing_rebuilt == 'E'){
+	} else if (edge_needing_rebuilt == 'E' ) {
 		col_min = CLOUD_TILE_SIZE + on_screen_size - 1;
 		row_min = 0;
 		erase_off_screen_pattern('E');
-		for (i = 0; i < 1 + on_screen_size/CLOUD_TILE_SIZE + 1; i++ ){
+		for (i = 0; i < 1 + on_screen_size/CLOUD_TILE_SIZE + 1; i++  ) {
 			build_cloud_pattern(col_min, col_min + CLOUD_TILE_SIZE, row_min, row_min + CLOUD_TILE_SIZE); //Min/Max x/y must always define a 2^x + 1 region of cloud_pattern
 			row_min = row_min + CLOUD_TILE_SIZE;
 		}
 		trim_pattern_edge('E');
-	} else if (edge_needing_rebuilt == 'N'){
+	} else if (edge_needing_rebuilt == 'N' ) {
 		col_min = 0;
 		row_min = CLOUD_TILE_SIZE + on_screen_size - 1;
 		erase_off_screen_pattern('N');
-		for (i = 0; i < 1 + on_screen_size/CLOUD_TILE_SIZE + 1; i++ ){
+		for (i = 0; i < 1 + on_screen_size/CLOUD_TILE_SIZE + 1; i++  ) {
 			build_cloud_pattern(col_min, col_min + CLOUD_TILE_SIZE, row_min, row_min + CLOUD_TILE_SIZE); //Min/Max row/col must always define a 2^x + 1 region of cloud_pattern
 			col_min = col_min + CLOUD_TILE_SIZE;
 		}
 		trim_pattern_edge('N');
-	} else if (edge_needing_rebuilt == 'S'){
+	} else if (edge_needing_rebuilt == 'S' ) {
 		col_min = 0;
 		row_min = 0;
 		erase_off_screen_pattern('S');
-		for (i = 0; i < 1 + on_screen_size/CLOUD_TILE_SIZE + 1; i++ ){
+		for (i = 0; i < 1 + on_screen_size/CLOUD_TILE_SIZE + 1; i++  ) {
 			build_cloud_pattern(col_min, col_min + CLOUD_TILE_SIZE, row_min, row_min + CLOUD_TILE_SIZE); //Min/Max row/col must always define a 2^x + 1 region of cloud_pattern
 			col_min = col_min + CLOUD_TILE_SIZE;
 		}
@@ -1583,7 +1626,7 @@ void climate::rebuild_cloud_pattern_edge( char edge_needing_rebuilt){
 	}
 }
 
-void climate::trim_pattern_edge( char rebuilt_edge){
+void climate::trim_pattern_edge( char rebuilt_edge ) {
 	int min_edge = 0;
 	int min_edge_1 = 0;
 	int min_edge_2 = min_edge_1;
@@ -1595,24 +1638,24 @@ void climate::trim_pattern_edge( char rebuilt_edge){
 	int i = 0;
 	int j = 0;
 	//write_out_cloud_pattern('C');
-	if (rebuilt_edge == 'W' || rebuilt_edge == 'E'){
+	if (rebuilt_edge == 'W' || rebuilt_edge == 'E' ) {
 		//Checking for boundary at southern edge of pattern.
 		//Check three regions in areas south of on-screen: W, center, and E
     //TDH: trivially parallelizable - all three of these loops
-		for (i = 0; i < CLOUD_TILE_SIZE; i++){
-			if (cloud_pattern[i][10] != EMPTY_VALUE){
+		for (i = 0; i < CLOUD_TILE_SIZE; i++ ) {
+			if (cloud_pattern[i][10] != EMPTY_VALUE ) {
 				min_edge_1 = i;
 				break;
 			}
 		}
-		for (i = 0; i < CLOUD_TILE_SIZE; i++){
-			if (cloud_pattern[i][CLOUD_TILE_SIZE + 10] != EMPTY_VALUE){
+		for (i = 0; i < CLOUD_TILE_SIZE; i++ ) {
+			if (cloud_pattern[i][CLOUD_TILE_SIZE + 10] != EMPTY_VALUE ) {
 				min_edge_2 = i;
 				break;
 			}
 		}
-		for (i = 0; i < CLOUD_TILE_SIZE; i++){
-			if (cloud_pattern[i][CLOUD_TILE_SIZE + on_screen_size + 10] != EMPTY_VALUE){
+		for (i = 0; i < CLOUD_TILE_SIZE; i++ ) {
+			if (cloud_pattern[i][CLOUD_TILE_SIZE + on_screen_size + 10] != EMPTY_VALUE ) {
 				min_edge_3 = i;
 				break;
 			}
@@ -1622,20 +1665,20 @@ void climate::trim_pattern_edge( char rebuilt_edge){
 
 
 		//Checking for boundary at northern edge of pattern
-		for (i = CLOUD_TILE_SIZE + on_screen_size; i < cloud_pattern_size; i++){
-			if (cloud_pattern[i][10] == EMPTY_VALUE){
+		for (i = CLOUD_TILE_SIZE + on_screen_size; i < cloud_pattern_size; i++ ) {
+			if (cloud_pattern[i][10] == EMPTY_VALUE ) {
 				max_edge_1 = i;
 				break;
 			}
 		}
-		for (i = CLOUD_TILE_SIZE + on_screen_size; i < cloud_pattern_size; i++){
-			if (cloud_pattern[i][CLOUD_TILE_SIZE + 10] == EMPTY_VALUE){
+		for (i = CLOUD_TILE_SIZE + on_screen_size; i < cloud_pattern_size; i++ ) {
+			if (cloud_pattern[i][CLOUD_TILE_SIZE + 10] == EMPTY_VALUE ) {
 				max_edge_2 = i;
 				break;
 			}
 		}
-		for (i = CLOUD_TILE_SIZE + on_screen_size; i < cloud_pattern_size; i++){
-			if (cloud_pattern[i][CLOUD_TILE_SIZE + on_screen_size + 10] == EMPTY_VALUE){
+		for (i = CLOUD_TILE_SIZE + on_screen_size; i < cloud_pattern_size; i++ ) {
+			if (cloud_pattern[i][CLOUD_TILE_SIZE + on_screen_size + 10] == EMPTY_VALUE ) {
 				max_edge_3 = i;
 				break;
 			}
@@ -1645,34 +1688,34 @@ void climate::trim_pattern_edge( char rebuilt_edge){
 
 		//Trimming pattern
     //TDH: trivially parallelizable
-		for(j = 0; j < cloud_pattern_size; j++){
-			for(i = 0; i < min_edge; i++){
+		for(j = 0; j < cloud_pattern_size; j++ ) {
+			for(i = 0; i < min_edge; i++ ) {
 				cloud_pattern[i][j] = EMPTY_VALUE;
 			}
-			for(i = max_edge; i < cloud_pattern_size; i++){
+			for(i = max_edge; i < cloud_pattern_size; i++ ) {
 				cloud_pattern[i][j] = EMPTY_VALUE;
 			}
 		}
 		//write_out_cloud_pattern('C');
-	} else 	if (rebuilt_edge == 'N' || rebuilt_edge == 'S'){
+	} else 	if (rebuilt_edge == 'N' || rebuilt_edge == 'S' ) {
 		//Checking for boundary at western edge of pattern.
 		//Check three regions in areas south of on-screen: S, center, and N
 		//write_out_cloud_pattern('C');
     //TDH: trivially parallelizable - all three of these loops
-		for (j = 0; j < CLOUD_TILE_SIZE; j++){
-			if (cloud_pattern[10][j] != EMPTY_VALUE){
+		for (j = 0; j < CLOUD_TILE_SIZE; j++ ) {
+			if (cloud_pattern[10][j] != EMPTY_VALUE ) {
 				min_edge_1 = j;
 				break;
 			}
 		}
-		for (j = 0; j < CLOUD_TILE_SIZE; j++){
-			if (cloud_pattern[CLOUD_TILE_SIZE + 10][j] != EMPTY_VALUE){
+		for (j = 0; j < CLOUD_TILE_SIZE; j++ ) {
+			if (cloud_pattern[CLOUD_TILE_SIZE + 10][j] != EMPTY_VALUE ) {
 				min_edge_2 = j;
 				break;
 			}
 		}
-		for (j = 0; j < CLOUD_TILE_SIZE; j++){
-			if (cloud_pattern[CLOUD_TILE_SIZE + on_screen_size + 10][j] != EMPTY_VALUE){
+		for (j = 0; j < CLOUD_TILE_SIZE; j++ ) {
+			if (cloud_pattern[CLOUD_TILE_SIZE + on_screen_size + 10][j] != EMPTY_VALUE ) {
 				min_edge_3 = j;
 				break;
 			}
@@ -1681,20 +1724,20 @@ void climate::trim_pattern_edge( char rebuilt_edge){
 		min_edge = std::max(min_edge,min_edge_3);
 
 		//Checking for boundary at eastern edge of pattern
-		for (j = CLOUD_TILE_SIZE + on_screen_size; j < cloud_pattern_size; j++){
-			if (cloud_pattern[10][j] == EMPTY_VALUE){
+		for (j = CLOUD_TILE_SIZE + on_screen_size; j < cloud_pattern_size; j++ ) {
+			if (cloud_pattern[10][j] == EMPTY_VALUE ) {
 				max_edge_1 = j;
 				break;
 			}
 		}
-		for (j = CLOUD_TILE_SIZE + on_screen_size; j < cloud_pattern_size; j++){
-			if (cloud_pattern[CLOUD_TILE_SIZE + 10][j] == EMPTY_VALUE){
+		for (j = CLOUD_TILE_SIZE + on_screen_size; j < cloud_pattern_size; j++ ) {
+			if (cloud_pattern[CLOUD_TILE_SIZE + 10][j] == EMPTY_VALUE ) {
 				max_edge_2 = j;
 				break;
 			}
 		}
-		for (j = CLOUD_TILE_SIZE + on_screen_size; j < cloud_pattern_size; j++){
-			if (cloud_pattern[CLOUD_TILE_SIZE + on_screen_size + 10][j] == EMPTY_VALUE){
+		for (j = CLOUD_TILE_SIZE + on_screen_size; j < cloud_pattern_size; j++ ) {
+			if (cloud_pattern[CLOUD_TILE_SIZE + on_screen_size + 10][j] == EMPTY_VALUE ) {
 				max_edge_3 = j;
 				break;
 			}
@@ -1704,11 +1747,11 @@ void climate::trim_pattern_edge( char rebuilt_edge){
 
 		//Trimming pattern
     //TDH: trivially parallelizable
-		for(i = 0; i < cloud_pattern_size; i++){
-			for(j = 0; j < min_edge; j++){
+		for(i = 0; i < cloud_pattern_size; i++ ) {
+			for(j = 0; j < min_edge; j++ ) {
 				cloud_pattern[i][j] = EMPTY_VALUE;
 			}
-			for(j = max_edge; j < cloud_pattern_size; j++){
+			for(j = max_edge; j < cloud_pattern_size; j++ ) {
 				cloud_pattern[i][j] = EMPTY_VALUE;
 			}
 		}
@@ -1718,40 +1761,30 @@ void climate::trim_pattern_edge( char rebuilt_edge){
 	//write_out_cloud_pattern('C');
 }
 
-void climate::erase_off_screen_pattern( char edge_to_erase){
-	int col_min = 0;
-	int row_min = 0;
-  
+void climate::erase_off_screen_pattern( char edge_to_erase)
+{
   //TDH: trivially parallelizable - all four of these loops
-	if (edge_to_erase == 'W'){
-		col_min = 0;
-		row_min = 0;
-		for (int i = 0; i < cloud_pattern_size; i++){ //rows
-			for (int j = 0; j < CLOUD_TILE_SIZE - 1; j++){ //cols
+	if (edge_to_erase == 'W' ) {
+		for (int i = 0; i < cloud_pattern_size; i++ ) { //rows
+			for (int j = 0; j < CLOUD_TILE_SIZE - 1; j++ ) { //cols
 				cloud_pattern[i][j] = EMPTY_VALUE;
 			}
 		}
-	} else if (edge_to_erase == 'E'){
-		col_min = 0;
-		row_min = 0;
-		for (int i = 0; i < cloud_pattern_size; i++){ //rows
-			for (int j = cloud_pattern_size - CLOUD_TILE_SIZE + 1; j < cloud_pattern_size; j++){ //cols
+	} else if (edge_to_erase == 'E' ) {
+		for (int i = 0; i < cloud_pattern_size; i++ ) { //rows
+			for (int j = cloud_pattern_size - CLOUD_TILE_SIZE + 1; j < cloud_pattern_size; j++ ) { //cols
 				cloud_pattern[i][j] = EMPTY_VALUE;
 			}
 		}
-	} else if (edge_to_erase == 'N'){
-		col_min = 0;
-		row_min = 0;
-		for (int i = cloud_pattern_size - CLOUD_TILE_SIZE + 1; i < cloud_pattern_size; i++){ //rows
-			for (int j = 0; j < cloud_pattern_size; j++){ //cols
+	} else if (edge_to_erase == 'N' ) {
+		for (int i = cloud_pattern_size - CLOUD_TILE_SIZE + 1; i < cloud_pattern_size; i++ ) { //rows
+			for (int j = 0; j < cloud_pattern_size; j++ ) { //cols
 				cloud_pattern[i][j] = EMPTY_VALUE;
 			}
 		}
-	} else if (edge_to_erase == 'S'){
-		col_min = 0;
-		row_min = 0;
-		for (int i = 0; i < CLOUD_TILE_SIZE - 1; i++){ //rows
-			for (int j = 0; j < cloud_pattern_size; j++){ //cols
+	} else if (edge_to_erase == 'S' ) {
+		for (int i = 0; i < CLOUD_TILE_SIZE - 1; i++ ) { //rows
+			for (int j = 0; j < cloud_pattern_size; j++ ) { //cols
 				cloud_pattern[i][j] = EMPTY_VALUE;
 			}
 		}
@@ -1759,7 +1792,9 @@ void climate::erase_off_screen_pattern( char edge_to_erase){
 	//write_out_cloud_pattern('C');
 }
 
-void climate::write_out_pattern_shift(int row_shift, int col_shift){ //Used only for verification.
+void climate::write_out_pattern_shift(int row_shift, int col_shift ) 
+{ 
+	//Used only for verification.
 	using namespace std;
 	ofstream out_file;
 
@@ -1769,7 +1804,9 @@ void climate::write_out_pattern_shift(int row_shift, int col_shift){ //Used only
 }
 
 
-void climate::write_out_cloud_pattern( char pattern){ //Used only for verification.
+void climate::write_out_cloud_pattern( char pattern ) 
+{ 
+	//Used only for verification.
 	using namespace std;
 	ofstream out_file;
 
@@ -1778,42 +1815,62 @@ void climate::write_out_cloud_pattern( char pattern){ //Used only for verificati
 	std::string file_string = buffer;
 	out_file.open(file_string.c_str(), ios::out);
 
-	if (pattern == 'C'){
-		for (int i = 0; i < cloud_pattern.size(); i++ ){
-				for (int j = 0; j < cloud_pattern.size(); j++){
-					if (j == (cloud_pattern.size()-1)){
+	if (pattern == 'C' ) 
+	{
+		for (size_t i = 0; i < cloud_pattern.size(); i++  ) 
+		{
+				for (size_t j = 0; j < cloud_pattern.size(); j++ ) 
+				{
+					if (j == (cloud_pattern.size()-1) ) 
+					{
 						out_file << cloud_pattern[i][j] << endl;
-					} else {
-					out_file << cloud_pattern[i][j] << ",";
+					} 
+					else 
+					{
+						out_file << cloud_pattern[i][j] << ",";
 					}
 				}
 		}
 		out_file.close();
-	}else if (pattern == 'B'){
-		for (int i = 0; i < binary_cloud_pattern.size(); i++ ){
-				for (int j = 0; j < binary_cloud_pattern.size(); j++){
-					if (j == (binary_cloud_pattern.size()-1)){
+	}
+	else if (pattern == 'B')
+	{
+		for (size_t i = 0; i < binary_cloud_pattern.size(); i++ )
+		{
+				for (size_t j = 0; j < binary_cloud_pattern.size(); j++)
+				{
+					if (j == (binary_cloud_pattern.size()-1))
+					{
 						out_file << binary_cloud_pattern[i][j] << endl;
-					} else {
+					} 
+					else 
+					{
 					out_file << binary_cloud_pattern[i][j] << ",";
 					}
 				}
 		}
 		out_file.close();
-	}else if (pattern == 'F'){
-	for (int i = 0; i < cloud_pattern_size; i++ ){
-			for (int j = 0; j < cloud_pattern_size; j++){
-				if (j == (cloud_pattern_size-1)){
+	}
+	else if (pattern == 'F')
+	{
+		for (int i = 0; i < cloud_pattern_size; i++ )
+		{
+			for (int j = 0; j < cloud_pattern_size; j++)
+			{
+				if (j == (cloud_pattern_size-1))
+				{
 					out_file << fuzzy_cloud_pattern[0][i][j] << endl;
-				} else {
-				out_file << fuzzy_cloud_pattern[0][i][j] << ",";
+				} 
+				else 
+				{
+					out_file << fuzzy_cloud_pattern[0][i][j] << ",";
 				}
 			}
 	}
 	out_file.close();
 }
 }
-void climate::build_cloud_pattern(int col_min, int col_max, int row_min, int row_max){ //Min/Max row/col must always define a 2^x + 1 region of cloud_pattern
+void climate::build_cloud_pattern(int col_min, int col_max, int row_min, int row_max ) { //Min/Max row/col must always define a 2^x + 1 region of cloud_pattern
 	int const SIGMA = 5;
 	int step = col_max - col_min;
 	int half_step = step / 2;
@@ -1823,16 +1880,16 @@ void climate::build_cloud_pattern(int col_min, int col_max, int row_min, int row
 	float stdev = SIGMA * SIGMA;
 
 	//Seed corner values that are empty
-	if (cloud_pattern[row_start][col_start] < EMPTY_VALUE * 0.98){
+	if (cloud_pattern[row_start][col_start] < EMPTY_VALUE * 0.98 ) {
 		cloud_pattern[row_start][col_start] = gl_random_normal(RNGSTATE,0,stdev);
 	}
-	if (cloud_pattern[row_start + step][col_start] < EMPTY_VALUE * 0.98){
+	if (cloud_pattern[row_start + step][col_start] < EMPTY_VALUE * 0.98 ) {
 		cloud_pattern[row_start + step][col_start] = gl_random_normal(RNGSTATE,0,stdev);
 	}
-	if (cloud_pattern[row_start][col_start + step] < EMPTY_VALUE * 0.98){
+	if (cloud_pattern[row_start][col_start + step] < EMPTY_VALUE * 0.98 ) {
 		cloud_pattern[row_start][col_start + step] = gl_random_normal(RNGSTATE,0,stdev);
 	}
-	if (cloud_pattern[row_start + step][col_start + step] < EMPTY_VALUE * 0.98){
+	if (cloud_pattern[row_start + step][col_start + step] < EMPTY_VALUE * 0.98 ) {
 		cloud_pattern[row_start + step][col_start + step] = gl_random_normal(RNGSTATE,0,stdev);
 	}
 
@@ -1840,16 +1897,16 @@ void climate::build_cloud_pattern(int col_min, int col_max, int row_min, int row
 	//Filling in rest of pattern
 	float D = 0;
 	double delta = 0;
-	for (int k = 0; k < max_num_recursions; k++){
+	for (int k = 0; k < max_num_recursions; k++ ) {
 		col_start = col_min;
 		row_start = row_min;
-		if (k <= 3){
+		if (k <= 3 ) {
 			D = 1.9;
 		} else {
 			D = 1.33;
 		}
 
-		if (k==0){
+		if (k==0 ) {
 			delta = SIGMA * pow(0.5,(0.5 * (2-D)));
 		} else {
 			delta = delta * pow(0.5,(0.5 * (2-D)));
@@ -1857,8 +1914,8 @@ void climate::build_cloud_pattern(int col_min, int col_max, int row_min, int row
 
 		stdev = delta*delta;
 		int end = pow(2.0,(double)(k));
-		for (int i = 0; i < end; i++){
-			for (int j = 0; j < end; j++){
+		for (int i = 0; i < end; i++ ) {
+			for (int j = 0; j < end; j++ ) {
 				//	- - -> inc col
 				//
 				//	|	c1		e_b		c2
@@ -1877,19 +1934,19 @@ void climate::build_cloud_pattern(int col_min, int col_max, int row_min, int row
 				double e_d = (x + c3 + c4)/3 + gl_random_normal(RNGSTATE,0, stdev);
 
 
-				if (cloud_pattern[row_start + half_step][col_start + half_step] < EMPTY_VALUE * 0.98){
+				if (cloud_pattern[row_start + half_step][col_start + half_step] < EMPTY_VALUE * 0.98 ) {
 					cloud_pattern[row_start + half_step][col_start + half_step] = x;
 				}
-				if (cloud_pattern[row_start + half_step][col_start] < EMPTY_VALUE * 0.98){
+				if (cloud_pattern[row_start + half_step][col_start] < EMPTY_VALUE * 0.98 ) {
 					cloud_pattern[row_start + half_step][col_start] = e_a;
 				}
-				if (cloud_pattern[row_start][col_start + half_step] < EMPTY_VALUE * 0.98){
+				if (cloud_pattern[row_start][col_start + half_step] < EMPTY_VALUE * 0.98 ) {
 					cloud_pattern[row_start][col_start + half_step] = e_b;
 				}
-				if (cloud_pattern[row_start + half_step][col_start + step] < EMPTY_VALUE * 0.98){
+				if (cloud_pattern[row_start + half_step][col_start + step] < EMPTY_VALUE * 0.98 ) {
 					cloud_pattern[row_start + half_step][col_start + step] = e_c;
 				}
-				if (cloud_pattern[row_start + step][col_start + half_step] < EMPTY_VALUE * 0.98){
+				if (cloud_pattern[row_start + step][col_start + half_step] < EMPTY_VALUE * 0.98 ) {
 					cloud_pattern[row_start + step][col_start + half_step] = e_d;
 				}
 				row_start = row_start + step;
@@ -1903,7 +1960,8 @@ void climate::build_cloud_pattern(int col_min, int col_max, int row_min, int row
 }
 
 
-int climate::calc_cloud_pattern_size(std::vector< std::vector<double> > &location_list){
+int climate::calc_cloud_pattern_size(std::vector< std::vector<double> > &location_list)
+{
 	double lat_max = (location_list)[0][0];
 	double lat_min = (location_list)[0][0];
 	double long_max = (location_list)[0][1];
@@ -1913,8 +1971,10 @@ int climate::calc_cloud_pattern_size(std::vector< std::vector<double> > &locatio
 	double degree_range_lat = 0;
 	double degree_range_lon = 0;
 	int num_tile_edge = 1; //Minimum size (1 on-screen tile with 1 off-screen on all sides; 9 tiles total).
-	if (location_list.size() > 1) {
-		for (int i=1; i<location_list.size(); i++) {
+	if ( location_list.size() > 1 ) 
+	{
+		for ( size_t i=1; i<location_list.size(); i++ ) 
+		{
 			lat_max = std::max(lat_max,(location_list)[i][0]);
 			lat_min = std::min(lat_min,(location_list)[i][0]);
 			long_max = std::max(long_max,(location_list)[i][1]);
@@ -1950,10 +2010,9 @@ int climate::calc_cloud_pattern_size(std::vector< std::vector<double> > &locatio
 
 void climate::update_forecasts(TIMESTAMP t0)
 {
+#if 0
 	static const int Nh = 72; /* number of hours in forecast */
 	static const int dt = 3600; /* number of seconds in forecast interval */
-
-#if 0
 	FORECAST *fc;
 	
 	for ( fc=get_forecast() ; fc!=NULL ; fc=fc->next )
@@ -2006,7 +2065,7 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 
 	// TODO: need to read the cloud stuff from the csv file
 	// changes appear to be limited to weather.h, weather.cpp, csv_reader.h, csv_reader.cpp
-	if(t0 > TS_ZERO && reader_type == RT_CSV){
+	if(t0 > TS_ZERO && reader_type == RT_CSV ) {
 		gld_clock now(t0);
 		csv_reader *cr = OBJECTDATA(reader,csv_reader);
 		csv_rv = cr->get_data(t0, &temperature, &humidity, &solar_direct, &solar_diffuse, &solar_global, &global_horizontal_extra, &wind_speed,&wind_dir, &opq_sky_cov, &tot_sky_cov, &rainfall, &snowdepth, &pressure);
@@ -2020,7 +2079,7 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 		double sol_rad = 0.0;
 
 
-		for(COMPASS_PTS c_point = CP_H; c_point < CP_LAST;c_point=COMPASS_PTS(c_point+1)){
+		for(COMPASS_PTS c_point = CP_H; c_point < CP_LAST;c_point=COMPASS_PTS(c_point+1) ) {
 			if(c_point == CP_H)
 				sol_rad = file->calc_solar(CP_E,now.get_yearday(),RAD(reader->latitude),sol_time,solar_direct,solar_diffuse,solar_global,ground_reflectivity,0.0);//(double)dnr * cos_incident + dhr;
 			else
@@ -2036,7 +2095,7 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 		int localres = gl_localtime(t0,&ts);
 		int hoy;
 		double now, hoy0, hoy1, hoy2;
-		if(localres == 0){
+		if(localres == 0 ) {
 			GL_THROW("climate::sync -- unable to resolve localtime!");
 		}
 		int doy = sa->day_of_yr(ts.month,ts.day);
@@ -2046,16 +2105,16 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 		//One hour shift as TMY are summarized values for the preceding hour. To accurately calculate the solar time
 		//    we need to start from the beginning of the hour and advance through it.
 		gld_clock present(t0);
-		if (!is_TMY2){
+		if (!is_TMY2 ) {
 			if (present.get_is_dst())
 				hoy = hoy - 2;
 			else
 				hoy = hoy - 1;
 		}
-		if (hoy < 0){ //Taking care of the wrap-around at the year boundary.
+		if (hoy < 0 ) { //Taking care of the wrap-around at the year boundary.
 			hoy = hoy + 8760;
 		}
-		switch(interpolate){
+		switch(interpolate ) {
 			case CI_NONE:
 				temperature = (tmy[hoy].temp);
 				humidity = (tmy[hoy].rh);
@@ -2114,37 +2173,37 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 				hoy2 = hoy+2.0;
 				temperature = (gl_qerp(now, hoy0, tmy[hoy].temp, hoy1, tmy[hoy+1%8760].temp, hoy2, tmy[hoy+2%8760].temp));
 				humidity = (gl_qerp(now, hoy0, tmy[hoy].rh, hoy1, tmy[hoy+1%8760].rh, hoy2, tmy[hoy+2%8760].rh));
-				if(humidity < 0.0){
+				if(humidity < 0.0 ) {
 					humidity = 0.0;
 					gl_verbose("Setting humidity to zero. Quadratic interpolation caused the humidity to drop below zero.");
 				}
 				solar_direct = (gl_qerp(now, hoy0, tmy[hoy].dnr, hoy1, tmy[hoy+1%8760].dnr, hoy2, tmy[hoy+2%8760].dnr));
-				if(solar_direct < 0.0){
+				if(solar_direct < 0.0 ) {
 					solar_direct = 0.0;
 					gl_verbose("Setting solar_direct to zero. Quadratic interpolation caused the solar_direct to drop below zero.");
 				}
 				solar_diffuse = (gl_qerp(now, hoy0, tmy[hoy].dhr, hoy1, tmy[hoy+1%8760].dhr, hoy2, tmy[hoy+2%8760].dhr));
-				if(solar_diffuse < 0.0){
+				if(solar_diffuse < 0.0 ) {
 					solar_diffuse = 0.0;
 					gl_verbose("Setting solar_diffuse to zero. Quadratic interpolation caused the solar_diffuse to drop below zero.");
 				}
 				solar_global = (gl_qerp(now, hoy0, tmy[hoy].ghr, hoy1, tmy[hoy+1%8760].ghr, hoy2, tmy[hoy+2%8760].ghr));
-				if(solar_global < 0.0){
+				if(solar_global < 0.0 ) {
 					solar_global = 0.0;
 					gl_verbose("Setting solar_global to zero. Quadratic interpolation caused the solar_global to drop below zero.");
 				}
 				wind_speed = (gl_qerp(now, hoy0, tmy[hoy].windspeed, hoy1, tmy[hoy+1%8760].windspeed, hoy2, tmy[hoy+2%8760].windspeed));
-				if(wind_speed < 0.0){
+				if(wind_speed < 0.0 ) {
 					wind_speed = 0.0;
 					gl_verbose("Setting wind_speed to zero. Quadratic interpolation caused the wind_speed to drop below zero.");
 				}
 				rainfall = (gl_qerp(now, hoy0, tmy[hoy].rainfall, hoy1, tmy[hoy+1%8760].rainfall, hoy2, tmy[hoy+2%8760].rainfall));
-				if(rainfall < 0.0){
+				if(rainfall < 0.0 ) {
 					rainfall = 0.0;
 					gl_verbose("Setting rainfall to zero. Quadratic interpolation caused the rainfall to drop below zero.");
 				}
 				snowdepth = (gl_qerp(now, hoy0, tmy[hoy].snowdepth, hoy1, tmy[hoy+1%8760].snowdepth, hoy2, tmy[hoy+2%8760].snowdepth));
-				if(snowdepth < 0.0){
+				if(snowdepth < 0.0 ) {
 					snowdepth = 0.0;
 					gl_verbose("Setting snowdepth to zero. Quadratic interpolation caused the snowdepth to drop below zero.");
 				}
@@ -2153,41 +2212,41 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 				solar_zenith = (gl_qerp(now, hoy0, tmy[hoy].solar_zenith, hoy1, tmy[hoy+1%8760].solar_zenith, hoy2, tmy[hoy+2%8760].solar_zenith));
 				temperature_raw = (gl_qerp(now, hoy0, tmy[hoy].temp_raw, hoy1, tmy[hoy+1%8760].temp_raw, hoy2, tmy[hoy+2%8760].temp_raw));
 				solar_raw = (gl_qerp(now, hoy0, tmy[hoy].solar_raw, hoy1, tmy[hoy+1%8760].solar_raw, hoy2, tmy[hoy+2%8760].solar_raw));
-				if(solar_raw < 0.0){
+				if(solar_raw < 0.0 ) {
 					solar_raw = 0.0;
 					gl_verbose("Setting solar_raw to zero. Quadratic interpolation caused the solar_raw to drop below zero.");
 				}
 				pressure = gl_qerp(now, hoy0, tmy[hoy].pressure, hoy1, tmy[hoy+1%8760].pressure, hoy2, tmy[hoy+2%8760].pressure);
-				if(pressure < 0.0){
+				if(pressure < 0.0 ) {
 					pressure = 0.0;
 					gl_verbose("Setting pressure to zero. Quadratic interpolation caused the pressure to drop below zero.");
 				}
 				direct_normal_extra = gl_qerp(now, hoy0, tmy[hoy].direct_normal_extra, hoy1, tmy[hoy+1%8760].direct_normal_extra, hoy2, tmy[hoy+2%8760].direct_normal_extra);
-				if(direct_normal_extra < 0.0){
+				if(direct_normal_extra < 0.0 ) {
 					direct_normal_extra = 0.0;
 					gl_verbose("Setting extraterrestrial_direct_normal to zero. Quadratic interpolation caused the extraterrestrial_direct_normal to drop below zero.");
 				}
 				global_horizontal_extra = gl_qerp(now, hoy0, tmy[hoy].global_horizontal_extra, hoy1, tmy[hoy+1%8760].global_horizontal_extra, hoy2, tmy[hoy+2%8760].global_horizontal_extra);
-				if(global_horizontal_extra < 0.0){
+				if(global_horizontal_extra < 0.0 ) {
 					global_horizontal_extra = 0.0;
 					gl_verbose("Setting global_horizontal_extra to zero. Quadratic interpolation caused the global_horizontal_extra to drop below zero.");
 				}
 				wind_dir = gl_qerp(now, hoy0, tmy[hoy].wind_dir, hoy1, tmy[hoy+1%8760].wind_dir, hoy2, tmy[hoy+2%8760].wind_dir);
-				if(wind_dir < 0.0){
+				if(wind_dir < 0.0 ) {
 					wind_dir = 360.0+wind_dir;
 					gl_verbose("Setting wind_dir to 360+wind_dir. Quadratic interpolation caused the wind_dir to drop below zero.");
 				}
-				if(wind_dir > 360.0){
+				if(wind_dir > 360.0 ) {
 					wind_dir = wind_dir-360.0;
 					gl_verbose("Setting wind_dir to wind_dir-360. Quadratic interpolation caused the wind_dir to rise above 360.");
 				}
 				tot_sky_cov = gl_qerp(now, hoy0, tmy[hoy].tot_sky_cov, hoy1, tmy[hoy+1%8760].tot_sky_cov, hoy2, tmy[hoy+2%8760].tot_sky_cov);
-				if(tot_sky_cov < 0.0){
+				if(tot_sky_cov < 0.0 ) {
 					tot_sky_cov = 0.0;
 					gl_verbose("Setting tot_sky_cov to zero. Quadratic interpolation caused the tot_sky_cov to drop below zero.");
 				}
 				opq_sky_cov = gl_qerp(now, hoy0, tmy[hoy].opq_sky_cov, hoy1, tmy[hoy+1%8760].opq_sky_cov, hoy2, tmy[hoy+2%8760].opq_sky_cov);
-				if(opq_sky_cov < 0.0){
+				if(opq_sky_cov < 0.0 ) {
 					opq_sky_cov = 0.0;
 					gl_verbose("Setting opq_sky_cov to zero. Quadratic interpolation caused the opq_sky_cov to drop below zero.");
 				}
@@ -2211,7 +2270,7 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 		tmy_rv = -(t0+(3600*TS_SECOND-t0%(3600 *TS_SECOND))); /// negative means soft event
 	}
 	if (cloud_model == CM_CUMULUS) {
-		if (prev_NTime != t0 ){
+		if (prev_NTime != t0  ) {
 			double p = pressure*0.1; // in millibars, convert to kPa
 			double Z = solar_zenith;
 			double M = 0.02857*sqrt((1224. * cos(Z) * cos(Z)) + 1.);

@@ -181,7 +181,7 @@ int meter::isa(char *classname)
 int meter::create()
 {
 	int result = node::create();
-	int i;
+	size_t i;
 #ifdef SUPPORT_OUTAGES
 	sustained_count=0;	//reliability sustained event counter
 	momentary_count=0;	//reliability momentary event counter
@@ -332,7 +332,7 @@ int meter::check_prices(){
 		{
 			GL_THROW("meter energy tiers quantity trend improperly");
 		}
-		for ( int i = 0 ; i < sizeof(tier_price)/sizeof(tier_price[0]) ; ++i )
+		for ( size_t i = 0 ; i < sizeof(tier_price)/sizeof(tier_price[0]) ; ++i )
 		{
 			if ( tier_price[i] < 0.0 || tier_energy[i] < 0.0 )
 				GL_THROW("meter tiers cannot have negative values");
@@ -432,7 +432,6 @@ TIMESTAMP meter::sync(TIMESTAMP t0)
 
 TIMESTAMP meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	complex temp_current;
 	TIMESTAMP tretval;
 
@@ -945,11 +944,10 @@ EXPORT SIMULATIONMODE interupdate_meter(OBJECT *obj, unsigned int64 delta_time, 
 int meter::kmldata(int (*stream)(const char*,...))
 {
 	int phase[3] = {has_phase(PHASE_A),has_phase(PHASE_B),has_phase(PHASE_C)};
-	double basis[3] = {0,240,120};
 
 	// power
 	stream("<TR><TH ALIGN=LEFT>Power</TH>");
-	for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+	for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 	{
 		if ( phase[i] )
 			stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>kVA</TD>", indiv_measured_power[i].Mag()/1000);

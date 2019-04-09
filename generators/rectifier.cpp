@@ -22,7 +22,6 @@ Copyright (C) 2008 Battelle Memorial Institute
 CLASS *rectifier::oclass = NULL;
 rectifier *rectifier::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */
@@ -184,8 +183,6 @@ int rectifier::init(OBJECT *parent)
 
 	gl_verbose("rectifier init: initialized the variables");
 
-	int i;
-
 	if (parent!=NULL && gl_object_isa(parent,"meter"))
 	{
 		// TO DO: Figure out how to connect a DC device to meter.
@@ -206,7 +203,6 @@ int rectifier::init(OBJECT *parent)
 		};*/
 
 		// attach meter variables to each circuit
-			i=0;
 			if ((*(&pCircuit_V) = get_complex(parent,"V_In"))==NULL)
 			{
 				GL_THROW("%s (%s:%d) does not implement inverter variable %s for %s (inverter:%d)", 
@@ -216,7 +212,6 @@ int rectifier::init(OBJECT *parent)
 					*/
 					parent->name?parent->name:"unnamed object", parent->oclass->name, parent->id, "Vdc", obj->name?obj->name:"unnamed", obj->id);
 			}
-			i=1;
 			if ((*(&pLine_I) = get_complex(parent,"I_In"))==NULL)
 			{
 				GL_THROW("%s (%s:%d) does not implement inverter variable %s for %s (inverter:%d)", 

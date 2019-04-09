@@ -1252,8 +1252,13 @@ static STATUS resolve_list(UNRESOLVED *item)
 	return result;
 }
 
+void start_parse(int &mm, int &m, int &n, int &l, int linenum)
+{
+	mm = m = n = l = 0;
+	l = linenum;
+}
 #define PARSER const char *_p
-#define START int _mm, _m, _n, _l; {_mm = 0; _m = 0; _n = 0; _l = linenum;}
+#define START int _mm, _m, _n, _l; start_parse(_mm,_m,_n,_l,linenum);
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
 #define OR {_m=0;}
@@ -3523,7 +3528,6 @@ static int class_block(PARSER)
 {
 	char classname[MAXCLASSNAMELEN+1];
 	CLASS *oclass;
-	int startline;
 	int64 functions = 0;
 	char initcode[65536]="";
 	char parent[64];
@@ -3532,7 +3536,7 @@ static int class_block(PARSER)
 	if WHITE ACCEPT;
 	if (LITERAL("class") && WHITE) /* enforced whitespace */
 	{
-		startline = linenum;
+		// startline = linenum;
 		if TERM(name(HERE,classname,sizeof(classname)))
 		{
 			if (WHITE,LITERAL(":"))
@@ -3758,7 +3762,6 @@ static int class_block(PARSER)
 
 int set_flags(OBJECT *obj, char *propval)
 {
-	extern KEYWORD oflags[];
 	if (convert_to_set(propval,&(obj->flags),object_flag_property())<=0)
 	{
 		output_error_raw("%s(%d): flags of %s:%d %s could not be set to %s", filename, linenum, obj->oclass->name, obj->id, obj->name, propval);
@@ -5491,7 +5494,6 @@ static int filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 		{
 			output_error_raw("%s(%d): filter polynomial order cannot be higher than 63",filename,linenum);
 			REJECT;
-			goto Done;
 		}
 		else
 		{
@@ -5512,7 +5514,6 @@ static int filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 		*n = (m+1);
 		memcpy(a,x,sizeof(double)*(m+1));
 	}
-Done:
 	DONE;
 }
 static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
@@ -6823,23 +6824,15 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		//if (sscanf(term+1,"%[^\n\r]",value)==1)
 		strcpy(value, strip_right_white(term+1));
-		if(1){
 #ifdef WIN32
-			putenv(value);
+		putenv(value);
 #else
-			var = strtok_r(value, "=", &save);
-                        val = strtok_r(NULL, "=", &save);
-                        setenv(var, val, 1);
+		var = strtok_r(value, "=", &save);
+                    val = strtok_r(NULL, "=", &save);
+                    setenv(var, val, 1);
 #endif
-			strcpy(line,"\n");
-			return SUCCESS;
-		}
-		else
-		{
-			output_error_raw("%s(%d): %ssetenv term missing or invalid",filename,linenum,MACRO);
-			strcpy(line,"\n");
-			return FALSE;
-		}
+		strcpy(line,"\n");
+		return SUCCESS;
 	}
 	else if (strncmp(line,MACRO "set",4)==0)
 	{
@@ -6853,30 +6846,22 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		//if (sscanf(term+1,"%[^\n\r]",value)==1)
 		strcpy(value, strip_right_white(term+1));
-		if(1){
-			STATUS result;
-			if (strchr(value,'=')==NULL)
-			{
-				output_error_raw("%s(%d): %sset missing assignment",filename,linenum,MACRO);
-				return FAILED;
-			}
-			else
-			{
-				int oldstrict = global_strictnames;
-				global_strictnames = TRUE;
-				result = global_setvar(value);
-				global_strictnames = strncmp(value,"strictnames=",12)==0 ? global_strictnames : oldstrict;
-				if (result==FAILED)
-					output_error_raw("%s(%d): %sset term not found",filename,linenum,MACRO);
-				strcpy(line,"\n");
-				return result==SUCCESS;
-			}
+		STATUS result;
+		if (strchr(value,'=')==NULL)
+		{
+			output_error_raw("%s(%d): %sset missing assignment",filename,linenum,MACRO);
+			return FAILED;
 		}
 		else
 		{
-			output_error_raw("%s(%d): %sset term missing or invalid",filename,linenum,MACRO);
+			int oldstrict = global_strictnames;
+			global_strictnames = TRUE;
+			result = global_setvar(value);
+			global_strictnames = strncmp(value,"strictnames=",12)==0 ? global_strictnames : oldstrict;
+			if (result==FAILED)
+				output_error_raw("%s(%d): %sset term not found",filename,linenum,MACRO);
 			strcpy(line,"\n");
-			return FALSE;
+			return result==SUCCESS;
 		}
 	}
 	else if (strncmp(line,MACRO "binpath",8)==0)
@@ -7106,9 +7091,6 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return FALSE;
 	}
-
-	output_error_raw("%s(%d): macro fell out of logic tree", filename, linenum);
-	return FALSE;
 }
 
 STATUS loadall_glm(char *file) /**< a pointer to the first character in the file name string */

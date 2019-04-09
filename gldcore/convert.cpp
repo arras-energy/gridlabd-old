@@ -299,7 +299,7 @@ int convert_from_enumeration(char *buffer, /**< pointer to the string buffer */
 	int count = 0;
 	char temp[1025];
 	/* get the true value */
-	int value = *(uint32*)data;
+	uint64 value = *(uint64*)data;
 
 	/* process the keyword list, if any */
 	for ( ; keys!=NULL ; keys=keys->next )
@@ -316,7 +316,7 @@ int convert_from_enumeration(char *buffer, /**< pointer to the string buffer */
 	/* no keyword found, return the numeric value instead */
 	if ( count == 0 )
 	{
-		 count = sprintf(temp,"%d",value);
+		 count = sprintf(temp,"%llu",(unsigned long long)value);
 	}
 	if ( count < size - 1 )
 	{
@@ -454,11 +454,13 @@ int convert_to_set(const char *buffer, /**< a pointer to the string buffer */
 	/* directly convert numeric strings */
 	if ( strnicmp(buffer,"0x",2) == 0 )
 	{
-		return sscanf(buffer,"0x%llx",(uint64*)data);
+		const char *fmt = ( sizeof(uint64) < sizeof(long long) ? "0x%lx" : "0x%llx");
+		return sscanf(buffer,fmt,(uint64*)data);
 	}
 	else if ( isdigit(buffer[0]) )
 	{
-		return sscanf(buffer,"%lld",(uint64*)data);
+		const char *fmt = ( sizeof(uint64) < sizeof(long long) ? "%llu" : "%lu");
+		return sscanf(buffer,fmt,(uint64*)data);
 	}
 
 	/* prevent long buffer from being scanned */
@@ -847,7 +849,7 @@ int convert_from_object(char *buffer, /**< pointer to the string buffer */
 	if ( obj->name != NULL )
 	{
 		size_t a = strlen(obj->name);
-		if ( (a != 0) && (a+1 < size) )
+		if ( (a != 0) && (a+1 < (size_t)size) )
 		{
 			strcat(buffer, obj->name);
 			return (int)(a+1);
@@ -856,7 +858,7 @@ int convert_from_object(char *buffer, /**< pointer to the string buffer */
 
 	/* construct the object's name */
 	size_t a = sprintf(temp,global_object_format,obj->oclass->name,obj->id);
-	if ( a+1 < size )
+	if ( a+1 < (size_t)size )
 	{
 		strcat(buffer,temp);
 		return a+1;

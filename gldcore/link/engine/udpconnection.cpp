@@ -1,3 +1,6 @@
+// gldcore/udpconnection.cpp
+// Copyright (C) 2012 Battelle Memorial Institute
+
 #include "engine.h"
 
 typedef struct s_udp_socket_data{
