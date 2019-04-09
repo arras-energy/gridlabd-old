@@ -12,9 +12,8 @@ EXPORT int64 submit_bid(OBJECT *obj, OBJECT *from, double quantity, double price
 		return -1;
 	}
 }
-EXPORT void submit_bid_state(char *from, char *to, char *function_name, char *function_class, void *bidding_buffer, size_t bid_len)//(char *obj, char *from, double quantity, double price, unsigned int is_on, KEY bid_id)
+EXPORT void submit_bid_state(const char *from, const char *to, const char *function_name, const char *function_class, void *bidding_buffer, size_t bid_len)//(char *obj, char *from, double quantity, double price, unsigned int is_on, KEY bid_id)
 {
-	char biddername[64];
 	int rv;
 	OBJECT *obj = NULL;
 	BIDINFO *bidding_info = (BIDINFO *)bidding_buffer;

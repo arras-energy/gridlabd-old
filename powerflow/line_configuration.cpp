@@ -28,7 +28,7 @@ line_configuration::line_configuration(MODULE *mod) : powerflow_library(mod)
 {
 	if(oclass == NULL)
 	{
-		oclass = oclass = gl_register_class(mod,"line_configuration",sizeof(line_configuration),0x00);
+		oclass = gl_register_class(mod,"line_configuration",sizeof(line_configuration),PC_NOSYNC);
 		if (oclass==NULL)
 			throw "unable to register class line_configuration";
 		else

@@ -21,11 +21,19 @@ typedef struct s_list {
 	LISTITEM *last;
 } GLLIST;
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 GLLIST *list_create(void);
 void list_destroy(GLLIST *list);
 LISTITEM *list_append(GLLIST *list, void *data);
 void list_shuffle(GLLIST *list);
 
+#ifdef __cplusplus
+}
+#endif
+	
 #endif
 
 /**@}*/

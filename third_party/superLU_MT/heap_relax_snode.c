@@ -28,7 +28,6 @@ heap_relax_snode (
     int *et_save, *post, *inv_post, *iwork;
     int nsuper_et = 0, nsuper_et_post = 0;
 
-    register int fcol;	 /* beginning of a snode */
     int *desc;  /* no of descendants of each etree node. */
     int *et = superlumt_options->etree; /* column elimination tree */
     int relax = superlumt_options->relax; /* maximum no of columns allowed 

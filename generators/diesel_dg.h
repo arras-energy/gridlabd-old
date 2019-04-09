@@ -386,7 +386,7 @@ public:
 
 	//Governor properties (GGOV1)
 	double gov_ggv1_r;				//Permanent droop, p.u.
-	unsigned int gov_ggv1_rselect; 	//Feedback signal for droop, = 1 selected electrical power, = 0 none (isochronous governor), = -1 fuel valve stroke ( true stroke),= -2 governor output ( requested stroke)
+	int32_t gov_ggv1_rselect; 	//Feedback signal for droop, = 1 selected electrical power, = 0 none (isochronous governor), = -1 fuel valve stroke ( true stroke),= -2 governor output ( requested stroke)
 	double gov_ggv1_Tpelec;			//Electrical power transducer time constant, sec. (>0.)
 	double gov_ggv1_maxerr;			//Maximum value for speed error signal
 	double gov_ggv1_minerr;			//Minimum value for speed error signal
@@ -401,7 +401,7 @@ public:
 	double gov_ggv1_wfnl;			//No load fuel flow, p.u
 	double gov_ggv1_Tb;				//Turbine lag time constant, sec. (>0.)
 	double gov_ggv1_Tc;				//Turbine lead time constant, sec.
-	unsigned int gov_ggv1_Flag;		//Switch for fuel source characteristic, = 0 for fuel flow independent of speed, = 1 fuel flow proportional to speed
+	int32_t gov_ggv1_Flag;		//Switch for fuel source characteristic, = 0 for fuel flow independent of speed, = 1 fuel flow proportional to speed
 	double gov_ggv1_Teng;			//Transport lag time constant for diesel engine
 	double gov_ggv1_Tfload;			//Load Limiter time constant, sec. (>0.)
 	double gov_ggv1_Kpload;			//Load limiter proportional gain for PI controller
@@ -446,8 +446,8 @@ public:
 	double NOx_emission;		// Total NOx emissions (lbs) based on fule usage
 	double PM10_emission;		// Total PM-10 emissions (lbs) based on fule usage
 	TIMESTAMP last_time;
-	double dg_1000_a = 0.067;	// Parameter to calculate fuel usage (gal)based on VA power output (for 1000 kVA rating dg)
-	double dg_1000_b = 6.5544;	// Parameter to calculate fuel usage (gal)based on VA power output (for 1000 kVA rating dg)
+	double dg_1000_a;	// Parameter to calculate fuel usage (gal)based on VA power output (for 1000 kVA rating dg)
+	double dg_1000_b;	// Parameter to calculate fuel usage (gal)based on VA power output (for 1000 kVA rating dg)
 
 	// Relationship between frequency deviation and real power changes
 	double frequency_deviation;
@@ -471,8 +471,8 @@ public:
 public:
 	static CLASS *oclass;
 	static diesel_dg *defaults;
-	complex *get_complex(OBJECT *obj, char *name);
-	double *get_double(OBJECT *obj, char *name);
+	complex *get_complex(OBJECT *obj, const char *name);
+	double *get_double(OBJECT *obj, const char *name);
 	void convert_Ypn0_to_Yabc(complex Y0, complex Y1, complex Y2, complex *Yabcmat);
 	void convert_pn0_to_abc(complex *Xpn0, complex *Xabc);
 	void convert_abc_to_pn0(complex *Xabc, complex *Xpn0);

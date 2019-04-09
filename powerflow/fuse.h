@@ -29,7 +29,7 @@ public:
 	TIMESTAMP postsync(TIMESTAMP t0);	//Legacy FBS coding in here - may not be needed in future
 	fuse(MODULE *mod);
 	inline fuse(CLASS *cl=oclass):link_object(cl){};
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 
 	//Legacy FBS code - will change when reliability makes its way in there
 	int fuse_state(OBJECT *parent);
@@ -38,7 +38,7 @@ public:
 	void set_fuse_full_reliability(unsigned char desired_status);
 	void set_fuse_faulted_phases(unsigned char desired_status);
 	void fuse_sync_function(void);	//Functionalized since it exists in two spots - no sense having to update two pieces of code
-	OBJECT **get_object(OBJECT *obj, char *name);	//Function to pull object property - reliability use
+	OBJECT **get_object(OBJECT *obj, const char *name);	//Function to pull object property - reliability use
 
 	double current_limit;		//Current limit for fuses blowing
 
@@ -64,7 +64,7 @@ private:
 
 EXPORT int change_fuse_state(OBJECT *thisobj, unsigned char phase_change, bool state);
 EXPORT int fuse_reliability_operation(OBJECT *thisobj, unsigned char desired_phases);
-EXPORT int create_fault_fuse(OBJECT *thisobj, OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data);
+EXPORT int create_fault_fuse(OBJECT *thisobj, OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data);
 EXPORT int fix_fault_fuse(OBJECT *thisobj, int *implemented_fault, char *imp_fault_name, void* Extra_Data);
 EXPORT int fuse_fault_updates(OBJECT *thisobj, unsigned char restoration_phases);
 

@@ -27,8 +27,7 @@ object switch_coordinator {
 	connect sw300to350;
 	connect sw450to451;
 	connect sw95to195;
-#ifdef MYSQL_ENABLE
-#ifdef MYSQL_SCADA
+#if MYSQL_SCADA==on
 	object recorder {
 		connection scada;
 		table control;
@@ -36,7 +35,6 @@ object switch_coordinator {
 		interval -1;
 		header_fieldnames "name";
 	};
-#endif
 #endif
 }
 

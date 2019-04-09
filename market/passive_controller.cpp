@@ -79,14 +79,14 @@ static double tc_erf(double x)
 
 passive_controller::passive_controller(MODULE *mod)
 {
-	if(oclass == NULL){
+	if ( oclass == NULL ) {
 		oclass = gl_register_class(mod,"passive_controller",sizeof(passive_controller),PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN|PC_AUTOLOCK);
 		if (oclass==NULL)
 			throw "unable to register class passive_controller";
 		else
 			oclass->trl = TRL_QUALIFIED;
 
-		if(gl_publish_variable(oclass,
+		if ( gl_publish_variable(oclass,
 			// series inputs
 /**/		PT_int32,"input_state",PADDR(input_state),
 /**/		PT_double,"input_setpoint",PADDR(input_setpoint),
@@ -205,39 +205,52 @@ passive_controller::passive_controller(MODULE *mod)
 	}
 }
 
-void passive_controller::fetch_double(double **prop, char *name, OBJECT *parent){
+void passive_controller::fetch_double(double **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_double_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "passive_controller:%i", hdr->id);
-		if(*name == NULL)
+		if ( *name == '\0' )
+		{
 			sprintf(msg, "%s: passive_controller unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: passive_controller unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
 
-void passive_controller::fetch_int(int **prop, char *name, OBJECT *parent){
+void passive_controller::fetch_int(int **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_int32_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "passive_controller:%i", hdr->id);
-		if(*name == NULL)
+		if ( *name == '\0' )
+		{
 			sprintf(msg, "%s: passive_controller unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: passive_controller unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
 
-int passive_controller::create(){
+int passive_controller::create()
+{
 	memset(this, 0, sizeof(passive_controller));
 	sensitivity = 1.0;
 	comfort_level = 1.0;
@@ -248,51 +261,51 @@ int passive_controller::create(){
 	return 1;
 }
 
-int passive_controller::init(OBJECT *parent){
-	
+int passive_controller::init(OBJECT *parent)
+{	
 	OBJECT *hdr = OBJECTHDR(this);
 	PROPERTY *enduseProperty;
 
-	if(parent == NULL){
+	if ( parent == NULL ) {
 		gl_error("passive_controller has no parent and will be operating in 'dummy' mode");
 	} else {
-		if(output_state_propname[0] == 0 && output_setpoint_propname[0] == 0 && control_mode != CM_DLC){
+		if ( output_state_propname[0] == 0 && output_setpoint_propname[0] == 0 && control_mode != CM_DLC ) {
 			GL_THROW("passive_controller has no output properties");
 		}
 		// expectation_addr
-		if(expectation_object != 0){
+		if ( expectation_object != 0 ) {
 			expectation_property = gl_get_property(expectation_object, expectation_propname);
-			if(expectation_property == 0){
+			if ( expectation_property == 0 ) {
 				GL_THROW("passive_controller cannot find its expectation property");
 			}
 			expectation_addr = (void *)((unsigned int64)expectation_object + sizeof(OBJECT) + (unsigned int64)expectation_property->addr);
 		}
 
-		if(observation_object != 0){
+		if ( observation_object != 0 ) {
 			// observation_addr
 			observation_prop = gl_get_property(observation_object, observation_propname);
-			if(observation_prop != 0){
+			if ( observation_prop != 0 ) {
 				observation_addr = (void *)((unsigned int64)observation_object + sizeof(OBJECT) + (unsigned int64)observation_prop->addr);
 			}
 			if (pool_pump_model == false)
 			{
 				// observation_mean_addr
 				observation_mean_prop = gl_get_property(observation_object, observation_mean_propname);
-				if(observation_mean_prop != 0){
+				if ( observation_mean_prop != 0 ) {
 					observation_mean_addr = (void *)((unsigned int64)observation_object + sizeof(OBJECT) + (unsigned int64)observation_mean_prop->addr);
 				}
 				// observation_stdev_addr
 				stdev_observation_property = gl_get_property(observation_object, observation_stdev_propname);
-				if(stdev_observation_property != 0){
+				if ( stdev_observation_property != 0 ) {
 					observation_stdev_addr = (void *)((unsigned int64)observation_object + sizeof(OBJECT) + (unsigned int64)stdev_observation_property->addr);
 				}
 			}
 
 		}
 		// output_state
-		if(output_state_propname[0] != 0){
+		if ( output_state_propname[0] != 0 ) {
 			output_state_prop = gl_get_property(parent, output_state_propname);
-			if(output_state_prop == NULL){
+			if ( output_state_prop == NULL ) {
 				GL_THROW("passive_controller parent \"%s\" does not contain property \"%s\"", 
 					(parent->name ? parent->name : "anon"), output_state_propname.get_string());
 			}
@@ -302,12 +315,12 @@ int passive_controller::init(OBJECT *parent){
 		// output_setpoint
 		if (control_mode != this->CM_PROBOFF && control_mode != this->CM_ELASTICITY_MODEL && control_mode != this->CM_DLC && control_mode != this->CM_PFC)
 		{
-			if(output_setpoint_propname[0] == 0 && output_setpoint_propname[0] == 0){
+			if ( output_setpoint_propname[0] == 0 && output_setpoint_propname[0] == 0 ) {
 				GL_THROW("passive_controller has no output properties");
 			}
-			if(output_setpoint_propname[0] != 0){
+			if ( output_setpoint_propname[0] != 0 ) {
 				output_setpoint_property = gl_get_property(parent, output_setpoint_propname);
-				if(output_setpoint_property == NULL){
+				if ( output_setpoint_property == NULL ) {
 					GL_THROW("passive_controller parent \"%s\" does not contain property \"%s\"", 
 						(parent->name ? parent->name : "anon"), output_setpoint_propname.get_string());
 				}
@@ -319,9 +332,9 @@ int passive_controller::init(OBJECT *parent){
 	if (pool_pump_model == false && control_mode != CM_ELASTICITY_MODEL && control_mode != CM_DLC && control_mode != CM_PFC)
 		gl_set_dependent(hdr, expectation_object);
 	
-	if (control_mode != CM_PFC || (control_mode == CM_PFC && observation_object != 0)){
+	if (control_mode != CM_PFC || (control_mode == CM_PFC && observation_object != 0) ) {
 		gl_set_dependent(hdr, observation_object);
-		if(observation_object == NULL){
+		if ( observation_object == NULL ) {
 			GL_THROW("passive_controller observation_object object is undefined, and can not function");
 		}
 	}
@@ -330,7 +343,7 @@ int passive_controller::init(OBJECT *parent){
 	// make sure that the observation_object and expectable are ranked above the controller
 	//
 
-	if(base_setpoint != 0.0){
+	if ( base_setpoint != 0.0 ) {
 		orig_setpoint = 1;
 	}
 
@@ -362,9 +375,9 @@ int passive_controller::init(OBJECT *parent){
 
 	if (control_mode == CM_PFC)
 	{
-		if(state_observed_propname[0] != 0){
+		if ( state_observed_propname[0] != 0 ) {
 			state_observed_prop = gl_get_property(parent, state_observed_propname);
-			if(state_observed_prop == NULL){
+			if ( state_observed_prop == NULL ) {
 				GL_THROW("passive_controller parent \"%s\" does not contain property \"%s\"", 
 					(parent->name ? parent->name : "anon"), state_observed_propname.get_string());
 			}
@@ -423,7 +436,7 @@ int passive_controller::init(OBJECT *parent){
 			GL_THROW("Please set release frequency time for over frequency to a valid number");
 	}
 
-	if(dPeriod == 0.0){
+	if ( dPeriod == 0.0 ) {
 		dPeriod = 300.0;
 		period = 300; // five minutes
 	} else {
@@ -435,7 +448,7 @@ int passive_controller::init(OBJECT *parent){
 		zipLoadParent = true;
 	}
 	
-	if(zipLoadParent == true && control_mode == CM_ELASTICITY_MODEL){
+	if ( zipLoadParent == true && control_mode == CM_ELASTICITY_MODEL ) {
 	
 		elasticityPeriod = 24;
 
@@ -446,7 +459,7 @@ int passive_controller::init(OBJECT *parent){
 		ArraySize = (int)(((elasticityPeriod * 3600) / period));
 		ArrayIndex = 0;
 
-		if(price_offset==0) price_offset = 10E-6 ;	
+		if ( price_offset==0) price_offset = 10E-6 ;	
 		
 		tier_prices = (double *)gl_malloc(ArraySize*sizeof(double));
 
@@ -465,7 +478,7 @@ int passive_controller::init(OBJECT *parent){
 			
 		current_load_enduse = (enduse*)GETADDR(parent,enduseProperty);
 
-		for(int32 i=0; i < ArraySize; i++){				
+		for(int32 i=0; i < ArraySize; i++ ) {				
 				tier_prices[i] = 0;
 				cleared_load[i] = 0;	
 		}	
@@ -474,16 +487,16 @@ int passive_controller::init(OBJECT *parent){
 		SecondTierArraySize = 0;
 		FirstTierArraySize = 0;
 
-		if(subElasticityFirstSecond > 0)
+		if ( subElasticityFirstSecond > 0)
 			gl_warning("The peak to offpeak Substitution Elasticity is positive.  While this is allowed, it is typically the reverse of convention, as an increase in peak to offpeak price ratio generally produces a reduction in peak load to offpeak load. This is indicated by a negative peak to offpeak Substitution Elasticity value.");
 
-		if(subElasticityFirstThird > 0)
+		if ( subElasticityFirstThird > 0)
 			gl_warning("The critical peak to offpeak Substitution Elasticity is positive.  While this is allowed, it is typically the reverse of convention, as an increase in critical peak to offpeak price ratio generally produces a reduction in peak load to offpeak load. This is indicated by a negative critical peak to offpeak Substitution Elasticity value.");
 
-		if(dailyElasticity > 0)
+		if ( dailyElasticity > 0)
 			gl_warning("The Daily Elasticity is positive.  While this is allowed, it is typically the reverse of convention, as an increase in daily price generally produces a reduction in daily load. This is indicated by a negative Daily Elasticity value.");
 
-		if(critical_day >= 0.5){
+		if ( critical_day >= 0.5 ) {
 
 			if (firstTierPrice == 0)
 					GL_THROW("Please set first tier price in the Elasticity Model");
@@ -498,14 +511,14 @@ int passive_controller::init(OBJECT *parent){
 			if (thirdTierPrice == 0)
 				GL_THROW("Please set third tier price in the Elasticity Model");
 
-			if (oldThirdTierPrice == 0){
+			if (oldThirdTierPrice == 0 ) {
 
 				oldThirdTierPrice = oldFirstTierPrice;
 				gl_warning("Old third tier price is missing. System will assume the old pricing scheme was a fixed pricing scheme and use the old first tier price");
 
 			}
 
-			if(check_two_tier_cpp != true){
+			if ( check_two_tier_cpp != true ) {
 				
 				if (secondTierHours == 0)
 					GL_THROW("Please set second tier hours in the Elasticity Model");
@@ -513,18 +526,18 @@ int passive_controller::init(OBJECT *parent){
 				if (secondTierPrice == 0)
 					GL_THROW("Please set second tier price in the Elasticity Model");
 
-				if (oldSecondTierPrice == 0){
+				if (oldSecondTierPrice == 0 ) {
 
 					oldSecondTierPrice = oldFirstTierPrice;
 					gl_warning("Old second tier price is missing. System will assume the old pricing scheme was a fixed pricing scheme and use the old first tier price");
 
 				}				
 				
-				if(firstTierHours == 0){
+				if ( firstTierHours == 0 ) {
 					firstTierHours = elasticityPeriod - thirdTierHours - secondTierHours;
 				}
 				else{
-					if((thirdTierHours+secondTierHours+firstTierHours) != elasticityPeriod)
+					if ( (thirdTierHours+secondTierHours+firstTierHours) != elasticityPeriod)
 					GL_THROW("Please set the tier hours correctly in the three tier Elasticity Model");
 				}
 
@@ -535,7 +548,7 @@ int passive_controller::init(OBJECT *parent){
 				oldPriceRatioSecondFirst = oldSecondTierPrice/oldFirstTierPrice;
 				newPriceRatioSecondFirst = secondTierPrice/firstTierPrice;
 
-				if(linearizeElasticity == true)
+				if ( linearizeElasticity == true)
 				{
 					peakPriceMultiplier = pow(newPriceRatioSecondFirst/oldPriceRatioSecondFirst,subElasticityFirstSecond);
 				}
@@ -548,11 +561,11 @@ int passive_controller::init(OBJECT *parent){
 			}
 			else{
 
-				//if(firstTierHours == 0){
+				//if ( firstTierHours == 0 ) {
 					firstTierHours = elasticityPeriod - thirdTierHours;
 				//}
 				//else{
-				//	if((thirdTierHours+firstTierHours) != elasticityPeriod)
+				//	if ( (thirdTierHours+firstTierHours) != elasticityPeriod)
 				//	GL_THROW("Please set the tier hours correctly in the Elasticity Model");
 				//}					
 			}
@@ -564,7 +577,7 @@ int passive_controller::init(OBJECT *parent){
 			oldPriceRatioThirdFirst = oldThirdTierPrice/oldFirstTierPrice;
 			newPriceRatioThirdFirst = thirdTierPrice/firstTierPrice;
 
-			if(linearizeElasticity == true)
+			if ( linearizeElasticity == true)
 			{
 				criticalPriceMultiplier = pow(newPriceRatioThirdFirst/oldPriceRatioThirdFirst,subElasticityFirstThird);
 			}
@@ -583,11 +596,11 @@ int passive_controller::init(OBJECT *parent){
 			if (oldFirstTierPrice == 0)
 					GL_THROW("Please set old first tier price in the Elasticity Model");
 			
-			if(firstTierHours == 0){
+			if ( firstTierHours == 0 ) {
 				firstTierHours = elasticityPeriod - secondTierHours;
 			}
 			else{
-				if((secondTierHours+firstTierHours) != elasticityPeriod)
+				if ( (secondTierHours+firstTierHours) != elasticityPeriod)
 				GL_THROW("Please set the tier hours correctly in the Elasticity Model");
 			}
 
@@ -597,7 +610,7 @@ int passive_controller::init(OBJECT *parent){
 			if (secondTierPrice == 0)
 				GL_THROW("Please set second tier price in the Elasticity Model");
 
-			if (oldSecondTierPrice == 0){
+			if (oldSecondTierPrice == 0 ) {
 					oldSecondTierPrice = oldFirstTierPrice;
 					gl_warning("Old second tier price is missing. System will assume the old pricing scheme was a fixed pricing scheme and use the old first tier price");
 			}
@@ -609,7 +622,7 @@ int passive_controller::init(OBJECT *parent){
 			oldPriceRatioSecondFirst = oldSecondTierPrice/oldFirstTierPrice;
 			newPriceRatioSecondFirst = secondTierPrice/firstTierPrice;
 
-			if(linearizeElasticity == true)
+			if ( linearizeElasticity == true)
 			{
 				peakPriceMultiplier = pow(newPriceRatioSecondFirst/oldPriceRatioSecondFirst,subElasticityFirstSecond);
 			}
@@ -644,15 +657,15 @@ int passive_controller::init(OBJECT *parent){
 		SecondTierArrayIndex = 0;
 		FirstTierArrayIndex = 0;
 
-		for(int32 i=0; i < ArraySize; i++){
+		for(int32 i=0; i < ArraySize; i++ ) {
 			offPeakLoad[i] = 0;
 		}
 		
-		for(int32 i=0; i < ArraySize; i++){
+		for(int32 i=0; i < ArraySize; i++ ) {
 			peakLoad[i] = 0;
 		}
 
-		for(int32 i=0; i < ArraySize; i++){
+		for(int32 i=0; i < ArraySize; i++ ) {
 			criticalPeakLoad[i] = 0;
 		}	
 		
@@ -664,83 +677,83 @@ int passive_controller::init(OBJECT *parent){
 }
 
 
-int passive_controller::isa(char *classname)
+int passive_controller::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"passive_controller")==0;
 }
 
 
-TIMESTAMP passive_controller::presync(TIMESTAMP t0, TIMESTAMP t1){
+TIMESTAMP passive_controller::presync(TIMESTAMP t0, TIMESTAMP t1 ) {
 
 	return TS_NEVER;
 }
 
-TIMESTAMP passive_controller::sync(TIMESTAMP t0, TIMESTAMP t1){	
-	if(first_run == 0 && starttime == 0){
+TIMESTAMP passive_controller::sync(TIMESTAMP t0, TIMESTAMP t1 ) {	
+	if ( first_run == 0 && starttime == 0 ) {
 		starttime = t0;
 	} else {
 		first_run = 0;
 	}
 
 	// determine output based on control mode
-	if(last_cycle == 0 || t1 >= last_cycle + period || period == 0){
+	if ( last_cycle == 0 || t1 >= last_cycle + period || period == 0 ) {
 		last_cycle = t1; // advance cycle time
 		
 		// get observations
-		if(observation_addr != 0){
+		if ( observation_addr != 0 ) {
 			observation = *(double *)observation_addr;
 		} else {
 			observation = 0;
 		}
-		if(observation_mean_addr != 0){
+		if ( observation_mean_addr != 0 ) {
 			obs_mean = *(double *)observation_mean_addr;
 		} else {
 			obs_mean = 0;
 		}
-		if(observation_stdev_addr != 0){
+		if ( observation_stdev_addr != 0 ) {
 			obs_stdev = *(double *)observation_stdev_addr;
 		} else {
 			obs_stdev = 0;
 		}
 
 		// get expectation
-		if(expectation_addr != 0){
+		if ( expectation_addr != 0 ) {
 			expectation = *(double *)expectation_addr;
 		} else {
 			expectation = 0;
 		}
 
-		switch(control_mode){
+		switch(control_mode ) {
 			case CM_NONE:
 				// no control ~ let it slide
 				break;
 			case CM_RAMP:
-				if(calc_ramp(t0, t1) != 0){
+				if ( calc_ramp(t0, t1) != 0 ) {
 					GL_THROW("error occured when handling the ramp control mode");
 				}
 				break;
 			case CM_PROBOFF:
-				if(calc_proboff(t0, t1) != 0){
+				if ( calc_proboff(t0, t1) != 0 ) {
 					GL_THROW("error occured when handling the probabilistic cutoff control mode");
 				}
 				break;
 			case CM_DUTYCYCLE:
-				if(calc_dutycycle(t0, t1) != 0){
+				if ( calc_dutycycle(t0, t1) != 0 ) {
 					GL_THROW("error occured when handling the duty cycle control mode");
 				}
 				break;
 			case CM_ELASTICITY_MODEL:
-				if(calc_elasticity(t0, t1) != 0){
+				if ( calc_elasticity(t0, t1) != 0 ) {
 					GL_THROW("error occured when handling the elasticity model control mode");
 				}
 				break;
 			case CM_DLC:
-				if(calc_dlc(t0, t1) != 0){
+				if ( calc_dlc(t0, t1) != 0 ) {
 					GL_THROW("error occured when handling the elasticity model control mode");
 				}
 				break;
 			case CM_PFC:
-				if(calc_pfc(t0, t1) != 0){
+				if ( calc_pfc(t0, t1) != 0 ) {
 					GL_THROW("error occured when handling the PFC control mode");
 				}
 				break;
@@ -750,17 +763,17 @@ TIMESTAMP passive_controller::sync(TIMESTAMP t0, TIMESTAMP t1){
 		}
 
 		// determine if input is chained first
-		if(output_setpoint_addr != 0){
+		if ( output_setpoint_addr != 0 ) {
 			*(double *)output_setpoint_addr = output_setpoint;
 		}
-		if(output_state_addr != 0){
+		if ( output_state_addr != 0 ) {
 			*(int *)output_state_addr = output_state;
 		}
 	}
 	return (period > 0 ? last_cycle+period : TS_NEVER);
 }
 
-TIMESTAMP passive_controller::postsync(TIMESTAMP t0, TIMESTAMP t1){
+TIMESTAMP passive_controller::postsync(TIMESTAMP t0, TIMESTAMP t1 ) {
 	OBJECT *hdr = OBJECTHDR(this);
 	char ctrname[1024];
 	char spvrname[1024];
@@ -775,8 +788,8 @@ TIMESTAMP passive_controller::postsync(TIMESTAMP t0, TIMESTAMP t1){
 			else {
 				powerParentConverted = *powerParent;
 			}
-			if(0 != strcmp(market->unit, "")){
-				if(0 == gl_convert("kW", market->unit, &powerParentConverted)){
+			if ( 0 != strcmp(market->unit, "") ) {
+				if ( 0 == gl_convert("kW", market->unit, &powerParentConverted) ) {
 					gl_error("unable to convert bid units from 'kW' to '%s'", market->unit.get_string());
 					return TS_INVALID;
 				}
@@ -790,14 +803,14 @@ TIMESTAMP passive_controller::postsync(TIMESTAMP t0, TIMESTAMP t1){
 			controller_bid.price = voltage_deviation;
 			controller_bid.quantity = powerParentConverted;
 			controller_bid.rebid = false;
-			if(*stateParent > 0) {
+			if ( *stateParent > 0) {
 				controller_bid.state = BS_ON;
 			} else {
 				controller_bid.state = BS_OFF;
 			}
-			submit_bid_state((char *)gl_name(hdr, ctrname, 1024),(char *)gl_name(observation_object, spvrname, 1024), "submit_bid_state", "supervisor", (void *)&controller_bid, (size_t)sizeof(controller_bid));
+			submit_bid_state(gl_name(hdr, ctrname, 1024),gl_name(observation_object, spvrname, 1024), "submit_bid_state", "supervisor", (void *)&controller_bid, (size_t)sizeof(controller_bid));
 			controller_bid.rebid = true;
-			if(!controller_bid.bid_accepted) {
+			if ( !controller_bid.bid_accepted) {
 				return TS_INVALID;
 			}
 			supervisor_next_run += (TIMESTAMP) *supervisorPeriod; // calculate next time supervisor will clear
@@ -809,21 +822,20 @@ TIMESTAMP passive_controller::postsync(TIMESTAMP t0, TIMESTAMP t1){
 	}
 }
 
-int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
+int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1 ) {
 
 	double dPeriod = (double)period;
-	if(zipLoadParent == true){
+	if ( zipLoadParent == true ) {
 		
 			double dt = (double)(t1 - t0);
 			
-			double tt = old_critical_day;
-			//if(true){
-			if(old_critical_day!=critical_day){
+			//if ( true ) {
+			if ( old_critical_day!=critical_day ) {
 				
 				old_critical_day=critical_day;
 				firstTierHours = 0;
 
-				if(secondTierHours > 0){
+				if ( secondTierHours > 0 ) {
 					averagePeakLoad = totalPeakLoad/secondTierHours;
 				}
 
@@ -831,16 +843,16 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 				SecondTierArraySize = 0;
 				FirstTierArraySize = 0;		
 
-				if(subElasticityFirstSecond > 0)
+				if ( subElasticityFirstSecond > 0)
 					gl_warning("The peak to offpeak Substitution Elasticity is positive.  While this is allowed, it is typically the reverse of convention, as an increase in peak to offpeak price ratio generally produces a reduction in peak load to offpeak load. This is indicated by a negative peak to offpeak Substitution Elasticity value.");
 
-				if(subElasticityFirstThird > 0)
+				if ( subElasticityFirstThird > 0)
 					gl_warning("The critical peak to offpeak Substitution Elasticity is positive.  While this is allowed, it is typically the reverse of convention, as an increase in critical peak to offpeak price ratio generally produces a reduction in peak load to offpeak load. This is indicated by a negative critical peak to offpeak Substitution Elasticity value.");
 
-				if(dailyElasticity > 0)
+				if ( dailyElasticity > 0)
 					gl_warning("The Daily Elasticity is positive.  While this is allowed, it is typically the reverse of convention, as an increase in daily price generally produces a reduction in daily load. This is indicated by a negative Daily Elasticity value.");
 
-				if(critical_day >= 0.5){
+				if ( critical_day >= 0.5 ) {
 
 					if (firstTierPrice == 0)
 							GL_THROW("Please set first tier price in the Elasticity Model");
@@ -854,12 +866,12 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					if (thirdTierPrice == 0)
 						GL_THROW("Please set third tier price in the Elasticity Model");
 
-					if (oldThirdTierPrice == 0){
+					if (oldThirdTierPrice == 0 ) {
 						oldThirdTierPrice = oldFirstTierPrice;
 						gl_warning("Old third tier price is missing. System will assume the old pricing scheme was a fixed pricing scheme and use the old first tier price");
 					}
 
-					if(check_two_tier_cpp != true){
+					if ( check_two_tier_cpp != true ) {
 						
 						if (secondTierHours == 0)
 							GL_THROW("Please set second tier hours in the Elasticity Model");
@@ -867,16 +879,16 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 						if (secondTierPrice == 0)
 							GL_THROW("Please set second tier price in the Elasticity Model");
 
-						if (oldSecondTierPrice == 0){
+						if (oldSecondTierPrice == 0 ) {
 							oldSecondTierPrice = oldFirstTierPrice;
 							gl_warning("Old second tier price is missing. System will assume the old pricing scheme was a fixed pricing scheme and use the old first tier price");
 						}				
 						
-						if(firstTierHours == 0){
+						if ( firstTierHours == 0 ) {
 							firstTierHours = elasticityPeriod - thirdTierHours - secondTierHours;
 						}
 						else{
-							if((thirdTierHours+secondTierHours+firstTierHours) != elasticityPeriod)
+							if ( (thirdTierHours+secondTierHours+firstTierHours) != elasticityPeriod)
 							GL_THROW("Please set the tier hours correctly in the three tier Elasticity Model");
 						}
 
@@ -887,7 +899,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 						oldPriceRatioSecondFirst = oldSecondTierPrice/oldFirstTierPrice;
 						newPriceRatioSecondFirst = secondTierPrice/firstTierPrice;
 
-						if(linearizeElasticity == true){
+						if ( linearizeElasticity == true ) {
 							peakPriceMultiplier = pow(newPriceRatioSecondFirst/oldPriceRatioSecondFirst,subElasticityFirstSecond);
 						}
 						else{
@@ -896,11 +908,11 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 						}
 					}
 					else{
-						//if(firstTierHours == 0){
+						//if ( firstTierHours == 0 ) {
 							firstTierHours = elasticityPeriod - thirdTierHours;
 						//}
 						//else{
-						//	if((thirdTierHours+firstTierHours) != elasticityPeriod)
+						//	if ( (thirdTierHours+firstTierHours) != elasticityPeriod)
 						//	GL_THROW("Please set the tier hours correctly in the Elasticity Model");
 						//}					
 					}
@@ -912,7 +924,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					oldPriceRatioThirdFirst = oldThirdTierPrice/oldFirstTierPrice;
 					newPriceRatioThirdFirst = thirdTierPrice/firstTierPrice;
 
-					if(linearizeElasticity == true)
+					if ( linearizeElasticity == true)
 					{
 						criticalPriceMultiplier = pow(newPriceRatioThirdFirst/oldPriceRatioThirdFirst,subElasticityFirstThird);
 					}
@@ -930,11 +942,11 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					if (oldFirstTierPrice == 0)
 							GL_THROW("Please set old first tier price in the Elasticity Model");
 					
-					if(firstTierHours == 0){
+					if ( firstTierHours == 0 ) {
 						firstTierHours = elasticityPeriod - secondTierHours;
 					}
 					else{
-						if((secondTierHours+firstTierHours) != elasticityPeriod)
+						if ( (secondTierHours+firstTierHours) != elasticityPeriod)
 						GL_THROW("Please set the tier hours correctly in the Elasticity Model");
 					}
 
@@ -944,7 +956,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					if (secondTierPrice == 0)
 						GL_THROW("Please set second tier price in the Elasticity Model");
 
-					if (oldSecondTierPrice == 0){
+					if (oldSecondTierPrice == 0 ) {
 							oldSecondTierPrice = oldFirstTierPrice;
 							gl_warning("Old second tier price is missing. System will assume the old pricing scheme was a fixed pricing scheme and use the old first tier price");
 					}
@@ -956,7 +968,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					oldPriceRatioSecondFirst = oldSecondTierPrice/oldFirstTierPrice;
 					newPriceRatioSecondFirst = secondTierPrice/firstTierPrice;
 
-					if(linearizeElasticity == true)
+					if ( linearizeElasticity == true)
 					{
 						peakPriceMultiplier = pow(newPriceRatioSecondFirst/oldPriceRatioSecondFirst,subElasticityFirstSecond);
 					}
@@ -974,7 +986,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 			}			
 
 			
-			if((t1-starttime)%period==0 && (t1!=starttime) && starttime>0 && dt > 0){
+			if ( (t1-starttime)%period==0 && (t1!=starttime) && starttime>0 && dt > 0 ) {
 
 				totalClearedLoad = 0;
 
@@ -983,53 +995,53 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 				predicted_load =  current_load_enduse->total.Re();
 				tier_prices[ArrayIndex]	= observation;		
 
-				if(ArraySize-1 == ArrayIndex){
+				if ( ArraySize-1 == ArrayIndex ) {
 					ArrayIndex = 0;
 				}
 				else{
 					ArrayIndex++;
 				}
 
-				for(int32 i=0; i < ArraySize; i++){					
+				for(int32 i=0; i < ArraySize; i++ ) {					
 					totalClearedLoad += cleared_load[i]*period;
 				}
 
-				/*if(fabs(observation - thirdTierPrice) <= price_offset){
+				/*if ( fabs(observation - thirdTierPrice) <= price_offset ) {
 						
 					totalCriticalPeakLoad = 0;
 					
 					criticalPeakLoad[ThirdTierArrayIndex] = *(double *)current_load_enduse;
 
-					if(ArraySize-1 == ThirdTierArrayIndex){
+					if ( ArraySize-1 == ThirdTierArrayIndex ) {
 						ThirdTierArrayIndex = 0;
 					}
 					else{
 						ThirdTierArrayIndex++;
 					}				
 			
-					for(int32 i=0; i < ThirdTierArraySize; i++){					
+					for(int32 i=0; i < ThirdTierArraySize; i++ ) {					
 						totalCriticalPeakLoad += criticalPeakLoad[i]*period;					
 					}				
 					
 				}*/
 				//else 
-				if(fabs(observation - thirdTierPrice) <= price_offset){
+				if ( fabs(observation - thirdTierPrice) <= price_offset ) {
 					//do nothing
 				}
-				else if(fabs(observation - secondTierPrice) <= price_offset){
+				else if ( fabs(observation - secondTierPrice) <= price_offset ) {
 					totalPeakLoad = 0;
 
 					peakLoad[SecondTierArrayIndex] = current_load_enduse->total.Re();
 
-					for(int32 i=SecondTierArrayIndex; i >= 0; i--){
+					for(int32 i=SecondTierArrayIndex; i >= 0; i-- ) {
 						totalPeakLoad += peakLoad[i] * dPeriod;
 					}	
 
-					for(int32 i=ArraySize-1; i>(ArraySize-(SecondTierArraySize-SecondTierArrayIndex)); i--){	
+					for(int32 i=ArraySize-1; i>(ArraySize-(SecondTierArraySize-SecondTierArrayIndex)); i-- ) {	
 						totalPeakLoad += peakLoad[i]*dPeriod;					
 					}	
 
-					if(ArraySize-1 == SecondTierArrayIndex){
+					if ( ArraySize-1 == SecondTierArrayIndex ) {
 						SecondTierArrayIndex = 0;
 					}
 					else{
@@ -1037,21 +1049,21 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					}
 
 				}
-				else if(fabs(observation - firstTierPrice) <= price_offset){
+				else if ( fabs(observation - firstTierPrice) <= price_offset ) {
 						
 					totalOffPeakLoad = 0;
 
 					offPeakLoad[FirstTierArrayIndex] = current_load_enduse->total.Re();
 					
-					for(int32 i=FirstTierArrayIndex; i >= 0; i--){	
+					for(int32 i=FirstTierArrayIndex; i >= 0; i-- ) {	
 						totalOffPeakLoad += offPeakLoad[i]*dPeriod;					
 					}	
 
-					for(int32 i=ArraySize-1; i>(ArraySize-(FirstTierArraySize-FirstTierArrayIndex)); i--){
+					for(int32 i=ArraySize-1; i>(ArraySize-(FirstTierArraySize-FirstTierArrayIndex)); i-- ) {
 						totalOffPeakLoad += offPeakLoad[i] * dPeriod;
 					}
 
-					if(ArraySize-1 == FirstTierArrayIndex){
+					if ( ArraySize-1 == FirstTierArrayIndex ) {
 						FirstTierArrayIndex = 0;
 					}
 					else{
@@ -1064,7 +1076,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 				}
 			}
 
-			if(starttime>0){
+			if ( starttime>0 ) {
 				
 				dailyElasticityMultiplier = 0;
 				double qDailyNew = 0;
@@ -1072,15 +1084,15 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 				double qNewFirst = 0;
 				double qNewThird = 0;
 
-				if(critical_day >= 0.5){
+				if ( critical_day >= 0.5 ) {
 						
-					if(check_two_tier_cpp == true){
+					if ( check_two_tier_cpp == true ) {
 
 						totalCriticalPeakLoad = totalClearedLoad - totalOffPeakLoad;
 
-						if(linearizeElasticity == true)
+						if ( linearizeElasticity == true)
 						{
-							if((totalCriticalPeakLoad*oldThirdTierPrice + totalOffPeakLoad*oldFirstTierPrice) == 0){
+							if ( (totalCriticalPeakLoad*oldThirdTierPrice + totalOffPeakLoad*oldFirstTierPrice) == 0 ) {
 								GL_THROW("Either the last 24 hour Critical Peak and Off Peak Load information was input as zero and/or one of the old tier prices(Third or First) was input as zero.");
 							}
 							else{
@@ -1089,7 +1101,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 						}
 						else
 						{
-							if((totalCriticalPeakLoad*thirdTierPrice + totalOffPeakLoad*firstTierPrice)==0){
+							if ( (totalCriticalPeakLoad*thirdTierPrice + totalOffPeakLoad*firstTierPrice)==0 ) {
 								GL_THROW("Either the last 24 hour Critical Peak and Off Peak Load information was input as zero and/or one of the new tier prices(Third or First) was input as zero.");
 							}
 							else{
@@ -1101,9 +1113,9 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 
 						totalCriticalPeakLoad = totalClearedLoad - totalPeakLoad - totalOffPeakLoad;
 
-						if(linearizeElasticity == true)
+						if ( linearizeElasticity == true)
 						{
-							if((totalCriticalPeakLoad*oldThirdTierPrice  + totalPeakLoad*oldSecondTierPrice + totalOffPeakLoad*oldFirstTierPrice)==0){
+							if ( (totalCriticalPeakLoad*oldThirdTierPrice  + totalPeakLoad*oldSecondTierPrice + totalOffPeakLoad*oldFirstTierPrice)==0 ) {
 								GL_THROW("Either the last 24 hour Critical Peak, Peak and Off Peak Load information was input as zero and/or one of the old tier prices(Third, Second or First) was input as zero.");
 							}
 							else{
@@ -1112,7 +1124,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 						}
 						else
 						{
-							if((totalPeakLoad*secondTierPrice + totalCriticalPeakLoad*thirdTierPrice + totalOffPeakLoad*firstTierPrice)==0){
+							if ( (totalPeakLoad*secondTierPrice + totalCriticalPeakLoad*thirdTierPrice + totalOffPeakLoad*firstTierPrice)==0 ) {
 								GL_THROW("Either the last 24 hour Critical Peak, Peak and Off Peak Load information was input as zero and/or one of the new tier prices(Third, Second or First) was input as zero.");
 							}
 							else{
@@ -1125,9 +1137,9 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 
 					totalPeakLoad = totalClearedLoad - totalOffPeakLoad;
 
-					if(linearizeElasticity == true)
+					if ( linearizeElasticity == true)
 					{
-						if((totalPeakLoad*oldSecondTierPrice + totalOffPeakLoad*oldFirstTierPrice)==0){
+						if ( (totalPeakLoad*oldSecondTierPrice + totalOffPeakLoad*oldFirstTierPrice)==0 ) {
 							GL_THROW("Either the last 24 hour Peak and Off Peak Load information was input as zero and/or one of the old tier prices(Second or First) was input as zero.");
 						}
 						else{
@@ -1136,7 +1148,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					}
 					else
 					{
-						if((totalPeakLoad*secondTierPrice + totalOffPeakLoad*firstTierPrice)==0){
+						if ( (totalPeakLoad*secondTierPrice + totalOffPeakLoad*firstTierPrice)==0 ) {
 							GL_THROW("Either the last 24 hour Peak and Off Peak Load information was input as zero and/or one of the new tier prices(Second or First) was input as zero.");
 						}
 						else{
@@ -1145,7 +1157,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					}
 				}
 
-				if(linearizeElasticity == true)
+				if ( linearizeElasticity == true)
 				{
 					qDailyNew = totalClearedLoad*pow(dailyElasticityMultiplier,dailyElasticity);
 
@@ -1155,19 +1167,19 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					qDailyNew = totalClearedLoad*(1 + ((dailyElasticity)*dailyElasticityMultiplier));
 				}
 
-				if(qDailyNew > 0.0){
+				if ( qDailyNew > 0.0 ) {
 
 					double tempDivider = 0;
 					double tempPeakMultiplier = 0;
 					double tempCriticalPeakMultiplier = 0;
 
-					if(critical_day >= 0.5){	
+					if ( critical_day >= 0.5 ) {	
 
-						if(totalOffPeakLoad == 0)
+						if ( totalOffPeakLoad == 0)
 						{
 							tempCriticalPeakMultiplier = criticalPriceMultiplier;
 
-							if(check_two_tier_cpp != true){
+							if ( check_two_tier_cpp != true ) {
 
 								tempPeakMultiplier = peakPriceMultiplier;	
 							}
@@ -1177,7 +1189,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 							
 							tempCriticalPeakMultiplier = (totalCriticalPeakLoad/totalOffPeakLoad)*criticalPriceMultiplier;
 
-							if(check_two_tier_cpp != true){
+							if ( check_two_tier_cpp != true ) {
 
 								tempPeakMultiplier = (totalPeakLoad/totalOffPeakLoad)*peakPriceMultiplier;	
 							}
@@ -1185,7 +1197,7 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 					}
 					else{
 
-						if(totalOffPeakLoad == 0)
+						if ( totalOffPeakLoad == 0)
 						{
 							tempPeakMultiplier = peakPriceMultiplier;		
 						}
@@ -1198,9 +1210,9 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 
 					qNewFirst = qDailyNew/(tempDivider);			
 										
-					if(fabs(observation - firstTierPrice) <= price_offset){
+					if ( fabs(observation - firstTierPrice) <= price_offset ) {
 
-						if(totalOffPeakLoad == 0)
+						if ( totalOffPeakLoad == 0)
 						{
 							GL_THROW("Off Peak Load is not set correctly");
 						}
@@ -1209,11 +1221,11 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 						}
 					
 					}
-					else if(fabs(observation - secondTierPrice) <= price_offset){
+					else if ( fabs(observation - secondTierPrice) <= price_offset ) {
 						
 						qNewSecond = qNewFirst*tempPeakMultiplier;
 						
-						if(totalPeakLoad == 0)
+						if ( totalPeakLoad == 0)
 						{
 							GL_THROW("Peak Load is not set correctly");
 						}
@@ -1222,11 +1234,11 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 						}
 												
 					}
-					else if(fabs(observation - thirdTierPrice) <= price_offset){
+					else if ( fabs(observation - thirdTierPrice) <= price_offset ) {
 
 						qNewThird = qNewFirst*tempCriticalPeakMultiplier;				
 						
-						if(totalCriticalPeakLoad == 0)
+						if ( totalCriticalPeakLoad == 0)
 						{
 							GL_THROW("Critical Peak Load is not set correctly");
 						}
@@ -1254,29 +1266,29 @@ int passive_controller::calc_elasticity(TIMESTAMP t0, TIMESTAMP t1){
 
 }
 
-int passive_controller::calc_ramp(TIMESTAMP t0, TIMESTAMP t1){
+int passive_controller::calc_ramp(TIMESTAMP t0, TIMESTAMP t1 ) {
 	double T_limit;
 	double T_set;
 	double ramp;
 	double set_change;
 	extern double bid_offset;
 
-	if(!orig_setpoint){
+	if ( !orig_setpoint ) {
 		base_setpoint = *(double *)output_setpoint_addr;
 		orig_setpoint = 1;
 	}
 
 	// "olypen style" ramp with k_high, k_low, rng_high, rng_low
-	if(expectation_addr == 0 || observation_addr == 0 || observation_stdev_addr == 0){
+	if ( expectation_addr == 0 || observation_addr == 0 || observation_stdev_addr == 0 ) {
 		gl_error("insufficient input for ramp control mode");
 		return -1;
 	}
-	if(ramp_high * ramp_low < 0 || range_high * range_low > 0){ // zero is legit
+	if ( ramp_high * ramp_low < 0 || range_high * range_low > 0 ) { // zero is legit
 		gl_warning("invalid ramp parameters");
 	}
 
 	/*
-	if(observation > expectation){ // net ramp direction
+	if ( observation > expectation ) { // net ramp direction
 		ramp = ramp_high;
 	} else {
 		ramp = ramp_low;
@@ -1284,8 +1296,8 @@ int passive_controller::calc_ramp(TIMESTAMP t0, TIMESTAMP t1){
 	*/
 
 	//T_limit = (observation > expectation && ramp > 0.0 ? range_high : range_low);
-	if(observation > expectation){
-		if(ramp_low > 0.0){
+	if ( observation > expectation ) {
+		if ( ramp_low > 0.0 ) {
 			T_limit = range_high;
 			ramp = ramp_high;
 		} else {
@@ -1293,8 +1305,8 @@ int passive_controller::calc_ramp(TIMESTAMP t0, TIMESTAMP t1){
 			ramp = ramp_low;
 		}
 		//T_limit = (ramp_low > 0.0 ? range_high : range_low);
-	} else if (observation < expectation){
-		if(ramp_low < 0.0){
+	} else if (observation < expectation ) {
+		if ( ramp_low < 0.0 ) {
 			T_limit = range_high;
 			ramp = ramp_high;
 		} else {
@@ -1308,7 +1320,7 @@ int passive_controller::calc_ramp(TIMESTAMP t0, TIMESTAMP t1){
 		return 0;
 	}
 
-	if(T_limit == 0){
+	if ( T_limit == 0 ) {
 		// zero range short-circuit
 		output_setpoint = base_setpoint;
 		output_state = 0;
@@ -1318,15 +1330,15 @@ int passive_controller::calc_ramp(TIMESTAMP t0, TIMESTAMP t1){
 	T_set = base_setpoint;
 
 	// is legit to set expectation to the mean
-	if(obs_stdev < bid_offset){
+	if ( obs_stdev < bid_offset ) {
 		set_change = 0.0;
 	} else {
 		set_change = (observation - expectation) * fabs(T_limit) / (ramp * obs_stdev);
 	}
-	if(set_change > range_high){
+	if ( set_change > range_high ) {
 		set_change = range_high;
 	}
-	if(set_change < range_low){
+	if ( set_change < range_low ) {
 		set_change = range_low;
 	}
 	output_setpoint = T_set + set_change;
@@ -1334,11 +1346,9 @@ int passive_controller::calc_ramp(TIMESTAMP t0, TIMESTAMP t1){
 	return 0;
 }
 
-int passive_controller::calc_dlc(TIMESTAMP t0, TIMESTAMP t1){
-	
-	OBJECT *hdr = OBJECTHDR(this);
-		
-	if(output_state_addr != 0){
+int passive_controller::calc_dlc(TIMESTAMP t0, TIMESTAMP t1)
+{		
+	if ( output_state_addr != 0 ) {
 		output_state = *(int *)output_state_addr;
 	} else {
 		output_state = 0;
@@ -1402,19 +1412,17 @@ int passive_controller::calc_dlc(TIMESTAMP t0, TIMESTAMP t1){
 
 	return 0;
 }
-int passive_controller::calc_dutycycle(TIMESTAMP t0, TIMESTAMP t1){
+int passive_controller::calc_dutycycle(TIMESTAMP t0, TIMESTAMP t1 ) {
 	
 	if (pool_pump_model == true)
-	{
-		OBJECT *hdr = OBJECTHDR(this);
-		
-		if(output_state_addr != 0){
+	{		
+		if ( output_state_addr != 0 ) {
 			output_state = *(int *)output_state_addr;
 		} else {
 			output_state = 0;
 		}
 		
-		if(output_setpoint_addr != 0){
+		if ( output_setpoint_addr != 0 ) {
 			output_setpoint = *(double *)output_setpoint_addr;
 		} else {
 			output_setpoint = 0;
@@ -1453,8 +1461,8 @@ int passive_controller::calc_dutycycle(TIMESTAMP t0, TIMESTAMP t1){
 }
 
 
-int passive_controller::calc_proboff(TIMESTAMP t0, TIMESTAMP t1){
-	if(observation_addr == 0 || expectation_addr == 0 || observation_stdev_addr == 0){
+int passive_controller::calc_proboff(TIMESTAMP t0, TIMESTAMP t1 ) {
+	if ( observation_addr == 0 || expectation_addr == 0 || observation_stdev_addr == 0 ) {
 		GL_THROW("insufficient input for probabilistic shutoff control mode");
 		return -1;
 	}
@@ -1464,14 +1472,14 @@ int passive_controller::calc_proboff(TIMESTAMP t0, TIMESTAMP t1){
 	extern double bid_offset;
 
 	
-	switch(distribution_type){
+	switch(distribution_type ) {
 		case PDT_NORMAL:
 			// N is the cumulative normal distribution
 			// k_w is a comfort setting
 			// r is compared to a uniformly random number on [0,1.0)
 			// erf_in = (x-mean) / (var^2 * sqrt(2))
-			if(obs_stdev < bid_offset){ // short circuit
-				if(observation > expectation){
+			if ( obs_stdev < bid_offset ) { // short circuit
+				if ( observation > expectation ) {
 					output_state = 2;
 					prob_off = 1.0;
 				} else {
@@ -1494,11 +1502,11 @@ int passive_controller::calc_proboff(TIMESTAMP t0, TIMESTAMP t1){
 		default:
 			gl_error("");
 	}
-	if(prob_off < 0 || !isfinite(prob_off)){
+	if ( prob_off < 0 || !isfinite(prob_off) ) {
 		prob_off = 0.0;
 	}
 	r = gl_random_uniform(RNGSTATE,0.0,1.0);
-	if(r < prob_off){
+	if ( r < prob_off ) {
 		output_state = 2; // off?
 	} else {
 		output_state = 0; //Normal
@@ -1507,72 +1515,72 @@ int passive_controller::calc_proboff(TIMESTAMP t0, TIMESTAMP t1){
 	return 0;
 }
 
-int passive_controller::calc_pfc(TIMESTAMP t0, TIMESTAMP t1){
+int passive_controller::calc_pfc(TIMESTAMP t0, TIMESTAMP t1 ) 
+{
 	OBJECT *hdr = OBJECTHDR(this);
-	double direction = -1;
 		
-	if(output_state_addr != 0){ 
+	if ( output_state_addr != 0 ) { 
 		output_state = *(int *)output_state_addr; // keep water heater in previous state
 	} else {
 		output_state = 0; // Normal operation of water heater 
 	}
 
-	if(state_observed_addr != 0){
+	if ( state_observed_addr != 0 ) {
 		state_observed = *(double *)state_observed_addr; // get the state of the parent
 	} else {
 		state_observed = 0;
 	}
 
-	if (PFC_state == FREE){
+	if (PFC_state == FREE ) {
 		time_in_trigger_under = time_in_trigger_over = t1; //reset the timers for triggering the device
-		if (frequency < trigger_freq_under && (PFC_mode == OVER_UNDER_FREQUENCY || PFC_mode == UNDER_FREQUENCY)){
+		if (frequency < trigger_freq_under && (PFC_mode == OVER_UNDER_FREQUENCY || PFC_mode == UNDER_FREQUENCY) ) {
 			PFC_state = TRIGGERED_OFF;
 		}
-		else if (frequency > trigger_freq_over && (PFC_mode == OVER_UNDER_FREQUENCY || PFC_mode == OVER_FREQUENCY)){
+		else if (frequency > trigger_freq_over && (PFC_mode == OVER_UNDER_FREQUENCY || PFC_mode == OVER_FREQUENCY) ) {
 			PFC_state = TRIGGERED_ON;
 		}
 	}
-	else if (PFC_state == TRIGGERED_OFF){
-		if (t1 >= time_in_trigger_under + trigger_time_under){
+	else if (PFC_state == TRIGGERED_OFF ) {
+		if (t1 >= time_in_trigger_under + trigger_time_under ) {
 			PFC_state = FORCED_OFF;
 		}
-		else if (frequency >= trigger_freq_under){
+		else if (frequency >= trigger_freq_under ) {
 			PFC_state = FREE;
 		}
 	}
-	else if (PFC_state == TRIGGERED_ON){
-		if (t1 >= time_in_trigger_over + trigger_time_over){
+	else if (PFC_state == TRIGGERED_ON ) {
+		if (t1 >= time_in_trigger_over + trigger_time_over ) {
 			PFC_state = FORCED_ON;
 		}
-		else if (frequency >= trigger_freq_over){
+		else if (frequency >= trigger_freq_over ) {
 			PFC_state = FREE;
 		}
 	}
-	else if (PFC_state == FORCED_OFF){
+	else if (PFC_state == FORCED_OFF ) {
 		time_in_release_under = t1; //reset timer for releasing device
-		if (frequency > release_freq_under){
+		if (frequency > release_freq_under ) {
 			PFC_state = RELEASED_OFF;
 		}
 	}
-	else if (PFC_state == FORCED_ON){
+	else if (PFC_state == FORCED_ON ) {
 		time_in_release_over = t1; //reset timer for releasing device
-		if (frequency < release_freq_over){
+		if (frequency < release_freq_over ) {
 			PFC_state = RELEASED_ON;
 		}
 	}
-	else if (PFC_state == RELEASED_OFF){
-		if (t1 >= time_in_release_under + release_time_under){
+	else if (PFC_state == RELEASED_OFF ) {
+		if (t1 >= time_in_release_under + release_time_under ) {
 			PFC_state = FREE;
 		}
-		else if (frequency <= release_freq_under){
+		else if (frequency <= release_freq_under ) {
 			PFC_state = FORCED_OFF;
 		}
 	}
-	else if (PFC_state == RELEASED_ON){
-		if (t1 >= time_in_release_over + release_time_over){
+	else if (PFC_state == RELEASED_ON ) {
+		if (t1 >= time_in_release_over + release_time_over ) {
 			PFC_state = FREE;
 		}
-		else if (frequency >= release_freq_over){
+		else if (frequency >= release_freq_over ) {
 			PFC_state = FORCED_ON;
 		}
 	}
@@ -1649,7 +1657,7 @@ EXPORT int init_passive_controller(OBJECT *obj, OBJECT *parent)
 {
 	try
 	{
-		if (obj!=NULL){
+		if (obj!=NULL ) {
 			return OBJECTDATA(obj,passive_controller)->init(parent);
 		}
 		else
@@ -1658,9 +1666,9 @@ EXPORT int init_passive_controller(OBJECT *obj, OBJECT *parent)
 	INIT_CATCHALL(passive_controller);
 }
 
-EXPORT int isa_passive_controller(OBJECT *obj, char *classname)
+EXPORT int isa_passive_controller(OBJECT *obj, CLASSNAME classname)
 {
-	if(obj != 0 && classname != 0){
+	if ( obj != 0 && classname != 0 ) {
 		return OBJECTDATA(obj,passive_controller)->isa(classname);
 	} else {
 		return 0;

@@ -12,9 +12,9 @@
 #include "pdsp_defs.h"
 
 
-void superlu_abort_and_exit(char* msg)
+void superlu_abort_and_exit(const char* msg)
 {
-    fprintf(stderr, msg);
+    fprintf(stderr, "%s", msg);
     exit (-1);
 }
 
@@ -195,12 +195,11 @@ void
 fixupL(const int n, const int *perm_r, GlobalLU_t *Glu)
 {
     register int nsuper, fsupc, nextl, i, j, jstrt;
-    register int *xsup, *xsup_end, *lsub, *xlsub, *xlsub_end;
+    register int *xsup, *lsub, *xlsub, *xlsub_end;
 
     if ( n <= 1 ) return;
 
     xsup      = Glu->xsup;
-    xsup_end  = Glu->xsup_end;
     lsub      = Glu->lsub;
     xlsub     = Glu->xlsub;
     xlsub_end = Glu->xlsub_end;
@@ -734,7 +733,7 @@ int print_int_vec(char *what, int n, int *vec)
 int ParallelProfile(const int n, const int supers, const int panels, 
 		const int procs, Gstat_t *Gstat)
 {
-    register int i, imax, pruned, unpruned, waits, itemp, cs_numbers;
+    register int i, pruned, unpruned, waits, itemp, cs_numbers;
     register float loadmax, loadtot, temp, thresh, loadprint;
     register float waittime, cs_time;
     double    *utime = Gstat->utime;
@@ -781,13 +780,11 @@ int ParallelProfile(const int n, const int supers, const int panels,
 
     /* work load distribution */
     loadmax = loadtot = Gstat->procstat[0].fcops;
-    imax = 0;
     for (i = 1; i < procs; ++i) {
 	temp = Gstat->procstat[i].fcops;
 	loadtot += temp;
 	if ( temp > loadmax ) {
 	    loadmax = temp;
-	    imax = i;
 	}
     }
     printf("%25s%8.2f\n", "Load balance [mean/max]", loadtot/loadmax/procs);
@@ -801,7 +798,7 @@ int ParallelProfile(const int n, const int supers, const int panels,
     printf("%25s%8d,\tper-panel %.1f\n", "total #delays in pipeline",
 	    waits, (float)waits/panels);
     temp = waittime / procs;
-    printf("%25s%8.2f\t[%.1f%]\n", "mean spin time per-proc", 
+    printf("%25s%8.2f\t[%.1f%%]\n", "mean spin time per-proc", 
 	   temp, temp/utime[FACT]*100);
     
     /* Delays due to scheduling. */
@@ -812,7 +809,7 @@ int ParallelProfile(const int n, const int supers, const int panels,
     }
     printf("%25s%8d\n", "total #delays in schedule", waits);
     temp = waittime / procs;
-    printf("%25s%8.2f\t[%.1f%]\n", "mean sched. time per-proc", 
+    printf("%25s%8.2f\t[%.1f%%]\n", "mean sched. time per-proc", 
 	   temp, temp/utime[FACT]*100);
 
     /* estimated overhead in spin-locks */
@@ -834,7 +831,7 @@ int ParallelProfile(const int n, const int supers, const int panels,
     temp = cs_numbers * TMUTEX;
     printf("mutex-lock overhead (est.) %8.2f, #locks %d, equiv. flops %e\n", 
 	   temp, cs_numbers, (float) itemp);
-    printf("time in critical section   %8.2f\t[%.1f%]\n",
+    printf("time in critical section   %8.2f\t[%.1f%%]\n",
 	   cs_time/procs, cs_time/procs/utime[FACT]*100);
 
     printf("\n---- Parallel Profile Per Panel ----\n");
@@ -900,7 +897,7 @@ int
 CPprofile(const int n, cp_panel_t *cp_panel, pxgstrf_shared_t *pxgstrf_shared)
 {
     Gstat_t *Gstat = pxgstrf_shared->Gstat;
-    register int maxpan, i, j, treecnt;
+    register int maxpan=0, i, j, treecnt;
     register float eft, maxeft; /* earliest (possible) finish time */
     flops_t  *ops;
 

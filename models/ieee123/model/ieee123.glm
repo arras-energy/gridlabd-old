@@ -10,9 +10,12 @@
 // Read the configuration file for this system
 // Assumes the model is run from parent of model folder
 //
+#include "config/default.glm"
+#define CONFIGFILE=config/default.glm
 #ifexist config/local.glm
 #include "config/local.glm"
-#endif // exist local.glm
+#set CONFIGFILE=config/local.glm
+#endif
 
 //
 // Check the configuration
@@ -26,6 +29,10 @@
 // BASIC SETTINGS
 //
 ///////////////////////////////////////////////////////
+
+#ifndef POLE_TYPE
+#error POLE_TYPE is not specified in ${CONFIGFILE}
+#endif
 
 #ifdef RANDOMSEED
 #set randomseed=${RANDOMSEED} // select deterministic simulation
@@ -65,7 +72,7 @@ clock {
 #endif
 }
 #else
-#error No timezone specified
+#error TIMEZONE is not specified in ${CONFIGFILE}
 #endif // TIMEZONE
 
 ///////////////////////////////////////////////////////
@@ -81,7 +88,7 @@ object climate {
         interpolate QUADRATIC;
 }
 #else
-#error No weather specified.
+#error WEATHER is not specified in ${CONFIGFILE}
 #endif // exist WEATHER
 
 ///////////////////////////////////////////////////////
@@ -99,7 +106,10 @@ module powerflow {
 module generators;
 #endif // SOLAR
 
-#ifdef VOLTDUMP
+#ifndef VOLTDUMP
+#error VOLTDUMP is not specified in ${CONFIGFILE}
+#endif
+#if VOLTDUMP==on
 object voltdump {
 	filename ${VOLTDUMP};
 	group "nodevolts";
@@ -107,7 +117,10 @@ object voltdump {
 }
 #endif // VOLTDUMP
 
-#ifdef CURRDUMP
+#ifndef CURRDUMP
+#error CURRDUMP is not specified in ${CONFIGFILE}
+#endif
+#if CURRDUMP==on
 object currdump {
 	filename ${CURRDUMP};
 	mode rect;
@@ -135,8 +148,11 @@ object currdump {
 // MYSQL DATABASE SUPPORT
 //
 ///////////////////////////////////////////////////////
-#ifdef MYSQL_ENABLE
+#ifndef MYSQL_ENABLE
+#error MYSQL_ENABLE is not specified in ${CONFIGFILE}
+#endif
 
+#if MYSQL_ENABLE==on
 #ifndef MYSQLHOST
 #define MYSQLHOST=localhost
 #endif // MYSQLHOST
@@ -152,14 +168,20 @@ module mysql {
 #endif // SOCKETNAME
 }
 
-#ifdef MYSQL_SCADA
+#ifndef MYSQL_SCADA
+#error MYSQL_SCADA is not specified in ${CONFIGFILE}
+#endif
+#if MYSQL_SCADA==on
 object database {
 	name scada;
 	schema "${MYSQL_NAME}_scada";
 }
 #endif // MYSQL_SCADA
 
-#ifdef MYSQL_AMI
+#ifndef MYSQL_AMI
+#error MYSQL_AMI is not specified in ${CONFIGFILE}
+#endif
+#if MYSQL_AMI==on
 object database {
 	name ami;
 	schema "${MYSQL_NAME}_ami";
@@ -180,11 +202,11 @@ object database {
 //
 ///////////////////////////////////////////////////////
 
-#ifdef MYSQL_ENABLE
+#if MYSQL_ENABLE==on
 //
 // SCADA recorders
 //
-#ifdef MYSQL_SCADA
+#if MYSQL_SCADA==on
 #include "model/library/scada.glm"
 #endif // MYSQL_SCADA
 #endif // MYSQL_ENABLE
@@ -202,16 +224,16 @@ object database {
 //
 ///////////////////////////////////////////////////////
 
-#ifdef MYSQL_ENABLE
+#if MYSQL_ENABLE==on
 
-#ifdef MYSQL_MODEL
+#if MYSQL_MODEL==on
 
 #ifndef STOPTIME
 #print dumping model to '${MYSQL_MODEL}_model'
 export mysql ${MYSQL_NAME}_model;
 #endif // MYSQL_MODEL
 
-#ifdef MYSQL_GRAPH
+#if MYSQL_GRAPH==on
 #print dumping graph to '${MYSQL_NAME}_graph'
 export mysql --graph ${MYSQL_NAME}_graph;
 #endif // MYSQL_GRAPH
@@ -219,6 +241,14 @@ export mysql --graph ${MYSQL_NAME}_graph;
 #endif // STOPTIME
 
 #endif // MYSQL_ENABLE
+
+#if VOLTDUMP==all
+#if LOADS==on
+#include "model/library/voltdump.glm"
+#else
+#error VOLTDUMP=all not possible unless LOADS=on in ${CONFIGFILE}
+#endif
+#endif
 
 ///////////////////////////////////////////////////////
 //

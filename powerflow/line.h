@@ -37,7 +37,7 @@ public:
 	line(MODULE *mod);
 	inline line(CLASS *cl=oclass):link_object(cl){};
 	int init(OBJECT *parent);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
     int create(void);
 
 protected:

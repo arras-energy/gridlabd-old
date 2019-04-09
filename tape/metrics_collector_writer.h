@@ -18,7 +18,7 @@
 #include <string.h>
 using namespace std;
 
-EXPORT void new_metrics_collector_writer(MODULE *);
+CDECL void new_metrics_collector_writer(MODULE *);
 
 #ifdef __cplusplus
 
@@ -71,8 +71,6 @@ private:
 	TIMESTAMP next_write;
 	TIMESTAMP last_write;
 	bool interval_write;
-
-	char* parent_string;
 
 	FINDLIST *metrics_collectors;
 

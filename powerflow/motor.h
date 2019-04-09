@@ -134,7 +134,6 @@ private:
     complex Is_prev;
     complex Ss_prev;
     double Telec_prev;
-	double Tmech_prev;
     double wr_prev;
 	double psi_sat_prev;
 

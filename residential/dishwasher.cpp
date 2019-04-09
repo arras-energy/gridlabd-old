@@ -12,7 +12,7 @@
 #include <errno.h>
 #include <math.h>
 
-#include "house_a.h"
+#include "house_e.h"
 #include "dishwasher.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -243,7 +243,8 @@ int dishwasher::init(OBJECT *parent)
 	pulse_interval[18] = 1150;
 
 
-	if (coil_power[0]==-1) coil_power[0] = 5800;
+	if (coil_power[0]==-1) 
+		coil_power[0] = 5800; // WARNING: this value is overwritten by the next instruction
 
 	coil_power[0] = 10;
 	coil_power[1] = 580;
@@ -1442,7 +1443,6 @@ EXPORT TIMESTAMP sync_dishwasher(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	if (obj->clock <= ROUNDOFF)
 		obj->clock = t0;  //set the object clock if it has not been set yet
 	try {
-		TIMESTAMP t1 = TS_NEVER;
 		switch (pass) {
 		case PC_PRETOPDOWN:
 			return my->presync(obj->clock, t0);

@@ -69,7 +69,6 @@ pdgstrf_bmod1D(
     register float flopcnt;
 
     double      zero = 0.0;
-    double      one = 1.0;
     
 #ifdef TIMING
     double *utime = Gstat->utime;

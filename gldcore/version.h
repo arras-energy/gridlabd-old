@@ -17,12 +17,20 @@
 #define PACKAGE_STRING PACKAGE_NAME" "PACKAGE_VERSION
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 const char *version_copyright(void);
 unsigned int version_major(void);
 unsigned int version_minor(void);
 unsigned int version_patch(void);
-const unsigned int version_build(void);
+unsigned int version_build(void);
 const char *version_branch(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
 

@@ -2377,7 +2377,7 @@ void restoration::renewFaultLocation(BRANCHVERTICES *faultsection)
 // otherwise, return 0.a.
 int restoration::spanningTreeSearch(void)
 {
-	int idx, counter, preCounter, feederID, feeder_overloaded, k, tvi, startIdx, allocsize;
+	int idx, counter, preCounter, feederID, feeder_overloaded, k, tvi, startIdx = 0, allocsize;
 	int powerflow_result;
 	CHORDSET FCutSet, FCutSet_1, FCutSet_2, FCutSet_2_1, FCutSet_2_2, new_tie_swi;
 	BRANCHVERTICES FCutSetentry, FCutSet_1entry, FCutSet_2entry;
@@ -3019,7 +3019,6 @@ void restoration::modifyModel(int counter)
 	FUNCTIONADDR switching_fxn;
 	int return_val;
 	double return_val_double;
-	OBJECT *thisobj = OBJECTHDR(this);
 	OBJECT *swobj;
 	bool switch_occurred, return_is_int_val;
 
@@ -3625,7 +3624,7 @@ void restoration::printResult(int IdxSW)
 	int delta_microseconds_value;
 	double delta_tval, loadShedding, seconds_dbl_value;
 	DATETIME res_event_time;
-	int retvalue, indexvalue;
+	int indexvalue;
 
 	//Get current timestamp - pull the deltamode clock, just cause
 	tval = gl_globalclock;
@@ -3633,7 +3632,7 @@ void restoration::printResult(int IdxSW)
 
 	//Convert to a printable time
 	delta_microseconds_value = (int)((delta_tval - (int)(delta_tval))*1000000+0.5);	// microseconds roll-over - biased upward (by 0.5)
-	retvalue = gl_localtime(tval,&res_event_time);	//Could check to make sure this worked, but meh
+	gl_localtime(tval,&res_event_time);	//Could check to make sure this worked, but meh
 
 	//Create the seconds counter
 	seconds_dbl_value = (double)(res_event_time.second) + (double)(delta_microseconds_value)/1000000.0;
