@@ -3,6 +3,7 @@ import csv
 import datetime
 import re
 import math
+import cmath
 
 data = {}
 nodes = ["Timestamp"]
@@ -47,7 +48,8 @@ with open('output/voltages.csv','w') as voltages:
 	for key in sorted(data.keys()) :
 		row = [key.strftime("%Y-%m-%dT%H:%M:%S%z")]
 		for value in data[key]:
-			row.append("%g%+gj" % (value.real,value.imag))
+			row.append("%g%+gd" % (abs(value),(cmath.phase(value))*180/3.1415926))
+			#row.append("%g%+gd" % (value.real,value.imag))
 		writer.writerow(row)
 
 headers = ["Timestamp"]
