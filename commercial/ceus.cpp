@@ -579,7 +579,7 @@ int ceus::filename(const char *filename)
 		CEUSDATA *data;
 	} map[MAXDATA];
 	size_t max_column = 0;
-	memset(map,sizeof(map),0);
+	memset(map,0,sizeof(map));
 	size_t month_ndx = 0;
 	size_t daytype_ndx = 0;
 	size_t hour_ndx = 0;
