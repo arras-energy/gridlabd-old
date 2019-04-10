@@ -299,7 +299,7 @@ int convert_from_enumeration(char *buffer, /**< pointer to the string buffer */
 	int count = 0;
 	char temp[1025];
 	/* get the true value */
-	uint64 value = *(uint64*)data;
+	uint32 value = *(uint32*)data;
 
 	/* process the keyword list, if any */
 	for ( ; keys!=NULL ; keys=keys->next )
@@ -316,7 +316,7 @@ int convert_from_enumeration(char *buffer, /**< pointer to the string buffer */
 	/* no keyword found, return the numeric value instead */
 	if ( count == 0 )
 	{
-		 count = sprintf(temp,"%llu",(unsigned long long)value);
+		 count = sprintf(temp,"%u",(uint32)value);
 	}
 	if ( count < size - 1 )
 	{
@@ -384,7 +384,7 @@ int convert_from_set(char *buffer, /**< pointer to the string buffer */
 	KEYWORD *keys;
 
 	/* get the actual value */
-	unsigned int64 value = *(unsigned int64*)data;
+	uint64 value = *(uint64*)data;
 
 	/* keep track of how characters written */
 	int count=0;
