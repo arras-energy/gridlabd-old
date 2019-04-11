@@ -325,7 +325,7 @@ ceus::ceus(MODULE *module)
 	if (oclass==NULL)
 	{
 		// register to receive notice for first top down. bottom up, and second top down synchronizations
-		oclass = gld_class::create(module,"ceus",sizeof(ceus),PC_BOTTOMUP|PC_AUTOLOCK|PC_OBSERVER);
+		oclass = gld_class::create(module,"ceus",sizeof(ceus),PC_PRETOPDOWN|PC_BOTTOMUP|PC_AUTOLOCK|PC_OBSERVER);
 		if (oclass==NULL)
 			throw "unable to register class ceus";
 		else
@@ -435,6 +435,19 @@ int ceus::init(OBJECT *parent)
 
 TIMESTAMP ceus::presync(TIMESTAMP t1)
 {
+	// TODO: this is not ideal, but until node clears the accumulators itself, it has to be done here instead
+	complex P(0,0,J);
+	*power_A = P;
+	*power_B = P;
+	*power_C = P;
+	complex I(0,0,J);
+	*current_A = I;
+	*current_B = I;
+	*current_C = I;
+	complex S(0,0,J);
+	*shunt_A = S;
+	*shunt_B = S;
+	*shunt_C = S;
 	return TS_NEVER;
 }
 double ceus::apply_sensitivity(SENSITIVITY &component, double *variable)

@@ -1342,6 +1342,11 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 	TIMESTAMP temp_time_value, temp_t1_value;
 	node *temp_par_node = NULL;
 
+	// TODO: node should clear accumulators before starting next sync passes
+	// power[0] = power[1] = power[2] = complex(0,0,J);
+	// current[0] = current[1] = current[2] = complex(0,0,J);
+	// shunt[0] = shunt[1] = shunt[2] = complex(0,0,J);
+
 	//Determine the flag state - see if a schedule is overriding us
 	if (service_status_dbl>-1.0)
 	{
