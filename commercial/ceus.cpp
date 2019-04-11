@@ -162,6 +162,10 @@ size_t ceus::get_index(TIMESTAMP ts)
 			break;
 		case 6:
 			daytype = DT_SATURDAY;
+			break;
+		default:
+			throw "invalid daytype";
+			break;
 		}
 		index = get_index(dt.get_month(), daytype, dt.get_hour());
 	}
@@ -593,9 +597,7 @@ int ceus::filename(const char *filename)
 	} map[MAXDATA];
 	size_t max_column = 0;
 	memset(map,0,sizeof(map));
-	size_t month_ndx = 0;
 	size_t daytype_ndx = 0;
-	size_t hour_ndx = 0;
 	size_t enduse_ndx = 0;
 	while ( (item=strtok_r(last?NULL:header,",\r\n",&last)) != NULL )
 	{
@@ -610,7 +612,6 @@ int ceus::filename(const char *filename)
 		{
 			map[max_column].type = DT_INTEGER;
 			map[max_column].format = "%d";
-			month_ndx = max_column;
 		}
 		else if ( strcmp(item,default_daytype_heading)==0 )
 		{
@@ -622,7 +623,6 @@ int ceus::filename(const char *filename)
 		{
 			map[max_column].type = DT_INTEGER;
 			map[max_column].format = "%d";
-			hour_ndx = max_column;
 		}
 		else // enduse
 		{
@@ -677,12 +677,10 @@ int ceus::filename(const char *filename)
 			}
 		}
 		size_t n;
-		unsigned int daytype = 0;
 		for ( n = 0 ; n < sizeof(codes)/sizeof(codes[0]) ; n++ )
 		{
 			if ( strcmp(codes[n].label,map[daytype_ndx].buffer.string) == 0 )
 			{
-				daytype = codes[n].code;
 				break;
 			}
 		}
