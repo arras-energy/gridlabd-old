@@ -26,6 +26,8 @@ clock {
 #error No timezone specified
 #endif // TIMEZONE
 
+global int32 SEQ_CUSTID 0;
+
 ///////////////////////////////////////////////////////
 //
 // WEATHER
@@ -286,9 +288,8 @@ object triplex_node {
 	phases AS;
 	nominal_voltage 120;
 }
-object triplex_meter:..4 { 
+object triplex_meter:..500 { 
 	name `meter_{SEQ_CUSTID:INC}`;
-	groupid load_1;
 	parent node_1A;
 	phases AS;
 	nominal_voltage 120;
