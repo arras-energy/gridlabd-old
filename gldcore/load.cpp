@@ -7170,7 +7170,7 @@ Failed:
 	}
 	else if ( exec_getexitcode() != XC_SUCCESS )
 	{
-		output_error("unable to load '%s': %s", file, exec_getexitcode());
+		output_error("unable to load '%s': %s", file, exec_getexitcodestr());
 		/*	TROUBLESHOOT
 			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
 			favor of prior error messages.

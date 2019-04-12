@@ -263,6 +263,10 @@ int exec_add_termscript(const char *file)
 {
 	return my_instance->exec.add_termscript(file);
 }
+EXITCODE exec_getexitcode(void)
+{
+	return my_instance->exec.getexitcode();
+}
 const char *exec_getexitcodestr(void)
 {
 	return my_instance->exec.getexitcodestr(global_exit_code);
