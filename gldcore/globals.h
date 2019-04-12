@@ -54,6 +54,7 @@ typedef int EXITCODE;
 #define XC_PRCERR 7 /* process control error */
 #define XC_SVRKLL 8 /* server killed */
 #define XC_IOERR 9 /* I/O error */
+#define XC_LDERR 10 /* model load error */
 #define XC_SHFAILED 127 /* shell failure - per system(3) */
 #define XC_SIGNAL 128 /* signal caught - must be or'd with SIG value if known */
 #define XC_SIGINT (XC_SIGNAL|SIGINT) /* SIGINT caught */

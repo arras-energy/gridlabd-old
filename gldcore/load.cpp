@@ -7160,8 +7160,17 @@ STATUS loadall_glm(char *file) /**< a pointer to the first character in the file
 	IN_MYCONTEXT output_verbose("%d object%s loaded", object_get_count(), object_get_count()>1?"s":"");
 	goto Done;
 Failed:
-	if (errno!=0){
+	if ( errno != 0 )
+	{
 		output_error("unable to load '%s': %s", file, errno?strerror(errno):"(no details)");
+		/*	TROUBLESHOOT
+			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
+			favor of prior error messages.
+		*/
+	}
+	else if ( exec_getexitcode() != XC_SUCCESS )
+	{
+		output_error("unable to load '%s': %s", file, exec_getexitcode());
 		/*	TROUBLESHOOT
 			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
 			favor of prior error messages.
