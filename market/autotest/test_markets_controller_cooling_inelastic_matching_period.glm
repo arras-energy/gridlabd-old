@@ -77,7 +77,7 @@ schedule cooling_setpoints {
 
 object climate {
 	name "Yakima WA";
-	tmyfile "../WA-Yakima.tmy2";
+	tmyfile "../WA-Yakima.tmy3";
 }
 
 class auction {
