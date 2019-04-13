@@ -9,6 +9,7 @@ commercial_commercial_la_LDFLAGS += $(AM_LDFLAGS)
 commercial_commercial_la_LIBADD =
 
 commercial_commercial_la_SOURCES =
+commercial_commercial_la_SOURCES += commercial/ceus.h commercial/ceus.cpp
 commercial_commercial_la_SOURCES += commercial/hvac.cpp
 commercial_commercial_la_SOURCES += commercial/hvac.h
 commercial_commercial_la_SOURCES += commercial/init.cpp

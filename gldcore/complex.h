@@ -20,8 +20,8 @@
 
 typedef enum {I='i',J='j',A='d', R='r'} CNOTATION; /**< complex number notation to use */
 #define CNOTATION_DEFAULT J /* never set this to A */
-#define PI 3.1415926535897932384626433832795
-#define E 2.71828182845905
+#define PI (3.1415926535897932384626433832795)
+#define E (2.71828182845905)
 
 #include <math.h>
 #include "platform.h"
@@ -48,6 +48,7 @@ private:
 #define complex_set_mag(C,M) (NULL) // TODO
 #define complex_set_arg(C,R) (NULL) // TODO
 #define complex_set_ang(C,D) (NULL) // TODO
+double complex_get_part(void *c, const char *name);
 #else
 public:
 	/** Construct a complex number with zero magnitude */

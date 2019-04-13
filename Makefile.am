@@ -14,11 +14,11 @@ AM_CPPFLAGS += $(GLD_CPPFLAGS)
 AM_CFLAGS = -Wall -O3 -g
 AM_CFLAGS +=  -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CFLAGS += $(PTHREAD_CFLAGS)
-AM_CFLAGS += $(GLD_CFLAGS)
+AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
 
 AM_CXXFLAGS = -Wall -O3 -g
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
-AM_CXXFLAGS += $(GLD_CXXFLAGS)
+AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
 
 AM_LDFLAGS =
 AM_LDFLAGS += -no-undefined
