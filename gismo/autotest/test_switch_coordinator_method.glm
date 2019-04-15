@@ -59,12 +59,12 @@ object switch_coordinator {
 	connect switch_3;
 	connect switch_4;
 	object player {
-		property arm;
-		file controller_1_method.csv;
+		property armed;
+		file "../controller_1_method.player";
 	};
 	object player {
 		property status;
-		file controller_1_status.csv;
+		file "../controller_1_status.player";
 	};
 	object recorder {
 		property status,armed;
