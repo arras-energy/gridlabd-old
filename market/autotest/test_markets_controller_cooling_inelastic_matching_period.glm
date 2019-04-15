@@ -41,22 +41,22 @@ schedule fixed_prices {
 schedule controller_bids {
 	0-14 14 * * * 100;
 	15-29 14 * * * 55;
-	30-44 14 * * * 19.2211;
-	45-59 14 * * * 115.501;
-	0-14 15 * * * 99.7825;
+	30-44 14 * * * 18.2262;
+	45-59 14 * * * 113.993;
+	0-14 15 * * * 116.033;
 	15-29 15 * * * 0;
-	30-44 15 * * * 50.2355;
-	45-59 15 * * * 76.5139;
-	* 16 * * * 82.1781;
+	30-44 15 * * * 50.2373;
+	45-59 15 * * * 77.833;
+	* 16 * * * 82.4759;
 }
 
 schedule clearing_quantities {
 	0-14 14 * * * 0;
-	15-29 14 * * * 0.0043699;
-	30-44 14 * * * 0.0043699;
+	15-29 14 * * * 0.00436488;
+	30-44 14 * * * 0.00436488;
 	45-59 14 * * * 0;
-	0-14 15 * * * 0.0043699;
-	15-29 15 * * * 0.0043699;
+	0-14 15 * * * 0.00436488;
+	15-29 15 * * * 0.00436488;
 	30-44 15 * * * 0;
 	45-59 15 * * * 0;
 	* 16 * * * 0;
@@ -167,10 +167,10 @@ object triplex_meter {
 			range_low 0;
 			range_high 5;
 			// object multi_recorder {
-				// property simple_mode,period,setpoint,target,base_setpoint,control_mode,resolve_mode,demand,load,total,range_low,range_high,ramp_low,ramp_high,bid_mode,bid_price,bid_quantity,set_temp,house1:power_state,house1:cooling_demand,house1:cooling_setpoint,house1:air_temperature,house1:system_mode,average_target,standard_deviation_target,house1:hvac_load,house1:outdoor_temperature;
-				// file "check_defaults_output1.csv";
-				// interval 90;
-				// limit 4320;
+			//	 property simple_mode,period,setpoint,target,base_setpoint,control_mode,resolve_mode,demand,load,total,range_low,range_high,ramp_low,ramp_high,bid_mode,bid_price,bid_quantity,set_temp,house1:power_state,house1:cooling_demand,house1:cooling_setpoint,house1:air_temperature,house1:system_mode,average_target,standard_deviation_target,house1:hvac_load,house1:outdoor_temperature;
+			//	 file "check_defaults_output1.csv";
+			//	 interval 90;
+			//	 limit 4320;
 			// };
 			object double_assert {
 				value controller_bids*1;
