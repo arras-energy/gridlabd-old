@@ -36,8 +36,8 @@ static int json_write(const char *fmt,...)
 	return len;
 }
 
-#define FIRST(NAME,FORMAT,VALUE) (len += json_write("\n\t\t\t\"%s\" : \""FORMAT"\"",NAME,VALUE))
-#define TUPLE(NAME,FORMAT,VALUE) (len += json_write(",\n\t\t\t\"%s\" : \""FORMAT"\"",NAME,VALUE))
+#define FIRST(N,F,V) (len += json_write("\n\t\t\t\"%s\" : \"" F "\"",N,V))
+#define TUPLE(N,F,V) (len += json_write(",\n\t\t\t\"%s\" : \"" F "\"",N,V))
 
 static int json_modules(FILE *fp)
 {

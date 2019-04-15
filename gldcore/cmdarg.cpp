@@ -423,7 +423,7 @@ int GldCmdarg::mt_profile(int argc, const char *argv[])
 		global_mt_analysis = atoi(*++argv);
 		argc--;
 		if ( global_threadcount>1 )
-			output_warning("--mt_profile forces threadcount=1");
+			IN_MYCONTEXT output_warning("--mt_profile forces threadcount=1");
 		if ( global_mt_analysis<2 )
 		{
 			output_error("--mt_profile <n-threads> value must be 2 or greater");
@@ -1449,11 +1449,11 @@ int GldCmdarg::example(int argc, const char *argv[])
 	output_redirect("error",NULL);
 	output_redirect("warning",NULL);
 	if ( !object_init(object) )
-		output_warning("--example: unable to initialize example object from class %s", classname);
+		IN_MYCONTEXT output_warning("--example: unable to initialize example object from class %s", classname);
 	if ( object_save(buffer,sizeof(buffer),object)>0 )
 		output_raw("%s\n", buffer);
 	else
-		output_warning("no output generated for object");
+		IN_MYCONTEXT output_warning("no output generated for object");
 	return CMDOK;
 }
 static int mclassdef(void *main, int argc, const char *argv[])
@@ -1505,7 +1505,7 @@ int GldCmdarg::mclassdef(int argc, const char *argv[])
         output_redirect("error",NULL);
         output_redirect("warning",NULL);
         if ( !object_init(obj) )
-                output_warning("--mclassdef: unable to initialize mclassdef object from class %s", classname);
+                IN_MYCONTEXT output_warning("--mclassdef: unable to initialize mclassdef object from class %s", classname);
 	
 	/* output the classdef */
 	count = sprintf(buffer,"struct('module','%s','class','%s'", modname, classname);
@@ -1902,7 +1902,7 @@ STATUS GldCmdarg::load(int argc,const char *argv[])
 			if (**argv!='-')
 			{
 				if (global_test_mode)
-					output_warning("file '%s' ignored in test mode", *argv);
+					IN_MYCONTEXT output_warning("file '%s' ignored in test mode", *argv);
 					/* TROUBLESHOOT
 					   This warning is caused by an attempt to read an input file in self-test mode.  
 					   The use of self-test model precludes reading model files.  Try running the system

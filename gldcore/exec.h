@@ -269,10 +269,6 @@ public:
 
 #endif
 
-#ifndef max
-#define max(n, m) ((n) > (m) ? (n) : (m))
-#endif
-
 #endif
 
 /**@}*/

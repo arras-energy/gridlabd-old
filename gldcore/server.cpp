@@ -882,7 +882,7 @@ int http_xml_request(HTTPCNX *http,char *uri)
 			char buffer[1024];
 			http_format(http,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 			http_format(http,"<properties>\n");
-#define PROPERTY(N,F,V) http_format(http,"\t<property>\n\t\t<name>"N"</name>\n\t\t<value>"F"</value>\n\t</property>\n", V)
+#define PROPERTY(N,F,V) http_format(http,"\t<property>\n\t\t<name>" N "</name>\n\t\t<value>" F "</value>\n\t</property>\n", V)
 			PROPERTY("id","%d",obj->id);
 			PROPERTY("class","%s",obj->oclass->name);
 			if ( obj->name ) PROPERTY("name","%s",object_name(obj,buffer,sizeof(buffer)));
@@ -1033,7 +1033,7 @@ int http_json_request(HTTPCNX *http,char *uri)
 			PROPERTY *prop;
 			char buffer[1024];
 			if ( use_tuple ) http_format(http,"["); else http_format(http,"{");
-#define PROPERTY(N,F,V) {if ( use_tuple ) http_format(http,"\n\t{\""N"\": \""F"\"},", V); else http_format(http," \""N"\": \""F"\",", V);}
+#define PROPERTY(N,F,V) {if ( use_tuple ) http_format(http,"\n\t{\"" N "\": \"" F "\"},", V); else http_format(http," \"" N "\": \"" F "\",", V);}
 			PROPERTY("id","%d",obj->id);
 			PROPERTY("class","%s",obj->oclass->name);
 			if ( obj->name ) PROPERTY("name","%s",object_name(obj,buffer,sizeof(buffer)));
