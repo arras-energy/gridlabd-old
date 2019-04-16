@@ -185,6 +185,7 @@ typedef struct stat STAT;
 #include "instance.h"
 #include "linkage.h"
 #include "gui.h"
+#include "curl.h"
 
 SET_MYCONTEXT(DMC_LOAD)
 
@@ -7040,7 +7041,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return cmdarg_runoption(value)>=0;
 	}
-	else if ( strncmp(line,MACRO "wget",5)==0 )
+	else if ( strncmp(line,MACRO "wget",5)==0 || strncmp(line,MACRO "curl",5)==0 )
 	{
 		char url[1024], file[1024];
 		size_t n = sscanf(line+5,"%s %[^\n\r]",url,file);
@@ -7060,10 +7061,18 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			}
 			strncpy(file,basename+1,sizeof(file)-1);
 		}
-		if ( http_saveas(url,file)==0 )
+		try 
 		{
-			output_error_raw("%s(%d): unable to save URL '%s' as '%s'", filename, linenum, url, file);
-			return FALSE;
+			GldCurl(url,file);
+		}
+		catch (const char *msg)
+		{
+			output_warning("GldCurl(remote='%s', local='%s') failed: reverting to insecure http_saveas() call", url,file);
+			if ( http_saveas(url,file)==0 )
+			{
+				output_error_raw("%s(%d): unable to save URL '%s' as '%s'", filename, linenum, url, file);
+				return FALSE;
+			}
 		}
 		return TRUE;
 	}
