@@ -1,5 +1,6 @@
 module tape;
 module residential;
+module assert;
 
 clock {
 	starttime '2000-01-01 00:00:00';
@@ -12,9 +13,17 @@ object house {
 		demand 12;
 		energy 24;
 	};
-	object recorder {
-		property load.power;
-		interval 0;
-		file test_struct.csv;
+	//object recorder {
+	//	property panel.power;
+	//	interval -1;
+	//	file test_struct.csv;
+	//};
+	object complex_assert {
+		target "panel.power";
+		object player {
+			property value; 
+			file "../test_struct.player";
+		};
+		within 0.01;
 	};
 }
