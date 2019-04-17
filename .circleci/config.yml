@@ -37,10 +37,10 @@ jobs:
       - run:
           name: Make Install
           command: |
-            sudo make -j10 install
+            sudo make -j32 install
       - run:
           name: Check GLD Version & Validate
           command: |
             export PATH=$PWD/install/bin:$PATH
             gridlabd --version
-            gridlabd -T 8 --validate
+            gridlabd -T 16 --validate
