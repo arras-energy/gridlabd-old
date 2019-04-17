@@ -25,6 +25,7 @@ jobs:
             sudo apt install python3.6            
             sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
             sudo update-alternatives --set python /usr/bin/python3.6
+            pip3 install matplotlib
       - run:
           name: Autoreconf
           command: autoreconf -isf
