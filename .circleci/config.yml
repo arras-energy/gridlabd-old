@@ -1,0 +1,44 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/buildpack-deps:xenial
+    steps:
+      - checkout            
+      - run:
+          name: Install GLD dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install autoconf
+            sudo apt-get install automake
+            sudo apt-get install libtool
+            sudo apt-get install libxerces-c-dev
+            sudo apt-get install libmysqlcppconn-dev
+            sudo apt-get install libarmadillo-dev
+      - run:
+          name: Make sure Python 3.6 is properly setup
+          command: |
+            sudo apt-get install software-properties-common python-software-properties --yes
+            sudo add-apt-repository -y ppa:deadsnakes/ppa
+            sudo apt update
+            sudo apt-get install python3-dev
+            sudo apt install python3.6            
+            sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
+            sudo update-alternatives --set python /usr/bin/python3.6
+      - run:
+          name: Autoreconf
+          command: autoreconf -isf
+      - run:
+          name: Configure
+          command: ./configure --enable-silent-rules --prefix=$PWD/install
+      - run:
+          name: Make Install
+          command: |
+            sudo make
+            sudo make -j install            
+      - run:
+          name: Check GLD Version & Validate
+          command: |
+            export PATH=$PWD/install/bin:$PATH
+            gridlabd --version
+            gridlabd --validate
