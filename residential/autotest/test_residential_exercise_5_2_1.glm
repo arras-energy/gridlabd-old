@@ -14,7 +14,7 @@ clock {
 }
 
 object climate {
-	tmyfile "../WA-Yakima.tmy2";
+	tmyfile "../WA-Yakima.tmy3";
 }
 
 object triplex_meter {

@@ -51,7 +51,7 @@ schedule cooling8 {
 
 object climate {
      name "WA-Yakima";
-     tmyfile "../WA-Yakima.tmy2";
+     tmyfile "../WA-Yakima.tmy3";
 	 interpolate NONE;
 };
 

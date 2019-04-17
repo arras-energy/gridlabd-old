@@ -10,6 +10,7 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/compare.cpp gldcore/compare.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/complex.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/console.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/convert.cpp gldcore/convert.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/curl.cpp gldcore/curl.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/daemon.cpp gldcore/daemon.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/debug.cpp gldcore/debug.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/deltamode.cpp gldcore/deltamode.h
@@ -114,7 +115,7 @@ gridlabd_bin_LDFLAGS += $(AM_LDFLAGS)
 gridlabd_bin_LDADD =
 gridlabd_bin_LDADD += $(XERCES_LIB)
 gridlabd_bin_LDADD += $(CURSES_LIB)
-gridlabd_bin_LDADD += -ldl
+gridlabd_bin_LDADD += -ldl -lcurl
 
 gridlabd_bin_SOURCES =
 gridlabd_bin_SOURCES += $(GLD_SOURCES_PLACE_HOLDER)
