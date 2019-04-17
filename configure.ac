@@ -101,6 +101,8 @@ AC_MSG_NOTICE
 AC_MSG_NOTICE([C compiler])
 AC_MSG_NOTICE
 
+: ${CFLAGS="-Wall -O3 -g"}
+: ${CXXFLAGS="-Wall -O3 -g"}
 AC_PROG_CC
 AC_GNU_SOURCE   # defines _GNU_SOURCE
 AM_PROG_CC_C_O  # required for automake to support subdir-objects

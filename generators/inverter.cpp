@@ -615,7 +615,7 @@ int inverter::init(OBJECT *parent)
 		};
 		/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
 	
-		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+		for ( i = 0; i < sizeof(map)/sizeof(map[0]) ; i++ )
 			*(map[i].var) = get_complex(parent,map[i].varname);
 
 		//Map status
@@ -673,7 +673,7 @@ int inverter::init(OBJECT *parent)
 		};
 
 		// attach meter variables to each circuit
-		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+		for ( i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ )
 		{
 			if ((*(map[i].var) = get_complex(parent,map[i].varname))==NULL)
 			{
@@ -933,7 +933,8 @@ int inverter::init(OBJECT *parent)
 					//std::string tempV = "";
 					tempV = "";
 					tempQ = "";
-					for(size_t i = 0; i < VoltVArSchedInput.length(); i++)	{
+					for( size_t i = 0; i < VoltVArSchedInput.length() ; i++ )	
+					{
 						if(VoltVArSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
 								tempV += VoltVArSchedInput[i];
@@ -970,7 +971,8 @@ int inverter::init(OBJECT *parent)
 					int cntr = 0;
 					tempf = "";
 					tempP = "";
-					for(size_t i = 0; i < freq_pwrSchedInput.length(); i++)	{
+					for( size_t i = 0 ; i < freq_pwrSchedInput.length() ; i++ )	
+					{
 						if(freq_pwrSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
 								tempf += freq_pwrSchedInput[i];
@@ -4891,7 +4893,7 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 	double prev_error_ed;
 	double prev_error_eq;
 	bool ramp_change;
-	int i = 0;
+	size_t i = 0;
 	double ieee_1547_double = 0.0;
 	complex temp_current_val[3];
 	complex power_val[3];
@@ -6166,6 +6168,10 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 
 							pred_state.P_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Re();
 							pred_state.Q_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Im();
+
+							// if (Pref > 0) {
+							// 	int stop_temp = 0;
+							// }
 
 							if (pCircuit_V[i].Mag() > 0.0)
 							{

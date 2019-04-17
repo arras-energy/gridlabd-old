@@ -1909,7 +1909,7 @@ public: // header read accessors (no locking)
 	inline double get_longitude(void) { return my()->longitude; };
 	inline TIMESTAMP get_in_svc(void) { return my()->in_svc; };
 	inline TIMESTAMP get_out_svc(void) { return my()->out_svc; };
-	inline const char* get_name(void) { static char _name[sizeof(CLASS)+16]; return my()->name?my()->name:(sprintf(_name,"%s:%d",my()->oclass->name,my()->id),_name); };
+	inline const char* get_name(void) { static char _name[sizeof(CLASSNAME)+16]; return my()->name?my()->name:(sprintf(_name,"%s:%d",my()->oclass->name,my()->id),_name); };
 	inline NAMESPACE* get_space(void) { return my()->space; };
 	inline unsigned int get_lock(void) { return my()->lock; };
 	inline unsigned int get_rng_state(void) { return my()->rng_state; };
@@ -1968,10 +1968,10 @@ public: // iterators
 
 public: // exceptions
 	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); throw (const char*)buf;};
-	inline void error(const char *msg, ...) { static char buf[1024]; if ( get_flags(OF_QUIET) ) return; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_error("%s",buf);};
-	inline void warning(const char *msg, ...) { static char buf[1024]; if ( get_flags(OF_WARNING) ) return; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_warning("%s",buf);};
-	inline void verbose(const char *msg, ...) { static char buf[1024]; if ( get_flags(OF_VERBOSE) ) return; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_verbose("%s",buf);};
-	inline void debug(const char *msg, ...) { static char buf[1024]; if ( get_flags(OF_DEBUG) ) return; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_debug("%s",buf);};
+	inline void error(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_error("%s",buf);};
+	inline void warning(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_warning("%s",buf);};
+	inline void verbose(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_verbose("%s",buf);};
+	inline void debug(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_debug("%s",buf);};
 //public:
 //	virtual void set_defaults(bool is_template = false); /* this force proper V4 initialization of objects (legacy defaults copy is no longer permitted) */
 };
