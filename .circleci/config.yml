@@ -24,7 +24,12 @@ jobs:
             sudo apt-get install python3-dev
             sudo apt install python3.6            
             sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
-            sudo update-alternatives --set python /usr/bin/python3.6
+            sudo update-alternatives --set python /usr/bin/python3.6            
+      - run:
+          name: Get Pip and install Python Dependencies
+          command: |
+            sudo apt-get -y install python3-pip
+            sudo pip3 install matplotlib
       - run:
           name: Autoreconf
           command: autoreconf -isf
@@ -35,10 +40,10 @@ jobs:
           name: Make Install
           command: |
             sudo make
-            sudo make -j install            
+            sudo make -j10 install            
       - run:
           name: Check GLD Version & Validate
           command: |
             export PATH=$PWD/install/bin:$PATH
             gridlabd --version
-            gridlabd --validate
+            gridlabd -T 8 --validate
