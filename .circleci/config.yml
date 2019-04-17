@@ -43,4 +43,4 @@ jobs:
           command: |
             export PATH=$PWD/install/bin:$PATH
             gridlabd --version
-            gridlabd --validate
+            gridlabd -T 2 --validate
