@@ -56,6 +56,8 @@ DEPRECATED CDECL int exec_sync_isinvalid(struct sync_data *d);
 DEPRECATED CDECL STATUS exec_sync_getstatus(struct sync_data *d);
 
 DEPRECATED CDECL EXITCODE exec_setexitcode(EXITCODE);
+DEPRECATED EXITCODE exec_getexitcode(void);
+DEPRECATED const char *exec_getexitcodestr(void);
 	
 DEPRECATED CDECL int exec_add_createscript(const char *file);
 DEPRECATED CDECL int exec_add_initscript(const char *file);

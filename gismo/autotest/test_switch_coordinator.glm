@@ -60,11 +60,11 @@ object switch_coordinator {
 	connect switch_4;
 	object player {
 		property armed;
-		file controller_1_armed.csv;
+		file "../controller_1_armed.player";
 	};
 	object player {
 		property status;
-		file controller_1_status.csv;
+		file "../controller_1_status.player";
 	};
 	object recorder {
 		property status,armed;

@@ -25,9 +25,12 @@ jobs:
             sudo apt-get install python3-dev
             sudo apt install python3.6            
             sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
-            sudo update-alternatives --set python /usr/bin/python3.6
+            sudo update-alternatives --set python /usr/bin/python3.6            
+      - run:
+          name: Get Pip and install Python Dependencies
+          command: |
             sudo apt-get -y install python3-pip
-            pip3 install matplotlib
+            sudo pip3 install matplotlib
       - run:
           name: Autoreconf
           command: autoreconf -isf

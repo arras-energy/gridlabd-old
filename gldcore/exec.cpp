@@ -263,6 +263,14 @@ DEPRECATED int exec_add_termscript(const char *file)
 {
 	return my_instance->get_exec()->add_termscript(file);
 }
+EXITCODE exec_getexitcode(void)
+{
+	return my_instance->exec.getexitcode();
+}
+const char *exec_getexitcodestr(void)
+{
+	return my_instance->exec.getexitcodestr(global_exit_code);
+}
 
 /* TODO: remove when instance_slave.c is reentrant */
 DEPRECATED void exec_mls_create(void)
@@ -476,8 +484,10 @@ void GldExec::init_thread_data(void)
 int GldExec::setexitcode(int xc)
 {
 	int oldxc = global_exit_code;
-	if ( oldxc!=XC_SUCCESS )
+	if ( oldxc != XC_SUCCESS && xc != oldxc )
+	{
 		output_warning("new exitcode %d overwrites existing exitcode %d", xc,oldxc);
+	}
 	global_exit_code = xc;
 	IN_MYCONTEXT output_debug("exit code %d", xc);
 	return oldxc;
@@ -502,6 +512,7 @@ const char *GldExec::getexitcodestr(EXITCODE xc)
 	case XC_PRCERR: /* process control error */ return "process control error";
 	case XC_SVRKLL: /* server killed */ return "server killed";
 	case XC_IOERR: /* I/O error */ return "I/O error";
+	case XC_LDERR: /* model load error */ return "load error";
 	case XC_SHFAILED: /* shell failure - per system(3) */ return "shell failed";
 	case XC_SIGNAL: /* signal caught - must be or'd with SIG value if known */ return "signal caught";
 	case XC_SIGINT: /* SIGINT caught */ return "interrupt received";
