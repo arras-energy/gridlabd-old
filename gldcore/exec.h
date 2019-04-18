@@ -60,7 +60,9 @@ int exec_sync_isinvalid(struct sync_data *d);
 STATUS exec_sync_getstatus(struct sync_data *d);
 
 EXITCODE exec_setexitcode(EXITCODE);
-	
+EXITCODE exec_getexitcode(void);
+const char *exec_getexitcodestr(void);
+
 int exec_add_createscript(const char *file);
 int exec_add_initscript(const char *file);
 int exec_add_precommitscript(const char *file);

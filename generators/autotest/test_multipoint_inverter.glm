@@ -48,9 +48,8 @@ schedule shading_value {
 
 
 object climate {
-     name "WA-Seattle";
-     tmyfile "../WA-Yakima.tmy2";
-	 //tmyfile "WA-Yakima.tmy2";
+     name "WA-Yakima";
+     tmyfile "../WA-Yakima.tmy3";
      interpolate QUADRATIC;
 };
 
@@ -73,25 +72,24 @@ object inverter {
 	phases AS;
 	parent trip_fixed_meter;
 	generator_mode CONSTANT_PF;
-    generator_status ONLINE;
-    inverter_type PWM;
-    power_factor 1.0;
+  generator_status ONLINE;
+  inverter_type PWM;
+  power_factor 1.0;
 	inverter_manufacturer XANTREX;
 	use_multipoint_efficiency true;
-		 object complex_assert {
-				target "VA_Out";
-					object player {
-						property value;
-						file "../MPINV_OUT1.player";
-						//file "MPINV_OUT1.player";
-					};
-				within 0.01;
-		};
-		object recorder {	                	       
-				file MPINV_OUT1.csv;
-       	     	interval 3600;
-       	     	property VA_Out;
-	    };
+	object complex_assert {
+			target "VA_Out";
+			object player {
+					property value;
+					file "../MPINV_OUT1.player";
+			};
+			within 0.01;
+	};
+	//object recorder {	                	       
+	//			file MPINV_OUT1.csv;
+   //    	interval -1;
+   //     property VA_Out;
+	//};
 }
 
 object solar {
@@ -107,7 +105,7 @@ object solar {
 	object recorder {
 		property "Insolation,VA_Out.real";
 		file "fixed_array_lat_angle_fix.csv";
-		interval 1800;
+		interval -1;
 		};
 }
 

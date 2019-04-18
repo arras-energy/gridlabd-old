@@ -286,7 +286,7 @@ static int json_objects(FILE *fp)
 				char buffer[1024];
 				if ( prop->access != PA_PUBLIC )
 					continue;
-				if ( prop->ptype == PT_enduse )
+				if ( prop->ptype == PT_enduse || prop->ptype == PT_method )
 					continue;
 				const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
 				if ( value == NULL )

@@ -28,7 +28,7 @@ schedule clear_price {
 };
 object climate {
      name "weather";
-     tmyfile "../WA-Yakima.tmy2";
+     tmyfile "../WA-Yakima.tmy3";
 };
 
 class auction {
@@ -135,6 +135,10 @@ object house {
 				property value;
 				file ../test_controller_override_is_COOL_on.player;
 			};
+               //object recorder{
+                 //   property override;
+                   // file output.o;
+            //   };
 			within 0.01;
 	   };
 }

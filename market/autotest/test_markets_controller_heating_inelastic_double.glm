@@ -43,22 +43,22 @@ schedule fixed_prices {
 schedule controller_bids {
 	0 4 * * * 100;
 	1 4 * * * 55;
-	2 4 * * * 27.4777;
-	3 4 * * * 123.6530;
-	4 4 * * * 118.7040;
-	5 4 * * * 49.8253;
-	6 4 * * * 50.2259;
-	7 4 * * * 78.2742;
-	8 4 * * * 82.1630;
+	2 4 * * * 23.6086;
+	3 4 * * * 97.1862;
+	4 4 * * * 97.1244;
+	5 4 * * * 49.7107;
+	6 4 * * * 50.0598;
+	7 4 * * * 66.3396;
+	8 4 * * * 79.798;
 }
 
 schedule clearing_quantities {
 	0 4 * * * 0;
-	1 4 * * * 9.05248;
-	2 4 * * * 9.05248;
+	1 4 * * * 11.8722;
+	2 4 * * * 11.8722;
 	3 4 * * * 0;
-	4 4 * * * 23.4466;
-	5 4 * * * 23.4466;
+	4 4 * * * 11.8722;
+	5 4 * * * 11.8722;
 	6 4 * * * 0;
 	7 4 * * * 0;
 	8 4 * * * 0;
@@ -66,7 +66,7 @@ schedule clearing_quantities {
 
 object climate {
 	name "Yakima WA";
-	tmyfile "../WA-Yakima.tmy2";
+	tmyfile "../WA-Yakima.tmy3";
 }
 
 class auction {
@@ -136,12 +136,12 @@ object triplex_meter {
 			ramp_high -2;
 			range_low -5;
 			range_high 0;
-			object multi_recorder {
-				property simple_mode,period,setpoint,target,base_setpoint,control_mode,resolve_mode,demand,load,total,range_low,range_high,ramp_low,ramp_high,bid_mode,bid_price,bid_quantity,set_temp,house1:power_state,house1:heating_demand,house1:heating_setpoint,house1:air_temperature,house1:system_mode,average_target,standard_deviation_target,house1:hvac_load,house1:outdoor_temperature;
-				file "check_defaults_output1.csv";
-				interval 60;
-				limit 4320;
-			};
+		//	object multi_recorder {
+		//		property simple_mode,period,setpoint,target,base_setpoint,control_mode,resolve_mode,demand,load,total,range_low,range_high,ramp_low,ramp_high,bid_mode,bid_price,bid_quantity,set_temp,house1:power_state,house1:heating_demand,house1:heating_setpoint,house1:air_temperature,house1:system_mode,average_target,standard_deviation_target,house1:hvac_load,house1:outdoor_temperature;
+		//		file "check_defaults_output1.csv";
+		//		interval 60;
+		//		limit 4320;
+		//	};
 			object double_assert {
 				target "bid_price";
 				value controller_bids*1;
@@ -172,12 +172,12 @@ object triplex_meter {
 			ramp_high -2;
 			range_low -5;
 			range_high 0;
-			object multi_recorder {
-				property simple_mode,period,setpoint,target,base_setpoint,control_mode,resolve_mode,demand,load,total,range_low,range_high,ramp_low,ramp_high,bid_mode,bid_price,bid_quantity,set_temp,house2:power_state,house2:heating_demand,house2:heating_setpoint,house2:air_temperature,house2:system_mode,average_target,standard_deviation_target,house2:hvac_load,house1:outdoor_temperature;
-				file "check_defaults_output2.csv";
-				interval 60;
-				limit 4320;
-			};
+		//	object multi_recorder {
+		//		property simple_mode,period,setpoint,target,base_setpoint,control_mode,resolve_mode,demand,load,total,range_low,range_high,ramp_low,ramp_high,bid_mode,bid_price,bid_quantity,set_temp,house2:power_state,house2:heating_demand,house2:heating_setpoint,house2:air_temperature,house2:system_mode,average_target,standard_deviation_target,house2:hvac_load,house1:outdoor_temperature;
+		//		file "check_defaults_output2.csv";
+		//		interval 60;
+		//		limit 4320;
+		//	};
 			object double_assert {
 				target "bid_price";
 				value controller_bids*1;
