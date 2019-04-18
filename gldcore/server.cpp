@@ -882,36 +882,36 @@ int http_xml_request(HTTPCNX *http,char *uri)
 			char buffer[1024];
 			http_format(http,"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n");
 			http_format(http,"<properties>\n");
-#define PROPERTY(N,F,V) http_format(http,"\t<property>\n\t\t<name>"N"</name>\n\t\t<value>"F"</value>\n\t</property>\n", V)
-			PROPERTY("id","%d",obj->id);
-			PROPERTY("class","%s",obj->oclass->name);
-			if ( obj->name ) PROPERTY("name","%s",object_name(obj,buffer,sizeof(buffer)));
-			if ( strlen(obj->groupid)>0 ) PROPERTY("groupid","%s",(const char*)obj->groupid);
-			if ( obj->parent ) PROPERTY("parent","%s",object_name(obj->parent,buffer,sizeof(buffer)));
-			PROPERTY("rank","%d",obj->rank);
-			PROPERTY("clock","%lld",obj->clock);
-			if ( obj->valid_to < TS_NEVER ) PROPERTY("valid_to","%lld",obj->valid_to);
-			if ( obj->schedule_skew ) PROPERTY("schedule_skew","%lld",obj->schedule_skew);
-			if ( !isnan(obj->latitude) ) PROPERTY("latitude","%.6f",obj->latitude);
-			if ( !isnan(obj->longitude) ) PROPERTY("longitude","%.6f",obj->longitude);
+#define DO_PROPERTY(N,F,V) http_format(http,"\t<property>\n\t\t<name>" N "</name>\n\t\t<value>" F "</value>\n\t</property>\n", V)
+			DO_PROPERTY("id","%d",obj->id);
+			DO_PROPERTY("class","%s",obj->oclass->name);
+			if ( obj->name ) DO_PROPERTY("name","%s",object_name(obj,buffer,sizeof(buffer)));
+			if ( strlen(obj->groupid)>0 ) DO_PROPERTY("groupid","%s",(const char*)obj->groupid);
+			if ( obj->parent ) DO_PROPERTY("parent","%s",object_name(obj->parent,buffer,sizeof(buffer)));
+			DO_PROPERTY("rank","%d",obj->rank);
+			DO_PROPERTY("clock","%lld",obj->clock);
+			if ( obj->valid_to < TS_NEVER ) DO_PROPERTY("valid_to","%lld",obj->valid_to);
+			if ( obj->schedule_skew ) DO_PROPERTY("schedule_skew","%lld",obj->schedule_skew);
+			if ( !isnan(obj->latitude) ) DO_PROPERTY("latitude","%.6f",obj->latitude);
+			if ( !isnan(obj->longitude) ) DO_PROPERTY("longitude","%.6f",obj->longitude);
 			if ( obj->in_svc > TS_ZERO ) {
-				PROPERTY("in_svc","%lld",obj->in_svc);
-				if ( obj->in_svc_micro > 0 ) PROPERTY("in_svc_micro","%f",obj->in_svc_micro);
+				DO_PROPERTY("in_svc","%lld",obj->in_svc);
+				if ( obj->in_svc_micro > 0 ) DO_PROPERTY("in_svc_micro","%f",obj->in_svc_micro);
 			}
 			if ( obj->out_svc< TS_NEVER )
 			{
-				PROPERTY("out_svc","%lld",obj->out_svc);
-				if ( obj->out_svc_micro > 0 ) PROPERTY("out_svc_micro","%f",obj->out_svc_micro);
+				DO_PROPERTY("out_svc","%lld",obj->out_svc);
+				if ( obj->out_svc_micro > 0 ) DO_PROPERTY("out_svc_micro","%f",obj->out_svc_micro);
 			}
-			if ( obj->heartbeat > 0 ) PROPERTY("heartbeat","%lld",obj->heartbeat);
-			if ( obj->flags > 0 ) PROPERTY("flags","0x%lx",obj->flags);
+			if ( obj->heartbeat > 0 ) DO_PROPERTY("heartbeat","%lld",obj->heartbeat);
+			if ( obj->flags > 0 ) DO_PROPERTY("flags","0x%lx",obj->flags);
 
 			for ( prop=obj->oclass->pmap; prop!=NULL; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)) )
 			{
 				http_format(http,"\t<property>\n\t\t<name>%s</name>\n",prop->name);
 				http_format(http,"\t\t<value>%s</value>\n\t</property>\n",object_get_value_by_name(obj,prop->name,buffer,sizeof(buffer))>0?buffer:"");
 			}
-#undef PROPERTY
+#undef DO_PROPERTY
 			http_format(http,"</properties>\n");
 		}
 		else
@@ -1033,29 +1033,29 @@ int http_json_request(HTTPCNX *http,char *uri)
 			PROPERTY *prop;
 			char buffer[1024];
 			if ( use_tuple ) http_format(http,"["); else http_format(http,"{");
-#define PROPERTY(N,F,V) {if ( use_tuple ) http_format(http,"\n\t{\""N"\": \""F"\"},", V); else http_format(http," \""N"\": \""F"\",", V);}
-			PROPERTY("id","%d",obj->id);
-			PROPERTY("class","%s",obj->oclass->name);
-			if ( obj->name ) PROPERTY("name","%s",object_name(obj,buffer,sizeof(buffer)));
-			if ( strlen(obj->groupid)>0 ) PROPERTY("groupid","%s",(const char*)obj->groupid);
-			if ( obj->parent ) PROPERTY("parent","%s",object_name(obj->parent,buffer,sizeof(buffer)));
-			PROPERTY("rank","%d",obj->rank);
-			PROPERTY("clock","%lld",obj->clock);
-			if ( obj->valid_to < TS_NEVER ) PROPERTY("valid_to","%lld",obj->valid_to);
-			if ( obj->schedule_skew ) PROPERTY("schedule_skew","%lld",obj->schedule_skew);
-			if ( !isnan(obj->latitude) ) PROPERTY("latitude","%.6f",obj->latitude);
-			if ( !isnan(obj->longitude) ) PROPERTY("longitude","%.6f",obj->longitude);
+#define DO_PROPERTY(N,F,V) {if ( use_tuple ) http_format(http,"\n\t{\"" N "\": \"" F "\"},", V); else http_format(http," \"" N "\": \"" F "\",", V);}
+			DO_PROPERTY("id","%d",obj->id);
+			DO_PROPERTY("class","%s",obj->oclass->name);
+			if ( obj->name ) DO_PROPERTY("name","%s",object_name(obj,buffer,sizeof(buffer)));
+			if ( strlen(obj->groupid)>0 ) DO_PROPERTY("groupid","%s",(const char*)obj->groupid);
+			if ( obj->parent ) DO_PROPERTY("parent","%s",object_name(obj->parent,buffer,sizeof(buffer)));
+			DO_PROPERTY("rank","%d",obj->rank);
+			DO_PROPERTY("clock","%lld",obj->clock);
+			if ( obj->valid_to < TS_NEVER ) DO_PROPERTY("valid_to","%lld",obj->valid_to);
+			if ( obj->schedule_skew ) DO_PROPERTY("schedule_skew","%lld",obj->schedule_skew);
+			if ( !isnan(obj->latitude) ) DO_PROPERTY("latitude","%.6f",obj->latitude);
+			if ( !isnan(obj->longitude) ) DO_PROPERTY("longitude","%.6f",obj->longitude);
 			if ( obj->in_svc > TS_ZERO ) {
-				PROPERTY("in_svc","%lld",obj->in_svc);
-				if ( obj->in_svc_micro > 0 ) PROPERTY("in_svc_micro","%f",obj->in_svc_micro);
+				DO_PROPERTY("in_svc","%lld",obj->in_svc);
+				if ( obj->in_svc_micro > 0 ) DO_PROPERTY("in_svc_micro","%f",obj->in_svc_micro);
 			}
 			if ( obj->out_svc< TS_NEVER )
 			{
-				PROPERTY("out_svc","%lld",obj->out_svc);
-				if ( obj->out_svc_micro > 0 ) PROPERTY("out_svc_micro","%f",obj->out_svc_micro);
+				DO_PROPERTY("out_svc","%lld",obj->out_svc);
+				if ( obj->out_svc_micro > 0 ) DO_PROPERTY("out_svc_micro","%f",obj->out_svc_micro);
 			}
-			if ( obj->heartbeat > 0 ) PROPERTY("heartbeat","%lld",obj->heartbeat);
-			PROPERTY("flags","0x%lx",obj->flags);
+			if ( obj->heartbeat > 0 ) DO_PROPERTY("heartbeat","%lld",obj->heartbeat);
+			DO_PROPERTY("flags","0x%lx",obj->flags);
 
 			for ( prop=obj->oclass->pmap; prop!=NULL; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)) )
 			{
@@ -1081,7 +1081,7 @@ int http_json_request(HTTPCNX *http,char *uri)
 					return 1;
 				}
 			}
-#undef PROPERTY
+#undef DO_PROPERTY
 			if ( use_tuple ) http_format(http,"\n\t]\n"); else http_format(http,"}\n");
 		}
 		else
