@@ -47,3 +47,5 @@ jobs:
             export PATH=$PWD/install/bin:$PATH
             gridlabd --version
             gridlabd -T 8 --validate
+      - store_artifacts:
+          path: /root/project
