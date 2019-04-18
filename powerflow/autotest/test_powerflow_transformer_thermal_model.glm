@@ -18,7 +18,7 @@ clock {
 
 object climate{
 	name yakima;
-	tmyfile "../WA-Yakima.tmy2";
+	tmyfile "../WA-Yakima.tmy3";
 }
 
 schedule transformer_load {
@@ -181,11 +181,16 @@ object transformer {
 	aging_granularity 300;
 	aging_constant 15000;
 	percent_loss_of_life 0;
+	//object recorder{
+	//	property percent_loss_of_life; 
+	//	interval -1; 
+	//	file "percent_loss_of_life_output.csv";
+	//};
 	object double_assert {
 		target "percent_loss_of_life";
 		in '2011-02-28 23:55:00';
 		once ONCE_TRUE;
-		value 58.9726;
+		value 62.0561;
 		within 0.59;// asserting to within 1%
 	};
 }
