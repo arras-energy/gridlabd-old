@@ -265,11 +265,11 @@ DEPRECATED int exec_add_termscript(const char *file)
 }
 EXITCODE exec_getexitcode(void)
 {
-	return my_instance->exec.getexitcode();
+	return my_instance->get_exec()->getexitcode();
 }
 const char *exec_getexitcodestr(void)
 {
-	return my_instance->exec.getexitcodestr(global_exit_code);
+	return my_instance->get_exec()->getexitcodestr(global_exit_code);
 }
 
 /* TODO: remove when instance_slave.c is reentrant */
