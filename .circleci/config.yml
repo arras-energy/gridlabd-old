@@ -47,7 +47,11 @@ jobs:
             export PATH=$PWD/install/bin:$PATH
             pwd
             gridlabd --version
-            gridlabd -T 8 --validate
+            gridlabd -T 8 --validate --verbose --debug
+      - run:
+          name: Save module validation results
+          command: tar cfz gridlabd.tar.gz ./*/autotest/*
+          when: on_fail
       - store_artifacts:
-          path: /home/circleci/project
+          path: /home/circleci/project/gridlabd.tar.gz
           destination: /gridlabd
