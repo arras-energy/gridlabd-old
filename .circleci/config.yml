@@ -49,8 +49,5 @@ jobs:
             gridlabd --version
             gridlabd -T 8 --validate
       - store_artifacts:
-          path: /tmp
-          destination: /tmp
-      - store_artifacts:
-          path: /root
-          destination: /root
+          path: /home/circleci/project
+          destination: /gridlabd
