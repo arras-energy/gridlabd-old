@@ -45,7 +45,12 @@ jobs:
           name: Check GLD Version & Validate
           command: |
             export PATH=$PWD/install/bin:$PATH
+            pwd
             gridlabd --version
             gridlabd -T 8 --validate
       - store_artifacts:
-          path: /root/
+          path: /tmp
+          destination: /tmp
+      - store_artifacts:
+          path: /root
+          destination: /root
