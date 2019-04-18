@@ -48,4 +48,4 @@ jobs:
             gridlabd --version
             gridlabd -T 8 --validate
       - store_artifacts:
-          path: /root/project
+          path: /root/
