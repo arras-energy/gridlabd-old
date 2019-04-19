@@ -26,6 +26,7 @@ DEPRECATED typedef struct s_aggregate {
 	double scale; /**< the scalar to convert from the old units to the desired units */
 	AGGRPART part; /**< the property part (complex only) */
 	AGGRFLAGS flags; /**< aggregation flags (e.g., AF_ABS) */
+	size_t refcnt; /**< count of references to this aggregator */
 	struct s_findlist *last; /**< the result of the last run */
 	struct s_aggregate *next; /**< the next aggregation in the core's list of aggregators */
 } AGGREGATION; /**< the aggregation type */
@@ -38,7 +39,6 @@ class GldAggregator
 {
 private:
 	AGGREGATION *aggr;
-	size_t refcnt;
 public:
 	GldAggregator(AGGREGATION *a);
 	GldAggregator(const char *aggregator, const char *group_expression);

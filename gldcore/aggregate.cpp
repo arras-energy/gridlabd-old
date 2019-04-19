@@ -62,12 +62,12 @@ DEPRECATED CDECL double aggregate_value(AGGREGATION *aggr) /**< the aggregation 
 GldAggregator::GldAggregator(AGGREGATION *a)
 {
 	aggr = a;
-	refcnt++;
+	aggr->refcnt++;
 }
 
 GldAggregator::~GldAggregator(void)
 {
-	if ( --refcnt == 0 )
+	if ( --aggr->refcnt == 0 )
 		delete aggr;
 }
 
@@ -359,8 +359,8 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 		}
 	}
 
-	refcnt = 1;
 	aggr = result;
+	aggr->refcnt = 1;
 }
 
 /** This function performs an aggregate calculation given by the aggregation 
