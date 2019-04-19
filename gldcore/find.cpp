@@ -23,6 +23,7 @@
 #include "aggregate.h"
 #include "module.h"
 #include "timestamp.h"
+#include "find.h"
 
 //SET_MYCONTEXT(DMC_FIND) // 
 
@@ -219,9 +220,6 @@ FINDLIST *new_list(unsigned int n)
 #define DELOBJ(L,N) (FOUND((L),(N))?((L).result[(N)>>3]&=~(1<<((N)&0x7)),--((L).hit_count)):(L).hit_count)
 #define ADDALL(L) ((L).hit_count=object_get_count(),memset((L).result,0xff,(L).result_size))
 #define DELALL(L) ((L).hit_count=object_get_count(),memset((L).result,0x00,(L).result_size))
-
-FINDLIST *find_pgm_run(FINDLIST *list, FINDPGM *pgm);
-FINDPGM *find_pgm_new(const char *expression);
 
 /** Search for objects that match criteria
 	\p start may be a previous search result, or \p FT_NEW.
@@ -1224,6 +1222,16 @@ FINDPGM *find_pgm_new(const char *search)
 	}
 	return pgm;
 }
+
+void find_pgm_delete(FINDPGM *pgm)
+{
+	if ( pgm->next )
+	{
+		free(pgm->next);
+	}
+	free(pgm);	
+}
+
 
 /** Search for a file in the specified path
 	(or in \p GLPATH environment variable)

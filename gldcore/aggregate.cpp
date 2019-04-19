@@ -196,7 +196,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 					Check that all your groups are defined such that the group membership is constant.
 				 */
 				errno = EINVAL;
-				free(pgm);
+				find_pgm_delete(pgm);
 				pgm = NULL;
 				throw NULL;
 			}
@@ -209,7 +209,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 						A group expression failed to generate a useful group.  
 						Check that all your groups are correctly defined.
 					 */
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					errno=EINVAL;
 					throw NULL;
@@ -222,7 +222,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 						A group expression generated an empty group.  
 						Check that all your groups are correctly defined.
 					 */
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
@@ -238,7 +238,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 						Check that all your groups are correctly defined.
 					 */
 					errno = EINVAL;
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
@@ -254,7 +254,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 							Check that all your aggregate parts refer a property with parts, e.g., a complex value.
 						 */
 						errno = EINVAL;
-						free(pgm);
+						find_pgm_delete(pgm);
 						pgm = NULL;
 						free(list);
 						list = NULL;
@@ -282,7 +282,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 							Check that your aggregate part is defined for a complex value.
 						 */
 						errno = EINVAL;
-						free(pgm);
+						find_pgm_delete(pgm);
 						pgm = NULL;
 						free(list);
 						list = NULL;
@@ -297,7 +297,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 						Check that your aggregate part refers to a numeric value.
 					 */
 					errno = EINVAL;
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
@@ -311,7 +311,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 						Check that your aggregate part does not include a unit specification.
 					 */
 					errno = EINVAL;
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
@@ -325,7 +325,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 						compatible.
 					 */
 					errno = EINVAL;
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
@@ -351,7 +351,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 		else
 		{
 			errno=ENOMEM;
-			free(pgm);
+			find_pgm_delete(pgm);
 			pgm = NULL;
 			free(list);
 			list = NULL;
@@ -359,7 +359,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 		}
 	}
 
-	refcnt++;
+	refcnt = 1;
 	aggr = result;
 }
 
