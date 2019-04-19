@@ -11,7 +11,7 @@
 #include "platform.h"
 #include "find.h"
 
-// deprecated as of 4.2
+// deprecated as of 4.2 -- should be moved to private members of GldAggregator
 DEPRECATED typedef enum e_aggregate {AGGR_NOP, AGGR_MIN, AGGR_MAX, AGGR_AVG, AGGR_STD, AGGR_MBE, AGGR_MEAN, AGGR_VAR, AGGR_SKEW, AGGR_KUR, AGGR_GAMMA, AGGR_COUNT, AGGR_SUM, AGGR_PROD} AGGREGATOR; /**< the aggregation method to use */
 DEPRECATED typedef enum e_aggregate_part {AP_NONE, AP_REAL, AP_IMAG, AP_MAG, AP_ANG, AP_ARG} AGGRPART; /**< the part of complex values to aggregate */
 DEPRECATED typedef enum e_aggregate_flags {
@@ -45,7 +45,7 @@ public:
 	~GldAggregator(void);
 public:
 	double get_value(void);
-	inline AGGREGATION *get_aggregator(void) { return aggr; };
+	DEPRECATED inline AGGREGATION *get_aggregator(void) { return aggr; };
 public:
 	DEPRECATED inline operator AGGREGATION*(void) { return aggr; };
 };
