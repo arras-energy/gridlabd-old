@@ -48,10 +48,13 @@ jobs:
             pwd
             gridlabd --version
             gridlabd -T 8 --validate
+      - store_artifacts:
+          path: /home/circleci/project/validate.txt
+          destination: /gridlabd/validate.txt
       - run:
-          name: Save failed validation results
-          command: tar cfz gridlabd.tar.gz ./*/autotest/*/*
+          name: Save validation output on failure
+          command: tar cfz gridlabd-autotest-output.tar.gz ./*/autotest/*/*
           when: on_fail
       - store_artifacts:
-          path: /home/circleci/project/gridlabd.tar.gz
-          destination: /gridlabd-validate-failure.tar.gz
+          path: /home/circleci/project/gridlabd-autotest-output.tar.gz
+          destination: /gridlabd/autotest-output.tar.gz
