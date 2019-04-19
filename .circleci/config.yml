@@ -51,13 +51,10 @@ jobs:
       - store_artifacts:
           path: /home/circleci/project/validate.txt
           destination: /gridlabd/validate.txt
-      # - run:
-      #     name: Save validation output on failure
-      #     command: tar cfz gridlabd-autotest-output.tar.gz ./*/autotest/*/*
-      #     when: on_fail
-      # - store_artifacts:
-      #     path: /home/circleci/project/gridlabd-autotest-output.tar.gz
-      #     destination: /gridlabd/autotest-output.tar.gz
+      - run:
+          name: Save validation output on failure
+          command: tar cfz gridlabd-autotest-output.tar.gz ./*/autotest/*/*
+          when: on_fail
       - store_artifacts:
-          path: /home/circleci/project/*/autotest/*/*.*
-          destination: /gridlabd/
+          path: /home/circleci/project/gridlabd-autotest-output.tar.gz
+          destination: /gridlabd/autotest-output.tar.gz

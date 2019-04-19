@@ -1124,12 +1124,12 @@ int http_json_request(HTTPCNX *http,char *uri)
  **/
 int http_find_request(HTTPCNX *http,char *uri)
 {
-	FINDPGM *finder = find_mkpgm(uri);
+	FINDPGM *finder = find_pgm_new(uri);
 	FINDLIST *list;
 	OBJECT *obj;
 	if ( finder == NULL )
 		return 0;
-	list = find_runpgm(NULL,finder);
+	list = find_pgm_run(NULL,finder);
 	if ( list == NULL )
 		return 0;
 	http_format(http,"[\n");

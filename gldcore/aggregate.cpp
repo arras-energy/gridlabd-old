@@ -39,7 +39,7 @@
 // SET_MYCONTEXT(DMC_AGGREGATE)
 
 DEPRECATED CDECL AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
-							   const char *group_expression) /**< grouping rule; see find_mkpgm(char *)*/
+							   const char *group_expression) /**< grouping rule; see find_pgm_new(char *)*/
 {
 	try 
 	{
@@ -72,7 +72,7 @@ GldAggregator::~GldAggregator(void)
 }
 
 GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
-							 const char *group_expression) /**< grouping rule; see find_mkpgm(char *)*/
+							 const char *group_expression) /**< grouping rule; see find_pgm_new(char *)*/
 {
 	AGGREGATOR op = AGGR_NOP;
 	AGGREGATION *result=NULL;
@@ -106,9 +106,9 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 	}
 
 	//Change made for collector to handle propeties of objects
-	pgm = find_mkpgm(group_expression);
+	pgm = find_pgm_new(group_expression);
 	if(pgm != NULL){
-		list = find_runpgm(NULL,pgm);
+		list = find_pgm_run(NULL,pgm);
 		if(list != NULL){
 			obj = find_first(list);
 			if(obj != NULL){
@@ -372,7 +372,7 @@ double GldAggregator::get_value(void)
 
 	/* non-constant groups need search program rerun */
 	if ((aggr->group->constflags & CF_CONSTANT) != CF_CONSTANT){
-		aggr->last = find_runpgm(NULL,aggr->group); /** @todo use constant part instead of NULL (ticket #3) */
+		aggr->last = find_pgm_run(NULL,aggr->group); /** @todo use constant part instead of NULL (ticket #3) */
 	}
 
 	for(obj = find_first(aggr->last); obj != NULL; obj = find_next(aggr->last, obj)){
