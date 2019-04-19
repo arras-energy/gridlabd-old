@@ -9,24 +9,21 @@
 #ifndef _CMDARG_H
 #define _CMDARG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define CMDOK (-1)
 #define CMDERR (-2)
 
-STATUS cmdarg_load(int argc, const char *argv[]);
-int cmdarg_runoption(const char *value);
-
-typedef struct s_pntree{
+// deprecated as of 4.2
+DEPRECATED CDECL STATUS cmdarg_load(int argc, const char *argv[]);
+DEPRECATED CDECL int cmdarg_runoption(const char *value);
+DEPRECATED typedef struct s_pntree
+{
 	const char *name;
 	CLASS *oclass;
 	struct s_pntree *left, *right;
 } pntree;
-
-typedef int (*CMDARGCALL)(void*,int,const char*[]);
-typedef struct s_cmdarg {
+DEPRECATED typedef int (*CMDARGCALL)(void*,int,const char*[]);
+DEPRECATED typedef struct s_cmdarg 
+{
 	const char *lopt;
 	const char *sopt;
 	CMDARGCALL call;
@@ -34,16 +31,15 @@ typedef struct s_cmdarg {
 	const char *desc;
 } CMDARG;
 
-#ifdef __cplusplus
-}
-#endif
-
-#ifdef __cplusplus
+#ifdef __cplusplus // DEPRECATED
 
 class GldCmdarg {
 private:
 	class GldMain *instance;
 	clock_t loader_time;
+public:
+	inline GldMain *get_instance() { return instance; };
+	inline clock_t get_loader_time() { return loader_time; };
 public:
 	GldCmdarg(class GldMain *);
 	~GldCmdarg();
@@ -125,7 +121,7 @@ public:
 	int origin(int argc, const char *argv[]);
 };
 
-#endif
+#endif // DEPRECATED
 
 #endif
 /**@}**/

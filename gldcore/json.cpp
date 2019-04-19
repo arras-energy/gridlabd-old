@@ -24,9 +24,25 @@
 #include "timestamp.h"
 #include "json.h"
 
-static unsigned int json_version = 0;
-FILE *json = NULL;
-static int json_write(const char *fmt,...)
+DEPRECATED int json_dump(const char *filename)
+{
+	GldJsonWriter json(filename);
+	return json.dump();
+}
+
+unsigned int GldJsonWriter::version = 0;
+
+GldJsonWriter::GldJsonWriter(const char *f)
+{
+	filename = strdup(f);
+}
+
+GldJsonWriter::~GldJsonWriter(void)
+{
+	free((void*)filename);
+}
+
+int GldJsonWriter::write(const char *fmt,...)
 {
 	int len;
 	va_list ptr;
@@ -36,87 +52,87 @@ static int json_write(const char *fmt,...)
 	return len;
 }
 
-#define FIRST(NAME,FORMAT,VALUE) (len += json_write("\n\t\t\t\"%s\" : \""FORMAT"\"",NAME,VALUE))
-#define TUPLE(NAME,FORMAT,VALUE) (len += json_write(",\n\t\t\t\"%s\" : \""FORMAT"\"",NAME,VALUE))
+#define FIRST(NAME,FORMAT,VALUE) (len += write("\n\t\t\t\"%s\" : \"" FORMAT "\"",NAME,VALUE))
+#define TUPLE(NAME,FORMAT,VALUE) (len += write(",\n\t\t\t\"%s\" : \"" FORMAT "\"",NAME,VALUE))
 
-static int json_modules(FILE *fp)
+int GldJsonWriter::write_modules(FILE *fp)
 {
 	int len = 0;
 	MODULE *mod;
-	len += json_write(",\n\t\"modules\" : {");
+	len += write(",\n\t\"modules\" : {");
 	for ( mod = module_get_first() ; mod != NULL ; mod = mod->next )
 	{
 		if ( mod != module_get_first() )
-			len += json_write(",");
-		len += json_write("\n\t\t\"%s\" : {",mod->name);
+			len += write(",");
+		len += write("\n\t\t\"%s\" : {",mod->name);
 		FIRST("major","%d",mod->major);
 		TUPLE("minor","%d",mod->minor);
 		// TODO more info
-		len += json_write("\n\t\t}");
+		len += write("\n\t\t}");
 	}
-	len += json_write("\n\t}");
-	output_debug("json_modules() wrote %d bytes",len);
+	len += write("\n\t}");
+	output_debug("GldJsonWriter::modules() wrote %d bytes",len);
 	return len;
 }
 
-static int json_properties(FILE *fp)
+int GldJsonWriter::write_properties(FILE *fp)
 {
 	int len = 0;
 	PROPERTYTYPE ptype;
-	len += json_write(",\n\t\"types\" : {");
+	len += write(",\n\t\"types\" : {");
 	for ( ptype = property_getfirst_type() ; ptype != PT_void ; ptype = property_getnext_type(ptype) )
 	{
 		PROPERTYSPEC *spec = property_getspec(ptype);
 		PROPERTYCOMPAREOP op;
 		bool first = true;
 		if ( ptype != property_getfirst_type() )
-			len += json_write(",");
-		len += json_write("\n\t\t\"%s\" : {",spec->name);
-		len += json_write("\n\t\t\t\"xsdtype\" : \"%s\"",spec->xsdname);
+			len += write(",");
+		len += write("\n\t\t\"%s\" : {",spec->name);
+		len += write("\n\t\t\t\"xsdtype\" : \"%s\"",spec->xsdname);
 		if ( spec->default_value != NULL )
-			len += json_write(",\n\t\t\t\"default\" : \"%s\"",spec->default_value);
+			len += write(",\n\t\t\t\"default\" : \"%s\"",spec->default_value);
 		if ( spec->size > 0 )
-			len += json_write(",\n\t\t\t\"memsize\" : \"%d\"",spec->size);
+			len += write(",\n\t\t\t\"memsize\" : \"%d\"",spec->size);
 		if ( spec->csize > 0 )
 		{
-			len += json_write(",\n\t\t\t\"strsize\" : \"%d\"",spec->csize);
-			len += json_write(",\n\t\t\t\"has_tostr\" : \"%s\"",spec->data_to_string?"True":"False");
-			len += json_write(",\n\t\t\t\"has_fromstr\" : \"%s\"",spec->string_to_data?"True":"False");
+			len += write(",\n\t\t\t\"strsize\" : \"%d\"",spec->csize);
+			len += write(",\n\t\t\t\"has_tostr\" : \"%s\"",spec->data_to_string?"True":"False");
+			len += write(",\n\t\t\t\"has_fromstr\" : \"%s\"",spec->string_to_data?"True":"False");
 		}
-		len += json_write(",\n\t\t\t\"has_create\" : \"%s\"",spec->create?"True":"False");
-		len += json_write(",\n\t\t\t\"has_stream\" : \"%s\"",spec->stream?"True":"False");
-		len += json_write(",\n\t\t\t\"compareops\" : {");
+		len += write(",\n\t\t\t\"has_create\" : \"%s\"",spec->create?"True":"False");
+		len += write(",\n\t\t\t\"has_stream\" : \"%s\"",spec->stream?"True":"False");
+		len += write(",\n\t\t\t\"compareops\" : {");
 		for ( op = _TCOP_FIRST ; op < _TCOP_LAST ; op = PROPERTYCOMPAREOP(op+1) )
 		{
 			if ( spec->compare[op].fn != NULL )
 			{
 				if ( ! first )
-					len += json_write(",");
+					len += write(",");
 				else
 					first = false;
-				len += json_write("\n\t\t\t\t\"%s\" : {\"nargs\": \"%d\"}",spec->compare[op].str, spec->compare[op].trinary ? 3 : 2);
+				len += write("\n\t\t\t\t\"%s\" : {\"nargs\": \"%d\"}",spec->compare[op].str, spec->compare[op].trinary ? 3 : 2);
 			}
 		}
-		len += json_write("\n\t\t\t}");
-		len += json_write("\n\t\t}");
+		len += write("\n\t\t\t}");
+		len += write("\n\t\t}");
 	}
-	len += json_write("\n\t}");
-	output_debug("json_properties() wrote %d bytes",len);
+	len += write("\n\t}");
+	output_debug("GldJsonWriter::properties() wrote %d bytes",len);
 	return len;
 }
 
 
-static int json_classes(FILE *fp)
+int GldJsonWriter::write_classes(FILE *fp)
 {
 	int len = 0;
 	CLASS *oclass;
-	len += json_write(",\n\t\"classes\" : {");
+	len += write(",\n\t\"classes\" : {");
 	for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
 	{
 		PROPERTY *prop;
 		if ( oclass != class_get_first_class() )
-			len += json_write(",");
-		len += json_write("\n\t\t\"%s\" : {",oclass->name);
+			len += write(",");
+		len += write("\n\t\t\"%s\" : {",oclass->name);
 		FIRST("object_size","%u",oclass->size);
 		if ( oclass->parent )
 		{
@@ -128,7 +144,7 @@ static int json_classes(FILE *fp)
 		TUPLE("profiler.count","%u",oclass->profiler.count);
 		if ( oclass->has_runtime ) TUPLE("runtime","%s",oclass->runtime);
 		if ( oclass->pmap != NULL )
-			len += json_write(",");
+			len += write(",");
 		for ( prop = oclass->pmap ; prop != NULL ; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)) )
 		{
 			KEYWORD *key;
@@ -136,9 +152,9 @@ static int json_classes(FILE *fp)
 			if ( ptype == NULL )
 				continue;
 			if ( prop != oclass->pmap )
-				len += json_write(",");
-			len += json_write("\n\t\t\t\"%s\" : {",prop->name);
-			len += json_write("\n\t\t\t\t\"type\" : \"%s\",",ptype);
+				len += write(",");
+			len += write("\n\t\t\t\"%s\" : {",prop->name);
+			len += write("\n\t\t\t\t\"type\" : \"%s\",",ptype);
 			char access[1024] = "";
 			switch ( prop->access ) {
 			case PA_PUBLIC: strcpy(access,"PUBLIC"); break;
@@ -155,45 +171,45 @@ static int json_classes(FILE *fp)
 				if ( prop->access & PA_H ) strcat(access,"H");
 				break;
 			}
-			len += json_write("\n\t\t\t\t\"access\" : \"%s\"",access);
+			len += write("\n\t\t\t\t\"access\" : \"%s\"",access);
 			for ( key = prop->keywords ; key != NULL ; key = key->next )
 			{
 				if ( key == prop->keywords )
 				{
-					len += json_write(",\n\t\t\t\t\"keywords\" : {");
+					len += write(",\n\t\t\t\t\"keywords\" : {");
 				}
-				len += json_write("\n\t\t\t\t\t\"%s\" : \"0x%x\"",key->name,key->value);
+				len += write("\n\t\t\t\t\t\"%s\" : \"0x%x\"",key->name,key->value);
 				if ( key->next == NULL )
-					len += json_write("\n\t\t\t\t}");
+					len += write("\n\t\t\t\t}");
 				else
-					len += json_write(",");
+					len += write(",");
 			}
 			if ( prop->unit != NULL )
 			{
-				json_write(",\n\t\t\t\t\"unit\" : \"%s\"",prop->unit->name);
+				write(",\n\t\t\t\t\"unit\" : \"%s\"",prop->unit->name);
 			}
 			if ( prop->default_value != NULL )
 			{
 				PROPERTYSPEC *spec = property_getspec(prop->ptype);
 				if ( spec != NULL && prop->default_value != spec->default_value )
 				{	
-					json_write(",\n\t\t\t\t\"default\" : \"%s\"",prop->default_value);
+					write(",\n\t\t\t\t\"default\" : \"%s\"",prop->default_value);
 				}
 			}
-			len += json_write("\n\t\t\t}");
+			len += write("\n\t\t\t}");
 		}
-		len += json_write("\n\t\t}");
+		len += write("\n\t\t}");
 	}
-	len += json_write("\n\t}");
-	output_debug("json_classes() wrote %d bytes",len);
+	len += write("\n\t}");
+	output_debug("GldJsonWriter::classes() wrote %d bytes",len);
 	return len;
 }
 
-static int json_globals(FILE *fp)
+int GldJsonWriter::write_globals(FILE *fp)
 {
 	int len = 0;
 	GLOBALVAR *var;
-	len += json_write(",\n\t\"globals\" : {");
+	len += write(",\n\t\"globals\" : {");
 
 	/* for each module */
 	for ( var = global_find(NULL) ; var != NULL ; var = global_getnext(var) )
@@ -204,37 +220,37 @@ static int json_globals(FILE *fp)
 			KEYWORD *key;
 			PROPERTYSPEC *pspec = property_getspec(var->prop->ptype);
 			if ( var != global_find(NULL) )
-				len += json_write(",");
-			len += json_write("\n\t\t\"%s\" : {", var->prop->name);
-			len += json_write("\n\t\t\t\"type\" : \"%s\",", pspec->name);
+				len += write(",");
+			len += write("\n\t\t\"%s\" : {", var->prop->name);
+			len += write("\n\t\t\t\"type\" : \"%s\",", pspec->name);
 			for ( key = var->prop->keywords ; key != NULL ; key = key->next )
 			{
 				if ( key == var->prop->keywords )
 				{
-					len += json_write("\n\t\t\t\"keywords\" : {");
+					len += write("\n\t\t\t\"keywords\" : {");
 				}
-				len += json_write("\n\t\t\t\t\"%s\" : \"0x%x\"",key->name,key->value);
+				len += write("\n\t\t\t\t\"%s\" : \"0x%x\"",key->name,key->value);
 				if ( key->next == NULL )
-					len += json_write("\n\t\t\t}");
-				len += json_write(",");
+					len += write("\n\t\t\t}");
+				len += write(",");
 			}
 			if ( buffer[0] == '\"' )
-				len += json_write("\n\t\t\t\"value\" : %s",buffer);
+				len += write("\n\t\t\t\"value\" : %s",buffer);
 			else
-				len += json_write("\n\t\t\t\"value\" : \"%s\"", buffer);
-			len += json_write("\n\t\t}");
+				len += write("\n\t\t\t\"value\" : \"%s\"", buffer);
+			len += write("\n\t\t}");
 		}
 	}
-	len += json_write("\n\t}");
-	output_debug("json_globals() wrote %d bytes",len);
+	len += write("\n\t}");
+	output_debug("GldJsonWriter::globals() wrote %d bytes",len);
 	return len;
 }
 
-static int json_objects(FILE *fp)
+int GldJsonWriter::write_objects(FILE *fp)
 {
 	int len = 0;
 	OBJECT *obj;
-	len += json_write(",\n\t\"objects\" : {");
+	len += write(",\n\t\"objects\" : {");
 
 	/* scan each object in the model */
 	for ( obj = object_get_first() ; obj != NULL ; obj = obj->next )
@@ -243,13 +259,13 @@ static int json_objects(FILE *fp)
 		CLASS *pclass;
 		char buffer[1024];
 		if ( obj != object_get_first() )
-			len += json_write(",");
+			len += write(",");
 		if ( obj->oclass == NULL ) // ignore objects with no defined class
 			continue;
 		if ( obj->name ) 
-			len += json_write("\n\t\t\"%s\" : {",obj->name);
+			len += write("\n\t\t\"%s\" : {",obj->name);
 		else
-			len += json_write("\n\t\t\"%s:%d\" : {", obj->oclass->name, obj->id);
+			len += write("\n\t\t\"%s:%d\" : {", obj->oclass->name, obj->id);
 		FIRST("id","%d",obj->id);
 		TUPLE("class","%s",obj->oclass->name);
 
@@ -261,7 +277,7 @@ static int json_objects(FILE *fp)
 		if ( obj->parent != NULL )
 		{
 			if ( obj->parent->name == NULL )
-				len += json_write(",\n\t\t\t\"parent\" : \"%s:%d\"",obj->parent->oclass->name,obj->parent->id);
+				len += write(",\n\t\t\t\"parent\" : \"%s:%d\"",obj->parent->oclass->name,obj->parent->id);
 			else
 				TUPLE("parent","%s",obj->parent->name);
 		}
@@ -277,7 +293,7 @@ static int json_objects(FILE *fp)
 		if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) TUPLE("out","%llu",(int64)(obj->out_svc));
 		TUPLE("rng_state","%llu",(int64)(obj->rng_state));
 		TUPLE("heartbeat","%llu",(int64)(obj->heartbeat));
-		(len += json_write(",\n\t\t\t\"%s\" : \"0x%llx%llx\"","guid",(int64)(obj->guid[0]),(int64)(obj->guid[1])));
+		(len += write(",\n\t\t\t\"%s\" : \"0x%llx%llx\"","guid",(int64)(obj->guid[0]),(int64)(obj->guid[1])));
 		TUPLE("flags","0x%llx",(int64)(obj->flags));
 		for ( pclass = obj->oclass ; pclass != NULL ; pclass = pclass->parent )
 		{
@@ -293,41 +309,40 @@ static int json_objects(FILE *fp)
 					continue; // ignore values that don't convert propertly
 				int len = strlen(value);
 				if ( value[0] == '{' && value[len-1] == '}')
-					len += json_write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+					len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
 				else if ( value[0] == '"' && value[len-1] == '"')
-					len += json_write(",\n\t\t\t\"%s\": %s", prop->name, value);
+					len += write(",\n\t\t\t\"%s\": %s", prop->name, value);
 				else
 					TUPLE(prop->name,"%s",value);
 			}
 		}
-		len += json_write("\n\t\t}");
+		len += write("\n\t\t}");
 	}
 
-	len += json_write("\n\t}");
-	output_debug("json_objects() wrote %d bytes",len);
+	len += write("\n\t}");
+	output_debug("GldJsonWriter::objects() wrote %d bytes",len);
 	return len;
 }
 
 // return number of bytes written
-int json_output(FILE *fp)
+int GldJsonWriter::write_output(FILE *fp)
 {
 	int len = 0;
 	json = fp;
-	len += json_write("{\t\"application\": \"gridlabd\",\n");
-	len += json_write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,json_version);
-	len += json_modules(fp);
-	len += json_properties(fp);
-	len += json_classes(fp);
-	len += json_globals(fp);
-	len += json_objects(fp);
-	len += json_write("\n}\n");
-	output_debug("json_output() wrote %d bytes",len);
+	len += write("{\t\"application\": \"gridlabd\",\n");
+	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,version);
+	len += write_modules(fp);
+	len += write_properties(fp);
+	len += write_classes(fp);
+	len += write_globals(fp);
+	len += write_objects(fp);
+	len += write("\n}\n");
+	output_debug("GldJsonWriter::output() wrote %d bytes",len);
 	return len;
 }
 
-
 // returns 0 on success, non-zero on failure
-int json_dump(const char *filename)
+int GldJsonWriter::dump()
 {
 	const char *ext, *basename;
 	size_t b;
@@ -359,14 +374,14 @@ int json_dump(const char *filename)
 	/* open file */
 	fp = fopen(fname,"w");
 	if (fp==NULL)
-		throw_exception("json_dump(const char *filename='%s'): %s", filename, strerror(errno));
+		throw_exception("GldJsonWriter::dump(const char *filename='%s'): %s", filename, strerror(errno));
 		/* TROUBLESHOOT
 			The system was unable to output the json data to the specified file.  
 			Follow the recommended solution based on the error message provided and try again.
 		 */
 
 	/* output data */
-	int len = json_output(fp);
+	int len = write_output(fp);
 
 	/* close file */
 	fclose(fp);

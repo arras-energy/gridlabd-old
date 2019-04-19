@@ -23,6 +23,7 @@
 #include "aggregate.h"
 #include "module.h"
 #include "timestamp.h"
+#include "find.h"
 
 //SET_MYCONTEXT(DMC_FIND) // 
 
@@ -220,9 +221,6 @@ FINDLIST *new_list(unsigned int n)
 #define ADDALL(L) ((L).hit_count=object_get_count(),memset((L).result,0xff,(L).result_size))
 #define DELALL(L) ((L).hit_count=object_get_count(),memset((L).result,0x00,(L).result_size))
 
-FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm);
-FINDPGM *find_mkpgm(const char *expression);
-
 /** Search for objects that match criteria
 	\p start may be a previous search result, or \p FT_NEW.
 	\p FT_NEW starts a new search (starting with all objects)
@@ -298,9 +296,9 @@ FINDLIST *find_objects(FINDLIST *start, ...)
 		FINDPGM *pgm;
 		va_list(ptr);
 		va_start(ptr,start);
-		pgm = find_mkpgm(va_arg(ptr,char*));
+		pgm = find_pgm_new(va_arg(ptr,char*));
 		if (pgm!=NULL){
-			return find_runpgm(result,pgm);
+			return find_pgm_run(result,pgm);
 		} else {
 			va_end(ptr);
 			DELALL(*result); /* pgm == NULL */
@@ -720,8 +718,8 @@ FINDPGM *add_pgm(FINDPGM **pgm, COMPAREFUNC op, unsigned short target, FINDVALUE
 	return item;
 }
 
-/** Runs a search engine built by find_mkpgm **/
-FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm)
+/** Runs a search engine built by find_pgm_new **/
+FINDLIST *find_pgm_run(FINDLIST *list, FINDPGM *pgm)
 {
 	if (list==NULL)
 	{
@@ -738,7 +736,7 @@ FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm)
 			else
 			{	if (pgm->neg) (*pgm->neg)(list,obj); }
 		}
-		find_runpgm(list,pgm->next);
+		find_pgm_run(list,pgm->next);
 	}
 	return list;
 }
@@ -1211,7 +1209,7 @@ int expression_list(PARSER, FINDPGM **pgm)
 }
 
 /** Constructs a search engine for find_objects **/
-FINDPGM *find_mkpgm(const char *search)
+FINDPGM *find_pgm_new(const char *search)
 {
 	FINDPGM *pgm = NULL;
 	const char *p = search;
@@ -1224,6 +1222,16 @@ FINDPGM *find_mkpgm(const char *search)
 	}
 	return pgm;
 }
+
+void find_pgm_delete(FINDPGM *pgm)
+{
+	if ( pgm->next )
+	{
+		free(pgm->next);
+	}
+	free(pgm);	
+}
+
 
 /** Search for a file in the specified path
 	(or in \p GLPATH environment variable)
@@ -1363,14 +1371,14 @@ OBJLIST *objlist_search(const char *group)
 	OBJECT *obj;
 	OBJLIST *list;
 	int n;
-	FINDPGM *pgm = find_mkpgm(group);
+	FINDPGM *pgm = find_pgm_new(group);
 	
 	// a null group  should return all objects
 	if ( pgm==NULL && strcmp(group,"")!=0 ) 
 	{
 		return NULL;
 	}
-	result=find_runpgm(NULL,pgm);
+	result=find_pgm_run(NULL,pgm);
 	if ( result==NULL ) 
 	{
 		return NULL;
