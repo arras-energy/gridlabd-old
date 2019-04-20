@@ -614,7 +614,7 @@ int inverter::init(OBJECT *parent)
 		};
 		/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
 	
-		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+		for ( i = 0; i < sizeof(map)/sizeof(map[0]) ; i++ )
 			*(map[i].var) = get_complex(parent,map[i].varname);
 
 		//Map status
@@ -672,7 +672,7 @@ int inverter::init(OBJECT *parent)
 		};
 
 		// attach meter variables to each circuit
-		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+		for ( i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ )
 		{
 			if ((*(map[i].var) = get_complex(parent,map[i].varname))==NULL)
 			{
@@ -932,7 +932,8 @@ int inverter::init(OBJECT *parent)
 					//std::string tempV = "";
 					tempV = "";
 					tempQ = "";
-					for(int i = 0; i < VoltVArSchedInput.length(); i++)	{
+					for( size_t i = 0; i < VoltVArSchedInput.length() ; i++ )	
+					{
 						if(VoltVArSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
 								tempV += VoltVArSchedInput[i];
@@ -969,7 +970,8 @@ int inverter::init(OBJECT *parent)
 					int cntr = 0;
 					tempf = "";
 					tempP = "";
-					for(int i = 0; i < freq_pwrSchedInput.length(); i++)	{
+					for( size_t i = 0 ; i < freq_pwrSchedInput.length() ; i++ )	
+					{
 						if(freq_pwrSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
 								tempf += freq_pwrSchedInput[i];
@@ -2886,7 +2888,7 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 		else	//FOUR_QUADRANT code
 		{
 			//FOUR_QUADRANT model (originally written for NAS/CES, altered for PV)
-			double VA_Efficiency, temp_PF, temp_QVal, P_in, net_eff; //Ab added last two
+			double VA_Efficiency, temp_PF, temp_QVal, P_in = 0, net_eff = 0; //Ab added last two
 			complex temp_VA;
 			complex battery_power_out = complex(0,0);
 			if (four_quadrant_control_mode != FQM_VOLT_VAR) {
@@ -3820,7 +3822,7 @@ TIMESTAMP inverter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	TIMESTAMP t2 = TS_NEVER;		//By default, we're done forever!
 	LOAD_FOLLOW_STATUS new_lf_status;
 	PF_REG_STATUS new_pf_reg_status = PFRS_UNKNOWN;
-	double new_lf_dispatch_power, curr_power_val, diff_power_val;				
+	double new_lf_dispatch_power = 0, curr_power_val, diff_power_val;				
 	double new_pf_reg_distpatch_VAR = 0.0, curr_real_power_val, curr_reactive_power_val, curr_pf, Q_out, Q_available;
 	double scaling_factor, Q_target;
 	complex temp_current_val[3];
@@ -4893,7 +4895,7 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 	double prev_error_eq;
 	bool ramp_change;
 	size_t i = 0;
-	double ieee_1547_double;
+	double ieee_1547_double = 0;
 	complex temp_current_val[3];
 	complex power_val[3];
 
