@@ -27,8 +27,8 @@ script export clock;
 script export NRAND;
 script export URAND;
 script export GUID;
-script on_init ./save_randomseed;
-script on_sync ./save_randomstate;
+script on_init ../save_randomseed;
+script on_sync ../save_randomstate;
 
 clock {
 	starttime '2010-01-01 00:00:00';
