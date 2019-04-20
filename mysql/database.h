@@ -27,14 +27,6 @@
 
 #include <mysql.h>
 
-#ifdef DLMAIN
-#define EXTERN
-#define INIT(A) = A
-#else
-#define EXTERN extern
-#define INIT(A)
-#endif
-
 EXTERN char default_hostname[256] INIT("127.0.0.1");
 EXTERN char default_username[32] INIT("gridlabd");
 EXTERN char default_password[32] INIT("");
@@ -99,19 +91,19 @@ public:
 public:
 	// special functions
 	const char *get_last_error(void);
-	bool table_exists(char *table);
-	bool query(char *query,...);
-	bool query_ex(char *query,...);
-	unsigned int64 get_last_index(void);
-	MYSQL_RES *select(char *query,...);
+	bool table_exists(const char *table);
+	bool query(const char *query,...);
+	bool query_ex(const char *query,...);
+	size_t get_last_index(void);
+	MYSQL_RES *select(const char *query,...);
 	MYSQL_RES get_next(MYSQL_RES*res);
-	int run_script(char *file);
-	size_t backup(char *file);
+	int run_script(const char *file);
+	size_t backup(const char *file);
 #define TD_APPEND 0x0001 ///< table dump is appended to file
 #define TD_BACKUP 0x0002 ///< table dump is formatted as SQL backup dump
-	size_t dump(char *table, char *file=NULL, unsigned long options=0x0000);
+	size_t dump(const char *table, const char *file=NULL, unsigned long options=0x0000);
 
-	char *get_sqltype(gld_property &p);
+	const char *get_sqltype(gld_property &p);
 	char *get_sqldata(char *buffer, size_t size, gld_property &p, double scale=1.0);
 	char *get_sqldata(char *buffer, size_t size, gld_property &p, gld_unit *unit=NULL);
 	bool get_sqlbind(MYSQL_BIND &value,gld_property &target, my_bool *error=NULL);

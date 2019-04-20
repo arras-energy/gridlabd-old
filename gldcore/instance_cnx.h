@@ -34,6 +34,14 @@
 
 #include "gld_sock.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 STATUS instance_connect(instance *inst);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //	_INSTANCE_CNX_H

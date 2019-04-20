@@ -324,9 +324,7 @@ TIMESTAMP triplex_meter::sync(TIMESTAMP t0)
 // Synchronize a distribution triplex_meter
 TIMESTAMP triplex_meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP rv = TS_NEVER;
-	TIMESTAMP hr = TS_NEVER;
 
 	//Call node postsync now, otherwise current_inj isn't right
 	rv = triplex_node::postsync(t1);
@@ -873,7 +871,6 @@ EXPORT SIMULATIONMODE interupdate_triplex_meter(OBJECT *obj, unsigned int64 delt
 
 int triplex_meter::kmldata(int (*stream)(const char*,...))
 {
-	int phase[3] = {has_phase(PHASE_A),has_phase(PHASE_B),has_phase(PHASE_C)};
 
 	// TODO: this voltage and power breakdown should go in triplex_node
 	double basis = has_phase(PHASE_A) ? 0 : ( has_phase(PHASE_B) ? 240 : has_phase(PHASE_C) ? 120 : 0 );

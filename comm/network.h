@@ -68,7 +68,7 @@ public:
 	network(MODULE *mod);
 	int create();
 	int init(OBJECT *parent);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	int notify(int, PROPERTY *);
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);

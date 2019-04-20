@@ -11,7 +11,6 @@
 #include "gui.h"
 #include "transform.h"
 #include "stream.h"
-#include "test_callbacks.h"
 
 struct s_module_list {
 	void *hLib;
@@ -33,7 +32,7 @@ struct s_module_list {
 	STATUS (*postupdate)(void*,int64,unsigned int64);
 	/* clock hook*/
 	TIMESTAMP (*clockupdate)(TIMESTAMP);
-	int (*cmdargs)(int,char**);
+	int (*cmdargs)(int,const char**);
 	int (*kmldump)(int(*)(const char*,...),OBJECT*);
 	void (*test)(int argc, char *argv[]);	
 	MODULE *(*subload)(char *, MODULE **, CLASS **, int, char **);
@@ -66,13 +65,13 @@ extern "C" {
 #endif
 	int module_get_exe_path(char *buf, int len);
 	int module_get_path(char *buf, int len, MODULE *mod);
-	MODULE *module_find(char *module_name);
+	MODULE *module_find(const char *module_name);
 	MODULE *module_add(MODULE *);
 	MODULE *module_load(const char *file, int argc, char *argv[]);
 	void module_list(void);
 	size_t module_getcount(void);
-	void* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size);
-	double *module_getvar_addr(MODULE *mod, const char *varname);
+	const char* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size);
+	void *module_getvar_addr(MODULE *mod, const char *varname);
 	int module_depends(const char *name, unsigned char major, unsigned char minor, unsigned short build);
 	int module_setvar(MODULE *mod, const char *varname, char *value);
 	int module_import(MODULE *mod, const char *filename);
@@ -84,10 +83,7 @@ extern "C" {
 	int module_dumpall();
 	void module_libinfo(const char *module_name);
 	const char *module_find_transform_function(TRANSFORMFUNCTION function);
-#ifndef _NO_CPPUNIT
-	int module_test(TEST_CALLBACKS *callbacks,int argc,char* argv[]);
-#endif
-	int module_cmdargs(int argc, char **argv);
+	int module_cmdargs(int argc, const char **argv);
 	int module_saveobj_xml(FILE *fp, MODULE *mod);
 	MODULE *module_get_first(void);
 	void *module_malloc(size_t size);
@@ -102,10 +98,10 @@ extern "C" {
 	unsigned short sched_get_cpuid(unsigned short n);
 	pid_t sched_get_procid();
 
-	int module_load_function_list(char *libname, char *fnclist);
+	int module_load_function_list(const char *libname, const char *fnclist);
 	TRANSFORMFUNCTION module_get_transform_function(const char *function);
 
-	int module_compile(char *name, char *code, int flags, char *prefix, char *file, int line);
+	int module_compile(const char *name, const char *code, int flags, const char *prefix,const char *file, int line);
 	void module_profiles(void);
 	CALLBACKS *module_callbacks(void);
 	int module_initall(void);
@@ -117,9 +113,12 @@ extern "C" {
 	void module_termall(void);
 	MODULE *module_get_next(MODULE*);
 
-
 #ifdef __cplusplus
 }
+#endif
+
+#ifndef WIN32
+int GetLastError();
 #endif
 
 #endif

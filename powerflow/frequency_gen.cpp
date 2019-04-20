@@ -111,7 +111,7 @@ int frequency_gen::create(void)
 int frequency_gen::init(OBJECT *parent)
 {
 	OBJECT *obj = OBJECTHDR(this);
-	char index;
+	size_t index;
 
 	//Store nominal frequency value for calculations
 	NominalFreq = FrequencyValue;
@@ -152,7 +152,7 @@ int frequency_gen::init(OBJECT *parent)
 	CurrEquations[0].endtime = TS_NEVER;
 	CurrEquations[0].enteredtime = TS_NEVER;
 
-	for (index=1; index<Num_Resp_Eqs; index++)
+	for (index=1; index<(size_t)Num_Resp_Eqs; index++)
 	{
 		CurrEquations[index].coeffa = 0.0;
 		CurrEquations[index].coeffb = 0.0;
@@ -204,7 +204,6 @@ int frequency_gen::init(OBJECT *parent)
 
 TIMESTAMP frequency_gen::presync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP t1 = powerflow_object::presync(t0);
 	int indexval, indexer;
 	double tempval;

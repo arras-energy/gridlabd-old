@@ -7,9 +7,7 @@
 #include <math.h>
 #include "gridlabd.h"
 
-#define _GENERATORS_GLOBALS
 #include "generators.h"
-#undef  _GENERATORS_GLOBALS
 
 //Define defaults, since many use them and they aren't here yet
 complex default_line_voltage[3] = {complex(480.0,0.0),complex(-240.0,-415.69219),complex(-240.0,415.69219)};
@@ -33,47 +31,27 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	gl_global_create("generators::enable_subsecond_models", PT_bool, &enable_subsecond_models,PT_DESCRIPTION,"Enable deltamode capabilities within the generators module",NULL);
 	gl_global_create("generators::deltamode_timestep", PT_double, &deltamode_timestep_publish,PT_UNITS,"ns",PT_DESCRIPTION,"Desired minimum timestep for deltamode-related simulations",NULL);
 
-	CLASS *first =
-	/*** DO NOT EDIT NEXT LINE ***/
-	//NEWCLASS
-	(new diesel_dg(module))->oclass;
-	NULL;
-
-	(new windturb_dg(module))->oclass;
-	NULL;
-
-	(new power_electronics(module))->oclass;
-	NULL;
-
-	(new energy_storage(module))->oclass;
-	NULL;
-
-	(new inverter(module))->oclass;
-	NULL;
-
-	(new dc_dc_converter(module))->oclass;
-	NULL;
-
-	(new rectifier(module))->oclass;
-	NULL;
-
-	(new microturbine(module))->oclass;
-	NULL;
-
-	(new battery(module))->oclass;
-	NULL;
-
-	(new solar(module))->oclass;
-	NULL;
-
-	(new central_dg_control(module))->oclass;
-	NULL;
-
-	(new controller_dg(module))->oclass;
-	NULL;
-
+	try {
+		new diesel_dg(module);
+		new windturb_dg(module);
+		new power_electronics(module);
+		new energy_storage(module);
+		new inverter(module);
+		new dc_dc_converter(module);
+		new rectifier(module);
+		new microturbine(module);
+		new battery(module);
+		new solar(module);
+		new central_dg_control(module);
+		new controller_dg(module);
+	}
+	catch (const char *msg)
+	{
+		gl_error(msg);
+		return NULL;
+	}
 	/* always return the first class registered */
-	return first;
+	return diesel_dg::oclass;
 }
 
 //Call function for scheduling deltamode

@@ -52,27 +52,45 @@ void GldMain::pause_at_exit(void)
     @returns Exit codes XC_SUCCESS, etc. (see gridlabd.h)
  **/
 GldMain *my_instance = NULL; // TODO: move this to main to make main reentrant
-int
 #ifdef HAVE_PYTHON
-	main_python
+extern "C" int main_python
 #else
-	main
+int main
 #endif
 (	int argc, /**< the number entries on command-line argument list \p argv */
-	char *argv[]) /**< a list of pointers to the command-line arguments */
+	const char *argv[]) /**< a list of pointers to the command-line arguments */
 {
-	my_instance = new GldMain(argc,argv);
+	int return_code = XC_SUCCESS;
+	try {
+		my_instance = new GldMain(argc,argv);
+	}
+	catch (const char *msg)
+	{
+		output_fatal("uncaught exception: %s", msg);
+		return_code = errno ? errno : XC_SHFAILED;
+	}
 	if ( my_instance == NULL )
+	{
 		output_error("unable to create new instance");
+		return_code = XC_SHFAILED;	
+	}
 	else
 	{
-		my_instance->mainloop(argc,argv);
+		try {
+			return_code = my_instance->mainloop(argc,argv);
+		}
+		catch (const char *msg)
+		{
+			output_fatal("uncaught exception: %s", msg);
+			return_code = errno ? errno : XC_SHFAILED;
+		}
 		delete my_instance;
 		my_instance = NULL;
 	}
+	return return_code;
 }
 unsigned int GldMain::next_id = 0;
-GldMain::GldMain(int argc,char *argv[])
+GldMain::GldMain(int argc, const char *argv[])
 	: globals(this), exec(this), cmdarg(this)
 {
 	id = next_id++;
@@ -234,7 +252,7 @@ GldMain::~GldMain(void)
 	return;
 }
 
-void GldMain::mainloop(int argc, char *argv[])
+int GldMain::mainloop(int argc, const char *argv[])
 {
 	/* start the processing environment */
 	IN_MYCONTEXT output_verbose("load time: %d sec", realtime_runtime());
@@ -250,7 +268,7 @@ void GldMain::mainloop(int argc, char *argv[])
 		if ( exec.getexitcode()==XC_SUCCESS )
 			exec.setexitcode(XC_ENVERR);
 	}
-	return;
+	return exec.getexitcode();
 }
 
 void GldMain::set_global_browser(const char *path)
@@ -279,7 +297,7 @@ void GldMain::set_global_execdir(const char *path)
 	return;
 }
 
-void GldMain::set_global_command_line(int argc,char *argv[])
+void GldMain::set_global_command_line(int argc, const char *argv[])
 {
 	int i, pos=0;
 	for (i=0; i<argc; i++)
@@ -294,8 +312,8 @@ void GldMain::set_global_workdir(const char *path)
 {
 	if ( path )
 		strncpy(global_workdir,path,sizeof(global_workdir)-1);
-	else
-		getcwd(global_workdir,sizeof(global_workdir)-1);
+	else if ( getcwd(global_workdir,sizeof(global_workdir)-1) == NULL )
+		output_error("unable to read current working directory");
 	return;
 }
 

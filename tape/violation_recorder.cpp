@@ -6,7 +6,7 @@ CLASS *violation_recorder::oclass = NULL;
 CLASS *violation_recorder::pclass = NULL;
 violation_recorder *violation_recorder::defaults = NULL;
 
-void new_violation_recorder(MODULE *mod){
+CDECL void new_violation_recorder(MODULE *mod){
 	new violation_recorder(mod);
 }
 
@@ -177,7 +177,7 @@ int violation_recorder::init(OBJECT *obj){
 	return 1;
 }
 
-int violation_recorder::make_object_list(int type, char * s_grp, vobjlist *q_obj_list){
+int violation_recorder::make_object_list(int type, const char * s_grp, vobjlist *q_obj_list){
 	OBJECT *gr_obj = 0;
 	//FINDLIST *items = gl_find_objects(FL_GROUP, s_grp);
 	FINDLIST *items = gl_find_objects(FL_NEW, type, SAME, s_grp, FT_END);
@@ -375,18 +375,18 @@ int violation_recorder::pass_error_check () {
 	return 1;
 }
 
-int violation_recorder::isa(char *classname){
+int violation_recorder::isa(CLASSNAME classname){
 	return (strcmp(classname, oclass->name) == 0);
 }
 
 /**
 	@return 0 on failure, 1 on success
  **/
-int violation_recorder::write_header(){
+int violation_recorder::write_header()
+{
 
 	time_t now = time(NULL);
 	//quickobjlist *qol = 0;
-	OBJECT *obj=OBJECTHDR(this);
 
 	if(TS_OPEN != tape_status){
 		// could be ERROR or CLOSED
@@ -409,7 +409,7 @@ int violation_recorder::write_header(){
 	if(0 > fprintf(rec_file,"# host...... %s\n", getenv("HOST"))){ return 0; }
 #endif
 	if(0 > fprintf(rec_file,"# limit..... %d\n", limit)){ return 0; }
-	if(0 > fprintf(rec_file,"# interval.. %d\n", write_interval)){ return 0; }
+	if(0 > fprintf(rec_file,"# interval.. %lld\n", write_interval)){ return 0; }
 	if(0 > fprintf(rec_file,"# timestamp, violation, observation, upper_limit, lower_limit, object(s), object type(s), phase, message\n")){ return 0; }
 //	if(0 > fprintf(rec_file, "\n")){ return 0; }
 	return 1;
@@ -451,10 +451,8 @@ int violation_recorder::check_violations(TIMESTAMP t1) {
 }
 
 // Exceeding device thermal limit
-int violation_recorder::check_violation_1(TIMESTAMP t1) {
-//	gl_output("VIOLATION 1");
-	vobjlist *curr = 0;
-
+int violation_recorder::check_violation_1(TIMESTAMP t1) 
+{
 	check_xfrmr_thermal_limit(t1, xfrmr_obj_list, xfrmr_list_v1, XFMR, xfrmr_thermal_limit_upper, xfrmr_thermal_limit_lower);
 	check_line_thermal_limit(t1, ohl_obj_list, ohl_list_v1, OHLN, line_thermal_limit_upper, line_thermal_limit_lower);
 	check_line_thermal_limit(t1, ugl_obj_list, ugl_list_v1, UGLN, line_thermal_limit_upper, line_thermal_limit_lower);
@@ -467,7 +465,7 @@ int violation_recorder::check_violation_1(TIMESTAMP t1) {
 int violation_recorder::check_line_thermal_limit(TIMESTAMP t1, vobjlist *list, uniqueList *uniq_list, int type, double upper_bound, double lower_bound) {
 
 	vobjlist *curr = 0;
-	double nominal, nominalA, nominalB, nominalC;
+	double nominal, nominalA=0, nominalB=0, nominalC=0;
 	char objname[128];
 	double retval;
 
@@ -634,13 +632,12 @@ int violation_recorder::check_xfrmr_thermal_limit(TIMESTAMP t1, vobjlist *list, 
 }
 
 // Instantaneous voltage of node over 1.1pu
-int violation_recorder::check_violation_2(TIMESTAMP t1) {
-//	gl_output("VIOLATION 2");
+int violation_recorder::check_violation_2(TIMESTAMP t1) 
+{
 	vobjlist *curr = 0;
 	PROPERTY *p_ptr;
 	double nominal;
 	char objname[128];
-	int c = 0;
 	double node_upper_bound = node_instantaneous_voltage_limit_upper;
 	double node_lower_bound = node_instantaneous_voltage_limit_lower;
 	double retval;
@@ -730,13 +727,12 @@ int violation_recorder::check_violation_2(TIMESTAMP t1) {
 }
 
 // Voltage of node over 1.05pu or under 0.95pu for 5 minutes or more
-int violation_recorder::check_violation_3(TIMESTAMP t1) {
-//	gl_output("VIOLATION 3");
+int violation_recorder::check_violation_3(TIMESTAMP t1) 
+{
 	vobjlist *curr = 0;
 	PROPERTY *p_ptr;
 	double nominal;
 	char objname[128];
-	int c = 0;
 	double node_upper_bound = node_continuous_voltage_limit_upper;
 	double node_lower_bound = node_continuous_voltage_limit_lower;
 	double interval = node_continuous_voltage_interval;
@@ -809,7 +805,7 @@ int violation_recorder::check_violation_5(TIMESTAMP t1) {
 	return check_reverse_flow_violation(t1, VIOLATION5, 0.75, "Reverse flow current violates limit.");
 }
 
-int violation_recorder::check_reverse_flow_violation(TIMESTAMP t1, int violation_num, double pct, char *str) {
+int violation_recorder::check_reverse_flow_violation(TIMESTAMP t1, int violation_num, double pct, const char *str) {
 //	gl_output("%s", violation_name);
 	if (link_monitor_obj == 0)
 		return 0;
@@ -1055,15 +1051,14 @@ int violation_recorder::check_violation_7(TIMESTAMP t1) {
 }
 
 // Powerfactor at substation is below limit
-int violation_recorder::check_violation_8(TIMESTAMP t1) {
-
+int violation_recorder::check_violation_8(TIMESTAMP t1) 
+{
 	if (link_monitor_obj == 0)
 			return 0;
 
 	double retval;
 	char objname[128];
 
-	double nominal = 1.;
 	PROPERTY *p_ptr;
 	p_ptr = gl_get_property(link_monitor_obj, "power_in");
 
@@ -1119,7 +1114,7 @@ complex violation_recorder::get_observed_complex_value(OBJECT *curr, PROPERTY *p
 	return *cptr;
 }
 
-int violation_recorder::fails_static_condition (OBJECT *curr, char *prop_name, double upper_bound, double lower_bound, double normalization_value, double *retval) {
+int violation_recorder::fails_static_condition (OBJECT *curr, PROPERTYNAME prop_name, double upper_bound, double lower_bound, double normalization_value, double *retval) {
 	PROPERTY *p_ptr;
 	double value;
 	p_ptr = gl_get_property(curr, prop_name);
@@ -1139,7 +1134,7 @@ int violation_recorder::fails_static_condition (double value, double upper_bound
 	return 0;
 }
 
-int violation_recorder::fails_dynamic_condition (vobjlist *curr, int i, char *prop_name, TIMESTAMP t1, double interval, double upper_bound, double lower_bound, double normalization_value, double *retval) {
+int violation_recorder::fails_dynamic_condition (vobjlist *curr, int i, PROPERTYNAME prop_name, TIMESTAMP t1, double interval, double upper_bound, double lower_bound, double normalization_value, double *retval) {
 	PROPERTY *p_ptr;
 	double value, pu;
 	p_ptr = gl_get_property(curr->obj, prop_name);
@@ -1180,7 +1175,7 @@ int violation_recorder::fails_dynamic_condition (vobjlist *curr, int i, char *pr
 	return 0;
 }
 
-int violation_recorder::fails_continuous_condition (vobjlist *curr, int i, char *prop_name, TIMESTAMP t1, double interval, double upper_bound, double lower_bound, double normalization_value, double *retval) {
+int violation_recorder::fails_continuous_condition (vobjlist *curr, int i, PROPERTYNAME prop_name, TIMESTAMP t1, double interval, double upper_bound, double lower_bound, double normalization_value, double *retval) {
 	PROPERTY *p_ptr;
 	double value, pu;
 	p_ptr = gl_get_property(curr->obj, prop_name);
@@ -1228,12 +1223,13 @@ int violation_recorder::fails_continuous_condition (vobjlist *curr, int i, char 
 	return 0;
 }
 
-int violation_recorder::has_phase(OBJECT *obj, int phase) {
+int violation_recorder::has_phase(OBJECT *obj, int phase) 
+{
 	PROPERTY *p_ptr;
 	set *phases;
 	p_ptr = gl_get_property(obj, "phases");
 	phases = gl_get_set(obj, p_ptr);
-	if ((*phases & phase) == phase)
+	if (((int)*phases & phase) == phase)
 		return true;
 	return 0;
 }
@@ -1257,7 +1253,7 @@ int violation_recorder::get_violation_count(int number, int type) {
 	return violation_count[(int)l2(number)][type];
 }
 
-int violation_recorder::write_to_stream (TIMESTAMP t1, bool echo, char *fmt, ...) {
+int violation_recorder::write_to_stream (TIMESTAMP t1, bool echo, const char *fmt, ...) {
 	char time_str[64];
 	DATETIME dt;
 	if(TS_OPEN != tape_status){
@@ -1365,7 +1361,8 @@ int violation_recorder::flush_line(){
 	@return 0 on failure, 1 on success
  **/
 
-int violation_recorder::write_summary() {
+int violation_recorder::write_summary() 
+{
 	FILE *f;
 
 	f = fopen(summary.get_string(), "w");
@@ -1374,7 +1371,6 @@ int violation_recorder::write_summary() {
 		return 0;
 	}
 
-	char buffer[1024];
 	time_t now = time(NULL);
 
 	if(0 > fprintf(f,"# file...... %s\n", summary.get_string())){ return 0; }
@@ -1554,9 +1550,6 @@ EXPORT int create_violation_recorder(OBJECT **obj, OBJECT *parent){
 			rv = my->create();
 		}
 	}
-	catch (char *msg){
-		gl_error("create_violation_recorder: %s", msg);
-	}
 	catch (const char *msg){
 		gl_error("create_violation_recorder: %s", msg);
 	}
@@ -1571,9 +1564,6 @@ EXPORT int init_violation_recorder(OBJECT *obj){
 	int rv = 0;
 	try {
 		rv = my->init(obj->parent);
-	}
-	catch (char *msg){
-		gl_error("init_violation_recorder: %s", msg);
 	}
 	catch (const char *msg){
 		gl_error("init_violation_recorder: %s", msg);
@@ -1600,9 +1590,6 @@ EXPORT TIMESTAMP sync_violation_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG p
 				throw "invalid pass request";
 		}
 	}
-	catch(char *msg){
-		gl_error("sync_violation_recorder: %s", msg);
-	}
 	catch(const char *msg){
 		gl_error("sync_violation_recorder: %s", msg);
 	}
@@ -1615,16 +1602,13 @@ EXPORT int commit_violation_recorder(OBJECT *obj){
 	try {
 		rv = my->commit(obj->clock);
 	}
-	catch (char *msg){
-		gl_error("commit_violation_recorder: %s", msg);
-	}
 	catch (const char *msg){
 		gl_error("commit_violation_recorder: %s", msg);
 	}
 	return rv;
 }
 
-EXPORT int isa_violation_recorder(OBJECT *obj, char *classname)
+EXPORT int isa_violation_recorder(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj, violation_recorder)->isa(classname);
 }
@@ -1634,11 +1618,6 @@ EXPORT int finalize_violation_recorder(OBJECT *obj)
 	violation_recorder *my = OBJECTDATA(obj,violation_recorder);
 	try {
 		return obj!=NULL ? my->finalize(obj) : 0;
-	}
-	//T_CATCHALL(pw_model,finalize);
-	catch (char *msg) {
-		gl_error("finalize_violation_recorder" "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
-		return TS_INVALID;
 	}
 	catch (const char *msg) {
 		gl_error("finalize_violation_recorder" "(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);

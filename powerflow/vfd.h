@@ -29,7 +29,7 @@ public:
 	TIMESTAMP postsync(TIMESTAMP t0);	//Legacy FBS coding in here - may not be needed in future
 	vfd(MODULE *mod);
 	inline vfd(CLASS *cl=oclass):link_object(cl){};
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 
 	STATUS alloc_freq_arrays(double delta_t_val);
 	void CheckParameters(void);

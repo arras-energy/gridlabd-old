@@ -5,7 +5,7 @@ module climate;
 
 clock {
 	starttime '2000-01-01 00:00:00';
-	stoptime '2001-01-01 00:00:00';
+	stoptime '2000-01-01 05:00:00';
 }
 
 object climate {
@@ -32,6 +32,7 @@ object pole {
 	nominal_voltage 12470;
 	tilt_angle 0.4;
 	tilt_direction 270;
+	install_year 1990;
 }
 
 object line_spacing {
@@ -68,6 +69,7 @@ object pole {
 	nominal_voltage 12470;
 	tilt_angle 0.4;
 	tilt_direction 270;
+	install_year 2000;
 //	equipment_area 5 sf;
 //	equipment_height 25 ft;
 }

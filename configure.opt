@@ -1,5 +1,5 @@
 --enable-silent-rules
 --prefix=/usr/local
 --with-mysql=/usr/local
-'CXXFLAGS=-w -O2'
-'CFLAGS=-w -O2'
+'CXXFLAGS=-Wall -O3 -g'
+'CFLAGS=-Wall -O3 -g'

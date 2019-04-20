@@ -59,7 +59,6 @@ pdgstrf_column_dfs(
  *
  */
     GlobalLU_t *Glu = pxgstrf_shared->Glu; /* modified */
-    Gstat_t *Gstat = pxgstrf_shared->Gstat; /* modified */
     register int jcolm1, jcolm1size, nextl, ifrom;
     register int k, krep, krow, kperm, samesuper, nsuper;
     register int no_lsub;

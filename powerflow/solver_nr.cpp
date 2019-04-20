@@ -599,7 +599,7 @@ int64 solver_nr(unsigned int bus_count,
 	unsigned int size_Amatrix;
 
 	//Voltage mismatch tracking variable
-	double Maxmismatch;
+	double Maxmismatch = 0.0;
 
 	//Saturation mismatch tracking variable
 	bool SaturationMismatchPresent;
@@ -617,10 +617,10 @@ int64 solver_nr(unsigned int bus_count,
 	double tempQbus; //tempQbus store the temporary value of reactive power load at each bus
 
 	//Miscellaneous index variable
-	unsigned int indexer, tempa, tempb, jindexer, kindexer;
-	char jindex, kindex;
-	char temp_index, temp_index_b;
-	unsigned int temp_index_c;
+	size_t indexer, tempa, tempb, jindexer, kindexer;
+	size_t jindex, kindex;
+	size_t temp_index, temp_index_b = 0;
+	size_t temp_index_c;
 
 	//Working matrix for admittance collapsing/determinations
 	complex tempY[3][3];
@@ -639,14 +639,14 @@ int64 solver_nr(unsigned int bus_count,
 	bool swing_is_a_swing;
 
 	//Deltamode initial dynamics run - swing convergence flag (symmetry)
-	bool swing_converged;
+	bool swing_converged = false;
 
 	//Deltamode intermediate variables
 	complex temp_complex_0, temp_complex_1, temp_complex_2, temp_complex_3, temp_complex_4, temp_complex_5;
 	complex aval, avalsq;
 
 	//Temporary size variable
-	char temp_size, temp_size_b, temp_size_c;
+	size_t temp_size, temp_size_b, temp_size_c;
 
 	//Temporary admittance variables
 	complex Temp_Ad_A[3][3];
@@ -661,7 +661,7 @@ int64 solver_nr(unsigned int bus_count,
 
 	//Miscellaneous working variable
 	double work_vals_double_0, work_vals_double_1,work_vals_double_2,work_vals_double_3,work_vals_double_4;
-	char work_vals_char_0;
+	size_t work_vals_char_0;
 
 	//Sizing variable
 	unsigned int size_diag_update;
@@ -818,7 +818,7 @@ int64 solver_nr(unsigned int bus_count,
 				//Assign jindexer as intermediate variable (easier for me this way)
 				jindexer = bus[indexer].Link_Table[kindexer];
 
-				if ((branch[jindexer].from == indexer) || (branch[jindexer].to == indexer))	//Bus is the from or to side of things - not sure how it would be in link table otherwise, but meh
+				if ((branch[jindexer].from == (int)indexer) || (branch[jindexer].to == (int)indexer))	//Bus is the from or to side of things - not sure how it would be in link table otherwise, but meh
 				{
 					if ((bus[indexer].phases & 0x07) == 0x07)		//Full three phase
 					{
@@ -836,7 +836,7 @@ int64 solver_nr(unsigned int bus_count,
 
 									if ((phase_workd & branch[jindexer].phases) == phase_workd)
 									{
-										if (branch[jindexer].from == indexer)	//We're the from version
+										if (branch[jindexer].from == (int)indexer)	//We're the from version
 										{
 											tempY[jindex][kindex] += branch[jindexer].YSfrom[jindex*3+kindex];
 										}
@@ -851,7 +851,7 @@ int64 solver_nr(unsigned int bus_count,
 					}
 					else if ((bus[indexer].phases & 0x80) == 0x80)	//Split phase - add in 2x2 element to upper left 2x2
 					{
-						if (branch[jindexer].from == indexer)	//From branch
+						if (branch[jindexer].from == (int)indexer)	//From branch
 						{
 							//End of SPCT transformer requires slightly different Diagonal components (so when it's the To bus of SPCT and from for other triplex
 							if ((bus[indexer].phases & 0x20) == 0x20)	//Special case
@@ -901,7 +901,7 @@ int64 solver_nr(unsigned int bus_count,
 								{
 									if ((branch[jindexer].phases & 0x01) == 0x01)	//Phase C valid on branch
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[0][0] += branch[jindexer].YSfrom[8];
 										}
@@ -916,7 +916,7 @@ int64 solver_nr(unsigned int bus_count,
 								{
 									if ((branch[jindexer].phases & 0x02) == 0x02)	//Phase B valid on branch
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[0][0] += branch[jindexer].YSfrom[4];
 										}
@@ -933,7 +933,7 @@ int64 solver_nr(unsigned int bus_count,
 
 									if (phase_worka == 0x03)	//Full B & C
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[0][0] += branch[jindexer].YSfrom[4];
 											tempY[0][1] += branch[jindexer].YSfrom[5];
@@ -950,7 +950,7 @@ int64 solver_nr(unsigned int bus_count,
 									}//End valid B & C
 									else if (phase_worka == 0x01)	//Only C branch
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[1][1] += branch[jindexer].YSfrom[8];
 										}
@@ -961,7 +961,7 @@ int64 solver_nr(unsigned int bus_count,
 									}//end valid C
 									else if (phase_worka == 0x02)	//Only B branch
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[0][0] += branch[jindexer].YSfrom[4];
 										}
@@ -978,7 +978,7 @@ int64 solver_nr(unsigned int bus_count,
 								{
 									if ((branch[jindexer].phases & 0x04) == 0x04)	//Phase A is valid
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[0][0] += branch[jindexer].YSfrom[0];
 										}
@@ -995,7 +995,7 @@ int64 solver_nr(unsigned int bus_count,
 
 									if (phase_worka == 0x05)	//Both A & C valid
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[0][0] += branch[jindexer].YSfrom[0];
 											tempY[0][1] += branch[jindexer].YSfrom[2];
@@ -1012,7 +1012,7 @@ int64 solver_nr(unsigned int bus_count,
 									}//End A & C valid
 									else if (phase_worka == 0x04)	//Only A valid
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[0][0] += branch[jindexer].YSfrom[0];
 										}
@@ -1023,7 +1023,7 @@ int64 solver_nr(unsigned int bus_count,
 									}//end only A valid
 									else if (phase_worka == 0x01)	//Only C valid
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[1][1] += branch[jindexer].YSfrom[8];
 										}
@@ -1042,7 +1042,7 @@ int64 solver_nr(unsigned int bus_count,
 
 									if (phase_worka == 0x06)	//Valid A & B phase
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[0][0] += branch[jindexer].YSfrom[0];
 											tempY[0][1] += branch[jindexer].YSfrom[1];
@@ -1059,7 +1059,7 @@ int64 solver_nr(unsigned int bus_count,
 									}//End valid A & B
 									else if (phase_worka == 0x04)	//Only valid A
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[0][0] += branch[jindexer].YSfrom[0];
 										}
@@ -1070,7 +1070,7 @@ int64 solver_nr(unsigned int bus_count,
 									}//end valid A
 									else if (phase_worka == 0x02)	//Only valid B
 									{
-										if (branch[jindexer].from == indexer)	//From branch
+										if (branch[jindexer].from == (int)indexer)	//From branch
 										{
 											tempY[1][1] += branch[jindexer].YSfrom[4];
 										}
@@ -1106,9 +1106,9 @@ int64 solver_nr(unsigned int bus_count,
 			index_count += powerflow_values->BA_diag[indexer].size;				// Update the index for this matrix's size, so next one is in appropriate place
 
 			//Store the admittance values into the BA_diag matrix structure
-			for (jindex=0; jindex<powerflow_values->BA_diag[indexer].size; jindex++)
+			for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
 			{
-				for (kindex=0; kindex<powerflow_values->BA_diag[indexer].size; kindex++)			//Store values - assume square matrix - don't bother parsing what doesn't exist.
+				for (kindex=0; kindex<(size_t)powerflow_values->BA_diag[indexer].size; kindex++)			//Store values - assume square matrix - don't bother parsing what doesn't exist.
 				{
 					powerflow_values->BA_diag[indexer].Y[jindex][kindex] = tempY[jindex][kindex];// Store the self admittance terms.
 				}
@@ -1117,9 +1117,9 @@ int64 solver_nr(unsigned int bus_count,
 			//Copy values into node-specific link (if needed)
 			if (bus[indexer].full_Y_all != NULL)
 			{
-				for (jindex=0; jindex<powerflow_values->BA_diag[indexer].size; jindex++)
+				for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
 				{
-					for (kindex=0; kindex<powerflow_values->BA_diag[indexer].size; kindex++)			//Store values - assume square matrix - don't bother parsing what doesn't exist.
+					for (kindex=0; kindex<(size_t)powerflow_values->BA_diag[indexer].size; kindex++)			//Store values - assume square matrix - don't bother parsing what doesn't exist.
 					{
 						bus[indexer].full_Y_all[jindex*3+kindex] = tempY[jindex][kindex];// Store the self admittance terms.
 					}
@@ -1144,7 +1144,7 @@ int64 solver_nr(unsigned int bus_count,
 			tempb  = branch[jindexer].to;
 
 			//Preliminary check to make sure we weren't missed in the initialization
-			if ((bus[tempa].Matrix_Loc == -1) || (bus[tempb].Matrix_Loc == -1))
+			if (((int)(bus[tempa].Matrix_Loc) == -1) || ((int)(bus[tempb].Matrix_Loc) == -1))
 			{
 				GL_THROW("An element in NR line:%d was not properly localized");
 				/*  TROUBLESHOOT
@@ -1766,7 +1766,7 @@ int64 solver_nr(unsigned int bus_count,
 							GL_THROW("NR: A center-tapped transformer has an invalid phase matching");
 							break;
 					}//end switch
-					if ((temp_index==-1) || (temp_size==-1))	//Should never get here
+					if (((int)temp_index==-1) || ((int)temp_size==-1))	//Should never get here
 						GL_THROW("NR: A center-tapped transformer has an invalid phase matching");
 
 					//Determine first index
@@ -1929,12 +1929,12 @@ int64 solver_nr(unsigned int bus_count,
 						}
 				}//end line switch/case
 
-				if (temp_size_c==-99)
+				if ( (int)temp_size_c == -99)
 				{
 					continue;	//Next iteration of branch loop
 				}
 
-				if (temp_size_c==-1)	//Make sure it is right
+				if ( (int)temp_size_c == -1)	//Make sure it is right
 				{
 					GL_THROW("NR: A line's phase was flagged as not full three-phase, but wasn't");
 					/*  TROUBLESHOOT
@@ -2243,7 +2243,7 @@ int64 solver_nr(unsigned int bus_count,
 				}//End switch/case for to
 
 				//Make sure everything was set before proceeding
-				if ((temp_index==-1) || (temp_index_b==-1) || (temp_size==-1) || (temp_size_b==-1) || (temp_size_c==-1))
+				if (((int)temp_index==-1) || ((int)temp_index_b==-1) || ((int)temp_size==-1) || ((int)temp_size_b==-1) || ((int)temp_size_c==-1))
 				{
 					GL_THROW("NR: Failure to construct single/double phase line indices");
 					/*  TROUBLESHOOT
@@ -2489,9 +2489,9 @@ int64 solver_nr(unsigned int bus_count,
 		indexer = 0;
 		for (jindexer=0; jindexer<bus_count;jindexer++)	//Parse through bus list
 		{ 
-			for (jindex=0; jindex<powerflow_values->BA_diag[jindexer].size; jindex++)
+			for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[jindexer].size; jindex++)
 			{
-				for (kindex=0; kindex<powerflow_values->BA_diag[jindexer].size; kindex++)
+				for (kindex=0; kindex<(size_t)powerflow_values->BA_diag[jindexer].size; kindex++)
 				{					
 					if ((powerflow_values->BA_diag[jindexer].Y[jindex][kindex]).Im() != 0 && bus[jindexer].type != 1 && jindex!=kindex)
 					{
@@ -2629,7 +2629,7 @@ int64 solver_nr(unsigned int bus_count,
 				}
 			}//End PF_DYNINIT and SWING is still the same
 
-			for (jindex=0; jindex<powerflow_values->BA_diag[indexer].size; jindex++) // rows - for specific phase that exists
+			for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++) // rows - for specific phase that exists
 			{
 				tempIcalcReal = tempIcalcImag = 0;   
 
@@ -2665,7 +2665,7 @@ int64 solver_nr(unsigned int bus_count,
 						//Apply proper index to jindexer (easier to implement this way)
 						jindexer=bus[indexer].Link_Table[kindexer];
 
-						if (branch[jindexer].from == indexer)	//We're the from bus
+						if (branch[jindexer].from == (int)indexer)	//We're the from bus
 						{
 							if ((bus[indexer].phases & 0x20) == 0x20)	//SPCT from bus - needs different signage
 							{
@@ -2697,7 +2697,7 @@ int64 solver_nr(unsigned int bus_count,
 
 							}//end normal triplex from
 						}//end from bus
-						else if (branch[jindexer].to == indexer)	//We're the to bus
+						else if (branch[jindexer].to == (int)indexer)	//We're the to bus
 						{
 							if (branch[jindexer].v_ratio != 1.0)	//Transformer
 							{
@@ -2795,7 +2795,7 @@ int64 solver_nr(unsigned int bus_count,
 					tempPbus =  - bus[indexer].PL[jindex];	//Copy load amounts in
 					tempQbus =  - bus[indexer].QL[jindex];	
 
-					for (kindex=0; kindex<powerflow_values->BA_diag[indexer].size; kindex++)		//cols - Still only for specified phases
+					for (kindex=0; kindex<(size_t)powerflow_values->BA_diag[indexer].size; kindex++)		//cols - Still only for specified phases
 					{
 						//Determine our indices, based on phase information
 						temp_index = -1;
@@ -2846,7 +2846,7 @@ int64 solver_nr(unsigned int bus_count,
 								}//end 0x07
 						}//End switch/case
 
-						if (temp_index==-1)	//Error check
+						if ( (int)temp_index==-1)	//Error check
 						{
 							GL_THROW("NR: A voltage index failed to be found.");
 							/*  TROUBLESHOOT
@@ -2916,7 +2916,7 @@ int64 solver_nr(unsigned int bus_count,
 								}//end 0x07
 						}//End switch/case
 
-						if (temp_index_b==-1)	//Error check
+						if ((int)temp_index_b==-1)	//Error check
 						{
 							GL_THROW("NR: A voltage index failed to be found.");
 						}
@@ -2926,7 +2926,7 @@ int64 solver_nr(unsigned int bus_count,
 							//Apply proper index to jindexer (easier to implement this way)
 							jindexer=bus[indexer].Link_Table[kindexer];
 
-							if (branch[jindexer].from == indexer) 
+							if (branch[jindexer].from == (int)indexer) 
 							{
 								//See if we're a triplex transformer (will only occur on the from side)
 								if ((branch[jindexer].phases & 0x80) == 0x80)	//Triplexy
@@ -3017,7 +3017,7 @@ int64 solver_nr(unsigned int bus_count,
 
 								}//end standard line
 							}	
-							if  (branch[jindexer].to == indexer)
+							if  (branch[jindexer].to == (int)indexer)
 							{
 								work_vals_char_0 = temp_index_b*3+temp_index;
 								work_vals_double_0 = (-branch[jindexer].Yto[work_vals_char_0]).Re();
@@ -3312,7 +3312,7 @@ int64 solver_nr(unsigned int bus_count,
 		{
 			if ((bus[jindexer].type > 1) && (bus[jindexer].swing_functions_enabled == true))	//Swing bus - and we aren't ignoring it
 			{
-				for (jindex=0; jindex<powerflow_values->BA_diag[jindexer].size; jindex++)
+				for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[jindexer].size; jindex++)
 				{
 					powerflow_values->Y_diag_update[indexer].row_ind = 2*bus[jindexer].Matrix_Loc + jindex;
 					powerflow_values->Y_diag_update[indexer].col_ind = powerflow_values->Y_diag_update[indexer].row_ind;
@@ -3338,7 +3338,7 @@ int64 solver_nr(unsigned int bus_count,
 
 			if ((bus[jindexer].type == 0) || ((bus[jindexer].type > 1) && bus[jindexer].swing_functions_enabled == false))	//Only do on PQ (or SWING masquerading as PQ)
 			{
-				for (jindex=0; jindex<powerflow_values->BA_diag[jindexer].size; jindex++)
+				for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[jindexer].size; jindex++)
 				{
 					powerflow_values->Y_diag_update[indexer].row_ind = 2*bus[jindexer].Matrix_Loc + jindex;
 					powerflow_values->Y_diag_update[indexer].col_ind = powerflow_values->Y_diag_update[indexer].row_ind;
@@ -3456,7 +3456,7 @@ int64 solver_nr(unsigned int bus_count,
 						kindexer = jindexer + 2*powerflow_values->BA_diag[indexer].size - 1;
 
 						//Print them out
-						fprintf(FPoutVal,"%d,%d,%s\n",jindexer,kindexer,bus[indexer].name);
+						fprintf(FPoutVal,"%lu,%lu,%s\n",jindexer,kindexer,bus[indexer].name);
 					}
 
 					//Add in a blank line so it looks pretty
@@ -3487,7 +3487,7 @@ int64 solver_nr(unsigned int bus_count,
 					if (temp_element != NULL)
 					{
 						//Print this value
-						fprintf(FPoutVal,"%d,%d,%f\n",temp_element->row_ind,jindexer,temp_element->value);
+						fprintf(FPoutVal,"%d,%lu,%f\n",temp_element->row_ind,jindexer,temp_element->value);
 
 						//Loop
 						while (temp_element->next != NULL)
@@ -3496,7 +3496,7 @@ int64 solver_nr(unsigned int bus_count,
 							temp_element = temp_element->next;
 
 							//Repeat the print
-							fprintf(FPoutVal,"%d,%d,%f\n",temp_element->row_ind,jindexer,temp_element->value);
+							fprintf(FPoutVal,"%d,%lu,%f\n",temp_element->row_ind,jindexer,temp_element->value);
 						}
 					}
 					//If it is null, go next.  Implies we have an invalid matrix size, but that may be what we're looking for
@@ -4058,7 +4058,7 @@ int64 solver_nr(unsigned int bus_count,
 				}//end split phase update
 				else										//Not split phase
 				{
-					for (jindex=0; jindex<powerflow_values->BA_diag[indexer].size; jindex++)	//parse through the phases
+					for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)	//parse through the phases
 					{
 						switch(bus[indexer].phases & 0x07) {
 							case 0x01:	//C
@@ -4117,7 +4117,7 @@ int64 solver_nr(unsigned int bus_count,
 								}
 						}//end phase switch/case
 
-						if ((temp_index==-1) || (temp_index_b==-1))
+						if (((int)temp_index==-1) || ((int)temp_index_b==-1))
 						{
 							GL_THROW("NR: An error occurred indexing voltage updates");
 							/*  TROUBLESHOOT
@@ -4321,14 +4321,14 @@ int64 solver_nr(unsigned int bus_count,
 // For the second approach, calculate the elements of a,b,c,d in equations(14),(15),(16),(17).
 void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT *powerflow_values, bool jacobian_pass)
 {
-	unsigned int indexer;
+	size_t indexer;
 	double adjust_nominal_voltage_val, adjust_nominal_voltaged_val;
 	double tempPbus, tempQbus;
 	double adjust_temp_voltage_mag[6];
 	complex adjust_temp_nominal_voltage[6], adjusted_constant_current[6];
 	complex delta_current[3], voltageDel[3], undeltacurr[3];
 	complex temp_current[3], temp_store[3];
-	char jindex, temp_index, temp_index_b;
+	size_t jindex, temp_index, temp_index_b;
 
 	//Loop through the buses
 	for (indexer=0; indexer<bus_count; indexer++)
@@ -4599,7 +4599,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 			temp_index = -1;
 			temp_index_b = -1;
 
-			for (jindex=0; jindex<powerflow_values->BA_diag[indexer].size; jindex++)
+			for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
 			{
 				switch(bus[indexer].phases & 0x07) {
 					case 0x01:	//C
@@ -4661,7 +4661,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 
 				if (jacobian_pass == false)	//current-injection updates
 				{
-					if ((temp_index==-1) || (temp_index_b==-1))
+					if (((int)temp_index==-1) || ((int)temp_index_b==-1))
 					{
 						GL_THROW("NR: A scheduled power update element failed.");
 						//Defined below
@@ -4677,7 +4677,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 				}
 				else	//Jacobian-type update
 				{
-					if ((temp_index==-1) || (temp_index_b==-1))
+					if (((int)temp_index==-1) || ((int)temp_index_b==-1))
 					{
 						GL_THROW("NR: A Jacobian update element failed.");
 						//Defined below
@@ -5006,7 +5006,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 				undeltacurr[0] = undeltacurr[1] = undeltacurr[2] = complex(0.0,0.0);	//Zero it
 			}
 
-			for (jindex=0; jindex<powerflow_values->BA_diag[indexer].size; jindex++)
+			for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
 			{
 				switch(bus[indexer].phases & 0x07) {
 					case 0x01:	//C
@@ -5068,7 +5068,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 
 				if (jacobian_pass == false)	//Current injection pass
 				{
-					if ((temp_index==-1) || (temp_index_b==-1))
+					if (((int)temp_index==-1) || ((int)temp_index_b==-1))
 					{
 						GL_THROW("NR: A scheduled power update element failed.");
 						/*  TROUBLESHOOT
@@ -5094,7 +5094,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 				}
 				else	//Jacobian update pass
 				{
-					if ((temp_index==-1) || (temp_index_b==-1))
+					if (((int)temp_index==-1) || ((int)temp_index_b==-1))
 					{
 						GL_THROW("NR: A Jacobian update element failed.");
 						/*  TROUBLESHOOT
@@ -5371,7 +5371,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 			temp_index = -1;
 			temp_index_b = -1;
 
-			for (jindex=0; jindex<powerflow_values->BA_diag[indexer].size; jindex++)
+			for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
 			{
 				switch(bus[indexer].phases & 0x07) {
 					case 0x01:	//C
@@ -5433,7 +5433,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 
 				if (jacobian_pass == false)	//Current injection update
 				{
-					if ((temp_index==-1) || (temp_index_b==-1))
+					if (((int)temp_index==-1) || ((int)temp_index_b==-1))
 					{
 						GL_THROW("NR: A scheduled power update element failed.");
 						//Defined below
@@ -5449,7 +5449,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 				}
 				else	//Jacobian update
 				{
-					if ((temp_index==-1) || (temp_index_b==-1))
+					if (((int)temp_index==-1) || ((int)temp_index_b==-1))
 					{
 						GL_THROW("NR: A Jacobian update element failed.");
 						//Defined below
@@ -5485,7 +5485,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 				temp_index = -1;
 				temp_index_b = -1;
 
-				for (jindex=0; jindex<powerflow_values->BA_diag[indexer].size; jindex++)
+				for (jindex=0; jindex<(size_t)powerflow_values->BA_diag[indexer].size; jindex++)
 				{
 					switch(bus[indexer].phases & 0x07) {
 						case 0x01:	//C
@@ -5545,7 +5545,7 @@ void compute_load_values(unsigned int bus_count, BUSDATA *bus, NR_SOLVER_STRUCT 
 							break;
 					}//end case
 
-					if ((temp_index==-1) || (temp_index_b==-1))
+					if (((int)temp_index==-1) || ((int)temp_index_b==-1))
 					{
 						GL_THROW("NR: A Jacobian update element failed.");
 						//Defined below

@@ -1,6 +1,9 @@
 
 #include "pdsp_defs.h"
 
+extern void    sp_colorder(SuperMatrix *A, int *perm_c, superlumt_options_t *options,
+             SuperMatrix *AC);
+
 
 void
 pdgstrf_init(int nprocs, fact_t fact, trans_t trans, yes_no_t refact,

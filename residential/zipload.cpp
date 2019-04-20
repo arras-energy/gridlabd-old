@@ -23,7 +23,7 @@
 #include <float.h>
 #include <memory.h>
 
-#include "house_a.h"
+#include "house_e.h"
 #include "zipload.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -333,8 +333,6 @@ TIMESTAMP ZIPload::sync(TIMESTAMP t0, TIMESTAMP t1)
 	double real_power = 0.0;
 	double imag_power = 0.0;
 	double angleval;
-
-	double test = multiplier;
 
 	if (demand_response_mode == true && next_time <= t1)
 	{

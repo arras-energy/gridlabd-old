@@ -181,16 +181,14 @@ int windturb_dg::init_climate()
 
 	// link to climate data
 	static FINDLIST *climates = NULL;
-	int not_found = 0;
 
 	climates = gl_find_objects(FL_NEW,FT_CLASS,SAME,"climate",FT_END);
 	if (climates==NULL)
 	{
-		not_found = 1;
 		gl_warning("windturb_dg (id:%d)::init_climate(): no climate data found, using static data",hdr->id);
 
 		//default to mock data
-		static double air_dens = std_air_dens, avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
+		static double avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
 		pWS = &avgWS;
 		pPress = &Press;
 		pTemp = &Temp;
@@ -207,7 +205,7 @@ int windturb_dg::init_climate()
 		{
 			//default to mock data
 			gl_warning("windturb_dg (id:%d)::init_climate(): no climate data found, using static data",hdr->id);
-			static double air_dens = std_air_dens, avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
+			static double avgWS = avg_ws, Press = std_air_press, Temp = std_air_temp;
 			pWS = &avgWS;
 			pPress = &Press;
 			pTemp = &Temp;
@@ -244,7 +242,7 @@ int windturb_dg::init(OBJECT *parent)
 {
 	OBJECT *obj = OBJECTHDR(this);
 
-	double ZB, SB, EB;
+	double ZB, SB = 0.0, EB = 0.0;
 	complex tst, tst2, tst3, tst4;
 
 	switch (Turbine_Model)	{
@@ -463,7 +461,7 @@ int windturb_dg::init(OBJECT *parent)
 	// construct circuit variable map to meter -- copied from 'House' module
 	struct {
 		complex **var;
-		char *varname;
+		const char *varname;
 	} map[] = {
 		// local object name,	meter object name
 		{&pCircuit_V,			"voltage_A"}, // assumes 2 and 3 follow immediately in memory
@@ -472,10 +470,10 @@ int windturb_dg::init(OBJECT *parent)
 	};
 
 	static complex default_line123_voltage[3], default_line1_current[3];
-	int i;
+	size_t i;
 
 	//Map phases
-	set *phaseInfo;
+	set *phaseInfo = NULL;
 	PROPERTY *tempProp;
 	tempProp = gl_get_property(parent,"phases");
 
@@ -537,7 +535,7 @@ int windturb_dg::init(OBJECT *parent)
 		*/
 
 			//Map the voltages
-			double *parNominalVoltage;
+			double *parNominalVoltage = NULL;
 
 			tempProp = gl_get_property(parent,"nominal_voltage");
 			if ((tempProp==NULL || tempProp->ptype!=PT_double))
@@ -603,7 +601,7 @@ int windturb_dg::init(OBJECT *parent)
 		{
 
 			//Map the voltages
-			double *parNominalVoltage;
+			double *parNominalVoltage = NULL;
 
 			tempProp = gl_get_property(parent,"V_Rated");
 			if ((tempProp==NULL || tempProp->ptype!=PT_double))
@@ -764,7 +762,6 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 		}
 		WSadj = *pWS * log(turbine_height/roughness_l)/log(ref_height/roughness_l); 
 
-		double test = *pPress;
 		/* TODO:  import previous and future wind data 
 		and then pseudo-randomize the wind speed values beween 1st and 2nd
 		WSadj = gl_pseudorandomvalue(RT_RAYLEIGH,&c,(WS1/sqrt(PI/2)));*/
@@ -981,12 +978,9 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 			else if (Gen_type == SYNCHRONOUS)			//synch gen is NOT solved in pu
 			{											//sg ef mode is not working yet
-				double Mxef, Mnef, PoutA, PoutB, PoutC, QoutA, QoutB, QoutC;
+				double PoutA, PoutB, PoutC, QoutA, QoutB, QoutC;
 				complex SoutA, SoutB, SoutC;
 				complex lossesA, lossesB, lossesC;
-
-				Mxef = Max_Ef * Rated_V/sqrt(3.0);
-				Mnef = Min_Ef * Rated_V/sqrt(3.0);
 
 				//TODO: convert to a convergence
 				if (Gen_mode == CONSTANTE)	//Ef is controllable to give a needed power output.
@@ -1122,8 +1116,6 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 			
 			complex testCurrent;
 			testCurrent = pLine_I[0];
-			complex *testCurrentPointer;
-			testCurrentPointer = pLine_I;
 
 			pLine_I[0] += current_A;
 			pLine_I[1] += current_B;
@@ -1169,7 +1161,7 @@ TIMESTAMP windturb_dg::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 
-bool *windturb_dg::get_bool(OBJECT *obj, char *name)
+bool *windturb_dg::get_bool(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_bool)
@@ -1177,7 +1169,7 @@ bool *windturb_dg::get_bool(OBJECT *obj, char *name)
 	return (bool*)GETADDR(obj,p);
 }
 
-complex *windturb_dg::get_complex(OBJECT *obj, char *name)
+complex *windturb_dg::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)

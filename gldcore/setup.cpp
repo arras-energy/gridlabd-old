@@ -5,13 +5,14 @@
 #include "load.h"
 #include "convert.h"
 
-SET_MYCONTEXT(DMC_SETUP)
+// SET_MYCONTEXT(DMC_SETUP) // only used if IN_MYCONTEXT is present in this module
 
 #ifdef HAVE_CURSES
 int height=0, width=0;
 char status[1024] = "Ready";
 char blank[1024];
 
+#if 0 // not used yet 
 static bool edit_bool(int row, int col, int len, PROPERTY *prop)
 {
 	bool value;
@@ -28,6 +29,7 @@ static bool edit_bool(int row, int col, int len, PROPERTY *prop)
 	}
 	return value;
 }
+#endif
 
 static bool edit_in_place(int row, int col, int len, PROPERTY *prop)
 {
@@ -54,7 +56,7 @@ Return:
 
 static int edit_globals(void)
 {
-	int i;
+	size_t i;
 
 	// global variable list
 	static GLOBALVAR **var = NULL;
@@ -76,12 +78,12 @@ static int edit_globals(void)
 	}
 
 	// window pos and selection
-	static int first=0, sel=0, vsize=height-5;
-	int last = first+vsize;
+	static size_t first=0, sel=0, vsize=height-5;
+	size_t last = first+vsize;
 	if ( last>=nvars ) last=(int)(nvars-1);
 
 	// write data
-	int row=4;
+	size_t row=4;
 	for ( i=first ; i<last ; i++, row++ )
 	{
 		char value[1024];
@@ -173,7 +175,7 @@ static bool do_quit(void)
 }
 
 typedef struct {
-	char *name;
+	const char *name;
 	int (*edit)(void);
 } SETUPGROUP;
 SETUPGROUP group[] = {
@@ -184,7 +186,7 @@ SETUPGROUP group[] = {
 };
 #endif
 
-int setup(void *main, int argc, char *argv[])
+int setup(void *main, int argc, const char *argv[])
 {
 #ifdef HAVE_CURSES
 	if ( !loadall(NULL) )

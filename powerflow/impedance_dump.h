@@ -45,9 +45,9 @@ public:
 	int create(void);
 	int init(OBJECT *parent);
 	TIMESTAMP commit(TIMESTAMP t);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	int dump(TIMESTAMP t);
-	complex *get_complex(OBJECT *obj, char *name);
+	complex *get_complex(OBJECT *obj, const char *name);
 };
 
 #endif // _impedance_dump_H

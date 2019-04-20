@@ -12,7 +12,7 @@
 extern "C" {
 #endif // __cplusplus
 
-int saveall(char *);
+int saveall(const char *);
 
 #ifdef __cplusplus
 }

@@ -32,7 +32,7 @@ public:
 	TIMESTAMP sync(TIMESTAMP t0);
 	switch_object(MODULE *mod);
 	inline switch_object(CLASS *cl=oclass):link_object(cl){};
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 
 	void set_switch(bool desired_status);
 	void set_switch_full(char desired_status_A, char desired_status_B, char desired_status_C);	//Used to set individual phases - 0 = open, 1 = closed, 2 = don't care (retain current)
@@ -40,10 +40,10 @@ public:
 	void set_switch_faulted_phases(unsigned char desired_status);
 	void switch_sync_function(void);			//Functionalized since it exists in two spots - no sense having to update two pieces of code
 	unsigned char switch_expected_sync_function(void);	//Function to determined expected results of sync - used for reliability
-	OBJECT **get_object(OBJECT *obj, char *name);	//Function to pull object property - reliability use
+	OBJECT **get_object(OBJECT *obj, const char *name);	//Function to pull object property - reliability use
 
-	void BOTH_switch_sync_pre(unsigned char *work_phases_pre, unsigned char *work_phases_post);
-	void NR_switch_sync_post(unsigned char *work_phases_pre, unsigned char *work_phases_post, OBJECT *obj, TIMESTAMP *t0, TIMESTAMP *t2);
+	void BOTH_switch_sync_pre(char *work_phases_pre, char *work_phases_post);
+	void NR_switch_sync_post(char *work_phases_pre, char *work_phases_post, OBJECT *obj, TIMESTAMP *t0, TIMESTAMP *t2);
 
 	//Deltamode call
 	SIMULATIONMODE inter_deltaupdate_switch(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
@@ -69,7 +69,7 @@ private:
 
 EXPORT int change_switch_state(OBJECT *thisobj, unsigned char phase_change, bool state);
 EXPORT int reliability_operation(OBJECT *thisobj, unsigned char desired_phases);
-EXPORT int create_fault_switch(OBJECT *thisobj, OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data);
+EXPORT int create_fault_switch(OBJECT *thisobj, OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data);
 EXPORT int fix_fault_switch(OBJECT *thisobj, int *implemented_fault, char *imp_fault_name, void* Extra_Data);
 EXPORT int switch_fault_updates(OBJECT *thisobj, unsigned char restoration_phases);
 

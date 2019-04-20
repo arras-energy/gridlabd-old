@@ -9,7 +9,7 @@
 
 CLASS *metrics_collector_writer::oclass = NULL;
 
-void new_metrics_collector_writer(MODULE *mod){
+CDECL void new_metrics_collector_writer(MODULE *mod){
 	new metrics_collector_writer(mod);
 }
 
@@ -35,11 +35,11 @@ int metrics_collector_writer::create(){
 	return 1;
 }
 
-int metrics_collector_writer::init(OBJECT *parent){
+int metrics_collector_writer::init(OBJECT *parent)
+{
 
 	OBJECT *obj = OBJECTHDR(this);
-	FILE *fn = NULL;
-	int index = 0;
+	size_t index = 0;
 	char time_str[64];
 	DATETIME dt;
 
@@ -90,7 +90,8 @@ int metrics_collector_writer::init(OBJECT *parent){
 
 	// Go through each metrics_coolector object, and check its time interval given
 	obj = NULL;
-	while(obj = gl_find_next(metrics_collectors,obj)){
+	while( (obj=gl_find_next(metrics_collectors,obj)) )
+	{
 		if(index >= metrics_collectors->hit_count){
 			break;
 		}
@@ -261,8 +262,8 @@ TIMESTAMP metrics_collector_writer::postsync(TIMESTAMP t0, TIMESTAMP t1){
 	return TS_NEVER;
 }
 
-int metrics_collector_writer::commit(TIMESTAMP t1){
-	OBJECT *obj = OBJECTHDR(this);
+int metrics_collector_writer::commit(TIMESTAMP t1)
+{
 
 	// if periodic interval, check for write
 	if(interval_write){
@@ -279,10 +280,10 @@ int metrics_collector_writer::commit(TIMESTAMP t1){
 /**
 	@return 1 on successful write, 0 on unsuccessful write, error, or when not ready
  **/
-int metrics_collector_writer::write_line(TIMESTAMP t1){
+int metrics_collector_writer::write_line(TIMESTAMP t1)
+{
 	char time_str[64];
-	time_t now = time(NULL);
-	int index = 0;
+	size_t index = 0;
 
 	double *metrics;
 	Json::Value metrics_writer_Output_time;
@@ -302,7 +303,8 @@ int metrics_collector_writer::write_line(TIMESTAMP t1){
 
 	// Go through each metrics_coolector object, and check its time interval given
 	OBJECT *obj = NULL;
-	while(obj = gl_find_next(metrics_collectors,obj)){
+	while(  (obj=gl_find_next(metrics_collectors,obj)) )
+	{
 		if(index >= metrics_collectors->hit_count){
 			break;
 		}
@@ -540,9 +542,6 @@ EXPORT int create_metrics_collector_writer(OBJECT **obj, OBJECT *parent){
 			rv = my->create();
 		}
 	}
-	catch (char *msg){
-		gl_error("create_metrics_collector_writer: %s", msg);
-	}
 	catch (const char *msg){
 		gl_error("create_metrics_collector_writer: %s", msg);
 	}
@@ -557,9 +556,6 @@ EXPORT int init_metrics_collector_writer(OBJECT *obj){
 	int rv = 0;
 	try {
 		rv = my->init(obj->parent);
-	}
-	catch (char *msg){
-		gl_error("init_metrics_collector_writer: %s", msg);
 	}
 	catch (const char *msg){
 		gl_error("init_metrics_collector_writer: %s", msg);
@@ -586,9 +582,6 @@ EXPORT TIMESTAMP sync_metrics_collector_writer(OBJECT *obj, TIMESTAMP t0, PASSCO
 				throw "invalid pass request";
 		}
 	}
-	catch(char *msg){
-		gl_error("sync_metrics_collector_writer: %s", msg);
-	}
 	catch(const char *msg){
 		gl_error("sync_metrics_collector_writer: %s", msg);
 	}
@@ -600,9 +593,6 @@ EXPORT int commit_metrics_collector_writer(OBJECT *obj){
 	metrics_collector_writer *my = OBJECTDATA(obj, metrics_collector_writer);
 	try {
 		rv = my->commit(obj->clock);
-	}
-	catch (char *msg){
-		gl_error("commit_metrics_collector_writer: %s", msg);
 	}
 	catch (const char *msg){
 		gl_error("commit_metrics_collector_writer: %s", msg);

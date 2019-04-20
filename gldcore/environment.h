@@ -16,7 +16,7 @@
 extern "C" {
 #endif
 
-STATUS environment_start(int argc,char *argv[]);
+STATUS environment_start(int argc,const char *argv[]);
 
 #ifdef __cplusplus 
 }

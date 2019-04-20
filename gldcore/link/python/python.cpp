@@ -60,6 +60,7 @@ static PyMethodDef module_methods[] = {
     {"warning", gridlabd_warning, METH_VARARGS, "Output a warning message"},
     {"error", gridlabd_error, METH_VARARGS, "Output an error message"},
     // simulation control
+    {"reset", gridlabd_reset, METH_VARARGS, "Reset the simulation to initial conditions"},
     {"command", gridlabd_command, METH_VARARGS, "Send a command argument to the GridLAB-D instance"},
     {"start", gridlabd_start, METH_VARARGS, "Start the GridLAB-D instance"},
     {"wait", gridlabd_wait, METH_VARARGS, "Wait for the GridLAB-D instance to stop"},
@@ -227,8 +228,8 @@ static PyObject *this_module = NULL;
 class Callback {
     static const char *name;
 public:
-    inline Callback(const char *str) { name = str; };
-    inline ~Callback(void) { name = NULL; };
+    inline Callback(const char *str) { output_debug("entering python:%s...",str); name = str; };
+    inline ~Callback(void) { output_debug("exiting python:%s...",name); name = NULL; };
     static inline bool is_active(void) { return name==NULL; };
 };
 const char * Callback::name = NULL;
@@ -264,6 +265,10 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
     PyModule_AddObject(this_module,"STOP",PyLong_FromLong(global_stoptime));
     PyModule_AddObject(this_module,"NEVER",PyLong_FromLong(TS_NEVER));
     PyModule_AddObject(this_module,"INVALID",PyLong_FromLong(TS_INVALID));
+    PyModule_AddObject(this_module,"__title__",Py_BuildValue("s", PACKAGE_NAME));
+    char version[1024];
+    sprintf(version,"%d.%d.%d-%d",global_version_major,global_version_minor,global_version_patch,global_version_build);
+    PyModule_AddObject(this_module,"__version__",Py_BuildValue("s",version));
 
     //PyModule_AddObject(this_module,"GldObject",gridlabd_class_create(&this_module));
 
@@ -282,11 +287,14 @@ static PyObject *gridlabd_exception(const char *format, ...)
 }
 
 //
-// NOTE: environ is damanged by multithreading
+// NOTE: environ is damaged by multithreading
 //
-// save and restore are necessary to preserve
+// Save and restore are necessary to preserve
 // python's environment while gridlabd makes
 // changes necessary for its operation
+//
+// However, this is not 100% effective when
+// python and gridlabd are running in parallel.
 //
 extern "C" char **environ;
 static char **saved_environ = NULL;
@@ -309,7 +317,7 @@ static void restore_environ(void)
 }
 
 static int argc = 1;
-static char *argv[1024] = {"gridlabd"};
+static const char *argv[1024] = {"gridlabd"};
 static enum {
     GMS_NEW = 0, // module has been newly loaded 
     GMS_COMMAND, // module has received at least one command
@@ -319,7 +327,7 @@ static enum {
     GMS_SUCCESS, // module has completed successfully
     GMS_CANCELLED, // module simulation was cancelled
 } gridlabd_module_status = GMS_NEW;
-static char *gridlabd_module_status_msg[] = {
+static const char *gridlabd_module_status_msg[] = {
     "module is new but not received commands yet", // NEW
     "module has received commands but not started yet", // COMMAND
     "module has started simulation but it is not running yet", // STARTED
@@ -363,7 +371,7 @@ static PyObject *gridlabd_command(PyObject *self, PyObject *args)
     }
 }
 
-extern "C" int main_python(int, char*[]);
+extern "C" int main_python(int, const char*[]);
 static void *gridlabd_main(void *)
 {
     gridlabd_module_status = GMS_RUNNING;
@@ -563,7 +571,6 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         return gridlabd_exception("gridlabd already started");
     }
     const char *command;
-    int code = -1;
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &command) )
         return NULL;
@@ -589,11 +596,13 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         {
             return gridlabd_exception("start('%s'): %s", command, gridlabd_module_status_msg[gridlabd_module_status]);
         }
-        return PyLong_FromLong(0);
+        return PyErr_Occurred() ? NULL : PyLong_FromLong(0);
     }
     else if ( strcmp(command, "wait") == 0 )
     {
-        return PyLong_FromLong((long)gridlabd_main(NULL));
+        int code = *(int*)gridlabd_main(NULL);
+        output_debug("gridlabd_main(NULL) returned code %d",code);
+        return PyErr_Occurred() ? NULL : PyLong_FromLong((long)code);
     }
     else
         return gridlabd_exception("start mode '%s' is not recognized", command);
@@ -629,7 +638,7 @@ static PyObject *gridlabd_cancel(PyObject *self, PyObject *args)
     }
     pthread_cancel(main_thread);
     gridlabd_module_status = GMS_CANCELLED;
-    return PyLong_FromLong(0);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(0);
 }
 
 //
@@ -645,7 +654,7 @@ static PyObject *gridlabd_pause(PyObject *self, PyObject *args)
     }
     exec_mls_resume(global_clock);
     exec_mls_statewait(MLS_PAUSED);
-    return PyLong_FromLong(global_clock);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(global_clock);
 }
 
 //
@@ -668,7 +677,7 @@ static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args)
     if ( global_mainloopstate != MLS_RUNNING )
         exec_mls_statewait(MLS_RUNNING);
     exec_mls_statewait(MLS_PAUSED);
-    return PyLong_FromLong(global_clock);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(global_clock);
 }
 
 //
@@ -683,7 +692,7 @@ static PyObject *gridlabd_resume(PyObject *self, PyObject *args)
         return gridlabd_exception("cannot resume unless running");
     }
     exec_mls_resume(TS_NEVER);
-    return PyLong_FromLong(0);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(0);
 }
 
 //
@@ -703,7 +712,7 @@ static PyObject *gridlabd_save(PyObject *self, PyObject *args)
     {
        return gridlabd_exception("uname to save '%s'", name);
     }
-    return PyLong_FromLong(len);
+    return PyErr_Occurred() ? NULL : PyLong_FromLong(len);
 }
 
 //
@@ -725,7 +734,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
     {
         if ( strcmp(type,"objects") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             OBJECT *obj;
             for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
             {
@@ -741,7 +750,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"classes") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             CLASS *oclass;
             for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
             {
@@ -750,7 +759,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"modules") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             MODULE *mod;
             for ( mod = module_get_first() ; mod != NULL ; mod = mod->next )
             {
@@ -759,7 +768,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"globals") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             GLOBALVAR *var;
             for ( var = global_find(NULL) ; var != NULL ; var = var->next )
             {
@@ -768,7 +777,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"transforms") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             TRANSFORM *transform = NULL;
             while ( (transform = transform_getnext(NULL)) != NULL )
             {
@@ -779,7 +788,7 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
         }
         else if ( strcmp(type,"schedules") == 0 )
         {
-            data = PyList_New(NULL);
+            data = PyList_New(0);
             SCHEDULE *sch;
             for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
             {
@@ -1012,6 +1021,15 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     }
 
     PyObject *data = PyDict_New();
+    PyDict_SetItemString(data,"id",Py_BuildValue("L",(unsigned long long)obj->id));
+    if ( obj->name )
+        PyDict_SetItemString(data,"name",Py_BuildValue("s",obj->name));
+    else
+    {
+        char buffer[1024];
+        sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
+        PyDict_SetItemString(data,"name",Py_BuildValue("s",buffer));
+    }
     if ( obj->oclass->name != NULL )
         PyDict_SetItemString(data,"class",Py_BuildValue("s",obj->oclass->name));
     if ( obj->parent != NULL )
@@ -1055,6 +1073,7 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
                 PyDict_SetItemString(data,prop->name,Py_BuildValue("s",value));
         }
     }
+    PyErr_Clear();
     return data;
 }
 
@@ -1090,7 +1109,7 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
     }
     PyObject *data = PyDict_New();
     PyDict_SetItemString(data,"definition",Py_BuildValue("s",sch->definition));
-    PyObject *calendars = PyList_New(NULL);
+    PyObject *calendars = PyList_New(0);
     size_t calendar;
     for ( calendar = 0 ; calendar < 14 ; calendar++ )
     {
@@ -1153,7 +1172,7 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
         }
         if ( ! unit_convert_ex(pFrom,pTo,&real) )
         {
-            return gridlabd_exception("unable to convert '%s' from '%s' to '%s'", value, from, to);
+            return gridlabd_exception("unable to convert '%g' from '%s' to '%s'", real, from, to);
         }
         return Py_BuildValue("d",real);
     }
@@ -1165,7 +1184,7 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
     {
         PyErr_Clear();
         char unit[1024]="";
-        if ( sscanf(value,"%lf %1023s",&real,&unit) < 2 )
+        if ( sscanf(value,"%lf %1023s",&real,unit) < 2 )
         {
             return gridlabd_exception("unable to parse value and unit of '%s'", value);
         }
@@ -1185,6 +1204,10 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
         }
         return Py_BuildValue("d",real);
     }
+    else
+    {
+        return gridlabd_exception("unable to convert unit -- internal error");
+    }
 }
 
 /////////////////////
@@ -1201,23 +1224,38 @@ static PyObject *python_commit = NULL;
 static PyObject *python_term = NULL;
 extern "C" bool on_init(void)
 {
-    size_t n;
+    Callback("on_init");
+
+    Py_ssize_t n;
     for ( n = 0 ; n < PyList_Size(python_init) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_init,n);
-        PyObject *arg = Py_BuildValue("(i)",global_clock);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        bool retval = false; 
-        if ( result ) 
+        if ( PyCallable_Check(call) )
         {
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",global_clock);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            if ( ! result )
+            {
+                output_error("python on_init() failed");
+                PyErr_PrintEx(0);
+                return false;
+            }
+            bool retval = false; 
             retval = PyObject_IsTrue(result);
             Py_DECREF(result);
+            if ( ! retval )
+            {
+                output_error("python on_init() return False");
+                PyErr_PrintEx(0);
+                return false;
+            }
         }
-        if ( ! retval )
+        else
         {
-            output_error("python on_init() failed");
-            return false;
+            output_warning("python on_init() is not callable");
         }
     }
     return true;
@@ -1226,116 +1264,159 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
 {
     Callback("on_precommit");
 
-    size_t n;
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_precommit) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_precommit,n);
-        PyObject *arg = Py_BuildValue("(i)",t0);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        TIMESTAMP t2 = TS_INVALID; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            if ( ! result )
+            {
+                output_error("python on_precommit(%d) failed",t0);
+                PyErr_PrintEx(0);                
+                return TS_INVALID;
+            }
+            TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
                 t2 = PyLong_AsLong(result);
             else
                 output_error("python on_precommit(%d) returned an invalid type (expected long)",t0);
             Py_DECREF(result);
+            if ( t2 == TS_INVALID )
+                return t2;
+            else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+                t1 = t2;
         }
         else
-            output_error("python on_precommit(%d) returned nothing (expected long)",t0);
-        if ( t2 == TS_INVALID )
-            return t2;
-        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
-            t1 = t2;
+        {
+            output_warning("python on_postsync() is not callable");
+        }
     }
     return t1;
 }
 extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
 {
     Callback("on_presync");
-    size_t n;
+
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_presync) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_presync,n);
-        PyObject *arg = Py_BuildValue("(i)",t0);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        TIMESTAMP t2 = TS_INVALID; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            if ( ! result )
+            {
+                output_error("python on_presync(%d) failed",t0);
+                PyErr_PrintEx(0);                
+                return TS_INVALID;
+            }
+            TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
                 t2 = PyLong_AsLong(result);
             else
                 output_error("python on_presync(%d) returned an invalid type (expected long)",t0);
             Py_DECREF(result);
+            if ( t2 == TS_INVALID )
+                return t2;
+            else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+                t1 = t2;
         }
         else
-            output_error("python on_presync(%d) returned nothing (expected long)",t0);
-        if ( t2 == TS_INVALID )
-            return t2;
-        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
-            t1 = t2;
+        {
+            output_warning("python on_presync() is not callable");
+        }
     }
     return t1;
 }
 extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
 {
     Callback("on_sync");
-    size_t n;
+
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_sync) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_sync,n);
-        PyObject *arg = Py_BuildValue("(i)",t0);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        TIMESTAMP t2 = TS_INVALID; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            if ( ! result )
+            {
+                output_error("python on_presync(%d) failed",t0);
+                PyErr_PrintEx(0);                
+                return TS_INVALID;
+            }
+            TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
                 t2 = PyLong_AsLong(result);
             else
                 output_error("python on_sync(%d) returned an invalid type (expected long)",t0);
             Py_DECREF(result);
+            if ( t2 == TS_INVALID )
+                return t2;
+            else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+                t1 = t2;
         }
         else
-            output_error("python on_sync(%d) returned nothing (expected long)",t0);
-        if ( t2 == TS_INVALID )
-            return t2;
-        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
-            t1 = t2;
+        {
+            output_warning("python on_sync() is not callable");
+        }
     }
     return t1;
 }
 extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
 {
     Callback("on_postsync");
-    size_t n;
+
+    Py_ssize_t n;
     TIMESTAMP t1 = TS_NEVER;
     for ( n = 0 ; n < PyList_Size(python_postsync) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_postsync,n);
-        PyObject *arg = Py_BuildValue("(i)",t0);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        TIMESTAMP t2 = TS_INVALID; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t0);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            if ( ! result )
+            {
+                output_error("python on_postsync(%d) failed",t0);
+                PyErr_PrintEx(0);                
+                return TS_INVALID;
+            }
+            TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
                 t2 = PyLong_AsLong(result);
             else
                 output_error("python on_postsync(%d) returned an invalid type (expected long)",t0);
             Py_DECREF(result);
+            if ( t2 == TS_INVALID )
+                return t2;
+            else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+                t1 = t2;
         }
         else
-            output_error("python on_postsync(%d) returned nothing (expected long)",t0);
-        if ( t2 == TS_INVALID )
-            return t2;
-        else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
-            t1 = t2;
+        {
+            output_warning("python on_postsync() is not callable");
+        }
     }
     return t1;
 }
@@ -1343,23 +1424,34 @@ extern "C" bool on_commit(TIMESTAMP t)
 {
     Callback("on_commit");
 
-    size_t n;
+    Py_ssize_t n;
     for ( n = 0 ; n < PyList_Size(python_commit) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_commit,n);
-        PyObject *arg = Py_BuildValue("(i)",t);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        bool retval = false; 
-        if ( result ) 
+        if ( call && PyCallable_Check(call) )
         {
-            retval = PyObject_IsTrue(result);
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",t);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            if ( ! result )
+            {
+                output_error("python on_commit(%d) failed",t);
+                PyErr_PrintEx(0);                
+                return false;
+            }
+            bool retval =  PyObject_IsTrue(result);
             Py_DECREF(result);
+            if ( ! retval )
+            {
+                output_error("python on_commit(%d) return False",t);
+                return false;
+            }
         }
-        if ( ! retval )
+        else
         {
-            output_error("python on_commit(%d) failed",t);
-            return false;
+            output_warning("python on_commit() is not callable");
         }
     }
     return true;
@@ -1367,24 +1459,40 @@ extern "C" bool on_commit(TIMESTAMP t)
 extern "C" void on_term(void)
 {
     Callback("on_term");
-    size_t n;
+
+    Py_ssize_t n;
     for ( n = 0 ; n < PyList_Size(python_term) ; n++ )
     {
         PyObject *call = PyList_GetItem(python_term,n);
-        PyObject *arg = Py_BuildValue("(i)",global_clock);
-        PyObject *result = PyEval_CallObject(call,arg);
-        Py_DECREF(arg);
-        if ( result && result != Py_None ) 
+        if ( call && PyCallable_Check(call) )
         {
-            Py_DECREF(result);
-            output_warning("python on_term() return an unexpected type (expected None)");
-        }    
+            PyObject *repr = PyObject_Repr(call);
+            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
+            PyObject *arg = Py_BuildValue("(i)",global_clock);
+            PyObject *result = PyEval_CallObject(call,arg);
+            Py_DECREF(arg);
+            if ( ! result )
+            {
+                output_error("python on_term() failed");
+                PyErr_PrintEx(0);                
+                return;
+            }
+            if ( result != Py_None ) 
+            {
+                Py_DECREF(result);
+                output_warning("python on_term() return an unexpected type (expected None)");
+            }
+        }
+        else
+        {
+            output_warning("python on_term() is not callable");
+        }
     }
     return;
-
 }
 
-extern "C" int python_event(OBJECT *obj, const char *function)
+// dispatch to python module event handler - return 0 on failure, non-zero on success
+int python_event(OBJECT *obj, const char *function, long long *p_retval)
 {
     char objname[64];
     if ( obj->name )
@@ -1396,10 +1504,10 @@ extern "C" int python_event(OBJECT *obj, const char *function)
     if ( sscanf(function,"%[^.].%[^\n]",modname,method) < 2 )
     {
         output_error("python_event(obj='%s',function='%s') has an invalid function (expected 'module.method')",objname,function);
-        return -1;
+        return 0;
     }
 
-    size_t n;
+    Py_ssize_t n;
     PyObject *mod;
     for ( n = 0 ; n < PyList_Size(modlist) ; n++ )
     {
@@ -1411,14 +1519,14 @@ extern "C" int python_event(OBJECT *obj, const char *function)
     if ( mod == NULL )
     {
         output_error("python_event(obj='%s',function='%s') module %s is not found",objname,function,modname);
-        return -1;
+        return 0;
     }
 
     PyObject *dict = PyModule_GetDict(mod);
     if ( dict == NULL || ! PyDict_Check(dict) )
     {
         output_error("module does not have a namespace dict");       
-        return -1;
+        return 0;
     }
     PyObject *call = PyDict_GetItemString(dict,method);
     if ( call )
@@ -1431,29 +1539,36 @@ extern "C" int python_event(OBJECT *obj, const char *function)
             PyObject *args = Py_BuildValue("(si)",obj->name?obj->name:name,global_clock);
             PyObject *result = PyEval_CallObject(call,args);
             Py_DECREF(args);
-            bool retval = TS_INVALID; 
-            if ( result ) 
+            if ( p_retval != NULL )
             {
-                if ( ! PyLong_Check(result) )
-                    output_error("python %s(%s) returned something other than a long",function,objname);
-                else
-                    retval = PyLong_AsLong(result);
+                if ( ! result || ! PyLong_Check(result) )
+                {
+                    output_error("python %s(%s) did not return an integer value as expected, traceback is as follows",function,objname);
+                    PyErr_PrintEx(0);
+                    if ( result ) 
+                    {
+                        Py_DECREF(result);
+                    }
+                    return 0;
+                }
+                *p_retval = PyLong_AsLong(result);
+            }
+            if ( result )
+            {
                 Py_DECREF(result);
             }
-            if ( retval == TS_INVALID)
-                output_error("python %s(%s) signalled stop (TS_INVALID)",function,objname);
-            return retval == TS_INVALID ? -1 : 0;
+            return 1;
         }    
         else 
         {
             output_error("%s is not callable",function);
-            return -1;
+            return 0;
         }
     }
     else
     {
         output_error("%s method not found",function);
-        return -1;
+        return 0;
     }
 }
 static int python_import_file(const char *file)
@@ -1490,11 +1605,22 @@ static bool get_callback(
     }
     return true;    
 }
-extern "C" MODULE *python_module_load(const char *file, int argc, char *argv[])
+MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
+    char pathname[1024];
+    sprintf(pathname,"%s.py",file);
+    struct stat sbuf;
+    if ( stat(pathname,&sbuf) )
+    {
+        errno = ENOENT;
+        return NULL;
+    }
     PyObject *mod = PyImport_ImportModule(file);
     if ( mod == NULL)
+    {
+        errno = EINVAL;
         return NULL;
+    }
 
     if ( ! PyModule_Check(mod) )
     {

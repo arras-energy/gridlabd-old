@@ -7,18 +7,18 @@ ACLOCAL_AMFLAGS = -I m4
 CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
-AM_CPPFLAGS =
+AM_CPPFLAGS = -Wall -O3 -g
 AM_CPPFLAGS += -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CPPFLAGS += $(GLD_CPPFLAGS)
 
-AM_CFLAGS =
+AM_CFLAGS = -Wall -O3 -g
 AM_CFLAGS +=  -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CFLAGS += $(PTHREAD_CFLAGS)
-AM_CFLAGS += $(GLD_CFLAGS)
+AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
 
-AM_CXXFLAGS =
+AM_CXXFLAGS = -Wall -O3 -g
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
-AM_CXXFLAGS += $(GLD_CXXFLAGS)
+AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
 
 AM_LDFLAGS =
 AM_LDFLAGS += -no-undefined
@@ -302,12 +302,14 @@ rpm-prep:
 		test -d "$$DIR" || mkdir -p "$$DIR"; \
 	done
 
+clean-local: python-clean
+
+distclean-local: python-clean
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
-install-exec-hook:
-	@( export SRCDIR=$(top_srcdir); python3 $(top_srcdir)/gldcore/link/python/setup.py install)
+install-exec-hook: python-install
 	@if [ "`which gridlabd`" != "$(DESTDIR)$(bindir)/gridlabd" ]; then \
 		echo >&2 "***WARNING***: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
 	fi

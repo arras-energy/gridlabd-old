@@ -80,12 +80,11 @@ dgstrs(trans_t trans, SuperMatrix *L, SuperMatrix *U,
     register int j, k, jcol, iptr, luptr, ksupno, istart, irow, bptr;
     register int fsupc, nsuper;
     int      i, n, nsupc, nsupr, nrow, nrhs, ldb;
-    int      *supno;
     DNformat *Bstore;
     SCPformat *Lstore;
     NCPformat *Ustore;
     double   *Lval, *Uval, *Bmat;
-    double   *work, *work_col, *rhs_work, *soln;
+    double   *work, *rhs_work, *soln;
     flops_t  solve_ops;
     void dprint_soln();
 
@@ -115,7 +114,6 @@ dgstrs(trans_t trans, SuperMatrix *L, SuperMatrix *U,
     Lval = Lstore->nzval;
     Ustore = U->Store;
     Uval = Ustore->nzval;
-    supno = Lstore->col_to_sup;
     nsuper = Lstore->nsuper;
     solve_ops = 0;
     

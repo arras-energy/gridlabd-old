@@ -94,13 +94,13 @@ schedule output_var {
 
 object climate{
 	name MyClimate;
-	tmyfile "../WA-Seattle.tmy2";
-	// object recorder {
-		// file climate_out.csv;
-		// interval 3600;
-		// limit 25;
-		// property temperature,solar_global,solar_direct;
-	// };
+	tmyfile "../WA-Yakima.tmy3";
+	object recorder {
+		file climate_out.csv;
+		interval 3600;
+		limit 25;
+		property temperature,solar_global,solar_direct;
+	};
 }
 
 object transformer_configuration {

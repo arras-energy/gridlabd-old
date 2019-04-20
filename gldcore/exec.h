@@ -15,95 +15,89 @@
 #include "index.h"
 #include "object.h"
 #include "threadpool.h"
+#include "lock.h"
 
-typedef unsigned int LOCKVAR;
-
-struct sync_data {
+DEPRECATED struct sync_data {
 	TIMESTAMP step_to; /**< time to advance to */
 	unsigned int hard_event; /**< non-zero for hard events that can effect the advance step-to */
 	STATUS status; /**< the current status */
 }; /**< the synchronization state structure */
 
-struct thread_data {
+DEPRECATED struct thread_data {
 	int count; /**< the thread count */
 	struct sync_data *data; /**< pointer to the sync state structure */
 };
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+DEPRECATED CDECL int exec_init(void);
+DEPRECATED CDECL STATUS exec_start(void);
+DEPRECATED CDECL const char *exec_simtime(void);
+DEPRECATED CDECL STATUS t_setup_ranks(void);
+DEPRECATED CDECL INDEX **exec_getranks(void);
+DEPRECATED CDECL void exec_sleep(unsigned int usec);
+DEPRECATED CDECL int64 exec_clock(void);
 
-int exec_init(void);
-STATUS exec_start(void);
-const char *exec_simtime(void);
-STATUS t_setup_ranks(void);
-INDEX **exec_getranks(void);
-void exec_sleep(unsigned int usec);
-int64 exec_clock(void);
+DEPRECATED CDECL void exec_mls_create(void);
+DEPRECATED CDECL void exec_mls_init(void);
+DEPRECATED CDECL void exec_mls_suspend(void);
+DEPRECATED CDECL void exec_mls_resume(TIMESTAMP next_pause);
+DEPRECATED CDECL void exec_mls_done(void);
+DEPRECATED CDECL void exec_mls_statewait(unsigned states);
+DEPRECATED CDECL void exec_slave_node();
+DEPRECATED CDECL int exec_run_createscripts(void);
 
-void exec_mls_create(void);
-void exec_mls_init(void);
-void exec_mls_suspend(void);
-void exec_mls_resume(TIMESTAMP next_pause);
-void exec_mls_done(void);
-void exec_mls_statewait(unsigned states);
-void exec_slave_node();
-int exec_run_createscripts(void);
+DEPRECATED CDECL void exec_sync_reset(struct sync_data *d);
+DEPRECATED CDECL void exec_sync_merge(struct sync_data *to, struct sync_data *from);
+DEPRECATED CDECL void exec_sync_set(struct sync_data *d, TIMESTAMP t,bool deltaflag);
+DEPRECATED CDECL TIMESTAMP exec_sync_get(struct sync_data *d);
+DEPRECATED CDECL unsigned int exec_sync_getevents(struct sync_data *d);
+DEPRECATED CDECL int exec_sync_ishard(struct sync_data *d);
+DEPRECATED CDECL int exec_sync_isnever(struct sync_data *d);
+DEPRECATED CDECL int exec_sync_isinvalid(struct sync_data *d);
+DEPRECATED CDECL STATUS exec_sync_getstatus(struct sync_data *d);
 
-void exec_sync_reset(struct sync_data *d);
-void exec_sync_merge(struct sync_data *to, struct sync_data *from);
-void exec_sync_set(struct sync_data *d, TIMESTAMP t,bool deltaflag);
-TIMESTAMP exec_sync_get(struct sync_data *d);
-unsigned int exec_sync_getevents(struct sync_data *d);
-int exec_sync_ishard(struct sync_data *d);
-int exec_sync_isnever(struct sync_data *d);
-int exec_sync_isinvalid(struct sync_data *d);
-STATUS exec_sync_getstatus(struct sync_data *d);
-
-EXITCODE exec_setexitcode(EXITCODE);
+DEPRECATED CDECL EXITCODE exec_setexitcode(EXITCODE);
+DEPRECATED EXITCODE exec_getexitcode(void);
+DEPRECATED const char *exec_getexitcodestr(void);
 	
-int exec_add_createscript(const char *file);
-int exec_add_initscript(const char *file);
-int exec_add_precommitscript(const char *file);
-int exec_add_syncscript(const char *file);
-int exec_add_commitscript(const char *file);
-int exec_add_termscript(const char *file);
-int exec_add_scriptexport(const char *file);
-EXITCODE exec_run_initscripts(void);
-EXITCODE exec_run_precommitscripts(void);
-EXITCODE exec_run_syncscripts(void);
-EXITCODE exec_run_commitscripts(void);
-EXITCODE exec_run_termscripts(void);
+DEPRECATED CDECL int exec_add_createscript(const char *file);
+DEPRECATED CDECL int exec_add_initscript(const char *file);
+DEPRECATED CDECL int exec_add_precommitscript(const char *file);
+DEPRECATED CDECL int exec_add_syncscript(const char *file);
+DEPRECATED CDECL int exec_add_commitscript(const char *file);
+DEPRECATED CDECL int exec_add_termscript(const char *file);
+DEPRECATED CDECL int exec_add_scriptexport(const char *file);
+DEPRECATED CDECL EXITCODE exec_run_initscripts(void);
+DEPRECATED CDECL EXITCODE exec_run_precommitscripts(void);
+DEPRECATED CDECL EXITCODE exec_run_syncscripts(void);
+DEPRECATED CDECL EXITCODE exec_run_commitscripts(void);
+DEPRECATED CDECL EXITCODE exec_run_termscripts(void);
 
-int exec_schedule_dump(TIMESTAMP interval,char *filename);
-int64 exec_clock(void);
+DEPRECATED CDECL int exec_schedule_dump(TIMESTAMP interval,char *filename);
+DEPRECATED CDECL int64 exec_clock(void);
 
-void exec_rlock_sync(void);
-void exec_runlock_sync(void);
-void exec_wlock_sync(void);
-void exec_wunlock_sync(void);
+DEPRECATED CDECL void exec_rlock_sync(void);
+DEPRECATED CDECL void exec_runlock_sync(void);
+DEPRECATED CDECL void exec_wlock_sync(void);
+DEPRECATED CDECL void exec_wunlock_sync(void);
 
-int exec_get_iteration_counter(void);
-int exec_get_passtype(int pass);
-
-#ifdef __cplusplus
-}
+DEPRECATED CDECL int exec_get_iteration_counter(void);
+DEPRECATED CDECL int exec_get_passtype(int pass);
 
 // TODO: replace with C++ std list
-typedef struct s_simplelist 
+DEPRECATED typedef struct s_simplelist 
 {
 	char *data;
 	struct s_simplelist *next;
 } SIMPLELIST;
 
 // TODO: replace with C++ std list
-typedef struct s_simplelinklist 
+DEPRECATED typedef struct s_simplelinklist 
 { 
 	void *data;
 	struct s_simplelinklist *next;
 } SIMPLELINKLIST;
 
-typedef struct s_objsyncdata 
+DEPRECATED typedef struct s_objsyncdata 
 {
 	GldMain *main;
 	unsigned int n; // thread id 0~n_threads for this object rank list
@@ -116,7 +110,7 @@ typedef struct s_objsyncdata
 	int i; // index of mutex or cond this object rank list uses 
 } OBJSYNCDATA;
 
-struct arg_data {
+DEPRECATED struct arg_data {
 	int thread;
 	void *item;
 	int incr;
@@ -158,10 +152,12 @@ private:
 	LOCKVAR sync_lock;
 	double realtime_metric_decay;
 	unsigned int pass;
+public:
+	inline GldMain *get_instance() { return &instance; };
 
 public: // TODO: make private once lock.cpp is reentrant
 	static const PASSCONFIG passtype[3];
-	int iteration_counter;
+	size_t iteration_counter;
 #ifndef NOLOCKS
 	int64 rlock_count;
 	int64 rlock_spin;
@@ -267,12 +263,6 @@ public:
 	int run_commitscripts(void);
 	int run_termscripts(void);
 };
-
-#endif
-
-#ifndef max
-#define max(n, m) ((n) > (m) ? (n) : (m))
-#endif
 
 #endif
 

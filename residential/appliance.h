@@ -30,13 +30,13 @@ public:
 	~appliance();
 	int create();
 	int init(OBJECT *parent);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	int precommit(TIMESTAMP t1);
 	inline TIMESTAMP presync(TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t1) { return TS_NEVER; };
 	inline TIMESTAMP postsync(TIMESTAMP t1) { return TS_NEVER; };
-	int prenotify(PROPERTY *prop, char *value){ return 1;} ;
-	int postnotify(PROPERTY *prop, char *value);
+	int prenotify(PROPERTY *prop, const char *value){ return 1;} ;
+	int postnotify(PROPERTY *prop, const char *value);
 public:
 	static CLASS *oclass, *pclass;
 	static appliance *defaults;

@@ -111,7 +111,6 @@ TIMESTAMP g_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 			gld_property relation_prop(my(),"relation");
 			gld_keyword *pKeyword = relation_prop.find_keyword(relation);
 			char buf[1024];
-			char *p = get_part();
 			gl_error("%s: assert failed on %s %s.%s.%s %s %s %s %s", get_name(), status==AS_TRUE?"":"NOT",
 				get_parent()?get_parent()->get_name():"global variable", get_target(), get_part(), target_prop.to_string(buf,sizeof(buf))?buf:"(void)", pKeyword->get_name(), get_value(), get_value2());
 			return 0;
@@ -134,7 +133,7 @@ g_assert::ASSERTSTATUS g_assert::evaluate_status(void)
 		return target_prop.compare(relation,get_value(),get_value2(),get_part()) ? AS_TRUE : AS_FALSE ;
 }
 
-int g_assert::postnotify(PROPERTY *prop, char *value)
+int g_assert::postnotify(PROPERTY *prop, const char *value)
 {
 	// TODO notify handler for changed value
 	return 1;

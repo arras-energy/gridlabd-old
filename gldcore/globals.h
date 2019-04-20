@@ -11,7 +11,7 @@
 #include "class.h"
 #include "validate.h"
 #include "sanitize.h"
-
+#include "lock.h"
 #include "build.h"
 
 #ifdef _MAIN_C
@@ -37,8 +37,8 @@ typedef struct s_globalvar {
 	PROPERTY *prop;
 	struct s_globalvar *next;
 	uint32 flags;
-	void (*callback)(char *); // this function will be called whenever the globalvar is set
-	unsigned int lock;
+	void (*callback)(const char *); // this function will be called whenever the globalvar is set
+	LOCKVAR lock;
 } GLOBALVAR;
 
 /* Exit codes */
@@ -54,6 +54,7 @@ typedef int EXITCODE;
 #define XC_PRCERR 7 /* process control error */
 #define XC_SVRKLL 8 /* server killed */
 #define XC_IOERR 9 /* I/O error */
+#define XC_LDERR 10 /* model load error */
 #define XC_SHFAILED 127 /* shell failure - per system(3) */
 #define XC_SIGNAL 128 /* signal caught - must be or'd with SIG value if known */
 #define XC_SIGINT (XC_SIGNAL|SIGINT) /* SIGINT caught */
@@ -69,7 +70,7 @@ STATUS global_init(void);
 GLOBALVAR *global_getnext(GLOBALVAR *previous);
 GLOBALVAR *global_find(const char *name);
 GLOBALVAR *global_create(const char *name, ...);
-STATUS global_setvar(char *def,...);
+STATUS global_setvar(const char *def,...);
 const char *global_getvar(const char *name, char *buffer, size_t size);
 int global_isdefined(const char *name);
 void global_dump(void);
@@ -329,6 +330,8 @@ GLOBAL char32 global_sanitizeoffset INIT(""); /**< sanitize lat/lon offset */
 GLOBAL bool global_run_powerworld INIT(false);
 GLOBAL bool global_bigranks INIT(true); /**< enable non-recursive set_rank function (good for very deep models) */
 GLOBAL char1024 global_svnroot INIT("http://gridlab-d.svn.sourceforge.net/svnroot/gridlab-d");
+GLOBAL char1024 global_github INIT("https://github.com/gridlab-d");
+GLOBAL char1024 global_gitraw INIT("https://raw.githubusercontent.com/gridlab-d");
 GLOBAL char1024 global_wget_options INIT("maxsize:100MB;update:newer"); /**< maximum size of wget request */
 
 GLOBAL bool global_reinclude INIT(false); /**< allow the same include file to be included multiple times */
@@ -441,7 +444,7 @@ public:
 	GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
 	~GldGlobalvar(void);
 public: // accessors
-	inline void set_callback(void (*callback)(char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
+	inline void set_callback(void (*callback)(const char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
 };
 
 class GldGlobals 

@@ -14,7 +14,7 @@
 
 #include "timestamp.h"
 
-typedef int (*PRINTFUNCTION)(char *,...);
+typedef int (*PRINTFUNCTION)(const char *,...);
 
 typedef enum {FS_IN = 0, FS_STD = 1, FS_ERR = 2} FILESTREAM;
 
@@ -25,7 +25,7 @@ extern "C" {
 PRINTFUNCTION output_set_stdout(PRINTFUNCTION call);
 PRINTFUNCTION output_set_stderr(PRINTFUNCTION call);
 
-int output_init(int argc, char *argv[]);
+int output_init(int argc, const char *argv[]);
 void output_cleanup(void);
 
 void output_prefix_enable(void);
@@ -49,10 +49,10 @@ int output_notify_error(void (*)(void));
 
 void output_set_time_context(TIMESTAMP ts);
 void output_set_delta_time_context(TIMESTAMP ts, DELTAT delta_ts);
-char *output_get_time_context(void);
+const char *output_get_time_context(void);
 
-int output_xsd(char *spec);
-int output_xsl(char *fname, int n_mods, char *p_mods[]);
+int output_xsd(const char *spec);
+int output_xsl(const char *fname, int n_mods, const char *p_mods[]);
 
 #ifdef __cplusplus
 }

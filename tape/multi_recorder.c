@@ -174,7 +174,7 @@ static int multi_recorder_open(OBJECT *obj)
 				fprintf(my->multifp,"# target.... (none)\n");
 			}
 			fprintf(my->multifp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger);
-			fprintf(my->multifp,"# interval.. %d\n", my->interval);
+			fprintf(my->multifp,"# interval.. %lld\n", my->interval);
 			fprintf(my->multifp,"# limit..... %d\n", my->limit);
 			fprintf(my->multifp,"# property.. %s\n", my->property);
 			//fprintf(my->multifp,"# timestamp,%s\n", my->property);
@@ -318,7 +318,7 @@ static int multi_recorder_open(OBJECT *obj)
 	// set out_property here
 	{size_t offset = 0;
 		char unit_buffer[1024];
-		char *token = 0, *prop_ptr = 0, *unit_ptr = 0, *obj_ptr = 0;
+		char *token = 0, *prop_ptr = 0, *unit_ptr = 0;
 		char objstr[1024], bigpropstr[1024], propstr[1024], unitstr[64];
 		PROPERTY *prop = 0;
 		UNIT *unit = 0;
@@ -372,7 +372,7 @@ static int multi_recorder_open(OBJECT *obj)
 						strcpy(propstr, bigpropstr);
 					} else {
 						// has explicit unit
-						if(2 == sscanf(bigpropstr, "%[A-Za-z0-9_.][%[^]\n,\0]", propstr, unitstr)){
+						if(2 == sscanf(bigpropstr, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr)){
 							unit = gl_find_unit(unitstr);
 							if(unit == 0){
 								gl_error("multi_recorder:%d: unable to find unit '%s' for property '%s'", obj->id, unitstr, propstr);
@@ -430,7 +430,7 @@ static int multi_recorder_open(OBJECT *obj)
 			case HU_NONE:
 				strcpy(unit_buffer, my->property);
 				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
-					if(2 == sscanf(token, "%[A-Za-z0-9_:.][%[^]\n,\0]", propstr, unitstr)){
+					if(2 == sscanf(token, "%[A-Za-z0-9_:.][%[^]\n,]]", propstr, unitstr)){
 						; // no logic change
 					}
 					// print just the property, regardless of type or explicitly declared property
@@ -616,7 +616,6 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 		char objstr[128] = "";
 		char propstr[128] = "";
 		char *cpart = 0;
-		int partres = 0;
 		int64 cid = -1;
 		PROPERTY *target_prop = NULL;
 		OBJECT *target_obj = NULL;

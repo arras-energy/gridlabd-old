@@ -128,7 +128,7 @@ int network::init(OBJECT *parent)
 	return 1;
 }
 
-int network::isa(char *classname){
+int network::isa(CLASSNAME classname){
 	return strcmp(classname,"network")==0;
 }
 

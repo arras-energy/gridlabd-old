@@ -19,7 +19,7 @@ public:
 	double_controller(MODULE *);
 	int create();
 	int init(OBJECT *parent);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
@@ -91,7 +91,7 @@ public:
 	double price, avg_price, stdev_price;
 private:
 	void cheat();
-	void fetch(double **value, char *name, OBJECT *parent, PROPERTY **prop, char *goal);
+	void fetch(double **value, const char *name, OBJECT *parent, PROPERTY **prop, const char *goal);
 
 	TIMESTAMP next_run;
 
