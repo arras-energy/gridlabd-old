@@ -9,26 +9,17 @@
 #define degrad (180 / PI)
 #define COS85DEG 0.08715574274765817355806427083747
 
-static short days_thru_month[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};  // Ignores leap years...
-
+extern short days_thru_month[];
 //Solpos
 // cumulative number of days prior to beginning of month - SOLPOS constants
-static int  month_days[2][13] = { { 0,   0,  31,  59,  90, 120, 151,
-                                   181, 212, 243, 273, 304, 334 },
-                                { 0,   0,  31,  60,  91, 121, 152,
-                                   182, 213, 244, 274, 305, 335 } };
-
+extern int  month_days[2][13];
 //Perez tilt model coefficients - extracted from Perez et al., 1990.
-static double perez_tilt_coeff_F1[3][8] = {{-0.008, 0.130, 0.330, 0.568, 0.873, 1.132, 1.060, 0.678},
-											{0.588, 0.683, 0.487, 0.187, -0.392, -1.237, -1.600, -0.327},
-											{-0.062, -0.151, -0.221, -0.295, -0.362, -0.412, -0.359, -0.250}};
+extern double perez_tilt_coeff_F1[3][8];
 
-static double perez_tilt_coeff_F2[3][8] = {{-0.060, -0.019, 0.055, 0.109, 0.226, 0.288, 0.264, 0.156},
-											{0.072, 0.066, -0.064, -0.152, -0.462, -0.823, -1.127, -1.377},
-											{-0.022, -0.029, -0.026, -0.014, 0.001, 0.056, 0.131, 0.251}};
+extern double perez_tilt_coeff_F2[3][8];
 
 //Boundaries for Perez model "discrete sky clearness" categories - from Perez et al., 1990
-static double perez_clearness_limits[8] = {1.0, 1.065, 1.230, 1.500, 1.950, 2.800, 4.500, 6.200};
+extern double perez_clearness_limits[8];
 
 class SolarAngles {
 private:
@@ -64,7 +55,7 @@ public:
 	//Most additions below here are from the NREL Solar Position algorithm 2.0
 	//http://rredc.nrel.gov/solar/codesandalgorithms/solpos/aboutsolpos.html
 	//Perez model function at the end (perez_tilt) extracted from referenced paper
-	typedef struct SOLPOS_TRIGDATA //used to pass calculated values locally
+	struct s_solpos_trigdata //used to pass calculated values locally
 		{
 			double cd;       // cosine of the declination
 			double ch;       // cosine of the hour angle
@@ -72,8 +63,9 @@ public:
 			double sd;       // sine of the declination
 			double sl;       // sine of the latitude
 		};
+	typedef struct s_solpos_trigdata SOLPOS_TRIGDATA;
 
-	typedef struct SOLPOS_POSDATA
+	struct s_solpos_posdata 
 	{
 		/***** ALPHABETICAL LIST OF COMMON VARIABLES *****/
 			   /* Each comment begins with a 1-column letter code:
@@ -230,6 +222,8 @@ public:
 		double perez_F1;					//F1 coefficient calculation from Perez tilt model
 		double perez_F2;					//F2 coefficient calculation from Perez tilt model
 	};
+	typedef struct s_solpos_posdata SOLPOS_POSDATA;
+
 
 	SOLPOS_POSDATA solpos_vals;				//Working variable for all solpos calculations
 

@@ -18,7 +18,7 @@ module residential{
 module climate;
 
 object climate {
-	tmyfile "../WA-Yakima.tmy2";
+	tmyfile "../WA-Yakima.tmy3";
 }
 
 class auction {
@@ -83,7 +83,7 @@ object house {
 			target bid_quantity;
 			in '2001-01-01 01:50:00';
 			once ONCE_TRUE;
-			value 9211.24;
+			value 8407.83;
 			within 0.01;
 		};
 	};

@@ -105,7 +105,7 @@ int residential_enduse::init(OBJECT *parent)
 	return 1;
 }
 
-int residential_enduse::isa(char *classname){
+int residential_enduse::isa(CLASSNAME classname){
 	return strcmp(classname,"residential_enduse")==0;
 }
 
@@ -151,7 +151,7 @@ EXPORT int init_residential_enduse(OBJECT *obj)
 	INIT_CATCHALL(residential_enduse);
 }
 
-EXPORT int isa_residential_enduse(OBJECT *obj, char *classname)
+EXPORT int isa_residential_enduse(OBJECT *obj, CLASSNAME classname)
 {
 	if(obj != 0 && classname != 0){
 		return OBJECTDATA(obj,residential_enduse)->isa(classname);

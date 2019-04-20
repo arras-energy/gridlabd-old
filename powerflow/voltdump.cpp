@@ -67,7 +67,7 @@ int voltdump::init(OBJECT *parent)
 	return 1;
 }
 
-int voltdump::isa(char *classname)
+int voltdump::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"voltdump")==0;
 }
@@ -107,7 +107,8 @@ void voltdump::dump(TIMESTAMP t){
 	//vA=gl_find_property(nodeclass, "
 
 	int node_count = 0;
-	while (obj=gl_find_next(nodes,obj)){
+	while ( (obj=gl_find_next(nodes,obj)) )
+	{
 		if(gl_object_isa(obj, "node", "powerflow")){
 			node_count += 1;
 		}
@@ -121,7 +122,8 @@ void voltdump::dump(TIMESTAMP t){
 		fprintf(outfile,"node_name,voltA_mag,voltA_angle,voltB_mag,voltB_angle,voltC_mag,voltC_angle\n");
 	
 	obj = 0;
-	while (obj=gl_find_next(nodes,obj)){
+	while ( (obj=gl_find_next(nodes,obj)) )
+	{
 		if(gl_object_isa(obj, "node", "powerflow")){
 			pnode = OBJECTDATA(obj,node);
 			if(obj->name == NULL){
@@ -207,7 +209,7 @@ EXPORT TIMESTAMP commit_voltdump(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2){
 	I_CATCHALL(commit,voltdump);
 }
 
-EXPORT int isa_voltdump(OBJECT *obj, char *classname)
+EXPORT int isa_voltdump(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,voltdump)->isa(classname);
 }

@@ -71,7 +71,6 @@ pdgstrf_copy_to_ucol(
 	    	fsupc = xsup[ksupno];
 	        isub = xlsub[fsupc] + kfnz - fsupc;
 	        segsze = krep - kfnz + 1;
-#pragma ivdep
 		for (i = 0; i < segsze; i++) {
 		    irow = lsub[isub];
 		    usub[nextu] = perm_r[irow];

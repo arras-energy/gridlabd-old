@@ -61,14 +61,14 @@ public:
 
 	static CLASS *oclass;
 	static CLASS *pclass;
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 
 	transformer(MODULE *mod);
 	inline transformer(CLASS *cl=oclass):link_object(cl){};
 
 private:
 	TIMESTAMP simulation_start_time;
-	void fetch_double(double **prop, char *name, OBJECT *parent);
+	void fetch_double(double **prop, const char *name, OBJECT *parent);
 	double phi_base_Pri;
 	double phi_base_Sec;
 	double I_base_Pri;

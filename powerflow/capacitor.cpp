@@ -898,7 +898,7 @@ bool capacitor::cap_sync_fxn(double time_value)
 
 		//Put in appropriate values.  If we are a mismatch, convert things appropriately first
 		//Check based on connection input (so could check Wye values and then switch in a delta connected CAP
-		if ((((phases_connected & PHASE_D) != PHASE_D) && ((phases & PHASE_D) != PHASE_D)) || ((phases_connected & PHASE_D) == PHASE_D) && ((phases & PHASE_D) == PHASE_D))	//Correct connection
+		if ( ((((phases_connected & PHASE_D) != PHASE_D) && ((phases & PHASE_D) != PHASE_D))) || (((phases_connected & PHASE_D) == PHASE_D) && ((phases & PHASE_D) == PHASE_D))	) //Correct connection
 		{
 			temp_shunt[0] = cap_value[0];
 			temp_shunt[1] = cap_value[1];
@@ -1572,7 +1572,7 @@ void capacitor::toggle_bank_status(bool des_status){
 	time_to_change = dwell_time_left = 0;
 }
 
-int capacitor::isa(char *classname)
+int capacitor::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"capacitor")==0 || node::isa(classname);
 }
@@ -1798,7 +1798,7 @@ EXPORT TIMESTAMP sync_capacitor(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 *
 * @return 0 if obj is a subtype of this class
 */
-EXPORT int isa_capacitor(OBJECT *obj, char *classname)
+EXPORT int isa_capacitor(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,capacitor)->isa(classname);
 }
@@ -1813,7 +1813,7 @@ EXPORT SIMULATIONMODE interupdate_capacitor(OBJECT *obj, unsigned int64 delta_ti
 		status = my->inter_deltaupdate_capacitor(delta_time,dt,iteration_count_val,interupdate_pos);
 		return status;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("interupdate_capacitor(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;
@@ -1824,11 +1824,11 @@ int capacitor::kmldata(int (*stream)(const char*,...))
 {
 	int phase[3] = {has_phase(PHASE_A),has_phase(PHASE_B),has_phase(PHASE_C)};
 	enumeration state[3] = {switchA_state, switchB_state, switchC_state};
-	char *control_desc[] = {"MANUAL","VAR","VOLT","VARVOLT","CURRENT"};
+	const char *control_desc[] = {"MANUAL","VAR","VOLT","VARVOLT","CURRENT"};
 
 	// switch state
 	stream("<TR><TH ALIGN=LEFT>Status</TH>");
-	for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+	for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 	{
 		if ( phase[i] )
 			stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><NOBR>%s</NOBR></TD>", state[i]?"CLOSED":"OPEN");
@@ -1845,7 +1845,7 @@ int capacitor::kmldata(int (*stream)(const char*,...))
 	}
 	else
 	{
-		for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
 				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><NOBR>%s</NOBR></TD>", control_desc[control]);
@@ -1862,7 +1862,7 @@ int capacitor::kmldata(int (*stream)(const char*,...))
 	if ( run_realtime.get_bool() )
 	{
 		stream("<TR><TH ALIGN=LEFT>&nbsp;</TH>");
-		for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
 				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"http://%s:%d/kml/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"switchA\" VALUE=\"%s\" /></FORM></TD>",

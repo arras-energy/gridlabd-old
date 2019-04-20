@@ -23,7 +23,6 @@ public:
 	} MOTORSTATE;
 
 private:
-	house_e *pHouse;			// reference to the parent house
 	PROPERTY *pTempProp;
 
 public:

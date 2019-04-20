@@ -24,11 +24,11 @@ object test {
 		property x;
 		file test_recorder_flush.csv;
 		interval -1;
-		//flush 300;
 		flush -1;
-		//flush 0;
 	};
 }
 
-script on_sync "python ../test_recorder_flush_sync.py";
-script on_term "python ../test_recorder_flush_term.py";
+dump 60 gridlabd.json;
+script on_init rm -f gridlabd.json;
+script on_init rm -f test_recorder_flush.csv;
+script on_commit python3 ../test_recorder_flush_sync.py;

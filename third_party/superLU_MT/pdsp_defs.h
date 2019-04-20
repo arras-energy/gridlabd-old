@@ -447,7 +447,7 @@ extern int     sp_ienv(int);
 extern double  dlamch_();
 extern int     lsame_(char *, char *);
 extern int     xerbla_(char *, int *);
-extern void    superlu_abort_and_exit(char *);
+extern void    superlu_abort_and_exit(const char *);
 extern void    ifill(int *, int, int);
 extern void    dfill(double *, int, double);
 extern void    dinf_norm_error(int, SuperMatrix *, double *);

@@ -23,7 +23,6 @@
 CLASS *dc_dc_converter::oclass = NULL;
 dc_dc_converter *dc_dc_converter::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */
@@ -173,7 +172,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 	
 	struct {
 		complex **var;
-		char *varname;
+		const char *varname;
 	} map[] = {
 		// local object name,	meter object name
 		{&pCircuit_V,			"V_In"},
@@ -182,7 +181,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 	 
 
 	static complex default_line_voltage[1], default_line_current[1];
-	int i;
+	size_t i;
 
 	// find parent meter, if not defined, use a default meter (using static variable 'default_meter')
 	if (parent!=NULL && strcmp(parent->oclass->name,"meter")==0)
@@ -244,7 +243,6 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 
 	if (gen_mode_v==UNKNOWN)
 	{
-		OBJECT *obj = OBJECTHDR(this);
 		throw("Generator control mode is not specified");
 	}
 		if (gen_status_v== dc_dc_converter::OFFLINE)
@@ -317,7 +315,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 
 
 
-complex *dc_dc_converter::get_complex(OBJECT *obj, char *name)
+complex *dc_dc_converter::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)
@@ -456,10 +454,13 @@ TIMESTAMP dc_dc_converter::sync(TIMESTAMP t0, TIMESTAMP t1)
 			}
 */
 			
-			if(parent_string = "meter"){
+			if ( strcmp(parent_string,"meter") == 0 )
+			{
 				VA_Out = complex(P_Out,Q_Out);
 				gl_verbose("dc_dc_c sync: VA_Out set is: (%f , %f)", VA_Out.Re(), VA_Out.Im());
-			}else{
+			}
+			else
+			{
 				I_Out = pLine_I[0];
 				gl_verbose("dc_dc_c sync: V_In requested is: (%f , %f)", V_In.Re(), V_In.Im());
 				VA_Out = V_Out * ~ I_Out;

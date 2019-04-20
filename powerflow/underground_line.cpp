@@ -65,7 +65,7 @@ int underground_line::init(OBJECT *parent)
 	double *temp_rating_value = NULL;
 	double temp_rating_continuous = 10000.0;
 	double temp_rating_emergency = 20000.0;
-	char index;
+	size_t index;
 	OBJECT *temp_obj;
 
 	int result = line::init(parent);
@@ -257,9 +257,9 @@ void underground_line::recalc(void)
 		double rad_14, rad_25, rad_36;
 				double dia[7], res[7], gmr[7], gmrcn[3], rcn[3], gmrs[3], ress[3], tap[8];
 		double d[7][7];
-		double perm_A, perm_B, perm_C, c_an, c_bn, c_cn, temp_denom;
+		double perm_A = 0.0, perm_B = 0.0, perm_C = 0.0, c_an, c_bn, c_cn, temp_denom;
 		complex cap_freq_coeff;
-		complex z[7][7],z_ts[3][3]; //, z_ij[3][3], z_in[3][3], z_nj[3][3], z_nn[3][3], z_abc[3][3];
+		complex z[7][7]; //, z_ij[3][3], z_in[3][3], z_nj[3][3], z_nn[3][3], z_abc[3][3];
 		double freq_coeff_real, freq_coeff_imag, freq_additive_term;
 		double miles = length / 5280.0;
 
@@ -1037,7 +1037,7 @@ void underground_line::recalc(void)
 #endif
 }
 
-int underground_line::isa(char *classname)
+int underground_line::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"underground_line")==0 || line::isa(classname);
 }
@@ -1051,7 +1051,7 @@ int underground_line::isa(char *classname)
 */
 void underground_line::test_phases(line_configuration *config, const char ph)
 {
-	bool condCheck, condNotPres;
+	bool condCheck = false, condNotPres = false;
 	OBJECT *obj = GETOBJECT(this);
 
 	if (ph=='A')
@@ -1189,7 +1189,7 @@ EXPORT int init_underground_line(OBJECT *obj)
 	INIT_CATCHALL(underground_line);
 }
 
-EXPORT int isa_underground_line(OBJECT *obj, char *classname)
+EXPORT int isa_underground_line(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,underground_line)->isa(classname);
 }
@@ -1200,7 +1200,7 @@ EXPORT int recalc_underground_line(OBJECT *obj)
 	return 1;
 }
 
-EXPORT int create_fault_ugline(OBJECT *thisobj, OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
+EXPORT int create_fault_ugline(OBJECT *thisobj, OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
 {
 	int retval;
 

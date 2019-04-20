@@ -74,7 +74,7 @@ switch_object::switch_object(MODULE *mod) : link_object(mod)
     }
 }
 
-int switch_object::isa(char *classname)
+int switch_object::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"switch")==0 || link_object::isa(classname);
 }
@@ -108,7 +108,7 @@ int switch_object::create()
 int switch_object::init(OBJECT *parent)
 {
 	double phase_total, switch_total;
-	char indexa, indexb;
+	size_t indexa, indexb;
 
 	OBJECT *obj = OBJECTHDR(this);
 
@@ -461,7 +461,7 @@ int switch_object::init(OBJECT *parent)
 }
 
 //Functionalized switch sync call -- before link call -- for deltamode functionality
-void switch_object::BOTH_switch_sync_pre(unsigned char *work_phases_pre, unsigned char *work_phases_post)
+void switch_object::BOTH_switch_sync_pre(char *work_phases_pre, char *work_phases_post)
 {
 	//unsigned char work_phases, work_phases_pre, work_phases_post, work_phases_closed;
 
@@ -496,9 +496,9 @@ void switch_object::BOTH_switch_sync_pre(unsigned char *work_phases_pre, unsigne
 }
 
 //Functionalized switch sync call -- after link call -- for deltamode functionality
-void switch_object::NR_switch_sync_post(unsigned char *work_phases_pre, unsigned char *work_phases_post, OBJECT *obj, TIMESTAMP *t0, TIMESTAMP *t2)
+void switch_object::NR_switch_sync_post(char *work_phases_pre, char *work_phases_post, OBJECT *obj, TIMESTAMP *t0, TIMESTAMP *t2)
 {
-	unsigned char work_phases, work_phases_closed; //work_phases_pre, work_phases_post, work_phases_closed;
+	char work_phases, work_phases_closed; //work_phases_pre, work_phases_post, work_phases_closed;
 	char fault_val[9];
 	int working_protect_phases[3];
 	int result_val, impl_fault, indexval;
@@ -636,11 +636,11 @@ void switch_object::NR_switch_sync_post(unsigned char *work_phases_pre, unsigned
 						temp_time = 50;
 
 					//Call function
-					result_val = ((int (*)(OBJECT *, OBJECT *, char *, TIMESTAMP, TIMESTAMP, int, bool))(*event_schedule))(*eventgen_obj,obj,fault_val,(*t0-50),temp_time,impl_fault,fault_mode);
+					result_val = ((int (*)(OBJECT *, OBJECT *, const char *, TIMESTAMP, TIMESTAMP, int, bool))(*event_schedule))(*eventgen_obj,obj,fault_val,(*t0-50),temp_time,impl_fault,fault_mode);
 				}
 				else	//Failing - normal
 				{
-					result_val = ((int (*)(OBJECT *, OBJECT *, char *, TIMESTAMP, TIMESTAMP, int, bool))(*event_schedule))(*eventgen_obj,obj,fault_val,*t0,TS_NEVER,-1,fault_mode);
+					result_val = ((int (*)(OBJECT *, OBJECT *, const char *, TIMESTAMP, TIMESTAMP, int, bool))(*event_schedule))(*eventgen_obj,obj,fault_val,*t0,TS_NEVER,-1,fault_mode);
 				}
 
 				//Make sure it worked
@@ -675,7 +675,7 @@ void switch_object::NR_switch_sync_post(unsigned char *work_phases_pre, unsigned
 TIMESTAMP switch_object::sync(TIMESTAMP t0)
 {
 	OBJECT *obj = OBJECTHDR(this);
-	unsigned char work_phases_pre, work_phases_post;
+	char work_phases_pre, work_phases_post;
 
 	//Try to map the event_schedule function address, if we haven't tried yet
 	if (event_schedule_map_attempt == false)
@@ -1181,7 +1181,7 @@ void switch_object::switch_sync_function(void)
 //Function to replicate sync_switch_function, but not call anything (just for reliability checks)
 unsigned char switch_object::switch_expected_sync_function(void)
 {
-	unsigned char phases_out;
+	unsigned char phases_out = 0x00;
 	double phase_total, switch_total;
 	SWITCHSTATE temp_A_state, temp_B_state, temp_C_state;
 	enumeration temp_status;
@@ -1597,7 +1597,7 @@ void switch_object::set_switch_full_reliability(unsigned char desired_status)
 }
 
 //Retrieve the address of an object
-OBJECT **switch_object::get_object(OBJECT *obj, char *name)
+OBJECT **switch_object::get_object(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_object)
@@ -1617,7 +1617,7 @@ SIMULATIONMODE switch_object::inter_deltaupdate_switch(unsigned int64 delta_time
 {
 	OBJECT *hdr = OBJECTHDR(this);
 	TIMESTAMP t0_val, t2_val;
-	unsigned char work_phases_pre, work_phases_post;
+	char work_phases_pre, work_phases_post;
 
 	//Initialize - just set to random values, not used here
 	t0_val = TS_NEVER;
@@ -1726,7 +1726,7 @@ EXPORT TIMESTAMP sync_switch(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	SYNC_CATCHALL(switch);
 }
 
-EXPORT int isa_switch(OBJECT *obj, char *classname)
+EXPORT int isa_switch(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,switch_object)->isa(classname);
 }
@@ -1796,7 +1796,7 @@ EXPORT int reliability_operation(OBJECT *thisobj, unsigned char desired_phases)
 	return 1;	//This will always succeed...because I say so!
 }
 
-EXPORT int create_fault_switch(OBJECT *thisobj, OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
+EXPORT int create_fault_switch(OBJECT *thisobj, OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
 {
 	int retval;
 
@@ -1845,7 +1845,7 @@ EXPORT SIMULATIONMODE interupdate_switch(OBJECT *obj, unsigned int64 delta_time,
 		status = my->inter_deltaupdate_switch(delta_time,dt,iteration_count_val,interupdate_pos);
 		return status;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("interupdate_link(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;
@@ -1859,7 +1859,7 @@ int switch_object::kmldata(int (*stream)(const char*,...))
 
 	// switch state
 	stream("<TR><TH ALIGN=LEFT>Status</TH>");
-	for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+	for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 	{
 		if ( phase[i] )
 			stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><NOBR>%s</NOBR></TD>", state[i]?"CLOSED":"OPEN");
@@ -1875,7 +1875,7 @@ int switch_object::kmldata(int (*stream)(const char*,...))
 	if ( run_realtime.get_bool() )
 	{
 		stream("<TR><TH ALIGN=LEFT>Control</TH>");
-		for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
 				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"http://%s:%d/kml/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"switchA\" VALUE=\"%s\" /></FORM></TD>",

@@ -226,7 +226,7 @@ node::node(MODULE *mod) : powerflow_object(mod)
 	}
 }
 
-int node::isa(char *classname)
+int node::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"node")==0 || powerflow_object::isa(classname);
 }
@@ -1166,7 +1166,7 @@ int node::init(OBJECT *parent)
 			voltage[2].SetPolar(nominal_voltage,2*PI/3);
 	}
 
-	if (has_phase(PHASE_D) & voltageAB==0)
+	if ( has_phase(PHASE_D) && voltageAB==0)
 	{	// compute 3phase voltage differences
 		voltageAB = voltageA - voltageB;
 		voltageBC = voltageB - voltageC;
@@ -1268,7 +1268,7 @@ TIMESTAMP node::NR_node_presync_fxn(TIMESTAMP t0_val)
 	}//End inrush enabled
 	//Defaulted else -- no in-rush or not deltamode
 
-	if ((SubNode==DIFF_PARENT))	//Differently connected parent - zero our accumulators
+	if ( SubNode==DIFF_PARENT )	//Differently connected parent - zero our accumulators
 	{
 		//Zero them.  Row 1 is power, row 2 is admittance, row 3 is current
 		Extra_Data[0] = Extra_Data[1] = Extra_Data[2] = 0.0;
@@ -1341,7 +1341,11 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 	TIMESTAMP t1 = powerflow_object::presync(t0); 
 	TIMESTAMP temp_time_value, temp_t1_value;
 	node *temp_par_node = NULL;
-	FUNCTIONADDR temp_funadd = NULL;
+
+	// TODO: node should clear accumulators before starting next sync passes
+	// power[0] = power[1] = power[2] = complex(0,0,J);
+	// current[0] = current[1] = current[2] = complex(0,0,J);
+	// shunt[0] = shunt[1] = shunt[2] = complex(0,0,J);
 
 	//Determine the flag state - see if a schedule is overriding us
 	if (service_status_dbl>-1.0)
@@ -1415,7 +1419,10 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 			will be updated in future versions.
 			*/
 		}
-		if (((phase_to_check & (busphasesIn | busphasesOut) != phase_to_check) && (busphasesIn != 0 && busphasesOut != 0) && (solver_method == SM_NR)))
+		if ( (phase_to_check & (busphasesIn | busphasesOut)) != phase_to_check 
+			&&  busphasesIn != 0 
+			&& busphasesOut != 0 
+			&& solver_method == SM_NR )
 		{
 			GL_THROW("node:%d (%s) has more phases leaving than entering",obj->id,obj->name);
 			/* TROUBLESHOOT
@@ -1457,7 +1464,7 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 	{
 		if (prev_NTime==0)	//First run, if we are a child, make sure no one linked us before we knew that
 		{
-			if (((SubNode == CHILD) || (SubNode == DIFF_CHILD)) && (NR_connected_links))
+			if ( SubNode == CHILD || SubNode == DIFF_CHILD ) 
 			{
 				node *parNode = OBJECTDATA(SubNodeParent,node);
 
@@ -2559,7 +2566,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 			//Call NR sync function items
 			NR_node_sync_fxn(obj);
 
-			if ((NR_curr_bus==NR_bus_count) && (obj==NR_swing_bus))	//Only run the solver once everything has populated
+			if ((NR_curr_bus==(int)NR_bus_count) && (obj==NR_swing_bus))	//Only run the solver once everything has populated
 			{
 				bool bad_computation=false;
 				NRSOLVERMODE powerflow_type;
@@ -2620,7 +2627,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 				//See where we wanted to go
 				return NR_retval;
 			}
-			else if (NR_curr_bus==NR_bus_count)	//Population complete, we're not swing, let us go (or we never go on)
+			else if (NR_curr_bus==(int)NR_bus_count)	//Population complete, we're not swing, let us go (or we never go on)
 				return t1;
 			else	//Population of data busses is not complete.  Flag us for a go-around, they should be ready next time
 			{
@@ -2883,7 +2890,7 @@ int node::kmldump(int (*stream)(const char*,...))
 
 		// voltages
 		stream("<TR><TH ALIGN=LEFT>Voltage</TH>");
-		for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
 			{
@@ -2897,7 +2904,7 @@ int node::kmldump(int (*stream)(const char*,...))
 		}
 		stream("</TR>\n");
 		stream("<TR><TH ALIGN=LEFT>&nbsp</TH>");
-		for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
 				stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>&deg;</TD>", voltage[i].Arg()*180/3.1416 - basis[i]);
@@ -2913,7 +2920,7 @@ int node::kmldump(int (*stream)(const char*,...))
 		{
 			// power
 			stream("<TR><TH ALIGN=LEFT>Power</TH>");
-			for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+			for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 			{
 				if ( phase[i] )
 					stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>kW</TD>", power[i].Re()/1000);
@@ -2922,7 +2929,7 @@ int node::kmldump(int (*stream)(const char*,...))
 			}
 			stream("</TR>\n");
 			stream("<TR><TH ALIGN=LEFT>&nbsp</TH>");
-			for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+			for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 			{
 				if ( phase[i] )
 					stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>kVAR</TD>", power[i].Im()/1000);
@@ -2946,7 +2953,7 @@ int node::kmldump(int (*stream)(const char*,...))
 //Notify function
 //NOTE: The NR-based notify stuff may no longer be needed after NR is "flattened", since it will
 //      effectively be like FBS at that point.
-int node::notify(int update_mode, PROPERTY *prop, char *value)
+int node::notify(int update_mode, PROPERTY *prop, const char *value)
 {
 	complex diff_val;
 
@@ -3081,7 +3088,7 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		}
 		return TS_NEVER;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("%s (node:%d): %s", pNode->get_name(), pNode->get_id(), msg);
 		return 0; 
@@ -3139,7 +3146,7 @@ EXPORT TIMESTAMP sync_node(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 * node_type_value is the class name
 * main_swing determines if we're looking for SWING or SWING_PQ (swing parses first)
 */
-OBJECT *node::NR_master_swing_search(char *node_type_value,bool main_swing)
+OBJECT *node::NR_master_swing_search(const char *node_type_value,bool main_swing)
 {
 	OBJECT *return_val = NULL;
 	OBJECT *temp_obj = NULL;
@@ -3147,7 +3154,7 @@ OBJECT *node::NR_master_swing_search(char *node_type_value,bool main_swing)
 	FINDLIST *bus_list = gl_find_objects(FL_NEW,FT_CLASS,SAME,node_type_value,FT_END);
 
 	//Parse the findlist
-	while(temp_obj=gl_find_next(bus_list,temp_obj))
+	while ( (temp_obj=gl_find_next(bus_list,temp_obj)) )
 	{
 		list_node = OBJECTDATA(temp_obj,node);
 
@@ -3187,7 +3194,6 @@ int node::NR_populate(void)
 {
 	//Object header for names
 	OBJECT *me = OBJECTHDR(this);
-	node *temp_par_node = NULL;
 
 	//Lock the SWING for global operations
 	if ( NR_swing_bus!=me ) LOCK_OBJECT(NR_swing_bus);
@@ -3458,7 +3464,7 @@ int node::NR_current_update(bool postpass, bool parentcall)
 	complex delta_shunt[3];
 	complex delta_current[3];
 	complex assumed_nominal_voltage[6];
-	double nominal_voltage_dval;
+	double nominal_voltage_dval = 0.0;
 	complex house_pres_current[3];
 
 	//Don't do anything if we've already been "updated"
@@ -3710,7 +3716,6 @@ int node::NR_current_update(bool postpass, bool parentcall)
 			complex vdel;
 			complex temp_current[3];
 			complex temp_store[3];
-			complex temp_val[3];
 
 			//Find V12 (just in case)
 			vdel=voltage[0] + voltage[1];
@@ -4457,7 +4462,7 @@ double node::perform_GFA_checks(double timestepvalue)
 	bool voltage_violation, frequency_violation, trigger_disconnect, check_phase;
 	double temp_pu_voltage;
 	double return_time_freq, return_time_volt, return_value;
-	char indexval;
+	size_t indexval;
 	unsigned char phasevals;
 	OBJECT *hdr = OBJECTHDR(this);
 
@@ -4909,7 +4914,7 @@ STATUS node::link_VFD_functions(OBJECT *linkVFD)
 //////////////////////////////////////////////////////////////////////////
 // IMPLEMENTATION OF OTHER EXPORT FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
-EXPORT int isa_node(OBJECT *obj, char *classname)
+EXPORT int isa_node(OBJECT *obj, CLASSNAME classname)
 {
 	if(obj != 0 && classname != 0){
 		return OBJECTDATA(obj,node)->isa(classname);
@@ -4918,7 +4923,7 @@ EXPORT int isa_node(OBJECT *obj, char *classname)
 	}
 }
 
-EXPORT int notify_node(OBJECT *obj, int update_mode, PROPERTY *prop, char *value){
+EXPORT int notify_node(OBJECT *obj, int update_mode, PROPERTY *prop, const char *value){
 	node *n = OBJECTDATA(obj, node);
 	int rv = 1;
 	
@@ -4946,7 +4951,7 @@ EXPORT SIMULATIONMODE interupdate_node(OBJECT *obj, unsigned int64 delta_time, u
 		status = my->inter_deltaupdate_node(delta_time,dt,iteration_count_val,interupdate_pos);
 		return status;
 	}
-	catch (char *msg)
+	catch (const char *msg)
 	{
 		gl_error("interupdate_node(obj=%d;%s): %s", obj->id, obj->name?obj->name:"unnamed", msg);
 		return status;

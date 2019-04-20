@@ -11,7 +11,7 @@
 #include "class.h"
 #include "validate.h"
 #include "sanitize.h"
-
+#include "lock.h"
 #include "build.h"
 
 #ifdef _MAIN_C
@@ -37,8 +37,8 @@ typedef struct s_globalvar {
 	PROPERTY *prop;
 	struct s_globalvar *next;
 	uint32 flags;
-	void (*callback)(char *); // this function will be called whenever the globalvar is set
-	unsigned int lock;
+	void (*callback)(const char *); // this function will be called whenever the globalvar is set
+	LOCKVAR lock;
 } GLOBALVAR;
 
 /* Exit codes */
@@ -54,6 +54,7 @@ typedef int EXITCODE;
 #define XC_PRCERR 7 /* process control error */
 #define XC_SVRKLL 8 /* server killed */
 #define XC_IOERR 9 /* I/O error */
+#define XC_LDERR 10 /* model load error */
 #define XC_SHFAILED 127 /* shell failure - per system(3) */
 #define XC_SIGNAL 128 /* signal caught - must be or'd with SIG value if known */
 #define XC_SIGINT (XC_SIGNAL|SIGINT) /* SIGINT caught */
@@ -62,18 +63,24 @@ typedef int EXITCODE;
 #define XC_SIGTERM (XC_SIGNAL|SIGTERM) /* SIGTERM caught */
 #define XC_EXCEPTION 255 /* exception caught */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 STATUS global_init(void);
 GLOBALVAR *global_getnext(GLOBALVAR *previous);
-GLOBALVAR *global_find(char *name);
-GLOBALVAR *global_create(char *name, ...);
-STATUS global_setvar(char *def,...);
-char *global_getvar(char *name, char *buffer, int size);
-int global_isdefined(char *name);
+GLOBALVAR *global_find(const char *name);
+GLOBALVAR *global_create(const char *name, ...);
+STATUS global_setvar(const char *def,...);
+const char *global_getvar(const char *name, char *buffer, size_t size);
+int global_isdefined(const char *name);
 void global_dump(void);
 size_t global_getcount(void);
 void global_restore(GLOBALVAR *pos);
 void global_push(char *name, char *value);
 size_t global_saveall(FILE *fp);
+#ifdef __cplusplus
+}
+#endif
 
 /* MAJOR and MINOR version */
 GLOBAL unsigned global_version_major INIT(REV_MAJOR); /**< The software's major version */
@@ -236,7 +243,7 @@ typedef enum {
 GLOBAL int global_mainloopstate INIT(MLS_INIT); /**< main loop processing state */
 GLOBAL TIMESTAMP global_mainlooppauseat INIT(TS_NEVER); /**< time at which to pause main loop */
 
-GLOBAL char global_infourl[1024] INIT("http://gridlab-d.sourceforge.net/info.php?title=Special:Search/"); /**< URL for info calls */
+GLOBAL char global_infourl[1024] INIT("http://gridlab-d.shoutwiki.com/w/index.php?title=Special%3ASearch&fulltext=Search&search="); /**< URL for info calls */
 
 GLOBAL char global_hostname[1024] INIT("localhost"); /**< machine hostname */
 GLOBAL char global_hostaddr[32] INIT("127.0.0.1"); /**< machine ip addr */
@@ -323,6 +330,8 @@ GLOBAL char32 global_sanitizeoffset INIT(""); /**< sanitize lat/lon offset */
 GLOBAL bool global_run_powerworld INIT(false);
 GLOBAL bool global_bigranks INIT(true); /**< enable non-recursive set_rank function (good for very deep models) */
 GLOBAL char1024 global_svnroot INIT("http://gridlab-d.svn.sourceforge.net/svnroot/gridlab-d");
+GLOBAL char1024 global_github INIT("https://github.com/gridlab-d");
+GLOBAL char1024 global_gitraw INIT("https://raw.githubusercontent.com/gridlab-d");
 GLOBAL char1024 global_wget_options INIT("maxsize:100MB;update:newer"); /**< maximum size of wget request */
 
 GLOBAL bool global_reinclude INIT(false); /**< allow the same include file to be included multiple times */
@@ -415,6 +424,59 @@ GLOBAL GLMSAVEOPTIONS global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mo
 
 #undef GLOBAL
 #undef INIT
+
+#ifdef __cplusplus
+class GldMain;
+
+class GldGlobalvar 
+{
+private:
+	GldMain *my_instance;
+	GLOBALVAR *spec;
+public:
+	GldGlobalvar(GldMain *instance, const char *name, const char *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, int64 *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, int32 *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, int16 *value, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, double *value, const char *unit = NULL, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, complex *value, const char *unit = NULL, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, enumeration *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	GldGlobalvar(GldMain *instance, const char *name, set *value, KEYWORD *keys, PROPERTYACCESS access = PA_PUBLIC, const char *description = NULL, bool is_deprecated = false);
+	~GldGlobalvar(void);
+public: // accessors
+	inline void set_callback(void (*callback)(const char *)) { if (!spec) throw "GldGlobavar::set_callback(): spec is NULL"; spec->callback = callback;};
+};
+
+class GldGlobals 
+{
+private:
+	GldMain &instance;
+	GLOBALVAR *varlist;
+	GLOBALVAR *last;
+public:
+	GldGlobals(GldMain *inst);
+	~GldGlobals(void);
+public:
+	STATUS init(void);
+	GLOBALVAR *find(const char *name);
+	GLOBALVAR *getnext(const GLOBALVAR *previous);
+	void restore(GLOBALVAR *previous);
+	void push(char *name, char *value);
+	GLOBALVAR *create(const char *name, ...);
+	GLOBALVAR *create_v(const char *name, va_list ptr);
+	STATUS setvar(const char *def, ...);
+	STATUS setvar_v(const char *def, va_list ptr);
+	bool isdefined(const char *name);
+	const char *getvar(const char *name, char *buffer, size_t size);
+	size_t getcount(void);
+	void dump(void);
+	void *remote_read(void *local, GLOBALVAR *var);
+	void remote_write(void *local, GLOBALVAR *var);
+	size_t saveall(FILE *fp);
+private:
+	bool parameter_expansion(char *buffer, size_t size, const char *spec);
+};
+#endif
 
 #endif /* _GLOBAL_H */
 /**@}**/

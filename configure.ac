@@ -30,7 +30,7 @@ m4_define([svnversion], sbuild_m4_esyscmd_s([build-aux/version.sh --svn]))
 
 AC_PREREQ([2.63])
 AC_INIT([GridLAB-D], pkgversion, [gridlabd@pnnl.gov], [gridlabd])
-AC_CONFIG_SRCDIR([gldcore/aggregate.c])
+AC_CONFIG_SRCDIR([gldcore/gridlabd.h])
 AC_CONFIG_HEADER([gldcore/config.h])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_AUX_DIR([build-aux])
@@ -101,6 +101,8 @@ AC_MSG_NOTICE
 AC_MSG_NOTICE([C compiler])
 AC_MSG_NOTICE
 
+: ${CFLAGS="-Wall -O3 -g"}
+: ${CXXFLAGS="-Wall -O3 -g"}
 AC_PROG_CC
 AC_GNU_SOURCE   # defines _GNU_SOURCE
 AM_PROG_CC_C_O  # required for automake to support subdir-objects
@@ -533,7 +535,7 @@ DX_XML_FEATURE([OFF])
 DX_PDF_FEATURE([OFF])
 DX_PS_FEATURE([OFF])
 AS_IF([test -n "$DX_DOXYGEN"],
-      [HAVE_DOXYGEN="$DX_DOXYGEN"],
+      [HAVE_DOXYGEN="$DX_DOXYGEN (Doxygen $($DX_DOXYGEN --version))"],
       [HAVE_DOXYGEN=no])
 
 # Check for Matlab
@@ -560,7 +562,7 @@ AS_IF([test "x$MATLAB" != "xno"],
 							[*i686*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/win32' '-L$MATLAB/extern/lib/win32/microsoft'"])])
 	MATLAB_LIBS="-lmx -leng"
 	GLD_CPPFLAGS="$GLD_CPPFLAG -DHAVE_MATLAB"
-	HAVE_MATLAB=yes],
+	HAVE_MATLAB=$MATLAB],
 	[HAVE_MATLAB=no])
 AC_SUBST([MATLAB_CPPFLAGS])
 AC_SUBST([MATLAB_LDFLAGS])
@@ -583,7 +585,9 @@ AC_ARG_WITH([mysql],
 		[Link to MySQL from a given prefix (=path)])],
 	[],
 	[with_mysql=no])
-MYSQL=$with_mysql
+AS_IF([test "x$with_mysql" = "xyes"],
+    [MYSQL=/usr/local],
+    [MYSQL=$with_mysql])
 AS_IF([test "x$MYSQL" != "xno"],
 	[MYSQL_CPPFLAGS="'-I$MYSQL/include'"
 		AS_CASE([$host],
@@ -594,7 +598,7 @@ AS_IF([test "x$MYSQL" != "xno"],
 			[*darwin*], [MYSQL_LDFLAGS="'-L$MYSQL/lib'"
 				MYSQL_LIBS="-lmysqlclient"])
 		GLD_CPPFLAGS="$GLD_CPPFLAGS -DHAVE_MYSQL"
-		HAVE_MYSQL=yes],
+		HAVE_MYSQL=$MYSQL],
 	[HAVE_MYSQL=no])
 AC_SUBST([MYSQL_CPPFLAGS])
 AC_SUBST([MYSQL_LDFLAGS])
@@ -602,6 +606,7 @@ AC_SUBST([MYSQL_LIBS])
 
 # Verify python version
 AM_PATH_PYTHON(3.6)
+HAVE_PYTHON="$(which python3) ($(python3 --version))"
 
 ###############################################################################
 # The End
@@ -631,13 +636,12 @@ AC_MSG_RESULT([
 
   Dependencies:
 
-    MinGW: ...................... $HAS_MINGW
-    Doxygen: .................... $HAVE_DOXYGEN
-    libcppunit: ................. $HAVE_CPPUNIT
     libxerces-c: ................ $HAVE_XERCES
-    matlab: ..................... $HAVE_MATLAB
-    mysql-connector-c: .......... $HAVE_MYSQL
     curses: ..................... $HAVE_CURSES
+    matlab: ..................... $HAVE_MATLAB
+    python: ..................... $HAVE_PYTHON
+    mysql-connector-c: .......... $HAVE_MYSQL
+    Doxygen: .................... $HAVE_DOXYGEN
 
   Atomic Builtins:
 

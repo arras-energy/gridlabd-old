@@ -37,12 +37,13 @@ def commit(obj,t) :
 	gridlabd.set_global("sample_count",str(sample_count))
 
 	# successful commit
-	return True
+	return gridlabd.NEVER
 
 def on_term(t) :
 	global sample_data
 	import matplotlib.pyplot as plt
 	import numpy as np 
+	import datetime
 	t = np.array(sample_data["t"])
 	x = np.array(sample_data["x"])
 	plt.figure()
@@ -52,4 +53,6 @@ def on_term(t) :
 	plt.grid()
 	plt.legend()
 	modelname = gridlabd.get_global("modelname")
+	plt.title(modelname)
 	plt.savefig(modelname.replace(".glm",".png"))
+	# term always returns None

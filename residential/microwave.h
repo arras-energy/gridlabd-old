@@ -24,7 +24,6 @@ public:
 	double cycle_time;
 private:
 	double runtime;				///< current runtime (expected time in ON state)
-	double last_runtime;
 	double state_time;			///< time in current state
 	double prev_demand;			///< previous demand
 	TIMESTAMP cycle_start, cycle_on, cycle_off;

@@ -52,7 +52,6 @@ pdgstrf_bmod2D(
     double      alpha, beta;
 #endif
     double      zero = 0.0;
-    double      one = 1.0;
 
     double       ukj, ukj1, ukj2;
     int          luptr, luptr1, luptr2;

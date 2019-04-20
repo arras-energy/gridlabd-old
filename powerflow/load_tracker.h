@@ -17,7 +17,7 @@ private:
 public:
 	static CLASS *oclass;
 public:
-	typedef enum {REAL=0,IMAGINARY=1,MAGNITUDE=2,ANGLE=3};
+	typedef enum e_operation {REAL=0,IMAGINARY=1,MAGNITUDE=2,ANGLE=3} OPERATION;
 	enumeration operation;	///< operation to perform on complex property types
 public:
 	OBJECT*			target;		///< object to track a property of
@@ -46,7 +46,7 @@ public:
 	TIMESTAMP presync(TIMESTAMP t0);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 };
 
 #endif // _LOAD_TRACKER_H

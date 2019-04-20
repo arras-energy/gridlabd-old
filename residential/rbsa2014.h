@@ -402,5 +402,5 @@ static IMPLICITENDUSEDATA rbsa2014[] = {
 		"}"
 	},
 	/// @todo add other implicit enduse schedules and shapes as they are defined
-	NULL
+	{NULL}
 };

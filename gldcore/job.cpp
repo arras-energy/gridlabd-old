@@ -26,6 +26,10 @@
 
 SET_MYCONTEXT(DMC_JOB)
 
+/* TODO: remove these when reentrant code is completed */
+#include "main.h"
+extern GldMain *my_instance;
+
 #ifndef MIN
 #define MIN(X,Y) ((X)<(Y)?(X):(Y))
 #endif
@@ -46,7 +50,7 @@ typedef struct {
 #define DT_DIR 0x01
 static const char *GetLastErrorMsg(void)
 {
-	static unsigned int lock = 0;
+	static LOCKVAR lock = 0;
 	wlock(&lock);
     static TCHAR szBuf[256]; 
     LPVOID lpMsgBuf;
@@ -156,7 +160,7 @@ static int vsystem(const char *fmt, ...)
 }
 
 /** routine to destroy the contents of a directory */
-static bool destroy_dir(char *name)
+bool job_destroy_dir(char *name)
 {
 	DIR *dirp = opendir(name);
 	if ( dirp==NULL ) return true; // directory does not exist
@@ -185,7 +189,7 @@ static bool destroy_dir(char *name)
 }
 
 /** copyfile routine */
-static bool copyfile(char *from, char *to)
+bool job_copyfile(char *from, char *to)
 {
 	IN_MYCONTEXT output_debug("copying '%s' to '%s'", from, to);
 	FILE *in = fopen(from,"r");
@@ -240,7 +244,7 @@ static bool run_job(char *file, double *elapsed_time=NULL)
 		blank[len]='\0';
 		len = output_raw("%s\rProcessing %s...\r",blank,name)-len; 
 	}
-	int64 dt = exec_clock();
+	int64 dt = my_instance->get_exec()->clock();
 	unsigned int code = vsystem("%s %s %s ", 
 #ifdef WIN32
 		_pgmptr,
@@ -248,7 +252,7 @@ static bool run_job(char *file, double *elapsed_time=NULL)
 		"gridlabd",
 #endif
 		job_cmdargs, name);
-	dt = exec_clock() - dt;
+	dt = my_instance->get_exec()->clock() - dt;
 	double t = (double)dt/(double)CLOCKS_PER_SEC;
 	if ( elapsed_time!=NULL ) *elapsed_time = t;
 	if ( code!=0 )
@@ -266,7 +270,7 @@ typedef struct s_jobstack {
 	struct s_jobstack *next;
 } JOBLIST;
 static JOBLIST *jobstack = NULL;
-static unsigned int joblock = 0;
+static LOCKVAR joblock = 0;
 static void pushjob(char *dir)
 {
 	IN_MYCONTEXT output_debug("adding %s to job list", dir);
@@ -294,7 +298,6 @@ void *(run_job_proc)(void *arg)
 	size_t id = (size_t)arg;
 	IN_MYCONTEXT output_debug("starting run_test_proc id %d", id);
 	JOBLIST *item;
-	bool passed = true;
 	while ( (item=popjob())!=NULL )
 	{
 		IN_MYCONTEXT output_debug("process %d picked up '%s'", id, item->name);
@@ -316,7 +319,7 @@ static size_t process_dir(const char *path)
 	while ( (dp=readdir(dirp))!=NULL )
 	{
 		char item[1024];
-		size_t len = sprintf(item,"%s/%s",path,dp->d_name);
+		sprintf(item,"%s/%s",path,dp->d_name);
 		char *ext = strrchr(dp->d_name,'.');
 		if ( dp->d_name[0]=='.' ) continue; // ignore anything that starts with a dot
 		if ( ext && strcmp(ext,".glm")==0 )
@@ -330,12 +333,12 @@ static size_t process_dir(const char *path)
 }
 
 /** main validation routine */
-extern "C" int job(int argc, char *argv[])
+int job(void *main, int argc, const char *argv[])
 {
 	size_t i;
 	int redirect_found = 0;
 	strcpy(job_cmdargs,"");
-	for ( i=1 ; i<argc ; i++ )
+	for ( i = 1 ; i < (size_t)argc ; i++ )
 	{
 		if ( strcmp(argv[i],"--redirect")==0 ) redirect_found = 1;
 		strcat(job_cmdargs,argv[i]);
@@ -374,7 +377,7 @@ extern "C" int job(int argc, char *argv[])
 	}
 	delete [] pid;
 
-	double dt = (double)exec_clock()/(double)CLOCKS_PER_SEC;
+	double dt = (double)my_instance->get_exec()->clock()/(double)CLOCKS_PER_SEC;
 	output_message("Total job elapsed time: %.1f seconds", dt);
 	if ( final_result==0 )
 		exec_setexitcode(XC_SUCCESS);

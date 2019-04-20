@@ -23,7 +23,7 @@ EXPORT STATUS postupdate_inverter(OBJECT *obj, complex *useful_value, unsigned i
 EXPORT STATUS inverter_NR_current_injection_update(OBJECT *obj);
 
 //Alternative PI version Dynamic control Inverter state variable structure
-typedef struct {
+typedef struct s_inv_state {
 	double P_Out[3];		///< The real power output
 	double Q_Out[3];		///< The reactive power output
 	double ed[3];			///< The error in real power output
@@ -62,7 +62,7 @@ typedef struct {
 } INV_STATE;
 
 //Simple PID controller
-typedef struct {
+typedef struct s_pid_inv_vars {
 	complex error[3];
 	complex mod_vals[3];
 	complex integrator_vals[3];
@@ -116,7 +116,7 @@ public:
 	complex VA_In; //power in (DC)
 
 	enum PF_REG {INCLUDED=1, EXCLUDED=2, INCLUDED_ALT=3} pf_reg;
-	enum PF_REG_STATUS {REGULATING = 1, IDLING = 2} pf_reg_status;
+	enum PF_REG_STATUS {PFRS_UNKNOWN = 0, REGULATING = 1, IDLING = 2} pf_reg_status;
 	enum LOAD_FOLLOW_STATUS {IDLE=0, DISCHARGE=1, CHARGE=2} load_follow_status;	//Status variable for what the load_following mode is doing
 
 	complex VA_Out;
@@ -244,11 +244,27 @@ public:
 	double C1;
 	double C2;
 	double C3;
-	enum INVERTER_MANUFACTURER {NONE=0,FRONIUS=1,SMA=2,XANTREX=3};
+	typedef enum e_inverter_manufacturer {
+		NONE=0,
+		FRONIUS=1,
+		SMA=2,
+		XANTREX=3,
+	} INVERTER_MANUFACTURER;
 	enumeration inverter_manufacturer; //known manufacturer to set some presets else use variables themselves for custom inverter.
 
 	//properties for four quadrant control modes
-	enum FOUR_QUADRANT_CONTROL_MODE {FQM_NONE=0,FQM_CONSTANT_PQ=1,FQM_CONSTANT_PF=2,FQM_CONSTANT_V=3,FQM_VOLT_VAR=4,FQM_LOAD_FOLLOWING=5, FQM_GENERIC_DROOP=6, FQM_GROUP_LF=7, FQM_VOLT_VAR_FREQ_PWR=8, FQM_VSI = 9};
+	typedef enum e_four_quadrant_control_mode {
+		FQM_NONE=0,
+		FQM_CONSTANT_PQ=1,
+		FQM_CONSTANT_PF=2,
+		FQM_CONSTANT_V=3,
+		FQM_VOLT_VAR=4,
+		FQM_LOAD_FOLLOWING=5, 
+		FQM_GENERIC_DROOP=6, 
+		FQM_GROUP_LF=7, 
+		FQM_VOLT_VAR_FREQ_PWR=8, 
+		FQM_VSI = 9,
+	} FOUR_QUADRANT_CONTROL_MODE;
 	enumeration four_quadrant_control_mode;
 
 	double excess_input_power;		//Variable tracking excess power on the input that is not placed to the output
@@ -311,7 +327,11 @@ public:
 	double reconnect_time;			//Time after a 1547 violation clears before we reconnect
 	bool inverter_1547_status;		//Flag to indicate if we are online, or "curtailed" due to 1547 mapping
 
-	enum IEEE_1547_STATUS {IEEE_NONE=0, IEEE1547=1, IEEE1547A=2};
+	typedef enum s_ieee_1547_status {
+		IEEE_NONE=0, 
+		IEEE1547=1, 
+		IEEE1547A=2,
+	} IEEE_1547_STATUS ;
 	enumeration ieee_1547_version;
 
 	//1547(a) frequency
@@ -345,7 +365,7 @@ public:
 	double over_voltage_low_viol_time;				//Lowest high voltage threshold violation accumulator
 	double over_voltage_high_viol_time;				//Highest high voltage threshold violation accumulator
 
-	typedef enum {
+	typedef enum e_ieee_1547_mode {
 		IEEE_1547_NONE=0,		/**< No trip reason */
 		IEEE_1547_HIGH_OF=1,	/**< High over-frequency level trip */
 		IEEE_1547_LOW_OF=2,		/**< Low over-frequency level trip */
@@ -356,7 +376,7 @@ public:
 		IEEE_1547_HIGH_UV=7,	/**< High under-voltage level trip */
 		IEEE_1547_LOW_OV=8,		/**< Low over-voltage level trip */
 		IEEE_1547_HIGH_OV=9		/**< High over-voltage level trip */
-	};
+	} IEEE1547MODE;
 
 	enumeration ieee_1547_trip_method;
 
@@ -411,7 +431,7 @@ private:
 
 public:
 	/* required implementations */
-	bool *get_bool(OBJECT *obj, char *name);
+	bool *get_bool(OBJECT *obj, const char *name);
 	inverter(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
@@ -421,7 +441,7 @@ public:
 	STATUS pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time);
 	SIMULATIONMODE inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);
 	STATUS post_deltaupdate(complex *useful_value, unsigned int mode_pass);
-	int *get_enum(OBJECT *obj, char *name);
+	int *get_enum(OBJECT *obj, const char *name);
 	double perform_1547_checks(double timestepvalue);
 	STATUS updateCurrInjection();
 	complex check_VA_Out(complex temp_VA, double p_max);
@@ -430,8 +450,8 @@ public:
 	static CLASS *oclass;
 	static inverter *defaults;
 	static CLASS *plcass;
-	complex *get_complex(OBJECT *obj, char *name);
-	double *get_double(OBJECT *obj, char *name);
+	complex *get_complex(OBJECT *obj, const char *name);
+	double *get_double(OBJECT *obj, const char *name);
 	complex complex_exp(double angle);
 	STATUS init_PI_dynamics(INV_STATE *curr_time);
 	STATUS init_PID_dynamics(void);

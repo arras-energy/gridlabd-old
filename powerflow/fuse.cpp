@@ -79,7 +79,7 @@ fuse::fuse(MODULE *mod) : link_object(mod)
     }
 }
 
-int fuse::isa(char *classname)
+int fuse::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"fuse")==0 || link_object::isa(classname);
 }
@@ -125,7 +125,7 @@ int fuse::create()
 */
 int fuse::init(OBJECT *parent)
 {
-	char jindex, kindex;
+	size_t jindex, kindex;
 	OBJECT *obj = OBJECTHDR(this);
 
 	if ((phases & PHASE_S) == PHASE_S)
@@ -592,7 +592,7 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 			if (event_schedule != NULL)	//Function was mapped - go for it!
 			{
 				//Call the function
-				result_val = ((int (*)(OBJECT *, OBJECT *, char *, TIMESTAMP, TIMESTAMP, int, bool))(*event_schedule))(*eventgen_obj,obj,fault_val,t0,0,-1,false);
+				result_val = ((int (*)(OBJECT *, OBJECT *, const char *, TIMESTAMP, TIMESTAMP, int, bool))(*event_schedule))(*eventgen_obj,obj,fault_val,t0,0,-1,false);
 
 				//Make sure it worked
 				if (result_val != 1)
@@ -631,8 +631,7 @@ TIMESTAMP fuse::sync(TIMESTAMP t0)
 
 TIMESTAMP fuse::postsync(TIMESTAMP t0)
 {
-	OBJECT *hdr = OBJECTHDR(this);
-	char jindex;
+	size_t jindex;
 	unsigned char goodphases = 0x00;
 	TIMESTAMP Ret_Val[3], t1;
 
@@ -977,7 +976,7 @@ void fuse::set_fuse_full_reliability(unsigned char desired_status)
 }
 
 //Retrieve the address of an object
-OBJECT **fuse::get_object(OBJECT *obj, char *name)
+OBJECT **fuse::get_object(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_object)
@@ -1003,9 +1002,8 @@ void fuse::set_fuse_faulted_phases(unsigned char desired_status)
 */
 void fuse::fuse_check(set phase_to_check, complex *fcurr)
 {
-	char indexval;
+	size_t indexval;
 	char phase_verbose;
-	unsigned char work_phase;
 	FUSESTATE *valstate;
 	TIMESTAMP *fixtime;
 	OBJECT *hdr = OBJECTHDR(this);
@@ -1044,7 +1042,7 @@ void fuse::fuse_check(set phase_to_check, complex *fcurr)
 	//See which phases we need to check
 	if ((phases & phase_to_check) == phase_to_check)	//Check phase
 	{
-		work_phase = 0x04 >> indexval;	//Working variable, primarily for NR
+		// work_phase = 0x04 >> indexval;	//Working variable, primarily for NR
 
 		if (*valstate == GOOD)	//Only bother if we are in service
 		{
@@ -1195,7 +1193,7 @@ EXPORT TIMESTAMP sync_fuse(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 *
 * @return true (1) if obj is a subtype of this class
 */
-EXPORT int isa_fuse(OBJECT *obj, char *classname)
+EXPORT int isa_fuse(OBJECT *obj, CLASSNAME classname)
 {
 	return OBJECTDATA(obj,fuse)->isa(classname);
 }
@@ -1258,7 +1256,7 @@ EXPORT int fuse_reliability_operation(OBJECT *thisobj, unsigned char desired_pha
 	return 1;	//This will always succeed...because I say so!
 }
 
-EXPORT int create_fault_fuse(OBJECT *thisobj, OBJECT **protect_obj, char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
+EXPORT int create_fault_fuse(OBJECT *thisobj, OBJECT **protect_obj, const char *fault_type, int *implemented_fault, TIMESTAMP *repair_time, void *Extra_Data)
 {
 	int retval;
 

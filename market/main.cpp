@@ -17,3 +17,4 @@ MODULE:market
 
 #include <stdlib.h>
 #include "gridlabd.h"
+#include "market.h"

@@ -5,7 +5,8 @@ CLASS *group_recorder::oclass = NULL;
 CLASS *group_recorder::pclass = NULL;
 group_recorder *group_recorder::defaults = NULL;
 
-void new_group_recorder(MODULE *mod){
+CDECL void new_group_recorder(MODULE *mod)
+{
 	new group_recorder(mod);
 }
 
@@ -365,11 +366,11 @@ int group_recorder::isa(char *classname){
 /**
 	@return 0 on failure, 1 on success
  **/
-int group_recorder::write_header(){
+int group_recorder::write_header()
+{
 //	size_t name_size;
 	time_t now = time(NULL);
 	quickobjlist *qol = 0;
-	OBJECT *obj=OBJECTHDR(this);
 
 	if(TS_OPEN != tape_status){
 		// could be ERROR or CLOSED
@@ -398,7 +399,7 @@ int group_recorder::write_header(){
 	if(0 > fprintf(rec_file,"# group..... %s\n", group_def.get_string())){ return 0; }
 	if(0 > fprintf(rec_file,"# property.. %s\n", property_name.get_string())){ return 0; }
 	if(0 > fprintf(rec_file,"# limit..... %d\n", limit)){ return 0; }
-	if(0 > fprintf(rec_file,"# interval.. %d\n", write_interval)){ return 0; }
+	if(0 > fprintf(rec_file,"# interval.. %lld\n", write_interval)){ return 0; }
 
 	// write list of properties
 	if(0 > fprintf(rec_file, "# timestamp")){ return 0; }
@@ -416,8 +417,9 @@ int group_recorder::write_header(){
 /**
 	@return 0 on failure, 1 on success
  **/
-int group_recorder::read_line(){
-	size_t index = 0, offset = 0, unit_len = 0;
+int group_recorder::read_line()
+{
+	size_t index = 0, offset = 0;
 	quickobjlist *curr = 0;
 	char *swap_ptr = 0;
 	char buffer[128];
@@ -691,9 +693,6 @@ EXPORT int create_group_recorder(OBJECT **obj, OBJECT *parent){
 			rv = my->create();
 		}
 	}
-	catch (char *msg){
-		gl_error("create_group_recorder: %s", msg);
-	}
 	catch (const char *msg){
 		gl_error("create_group_recorder: %s", msg);
 	}
@@ -708,9 +707,6 @@ EXPORT int init_group_recorder(OBJECT *obj){
 	int rv = 0;
 	try {
 		rv = my->init(obj->parent);
-	}
-	catch (char *msg){
-		gl_error("init_group_recorder: %s", msg);
 	}
 	catch (const char *msg){
 		gl_error("init_group_recorder: %s", msg);
@@ -737,9 +733,6 @@ EXPORT TIMESTAMP sync_group_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 				throw "invalid pass request";
 		}
 	}
-	catch(char *msg){
-		gl_error("sync_group_recorder: %s", msg);
-	}
 	catch(const char *msg){
 		gl_error("sync_group_recorder: %s", msg);
 	}
@@ -751,9 +744,6 @@ EXPORT int commit_group_recorder(OBJECT *obj){
 	group_recorder *my = OBJECTDATA(obj, group_recorder);
 	try {
 		rv = my->commit(obj->clock,0.0,false);
-	}
-	catch (char *msg){
-		gl_error("commit_group_recorder: %s", msg);
 	}
 	catch (const char *msg){
 		gl_error("commit_group_recorder: %s", msg);

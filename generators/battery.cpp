@@ -24,7 +24,6 @@
 CLASS *battery::oclass = NULL;
 battery *battery::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */
@@ -211,50 +210,68 @@ int battery::create(void)
 	return 1; /* return 1 on success, 0 on failure */
 }
 
-void battery::fetch_double(double **prop, char *name, OBJECT *parent){
+void battery::fetch_double(double **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_double_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "battery:%i", hdr->id);
-		if(*name == NULL)
+		if ( name == NULL )
+		{
 			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
 
-void battery::fetch_enumeration(enumeration **prop, char *name, OBJECT *parent){
+void battery::fetch_enumeration(enumeration **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_enum_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "battery:%i", hdr->id);
-		if(*name == NULL)
+		if ( name == NULL )
+		{
 			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
 
-void battery::fetch_complex(complex **prop, char *name, OBJECT *parent){
+void battery::fetch_complex(complex **prop, const char *name, OBJECT *parent)
+{
 	OBJECT *hdr = OBJECTHDR(this);
 	*prop = gl_get_complex_by_name(parent, name);
-	if(*prop == NULL){
+	if ( *prop == NULL )
+	{
 		char tname[32];
-		char *namestr = (hdr->name ? hdr->name : tname);
+		const char *namestr = (hdr->name ? hdr->name : tname);
 		char msg[256];
 		sprintf(tname, "battery:%i", hdr->id);
-		if(*name == NULL)
+		if ( name == NULL )
+		{
 			sprintf(msg, "%s: battery unable to find property: name is NULL", namestr);
+		}
 		else
+		{
 			sprintf(msg, "%s: battery unable to find %s", namestr, name);
+		}
 		throw(msg);
 	}
 }
@@ -265,8 +282,10 @@ int battery::init(OBJECT *parent)
 {
 	OBJECT *obj = OBJECTHDR(this);
 
-	if(parent != NULL){
-		if((parent->flags & OF_INIT) != OF_INIT){
+	if ( parent != NULL )
+	{
+		if ( (parent->flags & OF_INIT) != OF_INIT )
+		{
 			char objname[256];
 			gl_verbose("battery::init(): deferring initialization on %s", gl_name(parent, objname, 255));
 			return 2; // defer
@@ -312,8 +331,9 @@ int battery::init(OBJECT *parent)
 
 	extern complex default_line_current[3];
 	extern complex default_line_voltage[3];
-	if(use_internal_battery_model == FALSE){
-		int i;
+	if ( use_internal_battery_model == FALSE)
+	{
+		size_t i;
 
 		// find parent meter, if not defined, use a default meter (using static variable 'default_meter')
 		if (parent!=NULL && gl_object_isa(parent,"meter"))
@@ -321,7 +341,7 @@ int battery::init(OBJECT *parent)
 			// attach meter variables to each circuit
 			struct {
 				complex **var;
-				char *varname;
+				const char *varname;
 			}
 			map[] = {
 			// local object name,	meter object name
@@ -332,10 +352,12 @@ int battery::init(OBJECT *parent)
 			/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
 		
 			for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+			{
 				*(map[i].var) = get_complex(parent,map[i].varname);
+			}
 
 			//Map phases
-			set *phaseInfo;
+			set *phaseInfo = NULL;
 			PROPERTY *tempProp;
 			tempProp = gl_get_property(parent,"phases");
 
@@ -385,7 +407,7 @@ int battery::init(OBJECT *parent)
 		{
 			struct {
 				complex **var;
-				char *varname;
+				const char *varname;
 			}
 			map[] = {
 				// local object name,	meter object name
@@ -396,7 +418,7 @@ int battery::init(OBJECT *parent)
 			};
 
 			//Map phases
-			set *phaseInfo;
+			set *phaseInfo = NULL;
 			PROPERTY *tempProp;
 			tempProp = gl_get_property(parent,"phases");
 
@@ -435,7 +457,7 @@ int battery::init(OBJECT *parent)
 			phases = 0x00;
 			struct {
 				complex **var;
-				char *varname;
+				const char *varname;
 			} 
 		
 			map[] = {
@@ -624,7 +646,7 @@ int battery::init(OBJECT *parent)
 		}
 
 		// find parent inverter, if not defined, use a default meter (using static variable 'default_meter')
-		if(parent != NULL && strcmp(parent->oclass->name,"inverter") != 0 || parent == NULL)
+		if (  ( parent != NULL && strcmp(parent->oclass->name,"inverter") != 0 ) || parent == NULL )
 		{
 			GL_THROW("Battery must have an inverter as it's parent");
 			/*  TROUBLESHOOT
@@ -692,22 +714,22 @@ int battery::init(OBJECT *parent)
 			//find lead acid cell spec
 		}
 		fetch_double(&pSocReserve,"soc_reserve",parent);
-		if(*pSocReserve == 0){
+		if ( *pSocReserve == 0){
 			b_soc_reserve = 0;
 		} else {
 			b_soc_reserve = *pSocReserve;
 		}
-		if(battery_state == BS_EMPTY && soc != b_soc_reserve){
+		if ( battery_state == BS_EMPTY && soc != b_soc_reserve){
 			soc = b_soc_reserve;
 		}
-		if(battery_state == BS_FULL && soc != 1){
+		if ( battery_state == BS_FULL && soc != 1){
 			soc = 1;
 		}
-		if(soc < 0){
+		if ( soc < 0){
 			gl_warning("no initial state of charge given -- using default value (battery: %s)",obj->name);
 			soc = 1;
 			battery_state = BS_FULL;
-		} else if(soc > 1){
+		} else if ( soc > 1){
 			gl_warning("initial state of charge is greater than 1 setting to 1 (battery: %s)",obj->name);
 			soc = 1;
 			battery_state = BS_FULL;
@@ -737,7 +759,7 @@ complex battery::calculate_v_terminal(complex v, complex i){
 }
 
 
-complex *battery::get_complex(OBJECT *obj, char *name)
+complex *battery::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)
@@ -747,18 +769,18 @@ complex *battery::get_complex(OBJECT *obj, char *name)
 
 
 TIMESTAMP battery::rfb_event_time(TIMESTAMP t0, complex power, double e){
-	if((e < margin) && (power < 0)){
+	if ( (e < margin) && (power < 0)){
 		return TS_NEVER;
 	}
-	if((e > E_Max - margin)&& (power > 0)){
+	if ( (e > E_Max - margin)&& (power > 0)){
 		return TS_NEVER;
 	}
 	
-	if(power < 0){ //dscharging
+	if ( power < 0){ //dscharging
 		double t1 = (e) / power.Re(); // time until depleted in hours
 		t1 = t1 * 60 * 60; //time until depleted in seconds
 		return t0 + (TIMESTAMP)(t1 * TS_SECOND);
-	}else if(power > 0){ //charging
+	}else if ( power > 0){ //charging
 		double t1 = (E_Max - e) / power.Re(); // time until full in hours
 		t1 = t1 * 60 * 60; //time until full in seconds
 		return t0 + (TIMESTAMP)(t1 * TS_SECOND);
@@ -770,16 +792,16 @@ TIMESTAMP battery::rfb_event_time(TIMESTAMP t0, complex power, double e){
 
 
 double battery::calculate_efficiency(complex voltage, complex current){
-	if(voltage.Mag() == 0 || current.Mag() == 0){
+	if ( voltage.Mag() == 0 || current.Mag() == 0){
 		return 1;
 	}
-	else if(current.Mag() < 5){
+	else if ( current.Mag() < 5){
 		return 0.95;
 	}
-	else if(current.Mag() < 10){
+	else if ( current.Mag() < 10){
 		return 0.9;
 	}
-	else if(current.Mag() < 20){
+	else if ( current.Mag() < 20){
 		return 0.8;
 	}else{
 		return 0.7;
@@ -792,22 +814,22 @@ double battery::calculate_efficiency(complex voltage, complex current){
 /* Presync is called when the clock needs to advance on the first top-down pass */
 TIMESTAMP battery::presync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	if(use_internal_battery_model == TRUE){
+	if ( use_internal_battery_model == TRUE){
 			double dt;
-		if(t0 != 0){
+		if ( t0 != 0){
 			b_soc_reserve = *pSocReserve;
-			if(battery_state == BS_DISCHARGING || battery_state == BS_CHARGING){
+			if ( battery_state == BS_DISCHARGING || battery_state == BS_CHARGING){
 				dt = (double)(t1-t0);
-				if(soc >= 0 && soc <= 1){
+				if ( soc >= 0 && soc <= 1){
 					soc += (internal_battery_load*dt/3600)/e_max;
 					internal_battery_load = 0;
-					if(soc <= 0){
+					if ( soc <= 0){
 						battery_state = BS_EMPTY;
 						soc = 0;
-					} else if(soc >= 1){
+					} else if ( soc >= 1){
 						battery_state = BS_FULL;
 						soc = 1;
-					} else if(soc <= b_soc_reserve && t1 == state_change_time){
+					} else if ( soc <= b_soc_reserve && t1 == state_change_time){
 						battery_state = BS_EMPTY;
 						soc = b_soc_reserve;
 					}
@@ -906,7 +928,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 		return t1; //Force us to reiterate one
 	}//End first timestep
 
-	if(use_internal_battery_model == FALSE){
+	if ( use_internal_battery_model == FALSE){
 		if (gen_mode_v == GM_POWER_DRIVEN || gen_mode_v == GM_POWER_VOLTAGE_HYBRID) 
 		{
 			if (number_of_phases_out == 3)
@@ -1844,7 +1866,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 				I_Internal = I_Out * efficiency; //actual stored current is less than what was put in
 			}
 
-			if(I_Out < 0){ // discharging
+			if ( I_Out < 0){ // discharging
 				I_Internal = I_Out / efficiency; //actual released current is more than what is obtained by parent
 			}
 
@@ -1861,9 +1883,9 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 			//gl_verbose("battery sync: VA_Internal calculated is: (%f , %f)", VA_Internal.Re(), VA_Internal.Im());
 			
 
-			if(!recalculate){//if forced recalculate is false, check where the time is
+			if ( !recalculate){//if forced recalculate is false, check where the time is
 			//gl_verbose("battery sync: don't recalculate");
-				if(t0 == prev_time){
+				if ( t0 == prev_time){
 					//gl_verbose("battery sync: reached expected time, set energy and don't recalculate");
 					Energy = E_Next; // we're all set this time around, just set the energy level onward
 					//gl_verbose("battery sync: Energy level is %f", Energy);
@@ -1895,19 +1917,19 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 				//double t2 = (timestamp_to_hours((TIMESTAMP)t1) - timestamp_to_hours((TIMESTAMP)t0));
 				double t2 = (gl_tohours((TIMESTAMP)t1) - gl_tohours((TIMESTAMP)t0));
 
-				if(fabs((double)V_Out.Re()) > fabs((double)V_Max.Re())){
+				if ( fabs((double)V_Out.Re()) > fabs((double)V_Max.Re())){
 					//gl_verbose("battery sync: V_Out exceeded allowable V_Out, setting to max");
 					V_Out = V_Max;
 					V_In = V_Out;
 					V_Internal = V_Out - (I_Out * Rinternal);
 				}
 
-				if(fabs((double)I_Out.Re()) > fabs((double)I_Max.Re())){
+				if ( fabs((double)I_Out.Re()) > fabs((double)I_Max.Re())){
 					//gl_verbose("battery sync: I_Out exceeded allowable I_Out, setting to max");
 					I_Out = I_Max;
 				}
 
-				if(fabs((double)VA_Out.Re()) > fabs((double)Max_P)){
+				if ( fabs((double)VA_Out.Re()) > fabs((double)Max_P)){
 					//gl_verbose("battery sync: VA_Out exceeded allowable VA_Out, setting to max");
 					VA_Out = complex(Max_P , 0);
 					VA_Internal = VA_Out - (I_Out * I_Out * Rinternal);
@@ -1917,11 +1939,11 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 			prev_time = t1;
 
-			if(VA_Out < 0){ //discharging
+			if ( VA_Out < 0){ //discharging
 				//gl_verbose("battery sync: discharging");
-				if(Energy == 0 || Energy <= margin){ 
+				if ( Energy == 0 || Energy <= margin){ 
 					//gl_verbose("battery sync: battery is empty!");
-					if(connected){
+					if ( connected){
 						//gl_verbose("battery sync: empty BUT it is connected, passing request onward");
 						I_In = I_Max + complex(fabs(I_Out.Re()), fabs(I_Out.Im())); //power was asked for to discharge but battery is empty, forward request along the line
 						I_Prev = I_Max / efficiency;
@@ -1943,9 +1965,9 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 					}
 				}
 
-				if((Energy + (V_Internal * I_Prev.Re()).Re() * t2) <= margin){ //headed to empty
+				if ( (Energy + (V_Internal * I_Prev.Re()).Re() * t2) <= margin){ //headed to empty
 					//gl_verbose("battery sync: battery is headed to empty");
-					if(connected){
+					if ( connected){
 						//gl_verbose("battery sync: BUT battery is connected, so pass request onward");
 						I_In = I_Max + complex(fabs(I_Out.Re()), fabs(I_Out.Im())); //this won't let the battery go empty... change course 
 						I_Prev = I_Max / efficiency;
@@ -1973,9 +1995,9 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 					return t3;
 				}
 			}else if (VA_Out > 0){ //charging
-				if(Energy >= (E_Max - margin)){
+				if ( Energy >= (E_Max - margin)){
 					//gl_verbose("battery sync: battery is full!");
-					if(connected){
+					if ( connected){
 						//attempt to let other items serve the load if the battery is full instead of draining the battery
 						//gl_verbose("battery sync: battery is full and connected, passing the power request onward");
 						E_Next = Energy;
@@ -1994,7 +2016,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 					}
 				}
 
-				if(Energy + ((V_Internal * I_Prev.Re()) * efficiency * t2).Re() >= (E_Max - margin)){ //if it is this far, it is charging at max
+				if ( Energy + ((V_Internal * I_Prev.Re()) * efficiency * t2).Re() >= (E_Max - margin)){ //if it is this far, it is charging at max
 					//gl_verbose("battery sync: battery is about to be full");
 					TIMESTAMP t3 = rfb_event_time(t0, VA_Internal, Energy);
 					I_In = 0;
@@ -2003,7 +2025,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 					recalculate = false;
 					return t3;
 				}else{
-					if(connected){
+					if ( connected){
 						//gl_verbose("battery sync: battery is charging but not yet full, connected");
 						//if it is connected, use whatever is connected to help it charge;
 						I_In = I_Max - I_Out; // total current in is now I_Max
@@ -2040,7 +2062,7 @@ TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1)
 /* Postsync is called when the clock needs to advance on the second top-down pass */
 TIMESTAMP battery::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	if(use_internal_battery_model == FALSE){
+	if ( use_internal_battery_model == FALSE){
 		TIMESTAMP result;
 
 		Iteration_Toggle = !Iteration_Toggle;
@@ -2067,16 +2089,16 @@ TIMESTAMP battery::postsync(TIMESTAMP t0, TIMESTAMP t1)
 		bat_load = -(*pBatteryLoad);
 		p_max = *pRatedPower;
 		//figure out the the actual power coming out of the battery due to the battery load and the battery efficiency
-		if(t0 != 0 && bat_load != 0){
-			if(bat_load < 0 && battery_state != BS_EMPTY){
-				if(bat_load < -p_max){
+		if ( t0 != 0 && bat_load != 0){
+			if ( bat_load < 0 && battery_state != BS_EMPTY){
+				if ( bat_load < -p_max){
 					gl_warning("battery_load is greater than rated. Setting to plate rating.");
 					bat_load = -p_max;
 				}
 				battery_state = BS_DISCHARGING;
 				p_br = p_max/pow(eta_rt,0.5);
-			} else if(bat_load > 0 && battery_state != BS_FULL){
-				if(bat_load > p_max){
+			} else if ( bat_load > 0 && battery_state != BS_FULL){
+				if ( bat_load > p_max){
 					gl_warning("battery_load is greater than rated. Setting to plate rating.");
 					bat_load = p_max;
 				}
@@ -2085,13 +2107,13 @@ TIMESTAMP battery::postsync(TIMESTAMP t0, TIMESTAMP t1)
 			} else {
 				return TS_NEVER;
 			}
-			if(battery_type == LI_ION){
-				if(soc <= 1 && soc > 0.1){
+			if ( battery_type == LI_ION){
+				if ( soc <= 1 && soc > 0.1){
 					v_oc = n_series*(((4.1-3.6)/0.9)*soc + (4.1-((4.1-3.6)/0.9)));//voltage curve for sony
-				} else if(soc <= 0.1 && soc >= 0){
+				} else if ( soc <= 0.1 && soc >= 0){
 					v_oc = n_series*(((3.6-3.2)/0.1)*soc + 3.2);
 				}
-			} else if(battery_type == LEAD_ACID){
+			} else if ( battery_type == LEAD_ACID){
 				v_oc = v_max;// no voltage curve for LEAD_ACID using static voltage
 			} else {//unknown battery type
 				v_oc = v_max;
@@ -2100,9 +2122,9 @@ TIMESTAMP battery::postsync(TIMESTAMP t0, TIMESTAMP t1)
 			v_t = (v_oc+pow((v_oc*v_oc+(4*bat_load*r_in)),0.5))/2;
 			internal_battery_load = v_oc*bat_load/v_t;
 			b_soc_reserve = *pSocReserve;
-			if(internal_battery_load < 0){
+			if ( internal_battery_load < 0){
 				state_change_time = t1 + (TIMESTAMP)ceil((b_soc_reserve-soc)*e_max*3600/internal_battery_load);
-			} else if(internal_battery_load > 0){
+			} else if ( internal_battery_load > 0){
 				state_change_time = t1 + (TIMESTAMP)ceil((1-soc)*e_max*3600/internal_battery_load);
 			}
 			return state_change_time;
@@ -2118,7 +2140,6 @@ TIMESTAMP battery::postsync(TIMESTAMP t0, TIMESTAMP t1)
 //Preupdate
 STATUS battery::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 {
-	STATUS stat_val;
 	OBJECT *obj = OBJECTHDR(this);
 
 	// Battery delta mode operation is only when enableDelta is true
@@ -2142,7 +2163,7 @@ SIMULATIONMODE battery::inter_deltaupdate(unsigned int64 delta_time, unsigned lo
 	//Get timestep value
 	deltat = (double)dt/(double)DT_SECOND;
 
-	if(enableDelta == TRUE){
+	if ( enableDelta == TRUE){
 
 		// Initialization - update the soc based on inverter output before entering the delta mode
 		if ((delta_time==0) && (iteration_count_val==0))	//First run of new delta call
@@ -2185,17 +2206,17 @@ SIMULATIONMODE battery::inter_deltaupdate(unsigned int64 delta_time, unsigned lo
 void battery::update_soc(unsigned int64 delta_time)
 {
 	b_soc_reserve = *pSocReserve;
-	if(battery_state == BS_DISCHARGING || battery_state == BS_CHARGING){
-		if(soc >= 0 && soc <= 1){
+	if ( battery_state == BS_DISCHARGING || battery_state == BS_CHARGING){
+		if ( soc >= 0 && soc <= 1){
 			soc += (internal_battery_load*deltat/3600)/e_max;
 			internal_battery_load = 0;
-			if(soc <= 0){
+			if ( soc <= 0){
 				battery_state = BS_EMPTY;
 				soc = 0;
-			} else if(soc >= 1){
+			} else if ( soc >= 1){
 				battery_state = BS_FULL;
 				soc = 1;
-			} else if(soc <= b_soc_reserve && delta_time >= state_change_time_delta){
+			} else if ( soc <= b_soc_reserve && delta_time >= state_change_time_delta){
 				battery_state = BS_EMPTY;
 				soc = b_soc_reserve;
 			}
@@ -2207,7 +2228,7 @@ void battery::update_soc(unsigned int64 delta_time)
 
 double battery::check_state_change_time_delta(unsigned int64 delta_time, unsigned long dt)
 {
-	double time_return;
+	double time_return = 0.0;
 
 	// Update battery output based on true inverter output
 	if ((*inverter_VA_Out).Re() > 0.0)	//Discharging
@@ -2227,16 +2248,16 @@ double battery::check_state_change_time_delta(unsigned int64 delta_time, unsigne
 	bat_load = -(Pout_delta);
 	p_max = *pRatedPower;
 	//figure out the the actual power coming out of the battery due to the battery load and the battery efficiency
-	if(bat_load != 0){
-		if(bat_load < 0 && battery_state != BS_EMPTY){
-			if(bat_load < -p_max){
+	if ( bat_load != 0){
+		if ( bat_load < 0 && battery_state != BS_EMPTY){
+			if ( bat_load < -p_max){
 				gl_warning("battery_load is greater than rated. Setting to plate rating.");
 				bat_load = -p_max;
 			}
 			battery_state = BS_DISCHARGING;
 			p_br = p_max/pow(eta_rt,0.5);
-		} else if(bat_load > 0 && battery_state != BS_FULL){
-			if(bat_load > p_max){
+		} else if ( bat_load > 0 && battery_state != BS_FULL){
+			if ( bat_load > p_max){
 				gl_warning("battery_load is greater than rated. Setting to plate rating.");
 				bat_load = p_max;
 			}
@@ -2245,13 +2266,13 @@ double battery::check_state_change_time_delta(unsigned int64 delta_time, unsigne
 		} else {
 			return TS_NEVER;
 		}
-		if(battery_type == LI_ION){
-			if(soc <= 1 && soc > 0.1){
+		if ( battery_type == LI_ION){
+			if ( soc <= 1 && soc > 0.1){
 				v_oc = n_series*(((4.1-3.6)/0.9)*soc + (4.1-((4.1-3.6)/0.9)));//voltage curve for sony
-			} else if(soc <= 0.1 && soc >= 0){
+			} else if ( soc <= 0.1 && soc >= 0){
 				v_oc = n_series*(((3.6-3.2)/0.1)*soc + 3.2);
 			}
-		} else if(battery_type == LEAD_ACID){
+		} else if ( battery_type == LEAD_ACID){
 			v_oc = v_max;// no voltage curve for LEAD_ACID using static voltage
 		} else {//unknown battery type
 			v_oc = v_max;
@@ -2260,9 +2281,9 @@ double battery::check_state_change_time_delta(unsigned int64 delta_time, unsigne
 		v_t = (v_oc+pow((v_oc*v_oc+(4*bat_load*r_in)),0.5))/2;
 		internal_battery_load = v_oc*bat_load/v_t;
 		b_soc_reserve = *pSocReserve;
-		if(internal_battery_load < 0){
+		if ( internal_battery_load < 0){
 			time_return = (delta_time) + (TIMESTAMP)ceil((b_soc_reserve-soc)*e_max*3600/internal_battery_load);
-		} else if(internal_battery_load > 0){
+		} else if ( internal_battery_load > 0){
 			time_return = (delta_time) + (TIMESTAMP)ceil((1-soc)*e_max*3600/internal_battery_load);
 		}
 		return time_return;

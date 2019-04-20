@@ -62,7 +62,7 @@ EXPORT int etp_get(char *param, ...)
 		else if ( strcmp(param,"init")==0 )
 		{
 			ETPDATA *data = va_arg(arg,ETPDATA*);
-			data->a = data->b = data->n = data->n = data->c = 0;
+			data->a = data->b = data->n = data->m = data->c = 0;
 			data->p = 1e-8;
 			data->e = 0;
 			data->i = default_etp_iterations;

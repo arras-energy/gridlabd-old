@@ -99,7 +99,6 @@ Glu_alloc(
 	  )
 {
     GlobalLU_t *Glu = pxgstrf_shared->Glu;
-    Gstat_t    *Gstat = pxgstrf_shared->Gstat;
     register int fsupc, nextl, nextu, new_next;
 #ifdef PROFILE
     double   t;
@@ -248,7 +247,6 @@ DynamicSetMap(
 	      )
 {
     GlobalLU_t *Glu = pxgstrf_shared->Glu;
-    Gstat_t    *Gstat = pxgstrf_shared->Gstat;
     register int nextlu, new_next;
     int *map_in_sup = Glu->map_in_sup; /* modified; memory mapping function */
     

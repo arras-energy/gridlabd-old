@@ -20,8 +20,8 @@
 
 typedef enum {I='i',J='j',A='d', R='r'} CNOTATION; /**< complex number notation to use */
 #define CNOTATION_DEFAULT J /* never set this to A */
-#define PI 3.1415926535897932384626433832795
-#define E 2.71828182845905
+#define PI (3.1415926535897932384626433832795)
+#define E (2.71828182845905)
 
 #include <math.h>
 #include "platform.h"
@@ -42,7 +42,7 @@ private:
 #define complex_set_power_factor(X,M,P)	complex_set_polar((X),(M)/(P),acos(P))
 #define complex_get_mag(X) (sqrt((X).r*(X).r + (X).i*(X).i))
 #define complex_get_arg(X) ((X).r==0 ? ( (X).i > 0 ? PI/2 : ((X).i<0 ? -PI/2 : 0) ) : ( (X).r>0 ? atan((X).i/(X).r) : PI+atan((X).i/(X).r) ))
-double complex_get_part(void *c, char *name);
+double complex_get_part(void *c, const char *name);
 #else
 public:
 	/** Construct a complex number with zero magnitude */
@@ -128,11 +128,20 @@ public:
 		else
 			return PI+atan(i/r);
 	};
+	inline double Ang(void)
+	{
+		return Arg()*180.0/PI;
+	}
 	inline double Arg(double a)  /**< set angle */
 	{
 		SetPolar(Mag(),a,f);
 		return a;
 	};
+	inline double Ang(double a)
+	{
+		SetPolar(Mag(),a*PI/180.0);
+		return a;
+	}
 	inline complex Log(void) const /**< compute log */
 	{ 
 		return complex(log(Mag()),Arg(),f);

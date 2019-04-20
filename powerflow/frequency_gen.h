@@ -77,7 +77,6 @@ private:
 	TIMESTAMP prev_time;	//Previous timestep a run has been accomplished
 	TIMESTAMP next_time;	//Next timestep a change is expected
 	TIMESTAMP curr_dt;		//Current dt value observed
-	TIMESTAMP trans_time;	//Time to next FOI transition (estimated)
 	TIMESTAMP Gov_Delay;	//Time governor delay will be up and ramp rate will begin (for delay calculations)
 
 	double PrevLoadPower;	//Load power calculated at last timestep

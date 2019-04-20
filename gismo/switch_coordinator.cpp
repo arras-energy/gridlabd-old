@@ -83,7 +83,7 @@ int switch_coordinator::create(void)
 	return 1; /* return 1 on success, 0 on failure */
 }
 
-int switch_coordinator::connect(char *name)
+int switch_coordinator::connect(const char *name)
 {
 	debug("switch_coordinator::connect(char *name='%s)", name);
 	gld_object *obj = gld_object::find_object(name);
@@ -131,7 +131,7 @@ int switch_coordinator::connect(char *name)
 	return 1;
 }
 
-int switch_coordinator::arm(char *name)
+int switch_coordinator::arm(const char *name)
 {
 	debug("switch_coordinator::arm(char *name='%s)", name);
 	gld_property prop(this,"armed");
@@ -152,7 +152,7 @@ int switch_coordinator::arm(char *name)
 	return 0;
 }
 
-int switch_coordinator::disarm(char *name)
+int switch_coordinator::disarm(const char *name)
 {
 	debug("switch_coordinator::disarm(char *name='%s)", name);
 	gld_property prop(this,"armed");
@@ -249,7 +249,7 @@ TIMESTAMP switch_coordinator::commit(TIMESTAMP t1, TIMESTAMP t2)
 	return TS_NEVER;
 }
 
-int switch_coordinator::postnotify(PROPERTY *prop, char *value)
+int switch_coordinator::postnotify(PROPERTY *prop, const char *value)
 {
 	debug("switch_coordinator::notify(PROPERTY *prop='%s', char *value='%s')", prop->name, value);
 	if ( status==SCS_IDLE )

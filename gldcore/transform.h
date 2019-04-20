@@ -90,7 +90,7 @@ typedef struct s_transform {
 extern "C" {
 #endif
 
-int transform_add_external(struct s_object_list *target_obj, struct s_property_map *target_prop, char *function, struct s_object_list *source_obj, struct s_property_map *source_prop);
+int transform_add_external(struct s_object_list *target_obj, struct s_property_map *target_prop, const char *function, struct s_object_list *source_obj, struct s_property_map *source_prop);
 int transform_add_linear(TRANSFORMSOURCE stype, double *source, void *target, double scale, double bias, struct s_object_list *obj, struct s_property_map *prop, SCHEDULE *s);
 TRANSFORM *transform_getnext(TRANSFORM *xform);
 TIMESTAMP transform_syncall(TIMESTAMP t, TRANSFORMSOURCE source);
@@ -103,8 +103,8 @@ void gldvar_unset(GLDVAR *var, unsigned int n);
 void *gldvar_getaddr(GLDVAR *var, unsigned int n);
 void *gldvar_getprop(GLDVAR *var, unsigned int n);
 PROPERTYTYPE gldvar_gettype(GLDVAR *var, unsigned int n);
-char *gldvar_getname(GLDVAR *var, unsigned int n);
-char *gldvar_getstring(GLDVAR *var, unsigned int n, char *buffer, int size);
+const char *gldvar_getname(GLDVAR *var, unsigned int n);
+const char *gldvar_getstring(GLDVAR *var, unsigned int n, char *buffer, int size);
 UNIT *gldvar_getunits(GLDVAR *var, unsigned int n);
 
 int transform_add_filter(struct s_object_list *target_obj, struct s_property_map *target_prop, char *function, struct s_object_list *source_obj, struct s_property_map *source_prop);

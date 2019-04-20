@@ -3,16 +3,40 @@
 
 #include "pole_configuration.h"
 
+EXPORT_CREATE(pole_configuration);
+EXPORT_INIT(pole_configuration);
+EXPORT_ISA(pole_configuration);
 
 CLASS* pole_configuration::oclass = NULL;
 CLASS* pole_configuration::pclass = NULL;
+
+enumeration pole_configuration::climate_impact_zone = CIZ_NONE;
+KEYWORD pole_configuration::kw_ciz[_CIZ_SIZE] = {
+	{"NONE", pole_configuration::CIZ_NONE, kw_ciz+1},
+	{"LOW", pole_configuration::CIZ_LOW, kw_ciz+2},
+	{"MODERATE", pole_configuration::CIZ_MODERATE, kw_ciz+3},
+	{"INTERMEDIATE", pole_configuration::CIZ_INTERMEDIATE, kw_ciz+4},
+	{"HIGH",pole_configuration::CIZ_HIGH, kw_ciz+5},
+	{"EXTREME",pole_configuration::CIZ_EXTREME, NULL},	
+};
+static double pole_degredation_rate_data[pole_configuration::_CIZ_SIZE][pole_configuration::_PTM_SIZE] = {
+	// specifies pole degradation rate in inches per year for each climate impact zone
+	// Treatment methods:
+	//  none, 		creosote,   penta,		cca 
+	{	0.00 ,		0.00 ,		0.00 ,		0.00 	}, // CIZ_NONE
+	{	0.00 ,		0.00 ,		0.00 ,		0.035 	}, // CIZ_LOW
+	{	0.00 ,		0.00 ,		0.00 ,		0.040 	}, // CIZ_MODERATE
+	{	0.00 ,		0.00 ,		0.00 ,		0.044 	}, // CIZ_INTERMEDATE
+	{	0.00 ,		0.00 ,		0.00 ,		0.047 	}, // CIZ_HIGH
+	{	0.00 ,		0.00 ,		0.00 ,		0.05 	}, // CIZ_EXTREME
+};
 
 pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 {
 	if(oclass == NULL)
 	{
-		oclass = oclass = gl_register_class(mod,"pole_configuration",sizeof(pole_configuration),0x00);
-		if (oclass==NULL)
+		oclass = gl_register_class(mod,"pole_configuration",sizeof(pole_configuration),PC_NOSYNC);
+		if ( oclass == NULL )
 			throw "unable to register class pole_configuration";
 		else
 			oclass->trl = TRL_PROVEN;
@@ -41,7 +65,17 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 			PT_double, "top_diameter[in]", PADDR(top_diameter), PT_DESCRIPTION, "diameter of pole at top",
 			PT_double, "fiber_strength[psi]", PADDR(fiber_strength), PT_DESCRIPTION, "pole structural strength",
 			PT_double, "repair_time[s]", PADDR(repair_time), PT_DESCRIPTION, "pole repair time",
+			PT_double, "degradation_rate[in/yr]", PADDR(degradation_rate), PT_DESCRIPTION, "rate of pole degradation.", 
+			PT_enumeration, "treatment_method", PADDR(treatment_method), PT_DESCRIPTION, "pole degradation prevention treatment",
+				PT_KEYWORD, "NONE", (enumeration)PTM_NONE,
+				PT_KEYWORD, "CREOSOTE", (enumeration)PTM_CREOSOTE,
+				PT_KEYWORD, "PENTA", (enumeration)PTM_PENTA,
+				PT_KEYWORD, "CCA", (enumeration)PTM_CCA,
             NULL) < 1) GL_THROW("unable to publish pole_configuration properties in %s",__FILE__);
+        GLOBALVAR *var = gl_global_create("climate_impact_zone", PT_enumeration, &climate_impact_zone, PT_DESCRIPTION, "pole deterioration climate impact zone", NULL);
+        if ( ! var )
+        	exception("unable to create global climate_impact_zone");
+        var->prop->keywords = kw_ciz;
     }
 }
 
@@ -49,7 +83,6 @@ int pole_configuration::create(void)
 {
 	pole_type = PT_WOOD;
     // Set up defaults for 45/5
-    
 
     // defaults from chart 1 - medium loading district
     design_ice_thickness = 0.25;
@@ -83,35 +116,32 @@ int pole_configuration::create(void)
 	return 1;
 }
 
-int pole_configuration::isa(char *classname)
+int pole_configuration::isa(CLASSNAME classname)
 {
 	return strcmp(classname,"pole_configuration") == 0;
+}
+
+int pole_configuration::init(OBJECT *parent)
+{
+	// pole degregation
+	if ( climate_impact_zone < 0 || climate_impact_zone >= _CIZ_SIZE )
+	{
+		warning("climate impact zone %s is not valid, resetting to default NONE", kw_ciz[climate_impact_zone].name);
+		climate_impact_zone = CIZ_NONE;
+	}
+	if ( treatment_method < 0 || treatment_method >= _PTM_SIZE )
+	{
+		warning("pole treatment method is not valid, resetting to default CCA");
+		climate_impact_zone = PTM_CCA;
+	}
+	if ( degradation_rate < 0 ) // check for invalidate degredation rate
+		exception("degradation_rate must be zero or positive");
+	else if ( degradation_rate == 0 )
+		degradation_rate = pole_degredation_rate_data[climate_impact_zone][treatment_method];
+	return 1;	
 }
 
 double pole_configuration::get_pole_diameter(double height)
 {
 	return (pole_length-height)*(ground_diameter-top_diameter)/(pole_length-pole_depth);
 }
-
-EXPORT int create_pole_configuration(OBJECT **obj, OBJECT *parent)
-{
-	try
-	{
-		*obj = gl_create_object(pole_configuration::oclass);
-		if (*obj!=NULL)
-		{
-			pole_configuration *my = OBJECTDATA(*obj,pole_configuration);
-			gl_set_parent(*obj,parent);
-			return my->create();
-		}
-		else
-			return 0;
-	}
-	CREATE_CATCHALL(pole_configuration);
-}
-
-EXPORT int isa_pole_configuration(OBJECT *obj, char *classname)
-{
-	return strcmp(classname,"pole_configuration") == 0;
-}
-

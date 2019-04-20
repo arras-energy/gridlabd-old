@@ -15,11 +15,14 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <pwd.h>
-#include "gridlabd.h"
+#include "main.h"
+#include "class.h"
 #include "output.h"
 #include "cmdarg.h"
 #include "daemon.h"
 #include "globals.h"
+
+#include <string>
 
 static int disable_daemon_command = false;
 static int daemon_pid = 0;
@@ -54,7 +57,7 @@ static char timeout[8] = "10";
 static char umaskstr[8] = "0";
 
 static struct s_config {
-	char *name;
+	const char *name;
 	char *value;
 } config[] = {
 	{"log", logfile},
@@ -75,10 +78,10 @@ static struct s_config {
 	{"keepalive",keepalive},
 	{"timeout",timeout},
 	{"umask",umaskstr},
-	NULL, NULL // required to end loop
+	{NULL, NULL} // required to end loop
 };
 
-static void daemon_log(char *format, ...)
+static void daemon_log(const char *format, ...)
 {
 	static int pid = 0;
 	char buffer[1024];
@@ -101,7 +104,7 @@ static void daemon_log(char *format, ...)
 	// first-time access to log file
 	if ( logfh == NULL )
 	{
-		char *mode = "w";
+		const char *mode = "w";
 
 		// if log file name starts with a + or this isn't the daemon itself, then use append mode...
 		if ( logfile[0] == '+' || pid != daemon_pid )
@@ -153,8 +156,6 @@ static void daemon_cleanup(void)
 {
 	if ( daemon_pid == getpid() )
 	{
-		struct stat fs;
-
 		// remove the pid file
 		if ( unlink(pidfile) == 0 )
 			daemon_log("deleted pidfile '%s'",pidfile);
@@ -278,7 +279,9 @@ static int daemon_run(int sockfd)
 #define MAXARGS 256
 	char **argv = (char**)malloc(sizeof(char*)*MAXARGS);
 	memset(argv,0,sizeof(char*)*MAXARGS);
-	argv[0] = "gridlabd";
+	const char *program = "gridlabd";
+	argv[0] = new char[strlen(program)+1];
+	strcpy(argv[0],program);
 	int argc = parse_command(command, argv+1, MAXARGS-1)+1;
 
 	// dump
@@ -290,15 +293,17 @@ static int daemon_run(int sockfd)
 		strcat(global_command_line,argv[n]);
 	}
 
-	if ( argc > 1 && cmdarg_load(argc,argv) == SUCCESS )
+	if ( argc > 1 && cmdarg_load(argc,(const char**)argv) == SUCCESS )
 	{
 		// write result
 		daemon_log("running command [%s] on socket %d", global_command_line, sockfd);
+		delete argv[0];
 		return XC_SUCCESS;
 	}
 	else
 	{
 		daemon_log("invalid or missing command arguments");
+		delete argv[0];
 		return XC_ARGERR;
 	}
 
@@ -345,7 +350,6 @@ static void daemon_process(void)
 	int sockfd, portno=atoi(port);
 	socklen_t clilen;
 	struct sockaddr_in serv_addr, cli_addr;
-	int n;
 	if ( portno <= 0 )
 	{
 		daemon_log("invalid port number (port=%s)",port);
@@ -496,7 +500,7 @@ static void daemon_loadconfig(void)
 	global_suppress_repeat_messages = old_repeat;
 }
 
-static int daemon_arguments(int argc, char *argv[])
+static int daemon_arguments(int argc, const char *argv[])
 {
 	int nargs = 0, portno = atoi(port);
 #define NEXT (argc--,argv++,++nargs)
@@ -584,7 +588,7 @@ static int daemon_arguments(int argc, char *argv[])
 
 static int daemon_configure()
 {
-	pid_t pid, sid;
+	pid_t sid;
 
 	// change the working folder
 	if ( enable_jail )
@@ -646,10 +650,10 @@ static int daemon_configure()
 	int mask = 0;
 	sscanf(umaskstr,"%x",&mask);
 	umask(mask);
-
+	return 0;
 }
 
-int daemon_start(int argc, char *argv[])
+int daemon_start(int argc, const char *argv[])
 {
 	if ( disable_daemon_command )
 	{
@@ -708,10 +712,10 @@ int daemon_start(int argc, char *argv[])
 	{
 		daemon_process();
 		return nargs+1;
-	}		
+	}
 }
 
-int daemon_stop(int argc, char *argv[])
+int daemon_stop(int argc, const char *argv[])
 {
 	if ( disable_daemon_command )
 	{
@@ -757,19 +761,18 @@ int daemon_stop(int argc, char *argv[])
 		return nargs+1;
 }
 
-int daemon_restart(int argc, char *argv[])
+int daemon_restart(int argc, const char *argv[])
 {
 	if ( disable_daemon_command )
 	{
 		output_error("daemon commands not permitted");
 		exit(XC_INIERR);
 	}
-	
-	int nargs = 0;
+
 	if ( argc > 0 )
 	{
 		// process command arguments
-		nargs = daemon_arguments(argc,argv);
+		daemon_arguments(argc,argv);
 
 		// access config file
 		daemon_loadconfig();
@@ -782,7 +785,7 @@ int daemon_restart(int argc, char *argv[])
 	return daemon_start(0,NULL);
 }
 
-int daemon_status(int argc, char *argv[])
+int daemon_status(int argc, const char *argv[])
 {
 	if ( disable_daemon_command )
 	{
@@ -819,7 +822,7 @@ static void daemon_remote_kill(int sig)
 }
 
 // this is the only code that does not run on the daemon/server side
-int daemon_remote_client(int argc, char *argv[])
+int daemon_remote_client(int argc, const char *argv[])
 {
 	char hostname[1024];
 	int sockfd, portno = 6266, n;

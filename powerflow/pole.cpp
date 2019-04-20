@@ -35,7 +35,8 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "susceptibility[pu*s/m]", PADDR(susceptibility), PT_DESCRIPTION, "susceptibility of pole to wind stress (derivative of pole stress w.r.t wind speed)",
 			PT_double, "total_moment[ft*lb]", PADDR(total_moment), PT_DESCRIPTION, "the total moment on the pole.",
 			PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
-			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure.",
+			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure",
+			PT_int32, "install_year", PADDR(install_year), PT_DESCRIPTION, "the year of pole was installed",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 	}
 }
@@ -86,6 +87,10 @@ int pole::create(void)
 	last_wind_speed = 0.0;
 	wire_data = NULL;
 	down_time = TS_NEVER;
+	equipment_area = 0.0;
+	equipment_height = 0.0;
+	install_year = 0;
+	current_hollow_diameter = 0.0;
 
 	return res;
 }
@@ -102,6 +107,16 @@ int pole::init(OBJECT *parent)
 		return 0;		
 	}
 	config = OBJECTDATA(configuration,pole_configuration);
+
+	double *pRepairTime = (double*)gl_get_addr(configuration, "repair_time");
+	if ( pRepairTime )
+		gl_warning("repair time, %4.0f", *pRepairTime);
+	else
+	{
+		static double default_repair_time = 86400.0;
+		pRepairTime = &default_repair_time;
+		gl_warning("can't find repair time, using default %4.0f", *pRepairTime);
+	}
 
 	// tilt
 	if ( tilt_angle < 0 || tilt_angle > 90 )
@@ -194,20 +209,69 @@ int pole::init(OBJECT *parent)
 	}
 	is_deadend = ( n_lines < 2 );
 
+	WIREDATA *wire;
+	wire_load = 0.0;
+	wire_moment = 0.0;
+	wire_tension = 0.0;
+	wire_load_nowind = 0.0;
+	wire_moment_nowind = 0.0;
+	double pole_height = config->pole_length - config->pole_depth;
+	for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
+		{
+			double load_nowind = (wire->diameter+2*ice_thickness)/12;
+			wire_load_nowind += load_nowind;
+			wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
+
+		}
+
+	pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
+	equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
+	pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
+	pole_stress_polynomial_b = 0.0;
+	pole_stress_polynomial_c = wire_tension;
+
+	if ( install_year > gl_globalclock )
+		gl_warning("pole install year in the future are assumed to be current time");
+
 	return res;
 }
 
 TIMESTAMP pole::presync(TIMESTAMP t0)
 {
-	if ( pole_status == PS_FAILED && down_time+config->repair_time > gl_globalclock )
+	// update pole degradation model
+	if ( install_year > 0 )
+	{
+		double t0_year = 1970 + (int)(t0/86400/365.24);
+		double age = t0_year - install_year;
+		if ( age > 0 )
+			current_hollow_diameter = 2.0 * age * config->degradation_rate;
+		else
+			current_hollow_diameter = 0.0; // ignore future installation years
+	}
+
+	// calculation resisting moment
+	resisting_moment = 0.008186 // constant * pi^3
+		* config->strength_factor_250b_wood 
+		* config->fiber_strength
+		* (( config->ground_diameter * config->ground_diameter * config->ground_diameter)
+			- (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
+	verbose("resisting moment %.0f ft*lb",resisting_moment);
+
+	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
+	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
+
+	if ( pole_status == PS_FAILED && down_time+config->repair_time >= gl_globalclock )
 	{
 		WIREDATA *wire;
 		for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
+		{
 			wire->line->link_fault_off(&wire->fault,wire->fault_type,&wire->data);
+		}
 		gl_warning("pole repaired");
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
 		pole_status = PS_OK;
+		install_year = 1970 + (unsigned int)(t0/86400/365.24);
 
 	}
 	if ( pole_status == PS_OK && last_wind_speed != *wind_speed )
