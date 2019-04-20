@@ -8,7 +8,15 @@
 #include "globals.h"
 #include "module.h"
 
-int saveall(char *);
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 
-#endif
+int saveall(const char *);
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+	
+#endif // _SAVE_H
 

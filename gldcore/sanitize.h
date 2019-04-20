@@ -29,7 +29,7 @@ typedef enum {
 extern "C" {
 #endif
 
-int sanitize(int argc, char *argv[]);
+int sanitize(void *main, int argc, const char *argv[]);
 
 #ifdef __cplusplus
 }

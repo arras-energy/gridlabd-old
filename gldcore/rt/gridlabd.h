@@ -21,11 +21,10 @@
 #define isfinite _finite
 #endif
 
-# if __WORDSIZE == 64
-#define int64 long int /**< standard version of 64-bit integers */
-#else
 #define int64 long long /**< standard version of 64-bit integers */
-#endif
+
+#include <sys/types.h>
+typedef int64_t LOCKVAR;
 
 typedef enum {I='i',J='j',A='d'} CNOTATION; /**< complex number notation to use */
 #define CNOTATION_DEFAULT J /* never set this to A */
@@ -458,14 +457,14 @@ typedef enum {_PT_FIRST=-1,
 	PT_HAS_NOTIFY,
 	PT_HAS_NOTIFY_OVERRIDE,
 } PROPERTYTYPE; /**< property types */
-typedef char CLASSNAME[64]; /**< the name a GridLAB class */
+typedef const char *CLASSNAME; /**< the name a GridLAB class */
 typedef unsigned int OBJECTRANK; /**< Object rank number */
 typedef unsigned short OBJECTSIZE; /** Object data size */
 typedef unsigned int OBJECTNUM; /** Object id number */
-typedef char * OBJECTNAME; /** Object name */
-typedef char FUNCTIONNAME[64]; /**< the name of a function (not used) */
+typedef const char * OBJECTNAME; /** Object name */
+typedef const char *FUNCTIONNAME; /**< the name of a function (not used) */
 typedef void* PROPERTYADDR; /**< the offset of a property from the end of the OBJECT header */
-typedef char PROPERTYNAME[64]; /**< the name of a property */
+typedef const char *PROPERTYNAME; /**< the name of a property */
 /* property access rights (R/W apply to modules only, core always has all rights) */
 #define PA_N 0x00 /**< no access permitted */
 #define PA_R 0x01 /**< read access--modules can read the property */
@@ -518,7 +517,7 @@ typedef struct s_globalvar {
 	struct s_globalvar *next;
 	uint32 flags;
 	void (*callback)(char*);
-	unsigned int lock;
+	LOCKVAR lock;
 } GLOBALVAR;
 
 typedef enum {
@@ -560,6 +559,7 @@ struct s_property_map {
 	FUNCTIONADDR notify;
 	METHODCALL method; /**< method call, addr must be 0 */
 	bool notify_override;
+	void *default_value; /**< default value to use when creating objects; NULL is memset(0) is desired (default default) */
 }; /**< property definition item */
 
 typedef struct s_property_struct {
@@ -615,6 +615,13 @@ struct s_module_list {
 	PROPERTY *globals;
 	void (*term)(void);
 	size_t (*stream)(FILE *fp, int flags);
+	bool (*on_init)(void);
+	TIMESTAMP (*on_precommit)(TIMESTAMP t);
+	TIMESTAMP (*on_presync)(TIMESTAMP t);
+	TIMESTAMP (*on_sync)(TIMESTAMP t);
+	TIMESTAMP (*on_postsync)(TIMESTAMP t);
+	bool (*on_commit)(TIMESTAMP t);
+	void (*on_term)(void);
 	MODULE *next;
 };
 
@@ -664,7 +671,7 @@ struct s_class_list {
 	LOADMETHOD loadmethods;
 	CLASS *parent;			/**< parent class from which properties should be inherited */
 	struct {
-		unsigned int lock;
+		LOCKVAR lock;
 		int32 numobjs;
 		int64 clocks;
 		int32 count;
@@ -712,7 +719,8 @@ typedef struct s_eventhandlers {
 	char *postsync;
 	char *commit;
 	char *finalize;
-} EVENTHANDLERS;struct s_object_list {
+} EVENTHANDLERS;
+struct s_object_list {
 	OBJECTNUM id; /**< object id number; globally unique */
 	CLASS *oclass; /**< object class; determine structure of object data */
 	OBJECTNAME name;
@@ -734,10 +742,10 @@ typedef struct s_eventhandlers {
 	double out_svc_double;	/**< Double value representation of out of service time */
 	clock_t synctime[_OPI_NUMITEMS]; /**< total time used by this object */
 	NAMESPACE *space; /**< namespace of object */
-	unsigned int lock; /**< object lock */
+	LOCKVAR lock; /**< object lock */
 	unsigned int rng_state; /**< random number generator state */
 	TIMESTAMP heartbeat; /**< heartbeat call interval (in sim-seconds) */
-	unsigned int64 guid; /**< globally unique identifier */
+	unsigned int64 guid[2]; /**< globally unique identifier */
 	EVENTHANDLERS events;
 	/* IMPORTANT: flags must be last */
 	unsigned int64 flags; /**< object flags */
@@ -1132,7 +1140,7 @@ typedef struct s_callbacks {
 	PROPERTY *(*class_add_extended_property)(CLASS *,char *,PROPERTYTYPE,char *);
 	struct {
 		FUNCTION *(*define)(CLASS*,FUNCTIONNAME,FUNCTIONADDR);
-		FUNCTIONADDR (*get)(char*,char*);
+		FUNCTIONADDR (*get)(CLASSNAME,FUNCTIONNAME);
 	} function;
 	int (*define_enumeration_member)(CLASS*,char*,char*,enumeration);
 	int (*define_set_member)(CLASS*,char*,char*,uint32);
@@ -1146,11 +1154,11 @@ typedef struct s_callbacks {
 		PROPERTY *(*get_property)(OBJECT*,PROPERTYNAME,PROPERTYSTRUCT*);
 		int (*set_value_by_addr)(OBJECT *, void*, char*,PROPERTY*);
 		int (*get_value_by_addr)(OBJECT *, void*, char*, int size,PROPERTY*);
-		int (*set_value_by_name)(OBJECT *, char*, char*);
-		int (*get_value_by_name)(OBJECT *, char*, char*, int size);
+		int (*set_value_by_name)(OBJECT *, PROPERTYNAME, char*);
+		int (*get_value_by_name)(OBJECT *, PROPERTYNAME, char*, int size);
 		OBJECT *(*get_reference)(OBJECT *, char*);
-		char *(*get_unit)(OBJECT *, char *);
-		void *(*get_addr)(OBJECT *, char *);
+		char *(*get_unit)(OBJECT *, PROPERTYNAME);
+		void *(*get_addr)(OBJECT *, PROPERTYNAME);
 		int (*set_value_by_type)(PROPERTYTYPE,void *data,char *);
 		bool (*compare_basic)(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void* x, void* a, void* b, char *part);
 		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, char *opstr);
@@ -1218,14 +1226,14 @@ typedef struct s_callbacks {
 	struct {
 		EXCEPTIONHANDLER *(*create_exception_handler)();
 		void (*delete_exception_handler)(EXCEPTIONHANDLER *ptr);
-		void (*throw_exception)(char *msg, ...);
+		void (*throw_exception)(const char *msg, ...);
 		char *(*exception_msg)(void);
 	} exception;
 	struct {
-		GLOBALVAR *(*create)(char *name, ...);
-		STATUS (*setvar)(char *def,...);
-		char *(*getvar)(char *name, char *buffer, int size);
-		GLOBALVAR *(*find)(char *name);
+		GLOBALVAR *(*create)(const char *name, ...);
+		STATUS (*setvar)(const char *def,...);
+		char *(*getvar)(const char *name, char *buffer, int size);
+		GLOBALVAR *(*find)(const char *name);
 	} global;
 	struct {
 		void (*read)(unsigned int *);
@@ -1377,7 +1385,7 @@ inline char* gl_name(OBJECT *my, char *buffer, size_t size)
 
 /// Throw an exception using printf-style arguments
 /// @return Does not return
-inline void gl_throw(char *msg, ...) ///< printf-style argument list
+inline void gl_throw(const char *msg, ...) ///< printf-style argument list
 {
 	va_list ptr;
 	va_start(ptr,msg);
@@ -1389,7 +1397,7 @@ inline void gl_throw(char *msg, ...) ///< printf-style argument list
 
 /// Get the string value of global variable
 /// @return A pointer to a static buffer containing the value
-inline char *gl_global_getvar(char *name, char *buffer, int size) ///< pointer to string containing the name of the global variable
+inline char *gl_global_getvar(const char *name, char *buffer, int size) ///< pointer to string containing the name of the global variable
 {
 	return callback->global.getvar(name, buffer, size);
 }
@@ -1422,7 +1430,7 @@ inline int gl_set_rank(OBJECT* obj, ///< the object whose rank is being set
 /// Get a pointer to the data of an object property (by name)
 /// @return a pointer to the data
 inline void *gl_get_addr(OBJECT *obj, ///< the object whose property is sought
-						 char *name) ///< the name of the property being sought
+						 PROPERTYNAME name) ///< the name of the property being sought
 {
 	return callback->properties.get_addr(obj,name);
 }
@@ -1430,7 +1438,7 @@ inline void *gl_get_addr(OBJECT *obj, ///< the object whose property is sought
 /// Get the typed value of a property
 /// @return nothing
 template <class T> inline void gl_get_value(OBJECT *obj, ///< the object whose property value is being obtained
-											char *propname, ///< the name of the property being obtained
+											PROPERTYNAME propname, ///< the name of the property being obtained
 											T &value) ///< a reference to the local value where the property's value is being copied
 {
 	T *ptr = (T*)gl_get_addr(obj,propname);
@@ -1444,7 +1452,7 @@ template <class T> inline void gl_get_value(OBJECT *obj, ///< the object whose p
 /// Set the typed value of a property
 /// @return nothing
 template <class T> inline void gl_set_value(OBJECT *obj, ///< the object whose property value is being obtained
-											char *propname, ///< the name of the property being obtained
+											PROPERTYNAME propname, ///< the name of the property being obtained
 											T &value) ///< a reference to the local value where the property's value is being copied
 {
 	T *ptr = (T*)gl_get_addr(obj,propname);
@@ -1458,7 +1466,7 @@ template <class T> inline void gl_set_value(OBJECT *obj, ///< the object whose p
 /// Set a property from a string
 /// @return 1 on success, 0 on error
 inline int gl_set_string(OBJECT *obj, ///< object whose property is being obtained
-                          char *propname, ///< name of the property
+                          PROPERTYNAME propname, ///< name of the property
                           char *value) ///< string value to convert
 {
         PROPERTY *prop = callback->properties.get_property(obj,propname,NULL);
@@ -1471,7 +1479,7 @@ inline int gl_set_string(OBJECT *obj, ///< object whose property is being obtain
 /// Get a property into a string
 /// @return number of characters written, 0 on error
 inline int gl_get_string(OBJECT *obj,
-                          char *propname,
+                          PROPERTYNAME propname,
                           char *buffer,
                           int size)
 {
@@ -1482,9 +1490,9 @@ inline int gl_get_string(OBJECT *obj,
         return callback->convert.property_to_string(prop,addr,buffer,size);
 }
 
-inline FUNCTIONADDR gl_get_function(OBJECT *obj, char *fname) { return callback->function.get(obj->oclass->name,fname);};
-inline FUNCTIONADDR gl_get_function(CLASS *oclass, char *fname) { return callback->function.get(oclass->name,fname);};
-inline FUNCTIONADDR gl_get_function(char *classname, char *fname) { return callback->function.get(classname,fname);};
+inline FUNCTIONADDR gl_get_function(OBJECT *obj, FUNCTIONNAME fname) { return callback->function.get(obj->oclass->name,fname);};
+inline FUNCTIONADDR gl_get_function(CLASS *oclass, FUNCTIONNAME fname) { return callback->function.get(oclass->name,fname);};
+inline FUNCTIONADDR gl_get_function(CLASSNAME classname, FUNCTIONNAME fname) { return callback->function.get(classname,fname);};
 
 inline double gl_random_uniform(const double lo, const double hi) { return callback->random.uniform(NULL,lo,hi);};
 inline double gl_random_normal(const double mu, const double sigma) { return callback->random.normal(NULL,mu,sigma);};

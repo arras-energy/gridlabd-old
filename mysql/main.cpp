@@ -18,6 +18,7 @@ int32 port INIT(-1);
 char socketname[1024] INIT("");
 int64 clientflags INIT(-1);
 char table_prefix[256] INIT(""); ///< table prefix
+static MYSQL *mysql_client = NULL;
 
 // options
 bool new_database = false; ///< flag to drop a database before using it (very dangerous)
@@ -266,12 +267,15 @@ if ( !query(mysql,"CREATE SCHEMA IF NOT EXISTS `%s`", schema) )
 }
 static MYSQL *get_connection(const char *schema, bool autocreate=false)
 {
+	if ( mysql_client == NULL )
+		mysql_client = mysql_init(NULL);
+
 	// connect to server
 	MYSQL *mysql = mysql_init(NULL);
 	if ( mysql==NULL )
 	{
 		gl_error("mysql_init memory allocation failure");
-		return false;
+		return NULL;
 	}
 	gl_debug("mysql_connect(hostname='%s',username='%s',password='%s',schema='%s',port=%u,socketname='%s',clientflags=0x%016llx)",
 		(const char*)hostname,(const char*)username,(const char*)password,(const char*)schema,port,(const char*)socketname,clientflags);
@@ -279,20 +283,20 @@ static MYSQL *get_connection(const char *schema, bool autocreate=false)
 	if ( mysql==NULL )
 	{
 		gl_error("mysql connect failed - %s", mysql_error(mysql_client));
-		return 0;
+		return NULL;
 	}
 	else
 		gl_debug("MySQL server info: %s", mysql_get_server_info(mysql));
 
 	// connect to database
 	if ( new_database && !query(mysql,"DROP SCHEMA IF EXISTS `%s`", schema))
-		return false;
+		return NULL;
 	else if ( mysql_select_db(mysql,schema)!=0 )
 	{
 		if ( !autocreate )
 		{
 			gl_error("unable to select schema '%s'", schema);
-			return 0;
+			return NULL;
 		}
 		else if ( create_schema(mysql,schema) )
 			return mysql;
@@ -446,15 +450,14 @@ static bool import_classes(MYSQL *mysql)
 	for ( unsigned long n=0 ; n<n_rows ; n++ )
 	{
 		MYSQL_ROW row = mysql_fetch_row(data);
-		MYSQL_FIELD *fields = mysql_fetch_fields(data);
 		unsigned int flags = atoi(row[4]);
 		if ( (flags&PF_EXTENDED)==0 ) continue; // ignore classes that are not runtime extensions
-		char *name = row[0];
-		char *module = row[1];
-		char *property = row[2];
+		const char *name = row[0];
+		const char *module = row[1];
+		const char *property = row[2];
 		PROPERTYTYPE type = (PROPERTYTYPE)atoi(row[3]);
-		char *unit = row[5];
-		char *description = row[6];
+		const char *unit = row[5];
+		const char *description = row[6];
 		gl_debug("import_classes(MYSQL*): row %d, name=%s, module=%s, property=%s, type=%s, flags=%s, units=%s, description=%s",
 				n, name, module, property, type, flags, unit, description);
 
@@ -497,7 +500,6 @@ static bool import_objects(MYSQL *mysql)
 	for ( unsigned long n=0 ; n<n_rows ; n++ )
 	{
 		MYSQL_ROW row = mysql_fetch_row(data);
-		MYSQL_FIELD *fields = mysql_fetch_fields(data);
 		gl_verbose("import_objects(MYSQL*): row %d, id=%s, class=%s, name=%s, groupid=%s, parent=%s, rank=%s, clock='%s', valid_to='%s', schedule_skew='%s',"
 				" latitude=%s, longtitude=%s, in_svc='%s', in_svc_micro=%s, out_svc='%s', out_svc_micro=%s, rngstate=%s, heartbeat='%s', flags=%s", n,
 				row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9],
@@ -525,13 +527,12 @@ static bool import_objects(MYSQL *mysql)
 		}
 		if ( row[2]!=NULL )
 		{
-			obj->name = (char*)malloc(strlen(row[2])+1);
+			obj->name = strdup(row[2]);
 			if ( obj->name==NULL )
 			{
 				gl_error("memory allocation failed");
 				return false;
 			}
-			strcpy(obj->name,row[2]);
 		}
 		if ( row[3]!=NULL ) strncpy(obj->groupid,row[3],sizeof(obj->groupid));
 		obj->parent = row[4]==NULL ? NULL : gl_object_find_by_id(atoi(row[4]));
@@ -600,7 +601,6 @@ static bool import_objects(MYSQL *mysql)
 	for ( unsigned long n=0 ; n<n_rows ; n++ )
 	{
 		MYSQL_ROW row = mysql_fetch_row(data);
-		MYSQL_FIELD *fields = mysql_fetch_fields(data);
 		gl_verbose("import_objects(MYSQL*): row %d, id=%s, parent=%s", n, row[0], row[1]);
 		if ( row[0]!=NULL && row[1]!=NULL )
 		{
@@ -640,11 +640,9 @@ bool import_properties(MYSQL *mysql)
 	gl_debug("properties table: %d rows x %d fields", n_rows, n_fields);
 
 	// scan result
-	OBJECT *first_object = NULL;
 	for ( unsigned long n=0 ; n<n_rows ; n++ )
 	{
 		MYSQL_ROW row = mysql_fetch_row(data);
-		MYSQL_FIELD *fields = mysql_fetch_fields(data);
 		gl_verbose("import_objects(MYSQL*): row %d, id=%s, property=%s, type=%s, specs=%s",
 				n, row[0], row[1], row[2], row[3]);
 		if ( row[0]==NULL || row[1]==NULL || row[2]==NULL || row[3]==NULL )
@@ -719,40 +717,40 @@ EXPORT int import_schedules(MYSQL *mysql)
 	mysql_free_result(data);
 	return true;
 }
-static bool add_linear_transform(unsigned int source_type, char *source, char *target, char *spec)
+static bool add_linear_transform(unsigned int source_type, const char *source, const char *target, const char *spec)
 {
 	char name[64], prop[64]="";
 	if ( sscanf(target,"%[^.].%s",name,prop)!=2 )
 	{
-		gl_error("add_linear_transform(char *source='%s', char *target='%s', char *spec='%s'): target is not valid", source, target, spec);
+		gl_error("add_linear_transform(const char *source='%s', const char *target='%s', const char *spec='%s'): target is not valid", source, target, spec);
 		return false;
 	}
 
 	double scale=1, bias=0;
-	if ( sscanf(spec,"*%g+%g",&scale,&bias)!=2 )
+	if ( sscanf(spec,"*%lg+%lg",&scale,&bias)!=2 )
 	{
-		gl_error("add_linear_transform(char *source='%s', char *target='%s', char *spec='%s'): linear transform specification is invalid", source, target, spec);
+		gl_error("add_linear_transform(const char *source='%s', const char *target='%s', const char *spec='%s'): linear transform specification is invalid", source, target, spec);
 		return false;
 	}
 
 	gld_property dst(name,prop);
 	if ( !dst.is_valid() )
 	{
-		gl_error("add_linear_transform(char *source='%s', char *target='%s', char *spec='%s'): target is not found", source, target, spec);
+		gl_error("add_linear_transform(const char *source='%s', const char *target='%s', const char *spec='%s'): target is not found", source, target, spec);
 		return false;
 	}
 
 	int type = sscanf(source,"%[^.].%s",name,prop);
 	switch ( type ) {
 	case 0:
-		gl_error("add_linear_transform(char *source='%s', char *target='%s', char *spec='%s'): source is not valid", source, target, spec);
+		gl_error("add_linear_transform(const char *source='%s', const char *target='%s', const char *spec='%s'): source is not valid", source, target, spec);
 		return false;
 	case 1: // source is a schedule
 	{
 		SCHEDULE *schedule = gl_schedule_find(name);
 		if ( schedule==NULL )
 		{
-			gl_error("add_linear_transform(char *source='%s', char *target='%s', char *spec='%s'): source schedule is not found", source, target, spec);
+			gl_error("add_linear_transform(const char *source='%s', const char *target='%s', const char *spec='%s'): source schedule is not found", source, target, spec);
 			return false;
 		}
 		// TODO
@@ -765,23 +763,23 @@ static bool add_linear_transform(unsigned int source_type, char *source, char *t
 		gld_property src(name,prop);
 		if ( !src.is_valid() )
 		{
-			gl_error("add_linear_transform(char *source='%s', char *target='%s', char *spec='%s'): source is not found", source, target, spec);
+			gl_error("add_linear_transform(const char *source='%s', const char *target='%s', const char *spec='%s'): source is not found", source, target, spec);
 			return false;
 		}
 		if ( !gl_transform_add_linear((TRANSFORMSOURCE)source_type,(double*)src.get_addr(),dst.get_addr(),scale,bias,dst.get_object(),dst.get_property(),NULL) )
 		{
-			gl_error("add_linear_transform(char *source='%s', char *target='%s', char *spec='%s'): add transform failed - probable memory allocation failure", source, target, spec);
+			gl_error("add_linear_transform(const char *source='%s', const char *target='%s', const char *spec='%s'): add transform failed - probable memory allocation failure", source, target, spec);
 			return false;
 		}
 		break;
 	}
 	default:
-		gl_error("add_linear_transform(char *source='%s', char *target='%s', char *spec='%s'): error parsing source", source, target, spec);
+		gl_error("add_linear_transform(const char *source='%s', const char *target='%s', const char *spec='%s'): error parsing source", source, target, spec);
 		return false;
 	}
 	return true;
 }
-static bool add_external_transform(unsigned int source_type, char *source, char *target, char *spec)
+static bool add_external_transform(unsigned int source_type, const char *source, const char *target, const char *spec)
 {
 	// TODO
 	gl_error("import external transforms not supported yet");
@@ -802,11 +800,11 @@ EXPORT int import_transforms(MYSQL *mysql)
 	for ( unsigned long n=0 ; n<n_rows ; n++ )
 	{
 		MYSQL_ROW row = mysql_fetch_row(data);
-		char *source = row[0];
-		char *target = row[1];
-		char *ttype = row[2];
-		char *stype = row[3];
-		char *spec = row[4];
+		const char *source = row[0];
+		const char *target = row[1];
+		const char *ttype = row[2];
+		const char *stype = row[3];
+		const char *spec = row[4];
 		if ( source==NULL || target==NULL || ttype==NULL || stype==NULL || spec==NULL)
 		{
 			gl_error("import_transforms cannot have a NULL source, target, type or specification");
@@ -814,7 +812,9 @@ EXPORT int import_transforms(MYSQL *mysql)
 		}
 		int transform_type = 0;
 		int source_type = 0;
-		switch (sscanf(ttype,"%d",&transform_type)==1,transform_type) {
+		sscanf(ttype,"%d",&transform_type);
+		switch ( transform_type ) 
+		{
 		case XT_LINEAR:
 			if ( sscanf(stype,"%d",&source_type)==0 || !add_linear_transform(source_type,source,target,spec) )
 				return false;
@@ -1104,12 +1104,12 @@ static bool export_objects(MYSQL *mysql)
 		if ( obj->parent!=NULL ) sprintf(parent,"%d", obj->parent->id);
 		if ( !isnan(obj->latitude) ) sprintf(latitude,"%g", obj->latitude);
 		if ( !isnan(obj->longitude) ) sprintf(longitude,"%g", obj->longitude);
-		if ( obj->clock<TS_NEVER ) if ( obj->clock==TS_ZERO) strcpy(clock,MYSQL_TS_ZERO); else sprintf(clock,"from_unixtime(%lld)", obj->clock);
-		if ( obj->valid_to<TS_NEVER ) if ( obj->valid_to==TS_ZERO) strcpy(valid_to,MYSQL_TS_ZERO); else sprintf(valid_to,"from_unixtime(%lld)", obj->valid_to);
-		if ( obj->schedule_skew<TS_NEVER ) if ( obj->schedule_skew==TS_ZERO) strcpy(schedule_skew,MYSQL_TS_ZERO); else sprintf(schedule_skew,"from_unixtime(%lld)", obj->schedule_skew);
-		if ( obj->in_svc<TS_NEVER ) if ( obj->in_svc==TS_ZERO) strcpy(in_svc,MYSQL_TS_ZERO); else sprintf(in_svc,"from_unixtime(%lld)", obj->in_svc);
-		if ( obj->out_svc<TS_NEVER ) if ( obj->out_svc==TS_ZERO) strcpy(out_svc,MYSQL_TS_ZERO); else sprintf(out_svc,"from_unixtime(%lld)", obj->out_svc);
-		if ( obj->heartbeat<TS_NEVER ) if ( obj->heartbeat==TS_ZERO) strcpy(heartbeat,MYSQL_TS_ZERO); else sprintf(heartbeat,"from_unixtime(%lld)", obj->heartbeat);
+		if ( obj->clock<TS_NEVER ) {if ( obj->clock==TS_ZERO) strcpy(clock,MYSQL_TS_ZERO); else sprintf(clock,"from_unixtime(%lld)", obj->clock);}
+		if ( obj->valid_to<TS_NEVER ) {if ( obj->valid_to==TS_ZERO) strcpy(valid_to,MYSQL_TS_ZERO); else sprintf(valid_to,"from_unixtime(%lld)", obj->valid_to);}
+		if ( obj->schedule_skew<TS_NEVER ) {if ( obj->schedule_skew==TS_ZERO) strcpy(schedule_skew,MYSQL_TS_ZERO); else sprintf(schedule_skew,"from_unixtime(%lld)", obj->schedule_skew);}
+		if ( obj->in_svc<TS_NEVER ) {if ( obj->in_svc==TS_ZERO) strcpy(in_svc,MYSQL_TS_ZERO); else sprintf(in_svc,"from_unixtime(%lld)", obj->in_svc);}
+		if ( obj->out_svc<TS_NEVER ) {if ( obj->out_svc==TS_ZERO) strcpy(out_svc,MYSQL_TS_ZERO); else sprintf(out_svc,"from_unixtime(%lld)", obj->out_svc);}
+		if ( obj->heartbeat<TS_NEVER ) {if ( obj->heartbeat==TS_ZERO) strcpy(heartbeat,MYSQL_TS_ZERO); else sprintf(heartbeat,"from_unixtime(%lld)", obj->heartbeat);}
 		if ( !query(mysql,"REPLACE INTO `%s`"
 				" (`id`,`module`,`class`,`name`,`groupid`,`parent`,`rank`,`latitude`,`longitude`,"
 				" `clock`,`valid_to`,`schedule_skew`,`in_svc`,`in_svc_micro`,`out_svc`,`out_svc_micro`,"
@@ -1125,7 +1125,9 @@ static bool export_objects(MYSQL *mysql)
 
 		// data table
 		if ( !export_properties(mysql,obj) )
+		{
 			return false;
+		}
 	}
 	return true;
 }
@@ -1147,7 +1149,7 @@ bool export_properties(MYSQL *mysql)
 		{
 			gld_property var(obj,prop);
 			char specs[1024] = "";
-			char *type = NULL;
+			const char *type = NULL;
 			void *addr = var.get_addr();
 			switch ( prop->ptype ) {
 			case PT_random:
@@ -1220,7 +1222,7 @@ bool export_transforms(MYSQL *mysql)
 		}
 
 		char specs[65536]="";
-		size_t len;
+		size_t len = 0;
 		const char *function;
 		switch (xform->function_type) {
 		case XT_LINEAR:
@@ -1229,7 +1231,7 @@ bool export_transforms(MYSQL *mysql)
 		case XT_EXTERNAL:
 			if ( xform->nlhs>1 )
 				len += sprintf(specs+len,"%s","(");
-			for ( unsigned int n=1 ; n<xform->nlhs ; n++)
+			for ( int n = 1 ; n < xform->nlhs ; n++)
 			{
 				gld_property prop = find_property_at_addr(xform->plhs[n].addr);
 				if ( !prop.is_valid() )
@@ -1247,8 +1249,8 @@ bool export_transforms(MYSQL *mysql)
 				gl_error("export transform cannot resolve a module transfer function");
 				return false;
 			}
-			len += sprintf(specs+len,"=%s(",xform->function);
-			for ( unsigned int n=1; n<xform->nrhs ; n++ )
+			len += sprintf(specs+len,"=%s(",function);
+			for ( int n = 1; n < xform->nrhs ; n++ )
 			{
 				gld_property prop = find_property_at_addr(xform->prhs[n].addr);
 				if ( !prop.is_valid() )
@@ -1333,12 +1335,11 @@ bool export_graph_transaction(MYSQL *mysql)
 {
 	for ( OBJECT *obj = gl_object_get_first(); obj!=NULL ; obj=obj->next )
 	{
-		CLASS *cls = obj->oclass;
 		if ( !query(mysql,"INSERT INTO `%s` (`id`,`type`) VALUES (%llu,'%s')", get_table_name("node"), 
 			use_guid ? obj->guid[0] : obj->id, obj->oclass->name) ) return false;
 		if ( obj->name && !query(mysql,"INSERT INTO `%s` (`id`,`name`,`value`) VALUES (%llu,'%s','%s')", get_table_name("nodeattr"), 
 			use_guid ? obj->guid[0] : obj->id, "name", obj->name) ) return false;
-		if ( obj->oclass->module && obj->oclass->module->name && !query(mysql,"INSERT INTO `%s` (`id`,`name`,`value`) VALUES (%llu,'%s','%s')", get_table_name("nodeattr"), use_guid ? obj->guid[0] : obj->id, "module", obj->oclass->module->name) ) return false;
+		if ( obj->oclass->module && obj->oclass->module!=NULL && !query(mysql,"INSERT INTO `%s` (`id`,`name`,`value`) VALUES (%llu,'%s','%s')", get_table_name("nodeattr"), use_guid ? obj->guid[0] : obj->id, "module", obj->oclass->module->name) ) return false;
 		if ( !isnan(obj->latitude) && !query(mysql,"INSERT INTO `%s` (`id`,`name`,`value`) VALUES (%llu,'%s',%g)", get_table_name("nodeattr"), use_guid ? obj->guid[0] : obj->id, "latitude", obj->latitude) ) return false;
 		if ( !isnan(obj->longitude) && !query(mysql,"INSERT INTO `%s` (`id`,`name`,`value`) VALUES (%llu,'%s',%g)", get_table_name("nodeattr"), use_guid ? obj->guid[0] : obj->id, "longitude", obj->longitude) ) return false;
 		if ( obj->in_svc<TS_NEVER && !query(mysql,"INSERT INTO `%s` (`id`,`name`,`value`) VALUES (%llu,'%s',%lld)", get_table_name("nodeattr"), use_guid ? obj->guid[0] : obj->id, "in_svc", obj->in_svc) ) return false;
@@ -1408,7 +1409,7 @@ bool export_graph(MYSQL *mysql)
 	}
 }
 	
-EXPORT int export_file(char *info)
+EXPORT int export_file(const char *info)
 {
 	if ( process_command(info)==NULL )
 		return 0;

@@ -21,7 +21,6 @@ private:
 	char256 field;
 	double scale;
 	database *db;
-	MYSQL *mysql;
 	MYSQL_RES *data;
 	MYSQL_ROW row;
 	unsigned long n_rows;

@@ -26,8 +26,7 @@ module powerflow{
 
 object climate{
 	name MyClimate;
-	tmyfile ../WA-Seattle.tmy2;
-	//reader CsvReader;
+	tmyfile ../WA-Yakima.tmy3;
 	object recorder {
 		file climate_out.csv;
 		interval 3600;

@@ -32,7 +32,6 @@
 CLASS *solar::oclass = NULL;
 solar *solar::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */
@@ -617,7 +616,7 @@ int solar::init(OBJECT *parent)
 	}
 
 	static complex default_line_voltage[1], default_line_current[1];
-	int i;
+	size_t i;
 
 	//efficiency dictates how much of the rate insolation the panel can capture and
 	//turn into electricity
@@ -673,7 +672,7 @@ int solar::init(OBJECT *parent)
 	{
 		struct {
 			complex **var;
-			char *varname;
+			const char *varname;
 		} map[] = {
 			// map the V & I from the inverter
 			{&pCircuit_V,			"V_In"}, // assumes 2 and 3 follow immediately in memory
@@ -737,7 +736,7 @@ int solar::init(OBJECT *parent)
 		gl_warning("solar panel:%d has no parent defined. Using static voltages.", obj->id);
 		struct {
 			complex **var;
-			char *varname;
+			const char *varname;
 		} map[] = {
 			// map the V & I from the inverter
 			{&pCircuit_V,			"V_In"}, // assumes 2 and 3 follow immediately in memory
@@ -1063,7 +1062,7 @@ TIMESTAMP solar::postsync(TIMESTAMP t0, TIMESTAMP t1)
 return t2; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }
 
-complex *solar::get_complex(OBJECT *obj, char *name)
+complex *solar::get_complex(OBJECT *obj, const char *name)
 {
 	PROPERTY *p = gl_get_property(obj,name);
 	if (p==NULL || p->ptype!=PT_complex)
@@ -1075,11 +1074,8 @@ complex *solar::get_complex(OBJECT *obj, char *name)
 //Module-level call
 SIMULATIONMODE solar::inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val)
 {
-	double deltat, deltatimedbl, currentDBLtime;
-	TIMESTAMP time_passin_value, ret_value;
-
-	//Get timestep value
-	deltat = (double)dt/(double)DT_SECOND;
+	double deltatimedbl, currentDBLtime;
+	TIMESTAMP time_passin_value;
 
 	if (iteration_count_val == 0)	//Only update timestamp tracker on first iteration
 	{
@@ -1094,7 +1090,7 @@ SIMULATIONMODE solar::inter_deltaupdate(unsigned int64 delta_time, unsigned long
 
 		//Just call sync with a nonsense secondary variable -- doesn't hurt anything in this case
 		//Don't care about the return value either
-		ret_value = sync(time_passin_value,TS_NEVER);
+		sync(time_passin_value,TS_NEVER);
 	}
 	
 	//Solar object never drives anything, so it's always ready to leave

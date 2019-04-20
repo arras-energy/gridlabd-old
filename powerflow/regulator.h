@@ -73,7 +73,7 @@ public:
 	int init(OBJECT *parent);
 	TIMESTAMP presync(TIMESTAMP t0);
 	TIMESTAMP postsync(TIMESTAMP t0);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	int kmldata(int (*stream)(const char*,...));
 };
 

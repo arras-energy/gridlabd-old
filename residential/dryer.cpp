@@ -586,7 +586,6 @@ case DRYER_MOTOR_COIL_ONLY:
 	else if (cycle_time<=0 && motor_coil_only_check6 == true)//five-over
 		{
 				state = DRYER_MOTOR_ONLY;
-				double cycle_t = 1000 * (energy_needed - energy_used) / motor_power * 60 * 60;
 				motor_only_check6 = false;
 				new_running_state = true;
 /*					if (cycle_t > interval)
@@ -872,7 +871,6 @@ EXPORT TIMESTAMP sync_dryer(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	if (obj->clock <= ROUNDOFF)
 		obj->clock = t0;  //set the object clock if it has not been set yet
 	try {
-		TIMESTAMP t1 = TS_NEVER;
 		switch (pass) {
 		case PC_PRETOPDOWN:
 			return my->presync(obj->clock, t0);

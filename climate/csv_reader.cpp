@@ -9,35 +9,38 @@
 
 CLASS *csv_reader::oclass = 0;
 
-EXPORT int create_csv_reader(OBJECT **obj, OBJECT *parent){
-	csv_reader *my = 0;
+EXPORT int create_csv_reader(OBJECT **obj, OBJECT *parent)
+{
 	*obj = gl_create_object(csv_reader::oclass);
-	if(*obj != NULL){
+	if ( *obj != NULL ) {
 		return 1;
 	}
 	//printf("create_csv_reader\n");
 	return 0;	// don't want it to get called, but better to have it not be fatal
 }
 
-EXPORT int init_csv_reader(OBJECT **obj, OBJECT *parent){
-	csv_reader *my = OBJECTDATA(obj,csv_reader);
+EXPORT int init_csv_reader(OBJECT **obj, OBJECT *parent)
+{
 	return 1; // let the climate object cause the file to open
 }
 
 /// Synchronize the cliamte object
-EXPORT TIMESTAMP sync_csv_reader(OBJECT *obj, TIMESTAMP t0){
+EXPORT TIMESTAMP sync_csv_reader(OBJECT *obj, TIMESTAMP t0)
+{
 	return TS_NEVER; // really doesn't do anything
 }
 
-csv_reader::csv_reader(){
+csv_reader::csv_reader()
+{
 	memset(this, 0, sizeof(csv_reader));
 }
 
-csv_reader::csv_reader(MODULE *module){
+csv_reader::csv_reader(MODULE *module)
+{
 	memset(this, 0, sizeof(csv_reader));
 	if (oclass==NULL)
 	{
-		oclass = gl_register_class(module,"csv_reader",sizeof(csv_reader),NULL);
+		oclass = gl_register_class(module,"csv_reader",sizeof(csv_reader),PC_NOSYNC);
 		if (gl_publish_variable(oclass,
 			PT_int32,"index",PADDR(index),PT_ACCESS,PA_REFERENCE,
 			PT_char32,"city_name",PADDR(city_name),
@@ -67,7 +70,8 @@ csv_reader::csv_reader(MODULE *module){
 /**
 	Open a CSV file and parse it as
  **/
-int csv_reader::open(const char *file){
+int csv_reader::open(const char *file)
+{
 	char line[1024];
 	char filename[128];
 	int has_cols = 0;
@@ -76,7 +80,8 @@ int csv_reader::open(const char *file){
 	OBJECT *obj = OBJECTHDR(this);
 	weather *wtr = 0;
 
-	if(file == 0){
+	if ( file == 0 ) 
+	{
 		gl_error("csv_reader has no input file name!");
 		/* TROUBLESHOOT
 			No input file was specified for the csv_reader object.  Double-check the
@@ -87,7 +92,8 @@ int csv_reader::open(const char *file){
 
 	strncpy(filename, file, 127);
 	infile = fopen(filename, "r");
-	if(infile == 0){
+	if ( infile == 0 ) 
+	{
 		gl_error("csv_reader could not open \'%s\' for input!", file);
 		/* TROUBLESHOOT
 			The specified input file could not be opened for reading.  Verify that no
@@ -97,48 +103,68 @@ int csv_reader::open(const char *file){
 		return 0;
 	}
 
-	if(columns_str[0] != 0){
-		if(0 == read_header(columns_str)){
+	if ( columns_str[0] != 0 )
+	{
+		if ( 0 == read_header(columns_str) )
+		{
 			gl_error("csv_reader::open ~ column header read failure from explicit headers");
 			return 0;
-		} else {
+		} 
+		else 
+		{
 			has_cols = 1;
 		}
 	}
-	while( fgets(line, 1024, infile) ) {
+	while ( fgets(line, 1024, infile) ) 
+	{
 		++linenum;
 		// consume leading whitespace?
 		// comments following valid lines?
-		size_t _len = strlen(line);
-		if(line[0] == '#'){	// comment
+		if ( line[0] == '#' )
+		{	
+			// comment
 			continue;
 		}
-		else if(strlen(line) < 1){
+		else if ( strlen(line) < 1 )
+		{
 			continue; // blank line
 		}
-		else if(line[0] == '$'){	// property
-			if(0 == read_prop(line+1)){
+		else if ( line[0] == '$' )
+		{	
+			// property
+			if ( 0 == read_prop(line+1) ) {
 				gl_error("csv_reader::open ~ property read failure on line %i", linenum);
 				return 0;
 			} else {
 				continue;
 			}
 		}
-		else if(has_cols == 0){
-			if(0 == read_header(line)){
+		else if ( has_cols == 0 )
+		{
+			if ( 0 == read_header(line) )
+			{
 				gl_error("csv_reader::open ~ column header read failure on line %i", linenum);
 				return 0;
 			} else {
 				has_cols = 1;
 			}
-		} else {
+		} 
+		else 
+		{
 			int line_rv = read_line(line, linenum);
-			if(0 == line_rv){
+			if ( 0 == line_rv ) 
+			{
 				gl_error("csv_reader::open ~ data line read failure on line %i", linenum);
 				return 0;
-			} else if (1 == line_rv){ // good read
+			}
+			else if (1 == line_rv )
+			{ 
+				// good read
 				++sample_ct;
-			} else if (2 == line_rv){ // read went 'backwards' or was blank, line discarded.
+			} 
+			else if ( 2 == line_rv )
+			{ 
+				// read went 'backwards' or was blank, line discarded.
 				;
 			}
 		}
@@ -146,7 +172,8 @@ int csv_reader::open(const char *file){
 
 	/* move list into double pointer */
 	samples = (weather**)malloc(sizeof(weather *) * (size_t) sample_ct);
-	for(i = 0, wtr = weather_root; i < sample_ct && wtr != NULL; ++i, wtr=wtr->next){
+	for ( i = 0, wtr = weather_root; i < sample_ct && wtr != NULL; ++i, wtr=wtr->next )
+	{
 		samples[i] = wtr;
 	}
 	sample_ct = i; // if wtr was the limiting factor, truncate the count
@@ -161,13 +188,14 @@ int csv_reader::open(const char *file){
 	return 1;
 }
 
-int csv_reader::read_prop(char *line){ // already pulled the '$' off the front
-	OBJECT *my = OBJECTHDR(this);
+int csv_reader::read_prop(char *line)
+{ 
 	char *split = strchr(line, '=');
 	char propstr[256], valstr[256];
 	PROPERTY *prop = 0;
 
-	if(split == NULL){
+	if ( split == NULL ) 
+	{
 		gl_error("csv_reader::read_prop ~ missing \'=\' seperator");
 		/* TROUBLESHOOT
 			Property lines must have the property name and property value seperated by an
@@ -176,7 +204,8 @@ int csv_reader::read_prop(char *line){ // already pulled the '$' off the front
 		return 0;
 	}
 
-	if(2 != sscanf(line, "%[^=]=%[^\n#]", propstr, valstr)){
+	if ( 2 != sscanf(line, "%[^=]=%[^\n#]", propstr, valstr) ) 
+	{
 		gl_error("csv_reader::read_prop ~ error reading property & value");
 		/* TROUBLESHOOT
 			The line was not read properly by the parser.  Property lines must be of the format
@@ -186,7 +215,8 @@ int csv_reader::read_prop(char *line){ // already pulled the '$' off the front
 	}
 	
 	prop = gl_find_property(oclass, propstr);
-	if(prop == 0){
+	if ( prop == 0 ) 
+	{
 		gl_error("csv_reader::read_prop ~ unrecognized csv_reader property \'%s\'", propstr);
 		/* TROUBLESHOOT
 			The property specified within the CSV file is not published by csv_reader.
@@ -198,13 +228,15 @@ int csv_reader::read_prop(char *line){ // already pulled the '$' off the front
 
 	// Windows pointers on my Dell Precision 390 are apparently ulli -MH
 	/* BAD BAD BAD!  cannot use 'my' with this, it may not have an associate object header!!! */
-//	if(0 == gl_set_value(my, (void *)((unsigned long long int)this + (unsigned long long int)prop->addr), valstr, prop)){
+//	if ( 0 == gl_set_value(my, (void *)((unsigned long long int)this + (unsigned long long int)prop->addr), valstr, prop) ) {
 //		gl_error("csv_reader::read_prop ~ unable to set property \'%s\' to \'%s\'", propstr, valstr);
 //		return 0;
 //	}	
 	void *addr = (void *)((uint64)this + (uint64)prop->addr);
-	if(prop->ptype == PT_double){
-		if(1 != sscanf(valstr, "%lg", addr)){
+	if ( prop->ptype == PT_double ) 
+	{
+		if ( 1 != sscanf(valstr, "%lg", (double*)addr) ) 
+		{
 			gl_error("csv_reader::read_prop ~ unable to set property \'%s\' to \'%s\'", propstr, valstr);
 			/* TROUBLESHOOT
 				The double parser was not able to convert the property value into a number.  Please
@@ -212,11 +244,15 @@ int csv_reader::read_prop(char *line){ // already pulled the '$' off the front
 			*/
 			return 0;
 		}
-	} else if(prop->ptype == PT_char32){
+	} 
+	else if ( prop->ptype == PT_char32 ) 
+	{
 		strncpy((char *)addr, valstr, 32);
-//	} else if(prop->ptype == PT_char256){
+//	} else if ( prop->ptype == PT_char256 ) {
 //		strncpy((char *)addr, valstr, 256);
-	} else {
+	} 
+	else 
+	{
 		gl_error("csv_reader::read_prop ~ unable to convert property \'%s\' due to type restrictions", propstr);
 		/* TROUBLESHOOT
 			This is a programming problem.  The property parser within the csv_reader is only able to
@@ -228,7 +264,8 @@ int csv_reader::read_prop(char *line){ // already pulled the '$' off the front
 	return 1;
 }
 
-int csv_reader::read_header(char *line){
+int csv_reader::read_header(char *line ) 
+{
 	struct cmnlist {
 		char *name;
 		PROPERTY *column;
@@ -247,15 +284,19 @@ int csv_reader::read_header(char *line){
 	strncpy(buffer, line, 1023);
 
 	// split column header list
-	while(index < 1024 && 0 == done){
-		while(buffer[index] != 0 && buffer[index] != ',' && buffer[index] != '\n' && buffer[index] != '\r' && buffer[index] != '#'){
+	while ( index < 1024 && 0 == done ) 
+	{
+		while ( buffer[index] != 0 && buffer[index] != ',' && buffer[index] != '\n' && buffer[index] != '\r' && buffer[index] != '#' ) 
+		{
 			++index;
 		}
-		if(buffer[index] == ','){
+		if ( buffer[index] == ',' ) 
+		{
 			buffer[index] = 0;
 			++index;
 		}
-		if(buffer[index] == '\n' || buffer[index] == '\r' || buffer[index] == '#'){
+		if ( buffer[index] == '\n' || buffer[index] == '\r' || buffer[index] == '#' ) 
+		{
 			buffer[index] = 0;
 		}
 
@@ -267,14 +308,18 @@ int csv_reader::read_header(char *line){
 		start_idx = index;
 		++column_ct;
 
-		if(first == 0){
+		if ( first == 0 ) 
+		{
 			first = last = temp;
-		} else {
+		} 
+		else 
+		{
 			last->next = temp;
 			last = temp;
 		}
 
-		if(buffer[index] == 0 || buffer[index] == '\n' || buffer[index] == '\r'){
+		if ( buffer[index] == 0 || buffer[index] == '\n' || buffer[index] == '\r' ) 
+		{
 			done = 1;
 			break;
 		}
@@ -283,9 +328,11 @@ int csv_reader::read_header(char *line){
 	//	find properties for each column header
 	temp = first;
 	columns = (PROPERTY **)malloc(sizeof(PROPERTY *) * (size_t)column_ct);
-	while(temp != 0 && i < column_ct){
+	while ( temp != 0 && i < column_ct ) 
+	{
 		temp->column = gl_find_property(weather::oclass, temp->name);
-		if(temp->column == 0){
+		if ( temp->column == 0 ) 
+		{
 			gl_error("csv_reader::read_header ~ unable to find column property \'%s\''", temp->name);
 			/* TROUBLESHOOT
 				The specified property in the header was not found published by the weather
@@ -300,8 +347,8 @@ int csv_reader::read_header(char *line){
 	return 1;
 }
 
-int csv_reader::read_line(char *line, int linenum){
-	int done = 0;
+int csv_reader::read_line(char *line, int linenum ) 
+{
 	int col = 0;
 	char buffer[1024];
 	char *token = 0;
@@ -312,13 +359,14 @@ int csv_reader::read_line(char *line, int linenum){
 	strncpy(buffer, line, 1023);
 	token = strtok(buffer, " ,\t\n\r");
 
-	if(token == 0){
+	if ( token == 0 ) {
 		return 2; // blank line 
 	}
 
 	sample = new weather();
 
-	if(timefmt[0] == 0){
+	if ( timefmt[0] == 0 ) 
+	{
 		TIMESTAMP ts = callback->time.convert_to_timestamp(token);
 		DATETIME dt;
 		dt.nanosecond = 0;
@@ -332,7 +380,8 @@ int csv_reader::read_line(char *line, int linenum){
 			 // IMPORTANT NOTE: if DST is not handled properly by sample, don't try to fix
 			 // the problem here.  The weather class may need to be fixed so it uses UTC internally.
 		}
-		else if(sscanf(token, "%d:%d:%d:%d:%d", &sample->month, &sample->day, &sample->hour, &sample->minute, &sample->second) < 1){
+		else if ( sscanf(token, "%hd:%hd:%hd:%hd:%hd", &sample->month, &sample->day, &sample->hour, &sample->minute, &sample->second) < 1 ) 
+		{
 			gl_error("csv_reader::read_line ~ unable to read time string \'%s\' with default format", token);
 			/* TROUBLESHOOT
 				The input timestamp could not be parsed.  Verify that all time strings are formatted
@@ -341,8 +390,11 @@ int csv_reader::read_line(char *line, int linenum){
 			delete sample;
 			return 0;
 		}
-	} else {
-		if(sscanf(token, timefmt.get_string(), &sample->month, &sample->day, &sample->hour, &sample->minute, &sample->second) < 1){
+	} 
+	else 
+	{
+		if ( sscanf(token, timefmt.get_string(), &sample->month, &sample->day, &sample->hour, &sample->minute, &sample->second) < 1 ) 
+		{
 			gl_error("csv_reader::read_line ~ unable to read time string \'%s\' with format \'%s\'", token, timefmt.get_string());
 			/* TROUBLESHOOT
 				The input timestamp could not be parsed using the specified time format.  Please
@@ -353,7 +405,8 @@ int csv_reader::read_line(char *line, int linenum){
 		}
 	}
 
-	if(weather_last != 0){
+	if ( weather_last != 0 ) 
+	{
 		t1 = weather_last->month * 31*24*60*60 +
 			 weather_last->day * 24*60*60 +
 			 weather_last->hour * 60*60 +
@@ -364,17 +417,20 @@ int csv_reader::read_line(char *line, int linenum){
 			 sample->hour * 60*60 +
 			 sample->minute * 60 +
 			 sample->second;
-		if(t1 >= t2){
+		if ( t1 >= t2 ) {
 			gl_warning("csv_reader::read_line ~ sample on line %i does not advance in time and has been discarded", linenum);
 			delete sample;
 			return 2;
 		}
 	}
 
-	while((token=strtok(NULL, ",\n\r")) != 0 && col < column_ct){
-		if(columns[col]->ptype == PT_double){
+	while ( (token=strtok(NULL, ",\n\r")) != 0 && col < column_ct ) 
+	{
+		if ( columns[col]->ptype == PT_double ) 
+		{
 			double *dptr = (double *)((uint64)(columns[col]->addr) + (uint64)(sample));
-			if(sscanf(token, "%lg", dptr) != 1){
+			if ( sscanf(token, "%lg", dptr) != 1 ) 
+			{
 				gl_error("csv_reader::read_line ~ unable to set value \'%s\' to double property \'%s\'", token, columns[col]->name);
 				/* TROUBLESHOOT
 					The specified property value could not be parsed as a number.  Please check
@@ -387,9 +443,12 @@ int csv_reader::read_line(char *line, int linenum){
 		++col;
 	}
 
-	if(weather_root == 0){
+	if ( weather_root == 0 ) 
+	{
 		weather_root = sample;
-	} else {
+	} 
+	else 
+	{
 		weather_last->next = sample;
 	}
 	weather_last = sample;
@@ -397,26 +456,23 @@ int csv_reader::read_line(char *line, int linenum){
 	return 1;
 }
 
-TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double *direct, double *diffuse, double *global, double *extra_global,  double *wind,double *winddir, double *opaque, double *total, double *rain, double *snow, double *pressure){
+TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double *direct, double *diffuse, double *global, double *extra_global,  double *wind,double *winddir, double *opaque, double *total, double *rain, double *snow, double *pressure ) 
+{
 	DATETIME now, then;
 //	TIMESTAMP until;
 	int next_year = 0;
-	int i = 0;
-	int idx = index;
 	int start = index;
 	now.nanosecond = 0;
 	then.nanosecond = 0;
 
-	int localres;
-
-	if(t0 < next_ts){ /* still good ~ go home */
+	if ( t0 < next_ts ) 
+	{ /* still good ~ go home */
 		return -next_ts;
 	}
-
-	localres = gl_localtime(t0, &now); // error check
-
+	gl_localtime(t0,&now);
+	
 	gl_debug("csv_reader::get_data start");
-	if(next_ts == 0){
+	if ( next_ts == 0 ) {
 		//	initialize to the correct index & next_ts
 		DATETIME guess_dt;
 		guess_dt.nanosecond = 0;
@@ -427,7 +483,7 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 		 *	at the end of a full-year would be caught by the going-backwards method.
 		 *	This led to some strange results.
 		 */
-		for(i = 0; i < sample_ct; ++i){
+		for(i = 0; i < sample_ct; ++i ) {
 			guess_dt.year = now.year;
 			guess_dt.month = samples[sample_ct-i-1]->month;
 			guess_dt.day = samples[sample_ct-i-1]->day;
@@ -438,13 +494,14 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 //			strcpy(guess_dt.tz, "GMT");
 			guess_ts = (TIMESTAMP)gl_mktime(&guess_dt);
 
-			if(guess_ts <= t0){
+			if ( guess_ts <= t0 ) {
 				break;
 			}
 		}
 		index = sample_ct - i - 1;
 #endif
-		for(i = 0; i < sample_ct; ++i){
+		for ( i = 0; i < sample_ct; ++i ) 
+		{
 			guess_dt.year = now.year;
 			guess_dt.month = samples[i]->month;
 			guess_dt.day = samples[i]->day;
@@ -453,13 +510,14 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 			guess_dt.second = samples[i]->second;
 			strcpy(guess_dt.tz, now.tz);
 //			strcpy(guess_dt.tz, "GMT");
-			if(guess_dt.month == 2 && guess_dt.day == 29){
-				if(!ISLEAPYEAR(now.year))
+			if ( guess_dt.month == 2 && guess_dt.day == 29 ) 
+			{
+				if ( !ISLEAPYEAR(now.year))
 					continue; // skip leap days on non-leap years
 			}
 			guess_ts = (TIMESTAMP)gl_mktime(&guess_dt);
 
-			if(guess_ts >= t0){
+			if ( guess_ts >= t0 ) {
 				i -= 1; // we want the sample *before* this one
 				break;
 			}
@@ -467,7 +525,8 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 
 		index = i;
 
-		if(index > -1 && index < sample_ct){
+		if ( index > -1 && index < sample_ct ) 
+		{
 			*temp = samples[index]->temperature;
 			*humid = samples[index]->humidity;
 			*direct = samples[index]->solar_dir;
@@ -475,7 +534,7 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 			*global = samples[index]->solar_global;
 			*extra_global = samples[index]->global_horizontal_extra;
 			*wind = samples[index]->wind_speed;
-      *winddir = samples[index]->wind_dir;
+      		*winddir = samples[index]->wind_dir;
 			*opaque = samples[index]-> opq_sky_cov;
 			*total = samples[index]-> tot_sky_cov;
 			*rain = samples[index]->rainfall;
@@ -489,7 +548,7 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 			*global = samples[sample_ct - 1]->solar_global;
 			*extra_global = samples[sample_ct - 1]->global_horizontal_extra;
 			*wind = samples[sample_ct - 1]->wind_speed;
-      *winddir = samples[sample_ct - 1]->wind_dir;
+      		*winddir = samples[sample_ct - 1]->wind_dir;
 			*opaque = samples[sample_ct - 1]-> opq_sky_cov;
 			*total = samples[sample_ct - 1]-> tot_sky_cov;
 			*rain = samples[sample_ct - 1]->rainfall;
@@ -512,22 +571,30 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 		return -next_ts;
 	}
 
-	if(sample_ct == 1){ /* only one sample ~ ignore it and keep feeding the same data back, but in a year */
+	if ( sample_ct == 1 ) 
+	{ 
+		/* only one sample ~ ignore it and keep feeding the same data back, but in a year */
 		next_ts += 365 * 24 * 3600;
 		return -next_ts;
 	}
 
-	do{
+	do {
 		// should we roll the year over?
-		if(index+1 >= sample_ct){
+		if ( index+1 >= sample_ct ) 
+		{
 			index = 0;
-		} else {
+		} 
+		else 
+		{
 			++index;
 		}
 
-		if(index+1 == sample_ct){
+		if ( index+1 == sample_ct ) 
+		{
 			next_year = 1;
-		} else {
+		} 
+		else 
+		{
 			next_year = 0;
 		}
 
@@ -537,10 +604,13 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 		then.hour = samples[(index+1)%sample_ct]->hour;
 		then.minute = samples[(index+1)%sample_ct]->minute;
 		then.second = samples[(index+1)%sample_ct]->second;
-		if(then.month == 2 && then.day == 29){
-				if(!ISLEAPYEAR(then.year))
-					continue; // skip leap days on non-leap years
+		if ( then.month == 2 && then.day == 29 ) 
+		{
+			if ( !ISLEAPYEAR(then.year))
+			{
+				continue; // skip leap days on non-leap years
 			}
+		}
 		strcpy(then.tz, now.tz);
 
 		// next_ts is the time the current sample is overwritten by another sample.
@@ -554,7 +624,7 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 	*global = samples[index]->solar_global;
 	*extra_global = samples[index]->global_horizontal_extra;
 	*wind = samples[index]->wind_speed;
-  *winddir = samples[index]->wind_dir;
+	*winddir = samples[index]->wind_dir;
 	*opaque = samples[index]->opq_sky_cov;
 	*total = samples[index]->tot_sky_cov;
 	*rain = samples[index]->rainfall;
@@ -562,7 +632,8 @@ TIMESTAMP csv_reader::get_data(TIMESTAMP t0, double *temp, double *humid, double
 	*pressure = samples[index]->pressure;
 
 	// having found the index, update the data
-	if(index == start){
+	if ( index == start ) 
+	{
 		GL_THROW("something strange happened with the schedule in csv_reader");
 		/*	TROUBLESHOOT
 			An unidentified error occured while reading data and constructing the weather

@@ -16,7 +16,7 @@
 #include "csv_reader.h"
 #include <vector>
 
-typedef enum{
+typedef enum e_compass_ptr {
 	CP_H    = 0,
     CP_N    = 1,
 	CP_NE   = 2,
@@ -29,11 +29,11 @@ typedef enum{
 	CP_LAST = 9
 } COMPASS_PTS;
 
-typedef enum{
+typedef enum e_climate_interpolation {
 	CI_NONE = 0,
 	CI_LINEAR,
 	CI_QUADRATIC
-};
+} CLIMATEINTERPOLATION;
 
 typedef enum{
 	CM_NONE = 0,
@@ -160,7 +160,7 @@ public:
 
 };
 
-typedef struct {
+typedef struct s_climate_record {
 	double low;
 	double low_day;
 	double high;
@@ -168,13 +168,14 @@ typedef struct {
 	double solar;
 } CLIMATERECORD;
 
-typedef	enum {
+typedef	enum e_record_type {
 		RT_NONE,
 		RT_TMY2,
 		RT_CSV,
-};
+} RECORDTYPE;
 
-class climate : public gld_object {
+class climate : public gld_object 
+{
 	
 	// get_/set_ accessors for classes in this module only (non-atomic data need locks on access)
 	GL_STRING(char32,city); ///< the city
@@ -224,13 +225,14 @@ class climate : public gld_object {
 	// data not shared with classes in this module (no locks needed)
 private:
 	SolarAngles *sa;
-	tmy2_reader file;
+	tmy2_reader *file;
 	weather_reader *reader_hndl;
 	TMYDATA *tmy;
 public:
 	enumeration reader_type;
 	static CLASS *oclass;
 	static climate *defaults;
+	void set_defaults(bool is_template = false);
 public:
 	void update_forecasts(TIMESTAMP t0);
 	void init_cloud_pattern(void);
@@ -248,6 +250,7 @@ private:
 	int get_binary_cloud_value_for_location(double latitude, double longitude, int *cloud);
 	double convert_to_binary_cloud();
 	void convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers, double alpha);
+private:
 	TIMESTAMP prev_NTime;
 	int MIN_LAT_INDEX;
 	int MAX_LAT_INDEX;
@@ -262,7 +265,7 @@ public:
 	climate(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 	TIMESTAMP presync(TIMESTAMP t0);
 	inline TIMESTAMP sync(TIMESTAMP t0) { return TS_NEVER; };
 	inline TIMESTAMP postsync(TIMESTAMP t0) { return TS_NEVER; };

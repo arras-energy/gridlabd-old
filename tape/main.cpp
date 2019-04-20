@@ -6,12 +6,11 @@
 
 #include <stdlib.h>
 #include "gridlabd.h"
-
-
 #include "tape.h"
+
 extern "C" VARMAP varmap[];
 
-CDECL EXPORT int setvar(char *varname, char *value)
+EXPORT int setvar(char *varname, char *value)
 {
 	VARMAP *p;
 
@@ -42,4 +41,3 @@ CDECL EXPORT int setvar(char *varname, char *value)
 	}
 	return 0;
 }
-

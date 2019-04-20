@@ -105,11 +105,11 @@ int database::create(void)
 int database::init(OBJECT *parent)
 {
 	// initialize the client
-	mysql_client = mysql_init(mysql_client);
+	mysql_client = mysql_init(NULL);
 	if ( mysql_client==NULL )
 	{
 		errno = ENOENT;
-		return NULL;
+		return 0;
 	}
 
 	// set options
@@ -127,6 +127,8 @@ int database::init(OBJECT *parent)
 		exception("mysql connect failed - %s", mysql_error(mysql_client));
 	else
 		gl_verbose("MySQL server info: %s", mysql_get_server_info(mysql));
+	if ( options&DBO_SHOWQUERY )
+		gl_output("user %s connected to %s ok",(const char*)username,mysql_get_host_info(mysql));
 
 	// autoname schema
 	if ( strcmp(get_schema(),"")==0 )
@@ -202,7 +204,6 @@ TIMESTAMP database::commit(TIMESTAMP t0, TIMESTAMP t1)
 		int mod = ts.get_localtimestamp()%(TIMESTAMP)get_sync_interval();
 		if ( strcmp(get_on_sync(),"")!=0 && mod==0 )
 		{
-			int mod1 = t1%86400, mod2 = ts.get_timestamp()%86400, mod3 = ts.get_localtimestamp()%86400;
 			gld_clock ts(t0);
 			char buffer[64];
 			gl_verbose("%s running on_init script '%s' at %s", get_name(), get_on_sync(), ts.to_string(buffer,sizeof(buffer))?buffer:"(unknown time)");
@@ -215,36 +216,56 @@ TIMESTAMP database::commit(TIMESTAMP t0, TIMESTAMP t1)
 	return TS_NEVER;
 }
 
-void database::check_schema(void)
+bool database::table_exists(const char *table)
 {
-	if ( last_used!=this )
-	{
-		char command[1024];
-		sprintf(command,"USE `%s`",get_schema());
-		mysql_query(mysql,command);
-		last_used = this;
-	}
-}
-bool database::table_exists(char *t)
-{
-	if ( strcmp(t,last_table_checked)==0 )
+	char query[1024];
+	sprintf(query,"SELECT count(*) FROM information_schema.columns where table_schema = '%s' and table_name = '%s' and column_name in ('id', 't')",(const char*)schema,table);
+	if ( mysql_query(mysql,query) )
+		return false;
+	MYSQL_RES *res = mysql_store_result(mysql);
+	if ( res == NULL )
+		return false;
+	MYSQL_ROW row = mysql_fetch_row(res);
+	if ( row[0] != NULL && atoi(row[0]) == 2 )
 		return true;
-	check_schema();
-	if ( query("SHOW TABLES LIKE '%s'", t) )
-	{
-		MYSQL_RES *res = mysql_store_result(mysql);
-		if ( res )
-		{
-			int n = mysql_num_rows(res);
-			mysql_free_result(res);
-			strcpy(last_table_checked,t);
-			return n>0;
-		}
-	}
-	return false;
+	else
+		return false;
 }
 
-char *database::get_sqltype(gld_property &prop)
+bool database::check_field(const char *table, const char *field)
+{
+	char query[1024];
+	sprintf(query,"SELECT count(*) FROM information_schema.columns where table_schema = '%s' and table_name = '%s' and column_name = '%s'",(const char*)schema,table,field);
+	if ( mysql_query(mysql,query) )
+	{
+		gl_warning("%s: query [%s] failed -- %s", mysql_get_host_info(mysql), query, mysql_error(mysql));
+		return false;
+	}
+	MYSQL_RES *res = mysql_store_result(mysql);
+	if ( res == NULL )
+	{
+		gl_warning("%s: store result for [%s] failed -- %s", mysql_get_host_info(mysql), query, mysql_error(mysql));
+		return false;
+	}
+	MYSQL_ROW row = mysql_fetch_row(res);
+	if ( row[0] == NULL )
+	{
+		gl_warning("%s: no result for field '%s' in table '%s' ", mysql_get_host_info(mysql), field, table);
+		return false;
+	}
+	else if ( atoi(row[0]) == 0 )
+	{
+		gl_warning("%s: field '%s' in table '%s' not found (count is '%s')", mysql_get_host_info(mysql), field, table, row[0]);
+		return false;
+	}	
+	else 
+	{
+		gl_verbose("%s: field '%s' in table '%s' is ok ", mysql_get_host_info(mysql), field, table);
+		return true;
+	}
+}
+
+const char *database::get_sqltype(gld_property &prop)
 {
 	switch ( prop.get_type() ) {
 	case PT_double:
@@ -315,16 +336,23 @@ char *database::get_sqldata(char *buffer, size_t size, gld_property &prop, doubl
 		if ( prop.get_unit() )
 		{
 			double *value = (double*)prop.get_addr();
-			if ( sprintf(buffer,"%g",*value*scale)>size )
+			int len = snprintf(buffer,size,"%g",*value*scale);
+			if ( len < 0 || (size_t)len > size )
 				return NULL;
 			return buffer;
 		}
+	default:
+		return NULL;
 	}
 	char tmp[65536];
-	if ( prop.to_string(tmp,sizeof(tmp))<size )
-		sprintf(buffer,"'%s'",tmp);
+	if ( prop.to_string(tmp,sizeof(tmp)) < (int)size )
+	{
+		snprintf(buffer,size,"'%s'",tmp);
+	}
 	else
-		strcpy(buffer,"NULL");
+	{
+		snprintf(buffer,size,"NULL");
+	}
 	return buffer;
 }
 
@@ -339,19 +367,31 @@ char *database::get_sqldata(char *buffer, size_t size, gld_property &prop, gld_u
 		{
 			double value = prop.get_double((UNIT*)unit);
 			if ( isnan(value) )
+			{
 				sprintf(buffer,"%s","NULL");
+			}
 			else
+			{
 				sprintf(buffer,"%g",value);
+			}
 		}
 		else
+		{
 			sprintf(buffer,"%g",prop.get_double());
+		}
 		return buffer;
+	default:
+		return NULL;
 	}
 	char tmp[65536];
-	if ( prop.to_string(tmp,sizeof(tmp))<size )
-		sprintf(buffer,"'%s'",tmp);
+	if ( prop.to_string(tmp,sizeof(tmp)) < (int)size )
+	{
+		snprintf(buffer,size,"'%s'",tmp);
+	}
 	else
-		strcpy(buffer,"NULL");
+	{
+		snprintf(buffer,size,"NULL");
+	}
 	return buffer;
 }
 void database::start_transaction(void)
@@ -366,7 +406,7 @@ void database::rollback(void)
 {
 	mysql_rollback(mysql);
 }
-bool database::query(char *fmt,...)
+bool database::query(const char *fmt,...)
 {
 	char command[1024];
 	va_list ptr;
@@ -375,17 +415,25 @@ bool database::query(char *fmt,...)
 	va_end(ptr);
 
 	// query mysql
+	if ( options&DBO_SHOWQUERY )
+	{
+		gl_output("query to %s: %s",mysql_get_host_info(mysql),command);
+	}
 	gl_debug("%s->query[%s]", get_name(), command);
-	check_schema();
 	if ( mysql_query(mysql,command)!=0 )
+	{
+		gl_error("query failed for connection to %s (&mysql=0x%x)",mysql_get_host_info(mysql),mysql);
 		exception("%s->query[%s] failed - %s", get_name(), command, mysql_error(mysql));
+	}
 	else if ( get_options()&DBO_SHOWQUERY )
+	{
 		gl_verbose("%s->query[%s] ok", get_name(), command);
+	}
 
 	return true;
 }
 
-bool database::query_ex(char *fmt,...)
+bool database::query_ex(const char *fmt,...)
 {
 	char command[1024];
 	va_list ptr;
@@ -395,11 +443,10 @@ bool database::query_ex(char *fmt,...)
 
 	// query mysql
 	gl_debug("%s->query_ex[%s]", get_name(), command);
-	check_schema();
 	return mysql_query(mysql,command) ? false : true;
 }
 
-MYSQL_RES *database::select(char *fmt,...)
+MYSQL_RES *database::select(const char *fmt,...)
 {
 	char command[1024];
 	va_list ptr;
@@ -407,7 +454,6 @@ MYSQL_RES *database::select(char *fmt,...)
 	vsnprintf(command,sizeof(command),fmt,ptr);
 
 	// query mysql
-	check_schema();
 	if ( mysql_query(mysql,command)!=0 )
 		exception("%s->select[%s] query failed - %s", get_name(), command, mysql_error(mysql));
 	else if ( get_options()&DBO_SHOWQUERY )
@@ -427,34 +473,41 @@ MYSQL_RES *database::select(char *fmt,...)
 	return res;
 }
 
-unsigned int64 database::get_last_index(void)
+size_t database::get_last_index(void)
 {
 	return mysql_insert_id(mysql);
 }
 
-int database::run_script(char *file)
+int database::run_script(const char *file)
 {
 	int num=0;
 	char line[1024];
 	char buffer[65536]="";
-	int eol=0;
+	size_t eol=0;
 	FILE *fp = fopen(file,"r");
-	if ( fp==NULL )
-		exception("run_script(char *file='%s'): unable to open script", file); 
-	while ( fgets(line,sizeof(line)-1,fp)!=NULL )
+	if ( fp == NULL )
+	{
+		exception("run_script(const char *file='%s'): unable to open script", file); 
+	}
+	while ( fgets(line,sizeof(line)-1,fp) != NULL )
 	{
 		num++;
-		int len = strlen(line);
-		if ( len+eol>=sizeof(buffer) )
-			exception("run_script(char *file='%s'): line '%s' command too long", num, file); 
+		size_t len = strlen(line);
+		if ( len+eol >= sizeof(buffer) )
+		{
+			exception("run_script(const char *file='%s'): line '%s' command too long", num, file); 
+		}
 		strcpy(buffer+eol,line);
 		eol+=len;
 
 		// trim trailing white space
-		while ( eol>0 && isspace(buffer[eol-1]) ) buffer[--eol]='=0';
+		while ( eol > 0 && isspace(buffer[eol-1]) ) 
+		{
+			buffer[--eol] = '\0';
+		}
 
 		// check for sql command terminating ';'
-		if ( buffer[eol-1]==';' )
+		if ( buffer[eol-1] == ';' )
 		{
 			char *cmd = buffer;
 
@@ -466,19 +519,21 @@ int database::run_script(char *file)
 
 			// ignore null commands
 			if ( *cmd=='\0' )
+			{
 				continue;
+			}
 
 			// check for special commands
 			if ( strnicmp(cmd,"BACKUP",6)==0 )
 			{
-				char *file = cmd+6;
+				const char *file = cmd+6;
 				while ( isspace(*file) && *file!='\0' ) file++;
 				if ( backup(file)<0 )
 					exception("BACKUP failed - %s", mysql_error(mysql));
 			}
 			else if ( strnicmp(cmd,"DUMP",4)==0 )
 			{
-				char *table = cmd+4;
+				const char *table = cmd+4;
 				while ( isspace(*table) && *table!='\0' ) table++;
 				if ( dump(table)<0 )
 					exception("DUMP failed - %s", mysql_error(mysql));
@@ -489,7 +544,9 @@ int database::run_script(char *file)
 			{
 				// run SQL query
 				if ( !query("%s",buffer) )
-					exception("run_script(char *file='%s'): line '%s' command failed", num, file); 
+				{
+					exception("run_script(const char *file='%s'): line '%s' command failed", num, file); 
+				}
 				MYSQL_RES *res = mysql_store_result(mysql);
 				if ( res )
 				{
@@ -497,7 +554,9 @@ int database::run_script(char *file)
 					mysql_free_result(res);
 				}
 				else
+				{
 					gl_verbose("query [%.32s%s] ok - %d rows affected", buffer,eol>32?"...":"", mysql_affected_rows(mysql));
+				}
 			}
 
 			// clear buffer
@@ -507,31 +566,42 @@ int database::run_script(char *file)
 		{
 			// add a single space before adding next line of script
 			if ( eol>0 )
+			{
 				strcpy(buffer+eol++," ");
+			}
 		}
 	}
-Done:
 	fclose(fp);
 	return num;
 }
 
-size_t database::dump(char *table, char *file, unsigned long options)
+size_t database::dump(const char *table, const char *file, unsigned long options)
 {
 	// prepare for output
 	if ( !(options&TD_APPEND) )
 	{
-		if ( !file ) file=table;
-		if ( get_options()&&DBO_OVERWRITE ) unlink(file);
-		if ( access(file,0x00)==0 )
+		if ( !file ) 
+		{
+			file=table;
+		}
+		if ( get_options()&DBO_OVERWRITE ) 
+		{
+			unlink(file);
+		}
+		if ( access(file,0x00) == 0 )
+		{
 			exception("unable to dump '%s' to '%s' - OVERWRITE not specified but file exists",table,file);
+		}
 	}
 
 	// open the file
 	FILE *fp = fopen(file,"at");
-	if ( fp==NULL ) return -1;
+	if ( fp==NULL ) 
+	{
+		return -1;
+	}
 
 	// request data
-	check_schema();
 	MYSQL_RES *result = select("SELECT * FROM `%s`", table, file);
 	if ( result==NULL )
 	{
@@ -549,7 +619,7 @@ size_t database::dump(char *table, char *file, unsigned long options)
 		int n;
 
 		// first time through
-		if ( nfields==0 )
+		if ( nfields == 0 )
 		{
 			// get the field info
 			nfields = mysql_num_fields(result);
@@ -564,7 +634,7 @@ size_t database::dump(char *table, char *file, unsigned long options)
 				for ( n=0 ; n<nfields ; n++ )
 				{
 					// determine type of data
-					char *type=NULL;
+					const char *type=NULL;
 					int size=0;
 					switch ( fields[n].type ) {
 					case MYSQL_TYPE_TINY: type="SMALLINT"; break;
@@ -629,21 +699,22 @@ size_t database::dump(char *table, char *file, unsigned long options)
 		if ( options&TD_BACKUP )
 			fprintf(fp,"%s",";\n");
 	}
-Done:
 	gl_verbose("dumped %u rows from table '%s' to file '%s'", nrows, table, file);
 	mysql_free_result(result);
 	fclose(fp);
 	return nrows;
 }
-size_t database::backup(char *file)
+size_t database::backup(const char *file)
 {
 	// prepare for output
-	if ( get_options()&&DBO_OVERWRITE ) unlink(file);
+	if ( get_options()&DBO_OVERWRITE ) 
+	{
+		unlink(file);
+	}
 	if ( access(file,0x00)==0 )
 		exception("unable to backup of '%s' to '%s' - OVERWRITE not specified but file exists",get_schema(),file);
 
 	// get list of tables
-	check_schema();
 	MYSQL_RES *res = select("SHOW TABLES");
 	if ( res==NULL )
 	{
@@ -652,7 +723,7 @@ size_t database::backup(char *file)
 	}
 	size_t ntables = mysql_num_rows(res);
 	char **tables = new char*[ntables];
-	int n;
+	size_t n;
 	for ( n=0 ; n<ntables ; n++ )
 	{
 		MYSQL_ROW row;

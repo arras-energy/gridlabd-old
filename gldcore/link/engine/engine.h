@@ -1,41 +1,23 @@
+// gldcore/engine.h
+// Copyright (C) 2012 Battelle Memorial Institute
+
 #ifndef __ENGINE_H
 #define __ENGINE_H
 
+// you must have gridlabd installed and ensure core is in include path
 #include "gridlabd.h"
 
-#ifdef WIN32
-	#ifdef int64
-	#undef int64 // wtypes.h uses the term int64
-	#endif
-	#include <winsock2.h>
-	#define snprintf _snprintf
-	#ifndef int64
-	#define int64 __int64
-	#endif
-	#define socklen_t int
-#else
-	#include <sys/types.h>
-	#include <sys/socket.h>
-	#include <netinet/in.h>
-	#include <arpa/inet.h>
-	#include <unistd.h>
-	#include <sys/errno.h>
-	#include <netdb.h>
-	#define INVALID_SOCKET (-1)
-	#define SOCKET_ERROR (-1)
-	#ifndef int64
-	#define int64 long long
-	#endif
-	#define SOCKET int
-#endif
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <sys/errno.h>
+#include <netdb.h>
 
-// you must have gridlabd installed and ensure core is in include path
-
-/**
-
-Refactored for tcp support.
-TCP code is not yet stable.
-*/
+#define INVALID_SOCKET (-1)
+#define SOCKET_ERROR (-1)
+#define SOCKET int
 
 typedef struct s_syncdata {
 	unsigned int index;
@@ -74,6 +56,6 @@ bool setupUDPSocket(ENGINELINK *given);
 bool bindUDPSocket(ENGINELINK *given);
 bool acceptUDPSocket(ENGINELINK *given);
 int recvUDPSocket(ENGINELINK *engine, char *buffer, int maxlen);
-int sendUDPSocket(ENGINELINK *engine, char *buffer,int len);
+int sendUDPSocket(ENGINELINK *engine, const char *buffer,int len);
 
 #endif

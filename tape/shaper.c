@@ -79,7 +79,6 @@ EXPORT int create_shaper(OBJECT **obj, OBJECT *parent)
 
 static int shaper_open(OBJECT *obj)
 {
-	char32 type="file";
 	char1024 fname="";
 	char32 flags="r";
 	TAPEFUNCS *fns;
@@ -112,20 +111,23 @@ static int shaper_open(OBJECT *obj)
 	return 0;
 }
 
+#ifdef UNUSED_FUNCTION
 static void rewind_shaper(struct shaper *my)
 {
 	my->ops->rewind(my);
 }
+#endif
 
+#ifdef UNUSED_FUNCTION
 static void close_shaper(struct shaper *my)
 {
 	my->ops->close(my);
 }
+#endif
 
 static TIMESTAMP shaper_read(OBJECT *obj, TIMESTAMP t0, unsigned int n)
 {
 	struct shaper *my = OBJECTDATA(obj,struct shaper);
-	TIMESTAMP t1 = TS_NEVER;
 
 	/* determine shape time */
 	time_t t = (time_t)(t0/TS_SECOND);
@@ -138,7 +140,7 @@ static TIMESTAMP shaper_read(OBJECT *obj, TIMESTAMP t0, unsigned int n)
 		my->targets[n].value = my->magnitude * my->shape[tval->tm_mon][tval->tm_mday][tval->tm_wday][tval->tm_hour] * my->scale;
 
 		/* determine time of next change in shape */
-		t1 = my->targets[n].ts = ((t0 / my->step) + 1)*my->step;
+		// t1 = my->targets[n].ts = ((t0 / my->step) + 1)*my->step;
 	}
 	else /* shape queue */
 	{
@@ -226,7 +228,7 @@ EXPORT TIMESTAMP sync_shaper(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 						my->targets[n].addr = (double*)(gl_get_addr(item,prop->name)); /* pointer => int64 */
 						if (my->targets[n].addr<(double*)(item+1))
 						{
-							if (my->targets[n].addr>NULL)
+							if ( my->targets[n].addr )
 								GL_THROW("gl_get_addr(OBJECT *obj=[%s (%s:%d)], char *name='%s') return an invalid non-NULL pointer", item->name?item->name:"unnamed object", item->oclass->name, obj->id,prop->name);
 							else
 								GL_THROW("property '%s' not found in %s (%s:%d)", prop->name, item->name?item->name:"unnamed object", item->oclass->name, item->id);

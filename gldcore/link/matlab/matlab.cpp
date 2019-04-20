@@ -12,10 +12,15 @@
 #include <ctype.h>
 
 // you must have gridlabd installed and ensure core is in include path
+#define DLMAIN
 #include "gridlabd.h"
-#include "link.h"
 
-CALLBACKS *callback = NULL;
+int do_kill(void*)
+{
+	return 0;
+}
+
+#include "link.h"
 
 #ifdef HAVE_MATLAB
 

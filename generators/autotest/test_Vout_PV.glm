@@ -26,7 +26,7 @@ module powerflow{
 
 object climate{
 	name MyClimate;
-	tmyfile ../WA-Seattle.tmy2;
+	tmyfile ../WA-Yakima.tmy3;
 	//reader CsvReader;
 	object recorder {
 		file climate_out.csv;
@@ -130,12 +130,12 @@ object triplex_meter {
 				};
 				within 0.1;  //within 1 % of variance
 			};
-			object recorder {
-				file PV_out.csv;
-				interval 60;
-				limit 20000;
-				property V_Out;
-			};
+//			object recorder {
+//				file PV_out.csv;
+//				interval 60;
+//				limit 20000;
+//				property V_Out;
+//			};
 		};
 	};
 }

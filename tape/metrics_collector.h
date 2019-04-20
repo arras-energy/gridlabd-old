@@ -101,7 +101,7 @@
 #define REG_OPERATION_CNT   0
 #define REG_ARRAY_SIZE      1
 
-EXPORT void new_metrics_collector(MODULE *);
+CDECL void new_metrics_collector(MODULE *);
 
 #ifdef __cplusplus
 
@@ -148,7 +148,7 @@ private:
 	TIMESTAMP start_time; //Recording start time of simulation
 	bool interval_write;
 
-	char* parent_string;
+	const char* parent_string;
 	char parent_name[256];
 	double *metrics; // depends on the parent class
 

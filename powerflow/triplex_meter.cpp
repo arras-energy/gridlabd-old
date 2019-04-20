@@ -81,6 +81,7 @@ triplex_meter::triplex_meter(MODULE *mod) : triplex_node(mod)
 			// added to record last voltage/current
 			PT_complex, "measured_voltage_1[V]", PADDR(measured_voltage[0]),PT_DESCRIPTION,"measured voltage, phase 1 to ground",
 			PT_complex, "measured_voltage_2[V]", PADDR(measured_voltage[1]),PT_DESCRIPTION,"measured voltage, phase 2 to ground",
+			PT_complex, "measured_voltage_12[V]", PADDR(measured_voltage12), PT_DESCRIPTION,"measured voltage, phase 1 to phase 2",
 			PT_complex, "measured_voltage_N[V]", PADDR(measured_voltage[2]),PT_DESCRIPTION,"measured voltage, phase N to ground",
 			PT_double, "measured_real_max_voltage_1_in_interval", PADDR(measured_real_max_voltage_in_interval[0]),PT_DESCRIPTION,"measured real max line-to-ground voltage on phase 1 over a specified interval",
 			PT_double, "measured_real_max_voltage_2_in_interval", PADDR(measured_real_max_voltage_in_interval[1]),PT_DESCRIPTION,"measured real max line-to-ground voltage on phase 2 over a specified interval",
@@ -323,9 +324,7 @@ TIMESTAMP triplex_meter::sync(TIMESTAMP t0)
 // Synchronize a distribution triplex_meter
 TIMESTAMP triplex_meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP rv = TS_NEVER;
-	TIMESTAMP hr = TS_NEVER;
 
 	//Call node postsync now, otherwise current_inj isn't right
 	rv = triplex_node::postsync(t1);
@@ -336,6 +335,7 @@ TIMESTAMP triplex_meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	measured_voltage[0].SetPolar(voltageA.Mag(),voltageA.Arg());
 	measured_voltage[1].SetPolar(voltageB.Mag(),voltageB.Arg());
 	measured_voltage[2].SetPolar(voltageC.Mag(),voltageC.Arg());
+	measured_voltage12 = measured_voltage[0] + measured_voltage[1];
 
 	if (t1 > last_t)
 	{
@@ -871,7 +871,6 @@ EXPORT SIMULATIONMODE interupdate_triplex_meter(OBJECT *obj, unsigned int64 delt
 
 int triplex_meter::kmldata(int (*stream)(const char*,...))
 {
-	int phase[3] = {has_phase(PHASE_A),has_phase(PHASE_B),has_phase(PHASE_C)};
 
 	// TODO: this voltage and power breakdown should go in triplex_node
 	double basis = has_phase(PHASE_A) ? 0 : ( has_phase(PHASE_B) ? 240 : has_phase(PHASE_C) ? 120 : 0 );

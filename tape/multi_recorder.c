@@ -94,7 +94,6 @@ EXPORT int create_multi_recorder(OBJECT **obj, OBJECT *parent)
 		strcpy(my->filetype,"txt");
 		strcpy(my->delim,",");
 		strcpy(my->mode, "file");
-		strcpy(my->property,"(undefined)");
 		my->interval = -1; /* transients only */
 		my->dInterval = -1.0;
 		my->last.ts = -1;
@@ -105,9 +104,11 @@ EXPORT int create_multi_recorder(OBJECT **obj, OBJECT *parent)
 		my->trigger[0]='\0';
 		my->format = 0;
 		strcpy(my->plotcommands,"");
-		my->target = gl_get_property(*obj,my->property,NULL);
+		my->target = NULL;
 		my->header_units = HU_DEFAULT;
 		my->line_units = LU_DEFAULT;
+		my->property = NULL;
+		my->property_len = 0;
 		return 1;
 	}
 	return 0;
@@ -120,6 +121,12 @@ static int multi_recorder_open(OBJECT *obj)
 	char32 flags="w";
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	TAPEFUNCS *tf = 0;
+
+	if ( my->property == NULL )
+	{
+		gl_error("at least one property must be specified");
+		return 0;
+	}
 
 	my->interval = (int64)(my->dInterval/TS_SECOND);
 	/* if prefix is omitted (no colons found) */
@@ -167,7 +174,7 @@ static int multi_recorder_open(OBJECT *obj)
 				fprintf(my->multifp,"# target.... (none)\n");
 			}
 			fprintf(my->multifp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger);
-			fprintf(my->multifp,"# interval.. %d\n", my->interval);
+			fprintf(my->multifp,"# interval.. %lld\n", my->interval);
 			fprintf(my->multifp,"# limit..... %d\n", my->limit);
 			fprintf(my->multifp,"# property.. %s\n", my->property);
 			//fprintf(my->multifp,"# timestamp,%s\n", my->property);
@@ -311,7 +318,7 @@ static int multi_recorder_open(OBJECT *obj)
 	// set out_property here
 	{size_t offset = 0;
 		char unit_buffer[1024];
-		char *token = 0, *prop_ptr = 0, *unit_ptr = 0, *obj_ptr = 0;
+		char *token = 0, *prop_ptr = 0, *unit_ptr = 0;
 		char objstr[1024], bigpropstr[1024], propstr[1024], unitstr[64];
 		PROPERTY *prop = 0;
 		UNIT *unit = 0;
@@ -365,7 +372,7 @@ static int multi_recorder_open(OBJECT *obj)
 						strcpy(propstr, bigpropstr);
 					} else {
 						// has explicit unit
-						if(2 == sscanf(bigpropstr, "%[A-Za-z0-9_.][%[^]\n,\0]", propstr, unitstr)){
+						if(2 == sscanf(bigpropstr, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr)){
 							unit = gl_find_unit(unitstr);
 							if(unit == 0){
 								gl_error("multi_recorder:%d: unable to find unit '%s' for property '%s'", obj->id, unitstr, propstr);
@@ -423,7 +430,7 @@ static int multi_recorder_open(OBJECT *obj)
 			case HU_NONE:
 				strcpy(unit_buffer, my->property);
 				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
-					if(2 == sscanf(token, "%[A-Za-z0-9_:.][%[^]\n,\0]", propstr, unitstr)){
+					if(2 == sscanf(token, "%[A-Za-z0-9_:.][%[^]\n,]]", propstr, unitstr)){
 						; // no logic change
 					}
 					// print just the property, regardless of type or explicitly declared property
@@ -499,6 +506,10 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 		my->samples++;
 
 	/* at this point we've written the sample to the normal recorder output */
+	if ( my->flush==0 || ( my->flush > 0 && gl_globalclock % my->flush == 0 ) )
+	{
+		my->ops->flush(my);
+	}
 
 	// if file based
 	if(my->multifp != NULL){
@@ -552,114 +563,192 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 	return TS_NEVER;
 }
 
+#define BLOCKSIZE 1024
+EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
+{
+	struct recorder *my = OBJECTDATA(obj,struct recorder);
+	if ( size == 0 ) // incoming value
+	{
+		size_t len = strlen(value) + (my->property==NULL ? 0 : strlen(my->property));
+		gl_verbose("adding property '%s' to multi_recorder:%d",value,obj->id);
+		if ( my->property_len < len )
+		{
+			my->property_len = ((my->property_len+len+1)/BLOCKSIZE+1)*BLOCKSIZE;
+			my->property = (char*)realloc(my->property,my->property_len);
+			if ( my->property == NULL )
+			{
+				gl_error("memory allocation failed");
+				my->property_len = 0;
+				return 0;
+			}
+			strcpy(my->property,value);
+		}	
+		else
+		{
+			strcat(my->property,",");
+			strcat(my->property,value);
+		}
+		return 1;
+	}
+	else { // outgoing value
+		size_t len = strlen(my->property);
+		if ( size < len+1 ) // not enough room for the full contents
+		{
+			return -1;
+		}
+		strcpy(value,my->property);
+		return len;
+	}
+}
+
 RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 {
-	char *itemptr, *item;
-	char objstr[128];
-	char itemstr[128];
+	char *item, *lastitem;
 	RECORDER_MAP *first=NULL, *last=NULL, *rmap;
-	OBJECT *target_obj = NULL;
-	UNIT *unit = NULL;
 	char1024 list;
 	complex oblig;
-	int partres = 0;
-	char name[128];
-	char256 pstr, ustr;
-	char *cpart = 0;
-	int64 cid = -1;
-	PROPERTY *prop = NULL;
-	PROPERTY *target = NULL;
-	double scale = 1.0;
+	char objname[128];
+	gl_name_object(obj, objname, 128);
 
 	strcpy(list,property_list); /* avoid destroying orginal list */
-	for (itemptr = strtok(list,","); itemptr != NULL; itemptr = strtok(NULL,","))
+	for ( item = strtok_r(list,", \n", &lastitem); item != NULL; item = strtok_r(NULL,", \n",&lastitem))
 	{
-		cpart = 0;
-		cid = -1;
-		prop = NULL;
-		target = NULL;
-		scale = 1.0;
-		ustr[0] = 0;
-		pstr[0] = 0;
-		unit = NULL;
+		char objstr[128] = "";
+		char propstr[128] = "";
+		char *cpart = 0;
+		int64 cid = -1;
+		PROPERTY *target_prop = NULL;
+		OBJECT *target_obj = NULL;
+		UNIT *unit = NULL;
+		char256 pstr="", ustr="";
+		double scale = 1.0;
 
-		//if(2 == sscanf(itemptr, "%[^:]:%[^\n\r\0]", objstr, itemstr)){
-		if(2 == sscanf(itemptr, " %[^:]:%s", objstr, itemstr)){	//changed this line because of conflicts in rh5
-			item = itemstr;
-			target_obj = gl_get_object(objstr);
-			if(target_obj == 0){
-				gl_error("multirecorder: unable to find object '%s'", objstr);
-				return 0;
-			}
-		} else { // only the one part
-			if(obj == 0){
-				gl_error("multirecorder: no parent object and no specified target object in '%s'", itemstr);
-				return 0;
-			}
-			target_obj = obj;
-			item = objstr;
-		}
-
-		// everything that looks like a property name, then read units up to ]
-		while (isspace(*item)) item++;
-		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,\0]", pstr, ustr)){
-			unit = gl_find_unit(ustr);
-			if(unit == NULL){
-				gl_error("multirecorder: unable to find unit '%s' for property '%s' in object '%s %i'", ustr,pstr,target_obj->oclass->name, target_obj->id);
-				return NULL;
-			}
-			item = pstr;
-		}
 		rmap = (RECORDER_MAP *)malloc(sizeof(RECORDER_MAP));
-		memset(rmap, 0, sizeof(RECORDER_MAP));
-		
-		/* branch: test to see if we're trying to split up a complex property */
-		/* must occur w/ *cpart=0 before gl_get_property in order to properly reformat the property name string */
-		cpart = strchr(item, '.');
-		if(cpart != NULL){
-			if(strcmp("imag", cpart+1) == 0){
-				cid = (int)((int64)&(oblig.i) - (int64)&oblig);
-				*cpart = 0;
-			} else if(strcmp("real", cpart+1) == 0){
-				cid = (int)((int64)&(oblig.r) - (int64)&oblig);
-				*cpart = 0;
-			} else {
-				;
-			}
-		}
-
-		target = gl_get_property(target_obj,item,NULL);
-
-		if (rmap != NULL && target != NULL)
+		if ( rmap == NULL )
 		{
-			if(unit != NULL && target->unit == NULL){
-				gl_error("recorder:%d: property '%s' is unitless, ignoring unit conversion", obj->id, item);
-			}
-			else if(unit != NULL && 0 == gl_convert_ex(target->unit, unit, &scale))
-			{
-				gl_error("recorder:%d: unable to convert property '%s' units to '%s'", obj->id, item, ustr);
+			gl_error("%s -- memory allocation failed", objname);
+			return NULL;
+		}	
+		memset(rmap, 0, sizeof(RECORDER_MAP));
+
+		if ( strlen(item)>0 && strstr(item,"::") != NULL )
+		{
+			char *name = strncmp(item,"::",2)==0 ? item+2 : item;
+ 			GLOBALVAR *var = gl_global_find(name);
+ 			if ( var == NULL )
+ 			{
+				gl_error("%s: unable to find global '%s'", objname, objstr);
+				continue;
+ 			}
+ 			target_obj = NULL;
+ 			target_prop = var->prop; 			
+		}
+		else
+		{
+			switch ( sscanf(item, " %127[^:]:%127s", objstr, propstr) ) {
+			case 2:	
+				if ( strcmp(objstr,"") == 0 )
+				{
+					target_obj = obj->parent;
+				}
+				target_obj = gl_get_object(objstr);
+				if ( target_obj == NULL )
+				{
+					gl_error("%s: unable to find object '%s'", objname, strcmp(objstr,"")==0 ? "(parent)" : objstr);
+					continue;
+				}
+				break;
+			case 1: 	// only the one part (implies parent)
+				if ( obj->parent == NULL )
+				{
+					gl_error("%s: object has no parent for property '%s'", objname, objstr);
+					continue;
+				}
+				target_obj = obj->parent;
+				strcpy(propstr,objstr);
+				break;
+			default:
+				gl_error("%s: property '%s' is not valid", objname, item);
 				return NULL;
 			}
-			if(first == NULL){
+			gl_debug("target object = '%s:%d'", target_obj->oclass->name, target_obj->id);
+
+			// everything that looks like a property name, then read units up to ]
+			if ( sscanf(propstr,"%255[A-Za-z0-9_.][%255[^]\n,]]", pstr, ustr) == 2 )
+			{
+				unit = gl_find_unit(ustr);
+				if ( unit == NULL )
+				{
+					gl_error("%s: unable to find unit '%s' for property '%s' in object '%s %i'", objname, ustr,pstr,target_obj->oclass->name, target_obj->id);
+					continue;
+				}
+			}
+			
+			/* branch: test to see if we're trying to split up a complex property */
+			/* must occur w/ *cpart=0 before gl_get_property in order to properly reformat the property name string */
+			cpart = strchr(pstr, '.');
+			if ( cpart != NULL ) 
+			{
+				if ( strcmp("imag", cpart+1) == 0 ) 
+				{
+					cid = (int)((int64)&(oblig.i) - (int64)&oblig);
+					*cpart = 0;
+				} 
+				else if ( strcmp("real", cpart+1) == 0 )
+				{
+					cid = (int)((int64)&(oblig.r) - (int64)&oblig);
+					*cpart = 0;
+				} 
+			}
+
+			target_prop = gl_get_property(target_obj,pstr,NULL);
+		}	
+
+		if ( target_prop != NULL )
+		{
+			if ( unit != NULL && target_prop->unit == NULL )
+			{
+				gl_error("%s: property '%s' is unitless, ignoring unit conversion", objname, item);
+			}
+			else if ( unit != NULL && gl_convert_ex(target_prop->unit, unit, &scale) == 0 )
+			{
+				gl_error("%s: unable to convert property '%s' units to '%s'", objname, item, ustr);
+				continue;
+			}
+			if ( first == NULL )
+			{
 				first = rmap;
-			} else {
+			} 
+			else 
+			{
 				last->next=rmap;
 			}
 			last = rmap;
 			rmap->obj = target_obj;
-			memcpy(&(rmap->prop), target, sizeof(PROPERTY));
+			memcpy(&(rmap->prop), target_prop, sizeof(PROPERTY));
+			rmap->prop.next = NULL; // unlink from main property list
 			rmap->prop.unit = unit;
+			rmap->scale = scale;
 			rmap->next = NULL;
+			if ( cid >= 0 ) 
+			{ 	/* doing the complex part thing */
+				rmap->prop.ptype = PT_double;
+				(rmap->prop.addr) = (PROPERTYADDR)((int64)(rmap->prop.addr) + cid);
+			}
+			gl_debug("%s: linked %s ok", objname, item);
 		}
 		else
 		{
-			gl_name_object(target_obj, name, 128);
-			gl_error("multirecorder: property '%s' not found in object '%s'", item, name);
-			return NULL;
-		}
-		if(cid >= 0){ /* doing the complex part thing */
-			rmap->prop.ptype = PT_double;
-			(rmap->prop.addr) = (PROPERTYADDR)((int64)(rmap->prop.addr) + cid);
+			if ( target_obj )
+			{
+				gl_error("%s: property '%s' not found in object", objname, item);
+				continue;
+			}
+			else
+			{
+				gl_error("%s: global '%s' not found", objname, item);
+				continue;
+			}
 		}
 	}
 	return first;
@@ -676,21 +765,23 @@ int read_multi_properties(struct recorder *my, OBJECT *obj, RECORDER_MAP *rmap, 
 	memset(&fake, 0, sizeof(PROPERTY));
 	fake.ptype = PT_double;
 	fake.unit = 0;
-	for(r = rmap; r != NULL && offset < size - 33; r = r->next){
+	for(r = rmap; r != NULL && offset < size - 33; r = r->next)
+	{
+		void *addr = ( r->obj == NULL || r->prop.oclass == NULL ? r->prop.addr : GETADDR(r->obj,&(r->prop)) );
 		if(offset > 0){
 			strcpy(buffer+offset++,",");
 		}
-//		offset += gl_get_value(r->obj, GETADDR(r->obj, &(r->prop)), buffer + offset, size - offset - 1, &(r->prop)); /* pointer => int64 */
 		if(r->prop.ptype == PT_double){
 			switch(my->line_units){
 				case LU_ALL:
 					// cascade into 'default', as prop->unit should've been set, if there's a unit available.
 				case LU_DEFAULT:
-					offset+=gl_get_value(r->obj,GETADDR(r->obj,&(r->prop)),buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */
+					offset+=gl_get_value(r->obj,addr,buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */
 					break;
 				case LU_NONE:
 					// copy value into local value, use fake PROP, feed into gl_get_vaule
 					value = *gl_get_double(r->obj, &(r->prop));
+					value *= r->scale;
 					p2 = gl_get_property(r->obj, r->prop.name,NULL);
 					if(p2 == 0){
 						gl_error("unable to locate %s.%s for LU_NONE", r->obj, r->prop.name);
@@ -703,15 +794,14 @@ int read_multi_properties(struct recorder *my, OBJECT *obj, RECORDER_MAP *rmap, 
 							offset+=gl_get_value(r->obj,&value,buffer+offset,size-offset-1,&fake); /* pointer => int64 */;
 						}
 					} else {
-						offset+=gl_get_value(r->obj,GETADDR(r->obj,&(r->prop)),buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */;
+						offset+=gl_get_value(r->obj,addr,buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */;
 					}
 					break;
 				default:
 					break;
 			}
 		} else {
-		  //offset += gl_get_value(obj,    GETADDR(obj,    p),          buffer+offset, size-offset-1, p); /* pointer => int64 */
-			offset += gl_get_value(r->obj, GETADDR(r->obj, &(r->prop)), buffer+offset, size-offset-1, &(r->prop)); /* pointer => int64 */
+			offset += gl_get_value(r->obj, addr, buffer+offset, size-offset-1, &(r->prop)); /* pointer => int64 */
 		}
 		buffer[offset] = '\0';
 		count++;
@@ -747,7 +837,7 @@ EXPORT TIMESTAMP sync_multi_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 
 	/* connect to property */
 	if (my->rmap==NULL){
-		my->rmap = link_multi_properties(obj->parent,my->property); // allowable use of obj->parent
+		my->rmap = link_multi_properties(obj,my->property); // allowable use of obj->parent
 	}
 	/*	invalid target object must be handled individually */
 	/*if (my->target==NULL)

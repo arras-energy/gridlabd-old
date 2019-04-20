@@ -1,0 +1,44 @@
+//IEEE 8500 node test system.
+//  Alyona Ivanova (SLAC) Oct 29, 2018
+#ifexist config/local.glm
+#include "config/local.glm"
+#endif // exist local.glm
+
+clock {
+     timezone PST+8PDT;
+     starttime '1973-01-01 00:21:00';
+     stoptime '1973-01-02 00:21:00';
+}
+
+module powerflow {
+    solver_method NR;
+    line_limits FALSE;
+    default_maximum_voltage_error 1e-4;
+};
+module residential {
+     implicit_enduses NONE;
+}
+module climate;
+module tape;
+
+#set minimum_timestep=60;
+#set profiler=1;
+#set relax_naming_rules=1;
+#set suppress_repeat_messages=0;
+#set strictnames=FALSE
+//#set savefile="8500_balanced_NR.xml";
+
+#include "library/schedules.glm"
+#include "library/library.glm"
+#include "library/feeder.glm"
+#include "library/triplex_nodes.glm"
+
+object climate {
+     name "weather";
+     tmyfile "data/CA-Bakersfield_Meadows_Field_HighWind.tmy3";
+     interpolate QUADRATIC;
+}
+
+
+#include "library/nodes.glm"
+#include "library/lines.glm"

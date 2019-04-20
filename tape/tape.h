@@ -12,7 +12,7 @@
 #include "memory.h"
 
 /* tape global controls */
-static char timestamp_format[32]="%Y-%m-%d %H:%M:%S";
+extern char timestamp_format[32];
 typedef enum {VT_INTEGER, VT_DOUBLE, VT_STRING} VARIABLETYPE;
 typedef enum {TS_INIT, TS_OPEN, TS_DONE, TS_ERROR} TAPESTATUS;
 typedef enum {FT_FILE, FT_ODBC, FT_MEMORY} FILETYPE;
@@ -56,6 +56,7 @@ typedef struct {
 typedef struct s_recobjmap {
 	OBJECT *obj;
 	PROPERTY prop; // must be an instance
+	double scale;
 	struct s_recobjmap *next;
 } RECORDER_MAP;
 
@@ -157,7 +158,8 @@ struct recorder {
 	double dInterval;
 	TIMESTAMP interval;
 	int32 limit;
-	char1024 property;
+	char* property;
+	size_t property_len;
 	char1024 out_property;
 	PLOTFILE output; /* {EPS|GIF|JPG|PDF|PNG|SVG} More can be added */
 	char1024 plotcommands;
@@ -201,7 +203,8 @@ struct collector {
 	double dInterval;
 	TIMESTAMP interval;
 	int32 limit;
-	char1024 property;
+	char *property;
+	size_t property_len;
 	PLOTFILE output; /* {EPS|GIF|JPG|PDF|PNG|SVG} More can be added */
 	char1024 plotcommands;
 	char32 xdata;
@@ -228,8 +231,16 @@ struct collector {
 	AGGREGATION *aggr;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void enable_deltamode(TIMESTAMP t1); /* indicate when deltamode is needed */
 EXPORT int delta_add_tape_device(OBJECT *obj, DELTATAPEOBJ tape_type);
 void set_csv_options(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

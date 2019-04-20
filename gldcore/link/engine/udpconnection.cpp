@@ -1,3 +1,6 @@
+// gldcore/udpconnection.cpp
+// Copyright (C) 2012 Battelle Memorial Institute
+
 #include "engine.h"
 
 typedef struct s_udp_socket_data{
@@ -98,7 +101,7 @@ int recvUDPSocket(ENGINELINK *engine, char *buffer, int maxlen){
 	return rv;
 }
 
-int sendUDPSocket(ENGINELINK *engine, char *buffer,int len){
+int sendUDPSocket(ENGINELINK *engine, const char *buffer,int len){
 
 	if(engine->sd->type!=UDP){
 		return -1;

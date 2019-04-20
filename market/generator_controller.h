@@ -71,7 +71,7 @@ public:
 	generator_controller(MODULE *mod);
 	int create(void);
 	int init(OBJECT *parent=NULL);
-	int isa(char *classname);
+	int isa(CLASSNAME classname);
 
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
 

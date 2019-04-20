@@ -7,10 +7,7 @@
 #include <math.h>
 
 #include "gridlabd.h"
-
-#define _POWERFLOW_CPP
 #include "powerflow.h"
-#undef  _POWERFLOW_CPP
 
 #include "triplex_meter.h"
 #include "capacitor.h"
@@ -42,6 +39,8 @@
 #include "triplex_load.h"
 #include "impedance_dump.h"
 #include "vfd.h"
+#include "pole.h"
+#include "pole_configuration.h"
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {
@@ -148,6 +147,8 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new triplex_load(module);
 	new impedance_dump(module);
 	new vfd(module);
+	new pole(module);
+	new pole_configuration(module);
 
 	/* always return the first class registered */
 	return node::oclass;
@@ -254,7 +255,7 @@ EXPORT SIMULATIONMODE interupdate(MODULE *module, TIMESTAMP t0, unsigned int64 d
 	bool delta_iter = false;
 	bool bad_computation=false;
 	NRSOLVERMODE powerflow_type;
-	int64 pf_result;
+	int64 pf_result = -1;
 	int64 simple_iter_test, limit_minus_one;
 	bool error_state;
 
@@ -589,8 +590,7 @@ EXPORT int check()
 		*tomap;		/* counts the number of references to any given node */
 	int errcount = 0;
 	int objct = 0;
-	int queuef = 0, queueb = 0, queuect = 0;
-	int islandct = 0;
+	int queuect = 0;
 
 	GLOBALVAR *gvroot = NULL;
 	PFLIST anchor, *tlist = NULL;
@@ -614,7 +614,7 @@ EXPORT int check()
 	/* per-object checks */
 
 	/* check from/to info on links */
-	while (obj=gl_find_next(list,obj))
+	while ( (obj=gl_find_next(list,obj)) != NULL )
 	{
 		if (gl_object_isa(obj,"node"))
 		{
@@ -634,8 +634,6 @@ EXPORT int check()
 			link_object *pLink = OBJECTDATA(obj,link_object);
 			OBJECT *from = pLink->from;
 			OBJECT *to = pLink->to;
-			node *tNode = OBJECTDATA(to, node);
-			node *fNode = OBJECTDATA(from, node);
 			/* count 'to' reference */
 			tomap[to->id]++;
 			/* check link connections */
@@ -766,9 +764,7 @@ EXPORT int check()
 	if(gvroot != NULL){
 		PFLIST *front=NULL, *back=NULL, *del=NULL; /* node queue */
 		OBJECT *_node = gl_get_object((char *)gvroot->prop->addr);
-		OBJECT *_link = NULL;
 		int *rankmap = (int *)malloc((size_t)(objct*sizeof(int)));
-		int bct = 0;
 		if(_node == NULL){
 			gl_error("powerflow check(): Unable to do directionality check, root node name not found.");
 		} else {
@@ -782,9 +778,11 @@ EXPORT int check()
 		front->next = NULL;
 		front->ptr = _node;
 		back = front;
-		while(front != NULL){
+		while (front != NULL) 
+		{
 			// find all links from the node
-			for(OBJECT *now=gl_find_next(list, NULL); now != NULL; now = gl_find_next(list, now)){
+			for ( OBJECT *now=gl_find_next(list, NULL) ; now != NULL ; now = gl_find_next(list, now) )
+			{
 				link_object *l;
 				if(!gl_object_isa(now, "link"))
 					continue;

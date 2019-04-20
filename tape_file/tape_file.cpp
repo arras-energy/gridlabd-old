@@ -358,9 +358,9 @@ EXPORT int open_recorder(struct recorder *my, char *fname, char *flags)
 			fprintf(my->fp,"# target.... %s %d\n", obj->parent->oclass->name, obj->parent->id);
 		}
 		fprintf(my->fp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger.get_string());
-		fprintf(my->fp,"# interval.. %d\n", my->interval);
+		fprintf(my->fp,"# interval.. %lld\n", my->interval);
 		fprintf(my->fp,"# limit..... %d\n", my->limit);
-		fprintf(my->fp,"# timestamp,%s\n", my->property.get_string());
+		fprintf(my->fp,"# timestamp,%s\n", (const char*)my->property);
 	}
 
 	return 1;
@@ -371,6 +371,11 @@ EXPORT int write_recorder(struct recorder *my, char *timestamp, char *value)
 	int count = fprintf(my->fp,"%s,%s\n", timestamp, value);
 	if (csv_keep_clean) fflush(my->fp);
 	return count;
+}
+
+EXPORT void flush_recorder(struct recorder *my)
+{
+	fflush(my->fp);
 }
 
 EXPORT void close_recorder(struct recorder *my)
@@ -448,6 +453,11 @@ EXPORT int write_histogram(histogram *my, char *timestamp, char *value)
 	return count;
 }
 
+EXPORT void flush_histogram(struct recorder *my)
+{
+	fflush(my->fp);
+}
+
 EXPORT void close_histogram(histogram *my)
 {
 	if (my->fp)
@@ -496,9 +506,9 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 #endif
 		count += fprintf(my->fp,"# group..... %s\n", my->group.get_string());
 		count += fprintf(my->fp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger.get_string());
-		count += fprintf(my->fp,"# interval.. %d\n", my->interval);
+		count += fprintf(my->fp,"# interval.. %lld\n", my->interval);
 		count += fprintf(my->fp,"# limit..... %d\n", my->limit);
-		count += fprintf(my->fp,"# property.. timestamp,%s\n", my->property.get_string());
+		count += fprintf(my->fp,"# property.. timestamp,%s\n", (const char *)my->property);
 	}
 
 	return 1;
@@ -509,6 +519,11 @@ EXPORT int write_collector(struct collector *my, char *timestamp, char *value)
 	int count = fprintf(my->fp,"%s,%s\n", timestamp, value);
 	if (csv_keep_clean) fflush(my->fp);
 	return count;
+}
+
+EXPORT void flush_collector(struct collector *my)
+{
+	fflush(my->fp);
 }
 
 EXPORT void close_collector(struct collector *my)

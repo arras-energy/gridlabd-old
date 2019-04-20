@@ -70,7 +70,7 @@ public:
 	inline char *find(const char c) { return strchr(buffer,c); };
 	inline char *find(const char *s) { return strstr(buffer,s); };
 	inline char *findrev(const char c) { return strrchr(buffer,c); };
-	inline char *token(char *from, const char *delim, char **context) { this->strtok_s(from,delim,context); };
+	inline char *token(const char *from, const char *delim, char **context) { return ::strtok_r(from==NULL?this->buffer:NULL,delim,context); };
 	inline size_t format(char *fmt, ...) { va_list ptr; va_start(ptr,fmt); size_t len=vsnprintf(buffer,size,fmt,ptr); va_end(ptr); return len; };
 	inline size_t vformat(char *fmt, va_list ptr) { return vsnprintf(buffer,size,fmt,ptr); };
 };
@@ -114,8 +114,8 @@ public:
 		return *data[n];
 	}
 };
-class double_array {
-private:
+class double_array { // TODO: make this a template class
+public: // TODO make this private
 #else
 typedef struct s_doublearray {
 #endif
@@ -188,10 +188,16 @@ public:
 		{
 			size_t r,c;
 			for ( r=0 ; r<n ; r++ )
+			{
 				for ( c=0 ; c<m ; c++ )
+				{
 					if ( tst_flag(r,c,BYREF) )
+					{
 						free(x[r][c]); 
+					}
 				free(x[r]);
+				}
+			}
 			free(x);
 			delete refs;
 		}
@@ -383,7 +389,7 @@ public:
 				my(r,c) = (r==c) ? 1 : 0;
 		}
 	};
-	void dump(size_t r1=0, size_t r2=-1, size_t c1=0, size_t c2=-1)
+	void dump(int r1=0, int r2=-1, int c1=0, int c2=-1)
 	{
 		if ( r2==-1 ) r2 = n-1;
 		if ( c2==-1 ) c2 = m-1;
@@ -576,8 +582,8 @@ public:
 #ifndef __cplusplus
 typedef struct s_complexarray {
 #else
-class complex_array {
-private:
+class complex_array { // TODO: make this a template class
+public:
 #endif
 	size_t n, m;
 	size_t max; /** current allocation size max x max */
@@ -799,7 +805,7 @@ typedef unsigned char bool;
  */
 typedef struct s_delegatedtype
 {
-	char32 type; /**< the name of the delegated type */
+	const char *type; /**< the name of the delegated type */
 	CLASS *oclass; /**< the class implementing the delegated type */
 	int (*from_string)(void *addr, const char *value); /**< the function that converts from a string to the data */
 	int (*to_string)(void *addr, char *value, int size); /**< the function that converts from the data to a string */
@@ -837,7 +843,7 @@ typedef enum {_PT_FIRST=-1,
 	PT_loadshape,	/**< Loadshapes are state machines driven by schedules */
 	PT_enduse,		/**< Enduse load data */
 	PT_random,		/**< Randomized number */
-	PT_method,		/**< Method *
+	PT_method,		/**< Method */
 	/* add new property types here - don't forget to add them also to rt/gridlabd.h and property.c */
 #ifdef USE_TRIPLETS
 	PT_triple, /**< triplet of doubles (not supported) */
@@ -858,20 +864,25 @@ typedef enum {_PT_FIRST=-1,
 	PT_DEPRECATED, /* used to flag a property that is deprecated */
 	PT_HAS_NOTIFY, /* used to indicate that a notify function exists for the specified property */
 	PT_HAS_NOTIFY_OVERRIDE, /* as PT_HAS_NOTIFY, but instructs the core not to set the property to the value being set */
+	PT_DEFAULT, /* identifies the default value to use when creating the object property */
 } PROPERTYTYPE; /**< property types */
-typedef char CLASSNAME[64]; /**< the name a GridLAB class */
+typedef const char *CLASSNAME; /**< the name a GridLAB class */
+#define MAXCLASSNAMELEN 64
 typedef void* PROPERTYADDR; /**< the offset of a property from the end of the OBJECT header */
-typedef char PROPERTYNAME[64]; /**< the name of a property */
-typedef char FUNCTIONNAME[64]; /**< the name of a function (not used) */
+typedef const char *PROPERTYNAME; /**< the name of a property */
+#define MAXPROPNAMELEN 64
+typedef const char *FUNCTIONNAME; /**< the name of a function (not used) */
+#define MAXPROPERTYVALUELEN 1024
+#define MAXOBJECTNAMELEN 64
 
 /* property access rights (R/W apply to modules only, core always has all rights) */
-#define PA_N 0x00 /**< no access permitted */
-#define PA_R 0x01 /**< read access--modules can read the property */
-#define PA_W 0x02 /**< write access--modules can write the property */
-#define PA_S 0x04 /**< save access--property is saved to output */
-#define PA_L 0x08 /**< load access--property is loaded from input */
-#define PA_H 0x10 /**< hidden access--property is not revealed by modhelp */
 typedef enum {
+	PA_N = 0x00, /**< no access permitted */
+	PA_R = 0x01, /**< read access--modules can read the property */
+	PA_W = 0x02, /**< write access--modules can write the property */
+	PA_S = 0x04, /**< save access--property is saved to output */
+	PA_L = 0x08, /**< load access--property is loaded from input */
+	PA_H = 0x10, /**< hidden access--property is not revealed by modhelp */
 	PA_PUBLIC = (PA_R|PA_W|PA_S|PA_L), /**< property is public (readable, writable, saved, and loaded) */
 	PA_REFERENCE = (PA_R|PA_S|PA_L), /**< property is FYI (readable, saved, and loaded */
 	PA_PROTECTED = (PA_R), /**< property is semipublic (readable, but not saved or loaded) */
@@ -885,7 +896,34 @@ typedef struct s_keyword {
 	struct s_keyword *next;
 } KEYWORD;
 
-typedef int (*METHODCALL)(void *obj, char *string, int size); /**< the function that read and writes a string */
+/** Method requests can have the following syntax
+
+	Legacy syntax:
+		method_call(obj,NULL,0) --> returns the size of buffer needed to hold result
+		method_call(obj,NULL,size) --> returns 1 if size is larger than buffer size needed
+		method_call(obj,buffer,0) --> returns 1 if the buffer can be read into the obj
+		method_call(obj,buffer,size) --> returns 1 if the buffer can be written by the obj
+	Extended syntax:
+		method_call(obj,token,...)
+	Data extraction syntax:
+		method_call(obj,MC_EXTRACT,(char*)buffer,(size_t)size,(size_t)offset,(const char*)delimiter_chars) 
+		Returns value > offset if data extracted (value should be given as offset to next call)
+		Returns value <= offset if buffer is too small to hold resulting string
+		Returns value == 0 if no further data is available
+		Returns value == -1 if extract failed
+		Note: the delimeter found is not included in the data copied to the buffer
+	Example iterator
+		char buffer[1024];
+		int last_offset = 0, next_offset = 0;
+		while ( (next_offset = method_call(obj,MC_EXTRACT,(char*)buffer,(size_t)sizeof(buffer),(int)last_offset,(const char*)",")) > last_offset )
+		{
+			// content of buffer is everything between last_offset (included) and delimiter (if found) or end-of-string (if delimiter not found)
+			last_offset = next_offset;
+		}
+		// content of buffer is no longer valid
+ **/
+#define MC_EXTRACT (void*)0x0001 	/**< reads the first method record and returns the index of the next record (0 for last) */
+typedef int (*METHODCALL)(void *obj, ...); /**< the function that handles method requests */
 
 typedef uint32 PROPERTYFLAGS;
 #define PF_RECALC	0x0001 /**< property has a recalc trigger (only works if recalc_<class> is exported) */
@@ -905,12 +943,13 @@ typedef struct s_property_map {
 	PROPERTYADDR addr; /**< property location, offset from OBJECT header; OBJECT header itself for methods */
 	DELEGATEDTYPE *delegation; /**< property delegation, if any; \p NULL if none */
 	KEYWORD *keywords; /**< keyword list, if any; \p NULL if none (only for set and enumeration types)*/
-	char *description; /**< description of property */
+	const char *description; /**< description of property */
 	struct s_property_map *next; /**< next property in property list */
 	PROPERTYFLAGS flags; /**< property flags (e.g., PF_RECALC) */
 	FUNCTIONADDR notify;
 	METHODCALL method; /**< method call, addr must be 0 */
 	bool notify_override;
+	const char *default_value; /**< default value to use when creating objects; NULL is memset(0) is desired (default default) */
 } PROPERTY; /**< property definition item */
 
 typedef struct s_property_struct {
@@ -920,8 +959,9 @@ typedef struct s_property_struct {
 
 /** Property comparison operators
  **/
-typedef enum { 
-	TCOP_EQ=0, /**< property are equal to a **/
+typedef enum {
+	_TCOP_FIRST = 0,
+	TCOP_EQ=_TCOP_FIRST, /**< property are equal to a **/
 	TCOP_LE=1, /**< property is less than or equal to a **/
 	TCOP_GE=2, /**< property is greater than or equal a **/
 	TCOP_NE=3, /**< property is not equal to a **/
@@ -939,8 +979,9 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 								It is critical that the order of entries in this list must match 
 								the order of entries in the enumeration #PROPERTYTYPE 
 						  **/
-	char *name; /**< the property type name */
-	char *xsdname;
+	const char *name; /**< the property type name */
+	const char *xsdname;
+	const char *default_value;
 	unsigned int size; /**< the size of 1 instance */
 	unsigned int csize; /**< the minimum size of a converted instance (not including '\0' or unit, 0 means a call to property_minimum_buffersize() is necessary) */ 
 	int (*data_to_string)(char *,int,void*,PROPERTY*); /**< the function to convert from data to a string */
@@ -953,9 +994,23 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 		PROPERTYCOMPAREFUNCTION* fn;
 		int trinary;
 	} compare[_TCOP_LAST]; /**< the list of comparison operators available for this type */
-	double (*get_part)(void*,char *name); /**< the function to get a part of a property */
+	double (*get_part)(void*,const char *name); /**< the function to get a part of a property */
 	// @todo for greater generality this should be implemented as a linked list
 } PROPERTYSPEC;
+
+/* double array */
+int double_array_create(void*a);
+double get_double_array_value(double_array*,unsigned int n, unsigned int m);
+void set_double_array_value(double_array*,unsigned int n, unsigned int m, double x);
+double *get_double_array_ref(double_array*,unsigned int n, unsigned int m);
+double double_array_get_part(void *x, const char *name);
+
+/* complex array */
+int complex_array_create(void*a);
+complex *get_complex_array_value(complex_array*,unsigned int n, unsigned int m);
+void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, complex *x);
+complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
+double complex_array_get_part(void *x, const char *name);
 
 #ifdef __cplusplus
 extern "C" {
@@ -963,29 +1018,22 @@ extern "C" {
 
 int property_check(void);
 PROPERTYSPEC *property_getspec(PROPERTYTYPE ptype);
-PROPERTY *property_malloc(PROPERTYTYPE, CLASS *, char *, void *, DELEGATEDTYPE *);
+const char *property_getdefault(PROPERTYTYPE ptype);
+PROPERTYTYPE property_getfirst_type(void);
+PROPERTYTYPE property_getnext_type(PROPERTYTYPE ptype);
+PROPERTY *property_malloc(PROPERTYTYPE, CLASS *, const char *, void *, DELEGATEDTYPE *);
 uint32 property_size(PROPERTY *);
 uint32 property_size_by_type(PROPERTYTYPE);
 size_t property_minimum_buffersize(PROPERTY *);
 int property_create(PROPERTY *, void *);
-bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, char *part);
-PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, char *opstr);
-PROPERTYTYPE property_get_type(char *name);
-double property_get_part(struct s_object_list *obj, PROPERTY *prop, char *part);
-
-/* double array */
-int double_array_create(double_array*a);
-double get_double_array_value(double_array*,unsigned int n, unsigned int m);
-void set_double_array_value(double_array*,unsigned int n, unsigned int m, double x);
-double *get_double_array_ref(double_array*,unsigned int n, unsigned int m);
-double double_array_get_part(void *x, char *name);
-
-/* complex array */
-int complex_array_create(complex_array*a);
-complex *get_complex_array_value(complex_array*,unsigned int n, unsigned int m);
-void set_complex_array_value(complex_array*,unsigned int n, unsigned int m, complex *x);
-complex *get_complex_array_ref(complex_array*,unsigned int n, unsigned int m);
-double complex_array_get_part(void *x, char *name);
+bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, const char *part);
+PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, const char *opstr);
+PROPERTYTYPE property_get_type(const char *name);
+double property_get_part(struct s_object_list *obj, PROPERTY *prop, const char *part);
+bool property_is_default(struct s_object_list *obj, PROPERTY *prop);
+void *property_addr(struct s_object_list *obj, PROPERTY *prop);
+int property_read(PROPERTY *prop, void *addr, const char *string);
+int property_write(PROPERTY *prop, void *addr, char *string, size_t size);
 
 #ifdef __cplusplus
 }

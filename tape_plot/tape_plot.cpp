@@ -283,7 +283,7 @@ EXPORT void write_default_plot_commands_rec(struct recorder *my, char32 extensio
 
 	int i, j, k;	
 	i = j = k = 0;
-	sscanf(my->file,"%32[^:]:%32[^.].[^\n;:]",type,fname,ext);
+	sscanf(my->file,"%32[^:]:%32[^.].%[^\n;:]",type,fname,ext);
 
 	/////////////////////////////////////////////////////////////////////////////
 	// Default behavior for directive plotcommands
@@ -379,12 +379,12 @@ EXPORT int open_recorder(struct recorder *my, char *fname, char *flags)
 #endif
 	fprintf(my->fp,"# target.... %s %d\n", obj->parent->oclass->name, obj->parent->id);
 	fprintf(my->fp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger.get_string());
-	fprintf(my->fp,"# interval.. %d\n", my->interval);
+	fprintf(my->fp,"# interval.. %lld\n", my->interval);
 	fprintf(my->fp,"# limit..... %d\n", my->limit);
-	fprintf(my->fp,"# timestamp,%s\n", my->property.get_string());
+	fprintf(my->fp,"# timestamp,%s\n", (const char*)my->property);
 
 	/* Split the property list into items */
-  splitString(my->property.get_string(), columns);
+  splitString(my->property, columns);
 	/* Array 'columns' contains the separated items from the property list
 	for (int i=0;i<MAXCOLUMNS;i++){
 		if (strlen(columns[i])>0)
@@ -435,7 +435,7 @@ EXPORT int open_recorder(struct recorder *my, char *fname, char *flags)
 
 	write_default_plot_commands_rec(my, extension);
 	if (my->columns[0]){
-		sscanf(my->columns,"%s %s", columnlist);
+		sscanf(my->columns,"%s", columnlist);
 		fprintf(my->fp, "plot \'-\' using %s with lines;\n", columnlist);
 	}
 	
@@ -484,9 +484,9 @@ EXPORT void close_recorder(struct recorder *my)
 {
 	char gnuplot[1024];
 #ifdef WIN32
-	char *plotcmd = "start wgnuplot";
+	const char *plotcmd = "start wgnuplot";
 #else
-	char *plotcmd = "gnuplot";
+	const char *plotcmd = "gnuplot";
 #endif
 	if(my->output == SCREEN)
 		sprintf(gnuplot,"%s -persist", plotcmd);
@@ -558,7 +558,6 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 	char extension[sizeof(char32)];
 	char columnlist[sizeof(char1024)];
 	char **columns;
-	OBJECT *obj=OBJECTHDR(my);
 
 	columns = (char **)calloc(MAXCOLUMNS, sizeof(char *));
 	for(int i=0; i<MAXCOLUMNS; i++){
@@ -591,11 +590,11 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 #endif
 	count += fprintf(my->fp,"# group..... %s\n", my->group.get_string());
 	count += fprintf(my->fp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger.get_string());
-	count += fprintf(my->fp,"# interval.. %d\n", my->interval);
+	count += fprintf(my->fp,"# interval.. %lld\n", my->interval);
 	count += fprintf(my->fp,"# limit..... %d\n", my->limit);
-	count += fprintf(my->fp,"# property.. timestamp,%s\n", my->property.get_string());
+	count += fprintf(my->fp,"# property.. timestamp,%s\n", (const char*)my->property);
 
-  splitString(my->property.get_string(), columns);
+  splitString(my->property, columns);
 
 	/* Put gnuplot commands in the header portion */
 	fprintf(my->fp,"# GNUplot commands below:     \n");
@@ -640,7 +639,7 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 
 	write_default_plot_commands_col(my, extension);
 	if (my->columns){
-		sscanf(my->columns,"%s %s", columnlist);
+		sscanf(my->columns,"%s", columnlist);
 		fprintf(my->fp, "plot \'-\' using %s with lines;\n", columnlist);
 	}
 
@@ -661,7 +660,7 @@ EXPORT void close_collector(struct collector *my)
 	strcpy(gnuplot,"wgnuplot ");
 	_putenv("PATH=%PATH%;C:\\wgnuplot");
 #else
-	char *gnuplot = "gnuplot ";
+	const char *gnuplot = "gnuplot ";
 #endif
 	char fname[sizeof(char32)];
 	char type[sizeof(char32)];
