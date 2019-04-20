@@ -225,7 +225,7 @@ int microturbine::init(OBJECT *parent)
 	
 
 	static complex default_line_voltage[1], default_line_current[1];
-	int i;
+	size_t i;
 
 	// find parent meter, if not defined, use a default meter (using static variable 'default_meter')
 	if (parent!=NULL && strcmp(parent->oclass->name,"meter")==0)
@@ -277,7 +277,6 @@ int microturbine::init(OBJECT *parent)
 	//complex tst;
 		if (gen_mode_v==UNKNOWN)
 	{
-		OBJECT *obj = OBJECTHDR(this);
 		throw("Generator control mode is not specified");
 	}
 		if (gen_status_v==0)

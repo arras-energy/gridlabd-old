@@ -23,6 +23,7 @@
 #include "aggregate.h"
 #include "module.h"
 #include "timestamp.h"
+#include "find.h"
 
 //SET_MYCONTEXT(DMC_FIND) // 
 
@@ -220,9 +221,6 @@ FINDLIST *new_list(unsigned int n)
 #define ADDALL(L) ((L).hit_count=object_get_count(),memset((L).result,0xff,(L).result_size))
 #define DELALL(L) ((L).hit_count=object_get_count(),memset((L).result,0x00,(L).result_size))
 
-FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm);
-FINDPGM *find_mkpgm(const char *expression);
-
 /** Search for objects that match criteria
 	\p start may be a previous search result, or \p FT_NEW.
 	\p FT_NEW starts a new search (starting with all objects)
@@ -298,9 +296,9 @@ FINDLIST *find_objects(FINDLIST *start, ...)
 		FINDPGM *pgm;
 		va_list(ptr);
 		va_start(ptr,start);
-		pgm = find_mkpgm(va_arg(ptr,char*));
+		pgm = find_pgm_new(va_arg(ptr,char*));
 		if (pgm!=NULL){
-			return find_runpgm(result,pgm);
+			return find_pgm_run(result,pgm);
 		} else {
 			va_end(ptr);
 			DELALL(*result); /* pgm == NULL */
@@ -720,8 +718,8 @@ FINDPGM *add_pgm(FINDPGM **pgm, COMPAREFUNC op, unsigned short target, FINDVALUE
 	return item;
 }
 
-/** Runs a search engine built by find_mkpgm **/
-FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm)
+/** Runs a search engine built by find_pgm_new **/
+FINDLIST *find_pgm_run(FINDLIST *list, FINDPGM *pgm)
 {
 	if (list==NULL)
 	{
@@ -738,13 +736,15 @@ FINDLIST *find_runpgm(FINDLIST *list, FINDPGM *pgm)
 			else
 			{	if (pgm->neg) (*pgm->neg)(list,obj); }
 		}
-		find_runpgm(list,pgm->next);
+		find_pgm_run(list,pgm->next);
 	}
 	return list;
 }
 
 #define PARSER const char *_p
-#define START int _m, _n; {_m=0, _n=0;}
+#define START int _m=0, _n=0;
+#define STARTM int _m=0;
+#define STARTN int _n=0;
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
 #define OR {_m=0;}
@@ -795,7 +795,7 @@ int literal(PARSER, const char *text)
 
 int name(PARSER, char *result, int size)
 {	/* basic name */
-	START;
+	STARTN;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_') COPY(result);
 	result[_n]='\0';
 	DONE;
@@ -803,7 +803,7 @@ int name(PARSER, char *result, int size)
 
 int value(PARSER, char *result, int size)
 {	/* everything to a semicolon */
-	START;
+	STARTN;
 	while (size>1 && *_p!='\0' && *_p!=';' && *_p!='\n') COPY(result);
 	result[_n]='\0';
 	return _n;
@@ -811,7 +811,7 @@ int value(PARSER, char *result, int size)
 
 int token(PARSER, char *result, int size)
 {	/* everything to a semicolon */
-	START;
+	STARTN;
 	while (size>1 && *_p!='\0' && *_p!=';' && *_p!='\n' && !isspace(*_p) ) COPY(result);
 	result[_n]='\0';
 	return _n;
@@ -821,7 +821,7 @@ int integer(PARSER, int64 *value)
 {
 	char result[256];
 	int size=sizeof(result);
-	START;
+	STARTN;
 	while (size>1 && isdigit(*_p)) COPY(result);
 	result[_n]='\0';
 	*value=atoi64(result);
@@ -832,7 +832,7 @@ int _real(PARSER, double *value)
 {
 	char result[256];
 	int size=sizeof(result);
-	START;
+	STARTN;
 	if (*_p=='+' || *_p=='-') COPY(result);
 	while (size>1 && isdigit(*_p)) COPY(result);
 	if (*_p=='.') COPY(result);
@@ -1209,7 +1209,7 @@ int expression_list(PARSER, FINDPGM **pgm)
 }
 
 /** Constructs a search engine for find_objects **/
-FINDPGM *find_mkpgm(const char *search)
+FINDPGM *find_pgm_new(const char *search)
 {
 	FINDPGM *pgm = NULL;
 	const char *p = search;
@@ -1222,6 +1222,16 @@ FINDPGM *find_mkpgm(const char *search)
 	}
 	return pgm;
 }
+
+void find_pgm_delete(FINDPGM *pgm)
+{
+	if ( pgm->next )
+	{
+		free(pgm->next);
+	}
+	free(pgm);	
+}
+
 
 /** Search for a file in the specified path
 	(or in \p GLPATH environment variable)
@@ -1361,14 +1371,14 @@ OBJLIST *objlist_search(const char *group)
 	OBJECT *obj;
 	OBJLIST *list;
 	int n;
-	FINDPGM *pgm = find_mkpgm(group);
+	FINDPGM *pgm = find_pgm_new(group);
 	
 	// a null group  should return all objects
 	if ( pgm==NULL && strcmp(group,"")!=0 ) 
 	{
 		return NULL;
 	}
-	result=find_runpgm(NULL,pgm);
+	result=find_pgm_run(NULL,pgm);
 	if ( result==NULL ) 
 	{
 		return NULL;
@@ -1421,7 +1431,7 @@ size_t objlist_add(OBJLIST *list, PROPERTY *match, const char *match_part, const
 size_t objlist_del(OBJLIST *list, PROPERTY *match, const char *match_part, const char *match_op, void *match_value1, void *match_value2)
 {
 	PROPERTYCOMPAREOP op = property_compare_op(match->ptype, match_op);
-	int n, m;
+	size_t n, m;
 
 	// scan list and mark objects to be removed
 	for ( n=0 ; n<list->size ; n++ )
@@ -1505,7 +1515,7 @@ int objlist_apply(OBJLIST *list, /**< object list */
 				  void *arg, /**< pointer to additional data given to function */
 				  int (*function)(OBJECT *,void *,int)) /**< function to call */
 {
-	int n;
+	size_t n;
 	for ( n=0 ; n<list->size ; n++ )
 	{
 		OBJECT *obj = list->objlist[n];

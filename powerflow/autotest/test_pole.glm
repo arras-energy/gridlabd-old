@@ -22,7 +22,6 @@ object pole_configuration {
 	top_diameter (19/3.14);
 	fiber_strength 8000 psi;
 	repair_time 1 h;
-	pole_lifetime 10;
 }
 
 object pole {
@@ -33,7 +32,7 @@ object pole {
 	nominal_voltage 12470;
 	tilt_angle 0.4;
 	tilt_direction 270;
-	pole_install_year 1990;
+	install_year 1990;
 }
 
 object line_spacing {
@@ -70,7 +69,7 @@ object pole {
 	nominal_voltage 12470;
 	tilt_angle 0.4;
 	tilt_direction 270;
-	pole_install_year 2000;
+	install_year 2000;
 //	equipment_area 5 sf;
 //	equipment_height 25 ft;
 }

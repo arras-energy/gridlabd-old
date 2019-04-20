@@ -497,7 +497,7 @@ DEBUGCMD exec_debug_cmd(struct sync_data *data, /**< the current sync status of 
 	{
 		char cmd[32]=""; 
 		char buffer[1024]="";
-		int i;
+		size_t i;
 Retry:
 		/* add signals to signal handler */
 		for (i=0; i<sizeof(siglist)/sizeof(siglist[0]); i++)
@@ -508,8 +508,10 @@ Retry:
 			sigint_caught=0;
 			fflush(stdout);
 		
-			fgets(buffer, 1023, stdin);	/* "gets() is dangerous and should not be used" -gcc */
-			output_verbose("debug command '%s'", buffer);
+			if ( fgets(buffer, 1023, stdin) )
+				output_verbose("debug command '%s'", buffer);
+			else
+				output_warning("command read failed");
 		}
 		else{ /* Load from file */
 			char* nl;
@@ -536,19 +538,19 @@ Retry:
 			fprintf(stdout,"<Ctrl-C>\n");
 			goto Retry;
 		}
-		if (strncmp(cmd,"quit",max(1,strlen(cmd)))==0)
+		if (strncmp(cmd,"quit",max((size_t)1,strlen(cmd)))==0)
 			return DBG_QUIT;
-		else if (strncmp(cmd,"run",max(1,strlen(cmd)))==0 || (strlen(cmd)==0&&last==DBG_RUN))
+		else if (strncmp(cmd,"run",max((size_t)1,strlen(cmd)))==0 || (strlen(cmd)==0&&last==DBG_RUN))
 		{
 			output_debug("resuming simulation, Ctrl-C interrupts");
 			debug_active=0;
 			return last = DBG_RUN;
 		}
-		else if (strncmp(cmd,"next",max(1,strlen(cmd)))==0 || (strlen(cmd)==0&&last==DBG_NEXT))
+		else if (strncmp(cmd,"next",max((size_t)1,strlen(cmd)))==0 || (strlen(cmd)==0&&last==DBG_NEXT))
 		{
 			return last = DBG_NEXT;
 		}
-		else if (strncmp(cmd,"module",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"module",max((size_t)1,strlen(cmd)))==0)
 		{
 			char modname[128];
 			
@@ -564,7 +566,7 @@ Retry:
 				}
 			}
 		}
-		else if (strncmp(cmd,"namespace",max(2,strlen(cmd)))==0)
+		else if (strncmp(cmd,"namespace",max((size_t)2,strlen(cmd)))==0)
 		{
 			char space[1024];
 			if (sscanf(buffer,"%*s %s", space)==0)
@@ -575,7 +577,7 @@ Retry:
 			else if (!object_select_namespace(space))
 				output_debug("unable to select namespace '%s'", space);
 		}
-		else if (strncmp(cmd,"list",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"list",max((size_t)1,strlen(cmd)))==0)
 		{
 			char lclass[256]="";
 			OBJECT *obj = object_get_first();
@@ -590,10 +592,10 @@ Retry:
 					list_object(obj,pass);
 			}
 		}
-		else if (strncmp(cmd,"details",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"details",max((size_t)1,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			int n = sscanf(buffer,"%*s %[^\0]", cmd);
+			int n = sscanf(buffer,"%*s %[^\n]", cmd);
 			if (n==1)
 			{
 				if (strcmp(cmd,"on")==0)
@@ -617,10 +619,10 @@ Retry:
 					and try again.
 				 */
 		}
-		else if (strncmp(cmd,"inactive",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"inactive",max((size_t)1,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			int n = sscanf(buffer,"%*s %[^\0]", cmd);
+			int n = sscanf(buffer,"%*s %[^\n]", cmd);
 			if (n==1)
 			{
 				if (strcmp(cmd,"on")==0)
@@ -644,10 +646,10 @@ Retry:
 					and try again.
 				 */
 		}
-		else if (strncmp(cmd,"unnamed",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"unnamed",max((size_t)1,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			int n = sscanf(buffer,"%*s %[^\0]", cmd);
+			int n = sscanf(buffer,"%*s %[^\n]", cmd);
 			if (n==1)
 			{
 				if (strcmp(cmd,"on")==0)
@@ -671,10 +673,10 @@ Retry:
 					and try again.
 				 */
 		}
-		else if (strncmp(cmd,"nsync",max(2,strlen(cmd)))==0)
+		else if (strncmp(cmd,"nsync",max((size_t)2,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			int n = sscanf(buffer,"%*s %[^\0]", cmd);
+			int n = sscanf(buffer,"%*s %[^\n]", cmd);
 			if (n==1)
 			{
 				if (strcmp(cmd,"on")==0)
@@ -698,7 +700,7 @@ Retry:
 					and try again.
 				 */
 		}
-		else if (strncmp(cmd,"script",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"script",max((size_t)1,strlen(cmd)))==0)
 		{
 			char load_filename[_MAX_PATH+32]; /* Made it a little longer than max_path to be safe */
 			if(sscanf(buffer,"%*s %[^\x20]",load_filename) <=0) /* use \n since we are using fgets to load buffer */
@@ -720,28 +722,31 @@ Retry:
 			}
 			load_from_file = 1;
 		}
-		else if (strncmp(cmd,"system",max(2,strlen(cmd)))==0)
+		else if (strncmp(cmd,"system",max((size_t)2,strlen(cmd)))==0)
 		{
 			char cmd[1024];
-			if (sscanf(buffer,"%*s %[^\0]", cmd)==1)
-				system(cmd);
+			int rc = 0;
+			if (sscanf(buffer,"%*s %[^\n]", cmd)==1)
+				rc = system(cmd);
 #ifdef WIN32
 			else if (getenv("COMSPEC")!=NULL)
-				system(getenv("COMSPEC"));
+				rc = system(getenv("COMSPEC"));
 			else
-				system("cmd");
+				rc = system("cmd");
 #else
 			else if (getenv("SHELL")!=NULL)
-				system(getenv("SHELL"));
+				rc = system(getenv("SHELL"));
 			else
-				system("/bin/sh");
+				rc = system("/bin/sh");
+			if ( rc != 0 )
+				output_warning("command failed");
 #endif
 		}
-		else if (strncmp(cmd,"break",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"break",max((size_t)1,strlen(cmd)))==0)
 		{
 			char bptype[256]="";
 			char bpval[256]="";
-			if (sscanf(buffer,"%*s %s %[^\0]", bptype, bpval)==0)
+			if (sscanf(buffer,"%*s %s %[^\n]", bptype, bpval)==0)
 			{
 				/* display all breakpoints */
 				BREAKPOINT *bp;
@@ -866,9 +871,9 @@ Retry:
 			else if (strncmp(bptype,"pass",strlen(bptype))==0)
 			{	/* create pass breakpoint */
 				int pass;
-				if (strnicmp(bpval,"pretopdown",max(2,strlen(bpval)))==0) pass=PC_PRETOPDOWN;
+				if (strnicmp(bpval,"pretopdown",max((size_t)2,strlen(bpval)))==0) pass=PC_PRETOPDOWN;
 				else if (strnicmp(bpval,"bottomup",strlen(bpval))==0) pass=PC_BOTTOMUP;
-				else if (strnicmp(bpval,"posttopdown",max(2,strlen(bpval)))==0) pass=PC_POSTTOPDOWN;
+				else if (strnicmp(bpval,"posttopdown",max((size_t)2,strlen(bpval)))==0) pass=PC_POSTTOPDOWN;
 				else
 				{
 					output_error("undefined pass type for add breakpoint");
@@ -967,12 +972,12 @@ Retry:
 					Check the command syntax and try again.
 				 */
 		}
-		else if (strncmp(cmd,"watch",max(2,strlen(cmd)))==0)
+		else if (strncmp(cmd,"watch",max((size_t)2,strlen(cmd)))==0)
 		{
 			char wptype[256]="";
 			char wpval[256]="";
 			OBJECT *obj;
-			if (sscanf(buffer,"%*s %s %[^\0]", wptype, wpval)==0)
+			if (sscanf(buffer,"%*s %s %[^\n]", wptype, wpval)==0)
 			{
 				/* display all watchpoints */
 				WATCHPOINT *wp;
@@ -1078,7 +1083,7 @@ Retry:
 				Check the command syntax and try again.
 			 */
 		}
-		else if (strncmp(cmd,"where",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"where",max((size_t)1,strlen(cmd)))==0)
 		{
 			char ts[64];
 			output_debug("Global clock... %s (%" FMT_INT64 "d)", convert_from_timestamp(global_clock,ts,sizeof(ts))?ts:"(invalid)",global_clock);
@@ -1089,7 +1094,7 @@ Retry:
 			output_debug("Rank........... %d", index);
 			output_debug("Object......... %s",get_objname(obj));
 		}
-		else if (strncmp(cmd,"print",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"print",max((size_t)1,strlen(cmd)))==0)
 		{
 			char tmp[4096];
 			if (sscanf(buffer,"%*s %s",tmp)==0)
@@ -1123,7 +1128,7 @@ Retry:
 				 */
 			}
 		}
-		else if (strncmp(cmd,"globals",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"globals",max((size_t)1,strlen(cmd)))==0)
 		{
 			GLOBALVAR *var;
 			for (var=global_getnext(NULL); var!=NULL; var=global_getnext(var))
@@ -1135,7 +1140,7 @@ Retry:
 				output_message("%-32.32s: \"%s\"", var->prop->name, val==NULL?"(error)":buffer);
 			}
 		}
-		else if (strncmp(cmd,"set",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"set",max((size_t)1,strlen(cmd)))==0)
 		{
 			char objname[MAXOBJECTNAMELEN];
 			char propname[MAXPROPNAMELEN];
@@ -1189,7 +1194,7 @@ Retry:
 				 */
 			}
 		}
-		else if (strncmp(cmd,"find ",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"find ",max((size_t)1,strlen(cmd)))==0)
 		{
 			FINDLIST *fl = NULL;
 			OBJECT *obj = NULL;
@@ -1207,7 +1212,7 @@ Retry:
 			if (exec("gdb --quiet %s --pid=%d",global_execname,global_process_id)<=0)
 				output_debug("unable to start gdb");
 		}
-		else if (strncmp(cmd,"help",max(1,strlen(cmd)))==0)
+		else if (strncmp(cmd,"help",max((size_t)1,strlen(cmd)))==0)
 		{
 			output_debug("Summary of debug commands\n"
 				"   break             prints all breakpoints\n"

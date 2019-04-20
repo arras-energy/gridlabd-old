@@ -24,6 +24,8 @@
 #include "histogram.h"
 #include "group_recorder.h"
 
+char timestamp_format[32]="%Y-%m-%d %H:%M:%S";
+
 void new_violation_recorder(MODULE *);
 void new_metrics_collector(MODULE *);
 void new_metrics_collector_writer(MODULE *);
@@ -556,8 +558,6 @@ EXPORT SIMULATIONMODE interupdate(MODULE *module, TIMESTAMP t0, unsigned int64 d
 		{
 			OBJECT *obj = index_item->obj;
 			struct player *my = (struct player *)OBJECTDATA(obj,struct player);
-			int y=0,m=0,d=0,H=0,M=0,S=0,ms=0, n=0;
-			char *fmt = "%d/%d/%d %d:%d:%d.%d,%*s";
 			double t = (double)my->next.ts + (double)my->next.ns/1e9;
 			char256 curr_value;
 
@@ -696,8 +696,8 @@ EXPORT STATUS postupdate(MODULE *module, TIMESTAMP t0, unsigned int64 dt)
 	/* determine the timestamp */
 	char recorder_timestamp[64];
 	DATETIME rec_date_time;
-	TIMESTAMP rec_integer_clock;
-	int rec_microseconds;
+	TIMESTAMP rec_integer_clock = TS_NEVER;
+	int rec_microseconds = 0;
 	bool recorder_init_items = false;
 	char global_dateformat[8]="";
 	int return_val;

@@ -2,8 +2,29 @@
 	Copyright (C) 2008 Battelle Memorial Institute
 **/
 #include "complex.h"
+
 #include "solar_angles.h"
 
+short days_thru_month[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};  // Ignores leap years...
+
+//Solpos
+// cumulative number of days prior to beginning of month - SOLPOS constants
+int  month_days[2][13] = { { 0,   0,  31,  59,  90, 120, 151,
+                                   181, 212, 243, 273, 304, 334 },
+                                { 0,   0,  31,  60,  91, 121, 152,
+                                   182, 213, 244, 274, 305, 335 } };
+
+//Perez tilt model coefficients - extracted from Perez et al., 1990.
+double perez_tilt_coeff_F1[3][8] = {{-0.008, 0.130, 0.330, 0.568, 0.873, 1.132, 1.060, 0.678},
+                                            {0.588, 0.683, 0.487, 0.187, -0.392, -1.237, -1.600, -0.327},
+                                            {-0.062, -0.151, -0.221, -0.295, -0.362, -0.412, -0.359, -0.250}};
+
+double perez_tilt_coeff_F2[3][8] = {{-0.060, -0.019, 0.055, 0.109, 0.226, 0.288, 0.264, 0.156},
+                                            {0.072, 0.066, -0.064, -0.152, -0.462, -0.823, -1.127, -1.377},
+                                            {-0.022, -0.029, -0.026, -0.014, 0.001, 0.056, 0.131, 0.251}};
+
+//Boundaries for Perez model "discrete sky clearness" categories - from Perez et al., 1990
+double perez_clearness_limits[8] = {1.0, 1.065, 1.230, 1.500, 1.950, 2.800, 4.500, 6.200};
 
 
 SolarAngles::SolarAngles()

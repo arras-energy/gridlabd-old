@@ -46,7 +46,6 @@ private:
 	double std_air_press;
 	complex *pCircuit_V;		//< pointer to the three voltages on three lines
 	complex *pLine_I;			//< pointer to the three current on three lines
-	bool last_NR_mode;		//Toggle to keep track of last NR mode - needed to differentiate between FBS and NR
 	
 protected:
 	/* TODO: put unpublished but inherited variables */

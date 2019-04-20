@@ -664,7 +664,6 @@ TIMESTAMP generator_controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	OBJECT *obj = OBJECTHDR(this);
 	int index;
-	int64 bidID_val;
 	double per_phase_power, per_phase_old_power, shutdown_cost_temp, prev_section_power, prev_section_price, temp_time_var, temp_power_value;
 	char mktname[1024];
 	char ctrname[1024];
@@ -1403,9 +1402,9 @@ void generator_controller::parse_bid_curve(OBJECT *thisobj, TIMESTAMP t0)
 	int index, num_delims, num_entries, result_val;
 	bool last_was_space;
 	char *curr_ptr, *end_ptr;
-	char temp_index;			//Index for temp_char_value
+	size_t temp_index;			//Index for temp_char_value
 	char temp_char_value[33];	//Assumes no number in the bid curve will ever be over 32 characters
-	FILE *FHandle;
+	FILE *FHandle = NULL;
 
 	//See which mode we are in
 	if (curve_file_mode == true)	//File import

@@ -21,8 +21,7 @@ ParallelInit(int n, pxgstrf_relax_t *pxgstrf_relax,
     register int P, w_top, do_split = 0;
     panel_t panel_type;
     int      *panel_histo = pxgstrf_shared->Gstat->panel_histo;
-    register int nthr, concurrency, info;
-    Gstat_t  *Gstat = pxgstrf_shared->Gstat;
+    register int info;
 
 #if ( MACH==SUN )
     register int sync_type = USYNC_THREAD;
@@ -323,7 +322,6 @@ int NewNsuper(const int pnum, pxgstrf_shared_t *pxgstrf_shared, int *data)
 {
     register int i;
     mutex_t *lock = &pxgstrf_shared->lu_locks[NSUPER_LOCK];
-    Gstat_t *Gstat = pxgstrf_shared->Gstat;
 
 #ifdef PROFILE
     double t = SuperLU_timer_();

@@ -788,7 +788,6 @@ EXPORT int create_refrigerator(OBJECT **obj, OBJECT *parent)
 EXPORT TIMESTAMP sync_refrigerator(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass,  TIMESTAMP t1)
 {
 	refrigerator *my = OBJECTDATA(obj,refrigerator);
-	TIMESTAMP next_time = TS_NEVER;
 
 	// obj->clock = 0 is legit
 

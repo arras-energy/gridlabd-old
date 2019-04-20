@@ -947,7 +947,7 @@ TIMESTAMP loadshape_syncall(TIMESTAMP t1)
 	if (n_threads_ls==0) 
 	{
 		loadshape *s;
-		int n_items, ln=0;
+		size_t n_items, ln=0;
 
 		IN_MYCONTEXT output_debug("loadshape_syncall setting up for %d shapes", n_shapes);
 
@@ -1173,7 +1173,7 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 				ls->params.pulsed.energy = 0.0;
 				ls->params.pulsed.pulsetype = MPT_UNKNOWN;
 				ls->params.pulsed.pulsevalue = 0.0;
-				ls->params.pulsed.scalar = 0,0;
+				ls->params.pulsed.scalar = 0.0;
 			}
 			else if (strcmp(value,"modulated")==0)
 			{
@@ -1181,7 +1181,7 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 				ls->params.modulated.energy = 0.0;
 				ls->params.modulated.pulsetype = MPT_UNKNOWN;
 				ls->params.modulated.pulsevalue = 0.0;
-				ls->params.modulated.scalar = 0,0;
+				ls->params.modulated.scalar = 0.0;
 			}
 			else if (strcmp(value,"queued")==0)
 			{
@@ -1189,9 +1189,9 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 				ls->params.queued.energy = 0.0;
 				ls->params.queued.pulsetype = MPT_UNKNOWN;
 				ls->params.queued.pulsevalue = 0.0;
-				ls->params.queued.scalar = 0,0;
-				ls->params.queued.q_on = 0,0;
-				ls->params.queued.q_off = 0,0;
+				ls->params.queued.scalar = 0.0;
+				ls->params.queued.q_on = 0.0;
+				ls->params.queued.q_off = 0.0;
 			}
 			else if (strcmp(value,"scheduled")==0)
 			{

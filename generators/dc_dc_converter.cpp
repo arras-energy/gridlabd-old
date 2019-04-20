@@ -23,7 +23,6 @@
 CLASS *dc_dc_converter::oclass = NULL;
 dc_dc_converter *dc_dc_converter::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */
@@ -182,7 +181,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 	 
 
 	static complex default_line_voltage[1], default_line_current[1];
-	int i;
+	size_t i;
 
 	// find parent meter, if not defined, use a default meter (using static variable 'default_meter')
 	if (parent!=NULL && strcmp(parent->oclass->name,"meter")==0)
@@ -244,7 +243,6 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 
 	if (gen_mode_v==UNKNOWN)
 	{
-		OBJECT *obj = OBJECTHDR(this);
 		throw("Generator control mode is not specified");
 	}
 		if (gen_status_v== dc_dc_converter::OFFLINE)

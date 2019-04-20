@@ -22,10 +22,7 @@
 CLASS *inverter::oclass = NULL;
 inverter *inverter::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
-
-
 
 /* Class registration is only called once to register the class with the core */
 inverter::inverter(MODULE *module)
@@ -573,15 +570,14 @@ int inverter::init(OBJECT *parent)
 	unsigned iindex, jindex;
 	complex filter_impedance;
 	double *nominal_voltage;
-	double *ptemp_double;
-	double temp_double_high, temp_double_low, tdiff, ang_diff;
 	FINDLIST *batteries;
 	OBJECT *objBattery = NULL;
-	int index = 0;
+	size_t index = 0;
 
-	if(parent != NULL){
-		if((parent->flags & OF_INIT) != OF_INIT){
-			char objname[256];
+	if ( parent != NULL )
+	{
+		if ( (parent->flags & OF_INIT) != OF_INIT )
+		{
 			verbose("init() deferring initialization");
 			return 2; // defer
 		}
@@ -589,7 +585,7 @@ int inverter::init(OBJECT *parent)
 	// construct circuit variable map to meter
 	static complex default_line123_voltage[3], default_line1_current[3];
 	static int default_meter_status;	//Not really a good place to do this, but keep consistent
-	int i;
+	size_t i;
 	std::string tempV, tempQ, tempf, tempP;
 	std::string VoltVArSchedInput, freq_pwrSchedInput;
 
@@ -619,7 +615,7 @@ int inverter::init(OBJECT *parent)
 		};
 		/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
 	
-		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+		for ( i = 0; i < sizeof(map)/sizeof(map[0]) ; i++ )
 			*(map[i].var) = get_complex(parent,map[i].varname);
 
 		//Map status
@@ -637,7 +633,7 @@ int inverter::init(OBJECT *parent)
 		}
 
 		//Map phases
-		set *phaseInfo;
+		set *phaseInfo = NULL;
 		PROPERTY *tempProp;
 		tempProp = gl_get_property(parent,"phases");
 
@@ -677,7 +673,7 @@ int inverter::init(OBJECT *parent)
 		};
 
 		// attach meter variables to each circuit
-		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+		for ( i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ )
 		{
 			if ((*(map[i].var) = get_complex(parent,map[i].varname))==NULL)
 			{
@@ -703,7 +699,7 @@ int inverter::init(OBJECT *parent)
 		}
 
 		//Map phases
-		set *phaseInfo;
+		set *phaseInfo = NULL;
 		PROPERTY *tempProp;
 		tempProp = gl_get_property(parent,"phases");
 
@@ -937,7 +933,8 @@ int inverter::init(OBJECT *parent)
 					//std::string tempV = "";
 					tempV = "";
 					tempQ = "";
-					for(int i = 0; i < VoltVArSchedInput.length(); i++)	{
+					for( size_t i = 0; i < VoltVArSchedInput.length() ; i++ )	
+					{
 						if(VoltVArSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
 								tempV += VoltVArSchedInput[i];
@@ -974,7 +971,8 @@ int inverter::init(OBJECT *parent)
 					int cntr = 0;
 					tempf = "";
 					tempP = "";
-					for(int i = 0; i < freq_pwrSchedInput.length(); i++)	{
+					for( size_t i = 0 ; i < freq_pwrSchedInput.length() ; i++ )	
+					{
 						if(freq_pwrSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
 								tempf += freq_pwrSchedInput[i];
@@ -2089,11 +2087,9 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 	double ieee_1547_return_value;
 	TIMESTAMP new_ret_value;
 	FUNCTIONADDR test_fxn;
-	bool *gen_dynamic_flag;
 	STATUS fxn_return_status;
 	
 	complex rotate_value;
-	complex calculated_iO[3];
 
 	complex temp_current_val[3];
 	complex power_val[3];
@@ -2503,7 +2499,6 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 					}
 					else if(number_of_phases_out == 2) // two-phase connection
 					{
-						OBJECT *obj = OBJECTHDR(this);
 
 						if ( ((phases & 0x01) == 0x01) && phaseA_V_Out.Mag() != 0)
 						{
@@ -2893,7 +2888,7 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 		else	//FOUR_QUADRANT code
 		{
 			//FOUR_QUADRANT model (originally written for NAS/CES, altered for PV)
-			double VA_Efficiency, temp_PF, temp_QVal, P_in, net_eff; //Ab added last two
+			double VA_Efficiency, temp_PF, temp_QVal, P_in = 0.0, net_eff = 0.0; //Ab added last two
 			complex temp_VA;
 			complex battery_power_out = complex(0,0);
 			if (four_quadrant_control_mode != FQM_VOLT_VAR) {
@@ -3825,15 +3820,13 @@ TIMESTAMP inverter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP t2 = TS_NEVER;		//By default, we're done forever!
-	LOAD_FOLLOW_STATUS new_lf_status;
-	PF_REG_STATUS new_pf_reg_status;
-	double new_lf_dispatch_power, curr_power_val, diff_power_val;				
-	double new_pf_reg_distpatch_VAR, curr_real_power_val, curr_reactive_power_val, curr_pf, available_VA, new_Q_out, Q_out, Q_required, Q_available, Q_load;
+	LOAD_FOLLOW_STATUS new_lf_status = IDLE;
+	PF_REG_STATUS new_pf_reg_status = PFRS_UNKNOWN;
+	double new_lf_dispatch_power = 0.0, curr_power_val, diff_power_val;				
+	double new_pf_reg_distpatch_VAR = 0.0, curr_real_power_val, curr_reactive_power_val, curr_pf, Q_out, Q_available;
 	double scaling_factor, Q_target;
 	complex temp_current_val[3];
 	complex power_val[3];
-	TIMESTAMP dt;
-	double inputPower;
 
 	//Check and see if we need to redispatch
 	if ((inverter_type_v == FOUR_QUADRANT) && (four_quadrant_control_mode == FQM_LOAD_FOLLOWING) && (lf_dispatch_change_allowed==true))
@@ -4890,29 +4883,25 @@ STATUS inverter::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 //Module-level call
 SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val)
 {
-	double deltat, deltath;
+	double deltat;
 	unsigned char pass_mod;
 	int indexval;
-	complex derror[3];
 	complex pid_out[3];
 	double temp_val_d, temp_val_q;
 	complex work_power_vals;
 	double power_diff_val;
 	double prev_error_ed;
 	double prev_error_eq;
-	bool deltaConverged = false;
 	bool ramp_change;
-	int i;
-	double ieee_1547_double;
+	size_t i = 0;
+	double ieee_1547_double = 0.0;
 	complex temp_current_val[3];
 	complex power_val[3];
-	double inputPower;
 
 	SIMULATIONMODE simmode_return_value = SM_EVENT;
 
 	//Get timestep value
 	deltat = (double)dt/(double)DT_SECOND;
-	deltath = deltat/2.0;
 
 	// See what we're on, for tracking
 	pass_mod = iteration_count_val - ((iteration_count_val >> 1) << 1);
@@ -6180,9 +6169,10 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 							pred_state.P_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Re();
 							pred_state.Q_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Im();
 
-							if (Pref > 0) {
-								int stop_temp = 0;
-							}
+							// if (Pref > 0) {
+							// 	int stop_temp = 0;
+							// }
+
 							if (pCircuit_V[i].Mag() > 0.0)
 							{
 								pred_state.ed[i] = ((~(complex(Pref/3.0, Qref_PI[i])/(pCircuit_V[i]))) - (~(complex(pred_state.P_Out[i],pred_state.Q_Out[i])/(pCircuit_V[i])))).Re();
@@ -6671,9 +6661,6 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 
 STATUS inverter::post_deltaupdate(complex *useful_value, unsigned int mode_pass)
 {
-	complex temp_current_val[3];
-	complex power_val[3];
-
 	if (inverter_dyn_mode == PI_CONTROLLER)
 	{
 		if (four_quadrant_control_mode != FQM_VSI) {
@@ -7088,7 +7075,6 @@ void inverter::update_control_references(void)
 	//FOUR_QUADRANT model (originally written for NAS/CES, altered for PV)
 	double VA_Efficiency, temp_PF, temp_QVal;
 	complex temp_VA, VA_Outref;
-	complex battery_power_out = complex(0,0);
 	OBJECT *obj = OBJECTHDR(this);
 	bool VA_changed = false; // A flag indicating whether VAref is changed due to limitations
 
@@ -7315,11 +7301,11 @@ void inverter::update_control_references(void)
 //Functionalized routine to perform the IEEE 1547-2003 checks
 double inverter::perform_1547_checks(double timestepvalue)
 {
-	bool voltage_violation, frequency_violation, trigger_disconnect, check_phase;
+	bool voltage_violation, frequency_violation, trigger_disconnect = false, check_phase;
 	bool uv_low_hit, uv_mid_hit, uv_high_hit, ov_low_hit, ov_high_hit;
 	double temp_pu_voltage;
 	double return_time_freq, return_time_volt, return_value;
-	char indexval;
+	size_t indexval;
 
 	//By default, we're subject to the whims of deltamode
 	return_time_freq = -1.0;
@@ -7896,7 +7882,7 @@ STATUS inverter::updateCurrInjection()
 	double power_diff_val;
 	bool ramp_change;
 	double deltat, temp_time;
-	char idx;
+	size_t idx;
 	OBJECT *obj = OBJECTHDR(this);
 
 	if (deltatimestep_running > 0.0)	//Deltamode call

@@ -188,10 +188,16 @@ public:
 		{
 			size_t r,c;
 			for ( r=0 ; r<n ; r++ )
+			{
 				for ( c=0 ; c<m ; c++ )
+				{
 					if ( tst_flag(r,c,BYREF) )
+					{
 						free(x[r][c]); 
+					}
 				free(x[r]);
+				}
+			}
 			free(x);
 			delete refs;
 		}
@@ -383,7 +389,7 @@ public:
 				my(r,c) = (r==c) ? 1 : 0;
 		}
 	};
-	void dump(size_t r1=0, size_t r2=-1, size_t c1=0, size_t c2=-1)
+	void dump(int r1=0, int r2=-1, int c1=0, int c2=-1)
 	{
 		if ( r2==-1 ) r2 = n-1;
 		if ( c2==-1 ) c2 = m-1;

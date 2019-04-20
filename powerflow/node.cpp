@@ -1166,7 +1166,7 @@ int node::init(OBJECT *parent)
 			voltage[2].SetPolar(nominal_voltage,2*PI/3);
 	}
 
-	if (has_phase(PHASE_D) & voltageAB==0)
+	if ( has_phase(PHASE_D) && voltageAB==0)
 	{	// compute 3phase voltage differences
 		voltageAB = voltageA - voltageB;
 		voltageBC = voltageB - voltageC;
@@ -1341,7 +1341,11 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 	TIMESTAMP t1 = powerflow_object::presync(t0); 
 	TIMESTAMP temp_time_value, temp_t1_value;
 	node *temp_par_node = NULL;
-	FUNCTIONADDR temp_funadd = NULL;
+
+	// TODO: node should clear accumulators before starting next sync passes
+	// power[0] = power[1] = power[2] = complex(0,0,J);
+	// current[0] = current[1] = current[2] = complex(0,0,J);
+	// shunt[0] = shunt[1] = shunt[2] = complex(0,0,J);
 
 	//Determine the flag state - see if a schedule is overriding us
 	if (service_status_dbl>-1.0)
@@ -2562,7 +2566,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 			//Call NR sync function items
 			NR_node_sync_fxn(obj);
 
-			if ((NR_curr_bus==NR_bus_count) && (obj==NR_swing_bus))	//Only run the solver once everything has populated
+			if ((NR_curr_bus==(int)NR_bus_count) && (obj==NR_swing_bus))	//Only run the solver once everything has populated
 			{
 				bool bad_computation=false;
 				NRSOLVERMODE powerflow_type;
@@ -2623,7 +2627,7 @@ TIMESTAMP node::sync(TIMESTAMP t0)
 				//See where we wanted to go
 				return NR_retval;
 			}
-			else if (NR_curr_bus==NR_bus_count)	//Population complete, we're not swing, let us go (or we never go on)
+			else if (NR_curr_bus==(int)NR_bus_count)	//Population complete, we're not swing, let us go (or we never go on)
 				return t1;
 			else	//Population of data busses is not complete.  Flag us for a go-around, they should be ready next time
 			{
@@ -2886,7 +2890,7 @@ int node::kmldump(int (*stream)(const char*,...))
 
 		// voltages
 		stream("<TR><TH ALIGN=LEFT>Voltage</TH>");
-		for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
 			{
@@ -2900,7 +2904,7 @@ int node::kmldump(int (*stream)(const char*,...))
 		}
 		stream("</TR>\n");
 		stream("<TR><TH ALIGN=LEFT>&nbsp</TH>");
-		for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
 				stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>&deg;</TD>", voltage[i].Arg()*180/3.1416 - basis[i]);
@@ -2916,7 +2920,7 @@ int node::kmldump(int (*stream)(const char*,...))
 		{
 			// power
 			stream("<TR><TH ALIGN=LEFT>Power</TH>");
-			for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+			for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 			{
 				if ( phase[i] )
 					stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>kW</TD>", power[i].Re()/1000);
@@ -2925,7 +2929,7 @@ int node::kmldump(int (*stream)(const char*,...))
 			}
 			stream("</TR>\n");
 			stream("<TR><TH ALIGN=LEFT>&nbsp</TH>");
-			for ( int i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
+			for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 			{
 				if ( phase[i] )
 					stream("<TD ALIGN=RIGHT STYLE=\"font-family:courier;\"><NOBR>%.3f</NOBR></TD><TD ALIGN=LEFT>kVAR</TD>", power[i].Im()/1000);
@@ -3190,7 +3194,6 @@ int node::NR_populate(void)
 {
 	//Object header for names
 	OBJECT *me = OBJECTHDR(this);
-	node *temp_par_node = NULL;
 
 	//Lock the SWING for global operations
 	if ( NR_swing_bus!=me ) LOCK_OBJECT(NR_swing_bus);
@@ -3461,7 +3464,7 @@ int node::NR_current_update(bool postpass, bool parentcall)
 	complex delta_shunt[3];
 	complex delta_current[3];
 	complex assumed_nominal_voltage[6];
-	double nominal_voltage_dval;
+	double nominal_voltage_dval = 0.0;
 	complex house_pres_current[3];
 
 	//Don't do anything if we've already been "updated"
@@ -3713,7 +3716,6 @@ int node::NR_current_update(bool postpass, bool parentcall)
 			complex vdel;
 			complex temp_current[3];
 			complex temp_store[3];
-			complex temp_val[3];
 
 			//Find V12 (just in case)
 			vdel=voltage[0] + voltage[1];
@@ -4460,7 +4462,7 @@ double node::perform_GFA_checks(double timestepvalue)
 	bool voltage_violation, frequency_violation, trigger_disconnect, check_phase;
 	double temp_pu_voltage;
 	double return_time_freq, return_time_volt, return_value;
-	char indexval;
+	size_t indexval;
 	unsigned char phasevals;
 	OBJECT *hdr = OBJECTHDR(this);
 

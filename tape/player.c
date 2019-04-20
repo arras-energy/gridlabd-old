@@ -75,7 +75,7 @@ PROPERTY *player_link_properties(struct player *player, OBJECT *obj, char *prope
 
 		// everything that looks like a property name, then read units up to ]
 		while (isspace(*item)) item++;
-		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,\0]", pstr, ustr)){
+		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,]]", pstr, ustr)){
 			unit = gl_find_unit(ustr);
 			if(unit == NULL){
 				gl_error("sync_player:%d: unable to find unit '%s' for property '%s'",obj->id, ustr,pstr);
@@ -185,7 +185,6 @@ EXPORT int create_player(OBJECT **obj, OBJECT *parent)
 
 static int player_open(OBJECT *obj)
 {
-	char32 type="file";
 	char1024 fname="";
 	char32 flags="r";
 	struct player *my = OBJECTDATA(obj,struct player);
@@ -457,7 +456,7 @@ EXPORT TIMESTAMP sync_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 {
 	struct player *my = OBJECTDATA(obj,struct player);
 	TIMESTAMP t1 = (TS_OPEN == my->status) ? my->next.ts : TS_NEVER;
-	TIMESTAMP temp_t;
+	TIMESTAMP temp_t =0;
 
 	if (my->status==TS_INIT){
 

@@ -19,7 +19,10 @@
 #include "random.h"
 #include "schedule.h"
 #include "enduse.h"
-#include "gridlabd.h"
+#include "main.h"
+#include "class.h"
+#include "property.h"
+#include "object.h"
 #include "exec.h"
 
 SET_MYCONTEXT(DMC_ENDUSE)
@@ -279,7 +282,7 @@ TIMESTAMP enduse_syncall(TIMESTAMP t1)
 	if (n_threads_ed==0)
 	{
 		enduse *e;
-		int n_items, en = 0;
+		size_t n_items, en = 0;
 
 		IN_MYCONTEXT output_debug("enduse_syncall setting up for %d enduses", n_enduses);
 

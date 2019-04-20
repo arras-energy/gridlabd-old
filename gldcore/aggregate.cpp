@@ -38,21 +38,51 @@
 //TODO: uncomment if context warnings 
 // SET_MYCONTEXT(DMC_AGGREGATE)
 
+DEPRECATED CDECL AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
+							   const char *group_expression) /**< grouping rule; see find_pgm_new(char *)*/
+{
+	try 
+	{
+		GldAggregator *aggr = new GldAggregator(aggregator,group_expression);
+		return aggr->get_aggregator();
+	}
+	catch (...)
+	{
+		return NULL;
+	}
+}
+DEPRECATED CDECL double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
+{
+	return GldAggregator(aggr).get_value();
+}
+
 /** This function builds an collection of objects into an aggregation.  
 	The aggregation can be run using aggregate_value(AGGREGATION*)
  **/
-AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
-							   const char *group_expression) /**< grouping rule; see find_mkpgm(char *)*/
+GldAggregator::GldAggregator(AGGREGATION *a)
+{
+	aggr = a;
+	aggr->refcnt++;
+}
+
+GldAggregator::~GldAggregator(void)
+{
+	if ( --aggr->refcnt == 0 )
+		delete aggr;
+}
+
+GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
+							 const char *group_expression) /**< grouping rule; see find_pgm_new(char *)*/
 {
 	AGGREGATOR op = AGGR_NOP;
 	AGGREGATION *result=NULL;
-	char aggrop[9], aggrval[257], *aggrpart, nulpart[1];
+	char aggrop[9], aggrval[257], *aggrpart = NULL, nulpart[1];
 	char aggrprop[33], aggrunit[9];
-	unsigned char flags=0x00;
+	AGGRFLAGS flags = AF_NONE;
 	nulpart[0] = '\0';
 
 	//Change made for collector to handle propeties of objects
-	OBJECT *obj;
+	OBJECT *obj = NULL;
 	PROPERTY *pinfo=NULL;
 	FINDPGM *pgm = NULL;
 	FINDLIST *list=NULL;	
@@ -62,7 +92,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 	double scale = 1.0;
 
 	if (sscanf(aggregator," %8[A-Za-z0-9_](%256[][A-Za-z0-9_.^])",aggrop,aggrval)!=2 &&
-		(flags|=AF_ABS,
+		(flags=AF_ABS,
 		sscanf(aggregator," %8[A-Za-z0-9_]|%256[][A-Za-z0-9_.^]|",aggrop,aggrval)!=2 
 		))
 	{
@@ -72,13 +102,13 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 			Check the aggregation's syntax and make sure it conforms to the required syntax.
 		 */
 		errno = EINVAL;
-		return NULL;
+		throw NULL;
 	}
 
 	//Change made for collector to handle propeties of objects
-	pgm = find_mkpgm(group_expression);
+	pgm = find_pgm_new(group_expression);
 	if(pgm != NULL){
-		list = find_runpgm(NULL,pgm);
+		list = find_pgm_run(NULL,pgm);
 		if(list != NULL){
 			obj = find_first(list);
 			if(obj != NULL){
@@ -110,7 +140,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 				Check your aggregations and make sure all the units are defined.
 			 */
 			errno = EINVAL;
-			return NULL;
+			throw NULL;
 		}
 		strcpy(aggrval, aggrprop); // write property back into value, sans unit
 	}
@@ -136,7 +166,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 			Check that all your aggregators used allowed functions (e.g., min, max, avg, std, sum, count, etc.).
 		 */
 		errno = EINVAL;
-		return NULL;
+		throw NULL;
 	}
 	if (op!=AGGR_NOP)
 	{		
@@ -150,7 +180,7 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 				Check that all your groups are correctly defined.
 			 */
 			errno = EINVAL;
-			return NULL;
+			throw NULL;
 		}
 		else
 		{
@@ -166,9 +196,9 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 					Check that all your groups are defined such that the group membership is constant.
 				 */
 				errno = EINVAL;
-				free(pgm);
+				find_pgm_delete(pgm);
 				pgm = NULL;
-				return NULL;
+				throw NULL;
 			}
 			else
 			{				
@@ -179,10 +209,10 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 						A group expression failed to generate a useful group.  
 						Check that all your groups are correctly defined.
 					 */
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					errno=EINVAL;
-					return NULL;
+					throw NULL;
 				}
 				
 				if (obj==NULL)
@@ -192,12 +222,12 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 						A group expression generated an empty group.  
 						Check that all your groups are correctly defined.
 					 */
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
 					errno=EINVAL;
-					return NULL;
+					throw NULL;
 				}
 				pinfo = class_find_property(obj->oclass,aggrval);
 				if (pinfo==NULL)
@@ -208,11 +238,11 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 						Check that all your groups are correctly defined.
 					 */
 					errno = EINVAL;
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					return NULL;
+					throw NULL;
 				}
 				else if (pinfo->ptype==PT_double || pinfo->ptype==PT_random || pinfo->ptype==PT_loadshape )
 				{
@@ -224,11 +254,11 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 							Check that all your aggregate parts refer a property with parts, e.g., a complex value.
 						 */
 						errno = EINVAL;
-						free(pgm);
+						find_pgm_delete(pgm);
 						pgm = NULL;
 						free(list);
 						list = NULL;
-						return NULL;
+						throw NULL;
 					}
 					part = AP_NONE;
 				}
@@ -252,11 +282,11 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 							Check that your aggregate part is defined for a complex value.
 						 */
 						errno = EINVAL;
-						free(pgm);
+						find_pgm_delete(pgm);
 						pgm = NULL;
 						free(list);
 						list = NULL;
-						return NULL;
+						throw NULL;
 					}
 				}
 				else
@@ -267,11 +297,11 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 						Check that your aggregate part refers to a numeric value.
 					 */
 					errno = EINVAL;
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					return NULL;
+					throw NULL;
 				}
 				from_unit = pinfo->unit;
 				if(to_unit != NULL && from_unit == NULL){
@@ -281,11 +311,11 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 						Check that your aggregate part does not include a unit specification.
 					 */
 					errno = EINVAL;
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					return NULL;
+					throw NULL;
 				}
 				if (from_unit != NULL && to_unit != NULL && unit_convert_ex(from_unit, to_unit, &scale) == 0){
 					output_error("aggregate group property '%s' cannot use units '%s'", aggrval, aggrunit);
@@ -295,11 +325,11 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 						compatible.
 					 */
 					errno = EINVAL;
-					free(pgm);
+					find_pgm_delete(pgm);
 					pgm = NULL;
 					free(list);
 					list = NULL;
-					return NULL;
+					throw NULL;
 				}
 			}
 		}
@@ -321,37 +351,28 @@ AGGREGATION *aggregate_mkgroup(const char *aggregator, /**< aggregator (min,max,
 		else
 		{
 			errno=ENOMEM;
-			free(pgm);
+			find_pgm_delete(pgm);
 			pgm = NULL;
 			free(list);
 			list = NULL;
-			return NULL;
+			throw NULL;
 		}
 	}
 
-	return result;
-}
-
-double mag(complex *x)
-{
-	return sqrt(x->Re()*x->Re() + x->Im()*x->Im());
-}
-
-double arg(complex *x)
-{
-	return (x->Re()==0) ? (x->Im()>0 ? PI/2 : (x->Im()==0 ? 0 : -PI/2)) : ((x->Im()>0) ? (x->Re()>0 ? atan(x->Im()/x->Re()) : PI-atan(x->Im()/x->Re())) : (x->Re()>0 ? -atan(x->Im()/x->Re()) : PI+atan(x->Im()/x->Re())));
+	aggr = result;
+	aggr->refcnt = 1;
 }
 
 /** This function performs an aggregate calculation given by the aggregation 
  **/
-double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
+double GldAggregator::get_value(void)
 {
 	OBJECT *obj;
 	double numerator=0, denominator=0, secondary=0;
 
 	/* non-constant groups need search program rerun */
 	if ((aggr->group->constflags & CF_CONSTANT) != CF_CONSTANT){
-		aggr->last = find_runpgm(NULL,aggr->group); /** @todo use constant part instead of NULL (ticket #3) */
+		aggr->last = find_pgm_run(NULL,aggr->group); /** @todo use constant part instead of NULL (ticket #3) */
 	}
 
 	for(obj = find_first(aggr->last); obj != NULL; obj = find_next(aggr->last, obj)){
@@ -370,11 +391,11 @@ double aggregate_value(AGGREGATION *aggr) /**< the aggregation to perform */
 			if (pcomplex!=NULL)
 			{
 				switch (aggr->part) {
-				case AP_REAL: value=pcomplex->Re(); break;
-				case AP_IMAG: value=pcomplex->Im(); break;
-				case AP_MAG: value=mag(pcomplex); break;
-				case AP_ARG: value=arg(pcomplex); break;
-				case AP_ANG: value=arg(pcomplex)*180/PI;  break;
+				case AP_REAL: value = pcomplex->Re(); break;
+				case AP_IMAG: value = pcomplex->Im(); break;
+				case AP_MAG: value = pcomplex->Mag(); break;
+				case AP_ARG: value = pcomplex->Arg(); break;
+				case AP_ANG: value = pcomplex->Ang();  break;
 				default: pcomplex = NULL; break; /* invalidate the result */
 				}
 			}

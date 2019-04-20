@@ -115,7 +115,7 @@ int controller_dg::init(OBJECT *parent)
 
 	// Creat controller for each generator
 	obj = NULL;
-	int index = 0;
+	size_t index = 0;
 	if(dgs != NULL){
 		pDG = (diesel_dg **)gl_malloc(dgs->hit_count*sizeof(diesel_dg*));
 		DGpNdName = (const char **)gl_malloc(dgs->hit_count*sizeof(char*));
@@ -173,7 +173,7 @@ int controller_dg::init(OBJECT *parent)
 		}
 
 		// Assign space for each pointer
-		for (int i = 0; i < dgs->hit_count; i++) {
+		for (size_t i = 0; i < dgs->hit_count; i++) {
 			ctrlGen[i] = (CTRL_Gen *)gl_malloc(sizeof(CTRL_Gen));
 			//See if it worked
 			if (ctrlGen[i] == NULL)
@@ -227,7 +227,7 @@ int controller_dg::init(OBJECT *parent)
 			const char *temp_to_name = temp_switch->to->name;
 
 			bool found = false;
-			for (int i = 0; i < dgs->hit_count; i++) {
+			for (size_t i = 0; i < dgs->hit_count; i++) {
 				if (strcmp(temp_from_name, DGpNdName[i]) == 0 || strcmp(temp_to_name, DGpNdName[i]) == 0) {
 					found = true;
 					break;
@@ -306,10 +306,6 @@ TIMESTAMP controller_dg::presync(TIMESTAMP t0, TIMESTAMP t1)
 TIMESTAMP controller_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	OBJECT *obj = OBJECTHDR(this);
-	TIMESTAMP tret_value;
-
-	//Assume always want TS_NEVER
-	tret_value = TS_NEVER;
 
 	//First run allocation - in diesel_dg for now, but may need to move elsewhere
 	if (first_run == true)	//First run
@@ -369,7 +365,7 @@ TIMESTAMP controller_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 			gen_object_current++;
 
 			//Force us to reiterate one
-			tret_value = t1;
+			// return t1;
 
 		}//End deltamode specials - first pass
 		//Default else - no deltamode stuff
@@ -397,7 +393,7 @@ TIMESTAMP controller_dg::postsync(TIMESTAMP t0, TIMESTAMP t1)
 		if (deltamode_inclusive && enable_subsecond_models) //Still "first run", but at least one powerflow has completed (call init dyn now)
 		{
 
-			for (int index = 0; index < dgs->hit_count; index++) {
+			for (size_t index = 0; index < dgs->hit_count; index++) {
 				// initialize control for each generator
 				ret_state = init_dynamics(ctrlGen[index]->curr_state, index);
 
@@ -473,7 +469,6 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 		enumeration phase_C_state_check = pSwitch[index]->phase_C_state;
 
 		// Obtain switch real power value of each phase
-		int total_phase_P = pSwitch[index]->power_in.Re();
 		int phase_A_P = pSwitch[index]->indiv_power_out[0].Re();
 		int phase_B_P = pSwitch[index]->indiv_power_out[1].Re();
 		int phase_C_P = pSwitch[index]->indiv_power_out[2].Re();
@@ -551,7 +546,7 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 	if ((delta_time==0) && (iteration_count_val==0))	//First run of new delta call
 	{
 		// Initialize dynamics
-		for (int index = 0; index < dgs->hit_count; index++) {
+		for (size_t index = 0; index < dgs->hit_count; index++) {
 
 			init_dynamics(ctrlGen[index]->curr_state, index);
 
@@ -572,7 +567,7 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 	if (pass_mod==0)	// Predictor pass
 	{
 		// Update Pref of the GGOV1
-		for (int index = 0; index < dgs->hit_count; index++) {
+		for (size_t index = 0; index < dgs->hit_count; index++) {
 
 			// Call dynamics
 			apply_dynamics(ctrlGen[index]->curr_state,&predictor_vals,deltat, index);
@@ -596,7 +591,7 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 	else	// Corrector pass
 	{
 		// Update Pref of the GGOV1
-		for (int index = 0; index < dgs->hit_count; index++) {
+		for (size_t index = 0; index < dgs->hit_count; index++) {
 
 			// Call dynamics
 			apply_dynamics(ctrlGen[index]->next_state,&corrector_vals,deltat, index);
@@ -669,9 +664,6 @@ STATUS controller_dg::apply_dynamics(CTRL_VARS *curr_time, CTRL_VARS *curr_delta
 //curr_time is the initial states/information
 STATUS controller_dg::init_dynamics(CTRL_VARS *curr_time, int index)
 {
-	OBJECT *obj = NULL;
-	double omega = *mapped_freq_variable*2*PI; // not used here since speed of each generator deirectly used
-
 	curr_time->w_measured = pDG[index]->curr_state.omega/pDG[index]->omega_ref;
 	curr_time->x = pDG[index]->gen_base_set_vals.Pref;
 	curr_time->wref_ctrl = omega_ref;

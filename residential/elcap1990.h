@@ -382,5 +382,5 @@ static IMPLICITENDUSEDATA elcap1990[] = {
 			"}"
 		},
 	/// @todo add other implicit enduse schedules and shapes as they are defined
-	NULL
+	{NULL}
 };

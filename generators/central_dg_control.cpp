@@ -20,7 +20,6 @@
 CLASS *central_dg_control::oclass = NULL;
 central_dg_control *central_dg_control::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */
@@ -315,8 +314,6 @@ TIMESTAMP central_dg_control::sync(TIMESTAMP t0, TIMESTAMP t1)
 	P_3p = P[0] + P[1] + P[2];
 	Q_3p = Q[0] + Q[1] + Q[2];
 	S_3p = complex(P_3p, Q_3p);
-	double potential_pf = 0.0;
-	double Q_disp_so_far = 0.0;
 	double total_avail_soc = 0.0;
 	double P_ref_3p;
 	double Q_avail_3p = 0.0;

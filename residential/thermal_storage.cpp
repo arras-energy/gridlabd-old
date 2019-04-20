@@ -302,7 +302,6 @@ int thermal_storage::isa(char *classname)
 
 TIMESTAMP thermal_storage::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	double val = 0.0;
 	TIMESTAMP t2 = TS_NEVER;
 	next_timestep = TS_NEVER;
 	double actual_recharge_power;

@@ -56,18 +56,18 @@ object house{
 
 	object double_assert {
 		target "mass_temperature";
-		value 27.5;
+		value 32.2;
 		within 15;
 	};
 	
 	object double_assert {
 		target "air_temperature";
-		value 27.5;
+		value 31.9;
 		within 15;
 	};
 }
 
 object climate{
-	tmyfile "../WA-Yakima.tmy2";
+	tmyfile "../WA-Yakima.tmy3";
 }
 

@@ -16,8 +16,8 @@ srcdir = os.getenv('SRCDIR')
 if not srcdir :
 	raise Exception("SRCDIR environment variable was not set -- try the command 'export SRCDIR=$PWD' before running setup.py")
 
-if not os.path.exists('gldcore/build.h') :
-	raise Exception("python module must be built after the main build is completed (gldcore/build.h is missing)")
+#if not os.path.exists('gldcore/build.h') :
+#	raise Exception("python module must be built after the main build is completed (gldcore/build.h is missing)")
 
 try:
 	from compile_options import *
@@ -28,7 +28,7 @@ except:
 	except :
 		compile_options = None
 	if not compile_options :
-		compile_options=['-O2','-g']
+		compile_options=['-Wall','-O3','-g']
 if not srcdir :
 	raise Exception("SRCDIR environment variable was not set -- try the command 'export SRCDIR=$PWD' before running setup.py")
 compile_options.extend(['-I%s/gldcore'%srcdir,'-Igldcore','-Igldcore/rt',"-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
@@ -37,13 +37,14 @@ from distutils.core import setup, Extension
 gridlabd = Extension('gridlabd', 
 	include_dirs = ['gldcore/link/python','gldcore'],
 	extra_compile_args = compile_options,
-	libraries = ['ncurses'],
+	libraries = ['ncurses', 'curl'],
 	sources = list(map(lambda x: srcdir+'/'+x,['gldcore/link/python/python.cpp',
 		'gldcore/aggregate.cpp',
 		'gldcore/class.cpp',
 		'gldcore/cmdarg.cpp',
 		'gldcore/compare.cpp',
 		'gldcore/convert.cpp',
+		'gldcore/curl.cpp',
 		'gldcore/daemon.cpp',
 		'gldcore/debug.cpp',
 		'gldcore/deltamode.cpp',
@@ -90,7 +91,6 @@ gridlabd = Extension('gridlabd',
 		'gldcore/setup.cpp',
 		'gldcore/stream.cpp',
 		'gldcore/test.cpp',
-		'gldcore/test_framework.cpp',
 		'gldcore/threadpool.cpp',
 		'gldcore/timestamp.cpp',
 		'gldcore/transform.cpp',

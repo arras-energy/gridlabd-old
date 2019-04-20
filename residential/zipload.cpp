@@ -334,8 +334,6 @@ TIMESTAMP ZIPload::sync(TIMESTAMP t0, TIMESTAMP t1)
 	double imag_power = 0.0;
 	double angleval;
 
-	double test = multiplier;
-
 	if (demand_response_mode == true && next_time <= t1)
 	{
 		double dNon,dNoff;		

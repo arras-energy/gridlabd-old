@@ -156,7 +156,6 @@ STATUS instance_slave_link_properties()
 	STATUS rv = FAILED;
 	size_t offset = 0;
 	linkage *link = 0;
-	size_t maxlen = 0;
 	size_t pickle_size = 0;
 
 	IN_MYCONTEXT output_verbose("instance_slave_link_properties(): entered");
@@ -176,8 +175,6 @@ STATUS instance_slave_link_properties()
 		return FAILED;
 	}
 
-	
-	maxlen = (size_t)(local_inst.name_size);
 	// copy to preserve the original buffer
 	strcpy(buffer, local_inst.message->name_buffer);
 

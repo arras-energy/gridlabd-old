@@ -89,7 +89,11 @@ public:
 	{
 		char pname[1024];
 		char cwd[1024];
-		getcwd(cwd,sizeof(cwd));
+		if ( getcwd(cwd,sizeof(cwd)) == NULL )
+		{
+			output_error("inc_filed(name='%s'): unable to change working directory",name);
+			return;
+		}
 		strcpy(pname,name);
 		char *pwd = cwd;
 		char *ptr = pname;
@@ -124,8 +128,8 @@ public:
 	};
 	void inc_access(const char *name) { IN_MYCONTEXT output_debug("%s folder access failure", name); wlock(); n_access++; wunlock(); };
 	void inc_success(const char *name, int code, double t) { output_error("%s success unexpected, code %d in %.1f seconds",name, code, t); wlock(); n_success++; wunlock(); };
-	void inc_failed(const char *name, int code, double t) { output_error("%s error unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->exec.getexitcodestr(code), t); wlock(); n_failed++; wunlock(); };
-	void inc_exceptions(const char *name, int code, double t) { output_error("%s exception unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->exec.getexitcodestr(code), t); wlock(); n_exceptions++; wunlock(); };
+	void inc_failed(const char *name, int code, double t) { output_error("%s error unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->get_exec()->getexitcodestr(code), t); wlock(); n_failed++; wunlock(); };
+	void inc_exceptions(const char *name, int code, double t) { output_error("%s exception unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->get_exec()->getexitcodestr(code), t); wlock(); n_exceptions++; wunlock(); };
 	void print(void) 
 	{
 		rlock();
@@ -478,7 +482,12 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 	}
 	*ext = '\0'; // remove extension from dir
 	char cwd[1024];
-	getcwd(cwd,sizeof(cwd));	
+	if ( getcwd(cwd,sizeof(cwd)) == NULL )
+	{
+		output_warning("(proc %d) run_test(char *file='%s'): unable to read current working directory", id, file);
+		return result;
+	}
+
 	if ( clean && !destroy_dir(dir) )
 	{
 		output_error("(proc %d) run_test(char *file='%s'): unable to destroy test folder", id, dir);
@@ -494,7 +503,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 	if ( (0 != mkdir(dir,0750)) && clean )
 #endif
 	{
-		output_error("(proc %d) run_test(char *file='%s'): unable to create test folder", id, dir);
+		output_error("(proc %d) run_test(char *file='%s'): unable to create test folder", id, file);
 		result.inc_access(file);
 		return result;
 	}
@@ -510,7 +519,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 		result.inc_access(file);
 		return result;
 	}
-	int64 dt = my_instance->exec.clock();
+	int64 dt = my_instance->get_exec()->clock();
 	result.inc_files(file);
 	unsigned int code = vsystem("%s -W %s %s %s.glm ", 
 #ifdef WIN32
@@ -519,7 +528,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 		"gridlabd",
 #endif
 		dir,validate_cmdargs, name);
-	dt = my_instance->exec.clock() - dt;
+	dt = my_instance->get_exec()->clock() - dt;
 	double t = (double)dt/(double)CLOCKS_PER_SEC;
 	if ( elapsed_time!=NULL ) *elapsed_time = t;
 //#ifdef WIN32
@@ -664,7 +673,7 @@ void *(run_test_proc)(void *arg)
 	while ( (item=popdir())!=NULL )
 	{
 		IN_MYCONTEXT output_debug("process %d picked up '%s'", id, item->name);
-		double dt;
+		double dt = 0;
 		counters result = run_test(item->name,id,&dt);
 		if ( result.get_nerrors()>0 ) passed=false;
 		if ( global_validateoptions&VO_RPTGLM )
@@ -763,7 +772,7 @@ int validate(void *main, int argc, const char *argv[])
 	size_t i;
 	int redirect_found = 0;
 	strcpy(validate_cmdargs,"");
-	for ( i=1 ; i<argc ; i++ )
+	for ( i = 1 ; i < (size_t)argc ; i++ )
 	{
 		if ( strcmp(argv[i],"--redirect")==0 ) redirect_found = 1;
 		strcat(validate_cmdargs,argv[i]);
@@ -868,7 +877,7 @@ int validate(void *main, int argc, const char *argv[])
 
 	pthread_t *pid = new pthread_t[n_procs];
 	IN_MYCONTEXT output_debug("starting validation with cmdargs '%s' using %d threads", validate_cmdargs, n_procs);
-	for ( i=0 ; i<n_procs ; i++ )
+	for ( i = 0 ; i < (size_t)n_procs ; i++ )
 	{
 		if ( pthread_create(&pid[i],NULL,run_test_proc,(void*)i) != 0 )
 		{
@@ -881,7 +890,7 @@ int validate(void *main, int argc, const char *argv[])
 	}	
 	void *rc;
 	IN_MYCONTEXT output_debug("begin waiting process");
-	for ( i=0 ; i<n_procs ; i++ )
+	for ( i = 0 ; i < (size_t)n_procs ; i++ )
 	{
 		if ( pthread_join(pid[i],&rc) != 0 )
 		{
@@ -894,13 +903,13 @@ int validate(void *main, int argc, const char *argv[])
 	}
 	delete [] pid;
 	final.print();
-	double dt = (double)my_instance->exec.clock()/(double)CLOCKS_PER_SEC;
+	double dt = (double)my_instance->get_exec()->clock()/(double)CLOCKS_PER_SEC;
 	output_message("Total validation elapsed time: %.1f seconds", dt);
 	if ( report_fp ) output_message("See '%s/%s' for details", global_workdir, report_file);
 	if ( final.get_nerrors()==0 )
-		my_instance->exec.setexitcode(XC_SUCCESS);
+		my_instance->get_exec()->setexitcode(XC_SUCCESS);
 	else
-		my_instance->exec.setexitcode(XC_TSTERR);
+		my_instance->get_exec()->setexitcode(XC_TSTERR);
 
 	report_newtable("OVERALL RESULTS");
 

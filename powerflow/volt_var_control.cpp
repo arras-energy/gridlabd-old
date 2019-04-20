@@ -120,9 +120,9 @@ int volt_var_control::init(OBJECT *parent)
 {
 	int retval = powerflow_object::init(parent);
 
-	int index, indexa;
+	size_t index, indexa;
 	int64 addy_math;
-	char *token_a, *token_b, *token_c, *token_a1, *token_b1, *token_c1;
+	char *token_a = NULL, *token_b = NULL, *token_c = NULL, *token_a1 = NULL, *token_b1 = NULL, *token_c1 = NULL;
 	char tempchar[1024];
 	char numchar[3];	//Assumes we'll never have more than 99 regulators - I hope this is valid
 	OBJECT *temp_obj;
@@ -132,7 +132,7 @@ int volt_var_control::init(OBJECT *parent)
 	double cap_adder, temp_double, nom_volt, default_min, default_max, default_des, default_max_vdrop, default_vbw_low, default_vbw_high;
 	set temp_phase;
 	int num_min_volt, num_max_volt, num_des_volt, num_max_vdrop, num_vbw_low, num_vbw_high, total_meas;
-	bool reg_list_type;
+	bool reg_list_type = false;
 
 	OBJECT *obj = OBJECTHDR(this);
 
@@ -407,7 +407,7 @@ int volt_var_control::init(OBJECT *parent)
 			}
 
 			//Init this one right now
-			for (index=0; index<num_regs; index++)
+			for (index=0; (int)index<num_regs; index++)
 			{
 				TRegUpdate[index] = TS_NEVER;
 			}
@@ -495,7 +495,7 @@ int volt_var_control::init(OBJECT *parent)
 		//Now populate each of these massive arrays
 			//start with the regulators, their configurations, and related items
 			token_a = regulator_list;
-			for (index=0; index<num_regs; index++)
+			for (index=0; (int)index<num_regs; index++)
 			{
 				//Extract the object information
 				token_a1 = obj_token(token_a, &temp_obj);
@@ -598,7 +598,7 @@ int volt_var_control::init(OBJECT *parent)
 				//Default else - calculated based off of nominal voltage
 
 				//Extract all set point values
-				for (index=0; index<num_regs; index++)
+				for (index=0; (int)index<num_regs; index++)
 				{
 					if (num_des_volt == num_regs)	//One for each regulator
 					{
@@ -706,7 +706,7 @@ int volt_var_control::init(OBJECT *parent)
 				//Defaulted else - calculate
 
 				//Extract all set point values
-				for (index=0; index<num_regs; index++)
+				for (index=0; (int)index<num_regs; index++)
 				{
 					if (num_max_vdrop == num_regs)	//One for each regulator
 					{
@@ -790,7 +790,7 @@ int volt_var_control::init(OBJECT *parent)
 	//See if any regulator is in manual mode, if we are on right now
 	if (control_method == ACTIVE)
 	{
-		for (index=0; index<num_regs; index++)	//See if any are in manual
+		for (index=0; (int)index<num_regs; index++)	//See if any are in manual
 		{
 			if (pRegulator_configs[index]->Control != regulator_configuration::MANUAL)	//We're on, but regulator not in manual.  Set up as a transition
 			{
@@ -996,7 +996,7 @@ int volt_var_control::init(OBJECT *parent)
 
 			//Parse the list now
 			token_a = capacitor_list;
-			for (index = 0; index < num_caps; index++)
+			for (index = 0; (int)index < num_caps; index++)
 			{
 				//Extract the object information
 				token_a1 = obj_token(token_a, &temp_obj);
@@ -1060,7 +1060,7 @@ int volt_var_control::init(OBJECT *parent)
 			size_sorter(Capacitor_size, temp_cap_idx, num_caps, temp_cap_size, temp_cap_idx_work);
 
 			//Now populate the end capacitor list based on size
-			for (index=0; index < num_caps; index++)
+			for (index=0; (int)index < num_caps; index++)
 			{
 				pCapacitor_list[index] = pCapacitor_list_temp[temp_cap_idx[index]];
 			}
@@ -1086,13 +1086,13 @@ int volt_var_control::init(OBJECT *parent)
 		}
 
 		//Populate it with MANUAL (just cause)
-		for (index = 0; index < num_caps; index++)
+		for (index = 0; (int)index < num_caps; index++)
 		{
 			PrevCapState[index] = capacitor::MANUAL;
 		}
 
 		//Another loop, make sure if they are in manual, they have a PT_PHASE defined (other modes will check this inside capacitors)
-		for (index = 0; index < num_caps; index++)
+		for (index = 0; (int)index < num_caps; index++)
 		{
 			if (pCapacitor_list[index]->control == capacitor::MANUAL)	//Only applies to manual mode
 			{
@@ -1134,7 +1134,7 @@ int volt_var_control::init(OBJECT *parent)
 
 	//Now figure out the measurements
 	//Initialize measurement count list
-	for (index=0; index<num_regs; index++)
+	for (index=0; (int)index<num_regs; index++)
 	{
 		num_meas[index] = 0;
 	}
@@ -1262,7 +1262,7 @@ int volt_var_control::init(OBJECT *parent)
 			//List is assumed valid, now figure out how big everything needs to be
 			token_b1 = measurement_list;	//Start the list
 
-			for (index=0; index<total_meas; index++)
+			for (index=0; (int)index<total_meas; index++)
 			{
 				//Find the first comma
 				token_a = strchr(token_b1,',');
@@ -1290,7 +1290,7 @@ int volt_var_control::init(OBJECT *parent)
 					*/
 				}
 
-				if (index == (total_meas-1))	//Last item of the list
+				if ((int)index == (total_meas-1))	//Last item of the list
 				{
 					//Copy in the value
 					while (*token_a != '\0')
@@ -1311,7 +1311,7 @@ int volt_var_control::init(OBJECT *parent)
 
 				indexa = ((int)(strtod(token_b1,NULL))-1);	//Convert back
 
-				if ((indexa <0) || (indexa > (num_regs-1)))		//Pre-offset for C indexing
+				if ((indexa <0) || ((int)indexa > (num_regs-1)))		//Pre-offset for C indexing
 				{
 					GL_THROW("volt_var_control %s: Measurement list references a nonexistant regulator %d",obj->name,(indexa+1));
 					/*  TROUBLESHOOT
@@ -1327,7 +1327,7 @@ int volt_var_control::init(OBJECT *parent)
 		//Else is no measurements specified, this will be handled in the general catch below
 
 		//Check to see if any individual regulator has no measurment points
-		for (index=0; index<num_regs; index++)
+		for (index=0; (int)index<num_regs; index++)
 		{
 			if (num_meas[index] == 0)
 				num_meas[index] = -1;	//Default case - gets one
@@ -1342,7 +1342,7 @@ int volt_var_control::init(OBJECT *parent)
 		}
 
 		//Now time for mallocs
-		for (index=0; index<num_regs; index++)
+		for (index=0; (int)index<num_regs; index++)
 		{
 			if (num_meas[index] == -1)	//Default flag - only 1 item
 			{
@@ -1368,7 +1368,7 @@ int volt_var_control::init(OBJECT *parent)
 
 		//Now populate the list
 		token_a = measurement_list;	//Start the list
-		for (index=0; index<total_meas; index++)
+		for (index=0; (int)index<total_meas; index++)
 		{
 			//First item is the object, grab it
 			token_a1 = obj_token(token_a, &temp_obj);
@@ -1409,7 +1409,7 @@ int volt_var_control::init(OBJECT *parent)
 		gl_free(temp_meas_idx);
 
 		//Now loop through again - find any "zero" lists and populate them
-		for (index=0; index<num_regs; index++)
+		for (index=0; (int)index<num_regs; index++)
 		{
 			if (num_meas[index] == -1)	//This was a default case
 			{
@@ -1443,7 +1443,7 @@ int volt_var_control::init(OBJECT *parent)
 
 			//Now populate the list
 			token_a = measurement_list;	//Start the list
-			for (index=0; index<total_meas; index++)
+			for (index=0; (int)index<total_meas; index++)
 			{
 				//First item is the object, grab it
 				token_a1 = obj_token(token_a, &temp_obj);
@@ -1557,12 +1557,11 @@ int volt_var_control::init(OBJECT *parent)
 
 TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP tret = powerflow_object::presync(t0);
 	TIMESTAMP treg_min;
 	double vmin[3], VDrop[3], VSet[3], VRegTo[3];
 	int indexer, index, reg_index;
-	char temp_var_u, temp_var_d;
+	char temp_var_u = 0, temp_var_d = 0;
 	int prop_tap_changes[3];
 	bool limit_hit = false;	//mainly for banked operations
 	char LimitExceed = 0x00;	// U_D - XCBA_XCBA
@@ -2328,7 +2327,6 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 
 TIMESTAMP volt_var_control::postsync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP tret = powerflow_object::postsync(t0);
 	complex link_power_vals;
 	int index;
@@ -2336,8 +2334,8 @@ TIMESTAMP volt_var_control::postsync(TIMESTAMP t0)
 	bool allow_change;
 	capacitor::CAPSWITCH bank_status;
 	double temp_size;
-	double curr_pf_temp, react_pwr_temp, des_react_pwr_temp;
-	bool pf_add_capacitor, pf_check;	
+	double curr_pf_temp = 0.0, react_pwr_temp = 0.0, des_react_pwr_temp = 0.0;
+	bool pf_add_capacitor = false, pf_check;	
 
 	//Grab power values and all of those related calculations
 	if ((control_method == ACTIVE) && (Regulator_Change == false))	//no regulator changes in progress and we're active
@@ -2629,7 +2627,7 @@ char *volt_var_control::dbl_token(char *start_token, double *dbl_val)
 {
 	char workArray[64];	//If we ever need over 64, this will need changing
 	char *outIndex, *workIndex, *end_token;
-	char index;
+	size_t index;
 
 	//Initialize work variable
 	for (index=0; index<64; index++)
@@ -2675,7 +2673,7 @@ char *volt_var_control::obj_token(char *start_token, OBJECT **obj_val)
 {
 	char workArray[64];	//Hopefully, names will never be over 64 characters - seems to get upset if we do more
 	char *outIndex, *workIndex, *end_token;
-	char index;
+	size_t index;
 
 	//Initialize work variable
 	for (index=0; index<64; index++)
