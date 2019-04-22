@@ -149,21 +149,48 @@ double solver_get_metric(SOLVERMODEL *model, // use NULL to get absolute metric 
 	size_t n;
 	for ( n = 0 ; n < bus_count ; n++ )
 	{
-		size_t m;
-		for ( m = 0 ; m < 3 ; m++ )
+		size_t phase;
+		for ( phase = 0 ; phase < 3 ; phase++ )
 		{
 			// load contribution to power distance
-			double dP = bus[n].PL[m] - ( model ? model->bus[n].PL[m] : 0.0 );
-			double dQ = bus[n].QL[m] - ( model ? model->bus[n].QL[m] : 0.0 );
-			// TODO: not sure magnitude is the best approach
-			bus_dist += sqrt(dP*dP + dQ*dQ); 
+			complex P = complex(bus[n].PL[phase]);
+			if ( model )
+			{
+				P -= complex(model->bus[n].PL[phase],model->bus[n].QL[phase]);
+			}
+			bus_dist += P.Mag(); 
 			
 			// TODO: generation contribution to power distance
 		}
 	}
 	for ( n = 0 ; n < branch_count ; n ++ )
 	{
-		// TODO: calculate impedance distance
+		size_t phase;
+		for ( phase = 0; phase < 3 ; phase++ )
+		{
+			// line loss contribution to power distance
+			int in = branch[n].from;
+			int out = branch[n].to;
+			complex Vin = bus[in].V[phase];
+			complex Vout = bus[out].V[phase];
+			complex Yin = branch[n].Yfrom[phase];
+			complex Yout = branch[n].Yto[phase];
+			complex Pin = Vin*~(Vin*Yin);
+			complex Pout = Vout*~(Vout*Yout);
+			complex Pdiff = (Pin - Pout);
+			if ( model )
+			{
+				Vin = model->bus[in].V[phase];
+				Vout = model->bus[out].V[phase];
+				Yin = model->branch[n].Yfrom[phase];
+				Yout = model->branch[n].Yto[phase];
+				Pin = Vin*~(Vin*Yin);
+				Pout = Vout*~(Vout*Yout);
+				Pdiff -= (Pin - Pout);
+			}
+			branch_dist += Pdiff.Mag();
+		}
+		// TODO: calculate self-impedance distance
 	}
 	double metric = ALPHA*sqrt(bus_dist)/bus_count + (1.0-ALPHA)*sqrt(branch_dist)/branch_count;
 	if ( model )
@@ -301,7 +328,7 @@ double solver_model_find(SOLVERMODEL *&model,
 	for ( m = solver_model_getfirst() ; m != NULL ; m = solver_model_getnext(m) )
 	{
 		double n = solver_get_metric(m,bus_count,bus,branch_count,branch);
-		solver_model_log(1,"check model %x (%dx%d) previous metric %g", m->id, bus_count, branch_count, dist);
+		solver_model_log(1,"check model %x (%dx%d) old distance %g", m->id, bus_count, branch_count, dist);
 		if ( n < dist )
 		{
 			model = m;
@@ -310,20 +337,20 @@ double solver_model_find(SOLVERMODEL *&model,
 	}
 	if ( model != NULL )
 	{
-		solver_model_log(1,"found model %x (%dx%d) new metric %g", model->id, bus_count, branch_count, dist);
+		solver_model_log(1,"found model %x (%dx%d) new distance %g", model->id, bus_count, branch_count, dist);
 	}
 	return dist; 
 }
 
 int64 solver_model_apply(SOLVERMODEL *model,
 						NR_SOLVER_STRUCT *&powerflow_values,
-						NRSOLVERMODE powerflow_type,
+						NRSOLVERMODE &powerflow_type,
 						NR_MESHFAULT_IMPEDANCE *&mesh_imped_values,
 						bool *&bad_computations,
 						int64 iterations)
 {
 	powerflow_values = model->powerflow_values;
-	// powerflow_type = powerflow_type;
+	powerflow_type = model->powerflow_type;
 	mesh_imped_values = model->mesh_imped_values;
 	bad_computations = model->bad_computations;
 	return model->iterations; 

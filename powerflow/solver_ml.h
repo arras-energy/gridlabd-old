@@ -40,7 +40,7 @@ double solver_model_find(SOLVERMODEL *&model,
 						 BRANCHDATA *&branch);
 int64 solver_model_apply(SOLVERMODEL *model,
 						NR_SOLVER_STRUCT *&powerflow_values,
-						NRSOLVERMODE powerflow_type,
+						NRSOLVERMODE &powerflow_type,
 						NR_MESHFAULT_IMPEDANCE *&mesh_imped_values,
 						bool *&bad_computations,
 						int64 iterations);

@@ -242,18 +242,29 @@ int64 solver_nr(unsigned int bus_count,
 	int64 Iteration = 0;
 
 	// Support solution modeling
-	if ( solver_model_init() )
+	try 
 	{
-		SOLVERMODEL *model = NULL;
-		if ( solver_model_find(model,bus_count,bus,branch_count,branch) < solver_model_get_maximum_distance() && model != NULL )
+		if ( solver_model_init() )
 		{
-			// model found
-			if ( solver_model_apply(model,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration) > 0 )
+			SOLVERMODEL *model = NULL;
+			if ( solver_model_find(model,bus_count,bus,branch_count,branch) < solver_model_get_maximum_distance() && model != NULL )
 			{
-				// model is ok
-				return Iteration;
+				// model found
+				if ( solver_model_apply(model,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration) > 0 )
+				{
+					// model is ok
+					return Iteration;
+				}
 			}
 		}
+	}
+	catch (const char *msg)
+	{
+		gl_warning("solver_ml: model failed -- %s",msg);
+	}
+	catch (...)
+	{
+		gl_warning("solver_ml: model failed -- unknown exception");
 	}
 
 	//File pointer for debug outputs
@@ -3974,7 +3985,18 @@ int64 solver_nr(unsigned int bus_count,
 	}
 	else	//Must have converged 
 	{
-		solver_model_new(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
+		try 
+		{
+			solver_model_new(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
+		}
+		catch (const char *msg)
+		{
+			gl_error("solver_ml: model save failed -- %s",msg);
+		}
+		catch (...)
+		{
+			gl_error("solver_ml: model save failed -- unknown exception");
+		}
 		return Iteration;
 	}
 }
