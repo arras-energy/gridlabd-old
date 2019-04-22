@@ -7,12 +7,12 @@
 #include <unistd.h>
 #include "solver_ml.h"
 
-#define CONFIGLOG "solver_model.log"
-#define CONFIGNAME "solver_model.cfg"
-#define CONFIGPATH "/usr/local/src/gridlabd/"
+#define CONFIGLOG "solver_ml.log"
+#define CONFIGNAME "solver_ml.cfg"
+#define CONFIGPATH "/usr/local/share/gridlabd/"
 
 // default configuration settings
-double maximum_distance = 0.0; // default is to never use solver model unless the problem is identical
+double maximum_distance = 1e-9; // 0 is never, 1e-9 is only when nearly identical
 char solver_model_logfile[1024] = CONFIGLOG;
 int solver_model_loglevel = 9; // -1=disable, 0 = minimal ... 9 = everything,
 size_t maximum_models = 100; // maximum number of models to keep
@@ -276,7 +276,7 @@ SOLVERMODEL *solver_model_new(unsigned int bus_count,
 }
 
 // iterators
-SOLVERMODEL *solver_model_getfirst()
+SOLVERMODEL *solver_model_getfirst() 
 {
 	return last; // LIFO
 }
@@ -298,9 +298,10 @@ double solver_model_find(SOLVERMODEL *&model,
 {
 	double dist = MAXDIST;
 	SOLVERMODEL *m;
-	for ( m = solver_model_getfirst() ; solver_model_islast(m) ; m = solver_model_getnext(m) )
+	for ( m = solver_model_getfirst() ; m != NULL ; m = solver_model_getnext(m) )
 	{
 		double n = solver_get_metric(m,bus_count,bus,branch_count,branch);
+		solver_model_log(1,"check model %x (%dx%d) previous metric %g", m->id, bus_count, branch_count, dist);
 		if ( n < dist )
 		{
 			model = m;
@@ -309,7 +310,7 @@ double solver_model_find(SOLVERMODEL *&model,
 	}
 	if ( model != NULL )
 	{
-		solver_model_log(1,"found model %x (%dx%d) metric %g", model->id, bus_count, branch_count, dist);
+		solver_model_log(1,"found model %x (%dx%d) new metric %g", model->id, bus_count, branch_count, dist);
 	}
 	return dist; 
 }
