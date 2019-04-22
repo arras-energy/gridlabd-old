@@ -22,6 +22,7 @@ public:
 	int32 maxcount;
 	enumeration mode;		///< dumps the voltages in either polar or rectangular notation
 	char8 filemode;
+	TIMESTAMP interval;
 public:
 	static CLASS *oclass;
 public:
