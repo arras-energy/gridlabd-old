@@ -44,7 +44,7 @@ voltdump::voltdump(MODULE *mod)
 				PT_KEYWORD, "rect", (enumeration)VDM_RECT,
 				PT_KEYWORD, "polar", (enumeration)VDM_POLAR,
 			PT_char8, "filemode", PADDR(filemode), PT_DESCRIPTION,"sets the file write mode",
-			PT_timestamp, "interval", PADDR(interval), PT_DESCRIPTION, "interval at which voltdump runs",
+			PT_double, "interval[s]", PADDR(interval), PT_DESCRIPTION, "interval at which voltdump runs",
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		
 	}
@@ -59,6 +59,7 @@ int voltdump::create(void)
 	maxcount = 1;
 	mode = VDM_RECT;
 	strcpy(filemode,"w");
+	interval = 0;
 	return 1;
 }
 
@@ -143,12 +144,14 @@ void voltdump::dump(TIMESTAMP t){
 TIMESTAMP voltdump::commit(TIMESTAMP t)
 {
 	if ( interval != 0 ) 
-	{
-		if ( gl_globalclock % interval == 0 )
+	{	
+		unsigned long long dt = (unsigned long long)interval;
+		if ( t % dt == 0 )
 		{
-			dump(gl_globalclock);
+			dump(t);
+			++runcount;
 		}
-		return ((gl_globalclock/interval)+1)*interval;
+		return ( maxcount > 0 && runcount > maxcount) ? TS_NEVER : ((t/dt)+1)*dt;
 	}
 
 	if ( runtime == 0 )
