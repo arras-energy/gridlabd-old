@@ -56,9 +56,9 @@ int voltdump::create(void)
 	group.erase();
 	runtime = TS_NEVER;
 	runcount = 0;
-	maxcount = 1;
+	maxcount = -1;
 	mode = VDM_RECT;
-	strcpy(filemode,"w");
+	strcpy(filemode,"");
 	interval = 0;
 	return 1;
 }
@@ -66,6 +66,34 @@ int voltdump::create(void)
 int voltdump::init(OBJECT *parent)
 {
 	unlink(filename);
+	if ( interval < 0 )
+	{
+		gl_error("negative interval is not permitted");
+		return 0;
+	}
+	else if ( interval > 0 )
+	{
+		if ( maxcount < 0 ) 
+		{
+			maxcount = 0; 
+		}
+		if ( strcmp(filemode,"") == 0 )
+		{
+			strcpy(filemode,"a");
+		}
+		runtime = TS_NEVER;
+	}
+	else
+	{
+		if ( maxcount < 0 )
+		{
+			maxcount = 1;
+		}
+		if ( strcmp(filemode,"") == 0 )
+		{
+			strcpy(filemode,"w");
+		}
+	}
 	return 1;
 }
 
@@ -142,7 +170,8 @@ void voltdump::dump(TIMESTAMP t){
 }
 
 TIMESTAMP voltdump::commit(TIMESTAMP t)
-{
+{	
+	gl_verbose("Interval is equal to : %f", interval);
 	if ( interval != 0 ) 
 	{	
 		unsigned long long dt = (unsigned long long)interval;
@@ -153,7 +182,7 @@ TIMESTAMP voltdump::commit(TIMESTAMP t)
 		}
 		return ( maxcount > 0 && runcount > maxcount) ? TS_NEVER : ((t/dt)+1)*dt;
 	}
-
+	
 	if ( runtime == 0 )
 	{
 		runtime = t;
