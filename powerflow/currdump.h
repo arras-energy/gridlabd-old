@@ -20,6 +20,9 @@ public:
 	char256 filename;
 	int32 runcount;
 	enumeration mode;
+	double interval;
+	int32 maxcount;
+	char8 filemode;
 public:
 	static CLASS *oclass;
 public:

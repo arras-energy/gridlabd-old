@@ -397,5 +397,6 @@ int savexml(const char *filename,FILE *fp)
 
 int savejson(const char *filename, FILE *fp)
 {
-	return json_output(fp);
+	GldJsonWriter json(filename);
+	return json.write_output(fp);
 }

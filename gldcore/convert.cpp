@@ -316,7 +316,7 @@ int convert_from_enumeration(char *buffer, /**< pointer to the string buffer */
 	/* no keyword found, return the numeric value instead */
 	if ( count == 0 )
 	{
-		 count = sprintf(temp,"%u",(uint32)value);
+		 count = sprintf(temp,"%llu",(unsigned long long)value);
 	}
 	if ( count < size - 1 )
 	{

@@ -137,178 +137,178 @@
 SET_MYCONTEXT(DMC_EXEC)
 
 /* TODO: remove these when reentrant code is completed */
-extern GldMain *my_instance;
-static MTIITEM exec_commit_get0(MTIITEM item)
+DEPRECATED extern GldMain *my_instance;
+DEPRECATED static MTIITEM exec_commit_get0(MTIITEM item)
 {
-	return my_instance->exec.commit_get0(item);
+	return my_instance->get_exec()->commit_get0(item);
 }
-static MTIITEM exec_commit_get1(MTIITEM item)
+DEPRECATED static MTIITEM exec_commit_get1(MTIITEM item)
 {
-	return my_instance->exec.commit_get1(item);
+	return my_instance->get_exec()->commit_get1(item);
 }
-static void exec_commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
+DEPRECATED static void exec_commit_call(MTIDATA output, MTIITEM item, MTIDATA input)
 {
-	my_instance->exec.commit_call(output,item,input);
+	my_instance->get_exec()->commit_call(output,item,input);
 }
-static MTIDATA exec_commit_set(MTIDATA to, MTIDATA from)
+DEPRECATED static MTIDATA exec_commit_set(MTIDATA to, MTIDATA from)
 {
-	return my_instance->exec.commit_set(to,from);
+	return my_instance->get_exec()->commit_set(to,from);
 }
-static int exec_commit_compare(MTIDATA a, MTIDATA b)
+DEPRECATED static int exec_commit_compare(MTIDATA a, MTIDATA b)
 {
-	return my_instance->exec.commit_compare(a,b);
+	return my_instance->get_exec()->commit_compare(a,b);
 }
-static void exec_commit_gather(MTIDATA a, MTIDATA b)
+DEPRECATED static void exec_commit_gather(MTIDATA a, MTIDATA b)
 {
-	my_instance->exec.commit_gather(a,b);
+	my_instance->get_exec()->commit_gather(a,b);
 }
-static int exec_commit_reject(MTI *mti, MTIDATA value)
+DEPRECATED static int exec_commit_reject(MTI *mti, MTIDATA value)
 {
-	return my_instance->exec.commit_reject(mti,value);
+	return my_instance->get_exec()->commit_reject(mti,value);
 }
-static void *exec_obj_syncproc(void *ptr)
+DEPRECATED static void *exec_obj_syncproc(void *ptr)
 {
 	OBJSYNCDATA *data = (OBJSYNCDATA*)ptr;
-	return data->main->exec.obj_syncproc(data);
+	return data->main->get_exec()->obj_syncproc(data);
 }
-void *exec_slave_node_proc(void *args)
+DEPRECATED void *exec_slave_node_proc(void *args)
 {
-	return my_instance->exec.slave_node_proc(args);
+	return my_instance->get_exec()->slave_node_proc(args);
 }
 
 /* TODO: remove then debug.c is reentrant */
-const char *exec_simtime(void)
+DEPRECATED const char *exec_simtime(void)
 {
-	return my_instance->exec.simtime();
+	return my_instance->get_exec()->simtime();
 }
-int exec_get_iteration_counter(void)
+DEPRECATED int exec_get_iteration_counter(void)
 {
-	return my_instance->exec.iteration_counter;
+	return my_instance->get_exec()->iteration_counter;
 }
-int exec_get_passtype(int pass)
+DEPRECATED int exec_get_passtype(int pass)
 {
-	return my_instance->exec.passtype[pass];
+	return my_instance->get_exec()->passtype[pass];
 }
 
 /* TODO: remove when instance.c is reentrant */
-extern pthread_mutex_t mls_inst_lock;
-extern pthread_cond_t mls_inst_signal;
+DEPRECATED extern pthread_mutex_t mls_inst_lock;
+DEPRECATED extern pthread_cond_t mls_inst_signal;
 
 /* TODO: remove when load.c is reentrant */
-int exec_schedule_dump(TIMESTAMP interval,char *filename)
+DEPRECATED int exec_schedule_dump(TIMESTAMP interval,char *filename)
 {
-	return my_instance->exec.schedule_dump(interval,filename);
+	return my_instance->get_exec()->schedule_dump(interval,filename);
 }
 
 /* TODO: remove when debug.c, instance_slave.c, server.c, and job.c are reentrant */
-int exec_setexitcode(int xc)
+DEPRECATED int exec_setexitcode(int xc)
 {
-	return my_instance->exec.setexitcode(xc);
+	return my_instance->get_exec()->setexitcode(xc);
 }
 
 /* TODO: remove when environment.c is reentrant */
-STATUS exec_start(void)
+DEPRECATED STATUS exec_start(void)
 {
-	return my_instance->exec.exec_start();
+	return my_instance->get_exec()->exec_start();
 }
 
 /* TODO: remove when enduse.c, instance.c, loadshape.c, object.c, random.c, schedule.c, threadpool.c, and transform.c are reentrant */
-int64 exec_clock(void)
+DEPRECATED int64 exec_clock(void)
 {
-	return my_instance->exec.clock();
+	return my_instance->get_exec()->clock();
 }
 
 /* TODO: remove when cmex.c is reentrant */
-int exec_init()
+DEPRECATED int exec_init()
 {
-	return my_instance->exec.init();
+	return my_instance->get_exec()->init();
 }
 
 /* TODO: remove when save.c is reentrant */
-INDEX **exec_getranks(void)
+DEPRECATED INDEX **exec_getranks(void)
 {
-	return my_instance->exec.getranks();
+	return my_instance->get_exec()->getranks();
 }
 
 /* TODO: remove when gui.c, test.c, and load.c are reentrant */
-void exec_sleep(unsigned int usec)
+DEPRECATED void exec_sleep(unsigned int usec)
 {
-	my_instance->exec.sleep(usec);
+	my_instance->get_exec()->sleep(usec);
 }
-int exec_add_scriptexport(const char *name)
+DEPRECATED int exec_add_scriptexport(const char *name)
 {
-	return my_instance->exec.add_scriptexport(name);
+	return my_instance->get_exec()->add_scriptexport(name);
 }
-int exec_add_createscript(const char *file)
+DEPRECATED int exec_add_createscript(const char *file)
 {
-	return my_instance->exec.add_createscript(file);
+	return my_instance->get_exec()->add_createscript(file);
 }
-int exec_add_initscript(const char *file)
+DEPRECATED int exec_add_initscript(const char *file)
 {
-	return my_instance->exec.add_initscript(file);
+	return my_instance->get_exec()->add_initscript(file);
 }
-int exec_add_syncscript(const char *file)
+DEPRECATED int exec_add_syncscript(const char *file)
 {
-	return my_instance->exec.add_syncscript(file);
+	return my_instance->get_exec()->add_syncscript(file);
 }
-int exec_add_precommitscript(const char *file)
+DEPRECATED int exec_add_precommitscript(const char *file)
 {
-	return my_instance->exec.add_precommitscript(file);
+	return my_instance->get_exec()->add_precommitscript(file);
 }
-int exec_add_commitscript(const char *file)
+DEPRECATED int exec_add_commitscript(const char *file)
 {
-	return my_instance->exec.add_commitscript(file);
+	return my_instance->get_exec()->add_commitscript(file);
 }
-int exec_add_termscript(const char *file)
+DEPRECATED int exec_add_termscript(const char *file)
 {
-	return my_instance->exec.add_termscript(file);
+	return my_instance->get_exec()->add_termscript(file);
 }
 EXITCODE exec_getexitcode(void)
 {
-	return my_instance->exec.getexitcode();
+	return my_instance->get_exec()->getexitcode();
 }
 const char *exec_getexitcodestr(void)
 {
-	return my_instance->exec.getexitcodestr(global_exit_code);
+	return my_instance->get_exec()->getexitcodestr(global_exit_code);
 }
 
 /* TODO: remove when instance_slave.c is reentrant */
-void exec_mls_create(void)
+DEPRECATED void exec_mls_create(void)
 {
-	my_instance->exec.mls_create();
+	my_instance->get_exec()->mls_create();
 }
-void exec_sync_reset(struct sync_data *d) /**< sync data to reset (NULL to reset main)  **/
+DEPRECATED void exec_sync_reset(struct sync_data *d) /**< sync data to reset (NULL to reset main)  **/
 {
-	my_instance->exec.sync_reset(d);
+	my_instance->get_exec()->sync_reset(d);
 }
-void exec_sync_merge(struct sync_data *to, /**< sync data to merge to (NULL to update main)  **/
+DEPRECATED void exec_sync_merge(struct sync_data *to, /**< sync data to merge to (NULL to update main)  **/
 					struct sync_data *from) /**< sync data to merge from */
 {
-	my_instance->exec.sync_merge(to,from);
+	my_instance->get_exec()->sync_merge(to,from);
 }
-void exec_sync_set(struct sync_data *d, /**< sync data to update (NULL to update main) */
+DEPRECATED void exec_sync_set(struct sync_data *d, /**< sync data to update (NULL to update main) */
 				  TIMESTAMP t,/**< timestamp to update with (negative time means soft event, 0 means failure) */
 				  bool deltaflag)/**< flag to let us know this was a deltamode exit - force it forward, otherwise can fail to exit */
 {
-	my_instance->exec.sync_set(d,t,deltaflag);
+	my_instance->get_exec()->sync_set(d,t,deltaflag);
 }
-TIMESTAMP exec_sync_get(struct sync_data *d) /**< Sync data to get sync time from (NULL to read main)  */
+DEPRECATED TIMESTAMP exec_sync_get(struct sync_data *d) /**< Sync data to get sync time from (NULL to read main)  */
 {
-	return my_instance->exec.sync_get(d);
+	return my_instance->get_exec()->sync_get(d);
 }
 
 /* TODO: remove when server.c is reentrant */
-void exec_mls_resume(TIMESTAMP ts)
+DEPRECATED void exec_mls_resume(TIMESTAMP ts)
 {
-	my_instance->exec.mls_resume(ts);
+	my_instance->get_exec()->mls_resume(ts);
 }
 
 /* TODO: remove when cmdarg.c is reentrant */
-void exec_slave_node()
+DEPRECATED void exec_slave_node()
 {
-	my_instance->exec.slave_node();
+	my_instance->get_exec()->slave_node();
 }
-void throwf(const char *format, ...)
+DEPRECATED void throwf(const char *format, ...)
 {
 	char buffer[1024];
 	va_list ptr;
@@ -319,36 +319,33 @@ void throwf(const char *format, ...)
 }
 
 // TODO: remove when python.cpp is reentrant
-void exec_mls_done(void)
+DEPRECATED void exec_mls_done(void)
 {
-	my_instance->exec.mls_done();
+	my_instance->get_exec()->mls_done();
 }
-void exec_mls_statewait(unsigned states)
+DEPRECATED void exec_mls_statewait(unsigned states)
 {
-	my_instance->exec.mls_statewait(states);
+	my_instance->get_exec()->mls_statewait(states);
 }
-void exec_mls_suspend(void)
+DEPRECATED void exec_mls_suspend(void)
 {
-	my_instance->exec.mls_suspend();
+	my_instance->get_exec()->mls_suspend();
 }
-void exec_rlock_sync(void)
+DEPRECATED void exec_rlock_sync(void)
 {
-	my_instance->exec.rlock_sync();
+	my_instance->get_exec()->rlock_sync();
 }
-
-void exec_runlock_sync(void)
+DEPRECATED void exec_runlock_sync(void)
 {
-	my_instance->exec.runlock_sync();
+	my_instance->get_exec()->runlock_sync();
 }
-
-void exec_wlock_sync(void)
+DEPRECATED void exec_wlock_sync(void)
 {
-	my_instance->exec.wlock_sync();
+	my_instance->get_exec()->wlock_sync();
 }
-
-void exec_wunlock_sync(void)
+DEPRECATED void exec_wunlock_sync(void)
 {
-	my_instance->exec.wunlock_sync();
+	my_instance->get_exec()->wunlock_sync();
 }
 
 
@@ -1658,7 +1655,7 @@ void *GldExec::obj_syncproc(OBJSYNCDATA *data)
 		// process the list for this thread
 		for ( s = data->ls, n = 0 ; s != NULL || n < data->nObj ; s = s->next, n++ ) 
 		{
-			my_instance->exec.ss_do_object_sync(data->n, s->data);
+			my_instance->get_exec()->ss_do_object_sync(data->n, s->data);
 		}
 
 		// signal completed condition
@@ -1715,10 +1712,10 @@ void GldExec::mls_init(void)
 	}
 	if (mls_created == 0)
 	{
-		my_instance->exec.mls_create();
+		my_instance->get_exec()->mls_create();
 	}
 	if (global_mainloopstate==MLS_PAUSED)
-		my_instance->exec.mls_suspend();
+		my_instance->get_exec()->mls_suspend();
 	else
 		sched_update(global_clock,global_mainloopstate);
 }
@@ -2896,7 +2893,7 @@ STATUS GldExec::exec_start(void)
 		double sync_time = 0;
 		double sim_speed = object_get_count()/1000.0*elapsed_sim/elapsed_wall;
 
-		extern clock_t loader_time;
+		clock_t loader_time = get_instance()->get_cmdarg()->get_loader_time();
 		extern clock_t instance_synctime;
 		extern clock_t randomvar_synctime;
 		extern clock_t schedule_synctime;
