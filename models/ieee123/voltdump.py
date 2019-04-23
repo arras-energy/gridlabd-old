@@ -13,7 +13,7 @@ timezone = "UTC"
 with open('output/volt_dump.csv', 'r') as dumpfile:
 	print("Reading volt_dump...")
 	reader = csv.reader(dumpfile)
-	for row in reader:
+	for row in reader :
 		if row[0].startswith("#") :
 			tpos = row[0].find(" at ")
 			if tpos > 0 :
@@ -72,34 +72,36 @@ def to_complex(s) :
 		return complex(s)
 	except :
 		raise Exception("complex('%s') is not valid" % s)
+
+		
 for filename in os.listdir("output") :
 	if filename.startswith("power_dump_") :
 		with open("output/"+filename,"r") as dumpfile :
 			print("Timestamp Read %s..." % filename)
 			reader = csv.reader(dumpfile)
- 			for row in reader:
- 				if '#' not in row[0][0] : 
- 					timestamp_current.append(datetime.datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S %Z"))
+			for row in reader:
+				if '#' not in row[0][0] : 
+					timestamp_current.append(datetime.datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S %Z"))
 			if not timestamp_common : 
 				timestamp_common = timestamp_current[:]
 				continue
- 		timestamp_common = set(timestamp_common) & set(timestamp_current)
- 		timestamp_current = []
+		timestamp_common = set(timestamp_common) & set(timestamp_current)
+		timestamp_current = []
 
 for filename in os.listdir("output") :
 	if filename.startswith("power_dump_") :
 		with open("output/"+filename,"r") as dumpfile :
 			print("Data Read %s..." % filename)
- 			reader = csv.reader(dumpfile)
- 			for row in reader :
- 				if '#' not in row[0][0] :
- 					timestamp = datetime.datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S %Z")
+			reader = csv.reader(dumpfile)
+			for row in reader :
+				if '#' not in row[0][0] :
+					timestamp = datetime.datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S %Z")
 					if not timestamp in data.keys() and timestamp in list(timestamp_common) : 
 						data[timestamp] = []
- 					if timestamp in list(timestamp_common) : 
- 							data[timestamp].extend(list(map(lambda x:to_complex(x),row[1:])))
- 					else : 
- 						print("Timestamp '%s' unique to '%s'..." % (timestamp, filename))
+					if timestamp in list(timestamp_common) : 
+							data[timestamp].extend(list(map(lambda x:to_complex(x),row[1:])))
+					else : 
+						print("Timestamp '%s' unique to '%s'..." % (timestamp, filename))
 				if row[0][0] == '#' :
 					if row[0]=="# timestamp" :
 						headers.extend(row[1:])

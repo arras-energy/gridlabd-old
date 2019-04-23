@@ -3,7 +3,6 @@ script on_term "python voltdump.py";
 object voltdump {
 	filemode "a";
 	runtime TS_NEVER;
-	maxcount 3000;
 	filename "output/volt_dump.csv";
 	on_init "mkdir -p output; rm -rf output/power_dump_*.csv output/volt_dump.csv";
 #ifdef STARTRECORDTIME
