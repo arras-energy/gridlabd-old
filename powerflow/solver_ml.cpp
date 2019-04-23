@@ -15,12 +15,13 @@
 double maximum_distance = 1e-9; // 0 is never, 1e-9 is only when nearly identical
 char solver_model_logfile[1024] = CONFIGLOG;
 int solver_model_loglevel = 9; // -1=disable, 0 = minimal ... 9 = everything,
-size_t maximum_models = 100; // maximum number of models to keep
+size_t maximum_models = 100; // maximum number of models to track
 
 SOLVERMODELSTATUS solver_model_status = SMS_INIT;
 SOLVERMODEL *last = NULL, *first = NULL;
 size_t solver_model_count = 0;
 FILE *solver_model_logfh = NULL;
+struct timeb start;
 
 double solver_model_get_maximum_distance(void)
 {
@@ -84,8 +85,42 @@ SOLVERMODELSTATUS solver_model_config(const char *localconfig = CONFIGNAME,
 	return status;
 }
 
+void solver_model_log(unsigned int level, const char *format, ...)
+{
+	if ( level <= solver_model_loglevel && solver_model_logfh != NULL )
+	{
+		va_list ptr;
+		va_start(ptr,format);
+		vfprintf(solver_model_logfh,format,ptr);
+		fprintf(solver_model_logfh,"\n");
+		va_end(ptr);
+	}
+}
+
+void solver_model_start_timer(void)
+{
+	ftime(&start);
+}
+
+void solver_model_stop_timer(SOLVERMODEL *model, bool apply=false)
+{
+	struct timeb stop;
+	ftime(&stop);
+	double timeval = (stop.time-start.time) + (stop.millitm-start.millitm)/1000.0;
+	if ( apply == false )
+	{
+		model->runtime = timeval;
+		solver_model_log(1,"solver runtime: %.3f s",timeval);
+	}
+	else
+	{
+		solver_model_log(1,"model runtime: %.3f s (%.1f s saved)",timeval,model->runtime-timeval);
+	}
+}
+
 int solver_model_init(void)
 {
+	solver_model_start_timer();
 	switch ( solver_model_status )
 	{
 		case SMS_INIT:
@@ -121,18 +156,6 @@ int solver_model_init(void)
 	}
 }
 
-void solver_model_log(unsigned int level, const char *format, ...)
-{
-	if ( level <= solver_model_loglevel && solver_model_logfh != NULL )
-	{
-		va_list ptr;
-		va_start(ptr,format);
-		vfprintf(solver_model_logfh,format,ptr);
-		fprintf(solver_model_logfh,"\n");
-		va_end(ptr);
-	}
-}
-
 #define MAXDIST 9.999999e99
 #define ALPHA 0.5 // parameter to tune how much more important bus metric is than branch metric
 double solver_get_metric(SOLVERMODEL *model, // use NULL to get absolute metric for problem id
@@ -147,18 +170,25 @@ double solver_get_metric(SOLVERMODEL *model, // use NULL to get absolute metric 
 	}
 	double bus_dist = 0, branch_dist = 0;
 	size_t n;
+	unsigned char phases[3] = {0x01,0x02,0x04};
 	for ( n = 0 ; n < bus_count ; n++ )
 	{
 		size_t phase;
 		for ( phase = 0 ; phase < 3 ; phase++ )
 		{
+			if ( (bus[n].phases&phases[phase]) == 0 )
+				continue;
+
 			// load contribution to power distance
 			complex P = complex(bus[n].PL[phase]);
 			if ( model )
 			{
 				P -= complex(model->bus[n].PL[phase],model->bus[n].QL[phase]);
 			}
-			bus_dist += P.Mag(); 
+			double dist = P.Mag();
+			if ( dist > 0 && model )
+				solver_model_log(2,"bus %d (%s) phase %c distance %g", n, bus[n].name, 'A'+phase, dist);
+			bus_dist += dist; 
 			
 			// TODO: generation contribution to power distance
 		}
@@ -171,6 +201,11 @@ double solver_get_metric(SOLVERMODEL *model, // use NULL to get absolute metric 
 			// line loss contribution to power distance
 			int in = branch[n].from;
 			int out = branch[n].to;
+
+			if ( (bus[in].phases&phases[phase]) == 0 
+				|| (bus[out].phases&phases[phase]) == 0 )
+				continue;
+
 			complex Vin = bus[in].V[phase];
 			complex Vout = bus[out].V[phase];
 			complex Yin = branch[n].Yfrom[phase];
@@ -188,18 +223,21 @@ double solver_get_metric(SOLVERMODEL *model, // use NULL to get absolute metric 
 				Pout = Vout*~(Vout*Yout);
 				Pdiff -= (Pin - Pout);
 			}
-			branch_dist += Pdiff.Mag();
+			double dist = Pdiff.Mag();
+			if ( dist > 0 && model )
+				solver_model_log(2,"branch %d (%s) phase %c distance %g", n, branch[n].name, 'A'+phase, dist);
+			branch_dist += dist;
 		}
 		// TODO: calculate self-impedance distance
 	}
 	double metric = ALPHA*sqrt(bus_dist)/bus_count + (1.0-ALPHA)*sqrt(branch_dist)/branch_count;
 	if ( model )
 	{
-		solver_model_log(1,"metric for model %llx (%dx%d) is %g",(model?model->id:0),bus_count,branch_count,metric);
+		solver_model_log(1,"model %llx (%dx%d) distance is %g",(model?model->id:0),bus_count,branch_count,metric);
 	}
 	else
 	{
-		solver_model_log(1,"metric new model (%dx%d) is %g",bus_count,branch_count,metric);
+		solver_model_log(1,"new model (%dx%d) distance is %g",bus_count,branch_count,metric);
 	}
 	return metric;
 }
@@ -299,6 +337,7 @@ SOLVERMODEL *solver_model_new(unsigned int bus_count,
 	}
 	last = model;
 	solver_model_log(1,"adding model %x (%dx%d)", model->id, bus_count, branch_count);
+	solver_model_stop_timer(model);
 	return last;
 }
 
@@ -353,5 +392,6 @@ int64 solver_model_apply(SOLVERMODEL *model,
 	powerflow_type = model->powerflow_type;
 	mesh_imped_values = model->mesh_imped_values;
 	bad_computations = model->bad_computations;
+	solver_model_stop_timer(model,true);
 	return model->iterations; 
 }

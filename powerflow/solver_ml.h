@@ -4,6 +4,8 @@
 #ifndef _SOLVER_ML
 #define _SOLVER_ML
 
+#include <sys/timeb.h>
+
 #include "solver_nr.h"
 
 typedef unsigned long long PROBLEMID;
@@ -18,6 +20,7 @@ typedef struct s_solution {
 	NR_MESHFAULT_IMPEDANCE *mesh_imped_values;
 	bool *bad_computations;
 	int64 iterations; 
+	double runtime;
 	struct s_solution *prev;
 	struct s_solution *next;
 } SOLVERMODEL;
