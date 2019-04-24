@@ -12,9 +12,9 @@
 #define CONFIGPATH "/usr/local/share/gridlabd/"
 
 // default configuration settings
-double maximum_distance = 1e-9; // 0 is never, 1e-9 is only when nearly identical
+double maximum_distance = 0; // 0 is never use solver model, 1e-9 is only when nearly identical
 char solver_model_logfile[1024] = CONFIGLOG;
-int solver_model_loglevel = 9; // -1=disable, 0 = minimal ... 9 = everything,
+int solver_model_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
 size_t maximum_models = 100; // maximum number of models to track
 
 SOLVERMODELSTATUS solver_model_status = SMS_INIT;
