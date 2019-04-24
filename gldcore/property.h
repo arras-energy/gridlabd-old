@@ -188,10 +188,16 @@ public:
 		{
 			size_t r,c;
 			for ( r=0 ; r<n ; r++ )
+			{
 				for ( c=0 ; c<m ; c++ )
+				{
 					if ( tst_flag(r,c,BYREF) )
+					{
 						free(x[r][c]); 
+					}
 				free(x[r]);
+				}
+			}
 			free(x);
 			delete refs;
 		}

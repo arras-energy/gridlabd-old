@@ -331,7 +331,7 @@ int savexml_strict(const char *filename,FILE *fp)
 									if (pval)
 										pval->Notation() = A;
 								}
-								if (object_get_value_by_name(obj,prop->name,buffer,sizeof(buffer))>0 && strcmp(buffer,"")!=0)
+								if ( prop->ptype != PT_method && object_get_value_by_name(obj,prop->name,buffer,sizeof(buffer))>0 && strcmp(buffer,"") != 0 )
 									count += fprintf(fp,"\t\t\t\t<%s>%s</%s>\n",prop->name,buffer,prop->name);
 							}
 						}
@@ -397,5 +397,6 @@ int savexml(const char *filename,FILE *fp)
 
 int savejson(const char *filename, FILE *fp)
 {
-	return json_output(fp);
+	GldJsonWriter json(filename);
+	return json.write_output(fp);
 }

@@ -9,10 +9,14 @@
 #include "cmdarg.h"
 
 class GldMain {
-public:		// public variables
+private:		// public variables
 	GldGlobals globals;
 	GldExec exec;
 	GldCmdarg cmdarg;
+public:
+	inline GldGlobals *get_globals() { return &globals; };
+	inline GldExec *get_exec() { return &exec; };
+	inline GldCmdarg *get_cmdarg() { return &cmdarg; };
 
 private:	// private variables
 	static unsigned int next_id; // next instance id
@@ -104,6 +108,6 @@ public:
 		return msg.c_str();
 	}
 };
-extern GldMain *my_instance; // TODO: move this into main() to make system globally reentrant
+DEPRECATED extern GldMain *my_instance; // TODO: move this into main() to make system globally reentrant
 
 #endif

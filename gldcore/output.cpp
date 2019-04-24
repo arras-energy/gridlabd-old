@@ -40,6 +40,7 @@
 #include "exception.h"
 #include "lock.h"
 #include "module.h"
+#include "exec.h"
 
 SET_MYCONTEXT(DMC_STREAM)
 
@@ -345,6 +346,7 @@ Output:
 		result = (*printerr)("%sFATAL    [%s] : %s\n", prefix, time_context, buffer);
 Unlock:
 	wunlock(&output_lock);
+	exec_setexitcode(XC_RUNERR);
 	return result;
 }
 
@@ -395,6 +397,7 @@ Output:
 		result = (*printerr)("%sERROR    [%s] : %s\n", prefix, time_context, buffer);
 Unlock:
 	wunlock(&output_lock);
+	exec_setexitcode(XC_RUNERR);
 	return result;
 }
 
@@ -445,6 +448,7 @@ Output:
 		result= (*printerr)("%s%s\n", prefix, buffer);
 Unlock:
 	wunlock(&output_lock);
+	exec_setexitcode(XC_RUNERR);
 	return result;
 }
 

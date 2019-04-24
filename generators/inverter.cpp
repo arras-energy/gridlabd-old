@@ -6170,6 +6170,11 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 
 							pred_state.P_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Re();
 							pred_state.Q_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Im();
+
+							// if (Pref > 0) {
+							// 	int stop_temp = 0;
+							// }
+
 							if (pCircuit_V[i].Mag() > 0.0)
 							{
 								pred_state.ed[i] = ((~(complex(Pref/3.0, Qref_PI[i])/(pCircuit_V[i]))) - (~(complex(pred_state.P_Out[i],pred_state.Q_Out[i])/(pCircuit_V[i])))).Re();

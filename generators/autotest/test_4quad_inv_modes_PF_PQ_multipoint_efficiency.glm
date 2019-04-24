@@ -94,7 +94,7 @@ schedule output_var {
 
 object climate{
 	name MyClimate;
-	tmyfile "../WA-Seattle.tmy2";
+	tmyfile "../WA-Yakima.tmy3";
 	object recorder {
 		file climate_out.csv;
 		interval 3600;
@@ -152,17 +152,16 @@ object node {
 		voltage_B -1200.8886-2080.000j;     
 		voltage_C -1200.8886+2080.000j;     
 		nominal_voltage 2401.7771;
-		// object recorder {
-			// property measured_power,measured_power_A,measured_power_B,measured_power_C; 
-			// file const_pq_meter.csv;
-			// interval 3600;
-			// limit 25;
-		// };
+		//object recorder {
+		//	property measured_power,measured_power_A,measured_power_B,measured_power_C; 
+		//	file const_pq_meter.csv;
+		//	interval 3600;
+		//	limit 25;
+		//};
 		object complex_assert {
 			target measured_power;
 			object player {
 				property value;
-				//file "constantPQmeterPower_multi_efficiency.player";
 				file "../constantPQmeterPower_multi_efficiency.player";
 			};
 			within "0.1";
@@ -202,17 +201,16 @@ object triplex_meter {
 	phases BS;
 	nominal_voltage 120;
 	groupid House_Meter;
-	object recorder {
-		property measured_real_power,measured_reactive_power,measured_power;
-		file const_pf_meter.csv;
-		interval 3600;
-		limit 25;
-	};
+	//object recorder {
+	//	property measured_power;
+	//	file const_pf_meter.csv;
+	//	interval 3600;
+	//	limit 25;
+	//};
 	object complex_assert {
 		target measured_power;
 		object player{
 			property value;
-			//file "constantPFmeterPower_multi_efficiency.player";
 			file "../constantPFmeterPower_multi_efficiency.player";
 		};
 		within "0.1";

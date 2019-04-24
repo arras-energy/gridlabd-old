@@ -12,6 +12,7 @@ yum groupinstall "Development Tools" -y
 yum install cmake -y 
 yum install ncurses-devel -y
 yum install epel-release -y
+yum install libcurl-devel -y
 yum install which -y
 
 # python3 support needed as of 4.2
