@@ -521,17 +521,107 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
-	output_message("GridLAB-D %d.%d.%d-%d (%s) %d-bit %s %s", 
-		global_version_major, global_version_minor, global_version_patch, 
-		global_version_build, global_version_branch, 8*sizeof(void*), global_platform,
-#ifdef _DEBUG
-	"DEBUG"
-#else
-	"RELEASE"
-#endif
-	);
-
+	output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
 	return 0;
+}
+
+DEPRECATED static int build_info(void *main, int argc, const char *argv[])
+{
+	enum e_format {RAW, JSON} format = RAW;
+	int parsed = 0;
+	if ( argc > 1 )
+	{
+		char tag[1024];
+		if ( sscanf(argv[1],"format=%1023[a-z]",tag) == 1 )
+		{
+			if ( strcmp(tag,"raw") == 0 )
+			{
+				format = RAW;
+				parsed = 1;
+			}
+			else if ( strcmp(tag,"json") == 0 )
+			{
+				format = JSON;
+				parsed = 1;
+			}
+			else
+			{
+				output_error("build-info format '%s' is not valid",tag);
+				return CMDERR;
+			}
+		}
+	}
+	char status[]=BUILD_STATUS, *ptr=NULL, *last=NULL;
+	bool old = global_suppress_repeat_messages;
+	global_suppress_repeat_messages = false;
+	switch(format)
+	{
+		case JSON:
+			output_message("{");
+			output_message("\t\"application\": \"%s\",", PACKAGE_NAME);
+			output_message("\t\"version\": \"%s\",", PACKAGE_VERSION);
+			output_message("\t\"build\": \"%d\",", BUILDNUM);
+			output_message("\t\"origin\": \"%s\",", BUILD_NAME);
+			output_message("\t\"source\": \"%s\",", BUILD_URL);
+			output_message("\t\"system\": \"%s\",", BUILD_SYSTEM);
+			output_message("\t\"release\": \"%s\",", BUILD_RELEASE);
+			output_message("\t\"id\": \"%s\",", BUILD_ID);
+			output_message("\t\"options\": \"%s", BUILD_OPTIONS
+#ifdef HAVE_NCURSES_H
+				" ncurses"
+#endif
+#ifdef HAVE_PYTHON
+				" python"
+#endif
+#ifdef HAVE_MYSQL
+				" mysql"
+#endif
+#ifdef HAVE_MATLAB
+				" matlab"
+#endif
+				"\","
+		);
+			output_message("\t\"status\": [");
+			for ( ptr = strtok_r(status,"\n",&last) ; ptr != NULL ; ptr = strtok_r(NULL,"\n",&last) )
+			{
+				if ( strcmp(ptr,"") != 0 )
+				{
+					output_message("\t\t\"%s\",",ptr);
+				}
+			}
+			output_message("\t\t\"\"]");
+			output_message("}");
+			break;
+		case RAW:
+		default:
+			output_message("application: %s", PACKAGE_NAME);
+			output_message("version: %s", PACKAGE_VERSION);
+			output_message("build: %d", BUILDNUM);
+			output_message("origin: %s", BUILD_NAME);
+			output_message("source: %s", BUILD_URL);
+			output_message("system: %s", BUILD_SYSTEM);
+			output_message("release: %s", BUILD_RELEASE);
+			output_message("id: %s", BUILD_ID);
+			output_message("options: %s", BUILD_OPTIONS
+#ifdef HAVE_NCURSES_H
+				" ncurses"
+#endif
+#ifdef HAVE_PYTHON
+				" python"
+#endif
+#ifdef HAVE_MYSQL
+				" mysql"
+#endif
+#ifdef HAVE_MATLAB
+				" matlab"
+#endif
+		);
+			output_message("status: %s", BUILD_STATUS);
+			break;
+	}
+	global_suppress_repeat_messages = old;		
+
+	return parsed;
 }
 
 DEPRECATED static int dsttest(void *main, int argc, const char *argv[])
@@ -1695,6 +1785,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"copyright",	NULL,	copyright,		NULL, "Displays copyright" },
 	{"license",		NULL,	license,		NULL, "Displays the license agreement" },
 	{"version",		"V",	version,		NULL, "Displays the version information" },
+	{"build-info",	NULL,	build_info,		NULL, "Displays the build information" },
 	{"setup",		NULL,	setup,			NULL, "Open simulation setup screen" },
 	{"origin",		NULL,	origin,			NULL, "Display origin information" },
 
@@ -1722,12 +1813,12 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"xsl",			NULL,	xsl,			"module[,module[,...]]]", "Create the XSL file for the module(s) listed" },
 
 	{NULL,NULL,NULL,NULL, "Help"},
-	{"help",		"h",		help,		NULL, "Displays command line help" },
-	{"info",		NULL,		info,		"<subject>", "Obtain online help regarding <subject>"},
-	{"modhelp",		NULL,		modhelp,	"module[:class]", "Display structure of a class or all classes in a module" },
-	{"modlist",		NULL,		modlist,	NULL, "Display list of available modules"},
-	{"example",		NULL,		example,	"module:class", "Display an example of an instance of the class after init" },
-	{"mclassdef",		NULL,		mclassdef,	"module:class", "Generate Matlab classdef of an instance of the class after init" },
+	{"help",		"h",	help,			NULL, "Displays command line help" },
+	{"info",		NULL,	info,			"<subject>", "Obtain online help regarding <subject>"},
+	{"modhelp",		NULL,	modhelp,		"module[:class]", "Display structure of a class or all classes in a module" },
+	{"modlist",		NULL,	modlist,		NULL, "Display list of available modules"},
+	{"example",		NULL,	example,		"module:class", "Display an example of an instance of the class after init" },
+	{"mclassdef",	NULL,	mclassdef,		"module:class", "Generate Matlab classdef of an instance of the class after init" },
 
 	{NULL,NULL,NULL,NULL, "Process control"},
 	{"pidfile",		NULL,	pidfile,		"[=<filename>]", "Set the process ID file (default is gridlabd.pid)" },
@@ -1741,7 +1832,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"compile",		"C",	compile,		NULL, "Toggles compile-only flags" },
 	{"environment",	"e",	environment,	"<appname>", "Set the application to use for run environment" },
 	{"output",		"o",	output,			"<file>", "Enables save of output to a file (default is gridlabd.glm)" },
-	{"pause",		NULL,	pauseatexit,			NULL, "Toggles pause-at-exit feature" },
+	{"pause",		NULL,	pauseatexit,	NULL, "Toggles pause-at-exit feature" },
 	{"relax",		NULL,	relax,			NULL, "Allows implicit variable definition when assignments are made" },
 
 	{NULL,NULL,NULL,NULL, "Server mode"},
