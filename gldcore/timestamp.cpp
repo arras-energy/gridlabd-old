@@ -1188,8 +1188,22 @@ TIMESTAMP convert_to_timestamp(const char *value)
 {
 	/* try date-time format */
 	unsigned short Y=0,m=0,d=0,H=0,M=0,S=0;
+	double s=0.0;
+	unsigned short tzh=0, tzm=0;
 	char tz[5]="";
 	if (*value=='\'' || *value=='"') value++;
+
+	/* ISO8601 support */
+	if ( sscanf(value,"%4hu-%2hu-%2huT%2hu:%2hu:%lf %2hu:%2hu",&Y,&m,&d,&H,&M,&s,&tzh,&tzm) > 6 
+		|| ( sscanf(value,"%4hu-%2hu-%2huT%2hu:%2hu:%lf%c",&Y,&m,&d,&H,&M,&s,tz) == 7 && strcmp(tz,"Z")==0) )
+	{
+		S = (unsigned short)s;
+		unsigned int ns = (s-S)*1e9;
+		DATETIME dt = {Y,m,d,H,M,S,ns,0};
+		TIMESTAMP t = mkdatetime(&dt);
+		return t - (tzh*60+tzm)*60;
+	}
+
 	/* scan ISO format date/time */
 	if (sscanf(value,"%hu-%hu-%hu %hu:%hu:%hu %[-+:A-Za-z0-9]",&Y,&m,&d,&H,&M,&S,tz)>=3)
 	{

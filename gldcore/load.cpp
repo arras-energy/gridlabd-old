@@ -2357,6 +2357,26 @@ static int time_value_datetimezone(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
+static int time_value_isodatetime(PARSER, TIMESTAMP *t)
+{
+	START;
+	if WHITE ACCEPT;
+	char timevalue[1024];
+	if (LITERAL("\"") && TERM(delim_value(HERE,timevalue,sizeof(timevalue),"\"")) && LITERAL("\"") )
+	{
+		*t = convert_to_timestamp(timevalue);
+		if (*t!=-1) 
+		{
+			ACCEPT;
+		}
+		else
+			REJECT;
+	}
+	else
+		REJECT;
+	DONE;
+}
+
 static int time_value(PARSER, TIMESTAMP *t)
 {
 	START;
@@ -2373,8 +2393,13 @@ static int time_value(PARSER, TIMESTAMP *t)
 	OR
 	if (TERM(time_value_datetimezone(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
 	OR
+	if (TERM(time_value_isodatetime(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
 	if (TERM(integer(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
-	else REJECT;
+	else 
+	{
+		REJECT;
+	}
 	DONE;
 }
 
