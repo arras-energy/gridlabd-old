@@ -35,6 +35,9 @@ currdump::currdump(MODULE *mod)
 			PT_timestamp,"runtime",PADDR(runtime),PT_DESCRIPTION,"the time to check current data",
 			PT_char256,"filename",PADDR(filename),PT_DESCRIPTION,"the file to dump the current data into",
 			PT_int32,"runcount",PADDR(runcount),PT_ACCESS,PA_REFERENCE,PT_DESCRIPTION,"the number of times the file has been written to",
+			PT_int32,"maxcount",PADDR(maxcount),PT_DESCRIPTION,"the maximum number of times the file is written",
+			PT_double, "interval[s]", PADDR(interval), PT_DESCRIPTION, "interval at which currdump runs",
+			PT_char8, "filemode", PADDR(filemode), PT_DESCRIPTION,"sets the file write mode",
 			PT_enumeration, "mode", PADDR(mode),
 				PT_KEYWORD, "RECT", (enumeration)CDM_RECT,
 				PT_KEYWORD, "POLAR", (enumeration)CDM_POLAR,
@@ -50,11 +53,43 @@ int currdump::create(void)
 	runtime = TS_NEVER;
 	runcount = 0;
 	mode = CDM_RECT;
+	interval = 0;
+	strcpy(filemode,"w");
+	maxcount = 1;
 	return 1;
 }
 
 int currdump::init(OBJECT *parent)
 {
+	unlink(filename);
+	if ( interval < 0 )
+	{
+		gl_error("negative interval is not permitted");
+		return 0;
+	}
+	else if ( interval > 0 )
+	{
+		if ( maxcount < 0 ) 
+		{
+			maxcount = 0; 
+		}
+		if ( strcmp(filemode,"") == 0 )
+		{
+			strcpy(filemode,"a");
+		}
+		runtime = TS_NEVER;
+	}
+	else
+	{
+		if ( maxcount < 0 )
+		{
+			maxcount = 1;
+		}
+		if ( strcmp(filemode,"") == 0 )
+		{
+			strcpy(filemode,"w");
+		}
+	}
 	return 1;
 }
 
@@ -84,7 +119,12 @@ void currdump::dump(TIMESTAMP t){
 		return;
 	}
 
-	outfile = fopen(filename, "w");
+	if (strcmp(filemode,"a")==0)
+	{
+		gl_verbose("voltdump is appending data to %s",filename.get_string());
+	}
+
+	outfile = fopen(filename, filemode);
 	if(outfile == NULL){
 		gl_error("currdump unable to open %s for output", filename.get_string());
 		return;
@@ -131,7 +171,18 @@ TIMESTAMP currdump::commit(TIMESTAMP t){
 	if(runtime == 0){
 		runtime = t;
 	}
-	if((t >= runtime || runtime == TS_NEVER) && (runcount < 1)){
+	if ( interval != 0 ) 
+	{	
+		unsigned long long dt = (unsigned long long)interval;
+		if ( t % dt == 0 )
+		{
+			dump(t);
+			++runcount;
+		}
+		return ( maxcount > 0 && runcount > maxcount) ? TS_NEVER : ((t/dt)+1)*dt;
+	}
+	if((t >= runtime || runtime == TS_NEVER) && (runcount < maxcount || maxcount <0))
+	{
 		/* dump */
 		dump(t);
 		++runcount;
