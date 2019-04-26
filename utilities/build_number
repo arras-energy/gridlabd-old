@@ -15,7 +15,7 @@ if [ "${LAST_STAMP:-none}" != "$THIS_STAMP" ]; then
 	echo "#define BRANCH \"$(git rev-parse --abbrev-ref HEAD)\"" >> $2
 	echo "#define REV_YEAR $(date '+%Y')" >> $2
 	echo "#define BUILD_NAME \"$(git remote | head -n 1)\"" >> $2
-	echo "#define BUILD_URL \"$(git remote -v | head -n 1 | cut -f1 -d' ' | cut -f2 -d'	')\"" >> $2
+	echo "#define BUILD_URL \"$(git remote -v | head -n 1 | cut -f1 -d' ' | cut -f2 -d'	' | sed -e 's/\.git//')\"" >> $2
 	echo "#define BUILD_BRANCH \"$(git rev-parse --abbrev-ref HEAD)\"" >> $2
 	echo "#define BUILD_SYSTEM \"$(uname -s)\"" >> $2
 	echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $2
