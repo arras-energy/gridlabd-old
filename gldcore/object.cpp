@@ -2886,10 +2886,47 @@ double object_get_part(void *x, const char *name)
 	return QNAN;
 }
 
+int object_set_part(void *x, const char *name, const char *value)
+{
+	return 0;
+}
+
 int object_loadmethod(OBJECT *obj, const char *name, const char *value)
 {
 	LOADMETHOD *method = class_get_loadmethod(obj->oclass,name);
 	return method ? method->call(obj,value) : 0;
 }
+
+bool object_set_property_part(OBJECT *obj, PROPERTY *prop, const char *name, const char *value)
+{
+	PROPERTYSPEC *spec = property_getspec(prop->ptype);
+	if ( spec == NULL )	
+		return false;
+	if ( spec->set_part == NULL )
+		return false;
+	void *ptr = (void*)((char*)(obj+1)+(size_t)prop->addr);
+	if ( ! spec->set_part(ptr,name,value) )
+	{
+		char tmp[64];	
+		output_error("object_set_property_part(OBJECT *obj={name:%s}, PROPERTY *prop={name:%s}, char *name='%s', char *value='%s'): set failed",object_name(obj,tmp,sizeof(tmp)),prop->name,name,value);
+		return false;
+	}
+	return true;
+}
+
+bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
+{
+	PROPERTY *prop = object_get_property(obj,propname,NULL);
+	if ( prop == NULL )
+		return false;
+	for ( ; data != NULL ; data = data->next )
+	{
+		output_debug("%s:%d.%s -- setting part '%s' = '%s'", obj->oclass->name, obj->id, propname,data->name,data->value);
+		if ( ! object_set_property_part(obj,prop,data->name,data->value) )
+			return false;
+	}
+	return true;
+}
+
 
 /** @} **/

@@ -94,7 +94,6 @@ for filename in os.listdir("output") :
 				except:
 					print("%s: error parsing row '%s', values ignored" % (filename,row))
 
-
 with open("output/powers.csv","w") as powers:
 	print("Writing powers...")
 	writer = csv.writer(powers)

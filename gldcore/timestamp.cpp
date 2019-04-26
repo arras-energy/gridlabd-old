@@ -1517,8 +1517,34 @@ double timestamp_get_part(void *x, const char *name)
 		if ( strcmp(name,"weekday")==0 ) return (double)dt.weekday;
 		if ( strcmp(name,"yearday")==0 ) return (double)dt.yearday;
 		if ( strcmp(name,"isdst")==0 ) return (double)dt.is_dst;
+		if ( strcmp(name,"nanosecond")==0 ) return (double)dt.nanosecond;
+		if ( strcmp(name,"tzoffset")==0 ) return (double)dt.tzoffset;
 	}
 	return QNAN;
+}
+
+int timestamp_set_part(void *x, const char *name, const char *value)
+{
+	TIMESTAMP *t = (TIMESTAMP*)x;
+	DATETIME dt;
+	if ( strcmp(name,"seconds")==0 ) { return sscanf(value,"%lld",t); };
+	if ( strcmp(name,"minutes")==0 ) { unsigned int y; return sscanf(value,"%u",&y)?(*t=y*60),1:0;};
+	if ( strcmp(name,"hours")==0 ) { unsigned int y; return sscanf(value,"%u",&y)?(*t=y*3600),1:0;};
+	if ( strcmp(name,"days")==0 ) { unsigned int y; return sscanf(value,"%u",&y)?(*t=y*86400),1:0;};
+	if ( local_datetime(*t,&dt) )
+	{
+		if ( strcmp(name,"second")==0 ) { return sscanf(value,"%hu",&dt.second) ? *t=mkdatetime(&dt),1:0;};
+		if ( strcmp(name,"minute")==0 ) { return sscanf(value,"%hu",&dt.minute) ? *t=mkdatetime(&dt),1:0;};
+		if ( strcmp(name,"hour")==0 ) { return sscanf(value,"%hu",&dt.hour) ? *t=mkdatetime(&dt),1:0;};
+		if ( strcmp(name,"day")==0 ) { return sscanf(value,"%hu",&dt.day) ? *t=mkdatetime(&dt),1:0;};
+		if ( strcmp(name,"month")==0 ) { return sscanf(value,"%hu",&dt.month) ? *t=mkdatetime(&dt),1:0;};
+		if ( strcmp(name,"year")==0 ) { return sscanf(value,"%hu",&dt.year) ? *t=mkdatetime(&dt),1:0;};
+		if ( strcmp(name,"yearday")==0 ) { return sscanf(value,"%hu",&dt.yearday) ? *t=mkdatetime(&dt),1:0;};
+		if ( strcmp(name,"isdst")==0 ) { return sscanf(value,"%hu",&dt.is_dst) ? *t=mkdatetime(&dt),1:0;};
+		if ( strcmp(name,"nanosecond")==0 ) { return sscanf(value,"%u",&dt.nanosecond) ? *t=mkdatetime(&dt),1:0;};
+		if ( strcmp(name,"tzoffset")==0 ) { return sscanf(value,"%u",&dt.tzoffset) ? *t=mkdatetime(&dt),1:0;};
+	}
+	return 0;
 }
 
 /** Compute the absolute timestamp (removes soft/hard time distinction)

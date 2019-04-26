@@ -78,6 +78,28 @@ double enduse_get_part(void *x, const char *name)
 	return QNAN;
 }
 
+int enduse_set_part(void *x, const char *name, const char *value)
+{
+	enduse *e = (enduse*)x;
+#define SET_COMPLEX(X) if ( strcmp(name,#X)==0 ) { return complex_from_string(&(e->X),value);}
+#define SET_DOUBLE(X) if ( strcmp(name,#X)==0 ) { return sscanf(value,"%lg",&(e->X)); }
+	SET_COMPLEX(total)
+	SET_COMPLEX(energy)
+	SET_COMPLEX(demand)
+	SET_DOUBLE(breaker_amps);
+	SET_COMPLEX(admittance);
+	SET_COMPLEX(current);
+	SET_COMPLEX(power);
+	SET_DOUBLE(impedance_fraction);
+	SET_DOUBLE(current_fraction);
+	SET_DOUBLE(power_fraction);
+	SET_DOUBLE(power_factor);
+	SET_DOUBLE(voltage_factor);
+	SET_DOUBLE(heatgain);
+	SET_DOUBLE(heatgain_fraction);
+	return 0;
+}
+
 #ifdef _DEBUG
 static unsigned int enduse_magic = 0x8c3d7762;
 #endif
