@@ -59,7 +59,6 @@ int pole::create(void)
 	equipment_height = 0.0;
 
 	ice_thickness = 0.0;
-	wind_loading = 0.0;
 	resisting_moment = 0.0;
 	pole_moment = 0.0;
 	equipment_moment = 0.0;
@@ -70,13 +69,11 @@ int pole::create(void)
 	wire_moment_nowind = 0.0;
 	wind_pressure = 0.0;
 	wire_tension = 0.0;
-	wire_tension_nowind = 0.0;
 	pole_stress = 0.0;
 	susceptibility = 0.0;
 	total_moment = 0.0;
 	critical_wind_speed = 0.0;
-	wind_pressure_failure = 0.0;
-	cable_configuration = NULL;
+	configuration = NULL;
 	is_deadend = FALSE;
 
 	config = NULL;
