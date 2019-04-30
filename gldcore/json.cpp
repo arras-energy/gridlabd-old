@@ -52,8 +52,8 @@ int GldJsonWriter::write(const char *fmt,...)
 	return len;
 }
 
-#define FIRST(NAME,FORMAT,VALUE) (len += write("\n\t\t\t\"%s\" : \"" FORMAT "\"",NAME,VALUE))
-#define TUPLE(NAME,FORMAT,VALUE) (len += write(",\n\t\t\t\"%s\" : \"" FORMAT "\"",NAME,VALUE))
+#define FIRST(N,F,V) (len += write("\n\t\t\t\"%s\" : \"" F "\"",N,V))
+#define TUPLE(N,F,V) (len += write(",\n\t\t\t\"%s\" : \"" F "\"",N,V))
 
 int GldJsonWriter::write_modules(FILE *fp)
 {

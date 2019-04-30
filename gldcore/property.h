@@ -170,7 +170,7 @@ public:
 				set_at(r,c, ( data!=NULL ? data[r][c] : 0.0 ) );
 			}
 		}
-	}
+	};
 	double_array(const double_array &a)
 	{
 		n = a.n;
@@ -181,7 +181,7 @@ public:
 		f = a.f;
 		name = a.name;
 		(*refs)++;
-	}
+	};
 	~double_array(void)
 	{
 		if ( (*refs)-- == 0 )
@@ -195,13 +195,13 @@ public:
 					{
 						free(x[r][c]); 
 					}
-				free(x[r]);
 				}
+				free(x[r]);
 			}
 			free(x);
 			delete refs;
 		}
-	}
+	};
 public:
 	void set_name(const char *v) { name = v; }; 
 	inline const char *get_name(void) const { return name; };
