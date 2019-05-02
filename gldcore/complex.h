@@ -42,6 +42,12 @@ private:
 #define complex_set_power_factor(X,M,P)	complex_set_polar((X),(M)/(P),acos(P))
 #define complex_get_mag(X) (sqrt((X).r*(X).r + (X).i*(X).i))
 #define complex_get_arg(X) ((X).r==0 ? ( (X).i > 0 ? PI/2 : ((X).i<0 ? -PI/2 : 0) ) : ( (X).r>0 ? atan((X).i/(X).r) : PI+atan((X).i/(X).r) ))
+#define complex_set_rect(C,X,Y) ((C).r=(X),(C).i=(Y))
+#define complex_set_real(C,X) ((C).r=(X))
+#define complex_set_imag(C,Y) ((C).i=(Y))
+#define complex_set_mag(C,M) (NULL) // TODO
+#define complex_set_arg(C,R) (NULL) // TODO
+#define complex_set_ang(C,D) (NULL) // TODO
 double complex_get_part(void *c, const char *name);
 #else
 public:
@@ -93,12 +99,27 @@ public:
 	{
 		return r;
 	};
+	inline double Re(double x)
+	{
+		r = x;
+		return r;
+	};
 	inline double & Im(void) /**< access to imaginary part */
 	{
 		return i;
 	};
+	inline double Im(double y)
+	{
+		i = y;
+		return i;
+	};
 	inline CNOTATION & Notation(void) /**< access to notation */
 	{
+		return f;
+	};
+	inline CNOTATION Notation(CNOTATION s)
+	{
+		f = s;
 		return f;
 	};
 	inline double Mag(void) const /**< compute magnitude */
@@ -338,6 +359,9 @@ public:
 	inline bool IsFinite(void) { return isfinite(r) && isfinite(i); };
 };
 #endif
+
+int complex_from_string(void *c, const char *str);
+int complex_set_part(void *c, const char *name, const char *value);
 
 #endif
  /**@}**/

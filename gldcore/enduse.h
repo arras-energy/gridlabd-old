@@ -102,6 +102,7 @@ int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop);
 int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefix);
 int enduse_test(void);
 double enduse_get_part(void *c, const char *name);
+int enduse_set_part(void *x, const char *name, const char *value);
 
 #ifdef __cplusplus
 }

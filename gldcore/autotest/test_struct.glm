@@ -8,9 +8,9 @@ clock {
 
 object house {
 	load {
-		total 7;
-		demand 12;
-		energy 24;
+		total: 7;
+		demand: 12;
+		energy: 24;
 	};
 	object recorder {
 		property panel.power;
