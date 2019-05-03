@@ -1,3 +1,2 @@
 #!/bin/bash
-echo "timestamp,randomstate,URAND,NRAND,GUID" > randomstate.csv
 echo "#set randomseed=${randomseed:-0}" > randomseed.glm
