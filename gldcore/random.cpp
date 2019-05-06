@@ -93,9 +93,11 @@ int random_init(void)
 	/* randomizes the random number generator start value */
 	if (global_randomseed==0)
 		global_randomseed = entropy_source();
+	if (global_randomstate==0)
+		global_randomstate = global_randomseed;
 
 	srand(1);
-	ur_state = &global_randomseed;
+	ur_state = &global_randomstate;
 
 	return 1;
 }

@@ -125,6 +125,7 @@ GLOBAL char global_urlbase[1024] /**< default urlbase used for online resources 
 	INIT("http://www.gridlabd.org/"); 
 #endif
 GLOBAL unsigned int global_randomseed INIT(0); /**< random number seed (default 0 means true randomization, non-zero means deterministic random state) */
+GLOBAL unsigned int global_randomstate INIT(0);
 GLOBAL char global_include[1024] 
 #ifdef WIN32
 	INIT(""); 

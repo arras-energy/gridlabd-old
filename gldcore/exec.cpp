@@ -3464,8 +3464,7 @@ int GldExec::add_scriptexport(const char *name)
 {
 	SIMPLELIST *item = (SIMPLELIST*)malloc(sizeof(SIMPLELIST));
 	if ( !item ) return 0;
-	item->data = (char*)malloc(strlen(name)+1);
-	strcpy(item->data,name);
+	item->data = strdup(name);
 	item->next = script_exports;
 	script_exports = item;
 	return 1;
@@ -3480,10 +3479,9 @@ int GldExec::update_exports(void)
 		char value[1024];
 		if ( global_getvar(name,value,sizeof(value)) )
 		{
-			char env[2048];
-			sprintf(env,"%s=%s",name,value);
-			if ( putenv(env)!=0 )
-				output_warning("unable to update script export '%s' with value '%s'", name, value);
+			IN_MYCONTEXT output_debug("export %s=%s",name,value);
+			if ( setenv(name,value,true)!=0 )
+				IN_MYCONTEXT output_error("unable to update script export '%s' with value '%s'", name, value);
 		}
 	}
 	return 1;

@@ -227,6 +227,7 @@ DEPRECATED static struct s_varmap {
 	{"website", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string (deprecated)"}, /** @todo deprecate use of 'website' */
 	{"urlbase", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string"},
 	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*))random_init},
+	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,(void(*)(const char*))random_init},
 	{"include", PT_char1024, &global_include, PA_REFERENCE, "include folder path"},
 	{"trace", PT_char1024, &global_trace, PA_PUBLIC, "trace function list"},
 	{"gdb_window", PT_bool, &global_gdb_window, PA_PUBLIC, "gdb window enable flag"},
@@ -820,6 +821,34 @@ DEPRECATED char *global_today(char *buffer, int size)
 		return NULL;
 	}
 }
+DEPRECATED char *global_urand(char *buffer, int size)
+{
+	if ( size > 32 )
+	{
+		sprintf(buffer,"%f",random_uniform(NULL,0.0,1.0));
+		return buffer;
+	}
+	else
+	{
+		output_error("global_today(...): buffer too small");
+		return NULL;
+	}
+
+}
+DEPRECATED char *global_nrand(char *buffer, int size)
+{
+	if ( size > 32 )
+	{
+		sprintf(buffer,"%f",random_normal(NULL,0.0,1.0));
+		return buffer;
+	}
+	else
+	{
+		output_error("global_today(...): buffer too small");
+		return NULL;
+	}
+
+}
 DEPRECATED char *global_true(char *buffer, int size)
 {
 	if ( size>1 )
@@ -1108,6 +1137,8 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 		{"NOW",global_now},
 		{"TODAY",global_today},
 		{"RUN",global_run},
+		{"URAND",global_urand},
+		{"NRAND",global_nrand},
 #if defined WIN32
 		{"WINDOWS",global_true},
 #elif defined __APPLE__
