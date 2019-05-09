@@ -128,7 +128,7 @@ def get_version(path=None):
 
 setup (	name = 'gridlabd',
 		version = get_version(),
-		description = 'GridLAB-D Power System Simulator',
+		description = 'GridLAB-D Smart Grid Simulator',
 		author = 'David P. Chassin',
 		author_email = 'dchassin@stanford.edu',
 		ext_modules = [gridlabd])
