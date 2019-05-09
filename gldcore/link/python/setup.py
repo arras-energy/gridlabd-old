@@ -101,8 +101,33 @@ gridlabd = Extension('gridlabd',
 		])),
 	)
 
-setup (	name = 'GridLAB-D',
-		version = '4.2',
+def get_version(path=None):
+	if path == None :
+		path = srcdir + "/gldcore"
+	major = None
+	minor = None
+	patch = None
+	build = None
+	with open(path + "/version.h") as f:
+		for line in f:
+			info = line.split(" ")
+			if info[0] == "#define":
+				if info[1] == "REV_MAJOR":
+					major = int(info[2])
+				elif info[1] == "REV_MINOR":
+					minor = int(info[2])
+				elif info[1] == "REV_PATCH":
+					patch = int(info[2])
+	with open(path + "/build.h") as f:
+		for line in f:
+			info = line.split(" ")
+			if info[0] == "#define":
+				if info[1] == "BUILDNUM":
+					build = int(info[2])
+	return '%d.%d.%d.%d' % (major,minor,patch,build)
+
+setup (	name = 'gridlabd',
+		version = get_version(),
 		description = 'GridLAB-D Power System Simulator',
 		author = 'David P. Chassin',
 		author_email = 'dchassin@stanford.edu',
