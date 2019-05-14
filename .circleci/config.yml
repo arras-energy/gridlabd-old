@@ -61,7 +61,7 @@ jobs:
           destination: /gridlabd/autotest-output.tar.gz
       - run:
           name: Produce documentation
-          command: make doxygen-run
+          command: sudo make doxygen-run
       - store_artifacts:
           path: /home/circleci/project/documents/html
           destination: /gridlabd/html
