@@ -378,11 +378,21 @@ int tmy2_reader::header_info(char* city, char* state, int* degrees, int* minutes
 
 	@param dnr Direct Normal Radiation
 	@param dhr Diffuse Horizontal Radiation
-	@param tdb Bulb temperature
-	@param rh  Relative Humidity
-	@param month month of year
-	@param day day of month
-	@param hour hour of day
+	@param ghr Global Horizontal Radiation
+	@param rh Relative Humidity
+	@param tdb Dry Bulb Temperature
+	@param month Month of the observation
+	@param day Day of the observation
+	@param hour hour of the observation
+	@param wind Wind speed (optional)
+	@param winddir Wind direction
+	@param precip Precipitation
+	@param snowDepth Snow depth
+	@param extra_terr_ghi Extra-terrestrial global horizontal radiation
+	@param tot_sky_cov Total sky coverage
+	@param opq_sky_cov Opaque sky coverage 
+	@param pressure - atmospheric pressure
+	@param extra_terr_dni - Extra terrestrial direct normal irradiance (top of atmosphere)
 */
 
 int tmy2_reader::read_data(double *dnr, double *dhr, double *ghr, double *tdb, double *rh, int* month, int* day, int* hour, double *wind, double *winddir, double *precip, double *snowDepth, double *pressure, double *extra_terr_dni, double *extra_terr_ghi, double *tot_sky_cov, double *opq_sky_cov)

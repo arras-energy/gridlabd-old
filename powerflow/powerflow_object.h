@@ -3,7 +3,7 @@
 	@file powerflow.h
 	@addtogroup powerflow_object
 
-	@{
+@{
  **/
 
 #ifndef _POWERFLOWOBJECT_H

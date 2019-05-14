@@ -1653,7 +1653,9 @@ SIMULATIONMODE switch_object::inter_deltaupdate_switch(unsigned int64 delta_time
 * REQUIRED: allocate and initialize an object.
 *
 * @param obj a pointer to a pointer of the last object in the list
-* @param parent a pointer to the parent of this object
+* @param t1 the start of the time frame to commit
+* @param t2 the end of the time frame to commit
+*
 * @return 1 for a successfully created object, 0 for error
 */
 EXPORT TIMESTAMP commit_switch_object(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)

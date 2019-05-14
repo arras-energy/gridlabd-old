@@ -1,5 +1,6 @@
 /** $Id: aggregate.c 4738 2014-07-03 00:55:39Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
+
 	@file aggregate.c
 	@addtogroup aggregate Aggregation of object properties
 	@ingroup core
@@ -10,7 +11,7 @@
 	by specifying a boolean series are relationship of object properties, e.g.,
 	\verbatim class=node and parent=root \endverbatim.
 	
-	Aggregations also must specify	the property that is to be aggregated.  Most common
+	Aggregations also must specify the property that is to be aggregated.  Most common
 	aggregations and some uncommon ones are supported.  In addition, if the aggregation is
 	over a complex quantity, the aggregation must specific how a double is to be obtained
 	from it, e.g., magnitude, angle, real, imaginary.  Some examples aggregate \p property 

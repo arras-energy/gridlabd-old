@@ -149,7 +149,9 @@ int series_reactor::init(OBJECT *parent)
 * REQUIRED: allocate and initialize an object.
 *
 * @param obj a pointer to a pointer of the last object in the list
-* @param parent a pointer to the parent of this object
+* @param t1 the start of the time frame to commit
+* @param t2 the end of the time frame to commit
+*
 * @return 1 for a successfully created object, 0 for error
 */
 EXPORT TIMESTAMP commit_series_reactor(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)

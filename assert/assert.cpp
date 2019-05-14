@@ -1,7 +1,13 @@
-/** $Id: assert.cpp 4738 2014-07-03 00:55:39Z dchassin $
+/** assert/assert.cpp
+    Copyright 2014 Battelle Memorial Institute
 
-   General purpose assert objects
+    @file assert.cpp
+    @addtogroup assert
+    @ingroup assert
 
+    The \p assert class implements general purpose assert objects
+
+ @{
  **/
 
 #include <stdlib.h>
@@ -138,3 +144,5 @@ int g_assert::postnotify(PROPERTY *prop, const char *value)
 	// TODO notify handler for changed value
 	return 1;
 }
+
+/** @} **/
