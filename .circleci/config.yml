@@ -14,7 +14,9 @@ jobs:
             sudo make -j16 install
       - run:
           name: Validate gridlabd
-          command:  gridlabd -T 8 --validate
+          command: |
+            export PATH=$PWD/install/bin:$PATH
+            gridlabd -T 8 --validate
       - run:
           name: Save validation output (if any) on failure
           command: tar cfz validate-output.tar.gz ./*/autotest/*/*
