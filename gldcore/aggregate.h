@@ -45,8 +45,10 @@ public:
 	~GldAggregator(void);
 public:
 	double get_value(void);
+	/** obtain a reference to an existing aggregator **/
 	DEPRECATED inline AGGREGATION *get_aggregator(void) { return aggr; };
 public:
+	/** obtain a reference to an existing aggregator **/
 	DEPRECATED inline operator AGGREGATION*(void) { return aggr; };
 };
 

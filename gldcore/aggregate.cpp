@@ -1,7 +1,7 @@
 /** $Id: aggregate.c 4738 2014-07-03 00:55:39Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
 
-	@file aggregate.c
+	@file aggregate.cpp
 	@addtogroup aggregate Aggregation of object properties
 	@ingroup core
 	
@@ -57,10 +57,11 @@ DEPRECATED CDECL double aggregate_value(AGGREGATION *aggr) /**< the aggregation 
 	return GldAggregator(aggr).get_value();
 }
 
-/** This function builds an collection of objects into an aggregation.  
-	The aggregation can be run using aggregate_value(AGGREGATION*)
+/** This constructor creates an instance of an existing aggregator.
+	A reference to existing aggregation can be obtained using get_aggregator().
+	The aggregation can be run using aggregate_value(AGGREGATION*).
  **/
-GldAggregator::GldAggregator(AGGREGATION *a)
+GldAggregator::GldAggregator(AGGREGATION *a) ///< an existing aggregator
 {
 	aggr = a;
 	aggr->refcnt++;
@@ -72,6 +73,9 @@ GldAggregator::~GldAggregator(void)
 		delete aggr;
 }
 
+/** This constructor builds a new collection of objects into an aggregation.  
+	The aggregation can be run using \p get_value.
+ **/
 GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
 							 const char *group_expression) /**< grouping rule; see find_pgm_new(char *)*/
 {
