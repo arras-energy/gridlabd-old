@@ -34,7 +34,7 @@ object triplex_meter {
 		window_wall_ratio 0.07;
 		heating_COP 1.00;
 		object recorder {
-			property total_load;
+			property total_power;
 			file "exercise_5_2_1.csv";
 			interval 3600;
 			limit 168;

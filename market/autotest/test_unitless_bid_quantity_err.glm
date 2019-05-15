@@ -67,7 +67,7 @@ name house1;
 		base_setpoint 70;
 		slider_setting 1;
 		demand cooling_demand;
-		total total_load;
+		total total_power;
 		load hvac_load;
 		state power_state;
 	};

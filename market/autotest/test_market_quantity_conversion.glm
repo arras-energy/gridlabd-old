@@ -76,7 +76,7 @@ object house {
 		base_setpoint 60;
 		slider_setting 1;
 		demand heating_demand;
-		total total_load;
+		total total_power;
 		load hvac_load;
 		state power_state;
 		object double_assert {

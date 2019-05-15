@@ -112,7 +112,7 @@ object house {
           cooling_ramp_high 2.400;
           heating_ramp_low -2.400;
           cooling_ramp_low 2.400;
-          total total_load;
+          total total_power;
           load hvac_load;
           state power_state;
       };

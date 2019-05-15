@@ -144,7 +144,7 @@ object triplex_meter {
 			cooling_setpoint cooling_setpoint;
 			cooling_demand cooling_demand;
 			deadband thermostat_deadband;
-			total total_load;
+			total total_power;
 			load hvac_load;
 			heating_range_high 4;
 			heating_range_low -5;

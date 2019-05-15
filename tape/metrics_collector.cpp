@@ -665,7 +665,7 @@ int metrics_collector::read_line(OBJECT *obj)
 	else if (strcmp(parent_string, "house") == 0)
 	{
 		// Get load values
-		double totalload = *gl_get_double_by_name(obj->parent, "total_load");
+		double totalload = *gl_get_double_by_name(obj->parent, "total_power");
 		interpolate (total_load_array, last_index, curr_index, totalload);
 		double hvacload = *gl_get_double_by_name(obj->parent, "hvac_load");
 		interpolate (hvac_load_array, last_index, curr_index, hvacload);

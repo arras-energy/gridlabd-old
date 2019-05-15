@@ -141,7 +141,7 @@ object transformer:..10 {
 object collector{
 	name HouseCollector;
 	group class=house;
-	property sum(total_load.mag),sum(enduse_load.mag),sum(power.mag);
+	property sum(total_power.mag),sum(enduse_load.mag),sum(power.mag);
 	file house_load.csv;
 	interval 3600;
 };

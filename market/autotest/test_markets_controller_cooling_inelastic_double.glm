@@ -157,7 +157,7 @@ object triplex_meter {
 			target air_temperature;
 			setpoint cooling_setpoint;
 			demand cooling_demand;
-			total total_load;
+			total total_power;
 			load hvac_load;
 			//slider_setting 0; //set to 0 or ramps will be overwritten
 			ramp_low 2;
@@ -198,7 +198,7 @@ object triplex_meter {
 			target air_temperature;
 			setpoint cooling_setpoint;
 			demand cooling_demand;
-			total total_load;
+			total total_power;
 			load hvac_load;
 			//slider_setting 0; //set to 0 or ramps will be overwritten
 			ramp_low 2;

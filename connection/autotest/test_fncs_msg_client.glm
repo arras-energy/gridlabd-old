@@ -122,7 +122,7 @@ object triplex_meter {
 			target air_temperature;
 			setpoint cooling_setpoint;
 			demand cooling_demand;
-			total total_load;
+			total total_power;
 			load hvac_load;
 			ramp_low 2;
 			ramp_high 2;

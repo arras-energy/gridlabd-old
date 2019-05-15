@@ -217,7 +217,7 @@ void controller::cheat(){
 			sprintf(target, "air_temperature");
 			sprintf(setpoint, "heating_setpoint");
 			sprintf(demand, "heating_demand");
-			sprintf(total, "total_load");
+			sprintf(total, "total_power");
 			sprintf(load, "hvac_load");
 			sprintf(state, "power_state");
 			ramp_low = -2;
@@ -230,7 +230,7 @@ void controller::cheat(){
 			sprintf(target, "air_temperature");
 			sprintf(setpoint, "cooling_setpoint");
 			sprintf(demand, "cooling_demand");
-			sprintf(total, "total_load");
+			sprintf(total, "total_power");
 			sprintf(load, "hvac_load");
 			sprintf(state, "power_state");
 			ramp_low = 2;
@@ -243,7 +243,7 @@ void controller::cheat(){
 			sprintf(target, "air_temperature");
 			sprintf(setpoint, "heating_setpoint");
 			sprintf(demand, "heating_demand");
-			sprintf(total, "total_load");
+			sprintf(total, "total_power");
 			sprintf(load, "hvac_load");
 			sprintf(state, "power_state");
 			ramp_low = -2;
@@ -256,7 +256,7 @@ void controller::cheat(){
 			sprintf(target, "air_temperature");
 			sprintf(setpoint, "cooling_setpoint");
 			sprintf(demand, "cooling_demand");
-			sprintf(total, "total_load");
+			sprintf(total, "total_power");
 			sprintf(load, "hvac_load");
 			sprintf(state, "power_state");
 			ramp_low = 2;
@@ -281,15 +281,15 @@ void controller::cheat(){
 			sprintf(target, "air_temperature");
 			sprintf((char *)(&heating_setpoint), "heating_setpoint");
 			sprintf((char *)(&heating_demand), "heating_demand");
-			sprintf((char *)(&heating_total), "total_load");		// using total instead of heating_total
+			sprintf((char *)(&heating_total), "total_power");		// using total instead of heating_total
 			sprintf((char *)(&heating_load), "hvac_load");			// using load instead of heating_load
 			sprintf((char *)(&cooling_setpoint), "cooling_setpoint");
 			sprintf((char *)(&cooling_demand), "cooling_demand");
-			sprintf((char *)(&cooling_total), "total_load");		// using total instead of cooling_total
+			sprintf((char *)(&cooling_total), "total_power");		// using total instead of cooling_total
 			sprintf((char *)(&cooling_load), "hvac_load");			// using load instead of cooling_load
 			sprintf((char *)(&deadband), "thermostat_deadband");
 			sprintf(load, "hvac_load");
-			sprintf(total, "total_load");
+			sprintf(total, "total_power");
 			heat_ramp_low = -2;
 			heat_ramp_high = -2;
 			heat_range_low = -5;

@@ -106,7 +106,7 @@ void double_controller::cheat( ) {
 			strcpy(heat_setpoint_name, "heating_setpoint");
 			strcpy(heat_demand_name, "heating_demand");
 			strcpy(load_name, "hvac_load");
-			strcpy(total_load_name, "total_load");
+			strcpy(total_load_name, "total_power");
 			strcpy(state_name,"power_state");
 			break;
 		default:
