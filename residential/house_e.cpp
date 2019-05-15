@@ -557,7 +557,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"last_heating_load[kW]",PADDR(last_heating_load),PT_DESCRIPTION,"stores the previous heating/cooling system load",
 			PT_double,"last_cooling_load[kW]",PADDR(last_cooling_load),PT_DESCRIPTION,"stores the previous heating/cooling system load",
 			PT_complex,"hvac_power[kVA]",PADDR(hvac_power),PT_DESCRIPTION,"describes hvac load complex power consumption",
-			PT_double,"total_power[kVA]",PADDR(total_power),"magnitude of the panel power"
+			PT_double,"total_power[kVA]",PADDR(total_power),"magnitude of the panel power",
 			PT_enduse,"panel",PADDR(total),PT_DESCRIPTION,"total panel enduse load",
 			PT_double,"design_internal_gain_density[W/sf]",PADDR(design_internal_gain_density),PT_DESCRIPTION,"average density of heat generating devices in the house",
 			PT_bool,"compressor_on",PADDR(compressor_on),
