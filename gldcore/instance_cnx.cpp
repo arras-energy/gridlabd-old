@@ -1,4 +1,4 @@
-#include "instance_cnx.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_INSTANCE)
 

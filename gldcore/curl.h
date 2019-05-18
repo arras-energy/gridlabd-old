@@ -4,6 +4,10 @@
 #ifndef _CURL_H
 #define _CURL_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include <stdlib.h>
 #include <curl/curl.h>
 

@@ -30,17 +30,7 @@
 	@{
  **/
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include "output.h"
-#include "globals.h"
-#include "exception.h"
-#include "lock.h"
-#include "module.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_STREAM)
 

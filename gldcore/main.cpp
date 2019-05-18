@@ -7,34 +7,7 @@
  **/
 #define _MAIN_C
 
-//#define USE_MPI
-
-#include <stdlib.h>
-#include <string.h>
-#ifdef WIN32
-#include <direct.h>
-#include <process.h>
-#else
-#include <unistd.h>
-#endif
-
-#include "globals.h"
-#include "legal.h"
-#include "cmdarg.h"
-#include "module.h"
-#include "output.h"
-#include "environment.h"
-#include "test.h"
-#include "random.h"
-#include "realtime.h"
-#include "save.h"
-#include "local.h"
-#include "exec.h"
-#include "kml.h"
-#include "kill.h"
-#include "threadpool.h"
-
-#include "main.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_MAIN)
 

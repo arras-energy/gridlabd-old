@@ -10,6 +10,10 @@
 #ifndef _SANITIZE_H
 #define _SANITIZE_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 typedef enum {
 	SO_ERASE		= 0x0001,	///< option to erase/reset to default instead of obfuscate
 	SO_NAMES		= 0x0010,	///< option to sanitize names	

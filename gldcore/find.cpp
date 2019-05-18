@@ -1,29 +1,9 @@
-/** $Id: find.c 4738 2014-07-03 00:55:39Z dchassin $
+/*	File: find.c
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file find.c
-	@author David P. Chassin
-	@addtogroup find Searching for objects
-	@ingroup core
+	Create by David P. Chassin
+ */
 
- @{
- **/
-
-#include <stdlib.h>
-#include <ctype.h>
-#include <stdio.h>
-#if defined WIN32 && ! defined __MINGW__
-#include <io.h>
-#define snprintf _snprintf
-#else
-#include <unistd.h>
-#endif
-#include "globals.h"
-#include "output.h"
-#include "find.h"
-#include "aggregate.h"
-#include "module.h"
-#include "timestamp.h"
-#include "find.h"
+#include "gldcore.h"
 
 //SET_MYCONTEXT(DMC_FIND) // 
 

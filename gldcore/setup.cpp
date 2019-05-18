@@ -1,9 +1,8 @@
 // $Id: setup.cpp 4738 2014-07-03 00:55:39Z dchassin $
 
 #define CONSOLE /* enables console/curses support */
-#include "gridlabd.h"
-#include "load.h"
-#include "convert.h"
+
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_SETUP) // only used if IN_MYCONTEXT is present in this module
 

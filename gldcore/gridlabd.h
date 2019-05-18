@@ -53,22 +53,11 @@
 #define _GRIDLABD_H
 
 // core version info (must match version info in config.h)
-#define MAJOR 4
-#define MINOR 2
+#define MAJOR REV_MAJOR
+#define MINOR REV_MINOR
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include <stdarg.h>
-#include "platform.h"
-#include "schedule.h"
-#include "transform.h"
-#include "object.h"
-#include "find.h"
-#include "random.h"
 #define STREAM_MODULE
-#include "stream.h"
+#include "gldcore.h"
 
 #ifdef DLMAIN
 #define EXTERN

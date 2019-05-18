@@ -5,7 +5,9 @@
 #ifndef _VALIDATE_H
 #define _VALIDATE_H
 
-#include "platform.h"
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
 
 typedef enum {
 	VO_NONE		=0x0000,	///< run no tests (just go through motions)

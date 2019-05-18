@@ -4,6 +4,10 @@
 #ifndef _TRANSFORM_H
 #define _TRANSFORM_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "schedule.h"
 
 /* data structure to bind a variable with a property definition */

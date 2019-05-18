@@ -4,6 +4,10 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "globals.h"
 #include "exec.h"
 #include "cmdarg.h"

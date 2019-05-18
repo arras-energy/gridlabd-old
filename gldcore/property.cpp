@@ -10,22 +10,7 @@
  @{
  **/
 
-#include <math.h>
-
-#include "class.h"
-#include "output.h"
-#include "convert.h"
-#include "module.h"
-#include "exception.h"
-#include "timestamp.h"
-#include "loadshape.h"
-#include "enduse.h"
-#include "stream.h"
-#include "instance.h"
-#include "linkage.h"
-#include "compare.h"
-#include "stream.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_PROPERTY)
 

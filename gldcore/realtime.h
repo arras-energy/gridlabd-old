@@ -5,6 +5,10 @@
 #ifndef _REALTIME_H
 #define _REALTIME_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include <time.h>
 #include "globals.h"
 

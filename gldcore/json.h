@@ -8,6 +8,10 @@
 #ifndef _JSON_H
 #define _JSON_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "platform.h"
 
 DEPRECATED CDECL int json_dump(const char *filename);

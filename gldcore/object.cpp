@@ -25,10 +25,7 @@
  @{
  **/
 
-#include <float.h>
-#include <math.h>
-#include <ctype.h>
-#include <errno.h>
+#include "gldcore.h"
 
 #ifdef WIN32
 #define isnan _isnan  /* map isnan to appropriate function under Windows */

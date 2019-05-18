@@ -1,22 +1,7 @@
 /* transform.c
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <float.h>
-#include <ctype.h>
-#include <pthread.h>
-
-#include "platform.h"
-#include "object.h"
-#include "output.h"
-#include "schedule.h"
-#include "transform.h"
-#include "exception.h"
-#include "module.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_TRANSFORM)
 

@@ -32,6 +32,10 @@
 #ifndef _SCHEDULE_H
 #define _SCHEDULE_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "class.h"
 #include "timestamp.h"
 

@@ -7,6 +7,10 @@
 #ifndef _OBJECT_H
 #define _OBJECT_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "complex.h"
 #include "timestamp.h"
 #include "class.h"

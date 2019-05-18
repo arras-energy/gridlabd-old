@@ -5,6 +5,12 @@
 #ifndef _DELTAMODE_H
 #define _DELTAMODE_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
+#include "globals.h"
+
 typedef struct {
 	clock_t t_init; /**< time in initiation */
 	clock_t t_preupdate; /**< time in preupdate */

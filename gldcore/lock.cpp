@@ -11,12 +11,9 @@
  @{	  
  **/
 
-#include "lock.h"
-#include "exception.h"
-#include <stdio.h>
+#include "gldcore.h"
 
 /* TODO: remove these when reentrant code is completed */
-#include "main.h"
 extern GldMain *my_instance;
 
 //#define LOCKTRACE // enable this to trace locking events back to variables
@@ -25,10 +22,6 @@ extern GldMain *my_instance;
 /** Determine locking method 
  **/
 #define METHOD0 /* locking method as of 3.0 */
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 /************************************************************************************** 
    IMPORTANT NOTE: it is vital that the platform specific implementations be tested for

@@ -8,6 +8,10 @@
 #ifndef _CONVERT_H
 #define _CONVERT_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "class.h"
 #include "complex.h"
 

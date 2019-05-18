@@ -9,6 +9,10 @@
 #ifndef _INDEX_H
 #define _INDEX_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "globals.h"
 #include "list.h"
 

@@ -1,5 +1,11 @@
+// File: instance_cnx.h
+
 #ifndef _INSTANCE_CNX_H
 #define _INSTANCE_CNX_H
+
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
 
 #include <math.h>
 #include <stdlib.h>

@@ -6,17 +6,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-
-#include "globals.h"
-#include "module.h"
-#include "class.h"
-#include "object.h"
-#include "deltamode.h"
-#include "output.h"
-#include "realtime.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_DELTAMODE)
 

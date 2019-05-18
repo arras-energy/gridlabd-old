@@ -7,6 +7,10 @@
 #ifndef _SFSM_H
 #define _SFSM_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "schedule.h"
 #include "timestamp.h"
 #include "class.h"

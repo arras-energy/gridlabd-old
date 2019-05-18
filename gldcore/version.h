@@ -3,6 +3,10 @@
 #ifndef _GRIDLABD_VERSION_H
 #define _GRIDLABD_VERSION_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #define REV_MAJOR 4
 #define REV_MINOR 2
 #define REV_PATCH 0

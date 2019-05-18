@@ -1,10 +1,7 @@
 /* @file linkage.c
  */
 
-#include "instance.h"
-#include "output.h"
-#include "object.h"
-#include "property.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_INSTANCE)
 

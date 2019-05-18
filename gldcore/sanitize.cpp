@@ -3,11 +3,7 @@
 // Author: DP Chassin
 //
 
-#include "output.h"
-#include "sanitize.h"
-#include "globals.h"
-#include "random.h"
-#include "object.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_SANITIZE) // only used if IN_MYCONTEXT is present in this module
 

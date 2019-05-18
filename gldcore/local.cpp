@@ -2,12 +2,7 @@
  * Copyright (C) 2008 Battelle Memorial Institute
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "output.h"
-#include "globals.h"
-#include "local.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_LOCALE) // used only when IN_MYCONTEXT is present in this module
 

@@ -1,4 +1,4 @@
-#include "instance_slave.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_INSTANCE)
 
@@ -430,7 +430,7 @@ void instance_slave_done(void)
 	// check rv, 0 is okay
 	if(0 != rv){
 		output_error("instance_slave_done(): unable to signal master");
-		exec_setexitcode(rv);
+		exec_setexitcode(rv ? XC_PRCERR : XC_SUCCESS);
 	}
 }
 

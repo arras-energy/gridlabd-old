@@ -5,18 +5,7 @@
 	@ingroup core
  **/
 
-#include "exec.h"
-#include "property.h"
-#include "class.h"
-#include "output.h"
-#include "convert.h"
-#include "module.h"
-#include "exception.h"
-#include "timestamp.h"
-#include "loadshape.h"
-#include "enduse.h"
-#include "stream.h"
-#include "random.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_CLASS)
 

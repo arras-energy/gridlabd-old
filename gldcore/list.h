@@ -9,6 +9,10 @@
 #ifndef _LIST_H
 #define _LIST_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 typedef struct s_listitem {
 	void *data;
 	struct s_listitem *prev;

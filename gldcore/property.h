@@ -1,5 +1,11 @@
+// File: property.h
+
 #ifndef _PROPERTY_H
 #define _PROPERTY_H
+
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
 
 #include <stdarg.h>
 #include <stdlib.h>

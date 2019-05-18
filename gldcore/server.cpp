@@ -2,43 +2,7 @@
  * server.c
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#ifdef WIN32
-
-#include <winsock2.h>
-
-#else
-
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <sys/errno.h>
-#define SOCKET int
-#define INVALID_SOCKET (-1)
-
-#endif
-
-#include <memory.h>
-#include <string.h>
-#include <errno.h>
-#include <pthread.h>
-
-#include "server.h"
-#include "output.h"
-#include "globals.h"
-#include "object.h"
-#include "exec.h"
-#include "timestamp.h"
-#include "load.h"
-#include "find.h"
-#include "json.h"
-#include "legal.h"
-#include "kml.h"
-#include "gui.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_SERVER)
 

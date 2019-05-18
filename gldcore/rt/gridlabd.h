@@ -1,13 +1,8 @@
-/** $Id$
-    Copyright (C) 2008 Battelle Memorial Institute
-	@file rt/gridlabd.h
-	@defgroup runtime Runtime Class API
+/*	File: rt/gridlabd.h
 
-	The Runtime Class API is a programming library for inline C++ embedded
-	within GLM files.
+	Section: Module C/C++ API
 
- @{
- **/
+ */
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -24,6 +19,10 @@
 #define int64 long long /**< standard version of 64-bit integers */
 
 #include <sys/types.h>
+
+/*	typedef: LOCKVAR
+		System lock variable
+ */
 typedef int64_t LOCKVAR;
 
 typedef enum {I='i',J='j',A='d'} CNOTATION; /**< complex number notation to use */

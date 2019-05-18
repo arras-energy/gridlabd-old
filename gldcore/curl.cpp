@@ -1,11 +1,7 @@
 // curl.cpp
 // dchassin@slac.stanford.edu
 
-#include <stdio.h>
-#include <string.h>
-#include "curl.h"
-#include "output.h"
-#include "globals.h"
+#include "gldcore.h"
 
 GldCurl::GldCurl(const char *remote, const char *local)
 {

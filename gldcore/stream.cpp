@@ -2,14 +2,7 @@
  *
  */
 
-#include "output.h"
-#include "stream.h"
-#include "module.h"
-#include "globals.h"
-#include "schedule.h"
-#include "transform.h"
-#include "class.h"
-#include "object.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_STREAM)
 

@@ -128,25 +128,7 @@ object <class>[:<spec>] { // spec may be <id>, or <startid>..<endid>, or ..<coun
 
  **/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#else // not a build using automake
-#define DLEXT ".dll"
-#endif // HAVE_CONFIG_H
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <float.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>
-#include "stream.h"
-#include "http_client.h"
-#include "link.h"
-#include "exec.h"
+#include "gldcore.h"
 
 /* define this to use # for comment and % for macros (the way Version 1.x works) */
 /* #define OLDSTYLE	*/

@@ -4,26 +4,7 @@
 	@addtogroup loadshape
 **/
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <math.h>
-#include <pthread.h>
-
-#include "platform.h"
-#include "output.h"
-#include "loadshape.h"
-#include "exception.h"
-#include "convert.h"
-#include "globals.h"
-#include "random.h"
-#include "schedule.h"
-#include "enduse.h"
-#include "main.h"
-#include "class.h"
-#include "property.h"
-#include "object.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_ENDUSE)
 

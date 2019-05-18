@@ -1,5 +1,15 @@
+// File: gld_sock.h
+
 #ifndef _GLD_SOCKETS_H_
 #define _GLD_SOCKETS_H_
+
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
 
 #ifdef WIN32
 

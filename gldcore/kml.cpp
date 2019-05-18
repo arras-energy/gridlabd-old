@@ -12,17 +12,7 @@
  @{
  **/
 
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-#include <time.h>
-#include "class.h"
-#include "object.h"
-#include "output.h"
-#include "exception.h"
-#include "module.h"
-
-#include "kml.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_KML) // used only when IN_MYCONTEXT is present in this module
 

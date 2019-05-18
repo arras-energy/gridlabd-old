@@ -8,6 +8,10 @@
 #ifndef _CONSOLE_H
 #define _CONSOLE_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #define KEY_ESC 27
 
 /* simulate needed curses functions in Windows */

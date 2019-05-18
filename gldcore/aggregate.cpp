@@ -29,12 +29,7 @@
  @{
  **/
 
-#include <ctype.h>
-#include <math.h>
-#include "platform.h"
-#include "aggregate.h"
-#include "output.h"
-#include "find.h"
+#include "gldcore.h"
 
 //TODO: uncomment if context warnings 
 // SET_MYCONTEXT(DMC_AGGREGATE)

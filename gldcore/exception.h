@@ -9,6 +9,10 @@
 #ifndef _EXCEPTION_H
 #define _EXCEPTION_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include <stdlib.h>
 #include <stdarg.h>
 #include <setjmp.h>

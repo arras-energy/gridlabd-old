@@ -39,10 +39,7 @@
 #include "file.h"
 #include "odbc.h"
 
-#ifndef WIN32
-#define strtok_s strtok_r
-#else
-#ifdef __MINGW32__
+#if defined WIN32 && defined  __MINGW32__
 inline char* strtok_t(char *str, const char *delim, char **nextp)
 {
     char *ret;
@@ -72,10 +69,7 @@ inline char* strtok_t(char *str, const char *delim, char **nextp)
 
     return ret;
 } 
-
 #define strtok_s strtok_t
-#endif
-
 #endif
 
 CLASS *multi_recorder_class = NULL;

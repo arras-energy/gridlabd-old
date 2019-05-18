@@ -11,14 +11,7 @@
 @{
  **/
 
-#include <stdio.h>
-#include <math.h>
-#include <ctype.h>
-#include "output.h"
-#include "globals.h"
-#include "convert.h"
-#include "object.h"
-#include "load.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_CONVERT)
 

@@ -1,12 +1,7 @@
-/* $Id: http_client.c 4738 2014-07-03 00:55:39Z dchassin $
+/* File: http_client.c
  */
 
-#include <stdio.h>
-#include <ctype.h>
-
-#include "output.h"
-#include "http_client.h"
-#include "server.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_HTTPCLIENT)
 

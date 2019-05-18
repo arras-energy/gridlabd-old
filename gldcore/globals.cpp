@@ -1,23 +1,12 @@
-/** $Id: globals.c 4738 2014-07-03 00:55:39Z dchassin $
+/*	File: globals.c
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file globals.c
-	@addtogroup globals Global variables
-	@ingroup core
 
 	The GridLAB-D core maintains a group of global variables that can be accessed
 	by both core functions and runtime modules using the core API.
 
- @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include "main.h"
-#include "output.h"
-#include "module.h"
-#include "lock.h"
-#include "assert.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_GLOBALS)
 

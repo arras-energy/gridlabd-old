@@ -19,6 +19,10 @@
 #ifndef _XML_LOAD_H_
 #define _XML_LOAD_H_
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>

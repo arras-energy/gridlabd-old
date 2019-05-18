@@ -12,17 +12,7 @@
  @{
  **/
 
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-#include <time.h>
-#include "class.h"
-#include "object.h"
-#include "output.h"
-#include "exception.h"
-#include "module.h"
-#include "timestamp.h"
-#include "json.h"
+#include "gldcore.h"
 
 DEPRECATED int json_dump(const char *filename)
 {

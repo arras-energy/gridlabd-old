@@ -22,19 +22,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
-#include <time.h>
-#include <ctype.h>
-#include "platform.h"
-#include "timestamp.h"
-#include "exception.h"
-#include "find.h"
-#include "output.h"
-#include "globals.h"
-#include "lock.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_TIME)
 

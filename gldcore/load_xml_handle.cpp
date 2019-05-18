@@ -15,8 +15,10 @@
  *
  */
 
-#include "platform.h"
+#include "gldcore.h"
+
 #ifdef HAVE_XERCES
+
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include "load_xml_handle.h"

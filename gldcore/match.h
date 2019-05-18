@@ -5,6 +5,10 @@
 #ifndef GLD_MATCH
 #define GLD_MATCH
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "platform.h"
 
 DEPRECATED CDECL int match(const char *regexp, const char *text);

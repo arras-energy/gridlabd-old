@@ -5,6 +5,10 @@
 #ifndef _UFILE_H
 #define _UFILE_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 typedef struct s_ufile {
 	enum {UFT_NONE, UFT_FILE, UFT_HTTP} type;
 	void *handle;

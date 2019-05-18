@@ -12,7 +12,7 @@
  *
  **/
 
-#include "platform.h"
+#include "gldcore.h"
 
 #ifdef HAVE_XERCES
 #include "load_xml.h"

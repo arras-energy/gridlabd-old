@@ -12,12 +12,7 @@
  @{
  **/
 
-#include <stdlib.h>
-
-#include "globals.h"
-#include "output.h"
-#include "class.h"
-#include "object.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_MATLAB) // used only if IN_MYCONTEXT is present in this module
 

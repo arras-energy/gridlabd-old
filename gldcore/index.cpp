@@ -8,12 +8,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <memory.h>
-#include <string.h>
-#include <errno.h>
-#include "output.h"
-#include "index.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_INDEX)
 

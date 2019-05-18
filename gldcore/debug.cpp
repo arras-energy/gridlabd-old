@@ -208,21 +208,7 @@
  @{ strsignal
  **/
 
-#include <signal.h>
-#include <ctype.h>
-#include <string.h>
-
-#include "platform.h"
-#include "output.h"
-#include "exec.h"
-#include "class.h"
-#include "convert.h"
-#include "object.h"
-#include "index.h"
-#include "realtime.h"
-#include "module.h"
-#include "debug.h"
-#include "kill.h"
+#include "gldcore.h"
 
 #ifndef _MAX_PATH
 #define _MAX_PATH 1024

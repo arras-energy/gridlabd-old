@@ -5,6 +5,10 @@
 #ifndef _MODULE_H
 #define _MODULE_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include <stdio.h>
 #include <float.h>
 #include "object.h"

@@ -8,6 +8,10 @@
 #ifndef _MATLAB_H
 #define _MATLAB_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "globals.h"
 
 STATUS matlab_startup(int argc, const char *argv[]);

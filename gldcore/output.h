@@ -8,6 +8,10 @@
 #ifndef _ERROR_H
 #define _ERROR_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>

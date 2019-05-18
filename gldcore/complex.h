@@ -18,6 +18,10 @@
 #ifndef _COMPLEX_H
 #define _COMPLEX_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 typedef enum {I='i',J='j',A='d', R='r'} CNOTATION; /**< complex number notation to use */
 #define CNOTATION_DEFAULT J /* never set this to A */
 #define PI (3.1415926535897932384626433832795)

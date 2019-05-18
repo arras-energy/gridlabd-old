@@ -27,20 +27,7 @@
 
 **/
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <pthread.h>
-
-#include "platform.h"
-#include "output.h"
-#include "loadshape.h"
-#include "exception.h"
-#include "convert.h"
-#include "globals.h"
-#include "random.h"
-#include "schedule.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_LOADSHAPE)
 

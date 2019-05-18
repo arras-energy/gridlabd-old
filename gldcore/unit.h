@@ -9,6 +9,10 @@
 #ifndef _UNIT_H
 #define _UNIT_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include "complex.h"
 
 typedef struct s_unit {

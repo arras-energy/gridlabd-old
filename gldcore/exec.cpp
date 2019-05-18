@@ -84,55 +84,7 @@
  @{
  **/
 
-#include <signal.h>
-#include <ctype.h>
-#include <string.h>
-#include <sys/time.h>
-#include <sys/timeb.h>
-#ifdef WIN32
-#include <windows.h>
-#include <winbase.h>
-#include <direct.h>
-#else
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/errno.h>
-#define SOCKET int
-#define INVALID_SOCKET (-1)
-#define closesocket close
-#endif
-
-#include "platform.h"
-#include "main.h"
-#include "output.h"
-#include "exec.h"
-#include "class.h"
-#include "convert.h"
-#include "index.h"
-#include "realtime.h"
-#include "module.h"
-#include "debug.h"
-#include "exception.h"
-#include "random.h"	
-#include "local.h"
-#include "schedule.h"
-#include "transform.h"
-#include "loadshape.h"
-#include "enduse.h"
-#include "math.h"
-#include "time.h"
-#include "deltamode.h"
-#include "stream.h"
-#include "instance.h"
-#include "linkage.h"
-#include "test.h"
-#include "link.h"
-#include "save.h"
-#include "lock.h"
-#include "pthread.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_EXEC)
 
@@ -201,7 +153,7 @@ DEPRECATED int exec_schedule_dump(TIMESTAMP interval,char *filename)
 }
 
 /* TODO: remove when debug.c, instance_slave.c, server.c, and job.c are reentrant */
-DEPRECATED int exec_setexitcode(int xc)
+DEPRECATED EXITCODE exec_setexitcode(EXITCODE xc)
 {
 	return my_instance->get_exec()->setexitcode(xc);
 }
@@ -481,9 +433,9 @@ void GldExec::init_thread_data(void)
 	thread_data = create_threaddata(global_threadcount);
 }
 
-int GldExec::setexitcode(int xc)
+EXITCODE GldExec::setexitcode(EXITCODE xc)
 {
-	int oldxc = global_exit_code;
+	EXITCODE oldxc = (EXITCODE)global_exit_code;
 	if ( oldxc != XC_SUCCESS && xc != oldxc )
 	{
 		output_warning("new exitcode %d overwrites existing exitcode %d", xc,oldxc);
@@ -493,7 +445,7 @@ int GldExec::setexitcode(int xc)
 	return oldxc;
 }
 
-int GldExec::getexitcode(void)
+EXITCODE GldExec::getexitcode(void)
 {
 	return global_exit_code;
 }
@@ -3500,7 +3452,7 @@ int GldExec::add_script(SIMPLELIST **list, const char *file)
 
 EXITCODE GldExec::run_system_script(char *call)
 {
-	EXITCODE rc = system(call);
+	EXITCODE rc = (EXITCODE)system(call);
 	if ( rc != XC_SUCCESS )
 	{
 		output_error("script '%s' return with exit code %d", call,rc);
@@ -3509,7 +3461,7 @@ EXITCODE GldExec::run_system_script(char *call)
 	else
 	{
 		IN_MYCONTEXT output_verbose("script '%s'' returned ok", call);
-		return 0;
+		return XC_SUCCESS;
 	}	
 }
 

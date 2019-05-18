@@ -1,23 +1,9 @@
-/*
- *  gui.c
- *  gridlabd
- *
- *  Created by d3g637-local on 10/26/10.
- *  Copyright 2010 __MyCompanyName__. All rights reserved.
- *
+/*	File: gui.c
+ *  Created by David P. Chassin on 10/26/10.
+ *  Copyright 2010 Battelle Memorial Institute, All rights reserved.
  */
 
-#include <stdlib.h>
-#include "complex.h"
-#include "object.h"
-#include "load.h"
-#include "output.h"
-#include "random.h"
-#include "convert.h"
-#include "schedule.h"
-#include "gui.h"
-#include "server.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_GUI)
 

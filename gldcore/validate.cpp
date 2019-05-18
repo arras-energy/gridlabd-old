@@ -2,28 +2,7 @@
 // Copyright (C) 2012 Battelle Memorial Institute
 //
 
-#ifdef WIN32
-#include <windows.h>
-#include <direct.h>
-#include <io.h>
-#else
-#include <unistd.h>
-#include <dirent.h>
-#endif
-
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <signal.h>
-
-#include "globals.h"
-#include "output.h"
-#include "validate.h"
-#include "exec.h"
-#include "lock.h"
-#include "threadpool.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_VALIDATE)
 
@@ -128,8 +107,8 @@ public:
 	};
 	void inc_access(const char *name) { IN_MYCONTEXT output_debug("%s folder access failure", name); wlock(); n_access++; wunlock(); };
 	void inc_success(const char *name, int code, double t) { output_error("%s success unexpected, code %d in %.1f seconds",name, code, t); wlock(); n_success++; wunlock(); };
-	void inc_failed(const char *name, int code, double t) { output_error("%s error unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->get_exec()->getexitcodestr(code), t); wlock(); n_failed++; wunlock(); };
-	void inc_exceptions(const char *name, int code, double t) { output_error("%s exception unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->get_exec()->getexitcodestr(code), t); wlock(); n_exceptions++; wunlock(); };
+	void inc_failed(const char *name, int code, double t) { output_error("%s error unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->get_exec()->getexitcodestr((EXITCODE)code), t); wlock(); n_failed++; wunlock(); };
+	void inc_exceptions(const char *name, int code, double t) { output_error("%s exception unexpected, code %d (%s) in %.1f seconds",name, code, my_instance->get_exec()->getexitcodestr((EXITCODE)code), t); wlock(); n_exceptions++; wunlock(); };
 	void print(void) 
 	{
 		rlock();

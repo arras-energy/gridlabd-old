@@ -5,6 +5,10 @@
 #ifndef _LOCAL_H
 #define _LOCAL_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #include <time.h>
 
 typedef struct s_locale {

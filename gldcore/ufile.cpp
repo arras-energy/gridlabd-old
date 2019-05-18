@@ -2,9 +2,7 @@
  * Copyright (C) 2012 Battelle Memorial Institute
  */
 
-#include <stdio.h>
-#include "http_client.h"
-#include "ufile.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_HTTP)
 

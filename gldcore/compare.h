@@ -1,5 +1,9 @@
 /* $id */
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #ifndef _COMPARE_H
 
 #define TCNONE \

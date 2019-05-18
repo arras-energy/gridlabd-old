@@ -52,10 +52,7 @@
  @{
  **/
 
-#include <string.h>
-#include "exec.h"
-#include "exception.h"
-#include "output.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_EXCEPTION) // only needed if contexts are used
 

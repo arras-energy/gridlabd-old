@@ -32,12 +32,7 @@
  @{
  **/
 
-#include "version.h"
-
-#include "globals.h"
-#include "legal.h"
-#include "output.h"
-#include "find.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_LEGAL)
 

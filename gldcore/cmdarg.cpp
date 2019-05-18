@@ -11,31 +11,7 @@
  @{
  **/
 
-#include <stdio.h>
-#include <string.h>
-#if defined WIN32 && !defined __MINGW__
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
-#include "platform.h"
-#include "globals.h"
-#include "cmdarg.h"
-#include "output.h"
-#include "load.h"
-#include "legal.h"
-#include "timestamp.h"
-#include "random.h"
-#include "loadshape.h"
-#include "enduse.h"
-#include "instance.h"
-#include "test.h"
-#include "setup.h"
-#include "sanitize.h"
-#include "exec.h"
-#include "daemon.h"
-#include "module.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_CMDARG)
 

@@ -4,6 +4,10 @@
 #ifndef _KILL_H
 #define _KILL_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #ifdef WIN32
 #ifdef __MINGW32__
 #include <sys/types.h>

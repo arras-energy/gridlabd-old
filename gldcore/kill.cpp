@@ -8,11 +8,8 @@
  **/
 
 #ifdef WIN32
-#include "errno.h"
-#include "windows.h"
-#include "output.h"
-#include "signal.h"
-#include "process.h"
+
+#include "gldcore.h"
 
 /* KILLONLY is undefined when building the kill program, 
    and defined when compiling with the main GridLAB-D 

@@ -4,6 +4,10 @@
 #ifndef _HTTPCLIENT_H
 #define _HTTPCLIENT_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 #ifdef WIN32
 #ifdef int64
 #undef int64 // wtypes.h uses the term int64

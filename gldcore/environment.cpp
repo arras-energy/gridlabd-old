@@ -12,18 +12,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-
-#include "environment.h"
-#include "exec.h"
-#include "save.h"
-#include "matlab.h"
-#include "server.h"
-#include "xcore.h"
-#include "gui.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_ENVIRONMENT)
 

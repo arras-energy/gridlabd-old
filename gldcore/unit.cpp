@@ -74,20 +74,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-#include <ctype.h>
-#include <math.h>
-
-#include "platform.h"
-#include "output.h"
-#include "unit.h"
-#include "exception.h"
-#include "globals.h"
-#include "find.h"
-#include "lock.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_UNIT)
 

@@ -6,6 +6,10 @@
 #ifndef _TEST_H
 #define _TEST_H
 
+#ifndef _GLDCORE_H
+#error "this header may only be included from gldcore.h"
+#endif
+
 typedef int (*TESTFUNCTION)(void);
 
 #ifdef __cplusplus
