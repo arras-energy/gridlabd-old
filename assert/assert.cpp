@@ -10,12 +10,6 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <complex.h>
-
 #include "assert.h"
 
 EXPORT_CREATE_C(assert,g_assert);

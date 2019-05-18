@@ -1,10 +1,9 @@
 /** Assert function
 **/
 
-#ifndef _enum_assert_H
-#define _enum_assert_H
+#ifndef _ENUM_ASSERT_H
+#define _ENUM_ASSERT_H
 
-#include <stdarg.h>
 #include "gridlabd.h"
 
 #ifndef _isnan
