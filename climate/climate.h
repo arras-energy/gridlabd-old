@@ -9,12 +9,15 @@
 #ifndef _CLIMATE_H
 #define _CLIMATE_H
 
-#include <stdarg.h>
+#include <iostream>
+#include <fstream>
+
 #include "gridlabd.h"
-#include "solar_angles.h"
-#include "weather_reader.h"
 #include "csv_reader.h"
-#include <vector>
+#include "solar_angles.h"
+#include "test.h"
+#include "weather.h"
+#include "weather_reader.h"
 
 typedef enum e_compass_ptr {
 	CP_H    = 0,

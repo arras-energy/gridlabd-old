@@ -4,25 +4,8 @@
 	@author David P. Chassin
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <vector>
-#include <algorithm>
-#include <iostream>
-#include <fstream>
-
-#include <string>
-#include "gridlabd.h"
-#ifdef max
-#undef max
-#endif
-#ifdef min
-#undef min
-#endif
 #include "climate.h"
-#include "timestamp.h"
+
 EXPORT_CREATE(climate)
 EXPORT_INIT(climate)
 EXPORT_SYNC(climate)
