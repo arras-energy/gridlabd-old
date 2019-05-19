@@ -70,6 +70,55 @@
 typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #endif
 
+#include <arpa/inet.h>
+#include <ctype.h>
+#include <errno.h>
+#include <float.h>
+#include <math.h>
+#include <memory.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <pthread.h>
+#include <pwd.h>
+#include <setjmp.h>
+#include <signal.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/signal.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/timeb.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
+#include <wchar.h>
+#include <sys/errno.h>
+
+#ifdef WIN32
+#define _WIN32_WINNT 0x0400
+#include <direct.h>
+#include <io.h>
+#include <windows.h>
+#include <winbase.h>
+#include <winsock2.h>
+#include <io.h>
+#include <process.h>
+#ifndef __MINGW__
+#define snprintf _snprintf
+#endif
+#else
+#include <sys/ioctl.h>
+#include <dirent.h>
+#include <unistd.h>
+#define SOCKET int
+#define INVALID_SOCKET (-1)
+#define closesocket close
+#endif
+
+#include <vector>
+
 #include "aggregate.h"
 #include "build.h"
 #include "class.h"

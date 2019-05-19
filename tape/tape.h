@@ -66,6 +66,11 @@ typedef struct s_deltaobj {
 	struct s_deltaobj *next;
 } DELTAOBJ_LIST;
 
+typedef struct s_memory {
+	GLOBALVAR *buffer;
+	unsigned short index;
+} MEMORY;
+
 /** @}
   @addtogroup player
 	@{ 
