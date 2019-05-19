@@ -81,14 +81,9 @@
 
  @{
  **/
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
 
 #include "powerflow.h"
-#include "node.h"
-#include "link.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // powerflow_object CLASS FUNCTIONS

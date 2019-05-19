@@ -34,6 +34,7 @@ Initialization after returning to service?
 
 
 #include "solver_nr.h"
+using namespace std;
 
 #define MT // this enables multithreaded SuperLU
 

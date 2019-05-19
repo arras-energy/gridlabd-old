@@ -7,14 +7,7 @@ Copyright (C) 2008 Battelle Memorial Institute
 @{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "power_electronics.h"
-#include "rectifier.h"
 
 #define DEFAULT 1.0;
 

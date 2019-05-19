@@ -4,6 +4,11 @@
 #ifndef _OVERHEADLINE_H
 #define _OVERHEADLINE_H
 
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
+
+#include "line_configuration.h"
 class overhead_line : public line
 {
 public:

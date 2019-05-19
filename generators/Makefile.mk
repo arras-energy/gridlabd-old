@@ -1,7 +1,7 @@
 pkglib_LTLIBRARIES += generators/generators.la
 
 generators_generators_la_CPPFLAGS =
-generators_generators_la_CPPFLAGS += $(AM_CPPFLAGS)
+generators_generators_la_CPPFLAGS += $(AM_CPPFLAGS) -Ipowerflow
 
 generators_generators_la_LDFLAGS =
 generators_generators_la_LDFLAGS += $(AM_LDFLAGS)

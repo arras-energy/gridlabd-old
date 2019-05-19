@@ -4,8 +4,9 @@
 #ifndef _RESTORATION_H
 #define _RESTORATION_H
 
-#include "powerflow.h"
-#include "powerflow_library.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 typedef struct s_ChainNode {
 	int data;

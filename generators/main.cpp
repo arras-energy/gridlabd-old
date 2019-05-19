@@ -15,6 +15,4 @@ MODULE:generators
 
 #define DLMAIN
 
-#include <stdlib.h>
-#include "gridlabd.h"
 #include "generators.h"

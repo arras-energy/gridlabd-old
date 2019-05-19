@@ -7,16 +7,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "microturbine.h"
-#include "timestamp.h"
-
-
 
 #define HOUR 3600 * TS_SECOND
 

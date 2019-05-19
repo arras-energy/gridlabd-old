@@ -4,9 +4,9 @@
 #ifndef _TRANSFORMER_H
 #define _TRANSFORMER_H
 
-#include "powerflow.h"
-#include "link.h"
-#include "transformer_configuration.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class transformer : public link_object
 {
@@ -53,7 +53,7 @@ public:
 	int transformer_saturation_update(bool *deltaIsat);
 	double flux_vals_inst[6];		//Flux values for transformer when saturation is enabled
 
-	transformer_configuration *config;
+	class transformer_configuration *config;
 
 	int create(void);
 	int init(OBJECT *parent);

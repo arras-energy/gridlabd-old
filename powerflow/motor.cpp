@@ -1,12 +1,8 @@
 // $Id: motor.cpp 1182 2016-08-15 jhansen $
 //	Copyright (C) 2008 Battelle Memorial Institute
 
-#include <stdlib.h>	
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "motor.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // capacitor CLASS FUNCTIONS

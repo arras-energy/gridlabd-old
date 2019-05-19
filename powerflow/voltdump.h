@@ -4,8 +4,9 @@
 #ifndef _VOLTDUMP_H
 #define _VOLTDUMP_H
 
-#include "powerflow.h"
-#include "node.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 typedef enum {
 	VDM_RECT,

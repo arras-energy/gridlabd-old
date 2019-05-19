@@ -1,46 +1,8 @@
 // $Id: init.cpp 1182 2008-12-22 22:08:36Z dchassin $
 //	Copyright (C) 2008 Battelle Memorial Institute
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "gridlabd.h"
 #include "powerflow.h"
-
-#include "triplex_meter.h"
-#include "capacitor.h"
-#include "fuse.h"
-#include "line.h"
-#include "link.h"
-#include "load.h"
-#include "meter.h"
-#include "node.h"
-#include "regulator.h"
-#include "transformer.h"
-#include "switch_object.h"
-#include "substation.h"
-#include "pqload.h"
-#include "voltdump.h"
-#include "series_reactor.h"
-#include "restoration.h"
-#include "frequency_gen.h"
-#include "volt_var_control.h"
-#include "fault_check.h"
-#include "motor.h"
-#include "billdump.h"
-#include "power_metrics.h"
-#include "currdump.h"
-#include "recloser.h"
-#include "sectionalizer.h"
-#include "emissions.h"
-#include "load_tracker.h"
-#include "triplex_load.h"
-#include "impedance_dump.h"
-#include "vfd.h"
-#include "pole.h"
-#include "pole_configuration.h"
+using namespace std;
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {

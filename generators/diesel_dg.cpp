@@ -7,12 +7,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "diesel_dg.h"
+#include "generators.h"
 
 CLASS *diesel_dg::oclass = NULL;
 diesel_dg *diesel_dg::defaults = NULL;
