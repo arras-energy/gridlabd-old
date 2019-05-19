@@ -120,17 +120,12 @@ HTML Output Folder: .
 # Global Settings
 # ------------------------------------------------------------------------
 
+Tab Width: 4
+
+Documented Only: No
+Auto Group: Yes
+
 # Other settings that apply to your entire project.  Settings specified on the
 # command line override the settings here.
-#
-# Tab Width: [width]
-#    The number of spaces tabs should be expanded to.
-#
-# Documented Only: [yes|no]
-#    Whether only documented code elements should appear in the output.
-#    Defaults to no.
-#
-# Auto Group: [yes|no]
-#    Whether groups should automatically apply to you code.  Defaults to yes.
 
 

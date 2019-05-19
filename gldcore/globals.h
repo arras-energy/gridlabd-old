@@ -1,5 +1,6 @@
-/** $Id: globals.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: globals.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
 	@file globals.h
 	@addtogroup globals
  @{
@@ -763,26 +764,47 @@ private:
 	GLOBALVAR *varlist;
 	GLOBALVAR *last;
 public:
+	// Constructor: GldGlobals
+	//	Create a global environment for a simulation instance
 	GldGlobals(GldMain *inst);
+	// Destructor: ~GldGlobals
+	//	Destroy a global environment
 	~GldGlobals(void);
 public:
+	// Method: init
 	STATUS init(void);
+	// Method: find
 	GLOBALVAR *find(const char *name);
+	// Method: getnext
 	GLOBALVAR *getnext(const GLOBALVAR *previous);
+	// Method: restore
 	void restore(GLOBALVAR *previous);
+	// Method: push
 	void push(char *name, char *value);
+	// Method: create
 	GLOBALVAR *create(const char *name, ...);
+	// Method: create_v
 	GLOBALVAR *create_v(const char *name, va_list ptr);
+	// Method: setvar
 	STATUS setvar(const char *def, ...);
+	// Method: setvar_v
 	STATUS setvar_v(const char *def, va_list ptr);
+	// Method: isdefined
 	bool isdefined(const char *name);
+	// Method: getvar
 	const char *getvar(const char *name, char *buffer, size_t size);
+	// Method: getcount
 	size_t getcount(void);
+	// Method: dump
 	void dump(void);
+	// Method: remote_read
 	void *remote_read(void *local, GLOBALVAR *var);
+	// Method: remote_write
 	void remote_write(void *local, GLOBALVAR *var);
+	// Method: saveall
 	size_t saveall(FILE *fp);
 private:
+	// Method: parameter_expansion
 	bool parameter_expansion(char *buffer, size_t size, const char *spec);
 };
 #endif

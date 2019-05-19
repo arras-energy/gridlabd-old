@@ -1,5 +1,6 @@
-/** $Id: exec.c 1188 2009-01-02 21:51:07Z dchassin $
+/** exec.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file exec.cpp
 	@addtogroup exec Main execution loop
 	@ingroup core

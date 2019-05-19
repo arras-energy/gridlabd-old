@@ -1,5 +1,6 @@
-// curl.h
-// dchassin@slac.stanford.edu
+/* File: curl.h 
+ * Copyright (C) 2019, Regents of the Leland Stanford Junior University
+ */
 
 #ifndef _CURL_H
 #define _CURL_H

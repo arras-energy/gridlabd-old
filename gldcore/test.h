@@ -1,5 +1,5 @@
-/* test.h
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: test.h 
+   Copyright (C) 2008, Battelle Memorial Institute
  *
  */
 

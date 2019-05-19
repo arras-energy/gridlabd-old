@@ -1,5 +1,6 @@
-/* test.c
+/* test.cpp
  * Copyright (C) 2008 Battelle Memorial Institute
+ *
  * Integrated system testing routines.  Start is called before executive runs, end after executive exits.
  */
 

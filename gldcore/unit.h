@@ -1,5 +1,6 @@
-/** $Id: unit.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: unit.h 
+   Copyright (C) 2008, Battelle Memorial Institute
+
 	@file unit.h
 	@addtogroup unit
 	@ingroup core

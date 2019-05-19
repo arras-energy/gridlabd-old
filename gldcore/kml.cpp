@@ -1,6 +1,7 @@
-/** $Id: kml.c 4738 2014-07-03 00:55:39Z dchassin $
+/** kml.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file kml.h
+
+	@file kml.cpp
 	@addtogroup mapping Mapping tools
 	@ingroup core
 

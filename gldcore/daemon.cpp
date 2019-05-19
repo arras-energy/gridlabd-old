@@ -1,4 +1,6 @@
-// daemon.cpp
+/* daemon.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #include "gldcore.h"
 

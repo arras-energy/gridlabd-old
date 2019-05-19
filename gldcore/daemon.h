@@ -1,4 +1,6 @@
-// daemon.h
+/* File: daemon.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef _DAEMON_H
 #define _DAEMON_H

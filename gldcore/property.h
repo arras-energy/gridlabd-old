@@ -1,4 +1,6 @@
-// File: property.h
+/* File: property.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef _PROPERTY_H
 #define _PROPERTY_H

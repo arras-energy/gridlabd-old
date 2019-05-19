@@ -1,4 +1,6 @@
-/* $id */
+/* File: compare.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
 #error "this header may only be included from gldcore.h or gridlabd.h"

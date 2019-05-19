@@ -1,4 +1,5 @@
-/* @file linkage.h 
+/* File: linkage.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #ifndef _LINKAGE_H

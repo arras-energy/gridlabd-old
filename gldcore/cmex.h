@@ -1,13 +1,13 @@
-// etp.h
+/* File: cmex.h 
+ * Copyright (C) 2002, Battelle Memorial Institute
+ */
+
 //
 // Equivalent Thermal Parameters
 // Concept by Rob G. Pratt
 //
 // Nov 26 2002
 // DP Chassin
-//
-// Copyright (C) 2002
-// Pacific Northwest National Laboratory
 //
 // This work was completed under FY03 LDRD
 // Cost account #: K38478

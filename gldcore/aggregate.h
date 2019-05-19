@@ -1,6 +1,7 @@
-/*	File: aggregate.h
+/* File: aggregate
 
-		Property aggregation
+   Copyright (C) 2008, Battelle Memorial Institute
+ 
  */
 
 #ifndef _AGGREGATE_H

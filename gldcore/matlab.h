@@ -1,4 +1,6 @@
-/** $Id: matlab.h 4738 2014-07-03 00:55:39Z dchassin $
+/* File: matlab.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file matlab.h
 	@addtogroup matlab

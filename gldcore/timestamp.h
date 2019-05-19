@@ -1,5 +1,6 @@
-/** $Id: timestamp.h 1182 2008-12-22 22:08:36Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: timestamp.h 
+   Copyright (C) 2008, Battelle Memorial Institute
+   
 	@file timestamp.h
 	@addtogroup timestamp
 	@ingroup core

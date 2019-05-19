@@ -1,5 +1,7 @@
-// curl.cpp
-// dchassin@slac.stanford.edu
+/* curl.cpp
+ * Copyright (C) 2019, Regents of the Leland Stanford Junior University
+ * dchassin@slac.stanford.edu
+ */
 
 #include "gldcore.h"
 

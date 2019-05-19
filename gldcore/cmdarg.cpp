@@ -1,6 +1,7 @@
-/** $Id: get_cmdarg()->c 5518 2016-07-15 00:55:28Z andyfisher $
+/** cmdarg.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file get_cmdarg()->c
+
+	@file cmdarg.cpp
 	@addtogroup cmdarg Command-line arguments
 	@ingroup core
 

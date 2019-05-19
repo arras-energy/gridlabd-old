@@ -1,5 +1,6 @@
-/* gld_load.h
+/* load_xml_handle.cp
  * Copyright (C) 2008 Battelle Memorial Institute
+ *
  * Authors:
  *	Matthew Hauer <matthew.hauer@pnl.gov>, 6 Nov 07 -
  *

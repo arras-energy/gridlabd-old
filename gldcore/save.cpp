@@ -1,5 +1,6 @@
-/* save.c
+/* save.cpp
  * Copyright (C) 2008 Battelle Memorial Institute
+ *
  * Top level save routine.  Dispatches saves to subcomponents.  Format of save must be compatible with load module.
  */
 

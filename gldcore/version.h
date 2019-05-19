@@ -1,4 +1,6 @@
-/* automatically created by ./checkpkgs */
+/* File: version.h 
+   Copyright (C) 2008, Pacific Northwest National Laboratory
+ */
 
 #ifndef _GRIDLABD_VERSION_H
 #define _GRIDLABD_VERSION_H

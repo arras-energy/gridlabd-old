@@ -1,4 +1,5 @@
-/* transform.h
+/* File: transform.h 
+   Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #ifndef _TRANSFORM_H

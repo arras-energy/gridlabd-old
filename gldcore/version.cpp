@@ -1,5 +1,5 @@
-/* $Id
- * Version information
+/* version.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #define _VERSION_C // flag special consideration for this file

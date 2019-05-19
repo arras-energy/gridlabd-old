@@ -1,9 +1,8 @@
-/** $Id: class.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
-	@file class.h
-	@addtogroup class
- @{
- **/
+/*	File: class
+
+	Copyright (C) 2008, Battelle Memorial Institute
+
+ */
 
 #ifndef _CLASS_H
 #define _CLASS_H
@@ -28,27 +27,41 @@
 #include "property.h"
 #include "lock.h"
 
-//typedef struct s_class_list CLASS;
+/*	Typedef: FUNCTIONADDR
+		Entry point of a module function
+ */
+typedef int64 (*FUNCTIONADDR)(void*,...); 
 
-#ifndef FADDR
-#define FADDR
-typedef int64 (*FUNCTIONADDR)(void*,...); /** the entry point of a module function */
-#endif
+/*	Typedef: PASSCONFIG
+		See <e_passconfig>
 
-/* pass configuration */
-typedef unsigned long PASSCONFIG; /**< the pass configuration */
-#define PC_NOSYNC 0x00					/**< used when the class requires no synchronization */
-#define PC_PRETOPDOWN 0x01				/**< used when the class requires synchronization on the first top-down pass */
-#define PC_BOTTOMUP	0x02				/**< used when the class requires synchronization on the bottom-up pass */
-#define PC_POSTTOPDOWN 0x04				/**< used when the class requires synchronization on the second top-down pass */
-#define PC_FORCE_NAME 0x20				/**< used to indicate the this class must define names for all its objects */
-#define PC_PARENT_OVERRIDE_OMIT 0x40	/**< used to ignore parent's use of PC_UNSAFE_OVERRIDE_OMIT */
-#define PC_UNSAFE_OVERRIDE_OMIT 0x80	/**< used to flag that omitting overrides is unsafe */ 
-#define PC_ABSTRACTONLY 0x100 /**< used to flag that the class should never be instantiated itself, only inherited classes should */
-#define PC_AUTOLOCK 0x200 /**< used to flag that sync operations should not be automatically write locked */
-#define PC_OBSERVER 0x400 /**< used to flag whether commit process needs to be delayed with respect to ordinary "in-the-loop" objects */
+	Enum: e_passconfig
+	PC_NOSYNC - used when the class requires no synchronization passes
+	PC_PRETOPDOWN - used when the class requires synchronization on the first top-down pass
+	PC_BOTTOMUP - used when the class requires synchronization on the bottom-up pass
+	PC_POSTTOPDOWN - used when the class requires synchronization on the second top-down pass
+	PC_FORCE_NAME - used to indicate the this class must define names for all its objects
+	PC_PARENT_OVERRIDE_OMIT - used to ignore parent's use of PC_UNSAFE_OVERRIDE_OMIT
+	PC_UNSAFE_OVERRIDE_OMIT - used to flag that omitting overrides is unsafe
+	PC_ABSTRACTONLY - used to flag that the class should never be instantiated itself, only inherited classes should
+	PC_AUTOLOCK - used to flag that sync operations should not be automatically write locked
+	PC_OBSERVER - used to flag whether commit process needs to be delayed with respect to ordinary "in-the-loop" objects
+ */
+typedef enum e_passconfig
+{
+	PC_NOSYNC 				= 0x00,
+	PC_PRETOPDOWN 			= 0x01, /**< used when the class requires synchronization on the first top-down pass */
+	PC_BOTTOMUP				= 0x02, /**< used when the class requires synchronization on the bottom-up pass */
+	PC_POSTTOPDOWN 			= 0x04, /**< used when the class requires synchronization on the second top-down pass */
+	PC_FORCE_NAME 			= 0x20, /**< used to indicate the this class must define names for all its objects */
+	PC_PARENT_OVERRIDE_OMIT = 0x40, /**< used to ignore parent's use of PC_UNSAFE_OVERRIDE_OMIT */
+	PC_UNSAFE_OVERRIDE_OMIT = 0x80, /**< used to flag that omitting overrides is unsafe */ 
+	PC_ABSTRACTONLY 		= 0x100, /**< used to flag that the class should never be instantiated itself, only inherited classes should */
+	PC_AUTOLOCK 			= 0x200, /**< used to flag that sync operations should not be automatically write locked */
+	PC_OBSERVER 			= 0x400, /**< used to flag whether commit process needs to be delayed with respect to ordinary "in-the-loop" objects */
+} PASSCONFIG;
 
-typedef enum {
+typedef enum e_notifymodule {
 	NM_PREUPDATE = 0, /**< notify module before property change */
 	NM_POSTUPDATE = 1, /**< notify module after property change */
 	NM_RESET = 2,/**< notify module of system reset event */

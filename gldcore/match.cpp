@@ -1,4 +1,6 @@
-/* $Id: match.c 4738 2014-07-03 00:55:39Z dchassin $
+/* match.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
+ *
  *	From _Beautiful Code_, edited by Andy Oram and Greg Wilson, CR 2007 O'Reilly Media, Inc.
  *	"A Regular Expression Matcher", Brian Kernighan
  *

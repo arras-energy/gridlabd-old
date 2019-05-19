@@ -1,6 +1,7 @@
-/** $Id: environment.c 4738 2014-07-03 00:55:39Z dchassin $
+/** environment.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file environment.c
+
+	@file environment.cpp
 	@addtogroup environment Environment control
 	@ingroup core
 	

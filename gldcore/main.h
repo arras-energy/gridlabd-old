@@ -1,5 +1,6 @@
-// main.h
-// Copyright (C) 2018 Regents of the Leland Stanford Junior University
+/* File: main.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef _MAIN_H
 #define _MAIN_H

@@ -1,4 +1,6 @@
-// File: gld_sock.h
+/* File: gld_sock.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef _GLD_SOCKETS_H_
 #define _GLD_SOCKETS_H_

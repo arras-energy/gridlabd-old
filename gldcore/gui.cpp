@@ -1,4 +1,4 @@
-/*	File: gui.c
+/*	gui.cpp
  *  Created by David P. Chassin on 10/26/10.
  *  Copyright 2010 Battelle Memorial Institute, All rights reserved.
  */

@@ -1,5 +1,6 @@
-/** $Id: load.c 4738 2014-07-03 00:55:39Z dchassin $
+/** load.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file load.c
 	@addtogroup load_glm GLM file loader
 	@ingroup core

@@ -1,3 +1,6 @@
+/* File: enduse.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef _ENDUSE_H
 #define _ENDUSE_H

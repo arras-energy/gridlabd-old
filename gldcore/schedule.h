@@ -1,6 +1,7 @@
-/** $Id$
- 	Copyright (C) 2008 Battelle Memorial Institute
-	@file schedule.h
+/* File: schedule.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ 
+ 	@file schedule.h
 	@addtogroup schedule Schedules
 
 	Schedules are defined as a multiline string

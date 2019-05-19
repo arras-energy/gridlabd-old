@@ -1,4 +1,6 @@
-// File: instance_cnx.h
+/* File: .h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef _INSTANCE_CNX_H
 #define _INSTANCE_CNX_H

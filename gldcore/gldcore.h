@@ -1,5 +1,5 @@
-/*	gldcore/gldcore.h
- 	Copyright (C) 2019, Regents of the Leland Stanford Junior University
+/* File: gldcore.h 
+ * Copyright (C) 2019, Regents of the Leland Stanford Junior University
  */
 
 #ifndef _GLDCORE_H

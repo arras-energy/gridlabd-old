@@ -1,5 +1,5 @@
-/* module.h
- *	Copyright (C) 2008 Battelle Memorial Institute
+/* File: module.h
+ * Copyright (C) 2008 Battelle Memorial Institute
  */
 
 #ifndef _MODULE_H

@@ -1,6 +1,6 @@
-/** $Id: kill.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
-**/
+/* File: kill.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 #ifndef _KILL_H
 #define _KILL_H
 

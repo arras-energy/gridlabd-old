@@ -1,5 +1,5 @@
-/*	File: exec.h 
-		Execution flow control module
+/* File: exec.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #ifndef _EXEC_H

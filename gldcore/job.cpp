@@ -1,4 +1,4 @@
-// $Id: job.cpp 4738 2014-07-03 00:55:39Z dchassin $
+// job.cpp
 // Copyright (C) 2012 Battelle Memorial Institute
 //
 

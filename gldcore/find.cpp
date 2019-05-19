@@ -1,4 +1,4 @@
-/*	File: find.c
+/*	find.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	Create by David P. Chassin
  */

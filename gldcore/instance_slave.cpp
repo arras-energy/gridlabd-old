@@ -1,3 +1,7 @@
+/* instance_slave.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
+ 
 #include "gldcore.h"
 
 SET_MYCONTEXT(DMC_INSTANCE)

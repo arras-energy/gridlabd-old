@@ -1,5 +1,5 @@
-/* $Id: validate.h 4738 2014-07-03 00:55:39Z dchassin $
-   Copyright (C) 2012 Battelle Memorial Institute
+/* File: validate.h 
+   Copyright (C) 2008, Pacific Northwest National Laboratory
  */
 
 #ifndef _VALIDATE_H

@@ -1,4 +1,4 @@
-/*	File: globals.c
+/*	globals.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 
 	The GridLAB-D core maintains a group of global variables that can be accessed

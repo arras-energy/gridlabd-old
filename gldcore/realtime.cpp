@@ -1,4 +1,4 @@
-/* realtime.c
+/* realtime.cpp
  * Copyright (C) 2008 Battelle Memorial Institute
  * This module handle realtime events such as regular update to the environment, alarms and processing time limits.
  */

@@ -1,5 +1,5 @@
-/* local.h
- *	Copyright (C) 2008 Battelle Memorial Institute
+/* File: local.h
+ * Copyright (C) 2008 Battelle Memorial Institute
  */
 
 #ifndef _LOCAL_H

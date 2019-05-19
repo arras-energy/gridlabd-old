@@ -1,4 +1,6 @@
-// File: interpolate.h
+/* File: interpolate.h
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef GLD_INTERPOLATE
 #define GLD_INTERPOLATE

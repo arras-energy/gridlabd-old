@@ -1,6 +1,6 @@
-/** $Id: deltamode.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2011 Battelle Memorial Institute
- **/
+/* File: deltamode.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef _DELTAMODE_H
 #define _DELTAMODE_H

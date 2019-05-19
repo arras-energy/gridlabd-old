@@ -1,5 +1,5 @@
-/* @file instance.c
-   Copyright (C) 2011, Battelle Memorial Institute
+/* instance.cpp
+ * Copyright (C) 2011, Battelle Memorial Institute
  */
 
 #include "gldcore.h"

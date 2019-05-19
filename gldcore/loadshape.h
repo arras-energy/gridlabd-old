@@ -1,5 +1,6 @@
-/** $Id: loadshape.h 4738 2014-07-03 00:55:39Z dchassin $
- 	Copyright (C) 2008 Battelle Memorial Institute
+/* File: loadshape.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
 	@file loadshape.h
 	@addtogroup loadshape Built-in loadshapes
 **/

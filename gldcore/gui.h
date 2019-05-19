@@ -1,10 +1,5 @@
-/*
- *  gui.h
- *  gridlabd
- *
- *  Created by d3g637-local on 10/26/10.
- *  Copyright 2010 Battelle Memorial Institute. All rights reserved.
- *
+/* File: gui.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #ifndef _GUI_H

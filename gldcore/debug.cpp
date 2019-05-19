@@ -1,6 +1,7 @@
-/** $Id: debug.c 4738 2014-07-03 00:55:39Z dchassin $
+/** debug.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file debug.c
+
+	@file debug.cpp
 	@author David P. Chassin
 	@addtogroup debug Debugger
 	@ingroup core

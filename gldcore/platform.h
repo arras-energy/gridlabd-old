@@ -1,4 +1,6 @@
-/*	File: platform.h
+/* File: platform.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
 		The platform include file is obsolete. All macros, typedefs, templates, and functions
 		should be removed and only the selection of appropriate include files should be used.
  */
