@@ -58,6 +58,7 @@
 
 #define STREAM_MODULE
 
+#ifndef _GLDCORE_H
 #ifndef FALSE
 #define FALSE (0)
 #endif
@@ -67,6 +68,7 @@
 #endif
 
 typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
+#endif
 
 #include "aggregate.h"
 #include "build.h"
