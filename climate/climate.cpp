@@ -43,7 +43,7 @@ const long EMPTY_VALUE = -999;
 //const int ALPHA = 300;
 //const int NUM_FUZZY_LAYERS = 20;
 
-
+#include <vector>
 
 std::vector<std::vector<double > > cloud_pattern;
 std::vector<std::vector<double > > normalized_cloud_pattern;

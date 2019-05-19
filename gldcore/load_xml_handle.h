@@ -19,8 +19,8 @@
 #ifndef _LOAD_XML_HANDLE_H
 #define _LOAD_XML_HANDLE_H
 
-#ifndef _GLDCORE_H
-#error "this header may only be included from gldcore.h"
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
 XERCES_CPP_NAMESPACE_USE

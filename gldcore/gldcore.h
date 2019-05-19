@@ -5,10 +5,6 @@
 #ifndef _GLDCORE_H
 #define _GLDCORE_H
 
-#ifndef _GLDCORE_H
-#error "this header may only be included from gldcore.h"
-#endif
-
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <errno.h>
@@ -32,7 +28,6 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include <vector>
 #include <wchar.h>
 #include <sys/errno.h>
 
@@ -132,7 +127,6 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include "list.h"
 #include "load.h"
 #include "load_xml.h"
-//#include "load_xml_handle.h"
 #include "loadshape.h"
 #include "local.h"
 #include "lock.h"
@@ -152,7 +146,6 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include "server.h"
 #include "setup.h"
 #include "stream.h"
-//#include "stream_type.h"
 #include "test.h"
 #include "threadpool.h"
 #include "timestamp.h"
@@ -161,6 +154,6 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include "unit.h"
 #include "validate.h"
 #include "version.h"
-//#include "xcore.h"
+
 #endif
 

@@ -7,8 +7,8 @@
 #ifndef _GLOBALS_H
 #define _GLOBALS_H
 
-#ifndef _GLDCORE_H
-#error "this header may only be included from gldcore.h"
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
 #include "version.h"

@@ -75,10 +75,10 @@ PROPERTY *player_link_properties(struct player *player, OBJECT *obj, char *prope
 
 		// everything that looks like a property name, then read units up to ]
 		while (isspace(*item)) item++;
-		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,]]", pstr, ustr)){
+		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,]]", (char*)pstr, (char*)ustr)){
 			unit = gl_find_unit(ustr);
 			if(unit == NULL){
-				gl_error("sync_player:%d: unable to find unit '%s' for property '%s'",obj->id, ustr,pstr);
+				gl_error("sync_player:%d: unable to find unit '%s' for property '%s'",obj->id, (char*)ustr,(char*)pstr);
 				return NULL;
 			}
 			item = pstr;
@@ -90,10 +90,10 @@ PROPERTY *player_link_properties(struct player *player, OBJECT *obj, char *prope
 		cpart = strchr(item, '.');
 		if(cpart != NULL){
 			if(strcmp("imag", cpart+1) == 0){
-				cid = (int)((int64)&(oblig.i) - (int64)&oblig);
+				cid = (int)((int64)&(oblig.Im()) - (int64)&oblig);
 				*cpart = 0;
 			} else if(strcmp("real", cpart+1) == 0){
-				cid = (int)((int64)&(oblig.r) - (int64)&oblig);
+				cid = (int)((int64)&(oblig.Re()) - (int64)&oblig);
 				*cpart = 0;
 			} else {
 				;
@@ -109,7 +109,7 @@ PROPERTY *player_link_properties(struct player *player, OBJECT *obj, char *prope
 			}
 			else if(unit != NULL && 0 == gl_convert_ex(target->unit, unit, &scale))
 			{
-				gl_error("sync_player:%d: unable to convert property '%s' units to '%s'", obj->id, item, ustr);
+				gl_error("sync_player:%d: unable to convert property '%s' units to '%s'", obj->id, item, (char*)ustr);
 				return NULL;
 			}
 			if (first==NULL) first=prop; else last->next=prop;
@@ -203,7 +203,7 @@ static int player_open(OBJECT *obj)
 	if (strcmp(fname,"")==0)
 
 		/* use object name-id as default file name */
-		sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, my->filetype);
+		sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)(my->filetype));
 
 	/* if type is file or file is stdin */
 	tf = get_ftable(my->mode);
@@ -264,7 +264,7 @@ static void trim(char *str, char *to){
 	}
 }
 
-TIMESTAMP player_read(OBJECT *obj)
+CDECL TIMESTAMP player_read(OBJECT *obj)
 {
 	char buffer[1024];
 	char timebuf[64], valbuf[1024], tbuf[64];
@@ -466,7 +466,7 @@ EXPORT TIMESTAMP sync_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 
 		if(player_open(obj) == 0)
 		{
-			gl_error("sync_player: Unable to open player file '%s' for object '%s'", my->file, obj->name?obj->name:"(anon)");
+			gl_error("sync_player: Unable to open player file '%s' for object '%s'", (char*)(my->file), obj->name?obj->name:"(anon)");
 		}
 		else
 		{
@@ -479,7 +479,7 @@ EXPORT TIMESTAMP sync_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		if (my->target==NULL)
 			my->target = player_link_properties(my, obj->parent, my->property);
 		if (my->target==NULL){
-			gl_error("sync_player: Unable to find property \"%s\" in object %s", my->property, obj->name?obj->name:"(anon)");
+			gl_error("sync_player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
 			my->status = TS_ERROR;
 		}
 		if (my->target!=NULL)
@@ -513,7 +513,7 @@ EXPORT TIMESTAMP sync_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		if (my->target==NULL)
 			my->target = player_link_properties(my, obj->parent, my->property);
 		if (my->target==NULL){
-			gl_error("sync_player: Unable to find property \"%s\" in object %s", my->property, obj->name?obj->name:"(anon)");
+			gl_error("sync_player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
 			my->status = TS_ERROR;
 		}
 

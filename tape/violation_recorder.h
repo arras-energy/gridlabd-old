@@ -4,12 +4,10 @@
 #define _VIOLATION_RECORDER_H_
 
 #include "tape.h"
-#include "../powerflow/transformer_configuration.h"
-#include "../powerflow/transformer.h"
-#include "../powerflow/line.h"
+#include "powerflow.h"
 #include <new>
 
-CDECL void new_violation_recorder(MODULE *);
+void new_violation_recorder(MODULE *);
 
 #ifdef __cplusplus
 

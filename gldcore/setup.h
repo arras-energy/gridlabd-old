@@ -5,8 +5,8 @@
 #ifndef _SETUP_H
 #define _SETUP_H
 
-#ifndef _GLDCORE_H
-#error "this header may only be included from gldcore.h"
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
 int setup(void *main, int argc, const char *argv[]);

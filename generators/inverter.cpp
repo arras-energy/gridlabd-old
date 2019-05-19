@@ -8,6 +8,7 @@
  **/
 
 #include "generators.h"
+#include <vector>
 
 #define DEFAULT 1.0;
 

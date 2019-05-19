@@ -16,8 +16,8 @@ extern char timestamp_format[32];
 typedef enum {VT_INTEGER, VT_DOUBLE, VT_STRING} VARIABLETYPE;
 typedef enum {TS_INIT, TS_OPEN, TS_DONE, TS_ERROR} TAPESTATUS;
 typedef enum {FT_FILE, FT_ODBC, FT_MEMORY} FILETYPE;
-typedef enum {SCREEN, EPS, GIF, JPG, PDF, PNG, SVG} PLOTFILE;
-typedef enum e_complex_part {NONE = 0, REAL, IMAG, MAG, ANG, ANG_RAD} CPLPT;
+typedef enum {SCR, EPS, GIF, JPG, PDF, PNG, SVG} PLOTFILE;
+typedef enum e_complex_part {CP_NONE = 0, REAL, IMAG, MAG, ANG, ANG_RAD} CPLPT;
 typedef enum {UNKNOWN=0, PLAYER=1, RECORDER=2, GROUPRECORDER=3} DELTATAPEOBJ;
 
 /* recorder-specific enums */
@@ -47,7 +47,7 @@ typedef struct s_tape_funcs {
 CDECL TAPEFUNCS *get_ftable(char *mode);
 
 typedef struct {
-	char *name;
+	const char *name;
 	VARIABLETYPE type;
 	void *addr;
 	double min, max;
