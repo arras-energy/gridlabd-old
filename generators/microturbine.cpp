@@ -14,7 +14,7 @@
 CLASS *microturbine::oclass = NULL;
 microturbine *microturbine::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */

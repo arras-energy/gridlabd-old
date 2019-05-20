@@ -462,7 +462,7 @@ int load_from_file = 0; /** flag whether commands are being read from a \p scrip
 /** The function executes the next debug command provided by the user or read from a file
  **/
 DEBUGCMD exec_debug_cmd(struct sync_data *data, /**< the current sync status of the mail loop */
-						int pass, /**< the current pass on the main loop */
+						PASSCONFIG pass, /**< the current pass on the main loop */
 						int index, /**< the rank index */
 						OBJECT *obj) /**< the current object being processed */
 {
@@ -1258,7 +1258,7 @@ Retry:
 /** This is the main debugger processing loop
  **/
 int exec_debug(struct sync_data *data, /**< the current sync status of the mail loop */
-			   int pass, /**< the current pass on the main loop */
+			   PASSCONFIG pass, /**< the current pass on the main loop */
 			   int index, /**< the rank index */
 			   OBJECT *obj) /**< the current object being processed */
 {

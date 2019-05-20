@@ -705,7 +705,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 						 */
 						goto Error;
 					}
-					no_override = ~(~oclass->parent->passconfig|oclass->passconfig); /* parent bool-implies child (p->q=~p|q) */
+					no_override = (PASSCONFIG)~(~oclass->parent->passconfig|oclass->passconfig); /* parent bool-implies child (p->q=~p|q) */
 					if (oclass->parent->passconfig&PC_UNSAFE_OVERRIDE_OMIT
 							&& !(oclass->passconfig&PC_PARENT_OVERRIDE_OMIT)
 							&& no_override&PC_PRETOPDOWN)

@@ -465,7 +465,14 @@ inline int gl_module_depends(char *name, /**< module name */
 	Note that C file may publish structures, even they are not implemented as classes.
 	@see class_register()
  **/
+#ifdef __cplusplus
+inline CLASS *gl_register_class(MODULE *mod,const char *name,size_t size,unsigned int options)
+{
+	return (*callback->register_class)(mod,name,size,PASSCONFIG(options));
+}
+#else
 #define gl_register_class (*callback->register_class)
+#endif
 #define gl_class_get_first (*callback->class_getfirst)
 #define gl_class_get_by_name (*callback->class_getname)
 /** @} **/
@@ -1728,7 +1735,7 @@ public: // write accessors
 
 public: // special functions
 	/// Register a class	
-	static inline CLASS *create(MODULE *m, const char *n, size_t s, unsigned int f) { return callback->register_class(m,n,(unsigned int)s,f); };
+	static inline CLASS *create(MODULE *m, const char *n, size_t s, unsigned int f) { return callback->register_class(m,n,(unsigned int)s,PASSCONFIG(f)); };
 	
 public: // iterators
 	/// Check if last class registered

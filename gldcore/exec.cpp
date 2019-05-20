@@ -138,7 +138,7 @@ DEPRECATED int exec_get_iteration_counter(void)
 {
 	return my_instance->get_exec()->iteration_counter;
 }
-DEPRECATED int exec_get_passtype(int pass)
+DEPRECATED PASSCONFIG exec_get_passtype(PASSCONFIG pass)
 {
 	return my_instance->get_exec()->passtype[pass];
 }
@@ -2528,7 +2528,7 @@ STATUS GldExec::exec_start(void)
 						{
 							OBJECT *obj = (OBJECT*)(item->data);
 							// @todo change debug so it uses sync API
-							if (exec_debug(&main_sync,pass,i,obj)==FAILED)
+							if (exec_debug(&main_sync,passtype[pass],i,obj)==FAILED)
 							{
 								throw("debugger quit");
 							}
@@ -2928,7 +2928,7 @@ STATUS GldExec::exec_start(void)
 	@return STATUS is SUCCESS if all test passed, FAILED is any test failed.
  **/
 STATUS GldExec::test(struct sync_data *data, /**< the synchronization state data */
-				 int pass, /**< the pass number */
+				 PASSCONFIG pass, /**< the pass number */
 				 OBJECT *obj)  /**< the current object */
 {
 	TIMESTAMP this_t;

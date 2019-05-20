@@ -493,16 +493,19 @@ typedef struct s_enduse enduse;
 #define MAXBLOCKS 4
 #define MAXVALUES 64
 
-/* pass configuration */
-typedef unsigned long PASSCONFIG; /**< the pass configuration */
-#define PC_NOSYNC 0x00					/**< used when the class requires no synchronization */
-#define PC_PRETOPDOWN 0x01				/**< used when the class requires synchronization on the first top-down pass */
-#define PC_BOTTOMUP	0x02				/**< used when the class requires synchronization on the bottom-up pass */
-#define PC_POSTTOPDOWN 0x04				/**< used when the class requires synchronization on the second top-down pass */
-#define PC_FORCE_NAME 0x20				/**< used to indicate the this class must define names for all its objects */
-#define PC_PARENT_OVERRIDE_OMIT 0x40	/**< used to ignore parent's use of PC_UNSAFE_OVERRIDE_OMIT */
-#define PC_UNSAFE_OVERRIDE_OMIT 0x80	/**< used to flag that omitting overrides is unsafe */
-#define PC_ABSTRACTONLY 0x100 /**< used to flag that the class should never be instantiated itself, only inherited classes should */
+typedef enum e_passconfig
+{
+	PC_NOSYNC 				= 0x0000,
+	PC_PRETOPDOWN 			= 0x0001,
+	PC_BOTTOMUP				= 0x0002,
+	PC_POSTTOPDOWN 			= 0x0004,
+	PC_FORCE_NAME 			= 0x0020,
+	PC_PARENT_OVERRIDE_OMIT = 0x0040,
+	PC_UNSAFE_OVERRIDE_OMIT = 0x0080,
+	PC_ABSTRACTONLY 		= 0x0100,
+	PC_AUTOLOCK 			= 0x0200,
+	PC_OBSERVER 			= 0x0400,
+} PASSCONFIG;
 
 #ifndef FALSE
 #define FALSE (0)
@@ -1126,7 +1129,7 @@ typedef struct s_callbacks {
 	int (*output_error)(char *format, ...);
 	int (*output_debug)(char *format, ...);
 	int (*output_test)(char *format, ...);
-	CLASS *(*register_class)(MODULE *,CLASSNAME,unsigned int,PASSCONFIG);
+	CLASS *(*register_class)(MODULE *,CLASSNAME,unsigned int,unsigned int);
 	struct {
 		OBJECT *(*single)(CLASS*);
 		OBJECT *(*array)(CLASS*,unsigned int);

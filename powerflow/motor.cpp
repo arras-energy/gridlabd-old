@@ -17,7 +17,7 @@ CLASS* motor::pclass = NULL;
 * @param mod a module structure maintained by the core
 */
 
-static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 motor::motor(MODULE *mod):node(mod)

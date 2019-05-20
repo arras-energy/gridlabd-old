@@ -215,7 +215,7 @@ int savexml_strict(const char *filename,FILE *fp)
 			INDEX **ranks = exec_getranks();
 			LISTITEM *item;
 			int i;
-			PASSCONFIG pass;
+			size_t pass;
 			for (pass=0; ranks!=NULL && ranks[pass]!=NULL; pass++)
 			{
 				const char *passname[]={"pretopdown","bottomup","posttopdown"};

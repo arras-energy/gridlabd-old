@@ -20,7 +20,7 @@ extern "C" {
 #endif
 
 void exec_sighandler(int sig);
-int exec_debug(struct sync_data *data, int pass, int index, struct s_object_list *obj);
+int exec_debug(struct sync_data *data, PASSCONFIG pass, int index, struct s_object_list *obj);
 char *strsignal(int sig);
 
 #ifdef __cplusplus

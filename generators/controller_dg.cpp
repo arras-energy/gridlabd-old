@@ -11,7 +11,7 @@
 CLASS* controller_dg::oclass = NULL;
 controller_dg *controller_dg::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_BOTTOMUP|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 controller_dg::controller_dg(MODULE *mod)

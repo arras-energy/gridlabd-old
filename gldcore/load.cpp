@@ -3038,7 +3038,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "presync";
-		oclass->passconfig |= PC_PRETOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_PRETOPDOWN);
 		*function |= FN_PRESYNC;
 		ACCEPT;
 	}
@@ -3046,7 +3046,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "sync";
-		oclass->passconfig |= PC_BOTTOMUP;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_BOTTOMUP);
 		*function |= FN_SYNC;
 		ACCEPT;
 	}
@@ -3054,7 +3054,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "postsync";
-		oclass->passconfig |= PC_POSTTOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_POSTTOPDOWN);
 		*function |= FN_POSTSYNC;
 		ACCEPT;
 	}
@@ -3585,7 +3585,7 @@ static int class_block(PARSER)
 				oclass = class_get_class_from_classname(classname);
 				if (oclass==NULL)
 				{
-					oclass = class_register(NULL,classname,0,0x00);
+					oclass = class_register(NULL,classname,0,PC_NOSYNC);
 					mark_line();
 					switch (inherit) {
 					case NONE:

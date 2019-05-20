@@ -96,7 +96,7 @@ DEPRECATED CDECL void exec_runlock_sync(void);
 DEPRECATED CDECL void exec_wlock_sync(void);
 DEPRECATED CDECL void exec_wunlock_sync(void);
 DEPRECATED CDECL int exec_get_iteration_counter(void);
-DEPRECATED CDECL int exec_get_passtype(int pass);
+DEPRECATED CDECL PASSCONFIG exec_get_passtype(PASSCONFIG);
 
 /* Typedef: SIMPLELIST
 	See s_simplelist
@@ -862,7 +862,7 @@ public:
 		Returns:
 
 	*/
-	STATUS test(struct sync_data *data, int pass, OBJECT *obj);
+	STATUS test(struct sync_data *data, PASSCONFIG pass, OBJECT *obj);
 
 	/*	Method: 
 			
