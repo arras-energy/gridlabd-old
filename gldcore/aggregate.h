@@ -145,7 +145,16 @@ DEPRECATED typedef struct s_aggregate {
 	struct s_aggregate *next; 
 } AGGREGATION; 
 
+/* Function: aggregate_mkgroup
+
+	This function is obsolete.
+ */
 DEPRECATED CDECL AGGREGATION *aggregate_mkgroup(const char *aggregator, const char *group_expression);
+
+/* Function: aggregate_value
+
+	This function is obsolete.
+ */
 DEPRECATED CDECL double aggregate_value(AGGREGATION *aggregate);
 
 #ifdef __cplusplus // DEPRECATED
@@ -161,20 +170,6 @@ private:
 
 public:
 	/*	Constructor: GldAggregator
-			Use an existing aggregator
-	
-		Parameters:
-			aggr - a reference to the aggregation data
-	
-		Example:
-			--- C++ ---
-			GldAggregator T_min("min(air_temperature)","class=house");
-			GldAggregator ref(T_min.get_aggregator());
-			--- C++ ---
-	 */
-	GldAggregator(AGGREGATION *aggr);
-
-	/*	Constructor: GldAggregator
 			Implement a new aggregator
 	
 		Parameters:
@@ -187,6 +182,20 @@ public:
 			--- C++ ---
 	*/
 	GldAggregator(const char *aggregator, const char *group_expression);
+
+	/*	Constructor: GldAggregator
+			Use an existing aggregator
+	
+		Parameters:
+			aggr - a reference to the aggregation data
+	
+		Example:
+			--- C++ ---
+			GldAggregator T_min("min(air_temperature)","class=house");
+			GldAggregator ref(T_min.get_aggregator());
+			--- C++ ---
+	 */
+	GldAggregator(AGGREGATION *aggr);
 
 	/* Destructor: ~GldAggregator
 			Decrements the reference count and deletes the aggregator if zero left
