@@ -555,6 +555,9 @@ DEPRECATED int class_add_loadmethod(CLASS *oclass, const char *name, LOADMETHODC
  */
 DEPRECATED LOADMETHOD *class_get_loadmethod(CLASS *oclass,const char *name);
 
+#ifdef __cplusplus
+}
+
 class GldClass;
 
 /* class: GldProfiler
@@ -631,81 +634,116 @@ public:
 public:
 	// Function: get_first_property
 	PROPERTY *get_first_property(void);
+
 	// Function: get_next_property
 	PROPERTY *get_next_property(PROPERTY *prop);
+	
 	// Function: get_first_property_inherit
 	PROPERTY *get_first_property_inherit();
+	
 	// Function: get_next_property_inherit
 	PROPERTY *get_next_property_inherit(PROPERTY *prop);
+	
 	// Function: prop_in_class
 	PROPERTY *prop_in_class(PROPERTY *prop);
+	
 	// Function: find_property
 	PROPERTY *find_property(PROPERTYNAME name);
+	
 	// Function: add_property
 	void add_property(PROPERTY *prop);
+	
 	// Function: add_extended_property
 	PROPERTY *add_extended_property(CLASS *oclass, const char *name, PROPERTYTYPE ptype, const char *unit);
+	
 	// Function: get_propertytype_from_typename
 	PROPERTYTYPE get_propertytype_from_typename(char *name);
+	
 	// Function: string_to_property
 	int string_to_property(PROPERTY *prop, void *addr, const char *value);
+	
 	// Function: string_to_propertytype
 	int string_to_propertytype(PROPERTYTYPE type, void *addr, const char *value);
+	
 	// Function: property_to_string
 	int property_to_string(PROPERTY *prop, void *addr, char *value, int size);
+	
 	// Function: get_first_class
 	CLASS *get_first_class(void);
+	
 	// Function: get_last_class
 	CLASS *get_last_class(void);
+	
 	// Function: get_class_from_classname
 	CLASS *get_class_from_classname(CLASSNAME name);
+	
 	// Function: get_class_from_classname_in_module
 	CLASS *get_class_from_classname_in_module(CLASSNAME name, MODULE *mod);
+	
 	// Function: get_property_typename
 	const char *get_property_typename(PROPERTYTYPE type);
+	
 	// Function: get_property_typexsdname
 	const char *get_property_typexsdname(PROPERTYTYPE type);
+	
 	// Function: saveall
 	int saveall(FILE *fp);
+	
 	// Function: saveall_xml
 	int saveall_xml(FILE *fp);
+	
 	// Function: get_count
 	unsigned int get_count(void);
+	
 	// Function: profiles
 	void profiles(void);
+	
 	// Function: class_get_xsd
 	int get_xsd(char *buffer, size_t len);
+	
 	// Function: get_runtimecount
 	size_t get_runtimecount(void);
+	
 	// Function: get_first_runtime
 	CLASS *get_first_runtime(void);
+	
 	// Function: get_next_runtime
 	CLASS *get_next_runtime(CLASS *oclass);
+	
 	// Function: get_extendedcount
 	size_t get_extendedcount(CLASS *oclass);
-	// Function: register
+	
+	// Function: class_register
 	CLASS *class_register(MODULE *module,CLASSNAME classname,unsigned int datasize,PASSCONFIG passconfig);
+	
 	// Function: define_map
 	int define_map(...);
+	
 	// Function: define_enumeration_member
 	int define_enumeration_member(const char *property_name,const char *member,enumeration value);
+	
 	// Function: define_set_member
 	int define_set_member(const char *property_name,const char *member,unsigned int64 value);
+	
 	// Function: define_function
 	FUNCTION *define_function(FUNCTIONNAME functionname, FUNCTIONADDR call);
+	
 	// Function: get_function
 	FUNCTIONADDR get_function(CLASSNAME classname, FUNCTIONNAME functionname);
+	
 	// Function: register_type
 	DELEGATEDTYPE *register_type(const char *type,int (*from_string)(void*,const char*),int (*to_string)(void*,char*,int));
+	
 	// Function: define_type
 	int define_type(DELEGATEDTYPE *delegation, ...);
+	
 	// Function: add_loadmethod
-	int class_add_loadmethod(const char *name, LOADMETHODCALL call);
+	int add_loadmethod(const char *name, LOADMETHODCALL call);
+	
 	// Function: get_loadmethod
-	LOADMETHOD *class_get_loadmethod(const char *name);};
+	LOADMETHOD *get_loadmethod(const char *name);
+};
 
-#ifdef __cplusplus
-}
 #endif
 
 #endif
