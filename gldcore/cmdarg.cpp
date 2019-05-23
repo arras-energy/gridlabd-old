@@ -76,14 +76,14 @@ DEPRECATED STATUS GldCmdarg::load_module_list(FILE *fd,int* test_mod_num)
 	return SUCCESS;
 }
 
-DEPRECATED void modhelp_alpha(pntree **ctree, CLASS *oclass)
+DEPRECATED void modhelp_alpha(PNTREE **ctree, CLASS *oclass)
 {
 	my_instance->get_cmdarg()->modhelp_alpha(ctree,oclass);
 }
-void GldCmdarg::modhelp_alpha(pntree **ctree, CLASS *oclass)
+void GldCmdarg::modhelp_alpha(PNTREE **ctree, CLASS *oclass)
 {
 	int cmpval = 0;
-	pntree *targ = *ctree;
+	PNTREE *targ = *ctree;
 	
 	cmpval = strcmp(oclass->name, targ->name);
 	
@@ -91,8 +91,8 @@ void GldCmdarg::modhelp_alpha(pntree **ctree, CLASS *oclass)
 		; /* exception? */
 	} if(cmpval < 0){ /*  class < root ~ go left */
 		if(targ->left == NULL){
-			targ->left = (pntree *)malloc(sizeof(pntree));
-			memset(targ->left, 0, sizeof(pntree));
+			targ->left = (PNTREE *)malloc(sizeof(PNTREE));
+			memset(targ->left, 0, sizeof(PNTREE));
 			targ->left->name = oclass->name;
 			targ->left->name = oclass->name;
 			targ->left->oclass = oclass;
@@ -102,8 +102,8 @@ void GldCmdarg::modhelp_alpha(pntree **ctree, CLASS *oclass)
 		}
 	} else {
 		if(targ->right == NULL){
-			targ->right = (pntree *)malloc(sizeof(pntree));
-			memset(targ->right, 0, sizeof(pntree));
+			targ->right = (PNTREE *)malloc(sizeof(PNTREE));
+			memset(targ->right, 0, sizeof(PNTREE));
 			targ->right->name = oclass->name;
 			targ->right->name = oclass->name;
 			targ->right->oclass = oclass;
@@ -193,11 +193,11 @@ void GldCmdarg::print_class(CLASS *oclass)
 	print_class_d(oclass, 0);
 }
 
-DEPRECATED void print_modhelp_tree(pntree *ctree)
+DEPRECATED void print_modhelp_tree(PNTREE *ctree)
 {
 	my_instance->get_cmdarg()->print_modhelp_tree(ctree);
 }
-void GldCmdarg::print_modhelp_tree(pntree *ctree)
+void GldCmdarg::print_modhelp_tree(PNTREE *ctree)
 {
 	if(ctree->left != NULL){
 		print_modhelp_tree(ctree->left);
@@ -854,11 +854,11 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 		else
 		{
 			CLASS	*oclass;
-			pntree	*ctree;
+			PNTREE	*ctree;
 			/* lexographically sort all elements from class_get_first_class & oclass->next */
 
 			oclass=class_get_first_class();
-			ctree = (pntree *)malloc(sizeof(pntree));
+			ctree = (PNTREE *)malloc(sizeof(PNTREE));
 			
 			if(ctree == NULL){
 				throw_exception("--modhelp: malloc failure");

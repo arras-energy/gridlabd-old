@@ -590,11 +590,26 @@ public:
 class GldMain;
 class GldProperty;
 
+class GldClassList
+{
+private:
+	size_t class_count;
+	GldClass *first_class;
+	GldClass *last_class;
+public:
+	GldClassList(GldMain*inst);
+	~GldClassList(void);
+public:
+	inline size_t get_count(void) { return class_count;};
+	inline GldClass* get_first(void) { return first_class;};
+	inline GldClass* get_next(void) { return last_class;};
+	void add_class(GldClass*);
+};
+
 /* Class: GldClass */
 class GldClass {
 private:
 	GldMain &instance;
-
 private:
 	CLASSMAGIC magic;
 	int id;

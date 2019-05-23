@@ -32,6 +32,10 @@ SET_MYCONTEXT(DMC_CLASS)
 #define DLLOAD(P) dlopen(P,RTLD_LAZY)
 #define DLSYM(H,S) dlsym(H,S)
 #endif
+
+// TODO: delete this when reentrancy upgrade is complete
+extern GldMain *my_instance;
+
 static unsigned int class_count = 0;
 
 /* defined in property.c */

@@ -1,11 +1,8 @@
-/* File: cmdarg.h 
- * Copyright (C) 2008, Battelle Memorial Institute
+/*	File: cmdarg.h 
+ 
+ 	Copyright (C) 2008, Battelle Memorial Institute
 
-	@file cmdarg.h
-	@addtogroup cmdarg
- @{
- **/
-
+ */
 
 #ifndef _CMDARG_H
 #define _CMDARG_H
@@ -14,19 +11,53 @@
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
-#define CMDOK (-1)
-#define CMDERR (-2)
+/*	Section: Command Argument Processing
 
-// deprecated as of 4.2
-DEPRECATED CDECL STATUS cmdarg_load(int argc, const char *argv[]);
-DEPRECATED CDECL int cmdarg_runoption(const char *value);
+	Typedef: CMDSTATUS
+		See <e_cmdstatus>
+
+	Enum: e_cmdstatus
+	CMDOK = (-1) -  Command processing ok
+	CMDERR = (-2) - Command processing failed
+ */
+typedef enum e_cmdstatus {
+	CMDOK = -1,
+	CMDERR = -2,
+} CMDSTATUS;
+
+/*	Typedef: PNTREE
+		See <s_pntree>
+
+	Structure: s_pntree
+	name - item name
+	oclass - class reference
+	left - left branch reference
+	right - right branch reference
+
+	Sorting tree for <modhelp>.
+ */
 DEPRECATED typedef struct s_pntree
 {
 	const char *name;
 	CLASS *oclass;
 	struct s_pntree *left, *right;
-} pntree;
+} PNTREE;
+
+/*	Typedef: CMDARGCALL
+		Command argument processing function
+ */
 DEPRECATED typedef int (*CMDARGCALL)(void*,int,const char*[]);
+
+/*	Typedef: CMDARG
+		See <s_cmdarg>.
+
+	Structure: s_cmdarg
+	lopt - text for long option string (if any)
+	sopt - text for short option string (if any)
+	call - command procession function call
+	args - description of argument list
+	desc - description of command option
+ */
 DEPRECATED typedef struct s_cmdarg 
 {
 	const char *lopt;
@@ -36,17 +67,42 @@ DEPRECATED typedef struct s_cmdarg
 	const char *desc;
 } CMDARG;
 
+/*	Function: cmdarg_load
+		This function is obsolete.
+ */
+DEPRECATED CDECL STATUS cmdarg_load(int argc, const char *argv[]);
+
+/*	Function: cmdarg_runoption
+		This function is obsolete.
+ */
+DEPRECATED CDECL int cmdarg_runoption(const char *value);
+
 #ifdef __cplusplus // DEPRECATED
 
+/*	Class: GldCmdarg
+
+	This class implements the command line argument processor.
+ */
 class GldCmdarg {
+
 private:
 	class GldMain *instance;
 	clock_t loader_time;
+
 public:
+
+	// Method: get_instance
 	inline GldMain *get_instance() { return instance; };
+
+	// Method: get_loader_time
 	inline clock_t get_loader_time() { return loader_time; };
+
 public:
+
+	// Constructor: GldCmdarg
 	GldCmdarg(class GldMain *);
+
+	// Destructor: ~GldCmdarg
 	~GldCmdarg();
 
 public:
@@ -54,11 +110,11 @@ public:
 	int runoption(const char *value);
 	STATUS no_cmdargs(void);
 	STATUS load_module_list(FILE *fd,int* test_mod_num);
-	void modhelp_alpha(pntree **ctree, CLASS *oclass);
+	void modhelp_alpha(PNTREE **ctree, CLASS *oclass);
 	void set_tabs(char *tabs, int tabdepth);
 	void print_class_d(CLASS *oclass, int tabdepth);
 	void print_class(CLASS *oclass);
-	void print_modhelp_tree(pntree *ctree);
+	void print_modhelp_tree(PNTREE *ctree);
 	int help(int argc, const char *argv[]);
 	int copyright(int argc, const char *argv[]);
 	int warn(int argc, const char *argv[]);
