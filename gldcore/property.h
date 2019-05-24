@@ -983,6 +983,23 @@ typedef enum {
 } PROPERTYCOMPAREOP;
 typedef int PROPERTYCOMPAREFUNCTION(void*,void*,void*);
 
+/*	Typedef: PROPERTYSPEC
+		See <s_property_specs>.
+
+	Structure: s_property_specs
+	name - property name
+	xsdname - XML style type name
+	default_value - default value
+	size - size of one instance
+	csize - size of instance when converted (not including string terminator)
+	data_to_string - function to convert type to a string
+	string_to_data - function to convert type from a string
+	create - function to create an instance
+	stream - function to stream data
+	compare - comparison functions (see <TCOPD>)
+	get_part - function to retrieve a data subitem
+	set_part - function to set a data subitem
+ */
 typedef struct s_property_specs { /**<	the property type conversion specifications.
 								It is critical that the order of entries in this list must match 
 								the order of entries in the enumeration #PROPERTYTYPE 

@@ -1,4 +1,4 @@
-/* File: cmex.h 
+/* cmex.h 
  * Copyright (C) 2002, Battelle Memorial Institute
  */
 

@@ -37,10 +37,14 @@ DEPRECATED CDECL int cmdarg_runoption(const char *value)
 // Command argument processor implementation
 ///////////////////////////////////////////////
 
-GldCmdarg::GldCmdarg(GldMain *main)
+GldCmdarg::GldCmdarg(GldMain *main, int argc, const char *argv[], const char *environ[])
 {
 	instance = main;
 	loader_time = 0;
+	if ( argc > 0 && argv != NULL && load(argc,argv) == FAILED )
+		throw new GldException("GldCmdarg(): load failed");
+	if ( environ )
+		throw new GldException("GldCmdarg(): environ set not supported");
 }
 
 GldCmdarg::~GldCmdarg(void)

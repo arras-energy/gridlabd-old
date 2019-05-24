@@ -91,16 +91,35 @@ private:
 
 public:
 
-	// Method: get_instance
+	/*	Method: get_instance
+
+			This function returns the main instance that this command
+			line processor is used for.
+	 */ 
 	inline GldMain *get_instance() { return instance; };
 
-	// Method: get_loader_time
+	/*	Method: get_loader_time
+
+			This function returns the clock time used by the loader.
+	 */
 	inline clock_t get_loader_time() { return loader_time; };
 
 public:
 
-	// Constructor: GldCmdarg
-	GldCmdarg(class GldMain *);
+	/*	Constructor: GldCmdarg
+	
+			This constructor is used to build a command line argument processor
+			for an instance.  
+
+			If argc == 0, then nothing is processed.  
+			If argc > 0 and argv != NULL, then the arguments are processed immediately in the
+			order in which they are presented in argv.  
+
+			If the load fails, a GldException is thrown.
+
+			Caveat: environ set is not supported yet. If environ is set, a GldException is thrown.
+	 */
+	GldCmdarg(class GldMain *, int argc = 0, const char *argv[] = NULL, const char *environ[] = NULL);
 
 	// Destructor: ~GldCmdarg
 	~GldCmdarg();

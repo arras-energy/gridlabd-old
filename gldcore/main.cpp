@@ -12,15 +12,17 @@
 
 SET_MYCONTEXT(DMC_MAIN)
 
-#if defined WIN32 && _DEBUG 
 /** Implements a pause on exit capability for Windows consoles
  **/
 void GldMain::pause_at_exit(void) 
 {
 	if (global_pauseatexit)
+#if defined WIN32
 		system("pause");
-}
+#else
+		system("read -p 'Press [RETURN] to end... ");
 #endif
+}
 
 /** The main entry point of GridLAB-D
     @returns Exit codes XC_SUCCESS, etc. (see gridlabd.h)
@@ -81,10 +83,7 @@ GldMain::GldMain(int argc, const char *argv[])
 	
 	/* set the process info */
 	global_process_id = getpid();
-
-#if defined WIN32 && _DEBUG 
 	atexit(pause_at_exit);
-#endif
 
 #ifdef WIN32
 	kill_starthandler();
