@@ -1,12 +1,6 @@
-/* File: debug.h 
- * Copyright (C) 2008, Battelle Memorial Institute
-
-	@file debug.h
-	@version $Id: debug.h 4738 2014-07-03 00:55:39Z dchassin $
-	@addtogroup debug
-	@ingroup core
- @{
- **/
+/*	File: debug.h 
+ 	Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef _DEBUG_H
 #define _DEBUG_H
@@ -19,8 +13,22 @@
 extern "C" {
 #endif
 
+/*	Function: exec_sighandler
+	
+	This function executes the signal handler for unix signals
+ */
 void exec_sighandler(int sig);
+
+/*	Function: exec_debug
+	
+	This function run the main execution loop in debugging mode.
+ */
 int exec_debug(struct sync_data *data, PASSCONFIG pass, int index, struct s_object_list *obj);
+
+/*	Function: strsignal
+	
+	This function convert signal numbers to strings
+ */
 char *strsignal(int sig);
 
 #ifdef __cplusplus
@@ -28,4 +36,4 @@ char *strsignal(int sig);
 #endif
 
 #endif
-/**@}*/
+

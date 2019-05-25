@@ -1,9 +1,7 @@
 /* File: console.h 
  * Copyright (C) 2008, Battelle Memorial Institute
  *
- * DP Chassin
- *
- * Console functions and classes 
+ * WIN32 console macros and functions definition for NCURSES library emulation
  */
 
 #ifndef _CONSOLE_H
@@ -13,6 +11,7 @@
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
+// Define: KEY_ESC
 #define KEY_ESC 27
 
 /* simulate needed curses functions in Windows */

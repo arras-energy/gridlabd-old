@@ -13,11 +13,35 @@
 extern "C" {
 #endif
 
-int daemon_start(int argc, const char *argv[]);
-int daemon_stop(int argc, const char *argv[]);
-int daemon_restart(int argc, const char *argv[]);
-int daemon_status(int argc, const char *argv[]);
-int daemon_remote_client(int argc, const char *argv[]);
+/*	Function: daemon_start
+	
+	This function starts the local daemon
+ */
+DEPRECATED int daemon_start(int argc, const char *argv[]);
+
+/*	Function: daemon_stop
+	
+	This function stops the local daemon
+ */
+DEPRECATED int daemon_stop(int argc, const char *argv[]);
+
+/*	Function: daemon_restart
+	
+	This function restarts the local daemon
+ */
+DEPRECATED int daemon_restart(int argc, const char *argv[]);
+
+/*	Function: daemon_status
+	
+	This function gets the status of the local daemon
+ */
+DEPRECATED int daemon_status(int argc, const char *argv[]);
+
+/*	Function: daemon_remote_client
+	
+	This function start a local client to a remote daemon
+ */
+DEPRECATED int daemon_remote_client(int argc, const char *argv[]);
 
 #ifdef __cplusplus
 }
