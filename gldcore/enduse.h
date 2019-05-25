@@ -114,48 +114,60 @@ typedef struct s_enduseelectronic
 	double v_start;
 } EUELECTRONIC;
 
+/*	Typedef: enduse
+		See <s_enduse>
+
+	Structure: s_enduse
+	total - total power in kW
+	energy - total energy in kWh
+	demand - maximum power in kW (can be reset)
+	config  - end-use configuration
+	breaker_amps - breaker limit (if any)
+	admittance - constant impedance oprtion of load in kW 
+	current - constant current portion of load in kW
+	power - constant power portion of load in kW
+	motor - motor loads (A-D)
+	electronic - electronic loads (S/D)
+	impedance_fraction - constant impedance fraction (pu load)
+	current_fraction - constant current fraction (pu load)
+	power_fraction - constant power fraction (pu load)
+	power_factor - power factor
+	voltage_factor - voltage factor (pu nominal)
+	heatgain - internal heat from load (Btu/h)
+	cumulative_heatgain - internal cumulative heat gain from load (Btu)
+	heatgain_fraction - fraction of power that goes to internal heat (pu Btu/h)
+	name -
+	shape -
+	t_last - last time of update
+	end_obj - deprecated ENDUSELOAD;
+	next - next enduse;
+ */
 typedef struct s_enduse 
 {
 	/* the output value must be first for transform to stream */
-	/* meter values */
-	complex total;				/* total power in kW */
-	complex energy;				/* total energy in kWh */
-	complex demand;				/* maximum power in kW (can be reset) */
-
-	/* circuit configuration */	
-	set config;					/* end-use configuration */
-	double breaker_amps;		/* breaker limit (if any) */
-
-	/* zip values */
-	complex admittance;			/* constant impedance oprtion of load in kW */
-	complex current;			/* constant current portion of load in kW */
-	complex power;				/* constant power portion of load in kW */
-
-	/* composite load data */
-	EUMOTOR motor[_EUMT_COUNT];				/* motor loads (A-D) */
-	EUELECTRONIC electronic[_EUET_COUNT];	/* electronic loads (S/D) */
-
-	/* loading */
-	double impedance_fraction;	/* constant impedance fraction (pu load) */
-	double current_fraction;	/* constant current fraction (pu load) */
-	double power_fraction;		/* constant power fraction (pu load)*/
-	double power_factor;		/* power factor */
-	double voltage_factor;		/* voltage factor (pu nominal) */
-
-	/* heat */
-	double heatgain;			/* internal heat from load (Btu/h) */
-	double cumulative_heatgain;  /* internal cumulative heat gain from load (Btu) */ 
-	double heatgain_fraction;	/* fraction of power that goes to internal heat (pu Btu/h) */
-
-	/* misc info */
+	complex total;
+	complex energy;
+	complex demand;
+	set config;
+	double breaker_amps;
+	complex admittance;
+	complex current;
+	complex power;
+	EUMOTOR motor[_EUMT_COUNT];
+	EUELECTRONIC electronic[_EUET_COUNT];
+	double impedance_fraction;
+	double current_fraction;
+	double power_fraction;
+	double power_factor;
+	double voltage_factor;
+	double heatgain;
+	double cumulative_heatgain;
+	double heatgain_fraction;
 	const char *name;
 	loadshape *shape;
-	TIMESTAMP t_last;			/* last time of update */
-
-	// added for backward compatibility with res ENDUSELOAD
-	// @todo these are obsolete and must be retrofitted with the above values
-	struct s_object_list *end_obj;
-
+	TIMESTAMP t_last;
+	// @todo this is obsolete and must be retrofitted with the above values
+	DEPRECATED struct s_object_list *end_obj;
 	struct s_enduse *next;
 #ifdef _DEBUG
 	unsigned int magic;
