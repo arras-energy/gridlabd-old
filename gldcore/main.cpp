@@ -45,6 +45,11 @@ int main
 		output_fatal("uncaught exception: %s", msg);
 		return_code = errno ? errno : XC_SHFAILED;
 	}
+	catch (GldException *exc)
+	{
+		output_fatal("GldException: %s", exc->get_message());
+		return_code = errno ? errno : XC_SHFAILED;
+	}
 	if ( my_instance == NULL )
 	{
 		output_error("unable to create new instance");

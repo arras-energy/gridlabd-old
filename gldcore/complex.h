@@ -174,7 +174,6 @@ public:
 	// Create a complex number real and imaginary parts
 	inline complex(double re, double im, CNOTATION nf=CNOTATION_DEFAULT)
 	{
-		GldAssert(nf!=A && nf!=R,"constructor for complex(r,i,n) cannot use n=A or n=R");
 		f = nf;
 		r = re;
 		i = im;
