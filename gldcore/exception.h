@@ -199,6 +199,20 @@ public:
 	inline void throw_now(void) { throw this;};
 };
 
+//	Class: GldAssert
+class GldAssert
+{
+public:
+	// Constructor: GldAssert
+	inline GldAssert(bool test, const char *msg) 
+	{ 
+		if ( ! test ) 
+			throw new GldException("GldAssert(): %s",msg); 
+	};
+	// Destructor: ~GldAssert
+	inline ~GldAssert(void) {};
+};
+
 #endif
 
 #endif

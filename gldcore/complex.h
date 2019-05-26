@@ -10,7 +10,7 @@
 #ifndef _COMPLEX_H
 #define _COMPLEX_H
 
-#include <assert.h>
+#include "exception.h"
 
 #if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
 #error "this header may only be included from gldcore.h or gridlabd.h"
@@ -174,7 +174,7 @@ public:
 	// Create a complex number real and imaginary parts
 	inline complex(double re, double im, CNOTATION nf=CNOTATION_DEFAULT)
 	{
-		assert(nf!=A || nf!=R);
+		GldAssert(nf!=A && nf!=R,"constructor for complex(r,i,n) cannot use n=A or n=R");
 		f = nf;
 		r = re;
 		i = im;
