@@ -1,5 +1,5 @@
 /* File: gldcore.h 
- * Copyright (C) 2019, Regents of the Leland Stanford Junior University
+   Copyright (C) 2019, Regents of the Leland Stanford Junior University
  */
 
 #ifndef _GLDCORE_H
@@ -53,9 +53,9 @@
 #include <sys/ioctl.h>
 #include <dirent.h>
 #include <unistd.h>
-#define SOCKET int
-#define INVALID_SOCKET (-1)
-#define closesocket close
+
+#include "gld_sock.h"
+
 #endif
 
 
@@ -109,7 +109,6 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include "exception.h"
 #include "exec.h"
 #include "find.h"
-#include "gld_sock.h"
 #include "globals.h"
 #include "gui.h"
 #include "http_client.h"
