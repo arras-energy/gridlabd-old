@@ -1,5 +1,8 @@
 /* File: gldcore.h 
    Copyright (C) 2019, Regents of the Leland Stanford Junior University
+
+   The header <gldcore.h> is included only by core code. This header includes all
+   the headers needed by the code.
  */
 
 #ifndef _GLDCORE_H
