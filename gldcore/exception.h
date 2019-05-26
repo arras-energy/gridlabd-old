@@ -203,7 +203,11 @@ public:
 class GldAssert
 {
 public:
-	// Constructor: GldAssert
+	/*	Constructor: GldAssert
+		Parameters:
+		test - assertion test
+		msg - message to use when throwing GldException on test failure
+	 */
 	inline GldAssert(bool test, const char *msg) 
 	{ 
 		if ( ! test ) 

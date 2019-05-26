@@ -21,6 +21,16 @@
 extern "C" {
 #endif
 
+/*	Function: environment_start
+
+	Parameters
+	argc - argument count
+	argv - argument values
+
+	Return:
+	SUCCESS - environment run ok
+	FAILURE - environment run failed
+ */
 STATUS environment_start(int argc,const char *argv[]);
 
 #ifdef __cplusplus 

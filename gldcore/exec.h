@@ -140,26 +140,45 @@ DEPRECATED typedef struct s_simplelinklist
 	struct s_simplelinklist *next;
 } SIMPLELINKLIST;
 
+/*	Structure: s_objsyncdata
+
+	Fields:
+	main - main instance
+	n - thread id 0~n_threads for this object rank list
+	pt - thread data
+	ok - thread status
+	ls - list
+	nOjb - number of obj in this object rank list
+	t0 - start time
+	i - index of mutex or cond this object rank list uses
+ */
 DEPRECATED typedef struct s_objsyncdata 
 {
 	GldMain *main;
-	unsigned int n; // thread id 0~n_threads for this object rank list
+	unsigned int n; 
 	pthread_t pt;
 	bool ok;
-	//void *item;
 	LISTITEM *ls;
-	unsigned int nObj; // number of obj in this object rank list
+	unsigned int nObj; 
 	unsigned int t0;
-	int i; // index of mutex or cond this object rank list uses 
+	int i; 
 } OBJSYNCDATA;
 
+/*	Structure: arg_data
+
+	Fields:
+	thread - thread id
+	item - reference to object data
+	incr - increment
+ */
 DEPRECATED struct arg_data {
 	int thread;
 	void *item;
 	int incr;
 };
 
-/* Class: GldExec
+/* 	Class: GldExec
+	
 	Simulation execution flow control class
  */
 class GldExec
