@@ -2365,8 +2365,12 @@ STATUS GldExec::exec_start(void)
 	{
 
 		/* main loop runs for iteration limit, or when nothing futher occurs (ignoring soft events) */
-		while ( iteration_counter>0 && sync_isrunning(NULL) && getexitcode()==XC_SUCCESS ) 
-		{
+		while ( iteration_counter>0 && sync_isrunning(NULL) )
+		{	
+			if ( getexitcode() != XC_SUCCESS && ! global_ignore_errors ) 
+			{
+				break;
+			}
 			wunlock_sync();
 			TIMESTAMP internal_synctime;
 			IN_MYCONTEXT output_debug("*** main loop event at %lli; stoptime=%lli, n_events=%i, exitcode=%i ***", sync_get(NULL), global_stoptime, sync_getevents(NULL), getexitcode());
