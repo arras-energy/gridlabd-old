@@ -72,7 +72,10 @@ int main
 }
 unsigned int GldMain::next_id = 0;
 GldMain::GldMain(int argc, const char *argv[])
-	: globals(this), exec(this), cmdarg(this)
+: 	globals(this), 
+	exec(this), 
+	cmdarg(this),
+	gui(this)
 {
 	id = next_id++;
 	// TODO: remove this when reetrant code is done

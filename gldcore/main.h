@@ -13,6 +13,7 @@
 #include "globals.h"
 #include "exec.h"
 #include "cmdarg.h"
+#include "gui.h"
 
 /*	Class: GldMain
 
@@ -23,6 +24,7 @@ private: // instance variables
 	GldGlobals globals;
 	GldExec exec;
 	GldCmdarg cmdarg;
+	GldGui gui;
 public:
 	/*	Method: get_globals
 
@@ -41,6 +43,12 @@ public:
 		This function returns a reference to the command line processor of the instance
 	 */
 	inline GldCmdarg *get_cmdarg() { return &cmdarg; };
+
+	/* Method get_gui
+
+		This function returns a reference to the GUI implementation
+	 */
+	inline GldGui *get_gui() { return &gui; };
 
 private:
 	static unsigned int next_id; // next instance id
