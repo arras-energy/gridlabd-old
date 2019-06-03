@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!--
+ IEEE-123 realtime simulation weather webpage
+ Copyright (C) 2016, Stanford University
+ Author: dchassin@slac.stanford.edu
+-->
+<HTML>
+
+<HEAD>
+<TITLE>Weather</TITLE>
+</HEAD>
+
+<BODY ONLOAD="refresh();">
+
+<SCRIPT src="gridlabd.js"></SCRIPT>
+
+<H1><A HREF="http://<<<HOSTNAME>>>/">Welcome</A></H1>
+<H2>
+<A HREF="http://<<<HOSTNAME>>>:6266/rt/weather.htm">Model-6266</A>
+<A HREF="http://<<<HOSTNAME>>>:6267/rt/weather.htm">Model-6267</A>
+<A HREF="http://<<<HOSTNAME>>>:6268/rt/weather.htm">Model-6268</A>
+<A HREF="http://<<<HOSTNAME>>>:6269/rt/weather.htm">Model-6269</A>
+</H2>
+<H3>
+<A HREF="control.htm">Simulation</A> 
+<A HREF="weather.htm">Weather</A>
+<A HREF="feeder.htm">Feeder</A>
+<A HREF="meter.htm">Meter</A>
+<A HREF="/kml/model.kml">Map</A>
+</H3>
+
+<TABLE WIDTH="100%">
+	<TR><TH COLSPAN=4>Weather <<<PORT>>><HR/></TH></TR>
+	<TR><TD>Date/Time</TD><TD COLSPAN=3><DIV ID="clock"></DIV></TD></TR>
+	<TR><TH COLSPAN=4><HR/></TH></TR>
+	<TR><TD>City</TD><TD COLSPAN=2><DIV ID="city"></DIV></TD></TR>
+	<TR><TD>Temperature</TD><TD COLSPAN=2><DIV ID="temperature"></DIV></TD></TR>
+	<TR><TD>Humidity</TD><TD COLSPAN=2><DIV ID="humidity"></DIV></TD></TR>
+	<TR><TD>Clouds</TD><TD COLSPAN=2><DIV ID="opq_sky_cov"></DIV></TD></TR>
+	<TR><TD>Pressure</TD><TD COLSPAN=2><DIV ID="pressure"></DIV></TD></TR>
+	<TR><TD>Wind speed</TD><TD COLSPAN=2><DIV ID="wind_speed"></DIV></TD></TR>
+	<TR><TD>Wind heading</TD><TD COLSPAN=2><DIV ID="wind_dir"></DIV></TD></TR>
+	<TR><TD>Wind gust</TD><TD COLSPAN=2><DIV ID="wind_gust"></DIV></TD></TR>
+</TABLE>
+<HR/>
+<TABLE WIDTH="100%">
+	<TR><TD WIDTH=500></TD><TD WIDTH=50>Status</TD><TD WIDTH=50><DIV ID="status">Initializing</DIV></TD></TR>
+</TABLE>
+
+</BODY>
+
+<SCRIPT type="text/javascript">
+	var count = 0;
+	function refresh()
+	{
+		count = count + 1;
+	    setTimeout("refresh()",10000);
+	    if ( count == 1 )
+		    document.getElementById("status").innerHTML = "Updating";
+		else
+		    document.getElementById("status").innerHTML = "Server down";			    
+	    document.getElementById("clock").innerHTML = GLDGetGlobal("clock");
+	    document.getElementById("city").innerHTML = GLDGetProperty("weather","city");
+	    document.getElementById("temperature").innerHTML = GLDGetProperty("weather","temperature[degF,1f]");
+	    document.getElementById("humidity").innerHTML = GLDGetProperty("weather","humidity[%,0f]");	    
+	    document.getElementById("opq_sky_cov").innerHTML = GLDGetProperty("weather","opq_sky_cov[%,0f]");	    
+	    document.getElementById("pressure").innerHTML = GLDGetProperty("weather","pressure[inHg,2f]");	    
+	    document.getElementById("wind_speed").innerHTML = GLDGetProperty("weather","wind_speed[mph,0f]");	    
+	    document.getElementById("wind_dir").innerHTML = GLDGetProperty("weather","wind_dir[deg,0f]");	    
+	    document.getElementById("wind_gust").innerHTML = GLDGetProperty("weather","wind_gust[mph,0f]");	  
+	    document.getElementById("status").innerHTML = "Ok";
+	    count = 0;
+	}
+</SCRIPT>
+
+</HTML>
