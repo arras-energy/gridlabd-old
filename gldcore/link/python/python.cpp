@@ -889,7 +889,7 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
 
     char previous[1024]="";
     WriteLock();
-    int len = object_get_value_by_name(obj,property,value,sizeof(value));
+    int len = object_get_value_by_name(obj,property,previous,sizeof(previous));
     if ( len < 0 )
         return gridlabd_exception("unable to get old value of '%s.%s'", name,property);
     len = object_set_value_by_name(obj,property,value);
