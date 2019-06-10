@@ -32,7 +32,6 @@ Initialization after returning to service?
 */
 
 
-
 #include "solver_nr.h"
 
 #define MT // this enables multithreaded SuperLU
@@ -56,10 +55,19 @@ SuperMatrix A_LU,B_LU;
 //External solver global
 void *ext_solver_glob_vars;
 
+FILE * nr_profile;
+
 //Initialize the sparse notation
 void sparse_init(SPARSE* sm, int nels, int ncols)
 {
 
+	nr_profile = fopen("solver_nr_profile.csv","w");
+	if ( nr_profile == NULL ) {
+		gl_warning("unable to open '%s' for writing", nr_profile);
+		/* TROUBLESHOOT
+			The system was unable to read the solver_nr_profiler file.  Check that the file has the correct permissions and try again.
+		 */
+	}
 	int indexval;
 	
 	//Allocate the column pointer GLD heap
@@ -235,7 +243,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 {
 	//if ( global_nr_profiler == 1 ) 
 	//{
-	//	clock_t t_start = clock();
+		clock_t t_start = clock();
 	//}
 	//Internal iteration counter - just NR limits
 	int64 Iteration;
@@ -3960,7 +3968,10 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 	{
 	//	if ( global_nr_profiler == 1 ) 
 	//	{
-	//		clock_t t_end = clock();
+			clock_t t = clock() - t_start;
+			//print(t)
+			//fwrite(t, sizeof(clock_t),sizeof(t),nr_profile);
+			fclose(nr_profile);
 	//	}
 		return Iteration;
 	}
