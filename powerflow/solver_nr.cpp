@@ -59,6 +59,7 @@ void *ext_solver_glob_vars;
 //Initialize the sparse notation
 void sparse_init(SPARSE* sm, int nels, int ncols)
 {
+
 	int indexval;
 	
 	//Allocate the column pointer GLD heap
@@ -103,6 +104,8 @@ void sparse_init(SPARSE* sm, int nels, int ncols)
 	//Init others
 	sm->llptr = 0;
 	sm->ncols = ncols;
+	//if ( global_nr_profiler == 1 ) {
+
 }
 
 //Free up/clear the sparse allocations
@@ -230,6 +233,10 @@ void sparse_tonr(SPARSE* sm, NR_SOLVER_VARS *matrices_LU)
  **/
 int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count, BRANCHDATA *branch, NR_SOLVER_STRUCT *powerflow_values, NRSOLVERMODE powerflow_type , NR_MESHFAULT_IMPEDANCE *mesh_imped_vals, bool *bad_computations)
 {
+	//if ( global_nr_profiler == 1 ) 
+	//{
+	//	clock_t t_start = clock();
+	//}
 	//Internal iteration counter - just NR limits
 	int64 Iteration;
 
@@ -3950,7 +3957,13 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 		return 0;					//Just return some arbitrary value
 	}
 	else	//Must have converged 
+	{
+	//	if ( global_nr_profiler == 1 ) 
+	//	{
+	//		clock_t t_end = clock();
+	//	}
 		return Iteration;
+	}
 }
 
 //Performs the load calculation portions of the current injection or Jacobian update
