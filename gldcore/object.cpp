@@ -1500,7 +1500,9 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 #ifdef HAVE_PYTHON
 		// implemented in gldcore/link/python/python.cpp
 		extern int python_event(OBJECT *obj, const char *, long long *);
-		return python_event(obj,function,p_retval) ? 0 : 255;
+		int rv = python_event(obj,function,p_retval) ? 0 : -1;
+		output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
+		return rv;
 #else
 		output_error("python system not linked, event '%s' is not callable", event);
 		return -1;
@@ -1660,11 +1662,11 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	}
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
-		long long ok = 0;
-		int rc = object_event(obj,obj->events.precommit,&ok);
-		if ( rc != 0 || ok != 0 )
+		long long t2 = 0;
+		int rc = object_event(obj,obj->events.precommit,&t2);
+		if ( rc != 0 || t2 < t1 )
 		{
-			output_error("object %s:%d precommit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,ok);
+			output_error("object %s:%d precommit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,t2);
 			rv = FAILED;
 		}
 	}
