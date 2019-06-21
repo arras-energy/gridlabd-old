@@ -44,6 +44,8 @@ Initialization after returning to service?
 
 /* access to module global variables */
 #include "powerflow.h"
+#include <stdio.h>
+#include <string.h>
 
 //Generic solver variables
 NR_SOLVER_VARS matrices_LU;
@@ -55,18 +57,29 @@ SuperMatrix A_LU,B_LU;
 //External solver global
 void *ext_solver_glob_vars;
 
-FILE * nr_profile;
+char1024 nr_profile_filename =  "solver_nr_profile.csv";
+char1024 nr_profile_headers =  "timestamp,duration,iteration";
+static FILE * nr_profile = NULL;
+bool nr_profile_headers_flag = true;
+bool nr_profile_flag = false;
 
 //Initialize the sparse notation
 void sparse_init(SPARSE* sm, int nels, int ncols)
 {
-
-	nr_profile = fopen("solver_nr_profile.csv","w");
-	if ( nr_profile == NULL ) {
-		gl_warning("unable to open '%s' for writing", nr_profile);
-		/* TROUBLESHOOT
-			The system was unable to read the solver_nr_profiler file.  Check that the file has the correct permissions and try again.
-		 */
+	if (nr_profile_flag) 
+	{
+		nr_profile = fopen(nr_profile_filename,"w");
+		if ( nr_profile == NULL ) 
+		{
+			gl_warning("unable to open '%s' for writing", (const char*)nr_profile_filename);
+			/* TROUBLESHOOT
+				The system was unable to read the solver_nr_profiler file.  Check that the file has the correct permissions and try again.
+			 */
+		}
+		else if ( nr_profile_headers_flag )
+		{
+			fprintf(nr_profile,"%s\n",(const char*)nr_profile_headers);
+		}
 	}
 	int indexval;
 	
@@ -3119,6 +3132,8 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 					fprintf(FPoutVal,"\n");
 				}//End print the references
 
+				
+
 				//Print the simulation time and iteration number
 				fprintf(FPoutVal,"Timestamp: %lld - Iteration %lld\n",gl_globalclock,Iteration);
 
@@ -3966,13 +3981,13 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 	}
 	else	//Must have converged 
 	{
-	//	if ( global_nr_profiler == 1 ) 
-	//	{
-			clock_t t = clock() - t_start;
-			//print(t)
-			//fwrite(t, sizeof(clock_t),sizeof(t),nr_profile);
-			fclose(nr_profile);
-	//	}
+		if ( nr_profile != NULL ) 
+		{	
+			double t = clock() - t_start;	
+			char buffer[64];
+			if ( gl_printtime(gl_globalclock,buffer,sizeof(buffer)-1) > 0 )
+				fprintf(nr_profile, "%s,%.1f,%.1lld\n", buffer, t, Iteration);
+		}
 		return Iteration;
 	}
 }
