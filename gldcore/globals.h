@@ -419,8 +419,6 @@ typedef enum {
 } GLMSAVEOPTIONS;
 GLOBAL GLMSAVEOPTIONS global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */
 
-
-
 #ifdef __cplusplus
 }
 #endif

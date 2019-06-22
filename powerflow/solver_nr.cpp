@@ -57,28 +57,28 @@ SuperMatrix A_LU,B_LU;
 //External solver global
 void *ext_solver_glob_vars;
 
-char1024 nr_profile_filename =  "solver_nr_profile.csv";
-char1024 nr_profile_headers =  "timestamp,duration,iteration";
+char1024 solver_profile_filename =  "solver_nr_profile.csv";
+char1024 solver_headers =  "timestamp,duration,iteration,bus count, branch count, error";
 static FILE * nr_profile = NULL;
-bool nr_profile_headers_flag = true;
-bool nr_profile_flag = false;
+bool solver_profile_headers_included = true;
+bool solver_profile_enable = false;
 
 //Initialize the sparse notation
 void sparse_init(SPARSE* sm, int nels, int ncols)
 {
-	if (nr_profile_flag) 
+	if (solver_profile_enable) 
 	{
-		nr_profile = fopen(nr_profile_filename,"w");
+		nr_profile = fopen(solver_profile_filename,"w");
 		if ( nr_profile == NULL ) 
 		{
-			gl_warning("unable to open '%s' for writing", (const char*)nr_profile_filename);
+			gl_warning("unable to open '%s' for writing", (const char*)solver_profile_filename);
 			/* TROUBLESHOOT
 				The system was unable to read the solver_nr_profiler file.  Check that the file has the correct permissions and try again.
 			 */
 		}
-		else if ( nr_profile_headers_flag )
+		else if ( solver_profile_headers_included )
 		{
-			fprintf(nr_profile,"%s\n",(const char*)nr_profile_headers);
+			fprintf(nr_profile,"%s\n",(const char*)solver_headers);
 		}
 	}
 	int indexval;
@@ -3986,7 +3986,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 			double t = clock() - t_start;	
 			char buffer[64];
 			if ( gl_printtime(gl_globalclock,buffer,sizeof(buffer)-1) > 0 )
-				fprintf(nr_profile, "%s,%.1f,%.1lld\n", buffer, t, Iteration);
+				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%d\n", buffer, t, Iteration,bus_count,branch_count,bad_computations);
 		}
 		return Iteration;
 	}
