@@ -125,8 +125,6 @@ void sparse_init(SPARSE* sm, int nels, int ncols)
 	//Init others
 	sm->llptr = 0;
 	sm->ncols = ncols;
-	//if ( global_nr_profiler == 1 ) {
-
 }
 
 //Free up/clear the sparse allocations
