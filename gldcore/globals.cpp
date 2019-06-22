@@ -209,7 +209,6 @@ DEPRECATED static struct s_varmap {
 	{"runchecks", PT_bool, &global_runchecks, PA_PUBLIC, "runchecks enable flag"},
 	{"threadcount", PT_int32, &global_threadcount, PA_PUBLIC, "number of threads to use while using multicore"},
 	{"profiler", PT_bool, &global_profiler, PA_PUBLIC, "profiler enable flag"},
-	//{"global_nr_profiler", PT_bool, &global_nr_profiler, PA_PUBLIC, "NR profile enable flag"},
 	{"pauseatexit", PT_bool, &global_pauseatexit, PA_PUBLIC, "pause at exit flag"},
 	{"testoutputfile", PT_char1024, &global_testoutputfile, PA_PUBLIC, "filename for test output"},
 	{"xml_encoding", PT_int32, &global_xml_encoding, PA_PUBLIC, "XML data encoding"},

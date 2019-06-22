@@ -107,7 +107,6 @@ GLOBAL int global_runchecks INIT(FALSE); /**< Flags module check code to be call
 /** @todo Set the threadcount to zero to automatically use the maximum system resources (tickets 180) */
 GLOBAL int global_threadcount INIT(1); /**< the maximum thread limit, zero means automagically determine best thread count */
 GLOBAL int global_profiler INIT(0); /**< Flags the profiler to process class performance data */
-//GLOBAL int global_nr_profiler INIT(0); /**< Flags the profiler to NR performance data */
 GLOBAL int global_pauseatexit INIT(0); /**< Enable a pause for user input after exit */
 GLOBAL char global_testoutputfile[1024] INIT("test.txt"); /**< Specifies the test output file */
 GLOBAL int global_xml_encoding INIT(8);  /**< Specifies XML encoding (default is 8) */
@@ -419,6 +418,8 @@ typedef enum {
 	GSO_MINIMAL 	= 0x000f,
 } GLMSAVEOPTIONS;
 GLOBAL GLMSAVEOPTIONS global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */
+
+
 
 #ifdef __cplusplus
 }
