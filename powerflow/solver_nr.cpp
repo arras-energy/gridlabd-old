@@ -3981,7 +3981,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 			double t = clock() - t_start;	
 			char buffer[64];
 			if ( gl_printtime(gl_globalclock,buffer,sizeof(buffer)-1) > 0 )
-				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%d\n", buffer, t, Iteration,bus_count,branch_count,bad_computations);
+				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%s\n", buffer, t, Iteration,bus_count,branch_count,bad_computations ? "false" : "true");
 		}
 		return Iteration;
 	}
