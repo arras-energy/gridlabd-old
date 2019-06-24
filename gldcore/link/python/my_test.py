@@ -23,6 +23,9 @@ def on_init(t) :
 	# successful init
 	return True
 
+def precommit(obj,t) :
+	return gridlabd.NEVER
+	
 def commit(obj,t) :
 	
 	# sample the object data
