@@ -2,59 +2,34 @@ version: 2
 jobs:
   build:
     docker:
-      - image: circleci/buildpack-deps:xenial
+      - image: slacgismo/circleci_gridlabd_base:latest
     steps:
       - checkout            
       - run:
-          name: Install GLD dependencies
+          name: Build gridlabd
           command: |
-            sudo apt-get update
-            sudo apt-get install autoconf
-            sudo apt-get install automake
-            sudo apt-get install libtool
-            sudo apt-get install libxerces-c-dev
-            sudo apt-get install libmysqlcppconn-dev
-            sudo apt-get install libarmadillo-dev
-            sudo apt-get install ncurses-dev
-      - run:
-          name: Make sure Python 3.6 is properly setup
-          command: |
-            sudo apt-get install software-properties-common python-software-properties --yes
-            sudo add-apt-repository -y ppa:deadsnakes/ppa
-            sudo apt update
-            sudo apt-get install python3-dev
-            sudo apt install python3.6            
-            sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.6 1
-            sudo update-alternatives --set python /usr/bin/python3.6            
-      - run:
-          name: Get Pip and install Python Dependencies
-          command: |
-            sudo apt-get -y install python3-pip
-            sudo pip3 install matplotlib
-      - run:
-          name: Autoreconf
-          command: autoreconf -isf
-      - run:
-          name: Configure
-          command: ./configure --enable-silent-rules --prefix=$PWD/install
-      - run:
-          name: Make Install
-          command: |
+            autoreconf -isf
+            ./configure --enable-silent-rules --prefix=$PWD/install
+            export PATH=$PWD/install/bin:$PATH
             sudo make -j16 install
       - run:
-          name: Check GLD Version & Validate
+          name: Validate gridlabd
           command: |
             export PATH=$PWD/install/bin:$PATH
-            pwd
-            gridlabd --version
             gridlabd -T 8 --validate
-      - store_artifacts:
-          path: /home/circleci/project/validate.txt
-          destination: /gridlabd/validate.txt
       - run:
-          name: Save validation output on failure
-          command: tar cfz gridlabd-autotest-output.tar.gz ./*/autotest/*/*
+          name: Save validation output (if any) on failure
+          command: tar cfz validate-output.tar.gz ./*/autotest/*/*
           when: on_fail
       - store_artifacts:
-          path: /home/circleci/project/gridlabd-autotest-output.tar.gz
-          destination: /gridlabd/autotest-output.tar.gz
+          path: /home/circleci/project/validate.txt
+          destination: /gridlabd
+      - store_artifacts:
+          path: /home/circleci/project/validate-output.tar.gz
+          destination: /gridlabd
+      - run:
+          name: Generate online documentation
+          command: sudo make doxygen-run
+      - store_artifacts:
+          path: /home/circleci/project/documents
+          destination: /gridlabd
