@@ -58,7 +58,7 @@ SuperMatrix A_LU,B_LU;
 void *ext_solver_glob_vars;
 
 char1024 solver_profile_filename =  "solver_nr_profile.csv";
-char1024 solver_headers =  "timestamp,duration,iteration,bus count, branch count, error";
+char1024 solver_headers =  "timestamp,duration[microsec],iteration,bus count, branch count, error";
 static FILE * nr_profile = NULL;
 bool solver_profile_headers_included = true;
 bool solver_profile_enable = false;
@@ -3981,7 +3981,7 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 			double t = clock() - t_start;	
 			char buffer[64];
 			if ( gl_printtime(gl_globalclock,buffer,sizeof(buffer)-1) > 0 )
-				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%s\n", buffer, t, Iteration,bus_count,branch_count,bad_computations ? "false" : "true");
+				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%s\n", buffer, t, Iteration == 0 ? 1 : Iteration,bus_count,branch_count,bad_computations ? "false" : "true");
 		}
 		return Iteration;
 	}
