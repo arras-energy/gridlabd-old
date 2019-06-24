@@ -58,7 +58,7 @@ SuperMatrix A_LU,B_LU;
 void *ext_solver_glob_vars;
 
 char1024 solver_profile_filename =  "solver_nr_profile.csv";
-char1024 solver_headers =  "timestamp,duration[microsec],iteration,bus_count,branch_count, error";
+char1024 solver_headers =  "timestamp,duration[microsec],iteration,bus_count,branch_count,error";
 static FILE * nr_profile = NULL;
 bool solver_profile_headers_included = true;
 bool solver_profile_enable = false;
