@@ -3,7 +3,6 @@ def glm_ptime(t_in) :
 	if "T" and "+" in t_in : 
 		t_temp = t_in[20:25]
 		t_temp = t_temp.replace(":","")
-		print(t_in[0:19]+t_temp)
 		dt = datetime.strptime(t_in[0:19]+"+"+t_temp,"%Y-%m-%dT%H:%M:%S%z")
 	else :
 		import os 
@@ -13,7 +12,6 @@ def glm_ptime(t_in) :
 			t_tz = "UTC"
 			t_in=t_in[:-1]
 			t_in=t_in.replace("T", " ") + t_tz
-			print(t_in)
 		else : 
 			t_tz=t_in[20:24]
 		t_tz_list = []
