@@ -221,6 +221,7 @@ DEPRECATED static struct s_varmap {
 	{"object_scan", PT_char32, &global_object_scan, PA_PUBLIC, "format for reading anonymous object names"},
 	{"object_tree_balance", PT_bool, &global_no_balance, PA_PUBLIC, "object index tree balancing enable flag"},
 	{"kmlfile", PT_char1024, &global_kmlfile, PA_PUBLIC, "KML output file name"},
+	{"kmlhost", PT_char1024, &global_kmlhost, PA_PUBLIC, "KML server URL"},
 	{"modelname", PT_char1024, &global_modelname, PA_REFERENCE, "model name"},
 	{"execdir",PT_char1024, &global_execdir, PA_REFERENCE, "directory where executable binary was found"},
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},

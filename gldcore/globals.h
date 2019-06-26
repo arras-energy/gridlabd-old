@@ -113,6 +113,7 @@ GLOBAL int global_xml_encoding INIT(8);  /**< Specifies XML encoding (default is
 GLOBAL char global_pidfile[1024] INIT(""); /**< Specifies that a process id file should be created */
 GLOBAL unsigned char global_no_balance INIT(FALSE);
 GLOBAL char global_kmlfile[1024] INIT(""); /**< Specifies KML file to dump */
+GLOBAL char global_kmlhost[1024] INIT("https://raw.githubusercontent.com/dchassin/gridlabd/master/gldcore/rt"); /**< Specifies the KML image library server */
 GLOBAL char global_modelname[1024] INIT(""); /**< Name of the current model */
 GLOBAL char global_execdir[1024] INIT(""); /**< Path to folder containing installed application files */
 GLOBAL bool global_strictnames INIT(true); /**< Enforce strict global naming (prevents globals from being implicitly created by assignment) */
