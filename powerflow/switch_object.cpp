@@ -1870,16 +1870,15 @@ int switch_object::kmldata(int (*stream)(const char*,...))
 
 	// control input
 	gld_global run_realtime("run_realtime");
-	gld_global server("hostname");
-	gld_global port("server_portnum");
+	gld_global server("kmlhost");
 	if ( run_realtime.get_bool() )
 	{
 		stream("<TR><TH ALIGN=LEFT>Control</TH>");
 		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
-				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"http://%s:%d/kml/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"switchA\" VALUE=\"%s\" /></FORM></TD>",
-						(const char*)server.get_string(), port.get_int16(), (const char*)get_name(), state[i] ? "OPEN" : "CLOSE");
+				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"%s/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"switchA\" VALUE=\"%s\" /></FORM></TD>",
+						(const char*)server.get_string(), (const char*)get_name(), state[i] ? "OPEN" : "CLOSE");
 			else
 				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\">&mdash;</TD>");
 		}

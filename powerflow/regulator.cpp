@@ -1377,16 +1377,15 @@ int regulator::kmldata(int (*stream)(const char*,...))
 
 	// control input
 	gld_global run_realtime("run_realtime");
-	gld_global server("hostname");
-	gld_global port("server_portnum");
+	gld_global server("kmlhost");
 	if ( run_realtime.get_bool() )
 	{
 		stream("<TR><TH ALIGN=LEFT>Raise to</TH>");
 		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
-				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"http://%s:%d/kml/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"tap_%c\" VALUE=\"%d\" /></FORM></TD>",
-						(const char*)server.get_string(), port.get_int16(), (const char*)get_name(), 'A'+i, tap[i]+1);
+				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"%s/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"tap_%c\" VALUE=\"%d\" /></FORM></TD>",
+						(const char*)server.get_string(), (const char*)get_name(), 'A'+i, tap[i]+1);
 			else
 				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\">&mdash;</TD>");
 		}
@@ -1395,8 +1394,8 @@ int regulator::kmldata(int (*stream)(const char*,...))
 		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
-				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"http://%s:%d/kml/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"tap_%c\" VALUE=\"%d\" /></FORM></TD>",
-						(const char*)server.get_string(), port.get_int16(), (const char*)get_name(), 'A'+i, tap[i]-1);
+				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"%s/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"tap_%c\" VALUE=\"%d\" /></FORM></TD>",
+						(const char*)server.get_string(), (const char*)get_name(), 'A'+i, tap[i]-1);
 			else
 				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\">&mdash;</TD>");
 		}
