@@ -117,7 +117,7 @@ object triplex_meter:..${COUNT} {
 #endif // PVPROB
 			generator_mode SUPPLY_DRIVEN;
 			panel_type SINGLE_CRYSTAL_SILICON;
-#ifdef MYSQL_AMI
+#if MYSQL_AMI==on
 			object recorder {
 				connection ami;
 				table solar;
