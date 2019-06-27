@@ -33,7 +33,7 @@ def glm_ptime(t_in) :
 		
 
 		#FIND LOCATION OF tzinfo.txt file
-		for root, dirs, files in os.walk(r'/usr/local/share/'):
+		for root, dirs, files in os.walk(r'/usr/local/share/gridlabd'):
 			for name in files:
 				if name == tz_file_name :
 					tz_file = os.path.abspath(os.path.join(root, name))
