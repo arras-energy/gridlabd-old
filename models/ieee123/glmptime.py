@@ -3,6 +3,8 @@ import re
 from datetime import datetime
 
 TZ_dict = {}
+t_prev = None
+dt_prev = None
 
 def init_glmptype() : 
 	t_tz_list = []
@@ -65,28 +67,36 @@ init_glmptype()
 def glm_ptime(t_in) :
 	# GLOBALS
 	global TZ_dict
-	# YYYY-MM-DDTHH:mm:SSZ
-	if "Z" in t_in[-1] : 
-		t_tz = "UTC"
-		t_in=t_in[:-1]
-		t_in=t_in.replace("T", " ") + " " + t_tz
-	# YYYY-MM-DD HH:mm:SS PST
-	# Finds the last space and populated the time zone with the timestamp letters
-	else : 
-		t_space_index = t_in.rfind(" ")
-		t_tz=t_in[t_space_index+1:]
-	# YYYY-MM-DDTHH:mm:SS+00:00
-	if "T" in t_in[10] :
-		if "-" in t_in[19] or "+" in t_in[19] : 
-			dt = datetime.strptime(t_in[0:19]+t_in[19]+t_in[20:25].replace(":",""),"%Y-%m-%dT%H:%M:%S%z")
-	else :
-		# FIND THE SPECIFIED TIMESTAMP IN THE TZ_dict or TZ_DS_dict dictionaries
-		t_time = t_in[0:19]
-		t = t_time +" "+ TZ_dict[t_tz]
-		if "T" in t_in[10] : 
-			dt = datetime.strptime(t,"%Y-%m-%dT%H:%M:%S %z")
-		elif " " in t_in[10] : 
-			dt = datetime.strptime(t,"%Y-%m-%d %H:%M:%S %z")
+	global t_prev
+	global dt_prev
+	# Check if timestamp has already been processed 
+	if t_prev != t_in : 
+		# YYYY-MM-DDTHH:mm:SSZ
+		if "Z" in t_in[-1] : 
+			t_tz = "UTC"
+			t_in=t_in[:-1]
+			t_in=t_in.replace("T", " ") + " " + t_tz
+		# YYYY-MM-DD HH:mm:SS PST
+		# Finds the last space and populated the time zone with the timestamp letters
 		else : 
-			print("ERROR: Check timestamp synthax")
+			t_space_index = t_in.rfind(" ")
+			t_tz=t_in[t_space_index+1:]
+		# YYYY-MM-DDTHH:mm:SS+00:00
+		if "T" in t_in[10] :
+			if "-" in t_in[19] or "+" in t_in[19] : 
+				dt = datetime.strptime(t_in[0:19]+t_in[19]+t_in[20:25].replace(":",""),"%Y-%m-%dT%H:%M:%S%z")
+		else :
+			# FIND THE SPECIFIED TIMESTAMP IN THE TZ_dict or TZ_DS_dict dictionaries
+			t_time = t_in[0:19]
+			t = t_time +" "+ TZ_dict[t_tz]
+			if "T" in t_in[10] : 
+				dt = datetime.strptime(t,"%Y-%m-%dT%H:%M:%S %z")
+			elif " " in t_in[10] : 
+				dt = datetime.strptime(t,"%Y-%m-%d %H:%M:%S %z")
+			else : 
+				print("ERROR: Check timestamp synthax")
+	else : 
+		return dt_prev
+	t_prev = t_in
+	dt_prev = dt
 	return dt
