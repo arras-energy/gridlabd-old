@@ -64,7 +64,7 @@ def init_glmptype() :
 				offset_adj = (int(tz_offset[i]))*(-1)
 				TZ_dict[t_tz_list[i]] = format(offset_adj,'05') if offset_adj<0 else "+"+format(offset_adj,'04')	
 init_glmptype()
-def glm_ptime(t_in) :
+def glmptime(t_in) :
 	# GLOBALS
 	global TZ_dict
 	global t_prev
