@@ -46,7 +46,6 @@ def glm_ptime(t_in) :
 				for line in f:
 					match = regexp.match(line)
 					if match:
-						#TZ_dict = dict(zip(match.group(1), [match.group(2), match.group(3)]))
 						t_tz_list.append(match.group(1))
 						t_dir.append(match.group(2))
 						tz_offset.append(match.group(3))
