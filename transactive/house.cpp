@@ -104,7 +104,7 @@ int house::init(OBJECT *parent)
 
 int house::connect(char *buffer, size_t len)
 {
-	printf("house::connect(char *buffer='%s', size_t len=%d)\n", buffer, len);
+	printf("house::connect(char *buffer='%s', size_t len=%ld)\n", buffer, len);
 	if ( len==0 )
 	{
 		gld_object *agent = find_object(buffer);
