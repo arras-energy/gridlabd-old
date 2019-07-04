@@ -15,7 +15,8 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	}
 
 	try {
-		CLASS *first = (new house(module))->oclass;
+		CLASS *first = (new orderbook(module))->oclass;
+		new house(module);
 		new agent(module);
 		return first; /* always return the first class registered */
 	}

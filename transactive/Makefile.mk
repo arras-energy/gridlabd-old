@@ -13,8 +13,7 @@ transactive_transactive_la_LDFLAGS += $(AM_LDFLAGS)
 transactive_transactive_la_LIBADD = 
 
 transactive_transactive_la_SOURCES =
-transactive_transactive_la_SOURCES += transactive/house.cpp 
-transactive_transactive_la_SOURCES += transactive/house.h
-transactive_transactive_la_SOURCES += transactive/agent.cpp 
-transactive_transactive_la_SOURCES += transactive/agent.h
+transactive_transactive_la_SOURCES += transactive/orderbook.cpp transactive/orderbook.h
+transactive_transactive_la_SOURCES += transactive/house.cpp transactive/house.h
+transactive_transactive_la_SOURCES += transactive/agent.cpp transactive/agent.h
 transactive_transactive_la_SOURCES += transactive/main.cpp

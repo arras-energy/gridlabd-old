@@ -6,6 +6,7 @@
 #define _TRANSACTIVE_H
 
 #include <armadillo>
+#include "orderbook.h"
 #include "house.h"
 #include "agent.h"
 

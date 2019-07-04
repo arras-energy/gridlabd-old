@@ -83,7 +83,7 @@ TIMESTAMP agent::commit(TIMESTAMP t1, TIMESTAMP t2)
 
 int agent::sell(char *buffer, size_t len)
 {
-	printf("agent::sell(char *buffer='%s', size_t len=%d)\n", buffer, len);
+	printf("agent::sell(char *buffer='%s', size_t len=%ld)\n", buffer, len);
 	if ( len == 0 )
 	{
 		return 1;
@@ -94,7 +94,7 @@ int agent::sell(char *buffer, size_t len)
 
 int agent::buy(char *buffer, size_t len)
 {
-	printf("agent::buy(char *buffer='%s', size_t len=%d)\n", buffer, len);
+	printf("agent::buy(char *buffer='%s', size_t len=%ld)\n", buffer, len);
 	if ( len == 0 )
 	{
 		return 1;
