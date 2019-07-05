@@ -5,6 +5,7 @@ origin.txt
 *.xml
 build
 *.pyc
+.ipynb_checkpoints
 
 # http://www.gnu.org/software/autoconf
 /autom4te.cache
