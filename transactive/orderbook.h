@@ -11,39 +11,42 @@
 
 DECL_METHOD(orderbook,submit);
 
-typedef enum 
+class order 
 {
-	CANCEL = 0,
-	BUYMARKET = 1,
-	SELLMARKET = 2,
-	BUYLIMIT = 3,
-	SELLLIMIT = 4,
-} ORDERTYPE;
-
-typedef struct s_order 
-{
-	unsigned short type;
+private:
+	enum {CANCEL, BUYMARKET, SELLMARKET, BUYLIMIT, SELLLIMIT} type;
 	unsigned long long id;
 	double quantity;
 	double price;
-	unsigned long long start;
-	unsigned long long duration;
-} ORDER;
-
-class orderbook : public gld_object {
-private:
-	std::list<ORDER> *sell;
-	std::list<ORDER> *buy;
+	unsigned long long end;
+	double value;
 public:
+	order(const char *);
+	~order(void);
+	double match(order&);
+};
+
+class orderbook : public gld_object 
+{
+private:
+	std::list<order> *sell;
+	std::list<order> *buy;
+public:
+	GL_ATOMIC(double,sell_price);
+	GL_ATOMIC(double,buy_price);
+	GL_STRING(char32,unit);
+	GL_ATOMIC(TIMESTAMP,hold);
 	GL_METHOD(orderbook,submit);
 public:
-	/* required implementations */
 	orderbook(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
-	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
+	TIMESTAMP commit(TIMESTAMP, TIMESTAMP);
 private:
 	ORDER *json_to_order(const char *buffer);
+	int fill(order *);
+	int add_sell(ORDER *order);
+	int add_buy(ORDER *order);
 	int update_market(ORDER *order=NULL);
 public:
 	static CLASS *oclass;

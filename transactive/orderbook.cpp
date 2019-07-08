@@ -30,6 +30,10 @@ orderbook::orderbook(MODULE *module)
 			oclass->trl = TRL_CONCEPT;
 		defaults = this;
 		if ( gl_publish_variable(oclass,
+				PT_double, "buy", get_buy_price_offset(), PT_DESCRIPTION, "current buy price",
+				PT_double, "sell", get_sell_price_offset(), PT_DESCRIPTION, "current sell price",
+				PT_char32, "unit", get_unit_offset(), PT_DESCRIPTION, "quantity unit (e.g., MW)",
+				PT_timestamp, "hold", get_hold_offset(), PT_DESCRIPTION, "hold time",
 				PT_method, "submit", get_submit_offset(), PT_DESCRIPTION, "submit order (format as JSON or ORDERBOOK)",
 				NULL) < 1 )
 			throw "unable to publish orderbook properties";
@@ -40,7 +44,7 @@ int orderbook::create(void)
 {
 	sell = new std::list<ORDER>;
 	buy = new std::list<ORDER>;
-	return 1; /* return 1 on success, 0 on failure */
+	return 1; // return 1 on success, 0 on failure
 }
 
 int orderbook::init(OBJECT *parent)
@@ -64,17 +68,34 @@ ORDER *orderbook::json_to_order(const char *buffer)
 	return NULL;
 }
 
-int orderbook::update_market(ORDER *order)
+bool lesser(const ORDER &a, const ORDER &b)
 {
-	// TODO: implement market update with market order (or limit orders only if order==NULL)
+	return a.price < b.price;
+}
+bool greater(const ORDER &a, const ORDER &b)
+{
+	return a.price > b.price;
+}
+
+int orderbook::fill_order(ORDER *order)
+{
+	quantity = order->quantity;
+	if ( order->type == BUYMARKET )
+	{
+		buy_price = sell->front().price;
+	}
+	else if ( order->type == SELLMARKET )
+	{
+		sell_price = buy->front().price;
+	}
 	return 1; // 1 on success, 0 on failure
 }
 
 int orderbook::submit(char *buffer, size_t len)
 {
 	verbose("orderbook::sell_market(char *buffer='%s', size_t len=%d)\n", buffer, len);
-	ORDER *order;
-	if ( len == 0 )
+	ORDER order;
+	if ( len == 0 ) // read data from buffer
 	{
 		if ( buffer[0] == '{' ) // JSON format
 		{
@@ -84,10 +105,9 @@ int orderbook::submit(char *buffer, size_t len)
 				return 0; // reject order
 			}
 		}
-		else
+		else // binary format
 		{
-			order = new ORDER;
-			memcpy(order,(ORDER*)buffer,sizeof(ORDER));
+			order = (ORDER*)buffer;
 		}
 		switch ( order->type )
 		{
@@ -95,10 +115,14 @@ int orderbook::submit(char *buffer, size_t len)
 		case SELLMARKET:
 			return update_market(order);
 		case BUYLIMIT:
+			order = new ORDER;
+			memcpy(order,(ORDER*)buffer,sizeof(ORDER));
 			buy->push_front(*order);
+			buy->sort(greater);
 			break;
 		case SELLLIMIT:
 			sell->push_front(*order);
+			sell->sort(lesser);
 			break;
 		case CANCEL:
 			// TODO: delete existing limit order (using id)
@@ -109,6 +133,6 @@ int orderbook::submit(char *buffer, size_t len)
 		}
 		return update_market();
 	}
-	else
+	else // write data to buffer
 		return 0; // no outgoing message
 }
