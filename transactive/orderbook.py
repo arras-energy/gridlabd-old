@@ -48,6 +48,7 @@ class orderbook:
 
 	def submit(self,order):
 		"""Submit an order to the market"""
+		order.set_market(self)
 		if order.islimit():
 			if order.issell():
 				self.sell.append(order)
@@ -58,22 +59,23 @@ class orderbook:
 			else:
 				raise Exception("invalid order type: %s" % order)
 			self.clear()
+			return order
 		elif order.ismarket():
 			if order.issell():
-				self.find_buy(order)
+				return self.find_buy(order)
 			else:
-				self.find_sell(order)
-			return order
+				return self.find_sell(order)
 		else:
 			return None
-		return order
 
 	def clear(self):
 		"""Clear all matching limit orders"""
+		# TODO: this may not be correct because indivisible order can be filled using multiple orders
+		#.      the failure is only is the total quantity of limit orders is not sufficient to fill the indivisible order below the bid price
 		skip = 0
 		while len(self.buy) > skip and len(self.sell) > 0 and self.buy[skip].get_price() >= self.sell[0].get_price():
 			trade = min(self.buy[skip].get_quantity(),self.sell[0].get_quantity())
-			if not self.buy[skip].get_divisible() and trade < self.buy[skip].get_quantity():
+			if not self.buy[skip].isdivisible() and trade < self.buy[skip].get_quantity():
 				print_debug("%s cannot buy %g from %s due to indivisible bid" % (repr(self.buy[skip]),trade,repr(self.sell[0])))
 				skip += 1
 			else:
@@ -91,6 +93,55 @@ class orderbook:
 					self.settled.append(self.sell[0])
 					self.sell.remove(self.sell[0])
 			
+	def find_buy(self,order):
+		"""Find a buy for a sell market order"""
+		skip = 0
+		while len(self.buy) > skip and order.get_quantity() > 0.0:
+			trade = min(order.get_quantity(),self.buy[skip].get_quantity())
+			if not self.buy[skip].isdivisible() and trade < self.buy[skip].get_quantity():
+				print_debug("%s cannot buy %g from %s due to indivisible bid" % (repr(self.buy[skip]),trade,repr(order)))
+				skip += 1
+			else:
+				order.set_price(self.buy[skip].get_price())
+				print_debug("%s buying %g from %s" % (repr(order),trade,repr(self.sell[0])))
+				order.add_quantity(-trade)
+				order.add_amount(trade)
+				order.add_value(-self.buy[skip].get_price() * trade)
+				self.buy[skip].add_quantity(-trade)
+				self.buy[skip].add_amount(trade)
+				self.buy[skip].add_value(order.get_price() * trade)
+				if order.get_quantity() <= 0.0 :
+					self.settled.append(order)
+				if self.buy[skip].get_quantity() <= 0.0 :
+					self.settled.append(self.sell[0])
+					self.buy.remove(self.buy[0])
+		return order
+
+	def find_sell(self,order):
+		"""Find a sell for a buy market order"""
+		if not order.isdivisible():
+			total = 0.0
+			for sell in self.sell:
+				total += sell.get_quantity()
+			if total < order.get_quantity():
+				order.set_cancel()
+				return order
+		while len(self.sell) > 0 and order.get_quantity() > 0.0:
+			trade = min(order.get_quantity(),self.sell[0].get_quantity())
+			order.set_price(self.sell[0].get_price())
+			print_debug("%s buying %g from %s" % (repr(order),trade,repr(self.sell[0])))
+			order.add_quantity(-trade)
+			order.add_amount(trade)
+			order.add_value(-self.sell[0].get_price() * trade)
+			self.sell[0].add_quantity(-trade)
+			self.sell[0].add_amount(trade)
+			self.sell[0].add_value(order.get_price() * trade)
+			if order.get_quantity() <= 0.0 :
+				self.settled.append(order)
+			if self.sell[0].get_quantity() <= 0.0 :
+				self.settled.append(self.sell[0])
+				self.sell.remove(self.sell[0])
+		return order
 
 	def ask(self,quantity,duration,price=None):
 		"""Place a sell order"""
@@ -105,29 +156,6 @@ class orderbook:
 			return self.submit(order(order_type="BUYMARKET",quantity=quantity,duration=duration))
 		else:
 			return self.submit(order(order_type="BUYLIMIT",quantity=quantity,duration=duration,price=price))
-
-	def find_buy(self,order):
-		"""Find a buy for a sell market order"""
-		# TODO
-		return None
-
-		need = order.get_quantity() * order.get_duration()
-		value = 0
-		amount = 0
-		while len(self.sell) > 0 and order.get_price() >= self.sell[0].get_price() and need > 0.0:
-			print_message("filling %s with %s..." % (order,self.sell[0]))
-			bought = min(order.get_quantity(),self.sell[0].get_quantity())
-			value += bought * order.get_price()
-			self.sell[0].add_quantity(-bought)
-			if self.sell[0].get_quantity() == 0.0:
-				print_message("%s is complete" % self.sell[0])
-				del self.sell[0]
-		return order
-
-	def find_sell(self,order):
-		"""Find a sell for a buy market order"""
-		# TODO
-		return None
 
 	def plot(self,using=None):
 		"""Plot the current orderbooks"""
@@ -201,6 +229,7 @@ class order(dict):
 		return n
 
 	def __init__(self,**kwargs):
+		self.market = None
 		kwargs["id"] = self.get_next_id()
 		if not "order_type" in kwargs.keys():
 			raise Exception("'order_type' must be specified")
@@ -225,10 +254,22 @@ class order(dict):
 		dict.__init__(self,**kwargs)
 
 	def __repr__(self):
-		if self.ismarket():
-			return "<order:%d/%s %s at %s>" %(self["id"],self["ordertype"],self["quantity"],self["duration"])
-		else:
-			return "<order:%d/%s %s at %s for %s>" %(self["id"],self["ordertype"],self["quantity"],self["price"],self["duration"])
+		result = "<order:%d/%s" % (self.get_id(),self.get_ordertype())
+		if self.get_quantity() > 0.0:
+			if not self.isdivisible():
+				result += " INDIVISIBLE"
+			if self.get_price() == None:
+				result += " %s%s for %s%s" % (self.get_quantity(),self.get_unit(),
+											  self.get_duration(),self.get_time())
+			else:
+				result += " %s%s at %s%s/%s%s for %s%s" % (self.get_quantity(),self.get_unit(),
+													self.get_price(),self.get_currency(),self.get_unit(),self.get_time(),
+													self.get_duration(),self.get_time())
+		if self.get_amount() != 0.0:
+			result += " FILLED %s%s%s for %s%s" % (self.get_amount(),self.get_unit(),self.get_time(),
+												 self.get_value(),self.get_currency())
+		result += ">"
+		return result
 
 	def iscancel(self):
 		"""Test if order is cancelled"""
@@ -236,11 +277,11 @@ class order(dict):
 
 	def ismarket(self):
 		"""Test if market order"""
-		return self["price"] == None
+		return self["ordertype"].ismarket()
 
 	def islimit(self):
 		"""Test if limit order"""
-		return not self["price"] == None
+		return self["ordertype"].islimit()
 
 	def isbuy(self):
 		"""Test if buy order"""
@@ -250,17 +291,41 @@ class order(dict):
 		"""Test if sell order"""
 		return self["ordertype"].issell()
 
+	def get_ordertype(self):
+		""" Get order type"""
+		return self["ordertype"]
+
+	def get_id(self):
+		"""Get order id"""
+		return self["id"]
+
 	def get_price(self):
 		"""Get order price"""
 		return self["price"]
 
-	def set_price(self,x):
-		"""Set order price"""
-		self["price"] = x
-
 	def get_quantity(self):
 		"""Get order quantity"""
 		return self["quantity"]
+
+	def get_duration(self):
+		"""Get order duration"""
+		return self["duration"]
+
+	def get_amount(self):
+		"""Get filled order amount"""
+		return self["amount"]
+
+	def get_value(self):
+		"""Get filled order value"""
+		return self["value"]
+
+	def set_cancel(self):
+		"""Cancel order"""
+		self["ordertype"] = ordertype("CANCEL")
+
+	def set_price(self,x):
+		"""Set order price"""
+		self["price"] = x
 
 	def set_quantity(self,x):
 		"""Set order quantity"""
@@ -278,9 +343,29 @@ class order(dict):
 		"""Add to order value"""
 		self["value"] += x
 
-	def get_divisible(self):
-		"""Get order divisibility flag"""
+	def isdivisible(self):
 		return self["divisible"]
+
+	def set_market(self,market):
+		self.market = market
+
+	def get_unit(self):
+		if self.market:
+			return self.market.unit
+		else:
+			return ""
+
+	def get_time(self):
+		if self.market:
+			return self.market.time
+		else:
+			return ""
+
+	def get_currency(self):
+		if self.market:
+			return self.market.currency
+		else:
+			return ""
 
 	def __lt__(self,a):
 		if self["ordertype"].isbuy() and a["ordertype"].isbuy():
