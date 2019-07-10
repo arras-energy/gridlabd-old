@@ -106,6 +106,7 @@ class orderbook:
 			if buy.isdivisible() or buy.get_quantity() <= order.get_quantity():
 				total += buy.get_quantity()
 		if total < order.get_quantity():
+			print_debug("%s cannot buy due to insufficient sell depth" % order)
 			order.set_cancel()
 			return order
 		skip = 0
@@ -137,6 +138,7 @@ class orderbook:
 			for sell in self.sell:
 				total += sell.get_quantity()
 			if total < order.get_quantity():
+				print_debug("%s cannot sell due to insufficient buy depth" % order)
 				order.set_cancel()
 				return order
 		while len(self.sell) > 0 and order.get_quantity() > 0.0:
