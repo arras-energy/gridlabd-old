@@ -21,10 +21,14 @@ def print_debug(msg):
 
 class orderbook:
 	"""Implementation of orderbook"""
-	def __init__(self,unit="MW",time="h",currency="$"):
+	def __init__(self,unit="MW",time="h",currency="$",price=None):
 		self.unit 	= unit
 		self.time	= time
 		self.currency = currency
+		if price == None:
+			self.price = "%s/%s.%s" % (currency,unit,time)
+		else:
+			self.price = price 
 		self.reset()
 
 	def reset(self):
@@ -41,6 +45,8 @@ class orderbook:
 			"sell"	: self.sell, 
 			"unit"	: self.unit,
 			"time"	: self.time,
+			"currency": self.currency,
+			"price" : self.price,
 			"using"	: self.using,
 			"fees"	: self.fees,
 			"settled": self.settled
@@ -172,7 +178,7 @@ class orderbook:
 			self.using = using
 		fig = plt.figure()
 		plt.ylabel("Quantity (%s)" % (self.unit))
-		plt.xlabel("Price (%s/%s.%s)" % (self.currency,self.unit,self.time))
+		plt.xlabel("Price (%s)" % (self.price))
 		sell = []
 		q = [0.0]
 		p = [0.0]
