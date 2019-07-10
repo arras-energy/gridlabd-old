@@ -76,8 +76,8 @@ class orderbook:
 
 	def clear(self):
 		"""Clear all matching limit orders"""
-		# TODO: this may not be correct because indivisible order can be filled using multiple orders
-		#.      the failure is only is the total quantity of limit orders is not sufficient to fill the indivisible order below the bid price
+		# TODO: this may not be correct because indivisible orders can be filled using multiple orders
+		#.      the failure is only if the total quantity of limit orders is not sufficient to fill the indivisible order below the bid price
 		skip = 0
 		while len(self.buy) > skip and len(self.sell) > 0 and self.buy[skip].get_price() >= self.sell[0].get_price():
 			trade = min(self.buy[skip].get_quantity(),self.sell[0].get_quantity())
@@ -275,8 +275,8 @@ class order(dict):
 				result += " %s%s for %s%s" % (self.get_quantity(),self.get_unit(),
 											  self.get_duration(),self.get_time())
 			else:
-				result += " %s%s at %s%s/%s%s for %s%s" % (self.get_quantity(),self.get_unit(),
-													self.get_price(),self.get_currency(),self.get_unit(),self.get_time(),
+				result += " %s%s at %s%s for %s%s" % (self.get_quantity(),self.get_unit(),
+													self.get_price(),self.get_priceunit(),
 													self.get_duration(),self.get_time())
 		if self.get_amount() != 0.0:
 			result += " FILLED %s%s%s for %s%s" % (self.get_amount(),self.get_unit(),self.get_time(),
@@ -357,26 +357,38 @@ class order(dict):
 		self["value"] += x
 
 	def isdivisible(self):
+		"""Get status of order divisibility"""
 		return self["divisible"]
 
 	def set_market(self,market):
+		"""Set the market in which this order is placed"""
 		self.market = market
 
 	def get_unit(self):
+		"""Get the unit of the order"""
 		if self.market:
 			return self.market.unit
 		else:
 			return ""
 
 	def get_time(self):
+		"""Get the time duration unit of order"""
 		if self.market:
 			return self.market.time
 		else:
 			return ""
 
 	def get_currency(self):
+		"""Get the currency of the order"""
 		if self.market:
 			return self.market.currency
+		else:
+			return ""
+
+	def get_priceunit(self):
+		"""Get the price unit of the order"""
+		if self.market:
+			return self.market.price
 		else:
 			return ""
 
