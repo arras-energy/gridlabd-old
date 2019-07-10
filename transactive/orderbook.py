@@ -95,6 +95,13 @@ class orderbook:
 			
 	def find_buy(self,order):
 		"""Find a buy for a sell market order"""
+		total = 0.0
+		for buy in self.buy:
+			if buy.isdivisible() or buy.get_quantity() <= order.get_quantity():
+				total += buy.get_quantity()
+		if total < order.get_quantity():
+			order.set_cancel()
+			return order
 		skip = 0
 		while len(self.buy) > skip and order.get_quantity() > 0.0:
 			trade = min(order.get_quantity(),self.buy[skip].get_quantity())
@@ -103,7 +110,7 @@ class orderbook:
 				skip += 1
 			else:
 				order.set_price(self.buy[skip].get_price())
-				print_debug("%s buying %g from %s" % (repr(order),trade,repr(self.sell[0])))
+				print_debug("%s buying %g from %s" % (repr(order),trade,repr(self.buy[skip])))
 				order.add_quantity(-trade)
 				order.add_amount(trade)
 				order.add_value(-self.buy[skip].get_price() * trade)
@@ -113,8 +120,8 @@ class orderbook:
 				if order.get_quantity() <= 0.0 :
 					self.settled.append(order)
 				if self.buy[skip].get_quantity() <= 0.0 :
-					self.settled.append(self.sell[0])
-					self.buy.remove(self.buy[0])
+					self.settled.append(self.buy[skip])
+					self.buy.remove(self.buy[skip])
 		return order
 
 	def find_sell(self,order):
