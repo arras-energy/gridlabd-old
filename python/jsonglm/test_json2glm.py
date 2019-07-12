@@ -7,9 +7,6 @@ with open("test_1.json", 'r') as f1 :
 with open("test_2.json", 'r') as f2 : 
 	data2 = json.load(f2)
 
-len_dict = 0
-
-	
 def comp_dict(d1, d2) :
 	d1_new = {}
 	d2_new = {}
@@ -41,7 +38,6 @@ def comp_dict(d1, d2) :
 			return False # values do not match 
 
 comp_dict(data1, data2)
-
 
 f1.close()
 f2.close()
