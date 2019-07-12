@@ -1,11 +1,17 @@
 import json 
+import os 
 
-filename_json = 'test_1.json'
-filename_glm = 'test_json2glm.glm'
+
+filename_json = '/Users/alyona_slac/gridlabd/grip/components/grip_sim_runner/simulation_models/virtual_islanding/m.json'
+filename_glm = '/Users/alyona_slac/gridlabd/grip/components/grip_sim_runner/simulation_models/virtual_islanding/m_json2glm.glm'
+
+if os.path.exists(filename_glm):
+	os.remove(filename_glm)
 data = {}
 objects_ignore = ["id", "class", "rank", "clock", "schedule_skew", \
 "rng_state", "heartbeat", "guid", "flags"]
 globals_ignore = ['clock', 'timezone_locale', 'starttime', 'stoptime']
+classkeys_ignore = ['object_size', 'trl', 'profiler.numobjs', 'profiler.clocks', 'profiler.count', 'parent']
 
 with open(filename_json,'r') as fr :
 	data = json.load(fr)
@@ -34,18 +40,21 @@ def clock_glm() :
 		fw.write(end_str)
 	return True
 
+
 def classes_glm() : 
 	global data 
 	global fw 
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // CLASSES')
 		for p_id, p_info in data['classes'].items() : 
+
 			header_str = '\n' + 'class ' + p_id + ' {'
 			fw.write(header_str)
-			# for v_id, v_info in data['classes'][p_id].items() :
-			# 	val_str = "\n" + "\t" + v_id + " " + v_info + ';'
-			# 	fw.write(val_str)
-			fw.write("\n }")
+			for v_id, v_info in data['classes'][p_id].items() :
+				if v_id not in classkeys_ignore : 
+					val_str = "\n" + "\t" + v_info['type'] + " " + v_id + ';'
+					fw.write(val_str)
+			fw.write("\n}")
 
 	return True 
 
@@ -56,7 +65,7 @@ def globals_glm() :
 		fw.write('\n // GLOBALS')
 		for p_id, p_info in data['globals'].items() : 
 			if p_info['value'] and p_id not in globals_ignore: 
-				tmp_str = '\n' + '#define ' + p_id + " = " + p_info['value'] 
+				tmp_str = '\n' + '#define ' + p_id + "="+ p_info['value'] 
 				fw.write(tmp_str)
 	return True
 
@@ -77,19 +86,30 @@ def objects_glm() :
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // OBJECTS')
 		for p_id, p_info in data['objects'].items() : 
-			header_str = '\n' + 'object ' + p_id + '{'
+			header_str = '\n' + 'object ' + p_info["class"] + '{'
 			fw.write(header_str)
+			if ':' in p_id : 
+				new_name = p_info['class']+'_'+p_info['id']
+			else :
+				new_name = p_id 
+			name_str = '\n' + '\t' + "name " + new_name + ';'
+			fw.write(name_str)
 			for v_id, v_info in data['objects'][p_id].items() : 
 				if v_id not in objects_ignore and v_info:  
-					val_str = "\n"+ "\t" + v_id + " " + v_info + ";"
+					if v_id == 'wh_shape' : # TEMP - GENERALIZE
+						val_str = "\n"+ "\t" + v_id + " \"" + v_info + "\";"
+					else :
+						val_str = "\n"+ "\t" + v_id + " " + v_info + ";"
 					fw.write(val_str)
-			fw.write('\n }' )
+			fw.write('\n}' )
 	return True
 
-# classes_glm() 
+
 clock_glm()
-# globals_glm()
+# classes_glm() 
+
 modules_glm()
+globals_glm()
 objects_glm()
 
 fw.close()
