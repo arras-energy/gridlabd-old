@@ -28,7 +28,6 @@ def comp_dict(d1, d2) :
 					if f_info != d2[f_id] : # compare values
 						print('ERROR: Values do not match : ', f_id)
 						print(f_info, d2[f_id])
-						return False # values do not match 
 			elif f_id in ignore_values : 
 				values_ignored = values_ignored + 1
 			else : 
