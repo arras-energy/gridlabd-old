@@ -1,23 +1,31 @@
 import matplotlib.pyplot as plt
 import json
 import datetime
+import os
+import traceback
 
-warning = True
-debug = False
+if os.path.exists("orderbook_config.py"):
+	import orderbook_config as config
+else:
+	class config:
+		warning = True
+		debug = False
 
-def print_message(msg,msgtype="MESSAGE"):
+def print_message(msg,msgtype="MESSAGE",context=None):
 	"""Print a message"""
-	print("%-19.19s [%s] %s" % (datetime.datetime.now(),msgtype,msg))
+	if context == None:
+		context = traceback.extract_stack()[-2].name
+	print("%-19.19s [%s %s] %s" % (datetime.datetime.now(),context,msgtype,msg))
 
 def print_warning(msg):
 	"""Print a warning message (module.warning must be True)"""
-	if warning:
-		print_message(msg,msgtype="WARNING")
+	if config.warning:
+		print_message(msg,msgtype="WARNING",context=traceback.extract_stack()[-2].name)
 
 def print_debug(msg):
 	"""Print a debug message (module.debug must be True)"""
-	if debug:
-		print_message(msg,msgtype="DEBUG")
+	if config.debug:
+		print_message(msg,msgtype="DEBUG",context=traceback.extract_stack()[-2].name)
 
 class orderbook:
 	"""Implementation of orderbook"""
@@ -27,6 +35,7 @@ class orderbook:
 		self.currency = currency
 		if price == None:
 			self.price = "%s/%s.%s" % (currency,unit,time)
+			print_debug("price unit not specified, using %s" % (self.price))
 		else:
 			self.price = price 
 		self.reset()
@@ -35,9 +44,13 @@ class orderbook:
 		"""Reset the market to initial values"""
 		self.buy 	= []
 		self.sell 	= []
-		self.using = []
+		self.using = {}
 		self.fees = 0.0
 		self.settled = []
+		print_debug("orderbook initialized")
+
+	def __repr__(self):
+		return "<orderbook %s / %s . %s>" % (self.currency, self.unit, self.time)
 
 	def __str__(self):
 		return json.dumps({
@@ -52,6 +65,38 @@ class orderbook:
 			"settled": self.settled
 			})
 
+	def get_quantityunit(self):
+		"""Get the unit of quantity"""
+		return self.unit
+
+	def get_timeunit(self):
+		"""Get the unit of time"""
+		return self.time
+
+	def get_currencyunit(self):
+		"""Get the unit of currency"""
+		return self.currency
+
+	def get_priceunit(self):
+		"""Get the unit of price"""
+		return self.price
+
+	def get_settled(self):
+		"""Get the settled orders"""
+		return self.settled
+
+	def get_buys(self):
+		"""Get the pending buy limit orders"""
+		return self.buy
+
+	def get_sells(self):
+		"""Get the pending sell limit orders"""
+		return self.sell
+
+	def get_using(self):
+		"""Get the plot using parameters"""
+		return self.using
+
 	def submit(self,order):
 		"""Submit an order to the market"""
 		order.set_market(self)
@@ -65,6 +110,7 @@ class orderbook:
 			else:
 				raise Exception("invalid order type: %s" % order)
 			self.clear()
+			print_debug("order %s submitted" % order)
 			return order
 		elif order.ismarket():
 			if order.issell():
@@ -402,5 +448,31 @@ class order(dict):
 		else:
 			raise Exception("cannot compare %s order to %s order" % (self["ordertype"],a["ordertype"]))
 
- 
+def selftest():
+	"""Runs the complete module self-test"""
 
+	# check new orderbook structure
+	market = orderbook()
+	assert( market.get_quantityunit() == "MW" )
+	assert( market.get_timeunit() == "h" )
+	assert( market.get_currencyunit() == "$" )
+	assert( market.get_priceunit() == "$/MW.h")
+	assert( market.get_buys() == [] )
+	assert( market.get_sells() == [] )
+	assert( market.get_settled() == [] )
+
+	# check plot result
+	p = market.plot(using={"grid":"", "legend":"", "savefig":"'selftest.png'"})
+	assert( p["figure"].__class__.__name__ == "Figure" )
+	assert( p["sell"][0][0].__class__.__name__ == "Line2D" )
+	assert( p["buy"][0][0].__class__.__name__ == "Line2D" )
+	assert( p["plot"] == plt )
+
+	# simple order match
+	b = market.bid(quantity=1.0, duration=1.0, price=1.0)
+	s = market.ask(quantity=1.0, duration=1.0, price=1.0)
+	assert( market.get_buys() == [] )
+	assert( market.get_sells() == [] )
+
+if __name__ == '__main__':
+ 	selftest()
