@@ -1,9 +1,25 @@
 import json 
 import os 
+import sys, getopt
 
 
-filename_json = '/Users/alyona_slac/gridlabd/grip/components/grip_sim_runner/simulation_models/virtual_islanding/m.json'
-filename_glm = '/Users/alyona_slac/gridlabd/grip/components/grip_sim_runner/simulation_models/virtual_islanding/m_json2glm.glm'
+#filename_json = '/Users/alyona_slac/gridlabd/grip/components/grip_sim_runner/simulation_models/virtual_islanding/m.json'
+#filename_glm = '/Users/alyona_slac/gridlabd/grip/components/grip_sim_runner/simulation_models/virtual_islanding/m_json2glm.glm'
+filename_json = ''
+filename_glm = ''
+try : 
+	opts, args = getopt.getopt(sys.argv[1:],"hi:o:",["ifile=","ofile="])
+except getopt.GetoptError:
+	print('json2glm.py -i <inputfile> -o <outputfile>')
+	sys.exit(2)
+for opt, arg in opts:
+	if opt == '-h':
+		print('json2glm.py -i <inputfile> -o <outputfile>')
+		sys.exit()
+	elif opt in ("-i", "--ifile"):
+		filename_json = arg
+	elif opt in ("-o", "--ofile"):
+		filename_glm = arg
 
 if os.path.exists(filename_glm):
 	os.remove(filename_glm)
