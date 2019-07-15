@@ -2,9 +2,6 @@ import json
 import os 
 import sys, getopt
 
-
-#filename_json = '/Users/alyona_slac/gridlabd/grip/components/grip_sim_runner/simulation_models/virtual_islanding/m.json'
-#filename_glm = '/Users/alyona_slac/gridlabd/grip/components/grip_sim_runner/simulation_models/virtual_islanding/m_json2glm.glm'
 filename_json = ''
 filename_glm = ''
 try : 
