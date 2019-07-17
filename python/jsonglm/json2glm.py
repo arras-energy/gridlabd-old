@@ -8,6 +8,11 @@ try :
 	opts, args = getopt.getopt(sys.argv[1:],"hi:o:",["ifile=","ofile="])
 except getopt.GetoptError:
 	sys.exit(2)
+if not opts : 
+	print('Missing command arguments')
+	print('json2glm.py -i <modelinputfile> -o <outputfile>')
+	print('-i : [REQUIRED] Name of the model input file')
+	print('-o : [OPTIONAL] JSON dump file name.')
 for opt, arg in opts:
 	if opt == '-h':
 		sys.exit()
