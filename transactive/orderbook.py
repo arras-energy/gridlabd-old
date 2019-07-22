@@ -1,3 +1,51 @@
+"""
+An orderbook is used to implement a real-time market for a transactive energy system.
+
+A Transactive Energy system may use an Orderbook to implement a continuous market rather 
+than a discrete-time double auction [1].  In an Orderbook, two lists of limit orders are 
+maintained and market orders are filled in real-time.
+
+Limit orders are used to inform the market of the availability of a resource to supply 
+(sell or "ask" order are usually denoted $A$) or consume (buy or "bid" order are usually 
+denoted $B$) a specified quantity of service at a specified price for a specified duration.  
+In general limit orders are used to announce that a resource is potentially available 
+given the right price, but otherwise the resource will not operate.
+
+Market orders are used to obtain from the market an immediate commitment of a resource to 
+supply or consume at the best price possible at the present time.  In general market 
+orders are used to announce that a resource must operate immediately and will do so at the 
+best available price.  The only price guarantee that the resource has is the price will be 
+no higher that lowest ask and no lower than the highest bid, given the quantity and 
+duration constraints provided.
+
+When a supplier and consumer are matched the resulting cleared orders (denoted $C$) are 
+returned to both parties with the additional information pertaining to the amount and cost 
+of clearing the orders.
+
+For a supplier and consumer to match, their orders must have the following characteristics, 
+which are referred to as the *clearing rules*.
+
+1. The cleared ask must have a price greater than or equal to the submitted ask.
+
+2. The cleared bid must have a price less than or equal to the submitted bid.
+
+3. The intersection of the ask and bid time intervals must be non-null.
+
+4. If the bid is indivisible, the the ask quantity must be greater than or equal to the 
+bid quantity, and the bid time interval must be the same as or a sub-interval of the ask 
+time interval.
+
+5. If the ask is indivisible, then the bid quantity must be less than or equal to the ask 
+quantity, and the ask time interval must be the same as or a sub-interval of the bid time 
+interval.
+
+References
+
+[1] Hammerstrom et al., "Pacific Northwest GridWise(TM) Demonstration Testbed: Part I. 
+Olympic Peninsula Project", PNNL Report No. 17167, Richland WA, October 2007. 
+URL: [https://www.pnnl.gov/main/publications/external/technical_reports/PNNL-17167.pdf]
+
+"""
 import matplotlib.pyplot as plt
 import json
 import datetime
@@ -315,7 +363,7 @@ class order(dict):
 		dict.__init__(self,**kwargs)
 
 	def __repr__(self):
-		result = "<order:%d/%s" % (self.get_id(),self.get_ordertype())
+		result = "<order:%d %s" % (self.get_id(),self.get_ordertype())
 		if self.get_quantity() > 0.0:
 			if not self.isdivisible():
 				result += " INDIVISIBLE"
