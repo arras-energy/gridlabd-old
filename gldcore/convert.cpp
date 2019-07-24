@@ -76,7 +76,12 @@ int convert_from_double(char *buffer, /**< pointer to the string buffer */
 	int count = 0;
 
 	double scale = 1.0;
-	if ( prop->unit != NULL )
+	if ( isnan(*(double*)data) )
+	{
+		strcpy(buffer,"NAN");
+		return 3;
+	}
+	else if ( prop->unit != NULL )
 	{
 		/* only do conversion if the target unit differs from the class's unit for that property */
 		PROPERTY *ptmp = (prop->oclass==NULL ? prop : class_find_property(prop->oclass, prop->name));
@@ -124,6 +129,11 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 					  void *data, /**< a pointer to the data */
 					  PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
+	if ( ( strchr("+-",buffer[0])==NULL ? strnicmp(buffer,"NAN",3) : strnicmp(buffer+1,"NAN",3) ) == 0 )
+	{
+		*(double*)data = QNAN;
+		return strcspn(buffer+4," \t\n");
+	}
 	char unit[256];
 	int n = sscanf(buffer,"%lg%s",(double*)data,unit);
 	if ( n>1 && prop->unit!=NULL ) /* unit given and unit allowed */
