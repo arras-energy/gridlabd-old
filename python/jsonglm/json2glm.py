@@ -26,7 +26,7 @@ if os.path.exists(filename_glm):
 data = {}
 objects_ignore = ["id", "class", "rank", "clock", "schedule_skew", \
 "rng_state", "heartbeat", "guid", "flags"]
-globals_ignore = ['clock', 'timezone_locale', 'starttime', 'stoptime','glm_save_options']
+globals_ignore = ['clock', 'timezone_locale', 'starttime', 'stoptime','glm_save_options'] # REMOVE glm_save_options when bug is fixed
 classkeys_ignore = ['object_size', 'trl', 'profiler.numobjs', 'profiler.clocks', 'profiler.count', 'parent']
 
 with open(filename_json,'r') as fr :
