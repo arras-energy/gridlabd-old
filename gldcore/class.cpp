@@ -455,7 +455,7 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 	int b = sizeof(property_type[0]);
 	int c = _PT_LAST - _PT_FIRST - 1;
 
-	if (_PT_LAST-_PT_FIRST-1!=sizeof(property_type)/sizeof(property_type[0]))
+	if ( _PT_LAST-_PT_FIRST-1 != sizeof(property_type)/sizeof(property_type[0]) )
 	{
 		output_fatal("property_type[] in class.c has an incorrect number of members (%i vs %i)", a/b, c);
 		/* TROUBLESHOOT
@@ -465,9 +465,10 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 		 */
 		exit(XC_EXCEPTION);
 	}
-	if (oclass!=NULL)
+	if ( oclass != NULL && oclass->module != NULL )
 	{
-		if(strcmp(oclass->module->name, module->name) == 0){
+		if ( strcmp(oclass->module->name, module->name) == 0 )
+		{
 			output_error("module %s cannot register class %s, it is already registered by module %s", module->name,name,oclass->module->name);
 			/*	TROUBLESHOOT
 				This error is caused by an attempt to define a new class which is already
@@ -475,17 +476,19 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 				bug in a module or an incorrectly defined class.
 			 */
 			return NULL;
-		} else {
+		} 
+		else 
+		{
 			IN_MYCONTEXT output_verbose("module %s is registering a 2nd class %s, previous one in module %s", module->name, name, oclass->module->name);
 		}
 	}
-	if (strlen(name)>=MAXCLASSNAMELEN )
+	if ( strlen(name) >= MAXCLASSNAMELEN )
 	{
 		errno = E2BIG;
 		return 0;
 	}
 	oclass = (CLASS*)malloc(sizeof(CLASS));
-	if (oclass==NULL)
+	if ( oclass == NULL)
 	{
 		errno = ENOMEM;
 		return 0;
@@ -501,9 +504,13 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 	oclass->profiler.count=0;
 	oclass->profiler.clocks=0;
 	if (first_class==NULL)
+	{
 		first_class = oclass;
+	}
 	else
+	{
 		last_class->next = oclass;
+	}
 	last_class = oclass;
 	IN_MYCONTEXT output_verbose("class %s registered ok", name);
 	return oclass;
