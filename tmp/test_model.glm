@@ -1,0 +1,5492 @@
+///////////////////////////////////////////////////////
+//
+// Simplified Virtual Islanding simulation model
+// Copyright (C) 2016, Stanford University
+// Author: aivanova@slac.stanford.edu
+//
+///////////////////////////////////////////////////////
+
+#set suppress_repeat_messages=0
+
+//////////////CONFIG//////////////////////////////////
+#define STARTTIME=2018-01-30 00:00:00 EST
+#define STOPTIME=2018-01-30 00:01:00 EST
+#define RECORDTIME=2018-01-30 00:00:00 EST
+
+#define TIMEZONE=EST+5EDT
+
+#define LOCATION=BUR_VT //LA_CA //BUR_VT
+
+#define LOADS=on
+
+#define MYSQL_AMI=off
+#define SOLAR=off
+
+#define VOLT_POWER_DUMP=off //FIX
+
+#define LOAD_CONTROL=no
+
+
+#if LOAD_CONTROL == yes
+module load_control;
+#endif
+
+#if LOCATION==BUR_VT 
+#define WEATHER=VT-Burlington_International_Ap.tmy3
+#endif //LOCATION
+#if LOCATION==LA_CA
+#define WEATHER=CA-Los_Angeles_Intl_Arpt.tmy3
+#endif //LOCATION
+
+#ifdef TIMEZONE
+clock {
+	timezone ${TIMEZONE};
+#ifdef STARTTIME
+	starttime ${STARTTIME};
+#endif
+#ifdef STOPTIME
+	stoptime ${STOPTIME};
+#endif
+}
+#else
+#error No timezone specified
+#endif // TIMEZONE
+
+class waterheater{
+	loadshape wh_shape;
+}
+
+class house 
+{
+	bool issupernode; // UI definition of supernode
+//	char1024 feeder_fault; // Marks if a fault occured in feeder node
+}
+
+#if LOAD_CONTROL==yes
+// class to implement sharing of island group information
+class islanding_control
+{
+    char1024 groupinfo;
+    char1024 substation_nodes;
+    char1024 feeder_A;
+    char1024 feeder_B;
+    char1024 feeder_C;
+}
+
+// implement the island group control information
+object islanding_control
+{
+    // use this name to access this island group island control, e.g., 
+    // >> gridlabd.get_value("island_info",property_name)
+    name "island_info";
+
+    // use python json module to access this as a dict, e.g.,
+    // >> json.loads(gridlabd.get_value("island_info","groupinfo"))
+    groupinfo "{'0':['substation_nodes',feeder_A','feeder_B','feeder_C']}";
+    //groupinfo "{'0':['substation_nodes',group_A'],'1':['group_B','group_C']}";
+
+    // use python json module to change this, e.g.
+    // >> new_values = {'0':['feeder',group_A','group_B'],'1':[group_C']}
+    // >> gridlabd.set_value("island_info","groupinfo",json.dumps(new_values))
+    //
+    // this is what a system with group_C running as an island looks like
+    // >> groupinfo "{'0':['feeder',group_A','group_B'],'1':[group_C']}";
+
+    // these are provided for convenience
+    // TODO: generated these automatically from the node group id info
+    substation_nodes "['node_001','node_002']";
+    feeder_A "['node_101','node_102','node_103']";
+    feeder_B "['node_201','node_202','node_203']";
+    feeder_C "['node_301','node_302','node_303']";
+
+
+	//on_commit python:load_control.absorption;
+}
+
+
+class supernodes
+{
+	char1024 node_group; 
+	bool FAULT_flag;
+}
+
+object supernodes
+{
+	name "supernode_list";
+	node_group "['node_001', 'node_002', 'node_101', 'node_102', 'node_103', 'node_201', 'node_202', 'node_203', 'node_301', 'node_302', 'node_303']";
+}
+
+#endif //LOADCONTROL
+///////////////////////////////////////////////////////
+//
+// WEATHER
+//
+///////////////////////////////////////////////////////
+#ifexist data/${WEATHER}
+module climate;
+object climate {
+        name weather;
+        tmyfile "../data/${WEATHER}";
+        interpolate QUADRATIC;
+}
+#else
+#error No weather specified.
+#endif // exist WEATHER
+
+///////////////////////////////////////////////////////
+//
+// POWER SYSTEM MODEL
+//
+///////////////////////////////////////////////////////
+module powerflow {
+	solver_method NR;
+	line_capacitance true;
+	convergence_error_handling IGNORE;
+}
+
+module generators; // ENABLES SOLAR
+module tape;
+
+#if VOLT_POWER_DUMP==all
+//#include "voltpower_dump.glm"
+script on_term "python voltdump.py";
+
+object voltdump {
+	filemode "a";
+	filename "output/volt_dump.csv";
+	on_init "mkdir -p output; rm -rf output/power_dump_*.csv output/volt_dump.csv";
+#ifdef STARTRECORDTIME
+	in_svc ${STARTRECORDTIME};
+#endif //STARTRECORDTIME
+	interval 60;
+}
+
+object currdump {
+	filemode "a";
+	filename "output/curr_dump.csv";
+	on_init "mkdir -p output; rm -rf output/curr_dump_*.csv ";
+#ifdef STARTRECORDTIME
+	in_svc ${STARTRECORDTIME};
+#endif //STARTRECORDTIME
+	interval 60;
+}
+module tape {
+	flush_interval 0;
+}
+
+object multi_recorder {
+	property meter_1:measured_power, meter_2:measured_power, meter_3:measured_power, meter_4:measured_power, meter_5:measured_power, meter_6:measured_power, meter_7:measured_power, meter_8:measured_power, meter_9:measured_power, meter_10:measured_power, meter_11:measured_power, meter_12:measured_power, meter_13:measured_power, meter_14:measured_power, meter_15:measured_power, meter_16:measured_power, meter_17:measured_power, meter_18:measured_power, meter_19:measured_power, meter_20:measured_power, meter_21:measured_power, meter_22:measured_power, meter_23:measured_power, meter_24:measured_power, meter_25:measured_power, meter_26:measured_power, meter_27:measured_power, meter_28:measured_power, meter_29:measured_power, meter_30:measured_power;
+	file "output/power_dump_1.csv";
+	interval 60;
+#ifdef STARTRECORDTIME
+	in_svc ${STARTRECORDTIME};
+#endif //STARTRECORDTIME
+}
+
+object multi_recorder {
+	property meter_31:measured_power, meter_32:measured_power, meter_33:measured_power, meter_34:measured_power, meter_35:measured_power, meter_36:measured_power, meter_37:measured_power, meter_38:measured_power, meter_39:measured_power, meter_40:measured_power, meter_41:measured_power, meter_42:measured_power, meter_43:measured_power, meter_44:measured_power, meter_45:measured_power, meter_46:measured_power, meter_47:measured_power, meter_48:measured_power, meter_49:measured_power, meter_50:measured_power, meter_51:measured_power, meter_52:measured_power, meter_53:measured_power, meter_54:measured_power, meter_55:measured_power, meter_56:measured_power, meter_57:measured_power, meter_58:measured_power, meter_59:measured_power, meter_60:measured_power;
+	file "output/power_dump_2.csv";
+	interval 60;
+#ifdef STARTRECORDTIME
+	in_svc ${STARTRECORDTIME};
+#endif //STARTRECORDTIME
+}
+
+object multi_recorder {
+	property meter_61:measured_power, meter_62:measured_power, meter_63:measured_power, meter_64:measured_power, meter_65:measured_power, meter_66:measured_power, meter_67:measured_power, meter_68:measured_power, meter_69:measured_power, meter_70:measured_power, meter_71:measured_power, meter_72:measured_power, meter_73:measured_power, meter_74:measured_power, meter_75:measured_power, meter_76:measured_power, meter_77:measured_power, meter_78:measured_power, meter_79:measured_power, meter_80:measured_power, meter_81:measured_power, meter_82:measured_power, meter_83:measured_power, meter_84:measured_power, meter_85:measured_power, meter_86:measured_power, meter_87:measured_power, meter_88:measured_power, meter_89:measured_power, meter_90:measured_power;
+	file "output/power_dump_3.csv";
+	interval 60;
+#ifdef STARTRECORDTIME
+	in_svc ${STARTRECORDTIME};
+#endif //STARTRECORDTIME
+}
+
+
+#endif // CURRDUMP
+
+//
+// Powerflow component configurations
+//
+
+
+//#include "library/lines.glm"
+/// OVERHEAD LINE CONDUCTORS
+object overhead_line_conductor {
+	name olc_default;	//336,400 26/7 ACSR
+	geometric_mean_radius 0.0244;
+	resistance 0.306;
+	diameter 0.721;
+}
+
+object line_spacing {
+	name ls_default;
+	distance_AB 0.5;
+	distance_AC 1.0;
+	distance_BC 0.5;
+}
+
+object line_configuration {
+	name lc_default_A;
+	conductor_A olc_default;
+	conductor_N olc_default;
+	spacing ls_default;
+}
+object line_configuration {
+	name lc_default_B;
+	conductor_B olc_default;
+	conductor_N olc_default;
+	spacing ls_default;
+}
+object line_configuration {
+	name lc_default_C;
+	conductor_C olc_default;
+	conductor_N olc_default;
+	spacing ls_default;
+}
+	
+object line_configuration {
+	name lc_default_ABC;
+	conductor_A olc_default;
+	conductor_B olc_default;
+	conductor_C olc_default;
+	conductor_N olc_default;
+	spacing ls_default;
+}
+
+// Network Lines 
+
+object overhead_line {
+	name line_node101_node102;
+	phases ABCN;
+	from node_101;
+	to node_102i;
+	length 175.00;
+	configuration lc_default_ABC;
+}
+object node {
+	name node_102i;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+
+object overhead_line {
+	name line_node102_node103;
+	phases ABCN;
+	from node_102;
+	to node_103i;
+	length 175.00;
+	configuration lc_default_ABC;
+}
+object node {
+	name node_103i;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+
+object overhead_line {
+	name line_node201_node202;
+	phases ABCN;
+	from node_201;
+	to node_202i;
+	length 175.00;
+	configuration lc_default_ABC;
+}
+object node {
+	name node_202i;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+
+object overhead_line {
+	name line_node202_node203;
+	phases ABCN;
+	from node_202;
+	to node_203i;
+	length 175.00;
+	configuration lc_default_ABC;
+}
+object node {
+	name node_203i;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+
+object overhead_line {
+	name line_node301_node302;
+	phases ABCN;
+	from node_301;
+	to node_302i;
+	length 175.00;
+	configuration lc_default_ABC;
+}
+object node {
+	name node_302i;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+
+object overhead_line {
+	name line_node302_node303;
+	phases ABCN;
+	from node_302;
+	to node_303i;
+	length 175.00;
+	configuration lc_default_ABC;
+}
+object node {
+	name node_303i;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+
+
+//Lines between nodes and spot loads 
+object overhead_line {
+	name line_node101A_load101A;
+	phases AN;
+	from node_101A;
+	to load_101A;
+	length 175.00;
+	configuration lc_default_A;
+}
+object overhead_line {
+	name line_node101B_load101B;
+	phases BN;
+	from node_101B;
+	to load_101B;
+	length 175.00;
+	configuration lc_default_B;
+}
+object overhead_line {
+	name line_node101C_load101C;
+	phases CN;
+	from node_101C;
+	to load_101C;
+	length 175.00;
+	configuration lc_default_C;
+}
+
+object overhead_line {
+	name line_node102A_load102A;
+	phases AN;
+	from node_102A;
+	to load_102A;
+	length 175.00;
+	configuration lc_default_A;
+}
+object overhead_line {
+	name line_node102B_load102B;
+	phases BN;
+	from node_102B;
+	to load_102B;
+	length 175.00;
+	configuration lc_default_B;
+}
+object overhead_line {
+	name line_node102C_load102C;
+	phases CN;
+	from node_102C;
+	to load_102C;
+	length 175.00;
+	configuration lc_default_C;
+}
+
+object overhead_line {
+	name line_node103A_load103A;
+	phases AN;
+	from node_103A;
+	to load_103A;
+	length 175.00;
+	configuration lc_default_A;
+}
+object overhead_line {
+	name line_node103B_load103B;
+	phases BN;
+	from node_103B;
+	to load_103B;
+	length 175.00;
+	configuration lc_default_B;
+}
+object overhead_line {
+	name line_node103C_load103C;
+	phases CN;
+	from node_103C;
+	to load_103C;
+	length 175.00;
+	configuration lc_default_C;
+}
+
+object overhead_line {
+	name line_node201A_load201A;
+	phases AN;
+	from node_201A;
+	to load_201A;
+	length 175.00;
+	configuration lc_default_A;
+}
+object overhead_line {
+	name line_node201B_load201B;
+	phases BN;
+	from node_201B;
+	to load_201B;
+	length 175.00;
+	configuration lc_default_B;
+}
+object overhead_line {
+	name line_node201C_load201C;
+	phases CN;
+	from node_201C;
+	to load_201C;
+	length 175.00;
+	configuration lc_default_C;
+}
+
+object overhead_line {
+	name line_node202A_load202A;
+	phases AN;
+	from node_202A;
+	to load_202A;
+	length 175.00;
+	configuration lc_default_A;
+}
+object overhead_line {
+	name line_node202B_load202B;
+	phases BN;
+	from node_202B;
+	to load_202B;
+	length 175.00;
+	configuration lc_default_B;
+}
+object overhead_line {
+	name line_node202C_load202C;
+	phases CN;
+	from node_202C;
+	to load_202C;
+	length 175.00;
+	configuration lc_default_C;
+}
+
+object overhead_line {
+	name line_node203A_load203A;
+	phases AN;
+	from node_203A;
+	to load_203A;
+	length 175.00;
+	configuration lc_default_A;
+}
+object overhead_line {
+	name line_node203B_load203B;
+	phases BN;
+	from node_203B;
+	to load_203B;
+	length 175.00;
+	configuration lc_default_B;
+}
+object overhead_line {
+	name line_node203C_load203C;
+	phases CN;
+	from node_203C;
+	to load_203C;
+	length 175.00;
+	configuration lc_default_C;
+}
+
+object overhead_line {
+	name line_node301A_load301A;
+	phases AN;
+	from node_301A;
+	to load_301A;
+	length 175.00;
+	configuration lc_default_A;
+}
+object overhead_line {
+	name line_node301B_load301B;
+	phases BN;
+	from node_301B;
+	to load_301B;
+	length 175.00;
+	configuration lc_default_B;
+}
+object overhead_line {
+	name line_node301C_load301C;
+	phases CN;
+	from node_301C;
+	to load_301C;
+	length 175.00;
+	configuration lc_default_C;
+}
+
+object overhead_line {
+	name line_node302A_load302A;
+	phases AN;
+	from node_302A;
+	to load_302A;
+	length 175.00;
+	configuration lc_default_A;
+}
+object overhead_line {
+	name line_node302B_load302B;
+	phases BN;
+	from node_302B;
+	to load_302B;
+	length 175.00;
+	configuration lc_default_B;
+}
+object overhead_line {
+	name line_node302C_load302C;
+	phases CN;
+	from node_302C;
+	to load_302C;
+	length 175.00;
+	configuration lc_default_C;
+}
+
+object overhead_line {
+	name line_node303A_load303A;
+	phases AN;
+	from node_303A;
+	to load_303A;
+	length 175.00;
+	configuration lc_default_A;
+}
+object overhead_line {
+	name line_node303B_load303B;
+	phases BN;
+	from node_303B;
+	to load_303B;
+	length 175.00;
+	configuration lc_default_B;
+}
+object overhead_line {
+	name line_node303C_load303C;
+	phases CN;
+	from node_303C;
+	to load_303C;
+	length 175.00;
+	configuration lc_default_C;
+}
+//
+// Power system topology
+//
+//Transformer configurations
+object transformer_configuration {
+	name tc_default;
+	connect_type DELTA_GWYE;
+	install_type PADMOUNT;
+	power_rating 5.0 MVA;
+	primary_voltage 12.47 kV;
+	secondary_voltage 2401.7771;
+	resistance 0.01;
+	reactance 0.08;
+}
+//Transformers 
+object transformer {
+	name tf_main;
+	phases ABCN;
+	from node_001;
+	to tf_main_node;
+	configuration tc_default;
+}
+
+object node {
+	name tf_main_node;
+	phases ABCN;
+	nominal_voltage 2401.7771 kV;
+}
+//#include "library/nodes.glm"
+//Pure nodes
+object meter {
+	name node_001;
+	//issupernode 1;
+	phases ABCN;
+	bustype SWING;
+	nominal_voltage 12.47 kV;
+}
+
+object meter {
+	name node_002;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+
+object meter {
+	name node_101;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_101A;
+	parent node_101;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_101B;
+	parent node_101;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_101C;
+	parent node_101;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+
+object meter {
+	name node_102;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_102A;
+	parent node_102;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_102B;
+	parent node_102;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_102C;
+	parent node_102;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+object meter {
+	name node_103;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_103A;
+	parent node_103;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_103B;
+	parent node_103;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_103C;
+	parent node_103;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+
+object meter {
+	name node_201;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_201A;
+	parent node_201;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_201B;
+	parent node_201;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_201C;
+	parent node_201;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+
+object meter {
+	name node_202;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_202A;
+	parent node_202;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_202B;
+	parent node_202;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_202C;
+	parent node_202;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+
+object meter {
+	name node_203;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+
+object node {
+	name node_203A;
+	parent node_203;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_203B;
+	parent node_203;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_203C;
+	parent node_203;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+
+object meter {
+	name node_301;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_301A;
+	parent node_301;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_301B;
+	parent node_301;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_301C;
+	parent node_301;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+
+object meter {
+	name node_302;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_302A;
+	parent node_302;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_302B;
+	parent node_302;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_302C;
+	parent node_302;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+object meter {
+	name node_303;
+	//issupernode 1;
+	phases ABCN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_303A;
+	parent node_303;
+	phases AN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_303B;
+	parent node_303;
+	phases BN;
+	nominal_voltage 2401.7771;
+}
+object node {
+	name node_303C;
+	parent node_303;
+	phases CN;
+	nominal_voltage 2401.7771;
+}
+//Pure spot loads
+
+object load {
+	name load_101A;
+	groupid nodevolts;
+	phases AN;
+	constant_power_A 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_101B;
+	groupid nodevolts;
+	phases BN;
+	constant_power_B 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_101C;
+	groupid nodevolts;
+	phases CN;
+	constant_power_C 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+
+object load {
+	name load_102A;
+	groupid nodevolts;
+	phases AN;
+	constant_power_A 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_102B;
+	groupid nodevolts;
+	phases BN;
+	constant_power_B 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_102C;
+	groupid nodevolts;
+	phases CN;
+	constant_power_C 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+
+object load {
+	name load_103A;
+	groupid nodevolts;
+	phases AN;
+	constant_power_A 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_103B;
+	groupid nodevolts;
+	phases BN;
+	constant_power_B 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_103C;
+	groupid nodevolts;
+	phases CN;
+	constant_power_C 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+
+object load {
+	name load_201A;
+	groupid nodevolts;
+	phases AN;
+	constant_power_A 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_201B;
+	groupid nodevolts;
+	phases BN;
+	constant_power_B 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_201C;
+	groupid nodevolts;
+	phases CN;
+	constant_power_C 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+
+object load {
+	name load_202A;
+	groupid nodevolts;
+	phases AN;
+	constant_power_A 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_202B;
+	groupid nodevolts;
+	phases BN;
+	constant_power_B 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_202C;
+	groupid nodevolts;
+	phases CN;
+	constant_power_C 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+
+object load {
+	name load_203A;
+	groupid nodevolts;
+	phases AN;
+	constant_power_A 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_203B;
+	groupid nodevolts;
+	phases BN;
+	constant_power_B 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_203C;
+	groupid nodevolts;
+	phases CN;
+	constant_power_C 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+
+object load {
+	name load_301A;
+	groupid nodevolts;
+	phases AN;
+	constant_power_A 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_301B;
+	groupid nodevolts;
+	phases BN;
+	constant_power_B 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_301C;
+	groupid nodevolts;
+	phases CN;
+	constant_power_C 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+
+object load {
+	name load_302A;
+	groupid nodevolts;
+	phases AN;
+	constant_power_A 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_302B;
+	groupid nodevolts;
+	phases BN;
+	constant_power_B 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_302C;
+	groupid nodevolts;
+	phases CN;
+	constant_power_C 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+
+object load {
+	name load_303A;
+	groupid nodevolts;
+	phases AN;
+	constant_power_A 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_303B;
+	groupid nodevolts;
+	phases BN;
+	constant_power_B 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+object load {
+	name load_303C;
+	groupid nodevolts;
+	phases CN;
+	constant_power_C 40000.000000+20000.000000j;
+	nominal_voltage 2401.7771;
+}
+
+
+//Switches 
+object switch {
+	name sw_002;
+	from tf_main_node; 
+	to node_002;
+	phases ABCN;
+	status CLOSED;
+}
+
+object switch {
+	name sw_101;
+	from node_002; 
+	to node_101;
+	phases ABCN;
+	status CLOSED;
+}
+object switch {
+	name sw_102;
+	from node_102i; 
+	to node_102;
+	phases ABCN;
+	status CLOSED;
+}
+object switch {
+	name sw_102_103;
+	from node_103i; 
+	to node_103;
+	phases ABCN;
+	status CLOSED;
+}
+
+object switch {
+	name sw_201;
+	from node_002; 
+	to node_201;
+	phases ABCN;
+	status CLOSED;
+}
+object switch {
+	name sw_202;
+	from node_202i; 
+	to node_202;
+	phases ABCN;
+	status CLOSED;
+}
+object switch {
+	name sw_202_203;
+	from node_203i; 
+	to node_203;
+	phases ABCN;
+	status CLOSED;
+}
+
+object switch {
+	name sw_301;
+	from node_002; 
+	to node_301;
+	phases ABCN;
+	status CLOSED;
+}
+object switch {
+	name sw_302;
+	from node_302i; 
+	to node_302;
+	phases ABCN;
+	status CLOSED;
+}
+object switch {
+	name sw_302_303;
+	from node_303i; 
+	to node_303;
+	phases ABCN;
+	status CLOSED;
+}
+
+object switch {
+	name sw_103;
+	from node_103; 
+	to node_203;
+	phases ABCN;
+	status OPEN;
+}
+
+object switch {
+	name sw_303;
+	from node_303; 
+	to node_203;
+	phases ABCN;
+	status OPEN;
+}
+
+//#include "library/generators.glm"
+module generators;
+
+
+/////////////////////SOLAR///////////////////
+object inverter {
+	name inv_102;
+	phases AS;
+	parent node_102;
+	rated_power 15 MW;
+	generator_status ONLINE;
+	inverter_type PWM;
+	generator_mode CONSTANT_PF;
+	inverter_efficiency 0.95;
+}
+
+object solar {
+	name solar_102;
+	generator_mode SUPPLY_DRIVEN;
+    generator_status ONLINE;
+    panel_type SINGLE_CRYSTAL_SILICON;
+    parent inv_102;
+    rated_power 3 MW;
+    //weather 
+ //   object recorder {
+	//	property "Insolation,VA_Out.real[kVA]";
+	//	file "output/solar_gen";
+	//	interval 3600;
+	//};
+}
+
+object inverter {
+	name inv_202;
+	phases AS;
+	parent node_202;
+	rated_power 15 MW;
+	generator_status ONLINE;
+	inverter_type PWM;
+	generator_mode CONSTANT_PF;
+	inverter_efficiency 0.95;
+}
+
+object solar {
+	name solar_202;
+	generator_mode SUPPLY_DRIVEN;
+    generator_status ONLINE;
+    panel_type SINGLE_CRYSTAL_SILICON;
+    parent inv_202;
+    rated_power 3 MW;
+    //weather 
+}
+
+object inverter {
+	name inv_302;
+	phases AS;
+	parent node_302;
+	rated_power 15 MW;
+	generator_status ONLINE;
+	inverter_type PWM;
+	generator_mode CONSTANT_PF;
+	inverter_efficiency 0.95;
+}
+
+object solar {
+	name solar_302;
+	generator_mode SUPPLY_DRIVEN;
+    generator_status ONLINE;
+    panel_type SINGLE_CRYSTAL_SILICON;
+    parent inv_302;
+    rated_power 3 MW;
+    //weather 
+}
+
+/////////////////////BATTERY///////////////////
+object inverter {
+    name inv_103;
+	parent node_103;
+    inverter_type FOUR_QUADRANT;
+    four_quadrant_control_mode CONSTANT_PQ;
+	generator_mode CONSTANT_PQ; //Not effectively used, just tired of seeing Warning
+	generator_status ONLINE;
+	inverter_efficiency 1.0;
+    rated_power 15 MW;		//Per phase rating
+//	charge_on_threshold 5.0 kW;
+//	charge_off_threshold 7.0 kW;
+//	discharge_off_threshold 7.5 kW;
+//	discharge_on_threshold 9.0 kW;
+//	max_discharge_rate 1.0 kW;
+//	max_charge_rate 0.80 kW;
+}
+object battery {
+	name battery_103;
+	parent inv_103;
+	use_internal_battery_model true;
+	battery_type LI_ION;
+	Energy 3 MWh;
+	base_efficiency 1.0;
+	state_of_charge 1.0;
+	generator_mode SUPPLY_DRIVEN;
+}
+
+object inverter {
+    name inv_203;
+	parent node_203;
+    inverter_type FOUR_QUADRANT;
+    four_quadrant_control_mode CONSTANT_PQ;
+	generator_mode CONSTANT_PQ; //Not effectively used, just tired of seeing Warning
+	generator_status ONLINE;
+	inverter_efficiency 1.0;
+    rated_power 15 MW;		//Per phase rating
+//	charge_on_threshold 5.0 kW;
+//	charge_off_threshold 7.0 kW;
+//	discharge_off_threshold 7.5 kW;
+//	discharge_on_threshold 9.0 kW;
+//	max_discharge_rate 1.0 kW;
+//	max_charge_rate 0.80 kW;
+}
+object battery {
+	name battery_203;
+	parent inv_203;
+	use_internal_battery_model true;
+	battery_type LI_ION;
+	Energy 3 MWh;
+	base_efficiency 1.0;
+	state_of_charge 1.0;
+	generator_mode SUPPLY_DRIVEN;
+}
+
+object inverter {
+    name inv_303;
+	parent node_303;
+    inverter_type FOUR_QUADRANT;
+    four_quadrant_control_mode CONSTANT_PQ;
+	generator_mode CONSTANT_PQ; //Not effectively used, just tired of seeing Warning
+	generator_status ONLINE;
+	inverter_efficiency 1.0;
+    rated_power 15 MW;		//Per phase rating
+//	charge_on_threshold 5.0 kW;
+//	charge_off_threshold 7.0 kW;
+//	discharge_off_threshold 7.5 kW;
+//	discharge_on_threshold 9.0 kW;
+//	max_discharge_rate 1.0 kW;
+//	max_charge_rate 0.80 kW;
+}
+object battery {
+	name battery_303;
+	parent inv_303;
+	use_internal_battery_model true;
+	battery_type LI_ION;
+	Energy 3 MWh;
+	base_efficiency 1.0;
+	state_of_charge 1.0;
+	generator_mode SUPPLY_DRIVEN;
+}
+
+//#include "library/loads.glm"
+// IEEE-123 dynamic loads
+// Copyright (C) 2016, Stanford University
+// Author: dchassin@slac.stanford.edu
+module residential{
+	implicit_enduses NONE;
+}
+object transformer_configuration {
+	name xfmr_config_A;
+	connect_type SINGLE_PHASE_CENTER_TAPPED;
+	install_type POLETOP;
+	powerA_rating 75;
+	primary_voltage 2401;
+	secondary_voltage 120.000 V;
+	impedance 0.006+0.0136j;
+}
+object transformer_configuration {
+	name xfmr_config_B;
+	connect_type SINGLE_PHASE_CENTER_TAPPED;
+	install_type POLETOP;
+	powerB_rating 75;
+	primary_voltage 2401 V;
+	secondary_voltage 120.000 V;
+	impedance 0.006+0.0136j;
+}
+object transformer_configuration {
+	name xfmr_config_C;
+	connect_type SINGLE_PHASE_CENTER_TAPPED;
+	install_type POLETOP;
+	powerC_rating 75;
+	primary_voltage 2401 V;
+	secondary_voltage 120.000 V;
+	impedance 0.006+0.0136j;
+}
+
+global int32 SEQ_CUSTID 0;
+#set allow_reinclude=true
+
+schedule waterheater_demand_prob {
+	* 5-21 * * * 0.99;
+	* 22-4 * * * 0.01;
+}
+#define AREA=A
+//#include using(AREA=A,LOADID=101,PHASE=A,COUNT=10) "library/house.glm"
+#define LOADID=101A
+#define PHASE=A
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		issupernode 1;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+//#include using(AREA=A,LOADID=101,PHASE=B,COUNT=10) "library/house.glm"
+#define LOADID=101B
+#define PHASE=B
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+//#include using(AREA=A,LOADID=101,PHASE=C,COUNT=10) "library/house.glm"
+#define LOADID=101C
+#define PHASE=C
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+#define LOADID=102A
+#define PHASE=A
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+//#include using(AREA=A,LOADID=101,PHASE=B,COUNT=10) "library/house.glm"
+#define LOADID=102B
+#define PHASE=B
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+//#include using(AREA=A,LOADID=101,PHASE=C,COUNT=10) "library/house.glm"
+#define LOADID=102C
+#define PHASE=C
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+#define LOADID=103A
+#define PHASE=A
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+//#include using(AREA=A,LOADID=101,PHASE=B,COUNT=10) "library/house.glm"
+#define LOADID=103B
+#define PHASE=B
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+//#include using(AREA=A,LOADID=101,PHASE=C,COUNT=10) "library/house.glm"
+#define LOADID=103C
+#define PHASE=C
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+
+//// FEEDER 2/////////
+#define LOADID=201A
+#define PHASE=A
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+//#include using(AREA=A,LOADID=101,PHASE=B,COUNT=10) "library/house.glm"
+#define LOADID=201B
+#define PHASE=B
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+//#include using(AREA=A,LOADID=101,PHASE=C,COUNT=10) "library/house.glm"
+#define LOADID=201C
+#define PHASE=C
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+#define LOADID=202A
+#define PHASE=A
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+//#include using(AREA=A,LOADID=101,PHASE=B,COUNT=10) "library/house.glm"
+#define LOADID=202B
+#define PHASE=B
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+//#include using(AREA=A,LOADID=101,PHASE=C,COUNT=10) "library/house.glm"
+#define LOADID=202C
+#define PHASE=C
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+#define LOADID=203A
+#define PHASE=A
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+//#include using(AREA=A,LOADID=101,PHASE=B,COUNT=10) "library/house.glm"
+#define LOADID=203B
+#define PHASE=B
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+//#include using(AREA=A,LOADID=101,PHASE=C,COUNT=10) "library/house.glm"
+#define LOADID=203C
+#define PHASE=C
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+
+//// FEEDER 3 ///////
+#define LOADID=301A
+#define PHASE=A
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+//#include using(AREA=A,LOADID=101,PHASE=B,COUNT=10) "library/house.glm"
+#define LOADID=301B
+#define PHASE=B
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+//#include using(AREA=A,LOADID=101,PHASE=C,COUNT=10) "library/house.glm"
+#define LOADID=301C
+#define PHASE=C
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+#define LOADID=302A
+#define PHASE=A
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+//#include using(AREA=A,LOADID=101,PHASE=B,COUNT=10) "library/house.glm"
+#define LOADID=302B
+#define PHASE=B
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+//#include using(AREA=A,LOADID=101,PHASE=C,COUNT=10) "library/house.glm"
+#define LOADID=302C
+#define PHASE=C
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+#define LOADID=303A
+#define PHASE=A
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+
+//#include using(AREA=A,LOADID=101,PHASE=B,COUNT=10) "library/house.glm"
+#define LOADID=303B
+#define PHASE=B
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+//#include using(AREA=A,LOADID=101,PHASE=C,COUNT=10) "library/house.glm"
+#define LOADID=303C
+#define PHASE=C
+#define COUNT=10
+// connect dynamics load
+#if LOADS==on
+#debug Converting area ${AREA} static load ${LOADID} phase ${PHASE} to ${COUNT} houses
+modify load_${LOADID}.groupid area_${AREA};
+modify load_${LOADID}.constant_power_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_current_${PHASE} 0+0j;	
+modify load_${LOADID}.constant_impedance_${PHASE} 0+0j;	
+#define XLOAD=yes
+#else
+#if MYSQL_AMI==on
+object recorder {
+	parent load_${LOADID};
+	connection ami;
+	table load;
+	property "measured_voltage_A,measured_voltage_B,measured_voltage_C,measured_voltage_AB,measured_voltage_BC,measured_voltage_CA";
+	interval 900;
+	header_fieldnames "name";
+};
+#endif // MYSQL_AMI
+#endif // LOADS
+
+// add solar panel installation rank
+#if SOLAR==on
+#ifndef XLOAD
+#define XLOAD=yes
+#endif // XLOAD
+#ifdef PVPROB
+class solar {
+	double installed;
+}
+#endif // PVPROB
+#endif // SOLAR
+
+module residential {
+	implicit_enduses REFRIGERATOR|LIGHTS|PLUGS;
+//	implicit_enduses NONE;
+}
+
+#ifdef XLOAD
+// load/solar connection
+object transformer {
+	name xfrm_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	from load_${LOADID};
+	to node_${LOADID}${PHASE};
+	configuration xfmr_config_${PHASE};
+}
+object triplex_node {
+	name node_${LOADID}${PHASE};
+	phases ${PHASE}S;
+	nominal_voltage 120;
+}
+object triplex_meter:..${COUNT} { 
+	name `meter_{SEQ_CUSTID:INC}`;
+	nominal_voltage 120;
+	phases ${PHASE}S;
+	groupid load_${LOADID};
+	parent node_${LOADID}${PHASE};
+	latitude (load_${LOADID}.latitude);
+	longitude (load_${LOADID}.longitude);
+	object house { 
+		name `house_{SEQ_CUSTID}`;
+		floor_area random.triangle(1000,1500);
+		cooling_setpoint 76 degF;
+		heating_setpoint 65 degF;
+		hvac_power_factor 0.75;
+#if LOCATION == BUR_VT
+		thermal_integrity_level VERY_GOOD;
+#endif //LOCATION
+#if LOCATION == LA_CA
+		thermal_integrity_level ABOVE_NORMAL;
+#endif //LOCATION
+#if LOAD_CONTROL == yes
+		on_commit "python:load_control.absorption";
+		on_commit "python:load_control.balancing";
+#endif //LOAD_CONTROL
+#if LOADS == on
+		object waterheater {
+			name `waterheater_{SEQ_CUSTID}`;
+			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+			tank_setpoint 140;
+			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules 
+			heating_element_capacity 4500 W;
+			tank_volume 50 gal;
+			power_factor 1.0;
+			power_fraction 0.0;
+			current_fraction 0.0;
+		}; //WH
+	}; //House
+	
+#endif // LOADS
+#if MYSQL_AMI==on
+	object recorder {
+		connection ami;
+		table meter;
+		property "measured_voltage_1,measured_voltage_2,measured_demand,measured_real_power,measured_reactive_power,measured_real_energy,measured_reactive_energy,measured_current_1,measured_current_2,measured_current_N";
+		interval 900;
+		header_fieldnames "name,groupid";
+	};
+#endif // MYSQL_AMI
+#if SOLAR==on
+	object inverter {
+		name `inverter_{SEQ_CUSTID}`;
+		phases ${PHASE}S;
+		rated_power 25000;	
+		generator_mode CONSTANT_PF;
+		generator_status ONLINE;
+		inverter_efficiency 0.9;
+		inverter_type PWM;
+		object solar {
+			name `solar_{SEQ_CUSTID}`;
+			phases ${PHASE}S;
+#ifndef PVAREA
+			area 350 sf;
+#else
+			area ${PVAREA};
+#endif // PVAREA
+#ifndef PVPROB
+			generator_status ONLINE;
+#else
+			installed random.bernoulli(${PVPROB});
+			generator_status ($installed) ? OFFLINE : ONLINE; 
+#endif // PVPROB
+			generator_mode SUPPLY_DRIVEN;
+			panel_type SINGLE_CRYSTAL_SILICON;
+#ifdef MYSQL_AMI
+			object recorder {
+				connection ami;
+				table solar;
+				property "Insolation";
+				interval 60;
+				header_fieldnames "name";
+			};
+#endif // MYSQL_AMI
+		};
+#if MYSQL_AMI==on
+		object recorder {
+			connection ami;
+			table inverter;
+			property "VA_Out";
+			interval 60;
+			header_fieldnames "name";
+		};
+#endif // MYSQL_AMI
+	};
+#endif // SOLAR
+}
+#endif // XLOAD
+
+#define NHOUSES=${SEQ_CUSTID}
+
+
+
+//
+// Switch coordinator
+//
+//object switch_coordinator {
+//	name scheme_1;
+//	connect sw13to152;
+//	connect sw18to135;
+//	connect sw54to94;
+//	connect sw60to160;
+//	connect sw61to6101;
+//	connect sw97to197;
+//	connect sw151to300;
+//	connect sw15001to149;
+//	connect sw250to251;
+//	connect sw300to350;
+//	connect sw450to451;
+//	connect sw95to195;
+//	object recorder {
+//		file "switch_output.csv";
+//		property "armed,status";
+//		interval -1;
+//	};
+
+//}
