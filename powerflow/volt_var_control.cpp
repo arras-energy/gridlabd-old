@@ -11,12 +11,8 @@
 	Copyright (C) 2010 Battelle Memorial Institute
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "volt_var_control.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // volt_var_control CLASS FUNCTIONS

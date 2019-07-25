@@ -1,12 +1,8 @@
-/** $Id
- **/
+/* compare.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
-#include <math.h>
-#include "timestamp.h"
-#include "property.h"
-#include "object.h"
-#include "compare.h"
-#include "globals.h"
+#include "gldcore.h"
 
 #define COMPAREOPI(T) COMPARE_EQI(T) COMPARE_LEI(T) COMPARE_GEI(T) COMPARE_NEI(T) COMPARE_LTI(T) COMPARE_GTI(T) COMPARE_INI(T) COMPARE_NII(T)
 #define COMPARE_EQI(T) int compare_tc_##T##_eq(void* x,void* a,void* b) { return (signed)*(T*)x==(signed)*(T*)a; }

@@ -1,20 +1,10 @@
-/* save.c
+/* save.cpp
  * Copyright (C) 2008 Battelle Memorial Institute
+ *
  * Top level save routine.  Dispatches saves to subcomponents.  Format of save must be compatible with load module.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "platform.h"
-#include "output.h"
-#include "stream.h"
-#include "save.h"
-#include "exec.h"
-#include "gui.h"
-#include "schedule.h"
-#include "transform.h"
-#include "json.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_SAVE) // only used if IN_MYCONTEXT is present in this module
 
@@ -225,7 +215,7 @@ int savexml_strict(const char *filename,FILE *fp)
 			INDEX **ranks = exec_getranks();
 			LISTITEM *item;
 			int i;
-			PASSCONFIG pass;
+			size_t pass;
 			for (pass=0; ranks!=NULL && ranks[pass]!=NULL; pass++)
 			{
 				const char *passname[]={"pretopdown","bottomup","posttopdown"};

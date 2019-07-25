@@ -87,19 +87,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include "link.h"
-#include "node.h"
-
-//More stuff to try and separate when time permits
-#include "meter.h"
-#include "regulator.h"
-#include "triplex_meter.h"
-#include "switch_object.h"
-
+#include "powerflow.h"
+using namespace std;
 
 CLASS* link_object::oclass = NULL;
 CLASS* link_object::pclass = NULL;

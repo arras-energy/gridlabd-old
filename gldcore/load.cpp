@@ -1,5 +1,6 @@
-/** $Id: load.c 4738 2014-07-03 00:55:39Z dchassin $
+/** load.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file load.c
 	@addtogroup load_glm GLM file loader
 	@ingroup core
@@ -128,25 +129,7 @@ object <class>[:<spec>] { // spec may be <id>, or <startid>..<endid>, or ..<coun
 
  **/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#else // not a build using automake
-#define DLEXT ".dll"
-#endif // HAVE_CONFIG_H
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <float.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>
-#include "stream.h"
-#include "http_client.h"
-#include "link.h"
-#include "exec.h"
+#include "gldcore.h"
 
 /* define this to use # for comment and % for macros (the way Version 1.x works) */
 /* #define OLDSTYLE	*/
@@ -3056,7 +3039,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "presync";
-		oclass->passconfig |= PC_PRETOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_PRETOPDOWN);
 		*function |= FN_PRESYNC;
 		ACCEPT;
 	}
@@ -3064,7 +3047,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "sync";
-		oclass->passconfig |= PC_BOTTOMUP;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_BOTTOMUP);
 		*function |= FN_SYNC;
 		ACCEPT;
 	}
@@ -3072,7 +3055,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "postsync";
-		oclass->passconfig |= PC_POSTTOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_POSTTOPDOWN);
 		*function |= FN_POSTSYNC;
 		ACCEPT;
 	}
@@ -3603,7 +3586,7 @@ static int class_block(PARSER)
 				oclass = class_get_class_from_classname(classname);
 				if (oclass==NULL)
 				{
-					oclass = class_register(NULL,classname,0,0x00);
+					oclass = class_register(NULL,classname,0,PC_NOSYNC);
 					mark_line();
 					switch (inherit) {
 					case NONE:

@@ -7,13 +7,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "central_dg_control.h"
 
 #define DEFAULT 1.0;
 

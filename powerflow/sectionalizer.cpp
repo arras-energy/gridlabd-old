@@ -6,12 +6,8 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "sectionalizer.h"
+#include "powerflow.h"
+using namespace std;
 
 //Class management
 CLASS* sectionalizer::oclass = NULL;

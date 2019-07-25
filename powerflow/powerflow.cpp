@@ -22,18 +22,9 @@
 	
  @{
  **/
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
 
 #include "powerflow.h"
-#include "node.h"
-#include "link.h"
-
-extern "C" {
-#include "output.h"
-}
+using namespace std;
 
 void print_matrix(complex mat[3][3])
 {

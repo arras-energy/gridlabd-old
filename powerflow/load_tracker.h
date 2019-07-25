@@ -1,9 +1,11 @@
 #ifndef _LOAD_TRACKER_H
 #define _LOAD_TRACKER_H
 
-#include "gridlabd.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
-class load_tracker
+class load_tracker : gld_object
 {
 private:
 	typedef union

@@ -1,4 +1,4 @@
-/** $Id: timestamp.c 1187 2009-01-02 18:58:48Z dchassin $
+/** timestamp.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file timestamp.c
 	@addtogroup timestamp Time management
@@ -22,19 +22,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
-#include <time.h>
-#include <ctype.h>
-#include "platform.h"
-#include "timestamp.h"
-#include "exception.h"
-#include "find.h"
-#include "output.h"
-#include "globals.h"
-#include "lock.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_TIME)
 

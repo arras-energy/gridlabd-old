@@ -3,13 +3,15 @@
 	@file powerflow.h
 	@addtogroup powerflow_object
 
-	@{
+@{
  **/
 
 #ifndef _POWERFLOWOBJECT_H
 #define _POWERFLOWOBJECT_H
 
-#include "gridlabd.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 // DPC: this is to remain undefined until GS solver method is reconciled with reliability module
 //#define SUPPORT_OUTAGES /**< defined when reliability module is supported */

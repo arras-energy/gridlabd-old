@@ -40,15 +40,8 @@
 	@{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "node.h"
-#include "line.h"
 
 CLASS* line::oclass = NULL;
 CLASS* line::pclass = NULL;

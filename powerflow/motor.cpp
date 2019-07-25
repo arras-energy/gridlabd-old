@@ -1,12 +1,8 @@
 // $Id: motor.cpp 1182 2016-08-15 jhansen $
 //	Copyright (C) 2008 Battelle Memorial Institute
 
-#include <stdlib.h>	
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "motor.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // capacitor CLASS FUNCTIONS
@@ -21,7 +17,7 @@ CLASS* motor::pclass = NULL;
 * @param mod a module structure maintained by the core
 */
 
-static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 motor::motor(MODULE *mod):node(mod)

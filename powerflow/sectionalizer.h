@@ -7,8 +7,9 @@
 #ifndef SECTIONALIZER_H
 #define SECTIONALIZER_H
 
-#include "powerflow.h"
-#include "switch_object.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class sectionalizer : public switch_object
 {

@@ -1,22 +1,12 @@
-/** $Id: class.c 4738 2014-07-03 00:55:39Z dchassin $
+/** class.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file class.c
+
+	@file class.cpp
 	@addtogroup class Classes of objects
 	@ingroup core
  **/
 
-#include "exec.h"
-#include "property.h"
-#include "class.h"
-#include "output.h"
-#include "convert.h"
-#include "module.h"
-#include "exception.h"
-#include "timestamp.h"
-#include "loadshape.h"
-#include "enduse.h"
-#include "stream.h"
-#include "random.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_CLASS)
 
@@ -42,6 +32,10 @@ SET_MYCONTEXT(DMC_CLASS)
 #define DLLOAD(P) dlopen(P,RTLD_LAZY)
 #define DLSYM(H,S) dlsym(H,S)
 #endif
+
+// TODO: delete this when reentrancy upgrade is complete
+extern GldMain *my_instance;
+
 static unsigned int class_count = 0;
 
 /* defined in property.c */
@@ -758,7 +752,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 						 */
 						goto Error;
 					}
-					no_override = ~(~oclass->parent->passconfig|oclass->passconfig); /* parent bool-implies child (p->q=~p|q) */
+					no_override = (PASSCONFIG)~(~oclass->parent->passconfig|oclass->passconfig); /* parent bool-implies child (p->q=~p|q) */
 					if (oclass->parent->passconfig&PC_UNSAFE_OVERRIDE_OMIT
 							&& !(oclass->passconfig&PC_PARENT_OVERRIDE_OMIT)
 							&& no_override&PC_PRETOPDOWN)

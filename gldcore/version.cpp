@@ -1,16 +1,10 @@
-/* $Id
- * Version information
+/* version.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #define _VERSION_C // flag special consideration for this file
 
-#include "version.h"
-#include <time.h>
-
-#include "build.h" // BRANCH will be defined automatically from the ticket
-
-#include "output.h"
-#include "globals.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_VERSION) // used only if IN_MYCONTEXT is present in this module
 

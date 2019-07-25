@@ -1,29 +1,34 @@
-/** $Id: gridlabd.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
-	@file gridlabd.h
-	@author David P. Chassin
-	@addtogroup module_api C/C++ Module API
-	@brief The GridLAB-D external C module header file
+/* 	File: gridlabd.h 
+ 	Copyright (C) 2008, Battelle Memorial Institute
+
+ 	The header <gridlabd.h> is included only by modules. It includes all the needed
+ 	headers and defines the API macros, functions, and classes.
 
 	The runtime module API links the GridLAB-D core to modules that are created to
 	perform various modeling tasks.  The core interacts with each module according
 	to a set script that determines which exposed module functions are called and
 	when.  The general sequence of calls is as follows:
-	- <b>Registration</b>: A module registers the object classes it implements and
+	
+	Registration - A module registers the object classes it implements and
 	registers the variables that each class publishes.
-	- <b>Creation</b>: The core calls object creation functions during the model
+	
+	Creation - The core calls object creation functions during the model
 	load operation for each object that is created.  Basic initialization can be
 	completed at this point.
-	- <b>Definition</b>: The core sets the values of all published variables that have
+	
+	Definition - The core sets the values of all published variables that have
 	been specified in the model being loaded.  After this is completed, all references
 	to other objects have been resolved.
-	- <b>Validation</b>: The core gives the module an opportunity to check the model
+	
+	Validation - The core gives the module an opportunity to check the model
 	before initialization begins.  This gives the module an opportunity to validate
 	the model and reject it or fix it if it fails to meet module-defined criteria.
-	- <b>Initialization</b>: The core calls the final initialization procedure with
+	
+	Initialization - The core calls the final initialization procedure with
 	the object's full context now defined.  Properties that are derived based on the
 	object's context should be initialized only at this point.
-	- <b>Synchronization</b>: This operation is performed repeatedly until every object
+	
+	Synchronization - This operation is performed repeatedly until every object
 	reports that it no longer expects any state changes.  The return value from a
 	synchronization operation is the amount time expected to elapse before the object's
 	next state change.  The side effect of a synchronization is a change to one or
@@ -34,6 +39,7 @@
 
 	 GridLAB-D modules usually require a number of functions to access data and interaction
 	 with the core.  These include
+
 	 - memory locking,
 	 - memory exception handlers,
 	 - variable publishers,
@@ -46,29 +52,157 @@
 	 - object search,
 	 - random number generators, and
 	 - time management.
- @{
- **/
+ */
 
 #ifndef _GRIDLABD_H
 #define _GRIDLABD_H
 
-// core version info (must match version info in config.h)
-#define MAJOR 4
-#define MINOR 2
+// Define: MAJOR
+// 	Core major version (see <REV_MAJOR>)
+#define MAJOR REV_MAJOR
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
+// Define: MINOR
+//	Core minor version (see <REV_MINOR>)
+#define MINOR REV_MINOR
+
+#define STREAM_MODULE
+
+#ifndef _GLDCORE_H
+
+#ifndef FALSE
+// Define: FALSE
+// FALSE = (0)
+#define FALSE (0)
 #endif
 
+#ifndef TRUE
+// Define: TRUE
+// TRUE = (!FALSE)
+#define TRUE (!FALSE)
+#endif
+
+/*	Typedef: STATUS
+		See <e_status>
+
+	Enum: s_status
+	FAILED = FALSE - status indicating failure 
+	SUCCESS = TRUE - status indicating success
+ */
+typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
+
+#endif
+
+#include <arpa/inet.h>
+#include <ctype.h>
+#include <errno.h>
+#include <float.h>
+#include <math.h>
+#include <memory.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <pthread.h>
+#include <pwd.h>
+#include <setjmp.h>
+#include <signal.h>
 #include <stdarg.h>
-#include "platform.h"
-#include "schedule.h"
-#include "transform.h"
-#include "object.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/signal.h>
+#include <sys/socket.h>
+#include <sys/stat.h>
+#include <sys/timeb.h>
+#include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
+#include <wchar.h>
+#include <sys/errno.h>
+
+#ifdef WIN32
+#define _WIN32_WINNT 0x0400
+#include <direct.h>
+#include <io.h>
+#include <windows.h>
+#include <winbase.h>
+#include <winsock2.h>
+#include <io.h>
+#include <process.h>
+#ifndef __MINGW__
+#define snprintf _snprintf
+#endif
+#else
+#include <sys/ioctl.h>
+#include <dirent.h>
+#include <unistd.h>
+#define SOCKET int
+#define INVALID_SOCKET (-1)
+#define closesocket close
+#endif
+
+#include <vector>
+
+#include "aggregate.h"
+#include "build.h"
+#include "class.h"
+#include "cmdarg.h"
+#include "compare.h"
+#include "complex.h"
+#include "console.h"
+#include "convert.h"
+#include "curl.h"
+#include "daemon.h"
+#include "debug.h"
+#include "deltamode.h"
+#include "enduse.h"
+#include "environment.h"
+#include "exception.h"
+#include "exec.h"
 #include "find.h"
+#include "gld_sock.h"
+#include "globals.h"
+#include "gui.h"
+#include "http_client.h"
+#include "index.h"
+#include "instance.h"
+#include "instance_cnx.h"
+#include "instance_slave.h"
+#include "interpolate.h"
+#include "job.h"
+#include "json.h"
+#include "kill.h"
+#include "kml.h"
+#include "legal.h"
+#include "link.h"
+#include "linkage.h"
+#include "list.h"
+#include "load.h"
+#include "load_xml.h"
+#include "loadshape.h"
+#include "local.h"
+#include "lock.h"
+#include "main.h"
+#include "match.h"
+#include "matlab.h"
+#include "module.h"
+#include "object.h"
+#include "output.h"
+#include "platform.h"
+#include "property.h"
 #include "random.h"
-#define STREAM_MODULE
+#include "realtime.h"
+#include "sanitize.h"
+#include "save.h"
+#include "schedule.h"
+#include "server.h"
+#include "setup.h"
 #include "stream.h"
+#include "threadpool.h"
+#include "timestamp.h"
+#include "transform.h"
+#include "ufile.h"
+#include "unit.h"
+#include "validate.h"
+#include "version.h"
 
 #ifdef DLMAIN
 #define EXTERN
@@ -78,31 +212,76 @@
 #define INIT(X)
 #endif
 
-EXTERN CALLBACKS *callback INIT(NULL);
+/*	Structure: callback
+
+	Core function callback table
+ */
+EXTERN DEPRECATED CALLBACKS *callback INIT(NULL);
 
 #ifndef MODULENAME
-#define MODULENAME(obj) (obj->oclass->module->name)
+
+/*	Define: MODULENAME()
+
+	Expands to the (const char*) name of the module that implements an object.
+
+	This macro is obsolete.
+ */
+#define MODULENAME(obj) DEPRECATED (obj->oclass->module->name)
+
 #endif
 
-/******************************************************************************
- * Access information about version of core
- */
-#define gl_version_major (*callback->version.major)
-#define gl_version_minor (*callback->version.minor)
-#define gl_version_patch (*callback->version.patch)
-#define gl_version_build (*callback->version.build)
-#define gl_version_branch (*callback->version.branch)
+/* 	Section: Version information
 
-/******************************************************************************
- * Variable publishing
+ 	Version information is stored in <version.h> and build.h, 
+	which is generated by the makefile.
  */
-/**	@defgroup gridlabd_h_publishing Publishing variables
+
+/*	Define: gl_version_major
+
+	Returns core major version number (see <global_version_major>)
+
+	This macro is obsolete.
+ */
+#define gl_version_major DEPRECATED (*callback->version.major)
+
+/*	Define: gl_version_minor 
+
+	Returns core minor version number (see <global_version_minor>)
+
+	This macro is obsolete.
+ */
+#define gl_version_minor DEPRECATED (*callback->version.minor)
+
+/*	Define: gl_version_patch
+
+	Returns core patch number (see <global_version_patch>)
+
+	This macro is obsolete.
+ */
+#define gl_version_patch DEPRECATED (*callback->version.patch)
+
+/*	Define: gl_version_build
+	
+	Returns core build number (see <global_version_build>)
+
+	This macro is obsolete.
+ */
+#define gl_version_build DEPRECATED (*callback->version.build)
+
+/*	Define: gl_version_branch
+
+	Returns core branch name (see <global_version_branch>)
+
+	This macro is obsolete.
+ */
+#define gl_version_branch DEPRECATED (*callback->version.branch)
+
+/*	Section: Variable Publishing
 
 	Modules must register public variables that are accessed by other modules, and the core by publishing them.
 
 	The typical modules will register a class, and immediately publish the variables supported by the class:
-	@code
-
+	--- C++ Code ---
 	EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	{
 		extern CLASS* node_class; // defined globally in the module
@@ -118,52 +297,51 @@ EXTERN CALLBACKS *callback INIT(NULL);
 
 		return node_class; // always return the *first* class registered
 	}
-	@endcode
+	--- End Code ---
+ */
 
-	@{
- **/
-/** The PUBLISH_STRUCT macro is used to publish a member of a structure.
- **/
-#define PUBLISH_STRUCT(C,T,N) {struct C *_t=NULL;if (gl_publish_variable(C##_class,PT_##T,#N,(char*)&(_t->N)-(char*)_t,NULL)<1) return NULL;}
-/** The PUBLISH_CLASS macro is used to publish a member of a class (C++ only).
- **/
-#define PUBLISH_CLASS(C,T,N) {class C *_t=NULL;if (gl_publish_variable(C##_class,PT_##T,#N,(char*)&(_t->N)-(char*)_t,NULL)<1) return NULL;}
-/** The PUBLISH_CLASSX macro is used to publish a member of a class (C++ only) using a different name from the member name.
- **/
-#define PUBLISH_CLASSX(C,T,N,V) {class C *_t=NULL;if (gl_publish_variable(C##_class,PT_##T,V,(char*)&(_t->N)-(char*)_t,NULL)<1) return NULL;}
+/*	Define: PUBLISH_STRUCT(clsas,type,name)
 
-/** The PUBLISH_CLASS_UNT macros is used to publish a member of a class (C++ only) including a unit specification.
+	This macro is obsolete.
+ */
+#define PUBLISH_STRUCT(C,T,N) DEPRECATED {struct C *_t=NULL;if (gl_publish_variable(C##_class,PT_##T,#N,(char*)&(_t->N)-(char*)_t,NULL)<1) return NULL;}
+
+/*	Define: PUBLISH_CLASS(class,type,name)
+
+	The PUBLISH_CLASS macro is used to publish a member of a class (C++ only).
+
+	This macro is obsolete.
+
+ */
+#define PUBLISH_CLASS(C,T,N) DEPRECATED {class C *_t=NULL;if (gl_publish_variable(C##_class,PT_##T,#N,(char*)&(_t->N)-(char*)_t,NULL)<1) return NULL;}
+
+/*	Define: PUBLISH_CLASSX(class,type,name)
+
+	The PUBLISH_CLASSX macro is used to publish a member of a class (C++ only) using a different name from the member name.
+
+	This macro is obsolete.
+*/
+#define PUBLISH_CLASSX(C,T,N,V) DEPRECATED {class C *_t=NULL;if (gl_publish_variable(C##_class,PT_##T,V,(char*)&(_t->N)-(char*)_t,NULL)<1) return NULL;}
+
+/*	Define: PUBLISH_DELEGATED(class,type,name)
+
+	The PUBLISH_DELEGATED macro is used to publish a variable that uses a delegated type.
+
+	This macro is obsolete.
 **/
-//#define PUBLISH_CLASS_UNIT(C,T,N,U) {class C _t;if (gl_publish_variable(C##_class,PT_##T,#N"["U"]",(char*)&_t.N-(char*)&_t,NULL)<1) return NULL;}
-/** The PUBLISH_DELEGATED macro is used to publish a variable that uses a delegated type.
-
-**/
-#define PUBLISH_DELEGATED(C,T,N) {class C *_t=NULL;if (gl_publish_variable(C##_class,PT_delegated,T,#N,(char*)&(_t->N)-(char*)_t,NULL)<1) return NULL;}
-
-/** The PUBLISH_ENUM(C,N,E) macro is used to define a keyword for an enumeration variable
- **/
-//#define PUBLISH_ENUM(C,N,E) (*callback->define_enumeration_member)(C##_class,#N,#E,C::E)
-
-/** The PUBLISH_SET(C,N,E) macro is used to define a keyword for a set variable
- **/
-//#define PUBLISH_SET(C,N,E) (*callback->define_set_member)(C##_class,#N,#E,C::E)
-/** @} **/
 
 #ifdef __cplusplus
 #define PADDR(X) PADDR_X(X,this)
 #endif
 
-/******************************************************************************
- * Exception handling
- */
-/**	@defgroup gridlabd_h_exception Exception handling
+/*	Section: Exception handling
 
 	Module exception handling is provided for modules implemented in C to perform exception handling,
 	as well to allow C++ code to throw exceptions to the core's main exception handler.
 
 	Typical use is like this:
 
-	@code
+	--- C++ CODE ---
 	#include <errno.h>
 	#include <string.h>
 	GL_TRY {
@@ -181,32 +359,40 @@ EXTERN CALLBACKS *callback INIT(NULL);
 		// exception handler
 
 	} GL_ENDCATCH;
-	@endcode
+	--- END CODE ---
 
 	Note: it is ok to use GL_THROW inside a C++ catch statement.  This behavior is defined
 	(unlike using C++ throw inside C++ catch) because GL_THROW is implemented using longjmp().
 
-	See \ref exception "Exception handling" for detail on the message format conventions.
+	See Also:
+	throw_exception - "Exception handling" for detail on the message format conventions.
+ */
 
-	@{
- **/
-/** You may create your own #GL_TRY block and throw exception using GL_THROW(Msg,...) within
+/*	Define: GL_TRY
+
+	You may create your own #GL_TRY block and throw exception using GL_THROW(Msg,...) within
 	the block.  Declaring this block will change the behavior of GL_THROW(Msg,...) only
 	within the block.  Calls to GL_THROW(Msg,...) within this try block will be transfer
 	control to the GL_CATCH(Msg) block.
- **/
-#define GL_TRY { EXCEPTIONHANDLER *_handler = (*callback->exception.create_exception_handler)(); if (_handler==NULL) (*callback->output_error)("%s(%d): module exception handler creation failed",__FILE__,__LINE__); else if (setjmp(_handler->buf)==0) {
+ */
+#define GL_TRY DEPRECATED { EXCEPTIONHANDLER *_handler = (*callback->exception.create_exception_handler)(); if (_handler==NULL) (*callback->output_error)("%s(%d): module exception handler creation failed",__FILE__,__LINE__); else if (setjmp(_handler->buf)==0) {
 /* TROUBLESHOOT
 	This error is caused when the system is unable to implement an exception handler for a module.
 	This is an internal error and should be reported to the module developer.
  */
-/** The behavior of GL_THROW(Msg,...) differs depending on the situation:
-	- Inside a #GL_TRY block, program flow is transfered to the GL_CATCH(Msg) block that follows.
-	- Inside a GL_CATCH(Msg) block, GL_THROW(Msg,...) behavior is undefined (read \em bad).
-	- Outside a #GL_TRY or GL_CATCH(Msg) block, control is transfered to the main core exception handler.
- **/
+
+/*	Define: GL_THROW(message,...)
+
+	The behavior of GL_THROW(Msg,...) differs depending on the situation:
+	
+	- Inside a <GL_TRY> block, program flow is transfered to the <GL_CATCH(message)> block that follows.
+	- Inside a <GL_CATCH(message)> block, <GL_THROW(message,...)> behavior is undefined.
+	- Outside a <GL_TRY> or <GL_CATCH(message)> block, control is transfered to the main core exception handler.
+
+	This function is obsolete. Use throw() instead.
+ */
 #ifdef __cplusplus
-inline void GL_THROW(const char *format, ...)
+inline DEPRECATED void GL_THROW(const char *format, ...)
 {
 	static char buffer[1024];
 	va_list ptr;
@@ -216,114 +402,156 @@ inline void GL_THROW(const char *format, ...)
 	throw (const char*) buffer;
 }
 #else
-#define GL_THROW (*callback->exception.throw_exception)
-/** The argument \p msg provides access to the exception message thrown.
+#define GL_THROW DEPRECATED (*callback->exception.throw_exception)
+
+/*	Define: GL_CATCH(message)
+
+	The argument \p msg provides access to the exception message thrown.
 	Otherwise, GL_CATCH(Msg) blocks function like all other code blocks.
 
 	The behavior of GL_THROW(Msg) is not defined inside GL_CATCH(Msg) blocks.
 
 	GL_CATCH blocks must always be terminated by a #GL_ENDCATCH statement.
- **/
-#endif
-#define GL_CATCH(Msg) } else {Msg = (*callback->exception.exception_msg)();
-/** GL_CATCH(Msg) blocks must always be terminated by a #GL_ENDCATCH statement.
- **/
-#define GL_ENDCATCH } (*callback->exception.delete_exception_handler)(_handler);}
-/** @} **/
 
-/******************************************************************************
- * Output functions
+	This function is obsolete. Use catch() instead.
  */
-/**	@defgroup gridlabd_h_output Output functions
+#endif
+#define GL_CATCH(Msg) DEPRECATED } else {Msg = (*callback->exception.exception_msg)();
 
-	Module may output messages to stdout, stderr, and the core test record file
-	using the output functions.
+/*	Define: GL_ENDCATCH
 
-	See \ref output "Output function" for details on message format conventions.
-	@{
- **/
+	Each GL_CATCH(Msg) block must be terminated by a <GL_ENDCATCH> statement.
+ */
+#define GL_ENDCATCH } DEPRECATED (*callback->exception.delete_exception_handler)(_handler);}
 
+/*	Section: Output functions
+
+	Output to the <gldcore> stream is handled by the <gl_verbose>, <gl_output>, 
+	<gl_warning>, <gl_error>, and <gl_debug> functions
+
+	Modules should use these function. Classes may use these functions, or use
+	the output functions in the parent <GldObject> class.
+ */
+
+/*	Define: gl_verbose
+
+	Outputs a message to the verbose stream when <global_verbose> is <TRUE>.
+	See <output_verbose>.
+ */
 #define gl_verbose (*callback->output_verbose)
 
-/** Produces a message on stdout.
-	@see output_message(char *format, ...)
- **/
-#define gl_output (*callback->output_message)
+/*	Define: gl_output
 
-/** Produces a warning message on stderr, but only when \b --warning is provided on the command line.
-	@see output_warning(char *format, ...)
- **/
-#define gl_warning (*callback->output_warning)
-
-/** Produces an error message on stderr, but only when \b --quiet is not provided on the command line.
- 	@see output_error(char *format, ...)
-**/
-#define gl_error (*callback->output_error)
-
-/** Produces a debug message on stderr, but only when \b --debug is provided on the command line.
- 	@see output_debug(char *format, ...)
- **/
-#define gl_debug (*callback->output_debug)
-
-/** Produces a test message in the test record file, but only when \b --testfile is provided on the command line.
-	@see output_testmsg(char *format, ...)
- **/
-#define gl_testmsg (*callback->output_test)
-/** @} **/
-
-/******************************************************************************
- * Memory allocation
+	Outputs a message to the output stream when <global_output> is <TRUE>.
+	See <output_message>.
  */
-/**	@defgroup gridlabd_h_memory Memory allocation functions
+ #define gl_output (*callback->output_message)
+
+/*	Define: gl_warning
+
+	Outputs a message to the warning stream when <global_warning> is <TRUE>.
+	See <output_warning>.
+ */
+ #define gl_warning (*callback->output_warning)
+
+/*	Define: gl_error
+
+	Outputs a message to the warning stream when <global_quiet> is <FALSE>.	
+	See <output_error>.
+ */
+ #define gl_error (*callback->output_error)
+
+/*	Define: gl_debug
+
+	Outputs a message to the debug stream when <global_debug> is <TRUE>.
+	See <output_debug>.	
+ */
+ #define gl_debug (*callback->output_debug)
+
+/*	Define: gl_testmsg
+
+	Outputs a message to the test stream. See <output_test>.
+ */
+ #define gl_testmsg (*callback->output_test)
+
+/*	Section: Memory allocation
 
 	The core is responsible for managing any memory that is shared.  Use these
 	macros to manage the allocation of objects that are registered classes.
-
-	@{
- **/
-/** Allocate a block of memory from the core's heap.
-	This is necessary for any memory that the core will have to manage.
-	@see malloc()
- **/
-#define gl_malloc (*callback->malloc)
-/** @} **/
-
-/******************************************************************************
- * Core access
  */
-/**	@defgroup gridlabd_h_corelib Core access functions
+
+/*	Define: gl_malloc
+
+	Allocate a block of memory from the core's heap.
+	This is necessary for any memory that the core will have to manage.
+
+	See Also:
+	- <module_malloc>
+	- <module_free>
+*/
+#define gl_malloc DEPRECATED (*callback->malloc)
+
+/*	Section: Core linkage
 
 	Most module function use core library functions and variables.
-	Use these macros to access the core library and other global module variables.
+	These macros give access the core library and other global module variables.
 
-	@{
- **/
-/** Defines the callback table for the module.
+	This function is obsolete.
+ */
+
+/*	Define: set_callback
+
+	Defines the callback table for the module.
 	Callback function provide module with direct access to important core functions.
-	@see struct s_callback
- **/
-#define set_callback(CT) (callback=(CT))
+ */
+#define set_callback(CT) DEPRECATED (callback=(CT))
 
-/** Provides access to a global module variable.
-	@see global_getvar(), global_setvar()
- **/
-#define gl_get_module_var (*callback->module.getvar)
+/*	Define: gl_get_module_var
 
-/** Provide file search function
-	@see find_file()
- **/
-#define gl_findfile (*callback->file.find_file)
+	Provides access to a global module variable.
+	
+	This function is obsolete.
 
-#define gl_find_module (*callback->module_find)
+	See Also:
+	- <global_getvar>
+	- <global_setvar>
+ */
+#define gl_get_module_var DEPRECATED (*callback->module.getvar)
 
-#define gl_find_property (*callback->find_property)
+/*	Define: gl_findfile
 
-/** Declare a module dependency.  This will automatically load
-    the module if it is not already loaded.
-	@return 1 on success, 0 on failure
- **/
+	Provides file search function. See <find_file>.
+	
+	This function is obsolete.
+ */
+#define gl_findfile DEPRECATED (*callback->file.find_file)
+
+/*	Define: gl_find_module
+
+	Find a module. See <module_find>.
+	
+	This function is obsolete.
+ */
+#define gl_find_module DEPRECATED (*callback->module_find)
+
+/*	Define: gl_find_property
+
+	Find a property. See <class_find_property>.
+	
+	This function is obsolete.
+ */
+#define gl_find_property DEPRECATED (*callback->find_property)
+
 #ifdef __cplusplus
-inline int gl_module_depends(char *name, /**< module name */
+
+/*	Function: gl_module_depends
+
+	Declare a module dependency.  This will automatically load
+    the module if it is not already loaded. See <module_depends>.
+	
+	This function is obsolete.
+ */
+inline DEPRECATED int gl_module_depends(char *name, /**< module name */
 							 unsigned char major=0, /**< major version, if any required (module must match exactly) */
 							 unsigned char minor=0, /**< minor version, if any required (module must be greater or equal) */
 							 unsigned short build=0) /**< build number, if any required (module must be greater or equal) */
@@ -331,221 +559,390 @@ inline int gl_module_depends(char *name, /**< module name */
 	return (*callback->module.depends)(name,major,minor,build);
 }
 #else
-#define gl_module_getfirst (*callback->module.getfirst)
-#define gl_module_depends (*callback->module.depends)
+#define gl_module_depends DEPRECATED (*callback->module.depends)
 #endif
 
+/*	Define: gl_module_getfirst
 
-/** @} **/
-
-/******************************************************************************
- * Class registration
+	See <module_get_first>.
+	
+	This function is obsolete.
  */
-/**	@defgroup gridlabd_h_class Class registration
+#define gl_module_getfirst DEPRECATED (*callback->module.getfirst)
 
-	Class registration is used to make sure the core knows how objects are implemented
-	in modules.  Use the class management macros to create and destroy classes.
+/*	Section: Class access
 
-	@{
- **/
-/** Allow an object class to be registered with the core.
+	Classes are used to make sure the core knows how objects are implemented
+	in modules.  Use the class access macros to create, use, and destroy classes.
+	
+	This function is obsolete.
+ */
+
+#ifdef __cplusplus
+
+/*	Function: gl_register_class
+
+	Allow an object class to be registered with the core.
 	Note that C file may publish structures, even they are not implemented as classes.
-	@see class_register()
- **/
-#define gl_register_class (*callback->register_class)
-#define gl_class_get_first (*callback->class_getfirst)
-#define gl_class_get_by_name (*callback->class_getname)
-/** @} **/
-
-/******************************************************************************
- * Object management
+	See <class_register>
+	
+	This function is obsolete.
  */
-/**	@defgroup gridlabd_h_object Object management
+inline DEPRECATED CLASS *gl_register_class(MODULE *mod,const char *name,size_t size,unsigned int options)
+{
+	return (*callback->register_class)(mod,name,size,PASSCONFIG(options));
+}
+
+#else
+
+#define gl_register_class DEPRECATED (*callback->register_class)
+
+#endif
+
+/*	Define: gl_class_get_first
+	
+	This function is obsolete.
+ */
+#define gl_class_get_first DEPRECATED (*callback->class_getfirst)
+
+/*	Define: gl_class_get_by_name
+	
+	This function is obsolete.
+ */
+#define gl_class_get_by_name DEPRECATED (*callback->class_getname)
+
+/*	Section: Object management
 
 	Object management macros are create to allow modules to create, test,
 	control ranks, and reveal members of objects and registered classes.
 
-	@{
- **/
-/** Creates an object by allocating on from core heap.
-	@see object_create_single()
  */
-#define gl_create_object (*callback->create.single)
 
-/** Creates an array of objects on core heap.
-	@see object_create_array()
- **/
-#define gl_create_array (*callback->create.array)
+/*	Define: gl_create_object
 
-/** Creates an array of objects on core heap.
-	@see object_create_array()
- **/
-#define gl_create_foreign (*callback->create.foreign)
+	Creates an object by allocating memory from core heap and setting default values.
+	See <object_create_single>
 
-/** Object type test
+	This function is obsolete.
+ */
+#define gl_create_object DEPRECATED (*callback->create.single)
+
+/*	Define: gl_create_array
+
+	Creates an array of objects on core heap.
+	See <object_create_array>
+
+	This function is obsolete.
+ */
+#define gl_create_array DEPRECATED (*callback->create.array)
+
+/*	Define: gl_create_foreign
+
+	This function is obsolete.
+	See <object_create_array>
+ */
+#define gl_create_foreign DEPRECATED (*callback->create.foreign)
+
+#ifdef __cplusplus
+
+/*	Define: object_isa
 
 	Checks the type (and supertypes) of an object.
+	See <object_isa>
 
-	@see object_isa()
- **/
-#ifdef __cplusplus
-inline bool gl_object_isa(OBJECT *obj, /**< object to test */
+	This function is obsolete.
+ */
+inline DEPRECATED bool gl_object_isa(OBJECT *obj, /**< object to test */
 						  const char *type,
 						  const char *modname=NULL) /**< type to test */
 {	bool rv = (*callback->object_isa)(obj,type)!=0;
 	bool mv = modname ? obj->oclass->module == (*callback->module_find)(modname) : true;
 	return (rv && mv);}
+
 #else
-#define gl_object_isa (*callback->object_isa)
+
+#define gl_object_isa DEPRECATED (*callback->object_isa)
+
 #endif
 
-/** Declare an object property as publicly accessible.
-	@see object_define_map()
- **/
-#define gl_publish_variable (*callback->define_map)
+/*	Define: gl_publish_variable
 
-#define gl_publish_loadmethod (*callback->loadmethod)
+	Declare an object property as publicly accessible. See <class_define_map>.
 
-/** Publishes an object function.  This is currently unused.
-	@see object_define_function()
- **/
+	This function is obsolete.
+ */
+#define gl_publish_variable DEPRECATED (*callback->define_map)
+
+/*	Define: gl_publish_loadmethod
+
+	Declare a loader method based on a property name.  See <class_add_loadmethod>.
+
+	This function is obsolete.
+ */
+#define gl_publish_loadmethod DEPRECATED (*callback->loadmethod)
+
 #ifdef __cplusplus
-inline FUNCTION *gl_publish_function(CLASS *oclass, /**< class to which function belongs */
+
+/*	Function: gl_publish_function
+
+	Publishes an object function.  This is currently unused.
+	See <object_define_function>
+
+	This function is obsolete.
+ */
+inline DEPRECATED FUNCTION *gl_publish_function(CLASS *oclass, /**< class to which function belongs */
 									 FUNCTIONNAME functionname, /**< name of function */
 									 FUNCTIONADDR call) /**< address of function entry */
-{ return (*callback->function.define)(oclass, functionname, call);}
-inline FUNCTIONADDR gl_get_function(OBJECT *obj, FUNCTIONNAME name)
-{ return obj?(*callback->function.get)(obj->oclass->name,name):NULL;}
+{ 
+	return (*callback->function.define)(oclass, functionname, call);
+}
+
+/*	Define: gl_get_function
+
+	Reference the function by the name given.
+
+	This function is obsolete.
+ */
+inline DEPRECATED FUNCTIONADDR gl_get_function(OBJECT *obj, FUNCTIONNAME name)
+{ 
+	return obj?(*callback->function.get)(obj->oclass->name,name):NULL;
+}
+
 #else
-#define gl_publish_function (*callback->function.define)
-#define gl_get_function (*callback->function.get)
+
+#define gl_publish_function DEPRECATED (*callback->function.define)
+#define gl_get_function DEPRECATED (*callback->function.get)
+
 #endif
 
-/** Changes the dependency rank of an object.
+#ifdef __cplusplus
+
+/*	Function: gl_set_dependent
+
+	Changes the dependency rank of an object.
 	Normally dependency rank is determined by the object parent,
 	but an object's rank may be increased using this call.
 	An object's rank may not be decreased.
-	@see object_set_rank(), object_set_parent()
- **/
-#ifdef __cplusplus
-inline int gl_set_dependent(OBJECT *obj, /**< object to set dependency */
-							OBJECT *dep) /**< object dependent on */
-{ return (*callback->object.set_dependent)(obj,dep);}
-#else
-#define gl_set_dependent (*callback->object.set_dependent)
-#endif
+	See <object_set_rank>, <object_set_parent>
 
-/** Establishes the rank of an object relative to another object (it's parent).
-	When an object is parent to another object, it's rank is always greater.
-	Object of higher rank are processed first on top-down passes,
-	and later on bottom-up passes.
-	Objects of the same rank may be processed in parallel,
-	if system resources make it possible.
-	@see object_set_rank(), object_set_parent()
- **/
-#ifdef __cplusplus
-inline int gl_set_parent(OBJECT *obj, /**< object to set parent of */
-						 OBJECT *parent) /**< parent object */
-{ return (*callback->object.set_parent)(obj,parent);}
-#else
-#define gl_set_parent (*callback->object.set_parent)
-#endif
-
-/** Adjusts the rank of an object relative to another object (it's parent).
-	When an object is parent to another object, it's rank is always greater.
-	Object of higher rank are processed first on top-down passes,
-	and later on bottom-up passes.
-	Objects of the same rank may be processed in parallel,
-	if system resources make it possible.
-	@see object_set_rank(), object_set_parent()
- **/
-#ifdef __cplusplus
-inline int gl_set_rank(OBJECT *obj, /**< object to change rank */
-					   int rank)	/**< new rank of object */
-{ return (*callback->object.set_rank)(obj,rank);}
-#else
-#define gl_set_rank (*callback->object.set_rank)
-#endif
-
-#define gl_object_get_first (*callback->object.get_first)
-#define gl_object_find_by_id (*callback->object_find_by_id)
-/** @} **/
-
-/******************************************************************************
- * Property management
+	This function is obsolete.
  */
-/**	@defgroup gridlabd_h_property Property management
+inline DEPRECATED int gl_set_dependent(OBJECT *obj, /**< object to set dependency */
+							OBJECT *dep) /**< object dependent on */
+{ 
+	return (*callback->object.set_dependent)(obj,dep);
+}
+
+#else
+
+#define gl_set_dependent DEPRECATED (*callback->object.set_dependent)
+
+#endif
+
+#ifdef __cplusplus
+
+/*	Function: gl_set_parent
+
+	Establishes the rank of an object relative to another object (it's parent).
+	When an object is parent to another object, it's rank is always greater.
+	Object of higher rank are processed first on top-down passes,
+	and later on bottom-up passes.
+	Objects of the same rank may be processed in parallel,
+	if system resources make it possible.
+	See <object_set_rank>, <object_set_parent>
+
+	This function is obsolete.
+ */
+inline DEPRECATED int gl_set_parent(OBJECT *obj, /**< object to set parent of */
+						 OBJECT *parent) /**< parent object */
+{ 
+	return (*callback->object.set_parent)(obj,parent);
+}
+
+#else
+
+#define gl_set_parent DEPRECATED (*callback->object.set_parent)
+
+#endif
+
+#ifdef __cplusplus
+
+/*	Function: gl_set_rank
+
+	Adjusts the rank of an object relative to another object (it's parent).
+	When an object is parent to another object, it's rank is always greater.
+	Object of higher rank are processed first on top-down passes,
+	and later on bottom-up passes.
+	Objects of the same rank may be processed in parallel,
+	if system resources make it possible.
+	See <object_set_rank>, <object_set_parent>
+
+	This function is obsolete.
+ */
+inline DEPRECATED int gl_set_rank(OBJECT *obj, /**< object to change rank */
+					   int rank)	/**< new rank of object */
+{ 
+	return (*callback->object.set_rank)(obj,rank);
+}
+
+#else
+
+#define gl_set_rank DEPRECATED (*callback->object.set_rank)
+
+#endif
+
+/*	Define: gl_object_get_first
+	See <object_get_first>
+
+	This function is obsolete.
+ */
+#define gl_object_get_first DEPRECATED (*callback->object.get_first)
+
+/*	Define: gl_object_find_by_id
+	See <objecct_find_by_id
+
+	This function is obsolete.
+ */
+#define gl_object_find_by_id DEPRECATED (*callback->object_find_by_id)
+
+/*	Section: Property management
 
 	Use the property management functions to provide and gain access to published
 	variables from other modules.  This include getting property information
 	and unit conversion.
 
-	@{
- **/
-/** Create an object
-	@see class_register()
- **/
-#define gl_register_type (*callback->register_type)
-#define gl_class_add_extended_property (*callback->class_add_extended_property)
+ */
 
-/** Publish an delegate property type for a class
-	@note This is not supported in Version 1.
- **/
-#define gl_publish_delegate (*callback->define_type)
+/*	Define: gl_register_type
 
-/** Get a property of an object
-	@see object_get_property()
- **/
+	Create an object. See <class_register_type>.
+
+	This function is obsolete.
+ */
+#define gl_register_type DEPRECATED (*callback->register_type)
+
+/*	Define: gl_class_add_extended_property
+
+	See <class_add_extended_property>.
+
+	This function is obsolete.
+ */
+#define gl_class_add_extended_property DEPRECATED (*callback->class_add_extended_property)
+
+/*	Define: gl_publish_delegate
+
+	Publish an delegate property type for a class.
+	See <class_define_type>.
+
+	This function is obsolete.
+ */
+#define gl_publish_delegate DEPRECATED (*callback->define_type)
+
 #ifdef __cplusplus
-inline PROPERTY *gl_get_property(OBJECT *obj, /**< a pointer to the object */
+
+/*	Function: gl_get_property
+
+	Get a property of an object.
+	See <object_get_property>.
+
+	This function is obsolete.
+ */
+inline DEPRECATED PROPERTY *gl_get_property(OBJECT *obj, /**< a pointer to the object */
 								 PROPERTYNAME name, /**< the name of the property */
 								 PROPERTYSTRUCT *part=NULL) /**< part info */
-{ return (*callback->properties.get_property)(obj,name,part); }
+{ 
+	return (*callback->properties.get_property)(obj,name,part); 
+}
+
 #else
-#define gl_get_property (*callback->properties.get_property)
+
+#define gl_get_property DEPRECATED (*callback->properties.get_property)
+
 #endif
 
-/** Get the value of a property in an object
-	@see object_get_value_by_addr()
- **/
 #ifdef __cplusplus
-inline int gl_get_value(OBJECT *obj, /**< the object from which to get the data */
+
+/*	Function: gl_get_value
+
+	Get the value of a property in an object
+	See <object_get_value_by_addr>.
+
+	This function is obsolete.
+ */
+inline DEPRECATED int gl_get_value(OBJECT *obj, /**< the object from which to get the data */
 						void *addr, /**< the addr of the data to get */
 						char *value, /**< the buffer to which to write the result */
 						int size, /**< the size of the buffer */
 						PROPERTY *prop=NULL) /**< the property to use or NULL if unknown */
-{ return (*callback->properties.get_value_by_addr)(obj,addr,value,size,prop);}
-#else
-#define gl_get_value (*callback->properties.get_value_by_addr)
-#endif
-#define gl_set_value_by_type (*callback->properties.set_value_by_type)
+{ 
+	return (*callback->properties.get_value_by_addr)(obj,addr,value,size,prop);
+}
 
-/** Set the value of a property in an object
-	@see object_set_value_by_addr()
- **/
-#ifdef __cplusplus
-inline int gl_set_value(OBJECT *obj, /**< the object to alter */
-						void *addr, /**< the address of the property */
-						char *value, /**< the value to set */
-						PROPERTY *prop) /**< the property to use or NULL if unknown */
-{ return (*callback->properties.set_value_by_addr)(obj,addr,value,prop);}
 #else
-#define gl_set_value (*callback->properties.set_value_by_addr)
+
+#define gl_get_value DEPRECATED (*callback->properties.get_value_by_addr)
+
 #endif
 
-char* gl_name(OBJECT *my, char *buffer, size_t size);
+/*	Define: gl_set_value_by_type
+
+	See <object_set_value_by_type>.
+
+	This function is obsolete.
+ */
+#define gl_set_value_by_type DEPRECATED (*callback->properties.set_value_by_type)
+
 #ifdef __cplusplus
-/* 'stolen' from rt/gridlabd.h, something dchassin squirreled in. -mhauer */
-/// Set the typed value of a property
-/// @return nothing
-template <class T> inline int gl_set_value(OBJECT *obj, ///< the object whose property value is being obtained
-											PROPERTY *prop, ///< the name of the property being obtained
-											T &value) ///< a reference to the local value where the property's value is being copied
+
+/*	Function: gl_set_value
+	Parameters:
+	obj - object to alter
+	addr - addr of property to set
+	value - value to set
+	prop - property hint to use
+
+	Set the value of a property in an object.
+	See <object_set_value_by_addr>.
+
+	This function is obsolete.	
+ */
+inline DEPRECATED int gl_set_value(OBJECT *obj,
+						void *addr,
+						char *value,
+						PROPERTY *prop)
+{ 
+	return (*callback->properties.set_value_by_addr)(obj,addr,value,prop);
+}
+
+#else
+
+#define gl_set_value DEPRECATED (*callback->properties.set_value_by_addr)
+
+#endif
+
+DEPRECATED char* gl_name(OBJECT *my, char *buffer, size_t size);
+
+#ifdef __cplusplus
+
+/*	Function: gl_set_value
+	Parameters:
+	obj - the object whose property value is being obtained
+	prop - the name of the property being obtained
+	value - a reference to the local value where the property's value is being copied
+
+	Set the typed value of a property. 
+
+	This function is obsolete.
+ */
+template <class T> 
+inline DEPRECATED int gl_set_value(OBJECT *obj, 
+											PROPERTY *prop,
+											T &value)
 {
-	//T *ptr = (T*)gl_get_addr(obj,propname);
 	char buffer[256];
-	T *ptr = (T *)((char *)(obj + 1) + (int64)(prop->addr)); /* warning: cast from pointer to integer of different size */
-	// @todo it would be a good idea to check the property type here
+
+	T *ptr = (T *)((char *)(obj + 1) + (int64)(prop->addr)); 
+	// TODO: it would be a good idea to check the property type here
 	if (ptr==NULL)
 	{
 		gl_error("property %s not found in object %s", prop->name, gl_name(obj, buffer, 255));
@@ -572,26 +969,45 @@ template <class T> inline int gl_set_value(OBJECT *obj, ///< the object whose pr
 }
 #endif
 
-/** Get a reference to another object
-	@see object_get_reference()
- **/
-#define gl_get_reference (*callback->properties.get_reference)
+/*	Define: gl_get_reference
 
-/** Get the value of a property in an object
-	@see object_get_value_by_name()
- **/
+	Get a reference to another object.
+	See <object_get_reference>.
+ */
+#define gl_get_reference DEPRECATED (*callback->properties.get_reference)
+
 #ifdef __cplusplus
-inline int gl_get_value_by_name(OBJECT *obj,
+
+/*	Function: gl_get_value_by_name
+
+	Get the value of a property in an object.
+	See <object_get_value_by_name>.
+
+	This function is obsolete.
+ */
+inline DEPRECATED int gl_get_value_by_name(OBJECT *obj,
 								PROPERTYNAME name,
 								char *value,
 								int size)
-{ return (*callback->properties.get_value_by_name)(obj,name,value,size);}
+{ 
+	return (*callback->properties.get_value_by_name)(obj,name,value,size);
+}
+
 #else
-#define gl_get_value_by_name (*callback->properties.get_value_by_name)
+
+#define gl_get_value_by_name DEPRECATED (*callback->properties.get_value_by_name)
+
 #endif
 
 #ifdef __cplusplus
-inline char *gl_getvalue(OBJECT *obj,
+
+/*	Function: gl_getvalue
+	
+	See <gl_get_value_by_name>.
+
+	This function is obsolete.
+ */
+inline DEPRECATED char *gl_getvalue(OBJECT *obj,
 						 PROPERTYNAME name, char *buffer, int sz)
 {
 	return gl_get_value_by_name(obj,name,buffer,sz)>=0 ? buffer : NULL;
@@ -601,97 +1017,97 @@ inline char *gl_getvalue(OBJECT *obj,
 /** Set the value of a property in an object
 	@see object_set_value_by_name()
  **/
-#define gl_set_value_by_name (*callback->properties.set_value_by_name)
+#define gl_set_value_by_name DEPRECATED (*callback->properties.set_value_by_name)
 
 /** Get unit of property
 	@see object_get_unit()
  **/
-#define gl_get_unit (*callback->properties.get_unit)
+#define gl_get_unit DEPRECATED (*callback->properties.get_unit)
 
 /** Convert the units of a property using unit name
 	@see unit_convert()
  **/
-#define gl_convert (*callback->unit_convert)
+#define gl_convert DEPRECATED (*callback->unit_convert)
 
 /** Convert the units of a property using unit data
 	@see unit_convert_ex()
  **/
-#define gl_convert_ex (*callback->unit_convert_ex)
+#define gl_convert_ex DEPRECATED (*callback->unit_convert_ex)
 
-#define gl_find_unit (*callback->unit_find)
+#define gl_find_unit DEPRECATED (*callback->unit_find)
 
-#define gl_get_object (*callback->get_object)
+#define gl_get_object DEPRECATED (*callback->get_object)
 
-#define gl_name_object (*callback->name_object)
+#define gl_name_object DEPRECATED (*callback->name_object)
 
-#define gl_get_object_count (*callback->object_count)
+#define gl_get_object_count DEPRECATED (*callback->object_count)
 
 #ifdef __cplusplus
-inline OBJECT **gl_get_object_prop(OBJECT *obj, PROPERTY *prop){
+inline DEPRECATED OBJECT **gl_get_object_prop(OBJECT *obj, PROPERTY *prop){
     return (*callback->objvar.object_var)(obj, prop);
 }
 #else
-#define gl_get_object_prop (*callback->objvar.object_var)
+#define gl_get_object_prop DEPRECATED (*callback->objvar.object_var)
 #endif
 
 #ifdef __cplusplus
-inline bool *gl_get_bool(OBJECT *obj, /**< object to set dependency */
+inline DEPRECATED bool *gl_get_bool(OBJECT *obj, /**< object to set dependency */
 							PROPERTY *prop) /**< object dependent on */
 {
     return (*callback->objvar.bool_var)(obj,prop);
 }
 #else
-#define gl_get_bool (*callback->objvar.bool_var)
+#define gl_get_bool DEPRECATED (*callback->objvar.bool_var)
 #endif
 
 #ifdef __cplusplus
-inline bool *gl_get_bool(OBJECT *obj, /**< object to set dependency */
+inline DEPRECATED bool *gl_get_bool(OBJECT *obj, /**< object to set dependency */
 							char *propname) /**< object dependent on */
 {
     return (*callback->objvarname.bool_var)(obj,propname);
 }
 #else
-#define gl_get_bool_by_name (*callback->objvarname.bool_var)
+#define gl_get_bool_by_name DEPRECATED (*callback->objvarname.bool_var)
 #endif
 
 /** Retrieve the complex value associated with the property
 	@see object_get_complex()
 **/
-#define gl_get_complex (*callback->objvar.complex_var)
+#define gl_get_complex DEPRECATED (*callback->objvar.complex_var)
 
-#define gl_get_complex_by_name (*callback->objvarname.complex_var)
+#define gl_get_complex_by_name DEPRECATED (*callback->objvarname.complex_var)
 
-#define gl_get_enum (*callback->objvar.enum_var)
+#define gl_get_enum DEPRECATED (*callback->objvar.enum_var)
 
-#define gl_get_enum_by_name (*callback->objvarname.enum_var)
+#define gl_get_enum_by_name DEPRECATED (*callback->objvarname.enum_var)
 
-#define gl_get_set (*callback->objvar.set_var)
+#define gl_get_set DEPRECATED (*callback->objvar.set_var)
 
-#define gl_get_set_by_name (*callback->objvarname.set_var)
+#define gl_get_set_by_name DEPRECATED (*callback->objvarname.set_var)
 
-#define gl_get_int16 (*callback->objvar.int16_var)
+#define gl_get_int16 DEPRECATED (*callback->objvar.int16_var)
 
-#define gl_get_int16_by_name (*callback->objvarname.int16_var)
+#define gl_get_int16_by_name DEPRECATED (*callback->objvarname.int16_var)
 
-#define gl_get_int32_by_name (*callback->objvarname.int32_var)
+#define gl_get_int32_by_name DEPRECATED (*callback->objvarname.int32_var)
 
-#define gl_get_int32 (*callback->objvar.int32_var)
+#define gl_get_int32 DEPRECATED (*callback->objvar.int32_var)
 
-#define gl_get_int64_by_name (*callback->objvarname.int64_var)
+#define gl_get_int64_by_name DEPRECATED (*callback->objvarname.int64_var)
 
-#define gl_get_int64 (*callback->objvar.int64_var)
+#define gl_get_int64 DEPRECATED (*callback->objvar.int64_var)
 
-#define gl_get_double_by_name (*callback->objvarname.double_var)
+#define gl_get_double_by_name DEPRECATED (*callback->objvarname.double_var)
 
-#define gl_get_double (*callback->objvar.double_var)
+#define gl_get_double DEPRECATED (*callback->objvar.double_var)
 
-#define gl_get_string_by_name (*callback->objvarname.string_var)
+#define gl_get_string_by_name DEPRECATED (*callback->objvarname.string_var)
 
-#define gl_get_object_prop_by_name (*callback->objvarname.object_var)
+#define gl_get_object_prop_by_name DEPRECATED (*callback->objvarname.object_var)
 
-#define gl_get_string (*callback->objvar.string_var)
+#define gl_get_string DEPRECATED (*callback->objvar.string_var)
 
-#define gl_get_addr (*callback->properties.get_addr)
+#define gl_get_addr DEPRECATED (*callback->properties.get_addr)
 
 /** @} **/
 
@@ -707,34 +1123,34 @@ inline bool *gl_get_bool(OBJECT *obj, /**< object to set dependency */
 /** Find one or more object
 	@see find_objects()
  **/
-#define gl_find_objects (*callback->find.objects)
+#define gl_find_objects DEPRECATED (*callback->find.objects)
 
 /** Scan a list of found objects
 	@see find_first(), find_next()
  **/
-#define gl_find_next (*callback->find.next)
+#define gl_find_next DEPRECATED (*callback->find.next)
 
 /** Duplicate a list of found objects
 	@see find_copylist()
  **/
-#define gl_findlist_copy (*callback->find.copy)
-#define gl_findlist_add (*callback->find.add)
-#define gl_findlist_del (*callback->find.del)
-#define gl_findlist_clear (*callback->find.clear)
+#define gl_findlist_copy DEPRECATED (*callback->find.copy)
+#define gl_findlist_add DEPRECATED (*callback->find.add)
+#define gl_findlist_del DEPRECATED (*callback->find.del)
+#define gl_findlist_clear DEPRECATED (*callback->find.clear)
 /** Release memory used by a find list
 	@see free()
  **/
-#define gl_free (*callback->free)
+#define gl_free DEPRECATED (*callback->free)
 
 /** Create an aggregate property from a find list
 	@see aggregate_mkgroup()
  **/
-#define gl_create_aggregate (*callback->aggregate.create)
+#define gl_create_aggregate DEPRECATED (*callback->aggregate.create)
 
 /** Evaluate an aggregate property
 	@see aggregate_value()
  **/
-#define gl_run_aggregate (*callback->aggregate.refresh)
+#define gl_run_aggregate DEPRECATED (*callback->aggregate.refresh)
 /** @} **/
 
 /******************************************************************************
@@ -748,62 +1164,62 @@ inline bool *gl_get_bool(OBJECT *obj, /**< object to set dependency */
 	@{
  **/
 
-#define RNGSTATE (&(OBJECTHDR(this))->rng_state)
+#define RNGSTATE DEPRECATED (&(OBJECTHDR(this))->rng_state)
 
 /** Determine the distribution type to be used from its name
 	@see RANDOMTYPE, random_type()
  **/
-#define gl_randomtype (*callback->random.type)
+#define gl_randomtype DEPRECATED (*callback->random.type)
 
 /** Obtain an arbitrary random value using RANDOMTYPE
 	@see RANDOMTYPE, random_value()
  **/
-#define gl_randomvalue (*callback->random.value)
+#define gl_randomvalue DEPRECATED (*callback->random.value)
 
 /** Obtain an arbitrary random value using RANDOMTYPE
 	@see RANDOMTYPE, pseudorandom_value()
  **/
-#define gl_pseudorandomvalue (*callback->random.pseudo)
+#define gl_pseudorandomvalue DEPRECATED (*callback->random.pseudo)
 
 /** Generate a uniformly distributed random number
 	@see random_uniform()
  **/
-#define gl_random_uniform (*callback->random.uniform)
+#define gl_random_uniform DEPRECATED (*callback->random.uniform)
 
 /** Generate a normal distributed random number
 	@see random_normal()
  **/
-#define gl_random_normal (*callback->random.normal)
+#define gl_random_normal DEPRECATED (*callback->random.normal)
 
 /** Generate a log normal distributed random number
 	@see random_lognormal()
  **/
-#define gl_random_lognormal (*callback->random.lognormal)
+#define gl_random_lognormal DEPRECATED (*callback->random.lognormal)
 
 /** Generate a Bernoulli distributed random number
 	@see random_bernoulli()
  **/
-#define gl_random_bernoulli (*callback->random.bernoulli)
+#define gl_random_bernoulli DEPRECATED (*callback->random.bernoulli)
 
 /** Generate a Pareto distributed random number
 	@see random_pareto()
  **/
-#define gl_random_pareto (*callback->random.pareto)
+#define gl_random_pareto DEPRECATED (*callback->random.pareto)
 
 /** Generate a random number drawn uniformly from a sample
 	@see random_sampled()
  **/
-#define gl_random_sampled (*callback->random.sampled)
+#define gl_random_sampled DEPRECATED (*callback->random.sampled)
 
 /** Generate an examponentially distributed random number
 	@see random_exponential()
  **/
-#define gl_random_exponential (*callback->random.exponential)
-#define gl_random_triangle (*callback->random.triangle)
-#define gl_random_gamma (*callback->random.gamma)
-#define gl_random_beta (*callback->random.beta)
-#define gl_random_weibull (*callback->random.weibull)
-#define gl_random_rayleigh (*callback->random.rayleigh)
+#define gl_random_exponential DEPRECATED (*callback->random.exponential)
+#define gl_random_triangle DEPRECATED (*callback->random.triangle)
+#define gl_random_gamma DEPRECATED (*callback->random.gamma)
+#define gl_random_beta DEPRECATED (*callback->random.beta)
+#define gl_random_weibull DEPRECATED (*callback->random.weibull)
+#define gl_random_rayleigh DEPRECATED (*callback->random.rayleigh)
 /** @} **/
 
 /******************************************************************************
@@ -813,80 +1229,83 @@ inline bool *gl_get_bool(OBJECT *obj, /**< object to set dependency */
  @{
  **/
 
-#define gl_globalclock (*(callback->global_clock))
+#define gl_globalclock DEPRECATED (*(callback->global_clock))
 
 /** Link to double precision deltamode clock (offset by global_clock) **/
-#define gl_globaldeltaclock (*(callback->global_delta_curr_clock))
+#define gl_globaldeltaclock DEPRECATED (*(callback->global_delta_curr_clock))
 
 /** Link to stop time of the simulation **/
-#define gl_globalstoptime (*(callback->global_stoptime))
+#define gl_globalstoptime DEPRECATED (*(callback->global_stoptime))
 
 /** Convert a string to a timestamp
 	@see convert_to_timestamp()
  **/
-#define gl_parsetime (*callback->time.convert_to_timestamp)
+#define gl_parsetime DEPRECATED (*callback->time.convert_to_timestamp)
 
-#define gl_delta_parsetime (*callback->time.convert_to_timestamp_delta)
+#define gl_delta_parsetime DEPRECATED (*callback->time.convert_to_timestamp_delta)
 
-#define gl_printtime (*callback->time.convert_from_timestamp)
+#define gl_printtime DEPRECATED (*callback->time.convert_from_timestamp)
 
-#define gl_printtimedelta (*callback->time.convert_from_deltatime_timestamp)
+#define gl_printtimedelta DEPRECATED (*callback->time.convert_from_deltatime_timestamp)
 
 /** Convert a timestamp to a date/time structure
 	@see mkdatetime()
  **/
-#define gl_mktime (*callback->time.mkdatetime)
+#define gl_mktime DEPRECATED (*callback->time.mkdatetime)
 
 /** Convert a date/time structure to a string
 	@see strdatetime()
  **/
-#define gl_strtime (*callback->time.strdatetime)
+#define gl_strtime DEPRECATED (*callback->time.strdatetime)
 
 /** Convert a timestamp to days
 	@see timestamp_to_days()
  **/
-#define gl_todays (*callback->time.timestamp_to_days)
+#define gl_todays DEPRECATED (*callback->time.timestamp_to_days)
 
 /** Convert a timestamp to hours
 	@see timestamp_to_hours()
  **/
-#define gl_tohours (*callback->time.timestamp_to_hours)
+#define gl_tohours DEPRECATED (*callback->time.timestamp_to_hours)
 
 /** Convert a timestamp to minutes
 	@see timestamp_to_minutes()
  **/
-#define gl_tominutes (*callback->time.timestamp_to_minutes)
+#define gl_tominutes DEPRECATED (*callback->time.timestamp_to_minutes)
 
 /** Convert a timestamp to seconds
 	@see timestamp_to_seconds()
  **/
-#define gl_toseconds (*callback->time.timestamp_to_seconds)
+#define gl_toseconds DEPRECATED (*callback->time.timestamp_to_seconds)
 
 /** Convert a timestamp to a local date/time structure
 	@see local_datetime()
  **/
-#define gl_localtime (*callback->time.local_datetime)
+#define gl_localtime DEPRECATED (*callback->time.local_datetime)
 
 /** Convert a timestamp to a local date/time structure
 	Use this if it is a double precision time (deltamode)
 	@see local_datetime()
  **/
-#define gl_localtime_delta (*callback->time.local_datetime_delta)
+#define gl_localtime_delta DEPRECATED (*callback->time.local_datetime_delta)
 
 #ifdef __cplusplus
-inline int gl_getweekday(TIMESTAMP t)
+
+inline DEPRECATED int gl_getweekday(TIMESTAMP t)
 {
 	DATETIME dt;
 	gl_localtime(t, &dt);
 	return dt.weekday;
 }
-inline int gl_gethour(TIMESTAMP t)
+
+inline DEPRECATED int gl_gethour(TIMESTAMP t)
 {
 	DATETIME dt;
 	gl_localtime(t, &dt);
 	return dt.hour;
 }
 #endif
+
 /**@}*/
 /******************************************************************************
  * Global variables
@@ -898,27 +1317,28 @@ inline int gl_gethour(TIMESTAMP t)
 /** Create a new global variable
 	@see global_create()
  **/
-#define gl_global_create (*callback->global.create)
+#define gl_global_create DEPRECATED (*callback->global.create)
 
 /** Set a global variable
 	@see global_setvar()
  **/
-#define gl_global_setvar (*callback->global.setvar)
+#define gl_global_setvar DEPRECATED (*callback->global.setvar)
 
 /** Get a global variable
 	@see global_getvar()
  **/
-#define gl_global_getvar (*callback->global.getvar)
+#define gl_global_getvar DEPRECATED (*callback->global.getvar)
 
 /** Find a global variable
 	@see global_find()
  **/
-#define gl_global_find (*callback->global.find)
+#define gl_global_find DEPRECATED (*callback->global.find)
 
-#define gl_get_oflags (*callback->get_oflags)
+#define gl_get_oflags DEPRECATED (*callback->get_oflags)
 /**@}*/
 
 #ifdef __cplusplus
+
 /******************************************************************************
  * Utilities
  */
@@ -969,7 +1389,7 @@ inline char bitof(unsigned int64 x,/**< bit pattern to scan */
 /** Construct a proper object object
     @return a pointer to the struct buffer or NULL if failed
  **/
-inline char* gl_name(OBJECT *my, char *buffer, size_t size)
+inline DEPRECATED char* gl_name(OBJECT *my, char *buffer, size_t size)
 {
 	char temp[256];
 	if(my == NULL || buffer == NULL) return NULL;
@@ -985,53 +1405,53 @@ inline char* gl_name(OBJECT *my, char *buffer, size_t size)
 
 /** Find a schedule 
  **/
-inline SCHEDULE *gl_schedule_find(const char *name)
+inline DEPRECATED SCHEDULE *gl_schedule_find(const char *name)
 {
 	return callback->schedule.find(name);
 }
 /** Create a schedule
  **/
-inline SCHEDULE *gl_schedule_create(const char *name, const char *definition)
+inline DEPRECATED SCHEDULE *gl_schedule_create(const char *name, const char *definition)
 {
 	return callback->schedule.create(name,definition);
 }
 /** Find the time index in a schedule
  **/
-inline SCHEDULEINDEX gl_schedule_index(SCHEDULE *sch, TIMESTAMP ts)
+inline DEPRECATED SCHEDULEINDEX gl_schedule_index(SCHEDULE *sch, TIMESTAMP ts)
 {
 	return callback->schedule.index(sch,ts);
 }
 /** Find the value at a time index in a schedule
  **/
-inline double gl_schedule_value(SCHEDULE *sch, SCHEDULEINDEX index)
+inline DEPRECATED double gl_schedule_value(SCHEDULE *sch, SCHEDULEINDEX index)
 {
 	return callback->schedule.value(sch,index);
 }
 /** Find the elapsed time until the value at an index changes
  **/
-inline int32 gl_schedule_dtnext(SCHEDULE *sch, SCHEDULEINDEX index)
+inline DEPRECATED int32 gl_schedule_dtnext(SCHEDULE *sch, SCHEDULEINDEX index)
 {
 	return callback->schedule.dtnext(sch,index);
 }
-inline SCHEDULE *gl_schedule_getfirst(void)
+inline DEPRECATED SCHEDULE *gl_schedule_getfirst(void)
 {
 	return callback->schedule.getfirst();
 }
 /** Create an enduse
  **/
-inline int gl_enduse_create(enduse *e)
+inline DEPRECATED int gl_enduse_create(enduse *e)
 {
 	return callback->enduse.create(e);
 }
 /** Synchronize an enduse
  **/
-inline TIMESTAMP gl_enduse_sync(enduse *e, TIMESTAMP t1)
+inline DEPRECATED TIMESTAMP gl_enduse_sync(enduse *e, TIMESTAMP t1)
 {
 	return callback->enduse.sync(e,PC_BOTTOMUP,t1);
 }
 /** Create a loadshape 
  **/
-inline loadshape *gl_loadshape_create(SCHEDULE *s)
+inline DEPRECATED loadshape *gl_loadshape_create(SCHEDULE *s)
 {
 	loadshape *ls = (loadshape*)malloc(sizeof(loadshape));
 	memset(ls,0,sizeof(loadshape));
@@ -1043,7 +1463,7 @@ inline loadshape *gl_loadshape_create(SCHEDULE *s)
 }
 /** Get the current value of a loadshape
  **/
-inline double gl_get_loadshape_value(loadshape *shape)
+inline DEPRECATED double gl_get_loadshape_value(loadshape *shape)
 {
 	if (shape)
 		return shape->load;
@@ -1052,10 +1472,10 @@ inline double gl_get_loadshape_value(loadshape *shape)
 }
 /** Format a DATETIME into a string buffer
  **/
-inline char *gl_strftime(DATETIME *dt, char *buffer, int size) { return callback->time.strdatetime(dt,buffer,size)?buffer:NULL;};
+inline DEPRECATED char *gl_strftime(DATETIME *dt, char *buffer, int size) { return callback->time.strdatetime(dt,buffer,size)?buffer:NULL;};
 /** Format a TIMESTAMP into a string buffer
  **/
-inline char *gl_strftime(TIMESTAMP ts, char *buffer, int size)
+inline DEPRECATED char *gl_strftime(TIMESTAMP ts, char *buffer, int size)
 {
 	//static char buffer[64];
 	DATETIME dt;
@@ -1103,12 +1523,12 @@ inline size_t nextpow2(register size_t x)
 /** Linearly interpolate a value between two points
 
  **/
-#define gl_lerp (*callback->interpolate.linear)
+#define gl_lerp DEPRECATED (*callback->interpolate.linear)
 
 /** Quadratically interpolate a value between two points
 
  **/
-#define gl_qerp (*callback->interpolate.quadratic)
+#define gl_qerp DEPRECATED (*callback->interpolate.quadratic)
 /**@}*/
 
 /******************************************************************************
@@ -1120,19 +1540,19 @@ inline size_t nextpow2(register size_t x)
 
 /** Create a forecast entity for an object
  **/
-#define gl_forecast_create (*callback->forecast.create)
+#define gl_forecast_create DEPRECATED (*callback->forecast.create)
 
 /** Find a forecast entity for an object
  **/
-#define gl_forecast_find (*callback->forecast.find)
+#define gl_forecast_find DEPRECATED (*callback->forecast.find)
 
 /** Read a forecast entity for an object
  **/
-#define gl_forecast_read (*callback->forecast.read)
+#define gl_forecast_read DEPRECATED (*callback->forecast.read)
 
 /** Save a forecast entity for an object
  **/
-#define gl_forecast_save (*callback->forecast.save)
+#define gl_forecast_save DEPRECATED (*callback->forecast.save)
 /**@}*/
 
 
@@ -1165,26 +1585,27 @@ inline size_t nextpow2(register size_t x)
  * @{
  */
 #ifdef __cplusplus
-inline TRANSFORM *gl_transform_getfirst(void) { return callback->transform.getnext(NULL); };
-inline TRANSFORM *gl_transform_getnext(TRANSFORM *xform) { return callback->transform.getnext(xform); };
-inline int gl_transform_add_linear(TRANSFORMSOURCE stype,double *source,void *target,double scale,double bias,OBJECT *obj,PROPERTY *prop,SCHEDULE *sched) { return callback->transform.add_linear(stype,source,target,scale,bias,obj,prop,sched); };
-inline int gl_transform_add_external(OBJECT *target_obj, PROPERTY *target_prop,char *function,OBJECT *source_obj, PROPERTY* source_prop) { return callback->transform.add_external(target_obj,target_prop,function,source_obj,source_prop); };
-inline const char *gl_module_find_transform_function(TRANSFORMFUNCTION function) { return callback->module.find_transform_function(function); };
+inline DEPRECATED TRANSFORM *gl_transform_getfirst(void) { return callback->transform.getnext(NULL); };
+inline DEPRECATED TRANSFORM *gl_transform_getnext(TRANSFORM *xform) { return callback->transform.getnext(xform); };
+inline DEPRECATED int gl_transform_add_linear(TRANSFORMSOURCE stype,double *source,void *target,double scale,double bias,OBJECT *obj,PROPERTY *prop,SCHEDULE *sched) { return callback->transform.add_linear(stype,source,target,scale,bias,obj,prop,sched); };
+inline DEPRECATED int gl_transform_add_external(OBJECT *target_obj, PROPERTY *target_prop,char *function,OBJECT *source_obj, PROPERTY* source_prop) { return callback->transform.add_external(target_obj,target_prop,function,source_obj,source_prop); };
+inline DEPRECATED const char *gl_module_find_transform_function(TRANSFORMFUNCTION function) { return callback->module.find_transform_function(function); };
 #else
-#define gl_transform_getnext (*callback->transform.getnext) /* TRANSFORM *(*transform.getnext)(TRANSFORM*); */
-#define gl_transform_add_linear (*callback->transfor.add_linear) /* int transform_add_linear(TRANSFORMSOURCE stype,double *source,void *target,double scale,double bias,OBJECT *obj,PROPERTY *prop,SCHEDULE *sched) */
-#define gl_transform_add_external (*callback->transform.add_external) /* int (*transform.add_external)(OBJECT*,PROPERTY*,char*,OBJECT*,PROPERTY*); */
-#define gl_module_find_transform_function (*callback->module.find_transform_function)
+#define gl_transform_getnext DEPRECATED (*callback->transform.getnext) /* TRANSFORM *(*transform.getnext)(TRANSFORM*); */
+#define gl_transform_add_linear DEPRECATED (*callback->transfor.add_linear) /* int transform_add_linear(TRANSFORMSOURCE stype,double *source,void *target,double scale,double bias,OBJECT *obj,PROPERTY *prop,SCHEDULE *sched) */
+#define gl_transform_add_external DEPRECATED (*callback->transform.add_external) /* int (*transform.add_external)(OBJECT*,PROPERTY*,char*,OBJECT*,PROPERTY*); */
+#define gl_module_find_transform_function DEPRECATED (*callback->module.find_transform_function)
 #endif
 /**@}*/
 
 #ifdef __cplusplus
-inline randomvar *gl_randomvar_getfirst(void) { return callback->randomvar.getnext(NULL); };
-inline randomvar *gl_randomvar_getnext(randomvar *var) { return callback->randomvar.getnext(var); };
-inline size_t gl_randomvar_getspec(char *str, size_t size, const randomvar *var) { return callback->randomvar.getspec(str,size,var); };
+inline DEPRECATED randomvar *gl_randomvar_getfirst(void) { return callback->randomvar.getnext(NULL); };
+inline DEPRECATED randomvar *gl_randomvar_getnext(randomvar *var) { return callback->randomvar.getnext(var); };
+inline DEPRECATED size_t gl_randomvar_getspec(char *str, size_t size, const randomvar *var) { return callback->randomvar.getspec(str,size,var); };
 #else
-#define gl_randomvar_getnext (*callback->randomvar.getnext) /* randomvar *(*randomvar.getnext)(randomvar*) */
-#define gl_randomvar_getspec (*callback->randomvar.getspec) /* size_t (*randomvar.getspec(char*,size_t,randomvar*) */
+#define gl_randomvar_getfirst DEPRECATED (*callback->randomvar.getnext)(NULL)
+#define gl_randomvar_getnext DEPRECATED (*callback->randomvar.getnext) /* randomvar *(*randomvar.getnext)(randomvar*) */
+#define gl_randomvar_getspec DEPRECATED (*callback->randomvar.getspec) /* size_t (*randomvar.getspec(char*,size_t,randomvar*) */
 #endif
 
 /******************************************************************************
@@ -1196,14 +1617,14 @@ inline size_t gl_randomvar_getspec(char *str, size_t size, const randomvar *var)
 
 #ifdef __cplusplus
 /** read remote object data **/
-inline void *gl_read(void *local, /**< local memory for data (must be correct size for property) */
+inline DEPRECATED void *gl_read(void *local, /**< local memory for data (must be correct size for property) */
 					 OBJECT *obj, /**< object from which to get data */
 					 PROPERTY *prop) /**< property from which to get data */
 {
 	return callback->remote.readobj(local,obj,prop);
 }
 /** write remote object data **/
-inline void gl_write(void *local, /** local memory for data */
+inline DEPRECATED void gl_write(void *local, /** local memory for data */
 					 OBJECT *obj, /** object to which data is written */
 					 PROPERTY *prop) /**< property to which data is written */
 {
@@ -1211,14 +1632,14 @@ inline void gl_write(void *local, /** local memory for data */
 	return callback->remote.writeobj(local,obj,prop);
 }
 /** read remote global data **/
-inline void *gl_read(void *local, /** local memory for data (must be correct size for global */
+inline DEPRECATED void *gl_read(void *local, /** local memory for data (must be correct size for global */
 					 GLOBALVAR *var) /** global variable from which to get data */
 {
 	/* @todo */
 	return callback->remote.readvar(local,var);
 }
 /** write remote global data **/
-inline void gl_write(void *local, /** local memory for data */
+inline DEPRECATED void gl_write(void *local, /** local memory for data */
 					 GLOBALVAR *var) /** global variable to which data is written */
 {
 	/* @todo */
@@ -1229,46 +1650,89 @@ inline void gl_write(void *local, /** local memory for data */
 
 // locking functions 
 #ifdef __cplusplus
-#define READLOCK(X) ::rlock(X); /**< Locks an item for reading (allows other reads but blocks write) */
-#define WRITELOCK(X) ::wlock(X); /**< Locks an item for writing (blocks all operations) */
-#define READUNLOCK(X) ::runlock(X); /**< Unlocks an read lock */
-#define WRITEUNLOCK(X) ::wunlock(X); /**< Unlocks a write lock */
+#define READLOCK(X) DEPRECATED ::rlock(X); /**< Locks an item for reading (allows other reads but blocks write) */
+#define WRITELOCK(X) DEPRECATED ::wlock(X); /**< Locks an item for writing (blocks all operations) */
+#define READUNLOCK(X) DEPRECATED ::runlock(X); /**< Unlocks an read lock */
+#define WRITEUNLOCK(X) DEPRECATED ::wunlock(X); /**< Unlocks a write lock */
 
-inline void rlock(LOCKVAR* lock) { callback->lock.read(lock); }
-inline void wlock(LOCKVAR* lock) { callback->lock.write(lock); }
-inline void runlock(LOCKVAR* lock) { callback->unlock.read(lock); }
-inline void wunlock(LOCKVAR* lock) { callback->unlock.write(lock); }
+inline DEPRECATED void rlock(LOCKVAR* lock) { callback->lock.read(lock); }
+inline DEPRECATED void wlock(LOCKVAR* lock) { callback->lock.write(lock); }
+inline DEPRECATED void runlock(LOCKVAR* lock) { callback->unlock.read(lock); }
+inline DEPRECATED void wunlock(LOCKVAR* lock) { callback->unlock.write(lock); }
 
 #else
-#define READLOCK(X) rlock(X); /**< Locks an item for reading (allows other reads but blocks write) */
-#define WRITELOCK(X) wlock(X); /**< Locks an item for writing (blocks all operations) */
-#define READUNLOCK(X) runlock(X); /**< Unlocks an read lock */
-#define WRITEUNLOCK(X) wunlock(X); /**< Unlocks a write lock */
+#define READLOCK(X) DEPRECATED rlock(X); /**< Locks an item for reading (allows other reads but blocks write) */
+#define WRITELOCK(X) DEPRECATED wlock(X); /**< Locks an item for writing (blocks all operations) */
+#define READUNLOCK(X) DEPRECATED runlock(X); /**< Unlocks an read lock */
+#define WRITEUNLOCK(X) DEPRECATED wunlock(X); /**< Unlocks a write lock */
 #endif
-#define LOCK(X) WRITELOCK(X); /**< @todo this is deprecated and should not be used anymore */
-#define UNLOCK(X) WRITEUNLOCK(X); /**< @todo this is deprecated and should not be used anymore */
+#define LOCK(X) DEPRECATED WRITELOCK(X); /**< @todo this is deprecated and should not be used anymore */
+#define UNLOCK(X) DEPRECATED WRITEUNLOCK(X); /**< @todo this is deprecated and should not be used anymore */
 
-#define READLOCK_OBJECT(X) READLOCK(&((X)->lock)) /**< Locks an object for reading */
-#define WRITELOCK_OBJECT(X) WRITELOCK(&((X)->lock)) /**< Locks an object for writing */
-#define READUNLOCK_OBJECT(X) READUNLOCK(&((X)->lock)) /**< Unlocks an object */
-#define WRITEUNLOCK_OBJECT(X) WRITEUNLOCK(&((X)->lock)) /**< Unlocks an object */
-#define LOCK_OBJECT(X) WRITELOCK_OBJECT(X); /**< @todo this is deprecated and should not be used anymore */
-#define UNLOCK_OBJECT(X) WRITEUNLOCK_OBJECT(X); /**< @todo this is deprecated and should not be used anymore */
+#define READLOCK_OBJECT(X) DEPRECATED READLOCK(&((X)->lock)) /**< Locks an object for reading */
+#define WRITELOCK_OBJECT(X) DEPRECATED WRITELOCK(&((X)->lock)) /**< Locks an object for writing */
+#define READUNLOCK_OBJECT(X) DEPRECATED READUNLOCK(&((X)->lock)) /**< Unlocks an object */
+#define WRITEUNLOCK_OBJECT(X) DEPRECATED WRITEUNLOCK(&((X)->lock)) /**< Unlocks an object */
+#define LOCK_OBJECT(X) DEPRECATED WRITELOCK_OBJECT(X); /**< @todo this is deprecated and should not be used anymore */
+#define UNLOCK_OBJECT(X) DEPRECATED WRITEUNLOCK_OBJECT(X); /**< @todo this is deprecated and should not be used anymore */
 
-#define LOCKED(X,C) {WRITELOCK_OBJECT(X);(C);WRITEUNLOCK_OBJECT(X);} /**< @todo this is deprecated and should not be used anymore */
+#define LOCKED(X,C) DEPRECATED {WRITELOCK_OBJECT(X);(C);WRITEUNLOCK_OBJECT(X);} /**< @todo this is deprecated and should not be used anymore */
 
 #include <math.h>
 #define NaN NAN
 
 #ifdef __cplusplus
 
-#define MMF_NONE 0
-#define MMF_QUIET OF_QUIET
-#define MMF_DEBUG OF_DEBUG
-#define MMF_VERBOSE OF_VERBOSE
-#define MMF_WARNING OF_WARNING
-#define MMF_ALL (OF_QUIET|OF_DEBUG|OF_VERBOSE|OF_WARNING)
+/*	Section: Module message flags
+
+	The variable <module_message_flags> is a <set> that control the flow of messages to the output
+	stream.
+
+	The following message module flags are defined
+	- <MMF_NONE>
+	- <MMF_QUIET>
+	- <MMF_DEBUG>
+	- <MMF_VERBOSE>
+	- <MMF_WARNING>
+	- <MMF_ALL>
+ */
 extern set module_message_flags;
+
+/*	Define: MMF_NONE
+
+	Specify that no messages from the module are to be output.
+ */
+#define MMF_NONE 0
+
+/*	Define: MMF_QUIET
+
+	Specify that error messages from the module are to be suppressed. See <OF_QUIET>.
+ */
+#define MMF_QUIET OF_QUIET
+
+/*	Define: MMF_DEBUG
+
+	Specify that debug messages are to be output. See <OF_DEBUG>.
+ */
+#define MMF_DEBUG OF_DEBUG
+
+/*	Define: MMF_VERBOSE
+
+	Specify that verbose messages are to be output See <OF_VERBOSE>.
+ */
+#define MMF_VERBOSE OF_VERBOSE
+
+/*	Define: MMF_WARNING
+
+	Specify that warning messages are to be suppressed See <OF_WARNING>.
+ */
+#define MMF_WARNING OF_WARNING
+
+/*	Define: MMF_ALL
+
+	Specify that all messages from the module are to be output.	See <MMF_DEBUG> and <MMF_VERBOSE>
+ */
+#define MMF_ALL (OF_DEBUG|OF_VERBOSE)
 
 /**************************************************************************************
  * GRIDLABD BASE CLASSES (Version 3.0 and later)
@@ -1281,8 +1745,12 @@ extern set module_message_flags;
 #include "class.h"
 #include "property.h"
 
-/// General string encapsulation
-class gld_string {
+/*	Class: gld_string
+
+	General string encapsulation
+ */
+class gld_string 
+{
 private: // data
 	typedef struct strbuf {
 		LOCKVAR lock; // TODO implement locking
@@ -1291,29 +1759,40 @@ private: // data
 		char *str;
 	} STRBUF;
 	STRBUF *buf;
-public: // construction/destructor
-	/// construct an empty string
+public: 
+
+	// Constructor: gld_string(void)
 	inline gld_string(void) : buf(NULL) { init(); };
-	/// construct a linked string
+
+	// Constructor: gld_string(gld_string &s)
 	inline gld_string(gld_string&s) : buf(NULL) { init(); link(s); };
-	/// construct a new string
+
+	// Constructor: gld_string(const char *s)
 	inline gld_string(const char *s) : buf(NULL) { init(); copy(s); };
-	/// construct a new string of a particular length
+
+	// Constructor: gld_stdring(const char *, size_t n)
 	inline gld_string(const char *s, size_t n) : buf(NULL) { init(); copy(s,n); };
-	/// destroy a string (or unlink from one)
+
+	// Destructor: ~gld_string
 	inline ~gld_string(void) { unlink(); };
-public: // copy
-	/// copy a string
+public: 
+
+	// Operator: = (const char *s)
 	inline gld_string &operator=(const char *s) { copy(s); return *this; };
-	/// link to a string
+
+	// Operator: = (gld_string &s)
 	inline gld_string &operator=(gld_string&s) { link(s); return *this; };
-public: // casts
-	/// cast to a pointer to the string buffer
+public: 
+
+	// Operator: const char*
 	inline operator const char*(void) { return buf->str; };
-	/// cast to the size of the string
+
+	// Operator: size_t
 	inline operator size_t(void) { return buf->len; };
-	/// cast to a pointer to the string data
+
+	// Operator: STRBUF
 	inline operator STRBUF *(void) { return buf; };
+
 private: // internals
 	inline void init(void) { buf=(STRBUF*)malloc(sizeof(STRBUF)); memset(buf,0,sizeof(STRBUF)); }; 
 	inline void lock(void) { if ( buf ) ::wlock(&buf->lock); };
@@ -1339,61 +1818,92 @@ private: // internals
 	inline void copy(const char *s, size_t n) { fit(n+1); strncpy(buf->str,s,n); };
 	inline void link(gld_string&s) { unlink(); buf=(STRBUF*)s; buf->nrefs++;};
 	inline void unlink() { if ( buf->nrefs<=1 ) {free(buf->str); free(buf);} else buf->nrefs--; };
-public: // status accessors
-	/// determine whether a string is valid
+public: 
+
+	//	Method: is_valid
 	inline bool is_valid(void) { return buf!=NULL; };
-	/// determine whether a string is null
+
+	//	Method: is_null
 	inline bool is_null(void) { return is_valid() && buf->str==NULL; };
-public: // read accessors
-	/// get a pointer to the string buffer
+
+public: 
+
+	// Method: get_buffer
 	inline const char* get_buffer(void) { return buf ? buf->str : NULL; };
-	/// get the size of the string buffer (as allocated)
+
+	// Method: get_size
 	inline size_t get_size(void) { return buf ? buf->len : -1; };
-	/// get the length of the string (up to the null termination)
+
+	// Method: get_length
 	inline size_t get_length(void) { return buf && buf->str ? strlen(buf->str) : -1; };
-public: // write accessors
-	/// set the string
+
+public: 
+
+	// Method: set_string
 	inline void set_string(const char *s) { copy(s); };
-	/// set the string buffer size
+
+	// Method: set_size
 	inline void set_size(size_t n) { fit(n); };
-	/// format the string (a la printf)
+
+	// Method: format(const char *fmt,...)
 	inline size_t format(const char *fmt,...) { va_list ptr; va_start(ptr,fmt); int len=vsnprintf(buf->str,buf->len,fmt,ptr); va_end(ptr); return len;};
-	/// format the string with a specific buffer size
+
+	// Method: format(size_t len,const char *fmt,...)
 	inline size_t format(size_t len,const char *fmt,...) { fit(len); va_list ptr; va_start(ptr,fmt); int rv=vsnprintf(buf->str,buf->len,fmt,ptr); va_end(ptr); return rv;};
-public: // compare ops
-	/// alphabetic before comparison
+
+public: 
+
+	// Operator: <
 	inline bool operator<(const char*s) { return strcmp(buf->str,s)<0; };
-	/// alphabetic before or same comparison
+
+	// Operator: <=
 	inline bool operator<=(const char*s) { return strcmp(buf->str,s)<=0; };
-	/// alphabetic same comparison
+
+	// Operator: ==
 	inline bool operator==(const char*s) { return strcmp(buf->str,s)==0; };
-	/// alphabetic after or same comparison
+
+	// Operator: >=
 	inline bool operator>=(const char*s) { return strcmp(buf->str,s)>=0; };
-	/// alphabetic after comparison
+
+	// Operator: >
 	inline bool operator>(const char*s) { return strcmp(buf->str,s)>0; };
-	/// alphabetic differs comparison
+
+	// Operator: !=
 	inline bool operator!=(const char*s) { return strcmp(buf->str,s)!=0; };
 public: // manipulation
-	/// trim left whitespace
+
+	// Method: trimleft
 	inline void trimleft(void) { if ( is_null() ) return; size_t n=0; while (buf->str[n]!='\0'&&isspace(*buf->str)) n++; strcpy(buf->str,buf->str+n); };
-	/// trim right whitespace
+
+	// Method: trimright
 	inline void trimright(void) { if ( is_null() ) return; size_t n=strlen(buf->str); while (n>0&&isspace(buf->str[n-1])) buf->str[--n]='\0'; };
-	/// extract left string
+
+	// Method: left
 	inline gld_string left(size_t n) { if ( is_null() ) return gld_string(); return gld_string(buf->str,n); };
-	/// extract right string
+
+	// Method: right
 	inline gld_string right(size_t n) { if ( is_null() ) return gld_string(); return gld_string(buf->str+buf->len-n); };
-	/// extract mid string
+
+	// Method: mid
 	inline gld_string mid(size_t n, size_t m) { if ( is_null() ) return gld_string(); return gld_string(buf->str+buf->len-n,m); };
-	/// locate substring
+
+	// Method: findstr
 	inline size_t findstr(const char *s) { if ( is_null() ) return -1; char *p=strstr(buf->str,s); return p==NULL ? -1 : (p-buf->str); };
-	/// find character
+
+	// Method: findchr
 	inline size_t findchr(char c) { if ( is_null() ) return -1; char *p=strchr(buf->str,c); return p==NULL ? -1 : (p-buf->str); };
+
+	// Method: split
+	// This function is not implemented yet
 	inline size_t split(gld_string *&list, const char *delim=" ") 
 	{
 		// TODO
 		if ( is_null() ) return 0;
 		return 0;
 	}
+
+	// Method: merge
+	// This function is not implemented yet
 	inline gld_string merge(gld_string *&list, size_t n, const char *delim=" ")
 	{
 		// TODO
@@ -1401,120 +1911,212 @@ public: // manipulation
 	}
 };
 
-/// Date/time encapsulation
-class gld_clock {
+/*	Class: gld_clock
+
+ 	Date/time encapsulation
+ */
+class gld_clock 
+{
 private: // data
 	DATETIME dt;
-public: // constructors
-	/// Clock constructor for current global clock
+public: 
+
+	// Constructor: gld_clock
 	gld_clock(void) { callback->time.local_datetime(*(callback->global_clock),&dt); }; 
-	/// Clock constructor for an arbitrary TIMESTAMP
+
+	// Constructor: gld_clock
 	gld_clock(TIMESTAMP ts) { if ( !callback->time.local_datetime(ts,&dt)) memset(&dt,0,sizeof(dt)); };
-	/// Clock constructor for a time string
+
+	// Constructor: gld_clock
 	gld_clock(const char *str) { from_string(str); };
-	/// Clock constructor for year, month, day, hour, minute, second, nanosecond values
+
+	// Constructor: gld_clock
 	gld_clock(unsigned short y, unsigned short m=0, unsigned short d=0, unsigned short H=0, unsigned short M=0, unsigned short S=0, unsigned short int ms=0, char *tz=NULL, int dst=-1)
 	{
 		dt.year = y; dt.month=m; dt.day=d; dt.hour=H; dt.minute=M; dt.second=S; dt.nanosecond=ms;
 		if ( dst>=0 ) dt.is_dst=dst;
 		if ( tz!=NULL ) set_tz(tz); else callback->time.mkdatetime(&dt);
 	}
-public: // cast operators
-	/// Cast to TIMESTAMP
+public: 
+
+	// Operator: TIMESTAMP
 	inline operator TIMESTAMP (void) { return dt.timestamp; };
-public: // comparison operators
-	/// Compare after TIMESTAMP
+public: 
+
+	// Operator: operator>
 	inline bool operator > (TIMESTAMP t) { return dt.timestamp>t; };
-	/// Compare after or same TIMESTAMP
+
+	// Operator: operator>=
 	inline bool operator >= (TIMESTAMP t) { return dt.timestamp>=t; };
-	/// Compare before TIMESTAMP
+
+	// Operator: operator<
 	inline bool operator < (TIMESTAMP t) { return dt.timestamp<t; };
-	/// Compare before or same TIMESTAMP
+
+	// Operator: operator<=
 	inline bool operator <= (TIMESTAMP t) { return dt.timestamp<=t; };
-	/// Compare same TIMESTAMP
+
+	// Operator: operator==
 	inline bool operator == (TIMESTAMP t) { return dt.timestamp==t; };
-	/// Compare different TIMESTAMP
+
+	// Operator: operator!=
 	inline bool operator != (TIMESTAMP t) { return dt.timestamp!=t; };
-	/// Check if valid TIMESTAMP
+
+	// Method: is_valid
 	inline bool is_valid(void) { return dt.timestamp>0; };
-	/// Check if NEVER
+
+	// Method: is_never
 	inline bool is_never(void) { return dt.timestamp==TS_NEVER; };
-public: // read accessors
-	/// Get the year
+
+public: 
+
+	// Method: get_year
+	// Get the year
 	inline unsigned short get_year(void) { return dt.year; };
-	/// Get the month (0-11)
+
+	// Method: get_month
+	// Get the month (0-11)
 	inline unsigned short get_month(void) { return dt.month; };
-	/// Get the day (1-31)
+
+	// Method: get_day
+	// Get the day (1-31)
 	inline unsigned short get_day(void) { return dt.day; };
-	/// Get the hour (0-23)
+
+	// Method: get_hour
+	// Get the hour (0-23)
 	inline unsigned short get_hour(void) { return dt.hour; };
-	/// Get the minute (0-59)
+
+	// Method: get_minute
+	// Get the minute (0-59)
 	inline unsigned short get_minute(void) { return dt.minute; };
-	/// Get the second (0-59)
+
+	// Method: get_second
+	// Get the second (0-59)
 	inline unsigned short get_second(void) { return dt.second; };
-	/// Get the nanosecond (0-999999)
+
+	// Method: get_nanosecond
+	// Get the nanosecond (0-999999)
 	inline unsigned int get_nanosecond(void) { return dt.nanosecond; };
-	/// Get the Unix Day Number (full days since the Unix Epoch)
+
+	// Method: get_uday
+	// Get the Unix Day Number (full days since the Unix Epoch)
 	inline unsigned int get_uday(void) { return dt.timestamp / 86400; };
-	/// Get the Julian Day Number
+
+	// Method: get_jday
+	// Get the Julian Day Number
 	inline unsigned int get_jday(void) { return (dt.timestamp / 86400) + 2440587.5; };
-	/// Get the timezone spec
+
+	// Method: get_tz
+	// Get the timezone spec
 	inline char* get_tz(void) { return dt.tz; };
-	/// Get the summer/daylight time flag
+
+	// Method: get_is_dst
+	// Get the summer/daylight time flag
 	inline bool get_is_dst(void) { return dt.is_dst?true:false; };
-	/// Get the weekday (Sunday=0)
+
+	// Method: get_weekday
+	// Get the weekday (Sunday=0)
 	inline unsigned short get_weekday(void) { return dt.weekday; };
-	/// Get the day of the year (Jan 1=0)
+
+	// Method: get_yearday
+	// Get the day of the year (Jan 1=0)
 	inline unsigned short get_yearday(void) { return dt.yearday; };
-	/// Get the timezone offer (in seconds)
+
+	// Method: get_tzoffset
+	// Get the timezone offer (in seconds)
 	inline int get_tzoffset(void) { return dt.tzoffset; };
-	/// Get the TIMESTAMP value (UTC)
+
+	// Method: get_timestamp
+	// Get the TIMESTAMP value (UTC)
 	inline TIMESTAMP get_timestamp(void) { return dt.timestamp; };
-	/// Get the local TIMESTAMP value (ignoring DST)
+
+	// Method: get_localtimestamp
+	// Get the local TIMESTAMP value (ignoring DST)
 	inline TIMESTAMP get_localtimestamp(void) { return dt.timestamp - dt.tzoffset; };
-	/// Get the local TIMESTAMP value (including DST)
+
+	// Method: get_localtimestamp_dst
+	// Get the local TIMESTAMP value (including DST)
 	inline TIMESTAMP get_localtimestamp_dst(bool force_dst=false) { return dt.timestamp - dt.tzoffset + (dt.is_dst||force_dst?3600:0); };
 public: // write accessors
-	/// Set the date
+
+	// Method: set_date
+	// Set the date
 	inline TIMESTAMP set_date(unsigned short y, unsigned short m, unsigned short d) { dt.year=y; dt.month=m; dt.day=d; return callback->time.mkdatetime(&dt); };
-	/// Set the time
+
+	// Method: set_time
+	// Set the time
 	inline TIMESTAMP set_time(unsigned short H, unsigned short M, unsigned short S, unsigned long u=0, char *t=NULL, bool force_dst=false) { dt.hour=H; dt.minute=M; dt.second=S; dt.nanosecond=u; strncpy(dt.tz,t,sizeof(dt.tz)); if (force_dst) dt.is_dst=true; return callback->time.mkdatetime(&dt); };
-	/// Set the date and time
+
+	// Method: set_datetime
+	// Set the date and time
 	inline TIMESTAMP set_datetime(unsigned short y, unsigned short m, unsigned short d, unsigned short H, unsigned short M, unsigned short S, unsigned long u=0, char *t=NULL, bool force_dst=false) { dt.year=y; dt.month=m; dt.day=d; dt.hour=H; dt.minute=M; dt.second=S; dt.nanosecond=u; strncpy(dt.tz,t,sizeof(dt.tz)); if (force_dst) dt.is_dst=true; return callback->time.mkdatetime(&dt); };
-	/// Set the year
+
+	// Method: set_year
+	// Set the year
 	inline TIMESTAMP set_year(unsigned short y) { dt.year=y; return callback->time.mkdatetime(&dt); };
-	/// Set the month (Jan=0)
+
+	// Method: set_month
+	// Set the month (Jan=0)
 	inline TIMESTAMP set_month(unsigned short m) { dt.month=m; return callback->time.mkdatetime(&dt); };
-	/// Set the day (1-31)
+
+	// Method: set_day
+	// Set the day (1-31)
 	inline TIMESTAMP set_day(unsigned short d) { dt.day=d; return callback->time.mkdatetime(&dt); };
-	/// Set the hour (0-23)
+
+	// Method: set_hour
+	// Set the hour (0-23)
 	inline TIMESTAMP set_hour(unsigned short h) { dt.hour=h; return callback->time.mkdatetime(&dt); };
-	/// Set the minute (0-59)
+
+	// Method: set_minute
+	// Set the minute (0-59)
 	inline TIMESTAMP set_minute(unsigned short m) { dt.minute=m; return callback->time.mkdatetime(&dt); };
-	/// Set the second (0-59)
+
+	// Method: set_second
+	// Set the second (0-59)
 	inline TIMESTAMP set_second(unsigned short s) { dt.second=s; return callback->time.mkdatetime(&dt); };
-	/// Set the nanosecond (0-999999)
+
+	// Method: set_nanosecond
+	// Set the nanosecond (0-999999)
 	inline TIMESTAMP set_nanosecond(unsigned int u) { dt.nanosecond=u; return callback->time.mkdatetime(&dt); };
-	/// Set the timezone (see tzinfo.txt)
+
+	// Method: set_tz
+	// Set the timezone (see tzinfo.txt)
 	inline TIMESTAMP set_tz(char* t) { strncpy(dt.tz,t,sizeof(dt.tz)); return callback->time.mkdatetime(&dt); };
-	/// Set the DST flag
+
+	// Method: set_is_dst
+	// Set the DST flag
 	inline TIMESTAMP set_is_dst(bool i) { dt.is_dst=i; return callback->time.mkdatetime(&dt); };
 public: // special functions
-	/// Convert from string
+
+	// Method: from_string
+	// Convert from string
 	inline bool from_string(const char *str) { return callback->time.local_datetime(callback->time.convert_to_timestamp(str),&dt)?true:false; };
-	/// Convert to string
+
+	// Method: to_string
+	// Convert to string
 	inline unsigned int to_string(char *str, int size) {return callback->time.convert_from_timestamp(dt.timestamp,str,size); };
-	/// Extract the total number of days since 1/1/1970 0:00:00 UTC
+
+	// Method: to_days
+	// Extract the total number of days since 1/1/1970 0:00:00 UTC
 	inline double to_days(TIMESTAMP ts=0) { return (dt.timestamp-ts)/86400.0 + dt.nanosecond*1e-9; };
-	/// Extract the total number of hours since 1/1/1970 0:00:00 UTC
+
+	// Method: to_hours
+	// Extract the total number of hours since 1/1/1970 0:00:00 UTC
 	inline double to_hours(TIMESTAMP ts=0) { return (dt.timestamp-ts)/3600.0 + dt.nanosecond*1e-9; };
-	/// Extract the total number of minutes since 1/1/1970 0:00:00 UTC
+
+	// Method: to_minutes
+	// Extract the total number of minutes since 1/1/1970 0:00:00 UTC
 	inline double to_minutes(TIMESTAMP ts=0) { return (dt.timestamp-ts)/60.0 + dt.nanosecond*1e-9; };
-	/// Extract the total number of seconds since 1/1/1970 0:00:00 UTC
+
+	// Method: to_seconds
+	// Extract the total number of seconds since 1/1/1970 0:00:00 UTC
 	inline double to_seconds(TIMESTAMP ts=0) { return dt.timestamp-ts + dt.nanosecond*1e-9; };
-	/// Extract the total number of nanoseconds since 1/1/1970 0:00:00 UTC
+
+	// Method: to_nanoseconds
+	// Extract the total number of nanoseconds since 1/1/1970 0:00:00 UTC
 	inline double to_nanoseconds(TIMESTAMP ts=0) { return (dt.timestamp-ts)*1e9 + dt.nanosecond; };
-	/// Get the timestamp as a string
+
+	// Method: get_string
+	// Get the timestamp as a string
 	inline gld_string get_string(const size_t sz=1024) 
 	{
 		gld_string res;
@@ -1526,260 +2128,450 @@ public: // special functions
 	};
 };
 
-/// Read lock container
-class gld_rlock {
+/*	Class: gld_rlock
+
+	Read lock container
+ */
+class gld_rlock 
+{
 private: OBJECT *my;
-	/// Constructor
+	
+	// Constructor: gld_rlock
 public: inline gld_rlock(OBJECT *obj) : my(obj) {::rlock(&my->lock);}; 
-	/// Destructor
+
+	// Destructor: ~gld_rlock
 public: inline ~gld_rlock(void) {::runlock(&my->lock);};
 };
-/// Write lock container
-class gld_wlock {
+
+/*	Class: gld_wlock
+
+	Write lock container
+ */
+class gld_wlock 
+{
 private: OBJECT *my;
-		 /// Constructor
+
+		 // Constructor: gld_wlock
 public: inline gld_wlock(OBJECT *obj) : my(obj) {::wlock(&my->lock);}; 
-		/// Destructor
+
+		// Destructor: ~gld_wlock
 public: inline ~gld_wlock(void) {::wunlock(&my->lock);};
 };
 
 class gld_class;
-/// Module container
-class gld_module {
 
-private: // data
+/* 	Class: gld_module
+
+	Module container
+ */
+class gld_module 
+{
+private: 
 	MODULE core;
 
-public: // constructors/casts
-	/// Constructor
+public: 
+
+	// Constructor: gld_module
 	inline gld_module(void) { MODULE *m = callback->module.getfirst(); if (m) core=*m; else throw "no modules loaded";};
-	/// Cast to MODULE
+	
+	// Operator: MODULE*
 	inline operator MODULE*(void) { return &core; };
 
-public: // read accessors
-	/// Get module name
+public: 
+
+	// Method: get_name
+	// Get module name
 	inline char* get_name(void) { return core.name; };
-	/// Get module major version number
+	
+	// Method: get_major
+	// Get module major version number
 	inline unsigned short get_major(void) { return core.major; };
-	/// Get module minor version number
+	
+	// Method: get_minor
+	// Get module minor version number
 	inline unsigned short get_minor(void) { return core.minor; };
-	/// Get first class in module
+	
+	// Method: get_first_class
+	// Get first class in module
 	inline gld_class* get_first_class(void) { return (gld_class*)core.oclass; };
 
-public: // write accessors
+public:
 
-public: // iterators
-	/// Check if last module loaded
+	// Method: is_last
+	// Check if last module loaded
 	inline bool is_last(void) { return core.next==NULL; };
-	/// Get next module loaded
+	
+	// Method: get_next
+	// Get next module loaded
 	inline void get_next(void) { core = *(core.next); };
 };
 
 class gld_property;
 class gld_function;
-/// Class container
-class gld_class {
 
-private: // data
+/*	Class: gld_class
+
+	Class container
+ */
+class gld_class 
+{
+private: 
 	CLASS core;
 
-public: // constructors
-	/// Constructor (blocker implementation)
+public: 
+
+	// Constructor: gld_class
+	// This is a blocker implementation to prevent direct creation of a class for now.
 	inline gld_class(void) { throw "gld_class constructor not permitted"; };
-	/// Cast to CLASS
+
+	// Operatior: CLASS*
+	// Cast to CLASS
 	inline operator CLASS*(void) { return &core; };
 
-public: // read accessors
-	/// Get class name
+public: 
+
+	// Method: get_name
+	// Get class name
 	inline const char* get_name(void) { return core.name; };
-	/// Get class size
+	
+	// Method: get_size
+	// Get class size
 	inline size_t get_size(void) { return core.size; };
-	/// Get class parent
+	
+	// Method: get_parent
+	// Get class parent
 	inline gld_class* get_parent(void) { return (gld_class*)core.parent; };
-	/// Get module that implements the class
+	
+	// Method: get_module
+	// Get module that implements the class
 	inline gld_module* get_module(void) { return (gld_module*)core.module; };
-	/// Get the first property in the class
+	
+	// Method: get_first_property
+	// Get the first property in the class
 	inline gld_property* get_first_property(void) { return (gld_property*)core.pmap; };
-	/// Get the next property in the class
+	
+	// Method: get_next_property
+	// Get the next property in the class
 	inline gld_property* get_next_property(PROPERTY*p) { PROPERTY *prop=(PROPERTY*)p->next; return ( prop && prop->oclass==&core ) ? (gld_property*)prop : NULL; };
-	/// Get the first function in the class
+	
+	// Method: get_first_function
+	// Get the first function in the class
 	inline gld_function* get_first_function(void) { return (gld_function*)core.fmap; };
-	/// Get the next function in the class
+	
+	// Method: get_next_function
+	// Get the next function in the class
 	inline gld_function* get_next_function(FUNCTION*f) { return (gld_function*)f->next; };
-	/// Get TRL 
+	
+	// Method: get_trl
+	// Get TRL 
 	inline TECHNOLOGYREADINESSLEVEL get_trl(void) { return core.trl; };
 
-public: // write accessors
-	/// Set TRL
+public: 
+	
+	// Method: set_trl
+	// Set TRL
 	inline void set_trl(TECHNOLOGYREADINESSLEVEL t) { core.trl=t; };
 
-public: // special functions
-	/// Register a class	
-	static inline CLASS *create(MODULE *m, const char *n, size_t s, unsigned int f) { return callback->register_class(m,n,(unsigned int)s,f); };
+public: 
 	
-public: // iterators
-	/// Check if last class registered
+	// Method: create
+	// Register a class	
+	static inline CLASS *create(MODULE *m, const char *n, size_t s, unsigned int f) { return callback->register_class(m,n,(unsigned int)s,PASSCONFIG(f)); };
+	
+public: 
+	
+	// Method: is_last
+	// Check if last class registered
 	inline bool is_last(void) { return core.next==NULL; };
-	/// Check if last class defined by this class' module
+	
+	// Method: is_module_last
+	// Check if last class defined by this class' module
 	inline bool is_module_last(void) { return core.next==NULL || core.module!=core.next->module; };
-	/// Get the next class
+	
+	// Method: get_next
+	// Get the next class
 	inline gld_class* get_next(void) { return (gld_class*)core.next; };
 };
 
-/// Function container
-class gld_function {
+/*	Class: gld_function
 
-private: // data
+	Function container
+ */
+class gld_function 
+{
+private: 
 	FUNCTION core;
 
-public: // constructors
-	/// Construct a function (blocker implementation)
+public: 
+
+	// Contructor: gld_function
+	// Construct a function (blocker implementation)
 	inline gld_function(void) { throw "gld_function constructor not permitted"; };
-	/// Cast to a FUNCTION pointer
+	
+	// Operator: FUNCTION*
+	// Cast to a FUNCTION pointer
 	inline operator FUNCTION*(void) { return &core; };
 
-public: // read accessors
-	/// Get function name
+public: 
+
+	// Method: get_name
+	// Get function name
 	inline FUNCTIONNAME get_name(void) { return core.name; };
-	/// Get function class
+	
+	// Method: get_class
+	// Get function class
 	inline gld_class* get_class(void) { return (gld_class*)core.oclass; };
-	/// Get function address
+	
+	// Method: get_class
+	// Get function address
 	inline FUNCTIONADDR get_addr(void) { return core.addr; };
 
-public: // write accessors
+public: 
 
-public: // iterators
-	/// Check whether this is the last function defined
+public: 
+
+	// Method: is_last
+	// Check whether this is the last function defined
 	inline bool is_last(void) { return core.next==NULL; };
-	/// Get the next function in the list
+	
+	// Method: get_next
+	// Get the next function in the list
 	inline gld_function* get_next(void) { return (gld_function*)core.next; };
 };
 
-/// Built-in type container
-class gld_type {
+/*	Class: gld_type
 
-private: // data
+	Built-in type container
+ */
+class gld_type 
+{
+private: 
 	PROPERTYTYPE type;
 
-public: // constructors/casts
-	/// Constructor
+public: 
+
+	// Constructor: gld_type
 	inline gld_type(PROPERTYTYPE t) : type(t) {};
-	/// Cast to PROPERTYTYPE
+	
+	// Operator: PROPERTYTYPE
+	// Cast to PROPERTYTYPE
 	inline operator PROPERTYTYPE(void) { return type; };
 
-public: // read accessors
-	// TODO size,conversions,etc...
+public:
+
+	// Method: get_spec
 	PROPERTYSPEC *get_spec(void) { return callback->properties.get_spec(type);};
 
-public: // write accessors
+	// TODO size,conversions,etc...
 
-public: // iterators
-	/// Get the first property type
+public: 
+
+public: 
+
+	// Method: get_first
+	// Get the first property type
 	static inline PROPERTYTYPE get_first(void) { return PT_double; };
-	/// Get the next property type
+	
+	// Method: get_next
+	// Get the next property type
 	inline PROPERTYTYPE get_next(void) { return (PROPERTYTYPE)(((int)type)+1); };
-	/// Check whether this is the last property type
+	
+	// Method: is_last
+	// Check whether this is the last property type
 	inline bool is_last(void) { return (PROPERTYTYPE)(((int)type)+1)==_PT_LAST; }; 
 };
 
-/// Unit container
-class gld_unit {
+/*	Class: gld_unit
 
-private: // data
+	Unit container
+ */
+class gld_unit
+{
+private: 
 	UNIT core;
 
-public: // constructors/casts
-	/// Construct empty unit container
+public: 
+
+	// Constructor: gld_unit
+	// Construct empty unit container
 	inline gld_unit(void) { memset(&core,0,sizeof(core)); };
-	/// Construct a container for a named or derived unit
+	
+	// Constructor: gld_unit
+	// Construct a container for a named or derived unit
 	inline gld_unit(char *name) { UNIT *unit=callback->unit_find(name); if (unit) memcpy(&core,unit,sizeof(UNIT)); else memset(&core,0,sizeof(UNIT)); };
-	/// Cast to a UNIT structure
+	
+	// Operator: UNIT*
+	// Cast to a UNIT structure
 	inline operator UNIT*(void) { return &core; };
 
-public: // read accessors
-	/// Get the name or derivation of the unit
+public: 
+
+	// Method: get_name
+	// Get the name or derivation of the unit
 	inline char* get_name(void) { return core.name; };
-	/// Get the C exponent
+	
+	// Method: get_c
+	// Get the C exponent
 	inline double get_c(void) { return core.c; };
-	/// Get the E exponent
+	
+	// Method: get_e
+	// Get the E exponent
 	inline double get_e(void) { return core.e; };
-	/// Get the H exponent
+	
+	// Method: get_h
+	// Get the H exponent
 	inline double get_h(void) { return core.h; };
-	/// Get the K exponent
+	
+	// Method: get_k
+	// Get the K exponent
 	inline double get_k(void) { return core.k; };
-	/// Get the M exponent
+	
+	// Method: get_m
+	// Get the M exponent
 	inline double get_m(void) { return core.m; };
-	/// Get the S exponent
+	
+	// Method: get_s
+	// Get the S exponent
 	inline double get_s(void) { return core.s; };
-	/// Get the A constant
+	
+	// Method: get_a
+	// Get the A constant
 	inline double get_a(void) { return core.a; };
-	/// Get the B constant
+	
+	// Method: get_b
+	// Get the B constant
 	inline double get_b(void) { return core.b; };
-	/// Get the unit precision
+	
+	// Method: get_prec
+	// Get the unit precision
 	inline int get_prec(void) { return core.prec; };
-	/// Check whether the unit is valid
+	
+	// Method: is_valid
+	// Check whether the unit is valid
 	inline bool is_valid(void) { return core.name[0]!='\0'; };
 
-public: // write accessors
-	/// Change the unit
+public: 
+
+	// Method: set_unit
+	// Change the unit
 	inline bool set_unit(char *name){ UNIT *unit=callback->unit_find(name); if (unit) {memcpy(&core,unit,sizeof(UNIT));return true;} else {memset(&core,0,sizeof(UNIT));return false;} };
 
-public: // special functions
-	/// Convert a value to another named or derived unit
+public: 
+
+	// Method: convert
+	// Convert a value to another named or derived unit
 	inline bool convert(char *name, double &value) { UNIT *unit=callback->unit_find(name); return unit&&(callback->unit_convert_ex(&core,unit,&value))?true:false; }
-	/// Convert a value to another UNIT
+	
+	// Method: convert
+	// Convert a value to another UNIT
 	inline bool convert(UNIT *unit, double &value) { return callback->unit_convert_ex(&core,unit,&value)?true:false; }
-	/// Convert a value to another gld_unit
+	
+	// Method: convert
+	// Convert a value to another gld_unit
 	inline bool convert(gld_unit &unit, double &value) { return callback->unit_convert_ex(&core,(UNIT*)unit,&value)?true:false; }
 
-public: // iterators
-	/// Check whether this is the last defined unit
+public: 
+
+	// Method: is_last
+	// Check whether this is the last defined unit
 	inline bool is_last(void) { return core.next==NULL?true:false; };
-	/// Get the next unit
+	
+	// Method: get_next
+	// Get the next unit
 	inline gld_unit* get_next(void) { return (gld_unit*)core.next; };
 };
 
-/// Keyword container
-class gld_keyword {
+/*	Class: gld_keyword
 
-private: // data
+	Keyword container
+ */
+class gld_keyword
+{
+private: 
 	KEYWORD core;
 
-public: // constructors/casts
-	/// Construct a key word
+public: 
+
+	// Constructor: gld_keyword 
+	// Construct a key word
 	inline gld_keyword(KEYWORD &key) { core=key; };
-	/// Cast to a keyword pointer
+	
+	// Operator: KEYWORD* 
 	inline operator KEYWORD* (void) { return &core; };
+
+	// Operator: char* 
 	inline operator const char* (void) { return core.name; };
+
+	// Operator: long unsigned int 
 	inline operator long unsigned int (void) { return core.value;};
 
-public: // read accessors
-	/// Get the name of a keyword
+public: 
+	
+	// Method: get_name
+	// Get the name of a keyword
 	inline const char* get_name(void) { return core.name; };
-	/// Get the bit pattern for the keyword
+	
+	// Method: get_value
+	// Get the bit pattern for the keyword
 	inline long unsigned int get_value(void) { return core.value; };
+
+	// Method: get_enumeration_value
 	inline enumeration get_enumeration_value(void) { return (enumeration)get_value(); };
+
+	// Method: get_set_value
 	inline set get_set_value(void) { return (set)get_value(); };
 
-public: // write accessors
-	inline int compare(const char *name) { return strcmp(name,core.name); };
-	inline bool operator == (const char *name) { return compare(name)==0; };
-	inline bool operator <= (const char *name) { return compare(name)<=0; };
-	inline bool operator >= (const char *name) { return compare(name)>=0; };
-	inline bool operator < (const char *name) { return compare(name)<0; };
-	inline bool operator > (const char *name) { return compare(name)>0; };
-	inline bool operator != (const char *name) { return compare(name)!=0; };
-	inline int compare(long unsigned int value) { return value<(long unsigned int)core.value ? -1 : ( value>core.value ? +1 : 0 ); };
-	inline bool operator == (long unsigned int value) { return compare(value)==0; };
-	inline bool operator <= (long unsigned int value) { return compare(value)<=0; };
-	inline bool operator >= (long unsigned int value) { return compare(value)>=0; };
-	inline bool operator < (long unsigned int value) { return compare(value)<0; };
-	inline bool operator > (long unsigned int value) { return compare(value)>0; };
-	inline bool operator != (long unsigned int value) { return compare(value)!=0; };
+public: 
 
-public: // iterators
-	/// Get the next keyword (NULL if last)
+	// Method: compare
+	inline int compare(const char *name) { return strcmp(name,core.name); };
+
+	// Operator: operator==
+	inline bool operator== (const char *name) { return compare(name)==0; };
+
+	// Operator: operator<=
+	inline bool operator<= (const char *name) { return compare(name)<=0; };
+
+	// Operator: operator>=
+	inline bool operator>= (const char *name) { return compare(name)>=0; };
+
+	// Operator: operator<
+	inline bool operator< (const char *name) { return compare(name)<0; };
+
+	// Operator: operator>
+	inline bool operator> (const char *name) { return compare(name)>0; };
+
+	// Operator: operator!=
+	inline bool operator!= (const char *name) { return compare(name)!=0; };
+
+	// Method: compare
+	inline int compare(long unsigned int value) { return value<(long unsigned int)core.value ? -1 : ( value>core.value ? +1 : 0 ); };
+
+	// Operator: operator==
+	inline bool operator== (long unsigned int value) { return compare(value)==0; };
+
+	// Operator: operator<=
+	inline bool operator<= (long unsigned int value) { return compare(value)<=0; };
+
+	// Operator: operator>=
+	inline bool operator>= (long unsigned int value) { return compare(value)>=0; };
+
+	// Operator: operator<
+	inline bool operator< (long unsigned int value) { return compare(value)<0; };
+
+	// Operator: operator>
+	inline bool operator> (long unsigned int value) { return compare(value)>0; };
+
+	// Operator: operator!=
+	inline bool operator!= (long unsigned int value) { return compare(value)!=0; };
+
+public: 
+
+	// Method: get_next
+	// Get the next keyword (NULL if last)
 	inline gld_keyword* get_next(void) { return (gld_keyword*)core.next; };
+
+	// Method: find
 	template <class T> inline gld_keyword* find(T value)
 	{
 		if ( compare(value)==0 ) return this;
@@ -1788,9 +2580,23 @@ public: // iterators
 	};
 };
 
+// Section: Property definitions
 
-// object data declaration/accessors
-/// Define an atomic property
+// Define: GL_ATOMIC(<type>,<name>)
+// Define an atomic property (e.g., int, double, etc)
+//
+// Methods:
+// size_t get_<name>_offset(void) - return the address of the value
+// <type> get_<name>() - get the value
+// gld_property get_<name>_property() - get the property of the value
+// <type> get_<name>(gld_rlock&) - get the value with a read lock
+// <type> get_<name>(gld_wlock&) - get the value with a write lock
+// void set_<name>(<type> p) - set a value
+// void set_<name>(<type> p, gld_wlock&) - set a value with a write lock 
+// gld_string get_<name>_string(void) - get the value as a string
+// void set_<name>(const char *str) - set the value from a string
+// void init_<name>(void) - initialize the value to the default
+// void init_<name>(<type> value) - initialize the value
 #define GL_ATOMIC(T,X) protected: T X; public: \
 	static inline size_t get_##X##_offset(void) { return (char*)&(defaults->X)-(char*)defaults; }; \
 	inline T get_##X(void) { return X; }; \
@@ -1800,11 +2606,25 @@ public: // iterators
 	inline void set_##X(T p) { X=p; }; \
 	inline void set_##X(T p, gld_wlock&) { X=p; }; \
 	inline gld_string get_##X##_string(void) { return get_##X##_property().get_string(); }; \
-	inline void set_##X(char *str) { get_##X##_property().from_string(str); }; \
+	inline void set_##X(const char *str) { get_##X##_property().from_string(str); }; \
 	inline void init_##X(void) { memset((void*)&X,0,sizeof(X));}; \
 	inline void init_##X(T value) { X=value;}; \
 
-/// Define a structured property
+// Define: GL_STRUCT
+// Define a structured property
+//
+// Methods:
+// size_t get_<name>_offset(void) - return the address of the value
+// <type> get_<name>() - get the value
+// gld_property get_<name>_property() - get the property of the value
+// <type> get_<name>(gld_rlock&) - get the value with a read lock
+// <type> get_<name>(gld_wlock&) - get the value with a write lock
+// void set_<name>(<type> p) - set a value
+// void set_<name>(<type> p, gld_wlock&) - set a value with a write lock 
+// gld_string get_<name>_string(void) - get the value as a string
+// void set_<name>(const char *str) - set the value from a string
+// void init_<name>(void) - initialize the value to the default
+// void init_<name>(<type> value) - initialize the value
 #define GL_STRUCT(T,X) protected: T X; public: \
 	static inline size_t get_##X##_offset(void) { return (char*)&(defaults->X)-(char*)defaults; }; \
 	inline T get_##X(void) { gld_rlock _lock(my()); return X; }; \
@@ -1818,7 +2638,26 @@ public: // iterators
 	inline void init_##X(void) { memset((void*)&X,0,sizeof(X));}; \
 	inline void init_##X(T &value) { X=value;}; \
 
-/// Define a string property
+// Define: GL_STRING
+// Define a string property
+//
+// Methods:
+// size_t get_<name>_offset(void) - return the address of the value
+// <type> get_<name>() - get the value
+// gld_property get_<name>_property() - get the property of the value
+// char* get_<name>(gld_rlock&) - get the value with a read lock
+// char* get_<name>(gld_wlock&) - get the value with a write lock
+// char get_<name>(size_t n) - get a character
+// char get_<name>(size_t n, gld_rlock&) - get a character with a read lock
+// char get_<name>(size_t n, gld_wlock&) - get a character with a write lock
+// void set_<name>(<type> p) - set a value
+// void set_<name>(<type> p, gld_wlock&) - set a value with a write lock 
+// void set_<name>(size_t n, char c) - set a character
+// void set_<name>(size_t n, char c, gld_wlock&) - set a character with a write lock
+// gld_string get_<name>_string(void) - get the value as a string
+// void set_<name>(const char *str) - set the value from a string
+// void init_<name>(void) - initialize the value to the default
+// void init_<name>(<type> value) - initialize the value
 #define GL_STRING(T,X) 	protected: T X; public: \
 	static inline size_t get_##X##_offset(void) { return (char*)&(defaults->X)-(char*)defaults; }; \
 	inline char* get_##X(void) { gld_rlock _lock(my()); return X.get_string(); }; \
@@ -1835,7 +2674,8 @@ public: // iterators
 	inline void init_##X(void) { memset((void*)X,0,sizeof(X));}; \
 	inline void init_##X(T value) { strncpy(X,value,sizeof(X)-1); }; \
 
-/// Define an array property
+// Define: GL_ARRAY
+// Define an array property
 #define GL_ARRAY(T,X,S) protected: T X[S]; public: \
 	static inline size_t get_##X##_offset(void) { return (char*)&(defaults->X)-(char*)defaults; }; \
 	inline gld_property get_##X##_property(void) { return gld_property(my(),#X); }; \
@@ -1856,7 +2696,8 @@ public: // iterators
 		} \
 	}; \
 
-/// Define a bitflag property
+// Define: GL_BITFLAGS
+// Define a bitflag property
 #define GL_BITFLAGS(T,X) protected: T X; public: \
 	static inline size_t get_##X##_offset(void) { return (char*)&(defaults->X)-(char*)defaults; }; \
 	inline T get_##X(T mask=-1) { return X&mask; }; \
@@ -1871,116 +2712,270 @@ public: // iterators
 	inline void set_##X(char *str) { get_##X##_property().from_string(str); }; \
 	inline void init_##X(T value=0) { X=value; }; \
 
-/// Define a method property
+// Define: GL_METHOD(<class>,<name>)
+// Define a method property
+//
+// Methods:
+// size_t get_<name>_offset(void) - get the address of the method interface
+// int get_<name>(char *buffer, size_t len) - get the value of a property using a method interface
+// int set_<name>(char *buffer) - set the value of a property using a method interface
 #define GL_METHOD(C,X) public: int X(char *buffer, size_t len=0); \
 	static inline size_t get_##X##_offset(void) { return (size_t)method_##C##_##X; }; \
 	inline int get_##X(char *buffer, size_t len) { return X(buffer,len); }; \
 	inline int set_##X(char *buffer) { return X(buffer,0); }
-#define IMPL_METHOD(C,X) int C::X(char *buffer, size_t len)  // use this to implement a method
 
-;/// Set bits of a bitflag property
+// Define: IMPL_METHOD(class,name)
+// Parameters:
+// buffer - a char* reference to the buffer containing the value
+// len - a size_t indicating the size of the buffer
+// This implements a method handler. If the len is zero, the value should be read from the
+// buffer. If the len is non-zero, the value should be written to the buffer.
+#define IMPL_METHOD(C,X) int C::X(char *buffer, size_t len) 
+
+// Function: setbits
+// Set bits of a bitflag property
 inline void setbits(unsigned long &flags, unsigned int bits) { flags|=bits; }; 
-/// Clear bits of a bitflag property
+
+// Function: clearbits
+// Clear bits of a bitflag property
 inline void clearbits(unsigned long &flags, unsigned int bits) { flags&=~bits; }; 
-/// Test bits of a bitflag property
+
+// Function: hasbits
+// Test bits of a bitflag property
 inline bool hasbits(unsigned long flags, unsigned int bits) { return (flags&bits) ? true : false; };
 
-/// Object container
-class gld_object {
+/* 	Class: gld_object
+
+	Object container
+ */
+class gld_object 
+{
 public:
+
+	// Method: my
+	// Returns: reference the object header
 	inline OBJECT *my() { return (((OBJECT*)this)-1); }
+
 public:
+
+	// Operator: operator=
 	inline gld_object &operator=(gld_object&o) { exception("copy constructor is forbidden on gld_object"); return *this;};
 
-public: // constructors
+public: 
+
+	// Method: find_object
 	inline static gld_object *find_object(const char *n) { OBJECT *obj = callback->get_object(n); if (obj) return (gld_object*)(obj+1); else return NULL; };
 
-public: // header read accessors (no locking)
+public: 
+
+	// Method: get_id
 	inline OBJECTNUM get_id(void) { return my()->id; };
+
+	// Method: get_groupid
 	inline char* get_groupid(void) { return my()->groupid.get_string(); };
+
+	// Method: get_oclass
 	inline gld_class* get_oclass(void) { return (gld_class*)my()->oclass; };
+
+	// Method: get_parent
 	inline gld_object* get_parent(void) { return my()->parent?OBJECTDATA(my()->parent,gld_object):NULL; };
+
+	// Method: get_rank
 	inline OBJECTRANK get_rank(void) { return my()->rank; };
+
+	// Method: get_clock
 	inline TIMESTAMP get_clock(void) { return my()->clock; };
+
+	// Method: get_valid_to
 	inline TIMESTAMP get_valid_to(void) { return my()->valid_to; };
+
+	// Method: get_schedule_skew
 	inline TIMESTAMP get_schedule_skew(void) { return my()->schedule_skew; };
+
+	// Method: get_forecast
 	inline FORECAST* get_forecast(void) { return my()->forecast; };
+
+	// Method: get_latitude
 	inline double get_latitude(void) { return my()->latitude; };
+
+	// Method: get_longitude
 	inline double get_longitude(void) { return my()->longitude; };
+
+	// Method: get_in_svc
 	inline TIMESTAMP get_in_svc(void) { return my()->in_svc; };
+
+	// Method: get_out_svc
 	inline TIMESTAMP get_out_svc(void) { return my()->out_svc; };
+
+	// Method: get_name
 	inline const char* get_name(void) { static char _name[sizeof(CLASSNAME)+16]; return my()->name?my()->name:(sprintf(_name,"%s:%d",my()->oclass->name,my()->id),_name); };
+
+	// Method: get_space
 	inline NAMESPACE* get_space(void) { return my()->space; };
+
+	// Method: get_lock
 	inline unsigned int get_lock(void) { return my()->lock; };
+
+	// Method: get_rng_state
 	inline unsigned int get_rng_state(void) { return my()->rng_state; };
+
+	// Method: get_heartbeat
 	inline TIMESTAMP get_heartbeat(void) { return my()->heartbeat; };
+
+	// Method: get_guid
 	inline unsigned long long* get_guid(void) { return my()->guid; };
+
+	// Method: get_guid_size
 	inline size_t get_guid_size(void) { OBJECT *_t=my(); return sizeof(_t->guid)/sizeof(_t->guid[0]); };
+
+	// Method: get_flags
 	inline uint64 get_flags(uint64 mask=0xffffffffffffffff) { return (my()->flags)&mask; };
 
-protected: // header write accessors (no locking)
+protected: 
+
+	// Method: set_clock
 	inline void set_clock(TIMESTAMP ts=0) { my()->clock=(ts?ts:gl_globalclock); };
+
+	// Method: set_heartbeat
 	inline void set_heartbeat(TIMESTAMP dt) { my()->heartbeat=dt; };
+
+	// Method: set_forecast
 	inline void set_forecast(FORECAST *fs) { my()->forecast=fs; };
+
+	// Method: set_latitude
 	inline void set_latitude(double x) { my()->latitude=x; };
+
+	// Method: set_longitude
 	inline void set_longitude(double x) { my()->longitude=x; };
+
+	// Method: set_flags
 	inline void set_flags(uint64 flags) { my()->flags=flags; };
+
+	// Method: set_flags_bits
 	inline void set_flags_bits(uint64 bits) { my()->flags|=bits; };
+
+	// Method: unset_flags_bits
 	inline void unset_flags_bits(uint64 bits) { my()->flags&=~bits; };
 
-protected: // locking (self)
+protected: 
+
+	// Method: rlock(void)
 	inline void rlock(void) { ::rlock(&my()->lock); };
+
+	// Method: runlock(void)
 	inline void runlock(void) { ::runlock(&my()->lock); };
+
+	// Method: wlock(void)
 	inline void wlock(void) { ::wlock(&my()->lock); };
+
+	// Method: wunlock(void)
 	inline void wunlock(void) { ::wunlock(&my()->lock); };
-protected: // locking (others)
+
+protected: 
+
+	// Method: rlock(OBJECT *obj)
 	inline void rlock(OBJECT *obj) { ::rlock(&obj->lock); };
+
+	// Method: runlock(OBJECT *obj)
 	inline void runlock(OBJECT *obj) { ::runlock(&obj->lock); };
+
+	// Method: wlock(OBJECT *obj)
 	inline void wlock(OBJECT *obj) { ::wlock(&obj->lock); };
+
+	// Method: wunlock(OBJECT *obj)
 	inline void wunlock(OBJECT *obj) { ::wunlock(&obj->lock); };
 
-protected: // special functions
-	inline bool operator == (gld_object *o) { return o!=NULL && my()==o->my(); };
-	inline bool operator == (OBJECT *o) { return o!=NULL && my()==o; };
+protected: 
 
-public: // member lookup functions
+	// Method: operator==
+	inline bool operator== (gld_object *o) { return o!=NULL && my()==o->my(); };
+
+	// Method: operator==
+	inline bool operator== (OBJECT *o) { return o!=NULL && my()==o; };
+
+public: 
+
+	// Method: get_property
 	inline PROPERTY* get_property(PROPERTYNAME name, PROPERTYSTRUCT *pstruct=NULL) { return callback->properties.get_property(my(),name,pstruct); };
+
+	// Method: get_function
 	inline FUNCTIONADDR get_function(const char *name) { return (*callback->function.get)(my()->oclass->name,name); };
 
-public: // external accessors
+public: 
+
+	// Method: getp(PROPERTY &prop, T &value)
 	template <class T> inline void getp(PROPERTY &prop, T &value) { rlock(); value=*(T*)(GETADDR(my(),&prop)); wunlock(); };
+
+	// Method: setp(PROPERTY &prop, T &value)
 	template <class T> inline void setp(PROPERTY &prop, T &value) { wlock(); *(T*)(GETADDR(my(),&prop))=value; wunlock(); };
+
+	// Method: getp(PROPERTY &prop, T &value, gld_rlock&)
 	template <class T> inline void getp(PROPERTY &prop, T &value, gld_rlock&) { value=*(T*)(GETADDR(my(),&prop)); };
+
+	// Method: getp(PROPERTY &prop, T &value, gld_wlock&)
 	template <class T> inline void getp(PROPERTY &prop, T &value, gld_wlock&) { value=*(T*)(GETADDR(my(),&prop)); };
+
+	// Method: setp(PROPERTY &prop, T &value, gld_wlock&)
 	template <class T> inline void setp(PROPERTY &prop, T &value, gld_wlock&) { *(T*)(GETADDR(my(),&prop))=value; };
 
-public: // core interface
+public: 
+
+	// Method: set_dependent
 	inline int set_dependent(OBJECT *obj) { return callback->object.set_dependent(my(),obj); };
+
+	// Method: set_parent
 	inline int set_parent(OBJECT *obj) { return callback->object.set_parent(my(),obj); };
+
+	// Method: set_rank
 	inline OBJECTRANK set_rank(unsigned int r) { return callback->object.set_rank(my(),r); };
+
+	// Method: isa
 	inline bool isa(const char *type) { return callback->object_isa(my(),type) ? true : false; };
+
+	// Method: is_valid
 	inline bool is_valid(void) { return my()!=NULL && my()==OBJECTHDR(this); };
 
-public: // iterators
+public: 
+
+	// Method: is_last
 	inline bool is_last(void) { return my()->next==NULL; };
+
+	// Method: get_first
 	inline static gld_object *get_first(void) { OBJECT *o=callback->object.get_first(); return OBJECTDATA(o,gld_object);};
+
+	// Method: get_next
 	inline gld_object* get_next(void) { return OBJECTDATA(my()->next,gld_object); };
 
-public: // exceptions
+public: 
+
+	// Method: exception
 	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); throw (const char*)buf;};
+
+	// Method: error
 	inline void error(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_error("%s",buf);};
+
+	// Method: warning
 	inline void warning(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_warning("%s",buf);};
+
+	// Method: verbose
 	inline void verbose(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_verbose("%s",buf);};
+
+	// Method: debug
 	inline void debug(const char *msg, ...) { char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf+sprintf(buf,"%s: ",get_name()),msg,ptr); va_end(ptr); gl_debug("%s",buf);};
-//public:
+
+	// Method: set_defaults
 //	virtual void set_defaults(bool is_template = false); /* this force proper V4 initialization of objects (legacy defaults copy is no longer permitted) */
 };
-/// Create a gld_object from an OBJECT
+
+// Function: get_object(OBJECT*)
+// Create a gld_object from an OBJECT*
 static inline gld_object* get_object(OBJECT*obj)
 {
 	return obj ? (gld_object*)(obj+1) : NULL;
 }
-/// Find a gld_object from an object name
+
+// Function: get_object(char*)
+// Find a gld_object from an object name
 static inline gld_object* get_object(char *n)
 {
 	OBJECT *obj = callback->get_object(n);
@@ -1988,15 +2983,23 @@ static inline gld_object* get_object(char *n)
 }
 
 static PROPERTYSTRUCT nullpstruct;
-/// Property container
+
+/* 	Class: gld_property
+
+	Property container
+ */
 class gld_property {
 
 private: // data
 	PROPERTYSTRUCT pstruct;
 	OBJECT *obj;
 
-public: // constructors/casts
+public: 
+
+	// Constructor: gld_property(void)
 	inline gld_property(void) : pstruct(nullpstruct), obj(NULL) {};
+
+	// Constructor: gld_property(gld_object *o, const char *n)
 	inline gld_property(gld_object *o, const char *n) : pstruct(nullpstruct), obj(o->my())
 	{ 
 		if (o) 
@@ -2007,6 +3010,8 @@ public: // constructors/casts
 			pstruct.prop= (v?v->prop:NULL);
 		} 
 	};
+
+	// Constructor: gld_property(OBJECT *o, const char *n)
 	inline gld_property(OBJECT *o, const char *n) : pstruct(nullpstruct), obj(o)
 	{ 
 		if (o) 
@@ -2017,9 +3022,17 @@ public: // constructors/casts
 			pstruct.prop= (v?v->prop:NULL);
 		} 
 	};
+
+	// Constructor: gld_property(OBJECT *o) 
 	inline gld_property(OBJECT *o) : pstruct(nullpstruct), obj(o) { pstruct.prop=o->oclass->pmap; };
+
+	// Constructor: gld_property(OBJECT *o, PROPERTY *p)
 	inline gld_property(OBJECT *o, PROPERTY *p) : pstruct(nullpstruct), obj(o) { pstruct.prop=p; };
+
+	// Constructor: gld_property(GLOBALVAR *v)
 	inline gld_property(GLOBALVAR *v) : pstruct(nullpstruct), obj(NULL) { pstruct.prop=v->prop; };
+
+	// Constructor: gld_property(const char *n)
 	inline gld_property(const char *n) : pstruct(nullpstruct), obj(NULL)
 	{
 		char oname[256], vname[256];
@@ -2035,6 +3048,8 @@ public: // constructors/casts
 		GLOBALVAR *v=callback->global.find(n); 
 		pstruct.prop = (v?v->prop:NULL);  
 	};
+
+	// Constructor: gld_property(const char *m, const char *n)
 	inline gld_property(const char *m, const char *n) : pstruct(nullpstruct), obj(NULL)
 	{
 		obj = callback->get_object(m);
@@ -2047,25 +3062,61 @@ public: // constructors/casts
 		GLOBALVAR *v=callback->global.find(vn); 
 		pstruct.prop= (v?v->prop:NULL);  
 	};
+
+	// Operator: PROPERTY*
 	inline operator PROPERTY*(void) { return pstruct.prop; };
+
+	// Operator: OBJECT*
 	inline operator OBJECT*(void) { return obj; };
 
-public: // read accessors
+public: 
+
+	// Method: get_object
 	inline OBJECT *get_object(void) { return obj; };
+
+	// Method: get_property
 	inline PROPERTY *get_property(void) { return pstruct.prop; };
+
+	// Method: get_class
 	inline gld_class* get_class(void) { return (gld_class*)pstruct.prop->oclass; };
+
+	// Method: get_name
 	inline const char *get_name(void) { return pstruct.prop->name; };
+
+	// Method: get_type
 	inline gld_type get_type(void) { return gld_type(pstruct.prop->ptype); };
+
+	// Method: get_size
 	inline size_t get_size(void) { return (size_t)(pstruct.prop->size); };
+
+	// Method: get_width
 	inline size_t get_width(void) { return (size_t)(pstruct.prop->width); };
+
+	// Method: get_access
 	inline PROPERTYACCESS get_access(void) { return pstruct.prop->access; };
+
+	// Method: get_access
 	inline bool get_access(unsigned int bits, unsigned int mask=0xffff) {  return ((pstruct.prop->access&mask)|bits); };
+
+	// Method: get_unit
 	inline gld_unit* get_unit(void) { return (gld_unit*)pstruct.prop->unit; };
+
+	// Method: get_addr
 	inline void* get_addr(void) { return obj?((void*)((char*)(obj+1)+(unsigned int64)(pstruct.prop->addr))):pstruct.prop->addr; };
+
+	// Method: get_first_keyword
 	inline gld_keyword* get_first_keyword(void) { return (gld_keyword*)pstruct.prop->keywords; };
+
+	// Method: get_description
 	inline const char* get_description(void) { return pstruct.prop->description; };
+
+	// Method: get_flags
 	inline PROPERTYFLAGS get_flags(void) { return pstruct.prop->flags; };
+
+	// Method: to_string
 	inline int to_string(char *buffer, int size) { return callback->convert.property_to_string(pstruct.prop,get_addr(),buffer,size); };
+
+	// Method: get_string
 	inline gld_string get_string(const size_t sz=1024)
 	{
 		gld_string res;
@@ -2075,79 +3126,176 @@ public: // read accessors
 			res = buf;
 		return res;
 	};
+
+	// Method: from_string
 	inline int from_string(const char *string) { return callback->convert.string_to_property(pstruct.prop,get_addr(),string); };
+
+	// Method: get_partname
 	inline const char *get_partname(void) { return pstruct.part; };
+
+	// Method: get_part
 	inline double get_part(char *part=NULL) { return callback->properties.get_part(obj,pstruct.prop,part?part:pstruct.part); };
 
-public: // write accessors
+public: 
+
+	// Method: set_object
 	inline void set_object(OBJECT *o) { obj=o; };
+
+	// Method: set_object
 	inline void set_object(gld_object *o) { obj=o->my(); };
+
+	// Method: set_property
 	inline void set_property(char *n) { callback->properties.get_property(obj,n,&pstruct); };
+
+	// Method: set_property
 	inline void set_property(PROPERTY *p) { pstruct.prop=p; };
 
-public: // special operations
+public: 
+
+	// Method: is_valid
 	inline bool is_valid(void) { return pstruct.prop!=NULL; }
+
+	// Method: has_part
 	inline bool has_part(void) { return pstruct.part[0]!='\0'; };
+
+	// Method: is_complex
 	inline bool is_complex(void) { if(pstruct.prop->ptype == PT_complex) return true; return false;}
+
+	// Method: is_double
 	inline bool is_double(void) { switch(pstruct.prop->ptype) { case PT_double: case PT_random: case PT_enduse: case PT_loadshape: return true; default: return false;} };
+
+	// Method: is_integer
 	inline bool is_integer(void) { switch(pstruct.prop->ptype) { case PT_int16: case PT_int32: case PT_int64: return true; default: return false;} };
+
+	// Method: is_enumeration
 	inline bool is_enumeration(void) { return pstruct.prop->ptype==PT_enumeration; };
+
+	// Method: is_set
 	inline bool is_set(void) { return pstruct.prop->ptype==PT_set; };
+
+	// Method: is_character
 	inline bool is_character(void) { switch(pstruct.prop->ptype) { case PT_char8: case PT_char32: case PT_char256: case PT_char1024: return true; default: return false;} };
+
+	// Method: is_random
 	inline bool is_random(void) { return pstruct.prop->ptype==PT_random; };
+
+	// Method: is_enduse
 	inline bool is_enduse(void) { return pstruct.prop->ptype==PT_enduse; };
+
+	// Method: is_loadshape
 	inline bool is_loadshape(void) { return pstruct.prop->ptype==PT_loadshape; };
+
+	// Method: is_double_array
 	inline bool is_double_array(void) { return pstruct.prop->ptype==PT_double_array; };
+
+	// Method: is_complex_array
 	inline bool is_complex_array(void) { return pstruct.prop->ptype==PT_complex_array; };
+
+	// Method: is_objectref
 	inline bool is_objectref(void) { return pstruct.prop->ptype==PT_object; };
+
+	// Method: is_bool
 	inline bool is_bool(void) { return pstruct.prop->ptype==PT_bool; };
 
 	// TODO these need to use throw instead of returning overloaded values
+
+	// Method: get_double(void)
 	inline double get_double(void) { errno=0; switch(pstruct.prop->ptype) { case PT_double: case PT_random: case PT_enduse: case PT_loadshape: return has_part() ? get_part() : *(double*)get_addr(); default: errno=EINVAL; return NaN;} };
+
+	// Method: get_double(UNIT*to)
 	inline double get_double(UNIT*to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
+
+	// Method: get_double(gld_unit&to)
 	inline double get_double(gld_unit&to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
+
+	// Method: get_double(char*to)
 	inline double get_double(char*to) { double rv = get_double(); return get_unit()->convert(to,rv) ? rv : QNAN; };
+
+	// Method: get_complex
 	inline complex get_complex(void) { errno=0; if ( pstruct.prop->ptype==PT_complex ) return *(complex*)get_addr(); else return complex(QNAN,QNAN); };
+
+	// Method: get_integer
 	inline int64 get_integer(void) { errno=0; switch(pstruct.prop->ptype) { case PT_int16: return (int64)*(int16*)get_addr(); case PT_int32: return (int64)*(int32*)get_addr(); case PT_int64: return *(int64*)get_addr(); default: errno=EINVAL; return 0;} };
+
+	// Method: get_enumeration
 	inline enumeration get_enumeration(void) { if ( pstruct.prop->ptype != PT_enumeration ) exception("get_enumeration() called on a property that is not an enumeration"); return *(enumeration*)get_addr(); };
+
+	// Method: get_set
 	inline set get_set(void) { if ( pstruct.prop->ptype != PT_set ) exception("get_set() called on a property that is not a set"); return *(set*)get_addr(); };
+
+	// Method: get_objectref
 	inline gld_object* get_objectref(void) { if ( is_objectref() ) return ::get_object(*(OBJECT**)get_addr()); else return NULL; };
+
+	// Method: getp(T &value)
 	template <class T> inline void getp(T &value) { ::rlock(&obj->lock); value = *(T*)get_addr(); ::runlock(&obj->lock); };
+
+	// Method: setp(T &value)
 	template <class T> inline void setp(T &value) { ::wlock(&obj->lock); *(T*)get_addr()=value; ::wunlock(&obj->lock); };
+
+	// Method: getp(T &value, gld_rlock&)
 	template <class T> inline void getp(T &value, gld_rlock&) { value = *(T*)get_addr(); };
+
+	// Method: getp(T &value, gld_wlock&)
 	template <class T> inline void getp(T &value, gld_wlock&) { value = *(T*)get_addr(); };
+
+	// Method: setp(T &value, gld_wlock&)
 	template <class T> inline void setp(T &value, gld_wlock&) { *(T*)get_addr()=value; };
+
+	// Method: setp(enumeration value)
 	inline void setp(enumeration value) { ::wlock(&obj->lock); *(enumeration*)get_addr()=value; ::wunlock(&obj->lock); };
+
+	// Method: setp(set value)
 	inline void setp(set value) { ::wlock(&obj->lock); *(set*)get_addr()=value; ::wunlock(&obj->lock); };
+
+	// Method: find_keyword(unsigned long value)
 	inline gld_keyword* find_keyword(unsigned long value) { return get_first_keyword()->find(value); };
+
+	// Method: find_keyword(const char *name)
 	inline gld_keyword* find_keyword(const char *name) { return get_first_keyword()->find(name); };
+
+	// Method: compare(char *op, char *a, char *b=NULL, char *p=NULL)
 	inline bool compare(char *op, char *a, char *b=NULL, char *p=NULL) 
 	{ 
 		PROPERTYCOMPAREOP n = callback->properties.get_compare_op(pstruct.prop->ptype,op); 
 		if (n==TCOP_ERR) throw "invalid property compare operation"; 
 		return compare((enumeration)n,a,b,p); 
 	};
+
+	// Method: compare(enumeration op, char *a, char *b=NULL) 
 	inline bool compare(enumeration op, char *a, char *b=NULL) 
 	{ 
 		char v1[1024], v2[1024]; 
 		return callback->convert.string_to_property(pstruct.prop,(void*)v1,a)>0 && callback->properties.compare_basic(pstruct.prop->ptype,(PROPERTYCOMPAREOP)op,get_addr(),(void*)v1,(b&&callback->convert.string_to_property(pstruct.prop,(void*)v2,b)>0)?(void*)v2:NULL, NULL);
 	};
+
+	// Method: compare(enumeration op, char *a, char *b, char *p) 
 	inline bool compare(enumeration op, char *a, char *b, char *p) 
 	{
 		double v1, v2; v1=atof(a); v2=b?atof(b):0;
 		return callback->properties.compare_basic(pstruct.prop->ptype,(PROPERTYCOMPAREOP)op,get_addr(),(void*)&v1,b?(void*)&v2:NULL, p);
 	};
+
+	// Method: compare(enumeration op, double *a, double *b=NULL, char *p=NULL) 
 	inline bool compare(enumeration op, double *a, double *b=NULL, char *p=NULL) 
 	{ 
 		return callback->properties.compare_basic(pstruct.prop->ptype,(PROPERTYCOMPAREOP)op,get_addr(),a,b,p);
 	};
+
+	// Method: compare(enumeration op, void *a, void *b=NULL) 
 	inline bool compare(enumeration op, void *a, void *b=NULL) 
 	{ 
 		return callback->properties.compare_basic(pstruct.prop->ptype,(PROPERTYCOMPAREOP)op,get_addr(),a,b,NULL);
 	};
+
+	// Method: call(char *buffer, size_t len)
 	inline int call(char *buffer, size_t len) { return (*(pstruct.prop->method))(obj,buffer,len); };
+
+	// Method: call(const char *buffer) 
 	inline int call(const char *buffer) { return (*(pstruct.prop->method))(obj,(char*)buffer,0); };
-	inline int callf(const char *format,...) {
+
+	// Method: callf(const char *format,...)
+	inline int callf(const char *format,...) 
+	{
 		va_list ptr;
 		va_start(ptr,format);
 		char buffer[1024];
@@ -2157,20 +3305,42 @@ public: // special operations
 	};
 
 public: // iterators
+
+	// Method: is_last
 	inline bool is_last(void) { return pstruct.prop==NULL || pstruct.prop->next==NULL || pstruct.prop->oclass!=pstruct.prop->next->oclass; };
+
+	// Method: get_next
 	inline PROPERTY* get_next(void) { return is_last() ? NULL : pstruct.prop->next; };
 
 public: // comparators
+
+	// Method: perator==
 	inline bool operator == (char* a) { return compare(TCOP_EQ,a,NULL); };
+
+	// Method: operator<=
 	inline bool operator <= (char* a) { return compare(TCOP_LE,a,NULL); };
+
+	// Method: operator>=
 	inline bool operator >= (char* a) { return compare(TCOP_GE,a,NULL); };
+
+	// Method: operator!=
 	inline bool operator != (char* a) { return compare(TCOP_NE,a,NULL); };
+
+	// Method: operator<
 	inline bool operator < (char* a) { return compare(TCOP_LT,a,NULL); };
+
+	// Method: operator>
 	inline bool operator > (char* a) { return compare(TCOP_GT,a,NULL); };
+
+	// Method: inside
 	inline bool inside(char* a, char* b) { return compare(TCOP_IN,a,b); };
+
+	// Method: outside
 	inline bool outside(char* a, char* b) { return compare(TCOP_NI,a,b); };
 
 private: // exceptions
+
+	// Method: exception
 	inline void exception(const char *msg, ...)
 	{ 
 		static char buf[1024]; 
@@ -2182,24 +3352,45 @@ private: // exceptions
 	};
 };
 
-/// Global variable container
+/* 	Class: gld_global
+
+	Global variable container
+ */
 class gld_global {
 
 private: // data
 	GLOBALVAR *var;
 
-public: // constructors
+public: 
+
+	// Constructor: gld_global(void)
 	inline gld_global(void) { var=callback->global.find(NULL); };
+
+	// Constructor: gld_global(GLOBALVAR *v)
 	inline gld_global(GLOBALVAR *v) : var(v) {};
+
+	// Constructor: gld_global(const char *n)
 	inline gld_global(const char *n) { var=callback->global.find(n); };
+
+	// Constructor: gld_global(const char *n, PROPERTYTYPE t, void *p)
 	inline gld_global(const char *n, PROPERTYTYPE t, void *p) { var=callback->global.create(n,t,p,NULL); };
 
-public: // read accessors
+	// Method: GLOBALVAR*
 	inline operator GLOBALVAR*(void) { return var; };
+
+	// Method: is_valid
 	inline bool is_valid(void) { return var!=NULL; };
+
+	// Method: get_property
 	inline PROPERTY* get_property(void) { if (!var) return NULL; return var->prop; };
+
+	// Method: get_flags
 	inline unsigned long get_flags(void) { if (!var) return -1; return var->flags; };
+
+	// Method: to_string
 	inline size_t to_string(char *bp, size_t sz) { if (!var) return -1; gld_property p(var); return p.to_string(bp,(int)sz); };
+
+	// Method: get_string
 	inline gld_string get_string(const size_t sz=1024)
 	{
 		gld_string res;
@@ -2209,110 +3400,215 @@ public: // read accessors
 			res = buf;
 		return res;
 	};
+
+	// Method: get_bool
 	inline bool get_bool(void) { return *(bool*)(var->prop->addr); };
+
+	// Method: get_int16
 	inline int16 get_int16(void) { return *(int16*)(var->prop->addr); };
+
+	// Method: get_int32
 	inline int32 get_int32(void) { return *(int32*)(var->prop->addr); };
+
+	// Method: get_int64
 	inline int64 get_int64(void) { return *(int64*)(var->prop->addr); };
+
+	// Method: get_double
 	inline double get_double(void) { return *(double*)(var->prop->addr); };
+
+	// Method: get_complex
 	inline complex get_complex(void) { return *(complex*)(var->prop->addr); };
+
+	// Method: get_timestamp
 	inline TIMESTAMP get_timestamp(void) { return *(TIMESTAMP*)(var->prop->addr); };
 
-public: // write accessors
+	// Method: from_string
 	inline size_t from_string(const char *bp) { if (!var) return -1; gld_property p(var); return p.from_string(bp); };
+
+	// Method: get
 	inline bool get(char *n) { var=callback->global.find(n); return var!=NULL; };
+
+	// Method: create
 	inline bool create(char *n, PROPERTYTYPE t, void *p) { var=callback->global.create(n,t,p,NULL); return var!=NULL; };
 
-public: // external accessors
-	// TODO
-
-public: // iterators
+	// Method: get_first
 	inline GLOBALVAR* get_first(void) { return callback->global.find(NULL); };
+
+	// Method: is_last
 	inline bool is_last(void) { if (!var) return false; else return (var->next==NULL); };
+
+	// Method: get_next
 	inline GLOBALVAR* get_next(void) { if (!var) return NULL; else return var->next; };
 };
 
-/// Aggregation container
+/* 	Class: gld_aggregate
+
+	Aggregation container
+ */
 class gld_aggregate {
 private:
 	AGGREGATION *aggr;
 public:
+
+	// Constructor: gld_aggregate(void) 
 	inline gld_aggregate(void) { aggr=NULL; };
+
+	// Constructor: gld_aggregate(char *spec, char *group)
 	inline gld_aggregate(char *spec, char *group) { set_aggregate(spec,group); };
 public:
+
+	// Method: set_aggregate
 	inline bool set_aggregate(char *spec, char *group) { aggr=callback->aggregate.create(spec,group); return aggr!=NULL; };
+
+	// Method: is_valid
 	inline bool is_valid(void) { return aggr!=NULL; };
+
+	// Method: get_value
 	inline double get_value(void) { if (!aggr) throw "null aggregate"; return callback->aggregate.refresh(aggr); };
 };
 
-/// Object list container
+/* 	Class: gld_objlist
+
+	Object list container
+ */
 class gld_objlist {
 private:
 	struct s_objlist *list;
+
 public:
-	inline operator OBJLIST*() { return list; };
-public:
+
+	// Constructor: gld_objlist(void)
 	inline gld_objlist(void) : list(NULL) {};
+
+	// Constructor: gld_objlist(char *group)
 	inline gld_objlist(char *group) { list=callback->objlist.search(group); };
+
+	// Constructor: gld_objlist(CLASS *c, PROPERTY *m, char *p, char *o, void *a, void *b=NULL)
 	inline gld_objlist(CLASS *c, PROPERTY *m, char *p, char *o, void *a, void *b=NULL) { list=callback->objlist.create(c,m,p,o,a,b); };
+
+	// Constructor: gld_objlist(char *cn, char *mn, char *p, char *o, void *a, void *b=NULL) 
 	inline gld_objlist(char *cn, char *mn, char *p, char *o, void *a, void *b=NULL) 
 	{ 
 		CLASS *c=callback->class_getname(cn,NULL); if (!c) exception("gld_objlist(): class '%s' is not found",cn); 
 		PROPERTY *m=callback->find_property(c,mn); if (!m) exception("gld_objlist(): property '%s' is not found in class '%s'",mn,cn);
 		list=callback->objlist.create(c,m,p,o,a,b); 
 	};
+
+	// Destructor: ~gld_objlist(void) 
 	inline ~gld_objlist(void) { callback->objlist.destroy(list); };
-public:
+
+	// Method: OBJLIST*
+	inline operator OBJLIST*() { return list; };
+
+	// Method: get
+	inline OBJECT *get(size_t n) { return list->objlist[n]; };
+
+	// Method: set
 	inline size_t set(char *group) { if ( list ) callback->objlist.destroy(list); list=callback->objlist.search(group); return list?list->size:-1; };
+
+	// Method: add(PROPERTY *m, char *p, char *o, void *a, void *b=NULL)
 	inline size_t add(PROPERTY *m, char *p, char *o, void *a, void *b=NULL) { return callback->objlist.add(list,m,p,o,a,b); };
-	inline size_t del(PROPERTY *m, char *p, char *o, void *a, void *b=NULL) { return callback->objlist.add(list,m,p,o,a,b); };
+
+	// Method: add(char *cn, char *mn, char *p, char *o, void *a, void *b=NULL)
 	inline size_t add(char *cn, char *mn, char *p, char *o, void *a, void *b=NULL) 
 	{
 		CLASS *c=callback->class_getname(cn,NULL); if (!c) exception("gld_objlist(): class '%s' is not found",cn); 
 		PROPERTY *m=callback->find_property(c,mn); if (!m) exception("gld_objlist(): property '%s' is not found in class '%s'",mn,cn);
 		return callback->objlist.add(list,m,p,o,a,b); 
 	};
+
+	// Method: del(PROPERTY *m, char *p, char *o, void *a, void *b=NULL)
+	inline size_t del(PROPERTY *m, char *p, char *o, void *a, void *b=NULL) { return callback->objlist.add(list,m,p,o,a,b); };
+
+	// Method: del(char *cn, char *mn, char *p, char *o, void *a, void *b=NULL)
 	inline size_t del(char *cn, char *mn, char *p, char *o, void *a, void *b=NULL) 
 	{ 
 		CLASS *c=callback->class_getname(cn,NULL); if (!c) exception("gld_objlist(): class '%s' is not found",cn); 
 		PROPERTY *m=callback->find_property(c,mn); if (!m) exception("gld_objlist(): property '%s' is not found in class '%s'",mn,cn);
 		return callback->objlist.add(list,m,p,o,a,b); 
 	};
-public:
+
+	// Method: is_valid
 	inline bool is_valid(void) { return list!=NULL; };
+
+	// Method: get_size
 	inline size_t get_size(void) { return list->size; };
-	inline OBJECT *get(size_t n) { return list->objlist[n]; };
+
+	// Method: apply
 	inline int apply(void *arg, int (*function)(OBJECT *,void*,int)) { return callback->objlist.apply(list,arg,function);};
+
+	// Method: exception
 	inline void exception(const char *msg, ...) { static char buf[1024]; va_list ptr; va_start(ptr,msg); vsprintf(buf,msg,ptr); va_end(ptr); throw (const char*)buf;};
 };
 
-/// Web data container
 #include "http_client.h"
 
+/*	Class: gld_webdata
+
+	Web data container
+ */
 class gld_webdata {
 private:
 	HTTPRESULT *result;
 public:
+
+	// Constructor: gld_webdata(void)
 	inline gld_webdata(void) {result=NULL;};
+
+	// Constructor: gld_webdata(char *url, size_t maxlen=4096)
 	inline gld_webdata(char *url, size_t maxlen=4096) {open(url,maxlen);};
+
+	// Constructor: ~gld_webdata
 	inline ~gld_webdata(void) {};
 public:
+
+	// Method: open
 	inline bool open(char *url, size_t maxlen=4096) { result=callback->http.read(url,(int)maxlen); return is_valid();};
+
+	// Method: close
 	inline void close(void) { callback->http.free(result);};
+
+	// Method: is_valid
 	inline bool is_valid(void) { return result!=NULL; };
+
+	// Method: get_header
 	inline const char *get_header(void) { return result->header.data;};
+
+	// Method: get_header_size
 	inline size_t get_header_size(void) { return result->header.size; };
+
+	// Method: get_body
 	inline const char *get_body(void) { return result->body.data; };
+
+	// Method: get_body_size
 	inline size_t get_body_size(void) { return result->body.size; };
+
+	// Method: get_status
 	inline int get_status(void) { return result->status; };
 };
-////////////////////////////////////////////////////////////////////////////////////
-// Module-Core Linkage Macros
-////////////////////////////////////////////////////////////////////////////////////
+
+
+/*	Section: Module main
+
+	Every module must implement certain main function.  To signal that the <gridlabd.h>
+	must define the main function, define the <DLMAIN> macro before including the header.
+
+	--- C++ Code ---
+	#define DLMAIN
+	#include "gridlabd.h"
+	--- End Code ---
+ */
 
 #ifdef DLMAIN
 
+/*	Function: do_kill
+ */
 EXPORT int do_kill(void*);
 
+/*	Variable: module_message_flags
+
+	This variable control which module message streams are active. See <MMF_ALL>.
+ */
 set module_message_flags = MMF_ALL;
 
 #ifdef WIN32
@@ -2325,9 +3621,13 @@ BOOL APIENTRY DllMain(HANDLE h, DWORD r) { if (r==DLL_PROCESS_DETACH) do_kill(h)
 #else // !WIN32
 
 int gld_major=MAJOR, gld_minor=MINOR; 
+
+//	Function: dllinit
 int dllinit() __attribute__((constructor));
-int dllkill() __attribute__((destructor));
 int dllinit() { return 0; }
+
+//	Function: dllkill
+int dllkill() __attribute__((destructor));
 int dllkill() { return do_kill(NULL); }
 
 #endif // !WIN32
@@ -2351,26 +3651,62 @@ int dllkill() { return do_kill(NULL); }
 	GLOBALVAR *var = gl_global_create(#M "::message_flags",PT_set,&module_message_flags,PT_DESCRIPTION,"module message control flags",NULL); \
 	var->prop->keywords = mmf_keys; \
 }
+
+/*	Define: EXPORT_CREATE_C(classname,class)
+
+	This macro is used to implement the create function of a class whose classname differs from the C++ class.
+	See <EXPORT_CREATE>.
+ */
 #define EXPORT_CREATE_C(X,C) EXPORT int create_##X(OBJECT **obj, OBJECT *parent) \
 {	try { *obj = gl_create_object(C::oclass); \
 	if ( *obj != NULL ) { C *my = OBJECTDATA(*obj,C); \
 		gl_set_parent(*obj,parent); (*obj)->flags|=module_message_flags; return my->create(); \
 	} else return 0; } CREATE_CATCHALL(X); }
-/// Implement class create export
+
+/*	Define: EXPORT_CREATE(class)
+
+	This macro is used to implement the create function of a class.
+	See <EXPORT_CREATE_C>.
+ */
 #define EXPORT_CREATE(X) EXPORT_CREATE_C(X,X)
 
+/*	Define: EXPORT_INIT_C(classname,class)
+
+	This macro is used to implement the init function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_INIT>.
+ */
 #define EXPORT_INIT_C(X,C) EXPORT int init_##X(OBJECT *obj, OBJECT *parent) \
 {	try { if (obj!=NULL) return OBJECTDATA(obj,C)->init(parent); else return 0; } \
 	INIT_CATCHALL(X); }
-/// Implement class init export
+
+/*	Define: EXPORT_INIT(class)
+
+	This macro is used to implement the init function of a class.
+	See <EXPORT_INIT_C>.
+ */
 #define EXPORT_INIT(X) EXPORT_INIT_C(X,X)
 
+/*	Define: EXPORT_COMMIT_C(classname,class)
+
+	This macro is used to implement the commit function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_COMMIT>.
+ */
 #define EXPORT_COMMIT_C(X,C) EXPORT TIMESTAMP commit_##X(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2) \
 {	C *my = OBJECTDATA(obj,C); try { return obj!=NULL ? my->commit(t1,t2) : TS_NEVER; } \
 	T_CATCHALL(C,commit); }
-/// Implement class commit export
+
+/*	Define: EXPORT_COMMIT(class)
+
+	This macro is used to implement the commit function of a class.
+	See <EXPORT_COMMIT_C>.
+ */
 #define EXPORT_COMMIT(X) EXPORT_COMMIT_C(X,X)
 
+/*	Define: EXPORT_NOTIFY_C(classname,class)
+
+	This macro is used to implement the notify function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_NOTIFY>.
+ */
 #define EXPORT_NOTIFY_C(X,C) EXPORT int notify_##X(OBJECT *obj, int notice, PROPERTY *prop, const char *value) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
 	switch (notice) { \
@@ -2378,9 +3714,19 @@ int dllkill() { return do_kill(NULL); }
 	case NM_PREUPDATE: return my->prenotify(prop,value); \
 	default: return 0; } } else return 0; } \
 	T_CATCHALL(X,commit); return 1; }
-/// Implement class notify export
+
+/*	Define: EXPORT_NOTIFY(class)
+
+	This macro is used to implement the notify function of a class.
+	See <EXPORT_NOTIFY_C>.
+ */
 #define EXPORT_NOTIFY(X) EXPORT_NOTIFY_C(X,X)
 
+/*	Define: EXPORT_SYNC_C(classname,class)
+
+	This macro is used to implement the sync function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_SYNC>.
+ */
 #define EXPORT_SYNC_C(X,C) EXPORT TIMESTAMP sync_##X(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass) { \
 	try { TIMESTAMP t1=TS_NEVER; C *p=OBJECTDATA(obj,C); \
 	switch (pass) { \
@@ -2391,55 +3737,138 @@ int dllkill() { return do_kill(NULL); }
 	if ( (obj->oclass->passconfig&(PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN)&(~pass)) <= pass ) obj->clock = t0; \
 	return t1; } \
 	SYNC_CATCHALL(X); }
-/// Implement class sync export
+
+/*	Define: EXPORT_SYNC(class)
+
+	This macro is used to implement the sync function of a class.
+	See <EXPORT_SYNC_C>.
+ */
 #define EXPORT_SYNC(X) EXPORT_SYNC_C(X,X)
 
+/*	Define: EXPORT_ISA_C(classname,class)
+
+	This macro is used to implement the isa function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_ISA>.
+ */
 #define EXPORT_ISA_C(X,C) EXPORT int isa_##X(OBJECT *obj, CLASSNAME name) { \
 	return ( obj!=0 && name!=0 ) ? OBJECTDATA(obj,C)->isa(name) : 0; }
-/// Implement class isa export
+
+/*	Define: EXPORT_ISA(class)
+
+	This macro is used to implement the isa function of a class.
+	See <EXPORT_ISA_C>.
+ */
 #define EXPORT_ISA(X) EXPORT_ISA_C(X,X)
 
+/*	Define: EXPORT_PLC_C(classname,class)
+
+	This macro is used to implement the plc function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_PLC>.
+ */
 #define EXPORT_PLC_C(X,C) EXPORT TIMESTAMP plc_##X(OBJECT *obj, TIMESTAMP t1) { \
 	try { return OBJECTDATA(obj,C)->plc(t1); } \
 	T_CATCHALL(plc,X); }
-/// Implement class plc export
+
+/*	Define: EXPORT_PLC(class)
+
+	This macro is used to implement the plc function of a class.
+	See <EXPORT_PLC>.
+ */
 #define EXPORT_PLC(X) EXPORT_PLC_C(X,X)
 
-// TODO add other linkages as needed
+/*	Define: EXPORT_PRECOMMIT_C(classname,class)
+
+	This macro is used to implement the precommit function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_PRECOMMIT>.
+ */
 #define EXPORT_PRECOMMIT_C(X,C) EXPORT int precommit_##X(OBJECT *obj, TIMESTAMP t1) \
 {	C *my = OBJECTDATA(obj,C); try { return obj!=NULL ? my->precommit(t1) : 0; } \
 	T_CATCHALL(C,precommit); }
-/// Implement class precommit export
+
+/*	Define: EXPORT_PRECOMMIT(class)
+
+	This macro is used to implement the precommit function of a class.
+	See <EXPORT_PRECOMMIT_C>.
+ */
 #define EXPORT_PRECOMMIT(X) EXPORT_PRECOMMIT_C(X,X)
 
+/*	Define: EXPORT_FINALIZE_C
+
+	This macro is used to implement the finalize function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_FINALIZE>.
+ */
 #define EXPORT_FINALIZE_C(X,C) EXPORT int finalize_##X(OBJECT *obj) \
 {	C *my = OBJECTDATA(obj,C); try { return obj!=NULL ? my->finalize() : 0; } \
 	T_CATCHALL(C,finalize); }
-/// Implement class finalize export
+
+/*	Define: EXPORT_FINALIZE(class)
+
+	This macro is used to implement the finalize function of a class.
+	See <EXPORT_FINALIZE_C>.
+ */
 #define EXPORT_FINALIZE(X) EXPORT_FINALIZE_C(X,X)
 
+/*	Define: EXPORT_NOTIFY_C_P(classname,class,property)
+
+	This macro is used to implement the property notify function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_NOTIFY_PROP>.
+ */
 #define EXPORT_NOTIFY_C_P(X,C,P) EXPORT int notify_##X##_##P(OBJECT *obj, const char *value) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
 	return my->notify_##P(value); \
 	} else return 0; } \
 	T_CATCHALL(X,notify_##P); return 1; }
-/// Implement property notify export
+
+/*	Define: EXPORT_NOTIFY_PROP(class,property)
+
+	This macro is used to implement the property notify function of a class.
+	See <EXPORT_NOTIFY_C_P>.
+ */
 #define EXPORT_NOTIFY_PROP(X,P) EXPORT_NOTIFY_C_P(X,X,P)
 
+/*	Define: EXPORT_LOADMETHOD_C(classname,class,name)
+
+	This macro is used to implement a load method function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_LOADMETHOD>.
+ */
 #define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, const char *value) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
 	return my->N(value); \
 	} else return 0; } \
 	T_CATCHALL(X,loadmethod); }
+
+/*	Define: EXPORT_LOADMETHOD(class,name)
+
+	This macro is used to implement a load method function of a class.
+	See <EXPORT_LOADMETHOD_C>.
+ */
 #define EXPORT_LOADMETHOD(X,N) EXPORT_LOADMETHOD_C(X,X,N)
 
+/*	Define: DECL_METHOD(class,name)
+
+	This macro is used to declare a method function of a class.
+	See <EXPORT_METHOD_C>.
+ */
 #define DECL_METHOD(X,N) EXPORT int method_##X##_##N(OBJECT *obj, char *value, size_t size)
+
+/*	Define: EXPORT_METHOD_C(classname,class,name)
+
+	This macro is used to implement a method function of a class when the GridLAB-D class name differs from the C++ class name.
+	See <EXPORT_METHOD>.
+ */
 #define EXPORT_METHOD_C(X,C,N) DECL_METHOD(X,N) \
 		{	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
 			return my->N(value,size); \
 			} else return 0; } \
 			T_CATCHALL(X,method); }
-		#define EXPORT_METHOD(X,N) EXPORT_METHOD_C(X,X,N)
+
+/*	Define: EXPORT_METHOD(class,name)
+
+	This macro is used to implement a method function of a class.
+	See <EXPORT_METHOD_C>.
+ */
+#define EXPORT_METHOD(X,N) EXPORT_METHOD_C(X,X,N)
+
 #endif
 
 /****************************************
@@ -2476,12 +3905,47 @@ int dllkill() { return do_kill(NULL); }
 	#define DLSYM(H,S) dlsym(H,S)
 #endif
 
-class glsolver {
+inline int null_function(void)
+{
+	return 0;
+}
+
+/*	Class: gld_solver
+
+	Solver container for module solvers.
+ */
+class gld_solver {
 public:
+
+	/*	Function: init
+
+		This function is called to initialize the solver.
+	 */
 	int (*init)(void*);
+	
+	/*	Function: solve
+
+		This function is called to run to solver.
+	 */
 	int (*solve)(void*);
+	
+	/*	Function: set
+
+		This function is called to set a solver input
+	 */
 	int (*set)(const char*,...);
+	
+	/*	Function: get
+
+		This function is called to get a solver output
+	 */
 	int (*get)(const char*,...);
+
+	/*	Function: term
+
+		This function is called to terminate the solver.
+	 */
+	int (*term)(void);
 private:
 	inline void exception(const char *fmt,...)
 	{
@@ -2495,7 +3959,18 @@ private:
 		throw (const char*)buffer;
 	};
 public:
-	inline glsolver(const char *name, const char *lib="glsolvers" DLEXT)
+	/*	Constructor: gld_solver
+
+		The constructor is given the name and dyanmic link/shared object library
+		that implements it.  The library must export four functions
+
+		init - called when the solver is initialized
+		set - called to set the solver inputs
+		solve - called to run the solver
+		get - called to get the solver outputs
+		term - called to terminate the solver (NULL if not implemented)
+	 */
+	inline gld_solver(const char *name, const char *lib="glsolvers" DLEXT)
 	{
 		char path[1024];
 		errno = 0;
@@ -2511,11 +3986,13 @@ public:
 				struct {
 					const char *part;
 					void **func;
+					bool optional;
 				} map[] = {
 					{"init", (void**)&init},
 					{"solve", (void**)&solve},
 					{"set", (void**)&set},
 					{"get", (void**)&get},
+					{"term", (void**)&term, true},
 				};
 				size_t n;
 				for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )
@@ -2526,7 +4003,12 @@ public:
 					errno = 0;
 					*(map[n].func) = (void*)DLSYM(handle,fname);
 					if ( *(map[n].func)==NULL )
-						exception("glsolver(char *name='%s'): function '%s' not found in '%s'",name,fname,path);
+					{
+						if ( ! map[n].optional )
+							exception("glsolver(char *name='%s'): function '%s' not found in '%s'",name,fname,path);
+						else
+							*(map[n].func) = (void*)null_function;
+					}
 				}
 				errno = 0;
 				if ( !(*init)(callback) )
@@ -2538,6 +4020,12 @@ public:
 	};
 };
 
+/*	Function: method_extract
+
+	This function extract the values associated with a method.
+
+	This function is preview.
+ */
 inline int method_extract(char *value, va_list args)
 {
 	char *buffer = va_arg(args,char*);
