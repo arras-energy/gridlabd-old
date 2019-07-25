@@ -4846,7 +4846,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		CLASS *aclass = class_get_class_from_classname(classname,oclass);
 		if ( aclass != NULL )
 		{
-			output_error_raw("%s(%d): class '%s' module reference is ambiguous (using module %s instead of %s)", filename, linenum, classname,oclass->module ? oclass->module->name : "runtime", aclass->module ? aclass->module->name : "runtime");
+			output_error_raw("%s(%d): class '%s' module reference is ambiguous (using '%s' instead of '%s')", filename, linenum, classname,oclass->module ? oclass->module->name : "runtime", aclass->module ? aclass->module->name : "runtime");
 		}
 		ACCEPT;
 	}
