@@ -52,6 +52,10 @@ clock {
 #error No timezone specified
 #endif // TIMEZONE
 
+module residential{
+	implicit_enduses NONE;
+}
+
 class waterheater{
 	loadshape wh_shape;
 }
@@ -1284,9 +1288,6 @@ object battery {
 // IEEE-123 dynamic loads
 // Copyright (C) 2016, Stanford University
 // Author: dchassin@slac.stanford.edu
-module residential{
-	implicit_enduses NONE;
-}
 object transformer_configuration {
 	name xfmr_config_A;
 	connect_type SINGLE_PHASE_CENTER_TAPPED;
