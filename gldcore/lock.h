@@ -13,7 +13,7 @@ extern "C" {
 
 #include <sys/types.h>
 
-typedef unsigned int LOCKVAR;
+typedef int LOCKVAR;
 void rlock(LOCKVAR *lock);
 void wlock(LOCKVAR *lock);
 void runlock(LOCKVAR *lock);

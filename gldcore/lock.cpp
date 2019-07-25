@@ -24,7 +24,7 @@ extern GldMain *my_instance;
 
 /** Determine locking method 
  **/
-#define METHOD1 /* locking method as of 3.0 */
+#define METHOD0 /* locking method as of 3.0 */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -220,18 +220,24 @@ extern "C" void wunlock(LOCKVAR *lock)
  */
 extern "C" void rlock(LOCKVAR *lock)
 {
+	LOCKVAR timeout = MAXSPIN;
 	LOCKVAR value;
-
+	atomic_increment(&my_instance->get_exec()->rlock_count);
 	do {
 		value = (*lock);
+		if ( timeout--==0 ) 
+			throw_exception("read lock timeout");
 	} while ((value&1) || !atomic_compare_and_swap(lock, value, value|0x80000000));
 }
 extern "C" void wlock(LOCKVAR *lock)
 {
+	LOCKVAR timeout = MAXSPIN;
 	LOCKVAR value;
-
+	atomic_increment(&my_instance->get_exec()->wlock_count);
 	do {
 		value = (*lock);
+		if ( timeout--==0 ) 
+			throw_exception("write lock timeout");
 	} while ((value&0x80000001) || !atomic_compare_and_swap(lock, value, value + 1));
 }
 extern "C" void wunlock(LOCKVAR *lock)
@@ -253,23 +259,29 @@ extern "C" void runlock(LOCKVAR *lock)
 
 extern "C" void rlock(LOCKVAR *lock)
 {
+	LOCKVAR timeout = MAXSPIN;
 	LOCKVAR test;
-
+	my_instance->get_exec()->rlock_count++;
 	// 1. Wait for exclusive write lock to be released, if any
 	// 2. Increment reader counter
 	do {
 		test = *lock;
+		if ( timeout--==0 ) 
+			throw_exception("read lock timeout");
 	} while (test & WBIT || !atomic_compare_and_swap(lock, test, test + 1));
 }
 
 extern "C" void wlock(LOCKVAR *lock)
 {
+	LOCKVAR timeout = MAXSPIN;
 	LOCKVAR test;
-
+	my_instance->get_exec()->wlock_count++;
 	// 1. Wait for exclusive write lock to be released, if any
 	// 2. Take exclusive write lock
 	do {
 		test = *lock;
+		if ( timeout--==0 ) 
+			throw_exception("write lock timeout");
 	} while (test & WBIT || !atomic_compare_and_swap(lock, test, test | WBIT));
 	// 3. Wait for readers to complete before proceeding
 	while ((*lock) & RBITS);
