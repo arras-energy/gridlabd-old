@@ -889,7 +889,7 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
 
     char previous[1024]="";
     WriteLock();
-    int len = object_get_value_by_name(obj,property,value,sizeof(value));
+    int len = object_get_value_by_name(obj,property,previous,sizeof(previous));
     if ( len < 0 )
         return gridlabd_exception("unable to get old value of '%s.%s'", name,property);
     len = object_set_value_by_name(obj,property,value);
@@ -1295,9 +1295,10 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
         }
         else
         {
-            output_warning("python on_postsync() is not callable");
+            output_warning("python on_precommit() is not callable");
         }
     }
+    output_debug("python on_precommit returns t=%lld",t1);
     return t1;
 }
 extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
@@ -1557,6 +1558,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             {
                 Py_DECREF(result);
             }
+            output_debug("python_event(obj='%s',function='%s') -> *p_retval = %lld",objname,function,*p_retval);
             return 1;
         }    
         else 

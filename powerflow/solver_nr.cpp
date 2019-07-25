@@ -32,7 +32,6 @@ Initialization after returning to service?
 */
 
 
-
 #include "solver_nr.h"
 using namespace std;
 
@@ -46,6 +45,8 @@ using namespace std;
 
 /* access to module global variables */
 #include "powerflow.h"
+#include <stdio.h>
+#include <string.h>
 
 //Generic solver variables
 NR_SOLVER_VARS matrices_LU;
@@ -57,9 +58,30 @@ SuperMatrix A_LU,B_LU;
 //External solver global
 void *ext_solver_glob_vars;
 
+char1024 solver_profile_filename =  "solver_nr_profile.csv";
+char1024 solver_headers =  "timestamp,duration[microsec],iteration,bus_count,branch_count,error";
+static FILE * nr_profile = NULL;
+bool solver_profile_headers_included = true;
+bool solver_profile_enable = false;
+
 //Initialize the sparse notation
 void sparse_init(SPARSE* sm, int nels, int ncols)
 {
+	if (solver_profile_enable) 
+	{
+		nr_profile = fopen(solver_profile_filename,"w");
+		if ( nr_profile == NULL ) 
+		{
+			gl_warning("unable to open '%s' for writing", (const char*)solver_profile_filename);
+			/* TROUBLESHOOT
+				The system was unable to read the solver_nr_profiler file.  Check that the file has the correct permissions and try again.
+			 */
+		}
+		else if ( solver_profile_headers_included )
+		{
+			fprintf(nr_profile,"%s\n",(const char*)solver_headers);
+		}
+	}
 	int indexval;
 	
 	//Allocate the column pointer GLD heap
@@ -230,7 +252,10 @@ void sparse_tonr(SPARSE* sm, NR_SOLVER_VARS *matrices_LU)
 	n<0 to indicate failure after n iterations
  **/
 int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count, BRANCHDATA *branch, NR_SOLVER_STRUCT *powerflow_values, NRSOLVERMODE powerflow_type , NR_MESHFAULT_IMPEDANCE *mesh_imped_vals, bool *bad_computations)
-{
+{	
+	// Begin solver timer
+	clock_t t_start = clock();
+
 	//Internal iteration counter - just NR limits
 	int64 Iteration;
 
@@ -3951,7 +3976,16 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 		return 0;					//Just return some arbitrary value
 	}
 	else	//Must have converged 
+	{
+		if ( nr_profile != NULL ) 
+		{	
+			double t = clock() - t_start;	
+			char buffer[64];
+			if ( gl_printtime(gl_globalclock,buffer,sizeof(buffer)-1) > 0 )
+				fprintf(nr_profile, "%s,%.1f,%.1lld,%d,%d,%s\n", buffer, t, Iteration == 0 ? 1 : Iteration,bus_count,branch_count,bad_computations ? "false" : "true");
+		}
 		return Iteration;
+	}
 }
 
 //Performs the load calculation portions of the current injection or Jacobian update

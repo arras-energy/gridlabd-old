@@ -64,6 +64,14 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 			PT_KEYWORD,"IGNORE",CEH_IGNORE,
 			PT_KEYWORD,"COLLAPSE",CEH_COLLAPSE,
 			NULL);
+	extern bool solver_profile_enable;
+	gl_global_create("powerflow::solver_profile_enable", PT_bool, &solver_profile_enable,PT_DESCRIPTION, "Flag to enable NR solver profiler",NULL);
+	extern char1024 solver_profile_filename;
+	gl_global_create("powerflow::solver_profile_filename", PT_char1024, &solver_profile_filename,PT_DESCRIPTION, "Name of NR solver profile file",NULL);
+	extern bool solver_profile_headers_included;
+	gl_global_create("powerflow::solver_profile_headers_included", PT_bool, &solver_profile_headers_included,PT_DESCRIPTION, "Flag to include headers in NR solver profile file",NULL);
+	extern bool solver_headers;
+	gl_global_create("powerflow::solver_headers", PT_char1024, &solver_headers,PT_DESCRIPTION, "Headers in NR solver profile file",NULL);
 	// register each object class by creating the default instance
 	new powerflow_object(module);
 	new powerflow_library(module);
