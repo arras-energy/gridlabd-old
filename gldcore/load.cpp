@@ -4843,6 +4843,11 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 			output_error_raw("%s(%d): class '%s' is not known", filename, linenum, classname);
 			REJECT;
 		}
+		CLASS *aclass = class_get_class_from_classname(classname,oclass);
+		if ( aclass != NULL )
+		{
+			output_error_raw("%s(%d): class '%s' need module name to be unambiguous (using module %s instead of %s)", filename, linenum, classname,oclass->module ? oclass->module->name : "runtime", aclass->module ? aclass->module->name : "runtime");
+		}
 		ACCEPT;
 	}
 	else

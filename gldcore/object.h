@@ -135,7 +135,7 @@ typedef struct s_callbacks {
 	int (*define_map)(CLASS*,...);
 	int (*loadmethod)(CLASS*,const char*,LOADMETHODCALL call);
 	CLASS *(*class_getfirst)(void);
-	CLASS *(*class_getname)(const char*);
+	CLASS *(*class_getname)(const char*,CLASS *first);
 	PROPERTY *(*class_add_extended_property)(CLASS *,const char *,PROPERTYTYPE,const char *);
 	struct {
 		FUNCTION *(*define)(CLASS*,FUNCTIONNAME,FUNCTIONADDR);

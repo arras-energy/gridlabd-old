@@ -214,11 +214,18 @@ static PROPERTY *find_header_property(CLASS *oclass,
 PROPERTY *class_find_property(CLASS *oclass,     /**< the object class */
                               const PROPERTYNAME name) /**< the property name */
 {
-	PROPERTY *prop = find_header_property(oclass,name);
-	if ( prop ) return prop;
-
-	if(oclass == NULL)
+	if ( oclass == NULL )
+	{
+//		output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> NULL",oclass->name,name);
 		return NULL;
+	}
+
+	PROPERTY *prop = find_header_property(oclass,name);
+	if ( prop ) 
+	{
+//		output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> PROPERTY<%s:%s>",oclass->name,name,prop->oclass->name,prop->name);
+		return prop;
+	}
 
 	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
@@ -234,6 +241,7 @@ PROPERTY *class_find_property(CLASS *oclass,     /**< the object class */
 				if (global_suppress_repeat_messages)
 					prop->flags |= ~PF_DEPRECATED_NONOTICE;
 			}
+//			output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> PROPERTY<%s:%s>",oclass->name,name,prop->oclass->name,prop->name);
 			return prop;
 		}
 	}
@@ -244,12 +252,23 @@ PROPERTY *class_find_property(CLASS *oclass,     /**< the object class */
 			A class has somehow specified itself as a parent class, either directly or indirectly.
 			This means there is a problem with the module that publishes the class.
 		 */
+//		output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> NULL",oclass->name,name);
 		return NULL;
 	}
 	else if (oclass->parent!=NULL)
-		return class_find_property_rec(oclass->parent,name, oclass);
+	{
+		PROPERTY *prop = class_find_property_rec(oclass->parent,name, oclass);
+//		if ( prop )
+//			output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> PROPERTY<%s:%s>",oclass->name,name,prop->oclass->name,prop->name);
+//		else
+//			output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> NULL",oclass->name,name);
+		return prop;
+	}
 	else
+	{
+//		output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> NULL",oclass->name,name);
 		return NULL;
+	}
 }
 
 /** Add a property to a class
@@ -274,6 +293,11 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
                                       PROPERTYTYPE ptype, /**< the type of the property */
                                       const char *unit)   /**< the unit of the property */
 {
+	// if ( oclass->pmap )
+	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is %s", oclass->name, name, oclass->pmap->name);
+	// else
+	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is (null)", oclass->name, name);
+
 	PROPERTY *prop = (PROPERTY*)malloc(sizeof(PROPERTY));
 	UNIT *pUnit = NULL;
 
@@ -304,23 +328,25 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 			the desired unit to the units file and try again.
 		 */
 	memset(prop, 0, sizeof(PROPERTY));
-	prop->access = PA_PUBLIC;
-	prop->addr = (void*)(int64)oclass->size;
+	prop->oclass = oclass;
+	prop->name = strdup(name);
+	prop->ptype = ptype;
 	prop->size = 0;
+	prop->width = property_type[ptype].size;
+	prop->access = PA_PUBLIC;
+	prop->unit = pUnit;
+	prop->addr = (void*)(int64)oclass->size;
 	prop->delegation = NULL;
-	prop->flags = PF_EXTENDED;
 	prop->keywords = NULL;
 	prop->description = NULL;
-	prop->unit = pUnit;
-	prop->name = strdup(name);
 	prop->next = NULL;
-	prop->oclass = oclass;
-	prop->ptype = ptype;
-	prop->width = property_type[ptype].size;
+	prop->flags = PF_EXTENDED;
 
 	oclass->size += property_type[ptype].size;
 
 	class_add_property(oclass,prop);
+	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): after adding property first property is %s", oclass->name, name, oclass->pmap->name);
+	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...) -> PROPERTY(<%s:%s>)", oclass->name, name, prop->oclass->name, prop->name);
 	return prop;
 }
 
@@ -601,7 +627,8 @@ size_t class_get_extendedcount(CLASS *oclass)
 	@return a pointer to the class having that \p name,
 	or \p NULL if no match found.
  **/
-CLASS *class_get_class_from_classname(CLASSNAME name) /**< a pointer to a \p NULL -terminated string containing the class name */
+CLASS *class_get_class_from_classname(CLASSNAME name, /**< a pointer to a \p NULL -terminated string containing the class name */
+									  CLASS *first) /**< optional reference to count of matches found */
 {
 	CLASS *oclass = NULL;
 	MODULE *mod = NULL;
@@ -609,26 +636,35 @@ CLASS *class_get_class_from_classname(CLASSNAME name) /**< a pointer to a \p NUL
 	char temp[1024]; /* we get access violations when name is from another DLL. -mh */
 	strcpy(temp, name);
 	ptr = strchr(temp, '.');
-	if(ptr != NULL){	/* check module for the class */
+	if ( ptr != NULL ) 
+	{	
+		/* check module for the class */
 		ptr[0] = 0;
 		++ptr;
 		mod = module_find(temp);
-		if(mod == NULL){
+		if ( mod == NULL ) 
+		{
 			IN_MYCONTEXT output_verbose("could not search for '%s.%s', module not loaded", name, ptr);
 			return NULL;
 		}
-		for (oclass=first_class; oclass!=NULL; oclass=oclass->next)
+		for ( oclass = (first ? first->next : first_class); oclass!=NULL; oclass=oclass->next )
 		{
-			if(oclass->module == mod)
-				if(strcmp(oclass->name,ptr)==0)
+			if ( oclass->module == mod )
+			{	
+				if ( strcmp(oclass->name,ptr) == 0 )
+				{
 					return oclass;
+				}
+			}
 		}
 		return NULL;
 	}
-	for (oclass=first_class; oclass!=NULL; oclass=oclass->next)
+	for ( oclass = (first ? first->next : first_class); oclass!=NULL; oclass=oclass->next )
 	{
-		if (strcmp(oclass->name,name)==0)
+		if ( strcmp(oclass->name,name) == 0 )
+		{
 			return oclass;
+		}
 	}
 	return NULL;
 }

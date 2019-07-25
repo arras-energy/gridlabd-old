@@ -94,7 +94,7 @@ struct s_class_list {
 	int id;
 	CLASSNAME name;
 	unsigned int size;
-	MODULE *module; 
+	MODULE *module;
 	PROPERTY *pmap;
 	FUNCTION *fmap;
 	FUNCTIONADDR create;
@@ -142,7 +142,11 @@ int class_string_to_propertytype(PROPERTYTYPE type, void *addr, const char *valu
 int class_property_to_string(PROPERTY *prop, void *addr, char *value, int size);
 CLASS *class_get_first_class(void);
 CLASS *class_get_last_class(void);
-CLASS *class_get_class_from_classname(CLASSNAME name);
+CLASS *class_get_class_from_classname(CLASSNAME name, CLASS *first
+#ifdef __cplusplus
+ = NULL
+#endif
+);
 CLASS *class_get_class_from_classname_in_module(CLASSNAME name, MODULE *mod);
 const char *class_get_property_typename(PROPERTYTYPE type);
 const char *class_get_property_typexsdname(PROPERTYTYPE type);

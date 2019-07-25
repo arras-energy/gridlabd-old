@@ -2256,7 +2256,7 @@ public:
 	inline gld_objlist(CLASS *c, PROPERTY *m, char *p, char *o, void *a, void *b=NULL) { list=callback->objlist.create(c,m,p,o,a,b); };
 	inline gld_objlist(char *cn, char *mn, char *p, char *o, void *a, void *b=NULL) 
 	{ 
-		CLASS *c=callback->class_getname(cn); if (!c) exception("gld_objlist(): class '%s' is not found",cn); 
+		CLASS *c=callback->class_getname(cn,NULL); if (!c) exception("gld_objlist(): class '%s' is not found",cn); 
 		PROPERTY *m=callback->find_property(c,mn); if (!m) exception("gld_objlist(): property '%s' is not found in class '%s'",mn,cn);
 		list=callback->objlist.create(c,m,p,o,a,b); 
 	};
@@ -2267,13 +2267,13 @@ public:
 	inline size_t del(PROPERTY *m, char *p, char *o, void *a, void *b=NULL) { return callback->objlist.add(list,m,p,o,a,b); };
 	inline size_t add(char *cn, char *mn, char *p, char *o, void *a, void *b=NULL) 
 	{
-		CLASS *c=callback->class_getname(cn); if (!c) exception("gld_objlist(): class '%s' is not found",cn); 
+		CLASS *c=callback->class_getname(cn,NULL); if (!c) exception("gld_objlist(): class '%s' is not found",cn); 
 		PROPERTY *m=callback->find_property(c,mn); if (!m) exception("gld_objlist(): property '%s' is not found in class '%s'",mn,cn);
 		return callback->objlist.add(list,m,p,o,a,b); 
 	};
 	inline size_t del(char *cn, char *mn, char *p, char *o, void *a, void *b=NULL) 
 	{ 
-		CLASS *c=callback->class_getname(cn); if (!c) exception("gld_objlist(): class '%s' is not found",cn); 
+		CLASS *c=callback->class_getname(cn,NULL); if (!c) exception("gld_objlist(): class '%s' is not found",cn); 
 		PROPERTY *m=callback->find_property(c,mn); if (!m) exception("gld_objlist(): property '%s' is not found in class '%s'",mn,cn);
 		return callback->objlist.add(list,m,p,o,a,b); 
 	};
