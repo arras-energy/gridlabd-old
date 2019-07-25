@@ -199,6 +199,7 @@ public:
 				free(x[r]);
 			}
 			free(x);
+			if ( f ) free(f);
 			delete refs;
 		}
 	};
@@ -247,7 +248,7 @@ public:
 	void grow_to(const size_t r, const size_t c) 
 	{ 
 		size_t s = (max<1?1:max);
-		while ( c>=s || r>=s ) s*=2; 
+		while ( c*r >= s ) s*=2; 
 		if ( s>max )set_max(s);
 
 		// add rows
@@ -277,7 +278,7 @@ public:
 				x[i] = y;
 			}
 			m=c;
-		}
+		}		
 	};
 	void grow_to(const size_t c) { grow_to(n>0?n:1,c); };
 	void grow_to(const double_array &y) { grow_to(y.get_rows(),y.get_cols()); };

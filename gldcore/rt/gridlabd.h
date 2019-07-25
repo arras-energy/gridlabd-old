@@ -1692,6 +1692,7 @@ public:
 						free(x[r][c]); 
 				free(x[r]);
 			free(x);
+			if ( f ) free(f);
 			delete refs;
 		}
 	}
@@ -1740,7 +1741,7 @@ public:
 	void grow_to(const size_t r, const size_t c) 
 	{ 
 		size_t s = (max<1?1:max);
-		while ( c>=s || r>=s ) s*=2; 
+		while ( c*r >= s ) s*=2; 
 		if ( s>max ) set_max(s);
 
 		// add rows
