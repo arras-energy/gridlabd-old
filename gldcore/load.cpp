@@ -761,7 +761,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				|| write_file(fp,"extern \"C\" CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])\n"
 					"{\n"
 					"\tcallback=fntable;\n"
-					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\"));\n"
+					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\",NULL));\n"
 					"\tif (!myclass) return NULL;\n"
 					"\tif (!setup_class(myclass)) return NULL;\n"
 					"\treturn myclass;"
@@ -815,7 +815,8 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				}
 				if ( !global_debug_output )
 					unlink(cfile);
-
+				else
+					output_verbose("keeping %s for debugging",cfile);
 
 				/* link new runtime module */
 				IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
