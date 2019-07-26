@@ -459,7 +459,7 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 		 */
 		exit(XC_EXCEPTION);
 	}
-	if (oclass!=NULL)
+	if ( oclass!=NULL && oclass->module != NULL )
 	{
 		if(strcmp(oclass->module->name, module->name) == 0){
 			output_error("module %s cannot register class %s, it is already registered by module %s", module->name,name,oclass->module->name);
