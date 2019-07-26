@@ -23,7 +23,7 @@
 /*	typedef: LOCKVAR
 		System lock variable
  */
-typedef int64_t LOCKVAR;
+typedef unsigned int LOCKVAR;
 
 typedef enum {I='i',J='j',A='d'} CNOTATION; /**< complex number notation to use */
 #define CNOTATION_DEFAULT J /* never set this to A */
@@ -958,15 +958,15 @@ typedef struct s_enduse {
 	#include <intrin.h>
 	#pragma intrinsic(_InterlockedCompareExchange)
 	#pragma intrinsic(_InterlockedIncrement)
-	#define atomic_compare_and_swap(dest, comp, xchg) (_InterlockedCompareExchange((int32 *) dest, xchg, comp) == comp)
-	#define atomic_increment(ptr) _InterlockedIncrement((int32 *) ptr)
+	#define atomic_compare_and_swap(dest, comp, xchg) (_InterlockedCompareExchange((LOCKVAR *) dest, xchg, comp) == comp)
+	#define atomic_increment(ptr) _InterlockedIncrement((LOCKVAR *) ptr)
 	#ifndef inline
 		#define inline __inline
 	#endif
 #elif __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 1050
 	#include <libkern/OSAtomic.h>
-	#define atomic_compare_and_swap(dest, comp, xchg) OSAtomicCompareAndSwap32Barrier(comp, xchg, (int32_t *) dest)
-	#define atomic_increment(ptr) OSAtomicIncrement32Barrier((int32_t *) ptr)
+	#define atomic_compare_and_swap(dest, comp, xchg) OSAtomicCompareAndSwap32Barrier(comp, xchg, (LOCKVAR *) dest)
+	#define atomic_increment(ptr) OSAtomicIncrement32Barrier((LOCKVAR *) ptr)
 #else
 	#define atomic_compare_and_swap __sync_bool_compare_and_swap
 	#define atomic_increment(ptr) __sync_add_and_fetch(ptr, 1)
