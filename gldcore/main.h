@@ -25,6 +25,11 @@ private: // instance variables
 	GldExec exec;
 	GldCmdarg cmdarg;
 	GldGui gui;
+public: // public variables
+	LOCKVAR rlock_count;
+	LOCKVAR rlock_spin;
+	LOCKVAR wlock_count;
+	LOCKVAR wlock_spin;
 public:
 	/*	Method: get_globals
 

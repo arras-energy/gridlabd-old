@@ -370,28 +370,6 @@ public: // TODO: make private once lock.cpp is reentrant
 		Counter of iteration
 	 */
 	size_t iteration_counter;
-#ifndef NOLOCKS
-
-	/* Field: rlock_count
-		Read lock counter
-	 */
-	int rlock_count;
-
-	/* Field: rlock_spin
-		Read lock spinner
-	 */
-	int rlock_spin;
-
-	/* Field: wlock_count
-		Write lock counter
-	 */
-	int wlock_count;
-
-	/* Field: wlock_spin
-		Write lock spinner
-	 */
-	int wlock_spin;
-#endif
 
 public:
 	/* Constructor: GldExec
