@@ -1,7 +1,7 @@
 /** $Id: emissions.cpp 4738 2014-07-03 00:55:39Z dchassin $
 	Copyright (C) 2011 Battelle Memorial Institute
 
-	@Warning: It is still under development.
+	@warning \p emissions is still under development
 
 	@file emissions.cpp
 	@addtogroup powerflow recloser
@@ -12,15 +12,8 @@
 @{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
-
+#include "powerflow.h"
 using namespace std;
-
-#include "emissions.h"
 
 //////////////////////////////////////////////////////////////////////////
 // fault_check CLASS FUNCTIONS

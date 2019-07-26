@@ -1,9 +1,13 @@
-/* module.h
- *	Copyright (C) 2008 Battelle Memorial Institute
+/* File: module.h
+ * Copyright (C) 2008 Battelle Memorial Institute
  */
 
 #ifndef _MODULE_H
 #define _MODULE_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include <stdio.h>
 #include <float.h>

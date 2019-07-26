@@ -1,8 +1,13 @@
-/* transform.h
+/* File: transform.h 
+   Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #ifndef _TRANSFORM_H
 #define _TRANSFORM_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "schedule.h"
 

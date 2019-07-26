@@ -4,13 +4,9 @@
 #ifndef _impedance_dump_H
 #define _impedance_dump_H
 
-#include "powerflow.h"
-#include "line.h"
-#include "transformer.h"
-#include "node.h"
-#include "regulator.h"
-#include "capacitor.h"
-#include "switch_object.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 typedef enum {
 	IDM_RECT,

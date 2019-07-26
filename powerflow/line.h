@@ -4,27 +4,17 @@
 #ifndef _LINE_H
 #define _LINE_H
 
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
+
 #define hasphase(ph) (SET_HAS(phase,PHASE##ph) | (phase_orig & PHASE_##ph))
 #define set_hasphase(set,ph) (SET_HAS(set,ph))
 #define PERMITIVITTY_AIR 0.014240	//microF/mile
 #define PERMITIVITTY_FREE 0.01420	//microF/mile
 #define EARTH_RESISTIVITY 100		//Ohm-meter
 
-typedef struct {
-	double continuous;
-	double emergency;
-} LINERATINGS;
-
 extern bool show_matrix_values;
-
-#include "powerflow.h"
-#include "link.h"
-#include "line_spacing.h"
-#include "overhead_line_conductor.h"
-#include "underground_line_conductor.h"
-#include "line_configuration.h"
-#include "triplex_line_configuration.h"
-#include "triplex_line_conductor.h"
 
 class line : public link_object
 {
@@ -44,9 +34,5 @@ protected:
 	void load_matrix_based_configuration(complex Zabc_mat[3][3], complex Yabc_mat[3][3]);
 	void recalc_line_matricies(complex Zabc_mat[3][3], complex Yabc_mat[3][3]);
 };
-
-#include "triplex_line.h"
-#include "overhead_line.h"
-#include "underground_line.h"
 
 #endif // _LINE_H

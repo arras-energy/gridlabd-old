@@ -1,6 +1,7 @@
-/** $Id$
- 	Copyright (C) 2008 Battelle Memorial Institute
-	@file schedule.h
+/* File: schedule.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ 
+ 	@file schedule.h
 	@addtogroup schedule Schedules
 
 	Schedules are defined as a multiline string
@@ -31,6 +32,10 @@
 
 #ifndef _SCHEDULE_H
 #define _SCHEDULE_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "class.h"
 #include "timestamp.h"

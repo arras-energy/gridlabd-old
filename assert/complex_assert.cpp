@@ -6,12 +6,6 @@
    a failure code.
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <complex.h>
-
 #include "complex_assert.h"
 
 EXPORT_CREATE(complex_assert);

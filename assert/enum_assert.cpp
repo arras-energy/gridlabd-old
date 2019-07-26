@@ -5,13 +5,6 @@
    the commit function and breaks the simulator out with a failure code.
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <complex.h>
-#include <string.h>
-
 #include "enum_assert.h"
 
 EXPORT_CREATE(enum_assert);

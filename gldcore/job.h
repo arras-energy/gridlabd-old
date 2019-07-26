@@ -1,9 +1,13 @@
-/* $Id: job.h 4738 2014-07-03 00:55:39Z dchassin $
-   Copyright (C) 2012 Battelle Memorial Institute
+/* File: job.h
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #ifndef _JOB_H
 #define _JOB_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "platform.h"
 

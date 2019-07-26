@@ -1,35 +1,89 @@
-// main.h
-// Copyright (C) 2018 Regents of the Leland Stanford Junior University
+/*	File: main.h 
+ 	
+ 	Copyright (C) 2008, Battelle Memorial Institute
+ */
 
 #ifndef _MAIN_H
 #define _MAIN_H
 
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
+
 #include "globals.h"
 #include "exec.h"
 #include "cmdarg.h"
+#include "gui.h"
 
+/*	Class: GldMain
+
+	The GldMain class implement an instance of a GridLAB-D simulation.
+ */
 class GldMain {
-private:		// public variables
+private: // instance variables
 	GldGlobals globals;
 	GldExec exec;
 	GldCmdarg cmdarg;
+	GldGui gui;
+public: // public variables
+	LOCKVAR rlock_count;
+	LOCKVAR rlock_spin;
+	LOCKVAR wlock_count;
+	LOCKVAR wlock_spin;
 public:
+	/*	Method: get_globals
+
+		This function returns a reference to the global variable list of the instance.
+	 */
 	inline GldGlobals *get_globals() { return &globals; };
+
+	/*	Method: get_exec
+
+		This function returns a reference to the execution control of the instance.
+	 */
 	inline GldExec *get_exec() { return &exec; };
+
+	/*	Method: get_cmdarg
+
+		This function returns a reference to the command line processor of the instance
+	 */
 	inline GldCmdarg *get_cmdarg() { return &cmdarg; };
 
-private:	// private variables
+	/* Method get_gui
+
+		This function returns a reference to the GUI implementation
+	 */
+	inline GldGui *get_gui() { return &gui; };
+
+private:
 	static unsigned int next_id; // next instance id
-	unsigned int id; // instance id
+	unsigned int id; // this instance id
 
-public:		// constructor/destructor
+public:		
+	/*	Constructor: GldMain
+	 */
 	GldMain(int argc = 0, const char *argv[] = NULL);
-	~GldMain(void);
-#if defined WIN32 && _DEBUG 
-	static void pause_at_exit(void);
-#endif
 
-public:		// public methods
+	//	Destructor: GldMain
+	~GldMain(void);
+
+	/*	Method: pause_at_exit
+
+		This function causes the main program to pause when exit() is called.  
+		The message "Press [RETURN] to exit... " is displayed and the user must
+		hit return for the program to complete the exit() call.
+	 */
+	static void pause_at_exit(void);
+
+	/*	Method: mainloop
+
+		This function begins processing the main loop of GridLAB-D using the command
+		argument provided.
+
+		The return value is the standard exit code.
+
+		See also: <
+	 */
 	int mainloop(int argc = 0, const char *argv[] = NULL);
 
 private:	// private methods
@@ -41,73 +95,63 @@ private:	// private methods
 	void create_pidfile(void);
 	static void delete_pidfile(void);
 
-public: // instance accessors
+public: 
+
+	// Method: get_id()
 	inline pid_t get_id() { return id; }
-public:		// global methods
-	inline STATUS global_init(void) { return globals.init();};
-	inline GLOBALVAR *global_getfirst(void) { return globals.getnext(NULL);};
-	inline GLOBALVAR *global_getnext(const GLOBALVAR *var) { return globals.getnext(var);};
-	inline GLOBALVAR *global_find(const char *name) { return globals.find(name);};
-	inline GLOBALVAR *global_create(const char *name, ...) { va_list ptr; va_start(ptr,name); GLOBALVAR *var = globals.create_v(name,ptr); va_end(ptr); return var;};
-	inline STATUS global_setvar(char *def,...) { va_list ptr; va_start(ptr,def); STATUS res = globals.setvar_v(def,ptr); va_end(ptr); return res;};
-	inline const char *global_getvar(const char *name, char *buffer, size_t size) { return globals.getvar(name,buffer,size);};
-	inline bool global_isdefined(const char *name) { return globals.isdefined(name);};
-	inline void global_dump(void) { return globals.dump();};
-	inline size_t global_getcount(void) { return globals.getcount();};
-	inline void global_restore(GLOBALVAR *pos) { return globals.restore(pos);};
-	inline void global_push(char *name, char *value) { return globals.push(name,value);};
+
+	// Method: dump
 	inline void dump(void) { return globals.dump();};
+
+	// Method: remote_read
 	inline void *remote_read(void *local, GLOBALVAR *var) { return globals.remote_read(local,var);};
+
+	// Method: remote_write
 	inline void remote_write(void *local, GLOBALVAR *var) { return globals.remote_write(local,var);};
+
+	// Method: global_saveall
 	inline size_t global_saveall(FILE *fp) { return globals.saveall(fp);};
 
+public:		
+	// Section: Globals variable access
+
+	// Method: global_init
+	inline STATUS global_init(void) { return globals.init();};
+
+	// Method: global_getfirst
+	inline GLOBALVAR *global_getfirst(void) { return globals.getnext(NULL);};
+
+	// Method: global_getnext
+	inline GLOBALVAR *global_getnext(const GLOBALVAR *var) { return globals.getnext(var);};
+
+	// Method: global_find
+	inline GLOBALVAR *global_find(const char *name) { return globals.find(name);};
+
+	// Method: global_create
+	inline GLOBALVAR *global_create(const char *name, ...) { va_list ptr; va_start(ptr,name); GLOBALVAR *var = globals.create_v(name,ptr); va_end(ptr); return var;};
+
+	// Method: global_setvar
+	inline STATUS global_setvar(char *def,...) { va_list ptr; va_start(ptr,def); STATUS res = globals.setvar_v(def,ptr); va_end(ptr); return res;};
+
+	// Method: global_getvar
+	inline const char *global_getvar(const char *name, char *buffer, size_t size) { return globals.getvar(name,buffer,size);};
+
+	// Method: global_isdefined
+	inline bool global_isdefined(const char *name) { return globals.isdefined(name);};
+
+	// Method: global_dump
+	inline void global_dump(void) { return globals.dump();};
+
+	// Method: global_getcount
+	inline size_t global_getcount(void) { return globals.getcount();};
+
+	// Method: global_restore
+	inline void global_restore(GLOBALVAR *pos) { return globals.restore(pos);};
+
+	// Method: global_push
+	inline void global_push(char *name, char *value) { return globals.push(name,value);};
 };
 
-#include <string>
-class GldException 
-{
-private:
-	std::string msg;
-public:
-	inline GldException(const char *format, ...)
-	{
-		va_list ptr;
-		va_start(ptr,format);
-		size_t size = vsnprintf(NULL,0,format,ptr);
-		char *buf = new char[size];
-		try {
-			if ( buf )
-			{
-				if ( vsnprintf(buf,size-1,format,ptr) < 0 )
-				{
-					msg = std::string("GldException::GldException(): vsnprintf() failed");
-				}
-				else
-				{
-					msg = std::string(buf);
-				}
-			}
-			else
-			{
-				msg = std::string("GldException::GldException(): memory allocation failed");
-			}
-		}
-		catch (...) 
-		{
-			msg = std::string("GldException::GldException(): unknown exception in constructor");
-		}
-		if ( buf ) 
-			delete [] buf;
-		va_end(ptr);
-	};
-	inline ~GldException(void)
-	{
-	};
-	inline const char *get_message(void)
-	{
-		return msg.c_str();
-	}
-};
 DEPRECATED extern GldMain *my_instance; // TODO: move this into main() to make system globally reentrant
 
 #endif

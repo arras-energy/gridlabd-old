@@ -9,7 +9,9 @@
 #ifndef _POWERFLOWLIBRARY_H
 #define _POWERFLOWLIBRARY_H
 
-#include "gridlabd.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class powerflow_library : public gld_object
 {

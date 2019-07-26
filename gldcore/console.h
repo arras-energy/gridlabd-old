@@ -1,13 +1,17 @@
-/* $Id: console.h 4738 2014-07-03 00:55:39Z dchassin $
- * Copyright (C) Battelle Memorial Institute 2012
- * DP Chassin
+/* File: console.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
  *
- * Console functions and classes 
+ * WIN32 console macros and functions definition for NCURSES library emulation
  */
 
 #ifndef _CONSOLE_H
 #define _CONSOLE_H
 
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
+
+// Define: KEY_ESC
 #define KEY_ESC 27
 
 /* simulate needed curses functions in Windows */

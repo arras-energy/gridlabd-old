@@ -2,7 +2,7 @@
 // Copyright (C) 2012 Battelle Memorial Institute
 // DP Chassin
 
-#include <stdlib.h>
+#include "gldcore.h"
 #include "gridlabd.h"
 
 static unsigned int solver_version = 1; // change this each time to data structure changes

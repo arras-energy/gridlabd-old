@@ -9,12 +9,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "load.h"
+#include "powerflow.h"
+using namespace std;
 
 CLASS* load::oclass = NULL;
 CLASS* load::pclass = NULL;

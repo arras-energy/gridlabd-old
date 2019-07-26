@@ -1,4 +1,4 @@
-/** $Id: object.c 4738 2014-07-03 00:55:39Z dchassin $
+/** object.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file object.c
 	@addtogroup object Objects
@@ -25,10 +25,7 @@
  @{
  **/
 
-#include <float.h>
-#include <math.h>
-#include <ctype.h>
-#include <errno.h>
+#include "gldcore.h"
 
 #ifdef WIN32
 #define isnan _isnan  /* map isnan to appropriate function under Windows */

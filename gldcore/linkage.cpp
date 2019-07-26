@@ -1,10 +1,8 @@
-/* @file linkage.c
+/* linkage.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
-#include "instance.h"
-#include "output.h"
-#include "object.h"
-#include "property.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_INSTANCE)
 

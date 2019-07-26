@@ -9,12 +9,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "triplex_load.h"
+#include "powerflow.h"
+using namespace std;
 
 CLASS* triplex_load::oclass = NULL;
 CLASS* triplex_load::pclass = NULL;

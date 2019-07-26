@@ -1,13 +1,9 @@
-// $Id: sanitize.cpp 4738 2014-07-03 00:55:39Z dchassin $
+// sanitize.cpp
 // Copyright (C) 2012 Battelle Memorial Institute
-// Author: DP Chassin
+// Author DP Chassin
 //
 
-#include "output.h"
-#include "sanitize.h"
-#include "globals.h"
-#include "random.h"
-#include "object.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_SANITIZE) // only used if IN_MYCONTEXT is present in this module
 
