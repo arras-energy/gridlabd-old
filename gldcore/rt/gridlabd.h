@@ -23,7 +23,7 @@
 /*	typedef: LOCKVAR
 		System lock variable
  */
-typedef unsigned int LOCKVAR;
+typedef int LOCKVAR;
 
 typedef enum {I='i',J='j',A='d'} CNOTATION; /**< complex number notation to use */
 #define CNOTATION_DEFAULT J /* never set this to A */

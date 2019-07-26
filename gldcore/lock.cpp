@@ -18,7 +18,7 @@
 extern GldMain *my_instance;
 
 //#define LOCKTRACE // enable this to trace locking events back to variables
-#define MAXSPIN 1000000000
+#define MAXSPIN 0x7fffffff
 
 /** Determine locking method 
  **/
