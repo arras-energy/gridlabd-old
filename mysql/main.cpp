@@ -10,24 +10,24 @@
 #define MYSQL_TS_ZERO "'1970-01-01 00:00:00'" // zero mysql timestamp is used for TS_ZERO
 
 // connection data
-static char hostname[256] INIT("");
-static char username[32] INIT("");
-static char password[32] INIT("");
-static char schema[256] INIT("");
-static int32 port INIT(-1);
-static char socketname[1024] INIT("");
-static int64 clientflags INIT(-1);
-static char table_prefix[256] INIT(""); ///< table prefix
+char hostname[256] INIT("");
+char username[32] INIT("");
+char password[32] INIT("");
+char schema[256] INIT("");
+int32 port INIT(-1);
+char socketname[1024] INIT("");
+int64 clientflags INIT(-1);
+char table_prefix[256] INIT(""); ///< table prefix
 static MYSQL *mysql_client = NULL;
 
 // options
-static bool new_database = false; ///< flag to drop a database before using it (very dangerous)
-static bool show_query = false; ///< flag to show queries when verbose is on
-static bool no_create = false; ///< flag to not create tables when exporting data
-static bool overwrite = true; ///< flag to not drop tables when exporting data
-static bool use_graph = true; ///< flag to enable graph schema
-static bool use_guid = false; ///< flag to enable use of guid
-static bool use_transaction = true; ///< flag to disable use of transactions
+bool new_database = false; ///< flag to drop a database before using it (very dangerous)
+bool show_query = false; ///< flag to show queries when verbose is on
+bool no_create = false; ///< flag to not create tables when exporting data
+bool my_overwrite = true; ///< flag to not drop tables when exporting data
+bool use_graph = true; ///< flag to enable graph schema
+bool use_guid = false; ///< flag to enable use of guid
+bool use_transaction = true; ///< flag to disable use of transactions
 
 #else
 #include "gridlabd.h"
@@ -118,9 +118,9 @@ const char *process_command(const char *command)
 			no_create = true;
 			state = PS_SCHEMA;
 		}
-		else if ( strcmp(token,"--no_overwrite")==0 )
+		else if ( strcmp(token,"--no_my_overwrite")==0 )
 		{
-			overwrite = false;
+			my_overwrite = false;
 			state = PS_SCHEMA;
 		}
 		else if ( strcmp(token,"--guid")==0 )
@@ -462,7 +462,7 @@ static bool import_classes(MYSQL *mysql)
 				n, name, module, property, type, flags, unit, description);
 
 		// create runtime classes
-		CLASS *cls = gl_class_get_by_name(name);
+		CLASS *cls = gl_class_get_by_name(name,NULL);
 		if ( module==NULL && cls==NULL && (cls=gl_register_class(NULL,name,0,0))==NULL )
 			return false;
 
@@ -506,7 +506,7 @@ static bool import_objects(MYSQL *mysql)
 				row[10], row[11], row[12], row[13], row[14], row[15], row[16], row[17]);
 
 		// find class for this object (include module match)
-		CLASS *cls = gl_class_get_by_name(row[1]) ;;
+		CLASS *cls = gl_class_get_by_name(row[1],NULL) ;;
 		while ( cls!=NULL && !( ( cls->module==NULL && row[18]==NULL ) || strcmp(cls->module->name,row[18])==0 ) )
 		{
 			gl_verbose("searching for class that matches module: '%s' -> %s:%s ", row[18], cls->module, cls->name);
@@ -855,7 +855,7 @@ EXPORT int import_file(const char *info)
  ********************************************************/
 static bool export_modules(MYSQL *mysql)
 {
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("modules")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("modules")) )
 		return false;
 	if ( !no_create && !query(mysql, "CREATE TABLE IF NOT EXISTS `%s` ("
 			" `id` mediumint PRIMARY KEY AUTO_INCREMENT,"
@@ -881,7 +881,7 @@ static bool export_modules(MYSQL *mysql)
 }
 static bool export_globals(MYSQL *mysql)
 {
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("globals")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("globals")) )
 		return false;
 	if ( !no_create && !query(mysql, "CREATE TABLE IF NOT EXISTS `%s` ("
 			" `name` char(64) PRIMARY KEY,"
@@ -935,7 +935,7 @@ static bool export_class(MYSQL *mysql, CLASS *cls)
 	}
 
 	// create class tables
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("%s_%s",mod?mod->name:"", cls->name)) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("%s_%s",mod?mod->name:"", cls->name)) )
 		return false;
 	char query_string[65536] = "";
 	int len = sprintf(query_string,"CREATE TABLE IF NOT EXISTS `%s` ("
@@ -981,7 +981,7 @@ static bool export_class(MYSQL *mysql, CLASS *cls)
 }
 static bool export_classes(MYSQL *mysql)
 {
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("classes")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("classes")) )
 		return false;
 	if ( !no_create && !query(mysql,"CREATE TABLE IF NOT EXISTS `%s` ("
 			"`id` mediumint NOT NULL AUTO_INCREMENT PRIMARY KEY, "
@@ -1057,7 +1057,7 @@ static bool export_properties(MYSQL *mysql, OBJECT *obj, CLASS *cls = NULL)
 }
 static bool export_objects(MYSQL *mysql)
 {
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("objects")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("objects")) )
 		return false;
 	if ( !no_create && !query(mysql,"CREATE TABLE IF NOT EXISTS `%s` ("
 			" `id` mediumint PRIMARY KEY,"
@@ -1133,7 +1133,7 @@ static bool export_objects(MYSQL *mysql)
 }
 bool export_properties(MYSQL *mysql)
 {
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("properties")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("properties")) )
 		return false;
 	if ( !no_create && !query(mysql,"CREATE TABLE IF NOT EXISTS `%s` ("
 					" `id` mediumint NOT NULL,"
@@ -1187,7 +1187,7 @@ gld_property find_property_at_addr(void *addr)
 }
 bool export_transforms(MYSQL *mysql)
 {
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("transforms")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("transforms")) )
 		return false;
 	if ( !no_create && !query(mysql,"CREATE TABLE IF NOT EXISTS `%s` ("
 					" `source` char(255) NOT NULL,"
@@ -1275,7 +1275,7 @@ bool export_transforms(MYSQL *mysql)
 }
 bool export_schedules(MYSQL *mysql)
 {
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("schedules")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("schedules")) )
 		return false;
 	if ( !no_create && !query(mysql,"CREATE TABLE IF NOT EXISTS `%s` ("
 					" `name` char(64) PRIMARY KEY,"
@@ -1351,13 +1351,13 @@ bool export_graph_transaction(MYSQL *mysql)
 }
 bool export_graph(MYSQL *mysql)
 {
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("node")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("node")) )
 		return false;
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("nodeattr")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("nodeattr")) )
 		return false;
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("edge")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("edge")) )
 		return false;
-	if ( overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("edgeattr")) )
+	if ( my_overwrite && !query(mysql,"DROP TABLE IF EXISTS `%s`", get_table_name("edgeattr")) )
 		return false;
 	if ( !no_create && !query(mysql,"CREATE TABLE IF NOT EXISTS `%s` ("
 			"`id` BIGINT UNSIGNED NOT NULL, "
