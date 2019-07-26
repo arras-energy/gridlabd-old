@@ -747,10 +747,10 @@ struct s_object_list {
 	LOCKVAR lock; /**< object lock */
 	unsigned int rng_state; /**< random number generator state */
 	TIMESTAMP heartbeat; /**< heartbeat call interval (in sim-seconds) */
-	unsigned int64 guid[2]; /**< globally unique identifier */
+	unsigned long long guid[2]; /**< globally unique identifier */
 	EVENTHANDLERS events;
 	/* IMPORTANT: flags must be last */
-	unsigned int64 flags; /**< object flags */
+	unsigned long long flags; /**< object flags */
 }; /**< Object header structure */
 
 struct s_function_map {

@@ -114,7 +114,7 @@ typedef struct s_object_list {
 	unsigned long long guid[2]; /**< globally unique identifier */
 	EVENTHANDLERS events;
 	/* IMPORTANT: flags must be last */
-	uint64 flags; /**< object flags */
+	unsigned long long flags; /**< object flags */
 } OBJECT; /**< Object header structure */
 
 /* this is the callback table for modules
