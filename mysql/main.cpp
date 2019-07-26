@@ -10,24 +10,24 @@
 #define MYSQL_TS_ZERO "'1970-01-01 00:00:00'" // zero mysql timestamp is used for TS_ZERO
 
 // connection data
-char hostname[256] INIT("");
-char username[32] INIT("");
-char password[32] INIT("");
-char schema[256] INIT("");
-int32 port INIT(-1);
-char socketname[1024] INIT("");
-int64 clientflags INIT(-1);
-char table_prefix[256] INIT(""); ///< table prefix
+static char hostname[256] INIT("");
+static char username[32] INIT("");
+static char password[32] INIT("");
+static char schema[256] INIT("");
+static int32 port INIT(-1);
+static char socketname[1024] INIT("");
+static int64 clientflags INIT(-1);
+static char table_prefix[256] INIT(""); ///< table prefix
 static MYSQL *mysql_client = NULL;
 
 // options
-bool new_database = false; ///< flag to drop a database before using it (very dangerous)
-bool show_query = false; ///< flag to show queries when verbose is on
-bool no_create = false; ///< flag to not create tables when exporting data
-bool overwrite = true; ///< flag to not drop tables when exporting data
-bool use_graph = true; ///< flag to enable graph schema
-bool use_guid = false; ///< flag to enable use of guid
-bool use_transaction = true; ///< flag to disable use of transactions
+static bool new_database = false; ///< flag to drop a database before using it (very dangerous)
+static bool show_query = false; ///< flag to show queries when verbose is on
+static bool no_create = false; ///< flag to not create tables when exporting data
+static bool overwrite = true; ///< flag to not drop tables when exporting data
+static bool use_graph = true; ///< flag to enable graph schema
+static bool use_guid = false; ///< flag to enable use of guid
+static bool use_transaction = true; ///< flag to disable use of transactions
 
 #else
 #include "gridlabd.h"
