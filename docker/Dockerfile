@@ -2,7 +2,7 @@ FROM centos:7
 ENV container docker
 
 ENV REPO=https://github.com/dchassin/gridlabd
-ENV BRANCH=dev
+ENV BRANCH=master-cec
 ENV ENABLE=gismo
 ENV GET_WEATHER=no
 ENV REMOVE_SOURCE=yes
