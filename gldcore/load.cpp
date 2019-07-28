@@ -152,6 +152,7 @@ typedef struct _stat STAT;
 #define snprintf _snprintf
 #else
 #include <unistd.h>
+#include <dlfcn.h>
 typedef struct stat STAT;
 #define FSTAT fstat
 #endif
@@ -6158,6 +6159,77 @@ static int modify_directive(PARSER)
 
 ////////////////////////////////////////////////////////////////////////////////////
 
+typedef int (*PARSERCALL)(PARSER);
+struct s_loaderhook {
+	PARSERCALL call;
+	struct s_loaderhook *next;
+};
+typedef struct s_loaderhook LOADERHOOK;
+
+static LOADERHOOK *loaderhooks = NULL;
+
+void loader_addhook(PARSERCALL call)
+{
+	LOADERHOOK *hook = new LOADERHOOK;
+	if ( hook == NULL )
+	{
+		throw "loader_addhook(): memory allocation failed";
+	}
+	hook->call = call;
+	hook->next = loaderhooks;
+	loaderhooks = hook;
+}
+
+static int loader_hook(PARSER)
+{
+	char libname[1024];
+	START;
+	if ( WHITE ) ACCEPT;
+	if ( LITERAL("extension") && WHITE && name(HERE,libname,sizeof(libname)) )
+	{
+		char pathname[1024];
+		snprintf(pathname, sizeof(pathname), "%s" DLEXT, libname);
+		if ( find_file(pathname, NULL, X_OK|R_OK, pathname,sizeof(pathname)) == NULL )
+		{
+			output_error_raw("%s(%d): unable to locate %s in GLPATH=%s", filename, linenum, pathname,getenv("GLPATH")?getenv("GLPATH"):"");
+			REJECT;
+		}
+
+		void *lib = dlopen(pathname,RTLD_LAZY);
+		if ( lib == NULL )
+		{
+			output_error_raw("%s(%d): extension library '%s' load failed", filename, linenum, pathname);
+			output_error_raw("%s(%d): %s", filename, linenum, dlerror());
+			REJECT;
+		}
+		
+		void *parser = dlsym(lib,"parser");
+	 	if ( parser == NULL )
+	 	{
+			output_error_raw("%s(%d): extension library '%s' does not export a parser function", filename, linenum, pathname);
+			REJECT;
+	 	}
+
+		loader_addhook((PARSERCALL)parser);
+		ACCEPT;
+		DONE;
+	}
+	else 
+	{
+		for ( LOADERHOOK *hook = loaderhooks ; hook != NULL ; hook = hook->next )
+		{
+			if ( TERM(hook->call(HERE)) )
+			{
+				ACCEPT;
+				DONE;
+			}
+		}
+		REJECT;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
 static int gridlabd_file(PARSER)
 {
 	START;
@@ -6181,6 +6253,7 @@ static int gridlabd_file(PARSER)
 	OR if TERM(script_directive(HERE)) { ACCEPT; DONE; }
 	OR if TERM(dump_directive(HERE)) { ACCEPT; DONE; }
 	OR if TERM(modify_directive(HERE)) { ACCEPT; DONE; }
+	OR if TERM(loader_hook(HERE)) { ACCEPT; DONE; }
 	OR if (*(HERE)=='\0') {ACCEPT; DONE;}
 	else REJECT;
 	DONE;

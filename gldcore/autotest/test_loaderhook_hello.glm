@@ -1,0 +1,2 @@
+#system gcc -shared -o hello.so -fPIC ../hello.c
+extension hello;
