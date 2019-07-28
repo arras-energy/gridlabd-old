@@ -6180,6 +6180,7 @@ void loader_addhook(PARSERCALL call)
 	loaderhooks = hook;
 }
 
+typedef int (*LOADERINIT)(void);
 static int loader_hook(PARSER)
 {
 	char libname[1024];
@@ -6187,6 +6188,7 @@ static int loader_hook(PARSER)
 	if ( WHITE ) ACCEPT;
 	if ( LITERAL("extension") && WHITE && name(HERE,libname,sizeof(libname)) )
 	{
+		// find the library
 		char pathname[1024];
 		snprintf(pathname, sizeof(pathname), "%s" DLEXT, libname);
 		if ( find_file(pathname, NULL, X_OK|R_OK, pathname,sizeof(pathname)) == NULL )
@@ -6194,7 +6196,9 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): unable to locate %s in GLPATH=%s", filename, linenum, pathname,getenv("GLPATH")?getenv("GLPATH"):"");
 			REJECT;
 		}
+		output_debug("loader extension '%s' is using library '%s", libname, pathname);
 
+		// load the library
 		void *lib = dlopen(pathname,RTLD_LAZY);
 		if ( lib == NULL )
 		{
@@ -6202,13 +6206,29 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): %s", filename, linenum, dlerror());
 			REJECT;
 		}
-		
+		output_debug("loader extension '%s' loaded ok", pathname);
+
+		// access and call the initialization function
+		LOADERINIT init = (LOADERINIT) dlsym(lib,"init");
+		if ( init )
+		{
+			int rc = init();
+			if ( rc != 0 )
+			{
+				output_error_raw("%s(%d): extension library '%s' init() failed, return code %d", filename, linenum, pathname, rc);
+				REJECT;
+			}
+		}
+		output_debug("loader extension '%s' init ok", libname);
+
+		// find and link the parser
 		void *parser = dlsym(lib,"parser");
 	 	if ( parser == NULL )
 	 	{
 			output_error_raw("%s(%d): extension library '%s' does not export a parser function", filename, linenum, pathname);
 			REJECT;
 	 	}
+		output_debug("loader extension '%s' parser linked", libname);	
 
 		loader_addhook((PARSERCALL)parser);
 		ACCEPT;
