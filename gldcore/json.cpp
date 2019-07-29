@@ -33,6 +33,25 @@ GldJsonWriter::~GldJsonWriter(void)
 	free((void*)filename);
 }
 
+const char * escape(const char *buffer, size_t len = 1024)
+{
+	static char result[2048];
+	char *p = result;
+	const char *c;
+	for ( c = buffer ; *c != '\0' && c < buffer+len ; c++)
+	{
+		switch ( *c )
+		{
+		case '"':
+			*p++ = '\\';
+		default:
+			*p++ = *c;
+		}
+	}
+	*p = '\0';
+	return result;
+}
+
 int GldJsonWriter::write(const char *fmt,...)
 {
 	int len;
@@ -226,9 +245,9 @@ int GldJsonWriter::write_globals(FILE *fp)
 				len += write(",");
 			}
 			if ( buffer[0] == '\"' )
-				len += write("\n\t\t\t\"value\" : %s",buffer);
+				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
 			else
-				len += write("\n\t\t\t\"value\" : \"%s\"", buffer);
+				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer));
 			len += write("\n\t\t}");
 		}
 	}
@@ -301,8 +320,12 @@ int GldJsonWriter::write_objects(FILE *fp)
 				int len = strlen(value);
 				if ( value[0] == '{' && value[len-1] == '}')
 					len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+				else if ( value[0] == '[' && value[len-1] == ']')
+					len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
 				else if ( value[0] == '"' && value[len-1] == '"')
-					len += write(",\n\t\t\t\"%s\": %s", prop->name, value);
+				{
+					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-1));
+				}
 				else
 					TUPLE(prop->name,"%s",value);
 			}
