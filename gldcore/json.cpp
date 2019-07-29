@@ -318,17 +318,19 @@ int GldJsonWriter::write_objects(FILE *fp)
 				if ( value == NULL )
 					continue; // ignore values that don't convert propertly
 				int len = strlen(value);
-				// if ( value[0] == '{' && value[len-1] == '}')
+				// if ( value[0] == '{' && value[len] == '}')
 				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-				// else if ( value[0] == '[' && value[len-1] == ']')
+				// else if ( value[0] == '[' && value[len] == ']')
 				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
 				// else 
 				if ( value[0] == '"' && value[len-1] == '"')
 				{
-					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-1));
+					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-2));
 				}
 				else
-					TUPLE(prop->name,"%s",value);
+				{
+					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,len));
+				}
 			}
 		}
 		len += write("\n\t\t}");
