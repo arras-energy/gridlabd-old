@@ -60,18 +60,20 @@ def clock_glm() :
 def classes_glm() : 
 	global data 
 	global fw 
+	
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // CLASSES')
 		for p_id, p_info in data['classes'].items() : 
+			header_str = ''
+			val_str = ''
 			for v_id, v_info in data['classes'][p_id].items() :
-				if 'flags' in v_info: 
-					if 'EXTENDED' in v_info['flags'] :
-						val_str = "\n" + "\t" + v_info['type'] + " " + v_id + ';'
-						header_str = '\n' + 'class ' + p_id + ' {'
-						fw.write(header_str)
-						fw.write(val_str)
-						fw.write("\n}")
-
+				if 'flags' in v_info and 'EXTENDED' in v_info['flags']:
+					header_str = '\n' + 'class ' + p_id + ' {'
+					val_str = val_str + "\n" + "\t" + v_info['type'] + " " + v_id + ';'
+			if header_str : 
+				fw.write(header_str)
+				fw.write(val_str)	
+				fw.write("\n}")
 	return True 
 
 def globals_glm() : 
