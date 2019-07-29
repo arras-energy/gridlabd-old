@@ -23,7 +23,7 @@ TIMESTAMP auction::longest_statistic = 0;
 int auction::statistic_check = -1;
 uint32 auction::statistic_count = 0;
 
-static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_PRETOPDOWN|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_POSTTOPDOWN;
 
 EXPORT int64 get_market_for_time(OBJECT *obj, TIMESTAMP ts){

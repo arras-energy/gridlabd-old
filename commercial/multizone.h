@@ -7,10 +7,9 @@
  @{
  **/
 
-#ifndef _multizone_H
-#define _multizone_H
+#ifndef _MULTIZONE_H
+#define _MULTIZONE_H
 
-#include <stdarg.h>
 #include "gridlabd.h"
 
 class multizone {

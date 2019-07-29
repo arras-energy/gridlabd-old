@@ -1,5 +1,6 @@
-/** $Id: convert.cpp 4738 2014-07-03 00:55:39Z dchassin $
+/** convert.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file convert.c
 	@author David P. Chassin
 	@date 2007
@@ -11,14 +12,7 @@
 @{
  **/
 
-#include <stdio.h>
-#include <math.h>
-#include <ctype.h>
-#include "output.h"
-#include "globals.h"
-#include "convert.h"
-#include "object.h"
-#include "load.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_CONVERT)
 

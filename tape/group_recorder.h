@@ -5,7 +5,7 @@
 
 #include "tape.h"
 
-CDECL void new_group_recorder(MODULE *);
+void new_group_recorder(MODULE *);
 CDECL int group_recorder_postroutine(OBJECT *obj, double timedbl);
 
 #ifdef __cplusplus

@@ -2,15 +2,8 @@
 	Copyright (C) 2009 Battelle Memorial Institute
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
-
+#include "powerflow.h"
 using namespace std;
-
-#include "restoration.h"
 
 //////////////////////////////////////////////////////////////////////////
 // restoration CLASS FUNCTIONS

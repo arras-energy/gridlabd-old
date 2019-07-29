@@ -6,13 +6,7 @@ Copyright (C) 2008 Battelle Memorial Institute
 
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <complex.h>
-
-#include "windturb_dg.h"
+#include "generators.h"
 
 CLASS *windturb_dg::oclass = NULL;
 windturb_dg *windturb_dg::defaults = NULL;

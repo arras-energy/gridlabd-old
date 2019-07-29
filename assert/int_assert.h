@@ -1,10 +1,9 @@
 /** Assert function
  **/
 
-#ifndef _int_assert_H
-#define _int_assert_H
+#ifndef _INT_ASSERT_H
+#define _INT_ASSERT_H
 
-#include <stdarg.h>
 #include "gridlabd.h"
 
 #ifndef _isnan

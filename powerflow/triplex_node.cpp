@@ -7,12 +7,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "triplex_node.h"
+#include "powerflow.h"
+using namespace std;
 
 CLASS* triplex_node::oclass = NULL;
 CLASS* triplex_node::pclass = NULL;

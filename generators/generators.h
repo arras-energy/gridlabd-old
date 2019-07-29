@@ -5,7 +5,6 @@
 #ifndef _GENERATORS_H
 #define _GENERATORS_H
 
-#include <stdarg.h>
 #include "gridlabd.h"
 
 //Phase definitions pilfered from powerflow_object.h for readability
@@ -45,17 +44,19 @@ void allocate_deltamode_arrays(void);				/* Overall function to allocate deltamo
 
 /*** DO NOT DELETE THE NEXT LINE ***/
 //NEWCLASS
-#include "diesel_dg.h"
-#include "windturb_dg.h"
-#include "battery.h"
-#include "dc_dc_converter.h"
-#include "inverter.h"
-#include "microturbine.h"
 #include "power_electronics.h"
-#include "rectifier.h"
-#include "solar.h"
+#include "energy_storage.h"
+#include "battery.h"
 #include "central_dg_control.h"
 #include "controller_dg.h"
+#include "dc_dc_converter.h"
+#include "diesel_dg.h"
+#include "generators.h"
+#include "inverter.h"
+#include "microturbine.h"
+#include "rectifier.h"
+#include "solar.h"
+#include "windturb_dg.h"
 
 #define UNKNOWN 0
 

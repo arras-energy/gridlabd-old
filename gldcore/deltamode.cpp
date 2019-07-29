@@ -1,22 +1,13 @@
-/** $Id: deltamode.c 4738 2014-07-03 00:55:39Z dchassin $
+/** deltamode.cpp
 	Copyright (C) 2011 Battelle Memorial Institute
+	
 	@file deltamode.cpp
 	@addtogroup modules Deltamode Operation
 
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-
-#include "globals.h"
-#include "module.h"
-#include "class.h"
-#include "object.h"
-#include "deltamode.h"
-#include "output.h"
-#include "realtime.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_DELTAMODE)
 

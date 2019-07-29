@@ -2,12 +2,8 @@
 	Copyright (C) 2009 Battelle Memorial Institute
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "fault_check.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // fault_check CLASS FUNCTIONS

@@ -10,11 +10,6 @@ struct shaper;
 struct recorder;
 struct collector;
 
-typedef struct s_memory {
-	GLOBALVAR *buffer;
-	unsigned short index;
-} MEMORY;
-
 int memory_open_player(struct player *my, char *fname, char *flags);
 char *memory_read_player(struct player *my,char *buffer,unsigned int size);
 int memory_rewind_player(struct player *my);

@@ -1,10 +1,8 @@
-/* $Id: ufile.c 4738 2014-07-03 00:55:39Z dchassin $
+/* ufile.cpp
  * Copyright (C) 2012 Battelle Memorial Institute
  */
 
-#include <stdio.h>
-#include "http_client.h"
-#include "ufile.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_HTTP)
 

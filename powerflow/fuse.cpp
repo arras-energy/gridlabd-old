@@ -10,12 +10,9 @@
 	
 	@{
 */
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
 
-#include "fuse.h"
+#include "powerflow.h"
+using namespace std;
 
 //initialize pointers
 CLASS* fuse::oclass = NULL;

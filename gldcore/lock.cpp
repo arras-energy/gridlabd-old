@@ -1,5 +1,6 @@
-/** $Id: lock.cpp 4738 2014-07-03 00:55:39Z dchassin $
+/** lock.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file lock.h
 	@defgroup locking Locking memory
 	@ingroup module_api
@@ -11,24 +12,17 @@
  @{	  
  **/
 
-#include "lock.h"
-#include "exception.h"
-#include <stdio.h>
+#include "gldcore.h"
 
 /* TODO: remove these when reentrant code is completed */
-#include "main.h"
 extern GldMain *my_instance;
 
 //#define LOCKTRACE // enable this to trace locking events back to variables
-#define MAXSPIN 1000000000
+#define MAXSPIN 0x7fffffff
 
 /** Determine locking method 
  **/
 #define METHOD0 /* locking method as of 3.0 */
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
 
 /************************************************************************************** 
    IMPORTANT NOTE: it is vital that the platform specific implementations be tested for
@@ -39,9 +33,9 @@ extern GldMain *my_instance;
 	//#include <libkern/OSAtomic.h>
 	#include <atomic>
 	//#define atomic_compare_and_swap(thevalue, oldvalue, newvalue) OSAtomicCompareAndSwap32Barrier(oldvalue, newvalue, (volatile int32_t *) thevalue)
-	#define atomic_compare_and_swap(thevalue, oldvalue, newvalue) std::atomic_compare_exchange_strong((std::atomic<int32_t>*)thevalue,(int32_t*)&oldvalue,(int32_t)newvalue)
+	#define atomic_compare_and_swap(thevalue, oldvalue, newvalue) std::atomic_compare_exchange_strong((std::atomic<LOCKVAR>*)thevalue,(LOCKVAR*)&oldvalue,(LOCKVAR)newvalue)
 	//#define atomic_increment(ptr) OSAtomicIncrement32Barrier((volatile int32_t *) ptr)
-	#define atomic_increment(ptr) std::atomic_fetch_add((std::atomic<int32_t>*)ptr,1)
+	#define atomic_increment(ptr) std::atomic_fetch_add((std::atomic<LOCKVAR>*)ptr,1)
 #elif defined(WIN32) && !defined __MINGW32__
 	#include <intrin.h>
 	#pragma intrinsic(_InterlockedCompareExchange)
@@ -58,7 +52,7 @@ extern GldMain *my_instance;
 	#else
 		static inline LOCKVAR atomic_increment(LOCKVAR *ptr)
 		{
-			unsigned int value;
+			LOCKVAR value;
 			do {
 				value = *(volatile LOCKVAR *)ptr;
 			} while (!__sync_bool_compare_and_swap((volatile LOCKVAR*)ptr, value, value + 1));
@@ -71,15 +65,16 @@ extern GldMain *my_instance;
 
 /** Enable lock trace 
  **/
-#ifdef LOCKTRACE // this code should only be used in care is mystery lock timeouts
+#ifdef LOCKTRACE // this code should only be used in case of mystery lock timeouts
 typedef struct s_locklist {
 	const char *name;
-	unsigned int *lock;
-	unsigned int last_value;
+	LOCKVAR *lock;
+	LOCKVAR last_value;
 	struct s_locklist *next;
 } LOCKLIST;
 LOCKLIST *locklist = NULL;
-/** Register a lock trave
+
+/** Register a lock trace
  **/
 void register_lock(const char *name, LOCKVAR *lock)
 {
@@ -101,7 +96,7 @@ void check_lock(LOCKVAR *lock, bool write, bool unlock)
 	// lock locklist
 	static unsigned int check_lock=0;
 	unsigned int timeout = MAXSPIN;
-	unsigned int value;
+	LOCKVAR value;
 	do {
 		value = check_lock;
 		if ( timeout--==0 ) 
@@ -163,10 +158,10 @@ extern "C" void rlock(LOCKVAR *lock)
 	LOCKVAR timeout = MAXSPIN;
 	LOCKVAR value;
 	check_lock(lock,false,false);
-	atomic_increment(&my_instance->get_exec()->rlock_count);
+	atomic_increment(&my_instance->rlock_count);
 	do {
 		value = (*lock);
-		atomic_increment(&my_instance->get_exec()->rlock_spin);
+		atomic_increment(&my_instance->rlock_spin);
 		if ( timeout--==0 ) 
 			throw_exception("read lock timeout");
 	} while ((value&1) || !atomic_compare_and_swap(lock, value, value + 1));
@@ -178,10 +173,10 @@ extern "C" void wlock(LOCKVAR *lock)
 	LOCKVAR timeout = MAXSPIN;
 	LOCKVAR value;	
 	check_lock(lock,true,false);
-	atomic_increment(&my_instance->get_exec()->wlock_count);
+	atomic_increment(&my_instance->wlock_count);
 	do {
 		value = (*lock);
-		atomic_increment(&my_instance->get_exec()->wlock_spin);
+		atomic_increment(&my_instance->wlock_spin);
 		if ( timeout--==0 ) 
 			throw_exception("write lock timeout");
 	} while ((value&1) || !atomic_compare_and_swap(lock, value, value + 1));
@@ -217,28 +212,36 @@ extern "C" void wunlock(LOCKVAR *lock)
    (2) an atomic CAS operation is performed to take the lock by setting the low bit to 1
    (3) to unlock the lock value is set to zero (which clears all the bits)
  */
-static inline void rlock(unsigned int *lock)
+extern "C" void rlock(LOCKVAR *lock)
 {
-	unsigned int value;
-
+	LOCKVAR timeout = MAXSPIN;
+	LOCKVAR value;
+	atomic_increment(&my_instance->get_exec()->rlock_count);
 	do {
 		value = (*lock);
+		if ( timeout--==0 ) 
+			throw_exception("read lock timeout");
 	} while ((value&1) || !atomic_compare_and_swap(lock, value, value|0x80000000));
 }
-static inline void wlock(unsigned int *lock)
+extern "C" void wlock(LOCKVAR *lock)
 {
-	unsigned int value;
-
+	LOCKVAR timeout = MAXSPIN;
+	LOCKVAR value;
+	atomic_increment(&my_instance->get_exec()->wlock_count);
 	do {
 		value = (*lock);
+		if ( timeout--==0 ) 
+			throw_exception("write lock timeout");
 	} while ((value&0x80000001) || !atomic_compare_and_swap(lock, value, value + 1));
 }
-static inline void _unlock(unsigned int *lock)
+extern "C" void wunlock(LOCKVAR *lock)
 {
 	*lock = 0;
 }
-#define runlock _unlock
-#define wunlock _unlock
+extern "C" void runlock(LOCKVAR *lock)
+{
+	*lock = 0;
+}
 
 #elif defined METHOD2
 /**********************************************************************************
@@ -248,33 +251,39 @@ static inline void _unlock(unsigned int *lock)
 #define WBIT 0x80000000
 #define RBITS 0x7FFFFFFF
 
-static inline void rlock(unsigned int *lock)
+extern "C" void rlock(LOCKVAR *lock)
 {
-	unsigned int test;
-
+	LOCKVAR timeout = MAXSPIN;
+	LOCKVAR test;
+	my_instance->get_exec()->rlock_count++;
 	// 1. Wait for exclusive write lock to be released, if any
 	// 2. Increment reader counter
 	do {
 		test = *lock;
+		if ( timeout--==0 ) 
+			throw_exception("read lock timeout");
 	} while (test & WBIT || !atomic_compare_and_swap(lock, test, test + 1));
 }
 
-static inline void wlock(unsigned int *lock)
+extern "C" void wlock(LOCKVAR *lock)
 {
-	unsigned int test;
-
+	LOCKVAR timeout = MAXSPIN;
+	LOCKVAR test;
+	my_instance->get_exec()->wlock_count++;
 	// 1. Wait for exclusive write lock to be released, if any
 	// 2. Take exclusive write lock
 	do {
 		test = *lock;
+		if ( timeout--==0 ) 
+			throw_exception("write lock timeout");
 	} while (test & WBIT || !atomic_compare_and_swap(lock, test, test | WBIT));
 	// 3. Wait for readers to complete before proceeding
 	while ((*lock) & RBITS);
 }
 
-static inline void runlock(unsigned int *lock)
+extern "C" void runlock(LOCKVAR *lock)
 {
-	unsigned int test;
+	LOCKVAR test;
 
 	// Decrement the reader counter
 	do {
@@ -282,9 +291,9 @@ static inline void runlock(unsigned int *lock)
 	} while (!atomic_compare_and_swap(lock, test, test - 1));
 }
 
-static inline void wunlock(unsigned int *lock)
+extern "C" void wunlock(LOCKVAR *lock)
 {
-	unsigned int test;
+	LOCKVAR test;
 
 	// Release write lock
 	do {
@@ -299,7 +308,7 @@ static inline void wunlock(unsigned int *lock)
 
 // Start a loop for reading values
 #define rlock(lock) {          \
-	unsigned int lock_tmp;      \
+	LOCKVAR lock_tmp;      \
 	do {                        \
 		lock_tmp = *lock;
 
@@ -307,9 +316,9 @@ static inline void wunlock(unsigned int *lock)
 #define runlock(lock) } while (lock_tmp != *(lock) || lock_tmp & 1);   \
 }
 
-static inline void wlock(unsigned int *lock)
+inline void wlock(LOCKVAR *lock)
 {
-	unsigned int test;
+	LOCKVAR test;
 
 	// 1. Wait for exclusive write lock to be released, if any
 	// 2. Take exclusive write lock
@@ -318,8 +327,9 @@ static inline void wlock(unsigned int *lock)
 	} while (test & 1 || !atomic_compare_and_swap(lock, test, test + 1));
 }
 
-static inline void wunlock(unsigned int *lock)
+inline void wunlock(LOCKVAR *lock)
 {
+	LOCKVAR test;
 	// Release write lock
 	do {
 		test = *lock;

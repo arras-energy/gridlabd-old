@@ -14,12 +14,7 @@
 
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-
-#include "office.h"
-#include "multizone.h"
+#include "commercial.h"
 
 CLASS *multizone::oclass = NULL;
 multizone *multizone::defaults = NULL;
