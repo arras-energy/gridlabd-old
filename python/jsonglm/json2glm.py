@@ -68,7 +68,8 @@ def classes_glm() :
 			fw.write(header_str)
 			for v_id, v_info in data['classes'][p_id].items() :
 				if v_id not in classkeys_ignore : 
-					val_str = "\n" + "\t" + v_info['type'] + " " + v_id + ';'
+					if "." not in v_id : #FIX THIS WHEN THERE IS A USER BASED FLAG 
+						val_str = "\n" + "\t" + v_info['type'] + " " + v_id + ';'
 					fw.write(val_str)
 			fw.write("\n}")
 
@@ -108,23 +109,19 @@ def objects_glm() :
 				new_name = p_info['class']+'_'+p_info['id']
 			else :
 				new_name = p_id 
-			name_str = '\n' + '\t' + "name " + new_name + ';'
+			name_str = '\n' + '\t' + "name \"" + new_name + '\";'
 			fw.write(name_str)
 			for v_id, v_info in data['objects'][p_id].items() : 
 				if v_id not in objects_ignore and v_info:  
-					if v_id == 'wh_shape' : # TEMP - GENERALIZE
-						val_str = "\n"+ "\t" + v_id + " \"" + v_info + "\";"
-					else :
-						val_str = "\n"+ "\t" + v_id + " " + v_info + ";"
+					val_str = "\n"+ "\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
 					fw.write(val_str)
 			fw.write('\n}' )
 	return True
 
 
 clock_glm()
-# classes_glm() 
-
 modules_glm()
+classes_glm()
 globals_glm()
 objects_glm()
 
