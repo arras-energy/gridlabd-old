@@ -356,7 +356,7 @@ bool solver_model_islast(SOLVERMODEL *model)
 }
 
 // solver_find_model(SOLVERMODEL): identifies a satisfactory model and return the distance metric
-double solver_model_find(SOLVERMODEL *&model,
+bool solver_model_find(SOLVERMODEL *&model,
 						 unsigned int &bus_count,
 						 BUSDATA *&bus,
 						 unsigned int &branch_count,
@@ -377,8 +377,10 @@ double solver_model_find(SOLVERMODEL *&model,
 	if ( model != NULL )
 	{
 		solver_model_log(1,"found model %x (%dx%d) new distance %g", model->id, bus_count, branch_count, dist);
+		return dist < maximum_distance; 
 	}
-	return dist; 
+	else
+	return false;
 }
 
 int64 solver_model_apply(SOLVERMODEL *model,

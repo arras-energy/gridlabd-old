@@ -64,6 +64,8 @@ typedef struct s_module_list MODULE;
 
 typedef CLASS *(*LIBINIT)(const CALLBACKS*,void*,int,char*[]);
 
+typedef int (*EXTERNALCALLBACK)(void*,void*);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -116,6 +118,8 @@ extern "C" {
 	int module_commitall(TIMESTAMP t);
 	void module_termall(void);
 	MODULE *module_get_next(MODULE*);
+	
+	int module_add_external_callback(const char *name, EXTERNALCALLBACK handler, void *data);
 
 #ifdef __cplusplus
 }

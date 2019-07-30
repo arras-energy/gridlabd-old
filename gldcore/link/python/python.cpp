@@ -48,6 +48,8 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args);
 
 static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args);
 
+static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args);
+
 static PyMethodDef module_methods[] = {
     {"title", gridlabd_title, METH_VARARGS, "Get the software title"},
     {"version", gridlabd_version, METH_VARARGS, "Get the software version"},
@@ -86,7 +88,8 @@ static PyMethodDef module_methods[] = {
     {"set_value", gridlabd_set_value, METH_VARARGS, "Set a GridLAB-D object property"},
     // utilities
     {"convert_unit", gridlabd_convert_unit, METH_VARARGS, "Convert units of a float, complex or string"},
-
+    // callbacks
+    {"add_callback", gridlabd_add_callback, METH_VARARGS, "Add external callback for modules"},
     {NULL, NULL, 0, NULL}
 };
 
@@ -1208,6 +1211,31 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("unable to convert unit -- internal error");
     }
+}
+
+//
+// >>> gridlabd.add_callback(name,object)
+//
+// Returns: float or complex
+//
+int external_callback(void *data,void *args)
+{
+    return -1;
+}
+static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args)
+{
+    const char *name;
+    PyObject *call;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args,"sO", &name, &call) )
+    {
+        return gridlabd_exception("invalid arguments");
+    }
+    if ( ! PyCallable_Check(call) )
+    {
+        return gridlabd_exception("arg 2 is not callable");
+    }
+    return Py_BuildValue("i",module_add_external_callback(name,external_callback,call));
 }
 
 /////////////////////
