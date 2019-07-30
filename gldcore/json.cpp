@@ -194,6 +194,16 @@ int GldJsonWriter::write_classes(FILE *fp)
 				else
 					len += write(",");
 			}
+			char flags[1024] = "";
+			if ( prop->flags&PF_RECALC ) strcat(flags,"RECALC");
+			if ( prop->flags&PF_CHARSET ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"CHARSET"); }
+			if ( prop->flags&PF_EXTENDED ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"EXTENDED"); }
+			if ( prop->flags&PF_DEPRECATED ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"DEPRECATED"); }
+			if ( prop->flags&PF_DEPRECATED_NONOTICE ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"DEPRECATED_NONOTICE"); }
+			if ( flags[0] != '\0' )
+			{
+				len += write(",\n\t\t\t\t\"flags\" : \"%s\"",flags);
+			}
 			if ( prop->unit != NULL )
 			{
 				write(",\n\t\t\t\t\"unit\" : \"%s\"",prop->unit->name);
