@@ -1143,6 +1143,9 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 		//Used specifically to run MYSQL integration autotests
 		{"MYSQL",global_true},
 #endif
+#ifdef HAVE_PYTHON
+		{"PYTHON",global_true},
+#endif
 	};
 	size_t i;	
 	if(buffer == NULL){

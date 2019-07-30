@@ -1,2 +1,4 @@
+#ifndef PYTHON
 #system cp ../test_external_callback.py .
 #system python3 test_external_callback.py
+#endif
