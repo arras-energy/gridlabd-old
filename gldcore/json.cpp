@@ -266,6 +266,47 @@ int GldJsonWriter::write_globals(FILE *fp)
 	return len;
 }
 
+int GldJsonWriter::write_schedules(FILE *fp) 
+{
+	int len = 0;
+	GLOBALVAR *var;
+	len += write(",\n\t\"schedules\" : {");
+
+	/* for each module */
+	for ( var = global_find(NULL) ; var != NULL ; var = global_getnext(var) )
+	{
+		char buffer[1024];
+		if ( global_getvar(var->prop->name,buffer,sizeof(buffer)-1) ) // only write globals that can be extracted
+		{
+			KEYWORD *key;
+			PROPERTYSPEC *pspec = property_getspec(var->prop->ptype);
+			if ( var != global_find(NULL) )
+				len += write(",");
+			len += write("\n\t\t\"%s\" : {", var->prop->name);
+			len += write("\n\t\t\t\"type\" : \"%s\",", pspec->name);
+			for ( key = var->prop->keywords ; key != NULL ; key = key->next )
+			{
+				if ( key == var->prop->keywords )
+				{
+					len += write("\n\t\t\t\"keywords\" : {");
+				}
+				len += write("\n\t\t\t\t\"%s\" : \"0x%x\"",key->name,key->value);
+				if ( key->next == NULL )
+					len += write("\n\t\t\t}");
+				len += write(",");
+			}
+			if ( buffer[0] == '\"' )
+				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
+			else
+				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer));
+			len += write("\n\t\t}");
+		}
+	}
+	len += write("\n\t}");
+	output_debug("GldJsonWriter::schedules() wrote %d bytes",len);
+	return len;
+}
+
 int GldJsonWriter::write_objects(FILE *fp)
 {
 	int len = 0;
