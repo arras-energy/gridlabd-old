@@ -7,14 +7,8 @@
 	@{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "line.h"
 
 CLASS* line_spacing::oclass = NULL;
 CLASS* line_spacing::pclass = NULL;

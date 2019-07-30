@@ -1,0 +1,2 @@
+#!/bin/bash
+diff test_random_0.csv test_random_1.csv

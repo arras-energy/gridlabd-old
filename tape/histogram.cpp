@@ -24,7 +24,7 @@ histogram *histogram::defaults = NULL;
 // histogram CLASS FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
 
-CDECL void new_histogram(MODULE *mod){
+void new_histogram(MODULE *mod){
 	new histogram(mod);
 }
 
@@ -198,7 +198,7 @@ void histogram::test_for_complex(char *tprop, char *tpart){
 		else if(0 == memcmp(tpart, "mag", 3)){comp_part = MAG;}
 		else if(0 == memcmp(tpart, "ang", 3)){comp_part = ANG;}
 		else {
-			comp_part = NONE;
+			comp_part = CP_NONE;
 			gl_error("Unable to resolve complex part for '%s'", property.get_string());
 			return;
 		}

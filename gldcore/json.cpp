@@ -1,5 +1,6 @@
-/** $Id: json.c 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/** json.cpp
+	Copyright (C) 2018 Regents of the Leland Stanford Junior University 
+
 	@file json.c
 	@addtogroup mapping JSON formatting
 	@ingroup core
@@ -12,17 +13,7 @@
  @{
  **/
 
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-#include <time.h>
-#include "class.h"
-#include "object.h"
-#include "output.h"
-#include "exception.h"
-#include "module.h"
-#include "timestamp.h"
-#include "json.h"
+#include "gldcore.h"
 
 DEPRECATED int json_dump(const char *filename)
 {
@@ -42,6 +33,25 @@ GldJsonWriter::~GldJsonWriter(void)
 	free((void*)filename);
 }
 
+const char * escape(const char *buffer, size_t len = 1024)
+{
+	static char result[2048];
+	char *p = result;
+	const char *c;
+	for ( c = buffer ; *c != '\0' && c < buffer+len ; c++)
+	{
+		switch ( *c )
+		{
+		case '"':
+			*p++ = '\\';
+		default:
+			*p++ = *c;
+		}
+	}
+	*p = '\0';
+	return result;
+}
+
 int GldJsonWriter::write(const char *fmt,...)
 {
 	int len;
@@ -52,8 +62,8 @@ int GldJsonWriter::write(const char *fmt,...)
 	return len;
 }
 
-#define FIRST(NAME,FORMAT,VALUE) (len += write("\n\t\t\t\"%s\" : \"" FORMAT "\"",NAME,VALUE))
-#define TUPLE(NAME,FORMAT,VALUE) (len += write(",\n\t\t\t\"%s\" : \"" FORMAT "\"",NAME,VALUE))
+#define FIRST(N,F,V) (len += write("\n\t\t\t\"%s\" : \"" F "\"",N,V))
+#define TUPLE(N,F,V) (len += write(",\n\t\t\t\"%s\" : \"" F "\"",N,V))
 
 int GldJsonWriter::write_modules(FILE *fp)
 {
@@ -184,6 +194,16 @@ int GldJsonWriter::write_classes(FILE *fp)
 				else
 					len += write(",");
 			}
+			char flags[1024] = "";
+			if ( prop->flags&PF_RECALC ) strcat(flags,"RECALC");
+			if ( prop->flags&PF_CHARSET ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"CHARSET"); }
+			if ( prop->flags&PF_EXTENDED ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"EXTENDED"); }
+			if ( prop->flags&PF_DEPRECATED ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"DEPRECATED"); }
+			if ( prop->flags&PF_DEPRECATED_NONOTICE ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"DEPRECATED_NONOTICE"); }
+			if ( flags[0] != '\0' )
+			{
+				len += write(",\n\t\t\t\t\"flags\" : \"%s\"",flags);
+			}
 			if ( prop->unit != NULL )
 			{
 				write(",\n\t\t\t\t\"unit\" : \"%s\"",prop->unit->name);
@@ -235,9 +255,9 @@ int GldJsonWriter::write_globals(FILE *fp)
 				len += write(",");
 			}
 			if ( buffer[0] == '\"' )
-				len += write("\n\t\t\t\"value\" : %s",buffer);
+				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
 			else
-				len += write("\n\t\t\t\"value\" : \"%s\"", buffer);
+				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer));
 			len += write("\n\t\t}");
 		}
 	}
@@ -308,12 +328,19 @@ int GldJsonWriter::write_objects(FILE *fp)
 				if ( value == NULL )
 					continue; // ignore values that don't convert propertly
 				int len = strlen(value);
-				if ( value[0] == '{' && value[len-1] == '}')
-					len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-				else if ( value[0] == '"' && value[len-1] == '"')
-					len += write(",\n\t\t\t\"%s\": %s", prop->name, value);
+				// if ( value[0] == '{' && value[len] == '}')
+				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+				// else if ( value[0] == '[' && value[len] == ']')
+				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+				// else 
+				if ( value[0] == '"' && value[len-1] == '"')
+				{
+					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-2));
+				}
 				else
-					TUPLE(prop->name,"%s",value);
+				{
+					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,len));
+				}
 			}
 		}
 		len += write("\n\t\t}");

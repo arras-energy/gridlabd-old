@@ -1,9 +1,8 @@
 /** $Id: solar_angles.cpp 4738 2014-07-03 00:55:39Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
 **/
-#include "complex.h"
 
-#include "solar_angles.h"
+#include "climate.h"
 
 short days_thru_month[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};  // Ignores leap years...
 

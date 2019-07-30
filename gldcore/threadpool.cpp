@@ -1,4 +1,4 @@
-/*  $Id: threadpool.c 4738 2014-07-03 00:55:39Z dchassin $
+/*  threadpool.cpp
  *  Copyright (C) 2008 Battelle Memorial Institute
  *
  *  Threadpool implementation.
@@ -7,23 +7,7 @@
  *  Overhaul by DP Chassin Sept 2012
  */
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifdef WIN32
-#define _WIN32_WINNT 0x0400
-#include <windows.h>
-#endif
-
-#include "globals.h"
-#include "threadpool.h"
-#include "exec.h"
-#include "output.h"
+#include "gldcore.h"
 
 static int mti_debug_mode = 0;
 int mti_debug(MTI *mti, const char *fmt, ...)

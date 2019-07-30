@@ -7,6 +7,9 @@
 #ifndef _NODE_H
 #define _NODE_H
 
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 #include "powerflow.h"
 
 //Deltamode functions

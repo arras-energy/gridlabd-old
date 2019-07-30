@@ -1,29 +1,11 @@
-/** $Id: enduse.c 4738 2014-07-03 00:55:39Z dchassin $
+/** enduse.cpp
  	Copyright (C) 2008 Battelle Memorial Institute
-	@file loadshape.c
-	@addtogroup loadshape
+
+	@file enduse.cpp
+	@addtogroup enduse
 **/
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <math.h>
-#include <pthread.h>
-
-#include "platform.h"
-#include "output.h"
-#include "loadshape.h"
-#include "exception.h"
-#include "convert.h"
-#include "globals.h"
-#include "random.h"
-#include "schedule.h"
-#include "enduse.h"
-#include "main.h"
-#include "class.h"
-#include "property.h"
-#include "object.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_ENDUSE)
 
@@ -76,6 +58,28 @@ double enduse_get_part(void *x, const char *name)
 	DO_ELECTRONIC(A);
 	DO_ELECTRONIC(B);
 	return QNAN;
+}
+
+int enduse_set_part(void *x, const char *name, const char *value)
+{
+	enduse *e = (enduse*)x;
+#define SET_COMPLEX(X) if ( strcmp(name,#X)==0 ) { return complex_from_string(&(e->X),value);}
+#define SET_DOUBLE(X) if ( strcmp(name,#X)==0 ) { return sscanf(value,"%lg",&(e->X)); }
+	SET_COMPLEX(total)
+	SET_COMPLEX(energy)
+	SET_COMPLEX(demand)
+	SET_DOUBLE(breaker_amps);
+	SET_COMPLEX(admittance);
+	SET_COMPLEX(current);
+	SET_COMPLEX(power);
+	SET_DOUBLE(impedance_fraction);
+	SET_DOUBLE(current_fraction);
+	SET_DOUBLE(power_fraction);
+	SET_DOUBLE(power_factor);
+	SET_DOUBLE(voltage_factor);
+	SET_DOUBLE(heatgain);
+	SET_DOUBLE(heatgain_fraction);
+	return 0;
 }
 
 #ifdef _DEBUG

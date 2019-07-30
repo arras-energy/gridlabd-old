@@ -4,8 +4,9 @@
 #ifndef _currdump_H
 #define _currdump_H
 
-#include "powerflow.h"
-#include "link.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 typedef enum {
 	CDM_RECT,
@@ -20,6 +21,9 @@ public:
 	char256 filename;
 	int32 runcount;
 	enumeration mode;
+	double interval;
+	int32 maxcount;
+	char8 filemode;
 public:
 	static CLASS *oclass;
 public:

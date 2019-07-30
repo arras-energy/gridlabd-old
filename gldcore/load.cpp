@@ -1,5 +1,6 @@
-/** $Id: load.c 4738 2014-07-03 00:55:39Z dchassin $
+/** load.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file load.c
 	@addtogroup load_glm GLM file loader
 	@ingroup core
@@ -128,25 +129,7 @@ object <class>[:<spec>] { // spec may be <id>, or <startid>..<endid>, or ..<coun
 
  **/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#else // not a build using automake
-#define DLEXT ".dll"
-#endif // HAVE_CONFIG_H
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <float.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>
-#include "stream.h"
-#include "http_client.h"
-#include "link.h"
-#include "exec.h"
+#include "gldcore.h"
 
 /* define this to use # for comment and % for macros (the way Version 1.x works) */
 /* #define OLDSTYLE	*/
@@ -761,7 +744,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				|| write_file(fp,"extern \"C\" CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])\n"
 					"{\n"
 					"\tcallback=fntable;\n"
-					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\"));\n"
+					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\",NULL));\n"
 					"\tif (!myclass) return NULL;\n"
 					"\tif (!setup_class(myclass)) return NULL;\n"
 					"\treturn myclass;"
@@ -815,7 +798,8 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				}
 				if ( !global_debug_output )
 					unlink(cfile);
-
+				else
+					output_verbose("keeping %s for debugging",cfile);
 
 				/* link new runtime module */
 				IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
@@ -1264,9 +1248,9 @@ void start_parse(int &mm, int &m, int &n, int &l, int linenum)
 #define HERE (_p+_m)
 #define OR {_m=0;}
 #define REJECT { linenum=_l; return 0; }
-//#define WHITE (_m+=white(HERE))
 #define WHITE (TERM(white(HERE)))
 #define LITERAL(X) (_mm=literal(HERE,(X)),_m+=_mm,_mm>0)
+#define PEEK(C) (_p[_m]==(C))
 #define TERM(X) (_mm=(X),_m+=_mm,_mm>0)
 #define COPY(X) {size--; (X)[_n++]=*_p++;}
 #define DONE return _n;
@@ -2357,6 +2341,26 @@ static int time_value_datetimezone(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
+static int time_value_isodatetime(PARSER, TIMESTAMP *t)
+{
+	START;
+	if WHITE ACCEPT;
+	char timevalue[1024];
+	if (LITERAL("\"") && TERM(delim_value(HERE,timevalue,sizeof(timevalue),"\"")) && LITERAL("\"") )
+	{
+		*t = convert_to_timestamp(timevalue);
+		if (*t!=-1) 
+		{
+			ACCEPT;
+		}
+		else
+			REJECT;
+	}
+	else
+		REJECT;
+	DONE;
+}
+
 static int time_value(PARSER, TIMESTAMP *t)
 {
 	START;
@@ -2373,8 +2377,13 @@ static int time_value(PARSER, TIMESTAMP *t)
 	OR
 	if (TERM(time_value_datetimezone(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
 	OR
+	if (TERM(time_value_isodatetime(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
 	if (TERM(integer(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
-	else REJECT;
+	else 
+	{
+		REJECT;
+	}
 	DONE;
 }
 
@@ -3030,7 +3039,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "presync";
-		oclass->passconfig |= PC_PRETOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_PRETOPDOWN);
 		*function |= FN_PRESYNC;
 		ACCEPT;
 	}
@@ -3038,7 +3047,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "sync";
-		oclass->passconfig |= PC_BOTTOMUP;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_BOTTOMUP);
 		*function |= FN_SYNC;
 		ACCEPT;
 	}
@@ -3046,7 +3055,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "postsync";
-		oclass->passconfig |= PC_POSTTOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_POSTTOPDOWN);
 		*function |= FN_POSTSYNC;
 		ACCEPT;
 	}
@@ -3577,7 +3586,7 @@ static int class_block(PARSER)
 				oclass = class_get_class_from_classname(classname);
 				if (oclass==NULL)
 				{
-					oclass = class_register(NULL,classname,0,0x00);
+					oclass = class_register(NULL,classname,0,PC_NOSYNC);
 					mark_line();
 					switch (inherit) {
 					case NONE:
@@ -4008,6 +4017,165 @@ char *makecopy(char *s)
 	strcpy(copy,s);
 	return copy;
 }
+
+static void json_free(JSONDATA **data)
+{
+	if ( data==NULL || *data == NULL )
+		return;
+	json_free(&((*data)->next));
+	free((void*)(*data)->name);
+	free((void*)(*data)->value);
+	free((void*)(*data));
+	*data = NULL;
+}
+static bool json_append(JSONDATA **data, const char *name, size_t namelen, const char *value, size_t valuelen)
+{
+	JSONDATA *next = (JSONDATA*)malloc(sizeof(JSONDATA));
+	if ( next == NULL )
+	{
+		output_error("json_append() memory allocation failed");
+		return false;
+	}
+	next->next = *data;
+	next->name = strndup(name,namelen);
+	if ( next->name == NULL )
+	{
+		output_error("json_append() memory allocation failed");
+		free(next);
+		return false;
+	}
+	next->value = strndup(value,valuelen);
+	if ( next->value == NULL )
+	{
+		output_error("json_append() memory allocation failed");
+		free((void*)(next->name));
+		free(next);
+		return false;
+	}
+	*data = next;
+	output_debug("json_append(name='%s',value='%s')",next->name,next->value);
+	return true;
+}
+static int json_data(PARSER,JSONDATA **data)
+{
+	// this parser is for simple json "dict" data only
+	// and will not accept json lists or nested data
+	enum {BEGIN, OPEN, NAME, BNAME, QNAME, COLON, VALUE, BVALUE, QVALUE, CLOSE, END, ERROR} state;
+	const char *name = NULL, *value = NULL;
+	size_t namelen = 0, valuelen = 0;
+	START;
+	WHITE;
+	if ( PEEK('{') )
+	{
+		for ( state = BEGIN ; state != END ; _m++ )
+		{
+			char c = *HERE;
+			if ( state == BEGIN )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == '{' ) { state = OPEN; continue; }
+				state = ERROR; break;
+			}
+			else if ( state == OPEN )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == '"' ) { name = HERE + 1; namelen = 0; state = QNAME; continue; }
+				if ( c == '}' ) { state = END; continue; }
+				name = HERE; namelen = 1; state = BNAME; continue;
+			}
+			else if ( state == BNAME )
+			{
+				if ( isspace(c) ) { state = COLON; continue; }
+				if ( c == ':' ) {state = VALUE; continue; }
+				namelen++;
+				continue;
+			}
+			else if ( state == QNAME )
+			{
+				// TODO: handle escape
+				if ( c == '"' ) { state = COLON; continue; }
+				namelen++;
+				continue;
+			}
+			else if ( state == COLON )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == ':' ) { state = VALUE; continue; }
+				state = ERROR; break;
+			}
+			else if ( state == VALUE )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == '"' ) { value = HERE+1; valuelen = 0; state = QVALUE; continue; }
+				state = BVALUE; value = HERE; valuelen = 1; continue;
+			}
+			else if ( state == BVALUE )
+			{ 
+				if ( isspace(c) ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = CLOSE; continue; }
+				if ( c == ';' || c == ',' ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = OPEN; continue; }
+				if ( c == '}' ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = END; continue; }
+				valuelen++;
+				continue;
+			}
+			else if ( state == QVALUE )
+			{
+				// TODO: handle escape
+				if ( c == '"') { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = CLOSE; continue; }
+				valuelen++;
+				continue;
+			}
+			else if ( state == CLOSE )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == ';' ) { state = OPEN; continue; }
+				if ( c == '}' ) { state = END; continue; }
+			}
+			else
+			{
+				// state is invalid
+				break;
+			}
+		}
+		if ( state == END ) 
+		{
+			ACCEPT;
+		}
+		else 
+		{
+			output_error_raw("%s(%d): JSON parse error at or near '%20s...'",filename,linenum,HERE);
+			json_free(data);
+			REJECT;
+		}
+	}
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
+
+static int json_block(PARSER, OBJECT *obj, const char *propname)
+{
+	JSONDATA *data = NULL;
+	START;
+	if ( TERM(json_data(HERE,&data)) )
+	{
+		if ( object_set_json(obj,propname,data) )
+		{
+			ACCEPT;
+		}
+		else
+		{
+			output_error_raw("%s(%d): JSON set failed",filename,linenum);
+			REJECT;
+		}
+	}
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
 static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
@@ -4059,6 +4227,10 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				output_error_raw("%s(%d): unable to parse value for load method '%s/%s::%s'", filename, linenum, obj->oclass->module->name,obj->oclass->name,propname);
 				REJECT;
 			}
+		}
+		else if (TERM(json_block(HERE,obj,propname)))
+		{
+			ACCEPT;
 		}
 		else {
 			PROPERTY *prop = class_find_property(oclass,propname);
@@ -4654,6 +4826,11 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		{
 			output_error_raw("%s(%d): class '%s' is not known", filename, linenum, classname);
 			REJECT;
+		}
+		CLASS *aclass = class_get_class_from_classname(classname,oclass);
+		if ( aclass != NULL )
+		{
+			output_error_raw("%s(%d): class '%s' module reference is ambiguous (using '%s' instead of '%s')", filename, linenum, classname,oclass->module ? oclass->module->name : "runtime", aclass->module ? aclass->module->name : "runtime");
 		}
 		ACCEPT;
 	}

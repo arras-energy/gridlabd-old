@@ -9,7 +9,7 @@
 #define _METRICS_COLLECTOR_H_
 
 #include "tape.h"
-#include "../powerflow/link.h"
+#include "powerflow.h"
 
 #define MTR_MIN_REAL_POWER 0
 #define MTR_MAX_REAL_POWER 1
@@ -101,7 +101,7 @@
 #define REG_OPERATION_CNT   0
 #define REG_ARRAY_SIZE      1
 
-CDECL void new_metrics_collector(MODULE *);
+void new_metrics_collector(MODULE *);
 
 #ifdef __cplusplus
 

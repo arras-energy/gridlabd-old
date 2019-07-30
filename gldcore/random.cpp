@@ -1,4 +1,4 @@
-/** $Id: random.c 4738 2014-07-03 00:55:39Z dchassin $
+/** random.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file random.c
 	@addtogroup random Random number generators
@@ -13,25 +13,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <math.h>
-#include <errno.h>
-#include <string.h>
-#include <stdarg.h>
-#include <time.h>
-#include <float.h>
-#include <ctype.h>
-#include <sys/time.h>
-
-#include "random.h"
-#include "find.h"
-#include "output.h"
-#include "exception.h"
-#include "globals.h"
-#include "complex.h"
-#include "lock.h"
-#include "platform.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_RANDOM)
 
@@ -93,9 +75,11 @@ int random_init(void)
 	/* randomizes the random number generator start value */
 	if (global_randomseed==0)
 		global_randomseed = entropy_source();
+	if (global_randomstate==0)
+		global_randomstate = global_randomseed;
 
 	srand(1);
-	ur_state = &global_randomseed;
+	ur_state = &global_randomstate;
 
 	return 1;
 }
@@ -1378,6 +1362,37 @@ double random_get_part(void *x, const char *name)
 	if ( strcmp(name,"high")==0 ) return v->high;
 	if ( strcmp(name,"low")==0 ) return v->low;
 	return QNAN;
+}
+
+int random_set_part(void *x, const char *name, const char *value)
+{
+	// TODO
+	randomvar *v = (randomvar*)x;
+#define SCAN(X,F) if ( strcmp(name,#X)==0 ) { return sscanf(value,F,&(v->X)); }
+	SCAN(value,"%lg");
+	SCAN(a,"%lg");
+	SCAN(b,"%lg");
+	SCAN(low,"%lg");
+	SCAN(high,"%lg");
+	SCAN(state,"%u");
+	SCAN(update_rate,"%u");
+	SCAN(flags,"%u");
+	if ( strcmp(name,"type")==0 )
+	{
+		RANDOMTYPE type = random_type(value);
+		if ( type != RT_INVALID )
+		{
+			v->type = type;
+			return 1;
+		}
+		else
+		{
+			output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): type is not valid",x,name,value);
+			return 0;
+		}
+	}
+	output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): name is not valid",x,name,value);
+	return 0;
 }
 
 

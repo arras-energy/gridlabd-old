@@ -4,9 +4,9 @@
 #ifndef _POWER_METRICS_H
 #define _POWER_METRICS_H
 
-#include "powerflow.h"
-#include "powerflow_library.h"
-#include "fault_check.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class power_metrics : public powerflow_library
 {
@@ -55,7 +55,7 @@ private:
 	double SAIDI_num_int;
 	double ASAI_num_int;
 	double MAIFI_num_int;
-	fault_check *fault_check_object_lnk;	//Link to fault_check object - so it only has to be mapped once
+	class fault_check *fault_check_object_lnk;	//Link to fault_check object - so it only has to be mapped once
 };
 
 EXPORT int calc_pfmetrics(OBJECT *callobj, OBJECT *calcobj, int number_int, int number_int_secondary, int total_customers, TIMESTAMP rest_time_val, TIMESTAMP base_time_val);

@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "$clock,${randomstate:-0},$URAND,$NRAND,$GUID" >> randomstate.csv

@@ -4,6 +4,9 @@
 #ifndef _FAULT_CHECK_H
 #define _FAULT_CHECK_H
 
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 #include "powerflow.h"
 
 class fault_check : public powerflow_object

@@ -1,6 +1,7 @@
-/** $Id: aggregate.c 4738 2014-07-03 00:55:39Z dchassin $
+/** aggregate.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file aggregate.c
+
+	@file aggregate.cpp
 	@addtogroup aggregate Aggregation of object properties
 	@ingroup core
 	
@@ -10,7 +11,7 @@
 	by specifying a boolean series are relationship of object properties, e.g.,
 	\verbatim class=node and parent=root \endverbatim.
 	
-	Aggregations also must specify	the property that is to be aggregated.  Most common
+	Aggregations also must specify the property that is to be aggregated.  Most common
 	aggregations and some uncommon ones are supported.  In addition, if the aggregation is
 	over a complex quantity, the aggregation must specific how a double is to be obtained
 	from it, e.g., magnitude, angle, real, imaginary.  Some examples aggregate \p property 
@@ -28,12 +29,7 @@
  @{
  **/
 
-#include <ctype.h>
-#include <math.h>
-#include "platform.h"
-#include "aggregate.h"
-#include "output.h"
-#include "find.h"
+#include "gldcore.h"
 
 //TODO: uncomment if context warnings 
 // SET_MYCONTEXT(DMC_AGGREGATE)
@@ -56,10 +52,11 @@ DEPRECATED CDECL double aggregate_value(AGGREGATION *aggr) /**< the aggregation 
 	return GldAggregator(aggr).get_value();
 }
 
-/** This function builds an collection of objects into an aggregation.  
-	The aggregation can be run using aggregate_value(AGGREGATION*)
+/** This constructor creates an instance of an existing aggregator.
+	A reference to existing aggregation can be obtained using get_aggregator().
+	The aggregation can be run using aggregate_value(AGGREGATION*).
  **/
-GldAggregator::GldAggregator(AGGREGATION *a)
+GldAggregator::GldAggregator(AGGREGATION *a) ///< an existing aggregator
 {
 	aggr = a;
 	aggr->refcnt++;
@@ -71,6 +68,9 @@ GldAggregator::~GldAggregator(void)
 		delete aggr;
 }
 
+/** This constructor builds a new collection of objects into an aggregation.  
+	The aggregation can be run using \p get_value.
+ **/
 GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,avg,std,sum,prod,mbe,mean,var,skew,kur,count,gamma) */
 							 const char *group_expression) /**< grouping rule; see find_pgm_new(char *)*/
 {

@@ -19,13 +19,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "solar.h"
 
 #define RAD(x) (x*PI)/180
 

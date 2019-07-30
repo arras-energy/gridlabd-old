@@ -4,9 +4,9 @@
 #ifndef _REGULATOR_H
 #define _REGULATOR_H
 
-#include "powerflow.h"
-#include "link.h"
-#include "regulator_configuration.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 #define tap_A tap[0]
 #define tap_B tap[1]

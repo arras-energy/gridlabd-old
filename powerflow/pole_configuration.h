@@ -4,7 +4,9 @@
 #ifndef _POLECONFIGURATION_H
 #define _POLECONFIGURATION_H
 
-#include "powerflow_library.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class pole_configuration : public powerflow_library
 {

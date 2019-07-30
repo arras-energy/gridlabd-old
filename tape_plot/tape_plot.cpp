@@ -291,7 +291,7 @@ EXPORT void write_default_plot_commands_rec(struct recorder *my, char32 extensio
 	if (my->plotcommands[0]=='\0' || strcmp(my->plotcommands,"")==0) {
 		j= strlen(my->columns)>0 ? 0: fprintf(my->fp, "set xdata time;\n");
 		fprintf(my->fp, "set datafile separator \",\";\n");
-		if(my->output != SCREEN){
+		if(my->output != SCR){
 			fprintf(my->fp, "set output \"%s.%s\"; \n", fname,extension.get_string());
 		}
 		fprintf(my->fp, "show output; \n");
@@ -396,7 +396,7 @@ EXPORT int open_recorder(struct recorder *my, char *fname, char *flags)
 	fprintf(my->fp,"# GNUplot commands below:     \n");
 	
 	switch (my->output) {
-		case SCREEN:
+		case SCR:
 #ifdef WIN32
 			fprintf(my->fp, "set terminal windows color;\n");
 #else
@@ -488,7 +488,7 @@ EXPORT void close_recorder(struct recorder *my)
 #else
 	const char *plotcmd = "gnuplot";
 #endif
-	if(my->output == SCREEN)
+	if(my->output == SCR)
 		sprintf(gnuplot,"%s -persist", plotcmd);
 	else
 		strcpy(gnuplot,plotcmd);
@@ -600,7 +600,7 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 	fprintf(my->fp,"# GNUplot commands below:     \n");
 	
 	switch (my->output) {
-		case SCREEN:
+		case SCR:
 #ifdef WIN32
 			fprintf(my->fp, "set terminal windows color;\n");
 #else

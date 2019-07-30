@@ -1,0 +1,11 @@
+class test {
+    char1024 dict;
+    char1024 list;
+}
+
+object test {
+    dict "{\"a\":[\"b\",\"c\",\"d\"]}";
+    list "[\"a\",\"b\",\"c\"]";
+}
+#set savefile=gridlabd.json
+#system python3 ../check_json.py
