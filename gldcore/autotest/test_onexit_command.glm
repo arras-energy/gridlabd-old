@@ -5,5 +5,5 @@
 #system echo ${VARIABLE}
 
 #if VARIABLE < 9
-#on_exit 0 gridlabd -D VARIABLE=$((${VARIABLE}+1)) ${modelname} &
+#on_exit 0 ${exename} -D VARIABLE=$((${VARIABLE}+1)) ${modelname} &
 #endif
