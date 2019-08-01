@@ -5110,8 +5110,10 @@ static int schedule(PARSER)
 			}
 			*p = '\0';
 		}
-		if (schedule_create(schedname, buffer))
+		SCHEDULE *sch = schedule_create(schedname, buffer);
+		if ( sch != NULL )
 		{
+			sch->flags |= SN_USERDEFINED;
 			ACCEPT;
 		}
 		else

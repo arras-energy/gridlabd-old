@@ -119,11 +119,22 @@ def objects_glm() :
 			fw.write('\n}' )
 	return True
 
+def schedules_glm() : 
+	global data
+	global fw 
+	with open(filename_glm, "a") as fw :
+		fw.write('\n // SCHEDULES')
+		for p_id, p_info in data['schedules'].items() : 
+			header_str = '\n' + 'schedule ' + p_id + '{'
+			fw.write(header_str)
+			fw.write(p_info)
+			fw.write('\n}' )
 
 clock_glm()
 modules_glm()
 classes_glm()
 globals_glm()
+schedules_glm()
 objects_glm()
 
 fw.close()

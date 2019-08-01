@@ -266,6 +266,64 @@ int GldJsonWriter::write_globals(FILE *fp)
 	return len;
 }
 
+static const char *escape(const char *text, char *buffer, size_t len)
+{
+	char *p = buffer;
+	while ( *text != '\0' && p < buffer+len )
+	{
+		switch ( *text ) {
+		case '\n':
+			*p++ = '\\';
+			*p++ = 'n';
+			text++;
+			break;
+		case '\t':
+			*p++ = '\\';
+			*p++ = 't';
+			text++;
+			break;
+		case '\r':
+			*p++ = '\\';
+			*p++ = 'r';
+			text++;
+			break;
+		case '"':
+			*p++ = '\\';
+			*p++ = '"';
+			text++;
+			break;
+		default:
+			*p++ = *text++;
+			break;
+		}
+	}
+	*p = '\0';
+	return buffer;
+}
+int GldJsonWriter::write_schedules(FILE *fp) 
+{
+	int len = 0;
+	SCHEDULE *sch;
+	len += write(",\n\t\"schedules\" : {");
+
+	/* for each module */
+	bool first = true;
+	for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
+	{
+		if ( sch->flags&SN_USERDEFINED )
+		{
+			if ( ! first )
+				len += write(",");
+			first = false;
+			char buffer[sizeof(sch->definition)*2];
+			len += write("\n\t\t\"%s\" : \"%s\"", sch->name, escape(sch->definition,buffer,sizeof(buffer)));
+		}
+	}
+	len += write("\n\t}");
+	output_debug("GldJsonWriter::schedules() wrote %d bytes",len);
+	return len;
+}
+
 int GldJsonWriter::write_objects(FILE *fp)
 {
 	int len = 0;
@@ -363,6 +421,7 @@ int GldJsonWriter::write_output(FILE *fp)
 	len += write_classes(fp);
 	len += write_globals(fp);
 	len += write_objects(fp);
+	len += write_schedules(fp);
 	len += write("\n}\n");
 	output_debug("GldJsonWriter::output() wrote %d bytes",len);
 	return len;
