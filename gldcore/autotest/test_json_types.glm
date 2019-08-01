@@ -8,4 +8,4 @@ object test {
     list ["a","b","c"];
 }
 #set savefile=gridlabd.json
-#system python3 ../check_json.py
+#on_exit 0 python3 ../check_json.py
