@@ -15,11 +15,43 @@
 #include "cmdarg.h"
 #include "gui.h"
 
+#include <list>
+
+class onexitcommand {
+private:
+	int exitcode;
+	const char *command;
+public:
+	inline onexitcommand(int xc, const char *cmd)
+	{
+		exitcode = xc;
+		command = strdup(cmd);
+	};
+	inline ~onexitcommand(void)
+	{
+		free((void*)command);
+	}
+	inline int get_exitcode(void) 
+	{ 
+		return exitcode; 
+	};
+	inline const char * get_command(void)
+	{
+		return command;
+	};
+	inline int run(void)
+	{
+		return system(command);
+	};
+};
+
 /*	Class: GldMain
 
 	The GldMain class implement an instance of a GridLAB-D simulation.
  */
 class GldMain {
+private: // private variables
+	std::list<onexitcommand> exitcommands;
 private: // instance variables
 	GldGlobals globals;
 	GldExec exec;
@@ -86,6 +118,18 @@ public:
 	 */
 	int mainloop(int argc = 0, const char *argv[] = NULL);
 
+	/* 	Method: add_on_exit
+
+		Adds a command to be executed on exit of main
+	 */
+	int add_on_exit(int xc, const char *cmd);
+
+	/*	Method: run_on_exit
+
+		Runs the on-exit command list for the exit code given
+	 */
+	void run_on_exit(int xc);
+
 private:	// private methods
 	void set_global_browser(const char *path = NULL);
 	void set_global_execname(const char *path);
@@ -150,6 +194,7 @@ public:
 
 	// Method: global_push
 	inline void global_push(char *name, char *value) { return globals.push(name,value);};
+
 };
 
 DEPRECATED extern GldMain *my_instance; // TODO: move this into main() to make system globally reentrant
