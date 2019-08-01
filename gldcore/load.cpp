@@ -7261,6 +7261,26 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
+	else if ( strncmp(line,MACRO "on_exit",8) == 0 )
+	{
+		int xc;
+		char cmd[1024];
+		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
+		{
+			output_error_raw("%s(%d): on_exit syntax error", filename,linenum);
+			return FALSE;
+		}
+		else if ( ! my_instance->add_on_exit(xc,cmd) )
+		{
+			output_error_raw("%s(%d): on_exit %d command '%s'", filename,linenum,xc,cmd);
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
 	else
 	{
 		char tmp[1024], *p;
