@@ -266,6 +266,18 @@ class orderbook:
 		else:
 			return self.submit(order(order_type="BUYLIMIT",quantity=quantity,duration=duration,price=price))
 
+	def divide(self,order):
+		"""TODO: divide an order"""
+		return None
+
+	def divide_quantity(self,order):
+		"""TODO: divide an order by quantity"""
+		return None
+
+	def divide_duration(self,order):
+		"""TODO: divide an order by duration"""
+		return None
+
 	def plot(self,using=None):
 		"""Plot the current orderbooks"""
 		if using is None:
