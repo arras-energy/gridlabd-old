@@ -4,10 +4,9 @@
 #ifndef _BILLDUMP_H
 #define _BILLDUMP_H
 
-#include "powerflow.h"
-#include "node.h"
-#include "triplex_meter.h"
-#include "meter.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class billdump : public gld_object
 {

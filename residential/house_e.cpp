@@ -4,6 +4,8 @@
 	@addtogroup house_e
 	@ingroup residential
 
+	@def implicit_enduse Residential module global variable that define which enduses are implicitly defined in every house
+
 	The house_e object implements a single family home.  The house_e
 	only includes the heating/cooling system and the power panel.
 	All other end-uses must be explicitly defined and attached to the

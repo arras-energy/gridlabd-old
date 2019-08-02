@@ -1,5 +1,6 @@
-/** $Id: load.c 4738 2014-07-03 00:55:39Z dchassin $
+/** load.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file load.c
 	@addtogroup load_glm GLM file loader
 	@ingroup core
@@ -128,25 +129,7 @@ object <class>[:<spec>] { // spec may be <id>, or <startid>..<endid>, or ..<coun
 
  **/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#else // not a build using automake
-#define DLEXT ".dll"
-#endif // HAVE_CONFIG_H
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <float.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>
-#include "stream.h"
-#include "http_client.h"
-#include "link.h"
-#include "exec.h"
+#include "gldcore.h"
 
 /* define this to use # for comment and % for macros (the way Version 1.x works) */
 /* #define OLDSTYLE	*/
@@ -761,7 +744,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				|| write_file(fp,"extern \"C\" CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])\n"
 					"{\n"
 					"\tcallback=fntable;\n"
-					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\"));\n"
+					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\",NULL));\n"
 					"\tif (!myclass) return NULL;\n"
 					"\tif (!setup_class(myclass)) return NULL;\n"
 					"\treturn myclass;"
@@ -815,7 +798,8 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				}
 				if ( !global_debug_output )
 					unlink(cfile);
-
+				else
+					output_verbose("keeping %s for debugging",cfile);
 
 				/* link new runtime module */
 				IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
@@ -3055,7 +3039,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "presync";
-		oclass->passconfig |= PC_PRETOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_PRETOPDOWN);
 		*function |= FN_PRESYNC;
 		ACCEPT;
 	}
@@ -3063,7 +3047,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "sync";
-		oclass->passconfig |= PC_BOTTOMUP;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_BOTTOMUP);
 		*function |= FN_SYNC;
 		ACCEPT;
 	}
@@ -3071,7 +3055,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "postsync";
-		oclass->passconfig |= PC_POSTTOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_POSTTOPDOWN);
 		*function |= FN_POSTSYNC;
 		ACCEPT;
 	}
@@ -3602,7 +3586,7 @@ static int class_block(PARSER)
 				oclass = class_get_class_from_classname(classname);
 				if (oclass==NULL)
 				{
-					oclass = class_register(NULL,classname,0,0x00);
+					oclass = class_register(NULL,classname,0,PC_NOSYNC);
 					mark_line();
 					switch (inherit) {
 					case NONE:
@@ -4843,6 +4827,11 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 			output_error_raw("%s(%d): class '%s' is not known", filename, linenum, classname);
 			REJECT;
 		}
+		CLASS *aclass = class_get_class_from_classname(classname,oclass);
+		if ( aclass != NULL )
+		{
+			output_error_raw("%s(%d): class '%s' module reference is ambiguous (using '%s' instead of '%s')", filename, linenum, classname,oclass->module ? oclass->module->name : "runtime", aclass->module ? aclass->module->name : "runtime");
+		}
 		ACCEPT;
 	}
 	else
@@ -5121,8 +5110,10 @@ static int schedule(PARSER)
 			}
 			*p = '\0';
 		}
-		if (schedule_create(schedname, buffer))
+		SCHEDULE *sch = schedule_create(schedname, buffer);
+		if ( sch != NULL )
 		{
+			sch->flags |= SN_USERDEFINED;
 			ACCEPT;
 		}
 		else
@@ -7271,6 +7262,26 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		exec_sleep(msec*1000);
 		strcpy(line,"\n");
 		return TRUE;
+	}
+	else if ( strncmp(line,MACRO "on_exit",8) == 0 )
+	{
+		int xc;
+		char cmd[1024];
+		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
+		{
+			output_error_raw("%s(%d): on_exit syntax error", filename,linenum);
+			return FALSE;
+		}
+		else if ( ! my_instance->add_on_exit(xc,cmd) )
+		{
+			output_error_raw("%s(%d): on_exit %d command '%s'", filename,linenum,xc,cmd);
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
 	}
 	else
 	{

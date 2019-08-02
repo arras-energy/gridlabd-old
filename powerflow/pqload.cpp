@@ -9,12 +9,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "pqload.h"
+#include "powerflow.h"
+using namespace std;
 
 SCHED_LIST *new_slist(){
 	SCHED_LIST *l = (SCHED_LIST *)gl_malloc(sizeof(SCHED_LIST));

@@ -1,10 +1,12 @@
 // $Id: load.h 1182 2008-12-22 22:08:36Z dchassin $
 //	Copyright (C) 2008 Battelle Memorial Institute
 
-#ifndef _LOAD_H
-#define _LOAD_H
+#ifndef _LOADOBJECT_H
+#define _LOADOBJECT_H
 
-#include "node.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 EXPORT SIMULATIONMODE interupdate_load(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
 

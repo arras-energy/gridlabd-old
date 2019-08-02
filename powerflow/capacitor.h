@@ -4,9 +4,9 @@
 #ifndef _CAPACITOR_H
 #define _CAPACITOR_H
 
-#include "powerflow.h"
-#include "node.h"
-#include "link.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 #define TSNVRDBL 9223372036854775808.0
 EXPORT SIMULATIONMODE interupdate_capacitor(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
@@ -93,7 +93,7 @@ private:
 	double CurrentVals[3];			// Current magnitude values recorded (due to nature of how it's recorded, it has to be in here)
 	bool NotFirstIteration;			// Checks to see if this is the first iteration of the system.
 	node *RNode;					// Remote node to sense voltage measurements (if desired) for VOLT controls
-	link_object *RLink;					// Remote link to sense power measurements for VAR controls
+	class link_object *RLink;					// Remote link to sense power measurements for VAR controls
 	bool Iteration_Toggle;			// "Off" iteration tracker
 	bool NR_cycle_cap;				// First run of "off" iteration tracker - used to reiterate delta-configured, wye-connected capacitors
 

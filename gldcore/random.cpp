@@ -1,4 +1,4 @@
-/** $Id: random.c 4738 2014-07-03 00:55:39Z dchassin $
+/** random.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file random.c
 	@addtogroup random Random number generators
@@ -13,25 +13,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <math.h>
-#include <errno.h>
-#include <string.h>
-#include <stdarg.h>
-#include <time.h>
-#include <float.h>
-#include <ctype.h>
-#include <sys/time.h>
-
-#include "random.h"
-#include "find.h"
-#include "output.h"
-#include "exception.h"
-#include "globals.h"
-#include "complex.h"
-#include "lock.h"
-#include "platform.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_RANDOM)
 

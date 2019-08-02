@@ -6,14 +6,12 @@
  @{  
  **/
 
-#ifndef _microturbine_H
-#define _microturbine_H
+#ifndef _MICROTURBINE_H
+#define _MICROTURBINE_H
 
-#include <stdarg.h>
-#include "../powerflow/powerflow_object.h"
-//#include "../powerflow/node.h"
-#include "gridlabd.h"
-
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 class microturbine : public gld_object
 {
@@ -111,47 +109,6 @@ public:
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
 
 	complex *get_complex(OBJECT *obj, const char *name);
-public:
-	static CLASS *oclass;
-	static microturbine *defaults;
-#ifdef OPTIONAL
-	static CLASS *pclass; /**< defines the parent class */
-	TIMESTAMPP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
-#endif
-};
-
-#endif
-
-/**@}*/
-/** $Id: microturbine.h,v 1.0 2008/07/18
-	@file microturbine.h
-	@addtogroup microturbine
-	@ingroup MODULENAME
-
- @{  
- **/
-
-#ifndef _microturbine_H
-#define _microturbine_H
-
-#include <stdarg.h>
-#include "gridlabd.h"
-
-class microturbine {
-private:
-	/* TODO: put private variables here */
-protected:
-	/* TODO: put unpublished but inherited variables */
-public:
-	/* TODO: put published variables here */
-public:
-	/* required implementations */
-	microturbine(MODULE *module);
-	int create(void);
-	int init(OBJECT *parent);
-	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
 public:
 	static CLASS *oclass;
 	static microturbine *defaults;

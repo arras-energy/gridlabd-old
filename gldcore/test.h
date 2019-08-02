@@ -1,10 +1,14 @@
-/* test.h
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: test.h 
+   Copyright (C) 2008, Battelle Memorial Institute
  *
  */
 
 #ifndef _TEST_H
 #define _TEST_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 typedef int (*TESTFUNCTION)(void);
 

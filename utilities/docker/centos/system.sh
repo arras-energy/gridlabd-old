@@ -22,3 +22,5 @@ yum install python36 python36-devel python36-pip python36-tkinter -y
 pip3 install --upgrade pip
 ln -s /usr/local/bin/pip3 /usr/bin/pip3
 pip3 install matplotlib
+pip3 install pandas
+pip3 install mysql-connector

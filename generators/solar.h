@@ -6,11 +6,12 @@
  @{  
  **/
 
-#ifndef _solar_H
-#define _solar_H
+#ifndef _SOLAR_H
+#define _SOLAR_H
 
-#include <stdarg.h>
-#include "gridlabd.h"
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 EXPORT SIMULATIONMODE interupdate_solar(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);
 

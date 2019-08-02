@@ -1,15 +1,8 @@
-/* $Id: stream.cpp 4738 2014-07-03 00:55:39Z dchassin $
- *
+/* stream.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
-#include "output.h"
-#include "stream.h"
-#include "module.h"
-#include "globals.h"
-#include "schedule.h"
-#include "transform.h"
-#include "class.h"
-#include "object.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_STREAM)
 

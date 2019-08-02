@@ -4,6 +4,10 @@
 #ifndef _TRIPLEXLINE_H
 #define _TRIPLEXLINE_H
 
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
+
 class triplex_line : public line
 {
 public:

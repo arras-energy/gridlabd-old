@@ -4,8 +4,9 @@
 #ifndef _currdump_H
 #define _currdump_H
 
-#include "powerflow.h"
-#include "link.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 typedef enum {
 	CDM_RECT,

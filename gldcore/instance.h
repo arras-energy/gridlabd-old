@@ -1,12 +1,17 @@
-/* @file instance.h
+/* File: instance.h
+ * Copyright (C) 2008, Battelle Memorial Institute
 
- This property describes and manages a connection to another instance of 
+ This describes and manages a connection to another instance of 
  GridLAB-D
 
  */
 
 #ifndef _INSTANCE_H
 #define _INSTANCE_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "property.h"
 #include "timestamp.h"
