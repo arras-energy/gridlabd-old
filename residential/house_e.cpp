@@ -101,6 +101,12 @@ char *_strlwr(char *s)
 }
 #endif
 
+// paneldump support
+static char paneldump_filename[1024] = "paneldump.csv";
+int64 paneldump_interval = 0; // 0=disabled, -1=ZOH, >1=integrated
+double paneldump_resolution = 0.1; // minimum change measurement can detect
+FILE *paneldump_fh = NULL;
+
 // list of enduses that are implicitly active
 set house_e::implicit_enduses_active = IEU_ALL;
 enumeration house_e::implicit_enduse_source = IES_ELCAP1990;
@@ -637,17 +643,25 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			NULL);
 		gl_global_create("residential::system_dwell_time[s]",PT_double,&system_dwell_time,
 			PT_DESCRIPTION, "the heating/cooling system dwell time interval for changing system state",
-			NULL);
-	}	
+			NULL);	
 		gl_global_create("residential::aux_cutin_temperature[degF]",PT_double,&aux_cutin_temperature,
 			PT_DESCRIPTION, "the outdoor air temperature below which AUX heating is used",
+			NULL);
+		gl_global_create("residential::paneldump_filename",PT_char1024,paneldump_filename,
+			PT_DESCRIPTION, "the name of the file into which the paneldump is saved",
+			NULL);
+		gl_global_create("residential::paneldump_interval",PT_int64,&paneldump_interval,
+			PT_DESCRIPTION, "the interval at which the paneldump is performed (0:disabled; <0:difference; >0:integral)",
+			NULL);
+		gl_global_create("residential::paneldump_resolution",PT_double,&paneldump_interval,
+			PT_DESCRIPTION, "the resolution at which the paneldump is performed (differences less than this are ignored)",
 			NULL);
 
 		if (gl_publish_function(oclass,	"interupdate_res_object", (FUNCTIONADDR)interupdate_house_e)==NULL)
 			GL_THROW("Unable to publish house_e deltamode function");
 		if (gl_publish_function(oclass,	"postupdate_res_object", (FUNCTIONADDR)postupdate_house_e)==NULL)
 			GL_THROW("Unable to publish house_e deltamode function");
-
+	}
 }
 
 int house_e::create() 
@@ -784,7 +798,7 @@ int house_e::create()
 		}
 	}
 	total.name = "panel";
-	load.name = "system";
+	load.name = "HVAC";
 
 	//Reverse ETP Parameter Defaults
 	include_solar_quadrant = 0x001e;
@@ -1912,6 +1926,9 @@ CIRCUIT *house_e::attach(OBJECT *obj, ///< object to attach
 	c->smartfuse->vMin = 0.95;
 	c->smartfuse->vMax = 1.05;
 
+	// initialize measurements
+	memset(c->measurement,0,sizeof(c->measurement));
+
 	return c;
 }
 
@@ -2783,7 +2800,7 @@ TIMESTAMP house_e::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	if (obj->parent != NULL)
 		wunlock(obj->parent);
 
-	return TS_NEVER;
+	return paneldump_interval>0 ? ((gl_globalclock/paneldump_interval)+1)*paneldump_interval : TS_NEVER;
 }
 
 
@@ -3231,6 +3248,19 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 					total.heatgain += c->pLoad->heatgain;
 				}
 				c->reclose = TS_NEVER;
+
+				// perform measurements
+				c->measurement[0].t = t1;
+				c->measurement[0].power = actual_power;
+				if ( c->measurement[1].t == 0 ) // reset energy accumulator (for diff interval measurements)
+				{
+					c->measurement[0].energy = 0;
+				}
+				else
+				{
+					c->measurement[0].energy += actual_power * (t1 - c->measurement[1].t);
+				}
+				c->measurement[1].t = t1;
 			}
 		}
 
@@ -3447,10 +3477,73 @@ STATUS house_e::post_deltaupdate(void)
 	return SUCCESS;	//Always succeeds right now
 }
 
+bool circuit_measurement(const char *timestamp,
+						 const char *name,
+						 const char *enduse,
+						 CIRCUITMEASUREMENT *m, // measurement array
+						 size_t n, 				// array size (should be 2 for delta)
+						 bool integral)			// flag to indicate integral sampling
+{
+	// check/open panel dump file
+	if ( paneldump_fh == NULL )
+	{
+		paneldump_fh = fopen(paneldump_filename,"w");
+		if ( paneldump_fh == NULL )
+		{
+			gl_error("unable to open '%s' for write access",paneldump_filename);
+			return false;
+		}
+		fprintf(paneldump_fh,"timestamp,name,enduse,real,reactive\n");
+	}
+
+	// integral sampling (energy)
+	if ( integral )
+	{
+		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,m[0].energy.Re()-m[1].energy.Re(),m[0].energy.Im()-m[1].energy.Im());
+		m[1].t = 0; // resets energy interval measurements
+	}
+
+	// delta-only sampling (power)
+	else if ( (m[0].power-m[1].power).Mag() > paneldump_resolution )
+	{
+		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,m[0].power.Re(),m[0].power.Im());
+		m[1].power = m[0].power;
+	}
+
+	// save new measurement
+	m[1] = m[0];
+	return true;
+}
+
+TIMESTAMP house_e::commit(TIMESTAMP t1, TIMESTAMP t2)
+{
+	const char * objname = get_name();
+
+	// check whether a sample is needed
+	if ( paneldump_interval < 0 
+		|| (paneldump_interval > 0 && gl_globalclock%paneldump_interval == 0 ) 
+		)
+	{	
+		gld_clock now;
+		char timestamp[64]; 
+		now.to_string(timestamp,sizeof(timestamp));
+
+		// scan all the circuits
+		CIRCUIT *circuit;
+		for ( circuit = panel.circuits ; circuit != NULL ; circuit = circuit->next )
+		{
+			if ( ! circuit_measurement(timestamp,objname, circuit->pLoad&&circuit->pLoad->name?circuit->pLoad->name:"unknown" ,circuit->measurement,(size_t)(sizeof(circuit->measurement)/sizeof(circuit->measurement[0])),paneldump_interval>0) )
+				return TS_INVALID;
+		}
+	}
+	return TS_NEVER;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // IMPLEMENTATION OF CORE LINKAGE
 //////////////////////////////////////////////////////////////////////////
 
+EXPORT_COMMIT_C(house,house_e);
 EXPORT_CREATE_C(house,house_e);
 
 EXPORT int init_house(OBJECT *obj)
