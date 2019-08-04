@@ -42,6 +42,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part,enduse_set_part},
 	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part},
 	{"method","string", NULL, 0, 0, convert_from_method,convert_to_method},
+	{"string", "string", "", sizeof(std::string), -1, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
 };
 
 PROPERTYTYPE property_getfirst_type(void)
@@ -613,6 +614,27 @@ double complex_array_get_part(void *x, const char *name)
 	return QNAN;
 }
 
+int string_create(void *ptr)
+{
+	std::string *str = new std::string();
+	*(std::string*)ptr = *str;
+	return 1;
+}
 
+int convert_to_string(const char *s, void *data, PROPERTY *p)
+{
+	std::string *str = (std::string*)data;
+	*str = s;
+	int len = strlen(s);
+	output_debug("convert_to_string(const char *s='%s', void *data=%p, PROPERTY *p={name:'%s') -> %d", s,data,p?p->name:"(null)",len);
+	return len;
+}
 
+int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
+{
+	std::string *str = (std::string*)data;
+	int n = snprintf(buffer,(size_t)len,"%s",str->c_str());
+	output_debug("convert_from_string(char *buffer=%p, int len=%d, void *data='%s', PROPERTY *p={name:'%s') -> %d",buffer,len,str->c_str(),p?p->name:"(null)",n);
+	return n;
+}
 // EOF

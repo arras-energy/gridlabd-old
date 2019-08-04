@@ -1,0 +1,12 @@
+#set debug=1
+
+class test {
+	string var;
+}
+
+object test {
+	var "this is a test";
+}
+
+#set glm_save_options=MINIMAL
+#set savefile=gridlabd.json
