@@ -727,7 +727,7 @@ typedef enum {
 } GLMSAVEOPTIONS;
 
 /* Variable:  */
-GLOBAL GLMSAVEOPTIONS global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */
+GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */
 
 #undef GLOBAL
 #undef INIT

@@ -1,6 +1,5 @@
 FROM centos:7
 ENV container docker
-
 ENV REPO=https://github.com/dchassin/gridlabd
 ENV BRANCH=master
 ENV ENABLE=gismo
