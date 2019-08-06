@@ -82,9 +82,10 @@ def globals_glm() :
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // GLOBALS')
 		for p_id, p_info in data['globals'].items() : 
-			if p_info['access'] == "PUBLIC" and p_info['value'] : 
+			if p_info['access'] == "PUBLIC" and p_info['value'] and 'infourl' not in p_id: 
 				ifndef_str = '\n' + '#ifndef ' + p_id 
-				if 'int' in p_info['type'] or 'double' in p_info['type'] or 'bool' in p_info['type'] or 'enumeration' in p_info['type'] or p_info['value']=='NONE' or 'set' in p_info['type']: 
+				if 'int' in p_info['type'] or 'double' in p_info['type'] or 'bool' in p_info['type'] or 'enumeration' in p_info['type'] or p_info['value']=='NONE' :
+				# or 'set' in p_info['type']: 
 					tmp_str = '\n' + 'global ' + p_info['type'] +' '+ p_id +' '+ p_info['value'] +';'
 					set_str = '\n' + '#set ' + p_id + '=' + p_info['value']
 				else : 
