@@ -82,10 +82,11 @@ def globals_glm() :
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // GLOBALS')
 		for p_id, p_info in data['globals'].items() : 
-			if p_info['access'] == "PUBLIC" and p_info['value'] and 'infourl' not in p_id: 
+			if p_info['access'] == "PUBLIC" and p_info['value'] and 'infourl' not in p_id and "::" not in p_id: 
 				ifndef_str = '\n' + '#ifndef ' + p_id 
-				if 'int' in p_info['type'] or 'double' in p_info['type'] or 'bool' in p_info['type'] or 'enumeration' in p_info['type'] or p_info['value']=='NONE' :
-				# or 'set' in p_info['type']: 
+				if 'int' in p_info['type'] or 'double' in p_info['type'] or 'bool' in p_info['type'] or \
+				'enumeration' in p_info['type'] or p_info['value']=='NONE' or 'set' in p_info['type'] \
+				or 'complex' in p_info['type'] :
 					tmp_str = '\n' + 'global ' + p_info['type'] +' '+ p_id +' '+ p_info['value'] +';'
 					set_str = '\n' + '#set ' + p_id + '=' + p_info['value']
 				else : 
@@ -104,11 +105,18 @@ def globals_glm() :
 def modules_glm() : 
 	global data
 	global fw
+	
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // MODULES') 
-		for p_id, p_info in data['modules'].items() :  
-			tmp_str = '\n' + 'module ' + p_id + ';'
+		for p_id, p_info in data['modules'].items() : 
+			tmp_str = '\n' + 'module ' + p_id + '{'
 			fw.write(tmp_str)
+			for f_id, f_info in data['globals'].items() : 
+				if p_id in f_id and '::' in f_id and f_info['access'] == "PUBLIC" and f_info['value']: 
+					mod_var = f_id.split('::')
+					val_str = '\n\t' + mod_var[1] +' '+ f_info['value'] + ';'
+					fw.write(val_str)
+			fw.write('\n}')
 
 # def classes_glm P: 
 # 	return True 
@@ -130,7 +138,7 @@ def objects_glm() :
 				if v_id not in objects_ignore and v_info:  
 					val_str = "\n"+ "\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
 					fw.write(val_str)
-			fw.write('}' )
+			fw.write('\n}' )
 	return True
 
 def schedules_glm() : 
