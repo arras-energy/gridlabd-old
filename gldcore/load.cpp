@@ -1476,6 +1476,7 @@ static int structured_value(PARSER, char *result, int size)
 
 static int multiline_value(PARSER,char *result,int size)
 {
+	const char *start = _p;
 	const char *end = strstr(_p,"\"\"\"");
 	if ( end == NULL )
 	{
@@ -1513,7 +1514,7 @@ static int multiline_value(PARSER,char *result,int size)
 	if ( len < size )
 	{
 		strcpy(result,value.c_str());
-		return len;
+		return (int)(end-start);
 	}
 	else
 	{
@@ -1532,8 +1533,7 @@ static int value(PARSER, char *result, int size)
 	if ( strncmp(_p,"\"\"\"",3) == 0 )
 	{
 		int len = multiline_value(_p+3,result,size);
-		output_debug("multi-line done, continuing with '%-10.10s...'",_p[len+3]);
-		return len > 0 ? (len+3) : 0;
+		return len > 0 ? (len+6) : 0;
 	}
 	else if ( *_p == '{' ) 
 	{
