@@ -1096,6 +1096,15 @@ enum e_propertytype {_PT_FIRST=-1,
 	PT_DEFAULT,
 };
 
+// Define: MAXGLMSIZE
+#define MAXGLMSIZE 65536000
+
+// Define: MAXPATHNAMELEN
+#define MAXPATHNAMELEN 1024
+
+// Define: MAXCODEBLOCKSIZE
+#define MAXCODEBLOCKSIZE 65536
+
 /*	Typedef: PROPERTYTYPE
 
 	See: <e_propertytype>

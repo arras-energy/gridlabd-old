@@ -1,12 +1,24 @@
 #set debug=1
+#set suppress_repeat_messages=0
 
 class test {
 	string var;
 }
 
 object test {
-	var "this is a test";
+	var """\
+Test00000 Test00010 Test00020 Test00030 Test00040 Test00050 Test00060 Test00070 Test00080 Test00090 \
+Test00100 Test00110 Test00120 Test00130 Test00140 Test00150 Test00160 Test00170 Test00180 Test00190 \
+Test00200 Test00210 Test00220 Test00230 Test00240 Test00250 Test00260 Test00270 Test00280 Test00290 \
+Test00300 Test00310 Test00320 Test00330 Test00340 Test00350 Test00360 Test00370 Test00330 Test00390 \
+Test00400 Test00410 Test00420 Test00430 Test00440 Test00450 Test00460 Test00470 Test00480 Test00490 \
+Test00500 Test00510 Test00520 Test00530 Test00540 Test00550 Test00560 Test00570 Test00580 Test00590 \
+Test00600 Test00610 Test00620 Test00630 Test00640 Test00650 Test00660 Test00670 Test00680 Test00690 \
+Test00700 Test00710 Test00720 Test00730 Test00740 Test00750 Test00760 Test00770 Test00780 Test00790 \
+Test00800 Test00810 Test00820 Test00830 Test00840 Test00850 Test00860 Test00870 Test00880 Test00890 \
+Test00900 Test00910 Test00920 Test00930 Test00940 Test00950 Test00960 Test00970 Test00980 Test00990\
+""";
 }
 
 #set glm_save_options=MINIMAL
-#set savefile=gridlabd.json
+#set savefile=gridlabd.glm
