@@ -153,9 +153,11 @@ def schedules_glm() :
 			fw.write('\n}' )
 
 clock_glm()
+
 modules_glm()
-classes_glm()
 globals_glm()
+classes_glm()
+
 schedules_glm()
 objects_glm()
 
