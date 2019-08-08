@@ -626,7 +626,7 @@ int convert_to_string(const char *s, void *data, PROPERTY *p)
 	std::string *str = (std::string*)data;
 	*str = s;
 	int len = strlen(s);
-	output_debug("convert_to_string(const char *s='%s', void *data=%p, PROPERTY *p={name:'%s') -> %d", s,data,p?p->name:"(null)",len);
+	//output_debug("convert_to_string(const char *s='%s', void *data=%p, PROPERTY *p={name:'%s') -> %d", s,data,p?p->name:"(null)",len);
 	return len;
 }
 
@@ -634,7 +634,7 @@ int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
 {
 	std::string *str = (std::string*)data;
 	int n = snprintf(buffer,(size_t)len,"%s",str->c_str());
-	output_debug("convert_from_string(char *buffer=%p, int len=%d, void *data='%s', PROPERTY *p={name:'%s') -> %d",buffer,len,str->c_str(),p?p->name:"(null)",n);
+	//output_debug("convert_from_string(char *buffer=%p, int len=%d, void *data='%s', PROPERTY *p={name:'%s') -> %d",buffer,len,str->c_str(),p?p->name:"(null)",n);
 	return n;
 }
 // EOF
