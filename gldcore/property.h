@@ -181,6 +181,9 @@ typedef double triplet[3];
 // Typedef: triplex
 typedef complex triplex[3];
 
+// Typedef: STRING
+typedef std::string* STRING;
+
 #define BYREF 0x01
 #include <math.h>
 
