@@ -1,4 +1,4 @@
-#set debug=1
+#set debug=0
 #set suppress_repeat_messages=0
 
 class test {
@@ -6,6 +6,7 @@ class test {
 }
 
 object test {
+	name "test0";
 	var """\
 Test00000 Test00010 Test00020 Test00030 Test00040 Test00050 Test00060 Test00070 Test00080 Test00090 \
 Test00100 Test00110 Test00120 Test00130 Test00140 Test00150 Test00160 Test00170 Test00180 Test00190 \
@@ -18,7 +19,11 @@ Test00700 Test00710 Test00720 Test00730 Test00740 Test00750 Test00760 Test00770 
 Test00800 Test00810 Test00820 Test00830 Test00840 Test00850 Test00860 Test00870 Test00880 Test00890 \
 Test00900 Test00910 Test00920 Test00930 Test00940 Test00950 Test00960 Test00970 Test00980 Test00990\
 """;
+	object test {
+		var "this is a test";
+	};
 }
+
 
 #set glm_save_options=MINIMAL
 #set savefile=gridlabd.glm
