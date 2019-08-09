@@ -339,7 +339,7 @@ bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, v
 	}
 	else // no comparison possible
 	{
-		output_debug("property type '%s' does not support comparison operations or parts", property_type[ptype].name);
+		output_warning("property type '%s' does not support comparison operations or parts", property_type[ptype].name);
 		return 0;
 	}
 }
@@ -460,7 +460,7 @@ int complex_from_string(void *x, const char *str)
 				c->SetPolar(a,b*180/PI);
 				return 1;
 			default:
-				output_debug("complex_from_string(void *x=%p, char *str='%s') notation '%s' is invalid", x,str,notation);
+				output_warning("complex_from_string(void *x=%p, char *str='%s') notation '%s' is invalid", x,str,notation);
 				return 0;
 		}
 	}
@@ -634,7 +634,6 @@ int convert_to_string(const char *s, void *data, PROPERTY *p)
 	STRING *str = (STRING*)data;
 	**str = s;
 	int len = strlen(s);
-	//output_debug("convert_to_string(const char *s='%s', void *data=%p, PROPERTY *p={name:'%s') -> %d", s,data,p?p->name:"(null)",len);
 	return len;
 }
 
@@ -642,7 +641,6 @@ int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
 {
 	STRING *str = (STRING*)data;
 	int n = snprintf(buffer,(size_t)len,"%s",(*str)->c_str());
-	//output_debug("convert_from_string(char *buffer=%p, int len=%d, void *data='%s', PROPERTY *p={name:'%s') -> %d",buffer,len,str->c_str(),p?p->name:"(null)",n);
 	return n;
 }
 // EOF
