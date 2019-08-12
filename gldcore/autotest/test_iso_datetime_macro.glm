@@ -1,10 +1,12 @@
 module tape;
 module climate; 
 module assert;
+#define STARTTIME="2000-01-30T00:00:00-05:00"
+#define STOPTIME="2000-01-30T00:01:00-05:00"
 clock {
 	timezone "EST+5EDT";
-	starttime "2000-01-30T00:00:00-05:00";
-	stoptime "2000-01-30T00:01:00-05:00";
+	starttime "${STARTTIME}";
+	stoptime "${STOPTIME}";
 }
 
 class test {
