@@ -1607,6 +1607,9 @@ static bool get_callback(
     }
     return true;    
 }
+
+#include "frameobject.h"
+
 MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
     char pathname[1024];
@@ -1617,16 +1620,32 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
         errno = ENOENT;
         return NULL;
     }
-    PyObject *mod = PyImport_ImportModule(file);
+    PyObject *mod = PyImport_ImportModule(pathname);
+
     if ( mod == NULL)
     {
-        errno = EINVAL;
+        output_error("%s: python module import failed",pathname);
+        PyErr_Print();
+        PyThreadState *tstate = PyThreadState_GET();
+        if ( tstate != NULL && tstate->frame != NULL )
+        {
+            PyFrameObject *frame = tstate->frame;
+            output_error("%s: python traceback...",pathname);
+            while ( frame != NULL )
+            {
+                int line = PyCode_Addr2Line(frame->f_code,frame->f_lasti);
+                const char *filename = PyUnicode_AsUTF8(frame->f_code->co_filename);
+                const char *funcname = PyUnicode_AsUTF8(frame->f_code->co_name);
+                output_error("%s(%d): %s", filename, line, funcname);
+                frame = frame->f_back;
+            }
+        }
         return NULL;
     }
 
     if ( ! PyModule_Check(mod) )
     {
-        gridlabd_exception("object is not a python module");
+        output_error("object is not a python module");
         return NULL;
     }
 
