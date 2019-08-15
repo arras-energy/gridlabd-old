@@ -415,6 +415,8 @@ public:
 	}THERMOSTATMODE;
 	enumeration thermostat_mode;
 
+	char1024 gas_enduses;
+
 private:
 	TIMESTAMP simulation_beginning_time;
 	void set_thermal_integrity();

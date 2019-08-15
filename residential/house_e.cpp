@@ -606,6 +606,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 				PT_KEYWORD, "BAND", (enumeration)TC_BAND, // T<mode>{On,Off} control HVAC (setpoints/deadband are ignored)
 				PT_KEYWORD, "NONE", (enumeration)TC_NONE, // system_mode controls HVAC (setpoints/deadband and T<mode>{On,Off} are ignored)
 
+			PT_char1024, "gas_enduses", PADDR(gas_enduses), PT_DESCRIPTION, "list of implicit enduses that use gas instead of electricity",
 			PT_method, "circuit", get_smart_breaker_offset(), PT_ACCESS,PA_PROTECTED, PT_DESCRIPTION, "smart breaker message handlers", 
 			NULL)<1) 
 			GL_THROW("unable to publish properties in %s",__FILE__);			
@@ -1843,6 +1844,25 @@ int house_e::init(OBJECT *parent)
 		}
 	}
 
+	// zero out gas enduses
+	CIRCUIT *circuit;
+	for ( circuit = panel.circuits ; circuit != NULL ; circuit = circuit->next )
+	{
+		if ( circuit->pLoad && circuit->pLoad->name )
+		{
+			if ( strstr(gas_enduses,circuit->pLoad->name) != NULL ) // set gas fraction
+			{
+				gl_debug("euname '%s' in gas_enduses '%s', setting gas fraction to 1.0", circuit->pLoad->name, (const char*)gas_enduses);
+				circuit->pLoad->gas_fraction = 1.0;
+			}
+			else
+			{
+				gl_debug("euname '%s' not in gas_enduses '%s', setting gas fraction to 0.0", circuit->pLoad->name, (const char*)gas_enduses);
+				circuit->pLoad->gas_fraction = 0.0;
+			}
+		}
+	}
+
 	return 1;
 }
 
@@ -2800,7 +2820,9 @@ TIMESTAMP house_e::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	if (obj->parent != NULL)
 		wunlock(obj->parent);
 
-	return paneldump_interval>0 ? ((gl_globalclock/paneldump_interval)+1)*paneldump_interval : TS_NEVER;
+	TIMESTAMP rv = paneldump_interval>0 ? ((gl_globalclock/paneldump_interval)+1)*paneldump_interval : TS_NEVER;
+	gl_debug("house postsync based on paneldump_interval=%lld --> %lld", paneldump_interval, rv);
+	return rv;
 }
 
 
@@ -3149,13 +3171,27 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 	CIRCUIT *c;
 	for (c=panel.circuits; c!=NULL; c=c->next)
 	{
-		// get circuit type
-		int n = (int)c->type;
-		if (n<0 || n>2)
+		// check circuit type
+		if ( (int)c->type < 0 || (int)c->type > 2 )
+		{
 			GL_THROW("%s:%d circuit %d has an invalid circuit type (%d)", obj->oclass->name, obj->id, c->id, (int)c->type);
+		}
+
+		// if load is 100% gas
+		if ( c->pLoad->gas_fraction == 1.0 )
+		{
+			// only heatgain is counted
+			if ( ( t0 != 0 && t1 > t0) || ( !heat_start ) )
+			{ 
+				total.heatgain += c->pLoad->heatgain;
+			}
+			c->status = BRK_CLOSED;
+			c->reclose = TS_NEVER;
+			t2 = TS_NEVER;
+		}
 
 		// if breaker is open and reclose time has arrived
-		if (c->status==BRK_OPEN && t1>=c->reclose)
+		else if (c->status==BRK_OPEN && t1>=c->reclose)
 		{
 			c->status = BRK_CLOSED;
 			c->reclose = TS_NEVER;
@@ -3163,8 +3199,8 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 			gl_debug("house_e:%d panel breaker %d closed", obj->id, c->id);
 		}
 
-		// if breaker is closed
-		if (c->status==BRK_CLOSED)
+		// if breaker is closed 
+		else if ( c->status==BRK_CLOSED )
 		{
 			// compute circuit current
 			if (((c->pV)->Mag() == 0) || (*pMeterStatus==0))	//Meter offline or voltage 0
@@ -3181,7 +3217,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 			}
 			
 			//Current flow is based on the actual load, not nominal load
-			complex actual_power = c->pLoad->power + (c->pLoad->current + c->pLoad->admittance * c->pLoad->voltage_factor)* c->pLoad->voltage_factor;
+			complex actual_power = c->pLoad->power + (c->pLoad->current + c->pLoad->admittance * c->pLoad->voltage_factor)* c->pLoad->voltage_factor * (1.0 - c->pLoad->gas_fraction);
 			complex current = ~(actual_power*1000 / *(c->pV)); 
 
 			// check breaker
@@ -3217,23 +3253,23 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 				//Convert values appropriately - assume nominal voltages of 240 and 120 (0 degrees)
 				//All values are given in kW, so convert to normal
 
-				if (n==0)	//1-2 240 V load
+				if ( (int)c->type == 0 )	//1-2 240 V load
 				{
-					load_values[0][2] += c->pLoad->power * 1000.0;
-					load_values[1][2] += ~(c->pLoad->current * 1000.0 / 240.0);
-					load_values[2][2] += ~(c->pLoad->admittance * 1000.0 / (240.0 * 240.0));
+					load_values[0][2] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
+					load_values[1][2] += ~(c->pLoad->current * 1000.0 / 240.0) * (1.0-c->pLoad->gas_fraction);
+					load_values[2][2] += ~(c->pLoad->admittance * 1000.0 / (240.0 * 240.0)) * (1.0-c->pLoad->gas_fraction);
 				}
-				else if (n==1)	//2-N 120 V load
+				else if ( (int)c->type == 1 )	//2-N 120 V load
 				{
-					load_values[0][1] += c->pLoad->power * 1000.0;
-					load_values[1][1] += ~(c->pLoad->current * 1000.0 / 120.0);
-					load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0));
+					load_values[0][1] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
+					load_values[1][1] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction);
+					load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction);
 				}
 				else	//n has to equal 2 here (checked above) - 1-N 120 V load
 				{
-					load_values[0][0] += c->pLoad->power * 1000.0;
-					load_values[1][0] += ~(c->pLoad->current * 1000.0 / 120.0);
-					load_values[2][0] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0));
+					load_values[0][0] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
+					load_values[1][0] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction);
+					load_values[2][0] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction);
 				}
 
 				//load_values[0][1] += c->pLoad->power * 1000.0;
@@ -3244,7 +3280,8 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 				total.power += c->pLoad->power;
 				total.current += c->pLoad->current;
 				total.admittance += c->pLoad->admittance;
-				if((t0 != 0 && t1 > t0) || (!heat_start)){
+				if((t0 != 0 && t1 > t0) || (!heat_start))
+				{
 					total.heatgain += c->pLoad->heatgain;
 				}
 				c->reclose = TS_NEVER;
