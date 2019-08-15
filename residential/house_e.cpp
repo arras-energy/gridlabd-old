@@ -2820,7 +2820,9 @@ TIMESTAMP house_e::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	if (obj->parent != NULL)
 		wunlock(obj->parent);
 
-	return paneldump_interval>0 ? ((gl_globalclock/paneldump_interval)+1)*paneldump_interval : TS_NEVER;
+	TIMESTAMP rv = paneldump_interval>0 ? ((gl_globalclock/paneldump_interval)+1)*paneldump_interval : TS_NEVER;
+	gl_debug("house postsync based on paneldump_interval=%lld --> %lld", paneldump_interval, rv);
+	return rv;
 }
 
 
@@ -3188,6 +3190,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 		{
 			// only heatgain is counted
 			total.heatgain += c->pLoad->heatgain;
+			t2 = TS_NEVER;
 		}
 
 		// if breaker is closed 

@@ -15,7 +15,7 @@ clock
 module residential 
 {
 	implicit_enduses LIGHTS|PLUGS|WATERHEATER|DRYER|RANGE;
-	paneldump_interval -1;
+	paneldump_interval 3600;
 }
 module tape;
 
@@ -30,7 +30,7 @@ object house
 	{
 		property panel.real;
 		file "paneltotal.csv";
-		interval -1;
+		interval 1h;
 	};
 }
 
