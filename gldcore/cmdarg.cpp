@@ -312,8 +312,7 @@ int GldCmdarg::check(int argc, const char *argv[])
 	/* check main core implementation */
 	if ( property_check()==FAILED )
 	{
-		output_fatal("main core property implementation failed size checks");
-		exit(XC_INIERR);
+		throw_exception("main core property implementation failed size checks");
 	}
 	global_runchecks = !global_runchecks;
 	return 0;
