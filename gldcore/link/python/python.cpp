@@ -6,6 +6,7 @@
 #include "load.h"
 #include "exec.h"
 #include "save.h"
+#include <frameobject.h>
 
 static PyObject *gridlabd_exception(const char *format, ...);
 
@@ -219,6 +220,27 @@ static PyObject *gridlabd_error(PyObject *self, PyObject *args)
     if ( ! PyArg_ParseTuple(args,"s",&text) )
         return gridlabd_exception("missing text argument");
     return PyLong_FromLong(output_error("%s",text));
+
+}
+
+static PyObject *gridlabd_traceback(const char *context=NULL)
+{
+    PyErr_Print();
+    PyThreadState *tstate = PyThreadState_GET();
+    if ( tstate != NULL && tstate->frame != NULL )
+    {
+        PyFrameObject *frame = tstate->frame;
+        output_error("%s python traceback...", context ? context : "(no context)");
+        while ( frame != NULL )
+        {
+            int line = PyCode_Addr2Line(frame->f_code,frame->f_lasti);
+            const char *filename = PyUnicode_AsUTF8(frame->f_code->co_filename);
+            const char *funcname = PyUnicode_AsUTF8(frame->f_code->co_name);
+            output_error("%s(%d): %s", filename, line, funcname);
+            frame = frame->f_back;
+        }
+    }
+    return NULL;
 
 }
 
@@ -1240,7 +1262,7 @@ extern "C" bool on_init(void)
             if ( ! result )
             {
                 output_error("python on_init() failed");
-                PyErr_PrintEx(0);
+                gridlabd_traceback("on_init");
                 return false;
             }
             bool retval = false; 
@@ -1279,7 +1301,7 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
             if ( ! result )
             {
                 output_error("python on_precommit(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_precommit");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1320,7 +1342,7 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
             if ( ! result )
             {
                 output_error("python on_presync(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_presync");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1360,7 +1382,7 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
             if ( ! result )
             {
                 output_error("python on_presync(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_sync");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1400,7 +1422,7 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
             if ( ! result )
             {
                 output_error("python on_postsync(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_postsync");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1439,7 +1461,7 @@ extern "C" bool on_commit(TIMESTAMP t)
             if ( ! result )
             {
                 output_error("python on_commit(%d) failed",t);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_commit");
                 return false;
             }
             bool retval =  PyObject_IsTrue(result);
@@ -1475,7 +1497,7 @@ extern "C" void on_term(void)
             if ( ! result )
             {
                 output_error("python on_term() failed");
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_term");
                 return;
             }
             if ( result != Py_None ) 
@@ -1544,8 +1566,8 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             {
                 if ( ! result || ! PyLong_Check(result) )
                 {
-                    output_error("python %s(%s) did not return an integer value as expected, traceback is as follows",function,objname);
-                    PyErr_PrintEx(0);
+                    output_error("python %s(%s) did not return an integer value as expected",function,objname);
+                    gridlabd_traceback(function);
                     if ( result ) 
                     {
                         Py_DECREF(result);
@@ -1608,8 +1630,6 @@ static bool get_callback(
     return true;    
 }
 
-#include "frameobject.h"
-
 MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
     char pathname[1024];
@@ -1620,27 +1640,12 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
         errno = ENOENT;
         return NULL;
     }
-    PyObject *mod = PyImport_ImportModule(pathname);
+    PyObject *mod = PyImport_ImportModule(file);
 
     if ( mod == NULL)
     {
         output_error("%s: python module import failed",pathname);
-        PyErr_Print();
-        PyThreadState *tstate = PyThreadState_GET();
-        if ( tstate != NULL && tstate->frame != NULL )
-        {
-            PyFrameObject *frame = tstate->frame;
-            output_error("%s: python traceback...",pathname);
-            while ( frame != NULL )
-            {
-                int line = PyCode_Addr2Line(frame->f_code,frame->f_lasti);
-                const char *filename = PyUnicode_AsUTF8(frame->f_code->co_filename);
-                const char *funcname = PyUnicode_AsUTF8(frame->f_code->co_name);
-                output_error("%s(%d): %s", filename, line, funcname);
-                frame = frame->f_back;
-            }
-        }
-        return NULL;
+        return (MODULE*)gridlabd_traceback(pathname);
     }
 
     if ( ! PyModule_Check(mod) )
