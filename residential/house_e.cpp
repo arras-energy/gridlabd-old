@@ -3171,26 +3171,32 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 	CIRCUIT *c;
 	for (c=panel.circuits; c!=NULL; c=c->next)
 	{
-		// get circuit type
-		int n = (int)c->type;
-		if (n<0 || n>2)
-			GL_THROW("%s:%d circuit %d has an invalid circuit type (%d)", obj->oclass->name, obj->id, c->id, (int)c->type);
-
-		// if breaker is open and reclose time has arrived
-		if (c->status==BRK_OPEN && t1>=c->reclose)
+		// check circuit type
+		if ( (int)c->type < 0 || (int)c->type > 2 )
 		{
-			c->status = BRK_CLOSED;
-			c->reclose = TS_NEVER;
-			t2 = t1; // must immediately reevaluate devices affected
-			gl_debug("house_e:%d panel breaker %d closed", obj->id, c->id);
+			GL_THROW("%s:%d circuit %d has an invalid circuit type (%d)", obj->oclass->name, obj->id, c->id, (int)c->type);
 		}
 
 		// if load is 100% gas
 		if ( c->pLoad->gas_fraction == 1.0 )
 		{
 			// only heatgain is counted
-			total.heatgain += c->pLoad->heatgain;
+			if ( ( t0 != 0 && t1 > t0) || ( !heat_start ) )
+			{ 
+				total.heatgain += c->pLoad->heatgain;
+			}
+			c->status = BRK_CLOSED;
+			c->reclose = TS_NEVER;
 			t2 = TS_NEVER;
+		}
+
+		// if breaker is open and reclose time has arrived
+		else if (c->status==BRK_OPEN && t1>=c->reclose)
+		{
+			c->status = BRK_CLOSED;
+			c->reclose = TS_NEVER;
+			t2 = t1; // must immediately reevaluate devices affected
+			gl_debug("house_e:%d panel breaker %d closed", obj->id, c->id);
 		}
 
 		// if breaker is closed 
@@ -3247,13 +3253,13 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 				//Convert values appropriately - assume nominal voltages of 240 and 120 (0 degrees)
 				//All values are given in kW, so convert to normal
 
-				if (n==0)	//1-2 240 V load
+				if ( (int)c->type == 0 )	//1-2 240 V load
 				{
 					load_values[0][2] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
 					load_values[1][2] += ~(c->pLoad->current * 1000.0 / 240.0) * (1.0-c->pLoad->gas_fraction);
 					load_values[2][2] += ~(c->pLoad->admittance * 1000.0 / (240.0 * 240.0)) * (1.0-c->pLoad->gas_fraction);
 				}
-				else if (n==1)	//2-N 120 V load
+				else if ( (int)c->type == 1 )	//2-N 120 V load
 				{
 					load_values[0][1] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
 					load_values[1][1] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction);

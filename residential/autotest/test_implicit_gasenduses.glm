@@ -3,7 +3,6 @@
 // ID: D3P706
 
 #set suppress_repeat_messages=0
-#set debug=1
 
 clock 
 {
@@ -19,7 +18,7 @@ module residential
 }
 module tape;
 
-object house 
+object house
 {
 	heating_setpoint 5;
 	cooling_setpoint 300;
