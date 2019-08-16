@@ -278,6 +278,7 @@ typedef struct s_implicit_enduse_list {
 #include "elcap1990.h"
 #include "elcap2010.h"
 #include "rbsa2014.h"
+#include "rbsa2014_discrete.h"
 
 EXPORT CIRCUIT *attach_enduse_house_e(OBJECT *obj, enduse *target, double breaker_amps, int is220)
 {
@@ -632,6 +633,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_KEYWORD,"ELCAP1990", (enumeration)IES_ELCAP1990,
 			PT_KEYWORD,"ELCAP2010", (enumeration)IES_ELCAP2010,
 			PT_KEYWORD,"RBSA2014", (enumeration)IES_RBSA2014,
+			PT_KEYWORD,"RBSA2014_DISCRETE", (enumeration)IES_RBSA2014_DISCRETE,
 			NULL);
 		gl_global_create("residential::house_low_temperature_warning[degF]",PT_double,&warn_low_temp,
 			PT_DESCRIPTION, "the low house indoor temperature at which a warning will be generated",
@@ -745,8 +747,12 @@ int house_e::create()
 				eu = elcap2010;
 				break;
 			case IES_RBSA2014:
-				gl_warning("RBSA2010 implicit enduse data is not valid for individual enduses");
+				gl_warning("RBSA2014 implicit enduse data is not valid for individual enduses");
 				eu = rbsa2014;
+				break;
+			case IES_RBSA2014_DISCRETE:
+				gl_warning("RBSA2014 discrete implicit enduse data is experimental");
+				eu = rbsa2014_discrete;
 				break;
 			default:
 				gl_error("implicit enduse source '%d' is not recognized, using default ELCAP1990 instead", implicit_enduse_source);

@@ -280,14 +280,15 @@ static void sync_queued(loadshape *ls, double dt)
 	if (ls->q > ls->d[0])
 	{
 		ls->s = MS_ON;
-
 		ls->r = -1/duration;
 		
 	}
 	else if (ls->q < ls->d[1])
 	{
 		ls->s = MS_OFF;
-		ls->r = 1/random_exponential(&(ls->rng_state),ls->schedule->value*ls->params.pulsed.scalar*queue_value);
+		double lambda = ls->schedule->value*ls->params.pulsed.scalar*queue_value;
+		if ( lambda > 0 )
+			ls->r = 1/random_exponential(&(ls->rng_state),lambda);
 	}
 	/* else state remains unchanged */
 #undef duration
@@ -509,7 +510,9 @@ void loadshape_recalc(loadshape *ls)
 		if (ls->s == 0 && ls->schedule!=NULL) /* load is off */
 		{
 			/* recalculate time to next on */
-			ls->r = 1/random_exponential(&(ls->rng_state),ls->schedule->value * ls->params.pulsed.scalar * (ls->params.queued.q_on - ls->params.queued.q_off));
+			double lambda = ls->schedule->value * ls->params.pulsed.scalar * (ls->params.queued.q_on - ls->params.queued.q_off);
+			if ( lambda > 0 )
+				ls->r = 1/random_exponential(&(ls->rng_state),lambda);
 		}
 		break;
 	case MT_SCHEDULED:
@@ -782,7 +785,7 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 #endif
 
 			/* time to next event */
-			ls->t2 = ls->r!=0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) : TS_NEVER;
+			ls->t2 = ls->r > 0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) : TS_NEVER;
 			/* This was to address a reported bug - every once in awhile, when ls->q was very
 			   near 1.0 but slighly less, it would lead to t2=t1 and fail simulation; this is a
 			   litte bump to get it out of the rut and try one more time before failing out */
@@ -806,7 +809,7 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 			sync_modulated(ls, dt);
 
 			/* time to next event */
-			ls->t2 = ls->r!=0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) + 1 : TS_NEVER;
+			ls->t2 = ls->r > 0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) + 1 : TS_NEVER;
 
 			/* choose sooner of schedule change or state change */
 			if (ls->schedule->next_t < ls->t2) ls->t2 = ls->schedule->next_t;
@@ -821,7 +824,7 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 			sync_queued(ls, dt);
 
 			/* time to next event */
-			ls->t2 = ls->r!=0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) + 1 : TS_NEVER;
+			ls->t2 = ls->r > 0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) + 1 : TS_NEVER;
 
 			/* choose sooner of schedule change or state change */
 			if (ls->schedule->next_t < ls->t2) ls->t2 = ls->schedule->next_t;
