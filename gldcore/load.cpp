@@ -3916,7 +3916,11 @@ static int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size
 	START;
 	if ( TERM(name(HERE,fncname,sizeof(fncname))) && (WHITE,LITERAL("(")) && (WHITE,TERM(property_list(HERE,varlist,sizeof(varlist)))) && LITERAL(")") )
 	{
-		if ( strlen(fncname)<namesize && strlen(varlist)<srcsize )
+		if ( transform_find_filter(fncname) == NULL )
+		{
+			REJECT;
+		}
+		else if ( strlen(fncname)<namesize && strlen(varlist)<srcsize )
 		{
 			strcpy(filtername,fncname);
 			strcpy(sources,varlist);
