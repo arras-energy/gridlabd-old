@@ -415,6 +415,8 @@ public:
 	}THERMOSTATMODE;
 	enumeration thermostat_mode;
 
+	char1024 gas_enduses;
+
 private:
 	TIMESTAMP simulation_beginning_time;
 	void set_thermal_integrity();
@@ -445,6 +447,7 @@ public:
 	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
+	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 	TIMESTAMP sync_billing(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync_thermostat(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync_panel(TIMESTAMP t0, TIMESTAMP t1);

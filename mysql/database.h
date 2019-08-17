@@ -9,12 +9,17 @@
 
 #include "gridlabd.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <math.h>
+#include <ctype.h>
+
 #ifdef WIN32
 #undef int64
 #include <winsock2.h>
 #define int64 long long
 #else
-#include <ctype.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

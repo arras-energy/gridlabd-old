@@ -4,6 +4,10 @@
 	@addtogroup powerflow_object Powerflow objects (abstract)
 	@ingroup powerflow
 
+	@def PS_NORMAL normal powerflow solution
+	@def SUPPORT_OUTAGES 
+	@def PS_OUTAGE outage powerflow solution
+
 	The powerflow_object class is an abstract class that implements 
 	basic elements of powerflow solutions.  There are two critical
 	pieces of information:
@@ -77,14 +81,9 @@
 
  @{
  **/
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
 
 #include "powerflow.h"
-#include "node.h"
-#include "link.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // powerflow_object CLASS FUNCTIONS

@@ -19,6 +19,7 @@
 #include <errno.h>
 #include <ctype.h>
 #include "gridlabd.h"
+#include "module.h"
 #include "object.h"
 #include "aggregate.h"
 #include "histogram.h"
@@ -114,7 +115,7 @@ TAPEFUNCS *get_ftable(char *mode){
 		fptr = fptr->next;
 	}
 	/* fptr = NULL */
-	fptr = malloc(sizeof(TAPEFUNCS));
+	fptr = (TAPEFUNCS*)malloc(sizeof(TAPEFUNCS));
 	if(fptr == NULL)
 	{
 		gl_error("get_ftable(char *mode='%s'): out of memory", mode);
@@ -123,12 +124,12 @@ TAPEFUNCS *get_ftable(char *mode){
 	snprintf(modname, sizeof(modname), "tape_%s" DLEXT, mode);
 	
 	if(gl_findfile(modname, NULL, 0|4, tpath,sizeof(tpath)) == NULL){
-		gl_error("unable to locate %s", modname);
+		gl_error("unable to locate %s", (char*)modname);
 		return NULL;
 	}
 	lib = fptr->hLib = DLLOAD(tpath);
 	if(fptr->hLib == NULL){
-		gl_error("tape module: unable to load DLL for %s", modname);
+		gl_error("tape module: unable to load DLL for %s", (char*)modname);
 		return NULL;
 	}
 	c = (CALLBACKS **)DLSYM(lib, "callback");
@@ -136,7 +137,7 @@ TAPEFUNCS *get_ftable(char *mode){
 		*c = callback;
 
 	//	nonfatal ommission
-	ops = fptr->collector = malloc(sizeof(TAPEOPS));
+	ops = fptr->collector = (TAPEOPS*)malloc(sizeof(TAPEOPS));
 	memset(ops,0,sizeof(TAPEOPS));
 	ops->open = (OPENFUNC)DLSYM(lib, "open_collector");
 	ops->read = NULL;
@@ -145,7 +146,7 @@ TAPEFUNCS *get_ftable(char *mode){
 	ops->close = (CLOSEFUNC)DLSYM(lib, "close_collector");
 	ops->flush = (FLUSHFUNC)DLSYM(lib, "flush_collector");
 
-	ops = fptr->player = malloc(sizeof(TAPEOPS));
+	ops = fptr->player = (TAPEOPS*)malloc(sizeof(TAPEOPS));
 	memset(ops,0,sizeof(TAPEOPS));
 	ops->open = (OPENFUNC)DLSYM(lib, "open_player");
 	ops->read = (READFUNC)DLSYM(lib, "read_player");
@@ -154,7 +155,7 @@ TAPEFUNCS *get_ftable(char *mode){
 	ops->close = (CLOSEFUNC)DLSYM(lib, "close_player");
 	ops->flush = NULL;
 
-	ops = fptr->recorder = malloc(sizeof(TAPEOPS));
+	ops = fptr->recorder = (TAPEOPS*)malloc(sizeof(TAPEOPS));
 	memset(ops,0,sizeof(TAPEOPS));
 	ops->open = (OPENFUNC)DLSYM(lib, "open_recorder");
 	ops->read = NULL;
@@ -163,7 +164,7 @@ TAPEFUNCS *get_ftable(char *mode){
 	ops->close = (CLOSEFUNC)DLSYM(lib, "close_recorder");
 	ops->flush = (FLUSHFUNC)DLSYM(lib, "flush_recorder");
 
-	ops = fptr->histogram = malloc(sizeof(TAPEOPS));
+	ops = fptr->histogram = (TAPEOPS*)malloc(sizeof(TAPEOPS));
 	memset(ops,0,sizeof(TAPEOPS));
 	ops->open = (OPENFUNC)DLSYM(lib, "open_histogram");
 	ops->read = NULL;
@@ -172,7 +173,7 @@ TAPEFUNCS *get_ftable(char *mode){
 	ops->close = (CLOSEFUNC)DLSYM(lib, "close_histogram");
 	ops->flush = (FLUSHFUNC)DLSYM(lib, "flush_histogram");
 
-	ops = fptr->shaper = malloc(sizeof(TAPEOPS));
+	ops = fptr->shaper = (TAPEOPS*)malloc(sizeof(TAPEOPS));
 	memset(ops,0,sizeof(TAPEOPS));
 	ops->open = (OPENFUNC)DLSYM(lib, "open_shaper");
 	ops->read = (READFUNC)DLSYM(lib, "read_shaper");
@@ -188,9 +189,9 @@ TAPEFUNCS *get_ftable(char *mode){
 	return funcs;
 }
 
-extern int method_recorder_property(OBJECT *obj, char *value, size_t size);
-extern int method_collector_property(OBJECT *obj, char *value, size_t size);
-extern int method_multi_recorder_property(OBJECT *obj, char *value, size_t size);
+CDECL int method_recorder_property(OBJECT *obj, char *value, size_t size);
+CDECL int method_collector_property(OBJECT *obj, char *value, size_t size);
+CDECL int method_multi_recorder_property(OBJECT *obj, char *value, size_t size);
 
 EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 {
@@ -218,7 +219,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	gl_global_create("tape::delta_mode_needed", PT_timestamp, &delta_mode_needed,NULL);
 
 	/* register the first class implemented, use SHARE to reveal variables */
-	player_class = gl_register_class(module,"player",sizeof(struct player),PC_PRETOPDOWN); 
+	player_class = gl_register_class((MODULE*)module,"player",sizeof(struct player),PC_PRETOPDOWN); 
 	player_class->trl = TRL_PROVEN;
 	PUBLISH_STRUCT(player,char256,property);
 	PUBLISH_STRUCT(player,char1024,file);
@@ -227,7 +228,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	PUBLISH_STRUCT(player,int32,loop);
 
 	/* register the first class implemented, use SHARE to reveal variables */
-	shaper_class = gl_register_class(module,"shaper",sizeof(struct shaper),PC_PRETOPDOWN); 
+	shaper_class = gl_register_class((MODULE*)module,"shaper",sizeof(struct shaper),PC_PRETOPDOWN); 
 	shaper_class->trl = TRL_QUALIFIED;
 	PUBLISH_STRUCT(shaper,char1024,file);
 	PUBLISH_STRUCT(shaper,char8,filetype);
@@ -238,7 +239,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	PUBLISH_STRUCT(shaper,double,events);
 
 	/* register the other classes as needed, */
-	recorder_class = gl_register_class(module,"recorder",sizeof(struct recorder),PC_POSTTOPDOWN|PC_OBSERVER);
+	recorder_class = gl_register_class((MODULE*)module,"recorder",sizeof(struct recorder),PC_POSTTOPDOWN|PC_OBSERVER);
 	recorder_class->trl = TRL_PROVEN;
 	PUBLISH_STRUCT(recorder,char32,trigger);
 	PUBLISH_STRUCT(recorder,char1024,file);
@@ -257,7 +258,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 		PT_char256,"strftime_format",((char*)&(my.strftime_format) - (char*)&my),
 		PT_method,"property", (size_t)method_recorder_property,
 		PT_enumeration, "output", ((char*)&(my.output) - (char *)&my),
-			PT_KEYWORD, "SCREEN", SCREEN,
+			PT_KEYWORD, "SCREEN", SCR,
 			PT_KEYWORD, "EPS",    EPS,
 			PT_KEYWORD, "GIF",    GIF,
 			PT_KEYWORD, "JPG",    JPG,
@@ -276,7 +277,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 		GL_THROW("Could not publish property output for recorder");
 
 		/* register the other classes as needed, */
-	multi_recorder_class = gl_register_class(module,"multi_recorder",sizeof(struct recorder),PC_POSTTOPDOWN|PC_OBSERVER);
+	multi_recorder_class = gl_register_class((MODULE*)module,"multi_recorder",sizeof(struct recorder),PC_POSTTOPDOWN|PC_OBSERVER);
 	multi_recorder_class->trl = TRL_QUALIFIED;
 	if(gl_publish_variable(multi_recorder_class,
 		PT_double, "interval[s]", ((char*)&(my.dInterval) - (char *)&my),
@@ -292,7 +293,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 		PT_char32, "columns", ((char*)&(my.columns) - (char *)&my),
         PT_char32, "format", ((char*)&(my.format) - (char *)&my),
 		PT_enumeration, "output", ((char*)&(my.output) - (char *)&my),
-			PT_KEYWORD, "SCREEN", SCREEN,
+			PT_KEYWORD, "SCREEN", SCR,
 			PT_KEYWORD, "EPS",    EPS,
 			PT_KEYWORD, "GIF",    GIF,
 			PT_KEYWORD, "JPG",    JPG,
@@ -311,7 +312,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 		GL_THROW("Could not publish property output for multi_recorder");
 
 	/* register the other classes as needed, */
-	collector_class = gl_register_class(module,"collector",sizeof(struct collector),PC_POSTTOPDOWN|PC_OBSERVER);
+	collector_class = gl_register_class((MODULE*)module,"collector",sizeof(struct collector),PC_POSTTOPDOWN|PC_OBSERVER);
 	collector_class->trl = TRL_PROVEN;
 	PUBLISH_STRUCT(collector,char32,trigger);
 	PUBLISH_STRUCT(collector,char1024,file);
@@ -325,19 +326,19 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 		GL_THROW("Could not publish property output for collector");
 
 	/* new histogram() */
-	new_histogram(module);
+	new_histogram((MODULE*)module);
 
 	/* new group_recorder() */
-	new_group_recorder(module);
+	new_group_recorder((MODULE*)module);
 
 	/* new violation_recorder() */
-	new_violation_recorder(module);
+	new_violation_recorder((MODULE*)module);
 
 	/* new metrics_collector() */
-	new_metrics_collector(module);
+	new_metrics_collector((MODULE*)module);
 
 	/* new metrics_collector_writer() */
-	new_metrics_collector_writer(module);
+	new_metrics_collector_writer((MODULE*)module);
 
 #if 0
 	new_loadshape(module);
@@ -362,7 +363,7 @@ EXPORT int check(void)
 			if (gl_findfile(pData->file,NULL,F_OK,fpath,sizeof(fpath))==NULL)
 			{
 				errcount++;
-				gl_error("player %s (id=%d) uses the file '%s', which cannot be found", obj->name?obj->name:"(unnamed)", obj->id, pData->file);
+				gl_error("player %s (id=%d) uses the file '%s', which cannot be found", obj->name?obj->name:"(unnamed)", obj->id, (char*)pData->file);
 			}
 		}
 	}
@@ -376,7 +377,7 @@ EXPORT int check(void)
 			if (gl_findfile(pData->file,NULL,F_OK,fpath,sizeof(fpath))==NULL)
 			{
 				errcount++;
-				gl_error("shaper %s (id=%d) uses the file '%s', which cannot be found", obj->name?obj->name:"(unnamed)", obj->id, pData->file);
+				gl_error("shaper %s (id=%d) uses the file '%s', which cannot be found", obj->name?obj->name:"(unnamed)", obj->id, (char*)pData->file);
 			}
 		}
 	}
@@ -766,7 +767,7 @@ EXPORT STATUS postupdate(MODULE *module, TIMESTAMP t0, unsigned int64 dt)
 			obj = index_item->obj;
 
 			/* Map up function - have to do a modified version (C call), which is why this looks odd*/
-			temp_fxn = (FUNCTIONADDR)(gl_get_function(obj->oclass->name,"obj_postupdate_fxn"));
+			temp_fxn = (FUNCTIONADDR)(gl_get_function(obj,"obj_postupdate_fxn"));
 
 			if (temp_fxn == NULL)
 			{
@@ -841,7 +842,7 @@ EXPORT STATUS postupdate(MODULE *module, TIMESTAMP t0, unsigned int64 dt)
 	return SUCCESS;
 }
 
-int do_kill()
+CDECL int do_kill()
 {
 	/* if global memory needs to be released, this is the time to do it */
 	return 0;

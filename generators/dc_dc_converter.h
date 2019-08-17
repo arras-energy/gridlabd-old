@@ -6,15 +6,12 @@
  @{  
  **/
 
-#ifndef _dc_dc_converter_H
-#define _dc_dc_converter_H
+#ifndef _DC_DC_CONVERTER_H
+#define _DC_DC_CONVERTER_H
 
-#include <stdarg.h>
-#include "../powerflow/powerflow_object.h"
-//#include "../powerflow/node.h"
-#include "gridlabd.h"
-#include "power_electronics.h"
-
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 //dc_dc_converter extends power_electronics
 class dc_dc_converter: public power_electronics
@@ -89,47 +86,6 @@ public:
 	static CLASS *oclass;
 	static dc_dc_converter *defaults;
 	static CLASS *plcass;
-#ifdef OPTIONAL
-	static CLASS *pclass; /**< defines the parent class */
-	TIMESTAMPP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
-#endif
-};
-
-#endif
-
-/**@}*/
-/** $Id: dc_dc_converter.h,v 1.0 2008/07/17
-	@file dc_dc_converter.h
-	@addtogroup dc_dc_converter
-	@ingroup MODULENAME
-
- @{  
- **/
-
-#ifndef _dc_dc_converter_H
-#define _dc_dc_converter_H
-
-#include <stdarg.h>
-#include "gridlabd.h"
-
-class dc_dc_converter {
-private:
-	/* TODO: put private variables here */
-protected:
-	/* TODO: put unpublished but inherited variables */
-public:
-	/* TODO: put published variables here */
-public:
-	/* required implementations */
-	dc_dc_converter(MODULE *module);
-	int create(void);
-	int init(OBJECT *parent);
-	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
-public:
-	static CLASS *oclass;
-	static dc_dc_converter *defaults;
 #ifdef OPTIONAL
 	static CLASS *pclass; /**< defines the parent class */
 	TIMESTAMPP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */

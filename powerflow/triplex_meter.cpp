@@ -17,13 +17,8 @@
 
 	@{
  **/
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "triplex_meter.h"
-#include "timestamp.h"
+#include "powerflow.h"
+using namespace std;
 
 // useful macros
 #define TO_HOURS(t) (((double)t) / (3600 * TS_SECOND))

@@ -1,5 +1,5 @@
-/* $Id: load_xml_handle.h 4738 2014-07-03 00:55:39Z dchassin $
- 	Copyright (C) 2008 Battelle Memorial Institute
+/* File: load_xml_handle.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
  * 
  * Authors:
  *	Matthew Hauer <matthew.hauer@pnl.gov>, 6 Nov 07 -
@@ -16,27 +16,14 @@
  *
  */
 
-#include    <xercesc/sax2/DefaultHandler.hpp>
-#include    <xercesc/framework/XMLFormatter.hpp>
-#include <stdio.h>
-#include <ctype.h>
-#include <string.h>
-#include <wchar.h>
-#include <vector>
+#ifndef _LOAD_XML_HANDLE_H
+#define _LOAD_XML_HANDLE_H
 
-#include "class.h"
-#include "load.h"
-#include "globals.h"
-#include "module.h"
-#include "convert.h"
-#include "random.h"
-#include "output.h"
-#include "unit.h"
-#include "gridlabd.h"
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 XERCES_CPP_NAMESPACE_USE
-
-using std::vector;
 
 typedef enum {
 	EMPTY = 0,
@@ -150,6 +137,8 @@ private :
 	bool load_state;
 	int object_count, class_count;
 
-	vector<OBJECT *> *obj_vect;
+	std::vector<OBJECT *> *obj_vect;
 	gldStack *stack_ptr;
 };
+
+#endif

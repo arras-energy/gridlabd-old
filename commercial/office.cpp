@@ -65,14 +65,8 @@
 
  @{
  **/
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <ctype.h>
-#include "gridlabd.h"
-#include "solvers.h"
-#include "office.h"
+
+#include "commercial.h"
 #include "../climate/climate.h"
 
 EXPORT_CREATE(office)

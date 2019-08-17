@@ -1,5 +1,6 @@
-/** $Id: load.c 4738 2014-07-03 00:55:39Z dchassin $
+/** load.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file load.c
 	@addtogroup load_glm GLM file loader
 	@ingroup core
@@ -128,25 +129,7 @@ object <class>[:<spec>] { // spec may be <id>, or <startid>..<endid>, or ..<coun
 
  **/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#else // not a build using automake
-#define DLEXT ".dll"
-#endif // HAVE_CONFIG_H
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <float.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>
-#include "stream.h"
-#include "http_client.h"
-#include "link.h"
-#include "exec.h"
+#include "gldcore.h"
 
 /* define this to use # for comment and % for macros (the way Version 1.x works) */
 /* #define OLDSTYLE	*/
@@ -761,7 +744,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				|| write_file(fp,"extern \"C\" CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])\n"
 					"{\n"
 					"\tcallback=fntable;\n"
-					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\"));\n"
+					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\",NULL));\n"
 					"\tif (!myclass) return NULL;\n"
 					"\tif (!setup_class(myclass)) return NULL;\n"
 					"\treturn myclass;"
@@ -815,7 +798,8 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				}
 				if ( !global_debug_output )
 					unlink(cfile);
-
+				else
+					output_verbose("keeping %s for debugging",cfile);
 
 				/* link new runtime module */
 				IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
@@ -1855,6 +1839,18 @@ struct s_rpn {
 	double val; // if op = 0, check val
 };
 
+double pos(double a)
+{
+	return a > 0.0 ? a : 0.0;
+}
+double neg(double a)
+{
+	return a < 0.0 ? -a : 0.0;
+}
+double nonzero(double a)
+{
+	return a != 0.0;
+}
 struct s_rpn_func {
 	const char *name;
 	int args; /* use a mode instead? else assume only doubles */
@@ -1874,7 +1870,10 @@ struct s_rpn_func {
 	{"log", 1, -10, log},
 	{"log10", 1, -11, log10},
 	{"floor", 1, -12, floor},
-	{"ceil", 1, -13, ceil}
+	{"ceil", 1, -13, ceil},
+	{"pos", 1, -14, pos}, // returns only positive values
+	{"neg", 1, -15, neg}, // returns only positive values
+	{"nonzero", 1, -16, nonzero}, // returns 1 if nonzero
 };
 
 static int rpnfunc(PARSER, int *val)
@@ -3055,7 +3054,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "presync";
-		oclass->passconfig |= PC_PRETOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_PRETOPDOWN);
 		*function |= FN_PRESYNC;
 		ACCEPT;
 	}
@@ -3063,7 +3062,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "sync";
-		oclass->passconfig |= PC_BOTTOMUP;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_BOTTOMUP);
 		*function |= FN_SYNC;
 		ACCEPT;
 	}
@@ -3071,7 +3070,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "postsync";
-		oclass->passconfig |= PC_POSTTOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_POSTTOPDOWN);
 		*function |= FN_POSTSYNC;
 		ACCEPT;
 	}
@@ -3602,7 +3601,7 @@ static int class_block(PARSER)
 				oclass = class_get_class_from_classname(classname);
 				if (oclass==NULL)
 				{
-					oclass = class_register(NULL,classname,0,0x00);
+					oclass = class_register(NULL,classname,0,PC_NOSYNC);
 					mark_line();
 					switch (inherit) {
 					case NONE:
@@ -4321,7 +4320,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_complex_by_name(obj,propname,cval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to complex value '%g%+gi'", filename, linenum, propname, format_object(obj), cval.Re(), cval.Im());
+					output_error_raw("%s(%d): complex property %s of %s %s could not be set to complex value '%g%+gi'", filename, linenum, propname, format_object(obj), cval.Re(), cval.Im());
 					REJECT;
 				}
 				else
@@ -4336,7 +4335,22 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
+					output_error_raw("%s(%d): double property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
+					REJECT;
+				}
+				else
+					ACCEPT;
+			}
+			else if (prop!=NULL && prop->ptype==PT_bool && TERM(expression(HERE, &dval, &unit, obj)))
+			{
+				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
+				{
+					output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
+					REJECT;
+				}
+				else if (object_set_value_by_name(obj,propname,dval>0?"TRUE":"FALSE")==0)
+				{
+					output_error_raw("%s(%d): double property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
 					REJECT;
 				}
 				else
@@ -4351,7 +4365,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to double value '%g' having unit '%s'", filename, linenum, propname, format_object(obj), dval, unit->name);
+					output_error_raw("%s(%d): double property %s of %s %s could not be set to double value '%g' having unit '%s'", filename, linenum, propname, format_object(obj), dval, unit->name);
 					REJECT;
 				}
 				else
@@ -4386,7 +4400,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							REJECT;
 					} /* end switch */
 					if(rv == 0){
-						output_error_raw("%s(%d): property %s of %s %s could not be set to integer '%lld'", filename, linenum, propname, format_object(obj), ival);
+						output_error_raw("%s(%d): int property %s of %s %s could not be set to integer '%lld'", filename, linenum, propname, format_object(obj), ival);
 						REJECT;
 					} else {
 						ACCEPT;
@@ -4843,6 +4857,11 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 			output_error_raw("%s(%d): class '%s' is not known", filename, linenum, classname);
 			REJECT;
 		}
+		CLASS *aclass = class_get_class_from_classname(classname,oclass);
+		if ( aclass != NULL )
+		{
+			output_error_raw("%s(%d): class '%s' module reference is ambiguous (using '%s' instead of '%s')", filename, linenum, classname,oclass->module ? oclass->module->name : "runtime", aclass->module ? aclass->module->name : "runtime");
+		}
 		ACCEPT;
 	}
 	else
@@ -5121,8 +5140,10 @@ static int schedule(PARSER)
 			}
 			*p = '\0';
 		}
-		if (schedule_create(schedname, buffer))
+		SCHEDULE *sch = schedule_create(schedname, buffer);
+		if ( sch != NULL )
 		{
+			sch->flags |= SN_USERDEFINED;
 			ACCEPT;
 		}
 		else
@@ -7271,6 +7292,26 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		exec_sleep(msec*1000);
 		strcpy(line,"\n");
 		return TRUE;
+	}
+	else if ( strncmp(line,MACRO "on_exit",8) == 0 )
+	{
+		int xc;
+		char cmd[1024];
+		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
+		{
+			output_error_raw("%s(%d): on_exit syntax error", filename,linenum);
+			return FALSE;
+		}
+		else if ( ! my_instance->add_on_exit(xc,cmd) )
+		{
+			output_error_raw("%s(%d): on_exit %d command '%s'", filename,linenum,xc,cmd);
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
 	}
 	else
 	{

@@ -6,16 +6,12 @@
  @{  
  **/
 
-#ifndef _inverter_H
-#define _inverter_H
+#ifndef _INVERTER_H
+#define _INVERTER_H
 
-#include <utility>		//for pair<> in Volt/VAr schedule
-#include <vector>		//for list<> in Volt/VAr schedule
-#include <string> //Ab add
-#include <stdarg.h>
-#include "gridlabd.h"
-#include "power_electronics.h"
-#include "generators.h"
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 EXPORT STATUS preupdate_inverter(OBJECT *obj,TIMESTAMP t0, unsigned int64 delta_time);
 EXPORT SIMULATIONMODE interupdate_inverter(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);

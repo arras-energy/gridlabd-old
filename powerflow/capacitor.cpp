@@ -7,12 +7,8 @@
 	@{
 */
 
-#include <stdlib.h>	
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "capacitor.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // capacitor CLASS FUNCTIONS

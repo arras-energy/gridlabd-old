@@ -7,17 +7,12 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "diesel_dg.h"
+#include "generators.h"
 
 CLASS *diesel_dg::oclass = NULL;
 diesel_dg *diesel_dg::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_BOTTOMUP|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */

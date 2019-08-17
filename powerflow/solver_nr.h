@@ -5,8 +5,7 @@
 #ifndef _SOLVER_NR
 #define _SOLVER_NR
 
-#include "complex.h"
-#include "object.h"
+#include "gridlabd.h"
 
 typedef struct  {
 	int type;				///< bus type (0=PQ, 1=PV, 2=SWING, 3=SWING_PQ)

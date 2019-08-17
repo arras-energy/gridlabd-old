@@ -4,8 +4,9 @@
 #ifndef _REGULATORCONFIGURATION_H
 #define _REGULATORCONFIGURATION_H
 
-#include "powerflow.h"
-#include "powerflow_library.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class regulator_configuration : public powerflow_library
 {

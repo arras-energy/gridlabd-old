@@ -1,6 +1,7 @@
-/** $Id: environment.c 4738 2014-07-03 00:55:39Z dchassin $
+/** environment.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file environment.c
+
+	@file environment.cpp
 	@addtogroup environment Environment control
 	@ingroup core
 	
@@ -12,18 +13,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <string.h>
-#include <sys/types.h>
-#include <signal.h>
-
-#include "environment.h"
-#include "exec.h"
-#include "save.h"
-#include "matlab.h"
-#include "server.h"
-#include "xcore.h"
-#include "gui.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_ENVIRONMENT)
 

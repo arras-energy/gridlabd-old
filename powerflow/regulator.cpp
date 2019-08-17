@@ -8,15 +8,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "regulator.h"
-#include "node.h"
 
 CLASS* regulator::oclass = NULL;
 CLASS* regulator::pclass = NULL;

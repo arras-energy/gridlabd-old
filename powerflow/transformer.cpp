@@ -15,14 +15,8 @@
  @{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "transformer.h"
 
 CLASS* transformer::oclass = NULL;
 CLASS* transformer::pclass = NULL;

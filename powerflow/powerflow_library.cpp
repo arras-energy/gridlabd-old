@@ -9,13 +9,9 @@
 
  @{
  **/
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
 
 #include "powerflow.h"
-#include "powerflow_library.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // powerflow_library CLASS FUNCTIONS
