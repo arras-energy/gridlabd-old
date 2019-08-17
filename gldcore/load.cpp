@@ -4447,7 +4447,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
-				int n = sscanf(sources,"%[^:]:%[^,]",sobj,sprop);
+				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
 				OBJECT *source_obj;
 				PROPERTY *source_prop;
 
@@ -4491,7 +4491,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
-				int n = sscanf(sources,"%[^.].%[^,]",sobj,sprop);
+				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
 				OBJECT *source_obj;
 				PROPERTY *source_prop;
 
