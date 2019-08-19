@@ -3542,7 +3542,7 @@ bool circuit_measurement(const char *timestamp,
 	// integral sampling (energy)
 	if ( integral )
 	{
-		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,(m[0].energy.Re()-m[1].energy.Re())/3.6,(m[0].energy.Im()-m[1].energy.Im())/3.6);
+		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,(m[0].energy.Re()-m[1].energy.Re())/3600.0,(m[0].energy.Im()-m[1].energy.Im())/3600.0);
 		m[1].t = 0; // resets energy interval measurements
 	}
 
