@@ -167,8 +167,8 @@ TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1)
 					e->total.Im() = (e->power_factor<0?-1:1)*P*sqrt(1/(e->power_factor*e->power_factor)-1);
 				else
 					e->total.Im() = 0;
-				output_debug("enduse_sync(enduse *e='%s', PASSCONFIG pass='%s', TIMESTAMP t1=%lld): load=%lg, -> total=%lg%+lgj",
-					e->name, "PC_BOTTOMUP", t1, e->shape->load, e->total.Re(), e->total.Im());
+				output_debug("enduse_sync(enduse *e='%s', PASSCONFIG pass='%s', TIMESTAMP t1=%lld): load=%lg, power factor=%lg -> total=%lg%+lgj",
+					e->name, "PC_BOTTOMUP", t1, e->shape->load, e->power_factor, e->total.Re(), e->total.Im());
 
 				// beware: these are misnomers (they are e->constant_power, e->constant_current, ...)
 				e->power.Re() = e->total.Re() * e->power_fraction; 
