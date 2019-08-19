@@ -41,9 +41,9 @@ static void sync_analog(loadshape *ls, double dt)
 	{
 
 		/* load is based on fixed energy scale */
-		ls->load = ls->schedule->value * ls->params.analog.energy * ls->schedule->fraction * ls->dPdV;
-		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, energy=%lg, fraction=%lg, dP/dV=%lg -> load=%lg", ls->schedule->name, dt, 
-			ls->schedule->value, ls->params.analog.energy, ls->schedule->fraction, ls->dPdV, ls->load);
+		ls->load = ls->schedule->value * ls->params.analog.energy * ls->dPdV;
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, energy=%lg, dP/dV=%lg -> load=%lg", ls->schedule->name, dt, 
+			ls->schedule->value, ls->params.analog.energy, ls->dPdV, ls->load);
 	}
 	else if (ls->params.analog.power>0)
 	{
@@ -137,7 +137,7 @@ TurnOn:
 			{
 				output_warning("loadshape %s: r not negative while load is on!", ls->schedule->name);
 			}
-			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) power pulse; scalar=%lg, load=%lg, energy=%lf -> r=%lf", ls->schedule->name, dt, 
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) power pulse; scalar=%lg, load=%lg, energy=%lg -> r=%lg", ls->schedule->name, dt, 
 				ls->params.pulsed.scalar, ls->load, ls->params.pulsed.energy, ls->r);
 		}
 		else if ( ls->params.pulsed.pulsevalue != 0 )
@@ -151,7 +151,7 @@ TurnOn:
 			{
 				output_warning("loadshape %s: r not negative while load is on!", ls->schedule->name);
 			}
-			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) pulsevalue=%lg, r=%lg, energy=%lg, scalar=%lg, dP/dV=%lf -> koad=%lf", ls->schedule->name, dt,
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) pulsevalue=%lg, r=%lg, energy=%lg, scalar=%lg, dP/dV=%lg -> load=%lg", ls->schedule->name, dt,
 				ls->params.pulsed.pulsevalue, ls->r, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->dPdV, ls->load);
 		}
 		else
@@ -184,10 +184,21 @@ TurnOff:
 			{
 				// AM off time
 				double period = ls->schedule->duration / ls->params.modulated.scalar;
-				double duty_cycle = (ls->params.modulated.pulsetype==MPT_TIME) 
-					? ls->params.modulated.pulsevalue / period 
-					: ls->params.modulated.energy * 3600 / ls->params.modulated.pulsevalue / period;
-				ls->r = 3600 / (period - duty_cycle * period);
+				double duty_cycle;
+				if ( ls->params.modulated.pulsetype == MPT_TIME )
+				{
+					duty_cycle = ls->params.modulated.pulsevalue / period;
+					ls->r = 3600 / (period - duty_cycle * period);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg > 0, time amplitude; duration=%lg, scalar=%lg, pulse value=%lg -> period=%lg, duty cycle=%lg, r=%lg", ls->schedule->name, dt,
+					ls->schedule->value, ls->schedule->duration, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, period, duty_cycle, ls->r);
+				}
+				else
+				{
+					duty_cycle = ls->params.modulated.energy * 3600 / ls->params.modulated.pulsevalue / period;
+					ls->r = 3600 / (period - duty_cycle * period);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg > 0, power amplitude; energy=%lg, pulse value=%lg -> period=%lg, duty cycle=%lg, r=%lg", ls->schedule->name, dt,
+					ls->params.modulated.energy, ls->params.modulated.pulsevalue, period, duty_cycle, ls->r);
+				}
 			}
 
 			// pulse-width modulation
@@ -197,6 +208,8 @@ TurnOff:
 				double period = ls->schedule->duration / ls->params.modulated.scalar;
 				double ton = ls->schedule->value * ls->params.modulated.scalar / ls->params.modulated.energy / ls->params.modulated.scalar;
 				ls->r = 3600 / (period - ton);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg > 0, pulse width; duration=%lg, scalar=%lg, energy=%lg -> period=%lg, ton=%lg, r=%lg", ls->schedule->name, dt,
+					ls->schedule->value, ls->schedule->duration, ls->params.modulated.scalar, ls->params.modulated.energy, period, ton, ls->r);
 			}
 
 			// frequency modulation
@@ -206,9 +219,13 @@ TurnOff:
 				double power = ls->params.modulated.pulsevalue;
 				double dutycycle, period, toff;
 				if (ls->params.modulated.pulsetype==MPT_TIME)
+				{
 					power = ls->params.modulated.pulseenergy * ls->params.modulated.scalar / ton * 3600;
+				}
 				else
+				{
 					ton = ls->params.modulated.pulseenergy * ls->params.modulated.scalar / power * 3600;
+				}
 				dutycycle = ls->schedule->value / ls->params.modulated.energy /  ls->params.modulated.scalar;
 				if (dutycycle<1) // saturation of control
 				{
@@ -217,7 +234,12 @@ TurnOff:
 					ls->r = 3600/toff;
 				}
 				else
+				{
 					ls->r = 0;
+				}
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg > 0, frequency %s; pulse value=%lg, pulse energy=%lg, scalar=%lg, energy=%lg -> ton=%lg, power=%lg, duty cycle=%lg, period=%lg, toff=%lg", ls->schedule->name, dt,
+					ls->schedule->value, ls->params.modulated.pulsetype==MPT_TIME ? "time":"power", ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, ls->params.modulated.scalar, ls->params.modulated.energy,
+					ton, power, dutycycle, period, toff);
 			}
 			else
 				output_warning("loadshape %s: modulation type is not determined!", ls->schedule->name);
@@ -226,6 +248,7 @@ TurnOff:
 		{
 			ls->r = 0;
 			output_warning("loadshape %s: modulated shape suspended because schedule has zero value", ls->schedule->name);
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg <= 0 -> r=%lg", ls->schedule->name, dt, ls->schedule->value, ls->r);
 		}
 	}
 
