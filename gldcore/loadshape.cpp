@@ -48,16 +48,16 @@ static void sync_analog(loadshape *ls, double dt)
 	else if (ls->params.analog.power>0)
 	{
 		/* load is based on fixed power scale */
-		ls->load = ls->schedule->value * ls->params.analog.power * ls->dPdV;
-		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, power=%lg, dP/dV=%lg -> load=%lg", ls->schedule->name, dt, 
-			ls->schedule->value, ls->params.analog.power, ls->dPdV, ls->load);
+		ls->load = ls->schedule->value * ls->params.analog.power;
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, power=%lg -> load=%lg", ls->schedule->name, dt, 
+			ls->schedule->value, ls->params.analog.power, ls->load);
 	}
 	else
 	{
 		/* load is based on direct value (no scale) */
-		ls->load = ls->schedule->value * ls->dPdV;
-		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, dP/dV=%lg -> load=%lg", ls->schedule->name, dt,
-			ls->schedule->value, ls->dPdV, ls->load);
+		ls->load = ls->schedule->value;
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg -> load=%lg", ls->schedule->name, dt,
+			ls->schedule->value, ls->load);
 	}
 }
 
