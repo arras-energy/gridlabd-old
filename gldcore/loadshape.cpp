@@ -118,9 +118,7 @@ TurnOff:
 		{
 			/* turn the load off */
 			ls->q = 0;
-#ifdef _DEBUG
 			IN_MYCONTEXT output_debug("loadshape %s: turns off", ls->schedule->name);
-#endif
 			goto TurnOff;
 		}
 TurnOn:	
@@ -172,9 +170,7 @@ static void sync_modulated(loadshape *ls, double dt)
 		if (ls->r!=0 && ls->q >= ls->d[0] - ls->r/3600)
 		{
 			ls->q = 1;
-#ifdef _DEBUG
 			IN_MYCONTEXT output_debug("loadshape %s: turns on", ls->schedule->name);
-#endif
 			goto TurnOn;
 		}
 TurnOff:
@@ -240,9 +236,7 @@ TurnOff:
 		if (ls->r!=0 && ls->q <= ls->d[1] - ls->r/3600)
 		{
 			ls->q = 0;
-#ifdef _DEBUG
 			IN_MYCONTEXT output_debug("loadshape %s: turns off", ls->schedule->name);
-#endif
 			goto TurnOff;
 		}
 TurnOn:	
@@ -774,10 +768,6 @@ int loadshape_init(loadshape *ls) /**< load shape */
 
 TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 {
-#ifdef _DEBUG
-//	int ps = ls->s;
-#endif
-
 	/* if the clock is running and the loadshape is driven by a schedule */
 	if (ls->schedule!=NULL && t1 > ls->t0)
 	{
@@ -806,7 +796,6 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 
 			sync_pulsed(ls, dt);
 
-#ifdef _DEBUG
 			if (ls->s==0 && ls->r<0)
 			{
 				output_error("loadshape %s: state inconsistent (s=on, r<0)!", ls->schedule->name);
@@ -817,21 +806,20 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 				output_error("loadshape %s: state inconsistent (s=off, r>0)!", ls->schedule->name);
 				return ls->t2 = TS_NEVER;
 			}
-#endif
 
 			/* time to next event */
 			ls->t2 = ls->r > 0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) : TS_NEVER;
 			/* This was to address a reported bug - every once in awhile, when ls->q was very
 			   near 1.0 but slighly less, it would lead to t2=t1 and fail simulation; this is a
 			   litte bump to get it out of the rut and try one more time before failing out */
-			if (ls->t2 == t1)
-				ls->t2 = t1+(TIMESTAMP)1;
-#ifdef _DEBUG
+			if ( ls->t2 == t1 )
 			{
-				char buf[64];
-				IN_MYCONTEXT output_debug("schedule %s: value = %5.3f, q = %5.3f, r = %+5.3f, t2 = '%s'", ls->schedule->name, ls->schedule->value, ls->q, ls->r, convert_from_timestamp(ls->t2,buf,sizeof(buf))?buf:"(error)");
+				ls->t2 = t1+(TIMESTAMP)1;
 			}
-#endif
+
+			char buf[64];
+			IN_MYCONTEXT output_debug("schedule %s: value = %5.3f, q = %5.3f, r = %+5.3f, t2 = '%s'", ls->schedule->name, ls->schedule->value, ls->q, ls->r, convert_from_timestamp(ls->t2,buf,sizeof(buf))?buf:"(error)");
+
 			/* choose sooner of schedule change or state change */
 			if (ls->schedule->next_t < ls->t2) ls->t2 = ls->schedule->next_t;
 			break;
@@ -881,10 +869,6 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 			break;
 		}
 	}
-#ifdef _DEBUG
-//	IN_MYCONTEXT output_debug("loadshape %s: load = %.3f", ls->schedule->name, ls->load);
-//	IN_MYCONTEXT output_debug("loadshape %s: t2-t1 = %d", ls->schedule->name, ls->t2 - global_clock);
-#endif
 	ls->t0 = t1;
 	return ls->t2>0?ls->t2:TS_NEVER;
 }
