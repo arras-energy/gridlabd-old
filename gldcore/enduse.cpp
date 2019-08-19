@@ -161,7 +161,7 @@ TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1)
 			{
 				double P = e->voltage_factor>0 ? e->shape->load * (e->power_fraction + e->current_fraction + e->impedance_fraction) : 0.0;
 				output_debug("enduse_sync(enduse *e='%s', PASSCONFIG pass='%s', TIMESTAMP t1=%lld): load=%lg, power fraction=%lg, current fraction=%lg, impedance fraction=%lg -> power=%lg",
-					e->name, pass, t1, e->shape->load, e->power_fraction, e->current_fraction, e->impedance_fraction, P);
+					e->name, "PC_BOTTOMUP", t1, e->shape->load, e->power_fraction, e->current_fraction, e->impedance_fraction, P);
 				e->total.Re() = P;
 				if (fabs(e->power_factor)<1)
 					e->total.Im() = (e->power_factor<0?-1:1)*P*sqrt(1/(e->power_factor*e->power_factor)-1);
