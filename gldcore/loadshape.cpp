@@ -38,17 +38,27 @@ static unsigned int n_shapes = 0;
 static void sync_analog(loadshape *ls, double dt)
 {
 	if (ls->params.analog.energy>0)
+	{
 
 		/* load is based on fixed energy scale */
 		ls->load = ls->schedule->value * ls->params.analog.energy * ls->schedule->fraction * ls->dPdV;
+		output_debug("gldcore/loadshape/sync_analog(dt=%lld): value=%lg, energy=%lg, fraction=%lg, dP/dV=%lg -> load=%lg",
+			ls->schedule->value, ls->params.analog.energy, ls->schedule->fraction, ls->dPdV, ls->load);
+	}
 	else if (ls->params.analog.power>0)
-
+	{
 		/* load is based on fixed power scale */
 		ls->load = ls->schedule->value * ls->params.analog.power * ls->dPdV;
+		output_debug("gldcore/loadshape/sync_analog(dt=%lld): value=%lg, power=%lg, dP/dV=%lg -> load=%lg",
+			ls->schedule->value, ls->params.analog.power, ls->dPdV, ls->load);
+	}
 	else
-
+	{
 		/* load is based on direct value (no scale) */
 		ls->load = ls->schedule->value * ls->dPdV;
+		output_debug("gldcore/loadshape/sync_analog(dt=%lld): value=%lg, dP/dV=%lg -> load=%lg",
+			ls->schedule->value, ls->dPdV, ls->load);
+	}
 }
 
 static void sync_pulsed(loadshape *ls, double dt)
