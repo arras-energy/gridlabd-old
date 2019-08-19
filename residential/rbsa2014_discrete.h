@@ -27,9 +27,9 @@
 static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 	{	"LIGHTS",
 		{30, false, {0.5,0.1,0.4}, 0.97, 0.9},
-		"type:analog; schedule: residential-lights-default; power: 0.19 kW", // 1/8 power, 2x lights
+		"type:analog; schedule: residential-lights-default; energy: 14.3 kWh", // 1/8 power, 2x lights
 		"residential-lights-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.380; *  1 * 4-9 1-5 0.340; *  2 * 4-9 1-5 0.320; *  3 * 4-9 1-5 0.320;"
 		"*  4 * 4-9 1-5 0.320; *  5 * 4-9 1-5 0.350; *  6 * 4-9 1-5 0.410; *  7 * 4-9 1-5 0.450;"
 		"*  8 * 4-9 1-5 0.450; *  9 * 4-9 1-5 0.450; * 10 * 4-9 1-5 0.450; * 11 * 4-9 1-5 0.450;"
@@ -65,9 +65,9 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 		// Plugs (source: ELCAP lit-sp.dat)
 	{	"PLUGS",
 		{30, false, {0.0,0.0,1.0}, 0.90, 0.9},
-		"type:analog; schedule: residential-plugs-default; power: 0.9 kW", // 250% more load
+		"type:analog; schedule: residential-plugs-default;", // 250% more load
 		"residential-plugs-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"weekday-summer {"
 		"*  0 * 4-9 1-5 0.380; *  1 * 4-9 1-5 0.340; *  2 * 4-9 1-5 0.320; *  3 * 4-9 1-5 0.320;"
 		"*  4 * 4-9 1-5 0.320; *  5 * 4-9 1-5 0.350; *  6 * 4-9 1-5 0.410; *  7 * 4-9 1-5 0.450;"
 		"*  8 * 4-9 1-5 0.450; *  9 * 4-9 1-5 0.450; * 10 * 4-9 1-5 0.450; * 11 * 4-9 1-5 0.450;"
@@ -103,9 +103,9 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "CLOTHESWASHER",
 		{20, false, {0.0,0.0,1.0}, 0.9, 1.0},
-		"type:queued; schedule: residential-clotheswasher-default; energy: 0.5 kWh; duration: 1 h; count: 1; q_on: 2.0",
+		"type:analog; schedule: residential-clotheswasher-default;",
 		"residential-clotheswasher-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"weekday-summer {"
 		"*  0 * 4-9 1-5 0.0029; *  1 * 4-9 1-5 0.0019; *  2 * 4-9 1-5 0.0014; *  3 * 4-9 1-5 0.0013;"
 		"*  4 * 4-9 1-5 0.0018; *  5 * 4-9 1-5 0.0026; *  6 * 4-9 1-5 0.0055; *  7 * 4-9 1-5 0.0126;"
 		"*  8 * 4-9 1-5 0.0181; *  9 * 4-9 1-5 0.0208; * 10 * 4-9 1-5 0.0229; * 11 * 4-9 1-5 0.0216;"
@@ -141,9 +141,9 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "WATERHEATER",
 		{30, true, {0.0,0.0,1.0}, 1.0, 0.56},
-		"type:pulsed; schedule: residential-waterheater-default; energy: 4.0 kWh; power: 2.8 kW; count: 3",
+		"type:analog; schedule: residential-waterheater-default;",
 		"residential-waterheater-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"weekday-summer {"
 		"*  0 * 4-9 1-5 0.21; *  1 * 4-9 1-5 0.16; *  2 * 4-9 1-5 0.13; *  3 * 4-9 1-5 0.12;"
 		"*  4 * 4-9 1-5 0.15; *  5 * 4-9 1-5 0.26; *  6 * 4-9 1-5 0.51; *  7 * 4-9 1-5 0.76;"
 		"*  8 * 4-9 1-5 0.77; *  9 * 4-9 1-5 0.76; * 10 * 4-9 1-5 0.71; * 11 * 4-9 1-5 0.61;"
@@ -179,9 +179,9 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "REFRIGERATOR",
 		{20, false, {0.1,0.0,0.9}, 0.9, 1.0},
-		"type:pulsed; schedule: residential-refrigerator-default; energy: 4.0 kWh; power: 0.32 kW; count: 24",
+		"type:analog; schedule: residential-refrigerator-default;",
 		"residential-refrigerator-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"weekday-summer {"
 		"*  0 * 4-9 1-5 0.187; *  1 * 4-9 1-5 0.182; *  2 * 4-9 1-5 0.176; *  3 * 4-9 1-5 0.170;"
 		"*  4 * 4-9 1-5 0.168; *  5 * 4-9 1-5 0.168; *  6 * 4-9 1-5 0.177; *  7 * 4-9 1-5 0.174;"
 		"*  8 * 4-9 1-5 0.177; *  9 * 4-9 1-5 0.180; * 10 * 4-9 1-5 0.180; * 11 * 4-9 1-5 0.183;"
@@ -217,9 +217,9 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "DRYER",
 		{30, true, {0.9,0.0,0.1}, 0.99, 0.15},
-		"type:queued; schedule: residential-dryer-default; energy: 6.0 kWh; power:3.2 kW; count: 1; q_on: 2.0",
+		"type:analog; schedule: residential-dryer-default;",
 		"residential-dryer-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"weekday-summer {"
 		"*  0 * 4-9 1-5 0.036; *  1 * 4-9 1-5 0.013; *  2 * 4-9 1-5 0.007; *  3 * 4-9 1-5 0.005;"
 		"*  4 * 4-9 1-5 0.005; *  5 * 4-9 1-5 0.017; *  6 * 4-9 1-5 0.048; *  7 * 4-9 1-5 0.085;"
 		"*  8 * 4-9 1-5 0.115; *  9 * 4-9 1-5 0.156; * 10 * 4-9 1-5 0.179; * 11 * 4-9 1-5 0.185;"
@@ -255,9 +255,9 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "FREEZER",
 		{20, false, {0.1,0.0,0.9}, 0.9, 1.0},
-		"type:pulsed; schedule: residential-freezer-default; energy: 2.4 kWh; power: 0.19 kW; count: 24",
+		"type:analog; schedule: residential-freezer-default;",
 		"residential-freezer-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"weekday-summer {"
 		"*  0 * 4-9 1-5 0.210; *  1 * 4-9 1-5 0.213; *  2 * 4-9 1-5 0.208; *  3 * 4-9 1-5 0.202;"
 		"*  4 * 4-9 1-5 0.203; *  5 * 4-9 1-5 0.198; *  6 * 4-9 1-5 0.190; *  7 * 4-9 1-5 0.186;"
 		"*  8 * 4-9 1-5 0.189; *  9 * 4-9 1-5 0.194; * 10 * 4-9 1-5 0.199; * 11 * 4-9 1-5 0.202;"
@@ -292,9 +292,9 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 		},
 	{   "DISHWASHER",
 		{20, false, {0.8,0,0.2}, 0.98, 1.0},
-		"type:pulsed; schedule: residential-dishwasher-default; energy: 1.8 kWh; power: 1.8 kW; count: 1",
+		"type:analog; schedule: residential-dishwasher-default;",
 		"residential-dishwasher-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"weekday-summer {"
 		"*  0 * 4-9 1-5 0.0068; *  1 * 4-9 1-5 0.0029; *  2 * 4-9 1-5 0.0016; *  3 * 4-9 1-5 0.0013;"
 		"*  4 * 4-9 1-5 0.0012; *  5 * 4-9 1-5 0.0037; *  6 * 4-9 1-5 0.0075; *  7 * 4-9 1-5 0.0129;"
 		"*  8 * 4-9 1-5 0.0180; *  9 * 4-9 1-5 0.0177; * 10 * 4-9 1-5 0.0144; * 11 * 4-9 1-5 0.0113;"
@@ -329,9 +329,9 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 	},
 	{   "RANGE",
 		{40, true, {1,0,0}, 0.85, 0.8},
-		"type:pulsed; schedule: residential-range-default; energy: 0.25 kWh; power: 0.56 kW; count: 2",
+		"type:analog; schedule: residential-range-default;",
 		"residential-range-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"weekday-summer {"
 		"*  0 * 4-9 1-5 0.009; *  1 * 4-9 1-5 0.008; *  2 * 4-9 1-5 0.007; *  3 * 4-9 1-5 0.007;"
 		"*  4 * 4-9 1-5 0.008; *  5 * 4-9 1-5 0.012; *  6 * 4-9 1-5 0.025; *  7 * 4-9 1-5 0.040;"
 		"*  8 * 4-9 1-5 0.044; *  9 * 4-9 1-5 0.042; * 10 * 4-9 1-5 0.042; * 11 * 4-9 1-5 0.053;"
@@ -366,9 +366,9 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 	},
 	{   "MICROWAVE",
 		{40, false, {0,0,1}, 0.7, 0.8},
-		"type:pulsed; schedule: residential-microwave-default; energy: 0.12 kWh; power: 0.12 kW; count: 5", // ~20% of range
+		"type:analog; schedule: residential-microwave-default;", // ~20% of range
 		"residential-microwave-default",
-		"normal; positive; nonzero; weekday-summer {"
+		"weekday-summer {"
 		"*  0 * 4-9 1-5 0.009; *  1 * 4-9 1-5 0.008; *  2 * 4-9 1-5 0.007; *  3 * 4-9 1-5 0.007;"
 		"*  4 * 4-9 1-5 0.008; *  5 * 4-9 1-5 0.012; *  6 * 4-9 1-5 0.025; *  7 * 4-9 1-5 0.040;"
 		"*  8 * 4-9 1-5 0.044; *  9 * 4-9 1-5 0.042; * 10 * 4-9 1-5 0.042; * 11 * 4-9 1-5 0.053;"
