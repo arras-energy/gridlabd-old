@@ -29,7 +29,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 		{30, false, {0.5,0.1,0.4}, 0.97, 0.9},
 		"type:analog; schedule: residential-lights-default; power: 0.19 kW", // 1/8 power, 2x lights
 		"residential-lights-default",
-		"positive; nonzero; weekday-summer {"
+		"normal; positive; nonzero; weekday-summer {"
 		"*  0 * 4-9 1-5 0.380; *  1 * 4-9 1-5 0.340; *  2 * 4-9 1-5 0.320; *  3 * 4-9 1-5 0.320;"
 		"*  4 * 4-9 1-5 0.320; *  5 * 4-9 1-5 0.350; *  6 * 4-9 1-5 0.410; *  7 * 4-9 1-5 0.450;"
 		"*  8 * 4-9 1-5 0.450; *  9 * 4-9 1-5 0.450; * 10 * 4-9 1-5 0.450; * 11 * 4-9 1-5 0.450;"
@@ -67,7 +67,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 		{30, false, {0.0,0.0,1.0}, 0.90, 0.9},
 		"type:analog; schedule: residential-plugs-default; power: 0.9 kW", // 250% more load
 		"residential-plugs-default",
-		"positive; nonzero; weekday-summer {"
+		"normal; positive; nonzero; weekday-summer {"
 		"*  0 * 4-9 1-5 0.380; *  1 * 4-9 1-5 0.340; *  2 * 4-9 1-5 0.320; *  3 * 4-9 1-5 0.320;"
 		"*  4 * 4-9 1-5 0.320; *  5 * 4-9 1-5 0.350; *  6 * 4-9 1-5 0.410; *  7 * 4-9 1-5 0.450;"
 		"*  8 * 4-9 1-5 0.450; *  9 * 4-9 1-5 0.450; * 10 * 4-9 1-5 0.450; * 11 * 4-9 1-5 0.450;"
