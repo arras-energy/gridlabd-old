@@ -42,8 +42,8 @@ static void sync_analog(loadshape *ls, double dt)
 
 		/* load is based on fixed energy scale */
 		ls->load = ls->schedule->value * ls->params.analog.energy / 24.0;
-		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, energy=%lg -> load=%lg", ls->schedule->name, dt, 
-			ls->schedule->value, ls->params.analog.energy, ls->load);
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, duration=%lg, energy=%lg -> load=%lg", ls->schedule->name, dt, 
+			ls->schedule->value, ls->schedule->duration, ls->params.analog.energy, ls->load);
 	}
 	else if (ls->params.analog.power>0)
 	{
