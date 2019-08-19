@@ -42,32 +42,32 @@ static void sync_analog(loadshape *ls, double dt)
 
 		/* load is based on fixed energy scale */
 		ls->load = ls->schedule->value * ls->params.analog.energy * ls->schedule->fraction * ls->dPdV;
-		output_debug("gldcore/loadshape/sync_analog(dt=%lld): value=%lg, energy=%lg, fraction=%lg, dP/dV=%lg -> load=%lg",
-			ls->schedule->value, ls->params.analog.energy, ls->schedule->fraction, ls->dPdV, ls->load);
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lld): value=%lg, energy=%lg, fraction=%lg, dP/dV=%lg -> load=%lg",
+			ls->schedule->name, ls->schedule->value, ls->params.analog.energy, ls->schedule->fraction, ls->dPdV, ls->load);
 	}
 	else if (ls->params.analog.power>0)
 	{
 		/* load is based on fixed power scale */
 		ls->load = ls->schedule->value * ls->params.analog.power * ls->dPdV;
-		output_debug("gldcore/loadshape/sync_analog(dt=%lld): value=%lg, power=%lg, dP/dV=%lg -> load=%lg",
-			ls->schedule->value, ls->params.analog.power, ls->dPdV, ls->load);
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lld): value=%lg, power=%lg, dP/dV=%lg -> load=%lg",
+			ls->schedule->name, ls->schedule->value, ls->params.analog.power, ls->dPdV, ls->load);
 	}
 	else
 	{
 		/* load is based on direct value (no scale) */
 		ls->load = ls->schedule->value * ls->dPdV;
-		output_debug("gldcore/loadshape/sync_analog(dt=%lld): value=%lg, dP/dV=%lg -> load=%lg",
-			ls->schedule->value, ls->dPdV, ls->load);
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lld): value=%lg, dP/dV=%lg -> load=%lg",
+			ls->schedule->name, ls->schedule->value, ls->dPdV, ls->load);
 	}
 }
 
 static void sync_pulsed(loadshape *ls, double dt)
 {
 	/* load is off or waiting to choose a state */
-	if (ls->r >= 0)
+	if ( ls->r >= 0 )
 	{
 		/* if load should turn on within the next second */
-		if (ls->r!=0 && ls->q >= ls->d[0] - ls->r/3600)
+		if ( ls->r != 0 && ls->q >= ls->d[0]-ls->r/3600 )
 		{
 			/* turn load on */
 			ls->q = 1;
@@ -82,20 +82,31 @@ TurnOff:
 		ls->load = 0;
 
 		/* if a value is given in the schedule */
-		if (ls->schedule->value>0) 
+		if ( ls->schedule->value > 0 ) 
 		{
 			/* calculate the decay rate of the queue */
 			ls->r = ls->schedule->value * ls->params.pulsed.scalar / (ls->params.pulsed.energy);
-			if (ls->r<0)
+			if ( ls->r < 0 )
+			{
 				output_warning("loadshape %s: r not positive while load is off!", ls->schedule->name);
+			}
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lld) turn off value=%lg, scalar=%lg, energy=%lg -> r=%lg: ", ls->schedule->name, ls->schedule->value, 
+				ls->schedule->value, ls->params.pulsed.scalar, ls->params.pulsed.energy, ls->r);
 		}
 
 		/* zero value scheduled */
-		else if (ls->schedule->duration>0)
+		else if ( ls->schedule->duration > 0 )
 		{
 			/* the queue doesn't change (no decay) */
 			ls->r = 0;
 			output_warning("loadshape %s: pulsed shape suspended because schedule has zero value", ls->schedule->name);
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lld) turn off duration=%lg -> r=%lg: ", ls->schedule->name, ls->schedule->value, 
+				ls->schedule->duration, ls->r);
+		}
+		else
+		{
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lld) turn off value=%lg -> r=%lg: ", ls->schedule->name, ls->schedule->value, 
+				ls->schedule->value, ls->r);
 		}
 	}
 
@@ -103,7 +114,7 @@ TurnOff:
 	else
 	{
 		/* the load will turn off within the next second */
-		if (ls->r!=0 && ls->q <= ls->d[1] - ls->r/3600)
+		if ( ls->r != 0 && ls->q <= ls->d[1]-ls->r/3600 )
 		{
 			/* turn the load off */
 			ls->q = 0;
@@ -117,7 +128,7 @@ TurnOn:
 		ls->s = MS_ON;
 
 		/* fixed power pulse */
-		if (ls->params.pulsed.pulsetype==MPT_POWER)
+		if ( ls->params.pulsed.pulsetype == MPT_POWER )
 		{
 			/* load has fixed power */
 			ls->load = ls->params.pulsed.pulsevalue * ls->dPdV;
@@ -125,17 +136,25 @@ TurnOn:
 			/* rate is based on energy and load */
 			ls->r = -ls->params.pulsed.scalar * ls->load / (ls->params.pulsed.energy);
 			if (ls->r>=0)
+			{
 				output_warning("loadshape %s: r not negative while load is on!", ls->schedule->name);
+			}
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lld) power pulse, scalar=%lg, load=%lg, energy=%lf -> r=%lf: ", ls->schedule->name, ls->schedule->value, 
+				ls->params.pulsed.scalar, ls->load, ls->params.pulsed.energy, ls->r);
 		}
-		else if (ls->params.pulsed.pulsevalue!=0)
+		else if ( ls->params.pulsed.pulsevalue != 0 )
 		{
 			/* load has fixed duration so power is energy/duration */
 			ls->load = ls->params.pulsed.energy / (ls->params.pulsed.pulsevalue/3600 * ls->params.pulsed.scalar) * ls->dPdV;
 			
 			/* rate is based on time */
 			ls->r = -3600 /ls->params.pulsed.pulsevalue;
-			if (ls->r>=0)
+			if ( ls->r >= 0 )
+			{
 				output_warning("loadshape %s: r not negative while load is on!", ls->schedule->name);
+			}
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lld) pulsevalue=%lg, r=%lg, energy=%lg, scalar=%lg, dP/dV=%lf -> koad=%lf: ", ls->schedule->name, ls->schedule->value, 
+				ls->params.pulsed.pulsevalue, ls->r, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->dPdV, ls->load);
 		}
 		else
 		{
