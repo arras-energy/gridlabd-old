@@ -71,9 +71,7 @@ static void sync_pulsed(loadshape *ls, double dt)
 		{
 			/* turn load on */
 			ls->q = 1;
-#ifdef _DEBUG
 			IN_MYCONTEXT output_debug("loadshape %s: turns on", ls->schedule->name);
-#endif
 			goto TurnOn;
 		}
 TurnOff:
