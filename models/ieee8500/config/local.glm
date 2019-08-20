@@ -1,0 +1,17 @@
+#ifndef POLE_TYPE
+#define POLE_TYPE=node
+#else // POLE_TYPE is defined
+#if POLE_TYPE!=node
+#if POLE_TYPE!=pole
+#warning changing invalid POLE_TYPE to node
+#set POLE_TYPE=node
+#endif // POLE_TYPE!=pole
+#endif // POLE_TYPE!=node
+#endif // POLE_TYPE defined
+//#define VOLTDUMP=all
+//#define LOADS=on
+#define STARTTIME=2018-03-01 00:00:00 PST
+#define STOPTIME=2018-03-01 00:10:00 PST
+#define WEATHER=CA-Bakersfield_Meadows_Field_HighWind.tmy3
+//#define MODEL=model_1
+//#define STARTRECORDTIME=2018-03-03 00:00:00 PST
