@@ -4439,50 +4439,6 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
-			{
-				// TODO handle more than one source
-				char sobj[64], sprop[64];
-				int n = sscanf(sources,"%[^.].%[^,]",sobj,sprop);
-				OBJECT *source_obj;
-				PROPERTY *source_prop;
-
-				/* get source object */
-				source_obj = (n==1||strcmp(sobj,"this")==0) ? obj : object_find_name(sobj);
-				if ( !source_obj )
-				{
-					output_error_raw("%s(%d): transform source object '%s' not found", filename, linenum, n==1?"this":sobj);
-					REJECT;
-					DONE;
-				}
-
-				/* get source property */
-				source_prop = object_get_property(source_obj, n==1?sobj:sprop,NULL);
-				if ( !source_prop )
-				{
-					output_error_raw("%s(%d): transform source property '%s' of object '%s' not found", filename, linenum, n==1?sobj:sprop, n==1?"this":sobj);
-					REJECT;
-					DONE;
-				}
-
-				/* add to external transform list */
-				if ( !transform_add_external(obj,prop,transformname,source_obj,source_prop) )
-				{
-					output_error_raw("%s(%d): external transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
-					REJECT;
-					DONE;
-				}
-				else if ( source!=NULL )
-				{
-					/* a transform is unresolved */
-					if (first_unresolved==source)
-
-						/* source was the unresolved entry, for now it will be the transform itself */
-						first_unresolved->ref = (void*)transform_getnext(NULL);
-
-					ACCEPT;
-				}
-			}
 			else if (prop!=NULL && prop->ptype==PT_double && TERM(filter_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
 			{
 				// TODO handle more than one source
@@ -4513,6 +4469,50 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				if ( !transform_add_filter(obj,prop,transformname,source_obj,source_prop) )
 				{
 					output_error_raw("%s(%d): filter transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
+					REJECT;
+					DONE;
+				}
+				else if ( source!=NULL )
+				{
+					/* a transform is unresolved */
+					if (first_unresolved==source)
+
+						/* source was the unresolved entry, for now it will be the transform itself */
+						first_unresolved->ref = (void*)transform_getnext(NULL);
+
+					ACCEPT;
+				}
+			}
+			else if (prop!=NULL && prop->ptype==PT_double && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
+			{
+				// TODO handle more than one source
+				char sobj[64], sprop[64];
+				int n = sscanf(sources,"%[^.].%[^,]",sobj,sprop);
+				OBJECT *source_obj;
+				PROPERTY *source_prop;
+
+				/* get source object */
+				source_obj = (n==1||strcmp(sobj,"this")==0) ? obj : object_find_name(sobj);
+				if ( !source_obj )
+				{
+					output_error_raw("%s(%d): transform source object '%s' not found", filename, linenum, n==1?"this":sobj);
+					REJECT;
+					DONE;
+				}
+
+				/* get source property */
+				source_prop = object_get_property(source_obj, n==1?sobj:sprop,NULL);
+				if ( !source_prop )
+				{
+					output_error_raw("%s(%d): transform source property '%s' of object '%s' not found", filename, linenum, n==1?sobj:sprop, n==1?"this":sobj);
+					REJECT;
+					DONE;
+				}
+
+				/* add to external transform list */
+				if ( !transform_add_external(obj,prop,transformname,source_obj,source_prop) )
+				{
+					output_error_raw("%s(%d): external transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
 					REJECT;
 					DONE;
 				}
