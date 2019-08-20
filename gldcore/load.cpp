@@ -3916,7 +3916,11 @@ static int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size
 	START;
 	if ( TERM(name(HERE,fncname,sizeof(fncname))) && (WHITE,LITERAL("(")) && (WHITE,TERM(property_list(HERE,varlist,sizeof(varlist)))) && LITERAL(")") )
 	{
-		if ( strlen(fncname)<namesize && strlen(varlist)<srcsize )
+		if ( transform_find_filter(fncname) == NULL )
+		{
+			REJECT;
+		}
+		else if ( strlen(fncname)<namesize && strlen(varlist)<srcsize )
 		{
 			strcpy(filtername,fncname);
 			strcpy(sources,varlist);
@@ -4443,7 +4447,8 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
-				int n = sscanf(sources,"%[^:]:%[^,]",sobj,sprop);
+
+				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
 				OBJECT *source_obj;
 				PROPERTY *source_prop;
 
@@ -4487,7 +4492,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
-				int n = sscanf(sources,"%[^.].%[^,]",sobj,sprop);
+				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
 				OBJECT *source_obj;
 				PROPERTY *source_prop;
 
