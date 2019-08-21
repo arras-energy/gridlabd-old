@@ -275,6 +275,7 @@ TurnOn:
 					: ls->params.modulated.energy * 3600 / ls->params.modulated.pulsevalue / period;
 			ls->r  = -3600 / (duty_cycle * period);
 			ls->load = ls->schedule->value * ls->params.modulated.scalar;
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 		}
 
 		// pulse-width modulation
@@ -288,6 +289,7 @@ TurnOn:
 			double ton = ls->schedule->value * ls->params.modulated.scalar / ls->params.modulated.energy / pulsecount;
 			ls->r = -3600 / ton;
 			ls->load = power;
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 		}
 
 		// frequency modulation
@@ -304,6 +306,7 @@ TurnOn:
 			else
 				ls->r = 0;
 			ls->load = power;
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 		}
 		else
 			output_warning("loadshape %s: modulation type is not determined!", ls->schedule->name);
@@ -369,6 +372,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = ls->params.scheduled.low;
 				ls->r = 0; 
 				dt = ls->params.scheduled.on_time - hour;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 			else if (hour < ls->params.scheduled.on_time + (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp)
 			{
@@ -376,6 +380,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = ls->params.scheduled.low;
 				ls->r = skipday ? 0 : ls->params.scheduled.on_ramp;
 				dt = hour - ls->params.scheduled.on_time + (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 			else if (hour < ls->params.scheduled.off_time)
 			{
@@ -383,6 +388,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = skipday ? ls->params.scheduled.low : ls->params.scheduled.high;
 				ls->r = 0;
 				dt = hour - ls->params.scheduled.off_time;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 			else if (hour < ls->params.scheduled.off_time - ls->params.scheduled.on_time - (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp)
 			{
@@ -390,6 +396,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = skipday ? ls->params.scheduled.low : ls->params.scheduled.high;
 				ls->r = skipday ? 0 : ls->params.scheduled.off_ramp;
 				dt = hour - ls->params.scheduled.off_time - ls->params.scheduled.on_time - (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 			else
 			{
@@ -397,6 +404,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = ls->params.scheduled.low;
 				ls->r = 0;
 				dt = 24-hour+ls->params.scheduled.on_time;;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 		}
 		
@@ -411,24 +419,28 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = ls->params.scheduled.low;
 				ls->s = MS_RAMPUP;
 				dt = (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 				break;
 			case MS_RAMPUP:
 				ls->r = 0;
 				ls->q = ls->params.scheduled.low;
 				ls->s = MS_ON;
 				dt = (ls->params.scheduled.off_time - ls->params.scheduled.on_time - (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 				break;
 			case MS_ON:
 				ls->r = ls->params.scheduled.off_ramp;
 				ls->q = skipday ? ls->params.scheduled.low : ls->params.scheduled.high;
 				ls->s = MS_RAMPDOWN;
 				dt = (ls->params.scheduled.low-ls->params.scheduled.high)/ls->params.scheduled.off_ramp;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 				break;
 			case MS_RAMPDOWN:
 				ls->r = 0;
 				ls->q = skipday ? ls->params.scheduled.low : ls->params.scheduled.high;
 				ls->s = MS_OFF;
 				dt = (24-ls->params.scheduled.off_time + ls->params.scheduled.on_time);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 				break;
 			default:
 				dt = 0;
@@ -441,6 +453,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 		ls->q += ls->r * dt;
 	
 	ls->load = ls->q;
+	IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 }
 
 /** Convert a scheduled loadshape weekday parameter to string representing the weekdays (UMTWRFSH)

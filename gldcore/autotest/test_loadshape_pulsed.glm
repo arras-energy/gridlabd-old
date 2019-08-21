@@ -1,0 +1,56 @@
+clock {
+    timezone "PST+8PDT";
+    starttime "2020-01-01T00:00:00-08:00";
+    stoptime "2021-01-01T00:00:00-08:00";
+}
+
+module tape;
+module assert;
+
+schedule normal_schedule 
+{
+    * 0 * * * 0.0;
+    * 1 * * * 0.1;
+    * 2 * * * 0.2;
+    * 3 * * * 0.3;
+    * 4 * * * 0.4;
+    * 5 * * * 0.5;
+    * 6 * * * 0.6;
+    * 7 * * * 0.7;
+    * 8 * * * 0.8;
+    * 9 * * * 0.9;
+    * 10 * * * 1.0;
+    * 11 * * * 1.1;
+    * 12 * * * 1.2;
+    * 13 * * * 1.1;
+    * 14 * * * 1.0;
+    * 15 * * * 0.9;
+    * 16 * * * 0.8;
+    * 17 * * * 0.7;
+    * 18 * * * 0.6;
+    * 19 * * * 0.5;
+    * 20 * * * 0.4;
+    * 21 * * * 0.3;
+    * 22 * * * 0.2;
+    * 23 * * * 0.1;
+}
+
+class test_loadshape 
+{
+    loadshape shape;
+    double load;
+}
+
+filter copy(z,3600s) = 1/z;
+
+object test_loadshape
+{
+    name "normal_pulse_direct";
+    shape "type:pulsed; schedule:normal_schedule; power: 1kW; energy:0.1kWh; count:10";
+    load copy(shape);
+    object recorder {
+        property "load";
+        file "shape.csv";
+        interval 3600;
+    };
+}
