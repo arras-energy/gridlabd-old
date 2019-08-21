@@ -41,8 +41,9 @@ static void sync_analog(loadshape *ls, double dt)
 	{
 
 		/* load is based on fixed energy scale */
-		ls->load = ls->schedule->value * ls->params.analog.energy;
-		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, duration=%lg, energy=%lg -> load=%lg", ls->schedule->name, dt, 
+		if ( dt > 0.0 )
+			ls->load = ls->schedule->value * ls->params.analog.energy / dt;
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, energy=%lg -> load=%lg", ls->schedule->name, dt, 
 			ls->schedule->value, ls->schedule->duration, ls->params.analog.energy, ls->load);
 	}
 	else if (ls->params.analog.power>0)
@@ -55,7 +56,7 @@ static void sync_analog(loadshape *ls, double dt)
 	else
 	{
 		/* load is based on direct value (no scale) */
-		ls->load = ls->schedule->value;
+		ls->load = ls->schedule->value ;
 		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg -> load=%lg", ls->schedule->name, dt,
 			ls->schedule->value, ls->load);
 	}
@@ -129,7 +130,7 @@ TurnOn:
 		if ( ls->params.pulsed.pulsetype == MPT_POWER )
 		{
 			/* load has fixed power */
-			ls->load = ls->params.pulsed.pulsevalue * ls->dPdV;
+			ls->load = ls->params.pulsed.pulsevalue;
 			
 			/* rate is based on energy and load */
 			ls->r = -ls->params.pulsed.scalar * ls->load / (ls->params.pulsed.energy);
@@ -627,8 +628,13 @@ int loadshape_init(loadshape *ls) /**< load shape */
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) analog schedules cannot set both power and energy",ls->schedule->name);
 			return 1;
 		}
+		else if ( ls->params.analog.energy > 0.0 ) 
+		{
+			output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) analog loadshapes using energy are not validated",ls->schedule->name);
+		}
 		break;
 	case MT_PULSED:
+		output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) pulsed loadshapes are not validated",ls->schedule->name);
 		if (ls->params.pulsed.energy<=0)
 		{
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) pulsed energy must be a positive number",ls->schedule->name);
@@ -656,6 +662,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 		}
 		break;
 	case MT_MODULATED:
+		output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) modulated loadshapes are not validated",ls->schedule->name);
 		if (ls->params.modulated.energy<=0)
 		{
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) modulated energy must be a positive number",ls->schedule->name);
@@ -704,6 +711,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 		}
 		break;
 	case MT_QUEUED:
+		output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) queued loadshapes are not validated",ls->schedule->name);
 		if (ls->params.queued.energy<=0)
 		{
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) queue energy must be a positive number",ls->schedule->name);
@@ -736,7 +744,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 		}
 		break;
 	case MT_SCHEDULED:
-
+		output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) scheduled loadshapes are not validated",ls->schedule->name);
 		if (ls->params.scheduled.on_time<0 || ls->params.scheduled.on_time>24)
 		{
 			output_error("loadshape_init() scheduled on-time must be between 0 and 24");
