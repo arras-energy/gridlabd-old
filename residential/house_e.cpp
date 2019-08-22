@@ -635,7 +635,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_KEYWORD,"ELCAP2010", (enumeration)IES_ELCAP2010,
 			PT_KEYWORD,"RBSA2014", (enumeration)IES_RBSA2014,
 			PT_KEYWORD,"RBSA2014_DISCRETE", (enumeration)IES_RBSA2014_DISCRETE,
-			PT_KEYWORD,"IEA2015", (enumeration)IES_EIA2015,
+			PT_KEYWORD,"EIA2015", (enumeration)IES_EIA2015,
 			NULL);
 		gl_global_create("residential::house_low_temperature_warning[degF]",PT_double,&warn_low_temp,
 			PT_DESCRIPTION, "the low house indoor temperature at which a warning will be generated",
