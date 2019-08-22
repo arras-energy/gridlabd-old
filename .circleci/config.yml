@@ -6,10 +6,6 @@ jobs:
     steps:
       - checkout    
       - run:
-          name: Upgrade python
-          command: |
-            pip install pandas        
-      - run:
           name: Build gridlabd
           command: |
             autoreconf -isf
