@@ -744,7 +744,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 		}
 		break;
 	case MT_SCHEDULED:
-		output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) scheduled loadshapes are not validated",ls->schedule->name);
+		output_warning("loadshape_init(loadshape *ls=%p) scheduled loadshapes are not validated",ls);
 		if (ls->params.scheduled.on_time<0 || ls->params.scheduled.on_time>24)
 		{
 			output_error("loadshape_init() scheduled on-time must be between 0 and 24");
