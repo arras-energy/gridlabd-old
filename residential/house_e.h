@@ -55,6 +55,7 @@ typedef enum e_implicit_enduse_source {
 	IES_ELCAP2010	= 1,	///< implicit enduse data source is ELCAP 2010
 	IES_RBSA2014	= 2,	///< implicit enduse data source is RBSA 2014
 	IES_RBSA2014_DISCRETE = 3, ///< implicit enduse data source is RBSA 2014 with discrete load shapes
+	IES_EIA2015 = 4, ///< implicit enduse data source is RBSA 2014 with load shapes defined for CEC
 } IMPLICITENDUSESOURCE; ///< values for implicit_enduse_source enumeration
 
 //Solar quadrant definitions

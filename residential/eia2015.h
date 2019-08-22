@@ -4,10 +4,10 @@
 // The data is augmented with updated values found in the DEER reports 
 //
 
-static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
+static IMPLICITENDUSEDATA eia2015[] = {
 	{	"LIGHTS",
 		{30, false, {0.5,0.1,0.4}, 0.97, 0.9},
-		"type:analog; schedule: residential-lights-default; power: 38kWh/y", // 1/8 power, 2x lights
+		"type:analog; schedule: residential-lights-default; power:3.601kW/day", // 1/8 power, 2x lights
 		"residential-lights-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.380; *  1 * 4-9 1-5 0.340; *  2 * 4-9 1-5 0.320; *  3 * 4-9 1-5 0.320;"
@@ -45,7 +45,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 		// Plugs (source: ELCAP lit-sp.dat)
 	{	"PLUGS",
 		{30, false, {0.0,0.0,1.0}, 0.90, 0.9},
-		"type:analog; schedule: residential-plugs-default; power: 96kWh/y", // 250% more load
+		"type:analog; schedule: residential-plugs-default; power:4.398kWh/day", // 250% more load
 		"residential-plugs-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.380; *  1 * 4-9 1-5 0.340; *  2 * 4-9 1-5 0.320; *  3 * 4-9 1-5 0.320;"
@@ -83,7 +83,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "CLOTHESWASHER",
 		{20, false, {0.0,0.0,1.0}, 0.9, 1.0},
-		"type:analog; schedule: residential-clotheswasher-default; power: 7kWh/y",
+		"type:analog; schedule: residential-clotheswasher-default; power:0.163kWh/day",
 		"residential-clotheswasher-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.0029; *  1 * 4-9 1-5 0.0019; *  2 * 4-9 1-5 0.0014; *  3 * 4-9 1-5 0.0013;"
@@ -121,7 +121,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "WATERHEATER",
 		{30, true, {0.0,0.0,1.0}, 1.0, 0.56},
-		"type:analog; schedule: residential-waterheater-default; power: 123kWh/y",
+		"type:analog; schedule: residential-waterheater-default; power:3.953kWh/day",
 		"residential-waterheater-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.21; *  1 * 4-9 1-5 0.16; *  2 * 4-9 1-5 0.13; *  3 * 4-9 1-5 0.12;"
@@ -159,7 +159,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "REFRIGERATOR",
 		{20, false, {0.1,0.0,0.9}, 0.9, 1.0},
-		"type:analog; schedule: residential-refrigerator-default; power: 23kWh/y",
+		"type:analog; schedule: residential-refrigerator-default; power:2.397kWh/day",
 		"residential-refrigerator-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.187; *  1 * 4-9 1-5 0.182; *  2 * 4-9 1-5 0.176; *  3 * 4-9 1-5 0.170;"
@@ -197,7 +197,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "DRYER",
 		{30, true, {0.9,0.0,0.1}, 0.99, 0.15},
-		"type:analog; schedule: residential-dryer-default; power: 332kWh/y", //USING VALUE FROM DEER REPORT
+		"type:analog; schedule: residential-dryer-default; power:1.63kWh/day", //USING VALUE FROM DEER REPORT
 		"residential-dryer-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.036; *  1 * 4-9 1-5 0.013; *  2 * 4-9 1-5 0.007; *  3 * 4-9 1-5 0.005;"
@@ -235,7 +235,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 
 	{   "FREEZER",
 		{20, false, {0.1,0.0,0.9}, 0.9, 1.0},
-		"type:analog; schedule: residential-freezer-default; power: 24kWh/y",
+		"type:analog; schedule: residential-freezer-default; power:0.641kWh/day",
 		"residential-freezer-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.210; *  1 * 4-9 1-5 0.213; *  2 * 4-9 1-5 0.208; *  3 * 4-9 1-5 0.202;"
@@ -272,7 +272,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 		},
 	{   "DISHWASHER",
 		{20, false, {0.8,0,0.2}, 0.98, 1.0},
-		"type:analog; schedule: residential-dishwasher-default; power: 8kWh/y",
+		"type:analog; schedule: residential-dishwasher-default; power:0.200kWh/day",
 		"residential-dishwasher-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.0068; *  1 * 4-9 1-5 0.0029; *  2 * 4-9 1-5 0.0016; *  3 * 4-9 1-5 0.0013;"
@@ -309,7 +309,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 	},
 	{   "RANGE",
 		{40, true, {1,0,0}, 0.85, 0.8},
-		"type:analog; schedule: residential-range-default; power: 12kWh/y",
+		"type:analog; schedule: residential-range-default; power:0.493kWh/day",
 		"residential-range-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.009; *  1 * 4-9 1-5 0.008; *  2 * 4-9 1-5 0.007; *  3 * 4-9 1-5 0.007;"
@@ -346,7 +346,7 @@ static IMPLICITENDUSEDATA rbsa2014_discrete[] = {
 	},
 	{   "MICROWAVE",
 		{40, false, {0,0,1}, 0.7, 0.8},
-		"type:analog; schedule: residential-microwave-default; power: 3kWh/y", // ~20% of range
+		"type:analog; schedule: residential-microwave-default; power:0.352kWh/day", // ~20% of range
 		"residential-microwave-default",
 		"normal; weekday-summer {"
 		"*  0 * 4-9 1-5 0.009; *  1 * 4-9 1-5 0.008; *  2 * 4-9 1-5 0.007; *  3 * 4-9 1-5 0.007;"
