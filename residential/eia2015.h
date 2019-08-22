@@ -1,7 +1,7 @@
 // $Id$
 //
-// This file contains the RBSA 2014 enduse daily energy uses 
-// The data is augmented with updated values found in the DEER reports 
+// This file contains the EIA 2015 enduse daily energy uses 
+// The data obtained from EIA Table C5.1A/B
 //
 
 static IMPLICITENDUSEDATA eia2015[] = {
