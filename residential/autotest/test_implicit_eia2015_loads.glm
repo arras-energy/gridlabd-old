@@ -1,0 +1,20 @@
+clock
+{
+	timezone "PST+8PDT";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2020-01-08 00:00:00 PST";
+}
+module residential
+{
+	implicit_enduses "LIGHTS|PLUGS|REFRIGERATOR|FREEZER|WATERHEATER|CLOTHESWASHER|DRYER|RANGE|MICROWAVE|DISHWASHER";
+	paneldump_interval 3600;
+    implicit_enduse_source "EIA2015";
+
+}
+
+// dryer test uses markov state model
+object house 
+{
+}
+
+#on_exit 0 python3 ../plot_paneldump.py;
