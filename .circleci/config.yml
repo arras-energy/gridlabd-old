@@ -4,7 +4,11 @@ jobs:
     docker:
       - image: slacgismo/circleci_gridlabd_base:latest
     steps:
-      - checkout            
+      - checkout    
+      - run:
+          name: Upgrade python
+          command: |
+            pip3 install pandas        
       - run:
           name: Build gridlabd
           command: |
