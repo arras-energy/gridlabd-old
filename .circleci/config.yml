@@ -8,7 +8,7 @@ jobs:
       - run:
           name: Upgrade python
           command: |
-            pip36 install pandas        
+            pip install pandas        
       - run:
           name: Build gridlabd
           command: |
