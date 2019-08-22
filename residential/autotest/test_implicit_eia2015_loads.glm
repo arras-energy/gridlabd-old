@@ -17,4 +17,4 @@ object house
 {
 }
 
-#on_exit 0 python3 ../plot_paneldump.py;
+#on_exit 0 python3 ../plot_paneldump.py > check.out;
