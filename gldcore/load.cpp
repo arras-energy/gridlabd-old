@@ -2868,7 +2868,7 @@ static int module_properties(PARSER, MODULE *mod)
 			if WHITE ACCEPT;
 			if LITERAL(";")
 			{
-				if (module_setvar(mod,propname,propvalue)>0)
+				if (module_setvar(mod,propname,(const char*)propvalue)>0)
 				{
 					ACCEPT;
 					goto Next;

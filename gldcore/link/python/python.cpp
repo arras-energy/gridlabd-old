@@ -1630,6 +1630,12 @@ static bool get_callback(
     return true;    
 }
 
+int python_module_setvar(const char *varname, const char *value)
+{
+    PyModule_AddObject(this_module,varname,Py_BuildValue("s", value));
+    return strlen(value);
+}
+
 MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
     char pathname[1024];
@@ -1669,7 +1675,7 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
     python_module.major = global_version_major;
     python_module.minor = global_version_minor;
     python_module.getvar = NULL;
-    python_module.setvar = NULL;
+    python_module.setvar = python_module_setvar;
     python_module.import_file = python_import_file;
     python_module.export_file = NULL;
     python_module.check = NULL;

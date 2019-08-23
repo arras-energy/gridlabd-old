@@ -1,5 +1,8 @@
 // load the custom python module
-module my_test;
+module my_test
+{
+    graph_title "My test";
+}
 
 // define a global variable in gridlabd
 global int32 sample_count 0;
