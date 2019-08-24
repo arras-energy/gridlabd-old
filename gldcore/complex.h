@@ -228,6 +228,16 @@ public:
 	// Method: Notation
 	inline CNOTATION & Notation(void) /**< access to notation */
 	{
+		switch (f)
+		{
+		case A:
+		case I:
+		case J:
+		case R:
+			break;
+		default:
+			f = I;
+		}
 		return f;
 	};
 
