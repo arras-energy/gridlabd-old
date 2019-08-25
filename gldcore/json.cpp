@@ -155,7 +155,7 @@ int GldJsonWriter::write_classes(FILE *fp)
 		if ( oclass->has_runtime ) TUPLE("runtime","%s",oclass->runtime);
 		if ( oclass->pmap != NULL )
 			len += write(",");
-		for ( prop = oclass->pmap ; prop != NULL ; prop=prop->next )
+		for ( prop = oclass->pmap ; prop != NULL ; prop=prop->next ) // note: do not output parent classes properties
 		{
 			KEYWORD *key;
 			const char *ptype = class_get_property_typename(prop->ptype);
