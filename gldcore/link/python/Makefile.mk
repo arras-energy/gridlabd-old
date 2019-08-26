@@ -1,7 +1,6 @@
 python-install:
-	@( find /usr/include -name Python.h -print )
-	@echo "python3 $(top_srcdir)/gldcore/link/python/setup.py install"
-	@( export SRCDIR=$(top_srcdir) ; python3 $(top_srcdir)/gldcore/link/python/setup.py install )
+	@echo "python3 $(top_srcdir)/gldcore/link/python/setup.py --quiet install"
+	@( export SRCDIR=$(top_srcdir) ; python3 $(top_srcdir)/gldcore/link/python/setup.py --quiet install )
 
 python-clean:
 	@echo "python3 $(top_srcdir)/gldcore/link/python/setup.py clean"
