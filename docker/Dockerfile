@@ -11,6 +11,7 @@ ENV LD_LIBRARY_PATH /usr/local/lib
 VOLUME [ "/sys/fs/cgroup" ]
 WORKDIR /tmp
 COPY utilities/docker/centos/*.sh /tmp/
-RUN bash source system.sh
-RUN bash source gridlabd.sh
+RUN chmod +x *.sh
+RUN system.sh
+RUN gridlabd.sh
 EXPOSE 6266-6299/tcp
