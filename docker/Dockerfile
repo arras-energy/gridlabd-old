@@ -1,4 +1,4 @@
-FROM centos:7
+FROM slacgismo/circleci_gridlabd_base
 ENV container docker
 ENV REPO=https://github.com/dchassin/gridlabd
 ENV BRANCH=master
