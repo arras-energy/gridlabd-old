@@ -278,6 +278,8 @@ typedef struct s_implicit_enduse_list {
 #include "elcap1990.h"
 #include "elcap2010.h"
 #include "rbsa2014.h"
+#include "rbsa2014_discrete.h"
+#include "eia2015.h"
 
 EXPORT CIRCUIT *attach_enduse_house_e(OBJECT *obj, enduse *target, double breaker_amps, int is220)
 {
@@ -632,6 +634,8 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_KEYWORD,"ELCAP1990", (enumeration)IES_ELCAP1990,
 			PT_KEYWORD,"ELCAP2010", (enumeration)IES_ELCAP2010,
 			PT_KEYWORD,"RBSA2014", (enumeration)IES_RBSA2014,
+			PT_KEYWORD,"RBSA2014_DISCRETE", (enumeration)IES_RBSA2014_DISCRETE,
+			PT_KEYWORD,"EIA2015", (enumeration)IES_EIA2015,
 			NULL);
 		gl_global_create("residential::house_low_temperature_warning[degF]",PT_double,&warn_low_temp,
 			PT_DESCRIPTION, "the low house indoor temperature at which a warning will be generated",
@@ -745,8 +749,16 @@ int house_e::create()
 				eu = elcap2010;
 				break;
 			case IES_RBSA2014:
-				gl_warning("RBSA2010 implicit enduse data is not valid for individual enduses");
+				gl_warning("RBSA2014 implicit enduse data is not valid for individual enduses");
 				eu = rbsa2014;
+				break;
+			case IES_RBSA2014_DISCRETE:
+				gl_warning("RBSA2014 discrete implicit enduse data is experimental");
+				eu = rbsa2014_discrete;
+				break;
+			case IES_EIA2015:
+				gl_warning("EIA 2015 implicit enduse data is experimental");
+				eu = eia2015;
 				break;
 			default:
 				gl_error("implicit enduse source '%d' is not recognized, using default ELCAP1990 instead", implicit_enduse_source);
@@ -3530,13 +3542,13 @@ bool circuit_measurement(const char *timestamp,
 			gl_error("unable to open '%s' for write access",paneldump_filename);
 			return false;
 		}
-		fprintf(paneldump_fh,"timestamp,name,enduse,real,reactive\n");
+		fprintf(paneldump_fh,"timestamp,name,enduse,real[%s],reactive[%s]\n",integral?"kWh":"kW",integral?"kVArh":"kVAr");
 	}
 
 	// integral sampling (energy)
 	if ( integral )
 	{
-		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,m[0].energy.Re()-m[1].energy.Re(),m[0].energy.Im()-m[1].energy.Im());
+		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,(m[0].energy.Re()-m[1].energy.Re())/3600.0,(m[0].energy.Im()-m[1].energy.Im())/3600.0);
 		m[1].t = 0; // resets energy interval measurements
 	}
 
