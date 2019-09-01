@@ -59,13 +59,13 @@ int main
 	{
 		try {
 			return_code = my_instance->mainloop(argc,argv);
-			my_instance->run_on_exit();
 		}
 		catch (const char *msg)
 		{
 			output_fatal("uncaught exception: %s", msg);
 			return_code = errno ? errno : XC_SHFAILED;
 		}
+		my_instance->run_on_exit();
 	}
 	return return_code;
 }
