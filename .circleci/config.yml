@@ -16,7 +16,8 @@ jobs:
           name: Validate gridlabd
           command: |
             export PATH=$PWD/install/bin:$PATH
-            gridlabd -T 8 --validate
+            export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:.}
+            gridlabd -T $(nprocs) --validate
       - run:
           name: Save validation output (if any) on failure
           command: tar cfz validate-output.tar.gz ./*/autotest/*/*
