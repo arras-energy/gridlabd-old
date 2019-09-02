@@ -7,7 +7,7 @@ import gridlabd
 gridlabd.command('example.glm')
 gridlabd.command('-D')
 gridlabd.command('suppress_repeat_messages=FALSE')
-gridlabd.command('--warn')
+#gridlabd.command('--debug')
 
 # start gridlabd and wait for it to complete
 gridlabd.start('wait')

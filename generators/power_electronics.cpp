@@ -7,13 +7,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "power_electronics.h"
 
 #define DEFAULT 1.0;
 #define S_DEFAULT 1.0;

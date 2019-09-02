@@ -4,8 +4,9 @@
 #ifndef _OVERHEADLINECONDUCTOR_H
 #define _OVERHEADLINECONDUCTOR_H
 
-#include "powerflow.h"
-#include "line.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class overhead_line_conductor : public powerflow_library
 {

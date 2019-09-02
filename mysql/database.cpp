@@ -10,12 +10,6 @@
 #else
 #include <unistd.h>
 #endif
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <ctype.h>
-#include <complex.h>
 
 #include "database.h"
 

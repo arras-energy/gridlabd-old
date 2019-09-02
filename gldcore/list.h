@@ -1,5 +1,6 @@
-/** $Id: list.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: list.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
 	@file list.h
 	@addtogroup list
 	@ingroup core
@@ -8,6 +9,10 @@
 
 #ifndef _LIST_H
 #define _LIST_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 typedef struct s_listitem {
 	void *data;

@@ -2,15 +2,7 @@
 	Copyright (C) 2008 Battelle Memorial Institute
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include "gridlabd.h"
-
 #include "climate.h"
-#include "weather.h"
-#include "csv_reader.h"
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {

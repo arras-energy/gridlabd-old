@@ -6,7 +6,7 @@ CLASS *violation_recorder::oclass = NULL;
 CLASS *violation_recorder::pclass = NULL;
 violation_recorder *violation_recorder::defaults = NULL;
 
-CDECL void new_violation_recorder(MODULE *mod){
+void new_violation_recorder(MODULE *mod){
 	new violation_recorder(mod);
 }
 

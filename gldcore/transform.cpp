@@ -1,22 +1,8 @@
-/* transform.c
+/* transform.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <float.h>
-#include <ctype.h>
-#include <pthread.h>
-
-#include "platform.h"
-#include "object.h"
-#include "output.h"
-#include "schedule.h"
-#include "transform.h"
-#include "exception.h"
-#include "module.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_TRANSFORM)
 
@@ -180,16 +166,20 @@ int transfer_function_add(char *name,		///< transfer function name
 	}
 	return 1;
 }
-TRANSFERFUNCTION *find_filter(char *name)
+
+TRANSFERFUNCTION *transform_find_filter(const char *name)
 {
 	TRANSFERFUNCTION *tf;
 	for ( tf = tflist ; tf != NULL ; tf = tf->next )
 	{
-		if ( strcmp(tf->name,name)==0 )
+		if ( strcmp(tf->name,name) == 0 )
+		{
 			return tf;
+		}
 	}
 	return NULL;
 }
+
 TRANSFORMSOURCE get_source_type(PROPERTY *prop)
 {
 	/* TODO extend this to support multiple sources */
@@ -216,7 +206,7 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 	TRANSFERFUNCTION *tf;
 
 	// find the filter
-	tf = find_filter(filter);
+	tf = transform_find_filter(filter);
 	if ( tf == NULL )
 	{
 		output_error("transform_add_filter(source='%s:%s',filter='%s',target='%s:%s'): transfer function not defined",

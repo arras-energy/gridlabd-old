@@ -7,13 +7,12 @@
  **/
 
 
-#ifndef _power_electronics_H
-#define _power_electronics_H
+#ifndef _POWER_ELECTRONICS_H
+#define _POWER_ELECTRONICS_H
 
-#include <stdarg.h>
-#include "../powerflow/powerflow_object.h"
-//#include "../powerflow/node.h"
-#include "gridlabd.h"
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 /**
 	The power_electronics class is meant as a power device interface, to be used specifically with
@@ -190,3 +189,5 @@ public:
 };
 
 #endif
+
+/**@}*/

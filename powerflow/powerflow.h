@@ -11,6 +11,7 @@
 #define _POWERFLOW_H
 
 #include "gridlabd.h"
+
 #include "solver_nr.h"
 
 #ifdef _DEBUG
@@ -19,6 +20,8 @@ void print_matrix(complex mat[3][3]);
 
 #define GETOBJECT(obj) ((OBJECT *) obj - 1)
 #define IMPORT_CLASS(name) extern CLASS *name##_class
+
+#define HOUR (3600*TS_SECOND)
 
 //Deltamode use
 #define TSNVRDBL 9223372036854775808.0
@@ -129,8 +132,53 @@ void schedule_deltamode_start(TIMESTAMP tstart);	/* Anticipated time for a delta
 #define UNKNOWN 0
 #define ROUNDOFF 1e-6			// numerical accuracy for zero in float comparisons
 
-
+/* gld_object class hierarchy -- indent level indicates inheritance */
+#include "powerflow_library.h"
+	#include "line_configuration.h"
+	#include "line_spacing.h"
+	#include "overhead_line_conductor.h"
+	#include "pole_configuration.h"
+	#include "power_metrics.h"
+	#include "regulator_configuration.h"
+	#include "restoration.h"
+	#include "transformer_configuration.h"
+	#include "triplex_line_conductor.h"
+	#include "triplex_line_configuration.h"
+	#include "underground_line_conductor.h"
 #include "powerflow_object.h"
+	#include "emissions.h"
+	#include "fault_check.h"
+	#include "frequency_gen.h"
+	#include "link.h"
+		#include "fuse.h"
+		#include "line.h"
+			#include "overhead_line.h"
+			#include "triplex_line.h"
+			#include "underground_line.h"
+		#include "regulator.h"
+		#include "series_reactor.h"
+		#include "switch_object.h"
+			#include "recloser.h"
+			#include "sectionalizer.h"
+		#include "transformer.h"
+		#include "vfd.h"
+	#include "node.h"
+		#include "capacitor.h"
+		#include "load.h"
+			#include "pqload.h"
+		#include "meter.h"
+		#include "motor.h"
+		#include "pole.h"
+		#include "substation.h"
+		#include "triplex_node.h"
+			#include "triplex_load.h"
+			#include "triplex_meter.h"
+	#include "volt_var_control.h"
+#include "billdump.h"
+#include "currdump.h"
+#include "impedance_dump.h"
+#include "load_tracker.h"
+#include "voltdump.h"
 
 #endif // _POWERFLOW_H
 

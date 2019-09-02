@@ -1,5 +1,7 @@
-// $Id: sanitize.h 4738 2014-07-03 00:55:39Z dchassin $
-// Copyright (C) 2012 Battelle Memorial Institute
+/* File: sanitize.h 
+ * Copyright (C) 2012, Battelle Memorial Institute
+ */
+
 // Author: DP Chassin
 //
 // The sanitize function is used to remove potentially proprietary
@@ -9,6 +11,10 @@
 
 #ifndef _SANITIZE_H
 #define _SANITIZE_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 typedef enum {
 	SO_ERASE		= 0x0001,	///< option to erase/reset to default instead of obfuscate

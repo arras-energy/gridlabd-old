@@ -1,3 +1,7 @@
+/* File: stream_type.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
+
 stream_type(double);
 stream_type(complex);
 stream_type(enumeration);

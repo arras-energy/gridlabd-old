@@ -1,5 +1,6 @@
-/** $Id: exec.c 1188 2009-01-02 21:51:07Z dchassin $
+/** exec.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file exec.cpp
 	@addtogroup exec Main execution loop
 	@ingroup core
@@ -84,55 +85,7 @@
  @{
  **/
 
-#include <signal.h>
-#include <ctype.h>
-#include <string.h>
-#include <sys/time.h>
-#include <sys/timeb.h>
-#ifdef WIN32
-#include <windows.h>
-#include <winbase.h>
-#include <direct.h>
-#else
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/errno.h>
-#define SOCKET int
-#define INVALID_SOCKET (-1)
-#define closesocket close
-#endif
-
-#include "platform.h"
-#include "main.h"
-#include "output.h"
-#include "exec.h"
-#include "class.h"
-#include "convert.h"
-#include "index.h"
-#include "realtime.h"
-#include "module.h"
-#include "debug.h"
-#include "exception.h"
-#include "random.h"	
-#include "local.h"
-#include "schedule.h"
-#include "transform.h"
-#include "loadshape.h"
-#include "enduse.h"
-#include "math.h"
-#include "time.h"
-#include "deltamode.h"
-#include "stream.h"
-#include "instance.h"
-#include "linkage.h"
-#include "test.h"
-#include "link.h"
-#include "save.h"
-#include "lock.h"
-#include "pthread.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_EXEC)
 
@@ -185,7 +138,7 @@ DEPRECATED int exec_get_iteration_counter(void)
 {
 	return my_instance->get_exec()->iteration_counter;
 }
-DEPRECATED int exec_get_passtype(int pass)
+DEPRECATED PASSCONFIG exec_get_passtype(PASSCONFIG pass)
 {
 	return my_instance->get_exec()->passtype[pass];
 }
@@ -201,7 +154,7 @@ DEPRECATED int exec_schedule_dump(TIMESTAMP interval,char *filename)
 }
 
 /* TODO: remove when debug.c, instance_slave.c, server.c, and job.c are reentrant */
-DEPRECATED int exec_setexitcode(int xc)
+DEPRECATED EXITCODE exec_setexitcode(EXITCODE xc)
 {
 	return my_instance->get_exec()->setexitcode(xc);
 }
@@ -393,10 +346,6 @@ GldExec::GldExec(GldMain *main)
 	sync_lock = 0;
 	realtime_metric_decay = 0.9;
 	script_exports = NULL;
-	rlock_count = 0;
-	rlock_spin = 0;
-	wlock_count = 0;
-	wlock_spin = 0;
 	pass = 0;
 	iteration_counter = 0;
 }
@@ -481,9 +430,9 @@ void GldExec::init_thread_data(void)
 	thread_data = create_threaddata(global_threadcount);
 }
 
-int GldExec::setexitcode(int xc)
+EXITCODE GldExec::setexitcode(EXITCODE xc)
 {
-	int oldxc = global_exit_code;
+	EXITCODE oldxc = (EXITCODE)global_exit_code;
 	if ( oldxc != XC_SUCCESS && xc != oldxc )
 	{
 		output_warning("new exitcode %d overwrites existing exitcode %d", xc,oldxc);
@@ -493,7 +442,7 @@ int GldExec::setexitcode(int xc)
 	return oldxc;
 }
 
-int GldExec::getexitcode(void)
+EXITCODE GldExec::getexitcode(void)
 {
 	return global_exit_code;
 }
@@ -2579,7 +2528,7 @@ STATUS GldExec::exec_start(void)
 						{
 							OBJECT *obj = (OBJECT*)(item->data);
 							// @todo change debug so it uses sync API
-							if (exec_debug(&main_sync,pass,i,obj)==FAILED)
+							if (exec_debug(&main_sync,passtype[pass],i,obj)==FAILED)
 							{
 								throw("debugger quit");
 							}
@@ -2942,8 +2891,8 @@ STATUS GldExec::exec_start(void)
 		output_profile("Time steps completed    %8d timesteps", tsteps);
 		output_profile("Convergence efficiency  %8.02lf passes/timestep", (double)passes/tsteps);
 #ifndef NOLOCKS
-		output_profile("Read lock contention    %7.01lf%%", (rlock_spin>0 ? (1-(double)rlock_count/(double)rlock_spin)*100 : 0));
-		output_profile("Write lock contention   %7.01lf%%", (wlock_spin>0 ? (1-(double)wlock_count/(double)wlock_spin)*100 : 0));
+		output_profile("Read lock contention    %7.01lf%%", (my_instance->rlock_spin>0 ? (1-(double)my_instance->rlock_count/(double)my_instance->rlock_spin)*100 : 0));
+		output_profile("Write lock contention   %7.01lf%%", (my_instance->wlock_spin>0 ? (1-(double)my_instance->wlock_count/(double)my_instance->wlock_spin)*100 : 0));
 #endif
 		output_profile("Average timestep        %7.0lf seconds/timestep", (double)(global_clock-global_starttime)/tsteps);
 		output_profile("Simulation rate         %7.0lf x realtime", (double)(global_clock-global_starttime)/elapsed_wall);
@@ -2979,7 +2928,7 @@ STATUS GldExec::exec_start(void)
 	@return STATUS is SUCCESS if all test passed, FAILED is any test failed.
  **/
 STATUS GldExec::test(struct sync_data *data, /**< the synchronization state data */
-				 int pass, /**< the pass number */
+				 PASSCONFIG pass, /**< the pass number */
 				 OBJECT *obj)  /**< the current object */
 {
 	TIMESTAMP this_t;
@@ -3504,7 +3453,7 @@ int GldExec::add_script(SIMPLELIST **list, const char *file)
 
 EXITCODE GldExec::run_system_script(char *call)
 {
-	EXITCODE rc = system(call);
+	EXITCODE rc = (EXITCODE)system(call);
 	if ( rc != XC_SUCCESS )
 	{
 		output_error("script '%s' return with exit code %d", call,rc);
@@ -3513,7 +3462,7 @@ EXITCODE GldExec::run_system_script(char *call)
 	else
 	{
 		IN_MYCONTEXT output_verbose("script '%s'' returned ok", call);
-		return 0;
+		return XC_SUCCESS;
 	}	
 }
 

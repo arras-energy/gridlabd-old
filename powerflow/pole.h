@@ -4,8 +4,9 @@
 #ifndef _POLE_H
 #define _POLE_H
 
-#include "node.h"
-#include "pole_configuration.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class pole : public node
 {
@@ -68,7 +69,7 @@ private:
 	bool is_deadend;
 	double current_hollow_diameter;
 private:
-	pole_configuration *config;
+	class pole_configuration *config;
 	double last_wind_speed;
 	double *wind_speed;
 	double *wind_direction;

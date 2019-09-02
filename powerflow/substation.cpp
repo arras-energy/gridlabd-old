@@ -15,14 +15,9 @@
 
 	@{
  **/
-//Built from meter object
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
 
-#include "substation.h"
-#include "timestamp.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // SUBSTATION CLASS FUNCTIONS

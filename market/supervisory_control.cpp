@@ -18,7 +18,7 @@
 CLASS *supervisory_control::oclass = NULL;
 supervisory_control *supervisory_control::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_PRETOPDOWN|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_POSTTOPDOWN;
 
 /* Class registration is only called once to register the class with the core */

@@ -1,29 +1,11 @@
-/** $Id: enduse.c 4738 2014-07-03 00:55:39Z dchassin $
+/** enduse.cpp
  	Copyright (C) 2008 Battelle Memorial Institute
-	@file loadshape.c
-	@addtogroup loadshape
+
+	@file enduse.cpp
+	@addtogroup enduse
 **/
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <math.h>
-#include <pthread.h>
-
-#include "platform.h"
-#include "output.h"
-#include "loadshape.h"
-#include "exception.h"
-#include "convert.h"
-#include "globals.h"
-#include "random.h"
-#include "schedule.h"
-#include "enduse.h"
-#include "main.h"
-#include "class.h"
-#include "property.h"
-#include "object.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_ENDUSE)
 
@@ -178,17 +160,26 @@ TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1)
 			else
 			{
 				double P = e->voltage_factor>0 ? e->shape->load * (e->power_fraction + e->current_fraction + e->impedance_fraction) : 0.0;
+				output_debug("enduse_sync(enduse *e='%s', PASSCONFIG pass='%s', TIMESTAMP t1=%lld): load=%lg, power fraction=%lg, current fraction=%lg, impedance fraction=%lg -> power=%lg",
+					e->name, "PC_BOTTOMUP", t1, e->shape->load, e->power_fraction, e->current_fraction, e->impedance_fraction, P);
 				e->total.Re() = P;
 				if (fabs(e->power_factor)<1)
 					e->total.Im() = (e->power_factor<0?-1:1)*P*sqrt(1/(e->power_factor*e->power_factor)-1);
 				else
 					e->total.Im() = 0;
+				output_debug("enduse_sync(enduse *e='%s', PASSCONFIG pass='%s', TIMESTAMP t1=%lld): load=%lg, power factor=%lg -> total=%lg%+lgj",
+					e->name, "PC_BOTTOMUP", t1, e->shape->load, e->power_factor, e->total.Re(), e->total.Im());
 
 				// beware: these are misnomers (they are e->constant_power, e->constant_current, ...)
 				e->power.Re() = e->total.Re() * e->power_fraction; 
 				e->power.Im() = e->total.Im() * e->power_fraction;
-				e->current.Re() = e->total.Re() * e->current_fraction; e->current.Im() = e->total.Im() * e->current_fraction;
-				e->admittance.Re() = e->total.Re() * e->impedance_fraction; e->admittance.Im() = e->total.Im() * e->impedance_fraction;
+				e->current.Re() = e->total.Re() * e->current_fraction; 
+				e->current.Im() = e->total.Im() * e->current_fraction;
+				e->admittance.Re() = e->total.Re() * e->impedance_fraction; 
+				e->admittance.Im() = e->total.Im() * e->impedance_fraction;
+				output_debug("enduse_sync(enduse *e='%s', PASSCONFIG pass='%s', TIMESTAMP t1=%lld): total=%lg%+lgj, power fraction=%lg -> power=%lg%+lg, current=%lg%+lg, admittance=%lg%+lg",
+					e->name, "PC_BOTTOMUP", t1, e->total.Re(), e->total.Im(), e->power_fraction,
+					e->power.Re(), e->power.Im(), e->current.Re(), e->current.Im(), e->admittance.Re(), e->admittance.Im());
 			}
 		}
 		else if (e->voltage_factor > 0 && !(e->config&EUC_HEATLOAD)) // no shape electric - use ZIP component directly

@@ -48,6 +48,12 @@ typedef struct s_smartfuse {
 	double vMax;
 } SMARTFUSE;
 
+typedef struct s_circuitmeasurement {
+	TIMESTAMP t;
+	complex power;
+	complex energy;
+} CIRCUITMEASUREMENT;
+
 typedef struct s_circuit {
 	CIRCUITTYPE type;	///< circuit type
 	enduse *pLoad;	///< pointer to the load struct (ENDUSELOAD* in house_a, enduse* in house_e)
@@ -59,6 +65,7 @@ typedef struct s_circuit {
 	TIMESTAMP reclose; ///< time at which breaker is reclosed
 	unsigned short tripsleft; ///< the number of trips left before breaker faults
 	SMARTFUSE *smartfuse; ///< SmartFuse info
+	CIRCUITMEASUREMENT measurement[2]; // 0=current measurement, 1=last measurement 
 	struct s_circuit *next; ///< next circuit in list
 	// DPC: commented this out until the rest of house_e is updated
 } CIRCUIT; ///< circuit definition
