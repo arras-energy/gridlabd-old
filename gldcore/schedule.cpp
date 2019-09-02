@@ -846,10 +846,6 @@ int schedule_normalize(SCHEDULE *sch,	/**< the schedule to normalize */
 	unsigned int b,i;
 	int count=0;
 
-	/* check if already normalized */
-	if (sch->flags&flags)
-		return -1;
-
 	/* normalized */
 	for (b=0; b<MAXBLOCKS; b++)
 	{
@@ -894,9 +890,6 @@ int schedule_normalize(SCHEDULE *sch,	/**< the schedule to normalize */
 			}
 		}
 	}
-
-	/* mark as normalized */
-	sch->flags |= flags;
 
 	return count;
 }

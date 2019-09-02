@@ -1,13 +1,13 @@
-FROM <<<BASE_SYSTEM>>>
+FROM centos:7
 ENV container docker
 
-ENV REPO=<<<GRIDLABD_ORIGIN>>>
-ENV BRANCH=<<<GRIDLABD_BRANCH>>>
-ENV ENABLE=<<<GRIDLABD_ENABLE>>>
-ENV GET_WEATHER=<<<GET_WEATHER>>>
-ENV REMOVE_SOURCE=<<<REMOVE_SOURCE>>>
-ENV ENABLE_GDB=<<<ENABLE_GDB>>>
-ENV LD_LIBRARY_PATH .:/usr/local/lib
+ENV REPO=https://github.com/dchassin/gridlabd
+ENV BRANCH=master-dev
+ENV ENABLE=gismo
+ENV GET_WEATHER=no
+ENV REMOVE_SOURCE=yes
+ENV ENABLE_GDB=no
+ENV LD_LIBRARY_PATH /usr/local/lib
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
 systemd-tmpfiles-setup.service ] || rm -f $i; done); \
@@ -20,7 +20,7 @@ rm -f /lib/systemd/system/basic.target.wants/*;\
 rm -f /lib/systemd/system/anaconda.target.wants/*;
 VOLUME [ "/sys/fs/cgroup" ]
 WORKDIR /tmp
-COPY *.sh /tmp/
+COPY utilities/docker/centos/*.sh /tmp/
 RUN chmod +wx *.sh
 RUN bash system.sh
 RUN bash gridlabd.sh

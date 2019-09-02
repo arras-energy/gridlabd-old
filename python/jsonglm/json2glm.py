@@ -60,18 +60,20 @@ def clock_glm() :
 def classes_glm() : 
 	global data 
 	global fw 
+	
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // CLASSES')
 		for p_id, p_info in data['classes'].items() : 
-
-			header_str = '\n' + 'class ' + p_id + ' {'
-			fw.write(header_str)
+			header_str = ''
+			val_str = ''
 			for v_id, v_info in data['classes'][p_id].items() :
-				if v_id not in classkeys_ignore : 
-					val_str = "\n" + "\t" + v_info['type'] + " " + v_id + ';'
-					fw.write(val_str)
-			fw.write("\n}")
-
+				if 'flags' in v_info and 'EXTENDED' in v_info['flags']:
+					header_str = '\n' + 'class ' + p_id + ' {'
+					val_str = val_str + "\n" + "\t" + v_info['type'] + " " + v_id + ';'
+			if header_str : 
+				fw.write(header_str)
+				fw.write(val_str)	
+				fw.write("\n}")
 	return True 
 
 def globals_glm() : 
@@ -108,24 +110,31 @@ def objects_glm() :
 				new_name = p_info['class']+'_'+p_info['id']
 			else :
 				new_name = p_id 
-			name_str = '\n' + '\t' + "name " + new_name + ';'
+			name_str = '\n' + '\t' + "name \"" + new_name + '\";'
 			fw.write(name_str)
 			for v_id, v_info in data['objects'][p_id].items() : 
 				if v_id not in objects_ignore and v_info:  
-					if v_id == 'wh_shape' : # TEMP - GENERALIZE
-						val_str = "\n"+ "\t" + v_id + " \"" + v_info + "\";"
-					else :
-						val_str = "\n"+ "\t" + v_id + " " + v_info + ";"
+					val_str = "\n"+ "\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
 					fw.write(val_str)
 			fw.write('\n}' )
 	return True
 
+def schedules_glm() : 
+	global data
+	global fw 
+	with open(filename_glm, "a") as fw :
+		fw.write('\n // SCHEDULES')
+		for p_id, p_info in data['schedules'].items() : 
+			header_str = '\n' + 'schedule ' + p_id + '{'
+			fw.write(header_str)
+			fw.write(p_info)
+			fw.write('\n}' )
 
 clock_glm()
-# classes_glm() 
-
 modules_glm()
+classes_glm()
 globals_glm()
+schedules_glm()
 objects_glm()
 
 fw.close()

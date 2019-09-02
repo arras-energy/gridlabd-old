@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: slacgismo/circleci_gridlabd_base:latest
     steps:
-      - checkout            
+      - checkout    
       - run:
           name: Build gridlabd
           command: |
