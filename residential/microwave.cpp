@@ -72,7 +72,7 @@ int microwave::create()
 	standby_power = 0.01;
 	shape.load = gl_random_uniform(RNGSTATE,0, 0.1);  // assuming a default maximum 10% of the sync time 
 
-	gl_warning("explicit %s model is experimental", OBJECTHDR(this)->oclass->name);
+	gl_warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
 
 	return res;
 }
@@ -113,7 +113,7 @@ int microwave::init(OBJECT *parent)
 			return 2; // defer
 		}
 	}
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	hdr->flags |= OF_SKIPSAFE;
 
 	if (load.voltage_factor==0) load.voltage_factor = 1.0;

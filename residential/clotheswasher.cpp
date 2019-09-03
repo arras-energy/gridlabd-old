@@ -153,7 +153,7 @@ int clotheswasher::create()
 	load.power_factor = 0.95;
 	load.power_fraction = 1.0;
 
-	gl_warning("explicit %s model is experimental", OBJECTHDR(this)->oclass->name);
+	gl_warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
 	/* TROUBLESHOOT
 		The clothes washer explicit model has some serious issues and should be considered for complete
 		removal.  It is highly suggested that this model NOT be used.
@@ -164,7 +164,7 @@ int clotheswasher::create()
 
 int clotheswasher::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
@@ -282,7 +282,7 @@ TIMESTAMP clotheswasher::sync(TIMESTAMP t0, TIMESTAMP t1)
 double clotheswasher::update_state(double dt)
 {
 
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	// accumulating units in the queue no matter what happens
 	enduse_queue += enduse_demand * dt/3600/24;

@@ -108,7 +108,7 @@ int freezer::create()
 	// name of enduse
 	load.name = oclass->name;
 
-	gl_warning("explicit %s model is experimental", OBJECTHDR(this)->oclass->name);
+	gl_warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
 
 	return res;
 }
@@ -135,7 +135,7 @@ int freezer::init(OBJECT *parent)
 	if (Tout==0)				Tout = 59.0;
 	if (power_factor==0)		power_factor = 0.95;
 
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	hdr->flags |= OF_SKIPSAFE;
 
 	
@@ -173,7 +173,7 @@ int freezer::isa(char *classname)
 
 TIMESTAMP freezer::presync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	double *pTout = 0;
 	double nHours = (gl_tohours(t1)- gl_tohours(t0))/TS_SECOND;
 

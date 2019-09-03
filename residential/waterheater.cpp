@@ -223,7 +223,7 @@ int waterheater::create()
  **/
 int waterheater::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	nominal_voltage = 240.0; //@TODO:  Determine if this should be published or how we want to obtain this from the equipment/network
 	actual_voltage = nominal_voltage;
@@ -659,7 +659,7 @@ void waterheater::thermostat(TIMESTAMP t0, TIMESTAMP t1){
 TIMESTAMP waterheater::presync(TIMESTAMP t0, TIMESTAMP t1){
 	/* time has passed ~ calculate internal gains, height change, temperature change */
 	double nHours = (gl_tohours(t1) - gl_tohours(t0))/TS_SECOND;
-	OBJECT *my = OBJECTHDR(this);
+	OBJECT *my = THISOBJECTHDR;
 
 	DATETIME t_next;
 	gl_localtime(t1,&t_next);
@@ -1330,7 +1330,7 @@ double waterheater::dhdt(double h)
 
 double waterheater::actual_kW(void)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
     static int trip_counter = 0;
 
 	// calculate rated heat capacity adjusted for the current line voltage
@@ -1481,7 +1481,7 @@ double waterheater::get_Tambient(enumeration loc)
 	}
 
 	// return temperature of location
-	//house *pHouse = OBJECTDATA(OBJECTHDR(this)->parent,house);
+	//house *pHouse = OBJECTDATA(THISOBJECTHDR->parent,house);
 	//return pHouse->get_Tair()*ratio + pHouse->get_Tout()*(1-ratio);
 	return *pTair * ratio + *pTout *(1-ratio);
 }
@@ -1489,7 +1489,7 @@ double waterheater::get_Tambient(enumeration loc)
 void waterheater::wrong_model(WRONGMODEL msg)
 {
 	const char *errtxt[] = {"model is not one-zone", "model is not two-zone"};
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	gl_warning("%s (waterheater:%d): %s", obj->name?obj->name:"(anonymous object)", obj->id, errtxt[msg]);
 	throw msg; // this must be caught by the waterheater code, not by the core
 }

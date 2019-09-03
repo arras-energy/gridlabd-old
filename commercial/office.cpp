@@ -377,7 +377,7 @@ int office::init(OBJECT *parent)
 	if (zone.hvac.heating.cop==0)
 		zone.hvac.heating.cop= 1.25;
 
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	// link to climate data
 	static FINDLIST *climates = gl_find_objects(FL_NEW,FT_CLASS,SAME,"climate",FT_END);
@@ -494,7 +494,7 @@ TIMESTAMP office::sync(TIMESTAMP t1)
 				/* check for air temperature excursion */
 				if (Ti<warn_low_temp || Ti>warn_high_temp)
 				{
-					OBJECT *obj = OBJECTHDR(this);
+					OBJECT *obj = THISOBJECTHDR;
 					DATETIME dt0, dt1;
 					gl_localtime(t0,&dt0);
 					gl_localtime(t1,&dt1);
@@ -507,7 +507,7 @@ TIMESTAMP office::sync(TIMESTAMP t1)
 				/* check for mass temperature excursion */
 				if (Tm<warn_low_temp || Tm>warn_high_temp)
 				{
-					OBJECT *obj = OBJECTHDR(this);
+					OBJECT *obj = THISOBJECTHDR;
 					DATETIME dt0, dt1;
 					gl_localtime(t0,&dt0);
 					gl_localtime(t1,&dt1);
@@ -595,7 +595,7 @@ TIMESTAMP office::sync(TIMESTAMP t1)
 			/* check for heating equipment sizing problem */
 			if ((mode==HC_HEAT || mode==HC_AUX) && Teq<TheatOff)
 			{
-				OBJECT *obj = OBJECTHDR(this);
+				OBJECT *obj = THISOBJECTHDR;
 				DATETIME dt0, dt1;
 				gl_localtime(t0,&dt0);
 				gl_localtime(t1,&dt1);
@@ -608,7 +608,7 @@ TIMESTAMP office::sync(TIMESTAMP t1)
 			/* check for cooling equipment sizing problem */
 			else if (mode==HC_COOL && Teq>TcoolOff)
 			{
-				OBJECT *obj = OBJECTHDR(this);
+				OBJECT *obj = THISOBJECTHDR;
 				DATETIME dt0, dt1;
 				gl_localtime(t0,&dt0);
 				gl_localtime(t1,&dt1);
@@ -621,7 +621,7 @@ TIMESTAMP office::sync(TIMESTAMP t1)
 			/* check for economizer control problem */
 			else if (mode==HC_ECON && Teq>TcoolOff)
 			{
-				OBJECT *obj = OBJECTHDR(this);
+				OBJECT *obj = THISOBJECTHDR;
 				DATETIME dt;
 				gl_localtime(t1,&dt);
 				char ts[64];

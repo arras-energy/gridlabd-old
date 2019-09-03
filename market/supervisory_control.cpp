@@ -56,7 +56,7 @@ supervisory_control::supervisory_control(MODULE *module) {
 
 void supervisory_control::fetch_double(double **prop, const char *name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_double_by_name(parent, name);
 	if ( *prop == NULL )
 	{

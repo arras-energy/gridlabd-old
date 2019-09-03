@@ -101,7 +101,7 @@ TIMESTAMP stubauction::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	{
 
 		gl_localtime(clearat,&dt);
-//		if (verbose) gl_output("   ...%s clearing process started at %s", gl_name(OBJECTHDR(this),myname,sizeof(myname)), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
+//		if (verbose) gl_output("   ...%s clearing process started at %s", gl_name(THISOBJECTHDR,myname,sizeof(myname)), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
 
 		/* clear market */
 		thishr = dt.hour;
@@ -175,7 +175,7 @@ TIMESTAMP stubauction::postsync(TIMESTAMP t0, TIMESTAMP t1)
 
 		clearat = nextclear();
 		gl_localtime(clearat,&dt);
-//		if (verbose) gl_output("   ...%s opens for clearing of market_id %d at %s", gl_name(OBJECTHDR(this),name,sizeof(name)), (int32)market_id, gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
+//		if (verbose) gl_output("   ...%s opens for clearing of market_id %d at %s", gl_name(THISOBJECTHDR,name,sizeof(name)), (int32)market_id, gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
 	}
 	return (retry ? t1 : -clearat); /* soft return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
 }

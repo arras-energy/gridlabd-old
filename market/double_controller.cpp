@@ -115,7 +115,7 @@ void double_controller::cheat( ) {
 }
 
 void double_controller::fetch(double **value, const char *name, OBJECT *parent, PROPERTY **prop, const char *goal ) {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_property(parent, name);
 	if ( *name == 0 ) {
 		GL_THROW("double_controller:%i, %s property not specified", hdr->id,goal);
@@ -137,7 +137,7 @@ void double_controller::fetch(double **value, const char *name, OBJECT *parent, 
 }
 
 int double_controller::init(OBJECT *parent ) {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	char tname[32];
 	const char *namestr = (hdr->name ? hdr->name : tname);
 
@@ -265,7 +265,7 @@ TIMESTAMP double_controller::sync(TIMESTAMP t0, TIMESTAMP t1 )
 {
 	double heat_ramp, cool_ramp;
 	double new_limit;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	char mktname[1024];
 	char ctrname[1024];
 

@@ -152,7 +152,7 @@ int eventgen::create(void)
 /* Object initialization is called once after all object have been created */
 int eventgen::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int index, comma_count;
 	TIMESTAMP tempTime, globStartTimeVal;
 	FINDLIST *ObjListVals;
@@ -641,7 +641,7 @@ int eventgen::init(OBJECT *parent)
 /* Presync is called when the clock needs to advance on the first top-down pass */
 TIMESTAMP eventgen::presync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int index;
 	double t1_dbl;
 	double gld_stoptime;
@@ -948,7 +948,7 @@ void eventgen::gen_random_time(enumeration rand_dist_type, double param_1, doubl
 	TIMESTAMP random_time = 0;
 	double dbl_random_time = 0.0;
 	unsigned int ns_random_time = 0;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	switch(rand_dist_type)
 	{
@@ -1155,7 +1155,7 @@ char *eventgen::obj_token(char *start_token, OBJECT **obj_val)
 //Function to add new event into structure - since externally called, presumes calling object will handle mean_repair_time calls
 int eventgen::add_unhandled_event(OBJECT *obj_to_fault, const char *event_type, TIMESTAMP fail_time, TIMESTAMP rest_length, int implemented_fault, bool fault_state)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	RELEVANTSTRUCT *new_struct;
 	TIMESTAMP rest_time;
 	double fail_time_dbl, rest_time_dbl;
@@ -1278,7 +1278,7 @@ double *eventgen::get_double(OBJECT *obj, const char *name)
 
 //Function to update any event times after a successful state change
 void eventgen::regen_events(TIMESTAMP t1_ts, double t1_dbl){
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	TIMESTAMP temp_time_A;
 	double temp_time_A_dbl;
 	unsigned int temp_time_A_nano;
@@ -1393,7 +1393,7 @@ void eventgen::regen_events(TIMESTAMP t1_ts, double t1_dbl){
 //Performs actual event status changes on the system
 void eventgen::do_event(TIMESTAMP t1_ts, double t1_dbl, bool entry_type)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	TIMESTAMP temp_time_A;
 	double temp_time_A_dbl;
 	unsigned int temp_time_A_nano;
