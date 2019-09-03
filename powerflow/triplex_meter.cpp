@@ -262,15 +262,21 @@ int triplex_meter::check_prices(){
 TIMESTAMP triplex_meter::presync(TIMESTAMP t0)
 {
 	if (tpmeter_power_consumption != complex(0,0))
+	{
 		power[0] = power[1] = 0.0;
+	}
 
 	//Reliability addition - clear momentary flag if set
 	if (tpmeter_interrupted_secondary == true)
+	{
 		tpmeter_interrupted_secondary = false;
+	}
 
     // Capturing first timestamp of simulation for use in delta energy measurements.
     if (t0 != 0 && start_timestamp == 0)
+    {
         start_timestamp = t0;
+    }
 
 	return triplex_node::presync(t0);
 }

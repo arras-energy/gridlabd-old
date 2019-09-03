@@ -736,10 +736,14 @@ case DRYER_MOTOR_COIL_ONLY:
 		if (state_time>reset_delay)
 		{
 			if (pCircuit->pV->Mag()>start_voltage)
+			{
 				state = DRYER_MOTOR_ONLY;
+			}
 			else
+			{
 				state = DRYER_STALLED;
-				state_time = 0;
+			}
+			state_time = 0;
 		}
 
 		break;
