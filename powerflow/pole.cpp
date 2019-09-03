@@ -338,28 +338,31 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
 
 EXPORT int create_pole(OBJECT **obj, OBJECT *parent)
 {
-       try
+   try
+    {
+        *obj = gl_create_object(pole::oclass);
+        if (*obj!=NULL)
         {
-                *obj = gl_create_object(pole::oclass);
-                if (*obj!=NULL)
-                {
-                        pole *my = OBJECTDATA(*obj,pole);
-                        gl_set_parent(*obj,parent);
-                        return my->create();
-                }
-                else
-                        return 0;
+            pole *my = OBJECTDATA(*obj,pole);
+            gl_set_parent(*obj,parent);
+            return my->create();
         }
-        CREATE_CATCHALL(pole);
+        else
+        {
+            return 0;
+        }
+    }
+    CREATE_CATCHALL(pole);
 }
 
 EXPORT int init_pole(OBJECT *obj)
 {
-        try {
-                pole *my = OBJECTDATA(obj,pole);
-                return my->init(obj->parent);
-        }
-        INIT_CATCHALL(pole);
+    try 
+    {
+        pole *my = OBJECTDATA(obj,pole);
+        return my->init(obj->parent);
+    }
+    INIT_CATCHALL(pole);
 }
 
 EXPORT int isa_pole(OBJECT *obj, char *classname)
@@ -372,7 +375,8 @@ EXPORT TIMESTAMP sync_pole(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	try {
 		pole *pObj = OBJECTDATA(obj,pole);
 		TIMESTAMP t1 = TS_NEVER;
-		switch ( pass ) {
+		switch ( pass ) 
+		{
 		case PC_PRETOPDOWN:
 			return pObj->presync(t0);
 		case PC_BOTTOMUP:
