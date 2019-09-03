@@ -176,7 +176,7 @@ int dishwasher::create()
 	last_t = 0;
 	
 
-	gl_warning("explicit %s model is experimental and has not been validated", OBJECTHDR(this)->oclass->name);
+	gl_warning("explicit %s model is experimental and has not been validated", THISOBJECTHDR->oclass->name);
 	/* TROUBLESHOOT
 		The dishwasher explicit model has some serious issues and should be considered for complete
 		removal.  It is highly suggested that this model NOT be used.
@@ -189,7 +189,7 @@ int dishwasher::init(OBJECT *parent)
 {
 	// @todo This class has serious problems and should be deleted and started from scratch. Fuller 9/27/2013.
 
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
@@ -469,7 +469,7 @@ double dishwasher::update_state(double dt) //,TIMESTAMP t1)
 {	
 	// accumulate the energy
 
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	energy_used += total_power/1000 * dt/3600;
 

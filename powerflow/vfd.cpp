@@ -144,7 +144,7 @@ int vfd::create()
 */
 int vfd::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	FUNCTIONADDR temp_fxn;
 	STATUS temp_status_val;
 	double temp_voltage_check, temp_diff_value;
@@ -332,7 +332,7 @@ int vfd::init(OBJECT *parent)
 
 void vfd::CheckParameters()
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Make sure desiredRPM hasn't gone negative
 	if (desiredRPM < 0.0)
@@ -828,7 +828,7 @@ complex vfd::complex_exp(double angle)
 //Function to reallocate/allocate variable time arrays
 STATUS vfd::alloc_freq_arrays(double delta_t_val)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	size_t a_index;
 	
 	//See if we were commanded to reallocate -- this would be done on a zero-th pass of interupdate, most likely (or in postupdate, when transitioning out)

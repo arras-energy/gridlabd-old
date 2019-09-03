@@ -145,14 +145,14 @@ int dryer::create()
 	
 	last_t = 0;	
 
-	gl_warning("explicit %s model is experimental", OBJECTHDR(this)->oclass->name);
+	gl_warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
 
 	return res;
 }
 
 int dryer::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	if(parent != NULL){
 		if((parent->flags & OF_INIT) != OF_INIT){
 			char objname[256];
@@ -399,7 +399,7 @@ TIMESTAMP dryer::presync(TIMESTAMP t0, TIMESTAMP t1){
 
 double dryer::update_state(double dt) //,TIMESTAMP t1)
 {	
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	// accumulate the energy
 	energy_used += total_power/1000 * dt/3600;
 

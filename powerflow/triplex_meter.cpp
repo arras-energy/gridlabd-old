@@ -619,7 +619,7 @@ double triplex_meter::process_bill(TIMESTAMP t1){
 //Module-level call
 SIMULATIONMODE triplex_meter::inter_deltaupdate_triplex_meter(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int TempNodeRef;
 	double deltat, deltatimedbl;
 	STATUS return_status_val;

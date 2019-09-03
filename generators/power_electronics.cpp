@@ -394,12 +394,12 @@ int power_electronics::init(OBJECT *parent)
 	complex tst;
 		if (Gen_mode==UNKNOWN)
 	{
-		OBJECT *obj = OBJECTHDR(this);
+		OBJECT *obj = THISOBJECTHDR;
 		throw("Generator control mode is not specified");
 	}
 		if (Gen_status==0)
 	{
-		//OBJECT *obj = OBJECTHDR(this);
+		//OBJECT *obj = THISOBJECTHDR;
 		throw("Generator is out of service!");
 	}else
 		{

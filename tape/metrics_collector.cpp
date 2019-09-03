@@ -81,7 +81,7 @@ int metrics_collector::create(){
 
 int metrics_collector::init(OBJECT *parent){
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 //	int temp = strcmp(parent->oclass->name,"triplex_meter") != 0;
 	if (parent == NULL)
@@ -548,7 +548,7 @@ TIMESTAMP metrics_collector::postsync(TIMESTAMP t0, TIMESTAMP t1){
 }
 
 int metrics_collector::commit(TIMESTAMP t1){
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
     // read the parameters for each time step
     if(0 == read_line(obj)){
