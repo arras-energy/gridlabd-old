@@ -396,7 +396,7 @@ STATUS instance_cnx_socket(instance *inst){
 	pickle.prop_size = (int16)(inst->prop_size);
 	pickle.id = inst->id;
 	pickle.ts = global_clock;
-	IN_MYCONTEXT output_debug("pickle: %" FMT_INT64 "d %d %d %d %d %"FMT_INT64, pickle.cacheid, pickle.cachesize, pickle.name_size, pickle.prop_size, pickle.id, pickle.ts);
+	IN_MYCONTEXT output_debug("pickle: %" FMT_INT64 "d %d %d %d %d %" FMT_INT64, pickle.cacheid, pickle.cachesize, pickle.name_size, pickle.prop_size, pickle.id, pickle.ts);
 	// send instance struct
 	memset(cmd, 0, sizeof(cmd));
 	memcpy(cmd, MSG_INST, strlen(MSG_INST));

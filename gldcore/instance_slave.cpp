@@ -237,7 +237,7 @@ STATUS instance_slave_link_properties()
 			output_warning("instance_slave_link_properties(): pickle prop_size and calculated prop_size do not match!");
 		}
 	}
-	IN_MYCONTEXT output_debug("instance_slave_link_properties(): exiting for slave %"FMT_INT64, local_inst.cacheid);
+	IN_MYCONTEXT output_debug("instance_slave_link_properties(): exiting for slave %" FMT_INT64, local_inst.cacheid);
 	return SUCCESS;
 }
 

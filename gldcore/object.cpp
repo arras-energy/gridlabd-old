@@ -2877,7 +2877,7 @@ double object_get_part(void *x, const char *name)
 			{"out_svc",&(obj->out_svc)},
 			{"heartbeat",&(obj->heartbeat)},
 		};
-		for ( p=map ; p<map+sizeof(map); p++ ) {
+		for ( p=map ; p<map+(sizeof(map)/sizeof(map[0])); p++ ) {
 			if ( strcmp(p->name,root)==0 )
 				return timestamp_get_part(p->addr,part);
 		}
