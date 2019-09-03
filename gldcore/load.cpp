@@ -6284,7 +6284,7 @@ static int loader_hook(PARSER)
 		}
 
 		// add exit callback
-		EXITCALL exitcall = (EXITCALL) dlsym(lib,"on_exit");
+		EXITCALL exitcall = (EXITCALL) dlsym(lib,"term");
 		if ( exitcall )
 		{
 			my_instance->add_on_exit(exitcall);
