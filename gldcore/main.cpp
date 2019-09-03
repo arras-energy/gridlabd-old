@@ -368,7 +368,7 @@ void GldMain::run_on_exit()
 
 	for ( std::list<EXITCALL>::iterator call = exitcalls.begin() ; call != exitcalls.end() ; call++ )
 	{
-		int rc = (*call)(xc);
+		int rc = (*call)(exec.getexitcode());
 		if ( rc != 0 )
 		{
 			output_error("on_exit call failed (return code %d)", rc);
