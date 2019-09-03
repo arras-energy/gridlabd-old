@@ -1182,14 +1182,14 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	if (*value=='\'' || *value=='"') value++;
 
 	/* ISO8601 support */
-	if ( sscanf(value,"%4hu-%2hu-%2huT%2hu:%2hu:%lf %2hu:%2hu",&Y,&m,&d,&H,&M,&s,&tzh,&tzm) > 6 
+	if ( sscanf(value,"%4hu-%2hu-%2huT%2hu:%2hu:%lf%hd:%hu",&Y,&m,&d,&H,&M,&s,&tzh,&tzm) > 6 
 		|| ( sscanf(value,"%4hu-%2hu-%2huT%2hu:%2hu:%lf%c",&Y,&m,&d,&H,&M,&s,tz) == 7 && strcmp(tz,"Z")==0) )
 	{
 		S = (unsigned short)s;
 		unsigned int ns = (s-S)*1e9;
 		DATETIME dt = {Y,m,d,H,M,S,ns,0};
-		TIMESTAMP t = mkdatetime(&dt);
-		return t - (tzh*60+tzm)*60;
+		dt.tzoffset = (tzh*60+tzm)*60;
+		return mkdatetime(&dt);
 	}
 
 	/* scan ISO format date/time */
