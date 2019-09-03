@@ -133,7 +133,7 @@ public:
 
 		Runs the on-exit command list for the exit code given
 	 */
-	void run_on_exit(int xc);
+	void run_on_exit();
 
 private:	// private methods
 	void set_global_browser(const char *path = NULL);
