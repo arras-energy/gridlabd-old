@@ -1306,10 +1306,14 @@ case dishwasher_TRIPPED:
 		if (state_time>reset_delay)
 		{
 			if (pCircuit->pV->Mag()>start_voltage)
+			{
 				state = dishwasher_MOTOR_ONLY;
+			}
 			else
+			{
 				state = dishwasher_STALLED;
-				state_time = 0;
+			}
+			state_time = 0;
 		}
 
 		break;

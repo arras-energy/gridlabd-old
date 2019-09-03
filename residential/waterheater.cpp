@@ -1312,14 +1312,19 @@ double waterheater::dhdt(double h)
 	
     // check c1 before dividing by it
     if (c1 <= ROUNDOFF)
+    {
         return 0.0; //Possible only when /*Tupper*/ Tw and Tlower are very close, and the difference is negligible
+    }
 
 	double cA;
-	if (heat_mode == HEAT_PUMP) {
+	if (heat_mode == HEAT_PUMP) 
+	{
 		// @TODO: These values were created from HPWH project; need to make them more accessible
 		HP_COP = (1.04 + (1.21 - 1.04) * (get_Tambient(location) - 50) / (70 - 50)) * (5.259 - 0.0255 * Tw);
 		cA = -mdot / (RHOWATER * area) + (actual_kW() * BTUPHPKW * HP_COP + tank_UA * (get_Tambient(location) - Tlower)) / c1;
-	} else {
+	} 
+	else 
+	{
 		cA = -mdot / (RHOWATER * area) + (actual_kW() * BTUPHPKW + tank_UA * (get_Tambient(location) - Tlower)) / c1;
 	}
 	const double cb = (tank_UA / height) * (/*Tupper*/ Tw - Tlower) / c1;
@@ -1336,7 +1341,8 @@ double waterheater::actual_kW(void)
 	// calculate rated heat capacity adjusted for the current line voltage
 	if (heat_needed && re_override != OV_OFF)
     {
-		if(heat_mode == GASHEAT){
+		if(heat_mode == GASHEAT)
+		{
 			return heating_element_capacity; /* gas heating is voltage independent. */
 		}
 		actual_voltage = pCircuit ? pCircuit->pV->Mag() : nominal_voltage;
@@ -1353,9 +1359,12 @@ double waterheater::actual_kW(void)
                 return 0.0;         // @TODO:  This condition should trip the breaker with a counter
         }
 		double test;
-		if (heat_mode == ELECTRIC) {
+		if (heat_mode == ELECTRIC) 
+		{
 			test = heating_element_capacity * (actual_voltage*actual_voltage) / (nominal_voltage*nominal_voltage);
-		} else { 
+		} 
+		else 
+		{ 
 			// @TODO: We don't have a voltage dependence for the heat pump yet...but we should
 			//   Using variables from HPWH project...should be pulled out at some point
 			heating_element_capacity = (1.09 + (1.17 - 1.09) * (get_Tambient(location) - 50) / (70 - 50)) * (0.379 + 0.00364 * Tw);
@@ -1365,7 +1374,9 @@ double waterheater::actual_kW(void)
 		return test;
     }
 	else
+	{
 		return 0.0;
+	}
 }
 
 inline double waterheater::new_time_1node(double T0, double T1)
