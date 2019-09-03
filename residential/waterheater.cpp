@@ -1311,7 +1311,7 @@ double waterheater::dhdt(double h)
     const double c1 = RHOWATER * Cp * area * (/*Tupper*/ Tw - Tlower);	// Btu/ft...
 	
     // check c1 before dividing by it
-    if (c1 <= ROUNDOFF)
+    if ( c1 <= ROUNDOFF )
     {
         return 0.0; //Possible only when /*Tupper*/ Tw and Tlower are very close, and the difference is negligible
     }
@@ -1341,12 +1341,12 @@ double waterheater::actual_kW(void)
 	// calculate rated heat capacity adjusted for the current line voltage
 	if (heat_needed && re_override != OV_OFF)
     {
-		if(heat_mode == GASHEAT)
+		if ( heat_mode == GASHEAT )
 		{
 			return heating_element_capacity; /* gas heating is voltage independent. */
 		}
 		actual_voltage = pCircuit ? pCircuit->pV->Mag() : nominal_voltage;
-        if (actual_voltage > 2.0*nominal_voltage)
+        if ( actual_voltage > 2.0*nominal_voltage )
         {
             if (trip_counter++ > 10)
 				gl_error("Water heater line voltage for waterheater:%d is too high, exceeds twice nominal voltage.",obj->id);
@@ -1359,7 +1359,7 @@ double waterheater::actual_kW(void)
                 return 0.0;         // @TODO:  This condition should trip the breaker with a counter
         }
 		double test;
-		if (heat_mode == ELECTRIC) 
+		if ( heat_mode == ELECTRIC ) 
 		{
 			test = heating_element_capacity * (actual_voltage*actual_voltage) / (nominal_voltage*nominal_voltage);
 		} 
@@ -1384,20 +1384,27 @@ inline double waterheater::new_time_1node(double T0, double T1)
 	const double mdot_Cp = Cp * water_demand * 60 * RHOWATER / GALPCF;
 
     if (Cw <= ROUNDOFF)
+    {
         return -1.0;
+    }
 
 	double c1;
-	if (heat_mode == HEAT_PUMP) {
+	if ( heat_mode == HEAT_PUMP ) 
+	{
 		// @TODO: These values were created from HPWH project; need to make them more accessible
 		HP_COP = (1.04 + (1.21 - 1.04) * (get_Tambient(location) - 50) / (70 - 50)) * (5.259 - 0.0255 * Tw);
 		c1 = ((actual_kW()*BTUPHPKW*HP_COP + tank_UA * get_Tambient(location)) + mdot_Cp*Tinlet) / Cw;
-	} else {
+	} 
+	else 
+	{
 		c1 = ((actual_kW()*BTUPHPKW + tank_UA * get_Tambient(location)) + mdot_Cp*Tinlet) / Cw;
 	}
 	const double c2 = -(tank_UA + mdot_Cp) / Cw;
 
     if (fabs(c1 + c2*T1) <= ROUNDOFF || fabs(c1 + c2*T0) <= ROUNDOFF || fabs(c2) <= ROUNDOFF)
+    {
         return -1.0;
+    }
 
 	const double new_time = (log(fabs(c1 + c2 * T1)) - log(fabs(c1 + c2 * T0))) / c2;	// [hr]
 	return new_time;
@@ -1410,15 +1417,20 @@ inline double waterheater::new_temp_1node(double T0, double delta_t)
 	// Btu / degF.lb * gal/hr * lb/cf * cf/gal = Btu / degF.hr
 
     if (Cw <= ROUNDOFF || (tank_UA+mdot_Cp) <= ROUNDOFF)
+    {
         return T0;
+    }
 
 	const double c1 = (tank_UA + mdot_Cp) / Cw;
 	double c2;
-	if (heat_mode == HEAT_PUMP) {
+	if ( heat_mode == HEAT_PUMP ) 
+	{
 		// @TODO: These values were created from HPWH project; need to make them more accessible
 		HP_COP = (1.04 + (1.21 - 1.04) * (get_Tambient(location) - 50) / (70 - 50)) * (5.259 - 0.0255 * Tw);
 		c2 = (actual_kW()*BTUPHPKW*HP_COP + mdot_Cp*Tinlet + tank_UA*get_Tambient(location)) / (tank_UA + mdot_Cp);
-	} else {
+	} 
+	else 
+	{
 		c2 = (actual_kW()*BTUPHPKW + mdot_Cp*Tinlet + tank_UA*get_Tambient(location)) / (tank_UA + mdot_Cp);
 	}
 
@@ -1433,12 +1445,16 @@ inline double waterheater::new_time_2zone(double h0, double h1)
 	double dhdt0, dhdt1;
 
     if (fabs(c0) <= ROUNDOFF || height <= ROUNDOFF)
+    {
         return -1.0;    // c0 or height should never be zero.  if one of these is zero, there is no definite time to transition
+    }
 
 	const double cb = (tank_UA / height) * (/*Tupper*/ Tw - Tlower) / c0;
 
     if (fabs(cb) <= ROUNDOFF)
+    {
         return -1.0;
+    }
 	dhdt1 = fabs(dhdt(h1));
 	dhdt0 = fabs(dhdt(h0));
 	double last_timestep = (log(dhdt1) - log(dhdt0)) / -cb;	// [hr]
@@ -1448,7 +1464,9 @@ inline double waterheater::new_time_2zone(double h0, double h1)
 inline double waterheater::new_h_2zone(double h0, double delta_t)
 {
 	if (delta_t <= ROUNDOFF)
+	{
 		return h0;
+	}
 
 	// old because this happens in presync and needs previously used demand
 	const double mdot = water_demand_old * 60 * RHOWATER / GALPCF;		// lbm/hr...
@@ -1456,23 +1474,30 @@ inline double waterheater::new_h_2zone(double h0, double delta_t)
 
 	// check c1 before division
 	if (fabs(c1) <= ROUNDOFF)
+	{
         return height;      // if /*Tupper*/ Tw and Tlower are real close, then the new height is the same as tank height
+	}
 //		throw MODEL_NOT_2ZONE;
 		
 //	#define CWATER		(0.9994)		// BTU/lb/F
 	double cA;
-	if (heat_mode == HEAT_PUMP) {
+	if ( heat_mode == HEAT_PUMP ) 
+	{
 		// @TODO: These values were created from HPWH project; need to make them more accessible
 		HP_COP = (1.04 + (1.21 - 1.04) * (get_Tambient(location) - 50) / (70 - 50)) * (5.259 - 0.0255 * Tw);
 		cA = -mdot / (RHOWATER * area) + (actual_kW()*BTUPHPKW*HP_COP + tank_UA * (get_Tambient(location) - Tlower)) / c1;
-	} else {
+	} 
+	else 
+	{
 		cA = -mdot / (RHOWATER * area) + (actual_kW()*BTUPHPKW + tank_UA * (get_Tambient(location) - Tlower)) / c1;
 	}
 	// lbm/hr / lb/ft + kW * Btu.h/kW + 
 	const double cb = (tank_UA / height) * (/*Tupper*/ Tw - Tlower) / c1;
 
-    if (fabs(cb) <= ROUNDOFF)
+    if ( fabs(cb) <= ROUNDOFF )
+    {
         return height;
+    }
 
 	return ((exp(cb * delta_t) * (cA + cb * h0)) - cA) / cb;	// [ft]
 }
@@ -1514,7 +1539,7 @@ EXPORT int create_waterheater(OBJECT **obj, OBJECT *parent)
 	try
 	{
 		*obj = gl_create_object(waterheater::oclass);
-		if (*obj!=NULL)
+		if ( *obj != NULL )
 		{
 			waterheater *my = OBJECTDATA(*obj,waterheater);;
 			gl_set_parent(*obj,parent);
@@ -1522,7 +1547,9 @@ EXPORT int create_waterheater(OBJECT **obj, OBJECT *parent)
 			return 1;
 		}
 		else
+		{
 			return 0;
+		}
 	}
 	CREATE_CATCHALL(waterheater);
 }

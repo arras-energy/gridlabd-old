@@ -399,11 +399,12 @@ TIMESTAMP ZIPload::sync(TIMESTAMP t0, TIMESTAMP t1)
 		{
 			phase_shift = (t1 - last_time) / (period * 3600);
 			phase = phase + phase_shift;
-			last_time = t1;
 		}
 		else
+		{
 			first_pass = 0;
-			last_time = t1;
+		}
+		last_time = t1;
 
 		if (this->re_override == OV_NORMAL) // Normal operation
 		{
