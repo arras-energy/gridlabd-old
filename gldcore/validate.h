@@ -1,11 +1,13 @@
-/* $Id: validate.h 4738 2014-07-03 00:55:39Z dchassin $
-   Copyright (C) 2012 Battelle Memorial Institute
+/* File: validate.h 
+   Copyright (C) 2008, Pacific Northwest National Laboratory
  */
 
 #ifndef _VALIDATE_H
 #define _VALIDATE_H
 
-#include "platform.h"
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 typedef enum {
 	VO_NONE		=0x0000,	///< run no tests (just go through motions)

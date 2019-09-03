@@ -1,5 +1,6 @@
-/** $Id: loadshape.c 4738 2014-07-03 00:55:39Z dchassin $
+/** loadshape.cpp
  	Copyright (C) 2008 Battelle Memorial Institute
+ 	
 	@file loadshape.c
 	@addtogroup loadshape
 
@@ -27,20 +28,7 @@
 
 **/
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <ctype.h>
-#include <pthread.h>
-
-#include "platform.h"
-#include "output.h"
-#include "loadshape.h"
-#include "exception.h"
-#include "convert.h"
-#include "globals.h"
-#include "random.h"
-#include "schedule.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_LOADSHAPE)
 
@@ -50,32 +38,41 @@ static unsigned int n_shapes = 0;
 static void sync_analog(loadshape *ls, double dt)
 {
 	if (ls->params.analog.energy>0)
+	{
 
 		/* load is based on fixed energy scale */
-		ls->load = ls->schedule->value * ls->params.analog.energy * ls->schedule->fraction * ls->dPdV;
+		if ( dt > 0.0 )
+			ls->load = ls->schedule->value * ls->params.analog.energy / dt;
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, energy=%lg -> load=%lg", ls->schedule->name, dt, 
+			ls->schedule->value, ls->schedule->duration, ls->params.analog.energy, ls->load);
+	}
 	else if (ls->params.analog.power>0)
-
+	{
 		/* load is based on fixed power scale */
-		ls->load = ls->schedule->value * ls->params.analog.power * ls->dPdV;
+		ls->load = ls->schedule->value * ls->params.analog.power;
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg, power=%lg -> load=%lg", ls->schedule->name, dt, 
+			ls->schedule->value, ls->params.analog.power, ls->load);
+	}
 	else
-
+	{
 		/* load is based on direct value (no scale) */
-		ls->load = ls->schedule->value * ls->dPdV;
+		ls->load = ls->schedule->value ;
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_analog(ls='%s', dt=%lg): value=%lg -> load=%lg", ls->schedule->name, dt,
+			ls->schedule->value, ls->load);
+	}
 }
 
 static void sync_pulsed(loadshape *ls, double dt)
 {
 	/* load is off or waiting to choose a state */
-	if (ls->r >= 0)
+	if ( ls->r >= 0 )
 	{
 		/* if load should turn on within the next second */
-		if (ls->r!=0 && ls->q >= ls->d[0] - ls->r/3600)
+		if ( ls->r != 0 && ls->q >= ls->d[0]-ls->r/3600 )
 		{
 			/* turn load on */
 			ls->q = 1;
-#ifdef _DEBUG
 			IN_MYCONTEXT output_debug("loadshape %s: turns on", ls->schedule->name);
-#endif
 			goto TurnOn;
 		}
 TurnOff:
@@ -86,20 +83,31 @@ TurnOff:
 		ls->load = 0;
 
 		/* if a value is given in the schedule */
-		if (ls->schedule->value>0) 
+		if ( ls->schedule->value > 0 ) 
 		{
 			/* calculate the decay rate of the queue */
 			ls->r = ls->schedule->value * ls->params.pulsed.scalar / (ls->params.pulsed.energy);
-			if (ls->r<0)
+			if ( ls->r < 0 )
+			{
 				output_warning("loadshape %s: r not positive while load is off!", ls->schedule->name);
+			}
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) turn off; value=%lg, scalar=%lg, energy=%lg -> r=%lg", ls->schedule->name, dt, 
+				ls->schedule->value, ls->params.pulsed.scalar, ls->params.pulsed.energy, ls->r);
 		}
 
 		/* zero value scheduled */
-		else if (ls->schedule->duration>0)
+		else if ( ls->schedule->duration > 0 )
 		{
 			/* the queue doesn't change (no decay) */
 			ls->r = 0;
 			output_warning("loadshape %s: pulsed shape suspended because schedule has zero value", ls->schedule->name);
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) turn off; duration=%lg -> r=%lg", ls->schedule->name, dt, 
+				ls->schedule->duration, ls->r);
+		}
+		else
+		{
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) turn off; value=%lg -> r=%lg", ls->schedule->name, dt, 
+				ls->schedule->value, ls->r);
 		}
 	}
 
@@ -107,13 +115,11 @@ TurnOff:
 	else
 	{
 		/* the load will turn off within the next second */
-		if (ls->r!=0 && ls->q <= ls->d[1] - ls->r/3600)
+		if ( ls->r != 0 && ls->q <= ls->d[1]-ls->r/3600 )
 		{
 			/* turn the load off */
 			ls->q = 0;
-#ifdef _DEBUG
 			IN_MYCONTEXT output_debug("loadshape %s: turns off", ls->schedule->name);
-#endif
 			goto TurnOff;
 		}
 TurnOn:	
@@ -121,25 +127,33 @@ TurnOn:
 		ls->s = MS_ON;
 
 		/* fixed power pulse */
-		if (ls->params.pulsed.pulsetype==MPT_POWER)
+		if ( ls->params.pulsed.pulsetype == MPT_POWER )
 		{
 			/* load has fixed power */
-			ls->load = ls->params.pulsed.pulsevalue * ls->dPdV;
+			ls->load = ls->params.pulsed.pulsevalue;
 			
 			/* rate is based on energy and load */
 			ls->r = -ls->params.pulsed.scalar * ls->load / (ls->params.pulsed.energy);
 			if (ls->r>=0)
+			{
 				output_warning("loadshape %s: r not negative while load is on!", ls->schedule->name);
+			}
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) power pulse; scalar=%lg, load=%lg, energy=%lg -> r=%lg", ls->schedule->name, dt, 
+				ls->params.pulsed.scalar, ls->load, ls->params.pulsed.energy, ls->r);
 		}
-		else if (ls->params.pulsed.pulsevalue!=0)
+		else if ( ls->params.pulsed.pulsevalue != 0 )
 		{
 			/* load has fixed duration so power is energy/duration */
 			ls->load = ls->params.pulsed.energy / (ls->params.pulsed.pulsevalue/3600 * ls->params.pulsed.scalar) * ls->dPdV;
 			
 			/* rate is based on time */
 			ls->r = -3600 /ls->params.pulsed.pulsevalue;
-			if (ls->r>=0)
+			if ( ls->r >= 0 )
+			{
 				output_warning("loadshape %s: r not negative while load is on!", ls->schedule->name);
+			}
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) pulsevalue=%lg, r=%lg, energy=%lg, scalar=%lg, dP/dV=%lg -> load=%lg", ls->schedule->name, dt,
+				ls->params.pulsed.pulsevalue, ls->r, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->dPdV, ls->load);
 		}
 		else
 		{
@@ -157,9 +171,7 @@ static void sync_modulated(loadshape *ls, double dt)
 		if (ls->r!=0 && ls->q >= ls->d[0] - ls->r/3600)
 		{
 			ls->q = 1;
-#ifdef _DEBUG
 			IN_MYCONTEXT output_debug("loadshape %s: turns on", ls->schedule->name);
-#endif
 			goto TurnOn;
 		}
 TurnOff:
@@ -173,10 +185,21 @@ TurnOff:
 			{
 				// AM off time
 				double period = ls->schedule->duration / ls->params.modulated.scalar;
-				double duty_cycle = (ls->params.modulated.pulsetype==MPT_TIME) 
-					? ls->params.modulated.pulsevalue / period 
-					: ls->params.modulated.energy * 3600 / ls->params.modulated.pulsevalue / period;
-				ls->r = 3600 / (period - duty_cycle * period);
+				double duty_cycle;
+				if ( ls->params.modulated.pulsetype == MPT_TIME )
+				{
+					duty_cycle = ls->params.modulated.pulsevalue / period;
+					ls->r = 3600 / (period - duty_cycle * period);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg > 0, time amplitude; duration=%lg, scalar=%lg, pulse value=%lg -> period=%lg, duty cycle=%lg, r=%lg", ls->schedule->name, dt,
+					ls->schedule->value, ls->schedule->duration, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, period, duty_cycle, ls->r);
+				}
+				else
+				{
+					duty_cycle = ls->params.modulated.energy * 3600 / ls->params.modulated.pulsevalue / period;
+					ls->r = 3600 / (period - duty_cycle * period);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg > 0, power amplitude; energy=%lg, pulse value=%lg -> period=%lg, duty cycle=%lg, r=%lg", ls->schedule->name, dt,
+					ls->params.modulated.energy, ls->params.modulated.pulsevalue, period, duty_cycle, ls->r);
+				}
 			}
 
 			// pulse-width modulation
@@ -186,6 +209,8 @@ TurnOff:
 				double period = ls->schedule->duration / ls->params.modulated.scalar;
 				double ton = ls->schedule->value * ls->params.modulated.scalar / ls->params.modulated.energy / ls->params.modulated.scalar;
 				ls->r = 3600 / (period - ton);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg > 0, pulse width; duration=%lg, scalar=%lg, energy=%lg -> period=%lg, ton=%lg, r=%lg", ls->schedule->name, dt,
+					ls->schedule->value, ls->schedule->duration, ls->params.modulated.scalar, ls->params.modulated.energy, period, ton, ls->r);
 			}
 
 			// frequency modulation
@@ -195,9 +220,13 @@ TurnOff:
 				double power = ls->params.modulated.pulsevalue;
 				double dutycycle, period, toff;
 				if (ls->params.modulated.pulsetype==MPT_TIME)
+				{
 					power = ls->params.modulated.pulseenergy * ls->params.modulated.scalar / ton * 3600;
+				}
 				else
+				{
 					ton = ls->params.modulated.pulseenergy * ls->params.modulated.scalar / power * 3600;
+				}
 				dutycycle = ls->schedule->value / ls->params.modulated.energy /  ls->params.modulated.scalar;
 				if (dutycycle<1) // saturation of control
 				{
@@ -206,7 +235,12 @@ TurnOff:
 					ls->r = 3600/toff;
 				}
 				else
+				{
 					ls->r = 0;
+				}
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg > 0, frequency %s; pulse value=%lg, pulse energy=%lg, scalar=%lg, energy=%lg -> ton=%lg, power=%lg, duty cycle=%lg, period=%lg, toff=%lg", ls->schedule->name, dt,
+					ls->schedule->value, ls->params.modulated.pulsetype==MPT_TIME ? "time":"power", ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, ls->params.modulated.scalar, ls->params.modulated.energy,
+					ton, power, dutycycle, period, toff);
 			}
 			else
 				output_warning("loadshape %s: modulation type is not determined!", ls->schedule->name);
@@ -215,6 +249,7 @@ TurnOff:
 		{
 			ls->r = 0;
 			output_warning("loadshape %s: modulated shape suspended because schedule has zero value", ls->schedule->name);
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) value=%lg <= 0 -> r=%lg", ls->schedule->name, dt, ls->schedule->value, ls->r);
 		}
 	}
 
@@ -225,9 +260,7 @@ TurnOff:
 		if (ls->r!=0 && ls->q <= ls->d[1] - ls->r/3600)
 		{
 			ls->q = 0;
-#ifdef _DEBUG
 			IN_MYCONTEXT output_debug("loadshape %s: turns off", ls->schedule->name);
-#endif
 			goto TurnOff;
 		}
 TurnOn:	
@@ -243,6 +276,7 @@ TurnOn:
 					: ls->params.modulated.energy * 3600 / ls->params.modulated.pulsevalue / period;
 			ls->r  = -3600 / (duty_cycle * period);
 			ls->load = ls->schedule->value * ls->params.modulated.scalar;
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 		}
 
 		// pulse-width modulation
@@ -256,6 +290,7 @@ TurnOn:
 			double ton = ls->schedule->value * ls->params.modulated.scalar / ls->params.modulated.energy / pulsecount;
 			ls->r = -3600 / ton;
 			ls->load = power;
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 		}
 
 		// frequency modulation
@@ -272,6 +307,7 @@ TurnOn:
 			else
 				ls->r = 0;
 			ls->load = power;
+			IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 		}
 		else
 			output_warning("loadshape %s: modulation type is not determined!", ls->schedule->name);
@@ -281,29 +317,38 @@ TurnOn:
 static void sync_queued(loadshape *ls, double dt)
 {
 	double queue_value = (ls->d[1] - ls->d[0]);
-	if (ls->params.queued.pulsetype==MPT_POWER)
+	if ( ls->params.queued.pulsetype == MPT_POWER )
+	{
 		ls->load = ls->s * ls->params.queued.pulsevalue * ls->dPdV; 
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_queued(ls='%s', dt=%lg) power queue; s=%lg, pulsevalue=%lg, dP/dV=%lg -> load=%lg", ls->schedule->name, dt, 
+			ls->s * ls->params.queued.pulsevalue * ls->dPdV, ls->load);
+	}
 	else /* MPT_TIME */
+	{
 		ls->load = ls->s * ls->params.queued.energy / ls->params.queued.pulsevalue / ls->params.queued.scalar * ls->dPdV;		
-
-#define duration ((ls->params.queued.energy*queue_value)/ ls->load)
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) time queue; energy=%lg, pulsevalue=%g, scalar=%g, dP/dV=%lg -> load=%lg", ls->schedule->name, dt, 
+			ls->s, ls->params.queued.energy, ls->params.queued.pulsevalue, ls->params.queued.scalar, ls->dPdV, ls->load);
+	}
 
 	/* update s and r */
-	if (ls->q > ls->d[0])
+	if ( ls->q > ls->d[0] )
 	{
 		ls->s = MS_ON;
-
+		double duration = ls->params.queued.energy * queue_value / ls->load;
 		ls->r = -1/duration;
-		
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) q=%lg > d0=%lg; energy=%lg, queue value=%lg, load=%lg -> s=MS_ON, duration=%lg, r=%lg", ls->schedule->name, dt, 
+			ls->q, ls->d[0], ls->params.queued.energy, queue_value, ls->load, duration, ls->r);
 	}
-	else if (ls->q < ls->d[1])
+	else if ( ls->q < ls->d[1] )
 	{
 		ls->s = MS_OFF;
-		ls->r = 1/random_exponential(&(ls->rng_state),ls->schedule->value*ls->params.pulsed.scalar*queue_value);
+		double lambda = ls->schedule->value*ls->params.pulsed.scalar*queue_value;
+		if ( lambda > 0 )
+			ls->r = 1/random_exponential(&(ls->rng_state),lambda);
+		IN_MYCONTEXT output_debug("gldcore/loadshape/sync_pulsed(ls='%s', dt=%lg) q=%lg > d1=%lg; value=%lg, scalar=%lg, queue value=%lg -> s=MS_OFF, lambda=%lg, r=%lg", ls->schedule->name, dt, 
+			ls->q, ls->d[1], ls->schedule->value, ls->params.pulsed.scalar, queue_value, lambda, ls->r);
 	}
 	/* else state remains unchanged */
-#undef duration
-
 }
 
 static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
@@ -328,6 +373,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = ls->params.scheduled.low;
 				ls->r = 0; 
 				dt = ls->params.scheduled.on_time - hour;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 			else if (hour < ls->params.scheduled.on_time + (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp)
 			{
@@ -335,6 +381,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = ls->params.scheduled.low;
 				ls->r = skipday ? 0 : ls->params.scheduled.on_ramp;
 				dt = hour - ls->params.scheduled.on_time + (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 			else if (hour < ls->params.scheduled.off_time)
 			{
@@ -342,6 +389,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = skipday ? ls->params.scheduled.low : ls->params.scheduled.high;
 				ls->r = 0;
 				dt = hour - ls->params.scheduled.off_time;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 			else if (hour < ls->params.scheduled.off_time - ls->params.scheduled.on_time - (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp)
 			{
@@ -349,6 +397,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = skipday ? ls->params.scheduled.low : ls->params.scheduled.high;
 				ls->r = skipday ? 0 : ls->params.scheduled.off_ramp;
 				dt = hour - ls->params.scheduled.off_time - ls->params.scheduled.on_time - (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 			else
 			{
@@ -356,6 +405,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = ls->params.scheduled.low;
 				ls->r = 0;
 				dt = 24-hour+ls->params.scheduled.on_time;;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 			}
 		}
 		
@@ -370,24 +420,28 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 				ls->q = ls->params.scheduled.low;
 				ls->s = MS_RAMPUP;
 				dt = (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 				break;
 			case MS_RAMPUP:
 				ls->r = 0;
 				ls->q = ls->params.scheduled.low;
 				ls->s = MS_ON;
 				dt = (ls->params.scheduled.off_time - ls->params.scheduled.on_time - (ls->params.scheduled.high-ls->params.scheduled.low)/ls->params.scheduled.on_ramp);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 				break;
 			case MS_ON:
 				ls->r = ls->params.scheduled.off_ramp;
 				ls->q = skipday ? ls->params.scheduled.low : ls->params.scheduled.high;
 				ls->s = MS_RAMPDOWN;
 				dt = (ls->params.scheduled.low-ls->params.scheduled.high)/ls->params.scheduled.off_ramp;
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 				break;
 			case MS_RAMPDOWN:
 				ls->r = 0;
 				ls->q = skipday ? ls->params.scheduled.low : ls->params.scheduled.high;
 				ls->s = MS_OFF;
 				dt = (24-ls->params.scheduled.off_time + ls->params.scheduled.on_time);
+				IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 				break;
 			default:
 				dt = 0;
@@ -400,6 +454,7 @@ static void sync_scheduled(loadshape *ls, TIMESTAMP t1)
 		ls->q += ls->r * dt;
 	
 	ls->load = ls->q;
+	IN_MYCONTEXT output_debug("gldcore/loadshape/sync_modulated(ls='%s', dt=%lg) -> ", ls->schedule->name, dt); 
 }
 
 /** Convert a scheduled loadshape weekday parameter to string representing the weekdays (UMTWRFSH)
@@ -521,7 +576,9 @@ void loadshape_recalc(loadshape *ls)
 		if (ls->s == 0 && ls->schedule!=NULL) /* load is off */
 		{
 			/* recalculate time to next on */
-			ls->r = 1/random_exponential(&(ls->rng_state),ls->schedule->value * ls->params.pulsed.scalar * (ls->params.queued.q_on - ls->params.queued.q_off));
+			double lambda = ls->schedule->value * ls->params.pulsed.scalar * (ls->params.queued.q_on - ls->params.queued.q_off);
+			if ( lambda > 0 )
+				ls->r = 1/random_exponential(&(ls->rng_state),lambda);
 		}
 		break;
 	case MT_SCHEDULED:
@@ -571,8 +628,13 @@ int loadshape_init(loadshape *ls) /**< load shape */
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) analog schedules cannot set both power and energy",ls->schedule->name);
 			return 1;
 		}
+		else if ( ls->params.analog.energy > 0.0 ) 
+		{
+			output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) analog loadshapes using energy are not validated",ls->schedule->name);
+		}
 		break;
 	case MT_PULSED:
+		output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) pulsed loadshapes are not validated",ls->schedule->name);
 		if (ls->params.pulsed.energy<=0)
 		{
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) pulsed energy must be a positive number",ls->schedule->name);
@@ -600,6 +662,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 		}
 		break;
 	case MT_MODULATED:
+		output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) modulated loadshapes are not validated",ls->schedule->name);
 		if (ls->params.modulated.energy<=0)
 		{
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) modulated energy must be a positive number",ls->schedule->name);
@@ -648,6 +711,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 		}
 		break;
 	case MT_QUEUED:
+		output_warning("loadshape_init(loadshape *ls={schedule->name='%s',...}) queued loadshapes are not validated",ls->schedule->name);
 		if (ls->params.queued.energy<=0)
 		{
 			output_error("loadshape_init(loadshape *ls={schedule->name='%s',...}) queue energy must be a positive number",ls->schedule->name);
@@ -680,7 +744,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 		}
 		break;
 	case MT_SCHEDULED:
-
+		output_warning("loadshape_init(loadshape *ls=%p) scheduled loadshapes are not validated",ls);
 		if (ls->params.scheduled.on_time<0 || ls->params.scheduled.on_time>24)
 		{
 			output_error("loadshape_init() scheduled on-time must be between 0 and 24");
@@ -748,10 +812,6 @@ int loadshape_init(loadshape *ls) /**< load shape */
 
 TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 {
-#ifdef _DEBUG
-//	int ps = ls->s;
-#endif
-
 	/* if the clock is running and the loadshape is driven by a schedule */
 	if (ls->schedule!=NULL && t1 > ls->t0)
 	{
@@ -780,7 +840,6 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 
 			sync_pulsed(ls, dt);
 
-#ifdef _DEBUG
 			if (ls->s==0 && ls->r<0)
 			{
 				output_error("loadshape %s: state inconsistent (s=on, r<0)!", ls->schedule->name);
@@ -791,21 +850,20 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 				output_error("loadshape %s: state inconsistent (s=off, r>0)!", ls->schedule->name);
 				return ls->t2 = TS_NEVER;
 			}
-#endif
 
 			/* time to next event */
-			ls->t2 = ls->r!=0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) : TS_NEVER;
+			ls->t2 = ls->r > 0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) : TS_NEVER;
 			/* This was to address a reported bug - every once in awhile, when ls->q was very
 			   near 1.0 but slighly less, it would lead to t2=t1 and fail simulation; this is a
 			   litte bump to get it out of the rut and try one more time before failing out */
-			if (ls->t2 == t1)
-				ls->t2 = t1+(TIMESTAMP)1;
-#ifdef _DEBUG
+			if ( ls->t2 == t1 )
 			{
-				char buf[64];
-				IN_MYCONTEXT output_debug("schedule %s: value = %5.3f, q = %5.3f, r = %+5.3f, t2 = '%s'", ls->schedule->name, ls->schedule->value, ls->q, ls->r, convert_from_timestamp(ls->t2,buf,sizeof(buf))?buf:"(error)");
+				ls->t2 = t1+(TIMESTAMP)1;
 			}
-#endif
+
+			char buf[64];
+			IN_MYCONTEXT output_debug("schedule %s: value = %5.3f, q = %5.3f, r = %+5.3f, t2 = '%s'", ls->schedule->name, ls->schedule->value, ls->q, ls->r, convert_from_timestamp(ls->t2,buf,sizeof(buf))?buf:"(error)");
+
 			/* choose sooner of schedule change or state change */
 			if (ls->schedule->next_t < ls->t2) ls->t2 = ls->schedule->next_t;
 			break;
@@ -818,7 +876,7 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 			sync_modulated(ls, dt);
 
 			/* time to next event */
-			ls->t2 = ls->r!=0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) + 1 : TS_NEVER;
+			ls->t2 = ls->r > 0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) + 1 : TS_NEVER;
 
 			/* choose sooner of schedule change or state change */
 			if (ls->schedule->next_t < ls->t2) ls->t2 = ls->schedule->next_t;
@@ -833,7 +891,7 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 			sync_queued(ls, dt);
 
 			/* time to next event */
-			ls->t2 = ls->r!=0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) + 1 : TS_NEVER;
+			ls->t2 = ls->r > 0 ? t1 + (TIMESTAMP)(( ls->d[ls->s] - ls->q) / ls->r * 3600) + 1 : TS_NEVER;
 
 			/* choose sooner of schedule change or state change */
 			if (ls->schedule->next_t < ls->t2) ls->t2 = ls->schedule->next_t;
@@ -855,10 +913,6 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 			break;
 		}
 	}
-#ifdef _DEBUG
-//	IN_MYCONTEXT output_debug("loadshape %s: load = %.3f", ls->schedule->name, ls->load);
-//	IN_MYCONTEXT output_debug("loadshape %s: t2-t1 = %d", ls->schedule->name, ls->t2 - global_clock);
-#endif
 	ls->t0 = t1;
 	return ls->t2>0?ls->t2:TS_NEVER;
 }

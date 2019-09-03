@@ -4,8 +4,9 @@
 #ifndef _SUBSTATION_H
 #define _SUBSTATION_H
 
-#include "powerflow.h"
-#include "node.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 EXPORT SIMULATIONMODE interupdate_substation(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
 

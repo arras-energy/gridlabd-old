@@ -6,14 +6,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <unistd.h>
-
-#include "voltdump.h"
-#include "node.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // voltdump CLASS FUNCTIONS

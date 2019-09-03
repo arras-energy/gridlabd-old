@@ -47,19 +47,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "solver_nr.h"
-#include "node.h"
-#include "link.h"
-
-//See if these can be unwound, not a fan of the cross-linking here:
-#include "capacitor.h"
-#include "load.h"
-#include "triplex_meter.h"
+#include "powerflow.h"
+using namespace std;
 
 //Library imports items - for external LU solver - stolen from somewhere else in GridLAB-D (tape, I believe)
 #if defined(WIN32) && !defined(__MINGW32__)

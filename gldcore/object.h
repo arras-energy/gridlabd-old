@@ -1,11 +1,16 @@
-/** $Id: object.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute	@file object.h
+/* File: object.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
 	@addtogroup object
  @{
  **/
 
 #ifndef _OBJECT_H
 #define _OBJECT_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "complex.h"
 #include "timestamp.h"
@@ -109,7 +114,7 @@ typedef struct s_object_list {
 	unsigned long long guid[2]; /**< globally unique identifier */
 	EVENTHANDLERS events;
 	/* IMPORTANT: flags must be last */
-	uint64 flags; /**< object flags */
+	unsigned long long flags; /**< object flags */
 } OBJECT; /**< Object header structure */
 
 /* this is the callback table for modules
@@ -135,7 +140,7 @@ typedef struct s_callbacks {
 	int (*define_map)(CLASS*,...);
 	int (*loadmethod)(CLASS*,const char*,LOADMETHODCALL call);
 	CLASS *(*class_getfirst)(void);
-	CLASS *(*class_getname)(const char*);
+	CLASS *(*class_getname)(const char*,CLASS *first);
 	PROPERTY *(*class_add_extended_property)(CLASS *,const char *,PROPERTYTYPE,const char *);
 	struct {
 		FUNCTION *(*define)(CLASS*,FUNCTIONNAME,FUNCTIONADDR);
@@ -451,11 +456,19 @@ void *object_remote_read(void *local, OBJECT *obj, PROPERTY *prop); /** access r
 void object_remote_write(void *local, OBJECT *obj, PROPERTY *prop); /** access remote object data */
 
 double object_get_part(void *x, const char *name);
+int object_set_part(void *x, const char *name, const char *value);
 TIMESTAMP object_heartbeat(OBJECT *obj);
 
 int object_loadmethod(OBJECT *obj, const char *name, const char *value);
 
 void object_synctime_profile_dump(const char *filename);
+
+typedef struct s_jsondata {
+	const char *name;
+	const char *value;
+	struct s_jsondata *next;
+} JSONDATA;
+bool object_set_json(OBJECT *obj, const char *propname, JSONDATA *data);
 
 #ifdef __cplusplus
 }

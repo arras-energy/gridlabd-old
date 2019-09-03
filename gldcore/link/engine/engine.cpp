@@ -6,9 +6,6 @@
 #define DLMAIN
 
 #include "engine.h"
-#include "gridlabd.h"
-#include "link.h"
-#include "build.h"
 
 gld_property **sync_index = NULL;
 unsigned int sync_index_size = 0;

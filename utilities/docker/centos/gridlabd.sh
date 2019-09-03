@@ -76,7 +76,7 @@ fi
 # cleanup third-party sources
 echo "Cleaning up third-party sources"
 rm -rf ._armadillo-7.800.1 armadillo-7.800.1.tar armadillo-7.800.1/ mysql-connector-c-6.1.11-linux-glibc2.12-x86_64.tar mysql-connector-c-6.1.11-linux-glibc2.12-x86_64/ xerces-c-src_2_8_0.tar
-git checkout .
+git reset --hard
 
 # debugger support
 if [ "${ENABLE_GDB}" == "yes" ]; then

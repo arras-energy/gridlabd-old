@@ -1,9 +1,13 @@
-/* $Id: stream.h 4738 2014-07-03 00:55:39Z dchassin $
- *
+/* File: stream.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #ifndef _STREAM_H
 #define _STREAM_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include <stdio.h>
 #include "platform.h"

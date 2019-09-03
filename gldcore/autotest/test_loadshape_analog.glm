@@ -1,0 +1,126 @@
+clock {
+    timezone "PST+8PDT";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2021-01-01 00:00:00 PST";
+}
+
+module tape;
+module assert;
+
+schedule unit 
+{
+    * 0 * * * 1.0;
+    * 1 * * * 1.0;
+    * 2 * * * 1.0;
+    * 3 * * * 1.0;
+    * 4 * * * 1.0;
+    * 5 * * * 1.0;
+    * 6 * * * 1.0;
+    * 7 * * * 1.0;
+    * 8 * * * 1.0;
+    * 9 * * * 1.0;
+    * 10 * * * 1.0;
+    * 11 * * * 1.0;
+    * 12 * * * 1.0;
+    * 13 * * * 1.0;
+    * 14 * * * 1.0;
+    * 15 * * * 1.0;
+    * 16 * * * 1.0;
+    * 17 * * * 1.0;
+    * 18 * * * 1.0;
+    * 19 * * * 1.0;
+    * 20 * * * 1.0;
+    * 21 * * * 1.0;
+    * 22 * * * 1.0;
+    * 23 * * * 1.0;
+}
+
+schedule unit_normal 
+{
+    normal;
+    * 0 * * * 1.0;
+    * 1 * * * 1.0;
+    * 2 * * * 1.0;
+    * 3 * * * 1.0;
+    * 4 * * * 1.0;
+    * 5 * * * 1.0;
+    * 6 * * * 1.0;
+    * 7 * * * 1.0;
+    * 8 * * * 1.0;
+    * 9 * * * 1.0;
+    * 10 * * * 1.0;
+    * 11 * * * 1.0;
+    * 12 * * * 1.0;
+    * 13 * * * 1.0;
+    * 14 * * * 1.0;
+    * 15 * * * 1.0;
+    * 16 * * * 1.0;
+    * 17 * * * 1.0;
+    * 18 * * * 1.0;
+    * 19 * * * 1.0;
+    * 20 * * * 1.0;
+    * 21 * * * 1.0;
+    * 22 * * * 1.0;
+    * 23 * * * 1.0;
+}
+
+class test_loadshape 
+{
+    loadshape shape;
+    double load;
+}
+
+filter delay1h(z,3600s) = 1/z;
+
+object test_loadshape
+{
+    name "unit_analog_direct";
+    shape "type:analog; schedule:unit;";
+    load delay1h(shape);
+    object assert {
+        target "load";
+        relation "==";
+        value 1.0;
+        within 0.00001;
+    };
+}
+
+object test_loadshape
+{
+    name "unit_analog_power";
+    shape "type:analog; schedule:unit; power: 0.5 kW";
+    load delay1h(shape);
+    object assert {
+        target "load";
+        relation "==";
+        value 0.5;
+        within 0.00001;
+    };
+}
+
+object test_loadshape
+{
+    name "unit_normal_analog_direct";
+    shape "type:analog; schedule:unit_normal;";
+    load delay1h(shape);
+    object assert {
+        target "load";
+        relation "==";
+        value 0.04167;
+        within 0.00001;
+    };
+}
+
+object test_loadshape
+{
+    name "unit_normal_analog_power";
+    shape "type:analog; schedule:unit_normal; power:1 kW";
+    load delay1h(shape);
+    object assert {
+        target "load";
+        relation "==";
+        value 0.04167;
+        within 0.00001;
+    };
+}
+

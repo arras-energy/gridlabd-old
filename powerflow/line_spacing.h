@@ -4,9 +4,9 @@
 #ifndef _LINESPACING_H
 #define _LINESPACING_H
 
-#include "powerflow.h"
-#include "powerflow_library.h"
-#include "line.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class line_spacing : public powerflow_library
 {

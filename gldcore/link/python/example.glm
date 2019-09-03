@@ -21,5 +21,6 @@ object test {
 	x "type:lognormal(0,1); refresh:5min";
 
 	// dispatch commit calls to the python module
+	on_precommit "python:my_test.precommit";
 	on_commit "python:my_test.commit";
 }

@@ -12,5 +12,4 @@
 
 #define DLMAIN
 
-#include <stdlib.h>
-#include "gridlabd.h"
+#include "commercial.h"

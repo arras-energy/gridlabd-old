@@ -7,14 +7,8 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "power_electronics.h"
-#include "inverter.h"
+#include <vector>
 
 #define DEFAULT 1.0;
 
@@ -971,7 +965,7 @@ int inverter::init(OBJECT *parent)
 					int cntr = 0;
 					tempf = "";
 					tempP = "";
-					for( size_t i = 0 ; i < freq_pwrSchedInput.length() ; i++ )	
+					for ( size_t i = 0 ; i < freq_pwrSchedInput.length() ; i++ )	
 					{
 						if(freq_pwrSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
@@ -6163,8 +6157,10 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 						pLine_unrotI[0] += -curr_state.Iac[0];
 						I_Out[0] = curr_state.Iac[0];
 					}
-					if((phases & 0x07) == 0x07) {
-						for(i = 0; i < 3; i++) {
+					if ( (phases & 0x07) == 0x07 ) 
+					{
+						for ( i = 0 ; i < 3 ; i++ ) 
+						{
 
 							pred_state.P_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Re();
 							pred_state.Q_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Im();

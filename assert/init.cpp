@@ -1,5 +1,12 @@
 /** $Id: init.cpp 4738 2014-07-03 00:55:39Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
+
+    @file init.cpp
+    @addtogroup assert Assertion objects
+    @ingroup modules
+
+    The \p assert module implements general purpose assert classes
+@{
 **/
 
 #include <stdlib.h>
@@ -45,3 +52,5 @@ EXPORT int check(){
 	/* if any assert objects have bad filenames, they'll fail on init() */
 	return 0;
 }
+
+/** @} **/

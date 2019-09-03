@@ -5,18 +5,13 @@
  *      Author: tang526
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <complex.h>
-
-#include "controller_dg.h"
+#include "generators.h"
+#include "powerflow.h" // TODO: remove the inter-module dependency--it's forbidden
 
 CLASS* controller_dg::oclass = NULL;
 controller_dg *controller_dg::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_BOTTOMUP|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 controller_dg::controller_dg(MODULE *mod)

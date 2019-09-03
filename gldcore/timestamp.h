@@ -1,5 +1,6 @@
-/** $Id: timestamp.h 1182 2008-12-22 22:08:36Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: timestamp.h 
+   Copyright (C) 2008, Battelle Memorial Institute
+   
 	@file timestamp.h
 	@addtogroup timestamp
 	@ingroup core
@@ -8,6 +9,10 @@
 
 #ifndef _TIMESTAMP_H
 #define _TIMESTAMP_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "platform.h"
 #include <time.h>
@@ -93,6 +98,8 @@ time_t timestamp_to_local(TIMESTAMP t);
 int local_tzoffset(TIMESTAMP t);
 
 double timestamp_get_part(void *x, const char *name);
+int timestamp_set_part(void *x, const char *name, const char *value);
+
 TIMESTAMP earliest_timestamp(TIMESTAMP t, ...);
 TIMESTAMP absolute_timestamp(TIMESTAMP t);
 int is_soft_timestamp(TIMESTAMP t);

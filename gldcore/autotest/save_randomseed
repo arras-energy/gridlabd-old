@@ -1,0 +1,2 @@
+#!/bin/bash
+echo "#set randomseed=${randomseed:-0}" > randomseed.glm

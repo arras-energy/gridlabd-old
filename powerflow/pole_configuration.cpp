@@ -1,7 +1,8 @@
 // powerflow/pole_configuration.cpp
 // Copyright (C) 2018 Stanford University
 
-#include "pole_configuration.h"
+#include "powerflow.h"
+using namespace std;
 
 EXPORT_CREATE(pole_configuration);
 EXPORT_INIT(pole_configuration);

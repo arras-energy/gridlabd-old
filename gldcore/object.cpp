@@ -1,4 +1,4 @@
-/** $Id: object.c 4738 2014-07-03 00:55:39Z dchassin $
+/** object.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file object.c
 	@addtogroup object Objects
@@ -25,10 +25,7 @@
  @{
  **/
 
-#include <float.h>
-#include <math.h>
-#include <ctype.h>
-#include <errno.h>
+#include "gldcore.h"
 
 #ifdef WIN32
 #define isnan _isnan  /* map isnan to appropriate function under Windows */
@@ -1500,7 +1497,9 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 #ifdef HAVE_PYTHON
 		// implemented in gldcore/link/python/python.cpp
 		extern int python_event(OBJECT *obj, const char *, long long *);
-		return python_event(obj,function,p_retval) ? 0 : 255;
+		int rv = python_event(obj,function,p_retval) ? 0 : -1;
+		output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
+		return rv;
 #else
 		output_error("python system not linked, event '%s' is not callable", event);
 		return -1;
@@ -1660,11 +1659,11 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	}
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
-		long long ok = 0;
-		int rc = object_event(obj,obj->events.precommit,&ok);
-		if ( rc != 0 || ok != 0 )
+		long long t2 = 0;
+		int rc = object_event(obj,obj->events.precommit,&t2);
+		if ( rc != 0 || t2 < t1 )
 		{
-			output_error("object %s:%d precommit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,ok);
+			output_error("object %s:%d precommit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,t2);
 			rv = FAILED;
 		}
 	}
@@ -2886,10 +2885,47 @@ double object_get_part(void *x, const char *name)
 	return QNAN;
 }
 
+int object_set_part(void *x, const char *name, const char *value)
+{
+	return 0;
+}
+
 int object_loadmethod(OBJECT *obj, const char *name, const char *value)
 {
 	LOADMETHOD *method = class_get_loadmethod(obj->oclass,name);
 	return method ? method->call(obj,value) : 0;
 }
+
+bool object_set_property_part(OBJECT *obj, PROPERTY *prop, const char *name, const char *value)
+{
+	PROPERTYSPEC *spec = property_getspec(prop->ptype);
+	if ( spec == NULL )	
+		return false;
+	if ( spec->set_part == NULL )
+		return false;
+	void *ptr = (void*)((char*)(obj+1)+(size_t)prop->addr);
+	if ( ! spec->set_part(ptr,name,value) )
+	{
+		char tmp[64];	
+		output_error("object_set_property_part(OBJECT *obj={name:%s}, PROPERTY *prop={name:%s}, char *name='%s', char *value='%s'): set failed",object_name(obj,tmp,sizeof(tmp)),prop->name,name,value);
+		return false;
+	}
+	return true;
+}
+
+bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
+{
+	PROPERTY *prop = object_get_property(obj,propname,NULL);
+	if ( prop == NULL )
+		return false;
+	for ( ; data != NULL ; data = data->next )
+	{
+		output_debug("%s:%d.%s -- setting part '%s' = '%s'", obj->oclass->name, obj->id, propname,data->name,data->value);
+		if ( ! object_set_property_part(obj,prop,data->name,data->value) )
+			return false;
+	}
+	return true;
+}
+
 
 /** @} **/

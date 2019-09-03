@@ -7,14 +7,8 @@
 	@{
 **/
 //3.2
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "line.h"
 
 CLASS* underground_line::oclass = NULL;
 CLASS* underground_line::pclass = NULL;

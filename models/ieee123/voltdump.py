@@ -4,6 +4,7 @@ import datetime
 import re
 import math
 import cmath
+import glmptime as glmptime
 
 data = {}
 nodes = ["Timestamp"]
@@ -18,7 +19,7 @@ with open('output/volt_dump.csv', 'r') as dumpfile:
 			tpos = row[0].find(" at ")
 			if tpos > 0 :
 				timestamp = row[0][tpos+4:tpos+27]
-				timestamp = datetime.datetime.strptime(timestamp,"%Y-%m-%d %H:%M:%S %Z")
+				timestamp = glmptime.glmptime(timestamp)
 				data[timestamp] = []
 				timezone = row[0][tpos+24:tpos+27]
 			header = []
@@ -86,14 +87,13 @@ for filename in os.listdir("output") :
 					if row[0]=="# timestamp" :
 						headers.extend(row[1:])
 					continue
-				timestamp = datetime.datetime.strptime(row[0],"%Y-%m-%d %H:%M:%S %Z")
+				timestamp = glmptime.glmptime(row[0])
 				if not timestamp in data.keys() :
 					data[timestamp] = []
 				try :
 					data[timestamp].extend(list(map(lambda x:to_complex(x),row[1:])))
 				except:
 					print("%s: error parsing row '%s', values ignored" % (filename,row))
-
 
 with open("output/powers.csv","w") as powers:
 	print("Writing powers...")

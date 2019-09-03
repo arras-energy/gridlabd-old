@@ -1,4 +1,4 @@
-/** $Id: matlab.c 4738 2014-07-03 00:55:39Z dchassin $
+/** matlab.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file matlab.c
 	@addtogroup matlab Matlab environment
@@ -12,12 +12,7 @@
  @{
  **/
 
-#include <stdlib.h>
-
-#include "globals.h"
-#include "output.h"
-#include "class.h"
-#include "object.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_MATLAB) // used only if IN_MYCONTEXT is present in this module
 

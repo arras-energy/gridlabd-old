@@ -9,7 +9,10 @@ clock {
      stoptime '2009-01-02 00:00:00';
 }
 
-module tape;
+module tape
+{
+  csv_data_only 1;
+}
 module climate;
 module residential;
 module assert;
@@ -167,6 +170,7 @@ object house {
 		tank_volume 20;
 		location INSIDE;
 		tank_UA 3.3;
+#ifndef RECORD
 		object double_assert {
 			target "temperature";
 			object player {
@@ -183,12 +187,20 @@ object house {
 			};
 			within 0.01;
 		};
+#else
 		object recorder {
-			file "waterheater1.csv";
-			property tank_setpoint,thermostat_deadband,temperature,height,water_demand,demand,is_waterheater_on,actual_load,previous_load;
+			file "../test_wh_explicit_2_temperature.player";
+			property temperature;
 			interval -1;
 			limit 2880;
 		};
+    object recorder {
+      file "../test_wh_explicit_2_height.player";
+      property height;
+      interval -1;
+      limit 2880;
+    };
+#endif
 };
  };
 // object multi_recorder {

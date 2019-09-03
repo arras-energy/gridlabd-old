@@ -6,15 +6,12 @@
  @{  
  **/
 
-#ifndef _rectifier_H
-#define _rectifier_H
+#ifndef _RECTIFIER_H
+#define _RECTIFIER_H
 
-#include <stdarg.h>
-#include "../powerflow/powerflow_object.h"
-//#include "../powerflow/node.h"
-#include "gridlabd.h"
-#include "power_electronics.h"
-
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 //rectifier extends power_electronics
 class rectifier: public power_electronics
@@ -100,47 +97,6 @@ public:
 	static CLASS *oclass;
 	static rectifier *defaults;
 	static CLASS *plcass;
-#ifdef OPTIONAL
-	static CLASS *pclass; /**< defines the parent class */
-	TIMESTAMPP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
-#endif
-};
-
-#endif
-
-/**@}*/
-/** $Id: rectifier.h,v 1.0 2008/07/17
-	@file rectifier.h
-	@addtogroup rectifier
-	@ingroup MODULENAME
-
- @{  
- **/
-
-#ifndef _rectifier_H
-#define _rectifier_H
-
-#include <stdarg.h>
-#include "gridlabd.h"
-
-class rectifier {
-private:
-	/* TODO: put private variables here */
-protected:
-	/* TODO: put unpublished but inherited variables */
-public:
-	/* TODO: put published variables here */
-public:
-	/* required implementations */
-	rectifier(MODULE *module);
-	int create(void);
-	int init(OBJECT *parent);
-	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
-public:
-	static CLASS *oclass;
-	static rectifier *defaults;
 #ifdef OPTIONAL
 	static CLASS *pclass; /**< defines the parent class */
 	TIMESTAMPP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
