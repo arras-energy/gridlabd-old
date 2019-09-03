@@ -349,6 +349,10 @@ void GldMain::run_on_exit()
 	}
 #endif
 
+	/* compute elapsed runtime */
+	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
+	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
+
 	for ( std::list<onexitcommand>::iterator cmd = exitcommands.begin() ; cmd != exitcommands.end() ; cmd++ )
 	{
 		if ( cmd->get_exitcode() == exec.getexitcode() )
