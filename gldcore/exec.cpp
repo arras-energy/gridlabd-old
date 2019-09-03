@@ -1069,17 +1069,29 @@ STATUS GldExec::init_all(void)
 	STATUS rv = SUCCESS;
 	IN_MYCONTEXT output_verbose("initializing objects...");
 
+	/* run initialization callbacks */
+	if ( run_initcalls(global_starttime) < 0 )
+	{
+		return FAILED;
+	}
+
 	/* initialize modules */
 	if ( ! module_initall() )
+	{
 		return FAILED;
+	}
 
 	/* initialize instances */
-	if ( instance_initall()==FAILED )
+	if ( instance_initall() == FAILED )
+	{
 		return FAILED;
+	}
 
 	/* initialize loadshapes */
 	if (loadshape_initall()==FAILED || enduse_initall()==FAILED)
+	{
 		return FAILED;
+	}
 
 	switch (global_init_sequence)
 	{
@@ -1102,16 +1114,19 @@ STATUS GldExec::init_all(void)
 			rv = FAILED;
 	}
 	errno = EINVAL;
-	if ( rv==FAILED) return FAILED;
+	if ( rv == FAILED ) 
+	{
+		return FAILED;
+	}
 
 	/* collect heartbeat objects */
-	for ( obj=object_get_first(); obj!=NULL ; obj=obj->next )
+	for ( obj = object_get_first() ; obj != NULL ; obj = obj->next )
 	{
 		/* this is a heartbeat object */
-		if ( obj->heartbeat>0 )
+		if ( obj->heartbeat > 0 )
 		{
 			/* need more space */
-			if ( n_object_heartbeats>=max_object_heartbeats )
+			if ( n_object_heartbeats >= max_object_heartbeats )
 			{
 				OBJECT **bigger;
 				int size = ( max_object_heartbeats==0 ? 256 : (max_object_heartbeats*2) );
@@ -2811,11 +2826,9 @@ STATUS GldExec::exec_start(void)
 	}
 
 	/* run term scripts, if any */
-	if ( run_termscripts()!=XC_SUCCESS )
+	if ( run_termscripts() != XC_SUCCESS )
 	{
 		output_error("term script(s) failed");
-		if ( thread ) free(thread);
-		return FAILED;
 	}
 
 	/* deallocate threadpool */
@@ -2824,6 +2837,13 @@ STATUS GldExec::exec_start(void)
 		struct thread_data * thread_data = get_thread_data();
 		free(thread_data);
 		thread_data = NULL;
+	}
+
+	/* run term calls, if any */
+	int rc = run_termcalls(global_clock);
+	if ( rc < 0 )
+	{
+		output_error("termcall %d failed", rc);
 	}
 
 	// Destroy mutex and cond
@@ -3585,5 +3605,50 @@ int GldExec::run_termscripts(void)
 {
 	return run_scripts(term_scripts);
 }
+
+size_t GldExec::add_initcall(INITCALL call)
+{
+	initcalls.push_back(call);
+	size_t n = initcalls.size();
+	IN_MYCONTEXT output_verbose("add_initcall(%p) -> %d", call, n);
+	return n;
+}
+
+int GldExec::run_initcalls(TIMESTAMP t0)
+{
+	int n = 0;
+	for ( std::list<INITCALL>::iterator call = initcalls.begin() ; call != initcalls.end() ; call++, n++ )
+	{
+		int rc = (*call)(t0);
+		if ( rc != 0 )
+		{
+			return -n;
+		}
+	}
+	return n;
+}
+
+size_t GldExec::add_termcall(TERMCALL call)
+{
+	termcalls.push_back(call);
+	size_t n = termcalls.size();
+	IN_MYCONTEXT output_verbose("add_termcall(%p) -> %d", call, n);
+	return n;
+}
+
+int GldExec::run_termcalls(TIMESTAMP tn)
+{
+	int n = 0;
+	for ( std::list<TERMCALL>::iterator call = termcalls.begin() ; call != termcalls.end() ; call++, n++ )
+	{
+		int rc = (*call)(tn);
+		if ( rc != 0 )
+		{
+			return -n;
+		}
+	}
+	return n;
+}
+
 
 /**@}*/

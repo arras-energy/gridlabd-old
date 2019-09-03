@@ -6268,6 +6268,28 @@ static int loader_hook(PARSER)
 		output_debug("loader extension '%s' parser linked", libname);	
 
 		loader_addhook((PARSERCALL)parser);
+
+		// add init callback
+		INITCALL initcall = (INITCALL) dlsym(lib,"on_init");
+		if ( initcall )
+		{
+			my_instance->get_exec()->add_initcall(initcall);
+		}
+
+		// add term callback
+		TERMCALL termcall = (TERMCALL) dlsym(lib,"on_term");
+		if ( termcall )
+		{
+			my_instance->get_exec()->add_termcall(termcall);
+		}
+
+		// add exit callback
+		EXITCALL exitcall = (EXITCALL) dlsym(lib,"on_exit");
+		if ( exitcall )
+		{
+			my_instance->add_on_exit(exitcall);
+		}
+
 		ACCEPT;
 		DONE;
 	}

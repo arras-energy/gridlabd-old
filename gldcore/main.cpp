@@ -330,6 +330,14 @@ void GldMain::delete_pidfile(void)
 	unlink(global_pidfile);
 }
 
+int GldMain::add_on_exit(EXITCALL call)
+{
+	exitcalls.push_back(call);
+	size_t n = exitcalls.size();
+	IN_MYCONTEXT output_verbose("add_on_exit(%p) -> %d", call, n);
+	return n;
+}
+
 int GldMain::add_on_exit(int xc, const char *cmd)
 {
 	try
@@ -349,6 +357,19 @@ int GldMain::add_on_exit(int xc, const char *cmd)
 
 void GldMain::run_on_exit(int xc)
 {
+	for ( std::list<EXITCALL>::iterator call = exitcalls.begin() ; call != exitcalls.end() ; call++ )
+	{
+		int rc = (*call)(xc);
+		if ( rc != 0 )
+		{
+			output_error("on_exit call failed (return code %d)", rc);
+			return;
+		}
+		else
+		{
+			IN_MYCONTEXT output_verbose("exitcall() -> code %d", rc);
+		}
+	}
 	for ( std::list<onexitcommand>::iterator cmd = exitcommands.begin() ; cmd != exitcommands.end() ; cmd++ )
 	{
 		if ( cmd->get_exitcode() == xc )
