@@ -5,11 +5,22 @@ module powerflow {
 	solver_method NR;
 	line_capacitance true;
 	}
+module reliability {
+    report_event_log false;
+} 
 
 object fault_check
 {
+    name base_fault_check_object;
     check_mode ONCHANGE;
+    strictly_radial false;
+    eventgen_object testgendev;
+    grid_association true;  //Flag to ensure non-monolithic islands
     output_filename "fault_check.txt";
+}
+object eventgen {
+    name testgendev;
+    target_group "class=overhead_line";
 }
 
 module assert;
