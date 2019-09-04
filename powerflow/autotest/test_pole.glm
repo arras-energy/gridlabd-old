@@ -4,8 +4,8 @@ module climate;
 #set suppress_repeat_messages=FALSE
 
 clock {
-	starttime '2000-01-01 00:00:00';
-	stoptime '2000-01-01 05:00:00';
+	starttime '2020-01-01 00:00:00';
+	stoptime '2021-01-01 00:00:00';
 }
 
 object climate {
