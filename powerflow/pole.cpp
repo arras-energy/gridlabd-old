@@ -7,6 +7,8 @@ using namespace std;
 CLASS *pole::oclass = NULL;
 CLASS *pole::pclass = NULL;
 
+static double default_repair_time = 24.0;
+
 pole::pole(MODULE *mod) : node(mod)
 {
 	if ( oclass == NULL )
@@ -36,7 +38,9 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
 			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure",
 			PT_int32, "install_year", PADDR(install_year), PT_DESCRIPTION, "the year of pole was installed",
+			PT_double, "repair_time[h]", PADDR(repair_time), PT_DESCRIPTION, "typical repair time after pole failure",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
+		gl_global_create("pole::repair_time[h]",PT_double,&default_repair_time,NULL);
 	}
 }
 
@@ -87,6 +91,7 @@ int pole::create(void)
 	equipment_height = 0.0;
 	install_year = 0;
 	current_hollow_diameter = 0.0;
+	repair_time = 0.0;
 
 	return res;
 }
@@ -105,14 +110,21 @@ int pole::init(OBJECT *parent)
 	}
 	config = OBJECTDATA(configuration,pole_configuration);
 
-	double *pRepairTime = (double*)gl_get_addr(configuration, "repair_time");
-	if ( pRepairTime )
-		gl_warning("repair time, %4.0f", *pRepairTime);
-	else
+	if ( repair_time <= 0.0 )
 	{
-		static double default_repair_time = 86400.0;
-		pRepairTime = &default_repair_time;
-		gl_warning("can't find repair time, using default %4.0f", *pRepairTime);
+		double *pRepairTime = (double*)gl_get_addr(configuration, "repair_time");
+		if ( pRepairTime && *pRepairTime > 0 )
+		{
+			repair_time = *pRepairTime;
+		}
+		else if ( default_repair_time > 0 )
+		{
+			repair_time = default_repair_time;
+		}
+		else
+		{
+			throw "pole::default_repair_time must be positive";
+		}
 	}
 
 	// tilt
@@ -255,13 +267,13 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 
-	if ( pole_status == PS_FAILED && down_time+config->repair_time >= gl_globalclock )
+	if ( pole_status == PS_FAILED && (gl_globalclock-down_time)/3600.0 > repair_time )
 	{
 		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 		{
 			wire->line->link_fault_off(&wire->fault,wire->fault_type,&wire->data);
 		}
-		gl_warning("pole repaired");
+		gl_warning("pole repaired (down_time=%lld, repair_time=%g h, global_clock=%lld, elapsed time=%lld", down_time, repair_time, gl_globalclock,gl_globalclock-down_time);
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
 		pole_status = PS_OK;
@@ -301,11 +313,11 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		pole_status = ( pole_stress < 1.0 ? PS_OK : PS_FAILED );
 		if ( pole_status == PS_FAILED )
 		{
-			gl_warning("pole failed at %.0f%% loading",pole_stress*100);
+			gl_warning("pole failed at %.0f%% loading, time to repair is %g h",pole_stress*100,repair_time);
 			down_time = gl_globalclock;
 			for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 			{
-				wire->repair = config->repair_time;
+				wire->repair = repair_time*3600;
 				wire->line->link_fault_on(&wire->protection,wire->fault_type,&wire->fault,&wire->repair,&wire->data);
 			}
 		}
@@ -318,7 +330,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 	}
 	
 	TIMESTAMP t1 = node::presync(t0);
-	TIMESTAMP t2 = ( pole_status == PS_FAILED ? down_time + config->repair_time : TS_NEVER );
+	TIMESTAMP t2 = ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
 	return ( t1 > t0 && t2 < t1 ) ? t1 : t2;
 }
 

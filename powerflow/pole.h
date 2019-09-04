@@ -57,6 +57,7 @@ public:
 	double equipment_height;	// (see Section E)
 	double degradation_rate;
 	int install_year; // year pole was installed
+	double repair_time;
 private:
 	double ice_thickness;
 	double resisting_moment; 	// (see Section B)
