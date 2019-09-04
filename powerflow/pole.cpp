@@ -81,7 +81,7 @@ int pole::create(void)
 	wind_direction = NULL;
 	wind_gust = NULL;
 	last_wind_speed = 0.0;
-	wire_data = NULL;
+	wire_data = new std::list<WIREDATA>;
 	down_time = TS_NEVER;
 	equipment_area = 0.0;
 	equipment_height = 0.0;
@@ -206,20 +206,18 @@ int pole::init(OBJECT *parent)
 	}
 	is_deadend = ( n_lines < 2 );
 
-	WIREDATA *wire;
 	wire_load = 0.0;
 	wire_moment = 0.0;
 	wire_tension = 0.0;
 	wire_load_nowind = 0.0;
 	wire_moment_nowind = 0.0;
 	double pole_height = config->pole_length - config->pole_depth;
-	for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
-		{
-			double load_nowind = (wire->diameter+2*ice_thickness)/12;
-			wire_load_nowind += load_nowind;
-			wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
-
-		}
+	for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
+	{
+		double load_nowind = (wire->diameter+2*ice_thickness)/12;
+		wire_load_nowind += load_nowind;
+		wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
+	}
 
 	pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 	equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
@@ -259,8 +257,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 
 	if ( pole_status == PS_FAILED && down_time+config->repair_time >= gl_globalclock )
 	{
-		WIREDATA *wire;
-		for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
+		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 		{
 			wire->line->link_fault_off(&wire->fault,wire->fault_type,&wire->data);
 		}
@@ -281,11 +278,10 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		pole_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		equipment_moment = wind_pressure * equipment_area * equipment_height * config->overload_factor_transverse_general;
 
-		WIREDATA *wire;
 		wire_load = 0.0;
 		wire_moment = 0.0;
 		wire_tension = 0.0;	
-		for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
+		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 		{
 			double load = wind_pressure * (wire->diameter+2*ice_thickness)/12;
 			wire_load += load;
@@ -307,8 +303,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		{
 			gl_warning("pole failed at %.0f%% loading",pole_stress*100);
 			down_time = gl_globalclock;
-			WIREDATA *wire;
-			for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
+			for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 			{
 				wire->repair = config->repair_time;
 				wire->line->link_fault_on(&wire->protection,wire->fault_type,&wire->fault,&wire->repair,&wire->data);
