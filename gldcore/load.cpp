@@ -1062,17 +1062,25 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = object_find_by_id(item->by->id + (op[0]=='+'?+1:-1)*id);
 		if ( oclass == NULL || obj==NULL )
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
-				format_object(item->by), item->id);
-			return FAILED;
+			obj = object_find_name(item->id);
+			if ( obj == NULL )
+			{
+				output_error_raw("%s(%d): cannot resolve implicit reference from %s to %s", filename, item->line,
+					format_object(item->by), item->id);
+				return FAILED;
+			}
 		}
 	}
 	else if (sscanf(item->id,global_object_scan,classname,&id)==2)
 	{
 		obj = load_get_index(id);
+		if ( obj == NULL )
+		{
+			obj = object_find_name(item->id);
+		}
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve explicit reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
@@ -1089,7 +1097,7 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = get_next_unlinked(oclass);
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve last reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
