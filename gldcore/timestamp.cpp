@@ -1188,8 +1188,8 @@ TIMESTAMP convert_to_timestamp(const char *value)
 		S = (unsigned short)s;
 		unsigned int ns = (s-S)*1e9;
 		DATETIME dt = {Y,m,d,H,M,S,ns,0};
-		TIMESTAMP t = mkdatetime(&dt);
-		return t - (tzh*60+tzm)*60;
+		dt.tzoffset = (tzh*60+tzm)*60;
+		return mkdatetime(&dt);
 	}
 
 	/* scan ISO format date/time */

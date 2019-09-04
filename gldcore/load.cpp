@@ -1062,17 +1062,25 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = object_find_by_id(item->by->id + (op[0]=='+'?+1:-1)*id);
 		if ( oclass == NULL || obj==NULL )
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
-				format_object(item->by), item->id);
-			return FAILED;
+			obj = object_find_name(item->id);
+			if ( obj == NULL )
+			{
+				output_error_raw("%s(%d): cannot resolve implicit reference from %s to %s", filename, item->line,
+					format_object(item->by), item->id);
+				return FAILED;
+			}
 		}
 	}
 	else if (sscanf(item->id,global_object_scan,classname,&id)==2)
 	{
 		obj = load_get_index(id);
+		if ( obj == NULL )
+		{
+			obj = object_find_name(item->id);
+		}
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve explicit reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
@@ -1089,7 +1097,7 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = get_next_unlinked(oclass);
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve last reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
@@ -1839,6 +1847,18 @@ struct s_rpn {
 	double val; // if op = 0, check val
 };
 
+double pos(double a)
+{
+	return a > 0.0 ? a : 0.0;
+}
+double neg(double a)
+{
+	return a < 0.0 ? -a : 0.0;
+}
+double nonzero(double a)
+{
+	return a != 0.0;
+}
 struct s_rpn_func {
 	const char *name;
 	int args; /* use a mode instead? else assume only doubles */
@@ -1858,7 +1878,10 @@ struct s_rpn_func {
 	{"log", 1, -10, log},
 	{"log10", 1, -11, log10},
 	{"floor", 1, -12, floor},
-	{"ceil", 1, -13, ceil}
+	{"ceil", 1, -13, ceil},
+	{"pos", 1, -14, pos}, // returns only positive values
+	{"neg", 1, -15, neg}, // returns only positive values
+	{"nonzero", 1, -16, nonzero}, // returns 1 if nonzero
 };
 
 static int rpnfunc(PARSER, int *val)
@@ -3901,7 +3924,11 @@ static int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size
 	START;
 	if ( TERM(name(HERE,fncname,sizeof(fncname))) && (WHITE,LITERAL("(")) && (WHITE,TERM(property_list(HERE,varlist,sizeof(varlist)))) && LITERAL(")") )
 	{
-		if ( strlen(fncname)<namesize && strlen(varlist)<srcsize )
+		if ( transform_find_filter(fncname) == NULL )
+		{
+			REJECT;
+		}
+		else if ( strlen(fncname)<namesize && strlen(varlist)<srcsize )
 		{
 			strcpy(filtername,fncname);
 			strcpy(sources,varlist);
@@ -4305,7 +4332,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_complex_by_name(obj,propname,cval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to complex value '%g%+gi'", filename, linenum, propname, format_object(obj), cval.Re(), cval.Im());
+					output_error_raw("%s(%d): complex property %s of %s %s could not be set to complex value '%g%+gi'", filename, linenum, propname, format_object(obj), cval.Re(), cval.Im());
 					REJECT;
 				}
 				else
@@ -4320,7 +4347,22 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
+					output_error_raw("%s(%d): double property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
+					REJECT;
+				}
+				else
+					ACCEPT;
+			}
+			else if (prop!=NULL && prop->ptype==PT_bool && TERM(expression(HERE, &dval, &unit, obj)))
+			{
+				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
+				{
+					output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
+					REJECT;
+				}
+				else if (object_set_value_by_name(obj,propname,dval>0?"TRUE":"FALSE")==0)
+				{
+					output_error_raw("%s(%d): double property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
 					REJECT;
 				}
 				else
@@ -4335,7 +4377,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to double value '%g' having unit '%s'", filename, linenum, propname, format_object(obj), dval, unit->name);
+					output_error_raw("%s(%d): double property %s of %s %s could not be set to double value '%g' having unit '%s'", filename, linenum, propname, format_object(obj), dval, unit->name);
 					REJECT;
 				}
 				else
@@ -4370,7 +4412,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							REJECT;
 					} /* end switch */
 					if(rv == 0){
-						output_error_raw("%s(%d): property %s of %s %s could not be set to integer '%lld'", filename, linenum, propname, format_object(obj), ival);
+						output_error_raw("%s(%d): int property %s of %s %s could not be set to integer '%lld'", filename, linenum, propname, format_object(obj), ival);
 						REJECT;
 					} else {
 						ACCEPT;
@@ -4409,55 +4451,12 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
-			{
-				// TODO handle more than one source
-				char sobj[64], sprop[64];
-				int n = sscanf(sources,"%[^.].%[^,]",sobj,sprop);
-				OBJECT *source_obj;
-				PROPERTY *source_prop;
-
-				/* get source object */
-				source_obj = (n==1||strcmp(sobj,"this")==0) ? obj : object_find_name(sobj);
-				if ( !source_obj )
-				{
-					output_error_raw("%s(%d): transform source object '%s' not found", filename, linenum, n==1?"this":sobj);
-					REJECT;
-					DONE;
-				}
-
-				/* get source property */
-				source_prop = object_get_property(source_obj, n==1?sobj:sprop,NULL);
-				if ( !source_prop )
-				{
-					output_error_raw("%s(%d): transform source property '%s' of object '%s' not found", filename, linenum, n==1?sobj:sprop, n==1?"this":sobj);
-					REJECT;
-					DONE;
-				}
-
-				/* add to external transform list */
-				if ( !transform_add_external(obj,prop,transformname,source_obj,source_prop) )
-				{
-					output_error_raw("%s(%d): external transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
-					REJECT;
-					DONE;
-				}
-				else if ( source!=NULL )
-				{
-					/* a transform is unresolved */
-					if (first_unresolved==source)
-
-						/* source was the unresolved entry, for now it will be the transform itself */
-						first_unresolved->ref = (void*)transform_getnext(NULL);
-
-					ACCEPT;
-				}
-			}
 			else if (prop!=NULL && prop->ptype==PT_double && TERM(filter_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
-				int n = sscanf(sources,"%[^:]:%[^,]",sobj,sprop);
+
+				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
 				OBJECT *source_obj;
 				PROPERTY *source_prop;
 
@@ -4483,6 +4482,50 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				if ( !transform_add_filter(obj,prop,transformname,source_obj,source_prop) )
 				{
 					output_error_raw("%s(%d): filter transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
+					REJECT;
+					DONE;
+				}
+				else if ( source!=NULL )
+				{
+					/* a transform is unresolved */
+					if (first_unresolved==source)
+
+						/* source was the unresolved entry, for now it will be the transform itself */
+						first_unresolved->ref = (void*)transform_getnext(NULL);
+
+					ACCEPT;
+				}
+			}
+			else if (prop!=NULL && prop->ptype==PT_double && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
+			{
+				// TODO handle more than one source
+				char sobj[64], sprop[64];
+				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
+				OBJECT *source_obj;
+				PROPERTY *source_prop;
+
+				/* get source object */
+				source_obj = (n==1||strcmp(sobj,"this")==0) ? obj : object_find_name(sobj);
+				if ( !source_obj )
+				{
+					output_error_raw("%s(%d): transform source object '%s' not found", filename, linenum, n==1?"this":sobj);
+					REJECT;
+					DONE;
+				}
+
+				/* get source property */
+				source_prop = object_get_property(source_obj, n==1?sobj:sprop,NULL);
+				if ( !source_prop )
+				{
+					output_error_raw("%s(%d): transform source property '%s' of object '%s' not found", filename, linenum, n==1?sobj:sprop, n==1?"this":sobj);
+					REJECT;
+					DONE;
+				}
+
+				/* add to external transform list */
+				if ( !transform_add_external(obj,prop,transformname,source_obj,source_prop) )
+				{
+					output_error_raw("%s(%d): external transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
 					REJECT;
 					DONE;
 				}
