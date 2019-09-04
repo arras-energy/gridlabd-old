@@ -273,7 +273,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		{
 			wire->line->link_fault_off(&wire->fault,wire->fault_type,&wire->data);
 		}
-		gl_warning("pole repaired (down_time=%lld, repair_time=%g h, global_clock=%lld, elapsed time=%lld", down_time, repair_time, gl_globalclock,gl_globalclock-down_time);
+		gl_debug("pole repaired");
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
 		pole_status = PS_OK;
@@ -313,7 +313,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		pole_status = ( pole_stress < 1.0 ? PS_OK : PS_FAILED );
 		if ( pole_status == PS_FAILED )
 		{
-			gl_warning("pole failed at %.0f%% loading, time to repair is %g h",pole_stress*100,repair_time);
+			gl_debug("pole failed at %.0f%% loading, time to repair is %g h",pole_stress*100,repair_time);
 			down_time = gl_globalclock;
 			for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 			{
