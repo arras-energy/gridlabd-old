@@ -5,6 +5,13 @@ module powerflow {
 	solver_method NR;
 	line_capacitance true;
 	}
+
+object fault_check
+{
+    check_mode ONCHANGE;
+    output_filename "fault_check.txt";
+}
+
 module assert;
 module climate;
 
