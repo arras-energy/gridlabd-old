@@ -56,6 +56,8 @@ def on_term(t) :
 	plt.grid()
 	plt.legend()
 	modelname = gridlabd.get_global("modelname")
-	plt.title(modelname)
+	title_name = gridlabd.get_global("graph_title")
+	print(title_name)
+	plt.title(title_name)
 	plt.savefig(modelname.replace(".glm",".png"))
 	# term always returns None
