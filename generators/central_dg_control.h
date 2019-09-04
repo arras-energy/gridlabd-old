@@ -6,12 +6,12 @@
  @{  
  **/
 
-#ifndef _central_dg_control_H
-#define _central_dg_control_H
+#ifndef _CENTRAL_DG_CONTROL_H
+#define _CENTRAL_DG_CONTROL_H
 
-#include <stdarg.h>
-#include "gridlabd.h"
-#include "generators.h"
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 EXPORT STATUS postupdate_central_dg_control(OBJECT *obj, complex *useful_value, unsigned int mode_pass);
 
@@ -34,11 +34,11 @@ public:
 	//char32 battery_group;
 	//char32 solar_group;
 	char32 controlled_objects;
-	inverter **inverter_set;
-	inverter ***battery_inverter_set;
-	inverter ***solar_inverter_set;
-	battery **battery_set;
-	solar **solar_set;
+	class inverter **inverter_set;
+	class inverter ***battery_inverter_set;
+	class inverter ***solar_inverter_set;
+	class battery **battery_set;
+	class solar **solar_set;
 	OBJECT *feederhead_meter;
 	int controlled_count;
 	int inverter_count;
@@ -134,47 +134,6 @@ public:
 	double fmax(double a, double b);
 	double fmax(double a, double b, double c);
 	complex complex_exp(double angle);
-#ifdef OPTIONAL
-	static CLASS *pclass; /**< defines the parent class */
-	TIMESTAMPP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
-#endif
-};
-
-#endif
-
-/**@}*/
-/** $Id: central_dg_control.h,v 1.0 2008/06/16
-	@file central_dg_control.h
-	@addtogroup central_dg_control
-	@ingroup MODULENAME
-
- @{  
- **/
-
-#ifndef _inverter_H
-#define _inverter_H
-
-#include <stdarg.h>
-#include "gridlabd.h"
-
-class central_dg_control {
-private:
-	/* TODO: put private variables here */
-protected:
-	/* TODO: put unpublished but inherited variables */
-public:
-	/* TODO: put published variables here */
-public:
-	/* required implementations */
-	central_dg_control(MODULE *module);
-	int create(void);
-	int init(OBJECT *parent);
-	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
-public:
-	static CLASS *oclass;
-	static central_dg_control *defaults;
 #ifdef OPTIONAL
 	static CLASS *pclass; /**< defines the parent class */
 	TIMESTAMPP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */

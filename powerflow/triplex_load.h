@@ -4,7 +4,9 @@
 #ifndef _TRIPLEXLOAD_H
 #define _TRIPLEXLOAD_H
 
-#include "triplex_node.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 EXPORT SIMULATIONMODE interupdate_triplex_load(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
 

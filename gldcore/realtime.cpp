@@ -1,13 +1,9 @@
-/* realtime.c
+/* realtime.cpp
  * Copyright (C) 2008 Battelle Memorial Institute
  * This module handle realtime events such as regular update to the environment, alarms and processing time limits.
  */
 
-#include <stdlib.h>
-#include <errno.h>
-#include "realtime.h"
-#include "output.h"
-#include "globals.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_REALTIME) // used only if IN_MYCONTEXT is present
 

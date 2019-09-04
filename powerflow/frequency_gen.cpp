@@ -2,15 +2,8 @@
 	Copyright (C) 2009 Battelle Memorial Institute
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "frequency_gen.h"
-#include "node.h"
 
 //////////////////////////////////////////////////////////////////////////
 // frequency_gen CLASS FUNCTIONS
@@ -157,7 +150,7 @@ int frequency_gen::init(OBJECT *parent)
 		CurrEquations[index].coeffa = 0.0;
 		CurrEquations[index].coeffb = 0.0;
 		CurrEquations[index].delay_time = 0.0;
-		CurrEquations[index].contype = EMPTY;
+		CurrEquations[index].contype = CT_EMPTY;
 		CurrEquations[index].starttime = TS_NEVER;
 		CurrEquations[index].endtime = TS_NEVER;
 		CurrEquations[index].enteredtime = TS_NEVER;
@@ -399,7 +392,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 						//Schedule in the details of this change
 							for (index=0; index<Num_Resp_Eqs; index++)	//Find an open spot
 							{
-								if (CurrEquations[index].contype==EMPTY)
+								if (CurrEquations[index].contype==CT_EMPTY)
 								{
 									CurrEquations[index].coeffa = power_diff*K_val;
 									CurrEquations[index].coeffb = invT_val;
@@ -486,7 +479,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 						//Compute the new response - Schedule in the details of this change
 						for (index=0; index<Num_Resp_Eqs; index++)	//Find an open spot
 						{
-							if (CurrEquations[index].contype==EMPTY)
+							if (CurrEquations[index].contype==CT_EMPTY)
 							{
 								CurrEquations[index].coeffa = power_diff*K_val;
 								CurrEquations[index].coeffb = invT_val;
@@ -514,7 +507,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 						//Apply the ramp to the scheduler, based on current conditions
 						for (index=0; index<Num_Resp_Eqs; index++)	//Find an open spot
 						{
-							if (CurrEquations[index].contype==EMPTY)
+							if (CurrEquations[index].contype==CT_EMPTY)
 							{
 								//Find out how far we need to go
 								power_diff = PMech - LoadPower;
@@ -610,7 +603,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 						//Apply this change into the equation list
 						for (index=0; index<Num_Resp_Eqs; index++)	//Find an open spot
 						{
-							if (CurrEquations[index].contype==EMPTY)
+							if (CurrEquations[index].contype==CT_EMPTY)
 							{
 								CurrEquations[index].coeffa = power_diff*K_val;
 								CurrEquations[index].coeffb = invT_val;
@@ -672,7 +665,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 									//Find a ramp that satisfies our needs
 									for (index=0; index<Num_Resp_Eqs; index++)
 									{
-										if (CurrEquations[index].contype == EMPTY)	//Found one
+										if (CurrEquations[index].contype == CT_EMPTY)	//Found one
 										{
 											//Add in a new ramp, we need to progress further
 											//per-unit power difference
@@ -727,7 +720,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 								//Now find an empty one and apply a new ramp
 								for (index=0; index<Num_Resp_Eqs; index++)
 								{
-									if (CurrEquations[index].contype == EMPTY)	//Empty!
+									if (CurrEquations[index].contype == CT_EMPTY)	//Empty!
 									{
 										//Apply reversed direction
 										Gen_Ramp_Direction=false;	//Now going downward
@@ -800,7 +793,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 									//Find a ramp that satisfies our needs
 									for (index=0; index<Num_Resp_Eqs; index++)
 									{
-										if (CurrEquations[index].contype == EMPTY)	//Found one
+										if (CurrEquations[index].contype == CT_EMPTY)	//Found one
 										{
 											//Add in a new ramp, we need to progress further
 											//per-unit power difference
@@ -856,7 +849,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 								//Now find an empty one and apply a new ramp
 								for (index=0; index<Num_Resp_Eqs; index++)
 								{
-									if (CurrEquations[index].contype == EMPTY)	//Empty!
+									if (CurrEquations[index].contype == CT_EMPTY)	//Empty!
 									{
 										//Apply reversed direction
 										Gen_Ramp_Direction=true;	//Now going upward
@@ -983,7 +976,7 @@ TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 										CurrEquations[index].coeffa = 0.0;
 										CurrEquations[index].coeffb = 0.0;
 										CurrEquations[index].delay_time = 0.0;
-										CurrEquations[index].contype = EMPTY;
+										CurrEquations[index].contype = CT_EMPTY;
 										CurrEquations[index].starttime = TS_NEVER;
 										CurrEquations[index].enteredtime = TS_NEVER;
 										CurrEquations[index].endtime = TS_NEVER;
@@ -1119,7 +1112,7 @@ TIMESTAMP frequency_gen::pres_updatetime(TIMESTAMP t0, TIMESTAMP dt_val)
 			CurrEquations[index].coeffa = 0.0;				//Re-initialize it
 			CurrEquations[index].coeffb = 0.0;
 			CurrEquations[index].delay_time = 0.0;
-			CurrEquations[index].contype = EMPTY;
+			CurrEquations[index].contype = CT_EMPTY;
 			CurrEquations[index].starttime = TS_NEVER;
 			CurrEquations[index].endtime = TS_NEVER;
 			CurrEquations[index].enteredtime = TS_NEVER;
@@ -1151,7 +1144,7 @@ TIMESTAMP frequency_gen::updatetime(TIMESTAMP t0, TIMESTAMP dt_val, double &Freq
 		//Determine type of contributor
 		switch (CurrEquations[index].contype)
 		{
-			case EMPTY:	//Do nothing
+			case CT_EMPTY:	//Do nothing
 					break;
 			case PERSCONST:	//Add in an always there constant
 				{
@@ -1315,7 +1308,7 @@ void frequency_gen::DumpScheduler(void)
 
 	for (int index=0; index<Num_Resp_Eqs; index++)
 	{
-		if (CurrEquations[index].contype == EMPTY)
+		if (CurrEquations[index].contype == CT_EMPTY)
 			fprintf(FP,"%d - Empty - %lld - %lld - %lld - %f - %f ++ %f\n",index,CurrEquations[index].enteredtime,CurrEquations[index].starttime,CurrEquations[index].endtime,CurrEquations[index].coeffa,CurrEquations[index].coeffb,CurrEquations[index].delay_time);
 		else if (CurrEquations[index].contype == CONSTANT)
 			fprintf(FP,"%d - Constant - %lld - %lld - %lld - %f - %f ++ %f\n",index,CurrEquations[index].enteredtime,CurrEquations[index].starttime,CurrEquations[index].endtime,CurrEquations[index].coeffa,CurrEquations[index].coeffb,CurrEquations[index].delay_time);
@@ -1350,7 +1343,7 @@ void frequency_gen::RemoveScheduled(TIMESTAMP t0)
 		{
 			CurrEquations[index].coeffa = 0.0;
 			CurrEquations[index].coeffb = 0.0;
-			CurrEquations[index].contype = EMPTY;
+			CurrEquations[index].contype = CT_EMPTY;
 			CurrEquations[index].starttime = TS_NEVER;
 			CurrEquations[index].endtime = TS_NEVER;
 			CurrEquations[index].enteredtime = TS_NEVER;

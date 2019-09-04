@@ -7,14 +7,8 @@
 	@{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "line.h"
 
 CLASS* overhead_line_conductor::oclass = NULL;
 CLASS* overhead_line_conductor::pclass = NULL;

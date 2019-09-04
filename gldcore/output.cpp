@@ -1,4 +1,4 @@
-/** $Id: output.c 4738 2014-07-03 00:55:39Z dchassin $
+/** output.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file output.c
 	@author David P. Chassin
@@ -30,17 +30,7 @@
 	@{
  **/
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include "output.h"
-#include "globals.h"
-#include "exception.h"
-#include "lock.h"
-#include "module.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_STREAM)
 

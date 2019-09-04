@@ -1,7 +1,7 @@
 /** $Id: init.cpp 4738 2014-07-03 00:55:39Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file init.cpp
-	@addtogroup residential Residential loads (residential)
+	@defgroup residential Residential loads (residential)
 	@ingroup modules
  @{
  **/
@@ -103,6 +103,13 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 
 	/* always return the first class registered */
 	return residential_enduse::oclass;
+}
+
+EXPORT void term(void)
+{
+	extern FILE *paneldump_fh;
+	if ( paneldump_fh != NULL )
+		fclose(paneldump_fh);
 }
 
 //Call function for scheduling deltamode

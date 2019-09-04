@@ -1951,9 +1951,9 @@ EXPORT int init_generator_controller(OBJECT *obj, OBJECT *parent)
 * Sync is called when the clock needs to advance
 *
 * @param obj the object we are sync'ing
-* @param t0 this objects current timestamp
+* @param t1 this objects current timestamp
 * @param pass the current pass for this sync call
-* @return t1, where t1>t0 on success, t1=t0 for retry, t1<t0 on failure
+* @return t2, where t2>t1 on success, t2==t1 for retry, t2<t1 on failure
 */
 EXPORT TIMESTAMP sync_generator_controller(OBJECT *obj, TIMESTAMP t1, PASSCONFIG pass)
 {

@@ -6,13 +6,12 @@
  @{  
  **/
 
-#ifndef _battery_H
-#define _battery_H
+#ifndef _BATTERY_H
+#define _BATTERY_H
 
-#include <stdarg.h>
-
-#include "gridlabd.h"
-#include "energy_storage.h"
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 EXPORT STATUS preupdate_battery(OBJECT *obj,TIMESTAMP t0, unsigned int64 delta_time);
 EXPORT SIMULATIONMODE interupdate_battery(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);
@@ -189,47 +188,6 @@ public:
 #ifdef OPTIONAL
 	static CLASS *pclass; /**< defines the parent class */
 	TIMESTAMP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
-#endif
-};
-
-#endif
-
-/**@}*/
-/** $Id: battery.h,v 1.0 2008/07/18
-	@file battery.h
-	@addtogroup battery
-	@ingroup MODULENAME
-
- @{  
- **/
-
-#ifndef _battery_H
-#define _battery_H
-
-#include <stdarg.h>
-#include "gridlabd.h"
-
-class battery {
-private:
-	/* TODO: put private variables here */
-protected:
-	/* TODO: put unpublished but inherited variables */
-public:
-	/* TODO: put published variables here */
-public:
-	/* required implementations */
-	battery(MODULE *module);
-	int create(void);
-	int init(OBJECT *parent);
-	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
-public:
-	static CLASS *oclass;
-	static battery *defaults;
-#ifdef OPTIONAL
-	static CLASS *pclass; /**< defines the parent class */
-	TIMESTAMPP plc(TIMESTAMP t0, TIMESTAMP t1); /**< defines the default PLC code */
 #endif
 };
 

@@ -6,6 +6,7 @@ origin.txt
 build
 *.pyc
 .ipynb_checkpoints
+documents/html
 
 # http://www.gnu.org/software/autoconf
 /autom4te.cache
@@ -125,3 +126,4 @@ models/ieee123/config/local.glm
 .bash_profile
 *.tmp
 gldcore/link/python/example.png
+*-checkpoint.ipynb

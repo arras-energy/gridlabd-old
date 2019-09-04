@@ -1,5 +1,6 @@
-/** $Id: load.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: load.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
 	@file load.h
 	@addtogroup load_glm
 	@ingroup core
@@ -8,6 +9,10 @@
 
 #ifndef _LOAD_H
 #define _LOAD_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "globals.h"
 #include "module.h"

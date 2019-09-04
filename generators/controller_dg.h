@@ -8,12 +8,9 @@
 #ifndef _controller_dg_H_
 #define _controller_dg_H_
 
-#include <stdarg.h>
-
-#include "../powerflow/switch_object.h"
-#include "../powerflow/node.h"
-#include "gridlabd.h"
-#include "generators.h"
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 class diesel_dg;
 
@@ -46,13 +43,13 @@ private:
 	bool flag_switchOn;
 	unsigned int64 controlTime;
 
-	switch_object **pSwitch;
+	class switch_object **pSwitch;
 	FINDLIST *switches;
 	diesel_dg **pDG;
 	FINDLIST *dgs;
 
 	CTRL_Gen **ctrlGen; 		   // Pointer to all the controls of each generator
-	node **GenPobj;
+	class node **GenPobj;
 
 	double *prev_Pref_val;		   //Previous value of x - used for delta-exiting convergence check
 	double *prev_Vset_val;		   // Previous value of Vset - used for delta-exiting convergence check

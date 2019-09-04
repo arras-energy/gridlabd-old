@@ -1,26 +1,12 @@
-/** $Id$
+/** schedule.cpp
  	Copyright (C) 2008 Battelle Memorial Institute
+
 	@file schedule.c
 	@addtogroup schedule
 
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
-#include <float.h>
-#include <ctype.h>
-#include <pthread.h>
-
-#include "platform.h"
-#include "object.h"
-#include "output.h"
-#include "schedule.h"
-#include "transform.h"
-#include "exception.h"
-#include "lock.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_SCHEDULE)
 
@@ -860,10 +846,6 @@ int schedule_normalize(SCHEDULE *sch,	/**< the schedule to normalize */
 	unsigned int b,i;
 	int count=0;
 
-	/* check if already normalized */
-	if (sch->flags&flags)
-		return -1;
-
 	/* normalized */
 	for (b=0; b<MAXBLOCKS; b++)
 	{
@@ -908,9 +890,6 @@ int schedule_normalize(SCHEDULE *sch,	/**< the schedule to normalize */
 			}
 		}
 	}
-
-	/* mark as normalized */
-	sch->flags |= flags;
 
 	return count;
 }

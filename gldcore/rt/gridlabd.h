@@ -1,13 +1,8 @@
-/** $Id$
-    Copyright (C) 2008 Battelle Memorial Institute
-	@file rt/gridlabd.h
-	@defgroup runtime Runtime Class API
+/*	File: rt/gridlabd.h
 
-	The Runtime Class API is a programming library for inline C++ embedded
-	within GLM files.
+	Section: Module C/C++ API
 
- @{
- **/
+ */
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
@@ -24,7 +19,11 @@
 #define int64 long long /**< standard version of 64-bit integers */
 
 #include <sys/types.h>
-typedef int64_t LOCKVAR;
+
+/*	typedef: LOCKVAR
+		System lock variable
+ */
+typedef int LOCKVAR;
 
 typedef enum {I='i',J='j',A='d'} CNOTATION; /**< complex number notation to use */
 #define CNOTATION_DEFAULT J /* never set this to A */
@@ -494,16 +493,19 @@ typedef struct s_enduse enduse;
 #define MAXBLOCKS 4
 #define MAXVALUES 64
 
-/* pass configuration */
-typedef unsigned long PASSCONFIG; /**< the pass configuration */
-#define PC_NOSYNC 0x00					/**< used when the class requires no synchronization */
-#define PC_PRETOPDOWN 0x01				/**< used when the class requires synchronization on the first top-down pass */
-#define PC_BOTTOMUP	0x02				/**< used when the class requires synchronization on the bottom-up pass */
-#define PC_POSTTOPDOWN 0x04				/**< used when the class requires synchronization on the second top-down pass */
-#define PC_FORCE_NAME 0x20				/**< used to indicate the this class must define names for all its objects */
-#define PC_PARENT_OVERRIDE_OMIT 0x40	/**< used to ignore parent's use of PC_UNSAFE_OVERRIDE_OMIT */
-#define PC_UNSAFE_OVERRIDE_OMIT 0x80	/**< used to flag that omitting overrides is unsafe */
-#define PC_ABSTRACTONLY 0x100 /**< used to flag that the class should never be instantiated itself, only inherited classes should */
+typedef enum e_passconfig
+{
+	PC_NOSYNC 				= 0x0000,
+	PC_PRETOPDOWN 			= 0x0001,
+	PC_BOTTOMUP				= 0x0002,
+	PC_POSTTOPDOWN 			= 0x0004,
+	PC_FORCE_NAME 			= 0x0020,
+	PC_PARENT_OVERRIDE_OMIT = 0x0040,
+	PC_UNSAFE_OVERRIDE_OMIT = 0x0080,
+	PC_ABSTRACTONLY 		= 0x0100,
+	PC_AUTOLOCK 			= 0x0200,
+	PC_OBSERVER 			= 0x0400,
+} PASSCONFIG;
 
 #ifndef FALSE
 #define FALSE (0)
@@ -745,10 +747,10 @@ struct s_object_list {
 	LOCKVAR lock; /**< object lock */
 	unsigned int rng_state; /**< random number generator state */
 	TIMESTAMP heartbeat; /**< heartbeat call interval (in sim-seconds) */
-	unsigned int64 guid[2]; /**< globally unique identifier */
+	unsigned long long guid[2]; /**< globally unique identifier */
 	EVENTHANDLERS events;
 	/* IMPORTANT: flags must be last */
-	unsigned int64 flags; /**< object flags */
+	unsigned long long flags; /**< object flags */
 }; /**< Object header structure */
 
 struct s_function_map {
@@ -914,6 +916,7 @@ typedef struct s_enduse {
 	double heatgain;			/* internal heat from load (Btu/h) */
 	double cumulative_heatgain;  /* internal cumulative heat gain from load (Btu) */ 
 	double heatgain_fraction;	/* fraction of power that goes to internal heat (pu Btu/h) */
+	double gas_fraction;		/* fraction of energy that comes from natural gas */
 
 	/* misc info */
 	char *name;
@@ -956,15 +959,15 @@ typedef struct s_enduse {
 	#include <intrin.h>
 	#pragma intrinsic(_InterlockedCompareExchange)
 	#pragma intrinsic(_InterlockedIncrement)
-	#define atomic_compare_and_swap(dest, comp, xchg) (_InterlockedCompareExchange((int32 *) dest, xchg, comp) == comp)
-	#define atomic_increment(ptr) _InterlockedIncrement((int32 *) ptr)
+	#define atomic_compare_and_swap(dest, comp, xchg) (_InterlockedCompareExchange((LOCKVAR *) dest, xchg, comp) == comp)
+	#define atomic_increment(ptr) _InterlockedIncrement((LOCKVAR *) ptr)
 	#ifndef inline
 		#define inline __inline
 	#endif
 #elif __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 1050
 	#include <libkern/OSAtomic.h>
-	#define atomic_compare_and_swap(dest, comp, xchg) OSAtomicCompareAndSwap32Barrier(comp, xchg, (int32_t *) dest)
-	#define atomic_increment(ptr) OSAtomicIncrement32Barrier((int32_t *) ptr)
+	#define atomic_compare_and_swap(dest, comp, xchg) OSAtomicCompareAndSwap32Barrier(comp, xchg, (LOCKVAR *) dest)
+	#define atomic_increment(ptr) OSAtomicIncrement32Barrier((LOCKVAR *) ptr)
 #else
 	#define atomic_compare_and_swap __sync_bool_compare_and_swap
 	#define atomic_increment(ptr) __sync_add_and_fetch(ptr, 1)
@@ -1127,7 +1130,7 @@ typedef struct s_callbacks {
 	int (*output_error)(char *format, ...);
 	int (*output_debug)(char *format, ...);
 	int (*output_test)(char *format, ...);
-	CLASS *(*register_class)(MODULE *,CLASSNAME,unsigned int,PASSCONFIG);
+	CLASS *(*register_class)(MODULE *,CLASSNAME,unsigned int,unsigned int);
 	struct {
 		OBJECT *(*single)(CLASS*);
 		OBJECT *(*array)(CLASS*,unsigned int);
@@ -1136,7 +1139,7 @@ typedef struct s_callbacks {
 	int (*define_map)(CLASS*,...);
 	int (*loadmethod)(CLASS*,char*,int (*call)(OBJECT*,char*));
 	CLASS *(*class_getfirst)(void);
-	CLASS *(*class_getname)(char*);
+	CLASS *(*class_getname)(char*,CLASS*);
 	PROPERTY *(*class_add_extended_property)(CLASS *,char *,PROPERTYTYPE,char *);
 	struct {
 		FUNCTION *(*define)(CLASS*,FUNCTIONNAME,FUNCTIONADDR);
@@ -1692,6 +1695,7 @@ public:
 						free(x[r][c]); 
 				free(x[r]);
 			free(x);
+			if ( f ) free(f);
 			delete refs;
 		}
 	}
@@ -1740,7 +1744,7 @@ public:
 	void grow_to(const size_t r, const size_t c) 
 	{ 
 		size_t s = (max<1?1:max);
-		while ( c>=s || r>=s ) s*=2; 
+		while ( c*r >= s ) s*=2; 
 		if ( s>max ) set_max(s);
 
 		// add rows

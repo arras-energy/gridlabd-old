@@ -1,9 +1,15 @@
-/** $Id: lock.h 4738 2014-07-03 00:55:39Z dchassin $
+/* File: lock.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
  @{
  **/
 
 #ifndef _LOCK_H
 #define _LOCK_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "platform.h"
 
@@ -13,7 +19,8 @@ extern "C" {
 
 #include <sys/types.h>
 
-typedef int64_t LOCKVAR;
+typedef int LOCKVAR;
+
 void rlock(LOCKVAR *lock);
 void wlock(LOCKVAR *lock);
 void runlock(LOCKVAR *lock);

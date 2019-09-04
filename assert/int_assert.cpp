@@ -5,12 +5,6 @@
  a failure code.
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <complex.h>
-
 #include "int_assert.h"
 
 EXPORT_CREATE(int_assert);

@@ -1,4 +1,4 @@
-/** $Id: object.c 4738 2014-07-03 00:55:39Z dchassin $
+/** object.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file object.c
 	@addtogroup object Objects
@@ -25,10 +25,7 @@
  @{
  **/
 
-#include <float.h>
-#include <math.h>
-#include <ctype.h>
-#include <errno.h>
+#include "gldcore.h"
 
 #ifdef WIN32
 #define isnan _isnan  /* map isnan to appropriate function under Windows */
@@ -2499,41 +2496,66 @@ int object_build_name(OBJECT *obj, char *buffer, int len){
 	as when multiple modules are being used.
 	Throws an exception when a memory error occurs or when the name is already taken by another object.
  **/
-OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name){
+OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name)
+{
 	OBJECTTREE *item = NULL;
 
-	if((isalpha(name[0]) != 0) || (name[0] == '_')){
+	if ( (isalpha(name[0]) != 0) || (name[0] == '_') )
+	{
 		; // good
-	} else {
-		if(global_relax_naming_rules == 0){
+	} 
+	else 
+	{
+		if ( global_relax_naming_rules == 0 )
+		{
 			output_error("object name '%s' invalid, names must start with a letter or an underscore", name);
 			return NULL;
-		} else {
+		} 
+		else 
+		{
 			output_warning("object name '%s' does not follow strict naming rules and may not link correctly during load time", name);
 		}
 	}
-	if(obj->name != NULL){
+	if ( obj->name != NULL ) 
+	{
 		object_tree_delete(obj,name);
 	}
 	
-	if(name != NULL){
-		if(object_find_name(name) != NULL){
-			output_error("An object named '%s' already exists!", name);
-			/*	TROUBLESHOOT
-				GridLab-D prohibits two objects from using the same name, to prevent
-				ambiguous object look-ups.
-			*/
-			return NULL;
+	if ( name != NULL )
+	{
+		OBJECT *found = object_find_name(name);
+		if ( found != NULL )
+		{
+			output_debug("found object %s:%d when searching for name=%s", found->oclass->name, found->id, name);
+			if ( found == obj && found->name == NULL )
+			{
+				// likely attempt to set name to default -- this is ok
+				;
+			}
+			else
+			{
+				output_error("An object named '%s' already exists!", name);
+				/*	TROUBLESHOOT
+					GridLab-D prohibits two objects from using the same name, to prevent
+					ambiguous object look-ups.
+				*/
+				return NULL;
+			}
 		}
+		output_debug("adding object %s:%d as name %s", obj->oclass->name, obj->id, name);
 		item = object_tree_add(obj,name);
-		if(item != NULL){
+		if ( item != NULL )
+		{
 			obj->name = item->name;
 		}
 	}
 	
-	if(item != NULL){
+	if ( item != NULL )
+	{
 		return item->name;
-	} else {
+	} 
+	else 
+	{
 		return NULL;
 	}
 }

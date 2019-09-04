@@ -6,13 +6,13 @@
 
  @{  
  **/
-#ifndef _windturb_dg_H
-#define _windturb_dg_H
 
+#ifndef _WINDTURB_DG_H
+#define _WINDTURB_DG_H
 
-#include <stdarg.h>
-#include "gridlabd.h"
-#include "generators.h"
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 /*
 #ifdef _WINDTURB_DG_CPP

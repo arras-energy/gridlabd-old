@@ -1,7 +1,7 @@
 /** $Id: emissions.h 4738 2014-07-03 00:55:39Z dchassin $
 	Copyright (C) 2011 Battelle Memorial Institute
 
-	@Warning: It is still under development.
+	@warning \p emissions is still under development
 	@file emissions.h
 
 @{
@@ -10,9 +10,9 @@
 #ifndef _EMISSIONS_H
 #define _EMISSIONS_H
 
-#include "powerflow.h"
-#include "powerflow_object.h"
-#include "meter.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class emissions : public powerflow_object
 {
@@ -143,7 +143,7 @@ public:
 	double Region;
 
 	//Link to the parent meter
-	meter *ParMeterObj;
+	class meter *ParMeterObj;
 
 	//Energy calculation
 	double accumulated_energy;

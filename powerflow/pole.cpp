@@ -1,9 +1,8 @@
 // powerflow/pole.cpp
 // Copyright (C) 2018, Stanford University
 
-#include "pole.h"
-#include "line.h"
-#include "overhead_line.h"
+#include "powerflow.h"
+using namespace std;
 
 CLASS *pole::oclass = NULL;
 CLASS *pole::pclass = NULL;

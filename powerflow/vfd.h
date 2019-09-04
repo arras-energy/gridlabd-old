@@ -7,9 +7,9 @@
 #ifndef VFD_H
 #define VFD_H
 
-#include "powerflow.h"
-#include "link.h"
-#include "node.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 EXPORT STATUS current_injection_update_VFD(OBJECT *obj);
 EXPORT SIMULATIONMODE interupdate_vfd(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);

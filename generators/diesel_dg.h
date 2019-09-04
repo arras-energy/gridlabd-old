@@ -6,13 +6,12 @@
  @{  
  **/
 
-#ifndef _diesel_dg_H
-#define _diesel_dg_H
+#ifndef _DIESEL_DG_H
+#define _DIESEL_DG_H
 
-#include <stdarg.h>
-#include "gridlabd.h"
-#include "generators.h"
-#include "power_electronics.h"
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 EXPORT SIMULATIONMODE interupdate_diesel_dg(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);
 EXPORT STATUS postupdate_diesel_dg(OBJECT *obj, complex *useful_value, unsigned int mode_pass);

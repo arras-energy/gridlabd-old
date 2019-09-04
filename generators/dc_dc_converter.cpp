@@ -7,15 +7,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-
-#include "power_electronics.h"
-#include "dc_dc_converter.h"
 
 #define DEFAULT 1.0;
 
