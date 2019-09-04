@@ -30,7 +30,7 @@ object pole {
 	configuration "WOOD-C-45/5"; 
 	phases ABC;
 	nominal_voltage 12470;
-	tilt_angle 0.4;
+	tilt_angle 5 deg;
 	tilt_direction 270;
 	install_year 1990;
 }
@@ -67,7 +67,7 @@ object pole {
 	configuration "WOOD-C-45/5"; 
 	phases ABC;
 	nominal_voltage 12470;
-	tilt_angle 0.4;
+	tilt_angle 8 deg;
 	tilt_direction 270;
 	install_year 2000;
 //	equipment_area 5 sf;
