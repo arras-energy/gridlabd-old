@@ -146,7 +146,7 @@ int thermal_storage::init(OBJECT *parent)
 			return 2; // defer
 		}
 	}
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	hdr->flags |= OF_SKIPSAFE;
 	double *design_cooling_capacity;
 

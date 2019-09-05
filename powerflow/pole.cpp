@@ -66,8 +66,10 @@ int pole::create(void)
 
 int pole::init(OBJECT *parent)
 {
-	OBJECT *my = (OBJECT*)(this)-1;
-	
+	OBJECT *my = THISOBJECTHDR;
+	if ( ! node::init(parent) )
+		return 0;
+
 	// configuration
 	if ( configuration == NULL || ! gl_object_isa(configuration,"pole_configuration") )
 	{
@@ -192,7 +194,7 @@ int pole::init(OBJECT *parent)
 	if ( install_year > gl_globalclock )
 		gl_warning("pole install year in the future are assumed to be current time");
 
-	return node::init(parent);
+	return 1;
 }
 
 TIMESTAMP pole::presync(TIMESTAMP t0)

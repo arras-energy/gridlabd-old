@@ -218,7 +218,7 @@ int restoration::create(void)
 
 int restoration::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int working_int_val, indexval;
 
 	if (solver_method == SM_NR)

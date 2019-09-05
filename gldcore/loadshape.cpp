@@ -218,7 +218,7 @@ TurnOff:
 			{
 				double ton = ls->params.modulated.pulsevalue;
 				double power = ls->params.modulated.pulsevalue;
-				double dutycycle, period, toff;
+				double dutycycle, period = 0.0, toff = 0.0;
 				if (ls->params.modulated.pulsetype==MPT_TIME)
 				{
 					power = ls->params.modulated.pulseenergy * ls->params.modulated.scalar / ton * 3600;

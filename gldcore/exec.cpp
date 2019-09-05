@@ -2899,7 +2899,7 @@ STATUS GldExec::exec_start(void)
 			output_profile("===========================\n");
 			output_profile("Active modules          %s", dp->module_list);
 			output_profile("Initialization time     %8.1lf seconds", (double)(dp->t_init)/(double)CLOCKS_PER_SEC);
-			output_profile("Number of updates       %8"FMT_INT64"u", dp->t_count);
+			output_profile("Number of updates       %8" FMT_INT64 "u", dp->t_count);
 			output_profile("Average update timestep %8.4lf ms", (double)dp->t_delta/(double)dp->t_count/1e6);
 			output_profile("Minumum update timestep %8.4lf ms", dp->t_min/1e6);
 			output_profile("Maximum update timestep %8.4lf ms", dp->t_max/1e6);
@@ -3209,7 +3209,7 @@ void *GldExec::slave_node_proc(void *args)
 	id = strtoll(token_to+offset, &token_to, 10);
 	if (id < 0)
 	{
-		output_error("slave_node_proc(): id %"FMT_INT64" specified, may cause system conflicts", id);
+		output_error("slave_node_proc(): id %" FMT_INT64 " specified, may cause system conflicts", id);
 		closesocket(masterfd);
 		free(addrin);
 		return 0;
@@ -3252,7 +3252,7 @@ void *GldExec::slave_node_proc(void *args)
 	IN_MYCONTEXT output_debug("filepath = %s", filepath);
 	sprintf(ippath, "--slave %s:%d", addrstr, mtr_port);
 	IN_MYCONTEXT output_debug("ippath = %s", ippath);
-	sprintf(cmd, "%s%sgridlabd.exe %s --id %"FMT_INT64"d %s %s",
+	sprintf(cmd, "%s%sgridlabd.exe %s --id %" FMT_INT64 "d %s %s",
 		(global_execdir[0] ? global_execdir : ""), (global_execdir[0] ? "\\" : ""), params, id, ippath, filepath);//addrstr, mtr_port, filepath);//,
 	IN_MYCONTEXT output_debug("system(\"%s\")", cmd);
 
