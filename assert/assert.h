@@ -9,6 +9,8 @@
 
 #include "gridlabd.h"
 
+#include <string>
+
 class g_assert : public gld_object {
 public:
 	typedef enum {AS_INIT=0, AS_TRUE=1, AS_FALSE=2, AS_NONE=3} ASSERTSTATUS;
@@ -19,6 +21,8 @@ public:
 	GL_ATOMIC(enumeration,relation);
 	GL_STRING(char1024,value);
 	GL_STRING(char1024,value2);
+	GL_ATOMIC(TIMESTAMP,duration);
+	std::string group;
 
 private:
 	ASSERTSTATUS evaluate_status(void);
