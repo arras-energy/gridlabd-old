@@ -9,23 +9,23 @@
 
 #include "gridlabd.h"
 
-#include <string>
-
 class g_assert : public gld_object {
 public:
 	typedef enum {AS_INIT=0, AS_TRUE=1, AS_FALSE=2, AS_NONE=3} ASSERTSTATUS;
-
 	GL_ATOMIC(enumeration,status); 
 	GL_STRING(char1024,target);		
 	GL_STRING(char32,part);
 	GL_ATOMIC(enumeration,relation);
 	GL_STRING(char1024,value);
 	GL_STRING(char1024,value2);
-	GL_ATOMIC(TIMESTAMP,duration);
-	std::string group;
+	GL_ATOMIC(TIMESTAMP,start);
+	GL_ATOMIC(TIMESTAMP,stop);
+	GL_ATOMIC(double,hold);
+	GL_STRING(char1024,group);
 
 private:
-	ASSERTSTATUS evaluate_status(void);
+	std::list<gld_property> *target_list;
+	ASSERTSTATUS evaluate_status(gld_property &target_prop);
 
 public:
 	/* required implementations */

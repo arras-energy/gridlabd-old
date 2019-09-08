@@ -1,0 +1,28 @@
+// test_assert
+
+// set the clock
+clock {
+	timezone "PST+8PDT";
+	starttime "2001-01-01 00:00:00 PST";
+	stoptime "2001-01-01 01:00:00 PST";
+}
+
+// create the test class
+class test {
+	randomvar random_value;
+}
+
+object test:..10 {
+	random_value "type:uniform(0,1); refresh:1h";
+}
+
+module assert;
+
+object assert {
+	group "class=test";
+	target "random_value";
+	relation "inside";
+	lower 0.0;
+	upper 1.0;
+}
+

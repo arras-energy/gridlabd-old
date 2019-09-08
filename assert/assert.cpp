@@ -33,7 +33,7 @@ g_assert::g_assert(MODULE *module)
 
 		defaults = this;
 		if (gl_publish_variable(oclass,
-			PT_enumeration,"status",get_status_offset(),PT_DESCRIPTION,"desired outcome of assert test",
+			PT_enumeration,"status",get_status_offset(),PT_DEFAULT,"INIT",PT_DESCRIPTION,"desired outcome of assert test",
 				PT_KEYWORD,"INIT",(enumeration)AS_INIT,
 				PT_KEYWORD,"TRUE",(enumeration)AS_TRUE,
 				PT_KEYWORD,"FALSE",(enumeration)AS_FALSE,
@@ -53,6 +53,10 @@ g_assert::g_assert(MODULE *module)
 			PT_char1024, "within", get_value2_offset(),PT_DESCRIPTION,"the bounds within which the value must bed compared",
 			PT_char1024, "lower", get_value_offset(),PT_DESCRIPTION,"the lower bound to compare with for interval tests",
 			PT_char1024, "upper", get_value2_offset(),PT_DESCRIPTION,"the upper bound to compare with for interval tests",
+			PT_char1024,"group", get_group_offset(),PT_DEFAULT,"",PT_DESCRIPTION,"a target group specification to use instead of parent object",
+			PT_timestamp,"start", get_start_offset(),PT_DEFAULT,"INIT",PT_DESCRIPTION,"time to start assertion",
+			PT_timestamp,"stop", get_stop_offset(),PT_DEFAULT,"NEVER",PT_DESCRIPTION,"time to stop assertion",
+			PT_double,"hold[s]", get_hold_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"a duration over which the assertion must be violated before failing",
 			NULL)<1){
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
@@ -65,68 +69,102 @@ g_assert::g_assert(MODULE *module)
 	init_relation();
 	init_value();
 	init_value2();
+	init_group();
+	init_hold();
+	init_start();
+	init_stop();
 }
 
 int g_assert::create(void) 
 {
+	target_list = NULL;
 	return 1; /* return 1 on success, 0 on failure */
 }
 
 int g_assert::init(OBJECT *parent)
 {
-	gld_property target(get_parent(),get_target());
-	if ( !target.is_valid() )
-		exception("target '%s' property '%s' does not exist", get_parent()?get_parent()->get_name():"global",get_target());
+	gl_verbose("group = '%s'", get_group());
 
+	target_list = new std::list<gld_property>;
+	if ( strcmp(get_group(),"") == 0 )
+	{
+		gld_property* target = new gld_property(get_parent(),get_target());
+		if ( ! target->is_valid() )
+		{
+			exception("target '%s' property '%s' does not exist", get_parent()?get_parent()->get_name():"global",get_target());
+		}
+		target_list->push_back(*target);
+	}
+	else
+	{
+		gld_finder *finder = new gld_finder();
+		if ( ! finder )
+		{
+			exception("unable to create finder for group '%s'", get_group());
+		}
+		if ( ! finder->create(get_group()) )
+		{
+			exception("group '%s' is not valid", get_group());
+		}
+		OBJECT *obj;
+		for ( obj = finder->get_first() ; obj != NULL ; obj = finder->get_next(obj) )
+		{
+			gld_property *target = new gld_property(obj,get_target());
+			if ( ! target->is_valid() )
+			{
+				exception("group target '%s' property '%s' does not exist", get_object(obj)->get_name(),get_target());
+			}
+			target_list->push_back(*target);
+		}
+		if ( target_list->size() == 0 )
+		{
+			gl_warning("group '%s' contains no objects",get_group());
+		}
+	}
 	set_status(AS_TRUE);
 	return 1;
 }
 
 TIMESTAMP g_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 {
-	// get the target property
-	gld_property target_prop(get_parent(),get_target());
-	if ( !target_prop.is_valid() ) 
+	if ( t1 < start )
 	{
-		gl_error("%s: target %s is not valid",get_target(),get_name());
-		/*  TROUBLESHOOT
-		Check to make sure the target you are specifying is a published variable for the object
-		that you are pointing to.  Refer to the documentation of the command flag --modhelp, or 
-		check the wiki page to determine which variables can be published within the object you
-		are pointing to with the assert function.
-		*/
-		return 0;
+		return start;
 	}
-
-	// determine the relation status
-	if ( status==AS_NONE ) 
+	else if ( t1 > stop )
 	{
-		gl_verbose("%s: test is not being run on %s", get_name(), get_parent()->get_name());
 		return TS_NEVER;
 	}
-	else
+	for ( std::list<gld_property>::iterator target_prop = target_list->begin() ; target_prop != target_list->end() ; target_prop++ )
 	{
-		if ( evaluate_status() != get_status() )
+		// determine the relation status
+		if ( status==AS_NONE ) 
 		{
-			gld_property relation_prop(my(),"relation");
-			gld_keyword *pKeyword = relation_prop.find_keyword(relation);
-			char buf[1024];
-			gl_error("%s: assert failed on %s %s.%s.%s %s %s %s %s", get_name(), status==AS_TRUE?"":"NOT",
-				get_parent()?get_parent()->get_name():"global variable", get_target(), get_part(), target_prop.to_string(buf,sizeof(buf))?buf:"(void)", pKeyword->get_name(), get_value(), get_value2());
-			return 0;
+			gl_verbose("%s: test is not being run on %s", get_name(), get_object(target_prop->get_object())->get_name());
+			return TS_NEVER;
 		}
 		else
 		{
-			gl_verbose("%s: assert passed on %s", get_name(), get_parent()?get_parent()->get_name():"global variable");
-			return TS_NEVER;
+			if ( evaluate_status(*target_prop) != get_status() )
+			{
+				gld_property relation_prop(my(),"relation");
+				gld_keyword *pKeyword = relation_prop.find_keyword(relation);
+				char buf[1024];
+				gl_error("%s: assert failed on %s %s.%s.%s %s %s %s %s", get_name(), status==AS_TRUE?"":"NOT",
+					target_prop->get_object()?get_object(target_prop->get_object())->get_name():"global variable", get_target(), get_part(), target_prop->to_string(buf,sizeof(buf))?buf:"(void)", pKeyword->get_name(), get_value(), get_value2());
+				return 0;
+			}
+			else
+			{
+				gl_verbose("%s: assert passed on %s", get_name(), target_prop->get_object()?get_object(target_prop->get_object())->get_name():"global variable");
+			}
 		}
 	}
-	// should never get here
+	return TS_NEVER;
 }
 
-g_assert::ASSERTSTATUS g_assert::evaluate_status(void)
+g_assert::ASSERTSTATUS g_assert::evaluate_status(gld_property &target_prop)
 {
-	gld_property target_prop(get_parent(),get_target());
 	if ( strcmp(get_part(),"")==0 )
 		return target_prop.compare(relation,get_value(),get_value2()) ? AS_TRUE : AS_FALSE ;
 	else
