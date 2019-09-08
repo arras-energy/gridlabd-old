@@ -65,6 +65,11 @@ int main
 			output_fatal("uncaught exception: %s", msg);
 			return_code = errno ? errno : XC_SHFAILED;
 		}
+		catch (GldException *exc)
+		{
+			output_fatal("UNHANDLED EXCEPTION: %s", exc->get_message());
+			return_code = XC_EXCEPTION;
+		}
 		my_instance->run_on_exit();
 	}
 	return return_code;
