@@ -78,6 +78,7 @@ g_assert::g_assert(MODULE *module)
 int g_assert::create(void) 
 {
 	target_list = NULL;
+	started = TS_NEVER;
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -147,15 +148,23 @@ TIMESTAMP g_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 		{
 			if ( evaluate_status(*target_prop) != get_status() )
 			{
-				gld_property relation_prop(my(),"relation");
-				gld_keyword *pKeyword = relation_prop.find_keyword(relation);
-				char buf[1024];
-				gl_error("%s: assert failed on %s %s.%s.%s %s %s %s %s", get_name(), status==AS_TRUE?"":"NOT",
-					target_prop->get_object()?get_object(target_prop->get_object())->get_name():"global variable", get_target(), get_part(), target_prop->to_string(buf,sizeof(buf))?buf:"(void)", pKeyword->get_name(), get_value(), get_value2());
-				return 0;
+				if ( hold == 0 || t1 > started + hold )
+				{
+					gld_property relation_prop(my(),"relation");
+					gld_keyword *pKeyword = relation_prop.find_keyword(relation);
+					char buf[1024];
+					gl_error("%s: assert failed on %s %s.%s.%s %s %s %s %s", get_name(), status==AS_TRUE?"":"NOT",
+						target_prop->get_object()?get_object(target_prop->get_object())->get_name():"global variable", get_target(), get_part(), target_prop->to_string(buf,sizeof(buf))?buf:"(void)", pKeyword->get_name(), get_value(), get_value2());
+					return 0;
+				}
+				started = t1;
+				gl_verbose("%s: assert %s started at %lld with hold for %g s", 
+					get_name(), target_prop->get_object()?get_object(target_prop->get_object())->get_name():"global variable",
+					t1, hold);
 			}
 			else
 			{
+				started = TS_NEVER;
 				gl_verbose("%s: assert passed on %s", get_name(), target_prop->get_object()?get_object(target_prop->get_object())->get_name():"global variable");
 			}
 		}
