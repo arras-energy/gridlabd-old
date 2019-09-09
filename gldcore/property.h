@@ -181,6 +181,9 @@ typedef double triplet[3];
 // Typedef: triplex
 typedef complex triplex[3];
 
+// Typedef: STRING
+typedef std::string* STRING;
+
 #define BYREF 0x01
 #include <math.h>
 
@@ -943,6 +946,7 @@ public:
 			y[r] = get_at(r,c);
 	}
 };
+
 #endif
 
 #ifdef REAL4
@@ -1071,6 +1075,7 @@ enum e_propertytype {_PT_FIRST=-1,
 	PT_enduse,
 	PT_random,
 	PT_method,
+	PT_string,
 	/* add new property types here - don't forget to add them also to rt/gridlabd.h and property.c */
 #ifdef USE_TRIPLETS
 	PT_triple,
@@ -1093,6 +1098,15 @@ enum e_propertytype {_PT_FIRST=-1,
 	PT_HAS_NOTIFY_OVERRIDE,
 	PT_DEFAULT,
 };
+
+// Define: MAXGLMSIZE
+#define MAXGLMSIZE 65536000
+
+// Define: MAXPATHNAMELEN
+#define MAXPATHNAMELEN 1024
+
+// Define: MAXCODEBLOCKSIZE
+#define MAXCODEBLOCKSIZE 65536
 
 /*	Typedef: PROPERTYTYPE
 
@@ -1598,6 +1612,34 @@ DEPRECATED int property_read(PROPERTY *prop, void *addr, const char *string);
 	int - the number of bytes written to the buffer (negative on failure)
 */
 DEPRECATED int property_write(PROPERTY *prop, void *addr, char *string, size_t size);
+
+/*	Function: string_create
+
+	Returns:
+	string* - success
+	NULL - failure
+ */
+int string_create(void *ptr);
+
+/*	Function: convert_to_string
+
+	Returns:
+	>0 - success
+	=0 - no data
+	<0 - failure
+ */
+int convert_to_string(const char *s, void *data, PROPERTY *p);
+
+/*	Function: convert_from_string
+
+	Returns:
+	>0 - success
+	=0 - no data
+	<0 - failure
+ */
+int convert_from_string(char *buffer, int len, void *data, PROPERTY *p);
+
+// EOF
 
 #ifdef __cplusplus
 }
