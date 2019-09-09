@@ -1350,7 +1350,7 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 	//static char buffer[4096];
 	void *addr;
 	PROPERTY *prop = class_find_property(obj->oclass,name);
-	if(prop==NULL)
+	if ( prop == NULL )
 	{
 		errno = ENOENT;
 		return NULL;
@@ -1917,6 +1917,19 @@ size_t object_save(char *buffer, size_t size, OBJECT *obj)
 	}
 }
 
+int object_property_getsize(OBJECT *obj, PROPERTY *prop)
+{
+	// dynamic size
+	if ( prop->width == (unsigned int)-1 )
+	{
+		return property_write(prop,(char*)(obj+1)+(int64_t)(prop->addr),NULL,0);
+	}
+	else
+	{
+		return prop->width;
+	}
+}
+
 /** Save all the objects in the model to the stream \p fp in the \p .GLM format
 	@return the number of bytes written, 0 on error, with errno set.
  **/
@@ -2013,7 +2026,28 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 				if ( (global_glm_save_options&GSO_NOINTERNALS)==GSO_NOINTERNALS && prop->access!=PA_PUBLIC )
 					continue;
 				buffer[0]='\0';
-				if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
+                if ( prop->ptype == PT_method )
+                {
+                    // TODO: extract content of method
+                    size_t sz = object_property_getsize(obj,prop);
+                    if ( sz > 0 )
+                    {
+	                    char *buffer = new char[sz+2];
+	                    object_property_to_string(obj,prop->name,buffer,sz+1);
+	                    count += fprintf(fp,"\t%s \"\"\"\\\n%s\\\n\"\"\";", prop->name,buffer);
+	                    delete [] buffer;
+	                }
+	                else if ( sz == 0 )
+	                {
+	                	count += fprintf(fp,"\t%s \"\";",prop->name);
+	                }
+	                else
+	                {
+	                	// no output allowed for this property
+	                }
+
+                }
+                else if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
 				{
 					if ( prop->access != access && (global_glm_save_options&GSO_NOMACROS)==0 )
 					{

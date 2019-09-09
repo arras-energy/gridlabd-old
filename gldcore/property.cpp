@@ -41,7 +41,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, loadshape_create,NULL,{TCOPS(double)},},
 	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part,enduse_set_part},
 	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part},
-	{"method","string", NULL, 0, 0, convert_from_method,convert_to_method},
+	{"method","string", NULL, 0, (unsigned int)-1, convert_from_method,convert_to_method},
 	{"string", "string", "", sizeof(STRING), (unsigned int)-1, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
 };
 
@@ -231,18 +231,9 @@ int property_read(PROPERTY *prop, void *addr, const char *string)
 
 int property_write(PROPERTY *prop, void *addr, char *string, size_t size)
 {
-	if ( prop->ptype == PT_method )
+	if ( prop->ptype == PT_method && string == NULL )
 	{
-		OBJECT *obj = (OBJECT*)addr;
-		/* TODO: implement iterator */
-		output_warning("gldcore/property.c:property_write(prop='%s', addr=<%s:%d>(name='%s'), string=%p, size=%u): no iterator available",
-			prop->name, obj->oclass->name, obj->id, obj->name?obj->name:"(none)", string, size);
-		/*	TROUBLESHOOT
-			Method properties require iterators to extract data. The request to extract data cannot
-			be fulfilled using this function call. This is most likely an internal error due
-			to improper or legacy implementation.
-		 */
-		return 0;
+		return property_type[prop->ptype].data_to_string(NULL,0,addr,prop);
 	}
 	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST && property_type[prop->ptype].data_to_string != NULL )
 	{

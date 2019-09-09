@@ -561,7 +561,11 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
 {
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
-	if ( size == 0 ) // incoming value
+	if ( value == NULL ) // size query
+	{
+		return strlen(my->property)+1;
+	}
+	else if ( size == 0 ) // incoming value
 	{
 		size_t len = strlen(value) + (my->property==NULL ? 0 : strlen(my->property));
 		gl_verbose("adding property '%s' to multi_recorder:%d",value,obj->id);
