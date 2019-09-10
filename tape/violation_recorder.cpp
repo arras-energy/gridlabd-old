@@ -6,7 +6,7 @@ CLASS *violation_recorder::oclass = NULL;
 CLASS *violation_recorder::pclass = NULL;
 violation_recorder *violation_recorder::defaults = NULL;
 
-CDECL void new_violation_recorder(MODULE *mod){
+void new_violation_recorder(MODULE *mod){
 	new violation_recorder(mod);
 }
 
@@ -1486,7 +1486,7 @@ int violation_recorder::write_footer(){
 //Allocate a vobjlist
 vobjlist *violation_recorder::vobjlist_alloc_fxn(vobjlist *input_list)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Null the address, for giggles
 	input_list = NULL;
@@ -1513,7 +1513,7 @@ vobjlist *violation_recorder::vobjlist_alloc_fxn(vobjlist *input_list)
 //Allocate a uniqueList
 uniqueList *violation_recorder::uniqueList_alloc_fxn(uniqueList *input_unlist)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Null the address, for giggles
 	input_unlist = NULL;

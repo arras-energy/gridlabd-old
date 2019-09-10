@@ -1,6 +1,8 @@
-#include "interpolate.h"
-#include "output.h"
-#include "globals.h"
+/* interpolate.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
+
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_INTERPOLATE) // use only is IN_MYCONTEXT appears in this module
 

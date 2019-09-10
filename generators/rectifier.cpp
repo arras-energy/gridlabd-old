@@ -7,14 +7,7 @@ Copyright (C) 2008 Battelle Memorial Institute
 @{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "power_electronics.h"
-#include "rectifier.h"
 
 #define DEFAULT 1.0;
 
@@ -103,7 +96,7 @@ int rectifier::create(void)
 /* Object initialization is called once after all object have been created */
 int rectifier::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//initialize variables that are used internally
 	//set_terminal_voltage = 240; //V

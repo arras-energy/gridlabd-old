@@ -5,18 +5,13 @@
  *      Author: tang526
  */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <complex.h>
-
-#include "controller_dg.h"
+#include "generators.h"
+#include "powerflow.h" // TODO: remove the inter-module dependency--it's forbidden
 
 CLASS* controller_dg::oclass = NULL;
 controller_dg *controller_dg::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_BOTTOMUP|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 controller_dg::controller_dg(MODULE *mod)
@@ -81,7 +76,7 @@ int controller_dg::create(void)
 /* Object initialization is called once after all object have been created */
 int controller_dg::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Set the deltamode flag, if desired
 	if ((obj->flags & OF_DELTAMODE) == OF_DELTAMODE)
@@ -289,7 +284,7 @@ int controller_dg::init(OBJECT *parent)
 	}
 
 	// Set rank as 1 so that the controller_dg can be executed after the generators (ranked 0) in sync (and delta-mode) process
-	obj = OBJECTHDR(this);
+	obj = THISOBJECTHDR;
 	gl_set_rank(obj,1);
 
 	return 1;
@@ -305,7 +300,7 @@ TIMESTAMP controller_dg::presync(TIMESTAMP t0, TIMESTAMP t1)
 /* Sync is called at first run, mainly for registration of the delta mode functions */
 TIMESTAMP controller_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//First run allocation - in diesel_dg for now, but may need to move elsewhere
 	if (first_run == true)	//First run
@@ -378,7 +373,7 @@ TIMESTAMP controller_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 TIMESTAMP controller_dg::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	int ret_state;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Update global, if necessary - assume everyone grabbed by sync
 	if (deltamode_endtime != TS_NEVER)

@@ -1,6 +1,7 @@
-/** $Id: legal.c 4738 2014-07-03 00:55:39Z dchassin $
+/** legal.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file legal.c
+
+	@file legal.cpp
 	@author David P. Chassin
 	@addtogroup legal Version, Copyright, License, etc.
 	@ingroup core
@@ -32,12 +33,7 @@
  @{
  **/
 
-#include "version.h"
-
-#include "globals.h"
-#include "legal.h"
-#include "output.h"
-#include "find.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_LEGAL)
 

@@ -7,8 +7,9 @@
 #ifndef RECLOSER_H
 #define RECLOSER_H
 
-#include "powerflow.h"
-#include "switch_object.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class recloser : public switch_object// public switch_object ?
 {

@@ -15,14 +15,9 @@
 
 	@{
  **/
-//Built from meter object
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
 
-#include "substation.h"
-#include "timestamp.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // SUBSTATION CLASS FUNCTIONS
@@ -117,7 +112,7 @@ int substation::create()
 }
 
 void substation::fetch_complex(complex **prop, const char *name, OBJECT *parent){
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_complex_by_name(parent, name);
 	if ( *prop == NULL )
 	{
@@ -137,7 +132,7 @@ void substation::fetch_complex(complex **prop, const char *name, OBJECT *parent)
 
 void substation::fetch_double(double **prop, const char *name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_double_by_name(parent, name);
 	if ( *prop == NULL )
 	{
@@ -160,7 +155,7 @@ void substation::fetch_double(double **prop, const char *name, OBJECT *parent)
 // Initialize a distribution meter, return 1 on success
 int substation::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int i,n;
 
 	//Base check higher so can be used below
@@ -324,7 +319,7 @@ TIMESTAMP substation::presync(TIMESTAMP t0, TIMESTAMP t1)
 }
 TIMESTAMP substation::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	TIMESTAMP t2;
 	double dist_power_A_diff = 0;
 	double dist_power_B_diff = 0;
@@ -392,7 +387,7 @@ TIMESTAMP substation::sync(TIMESTAMP t0, TIMESTAMP t1)
 SIMULATIONMODE substation::inter_deltaupdate_substation(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
 	double total_load;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	double dist_power_A_diff = 0;
 	double dist_power_B_diff = 0;
 	double dist_power_C_diff = 0;

@@ -1,4 +1,4 @@
-/** $Id: aggregate.c 4738 2014-07-03 00:55:39Z dchassin $
+/** aggregate.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 
 	@file aggregate.cpp
@@ -29,12 +29,7 @@
  @{
  **/
 
-#include <ctype.h>
-#include <math.h>
-#include "platform.h"
-#include "aggregate.h"
-#include "output.h"
-#include "find.h"
+#include "gldcore.h"
 
 //TODO: uncomment if context warnings 
 // SET_MYCONTEXT(DMC_AGGREGATE)

@@ -12,15 +12,8 @@
 @{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
-
+#include "powerflow.h"
 using namespace std;
-
-#include "emissions.h"
 
 //////////////////////////////////////////////////////////////////////////
 // fault_check CLASS FUNCTIONS
@@ -298,7 +291,7 @@ int emissions::create(void)
 int emissions::init(OBJECT *parent)
 {
 	int rval;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	rval = powerflow_object::init(parent);
  

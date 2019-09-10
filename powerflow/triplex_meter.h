@@ -4,8 +4,9 @@
 #ifndef _TRIPLEXMETER_H
 #define _TRIPLEXMETER_H
 
-#include "powerflow.h"
-#include "triplex_node.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 EXPORT SIMULATIONMODE interupdate_triplex_meter(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);
 

@@ -363,7 +363,7 @@ int evcharger::init(OBJECT *parent)
 	//if (distance.shorttrip==0) distance.shorttrip = gl_random_lognormal(3,1);
 	//if (distance.longtrip==0) distance.longtrip = gl_random_lognormal(4,2);
 
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	hdr->flags |= OF_SKIPSAFE;
 
 	//Make sure the efficiency is valid
@@ -394,7 +394,7 @@ int evcharger::isa(char *classname)
 
 double evcharger::update_state(double dt /* seconds */) 
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	if (obj->clock>TS_ZERO && dt>0)
 	{
 		DATETIME now;
@@ -571,7 +571,7 @@ double evcharger::update_state(double dt /* seconds */)
 
 TIMESTAMP evcharger::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	// compute the total load and heat gain
 	if (t0>TS_ZERO && t1>t0)
 			load.energy += (load.total * gl_tohours(t1-t0));

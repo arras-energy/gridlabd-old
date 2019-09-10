@@ -1,5 +1,13 @@
+/* File: instance_slave.h
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
+
 #ifndef _INSTANCE_CNX_H
 #define _INSTANCE_CNX_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include <math.h>
 #include <stdlib.h>

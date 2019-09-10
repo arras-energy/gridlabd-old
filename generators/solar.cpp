@@ -19,13 +19,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "solar.h"
 
 #define RAD(x) (x*PI)/180
 
@@ -223,7 +217,7 @@ then Tout will be set to 59 degF, RHout is set to 75% and solar flux will be set
 **/
 int solar::init_climate()
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	OBJECT *obj = NULL;
 
 	// link to climate data
@@ -537,7 +531,7 @@ int solar::init_climate()
 /* Object initialization is called once after all object have been created */
 int solar::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int climate_result;
 
 	if (parent != NULL)
@@ -848,7 +842,7 @@ TIMESTAMP solar::presync(TIMESTAMP t0, TIMESTAMP t1)
 TIMESTAMP solar::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
 	int64 ret_value;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	double insolwmsq, corrwindspeed, Tback, Ftempcorr;
 
 	//Check the shading factor

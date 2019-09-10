@@ -1,9 +1,11 @@
 #ifndef _LOAD_TRACKER_H
 #define _LOAD_TRACKER_H
 
-#include "gridlabd.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
-class load_tracker
+class load_tracker : gld_object
 {
 private:
 	typedef union
@@ -35,9 +37,9 @@ private:
 	void update_feedback_variable();
 public:
 	/* get_name acquires the name of an object or 'unnamed' if non set */
-	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=OBJECTHDR(this); return obj->name?obj->name:(sprintf(tmp,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
+	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=THISOBJECTHDR; return obj->name?obj->name:(sprintf(tmp,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
 	/* get_id acquires the object's id */
-	inline unsigned int get_id(void) const {return OBJECTHDR(this)->id;};
+	inline unsigned int get_id(void) const {return THISOBJECTHDR->id;};
 public:
 	load_tracker(MODULE *mod);
 	inline load_tracker(CLASS *cl=oclass){};

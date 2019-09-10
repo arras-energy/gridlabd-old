@@ -1,5 +1,6 @@
-/* gld_load.h
+/* load_xml_handle.cp
  * Copyright (C) 2008 Battelle Memorial Institute
+ *
  * Authors:
  *	Matthew Hauer <matthew.hauer@pnl.gov>, 6 Nov 07 -
  *
@@ -15,8 +16,10 @@
  *
  */
 
-#include "platform.h"
+#include "gldcore.h"
+
 #ifdef HAVE_XERCES
+
 #include <xercesc/util/XMLUniDefs.hpp>
 #include <xercesc/sax2/Attributes.hpp>
 #include "load_xml_handle.h"

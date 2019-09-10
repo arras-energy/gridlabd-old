@@ -1,4 +1,4 @@
-/** $Id: property.c 4738 2014-07-03 00:55:39Z dchassin $
+/** property.cpp
 	Copyright (C) 2011 Battelle Memorial Institute
 	@file property.c
 	@addtogroup property Properties of objects
@@ -10,22 +10,7 @@
  @{
  **/
 
-#include <math.h>
-
-#include "class.h"
-#include "output.h"
-#include "convert.h"
-#include "module.h"
-#include "exception.h"
-#include "timestamp.h"
-#include "loadshape.h"
-#include "enduse.h"
-#include "stream.h"
-#include "instance.h"
-#include "linkage.h"
-#include "compare.h"
-#include "stream.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_PROPERTY)
 
@@ -57,6 +42,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part,enduse_set_part},
 	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part},
 	{"method","string", NULL, 0, 0, convert_from_method,convert_to_method},
+	{"string", "string", "", sizeof(STRING), (unsigned int)-1, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
 };
 
 PROPERTYTYPE property_getfirst_type(void)
@@ -353,7 +339,7 @@ bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, v
 	}
 	else // no comparison possible
 	{
-		output_debug("property type '%s' does not support comparison operations or parts", property_type[ptype].name);
+		output_warning("property type '%s' does not support comparison operations or parts", property_type[ptype].name);
 		return 0;
 	}
 }
@@ -474,7 +460,7 @@ int complex_from_string(void *x, const char *str)
 				c->SetPolar(a,b*180/PI);
 				return 1;
 			default:
-				output_debug("complex_from_string(void *x=%p, char *str='%s') notation '%s' is invalid", x,str,notation);
+				output_warning("complex_from_string(void *x=%p, char *str='%s') notation '%s' is invalid", x,str,notation);
 				return 0;
 		}
 	}
@@ -628,6 +614,33 @@ double complex_array_get_part(void *x, const char *name)
 	return QNAN;
 }
 
+int string_create(void *ptr)
+{
+	STRING str = new std::string();
+	if ( str != NULL )
+	{
+		*(STRING*)ptr = str;
+		return 1;
+	}
+	else
+	{
+		output_error("string_create(void *ptr=%p): memory allocation failed",ptr);
+		return 0;
+	}
+}
 
+int convert_to_string(const char *s, void *data, PROPERTY *p)
+{
+	STRING *str = (STRING*)data;
+	**str = s;
+	int len = strlen(s);
+	return len;
+}
 
+int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
+{
+	STRING *str = (STRING*)data;
+	int n = snprintf(buffer,(size_t)len,"%s",(*str)->c_str());
+	return n;
+}
 // EOF

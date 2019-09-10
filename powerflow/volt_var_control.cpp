@@ -11,12 +11,8 @@
 	Copyright (C) 2010 Battelle Memorial Institute
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "volt_var_control.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // volt_var_control CLASS FUNCTIONS
@@ -134,7 +130,7 @@ int volt_var_control::init(OBJECT *parent)
 	int num_min_volt, num_max_volt, num_des_volt, num_max_vdrop, num_vbw_low, num_vbw_high, total_meas;
 	bool reg_list_type = false;
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//General error checks
 	if (pf_signed==true)
@@ -1709,7 +1705,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					//Make sure it isn't too big or small - otherwise toss a warning (it will cause problem)
 					if (VSet[0] > maximum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase A will exceed the maximum allowed voltage!",OBJECTHDR(this)->name);
+						gl_warning("volt_var_control %s: The set point for phase A will exceed the maximum allowed voltage!",THISOBJECTHDR->name);
 						/*  TROUBLESHOOT
 						The set point necessary to maintain the end point voltage exceeds the maximum voltage limit specified by the system.  Either
 						increase this maximum_voltage limit, or configure your system differently.
@@ -1733,7 +1729,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					}
 					else if (VSet[0] < minimum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase A will exceed the minimum allowed voltage!",OBJECTHDR(this)->name);
+						gl_warning("volt_var_control %s: The set point for phase A will exceed the minimum allowed voltage!",THISOBJECTHDR->name);
 						/*  TROUBLESHOOT
 						The set point necessary to maintain the end point voltage exceeds the minimum voltage limit specified by the system.  Either
 						decrease this minimum_voltage limit, or configure your system differently.
@@ -1765,7 +1761,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					//Make sure it isn't too big or small - otherwise toss a warning (it will cause problem)
 					if (VSet[1] > maximum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase B will exceed the maximum allowed voltage!",OBJECTHDR(this)->name);
+						gl_warning("volt_var_control %s: The set point for phase B will exceed the maximum allowed voltage!",THISOBJECTHDR->name);
 
 						//See what region we are currently in
 						if (pRegulator_list[reg_index]->tap[1] > 0)	//In raise region
@@ -1785,7 +1781,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					}
 					else if (VSet[1] < minimum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase B will exceed the minimum allowed voltage!",OBJECTHDR(this)->name);
+						gl_warning("volt_var_control %s: The set point for phase B will exceed the minimum allowed voltage!",THISOBJECTHDR->name);
 
 						//See what region we are currently in
 						if (pRegulator_list[reg_index]->tap[1] > 0)	//In raise region
@@ -1813,7 +1809,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 
 					if (VSet[2] > maximum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase C will exceed the maximum allowed voltage!",OBJECTHDR(this)->name);
+						gl_warning("volt_var_control %s: The set point for phase C will exceed the maximum allowed voltage!",THISOBJECTHDR->name);
 
 						//See what region we are currently in
 						if (pRegulator_list[reg_index]->tap[2] > 0)	//In raise region
@@ -1833,7 +1829,7 @@ TIMESTAMP volt_var_control::presync(TIMESTAMP t0)
 					}
 					else if (VSet[2] < minimum_voltage[reg_index])	//Will exceed
 					{
-						gl_warning("volt_var_control %s: The set point for phase C will exceed the minimum allowed voltage!",OBJECTHDR(this)->name);
+						gl_warning("volt_var_control %s: The set point for phase C will exceed the minimum allowed voltage!",THISOBJECTHDR->name);
 
 						//See what region we are currently in
 						if (pRegulator_list[reg_index]->tap[2] > 0)	//In raise region

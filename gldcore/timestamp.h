@@ -1,5 +1,6 @@
-/** $Id: timestamp.h 1182 2008-12-22 22:08:36Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: timestamp.h 
+   Copyright (C) 2008, Battelle Memorial Institute
+   
 	@file timestamp.h
 	@addtogroup timestamp
 	@ingroup core
@@ -8,6 +9,10 @@
 
 #ifndef _TIMESTAMP_H
 #define _TIMESTAMP_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "platform.h"
 #include <time.h>

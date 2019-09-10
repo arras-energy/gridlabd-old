@@ -1,22 +1,12 @@
-/** $Id: class.c 4738 2014-07-03 00:55:39Z dchassin $
+/** class.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file class.c
+
+	@file class.cpp
 	@addtogroup class Classes of objects
 	@ingroup core
  **/
 
-#include "exec.h"
-#include "property.h"
-#include "class.h"
-#include "output.h"
-#include "convert.h"
-#include "module.h"
-#include "exception.h"
-#include "timestamp.h"
-#include "loadshape.h"
-#include "enduse.h"
-#include "stream.h"
-#include "random.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_CLASS)
 
@@ -42,6 +32,10 @@ SET_MYCONTEXT(DMC_CLASS)
 #define DLLOAD(P) dlopen(P,RTLD_LAZY)
 #define DLSYM(H,S) dlsym(H,S)
 #endif
+
+// TODO: delete this when reentrancy upgrade is complete
+extern GldMain *my_instance;
+
 static unsigned int class_count = 0;
 
 /* defined in property.c */
@@ -214,11 +208,18 @@ static PROPERTY *find_header_property(CLASS *oclass,
 PROPERTY *class_find_property(CLASS *oclass,     /**< the object class */
                               const PROPERTYNAME name) /**< the property name */
 {
-	PROPERTY *prop = find_header_property(oclass,name);
-	if ( prop ) return prop;
-
-	if(oclass == NULL)
+	if ( oclass == NULL )
+	{
+//		output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> NULL",oclass->name,name);
 		return NULL;
+	}
+
+	PROPERTY *prop = find_header_property(oclass,name);
+	if ( prop ) 
+	{
+//		output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> PROPERTY<%s:%s>",oclass->name,name,prop->oclass->name,prop->name);
+		return prop;
+	}
 
 	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
@@ -234,6 +235,7 @@ PROPERTY *class_find_property(CLASS *oclass,     /**< the object class */
 				if (global_suppress_repeat_messages)
 					prop->flags |= ~PF_DEPRECATED_NONOTICE;
 			}
+//			output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> PROPERTY<%s:%s>",oclass->name,name,prop->oclass->name,prop->name);
 			return prop;
 		}
 	}
@@ -244,12 +246,23 @@ PROPERTY *class_find_property(CLASS *oclass,     /**< the object class */
 			A class has somehow specified itself as a parent class, either directly or indirectly.
 			This means there is a problem with the module that publishes the class.
 		 */
+//		output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> NULL",oclass->name,name);
 		return NULL;
 	}
 	else if (oclass->parent!=NULL)
-		return class_find_property_rec(oclass->parent,name, oclass);
+	{
+		PROPERTY *prop = class_find_property_rec(oclass->parent,name, oclass);
+//		if ( prop )
+//			output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> PROPERTY<%s:%s>",oclass->name,name,prop->oclass->name,prop->name);
+//		else
+//			output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> NULL",oclass->name,name);
+		return prop;
+	}
 	else
+	{
+//		output_debug("class_find_property(CLASS *oclass=<%s>, PROPERTYNAME name='%s') -> NULL",oclass->name,name);
 		return NULL;
+	}
 }
 
 /** Add a property to a class
@@ -274,6 +287,11 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
                                       PROPERTYTYPE ptype, /**< the type of the property */
                                       const char *unit)   /**< the unit of the property */
 {
+	// if ( oclass->pmap )
+	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is %s", oclass->name, name, oclass->pmap->name);
+	// else
+	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is (null)", oclass->name, name);
+
 	PROPERTY *prop = (PROPERTY*)malloc(sizeof(PROPERTY));
 	UNIT *pUnit = NULL;
 
@@ -304,23 +322,25 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 			the desired unit to the units file and try again.
 		 */
 	memset(prop, 0, sizeof(PROPERTY));
-	prop->access = PA_PUBLIC;
-	prop->addr = (void*)(int64)oclass->size;
+	prop->oclass = oclass;
+	prop->name = strdup(name);
+	prop->ptype = ptype;
 	prop->size = 0;
+	prop->width = property_type[ptype].size;
+	prop->access = PA_PUBLIC;
+	prop->unit = pUnit;
+	prop->addr = (void*)(int64)oclass->size;
 	prop->delegation = NULL;
-	prop->flags = PF_EXTENDED;
 	prop->keywords = NULL;
 	prop->description = NULL;
-	prop->unit = pUnit;
-	prop->name = strdup(name);
 	prop->next = NULL;
-	prop->oclass = oclass;
-	prop->ptype = ptype;
-	prop->width = property_type[ptype].size;
+	prop->flags = PF_EXTENDED;
 
 	oclass->size += property_type[ptype].size;
 
 	class_add_property(oclass,prop);
+	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): after adding property first property is %s", oclass->name, name, oclass->pmap->name);
+	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...) -> PROPERTY(<%s:%s>)", oclass->name, name, prop->oclass->name, prop->name);
 	return prop;
 }
 
@@ -455,19 +475,19 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 	int b = sizeof(property_type[0]);
 	int c = _PT_LAST - _PT_FIRST - 1;
 
-	if (_PT_LAST-_PT_FIRST-1!=sizeof(property_type)/sizeof(property_type[0]))
+	if ( _PT_LAST-_PT_FIRST-1 != sizeof(property_type)/sizeof(property_type[0]) )
 	{
-		output_fatal("property_type[] in class.c has an incorrect number of members (%i vs %i)", a/b, c);
+		throw_exception("property_type[] in class.c has an incorrect number of members (%i vs %i)", a/b, c);
 		/* TROUBLESHOOT
 			This error occurs when an improper definition of a class is used.  This is not usually
 			caused by an error in a GLM file but is most likely caused by a bug in a module
 			or incorrectly defined class.
 		 */
-		exit(XC_EXCEPTION);
 	}
-	if (oclass!=NULL)
+	if ( oclass != NULL && oclass->module != NULL )
 	{
-		if(strcmp(oclass->module->name, module->name) == 0){
+		if ( strcmp(oclass->module->name, module->name) == 0 )
+		{
 			output_error("module %s cannot register class %s, it is already registered by module %s", module->name,name,oclass->module->name);
 			/*	TROUBLESHOOT
 				This error is caused by an attempt to define a new class which is already
@@ -475,17 +495,19 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 				bug in a module or an incorrectly defined class.
 			 */
 			return NULL;
-		} else {
+		} 
+		else 
+		{
 			IN_MYCONTEXT output_verbose("module %s is registering a 2nd class %s, previous one in module %s", module->name, name, oclass->module->name);
 		}
 	}
-	if (strlen(name)>=MAXCLASSNAMELEN )
+	if ( strlen(name) >= MAXCLASSNAMELEN )
 	{
 		errno = E2BIG;
 		return 0;
 	}
 	oclass = (CLASS*)malloc(sizeof(CLASS));
-	if (oclass==NULL)
+	if ( oclass == NULL)
 	{
 		errno = ENOMEM;
 		return 0;
@@ -501,9 +523,13 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 	oclass->profiler.count=0;
 	oclass->profiler.clocks=0;
 	if (first_class==NULL)
+	{
 		first_class = oclass;
+	}
 	else
+	{
 		last_class->next = oclass;
+	}
 	last_class = oclass;
 	IN_MYCONTEXT output_verbose("class %s registered ok", name);
 	return oclass;
@@ -594,7 +620,8 @@ size_t class_get_extendedcount(CLASS *oclass)
 	@return a pointer to the class having that \p name,
 	or \p NULL if no match found.
  **/
-CLASS *class_get_class_from_classname(CLASSNAME name) /**< a pointer to a \p NULL -terminated string containing the class name */
+CLASS *class_get_class_from_classname(CLASSNAME name, /**< a pointer to a \p NULL -terminated string containing the class name */
+									  CLASS *first) /**< optional reference to count of matches found */
 {
 	CLASS *oclass = NULL;
 	MODULE *mod = NULL;
@@ -602,26 +629,35 @@ CLASS *class_get_class_from_classname(CLASSNAME name) /**< a pointer to a \p NUL
 	char temp[1024]; /* we get access violations when name is from another DLL. -mh */
 	strcpy(temp, name);
 	ptr = strchr(temp, '.');
-	if(ptr != NULL){	/* check module for the class */
+	if ( ptr != NULL ) 
+	{	
+		/* check module for the class */
 		ptr[0] = 0;
 		++ptr;
 		mod = module_find(temp);
-		if(mod == NULL){
+		if ( mod == NULL ) 
+		{
 			IN_MYCONTEXT output_verbose("could not search for '%s.%s', module not loaded", name, ptr);
 			return NULL;
 		}
-		for (oclass=first_class; oclass!=NULL; oclass=oclass->next)
+		for ( oclass = (first ? first->next : first_class); oclass!=NULL; oclass=oclass->next )
 		{
-			if(oclass->module == mod)
-				if(strcmp(oclass->name,ptr)==0)
+			if ( oclass->module == mod )
+			{	
+				if ( strcmp(oclass->name,ptr) == 0 )
+				{
 					return oclass;
+				}
+			}
 		}
 		return NULL;
 	}
-	for (oclass=first_class; oclass!=NULL; oclass=oclass->next)
+	for ( oclass = (first ? first->next : first_class); oclass!=NULL; oclass=oclass->next )
 	{
-		if (strcmp(oclass->name,name)==0)
+		if ( strcmp(oclass->name,name) == 0 )
+		{
 			return oclass;
+		}
 	}
 	return NULL;
 }
@@ -715,7 +751,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 						 */
 						goto Error;
 					}
-					no_override = ~(~oclass->parent->passconfig|oclass->passconfig); /* parent bool-implies child (p->q=~p|q) */
+					no_override = (PASSCONFIG)~(~oclass->parent->passconfig|oclass->passconfig); /* parent bool-implies child (p->q=~p|q) */
 					if (oclass->parent->passconfig&PC_UNSAFE_OVERRIDE_OMIT
 							&& !(oclass->passconfig&PC_PARENT_OVERRIDE_OMIT)
 							&& no_override&PC_PRETOPDOWN)

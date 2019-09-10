@@ -9,12 +9,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "triplex_load.h"
+#include "powerflow.h"
+using namespace std;
 
 CLASS* triplex_load::oclass = NULL;
 CLASS* triplex_load::pclass = NULL;
@@ -142,7 +138,7 @@ int triplex_load::create(void)
 int triplex_load::init(OBJECT *parent)
 {
 	int ret_value;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	ret_value = triplex_node::init(parent);
 
@@ -236,7 +232,7 @@ void triplex_load::triplex_load_update_fxn()
 		{	
 			power_fraction[0] = 1 - current_fraction[0] - impedance_fraction[0];
 
-			OBJECT *obj = OBJECTHDR(this);
+			OBJECT *obj = THISOBJECTHDR;
 
 			gl_warning("load:%s - ZIP components on phase 1 did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", power_fraction[0]);
 			/*  TROUBLESHOOT
@@ -336,7 +332,7 @@ void triplex_load::triplex_load_update_fxn()
 		{	
 			power_fraction[1] = 1 - current_fraction[1] - impedance_fraction[1];
 
-			OBJECT *obj = OBJECTHDR(this);
+			OBJECT *obj = THISOBJECTHDR;
 
 			gl_warning("load:%s - ZIP components on phase 2 did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", power_fraction[1]);
 			/*  TROUBLESHOOT
@@ -434,7 +430,7 @@ void triplex_load::triplex_load_update_fxn()
 		{	
 			power_fraction[2] = 1 - current_fraction[2] - impedance_fraction[2];
 
-			OBJECT *obj = OBJECTHDR(this);
+			OBJECT *obj = THISOBJECTHDR;
 
 			gl_warning("load:%s - ZIP components on phase 12 did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", power_fraction[2]);
 			/*  TROUBLESHOOT
@@ -648,7 +644,7 @@ void triplex_load::triplex_load_delete_update_fxn(void)
 //Module-level call
 SIMULATIONMODE triplex_load::inter_deltaupdate_triplex_load(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	double deltat, deltatimedbl;
 	STATUS return_status_val;
 

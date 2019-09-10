@@ -1,10 +1,12 @@
 // $Id: link.h 1211 2009-01-17 00:45:28Z d3x593 $
 //	Copyright (C) 2008 Battelle Memorial Institute
 
-#ifndef _LINK_H
-#define _LINK_H
+#ifndef _LINKOBJECT_H
+#define _LINKOBJECT_H
 
-#include "powerflow.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 EXPORT int isa_link(OBJECT *obj, CLASSNAME classname);
 EXPORT SIMULATIONMODE interupdate_link(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos);

@@ -4,25 +4,8 @@
 	@author David P. Chassin
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <vector>
-#include <algorithm>
-#include <iostream>
-#include <fstream>
-
-#include <string>
-#include "gridlabd.h"
-#ifdef max
-#undef max
-#endif
-#ifdef min
-#undef min
-#endif
 #include "climate.h"
-#include "timestamp.h"
+
 EXPORT_CREATE(climate)
 EXPORT_INIT(climate)
 EXPORT_SYNC(climate)
@@ -60,7 +43,7 @@ const long EMPTY_VALUE = -999;
 //const int ALPHA = 300;
 //const int NUM_FUZZY_LAYERS = 20;
 
-
+#include <vector>
 
 std::vector<std::vector<double > > cloud_pattern;
 std::vector<std::vector<double > > normalized_cloud_pattern;
@@ -693,7 +676,7 @@ int climate::isa(CLASSNAME classname)
 
 int climate::init(OBJECT *parent)
 {
-	OBJECT *obj=OBJECTHDR(this);
+	OBJECT *obj=THISOBJECTHDR;
 	TIMESTAMP t0 = obj->clock;
 	double meter_to_feet = 1.0;
 	double tz_num_offset;
@@ -1036,7 +1019,7 @@ int climate::get_solar_for_location(double latitude, double longitude, double *d
 	double f;
 	double ETRN;
 	double sol_z;
-	OBJECT *obj=OBJECTHDR(this);
+	OBJECT *obj=THISOBJECTHDR;
 	DATETIME dt;
 	gl_localtime(obj->clock, &dt);
 
@@ -1417,7 +1400,7 @@ double climate::convert_to_binary_cloud( ) {
 
 
 	double search_tolerance = 0.005; //Defines how close is close enough when dialing in the binary cloud pattern.
-	//OBJECT *obj=OBJECTHDR(this);
+	//OBJECT *obj=THISOBJECTHDR;
 	//TIMESTAMP t1 = obj->clock;
 
 

@@ -40,15 +40,8 @@
 	@{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "node.h"
-#include "line.h"
 
 CLASS* line::oclass = NULL;
 CLASS* line::pclass = NULL;
@@ -180,7 +173,7 @@ void line::load_matrix_based_configuration(complex Zabc_mat[3][3], complex Yabc_
 	{
 		if (use_line_cap == false)
 		{
-			gl_warning("Shunt capacitance of line:%s specified without setting powerflow::line_capacitance = TRUE. Shunt capacitance will be ignored.",OBJECTHDR(this)->name);
+			gl_warning("Shunt capacitance of line:%s specified without setting powerflow::line_capacitance = TRUE. Shunt capacitance will be ignored.",THISOBJECTHDR->name);
 
 			for (int i = 0; i < 3; i++) 
 			{

@@ -9,12 +9,8 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "recloser.h"
+#include "powerflow.h"
+using namespace std;
 
 CLASS* recloser::oclass = NULL;
 CLASS* recloser::pclass = NULL;

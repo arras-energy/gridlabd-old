@@ -1,4 +1,4 @@
-/** $Id: timestamp.c 1187 2009-01-02 18:58:48Z dchassin $
+/** timestamp.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file timestamp.c
 	@addtogroup timestamp Time management
@@ -22,19 +22,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
-#include <time.h>
-#include <ctype.h>
-#include "platform.h"
-#include "timestamp.h"
-#include "exception.h"
-#include "find.h"
-#include "output.h"
-#include "globals.h"
-#include "lock.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_TIME)
 
@@ -287,7 +275,7 @@ int local_datetime(TIMESTAMP ts, DATETIME *dt)
 		}
 		n = (daysinmonth[dt->month] + ((dt->month == 1 && ISLEAPYEAR(dt->year)) ? 1:0)) * 86400 * TS_SECOND;
 		if ( n < 86400 * 28 ) { /**/
-			output_fatal("Breaking an infinite loop in local_datetime! (ts = %"FMT_INT64"ds", ts);
+			output_fatal("Breaking an infinite loop in local_datetime! (ts = %" FMT_INT64 "ds", ts);
 			/*	TROUBLESHOOT
 				An internal protection against infinite loops in the time calculation
 				module has encountered a critical problem.  This is often caused by
@@ -421,7 +409,7 @@ int local_datetime_delta(double tsdbl, DATETIME *dt)
 		}
 		n = (daysinmonth[dt->month] + ((dt->month == 1 && ISLEAPYEAR(dt->year)) ? 1:0)) * 86400 * TS_SECOND;
 		if ( n < 86400 * 28 ) { /**/
-			output_fatal("Breaking an infinite loop in local_datetime_delta! (ts = %"FMT_INT64"ds", ts);
+			output_fatal("Breaking an infinite loop in local_datetime_delta! (ts = %" FMT_INT64 "ds", ts);
 			/*	TROUBLESHOOT
 				An internal protection against infinite loops in the time calculation
 				module has encountered a critical problem.  This is often caused by
@@ -1085,7 +1073,7 @@ int convert_from_timestamp_delta(TIMESTAMP ts, DELTAT delta_t, char *buffer, int
 					len = strdatetime(&t,temp,sizeof(temp));
 				}
 				else
-					throw_exception("%"FMT_INT64"d is an invalid timestamp", ts);
+					throw_exception("%" FMT_INT64 "d is an invalid timestamp", ts);
 					/* TROUBLESHOOT
 						An attempt to convert a timestamp to a date/time string has failed because the timezone isn't valid.
 						This is most likely an internal error and should be reported.
@@ -1106,7 +1094,7 @@ int convert_from_timestamp_delta(TIMESTAMP ts, DELTAT delta_t, char *buffer, int
 	else if (ts==0)
 		len=sprintf(temp,"%s","INIT");
 	else
-		len=sprintf(temp,"%"FMT_INT64"d",ts);
+		len=sprintf(temp,"%" FMT_INT64 "d",ts);
 	if (len<size)
 	{
 		if ( ts == TS_NEVER ) {
@@ -1147,7 +1135,7 @@ int convert_from_deltatime_timestamp(double ts_v, char *buffer, int size)
 					len = strdatetime(&t,temp,sizeof(temp));
 				}
 				else
-					throw_exception("%"FMT_INT64"d is an invalid timestamp", ts);
+					throw_exception("%" FMT_INT64 "d is an invalid timestamp", ts);
 					/* TROUBLESHOOT
 						An attempt to convert a timestamp to a date/time string has failed because the timezone isn't valid.
 						This is most likely an internal error and should be reported.
@@ -1168,7 +1156,7 @@ int convert_from_deltatime_timestamp(double ts_v, char *buffer, int size)
 	else if (ts==0)
 		len=sprintf(temp,"%s","INIT");
 	else
-		len=sprintf(temp,"%"FMT_INT64"d",ts);
+		len=sprintf(temp,"%" FMT_INT64 "d",ts);
 	if (len<size)
 	{
 		if ( ts == TS_NEVER ) {
@@ -1194,14 +1182,14 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	if (*value=='\'' || *value=='"') value++;
 
 	/* ISO8601 support */
-	if ( sscanf(value,"%4hu-%2hu-%2huT%2hu:%2hu:%lf %2hu:%2hu",&Y,&m,&d,&H,&M,&s,&tzh,&tzm) > 6 
+	if ( sscanf(value,"%4hu-%2hu-%2huT%2hu:%2hu:%lf%hd:%hu",&Y,&m,&d,&H,&M,&s,&tzh,&tzm) > 6 
 		|| ( sscanf(value,"%4hu-%2hu-%2huT%2hu:%2hu:%lf%c",&Y,&m,&d,&H,&M,&s,tz) == 7 && strcmp(tz,"Z")==0) )
 	{
 		S = (unsigned short)s;
 		unsigned int ns = (s-S)*1e9;
 		DATETIME dt = {Y,m,d,H,M,S,ns,0};
-		TIMESTAMP t = mkdatetime(&dt);
-		return t - (tzh*60+tzm)*60;
+		dt.tzoffset = (tzh*60+tzm)*60;
+		return mkdatetime(&dt);
 	}
 
 	/* scan ISO format date/time */
@@ -1448,7 +1436,7 @@ int timestamp_test(void)
 				}
 				else
 				{
-					output_test("FAILED: unable to convert ts=%"FMT_INT64"d to local time", ts);
+					output_test("FAILED: unable to convert ts=%" FMT_INT64 "d to local time", ts);
 					failed++;
 				}
 			}
@@ -1488,7 +1476,7 @@ int timestamp_test(void)
 		}
 		else
 		{
-			output_test("FAILED: timestamp_test: unable to convert ts=%"FMT_INT64"d to local time", ts);
+			output_test("FAILED: timestamp_test: unable to convert ts=%" FMT_INT64 "d to local time", ts);
 			failed++;
 		}
 	}

@@ -4,7 +4,9 @@
 #ifndef _PQLOAD_H
 #define _PQLOAD_H
 
-#include "load.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 typedef struct s_schedule_list {
 	struct s_schedule_list *next;

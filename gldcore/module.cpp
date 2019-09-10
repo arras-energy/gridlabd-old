@@ -1,4 +1,4 @@
-/** $Id: module.c 4738 2014-07-03 00:55:39Z dchassin $
+/** module.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file module.cpp
 	@addtogroup modules Runtime modules
@@ -18,27 +18,7 @@
 #endif
 #endif
 
-#include "version.h"
-
-#if defined WIN32
-#include <io.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#else
-#include <ctype.h>
-#include <sys/ioctl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <dirent.h>
-#endif
-#include <math.h>
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-
-#include "http_client.h"
+#include "gldcore.h"
 
 #if defined(WIN32) && !defined(__MINGW32__)
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
@@ -62,30 +42,6 @@
 #define DLLOAD(P) dlopen(P,RTLD_LAZY)
 #define DLSYM(H,S) dlsym(H,S)
 #endif
-
-#if HAVE_SCHED_H
-#include <sched.h>
-#endif
-
-#include <errno.h>
-#include "platform.h"
-#include "globals.h"
-#include "output.h"
-#include "module.h"
-#include "find.h"
-#include "random.h"
-#include "exception.h"
-#include "unit.h"
-#include "interpolate.h"
-#include "lock.h"
-#include "schedule.h"
-#include "exec.h"
-#include "stream.h"
-#include "transform.h"
-
-#include "console.h"
-
-#include "matlab.h"
 
 SET_MYCONTEXT(DMC_MODULE)
 
@@ -505,7 +461,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->minor = pMinor?*pMinor:0;
 	mod->import_file = (int(*)(const char*))DLSYM(hLib,"import_file");
 	mod->export_file = (int(*)(const char*))DLSYM(hLib,"export_file");
-	mod->setvar = (int(*)(const char*,char*))DLSYM(hLib,"setvar");
+	mod->setvar = (int(*)(const char*,const char*))DLSYM(hLib,"setvar");
 	mod->getvar = (void*(*)(const char*,char*,unsigned int))DLSYM(hLib,"getvar");
 	mod->check = (int(*)())DLSYM(hLib,"check");
 	/* deltamode */
@@ -756,8 +712,10 @@ void module_list(void)
 		free(gridLabD);
 	}
 }
-int module_setvar(MODULE *mod, const char *varname, char *value)
+int module_setvar(MODULE *mod, const char *varname, const char *value)
 {
+	if ( mod->setvar != NULL && mod->setvar(varname,value)>0 )
+		return 1;
 	char modvarname[1024];
 	sprintf(modvarname,"%s::%s",mod->name,varname);
 	return global_setvar(modvarname,value)==SUCCESS;

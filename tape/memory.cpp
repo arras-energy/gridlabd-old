@@ -1,4 +1,4 @@
-/* $Id: file.c 4738 2014-07-03 00:55:39Z dchassin $
+/* $Id: memory.c 4738 2014-07-03 00:55:39Z dchassin $
  *	Copyright (C) 2008 Battelle Memorial Institute
  */
 
@@ -10,44 +10,60 @@
 
 #include "gridlabd.h"
 #include "tape.h"
-#include "file.h"
+#include "memory.h"
 
 /*******************************************************************
  * players 
  */
-int file_open_player(struct player *my, char *fname, char *flags)
+int memory_open_player(struct player *my, char *fname, char *flags)
 {
-	char ff[1024];
-
 	/* "-" means stdin */
-	my->fp = (strcmp(fname,"-")==0?stdin:(gl_findfile(fname,NULL,R_OK,ff,sizeof(ff))?fopen(ff,flags):NULL));
-	if (my->fp==NULL)
+	my->memory = (MEMORY*)malloc(sizeof(MEMORY));
+	if (my->memory==NULL)
 	{
-		gl_error("player file %s: %s", fname, strerror(errno));
+		gl_error("player memory %s: %s", fname, strerror(errno));
 		my->status = TS_DONE;
 		return 0;
 	}
-	else
+	my->memory->buffer = gl_global_find(fname);
+	if (my->memory->buffer!=NULL)
 	{
+		my->memory->index = 0;
 		my->loopnum = my->loop;
 		my->status=TS_OPEN;
-		my->type = FT_FILE;
+		my->type = FT_MEMORY;
 		return 1;
+	}
+	gl_error("memory_open_player(struct player *my='{...}', char *fname='%s', char *flags='%s'): global '%s' not defined", fname,flags,fname);
+	return 0;
+}
+
+char *memory_read_player(struct player *my,char *buffer,unsigned int size)
+{
+	static char temp[256];
+	
+	/* if no more data in current loop buffer */
+	if (my->memory->index >= my->memory->buffer->prop->size-1) /* need two values */
+		return NULL;
+	else
+	{
+		double *ptr = (double*)my->memory->buffer->prop->addr + my->memory->index;
+		my->memory->index += 2;
+		sprintf(temp,"%" FMT_INT64 "d,%lg",(TIMESTAMP)ptr[0],ptr[1]);
+		strncpy(buffer,temp,min((size_t)size,sizeof(temp)));
+		return buffer;
 	}
 }
 
-char *file_read_player(struct player *my,char *buffer,unsigned int size)
+int memory_rewind_player(struct player *my)
 {
-	return fgets(buffer,size,my->fp);
+	my->memory->index = 0;
+	return 1;
 }
 
-int file_rewind_player(struct player *my)
+void memory_close_player(struct player *my)
 {
-	return fseek(my->fp,SEEK_SET,0);
-}
-
-void file_close_player(struct player *my)
-{
+	free(my->memory);
 }
 
 /*******************************************************************
@@ -56,8 +72,8 @@ void file_close_player(struct player *my)
 #define MAPSIZE(N) ((N-1)/8+1)
 #define SET(X,B) ((X)[(B)/8]|=(1<<((B)&7)))
 #define ISSET(X,B) (((X)[(B)/8]&(1<<((B)&7)))==(1<<((B)&7)))
-char *file=NULL;
-int linenum=0;
+static char *memory=NULL;
+static int linenum=0;
 static void setmap(char *spec, unsigned char *map, int size)
 {
 	char *p=spec;
@@ -132,33 +148,33 @@ static unsigned char *weekdaymap(char *spec)
 	return weekdays;
 }
 
-int file_open_shaper(struct shaper *my, char *fname, char *flags)
+int memory_open_shaper(struct shaper *my, char *fname, char *flags)
 {
 	char line[1024], group[256]="(unnamed)";
 	float sum=0, load=0, peak=0;
 	float scale[12][31][7][24];
-	char ff[1024];
 
 	/* clear everything */
 	memset(scale,0,sizeof(scale));
 	linenum=0; 
-	file=fname;
+	memory=fname;
 
+	/** @todo finish write memory shaper -- it still uses files (no ticket) */
 	/* "-" means stdin */
-	my->fp = (strcmp(fname,"-")==0?stdin:(gl_findfile(fname,NULL,R_OK,ff,sizeof(ff))?fopen(ff,flags):NULL));
+	my->fp = (strcmp(fname,"-")==0?stdin:fopen(fname,flags));
 	if (my->fp==NULL)
 	{
-		gl_error("shaper file %s: %s", fname, strerror(errno));
+		gl_error("shaper memory %s: %s", fname, strerror(errno));
 		my->status = TS_DONE;
 		return 0;
 	}
 	my->status=TS_OPEN;
-	my->type = FT_FILE;
-	/* TODO: these should be read from the shape file, or better yet, inferred from it */
+	my->type = FT_MEMORY;
+	/** @todo shape defaults should be read from the shape memory, or better yet, inferred from it (no ticket) */
 	my->step = 3600; /* default interval step is one hour */
 	my->interval = 24; /* default unint shape integrated over one day */
 	memset(my->shape,0,sizeof(my->shape));
-	/* load the file into the shape */
+	/* load the memory into the shape */
 	while (fgets(line,sizeof(line),my->fp)!=NULL)
 	{
 		unsigned char *hours, *days, *months, *weekdays;
@@ -172,11 +188,11 @@ int file_open_shaper(struct shaper *my, char *fname, char *flags)
 			int h, d, m, w;
 			if (sscanf(line,"%s %s %s %s %[^,],%[^,\n]",min,hour,day,month,weekday,value)<6)
 			{
-				gl_error("%s(%d) : shape '%s' has specification '%s'", file, linenum, group, line);
+				gl_error("%s(%d) : shape '%s' has specification '%s'", memory, linenum, group, line);
 				continue;
 			}
 			/* minutes are ignored right now */
-			if (min[0]!='*') gl_warning("%s(%d) : minutes are ignored in '%s'", file, linenum, line);
+			if (min[0]!='*') gl_warning("%s(%d) : minutes are ignored in '%s'", memory, linenum, line);
 			hours=hourmap(hour);
 			days=daymap(day);
 			months=monthmap(month);
@@ -229,132 +245,115 @@ int file_open_shaper(struct shaper *my, char *fname, char *flags)
 		}
 		else
 		{	/* syntax error */
-			gl_error("%s(%d) : shape specification '%s' is not valid", file, linenum, line);
+			gl_error("%s(%d) : shape specification '%s' is not valid", memory, linenum, line);
 		}
 	}
 	return 1;
 }
 
-char *file_read_shaper(struct shaper *my,char *buffer,unsigned int size)
+char *memory_read_shaper(struct shaper *my,char *buffer,unsigned int size)
 {
 	return fgets(buffer,size,my->fp);
 }
 
-int file_rewind_shaper(struct shaper *my)
+int memory_rewind_shaper(struct shaper *my)
 {
 	return fseek(my->fp,SEEK_SET,0);
 }
 
-void file_close_shaper(struct shaper *my)
+void memory_close_shaper(struct shaper *my)
 {
 }
 
 /*******************************************************************
  * recorders 
  */
-int file_open_recorder(struct recorder *my, char *fname, char *flags)
+int memory_open_recorder(struct recorder *my, char *fname, char *flags)
 {
-	time_t now=time(NULL);
-	OBJECT *obj=OBJECTHDR(my);
-	
-	my->fp = (strcmp(fname,"-")==0?stdout:fopen(fname,flags));
-	if (my->fp==NULL)
+	my->memory = (MEMORY*)malloc(sizeof(MEMORY));
+	if (my->memory==NULL)
 	{
-		gl_error("recorder file %s: %s", fname, strerror(errno));
+		gl_error("memory_open_recorder(struct recorder *my={...}, char *fname='%s', char *flags='%s'): %s", fname, flags, strerror(errno));
 		my->status = TS_DONE;
 		return 0;
 	}
-	my->type = FT_FILE;
+	my->memory->buffer = gl_global_find(fname);
+	if (my->memory->buffer==NULL)
+	{
+		gl_error("memory_open_recorder(struct recorder *my={...}, char *fname='%s', char *flags='%s'): global '%s' not found", fname, flags, fname);
+		my->status = TS_DONE;
+		return 0;
+	}
+	my->memory->index = 0;
+	my->type = FT_MEMORY;
 	my->last.ts = TS_ZERO;
 	my->status=TS_OPEN;
 	my->samples=0;
-
-	/* put useful header information in file first */
-	fprintf(my->fp,"# file...... %s\n", my->file);
-	fprintf(my->fp,"# date...... %s", asctime(localtime(&now)));
-#ifdef WIN32
-	fprintf(my->fp,"# user...... %s\n", getenv("USERNAME"));
-	fprintf(my->fp,"# host...... %s\n", getenv("MACHINENAME"));
-#else
-	fprintf(my->fp,"# user...... %s\n", getenv("USER"));
-	fprintf(my->fp,"# host...... %s\n", getenv("HOST"));
-#endif
-	fprintf(my->fp,"# target.... %s %d\n", obj->parent->oclass->name, obj->parent->id);
-	fprintf(my->fp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger);
-	fprintf(my->fp,"# interval.. %lld\n", my->interval);
-	fprintf(my->fp,"# limit..... %d\n", my->limit);
-	fprintf(my->fp,"# timestamp,%s\n", my->property);
-
 	return 1;
 }
 
-int file_write_recorder(struct recorder *my, char *timestamp, char *value)
-{ 
-	return fprintf(my->fp,"%s,%s\n", timestamp, value);
+int memory_write_recorder(struct recorder *my, char *timestamp, char *value)
+{
+	if (my->memory->index >= my->memory->buffer->prop->size-1)
+		return 0;
+	else
+	{
+		double *ptr = (double*)my->memory->buffer->prop->addr + my->memory->index;
+		my->memory->index += 2;
+		ptr[0] = (double)gl_parsetime(timestamp);
+		ptr[1] = (double)(float)atof(value);
+		return 2;
+	}
 }
 
-void file_close_recorder(struct recorder *my)
+void memory_close_recorder(struct recorder *my)
 {
-	fprintf(my->fp,"# end of tape\n");
-	fclose(my->fp);
-}
-void file_flush_recorder(struct recorder *my)
-{
-	fflush(my->fp);
+	free(my->memory);
 }
 
 /*******************************************************************
  * collectors 
  */
-int file_open_collector(struct collector *my, char *fname, char *flags)
+int memory_open_collector(struct collector *my, char *fname, char *flags)
 {
-	unsigned int count=0;
-	time_t now=time(NULL);
-
-	my->fp = (strcmp(fname,"-")==0?stdout:fopen(fname,flags));
-	if (my->fp==NULL)
+	my->memory = (MEMORY*)malloc(sizeof(MEMORY));
+	if (my->memory==NULL)
 	{
-		gl_error("collector file %s: %s", fname, strerror(errno));
+		gl_error("memory_open_collector(struct recorder *my={...}, char *fname='%s', char *flags='%s'): %s", fname, flags, strerror(errno));
 		my->status = TS_DONE;
 		return 0;
 	}
+	my->memory->buffer = gl_global_find(fname);
+	if (my->memory->buffer==NULL)
+	{
+		gl_error("memory_open_collector(struct recorder *my={...}, char *fname='%s', char *flags='%s'): global '%s' not found", fname, flags, fname);
+		my->status = TS_DONE;
+		return 0;
+	}
+	my->memory->index = 0;
+	my->type = FT_MEMORY;
 	my->last.ts = TS_ZERO;
 	my->status=TS_OPEN;
-	my->type = FT_FILE;
 	my->samples=0;
-
-	/* put useful header information in file first */
-	count += fprintf(my->fp,"# file...... %s\n", my->file);
-	count += fprintf(my->fp,"# date...... %s", asctime(localtime(&now)));
-#ifdef WIN32
-	count += fprintf(my->fp,"# user...... %s\n", getenv("USERNAME"));
-	count += fprintf(my->fp,"# host...... %s\n", getenv("MACHINENAME"));
-#else
-	count += fprintf(my->fp,"# user...... %s\n", getenv("USER"));
-	count += fprintf(my->fp,"# host...... %s\n", getenv("HOST"));
-#endif
-	count += fprintf(my->fp,"# group..... %s\n", my->group);
-	count += fprintf(my->fp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger);
-	count += fprintf(my->fp,"# interval.. %lld\n", my->interval);
-	count += fprintf(my->fp,"# limit..... %d\n", my->limit);
-	count += fprintf(my->fp,"# property.. timestamp,%s\n", my->property);
-
-	return count;
-}
-
-int file_write_collector(struct collector *my, char *timestamp, char *value)
-{
-	return fprintf(my->fp,"%s,%s\n", timestamp, value);
-}
-
-void file_close_collector(struct collector *my)
-{
-	fprintf(my->fp,"# end of tape\n");
-	fclose(my->fp);
+	return 1;
 
 }
 
-void file_flush_collector(struct collector *my)
+int memory_write_collector(struct collector *my, char *timestamp, char *value)
 {
-	fflush(my->fp);
+	if (my->memory->index >= my->memory->buffer->prop->size-1)
+		return 0;
+	else
+	{
+		double *ptr = (double*)my->memory->buffer->prop->addr + my->memory->index;
+		my->memory->index += 2;
+		ptr[0] = (double)gl_parsetime(timestamp);
+		ptr[1] = (double)(float)atof(value);
+		return 2;
+	}
+}
+
+void memory_close_collector(struct collector *my)
+{
+	free(my->memory);
 }

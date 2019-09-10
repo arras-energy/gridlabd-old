@@ -9,12 +9,8 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "switch_object.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // switch_object CLASS FUNCTIONS
@@ -110,7 +106,7 @@ int switch_object::init(OBJECT *parent)
 	double phase_total, switch_total;
 	size_t indexa, indexb;
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Special flag moved to be universal for all solvers - mainly so phase checks catch it now
 	SpecialLnk = SWITCH;
@@ -674,7 +670,7 @@ void switch_object::NR_switch_sync_post(char *work_phases_pre, char *work_phases
 
 TIMESTAMP switch_object::sync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	char work_phases_pre, work_phases_post;
 
 	//Try to map the event_schedule function address, if we haven't tried yet
@@ -739,7 +735,7 @@ void switch_object::switch_sync_function(void)
 {
 	unsigned char pres_status;
 	double phase_total, switch_total;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int result_val;
 
 	pres_status = 0x00;	//Reset individual status indicator - assumes all start open
@@ -1615,7 +1611,7 @@ void switch_object::set_switch_faulted_phases(unsigned char desired_status)
 //Module-level deltamode call
 SIMULATIONMODE switch_object::inter_deltaupdate_switch(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	TIMESTAMP t0_val, t2_val;
 	char work_phases_pre, work_phases_post;
 

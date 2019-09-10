@@ -1,6 +1,7 @@
-/** $Id: get_cmdarg()->c 5518 2016-07-15 00:55:28Z andyfisher $
+/** cmdarg.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file get_cmdarg()->c
+
+	@file cmdarg.cpp
 	@addtogroup cmdarg Command-line arguments
 	@ingroup core
 
@@ -11,31 +12,7 @@
  @{
  **/
 
-#include <stdio.h>
-#include <string.h>
-#if defined WIN32 && !defined __MINGW__
-#include <direct.h>
-#else
-#include <unistd.h>
-#endif
-
-#include "platform.h"
-#include "globals.h"
-#include "cmdarg.h"
-#include "output.h"
-#include "load.h"
-#include "legal.h"
-#include "timestamp.h"
-#include "random.h"
-#include "loadshape.h"
-#include "enduse.h"
-#include "instance.h"
-#include "test.h"
-#include "setup.h"
-#include "sanitize.h"
-#include "exec.h"
-#include "daemon.h"
-#include "module.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_CMDARG)
 
@@ -60,10 +37,14 @@ DEPRECATED CDECL int cmdarg_runoption(const char *value)
 // Command argument processor implementation
 ///////////////////////////////////////////////
 
-GldCmdarg::GldCmdarg(GldMain *main)
+GldCmdarg::GldCmdarg(GldMain *main, int argc, const char *argv[], const char *environ[])
 {
 	instance = main;
 	loader_time = 0;
+	if ( argc > 0 && argv != NULL && load(argc,argv) == FAILED )
+		throw new GldException("GldCmdarg(): load failed");
+	if ( environ )
+		throw new GldException("GldCmdarg(): environ set not supported");
 }
 
 GldCmdarg::~GldCmdarg(void)
@@ -99,14 +80,14 @@ DEPRECATED STATUS GldCmdarg::load_module_list(FILE *fd,int* test_mod_num)
 	return SUCCESS;
 }
 
-DEPRECATED void modhelp_alpha(pntree **ctree, CLASS *oclass)
+DEPRECATED void modhelp_alpha(PNTREE **ctree, CLASS *oclass)
 {
 	my_instance->get_cmdarg()->modhelp_alpha(ctree,oclass);
 }
-void GldCmdarg::modhelp_alpha(pntree **ctree, CLASS *oclass)
+void GldCmdarg::modhelp_alpha(PNTREE **ctree, CLASS *oclass)
 {
 	int cmpval = 0;
-	pntree *targ = *ctree;
+	PNTREE *targ = *ctree;
 	
 	cmpval = strcmp(oclass->name, targ->name);
 	
@@ -114,8 +95,8 @@ void GldCmdarg::modhelp_alpha(pntree **ctree, CLASS *oclass)
 		; /* exception? */
 	} if(cmpval < 0){ /*  class < root ~ go left */
 		if(targ->left == NULL){
-			targ->left = (pntree *)malloc(sizeof(pntree));
-			memset(targ->left, 0, sizeof(pntree));
+			targ->left = (PNTREE *)malloc(sizeof(PNTREE));
+			memset(targ->left, 0, sizeof(PNTREE));
 			targ->left->name = oclass->name;
 			targ->left->name = oclass->name;
 			targ->left->oclass = oclass;
@@ -125,8 +106,8 @@ void GldCmdarg::modhelp_alpha(pntree **ctree, CLASS *oclass)
 		}
 	} else {
 		if(targ->right == NULL){
-			targ->right = (pntree *)malloc(sizeof(pntree));
-			memset(targ->right, 0, sizeof(pntree));
+			targ->right = (PNTREE *)malloc(sizeof(PNTREE));
+			memset(targ->right, 0, sizeof(PNTREE));
 			targ->right->name = oclass->name;
 			targ->right->name = oclass->name;
 			targ->right->oclass = oclass;
@@ -192,7 +173,7 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 				KEYWORD *key;
 				printf("%s\t%s {", tabs, propname);
 				for (key=prop->keywords; key!=NULL; key=key->next)
-					printf("%s=%"FMT_INT64"u%s", key->name, (int64)key->value, key->next==NULL?"":", ");
+					printf("%s=%" FMT_INT64 "u%s", key->name, (int64)key->value, key->next==NULL?"":", ");
 				printf("} %s;", prop->name);
 			} 
 			else 
@@ -216,11 +197,11 @@ void GldCmdarg::print_class(CLASS *oclass)
 	print_class_d(oclass, 0);
 }
 
-DEPRECATED void print_modhelp_tree(pntree *ctree)
+DEPRECATED void print_modhelp_tree(PNTREE *ctree)
 {
 	my_instance->get_cmdarg()->print_modhelp_tree(ctree);
 }
-void GldCmdarg::print_modhelp_tree(pntree *ctree)
+void GldCmdarg::print_modhelp_tree(PNTREE *ctree)
 {
 	if(ctree->left != NULL){
 		print_modhelp_tree(ctree->left);
@@ -331,8 +312,7 @@ int GldCmdarg::check(int argc, const char *argv[])
 	/* check main core implementation */
 	if ( property_check()==FAILED )
 	{
-		output_fatal("main core property implementation failed size checks");
-		exit(XC_INIERR);
+		throw_exception("main core property implementation failed size checks");
 	}
 	global_runchecks = !global_runchecks;
 	return 0;
@@ -877,11 +857,11 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 		else
 		{
 			CLASS	*oclass;
-			pntree	*ctree;
+			PNTREE	*ctree;
 			/* lexographically sort all elements from class_get_first_class & oclass->next */
 
 			oclass=class_get_first_class();
-			ctree = (pntree *)malloc(sizeof(pntree));
+			ctree = (PNTREE *)malloc(sizeof(PNTREE));
 			
 			if(ctree == NULL){
 				throw_exception("--modhelp: malloc failure");
@@ -1445,7 +1425,7 @@ int GldCmdarg::slave(int argc, const char *argv[])
 
 	strncpy(global_master,host,sizeof(global_master)-1);
 	if ( strcmp(global_master,"localhost")==0 ){
-		sscanf(port,"%"FMT_INT64"x",&global_master_port); /* port is actual mmap/shmem */
+		sscanf(port,"%" FMT_INT64 "x",&global_master_port); /* port is actual mmap/shmem */
 		global_multirun_connection = MRC_MEM;
 	}
 	else
@@ -1456,11 +1436,11 @@ int GldCmdarg::slave(int argc, const char *argv[])
 
 	if ( FAILED == instance_slave_init() )
 	{
-		output_error("slave instance init failed for master '%s' connection '%"FMT_INT64"x'", global_master, global_master_port);
+		output_error("slave instance init failed for master '%s' connection '%" FMT_INT64 "x'", global_master, global_master_port);
 		return CMDERR;
 	}
 
-	IN_MYCONTEXT output_verbose("slave instance for master '%s' using connection '%"FMT_INT64"x' started ok", global_master, global_master_port);
+	IN_MYCONTEXT output_verbose("slave instance for master '%s' using connection '%" FMT_INT64 "x' started ok", global_master, global_master_port);
 	return 1;
 }
 
@@ -1484,11 +1464,11 @@ int GldCmdarg::slave_id(int argc, const char *argv[])
 		output_error("--id requires an ID number argument");
 		return CMDERR;
 	}
-	if(1 != sscanf(argv[1], "%"FMT_INT64"d", &global_slave_id)){
+	if(1 != sscanf(argv[1], "%" FMT_INT64 "d", &global_slave_id)){
 		output_error("slave_id(): unable to read ID number");
 		return CMDERR;
 	}
-	IN_MYCONTEXT output_debug("slave using ID %"FMT_INT64"d", global_slave_id);
+	IN_MYCONTEXT output_debug("slave using ID %" FMT_INT64 "d", global_slave_id);
 	return 1;
 }
 

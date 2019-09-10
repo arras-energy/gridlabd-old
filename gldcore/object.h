@@ -1,11 +1,16 @@
-/** $Id: object.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute	@file object.h
+/* File: object.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
 	@addtogroup object
  @{
  **/
 
 #ifndef _OBJECT_H
 #define _OBJECT_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "complex.h"
 #include "timestamp.h"
@@ -109,7 +114,7 @@ typedef struct s_object_list {
 	unsigned long long guid[2]; /**< globally unique identifier */
 	EVENTHANDLERS events;
 	/* IMPORTANT: flags must be last */
-	uint64 flags; /**< object flags */
+	unsigned long long flags; /**< object flags */
 } OBJECT; /**< Object header structure */
 
 /* this is the callback table for modules
@@ -135,7 +140,7 @@ typedef struct s_callbacks {
 	int (*define_map)(CLASS*,...);
 	int (*loadmethod)(CLASS*,const char*,LOADMETHODCALL call);
 	CLASS *(*class_getfirst)(void);
-	CLASS *(*class_getname)(const char*);
+	CLASS *(*class_getname)(const char*,CLASS *first);
 	PROPERTY *(*class_add_extended_property)(CLASS *,const char *,PROPERTYTYPE,const char *);
 	struct {
 		FUNCTION *(*define)(CLASS*,FUNCTIONNAME,FUNCTIONADDR);
@@ -477,6 +482,7 @@ bool object_set_json(OBJECT *obj, const char *propname, JSONDATA *data);
 #define OBJECTDATA(X,T) ((T*)((X)?((X)+1):NULL)) /**< get the object data structure */
 #define GETADDR(O,P) ((O)?((void*)((char*)((O)+1)+(unsigned int64)((P)->addr))):NULL) /**< get the addr of an object's property */
 #define OBJECTHDR(X) ((X)?(((OBJECT*)X)-1):NULL) /**< get the header from the object's data structure */
+#define THISOBJECTHDR (((OBJECT*)this)-1)
 
 #define MY (((OBJECT*)this)-1)
 #define MYPARENT (MY->parent) /**< get the parent from the object's data structure */

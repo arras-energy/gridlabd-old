@@ -1,28 +1,8 @@
-// daemon.cpp
+/* daemon.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <unistd.h>
-#include <signal.h>
-#include <ctype.h>
-#include <sys/signal.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <netdb.h>
-#include <pwd.h>
-#include "main.h"
-#include "class.h"
-#include "output.h"
-#include "cmdarg.h"
-#include "daemon.h"
-#include "globals.h"
-
-#include <string>
+#include "gldcore.h"
 
 static int disable_daemon_command = false;
 static int daemon_pid = 0;
@@ -53,7 +33,7 @@ static char profile[1024] = "";
 static char progress[1024] = "";
 static char error[1024] = "";
 static char keepalive[8] = "1";
-static char timeout[8] = "10";
+static char cnx_timeout[8] = "10";
 static char umaskstr[8] = "0";
 
 static struct s_config {
@@ -76,7 +56,7 @@ static struct s_config {
 	{"listen",addr},
 	{"port",port},
 	{"keepalive",keepalive},
-	{"timeout",timeout},
+	{"timeout",cnx_timeout},
 	{"umask",umaskstr},
 	{NULL, NULL} // required to end loop
 };
@@ -246,7 +226,7 @@ static int daemon_run(int sockfd)
 {
 	FILE *in = fdopen(sockfd,"r");
 	FILE *out = fdopen(dup(sockfd),"w");
-	int tout = max(0,atoi(timeout));
+	int tout = max(0,atoi(cnx_timeout));
 	signal(SIGALRM,daemon_run_kill);
 	alarm(tout);
 	char command[1024];
@@ -895,7 +875,7 @@ int daemon_remote_client(int argc, const char *argv[])
 	bzero(buffer,sizeof(buffer));
 
 	signal(SIGALRM,daemon_remote_kill);
-	int tout = max(0,atoi(timeout));
+	int tout = max(0,atoi(cnx_timeout));
 	char *p = buffer;
 	while ( !feof(in) )
 	{

@@ -1,4 +1,8 @@
-#include "instance_slave.h"
+/* instance_slave.cpp
+ * Copyright (C) 2008, Battelle Memorial Institute
+ */
+ 
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_INSTANCE)
 
@@ -233,7 +237,7 @@ STATUS instance_slave_link_properties()
 			output_warning("instance_slave_link_properties(): pickle prop_size and calculated prop_size do not match!");
 		}
 	}
-	IN_MYCONTEXT output_debug("instance_slave_link_properties(): exiting for slave %"FMT_INT64, local_inst.cacheid);
+	IN_MYCONTEXT output_debug("instance_slave_link_properties(): exiting for slave %" FMT_INT64, local_inst.cacheid);
 	return SUCCESS;
 }
 
@@ -430,7 +434,7 @@ void instance_slave_done(void)
 	// check rv, 0 is okay
 	if(0 != rv){
 		output_error("instance_slave_done(): unable to signal master");
-		exec_setexitcode(rv);
+		exec_setexitcode(rv ? XC_PRCERR : XC_SUCCESS);
 	}
 }
 
@@ -513,7 +517,7 @@ void *instance_slaveproc(void *ptr)
 
 		instance_slave_done();
 	} while (global_clock != TS_NEVER && rv == SUCCESS);
-	IN_MYCONTEXT output_verbose("slave %"FMT_INT64" completion state reached", local_inst.cacheid);
+	IN_MYCONTEXT output_verbose("slave %" FMT_INT64 " completion state reached", local_inst.cacheid);
 	pthread_exit(NULL);
 	return NULL;
 }
@@ -534,7 +538,7 @@ STATUS instance_slave_init_mem(){
 	IN_MYCONTEXT output_debug("instance_slave_init_mem()");
 	/* @todo open cache */
 	local_inst.cacheid = global_master_port;
-	sprintf(cacheName,"GLD-%"FMT_INT64"x",global_master_port);
+	sprintf(cacheName,"GLD-%" FMT_INT64 "x",global_master_port);
 	local_inst.hMap = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE,cacheName);
 	if ( 0 == local_inst.hMap )
 	{
@@ -578,7 +582,7 @@ STATUS instance_slave_init_mem(){
 	exec_sync_merge(NULL,(void*)&local_inst.cache);
 
 	/* open slave signalling event */
-	sprintf(eventName,"GLD-%"FMT_INT64"x-S", global_master_port);
+	sprintf(eventName,"GLD-%" FMT_INT64 "x-S", global_master_port);
 	local_inst.hSlave = OpenEvent(EVENT_ALL_ACCESS,FALSE,eventName);
 	if ( !local_inst.hSlave )
 	{
@@ -591,7 +595,7 @@ STATUS instance_slave_init_mem(){
 	}
 
 	/* open master signalling event */
-	sprintf(eventName,"GLD-%"FMT_INT64"x-M", global_master_port);
+	sprintf(eventName,"GLD-%" FMT_INT64 "x-M", global_master_port);
 	local_inst.hMaster = OpenEvent(EVENT_ALL_ACCESS,FALSE,eventName);
 	if ( !local_inst.hMaster )
 	{
@@ -660,7 +664,7 @@ STATUS instance_slave_init_socket(){
 		return FAILED;
 	}
 	// handshake?
-	sprintf(cmd, HS_CBK "%"FMT_INT64"d", global_slave_id);
+	sprintf(cmd, HS_CBK "%" FMT_INT64 "d", global_slave_id);
 	IN_MYCONTEXT output_debug("cmd/cbk: %s", cmd);
 	rv = send(local_inst.sockfd, cmd, (int)strlen(cmd), 0);
 	if(0 == rv){
@@ -701,7 +705,7 @@ STATUS instance_slave_init_socket(){
 		;
 	}
 	memcpy(&pickle, cmd+strlen(MSG_INST), sizeof(pickle));
-	IN_MYCONTEXT output_debug("pickle: %"FMT_INT64"d %d %d %d %d %"FMT_INT64"d", pickle.cacheid, pickle.cachesize, pickle.name_size, pickle.prop_size, pickle.id, pickle.ts);
+	IN_MYCONTEXT output_debug("pickle: %" FMT_INT64 "d %d %d %d %d %" FMT_INT64 "d", pickle.cacheid, pickle.cachesize, pickle.name_size, pickle.prop_size, pickle.id, pickle.ts);
 	if(local_inst.cacheid != pickle.cacheid){
 		; // error
 	}
@@ -889,10 +893,10 @@ STATUS instance_slave_init(void)
 	}
 
 	IN_MYCONTEXT output_debug("li: %llx %d %d %d %d", local_inst.cacheid, local_inst.cachesize, local_inst.name_size, local_inst.prop_size, local_inst.id);
-//	IN_MYCONTEXT output_debug("slave %"FMT_INT64" entering init_pthreads()", local_inst.cacheid);
+//	IN_MYCONTEXT output_debug("slave %" FMT_INT64 " entering init_pthreads()", local_inst.cacheid);
 	rv = instance_slave_init_pthreads(); // starts slaveproc() thread
-//	IN_MYCONTEXT output_debug("slave %"FMT_INT64" exited init_pthreads()", local_inst.cacheid);
-//	IN_MYCONTEXT output_debug("li: %"FMT_INT64" %d %d %d %d", local_inst.cacheid, local_inst.cachesize, local_inst.name_size, local_inst.prop_size, local_inst.id);
+//	IN_MYCONTEXT output_debug("slave %" FMT_INT64 " exited init_pthreads()", local_inst.cacheid);
+//	IN_MYCONTEXT output_debug("li: %" FMT_INT64 " %d %d %d %d", local_inst.cacheid, local_inst.cachesize, local_inst.name_size, local_inst.prop_size, local_inst.id);
 	
 	global_clock = exec_sync_get(NULL); // copy time signal to gc, legit since it's from msg
 	IN_MYCONTEXT output_debug("inst_slave_init(): gc = %lli", global_clock);

@@ -117,7 +117,7 @@ int evcharger_det::init(OBJECT *parent)
 			return 2; // defer
 		}
 	}
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int TempIdx;
 	int init_res;
 	int comma_count, curr_idx, curr_comma_count;

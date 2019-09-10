@@ -1,23 +1,12 @@
-/** $Id: globals.c 4738 2014-07-03 00:55:39Z dchassin $
+/*	globals.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file globals.c
-	@addtogroup globals Global variables
-	@ingroup core
 
 	The GridLAB-D core maintains a group of global variables that can be accessed
 	by both core functions and runtime modules using the core API.
 
- @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include "main.h"
-#include "output.h"
-#include "module.h"
-#include "lock.h"
-#include "assert.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_GLOBALS)
 
@@ -315,6 +304,7 @@ DEPRECATED static struct s_varmap {
 	{"daemon_configfile", PT_char1024, &global_daemon_configfile, PA_PUBLIC, "name of configuration file used by the daemon"},
 	{"timezone_locale", PT_char1024, &global_timezone_locale, PA_REFERENCE, "timezone specified by the clock directive"},
 	{"glm_save_options", PT_set, &global_glm_save_options, PA_PUBLIC, "options to control GLM file save format", gso_keys},
+	{"ignore_errors", PT_bool, &global_ignore_errors, PA_PUBLIC, "disable exit on error behavior"},
 	/* add new global variables here */
 };
 

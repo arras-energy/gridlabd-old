@@ -1,4 +1,7 @@
-// etp.h
+/* cmex.h 
+ * Copyright (C) 2002, Battelle Memorial Institute
+ */
+
 //
 // Equivalent Thermal Parameters
 // Concept by Rob G. Pratt
@@ -6,15 +9,16 @@
 // Nov 26 2002
 // DP Chassin
 //
-// Copyright (C) 2002
-// Pacific Northwest National Laboratory
-//
 // This work was completed under FY03 LDRD
 // Cost account #: K38478
 //
 
 #ifndef _ETP_H
 #define _ETP_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #ifdef WIN32
 // this is ok

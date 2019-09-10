@@ -4,7 +4,9 @@
 #ifndef _FREQUENCYGEN_H
 #define _FREQUENCYGEN_H
 
-#include "powerflow.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 typedef enum {
 		MATCHED=0,		///< defines matched condition
@@ -13,7 +15,7 @@ typedef enum {
 		} FREQSTATE;
 
 typedef enum {
-		EMPTY=0,		//No contribution
+		CT_EMPTY=0,		//No contribution
 		CONSTANT=1,		//Constant term
 		SCALAR=2,		//Scalar term ax
 		EXPONENT=3,		//Exponential a*exp(bx)

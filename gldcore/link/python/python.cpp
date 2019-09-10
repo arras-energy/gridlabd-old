@@ -6,6 +6,7 @@
 #include "load.h"
 #include "exec.h"
 #include "save.h"
+#include <frameobject.h>
 
 static PyObject *gridlabd_exception(const char *format, ...);
 
@@ -219,6 +220,27 @@ static PyObject *gridlabd_error(PyObject *self, PyObject *args)
     if ( ! PyArg_ParseTuple(args,"s",&text) )
         return gridlabd_exception("missing text argument");
     return PyLong_FromLong(output_error("%s",text));
+
+}
+
+static PyObject *gridlabd_traceback(const char *context=NULL)
+{
+    PyErr_Print();
+    PyThreadState *tstate = PyThreadState_GET();
+    if ( tstate != NULL && tstate->frame != NULL )
+    {
+        PyFrameObject *frame = tstate->frame;
+        output_error("%s python traceback...", context ? context : "(no context)");
+        while ( frame != NULL )
+        {
+            int line = PyCode_Addr2Line(frame->f_code,frame->f_lasti);
+            const char *filename = PyUnicode_AsUTF8(frame->f_code->co_filename);
+            const char *funcname = PyUnicode_AsUTF8(frame->f_code->co_name);
+            output_error("%s(%d): %s", filename, line, funcname);
+            frame = frame->f_back;
+        }
+    }
+    return NULL;
 
 }
 
@@ -835,15 +857,20 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
     if ( ! PyArg_ParseTuple(args, "ss", &name, &value) )
         return NULL;
     char previous[1024]="";
+    PyObject *ret = NULL;
     WriteLock();
-    if ( ! global_getvar(name,previous,sizeof(previous)) )
-        return gridlabd_exception("unable to get old value of global '%s'",name);
-    STATUS result = global_setvar(name,value);
-    if ( result == FAILED )
+    if ( global_getvar(name,previous,sizeof(previous)) )
+    {
+        ret = Py_BuildValue("s",previous);
+    }
+    if ( global_setvar(name,value) == FAILED )
     {
         return gridlabd_exception("unable to set global '%s' to value '%s'",name,value);
     }
-    return Py_BuildValue("s",previous);
+    else
+    {
+        return ret ? ret : Py_None;
+    }
 }
 
 //
@@ -889,7 +916,7 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
 
     char previous[1024]="";
     WriteLock();
-    int len = object_get_value_by_name(obj,property,value,sizeof(value));
+    int len = object_get_value_by_name(obj,property,previous,sizeof(previous));
     if ( len < 0 )
         return gridlabd_exception("unable to get old value of '%s.%s'", name,property);
     len = object_set_value_by_name(obj,property,value);
@@ -1240,7 +1267,7 @@ extern "C" bool on_init(void)
             if ( ! result )
             {
                 output_error("python on_init() failed");
-                PyErr_PrintEx(0);
+                gridlabd_traceback("on_init");
                 return false;
             }
             bool retval = false; 
@@ -1279,7 +1306,7 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
             if ( ! result )
             {
                 output_error("python on_precommit(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_precommit");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1295,9 +1322,10 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
         }
         else
         {
-            output_warning("python on_postsync() is not callable");
+            output_warning("python on_precommit() is not callable");
         }
     }
+    output_debug("python on_precommit returns t=%lld",t1);
     return t1;
 }
 extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
@@ -1319,7 +1347,7 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
             if ( ! result )
             {
                 output_error("python on_presync(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_presync");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1359,7 +1387,7 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
             if ( ! result )
             {
                 output_error("python on_presync(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_sync");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1399,7 +1427,7 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
             if ( ! result )
             {
                 output_error("python on_postsync(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_postsync");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1438,7 +1466,7 @@ extern "C" bool on_commit(TIMESTAMP t)
             if ( ! result )
             {
                 output_error("python on_commit(%d) failed",t);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_commit");
                 return false;
             }
             bool retval =  PyObject_IsTrue(result);
@@ -1474,7 +1502,7 @@ extern "C" void on_term(void)
             if ( ! result )
             {
                 output_error("python on_term() failed");
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_term");
                 return;
             }
             if ( result != Py_None ) 
@@ -1543,8 +1571,8 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             {
                 if ( ! result || ! PyLong_Check(result) )
                 {
-                    output_error("python %s(%s) did not return an integer value as expected, traceback is as follows",function,objname);
-                    PyErr_PrintEx(0);
+                    output_error("python %s(%s) did not return an integer value as expected",function,objname);
+                    gridlabd_traceback(function);
                     if ( result ) 
                     {
                         Py_DECREF(result);
@@ -1557,6 +1585,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             {
                 Py_DECREF(result);
             }
+            output_debug("python_event(obj='%s',function='%s') -> *p_retval = %lld",objname,function,*p_retval);
             return 1;
         }    
         else 
@@ -1605,6 +1634,13 @@ static bool get_callback(
     }
     return true;    
 }
+
+int python_module_setvar(const char *varname, const char *value)
+{
+    PyModule_AddObject(this_module,varname,Py_BuildValue("s", value));
+    return strlen(value);
+}
+
 MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
     char pathname[1024];
@@ -1616,15 +1652,16 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
         return NULL;
     }
     PyObject *mod = PyImport_ImportModule(file);
+
     if ( mod == NULL)
     {
-        errno = EINVAL;
-        return NULL;
+        output_error("%s: python module import failed",pathname);
+        return (MODULE*)gridlabd_traceback(pathname);
     }
 
     if ( ! PyModule_Check(mod) )
     {
-        gridlabd_exception("object is not a python module");
+        output_error("object is not a python module");
         return NULL;
     }
 
@@ -1643,7 +1680,7 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
     python_module.major = global_version_major;
     python_module.minor = global_version_minor;
     python_module.getvar = NULL;
-    python_module.setvar = NULL;
+    python_module.setvar = python_module_setvar;
     python_module.import_file = python_import_file;
     python_module.export_file = NULL;
     python_module.check = NULL;
