@@ -2051,7 +2051,6 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 				buffer[0]='\0';
                 if ( prop->ptype == PT_method )
                 {
-                    // TODO: extract content of method
                     size_t sz = object_property_getsize(obj,prop);
                     if ( sz > 0 )
                     {
@@ -2068,7 +2067,6 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 	                {
 	                	// no output allowed for this property
 	                }
-
                 }
                 else if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
 				{
