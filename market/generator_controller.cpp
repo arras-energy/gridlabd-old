@@ -163,7 +163,7 @@ int generator_controller::create(void)
 
 int generator_controller::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	PROPERTY *ptemp;
 	set *temp_set;
 	int index;
@@ -662,7 +662,7 @@ int generator_controller::init(OBJECT *parent)
 
 TIMESTAMP generator_controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int index;
 	double per_phase_power, per_phase_old_power, shutdown_cost_temp, prev_section_power, prev_section_price, temp_time_var, temp_power_value;
 	char mktname[1024];

@@ -308,7 +308,7 @@ void controller::cheat(){
 /** convenience shorthand
  **/
 int controller::fetch_property(gld_property **prop, PROPERTYNAME propName, OBJECT *obj){
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = new gld_property(obj, propName);
 	if(!(*prop)->is_valid()){
 		gl_error("controller::fetch_property: controller %s can't find property %s in object %s.", hdr->name, propName, obj->name);
@@ -321,7 +321,7 @@ int controller::fetch_property(gld_property **prop, PROPERTYNAME propName, OBJEC
 /** initialization process
  **/
 int controller::init(OBJECT *parent){
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	char tname[32];
 	const char *namestr = (hdr->name ? hdr->name : tname);
 	gld_property *pInitPrice = NULL;
@@ -481,7 +481,7 @@ int controller::init(OBJECT *parent){
 		{
 			period = (TIMESTAMP)floor(dPeriod + 0.5);
 		}
-		pMarket = OBJECTHDR(this);
+		pMarket = THISOBJECTHDR;
 		if(fetch_property(&pAvg, "proxy_average", pMarket) == 0) {
 			return 0;
 		}
@@ -528,7 +528,7 @@ int controller::init(OBJECT *parent){
 			} else {
 				period2 = (TIMESTAMP)floor(dPeriod2 + 0.5);
 			}
-			pMarket2 = OBJECTHDR(this);
+			pMarket2 = THISOBJECTHDR;
 			if(fetch_property(&pMarketId2, "proxy_market2_id", pMarket2) == 0) {
 				return 0;
 			}
@@ -1009,7 +1009,7 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 	double deadband_shift = 0.0;
 	double shift_direction = 0.0;
 	TIMESTAMP fast_reg_run = TS_NEVER;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	char ctrname[1024];
 	double avgP = 0.0;
 	double stdP = 0.0;
@@ -1319,7 +1319,7 @@ TIMESTAMP controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 					return TS_INVALID;
 				}
 			}
-			//lastbid_id = market->submit(OBJECTHDR(this), -last_q, last_p, bid_id, (BIDDERSTATE)(pState != 0 ? *pState : 0));
+			//lastbid_id = market->submit(THISOBJECTHDR, -last_q, last_p, bid_id, (BIDDERSTATE)(pState != 0 ? *pState : 0));
 			controller_bid.market_id = lastmkt_id;
 			controller_bid.price = last_p;
 			controller_bid.quantity = -last_q;

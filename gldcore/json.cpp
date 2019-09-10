@@ -254,6 +254,24 @@ int GldJsonWriter::write_globals(FILE *fp)
 					len += write("\n\t\t\t}");
 				len += write(",");
 			}
+			PROPERTY *prop = var->prop;
+			char access[1024] = "";
+			switch ( prop->access ) {
+			case PA_PUBLIC: strcpy(access,"PUBLIC"); break;
+			case PA_REFERENCE: strcpy(access,"REFERENCE"); break;
+			case PA_PROTECTED: strcpy(access,"PROTECTED"); break;
+			case PA_PRIVATE: strcpy(access,"PRIVATE"); break;
+			case PA_HIDDEN: strcpy(access,"HIDDEN"); break;
+			case PA_N: strcpy(access,"NONE"); break;
+			default:
+				if ( prop->access & PA_R ) strcat(access,"R");
+				if ( prop->access & PA_W ) strcat(access,"W");
+				if ( prop->access & PA_S ) strcat(access,"S");
+				if ( prop->access & PA_L ) strcat(access,"L");
+				if ( prop->access & PA_H ) strcat(access,"H");
+				break;
+			}
+			len += write("\n\t\t\t\"access\" : \"%s\",",access);			
 			if ( buffer[0] == '\"' )
 				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
 			else

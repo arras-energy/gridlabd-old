@@ -82,7 +82,7 @@ int network_interface::create()
 
 int network_interface::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	// input validation checks
 	if(to == 0){
 		GL_THROW("network interface is not connected to a network");
@@ -131,13 +131,13 @@ int network_interface::isa(char *classname){
 
 TIMESTAMP network_interface::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	return TS_NEVER; 
 }
 
 TIMESTAMP network_interface::presync(TIMESTAMP t0, TIMESTAMP t1) 
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	TIMESTAMP rv = TS_NEVER;
 	if(has_inbound()){
 		rv = handle_inbox(t1);
@@ -147,7 +147,7 @@ TIMESTAMP network_interface::presync(TIMESTAMP t0, TIMESTAMP t1)
 
 TIMESTAMP network_interface::postsync(TIMESTAMP t0, TIMESTAMP t1) 
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	return TS_NEVER; 
 }
 
@@ -163,7 +163,7 @@ TIMESTAMP network_interface::commit(TIMESTAMP t1, TIMESTAMP t2){
 /*
 //return my->notify(update_mode, prop);
 int network_interface::notify(int update_mode, PROPERTY *prop){
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	if(update_mode == NM_POSTUPDATE){
 		if(strcmp(prop->name, "buffer") == 0){
 			// new data has been received
@@ -186,7 +186,7 @@ int network_interface::on_message(){
 
 /* check if it's time to send a message and poll the parent's target property for updated data */
 int network_interface::check_buffer(){
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	write_msg = false;
 	//void *a = OBJECTDATA((void),obj->parent);
 	void *b = (target->addr);
@@ -258,7 +258,7 @@ TIMESTAMP network_interface::handle_inbox(TIMESTAMP t1){
  *		ready to be processed at this point in time.
  */
 network_message *network_interface::handle_inbox(TIMESTAMP t1, network_message *nm){
-	OBJECT *my = OBJECTHDR(this);
+	OBJECT *my = THISOBJECTHDR;
 	network_message *rv = 0;
 	if(nm != 0){ // it's been stacked, process in reverse order
 		rv = handle_inbox(t1, nm->next);
