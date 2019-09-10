@@ -1,12 +1,8 @@
 // $Id: motor.cpp 1182 2016-08-15 jhansen $
 //	Copyright (C) 2008 Battelle Memorial Institute
 
-#include <stdlib.h>	
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "motor.h"
+#include "powerflow.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // capacitor CLASS FUNCTIONS
@@ -21,7 +17,7 @@ CLASS* motor::pclass = NULL;
 * @param mod a module structure maintained by the core
 */
 
-static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 motor::motor(MODULE *mod):node(mod)
@@ -267,7 +263,7 @@ int motor::create()
 
 int motor::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int result = node::init(parent);
 
 	// Check what phases are connected on this motor
@@ -579,7 +575,7 @@ TIMESTAMP motor::postsync(TIMESTAMP t0, TIMESTAMP t1)
 //Module-level call
 SIMULATIONMODE motor::inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	STATUS return_status_val;
 
 	// make sure to capture the current time

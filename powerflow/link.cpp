@@ -87,19 +87,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include "link.h"
-#include "node.h"
-
-//More stuff to try and separate when time permits
-#include "meter.h"
-#include "regulator.h"
-#include "triplex_meter.h"
-#include "switch_object.h"
-
+#include "powerflow.h"
+using namespace std;
 
 CLASS* link_object::oclass = NULL;
 CLASS* link_object::pclass = NULL;
@@ -884,7 +873,7 @@ set link_object::get_flow(node **fn, node **tn) const
 //Presync portion of NR code - functionalized for deltamode
 void link_object::NR_link_presync_fxn(void)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int ret_value;
 	bool force_link_update;
 	double curr_delta_time;
@@ -2117,7 +2106,7 @@ TIMESTAMP link_object::presync(TIMESTAMP t0)
 			int IndVal = 0;
 			int resultval;
 			bool *temp_empty;
-			OBJECT *obj = OBJECTHDR(this);
+			OBJECT *obj = THISOBJECTHDR;
 
 			if (fnode==NULL || tnode==NULL)
 				return TS_NEVER;
@@ -2830,7 +2819,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 			if (temp_power_check > *link_limits[0][0])
 			{
 				//Exceeded rating - no emergency ratings for transformers, at this time
-				gl_warning("transformer:%s is at %.2f%% of its rated power value",OBJECTHDR(this)->name,(temp_power_check/(*link_limits[0][0])*100.0));
+				gl_warning("transformer:%s is at %.2f%% of its rated power value",THISOBJECTHDR->name,(temp_power_check/(*link_limits[0][0])*100.0));
 				/*  TROUBLESHOOT
 				The total power passing through a transformer is above its kVA rating.
 				*/
@@ -2853,14 +2842,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					if (read_I_out[0].Mag() > *link_limits[1][0])
 					{
 						//Exceeded emergency
-						gl_warning("Line:%s is at %.2f%% of its emergency rating on phase 1!",OBJECTHDR(this)->name,(read_I_out[0].Mag()/(*link_limits[1][0])*100.0));
+						gl_warning("Line:%s is at %.2f%% of its emergency rating on phase 1!",THISOBJECTHDR->name,(read_I_out[0].Mag()/(*link_limits[1][0])*100.0));
 						/*  TROUBLESHOOT
 						Phase 1 on the line has exceeded the emergency rating associated with it.
 						*/
 					}
 					else	//Just continuous exceed
 					{
-						gl_warning("Line:%s is at %.2f%% of its continuous rating on phase 1!",OBJECTHDR(this)->name,(read_I_out[0].Mag()/(*link_limits[0][0])*100.0));
+						gl_warning("Line:%s is at %.2f%% of its continuous rating on phase 1!",THISOBJECTHDR->name,(read_I_out[0].Mag()/(*link_limits[0][0])*100.0));
 						/*  TROUBLESHOOT
 						Phase 1 on the line has exceeded the continuous rating associated with it.
 						*/
@@ -2889,14 +2878,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					if (read_I_out[1].Mag() > *link_limits[1][1])
 					{
 						//Exceeded emergency
-						gl_warning("Line:%s is at %.2f%% of its emergency rating on phase 2!",OBJECTHDR(this)->name,(read_I_out[1].Mag()/(*link_limits[1][1])*100.0));
+						gl_warning("Line:%s is at %.2f%% of its emergency rating on phase 2!",THISOBJECTHDR->name,(read_I_out[1].Mag()/(*link_limits[1][1])*100.0));
 						/*  TROUBLESHOOT
 						Phase 1 on the line has exceeded the emergency rating associated with it.
 						*/
 					}
 					else	//Just continuous exceed
 					{
-						gl_warning("Line:%s is at %.2f%% of its continuous rating on phase 2!",OBJECTHDR(this)->name,(read_I_out[1].Mag()/(*link_limits[0][1])*100.0));
+						gl_warning("Line:%s is at %.2f%% of its continuous rating on phase 2!",THISOBJECTHDR->name,(read_I_out[1].Mag()/(*link_limits[0][1])*100.0));
 						/*  TROUBLESHOOT
 						Phase 1 on the line has exceeded the continuous rating associated with it.
 						*/
@@ -2930,14 +2919,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						if (read_I_out[0].Mag() > *link_limits[1][0])
 						{
 							//Exceeded emergency
-							gl_warning("Line:%s is at %.2f%% of its emergency rating on phase A!",OBJECTHDR(this)->name,(read_I_out[0].Mag()/(*link_limits[1][0])*100.0));
+							gl_warning("Line:%s is at %.2f%% of its emergency rating on phase A!",THISOBJECTHDR->name,(read_I_out[0].Mag()/(*link_limits[1][0])*100.0));
 							/*  TROUBLESHOOT
 							Phase A on the line has exceeded the emergency rating associated with it.
 							*/
 						}
 						else	//Just continuous exceed
 						{
-							gl_warning("Line:%s is at %.2f%% of its continuous rating on phase A!",OBJECTHDR(this)->name,(read_I_out[0].Mag()/(*link_limits[0][0])*100.0));
+							gl_warning("Line:%s is at %.2f%% of its continuous rating on phase A!",THISOBJECTHDR->name,(read_I_out[0].Mag()/(*link_limits[0][0])*100.0));
 							/*  TROUBLESHOOT
 							Phase A on the line has exceeded the continuous rating associated with it.
 							*/
@@ -2969,14 +2958,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						if (read_I_out[1].Mag() > *link_limits[1][1])
 						{
 							//Exceeded emergency
-							gl_warning("Line:%s is at %.2f%% of its emergency rating on phase B!",OBJECTHDR(this)->name,(read_I_out[1].Mag()/(*link_limits[1][1])*100.0));
+							gl_warning("Line:%s is at %.2f%% of its emergency rating on phase B!",THISOBJECTHDR->name,(read_I_out[1].Mag()/(*link_limits[1][1])*100.0));
 							/*  TROUBLESHOOT
 							Phase B on the line has exceeded the emergency rating associated with it.
 							*/
 						}
 						else	//Just continuous exceed
 						{
-							gl_warning("Line:%s is at %.2f%% of its continuous rating on phase B!",OBJECTHDR(this)->name,(read_I_out[1].Mag()/(*link_limits[0][1])*100.0));
+							gl_warning("Line:%s is at %.2f%% of its continuous rating on phase B!",THISOBJECTHDR->name,(read_I_out[1].Mag()/(*link_limits[0][1])*100.0));
 							/*  TROUBLESHOOT
 							Phase B on the line has exceeded the continuous rating associated with it.
 							*/
@@ -3008,14 +2997,14 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						if (read_I_out[2].Mag() > *link_limits[1][2])
 						{
 							//Exceeded emergency
-							gl_warning("Line:%s is at %.2f%% of its emergency rating on phase C!",OBJECTHDR(this)->name,(read_I_out[2].Mag()/(*link_limits[1][2])*100.0));
+							gl_warning("Line:%s is at %.2f%% of its emergency rating on phase C!",THISOBJECTHDR->name,(read_I_out[2].Mag()/(*link_limits[1][2])*100.0));
 							/*  TROUBLESHOOT
 							Phase C on the line has exceeded the emergency rating associated with it.
 							*/
 						}
 						else	//Just continuous exceed
 						{
-							gl_warning("Line:%s is at %.2f%% of its continuous rating on phase C!",OBJECTHDR(this)->name,(read_I_out[2].Mag()/(*link_limits[0][2])*100.0));
+							gl_warning("Line:%s is at %.2f%% of its continuous rating on phase C!",THISOBJECTHDR->name,(read_I_out[2].Mag()/(*link_limits[0][2])*100.0));
 							/*  TROUBLESHOOT
 							Phase C on the line has exceeded the continuous rating associated with it.
 							*/
@@ -3181,7 +3170,7 @@ int link_object::kmlinit(int (*stream)(const char*,...))
 
 int link_object::kmldump(int (*stream)(const char*,...))
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	stream("    <Placemark>\n");
 	if (obj->name)
 		stream("      <name>%s</name>\n", obj->name);
@@ -4525,7 +4514,7 @@ int link_object::CurrentCalculation(int nodecall)
 //Module-level deltamode call
 SIMULATIONMODE link_object::inter_deltaupdate_link(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	//OBJECT *hdr = OBJECTHDR(this);
+	//OBJECT *hdr = THISOBJECTHDR;
 
 	if (interupdate_pos == false)	//Before powerflow call
 	{
@@ -4835,7 +4824,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 	bool safety_hit;
 	int temp_branch, temp_node, ext_result;
 	unsigned int temp_table_loc;
-	OBJECT *objhdr = OBJECTHDR(this);
+	OBJECT *objhdr = THISOBJECTHDR;
 	OBJECT *tmpobj;
 	FUNCTIONADDR funadd = NULL;
 	double *Recloser_Counts;
@@ -4942,7 +4931,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase A of the link object. This object
 					does not have a valid phase A to fault.
@@ -4971,7 +4960,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase B of the link object. This object
 					does not have a valid phase B to fault.
@@ -5000,7 +4989,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase C of the link object. This object
 					does not have a valid phase C to fault.
@@ -5619,7 +5608,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}//End A fault
@@ -5645,7 +5634,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -5671,7 +5660,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//defined above
 				}
 			}
@@ -5971,7 +5960,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_A
 					else
 					{
-						gl_warning("%s does not have a phase A to fault!",OBJECTHDR(this)->name);
+						gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -5996,7 +5985,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_B
 					else
 					{
-						gl_warning("%s does not have a phase B to fault!",OBJECTHDR(this)->name);
+						gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6021,7 +6010,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_C
 					else
 					{
-						gl_warning("%s does not have a phase C to fault!",OBJECTHDR(this)->name);
+						gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6263,7 +6252,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_A
 					else
 					{
-						gl_warning("%s does not have a phase A to fault!",OBJECTHDR(this)->name);
+						gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6288,7 +6277,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_B
 					else
 					{
-						gl_warning("%s does not have a phase B to fault!",OBJECTHDR(this)->name);
+						gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6313,7 +6302,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 					}//end has PHASE_C
 					else
 					{
-						gl_warning("%s does not have a phase C to fault!",OBJECTHDR(this)->name);
+						gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 						//Defined above
 					}
 				}
@@ -6593,7 +6582,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}//End A fault
@@ -6619,7 +6608,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -6645,7 +6634,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//defined above
 				}
 			}
@@ -7659,7 +7648,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			//Make sure it was found
 			if (funadd == NULL)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' not defined)", __FILE__, __LINE__);
 				/*  TROUBLESHOOT
 				While attempting to update the powerflow to properly represent the new post-fault state, an error
 				occurred.  If the problem persists, please submit a bug report and your code to the trac website.
@@ -7692,7 +7681,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			//Make sure it worked
 			if (ext_result != 1)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' call failed - ext_result=%d)", __FILE__, __LINE__, ext_result);
 				//defined above
 			}
 
@@ -7833,7 +7822,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase A of the link object. This object
 					does not have a valid phase A to fault.
@@ -7862,7 +7851,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase B of the link object. This object
 					does not have a valid phase B to fault.
@@ -7891,7 +7880,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					A fault event was attempted on phase C of the link object. This object
 					does not have a valid phase C to fault.
@@ -8510,7 +8499,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}//End A fault
@@ -8536,7 +8525,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -8562,7 +8551,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//defined above
 				}
 			}
@@ -8859,7 +8848,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -8884,7 +8873,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -8909,7 +8898,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -9188,7 +9177,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_A
 				else
 				{
-					gl_warning("%s does not have a phase A to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase A to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}//End A fault
@@ -9214,7 +9203,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_B
 				else
 				{
-					gl_warning("%s does not have a phase B to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase B to fault!",THISOBJECTHDR->name);
 					//Defined above
 				}
 			}
@@ -9240,7 +9229,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 				}//end has PHASE_C
 				else
 				{
-					gl_warning("%s does not have a phase C to fault!",OBJECTHDR(this)->name);
+					gl_warning("%s does not have a phase C to fault!",THISOBJECTHDR->name);
 					//defined above
 				}
 			}
@@ -10467,7 +10456,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			//Make sure it was found
 			if (funadd == NULL)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' not defined)", __FILE__, __LINE__);
 				/*  TROUBLESHOOT
 				While attempting to update the powerflow to properly represent the new post-fault state, an error
 				occurred.  If the problem persists, please submit a bug report and your code to the trac website.
@@ -10500,7 +10489,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			//Make sure it worked
 			if (ext_result != 1)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' failed -- ext_result=%d)", __FILE__, __LINE__,ext_result);
 				//defined above
 			}
 
@@ -10522,7 +10511,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 	size_t phaseidx, indexval;
 	int temp_node, ext_result;
 	double ext_result_dbl;
-	OBJECT *objhdr = OBJECTHDR(this);
+	OBJECT *objhdr = THISOBJECTHDR;
 	OBJECT *tmpobj;
 	FUNCTIONADDR funadd = NULL;
 	bool switch_val;
@@ -11502,7 +11491,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			//Make sure it was found
 			if (funadd == NULL)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' not defined)", __FILE__, __LINE__);
 				//Defined above
 			}
 
@@ -11523,7 +11512,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			//Make sure it worked
 			if (ext_result != 1)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' failed - ext_result=%d)", __FILE__, __LINE__,ext_result);
 				//defined above
 			}
 
@@ -12433,7 +12422,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			//Make sure it was found
 			if (funadd == NULL)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' not defined)", __FILE__, __LINE__);
 				//Defined above
 			}
 
@@ -12454,7 +12443,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			//Make sure it worked
 			if (ext_result != 1)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' failed -- ext_result=%d)", __FILE__, __LINE__, ext_result);
 				//defined above
 			}
 
@@ -13343,7 +13332,7 @@ void link_object::lmatrix_add(complex *matrix_in_A, complex *matrix_in_B, comple
 {
 	//Variables
 	int jindex, kindex;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Initial check - make sure nothing NULL has been passed
 	if ((matrix_in_A == NULL) || (matrix_in_B == NULL) || (matrix_out == NULL))
@@ -13379,7 +13368,7 @@ void link_object::lmatrix_mult(complex *matrix_in_A, complex *matrix_in_B, compl
 {
 	//Variables
 	int jindex, kindex, lindex;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Initial check - make sure nothing NULL has been passed
 	if ((matrix_in_A == NULL) || (matrix_in_B == NULL) || (matrix_out == NULL))
@@ -13421,7 +13410,7 @@ void link_object::lmatrix_vmult(complex *matrix_in, complex *vector_in, complex 
 {
 	//Variables
 	int jindex, kindex;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Initial check - make sure nothing NULL has been passed
 	if ((matrix_in == NULL) || (vector_in == NULL) || (vector_out == NULL))

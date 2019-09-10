@@ -7,15 +7,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-
-#include "power_electronics.h"
-#include "dc_dc_converter.h"
 
 #define DEFAULT 1.0;
 
@@ -220,7 +212,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 		/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
 		gl_verbose("dc_dc_converter init: mapped meter objects to internal variables");
 
-		OBJECT *obj = OBJECTHDR(this);
+		OBJECT *obj = THISOBJECTHDR;
 		gl_verbose("dc_dc_converter init: no parent meter defined, parent is not a meter");
 		gl_warning("dc_dc_converter:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
 
@@ -247,7 +239,7 @@ gl_verbose("dc_dc_converter init: initialized the variables");
 	}
 		if (gen_status_v== dc_dc_converter::OFFLINE)
 	{
-		//OBJECT *obj = OBJECTHDR(this);
+		//OBJECT *obj = THISOBJECTHDR;
 		throw("Generator is out of service!");
 	}else
 		{

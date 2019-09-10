@@ -1,37 +1,8 @@
-/* @file instance.c
-   Copyright (C) 2011, Battelle Memorial Institute
+/* instance.cpp
+ * Copyright (C) 2011, Battelle Memorial Institute
  */
 
-#include <math.h>
-#include <stdlib.h>
-
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif
-#ifdef WIN32
-#define _WIN32_WINNT 0x0400
-#include <winsock2.h>
-#include <windows.h>
-#else
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <sys/errno.h>
-#define SOCKET int
-#define INVALID_SOCKET (-1)
-#define closesocket close
-#endif
-
-#include <pthread.h>
-
-#include "instance.h"
-#include "instance_cnx.h"
-#include "instance_slave.h"
-#include "output.h"
-#include "globals.h"
-#include "random.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_INSTANCE)
 
@@ -207,7 +178,7 @@ void *instance_runproc(void *ptr)
 		case CI_MMAP:
 #ifdef WIN32
 			/* run new instance */
-			sprintf(cmd,"%s/gridlabd %s %s --slave %s:%"FMT_INT64"x %s &", global_execdir, global_verbose_mode?"--verbose":"", global_debug_output?"--debug":"", global_hostname,inst->cacheid, inst->model);
+			sprintf(cmd,"%s/gridlabd %s %s --slave %s:%" FMT_INT64 "x %s &", global_execdir, global_verbose_mode?"--verbose":"", global_debug_output?"--debug":"", global_hostname,inst->cacheid, inst->model);
 			IN_MYCONTEXT output_verbose("starting new instance with command '%s'", cmd);
 			rc = system(cmd);
 			break;
@@ -786,7 +757,7 @@ TIMESTAMP instance_syncall(TIMESTAMP t1)
 			}
 		}
 	
-		IN_MYCONTEXT output_debug("instance sync time is %"FMT_INT64"d", t2);
+		IN_MYCONTEXT output_debug("instance sync time is %" FMT_INT64 "d", t2);
 		instance_synctime += (clock_t)exec_clock() - ts;
 		return t2;
 	}

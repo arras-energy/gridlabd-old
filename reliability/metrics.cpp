@@ -81,7 +81,7 @@ int metrics::create(void)
 /* Object initialization is called once after all object have been created */
 int metrics::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int index, indexa, indexb, returnval;
 	char work_metrics[1025];
 	char *startVal, *endVal, *workVal;
@@ -527,7 +527,7 @@ TIMESTAMP metrics::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	DATETIME dt;
 	int returnval;
 	bool metrics_written;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	FILE *FPVal;
 
 	//Initialization
@@ -698,7 +698,7 @@ void metrics::event_ended(OBJECT *event_obj, OBJECT *fault_obj, OBJECT *faulting
 {
 	DATETIME start_dt, end_dt;
 	TIMESTAMP outage_length;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int returnval;
 	FILE *FPVal;
 
@@ -755,7 +755,7 @@ void metrics::event_ended_sec(OBJECT *event_obj, OBJECT *fault_obj, OBJECT *faul
 {
 	DATETIME start_dt, end_dt;
 	TIMESTAMP outage_length;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int returnval;
 	FILE *FPVal;
 

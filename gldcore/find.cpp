@@ -1,29 +1,9 @@
-/** $Id: find.c 4738 2014-07-03 00:55:39Z dchassin $
+/*	find.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file find.c
-	@author David P. Chassin
-	@addtogroup find Searching for objects
-	@ingroup core
+	Create by David P. Chassin
+ */
 
- @{
- **/
-
-#include <stdlib.h>
-#include <ctype.h>
-#include <stdio.h>
-#if defined WIN32 && ! defined __MINGW__
-#include <io.h>
-#define snprintf _snprintf
-#else
-#include <unistd.h>
-#endif
-#include "globals.h"
-#include "output.h"
-#include "find.h"
-#include "aggregate.h"
-#include "module.h"
-#include "timestamp.h"
-#include "find.h"
+#include "gldcore.h"
 
 //SET_MYCONTEXT(DMC_FIND) // 
 
@@ -676,7 +656,7 @@ void findlist_nop(FINDLIST *list, OBJECT *obj)
 PGMCONSTFLAGS find_pgmconstants(FINDPGM *pgm)
 {
 	if (pgm==NULL)
-		return 0;
+		return CF_NULL;
 
 	/* find the end of the program */
 	while (pgm->next!=NULL) pgm=pgm->next;
@@ -970,7 +950,7 @@ int expression(PARSER, FINDPGM **pgm)
 			{
 				v.pointer=(void*)oclass;
 				add_pgm(pgm,comparemap[op].pointer,OFFSET(oclass),v,NULL,findlist_del);
-				(*pgm)->constflags |= CF_CLASS; /* this will always reduce in a set class of fixed class, leaving it invariant if already so */
+				(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_CLASS); /* this will always reduce in a set class of fixed class, leaving it invariant if already so */
 				ACCEPT;	DONE;
 			}
 		}
@@ -988,7 +968,7 @@ int expression(PARSER, FINDPGM **pgm)
 			{
 				v.pointer=(void*)oclass;
 				add_pgm(pgm,compare_isa,OFFSET(oclass),v,NULL,findlist_del);
-				(*pgm)->constflags |= CF_CLASS; /* this will always reduce in a set class of fixed class, leaving it invariant if already so */
+				(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_CLASS); /* this will always reduce in a set class of fixed class, leaving it invariant if already so */
 				ACCEPT;	DONE;
 			}
 		}
@@ -998,7 +978,7 @@ int expression(PARSER, FINDPGM **pgm)
 			strcpy(v.string, pvalue);
 			//printf("find(): v.string=\"%s\", pvalue=\"%s\"\n", v.string, pvalue);
 			add_pgm(pgm, comparemap[op%7].string, OFFSET(groupid), v, NULL, findlist_del);
-			(*pgm)->constflags |= CF_NAME;
+			(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_NAME);
 			ACCEPT;
 			DONE;
 		}
@@ -1016,7 +996,7 @@ int expression(PARSER, FINDPGM **pgm)
 			{
 				v.pointer=(void*)mod;
 				add_pgm(pgm,comparemap[op].pointer,OFFSET(oclass),v,NULL,findlist_del);
-				(*pgm)->constflags |= CF_MODULE; 
+				(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_MODULE); 
 				ACCEPT;	DONE;
 			}
 		}
@@ -1033,7 +1013,7 @@ int expression(PARSER, FINDPGM **pgm)
 			} else {
 				v.integer = idnum;
 				add_pgm(pgm,comparemap[op].integer,OFFSET(id),v,NULL,findlist_del);
-				(*pgm)->constflags |= CF_ID;
+				(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_ID);
 				ACCEPT;
 				DONE;
 			}
@@ -1044,7 +1024,7 @@ int expression(PARSER, FINDPGM **pgm)
 			FINDVALUE v;
 			strcpy(v.string, pvalue);
 			add_pgm(pgm, comparemap[op].string, OFFSET(name), v, NULL, findlist_del);
-			(*pgm)->constflags |= CF_NAME;
+			(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_NAME);
 			ACCEPT;
 			DONE;
 		}
@@ -1062,7 +1042,7 @@ int expression(PARSER, FINDPGM **pgm)
 			{
 				v.pointer = (void*)parent;
 				add_pgm(pgm,comparemap[op].pointer,OFFSET(parent),v,NULL,findlist_del);
-				(*pgm)->constflags |= CF_PARENT;
+				(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_PARENT);
 				ACCEPT; DONE;
 			}
 		}
@@ -1080,7 +1060,7 @@ int expression(PARSER, FINDPGM **pgm)
 			{
 				v.integer = rank;
 				add_pgm(pgm,comparemap[op].integer,OFFSET(rank),v,NULL,findlist_del);
-				(*pgm)->constflags |= CF_RANK;
+				(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_RANK);
 				ACCEPT; DONE;
 			}
 		}
@@ -1107,7 +1087,7 @@ int expression(PARSER, FINDPGM **pgm)
 				}
 				v.real = val;
 				add_pgm(pgm, comparemap[op].real, OFFSET(latitude), v, NULL, findlist_del);
-				(*pgm)->constflags |= CF_LAT;
+				(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_LAT);
 				ACCEPT; DONE;
 			}
 		}
@@ -1134,7 +1114,7 @@ int expression(PARSER, FINDPGM **pgm)
 				}
 				v.real = val;
 				add_pgm(pgm, comparemap[op].real, OFFSET(longitude), v, NULL, findlist_del);
-				(*pgm)->constflags |= CF_LONG;
+				(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_LONG);
 				ACCEPT; DONE;
 			}
 		}
@@ -1145,7 +1125,7 @@ int expression(PARSER, FINDPGM **pgm)
 			if(v.integer == TS_NEVER)
 				REJECT;
 			add_pgm(pgm, comparemap[op].integer, OFFSET(clock), v, NULL, findlist_del);
-			(*pgm)->constflags |= CF_CLOCK;
+			(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_CLOCK);
 			ACCEPT; DONE;
 		}
 		else if ( strcmp(pname,"insvc")==0 || strcmp(pname,"in")==0 )	/* format? */
@@ -1156,7 +1136,7 @@ int expression(PARSER, FINDPGM **pgm)
 			if(v.integer == TS_NEVER)
 				REJECT;
 			add_pgm(pgm, comparemap[op].integer, OFFSET(in_svc), v, NULL, findlist_del);
-			(*pgm)->constflags |= CF_INSVC;
+			(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_INSVC);
 			ACCEPT; DONE;
 		}
 		else if ( strcmp(pname,"outsvc")==0 || strcmp(pname,"out")==0 )	/* format? */
@@ -1166,7 +1146,7 @@ int expression(PARSER, FINDPGM **pgm)
 			if(v.integer == TS_NEVER)
 				REJECT;
 			add_pgm(pgm, comparemap[op].integer, OFFSET(out_svc), v, NULL, findlist_del);
-			(*pgm)->constflags |= CF_OUTSVC;
+			(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_OUTSVC);
 			ACCEPT; DONE;
 		}
 		else if (strcmp(pname, "flags") == 0)

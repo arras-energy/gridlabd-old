@@ -18,7 +18,7 @@
 CLASS *supervisory_control::oclass = NULL;
 supervisory_control *supervisory_control::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_PRETOPDOWN|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_POSTTOPDOWN;
 
 /* Class registration is only called once to register the class with the core */
@@ -56,7 +56,7 @@ supervisory_control::supervisory_control(MODULE *module) {
 
 void supervisory_control::fetch_double(double **prop, const char *name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_double_by_name(parent, name);
 	if ( *prop == NULL )
 	{

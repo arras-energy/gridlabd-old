@@ -1,5 +1,6 @@
-/** $Id: unit.c 4738 2014-07-03 00:55:39Z dchassin $
+/** unit.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+
 	@file unit.c
 	@addtogroup unit Unit management
 	@ingroup core
@@ -74,20 +75,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <errno.h>
-#include <ctype.h>
-#include <math.h>
-
-#include "platform.h"
-#include "output.h"
-#include "unit.h"
-#include "exception.h"
-#include "globals.h"
-#include "find.h"
-#include "lock.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_UNIT)
 

@@ -4,7 +4,14 @@
 #ifndef _LINECONFIGURATION_H
 #define _LINECONFIGURATION_H
 
-#include "line.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
+
+typedef struct {
+	double continuous;
+	double emergency;
+} LINERATINGS;
 
 class line_configuration : public powerflow_library
 {

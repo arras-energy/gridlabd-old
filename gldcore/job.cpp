@@ -1,28 +1,8 @@
-// $Id: job.cpp 4738 2014-07-03 00:55:39Z dchassin $
+// job.cpp
 // Copyright (C) 2012 Battelle Memorial Institute
 //
 
-#ifdef WIN32
-#include <windows.h>
-#include <direct.h>
-#else
-#include <unistd.h>
-#include <dirent.h>
-#endif
-
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <signal.h>
-
-#include "globals.h"
-#include "output.h"
-#include "validate.h"
-#include "exec.h"
-#include "lock.h"
-#include "threadpool.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_JOB)
 

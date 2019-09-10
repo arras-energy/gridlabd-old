@@ -1,5 +1,6 @@
-/** $Id: threadpool.h 4738 2014-07-03 00:55:39Z dchassin $
-    Copyright (C) 2008 Battelle Memorial Institute
+/* File: threadpool.h 
+   Copyright (C) 2008, Battelle Memorial Institute
+
   
 @file threadpool.h
 @addtogroup mti Multi-threaded Iteration
@@ -43,9 +44,9 @@ An example of how this is done is implemented in exec.c for commit_all().
 #ifndef _THREADPOOL_H
 #define _THREADPOOL_H
 
-#include "platform.h"
-#include "timestamp.h"
-#include <pthread.h>
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 typedef struct s_mtiteratorlist MTI;
 

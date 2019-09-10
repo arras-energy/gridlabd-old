@@ -24,7 +24,7 @@ histogram *histogram::defaults = NULL;
 // histogram CLASS FUNCTIONS
 //////////////////////////////////////////////////////////////////////////
 
-CDECL void new_histogram(MODULE *mod){
+void new_histogram(MODULE *mod){
 	new histogram(mod);
 }
 
@@ -198,7 +198,7 @@ void histogram::test_for_complex(char *tprop, char *tpart){
 		else if(0 == memcmp(tpart, "mag", 3)){comp_part = MAG;}
 		else if(0 == memcmp(tpart, "ang", 3)){comp_part = ANG;}
 		else {
-			comp_part = NONE;
+			comp_part = CP_NONE;
 			gl_error("Unable to resolve complex part for '%s'", property.get_string());
 			return;
 		}
@@ -215,7 +215,7 @@ void histogram::test_for_complex(char *tprop, char *tpart){
 int histogram::init(OBJECT *parent)
 {
 	PROPERTY *prop = NULL;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	char tprop[64], tpart[8];
 	TAPEFUNCS *tf = 0;
 	tprop[0]=0;
@@ -469,7 +469,7 @@ int histogram::feed_bins(OBJECT *obj)
 
 TIMESTAMP histogram::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	if((sampling_interval == -1.0 && t_count > t1) ||
 		sampling_interval == 0.0 ||

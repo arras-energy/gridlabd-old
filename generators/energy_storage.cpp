@@ -7,17 +7,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-
-#include "energy_storage.h"
-#include "gridlabd.h"
-
-
 
 #define HOUR 3600 * TS_SECOND
 

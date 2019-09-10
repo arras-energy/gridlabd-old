@@ -7,14 +7,8 @@
 	@{
 **/
 //3.2
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "line.h"
 
 CLASS* underground_line::oclass = NULL;
 CLASS* underground_line::pclass = NULL;
@@ -200,7 +194,7 @@ void underground_line::recalc(void)
 	complex Zabc_mat[3][3], Yabc_mat[3][3];
 	bool not_TS_CN = false;
 	bool is_CN_ug_line = false;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	// Zero out Zabc_mat and Yabc_mat. Un-needed phases will be left zeroed.
 	for (int i = 0; i < 3; i++) 
@@ -701,7 +695,7 @@ void underground_line::recalc(void)
 				{
 					if ((dia[0]==0.0) || (rad_14==0.0) || (strands_4 == 0))	//Make sure conductor or "neutral ring" radius are not zero
 					{
-						gl_warning("Unable to compute capacitance for %s",OBJECTHDR(this)->name);
+						gl_warning("Unable to compute capacitance for %s",THISOBJECTHDR->name);
 						/* TROUBLESHOOT
 						One phase of an underground line has either a conductor diameter, a concentric-neutral location diameter, or a neutral
 						strand count of zero.  This will lead to indeterminant values in the analysis.  Please fix these values, or run the simulation
@@ -718,7 +712,7 @@ void underground_line::recalc(void)
 
 						if (temp_denom == 0.0)
 						{
-							gl_warning("Capacitance calculation failure for %s",OBJECTHDR(this)->name);
+							gl_warning("Capacitance calculation failure for %s",THISOBJECTHDR->name);
 							/*  TROUBLESHOOT
 							While computing the capacitance, a zero-value denominator was encountered.  Please check
 							your underground_conductor parameter values and try again.
@@ -748,7 +742,7 @@ void underground_line::recalc(void)
 				{
 					if ((dia[1]==0.0) || (rad_25==0.0) || (strands_5 == 0))	//Make sure conductor or "neutral ring" radius are not zero
 					{
-						gl_warning("Unable to compute capacitance for %s",OBJECTHDR(this)->name);
+						gl_warning("Unable to compute capacitance for %s",THISOBJECTHDR->name);
 						//Defined above
 
 						c_bn = 0.0;
@@ -760,7 +754,7 @@ void underground_line::recalc(void)
 
 						if (temp_denom == 0.0)
 						{
-							gl_warning("Capacitance calculation failure for %s",OBJECTHDR(this)->name);
+							gl_warning("Capacitance calculation failure for %s",THISOBJECTHDR->name);
 							//Defined above
 
 							c_bn = 0.0;
@@ -787,7 +781,7 @@ void underground_line::recalc(void)
 					if ((dia[2]==0.0) || (rad_36==0.0) || (strands_6 == 0))	//Make sure conductor or "neutral ring" radius are not zero
 
 					{
-						gl_warning("Unable to compute capacitance for %s",OBJECTHDR(this)->name);
+						gl_warning("Unable to compute capacitance for %s",THISOBJECTHDR->name);
 						//Defined above
 
 						c_cn = 0.0;
@@ -800,7 +794,7 @@ void underground_line::recalc(void)
 
 						if (temp_denom == 0.0)
 						{
-							gl_warning("Capacitance calculation failure for %s",OBJECTHDR(this)->name);
+							gl_warning("Capacitance calculation failure for %s",THISOBJECTHDR->name);
 							//Defined above
 
 							c_cn = 0.0;
@@ -828,7 +822,7 @@ void underground_line::recalc(void)
 					
 					if ((dia[0]==0.0) || (rad_14==0.0))	//Make sure conductor or "neutral ring" radius are not zero
 					{
-						gl_warning("Unable to compute capacitance for %s",OBJECTHDR(this)->name);
+						gl_warning("Unable to compute capacitance for %s",THISOBJECTHDR->name);
 						/* TROUBLESHOOT
 						One phase of an underground line has either a conductor diameter, a concentric-neutral location diameter, or a neutral
 						strand count of zero.  This will lead to indeterminant values in the analysis.  Please fix these values, or run the simulation
@@ -844,7 +838,7 @@ void underground_line::recalc(void)
 
 						if (temp_denom == 0.0)
 						{
-							gl_warning("Capacitance calculation failure for %s",OBJECTHDR(this)->name);
+							gl_warning("Capacitance calculation failure for %s",THISOBJECTHDR->name);
 							/*  TROUBLESHOOT
 							While computing the capacitance, a zero-value denominator was encountered.  Please check
 							your underground_conductor parameter values and try again.
@@ -873,7 +867,7 @@ void underground_line::recalc(void)
 					
 					if ((dia[1]==0.0) || (rad_25==0.0))	//Make sure conductor or "neutral ring" radius are not zero
 					{
-						gl_warning("Unable to compute capacitance for %s",OBJECTHDR(this)->name);
+						gl_warning("Unable to compute capacitance for %s",THISOBJECTHDR->name);
 						//Defined above
 
 						c_bn = 0.0;
@@ -885,7 +879,7 @@ void underground_line::recalc(void)
 
 						if (temp_denom == 0.0)
 						{
-							gl_warning("Capacitance calculation failure for %s",OBJECTHDR(this)->name);
+							gl_warning("Capacitance calculation failure for %s",THISOBJECTHDR->name);
 							//Defined above
 
 							c_bn = 0.0;
@@ -913,7 +907,7 @@ void underground_line::recalc(void)
 					if ((dia[2]==0.0) || (rad_36==0.0))	//Make sure conductor or "neutral ring" radius are not zero
 
 					{
-						gl_warning("Unable to compute capacitance for %s",OBJECTHDR(this)->name);
+						gl_warning("Unable to compute capacitance for %s",THISOBJECTHDR->name);
 						//Defined above
 
 						c_cn = 0.0;
@@ -926,7 +920,7 @@ void underground_line::recalc(void)
 
 						if (temp_denom == 0.0)
 						{
-							gl_warning("Capacitance calculation failure for %s",OBJECTHDR(this)->name);
+							gl_warning("Capacitance calculation failure for %s",THISOBJECTHDR->name);
 							//Defined above
 
 							c_cn = 0.0;

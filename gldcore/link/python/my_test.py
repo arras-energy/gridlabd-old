@@ -23,6 +23,9 @@ def on_init(t) :
 	# successful init
 	return True
 
+def precommit(obj,t) :
+	return gridlabd.NEVER
+	
 def commit(obj,t) :
 	
 	# sample the object data
@@ -53,6 +56,7 @@ def on_term(t) :
 	plt.grid()
 	plt.legend()
 	modelname = gridlabd.get_global("modelname")
-	plt.title(modelname)
+	title_name = gridlabd.graph_title
+	plt.title(title_name)
 	plt.savefig(modelname.replace(".glm",".png"))
 	# term always returns None

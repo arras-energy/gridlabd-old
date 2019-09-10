@@ -1,6 +1,7 @@
-/** $Id: debug.c 4738 2014-07-03 00:55:39Z dchassin $
+/** debug.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file debug.c
+
+	@file debug.cpp
 	@author David P. Chassin
 	@addtogroup debug Debugger
 	@ingroup core
@@ -208,21 +209,7 @@
  @{ strsignal
  **/
 
-#include <signal.h>
-#include <ctype.h>
-#include <string.h>
-
-#include "platform.h"
-#include "output.h"
-#include "exec.h"
-#include "class.h"
-#include "convert.h"
-#include "object.h"
-#include "index.h"
-#include "realtime.h"
-#include "module.h"
-#include "debug.h"
-#include "kill.h"
+#include "gldcore.h"
 
 #ifndef _MAX_PATH
 #define _MAX_PATH 1024
@@ -475,7 +462,7 @@ int load_from_file = 0; /** flag whether commands are being read from a \p scrip
 /** The function executes the next debug command provided by the user or read from a file
  **/
 DEBUGCMD exec_debug_cmd(struct sync_data *data, /**< the current sync status of the mail loop */
-						int pass, /**< the current pass on the main loop */
+						PASSCONFIG pass, /**< the current pass on the main loop */
 						int index, /**< the rank index */
 						OBJECT *obj) /**< the current object being processed */
 {
@@ -772,7 +759,7 @@ Retry:
 						output_debug("breakpoint %2d rank %d %s", bp->num, (int)bp->rank, bp->enabled?"":"(disabled)");
 						break;
 					case BP_TIME:
-						output_debug("breakpoint %2d time %s (%"FMT_INT64"d) %s", bp->num, convert_from_timestamp(bp->ts,tmp,sizeof(tmp))?tmp:"(invalid)", bp->ts, bp->enabled?"":"(disabled)");
+						output_debug("breakpoint %2d time %s (%" FMT_INT64 "d) %s", bp->num, convert_from_timestamp(bp->ts,tmp,sizeof(tmp))?tmp:"(invalid)", bp->ts, bp->enabled?"":"(disabled)");
 						break;
 					case BP_CLOCK:
 						output_debug("breakpoint %2d clock %s", bp->num, bp->enabled?"":"(disabled)");
@@ -1271,7 +1258,7 @@ Retry:
 /** This is the main debugger processing loop
  **/
 int exec_debug(struct sync_data *data, /**< the current sync status of the mail loop */
-			   int pass, /**< the current pass on the main loop */
+			   PASSCONFIG pass, /**< the current pass on the main loop */
 			   int index, /**< the rank index */
 			   OBJECT *obj) /**< the current object being processed */
 {
@@ -1300,7 +1287,7 @@ int exec_debug(struct sync_data *data, /**< the current sync status of the mail 
 		/* only output time update if it differs from last one */
 		if (convert_from_timestamp(global_clock,buffer,sizeof(buffer)) && strcmp(buffer,timebuf)!=0)
 		{
-			output_raw("DEBUG: global_clock = '%s' (%"FMT_INT64"d)\r", buffer,global_clock);
+			output_raw("DEBUG: global_clock = '%s' (%" FMT_INT64 "d)\r", buffer,global_clock);
 			strcpy(timebuf,buffer);
 		}
 

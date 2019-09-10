@@ -1,5 +1,6 @@
-/** $Id: main.c 4738 2014-07-03 00:55:39Z dchassin $
+/** main.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file main.c
 	@author David P. Chassin
 
@@ -7,46 +8,21 @@
  **/
 #define _MAIN_C
 
-//#define USE_MPI
-
-#include <stdlib.h>
-#include <string.h>
-#ifdef WIN32
-#include <direct.h>
-#include <process.h>
-#else
-#include <unistd.h>
-#endif
-
-#include "globals.h"
-#include "legal.h"
-#include "cmdarg.h"
-#include "module.h"
-#include "output.h"
-#include "environment.h"
-#include "test.h"
-#include "random.h"
-#include "realtime.h"
-#include "save.h"
-#include "local.h"
-#include "exec.h"
-#include "kml.h"
-#include "kill.h"
-#include "threadpool.h"
-
-#include "main.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_MAIN)
 
-#if defined WIN32 && _DEBUG 
 /** Implements a pause on exit capability for Windows consoles
  **/
 void GldMain::pause_at_exit(void) 
 {
 	if (global_pauseatexit)
+#if defined WIN32
 		system("pause");
-}
+#else
+		system("read -p 'Press [RETURN] to end... ");
 #endif
+}
 
 /** The main entry point of GridLAB-D
     @returns Exit codes XC_SUCCESS, etc. (see gridlabd.h)
@@ -69,6 +45,11 @@ int main
 		output_fatal("uncaught exception: %s", msg);
 		return_code = errno ? errno : XC_SHFAILED;
 	}
+	catch (GldException *exc)
+	{
+		output_fatal("GldException: %s", exc->get_message());
+		return_code = errno ? errno : XC_SHFAILED;
+	}
 	if ( my_instance == NULL )
 	{
 		output_error("unable to create new instance");
@@ -84,14 +65,16 @@ int main
 			output_fatal("uncaught exception: %s", msg);
 			return_code = errno ? errno : XC_SHFAILED;
 		}
-		delete my_instance;
-		my_instance = NULL;
+		my_instance->run_on_exit();
 	}
 	return return_code;
 }
 unsigned int GldMain::next_id = 0;
 GldMain::GldMain(int argc, const char *argv[])
-	: globals(this), exec(this), cmdarg(this)
+: 	globals(this), 
+	exec(this), 
+	cmdarg(this),
+	gui(this)
 {
 	id = next_id++;
 	// TODO: remove this when reetrant code is done
@@ -107,10 +90,7 @@ GldMain::GldMain(int argc, const char *argv[])
 	
 	/* set the process info */
 	global_process_id = getpid();
-
-#if defined WIN32 && _DEBUG 
 	atexit(pause_at_exit);
-#endif
 
 #ifdef WIN32
 	kill_starthandler();
@@ -190,62 +170,6 @@ GldMain::GldMain(int argc, const char *argv[])
 
 GldMain::~GldMain(void)
 {
-	/* save the model */
-	if (strcmp(global_savefile,"")!=0)
-	{
-		if (saveall(global_savefile)==FAILED)
-			output_error("save to '%s' failed", global_savefile);
-	}
-
-	/* do module dumps */
-	if (global_dumpall!=FALSE)
-	{
-		IN_MYCONTEXT output_verbose("dumping module data");
-		module_dumpall();
-	}
-
-	/* KML output */
-	if (strcmp(global_kmlfile,"")!=0)
-		kml_dump(global_kmlfile);
-
-	/* terminate */
-	module_termall();
-
-	/* wrap up */
-	IN_MYCONTEXT output_verbose("shutdown complete");
-
-	/* profile results */
-	if (global_profiler)
-	{
-		class_profiles();
-		module_profiles();
-	}
-
-#ifdef DUMP_SCHEDULES
-	/* dump a copy of the schedules for reference */
-	schedule_dumpall("schedules.txt");
-#endif
-
-	/* restore locale */
-	locale_pop();
-
-	/* if pause enabled */
-#ifndef WIN32
-	if (global_pauseatexit)
-	{
-		IN_MYCONTEXT output_verbose("pausing at exit");
-		while (true) {
-			sleep(5);
-		}
-	}
-#endif
-
-	/* compute elapsed runtime */
-	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
-	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
-
-	exit(exec.getexitcode());
-
 	// TODO: remove this when reetrant code is done
 	my_instance = NULL;
 
@@ -348,5 +272,97 @@ void GldMain::delete_pidfile(void)
 	unlink(global_pidfile);
 }
 
+int GldMain::add_on_exit(int xc, const char *cmd)
+{
+	try
+	{
+		onexitcommand *item = new onexitcommand(xc,cmd);
+		exitcommands.push_back(*item);
+		size_t n = exitcommands.size();
+		IN_MYCONTEXT output_verbose("added on_exit(%d,'%s') -> %d", xc, cmd, n);
+		return n;
+	}
+	catch (...)
+	{
+		output_error("unable to add on_exit %d '%s'", xc, cmd);
+		return 0;
+	}
+}
+
+void GldMain::run_on_exit()
+{
+	/* save the model */
+	if (strcmp(global_savefile,"")!=0)
+	{
+		if (saveall(global_savefile)==FAILED)
+			output_error("save to '%s' failed", global_savefile);
+	}
+
+	/* do module dumps */
+	if (global_dumpall!=FALSE)
+	{
+		IN_MYCONTEXT output_verbose("dumping module data");
+		module_dumpall();
+	}
+
+	/* KML output */
+	if (strcmp(global_kmlfile,"")!=0)
+		kml_dump(global_kmlfile);
+
+	/* terminate */
+	module_termall();
+
+	/* wrap up */
+	IN_MYCONTEXT output_verbose("shutdown complete");
+
+	/* profile results */
+	if (global_profiler)
+	{
+		class_profiles();
+		module_profiles();
+	}
+
+#ifdef DUMP_SCHEDULES
+	/* dump a copy of the schedules for reference */
+	schedule_dumpall("schedules.txt");
+#endif
+
+	/* restore locale */
+	locale_pop();
+
+	/* if pause enabled */
+#ifndef WIN32
+	if (global_pauseatexit)
+	{
+		IN_MYCONTEXT output_verbose("pausing at exit");
+		while (true) {
+			sleep(5);
+		}
+	}
+#endif
+
+	/* compute elapsed runtime */
+	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
+	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
+
+	for ( std::list<onexitcommand>::iterator cmd = exitcommands.begin() ; cmd != exitcommands.end() ; cmd++ )
+	{
+		if ( cmd->get_exitcode() == exec.getexitcode() 
+			|| ( exec.getexitcode() == -1 && cmd->get_exitcode() != 0 ) 
+			)
+		{
+			int rc = cmd->run();
+			if ( rc != 0 )
+			{
+				output_error("on_exit %d '%s' command failed (return code %d)", cmd->get_exitcode(), cmd->get_command(), rc);
+				return;
+			}
+			else
+			{
+				IN_MYCONTEXT output_verbose("running on_exit(%d,'%s') -> code %d", cmd->get_exitcode(), cmd->get_command(), rc);
+			}
+		}
+	}
+}
 
 /** @} **/

@@ -1,18 +1,10 @@
-/* test.c
+/* test.cpp
  * Copyright (C) 2008 Battelle Memorial Institute
+ *
  * Integrated system testing routines.  Start is called before executive runs, end after executive exits.
  */
 
-#include <stdlib.h>
-
-#include "globals.h"
-#include "cmdarg.h"
-#include "module.h"
-#include "output.h"
-#include "save.h"
-#include "find.h"
-#include "test.h"
-#include "aggregate.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_TEST)
 

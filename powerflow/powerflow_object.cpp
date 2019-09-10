@@ -4,6 +4,10 @@
 	@addtogroup powerflow_object Powerflow objects (abstract)
 	@ingroup powerflow
 
+	@def PS_NORMAL normal powerflow solution
+	@def SUPPORT_OUTAGES 
+	@def PS_OUTAGE outage powerflow solution
+
 	The powerflow_object class is an abstract class that implements 
 	basic elements of powerflow solutions.  There are two critical
 	pieces of information:
@@ -77,14 +81,9 @@
 
  @{
  **/
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
 
 #include "powerflow.h"
-#include "node.h"
-#include "link.h"
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////////
 // powerflow_object CLASS FUNCTIONS
@@ -151,7 +150,7 @@ int powerflow_object::isa(CLASSNAME classname)
 
 int powerflow_object::create(void)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	phases = NO_PHASE;
 	nominal_voltage = 0.0;
 
@@ -220,7 +219,7 @@ TIMESTAMP powerflow_object::sync(TIMESTAMP t0)
 TIMESTAMP powerflow_object::postsync(TIMESTAMP t0)
 {
 #ifdef SUPPORT_OUTAGES
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	if (condition!=OC_NORMAL && solution==PS_NORMAL)
 	{
 		char buffer[1024]="???";

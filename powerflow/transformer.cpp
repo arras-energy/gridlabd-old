@@ -15,14 +15,8 @@
  @{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "transformer.h"
 
 CLASS* transformer::oclass = NULL;
 CLASS* transformer::pclass = NULL;
@@ -112,7 +106,7 @@ int transformer::create()
 }
 
 void transformer::fetch_double(double **prop, const char *name, OBJECT *parent){
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_double_by_name(parent, name);
 	if(*prop == NULL){
 		char tname[32];
@@ -175,7 +169,7 @@ int transformer::init(OBJECT *parent)
 	link_rating[1][0] = config->kVA_rating;
 
 	link_object::init(parent);
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	V_base = config->V_secondary;
 	voltage_ratio = nt = config->V_primary / config->V_secondary;
@@ -1152,7 +1146,7 @@ int transformer::init(OBJECT *parent)
 
 TIMESTAMP transformer::postsync(TIMESTAMP t0)
 {	
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	double time_left;
 	TIMESTAMP trans_end;
 	if(use_thermal_model){
@@ -1689,7 +1683,7 @@ int transformer::transformer_inrush_mat_update(void)
 //Function to do saturation updates (if needed) during powerflow
 int transformer::transformer_saturation_update(bool *deltaIsat)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int index_loop;
 	complex work_values_voltages[6], phi_values[6];
 	double phi_mag, phi_ang, angle_offset, imag_phi_value, imag_phi_value_pu;

@@ -4,7 +4,9 @@
 #ifndef _TRIPLEXLINECONDUCTOR_H
 #define _TRIPLEXLINECONDUCTOR_H
 
-#include "line.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class triplex_line_conductor : public powerflow_library
 {

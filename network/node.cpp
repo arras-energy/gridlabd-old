@@ -148,7 +148,7 @@ void node::attach(link *pLink)
 int node::init(OBJECT *parent)
 {
 	// check that parent is swing bus
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	node *swing = parent?OBJECTDATA(parent,node):this;
 	OBJECT *swing_hdr = OBJECTHDR(swing);
 	if (swing_hdr->oclass!=hdr->oclass || swing->type!=SWING)
@@ -237,7 +237,7 @@ double node::get_obs_probability(void) const
 		return 1;
 	double pr = exp(-0.5*r2); /// @todo there should be a 1/sqrt(2*pi) coeff on the observability probability, yet it works. (network, low priority)
 	if (pr>1)
-		gl_warning("node:%d observation probability exceeds 1!", OBJECTHDR(this)->id);
+		gl_warning("node:%d observation probability exceeds 1!", THISOBJECTHDR->id);
 	return pr;
 }
 #endif
@@ -252,7 +252,7 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 
 TIMESTAMP node::postsync(TIMESTAMP t0) 
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	node *swing = hdr->parent?OBJECTDATA(hdr->parent,node):this;
 	complex dV(0.0);
 	complex YY = Ys + complex(G,B);
@@ -332,7 +332,7 @@ TIMESTAMP node::postsync(TIMESTAMP t0)
 	// node debugging
 	if (debug_node>0)
 	{
-		OBJECT* obj = OBJECTHDR(this);
+		OBJECT* obj = THISOBJECTHDR;
 		static int first=-1;
 		if (first==-1) first = obj->id;
 		if (obj->id==first)

@@ -4,6 +4,8 @@
 	@addtogroup house_e
 	@ingroup residential
 
+	@def implicit_enduse Residential module global variable that define which enduses are implicitly defined in every house
+
 	The house_e object implements a single family home.  The house_e
 	only includes the heating/cooling system and the power panel.
 	All other end-uses must be explicitly defined and attached to the
@@ -98,6 +100,12 @@ char *_strlwr(char *s)
 	return r;
 }
 #endif
+
+// paneldump support
+static char paneldump_filename[1024] = "paneldump.csv";
+int64 paneldump_interval = 0; // 0=disabled, -1=ZOH, >1=integrated
+double paneldump_resolution = 0.1; // minimum change measurement can detect
+FILE *paneldump_fh = NULL;
 
 // list of enduses that are implicitly active
 set house_e::implicit_enduses_active = IEU_ALL;
@@ -270,6 +278,8 @@ typedef struct s_implicit_enduse_list {
 #include "elcap1990.h"
 #include "elcap2010.h"
 #include "rbsa2014.h"
+#include "rbsa2014_discrete.h"
+#include "eia2015.h"
 
 EXPORT CIRCUIT *attach_enduse_house_e(OBJECT *obj, enduse *target, double breaker_amps, int is220)
 {
@@ -598,6 +608,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 				PT_KEYWORD, "BAND", (enumeration)TC_BAND, // T<mode>{On,Off} control HVAC (setpoints/deadband are ignored)
 				PT_KEYWORD, "NONE", (enumeration)TC_NONE, // system_mode controls HVAC (setpoints/deadband and T<mode>{On,Off} are ignored)
 
+			PT_char1024, "gas_enduses", PADDR(gas_enduses), PT_DESCRIPTION, "list of implicit enduses that use gas instead of electricity",
 			PT_method, "circuit", get_smart_breaker_offset(), PT_ACCESS,PA_PROTECTED, PT_DESCRIPTION, "smart breaker message handlers", 
 			NULL)<1) 
 			GL_THROW("unable to publish properties in %s",__FILE__);			
@@ -623,6 +634,8 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_KEYWORD,"ELCAP1990", (enumeration)IES_ELCAP1990,
 			PT_KEYWORD,"ELCAP2010", (enumeration)IES_ELCAP2010,
 			PT_KEYWORD,"RBSA2014", (enumeration)IES_RBSA2014,
+			PT_KEYWORD,"RBSA2014_DISCRETE", (enumeration)IES_RBSA2014_DISCRETE,
+			PT_KEYWORD,"EIA2015", (enumeration)IES_EIA2015,
 			NULL);
 		gl_global_create("residential::house_low_temperature_warning[degF]",PT_double,&warn_low_temp,
 			PT_DESCRIPTION, "the low house indoor temperature at which a warning will be generated",
@@ -635,17 +648,25 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			NULL);
 		gl_global_create("residential::system_dwell_time[s]",PT_double,&system_dwell_time,
 			PT_DESCRIPTION, "the heating/cooling system dwell time interval for changing system state",
-			NULL);
-	}	
+			NULL);	
 		gl_global_create("residential::aux_cutin_temperature[degF]",PT_double,&aux_cutin_temperature,
 			PT_DESCRIPTION, "the outdoor air temperature below which AUX heating is used",
+			NULL);
+		gl_global_create("residential::paneldump_filename",PT_char1024,paneldump_filename,
+			PT_DESCRIPTION, "the name of the file into which the paneldump is saved",
+			NULL);
+		gl_global_create("residential::paneldump_interval",PT_int64,&paneldump_interval,
+			PT_DESCRIPTION, "the interval at which the paneldump is performed (0:disabled; <0:difference; >0:integral)",
+			NULL);
+		gl_global_create("residential::paneldump_resolution",PT_double,&paneldump_interval,
+			PT_DESCRIPTION, "the resolution at which the paneldump is performed (differences less than this are ignored)",
 			NULL);
 
 		if (gl_publish_function(oclass,	"interupdate_res_object", (FUNCTIONADDR)interupdate_house_e)==NULL)
 			GL_THROW("Unable to publish house_e deltamode function");
 		if (gl_publish_function(oclass,	"postupdate_res_object", (FUNCTIONADDR)postupdate_house_e)==NULL)
 			GL_THROW("Unable to publish house_e deltamode function");
-
+	}
 }
 
 int house_e::create() 
@@ -728,8 +749,16 @@ int house_e::create()
 				eu = elcap2010;
 				break;
 			case IES_RBSA2014:
-				gl_warning("RBSA2010 implicit enduse data is not valid for individual enduses");
+				gl_warning("RBSA2014 implicit enduse data is not valid for individual enduses");
 				eu = rbsa2014;
+				break;
+			case IES_RBSA2014_DISCRETE:
+				gl_warning("RBSA2014 discrete implicit enduse data is experimental");
+				eu = rbsa2014_discrete;
+				break;
+			case IES_EIA2015:
+				gl_warning("EIA 2015 implicit enduse data is experimental");
+				eu = eia2015;
 				break;
 			default:
 				gl_error("implicit enduse source '%d' is not recognized, using default ELCAP1990 instead", implicit_enduse_source);
@@ -782,7 +811,7 @@ int house_e::create()
 		}
 	}
 	total.name = "panel";
-	load.name = "system";
+	load.name = "HVAC";
 
 	//Reverse ETP Parameter Defaults
 	include_solar_quadrant = 0x001e;
@@ -866,7 +895,7 @@ int house_e::create()
 	last_temperature = 75;
 	thermostat_mode = TM_AUTO;
 
-//	printf("module flags = 0x%llx, house flags = 0x%llx\n", module_message_flags, OBJECTHDR(this)->flags);
+//	printf("module flags = 0x%llx, house flags = 0x%llx\n", module_message_flags, THISOBJECTHDR->flags);
 //	verbose("creating house_e");
 //	debug("created house_e");
 
@@ -884,7 +913,7 @@ then Tout will be set to 74 degF, RHout is set to 75% and solar flux will be set
 **/
 int house_e::init_climate()
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	// link to climate data
 	static FINDLIST *climates = NULL;
@@ -1368,7 +1397,7 @@ int house_e::init(OBJECT *parent)
 			return 2; // defer
 		}
 	}
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	hdr->flags |= OF_SKIPSAFE;
 
 	heat_start = false;
@@ -1389,7 +1418,7 @@ int house_e::init(OBJECT *parent)
 	size_t i;
 
 	// find parent meter, if not defined, use a default meter (using static variable 'default_meter')
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	if (parent!=NULL && (gl_object_isa(parent,"triplex_meter","powerflow") || gl_object_isa(obj->parent,"triplex_node","powerflow")))
 	{
 		// attach meter variables to each circuit
@@ -1774,7 +1803,7 @@ int house_e::init(OBJECT *parent)
 	else
 		load.breaker_amps = hvac_breaker_rating;
 	load.config = EUC_IS220;
-	attach(OBJECTHDR(this),hvac_breaker_rating, true, &load);
+	attach(THISOBJECTHDR,hvac_breaker_rating, true, &load);
 
 	if(include_fan_heatgain == TRUE){
 		fan_heatgain_fraction = 1;
@@ -1824,6 +1853,25 @@ int house_e::init(OBJECT *parent)
 			triggers, this house may no longer contribute to the system, until event-driven mode resumes.  This could cause issues with the simulation.
 			It is recommended all objects that support deltamode enable it.
 			*/
+		}
+	}
+
+	// zero out gas enduses
+	CIRCUIT *circuit;
+	for ( circuit = panel.circuits ; circuit != NULL ; circuit = circuit->next )
+	{
+		if ( circuit->pLoad && circuit->pLoad->name )
+		{
+			if ( strstr(gas_enduses,circuit->pLoad->name) != NULL ) // set gas fraction
+			{
+				gl_debug("euname '%s' in gas_enduses '%s', setting gas fraction to 1.0", circuit->pLoad->name, (const char*)gas_enduses);
+				circuit->pLoad->gas_fraction = 1.0;
+			}
+			else
+			{
+				gl_debug("euname '%s' not in gas_enduses '%s', setting gas fraction to 0.0", circuit->pLoad->name, (const char*)gas_enduses);
+				circuit->pLoad->gas_fraction = 0.0;
+			}
 		}
 	}
 
@@ -1909,6 +1957,9 @@ CIRCUIT *house_e::attach(OBJECT *obj, ///< object to attach
 	c->smartfuse->vFactor = 1.0;
 	c->smartfuse->vMin = 0.95;
 	c->smartfuse->vMax = 1.05;
+
+	// initialize measurements
+	memset(c->measurement,0,sizeof(c->measurement));
 
 	return c;
 }
@@ -2403,7 +2454,7 @@ void house_e::update_system(double dt)
 **/
 TIMESTAMP house_e::presync(TIMESTAMP t0, TIMESTAMP t1) 
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	const double dt = (double)((t1-t0)*TS_SECOND)/3600;
 	CIRCUIT *c;
 	extern bool ANSI_voltage_check;
@@ -2755,7 +2806,7 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 /** Removes load contributions from parent object **/
 TIMESTAMP house_e::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	// compute line currents and post to meter
 	if (obj->parent != NULL)
@@ -2781,7 +2832,9 @@ TIMESTAMP house_e::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	if (obj->parent != NULL)
 		wunlock(obj->parent);
 
-	return TS_NEVER;
+	TIMESTAMP rv = paneldump_interval>0 ? ((gl_globalclock/paneldump_interval)+1)*paneldump_interval : TS_NEVER;
+	gl_debug("house postsync based on paneldump_interval=%lld --> %lld", paneldump_interval, rv);
+	return rv;
 }
 
 
@@ -2942,7 +2995,7 @@ TIMESTAMP house_e::sync_thermostat(TIMESTAMP t0, TIMESTAMP t1)
 	if (TcoolOff<TheatOff && cooling_system_type!=CT_NONE)
 	{
 		char buffer[64];
-		gl_error("%s: thermostat setpoints deadbands overlap (TcoolOff=%.1f < TheatOff=%.1f)", gl_name(OBJECTHDR(this),buffer,sizeof(buffer)), TcoolOff, TheatOff);
+		gl_error("%s: thermostat setpoints deadbands overlap (TcoolOff=%.1f < TheatOff=%.1f)", gl_name(THISOBJECTHDR,buffer,sizeof(buffer)), TcoolOff, TheatOff);
 		return TS_INVALID;
 	}
 
@@ -2950,7 +3003,7 @@ TIMESTAMP house_e::sync_thermostat(TIMESTAMP t0, TIMESTAMP t1)
 	if(system_mode == SM_UNKNOWN)
 	{
 		char buffer[64];
-		gl_warning("%s: system_mode was unknown, changed to off", gl_name(OBJECTHDR(this),buffer,sizeof(buffer)));
+		gl_warning("%s: system_mode was unknown, changed to off", gl_name(THISOBJECTHDR,buffer,sizeof(buffer)));
 		system_mode = SM_OFF;
 	}
 	
@@ -3118,7 +3171,7 @@ TIMESTAMP house_e::sync_thermostat(TIMESTAMP t0, TIMESTAMP t1)
 TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	// clear accumulator
 	if((t0 >= simulation_beginning_time && t1 > t0) || (!heat_start)){
@@ -3130,13 +3183,27 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 	CIRCUIT *c;
 	for (c=panel.circuits; c!=NULL; c=c->next)
 	{
-		// get circuit type
-		int n = (int)c->type;
-		if (n<0 || n>2)
+		// check circuit type
+		if ( (int)c->type < 0 || (int)c->type > 2 )
+		{
 			GL_THROW("%s:%d circuit %d has an invalid circuit type (%d)", obj->oclass->name, obj->id, c->id, (int)c->type);
+		}
+
+		// if load is 100% gas
+		if ( c->pLoad->gas_fraction == 1.0 )
+		{
+			// only heatgain is counted
+			if ( ( t0 != 0 && t1 > t0) || ( !heat_start ) )
+			{ 
+				total.heatgain += c->pLoad->heatgain;
+			}
+			c->status = BRK_CLOSED;
+			c->reclose = TS_NEVER;
+			t2 = TS_NEVER;
+		}
 
 		// if breaker is open and reclose time has arrived
-		if (c->status==BRK_OPEN && t1>=c->reclose)
+		else if (c->status==BRK_OPEN && t1>=c->reclose)
 		{
 			c->status = BRK_CLOSED;
 			c->reclose = TS_NEVER;
@@ -3144,8 +3211,8 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 			gl_debug("house_e:%d panel breaker %d closed", obj->id, c->id);
 		}
 
-		// if breaker is closed
-		if (c->status==BRK_CLOSED)
+		// if breaker is closed 
+		else if ( c->status==BRK_CLOSED )
 		{
 			// compute circuit current
 			if (((c->pV)->Mag() == 0) || (*pMeterStatus==0))	//Meter offline or voltage 0
@@ -3162,7 +3229,7 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 			}
 			
 			//Current flow is based on the actual load, not nominal load
-			complex actual_power = c->pLoad->power + (c->pLoad->current + c->pLoad->admittance * c->pLoad->voltage_factor)* c->pLoad->voltage_factor;
+			complex actual_power = c->pLoad->power + (c->pLoad->current + c->pLoad->admittance * c->pLoad->voltage_factor)* c->pLoad->voltage_factor * (1.0 - c->pLoad->gas_fraction);
 			complex current = ~(actual_power*1000 / *(c->pV)); 
 
 			// check breaker
@@ -3198,23 +3265,23 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 				//Convert values appropriately - assume nominal voltages of 240 and 120 (0 degrees)
 				//All values are given in kW, so convert to normal
 
-				if (n==0)	//1-2 240 V load
+				if ( (int)c->type == 0 )	//1-2 240 V load
 				{
-					load_values[0][2] += c->pLoad->power * 1000.0;
-					load_values[1][2] += ~(c->pLoad->current * 1000.0 / 240.0);
-					load_values[2][2] += ~(c->pLoad->admittance * 1000.0 / (240.0 * 240.0));
+					load_values[0][2] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
+					load_values[1][2] += ~(c->pLoad->current * 1000.0 / 240.0) * (1.0-c->pLoad->gas_fraction);
+					load_values[2][2] += ~(c->pLoad->admittance * 1000.0 / (240.0 * 240.0)) * (1.0-c->pLoad->gas_fraction);
 				}
-				else if (n==1)	//2-N 120 V load
+				else if ( (int)c->type == 1 )	//2-N 120 V load
 				{
-					load_values[0][1] += c->pLoad->power * 1000.0;
-					load_values[1][1] += ~(c->pLoad->current * 1000.0 / 120.0);
-					load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0));
+					load_values[0][1] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
+					load_values[1][1] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction);
+					load_values[2][1] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction);
 				}
 				else	//n has to equal 2 here (checked above) - 1-N 120 V load
 				{
-					load_values[0][0] += c->pLoad->power * 1000.0;
-					load_values[1][0] += ~(c->pLoad->current * 1000.0 / 120.0);
-					load_values[2][0] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0));
+					load_values[0][0] += c->pLoad->power * 1000.0 * (1.0-c->pLoad->gas_fraction);
+					load_values[1][0] += ~(c->pLoad->current * 1000.0 / 120.0) * (1.0-c->pLoad->gas_fraction);
+					load_values[2][0] += ~(c->pLoad->admittance * 1000.0 / (120.0 * 120.0)) * (1.0-c->pLoad->gas_fraction);
 				}
 
 				//load_values[0][1] += c->pLoad->power * 1000.0;
@@ -3225,10 +3292,24 @@ TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 				total.power += c->pLoad->power;
 				total.current += c->pLoad->current;
 				total.admittance += c->pLoad->admittance;
-				if((t0 != 0 && t1 > t0) || (!heat_start)){
+				if((t0 != 0 && t1 > t0) || (!heat_start))
+				{
 					total.heatgain += c->pLoad->heatgain;
 				}
 				c->reclose = TS_NEVER;
+
+				// perform measurements
+				c->measurement[0].t = t1;
+				c->measurement[0].power = actual_power;
+				if ( c->measurement[1].t == 0 ) // reset energy accumulator (for diff interval measurements)
+				{
+					c->measurement[0].energy = 0;
+				}
+				else
+				{
+					c->measurement[0].energy += actual_power * (t1 - c->measurement[1].t);
+				}
+				c->measurement[1].t = t1;
 			}
 		}
 
@@ -3273,7 +3354,7 @@ TIMESTAMP house_e::sync_enduses(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	IMPLICITENDUSE *eu;
-	//OBJECT *obj = OBJECTHDR(this);
+	//OBJECT *obj = THISOBJECTHDR;
 	//char one[128], two[128];
 	for (eu=implicit_enduse_list; eu!=NULL; eu=eu->next)
 	{
@@ -3298,7 +3379,7 @@ void house_e::check_controls(void)
 	char buffer[256];
 	if (warn_control)
 	{
-		OBJECT *obj = OBJECTHDR(this);
+		OBJECT *obj = THISOBJECTHDR;
 		/* check for air temperature excursion */
 		if (Tair<warn_low_temp || Tair>warn_high_temp)
 		{
@@ -3370,7 +3451,7 @@ int *house_e::get_enum(OBJECT *obj, const char *name)
 //Module-level call
 SIMULATIONMODE house_e::inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Right now, houses don't really support deltamode.  This is a half-kludge to get them to play
 	//nice with powerflow.  When they did support it, that code would go here.
@@ -3412,7 +3493,7 @@ SIMULATIONMODE house_e::inter_deltaupdate(unsigned int64 delta_time, unsigned lo
 //Module-level post update call
 STATUS house_e::post_deltaupdate(void)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Right now, basically undo what was done in interupdate.  When houses properly support
 	//dynamics, we'll revisit how this interaction occurs (get node to zero accumulators or something)
@@ -3445,10 +3526,73 @@ STATUS house_e::post_deltaupdate(void)
 	return SUCCESS;	//Always succeeds right now
 }
 
+bool circuit_measurement(const char *timestamp,
+						 const char *name,
+						 const char *enduse,
+						 CIRCUITMEASUREMENT *m, // measurement array
+						 size_t n, 				// array size (should be 2 for delta)
+						 bool integral)			// flag to indicate integral sampling
+{
+	// check/open panel dump file
+	if ( paneldump_fh == NULL )
+	{
+		paneldump_fh = fopen(paneldump_filename,"w");
+		if ( paneldump_fh == NULL )
+		{
+			gl_error("unable to open '%s' for write access",paneldump_filename);
+			return false;
+		}
+		fprintf(paneldump_fh,"timestamp,name,enduse,real[%s],reactive[%s]\n",integral?"kWh":"kW",integral?"kVArh":"kVAr");
+	}
+
+	// integral sampling (energy)
+	if ( integral )
+	{
+		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,(m[0].energy.Re()-m[1].energy.Re())/3600.0,(m[0].energy.Im()-m[1].energy.Im())/3600.0);
+		m[1].t = 0; // resets energy interval measurements
+	}
+
+	// delta-only sampling (power)
+	else if ( (m[0].power-m[1].power).Mag() > paneldump_resolution )
+	{
+		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,m[0].power.Re(),m[0].power.Im());
+		m[1].power = m[0].power;
+	}
+
+	// save new measurement
+	m[1] = m[0];
+	return true;
+}
+
+TIMESTAMP house_e::commit(TIMESTAMP t1, TIMESTAMP t2)
+{
+	const char * objname = get_name();
+
+	// check whether a sample is needed
+	if ( paneldump_interval < 0 
+		|| (paneldump_interval > 0 && gl_globalclock%paneldump_interval == 0 ) 
+		)
+	{	
+		gld_clock now;
+		char timestamp[64]; 
+		now.to_string(timestamp,sizeof(timestamp));
+
+		// scan all the circuits
+		CIRCUIT *circuit;
+		for ( circuit = panel.circuits ; circuit != NULL ; circuit = circuit->next )
+		{
+			if ( ! circuit_measurement(timestamp,objname, circuit->pLoad&&circuit->pLoad->name?circuit->pLoad->name:"unknown" ,circuit->measurement,(size_t)(sizeof(circuit->measurement)/sizeof(circuit->measurement[0])),paneldump_interval>0) )
+				return TS_INVALID;
+		}
+	}
+	return TS_NEVER;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // IMPLEMENTATION OF CORE LINKAGE
 //////////////////////////////////////////////////////////////////////////
 
+EXPORT_COMMIT_C(house,house_e);
 EXPORT_CREATE_C(house,house_e);
 
 EXPORT int init_house(OBJECT *obj)

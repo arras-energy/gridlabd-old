@@ -1,5 +1,6 @@
-/** $Id: unit.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: unit.h 
+   Copyright (C) 2008, Battelle Memorial Institute
+
 	@file unit.h
 	@addtogroup unit
 	@ingroup core
@@ -8,6 +9,10 @@
 
 #ifndef _UNIT_H
 #define _UNIT_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "complex.h"
 

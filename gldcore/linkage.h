@@ -1,8 +1,13 @@
-/* @file linkage.h 
+/* File: linkage.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
  */
 
 #ifndef _LINKAGE_H
 #define _LINKAGE_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include "timestamp.h"
 #include "property.h"

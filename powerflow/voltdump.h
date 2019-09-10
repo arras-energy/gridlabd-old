@@ -4,8 +4,9 @@
 #ifndef _VOLTDUMP_H
 #define _VOLTDUMP_H
 
-#include "powerflow.h"
-#include "node.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 typedef enum {
 	VDM_RECT,
@@ -22,6 +23,7 @@ public:
 	int32 maxcount;
 	enumeration mode;		///< dumps the voltages in either polar or rectangular notation
 	char8 filemode;
+	double interval;
 public:
 	static CLASS *oclass;
 public:

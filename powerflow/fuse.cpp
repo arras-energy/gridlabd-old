@@ -10,12 +10,9 @@
 	
 	@{
 */
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
 
-#include "fuse.h"
+#include "powerflow.h"
+using namespace std;
 
 //initialize pointers
 CLASS* fuse::oclass = NULL;
@@ -126,7 +123,7 @@ int fuse::create()
 int fuse::init(OBJECT *parent)
 {
 	size_t jindex, kindex;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	if ((phases & PHASE_S) == PHASE_S)
 	{
@@ -299,7 +296,7 @@ int fuse::init(OBJECT *parent)
 
 TIMESTAMP fuse::sync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	unsigned char work_phases;
 	bool fuse_blew;
 	TIMESTAMP replacement_time;
@@ -1006,7 +1003,7 @@ void fuse::fuse_check(set phase_to_check, complex *fcurr)
 	char phase_verbose;
 	FUSESTATE *valstate;
 	TIMESTAMP *fixtime;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	if (phase_to_check == PHASE_A)
 	{
@@ -1031,7 +1028,7 @@ void fuse::fuse_check(set phase_to_check, complex *fcurr)
 	}
 	else
 	{
-		GL_THROW("Unknown phase to check in fuse:%d",OBJECTHDR(this)->id);
+		GL_THROW("Unknown phase to check in fuse:%d",THISOBJECTHDR->id);
 		/*  TROUBLESHOOT
 		An invalid phase was specified for the phase check in a fuse.  Please
 		check your code and continue.  If it persists, submit your code and a bug

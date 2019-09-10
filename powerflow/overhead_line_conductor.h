@@ -4,8 +4,9 @@
 #ifndef _OVERHEADLINECONDUCTOR_H
 #define _OVERHEADLINECONDUCTOR_H
 
-#include "powerflow.h"
-#include "line.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class overhead_line_conductor : public powerflow_library
 {
@@ -14,9 +15,9 @@ public:
     static CLASS *oclass;
 
 	/* get_name acquires the name of an object or 'unnamed' if non set */
-	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=OBJECTHDR(this); return obj->name?obj->name:(sprintf(tmp,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
+	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=THISOBJECTHDR; return obj->name?obj->name:(sprintf(tmp,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
 	/* get_id acquires the object's id */
-	inline unsigned int get_id(void) const {return OBJECTHDR(this)->id;};
+	inline unsigned int get_id(void) const {return THISOBJECTHDR->id;};
 
 public:
 	double geometric_mean_radius;

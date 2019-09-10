@@ -4,25 +4,8 @@
 	@author David P. Chassin
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <vector>
-#include <algorithm>
-#include <iostream>
-#include <fstream>
-
-#include <string>
-#include "gridlabd.h"
-#ifdef max
-#undef max
-#endif
-#ifdef min
-#undef min
-#endif
 #include "climate.h"
-#include "timestamp.h"
+
 EXPORT_CREATE(climate)
 EXPORT_INIT(climate)
 EXPORT_SYNC(climate)
@@ -60,7 +43,7 @@ const long EMPTY_VALUE = -999;
 //const int ALPHA = 300;
 //const int NUM_FUZZY_LAYERS = 20;
 
-
+#include <vector>
 
 std::vector<std::vector<double > > cloud_pattern;
 std::vector<std::vector<double > > normalized_cloud_pattern;
@@ -378,11 +361,21 @@ int tmy2_reader::header_info(char* city, char* state, int* degrees, int* minutes
 
 	@param dnr Direct Normal Radiation
 	@param dhr Diffuse Horizontal Radiation
-	@param tdb Bulb temperature
-	@param rh  Relative Humidity
-	@param month month of year
-	@param day day of month
-	@param hour hour of day
+	@param ghr Global Horizontal Radiation
+	@param rh Relative Humidity
+	@param tdb Dry Bulb Temperature
+	@param month Month of the observation
+	@param day Day of the observation
+	@param hour hour of the observation
+	@param wind Wind speed (optional)
+	@param winddir Wind direction
+	@param precip Precipitation
+	@param snowDepth Snow depth
+	@param extra_terr_ghi Extra-terrestrial global horizontal radiation
+	@param tot_sky_cov Total sky coverage
+	@param opq_sky_cov Opaque sky coverage 
+	@param pressure - atmospheric pressure
+	@param extra_terr_dni - Extra terrestrial direct normal irradiance (top of atmosphere)
 */
 
 int tmy2_reader::read_data(double *dnr, double *dhr, double *ghr, double *tdb, double *rh, int* month, int* day, int* hour, double *wind, double *winddir, double *precip, double *snowDepth, double *pressure, double *extra_terr_dni, double *extra_terr_ghi, double *tot_sky_cov, double *opq_sky_cov)
@@ -683,7 +676,7 @@ int climate::isa(CLASSNAME classname)
 
 int climate::init(OBJECT *parent)
 {
-	OBJECT *obj=OBJECTHDR(this);
+	OBJECT *obj=THISOBJECTHDR;
 	TIMESTAMP t0 = obj->clock;
 	double meter_to_feet = 1.0;
 	double tz_num_offset;
@@ -1026,7 +1019,7 @@ int climate::get_solar_for_location(double latitude, double longitude, double *d
 	double f;
 	double ETRN;
 	double sol_z;
-	OBJECT *obj=OBJECTHDR(this);
+	OBJECT *obj=THISOBJECTHDR;
 	DATETIME dt;
 	gl_localtime(obj->clock, &dt);
 
@@ -1407,7 +1400,7 @@ double climate::convert_to_binary_cloud( ) {
 
 
 	double search_tolerance = 0.005; //Defines how close is close enough when dialing in the binary cloud pattern.
-	//OBJECT *obj=OBJECTHDR(this);
+	//OBJECT *obj=THISOBJECTHDR;
 	//TIMESTAMP t1 = obj->clock;
 
 

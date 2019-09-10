@@ -9,15 +9,17 @@
 #ifndef _POWERFLOWLIBRARY_H
 #define _POWERFLOWLIBRARY_H
 
-#include "gridlabd.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class powerflow_library : public gld_object
 {
 public:
 	static CLASS *oclass; 
 	static CLASS *pclass;
-	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=OBJECTHDR(this); return obj->name?obj->name:(sprintf(tmp,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
-	inline unsigned int get_id(void) const {return OBJECTHDR(this)->id;};
+	inline const char *get_name(void) const { static char tmp[64]; OBJECT *obj=THISOBJECTHDR; return obj->name?obj->name:(sprintf(tmp,"%s:%d",obj->oclass->name,obj->id)>0?tmp:"(unknown)");};
+	inline unsigned int get_id(void) const {return THISOBJECTHDR->id;};
 
 public:
 	int create(void);

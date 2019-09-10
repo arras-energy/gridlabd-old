@@ -1,36 +1,133 @@
-/** $Id: deltamode.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2011 Battelle Memorial Institute
- **/
+/*	File: deltamode.h 
+ 	Copyright (C) 2008, Battelle Memorial Institute
+
+	Deltamode is the primary solution method for subsecqnd quasi-dynamic simulations.
+ */
 
 #ifndef _DELTAMODE_H
 #define _DELTAMODE_H
 
-typedef struct {
-	clock_t t_init; /**< time in initiation */
-	clock_t t_preupdate; /**< time in preupdate */
-	clock_t t_update; /**< time in update */
-	clock_t t_clockupdate; /**< time in clockupdate */
-	clock_t t_interupdate; /**< time in interupdate */
-	clock_t t_postupdate; /**< time in postupdate */
-	unsigned int64 t_delta; /**< total elapsed delta mode time (s) */
-	unsigned int64 t_count; /**< number of updates */
-	unsigned int64 t_max;	/**< maximum delta (ns) */
-	unsigned int64 t_min;	/**< minimum delta (ns) */
-	char module_list[1024]; /**< list of active modules */
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
+
+#include "globals.h"
+
+/*	Typedef: DELTAPROFILE
+		See <s_deltaprofile>
+
+	Structure: s_deltaprofile
+	t_init - elapsed time in initialization
+	t_preupdate - elapsed time in pre-update
+	t_update - elapsed time in update
+	t_clockupdate - elapsed time in clock update
+	t_interupdate - elapsed time in inter-update
+	t_postupdate - elapsed time in post-update
+	t_delta - total elapsed time in deltamode
+	t_count - count of updates
+	t_max - maximum delta time (ns)
+	t_min - minimum delta time (ns)
+	module_list - list of active module in deltamode
+
+	This structure stores all the deltamode profile data
+ */
+typedef struct s_deltaprofile {
+	clock_t t_init; 
+	clock_t t_preupdate; 
+	clock_t t_update; 
+	clock_t t_clockupdate; 
+	clock_t t_interupdate; 
+	clock_t t_postupdate; 
+	unsigned int64 t_delta; 
+	unsigned int64 t_count; 
+	unsigned int64 t_max;	
+	unsigned int64 t_min;	
+	char module_list[1024]; 
 } DELTAPROFILE;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-STATUS delta_init(void); /* initialize delta mode - 0 on fail */
-DT delta_update(void); /* update in delta mode - <=0 on fail, seconds to advance clock if ok */
-DT delta_modedesired(DELTAMODEFLAGS *flags); /* ask module how many seconds until deltamode is needed, 0xfffffff(DT_INVALID)->error, oxfffffffe(DT_INFINITY)->no delta mode needed */
-DT delta_preupdate(void); /* send preupdate messages ; dt==0|DT_INVALID failed, dt>0 timestep desired in deltamode  */
-SIMULATIONMODE delta_interupdate(DT timestep, unsigned int iteration_count_val); /* send interupdate messages  - 0=INIT (used?), 1=EVENT, 2=DELTA, 3=DELTA_ITER, 255=ERROR */
-SIMULATIONMODE delta_clockupdate(DT timestep, SIMULATIONMODE interupdate_result); /* notification that we are finished with the current deltamode timestep and are moving to the next timestep. */
-STATUS delta_postupdate(void); /* send postupdate messages - 0 = FAILED, 1=SUCCESS */
-DELTAPROFILE *delta_getprofile(void);
+/*	Function: delta_init
+
+	This function initializes deltamode.
+
+	Return: 
+	!= 0 - success
+	== 0 - failure
+ */
+DEPRECATED STATUS delta_init(void);
+
+/*	Function: delta_update
+
+	This function performs an update in deltamode
+
+	Return:
+	<= 0 - failure
+	dt > 0 - success, dt is the seconds to advance
+ */
+DEPRECATED DT delta_update(void); 
+
+/*	Function: delta_modedesired
+
+	This function asks module how many seconds until deltamode is required
+
+	Return:
+	DT_INVALID - error
+	DT_INFINITY - no delta mode needed
+ */
+DEPRECATED DT delta_modedesired(DELTAMODEFLAGS *flags); 
+
+/*	Function: delta_preupdate
+
+	This function dispatches preupdate deltamode calls
+
+	Return:
+	dt == DT_INVALID - failed
+	dt > 0 - timestep desired in deltamode
+ */
+DEPRECATED DT delta_preupdate(void); 
+
+/*	Function: delta_interupdate
+
+	This function dispatches interupdate deltamode calls
+ 
+ 	Return:
+ 	INIT = 0 - (reserved)
+ 	EVENT = 1 - end deltamode and switches back to eventmode solver
+ 	DELTA = 2 - continue in deltamode
+ 	DELTA_ITER = 3 - interation in deltamode needed
+ 	ERROR = 255 - error
+  */
+DEPRECATED SIMULATIONMODE delta_interupdate(DT timestep, unsigned int iteration_count_val); 
+
+/*	Function: delta_clockupdate
+
+	This function notifies that the current deltamode timestep is finished and are moving to the next timestep.
+
+	Return:
+ */
+DEPRECATED SIMULATIONMODE delta_clockupdate(DT timestep, SIMULATIONMODE interupdate_result); 
+
+/*	Function: delta_postupdate
+
+	This function dispatches postupdate deltamode calls
+
+	Return:
+	FAILED - failed
+	SUCCESS - success
+ */
+DEPRECATED STATUS delta_postupdate(void); 
+
+/*	Function: delta_getprofile
+
+	This function get the profile data for deltamode.
+
+	Return:
+	- Reference to a <DELTAPROFILE> structure
+ */
+DEPRECATED DELTAPROFILE *delta_getprofile(void);
 
 #ifdef __cplusplus
 }

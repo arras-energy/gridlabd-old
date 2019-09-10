@@ -7,12 +7,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "triplex_node.h"
+#include "powerflow.h"
+using namespace std;
 
 CLASS* triplex_node::oclass = NULL;
 CLASS* triplex_node::pclass = NULL;
@@ -175,7 +171,7 @@ int triplex_node::init(OBJECT *parent)
 {
 	if ( !(has_phase(PHASE_S)) )
 	{
-		OBJECT *obj = OBJECTHDR(this);
+		OBJECT *obj = THISOBJECTHDR;
 		gl_warning("Init() triplex_node (name:%s, id:%d): Phases specified did not include phase S. Adding phase S.", obj->name,obj->id);
 		/* TROUBLESHOOT
 		Triplex nodes and meters require a single phase and a phase S component (for split-phase).
@@ -247,7 +243,7 @@ TIMESTAMP triplex_node::sync(TIMESTAMP t0)
 //Module-level call
 SIMULATIONMODE triplex_node::inter_deltaupdate_triplex_node(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	double deltat, deltatimedbl;
 	STATUS return_status_val;
 

@@ -9,12 +9,8 @@
 	@{
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "load.h"
+#include "powerflow.h"
+using namespace std;
 
 CLASS* load::oclass = NULL;
 CLASS* load::pclass = NULL;
@@ -223,7 +219,7 @@ int load::create(void)
 int load::init(OBJECT *parent)
 {
 	char temp_buff[128];
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int ret_value;
 	
 	if (has_phase(PHASE_S))
@@ -503,7 +499,7 @@ void load::load_update_fxn(bool fault_mode)
 				
 				char temp[3] = {'A','B','C'};
 
-				OBJECT *obj = OBJECTHDR(this);
+				OBJECT *obj = THISOBJECTHDR;
 
 				gl_warning("load:%s - ZIP components on phase %c did not sum to 1. Setting power_fraction to %.2f", obj->name ? obj->name : "unnamed", temp[index], power_fraction[index]);
 				/*  TROUBLESHOOT
@@ -1760,7 +1756,7 @@ void load::load_update_fxn(bool fault_mode)
 					if (node_reference_value < 0)
 					{
 						//Get header information
-						obj = OBJECTHDR(this);
+						obj = THISOBJECTHDR;
 
 						GL_THROW("node:%s -- %s tried to perform an impedance conversion with an uninitialzed child node!",obj->id, obj->name?obj->name:"unnamed");
 						/*  TROUBLESHOOT
@@ -2308,7 +2304,7 @@ void load::load_update_fxn(bool fault_mode)
 				if (temp_par_node == NULL)
 				{
 					//Get header information
-					obj = OBJECTHDR(this);
+					obj = THISOBJECTHDR;
 
 					GL_THROW("load:%s - failed to map parent object for childed node",obj->name ? obj->name : "unnamed");
 					/*  TROUBLESHOOT
@@ -2872,7 +2868,7 @@ int load::notify(int update_mode, PROPERTY *prop, char *value)
 //Module-level call
 SIMULATIONMODE load::inter_deltaupdate_load(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	bool fault_mode;
 	double deltat, deltatimedbl;
 	STATUS return_status_val;

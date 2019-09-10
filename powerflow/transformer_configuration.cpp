@@ -21,14 +21,8 @@
  @{
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <iostream>
+#include "powerflow.h"
 using namespace std;
-
-#include "transformer.h"
 
 //////////////////////////////////////////////////////////////////////////
 // transformer_configuration CLASS FUNCTIONS
@@ -148,7 +142,7 @@ int transformer_configuration::create(void)
 int transformer_configuration::init(OBJECT *parent)
 {
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	// if aggregate rating is not set and 3 phase is specified
 	if (kVA_rating==0)

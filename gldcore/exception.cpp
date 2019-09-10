@@ -1,6 +1,7 @@
-/** $Id: exception.c 4738 2014-07-03 00:55:39Z dchassin $
+/** exception.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-	@file exception.c
+
+	@file exception.cpp
 	@addtogroup exception Exception handling
 	@ingroup core
 	
@@ -52,10 +53,7 @@
  @{
  **/
 
-#include <string.h>
-#include "exec.h"
-#include "exception.h"
-#include "output.h"
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_EXCEPTION) // only needed if contexts are used
 
@@ -128,7 +126,7 @@ void throw_exception(const char *format, /**< the format string */
 			of a module or external library isn't properly
 			compiled or linked.
 		*/
-		exit(XC_EXCEPTION);
+		throw "general GridLAB-D exception caught";
 	}
 }
 
