@@ -1,9 +1,13 @@
-/* module.h
- *	Copyright (C) 2008 Battelle Memorial Institute
+/* File: module.h
+ * Copyright (C) 2008 Battelle Memorial Institute
  */
 
 #ifndef _MODULE_H
 #define _MODULE_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include <stdio.h>
 #include <float.h>
@@ -20,7 +24,7 @@ struct s_module_list {
 	unsigned short major;
 	unsigned short minor;
 	void* (*getvar)(const char *varname,char *value,unsigned int size);
-	int (*setvar)(const char *varname,char *value);
+	int (*setvar)(const char *varname,const char *value);
 	int (*import_file)(const char *file);
 	int (*export_file)(const char *file);
 	int (*check)();
@@ -73,7 +77,7 @@ extern "C" {
 	const char* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size);
 	void *module_getvar_addr(MODULE *mod, const char *varname);
 	int module_depends(const char *name, unsigned char major, unsigned char minor, unsigned short build);
-	int module_setvar(MODULE *mod, const char *varname, char *value);
+	int module_setvar(MODULE *mod, const char *varname, const char *value);
 	int module_import(MODULE *mod, const char *filename);
 	int module_export(MODULE *mod, const char *filename);
 	int module_check(MODULE *mod);

@@ -1,5 +1,6 @@
-/** $Id: output.h 4738 2014-07-03 00:55:39Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
+/* File: output.h 
+ * Copyright (C) 2008, Battelle Memorial Institute
+
 	@file output.h
 	@addtogroup output
  @{
@@ -7,6 +8,10 @@
 
 #ifndef _ERROR_H
 #define _ERROR_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -60,7 +65,7 @@ int output_xsl(const char *fname, int n_mods, const char *p_mods[]);
 
 #define SET_MYCONTEXT(X) static set my_output_message_context = (set)X;
 //#define IN_CONTEXT(X) if ( printf("%s(%d): IN_MYCONTEXT => if ( 0x%016lx & 0x%016lx == %s ) ...\n", __FILE__,__LINE__,global_output_message_context, (set)X, (global_output_message_context&(set)X) ? "TRUE" : "FALSE"), (global_output_message_context&(set)X) )
-#define IN_CONTEXT(X) if ( global_output_message_context&(set)X )
+#define IN_CONTEXT(X) if ( ( global_verbose_mode || global_debug_mode ) && global_output_message_context&(set)X )
 #define IN_MYCONTEXT IN_CONTEXT(my_output_message_context)
 
 #endif

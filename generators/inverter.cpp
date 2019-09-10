@@ -7,14 +7,8 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "power_electronics.h"
-#include "inverter.h"
+#include <vector>
 
 #define DEFAULT 1.0;
 
@@ -563,7 +557,7 @@ int inverter::create(void)
 /* Object initialization is called once after all object have been created */
 int inverter::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	PROPERTY *pval;
 	bool *dyn_gen_posting;
 	double *temp_nominal_pointer;
@@ -971,7 +965,7 @@ int inverter::init(OBJECT *parent)
 					int cntr = 0;
 					tempf = "";
 					tempP = "";
-					for( size_t i = 0 ; i < freq_pwrSchedInput.length() ; i++ )	
+					for ( size_t i = 0 ; i < freq_pwrSchedInput.length() ; i++ )	
 					{
 						if(freq_pwrSchedInput[i] != ',')	{
 							if(cntr % 2 == 0)
@@ -1775,7 +1769,7 @@ int inverter::init(OBJECT *parent)
 TIMESTAMP inverter::presync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	if(inverter_type_v != FOUR_QUADRANT){
 		phaseA_I_Out = phaseB_I_Out = phaseC_I_Out = 0.0;
 	} else {
@@ -2081,7 +2075,7 @@ TIMESTAMP inverter::presync(TIMESTAMP t0, TIMESTAMP t1)
 
 TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	TIMESTAMP tret_value;
 	double curr_ts_dbl, diff_dbl;
 	double ieee_1547_return_value;
@@ -3818,7 +3812,7 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 /* Postsync is called when the clock needs to advance on the second top-down pass */
 TIMESTAMP inverter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	TIMESTAMP t2 = TS_NEVER;		//By default, we're done forever!
 	LOAD_FOLLOW_STATUS new_lf_status = IDLE;
 	PF_REG_STATUS new_pf_reg_status = PFRS_UNKNOWN;
@@ -4813,7 +4807,7 @@ STATUS inverter::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 {
 	STATUS stat_val;
 	FUNCTIONADDR funadd = NULL;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	//See which method we are
 	if (inverter_dyn_mode == PI_CONTROLLER)
@@ -6163,8 +6157,10 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 						pLine_unrotI[0] += -curr_state.Iac[0];
 						I_Out[0] = curr_state.Iac[0];
 					}
-					if((phases & 0x07) == 0x07) {
-						for(i = 0; i < 3; i++) {
+					if ( (phases & 0x07) == 0x07 ) 
+					{
+						for ( i = 0 ; i < 3 ; i++ ) 
+						{
 
 							pred_state.P_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Re();
 							pred_state.Q_Out[i] = (pCircuit_V[i] * ~(I_Out[i])).Im();
@@ -7075,7 +7071,7 @@ void inverter::update_control_references(void)
 	//FOUR_QUADRANT model (originally written for NAS/CES, altered for PV)
 	double VA_Efficiency, temp_PF, temp_QVal;
 	complex temp_VA, VA_Outref;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	bool VA_changed = false; // A flag indicating whether VAref is changed due to limitations
 
 	//Compute power in - supposedly DC, but since it's complex, we'll be proper (other models may need fixing)
@@ -7883,7 +7879,7 @@ STATUS inverter::updateCurrInjection()
 	bool ramp_change;
 	double deltat, temp_time;
 	size_t idx;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	if (deltatimestep_running > 0.0)	//Deltamode call
 	{

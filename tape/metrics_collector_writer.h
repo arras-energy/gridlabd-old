@@ -18,7 +18,7 @@
 #include <string.h>
 using namespace std;
 
-CDECL void new_metrics_collector_writer(MODULE *);
+void new_metrics_collector_writer(MODULE *);
 
 #ifdef __cplusplus
 

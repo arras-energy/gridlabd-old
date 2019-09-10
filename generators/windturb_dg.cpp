@@ -6,13 +6,7 @@ Copyright (C) 2008 Battelle Memorial Institute
 
 **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-#include <complex.h>
-
-#include "windturb_dg.h"
+#include "generators.h"
 
 CLASS *windturb_dg::oclass = NULL;
 windturb_dg *windturb_dg::defaults = NULL;
@@ -177,7 +171,7 @@ int windturb_dg::create(void)
 If no climate object is linked, then default pressure, temperature, and wind speed will be used. */
 int windturb_dg::init_climate()
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	// link to climate data
 	static FINDLIST *climates = NULL;
@@ -240,7 +234,7 @@ int windturb_dg::init_climate()
 
 int windturb_dg::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	double ZB, SB = 0.0, EB = 0.0;
 	complex tst, tst2, tst3, tst4;
@@ -947,7 +941,7 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 							temp_ind += 1;
 							if (temp_ind > 100)
 							{
-								OBJECT *obj = OBJECTHDR(this);
+								OBJECT *obj = THISOBJECTHDR;
 
 								gl_warning("windturb_dg (id:%d,name:%s): internal iteration limit reached, breaking out of loop.  Injected current may not be solved sufficiently.",obj->id,obj->name);
 								/* TROUBLESHOOT
@@ -1062,7 +1056,7 @@ TIMESTAMP windturb_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 							if ( temp_count > 100 )
 							{
-								OBJECT *obj = OBJECTHDR(this);
+								OBJECT *obj = THISOBJECTHDR;
 
 								gl_warning("windturb_dg (id:%d,name:%s): internal iteration limit reached, breaking out of loop.  Injected current may not be solved sufficiently.",obj->id,obj->name);
 								/* TROUBLESHOOT

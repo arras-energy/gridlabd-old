@@ -1,6 +1,7 @@
-/** $Id: kill.c 4738 2014-07-03 00:55:39Z dchassin $
+/** kill.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
-   @file kill.c
+
+   @file kill.cpp
    @addtogroup exec
    This program provide the same kill functionality that is available to Linux versions
 
@@ -8,11 +9,8 @@
  **/
 
 #ifdef WIN32
-#include "errno.h"
-#include "windows.h"
-#include "output.h"
-#include "signal.h"
-#include "process.h"
+
+#include "gldcore.h"
 
 /* KILLONLY is undefined when building the kill program, 
    and defined when compiling with the main GridLAB-D 

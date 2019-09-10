@@ -1,5 +1,8 @@
 // load the custom python module
-module my_test;
+module my_test
+{
+    graph_title "My test";
+}
 
 // define a global variable in gridlabd
 global int32 sample_count 0;
@@ -21,5 +24,6 @@ object test {
 	x "type:lognormal(0,1); refresh:5min";
 
 	// dispatch commit calls to the python module
+	on_precommit "python:my_test.precommit";
 	on_commit "python:my_test.commit";
 }

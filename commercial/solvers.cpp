@@ -1,14 +1,8 @@
 /** $Id: solvers.cpp 4738 2014-07-03 00:55:39Z dchassin $
 	Copyright (C) 2008 Battelle Memorial Institute
 **/
-#include <stdlib.h>
-#include <stdio.h>
-#include <float.h>
-#include <math.h>
-#include <time.h>
 
-#include "gridlabd.h"
-#include "solvers.h"
+#include "commercial.h"
 
 #define EVAL(t,a,n,b,m,c) (a*exp(n*t) + b*exp(m*t) + c)
 /** solve an equation of the form $f[ ae^{nt} + be^{mt} + c = 0 $f]

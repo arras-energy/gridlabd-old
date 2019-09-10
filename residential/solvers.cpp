@@ -64,14 +64,14 @@ double e2solve(double _a, double _n, double _b, double _m, double _c, double p, 
 double e2solve(double a, double n, double b, double m, double c, double p, double *e)
 {
 	// load the solver if not yet loaded
-	static glsolver *etp = NULL;
+	static gld_solver *etp = NULL;
 	static struct etpdata {
 		double t,a,n,b,m,c,p,e;
 		unsigned int i;
 	} data;
 	if ( etp==NULL )
 	{
-		etp = new glsolver("etp");
+		etp = new gld_solver("etp");
 		int version;
 		if ( etp->get("version",&version,NULL)==0 || version!=1 )
 			throw "incorrect ETP solver version";

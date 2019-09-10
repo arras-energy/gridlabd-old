@@ -1,7 +1,13 @@
-/* automatically created by ./checkpkgs */
+/* File: version.h 
+   Copyright (C) 2008, Pacific Northwest National Laboratory
+ */
 
 #ifndef _GRIDLABD_VERSION_H
 #define _GRIDLABD_VERSION_H
+
+#if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
+#error "this header may only be included from gldcore.h or gridlabd.h"
+#endif
 
 #define REV_MAJOR 4
 #define REV_MINOR 2

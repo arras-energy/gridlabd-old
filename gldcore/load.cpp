@@ -1,5 +1,6 @@
-/** $Id: load.c 4738 2014-07-03 00:55:39Z dchassin $
+/** load.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file load.c
 	@addtogroup load_glm GLM file loader
 	@ingroup core
@@ -128,25 +129,7 @@ object <class>[:<spec>] { // spec may be <id>, or <startid>..<endid>, or ..<coun
 
  **/
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#else // not a build using automake
-#define DLEXT ".dll"
-#endif // HAVE_CONFIG_H
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <ctype.h>
-#include <float.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <math.h>
-#include "stream.h"
-#include "http_client.h"
-#include "link.h"
-#include "exec.h"
+#include "gldcore.h"
 
 /* define this to use # for comment and % for macros (the way Version 1.x works) */
 /* #define OLDSTYLE	*/
@@ -308,7 +291,6 @@ void inline_code_term(void)
 #define FN_EXPORT		0x1000
 
 /* used for tracking #include directives in files */
-#define BUFFERSIZE (65536*1000)
 typedef struct s_include_list {
 	char file[256];
 	struct s_include_list *next;
@@ -321,7 +303,7 @@ INCLUDELIST *header_list = NULL;
 
 static char *forward_slashes(char *a)
 {
-	static char buffer[1024];
+	static char buffer[MAXPATHNAMELEN];
 	char *b=buffer;
 	while (*a!='\0' && b<buffer+sizeof(buffer))
 	{
@@ -383,7 +365,7 @@ static void filename_parts(char *fullname, char *path, char *name, char *ext)
 
 static int append_init(const char* format,...)
 {
-	static char code[1024];
+	static char code[MAXCODEBLOCKSIZE];
 	va_list ptr;
 	va_start(ptr,format);
 	vsprintf(code,format,ptr);
@@ -406,7 +388,7 @@ static int append_init(const char* format,...)
 }
 static int append_code(const char* format,...)
 {
-	static char code[65536];
+	static char code[MAXCODEBLOCKSIZE];
 	va_list ptr;
 	va_start(ptr,format);
 	vsprintf(code,format,ptr);
@@ -455,7 +437,7 @@ static void mark_linex(const char *filename, int linenum)
 	char buffer[64];
 	if (global_getvar("noglmrefs",buffer, 63)==NULL)
 	{
-		char fname[1024];
+		char fname[MAXPATHNAMELEN];
 		strcpy(fname,filename);
 		append_code("#line %d \"%s\"\n", linenum, forward_slashes(fname));
 	}
@@ -761,7 +743,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				|| write_file(fp,"extern \"C\" CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])\n"
 					"{\n"
 					"\tcallback=fntable;\n"
-					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\"));\n"
+					"\tmyclass=(CLASS*)((*(callback->class_getname))(\"%s\",NULL));\n"
 					"\tif (!myclass) return NULL;\n"
 					"\tif (!setup_class(myclass)) return NULL;\n"
 					"\treturn myclass;"
@@ -815,7 +797,8 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				}
 				if ( !global_debug_output )
 					unlink(cfile);
-
+				else
+					output_verbose("keeping %s for debugging",cfile);
 
 				/* link new runtime module */
 				IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
@@ -1078,17 +1061,25 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = object_find_by_id(item->by->id + (op[0]=='+'?+1:-1)*id);
 		if ( oclass == NULL || obj==NULL )
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
-				format_object(item->by), item->id);
-			return FAILED;
+			obj = object_find_name(item->id);
+			if ( obj == NULL )
+			{
+				output_error_raw("%s(%d): cannot resolve implicit reference from %s to %s", filename, item->line,
+					format_object(item->by), item->id);
+				return FAILED;
+			}
 		}
 	}
 	else if (sscanf(item->id,global_object_scan,classname,&id)==2)
 	{
 		obj = load_get_index(id);
+		if ( obj == NULL )
+		{
+			obj = object_find_name(item->id);
+		}
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve explicit reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
@@ -1105,7 +1096,7 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = get_next_unlinked(oclass);
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve last reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
@@ -1264,9 +1255,9 @@ void start_parse(int &mm, int &m, int &n, int &l, int linenum)
 #define HERE (_p+_m)
 #define OR {_m=0;}
 #define REJECT { linenum=_l; return 0; }
-//#define WHITE (_m+=white(HERE))
 #define WHITE (TERM(white(HERE)))
 #define LITERAL(X) (_mm=literal(HERE,(X)),_m+=_mm,_mm>0)
+#define PEEK(C) (_p[_m]==(C))
 #define TERM(X) (_mm=(X),_m+=_mm,_mm>0)
 #define COPY(X) {size--; (X)[_n++]=*_p++;}
 #define DONE return _n;
@@ -1490,6 +1481,56 @@ static int structured_value(PARSER, char *result, int size)
 	result[_n]='\0';
 	return (int)(_p - start);
 }
+
+static int multiline_value(PARSER,char *result,int size)
+{
+	const char *start = _p;
+	const char *end = strstr(_p,"\"\"\"");
+	if ( end == NULL )
+	{
+		output_error_raw("%s(%d): unterminated multi-line value ('\"\"\"' not found)",filename,linenum);
+		return 0;
+	}
+
+	std::string value("");
+	for ( ; _p < end ; _p++)
+	{
+		const char *esc = strchr(_p,'\\');
+		if ( esc == NULL )
+		{
+			value += std::string(_p,end-_p);
+			break;
+		}
+		if ( esc > _p )
+		{
+			std::string fragment(_p,esc-_p);
+			value = value + fragment;
+		}
+		switch ( esc[1] ) {
+		case 'n':
+			value += std::string("\n");
+			break;
+		case 't':
+			value += std::string("\t");
+			break;
+		default:
+			break;
+		}
+		_p = esc+1;
+	}
+	int len = value.length();
+	if ( len < size )
+	{
+		strcpy(result,value.c_str());
+		return (int)(end-start);
+	}
+	else
+	{
+		output_error_raw("%s(%d): multi-line value too long for loader buffer (len %d > size %d)",filename,linenum,len,size);
+		return 0;
+	}
+}
+
 static int value(PARSER, char *result, int size)
 {
 	/* everything to a semicolon */
@@ -1497,9 +1538,16 @@ static int value(PARSER, char *result, int size)
 	const char *start=_p;
 	int quote=0;
 	START;
-	if ( *_p=='{' ) 
+	if ( strncmp(_p,"\"\"\"",3) == 0 )
+	{
+		int len = multiline_value(_p+3,result,size);
+		return len > 0 ? (len+6) : 0;
+	}
+	else if ( *_p == '{' ) 
+	{
 		return structured_value(_p,result,size);
-	while (size>1 && *_p!='\0' && !(*_p==delim && quote == 0) && *_p!='\n') 
+	}
+	while ( size > 1 && *_p != '\0' && !(*_p==delim && quote == 0) && *_p != '\n' ) 
 	{
 		if ( _p[0]=='\\' && _p[1]!='\0' )
 		{
@@ -1512,11 +1560,15 @@ static int value(PARSER, char *result, int size)
 			quote = (1+quote) % 2;
 		}
 		else
+		{
 			COPY(result);
+		}
 	}
 	result[_n]='\0';
-	if (quote&1)
+	if ( quote&1 )
+	{
 		output_warning("%s(%d): missing closing double quote", filename, linenum);
+	}
 	return (int)(_p - start);
 }
 
@@ -1855,6 +1907,18 @@ struct s_rpn {
 	double val; // if op = 0, check val
 };
 
+double pos(double a)
+{
+	return a > 0.0 ? a : 0.0;
+}
+double neg(double a)
+{
+	return a < 0.0 ? -a : 0.0;
+}
+double nonzero(double a)
+{
+	return a != 0.0;
+}
 struct s_rpn_func {
 	const char *name;
 	int args; /* use a mode instead? else assume only doubles */
@@ -1874,7 +1938,10 @@ struct s_rpn_func {
 	{"log", 1, -10, log},
 	{"log10", 1, -11, log10},
 	{"floor", 1, -12, floor},
-	{"ceil", 1, -13, ceil}
+	{"ceil", 1, -13, ceil},
+	{"pos", 1, -14, pos}, // returns only positive values
+	{"neg", 1, -15, neg}, // returns only positive values
+	{"nonzero", 1, -16, nonzero}, // returns 1 if nonzero
 };
 
 static int rpnfunc(PARSER, int *val)
@@ -2357,6 +2424,26 @@ static int time_value_datetimezone(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
+static int time_value_isodatetime(PARSER, TIMESTAMP *t)
+{
+	START;
+	if WHITE ACCEPT;
+	char timevalue[1024];
+	if (LITERAL("\"") && TERM(delim_value(HERE,timevalue,sizeof(timevalue),"\"")) && LITERAL("\"") )
+	{
+		*t = convert_to_timestamp(timevalue);
+		if (*t!=-1) 
+		{
+			ACCEPT;
+		}
+		else
+			REJECT;
+	}
+	else
+		REJECT;
+	DONE;
+}
+
 static int time_value(PARSER, TIMESTAMP *t)
 {
 	START;
@@ -2373,8 +2460,13 @@ static int time_value(PARSER, TIMESTAMP *t)
 	OR
 	if (TERM(time_value_datetimezone(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
 	OR
+	if (TERM(time_value_isodatetime(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
+	OR
 	if (TERM(integer(HERE,t)) && (WHITE,LITERAL(";"))) {ACCEPT; DONE; }
-	else REJECT;
+	else 
+	{
+		REJECT;
+	}
 	DONE;
 }
 
@@ -2859,7 +2951,7 @@ static int module_properties(PARSER, MODULE *mod)
 			if WHITE ACCEPT;
 			if LITERAL(";")
 			{
-				if (module_setvar(mod,propname,propvalue)>0)
+				if (module_setvar(mod,propname,(const char*)propvalue)>0)
 				{
 					ACCEPT;
 					goto Next;
@@ -3030,7 +3122,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "presync";
-		oclass->passconfig |= PC_PRETOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_PRETOPDOWN);
 		*function |= FN_PRESYNC;
 		ACCEPT;
 	}
@@ -3038,7 +3130,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "sync";
-		oclass->passconfig |= PC_BOTTOMUP;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_BOTTOMUP);
 		*function |= FN_SYNC;
 		ACCEPT;
 	}
@@ -3046,7 +3138,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	{
 		*ftype = "TIMESTAMP";
 		*fname = "postsync";
-		oclass->passconfig |= PC_POSTTOPDOWN;
+		oclass->passconfig = PASSCONFIG(oclass->passconfig|PC_POSTTOPDOWN);
 		*function |= FN_POSTSYNC;
 		ACCEPT;
 	}
@@ -3577,7 +3669,7 @@ static int class_block(PARSER)
 				oclass = class_get_class_from_classname(classname);
 				if (oclass==NULL)
 				{
-					oclass = class_register(NULL,classname,0,0x00);
+					oclass = class_register(NULL,classname,0,PC_NOSYNC);
 					mark_line();
 					switch (inherit) {
 					case NONE:
@@ -3892,7 +3984,11 @@ static int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size
 	START;
 	if ( TERM(name(HERE,fncname,sizeof(fncname))) && (WHITE,LITERAL("(")) && (WHITE,TERM(property_list(HERE,varlist,sizeof(varlist)))) && LITERAL(")") )
 	{
-		if ( strlen(fncname)<namesize && strlen(varlist)<srcsize )
+		if ( transform_find_filter(fncname) == NULL )
+		{
+			REJECT;
+		}
+		else if ( strlen(fncname)<namesize && strlen(varlist)<srcsize )
 		{
 			strcpy(filtername,fncname);
 			strcpy(sources,varlist);
@@ -4008,6 +4104,165 @@ char *makecopy(char *s)
 	strcpy(copy,s);
 	return copy;
 }
+
+static void json_free(JSONDATA **data)
+{
+	if ( data==NULL || *data == NULL )
+		return;
+	json_free(&((*data)->next));
+	free((void*)(*data)->name);
+	free((void*)(*data)->value);
+	free((void*)(*data));
+	*data = NULL;
+}
+static bool json_append(JSONDATA **data, const char *name, size_t namelen, const char *value, size_t valuelen)
+{
+	JSONDATA *next = (JSONDATA*)malloc(sizeof(JSONDATA));
+	if ( next == NULL )
+	{
+		output_error("json_append() memory allocation failed");
+		return false;
+	}
+	next->next = *data;
+	next->name = strndup(name,namelen);
+	if ( next->name == NULL )
+	{
+		output_error("json_append() memory allocation failed");
+		free(next);
+		return false;
+	}
+	next->value = strndup(value,valuelen);
+	if ( next->value == NULL )
+	{
+		output_error("json_append() memory allocation failed");
+		free((void*)(next->name));
+		free(next);
+		return false;
+	}
+	*data = next;
+	output_debug("json_append(name='%s',value='%s')",next->name,next->value);
+	return true;
+}
+static int json_data(PARSER,JSONDATA **data)
+{
+	// this parser is for simple json "dict" data only
+	// and will not accept json lists or nested data
+	enum {BEGIN, OPEN, NAME, BNAME, QNAME, COLON, VALUE, BVALUE, QVALUE, CLOSE, END, ERROR} state;
+	const char *name = NULL, *value = NULL;
+	size_t namelen = 0, valuelen = 0;
+	START;
+	WHITE;
+	if ( PEEK('{') )
+	{
+		for ( state = BEGIN ; state != END ; _m++ )
+		{
+			char c = *HERE;
+			if ( state == BEGIN )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == '{' ) { state = OPEN; continue; }
+				state = ERROR; break;
+			}
+			else if ( state == OPEN )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == '"' ) { name = HERE + 1; namelen = 0; state = QNAME; continue; }
+				if ( c == '}' ) { state = END; continue; }
+				name = HERE; namelen = 1; state = BNAME; continue;
+			}
+			else if ( state == BNAME )
+			{
+				if ( isspace(c) ) { state = COLON; continue; }
+				if ( c == ':' ) {state = VALUE; continue; }
+				namelen++;
+				continue;
+			}
+			else if ( state == QNAME )
+			{
+				// TODO: handle escape
+				if ( c == '"' ) { state = COLON; continue; }
+				namelen++;
+				continue;
+			}
+			else if ( state == COLON )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == ':' ) { state = VALUE; continue; }
+				state = ERROR; break;
+			}
+			else if ( state == VALUE )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == '"' ) { value = HERE+1; valuelen = 0; state = QVALUE; continue; }
+				state = BVALUE; value = HERE; valuelen = 1; continue;
+			}
+			else if ( state == BVALUE )
+			{ 
+				if ( isspace(c) ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = CLOSE; continue; }
+				if ( c == ';' || c == ',' ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = OPEN; continue; }
+				if ( c == '}' ) { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = END; continue; }
+				valuelen++;
+				continue;
+			}
+			else if ( state == QVALUE )
+			{
+				// TODO: handle escape
+				if ( c == '"') { if ( !json_append(data,name,namelen,value,valuelen) ) break; state = CLOSE; continue; }
+				valuelen++;
+				continue;
+			}
+			else if ( state == CLOSE )
+			{
+				if ( isspace(c) ) { continue; }
+				if ( c == ';' ) { state = OPEN; continue; }
+				if ( c == '}' ) { state = END; continue; }
+			}
+			else
+			{
+				// state is invalid
+				break;
+			}
+		}
+		if ( state == END ) 
+		{
+			ACCEPT;
+		}
+		else 
+		{
+			output_error_raw("%s(%d): JSON parse error at or near '%20s...'",filename,linenum,HERE);
+			json_free(data);
+			REJECT;
+		}
+	}
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
+
+static int json_block(PARSER, OBJECT *obj, const char *propname)
+{
+	JSONDATA *data = NULL;
+	START;
+	if ( TERM(json_data(HERE,&data)) )
+	{
+		if ( object_set_json(obj,propname,data) )
+		{
+			ACCEPT;
+		}
+		else
+		{
+			output_error_raw("%s(%d): JSON set failed",filename,linenum);
+			REJECT;
+		}
+	}
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
 static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
@@ -4059,6 +4314,10 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				output_error_raw("%s(%d): unable to parse value for load method '%s/%s::%s'", filename, linenum, obj->oclass->module->name,obj->oclass->name,propname);
 				REJECT;
 			}
+		}
+		else if (TERM(json_block(HERE,obj,propname)))
+		{
+			ACCEPT;
 		}
 		else {
 			PROPERTY *prop = class_find_property(oclass,propname);
@@ -4133,7 +4392,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_complex_by_name(obj,propname,cval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to complex value '%g%+gi'", filename, linenum, propname, format_object(obj), cval.Re(), cval.Im());
+					output_error_raw("%s(%d): complex property %s of %s %s could not be set to complex value '%g%+gi'", filename, linenum, propname, format_object(obj), cval.Re(), cval.Im());
 					REJECT;
 				}
 				else
@@ -4148,7 +4407,22 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
+					output_error_raw("%s(%d): double property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
+					REJECT;
+				}
+				else
+					ACCEPT;
+			}
+			else if (prop!=NULL && prop->ptype==PT_bool && TERM(expression(HERE, &dval, &unit, obj)))
+			{
+				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
+				{
+					output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
+					REJECT;
+				}
+				else if (object_set_value_by_name(obj,propname,dval>0?"TRUE":"FALSE")==0)
+				{
+					output_error_raw("%s(%d): double property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
 					REJECT;
 				}
 				else
@@ -4163,7 +4437,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					output_error_raw("%s(%d): property %s of %s %s could not be set to double value '%g' having unit '%s'", filename, linenum, propname, format_object(obj), dval, unit->name);
+					output_error_raw("%s(%d): double property %s of %s %s could not be set to double value '%g' having unit '%s'", filename, linenum, propname, format_object(obj), dval, unit->name);
 					REJECT;
 				}
 				else
@@ -4198,7 +4472,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							REJECT;
 					} /* end switch */
 					if(rv == 0){
-						output_error_raw("%s(%d): property %s of %s %s could not be set to integer '%lld'", filename, linenum, propname, format_object(obj), ival);
+						output_error_raw("%s(%d): int property %s of %s %s could not be set to integer '%lld'", filename, linenum, propname, format_object(obj), ival);
 						REJECT;
 					} else {
 						ACCEPT;
@@ -4237,55 +4511,12 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
-			{
-				// TODO handle more than one source
-				char sobj[64], sprop[64];
-				int n = sscanf(sources,"%[^.].%[^,]",sobj,sprop);
-				OBJECT *source_obj;
-				PROPERTY *source_prop;
-
-				/* get source object */
-				source_obj = (n==1||strcmp(sobj,"this")==0) ? obj : object_find_name(sobj);
-				if ( !source_obj )
-				{
-					output_error_raw("%s(%d): transform source object '%s' not found", filename, linenum, n==1?"this":sobj);
-					REJECT;
-					DONE;
-				}
-
-				/* get source property */
-				source_prop = object_get_property(source_obj, n==1?sobj:sprop,NULL);
-				if ( !source_prop )
-				{
-					output_error_raw("%s(%d): transform source property '%s' of object '%s' not found", filename, linenum, n==1?sobj:sprop, n==1?"this":sobj);
-					REJECT;
-					DONE;
-				}
-
-				/* add to external transform list */
-				if ( !transform_add_external(obj,prop,transformname,source_obj,source_prop) )
-				{
-					output_error_raw("%s(%d): external transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
-					REJECT;
-					DONE;
-				}
-				else if ( source!=NULL )
-				{
-					/* a transform is unresolved */
-					if (first_unresolved==source)
-
-						/* source was the unresolved entry, for now it will be the transform itself */
-						first_unresolved->ref = (void*)transform_getnext(NULL);
-
-					ACCEPT;
-				}
-			}
 			else if (prop!=NULL && prop->ptype==PT_double && TERM(filter_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
-				int n = sscanf(sources,"%[^:]:%[^,]",sobj,sprop);
+
+				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
 				OBJECT *source_obj;
 				PROPERTY *source_prop;
 
@@ -4311,6 +4542,50 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				if ( !transform_add_filter(obj,prop,transformname,source_obj,source_prop) )
 				{
 					output_error_raw("%s(%d): filter transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
+					REJECT;
+					DONE;
+				}
+				else if ( source!=NULL )
+				{
+					/* a transform is unresolved */
+					if (first_unresolved==source)
+
+						/* source was the unresolved entry, for now it will be the transform itself */
+						first_unresolved->ref = (void*)transform_getnext(NULL);
+
+					ACCEPT;
+				}
+			}
+			else if (prop!=NULL && prop->ptype==PT_double && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
+			{
+				// TODO handle more than one source
+				char sobj[64], sprop[64];
+				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
+				OBJECT *source_obj;
+				PROPERTY *source_prop;
+
+				/* get source object */
+				source_obj = (n==1||strcmp(sobj,"this")==0) ? obj : object_find_name(sobj);
+				if ( !source_obj )
+				{
+					output_error_raw("%s(%d): transform source object '%s' not found", filename, linenum, n==1?"this":sobj);
+					REJECT;
+					DONE;
+				}
+
+				/* get source property */
+				source_prop = object_get_property(source_obj, n==1?sobj:sprop,NULL);
+				if ( !source_prop )
+				{
+					output_error_raw("%s(%d): transform source property '%s' of object '%s' not found", filename, linenum, n==1?sobj:sprop, n==1?"this":sobj);
+					REJECT;
+					DONE;
+				}
+
+				/* add to external transform list */
+				if ( !transform_add_external(obj,prop,transformname,source_obj,source_prop) )
+				{
+					output_error_raw("%s(%d): external transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
 					REJECT;
 					DONE;
 				}
@@ -4655,6 +4930,11 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 			output_error_raw("%s(%d): class '%s' is not known", filename, linenum, classname);
 			REJECT;
 		}
+		CLASS *aclass = class_get_class_from_classname(classname,oclass);
+		if ( aclass != NULL )
+		{
+			output_error_raw("%s(%d): class '%s' module reference is ambiguous (using '%s' instead of '%s')", filename, linenum, classname,oclass->module ? oclass->module->name : "runtime", aclass->module ? aclass->module->name : "runtime");
+		}
 		ACCEPT;
 	}
 	else
@@ -4933,8 +5213,10 @@ static int schedule(PARSER)
 			}
 			*p = '\0';
 		}
-		if (schedule_create(schedname, buffer))
+		SCHEDULE *sch = schedule_create(schedname, buffer);
+		if ( sch != NULL )
 		{
+			sch->flags |= SN_USERDEFINED;
 			ACCEPT;
 		}
 		else
@@ -7084,6 +7366,26 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
+	else if ( strncmp(line,MACRO "on_exit",8) == 0 )
+	{
+		int xc;
+		char cmd[1024];
+		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
+		{
+			output_error_raw("%s(%d): on_exit syntax error", filename,linenum);
+			return FALSE;
+		}
+		else if ( ! my_instance->add_on_exit(xc,cmd) )
+		{
+			output_error_raw("%s(%d): on_exit %d command '%s'", filename,linenum,xc,cmd);
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
 	else
 	{
 		char tmp[1024], *p;
@@ -7120,7 +7422,7 @@ STATUS loadall_glm(char *file) /**< a pointer to the first character in the file
 	{
 		modtime = stat.st_mtime;
 		fsize = stat.st_size;
-		buffer = (char*)malloc(BUFFERSIZE); /* lots of space */
+		buffer = (char*)malloc(MAXGLMSIZE); /* lots of space */
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	if (buffer==NULL)
@@ -7133,7 +7435,7 @@ STATUS loadall_glm(char *file) /**< a pointer to the first character in the file
 		p=buffer;
 
 	buffer[0] = '\0';
-	if (buffer_read(fp,buffer,file,BUFFERSIZE)==0)
+	if (buffer_read(fp,buffer,file,MAXGLMSIZE)==0)
 	{
 		fclose(fp);
 		goto Failed;

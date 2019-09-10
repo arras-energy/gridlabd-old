@@ -14,12 +14,7 @@
 
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-
-#include "office.h"
-#include "multizone.h"
+#include "commercial.h"
 
 CLASS *multizone::oclass = NULL;
 multizone *multizone::defaults = NULL;
@@ -60,7 +55,7 @@ int multizone::create(void)
 /* Object initialization is called once after all object have been created */
 int multizone::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	if (from==NULL)
 		gl_error("%s (multizone:%d): from zone is not specified", obj->name?obj->name:"unnamed",obj->id);
 	else if (!gl_object_isa(from,"office"))

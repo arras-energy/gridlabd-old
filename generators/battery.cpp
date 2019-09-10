@@ -7,17 +7,7 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-
-#include "energy_storage.h"
-#include "battery.h"
-#include "gridlabd.h"
-#include "power_electronics.h"
 
 #define HOUR 3600 * TS_SECOND
 
@@ -212,7 +202,7 @@ int battery::create(void)
 
 void battery::fetch_double(double **prop, const char *name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_double_by_name(parent, name);
 	if ( *prop == NULL )
 	{
@@ -234,7 +224,7 @@ void battery::fetch_double(double **prop, const char *name, OBJECT *parent)
 
 void battery::fetch_enumeration(enumeration **prop, const char *name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_enum_by_name(parent, name);
 	if ( *prop == NULL )
 	{
@@ -256,7 +246,7 @@ void battery::fetch_enumeration(enumeration **prop, const char *name, OBJECT *pa
 
 void battery::fetch_complex(complex **prop, const char *name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_complex_by_name(parent, name);
 	if ( *prop == NULL )
 	{
@@ -280,7 +270,7 @@ void battery::fetch_complex(complex **prop, const char *name, OBJECT *parent)
 /* Object initialization is called once after all object have been created */
 int battery::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	if ( parent != NULL )
 	{
@@ -554,7 +544,7 @@ int battery::init(OBJECT *parent)
 
 		if (gen_status_v == OFFLINE)
 		{
-			//OBJECT *obj = OBJECTHDR(this);
+			//OBJECT *obj = THISOBJECTHDR;
 			gl_warning("Generator (id:%d) is out of service!",obj->id);
 		}
 		else
@@ -847,7 +837,7 @@ TIMESTAMP battery::presync(TIMESTAMP t0, TIMESTAMP t1)
 TIMESTAMP battery::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//First run allocation
 	if (first_run == true)	//First run
@@ -2140,7 +2130,7 @@ TIMESTAMP battery::postsync(TIMESTAMP t0, TIMESTAMP t1)
 //Preupdate
 STATUS battery::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	// Battery delta mode operation is only when enableDelta is true
 	if (enableDelta == true) {

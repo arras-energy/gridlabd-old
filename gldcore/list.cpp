@@ -1,5 +1,6 @@
-/** $Id: list.c 4738 2014-07-03 00:55:39Z dchassin $
+/** list.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
+	
 	@file list.c
 	@addtogroup list List management routines
 	@ingroup core
@@ -7,11 +8,8 @@
 	Manage lists of objects in the rank indexes.
  @{
  **/
-#include <stdlib.h>
-#include <errno.h>
-#include "list.h"
-#include "output.h"
-#include "globals.h"
+
+#include "gldcore.h"
 
 // SET_MYCONTEXT(DMC_LIST) // used only when IN_MYCONTEXT is present in this module
 

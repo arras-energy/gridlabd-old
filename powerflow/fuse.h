@@ -4,11 +4,12 @@
  @{
  **/
 
-#ifndef FUSE_H
-#define FUSE_H
+#ifndef _FUSE_H
+#define _FUSE_H
 
-#include "powerflow.h"
-#include "link.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class fuse : public link_object
 {

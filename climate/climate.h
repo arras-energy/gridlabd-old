@@ -9,12 +9,15 @@
 #ifndef _CLIMATE_H
 #define _CLIMATE_H
 
-#include <stdarg.h>
+#include <iostream>
+#include <fstream>
+
 #include "gridlabd.h"
-#include "solar_angles.h"
-#include "weather_reader.h"
 #include "csv_reader.h"
-#include <vector>
+#include "solar_angles.h"
+#include "test.h"
+#include "weather.h"
+#include "weather_reader.h"
 
 typedef enum e_compass_ptr {
 	CP_H    = 0,
@@ -125,33 +128,7 @@ public:
 	 */
 	int next();
 
-	/**
-	 * Populate the given arguments with data from the tmy2 file header
-	 *
-	 * @param city
-	 * @param state
-	 * @param degrees latitude degrees
-	 * @param minutes latitude minutes
-	 * @param long_deg longitude degrees
-	 * @param long_min longitude minutes
-	 */
 	int header_info(char* city, char* state, int* degrees, int* minutes, int* long_deg, int* long_min);
-
-	/**
-	 * Populate the given arguments with data from the buffer.
-	 *
-	 * @param dnr - Direct Normal Radiation
-	 * @param dhr - Diffuse Horizontal Radiation
-	 * @param rh Relative Humidity
-	 * @param tdb - Dry Bulb Temperature
-	 * @param month - Month of the observation
-	 * @param day - Day of the observation
-	 * @param hour - hour of the observation
-	 * @param wind Wind speed (optional)
-	 *
-	 * @param pressure - atmospheric pressure
-	 * @param extra_terr_dni - Extra terrestrial direct normal irradiance (top of atmosphere)
-	 */
 	int read_data(double *dnr, double *dhr, double *ghr, double *tdb, double *rh, int* month, int* day, int* hour, double *wind=0, double *winddir=0, double *precip=0, double *snowDepth=0, double *pressure = 0, double *extra_terr_dni=0, double *extra_terr_ghi=0, double *tot_sky_cov=0, double *opq_sky_cov=0);
 
 	/** obtain records **/

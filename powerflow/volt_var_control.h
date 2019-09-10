@@ -4,9 +4,9 @@
 #ifndef _VOLT_VAR_CONTROL_H
 #define _VOLT_VAR_CONTROL_H
 
-#include "powerflow.h"
-#include "regulator.h"
-#include "capacitor.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 typedef enum {
 		STANDBY=0,		//CVVC is off
@@ -53,7 +53,7 @@ private:
 	VOLTVARSTATE prev_mode;						//Previous mode of Volt-VAr controller - used to transitions
 	link_object *substation_link;						//Object to obtain power-factor measurments
 	regulator **pRegulator_list;				//Regulators
-	regulator_configuration **pRegulator_configs;	//Regulator configurations
+	class regulator_configuration **pRegulator_configs;	//Regulator configurations
 	capacitor **pCapacitor_list;				//Capacitors to monitor
 	double *Capacitor_size;						//Size of various capacitors
 	double *minimum_voltage;					//Minimum allowable voltage of the system

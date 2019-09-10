@@ -7,23 +7,14 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
 #include "generators.h"
-#include "microturbine.h"
-#include "timestamp.h"
-
-
 
 #define HOUR 3600 * TS_SECOND
 
 CLASS *microturbine::oclass = NULL;
 microturbine *microturbine::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN;
+static PASSCONFIG passconfig = PASSCONFIG(PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN);
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */
@@ -251,7 +242,7 @@ int microturbine::init(OBJECT *parent)
 		/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
 		gl_verbose("microturbine init: mapped meter objects to internal variables");
 
-		OBJECT *obj = OBJECTHDR(this);
+		OBJECT *obj = THISOBJECTHDR;
 		gl_verbose("microturbine init: no parent meter defined, parent is not a meter");
 		gl_warning("microturbine:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
 
@@ -281,7 +272,7 @@ int microturbine::init(OBJECT *parent)
 	}
 		if (gen_status_v==0)
 	{
-		//OBJECT *obj = OBJECTHDR(this);
+		//OBJECT *obj = THISOBJECTHDR;
 		throw("Generator is out of service!");
 	}else
 		{

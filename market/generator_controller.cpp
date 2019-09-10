@@ -163,7 +163,7 @@ int generator_controller::create(void)
 
 int generator_controller::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	PROPERTY *ptemp;
 	set *temp_set;
 	int index;
@@ -662,7 +662,7 @@ int generator_controller::init(OBJECT *parent)
 
 TIMESTAMP generator_controller::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int index;
 	double per_phase_power, per_phase_old_power, shutdown_cost_temp, prev_section_power, prev_section_price, temp_time_var, temp_power_value;
 	char mktname[1024];
@@ -1951,9 +1951,9 @@ EXPORT int init_generator_controller(OBJECT *obj, OBJECT *parent)
 * Sync is called when the clock needs to advance
 *
 * @param obj the object we are sync'ing
-* @param t0 this objects current timestamp
+* @param t1 this objects current timestamp
 * @param pass the current pass for this sync call
-* @return t1, where t1>t0 on success, t1=t0 for retry, t1<t0 on failure
+* @return t2, where t2>t1 on success, t2==t1 for retry, t2<t1 on failure
 */
 EXPORT TIMESTAMP sync_generator_controller(OBJECT *obj, TIMESTAMP t1, PASSCONFIG pass)
 {

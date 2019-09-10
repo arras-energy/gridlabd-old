@@ -100,6 +100,7 @@ module powerflow {
 	solver_method NR;
 	line_capacitance true;
 	convergence_error_handling IGNORE;
+	solver_profile_enable true;
 }
 
 #ifdef SOLAR

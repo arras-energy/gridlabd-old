@@ -8,8 +8,9 @@
 #ifndef SERIES_REACTOR_H
 #define SERIES_REACTOR_H
 
-#include "powerflow.h"
-#include "link.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class series_reactor : public link_object
 {

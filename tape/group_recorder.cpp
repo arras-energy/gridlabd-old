@@ -5,7 +5,7 @@ CLASS *group_recorder::oclass = NULL;
 CLASS *group_recorder::pclass = NULL;
 group_recorder *group_recorder::defaults = NULL;
 
-CDECL void new_group_recorder(MODULE *mod)
+void new_group_recorder(MODULE *mod)
 {
 	new group_recorder(mod);
 }
@@ -31,7 +31,7 @@ group_recorder::group_recorder(MODULE *mod){
 			PT_int32, "limit", PADDR(limit), PT_DESCRIPTION, "the maximum number of lines to write to the file",
             PT_bool, "format", PADDR(format), PT_DESCRIPTION, "determines whether output timestamp is formatted to be formatted as human-readable (default) or epoch",
 			PT_enumeration, "complex_part", PADDR(complex_part), PT_DESCRIPTION, "the complex part to record if complex properties are gathered",
-				PT_KEYWORD, "NONE", NONE,
+				PT_KEYWORD, "NONE", CP_NONE,
 				PT_KEYWORD, "REAL", REAL,
 				PT_KEYWORD, "IMAG", IMAG,
 				PT_KEYWORD, "MAG", MAG,
@@ -57,7 +57,7 @@ int group_recorder::create(){
 
 int group_recorder::init(OBJECT *obj){
 	OBJECT *gr_obj = 0;
-	OBJECT *thisobj = OBJECTHDR(this);
+	OBJECT *thisobj = THISOBJECTHDR;
 	int retvalue;
 
 	// check for group
@@ -466,7 +466,7 @@ int group_recorder::read_line()
 	memset(line_buffer, 0, line_size);
 	for(curr = obj_list; curr != 0; curr = curr->next){
 		// GETADDR is a macro defined in object.h
-		if(curr->prop.ptype == PT_complex && complex_part != NONE){
+		if(curr->prop.ptype == PT_complex && complex_part != CP_NONE){
 			double part_value = 0.0;
 			complex *cptr = 0;
 			// get value as a complex
@@ -480,7 +480,7 @@ int group_recorder::read_line()
 			}
 			// switch on part
 			switch(complex_part){
-				case NONE:
+				case CP_NONE:
 					// didn't we test != NONE just a few lines ago?
 					gl_error("group_recorder::read_line(): inconsistant complex_part states!");
 					return 0;

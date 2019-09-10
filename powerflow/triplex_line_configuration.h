@@ -4,7 +4,9 @@
 #ifndef _TRIPLEXLINECONFIGURATION_H
 #define _TRIPLEXLINECONFIGURATION_H
 
-#include "line.h"
+#ifndef _POWERFLOW_H
+#error "this header must be included by powerflow.h"
+#endif
 
 class triplex_line_configuration : public line_configuration
 {

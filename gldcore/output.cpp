@@ -1,4 +1,4 @@
-/** $Id: output.c 4738 2014-07-03 00:55:39Z dchassin $
+/** output.cpp
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file output.c
 	@author David P. Chassin
@@ -24,23 +24,13 @@
 	- <b>Module messages</b> should be produced un the same guidelines as core messages, except that
 	fatal messages are not supported for modules.  However, the context should provide the object, if known
 	\code
-	 gl_error("office:%d occupancy_schedule '%s' day '%c' is invalid", OBJECTHDR(this)->id, block, *p);
+	 gl_error("office:%d occupancy_schedule '%s' day '%c' is invalid", THISOBJECTHDR->id, block, *p);
 	\endcode
 
 	@{
  **/
 
-#include <stdlib.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <errno.h>
-#include <string.h>
-#include "output.h"
-#include "globals.h"
-#include "exception.h"
-#include "lock.h"
-#include "module.h"
-#include "exec.h"
+#include "gldcore.h"
 
 SET_MYCONTEXT(DMC_STREAM)
 
