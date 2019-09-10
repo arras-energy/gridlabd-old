@@ -31,7 +31,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"char256", "string", "", sizeof(char256), 256, convert_from_char256,convert_to_char256,NULL,NULL,{TCOPS(string)},},
 	{"char1024", "string", "", sizeof(char1024), 1024, convert_from_char1024,convert_to_char1024,NULL,NULL,{TCOPS(string)},},
 	{"object", "string", NULL, sizeof(OBJECT*), 64, convert_from_object,convert_to_object,NULL,NULL,{TCOPB(object)},object_get_part,object_set_part},
-	{"delegated", "string", NULL, (unsigned int)-1, 0, convert_from_delegated, convert_to_delegated},
+	{"delegated", "string", NULL, PSZ_DYNAMIC, 0, convert_from_delegated, convert_to_delegated},
 	{"bool", "string", "FALSE", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,{TCOPB(bool)},},
 	{"timestamp", "string", "TS_ZERO", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,{TCOPS(uint64)},timestamp_get_part,timestamp_set_part},
 	{"double_array", "string", "", sizeof(double_array), 1024, convert_from_double_array, convert_to_double_array,double_array_create,NULL,{TCNONE},double_array_get_part,NULL},
@@ -41,8 +41,8 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, loadshape_create,NULL,{TCOPS(double)},},
 	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part,enduse_set_part},
 	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part},
-	{"method","string", NULL, 0, (unsigned int)-1, convert_from_method,convert_to_method},
-	{"string", "string", "", sizeof(STRING), (unsigned int)-1, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
+	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method},
+	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
 };
 
 PROPERTYTYPE property_getfirst_type(void)
@@ -231,7 +231,7 @@ int property_read(PROPERTY *prop, void *addr, const char *string)
 
 int property_write(PROPERTY *prop, void *addr, char *string, size_t size)
 {
-	if ( prop->ptype == PT_method && string == NULL )
+	if ( prop->ptype == PT_method && string == NULL ) // size inquiry
 	{
 		return property_type[prop->ptype].data_to_string(NULL,0,addr,prop);
 	}

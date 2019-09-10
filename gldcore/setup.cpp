@@ -35,7 +35,7 @@ static bool edit_bool(int row, int col, int len, PROPERTY *prop)
 static bool edit_in_place(int row, int col, int len, PROPERTY *prop)
 {
 	mvprintw(row,col-1,"[");
-	if ( prop->width>0 && prop->width<(size_t)len ) len=prop->width;
+	if ( prop->width>0 && prop->width<len ) len=prop->width;
 	if ( col+len>width-2 ) len = width-2-col;
 	mvprintw(row,col+len+1,"]");
 	int key;

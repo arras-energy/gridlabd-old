@@ -240,12 +240,17 @@ OBJECT *object_find_by_id(OBJECTNUM id){ /**< object id number */
 
 	@return a pointer to the object name string
  **/
-const char *object_name(OBJECT *obj, char *oname, int size){ /**< a pointer to the object */
-	//static char32 oname="(invalid)";
-	
-	convert_from_object(oname, size, &obj, NULL);
-	
-	return oname;
+const char *object_name(OBJECT *obj, /**< a pointer to the object */
+						char *oname=NULL, /**< buffer pointer, NULL to use static buffer */
+						int size=0) /**< buffer size */
+{ 
+	static char buffer[256]="";
+	if ( ! oname )
+	{
+		oname = buffer;
+		size = sizeof(buffer)-1;
+	}
+	return convert_from_object(oname,size,&obj,NULL) < 1 ? NULL : oname;
 }
 
 /** Get the unit of an object, if any
@@ -1920,14 +1925,31 @@ size_t object_save(char *buffer, size_t size, OBJECT *obj)
 int object_property_getsize(OBJECT *obj, PROPERTY *prop)
 {
 	// dynamic size
-	if ( prop->width == (unsigned int)-1 )
+	int len = prop->width;
+	IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}): prop->width = %d", object_name(obj), prop->name, len);
+	if ( len == PSZ_DYNAMIC )
 	{
-		return property_write(prop,(char*)(obj+1)+(int64_t)(prop->addr),NULL,0);
+		len = property_write(prop,(char*)(obj+1)+(int64_t)(prop->addr),NULL,0);
+		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_DYNAMIC => len = %d", object_name(obj), prop->name, len);
+	}
+	else if ( len == PSZ_AUTO )
+	{
+		// TODO: support general calls to underlying class implementing the property
+		std::string *str = (std::string*)(char*)(obj+1)+(int64_t)(prop->addr);
+		len = str->size()+1;
+		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_AUTO => len = %d", object_name(obj), prop->name, len);
+	}
+	if ( len < 0 )
+	{
+		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d => len = 0", object_name(obj), prop->name, len);
+		len = 0;
 	}
 	else
 	{
-		return prop->width;
+		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d", object_name(obj), prop->name, len);
 	}
+
+	return len;
 }
 
 /** Save all the objects in the model to the stream \p fp in the \p .GLM format
@@ -2034,12 +2056,12 @@ int object_saveall(FILE *fp) /**< the stream to write to */
                     {
 	                    char *buffer = new char[sz+2];
 	                    object_property_to_string(obj,prop->name,buffer,sz+1);
-	                    count += fprintf(fp,"\t%s \"\"\"\\\n%s\\\n\"\"\";", prop->name,buffer);
+	                    count += fprintf(fp,"\t%s \"\"\"%s\"\"\";\n", prop->name,buffer);
 	                    delete [] buffer;
 	                }
 	                else if ( sz == 0 )
 	                {
-	                	count += fprintf(fp,"\t%s \"\";",prop->name);
+	                	count += fprintf(fp,"\t%s \"\";\n",prop->name);
 	                }
 	                else
 	                {
