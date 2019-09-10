@@ -857,15 +857,20 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
     if ( ! PyArg_ParseTuple(args, "ss", &name, &value) )
         return NULL;
     char previous[1024]="";
+    PyObject *ret = NULL;
     WriteLock();
-    if ( ! global_getvar(name,previous,sizeof(previous)) )
-        return gridlabd_exception("unable to get old value of global '%s'",name);
-    STATUS result = global_setvar(name,value);
-    if ( result == FAILED )
+    if ( global_getvar(name,previous,sizeof(previous)) )
+    {
+        ret = Py_BuildValue("s",previous);
+    }
+    if ( global_setvar(name,value) == FAILED )
     {
         return gridlabd_exception("unable to set global '%s' to value '%s'",name,value);
     }
-    return Py_BuildValue("s",previous);
+    else
+    {
+        return ret ? ret : Py_None;
+    }
 }
 
 //
