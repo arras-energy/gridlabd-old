@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <errno.h>
 #include <math.h>
-#include <complex.h>
 
 #include "rbsa.h"
 
