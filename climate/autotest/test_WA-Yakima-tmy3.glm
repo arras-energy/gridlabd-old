@@ -79,7 +79,7 @@ object climate {
 		out '2006-10-31 03:59:00';
 		status ASSERT_TRUE;
 		value 3.1;
-		within 0.001;
+		within 0.01;
 	};
 	object double_assert {
 		target "wind_dir";

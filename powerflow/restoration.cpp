@@ -474,7 +474,7 @@ int restoration::PerformRestoration(int faulting_link)
 			//Make sure it was found
 			if (fault_check_fxn == NULL)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' not defined)", __FILE__, __LINE__);
 				//Defined somewhere else
 			}
 		}

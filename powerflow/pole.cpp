@@ -47,21 +47,48 @@ int pole::isa(char *classname)
 
 int pole::create(void)
 {
+	int res = node::create();
+
 	pole_status = PS_OK;
-	weather = NULL;
-	configuration = NULL;
 	tilt_angle = 0.0;
 	tilt_direction = 0.0;
+	weather = NULL;
+	configuration = NULL;
+	equipment_area = 0.0;
+	equipment_height = 0.0;
+
+	ice_thickness = 0.0;
+	resisting_moment = 0.0;
+	pole_moment = 0.0;
+	equipment_moment = 0.0;
+	equipment_moment_nowind = 0.0;
+	wire_load = 0.0;
+	wire_load_nowind = 0.0;
+	wire_moment = 0.0;
+	wire_moment_nowind = 0.0;
+	wind_pressure = 0.0;
+	wire_tension = 0.0;
+	pole_stress = 0.0;
+	susceptibility = 0.0;
+	total_moment = 0.0;
+	critical_wind_speed = 0.0;
+	configuration = NULL;
+	is_deadend = FALSE;
+
+	config = NULL;
+	last_wind_speed = 0.0;
 	wind_speed = NULL;
 	wind_direction = NULL;
 	wind_gust = NULL;
 	last_wind_speed = 0.0;
-	wire_data = NULL;
+	wire_data = new std::list<WIREDATA>;
+	down_time = TS_NEVER;
 	equipment_area = 0.0;
 	equipment_height = 0.0;
 	install_year = 0;
 	current_hollow_diameter = 0.0;
-	return node::create();
+
+	return res;
 }
 
 int pole::init(OBJECT *parent)
@@ -125,6 +152,13 @@ int pole::init(OBJECT *parent)
 		return 0;
 	}
 
+	// calculation resisting moment
+	resisting_moment = 0.008186 
+		* config->strength_factor_250b_wood 
+		* config->fiber_strength
+		* ( config->ground_diameter * config->ground_diameter * config->ground_diameter);
+	gl_verbose("resisting moment %.0f ft*lb",resisting_moment);
+
 	// collect wire data
 	static FINDLIST *all_ohls = NULL;
 	if ( all_ohls == NULL )
@@ -140,50 +174,50 @@ int pole::init(OBJECT *parent)
 			line_configuration *line_config = OBJECTDATA(line->configuration,line_configuration);
 			if ( line_config == NULL )
 			{
-				warning("line %s has no line configuration--skipping",line->get_name());
+				gl_warning("line %s has no line configuration--skipping",line->get_name());
 				break;
 			}
 			line_spacing *spacing = OBJECTDATA(line_config->line_spacing,line_spacing);
 			if ( spacing == NULL )
 			{
-				warning("line configure %s has no line spacing data--skipping",line_config->get_name());
+				gl_warning("line configure %s has no line spacing data--skipping",line_config->get_name());
 				break;
 			}
+			if ( line->length == 0.0 )
+				gl_warning("wire has no length--wire moment will not be calculated");
 			overhead_line_conductor *phaseA = OBJECTDATA(line_config->phaseA_conductor,overhead_line_conductor);
 			if ( phaseA != NULL )
-				add_wire(spacing->distance_AtoE,phaseA->cable_diameter,0.0,4430,line->length/2);
+				add_wire(line,spacing->distance_AtoE,phaseA->cable_diameter,0.0,4430,line->length/2);
 			overhead_line_conductor *phaseB = OBJECTDATA(line_config->phaseB_conductor,overhead_line_conductor);
 			if ( phaseB != NULL )
-				add_wire(spacing->distance_BtoE,phaseB->cable_diameter,0.0,4430,line->length/2);
+				add_wire(line,spacing->distance_BtoE,phaseB->cable_diameter,0.0,4430,line->length/2);
 			overhead_line_conductor *phaseC = OBJECTDATA(line_config->phaseC_conductor,overhead_line_conductor);
 			if ( phaseC != NULL )
-				add_wire(spacing->distance_CtoE,phaseC->cable_diameter,0.0,4430,line->length/2);
+				add_wire(line,spacing->distance_CtoE,phaseC->cable_diameter,0.0,4430,line->length/2);
 			overhead_line_conductor *phaseN = OBJECTDATA(line_config->phaseN_conductor,overhead_line_conductor);
 			if ( phaseN != NULL )
-				add_wire(spacing->distance_NtoE,phaseN->cable_diameter,0.0,2190,line->length/2);
-			verbose("found link %s",(const char*)(line->get_name()));
+				add_wire(line,spacing->distance_NtoE,phaseN->cable_diameter,0.0,2190,line->length/2);
+			gl_verbose("found link %s",(const char*)(line->get_name()));
 		}
 	}
 	if ( wire_data == NULL )
 	{
-		warning("no wire data found--wire loading is not included");
+		gl_warning("no wire data found--wire loading is not included");
 	}
 	is_deadend = ( n_lines < 2 );
 
-	WIREDATA *wire;
 	wire_load = 0.0;
 	wire_moment = 0.0;
 	wire_tension = 0.0;
 	wire_load_nowind = 0.0;
 	wire_moment_nowind = 0.0;
 	double pole_height = config->pole_length - config->pole_depth;
-	for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
-		{
-			double load_nowind = (wire->diameter+2*ice_thickness)/12;
-			wire_load_nowind += load_nowind;
-			wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
-
-		}
+	for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
+	{
+		double load_nowind = (wire->diameter+2*ice_thickness)/12;
+		wire_load_nowind += load_nowind;
+		wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
+	}
 
 	pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 	equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
@@ -223,7 +257,11 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 
 	if ( pole_status == PS_FAILED && down_time+config->repair_time >= gl_globalclock )
 	{
-		warning("pole repaired, down time %.0f, repair_time %.0f, gl_globalclock %.0f", down_time, config->repair_time, gl_globalclock);
+		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
+		{
+			wire->line->link_fault_off(&wire->fault,wire->fault_type,&wire->data);
+		}
+		gl_warning("pole repaired");
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
 		pole_status = PS_OK;
@@ -240,11 +278,10 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		pole_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		equipment_moment = wind_pressure * equipment_area * equipment_height * config->overload_factor_transverse_general;
 
-		WIREDATA *wire;
 		wire_load = 0.0;
 		wire_moment = 0.0;
 		wire_tension = 0.0;	
-		for ( wire = get_first_wire() ; wire != NULL ; wire = get_next_wire(wire) )
+		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 		{
 			double load = wind_pressure * (wire->diameter+2*ice_thickness)/12;
 			wire_load += load;
@@ -259,16 +296,25 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 			susceptibility = 2*(pole_moment+equipment_moment+wire_moment)/resisting_moment/(*wind_speed)/(0.00256)/(2.24);
 		else
 			susceptibility = 0.0;
-		verbose("wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, margin %.0f%%", (const char*)(dt.get_string()), wind_pressure, pole_moment, equipment_moment, wire_moment, pole_stress*100);
+		gl_verbose("%s: wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, stress %.0f%%", 
+			(const char*)(dt.get_string()), wind_pressure, pole_moment, equipment_moment, wire_moment, pole_stress*100);
 		pole_status = ( pole_stress < 1.0 ? PS_OK : PS_FAILED );
 		if ( pole_status == PS_FAILED )
 		{
-			warning("pole failed at %.0f%% loading",total_moment/resisting_moment*100);
+			gl_warning("pole failed at %.0f%% loading",pole_stress*100);
 			down_time = gl_globalclock;
-			
+			for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
+			{
+				wire->repair = config->repair_time;
+				wire->line->link_fault_on(&wire->protection,wire->fault_type,&wire->fault,&wire->repair,&wire->data);
+			}
 		}
 		last_wind_speed = *wind_speed;
 
+		pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
+		equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
+		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
+		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}
 	
 	TIMESTAMP t1 = node::presync(t0);
@@ -288,28 +334,31 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
 
 EXPORT int create_pole(OBJECT **obj, OBJECT *parent)
 {
-       try
+   try
+    {
+        *obj = gl_create_object(pole::oclass);
+        if (*obj!=NULL)
         {
-                *obj = gl_create_object(pole::oclass);
-                if (*obj!=NULL)
-                {
-                        pole *my = OBJECTDATA(*obj,pole);
-                        gl_set_parent(*obj,parent);
-                        return my->create();
-                }
-                else
-                        return 0;
+            pole *my = OBJECTDATA(*obj,pole);
+            gl_set_parent(*obj,parent);
+            return my->create();
         }
-        CREATE_CATCHALL(pole);
+        else
+        {
+            return 0;
+        }
+    }
+    CREATE_CATCHALL(pole);
 }
 
 EXPORT int init_pole(OBJECT *obj)
 {
-        try {
-                pole *my = OBJECTDATA(obj,pole);
-                return my->init(obj->parent);
-        }
-        INIT_CATCHALL(pole);
+    try 
+    {
+        pole *my = OBJECTDATA(obj,pole);
+        return my->init(obj->parent);
+    }
+    INIT_CATCHALL(pole);
 }
 
 EXPORT int isa_pole(OBJECT *obj, char *classname)
@@ -322,7 +371,8 @@ EXPORT TIMESTAMP sync_pole(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	try {
 		pole *pObj = OBJECTDATA(obj,pole);
 		TIMESTAMP t1 = TS_NEVER;
-		switch ( pass ) {
+		switch ( pass ) 
+		{
 		case PC_PRETOPDOWN:
 			return pObj->presync(t0);
 		case PC_BOTTOMUP:

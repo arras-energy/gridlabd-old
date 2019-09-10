@@ -8,29 +8,40 @@
 #error "this header must be included by powerflow.h"
 #endif
 
+#include <list>
+
+typedef struct s_wiredata {
+	overhead_line *line; // overhead line object
+	double height; // height of wire
+	double diameter; // diameter of wire
+	double heading; // direction of wire from pole
+	double tension; // tension on wire
+	double span; // distance wire spans
+	OBJECT *protection; // protection object selected by fault
+	int fault; // fault code
+	char fault_type[8]; // fault name
+	TIMESTAMP repair; // fault repair time
+	char data[32]; // extra data space
+} WIREDATA;
 class pole : public node
 {
 public:
-	typedef struct s_wiredata {
-		double height;
-		double diameter;
-		double heading;
-		double tension;
-		double span;
-		struct s_wiredata *next;
-	} WIREDATA;
-	inline void add_wire(double height, double diameter, double heading, double tension, double span) {
+	inline void add_wire(overhead_line *line, double height, double diameter, double heading, double tension, double span) {
 		WIREDATA *item = new WIREDATA;
+		item->line = line;
 		item->height = height;
 		item->diameter = diameter;
 		item->heading = heading;
 		item->tension = tension;
 		item->span = span;
-		item->next = wire_data;
-		wire_data = item;
+		item->protection = NULL;
+		item->fault = 0;
+		memset(item->fault_type,0,sizeof(item->fault_type));
+		strcpy(item->fault_type,"TLL");
+		item->repair = TS_NEVER;
+		memset(item->data,0,sizeof(item->data));
+		wire_data->push_back(*item);
 	};
-	inline WIREDATA *get_next_wire(WIREDATA *wire) { return wire->next;};
-	inline WIREDATA *get_first_wire(void) { return wire_data;};
 public:
 	static CLASS *oclass;
 	static CLASS *pclass;
@@ -74,7 +85,7 @@ private:
 	double *wind_speed;
 	double *wind_direction;
 	double *wind_gust;
-	WIREDATA *wire_data;
+	std::list<WIREDATA> *wire_data;
 	TIMESTAMP down_time;
 public:
 	pole(MODULE *);

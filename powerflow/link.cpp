@@ -7648,7 +7648,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			//Make sure it was found
 			if (funadd == NULL)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' not defined)", __FILE__, __LINE__);
 				/*  TROUBLESHOOT
 				While attempting to update the powerflow to properly represent the new post-fault state, an error
 				occurred.  If the problem persists, please submit a bug report and your code to the trac website.
@@ -7681,7 +7681,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			//Make sure it worked
 			if (ext_result != 1)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' call failed - ext_result=%d)", __FILE__, __LINE__, ext_result);
 				//defined above
 			}
 
@@ -10456,7 +10456,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			//Make sure it was found
 			if (funadd == NULL)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' not defined)", __FILE__, __LINE__);
 				/*  TROUBLESHOOT
 				While attempting to update the powerflow to properly represent the new post-fault state, an error
 				occurred.  If the problem persists, please submit a bug report and your code to the trac website.
@@ -10489,7 +10489,7 @@ int link_object::link_fault_on(OBJECT **protect_obj, const char *fault_type, int
 			//Make sure it worked
 			if (ext_result != 1)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' failed -- ext_result=%d)", __FILE__, __LINE__,ext_result);
 				//defined above
 			}
 
@@ -11491,7 +11491,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			//Make sure it was found
 			if (funadd == NULL)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' not defined)", __FILE__, __LINE__);
 				//Defined above
 			}
 
@@ -11512,7 +11512,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			//Make sure it worked
 			if (ext_result != 1)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' failed - ext_result=%d)", __FILE__, __LINE__,ext_result);
 				//defined above
 			}
 
@@ -12422,7 +12422,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			//Make sure it was found
 			if (funadd == NULL)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' not defined)", __FILE__, __LINE__);
 				//Defined above
 			}
 
@@ -12443,7 +12443,7 @@ int link_object::link_fault_off(int *implemented_fault, char *imp_fault_name, vo
 			//Make sure it worked
 			if (ext_result != 1)
 			{
-				GL_THROW("Unable to update objects for reliability effects");
+				GL_THROW("[%s:%d] unable to update objects for reliability effects (function 'reliability_alterations' failed -- ext_result=%d)", __FILE__, __LINE__, ext_result);
 				//defined above
 			}
 

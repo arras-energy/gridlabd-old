@@ -82,6 +82,7 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 
 int pole_configuration::create(void)
 {
+	pole_type = PT_WOOD;
     // Set up defaults for 45/5
 
     // defaults from chart 1 - medium loading district
