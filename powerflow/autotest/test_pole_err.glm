@@ -1,3 +1,4 @@
+// this model should fail because the pole 2 tilt is too large
 module powerflow;
 module climate;
 
@@ -67,11 +68,9 @@ object pole {
 	configuration "WOOD-C-45/5"; 
 	phases ABC;
 	nominal_voltage 12470;
-	tilt_angle 8 deg;
+	tilt_angle 9 deg;
 	tilt_direction 270;
 	install_year 2000;
-//	equipment_area 5 sf;
-//	equipment_height 25 ft;
 }
 
 module tape;
