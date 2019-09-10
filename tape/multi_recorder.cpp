@@ -563,7 +563,10 @@ EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	if ( value == NULL ) // size query
 	{
-		return strlen(my->property)+1;
+		if ( size == 0 )
+			return my->property?strlen(my->property)+1:0;
+		else
+			return (my->property?strlen(my->property)+1:0) > size;
 	}
 	else if ( size == 0 ) // incoming value
 	{
@@ -588,13 +591,15 @@ EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
 		}
 		return 1;
 	}
-	else { // outgoing value
-		size_t len = strlen(my->property);
+	else 
+	{ 
+		// outgoing value
+		size_t len = ( my->property ? strlen(my->property) : 0) ;
 		if ( size < len+1 ) // not enough room for the full contents
 		{
 			return -1;
 		}
-		strcpy(value,my->property);
+		strcpy(value,my->property ? my->property : "");
 		return len;
 	}
 }

@@ -1367,7 +1367,7 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 	}
 	else if ( prop->ptype == PT_method )
 	{
-		if ( class_property_to_string(prop,obj,buffer,sz) )
+		if ( class_property_to_string(prop,addr,buffer,sz) )
 			return buffer;
 		else
 		{
@@ -1925,8 +1925,9 @@ size_t object_save(char *buffer, size_t size, OBJECT *obj)
 int object_property_getsize(OBJECT *obj, PROPERTY *prop)
 {
 	// dynamic size
-	int len = prop->width;
-	IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}): prop->width = %d", object_name(obj), prop->name, len);
+	PROPERTYSPEC *spec = property_getspec(prop->ptype);
+	int len = spec->csize;
+	IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s','type':'%s'}): prop->width = %d", object_name(obj), prop->name, property_getspec(prop->ptype)->name, len);
 	if ( len == PSZ_DYNAMIC )
 	{
 		len = property_write(prop,(char*)(obj+1)+(int64_t)(prop->addr),NULL,0);
