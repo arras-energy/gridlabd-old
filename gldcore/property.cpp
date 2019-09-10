@@ -31,7 +31,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"char256", "string", "", sizeof(char256), 256, convert_from_char256,convert_to_char256,NULL,NULL,{TCOPS(string)},},
 	{"char1024", "string", "", sizeof(char1024), 1024, convert_from_char1024,convert_to_char1024,NULL,NULL,{TCOPS(string)},},
 	{"object", "string", NULL, sizeof(OBJECT*), 64, convert_from_object,convert_to_object,NULL,NULL,{TCOPB(object)},object_get_part,object_set_part},
-	{"delegated", "string", NULL, PSZ_DYNAMIC, 0, convert_from_delegated, convert_to_delegated},
+	{"delegated", "string", NULL, 0, PSZ_DYNAMIC, convert_from_delegated, convert_to_delegated},
 	{"bool", "string", "FALSE", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,{TCOPB(bool)},},
 	{"timestamp", "string", "TS_ZERO", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,{TCOPS(uint64)},timestamp_get_part,timestamp_set_part},
 	{"double_array", "string", "", sizeof(double_array), 1024, convert_from_double_array, convert_to_double_array,double_array_create,NULL,{TCNONE},double_array_get_part,NULL},
