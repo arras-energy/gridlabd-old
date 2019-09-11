@@ -4267,7 +4267,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
 	char propname[64];
-	char propval[1024];
+	static char propval[65536*10];
 	double dval;
 	complex cval;
 	void *source=NULL;
