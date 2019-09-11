@@ -388,6 +388,7 @@ OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name);
 OBJECT *object_find_name(OBJECTNAME name);
 int object_build_name(OBJECT *obj, char *buffer, int len);
 int object_locate_property(void *addr, OBJECT **pObj, PROPERTY **pProp);
+int object_property_getsize(OBJECT *obj, PROPERTY *prop);
 
 int object_get_oflags(KEYWORD **extflags);
 
