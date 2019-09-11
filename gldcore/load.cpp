@@ -7634,6 +7634,10 @@ STATUS loadall(const char *fname)
 		strcpy(file,fname);
 	}
 	char *ext = fname ? strrchr(file,'.') : NULL ;
+	if ( strcmp(ext,".json") == 0 && json_to_glm(fname,file) )
+	{
+		return loadall(file);
+	}
 	unsigned int old_obj_count = object_get_count();
 	char conf[1024];
 	static int loaded_files = 0;
