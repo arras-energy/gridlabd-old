@@ -22,17 +22,17 @@ object test {
 }
 
 object multi_recorder {
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
-	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
+	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
 	property "test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x,test_1:x,test_2:x";
 	file test_multi_recorder_multiple_properties.csv;
 	interval 1h;
