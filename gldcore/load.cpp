@@ -7637,7 +7637,7 @@ bool load_import(const char *from, char *to, int len)
 		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext+1);
 		return false;
 	}
-	if ( strlen(from) >= len-1 )
+	if ( strlen(from) >= (size_t)(len-1) )
 	{
 		output_error("load_import(from='%s',...): 'from' is too long to handle", from);
 		return false;
