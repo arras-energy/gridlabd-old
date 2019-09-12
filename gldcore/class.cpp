@@ -439,6 +439,10 @@ int class_property_to_string(PROPERTY *prop, /**< the property type */
 		 */
 		return 0;
 	}
+	else if ( prop->ptype == PT_method && value == NULL )
+	{
+		return property_write(prop,addr,NULL,0);
+	}
 	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST )
 	{
 		rv = property_write(prop,addr,value,size);
