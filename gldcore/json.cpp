@@ -413,7 +413,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 	                }
 	                else if ( sz == 0 )
 	                {
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, buffer);
+						len += write(",\n\t\t\t\"%s\": \"\"", prop->name);
 	                }
 	                else
 	                {
