@@ -783,20 +783,21 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 		CLASS *oclass = NULL;
 		argv++;
 		argc--;
-		const char *cname = strchr(argv[0], ':');
-		if ( cname == NULL )
+		char module_name[1024];
+		char class_name[1024];
+		if ( sscanf(argv[0],"%[^:]:%s",module_name,class_name) == 1 )
 		{ 
 			// no class
-			mod = module_load(argv[0],0,NULL);
+			mod = module_load(module_name,0,NULL);
 		} 
 		else 
 		{
 			GLOBALVAR *var=NULL;
-			cname++;
-			mod = module_load(cname,0,NULL);
-			oclass = class_get_class_from_classname(cname);
-			if(oclass == NULL){
-				output_fatal("Unable to find class '%s' in module '%s'", cname, argv[0]);
+			mod = module_load(module_name,0,NULL);
+			oclass = class_get_class_from_classname(class_name);
+			if ( oclass == NULL ) 
+			{
+				output_fatal("Unable to find class '%s' in module '%s'", class_name, module_name);
 				/*	TROUBLESHOOT
 					The <b>--modhelp</b> parameter was found on the command line, but
 					if was followed by a class specification that isn't valid.
