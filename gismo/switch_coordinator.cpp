@@ -90,7 +90,7 @@ int switch_coordinator::connect(char *value, size_t len)
 		gld_property prop(this,"armed");
 		for ( gld_keyword *kw = prop.get_first_keyword() ; kw->get_next() != NULL ; kw = kw->get_next() )
 		{
-			len = strlen(kw->get_name()) + 1;
+			len += strlen(kw->get_name()) + 1;
 		}
 		return len;
 	}
@@ -147,7 +147,7 @@ int switch_coordinator::connect(char *value, size_t len)
 		gld_property prop(this,"armed");
 		for ( gld_keyword *kw = prop.get_first_keyword() ; kw->get_next() != NULL ; kw = kw->get_next() )
 		{
-			sz = strlen(kw->get_name()) + 1;
+			sz += strlen(kw->get_name()) + 1;
 		}
 		if ( len < sz )
 		{
