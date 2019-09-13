@@ -1735,7 +1735,7 @@ int GldCmdarg::origin(int argc, const char *argv[])
 			int old = global_suppress_repeat_messages;
 			global_suppress_repeat_messages = 0;
 			line[len] = '\0';
-			IN_MYCONTEXT output_message("%s",line);
+			output_message("%s",line);
 			global_suppress_repeat_messages = old;
 		}
 	}
