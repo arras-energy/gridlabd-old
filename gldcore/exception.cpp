@@ -126,7 +126,7 @@ void throw_exception(const char *format, /**< the format string */
 			of a module or external library isn't properly
 			compiled or linked.
 		*/
-		exit(XC_EXCEPTION);
+		throw "general GridLAB-D exception caught";
 	}
 }
 

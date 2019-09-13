@@ -496,23 +496,15 @@ EXPORT int method_recorder_property(OBJECT *obj, ...)
 	va_start(args,obj);
 	void *arg0 = va_arg(args,void*);
 
-	// extended syntax
-	if ( arg0 == MC_EXTRACT ) // iterator
-	{
-		gl_warning("recorder does not implement method extraction yet");
-		return -1;
-		//return method_extract(my->property,args);
-	}
-
 	// legacy calls
 	char *value = (char*)arg0;
 	size_t size = va_arg(args,size_t);
 	if ( value == NULL ) // check size needed to hold result
 	{
 		if ( size == 0 )
-			return strlen(my->property)+1; // return size require
+			return my->property?strlen(my->property)+1:0;
 		else
-			return strlen(my->property) < size ? 1 : 0; // return 1 if size given is enough
+			return (my->property?strlen(my->property)+1:0) > size;
 	}
 	else if ( size == 0 ) // copy from data
 	{

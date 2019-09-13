@@ -726,6 +726,9 @@ typedef enum {
 	GSO_MINIMAL 	= 0x000f,
 } GLMSAVEOPTIONS;
 
+/* Variable: */
+GLOBAL bool global_ignore_errors INIT(FALSE); 
+
 /* Variable:  */
 GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */
 

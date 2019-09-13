@@ -254,6 +254,24 @@ int GldJsonWriter::write_globals(FILE *fp)
 					len += write("\n\t\t\t}");
 				len += write(",");
 			}
+			PROPERTY *prop = var->prop;
+			char access[1024] = "";
+			switch ( prop->access ) {
+			case PA_PUBLIC: strcpy(access,"PUBLIC"); break;
+			case PA_REFERENCE: strcpy(access,"REFERENCE"); break;
+			case PA_PROTECTED: strcpy(access,"PROTECTED"); break;
+			case PA_PRIVATE: strcpy(access,"PRIVATE"); break;
+			case PA_HIDDEN: strcpy(access,"HIDDEN"); break;
+			case PA_N: strcpy(access,"NONE"); break;
+			default:
+				if ( prop->access & PA_R ) strcat(access,"R");
+				if ( prop->access & PA_W ) strcat(access,"W");
+				if ( prop->access & PA_S ) strcat(access,"S");
+				if ( prop->access & PA_L ) strcat(access,"L");
+				if ( prop->access & PA_H ) strcat(access,"H");
+				break;
+			}
+			len += write("\n\t\t\t\"access\" : \"%s\",",access);			
 			if ( buffer[0] == '\"' )
 				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
 			else
@@ -380,24 +398,47 @@ int GldJsonWriter::write_objects(FILE *fp)
 				char buffer[1024];
 				if ( prop->access != PA_PUBLIC )
 					continue;
-				if ( prop->ptype == PT_enduse || prop->ptype == PT_method )
+				else if ( prop->ptype == PT_enduse )
 					continue;
-				const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
-				if ( value == NULL )
-					continue; // ignore values that don't convert propertly
-				int len = strlen(value);
-				// if ( value[0] == '{' && value[len] == '}')
-				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-				// else if ( value[0] == '[' && value[len] == ']')
-				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-				// else 
-				if ( value[0] == '"' && value[len-1] == '"')
-				{
-					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-2));
-				}
-				else
-				{
-					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,len));
+				else if ( prop->ptype == PT_method )
+                {
+                    size_t sz = object_property_getsize(obj,prop);
+                    if ( sz > 0 )
+                    {
+	                    char *buffer = new char[sz+2];
+	                    object_property_to_string(obj,prop->name,buffer,sz+1);
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, buffer);
+	                    delete [] buffer;
+	                }
+	                else if ( sz == 0 )
+	                {
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, buffer);
+	                }
+	                else
+	                {
+	                	// no output allowed for this property
+	                }
+                }
+                else
+                { 
+					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
+					if ( value == NULL )
+						continue; // ignore values that don't convert propertly
+					int len = strlen(value);
+					// TODO: proper JSON formatted is needed for data that is either a dict or a list
+					// if ( value[0] == '{' && value[len] == '}')
+					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+					// else if ( value[0] == '[' && value[len] == ']')
+					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+					// else 
+					if ( value[0] == '"' && value[len-1] == '"')
+					{
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-2));
+					}
+					else
+					{
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,len));
+					}
 				}
 			}
 		}

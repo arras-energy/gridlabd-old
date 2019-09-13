@@ -173,7 +173,7 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 				KEYWORD *key;
 				printf("%s\t%s {", tabs, propname);
 				for (key=prop->keywords; key!=NULL; key=key->next)
-					printf("%s=%"FMT_INT64"u%s", key->name, (int64)key->value, key->next==NULL?"":", ");
+					printf("%s=%" FMT_INT64 "u%s", key->name, (int64)key->value, key->next==NULL?"":", ");
 				printf("} %s;", prop->name);
 			} 
 			else 
@@ -312,8 +312,7 @@ int GldCmdarg::check(int argc, const char *argv[])
 	/* check main core implementation */
 	if ( property_check()==FAILED )
 	{
-		output_fatal("main core property implementation failed size checks");
-		exit(XC_INIERR);
+		throw_exception("main core property implementation failed size checks");
 	}
 	global_runchecks = !global_runchecks;
 	return 0;
@@ -1426,7 +1425,7 @@ int GldCmdarg::slave(int argc, const char *argv[])
 
 	strncpy(global_master,host,sizeof(global_master)-1);
 	if ( strcmp(global_master,"localhost")==0 ){
-		sscanf(port,"%"FMT_INT64"x",&global_master_port); /* port is actual mmap/shmem */
+		sscanf(port,"%" FMT_INT64 "x",&global_master_port); /* port is actual mmap/shmem */
 		global_multirun_connection = MRC_MEM;
 	}
 	else
@@ -1437,11 +1436,11 @@ int GldCmdarg::slave(int argc, const char *argv[])
 
 	if ( FAILED == instance_slave_init() )
 	{
-		output_error("slave instance init failed for master '%s' connection '%"FMT_INT64"x'", global_master, global_master_port);
+		output_error("slave instance init failed for master '%s' connection '%" FMT_INT64 "x'", global_master, global_master_port);
 		return CMDERR;
 	}
 
-	IN_MYCONTEXT output_verbose("slave instance for master '%s' using connection '%"FMT_INT64"x' started ok", global_master, global_master_port);
+	IN_MYCONTEXT output_verbose("slave instance for master '%s' using connection '%" FMT_INT64 "x' started ok", global_master, global_master_port);
 	return 1;
 }
 
@@ -1465,11 +1464,11 @@ int GldCmdarg::slave_id(int argc, const char *argv[])
 		output_error("--id requires an ID number argument");
 		return CMDERR;
 	}
-	if(1 != sscanf(argv[1], "%"FMT_INT64"d", &global_slave_id)){
+	if(1 != sscanf(argv[1], "%" FMT_INT64 "d", &global_slave_id)){
 		output_error("slave_id(): unable to read ID number");
 		return CMDERR;
 	}
-	IN_MYCONTEXT output_debug("slave using ID %"FMT_INT64"d", global_slave_id);
+	IN_MYCONTEXT output_debug("slave using ID %" FMT_INT64 "d", global_slave_id);
 	return 1;
 }
 
@@ -1736,7 +1735,7 @@ int GldCmdarg::origin(int argc, const char *argv[])
 			int old = global_suppress_repeat_messages;
 			global_suppress_repeat_messages = 0;
 			line[len] = '\0';
-			IN_MYCONTEXT output_message("%s",line);
+			output_message("%s",line);
 			global_suppress_repeat_messages = old;
 		}
 	}

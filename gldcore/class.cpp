@@ -439,6 +439,10 @@ int class_property_to_string(PROPERTY *prop, /**< the property type */
 		 */
 		return 0;
 	}
+	else if ( prop->ptype == PT_method && value == NULL )
+	{
+		return property_write(prop,addr,NULL,0);
+	}
 	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST )
 	{
 		rv = property_write(prop,addr,value,size);
@@ -477,13 +481,12 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 
 	if ( _PT_LAST-_PT_FIRST-1 != sizeof(property_type)/sizeof(property_type[0]) )
 	{
-		output_fatal("property_type[] in class.c has an incorrect number of members (%i vs %i)", a/b, c);
+		throw_exception("property_type[] in class.c has an incorrect number of members (%i vs %i)", a/b, c);
 		/* TROUBLESHOOT
 			This error occurs when an improper definition of a class is used.  This is not usually
 			caused by an error in a GLM file but is most likely caused by a bug in a module
 			or incorrectly defined class.
 		 */
-		exit(XC_EXCEPTION);
 	}
 	if ( oclass != NULL && oclass->module != NULL )
 	{

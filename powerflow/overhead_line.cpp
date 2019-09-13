@@ -190,7 +190,7 @@ void overhead_line::recalc(void)
 {
 	line_configuration *config = OBJECTDATA(configuration, line_configuration);
 	complex Zabc_mat[3][3], Yabc_mat[3][3];
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	// Zero out Zabc_mat and Yabc_mat. Un-needed phases will be left zeroed.
 	for (int i = 0; i < 3; i++) 
@@ -435,7 +435,7 @@ void overhead_line::recalc(void)
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
 					
-					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",OBJECTHDR(this)->name);
+					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					/*  TROUBLESHOOT
 					While attempting to calculate the shunt capacitance for an overhead line, an invalid parameter was encountered.
 					To calculate shunt capacitance, ensure the condutor to earth distance for each phase is defined, as well as the
@@ -520,7 +520,7 @@ void overhead_line::recalc(void)
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
 					
-					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",OBJECTHDR(this)->name);
+					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					//Defined above
 
 					p_bb = p_bc = p_bn = 0.0;
@@ -576,7 +576,7 @@ void overhead_line::recalc(void)
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
 
-					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",OBJECTHDR(this)->name);
+					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					//Defined above
 
 					p_cc = p_cn = 0.0;
@@ -606,7 +606,7 @@ void overhead_line::recalc(void)
 				{
 					valid_capacitance = false;	//Failed one line of it, so don't include capacitance anywhere
 
-					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",OBJECTHDR(this)->name);
+					gl_warning("Shunt capacitance of overhead line:%s not calculated - invalid values",THISOBJECTHDR->name);
 					//Defined above
 
 					p_nn = 0.0;

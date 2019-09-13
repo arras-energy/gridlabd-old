@@ -292,7 +292,6 @@ void inline_code_term(void)
 #define FN_EXPORT		0x1000
 
 /* used for tracking #include directives in files */
-#define BUFFERSIZE (65536*1000)
 typedef struct s_include_list {
 	char file[256];
 	struct s_include_list *next;
@@ -305,7 +304,7 @@ INCLUDELIST *header_list = NULL;
 
 static char *forward_slashes(char *a)
 {
-	static char buffer[1024];
+	static char buffer[MAXPATHNAMELEN];
 	char *b=buffer;
 	while (*a!='\0' && b<buffer+sizeof(buffer))
 	{
@@ -367,7 +366,7 @@ static void filename_parts(char *fullname, char *path, char *name, char *ext)
 
 static int append_init(const char* format,...)
 {
-	static char code[1024];
+	static char code[MAXCODEBLOCKSIZE];
 	va_list ptr;
 	va_start(ptr,format);
 	vsprintf(code,format,ptr);
@@ -390,7 +389,7 @@ static int append_init(const char* format,...)
 }
 static int append_code(const char* format,...)
 {
-	static char code[65536];
+	static char code[MAXCODEBLOCKSIZE];
 	va_list ptr;
 	va_start(ptr,format);
 	vsprintf(code,format,ptr);
@@ -439,7 +438,7 @@ static void mark_linex(const char *filename, int linenum)
 	char buffer[64];
 	if (global_getvar("noglmrefs",buffer, 63)==NULL)
 	{
-		char fname[1024];
+		char fname[MAXPATHNAMELEN];
 		strcpy(fname,filename);
 		append_code("#line %d \"%s\"\n", linenum, forward_slashes(fname));
 	}
@@ -1063,17 +1062,25 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = object_find_by_id(item->by->id + (op[0]=='+'?+1:-1)*id);
 		if ( oclass == NULL || obj==NULL )
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
-				format_object(item->by), item->id);
-			return FAILED;
+			obj = object_find_name(item->id);
+			if ( obj == NULL )
+			{
+				output_error_raw("%s(%d): cannot resolve implicit reference from %s to %s", filename, item->line,
+					format_object(item->by), item->id);
+				return FAILED;
+			}
 		}
 	}
 	else if (sscanf(item->id,global_object_scan,classname,&id)==2)
 	{
 		obj = load_get_index(id);
+		if ( obj == NULL )
+		{
+			obj = object_find_name(item->id);
+		}
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve explicit reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
@@ -1090,7 +1097,7 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = get_next_unlinked(oclass);
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve last reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
@@ -1475,6 +1482,56 @@ static int structured_value(PARSER, char *result, int size)
 	result[_n]='\0';
 	return (int)(_p - start);
 }
+
+static int multiline_value(PARSER,char *result,int size)
+{
+	const char *start = _p;
+	const char *end = strstr(_p,"\"\"\"");
+	if ( end == NULL )
+	{
+		output_error_raw("%s(%d): unterminated multi-line value ('\"\"\"' not found)",filename,linenum);
+		return 0;
+	}
+
+	std::string value("");
+	for ( ; _p < end ; _p++)
+	{
+		const char *esc = strchr(_p,'\\');
+		if ( esc == NULL )
+		{
+			value += std::string(_p,end-_p);
+			break;
+		}
+		if ( esc > _p )
+		{
+			std::string fragment(_p,esc-_p);
+			value = value + fragment;
+		}
+		switch ( esc[1] ) {
+		case 'n':
+			value += std::string("\n");
+			break;
+		case 't':
+			value += std::string("\t");
+			break;
+		default:
+			break;
+		}
+		_p = esc+1;
+	}
+	int len = value.length();
+	if ( len < size )
+	{
+		strcpy(result,value.c_str());
+		return (int)(end-start);
+	}
+	else
+	{
+		output_error_raw("%s(%d): multi-line value too long for loader buffer (len %d > size %d)",filename,linenum,len,size);
+		return 0;
+	}
+}
+
 static int value(PARSER, char *result, int size)
 {
 	/* everything to a semicolon */
@@ -1482,9 +1539,16 @@ static int value(PARSER, char *result, int size)
 	const char *start=_p;
 	int quote=0;
 	START;
-	if ( *_p=='{' ) 
+	if ( strncmp(_p,"\"\"\"",3) == 0 )
+	{
+		int len = multiline_value(_p+3,result,size);
+		return len > 0 ? (len+6) : 0;
+	}
+	else if ( *_p == '{' ) 
+	{
 		return structured_value(_p,result,size);
-	while (size>1 && *_p!='\0' && !(*_p==delim && quote == 0) && *_p!='\n') 
+	}
+	while ( size > 1 && *_p != '\0' && !(*_p==delim && quote == 0) && *_p != '\n' ) 
 	{
 		if ( _p[0]=='\\' && _p[1]!='\0' )
 		{
@@ -1497,11 +1561,15 @@ static int value(PARSER, char *result, int size)
 			quote = (1+quote) % 2;
 		}
 		else
+		{
 			COPY(result);
+		}
 	}
 	result[_n]='\0';
-	if (quote&1)
+	if ( quote&1 )
+	{
 		output_warning("%s(%d): missing closing double quote", filename, linenum);
+	}
 	return (int)(_p - start);
 }
 
@@ -2884,7 +2952,7 @@ static int module_properties(PARSER, MODULE *mod)
 			if WHITE ACCEPT;
 			if LITERAL(";")
 			{
-				if (module_setvar(mod,propname,propvalue)>0)
+				if (module_setvar(mod,propname,(const char*)propvalue)>0)
 				{
 					ACCEPT;
 					goto Next;
@@ -4200,7 +4268,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
 	char propname[64];
-	char propval[1024];
+	static char propval[65536*10];
 	double dval;
 	complex cval;
 	void *source=NULL;
@@ -7469,7 +7537,7 @@ STATUS loadall_glm(char *file) /**< a pointer to the first character in the file
 	{
 		modtime = stat.st_mtime;
 		fsize = stat.st_size;
-		buffer = (char*)malloc(BUFFERSIZE); /* lots of space */
+		buffer = (char*)malloc(MAXGLMSIZE); /* lots of space */
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	if (buffer==NULL)
@@ -7482,7 +7550,7 @@ STATUS loadall_glm(char *file) /**< a pointer to the first character in the file
 		p=buffer;
 
 	buffer[0] = '\0';
-	if (buffer_read(fp,buffer,file,BUFFERSIZE)==0)
+	if (buffer_read(fp,buffer,file,MAXGLMSIZE)==0)
 	{
 		fclose(fp);
 		goto Failed;

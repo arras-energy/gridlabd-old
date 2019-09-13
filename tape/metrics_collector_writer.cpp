@@ -38,7 +38,7 @@ int metrics_collector_writer::create(){
 int metrics_collector_writer::init(OBJECT *parent)
 {
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	size_t index = 0;
 	char time_str[64];
 	DATETIME dt;

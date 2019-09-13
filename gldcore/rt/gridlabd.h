@@ -436,6 +436,7 @@ typedef enum {_PT_FIRST=-1,
 	PT_enduse,		/**< Enduse load data */
 	PT_random,		/**< Randomized number */
 	PT_method,		/**< Method interface */
+	PT_string,
 #ifdef USE_TRIPLETS
 	PT_triple, /**< triplet of doubles (not supported) */
 	PT_triplex, /**< triplet of complexes (not supported) */
@@ -549,7 +550,7 @@ struct s_property_map {
 	PROPERTYNAME name; /**< property name */
 	PROPERTYTYPE ptype; /**< property type */
 	uint32 size; /**< property array size */
-	uint32 width; /**< property byte size, copied from array in class.c */
+	int32 width; /**< property byte size, copied from array in class.c (see PSZ_* for special values) */
 	PROPERTYACCESS access; /**< property access flags */
 	UNIT *unit; /**< property unit, if any; \p NULL if none */
 	PROPERTYADDR addr; /**< property location, offset from OBJECT header; OBJECT header itself for methods */
@@ -1026,7 +1027,7 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	char *name; /**< the property type name */
 	char *xsdname;
 	unsigned int size; /**< the size of 1 instance */
-	unsigned int csize; /**< the minimum size of a converted instance (not including '\0' or unit, 0 means a call to property_minimum_buffersize() is necessary) */ 
+	int csize; /**< the minimum size of a converted instance (not including '\0' or unit, 0 means a call to property_minimum_buffersize() is necessary) */ 
 	int (*data_to_string)(char *,int,void*,PROPERTY*); /**< the function to convert from data to a string */
 	int (*string_to_data)(const char *,void*,PROPERTY*); /**< the function to convert from a string to data */
 	int (*create)(void*); /**< the function used to create the property, if any */

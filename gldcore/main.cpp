@@ -355,7 +355,9 @@ void GldMain::run_on_exit()
 
 	for ( std::list<onexitcommand>::iterator cmd = exitcommands.begin() ; cmd != exitcommands.end() ; cmd++ )
 	{
-		if ( cmd->get_exitcode() == exec.getexitcode() )
+		if ( cmd->get_exitcode() == exec.getexitcode() 
+			|| ( exec.getexitcode() == -1 && cmd->get_exitcode() != 0 ) 
+			)
 		{
 			int rc = cmd->run();
 			if ( rc != 0 )

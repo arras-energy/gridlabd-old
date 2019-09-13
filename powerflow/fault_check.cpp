@@ -74,7 +74,7 @@ int fault_check::create(void)
 
 int fault_check::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	FILE *FPoint;
 
 	if (solver_method == SM_NR)
