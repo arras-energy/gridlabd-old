@@ -406,6 +406,7 @@ int GldJsonWriter::write_objects(FILE *fp)
                     if ( sz > 0 )
                     {
 	                    char *buffer = new char[sz+2];
+	                    strcpy(buffer,"");
 	                    object_property_to_string(obj,prop->name,buffer,sz+1);
 						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, buffer);
 	                    delete [] buffer;
