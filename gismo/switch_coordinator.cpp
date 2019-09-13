@@ -149,7 +149,7 @@ int switch_coordinator::connect(char *value, size_t len)
 		{
 			sz += strlen(kw->get_name()) + 1;
 		}
-		if ( len < sz )
+		if ( len >= sz )
 		{
 			int rv = 0;
 			for ( gld_keyword *kw = prop.get_first_keyword() ; kw->get_next() != NULL ; kw = kw->get_next() )
