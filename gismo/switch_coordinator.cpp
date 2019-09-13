@@ -205,13 +205,18 @@ int switch_coordinator::arm(char *name, size_t len)
 		return 0;
 	}
 	else
+	{
+		strcpy(name,"");
 		return 0;
+	}
 }
 
 int switch_coordinator::disarm(char *name, size_t len)
 {
 	if ( name == NULL )
+	{
 		return 0;
+	}
 	else if ( len == 0 )
 	{
 		if ( strcmp(name,"") == 0 )
@@ -235,7 +240,10 @@ int switch_coordinator::disarm(char *name, size_t len)
 		return 0;
 	}
 	else
+	{
+		strcpy(name,"");
 		return 0;
+	}
 }
 
 int switch_coordinator::init(OBJECT *parent)
