@@ -60,11 +60,11 @@ switch_coordinator::switch_coordinator(MODULE *module)
 				PT_KEYWORD, "ARMED", (enumeration)SCS_ARMED,
 				PT_KEYWORD, "TOGGLE", (enumeration)SCS_TOGGLE,
 				PT_KEYWORD, "DIRECT", (enumeration)SCS_DIRECT,
-			PT_set,"armed",get_armed_offset(), PT_DESCRIPTION,"set of armed switches",
-				PT_KEYWORD, "NONE", (set)0,
-			PT_method,"connect",get_connect_offset(), PT_DESCRIPTION,"method to connect switches",
 			PT_method,"arm",get_arm_offset(), PT_DESCRIPTION, "method to arm a switch",
 			PT_method,"disarm",get_disarm_offset(), PT_DESCRIPTION, "method to disarm a switch",
+			PT_method,"connect",get_connect_offset(), PT_DESCRIPTION,"method to connect switches",
+			PT_set,"armed",get_armed_offset(), PT_DESCRIPTION,"set of armed switches",
+				PT_KEYWORD, "NONE", (set)0,
 			NULL)<1){
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
@@ -88,7 +88,7 @@ int switch_coordinator::connect(char *value, size_t len)
 	{
 		int len = -1;
 		gld_property prop(this,"armed");
-		for ( gld_keyword *kw = prop.get_first_keyword() ; kw->get_next() != NULL ; kw = kw->get_next() )
+		for ( gld_keyword *kw = prop.get_first_keyword() ; kw != NULL ; kw = kw->get_next() )
 		{
 			len += strlen(kw->get_name()) + 1;
 		}
@@ -97,47 +97,57 @@ int switch_coordinator::connect(char *value, size_t len)
 	else if ( len == 0 ) // copy from name to object
 	{
 		debug("switch_coordinator::connect(char *value='%s', size_t len=0)", value);
-		gld_object *obj = gld_object::find_object(value);
-		if ( !obj->is_valid() )
+		char *values = strdup(value);
+		char *last_token = NULL;
+		for ( char *this_token = strtok_r(values,"|",&last_token) ; this_token != NULL ; this_token = strtok_r(NULL,"|",&last_token) )
 		{
-			error("object '%s' is not found", value);
-			debug("switch_coordinator::connect(char *value='%s', size_t len=0) -> 0", value);
-			return 0;
-		}
-		if ( !obj->isa("switch") )
-		{
-			error("object '%s' is not a switch", value);
-			debug("switch_coordinator::connect(char *name='%s', size_t len=0) -> 0", value);
-			return 0;
-		}
-		if ( n_switches < 32 )
-		{
-			index[n_switches] = new gld_property(obj,"status");
-			if ( index[n_switches]==NULL || ! index[n_switches]->is_valid() )
+			if ( strcmp(this_token,"NONE") == 0 )
+				continue;
+			gld_object *obj = gld_object::find_object(this_token);
+			if ( obj == NULL || !obj->is_valid() )
 			{
-				error("unable to get property 'status' of object '%s'", value);
+				warning("object '%s' is not found", this_token);
 				debug("switch_coordinator::connect(char *value='%s', size_t len=0) -> 0", value);
 				return 0;
 			}
-			gld_property prop(this,"armed");
-			gld_keyword *last;
-			for ( last = prop.get_first_keyword() ; last->get_next()!=NULL ; last = last->get_next() ) {}
-			KEYWORD *next = new KEYWORD;
-			strncpy(next->name,value,sizeof(next->name)-1);
-			next->value = (unsigned int64)(pow(2,n_switches));
-			next->next = NULL;
-			((KEYWORD*)last)->next = next;
-			n_switches++;
-			verbose("added switch '%s' to arming list", value);
-			debug("switch_coordinator::connect(char *value='%s', size_t len=0) -> 1", value);
-			return 1;
+			if ( !obj->isa("switch") )
+			{
+				error("object '%s' is not a switch", this_token);
+				debug("switch_coordinator::connect(char *name='%s', size_t len=0) -> 0", value);
+				return 0;
+			}
+			if ( n_switches < 32 )
+			{
+				index[n_switches] = new gld_property(obj,"status");
+				if ( index[n_switches]==NULL || ! index[n_switches]->is_valid() )
+				{
+					error("unable to get property 'status' of object '%s'", this_token);
+					debug("switch_coordinator::connect(char *value='%s', size_t len=0) -> 0", value);
+					return 0;
+				}
+				gld_property prop(this,"armed");
+				gld_keyword *last;
+				for ( last = prop.get_first_keyword() ; last->get_next()!=NULL ; last = last->get_next() ) 
+				{
+				}
+				KEYWORD *next = new KEYWORD;
+				strncpy(next->name,this_token,sizeof(next->name)-1);
+				next->value = (unsigned int64)(pow(2,n_switches));
+				next->next = NULL;
+				((KEYWORD*)last)->next = next;
+				n_switches++;
+				verbose("added switch '%s' to arming list", this_token);
+				debug("switch_coordinator::connect(char *value='%s', size_t len=0) -> 1", value);
+			}
+			else
+			{
+				error("too many switches connected (max 32) to connect '%s'", this_token);
+				debug("switch_coordinator::connect(char *value='%s', size_t len=0) -> 0", value);
+				free(values);
+				return 0;
+			}
 		}
-		else
-		{
-			error("too many switches connected (max 32) to connect '%s'", value);
-			debug("switch_coordinator::connect(char *value='%s', size_t len=0) -> 0", value);
-			return 0;
-		}
+		free(values);
 		debug("switch_coordinator::connect(char *value='%s', size_t len=0) -> 1", value);
 		return 1;
 	}
@@ -145,16 +155,18 @@ int switch_coordinator::connect(char *value, size_t len)
 	{
 		int sz = -1;
 		gld_property prop(this,"armed");
-		for ( gld_keyword *kw = prop.get_first_keyword() ; kw->get_next() != NULL ; kw = kw->get_next() )
+		for ( gld_keyword *kw = prop.get_first_keyword() ; kw != NULL ; kw = kw->get_next() )
 		{
-			sz += strlen(kw->get_name()) + 1;
+			if ( strcmp(kw->get_name(),"NONE") != 0 )
+				sz += strlen(kw->get_name()) + 1;
 		}
 		if ( len >= sz )
 		{
 			int rv = 0;
-			for ( gld_keyword *kw = prop.get_first_keyword() ; kw->get_next() != NULL ; kw = kw->get_next() )
+			for ( gld_keyword *kw = prop.get_first_keyword() ; kw != NULL ; kw = kw->get_next() )
 			{
-				rv += sprintf(value+rv,"%s%s",rv>0?"|":"",kw->get_name());
+				if ( strcmp(kw->get_name(),"NONE") != 0 )
+					rv += sprintf(value+rv,"%s%s",rv>0?"|":"",kw->get_name());
 			}
 			return rv;
 		}
@@ -172,6 +184,8 @@ int switch_coordinator::arm(char *name, size_t len)
 		return 0;
 	else if ( len == 0 )
 	{
+		if ( strcmp(name,"") == 0 )
+			return 1;
 		debug("switch_coordinator::arm(char *name='%s)", name);
 		gld_property prop(this,"armed");
 		gld_keyword *key;
@@ -200,6 +214,8 @@ int switch_coordinator::disarm(char *name, size_t len)
 		return 0;
 	else if ( len == 0 )
 	{
+		if ( strcmp(name,"") == 0 )
+			return 1;
 		debug("switch_coordinator::disarm(char *name='%s)", name);
 		gld_property prop(this,"armed");
 		gld_keyword *key;
