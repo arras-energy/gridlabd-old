@@ -305,6 +305,11 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 		// will get picked up later
 	}
 
+	if ( oclass->profiler.numobjs > 0 )
+		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been instantiated", oclass->name, name);
+		/* TROUBLESHOOT
+			Once the class has been used to instantiate an object, it is not possible to change its size in memory.
+		 */
 	if (prop==NULL)
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): memory allocation failed", oclass->name, name);
 		/* TROUBLESHOOT
