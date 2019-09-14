@@ -279,6 +279,16 @@ void class_add_property(CLASS *oclass,  /**< the class to which the property is 
 		last->next = prop;
 }
 
+bool has_child_class(CLASS *oclass)
+{
+	for ( CLASS *c = class_get_first_class() ; c != NULL ; c = c->next )
+	{
+		if ( c->parent == oclass )
+			return true;
+	} 
+	return false;
+}
+
 /** Add an extended property to a class 
     @return the property pointer
  **/
@@ -305,6 +315,13 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 		// will get picked up later
 	}
 
+	if ( has_child_class(oclass) )
+	{
+		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been used to derive another class", oclass->name, name);
+		/* TROUBLESHOOT
+			Once the class has been used to derive another class, it is not possible to change its size in memory.
+		 */
+	}
 	if ( oclass->profiler.numobjs > 0 )
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been instantiated", oclass->name, name);
 		/* TROUBLESHOOT
