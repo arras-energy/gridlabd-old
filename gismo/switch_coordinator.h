@@ -7,12 +7,19 @@
 
 #include "gismo.h"
 
+DECL_METHOD(switch_coordinator,connect);
+DECL_METHOD(switch_coordinator,arm);
+DECL_METHOD(switch_coordinator,disarm);
+
 class switch_coordinator : public gld_object {
 public:
 	enum {SCS_IDLE=0, SCS_ARMED=1, SCS_TOGGLE=2, SCS_DIRECT=3} SWITCHCOORDINATIONSTATUS;
 public:
 	GL_ATOMIC(enumeration,status);
 	GL_ATOMIC(set,armed);
+	GL_METHOD(switch_coordinator,connect);
+	GL_METHOD(switch_coordinator,arm);
+	GL_METHOD(switch_coordinator,disarm);
 private:
 	unsigned int n_switches;
 	unsigned int64 states;
@@ -29,9 +36,6 @@ public:
 	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 	inline int prenotify(PROPERTY *prop, const char *value=NULL) { return 1; };
 	int postnotify(PROPERTY *prop, const char *value=NULL);
-	int connect(const char *name);
-	int arm(const char *name);
-	int disarm(const char *name);
 
 public:
 	static CLASS *oclass;
