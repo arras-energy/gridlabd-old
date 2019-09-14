@@ -1359,8 +1359,6 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 		return NULL;
 	}
 	void *addr = GETADDR(obj,prop); /* warning: cast from pointer to integer of different size */
-	if (strcmp(prop->name,"supernode_name")==0)
-		output_message(""); // TODO: DELETE THIS BUG TRAP AFTER BUG IS FIXED
 	if ( prop->ptype == PT_delegated )
 	{
 		return prop->delegation->to_string(addr,buffer,sz) ? buffer : NULL;
