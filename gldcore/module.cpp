@@ -1958,6 +1958,30 @@ int sched_getinfo(int n,char *buf, size_t sz)
 	return (int)sz;
 }
 
+STATUS sched_getinfo(int n,PROCINFO *pinfo)
+{
+	if ( n < 0 && n >= n_procs)
+	{
+		errno = EINVAL;
+		return FAILED;
+	}
+	sched_lock(n);
+	pinfo->pid = process_map[n].pid;
+	pinfo->progress = process_map[n].progress;
+	pinfo->starttime = process_map[n].starttime;
+	pinfo->stoptime = process_map[n].stoptime;
+	pinfo->status = process_map[n].status;
+	strcpy(pinfo->model,process_map[n].model);
+	pinfo->start = process_map[n].start;
+	sched_unlock(n);
+	return SUCCESS;
+}
+
+int sched_getnproc(void)
+{
+	return n_procs;
+}
+
 void sched_print(int flags) /* flag=0 for single listing, flag=1 for continuous listing */
 {
 	char line[1024];

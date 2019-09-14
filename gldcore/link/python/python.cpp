@@ -48,6 +48,7 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args);
 static PyObject *gridlabd_set_value(PyObject *self, PyObject *args);
 
 static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args);
+static PyObject *gridlabd_pstatus(PyObject *self, PyObject *args);
 
 static PyMethodDef module_methods[] = {
     {"title", gridlabd_title, METH_VARARGS, "Get the software title"},
@@ -87,6 +88,7 @@ static PyMethodDef module_methods[] = {
     {"set_value", gridlabd_set_value, METH_VARARGS, "Set a GridLAB-D object property"},
     // utilities
     {"convert_unit", gridlabd_convert_unit, METH_VARARGS, "Convert units of a float, complex or string"},
+    {"pstatus", gridlabd_pstatus, METH_VARARGS, "Read gridlabd process status"},
 
     {NULL, NULL, 0, NULL}
 };
@@ -1234,6 +1236,66 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
     else
     {
         return gridlabd_exception("unable to convert unit -- internal error");
+    }
+}
+
+//
+// >>> gridlabd.pstatus(id)
+//
+static PyObject *getinfo(int id, PROCINFO &info)
+{
+    char timestamp[64];
+    const char *statuskey[] = {"INIT","RUNNING","PAUSED","DONE","LOCKED"};
+    PyObject *data = PyDict_New();
+    PyDict_SetItemString(data,"pid",PyLong_FromLong(info.pid));
+    PyDict_SetItemString(data,"progress",PyBytes_FromString(convert_from_timestamp(info.progress,timestamp,sizeof(timestamp))?timestamp:"INVALID"));
+    PyDict_SetItemString(data,"starttime",PyBytes_FromString(convert_from_timestamp(info.starttime,timestamp,sizeof(timestamp))?timestamp:"INVALID"));
+    PyDict_SetItemString(data,"stoptime",PyBytes_FromString(convert_from_timestamp(info.stoptime,timestamp,sizeof(timestamp))?timestamp:"INVALID"));
+    if ( info.status >= 0 && info.status < sizeof(statuskey)/sizeof(statuskey[0]) )
+    {
+        PyDict_SetItemString(data,"status",PyBytes_FromString(statuskey[info.status]));
+    }
+    else
+    {
+        PyDict_SetItemString(data,"status",PyLong_FromLong(info.status));
+    }
+    PyDict_SetItemString(data,"start",PyBytes_FromString(convert_from_timestamp(info.start,timestamp,sizeof(timestamp))?timestamp:"INVALID"));
+    PyDict_SetItemString(data,"model",PyBytes_FromString(info.model));
+    return data;
+}
+static PyObject *gridlabd_pstatus(PyObject *self, PyObject *args)
+{
+    int id;
+    PyObject *obj;
+    restore_environ();
+    PROCINFO info;
+    sched_init(1);
+    int nproc = sched_getnproc();
+    PyObject *result = PyList_New(0);
+
+    if ( PyArg_ParseTuple(args,"d",&id) )
+    {
+        if ( sched_getinfo(id,&info) && info.pid > 0 )
+        {
+            PyList_Append(result,getinfo(id,info));
+        }
+        return result;
+    }
+    else if ( PyArg_ParseTuple(args,"O", &obj) )
+    {
+        return gridlabd_exception("only process id allow as first argument");
+    }
+    else
+    {
+        PyErr_Clear();
+        for ( id = 0 ; id < nproc ; id++ )
+        {
+            if ( sched_getinfo(id,&info) && info.pid > 0 )
+            {
+                PyList_Append(result,getinfo(id,info));
+            }
+        }
+        return result;
     }
 }
 
