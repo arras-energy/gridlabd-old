@@ -242,7 +242,7 @@ int microturbine::init(OBJECT *parent)
 		/// @todo use triplex property mapping instead of assuming memory order for meter variables (residential, low priority) (ticket #139)
 		gl_verbose("microturbine init: mapped meter objects to internal variables");
 
-		OBJECT *obj = OBJECTHDR(this);
+		OBJECT *obj = THISOBJECTHDR;
 		gl_verbose("microturbine init: no parent meter defined, parent is not a meter");
 		gl_warning("microturbine:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
 
@@ -272,7 +272,7 @@ int microturbine::init(OBJECT *parent)
 	}
 		if (gen_status_v==0)
 	{
-		//OBJECT *obj = OBJECTHDR(this);
+		//OBJECT *obj = THISOBJECTHDR;
 		throw("Generator is out of service!");
 	}else
 		{

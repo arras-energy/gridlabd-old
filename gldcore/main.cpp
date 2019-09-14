@@ -65,8 +65,7 @@ int main
 			output_fatal("uncaught exception: %s", msg);
 			return_code = errno ? errno : XC_SHFAILED;
 		}
-		delete my_instance;
-		my_instance = NULL;
+		my_instance->run_on_exit();
 	}
 	return return_code;
 }
@@ -171,63 +170,6 @@ GldMain::GldMain(int argc, const char *argv[])
 
 GldMain::~GldMain(void)
 {
-	/* save the model */
-	if (strcmp(global_savefile,"")!=0)
-	{
-		if (saveall(global_savefile)==FAILED)
-			output_error("save to '%s' failed", global_savefile);
-	}
-
-	/* do module dumps */
-	if (global_dumpall!=FALSE)
-	{
-		IN_MYCONTEXT output_verbose("dumping module data");
-		module_dumpall();
-	}
-
-	/* KML output */
-	if (strcmp(global_kmlfile,"")!=0)
-		kml_dump(global_kmlfile);
-
-	/* terminate */
-	module_termall();
-
-	/* wrap up */
-	IN_MYCONTEXT output_verbose("shutdown complete");
-
-	/* profile results */
-	if (global_profiler)
-	{
-		class_profiles();
-		module_profiles();
-	}
-
-#ifdef DUMP_SCHEDULES
-	/* dump a copy of the schedules for reference */
-	schedule_dumpall("schedules.txt");
-#endif
-
-	/* restore locale */
-	locale_pop();
-
-	/* if pause enabled */
-#ifndef WIN32
-	if (global_pauseatexit)
-	{
-		IN_MYCONTEXT output_verbose("pausing at exit");
-		while (true) {
-			sleep(5);
-		}
-	}
-#endif
-
-	/* compute elapsed runtime */
-	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
-	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
-
-	run_on_exit(exec.getexitcode());
-	exit(exec.getexitcode());
-
 	// TODO: remove this when reetrant code is done
 	my_instance = NULL;
 
@@ -330,6 +272,14 @@ void GldMain::delete_pidfile(void)
 	unlink(global_pidfile);
 }
 
+int GldMain::add_on_exit(EXITCALL call)
+{
+	exitcalls.push_back(call);
+	size_t n = exitcalls.size();
+	IN_MYCONTEXT output_verbose("add_on_exit(%p) -> %d", call, n);
+	return n;
+}
+
 int GldMain::add_on_exit(int xc, const char *cmd)
 {
 	try
@@ -347,11 +297,67 @@ int GldMain::add_on_exit(int xc, const char *cmd)
 	}
 }
 
-void GldMain::run_on_exit(int xc)
+void GldMain::run_on_exit()
 {
+	/* save the model */
+	if (strcmp(global_savefile,"")!=0)
+	{
+		if (saveall(global_savefile)==FAILED)
+			output_error("save to '%s' failed", global_savefile);
+	}
+
+	/* do module dumps */
+	if (global_dumpall!=FALSE)
+	{
+		IN_MYCONTEXT output_verbose("dumping module data");
+		module_dumpall();
+	}
+
+	/* KML output */
+	if (strcmp(global_kmlfile,"")!=0)
+		kml_dump(global_kmlfile);
+
+	/* terminate */
+	module_termall();
+
+	/* wrap up */
+	IN_MYCONTEXT output_verbose("shutdown complete");
+
+	/* profile results */
+	if (global_profiler)
+	{
+		class_profiles();
+		module_profiles();
+	}
+
+#ifdef DUMP_SCHEDULES
+	/* dump a copy of the schedules for reference */
+	schedule_dumpall("schedules.txt");
+#endif
+
+	/* restore locale */
+	locale_pop();
+
+	/* if pause enabled */
+#ifndef WIN32
+	if (global_pauseatexit)
+	{
+		IN_MYCONTEXT output_verbose("pausing at exit");
+		while (true) {
+			sleep(5);
+		}
+	}
+#endif
+
+	/* compute elapsed runtime */
+	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
+	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
+
 	for ( std::list<onexitcommand>::iterator cmd = exitcommands.begin() ; cmd != exitcommands.end() ; cmd++ )
 	{
-		if ( cmd->get_exitcode() == xc )
+		if ( cmd->get_exitcode() == exec.getexitcode() 
+			|| ( exec.getexitcode() == -1 && cmd->get_exitcode() != 0 ) 
+			)
 		{
 			int rc = cmd->run();
 			if ( rc != 0 )
@@ -365,6 +371,24 @@ void GldMain::run_on_exit(int xc)
 			}
 		}
 	}
+
+	for ( std::list<EXITCALL>::iterator call = exitcalls.begin() ; call != exitcalls.end() ; call++ )
+	{
+		int rc = (*call)(exec.getexitcode());
+		if ( rc != 0 )
+		{
+			output_error("on_exit call failed (return code %d)", rc);
+			return;
+		}
+		else
+		{
+			IN_MYCONTEXT output_verbose("exitcall() -> code %d", rc);
+		}
+	}
+
+	/* compute elapsed runtime */
+	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
+	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
 }
 
 /** @} **/
