@@ -42,8 +42,8 @@ orderbook::orderbook(MODULE *module)
 
 int orderbook::create(void)
 {
-	sell = new std::list<ORDER>;
-	buy = new std::list<ORDER>;
+	sell = new std::list<order>;
+	buy = new std::list<order>;
 	return 1; // return 1 on success, 0 on failure
 }
 
@@ -62,77 +62,77 @@ TIMESTAMP orderbook::commit(TIMESTAMP t1, TIMESTAMP t2)
 	return TS_NEVER;
 }
 
-ORDER *orderbook::json_to_order(const char *buffer)
+bool lesser(const order &a, const order &b)
 {
-	// TODO: extract JSON content into ORDER
-	return NULL;
+	return a.get_price() < b.get_price();
+}
+bool greater(const order &a, const order &b)
+{
+	return a.get_price() > b.get_price();
 }
 
-bool lesser(const ORDER &a, const ORDER &b)
+int orderbook::fill(order &o)
 {
-	return a.price < b.price;
-}
-bool greater(const ORDER &a, const ORDER &b)
-{
-	return a.price > b.price;
-}
-
-int orderbook::fill_order(ORDER *order)
-{
-	quantity = order->quantity;
-	if ( order->type == BUYMARKET )
+	if ( o.get_type() == order::BUYMARKET )
 	{
-		buy_price = sell->front().price;
+		buy_price = sell->front().get_price();
 	}
-	else if ( order->type == SELLMARKET )
+	else if ( o.get_type() == order::SELLMARKET )
 	{
-		sell_price = buy->front().price;
+		sell_price = buy->front().get_price();
 	}
+	// TODO: other order types
 	return 1; // 1 on success, 0 on failure
 }
 
 int orderbook::submit(char *buffer, size_t len)
 {
-	verbose("orderbook::sell_market(char *buffer='%s', size_t len=%d)\n", buffer, len);
-	ORDER order;
+	verbose("orderbook::submit(char *buffer='%s', size_t len=%d)\n", buffer, len);
+	order o;
 	if ( len == 0 ) // read data from buffer
 	{
 		if ( buffer[0] == '{' ) // JSON format
 		{
-			order = json_to_order(buffer);
-			if ( order == NULL )
-			{
-				return 0; // reject order
-			}
+			o = order(buffer);
 		}
-		else // binary format
+		else if ( sizeof(order) == len ) // binary format
 		{
-			order = (ORDER*)buffer;
+			o = *(order*)buffer;
 		}
-		switch ( order->type )
+		else
+			throw "invalid order data";
+		switch ( o.get_type() )
 		{
-		case BUYMARKET:
-		case SELLMARKET:
-			return update_market(order);
-		case BUYLIMIT:
-			order = new ORDER;
-			memcpy(order,(ORDER*)buffer,sizeof(ORDER));
-			buy->push_front(*order);
+		case order::BUYMARKET:
+		case order::SELLMARKET:
+			return update_market(o);
+		case order::BUYLIMIT:
+			buy->push_front(o);
 			buy->sort(greater);
 			break;
-		case SELLLIMIT:
-			sell->push_front(*order);
+		case order::SELLLIMIT:
+			sell->push_front(o);
 			sell->sort(lesser);
 			break;
-		case CANCEL:
+		case order::CANCEL:
 			// TODO: delete existing limit order (using id)
 			break;
 		default:
-			warning("ignoring unrecognized order type %d", order->type);
+			warning("ignoring unrecognized order type %d", o.get_type());
 			break;
 		}
 		return update_market();
 	}
 	else // write data to buffer
 		return 0; // no outgoing message
+}
+
+int orderbook::update_market(void)
+{
+	return 0;
+}
+
+int orderbook::update_market(order&)
+{
+	return update_market();;
 }

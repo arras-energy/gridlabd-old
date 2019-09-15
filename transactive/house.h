@@ -6,7 +6,7 @@
 #define _HOUSE_H
 
 #include "gridlabd.h"
-#include "../powerflow/triplex_meter.h"
+#include "../powerflow/powerflow.h"
 
 using namespace arma;
 DECL_METHOD(house,connect);

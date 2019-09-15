@@ -13,17 +13,24 @@ DECL_METHOD(orderbook,submit);
 
 class order 
 {
+public:
+	typedef enum {CANCEL, BUYMARKET, SELLMARKET, BUYLIMIT, SELLLIMIT} ORDERTYPE;
 private:
-	enum {CANCEL, BUYMARKET, SELLMARKET, BUYLIMIT, SELLLIMIT} type;
+	ORDERTYPE type;
 	unsigned long long id;
 	double quantity;
 	double price;
 	unsigned long long end;
 	double value;
 public:
-	order(const char *);
-	~order(void);
-	double match(order&);
+	inline order(void) { type=CANCEL; id=0; quantity=price=value=0.0; end=0; };
+	inline order(const char *str) { type=CANCEL; id=0; quantity=price=value=0.0; end=0; }; // TODO: parse string
+	inline ~order(void) {};
+	double const match(order&);
+public:
+	inline ORDERTYPE get_type(void) const { return type; };
+	inline double get_price(void) const { return price; };
+	inline double get_quantity(void) const { return quantity; };
 };
 
 class orderbook : public gld_object 
@@ -43,11 +50,11 @@ public:
 	int init(OBJECT *parent);
 	TIMESTAMP commit(TIMESTAMP, TIMESTAMP);
 private:
-	ORDER *json_to_order(const char *buffer);
-	int fill(order *);
-	int add_sell(ORDER *order);
-	int add_buy(ORDER *order);
-	int update_market(ORDER *order=NULL);
+	int fill(order&);
+	int add_sell(order&);
+	int add_buy(order&);
+	int update_market(void);
+	int update_market(order&);
 public:
 	static CLASS *oclass;
 	static orderbook *defaults;
