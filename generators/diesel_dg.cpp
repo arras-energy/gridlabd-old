@@ -716,7 +716,7 @@ int diesel_dg::create(void)
 /* Object initialization is called once after all object have been created */
 int diesel_dg::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	PROPERTY *pval;
 	double ZB, SB, EB;
@@ -816,7 +816,7 @@ int diesel_dg::init(OBJECT *parent)
 	}
 	else
 	{
-		OBJECT *obj = OBJECTHDR(this);
+		OBJECT *obj = THISOBJECTHDR;
 		gl_warning("diesel_dg:%d %s", obj->id, parent==NULL?"has no parent meter defined":"parent is not a meter");
 
 		// attach meter variables to each circuit in the default_meter
@@ -1310,7 +1310,7 @@ TIMESTAMP diesel_dg::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	double Pmech;
 	unsigned char jindex, kindex;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	double *ptemp_double;
 	double temp_double_high, temp_double_low, tdiff, ang_diff;
 	complex temp_current_val[3];
@@ -1771,7 +1771,7 @@ TIMESTAMP diesel_dg::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	complex temp_current_val[3];
 	int ret_state;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	complex aval, avalsq;
 	TIMESTAMP dt;
 

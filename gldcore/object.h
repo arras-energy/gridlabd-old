@@ -388,6 +388,7 @@ OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name);
 OBJECT *object_find_name(OBJECTNAME name);
 int object_build_name(OBJECT *obj, char *buffer, int len);
 int object_locate_property(void *addr, OBJECT **pObj, PROPERTY **pProp);
+int object_property_getsize(OBJECT *obj, PROPERTY *prop);
 
 int object_get_oflags(KEYWORD **extflags);
 
@@ -482,6 +483,7 @@ bool object_set_json(OBJECT *obj, const char *propname, JSONDATA *data);
 #define OBJECTDATA(X,T) ((T*)((X)?((X)+1):NULL)) /**< get the object data structure */
 #define GETADDR(O,P) ((O)?((void*)((char*)((O)+1)+(unsigned int64)((P)->addr))):NULL) /**< get the addr of an object's property */
 #define OBJECTHDR(X) ((X)?(((OBJECT*)X)-1):NULL) /**< get the header from the object's data structure */
+#define THISOBJECTHDR (((OBJECT*)this)-1)
 
 #define MY (((OBJECT*)this)-1)
 #define MYPARENT (MY->parent) /**< get the parent from the object's data structure */

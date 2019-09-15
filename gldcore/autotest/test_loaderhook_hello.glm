@@ -1,0 +1,7 @@
+// this test checks that a well-defined loader extension works when implemented and used properly
+#system gcc -shared -o hello.so -fPIC ../hello.c
+extension hello;
+
+hello
+
+#print ok

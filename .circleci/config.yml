@@ -4,7 +4,7 @@ jobs:
     docker:
       - image: slacgismo/circleci_gridlabd_base:latest
     steps:
-      - checkout            
+      - checkout    
       - run:
           name: Build gridlabd
           command: |
@@ -16,6 +16,7 @@ jobs:
           name: Validate gridlabd
           command: |
             export PATH=$PWD/install/bin:$PATH
+            export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:.}
             gridlabd -T 8 --validate
       - run:
           name: Save validation output (if any) on failure

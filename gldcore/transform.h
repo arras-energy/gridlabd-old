@@ -111,7 +111,7 @@ PROPERTYTYPE gldvar_gettype(GLDVAR *var, unsigned int n);
 const char *gldvar_getname(GLDVAR *var, unsigned int n);
 const char *gldvar_getstring(GLDVAR *var, unsigned int n, char *buffer, int size);
 UNIT *gldvar_getunits(GLDVAR *var, unsigned int n);
-
+TRANSFERFUNCTION *transform_find_filter(const char *name);
 int transform_add_filter(struct s_object_list *target_obj, struct s_property_map *target_prop, char *function, struct s_object_list *source_obj, struct s_property_map *source_prop);
 int transfer_function_add(char *tfname, char *domain, double timestep, double timeskew, unsigned int n, double *a, unsigned int m, double *b);
 

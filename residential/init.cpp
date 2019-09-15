@@ -105,6 +105,13 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	return residential_enduse::oclass;
 }
 
+EXPORT void term(void)
+{
+	extern FILE *paneldump_fh;
+	if ( paneldump_fh != NULL )
+		fclose(paneldump_fh);
+}
+
 //Call function for scheduling deltamode
 void schedule_deltamode_start(TIMESTAMP tstart)
 {

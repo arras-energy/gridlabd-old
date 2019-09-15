@@ -125,3 +125,4 @@ models/ieee123/config/local.glm
 .bash_profile
 *.tmp
 gldcore/link/python/example.png
+*-checkpoint.ipynb

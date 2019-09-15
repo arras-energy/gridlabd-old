@@ -1,0 +1,3 @@
+// this test checks that extension with no parser are not loaded
+#system gcc -shared -o hello.so -fPIC -D NOPARSER ../hello.c
+extension hello;

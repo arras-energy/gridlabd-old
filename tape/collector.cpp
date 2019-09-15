@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <ctype.h>
+#include <stdarg.h>
 #include "gridlabd.h"
 #include "object.h"
 #include "aggregate.h"
@@ -160,30 +161,61 @@ static TIMESTAMP collector_write(OBJECT *obj)
 }
 
 #define BLOCKSIZE 1024
-EXPORT int method_collector_property(OBJECT *obj, char *value, size_t size)
+EXPORT int method_collector_property(OBJECT *obj, ...)
 {
 	struct collector *my = OBJECTDATA(obj,struct collector);
-	size_t len = strlen(value);
-	gl_verbose("adding property '%s' to collector:%d",value,obj->id);
-	if ( my->property_len < len || my->property == NULL )
+	va_list args;
+	va_start(args,obj);
+	void *arg0 = va_arg(args,void*);
+
+	// legacy calls
+	char *value = (char*)arg0;
+	size_t size = va_arg(args,size_t);
+	if ( value == NULL ) // check size needed to hold result
 	{
-		size_t need = len + (my->property==NULL ? 0 : strlen(my->property)) + 1;
-                my->property_len = ((need/BLOCKSIZE)+1)*BLOCKSIZE;
-                my->property = (char*)realloc(my->property,my->property_len);
-		if ( my->property == NULL )
+		if ( size == 0 )
+			return my->property?strlen(my->property)+1:0;
+		else
+			return (my->property?strlen(my->property)+1:0) > size;
+	}
+	else if ( size == 0 ) // copy from data
+	{
+		size_t len = strlen(value);
+		gl_verbose("adding property '%s' to collector:%d",value,obj->id);
+		if ( my->property_len < len || my->property == NULL )
 		{
-			gl_error("memory allocation failed");
-			my->property_len = 0;
+			size_t need = len + (my->property==NULL ? 0 : strlen(my->property)) + 1;
+	                my->property_len = ((need/BLOCKSIZE)+1)*BLOCKSIZE;
+	                my->property = (char*)realloc(my->property,my->property_len);
+			if ( my->property == NULL )
+			{
+				gl_error("memory allocation failed");
+				my->property_len = 0;
+				return 0;
+			}
+			strcpy(my->property,value);
+		}	
+		else
+		{
+			strcat(my->property,",");
+			strcat(my->property,value);
+		}
+		return 1;
+	}
+	else // copy to data
+	{
+		if ( size > strlen(my->property) )
+		{
+			strcpy(value,my->property);
+			return strlen(my->property);
+		}
+		else
+		{
 			return 0;
 		}
-		strcpy(my->property,value);
-	}	
-	else
-	{
-		strcat(my->property,",");
-		strcat(my->property,value);
 	}
-	return 1;
+
+	va_end(args);
 }
 
 AGGREGATION *link_aggregates(char *aggregate_list, char *group)

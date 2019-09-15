@@ -240,12 +240,17 @@ OBJECT *object_find_by_id(OBJECTNUM id){ /**< object id number */
 
 	@return a pointer to the object name string
  **/
-const char *object_name(OBJECT *obj, char *oname, int size){ /**< a pointer to the object */
-	//static char32 oname="(invalid)";
-	
-	convert_from_object(oname, size, &obj, NULL);
-	
-	return oname;
+const char *object_name(OBJECT *obj, /**< a pointer to the object */
+						char *oname=NULL, /**< buffer pointer, NULL to use static buffer */
+						int size=0) /**< buffer size */
+{ 
+	static char buffer[256]="";
+	if ( ! oname )
+	{
+		oname = buffer;
+		size = sizeof(buffer)-1;
+	}
+	return convert_from_object(oname,size,&obj,NULL) < 1 ? NULL : oname;
 }
 
 /** Get the unit of an object, if any
@@ -1350,7 +1355,7 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 	//static char buffer[4096];
 	void *addr;
 	PROPERTY *prop = class_find_property(obj->oclass,name);
-	if(prop==NULL)
+	if ( prop == NULL )
 	{
 		errno = ENOENT;
 		return NULL;
@@ -1362,7 +1367,7 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 	}
 	else if ( prop->ptype == PT_method )
 	{
-		if ( class_property_to_string(prop,obj,buffer,sz) )
+		if ( class_property_to_string(prop,addr,buffer,sz) )
 			return buffer;
 		else
 		{
@@ -1917,6 +1922,37 @@ size_t object_save(char *buffer, size_t size, OBJECT *obj)
 	}
 }
 
+int object_property_getsize(OBJECT *obj, PROPERTY *prop)
+{
+	// dynamic size
+	PROPERTYSPEC *spec = property_getspec(prop->ptype);
+	int len = spec->csize;
+	IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s','type':'%s'}): prop->width = %d", object_name(obj), prop->name, property_getspec(prop->ptype)->name, len);
+	if ( len == PSZ_DYNAMIC )
+	{
+		len = property_write(prop,(char*)(obj+1)+(int64_t)(prop->addr),NULL,0);
+		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_DYNAMIC => len = %d", object_name(obj), prop->name, len);
+	}
+	else if ( len == PSZ_AUTO )
+	{
+		// TODO: support general calls to underlying class implementing the property
+		std::string *str = (std::string*)(char*)(obj+1)+(int64_t)(prop->addr);
+		len = str->size()+1;
+		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = PSZ_AUTO => len = %d", object_name(obj), prop->name, len);
+	}
+	if ( len < 0 )
+	{
+		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d => len = 0", object_name(obj), prop->name, len);
+		len = 0;
+	}
+	else
+	{
+		IN_MYCONTEXT output_debug("object_property_getsize(OBJECT *obj={'name':'%s'}, PROPERTY *prop={'name':'%s'}) -> len = %d", object_name(obj), prop->name, len);
+	}
+
+	return len;
+}
+
 /** Save all the objects in the model to the stream \p fp in the \p .GLM format
 	@return the number of bytes written, 0 on error, with errno set.
  **/
@@ -2013,7 +2049,26 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 				if ( (global_glm_save_options&GSO_NOINTERNALS)==GSO_NOINTERNALS && prop->access!=PA_PUBLIC )
 					continue;
 				buffer[0]='\0';
-				if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
+                if ( prop->ptype == PT_method )
+                {
+                    size_t sz = object_property_getsize(obj,prop);
+                    if ( sz > 0 )
+                    {
+	                    char *buffer = new char[sz+2];
+	                    object_property_to_string(obj,prop->name,buffer,sz+1);
+	                    count += fprintf(fp,"\t%s \"\"\"%s\"\"\";\n", prop->name,buffer);
+	                    delete [] buffer;
+	                }
+	                else if ( sz == 0 )
+	                {
+	                	count += fprintf(fp,"\t%s \"\";\n",prop->name);
+	                }
+	                else
+	                {
+	                	// no output allowed for this property
+	                }
+                }
+                else if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
 				{
 					if ( prop->access != access && (global_glm_save_options&GSO_NOMACROS)==0 )
 					{
@@ -2496,41 +2551,66 @@ int object_build_name(OBJECT *obj, char *buffer, int len){
 	as when multiple modules are being used.
 	Throws an exception when a memory error occurs or when the name is already taken by another object.
  **/
-OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name){
+OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name)
+{
 	OBJECTTREE *item = NULL;
 
-	if((isalpha(name[0]) != 0) || (name[0] == '_')){
+	if ( (isalpha(name[0]) != 0) || (name[0] == '_') )
+	{
 		; // good
-	} else {
-		if(global_relax_naming_rules == 0){
+	} 
+	else 
+	{
+		if ( global_relax_naming_rules == 0 )
+		{
 			output_error("object name '%s' invalid, names must start with a letter or an underscore", name);
 			return NULL;
-		} else {
+		} 
+		else 
+		{
 			output_warning("object name '%s' does not follow strict naming rules and may not link correctly during load time", name);
 		}
 	}
-	if(obj->name != NULL){
+	if ( obj->name != NULL ) 
+	{
 		object_tree_delete(obj,name);
 	}
 	
-	if(name != NULL){
-		if(object_find_name(name) != NULL){
-			output_error("An object named '%s' already exists!", name);
-			/*	TROUBLESHOOT
-				GridLab-D prohibits two objects from using the same name, to prevent
-				ambiguous object look-ups.
-			*/
-			return NULL;
+	if ( name != NULL )
+	{
+		OBJECT *found = object_find_name(name);
+		if ( found != NULL )
+		{
+			output_debug("found object %s:%d when searching for name=%s", found->oclass->name, found->id, name);
+			if ( found == obj && found->name == NULL )
+			{
+				// likely attempt to set name to default -- this is ok
+				;
+			}
+			else
+			{
+				output_error("An object named '%s' already exists!", name);
+				/*	TROUBLESHOOT
+					GridLab-D prohibits two objects from using the same name, to prevent
+					ambiguous object look-ups.
+				*/
+				return NULL;
+			}
 		}
+		output_debug("adding object %s:%d as name %s", obj->oclass->name, obj->id, name);
 		item = object_tree_add(obj,name);
-		if(item != NULL){
+		if ( item != NULL )
+		{
 			obj->name = item->name;
 		}
 	}
 	
-	if(item != NULL){
+	if ( item != NULL )
+	{
 		return item->name;
-	} else {
+	} 
+	else 
+	{
 		return NULL;
 	}
 }
@@ -2877,7 +2957,7 @@ double object_get_part(void *x, const char *name)
 			{"out_svc",&(obj->out_svc)},
 			{"heartbeat",&(obj->heartbeat)},
 		};
-		for ( p=map ; p<map+sizeof(map); p++ ) {
+		for ( p = map ; p < map + (sizeof(map)/sizeof(map[0])); p++ ) {
 			if ( strcmp(p->name,root)==0 )
 				return timestamp_get_part(p->addr,part);
 		}

@@ -846,10 +846,6 @@ int schedule_normalize(SCHEDULE *sch,	/**< the schedule to normalize */
 	unsigned int b,i;
 	int count=0;
 
-	/* check if already normalized */
-	if (sch->flags&flags)
-		return -1;
-
 	/* normalized */
 	for (b=0; b<MAXBLOCKS; b++)
 	{
@@ -895,9 +891,6 @@ int schedule_normalize(SCHEDULE *sch,	/**< the schedule to normalize */
 		}
 	}
 
-	/* mark as normalized */
-	sch->flags |= flags;
-
 	return count;
 }
 
@@ -913,7 +906,7 @@ SCHEDULEINDEX schedule_index(SCHEDULE *sch, TIMESTAMP ts)
 	/* determine the local time */
 	if (!local_datetime(ts,&dt))
 	{
-		throw_exception("schedule_read(SCHEDULE *schedule={name='%s',...}, TIMESTAMP ts=%"FMT_INT64"d) unable to determine local time", sch->name, ts);
+		throw_exception("schedule_read(SCHEDULE *schedule={name='%s',...}, TIMESTAMP ts=%" FMT_INT64 "d) unable to determine local time", sch->name, ts);
 		/* TROUBLESHOOT
 			The schedule could not be read because the local time could not be determined.  
 			Fix the problem causing the local time system failure and try again.
@@ -1039,7 +1032,7 @@ TIMESTAMP schedule_sync(SCHEDULE *sch, /**< the schedule that is to be synchroni
 #ifdef _DEBUG
 			if ( dtnext==0 )
 			{
-				IN_MYCONTEXT output_debug("schedule_sync(SCHEDULE *sch={name: '%s',...}, TIMESTAMP t=%"FMT_INT64"d) has a dtnext==0", sch->name, t);
+				IN_MYCONTEXT output_debug("schedule_sync(SCHEDULE *sch={name: '%s',...}, TIMESTAMP t=%" FMT_INT64 "d) has a dtnext==0", sch->name, t);
 			}
 #endif
 			if(sch->value != value){//This will not update sch->since to the starttime if value == 0 at the starttime.
@@ -1052,7 +1045,7 @@ TIMESTAMP schedule_sync(SCHEDULE *sch, /**< the schedule that is to be synchroni
 			sch->duration = schedule_duration(sch,index)/60.0;
 			sch->next_t = (dtnext==0 ? TS_NEVER : t + dtnext -  t % 60);
 #ifdef _DEBUG
-			output_test("time %"FMT_INT64"d: schedule '%s', value %g, duration %g, dt_next %d, next_t %"FMT_INT64"d",
+			output_test("time %" FMT_INT64 "d: schedule '%s', value %g, duration %g, dt_next %d, next_t %" FMT_INT64 "d",
 				t, sch->name, sch->value, sch->duration, dtnext, sch->next_t);
 #endif
 		}

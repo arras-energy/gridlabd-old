@@ -155,7 +155,7 @@ int GldJsonWriter::write_classes(FILE *fp)
 		if ( oclass->has_runtime ) TUPLE("runtime","%s",oclass->runtime);
 		if ( oclass->pmap != NULL )
 			len += write(",");
-		for ( prop = oclass->pmap ; prop != NULL ; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)) )
+		for ( prop = oclass->pmap ; prop != NULL && prop->oclass == oclass ; prop=prop->next ) // note: do not output parent classes properties
 		{
 			KEYWORD *key;
 			const char *ptype = class_get_property_typename(prop->ptype);
@@ -254,6 +254,24 @@ int GldJsonWriter::write_globals(FILE *fp)
 					len += write("\n\t\t\t}");
 				len += write(",");
 			}
+			PROPERTY *prop = var->prop;
+			char access[1024] = "";
+			switch ( prop->access ) {
+			case PA_PUBLIC: strcpy(access,"PUBLIC"); break;
+			case PA_REFERENCE: strcpy(access,"REFERENCE"); break;
+			case PA_PROTECTED: strcpy(access,"PROTECTED"); break;
+			case PA_PRIVATE: strcpy(access,"PRIVATE"); break;
+			case PA_HIDDEN: strcpy(access,"HIDDEN"); break;
+			case PA_N: strcpy(access,"NONE"); break;
+			default:
+				if ( prop->access & PA_R ) strcat(access,"R");
+				if ( prop->access & PA_W ) strcat(access,"W");
+				if ( prop->access & PA_S ) strcat(access,"S");
+				if ( prop->access & PA_L ) strcat(access,"L");
+				if ( prop->access & PA_H ) strcat(access,"H");
+				break;
+			}
+			len += write("\n\t\t\t\"access\" : \"%s\",",access);			
 			if ( buffer[0] == '\"' )
 				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
 			else
@@ -263,6 +281,64 @@ int GldJsonWriter::write_globals(FILE *fp)
 	}
 	len += write("\n\t}");
 	output_debug("GldJsonWriter::globals() wrote %d bytes",len);
+	return len;
+}
+
+static const char *escape(const char *text, char *buffer, size_t len)
+{
+	char *p = buffer;
+	while ( *text != '\0' && p < buffer+len )
+	{
+		switch ( *text ) {
+		case '\n':
+			*p++ = '\\';
+			*p++ = 'n';
+			text++;
+			break;
+		case '\t':
+			*p++ = '\\';
+			*p++ = 't';
+			text++;
+			break;
+		case '\r':
+			*p++ = '\\';
+			*p++ = 'r';
+			text++;
+			break;
+		case '"':
+			*p++ = '\\';
+			*p++ = '"';
+			text++;
+			break;
+		default:
+			*p++ = *text++;
+			break;
+		}
+	}
+	*p = '\0';
+	return buffer;
+}
+int GldJsonWriter::write_schedules(FILE *fp) 
+{
+	int len = 0;
+	SCHEDULE *sch;
+	len += write(",\n\t\"schedules\" : {");
+
+	/* for each module */
+	bool first = true;
+	for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
+	{
+		if ( sch->flags&SN_USERDEFINED )
+		{
+			if ( ! first )
+				len += write(",");
+			first = false;
+			char buffer[sizeof(sch->definition)*2];
+			len += write("\n\t\t\"%s\" : \"%s\"", sch->name, escape(sch->definition,buffer,sizeof(buffer)));
+		}
+	}
+	len += write("\n\t}");
+	output_debug("GldJsonWriter::schedules() wrote %d bytes",len);
 	return len;
 }
 
@@ -322,27 +398,48 @@ int GldJsonWriter::write_objects(FILE *fp)
 				char buffer[1024];
 				if ( prop->access != PA_PUBLIC )
 					continue;
-				if ( prop->ptype == PT_enduse || prop->ptype == PT_method )
+				else if ( prop->ptype == PT_enduse )
 					continue;
-				const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
-				if ( value == NULL )
-					continue; // ignore values that don't convert propertly
-				int len = strlen(value);
-				if ( value[0] == '{' && value[len-1] == '}')
-				{
-					len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-				}
-				else if ( value[0] == '[' && value[len-1] == ']')
-				{
-				 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-				}
-				else if ( value[0] == '"' && value[len-1] == '"')
-				{
-					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-2));
-				}
-				else
-				{
-					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,len));
+				else if ( prop->ptype == PT_method )
+                {
+                    size_t sz = object_property_getsize(obj,prop);
+                    if ( sz > 0 )
+                    {
+	                    char *buffer = new char[sz+2];
+	                    strcpy(buffer,"");
+	                    object_property_to_string(obj,prop->name,buffer,sz+1);
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, buffer);
+	                    delete [] buffer;
+	                }
+	                else if ( sz == 0 )
+	                {
+						len += write(",\n\t\t\t\"%s\": \"\"", prop->name);
+	                }
+	                else
+	                {
+	                	// no output allowed for this property
+	                }
+                }
+                else
+                { 
+					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
+					if ( value == NULL )
+						continue; // ignore values that don't convert propertly
+					int len = strlen(value);
+					// TODO: proper JSON formatted is needed for data that is either a dict or a list
+					// if ( value[0] == '{' && value[len] == '}')
+					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+					// else if ( value[0] == '[' && value[len] == ']')
+					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+					// else 
+					if ( value[0] == '"' && value[len-1] == '"')
+					{
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-2));
+					}
+					else
+					{
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,len));
+					}
 				}
 			}
 		}
@@ -366,6 +463,7 @@ int GldJsonWriter::write_output(FILE *fp)
 	len += write_classes(fp);
 	len += write_globals(fp);
 	len += write_objects(fp);
+	len += write_schedules(fp);
 	len += write("\n}\n");
 	output_debug("GldJsonWriter::output() wrote %d bytes",len);
 	return len;
