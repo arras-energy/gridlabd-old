@@ -156,7 +156,7 @@ TIMESTAMP link::sync(TIMESTAMP t0)
 	// link debugging
 	if (debug_link==1)
 	{
-		OBJECT* obj = OBJECTHDR(this);
+		OBJECT* obj = THISOBJECTHDR;
 		static int first=-1;
 		if (first==-1) first = obj->id;
 		if (obj->id==first)

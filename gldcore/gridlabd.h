@@ -1164,7 +1164,7 @@ inline DEPRECATED bool *gl_get_bool(OBJECT *obj, /**< object to set dependency *
 	@{
  **/
 
-#define RNGSTATE DEPRECATED (&(OBJECTHDR(this))->rng_state)
+#define RNGSTATE DEPRECATED (&(THISOBJECTHDR)->rng_state)
 
 /** Determine the distribution type to be used from its name
 	@see RANDOMTYPE, random_type()
@@ -2933,7 +2933,7 @@ public:
 	inline bool isa(const char *type) { return callback->object_isa(my(),type) ? true : false; };
 
 	// Method: is_valid
-	inline bool is_valid(void) { return my()!=NULL && my()==OBJECTHDR(this); };
+	inline bool is_valid(void) { return my()!=NULL && my()==THISOBJECTHDR; };
 
 public: 
 

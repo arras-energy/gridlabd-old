@@ -392,7 +392,7 @@ TIMESTAMP recorder::commit(TIMESTAMP t0, TIMESTAMP t1)
 				strcpy(oldvalues,valuelist);
 			}
 		}
-		db->query("INSERT INTO `%s` (`%s`%s) VALUES (from_unixtime('%"FMT_INT64"d')%s)",
+		db->query("INSERT INTO `%s` (`%s`%s) VALUES (from_unixtime('%" FMT_INT64 "d')%s)",
 			get_table(), (const char*)datetime_fieldname, fieldlist, db->convert_to_dbtime(gl_globalclock),  valuelist);
 
 

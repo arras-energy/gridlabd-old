@@ -139,7 +139,7 @@ int controller2::create(){
 }
 
 int controller2::init(OBJECT *parent){
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	if(parent == NULL){
 		gl_error("controller2 has no parent and will be operating in 'dummy' mode");
 	} else {

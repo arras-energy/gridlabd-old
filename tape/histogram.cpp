@@ -215,7 +215,7 @@ void histogram::test_for_complex(char *tprop, char *tpart){
 int histogram::init(OBJECT *parent)
 {
 	PROPERTY *prop = NULL;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	char tprop[64], tpart[8];
 	TAPEFUNCS *tf = 0;
 	tprop[0]=0;
@@ -469,7 +469,7 @@ int histogram::feed_bins(OBJECT *obj)
 
 TIMESTAMP histogram::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	if((sampling_interval == -1.0 && t_count > t1) ||
 		sampling_interval == 0.0 ||
