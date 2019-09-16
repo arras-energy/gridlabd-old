@@ -436,7 +436,9 @@ typedef enum {_PT_FIRST=-1,
 	PT_enduse,		/**< Enduse load data */
 	PT_random,		/**< Randomized number */
 	PT_method,		/**< Method interface */
-	PT_string,
+	PT_string,	/**< C++ string */
+	PT_json,	/**< JSON data block */
+	/* add new property types here - don't forget to add them also to rt/gridlabd.h and property.cpp */
 #ifdef USE_TRIPLETS
 	PT_triple, /**< triplet of doubles (not supported) */
 	PT_triplex, /**< triplet of complexes (not supported) */

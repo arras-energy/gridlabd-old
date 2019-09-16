@@ -4,7 +4,7 @@ class test {
 }
 
 object test {
-    dict {"a":["b","c","d"]};
+    dict {"a":["b","c","d"],"e":["f","g","h"],"i":"j"};
     list ["a","b","c"];
 }
 #set savefile=gridlabd.json

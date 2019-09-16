@@ -22,6 +22,7 @@
 #include "schedule.h"
 #include "transform.h"
 #include "enduse.h"
+#include "json.h"
 
 /* this must match property_type list in object.c */
 typedef unsigned int OBJECTRANK; /**< Object rank number */
@@ -464,11 +465,11 @@ int object_loadmethod(OBJECT *obj, const char *name, const char *value);
 
 void object_synctime_profile_dump(const char *filename);
 
-typedef struct s_jsondata {
-	const char *name;
-	const char *value;
-	struct s_jsondata *next;
-} JSONDATA;
+// typedef struct s_jsondata {
+// 	const char *name;
+// 	const char *value;
+// 	struct s_jsondata *next;
+// } JSONDATA;
 bool object_set_json(OBJECT *obj, const char *propname, JSONDATA *data);
 
 #ifdef __cplusplus

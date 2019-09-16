@@ -43,6 +43,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part},
 	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method},
 	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
+	{"json", "string", "[]", sizeof(JSONDATA), PSZ_AUTO, convert_from_json, convert_to_json, json_create,NULL,{TCNONE},json_get_part,json_set_part},
 };
 
 PROPERTYTYPE property_getfirst_type(void)

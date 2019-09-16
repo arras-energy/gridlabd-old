@@ -1076,7 +1076,8 @@ enum e_propertytype {_PT_FIRST=-1,
 	PT_random,
 	PT_method,
 	PT_string,
-	/* add new property types here - don't forget to add them also to rt/gridlabd.h and property.c */
+	PT_json,
+	/* add new property types here - don't forget to add them also to rt/gridlabd.h and property.cpp */
 #ifdef USE_TRIPLETS
 	PT_triple,
 	PT_triplex,
