@@ -24,4 +24,3 @@ if [ "${LAST_STAMP:-none}" != "$THIS_STAMP" ]; then
 	echo "#define BUILD_STATUS $(git status -b --porcelain | sed -e 's/^/\"/g;s/$/\\n\"\\/g';echo \"\")" >> $2
 	cd -
 fi
-#ls -l $2
