@@ -155,4 +155,4 @@ gldcore/build.h: buildnum
 
 buildnum: utilities/build_number
 	/bin/bash -c "source $(top_srcdir)/utilities/build_number $(top_srcdir) gldcore/build.h"
-	(git remote -v ; git log -n 1 ; git status -s ; git diff ) > origin.txt
+	/bin/bash -c "source utilities/update_origin.sh" > origin.txt
