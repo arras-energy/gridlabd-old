@@ -401,7 +401,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 	{
 		PROPERTY *prop;
 		CLASS *pclass;
-		char buffer[1024];
+		char buffer[1025];
 		if ( obj != object_get_first() )
 			len += write(",");
 		if ( obj->oclass == NULL ) // ignore objects with no defined class
@@ -443,7 +443,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		{
 			for ( prop = pclass->pmap ; prop!=NULL && prop->oclass == pclass->pmap->oclass; prop = prop->next )
 			{
-				char buffer[1024];
+				char buffer[1025*5];
 				if ( prop->access != PA_PUBLIC )
 					continue;
 				else if ( prop->ptype == PT_enduse )
@@ -469,8 +469,8 @@ int GldJsonWriter::write_objects(FILE *fp)
 	                }
                 }
                 else
-                { 
-					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
+                {
+					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
 					if ( value == NULL )
 						continue; // ignore values that don't convert propertly
 					int len = strlen(value);
