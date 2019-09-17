@@ -1363,7 +1363,7 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 	{
 		return prop->delegation->to_string(addr,buffer,sz) ? buffer : NULL;
 	}
-	else if ( class_property_to_string(prop,addr,buffer,sz) )
+	else if ( class_property_to_string(prop,addr,buffer,sz) >= 0 )
 	{
 		return buffer;
 	}
