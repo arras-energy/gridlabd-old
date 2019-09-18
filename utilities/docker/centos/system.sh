@@ -17,7 +17,7 @@ yum install libcurl-devel -y
 yum install which -y
 
 # upgrade git to version 2.x
-yum remove git*
+yum remove git* -y
 yum install https://centos7.iuscommunity.org/ius-release.rpm -y
 yum install git2u-all -y
 
