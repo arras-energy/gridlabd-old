@@ -503,8 +503,58 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
-	output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
-	return 0;
+	if ( argc <= 1 )
+	{
+		output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
+		return 0;
+	}
+	else if ( strcmp(argv[1],"all" ) == 0 )
+	{	
+		output_message("%s %s-%d (%s) "
+#if defined MACOSX
+			"DARWIN"
+#else // LINUX
+			"LINUX"
+#endif
+			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		return 1;
+	}
+	else if ( strcmp(argv[1],"number" ) == 0 )
+	{
+		output_message("%s", PACKAGE_VERSION);
+		return 1;
+	}
+	else if ( strcmp(argv[1],"build") == 0 )
+	{
+		output_message("%d", BUILDNUM);
+		return 1;
+	}
+	else if ( strcmp(argv[1],"package") == 0 )
+	{
+		output_message("%s", PACKAGE_NAME);
+		return 1;
+	}
+	else if ( strcmp(argv[1],"branch") == 0 )
+	{
+		output_message("%s", BRANCH);
+		return 1;
+	}
+	else if ( strcmp(argv[1],"platform") == 0 )
+	{
+		output_message(
+#if defined MACOSX
+			"DARWIN"
+#else // LINUX
+			"LINUX"
+#endif
+		);
+		return 1;
+	}
+	else
+	{
+		output_error("'%s' is invalid version specifier", argv[1]);
+		return CMDERR;
+	}
 }
 
 DEPRECATED static int build_info(void *main, int argc, const char *argv[])
@@ -1779,7 +1829,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{NULL,NULL,NULL,NULL, "Information"},
 	{"copyright",	NULL,	copyright,		NULL, "Displays copyright" },
 	{"license",		NULL,	license,		NULL, "Displays the license agreement" },
-	{"version",		"V",	version,		NULL, "Displays the version information" },
+	{"version",		"V",	version,		"[all,number,build,package,branch,platform]", "Displays the version information" },
 	{"build-info",	NULL,	build_info,		NULL, "Displays the build information" },
 	{"setup",		NULL,	setup,			NULL, "Open simulation setup screen" },
 	{"origin",		NULL,	origin,			NULL, "Display origin information" },
