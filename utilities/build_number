@@ -36,14 +36,14 @@ else
 		cd $1
 		echo "// $2 $THIS_STAMP" > $2
 		echo "#define BUILDNUM $(echo $THIS_STAMP | cut -c3,4,6,7,9,10)" >> $2
-		echo "#define BRANCH \"standalone\"" >> $2
+		echo "#define BRANCH \"<unknown>\"" >> $2
 		echo "#define REV_YEAR $(date '+%Y')" >> $2
 		echo "#define BUILD_NAME \"download\"" >> $2
 		echo "#define BUILD_URL \"http://gridlabd.org/\"" >> $2
-		echo "#define BUILD_BRANCH \"standalone\"" >> $2
+		echo "#define BUILD_BRANCH \"<unknown>\"" >> $2
 		echo "#define BUILD_SYSTEM \"$(uname -s)\"" >> $2
 		echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $2
-		echo "#define BUILD_ID \"download\"" >> $2
+		echo "#define BUILD_ID \"<unknown>\"" >> $2
 		echo "#define BUILD_OPTIONS \"$(./customize status | grep Enabled: | cut -f2 -d' ')\"" >> $2
 		echo "#define BUILD_STATUS \"\"" >> $2
 		cd -
