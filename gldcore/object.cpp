@@ -1352,36 +1352,27 @@ int object_set_dependent(OBJECT *obj, /**< the object to set */
  */
 const char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz)
 {
-	//static char buffer[4096];
-	void *addr;
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if ( prop == NULL )
 	{
 		errno = ENOENT;
 		return NULL;
 	}
-	addr = GETADDR(obj,prop); /* warning: cast from pointer to integer of different size */
+	void *addr = GETADDR(obj,prop); /* warning: cast from pointer to integer of different size */
 	if ( prop->ptype == PT_delegated )
 	{
 		return prop->delegation->to_string(addr,buffer,sz) ? buffer : NULL;
 	}
-	else if ( prop->ptype == PT_method )
-	{
-		if ( class_property_to_string(prop,addr,buffer,sz) )
-			return buffer;
-		else
-		{
-			output_error("gldcore/object.c:object_property_to_string(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property into buffer",
-				obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
-			return "";
-		}
-	}
-	else if ( class_property_to_string(prop,addr,buffer,sz) )
+	else if ( class_property_to_string(prop,addr,buffer,sz) >= 0 )
 	{
 		return buffer;
 	}
 	else
+	{
+		output_error("gldcore/object.c:object_property_to_string(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property value into buffer",
+			obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
 		return "";
+	}
 }
 
 void object_profile(OBJECT *obj, OBJECTPROFILEITEM pass, clock_t t)

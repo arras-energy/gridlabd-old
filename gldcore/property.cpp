@@ -231,13 +231,9 @@ int property_read(PROPERTY *prop, void *addr, const char *string)
 
 int property_write(PROPERTY *prop, void *addr, char *string, size_t size)
 {
-	if ( prop->ptype == PT_method && string == NULL ) // size inquiry
+	if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST && property_type[prop->ptype].data_to_string != NULL )
 	{
-		return property_type[prop->ptype].data_to_string(NULL,0,addr,prop);
-	}
-	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST && property_type[prop->ptype].data_to_string != NULL )
-	{
-		return property_type[prop->ptype].data_to_string(string,size,addr,prop);
+		return property_type[prop->ptype].data_to_string(string,string?size:0,addr,prop);
 	}
 	else
 	{
@@ -250,7 +246,6 @@ int property_write(PROPERTY *prop, void *addr, char *string, size_t size)
 		 */
 		return 0;
 	}
-
 }
 
 int property_create(PROPERTY *prop, void *addr)

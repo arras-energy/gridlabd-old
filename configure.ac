@@ -189,32 +189,50 @@ GLD_CXXFLAGS="$GLD_CXXFLAGS"
 #--------------------------------------
 AC_PATH_XTRA
 AC_CHECK_HEADERS([arpa/inet.h])
+AC_CHECK_HEADERS([assert.h])
+AC_CHECK_HEADERS([ctype.h])
+AC_CHECK_HEADERS([curl/curl.h])
+AC_CHECK_HEADERS([direct.h])
+AC_CHECK_HEADERS([dirent.h])
+AC_CHECK_HEADERS([errno.h])
 AC_CHECK_HEADERS([fcntl.h])
 AC_CHECK_HEADERS([float.h])
 AC_CHECK_HEADERS([inttypes.h])
+AC_CHECK_HEADERS([io.h])
 AC_CHECK_HEADERS([limits.h])
-AC_CHECK_HEADERS([malloc.h])
+AC_CHECK_HEADERS([list])
 AC_CHECK_HEADERS([malloc.h])
 AC_CHECK_HEADERS([math.h])
 AC_CHECK_HEADERS([memory.h])
-AC_CHECK_HEADERS([memory.h])
 AC_CHECK_HEADERS([netdb.h])
 AC_CHECK_HEADERS([netinet/in.h])
+AC_CHECK_HEADERS([process.h])
+AC_CHECK_HEADERS([pthread.h])
+AC_CHECK_HEADERS([pwd.h])
 AC_CHECK_HEADERS([sched.h])
+AC_CHECK_HEADERS([setjmp.h])
+AC_CHECK_HEADERS([signal.h])
+AC_CHECK_HEADERS([stdarg.h])
 AC_CHECK_HEADERS([stddef.h])
 AC_CHECK_HEADERS([stdint.h])
-AC_CHECK_HEADERS([stdint.h])
-AC_CHECK_HEADERS([stdlib.h])
+AC_CHECK_HEADERS([stdio.h])
 AC_CHECK_HEADERS([stdlib.h])
 AC_CHECK_HEADERS([string.h])
-AC_CHECK_HEADERS([string.h])
+AC_CHECK_HEADERS([string])
+AC_CHECK_HEADERS([sys/errno.h])
 AC_CHECK_HEADERS([sys/ioctl.h])
 AC_CHECK_HEADERS([sys/param.h])
+AC_CHECK_HEADERS([sys/select.h])
+AC_CHECK_HEADERS([sys/signal.h])
 AC_CHECK_HEADERS([sys/socket.h])
-AC_CHECK_HEADERS([sys/timeb.h])
+AC_CHECK_HEADERS([sys/stat.h])
 AC_CHECK_HEADERS([sys/time.h])
+AC_CHECK_HEADERS([sys/timeb.h])
+AC_CHECK_HEADERS([sys/types.h])
+AC_CHECK_HEADERS([sys/unistd.h])
+AC_CHECK_HEADERS([time.h])
 AC_CHECK_HEADERS([unistd.h])
-AC_CHECK_HEADERS([unistd.h])
+AC_CHECK_HEADERS([vector])
 AC_CHECK_HEADERS([wchar.h])
 
 #--------------------------------------
@@ -231,6 +249,7 @@ AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T
 AC_TYPE_MODE_T
+AC_TYPE_OFF_T
 AC_TYPE_PID_T
 AC_TYPE_SIZE_T
 AC_TYPE_UINT16_T
@@ -275,19 +294,25 @@ AC_SUBST([PTHREAD_CXX])
 #--------------------------------------
 # Checks for C++ type sizes.
 #--------------------------------------
+AC_CHECK_TYPES([ptrdiff_t])
 
 #--------------------------------------
 # Checks for C++ library functions.
 #--------------------------------------
 AC_FUNC_ERROR_AT_LINE
+AC_FUNC_FORK
+AC_FUNC_FSEEKO
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
+AC_FUNC_MMAP
 AC_FUNC_REALLOC
 AC_FUNC_STRFTIME
 AC_FUNC_STRTOD
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm])
 AC_CHECK_FUNCS([atexit])
+AC_CHECK_FUNCS([bzero])
+AC_CHECK_FUNCS([dup2])
 AC_CHECK_FUNCS([floor])
 AC_CHECK_FUNCS([ftime])
 AC_CHECK_FUNCS([getcwd])
@@ -295,21 +320,32 @@ AC_CHECK_FUNCS([gethostbyname])
 AC_CHECK_FUNCS([gethrtime])
 AC_CHECK_FUNCS([gettimeofday])
 AC_CHECK_FUNCS([inet_ntoa])
+AC_CHECK_FUNCS([localeconv])
+AC_CHECK_FUNCS([memchr])
+AC_CHECK_FUNCS([memmove])
 AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([mkdir])
+AC_CHECK_FUNCS([modf])
+AC_CHECK_FUNCS([munmap])
 AC_CHECK_FUNCS([pow])
 AC_CHECK_FUNCS([putenv])
+AC_CHECK_FUNCS([rmdir])
 AC_CHECK_FUNCS([select])
 AC_CHECK_FUNCS([setenv])
 AC_CHECK_FUNCS([socket])
 AC_CHECK_FUNCS([sqrt])
+AC_CHECK_FUNCS([strcasecmp])
 AC_CHECK_FUNCS([strchr])
 AC_CHECK_FUNCS([strcspn])
+AC_CHECK_FUNCS([strdup])
 AC_CHECK_FUNCS([strerror])
+AC_CHECK_FUNCS([strndup])
 AC_CHECK_FUNCS([strpbrk])
 AC_CHECK_FUNCS([strrchr])
+AC_CHECK_FUNCS([strspn])
 AC_CHECK_FUNCS([strstr])
 AC_CHECK_FUNCS([strtol])
+AC_CHECK_FUNCS([strtoul])
 AC_CHECK_FUNCS([tzset])
 
 #--------------------------------------
@@ -492,6 +528,9 @@ AC_MSG_NOTICE
 
 m4_ifdef([AM_PROG_AR], [AM_PROG_AR])
 LT_PREREQ([2.2])
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
+AC_PROG_RANLIB # (DPC 2019-09-15) don't remove this, doing so will cause a warning in autoscan instead of autoreconf
 LT_INIT([dlopen win32-dll shared disable-static])
 AC_SUBST([LIBTOOL_DEPS])
 

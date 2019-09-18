@@ -35,7 +35,15 @@ GldJsonWriter::~GldJsonWriter(void)
 
 const char * escape(const char *buffer, size_t len = 1024)
 {
-	static char result[2048];
+	static char *result = NULL;
+	static size_t result_len = 0;
+	if ( len >= result_len*5+1 )
+	{
+		result_len = (len>1024?len:1024)*5+1;
+		result = (char*)realloc(result,result_len);
+		if ( result == NULL )
+			throw_exception("escape(const char *buffer=%p, size_t len=%llu): memory allocation failed",buffer,len);
+	}
 	char *p = result;
 	const char *c;
 	for ( c = buffer ; *c != '\0' && c < buffer+len ; c++)
@@ -44,8 +52,48 @@ const char * escape(const char *buffer, size_t len = 1024)
 		{
 		case '"':
 			*p++ = '\\';
+			*p++ = '"';
+			break;
+		case '\\':
+			*p++ = '\\';
+			*p++ = '\\';
+			break;
+		// DPC: solidus is in the JSON spec (http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf, Figure 5)
+		// but it's not desirable or necessary (so far as I can tell) to escape it for gridlabd strings
+		// case '/':
+		// 	*p++ = '\\';
+		// 	*p++ = '/';
+		// 	break;
+		case '\b':
+			*p++ = '\\';
+			*p++ = 'b';
+			break;
+		case '\f':
+			*p++ = '\\';
+			*p++ = 'f';
+			break;
+		case '\n':
+			*p++ = '\\';
+			*p++ = 'n';
+			break;
+		case '\r':
+			*p++ = '\\';
+			*p++ = 'r';
+			break;
+		case '\t':
+			*p++ = '\\';
+			*p++ = 't';
+			break;
 		default:
-			*p++ = *c;
+			if ( *c >= 32 && *c < 127 )
+			{
+				*p++ = *c;
+			}
+			else
+			{
+				p += sprintf(p,"\\u%04hX", (unsigned short)*c);
+			}
+			break;
 		}
 	}
 	*p = '\0';
@@ -353,7 +401,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 	{
 		PROPERTY *prop;
 		CLASS *pclass;
-		char buffer[1024];
+		char buffer[1025];
 		if ( obj != object_get_first() )
 			len += write(",");
 		if ( obj->oclass == NULL ) // ignore objects with no defined class
@@ -395,7 +443,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		{
 			for ( prop = pclass->pmap ; prop!=NULL && prop->oclass == pclass->pmap->oclass; prop = prop->next )
 			{
-				char buffer[1024];
+				char buffer[1025*5];
 				if ( prop->access != PA_PUBLIC )
 					continue;
 				else if ( prop->ptype == PT_enduse )
@@ -421,8 +469,8 @@ int GldJsonWriter::write_objects(FILE *fp)
 	                }
                 }
                 else
-                { 
-					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
+                {
+					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
 					if ( value == NULL )
 						continue; // ignore values that don't convert propertly
 					int len = strlen(value);
