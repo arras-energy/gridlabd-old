@@ -16,6 +16,11 @@ yum install epel-release -y
 yum install libcurl-devel -y
 yum install which -y
 
+# upgrade git to version 2.x
+yum remove git*
+yum install https://centos7.iuscommunity.org/ius-release.rpm -y
+yum install git2u-all -y
+
 # python3 support needed as of 4.2
 yum --disablerepo="*" --enablerepo="epel" install python36 -y
 yum install python36 python36-devel python36-pip python36-tkinter -y
