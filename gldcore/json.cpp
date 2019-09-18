@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////
 // JSON Parser
 /////////////////////////////////////////////////////
-#ifdef JSON_PARSER_CPP
+
 int json_white(const char *input)
 {
 	int n = 0;
@@ -215,75 +215,6 @@ int json_object(const char *input, GldJson &data)
 	data = list;
 	return n;
 }
-#else
-DEPRECATED void json_exception(const char *context, size_t offset, const char *format, ...)
-{
-	va_list ptr;
-	va_start(ptr,format);
-	char tmp[1024];
-	vsnprintf(tmp,sizeof(tmp),format,ptr);
-	throw_exception("%s at '%-10.10s'",tmp,context+offset);
-	va_end(ptr);
-}
-
-DEPRECATED JSONDATA *json_parse(const char *input)
-{
-
-	JSONTYPE state = JSON_VALUE;
-	enum {JS_INIT, JS_OK, JS_ERROR, JS_DONE} substate = JS_INIT;
-	size_t start = 0;
-	for ( size_t p = 0 ; input[p] != '\0' && substate != JS_ERROR ; p++ )
-	{
-		switch ( state ) {
-		case JSON_VALUE:
-			switch (substate) {
-			case JS_INIT:
-				if ( input[p] == '{' )
-				{
-					substate = JS_OK;
-					start = p;
-				}
-				else if ( ! isspace(input[p]) )
-				{
-					substate = JS_ERROR;
-				}
-				break;
-			case JS_OK:
-				if ( input[p] == '}' )
-				{
-					substate = JS_DONE;
-				}
-				break;
-			case JS_DONE:
-				break;
-			case JS_ERROR:
-				break;
-			default:
-				json_exception(input,p,"invalid JSON parser substate '%d' in state '%d'",substate,state);
-				break;
-			}
-			break;
-		case JSON_OBJECT:
-			break;
-		case JSON_NUMBER:
-			break;
-		case JSON_STRING:
-			break;
-		case JSON_TRUE:
-			break;
-		case JSON_FALSE:
-			break;
-		case JSON_NULL:
-			break;
-		default:
-			json_exception(input,p,"invalid JSON parser state '%d'",state);
-			break;
-		}
-	}
-	// TODO
-	return NULL;
-}
-#endif
 
 DEPRECATED int json_dump(const char *filename)
 {
@@ -314,6 +245,63 @@ DEPRECATED CDECL double json_get_part(void *c, const char *name)
 DEPRECATED CDECL int json_set_part(void *c, const char *name, const char *value)
 {
 	return 0;
+}
+
+void GldJson::set_data(void) 
+{ 
+	switch( type ) {
+	case JSON_STRING:
+		free(data.str.buf);
+		data.str.buf = NULL;
+		data.str.len = 0;
+		break;
+	case JSON_OBJECT:
+		delete *obj;
+		data.obj = NULL;
+		break;
+	default:
+		break;
+	}
+}
+
+void GldJson::set_data(double x) 
+{ 
+	if ( type != JSON_NUMBER ) 
+	{ 
+		set_data(); 
+		type=JSON_NUMBER;
+	} 
+	data.num = x;
+}
+
+void GldJson::set_data(const char *x, size_t sz = 0) 
+{
+	if ( type != JSON_STRING )
+	{
+		set_data();
+		type = JSON_STRING;
+	}
+	else
+	{
+		if ( sz == 0 )
+			sz = strlen(x);
+		if ( sz > data.str.len )
+		{
+			data.str.buf = realloc(sz+1);
+			data.str.len = sz;
+		}
+	}
+	strcpy(data.str.buf,x);
+}
+
+void GldJson::set_data(GldJson *x) 
+{
+	if ( type != x->get_type() )
+	{
+		set_data();
+		type = x->get_type();
+	}
+	data.val = x;
 }
 
 unsigned int GldJsonWriter::version = 0;

@@ -14,6 +14,8 @@
 #endif
 
 #include "platform.h"
+#include <list>
+#include <string>
 
 DEPRECATED CDECL int json_dump(const char *filename);
 DEPRECATED CDECL int json_output(FILE *fp);
@@ -23,43 +25,40 @@ DEPRECATED CDECL int json_create(void *ptr);
 DEPRECATED CDECL double json_get_part(void *c, const char *name);
 DEPRECATED CDECL int json_set_part(void *c, const char *name, const char *value);
 
-#ifdef JSON_PARSER_CPP
+enum e_jsontype {JSON_NULL, JSON_FALSE, JSON_TRUE, JSON_NUMBER, JSON_STRING, JSON_ARRAY, JSON_OBJECT};	
+typedef enum e_jsontype JSONTYPE;
 class GldJson 
 {
 private:
-	const enum e_jsontype {JSON_NULL, JSON_FALSE, JSON_TRUE, JSON_NUMBER, JSON_STRING, JSON_ARRAY, JSON_VALUE, JSON_OBJECT} type;	
-	typedef enum e_jsontype JSONTYPE;
+	const JSONTYPE type;
+	size_t sz;
+	size_t refs;
 	union {
-		std::list<GldJson> *val;
+		std::list<GldJson> *obj;
 		double num;
-		string *str;
+		struct s_strbuf {
+			size_t len;
+			char *buf;
+		} str;
 	} data;
 public:
+	inline GldJson(GldJson &j) : type(j.type) {refs++; }; // TODO: copy constructor
 	inline GldJson(JSONTYPE t = JSON_NULL) : type(t) {};
-	inline ~GldJson(void) {};
-	inline JSONTYPE get_type(void) { return type; };
-	inline void set_data(double *x) { data.num = x; };
-	inline void set_data(string *x) { data.str = x;};
-	inline void set_data(GldJson *x) { data.val = x;};
-	inline void append(GldJson &item) { data.push_back(item); };
+	inline GldJson(double x) : type(JSON_NUMBER) { data.num = x; };
+	inline GldJson(const char *x) : type(JSON_STRING) { data.str.buf = strdup(x); data.str.len = strlen(x); };
+	inline GldJson(std::list<GldJson> *x) : type(JSON_OBJECT) { data.obj = x; };
+	inline ~GldJson(void) {if (--refs==0) set_data(); };
+	// get accessors
+	inline JSONTYPE get_type(void) const { return type; };
+	// set accessors
+	void set_data(void);
+	void set_data(double x);
+	void set_data(const char *x, size_t sz = 0);
+	void set_data(GldJson *x);
+	inline void append(GldJson &item) { data.obj->push_back(item); };
+	inline void append(double x) { data.obj->push_back(*(new GldJson(x))); };
+	inline void append(const char *x) { data.obj->push_back(*(new GldJson(x))); };
 };
-#else
-enum e_jsontype {JSON_VALUE, JSON_OBJECT, JSON_ARRAY, JSON_NUMBER, JSON_STRING, JSON_TRUE, JSON_FALSE, JSON_NULL};
-typedef enum e_jsontype JSONTYPE;
-struct s_jsondata {
-	const char *name;
-	const char *value;
-	// TODO: remove old above and replace with new below
-	JSONTYPE type;
-	union {
-		double number;
-		const char *string;
-		struct s_jsondata *json;
-	} data;
-	struct s_jsondata *next;
-};
-typedef struct s_jsondata JSONDATA;
-#endif
 
 class GldJsonWriter
 {
