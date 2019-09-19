@@ -62,7 +62,8 @@ autoreconf -isf
 make install
 
 # Validate GridLAB-D
-gridlabd --validate
+export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH}
+gridlabd -T 0 --validate
 
 
 
