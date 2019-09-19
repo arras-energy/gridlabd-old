@@ -108,9 +108,9 @@ git reset --hard
 make install
 
 
-if [ "$BRANCH" = "master" ]
-then 
-	make validate 
+if [ "$BRANCH" = "master" ]; then 
+	export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH}
+	gridlabd -T 0 --validate 
 fi
 
 # download weather data
