@@ -104,7 +104,7 @@ echo "###"
 cd /usr/local/src/gridlabd
 autoreconf -isf
 ./customize configure
-make install
+make -j20 install
 
 # Validate GridLAB-D
 echo "###"
