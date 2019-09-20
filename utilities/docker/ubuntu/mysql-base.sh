@@ -50,7 +50,7 @@ cd ${XERCES}
 export XERCESCROOT=`pwd`
 cd src/xercesc
 ./runConfigure -plinux -cgcc -xg++ -minmem -nsocket -tnative -rpthread
-make
+make -j20
 cd ${XERCESCROOT}
 cp -r include/xercesc /usr/include
 chmod -R a+r /usr/include/xercesc
@@ -77,7 +77,7 @@ gunzip ${ARMA}.tar.gz
 tar xf ${ARMA}.tar
 cd ${ARMA}
 cmake .
-make install
+make -j20 install
 
 # install needed support libraries
 echo "###"
