@@ -15,7 +15,7 @@
 
 # configuration
 GITREPO=https://github.com/dchassin/gridlabd 
-GITBRANCH=master
+GITBRANCH=build_docker_mysql_base
 XERCES=xerces-c-src_2_8_0
 MYSQL=mysql-connector-c-6.1.11-linux-glibc2.12-x86_64
 ARMA=armadillo-7.800.1

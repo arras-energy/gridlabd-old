@@ -1,15 +1,36 @@
 # Build docker image
-
+~~~
   host% cd utilities/docker/mysql-server
   host% docker build -f Dockerfile-mysql -t gridlabd/mysql-base:latest .
+~~~
 
-# Create container
+# Create the container
+~~~
+  host% docker run --name gridlabd-1 -it gridlabd/mysql-base | tee gridlabd-1.log
+~~~
 
-  host% docker run --name gridlabd-1 -it gridlabd/mysql-base
+# Configure the container for GridLAB-D
+~~~
+  host% export PASSWORD=$(grep GENERATED gridlabd-1.log | cut -f2 -d:)
+  host% docker exec -it gridlabd-1 mysql -uroot -p$PASSWORD < /tmp/mysql-setup.sql
+~~~
 
-# Setup mysql database
+# Open a shell in the container
+~~~
+  host% docker exec -it gridlabd-1 bash
+~~~
 
-Search output of docker run command for `GENERATED ROOT PASSWORD`. Run the command
+# Run a simulation using your local model
+~~~
+  host% docker exec -itv $(pwd):/tmp
+~~~
 
-  host% docker exec -it gridlabd-1 mysql -uroot -pGENERATED_ROOT_PASSWORD < /usr/local/src/gridlabd/utilities/docker/mysql-server/mysql-setup.sql
+# Shutdown the container
+~~~
+  host% docker exec -it gridlabd-1 mysqladmin -p$PASSWORD shutdown
+~~~
 
+# Delete the container
+~~~
+  host% docker rm gridlabd-1
+~~~
