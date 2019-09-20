@@ -10,13 +10,13 @@ host% docker pull gridlabd/mysql-server
 Sometimes, it's useful to build the image yourself, especially if you want to change options in the Dockerfile
 ~~~
 host% cd utilities/docker/mysql-server
-host% docker build -t gridlabd/mysql-base:latest .
+host% docker build -t gridlabd/mysql-server:latest .
 ~~~
 
 # Create the container
 Once the image is available on your system, you can create the container (which starts the mysql server):
 ~~~
-host% docker run --name gridlabd-1 -it gridlabd/mysql-base | tee gridlabd-1.log
+host% docker run --name gridlabd-1 -it gridlabd/mysql-server | tee gridlabd-1.log
 ~~~
 
 # Get the root password
