@@ -27,7 +27,10 @@
 
 # Shutdown the container
 ~~~
-  host% docker exec -it gridlabd-1 mysqladmin -p$PASSWORD shutdown
+  host% echo $PASSWORD 
+  <Ctrl-C>
+  host% docker exec -it gridlabd-1 mysqladmin -p shutdown
+  Enter password: <Ctrl-V><Enter>
 ~~~
 
 # Delete the container
