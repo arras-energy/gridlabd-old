@@ -67,13 +67,17 @@ When you are done using the container, you can shut it down:
 host% docker exec -it gridlabd-1 mysqladmin -p shutdown
 Enter password: <paste><Enter>
 ~~~
+Be advised: this destroys the database permanently. Don't forget to dump the database if you need it in the future.
 
 # Kill the container
+If shutdown doesn't work, you can kill it.
 ~~~
 host% docker kill gridlabd-1
 ~~~
+Be advised: this destroys the database permanently. Don't forget to dump the database if you need it in the future.
 
 # Delete the container
+If you don't intend to use the container in the future, or you want to pull/build it over, you should delete it:
 ~~~
 host% docker rm gridlabd-1
 ~~~
