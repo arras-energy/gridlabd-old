@@ -1,0 +1,9 @@
+FROM mysql:5.7
+ENV container docker
+EXPOSE 3306/tcp
+
+COPY *.sh /tmp/
+
+WORKDIR /tmp
+RUN bash mysql-base.sh
+
