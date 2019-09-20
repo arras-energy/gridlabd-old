@@ -26,7 +26,7 @@ void GldMain::pause_at_exit(void)
 #endif
 		if ( rc != 0 )
 		{
-			fprintf(stderr,"non-zero exit code from system pause\n");
+			fprintf(stderr,"non-zero exit code (rc=%d) from system pause\n",rc);
 		}
 	}
 }
