@@ -1,8 +1,4 @@
 #SET GLOBAL validate_password_policy=low;
-CREATE DATABASE 'gridlabd';
-CREATE USER gridlabd_a@'%' IDENTIFIED BY 'gridlabd';
-GRANT ALL PRIVILEGES ON *.* TO gridlabd_a@'%' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
 
 CREATE USER gridlabd@'%' IDENTIFIED BY 'gridlabd';
 GRANT ALTER ON *.* TO gridlabd@'%' WITH GRANT OPTION;
