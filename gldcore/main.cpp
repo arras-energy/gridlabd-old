@@ -17,11 +17,18 @@ SET_MYCONTEXT(DMC_MAIN)
 void GldMain::pause_at_exit(void) 
 {
 	if (global_pauseatexit)
+	{
+		int rc = 
 #if defined WIN32
 		system("pause");
 #else
 		system("read -p 'Press [RETURN] to end... ");
 #endif
+		if ( rc != 0 )
+		{
+			fprintf(stderr,"non-zero exit code from system pause\n");
+		}
+	}
 }
 
 /** The main entry point of GridLAB-D
