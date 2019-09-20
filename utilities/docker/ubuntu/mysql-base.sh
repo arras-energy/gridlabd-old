@@ -50,7 +50,7 @@ cd ${XERCES}
 export XERCESCROOT=`pwd`
 cd src/xercesc
 ./runConfigure -plinux -cgcc -xg++ -minmem -nsocket -tnative -rpthread
-make -j20
+make
 cd ${XERCESCROOT}
 cp -r include/xercesc /usr/include
 chmod -R a+r /usr/include/xercesc
