@@ -75,7 +75,7 @@ GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
 if HAVE_MINGW
 
-bin_SCRIPTS += gldcore/gridlabd
+bin_SCRIPTS += gldcore/gridlabd  gldcore/gridlabd-weather
 
 bin_PROGRAMS += gridlabd
 
@@ -100,7 +100,7 @@ EXTRA_gridlabd_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
 
 else
 
-bin_SCRIPTS += gldcore/gridlabd
+bin_SCRIPTS += gldcore/gridlabd gldcore/gridlabd-weather
 
 bin_PROGRAMS += gridlabd.bin
 

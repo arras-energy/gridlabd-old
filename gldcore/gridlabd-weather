@@ -1,0 +1,140 @@
+#!/bin/bash
+
+GITHUB="https://github.com"
+GITHUBUSERCONTENT="https://raw.githubusercontent.com"
+
+if [ -f gridlabd-weather.conf ]; then
+	source gridlabd-weather.conf
+fi
+if [ "$COUNTRY" == "" ]; then
+	COUNTRY="US"
+fi
+if [ "$GITUSER" == "" ]; then
+	GITUSER=dchassin
+fi
+if [ "$GITREPO" == "" ]; then
+	GITREPO="weather"
+fi
+if [ "$GITBRANCH" == "" ]; then
+	GITBRANCH="master"
+fi
+if [ "$CACHEDIR" == "" ]; then
+	CACHEDIR=.gridlabd-weather
+fi
+
+GITPROJ="$GITHUB/$GITUSER/$GITREPO"
+GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
+COMMIT_ID=$(git ls-remote "$GITPROJ" | grep "$GITBRANCH" | head -n 1 | cut -f1)
+INDEX=$CACHEDIR/$COMMIT_ID
+
+function fetch_index()
+{
+	if [ ! -d $CACHEDIR ]; then
+		mkdir -p $CACHEDIR
+	fi
+	if [ ! -f $INDEX ]; then
+		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
+		svn ls $GITPROJ/branches/$GITBRANCH/$COUNTRY > $INDEX
+		echo "done"
+		echo $(wc -l $INDEX | cut -c1-8) "weather files found"
+	fi
+}
+
+function help()
+{	
+	if [ $# == 0 ]; then
+		cat <<-END
+			Syntax: gridlabd-weather <command> [...]
+			Commands:
+			  help                   Get the list of commands
+			  index <pattern>        Index of available weather data matching <pattern> in archive
+			  list <pattern>         List of available downloaded data matching <pattern>
+			  get <pattern>          Download weather data matching <pattern> from archive 
+			  delete <pattern>       Delete downloaded weather data matching <pattern>
+			  info <file>            Get information about weather data in <file>
+			  clean                  Clean up the local cache of the archive index
+			END
+	fi
+}
+
+function clean()
+{
+	rm -rf $CACHEDIR
+	fetch_index
+}
+
+function index()
+{
+	fetch_index
+	if [ $# == 0 ]; then
+		cat $INDEX
+	else
+		grep "$1" $INDEX
+	fi
+}
+
+function list()
+{
+	fetch_index
+	LIST=$(index $1)
+	for f in $(index $1); do
+		if [ -f $f ]; then
+			echo $f
+		fi
+	done
+}
+
+function get()
+{
+	fetch_index
+	for f in $(index $1); do
+		if [ ! -f $f ]; then
+			echo -n "Downloading $f... "
+			curl -s $GITFILE/$COUNTRY/$f > $f
+			echo "done"
+		else
+			echo -n "Refreshing $f... "
+			curl -s $GITFILE/$COUNTRY/$f -z $f > $f
+			echo "done"
+		fi
+	done
+}
+
+function info()
+{
+	fetch_index
+	LIST=$(index $1)
+	first="yes"
+	for f in $(index $1); do
+		if [ -f $f ]; then
+			if [ "$first" == "yes" ]; then
+				echo "Filepath,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation"
+				first="no"
+			fi
+			echo -n "\"$PWD/$f\","
+			head -n 1 $f
+		fi
+	done
+}
+
+function delete()
+{
+	fetch_index
+	LIST=$(index $1)
+	for f in $(index $1); do
+		if [ -f $f ]; then
+			rm $f
+		fi
+	done
+
+}
+
+if [ $# == 0 -o "$1" == "help" ]; then
+	help $2
+	exit 0
+elif [ "$(type -t $1)" = "function" ]; then
+	$*
+	exit 0
+else
+	echo "ERROR: '$1' is not a valid weather command"
+fi
