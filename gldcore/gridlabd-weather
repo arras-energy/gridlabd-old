@@ -1,27 +1,39 @@
 #!/bin/bash
 
+# configurable parameters
 GITHUB="https://github.com"
 GITHUBUSERCONTENT="https://raw.githubusercontent.com"
+COUNTRY="US"
+GITUSER=dchassin
+GITREPO="weather"
+GITBRANCH="master"
+CACHEDIR=".gridlabd-weather"
 
-if [ -f gridlabd-weather.conf ]; then
-	source gridlabd-weather.conf
-fi
-if [ "$COUNTRY" == "" ]; then
-	COUNTRY="US"
-fi
-if [ "$GITUSER" == "" ]; then
-	GITUSER=dchassin
-fi
-if [ "$GITREPO" == "" ]; then
-	GITREPO="weather"
-fi
-if [ "$GITBRANCH" == "" ]; then
-	GITBRANCH="master"
-fi
-if [ "$CACHEDIR" == "" ]; then
-	CACHEDIR=.gridlabd-weather
+# load the configuration (if any)
+CONFIGFILE="gridlabd-weather.conf"
+if [ -f $CONFIGFILE ]; then
+	source $CONFIGFILE
 fi
 
+function config()
+{
+	if [ $# == 0 -o "$1" == "show" ]; then
+		echo "GITHUB=\"$GITHUB\""
+		echo "GITHUBUSERCONTENT=\"$GITHUBUSERCONTENT\""
+		echo "COUNTRY=\"$COUNTRY\""
+		echo "GITUSER=\"$GITUSER\""
+		echo "GITREPO=\"$GITREPO\""
+		echo "GITBRANCH=\"$GITBRANCH\""
+		echo "CACHEDIR=\"$CACHEDIR\""
+	elif [ "$1" == "reset" ]; then
+		rm -f $CONFIGFILE
+	else
+		echo "'%s' is an invalid config option"
+		exit 1
+	fi
+}
+
+# set the internal parameters
 GITPROJ="$GITHUB/$GITUSER/$GITREPO"
 GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
 COMMIT_ID=$(git ls-remote "$GITPROJ" | grep "$GITBRANCH" | head -n 1 | cut -f1)
@@ -40,19 +52,23 @@ function fetch_index()
 	fi
 }
 
+#
+# command line interface
+#
 function help()
 {	
 	if [ $# == 0 ]; then
 		cat <<-END
 			Syntax: gridlabd-weather <command> [...]
 			Commands:
-			  help                   Get the list of commands
-			  index <pattern>        Index of available weather data matching <pattern> in archive
-			  list <pattern>         List of available downloaded data matching <pattern>
-			  get <pattern>          Download weather data matching <pattern> from archive 
-			  delete <pattern>       Delete downloaded weather data matching <pattern>
-			  info <file>            Get information about weather data in <file>
-			  clean                  Clean up the local cache of the archive index
+			  help               Get the list of commands
+			  index <pattern>    Index of available weather data matching <pattern> in archive
+			  list <pattern>     List of available downloaded data matching <pattern>
+			  get <pattern>      Download weather data matching <pattern> from archive 
+			  delete <pattern>   Delete downloaded weather data matching <pattern>
+			  info <file>        Get information about weather data in <file>
+			  clean              Clean up the local cache of the archive index
+			  config             Show the current configuration
 			END
 	fi
 }
