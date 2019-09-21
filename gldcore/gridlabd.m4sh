@@ -78,6 +78,12 @@ elif test "x$1" = "x--valgrind" ; then :
   exit 0
 fi
 
+if test -x "`which gridlabd-$1`" ; then :
+  cd $pkgdatadir 
+  gridlabd-$@
+  exit
+fi
+
 AS_IF([test "x$GLPATH" = x],
   [export GLPATH="$pkglibdir:$pkgdatadir"],
   [export GLPATH="$pkglibdir:$pkgdatadir:$GLPATH"])
