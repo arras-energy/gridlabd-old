@@ -50,12 +50,16 @@ INDEX=$CACHEDIR/$COMMIT_ID
 function fetch_index()
 {
 	if [ ! -d $CACHEDIR ]; then
-		mkdir -p $CACHEDIR
+		mkdir -p $CACHEDIR || ( echo "ERROR: unable to create cache directory"; exit 1)
 	fi
 	if [ ! -f $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
-		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX
-		echo $(wc -l $INDEX | cut -c1-8) "weather files found"
+		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX || rm $INDEX
+		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "weather files found"
+	fi
+	if [ ! -f $INDEX ]; then
+		echo "ERROR: unable to fetch index"
+		exit 1
 	fi
 }
 
@@ -82,7 +86,7 @@ function help()
 
 function clean()
 {
-	rm -rf $CACHEDIR
+	rm -rf $CACHEDIR || echo "ERROR: unable to delete $CACHEDIR"
 	fetch_index
 }
 
@@ -113,12 +117,14 @@ function get()
 	for f in $(index $1); do
 		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
-			curl -s $GITFILE/$COUNTRY/$f > $DATADIR/$f
-			echo "done"
+			(curl -s $GITFILE/$COUNTRY/$f > $DATADIR/$f && echo "done") || rm $DATADIR/$f
 		else
 			echo -n "Refreshing $f... "
-			curl -s $GITFILE/$COUNTRY/$f -z $DATADIR/$f > $DATADIR/$f
-			echo "done"
+			(curl -s $GITFILE/$COUNTRY/$f -z $DATADIR/$f > $DATADIR/$f && echo "done") || rm $DATADIR/$f
+		fi
+		if [ ! -f $DATADIR/$f ]; then
+			echo "ERROR: unable to download $f"
+			exit 1
 		fi
 	done
 }
@@ -146,7 +152,7 @@ function delete()
 	LIST=$(index $1)
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
-			rm $DATADIR/$f
+			rm $DATADIR/$f || ( echo "ERROR: unable to delete %f"; exit 1)
 		fi
 	done
 
