@@ -158,6 +158,5 @@ buildnum: utilities/build_number
 	@/bin/bash -c "source utilities/update_origin.sh" > origin.txt
 
 weather:
-	@mkdir -p $(prefix)/share/gridlabd/weather
-	@chmod 777 $(prefix)/share/gridlabd/weather
-	@$(bindir)/gridlabd weather fetch_index
+	@(echo "Installing weather data manager" && mkdir -p $(prefix)/share/gridlabd/weather && chmod 777 $(prefix)/share/gridlabd/weather && chmod 755 $(bindir)/gridlabd-weather)
+	@(echo "Updating weather data index" && export GLD_ETC=$(prefix)/share/gridlabd && $(bindir)/gridlabd-weather fetch_index)
