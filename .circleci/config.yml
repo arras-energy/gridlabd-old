@@ -19,10 +19,7 @@ jobs:
       - store_artifacts:
           path: /home/circleci/project/documents
           destination: /gridlabd/documents
-      - run:
-          name: Save project files on failure
-          command: tar cfz project.tar.gz /home/circleci/project
-          when: on_fail
       - store_artifacts:
           path: /home/circleci/project/project.tar.gz
           destination: project.tar.gz
+          when: on_fail
