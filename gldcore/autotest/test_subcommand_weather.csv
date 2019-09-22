@@ -1,5 +1,5 @@
-Filepath,Country,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation
-"/usr/local/share/gridlabd/US/CA-San_Diego_Lindbergh_Field.tmy3",US,722900,"SAN DIEGO LINDBERGH FIELD",CA,-8.0,32.733,-117.167,4
-"/usr/local/share/gridlabd/US/CA-San_Diego_Miramar_Nas.tmy3",US,722930,"SAN DIEGO MIRAMAR NAS",CA,-8.0,32.867,-117.133,140
-"/usr/local/share/gridlabd/US/CA-San_Diego_Montgomer.tmy3",US,722903,"SAN DIEGO/MONTGOMER",CA,-8.0,32.817,-117.133,129
-"/usr/local/share/gridlabd/US/CA-San_Diego_North_Island_Nas.tmy3",US,722906,"SAN DIEGO NORTH ISLAND NAS",CA,-8.0,32.700,-117.200,15
+Country,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation
+US,722900,"SAN DIEGO LINDBERGH FIELD",CA,-8.0,32.733,-117.167,4
+US,722930,"SAN DIEGO MIRAMAR NAS",CA,-8.0,32.867,-117.133,140
+US,722903,"SAN DIEGO/MONTGOMER",CA,-8.0,32.817,-117.133,129
+US,722906,"SAN DIEGO NORTH ISLAND NAS",CA,-8.0,32.700,-117.200,15
