@@ -20,6 +20,6 @@ jobs:
           path: /home/circleci/project/documents
           destination: /gridlabd/documents
       - store_artifacts:
-          path: /home/circleci/project/project.tar.gz
-          destination: project.tar.gz
+          path: /home/circleci/project/validate-output.tar.gz
+          destination: validate-output.tar.gz
           when: on_fail
