@@ -9,8 +9,8 @@ jobs:
           name: Build gridlabd
           command: |
             autoreconf -isf
-            ./configure --enable-silent-rules --prefix=$PWD/install
-            export PATH=$PWD/install/bin:$PATH
+            ./configure
+            export PATH=/home/circleci/project/install/bin:$PATH
             sudo make -j16 install
             export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:.}
             sudo gridlabd -T 0 --validate
