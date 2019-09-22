@@ -211,6 +211,9 @@ clean-wc:
 	@unset REPLY && read -t 60 -p "Clean working copy (type 'yes' to proceed)? " && test "`echo "$$REPLY" | tr '[:upper:]' '[:lower:]'`" = "yes"
 	. utilities/cleanwc
 
+install-validate: install
+	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -T 0 --validate)
+
 check-local validate: 
 	gridlabd --validate
 
