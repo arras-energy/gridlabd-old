@@ -46,7 +46,7 @@ function fetch_index()
 	fi
 	if [ ! -f $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
-		svn ls $GITPROJ/branches/$GITBRANCH/$COUNTRY > $INDEX
+		svn ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX
 		echo "done"
 		echo $(wc -l $INDEX | cut -c1-8) "weather files found"
 	fi
