@@ -81,8 +81,8 @@ fi
 export GLD_ETC=$pkgdatadir 
 export GLD_BIN=$bindir
 export GLD_LIB=$libdir
-if test -x "`which gridlabd-$1`" ; then :
-  gridlabd-$@
+if test -x "${bindir}/gridlabd-$1" ; then :
+  ${bindir}/gridlabd-$@
   exit
 fi
 
@@ -91,14 +91,14 @@ AS_IF([test "x$GLPATH" = x],
   [export GLPATH="$pkglibdir:$pkgdatadir:$GLPATH"])
 
 AS_IF([test "x$TERM" = "xcygwin"],
-	[export CXXFLAGS="-I${pkgdatadir} $CXXFLAGS"],
-	[export CXXFLAGS="-I$pkgdatadir $CXXFLAGS"])
+  [export CXXFLAGS="-I${pkgdatadir} $CXXFLAGS"],
+  [export CXXFLAGS="-I$pkgdatadir $CXXFLAGS"])
 
 AS_IF([test "x$GRIDLABD_DEBUG" = "x"],
   [AS_IF([test "x$HAS_MINGW" = "xyes"],
-		["$bindir/gridlabd.exe" "$@"],
-		["$bindir/gridlabd.bin" "$@"])],
+    ["$bindir/gridlabd.exe" "$@"],
+    ["$bindir/gridlabd.bin" "$@"])],
   [AS_IF([test "x$HAS_MINGW" = "xyes"],
-		["$GRIDLABD_DEBUG" "$bindir/gridlabd.exe"],
-		["$GRIDLABD_DEBUG" "$bindir/gridlabd.bin"])])
+    ["$GRIDLABD_DEBUG" "$bindir/gridlabd.exe"],
+    ["$GRIDLABD_DEBUG" "$bindir/gridlabd.bin"])])
 

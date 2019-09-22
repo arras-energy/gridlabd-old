@@ -9,28 +9,17 @@ jobs:
           name: Build gridlabd
           command: |
             autoreconf -isf
-            ./configure --enable-silent-rules --prefix=$PWD/install
-            export PATH=$PWD/install/bin:$PATH
-            sudo make -j16 install
-      - run:
-          name: Validate gridlabd
-          command: |
-            export PATH=$PWD/install/bin:$PATH
-            export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:.}
-            gridlabd -T 8 --validate
-      - run:
-          name: Save validation output (if any) on failure
-          command: tar cfz validate-output.tar.gz ./*/autotest/*/*
-          when: on_fail
+            ./configure
+            export PATH=/home/circleci/project/install/bin:$PATH
+            sudo make -j16 install-validate
+            sudo make doxygen-run
       - store_artifacts:
           path: /home/circleci/project/validate.txt
           destination: /gridlabd/validate.txt
       - store_artifacts:
-          path: /home/circleci/project/validate-output.tar.gz
-          destination: /gridlabd/validate-output.tar.gz
-      - run:
-          name: Generate online documentation
-          command: sudo make doxygen-run
-      - store_artifacts:
           path: /home/circleci/project/documents
           destination: /gridlabd/documents
+      - store_artifacts:
+          path: /home/circleci/project/validate-output.tar.gz
+          destination: validate-output.tar.gz
+          when: on_fail

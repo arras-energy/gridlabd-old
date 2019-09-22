@@ -1,0 +1,4 @@
+// this test will detect changes in the download of weather data or the output of weather info
+#exec gridlabd-weather get San_Diego > /dev/null
+#exec gridlabd-weather info San_Diego | cut -f2- -d, > San_Diego.csv
+#exec diff San_Diego.csv ../${modelname/.glm/.csv} > diff.txt

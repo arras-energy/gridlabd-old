@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# check environment
+if [ ${GLD_ETC:-none} == none ]; then
+	echo "ERROR: GLD_ETC is not exported from the shell environment"
+	exit 1
+fi
+
 # configurable parameters
 GITHUB="https://github.com"
 GITHUBUSERCONTENT="https://raw.githubusercontent.com"
@@ -8,9 +14,10 @@ GITUSER=dchassin
 GITREPO="gridlabd-weather"
 GITBRANCH="master"
 SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -r1"
+DATADIR="$GLD_ETC/weather/$COUNTRY"
 
 # load the configuration (if any)
-CONFIGFILE="$GLDDIR_ETC/gridlabd-weather.conf"
+CONFIGFILE="$GLD_ETC/gridlabd-weather.conf"
 if [ -f $CONFIGFILE ]; then
 	source $CONFIGFILE
 fi
@@ -25,8 +32,15 @@ function config()
 		echo "GITREPO=\"$GITREPO\""
 		echo "GITBRANCH=\"$GITBRANCH\""
 		echo "CACHEDIR=\"$CACHEDIR\""
+		echo "DATADIR=\"$DATADIR\""
+		echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
 	elif [ "$1" == "reset" ]; then
-		rm -f $CONFIGFILE
+		rm -f $CONFIGFILE || (echo "ERROR: unable to reset $CONFIGFILE"; exit 1)
+	elif [ "$1" == "set" -a $# == 3 ]; then
+		echo "$2=\"$3\"" >> $CONFIGFILE
+	elif [ "$1" == "get" -a $# == 2 ]; then
+		value=$(grep ^$2 $CONFIGFILE | tail -n 1)
+		echo $value | cut -f2 -d= | cut -f2 -d\"
 	else
 		echo "'%s' is an invalid config option"
 		exit 1
@@ -34,7 +48,6 @@ function config()
 }
 
 # set the internal parameters
-DATADIR="$GLDDIR_ETC/$COUNTRY"
 CACHEDIR="$DATADIR/.gridlabd-weather"
 GITPROJ="$GITHUB/$GITUSER/$GITREPO"
 GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
@@ -43,14 +56,20 @@ INDEX=$CACHEDIR/$COMMIT_ID
 
 function fetch_index()
 {
+	if [ ! -d $DATADIR ]; then
+		mkdir -p $DATADIR || (echo "ERROR: unable to create $DATADIR"; exit 1)
+	fi
 	if [ ! -d $CACHEDIR ]; then
-		mkdir -p $CACHEDIR
+		mkdir -p $CACHEDIR || ( echo "ERROR: unable to create $CACHEDIR"; exit 1)
 	fi
 	if [ ! -f $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
-		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX
-		echo "done"
-		echo $(wc -l $INDEX | cut -c1-8) "weather files found"
+		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX || rm -f $INDEX
+		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "weather files found"
+	fi
+	if [ ! -f $INDEX ]; then
+		echo "ERROR: unable to fetch index"
+		exit 1
 	fi
 }
 
@@ -70,14 +89,21 @@ function help()
 			  delete <pattern>   Delete downloaded weather data matching <pattern>
 			  info <pattern>     Get information about weather data in <pattern>
 			  clean              Clean up the local cache of the archive index
-			  config             Show the current configuration
+			  config show        Show the current configuration
+			         reset       Reset the current configuration
+			         set <N> <V> Set configuration variable name <N> to value <V>
+			         get <N> <V> Get configuration variable name <N>
 			END
 	fi
 }
 
 function clean()
 {
-	rm -rf $CACHEDIR
+	rm -rf $CACHEDIR 
+	if [ -d $CACHEDIR ]; then
+		echo "ERROR: unable to delete $CACHEDIR"
+		exit 1
+	fi
 	fetch_index
 }
 
@@ -108,12 +134,10 @@ function get()
 	for f in $(index $1); do
 		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
-			curl -s $GITFILE/$COUNTRY/$f > $DATADIR/$f
-			echo "done"
+			(curl -s $GITFILE/$COUNTRY/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to download $f"; rm -f /tmp/$$; exit 1)
 		else
 			echo -n "Refreshing $f... "
-			curl -s $GITFILE/$COUNTRY/$f -z $DATADIR/$f > $DATADIR/$f
-			echo "done"
+			(curl -s $GITFILE/$COUNTRY/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to refresh $f"; rm -f /tmp/$$; exit 1)
 		fi
 	done
 }
@@ -126,10 +150,10 @@ function info()
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
 			if [ "$first" == "yes" ]; then
-				echo "Filepath,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation"
+				echo "Filepath,Country,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation"
 				first="no"
 			fi
-			echo -n "\"$DATADIR/$f\","
+			echo -n "\"$DATADIR/$f\",$COUNTRY,"
 			head -n 1 $DATADIR/$f
 		fi
 	done
@@ -141,7 +165,7 @@ function delete()
 	LIST=$(index $1)
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
-			rm $DATADIR/$f
+			rm -f $DATADIR/$f || ( echo "ERROR: unable to delete %f"; exit 1)
 		fi
 	done
 
