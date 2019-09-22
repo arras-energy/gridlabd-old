@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# check environment
+if [ ${GLD_ETC:-none} == none ]; then
+	echo "ERROR: GLD_ETC is not exported from the shell environment"
+	exit 1
+fi
+
 # configurable parameters
 GITHUB="https://github.com"
 GITHUBUSERCONTENT="https://raw.githubusercontent.com"
@@ -7,11 +13,10 @@ COUNTRY="US"
 GITUSER=dchassin
 GITREPO="gridlabd-weather"
 GITBRANCH="master"
-CACHEDIR=".gridlabd-weather"
 SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -r1"
 
 # load the configuration (if any)
-CONFIGFILE="gridlabd-weather.conf"
+CONFIGFILE="$GLD_ETC/gridlabd-weather.conf"
 if [ -f $CONFIGFILE ]; then
 	source $CONFIGFILE
 fi
@@ -35,6 +40,8 @@ function config()
 }
 
 # set the internal parameters
+DATADIR="$GLD_ETC/$COUNTRY"
+CACHEDIR="$DATADIR/.gridlabd-weather"
 GITPROJ="$GITHUB/$GITUSER/$GITREPO"
 GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
 COMMIT_ID=$(git ls-remote "$GITPROJ" | grep "$GITBRANCH" | head -n 1 | cut -f1)
@@ -47,7 +54,7 @@ function fetch_index()
 	fi
 	if [ ! -f $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
-		svn ls $SVNLSOPTIONS $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX
+		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX
 		echo "done"
 		echo $(wc -l $INDEX | cut -c1-8) "weather files found"
 	fi
@@ -62,12 +69,12 @@ function help()
 		cat <<-END
 			Syntax: gridlabd-weather <command> [...]
 			Commands:
-			  help               Get the list of commands
+			  help               Get the list of weather subcommands
 			  index <pattern>    Index of available weather data matching <pattern> in archive
-			  list <pattern>     List of available downloaded data matching <pattern>
+			  list <pattern>     List of available downloaded weather data matching <pattern>
 			  get <pattern>      Download weather data matching <pattern> from archive 
 			  delete <pattern>   Delete downloaded weather data matching <pattern>
-			  info <file>        Get information about weather data in <file>
+			  info <pattern>     Get information about weather data in <pattern>
 			  clean              Clean up the local cache of the archive index
 			  config             Show the current configuration
 			END
@@ -95,7 +102,7 @@ function list()
 	fetch_index
 	LIST=$(index $1)
 	for f in $(index $1); do
-		if [ -f $f ]; then
+		if [ -f $DATADIR/$f ]; then
 			echo $f
 		fi
 	done
@@ -105,13 +112,13 @@ function get()
 {
 	fetch_index
 	for f in $(index $1); do
-		if [ ! -f $f ]; then
+		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
-			curl -s $GITFILE/$COUNTRY/$f > $f
+			curl -s $GITFILE/$COUNTRY/$f > $DATADIR/$f
 			echo "done"
 		else
 			echo -n "Refreshing $f... "
-			curl -s $GITFILE/$COUNTRY/$f -z $f > $f
+			curl -s $GITFILE/$COUNTRY/$f -z $DATADIR/$f > $DATADIR/$f
 			echo "done"
 		fi
 	done
@@ -123,13 +130,13 @@ function info()
 	LIST=$(index $1)
 	first="yes"
 	for f in $(index $1); do
-		if [ -f $f ]; then
+		if [ -f $DATADIR/$f ]; then
 			if [ "$first" == "yes" ]; then
-				echo "Filepath,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation"
+				echo "Filepath,Country,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation"
 				first="no"
 			fi
-			echo -n "\"$PWD/$f\","
-			head -n 1 $f
+			echo -n "\"$DATADIR/$f\",$COUNTRY,"
+			head -n 1 $DATADIR/$f
 		fi
 	done
 }
@@ -139,8 +146,8 @@ function delete()
 	fetch_index
 	LIST=$(index $1)
 	for f in $(index $1); do
-		if [ -f $f ]; then
-			rm $f
+		if [ -f $DATADIR/$f ]; then
+			rm $DATADIR/$f
 		fi
 	done
 
