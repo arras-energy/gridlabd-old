@@ -11,9 +11,7 @@ jobs:
             autoreconf -isf
             ./configure
             export PATH=/home/circleci/project/install/bin:$PATH
-            sudo make -j16 install
-            export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:.}
-            sudo gridlabd -T 0 --validate
+            sudo make -j16 install-validate
       - run:
           name: Save validation output (if any) on failure
           command: tar cfz validate-output.tar.gz ./*/autotest/*/*
