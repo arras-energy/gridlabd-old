@@ -36,6 +36,11 @@ function config()
 		echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
 	elif [ "$1" == "reset" ]; then
 		rm -f $CONFIGFILE || (echo "ERROR: unable to reset $CONFIGFILE"; exit 1)
+	elif [ "$1" == "set" -a $# == 3 ]; then
+		echo "$2=\"$3\"" >> $CONFIGFILE
+	elif [ "$1" == "get" -a $# == 2 ]; then
+		value=$(grep ^$2 $CONFIGFILE | tail -n 1)
+		echo $value | cut -f2 -d= | cut -f2 -d\"
 	else
 		echo "'%s' is an invalid config option"
 		exit 1
@@ -84,7 +89,10 @@ function help()
 			  delete <pattern>   Delete downloaded weather data matching <pattern>
 			  info <pattern>     Get information about weather data in <pattern>
 			  clean              Clean up the local cache of the archive index
-			  config             Show the current configuration
+			  config show        Show the current configuration
+			         reset       Reset the current configuration
+			         set <N> <V> Set configuration variable name <N> to value <V>
+			         get <N> <V> Get configuration variable name <N>
 			END
 	fi
 }
