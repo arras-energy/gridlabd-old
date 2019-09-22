@@ -13,7 +13,7 @@ jobs:
             export PATH=$PWD/install/bin:$PATH
             sudo make -j16 install
             export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:.}
-            sudo make -T 0 --validate
+            sudo gridlabd -T 0 --validate
       - run:
           name: Save validation output (if any) on failure
           command: tar cfz validate-output.tar.gz ./*/autotest/*/*
