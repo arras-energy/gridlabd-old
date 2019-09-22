@@ -212,7 +212,7 @@ clean-wc:
 	. utilities/cleanwc
 
 install-validate: install
-	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -T 0 --validate || (tar cfz validate-output.tar.gz */autotest/test_*/*;exit 1)
+	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -T 0 --validate || (tar cfz validate-output.tar.gz */autotest/test_*/*;exit 1))
 
 check-local validate: 
 	gridlabd --validate
