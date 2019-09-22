@@ -12,19 +12,17 @@ jobs:
             ./configure
             export PATH=/home/circleci/project/install/bin:$PATH
             sudo make -j16 install-validate
-      - run:
-          name: Save validation output (if any) on failure
-          command: tar cfz validate-output.tar.gz ./*/autotest/*/*
-          when: on_fail
+            sudo make doxygen-run
       - store_artifacts:
           path: /home/circleci/project/validate.txt
           destination: /gridlabd/validate.txt
       - store_artifacts:
-          path: /home/circleci/project/validate-output.tar.gz
-          destination: /gridlabd/validate-output.tar.gz
-      - run:
-          name: Generate online documentation
-          command: sudo make doxygen-run
-      - store_artifacts:
           path: /home/circleci/project/documents
           destination: /gridlabd/documents
+      - run:
+          name: Save project files on failure
+          command: tar cfz project.tar.gz /home/circleci/project
+          when: on_fail
+      - store_artifacts:
+          path: /home/circleci/project/project.tar.gz
+          destination: project.tar.gz
