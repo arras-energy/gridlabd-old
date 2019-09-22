@@ -14,6 +14,7 @@ GITUSER=dchassin
 GITREPO="gridlabd-weather"
 GITBRANCH="master"
 SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -r1"
+DATADIR="$GLD_ETC/weather/$COUNTRY"
 
 # load the configuration (if any)
 CONFIGFILE="$GLD_ETC/gridlabd-weather.conf"
@@ -31,6 +32,8 @@ function config()
 		echo "GITREPO=\"$GITREPO\""
 		echo "GITBRANCH=\"$GITBRANCH\""
 		echo "CACHEDIR=\"$CACHEDIR\""
+		echo "DATADIR=\"$DATADIR\""
+		echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
 	elif [ "$1" == "reset" ]; then
 		rm -f $CONFIGFILE || (echo "ERROR: unable to reset $CONFIGFILE"; exit 1)
 	else
@@ -40,7 +43,6 @@ function config()
 }
 
 # set the internal parameters
-DATADIR="$GLD_ETC/weather/$COUNTRY"
 CACHEDIR="$DATADIR/.gridlabd-weather"
 GITPROJ="$GITHUB/$GITUSER/$GITREPO"
 GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
