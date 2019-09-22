@@ -120,7 +120,6 @@ function index()
 function list()
 {
 	fetch_index
-	LIST=$(index $1)
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
 			echo $f
@@ -145,7 +144,6 @@ function get()
 function info()
 {
 	fetch_index
-	LIST=$(index $1)
 	first="yes"
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
@@ -162,7 +160,6 @@ function info()
 function delete()
 {
 	fetch_index
-	LIST=$(index $1)
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
 			rm -f $DATADIR/$f || ( echo "ERROR: unable to delete %f"; exit 1)
