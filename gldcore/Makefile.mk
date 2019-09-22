@@ -100,7 +100,9 @@ EXTRA_gridlabd_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
 
 else
 
-bin_SCRIPTS += gldcore/gridlabd gldcore/gridlabd-weather
+bin_SCRIPTS += gldcore/gridlabd 
+bin_SCRIPTS += gldcore/gridlabd-weather
+bin_SCRIPTS += gldcore/gridlabd-template
 
 bin_PROGRAMS += gridlabd.bin
 

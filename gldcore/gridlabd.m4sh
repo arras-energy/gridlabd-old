@@ -78,8 +78,10 @@ elif test "x$1" = "x--valgrind" ; then :
   exit 0
 fi
 
+export GLD_ETC=$pkgdatadir 
+export GLD_BIN=$bindir
+export GLD_LIB=$libdir
 if test -x "`which gridlabd-$1`" ; then :
-  cd $pkgdatadir 
   gridlabd-$@
   exit
 fi

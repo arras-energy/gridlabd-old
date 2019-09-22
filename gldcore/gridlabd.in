@@ -1,5 +1,5 @@
 #! /bin/sh
-# Generated from gridlabd.m4sh by GNU Autoconf 2.69.
+# Generated from gldcore/gridlabd.m4sh by GNU Autoconf 2.69.
 ## -------------------- ##
 ## M4sh Initialization. ##
 ## -------------------- ##
@@ -334,7 +334,9 @@ elif test "x$1" = "x--valgrind" ; then :
 fi
 
 if test -x "`which gridlabd-$1`" ; then :
-  cd $pkgdatadir
+  export GLDDIR_ETC=$pkgdatadir
+  export GLDDIR_BIN=$bindir
+  export GLDDIR_LIB=$libdir
   gridlabd-$@
   exit
 fi

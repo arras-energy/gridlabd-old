@@ -3,14 +3,14 @@
 # configurable parameters
 GITHUB="https://github.com"
 GITHUBUSERCONTENT="https://raw.githubusercontent.com"
-COUNTRY="US"
+REGION="North America"
 GITUSER=dchassin
-GITREPO="gridlabd-weather"
+GITREPO="gridlabd-template"
 GITBRANCH="master"
-SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -r1"
+CACHEDIR="$GLDDIR_ETC/.gridlabd-template"
 
 # load the configuration (if any)
-CONFIGFILE="$GLDDIR_ETC/gridlabd-weather.conf"
+CONFIGFILE="$GLDDIR_ETC/gridlabd-template.conf"
 if [ -f $CONFIGFILE ]; then
 	source $CONFIGFILE
 fi
@@ -20,7 +20,7 @@ function config()
 	if [ $# == 0 -o "$1" == "show" ]; then
 		echo "GITHUB=\"$GITHUB\""
 		echo "GITHUBUSERCONTENT=\"$GITHUBUSERCONTENT\""
-		echo "COUNTRY=\"$COUNTRY\""
+		echo "REGION=\"$REGION\""
 		echo "GITUSER=\"$GITUSER\""
 		echo "GITREPO=\"$GITREPO\""
 		echo "GITBRANCH=\"$GITBRANCH\""
@@ -34,8 +34,6 @@ function config()
 }
 
 # set the internal parameters
-DATADIR="$GLDDIR_ETC/$COUNTRY"
-CACHEDIR="$DATADIR/.gridlabd-weather"
 GITPROJ="$GITHUB/$GITUSER/$GITREPO"
 GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
 COMMIT_ID=$(git ls-remote "$GITPROJ" | grep "$GITBRANCH" | head -n 1 | cut -f1)
@@ -47,10 +45,10 @@ function fetch_index()
 		mkdir -p $CACHEDIR
 	fi
 	if [ ! -f $INDEX ]; then
-		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
-		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX
+		echo -n "Downloading ${GITBRANCH} index of $REGION template archive from ${GITPROJ}... "
+		svn ls $GITPROJ/branches/$GITBRANCH/$REGION > $INDEX
 		echo "done"
-		echo $(wc -l $INDEX | cut -c1-8) "weather files found"
+		echo $(wc -l $INDEX | cut -c1-8) "template files found"
 	fi
 }
 
@@ -61,14 +59,16 @@ function help()
 {	
 	if [ $# == 0 ]; then
 		cat <<-END
-			Syntax: gridlabd-weather <command> [...]
+			Syntax: gridlabd-template <command> [...]
 			Commands:
-			  help               Get the list of weather subcommands
-			  index <pattern>    Index of available weather data matching <pattern> in archive
-			  list <pattern>     List of available downloaded weather data matching <pattern>
-			  get <pattern>      Download weather data matching <pattern> from archive 
-			  delete <pattern>   Delete downloaded weather data matching <pattern>
-			  info <pattern>     Get information about weather data in <pattern>
+			  help               Get the list of template subcommands
+			  index <pattern>    Index of available template files matching <pattern> in archive
+			  list <pattern>     List of available downloaded template files matching <pattern>
+			  get <pattern>      Download template files matching <pattern> from archive 
+			  delete <pattern>   Delete downloaded template files matching <pattern>
+			  info <pattern>     Get information about template files in <pattern>
+			  create <name>      Create a template from the files in current folder
+			  submit <name>      Submit the template <name> to the template archive
 			  clean              Clean up the local cache of the archive index
 			  config             Show the current configuration
 			END
@@ -96,7 +96,7 @@ function list()
 	fetch_index
 	LIST=$(index $1)
 	for f in $(index $1); do
-		if [ -f $DATADIR/$f ]; then
+		if [ -f $GLDDIR_ETC/$f ]; then
 			echo $f
 		fi
 	done
@@ -106,13 +106,13 @@ function get()
 {
 	fetch_index
 	for f in $(index $1); do
-		if [ ! -f $DATADIR/$f ]; then
+		if [ ! -f $GLDDIR_ETC/$f ]; then
 			echo -n "Downloading $f... "
-			curl -s $GITFILE/$COUNTRY/$f > $DATADIR/$f
+			curl -s $GITFILE/$REGION/$f > $GLDDIR_ETC/$f
 			echo "done"
 		else
 			echo -n "Refreshing $f... "
-			curl -s $GITFILE/$COUNTRY/$f -z $DATADIR/$f > $DATADIR/$f
+			curl -s $GITFILE/$REGION/$f -z $GLDDIR_ETC/$f > $GLDDIR_ETC/$f
 			echo "done"
 		fi
 	done
@@ -124,15 +124,38 @@ function info()
 	LIST=$(index $1)
 	first="yes"
 	for f in $(index $1); do
-		if [ -f $DATADIR/$f ]; then
+		if [ -f $f ]; then
 			if [ "$first" == "yes" ]; then
-				echo "Filepath,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation"
+				echo "Template,Variable,Default,Unit,Validation,Description"
 				first="no"
 			fi
-			echo -n "\"$DATADIR/$f\","
-			head -n 1 $DATADIR/$f
+			echo -n "\"$PWD/$f\","
+			# TODO
 		fi
 	done
+}
+
+function extract()
+{
+	fetch_index
+	LIST=$(index $1)
+	for f in $(index $1); do
+		if [ -f $f ]; then
+			# TODO
+		fi
+	done
+}
+
+function create()
+{
+	fetch_index
+	# TODO
+}
+
+function submit()
+{
+	fetch_index
+	# TODO
 }
 
 function delete()
@@ -140,8 +163,8 @@ function delete()
 	fetch_index
 	LIST=$(index $1)
 	for f in $(index $1); do
-		if [ -f $DATADIR/$f ]; then
-			rm $DATADIR/$f
+		if [ -f $GLDDIR_ETC/$f ]; then
+			rm $GLDDIR_ETC/$f
 		fi
 	done
 
@@ -154,5 +177,5 @@ elif [ "$(type -t $1)" = "function" ]; then
 	$*
 	exit 0
 else
-	echo "ERROR: '$1' is not a valid weather command"
+	echo "ERROR: '$1' is not a valid template command"
 fi
