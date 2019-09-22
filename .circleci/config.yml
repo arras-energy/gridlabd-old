@@ -12,13 +12,8 @@ jobs:
             ./configure --enable-silent-rules --prefix=$PWD/install
             export PATH=$PWD/install/bin:$PATH
             sudo make -j16 install
-            sudo echo "DATADIR=$PWD" > $PWD/install/share/gridlabd/gridlabd-weather.conf
-      - run:
-          name: Validate gridlabd
-          command: |
-            export PATH=$PWD/install/bin:$PATH
             export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:.}
-            gridlabd -T 0 --validate
+            sudo make -T 0 --validate
       - run:
           name: Save validation output (if any) on failure
           command: tar cfz validate-output.tar.gz ./*/autotest/*/*
