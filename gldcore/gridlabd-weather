@@ -40,7 +40,7 @@ function config()
 }
 
 # set the internal parameters
-DATADIR="$GLD_ETC/$COUNTRY"
+DATADIR="$GLD_ETC/weather/$COUNTRY"
 CACHEDIR="$DATADIR/.gridlabd-weather"
 GITPROJ="$GITHUB/$GITUSER/$GITREPO"
 GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
@@ -55,7 +55,6 @@ function fetch_index()
 	if [ ! -f $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
 		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX
-		echo "done"
 		echo $(wc -l $INDEX | cut -c1-8) "weather files found"
 	fi
 }
