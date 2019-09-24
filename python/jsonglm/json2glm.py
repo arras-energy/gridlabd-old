@@ -130,7 +130,6 @@ def objects_glm() :
 			obj_id.append([int(p_info['id']),p_id])
 			obj_id_sorted = sorted(obj_id, key=lambda tup: tup[0])
 			id_list,ordered_obj_list= zip(*obj_id_sorted)
-
 		for obj_id_sorted in ordered_obj_list : 
 			header_str = '\n' + 'object ' + data['objects'][obj_id_sorted]["class"] + '{'
 			fw.write(header_str)
@@ -145,7 +144,6 @@ def objects_glm() :
 					val_str = "\n"+ "\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
 					fw.write(val_str)
 			fw.write('\n}' )
-		# print(ordered_obj_list)
 	return True
 
 def schedules_glm() : 
