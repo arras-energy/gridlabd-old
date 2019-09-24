@@ -123,22 +123,29 @@ def modules_glm() :
 def objects_glm() : 
 	global data 
 	global fw 
+	obj_id = []
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // OBJECTS')
 		for p_id, p_info in data['objects'].items() : 
-			header_str = '\n' + 'object ' + p_info["class"] + '{'
+			obj_id.append([int(p_info['id']),p_id])
+			obj_id_sorted = sorted(obj_id, key=lambda tup: tup[0])
+			id_list,ordered_obj_list= zip(*obj_id_sorted)
+
+		for obj_id_sorted in ordered_obj_list : 
+			header_str = '\n' + 'object ' + data['objects'][obj_id_sorted]["class"] + '{'
 			fw.write(header_str)
-			if ':' in p_id : 
-				new_name = p_info['class']+'_'+p_info['id']
+			if ':' in obj_id_sorted : 
+				new_name = data['objects'][obj_id_sorted]['class']+'_'+data['objects'][obj_id_sorted]['id']
 			else :
-				new_name = p_id 
+				new_name = obj_id_sorted 
 			name_str = '\n' + '\t' + "name \"" + new_name + '\";'
 			fw.write(name_str)
-			for v_id, v_info in data['objects'][p_id].items() : 
+			for v_id, v_info in data['objects'][obj_id_sorted].items() : 
 				if v_id not in objects_ignore and v_info:  
 					val_str = "\n"+ "\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
 					fw.write(val_str)
 			fw.write('\n}' )
+		# print(ordered_obj_list)
 	return True
 
 def schedules_glm() : 
