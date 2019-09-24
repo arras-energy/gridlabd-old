@@ -214,7 +214,6 @@ clean-wc:
 check-local validate: 
 	gridlabd --validate
 
-distdir = $(PACKAGE)_$(VERSION)
 scratchdir = scratch
 XERCES_TARNAME = xerces-c-3.1.1
 XERCESCROOT = $(CURDIR)/$(scratchdir)/$(XERCES_TARNAME)
@@ -255,7 +254,7 @@ $(distdir).dmg: $(scratchdir)/$(PACKAGE_TARNAME).dmg
 	test ! -e $@ || rm -rf $@
 	hdiutil convert -format UDZO -o $@ $<
 	rm -f $<
-	-rmdir $(<D)
+	-rmdir $(scratchdir)
 
 clean-dist-osx:
 	-test ! -d $(scratchdir)/mnt || hdiutil detach $(scratchdir)/mnt

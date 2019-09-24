@@ -1,27 +1,52 @@
 #
 # Syntax: build_number <top_srcdir> <path-to-core/build.h>
 #
-if [ -f "$2" ]; then
-	LAST_STAMP=$(head -n 1 < $2 | cut -f3- -d' ')
+if [ -d .git ]; then
+
+	# git info is available
+	if [ -f "$2" ]; then
+		LAST_STAMP=$(head -n 1 < $2 | cut -f3- -d' ')
+	fi
+	THIS_STAMP=$(git log --max-count=1 --pretty=format:"%ai")
+	if [ "${LAST_STAMP:-none}" != "$THIS_STAMP" ]; then
+		cd $1
+		echo "// $2 $THIS_STAMP" > $2
+		echo "#define BUILDNUM $(echo $THIS_STAMP | cut -c3,4,6,7,9,10)" >> $2
+		echo "#define BRANCH \"$(git rev-parse --abbrev-ref HEAD)\"" >> $2
+		echo "#define REV_YEAR $(date '+%Y')" >> $2
+		echo "#define BUILD_NAME \"$(git remote | head -n 1)\"" >> $2
+		echo "#define BUILD_URL \"$(git remote -v | head -n 1 | cut -f1 -d' ' | cut -f2 | sed -e 's/\.git//')\"" >> $2
+		echo "#define BUILD_BRANCH \"$(git rev-parse --abbrev-ref HEAD)\"" >> $2
+		echo "#define BUILD_SYSTEM \"$(uname -s)\"" >> $2
+		echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $2
+		echo "#define BUILD_ID \"$(git log -n 1 | sed -n '1s/^commit //p')\"" >> $2
+		echo "#define BUILD_OPTIONS \"$(./customize status | grep Enabled: | cut -f2 -d' ')\"" >> $2
+		echo "#define BUILD_STATUS $(git status -b --porcelain | sed -e 's/^/\"/g;s/$/\\n\"\\/g';echo \"\")" >> $2
+		cd -
+	fi
+
+else
+
+	# no git info available
+	if [ -f "$2" ]; then
+		LAST_STAMP=$(head -n 1 < $2 | cut -f3- -d' ')
+	fi
+	THIS_STAMP=$(date '+%Y-%m-%d %H:%M:%S %z')
+	if [ "${LAST_STAMP:-none}" != "$THIS_STAMP" ]; then
+		cd $1
+		echo "// $2 $THIS_STAMP" > $2
+		echo "#define BUILDNUM $(echo $THIS_STAMP | cut -c3,4,6,7,9,10)" >> $2
+		echo "#define BRANCH \"<unknown>\"" >> $2
+		echo "#define REV_YEAR $(date '+%Y')" >> $2
+		echo "#define BUILD_NAME \"download\"" >> $2
+		echo "#define BUILD_URL \"http://gridlabd.org/\"" >> $2
+		echo "#define BUILD_BRANCH \"<unknown>\"" >> $2
+		echo "#define BUILD_SYSTEM \"$(uname -s)\"" >> $2
+		echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $2
+		echo "#define BUILD_ID \"<unknown>\"" >> $2
+		echo "#define BUILD_OPTIONS \"$(./customize status | grep Enabled: | cut -f2 -d' ')\"" >> $2
+		echo "#define BUILD_STATUS \"\"" >> $2
+		cd -
+	fi
+
 fi
-THIS_STAMP=$(git log --max-count=1 --pretty=format:"%ai")
-#echo "LAST_STAMP='$LAST_STAMP'"
-#echo "THIS_STAMP='$THIS_STAMP'"
-#ls -l $2
-if [ "${LAST_STAMP:-none}" != "$THIS_STAMP" ]; then
-	cd $1
-	echo "// $2 $THIS_STAMP" > $2
-	echo "#define BUILDNUM $(echo $THIS_STAMP | cut -c3,4,6,7,9,10)" >> $2
-	echo "#define BRANCH \"$(git rev-parse --abbrev-ref HEAD)\"" >> $2
-	echo "#define REV_YEAR $(date '+%Y')" >> $2
-	echo "#define BUILD_NAME \"$(git remote | head -n 1)\"" >> $2
-	echo "#define BUILD_URL \"$(git remote -v | head -n 1 | cut -f1 -d' ' | cut -f2 -d'	' | sed -e 's/\.git//')\"" >> $2
-	echo "#define BUILD_BRANCH \"$(git rev-parse --abbrev-ref HEAD)\"" >> $2
-	echo "#define BUILD_SYSTEM \"$(uname -s)\"" >> $2
-	echo "#define BUILD_RELEASE \"$(uname -sr)\"" >> $2
-	echo "#define BUILD_ID \"$(git log -n 1 | sed -n '1s/^commit //p')\"" >> $2
-	echo "#define BUILD_OPTIONS \"$(./customize status | grep Enabled: | cut -f2 -d' ')\"" >> $2
-	echo "#define BUILD_STATUS $(git status -b --porcelain | sed -e 's/^/\"/g;s/$/\\n\"\\/g';echo \"\")" >> $2
-	cd -
-fi
-#ls -l $2

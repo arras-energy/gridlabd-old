@@ -272,6 +272,14 @@ void GldMain::delete_pidfile(void)
 	unlink(global_pidfile);
 }
 
+int GldMain::add_on_exit(EXITCALL call)
+{
+	exitcalls.push_back(call);
+	size_t n = exitcalls.size();
+	IN_MYCONTEXT output_verbose("add_on_exit(%p) -> %d", call, n);
+	return n;
+}
+
 int GldMain::add_on_exit(int xc, const char *cmd)
 {
 	try
@@ -363,6 +371,24 @@ void GldMain::run_on_exit()
 			}
 		}
 	}
+
+	for ( std::list<EXITCALL>::iterator call = exitcalls.begin() ; call != exitcalls.end() ; call++ )
+	{
+		int rc = (*call)(exec.getexitcode());
+		if ( rc != 0 )
+		{
+			output_error("on_exit call failed (return code %d)", rc);
+			return;
+		}
+		else
+		{
+			IN_MYCONTEXT output_verbose("exitcall() -> code %d", rc);
+		}
+	}
+
+	/* compute elapsed runtime */
+	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
+	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
 }
 
 /** @} **/
