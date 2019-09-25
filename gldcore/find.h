@@ -248,6 +248,9 @@ void findlist_del(FINDLIST *list, struct s_object_list *obj);
 // Function: findlist_clear
 void findlist_clear(FINDLIST *list);
 
+// Function: findlist_create
+FINDLIST *findlist_create(FINDLIST *, const char *search);
+
 // Function: find_first
 struct s_object_list *find_first(FINDLIST *list);
 

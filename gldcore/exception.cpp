@@ -103,7 +103,7 @@ void delete_exception_handler(EXCEPTIONHANDLER *ptr) /**< a pointer to the excep
 void throw_exception(const char *format, /**< the format string */
 					 ...) /**< the parameters of the message */
 {
-	char buffer[1024];
+	static char buffer[1024]="";
 	va_list ptr;
 	va_start(ptr,format);
 	vsprintf(buffer,format,ptr);
@@ -119,14 +119,14 @@ void throw_exception(const char *format, /**< the format string */
 	else
 	{
 		// do not use output_* because they use functions that can throw exception
-		fprintf(stderr,"UNHANDLED EXCEPTION: %s\n", buffer);
+		//fprintf(stderr,"UNHANDLED EXCEPTION: %s\n", buffer);
 		/*	TROUBLESHOOT
 			An exception was generated that can't be handled by
 			the system.  This usually occurs because some part
 			of a module or external library isn't properly
 			compiled or linked.
 		*/
-		throw "general GridLAB-D exception caught";
+		throw buffer;
 	}
 }
 

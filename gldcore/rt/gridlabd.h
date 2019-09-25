@@ -1176,6 +1176,7 @@ typedef struct s_callbacks {
 		void (*add)(struct s_findlist*, OBJECT*);
 		void (*del)(struct s_findlist*, OBJECT*);
 		void (*clear)(struct s_findlist*);
+		struct s_findlist *(*list_create)(struct s_findlist*,const char *);
 	} find;
 	PROPERTY *(*find_property)(CLASS *, PROPERTYNAME);
 	void *(*malloc)(size_t);

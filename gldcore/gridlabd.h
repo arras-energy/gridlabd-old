@@ -2982,6 +2982,38 @@ static inline gld_object* get_object(char *n)
 	return get_object(obj);
 }
 
+class gld_finder {
+private:
+	FINDLIST *findlist;
+
+public:
+
+	// Constructor: gld_finder
+	inline gld_finder()
+	{
+		findlist = NULL;
+	}
+
+	// Method: create
+	inline bool create(const char *search)
+	{
+		findlist = callback->find.list_create(NULL,search);
+		return findlist != NULL;
+	};
+
+	// Method: get_first
+	inline struct s_object_list *get_first(void)
+	{
+		return findlist ? gl_find_next(findlist,NULL) : NULL;
+	};
+
+	// Method: get_next
+	inline struct s_object_list *get_next(struct s_object_list *item)
+	{
+		return gl_find_next(findlist,item);
+	};
+};
+
 static PROPERTYSTRUCT nullpstruct;
 
 /* 	Class: gld_property
@@ -3254,7 +3286,7 @@ public:
 	inline gld_keyword* find_keyword(const char *name) { return get_first_keyword()->find(name); };
 
 	// Method: compare(char *op, char *a, char *b=NULL, char *p=NULL)
-	inline bool compare(char *op, char *a, char *b=NULL, char *p=NULL) 
+	inline bool compare(const char *op, const char *a, const char *b=NULL, char *p=NULL) 
 	{ 
 		PROPERTYCOMPAREOP n = callback->properties.get_compare_op(pstruct.prop->ptype,op); 
 		if (n==TCOP_ERR) throw "invalid property compare operation"; 
@@ -3262,21 +3294,21 @@ public:
 	};
 
 	// Method: compare(enumeration op, char *a, char *b=NULL) 
-	inline bool compare(enumeration op, char *a, char *b=NULL) 
+	inline bool compare(enumeration op, const char *a, const char *b=NULL) 
 	{ 
 		char v1[1024], v2[1024]; 
 		return callback->convert.string_to_property(pstruct.prop,(void*)v1,a)>0 && callback->properties.compare_basic(pstruct.prop->ptype,(PROPERTYCOMPAREOP)op,get_addr(),(void*)v1,(b&&callback->convert.string_to_property(pstruct.prop,(void*)v2,b)>0)?(void*)v2:NULL, NULL);
 	};
 
 	// Method: compare(enumeration op, char *a, char *b, char *p) 
-	inline bool compare(enumeration op, char *a, char *b, char *p) 
+	inline bool compare(enumeration op, const char *a, const char *b, const char *p) 
 	{
 		double v1, v2; v1=atof(a); v2=b?atof(b):0;
 		return callback->properties.compare_basic(pstruct.prop->ptype,(PROPERTYCOMPAREOP)op,get_addr(),(void*)&v1,b?(void*)&v2:NULL, p);
 	};
 
 	// Method: compare(enumeration op, double *a, double *b=NULL, char *p=NULL) 
-	inline bool compare(enumeration op, double *a, double *b=NULL, char *p=NULL) 
+	inline bool compare(enumeration op, double *a, double *b=NULL, const char *p=NULL) 
 	{ 
 		return callback->properties.compare_basic(pstruct.prop->ptype,(PROPERTYCOMPAREOP)op,get_addr(),a,b,p);
 	};
