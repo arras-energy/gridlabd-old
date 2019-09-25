@@ -564,3 +564,9 @@ int GldJsonWriter::dump()
 
 	return len > 0;
 }
+
+int json_to_glm(const char *jsonfile, char *glmfile)
+{
+	// TODO: convert JSON file to GLM
+	return 0;
+}
