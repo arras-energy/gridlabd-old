@@ -1321,11 +1321,8 @@ extern "C" bool on_init(void)
         PyObject *call = PyList_GetItem(python_init,n);
         if ( PyCallable_Check(call) )
         {
-            // PyObject *repr = PyObject_Repr(call);
-            // output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",global_clock);
             PyObject *result = PyEval_CallObject(call,arg);
-            Py_DECREF(call);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1361,11 +1358,8 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_precommit,n);
         if ( call && PyCallable_Check(call) )
         {
-            // PyObject *repr = PyObject_Repr(call);
-            // output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
-            Py_DECREF(call);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1403,11 +1397,8 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_presync,n);
         if ( call && PyCallable_Check(call) )
         {
-            // PyObject *repr = PyObject_Repr(call);
-            // output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
-            Py_DECREF(call);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1444,11 +1435,8 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_sync,n);
         if ( call && PyCallable_Check(call) )
         {
-            // PyObject *repr = PyObject_Repr(call);
-            // output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
-            Py_DECREF(call);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1485,11 +1473,8 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_postsync,n);
         if ( call && PyCallable_Check(call) )
         {
-            // PyObject *repr = PyObject_Repr(call);
-            // output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
-            Py_DECREF(call);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1525,11 +1510,8 @@ extern "C" bool on_commit(TIMESTAMP t)
         PyObject *call = PyList_GetItem(python_commit,n);
         if ( call && PyCallable_Check(call) )
         {
-            // PyObject *repr = PyObject_Repr(call);
-            // output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t);
             PyObject *result = PyEval_CallObject(call,arg);
-            Py_DECREF(call);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1562,11 +1544,8 @@ extern "C" void on_term(void)
         PyObject *call = PyList_GetItem(python_term,n);
         if ( call && PyCallable_Check(call) )
         {
-            // PyObject *repr = PyObject_Repr(call);
-            // output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",global_clock);
             PyObject *result = PyEval_CallObject(call,arg);
-            Py_DECREF(call);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1576,9 +1555,9 @@ extern "C" void on_term(void)
             }
             if ( result != Py_None ) 
             {
-                Py_DECREF(result);
                 output_warning("python on_term() return an unexpected type (expected None)");
             }
+            Py_DECREF(result);
         }
         else
         {
