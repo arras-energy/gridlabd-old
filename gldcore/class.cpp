@@ -279,6 +279,16 @@ void class_add_property(CLASS *oclass,  /**< the class to which the property is 
 		last->next = prop;
 }
 
+bool has_child_class(CLASS *oclass)
+{
+	for ( CLASS *c = class_get_first_class() ; c != NULL ; c = c->next )
+	{
+		if ( c->parent == oclass )
+			return true;
+	} 
+	return false;
+}
+
 /** Add an extended property to a class 
     @return the property pointer
  **/
@@ -305,6 +315,18 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 		// will get picked up later
 	}
 
+	if ( has_child_class(oclass) )
+	{
+		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been used to derive another class", oclass->name, name);
+		/* TROUBLESHOOT
+			Once the class has been used to derive another class, it is not possible to change its size in memory.
+		 */
+	}
+	if ( oclass->profiler.numobjs > 0 )
+		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been instantiated", oclass->name, name);
+		/* TROUBLESHOOT
+			Once the class has been used to instantiate an object, it is not possible to change its size in memory.
+		 */
 	if (prop==NULL)
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): memory allocation failed", oclass->name, name);
 		/* TROUBLESHOOT
@@ -429,8 +451,7 @@ int class_property_to_string(PROPERTY *prop, /**< the property type */
                              char *value,    /**< the value buffer to which the string is to be written */
                              int size)       /**< the maximum number of characters that can be written to the \p value buffer*/
 {
-	int rv = 0;
-	if (prop->ptype==PT_delegated)
+	if ( prop->ptype == PT_delegated )
 	{
 		output_error("unable to convert from delegated property value");
 		/*	TROUBLESHOOT
@@ -441,19 +462,20 @@ int class_property_to_string(PROPERTY *prop, /**< the property type */
 	}
 	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST )
 	{
-		rv = property_write(prop,addr,value,size);
+		int rv = property_write(prop,addr,value,size);
 		if ( rv > 0 && prop->unit != 0 )
 		{
 			strcat(value+rv," ");
 			strcat(value+rv+1,prop->unit->name);
 			rv += (int)(1+strlen(prop->unit->name));
 		}
+		return rv;
 	}
 	else
 	{
-		rv = 0;
+		output_error("unable to convert from invalid property type");
+		return 0;
 	}
-	return rv;
 }
 
 
@@ -477,13 +499,12 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 
 	if ( _PT_LAST-_PT_FIRST-1 != sizeof(property_type)/sizeof(property_type[0]) )
 	{
-		output_fatal("property_type[] in class.c has an incorrect number of members (%i vs %i)", a/b, c);
+		throw_exception("property_type[] in class.c has an incorrect number of members (%i vs %i)", a/b, c);
 		/* TROUBLESHOOT
 			This error occurs when an improper definition of a class is used.  This is not usually
 			caused by an error in a GLM file but is most likely caused by a bug in a module
 			or incorrectly defined class.
 		 */
-		exit(XC_EXCEPTION);
 	}
 	if ( oclass != NULL && oclass->module != NULL )
 	{

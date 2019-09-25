@@ -152,6 +152,7 @@ typedef struct _stat STAT;
 #define snprintf _snprintf
 #else
 #include <unistd.h>
+#include <dlfcn.h>
 typedef struct stat STAT;
 #define FSTAT fstat
 #endif
@@ -2951,7 +2952,7 @@ static int module_properties(PARSER, MODULE *mod)
 			if WHITE ACCEPT;
 			if LITERAL(";")
 			{
-				if (module_setvar(mod,propname,propvalue)>0)
+				if (module_setvar(mod,propname,(const char*)propvalue)>0)
 				{
 					ACCEPT;
 					goto Next;
@@ -4267,7 +4268,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
 	char propname[64];
-	char propval[1024];
+	static char propval[65536*10];
 	double dval;
 	complex cval;
 	void *source=NULL;
@@ -6263,6 +6264,119 @@ static int modify_directive(PARSER)
 
 ////////////////////////////////////////////////////////////////////////////////////
 
+typedef int (*PARSERCALL)(PARSER);
+struct s_loaderhook {
+	PARSERCALL call;
+	struct s_loaderhook *next;
+};
+typedef struct s_loaderhook LOADERHOOK;
+
+static LOADERHOOK *loaderhooks = NULL;
+
+void loader_addhook(PARSERCALL call)
+{
+	LOADERHOOK *hook = new LOADERHOOK;
+	if ( hook == NULL )
+	{
+		throw "loader_addhook(): memory allocation failed";
+	}
+	hook->call = call;
+	hook->next = loaderhooks;
+	loaderhooks = hook;
+}
+
+typedef int (*LOADERINIT)(void);
+static int loader_hook(PARSER)
+{
+	char libname[1024];
+	START;
+	if ( WHITE ) ACCEPT;
+	if ( LITERAL("extension") && WHITE && name(HERE,libname,sizeof(libname)) )
+	{
+		// find the library
+		char pathname[1024];
+		snprintf(pathname, sizeof(pathname), "%s" DLEXT, libname);
+		if ( find_file(pathname, NULL, X_OK|R_OK, pathname,sizeof(pathname)) == NULL )
+		{
+			output_error_raw("%s(%d): unable to locate %s in GLPATH=%s", filename, linenum, pathname,getenv("GLPATH")?getenv("GLPATH"):"");
+			REJECT;
+		}
+		output_debug("loader extension '%s' is using library '%s", libname, pathname);
+
+		// load the library
+		void *lib = dlopen(pathname,RTLD_LAZY);
+		if ( lib == NULL )
+		{
+			output_error_raw("%s(%d): extension library '%s' load failed", filename, linenum, pathname);
+			output_error_raw("%s(%d): %s", filename, linenum, dlerror());
+			REJECT;
+		}
+		output_debug("loader extension '%s' loaded ok", pathname);
+
+		// access and call the initialization function
+		LOADERINIT init = (LOADERINIT) dlsym(lib,"init");
+		if ( init )
+		{
+			int rc = init();
+			if ( rc != 0 )
+			{
+				output_error_raw("%s(%d): extension library '%s' init() failed, return code %d", filename, linenum, pathname, rc);
+				REJECT;
+			}
+		}
+		output_debug("loader extension '%s' init ok", libname);
+
+		// find and link the parser
+		void *parser = dlsym(lib,"parser");
+	 	if ( parser == NULL )
+	 	{
+			output_error_raw("%s(%d): extension library '%s' does not export a parser function", filename, linenum, pathname);
+			REJECT;
+	 	}
+		output_debug("loader extension '%s' parser linked", libname);	
+
+		loader_addhook((PARSERCALL)parser);
+
+		// add init callback
+		INITCALL initcall = (INITCALL) dlsym(lib,"on_init");
+		if ( initcall )
+		{
+			my_instance->get_exec()->add_initcall(initcall);
+		}
+
+		// add term callback
+		TERMCALL termcall = (TERMCALL) dlsym(lib,"on_term");
+		if ( termcall )
+		{
+			my_instance->get_exec()->add_termcall(termcall);
+		}
+
+		// add exit callback
+		EXITCALL exitcall = (EXITCALL) dlsym(lib,"term");
+		if ( exitcall )
+		{
+			my_instance->add_on_exit(exitcall);
+		}
+
+		ACCEPT;
+		DONE;
+	}
+	else 
+	{
+		for ( LOADERHOOK *hook = loaderhooks ; hook != NULL ; hook = hook->next )
+		{
+			if ( TERM(hook->call(HERE)) )
+			{
+				ACCEPT;
+				DONE;
+			}
+		}
+		REJECT;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
 static int gridlabd_file(PARSER)
 {
 	START;
@@ -6286,6 +6400,7 @@ static int gridlabd_file(PARSER)
 	OR if TERM(script_directive(HERE)) { ACCEPT; DONE; }
 	OR if TERM(dump_directive(HERE)) { ACCEPT; DONE; }
 	OR if TERM(modify_directive(HERE)) { ACCEPT; DONE; }
+	OR if TERM(loader_hook(HERE)) { ACCEPT; DONE; }
 	OR if (*(HERE)=='\0') {ACCEPT; DONE;}
 	else REJECT;
 	DONE;
@@ -7621,6 +7736,44 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
 	return technology_readiness_level;
 }
 
+/** convert a non-GLM file to GLM, if possible */
+bool load_import(const char *from, char *to, int len)
+{
+	const char *ext = strrchr(from,'.');
+	if ( ext == NULL )
+	{
+		output_error("load_import(from='%s',...): invalid extension", from);
+		return false;
+	}
+	char converter_name[1024], converter_path[1024];
+	sprintf(converter_name,"%s2glm.py",ext+1);
+	if ( find_file(converter_name, converter_path, R_OK, converter_path, sizeof(converter_path)) == NULL )
+	{
+		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext+1);
+		return false;
+	}
+	if ( strlen(from) >= (size_t)(len-1) )
+	{
+		output_error("load_import(from='%s',...): 'from' is too long to handle", from);
+		return false;
+	}
+	strcpy(to,from);
+	char *glmext = strrchr(to,'.');
+	if ( glmext == NULL )
+		strcat(to,".glm");
+	else
+		strcpy(glmext,".glm");
+	char cmd[4096];
+	sprintf(cmd,"python3 %s -i %s -o %s",converter_path,from,to);
+	int rc = system(cmd);
+	if ( rc != 0 )
+	{
+		output_error("%s: return code %d",converter_path,rc);
+		return false;
+	}
+	return true;
+}
+
 /** Load a file
 	@return STATUS is SUCCESS if the load was ok, FAILED if there was a problem
 	@todo Rollback the model data if the load failed (ticket #32)
@@ -7628,12 +7781,20 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
  **/
 STATUS loadall(const char *fname)
 {
+	/* if nothing requested only config files are loaded */
+	if ( fname == NULL )
+		return SUCCESS;
+
 	char file[1024] = "";
 	if ( fname )
 	{
 		strcpy(file,fname);
 	}
 	char *ext = fname ? strrchr(file,'.') : NULL ;
+	if ( ext != NULL && strcmp(ext,".glm") != 0 )
+	{
+		return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
+	}
 	unsigned int old_obj_count = object_get_count();
 	char conf[1024];
 	static int loaded_files = 0;
@@ -7680,10 +7841,6 @@ STATUS loadall(const char *fname)
 				return FAILED;
 		}
 	}
-
-	/* if nothing requested only config files are loaded */
-	if ( fname == NULL )
-		return SUCCESS;
 
 	/* handle default extension */
 	strcpy(filename,file);

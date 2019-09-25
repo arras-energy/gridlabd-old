@@ -312,8 +312,7 @@ int GldCmdarg::check(int argc, const char *argv[])
 	/* check main core implementation */
 	if ( property_check()==FAILED )
 	{
-		output_fatal("main core property implementation failed size checks");
-		exit(XC_INIERR);
+		throw_exception("main core property implementation failed size checks");
 	}
 	global_runchecks = !global_runchecks;
 	return 0;
@@ -504,8 +503,53 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
-	output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
-	return 0;
+	if ( argc > 1 && strcmp(argv[1],"all" ) == 0 )
+	{	
+		output_message("%s %s-%d (%s) "
+#if defined MACOSX
+			"DARWIN"
+#else // LINUX
+			"LINUX"
+#endif
+			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		return 1;
+	}
+	else if ( argc > 1 && strcmp(argv[1],"number" ) == 0 )
+	{
+		output_message("%s", PACKAGE_VERSION);
+		return 1;
+	}
+	else if ( argc > 1 && strcmp(argv[1],"build") == 0 )
+	{
+		output_message("%d", BUILDNUM);
+		return 1;
+	}
+	else if ( argc > 1 && strcmp(argv[1],"package") == 0 )
+	{
+		output_message("%s", PACKAGE_NAME);
+		return 1;
+	}
+	else if ( argc > 1 && strcmp(argv[1],"branch") == 0 )
+	{
+		output_message("%s", BRANCH);
+		return 1;
+	}
+	else if ( argc > 1 && strcmp(argv[1],"platform") == 0 )
+	{
+		output_message(
+#if defined MACOSX
+			"DARWIN"
+#else // LINUX
+			"LINUX"
+#endif
+		);
+		return 1;
+	}
+	else
+	{
+		output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
+		return 0;
+	}
 }
 
 DEPRECATED static int build_info(void *main, int argc, const char *argv[])
@@ -784,20 +828,21 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 		CLASS *oclass = NULL;
 		argv++;
 		argc--;
-		const char *cname = strchr(argv[0], ':');
-		if ( cname == NULL )
+		char module_name[1024];
+		char class_name[1024];
+		if ( sscanf(argv[0],"%[^:]:%s",module_name,class_name) == 1 )
 		{ 
 			// no class
-			mod = module_load(argv[0],0,NULL);
+			mod = module_load(module_name,0,NULL);
 		} 
 		else 
 		{
 			GLOBALVAR *var=NULL;
-			cname++;
-			mod = module_load(cname,0,NULL);
-			oclass = class_get_class_from_classname(cname);
-			if(oclass == NULL){
-				output_fatal("Unable to find class '%s' in module '%s'", cname, argv[0]);
+			mod = module_load(module_name,0,NULL);
+			oclass = class_get_class_from_classname(class_name);
+			if ( oclass == NULL ) 
+			{
+				output_fatal("Unable to find class '%s' in module '%s'", class_name, module_name);
 				/*	TROUBLESHOOT
 					The <b>--modhelp</b> parameter was found on the command line, but
 					if was followed by a class specification that isn't valid.
@@ -1736,7 +1781,7 @@ int GldCmdarg::origin(int argc, const char *argv[])
 			int old = global_suppress_repeat_messages;
 			global_suppress_repeat_messages = 0;
 			line[len] = '\0';
-			IN_MYCONTEXT output_message("%s",line);
+			output_message("%s",line);
 			global_suppress_repeat_messages = old;
 		}
 	}
@@ -1779,7 +1824,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{NULL,NULL,NULL,NULL, "Information"},
 	{"copyright",	NULL,	copyright,		NULL, "Displays copyright" },
 	{"license",		NULL,	license,		NULL, "Displays the license agreement" },
-	{"version",		"V",	version,		NULL, "Displays the version information" },
+	{"version",		"V",	version,		"[all,number,build,package,branch,platform]", "Displays the version information" },
 	{"build-info",	NULL,	build_info,		NULL, "Displays the build information" },
 	{"setup",		NULL,	setup,			NULL, "Open simulation setup screen" },
 	{"origin",		NULL,	origin,			NULL, "Display origin information" },

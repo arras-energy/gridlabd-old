@@ -469,11 +469,11 @@ GLOBAL int global_check_version INIT(0); /**< check version flag */
 GLOBAL int global_randomnumbergenerator INIT(RNG3); /**< select which random number generator to use */
 
 typedef enum {
-	MLS_INIT, /**< main loop initializing */
-	MLS_RUNNING, /**< main loop is running */
-	MLS_PAUSED, /**< main loop is paused (waiting) */
-	MLS_DONE, /**< main loop is done (steady) */
-	MLS_LOCKED, /**< main loop is locked (possible deadlock) */
+	MLS_INIT = 0, /**< main loop initializing */
+	MLS_RUNNING = 1, /**< main loop is running */
+	MLS_PAUSED = 2, /**< main loop is paused (waiting) */
+	MLS_DONE = 3, /**< main loop is done (steady) */
+	MLS_LOCKED = 4, /**< main loop is locked (possible deadlock) */
 } MAINLOOPSTATE; /**< identifies the main loop state */
 
 /* Variable:  */
@@ -725,6 +725,9 @@ typedef enum {
 	GSO_NODEFAULTS	= 0x0008,
 	GSO_MINIMAL 	= 0x000f,
 } GLMSAVEOPTIONS;
+
+/* Variable: */
+GLOBAL bool global_ignore_errors INIT(FALSE); 
 
 /* Variable:  */
 GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */

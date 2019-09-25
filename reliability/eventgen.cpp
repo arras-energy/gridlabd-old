@@ -1440,7 +1440,7 @@ void eventgen::do_event(TIMESTAMP t1_ts, double t1_dbl, bool entry_type)
 				//Make sure it was found
 				if (funadd == NULL)
 				{
-					GL_THROW("Unable to induce event on %s",UnreliableObjs[index].obj_of_int->name);
+					GL_THROW("Unable to induce event on %s (function 'create_fault' not implemented)",UnreliableObjs[index].obj_of_int->name);
 					/*  TROUBLESHOOT
 					While attempting to create or restore a fault, the eventgen failed to find the fault-inducing or fault-fixing
 					function on the object of interest.  Ensure this object type supports faulting and try again.  If the problem
@@ -1459,7 +1459,7 @@ void eventgen::do_event(TIMESTAMP t1_ts, double t1_dbl, bool entry_type)
 
 				if (returnval == 0)	//Failed :(
 				{
-					GL_THROW("Failed to induce event on %s",UnreliableObjs[index].obj_of_int->name);
+					GL_THROW("Failed to induce event on %s (function 'create_fault' returned 0)",UnreliableObjs[index].obj_of_int->name);
 					/*  TROUBLESHOOT
 					Eventgen attempted to induce a fault on the object, but the object failed to induce the fault.
 					Check the object's create_fault code.  If necessary, submit your code and a bug report using the

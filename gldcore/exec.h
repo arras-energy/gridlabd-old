@@ -12,6 +12,15 @@
 #include "index.h"
 #include "threadpool.h"
 
+#include <list>
+
+
+/*	Typedef: INITCALL */
+typedef int (*INITCALL)(TIMESTAMP);
+
+/*	Typedef: TERMCALL */
+typedef int (*TERMCALL)(TIMESTAMP);
+
 /* Structure: sync_data
 	Synchronization state data
  */
@@ -353,6 +362,15 @@ private:
 		Pass type number
 	 */
 	unsigned int pass;
+
+	/*	Field: initcalls
+	 */
+	std::list<INITCALL> initcalls;
+
+	/* 	Field: termcalls
+	 */
+	std::list<TERMCALL> termcalls;
+
 public:
 	/* Method: get_instance
 		Get a reference to GldMain simulation instance
@@ -1006,6 +1024,30 @@ public:
 
 	*/
 	int run_termscripts(void);
+
+	/*	Method: add_initcall
+
+		Returns: id of init call
+	 */
+	size_t add_initcall(INITCALL);
+
+	/*	Method: run_initcalls
+
+		Returns: number of calls completed on success; negative on failure, where value indicate which call failed
+	 */
+	int run_initcalls(TIMESTAMP t0);
+
+	/*	Method: add_termcall
+
+		Returns: id of term call
+	 */
+	size_t add_termcall(TERMCALL);
+
+	/*	Method: run_termcalls
+
+		Returns: number of calls completed on success; negative on failure, where value indicate which call failed
+	 */
+	int run_termcalls(TIMESTAMP tn);
 };
 
 #endif
