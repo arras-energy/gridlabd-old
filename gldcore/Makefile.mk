@@ -75,8 +75,6 @@ GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
 if HAVE_MINGW
 
-bin_SCRIPTS += gldcore/gridlabd  gldcore/gridlabd-weather
-
 bin_PROGRAMS += gridlabd
 
 gridlabd_CPPFLAGS =
@@ -99,8 +97,6 @@ EXTRA_gridlabd_SOURCES =
 EXTRA_gridlabd_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
 
 else
-
-bin_SCRIPTS += gldcore/gridlabd gldcore/gridlabd-weather
 
 bin_PROGRAMS += gridlabd.bin
 
@@ -143,6 +139,10 @@ pkginclude_HEADERS += gldcore/property.h
 pkginclude_HEADERS += gldcore/schedule.h
 pkginclude_HEADERS += gldcore/test.h
 pkginclude_HEADERS += gldcore/version.h
+
+bin_SCRIPTS += gldcore/gridlabd
+bin_SCRIPTS += gldcore/gridlabd-weather
+bin_SCRIPTS += gldcore/gridlabd-library
 
 gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt

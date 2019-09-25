@@ -1,0 +1,198 @@
+#!/bin/bash
+
+# check environment
+if [ ${GLD_ETC:-none} == none ]; then
+	echo "ERROR: GLD_ETC is not exported from the shell environment"
+	exit 1
+fi
+
+# configurable parameters
+GITHUB="https://github.com"
+GITHUBUSERCONTENT="https://raw.githubusercontent.com"
+ORGANIZATION="US/CA/SLAC"
+GITUSER=dchassin
+GITREPO="gridlabd-library"
+GITBRANCH="master"
+SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -rHEAD"
+DATADIR="$GLD_ETC/library/$ORGANIZATION"
+
+# load the configuration (if any)
+CONFIGFILE="$GLD_ETC/gridlabd-library.conf"
+if [ -f $CONFIGFILE ]; then
+	source $CONFIGFILE
+fi
+
+function config()
+{
+	if [ $# == 0 -o "$1" == "show" ]; then
+		echo "GITHUB=\"$GITHUB\""
+		echo "GITHUBUSERCONTENT=\"$GITHUBUSERCONTENT\""
+		echo "ORGANIZATION=\"$ORGANIZATION\""
+		echo "GITUSER=\"$GITUSER\""
+		echo "GITREPO=\"$GITREPO\""
+		echo "GITBRANCH=\"$GITBRANCH\""
+		echo "CACHEDIR=\"$CACHEDIR\""
+		echo "DATADIR=\"$DATADIR\""
+		echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
+	elif [ "$1" == "reset" ]; then
+		rm -f $CONFIGFILE || (echo "ERROR: unable to reset $CONFIGFILE"; exit 1)
+	elif [ "$1" == "set" -a $# == 3 ]; then
+		echo "$2=\"$3\"" >> $CONFIGFILE
+	elif [ "$1" == "get" -a $# == 2 ]; then
+		if [ ! -r $CONFIGFILE ]; then
+			value=$(config show | grep $2)
+		else
+			value=$(grep ^$2 $CONFIGFILE | tail -n 1)
+		fi
+		if [ -z "$value" ]; then
+			value=$(config show | grep $2)
+		fi
+		echo $value | cut -f2 -d= | cut -f2 -d\"
+	else
+		echo "'%s' is an invalid config option"
+		exit 1
+	fi
+}
+
+# set the internal parameters
+CACHEDIR="$DATADIR/.gridlabd-library"
+GITPROJ="$GITHUB/$GITUSER/$GITREPO"
+GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
+COMMIT_ID=$(git ls-remote "$GITPROJ" | grep "$GITBRANCH" | head -n 1 | cut -f1)
+INDEX=$CACHEDIR/$COMMIT_ID
+
+function fetch_index()
+{
+	if [ ! -d $DATADIR ]; then
+		mkdir -p $DATADIR || (echo "ERROR: unable to create $DATADIR"; exit 1)
+	fi
+	if [ ! -d $CACHEDIR ]; then
+		mkdir -p $CACHEDIR || ( echo "ERROR: unable to create $CACHEDIR"; exit 1)
+	fi
+	if [ ! -f $INDEX ]; then
+		echo -n "Downloading ${GITBRANCH} index of $ORGANIZATION library archive from ${GITPROJ}... "
+		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$ORGANIZATION | grep '.glm$' > $INDEX || rm -f $INDEX
+		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "library files found"
+	fi
+	if [ ! -f $INDEX ]; then
+		echo "ERROR: unable to fetch index"
+		exit 1
+	fi
+}
+
+#
+# command line interface
+#
+function help()
+{	
+	if [ $# == 0 ]; then
+		cat <<-END
+			Syntax: gridlabd-library <command> [...]
+			Commands:
+			  help               Get the list of library subcommands
+			  index <pattern>    Index of available library data matching <pattern> in archive
+			  list <pattern>     List of available downloaded library data matching <pattern>
+			  get <pattern>      Download library data matching <pattern> from archive 
+			  submit <file>      Submit new library data to archive
+			  delete <pattern>   Delete downloaded library data matching <pattern>
+			  info <pattern>     Get information about library data in <pattern>
+			  clean              Clean up the local cache of the archive index
+			  config show        Show the current configuration
+			         reset       Reset the current configuration
+			         set <N> <V> Set configuration variable name <N> to value <V>
+			         get <N> <V> Get configuration variable name <N>
+			END
+	fi
+}
+
+function clean()
+{
+	rm -rf $CACHEDIR 
+	if [ -d $CACHEDIR ]; then
+		echo "ERROR: unable to delete $CACHEDIR"
+		exit 1
+	fi
+	fetch_index
+}
+
+function index()
+{
+	fetch_index
+	if [ $# == 0 ]; then
+		cat $INDEX
+	else
+		grep "$1" $INDEX
+	fi
+}
+
+function list()
+{
+	fetch_index
+	for f in $(index $1); do
+		if [ -f $DATADIR/$f ]; then
+			echo $f
+		fi
+	done
+}
+
+function get()
+{
+	fetch_index
+	for f in $(index $1); do
+		if [ ! -f $DATADIR/$f ]; then
+			echo -n "Downloading $f... "
+			(curl -s $GITFILE/$ORGANIZATION/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to download $f"; rm -f /tmp/$$; exit 1)
+		else
+			echo -n "Refreshing $f... "
+			(curl -s $GITFILE/$ORGANIZATION/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to refresh $f"; rm -f /tmp/$$; exit 1)
+		fi
+	done
+}
+
+function info()
+{
+	fetch_index
+	first="yes"
+	KEYWORDS="Filepath,Organization,Author,Name"
+	for f in $(index $1); do
+		if [ -f $DATADIR/$f ]; then
+			if [ "$first" == "yes" ]; then
+				echo $KEYWORDS
+				first="no"
+			fi
+			echo -n "\"$DATADIR/$f\",$ORGANIZATION,"
+			for KEY in ${KEYWORDS/,/ }; do
+				VALUE=$(grep "^#define LIBRARY_$KEY=" | cut -f2 -d=)
+				echo -n ",$VALUE"
+			done
+			echo ""
+		fi
+	done
+}
+
+function delete()
+{
+	fetch_index
+	for f in $(index $1); do
+		if [ -f $DATADIR/$f ]; then
+			rm -f $DATADIR/$f || ( echo "ERROR: unable to delete %f"; exit 1)
+		fi
+	done
+
+}
+
+function submit()
+{
+	fetch_index
+	echo "ERROR: submit is not available at this time"
+}
+
+if [ $# == 0 -o "$1" == "help" ]; then
+	help $2
+	exit 0
+elif [ "$(type -t $1)" = "function" ]; then
+	$*
+	exit 0
+else
+	echo "ERROR: '$1' is not a valid library command"
+fi
