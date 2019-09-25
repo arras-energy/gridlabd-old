@@ -39,7 +39,14 @@ function config()
 	elif [ "$1" == "set" -a $# == 3 ]; then
 		echo "$2=\"$3\"" >> $CONFIGFILE
 	elif [ "$1" == "get" -a $# == 2 ]; then
-		value=$(grep ^$2 $CONFIGFILE | tail -n 1)
+		if [ ! -r $CONFIGFILE ]; then
+			value=$(config show | grep $2)
+		else
+			value=$(grep ^$2 $CONFIGFILE | tail -n 1)
+		fi
+		if [ -z "$value" ]; then
+			value=$(config show | grep $2)
+		fi
 		echo $value | cut -f2 -d= | cut -f2 -d\"
 	else
 		echo "'%s' is an invalid config option"
@@ -120,7 +127,6 @@ function index()
 function list()
 {
 	fetch_index
-	LIST=$(index $1)
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
 			echo $f
@@ -145,7 +151,6 @@ function get()
 function info()
 {
 	fetch_index
-	LIST=$(index $1)
 	first="yes"
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
@@ -162,7 +167,6 @@ function info()
 function delete()
 {
 	fetch_index
-	LIST=$(index $1)
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
 			rm -f $DATADIR/$f || ( echo "ERROR: unable to delete %f"; exit 1)
