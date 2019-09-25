@@ -439,7 +439,7 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
     }
 
     char *block;
-    PyObject *data;
+    PyObject *data, *item;
     if ( !PyArg_ParseTuple(args,"sO", &block, &data) )
         return NULL;
     if ( strcmp(block,"global") == 0 )
@@ -503,8 +503,12 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
         PyObject *key, *value;
         while ( PyDict_Next(data,&pos,&key,&value) )
         {
-            if ( PyObject_RichCompareBool(key,Py_BuildValue("s","name"),Py_EQ) )
+            if ( PyObject_RichCompareBool(key,item=Py_BuildValue("s","name"),Py_EQ) )
+            {
+                Py_DECREF(item);
                 continue;
+            }
+            Py_DECREF(item);
             fprintf(glmfh,"\t");
             PyObject_Print(key,glmfh,Py_PRINT_RAW);
             fprintf(glmfh," \"");
@@ -527,8 +531,12 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
         PyObject *key, *value;
         while ( PyDict_Next(data,&pos,&key,&value) )
         {
-            if ( PyObject_RichCompareBool(key,Py_BuildValue("s","name"),Py_EQ) )
+            if ( PyObject_RichCompareBool(key,item=Py_BuildValue("s","name"),Py_EQ) )
+            {
+                Py_DECREF(item);
                 continue;
+            }
+            Py_DECREF(item);
             fprintf(glmfh,"\t");
             PyObject_Print(key,glmfh,Py_PRINT_RAW);
             fprintf(glmfh," ");
@@ -551,8 +559,12 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
         PyObject *key, *value;
         while ( PyDict_Next(data,&pos,&key,&value) )
         {
-            if ( PyObject_RichCompareBool(key,Py_BuildValue("s","class"),Py_EQ) )
+            if ( PyObject_RichCompareBool(key,item=Py_BuildValue("s","class"),Py_EQ) )
+            {
+                Py_DECREF(item);
                 continue;
+            }
+            Py_DECREF(item);
             fprintf(glmfh,"\t");
             PyObject_Print(key,glmfh,Py_PRINT_RAW);
             fprintf(glmfh," \"");
@@ -885,6 +897,7 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
     }
     if ( global_setvar(name,value) == FAILED )
     {
+        if ( ret ) Py_DECREF(ret);
         return gridlabd_exception("unable to set global '%s' to value '%s'",name,value);
     }
     else
@@ -1774,7 +1787,9 @@ static bool get_callback(
 
 int python_module_setvar(const char *varname, const char *value)
 {
-    PyModule_AddObject(this_module,varname,Py_BuildValue("s", value));
+    PyObject *item = Py_BuildValue("s", value);
+    PyModule_AddObject(this_module,varname,item);
+    Py_DECREF(item);
     return strlen(value);
 }
 

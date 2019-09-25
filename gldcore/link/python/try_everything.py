@@ -4,11 +4,16 @@ def try_everything(obj=None,t=None,context=None):
 	if obj:
 		a = gridlabd.get_object(obj)
 		b = gridlabd.get_value(obj,'x')
-		gridlabd.set_value(obj,'y',b)
+		c = gridlabd.set_value(obj,'y',b)
+		d = gridlabd.set_global('test',str(t))
 		return
 	else:
-		c = gridlabd.get('objects')
-		d = gridlabd.get('globals')
+		a = gridlabd.get('objects')
+		b = gridlabd.get('globals')
+		c = gridlabd.get('classes')
+		d = gridlabd.get('modules')
+		e = gridlabd.get('transforms')
+		f = gridlabd.get('schedules')
 		return
 
 # module event handlers
