@@ -4741,6 +4741,19 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							ACCEPT;
 						}
 					}
+					else if ( strcmp(propname,"guid")==0 )
+					{
+						if ( sscanf(propval,"%08llX%08llX",obj->guid,obj->guid+1) != 2 )
+						{
+							output_error("%s(%d): guid '%s' is not valid",filename,linenum,propval);
+							REJECT;
+							DONE;
+						}
+						else
+						{
+							ACCEPT;
+						}
+					}
 					else
 					{
 						output_error_raw("%s(%d): property %s is not defined in class %s", filename, linenum, propname, oclass->name);

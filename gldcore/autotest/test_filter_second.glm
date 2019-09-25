@@ -47,3 +47,6 @@ object assert {
 	value -68.7143; // continuous FV is -100 final value but rounding on Gd makes it -68.7
 	within 1e-4;
 }
+
+#set glm_save_options=ORIGINAL
+#set savefile=gridlabd.glm
