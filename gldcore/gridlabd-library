@@ -153,17 +153,17 @@ function info()
 {
 	fetch_index
 	first="yes"
-	KEYWORDS="Filepath,Organization,Author,Name"
+	KEYWORDS="Author,Name,Description,Module"
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
 			if [ "$first" == "yes" ]; then
-				echo $KEYWORDS
+				echo "Filepath,Organization,$KEYWORDS"
 				first="no"
 			fi
-			echo -n "\"$DATADIR/$f\",$ORGANIZATION,"
-			for KEY in ${KEYWORDS/,/ }; do
-				VALUE=$(grep "^#define LIBRARY_$KEY=" | cut -f2 -d=)
-				echo -n ",$VALUE"
+			echo -n "\"$DATADIR/$f\",$ORGANIZATION"
+			for KEY in ${KEYWORDS//,/ }; do
+				VALUE=`grep "^#define LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
+				echo -n ",${VALUE:-\"\"}"
 			done
 			echo ""
 		fi
