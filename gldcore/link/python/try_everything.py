@@ -3,16 +3,15 @@ from datetime import datetime
 def try_everything(obj=None,t=None,context=None):
 	if obj:
 		a = gridlabd.get_object(obj)
-		#print(a)
 		b = gridlabd.get_value(obj,'x')
 		gridlabd.set_value(obj,'y',b)
-		#print('%s(obj=<%s>,t=<%s>): %s'%(context,obj,t,a))
+		return
 	else:
 		c = gridlabd.get('objects')
 		d = gridlabd.get('globals')
-		#print('%s(t=<%s>): objects=[%s], globals[%s]'%(obj,t,c,d))
+		return
 
-# enable a callback when the module is initialized by gridlabd at the start of a simulation
+# module event handlers
 def on_init(t) :
 	try_everything(None,t,'on_init')
 	return True
@@ -35,6 +34,7 @@ def on_commit(t) :
 def on_term(t):
 	try_everything(None,t,'on_term')
 
+# object event handlers
 def init(obj,t):
 	try_everything(obj,t,'init')
 	return 0

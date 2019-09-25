@@ -763,12 +763,18 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
             {
                 if ( obj->name )
-                    PyList_Append(data,Py_BuildValue("s",obj->name));
+                {
+                    PyObject *item = Py_BuildValue("s",obj->name);
+                    PyList_Append(data,item);
+                    Py_DECREF(item);
+                }
                 else
                 {
                     char name[1024];
                     snprintf(name,sizeof(name),"%s:%d",obj->oclass->name,obj->id);
-                    PyList_Append(data,Py_BuildValue("s",name));
+                    PyObject *item = Py_BuildValue("s",name);
+                    PyList_Append(data,item);
+                    Py_DECREF(item);
                 }
             }
         }
@@ -778,7 +784,9 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             CLASS *oclass;
             for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
             {
-                PyList_Append(data,Py_BuildValue("s",oclass->name));
+                PyObject *item = Py_BuildValue("s",oclass->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
             }
         }
         else if ( strcmp(type,"modules") == 0 )
@@ -787,7 +795,9 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             MODULE *mod;
             for ( mod = module_get_first() ; mod != NULL ; mod = mod->next )
             {
-                PyList_Append(data,Py_BuildValue("s",mod->name));
+                PyObject *item = Py_BuildValue("s",mod->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
             }
         }
         else if ( strcmp(type,"globals") == 0 )
@@ -796,7 +806,9 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             GLOBALVAR *var;
             for ( var = global_find(NULL) ; var != NULL ; var = var->next )
             {
-                PyList_Append(data,Py_BuildValue("s",var->prop->name));
+                PyObject *item = Py_BuildValue("s",var->prop->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
             } 
         }
         else if ( strcmp(type,"transforms") == 0 )
@@ -806,7 +818,11 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             while ( (transform = transform_getnext(NULL)) != NULL )
             {
                 if ( transform->function_type == XT_FILTER )
-                    PyList_Append(data,Py_BuildValue("s",transform->tf->name));
+                {
+                    PyObject *item = Py_BuildValue("s",transform->tf->name);
+                    PyList_Append(data,item);
+                    Py_DECREF(item);
+                }
             } 
             return data;
         }
@@ -816,7 +832,9 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             SCHEDULE *sch;
             for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
             {
-                PyList_Append(data,Py_BuildValue("s",sch->name));
+                PyObject *item = Py_BuildValue("s",sch->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
             }
             return data;
         }
@@ -969,16 +987,28 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("class '%s' not found", name);
     }
+    PyObject *item;
     PyObject *data = PyDict_New();
-    PyDict_SetItemString(data,"class.object_size",Py_BuildValue("L",(unsigned long long)oclass->size));
-    PyDict_SetItemString(data,"class.trl",Py_BuildValue("L",(unsigned long long)oclass->trl));
-    PyDict_SetItemString(data,"profiler.numobjs",Py_BuildValue("L",(unsigned long long)oclass->profiler.numobjs));
-    PyDict_SetItemString(data,"profiler.clocks",Py_BuildValue("L",(unsigned long long)oclass->profiler.clocks));
-    PyDict_SetItemString(data,"profiler.count",Py_BuildValue("L",(unsigned long long)oclass->profiler.count));
+    PyDict_SetItemString(data,"class.object_size",item=Py_BuildValue("L",(unsigned long long)oclass->size));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"class.trl",item=Py_BuildValue("L",(unsigned long long)oclass->trl));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"profiler.numobjs",item=Py_BuildValue("L",(unsigned long long)oclass->profiler.numobjs));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"profiler.clocks",item=Py_BuildValue("L",(unsigned long long)oclass->profiler.clocks));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"profiler.count",item=Py_BuildValue("L",(unsigned long long)oclass->profiler.count));
+    Py_DECREF(item);
     if ( oclass->module != NULL )
-        PyDict_SetItemString(data,"class.module",Py_BuildValue("s",oclass->module->name));
+    {
+        PyDict_SetItemString(data,"class.module",item=Py_BuildValue("s",oclass->module->name));
+        Py_DECREF(item);
+    }
     if ( oclass->parent != NULL )
-        PyDict_SetItemString(data,"class.parent",Py_BuildValue("s",oclass->parent->name));
+    {
+        PyDict_SetItemString(data,"class.parent",item=Py_BuildValue("s",oclass->parent->name));
+        Py_DECREF(item);
+    }
     PROPERTY *prop;
     for ( prop = oclass->pmap ; prop != NULL && prop->oclass==oclass ; prop = prop->next )
     {
@@ -986,7 +1016,8 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
         PROPERTYSPEC *spec = property_getspec(prop->ptype);
         if ( spec->size > 0 && spec->size < 1024 )
         {
-            PyDict_SetItemString(property,"type",Py_BuildValue("s",spec->name));
+            PyDict_SetItemString(property,"type",item=Py_BuildValue("s",spec->name));
+            Py_DECREF(item);
             char access[1024] = "";
             switch ( prop->access ) {
             case PA_PUBLIC: strcpy(access,"PUBLIC"); break;
@@ -1003,7 +1034,8 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
                 if ( prop->access & PA_H ) strcat(access,"H");
                 break;
             }
-            PyDict_SetItemString(property,"access",Py_BuildValue("s",access));
+            PyDict_SetItemString(property,"access",item=Py_BuildValue("s",access));
+            Py_DECREF(item);
             if ( prop->keywords != NULL )
             {
                 PyObject *keywords = PyDict_New();
@@ -1012,13 +1044,15 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
                 {
                     char buffer[1024];
                     snprintf(buffer,sizeof(buffer),"%p",(void*)(key->value));
-                    PyDict_SetItemString(keywords,key->name,Py_BuildValue("s",buffer));
+                    PyDict_SetItemString(keywords,key->name,item=Py_BuildValue("s",buffer));
+                    Py_DECREF(item);
                 }
                 PyDict_SetItemString(property,"keywords",keywords);
             }
             if ( prop->unit != NULL )
             {
-                PyDict_SetItemString(property,"unit",Py_BuildValue("s",prop->unit->name));
+                PyDict_SetItemString(property,"unit",item=Py_BuildValue("s",prop->unit->name));
+                Py_DECREF(item);
             }
             PyDict_SetItemString(data,prop->name,property);
         }
@@ -1049,46 +1083,92 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
         return gridlabd_exception("object '%s' not found", name);
     }
 
+    PyObject *item;
     PyObject *data = PyDict_New();
-    PyDict_SetItemString(data,"id",Py_BuildValue("L",(unsigned long long)obj->id));
+    PyDict_SetItemString(data,"id",item=Py_BuildValue("L",(unsigned long long)obj->id));
+    Py_DECREF(item);
     if ( obj->name )
-        PyDict_SetItemString(data,"name",Py_BuildValue("s",obj->name));
+    {
+        PyDict_SetItemString(data,"name",item=Py_BuildValue("s",obj->name));
+        Py_DECREF(item);
+    }
     else
     {
         char buffer[1024];
         sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
-        PyDict_SetItemString(data,"name",Py_BuildValue("s",buffer));
+        PyDict_SetItemString(data,"name",item=Py_BuildValue("s",buffer));
+        Py_DECREF(item);
     }
     if ( obj->oclass->name != NULL )
-        PyDict_SetItemString(data,"class",Py_BuildValue("s",obj->oclass->name));
+    {
+        PyDict_SetItemString(data,"class",item=Py_BuildValue("s",obj->oclass->name));
+        Py_DECREF(item);
+    }
     if ( obj->parent != NULL )
     {
         if ( obj->parent->name == NULL )
         {
             char buffer[1024];
             snprintf(buffer,sizeof(buffer),"%s:%d",obj->parent->oclass->name,obj->parent->id);
-            PyDict_SetItemString(data,"parent",Py_BuildValue("s",buffer));
+            PyDict_SetItemString(data,"parent",item=Py_BuildValue("s",buffer));
+            Py_DECREF(item);
         }
         else
-            PyDict_SetItemString(data,"parent",Py_BuildValue("s",obj->parent->name));
+        {
+            PyDict_SetItemString(data,"parent",item=Py_BuildValue("s",obj->parent->name));
+            Py_DECREF(item);
+        }
     }
-    if ( ! isnan(obj->latitude) ) PyDict_SetItemString(data,"latitude",Py_BuildValue("d",obj->latitude));
-    if ( ! isnan(obj->longitude) ) PyDict_SetItemString(data,"longitude",Py_BuildValue("d",obj->longitude));
-    if ( obj->groupid[0] != '\0' ) PyDict_SetItemString(data,"groupid",Py_BuildValue("s",(const char*)obj->groupid));
-    PyDict_SetItemString(data,"rank",Py_BuildValue("L",(unsigned long long)obj->rank));
+    if ( ! isnan(obj->latitude) ) 
+    {
+        PyDict_SetItemString(data,"latitude",item=Py_BuildValue("d",obj->latitude));
+        Py_DECREF(item);
+    }
+    if ( ! isnan(obj->longitude) ) 
+    {
+        PyDict_SetItemString(data,"longitude",item=Py_BuildValue("d",obj->longitude));
+        Py_DECREF(item);
+    }
+    if ( obj->groupid[0] != '\0' ) 
+    {
+        PyDict_SetItemString(data,"groupid",item=Py_BuildValue("s",(const char*)obj->groupid));
+        Py_DECREF(item);
+    }
+    PyDict_SetItemString(data,"rank",item=Py_BuildValue("L",(unsigned long long)obj->rank));
+    Py_DECREF(item);
     char buffer[1024];
     if ( convert_from_timestamp(obj->clock,buffer,sizeof(buffer)) )
-        PyDict_SetItemString(data,"clock",Py_BuildValue("s",buffer));
-    if ( obj->valid_to > TS_ZERO && obj->valid_to < TS_NEVER ) PyDict_SetItemString(data,"valid_to",Py_BuildValue("L",(unsigned long long)(obj->valid_to)));
-    PyDict_SetItemString(data,"schedule_skew",Py_BuildValue("L",(unsigned long long)obj->schedule_skew));
-    if ( obj->in_svc > TS_ZERO && obj->in_svc < TS_NEVER ) PyDict_SetItemString(data,"in",Py_BuildValue("L",(unsigned long long)(obj->in_svc)));
-    if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) PyDict_SetItemString(data,"out",Py_BuildValue("L",(unsigned long long)(obj->out_svc)));
-    PyDict_SetItemString(data,"rng_state",Py_BuildValue("L",(unsigned long long)(obj->rng_state)));
-    PyDict_SetItemString(data,"heartbeat",Py_BuildValue("L",(unsigned long long)(obj->heartbeat)));
+    {
+        PyDict_SetItemString(data,"clock",item=Py_BuildValue("s",buffer));
+        Py_DECREF(item);
+    }
+    if ( obj->valid_to > TS_ZERO && obj->valid_to < TS_NEVER ) 
+    {
+        PyDict_SetItemString(data,"valid_to",item=Py_BuildValue("L",(unsigned long long)(obj->valid_to)));
+        Py_DECREF(item);
+    }
+    PyDict_SetItemString(data,"schedule_skew",item=Py_BuildValue("L",(unsigned long long)obj->schedule_skew));
+    Py_DECREF(item);
+    if ( obj->in_svc > TS_ZERO && obj->in_svc < TS_NEVER ) 
+    {
+        PyDict_SetItemString(data,"in",item=Py_BuildValue("L",(unsigned long long)(obj->in_svc)));
+        Py_DECREF(item);
+    }
+    if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) 
+    {
+        PyDict_SetItemString(data,"out",item=Py_BuildValue("L",(unsigned long long)(obj->out_svc)));
+        Py_DECREF(item);
+    }
+    PyDict_SetItemString(data,"rng_state",item=Py_BuildValue("L",(unsigned long long)(obj->rng_state)));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"heartbeat",item=Py_BuildValue("L",(unsigned long long)(obj->heartbeat)));
+    Py_DECREF(item);
     snprintf(buffer,sizeof(buffer),"%llx",(unsigned long long)obj->guid[0]);
-    PyDict_SetItemString(data,"guid",Py_BuildValue("s",buffer));
+    PyDict_SetItemString(data,"guid",item=Py_BuildValue("s",buffer));
+    Py_DECREF(item);
     snprintf(buffer,sizeof(buffer),"%llx",(unsigned long long)obj->flags);
-    PyDict_SetItemString(data,"guid",Py_BuildValue("s",buffer));
+    PyDict_SetItemString(data,"guid",item=Py_BuildValue("s",buffer));
+    Py_DECREF(item);
 
     ReadLock();
     PROPERTY *prop;
@@ -1099,7 +1179,10 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
         {
             char value[1024] = "";
             if ( get_property_value(obj,prop,value,sizeof(value)) > 0 )
-                PyDict_SetItemString(data,prop->name,Py_BuildValue("s",value));
+            {
+                PyDict_SetItemString(data,prop->name,item=Py_BuildValue("s",value));
+                Py_DECREF(item);
+            }
         }
     }
     PyErr_Clear();
@@ -1136,8 +1219,10 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("schedule '%s' not found",name);
     }
+    PyObject *item, *item1, *item2;
     PyObject *data = PyDict_New();
-    PyDict_SetItemString(data,"definition",Py_BuildValue("s",sch->definition));
+    PyDict_SetItemString(data,"definition",item=Py_BuildValue("s",sch->definition));
+    Py_DECREF(item);
     PyObject *calendars = PyList_New(0);
     size_t calendar;
     for ( calendar = 0 ; calendar < 14 ; calendar++ )
@@ -1150,13 +1235,17 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
             double value = sch->data[sch->index[calendar][minute]];
             if ( last != value )
             {
-                PyDict_SetItem(values,PyLong_FromLong(minute),PyFloat_FromDouble(value));
+                PyDict_SetItem(values,item1=PyLong_FromLong(minute),item2=PyFloat_FromDouble(value));
+                Py_DECREF(item1);
+                Py_DECREF(item2);
                 last = value;
             }
         }
         PyList_Append(calendars,values);
+        Py_DECREF(values);
     }
     PyDict_SetItemString(data,"calendars",calendars);
+    Py_DECREF(calendars);
     return data;
 }
 
