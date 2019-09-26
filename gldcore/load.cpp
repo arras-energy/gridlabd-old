@@ -4770,7 +4770,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						ACCEPT;
 					}
 				}
-				else if ( object_set_value_by_name(obj,propname,propval) < (int)strlen(propval) )
+				else if ( object_set_value_by_name(obj,propname,propval) == 0 )
 				{
 					output_error_raw("%s(%d): property %s of %s could not be set to value '%s' (it may be too long)", filename, linenum, propname, format_object(obj), propval);
 					REJECT;
