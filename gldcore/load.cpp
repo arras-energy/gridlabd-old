@@ -4770,9 +4770,22 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						ACCEPT;
 					}
 				}
+				else if ( prop->ptype >= PT_char8 && prop->ptype <= PT_char1024 )
+				{
+					int len = object_set_value_by_name(obj,propname,propval);
+					if ( len < (int)strlen(propval) )
+					{
+						output_error_raw("%s(%d): property %s of %s could not be set to value '%s' (only %d bytes read)", filename, linenum, propname, format_object(obj), propval, len);
+						REJECT;
+					}
+					else
+					{
+						ACCEPT;
+					}
+				}
 				else if ( object_set_value_by_name(obj,propname,propval) == 0 )
 				{
-					output_error_raw("%s(%d): property %s of %s could not be set to value '%s' (it may be too long)", filename, linenum, propname, format_object(obj), propval);
+					output_error_raw("%s(%d): property %s of %s could not be set to value '%s'", filename, linenum, propname, format_object(obj), propval);
 					REJECT;
 				}
 				else
