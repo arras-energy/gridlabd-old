@@ -25,6 +25,15 @@ assert(sys.version_info.major>2)
 import traceback
 import timeit
 
+n_tested = 0
+n_passed = 0
+exename = '/usr/local/bin/gridlabd'
+dry_run = False
+show_debug = False
+show_failure = False
+show_verbose = False
+save_output = False
+
 def debug(msg) :
 	"""Output a debugging message (see --debug option)"""
 	if show_debug :
@@ -77,8 +86,8 @@ def run_command(cmd) :
 	"""Runs the system command (see --dry-run option)"""
 	global dry_run
 	if dry_run :
-		print("dryrun%% %s" % cmd)
-		return 0
+		print("dryrun> %s" % cmd)
+		return
 	else :
 		debug("run_command(cmd='%s')" % cmd)
 		return (os.system(cmd) >> 8)
@@ -89,12 +98,14 @@ def runtest(workdir,glmname) :
 	n_tested += 1
 	sys.stdout.flush()
 	owd = os.getcwd()
+	if dry_run:
+		print("dryrun> runtest(workdir='%s',glmname='%s'" % (workdir,glmname))
+		print("dryrun> (workdir=%s)"%owd)
 	run_command("mkdir -p " + workdir)
-	if not dry_run : os.chdir(workdir)
-	run_command("rm -f *")
-	run_command("cp ../%s ." % glmname)
+	run_command("cp %s.glm %s" % (workdir,workdir))
+	run_command("cd %s" % workdir)
 	rc = run_command("%s %s 1>gridlabd.out 2>&1" % (exename,glmname))
-	if not dry_run :
+	if not dry_run:
 		if rc == 255 :
 			print("FAIL %s exit %d" % ("/".join([workdir,glmname]),rc))
 			if show_failure:
@@ -119,15 +130,20 @@ def runtest(workdir,glmname) :
 		else :
 			verbose("PASS %s exit %d" % ("/".join([workdir,glmname]),rc))
 			n_passed += 1
-	os.chdir(owd)
+	run_command("cd %s" % owd)
+
+def autotest(glmpath,exename='/usr/local/bin/gridlabd'):
+	abspath = os.path.abspath(glmpath)
+	pathname = os.path.split(abspath)
+	workdir = glmpath.replace(".glm","")
+	glmname = pathname[1]
+	runtest(workdir,glmname)
 
 if __name__ == '__main__':
 	if "--help" in sys.argv :
 		import validate
 		help(validate)
 		quit()
-	n_tested = 0
-	n_passed = 0	
 	show_debug = ("--debug" in sys.argv)
 	show_verbose = ("--verbose" in sys.argv)
 	dry_run = ("--dry-run" in sys.argv)
