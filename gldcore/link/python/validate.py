@@ -75,6 +75,7 @@ def autotest(dir) :
 	if 'validate.no' in items :
 		debug("autotest: skipping %s (validate.no found)" % dir)
 		return 
+	print("Processing %s..." %dir)
 	for file in items :
 		path = "/".join([dir,file])
 		workdir = path[0:-4]
