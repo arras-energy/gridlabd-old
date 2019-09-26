@@ -721,6 +721,12 @@ FINDLIST *find_pgm_run(FINDLIST *list, FINDPGM *pgm)
 	return list;
 }
 
+FINDLIST *findlist_create(FINDLIST *list, const char *search)
+{
+	FINDPGM *finder = find_pgm_new(search);
+	return find_pgm_run(list,finder);
+}
+
 #define PARSER const char *_p
 #define START int _m=0, _n=0;
 #define STARTM int _m=0;
