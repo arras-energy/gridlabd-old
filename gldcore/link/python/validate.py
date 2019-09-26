@@ -104,7 +104,8 @@ def runtest(workdir,glmname) :
 	run_command("mkdir -p " + workdir)
 	run_command("cp %s.glm %s" % (workdir,workdir))
 	run_command("cd %s" % workdir)
-	rc = run_command("%s %s 1>gridlabd.out 2>&1" % (exename,glmname))
+	print("Running %s..." % glmname)
+	rc = run_command("/usr/local/bin/python3 %s/gldcore/link/python/python_gridlabd.py -W %s %s 1>gridlabd.out 2>&1" % (owd,workdir,glmname))
 	if not dry_run:
 		if rc == 255 :
 			print("FAIL %s exit %d" % ("/".join([workdir,glmname]),rc))
@@ -131,13 +132,6 @@ def runtest(workdir,glmname) :
 			verbose("PASS %s exit %d" % ("/".join([workdir,glmname]),rc))
 			n_passed += 1
 	run_command("cd %s" % owd)
-
-def autotest(glmpath,exename='/usr/local/bin/gridlabd'):
-	abspath = os.path.abspath(glmpath)
-	pathname = os.path.split(abspath)
-	workdir = glmpath.replace(".glm","")
-	glmname = pathname[1]
-	runtest(workdir,glmname)
 
 if __name__ == '__main__':
 	if "--help" in sys.argv :
