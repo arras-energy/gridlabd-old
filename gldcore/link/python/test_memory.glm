@@ -1,7 +1,10 @@
-//#set debug=TRUE
+// gldcore/link/python/test_memory.glm
+//
+// This test uses all the available event handlers for python
+//
 
 // load the custom python module
-module try_everything;
+module test_memory_module;
 
 // setup the clock to run only 1 hour
 clock {
@@ -17,13 +20,13 @@ class test {
 
 // create an instance of the custom class
 object test:..100 {
-	x "type:lognormal(0,1); refresh:5min";
+	x "type:lognormal(0,1); refresh:1h";
 
 	// dispatch commit calls to the python module
-    on_init "python:try_everything.init";
-	on_precommit "python:try_everything.precommit";
-    on_presync "python:try_everything.presync";
-    on_sync "python:try_everything.sync";
-    on_postsync "python:try_everything.postsync";
-	on_commit "python:try_everything.commit";
+    on_init "python:test_memory_module.init";
+	on_precommit "python:test_memory_module.precommit";
+    on_presync "python:test_memory_module.presync";
+    on_sync "python:test_memory_module.sync";
+    on_postsync "python:test_memory_module.postsync";
+	on_commit "python:test_memory_module.commit";
 }
