@@ -9,7 +9,7 @@
  * Testing ptions
  *   -D NOINIT    omit init() function
  *   -D NOPARSER  omit parser() function
- *   -D INITRC    return code from init()
+ *   -D INITRC=n  return code from init()
  *
  */
 #include <string.h>
@@ -18,10 +18,11 @@
 #ifndef NOINIT
 int init(void)
 {
-	printf("initialization ok");
 #ifndef INITRC
+	printf("hello.c: initialization ok\n");
 	return 0;
 #else
+	printf("hello.c: initialization failed\n");
 	return INITRC;
 #endif
 }
@@ -30,7 +31,6 @@ int init(void)
 #ifndef NOPARSER
 int parser(const char *text)
 {
-	int len = 0;
 	if ( strncmp(text,"hello",5) == 0 )
 	{
 		return 5;

@@ -1,8 +1,8 @@
-#set debug=1
+#set debug=0
 #set suppress_repeat_messages=0
 
 class test {
-	string var;
+	char1024 var;
 }
 
 object test {
