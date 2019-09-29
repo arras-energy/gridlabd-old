@@ -100,7 +100,6 @@ function help()
 			  index <pattern>      Index of available library data matching <pattern> in archive
 			  list <pattern>       List of available downloaded library data matching <pattern>
 			  get <pattern>        Download library data matching <pattern> from archive 
-			  submit <file>        Submit new library data to archive
 			  delete <pattern>     Delete downloaded library data matching <pattern>
 			  info <pattern>       Get information about library data in <pattern>
 			  copy <name> [<file>] Copy the contents of the library <name> into <file>
