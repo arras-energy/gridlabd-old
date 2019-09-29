@@ -89,18 +89,19 @@ function help()
 		cat <<-END
 			Syntax: gridlabd-library <command> [...]
 			Commands:
-			  help               Get the list of library subcommands
-			  index <pattern>    Index of available library data matching <pattern> in archive
-			  list <pattern>     List of available downloaded library data matching <pattern>
-			  get <pattern>      Download library data matching <pattern> from archive 
-			  submit <file>      Submit new library data to archive
-			  delete <pattern>   Delete downloaded library data matching <pattern>
-			  info <pattern>     Get information about library data in <pattern>
-			  clean              Clean up the local cache of the archive index
-			  config show        Show the current configuration
-			         reset       Reset the current configuration
-			         set <N> <V> Set configuration variable name <N> to value <V>
-			         get <N> <V> Get configuration variable name <N>
+			  help                 Get the list of library subcommands
+			  index <pattern>      Index of available library data matching <pattern> in archive
+			  list <pattern>       List of available downloaded library data matching <pattern>
+			  get <pattern>        Download library data matching <pattern> from archive 
+			  submit <file>        Submit new library data to archive
+			  delete <pattern>     Delete downloaded library data matching <pattern>
+			  info <pattern>       Get information about library data in <pattern>
+			  copy <name> [<file>] Copy the contents of the library <name> into <file>
+			  clean                Clean up the local cache of the archive index
+			  config show          Show the current configuration
+			         reset         Reset the current configuration
+			         set <N> <V>   Set configuration variable name <N> to value <V>
+			         get <N> <V>   Get configuration variable name <N>
 			END
 	fi
 }
@@ -153,7 +154,7 @@ function info()
 {
 	fetch_index
 	first="yes"
-	KEYWORDS="Author,Name,Description,Module"
+	KEYWORDS="Name,Version,Author,Description,Module"
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
 			if [ "$first" == "yes" ]; then
@@ -168,6 +169,39 @@ function info()
 			echo ""
 		fi
 	done
+}
+
+function copy()
+{
+	fetch_index
+	if [ $# -eq 0 ]; then
+		echo "ERROR: missing library name"
+		exit 1
+	fi
+	FROM=$DATADIR/$1
+	if [ ! -r $FROM ]; then
+		echo "ERROR: $FROM not found"
+		exit 2
+	fi
+	TO=$1
+	if [ $# -gt 1 ]; then
+		TO=$2
+	fi
+	if [ -f $TO ]; then
+		echo "ERROR: $TO exists"
+		exit 3
+	fi
+	if [ $# -eq 1 ]; then
+		cp $FROM $TO || exit 4
+		exit 0
+	fi
+	EXT=${TO##*.}
+	# convert automatically (TODO such that only objects are saved)
+	TMP=/tmp/tmp-$$
+	sed -e '1,$s/^#define LIBRARY_Module="\(.*\)"/module \1;/' < $FROM > $TMP.glm
+	gridlabd -D filesave_options=OBJECTS -D glm_save_options=MINIMAL -C $TMP.glm -o $TMP.$EXT
+	cat $TMP.$EXT > $TO
+	rm -f $TMP.*
 }
 
 function delete()
