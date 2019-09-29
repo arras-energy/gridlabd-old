@@ -22,9 +22,17 @@ if [ -f $CONFIGFILE ]; then
 	source $CONFIGFILE
 fi
 
+function error()
+{
+	RC=$1
+	shift
+	echo "ERROR: $*" >/dev/stdout
+	exit $RC
+}
+
 function config()
 {
-	if [ $# == 0 -o "$1" == "show" ]; then
+	if [ $# -eq 0 -o "$1" == "show" ]; then
 		echo "GITHUB=\"$GITHUB\""
 		echo "GITHUBUSERCONTENT=\"$GITHUBUSERCONTENT\""
 		echo "ORGANIZATION=\"$ORGANIZATION\""
@@ -35,7 +43,7 @@ function config()
 		echo "DATADIR=\"$DATADIR\""
 		echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
 	elif [ "$1" == "reset" ]; then
-		rm -f $CONFIGFILE || (echo "ERROR: unable to reset $CONFIGFILE"; exit 1)
+		rm -f $CONFIGFILE || error 1 "unable to reset $CONFIGFILE"
 	elif [ "$1" == "set" -a $# == 3 ]; then
 		echo "$2=\"$3\"" >> $CONFIGFILE
 	elif [ "$1" == "get" -a $# == 2 ]; then
@@ -64,10 +72,10 @@ INDEX=$CACHEDIR/$COMMIT_ID
 function fetch_index()
 {
 	if [ ! -d $DATADIR ]; then
-		mkdir -p $DATADIR || (echo "ERROR: unable to create $DATADIR"; exit 1)
+		mkdir -p $DATADIR || error 1 "unable to create $DATADIR"
 	fi
 	if [ ! -d $CACHEDIR ]; then
-		mkdir -p $CACHEDIR || ( echo "ERROR: unable to create $CACHEDIR"; exit 1)
+		mkdir -p $CACHEDIR || error 1 "unable to create $CACHEDIR"
 	fi
 	if [ ! -f $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $ORGANIZATION library archive from ${GITPROJ}... "
@@ -75,8 +83,7 @@ function fetch_index()
 		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "library files found"
 	fi
 	if [ ! -f $INDEX ]; then
-		echo "ERROR: unable to fetch index"
-		exit 1
+		error 1 "unable to fetch index"
 	fi
 }
 
@@ -98,6 +105,14 @@ function help()
 			  info <pattern>       Get information about library data in <pattern>
 			  copy <name> [<file>] Copy the contents of the library <name> into <file>
 			  clean                Clean up the local cache of the archive index
+			  open <local>         Open an editing session of library in <local>
+			  session <local> [<pattern>]  
+			                       List current sessions in <local> (active session is first)
+			  add <local> <pattern>
+			                       Add files <pattern> to the <local> repository
+			  save <local> ["<description>"]
+			                       Save the <local> library changes
+			  submit <local>       Submit the saved changes to the library
 			  config show          Show the current configuration
 			         reset         Reset the current configuration
 			         set <N> <V>   Set configuration variable name <N> to value <V>
@@ -110,8 +125,7 @@ function clean()
 {
 	rm -rf $CACHEDIR 
 	if [ -d $CACHEDIR ]; then
-		echo "ERROR: unable to delete $CACHEDIR"
-		exit 1
+		error 1 "unable to delete $CACHEDIR"
 	fi
 	fetch_index
 }
@@ -119,7 +133,7 @@ function clean()
 function index()
 {
 	fetch_index
-	if [ $# == 0 ]; then
+	if [ $# -eq 0 ]; then
 		cat $INDEX
 	else
 		grep "$1" $INDEX
@@ -142,10 +156,10 @@ function get()
 	for f in $(index $1); do
 		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
-			(curl -s $GITFILE/$ORGANIZATION/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to download $f"; rm -f /tmp/$$; exit 1)
+			(curl -s $GITFILE/$ORGANIZATION/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to download $f")
 		else
 			echo -n "Refreshing $f... "
-			(curl -s $GITFILE/$ORGANIZATION/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to refresh $f"; rm -f /tmp/$$; exit 1)
+			(curl -s $GITFILE/$ORGANIZATION/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to refresh $f")
 		fi
 	done
 }
@@ -175,21 +189,18 @@ function copy()
 {
 	fetch_index
 	if [ $# -eq 0 ]; then
-		echo "ERROR: missing library name"
-		exit 1
+		error 1 "missing library name"
 	fi
 	FROM=$DATADIR/$1
 	if [ ! -r $FROM ]; then
-		echo "ERROR: $FROM not found"
-		exit 2
+		error 2 "$FROM not found"
 	fi
 	TO=$1
 	if [ $# -gt 1 ]; then
 		TO=$2
 	fi
 	if [ -f $TO ]; then
-		echo "ERROR: $TO exists"
-		exit 3
+		error 3 "$TO exists"
 	fi
 	if [ $# -eq 1 ]; then
 		cp $FROM $TO || exit 4
@@ -198,9 +209,9 @@ function copy()
 	EXT=${TO##*.}
 	# convert automatically (TODO such that only objects are saved)
 	TMP=/tmp/tmp-$$
-	sed -e '1,$s/^#define LIBRARY_Module="\(.*\)"/module \1;/' < $FROM > $TMP.glm
-	gridlabd -D filesave_options=OBJECTS -D glm_save_options=MINIMAL -C $TMP.glm -o $TMP.$EXT
-	cat $TMP.$EXT > $TO
+	sed -e '1,$s/^#define LIBRARY_Module="\(.*\)"/module \1;/' < $FROM > $TMP.glm || exit 5
+	gridlabd -D filesave_options=OBJECTS -D glm_save_options=MINIMAL -C $TMP.glm -o $TMP.$EXT || exit 6
+	cat $TMP.$EXT > $TO || exit 7
 	rm -f $TMP.*
 }
 
@@ -209,16 +220,82 @@ function delete()
 	fetch_index
 	for f in $(index $1); do
 		if [ -f $DATADIR/$f ]; then
-			rm -f $DATADIR/$f || ( echo "ERROR: unable to delete %f"; exit 1)
+			rm -f $DATADIR/$f || error 1 "unable to delete $f"
 		fi
 	done
 
 }
 
-function submit()
+function open()
 {
-	fetch_index
-	echo "ERROR: submit is not available at this time"
+	if [ $# -eq 0 ]; then
+		error 1 "missing local library name"
+	fi
+	LIBDIR=$1
+	if [ -d $LIBDIR -a -d $LIBDIR/.git ]; then
+		cd $LIBDIR
+		git pull -q
+	else
+		git clone -q "$GITPROJ" $LIBDIR
+		cd $LIBDIR
+	fi
+	if [ ! -d .git ]; then
+		error 3 "$LIBDIR is not a valid git repository (missing $LIDIR/.git)"
+	fi
+	EMAIL=$(git config --get user.email)
+	if [ -z "$EMAIL" ]; then
+		error 3 "user.email not set for repository $LIBDIR"
+	fi
+	SESSION=$USER/$(date '+%y%m%d/%H%M%S')
+	git checkout -q -b $SESSION
+}
+
+function session()
+{
+	if [ $# -eq 0 ]; then
+		error 1 "missing local library name"
+	fi
+	LIBDIR=$1
+	if [ ! -d $LIBDIR -o ! -d $LIBDIR/.git ]; then
+		error 2 "$LIBDIR is not a valid local library"
+	fi
+	if [ $# -eq 1 ]; then
+		git branch | sort -r | cut -c3- | grep "^$USER/"
+	else
+		git checkout -q $2
+	fi
+}
+
+function save()
+{
+	if [ $# -eq 0 ]; then
+		error 1 "missing local library name"
+	fi
+	LIBDIR=$1
+	if [ ! -d $LIBDIR/.git ]; then
+		error 2 "$LIBDIR is not a valid git repository (missing $LIDIR/.git)"
+	fi
+	cd $LIBDIR
+	if [ $# -eq 1 ]; then
+		$MESSAGE="Save by $USER on $DATE"
+	else
+		$MESSAGE=$2
+	fi
+	git commit -a -m "$MESSAGE"
+	if
+}
+
+function add()
+{
+	if [ $# -eq 0 ]; then
+		error 1 "missing local library name"
+	fi
+	LIBDIR=$1
+	if [ $# -eq 1 ]; then
+		error 2 "missing file name"
+	fi
+	cd $LIBDIR
+	git add -q $2
 }
 
 if [ $# == 0 -o "$1" == "help" ]; then
@@ -228,5 +305,5 @@ elif [ "$(type -t $1)" = "function" ]; then
 	$*
 	exit 0
 else
-	echo "ERROR: '$1' is not a valid library command"
+	error 1 "'$1' is not a valid library command"
 fi
