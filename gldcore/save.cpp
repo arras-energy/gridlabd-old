@@ -145,31 +145,48 @@ int saveglm(const char *filename,FILE *fp)
 	}
 
 	/* save clock */
+	if ( (global_filesave_options&FSO_CLOCK) == FSO_CLOCK )
+	{
 		count += fprintf(fp,"\n////////////////////////////////////////////////////////\n");
 		count += fprintf(fp,"\n// CLOCK\n");
-	count += fprintf(fp,"clock {\n");
-//	count += fprintf(fp,"\ttick 1e%+d;\n",TS_SCALE);
-	count += fprintf(fp,"\ttimezone \"%s\";\n", timestamp_current_timezone());
-	if ( convert_from_timestamp(global_starttime,buffer,sizeof(buffer))>0 )
-		count += fprintf(fp,"\tstarttime \"%s\";\n", buffer);
-	if ( convert_from_timestamp(global_stoptime,buffer,sizeof(buffer))>0 )
-		count += fprintf(fp,"\tstoptime \"%s\";\n", buffer);
-//	if (getenv("TZ"))
-//		count += fprintf(fp,"\ttimezone %s;\n", getenv("TZ"));
-	count += fprintf(fp,"}\n");
+		count += fprintf(fp,"clock {\n");
+		count += fprintf(fp,"\ttimezone \"%s\";\n", timestamp_current_timezone());
+		if ( convert_from_timestamp(global_starttime,buffer,sizeof(buffer))>0 )
+		{
+			count += fprintf(fp,"\tstarttime \"%s\";\n", buffer);
+		}
+		if ( convert_from_timestamp(global_stoptime,buffer,sizeof(buffer))>0 )
+		{
+			count += fprintf(fp,"\tstoptime \"%s\";\n", buffer);
+		}
+		count += fprintf(fp,"}\n");
+	}
 
 	/* save parts */
-	if ( (global_glm_save_options&GSO_NOGLOBALS)==0 )
+	if ( (global_glm_save_options&GSO_NOGLOBALS)==0 && (global_filesave_options&FSO_GLOBALS)==FSO_GLOBALS )
 	{
 		count += global_saveall(fp);
 	}
-	count += module_saveall(fp);
-	count += class_saveall(fp);
-	if ( (global_glm_save_options&GSO_NOINTERNALS)==0 )
+	if ( (global_filesave_options&FSO_MODULES) == FSO_MODULES )
+	{
+		count += module_saveall(fp);
+	}
+	if ( (global_filesave_options&FSO_CLASSES) == FSO_CLASSES )
+	{
+		count += class_saveall(fp);
+	}
+	if ( (global_glm_save_options&GSO_NOINTERNALS)==0 && (global_filesave_options&FSO_SCHEDULES) == FSO_SCHEDULES )
+	{
 		count += schedule_saveall(fp);
-	count += transform_saveall(fp);
-	count += object_saveall(fp);
-
+	}
+	if ( (global_filesave_options&FSO_FILTERS) == FSO_FILTERS )
+	{
+		count += transform_saveall(fp);
+	}
+	if ( (global_filesave_options&FSO_OBJECTS) == FSO_OBJECTS )
+	{
+		count += object_saveall(fp);
+	}
 	count += fprintf(fp,"\n////////////////////////////////////////////////////////\n");
 	count += fprintf(fp,"// END");
 	count += fprintf(fp,"\n////////////////////////////////////////////////////////\n");

@@ -437,7 +437,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) TUPLE("out","%llu",(int64)(obj->out_svc));
 		TUPLE("rng_state","%llu",(int64)(obj->rng_state));
 		TUPLE("heartbeat","%llu",(int64)(obj->heartbeat));
-		(len += write(",\n\t\t\t\"%s\" : \"0x%llx%llx\"","guid",(int64)(obj->guid[0]),(int64)(obj->guid[1])));
+		(len += write(",\n\t\t\t\"%s\" : \"%llX%llX\"","guid",(int64)(obj->guid[0]),(int64)(obj->guid[1])));
 		TUPLE("flags","0x%llx",(int64)(obj->flags));
 		for ( pclass = obj->oclass ; pclass != NULL ; pclass = pclass->parent )
 		{
@@ -506,12 +506,30 @@ int GldJsonWriter::write_output(FILE *fp)
 	json = fp;
 	len += write("{\t\"application\": \"gridlabd\",\n");
 	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,version);
-	len += write_modules(fp);
-	len += write_properties(fp);
-	len += write_classes(fp);
-	len += write_globals(fp);
-	len += write_objects(fp);
-	len += write_schedules(fp);
+	if ( (global_filesave_options&FSO_MODULES) == FSO_MODULES )
+	{
+		len += write_modules(fp);
+	}
+	if ( (global_filesave_options&FSO_PROPERTIES) == FSO_PROPERTIES )
+	{
+		len += write_properties(fp);
+	}
+	if ( (global_filesave_options&FSO_CLASSES) == FSO_CLASSES )
+	{
+		len += write_classes(fp);
+	}
+	if ( (global_filesave_options&FSO_GLOBALS) == FSO_GLOBALS )
+	{
+		len += write_globals(fp);
+	}
+	if ( (global_filesave_options&FSO_SCHEDULES) == FSO_SCHEDULES )
+	{
+		len += write_schedules(fp);
+	}
+	if ( (global_filesave_options&FSO_OBJECTS) == FSO_OBJECTS )
+	{
+		len += write_objects(fp);
+	}
 	len += write("\n}\n");
 	output_debug("GldJsonWriter::output() wrote %d bytes",len);
 	return len;

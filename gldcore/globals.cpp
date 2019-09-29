@@ -165,6 +165,17 @@ DEPRECATED static KEYWORD gso_keys[] = {
 	{"NODEFAULTS",	GSO_NODEFAULTS, gso_keys+4},
 	{"NOMACROS",	GSO_NOMACROS,	NULL},
 };
+DEPRECATED static KEYWORD fso_keys[] = {
+	{"ALL",			FSO_ALL,		fso_keys+1},
+	{"MODULES",		FSO_MODULES,	fso_keys+2},
+	{"PROPERTIES",	FSO_PROPERTIES,	fso_keys+3},
+	{"CLASSES",		FSO_CLASSES,	fso_keys+4},
+	{"GLOBALS",		FSO_GLOBALS,	fso_keys+5},
+	{"OBJECTS",		FSO_OBJECTS,	fso_keys+6},
+	{"SCHEDULES",	FSO_SCHEDULES,	fso_keys+7},
+	{"FILTERS",		FSO_FILTERS,	fso_keys+8},
+	{"SCRIPTS",		FSO_FILTERS,	NULL},
+};
 
 DEPRECATED static struct s_varmap {
 	const char *name;
@@ -304,6 +315,7 @@ DEPRECATED static struct s_varmap {
 	{"daemon_configfile", PT_char1024, &global_daemon_configfile, PA_PUBLIC, "name of configuration file used by the daemon"},
 	{"timezone_locale", PT_char1024, &global_timezone_locale, PA_REFERENCE, "timezone specified by the clock directive"},
 	{"glm_save_options", PT_set, &global_glm_save_options, PA_PUBLIC, "options to control GLM file save format", gso_keys},
+	{"filesave_options", PT_set, &global_filesave_options, PA_PUBLIC, "control elements saved on output", fso_keys},
 	{"ignore_errors", PT_bool, &global_ignore_errors, PA_PUBLIC, "disable exit on error behavior"},
 	/* add new global variables here */
 };

@@ -717,6 +717,8 @@ GLOBAL bool global_validto_context INIT(VTC_SYNC); /**< events for which valid_t
 
 /* Variable:  */
 GLOBAL char1024 global_timezone_locale INIT("UTC"); /**< timezone specification */
+
+/* Type: GLMSAVEOPTIONS */
 typedef enum {
 	GSO_LEGACY 		= 0x0000,
 	GSO_NOINTERNALS = 0x0001,
@@ -729,8 +731,26 @@ typedef enum {
 /* Variable: */
 GLOBAL bool global_ignore_errors INIT(FALSE); 
 
+/* Type: FILESAVEOPTIONS */
+typedef enum 
+{
+	FSO_MODULES 	= 0x0001,
+	FSO_PROPERTIES	= 0x0002,
+	FSO_CLASSES		= 0x0004,
+	FSO_GLOBALS		= 0x0008,
+	FSO_OBJECTS		= 0x0010,
+	FSO_SCHEDULES   = 0x0020,
+	FSO_FILTERS     = 0x0040,
+	FSO_SCRIPTS     = 0x0080,
+	FSO_CLOCK		= 0x0100,
+	FSO_ALL         = 0x01ff,
+} FILESAVEOPTIONS;
+
 /* Variable:  */
-GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */
+GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< GLM save options */
+
+/* Variable: global_filesave_options */
+GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
 #undef GLOBAL
 #undef INIT
