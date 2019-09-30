@@ -278,10 +278,12 @@ function save()
 	if [ $# -eq 1 ]; then
 		$MESSAGE="Save by $USER on $DATE"
 	else
-		$MESSAGE=$2
+		$MESSAGE="$2"
 	fi
 	git commit -a -m "$MESSAGE"
-	if
+	git push
+	SESSION=$(git branch | grep '^*' | cut -f2 -d' ')
+	open $GITPROJ/compare/master...$SESSION
 }
 
 function add()
