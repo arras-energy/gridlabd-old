@@ -20,6 +20,8 @@
 #include "powerflow.h"
 using namespace std;
 
+EXPORT_PRECOMMIT(triplex_meter)
+
 // useful macros
 #define TO_HOURS(t) (((double)t) / (3600 * TS_SECOND))
 
@@ -167,7 +169,7 @@ int triplex_meter::create()
     last_delta_timestamp = 0;
 	measured_power = 0;
 	measured_demand = 0;
-	last_t = dt = next_time = 0;
+	next_time = 0;
 	previous_energy_total = 0;
 
 	hourly_acc = 0.0;
@@ -259,6 +261,15 @@ int triplex_meter::check_prices(){
 
 	return 0;
 }
+
+TIMESTAMP triplex_meter::precommit(TIMESTAMP t1)
+{
+	starting_measured_real_energy = measured_real_energy;
+	starting_measured_reactive_energy = measured_reactive_energy;
+	last_hourly_acc = hourly_acc;
+	return TS_NEVER;
+}
+
 TIMESTAMP triplex_meter::presync(TIMESTAMP t0)
 {
 	if (tpmeter_power_consumption != complex(0,0))
@@ -338,13 +349,7 @@ TIMESTAMP triplex_meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	measured_voltage[2].SetPolar(voltageC.Mag(),voltageC.Arg());
 	measured_voltage12 = measured_voltage[0] + measured_voltage[1];
 
-	if (t1 > last_t)
-	{
-		dt = t1 - last_t;
-		last_t = t1;
-	}
-	else
-		dt = 0;
+	TIMESTAMP dt = t1 - t0;
 
 	//READLOCK_OBJECT(obj);
 	measured_current[0] = current_inj[0];
@@ -352,12 +357,8 @@ TIMESTAMP triplex_meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	//READUNLOCK_OBJECT(obj);
 	measured_current[2] = -(measured_current[1]+measured_current[0]);
 
-//		if (dt > 0 && last_t != dt)
-	if (dt > 0)
-	{
-		measured_real_energy += measured_real_power * TO_HOURS(dt);
-		measured_reactive_energy += measured_reactive_power * TO_HOURS(dt);
-	}
+	measured_real_energy = starting_measured_real_energy + measured_real_power * TO_HOURS(dt);
+	measured_reactive_energy = starting_measured_reactive_energy + measured_reactive_power * TO_HOURS(dt);
 
 	indiv_measured_power[0] = measured_voltage[0]*(~measured_current[0]);
 	indiv_measured_power[1] = complex(-1,0) * measured_voltage[1]*(~measured_current[1]);
@@ -520,18 +521,10 @@ TIMESTAMP triplex_meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 		}
 	}
 
-	if( (bill_mode == BM_HOURLY || bill_mode == BM_TIERED_RTP) && power_market != NULL && price_prop != NULL){
-		double seconds;
-		if (dt != last_t)
-			seconds = (double)(dt);
-		else
-			seconds = 0;
-		
-		if (seconds > 0)
-		{
-			hourly_acc += seconds/3600 * price * last_measured_real_power/1000;
-			process_bill(t1);
-		}
+	if( (bill_mode == BM_HOURLY || bill_mode == BM_TIERED_RTP) && power_market != NULL && price_prop != NULL)
+	{
+		hourly_acc = last_hourly_acc + (double)dt/3600.0 * price * last_measured_real_power/1000;
+		process_bill(t1);
 
 		// Now that we've accumulated the bill for the last time period, update to the new price
 		double *pprice = (gl_get_double(power_market, price_prop));

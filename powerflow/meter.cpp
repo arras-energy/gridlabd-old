@@ -19,6 +19,8 @@
 #include "powerflow.h"
 using namespace std;
 
+EXPORT_PRECOMMIT(meter)
+
 // useful macros
 #define TO_HOURS(t) (((double)t) / (3600 * TS_SECOND))
 
@@ -266,7 +268,6 @@ int meter::init(OBJECT *parent)
 	}
 
 	check_prices();
-	last_t = dt = 0;
 
 	//Update tracking flag
 	//Get server mode variable
@@ -354,6 +355,14 @@ int meter::check_prices(){
 	return 0;
 }
 
+TIMESTAMP meter::precommit(TIMESTAMP t1)
+{
+	starting_measured_real_energy = measured_real_energy;
+	starting_measured_reactive_energy = measured_reactive_energy;
+	last_hourly_acc = hourly_acc;
+	return TS_NEVER;
+}
+
 TIMESTAMP meter::presync(TIMESTAMP t0)
 {
 	if ( meter_power_consumption != complex(0,0) )
@@ -437,29 +446,27 @@ TIMESTAMP meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	measured_voltageD[1] = voltageB - voltageC;
 	measured_voltageD[2] = voltageC - voltageA;
 
+	TIMESTAMP dt = t1 - t0;
+
 	if ((solver_method == SM_NR)||solver_method  == SM_FBS)
 	{
 		int i;
-		if (t1 > last_t)
-		{
-			dt = t1 - last_t;
-			last_t = t1;
-		}
-		else
-			dt = 0;
 		
-		for ( i = 0 ; i < 3 ; i++ ) measured_current[i] = current_inj[i];
+		for ( i = 0 ; i < 3 ; i++ )
+		{
+			measured_current[i] = current_inj[i];
+		}
 
 		// compute energy use from previous cycle
 		// - everything below this can moved to commit function once tape player is collecting from commit function7
-		if (dt > 0 && last_t != dt)
-		{	
-			measured_real_energy += measured_real_power * TO_HOURS(dt);
-			measured_reactive_energy += measured_reactive_power * TO_HOURS(dt);
-		}
+		measured_real_energy = starting_measured_real_energy + measured_real_power * TO_HOURS(dt);
+		measured_reactive_energy = starting_measured_reactive_energy + measured_reactive_power * TO_HOURS(dt);
 
 		// compute demand power
-		for ( i = 0 ; i < 3 ; i++ ) indiv_measured_power[i] = measured_voltage[i]*(~measured_current[i]);
+		for ( i = 0 ; i < 3 ; i++ ) 
+		{
+			indiv_measured_power[i] = measured_voltage[i]*(~measured_current[i]);
+		}
 		measured_power = indiv_measured_power[0] + indiv_measured_power[1] + indiv_measured_power[2];
 		measured_real_power = (indiv_measured_power[0]).Re() + (indiv_measured_power[1]).Re() + (indiv_measured_power[2]).Re();
 		measured_reactive_power = (indiv_measured_power[0]).Im() + (indiv_measured_power[1]).Im() + (indiv_measured_power[2]).Im();
@@ -529,6 +536,7 @@ TIMESTAMP meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 							last_measured_min_voltageD_mag[i] = last_measured_voltageD[i];
 						for ( j = 1; j <= dt; j++)
 						{
+							// TODO: the performance of this loop is very poor and it needs to be rewritten
 							last_measured_avg_voltage_mag[i] = last_measured_avg_voltage_mag[i] + ((lmvmag[i] - last_measured_avg_voltage_mag[i])/(interval_dt + j));
 							last_measured_avg_voltageD_mag[i] = last_measured_avg_voltageD_mag[i] + ((last_mvDMag[i] - last_measured_avg_voltageD_mag[i])/(interval_dt + j));
 						}
@@ -610,18 +618,10 @@ TIMESTAMP meter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 			}
 		}
 
-		if( (bill_mode == BM_HOURLY || bill_mode == BM_TIERED_RTP) && power_market != NULL && price_prop != NULL){
-			double seconds;
-			if (dt != last_t)
-				seconds = (double)(dt);
-			else
-				seconds = 0;
-			
-			if (seconds > 0)
-			{
-				hourly_acc += seconds/3600 * price * last_measured_real_power/1000;
-				process_bill(t1);
-			}
+		if( (bill_mode == BM_HOURLY || bill_mode == BM_TIERED_RTP) && power_market != NULL && price_prop != NULL)
+		{
+			hourly_acc = last_hourly_acc + (double)dt/3600.0 * price * last_measured_real_power/1000;
+			process_bill(t1);
 
 			// Now that we've accumulated the bill for the last time period, update to the new price
 			double *pprice = (gl_get_double(power_market, price_prop));

@@ -36,8 +36,9 @@ public:
 	bool tpmeter_interrupted;		///< Reliability flag - goes active if the customer is in an "interrupted" state
 	bool tpmeter_interrupted_secondary;	///< Reliability flag - goes active if the customer is in a "secondary interrupted" state - i.e., momentary
 	TIMESTAMP next_time;
-	TIMESTAMP dt;
-	TIMESTAMP last_t;
+	double starting_measured_real_energy;
+	double starting_measured_reactive_energy;
+	double last_hourly_acc;
 
 #ifdef SUPPORT_OUTAGES
 	int16 sustained_count;	///< reliability sustained event counter
@@ -94,6 +95,7 @@ public:
 	inline triplex_meter(CLASS *cl=oclass):triplex_node(cl){};
 	int create(void);
 	int init(OBJECT *parent);
+	TIMESTAMP precommit(TIMESTAMP t1);
 	TIMESTAMP presync(TIMESTAMP t0);
 	TIMESTAMP sync(TIMESTAMP t0);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
