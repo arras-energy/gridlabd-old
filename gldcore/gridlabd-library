@@ -15,6 +15,7 @@ GITREPO="gridlabd-library"
 GITBRANCH="master"
 SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -rHEAD"
 DATADIR="$GLD_ETC/library/$ORGANIZATION"
+OPENURLCMD='open ${file}'
 
 # load the configuration (if any)
 CONFIGFILE="$GLD_ETC/gridlabd-library.conf"
@@ -283,7 +284,8 @@ function save()
 	git commit -a -m "$MESSAGE"
 	git push
 	SESSION=$(git branch | grep '^*' | cut -f2 -d' ')
-	open $GITPROJ/compare/master...$SESSION
+	file=$GITPROJ/compare/master...$SESSION
+	eval $OPENURLCMD
 }
 
 function add()
