@@ -858,10 +858,11 @@ Error:
 
 	if (my->interval==0 || my->interval==-1) 
 	{
-		return TS_NEVER;
+		obj->valid_to = TS_NEVER;
 	}
 	else
-		return my->last.ts+my->interval;
+		obj->valid_to = my->last.ts+my->interval;
+	return obj->valid_to;
 }
 
 /**@}*/
