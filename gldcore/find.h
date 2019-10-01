@@ -273,7 +273,7 @@ void find_pgm_delete(FINDPGM *pgm);
 PGMCONSTFLAGS find_pgmconstants(FINDPGM *pgm);
 
 // Function: find_file
-const char *find_file(const char *name, const char *path, int mode, char *buffer, int len);
+const char *find_file(const char *name, const char *path=NULL, int mode=R_OK, char *buffer=NULL, int len=1024);
 
 // Function: find_make_invariant
 FINDPGM *find_make_invariant(FINDPGM *pgm, int mode);

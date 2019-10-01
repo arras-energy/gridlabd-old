@@ -75,16 +75,43 @@ int saveall(const char *filename)
 		}
 	}
 
-	output_error("saveall: extension '.%s' not a known format", ext);
-	/*	TROUBLESHOOT
-		Only the format extensions ".txt", ".gld", and ".xml" are recognized by
-		GridLAB-D.  Please end the specified output field accordingly, or omit the
-		extension entirely to force use of the default format.
-	*/
-	errno = EINVAL;
-	if ( fp != stdout ) 
-		fclose(fp);
-	return FAILED;
+	/* try using python output converter through json */
+	char converter_name[1024];
+	sprintf(converter_name,"json2%s.py",ext);
+	const char *converter_path = find_file(converter_name,NULL,X_OK);
+	if ( ! converter_path )
+	{
+		output_error("saveall: extension '.%s' not a known format", ext);
+		/*	TROUBLESHOOT
+			Only the format extensions ".txt", ".gld", and ".xml" are recognized by
+			GridLAB-D.  Please end the specified output field accordingly, or omit the
+			extension entirely to force use of the default format.
+		*/
+		errno = EINVAL;
+		if ( fp != stdout ) 
+			fclose(fp);
+		return FAILED;
+	}
+	char converter_command[1024];
+	char input_name[1024];
+	strcpy(input_name,filename);
+	char *in_ext = strrchr(input_name,'.');
+	if ( in_ext == NULL )
+		return FAILED;
+	strcpy(in_ext,".json");
+#warning JSON save options not save/restored
+// TODO: add this in when JSON save options branch is merged
+//	set old_fso = global_filesave_options;
+//	global_filesave_options = FSO_ALL;
+	int rc = savejson(filename,fp);
+//	global_filesave_options = old_fso;
+	if ( rc == 0 )
+	{
+		return FAILED;
+	}
+	sprintf(converter_command,"%s -i %s -o %s %s",converter_path,input_name,filename,(const char*)global_file_converter_options);
+	rc = system(converter_command);
+	return rc != 0 ? FAILED : SUCCESS;
 }
 
 int saveglm(const char *filename,FILE *fp)

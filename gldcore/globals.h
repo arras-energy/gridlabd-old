@@ -732,6 +732,9 @@ GLOBAL bool global_ignore_errors INIT(FALSE);
 /* Variable:  */
 GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */
 
+/* Variable:  */
+GLOBAL char1024 global_file_converter_options INIT("");
+
 #undef GLOBAL
 #undef INIT
 
