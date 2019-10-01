@@ -219,7 +219,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	gl_global_create("tape::delta_mode_needed", PT_timestamp, &delta_mode_needed,NULL);
 
 	/* register the first class implemented, use SHARE to reveal variables */
-	player_class = gl_register_class((MODULE*)module,"player",sizeof(struct player),PC_NOSYNC); 
+	player_class = gl_register_class((MODULE*)module,"player",sizeof(struct player),PC_PRETOPDOWN); 
 	player_class->trl = TRL_PROVEN;
 	PUBLISH_STRUCT(player,char256,property);
 	PUBLISH_STRUCT(player,char1024,file);
@@ -228,7 +228,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	PUBLISH_STRUCT(player,int32,loop);
 
 	/* register the first class implemented, use SHARE to reveal variables */
-	shaper_class = gl_register_class((MODULE*)module,"shaper",sizeof(struct shaper),PC_NOSYNC); 
+	shaper_class = gl_register_class((MODULE*)module,"shaper",sizeof(struct shaper),PC_PRETOPDOWN); 
 	shaper_class->trl = TRL_QUALIFIED;
 	PUBLISH_STRUCT(shaper,char1024,file);
 	PUBLISH_STRUCT(shaper,char8,filetype);

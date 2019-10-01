@@ -452,7 +452,7 @@ Done:
 	return my->next.ns==0 ? my->next.ts : (my->next.ts+1);
 }
 
-EXPORT TIMESTAMP precommit_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
+EXPORT TIMESTAMP sync_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 {
 	struct player *my = OBJECTDATA(obj,struct player);
 	TIMESTAMP t1 = (TS_OPEN == my->status) ? my->next.ts : TS_NEVER;
@@ -466,7 +466,7 @@ EXPORT TIMESTAMP precommit_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 
 		if(player_open(obj) == 0)
 		{
-			gl_error("player: Unable to open player file '%s' for object '%s'", (char*)(my->file), obj->name?obj->name:"(anon)");
+			gl_error("sync_player: Unable to open player file '%s' for object '%s'", (char*)(my->file), obj->name?obj->name:"(anon)");
 		}
 		else
 		{
@@ -479,7 +479,7 @@ EXPORT TIMESTAMP precommit_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		if (my->target==NULL)
 			my->target = player_link_properties(my, obj->parent, my->property);
 		if (my->target==NULL){
-			gl_error("player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
+			gl_error("sync_player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
 			my->status = TS_ERROR;
 		}
 		if (my->target!=NULL)
@@ -513,7 +513,7 @@ EXPORT TIMESTAMP precommit_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		if (my->target==NULL)
 			my->target = player_link_properties(my, obj->parent, my->property);
 		if (my->target==NULL){
-			gl_error("player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
+			gl_error("sync_player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
 			my->status = TS_ERROR;
 		}
 
