@@ -16,6 +16,13 @@ static int delta_objectcount = 0; /* qualified object count */
 static MODULE **delta_modulelist = NULL; /* qualified module list */
 static int delta_modulecount = 0; /* qualified module count */
 
+void delta_modecheck(const char*)
+{
+	if ( ! global_deltamode_allowed )
+
+		throw "this version of gridlabd does not support delta-mode operation";
+}
+
 /* profile data structure */
 static DELTAPROFILE profile;
 DELTAPROFILE *delta_getprofile(void)
@@ -229,7 +236,15 @@ DT delta_modedesired(DELTAMODEFLAGS *flags)
 		}
 	}
 	/* dt_desired unmodified means nobody want delta mode, return 0 */
-	return dt_desired;
+	if ( dt_desired != DT_INFINITY && ! global_deltamode_allowed )
+	{
+		output_error("delta-mode simulation is not allowed (allow_deltamode is FALSE)");
+		return DT_INVALID;
+	}
+	else
+	{
+		return dt_desired;
+	}
 }
 
 /** Run a series of delta mode updates until mode changes back to event mode
