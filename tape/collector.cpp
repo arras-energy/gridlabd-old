@@ -266,9 +266,7 @@ int read_aggregates(AGGREGATION *aggr, char *buffer, int size)
 	return count;
 }
 
-
-
-EXPORT TIMESTAMP sync_collector(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
+EXPORT TIMESTAMP commit_collector(OBJECT *obj, TIMESTAMP t0)
 {
 	struct collector *my = OBJECTDATA(obj,struct collector);
 	typedef enum {NONE='\0', LT='<', EQ='=', GT='>'} COMPAREOP;

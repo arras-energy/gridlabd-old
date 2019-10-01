@@ -219,7 +219,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	gl_global_create("tape::delta_mode_needed", PT_timestamp, &delta_mode_needed,NULL);
 
 	/* register the first class implemented, use SHARE to reveal variables */
-	player_class = gl_register_class((MODULE*)module,"player",sizeof(struct player),PC_PRETOPDOWN); 
+	player_class = gl_register_class((MODULE*)module,"player",sizeof(struct player),PC_NOSYNC); 
 	player_class->trl = TRL_PROVEN;
 	PUBLISH_STRUCT(player,char256,property);
 	PUBLISH_STRUCT(player,char1024,file);
@@ -228,7 +228,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	PUBLISH_STRUCT(player,int32,loop);
 
 	/* register the first class implemented, use SHARE to reveal variables */
-	shaper_class = gl_register_class((MODULE*)module,"shaper",sizeof(struct shaper),PC_PRETOPDOWN); 
+	shaper_class = gl_register_class((MODULE*)module,"shaper",sizeof(struct shaper),PC_NOSYNC); 
 	shaper_class->trl = TRL_QUALIFIED;
 	PUBLISH_STRUCT(shaper,char1024,file);
 	PUBLISH_STRUCT(shaper,char8,filetype);
@@ -239,7 +239,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	PUBLISH_STRUCT(shaper,double,events);
 
 	/* register the other classes as needed, */
-	recorder_class = gl_register_class((MODULE*)module,"recorder",sizeof(struct recorder),PC_POSTTOPDOWN|PC_OBSERVER);
+	recorder_class = gl_register_class((MODULE*)module,"recorder",sizeof(struct recorder),PC_OBSERVER);
 	recorder_class->trl = TRL_PROVEN;
 	PUBLISH_STRUCT(recorder,char32,trigger);
 	PUBLISH_STRUCT(recorder,char1024,file);
@@ -277,7 +277,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 		GL_THROW("Could not publish property output for recorder");
 
 		/* register the other classes as needed, */
-	multi_recorder_class = gl_register_class((MODULE*)module,"multi_recorder",sizeof(struct recorder),PC_POSTTOPDOWN|PC_OBSERVER);
+	multi_recorder_class = gl_register_class((MODULE*)module,"multi_recorder",sizeof(struct recorder),PC_OBSERVER);
 	multi_recorder_class->trl = TRL_QUALIFIED;
 	if(gl_publish_variable(multi_recorder_class,
 		PT_double, "interval[s]", ((char*)&(my.dInterval) - (char *)&my),
@@ -312,7 +312,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 		GL_THROW("Could not publish property output for multi_recorder");
 
 	/* register the other classes as needed, */
-	collector_class = gl_register_class((MODULE*)module,"collector",sizeof(struct collector),PC_POSTTOPDOWN|PC_OBSERVER);
+	collector_class = gl_register_class((MODULE*)module,"collector",sizeof(struct collector),PC_OBSERVER);
 	collector_class->trl = TRL_PROVEN;
 	PUBLISH_STRUCT(collector,char32,trigger);
 	PUBLISH_STRUCT(collector,char1024,file);

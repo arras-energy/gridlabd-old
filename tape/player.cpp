@@ -78,7 +78,7 @@ PROPERTY *player_link_properties(struct player *player, OBJECT *obj, char *prope
 		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,]]", (char*)pstr, (char*)ustr)){
 			unit = gl_find_unit(ustr);
 			if(unit == NULL){
-				gl_error("sync_player:%d: unable to find unit '%s' for property '%s'",obj->id, (char*)ustr,(char*)pstr);
+				gl_error("player:%d: unable to find unit '%s' for property '%s'",obj->id, (char*)ustr,(char*)pstr);
 				return NULL;
 			}
 			item = pstr;
@@ -105,11 +105,11 @@ PROPERTY *player_link_properties(struct player *player, OBJECT *obj, char *prope
 		if (prop!=NULL && target!=NULL)
 		{
 			if(unit != NULL && target->unit == NULL){
-				gl_error("sync_player:%d: property '%s' is unitless, ignoring unit conversion", obj->id, item);
+				gl_error("player:%d: property '%s' is unitless, ignoring unit conversion", obj->id, item);
 			}
 			else if(unit != NULL && 0 == gl_convert_ex(target->unit, unit, &scale))
 			{
-				gl_error("sync_player:%d: unable to convert property '%s' units to '%s'", obj->id, item, (char*)ustr);
+				gl_error("player:%d: unable to convert property '%s' units to '%s'", obj->id, item, (char*)ustr);
 				return NULL;
 			}
 			if (first==NULL) first=prop; else last->next=prop;
@@ -123,7 +123,7 @@ PROPERTY *player_link_properties(struct player *player, OBJECT *obj, char *prope
 		}
 		else
 		{
-			gl_error("sync_player: property '%s' not found", item);
+			gl_error("player: property '%s' not found", item);
 			return NULL;
 		}
 		if(cid >= 0){ /* doing the complex part thing */
@@ -147,7 +147,7 @@ int player_write_properties(struct player *my, OBJECT *obj, PROPERTY *prop, cons
 	{
 		if (token == NULL)
 		{
-			gl_error("sync_player:%d: not enough values on line: %s", obj->id, buffer);
+			gl_error("player:%d: not enough values on line: %s", obj->id, buffer);
 			return count;
 		}		
 		gl_set_value(obj,GETADDR(obj,p),token,p);
@@ -452,7 +452,7 @@ Done:
 	return my->next.ns==0 ? my->next.ts : (my->next.ts+1);
 }
 
-EXPORT TIMESTAMP sync_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
+EXPORT TIMESTAMP precommit_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 {
 	struct player *my = OBJECTDATA(obj,struct player);
 	TIMESTAMP t1 = (TS_OPEN == my->status) ? my->next.ts : TS_NEVER;
@@ -466,7 +466,7 @@ EXPORT TIMESTAMP sync_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 
 		if(player_open(obj) == 0)
 		{
-			gl_error("sync_player: Unable to open player file '%s' for object '%s'", (char*)(my->file), obj->name?obj->name:"(anon)");
+			gl_error("player: Unable to open player file '%s' for object '%s'", (char*)(my->file), obj->name?obj->name:"(anon)");
 		}
 		else
 		{
@@ -479,7 +479,7 @@ EXPORT TIMESTAMP sync_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		if (my->target==NULL)
 			my->target = player_link_properties(my, obj->parent, my->property);
 		if (my->target==NULL){
-			gl_error("sync_player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
+			gl_error("player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
 			my->status = TS_ERROR;
 		}
 		if (my->target!=NULL)
@@ -513,7 +513,7 @@ EXPORT TIMESTAMP sync_player(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		if (my->target==NULL)
 			my->target = player_link_properties(my, obj->parent, my->property);
 		if (my->target==NULL){
-			gl_error("sync_player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
+			gl_error("player: Unable to find property \"%s\" in object %s", (char*)(my->property), obj->name?obj->name:"(anon)");
 			my->status = TS_ERROR;
 		}
 

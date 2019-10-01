@@ -812,7 +812,7 @@ int read_multi_properties(struct recorder *my, OBJECT *obj, RECORDER_MAP *rmap, 
 	return count;
 }
 
-EXPORT TIMESTAMP sync_multi_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
+EXPORT TIMESTAMP commit_multi_recorder(OBJECT *obj, TIMESTAMP t0)
 {
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	typedef enum {NONE='\0', LT='<', EQ='=', GT='>'} COMPAREOP;

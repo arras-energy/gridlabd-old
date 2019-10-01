@@ -723,7 +723,7 @@ EXPORT int finalize_recorder(OBJECT *obj)
 	return 1;
 }
 
-EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
+EXPORT TIMESTAMP commit_recorder(OBJECT *obj, TIMESTAMP t0)
 {
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	typedef enum {NONE='\0', LT='<', EQ='=', GT='>'} COMPAREOP;
