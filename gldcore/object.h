@@ -362,7 +362,7 @@ OBJECT *object_create_array(CLASS *oclass, unsigned int n_objects);
 OBJECT *object_create_foreign(OBJECT *obj);
 OBJECT *object_remove_by_id(OBJECTNUM id);
 int object_init(OBJECT *obj);
-STATUS object_precommit(OBJECT *obj, TIMESTAMP t1);
+TIMESTAMP object_precommit(OBJECT *obj, TIMESTAMP t1);
 TIMESTAMP object_commit(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2);
 STATUS object_finalize(OBJECT *obj);
 int object_set_dependent(OBJECT *obj, OBJECT *dependent);

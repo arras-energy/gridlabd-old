@@ -1636,22 +1636,22 @@ int object_init(OBJECT *obj) /**< the object to initialize */
 
 	The return value is if the function successfully completed.
  **/
-STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
+TIMESTAMP object_precommit(OBJECT *obj, TIMESTAMP t1)
 {
 	clock_t t = (clock_t)exec_clock();
-	STATUS rv = SUCCESS;
+	TIMESTAMP rv = TS_NEVER;
 	if ( (global_validto_context&VTC_PRECOMMIT) == VTC_PRECOMMIT )
 	{
 		return rv;
 	}
 	if ( obj->oclass->precommit != NULL )
 	{
-		rv = (STATUS)(*(obj->oclass->precommit))(obj, t1);
+		rv = (*(obj->oclass->precommit))(obj, t1);
 	}
 	if ( rv == 1 )
 	{ 
 		// if 'old school' or no precommit callback,
-		rv = SUCCESS;
+		rv = TS_NEVER;
 	}
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
@@ -1660,7 +1660,7 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 		if ( rc != 0 || t2 < t1 )
 		{
 			output_error("object %s:%d precommit at ts=%d event handler failed with code %d (retval=%lld)",obj->oclass->name,obj->id,global_starttime,rc,t2);
-			rv = FAILED;
+			rv = TS_INVALID;
 		}
 	}
 	object_profile(obj,OPI_PRECOMMIT,t);
