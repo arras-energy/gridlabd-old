@@ -35,17 +35,94 @@ int saveall(const char *filename)
 	if (ext==NULL)
 	{	/* no extension given */
 		if (filename[0]=='-') /* stdout */
+		{
 			ext=filename+1; /* format is specified after - */
+		}
 		else
+		{
 			ext=DEFAULT_FORMAT;
+		}
 	}
 	else
 		ext++;
 
+	bool known_format = false;
+	for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+	{
+		if (strcmp(ext,map[i].format)==0)
+		{
+			known_format = true;
+		}
+	}
+	if ( ! known_format )
+	{
+		/* try using python output converter through json */
+		char converter_name[1024];
+		sprintf(converter_name,"json2%s.py",ext);
+		const char *converter_path = find_file(converter_name,NULL,R_OK);
+		if ( ! converter_path )
+		{
+			output_error("saveall: extension '.%s' not a known format", ext);
+			/*	TROUBLESHOOT
+				Only the format extensions ".txt", ".gld", and ".xml" are recognized by
+				GridLAB-D.  Please end the specified output field accordingly, or omit the
+				extension entirely to force use of the default format.
+			*/
+			errno = EINVAL;
+			return 0;
+		}
+		char converter_command[1024];
+		char input_name[1024];
+		strcpy(input_name,filename);
+		char *in_ext = strrchr(input_name,'.');
+		if ( in_ext == NULL )
+		{
+			output_error("intermediate file '%s' extension not found", input_name);
+			errno = EINVAL;
+			return 0;
+		}
+		strcpy(in_ext,".json");
+		#warning JSON save options not save/restored
+		// TODO: add this in when JSON save options branch is merged
+		//	set old_fso = global_filesave_options;
+		//	global_filesave_options = FSO_ALL;
+		fp = fopen(input_name,"wb");
+		if ( fp == NULL )
+		{
+			output_error("unable to open intermediate file '%s' for writing", input_name);
+			return 0;
+		}
+		int rc = savejson(input_name,fp);
+		fclose(fp);
+		//	global_filesave_options = old_fso;
+		if ( rc == 0 )
+		{
+			output_error("save to intermediate file '%s' failed (code %d)", input_name, rc);;
+			return 0;
+		}
+		sprintf(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,(const char*)global_file_converter_options);
+		rc = system(converter_command);
+		if ( rc != 0 )
+		{
+			output_error("conversion from intermediate file '%s' to output file '%s' failed (code %d)", input_name, filename, rc);
+			return 0;
+		}
+		struct stat info;
+		info.st_size = 0;
+		if ( stat(filename,&info) != 0 )
+		{
+			output_error("unable to determine size of output file '%s' (%s)", filename, strerror(errno));
+		}
+		return info.st_size;
+	}
+
 	/* setup output stream */
 	if (filename[0]=='-')
+	{
 		fp = stdout;
-	else if ((fp=fopen(filename,"wb"))==NULL){
+	}
+	else if ( (fp=fopen(filename,"wb")) == NULL )
+	{
 		output_error("saveall: unable to open stream \'%s\' for writing", filename);
 		return 0;
 	}
@@ -55,10 +132,14 @@ int saveall(const char *filename)
 	if (global_streaming_io_enabled)
 	{
 		int res = stream(fp,SF_OUT)>0 ? SUCCESS : FAILED;
-		if (res==FAILED)
+		if ( res == 0 )
+		{
 			output_error("stream context is %s",stream_context());
+		}
 		if ( fp != stdout ) 
+		{
 			fclose(fp);
+		}
 		return res;
 	}
 
@@ -68,50 +149,15 @@ int saveall(const char *filename)
 		if (strcmp(ext,map[i].format)==0)
 		{
 			int rc = (*(map[i].save))(filename,fp);
-			if ( fp != stdout ) 
+			if ( fp != stdout )
+			{
 				fclose(fp);
+			}
 			output_debug("dump to %s completed ok (%d bytes written)",filename,rc);
 			return rc;
 		}
 	}
-
-	/* try using python output converter through json */
-	char converter_name[1024];
-	sprintf(converter_name,"json2%s.py",ext);
-	const char *converter_path = find_file(converter_name,NULL,X_OK);
-	if ( ! converter_path )
-	{
-		output_error("saveall: extension '.%s' not a known format", ext);
-		/*	TROUBLESHOOT
-			Only the format extensions ".txt", ".gld", and ".xml" are recognized by
-			GridLAB-D.  Please end the specified output field accordingly, or omit the
-			extension entirely to force use of the default format.
-		*/
-		errno = EINVAL;
-		if ( fp != stdout ) 
-			fclose(fp);
-		return FAILED;
-	}
-	char converter_command[1024];
-	char input_name[1024];
-	strcpy(input_name,filename);
-	char *in_ext = strrchr(input_name,'.');
-	if ( in_ext == NULL )
-		return FAILED;
-	strcpy(in_ext,".json");
-#warning JSON save options not save/restored
-// TODO: add this in when JSON save options branch is merged
-//	set old_fso = global_filesave_options;
-//	global_filesave_options = FSO_ALL;
-	int rc = savejson(filename,fp);
-//	global_filesave_options = old_fso;
-	if ( rc == 0 )
-	{
-		return FAILED;
-	}
-	sprintf(converter_command,"%s -i %s -o %s %s",converter_path,input_name,filename,(const char*)global_file_converter_options);
-	rc = system(converter_command);
-	return rc != 0 ? FAILED : SUCCESS;
+	return 0;
 }
 
 int saveglm(const char *filename,FILE *fp)
