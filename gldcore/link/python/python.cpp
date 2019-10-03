@@ -964,15 +964,21 @@ static PROPERTY *get_first_property(OBJECT *obj)
 {
     return obj->oclass->pmap;
 }
-static PROPERTY *get_next_property(PROPERTY *prop)
+static PROPERTY *get_next_property(PROPERTY *prop,bool inherit=true)
 {
     PROPERTY *next = prop->next;
-    if ( next == NULL )
+    if ( next == NULL && inherit )
+    {
         return prop->oclass->parent ? prop->oclass->parent->pmap : NULL;
+    }
     else if ( next->oclass == prop->oclass )
+    {
         return next;
+    }
     else
+    {
         return NULL;
+    }
 }
 
 //
