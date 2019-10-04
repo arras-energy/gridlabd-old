@@ -1,6 +1,7 @@
 import json 
 import os 
 import sys, getopt
+from datetime import datetime 
 
 filename_json = ''
 filename_png = ''
@@ -39,37 +40,88 @@ with open(filename_json,"r") as f :
 	assert(data['application']=='gridlabd')
 	assert(data['version'] >= '4.2.0')
 
+#
+# -t summary
+#
 if output_type == 'summary':
 
+	filename = data["globals"]["modelname"]["value"]
 	from PIL import Image, ImageDraw, ImageFont
-	im = Image.new(mode="RGB",size=(320,200),color="white")
-	draw = ImageDraw.Draw(im)
-	fnt = ImageFont.load_default()
+	img = Image.new(mode="RGB",size=(320,200),color="white")
+	draw = ImageDraw.Draw(img)
 
-	def node(x,y,text,vmargin=1,hmargin=1):
+	def node(draw,x,y,text,vmargin=1,hmargin=1,fnt=ImageFont.load_default()):
 		sz = draw.multiline_textsize(text,font=fnt)
 		draw.rectangle([x-sz[0]/2-hmargin,y-sz[1]/2-vmargin,x+sz[0]/2+hmargin,y+sz[1]/2+vmargin],outline="black",fill="white")
 		draw.multiline_text((x-sz[0]/2,y-sz[1]/2),text,font=fnt,fill="black")
-	node(x=160,y=100,text=data["globals"]["modelname"]["value"],vmargin=2,hmargin=3)
-	im.save(filename_png)
 
+	import hashlib
+	md5 = hashlib.md5()
+	with open(filename,"r") as f:
+		md5.update(f.read().encode())
+	node(draw,x=160,y=100,text="""Name..... %s
+Digest... %s
+Date..... %s""" % (filename,md5.hexdigest(),datetime.now().strftime("%y-%m-%d %H:%M:%S")),vmargin=2,hmargin=3)
+	img.save(filename_png)
+
+#
+# -t profile
+#
 elif output_type == 'profile':
 
 	def find(objects,property,value):
 		result = []
 		for name,values in objects.items():
 			if property in values.keys() and values[property] == value:
-				return result.append(name)
+				result.append(name)
 		return result
-	def plot(objects,root,pos=0):
+
+	def profile(objects,root,pos=0):
+		result = []
 		for obj in find(objects,"from",root):
-			to = objects[obj]["to"]
-			values = objects[to]
-			if "voltage_A" in values.keys():
-				print("%s: (%s, %s, %s)" % (obj,objects[obj]["voltage_A"],objects[obj]["voltage_B"],objects[obj]["voltage_C"]))
-			plot(objects,to)
-	for obj in find(data["objects"],"bustype","SWING"):
-		plot(data["objects"],obj)
+			branch = []
+			line = objects[obj]
+			keys = line.keys()
+			if "to" in keys:
+				to = line["to"]
+				if "length" in keys:
+					ln = abs(complex(line["length"].split(" ")[0]))
+				else:
+					ln = 0
+				values = objects[to]
+				keys = values.keys()
+				if "voltage_A" in keys and "voltage_B" in keys and "voltage_C" in keys and "nominal_voltage" in keys:
+					Vn = abs(complex(values["nominal_voltage"].split(" ")[0]))
+					Va = abs(complex(values["voltage_A"].split(" ")[0].replace('i','j')))
+					Vb = abs(complex(values["voltage_B"].split(" ")[0].replace('i','j')))
+					Vc = abs(complex(values["voltage_C"].split(" ")[0].replace('i','j')))
+					#print("%s@%g: (%g, %g, %g)" % (obj,pos+ln,Va/Vn,Vb/Vn,Vc/Vn))
+					branch.append([pos+ln,Va/Vn,Vb/Vn,Vc/Vn])
+				tail = profile(objects,to,pos+ln)
+				if tail:
+					branch.extend(profile(objects,to,pos+ln))
+			result.extend(branch)
+		return result
+
+	import matplotlib.pyplot as plt
+	plt.figure(1);
+	ln = []
+	va = []
+	vb = []
+	vc = []
+	for obj in find(objects=data["objects"],property="bustype",value="SWING"):
+		for p in profile(objects=data["objects"],root=obj):
+			ln.append(p[0]/5280)
+			va.append(p[1])
+			vb.append(p[2])
+			vc.append(p[3])
+		plt.plot(ln,va,'k')
+		plt.plot(ln,vb,'r')
+		plt.plot(ln,vc,'b')
+	plt.xlabel('Distance (miles)')
+	plt.ylabel('Voltage (pu)')
+	plt.title(data["globals"]["modelname"]["value"])
+	plt.savefig(filename_png, dpi=1000)
 
 else:
 
