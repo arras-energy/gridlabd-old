@@ -134,7 +134,7 @@ elif output_type == 'profile':
 	plt.title(data["globals"]["modelname"]["value"])
 	plt.grid()
 	plt.legend(["A","B","C"])
-	plt.savefig(filename_png, dpi=1000)
+	plt.savefig(filename_png, dpi=600)
 
 else:
 
