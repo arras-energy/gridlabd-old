@@ -3,23 +3,34 @@ import os
 import sys, getopt
 from datetime import datetime 
 
+def help():
+	print('Syntax:')
+	print('json2png.py -i|--ifile <modelinputfile> [-o|--ofile <outputfile>] [-t|--type <outputtype>]')
+	print('  -i|--ifile     : [REQUIRED] json input file name.')
+	print('  -o|--ofile     : [OPTIONAL] png output file name.')
+	print("  -t|--type      : [OPTIONAL] specify output type")
+	print("Output types")
+	print("  summary        : [DEFAULT] output a summary of model")
+	print("  profile        : output the voltage profile")
+	print("    --with-nodes : [OPTIONAL] label branching nodes")
+
 filename_json = ''
 filename_png = ''
 basename = ''
 output_type = 'summary'
+with_nodes = False
+
 try : 
-	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:",["ifile=","ofile=","type="])
+	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:",["help","ifile=","ofile=","type=","with-nodes"])
 except getopt.GetoptError:
 	sys.exit(2)
 if not opts : 
-	print('Syntax:')
-	print('json2png.py -i|--ifile <modelinputfile> [-o|--ofile <outputfile>] [-t|--type <outputtype>]')
-	print('-i|--ifile : [REQUIRED] json input file name.')
-	print('-o|--ofile : [OPTIONAL] png output file name.')
-	print("-t|--type")
+	help()
+	sys.exit(1)
 for opt, arg in opts:
 	if opt in ("-h","--help"):
-		sys.exit()
+		help()
+		sys.exit(0)
 	elif opt in ("-i", "--ifile"):
 		filename_json = arg
 		if filename_png == '':
@@ -32,6 +43,8 @@ for opt, arg in opts:
 		filename_png = arg
 	elif opt in ("-t","--type"):
 		output_type = arg
+	elif opt == '--with-nodes':
+		with_nodes = True
 	else:
 		raise Exception("'%s' is an invalid command line option" % opt)
 
@@ -102,6 +115,7 @@ elif output_type == 'profile':
 			vc0 = abs(get_complex(fromdata,"voltage_C"))/vn0
 		# print("    %s @ %g : (%g, %g, %g)" % (root,pos,va0,vb0,vc0))
 
+		count = 0
 		for link in find(objects,"from",root):
 			linkdata = objects[link]
 			if "length" in linkdata.keys():
@@ -126,6 +140,10 @@ elif output_type == 'profile':
 				if "B" in ph0 and "B" in ph1: plt.plot([pos,pos+linklen],[vb0,vb1],"r")
 				if "C" in ph0 and "C" in ph1: plt.plot([pos,pos+linklen],[vc0,vc1],"b")
 				profile(objects,to,pos+linklen)
+				count += 1
+		if count > 1 and with_nodes:
+			plt.plot([pos,pos,pos],[va0,vb0,vc0],':.',color='grey',linewidth=1)
+			plt.text(pos,min([va0,vb0,vc0]),"%s "%root,color='grey',size=10,rotation=90,verticalalignment='top',horizontalalignment='center')
 
 	for obj in find(objects=data["objects"],property="bustype",value="SWING"):
 		profile(objects=data["objects"],root=obj)
