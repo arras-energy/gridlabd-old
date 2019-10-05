@@ -118,10 +118,13 @@ elif output_type == 'profile':
 		count = 0
 		for link in find(objects,"from",root):
 			linkdata = objects[link]
+			linktype = "-"
 			if "length" in linkdata.keys():
 				linklen = get_real(linkdata,"length")/5280
 			else:
 				linklen = 0.0
+			if not "line" in get_string(linkdata,"class"):
+				linktype = "--o"
 			if "to" in linkdata.keys():
 				to = linkdata["to"]
 				todata = objects[to]
@@ -136,14 +139,14 @@ elif output_type == 'profile':
 					vb1 = abs(get_complex(todata,"voltage_B"))/vn1
 					vc1 = abs(get_complex(todata,"voltage_C"))/vn1
 				# print("    %s @ %g : (%g, %g, %g)" % (to,pos+linklen,va1,vb1,vc1))
-				if "A" in ph0 and "A" in ph1: plt.plot([pos,pos+linklen],[va0,va1],"k")
-				if "B" in ph0 and "B" in ph1: plt.plot([pos,pos+linklen],[vb0,vb1],"r")
-				if "C" in ph0 and "C" in ph1: plt.plot([pos,pos+linklen],[vc0,vc1],"b")
+				if "A" in ph0 and "A" in ph1: plt.plot([pos,pos+linklen],[va0,va1],"%sk"%linktype)
+				if "B" in ph0 and "B" in ph1: plt.plot([pos,pos+linklen],[vb0,vb1],"%sr"%linktype)
+				if "C" in ph0 and "C" in ph1: plt.plot([pos,pos+linklen],[vc0,vc1],"%sb"%linktype)
 				profile(objects,to,pos+linklen)
 				count += 1
 		if count > 1 and with_nodes:
-			plt.plot([pos,pos,pos],[va0,vb0,vc0],':.',color='grey',linewidth=1)
-			plt.text(pos,min([va0,vb0,vc0]),"%s "%root,color='grey',size=10,rotation=90,verticalalignment='top',horizontalalignment='center')
+			plt.plot([pos,pos,pos],[va0,vb0,vc0],':*',color='grey',linewidth=1)
+			plt.text(pos,min([va0,vb0,vc0]),"[%s]  "%root,color='grey',size=6,rotation=90,verticalalignment='top',horizontalalignment='center')
 
 	for obj in find(objects=data["objects"],property="bustype",value="SWING"):
 		profile(objects=data["objects"],root=obj)
