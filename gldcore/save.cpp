@@ -100,7 +100,17 @@ int saveall(const char *filename)
 			output_error("save to intermediate file '%s' failed (code %d)", input_name, rc);;
 			return 0;
 		}
-		sprintf(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,(const char*)global_file_converter_options);
+		char options_name[1024];
+		sprintf(options_name,"%s_save_options",ext);
+		char buffer[1024];
+		const char *save_options = global_getvar(options_name,buffer,sizeof(buffer));
+		if ( buffer[0] == '"' )
+		{
+			save_options++;
+			buffer[strlen(buffer)-1] = '\0';
+		}
+		sprintf(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
+		output_verbose("system('%s')",converter_command);
 		rc = system(converter_command);
 		if ( rc != 0 )
 		{

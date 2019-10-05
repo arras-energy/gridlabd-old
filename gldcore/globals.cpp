@@ -305,7 +305,6 @@ DEPRECATED static struct s_varmap {
 	{"timezone_locale", PT_char1024, &global_timezone_locale, PA_REFERENCE, "timezone specified by the clock directive"},
 	{"glm_save_options", PT_set, &global_glm_save_options, PA_PUBLIC, "options to control GLM file save format", gso_keys},
 	{"ignore_errors", PT_bool, &global_ignore_errors, PA_PUBLIC, "disable exit on error behavior"},
-	{"file_converter_options", PT_char1024, &global_file_converter_options, PA_PUBLIC, "file conversion options"},
 	/* add new global variables here */
 };
 
