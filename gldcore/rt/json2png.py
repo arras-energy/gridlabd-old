@@ -69,6 +69,9 @@ Date..... %s""" % (filename,md5.hexdigest(),datetime.now().strftime("%y-%m-%d %H
 #
 elif output_type == 'profile':
 
+	import matplotlib.pyplot as plt
+	plt.figure(1);
+
 	def find(objects,property,value):
 		result = []
 		for name,values in objects.items():
@@ -76,51 +79,61 @@ elif output_type == 'profile':
 				result.append(name)
 		return result
 
-	def profile(objects,root,pos=0):
-		result = []
-		for obj in find(objects,"from",root):
-			branch = []
-			line = objects[obj]
-			keys = line.keys()
-			if "to" in keys:
-				to = line["to"]
-				if "length" in keys:
-					ln = abs(complex(line["length"].split(" ")[0]))
-				else:
-					ln = 0
-				values = objects[to]
-				keys = values.keys()
-				if "voltage_A" in keys and "voltage_B" in keys and "voltage_C" in keys and "nominal_voltage" in keys:
-					Vn = abs(complex(values["nominal_voltage"].split(" ")[0]))
-					Va = abs(complex(values["voltage_A"].split(" ")[0].replace('i','j')))
-					Vb = abs(complex(values["voltage_B"].split(" ")[0].replace('i','j')))
-					Vc = abs(complex(values["voltage_C"].split(" ")[0].replace('i','j')))
-					#print("%s@%g: (%g, %g, %g)" % (obj,pos+ln,Va/Vn,Vb/Vn,Vc/Vn))
-					branch.append([pos+ln,Va/Vn,Vb/Vn,Vc/Vn])
-				tail = profile(objects,to,pos+ln)
-				if tail:
-					branch.extend(profile(objects,to,pos+ln))
-			result.extend(branch)
-		return result
+	def get_string(values,prop):
+		return values[prop]
 
-	import matplotlib.pyplot as plt
-	plt.figure(1);
-	ln = []
-	va = []
-	vb = []
-	vc = []
+	def get_complex(values,prop):
+		return complex(get_string(values,prop).split(" ")[0].replace('i','j'))
+
+	def get_real(values,prop):
+		return get_complex(values,prop).real
+
+	def profile(objects,root,pos=0):
+		fromdata = objects[root]
+		ph0 = get_string(fromdata,"phases")
+		vn0 = abs(get_complex(fromdata,"nominal_voltage"))
+		if not "N" in ph0 or "D" in ph0:
+			va0 = abs(get_complex(fromdata,"voltage_AB"))/vn0
+			vb0 = abs(get_complex(fromdata,"voltage_BC"))/vn0
+			vc0 = abs(get_complex(fromdata,"voltage_CA"))/vn0
+		else:
+			va0 = abs(get_complex(fromdata,"voltage_A"))/vn0
+			vb0 = abs(get_complex(fromdata,"voltage_B"))/vn0
+			vc0 = abs(get_complex(fromdata,"voltage_C"))/vn0
+		# print("    %s @ %g : (%g, %g, %g)" % (root,pos,va0,vb0,vc0))
+
+		for link in find(objects,"from",root):
+			linkdata = objects[link]
+			if "length" in linkdata.keys():
+				linklen = get_real(linkdata,"length")/5280
+			else:
+				linklen = 0.0
+			if "to" in linkdata.keys():
+				to = linkdata["to"]
+				todata = objects[to]
+				ph1 = get_string(todata,"phases")
+				vn1 = abs(get_complex(todata,"nominal_voltage"))
+				if not "N" in ph1 or "D" in ph1:
+					va1 = abs(get_complex(todata,"voltage_AB"))/vn1
+					vb1 = abs(get_complex(todata,"voltage_BC"))/vn1
+					vc1 = abs(get_complex(todata,"voltage_CA"))/vn1
+				else:
+					va1 = abs(get_complex(todata,"voltage_A"))/vn1
+					vb1 = abs(get_complex(todata,"voltage_B"))/vn1
+					vc1 = abs(get_complex(todata,"voltage_C"))/vn1
+				# print("    %s @ %g : (%g, %g, %g)" % (to,pos+linklen,va1,vb1,vc1))
+				if "A" in ph0 and "A" in ph1: plt.plot([pos,pos+linklen],[va0,va1],"k")
+				if "B" in ph0 and "B" in ph1: plt.plot([pos,pos+linklen],[vb0,vb1],"r")
+				if "C" in ph0 and "C" in ph1: plt.plot([pos,pos+linklen],[vc0,vc1],"b")
+				profile(objects,to,pos+linklen)
+
 	for obj in find(objects=data["objects"],property="bustype",value="SWING"):
-		for p in profile(objects=data["objects"],root=obj):
-			ln.append(p[0]/5280)
-			va.append(p[1])
-			vb.append(p[2])
-			vc.append(p[3])
-		plt.plot(ln,va,'k')
-		plt.plot(ln,vb,'r')
-		plt.plot(ln,vc,'b')
+		profile(objects=data["objects"],root=obj)
 	plt.xlabel('Distance (miles)')
 	plt.ylabel('Voltage (pu)')
 	plt.title(data["globals"]["modelname"]["value"])
+	plt.grid()
+	plt.legend(["A","B","C"])
 	plt.savefig(filename_png, dpi=1000)
 
 else:
