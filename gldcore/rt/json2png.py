@@ -169,8 +169,18 @@ elif output_type == 'profile':
 	plt.savefig(filename_png, dpi=int(resolution))
 
 else:
+	modname = "%s-%s.py"%(sys.argv[0][:-3],output_type)
+	print("Trying to load",modname)
+	if os.path.exists(modname):
 
-	raise Exception("type '%s' is not valid" % output_type)
+		import importlib
+		modpath = importlib.import_module(modname)
+		mod = importlib.util.spec_from_file_location(output_type, modpath)
+		mod.main([sys.argv[0]].extend(sys.argv[1:]))
+
+	else:
+
+		raise Exception("type '%s' is not valid" % output_type)
 
 ### oneline method
 # from PIL import Image, ImageDraw, ImageFont

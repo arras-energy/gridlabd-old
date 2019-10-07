@@ -46,3 +46,4 @@ dist_pkgdata_DATA += gldcore/rt/triplex_meter_r.png
 dist_pkgdata_DATA += gldcore/rt/json2glm.py
 dist_pkgdata_DATA += gldcore/rt/json2txt.py
 dist_pkgdata_DATA += gldcore/rt/json2png.py
+dist_pkgdata_DATA += gldcore/rt/json2png-oneline.py
