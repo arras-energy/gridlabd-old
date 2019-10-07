@@ -15,7 +15,7 @@ def main(argv):
     filename_json = ''
     filename_png = ''
     basename = ''
-    output_type = 'summary'
+    output_type = 'oneline'
     with_nodes = False
     resolution = "300"
     size = "300x200"
@@ -46,6 +46,10 @@ def main(argv):
             resolution = arg
         elif opt in ("-s","--size"):
             size = arg
+        elif opt in ("-t","--type"):
+            assert(output_type=="oneline")
+        else:
+            raise Exception("'%s' is an invalid command line option" % opt)
 
     with open(filename_json,"r") as f :
         data = json.load(f)
