@@ -163,7 +163,6 @@ typedef struct s_enduse
 	double heatgain;
 	double cumulative_heatgain;
 	double heatgain_fraction;
-	double gas_fraction;
 	const char *name;
 	loadshape *shape;
 	TIMESTAMP t_last;

@@ -225,7 +225,6 @@ GldMain::~GldMain(void)
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
 	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
 
-	run_on_exit(exec.getexitcode());
 	exit(exec.getexitcode());
 
 	// TODO: remove this when reetrant code is done
@@ -330,41 +329,5 @@ void GldMain::delete_pidfile(void)
 	unlink(global_pidfile);
 }
 
-int GldMain::add_on_exit(int xc, const char *cmd)
-{
-	try
-	{
-		onexitcommand *item = new onexitcommand(xc,cmd);
-		exitcommands.push_back(*item);
-		size_t n = exitcommands.size();
-		IN_MYCONTEXT output_verbose("added on_exit(%d,'%s') -> %d", xc, cmd, n);
-		return n;
-	}
-	catch (...)
-	{
-		output_error("unable to add on_exit %d '%s'", xc, cmd);
-		return 0;
-	}
-}
-
-void GldMain::run_on_exit(int xc)
-{
-	for ( std::list<onexitcommand>::iterator cmd = exitcommands.begin() ; cmd != exitcommands.end() ; cmd++ )
-	{
-		if ( cmd->get_exitcode() == xc )
-		{
-			int rc = cmd->run();
-			if ( rc != 0 )
-			{
-				output_error("on_exit %d '%s' command failed (return code %d)", cmd->get_exitcode(), cmd->get_command(), rc);
-				return;
-			}
-			else
-			{
-				IN_MYCONTEXT output_verbose("running on_exit(%d,'%s') -> code %d", cmd->get_exitcode(), cmd->get_command(), rc);
-			}
-		}
-	}
-}
 
 /** @} **/

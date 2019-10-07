@@ -278,7 +278,7 @@ int dryer::init(OBJECT *parent)
 			GL_THROW("dryer load shape has an unknown state!");
 			break;
 	}
-	return rv;
+	return residential_enduse::init(parent);
 //}
 	// must run before update_state() so that pCircuit can be set
 

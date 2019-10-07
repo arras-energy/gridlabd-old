@@ -59,7 +59,7 @@ object house {
 	cooling_setpoint House1.cooling_setpoint+1;
 	
 	// transform references property in this object
-	heating_setpoint myfunction2(cooling_setpoint);
+	heating_setpoint myfunction2(this.cooling_setpoint);
 	
 	// transform references schedule
 	air_temperature test_schedule+70;

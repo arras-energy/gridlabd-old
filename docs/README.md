@@ -1,3 +1,11 @@
-The main documentation for GridLAB-D is available at the [GridLAB-D Wiki](https://gridlab-d.shoutwiki.com/).
+Projects currently active in this repository
 
-Modifications implemented in this version of GridLAB-D are documented at the [project wiki](https://github.com/dchassin/gridlabd/wiki).
+HiPAS: High-performance upgrades to GridLAB-D
+
+OpenFIDO: Open framework for interoperable data operations
+
+GLOW: GridLAB-D Open Workspace
+
+GRIP: Grid Resilience 
+
+PowerNET: PowerNET with markets

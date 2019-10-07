@@ -1,7 +1,3 @@
-#ifdef RUNIT
-#system gridlabd -D RUNIT test_json_escape_string.glm
-#system python3 ../check_json.py
-#else
 class test {
     char1024 dict;
     char1024 list;
@@ -11,6 +7,5 @@ object test {
     dict "{\"a\":[\"b\",\"c\",\"d\"]}";
     list "[\"a\",\"b\",\"c\"]";
 }
-#endif
-//script on_init "gridlabd ../json_escape_string.glm -o gridlabd.json";
-//script on_term "python3 ../check_json.py";
+#set savefile=gridlabd.json
+#system python3 ../check_json.py
