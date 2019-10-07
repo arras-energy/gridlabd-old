@@ -162,21 +162,22 @@ elif output_type == 'profile':
 	plt.ylabel('Voltage (pu)')
 	plt.title(data["globals"]["modelname"]["value"])
 	plt.grid()
-	plt.legend(["A","B","C"])
+	#plt.legend(["A","B","C"])
 	#plt.tight_layout()
 	if limit:
 		plt.ylim([1-limit,1+limit])
 	plt.savefig(filename_png, dpi=int(resolution))
 
 else:
-	modname = "%s-%s.py"%(sys.argv[0][:-3],output_type)
-	print("Trying to load",modname)
+	modname = sys.argv[0].replace("json2png.py","json2png-%s.py"%output_type)
 	if os.path.exists(modname):
 
-		import importlib
-		modpath = importlib.import_module(modname)
-		mod = importlib.util.spec_from_file_location(output_type, modpath)
-		mod.main([sys.argv[0]].extend(sys.argv[1:]))
+		import importlib, copy
+		modspec = importlib.util.spec_from_file_location(output_type, modname)
+		mod = importlib.import_module("json2png-%s"%output_type)
+		argv = copy.deepcopy(sys.argv)
+		argv[0] = modname
+		mod.main(argv)
 
 	else:
 
