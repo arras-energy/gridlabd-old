@@ -29,7 +29,7 @@ typedef enum {
 	XS_ENDUSE    = 0x08, 
 	XS_SCHEDULE  = 0x10,
 	XS_RANDOMVAR = 0x20,
-	XS_ALL       = 0x1f,
+	XS_ALL       = 0x3f,
 } TRANSFORMSOURCE;
 
 /* list of supported transform function types */
