@@ -1703,6 +1703,18 @@ static int integer(PARSER, int64 *value)
 	return _n;
 }
 
+
+static int unsigned_integer(PARSER, unsigned int64 *value)
+{
+	char result[256];
+	int size=sizeof(result);
+	START;
+	while (size>1 && isdigit(*_p)) COPY(result);
+	result[_n]='\0';
+	*value=(unsigned int64)atoi64(result);
+	return _n;
+}
+
 static int integer32(PARSER, int32 *value)
 {
 	char result[256];
@@ -5858,6 +5870,34 @@ static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 	}
 	DONE;
 }
+
+static int filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resolution, double *minimum, double *maximum)
+{
+	START;
+	if WHITE ACCEPT;
+	if ( LITERAL("resolution") && (WHITE,LITERAL("=")) && (WHITE,TERM(unsigned_integer(HERE,resolution))) )
+	{
+		*flags |= FC_RESOLUTION;
+		ACCEPT;
+	}
+	else if ( LITERAL("minimum") && (WHITE,LITERAL("=")) && (WHITE,TERM(real_value(HERE,minimum))) )
+	{
+		*flags |= FC_MINIMUM;
+		ACCEPT;
+	}
+	else if ( LITERAL("maximum") && (WHITE,LITERAL("=")) && (WHITE,TERM(real_value(HERE,maximum))) )
+	{
+		*flags |= FC_MAXIMUM;
+		ACCEPT;
+	}
+	else
+	{
+		output_error_raw("%s(%d): filter option at or near '%-10.10s' is not recognized", filename, linenum, HERE);
+		REJECT;
+	}
+	DONE;
+}
+
 static int filter_block(PARSER)
 {
 	char tfname[1024];
@@ -5868,6 +5908,10 @@ static int filter_block(PARSER)
 		char domain[64];
 		double timestep=1;
 		double timeskew=0;
+		unsigned int64 flags = 0;
+ 		unsigned int64 resolution = 0;
+ 		double minimum = 0.0;
+ 		double maximum = 1.0;
 		if ( (WHITE,LITERAL("(")) && (WHITE,TERM(name(HERE,domain,sizeof(domain)))) )
 		{
 			if ( strcmp(domain,"z")==0 )
@@ -5879,10 +5923,11 @@ static int filter_block(PARSER)
 				ACCEPT;
 				if ( (WHITE,LITERAL(",")) && (WHITE,TERM(double_timestep(HERE,&timestep))) ) { ACCEPT; }
 				if ( (WHITE,LITERAL(",")) && (WHITE,TERM(double_timestep(HERE,&timeskew))) ) { ACCEPT; }
+				while ( (WHITE,LITERAL(",")) && (WHITE,TERM(filter_option(HERE,&flags,&resolution,&minimum,&maximum))) ) { ACCEPT; }
 				if ( WHITE,LITERAL(")") ) { ACCEPT; }
 				else
 				{
-					output_error_raw("%s(%d): filter domain and time arguments are not valid", filename, linenum);
+					output_error_raw("%s(%d): filter '%s' arguments are not valid at or near '%-10.10s'", filename, linenum, tfname, HERE);
 					REJECT;
 				}
 
@@ -5895,6 +5940,11 @@ static int filter_block(PARSER)
 						output_error_raw("%s(%d): unable to create transfer function'%s(%s)",filename, linenum,tfname,domain);
 						REJECT;
 					}
+					else if ( transfer_function_constrain(tfname,flags,resolution,minimum,maximum)==0 )
+ 					{
+ 						output_error_raw("%s(%d): unable to constrain transfer function'%s(%s)",filename, linenum,tfname,domain);
+ 						REJECT;
+ 					}
 					else
 					{
 						ACCEPT;
