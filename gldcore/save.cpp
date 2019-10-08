@@ -6,9 +6,10 @@
 
 #include "gldcore.h"
 
-// SET_MYCONTEXT(DMC_SAVE) // only used if IN_MYCONTEXT is present in this module
+SET_MYCONTEXT(DMC_SAVE)
 
 #define DEFAULT_FORMAT "gld"
+
 
 int saveglm(const char *filename, FILE *fp);
 int savexml(const char *filename, FILE *fp);
@@ -50,7 +51,7 @@ int saveall(const char *filename)
 		return 0;
 	}
 
-	output_debug("starting dump to %s",filename);
+	IN_MYCONTEXT output_debug("starting dump to %s",filename);
 	/* internal streaming used */
 	if (global_streaming_io_enabled)
 	{
@@ -70,7 +71,7 @@ int saveall(const char *filename)
 			int rc = (*(map[i].save))(filename,fp);
 			if ( fp != stdout ) 
 				fclose(fp);
-			output_debug("dump to %s completed ok (%d bytes written)",filename,rc);
+			IN_MYCONTEXT output_debug("dump to %s completed ok (%d bytes written)",filename,rc);
 			return rc;
 		}
 	}

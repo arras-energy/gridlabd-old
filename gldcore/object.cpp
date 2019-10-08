@@ -1494,7 +1494,7 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 		// implemented in gldcore/link/python/python.cpp
 		extern int python_event(OBJECT *obj, const char *, long long *);
 		int rv = python_event(obj,function,p_retval) ? 0 : -1;
-		output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
+		IN_MYCONTEXT output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
 		return rv;
 #else
 		output_error("python system not linked, event '%s' is not callable", event);
@@ -1983,10 +1983,10 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 			/* this is an unfortunate special case arising from how the powerflow module is implemented */
 			if ( topological_parent != NULL )
 			{
-				output_debug("<%s:%d> (name='%s') found topological parent",obj->oclass->name, obj->id, obj->name);
+				IN_MYCONTEXT output_debug("<%s:%d> (name='%s') found topological parent",obj->oclass->name, obj->id, obj->name);
 				parent = *topological_parent;
 				if ( parent != NULL )
-					output_debug("<%s:%d> (name='%s') -- original parent is at %p", 
+					IN_MYCONTEXT output_debug("<%s:%d> (name='%s') -- original parent is at %p", 
 						obj->oclass->name, obj->id, obj->name, parent);
 			}
 
@@ -2026,10 +2026,10 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 
 			/* dump properties */
 			CLASS *last = oclass;
-			output_debug("dumping properties of '%s' (pmap=%p)", oclass->name, oclass->pmap);
+			IN_MYCONTEXT output_debug("dumping properties of '%s' (pmap=%p)", oclass->name, oclass->pmap);
 			for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 			{
-				output_debug("dumping property '%s' of '%s'",prop->name, prop->oclass->name);
+				IN_MYCONTEXT output_debug("dumping property '%s' of '%s'",prop->name, prop->oclass->name);
 				if ( last != prop->oclass )
 				{
 					count += fprintf(fp,"\t// class.parent = %s.%s\n", prop->oclass->module->name, prop->oclass->name);
@@ -2572,7 +2572,7 @@ OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name)
 		OBJECT *found = object_find_name(name);
 		if ( found != NULL )
 		{
-			output_debug("found object %s:%d when searching for name=%s", found->oclass->name, found->id, name);
+			IN_MYCONTEXT output_debug("found object %s:%d when searching for name=%s", found->oclass->name, found->id, name);
 			if ( found == obj && found->name == NULL )
 			{
 				// likely attempt to set name to default -- this is ok
@@ -2588,7 +2588,7 @@ OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name)
 				return NULL;
 			}
 		}
-		output_debug("adding object %s:%d as name %s", obj->oclass->name, obj->id, name);
+		IN_MYCONTEXT output_debug("adding object %s:%d as name %s", obj->oclass->name, obj->id, name);
 		item = object_tree_add(obj,name);
 		if ( item != NULL )
 		{
@@ -2991,7 +2991,7 @@ bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
 		return false;
 	for ( ; data != NULL ; data = data->next )
 	{
-		output_debug("%s:%d.%s -- setting part '%s' = '%s'", obj->oclass->name, obj->id, propname,data->name,data->value);
+		IN_MYCONTEXT output_debug("%s:%d.%s -- setting part '%s' = '%s'", obj->oclass->name, obj->id, propname,data->name,data->value);
 		if ( ! object_set_property_part(obj,prop,data->name,data->value) )
 			return false;
 	}

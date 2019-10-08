@@ -15,6 +15,8 @@
 
 #include "gldcore.h"
 
+SET_MYCONTEXT(DMC_SAVE)
+
 DEPRECATED int json_dump(const char *filename)
 {
 	GldJsonWriter json(filename);
@@ -129,7 +131,7 @@ int GldJsonWriter::write_modules(FILE *fp)
 		len += write("\n\t\t}");
 	}
 	len += write("\n\t}");
-	output_debug("GldJsonWriter::modules() wrote %d bytes",len);
+	IN_MYCONTEXT output_debug("GldJsonWriter::modules() wrote %d bytes",len);
 	return len;
 }
 
@@ -175,7 +177,7 @@ int GldJsonWriter::write_properties(FILE *fp)
 		len += write("\n\t\t}");
 	}
 	len += write("\n\t}");
-	output_debug("GldJsonWriter::properties() wrote %d bytes",len);
+	IN_MYCONTEXT output_debug("GldJsonWriter::properties() wrote %d bytes",len);
 	return len;
 }
 
@@ -269,7 +271,7 @@ int GldJsonWriter::write_classes(FILE *fp)
 		len += write("\n\t\t}");
 	}
 	len += write("\n\t}");
-	output_debug("GldJsonWriter::classes() wrote %d bytes",len);
+	IN_MYCONTEXT output_debug("GldJsonWriter::classes() wrote %d bytes",len);
 	return len;
 }
 
@@ -328,7 +330,7 @@ int GldJsonWriter::write_globals(FILE *fp)
 		}
 	}
 	len += write("\n\t}");
-	output_debug("GldJsonWriter::globals() wrote %d bytes",len);
+	IN_MYCONTEXT output_debug("GldJsonWriter::globals() wrote %d bytes",len);
 	return len;
 }
 
@@ -386,7 +388,7 @@ int GldJsonWriter::write_schedules(FILE *fp)
 		}
 	}
 	len += write("\n\t}");
-	output_debug("GldJsonWriter::schedules() wrote %d bytes",len);
+	IN_MYCONTEXT output_debug("GldJsonWriter::schedules() wrote %d bytes",len);
 	return len;
 }
 
@@ -495,7 +497,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 	}
 
 	len += write("\n\t}");
-	output_debug("GldJsonWriter::objects() wrote %d bytes",len);
+	IN_MYCONTEXT output_debug("GldJsonWriter::objects() wrote %d bytes",len);
 	return len;
 }
 
@@ -513,7 +515,7 @@ int GldJsonWriter::write_output(FILE *fp)
 	len += write_objects(fp);
 	len += write_schedules(fp);
 	len += write("\n}\n");
-	output_debug("GldJsonWriter::output() wrote %d bytes",len);
+	IN_MYCONTEXT output_debug("GldJsonWriter::output() wrote %d bytes",len);
 	return len;
 }
 

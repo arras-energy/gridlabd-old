@@ -370,14 +370,14 @@ bool property_is_default(OBJECT *obj, PROPERTY *prop)
 		property_write(prop,b,buf2,sizeof(buf2));
 		if ( obj->name == NULL )
 		{
-			output_debug("comparing %s:%d.%s [%s] == %s:default.%s [%s] --> %s",
+			IN_MYCONTEXT output_debug("comparing %s:%d.%s [%s] == %s:default.%s [%s] --> %s",
 				obj->oclass->name, obj->id, prop->name, buf1,
 				obj->oclass->name, prop->name, buf2,
 				result ? "true" : "false");
 		}
 		else
 		{
-			output_debug("comparing %s.%s [%s] == %s:default.%s [%s] --> %s",
+			IN_MYCONTEXT output_debug("comparing %s.%s [%s] == %s:default.%s [%s] --> %s",
 				obj->name, prop->name, buf1,
 				obj->oclass->name, prop->name, buf2,
 				result ? "true" : "false");
@@ -450,7 +450,7 @@ int complex_from_string(void *x, const char *str)
 				return 0;
 		}
 	}
-	output_debug("complex_from_string(void *x=%p, char *str='%s') complex parse failed (n=%d)", x,str, n);
+	IN_MYCONTEXT output_debug("complex_from_string(void *x=%p, char *str='%s') complex parse failed (n=%d)", x,str, n);
 	return 0;
 }
 
