@@ -8,6 +8,8 @@
 
 class player : public gld_object {
 public:
+	static int32_t maximum_threads; // ==0: sync init; >0: async init; ==-1: async no limit
+public:
 	GL_STRING(char256,property);
 	GL_STRING(char1024,table);
 	GL_STRING(char1024,query);
@@ -28,12 +30,19 @@ private:
 	unsigned long n_fields;
 	TIMESTAMP next_t;
 	unsigned long row_num;
+	pthread_t thread_id;
+	int thread_rv;
+	enum {PTS_NONE, PTS_RUNNING, PTS_DONE, PTS_ERROR} thread_status;
 public:
 	player(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
 	int precommit(TIMESTAMP t0);
 	TIMESTAMP commit(TIMESTAMP t0, TIMESTAMP t1);
+public:
+	int init_async(void);
+	inline int &get_thread_rv(void) { return thread_rv;};
+	inline void set_thread_rv(int rv) { thread_rv = rv;};
 public:
 	static CLASS *oclass;
 	static player *defaults;
