@@ -41,7 +41,7 @@ object multi_recorder {
 module assert;
 object assert {
 	parent fvt;
-		in '2000-01-01 01:00:00 PST';
+	in '2000-01-01 01:00:00 PST';
 	target value;
 	relation ==;
 	value -68.7143; // continuous FV is -100 final value but rounding on Gd makes it -68.7
