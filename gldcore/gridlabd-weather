@@ -2,7 +2,7 @@
 
 # check environment
 if [ ${GLD_ETC:-none} == none ]; then
-	echo "ERROR: GLD_ETC is not exported from the shell environment"
+	echo "$0: ERROR: GLD_ETC is not exported from the shell environment" > /dev/stderr
 	exit 1
 fi
 
@@ -75,7 +75,7 @@ function fetch_index()
 		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "weather files found"
 	fi
 	if [ ! -f $INDEX ]; then
-		echo "ERROR: unable to fetch index"
+		echo "$0: ERROR: unable to fetch index" > /dev/stderr
 		exit 1
 	fi
 }
@@ -108,7 +108,7 @@ function clean()
 {
 	rm -rf $CACHEDIR 
 	if [ -d $CACHEDIR ]; then
-		echo "ERROR: unable to delete $CACHEDIR"
+		echo "$0: ERROR: unable to delete $CACHEDIR" > /dev/stderr
 		exit 1
 	fi
 	fetch_index
@@ -182,5 +182,5 @@ elif [ "$(type -t $1)" = "function" ]; then
 	$*
 	exit 0
 else
-	echo "ERROR: '$1' is not a valid weather command"
+	echo "$0: ERROR: '$1' is not a valid weather command" > /dev/stderr
 fi
