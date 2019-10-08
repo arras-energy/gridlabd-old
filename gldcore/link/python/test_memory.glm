@@ -1,0 +1,29 @@
+//#set debug=TRUE
+
+// load the custom python module
+module try_everything;
+
+// setup the clock to run only 1 hour
+clock {
+	starttime "2018-01-01 00:00:00";
+	stoptime "2019-01-01 00:00:00";
+}
+
+// create a custom class that generates a random power
+class test {
+	randomvar x[MW];
+    double y[kW];
+}
+
+// create an instance of the custom class
+object test:..100 {
+	x "type:lognormal(0,1); refresh:5min";
+
+	// dispatch commit calls to the python module
+    on_init "python:try_everything.init";
+	on_precommit "python:try_everything.precommit";
+    on_presync "python:try_everything.presync";
+    on_sync "python:try_everything.sync";
+    on_postsync "python:try_everything.postsync";
+	on_commit "python:try_everything.commit";
+}
