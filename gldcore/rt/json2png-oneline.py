@@ -2,14 +2,7 @@ import json
 import os 
 import sys, getopt
 from datetime import datetime 
-
-def help():
-    print('Syntax:')
-    print('json2png-oneline.py -i|--ifile <input-name> [-o|--ofile <output-name>] [<options> ...]')
-    print('  -i|--ifile                 : [REQUIRED] json input file name.')
-    print('  -o|--ofile                 : [OPTIONAL] png output file name (default is <input-name>.png)')
-    print('  -s|--size <width>x<height> : [OPTIONAL] image size in pixels (default is "%s")' % size)
-    print('  -d|--dpi <resolution>      : [OPTIONAL] image resolution in dots per inch (default is "%s")' % resolution)
+from PIL import Image, ImageDraw, ImageFont
 
 def main(argv):
     filename_json = ''
@@ -18,8 +11,16 @@ def main(argv):
     output_type = 'oneline'
     with_nodes = False
     resolution = "300"
-    size = "300x200"
+    pagesize = "640x480"
     limit = None
+
+    def help():
+        print('Syntax:')
+        print('json2png-oneline.py -i|--ifile <input-name> [-o|--ofile <output-name>] [<options> ...]')
+        print('  -i|--ifile                 : [REQUIRED] json input file name.')
+        print('  -o|--ofile                 : [OPTIONAL] png output file name (default is <input-name>.png)')
+        print('  -s|--size <width>x<height> : [OPTIONAL] image size in pixels (default is "%s")' % size)
+        print('  -d|--dpi <resolution>      : [OPTIONAL] image resolution in dots per inch (default is "%s")' % resolution)
 
     try : 
         opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:d:l:s:",["help","ifile=","ofile=","type=","with-nodes","dpi=","limit=","size="])
@@ -45,7 +46,7 @@ def main(argv):
         elif opt in ("-d","--dpi"):
             resolution = arg
         elif opt in ("-s","--size"):
-            size = arg
+            pagesize = arg
         elif opt in ("-t","--type"):
             assert(output_type=="oneline")
         else:
@@ -56,24 +57,52 @@ def main(argv):
         assert(data['application']=='gridlabd')
         assert(data['version'] >= '4.2.0')
 
-    filename = data["globals"]["modelname"]["value"]
-    from PIL import Image, ImageDraw, ImageFont
-    sz = size.split("x")
-    sx = int(sz[0])
-    sy = int(sz[1])
-    img = Image.new(mode="RGB",size=(sx,sy),color="white")
-    draw = ImageDraw.Draw(img)
+    modelname = data["globals"]["modelname"]["value"]
 
-    def node(draw,x,y,text,vmargin=1,hmargin=1,fnt=ImageFont.load_default()):
-        sz = draw.multiline_textsize(text,font=fnt)
-        draw.rectangle([x-sz[0]/2-hmargin,y-sz[1]/2-vmargin,x+sz[0]/2+hmargin,y+sz[1]/2+vmargin],outline="black",fill="white")
-        draw.multiline_text((x-sz[0]/2,y-sz[1]/2),text,font=fnt,fill="black")
+    pagewidth = int(pagesize.split("x")[0])
+    pageheight = int(pagesize.split("x")[1])
+    image = Image.new(mode="RGB",size=(pagewidth,pageheight),color="white")
+    page = ImageDraw.Draw(image)
+    xspacing = 20
+    yspacing = 30
+    topmargin = 10
+    xorigin = pagewidth/2
+    yorigin = topmargin
+    vmargin=1
+    hmargin=2
+    namefont=ImageFont.load_default()
+    objects = data["objects"]
+    levels = []
+ 
+    def find(objects,property,value):
+        result = []
+        for name,values in objects.items():
+            if property in values.keys() and values[property] == value:
+                result.append(name)
+        return result
 
-    import hashlib
-    md5 = hashlib.md5()
-    with open(filename,"r") as f:
-        md5.update(f.read().encode())
-    node(draw,x=sx/2,y=sy/2,text="""Name..... %s
-    Digest... %s
-    Date..... %s""" % (filename,md5.hexdigest(),datetime.now().strftime("%y-%m-%d %H:%M:%S")),vmargin=2,hmargin=3)
-    img.save(filename_png)
+    def bus(page,x,y,name,level=0):
+        sz = page.multiline_textsize(name,font=namefont)
+        x0 = x*xspacing - sz[0]/2 - hmargin + xorigin
+        y0 = y*yspacing - sz[1]/2 - vmargin + yorigin
+        x1 = x*xspacing + sz[0]/2 + hmargin + xorigin
+        y1 = y*yspacing + sz[1]/2 + vmargin + yorigin
+        swing = (objects[name]["bustype"] == "SWING")
+        page.rectangle([x0,y0,x1+1,y1],outline="black",fill="white")
+        page.multiline_text([x0+hmargin+1,y0+vmargin],name,font=namefont,fill="black")
+        if swing:
+            page.rectangle([x0-1,y0-1,x1+2,y1+1],outline="black")
+        links = find(objects,"from",name)
+        n = -(len(links)-1)/2
+        for link in links:
+            to = objects[link]["to"]
+            print("level",level,"link:",link,"to",to)
+            bus(page,n+x,y+1,to,level+1)
+            page.line((x,y,x+n,y+yspacing-sz[1]))
+            n += 1
+
+    roots = find(objects,"bustype","SWING")
+    for root in roots:
+        print("root:",root)
+        bus(page,0,0,root)
+    image.save(filename_png)
