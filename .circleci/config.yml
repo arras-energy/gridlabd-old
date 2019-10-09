@@ -12,6 +12,10 @@ jobs:
             ./configure
             export PATH=/home/circleci/project/install/bin:$PATH
             sudo make -j16 install-validate
+            export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-/tmp}
+            export GLD_ETC=/usr/local/share/gridlabd
+            export GLD_BIN=/usr/local/bin
+            export GLD_LIB=/usr/local/lib/gridlabd
             sudo python3 gldcore/link/python/validate.py
             sudo make doxygen-run
       - store_artifacts:
