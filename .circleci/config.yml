@@ -12,6 +12,7 @@ jobs:
             ./configure
             export PATH=/home/circleci/project/install/bin:$PATH
             sudo make -j16 install-validate
+            sudo python3 gldcore/link/python/validate.py
             sudo make doxygen-run
       - store_artifacts:
           path: /home/circleci/project/validate.txt
