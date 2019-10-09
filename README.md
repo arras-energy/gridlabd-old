@@ -43,14 +43,14 @@ Assuming your development system is ready (see https://github.com/dchassin/gridl
 
 ## Citation
 
-If you use this version of GridLAB-D in a publication you are required to cite it, e.g.,
+If you use this fork of GridLAB-D in a publication you are required to cite it, e.g.,
 
-Chassin, D.P., "GridLAB-D Version 4.2", (2019) [online]. Available https://github.com/dchassin/gridlabd, Accessed on: Oct. 9, 2019.
+Chassin, D.P., et al., "GridLAB-D Version 4.2", (2019) [online]. Available at https://github.com/dchassin/gridlabd, Accessed on: Oct. 9, 2019.
 
 You may use the `--cite` command option to obtain a precise citation for your version:
 ~~~
 host% gridlabd --cite
-Chassin, D.P., "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (2019) [online]. Available https://github.com/dchassin/gridlabd, Accessed on: Oct. 8, 2019.
+Chassin, D.P., et al. "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (2019) [online]. Available at https://github.com/dchassin/gridlabd, Accessed on: Oct. 8, 2019.
 ~~~
 This will allow anyone to identify the exact version you are referring to obtain it from GitHub.
 
