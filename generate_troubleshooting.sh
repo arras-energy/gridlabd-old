@@ -1,11 +1,10 @@
 #!/bin/bash
 
-export DOCS=`pwd`/../documents/troubleshooting
+export DOCS=documents/html
 
-if [ ! -e $DOCS ]
-then
+if [ ! -d $DOCS ]; then
 	mkdir -p $DOCS
 fi
 
-cp utilities/troubleshooting.css $DOCS
-awk -f ./utilities/troubleshooting.awk */*.{c,cpp} > $DOCS/index.html
+cp utilities/troubleshooting.css $DOCS/
+gawk -f ./utilities/troubleshooting.awk */*.{c,cpp} > $DOCS/troubleshooting.html

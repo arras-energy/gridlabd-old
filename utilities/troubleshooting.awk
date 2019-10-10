@@ -126,7 +126,9 @@ END { # this is executed after all files have been processed
 	# "table_header" contains format information for a table that will contain links to messages in each section
 	table_header = "<TABLE STYLE=\"BACKGROUND-COLOR:YELLOW\" BORDER=\"1\" CELLPADDING=\"5\" CELLSPACING=\"0\"><TR>";
 
-	print "This troubleshooting guide lists all the errors and warning messages from GridLAB-D. Simply search for your message and follow the recommendations given."
+	print "This troubleshooting guide lists all the errors and warning messages from "
+    system("echo $(gridlabd --version all).") 
+    print "Simply search for your message and follow the recommendations given."
 	print "<CITE>Last updated " strftime() "</CITE>."
 
 	# Sort the messages alphabetically and for each character, add an anchor to the first message starting with that character if it exists
