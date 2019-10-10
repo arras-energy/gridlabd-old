@@ -1,0 +1,32 @@
+// this file is used if local.glm is not found
+#ifndef POLE_TYPE
+#define POLE_TYPE=node
+#else // POLE_TYPE is defined
+#if POLE_TYPE!=node
+#if POLE_TYPE!=pole
+#warning changing invalid POLE_TYPE to node
+#set POLE_TYPE=node
+#endif // POLE_TYPE!=pole
+#endif // POLE_TYPE!=node
+#endif // POLE_TYPE defined
+
+#define NAME=${NAME:-ieee8500.glm}
+//#define PORT=${PORT:-3306}
+#define TIMEZONE=${TIMEZONE:-US/CA/Los Angeles}
+#define LOADS=${LOADS:-off}
+
+#define STARTTIME=2018-03-01 00:00:00 PST
+#define STOPTIME=2018-03-01 00:10:00 PST
+#define WEATHER=${WEATHER:-CA-Bakersfield_Meadows_Field_high_wind.tmy3}
+
+//#define MYSQL_ENABLE=${MYSQL_ENABLE:-off}
+//#define HOSTNAME=${HOSTNAME:-localhost}
+//#define MYSQLHOST=${MYSQLHOST:-localhost}
+//#define MYSQL_NAME=${MYSQL_NAME:-ieee8500}
+//#define MYSQL_SCADA=${MYSQL_SCADA:-off}
+//#define MYSQL_GRAPH=${MYSQL_GRAPH:-off}
+
+#define VOLTDUMP=${VOLTDUMP:-off}
+#define CURRDUMP=${CURRDUMP:-off}
+//#define MODEL=model_1
+//#define STARTRECORDTIME=2018-03-03 00:00:00 PST

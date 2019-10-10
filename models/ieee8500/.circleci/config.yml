@@ -1,0 +1,33 @@
+# Use the latest 2.1 version of CircleCI pipeline processing engine, see https://circleci.com/docs/2.0/configuration-reference/
+version: 2
+jobs:
+ build:
+   docker:
+     - image: gridlabd/slac-master:latest
+   steps:
+     - checkout
+     - run:
+         name: Python install
+         command: |
+           python3 -V
+     - run:
+         name: Run version check
+         command: |
+           gridlabd --version
+           gridlabd --origin
+     - run:
+         name: Run the simulation
+         command: |
+           gridlabd --version
+           mkdir -p final_output
+           git clone https://github.com/dchassin/gridlabd.git
+           cd /root/project/gridlabd
+           git checkout nitya/ieee8500
+           cd models/ieee8500
+           ls
+           mkdir -p final_output
+           more config/local.glm
+           gridlabd ieee8500.glm
+
+     - store_artifacts:
+           path: /root/project/final_output

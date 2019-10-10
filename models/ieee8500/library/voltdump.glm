@@ -1,0 +1,21 @@
+script on_term "python3 voltdump.py";
+
+object voltdump {
+    filemode "a";
+    filename "output/volt_dump.csv";
+    on_init "mkdir -p output; rm -rf output/power_dump_*.csv output/volt_dump.csv";
+#ifdef STARTRECORDTIME
+    in_svc ${STARTRECORDTIME};
+#endif //STARTRECORDTIME
+    interval 60;
+}
+
+object currdump {
+    filemode "a";
+    filename "output/curr_dump.csv";
+    on_init "mkdir -p output; rm -rf output/curr_dump_*.csv ";
+#ifdef STARTRECORDTIME
+    in_svc ${STARTRECORDTIME};
+#endif //STARTRECORDTIME
+    interval 60;
+}

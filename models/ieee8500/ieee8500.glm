@@ -1,24 +1,58 @@
 //IEEE 8500 node test system.
 //  Alyona Ivanova (SLAC) Oct 29, 2018
+#include "config/default.glm"
+#define CONFIGFILE=config/default.glm
 #ifexist config/local.glm
 #include "config/local.glm"
+#set CONFIGFILE=config/local.glm
 #endif // exist local.glm
 
-clock {
-     timezone PST+8PDT;
-     starttime '1973-01-01 00:21:00';
-     stoptime '1973-01-02 00:21:00';
-}
 
+////////////////////////////////////////////////
+//
+// BASIC SETTINGS
+//
+///////////////////////////////////////////////
+#ifndef POLE_TYPE
+#error POLE_TYPE is not specified in ${CONFIGFILE}
+#endif
+
+#ifndef STARTTIME
+#ifndef STOPTIME
+//
+// Error
+//
+#error starttime stoptime not defined
+#endif    //STARTTIME
+#endif    //STOPTIME
+
+
+
+clock {
+    timezone PST+8PDT;
+#ifdef STARTTIME
+    starttime ${STARTTIME};
+#endif
+#ifdef STOPTIME
+    stoptime ${STOPTIME};
+#endif
+}
+///////////////////////////////////////////
+//
+// POWER SYSTEM MODEL
+//
+//////////////////////////////////////////
 module powerflow {
-    solver_method NR;
-    line_limits FALSE;
-    default_maximum_voltage_error 1e-4;
+   solver_method NR;
+   line_limits FALSE;
+   default_maximum_voltage_error 1e-4;
+   solver_profile_enable true;
+   solver_profile_filename "/root/project/final_output/solver_nr_out.csv";
 };
 module residential {
-     implicit_enduses NONE;
+    implicit_enduses NONE;
 }
-module climate;
+//module climate;
 module tape;
 
 #set minimum_timestep=60;
@@ -33,12 +67,63 @@ module tape;
 #include "library/feeder.glm"
 #include "library/triplex_nodes.glm"
 
+/////////////////////////////////////////
+//
+//       WEATHER
+//
+////////////////////////////////////////
+#ifexist data/${WEATHER}
+module climate;
 object climate {
-     name "weather";
-     tmyfile "data/CA-Bakersfield_Meadows_Field_HighWind.tmy3";
-     interpolate QUADRATIC;
+    name "weather";
+    tmyfile "data/${WEATHER}";
+    interpolate QUADRATIC;
 }
+#else
+#error WEATHER is not specified in ${CONFIGFILE}
+#endif // exist WEATHER
+
+#ifndef VOLTDUMP
+#error VOLTDUMP is not specified in ${CONFIGFILE}
+#endif
+#if VOLTDUMP==on
+object voltdump {
+    filename ${VOLTDUMP};
+    group "nodevolts";
+    mode polar;
+}
+#endif // VOLTDUMP
+
+#ifndef CURRDUMP
+#error CURRDUMP is not specified in ${CONFIGFILE}
+#endif
+#if CURRDUMP==on
+object currdump {
+    filename ${CURRDUMP};
+    mode rect;
+}
+#endif // CURRDUMP
 
 
 #include "library/nodes.glm"
 #include "library/lines.glm"
+
+#if VOLTDUMP==all
+#if LOADS==on
+#include "library/voltdump.glm"
+#else
+#error VOLTDUMP=all not possible unless LOADS=on in ${CONFIGFILE}
+#endif
+#endif
+
+///////////////////////////////////////////////////////
+//
+// HISTORICAL RUN NOTICE
+//
+///////////////////////////////////////////////////////
+#ifndef STARTTIME
+#print starting realtime simulation at ${TODAY}
+#else
+#print starting historical simulation from ${STARTTIME} to ${STOPTIME}
+#set show_progress=1
+#endif
