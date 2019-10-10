@@ -5,10 +5,8 @@ Release: 1%{?dist}
 License: Unknown
 Group: Simulators
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
-BuildRequires: xerces-c-devel >= 2.7
-Requires: xerces-c >= 2.7
-Packager: GridLAB-D Team <gridlabd@pnl.gov>
-URL: http://www.gridlabd.org
+Packager: GridLAB-D GISMo SLAC Team <gridlabd@gmail.com>
+URL: https://github.com/dchassin/gridlabd
 Source0: %{name}_%{version}.tar.gz
 
 %description
@@ -17,12 +15,17 @@ that provides valuable information to users who design and operate
 distribution systems, and to utilities that wish to take advantage of the
 latest energy technologies. It incorporates the most advanced modeling
 techniques, with high-performance algorithms to deliver the best in end-use
-modeling. GridLAB-D™ is coupled with distribution automation models and
+modeling. GridLAB-D is coupled with distribution automation models and
 software integration tools for users of many power system analysis tools.
 
-GridLAB-D™ was developed by the U.S. Department of Energy (DOE) at Pacific
+GridLAB-D was developed by the U.S. Department of Energy (DOE) at Pacific
 Northwest National Laboratory (PNNL), in collaboration with industry and
 academia.
+
+GridLAB-D was enhanced under funding from the California Energy Commission
+under grants EPC-17-043, EPC-17-046, and EPC-17-047 by SLAC National 
+Accelerator Laboratory, which is operated for the US Department of Energy 
+by Stanford University under Contract DE-AC02-76SF00515.
 
 %prep
 %setup -q -n %{name}_%{version}
