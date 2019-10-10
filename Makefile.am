@@ -309,7 +309,7 @@ clean-local: python-clean
 
 distclean-local: python-clean
 	rm -rf autom4te.cache aclocal.m4 autoscan.log 
-	rm -rf configure build config.log config.status configure.scan
+	rm -rf configure build config.log config.status configure.scan gridlabd.spec
 	rm -rf validate.txt
 
 libtool: $(LIBTOOL_DEPS)
