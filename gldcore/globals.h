@@ -724,6 +724,7 @@ typedef enum {
 	GSO_NOGLOBALS	= 0x0004,
 	GSO_NODEFAULTS	= 0x0008,
 	GSO_MINIMAL 	= 0x000f,
+	GSO_ORIGINAL	= 0x001f,
 } GLMSAVEOPTIONS;
 
 /* Variable: */

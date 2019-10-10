@@ -163,7 +163,8 @@ DEPRECATED static KEYWORD gso_keys[] = {
 	{"MINIMAL",		GSO_MINIMAL,	gso_keys+2},
 	{"NOGLOBALS",	GSO_NOGLOBALS,	gso_keys+3},
 	{"NODEFAULTS",	GSO_NODEFAULTS, gso_keys+4},
-	{"NOMACROS",	GSO_NOMACROS,	NULL},
+	{"NOMACROS",	GSO_NOMACROS,	gso_keys+5},
+	{"ORIGINAL",	GSO_ORIGINAL,	NULL},
 };
 
 DEPRECATED static struct s_varmap {

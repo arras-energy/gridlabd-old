@@ -1409,12 +1409,16 @@ void schedule_dump(SCHEDULE *sch, const char *file, const char *mode)
 	fclose(fp);
 }
 
-int schedule_saveall(FILE *fp)
+int schedule_saveall(FILE *fp,bool user_defined_only)
 {
 	int count = fprintf(fp,"%s\n","// schedules");
 	SCHEDULE *sch;
 	for (sch=schedule_list; sch!=NULL; sch=sch->next)
 	{
+		if ( user_defined_only && (sch->flags&SN_USERDEFINED)==0 )
+		{
+			continue;
+		}
 		char *c;
 		count += fprintf(fp,"schedule %s {\n\t",sch->name);
 		for ( c = sch->definition ; *c != '\0' ; c++ )

@@ -26,3 +26,6 @@ object multi_recorder {
 	interval -1;
 	property "from:value,to:value";
 }
+
+#set glm_save_options=MINIMAL
+#set savefile=gridlabd.glm
