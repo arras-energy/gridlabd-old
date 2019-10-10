@@ -1,0 +1,6 @@
+#!/bin/bash
+autoscan
+autoreconf -isf
+./configure $*
+make install
+gridlabd --validate
