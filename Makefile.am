@@ -54,7 +54,7 @@ include gldcore/link/python/Makefile.mk
 include gldcore/Makefile.mk
 include gldcore/rt/Makefile.mk
 include gldcore/solvers/Makefile.mk
-include python/Makefile.mk
+include python_extras/Makefile.mk
 
 # approved modules
 include modules.mk
