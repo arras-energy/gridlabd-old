@@ -7,6 +7,9 @@
 ///////////////////////////////////////////////////////
 
 //#set suppress_repeat_messages=0
+#set savefile=model_save.glm
+#set glm_save_options=MINIMAL
+#on_exit 0 gridlabd model_save.glm
 
 //////////////CONFIG//////////////////////////////////
 #define STARTTIME=2018-01-30 00:00:00 EST
