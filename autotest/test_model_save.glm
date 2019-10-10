@@ -128,11 +128,11 @@ object supernodes
 // WEATHER
 //
 ///////////////////////////////////////////////////////
-#ifexist data/${WEATHER}
+#ifexist ../data/${WEATHER}
 module climate;
 object climate {
         name weather;
-        tmyfile "data/${WEATHER}";
+        tmyfile "../data/${WEATHER}";
         interpolate QUADRATIC;
 }
 #else
