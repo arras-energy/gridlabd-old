@@ -1,19 +1,20 @@
 #!/bin/bash
 
-QUICK="no"
-INDEX="yes"
 CHECK="yes"
+DOCS="yes"
 FORCE="no"
 INDEX="yes"
-TEST="no"
-LINK="yes"
-DOCS="yes"
-UPDATE="yes"
+INDEX="yes"
 PREFIX="/usr/local"
-VERSION=`build-aux/version.sh --install`
+LINK="yes"
+QUICK="no"
 QUIET="no"
-INSTALL="$PREFIX/$VERSION"
+SETUP="no"
+TEST="no"
+UPDATE="yes"
 VERBOSE="no"
+VERSION=`build-aux/version.sh --install`
+INSTALL="$PREFIX/$VERSION"
 
 function on_exit()
 {
@@ -55,6 +56,7 @@ function info()
 	echo "PREFIX=$PREFIX"
 	echo "QUIET=$QUIET"
 	echo "QUICK=$QUICK"
+    echo "SETUP=$SETUP"
 	echo "TEST=$TEST"
 	echo "UPDATE=$UPDATE"
 	echo "VERBOSE=$VERBOSE"
@@ -73,6 +75,7 @@ function help()
 	echo "  --no-test    Do not run validation tests"
 	echo "  --no-update  Do not update system to meet requirements"
 	echo "  --save       Save the current configuration as default"
+    echo "  --setup      Perform system setup"
 	echo "  --reset      Reset the configuration to default"
 	echo "  --quick      Run only updates instead of a clean install"
 	echo "  --quiet      Run without showing commands"
@@ -105,6 +108,8 @@ while [ $# -gt 0 ]; do
 		fi
 		INSTALL="$PREFIX/$VERSION"
 		shift 1
+    elif [ "$1" == "--setup" ]; then
+        SETUP="yes"
 	elif [ "$1" == "--save" ]; then
 		info > "install.conf"
 		exit 0
@@ -150,8 +155,11 @@ if [ -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
 	error "the existing gridlabd version cannot be managed and must be uninstalled first"
 	# TODO: automate this someday
 fi
-if [ "$CHECK" == "yes" -a -f "requirements-$SYSTEM.sh" ]; then
-	run ./requirements-$SYSTEM.sh
+if [ "$SETUP" == "yes" ]; then
+    if [ ! -f "build-aux/setup-$SYSTEM.sh" ]; then
+        error "unable to setup $SYSTEM, build-aux/setup-$SYSTEM.sh not found"
+    fi
+	run build-aux/setup-$SYSTEM.sh
 fi
 if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd" -a ! -L "$PREFIX/gridlabd" ]; then
     error "$PREFIX/gridlabd exists but it is not a symbolic link"
