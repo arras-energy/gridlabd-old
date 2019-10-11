@@ -1,12 +1,26 @@
 #!/bin/bash
 
+function error()
+{
+	echo "ERROR: $*" > /dev/stderr
+	exit 1
+}
+
 # check
 if [ -d /usr/local/gridlabd -a ! -L /usr/local/gridlabd ]; then
-    echo "ERROR: /usr/local/gridlabd is not a symbolic"
-    exit 1
+    error "/usr/local/gridlabd is not a symbolic link"
 fi
 if [ $(whoami) == "root" ]; then
-    echo "ERROR: do not run $0 as root"
+    error "do not run $0 as root"
+fi
+if [ -z "$(which doxygen)" ]; then
+	error "doxygen is not installed"
+fi
+if [ -z "$(which mono)" ]; then
+	error "mono is not installed"
+fi
+if [ -z "$(which natural_docs)" ]; then
+	error "natural_docs is not installed"
 fi
 
 # autoconf
