@@ -27,7 +27,7 @@ if [ ! -f configure -o ! "$1" == "quick" ]; then
 fi
 
 # build everything
-export PATH=$INSTALL/bin:$PATH
+export PATH=$INSTALL/bin:/usr/local/bin:/usr/bin:/bin
 make -j30
 make install
 make html 
