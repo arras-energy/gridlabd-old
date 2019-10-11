@@ -1,0 +1,7 @@
+#!/bin/bash
+PAGE=${GLD_ETC/share\/gridlabd/html}/index.html
+if [ -f $PAGE ]; then
+	open $PAGE &
+else
+	echo "ERROR: $PAGE not found" > /dev/stderr
+fi

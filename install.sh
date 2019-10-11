@@ -18,7 +18,8 @@ if [ ! -d autom4te.cache -o ! "$1" == "quick" ]; then
 fi
 
 # prep install dir
-INSTALL=/usr/local/`build-aux/version.sh --install`
+VERSION=`build-aux/version.sh --install`
+INSTALL=/usr/local/$VERSION
 sudo rm -rf $INSTALL || exit 1
 sudo mkdir -p $INSTALL
 sudo /usr/sbin/chown -R $USER $INSTALL
@@ -32,9 +33,17 @@ make -j30
 make install
 make html 
 cp -r documents/html $INSTALL
-make index
-gridlabd --validate
+cp documents/index.html $INSTALL/html
+#make index
+#gridlabd --validate
 
 # activate this version
-sudo rm -f /usr/local/gridlabd
-sudo ln -s $INSTALL /usr/local/gridlabd
+if [ -x $INSTALL/bin/gridlabd-version ]; then
+	gridlabd version set $VERSION
+else
+	sudo rm -f /usr/local/gridlabd
+	sudo ln -s $INSTALL /usr/local/gridlabd
+	if [ ! -f /usr/local/bin/gridlabd ]; then
+		sudo ln -s /usr/local/gridlabd/bin/gridlabd /usr/local/bin/gridlabd
+	fi
+fi
