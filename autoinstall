@@ -1,7 +1,0 @@
-#!/bin/bash
-autoscan
-autoreconf -isf
-./configure $*
-make install
-./generate_troubleshooting.sh
-gridlabd --validate

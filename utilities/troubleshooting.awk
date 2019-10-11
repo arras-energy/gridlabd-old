@@ -82,7 +82,7 @@ BEGIN { # this is executed before any files are processed
 			}
 			while ( index($0,"*/") == 0 )
 			
-			info = explanation "<cite>See <a href=\"http://gridlab-d.svn.sourceforge.net/viewvc/gridlab-d/trunk/" module "/" filename "?view=markup#" tag "\">" id "</a>.</cite>"
+			info = explanation "<cite>See <a href=\"http://github.com/dchassin/gridlabd/blob/master/" module "/" filename "#L" tag "\">" id "</a>.</cite>"
 			
 			# add message and TROUBLESHOOT text to appropriate array
 			if ( group == "Warnings" ) {
@@ -127,7 +127,7 @@ END { # this is executed after all files have been processed
 	table_header = "<TABLE STYLE=\"BACKGROUND-COLOR:YELLOW\" BORDER=\"1\" CELLPADDING=\"5\" CELLSPACING=\"0\"><TR>";
 
 	print "This troubleshooting guide lists all the errors and warning messages from "
-    system("echo $(gridlabd --version all).") 
+    system("echo $(build-aux/version.sh --version).") 
     print "Simply search for your message and follow the recommendations given."
 	print "<CITE>Last updated " strftime() "</CITE>."
 

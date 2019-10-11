@@ -78,7 +78,6 @@ EXTRA_DIST += $(top_srcdir)/debian/gridlabd.install
 EXTRA_DIST += $(top_srcdir)/debian/rules*
 EXTRA_DIST += $(top_srcdir)/doxygen/build.bat
 EXTRA_DIST += $(top_srcdir)/doxygen/COPYRIGHT
-EXTRA_DIST += $(top_srcdir)/doxygen/doxygen-doc.vcproj
 EXTRA_DIST += $(top_srcdir)/doxygen/footer.html
 EXTRA_DIST += $(top_srcdir)/doxygen/gridlabd.conf
 EXTRA_DIST += $(top_srcdir)/doxygen/LICENSE
@@ -193,8 +192,19 @@ help:
 	@echo "                  \$$HOME/rpmbuild as non-root user"
 	@echo ""
 	@echo "Documentation targets:"
-	@echo "  doxygen-doc  - Generate doxygen documentation (only if doxygen was found"
-	@echo "                 by ./configure)"
+	@echo "  html                 - Generate all html documentation"
+	@echo "  module-html          - Generate module documentation (only if doxygen was found"
+	@echo "                         by ./configure)"
+	@echo "  developer-html       - Generate developer documentation (only if natural-docs was"
+	@echo "                         found by ./configure)"
+	@echo "  troubleshooting-html - Generate troubleshooting documentation (only if gawk was"
+	@echo "                         was found by ./configure)"
+	@echo ""
+	@echo "Data targets:"
+	@echo "  index        - Download all indexes from data archives"
+	@echo "  weather      - Download the weather data index from the weather archive"
+	@echo "  library      - Download the library index from the library archive"
+	@echo "  template     - Download the template index from the template archive"
 	@echo ""
 	@echo "Developer targets (may require special tools):"
 	@echo "  clean-wc   - Recursively remove all files and directories not under"
@@ -306,17 +316,36 @@ rpm-prep:
 	done
 
 clean-local: python-clean
+	@rm -rf documents/html
+	@rm -rf validate.txt
 
 distclean-local: python-clean
-	rm -rf autom4te.cache aclocal.m4 autoscan.log 
-	rm -rf configure build config.log config.status configure.scan gridlabd.spec
-	rm -rf validate.txt
+	@rm -rf autom4te.cache aclocal.m4 autoscan.log 
+	@rm -rf configure build config.log config.status configure.scan gridlabd.spec
+	@rm -rf documents/html
+	@rm -rf validate.txt
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
-install-exec-hook: python-install weather
+install-exec-hook: python-install
 	@if [ "`which gridlabd`" != "$(DESTDIR)$(bindir)/gridlabd" ]; then \
 		echo >&2 "***WARNING***: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
 	fi
 
+index: weather library template
+
+html-local: module-html developer-html troubleshooting-html
+
+module-html:
+	@mkdir -p documents/html/modules/
+	@doxygen $(top_srcdir)/doxygen/gridlabd.conf
+
+developer-html: # TODO
+	@mkdir -p documents/html/developer/
+	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null ; cp -r $(top_srcdir)/gldcore/html/* documents/html/developer/)
+
+troubleshooting-html:
+	@mkdir -p documents/html/troubleshooting/
+	@cp $(top_srcdir)/utilities/troubleshooting.css documents/html/troubleshooting/
+	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > troubleshooting.html ; cd - > /dev/null ; mv $(top_srcdir)/troubleshooting.html documents/html/troubleshooting/index.html )

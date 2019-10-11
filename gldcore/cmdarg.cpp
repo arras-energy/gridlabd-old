@@ -517,9 +517,9 @@ int GldCmdarg::version(int argc, const char *argv[])
 	{	
 		output_message("%s %s-%d (%s) "
 #if defined MACOSX
-			"DARWIN"
+			"Darwin"
 #else // LINUX
-			"LINUX"
+			"Linux"
 #endif
 			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
@@ -548,20 +548,20 @@ int GldCmdarg::version(int argc, const char *argv[])
 	{
 		output_message(
 #if defined MACOSX
-			"DARWIN"
+			"Darwin"
 #else // LINUX
-			"LINUX"
+			"Linux"
 #endif
 		);
 		return 0;
 	}
 	else if ( strcmp(opt,"install") == 0 )
 	{
-		output_message("%s_%s-%d_%s_%s-x64_86", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH, 
+		output_message("%s-%s-%d-%s-%s-x86_64", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH, 
 #if defined MACOSX
-			"macos"
+			"Darwin"
 #else // LINUX
-			"linux"
+			"Linux"
 #endif
 			);
 		return 0;

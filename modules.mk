@@ -4,10 +4,11 @@ include climate/Makefile.mk
 include commercial/Makefile.mk
 include generators/Makefile.mk
 include market/Makefile.mk
-include mysql/Makefile.mk
 include powerflow/Makefile.mk
 include reliability/Makefile.mk
 include residential/Makefile.mk
+
+# TODO: deprecating these soon
 include tape_file/Makefile.mk
 include tape/Makefile.mk
 include tape_plot/Makefile.mk

@@ -8,12 +8,22 @@
 # Project Information
 # ------------------------------------------------------------------------
 
-Title: GridLAB-D Version 4.2
-Subtitle: Developer Documentation
-
-Copyright: Copyright © 2019 Regents of the Leland Stanford Junior University
-
-Timestamp: yyyy-mm-dd
+# This is where you specify general information about your project.
+#
+# Title: [text]
+#    The name of your project.  (R) and (TM) will be converted to their
+#    respective symbols.
+#
+# Subtitle: [text]
+#    A subtitle for your project.
+#
+# Copyright: [text]
+#    The copyright notice for your project.  (C) will be converted to the
+#    copyright symbol.
+#
+# Timestamp: [text]
+#    Text explaining when the documentation was generated.  The following
+#    substitutions are performed:
 #    m     - Single digit month, when possible.  January is "1".
 #    mm    - Always double digit month.  January is "01".
 #    mon   - Short month word.  January is "Jan".
@@ -24,9 +34,6 @@ Timestamp: yyyy-mm-dd
 #    yy    - Double digit year.  2017 is "17".
 #    yyyy  - Four digit year.  2017 is "2017".
 #    year  - Four digit year.  2017 is "2017".
-
-
-# This is where you specify general information about your project.
 #
 # Style: [style]
 #    The style to apply to the generated documentation.  It can be the name of
@@ -36,11 +43,6 @@ Timestamp: yyyy-mm-dd
 
 # Source Code
 # ------------------------------------------------------------------------
-
-Source Folder: ..
-   Name: gldcore
-
-
 
 # This is where you specify what files and folders Natural Docs should be
 # scanning.  If you use any of these options on the command line, this entire
@@ -62,19 +64,6 @@ Source Folder: ..
 # Source Filtering
 # ------------------------------------------------------------------------
 
-Ignore Source Folder: ../autotest
-
-Ignore Source Folder: ../gui
-
-Ignore Source Folder: .
-
-Ignore Source Folder: ../kill
-
-Ignore Source Folder: ../odbc++
-
-Ignore Source Folder Pattern: *.cpp
-
-
 # If there are any subfolders in the source code that you would like Natural
 # Docs to ignore, they can be specified here.  If you use any of these options
 # on the command line, this entire section is ignored.
@@ -94,9 +83,6 @@ Ignore Source Folder Pattern: *.cpp
 
 # Generated Documentation
 # ------------------------------------------------------------------------
-
-HTML Output Folder: .
-
 
 # This is where you specify what kind of documentation you want Natural Docs
 # to build and where it should be put.  If you use any of these options on the
@@ -120,12 +106,17 @@ HTML Output Folder: .
 # Global Settings
 # ------------------------------------------------------------------------
 
-Tab Width: 4
-
-Documented Only: No
-Auto Group: Yes
-
 # Other settings that apply to your entire project.  Settings specified on the
 # command line override the settings here.
+#
+# Tab Width: [width]
+#    The number of spaces tabs should be expanded to.
+#
+# Documented Only: [yes|no]
+#    Whether only documented code elements should appear in the output.
+#    Defaults to no.
+#
+# Auto Group: [yes|no]
+#    Whether groups should automatically apply to you code.  Defaults to yes.
 
 

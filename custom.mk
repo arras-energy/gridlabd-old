@@ -3,6 +3,7 @@
 #include control/Makefile.mk
 #include debug/Makefile.mk
 #include matlab/Makefile.mk
+include mysql/Makefile.mk
 #include network/Makefile.mk
 #include plc/Makefile.mk
 include gismo/Makefile.mk
