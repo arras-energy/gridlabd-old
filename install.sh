@@ -69,6 +69,7 @@ function help()
 	echo "Options"
 	echo "  --help       Print this helpful output"
 	echo "  --info       Print information about this install"
+	echo "  --force      Force install into target folder"
 	echo "  --no-check   Do not check system for requirements"
 	echo "  --no-index   Do not index data archives"
 	echo "  --no-link    Do not link new install to activate it"
@@ -110,6 +111,8 @@ while [ $# -gt 0 ]; do
 		shift 1
     elif [ "$1" == "--setup" ]; then
         SETUP="yes"
+    elif [ "$1" == "--force" ]; then
+    	FORCE="yes"
 	elif [ "$1" == "--save" ]; then
 		info > "install.conf"
 		exit 0
@@ -186,7 +189,9 @@ if [ ! -d autom4te.cache -o "$QUICK" == "no" ]; then
 fi
 
 # prep install dir
-run sudo rm -rf "$INSTALL"
+if [ -e "$INSTALL" -a "$FORCE" == "no" ]; then
+	error "$INSTALL already exists, please delete it first"
+fi
 run sudo mkdir -p "$INSTALL"
 run sudo chown -R "$USER" "$INSTALL"
 if [ ! -f "configure" -o "$QUICK" == "no" ]; then
