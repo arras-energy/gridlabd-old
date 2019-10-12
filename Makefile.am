@@ -316,6 +316,7 @@ install-exec-hook: python-install
 index: weather library template
 
 html-local: module-html developer-html troubleshooting-html
+	cp $(top_srcdir)/documents/index.html documents/html
 
 module-html:
 	@mkdir -p documents/html/modules/
