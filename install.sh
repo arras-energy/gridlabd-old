@@ -1,50 +1,65 @@
 #!/bin/bash
 
-CHECK="yes"
-DOCS="yes"
-FORCE="no"
-INDEX="yes"
-INDEX="yes"
-PREFIX="/usr/local"
-LINK="yes"
-QUICK="no"
-QUIET="no"
-SETUP="no"
-TEST="no"
-UPDATE="yes"
-VERBOSE="no"
-VERSION=`build-aux/version.sh --install`
-INSTALL="$PREFIX/$VERSION"
+# set the path to use during installation
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
+# setup logging
+LOG="install.log"
+rm -f $LOG
+function log()
+{
+	echo "$*" >> $LOG
+}
+
+# setup exit handling
 function on_exit()
 {
 	pkill tail 1>/dev/null 2>&1
+	log "STOP: $(date)"
+	log "STATUS: ${STATUS:-ok}"
 }
 trap on_exit EXIT
 
-export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
+# start logging
+log "START: $(date)"
+log "COMMAND: $0 $*"
+log "CONTEXT: ${USER:-unknown}@${HOSTNAME:-localhost}:$PWD"
+log "SYSTEM: $(uname -a)"
 
+# setup error handling
+function error()
+{
+	echo "ERROR: $*" | tee -a $LOG > /dev/stderr
+	STATUS="error"
+	exit 1
+}
+
+# check for commands that absolutely necessary to proceed
+function require()
+{
+	$1 ${2:---version} > /dev/null 2>&1 || error "$1 is required"
+}
+require git
+if [ "$(whoami)" == "root" ]; then
+	function sudo () 
+	{
+		$*
+	}
+else
+	require sudo
+fi
+
+if [ ! -f install.conf-default ]; then
+	error "ERROR: missing install.conf-default"
+fi
+
+# load the configuration
+source install.conf-default
 if [ -f "install.conf" ]; then
 	source "install.conf"
 fi
 
-LOG="install.log"
-rm -f $LOG
-
-function log()
-{
-	if [ ! -f $LOG ]; then
-		echo "Install log started $date by $USER on $(uname -a)" > $LOG
-	fi
-	echo "$*" >> $LOG
-}
-
-function error()
-{
-	echo "ERROR: $*" | tee -a $LOG > /dev/stderr
-	exit 1
-}
-
+# define commands that used by command line options
 function info()
 {
 	echo "CHECK=$CHECK"
@@ -75,6 +90,7 @@ function help()
 	echo "  --no-link    Do not link new install to activate it"
 	echo "  --no-test    Do not run validation tests"
 	echo "  --no-update  Do not update system to meet requirements"
+	echo "  --parallel   Enable parallelism when possible"
 	echo "  --save       Save the current configuration as default"
     echo "  --setup      Perform system setup"
 	echo "  --reset      Reset the configuration to default"
@@ -83,9 +99,12 @@ function help()
 	echo "  --verbose    Run showing log output"
 }
 
+# process command line options
 while [ $# -gt 0 ]; do
 	if [ "$1" == "--quick" ]; then
 		QUICK="yes"
+	elif [ "$1" == "--validate" ]; then
+		TEST="yes"
 	elif [ "$1" == "--no-index" ]; then
 		INDEX="no"
 	elif [ "$1" == "--no-check" ]; then
@@ -102,6 +121,8 @@ while [ $# -gt 0 ]; do
 		QUIET="yes"
 	elif [ "$1" == "--verbose" ]; then
 		VERBOSE="yes"
+	elif [ "$1" == "--parallel" ]; then
+		PARALLEL="yes"
 	elif [ "$1" == "--prefix" ]; then
 		PREFIX="$2"
 		if [ ! -d "$PREFIX" ]; then
@@ -132,13 +153,14 @@ while [ $# -gt 0 ]; do
 	shift 1
 done
 
-log "Install options:"
+log "CONFIGURATION: {"
 if [ "$VERBOSE" == "yes" ]; then
-	tail -f $LOG &
+	tail -f -n 100 $LOG 2>/dev/null &
 fi
-info >> $LOG
-log "Starting install:"
+info | sed -e '1,$s/\(.*\)=\(.*\)/\t\1: \2/' >> $LOG
+log "}"
 
+# define functions used during install processing
 function quiet ()
 {
 	if [ "$QUIET" == "no" ]; then
@@ -152,39 +174,46 @@ function run ()
 	$* >> $LOG 2>&1 || error "$0 failed -- see $LOG for details "
 }
 
-# check
+# run setup
 SYSTEM=$(uname -s)
-if [ -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
-	error "the existing gridlabd version cannot be managed and must be uninstalled first"
-	# TODO: automate this someday
-fi
 if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup-$SYSTEM.sh" ]; then
         error "unable to setup $SYSTEM, build-aux/setup-$SYSTEM.sh not found"
     fi
 	run sudo build-aux/setup-$SYSTEM.sh
-fi
-if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd" -a ! -L "$PREFIX/gridlabd" ]; then
-    error "$PREFIX/gridlabd exists but it is not a symbolic link"
-fi
-if [ $(whoami) == "root" -a "$FORCE" == "no" ]; then
-    error "do not run $0 as root"
-fi
-if [ -z "$(which doxygen)" -a "$CHECK" == "yes" ]; then
-	error "doxygen is not installed"
-fi
-if [ -z "$(which mono)" -a "$CHECK" == "yes" ]; then
-	error "mono is not installed"
-fi
-if [ -z "$(which natural_docs)" -a "$CHECK" == "yes" ]; then
-	error "natural_docs is not installed"
+	exit 0
 fi
 
-# autoconf
+# run checks
+if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
+	error "the existing gridlabd version cannot be managed and must be uninstalled first"
+	# TODO: automate this someday
+fi
+if [ "$CHECK" == "yes" ]; then
+	if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd" -a ! -L "$PREFIX/gridlabd" ]; then
+	    error "$PREFIX/gridlabd exists but it is not a symbolic link"
+	fi
+	if [ $(whoami) == "root" -a "$FORCE" == "no" ]; then
+	    error "do not run $0 as root"
+	fi
+	if [ "$DOCS" == "yes" ]; then
+		require mono
+		require doxygen
+		require natural_docs
+	fi
+fi
+
+# run autoconf
 if [ "$QUICK" == "no" ]; then
+	if [ ! -f "build-aux/ltmain.sh" ]; then
+		require libtoolize
+		run libtoolize
+	fi
+	require autoscan
 	run autoscan
 fi
-if [ ! -d autom4te.cache -o "$QUICK" == "no" ]; then
+if [ ! -d "autom4te.cache" -o "$QUICK" == "no" ]; then
+	require autoreconf
     run autoreconf -isf
 fi
 
@@ -193,14 +222,25 @@ if [ -e "$INSTALL" -a "$FORCE" == "no" ]; then
 	error "$INSTALL already exists, please delete it first"
 fi
 run sudo mkdir -p "$INSTALL"
-run sudo chown -R "$USER" "$INSTALL"
+if [ ! "${USER:-root}" == "root" ]; then
+	run sudo chown -R "$USER" "$INSTALL"
+fi
 if [ ! -f "configure" -o "$QUICK" == "no" ]; then
     run ./configure --prefix="$INSTALL" $*
 fi
 
+NPROC=1
+if [ "$PARALLEL" == "yes" ]; then
+	if [ "$SYSTEM" == "Linux" ]; then
+		NPROC=$(lscpu | grep '^CPU(s):' | cut -f2- -d' ')
+	elif [ "$SYSTEM" == "Darwin" ]; then
+		NPROC=$(sysctl -n machdep.cpu.thread_count)
+	fi
+fi
+
 # build everything
 export PATH=$INSTALL/bin:/usr/local/bin:/usr/bin:/bin
-run make -j30
+run make -j$((3*$NPROC))
 run make install
 if [ "$DOCS" == "yes" ]; then
 	run make html 
@@ -211,7 +251,8 @@ if [ "$INDEX" == "yes" ]; then
 	run make index
 fi
 if [ "$TEST" == "yes" ]; then
-	run gridlabd --validate
+	export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
+	run gridlabd -T $NPROC --validate
 fi
 
 # activate this version
@@ -224,3 +265,6 @@ elif [ "$LINK" == "yes" ]; then
 		run sudo ln -s "$PREFIX/gridlabd/bin/gridlabd" "$PREFIX/bin/gridlabd"
 	fi
 fi
+
+# all done :-)
+exit 0
