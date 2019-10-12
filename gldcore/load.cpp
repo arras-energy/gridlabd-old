@@ -7413,6 +7413,34 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
+	else if ( strncmp(line,MACRO "command",7) == 0 )
+	{
+		char *command = strchr(line+7,' ');
+		if ( command == NULL )
+		{
+			output_error_raw("%s(%d): %scommand missing call",filename,linenum,MACRO);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		while ( isspace(*command) && *command != '\0' )
+		{
+			command++;
+		}
+		char command_line[1024];
+		sprintf(command_line,"%s/gridlabd-%s",global_execdir,command);
+		global_return_code = system(command_line);
+		if( global_return_code != 0 )
+		{
+			output_error_raw("%s(%d): ERROR executing system(char *cmd='%s') -> non-zero exit code (status=%d)", filename, linenum, command_line, global_return_code);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
 	else if (strncmp(line,MACRO "exec",5)==0)
 	{
 		char *term = strchr(line+5,' ');
