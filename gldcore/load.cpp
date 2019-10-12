@@ -7413,9 +7413,9 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if ( strncmp(line,MACRO "command",7) == 0 )
+	else if ( strncmp(line,MACRO "command",8) == 0 )
 	{
-		char *command = strchr(line+7,' ');
+		char *command = strchr(line+8,' ');
 		if ( command == NULL )
 		{
 			output_error_raw("%s(%d): %scommand missing call",filename,linenum,MACRO);
