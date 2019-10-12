@@ -163,14 +163,20 @@ log "}"
 # define functions used during install processing
 function quiet ()
 {
-	if [ "$QUIET" == "no" ]; then
+	if [ "$QUIET" == "no" -a "$VERBOSE" == "no" ]; then
 		echo $*
 	fi
 }
 function run ()
 {
 	quiet "$*"
-	echo "$PWD% $*  " >> $LOG
+	NAME=${USER:-nobody}
+	CMD=($(ps -ocommand $$ | tail -n 1))
+	CMD=$(basename ${CMD[0]})
+	if [ $(whoami) == "root" ]; then
+		NAME="root"
+	fi
+	echo "RUN: [$CMD://$NAME@$HOSTNAME$PWD] $*" >> $LOG
 	$* >> $LOG 2>&1 || error "$0 failed -- see $LOG for details "
 }
 
@@ -194,7 +200,7 @@ if [ "$CHECK" == "yes" ]; then
 	    error "$PREFIX/gridlabd exists but it is not a symbolic link"
 	fi
 	if [ $(whoami) == "root" -a "$FORCE" == "no" ]; then
-	    error "do not run $0 as root"
+	    error "running $0 as root is not recommended, use --force to override this restriction"
 	fi
 	if [ "$DOCS" == "yes" ]; then
 		require mono
