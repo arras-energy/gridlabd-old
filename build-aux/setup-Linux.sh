@@ -2,12 +2,12 @@
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
 if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    METHOD="$0-$ID-$(echo $VERSION | cut -f -d.)"
-    if [ -f $METHOD ]; then
-        $METHOD
+    source /etc/os-release
+    SETUP="${0/.sh/-$ID-$(echo $VERSION_ID | cut -f1 -d.).sh}"
+    if [ -f "$SETUP" ]; then
+        $SETUP
     fi
 else
-    echo "ERROR: unknown linux type"
+    echo "ERROR: unknown linux release (/etc/os-release not found)"
     exit 1
 fi
