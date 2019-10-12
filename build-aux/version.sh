@@ -19,5 +19,5 @@ case $1 in
     | --svnvers | --svnver | --svnve | --svnv | --svn | --sv | --s)
         echo "$SVN" ;;
     --install )
-        echo "gridlabd-$MAJ.$MIN.$PAT-$NUM-${BRA//-/_}-$SYS-$HDW" ;;
+        echo "gridlabd-$MAJ.$MIN.$PAT-$NUM-${BRA//[-]/_}-$SYS-$HDW" ;;
 esac
