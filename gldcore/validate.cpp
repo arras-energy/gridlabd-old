@@ -504,7 +504,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 #ifdef WIN32
 		_pgmptr,
 #else
-		"gridlabd",
+		global_execname,
 #endif
 		dir,validate_cmdargs, name);
 	dt = my_instance->get_exec()->clock() - dt;

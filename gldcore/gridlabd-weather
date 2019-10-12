@@ -36,9 +36,10 @@ function config()
 		echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
 	elif [ "$1" == "reset" ]; then
 		rm -f $CONFIGFILE || (echo "ERROR: unable to reset $CONFIGFILE"; exit 1)
-	elif [ "$1" == "set" -a $# == 3 ]; then
-		echo "$2=\"$3\"" >> $CONFIGFILE
-	elif [ "$1" == "get" -a $# == 2 ]; then
+	elif [ "$1" == "set" ]; then
+		shift 1
+		echo "$@" >> $CONFIGFILE
+	elif [ "$1" == "get" ]; then
 		if [ ! -r $CONFIGFILE ]; then
 			value=$(config show | grep $2)
 		else
@@ -49,7 +50,7 @@ function config()
 		fi
 		echo $value | cut -f2 -d= | cut -f2 -d\"
 	else
-		echo "'%s' is an invalid config option"
+		echo "'$1' is an invalid config option"
 		exit 1
 	fi
 }
@@ -69,7 +70,7 @@ function fetch_index()
 	if [ ! -d $CACHEDIR ]; then
 		mkdir -p $CACHEDIR || ( echo "ERROR: unable to create $CACHEDIR"; exit 1)
 	fi
-	if [ ! -f $INDEX ]; then
+	if [ ! -f $INDEX -o -z $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
 		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX || rm -f $INDEX
 		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "weather files found"
@@ -98,8 +99,8 @@ function help()
 			  clean              Clean up the local cache of the archive index
 			  config show        Show the current configuration
 			         reset       Reset the current configuration
-			         set <N> <V> Set configuration variable name <N> to value <V>
-			         get <N> <V> Get configuration variable name <N>
+			         set <N>=<V> Set configuration variable name <N> to value <V>
+			         get <N>     Get configuration variable name <N>
 			END
 	fi
 }
