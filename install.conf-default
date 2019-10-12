@@ -1,0 +1,114 @@
+# Default gridlabd install configuration
+#
+# If you want to change the configuration locally, use the command
+#
+#   ./install.sh --save
+#
+# and edit the file 'install.conf'
+#
+# To restore the default configuration use the command
+#
+#   ./install.sh --reset
+#
+
+#
+# Control checks of needed docs generation tools (i.e., doxygen, mono, and natural_docs).
+# By default the absence of a needed tool prevents the install from proceeding.
+# These checks are disabled by the "--no-checks" option
+#
+CHECK="yes"
+
+#
+# Control generation of docs. By default the HTML documents are generated into the "html"
+# folder in the install path. Docs generation is disabled by the "--no-docs" option.
+#
+DOCS="yes"
+
+#
+# Force build in spite of issues like running as root and installing into a non-empty folder.
+# By default running as root or installing into a non-empty folder can lead to issues later.
+# Forced installs are enabled using the "--force" option.
+#
+FORCE="no"
+
+#
+# Enable download of archive indexes. By default downloading the archive indexes can take
+# a long time, and it not necessary for testing purposes. This option is disabled by the 
+# "--no-index" option.
+#
+INDEX="yes"
+
+#
+# Set the install prefix. By default most system use "/usr/local" for add-on software
+# like GridLAB-D. The prefix is changed using the "--prefix <path>" option.
+#
+PREFIX="/usr/local"
+
+#
+# Enable linking of gridlabd command. By default the most recent install is linked
+# into a gridlabd command in /usr/local/bin. This option is disable by the "--no-link" 
+# option.
+#
+LINK="yes"
+
+#
+# Enable quick installs by not rebuilding existing intermediate artifacts. By default
+# install does a complete build from scratch to ensure everything is up to date but
+# developer do not usually require this. This option is enabled using the "--quick" option.
+#
+QUICK="no"
+
+#
+# Enable parallelism whenever possible. By default install uses on a single thread.
+# This option is enabled using the "--parallel" option.
+PARALLEL="no"
+
+#
+# Enable very quiet operation, meaning only errors are reported. By default each
+# command issued is displayed when it is run. This option is enabled using the
+# "--quiet" option.
+#
+QUIET="no"
+
+#
+# Enable the system setup operations to ensure the required build tools are installed.  
+# Installation setup is only needed once on any given system and updates are only 
+# needed periodically.  By default the setup operations are not performed.  Setup 
+# can be enable dusing the "--setup" option. Note that installation is stopped
+# after a setup operation is completed and gridlabd is not installed. You must
+# run a separate install command to complete the installation.
+#
+SETUP="no"
+
+#
+# Enables validation tests of the gridlabd install after installation is complete.
+# By default the validation tests are performed. To disable validation tests
+# use the "--no-test". To enable validation use "--validate" option.
+TEST="no"
+
+#
+# Enable system update operations to ensure the required build tools are up to date.
+# Installation setup is only needed once on any given system and updates are only 
+# needed periodically.  By default the setup operations are not performed.  Updates 
+# can be enable dusing the "--update" option.
+# 
+UPDATE="yes"
+
+#
+# Enable output of install log output. By default the output is logged in the 
+# 'install.log'. This option can be enabled using the "--verbose" option.
+#
+VERBOSE="no"
+
+#
+# Specify the version name to use. By default, the version name is specified
+# by the 'build-aux/version.sh' script.  This cannot be changed at the command
+# line.
+#
+VERSION=`build-aux/version.sh --install`
+
+#
+# Specify the installation folder. By default this matches the prefix. This
+# cannot be changed at the command line.
+#
+INSTALL="/usr/local/$VERSION"
