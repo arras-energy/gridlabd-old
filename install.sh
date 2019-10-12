@@ -162,7 +162,7 @@ if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup-$SYSTEM.sh" ]; then
         error "unable to setup $SYSTEM, build-aux/setup-$SYSTEM.sh not found"
     fi
-	run build-aux/setup-$SYSTEM.sh
+	run sudo build-aux/setup-$SYSTEM.sh
 fi
 if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd" -a ! -L "$PREFIX/gridlabd" ]; then
     error "$PREFIX/gridlabd exists but it is not a symbolic link"
