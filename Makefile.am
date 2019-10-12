@@ -55,6 +55,7 @@ include gldcore/Makefile.mk
 include gldcore/rt/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include python_extras/Makefile.mk
+include models/Makefile.mk
 
 # approved modules
 include modules.mk
@@ -86,19 +87,19 @@ EXTRA_DIST += $(top_srcdir)/doxygen/user_manual.h
 EXTRA_DIST += $(top_srcdir)/gridlabd.spec
 EXTRA_DIST += $(top_srcdir)/README-LINUX
 EXTRA_DIST += $(top_srcdir)/README-MACOSX
-EXTRA_DIST += $(top_srcdir)/Resources/Background.png
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore-contents.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate-contents.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces-contents.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel-contents.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/index.xml
-EXTRA_DIST += $(top_srcdir)/Resources/License.rtf
-EXTRA_DIST += $(top_srcdir)/Resources/Readme.rtf
-EXTRA_DIST += $(top_srcdir)/Resources/Welcome.rtf
+# EXTRA_DIST += $(top_srcdir)/Resources/Background.png
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore-contents.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate-contents.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces-contents.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel-contents.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/index.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/License.rtf
+# EXTRA_DIST += $(top_srcdir)/Resources/Readme.rtf
+# EXTRA_DIST += $(top_srcdir)/Resources/Welcome.rtf
 EXTRA_DIST += $(top_srcdir)/VERSION
 EXTRA_DIST += $(top_srcdir)/models/climate_csvreader_example.glm
 EXTRA_DIST += $(top_srcdir)/models/collector_example.glm
@@ -123,41 +124,19 @@ EXTRA_DIST += $(top_srcdir)/models/weather.csv
 EXTRA_DIST += $(top_srcdir)/models/wind_turbine_example.glm
 EXTRA_DIST += $(top_srcdir)/gldcore/gridlabd.htm
 EXTRA_DIST += $(top_srcdir)/utilities/build_number
-pkgdata_DATA += $(top_srcdir)/models/climate_csvreader_example.glm
-pkgdata_DATA += $(top_srcdir)/models/collector_example.glm
-pkgdata_DATA += $(top_srcdir)/models/diesel_deltamode_load_player_A.csv
-pkgdata_DATA += $(top_srcdir)/models/diesel_deltamode_load_player_B.csv
-pkgdata_DATA += $(top_srcdir)/models/diesel_deltamode_load_player_C.csv
-#pkgdata_DATA += $(top_srcdir)/models/Four_quadrant_inverter_example.glm
-pkgdata_DATA += $(top_srcdir)/models/house_HVAC_example.glm
-pkgdata_DATA += $(top_srcdir)/models/IEEE_13_Node_Test_Feeder.glm
-pkgdata_DATA += $(top_srcdir)/models/IEEE_13_Node_With_Houses.glm
-pkgdata_DATA += $(top_srcdir)/models/passive_controller_example.glm
-pkgdata_DATA += $(top_srcdir)/models/random_fault_generator_example.glm
-pkgdata_DATA += $(top_srcdir)/models/residential_zipload_example.glm
-pkgdata_DATA += $(top_srcdir)/models/Standard_Weather.csv
-pkgdata_DATA += $(top_srcdir)/models/subsecond_diesel_generator_example.glm
-pkgdata_DATA += $(top_srcdir)/models/taxonomy_feeder_R1-12.47-1.glm
-pkgdata_DATA += $(top_srcdir)/models/transactive_controller_example.glm
-pkgdata_DATA += $(top_srcdir)/models/WA-Seattle.tmy2
-pkgdata_DATA += $(top_srcdir)/models/WA-Yakima.tmy2
-pkgdata_DATA += $(top_srcdir)/models/waterheater_example.glm
-pkgdata_DATA += $(top_srcdir)/models/weather.csv
-pkgdata_DATA += $(top_srcdir)/models/wind_turbine_example.glm
-pkgdata_DATA += $(top_srcdir)/gldcore/gridlabd.htm
 
-if MISSING_XERCES
-all-local:
-	@echo
-	@echo "  Missing dependency: libxerces-c"
-	@echo ""
-	@echo "    libxerces-c was not found during configuration and is a required dependency."
-	@echo "    Install the libxerces-c development libraries and re-run ./configure or run"
-	@echo "    ./configure with the --with-xerces option.  Try './configure --help' for"
-	@echo "    more information."
-	@echo
-	@false
-endif
+# if MISSING_XERCES
+# all-local:
+# 	@echo
+# 	@echo "  Missing dependency: libxerces-c"
+# 	@echo ""
+# 	@echo "    libxerces-c was not found during configuration and is a required dependency."
+# 	@echo "    Install the libxerces-c development libraries and re-run ./configure or run"
+# 	@echo "    ./configure with the --with-xerces option.  Try './configure --help' for"
+# 	@echo "    more information."
+# 	@echo
+# 	@false
+# endif
 
 help:
 	@echo "Cleaning targets:"
@@ -228,8 +207,8 @@ check-local validate:
 	gridlabd --validate
 
 scratchdir = scratch
-XERCES_TARNAME = xerces-c-3.1.1
-XERCESCROOT = $(CURDIR)/$(scratchdir)/$(XERCES_TARNAME)
+# XERCES_TARNAME = xerces-c-3.1.1
+# XERCESCROOT = $(CURDIR)/$(scratchdir)/$(XERCES_TARNAME)
 
 $(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
 	-rm -f $@
@@ -241,15 +220,16 @@ $(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
 		autoreconf -isf && ./configure && make
 	touch $@
 
-$(scratchdir)/pkg: $(scratchdir)/.xerces.stamp distdir
+$(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp 
 	test ! -e $@ || rm -rf $@
 	test -d $@/gldcore || mkdir -p $@/gldcore
-	cd $(distdir) && ./configure --with-xerces=$(CURDIR)/$(scratchdir)/$(XERCES_TARNAME) && make install DESTDIR=$(CURDIR)/$@/gldcore
-	cd $@ && mkdir -p climate-data/usr/local/lib/gridlabd devel/usr/local/lib/gridlabd libxerces-c/usr/lib
+# 	cd $(distdir) && ./configure --with-xerces=$(CURDIR)/$(scratchdir)/$(XERCES_TARNAME) && make install DESTDIR=$(CURDIR)/$@/gldcore
+	cd $(distdir) && ./configure && make install DESTDIR=$(CURDIR)/$@/gldcore
+	cd $@ && mkdir -p climate-data/usr/local/lib/gridlabd devel/usr/local/lib/gridlabd # libxerces-c/usr/lib
 #	mv $@/gldcore/usr/lib/gridlabd/*.zip $@/climate-data/usr/lib/gridlabd/
 	mv $@/gldcore/usr/local/include $@/devel/usr/local/include
 	mv $@/gldcore/usr/local/lib/gridlabd/*.la $@/devel/usr/local/lib/gridlabd/
-	cp $(scratchdir)/$(XERCES_TARNAME)/src/.libs/libxerces-c.* $@/libxerces-c/usr/lib/
+#	cp $(scratchdir)/$(XERCES_TARNAME)/src/.libs/libxerces-c.* $@/libxerces-c/usr/lib/
 	$(am__remove_distdir)
 
 $(scratchdir)/$(PACKAGE_TARNAME).mpkg: $(scratchdir)/pkg

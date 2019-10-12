@@ -427,96 +427,6 @@ AS_IF([test "$gld_cv_have_thread_affinity_policy" = "yes"],
 # Checks for C++ libraries.
 #--------------------------------------
 
-# Check for xerces
-unset XERCES_VERSION
-AX_LIB_XERCES([2.7])
-AM_CONDITIONAL([MISSING_XERCES], [test x$HAVE_XERCES != xyes])
-AC_SUBST([HAVE_XERCES])
-
-# Check for CppUnit
-AM_PATH_CPPUNIT([1.12], [HAVE_CPPUNIT=yes], [HAVE_CPPUNIT=no])
-AS_IF([test x"$HAVE_CPPUNIT" = xyes],
-    [AC_MSG_CHECKING([if compiler can link libcppunit])
-     SAVED_CXXFLAGS="$CXXFLAGS"
-     SAVED_LIBS="$LIBS"
-     CXXFLAGS="$CXXFLAGS $CPPUNIT_CFLAGS"
-     LIBS="$LIBS $CPPUNIT_LIBS"
-     AC_LINK_IFELSE(
-        [AC_LANG_PROGRAM(
-            [[#include <cppunit/extensions/TestFactoryRegistry.h>]],
-            [[CppUnit::TestFactoryRegistry::getRegistry();]])],
-        [],
-        [HAVE_CPPUNIT=no])
-     CXXFLAGS="$SAVED_CXXFLAGS"
-     LIBS="$SAVED_LIBS"
-     AC_MSG_RESULT([$HAVE_CPPUNIT])])
-AS_IF([test x"$HAVE_CPPUNIT" = xyes],
-    [# CppUnit doesn't separate its flags appropriately
-     COMBINED_CPPUNIT_FLAGS="$CPPUNIT_CFLAGS $CPPUNIT_LIBS"
-     CPPUNIT_CFLAGS=
-     CPPUNIT_LIBS=
-     GLD_FLAG_PARSE([COMBINED_CPPUNIT_FLAGS],
-        [CPPUNIT_LIBS], [CPPUNIT_LDFLAGS], [CPPUNIT_CPPFLAGS])],
-    [GLD_CPPFLAGS="$GLD_CPPFLAGS -D_NO_CPPUNIT"])
-AC_SUBST([CPPUNIT_CPPFLAGS])
-AC_SUBST([CPPUNIT_LDFLAGS])
-AC_SUBST([CPPUNIT_LIBS])
-
-# Check for Framework for Network Co-Simulation (FNCS)
-AC_ARG_WITH([fncs],
-    [AS_HELP_STRING([--with-fncs],
-                    [Link to FNCS from the given prefix (=path)  @<:@default=no@:>@])],
-    [],
-    [with_fncs=no])
-AS_CASE([$with_fncs],
-        [yes],  [],
-        [no],   [],
-                [GLD_FLAG_PARSE([with_fncs],
-                        [FNCS_LIBS],
-                        [FNCS_LDFLAGS],
-                        [FNCS_CPPFLAGS])])
-gld_save_LIBS="$LIBS"; LIBS="$LIBS $FNCS_LIBS"
-gld_save_LDFLAGS="$LDFLAGS"; LDFLAGS="$LDFLAGS $FNCS_LDFLAGS"
-gld_save_CPPFLAGS="$CPPFLAGS"; CPPFLAGS="$CPPFLAGS $FNCS_CPPFLAGS"
-# add libfncs to FNCS_LIBS if missing
-AS_CASE([$FNCS_LIBS],
-        [*lfncs*], [], [FNCS_LIBS="$FNCS_LIBS -lfncs"])
-AS_CASE([$LIBS],
-        [*lfncs*], [], [LIBS="$LIBS -lfncs"])
-# add libczmq to FNCS_LIBS if missing
-AS_CASE([$FNCS_LIBS],
-        [*lczmq*], [], [FNCS_LIBS="$FNCS_LIBS -lczmq"])
-AS_CASE([$LIBS],
-        [*lczmq*], [], [LIBS="$LIBS -lczmq"])
-# add libzmq to FNCS_LIBS if missing
-AS_CASE([$FNCS_LIBS],
-        [*lzmq*], [], [FNCS_LIBS="$FNCS_LIBS -lzmq"])
-AS_CASE([$LIBS],
-        [*lzmq*], [], [LIBS="$LIBS -lzmq"])
-have_fncs=yes
-AC_MSG_CHECKING([for FNCS])
-AC_LINK_IFELSE(
-    [AC_LANG_PROGRAM([[
-#include<fncs.hpp>
-]],
-[[
-fncs::time t;
-fncs::initialize();
-]])],
-    [have_fncs=yes; have_fncs_int=1],
-    [have_fncs=no; have_fncs_int=0])
-LIBS="$gld_save_LIBS"
-LDFLAGS="$gld_save_LDFLAGS"
-CPPFLAGS="$gld_save_CPPFLAGS"
-AC_SUBST([FNCS_LIBS])
-AC_SUBST([FNCS_LDFLAGS])
-AC_SUBST([FNCS_CPPFLAGS])
-AC_MSG_RESULT([$have_fncs])
-AC_DEFINE_UNQUOTED([HAVE_FNCS], [$have_fncs_int], [whether FNCS was found])
-AM_CONDITIONAL([HAVE_FNCS], [test "x$have_fncs" = xyes])
-
-AC_SUBST([GLD_CPPFLAGS])
-
 AC_LANG_POP([C++])
 
 ###############################################################################
@@ -658,15 +568,10 @@ AC_OUTPUT
 
 BINDIR=`eval echo $(eval echo $bindir)`
 LIBDIR=`eval echo $(eval echo $libdir)`
+ETCDIR=`eval echo $(eval echo $etcdir)`
 DOCDIR=`eval echo $(eval echo $docdir)`
-AS_IF([test "x$HAVE_XERCES" = xyes],
-    [CONFIG_RESULT=OK
-     AS_IF([test -z "$XERCES_VERSION" || expr "$XERCES_VERSION" \< 3 >/dev/null],
-        [AC_MSG_WARN([libxerces-c version $XERCES_VERSION])
-         AC_MSG_WARN([may not be suitable for building $PACKAGE])])],
-    [CONFIG_RESULT=failed
-     HAVE_XERCES="$HAVE_XERCES (required)"
-     AC_MSG_WARN([missing libxerces-c; build will fail until dependency is met])])
+HAVE_MONO="no"
+HAVE_NATURALDOCS="no"
 
 AC_MSG_RESULT([
 -----------------------------------------------------------------------
@@ -675,12 +580,13 @@ AC_MSG_RESULT([
 
   Dependencies:
 
-    libxerces-c: ................ $HAVE_XERCES
     curses: ..................... $HAVE_CURSES
     matlab: ..................... $HAVE_MATLAB
     python: ..................... $HAVE_PYTHON
     mysql-connector-c: .......... $HAVE_MYSQL
     Doxygen: .................... $HAVE_DOXYGEN
+    Mono: ....................... $HAVE_MONO
+    Natural docs:................ $HAVE_NATURALDOCS
 
   Atomic Builtins:
 
@@ -695,17 +601,18 @@ AC_MSG_RESULT([
 
   Installation paths:
 
-    Scripts: .................... ${BINDIR/$PWD/.}
-    Libraries: .................. ${LIBDIR/$PWD/.}/$PACKAGE
-    Documentation: .............. ${DOCDIR/$PWD/.}
+    Scripts: .................... ${BINDIR/^$PWD/.}
+    Libraries: .................. ${LIBDIR/^$PWD/.}/$PACKAGE
+    Data: ....................... ${ETCDIR/^#PWD/.}
+    Documentation: .............. ${DOCDIR/^$PWD/.}
 
   Building:
 
     type 'make' to compile $PACKAGE.
-    type 'make install' to install $PACKAGE in ${prefix/$PWD/.}.
+    type 'make install' to install $PACKAGE in ${prefix/^$PWD/.}.
 
   Running:
-    type 'export PATH=${prefix/$PWD/\$PWD}/bin:\$PATH' to include $PACKAGE in your current path
+    type 'export PATH=${prefix/^$PWD/\$PWD}/bin:\$PATH' to include this version in your current path
     type '$PACKAGE --version' to check that you are running the correct version of $PACKAGE
 
 -----------------------------------------------------------------------
