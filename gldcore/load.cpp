@@ -7403,7 +7403,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		global_return_code = system(value);
 		if( global_return_code==127 || global_return_code==-1 )
 		{
-			output_error_raw("%s(%d): ERROR unable to execute '%s' (status=%d)", filename, linenum, value, global_return_code);
+			output_error_raw("%s(%d): unable to execute '%s' (status=%d)", filename, linenum, value, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7431,7 +7431,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		global_return_code = system(command_line);
 		if( global_return_code != 0 )
 		{
-			output_error_raw("%s(%d): ERROR executing system(char *cmd='%s') -> non-zero exit code (status=%d)", filename, linenum, command_line, global_return_code);
+			output_error_raw("%s(%d): unable to run system(char *cmd='%s') -> non-zero exit code (status=%d)", filename, linenum, command_line, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7456,7 +7456,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		global_return_code = system(value);
 		if( global_return_code != 0 )
 		{
-			output_error_raw("%s(%d): ERROR executing system(char *cmd='%s') -> non-zero exit code (status=%d)", filename, linenum, value, global_return_code);
+			output_error_raw("%s(%d): unable to run system(char *cmd='%s') -> non-zero exit code (status=%d)", filename, linenum, value, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7480,7 +7480,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
 		if( start_process(value)==NULL )
 		{
-			output_error_raw("%s(%d): ERROR unable to start '%s'", filename, linenum, value);
+			output_error_raw("%s(%d): unable to start '%s'", filename, linenum, value);
 			strcpy(line,"\n");
 			return FALSE;
 		}
