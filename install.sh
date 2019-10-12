@@ -49,12 +49,18 @@ else
 	require sudo
 fi
 
-if [ ! -f install.conf-default ]; then
-	error "ERROR: missing install.conf-default"
+# check workdir
+require dirname
+cd $(dirname $0)
+if [ ! -f "install.sh" -o ! -d "build-aux" ]; then
+	error "$0 must be run from the source root"
 fi
 
 # load the configuration
-source install.conf-default
+if [ ! -f "install.conf-default" ]; then
+	error "missing install.conf-default"
+fi
+source "install.conf-default"
 if [ -f "install.conf" ]; then
 	source "install.conf"
 fi
@@ -69,9 +75,9 @@ function info()
 	echo "INDEX=$INDEX"
 	echo "LINK=$LINK"
 	echo "PREFIX=$PREFIX"
-	echo "QUIET=$QUIET"
 	echo "QUICK=$QUICK"
     echo "SETUP=$SETUP"
+	echo "SILENT=$SILENT"
 	echo "TEST=$TEST"
 	echo "UPDATE=$UPDATE"
 	echo "VERBOSE=$VERBOSE"
@@ -82,74 +88,97 @@ function help()
 {
 	echo "Syntax: $0 <options>"
 	echo "Options"
-	echo "  --help       Print this helpful output"
-	echo "  --info       Print information about this install"
-	echo "  --force      Force install into target folder"
-	echo "  --no-check   Do not check system for requirements"
-	echo "  --no-index   Do not index data archives"
-	echo "  --no-link    Do not link new install to activate it"
-	echo "  --no-test    Do not run validation tests"
-	echo "  --no-update  Do not update system to meet requirements"
-	echo "  --parallel   Enable parallelism when possible"
-	echo "  --save       Save the current configuration as default"
-    echo "  --setup      Perform system setup"
-	echo "  --reset      Reset the configuration to default"
-	echo "  --quick      Run only updates instead of a clean install"
-	echo "  --quiet      Run without showing commands"
-	echo "  --verbose    Run showing log output"
+	echo "  -h|--help       Print this helpful output"
+	echo "  --info          Print information about this install"
+	echo "  -c|--no-check   Do not check system for requirements"
+	echo "  -d|--no-docs    Do not install documentation"
+	echo "  -f|--force      Force install into existing target folder"
+	echo "  -i|--no-index   Do not index data archives"
+	echo "  -l|--no-link    Do not link new install to activate it"
+	echo "  -t|--no-test    Do not run validation tests"
+	echo "  -u|--no-update  Do not update system to meet requirements"
+	echo "  -p|--parallel   Enable parallelism when possible"
+	echo "  --prefix path   Set install prefix"
+	echo "  --save          Save the current configuration as default"
+    echo "  --setup         Perform system setup"
+	echo "  --reset         Reset the configuration to default"
+	echo "  -q|--quick      Run only updates instead of a clean install"
+	echo "  -s|--silent     Run without showing commands"
+	echo "  -v|--verbose    Run showing log output"
+	echo "  --validate      Run validation tests"
 }
 
 # process command line options
 while [ $# -gt 0 ]; do
-	if [ "$1" == "--quick" ]; then
+	case "$1" in
+	(-q|--quick)
 		QUICK="yes"
-	elif [ "$1" == "--validate" ]; then
+		;;
+	(--validate)
 		TEST="yes"
-	elif [ "$1" == "--no-index" ]; then
+		;;
+	(-i|--no-index)
 		INDEX="no"
-	elif [ "$1" == "--no-check" ]; then
+		;;
+	(-c|--no-check)
 		CHECK="no"
-	elif [ "$1" == "--no-test" ]; then
+		;;
+	(-t|--no-test)
 		TEST="no"
-	elif [ "$1" == "--no-link" ]; then
+		;;
+	(-l|--no-link)
 		LINK="no"
-	elif [ "$1" == "--no-docs" ]; then
+		;;
+	(-d|--no-docs)
 		DOCS="no"
-	elif [ "$1" == "--no-update" ]; then
+		;;
+	(-u|--no-update)
 		UPDATE="no"
-	elif [ "$1" == "--quiet" ]; then
-		QUIET="yes"
-	elif [ "$1" == "--verbose" ]; then
+		;;
+	(-s|--silent)
+		SILENT="yes"
+		;;
+	(-v|--verbose)
 		VERBOSE="yes"
-	elif [ "$1" == "--parallel" ]; then
+		;;
+	(-p|--parallel)
 		PARALLEL="yes"
-	elif [ "$1" == "--prefix" ]; then
+		;;
+	(--prefix)
 		PREFIX="$2"
 		if [ ! -d "$PREFIX" ]; then
 			error "$PREFIX does not exist"
 		fi
 		INSTALL="$PREFIX/$VERSION"
 		shift 1
-    elif [ "$1" == "--setup" ]; then
+		;;
+    (--setup)
         SETUP="yes"
-    elif [ "$1" == "--force" ]; then
+        ;;
+    (-f|--force)
     	FORCE="yes"
-	elif [ "$1" == "--save" ]; then
+    	;;
+	(--save)
 		info > "install.conf"
 		exit 0
-	elif [ "$1" == "--reset" ]; then
+		;;
+	(--reset)
 		rm -f "install.conf"
 		exit 0
-	elif [ "$1" == "--help" -o "$1" == "-h" ]; then
+		;;
+	(-h|--help)
 		help
 		exit 0
-	elif [ "$1" == "--info" ]; then
+		;;
+	(--info)
 		info
 		exit 0
-	else
+		;;
+	(*)
 		error "'$1' is not a valid option"
 		exit 1
-	fi
+		;;
+	esac
 	shift 1
 done
 
@@ -161,15 +190,11 @@ info | sed -e '1,$s/\(.*\)=\(.*\)/\t\1: \2/' >> $LOG
 log "}"
 
 # define functions used during install processing
-function quiet ()
-{
-	if [ "$QUIET" == "no" -a "$VERBOSE" == "no" ]; then
-		echo $*
-	fi
-}
 function run ()
 {
-	quiet "$*"
+	if [ "$SILENT" == "no" -a "$VERBOSE" == "no" ]; then
+		echo $*
+	fi
 	NAME=${USER:-nobody}
 	CMD=($(ps -ocommand $$ | tail -n 1))
 	CMD=$(basename ${CMD[0]})
@@ -187,7 +212,6 @@ if [ "$SETUP" == "yes" ]; then
         error "unable to setup $SYSTEM, build-aux/setup-$SYSTEM.sh not found"
     fi
 	run sudo build-aux/setup-$SYSTEM.sh
-	exit 0
 fi
 
 # run checks
@@ -199,12 +223,12 @@ if [ "$CHECK" == "yes" ]; then
 	if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd" -a ! -L "$PREFIX/gridlabd" ]; then
 	    error "$PREFIX/gridlabd exists but it is not a symbolic link"
 	fi
-	if [ $(whoami) == "root" -a "$FORCE" == "no" ]; then
-	    error "running $0 as root is not recommended, use --force to override this restriction"
-	fi
+	# if [ $(whoami) == "root" -a "$FORCE" == "no" ]; then
+	#     error "running $0 as root is not recommended, use --force to override this restriction"
+	# fi
 	if [ "$DOCS" == "yes" ]; then
-		require mono
 		require doxygen
+		require mono
 		require natural_docs
 	fi
 fi
@@ -258,12 +282,12 @@ if [ "$INDEX" == "yes" ]; then
 fi
 if [ "$TEST" == "yes" ]; then
 	export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
-	run gridlabd -T $NPROC --validate
+	run $INSTALL/bin/gridlabd -T $NPROC --validate
 fi
 
 # activate this version
 if [ -x "$INSTALL/bin/gridlabd-version" -a "$TEST" == "yes" ]; then
-	run gridlabd version set "$VERSION"
+	run $INSTALL/bin/gridlabd version set "$VERSION"
 elif [ "$LINK" == "yes" ]; then
 	run sudo rm -f "$PREFIX/gridlabd"
 	run sudo ln -s "$INSTALL" "$PREFIX/gridlabd"

@@ -64,21 +64,19 @@ QUICK="no"
 PARALLEL="no"
 
 #
-# Enable very quiet operation, meaning only errors are reported. By default each
-# command issued is displayed when it is run. This option is enabled using the
-# "--quiet" option.
-#
-QUIET="no"
-
-#
 # Enable the system setup operations to ensure the required build tools are installed.  
 # Installation setup is only needed once on any given system and updates are only 
 # needed periodically.  By default the setup operations are not performed.  Setup 
-# can be enable dusing the "--setup" option. Note that installation is stopped
-# after a setup operation is completed and gridlabd is not installed. You must
-# run a separate install command to complete the installation.
+# can be enabled using the "--setup" option. 
 #
 SETUP="no"
+
+#
+# Enable very silent operation, meaning only errors are reported. By default each
+# command issued is displayed when it is run. This option is enabled using the
+# "--silent" option.
+#
+SILENT="no"
 
 #
 # Enables validation tests of the gridlabd install after installation is complete.
