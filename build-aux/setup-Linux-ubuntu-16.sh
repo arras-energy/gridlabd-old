@@ -3,6 +3,7 @@
 # Install needed system tools
 # update first
 apt-get -q update -y
+apt-get -q tzdata -y
 
 # install python 3.7
 apt-get -q install software-properties-common -y
@@ -29,12 +30,19 @@ apt-get -q install libtool -y
 apt-get -q install g++ -y
 apt-get -q install cmake -y 
 apt-get -q install flex -y
+apt-get -q install bison -y
+apt-get -q install libcurl4-gnutls-dev -y
+apt-get -q install libncurses5-dev -y
 
 # doxgygen
 apt-get -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
-	git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen
-	mkdir /usr/local/src/doxygen/build
+	if [ ! -d /usr/local/src/doxygen ]; then
+		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen
+	fi
+	if [ ! -d /usr/local/src/doxygen/build ]; then
+		mkdir /usr/local/src/doxygen/build
+	fi
 	cd /usr/local/src/doxygen/build
 	cmake -G "Unix Makefiles" ..
 	make
@@ -45,9 +53,10 @@ fi
 apt-get -q install curl -y
 if [ ! -f /usr/bin/mono ]; then
 	cd /tmp
-	rpmkeys --import "http://pool.sks-keyservers.net/pks/lookup?op=get&search=0x3fa7e0328081bff6a14da29aa6a19b38d3d831ef"
-	curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo
-	yum -q install mono-devel -y
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
+	echo "deb http://download.mono-project.com/repo/ubuntu wheezy/snapshots/4.8.0 main" | tee /etc/apt/sources.list.d/mono-official.list
+	apt-get -q update -y
+	apt-get -q install mono-devel -y
 fi
 
 # natural_docs

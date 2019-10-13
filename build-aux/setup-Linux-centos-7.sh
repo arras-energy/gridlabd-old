@@ -29,8 +29,12 @@ pip3 --quiet install mysql-connector
 # doxygen
 yum -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
-	git clone https://github.com/doxygen/doxygen.git /tmp/doxygen
-	mkdir /tmp/doxygen/build
+	if [ ! -d /usr/local/src/doxygen ]; then
+		git clone https://github.com/doxygen/doxygen.git /usr/local/src/doxygen
+	fi
+	if [ ! -d /usr/local/src/doxygen/build ]; then
+		mkdir /usr/local/src/doxygen/build
+	fi
 	cd /tmp/doxygen/build
 	cmake -G "Unix Makefiles" ..
 	make

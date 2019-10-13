@@ -1,0 +1,61 @@
+#!/bin/bash
+
+EXE="$0"
+function error()
+{
+	echo "$EXE: $*"
+}
+
+function help()
+{
+	cat <<-END
+		Syntax: gridlabd version <command> <options...>
+		Commands:
+		  help              get this list of commands
+		  get               show the current active version
+		  set <pattern>     select the active version
+		  list [<pattern>]  get a list of available versions
+	END
+}
+
+function set()
+{
+	error "set not implemented yet"
+}
+
+function get()
+{
+	if [ ! -x /usr/local/bin/gridlabd ]; then
+		error "no active gridlabd version found"
+	fi
+}
+
+function list()
+{
+	(cd /usr/local; ls -1d gridlabd-*)
+}
+
+if [ $# -eq 0 ]; then
+	help
+	exit 1
+fi
+
+case "$1" in 
+	(help) 
+		help 
+		;;
+	(get) 
+		get 
+		;;
+	(set) 
+		shift 1
+		set $* 
+		;;
+	(list) 
+		shift 1
+		list $* 
+		;; 
+	(*)
+		error "$1 is not a valid command"
+		;;
+esac
