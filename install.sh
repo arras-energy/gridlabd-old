@@ -3,12 +3,34 @@
 # set the path to use during installation
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
 
+# check sudo
+if [ "$(whoami)" == "root" ]; then
+	function sudo () 
+	{
+		$*
+	}
+else
+	sudo --version >/dev/null 2>&1 || (echo "$0: sudo is required"; exit 1)
+fi
+
+# local folder
+VAR="/usr/local/var/gridlabd"
+sudo mkdir -p $VAR
+
 # setup logging
-LOG="install.log"
-rm -f $LOG
+LOG="$VAR/install.log"
 function log()
 {
-	echo "$*" >> $LOG
+	case "$*" in 
+	("clear")
+		rm -f $LOG
+		shift 1
+		;;
+	(*)
+		echo "$*" >> $LOG
+		return
+		;;
+	esac
 }
 
 # setup exit handling
@@ -176,23 +198,12 @@ while [ $# -gt 0 ]; do
 done
 
 # start logging
+log clear
 log "START: $(date)"
 log "COMMAND: $0 $*"
 log "CONTEXT: ${USER:-unknown}@${HOSTNAME:-localhost}:$PWD"
 log "SYSTEM: $(uname -a)"
-log "CONFIGURATION: {"
-info | sed -e '1,$s/\(.*\)=\(.*\)/\t\1: \2/' >> $LOG
-log "}"
-
-# check sudo
-if [ "$(whoami)" == "root" ]; then
-	function sudo () 
-	{
-		$*
-	}
-else
-	require sudo
-fi
+log "$(info | sed -e '1,$s/=/: /')"
 
 # define functions used during install processing
 function run ()
@@ -207,7 +218,10 @@ function run ()
 		NAME="root"
 	fi
 	echo "RUN: [$CMD://$NAME@$HOSTNAME$PWD] $*" >> $LOG
+	T0=$(date '+%s')
 	$* >> $LOG 2>&1 || error "$0 failed -- see $LOG for details "
+	T1=$(date '+%s')
+	log "TIME: $((T1-T0)) seconds"
 }
 
 # enable verbose logging
@@ -220,13 +234,21 @@ if [ "$SETUP" == "yes" ]; then
     if [ ! -f "build-aux/setup.sh" ]; then
         error "build-aux/setup.sh not found"
     fi
-	run sudo build-aux/setup.sh
+	SOK="$VAR/setup.ok"
+    if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
+		run sudo build-aux/setup.sh
+		date > "$SOK"
+	else
+		log "SETUP: already completed at $(cat setup.ok)"
+	fi
 fi
 
 # dynamic variables
 require git
 VERSION=${VERSION:-`build-aux/version.sh --install`}
 INSTALL=${INSTALL:-$PREFIX/$VERSION}
+log "VERSION: $VERSION"
+log "INSTALL: $INSTALL"
 
 # run checks
 if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
