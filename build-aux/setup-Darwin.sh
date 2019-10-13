@@ -2,7 +2,7 @@
 RELEASE=$(uname -r | cut -f1 -d.)
 SETUP="${0/.sh/-$RELEASE}"
 if [ -f "$SETUP" ]; then
-    source "$SETUP" &*
+    $SETUP &*
 else
-	build-aux/setup-manual.sh
+	${0/.sh/-manual.sh}
 fi

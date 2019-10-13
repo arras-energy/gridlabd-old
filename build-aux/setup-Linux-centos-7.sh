@@ -26,28 +26,30 @@ pip3 --quiet install matplotlib
 pip3 --quiet install pandas
 pip3 --quiet install mysql-connector
 
-# documentation tools
+# doxygen
 yum -q install gawk -y
 if [ ! -x /usr/bin/doxygen ]; then
-	git clone https://github.com/doxygen/doxygen.git doxygen
-	mkdir build
-	cd build
+	git clone https://github.com/doxygen/doxygen.git /tmp/doxygen
+	mkdir /tmp/doxygen/build
+	cd /tmp/doxygen/build
 	cmake -G "Unix Makefiles" ..
 	make
 	make install
 fi
+
+# mono
 if [ ! -f /usr/bin/mono ]; then
 	rpmkeys --import "http://pool.sks-keyservers.net/pks/lookup?op=get&search=0x3fa7e0328081bff6a14da29aa6a19b38d3d831ef"
 	curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo
 	yum -q install mono-devel -y
 fi
 
-# TODO: natural_docs
+# natural_docs
 if [ ! -x /usr/local/bin/natural_docs ]; then
 	cd /usr/local
-	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > /tmp/download-$$.zip
-	unzip -qq /tmp/download-$$
-	rm /tmp/download-$$.zip
+	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
+	unzip -qq natural_docs
+	rm natural_docs.zip
 	mv Natural\ Docs natural_docs
 	echo "#!/bin/bash
 mono /usr/local/natural_docs/NaturalDocs.exe \$*" > /usr/local/bin/natural_docs

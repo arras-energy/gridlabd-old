@@ -9,8 +9,9 @@ function error()
 }
 
 SYSTEM=$(uname -s)
-if [ ! -f "build-aux/setup-$SYSTEM.sh" ]; then
-	build-aux/setup-manual.sh $*
+SETUP=${0/.sh/-$SYSTEM.sh}
+if [ ! -f "$SETUP" ]; then
+	${0/.sh/-manual.sh} $*
 else
-	build-aux/setup-$SYSTEM.sh $*
+	$SETUP $*
 fi
