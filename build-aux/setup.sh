@@ -10,7 +10,7 @@ function error()
 
 SYSTEM=$(uname -s)
 if [ ! -f "build-aux/setup-$SYSTEM.sh" ]; then
-    error "unable to setup $SYSTEM, build-aux/setup-$SYSTEM.sh not found"
+	build-aux/setup-manual.sh $*
 else
 	build-aux/setup-$SYSTEM.sh $*
 fi

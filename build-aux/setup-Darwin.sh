@@ -4,5 +4,5 @@ SETUP="${0/.sh/-$RELEASE}"
 if [ -f "$SETUP" ]; then
     source "$SETUP" &*
 else
-	echo "$0: no installer available for $(basename $SETUP)"
+	build-aux/setup-manual.sh
 fi

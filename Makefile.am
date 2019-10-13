@@ -296,14 +296,44 @@ rpm-prep:
 	done
 
 clean-local: python-clean
-	@rm -rf documents/html
-	@rm -rf validate.txt
+	@rm -rf $(top_srcdir)/documents/html
+	@rm -rf $(top_srcdir)/validate.txt
+	rm -f $(top_srcdir)/gridlabd.spec 
+	rm -f $(top_srcdir)/gridlabd.bin origin.txt
+	rm -rf $(top_srcdir)/build
+	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
 
 distclean-local: python-clean
-	@rm -rf autom4te.cache aclocal.m4 autoscan.log 
-	@rm -rf configure build config.log config.status configure.scan gridlabd.spec
-	@rm -rf documents/html
-	@rm -rf validate.txt
+	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
+	rm -rf $(top_srcdir)/autom4te.cache
+	rm -f $(top_srcdir)/aclocal.m4 
+	rm -f $(top_srcdir)/autoscan.log
+	rm -f $(top_srcdir)/m4/libtool.m4
+	rm -f $(top_srcdir)/ltoptions.m4
+	rm -f $(top_srcdir)/ltsugar.m4
+	rm -f $(top_srcdir)/ltversion.m4
+	rm -f $(top_srcdir)/lt~obsolete.m4
+	rm -f $(top_srcdir)/configure 
+	rm -f $(top_srcdir)/config.log 
+	rm -f $(top_srcdir)/config.status 
+	rm -f $(top_srcdir)/gridlabd.spec 
+	rm -f $(top_srcdir)/libtool 
+	rm -f $(top_srcdir)/Makefile 
+	rm -f $(top_srcdir)/Makefile.in
+	rm -f $(top_srcdir)/build-aux/ar-lib 
+	rm -f $(top_srcdir)/build-aux/compile 
+	rm -f $(top_srcdir)/build-aux/config.log 
+	rm -f $(top_srcdir)/build-aux/config.guess 
+	rm -f $(top_srcdir)/build-aux/config.sub 
+	rm -f $(top_srcdir)/build-aux/install-sh 
+	rm -f $(top_srcdir)/build-aux/ltmain.sh 
+	rm -f $(top_srcdir)/build-aux/missing 
+	rm -f $(top_srcdir)/build-aux/depcomp
+	rm -f $(top_srcdir)/gridlabd.spec 
+	rm -f $(top_srcdir)/gridlabd.bin origin.txt
+	rm -rf $(top_srcdir)/build
+	rm -rf $(top_srcdir)/documents/html
+	rm -f $(top_srcdir)/validate.txt
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
