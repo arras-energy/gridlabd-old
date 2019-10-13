@@ -66,10 +66,10 @@ PARALLEL="no"
 #
 # Enable the system setup operations to ensure the required build tools are installed.  
 # Installation setup is only needed once on any given system and updates are only 
-# needed periodically.  By default the setup operations are not performed.  Setup 
-# can be enabled using the "--setup" option. 
+# needed periodically.  By default the setup operations are performed only once.  Setup 
+# checks can be disabled using the "--no-setup" option. 
 #
-SETUP="no"
+SETUP="yes"
 
 #
 # Enable very silent operation, meaning only errors are reported. By default each
@@ -81,8 +81,8 @@ SILENT="no"
 #
 # Enables validation tests of the gridlabd install after installation is complete.
 # By default the validation tests are performed. To disable validation tests
-# use the "--no-test". To enable validation use "--validate" option.
-TEST="no"
+# use the "--no-test". To force validation use "--validate" option.
+TEST="yes"
 
 #
 # Enable system update operations to ensure the required build tools are up to date.
@@ -97,16 +97,3 @@ UPDATE="yes"
 # 'install.log'. This option can be enabled using the "--verbose" option.
 #
 VERBOSE="no"
-
-#
-# Specify the version name to use. By default, the version name is specified
-# by the 'build-aux/version.sh' script.  This cannot be changed at the command
-# line.
-#
-VERSION=`build-aux/version.sh --install`
-
-#
-# Specify the installation folder. By default this matches the prefix. This
-# cannot be changed at the command line.
-#
-INSTALL="/usr/local/$VERSION"

@@ -20,12 +20,6 @@ function on_exit()
 }
 trap on_exit EXIT
 
-# start logging
-log "START: $(date)"
-log "COMMAND: $0 $*"
-log "CONTEXT: ${USER:-unknown}@${HOSTNAME:-localhost}:$PWD"
-log "SYSTEM: $(uname -a)"
-
 # setup error handling
 function error()
 {
@@ -39,15 +33,6 @@ function require()
 {
 	$1 ${2:---version} > /dev/null 2>&1 || error "$1 is required"
 }
-require git
-if [ "$(whoami)" == "root" ]; then
-	function sudo () 
-	{
-		$*
-	}
-else
-	require sudo
-fi
 
 # check workdir
 require dirname
@@ -71,7 +56,6 @@ function info()
 	echo "CHECK=$CHECK"
 	echo "DOCS=$DOCS"
 	echo "FORCE=$FORCE"
-	echo "INSTALL=$INSTALL"	
 	echo "INDEX=$INDEX"
 	echo "LINK=$LINK"
 	echo "PREFIX=$PREFIX"
@@ -81,7 +65,6 @@ function info()
 	echo "TEST=$TEST"
 	echo "UPDATE=$UPDATE"
 	echo "VERBOSE=$VERBOSE"
-	echo "VERSION=$VERSION"
 }
 
 function help()
@@ -106,6 +89,8 @@ function help()
 	echo "  -s|--silent     Run without showing commands"
 	echo "  -v|--verbose    Run showing log output"
 	echo "  --validate      Run validation tests"
+	echo "  --install path  Override the default installation path"
+	echo "  --version name  Override the default version name"
 }
 
 # process command line options
@@ -152,8 +137,8 @@ while [ $# -gt 0 ]; do
 		INSTALL="$PREFIX/$VERSION"
 		shift 1
 		;;
-    (--setup)
-        SETUP="yes"
+    (--no-setup)
+        SETUP="no"
         ;;
     (-f|--force)
     	FORCE="yes"
@@ -174,6 +159,14 @@ while [ $# -gt 0 ]; do
 		info
 		exit 0
 		;;
+	(--version)
+		VERSION="$2"
+		shift 1
+		;;
+	(--install)
+		INSTALL="$2"
+		shift 1
+		;;
 	(*)
 		error "'$1' is not a valid option"
 		exit 1
@@ -182,12 +175,24 @@ while [ $# -gt 0 ]; do
 	shift 1
 done
 
+# start logging
+log "START: $(date)"
+log "COMMAND: $0 $*"
+log "CONTEXT: ${USER:-unknown}@${HOSTNAME:-localhost}:$PWD"
+log "SYSTEM: $(uname -a)"
 log "CONFIGURATION: {"
-if [ "$VERBOSE" == "yes" ]; then
-	tail -f -n 100 $LOG 2>/dev/null &
-fi
 info | sed -e '1,$s/\(.*\)=\(.*\)/\t\1: \2/' >> $LOG
 log "}"
+
+# check sudo
+if [ "$(whoami)" == "root" ]; then
+	function sudo () 
+	{
+		$*
+	}
+else
+	require sudo
+fi
 
 # define functions used during install processing
 function run ()
@@ -205,14 +210,23 @@ function run ()
 	$* >> $LOG 2>&1 || error "$0 failed -- see $LOG for details "
 }
 
-# run setup
-SYSTEM=$(uname -s)
-if [ "$SETUP" == "yes" ]; then
-    if [ ! -f "build-aux/setup-$SYSTEM.sh" ]; then
-        error "unable to setup $SYSTEM, build-aux/setup-$SYSTEM.sh not found"
-    fi
-	run sudo build-aux/setup-$SYSTEM.sh
+# enable verbose logging
+if [ "$VERBOSE" == "yes" ]; then
+	tail -f -n 10000 $LOG 2>/dev/null &
 fi
+
+# run setup
+if [ "$SETUP" == "yes" ]; then
+    if [ ! -f "build-aux/setup.sh" ]; then
+        error "build-aux/setup.sh not found"
+    fi
+	run sudo build-aux/setup.sh
+fi
+
+# dynamic variables
+require git
+VERSION=${VERSION:-`build-aux/version.sh --install`}
+INSTALL=${INSTALL:-$PREFIX/$VERSION}
 
 # run checks
 if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
