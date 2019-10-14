@@ -1,6 +1,43 @@
 Getting Started with GridLAB-D
 Copyright (C) 2009 Battelle Memorial Institute
 
+# Catalina
+
+Coming soon...
+
+# Mojave
+
+To manually build GridLAB-D under Mojave you will need to install `git` if it
+is not already installed. Then do the following
+
+~~~
+bash$ brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/install/master/install)"
+bash$ brew doctor
+bash$ brew install autoconf automake libtool gnu-sed python3
+bash$ pip3 install numpy pandas matplolib
+bash$ ln -s /usr/local/bin/gsed /usr/local/bin/sed
+bash$ export PATH=/usr/local/bin:/usr/bin:/bin
+bash$ git clone https://github.com/dchassin/gridlabd gridlabd
+bash$ cd gridlabd
+bash$ autoreconf -isf
+bash$ ./configure
+bash$ make -j30 install
+bash$ gridlabd --version
+~~~
+
+The last command should display something like
+~~~
+GridLAB-D 4.2.0-191010
+~~~
+
+At this point it is recommended that you validation your installation with the following command
+~~~
+bash$ gridlabd --validate
+~~~
+This process can take several minutes.
+
+# Older versions of Mac OS Z
+
 Building GridLAB-D with the Auto-Toolset Under Linux and Other Unix Variants
 You must have autoconf, automake, libtool, and xerces-c installed to build 
 GridLAB-D in this way. With newer versions of the mac os, you will also need 
