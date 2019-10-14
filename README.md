@@ -20,6 +20,8 @@ Note that this alias will interfere with the host-based installation.
 
 # Developer quick start
 
+Linux developers should first consult https://github.com/dchassin/gridlabd/blob/master/README-LINUX.md and Mac OS X developers should consult https://github.com/dchassin/gridlabd/blob/master/README-MACOSX.md.
+
 Assuming your development system is ready (see https://github.com/dchassin/gridlabd/wiki/Install#mac-osx-and-linux for details), you can "quickly" download and build a host-based installation from a branch using the following commands:
 ~~~
   host% git clone https://github.com/dchassin/gridlabd -b _branch-name_ _work-folder_
