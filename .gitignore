@@ -24,7 +24,6 @@ build-aux/install-sh
 build-aux/ltmain.sh
 build-aux/missing
 gldcore/stamp-h1
-autotest/*/*
 
 # Prerequisites
 *.d
@@ -103,8 +102,10 @@ gldcore/config.h.in~
 */*/.dirstamp
 gridlabd.bin
 install/
-*/autotest/*/
-*/*/*/autotest/*/
+autotest/test_*/
+*/autotest/test_*/
+*/*/autotest/test_*/
+*/*/*/autotest/test_*/
 validate.txt
 .libs/
 third_party/xerces*/*
@@ -127,6 +128,3 @@ models/ieee123/config/local.glm
 *.tmp
 gldcore/link/python/example.png
 *-checkpoint.ipynb
-autotest/model_save.glm
-install.log
-setup.ok
