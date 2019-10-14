@@ -1,4 +1,4 @@
-# Getting Started with GridLAB-D on Mac OS X
+# Manual GridLAB-D Installation on Mac OS X
 
 ## Catalina
 
