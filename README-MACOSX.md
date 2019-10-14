@@ -37,46 +37,48 @@ This process can take several minutes.
 
 ## Older versions of Mac OS Z
 
-Building GridLAB-D with the Auto-Toolset Under Linux and Other Unix Variants
-You must have autoconf, automake, libtool, and xerces-c installed to build 
-GridLAB-D in this way. With newer versions of the mac os, you will also need 
-gnu sed and have it symlinked to sed.  To install the necessary tools, we 
+If building using the method for the current release of Mac OS X doesn't work, 
+try following these instructions for older releases of OS X.
+
+You must have `autoconf`, `automake`, `libtool`, and `python3` installed to build 
+GridLAB-D manually. With newer versions of the OS X, you will also need 
+`gnu-sed` and have it symlinked to `sed`.  To install the necessary tools, we 
 recommend using XCode and homebrew.
 
 1. Install XCode
 
-In the XCode menu, select Preferences.  Select the Downloads tab.  Select 
-Command Line Tools and install.
+In the `XCode` menu, select `Preferences`.  Select the `Downloads` tab.  Select 
+`Command Line Tools` and `install`.
 
-2. Install homebrew
+2. Install `homebrew`
       % sudo ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
       % sudo brew doctor
 
-3. Install autoconf, automake, and libtool
+3. Install `autoconf`, `automake`, and `libtool`
       % sudo brew install autoconf
       % sudo brew install automake
       % sudo brew install libtool
 
-The above commands should create symlinks in /usr/local/bin to each of these
+The above commands should create symlinks in `/usr/local/bin` to each of these
 tools.  On some combinations of XCode version and Mac OSX version, the
 symlinks don't get created.  If this is the case, create them with
       % sudo brew ln --force autoconf
       % sudo brew ln --force automake
       % sudo brew ln --force libtool
 
-4. Install gnu sed
+4. Install `gnu-sed`
       % sudo brew install gnu-sed
 
-Symlink gsed to sed
+Then symlink `gsed` to `sed`
       % sudo ln -s /usr/local/bin/gsed /usr/local/bin/sed
 
-Make sure symlinked sed is the first instance of sed in the path
+Make sure symlinked `sed` is the first instance of sed in the path
       % which sed
 
-If /usr/local/bin/sed is not the response, put /usr/local/bin first in the path
+If `/usr/local/bin/sed` is not the response, put `/usr/local/bin` first in the path
 you can do this temporarily using:
       % export PATH=/usr/local/bin:$PATH
-or permanently by editing the file /etc/paths
+or permanently by editing the file `/etc/paths`
 
 5. Download the source code
 
@@ -87,7 +89,7 @@ If you are building from a source distribution you must first run:
       % autoreconf -isf
       % ./configure
 
-If you get a warning about XercesC, you will need to build and install XercesC:
+If you get a warning about Xerces-C, you will need to build and install Xerces-C:
 
       % (cd third_party; source install_xercesc)
       % ./configure
