@@ -1,11 +1,10 @@
-Getting Started with GridLAB-D
-Copyright (C) 2009 Battelle Memorial Institute
+# Getting Started with GridLAB-D on Mac OS X
 
-# Catalina
+## Catalina
 
 Coming soon...
 
-# Mojave
+## Mojave
 
 To manually build GridLAB-D under Mojave you will need to install `git` if it
 is not already installed. Then do the following
@@ -36,7 +35,7 @@ bash$ gridlabd --validate
 ~~~
 This process can take several minutes.
 
-# Older versions of Mac OS Z
+## Older versions of Mac OS Z
 
 Building GridLAB-D with the Auto-Toolset Under Linux and Other Unix Variants
 You must have autoconf, automake, libtool, and xerces-c installed to build 
@@ -44,16 +43,16 @@ GridLAB-D in this way. With newer versions of the mac os, you will also need
 gnu sed and have it symlinked to sed.  To install the necessary tools, we 
 recommend using XCode and homebrew.
 
-Install XCode
+1. Install XCode
 
 In the XCode menu, select Preferences.  Select the Downloads tab.  Select 
 Command Line Tools and install.
 
-Install homebrew
+2. Install homebrew
       % sudo ruby -e "$(curl -fsSL https://raw.github.com/mxcl/homebrew/go)"
       % sudo brew doctor
 
-Install autoconf, automake, and libtool
+3. Install autoconf, automake, and libtool
       % sudo brew install autoconf
       % sudo brew install automake
       % sudo brew install libtool
@@ -65,7 +64,7 @@ symlinks don't get created.  If this is the case, create them with
       % sudo brew ln --force automake
       % sudo brew ln --force libtool
 
-Install gnu sed
+4. Install gnu sed
       % sudo brew install gnu-sed
 
 Symlink gsed to sed
@@ -79,92 +78,61 @@ you can do this temporarily using:
       % export PATH=/usr/local/bin:$PATH
 or permanently by editing the file /etc/paths
 
+5. Download the source code
+
 If you are building from a source distribution you must first run:
 
-      % cd gridlab-d/trunk
+      % git clone https://github.com/<user>/<repo> gridlabd
+      % cd gridlabd
       % autoreconf -isf
-
-You will most likely need to build and install XercesC:
-
-      % cd third_party
-      % . install_xercesc
-
-If you are using the powerflow module, you will need to build SuperLU:
-
-      % cd third_party
-      % gunzip SuperLU*.gz
-      % tar xvf SuperLU*.tar
-      % cd SuperLU_3.1
-
-Generally you simply follow the build instructions in the README file. In
-addition you need to edit superLU's make.inc file as follows:
-  -- Change SuperLUroot to point to your unzipped SuperLU_3.1 directory.
-  -- (optional) To use the MacOSX optimized BLAS library (for highest 
-      performance), replace the existing BLASLIB line with:
-        BLASDEF = -DUSE_VENDOR_BLAS
-        BLASLIB = -framework Accelerate
-Once everything is setup actually build SuperLU using:
-      % make 
-
-You may get an error at the end regarding ldconfig--ignore it.  
-
-Finally change back to the main code directory, configure and build
-
-      % cd ../..
       % ./configure
-      % make 
 
-Note: If you encounter "can't create output" errors, you may have permissions
-problems in one of the many include or library directors (some hidden). If this
-happens you may have to change the folders back to being owned by your user
-account using:
-      % sudo chown -R YOUR_USER_NAME *
-Run this from your main code directory to include all subfolders. The sloppier
-alternative is to use sudo when running make.
+If you get a warning about XercesC, you will need to build and install XercesC:
 
+      % (cd third_party; source install_xercesc)
+      % ./configure
 
-This builds GridLAB-D from the makefiles provided in the distribution, and will
-create targets in the same directory as the input source.  Libraries are
-created using libtool which outputs libraries in a directory named '.libs' in
-the input's source directory.  Use 'make install' to install GridLAB-D on the
-system.  You must be superuser (or use sudo) to install to the system. If you
-want to install GridLAB-D to a different location, use:
+Once everything is setup you can build and install `gridlabd`:
+      % make -j20 install
 
-      % make install prefix=<install-path>.  
-
-where <install-path> is the full path to the installation directory.
-
-Whenever changes have been made to configure.ac or any of the makefile.am
+You can test your installation by using the `--validate` option:
+      % gridlabd --validate
+      
+Whenever changes have been made to `configure.ac` or any of the `makefile.am`
 files, the following build steps must be executed from the source-path folder:  
-	1. Use 'autoreconf -isf' to update the configure script.
-	2. Use './configure' to create the makefiles.
-	3. Repeat the above command to make the project as usual.
+      % autoreconf -isf
+      % ./configure
+      % make -j20 install
 
-Make should detect changes to configure.ac and makefile.am files and
-automatically rerun steps 1 and 2 as needed.  If files are added to a module,
-add the filename to makefile.am in that module's directory and remake. If make
-does not automatically perform the required steps, rerun autoreconf -isf and
-./configure manually.
+Make should detect changes to `configure.ac` and `makefile.am` files and
+automatically rerun the first two commands as needed.  If files are added to a module,
+add the filename to `makefile.am` in that module's directory and remake. If `make`
+does not automatically perform the required steps, rerun `autoreconf -isf` and
+`./configure` manually.
 
-To distribute the source code, it is best to check out a clean copy of the
-source code and then package the resulting source tree using the
-utilities/release-src command from the <source-path> directory.
+If you checkout a branch that has different files, you may have to clean the files
+to match a new distribution first:
+      % make distclean -i
+      % autoreconf -isf
+      % ./configure
+      % make -j20 install
 
-On Apple OS-X, the GNU libtools are prefixed with a 'g' to differentiate them
-from the NeXTStep libtool.  Before performing the steps above, tell the
-autotoolset where to find libtool and libtoolize by setting the LIBTOOL and
+To distribute the source code, it is best to fork the project and begin work from
+your own GitHub repository.
+
+On some Mac OS X systems, the GNU libtools are prefixed with a 'g' to differentiate them
+from the NeXTStep libtool.  Before performing the steps above, you may have to tell the
+autotool set where to find `libtool` and `libtoolize` by setting the LIBTOOL and
 LIBTOOLIZE environment variables.  The following lines are an example:
 
     % export LIBTOOL=/usr/bin/glibtool
     % export LIBTOOLIZE=/usr/bin/glibtoolize
     % autoreconf -isf
  
-For information on the sample models, see samples/README.
+For information on the sample models, see `models/README.md`.
 
-On some platforms you may run into a problem with rpl_malloc being undefined
-during the build.  If so, set the following environment before running
-./configure
-
+On some very old version of Mac OS X you may run into a problem with `rpl_malloc` being undefined
+during the build.  If so, set the following environment before running `./configure`
     % export ac_cv_func_malloc_0_nonnull=yes 
 
 
