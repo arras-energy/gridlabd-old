@@ -20,4 +20,6 @@ case $1 in
         echo "$SVN" ;;
     --install )
         echo "gridlabd-$MAJ.$MIN.$PAT-$NUM-$BRA-$SYS-$HDW" ;;
+    --name )
+        echo "$MAJ.$MIN.$PAT-$NUM-$BRA" ;;
 esac

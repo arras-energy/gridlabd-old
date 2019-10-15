@@ -15,7 +15,9 @@ fi
 
 # local folder
 VAR="/usr/local/var/gridlabd"
-sudo mkdir -p $VAR
+if [ ! -d "$VAR" ]; then
+	mkdir -p $VAR || ( sudo make -p $VAR && sudo chown ${USER:-root} $VAR )
+fi
 
 # setup logging
 LOG="$VAR/install.log"
@@ -36,7 +38,7 @@ function log()
 # setup exit handling
 function on_exit()
 {
-	pkill tail 1>/dev/null 2>&1
+	pkill -QUIT tail 1>/dev/null 2>&1
 	log "STOP: $(date)"
 	log "STATUS: ${STATUS:-ok}"
 }
@@ -45,7 +47,8 @@ trap on_exit EXIT
 # setup error handling
 function error()
 {
-	echo "ERROR: $*" | tee -a $LOG > /dev/stderr
+	[ "${SILENT:-no}" == "no" -a "${VERBOSE:-no}" == "no" ] && echo "ERROR: $*" > /dev/stderr
+	echo "ERROR: $*" >> $LOG 
 	STATUS="error"
 	exit 1
 }
@@ -57,7 +60,7 @@ function require()
 }
 
 # check workdir
-require dirname
+require dirname -
 cd $(dirname $0)
 if [ ! -f "install.sh" -o ! -d "build-aux" ]; then
 	error "$0 must be run from the source root"
@@ -91,28 +94,29 @@ function info()
 
 function help()
 {
-	echo "Syntax: $0 <options>"
-	echo "Options"
-	echo "  -h|--help       Print this helpful output"
-	echo "  --info          Print information about this install"
-	echo "  -c|--no-check   Do not check system for requirements"
-	echo "  -d|--no-docs    Do not install documentation"
-	echo "  -f|--force      Force install into existing target folder"
-	echo "  -i|--no-index   Do not index data archives"
-	echo "  -l|--no-link    Do not link new install to activate it"
-	echo "  -t|--no-test    Do not run validation tests"
-	echo "  -u|--no-update  Do not update system to meet requirements"
-	echo "  -p|--parallel   Enable parallelism when possible"
-	echo "  --prefix path   Set install prefix"
-	echo "  --save          Save the current configuration as default"
-    echo "  --setup         Perform system setup"
-	echo "  --reset         Reset the configuration to default"
-	echo "  -q|--quick      Run only updates instead of a clean install"
-	echo "  -s|--silent     Run without showing commands"
-	echo "  -v|--verbose    Run showing log output"
-	echo "  --validate      Run validation tests"
-	echo "  --install path  Override the default installation path"
-	echo "  --version name  Override the default version name"
+	cat <<-END 
+	Syntax: $0 [<install-options>] [<configure-options>]
+	Install options:
+	  -h   --help            Print this helpful output
+	       --info            Print information about this install
+	  -c   --no-check        Do not check system for requirements
+	  -d   --no-docs         Do not install documentation
+	  -f   --force           Force install into existing target folder
+	  -i   --no-index        Do not index data archives
+	  -l   --no-link         Do not link new install to activate it
+	  -t   --no-test         Do not run validation tests
+	  -u   --no-update       Do not update system to meet requirements
+	  -p   --parallel        Enable parallelism when possible
+	       --prefix <path>   Set install prefix
+	       --save            Save the current configuration as default
+	       --no-setup        Perform system setup
+	       --reset           Reset the configuration to default
+	  -q   --quick           Run only updates instead of a clean install
+	  -s   --silent          Run without showing commands
+	  -v   --verbose         Run showing log output
+	       --validate        Run validation tests
+	       --version <name>  Override the default version name
+	END
 }
 
 # process command line options
@@ -221,7 +225,7 @@ function run ()
 	T0=$(date '+%s')
 	$* >> $LOG 2>&1 || error "$0 failed -- see $LOG for details "
 	T1=$(date '+%s')
-	log "TIME: $((T1-T0)) seconds"
+	log "OK: done in $((T1-T0)) seconds"
 }
 
 # enable verbose logging
@@ -236,32 +240,44 @@ if [ "$SETUP" == "yes" ]; then
     fi
 	SOK="$VAR/setup.ok"
     if [ ! -f "$SOK" -o "$FORCE" == "yes" ]; then
-		run sudo build-aux/setup.sh
+		run build-aux/setup.sh
 		date > "$SOK"
+	elif [ -f "$SOK" ]; then
+		log "SETUP: already completed at $(cat $SOK)"
 	else
-		log "SETUP: already completed at $(cat setup.ok)"
+		log "SETUP: skipping"
 	fi
 fi
 
 # dynamic variables
 require git
-VERSION=${VERSION:-`build-aux/version.sh --install`}
-INSTALL=${INSTALL:-$PREFIX/$VERSION}
-log "VERSION: $VERSION"
-log "INSTALL: $INSTALL"
+VERSION=${VERSION:-`build-aux/version.sh --name`}
+INSTALL=${INSTALL:-$PREFIX/opt/gridlabd/$VERSION}
 
 # run checks
 if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd" ]; then
-	error "the existing gridlabd version cannot be managed and must be uninstalled first"
-	# TODO: automate this someday
+	OLDVER="$(gridlabd --version | cut -f2 -d' ')-saved_$(date '+%y%m%d')"
+	VDIR=$OLDVER
+	while [ -e $PREFIX/opt/gridlabd/$VDIR ]; do
+		VDIR=${OLDVER}_${VNUM:-0}
+		VNUM=$((${VNUM:-0}+1))
+	done
+	log "BACKUP: saving $OLDVER to $PREFIX/opt/gridlabd/$VDIR and linking it back to current version"
+	run mkdir -p $PREFIX/opt/gridlabd/$VDIR || error "unable to create $VDIR to save current version"
+	[ ! -e $PREFIX/opt/gridlabd/current ] && run ln -s $PREFIX/opt/gridlabd/$VDIR $PREFIX/opt/gridlabd/current 
+	for item in bin include lib share; do
+		[ ! -d $PREFIX/opt/gridlabd/$VDIR/$item ] && run mkdir -p $PREFIX/opt/gridlabd/$VDIR/$item
+		[ ! -d $PREFIX/opt/gridlabd/$VDIR/$item ] && run mv $PREFIX/$item/gridlabd* $PREFIX/opt/gridlabd/$VDIR/$item/
+		[ ! -e $PREFIX/opt/gridlabd/current/$item/gridlabd ] && run ln -s $PREFIX/opt/gridlabd/$VDIR/$item/gridlabd $PREFIX/opt/gridlabd/current/$item/gridlabd
+		[ ! -e $PREFIX/$item/gridlabd ] && run ln -s $PREFIX/opt/gridlabd/current/$item /$PREFIX/$item/gridlabd
+	done
+	[ ! -e $PREFIX/bin/gridlabd.bin ] && run ln -s $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	error "stopping here for debugging reasons -- this error message should be deleted"
 fi
 if [ "$CHECK" == "yes" ]; then
 	if [ "$LINK" == "yes" -a -d "$PREFIX/gridlabd" -a ! -L "$PREFIX/gridlabd" ]; then
 	    error "$PREFIX/gridlabd exists but it is not a symbolic link"
 	fi
-	# if [ $(whoami) == "root" -a "$FORCE" == "no" ]; then
-	#     error "running $0 as root is not recommended, use --force to override this restriction"
-	# fi
 	if [ "$DOCS" == "yes" ]; then
 		require doxygen
 		require mono
@@ -284,13 +300,12 @@ if [ ! -d "autom4te.cache" -o "$QUICK" == "no" ]; then
 fi
 
 # prep install dir
+log "VERSION: $VERSION"
+log "INSTALL: $INSTALL"
 if [ -e "$INSTALL" -a "$FORCE" == "no" ]; then
 	error "$INSTALL already exists, please delete it first"
 fi
-run sudo mkdir -p "$INSTALL"
-if [ ! "${USER:-root}" == "root" ]; then
-	run sudo chown -R "$USER" "$INSTALL"
-fi
+mkdir -p "$INSTALL" || ( run sudo mkdir -p "$INSTALL" && run sudo chown -R "${USER:-root}" "$INSTALL" )
 if [ ! -f "configure" -o "$QUICK" == "no" ]; then
     run ./configure --prefix="$INSTALL" $*
 fi
@@ -305,7 +320,7 @@ if [ "$PARALLEL" == "yes" ]; then
 fi
 
 # build everything
-export PATH=$INSTALL/bin:/usr/local/bin:/usr/bin:/bin
+export PATH=/usr/local/bin:/usr/bin:/bin
 run make -j$((3*$NPROC))
 run make install
 if [ "$DOCS" == "yes" ]; then
@@ -317,19 +332,23 @@ if [ "$INDEX" == "yes" ]; then
 	run make index
 fi
 if [ "$TEST" == "yes" ]; then
+	export PATH=$INSTALL/bin:$PATH
 	export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
 	run $INSTALL/bin/gridlabd -T $NPROC --validate
 fi
 
 # activate this version
 if [ -x "$INSTALL/bin/gridlabd-version" -a "$TEST" == "yes" ]; then
+	log "automatic activation"
 	run $INSTALL/bin/gridlabd version set "$VERSION"
 elif [ "$LINK" == "yes" ]; then
-	run sudo rm -f "$PREFIX/gridlabd"
-	run sudo ln -s "$INSTALL" "$PREFIX/gridlabd"
-	if [ ! -f "$PREFIX/bin/gridlabd" ]; then
-		run sudo ln -s "$PREFIX/gridlabd/bin/gridlabd" "$PREFIX/bin/gridlabd"
-	fi
+	log "manual activation"
+	run rm -f "$PREFIX/opt/gridlabd/current"
+	run ln -s "$INSTALL" "$PREFIX/opt/gridlabd/current"
+	for dir in bin lib include lib share; do
+		[ ! -e $PREFIX/$dir/gridlabd ] && run ln -s $PREFIX/opt/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
+	done
+	[ ! -e $PREFIX/bin/gridlabd.bin ] && run ln -s $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
 fi
 
 # all done :-)
