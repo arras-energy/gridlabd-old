@@ -27,7 +27,7 @@
 const char *version_copyright(void)
 {
 	static char buffer[1024];
-	sprintf(buffer,"Copyright (C) 2004-%d\nBattelle Memorial Institute\nAll Rights Reserved", REV_YEAR);
+	sprintf(buffer,"Copyright (C) 2004-%d, Battelle Memorial Institute\nCopyright (C) 2016-%d, Regents of the Leland Stanford Junior University\nAll Rights Reserved", REV_YEAR, REV_YEAR);
 	return buffer;
 }
 

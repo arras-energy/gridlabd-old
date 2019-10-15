@@ -574,6 +574,44 @@ int GldCmdarg::version(int argc, const char *argv[])
 		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
 	}
+	else if ( strcmp(opt,"json") == 0 )
+	{
+		bool old = global_suppress_repeat_messages;
+		global_suppress_repeat_messages = false;
+		output_message("{");
+#define OUTPUT(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\",",TAG,VALUE)
+#define OUTPUT_LAST(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\"\n}",TAG,VALUE)
+#define OUTPUT_LIST_START(TAG) output_message("\t\"%s\" : [",TAG)
+#define OUTPUT_LIST_ITEM(VALUE) output_message("\t\t\"%s\",",VALUE)
+#define OUTPUT_LIST_END(VALUE) output_message("\t\t\"%s\"],",VALUE)
+#define OUTPUT_MULTILINE(TAG,VALUE) {\
+		const char *value = VALUE;\
+		char *token=NULL, *last=NULL;\
+		char buffer[strlen(value)+1];\
+		strcpy(buffer,value);\
+		OUTPUT_LIST_START(TAG);\
+		while ( (token=strtok_r(token?NULL:buffer,"\n",&last)) != NULL )\
+		{\
+			OUTPUT_LIST_ITEM(token);\
+		}\
+		OUTPUT_LIST_END("");\
+	}
+		OUTPUT("application","%s",PACKAGE);
+		OUTPUT("version","%s",PACKAGE_VERSION);
+		OUTPUT("build_number","%06d",BUILDNUM);
+		OUTPUT("branch","%s",BRANCH);
+		OUTPUT("options","%s",BUILD_OPTIONS);
+		OUTPUT_MULTILINE("status",BUILD_STATUS);
+		OUTPUT_MULTILINE("copyright",version_copyright());
+		OUTPUT_MULTILINE("license",legal_license_text());
+		OUTPUT("system","%s",BUILD_SYSTEM);
+		OUTPUT("release","%s",BUILD_RELEASE);
+		OUTPUT("commit","%s",BUILD_ID);
+		OUTPUT("email","%s",PACKAGE_BUGREPORT);
+		OUTPUT_LAST("origin","%s",BUILD_URL);
+		global_suppress_repeat_messages = old;
+		return 0;
+	}
 	else
 	{
 		output_error("version option '%s' is not valid", opt);

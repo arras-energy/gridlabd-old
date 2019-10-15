@@ -73,29 +73,10 @@ SET_MYCONTEXT(DMC_LEGAL)
 STATUS legal_notice(void)
 {
 	/* suppress copyright info if copyright file exists */
-	char copyright[1024];
-	char *end;
 	int suppress = global_suppress_repeat_messages;
-	char path[1024];
 	global_suppress_repeat_messages = 0;
-	sprintf(copyright,"GridLAB-D %s", version_copyright());
-	end = strchr(copyright,'\n');
-	while ((end = strchr(copyright,'\n'))!=NULL)
-	{
-		*end = ' ';
-	}
-	if (find_file(copyright,NULL,R_OK,path,sizeof(path))==NULL)
-	{
-		output_message("GridLAB-D %d.%d.%d-%d (%s) %d-bit %s %s\n%s", 
-			global_version_major, global_version_minor, global_version_patch, global_version_build, 
-			global_version_branch, 8*sizeof(void*), global_platform,
-#ifdef _DEBUG
-		"DEBUG",
-#else
-		"RELEASE",
-#endif
-		copyright);
-	}
+	output_message("%s %s",PACKAGE_NAME,PACKAGE_VERSION);
+	output_message(version_copyright());
 	global_suppress_repeat_messages = suppress;
 	return SUCCESS; /* conditions of use have been met */
 }
@@ -103,16 +84,14 @@ STATUS legal_notice(void)
 /** Displays the current user license
 	@return SUCCESS when conditions of use have been satisfied, FAILED when conditions of use have not been satisfied
  **/
-STATUS legal_license(void)
+const char *legal_license_text(void)
 {
-	int surpress = global_suppress_repeat_messages;
-	global_suppress_repeat_messages = 0;
-	output_message(
-		"%s\n"
-		"1. Battelle Memorial Institute (hereinafter Battelle) hereby grants\n"
+	return 
+		"1. Battelle Memorial Institute and the Regents of the Leland Stanford\n"
+		"   Junior University (hereinafter known as the ''Grantors'') hereby grant\n"
 		"   permission to any person or entity lawfully obtaining a copy of\n"
-		"   this software and associated documentation files (hereinafter \"the\n"
-		"   Software\") to redistribute and use the Software in source and\n"
+		"   this software and associated documentation files (hereinafter ''the\n"
+		"   Software'') to redistribute and use the Software in source and\n"
 		"   binary forms, with or without modification.  Such person or entity\n"
 		"   may use, copy, modify, merge, publish, distribute, sublicense,\n"
 		"   and/or sell copies of the Software, and may permit others to do so,\n"
@@ -123,11 +102,11 @@ STATUS legal_license(void)
 		"     notice, this list of conditions and the following disclaimer in\n"
 		"     the documentation and/or other materials provided with the\n"
 		"     distribution.\n"
-		"   - Other than as used herein, neither the name Battelle Memorial\n"
-		"     Institute or Battelle may be used in any form whatsoever without\n"
-		"     the express written consent of Battelle.\n"
+		"   - Other than as used herein, the name of a Grantor may not be used\n"
+		"     in any form whatsoever without the express written consent of said\n"
+		"     Grantor.\n"
 		"2. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
-		"   \"AS IS\" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
+		"   ''AS IS'' AND WITHOUT EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
 		"   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n"
 		"   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL BATTELLE OR\n"
 		"   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,\n"
@@ -137,7 +116,7 @@ STATUS legal_license(void)
 		"   OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING\n"
 		"   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n"
 		"   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
-		"3. The Software was produced by Battelle under Contract No.\n"
+		"3. The Software was originally produced by Battelle under Contract No.\n"
 		"   DE-AC05-76RL01830 with the Department of Energy.  The U.S. Government\n"
 		"   is granted for itself and others acting on its behalf a nonexclusive,\n"
 		"   paid-up, irrevocable worldwide license in this data to reproduce,\n"
@@ -149,8 +128,15 @@ STATUS legal_license(void)
 		"   express or implied, or assumes any legal liability or responsibility\n"
 		"   for the accuracy, completeness or usefulness of any data, apparatus,\n"
 		"   product or process disclosed, or represents that its use would not\n"
-		"   infringe privately owned rights.\n"
-		"\n", version_copyright());
+		"   infringe privately owned rights.\n";
+}
+
+STATUS legal_license(void)
+{
+	int surpress = global_suppress_repeat_messages;
+	global_suppress_repeat_messages = 0;
+	legal_notice();
+	output_message(legal_license_text());
 	global_suppress_repeat_messages = surpress;
 	return SUCCESS;
 }

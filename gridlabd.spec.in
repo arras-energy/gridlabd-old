@@ -10,21 +10,22 @@ URL: https://github.com/dchassin/gridlabd
 Source0: %{name}_%{version}.tar.gz
 
 %description
-GridLAB-D™ is a new power distribution system simulation and analysis tool
-that provides valuable information to users who design and operate
+GridLAB-D™ is a power distribution system simulation and analysis tool
+that provides information to users who design and operate modern
 distribution systems, and to utilities that wish to take advantage of the
-latest energy technologies. It incorporates the most advanced modeling
-techniques, with high-performance algorithms to deliver the best in end-use
-modeling. GridLAB-D is coupled with distribution automation models and
-software integration tools for users of many power system analysis tools.
+latest energy technologies. It incorporates advanced modeling
+techniques with high-performance algorithms to deliver high resolution end-use
+modeling in moder power systems. GridLAB-D is coupled with distribution 
+automation models and software integration tools for users of many power 
+system analysis tools.
 
 GridLAB-D was developed by the U.S. Department of Energy (DOE) at Pacific
 Northwest National Laboratory (PNNL), in collaboration with industry and
 academia.
 
-GridLAB-D was enhanced under funding from the California Energy Commission
-under grants EPC-17-043, EPC-17-046, and EPC-17-047 by SLAC National 
-Accelerator Laboratory, which is operated for the US Department of Energy 
+This version of GridLAB-D was enhanced at SLAC National Accelerator Laboratory
+by the California Energy Commission under grants EPC-17-043, EPC-17-046, and EPC-17-047.
+SLAC National Accelerator Laboratory, which is operated for the US Department of Energy 
 by Stanford University under Contract DE-AC02-76SF00515.
 
 %prep
@@ -60,17 +61,23 @@ Summary: Development files for GridLAB-D.
 Group: Simulators
 
 %description devel
-GridLAB-D™ is a new power distribution system simulation and analysis tool
-that provides valuable information to users who design and operate
+GridLAB-D™ is a power distribution system simulation and analysis tool
+that provides information to users who design and operate modern
 distribution systems, and to utilities that wish to take advantage of the
-latest energy technologies. It incorporates the most advanced modeling
-techniques, with high-performance algorithms to deliver the best in end-use
-modeling. GridLAB-D™ is coupled with distribution automation models and
-software integration tools for users of many power system analysis tools.
+latest energy technologies. It incorporates advanced modeling
+techniques with high-performance algorithms to deliver high resolution end-use
+modeling in moder power systems. GridLAB-D is coupled with distribution 
+automation models and software integration tools for users of many power 
+system analysis tools.
 
-GridLAB-D™ was developed by the U.S. Department of Energy (DOE) at Pacific
+GridLAB-D was developed by the U.S. Department of Energy (DOE) at Pacific
 Northwest National Laboratory (PNNL), in collaboration with industry and
 academia.
+
+This version of GridLAB-D was enhanced at SLAC National Accelerator Laboratory
+by the California Energy Commission under grants EPC-17-043, EPC-17-046, and EPC-17-047.
+SLAC National Accelerator Laboratory, which is operated for the US Department of Energy 
+by Stanford University under Contract DE-AC02-76SF00515.
 
 %files devel
 %defattr(-,root,root,-)
