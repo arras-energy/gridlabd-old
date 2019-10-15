@@ -40,7 +40,10 @@ function on_exit()
 {
 	log "STOP: $(date)"
 	log "STATUS: ${STATUS:-ok}"
-	pkill -STOP tail 1>/dev/null 2>&1
+	sleep 1
+	if [ "$VERSION" == "yes" ]; then
+		kill %1
+	fi
 }
 trap on_exit EXIT
 
