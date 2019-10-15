@@ -2,8 +2,8 @@
 
 # Install needed system tools
 # update first
-apt -q update
-apt-get -q tzdata -y
+apt-get -q update
+apt-get -q install tzdata -y
 
 # install python 3.7
 apt-get -q install software-properties-common -y
