@@ -14,7 +14,7 @@ fi
 if [ "${USER:-root}" == "root" ]; then
 	function sudo ()
 	{
-		$0 $*
+		$*
 	}
 fi
 sudo $SETUP $*
