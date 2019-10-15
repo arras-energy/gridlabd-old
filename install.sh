@@ -38,9 +38,9 @@ function log()
 # setup exit handling
 function on_exit()
 {
-	pkill -QUIT tail 1>/dev/null 2>&1
 	log "STOP: $(date)"
 	log "STATUS: ${STATUS:-ok}"
+	pkill -STOP tail 1>/dev/null 2>&1
 }
 trap on_exit EXIT
 
