@@ -20,44 +20,24 @@ function help()
 
 function set()
 {
-
-#	if [ ! -d /usr/local/]
-
-	# upgrade from older version
-	SAVENAME="gridlabd-$(date '+%y%m%d_%H%M%S')"
-
-	# set main script
-	if [ -e /usr/local/bin/gridlabd -a ! -L /usr/local/bin/gridlabd ]; then
-		mkdir -p /usr/local/$SAVENAME/bin
-		mv /usr/local/bin/gridlabd /usr/local/$SAVENAME/bin/
-		ln -s /usr/local/gridlabd/bin/gridlabd /usr/local/bin/gridlabd
-	fi
-	if [ -e /usr/local/lib/gridlabd -a ! -L /usr/local/lib/gridlabd ]; then
-		mkdir -p /usr/local/$SAVENAME/lib
-		mv /usr/local/lib/gridlabd /usr/local/$SAVENAME/lib
-		ln -s /usr/local/gridlabd/lib/gridlabd /usr/local/lib/gridlabd
-	fi
-	if [ -e /usr/local/share/gridlabd -a ! -L /usr/local/share/gridlabd ]; then
-		mkdir -p /usr/local/$SAVENAME/share
-		mv /usr/local/share/gridlabd /usr/local/$SAVENEMT/share
-		ln -s /usr/local/gridlabd/share/gridlabd /usr/local/share/gridlabd
-	fi
-	ln -s /usr/local/$1
+	ln -sf /usr/local/opt/gridlabd/*$1* /usr/local/opt/gridlabd/current
+	for F in bin lib share include; do
+		[ ! -f /usr/local/$F/gridlabd ] ln -sf /usr/local/opt/gridlabd/current/$F/gridlabd /usr/local/$F/gridlabd
+	done
+	[ ! -f /usr/local/bin/gridlabd.bin ] && ln -sf /usr/local/opt/gridlabd/current/bin/gridlabd.bin /usr/local/bin/gridlabd.bin
 }
 
 function show()
 {
-	if [ ! -x /usr/local/bin/gridlabd ]; then
-		error "no active gridlabd version found"
-	fi
+	basename /usrlocal/opt/gridlabd/current
 }
 
 function list()
 {
 	if [ $# -eq 0 ]; then
-		(cd /usr/local ; ls -1d gridlabd-*)
+		basename /usr/local/opt/gridlabd/* | grep -v '^current$'
 	else
-		(cd /usr/local ; ls -1d /usr/local/gridlabd-*$1*)
+		basename /usr/local/opt/gridlabd/*$1*
 	fi
 }
 

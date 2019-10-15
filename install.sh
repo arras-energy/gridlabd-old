@@ -83,6 +83,7 @@ function info()
 	echo "FORCE=$FORCE"
 	echo "INDEX=$INDEX"
 	echo "LINK=$LINK"
+    echo "PARALLEL=$PARALLEL"
 	echo "PREFIX=$PREFIX"
 	echo "QUICK=$QUICK"
     echo "SETUP=$SETUP"
@@ -264,14 +265,14 @@ if [ "$LINK" == "yes" -a -f "$PREFIX/bin/gridlabd" -a ! -L "$PREFIX/bin/gridlabd
 	done
 	log "BACKUP: saving $OLDVER to $PREFIX/opt/gridlabd/$VDIR and linking it back to current version"
 	run mkdir -p $PREFIX/opt/gridlabd/$VDIR || error "unable to create $VDIR to save current version"
-	[ ! -e $PREFIX/opt/gridlabd/current ] && run ln -s $PREFIX/opt/gridlabd/$VDIR $PREFIX/opt/gridlabd/current 
+	run ln -sf $PREFIX/opt/gridlabd/$VDIR $PREFIX/opt/gridlabd/current 
 	for item in bin include lib share; do
 		[ ! -d $PREFIX/opt/gridlabd/$VDIR/$item ] && run mkdir -p $PREFIX/opt/gridlabd/$VDIR/$item
 		[ ! -d $PREFIX/opt/gridlabd/$VDIR/$item ] && run mv $PREFIX/$item/gridlabd* $PREFIX/opt/gridlabd/$VDIR/$item/
-		[ ! -e $PREFIX/opt/gridlabd/current/$item/gridlabd ] && run ln -s $PREFIX/opt/gridlabd/$VDIR/$item/gridlabd $PREFIX/opt/gridlabd/current/$item/gridlabd
-		[ ! -e $PREFIX/$item/gridlabd ] && run ln -s $PREFIX/opt/gridlabd/current/$item /$PREFIX/$item/gridlabd
+		run ln -sf $PREFIX/opt/gridlabd/$VDIR/$item/gridlabd $PREFIX/opt/gridlabd/current/$item/gridlabd
+		run ln -sf $PREFIX/opt/gridlabd/current/$item /$PREFIX/$item/gridlabd
 	done
-	[ ! -e $PREFIX/bin/gridlabd.bin ] && run ln -s $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	run ln -s $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
 	error "stopping here for debugging reasons -- this error message should be deleted"
 fi
 if [ "$CHECK" == "yes" ]; then
@@ -339,16 +340,16 @@ fi
 
 # activate this version
 if [ -x "$INSTALL/bin/gridlabd-version" -a "$TEST" == "yes" ]; then
-	log "automatic activation"
+	log "ACTIVATE: automatic"
 	run $INSTALL/bin/gridlabd version set "$VERSION"
 elif [ "$LINK" == "yes" ]; then
-	log "manual activation"
-	run rm -f "$PREFIX/opt/gridlabd/current"
-	run ln -s "$INSTALL" "$PREFIX/opt/gridlabd/current"
-	for dir in bin lib include lib share; do
-		[ ! -e $PREFIX/$dir/gridlabd ] && run ln -s $PREFIX/opt/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
+	log "ACTIVATE: manual"
+	[ ! -L "$PREFIX/opt/gridlabd/current" ] && run rm -f "$PREFIX/opt/gridlabd/current"
+	run ln -sf "$INSTALL" "$PREFIX/opt/gridlabd/current"
+	for dir in bin lib include share; do
+		run ln -sf $PREFIX/opt/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
 	done
-	[ ! -e $PREFIX/bin/gridlabd.bin ] && run ln -s $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	run ln -sf $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
 fi
 
 # all done :-)
