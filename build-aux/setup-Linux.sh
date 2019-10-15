@@ -11,4 +11,10 @@ if [ ! -f "$SETUP" ]; then
     echo "manual install required"
     exit 1
 fi
+if [ "${USER:-root}" == "root" ]; then
+	function sudo ()
+	{
+		$0 $*
+	}
+fi
 sudo $SETUP $*
