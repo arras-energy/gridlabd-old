@@ -2,7 +2,7 @@
 
 # Install needed system tools
 # update first
-apt -q update -y
+apt -q update
 apt-get -q tzdata -y
 
 # install python 3.7
