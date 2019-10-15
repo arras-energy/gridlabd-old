@@ -557,13 +557,21 @@ int GldCmdarg::version(int argc, const char *argv[])
 	}
 	else if ( strcmp(opt,"install") == 0 )
 	{
-		output_message("%s-%s-%d-%s-%s-x86_64", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH, 
-#if defined MACOSX
-			"Darwin"
-#else // LINUX
-			"Linux"
-#endif
-			);
+		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
+		char tmp[1024];
+		strcpy(tmp,global_execdir);
+		char *p = strrchr(tmp,'/');
+		if ( p != NULL && strcmp(p,"/bin") == 0 )
+		{
+			*p = '\0';
+		}
+		output_message("%s", tmp);
+		return 0;
+	}
+	else if ( strcmp(opt,"name") == 0 )
+	{
+		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
+		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
 	}
 	else
