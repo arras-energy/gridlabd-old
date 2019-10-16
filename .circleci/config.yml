@@ -11,7 +11,7 @@ jobs:
             autoreconf -isf
             ./configure
             export PATH=/home/circleci/project/install/bin:$PATH
-            sudo make -j16 install-validate
+            sudo make install-validate
             sudo make doxygen-run
       - store_artifacts:
           path: /home/circleci/project/validate.txt
