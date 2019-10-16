@@ -2,13 +2,26 @@ function debug(text)
 {
     document.writeln('<CODE CLASS=DEBUG>['+text+']</CODE>');    
 }
-function load_markdown(url)
+function replace_tags(line,tag,pattern,key)
+{
+    while ( (refs=line.match(tag+pattern+tag)) != null )
+    {
+        var repl = refs[0].substring(tag.length,refs[0].length-tag.length);
+        //debug(refs[0]+'->'+key+':'+repl);
+        line = line.replace(refs[0],'<'+key+'>'+repl+'</'+key+'>');
+    }    
+    return line;
+}
+function load_markdown(root,url)
 {
     var r = new XMLHttpRequest()
     r.open('GET',url,false);
     r.send(null);
     if ( r.status == 200 )
     {
+        base = url.substring(0,url.lastIndexOf('/')+1);
+        name = url.substring(url.lastIndexOf('/')+1);
+        window.document.title = 'GridLAB-D Docs - ' + name.substring(0,name.length-3);
         var end = -1;
         var code = 0;
         var list = 0;
@@ -19,7 +32,6 @@ function load_markdown(url)
             {
                 break;
             }
-            //debug(start+','+end);
             var line = r.responseText.substring(start,end);
 
             // newline -> P
@@ -38,7 +50,7 @@ function load_markdown(url)
             }
 
             // ~~~ -> CODE
-            if ( line.substr(0,3) == '~~~' )
+            if ( line.substr(0,3) == '~~~' || line.substr(0,3) == '```')
             {
                 if ( code == 0 )
                 {
@@ -75,7 +87,7 @@ function load_markdown(url)
                 }
                 line = '<LI>' + line.substring(1) + '</LI>';
             }
-            else if ( line.match("^ *[0-9]+\.") != null )
+            else if ( line.match("^ *1\\.") != null )
             {
                 if ( list == 1 )
                 {
@@ -115,69 +127,31 @@ function load_markdown(url)
             }
 
             // https://... -> HREF
-            var refs = line.match("https://[-A-Za-z_@.]+/[-A-Za-z_&+?/#.]+[-A-Za-z_&+?/]");
-            if ( refs != null )
+            if ( (ref=line.match("https?://[-A-Za-z_@.]+/[-A-Za-z_&+?/#.]+[-A-Za-z_&+?/]")) != null )
             {
-                for ( var n = refs.length-1 ; n >= 0 ; n-- )
+                for ( n = ref.length-1 ; n >= 0; n-- )
                 {
-                    line = line.replace(refs[n],'<A HREF="'+refs[n]+'">'+refs[n]+'</A>');
+                    repl = '<A HREF="'+ref[n]+'">'+ref[n]+'</A>';
+                    line = line.replace(ref[n],repl);
                 }
             }
+
+            // [[..]]... -> HREF
+            if ( (ref=line.match("\[\[[A-Za-z0-9_ ]+\]\]")) != null )
+            {
+                for ( n = ref.length-1 ; n >= 0; n-- )
+                {
+                    target = ref[0].substring(3,ref[0].length-2);
+                    line = line.replace(ref[0],'<A HREF="'+root+'?url='+base+target+'.md">'+target+'</A>');
+                }
+            } 
 
             // *...* -> I
-            refs = line.match("\\*[-A-Za-z ]+\\*");
-            if ( refs != null )
-            {
-                for ( var n = refs.length-1 ; n >= 0 ; n-- )
-                {
-                    var repl = refs[n].substring(1,refs[n].length-1);;
-                    line = line.replace(refs[n],'<I>'+repl+'</I>');
-                }
-            }
-
-            // _..._ -> I
-            refs = line.match("_[-A-Za-z ]+_");
-            if ( refs != null )
-            {
-                for ( var n = refs.length-1 ; n >= 0 ; n-- )
-                {
-                    var repl = refs[n].substring(1,refs[n].length-1);
-                    line = line.replace(refs[n],'<I>'+repl+'</I>');
-                }
-            }
-
-            // **...** -> B
-            refs = line.match("\\*\\*[-A-Za-z ]+\\*\\*");
-            if ( refs != null )
-            {
-                for ( var n = refs.length-1 ; n >= 0 ; n-- )
-                {
-                    var repl = refs[n].substring(2,refs[n].length-2);;
-                    line = line.replace(refs[n],'<B>'+repl+'</B>');
-                }
-            }
-
-            // __...__ -> B
-            refs = line.match("__[-A-Za-z ]+__");
-            if ( refs != null )
-            {
-                for ( var n = refs.length-1 ; n >= 0 ; n-- )
-                {
-                    var repl = refs[n].substring(2,italics[n].length-2);;
-                    line = line.replace(refs[n],'<B>'+repl+'</B>');
-                }
-            }
-
-            // *...* -> I
-            refs = line.match("`.+`");
-            if ( refs != null )
-            {
-                for ( var n = refs.length-1 ; n >= 0 ; n-- )
-                {
-                    var repl = refs[n].substring(1,refs[n].length-1);
-                    line = line.replace(refs[n],'<CODE CLASS=INLINE>'+repl+'</CODE>');
-                }
-            }
+            line = replace_tags(line,'\\*','[-A-Za-z ]+','I');
+            line = replace_tags(line,'_','[-A-Za-z ]+','I');
+            line = replace_tags(line,'\\*\\*','[-A-Za-z ]+','B');
+            line = replace_tags(line,'__','[-A-Za-z ]+','B');
+            line = replace_tags(line,'`','.+','CODE');
 
             // just text -> text
             document.writeln(line);

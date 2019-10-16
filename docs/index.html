@@ -1,0 +1,28 @@
+<HTML>
+
+<HEAD>
+<LINK rel="stylesheet" type="text/css" href="docs.css" />
+<SCRIPT LANGUAGE="JavaScript" SRC="markdown.js">
+</SCRIPT>
+</HEAD>
+
+<BODY>
+
+<SCRIPT LANGUAGE="JavaScript">
+var query = new URLSearchParams(window.location.search);
+url = query.get('url');
+if ( url == null )
+{
+	location.replace('file:///Users/dchassin/github/gridlabd/docs/index.html?url=https://raw.githubusercontent.com/dchassin/gridlabd/restructure_install/docs/README.md');
+}
+else
+{
+	href = location.href.substring(0,location.href.indexOf('?'));
+	load_markdown(href,url);
+}
+
+</SCRIPT>
+
+</BODY>
+
+</HTML>
