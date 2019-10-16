@@ -2,6 +2,10 @@ function debug(text)
 {
     document.writeln('<CODE CLASS=DEBUG>['+text+']</CODE>');    
 }
+function error(text)
+{
+    window.status = 'ERROR: ' + text;
+}
 function replace_tags(line,tag,pattern,key)
 {
     while ( (refs=line.match(tag+pattern+tag)) != null )
@@ -12,27 +16,21 @@ function replace_tags(line,tag,pattern,key)
     }    
     return line;
 }
-function load_markdown(root,url)
+function write_markdown(markdown_text)
 {
-    var r = new XMLHttpRequest()
-    r.open('GET',url,false);
-    r.send(null);
-    if ( r.status == 200 )
+    if ( markdown_text != null )
     {
-        base = url.substring(0,url.lastIndexOf('/')+1);
-        name = url.substring(url.lastIndexOf('/')+1);
-        window.document.title = 'GridLAB-D Docs - ' + name.substring(0,name.length-3);
         var end = -1;
         var code = 0;
         var list = 0;
         for ( var start = 0 ; start >= 0 ; start = end )
         {
-            end = r.responseText.indexOf('\n',start+1);
+            end = markdown_text.indexOf('\n',start+1);
             if ( end < 0 )
             {
                 break;
             }
-            var line = r.responseText.substring(start,end);
+            var line = markdown_text.substring(start,end);
 
             // newline -> P
             if ( line.substr(0,1) == '\n' )
@@ -141,8 +139,10 @@ function load_markdown(root,url)
             {
                 for ( n = ref.length-1 ; n >= 0; n-- )
                 {
-                    target = ref[0].substring(3,ref[0].length-2);
-                    line = line.replace(ref[0],'<A HREF="'+root+'?url='+base+target+'.md">'+target+'</A>');
+                    var m = 2;
+                    if ( ref[0].charAt(m) == '[' ) m++; // not sure why this is necessary
+                    target = ref[0].substring(m,ref[0].length-2);
+                    line = line.replace(ref[0],'<A HREF="'+root+'?page='+base+target+'.md">'+target+'</A>');
                 }
             } 
 
@@ -156,5 +156,38 @@ function load_markdown(root,url)
             // just text -> text
             document.writeln(line);
         }
+    }
+    else
+    {
+        document.writeln("status = "+r.status);
+    }
+}
+
+function load_markdown(base,page)
+{
+    root = base.substring(0,base.lastIndexOf('/')+1);
+    url = root + page;
+    if ( url.substring(0,7) == "file://" )
+    {
+        debug('access denied: ' + url + ' is local');
+    }
+    else
+    {
+        request = new XMLHttpRequest();
+        debug('GET '+url);
+        request.open('GET',url,true);
+        request.onload = function ready() 
+        {
+            if ( request.status == 200 || request.status == 0 )
+            {
+                write_markdown(request.responseText);
+            }
+            else
+            {
+                error('error code '+request.status);
+            }
+        }
+;
+        request.send();
     }
 }

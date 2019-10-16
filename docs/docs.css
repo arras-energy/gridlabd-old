@@ -10,3 +10,6 @@ CODE.BLOCK {
 CODE.DEBUG {
     background-color: yellow;
 }
+CODE.ERROR {
+    background-color: yellow;
+}

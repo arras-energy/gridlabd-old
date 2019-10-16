@@ -7,18 +7,29 @@
 </HEAD>
 
 <BODY>
-
 <SCRIPT LANGUAGE="JavaScript">
+var href = location.origin+location.pathname
 var query = new URLSearchParams(window.location.search);
-url = query.get('url');
-if ( url == null )
+var page = query.get('page');
+if ( page == null )
 {
-	location.replace('file:///Users/dchassin/github/gridlabd/docs/index.html?url=https://raw.githubusercontent.com/dchassin/gridlabd/restructure_install/docs/README.md');
+	location.replace(href+'?page=_start.md');
 }
 else
 {
-	href = location.href.substring(0,location.href.indexOf('?'));
-	load_markdown(href,url);
+	try 
+	{
+		load_markdown(href,'_header.md');
+		document.writeln('<HR/>');
+		load_markdown(href,page);
+		document.writeln('<HR/>');
+		load_markdown(href,'_footer.md');
+        window.document.title = 'GridLAB-D Docs - ' + page.substring(0,name.length-3);
+	}
+    catch (err)
+    {
+        window.document.title = 'GridLAB-D Docs - err.message';
+    }
 }
 
 </SCRIPT>
