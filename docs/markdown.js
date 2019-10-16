@@ -1,10 +1,10 @@
 function debug(text)
 {
-    document.writeln('<CODE CLASS=DEBUG>['+text+']</CODE>');    
+    //document.writeln('<CODE CLASS=DEBUG>['+text+']</CODE>');    
 }
-function error(text)
+function error()
 {
-    window.status = 'ERROR: ' + text;
+    document.writeln('<CODE CLASS=ERROR>['+text+']</CODE>');    
 }
 function replace_tags(line,tag,pattern,key)
 {
@@ -16,21 +16,27 @@ function replace_tags(line,tag,pattern,key)
     }    
     return line;
 }
-function write_markdown(markdown_text)
+function load_markdown(href,url)
 {
-    if ( markdown_text != null )
+    base = url.substring(0,url.lastIndexOf('/')+1);
+    var r = new XMLHttpRequest()
+    r.open('GET',url,false);
+    r.send(null);
+    if ( r.status == 200 )
     {
         var end = -1;
         var code = 0;
         var list = 0;
         for ( var start = 0 ; start >= 0 ; start = end )
         {
-            end = markdown_text.indexOf('\n',start+1);
+            end = r.responseText.indexOf('\n',start+1);
+            debug(start+','+end);
             if ( end < 0 )
             {
                 break;
             }
-            var line = markdown_text.substring(start,end);
+            //debug(start+','+end);
+            var line = r.responseText.substring(start,end);
 
             // newline -> P
             if ( line.substr(0,1) == '\n' )
@@ -39,7 +45,7 @@ function write_markdown(markdown_text)
                 {
                     document.writeln('<P/>');
                 }
-                else
+                else if ( code != -1 )
                 {
                     document.writeln('<BR/>');
                 }
@@ -47,31 +53,39 @@ function write_markdown(markdown_text)
                 continue;
             }
 
-            // ~~~ -> CODE
+            // ~~~ or ``` -> toggle CODE
             if ( line.substr(0,3) == '~~~' || line.substr(0,3) == '```')
             {
                 if ( code == 0 )
                 {
-                    document.writeln('<CODE CLASS=BLOCK>');
-                    code = 1;
+                    document.writeln('<DIV CLASS=BLOCK><CODE CLASS=BLOCK>');
+                    code = -1; // suppress first NL
                 }
                 else
                 {
-                    document.writeln('</CODE>');
+                    document.writeln('</CODE></DIV>');
                     code = 0;
                 }
                 continue;
             }
 
             // block code
-            if ( code == 1 )
+            if ( code != 0 )
             {
+                code = 1;
                 document.writeln(line);
                 continue;
             }
 
-            // markdowns
-            if ( line.match("^ *[-\*]") != null )
+            // --- -> HR
+            if ( line.substring(0,3) == '---' )
+            {
+                document.writeln('<HR/>');
+                continue;
+            }
+
+            // text decoration markdowns
+            if ( (ref=line.match("^ *[-*]+")) != null )
             {
                 if ( list == 2 )
                 {
@@ -83,9 +97,9 @@ function write_markdown(markdown_text)
                     document.writeln('<UL>');
                     list = 1;
                 }
-                line = '<LI>' + line.substring(1) + '</LI>';
+                line = '<LI>' + line.substring(ref.length) + '</LI>';
             }
-            else if ( line.match("^ *1\\.") != null )
+            else if ( (ref=line.match("^ *1\\.")) != null )
             {
                 if ( list == 1 )
                 {
@@ -97,9 +111,9 @@ function write_markdown(markdown_text)
                     document.writeln('<OL>');
                     list = 2;
                 }
-                line = '<LI>' + line.substring(1) + '</LI>';
+                line = '<LI>' + line.substring(ref.length) + '</LI>';
             }
-            else
+            else if ( line.match("^[ \t]") != null )
             {
                 if ( list == 1 )
                 {
@@ -120,6 +134,9 @@ function write_markdown(markdown_text)
             }
             if ( nh > 0 )
             {
+                if ( list == 1 ) document.writeln('</UL>');
+                if ( list == 2 ) document.writeln('</OL>');
+                list = 0;
                 document.write('<H'+nh+'>'+line.substr(nh+1)+'</H'+nh+'>');
                 continue;
             }
@@ -142,7 +159,7 @@ function write_markdown(markdown_text)
                     var m = 2;
                     if ( ref[0].charAt(m) == '[' ) m++; // not sure why this is necessary
                     target = ref[0].substring(m,ref[0].length-2);
-                    line = line.replace(ref[0],'<A HREF="'+root+'?page='+base+target+'.md">'+target+'</A>');
+                    line = line.replace(ref[0],'<A HREF="'+href+'?page='+base+target+'.md">'+target+'</A>');
                 }
             } 
 
@@ -156,38 +173,20 @@ function write_markdown(markdown_text)
             // just text -> text
             document.writeln(line);
         }
-    }
-    else
-    {
-        document.writeln("status = "+r.status);
-    }
-}
-
-function load_markdown(base,page)
-{
-    root = base.substring(0,base.lastIndexOf('/')+1);
-    url = root + page;
-    if ( url.substring(0,7) == "file://" )
-    {
-        debug('access denied: ' + url + ' is local');
-    }
-    else
-    {
-        request = new XMLHttpRequest();
-        debug('GET '+url);
-        request.open('GET',url,true);
-        request.onload = function ready() 
+        if ( list == 1 )
         {
-            if ( request.status == 200 || request.status == 0 )
-            {
-                write_markdown(request.responseText);
-            }
-            else
-            {
-                error('error code '+request.status);
-            }
+            document.writeln('</UL>');
+            list = 0;
         }
-;
-        request.send();
+        else if ( list == 2 )
+        {
+            document.writeln('</OL>');
+            list = 0;
+        }
+        debug("done")
+    }
+    else
+    {
+        error('server returned code' + r.status);
     }
 }

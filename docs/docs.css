@@ -1,15 +1,20 @@
 BODY {
     background-color: white;
 }
+DIV.BLOCK {
+    background-color: #f0f0f0;
+}
 CODE.INLINE {
     background-color: white;
 }
 CODE.BLOCK {
-    background-color: lightgrey;
+    background-color: #f0f0f0;
 }
 CODE.DEBUG {
     background-color: yellow;
 }
 CODE.ERROR {
-    background-color: yellow;
+    background-color: red;
+}
+LI {
 }

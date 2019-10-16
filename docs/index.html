@@ -7,31 +7,50 @@
 </HEAD>
 
 <BODY>
+
 <SCRIPT LANGUAGE="JavaScript">
-var href = location.origin+location.pathname
+var banner = "GridLAB-D Documentation";
+var copyright = "Copyright (C) 2019, Regents of the Leland Stanford Junior University";
 var query = new URLSearchParams(window.location.search);
+var href = location.origin+location.pathname;
 var page = query.get('page');
 if ( page == null )
 {
-	location.replace(href+'?page=_start.md');
+    page = base + 'README.md';
+}
+var base = href.substring(0,href.lastIndexOf('/')+1);
+try 
+{ 
+    load_markdown(href,base+'_header.md') 
+} 
+catch (e) 
+{
+    document.writeln(banner+"<HR/>");
+    // TODO: a default header
+}
+if ( page.substring(0,7) == 'file://' )
+{
+    error("access to local files is not permitted")
 }
 else
 {
-	try 
-	{
-		load_markdown(href,'_header.md');
-		document.writeln('<HR/>');
-		load_markdown(href,page);
-		document.writeln('<HR/>');
-		load_markdown(href,'_footer.md');
-        window.document.title = 'GridLAB-D Docs - ' + page.substring(0,name.length-3);
-	}
+    try 
+    {        
+        load_markdown(href,page);
+    }
     catch (err)
     {
-        window.document.title = 'GridLAB-D Docs - err.message';
+        error(err.message)
     }
 }
-
+try 
+{ 
+    load_markdown(href,base+'_footer.md') 
+} 
+catch (e) 
+{
+    document.writeln('<HR/>'+copyright);
+}
 </SCRIPT>
 
 </BODY>
