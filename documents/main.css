@@ -1,0 +1,12 @@
+BODY {
+    background-color: white;
+}
+CODE.INLINE {
+    background-color: white;
+}
+CODE.BLOCK {
+    background-color: lightgrey;
+}
+CODE.DEBUG {
+    background-color: yellow;
+}
