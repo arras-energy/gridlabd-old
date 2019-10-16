@@ -16,9 +16,9 @@ var href = location.origin+location.pathname;
 var page = query.get('page');
 if ( page == null )
 {
-    page = base + 'README.md';
+    page = 'https://raw.githubusercontent.com/dchassin/gridlabd/master/docs/README.md';
 }
-var base = href.substring(0,href.lastIndexOf('/')+1);
+var base = page.substring(0,href.lastIndexOf('/')+1);
 try 
 { 
     load_markdown(href,base+'_header.md') 
