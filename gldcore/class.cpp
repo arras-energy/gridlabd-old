@@ -1183,26 +1183,55 @@ int class_saveall(FILE *fp) /**< a pointer to the stream FILE structure */
 	{	CLASS	*oclass;
 		for (oclass=class_get_first_class(); oclass!=NULL; oclass=oclass->next)
 		{
-			if ( (global_glm_save_options&GSO_NOINTERNALS) == GSO_NOINTERNALS && oclass->module != NULL )
-				continue;
 			PROPERTY *prop;
+			if ( (global_glm_save_options&GSO_NOINTERNALS) == GSO_NOINTERNALS && oclass->module != NULL )
+			{
+				// check to see if any user-defined members exist
+				bool has_user_defined_property = false;
+				for ( prop = oclass->pmap ; prop != NULL && prop->oclass == oclass; prop = prop->next )
+				{
+					if ( prop->flags & PF_EXTENDED )
+					{
+						has_user_defined_property = true;
+					}
+				}
+				if ( ! has_user_defined_property )
+				{
+					continue;
+				}
+			}
 			FUNCTION *func;
 			count += fprintf(fp,"class %s {\n",oclass->name);
 			if ( (global_glm_save_options&GSO_NOMACROS)==GSO_NOMACROS )
 			{
-				if (oclass->parent)
-					count += fprintf(fp,"#ifdef INCLUDE_PARENT_CLASS\n\tparent %s;\n#endif\n", oclass->parent->name);
-				for (func=oclass->fmap; func!=NULL && func->oclass==oclass; func=func->next)
-					count += fprintf(fp, "#ifdef INCLUDE_FUNCTIONS\n\tfunction %s();\n#endif\n", func->name);
+				if ( ! (global_glm_save_options&GSO_NOINTERNALS) )
+				{
+					if ( oclass->parent )
+					{
+						count += fprintf(fp,"#ifdef INCLUDE_PARENT_CLASS\n\tparent %s;\n#endif\n", oclass->parent->name);
+					}
+					for (func=oclass->fmap; func!=NULL && func->oclass==oclass; func=func->next)
+					{
+						count += fprintf(fp, "#ifdef INCLUDE_FUNCTIONS\n\tfunction %s();\n#endif\n", func->name);
+					}
+				}
 				for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 				{
 					const char *ptype = class_get_property_typename(prop->ptype);
-					if ( ptype != NULL )
+					if ( ptype == NULL )
+					{
+						continue;
+					}
+					if ( ! (global_glm_save_options&GSO_NOINTERNALS) || (prop->flags&PF_EXTENDED) )
 					{
 						if ( strchr(prop->name,'.') == NULL )
+						{
 							count += fprintf(fp,"\t%s %s;\n", ptype, prop->name);
+						}
 						else
+						{
 							count += fprintf(fp,"#ifdef INCLUDE_DOTTED_PROPERTIES\n\t%s %s;\n#endif\n", ptype, prop->name);
+						}
 					}
 				}
 			}
