@@ -503,7 +503,17 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
-	if ( argc > 1 && strcmp(argv[1],"all" ) == 0 )
+	const char *opt = strchr(argv[0],'=');
+	if ( opt++ == NULL )
+	{
+		opt = "default";
+	}
+	if ( strcmp(opt,"default") == 0 )
+	{
+		output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
+		return 0;
+	}
+	else if ( strcmp(opt,"all" ) == 0 )
 	{	
 		output_message("%s %s-%d (%s) "
 #if defined MACOSX
@@ -512,29 +522,29 @@ int GldCmdarg::version(int argc, const char *argv[])
 			"LINUX"
 #endif
 			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"number" ) == 0 )
+	else if ( strcmp(opt,"number" ) == 0 )
 	{
 		output_message("%s", PACKAGE_VERSION);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"build") == 0 )
+	else if ( strcmp(opt,"build") == 0 )
 	{
 		output_message("%d", BUILDNUM);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"package") == 0 )
+	else if ( strcmp(opt,"package") == 0 )
 	{
 		output_message("%s", PACKAGE_NAME);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"branch") == 0 )
+	else if ( strcmp(opt,"branch") == 0 )
 	{
 		output_message("%s", BRANCH);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"platform") == 0 )
+	else if ( strcmp(opt,"platform") == 0 )
 	{
 		output_message(
 #if defined MACOSX
@@ -543,12 +553,23 @@ int GldCmdarg::version(int argc, const char *argv[])
 			"LINUX"
 #endif
 		);
-		return 1;
+		return 0;
+	}
+	else if ( strcmp(opt,"install") == 0 )
+	{
+		output_message("%s_%s-%d_%s_%s-x64_86", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH, 
+#if defined MACOSX
+			"macos"
+#else // LINUX
+			"linux"
+#endif
+			);
+		return 0;
 	}
 	else
 	{
-		output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
-		return 0;
+		output_error("version option '%s' is not valid", opt);
+		return CMDERR;
 	}
 }
 
