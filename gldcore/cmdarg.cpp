@@ -1802,12 +1802,70 @@ int GldCmdarg::origin(int argc, const char *argv[])
 			int old = global_suppress_repeat_messages;
 			global_suppress_repeat_messages = 0;
 			line[len] = '\0';
-			output_message("%s",line);
+			output_raw("%s",line);
 			global_suppress_repeat_messages = old;
 		}
 	}
 	fclose(fp);
 	return 1;
+}
+
+DEPRECATED static int cite(void *main, int argc, const char *argv[])
+{
+	FILE *fp;
+	char originfile[1024];
+	if ( find_file("origin.txt",NULL,R_OK,originfile,sizeof(originfile)-1) == NULL )
+	{
+		IN_MYCONTEXT output_error("origin file not found");
+		return CMDERR;
+	}
+	fp = fopen(originfile,"r");
+	if ( fp == NULL )
+	{
+		IN_MYCONTEXT output_error("unable to open origin file");
+		return CMDERR;
+	}
+	char url[1024] = "";
+	if ( ! feof(fp) )
+	{
+		char line[1024];
+		size_t len = fread(line,sizeof(line[0]),sizeof(line)-1,fp);
+		if ( ferror(fp) )
+		{
+			IN_MYCONTEXT output_error("error reading origin file");
+			return CMDERR;
+		}
+		if ( len >= 0 && url[0] == '\0' && strncmp(line,"# http",6)==0 )
+		{
+			char *end = strstr(line,"/commits/");
+			if ( end == NULL )
+				end = strchr(line,'\n');
+			if ( end )
+				*end = '\0';
+			strcpy(url,line+2);
+		}
+		else
+		{
+			strcpy(url,global_urlbase);
+		}
+	}
+	fclose(fp);
+
+#if defined MACOSX
+		const char *platform = "Darwin";
+#else // LINUX
+	const char *platform = "Linux";
+#endif
+	int year = 2000+BUILDNUM/10000;
+	int month = (BUILDNUM%10000)/100;
+	int day = (BUILDNUM%100);
+	const char *Month[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	output_message("Chassin, D.P., et al., \"%s %s-%d (%s)"
+		" %s\" (%d) [online]."
+		" Available at %s. Accessed %s. %d, %d", 
+		PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH,
+		platform, year, url, Month[month-1], day, year);
+	return 0;
 }
 
 #include "job.h"
@@ -1849,6 +1907,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"build-info",	NULL,	build_info,		NULL, "Displays the build information" },
 	{"setup",		NULL,	setup,			NULL, "Open simulation setup screen" },
 	{"origin",		NULL,	origin,			NULL, "Display origin information" },
+	{"cite",		NULL,	cite,			NULL, "Print the complete citation for this version"},
 
 	{NULL,NULL,NULL,NULL, "Test processes"},
 	{"dsttest",		NULL,	dsttest,		NULL, "Perform daylight savings rule test" },
