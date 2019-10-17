@@ -9,48 +9,79 @@
 <BODY>
 
 <SCRIPT LANGUAGE="JavaScript">
-var banner = "GridLAB-D Documentation";
-var copyright = "Copyright (C) 2019, Regents of the Leland Stanford Junior University";
-var query = new URLSearchParams(window.location.search);
-var href = location.origin+location.pathname;
-var page = query.get('page');
-if ( page == null )
-{
-    page = 'https://raw.githubusercontent.com/dchassin/gridlabd/master/docs/README.md';
-}
-var base = page.substring(0,href.lastIndexOf('/')+1);
-try 
-{ 
-    load_markdown(href,base+'_header.md') 
-} 
-catch (e) 
-{
-    document.writeln(banner+"<HR/>");
-    // TODO: a default header
-}
-if ( page.substring(0,7) == 'file://' )
-{
-    error("access to local files is not permitted")
-}
-else
-{
-    try 
-    {        
-        load_markdown(href,page);
-    }
-    catch (err)
+    var banner = "GridLAB-D Documentation";
+    var copyright = "Copyright (C) 2019, Regents of the Leland Stanford Junior University";
+    var query = new URLSearchParams(window.location.search);
+    var href = location.origin+location.pathname;
+    var page = query.get('page');
+    var branch = "master";
+    var owner = "dchassin";
+    var project = "gridlabd";
+</SCRIPT>
+Markdown navigator:
+<SELECT>
+<OPTION VALUE="master">master</OPTION>
+<SCRIPT LANGUAGE="JavaScript">
+    debug("select")
+    var r = new XMLHttpRequest()
+    r.open('GET','https://api.github.com/repos/dchassin/gridlabd/branches',false);
+    r.send(null);
+    if ( r.status == 200 )
     {
-        error(err.message)
+        JSON.parse(r.responseText, function (key,value)
+        {
+            if ( key == 'name' )
+            {
+                document.writeln('<OPTION VALUE="'+value+'">'+value+'</OPTION>\n');
+            }
+            else
+                debug(key)
+        }
     }
-}
-try 
-{ 
-    load_markdown(href,base+'_footer.md') 
-} 
-catch (e) 
-{
-    document.writeln('<HR/>'+copyright);
-}
+    else
+        error('select error (status '+r.status+')');
+</SCRIPT>
+</SELECT>
+<HR/>
+
+<SCRIPT LANGUAGE="JavaScript">
+    if ( page == null )
+    {
+        page = 'https://raw.githubusercontent.com/'+owner+'/'+project+'/'+branch+'/docs/README.md';
+    }
+    var base = page.substring(0,href.lastIndexOf('/')+1);
+    try 
+    { 
+        load_markdown(href,base+'_header.md') 
+    } 
+    catch (e) 
+    {
+        document.writeln(banner+"<HR/>");
+        // TODO: a default header
+    }
+    if ( page.substring(0,7) == 'file://' )
+    {
+        error("access to local files is not permitted")
+    }
+    else
+    {
+        try 
+        {        
+            load_markdown(href,page);
+        }
+        catch (err)
+        {
+            error(err.message)
+        }
+    }
+    try 
+    { 
+        load_markdown(href,base+'_footer.md') 
+    } 
+    catch (e) 
+    {
+        document.writeln('<HR/>'+copyright);
+    }
 </SCRIPT>
 
 </BODY>

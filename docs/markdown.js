@@ -1,6 +1,7 @@
 function debug(text)
 {
-    //document.writeln('<CODE CLASS=DEBUG>['+text+']</CODE>');    
+    
+    document.writeln('<CODE CLASS=DEBUG>['+text+']</CODE>');    
 }
 function error()
 {
@@ -30,7 +31,7 @@ function load_markdown(href,url)
         for ( var start = 0 ; start >= 0 ; start = end )
         {
             end = r.responseText.indexOf('\n',start+1);
-            debug(start+','+end);
+            //debug(start+','+end);
             if ( end < 0 )
             {
                 break;
@@ -183,7 +184,7 @@ function load_markdown(href,url)
             document.writeln('</OL>');
             list = 0;
         }
-        debug("done")
+        //debug("done")
     }
     else
     {
