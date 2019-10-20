@@ -543,8 +543,25 @@ STATUS GldExec::setup_ranks(void)
 		for (obj=object_get_first(); obj!=NULL; obj=object_get_next(obj))
 		{
 			/* ignore objects that don't use this passconfig */
-			if ((obj->oclass->passconfig&passtype[i])==0 )
+			bool ignore = true;
+			switch ( passtype[i] )
+			{
+			case PC_PRETOPDOWN:
+				ignore &= (obj->events.presync==NULL);
+				break;
+			case PC_BOTTOMUP:
+				ignore &= (obj->events.sync==NULL);
+				break;
+			case PC_POSTTOPDOWN:				
+				ignore &= (obj->events.postsync==NULL);
+				break;
+			default:
+				break;
+			}
+			if ( ignore && (obj->oclass->passconfig&passtype[i]) == 0 )
+			{
 				continue;
+			}
 
 			/* add this object to the ranks for this passconfig */
 			if (index_insert(ranks[i],obj,obj->rank)==FAILED) 
