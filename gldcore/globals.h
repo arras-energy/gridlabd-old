@@ -510,6 +510,12 @@ typedef enum {
 /* Variable:  */
 GLOBAL SIMULATIONMODE global_simulation_mode INIT(SM_INIT); /**< simulation mode */
 
+/* Variable: global_allow_deltamode 
+
+	Flag to allow simulation in delta-mode
+*/
+GLOBAL bool global_deltamode_allowed INIT(FALSE);
+
 /* Variable:  */
 GLOBAL DT global_deltamode_timestep INIT(10000000); /**< delta mode time step in ns (default is 10ms) */
 
