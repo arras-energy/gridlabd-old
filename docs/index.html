@@ -17,32 +17,8 @@
     var branch = "master";
     var owner = "dchassin";
     var project = "gridlabd";
-</SCRIPT>
-Markdown navigator:
-<SELECT>
-<OPTION VALUE="master">master</OPTION>
-<SCRIPT LANGUAGE="JavaScript">
-    debug("select")
     var r = new XMLHttpRequest()
-    r.open('GET','https://api.github.com/repos/dchassin/gridlabd/branches',false);
-    r.send(null);
-    if ( r.status == 200 )
-    {
-        JSON.parse(r.responseText, function (key,value)
-        {
-            if ( key == 'name' )
-            {
-                document.writeln('<OPTION VALUE="'+value+'">'+value+'</OPTION>\n');
-            }
-            else
-                debug(key)
-        }
-    }
-    else
-        error('select error (status '+r.status+')');
 </SCRIPT>
-</SELECT>
-<HR/>
 
 <SCRIPT LANGUAGE="JavaScript">
     if ( page == null )
@@ -59,6 +35,33 @@ Markdown navigator:
         document.writeln(banner+"<HR/>");
         // TODO: a default header
     }
+</SCRIPT>
+
+Project: <INPUT TYPE=TEXT VALUE="gridlabd" />
+
+Branch: <SELECT>
+<OPTION VALUE="master">master</OPTION>
+<SCRIPT LANGUAGE="JavaScript">
+    r.open('GET','https://api.github.com/repos/dchassin/gridlabd/branches',false);
+    r.send(null);
+    if ( r.status == 200 )
+    {
+        JSON.parse(r.responseText, function (key,value)
+        {
+            if ( key == 'name' )
+            {
+                document.writeln('<OPTION VALUE="'+value+'">'+value+'</OPTION>\n');
+            }
+        })
+    }
+    else
+        debug('select error (status '+r.status+')');
+</SCRIPT>
+</SELECT>
+
+<HR/>
+
+<SCRIPT LANGUAGE="JavaScript">
     if ( page.substring(0,7) == 'file://' )
     {
         error("access to local files is not permitted")
