@@ -15,7 +15,8 @@ DEPRECATED static GLOBALVAR *global_varlist = NULL, *lastvar = NULL;
 DEPRECATED static KEYWORD df_keys[] = {
 	{"ISO", DF_ISO, df_keys+1},
 	{"US", DF_US, df_keys+2},
-	{"EURO", DF_EURO, NULL},
+	{"EURO", DF_EURO, df_keys+3},
+	{"ISO8601", DF_ISO8601, NULL},
 };
 DEPRECATED static KEYWORD trl_keys[] = {
 	{"PRINCIPLE",	TRL_PRINCIPLE, trl_keys+1},

@@ -123,14 +123,16 @@ size_t global_saveall(FILE *fp);
 		DF_ISO = 0 - ISO standard format
 		DF_US = 1 - USA date format (i.e., mm/dd/yyyy)
 		DF_EURO = 2 - EU data format (i.e., dd/mm/yyyy)
+		DF_ISO8601 = 3 - ISO8601 standard format
 
 	See Also:
 	- <global_dateformat>
  */
 typedef enum e_dateformat {
-	DF_ISO=0, 
-	DF_US=1, 
-	DF_EURO=2,
+	DF_ISO		= 0, 
+	DF_US		= 1, 
+	DF_EURO		= 2,
+	DF_ISO8601	= 3,
 } DATEFORMAT;
 
 /*	Typedef INITSEQ
