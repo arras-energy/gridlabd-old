@@ -504,7 +504,7 @@ EXPORT int method_recorder_property(OBJECT *obj, ...)
 		if ( size == 0 )
 			return my->property?strlen(my->property)+1:0;
 		else
-			return (my->property?strlen(my->property)+1:0) > size;
+			return (my->property?strlen(my->property)+1:0) < size;
 	}
 	else if ( size == 0 ) // copy from data
 	{
