@@ -15,7 +15,8 @@ DEPRECATED static GLOBALVAR *global_varlist = NULL, *lastvar = NULL;
 DEPRECATED static KEYWORD df_keys[] = {
 	{"ISO", DF_ISO, df_keys+1},
 	{"US", DF_US, df_keys+2},
-	{"EURO", DF_EURO, NULL},
+	{"EURO", DF_EURO, df_keys+3},
+	{"ISO8601", DF_ISO8601, NULL},
 };
 DEPRECATED static KEYWORD trl_keys[] = {
 	{"PRINCIPLE",	TRL_PRINCIPLE, trl_keys+1},
@@ -279,6 +280,7 @@ DEPRECATED static struct s_varmap {
 	{"sanitize_index", PT_char1024, &global_sanitizeindex, PA_PUBLIC, "sanitization index file spec"},
 	{"sanitize_offset", PT_char32, &global_sanitizeoffset, PA_PUBLIC, "sanitization lat/lon offset"},
 	{"simulation_mode",PT_enumeration,&global_simulation_mode,PA_PUBLIC, "current time simulation type",sm_keys},
+	{"deltamode_allowed", PT_bool, &global_deltamode_allowed, PA_PUBLIC, "flag to allow simulation in deltamode",NULL,delta_modecheck},
 	{"deltamode_timestep",PT_int32,&global_deltamode_timestep,PA_PUBLIC, "uniform step size for deltamode simulations"},
 	{"deltamode_maximumtime", PT_int64,&global_deltamode_maximumtime,PA_PUBLIC, "maximum time (ns) deltamode can run"},
 	{"deltaclock", PT_int64, &global_deltaclock, PA_PUBLIC, "cumulative delta runtime with respect to the global clock"},
