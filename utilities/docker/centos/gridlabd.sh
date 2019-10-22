@@ -11,6 +11,10 @@ echo "
 # gridlabd source
 cd /usr/local/src
 git clone $REPO gridlabd -b $BRANCH
+if [ ! -d /usr/local/src/gridlabd ]; then
+	echo "ERROR: unable to download $REPO/$BRANCH"
+	exit 1
+fi
 
 # install xercesc
 cd /usr/local/src/gridlabd/third_party
@@ -104,9 +108,9 @@ git reset --hard
 make install
 
 
-if [ "$BRANCH" = "master" ]
-then 
-	make validate 
+if [ "$BRANCH" = "master" ]; then 
+	export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH}
+	gridlabd -T 0 --validate 
 fi
 
 # download weather data

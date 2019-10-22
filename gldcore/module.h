@@ -57,6 +57,17 @@ struct s_module_list {
 	struct s_module_list *next;
 }; /* MODULE */
 
+struct s_procinfo {
+	pid_t pid;				/* process id */
+	TIMESTAMP progress;		/* current simtime */
+	TIMESTAMP starttime;	/* sim starttime */
+	TIMESTAMP stoptime;		/* sim stoptime */
+	enumeration status;		/* current status */
+	char1024 model;			/* model name */
+	time_t start;			/* wall time of start */
+};
+typedef struct s_procinfo PROCINFO;
+
 #ifndef _MODULE_DEFINED_
 #define _MODULE_DEFINED_
 typedef struct s_module_list MODULE;
@@ -116,6 +127,8 @@ extern "C" {
 	int module_commitall(TIMESTAMP t);
 	void module_termall(void);
 	MODULE *module_get_next(MODULE*);
+	STATUS sched_getinfo(int n,PROCINFO *pinfo);
+	int sched_getnproc(void);
 
 #ifdef __cplusplus
 }

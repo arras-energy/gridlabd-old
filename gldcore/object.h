@@ -176,6 +176,7 @@ typedef struct s_callbacks {
 		void (*add)(struct s_findlist*, OBJECT*);
 		void (*del)(struct s_findlist*, OBJECT*);
 		void (*clear)(struct s_findlist*);
+		struct s_findlist *(*list_create)(struct s_findlist*,const char *);
 	} find;
 	PROPERTY *(*find_property)(CLASS *, PROPERTYNAME);
 	void *(*malloc)(size_t);
@@ -388,6 +389,7 @@ OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name);
 OBJECT *object_find_name(OBJECTNAME name);
 int object_build_name(OBJECT *obj, char *buffer, int len);
 int object_locate_property(void *addr, OBJECT **pObj, PROPERTY **pProp);
+int object_property_getsize(OBJECT *obj, PROPERTY *prop);
 
 int object_get_oflags(KEYWORD **extflags);
 

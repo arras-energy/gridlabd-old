@@ -1,8 +1,11 @@
 FROM centos:7
 ENV container docker
 ENV REPO=https://github.com/dchassin/gridlabd
+ENV BRANCH=master
 ENV ENABLE=gismo
 ENV GET_WEATHER=no
+ENV REMOVE_SOURCE=yes
+ENV ENABLE_GDB=no
 ENV LD_LIBRARY_PATH /usr/local/lib
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \

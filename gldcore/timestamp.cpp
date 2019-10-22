@@ -545,7 +545,23 @@ int strdatetime(DATETIME *t, char *buffer, int size)
 	}
 
 	/* choose best format */
-	if ( global_dateformat == DF_ISO )
+	if ( global_dateformat == DF_ISO8601 )
+	{
+		char tzs = ( t->tzoffset < 0 ? '+' : '-' );
+		int tzh = (t->tzoffset<0?-t->tzoffset:t->tzoffset) / 3600 ;
+		int tzm = ((t->tzoffset<0?-t->tzoffset:t->tzoffset)-tzh*3600)/60 % 60;
+		if ( t->nanosecond != 0 ) 
+		{
+			len = sprintf(tbuffer, "%04d-%02d-%02dT%02d:%02d:%02d.%06d%c%02d:%02d",
+				t->year, t->month, t->day, t->hour, t->minute, t->second, t->nanosecond/1000, tzs, tzh, tzm);
+		} 
+		else 
+		{
+			len = sprintf(tbuffer, "%04d-%02d-%02dT%02d:%02d:%02d%c%02d:%02d",
+				t->year, t->month, t->day, t->hour, t->minute, t->second, tzs, tzh, tzm);
+		}
+	} 
+	else if ( global_dateformat == DF_ISO )
 	{
 		if ( t->nanosecond != 0 ) 
 		{
