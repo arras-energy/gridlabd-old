@@ -503,7 +503,17 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
-	if ( argc > 1 && strcmp(argv[1],"all" ) == 0 )
+	const char *opt = strchr(argv[0],'=');
+	if ( opt++ == NULL )
+	{
+		opt = "default";
+	}
+	if ( strcmp(opt,"default") == 0 )
+	{
+		output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
+		return 0;
+	}
+	else if ( strcmp(opt,"all" ) == 0 )
 	{	
 		output_message("%s %s-%d (%s) "
 #if defined MACOSX
@@ -512,29 +522,29 @@ int GldCmdarg::version(int argc, const char *argv[])
 			"LINUX"
 #endif
 			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"number" ) == 0 )
+	else if ( strcmp(opt,"number" ) == 0 )
 	{
 		output_message("%s", PACKAGE_VERSION);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"build") == 0 )
+	else if ( strcmp(opt,"build") == 0 )
 	{
 		output_message("%d", BUILDNUM);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"package") == 0 )
+	else if ( strcmp(opt,"package") == 0 )
 	{
 		output_message("%s", PACKAGE_NAME);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"branch") == 0 )
+	else if ( strcmp(opt,"branch") == 0 )
 	{
 		output_message("%s", BRANCH);
-		return 1;
+		return 0;
 	}
-	else if ( argc > 1 && strcmp(argv[1],"platform") == 0 )
+	else if ( strcmp(opt,"platform") == 0 )
 	{
 		output_message(
 #if defined MACOSX
@@ -543,12 +553,23 @@ int GldCmdarg::version(int argc, const char *argv[])
 			"LINUX"
 #endif
 		);
-		return 1;
+		return 0;
+	}
+	else if ( strcmp(opt,"install") == 0 )
+	{
+		output_message("%s_%s-%d_%s_%s-x64_86", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH, 
+#if defined MACOSX
+			"macos"
+#else // LINUX
+			"linux"
+#endif
+			);
+		return 0;
 	}
 	else
 	{
-		output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
-		return 0;
+		output_error("version option '%s' is not valid", opt);
+		return CMDERR;
 	}
 }
 
@@ -1781,12 +1802,70 @@ int GldCmdarg::origin(int argc, const char *argv[])
 			int old = global_suppress_repeat_messages;
 			global_suppress_repeat_messages = 0;
 			line[len] = '\0';
-			output_message("%s",line);
+			output_raw("%s",line);
 			global_suppress_repeat_messages = old;
 		}
 	}
 	fclose(fp);
 	return 1;
+}
+
+DEPRECATED static int cite(void *main, int argc, const char *argv[])
+{
+	FILE *fp;
+	char originfile[1024];
+	if ( find_file("origin.txt",NULL,R_OK,originfile,sizeof(originfile)-1) == NULL )
+	{
+		IN_MYCONTEXT output_error("origin file not found");
+		return CMDERR;
+	}
+	fp = fopen(originfile,"r");
+	if ( fp == NULL )
+	{
+		IN_MYCONTEXT output_error("unable to open origin file");
+		return CMDERR;
+	}
+	char url[1024] = "";
+	if ( ! feof(fp) )
+	{
+		char line[1024];
+		size_t len = fread(line,sizeof(line[0]),sizeof(line)-1,fp);
+		if ( ferror(fp) )
+		{
+			IN_MYCONTEXT output_error("error reading origin file");
+			return CMDERR;
+		}
+		if ( len >= 0 && url[0] == '\0' && strncmp(line,"# http",6)==0 )
+		{
+			char *end = strstr(line,"/commits/");
+			if ( end == NULL )
+				end = strchr(line,'\n');
+			if ( end )
+				*end = '\0';
+			strcpy(url,line+2);
+		}
+		else
+		{
+			strcpy(url,global_urlbase);
+		}
+	}
+	fclose(fp);
+
+#if defined MACOSX
+		const char *platform = "Darwin";
+#else // LINUX
+	const char *platform = "Linux";
+#endif
+	int year = 2000+BUILDNUM/10000;
+	int month = (BUILDNUM%10000)/100;
+	int day = (BUILDNUM%100);
+	const char *Month[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	output_message("Chassin, D.P., et al., \"%s %s-%d (%s)"
+		" %s\" (%d) [online]."
+		" Available at %s. Accessed %s. %d, %d", 
+		PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH,
+		platform, year, url, Month[month-1], day, year);
+	return 0;
 }
 
 #include "job.h"
@@ -1828,6 +1907,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"build-info",	NULL,	build_info,		NULL, "Displays the build information" },
 	{"setup",		NULL,	setup,			NULL, "Open simulation setup screen" },
 	{"origin",		NULL,	origin,			NULL, "Display origin information" },
+	{"cite",		NULL,	cite,			NULL, "Print the complete citation for this version"},
 
 	{NULL,NULL,NULL,NULL, "Test processes"},
 	{"dsttest",		NULL,	dsttest,		NULL, "Perform daylight savings rule test" },

@@ -1,5 +1,5 @@
 // this test checks that loader extension initialization failure is caught properly
-#system gcc -shared -o hello.so -fPIC -D INIRC=1 ../hello.c
+#system gcc -shared -o hello.so -fPIC -D INITRC=1 ../hello.c
 extension hello;
 
 hello
