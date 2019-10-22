@@ -1514,6 +1514,16 @@ static int multiline_value(PARSER,char *result,int size)
 		case 't':
 			value += std::string("\t");
 			break;
+		case 'b':
+			value += std::string("\b");
+			break;
+		case 'f':
+			value += std::string("\f");
+			break;
+		case 'r':
+			value += std::string("\r");
+			break;
+		// TODO: need \uXXXX
 		default:
 			break;
 		}
@@ -4760,7 +4770,20 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						ACCEPT;
 					}
 				}
-				else if (object_set_value_by_name(obj,propname,propval)==0)
+				else if ( prop->ptype >= PT_char8 && prop->ptype <= PT_char1024 )
+				{
+					int len = object_set_value_by_name(obj,propname,propval);
+					if ( len < (int)strlen(propval) )
+					{
+						output_error_raw("%s(%d): property %s of %s could not be set to value '%s' (only %d bytes read)", filename, linenum, propname, format_object(obj), propval, len);
+						REJECT;
+					}
+					else
+					{
+						ACCEPT;
+					}
+				}
+				else if ( object_set_value_by_name(obj,propname,propval) == 0 )
 				{
 					output_error_raw("%s(%d): property %s of %s could not be set to value '%s'", filename, linenum, propname, format_object(obj), propval);
 					REJECT;
@@ -7391,6 +7414,31 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		if( global_return_code==127 || global_return_code==-1 )
 		{
 			output_error_raw("%s(%d): ERROR unable to execute '%s' (status=%d)", filename, linenum, value, global_return_code);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
+	else if (strncmp(line,MACRO "exec",5)==0)
+	{
+		char *term = strchr(line+5,' ');
+		char value[1024];
+		if (term==NULL)
+		{
+			output_error_raw("%s(%d): %ssystem missing system call",filename,linenum,MACRO);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		strcpy(value, strip_right_white(term+1));
+		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
+		global_return_code = system(value);
+		if( global_return_code != 0 )
+		{
+			output_error_raw("%s(%d): ERROR executing system(char *cmd='%s') -> non-zero exit code (status=%d)", filename, linenum, value, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
