@@ -7,7 +7,7 @@ ENV ENABLE=<<<GRIDLABD_ENABLE>>>
 ENV GET_WEATHER=<<<GET_WEATHER>>>
 ENV REMOVE_SOURCE=<<<REMOVE_SOURCE>>>
 ENV ENABLE_GDB=<<<ENABLE_GDB>>>
-ENV LD_LIBRARY_PATH /usr/local/lib
+ENV LD_LIBRARY_PATH .:/usr/local/lib
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
 systemd-tmpfiles-setup.service ] || rm -f $i; done); \
