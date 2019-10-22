@@ -132,6 +132,7 @@ powerflow_object::powerflow_object(MODULE *mod)
 				PT_KEYWORD, "NORMAL", PS_NORMAL,
 				PT_KEYWORD, "OUTAGE", PS_OUTAGE,
 #endif
+			PT_char1024, "supernode_name", PADDR(supernode),
          	NULL) < 1) GL_THROW("unable to publish powerflow_object properties in %s",__FILE__);
 
 		// set defaults
@@ -150,7 +151,7 @@ int powerflow_object::isa(CLASSNAME classname)
 
 int powerflow_object::create(void)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	phases = NO_PHASE;
 	nominal_voltage = 0.0;
 
@@ -219,7 +220,7 @@ TIMESTAMP powerflow_object::sync(TIMESTAMP t0)
 TIMESTAMP powerflow_object::postsync(TIMESTAMP t0)
 {
 #ifdef SUPPORT_OUTAGES
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	if (condition!=OC_NORMAL && solution==PS_NORMAL)
 	{
 		char buffer[1024]="???";

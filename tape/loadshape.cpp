@@ -99,7 +99,7 @@ int loadshape::create()
  */
 int loadshape::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	
 	state = TS_INIT;
 

@@ -278,6 +278,8 @@ typedef struct s_implicit_enduse_list {
 #include "elcap1990.h"
 #include "elcap2010.h"
 #include "rbsa2014.h"
+#include "rbsa2014_discrete.h"
+#include "eia2015.h"
 
 EXPORT CIRCUIT *attach_enduse_house_e(OBJECT *obj, enduse *target, double breaker_amps, int is220)
 {
@@ -632,6 +634,8 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_KEYWORD,"ELCAP1990", (enumeration)IES_ELCAP1990,
 			PT_KEYWORD,"ELCAP2010", (enumeration)IES_ELCAP2010,
 			PT_KEYWORD,"RBSA2014", (enumeration)IES_RBSA2014,
+			PT_KEYWORD,"RBSA2014_DISCRETE", (enumeration)IES_RBSA2014_DISCRETE,
+			PT_KEYWORD,"EIA2015", (enumeration)IES_EIA2015,
 			NULL);
 		gl_global_create("residential::house_low_temperature_warning[degF]",PT_double,&warn_low_temp,
 			PT_DESCRIPTION, "the low house indoor temperature at which a warning will be generated",
@@ -745,8 +749,16 @@ int house_e::create()
 				eu = elcap2010;
 				break;
 			case IES_RBSA2014:
-				gl_warning("RBSA2010 implicit enduse data is not valid for individual enduses");
+				gl_warning("RBSA2014 implicit enduse data is not valid for individual enduses");
 				eu = rbsa2014;
+				break;
+			case IES_RBSA2014_DISCRETE:
+				gl_warning("RBSA2014 discrete implicit enduse data is experimental");
+				eu = rbsa2014_discrete;
+				break;
+			case IES_EIA2015:
+				gl_warning("EIA 2015 implicit enduse data is experimental");
+				eu = eia2015;
 				break;
 			default:
 				gl_error("implicit enduse source '%d' is not recognized, using default ELCAP1990 instead", implicit_enduse_source);
@@ -883,7 +895,7 @@ int house_e::create()
 	last_temperature = 75;
 	thermostat_mode = TM_AUTO;
 
-//	printf("module flags = 0x%llx, house flags = 0x%llx\n", module_message_flags, OBJECTHDR(this)->flags);
+//	printf("module flags = 0x%llx, house flags = 0x%llx\n", module_message_flags, THISOBJECTHDR->flags);
 //	verbose("creating house_e");
 //	debug("created house_e");
 
@@ -901,7 +913,7 @@ then Tout will be set to 74 degF, RHout is set to 75% and solar flux will be set
 **/
 int house_e::init_climate()
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	// link to climate data
 	static FINDLIST *climates = NULL;
@@ -1385,7 +1397,7 @@ int house_e::init(OBJECT *parent)
 			return 2; // defer
 		}
 	}
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	hdr->flags |= OF_SKIPSAFE;
 
 	heat_start = false;
@@ -1406,7 +1418,7 @@ int house_e::init(OBJECT *parent)
 	size_t i;
 
 	// find parent meter, if not defined, use a default meter (using static variable 'default_meter')
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	if (parent!=NULL && (gl_object_isa(parent,"triplex_meter","powerflow") || gl_object_isa(obj->parent,"triplex_node","powerflow")))
 	{
 		// attach meter variables to each circuit
@@ -1791,7 +1803,7 @@ int house_e::init(OBJECT *parent)
 	else
 		load.breaker_amps = hvac_breaker_rating;
 	load.config = EUC_IS220;
-	attach(OBJECTHDR(this),hvac_breaker_rating, true, &load);
+	attach(THISOBJECTHDR,hvac_breaker_rating, true, &load);
 
 	if(include_fan_heatgain == TRUE){
 		fan_heatgain_fraction = 1;
@@ -2442,7 +2454,7 @@ void house_e::update_system(double dt)
 **/
 TIMESTAMP house_e::presync(TIMESTAMP t0, TIMESTAMP t1) 
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	const double dt = (double)((t1-t0)*TS_SECOND)/3600;
 	CIRCUIT *c;
 	extern bool ANSI_voltage_check;
@@ -2794,7 +2806,7 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 /** Removes load contributions from parent object **/
 TIMESTAMP house_e::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	// compute line currents and post to meter
 	if (obj->parent != NULL)
@@ -2983,7 +2995,7 @@ TIMESTAMP house_e::sync_thermostat(TIMESTAMP t0, TIMESTAMP t1)
 	if (TcoolOff<TheatOff && cooling_system_type!=CT_NONE)
 	{
 		char buffer[64];
-		gl_error("%s: thermostat setpoints deadbands overlap (TcoolOff=%.1f < TheatOff=%.1f)", gl_name(OBJECTHDR(this),buffer,sizeof(buffer)), TcoolOff, TheatOff);
+		gl_error("%s: thermostat setpoints deadbands overlap (TcoolOff=%.1f < TheatOff=%.1f)", gl_name(THISOBJECTHDR,buffer,sizeof(buffer)), TcoolOff, TheatOff);
 		return TS_INVALID;
 	}
 
@@ -2991,7 +3003,7 @@ TIMESTAMP house_e::sync_thermostat(TIMESTAMP t0, TIMESTAMP t1)
 	if(system_mode == SM_UNKNOWN)
 	{
 		char buffer[64];
-		gl_warning("%s: system_mode was unknown, changed to off", gl_name(OBJECTHDR(this),buffer,sizeof(buffer)));
+		gl_warning("%s: system_mode was unknown, changed to off", gl_name(THISOBJECTHDR,buffer,sizeof(buffer)));
 		system_mode = SM_OFF;
 	}
 	
@@ -3159,7 +3171,7 @@ TIMESTAMP house_e::sync_thermostat(TIMESTAMP t0, TIMESTAMP t1)
 TIMESTAMP house_e::sync_panel(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	// clear accumulator
 	if((t0 >= simulation_beginning_time && t1 > t0) || (!heat_start)){
@@ -3342,7 +3354,7 @@ TIMESTAMP house_e::sync_enduses(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	IMPLICITENDUSE *eu;
-	//OBJECT *obj = OBJECTHDR(this);
+	//OBJECT *obj = THISOBJECTHDR;
 	//char one[128], two[128];
 	for (eu=implicit_enduse_list; eu!=NULL; eu=eu->next)
 	{
@@ -3367,7 +3379,7 @@ void house_e::check_controls(void)
 	char buffer[256];
 	if (warn_control)
 	{
-		OBJECT *obj = OBJECTHDR(this);
+		OBJECT *obj = THISOBJECTHDR;
 		/* check for air temperature excursion */
 		if (Tair<warn_low_temp || Tair>warn_high_temp)
 		{
@@ -3439,7 +3451,7 @@ int *house_e::get_enum(OBJECT *obj, const char *name)
 //Module-level call
 SIMULATIONMODE house_e::inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Right now, houses don't really support deltamode.  This is a half-kludge to get them to play
 	//nice with powerflow.  When they did support it, that code would go here.
@@ -3481,7 +3493,7 @@ SIMULATIONMODE house_e::inter_deltaupdate(unsigned int64 delta_time, unsigned lo
 //Module-level post update call
 STATUS house_e::post_deltaupdate(void)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Right now, basically undo what was done in interupdate.  When houses properly support
 	//dynamics, we'll revisit how this interaction occurs (get node to zero accumulators or something)
@@ -3530,13 +3542,13 @@ bool circuit_measurement(const char *timestamp,
 			gl_error("unable to open '%s' for write access",paneldump_filename);
 			return false;
 		}
-		fprintf(paneldump_fh,"timestamp,name,enduse,real,reactive\n");
+		fprintf(paneldump_fh,"timestamp,name,enduse,real[%s],reactive[%s]\n",integral?"kWh":"kW",integral?"kVArh":"kVAr");
 	}
 
 	// integral sampling (energy)
 	if ( integral )
 	{
-		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,m[0].energy.Re()-m[1].energy.Re(),m[0].energy.Im()-m[1].energy.Im());
+		fprintf(paneldump_fh,"%s,%s,%s,%g,%g\n",timestamp,name,enduse,(m[0].energy.Re()-m[1].energy.Re())/3600.0,(m[0].energy.Im()-m[1].energy.Im())/3600.0);
 		m[1].t = 0; // resets energy interval measurements
 	}
 

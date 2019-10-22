@@ -65,7 +65,7 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 			PT_double, "ground_diameter[in]", PADDR(ground_diameter), PT_DESCRIPTION, "diameter of pole at ground level",
 			PT_double, "top_diameter[in]", PADDR(top_diameter), PT_DESCRIPTION, "diameter of pole at top",
 			PT_double, "fiber_strength[psi]", PADDR(fiber_strength), PT_DESCRIPTION, "pole structural strength",
-			PT_double, "repair_time[s]", PADDR(repair_time), PT_DESCRIPTION, "pole repair time",
+			PT_double, "repair_time[h]", PADDR(repair_time), PT_DESCRIPTION, "pole repair time",
 			PT_double, "degradation_rate[in/yr]", PADDR(degradation_rate), PT_DESCRIPTION, "rate of pole degradation.", 
 			PT_enumeration, "treatment_method", PADDR(treatment_method), PT_DESCRIPTION, "pole degradation prevention treatment",
 				PT_KEYWORD, "NONE", (enumeration)PTM_NONE,
@@ -82,6 +82,7 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 
 int pole_configuration::create(void)
 {
+	pole_type = PT_WOOD;
     // Set up defaults for 45/5
 
     // defaults from chart 1 - medium loading district
@@ -112,7 +113,7 @@ int pole_configuration::create(void)
     // defaults from chart 5 - southern yellow pine
     fiber_strength = 8000;
 
-	repair_time = 86400;
+	repair_time = 0;
 	return 1;
 }
 
@@ -135,9 +136,17 @@ int pole_configuration::init(OBJECT *parent)
 		climate_impact_zone = PTM_CCA;
 	}
 	if ( degradation_rate < 0 ) // check for invalidate degredation rate
+    {
 		exception("degradation_rate must be zero or positive");
+    }
 	else if ( degradation_rate == 0 )
+    {
 		degradation_rate = pole_degredation_rate_data[climate_impact_zone][treatment_method];
+    }
+    if ( repair_time < 0 )
+    {
+        exception("repair time must be positive (or negative to use global pole::repair_time");
+    }
 	return 1;	
 }
 

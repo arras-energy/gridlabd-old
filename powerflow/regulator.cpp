@@ -79,7 +79,7 @@ int regulator::init(OBJECT *parent)
 	size_t jindex;
 	int result = link_object::init(parent);
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	if (!configuration)
 		throw "no regulator configuration specified.";
@@ -815,7 +815,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='A';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the maximum tap value",OBJECTHDR(this)->name,phaseWarn);
+		gl_warning("Regulator %s has phase %c at the maximum tap value",THISOBJECTHDR->name,phaseWarn);
 		/*  TROUBLESHOOT
 		The regulator has set its taps such that it is at the maximum setting.  This may indicate
 		a problem with settings, or your system.
@@ -826,7 +826,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='B';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the maximum tap value",OBJECTHDR(this)->name,phaseWarn);
+		gl_warning("Regulator %s has phase %c at the maximum tap value",THISOBJECTHDR->name,phaseWarn);
 		//Defined above
 	}
 
@@ -834,7 +834,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='C';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the maximum tap value",OBJECTHDR(this)->name,phaseWarn);
+		gl_warning("Regulator %s has phase %c at the maximum tap value",THISOBJECTHDR->name,phaseWarn);
 		//Defined above
 	}
 
@@ -842,7 +842,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='A';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the minimum tap value",OBJECTHDR(this)->name,phaseWarn);
+		gl_warning("Regulator %s has phase %c at the minimum tap value",THISOBJECTHDR->name,phaseWarn);
 		/*  TROUBLESHOOT
 		The regulator has set its taps such that it is at the minimum setting.  This may indicate
 		a problem with settings, or your system.
@@ -853,7 +853,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='B';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the minimum tap value",OBJECTHDR(this)->name,phaseWarn);
+		gl_warning("Regulator %s has phase %c at the minimum tap value",THISOBJECTHDR->name,phaseWarn);
 		//Defined above
 	}
 
@@ -861,7 +861,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='C';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the minimum tap value",OBJECTHDR(this)->name,phaseWarn);
+		gl_warning("Regulator %s has phase %c at the minimum tap value",THISOBJECTHDR->name,phaseWarn);
 		//Defined above
 	}
 	if (offnominal_time && (t0 > next_time))

@@ -1456,24 +1456,19 @@ int convert_from_method (	char *buffer, /**< a pointer to the string buffer */
 							PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
 	if ( prop == NULL ) 
-	{ 
+	{
 		output_error("gldcore/convert_from_method(): prop is null"); 
 		return -1; 
 	}
+	OBJECT *obj = (OBJECT*)((char*)data-(int64)(prop->addr))-1;
 	if ( buffer == NULL ) 
 	{ 
-		output_error("gldcore/convert_from_method(prop='%s'): buffer is null", prop->name); 
-		return -1; 
+		// special request for size of result
+		return prop->method(obj,NULL,0); 
 	}
-	if ( data == NULL ) 
+	else if ( prop->method(obj,NULL,0) > size ) 
 	{ 
-		output_error("gldcore/convert_from_method(prop='%s'): data is null", prop->name); 
-		return -1; 
-	}
-	OBJECT *obj = (OBJECT*)(data)-1;
-	if ( prop->method(obj,NULL,size) == 0 ) 
-	{ 
-		output_error("gldcore/convert_from_method(prop='%s'): result is too large to handle", prop->name); 
+		output_error("gldcore/convert_from_method(prop='%s'): result is too large to handle with a buffer of size %d", prop->name, size); 
 		return -1; 
 	}
 	int rc = (prop->method)(obj,buffer,size);

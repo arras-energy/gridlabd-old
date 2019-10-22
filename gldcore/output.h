@@ -65,7 +65,7 @@ int output_xsl(const char *fname, int n_mods, const char *p_mods[]);
 
 #define SET_MYCONTEXT(X) static set my_output_message_context = (set)X;
 //#define IN_CONTEXT(X) if ( printf("%s(%d): IN_MYCONTEXT => if ( 0x%016lx & 0x%016lx == %s ) ...\n", __FILE__,__LINE__,global_output_message_context, (set)X, (global_output_message_context&(set)X) ? "TRUE" : "FALSE"), (global_output_message_context&(set)X) )
-#define IN_CONTEXT(X) if ( global_output_message_context&(set)X )
+#define IN_CONTEXT(X) if ( ( global_verbose_mode || global_debug_output ) && global_output_message_context&(set)X )
 #define IN_MYCONTEXT IN_CONTEXT(my_output_message_context)
 
 #endif

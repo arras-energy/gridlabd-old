@@ -82,39 +82,69 @@ def globals_glm() :
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // GLOBALS')
 		for p_id, p_info in data['globals'].items() : 
-			if p_info['value'] and p_id not in globals_ignore: 
-				tmp_str = '\n' + '#define ' + p_id + "="+ p_info['value'] 
-				fw.write(tmp_str)
+			if p_info['access'] == "PUBLIC" and p_info['value'] and 'infourl' not in p_id and "::" not in p_id: 
+				ifndef_str = '\n' + '#ifndef ' + p_id 
+				if 'int' in p_info['type'] or 'double' in p_info['type'] or 'bool' in p_info['type'] or \
+				'enumeration' in p_info['type'] or p_info['value']=='NONE' or 'set' in p_info['type'] \
+				or 'complex' in p_info['type'] :
+					tmp_str = '\n' + 'global ' + p_info['type'] +' '+ p_id +' '+ p_info['value'] +';'
+					set_str = '\n' + '#set ' + p_id + '=' + p_info['value']
+				else : 
+					tmp_str = '\n' + 'global ' + p_info['type'] +' '+ p_id +' \"'+ p_info['value'] +'\";'
+					set_str = '\n' + '#set ' + p_id + '=\"' + p_info['value'] + '\"'
+				else_str = '\n' + '#else'
+				endif_str = '\n' + '#endif //' + p_id
+				fw.write(ifndef_str)
+				fw.write(tmp_str+else_str+set_str)
+				fw.write(endif_str)
+			else :
+				val_str = '\n' + '// ' + p_id + ' is set to ' + p_info['value']
+				fw.write(val_str)	
 	return True
 
 def modules_glm() : 
 	global data
 	global fw
+	
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // MODULES') 
-		for p_id, p_info in data['modules'].items() :  
-			tmp_str = '\n' + 'module ' + p_id + ';'
+		for p_id, p_info in data['modules'].items() : 
+			tmp_str = '\n' + 'module ' + p_id + '{'
 			fw.write(tmp_str)
+			for f_id, f_info in data['globals'].items() : 
+				if p_id in f_id and '::' in f_id and f_info['access'] == "PUBLIC" and f_info['value']: 
+					mod_var = f_id.split('::')
+					val_str = '\n\t' + mod_var[1] +' '+ f_info['value'] + ';'
+					fw.write(val_str)
+			fw.write('\n}')
 
 # def classes_glm P: 
 # 	return True 
 def objects_glm() : 
 	global data 
 	global fw 
+	obj_id = []
 	with open(filename_glm, "a") as fw :
 		fw.write('\n // OBJECTS')
 		for p_id, p_info in data['objects'].items() : 
-			header_str = '\n' + 'object ' + p_info["class"] + '{'
+			obj_id.append([int(p_info['id']),p_id])
+			obj_id_sorted = sorted(obj_id, key=lambda tup: tup[0])
+			id_list,ordered_obj_list= zip(*obj_id_sorted)
+		for obj_id_sorted in ordered_obj_list : 
+			header_str = '\n' + 'object ' + data['objects'][obj_id_sorted]["class"] + '{'
 			fw.write(header_str)
-			if ':' in p_id : 
-				new_name = p_info['class']+'_'+p_info['id']
+			if ':' in obj_id_sorted : 
+				new_name = data['objects'][obj_id_sorted]['class']+'_'+data['objects'][obj_id_sorted]['id']
 			else :
-				new_name = p_id 
+				new_name = obj_id_sorted 
 			name_str = '\n' + '\t' + "name \"" + new_name + '\";'
 			fw.write(name_str)
-			for v_id, v_info in data['objects'][p_id].items() : 
+			for v_id, v_info in data['objects'][obj_id_sorted].items() : 
 				if v_id not in objects_ignore and v_info:  
-					val_str = "\n"+ "\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
+					if "\n" in v_info :
+						val_str = "\n"+ "\t" + v_id+ " " + '\"\"\"' + v_info.replace('"', '\\\"') + '\"\"\";'
+					else : 
+						val_str = "\n"+"\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
 					fw.write(val_str)
 			fw.write('\n}' )
 	return True
@@ -131,9 +161,11 @@ def schedules_glm() :
 			fw.write('\n}' )
 
 clock_glm()
+
 modules_glm()
-classes_glm()
 globals_glm()
+classes_glm()
+
 schedules_glm()
 objects_glm()
 

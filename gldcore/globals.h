@@ -123,14 +123,16 @@ size_t global_saveall(FILE *fp);
 		DF_ISO = 0 - ISO standard format
 		DF_US = 1 - USA date format (i.e., mm/dd/yyyy)
 		DF_EURO = 2 - EU data format (i.e., dd/mm/yyyy)
+		DF_ISO8601 = 3 - ISO8601 standard format
 
 	See Also:
 	- <global_dateformat>
  */
 typedef enum e_dateformat {
-	DF_ISO=0, 
-	DF_US=1, 
-	DF_EURO=2,
+	DF_ISO		= 0, 
+	DF_US		= 1, 
+	DF_EURO		= 2,
+	DF_ISO8601	= 3,
 } DATEFORMAT;
 
 /*	Typedef INITSEQ
@@ -472,11 +474,11 @@ GLOBAL int global_check_version INIT(0); /**< check version flag */
 GLOBAL int global_randomnumbergenerator INIT(RNG3); /**< select which random number generator to use */
 
 typedef enum {
-	MLS_INIT, /**< main loop initializing */
-	MLS_RUNNING, /**< main loop is running */
-	MLS_PAUSED, /**< main loop is paused (waiting) */
-	MLS_DONE, /**< main loop is done (steady) */
-	MLS_LOCKED, /**< main loop is locked (possible deadlock) */
+	MLS_INIT = 0, /**< main loop initializing */
+	MLS_RUNNING = 1, /**< main loop is running */
+	MLS_PAUSED = 2, /**< main loop is paused (waiting) */
+	MLS_DONE = 3, /**< main loop is done (steady) */
+	MLS_LOCKED = 4, /**< main loop is locked (possible deadlock) */
 } MAINLOOPSTATE; /**< identifies the main loop state */
 
 /* Variable:  */
@@ -512,6 +514,12 @@ typedef enum {
 
 /* Variable:  */
 GLOBAL SIMULATIONMODE global_simulation_mode INIT(SM_INIT); /**< simulation mode */
+
+/* Variable: global_allow_deltamode 
+
+	Flag to allow simulation in delta-mode
+*/
+GLOBAL bool global_deltamode_allowed INIT(FALSE);
 
 /* Variable:  */
 GLOBAL DT global_deltamode_timestep INIT(10000000); /**< delta mode time step in ns (default is 10ms) */
@@ -728,6 +736,9 @@ typedef enum {
 	GSO_NODEFAULTS	= 0x0008,
 	GSO_MINIMAL 	= 0x000f,
 } GLMSAVEOPTIONS;
+
+/* Variable: */
+GLOBAL bool global_ignore_errors INIT(FALSE); 
 
 /* Variable:  */
 GLOBAL bool global_ignore_errors INIT(FALSE); 

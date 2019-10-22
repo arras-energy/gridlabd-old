@@ -161,7 +161,7 @@ static CALLBACKS callbacks = {
 	class_define_set_member,
 	{object_get_first,object_set_dependent,object_set_parent,object_set_rank,},
 	{object_get_property, object_set_value_by_addr,object_get_value_by_addr, object_set_value_by_name,object_get_value_by_name,object_get_reference,object_get_unit,object_get_addr,class_string_to_propertytype,property_compare_basic,property_compare_op,property_get_part,property_getspec},
-	{find_objects,find_next,findlist_copy,findlist_add,findlist_del,findlist_clear},
+	{find_objects,find_next,findlist_copy,findlist_add,findlist_del,findlist_clear,findlist_create},
 	class_find_property,
 	module_malloc,
 	module_free,
@@ -461,7 +461,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->minor = pMinor?*pMinor:0;
 	mod->import_file = (int(*)(const char*))DLSYM(hLib,"import_file");
 	mod->export_file = (int(*)(const char*))DLSYM(hLib,"export_file");
-	mod->setvar = (int(*)(const char*,char*))DLSYM(hLib,"setvar");
+	mod->setvar = (int(*)(const char*,const char*))DLSYM(hLib,"setvar");
 	mod->getvar = (void*(*)(const char*,char*,unsigned int))DLSYM(hLib,"getvar");
 	mod->check = (int(*)())DLSYM(hLib,"check");
 	/* deltamode */
@@ -712,8 +712,10 @@ void module_list(void)
 		free(gridLabD);
 	}
 }
-int module_setvar(MODULE *mod, const char *varname, char *value)
+int module_setvar(MODULE *mod, const char *varname, const char *value)
 {
+	if ( mod->setvar != NULL && mod->setvar(varname,value)>0 )
+		return 1;
 	char modvarname[1024];
 	sprintf(modvarname,"%s::%s",mod->name,varname);
 	return global_setvar(modvarname,value)==SUCCESS;
@@ -1954,6 +1956,30 @@ int sched_getinfo(int n,char *buf, size_t sz)
 		sz = sprintf(buf,"%4d   -", n);
 	sched_unlock(n);
 	return (int)sz;
+}
+
+STATUS sched_getinfo(int n,PROCINFO *pinfo)
+{
+	if ( n < 0 && n >= n_procs)
+	{
+		errno = EINVAL;
+		return FAILED;
+	}
+	sched_lock(n);
+	pinfo->pid = process_map[n].pid;
+	pinfo->progress = process_map[n].progress;
+	pinfo->starttime = process_map[n].starttime;
+	pinfo->stoptime = process_map[n].stoptime;
+	pinfo->status = process_map[n].status;
+	strcpy(pinfo->model,process_map[n].model);
+	pinfo->start = process_map[n].start;
+	sched_unlock(n);
+	return SUCCESS;
+}
+
+int sched_getnproc(void)
+{
+	return n_procs;
 }
 
 void sched_print(int flags) /* flag=0 for single listing, flag=1 for continuous listing */

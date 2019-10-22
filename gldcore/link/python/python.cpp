@@ -6,6 +6,7 @@
 #include "load.h"
 #include "exec.h"
 #include "save.h"
+#include <frameobject.h>
 
 static PyObject *gridlabd_exception(const char *format, ...);
 
@@ -47,6 +48,7 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args);
 static PyObject *gridlabd_set_value(PyObject *self, PyObject *args);
 
 static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args);
+static PyObject *gridlabd_pstatus(PyObject *self, PyObject *args);
 
 static PyMethodDef module_methods[] = {
     {"title", gridlabd_title, METH_VARARGS, "Get the software title"},
@@ -86,6 +88,7 @@ static PyMethodDef module_methods[] = {
     {"set_value", gridlabd_set_value, METH_VARARGS, "Set a GridLAB-D object property"},
     // utilities
     {"convert_unit", gridlabd_convert_unit, METH_VARARGS, "Convert units of a float, complex or string"},
+    {"pstatus", gridlabd_pstatus, METH_VARARGS, "Read gridlabd process status"},
 
     {NULL, NULL, 0, NULL}
 };
@@ -219,6 +222,27 @@ static PyObject *gridlabd_error(PyObject *self, PyObject *args)
     if ( ! PyArg_ParseTuple(args,"s",&text) )
         return gridlabd_exception("missing text argument");
     return PyLong_FromLong(output_error("%s",text));
+
+}
+
+static PyObject *gridlabd_traceback(const char *context=NULL)
+{
+    PyErr_Print();
+    PyThreadState *tstate = PyThreadState_GET();
+    if ( tstate != NULL && tstate->frame != NULL )
+    {
+        PyFrameObject *frame = tstate->frame;
+        output_error("%s python traceback...", context ? context : "(no context)");
+        while ( frame != NULL )
+        {
+            int line = PyCode_Addr2Line(frame->f_code,frame->f_lasti);
+            const char *filename = PyUnicode_AsUTF8(frame->f_code->co_filename);
+            const char *funcname = PyUnicode_AsUTF8(frame->f_code->co_name);
+            output_error("%s(%d): %s", filename, line, funcname);
+            frame = frame->f_back;
+        }
+    }
+    return NULL;
 
 }
 
@@ -415,7 +439,7 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
     }
 
     char *block;
-    PyObject *data;
+    PyObject *data, *item;
     if ( !PyArg_ParseTuple(args,"sO", &block, &data) )
         return NULL;
     if ( strcmp(block,"global") == 0 )
@@ -479,8 +503,12 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
         PyObject *key, *value;
         while ( PyDict_Next(data,&pos,&key,&value) )
         {
-            if ( PyObject_RichCompareBool(key,Py_BuildValue("s","name"),Py_EQ) )
+            if ( PyObject_RichCompareBool(key,item=Py_BuildValue("s","name"),Py_EQ) )
+            {
+                Py_DECREF(item);
                 continue;
+            }
+            Py_DECREF(item);
             fprintf(glmfh,"\t");
             PyObject_Print(key,glmfh,Py_PRINT_RAW);
             fprintf(glmfh," \"");
@@ -503,8 +531,12 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
         PyObject *key, *value;
         while ( PyDict_Next(data,&pos,&key,&value) )
         {
-            if ( PyObject_RichCompareBool(key,Py_BuildValue("s","name"),Py_EQ) )
+            if ( PyObject_RichCompareBool(key,item=Py_BuildValue("s","name"),Py_EQ) )
+            {
+                Py_DECREF(item);
                 continue;
+            }
+            Py_DECREF(item);
             fprintf(glmfh,"\t");
             PyObject_Print(key,glmfh,Py_PRINT_RAW);
             fprintf(glmfh," ");
@@ -527,8 +559,12 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
         PyObject *key, *value;
         while ( PyDict_Next(data,&pos,&key,&value) )
         {
-            if ( PyObject_RichCompareBool(key,Py_BuildValue("s","class"),Py_EQ) )
+            if ( PyObject_RichCompareBool(key,item=Py_BuildValue("s","class"),Py_EQ) )
+            {
+                Py_DECREF(item);
                 continue;
+            }
+            Py_DECREF(item);
             fprintf(glmfh,"\t");
             PyObject_Print(key,glmfh,Py_PRINT_RAW);
             fprintf(glmfh," \"");
@@ -739,12 +775,18 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
             {
                 if ( obj->name )
-                    PyList_Append(data,Py_BuildValue("s",obj->name));
+                {
+                    PyObject *item = Py_BuildValue("s",obj->name);
+                    PyList_Append(data,item);
+                    Py_DECREF(item);
+                }
                 else
                 {
                     char name[1024];
                     snprintf(name,sizeof(name),"%s:%d",obj->oclass->name,obj->id);
-                    PyList_Append(data,Py_BuildValue("s",name));
+                    PyObject *item = Py_BuildValue("s",name);
+                    PyList_Append(data,item);
+                    Py_DECREF(item);
                 }
             }
         }
@@ -754,7 +796,9 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             CLASS *oclass;
             for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
             {
-                PyList_Append(data,Py_BuildValue("s",oclass->name));
+                PyObject *item = Py_BuildValue("s",oclass->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
             }
         }
         else if ( strcmp(type,"modules") == 0 )
@@ -763,7 +807,9 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             MODULE *mod;
             for ( mod = module_get_first() ; mod != NULL ; mod = mod->next )
             {
-                PyList_Append(data,Py_BuildValue("s",mod->name));
+                PyObject *item = Py_BuildValue("s",mod->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
             }
         }
         else if ( strcmp(type,"globals") == 0 )
@@ -772,7 +818,9 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             GLOBALVAR *var;
             for ( var = global_find(NULL) ; var != NULL ; var = var->next )
             {
-                PyList_Append(data,Py_BuildValue("s",var->prop->name));
+                PyObject *item = Py_BuildValue("s",var->prop->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
             } 
         }
         else if ( strcmp(type,"transforms") == 0 )
@@ -782,7 +830,11 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             while ( (transform = transform_getnext(NULL)) != NULL )
             {
                 if ( transform->function_type == XT_FILTER )
-                    PyList_Append(data,Py_BuildValue("s",transform->tf->name));
+                {
+                    PyObject *item = Py_BuildValue("s",transform->tf->name);
+                    PyList_Append(data,item);
+                    Py_DECREF(item);
+                }
             } 
             return data;
         }
@@ -792,7 +844,9 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
             SCHEDULE *sch;
             for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
             {
-                PyList_Append(data,Py_BuildValue("s",sch->name));
+                PyObject *item = Py_BuildValue("s",sch->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
             }
             return data;
         }
@@ -835,15 +889,21 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
     if ( ! PyArg_ParseTuple(args, "ss", &name, &value) )
         return NULL;
     char previous[1024]="";
+    PyObject *ret = NULL;
     WriteLock();
-    if ( ! global_getvar(name,previous,sizeof(previous)) )
-        return gridlabd_exception("unable to get old value of global '%s'",name);
-    STATUS result = global_setvar(name,value);
-    if ( result == FAILED )
+    if ( global_getvar(name,previous,sizeof(previous)) )
     {
+        ret = Py_BuildValue("s",previous);
+    }
+    if ( global_setvar(name,value) == FAILED )
+    {
+        if ( ret ) Py_DECREF(ret);
         return gridlabd_exception("unable to set global '%s' to value '%s'",name,value);
     }
-    return Py_BuildValue("s",previous);
+    else
+    {
+        return ret ? ret : Py_None;
+    }
 }
 
 //
@@ -940,16 +1000,28 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("class '%s' not found", name);
     }
+    PyObject *item;
     PyObject *data = PyDict_New();
-    PyDict_SetItemString(data,"class.object_size",Py_BuildValue("L",(unsigned long long)oclass->size));
-    PyDict_SetItemString(data,"class.trl",Py_BuildValue("L",(unsigned long long)oclass->trl));
-    PyDict_SetItemString(data,"profiler.numobjs",Py_BuildValue("L",(unsigned long long)oclass->profiler.numobjs));
-    PyDict_SetItemString(data,"profiler.clocks",Py_BuildValue("L",(unsigned long long)oclass->profiler.clocks));
-    PyDict_SetItemString(data,"profiler.count",Py_BuildValue("L",(unsigned long long)oclass->profiler.count));
+    PyDict_SetItemString(data,"class.object_size",item=Py_BuildValue("L",(unsigned long long)oclass->size));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"class.trl",item=Py_BuildValue("L",(unsigned long long)oclass->trl));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"profiler.numobjs",item=Py_BuildValue("L",(unsigned long long)oclass->profiler.numobjs));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"profiler.clocks",item=Py_BuildValue("L",(unsigned long long)oclass->profiler.clocks));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"profiler.count",item=Py_BuildValue("L",(unsigned long long)oclass->profiler.count));
+    Py_DECREF(item);
     if ( oclass->module != NULL )
-        PyDict_SetItemString(data,"class.module",Py_BuildValue("s",oclass->module->name));
+    {
+        PyDict_SetItemString(data,"class.module",item=Py_BuildValue("s",oclass->module->name));
+        Py_DECREF(item);
+    }
     if ( oclass->parent != NULL )
-        PyDict_SetItemString(data,"class.parent",Py_BuildValue("s",oclass->parent->name));
+    {
+        PyDict_SetItemString(data,"class.parent",item=Py_BuildValue("s",oclass->parent->name));
+        Py_DECREF(item);
+    }
     PROPERTY *prop;
     for ( prop = oclass->pmap ; prop != NULL && prop->oclass==oclass ; prop = prop->next )
     {
@@ -957,7 +1029,8 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
         PROPERTYSPEC *spec = property_getspec(prop->ptype);
         if ( spec->size > 0 && spec->size < 1024 )
         {
-            PyDict_SetItemString(property,"type",Py_BuildValue("s",spec->name));
+            PyDict_SetItemString(property,"type",item=Py_BuildValue("s",spec->name));
+            Py_DECREF(item);
             char access[1024] = "";
             switch ( prop->access ) {
             case PA_PUBLIC: strcpy(access,"PUBLIC"); break;
@@ -974,7 +1047,8 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
                 if ( prop->access & PA_H ) strcat(access,"H");
                 break;
             }
-            PyDict_SetItemString(property,"access",Py_BuildValue("s",access));
+            PyDict_SetItemString(property,"access",item=Py_BuildValue("s",access));
+            Py_DECREF(item);
             if ( prop->keywords != NULL )
             {
                 PyObject *keywords = PyDict_New();
@@ -983,13 +1057,15 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
                 {
                     char buffer[1024];
                     snprintf(buffer,sizeof(buffer),"%p",(void*)(key->value));
-                    PyDict_SetItemString(keywords,key->name,Py_BuildValue("s",buffer));
+                    PyDict_SetItemString(keywords,key->name,item=Py_BuildValue("s",buffer));
+                    Py_DECREF(item);
                 }
                 PyDict_SetItemString(property,"keywords",keywords);
             }
             if ( prop->unit != NULL )
             {
-                PyDict_SetItemString(property,"unit",Py_BuildValue("s",prop->unit->name));
+                PyDict_SetItemString(property,"unit",item=Py_BuildValue("s",prop->unit->name));
+                Py_DECREF(item);
             }
             PyDict_SetItemString(data,prop->name,property);
         }
@@ -1020,46 +1096,92 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
         return gridlabd_exception("object '%s' not found", name);
     }
 
+    PyObject *item;
     PyObject *data = PyDict_New();
-    PyDict_SetItemString(data,"id",Py_BuildValue("L",(unsigned long long)obj->id));
+    PyDict_SetItemString(data,"id",item=Py_BuildValue("L",(unsigned long long)obj->id));
+    Py_DECREF(item);
     if ( obj->name )
-        PyDict_SetItemString(data,"name",Py_BuildValue("s",obj->name));
+    {
+        PyDict_SetItemString(data,"name",item=Py_BuildValue("s",obj->name));
+        Py_DECREF(item);
+    }
     else
     {
         char buffer[1024];
         sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
-        PyDict_SetItemString(data,"name",Py_BuildValue("s",buffer));
+        PyDict_SetItemString(data,"name",item=Py_BuildValue("s",buffer));
+        Py_DECREF(item);
     }
     if ( obj->oclass->name != NULL )
-        PyDict_SetItemString(data,"class",Py_BuildValue("s",obj->oclass->name));
+    {
+        PyDict_SetItemString(data,"class",item=Py_BuildValue("s",obj->oclass->name));
+        Py_DECREF(item);
+    }
     if ( obj->parent != NULL )
     {
         if ( obj->parent->name == NULL )
         {
             char buffer[1024];
             snprintf(buffer,sizeof(buffer),"%s:%d",obj->parent->oclass->name,obj->parent->id);
-            PyDict_SetItemString(data,"parent",Py_BuildValue("s",buffer));
+            PyDict_SetItemString(data,"parent",item=Py_BuildValue("s",buffer));
+            Py_DECREF(item);
         }
         else
-            PyDict_SetItemString(data,"parent",Py_BuildValue("s",obj->parent->name));
+        {
+            PyDict_SetItemString(data,"parent",item=Py_BuildValue("s",obj->parent->name));
+            Py_DECREF(item);
+        }
     }
-    if ( ! isnan(obj->latitude) ) PyDict_SetItemString(data,"latitude",Py_BuildValue("d",obj->latitude));
-    if ( ! isnan(obj->longitude) ) PyDict_SetItemString(data,"longitude",Py_BuildValue("d",obj->longitude));
-    if ( obj->groupid[0] != '\0' ) PyDict_SetItemString(data,"groupid",Py_BuildValue("s",(const char*)obj->groupid));
-    PyDict_SetItemString(data,"rank",Py_BuildValue("L",(unsigned long long)obj->rank));
+    if ( ! isnan(obj->latitude) ) 
+    {
+        PyDict_SetItemString(data,"latitude",item=Py_BuildValue("d",obj->latitude));
+        Py_DECREF(item);
+    }
+    if ( ! isnan(obj->longitude) ) 
+    {
+        PyDict_SetItemString(data,"longitude",item=Py_BuildValue("d",obj->longitude));
+        Py_DECREF(item);
+    }
+    if ( obj->groupid[0] != '\0' ) 
+    {
+        PyDict_SetItemString(data,"groupid",item=Py_BuildValue("s",(const char*)obj->groupid));
+        Py_DECREF(item);
+    }
+    PyDict_SetItemString(data,"rank",item=Py_BuildValue("L",(unsigned long long)obj->rank));
+    Py_DECREF(item);
     char buffer[1024];
     if ( convert_from_timestamp(obj->clock,buffer,sizeof(buffer)) )
-        PyDict_SetItemString(data,"clock",Py_BuildValue("s",buffer));
-    if ( obj->valid_to > TS_ZERO && obj->valid_to < TS_NEVER ) PyDict_SetItemString(data,"valid_to",Py_BuildValue("L",(unsigned long long)(obj->valid_to)));
-    PyDict_SetItemString(data,"schedule_skew",Py_BuildValue("L",(unsigned long long)obj->schedule_skew));
-    if ( obj->in_svc > TS_ZERO && obj->in_svc < TS_NEVER ) PyDict_SetItemString(data,"in",Py_BuildValue("L",(unsigned long long)(obj->in_svc)));
-    if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) PyDict_SetItemString(data,"out",Py_BuildValue("L",(unsigned long long)(obj->out_svc)));
-    PyDict_SetItemString(data,"rng_state",Py_BuildValue("L",(unsigned long long)(obj->rng_state)));
-    PyDict_SetItemString(data,"heartbeat",Py_BuildValue("L",(unsigned long long)(obj->heartbeat)));
+    {
+        PyDict_SetItemString(data,"clock",item=Py_BuildValue("s",buffer));
+        Py_DECREF(item);
+    }
+    if ( obj->valid_to > TS_ZERO && obj->valid_to < TS_NEVER ) 
+    {
+        PyDict_SetItemString(data,"valid_to",item=Py_BuildValue("L",(unsigned long long)(obj->valid_to)));
+        Py_DECREF(item);
+    }
+    PyDict_SetItemString(data,"schedule_skew",item=Py_BuildValue("L",(unsigned long long)obj->schedule_skew));
+    Py_DECREF(item);
+    if ( obj->in_svc > TS_ZERO && obj->in_svc < TS_NEVER ) 
+    {
+        PyDict_SetItemString(data,"in",item=Py_BuildValue("L",(unsigned long long)(obj->in_svc)));
+        Py_DECREF(item);
+    }
+    if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) 
+    {
+        PyDict_SetItemString(data,"out",item=Py_BuildValue("L",(unsigned long long)(obj->out_svc)));
+        Py_DECREF(item);
+    }
+    PyDict_SetItemString(data,"rng_state",item=Py_BuildValue("L",(unsigned long long)(obj->rng_state)));
+    Py_DECREF(item);
+    PyDict_SetItemString(data,"heartbeat",item=Py_BuildValue("L",(unsigned long long)(obj->heartbeat)));
+    Py_DECREF(item);
     snprintf(buffer,sizeof(buffer),"%llx",(unsigned long long)obj->guid[0]);
-    PyDict_SetItemString(data,"guid",Py_BuildValue("s",buffer));
+    PyDict_SetItemString(data,"guid",item=Py_BuildValue("s",buffer));
+    Py_DECREF(item);
     snprintf(buffer,sizeof(buffer),"%llx",(unsigned long long)obj->flags);
-    PyDict_SetItemString(data,"guid",Py_BuildValue("s",buffer));
+    PyDict_SetItemString(data,"guid",item=Py_BuildValue("s",buffer));
+    Py_DECREF(item);
 
     ReadLock();
     PROPERTY *prop;
@@ -1070,7 +1192,10 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
         {
             char value[1024] = "";
             if ( get_property_value(obj,prop,value,sizeof(value)) > 0 )
-                PyDict_SetItemString(data,prop->name,Py_BuildValue("s",value));
+            {
+                PyDict_SetItemString(data,prop->name,item=Py_BuildValue("s",value));
+                Py_DECREF(item);
+            }
         }
     }
     PyErr_Clear();
@@ -1107,8 +1232,10 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("schedule '%s' not found",name);
     }
+    PyObject *item, *item1, *item2;
     PyObject *data = PyDict_New();
-    PyDict_SetItemString(data,"definition",Py_BuildValue("s",sch->definition));
+    PyDict_SetItemString(data,"definition",item=Py_BuildValue("s",sch->definition));
+    Py_DECREF(item);
     PyObject *calendars = PyList_New(0);
     size_t calendar;
     for ( calendar = 0 ; calendar < 14 ; calendar++ )
@@ -1121,13 +1248,17 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
             double value = sch->data[sch->index[calendar][minute]];
             if ( last != value )
             {
-                PyDict_SetItem(values,PyLong_FromLong(minute),PyFloat_FromDouble(value));
+                PyDict_SetItem(values,item1=PyLong_FromLong(minute),item2=PyFloat_FromDouble(value));
+                Py_DECREF(item1);
+                Py_DECREF(item2);
                 last = value;
             }
         }
         PyList_Append(calendars,values);
+        Py_DECREF(values);
     }
     PyDict_SetItemString(data,"calendars",calendars);
+    Py_DECREF(calendars);
     return data;
 }
 
@@ -1210,6 +1341,66 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
     }
 }
 
+//
+// >>> gridlabd.pstatus(id)
+//
+static PyObject *getinfo(int id, PROCINFO &info)
+{
+    char timestamp[64];
+    const char *statuskey[] = {"INIT","RUNNING","PAUSED","DONE","LOCKED"};
+    PyObject *data = PyDict_New();
+    PyDict_SetItemString(data,"pid",PyLong_FromLong(info.pid));
+    PyDict_SetItemString(data,"progress",PyBytes_FromString(convert_from_timestamp(info.progress,timestamp,sizeof(timestamp))?timestamp:"INVALID"));
+    PyDict_SetItemString(data,"starttime",PyBytes_FromString(convert_from_timestamp(info.starttime,timestamp,sizeof(timestamp))?timestamp:"INVALID"));
+    PyDict_SetItemString(data,"stoptime",PyBytes_FromString(convert_from_timestamp(info.stoptime,timestamp,sizeof(timestamp))?timestamp:"INVALID"));
+    if ( info.status >= 0 && info.status < sizeof(statuskey)/sizeof(statuskey[0]) )
+    {
+        PyDict_SetItemString(data,"status",PyBytes_FromString(statuskey[info.status]));
+    }
+    else
+    {
+        PyDict_SetItemString(data,"status",PyLong_FromLong(info.status));
+    }
+    PyDict_SetItemString(data,"start",PyBytes_FromString(convert_from_timestamp(info.start,timestamp,sizeof(timestamp))?timestamp:"INVALID"));
+    PyDict_SetItemString(data,"model",PyBytes_FromString(info.model));
+    return data;
+}
+static PyObject *gridlabd_pstatus(PyObject *self, PyObject *args)
+{
+    int id;
+    PyObject *obj;
+    restore_environ();
+    PROCINFO info;
+    sched_init(1);
+    int nproc = sched_getnproc();
+    PyObject *result = PyList_New(0);
+
+    if ( PyArg_ParseTuple(args,"d",&id) )
+    {
+        if ( sched_getinfo(id,&info) && info.pid > 0 )
+        {
+            PyList_Append(result,getinfo(id,info));
+        }
+        return result;
+    }
+    else if ( PyArg_ParseTuple(args,"O", &obj) )
+    {
+        return gridlabd_exception("only process id allow as first argument");
+    }
+    else
+    {
+        PyErr_Clear();
+        for ( id = 0 ; id < nproc ; id++ )
+        {
+            if ( sched_getinfo(id,&info) && info.pid > 0 )
+            {
+                PyList_Append(result,getinfo(id,info));
+            }
+        }
+        return result;
+    }
+}
+
 /////////////////////
 // module interface
 /////////////////////
@@ -1232,15 +1423,13 @@ extern "C" bool on_init(void)
         PyObject *call = PyList_GetItem(python_init,n);
         if ( PyCallable_Check(call) )
         {
-            PyObject *repr = PyObject_Repr(call);
-            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",global_clock);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
             {
                 output_error("python on_init() failed");
-                PyErr_PrintEx(0);
+                gridlabd_traceback("on_init");
                 return false;
             }
             bool retval = false; 
@@ -1271,15 +1460,13 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_precommit,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *repr = PyObject_Repr(call);
-            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
             {
                 output_error("python on_precommit(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_precommit");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1312,15 +1499,13 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_presync,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *repr = PyObject_Repr(call);
-            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
             {
                 output_error("python on_presync(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_presync");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1352,15 +1537,13 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_sync,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *repr = PyObject_Repr(call);
-            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
             {
                 output_error("python on_presync(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_sync");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1392,15 +1575,13 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
         PyObject *call = PyList_GetItem(python_postsync,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *repr = PyObject_Repr(call);
-            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t0);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
             {
                 output_error("python on_postsync(%d) failed",t0);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_postsync");
                 return TS_INVALID;
             }
             TIMESTAMP t2 = TS_INVALID; 
@@ -1431,15 +1612,13 @@ extern "C" bool on_commit(TIMESTAMP t)
         PyObject *call = PyList_GetItem(python_commit,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *repr = PyObject_Repr(call);
-            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",t);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
             {
                 output_error("python on_commit(%d) failed",t);
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_commit");
                 return false;
             }
             bool retval =  PyObject_IsTrue(result);
@@ -1467,22 +1646,20 @@ extern "C" void on_term(void)
         PyObject *call = PyList_GetItem(python_term,n);
         if ( call && PyCallable_Check(call) )
         {
-            PyObject *repr = PyObject_Repr(call);
-            output_debug("calling python:%s",PyUnicode_AsUTF8(repr));
             PyObject *arg = Py_BuildValue("(i)",global_clock);
             PyObject *result = PyEval_CallObject(call,arg);
             Py_DECREF(arg);
             if ( ! result )
             {
                 output_error("python on_term() failed");
-                PyErr_PrintEx(0);                
+                gridlabd_traceback("on_term");
                 return;
             }
             if ( result != Py_None ) 
             {
-                Py_DECREF(result);
                 output_warning("python on_term() return an unexpected type (expected None)");
             }
+            Py_DECREF(result);
         }
         else
         {
@@ -1544,8 +1721,8 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             {
                 if ( ! result || ! PyLong_Check(result) )
                 {
-                    output_error("python %s(%s) did not return an integer value as expected, traceback is as follows",function,objname);
-                    PyErr_PrintEx(0);
+                    output_error("python %s(%s) did not return an integer value as expected",function,objname);
+                    gridlabd_traceback(function);
                     if ( result ) 
                     {
                         Py_DECREF(result);
@@ -1607,6 +1784,15 @@ static bool get_callback(
     }
     return true;    
 }
+
+int python_module_setvar(const char *varname, const char *value)
+{
+    PyObject *item = Py_BuildValue("s", value);
+    PyModule_AddObject(this_module,varname,item);
+    Py_DECREF(item);
+    return strlen(value);
+}
+
 MODULE *python_module_load(const char *file, int argc, char *argv[])
 {
     char pathname[1024];
@@ -1618,15 +1804,16 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
         return NULL;
     }
     PyObject *mod = PyImport_ImportModule(file);
+
     if ( mod == NULL)
     {
-        errno = EINVAL;
-        return NULL;
+        output_error("%s: python module import failed",pathname);
+        return (MODULE*)gridlabd_traceback(pathname);
     }
 
     if ( ! PyModule_Check(mod) )
     {
-        gridlabd_exception("object is not a python module");
+        output_error("object is not a python module");
         return NULL;
     }
 
@@ -1645,7 +1832,7 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
     python_module.major = global_version_major;
     python_module.minor = global_version_minor;
     python_module.getvar = NULL;
-    python_module.setvar = NULL;
+    python_module.setvar = python_module_setvar;
     python_module.import_file = python_import_file;
     python_module.export_file = NULL;
     python_module.check = NULL;

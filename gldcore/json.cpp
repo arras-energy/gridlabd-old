@@ -35,7 +35,15 @@ GldJsonWriter::~GldJsonWriter(void)
 
 const char * escape(const char *buffer, size_t len = 1024)
 {
-	static char result[2048];
+	static char *result = NULL;
+	static size_t result_len = 0;
+	if ( len >= result_len*5+1 )
+	{
+		result_len = (len>1024?len:1024)*5+1;
+		result = (char*)realloc(result,result_len);
+		if ( result == NULL )
+			throw_exception("escape(const char *buffer=%p, size_t len=%llu): memory allocation failed",buffer,len);
+	}
 	char *p = result;
 	const char *c;
 	for ( c = buffer ; *c != '\0' && c < buffer+len ; c++)
@@ -44,8 +52,48 @@ const char * escape(const char *buffer, size_t len = 1024)
 		{
 		case '"':
 			*p++ = '\\';
+			*p++ = '"';
+			break;
+		case '\\':
+			*p++ = '\\';
+			*p++ = '\\';
+			break;
+		// DPC: solidus is in the JSON spec (http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf, Figure 5)
+		// but it's not desirable or necessary (so far as I can tell) to escape it for gridlabd strings
+		// case '/':
+		// 	*p++ = '\\';
+		// 	*p++ = '/';
+		// 	break;
+		case '\b':
+			*p++ = '\\';
+			*p++ = 'b';
+			break;
+		case '\f':
+			*p++ = '\\';
+			*p++ = 'f';
+			break;
+		case '\n':
+			*p++ = '\\';
+			*p++ = 'n';
+			break;
+		case '\r':
+			*p++ = '\\';
+			*p++ = 'r';
+			break;
+		case '\t':
+			*p++ = '\\';
+			*p++ = 't';
+			break;
 		default:
-			*p++ = *c;
+			if ( *c >= 32 && *c < 127 )
+			{
+				*p++ = *c;
+			}
+			else
+			{
+				p += sprintf(p,"\\u%04hX", (unsigned short)*c);
+			}
+			break;
 		}
 	}
 	*p = '\0';
@@ -155,7 +203,7 @@ int GldJsonWriter::write_classes(FILE *fp)
 		if ( oclass->has_runtime ) TUPLE("runtime","%s",oclass->runtime);
 		if ( oclass->pmap != NULL )
 			len += write(",");
-		for ( prop = oclass->pmap ; prop != NULL ; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)) )
+		for ( prop = oclass->pmap ; prop != NULL && prop->oclass == oclass ; prop=prop->next ) // note: do not output parent classes properties
 		{
 			KEYWORD *key;
 			const char *ptype = class_get_property_typename(prop->ptype);
@@ -254,6 +302,24 @@ int GldJsonWriter::write_globals(FILE *fp)
 					len += write("\n\t\t\t}");
 				len += write(",");
 			}
+			PROPERTY *prop = var->prop;
+			char access[1024] = "";
+			switch ( prop->access ) {
+			case PA_PUBLIC: strcpy(access,"PUBLIC"); break;
+			case PA_REFERENCE: strcpy(access,"REFERENCE"); break;
+			case PA_PROTECTED: strcpy(access,"PROTECTED"); break;
+			case PA_PRIVATE: strcpy(access,"PRIVATE"); break;
+			case PA_HIDDEN: strcpy(access,"HIDDEN"); break;
+			case PA_N: strcpy(access,"NONE"); break;
+			default:
+				if ( prop->access & PA_R ) strcat(access,"R");
+				if ( prop->access & PA_W ) strcat(access,"W");
+				if ( prop->access & PA_S ) strcat(access,"S");
+				if ( prop->access & PA_L ) strcat(access,"L");
+				if ( prop->access & PA_H ) strcat(access,"H");
+				break;
+			}
+			len += write("\n\t\t\t\"access\" : \"%s\",",access);			
 			if ( buffer[0] == '\"' )
 				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
 			else
@@ -335,7 +401,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 	{
 		PROPERTY *prop;
 		CLASS *pclass;
-		char buffer[1024];
+		char buffer[1025];
 		if ( obj != object_get_first() )
 			len += write(",");
 		if ( obj->oclass == NULL ) // ignore objects with no defined class
@@ -377,27 +443,51 @@ int GldJsonWriter::write_objects(FILE *fp)
 		{
 			for ( prop = pclass->pmap ; prop!=NULL && prop->oclass == pclass->pmap->oclass; prop = prop->next )
 			{
-				char buffer[1024];
+				char buffer[1025*5];
 				if ( prop->access != PA_PUBLIC )
 					continue;
-				if ( prop->ptype == PT_enduse || prop->ptype == PT_method )
+				else if ( prop->ptype == PT_enduse )
 					continue;
-				const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer)-1);
-				if ( value == NULL )
-					continue; // ignore values that don't convert propertly
-				int len = strlen(value);
-				// if ( value[0] == '{' && value[len] == '}')
-				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-				// else if ( value[0] == '[' && value[len] == ']')
-				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-				// else 
-				if ( value[0] == '"' && value[len-1] == '"')
-				{
-					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-2));
-				}
-				else
-				{
-					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,len));
+				else if ( prop->ptype == PT_method )
+                {
+                    size_t sz = object_property_getsize(obj,prop);
+                    if ( sz > 0 )
+                    {
+	                    char *buffer = new char[sz+2];
+	                    strcpy(buffer,"");
+	                    object_property_to_string(obj,prop->name,buffer,sz+1);
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(buffer));
+	                    delete [] buffer;
+	                }
+	                else if ( sz == 0 )
+	                {
+						len += write(",\n\t\t\t\"%s\": \"\"", prop->name);
+	                }
+	                else
+	                {
+	                	// no output allowed for this property
+	                }
+                }
+                else
+                {
+					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
+					if ( value == NULL )
+						continue; // ignore values that don't convert propertly
+					int size = strlen(value);
+					// TODO: proper JSON formatted is needed for data that is either a dict or a list
+					// if ( value[0] == '{' && value[len] == '}')
+					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+					// else if ( value[0] == '[' && value[len] == ']')
+					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+					// else 
+					if ( value[0] == '"' && value[size-1] == '"')
+					{
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,size-2));
+					}
+					else
+					{
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,size));
+					}
 				}
 			}
 		}
@@ -473,4 +563,10 @@ int GldJsonWriter::dump()
 	fclose(fp);
 
 	return len > 0;
+}
+
+int json_to_glm(const char *jsonfile, char *glmfile)
+{
+	// TODO: convert JSON file to GLM
+	return 0;
 }

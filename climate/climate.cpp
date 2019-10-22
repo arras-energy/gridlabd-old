@@ -676,7 +676,7 @@ int climate::isa(CLASSNAME classname)
 
 int climate::init(OBJECT *parent)
 {
-	OBJECT *obj=OBJECTHDR(this);
+	OBJECT *obj=THISOBJECTHDR;
 	TIMESTAMP t0 = obj->clock;
 	double meter_to_feet = 1.0;
 	double tz_num_offset;
@@ -1019,7 +1019,7 @@ int climate::get_solar_for_location(double latitude, double longitude, double *d
 	double f;
 	double ETRN;
 	double sol_z;
-	OBJECT *obj=OBJECTHDR(this);
+	OBJECT *obj=THISOBJECTHDR;
 	DATETIME dt;
 	gl_localtime(obj->clock, &dt);
 
@@ -1400,7 +1400,7 @@ double climate::convert_to_binary_cloud( ) {
 
 
 	double search_tolerance = 0.005; //Defines how close is close enough when dialing in the binary cloud pattern.
-	//OBJECT *obj=OBJECTHDR(this);
+	//OBJECT *obj=THISOBJECTHDR;
 	//TIMESTAMP t1 = obj->clock;
 
 

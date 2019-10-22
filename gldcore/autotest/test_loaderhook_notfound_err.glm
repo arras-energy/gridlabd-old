@@ -1,0 +1,2 @@
+// this test checks that missing loader extension are handled correctly
+extension notfound;
