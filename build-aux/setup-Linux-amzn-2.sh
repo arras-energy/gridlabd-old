@@ -18,6 +18,7 @@ yum -q install python37 python3-devel python3-tkinter -y
 pip3 --quiet install matplotlib
 pip3 --quiet install pandas
 pip3 --quiet install mysql-connector
+chmod -R a+w /usr/local/lib64/python3.7/site-packages
 
 # mono
 if [ ! -f /usr/bin/mono ]; then
