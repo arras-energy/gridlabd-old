@@ -1,4 +1,4 @@
-__NOTOC__
+[[CEUS]] -- Commercial End-Use Survey data-driven building model
 # Synopsis
 ~~~
   module commercial {
