@@ -348,7 +348,7 @@ index: weather library template
 html-local: module-html developer-html troubleshooting-html
 	mkdir -p $(prefix)/html/
 	cp -r $(top_srcdir)/documents/* $(prefix)/html/
-å
+
 module-html:
 	@mkdir -p $(top_srcdir)/documents/html/modules
 	@doxygen $(top_srcdir)/doxygen/gridlabd.conf
