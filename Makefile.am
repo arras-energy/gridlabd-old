@@ -346,17 +346,17 @@ install-exec-hook: python-install
 index: weather library template
 
 html-local: module-html developer-html troubleshooting-html
-	cp $(top_srcdir)/documents/index.html $(DESTDIR)/html
+	cp $(top_srcdir)/documents/index.html $(prefix)/html
 
 module-html:
-	@mkdir -p $(DESTDIR)/html/modules/
+	@mkdir -p $(prefix)/html/modules/
 	@doxygen $(top_srcdir)/doxygen/gridlabd.conf
 
 developer-html: # TODO
-	@mkdir -p $(DESTDIR)/html/developer/
-	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null ; cp -r $(top_srcdir)/gldcore/html/* $(DESTDIR)/html/developer/)
+	@mkdir -p $(prefix)/html/developer/
+	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null ; cp -r $(top_srcdir)/gldcore/html/* $(prefix)/html/developer/)
 
 troubleshooting-html:
 	@mkdir -p documents/html/troubleshooting/
-	@cp $(top_srcdir)/utilities/troubleshooting.css $(DESTDIR)/html/troubleshooting/
+	@cp $(top_srcdir)/utilities/troubleshooting.css $(prefix)/html/troubleshooting/
 	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > troubleshooting.html ; cd - > /dev/null ; mv $(top_srcdir)/troubleshooting.html $(top_srcdir)/html/troubleshooting/index.html )
