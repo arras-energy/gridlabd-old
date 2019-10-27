@@ -346,18 +346,17 @@ install-exec-hook: python-install
 index: weather library template
 
 html-local: module-html developer-html troubleshooting-html
-	cp $(top_srcdir)/documents/index.html $(prefix)/html
-
+	mkdir -p $(prefix)/html/
+	cp -r $(top_srcdir)/documents/* $(prefix)/html/
+å
 module-html:
-	@mkdir -p $(prefix)/html/modules/
 	@mkdir -p $(top_srcdir)/documents/html/modules
 	@doxygen $(top_srcdir)/doxygen/gridlabd.conf
 
 developer-html: # TODO
-	@mkdir -p $(prefix)/html/developer/
-	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null ; cp -r $(top_srcdir)/gldcore/html/* $(prefix)/html/developer/)
+	@mkdir -p $(top_srcdir)/html/developer/
+	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null )
 
 troubleshooting-html:
-	@mkdir -p documents/html/troubleshooting/ $(prefix)/html/troubleshooting/
-	@cp $(top_srcdir)/utilities/troubleshooting.css $(prefix)/html/troubleshooting/
-	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > troubleshooting.html ; cd - > /dev/null ; mv $(top_srcdir)/troubleshooting.html $(top_srcdir)/html/troubleshooting/index.html )
+	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/ 
+	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > $(top_srcdir)/documents/html/troubleshooting/index.html )
