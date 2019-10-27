@@ -65,10 +65,10 @@ if [ ! -x /usr/local/bin/natural_docs ]; then
 	cd /usr/local
 	curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
 	unzip -qq natural_docs
-	rm natural_docs.zip
+	rm -f natural_docs.zip
 	mv Natural\ Docs natural_docs
-	echo "#!/bin/bash
-mono /usr/local/natural_docs/NaturalDocs.exe \$*" > /usr/local/bin/natural_docs
+	echo '#!/bin/bash
+mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 	chmod a+x /usr/local/bin/natural_docs
 fi
 
