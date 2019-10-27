@@ -358,6 +358,6 @@ developer-html: # TODO
 	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null ; cp -r $(top_srcdir)/gldcore/html/* $(prefix)/html/developer/)
 
 troubleshooting-html:
-	@mkdir -p documents/html/troubleshooting/
+	@mkdir -p documents/html/troubleshooting/ $(prefix)/html/troublshooting/
 	@cp $(top_srcdir)/utilities/troubleshooting.css $(prefix)/html/troubleshooting/
 	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > troubleshooting.html ; cd - > /dev/null ; mv $(top_srcdir)/troubleshooting.html $(top_srcdir)/html/troubleshooting/index.html )
