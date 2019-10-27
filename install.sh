@@ -347,12 +347,12 @@ if [ -x "$INSTALL/bin/gridlabd-version" -a "$TEST" == "yes" ]; then
 	run $INSTALL/bin/gridlabd version set "$VERSION"
 elif [ "$LINK" == "yes" ]; then
 	log "ACTIVATE: manual"
-	[ ! -L "$PREFIX/opt/gridlabd/current" ] && run rm -f "$PREFIX/opt/gridlabd/current"
-	run ln -sf "$INSTALL" "$PREFIX/opt/gridlabd/current"
-	for dir in bin lib include share; do
-		run ln -sf $PREFIX/opt/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
+	[ ! -L "$PREFIX/opt/gridlabd/current" ] && run sudo rm -f "$PREFIX/opt/gridlabd/current"
+	run sudo ln -sf "$INSTALL" "$PREFIX/opt/gridlabd/current"
+	for dir in bin lib html include share; do
+		run sudo ln -sf $PREFIX/opt/gridlabd/current/$dir/gridlabd $PREFIX/$dir/gridlabd
 	done
-	run ln -sf $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
+	run sudo ln -sf $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
 fi
 
 # all done :-)
