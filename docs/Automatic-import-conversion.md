@@ -1,4 +1,3 @@
-__NOTOC__
 [[Automatic import conversion]] -- Automatic conversion of input files that have non-GLM extensions
 
 # Synopsis
