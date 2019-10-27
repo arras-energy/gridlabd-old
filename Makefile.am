@@ -350,6 +350,7 @@ html-local: module-html developer-html troubleshooting-html
 
 module-html:
 	@mkdir -p $(prefix)/html/modules/
+	@mkdir -p $(top_srcdir)/documents/html/modules
 	@doxygen $(top_srcdir)/doxygen/gridlabd.conf
 
 developer-html: # TODO
