@@ -16,7 +16,7 @@ fi
 # local folder
 VAR="/usr/local/var/gridlabd"
 if [ ! -d "$VAR" ]; then
-	mkdir -p $VAR || ( sudo make -p $VAR && sudo chown ${USER:-root} $VAR )
+	mkdir -p $VAR || ( sudo mkdir -p $VAR && sudo chown ${USER:-root} $VAR )
 fi
 
 # setup logging
