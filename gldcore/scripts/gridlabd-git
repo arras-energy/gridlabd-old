@@ -1,0 +1,12 @@
+#!/bin/bash
+
+origin=$(gridlabd --version=origin)
+
+case $1 in 
+    (commit)
+        curl -s ${origin/github.com/api.github.com/repos}/commits/$2 | gridlabd json-get $3
+        ;;
+    (*)
+        echo "$1 is not recognized" > /dev/stderr
+        ;;
+esac

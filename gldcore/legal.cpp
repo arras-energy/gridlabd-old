@@ -169,7 +169,7 @@ static pthread_t check_version_thread_id;
 void *check_version_proc(void *ptr)
 {
 	int patch, build;
-	const char *url = "http://sourceforge.net/p/gridlab-d/code/HEAD/tree/trunk/core/versions.txt?format=raw";
+	const char *url = "https://raw.githubusercontent.com/dchassin/gridlabd/master/gldcore/versions.txt";
 	HTTPRESULT *result = http_read(url,0x1000);
 	char target[32];
 	char *pv = NULL, *nv = NULL;

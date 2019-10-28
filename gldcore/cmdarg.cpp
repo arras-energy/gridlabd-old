@@ -524,17 +524,17 @@ int GldCmdarg::version(int argc, const char *argv[])
 			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
 	}
-	else if ( strcmp(opt,"number" ) == 0 )
+	else if ( strcmp(opt,"number" ) == 0 || strcmp(opt,"version") == 0 )
 	{
 		output_message("%s", PACKAGE_VERSION);
 		return 0;
 	}
-	else if ( strcmp(opt,"build") == 0 )
+	else if ( strcmp(opt,"build") == 0 || strcmp(opt,"build_number") == 0 )
 	{
 		output_message("%d", BUILDNUM);
 		return 0;
 	}
-	else if ( strcmp(opt,"package") == 0 )
+	else if ( strcmp(opt,"package") == 0 || strcmp(opt,"application") == 0 )
 	{
 		output_message("%s", PACKAGE_NAME);
 		return 0;
@@ -544,7 +544,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 		output_message("%s", BRANCH);
 		return 0;
 	}
-	else if ( strcmp(opt,"platform") == 0 )
+	else if ( strcmp(opt,"platform") == 0 || strcmp(opt,"system") == 0 )
 	{
 		output_message(
 #if defined MACOSX
@@ -553,6 +553,26 @@ int GldCmdarg::version(int argc, const char *argv[])
 			"Linux"
 #endif
 		);
+		return 0;
+	}
+	else if ( strcmp(opt,"release") == 0 )
+	{
+		output_message("%s",BUILD_RELEASE);
+		return 0;
+	}
+	else if ( strcmp(opt,"commit") == 0 )
+	{
+		output_message("%s",BUILD_ID);
+		return 0;
+	}
+	else if ( strcmp(opt,"email") == 0 )
+	{
+		output_message("%s",PACKAGE_BUGREPORT);
+		return 0;
+	}
+	else if ( strcmp(opt,"origin") == 0 )
+	{
+		output_message("%s",BUILD_URL);
 		return 0;
 	}
 	else if ( strcmp(opt,"install") == 0 )
@@ -1828,7 +1848,7 @@ int GldCmdarg::origin(int argc, const char *argv[])
 		IN_MYCONTEXT output_error("origin file not found");
 		return CMDERR;
 	}
-	fp = fopen(originfile,"r");
+	fp = fopen(originfile,"rt");
 	if ( fp == NULL )
 	{
 		IN_MYCONTEXT output_error("unable to open origin file");

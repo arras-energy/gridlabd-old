@@ -12,24 +12,46 @@ function help()
 		Syntax: gridlabd version <command> <options...>
 		Commands:
 		  help              get this list of commands
+		  check             check for a newer version
+		  list [<pattern>]  get a list of available versions
 		  show              show the current active version
 		  set [<pattern>]   set the active version
-		  list [<pattern>]  get a list of available versions
 	END
+}
+
+function check()
+{
+	head=$(gridlabd git commit HEAD sha)
+	commit=$(gridlabd git commit $(gridlabd --version=commit) sha)
+	if [ "$1" == "-v" ]; then
+		echo "HEAD $head"
+		echo "COMMIT $commit"
+	fi
+	if [ "$head" != "$commit" ]; then
+		[ -z "$1" ] && echo "this version is not the latest"
+		exit 1
+	else
+		[ -z "$1" ] && echo "this version is the latest"
+		exit 0
+	fi
 }
 
 function set()
 {
 	ln -sf /usr/local/opt/gridlabd/*$1* /usr/local/opt/gridlabd/current
 	for F in bin lib share include; do
-		[ ! -f /usr/local/$F/gridlabd ] ln -sf /usr/local/opt/gridlabd/current/$F/gridlabd /usr/local/$F/gridlabd
+		[ ! -f /usr/local/$F/gridlabd ] && ln -sf /usr/local/opt/gridlabd/current/$F/gridlabd /usr/local/$F/gridlabd
 	done
 	[ ! -f /usr/local/bin/gridlabd.bin ] && ln -sf /usr/local/opt/gridlabd/current/bin/gridlabd.bin /usr/local/bin/gridlabd.bin
 }
 
 function show()
 {
-	basename /usrlocal/opt/gridlabd/current
+	if [ -L /usr/local/opt/gridlabd/current ]; then
+		basename /usr/local/opt/gridlabd/current
+	else
+		echo "Current version is custom installed"
+	fi
 }
 
 function list()
@@ -47,20 +69,9 @@ if [ $# -eq 0 ]; then
 fi
 
 case "$1" in 
-	(help) 
-		help 
+	(help|get|show|list|check)
+		$*
 		;;
-	(get) 
-		get 
-		;;
-	(show) 
-		shift 1
-		set $* 
-		;;
-	(list) 
-		shift 1
-		list $* 
-		;; 
 	(*)
 		error "$1 is not a valid command"
 		;;
