@@ -17,11 +17,18 @@ SET_MYCONTEXT(DMC_MAIN)
 void GldMain::pause_at_exit(void) 
 {
 	if (global_pauseatexit)
+	{
+		int rc = 
 #if defined WIN32
 		system("pause");
 #else
 		system("read -p 'Press [RETURN] to end... ");
 #endif
+		if ( rc != 0 )
+		{
+			fprintf(stderr,"non-zero exit code (rc=%d) from system pause\n",rc);
+		}
+	}
 }
 
 /** The main entry point of GridLAB-D
@@ -64,6 +71,11 @@ int main
 		{
 			output_fatal("uncaught exception: %s", msg);
 			return_code = errno ? errno : XC_SHFAILED;
+		}
+		catch (GldException *exc)
+		{
+			output_fatal("UNHANDLED EXCEPTION: %s", exc->get_message());
+			return_code = XC_EXCEPTION;
 		}
 		my_instance->run_on_exit();
 	}

@@ -456,7 +456,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 	                    char *buffer = new char[sz+2];
 	                    strcpy(buffer,"");
 	                    object_property_to_string(obj,prop->name,buffer,sz+1);
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, buffer);
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(buffer));
 	                    delete [] buffer;
 	                }
 	                else if ( sz == 0 )
@@ -468,25 +468,41 @@ int GldJsonWriter::write_objects(FILE *fp)
 	                	// no output allowed for this property
 	                }
                 }
+                else if ( prop->ptype == PT_double )
+                {
+                	double *x = object_get_double_quick(obj,prop);
+                	if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": \"%g %s\"", prop->name, *x, prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": \"%g\"", prop->name, *x);
+                }
+                else if ( prop->ptype == PT_complex )
+                {
+					complex *c = object_get_complex_quick(obj,prop);
+					if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": \"%g%+gj %s\"", prop->name, c->Re(), c->Im(), prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": \"%g%+gj\"", prop->name, c->Re(), c->Im());
+                }
                 else
                 {
 					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
 					if ( value == NULL )
 						continue; // ignore values that don't convert propertly
-					int len = strlen(value);
+					int size = strlen(value);
 					// TODO: proper JSON formatted is needed for data that is either a dict or a list
 					// if ( value[0] == '{' && value[len] == '}')
 					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
 					// else if ( value[0] == '[' && value[len] == ']')
 					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
 					// else 
-					if ( value[0] == '"' && value[len-1] == '"')
+					if ( value[0] == '"' && value[size-1] == '"')
 					{
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-2));
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,size-2));
 					}
 					else
 					{
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,len));
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,size));
 					}
 				}
 			}
@@ -581,4 +597,10 @@ int GldJsonWriter::dump()
 	fclose(fp);
 
 	return len > 0;
+}
+
+int json_to_glm(const char *jsonfile, char *glmfile)
+{
+	// TODO: convert JSON file to GLM
+	return 0;
 }

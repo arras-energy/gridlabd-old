@@ -161,7 +161,7 @@ static CALLBACKS callbacks = {
 	class_define_set_member,
 	{object_get_first,object_set_dependent,object_set_parent,object_set_rank,},
 	{object_get_property, object_set_value_by_addr,object_get_value_by_addr, object_set_value_by_name,object_get_value_by_name,object_get_reference,object_get_unit,object_get_addr,class_string_to_propertytype,property_compare_basic,property_compare_op,property_get_part,property_getspec},
-	{find_objects,find_next,findlist_copy,findlist_add,findlist_del,findlist_clear},
+	{find_objects,find_next,findlist_copy,findlist_add,findlist_del,findlist_clear,findlist_create},
 	class_find_property,
 	module_malloc,
 	module_free,

@@ -129,6 +129,15 @@ DEPRECATED STATUS delta_postupdate(void);
  */
 DEPRECATED DELTAPROFILE *delta_getprofile(void);
 
+/*  Function: delta_checkmode
+
+    This function verifies that delta mode is allowed
+
+    Throw:
+    - If delta-mode is attempted when it is disallowed
+ */
+DEPRECATED void delta_modecheck(const char *);
+
 #ifdef __cplusplus
 }
 #endif

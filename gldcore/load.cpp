@@ -1514,6 +1514,16 @@ static int multiline_value(PARSER,char *result,int size)
 		case 't':
 			value += std::string("\t");
 			break;
+		case 'b':
+			value += std::string("\b");
+			break;
+		case 'f':
+			value += std::string("\f");
+			break;
+		case 'r':
+			value += std::string("\r");
+			break;
+		// TODO: need \uXXXX
 		default:
 			break;
 		}
@@ -4760,7 +4770,20 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						ACCEPT;
 					}
 				}
-				else if (object_set_value_by_name(obj,propname,propval)==0)
+				else if ( prop->ptype >= PT_char8 && prop->ptype <= PT_char1024 )
+				{
+					int len = object_set_value_by_name(obj,propname,propval);
+					if ( len < (int)strlen(propval) )
+					{
+						output_error_raw("%s(%d): property %s of %s could not be set to value '%s' (only %d bytes read)", filename, linenum, propname, format_object(obj), propval, len);
+						REJECT;
+					}
+					else
+					{
+						ACCEPT;
+					}
+				}
+				else if ( object_set_value_by_name(obj,propname,propval) == 0 )
 				{
 					output_error_raw("%s(%d): property %s of %s could not be set to value '%s'", filename, linenum, propname, format_object(obj), propval);
 					REJECT;
@@ -7761,6 +7784,44 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
 	return technology_readiness_level;
 }
 
+/** convert a non-GLM file to GLM, if possible */
+bool load_import(const char *from, char *to, int len)
+{
+	const char *ext = strrchr(from,'.');
+	if ( ext == NULL )
+	{
+		output_error("load_import(from='%s',...): invalid extension", from);
+		return false;
+	}
+	char converter_name[1024], converter_path[1024];
+	sprintf(converter_name,"%s2glm.py",ext+1);
+	if ( find_file(converter_name, converter_path, R_OK, converter_path, sizeof(converter_path)) == NULL )
+	{
+		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext+1);
+		return false;
+	}
+	if ( strlen(from) >= (size_t)(len-1) )
+	{
+		output_error("load_import(from='%s',...): 'from' is too long to handle", from);
+		return false;
+	}
+	strcpy(to,from);
+	char *glmext = strrchr(to,'.');
+	if ( glmext == NULL )
+		strcat(to,".glm");
+	else
+		strcpy(glmext,".glm");
+	char cmd[4096];
+	sprintf(cmd,"python3 %s -i %s -o %s",converter_path,from,to);
+	int rc = system(cmd);
+	if ( rc != 0 )
+	{
+		output_error("%s: return code %d",converter_path,rc);
+		return false;
+	}
+	return true;
+}
+
 /** Load a file
 	@return STATUS is SUCCESS if the load was ok, FAILED if there was a problem
 	@todo Rollback the model data if the load failed (ticket #32)
@@ -7768,12 +7829,20 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
  **/
 STATUS loadall(const char *fname)
 {
+	/* if nothing requested only config files are loaded */
+	if ( fname == NULL )
+		return SUCCESS;
+
 	char file[1024] = "";
 	if ( fname )
 	{
 		strcpy(file,fname);
 	}
 	char *ext = fname ? strrchr(file,'.') : NULL ;
+	if ( ext != NULL && strcmp(ext,".glm") != 0 )
+	{
+		return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
+	}
 	unsigned int old_obj_count = object_get_count();
 	char conf[1024];
 	static int loaded_files = 0;
@@ -7820,10 +7889,6 @@ STATUS loadall(const char *fname)
 				return FAILED;
 		}
 	}
-
-	/* if nothing requested only config files are loaded */
-	if ( fname == NULL )
-		return SUCCESS;
 
 	/* handle default extension */
 	strcpy(filename,file);
