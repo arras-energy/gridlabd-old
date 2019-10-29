@@ -82,10 +82,8 @@ int saveall(const char *filename)
 			return 0;
 		}
 		strcpy(in_ext,".json");
-		#warning JSON save options not save/restored
-		// TODO: add this in when JSON save options branch is merged
-		//	set old_fso = global_filesave_options;
-		//	global_filesave_options = FSO_ALL;
+		set old_fso = global_filesave_options;
+		global_filesave_options = FSO_ALL;
 		fp = fopen(input_name,"wb");
 		if ( fp == NULL )
 		{
@@ -94,7 +92,7 @@ int saveall(const char *filename)
 		}
 		int rc = savejson(input_name,fp);
 		fclose(fp);
-		//	global_filesave_options = old_fso;
+		global_filesave_options = old_fso;
 		if ( rc == 0 )
 		{
 			output_error("save to intermediate file '%s' failed (code %d)", input_name, rc);;
