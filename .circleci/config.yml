@@ -11,7 +11,11 @@ jobs:
             autoreconf -isf
             ./configure
             export PATH=/home/circleci/project/install/bin:$PATH
-            sudo make -j16 install-validate
+            sudo make install-validate
+            export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-/tmp}
+            export GLD_ETC=/usr/local/share/gridlabd
+            export GLD_BIN=/usr/local/bin
+            export GLD_LIB=/usr/local/lib/gridlabd
             sudo make doxygen-run
       - store_artifacts:
           path: /home/circleci/project/validate.txt

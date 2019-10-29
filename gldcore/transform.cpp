@@ -463,18 +463,102 @@ TIMESTAMP transform_syncall(TIMESTAMP t1, TRANSFORMSOURCE source)
 	return t2;
 }
 
+const char *get_source_name(void *addr)
+{
+	static char source_name[1024];
+	OBJECT *obj;
+	PROPERTY *prop;
+	if ( ! object_locate_property(addr,&obj,&prop) )
+		return NULL;
+	if ( obj->name )
+	{
+		sprintf(source_name,"%s.%s",obj->name,prop->name);
+	}
+	else
+	{
+		sprintf(source_name,"%s:%d.%s",obj->oclass->name,obj->id,prop->name);
+	}
+	return source_name;
+}
+
+TRANSFORM *transform_has_target(void *addr)
+{
+	for ( TRANSFORM *xform = schedule_xformlist ; xform != NULL ; xform = xform->next )
+	{
+		if ( (void*)(xform->target) == addr )
+			return xform;
+	}
+	return NULL;
+}
+int transform_write(TRANSFORM *xform, FILE *fp)
+{
+	int count = 0;
+	double *source = xform->source;
+	switch ( xform->function_type ) {
+	case XT_LINEAR:
+		count += fprintf(fp,"%s*%g+%g",xform->source_schedule?xform->source_schedule->name:get_source_name(source),xform->scale,xform->bias);
+		break;
+	case XT_EXTERNAL:
+		count += fprintf(fp,"%s(",module_find_transform_function(xform->function));
+		for ( int n = 0 ; n < xform->nrhs ; n++ )
+		{
+			if ( n > 0 )
+			{
+				count += fprintf(fp,",");
+			}
+			count += fprintf(fp,"%s",xform->prhs[n].prop->name);
+		}
+		count += fprintf(fp,")");
+		break;
+	case XT_FILTER:
+		count += fprintf(fp,"%s(%s);", xform->tf->name, get_source_name(source));
+		break;
+	default:
+		throw_exception("transform_write(TRANSFORM *xform=%p, FILE *fp=%p): xform->source_type = %d is invalid", xform, fp, xform->source_type);
+		break;
+	}
+	return count;
+}
+
 int transform_saveall(FILE *fp)
 {
 	int count = 0;
-	TRANSFORM *xform;
-	for (xform=schedule_xformlist; xform!=NULL; xform=xform->next)
+	TRANSFERFUNCTION *tf;
+	for ( tf = tflist ; tf != NULL ; tf = tf->next )
 	{
-		// TODO write conversion from transform/filter to string definition
-		OBJECT *obj = xform->target_obj;
-		PROPERTY *prop = xform->target_prop;
-		char name[1024];
-		object_name(obj,name,sizeof(name));
-		count += fprintf(fp,"#warning transform to %s.%s was not saved\n", name, prop->name);
+		count += fprintf(fp,"filter %s(%s,%gs,%gs) = (", tf->name, tf->domain, tf->timestep, tf->timeskew);
+		for ( int m = tf->m - 1 ; m >= 0 ; m-- )
+		{
+			if ( tf->b[m] != 1.0 || m == 0 )
+			{
+				count += fprintf(fp,"%+g",tf->b[m]);
+			}
+			if ( m > 0 )
+			{
+				count += fprintf(fp,"%s",tf->domain);
+			}
+			if ( m > 1 )
+			{
+				count += fprintf(fp,"^%d",m);
+			}
+		}
+		count += fprintf(fp,") / (");
+		for ( int n = tf->n - 1 ; n >= 0 ; n-- )
+		{
+			if ( tf->a[n] != 1.0 || n == 0 )
+			{
+				count += fprintf(fp,"%+g",tf->a[n]);
+			}
+			if ( n > 0 )
+			{
+				count += fprintf(fp,"%s",tf->domain);
+			}
+			if ( n > 1 )
+			{
+				count += fprintf(fp,"^%d",n);
+			}
+		}
+		count += fprintf(fp,");");
 	}
 	return count;
 }
