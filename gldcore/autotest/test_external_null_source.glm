@@ -68,3 +68,6 @@ object noise {
 		interval -1;
 	};
 }
+
+#set glm_save_options=MINIMAL
+#set savefile=gridlabd.glm
