@@ -3,13 +3,16 @@
 import sys
 import json
 
+def error(msg):
+    print("ERROR: %s" % (msg), file=sys.stderr)
+
 try:
     data = json.load(sys.stdin)
     if len(sys.argv) > 1 :
         for item in sys.argv[1::]:
             print(data[item])
     else:
-        for key in data.keys():
-            print(key)
+        print(json.dumps(data,indent=4))
 except:
-    print(sys.exc_info()[0],sys.exc_info()[1])
+    error("%s %s" % (sys.exc_info()[0],sys.exc_info()[1]))
+    quit(1)

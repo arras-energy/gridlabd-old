@@ -12,7 +12,7 @@ function help()
 		Syntax: gridlabd version <command> <options...>
 		Commands:
 		  help              get this list of commands
-		  check             check for a newer version
+		  check [-v|-q]     check for a newer version
 		  list [<pattern>]  get a list of available versions
 		  show              show the current active version
 		  set [<pattern>]   set the active version
@@ -28,10 +28,10 @@ function check()
 		echo "COMMIT $commit"
 	fi
 	if [ "$head" != "$commit" ]; then
-		[ -z "$1" ] && echo "this version is not the latest"
+		[ -z "$1" ] && echo "$(gridlabd --version) is outdated"
 		exit 1
 	else
-		[ -z "$1" ] && echo "this version is the latest"
+		[ -z "$1" ] && echo "$(gridlabd --version) is latest"
 		exit 0
 	fi
 }
