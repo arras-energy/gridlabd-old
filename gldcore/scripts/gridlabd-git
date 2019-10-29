@@ -91,7 +91,7 @@ function org ()
 function auth ()
 {
     if [ "$1" == "help" ]; then
-        echo "Syntax: $command auth [delete]"
+        echo "Syntax: $command auth [delete|get <id>|list]"
     elif [ $# -eq 0 ]; then
         if [ ! -f "$GITAUTH" ]; then
             AUTH=$(curl -u "$GITUSER" -d '{"scopes":["repo","user"], "note":"'$USER'@'${HOSTNAME:-unknown}':gridlabd-git"}' -s $api/authorizations)
