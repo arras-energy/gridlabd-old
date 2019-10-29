@@ -158,10 +158,10 @@ extern "C" void rlock(LOCKVAR *lock)
 	LOCKVAR timeout = MAXSPIN;
 	LOCKVAR value;
 	check_lock(lock,false,false);
-	atomic_increment(&my_instance->rlock_count);
+	if ( my_instance ) atomic_increment(&my_instance->rlock_count);
 	do {
 		value = (*lock);
-		atomic_increment(&my_instance->rlock_spin);
+		if ( my_instance ) atomic_increment(&my_instance->rlock_spin);
 		if ( timeout--==0 ) 
 			throw_exception("read lock timeout");
 	} while ((value&1) || !atomic_compare_and_swap(lock, value, value + 1));
@@ -173,10 +173,10 @@ extern "C" void wlock(LOCKVAR *lock)
 	LOCKVAR timeout = MAXSPIN;
 	LOCKVAR value;	
 	check_lock(lock,true,false);
-	atomic_increment(&my_instance->wlock_count);
+	if ( my_instance ) atomic_increment(&my_instance->wlock_count);
 	do {
 		value = (*lock);
-		atomic_increment(&my_instance->wlock_spin);
+		if ( my_instance ) atomic_increment(&my_instance->wlock_spin);
 		if ( timeout--==0 ) 
 			throw_exception("write lock timeout");
 	} while ((value&1) || !atomic_compare_and_swap(lock, value, value + 1));

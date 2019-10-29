@@ -17,6 +17,9 @@
 
 #include <list>
 
+/*	Typedef: EXITCALL */
+typedef int (*EXITCALL)(int);
+
 class onexitcommand {
 private:
 	int exitcode;
@@ -52,6 +55,7 @@ public:
 class GldMain {
 private: // private variables
 	std::list<onexitcommand> exitcommands;
+	std::list<EXITCALL> exitcalls;
 private: // instance variables
 	GldGlobals globals;
 	GldExec exec;
@@ -123,6 +127,7 @@ public:
 		Adds a command to be executed on exit of main
 	 */
 	int add_on_exit(int xc, const char *cmd);
+	int add_on_exit(EXITCALL call);
 
 	/*	Method: run_on_exit
 

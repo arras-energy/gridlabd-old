@@ -1299,7 +1299,7 @@ struct s_property_map {
 	PROPERTYNAME name;
 	PROPERTYTYPE ptype;
 	uint32 size; 
-	uint32 width; 
+	int32 width; // negative values have special significance (see PSZ_*)
 	PROPERTYACCESS access; 
 	UNIT *unit; 
 	PROPERTYADDR addr; 
@@ -1313,6 +1313,18 @@ struct s_property_map {
 	bool notify_override;
 	const char *default_value; 
 };
+
+/*  Define: PSZ_DYNAMIC 
+
+	Indicates that the size of property varies according to the value (e.g., long strings)
+ */
+#define PSZ_DYNAMIC (-1)
+
+/*  Define: PSZ_AUTO 
+
+	Indicates that the size of the property is determined at runtime by the underlying implementation (e.g, std::string().size())
+*/
+#define PSZ_AUTO (-2)
 
 /*	Typedef: PROPERTY
 	
@@ -1395,7 +1407,7 @@ struct s_property_specs
 	const char *xsdname;
 	const char *default_value;
 	unsigned int size; 
-	unsigned int csize; 
+	int csize; 
 	int (*data_to_string)(char *,int,void*,PROPERTY*); 
 	int (*string_to_data)(const char *,void*,PROPERTY*); 
 	int (*create)(void*); 
