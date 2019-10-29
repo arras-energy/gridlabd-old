@@ -553,8 +553,27 @@ int rbsa::composition(char *buffer, size_t len)
 	}
 }
 
-int rbsa::filename(const char *filename)
+int rbsa::filename(char *filename, size_t len)
 {
+	if ( filename == NULL )
+	{
+		return repository && repository->filename ? strlen(repository->filename)+1 : 0;
+	}
+	else if ( len > 0 )
+	{
+		if ( repository == NULL || repository->filename == NULL )
+		{
+			return 0;
+		}
+		size_t size = strlen(repository->filename);
+		if ( size >= len )
+		{
+			return 0;
+		}
+		strcpy(filename,repository->filename);
+		return (int)size; 
+	}
+
 	// link to existing data if already loaded
 	data = find_file(filename);
 	if ( data != NULL )

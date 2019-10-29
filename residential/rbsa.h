@@ -173,7 +173,7 @@ public:
 	TIMESTAMP sync(TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t1);
 public:
-	int filename(const char*);
+	int filename(char*, size_t);
 public:
 	static CLASS *oclass;
 	static rbsa *defaults;
