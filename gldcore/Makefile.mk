@@ -121,10 +121,6 @@ EXTRA_gridlabd_bin_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
 
 endif
 
-bin_SCRIPTS += gldcore/gridlabd 
-bin_SCRIPTS += gldcore/gridlabd-weather
-bin_SCRIPTS += gldcore/gridlabd-python
-
 GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
 BUILT_SOURCES += gldcore/build.h
 CLEANFILES += gldcore/build.h origin.txt
@@ -145,8 +141,9 @@ pkginclude_HEADERS += gldcore/schedule.h
 pkginclude_HEADERS += gldcore/test.h
 pkginclude_HEADERS += gldcore/version.h
 
-bin_SCRIPTS += gldcore/gridlabd
+bin_SCRIPTS += gldcore/gridlabd 
 bin_SCRIPTS += gldcore/gridlabd-weather
+bin_SCRIPTS += gldcore/gridlabd-python
 bin_SCRIPTS += gldcore/gridlabd-library
 
 gridlabddir = $(prefix)/share/gridlabd
