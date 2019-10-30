@@ -235,7 +235,7 @@ int auction::create(void)
 		} // else some number of statistics came back
 	}
 	for(stat = stats; stat != NULL; stat = stat->next){
-		gl_set_value(OBJECTHDR(this), stat->prop, val);
+		gl_set_value(THISOBJECTHDR, stat->prop, val);
 	}
 	statistic_mode = ST_ON;
 	return 1; /* return 1 on success, 0 on failure */
@@ -244,7 +244,7 @@ int auction::create(void)
 /* Object initialization is called once after all object have been created */
 int auction::init(OBJECT *parent)
 {
-	OBJECT *obj=OBJECTHDR(this);
+	OBJECT *obj=THISOBJECTHDR;
 	unsigned int i = 0;
 
 	if(capacity_reference_object != NULL){
@@ -532,7 +532,7 @@ int auction::init_statistics()
 }
 
 int auction::update_statistics(){
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	STATISTIC *current = 0;
 	uint32 sample_need = 0;
 	unsigned int start = 0, stop = 0;
@@ -677,7 +677,7 @@ int auction::check_next_market(TIMESTAMP t1){
 	MARKETFRAME *frame = 0;
 	frame = (MARKETFRAME *)(latency_front * this->latency_stride + (int64)framedata);
 	if(frame->start_time > t1 && frame->start_time <= t1 + period){
-		OBJECT *obj = OBJECTHDR(this);
+		OBJECT *obj = THISOBJECTHDR;
 		MARKETFRAME *nframe = frame;
 		unsigned int i = 0;
 		STATISTIC *stat;
@@ -710,7 +710,7 @@ int auction::check_next_market(TIMESTAMP t1){
 TIMESTAMP auction::pop_market_frame(TIMESTAMP t1)
 {
 	MARKETFRAME *frame = 0;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	STATISTIC *stat = stats;
 	uint32 i = 0;
 	if(latency_front == latency_back){
@@ -765,7 +765,7 @@ TIMESTAMP auction::presync(TIMESTAMP t0, TIMESTAMP t1)
 		update_statistics();
 		char buffer[256];
 		char myname[64];
-		if (verbose) gl_output("   ...%s first clearing at %s", gl_name(OBJECTHDR(this),myname,sizeof(myname)), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
+		if (verbose) gl_output("   ...%s first clearing at %s", gl_name(THISOBJECTHDR,myname,sizeof(myname)), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
 	}
 	else
 	{
@@ -784,7 +784,7 @@ TIMESTAMP auction::presync(TIMESTAMP t0, TIMESTAMP t1)
 		gl_localtime(clearat,&dt);
 		char buffer[256];
 		char myname[64];
-		if (verbose) gl_output("   ...%s clearing process started at %s", gl_name(OBJECTHDR(this),myname,sizeof(myname)), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
+		if (verbose) gl_output("   ...%s clearing process started at %s", gl_name(THISOBJECTHDR,myname,sizeof(myname)), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
 
 		/* clear market */
 		thishr = dt.hour;
@@ -798,7 +798,7 @@ TIMESTAMP auction::presync(TIMESTAMP t0, TIMESTAMP t1)
 		// kick this over every hour to prevent odd behavior
 		checkat = gl_globalclock + (TIMESTAMP)(3600.0 - fmod(gl_globalclock+3600.0,3600.0));
 		gl_localtime(clearat,&dt);
-		if (verbose) gl_output("   ...%s opens for clearing of market_id %d at %s", gl_name(OBJECTHDR(this),name,sizeof(name)), (int32)market_id, gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
+		if (verbose) gl_output("   ...%s opens for clearing of market_id %d at %s", gl_name(THISOBJECTHDR,name,sizeof(name)), (int32)market_id, gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
 	}
 
 	return -clearat; /* return t2>t1 on success, t2=t1 for retry, t2<t1 on failure */
@@ -953,7 +953,7 @@ void auction::clear_market(void)
 					sprintf(msg, "capacity_reference_property %s uses units of %s and is incompatible with auction units (%s)", capacity_reference_property->name, capacity_reference_property->unit->name, unit.get_string());
 					throw msg;
 				} else {
-					submit_nolock((const char *)OBJECTHDR(this)->name, max_capacity_reference_bid_quantity, capacity_reference_bid_price, (int64)OBJECTHDR(this)->id, BS_ON, false, market_id);
+					submit_nolock((const char *)THISOBJECTHDR->name, max_capacity_reference_bid_quantity, capacity_reference_bid_price, (int64)THISOBJECTHDR->id, BS_ON, false, market_id);
 					if (verbose) gl_output("Capacity reference object: %s bids %.2f at %.2f", capacity_reference_object->name, max_capacity_reference_bid_quantity, capacity_reference_bid_price);
 				}
 			}
@@ -1070,7 +1070,7 @@ void auction::clear_market(void)
 				gl_warning("Seller-only auction was given purchasing bids");
 			}
 			asks.clear();
-			submit((const char *)OBJECTHDR(this)->name, -fixed_quantity, fixed_price, (int64)OBJECTHDR(this)->id, BS_ON, false, market_id);
+			submit((const char *)THISOBJECTHDR->name, -fixed_quantity, fixed_price, (int64)THISOBJECTHDR->id, BS_ON, false, market_id);
 			break;
 		case MD_FIXED_BUYER:
 			asks.sort(true);
@@ -1078,7 +1078,7 @@ void auction::clear_market(void)
 				gl_warning("Buyer-only auction was given offering bids");
 			}
 			offers.clear();
-			submit((const char *)OBJECTHDR(this)->name, fixed_quantity, fixed_price, (int64)OBJECTHDR(this)->id, BS_ON, false, market_id);
+			submit((const char *)THISOBJECTHDR->name, fixed_quantity, fixed_price, (int64)THISOBJECTHDR->id, BS_ON, false, market_id);
 			break;
 		case MD_NONE:
 			offers.sort(false);
@@ -1093,7 +1093,7 @@ void auction::clear_market(void)
 		TIMESTAMP submit_time = gl_globalclock;
 		gl_localtime(submit_time,&dt);
 		if (verbose){
-			gl_output("   ...  %s clears %.2f %s at $%.2f/%s at %s", gl_name(OBJECTHDR(this),name,sizeof(name)),
+			gl_output("   ...  %s clears %.2f %s at $%.2f/%s at %s", gl_name(THISOBJECTHDR,name,sizeof(name)),
 				next.quantity, unit.get_string(), next.price, unit.get_string(), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
 		}
 	} else if ((asks.getcount()>0) && offers.getcount()>0)
@@ -1313,7 +1313,7 @@ void auction::clear_market(void)
 	
 		/* post the price */
 		char name[64];
-		if (verbose) gl_output("   ...  %s clears %.2f %s at $%.2f/%s at %s", gl_name(OBJECTHDR(this),name,sizeof(name)), clear.quantity, unit.get_string(), clear.price, unit.get_string(), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
+		if (verbose) gl_output("   ...  %s clears %.2f %s at $%.2f/%s at %s", gl_name(THISOBJECTHDR,name,sizeof(name)), clear.quantity, unit.get_string(), clear.price, unit.get_string(), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
 		next.price = clear.price;
 		next.quantity = clear.quantity;
 	}
@@ -1331,7 +1331,7 @@ void auction::clear_market(void)
 		}
 		next.quantity = 0;
 		clearing_type = CT_NULL;
-		gl_warning("market '%s' fails to clear due to missing %s", gl_name(OBJECTHDR(this),name,sizeof(name)), asks.getcount()==0?(offers.getcount()==0?"buyers and sellers":"buyers"):"sellers");
+		gl_warning("market '%s' fails to clear due to missing %s", gl_name(THISOBJECTHDR,name,sizeof(name)), asks.getcount()==0?(offers.getcount()==0?"buyers and sellers":"buyers"):"sellers");
 	}
 	
 	double marginal_total = 0.0;
@@ -1510,14 +1510,14 @@ int auction::submit_nolock(const char *from, double quantity, double real_price,
 	/* suppress demand bidding until market stabilizes */
 	unsigned int sph24 = (unsigned int)(3600/period*24);
 	if(real_price > pricecap){
-		gl_warning("%s received a bid above the price cap, truncating", gl_name(OBJECTHDR(this),myname,sizeof(myname)));
+		gl_warning("%s received a bid above the price cap, truncating", gl_name(THISOBJECTHDR,myname,sizeof(myname)));
 		price = pricecap;
 	} else {
 		price = real_price;
 	}
 	if (total_samples<sph24 && quantity<0 && warmup)
 	{
-		if (verbose) gl_output("   ...  %s ignoring demand bid during first 24 hours", gl_name(OBJECTHDR(this),myname,sizeof(myname)));
+		if (verbose) gl_output("   ...  %s ignoring demand bid during first 24 hours", gl_name(THISOBJECTHDR,myname,sizeof(myname)));
 		return 1;
 	}
 
@@ -1546,7 +1546,7 @@ int auction::submit_nolock(const char *from, double quantity, double real_price,
 		KEY out;
 		if (verbose){
 			gl_output("   ...  %s resubmits %s from object %s for %.2f %s at $%.2f/%s at %s", 
-				gl_name(OBJECTHDR(this),myname,sizeof(myname)), quantity<0?"ask":"offer", from,
+				gl_name(THISOBJECTHDR,myname,sizeof(myname)), quantity<0?"ask":"offer", from,
 				fabs(quantity), unit.get_string(), price, unit.get_string(), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
 		}
 		BID bid = {from,b_id,fabs(quantity),price,state};
@@ -1580,7 +1580,7 @@ int auction::submit_nolock(const char *from, double quantity, double real_price,
 		KEY out;
 		if (verbose){
 			gl_output("   ...  %s receives %s from object %s for %.2f %s at $%.2f/%s at %s", 
-				gl_name(OBJECTHDR(this),myname,sizeof(myname)), quantity<0?"ask":"offer", from,
+				gl_name(THISOBJECTHDR,myname,sizeof(myname)), quantity<0?"ask":"offer", from,
 				fabs(quantity), unit.get_string(), price, unit.get_string(), gl_strtime(&dt,buffer,sizeof(buffer))?buffer:"unknown time");
 		}
 		BID bid = {from,b_id,fabs(quantity),price,state};
@@ -1604,7 +1604,7 @@ int auction::submit_nolock(const char *from, double quantity, double real_price,
 		if(verbose){
 			char myname[64];
 			gl_output(" ... %s receives %s from object %s for a previously cleared market",
-				gl_name(OBJECTHDR(this),myname,sizeof(myname)),quantity<0?"ask":"offer",
+				gl_name(THISOBJECTHDR,myname,sizeof(myname)),quantity<0?"ask":"offer",
 				from);
 		}
 		return 1;

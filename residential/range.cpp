@@ -136,7 +136,7 @@ range::~range()
 int range::create() 
 {
 
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int res = residential_enduse::create();
 
 	// initialize public values
@@ -235,7 +235,7 @@ int range::init(OBJECT *parent)
 			return 2; // defer
 		}
 	}
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	hdr->flags |= OF_SKIPSAFE;
 
 	static double sTair = 74;
@@ -396,7 +396,7 @@ int range::isa(char *classname)
 void range::thermostat(TIMESTAMP t0, TIMESTAMP t1){
 	Ton  = oven_setpoint - thermostat_deadband/2;
 	Toff = oven_setpoint + thermostat_deadband/2;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	switch(range_state()){
 
@@ -460,7 +460,7 @@ void range::thermostat(TIMESTAMP t0, TIMESTAMP t1){
 TIMESTAMP range::presync(TIMESTAMP t0, TIMESTAMP t1){
 	/* time has passed ~ calculate internal gains, height change, temperature change */
 	double nHours = (gl_tohours(t1) - gl_tohours(t0))/TS_SECOND;
-	OBJECT *my = OBJECTHDR(this);
+	OBJECT *my = THISOBJECTHDR;
 
 	// update temperature and height
 	update_T_and_or_h(nHours);
@@ -642,7 +642,7 @@ TIMESTAMP range::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 double range::update_state(double dt1,TIMESTAMP t1)
 {	
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	cooktop_energy_used += total_power_cooktop* dt1/3600;
 
 
@@ -1115,7 +1115,9 @@ double range::dhdt(double h)
 
     // check c1 before dividing by it
     if (c1 <= ROUNDOFF)
+    {
         return 0.0; //Possible only when /*Tupper*/ Tw and Tlower are very close, and the difference is negligible
+    }
 
 	const double cA = -mdot / (food_density * area) + (actual_kW() * BTUPHPKW + oven_UA * (get_Tambient(location) - Tlower)) / c1;
 	const double cb = (oven_UA / height) * (/*Tupper*/ Tw - Tlower) / c1;
@@ -1126,7 +1128,7 @@ double range::dhdt(double h)
 
 double range::actual_kW(void)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	const double nominal_voltage = 240.0; //@TODO:  Determine if this should be published or how we want to obtain this from the equipment/network
     static int trip_counter = 0;
 
@@ -1161,13 +1163,17 @@ inline double range::new_time_1node(double T0, double T1)
 	const double mdot_Cp = specificheat_food * oven_demand * 60 * food_density / GALPCF;
 
     if (Cw <= ROUNDOFF)
+    {
         return -1.0;
+    }
 
 	const double c1 = ((actual_kW()*BTUPHPKW + oven_UA * get_Tambient(location)) + mdot_Cp*Tinlet) / Cw;
 	const double c2 = -(oven_UA + mdot_Cp) / Cw;
 
     if (fabs(c1 + c2*T1) <= ROUNDOFF || fabs(c1 + c2*T0) <= ROUNDOFF || fabs(c2) <= ROUNDOFF)
+    {
         return -1.0;
+    }
 
 	const double new_time = (log(fabs(c1 + c2 * T1)) - log(fabs(c1 + c2 * T0))) / c2;	// [hr]
 	return new_time;
@@ -1180,7 +1186,9 @@ inline double range::new_temp_1node(double T0, double delta_t)
 	// Btu / degF.lb * gal/hr * lb/cf * cf/gal = Btu / degF.hr
 
     if (Cw <= ROUNDOFF || (oven_UA+mdot_Cp) <= ROUNDOFF)
+    {
         return T0;
+    }
 
 	const double c1 = (oven_UA + mdot_Cp) / Cw;
 	const double c2 = (actual_kW()*BTUPHPKW + mdot_Cp*Tinlet + oven_UA*get_Tambient(location)) / (oven_UA + mdot_Cp);
@@ -1205,7 +1213,7 @@ double range::get_Tambient(enumeration loc)
 	}
 
 	// return temperature of location
-	//house *pHouse = OBJECTDATA(OBJECTHDR(this)->parent,house);
+	//house *pHouse = OBJECTDATA(THISOBJECTHDR->parent,house);
 	//return pHouse->get_Tair()*ratio + pHouse->get_Tout()*(1-ratio);
 	return *pTair * ratio + *pTout *(1-ratio);
 }
@@ -1213,7 +1221,7 @@ double range::get_Tambient(enumeration loc)
 void range::wrong_model(enumeration msg)
 {
 	const char *errtxt[] = {"model is not one-zone","model is not two-zone"};
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	gl_warning("%s (range:%d): %s", obj->name?obj->name:"(anonymous object)", obj->id, errtxt[msg]);
 	throw msg; // this must be caught by the range code, not by the core
 }

@@ -66,7 +66,7 @@ int mpi_network::create()
 
 int mpi_network::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	// input validation checks
 	if(mpi_target < 0){
@@ -93,7 +93,7 @@ int mpi_network::isa(CLASSNAME classname){
 
 TIMESTAMP mpi_network::sync(TIMESTAMP t0, TIMESTAMP t1) 
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	MPI_Status status;
 	int rv = 0;
 
@@ -124,7 +124,7 @@ TIMESTAMP mpi_network::sync(TIMESTAMP t0, TIMESTAMP t1)
 
 //EXPORT int commit_network(OBJECT *obj){
 TIMESTAMP mpi_network::commit(TIMESTAMP t1, TIMESTAMP t2){
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	TIMESTAMP t0 = obj->clock;
 
 	return TS_NEVER;
@@ -132,7 +132,7 @@ TIMESTAMP mpi_network::commit(TIMESTAMP t1, TIMESTAMP t2){
 
 //return my->notify(update_mode, prop);
 int mpi_network::notify(int update_mode, PROPERTY *prop){
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	return 1;
 }
 

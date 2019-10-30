@@ -29,7 +29,7 @@ object house {
 		target panel.energy;
 		once ONCE_TRUE;
 		in '2001-12-31 23:00:00';
-		value 3531.39+885.051j;
-		within 3.531;
+		value 277.367+69.51j;
+		within 0.01;
 	};
 }

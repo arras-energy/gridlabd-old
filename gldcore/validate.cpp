@@ -745,6 +745,17 @@ char *encode_result(char *data,size_t sz)
 	return code;
 }
 
+static unsigned long long hash(const char *str)
+{
+	unsigned long code = 5381;
+	int c;
+	while ( (c=*str++) )
+	{
+		code = (((code<<5)+code)+c);
+	}
+	return code;
+}
+
 /** main validation routine */
 int validate(void *main, int argc, const char *argv[])
 {
@@ -973,7 +984,7 @@ int validate(void *main, int argc, const char *argv[])
 
 	report_data();
 	report_data("Result code");
-	report_data("%s",encode_result(result_code,next_id));
+	report_data("%llX",final.get_nfailed()==0?0:hash(encode_result(result_code,next_id)));
 	report_newrow();
 
 	report_newrow();

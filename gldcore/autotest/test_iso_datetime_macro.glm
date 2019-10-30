@@ -1,0 +1,28 @@
+module tape;
+module climate; 
+module assert;
+#define STARTTIME="2000-01-30T00:00:00-05:00"
+#define STOPTIME="2000-01-30T00:01:00-05:00"
+clock {
+	timezone "EST+5EDT";
+	starttime "${STARTTIME}";
+	stoptime "${STOPTIME}";
+}
+
+class test {
+	double test_var;
+};
+
+class climate {
+ 	randomvar clouds;
+} 
+
+object climate{
+	clouds "type:weibull(0.5,0.5); min:0.0; max:1.0; refresh:1h;";
+}
+
+object test {
+	name Test;	
+};
+
+script on_term gridlabd:dump test_clock.json;

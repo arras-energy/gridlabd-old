@@ -54,6 +54,8 @@ typedef enum e_implicit_enduse_source {
 	IES_ELCAP1990	= 0,	///< implicit enduse data source is ELCAP 1990
 	IES_ELCAP2010	= 1,	///< implicit enduse data source is ELCAP 2010
 	IES_RBSA2014	= 2,	///< implicit enduse data source is RBSA 2014
+	IES_RBSA2014_DISCRETE = 3, ///< implicit enduse data source is RBSA 2014 with discrete load shapes
+	IES_EIA2015 = 4, ///< implicit enduse data source is RBSA 2014 with load shapes defined for CEC
 } IMPLICITENDUSESOURCE; ///< values for implicit_enduse_source enumeration
 
 //Solar quadrant definitions
@@ -415,6 +417,8 @@ public:
 	}THERMOSTATMODE;
 	enumeration thermostat_mode;
 
+	char1024 gas_enduses;
+
 private:
 	TIMESTAMP simulation_beginning_time;
 	void set_thermal_integrity();
@@ -445,6 +449,7 @@ public:
 	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
+	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 	TIMESTAMP sync_billing(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync_thermostat(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync_panel(TIMESTAMP t0, TIMESTAMP t1);

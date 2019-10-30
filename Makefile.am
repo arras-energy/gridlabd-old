@@ -211,10 +211,12 @@ clean-wc:
 	@unset REPLY && read -t 60 -p "Clean working copy (type 'yes' to proceed)? " && test "`echo "$$REPLY" | tr '[:upper:]' '[:lower:]'`" = "yes"
 	. utilities/cleanwc
 
+install-validate: install
+	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd --validate || (tar cfz validate-output.tar.gz */autotest/test_*/*;exit 1))
+
 check-local validate: 
 	gridlabd --validate
 
-distdir = $(PACKAGE)_$(VERSION)
 scratchdir = scratch
 XERCES_TARNAME = xerces-c-3.1.1
 XERCESCROOT = $(CURDIR)/$(scratchdir)/$(XERCES_TARNAME)
@@ -255,7 +257,7 @@ $(distdir).dmg: $(scratchdir)/$(PACKAGE_TARNAME).dmg
 	test ! -e $@ || rm -rf $@
 	hdiutil convert -format UDZO -o $@ $<
 	rm -f $<
-	-rmdir $(<D)
+	-rmdir $(scratchdir)
 
 clean-dist-osx:
 	-test ! -d $(scratchdir)/mnt || hdiutil detach $(scratchdir)/mnt
@@ -310,7 +312,7 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
-install-exec-hook: python-install
+install-exec-hook: python-install weather
 	@if [ "`which gridlabd`" != "$(DESTDIR)$(bindir)/gridlabd" ]; then \
 		echo >&2 "***WARNING***: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
 	fi

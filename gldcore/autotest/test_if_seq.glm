@@ -1,0 +1,22 @@
+#set suppress_repeat_messages=0
+
+clock {
+	starttime '2000-01-01 00:00:00';
+	stoptime '2000-01-02 00:00:00';
+}
+
+class house {
+    double seqid;
+    char1024 gas_enduses;
+}
+
+module residential;
+global int32 SEQ_A 0;
+object house:..10 {
+	name `House_{SEQ_A:INC}`;
+    seqid `{SEQ_A}`;
+    gas_enduses ($seqid-5) ? DRYER|RANGE|WATERHEATER : NONE;
+}
+#print ${SEQ_A} houses created.
+#set glm_save_options=MINIMAL
+#set savefile=gridlabd.glm

@@ -151,7 +151,7 @@ int bus::create(void)
 	memcpy(this,defaults,sizeof(bus));
 	/* TODO: set the context-free initial value of properties, such as random distributions */
 	
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	bus *tempbus;
 
 	tempbus = OBJECTDATA(obj,bus);
@@ -177,7 +177,7 @@ int bus::create(void)
 int bus::init(OBJECT *parent)
 {
 	/* TODO: set the context-dependent initial value of properties */
-	OBJECT *obj_this = OBJECTHDR(this);
+	OBJECT *obj_this = THISOBJECTHDR;
 	bus *bus_this;
 	bus_this = OBJECTDATA(obj_this,bus);
 
@@ -328,7 +328,7 @@ TIMESTAMP bus::presync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	/* TODO: implement pre-topdown behavior */
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	bus *tempbus;
 
 	tempbus = OBJECTDATA(obj,bus);
@@ -399,7 +399,7 @@ TIMESTAMP bus::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	//TIMESTAMP t2 = TS_NEVER;
 	TIMESTAMP t2 = t1+TIME_INTERVAL;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	bus *tempbus;
 	
 	tempbus = OBJECTDATA(obj,bus);
@@ -425,7 +425,7 @@ TIMESTAMP bus::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
 	TIMESTAMP t2 = TS_NEVER;
 	/* TODO: implement post-topdown behavior */
-	//OBJECT *obj = OBJECTHDR(this);
+	//OBJECT *obj = THISOBJECTHDR;
 	//bus *tempbus;
 	
 	//tempbus = OBJECTDATA(obj,bus);

@@ -75,8 +75,6 @@ GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
 if HAVE_MINGW
 
-bin_SCRIPTS += gldcore/gridlabd
-
 bin_PROGRAMS += gridlabd
 
 gridlabd_CPPFLAGS =
@@ -100,8 +98,6 @@ EXTRA_gridlabd_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
 
 else
 
-bin_SCRIPTS += gldcore/gridlabd
-
 bin_PROGRAMS += gridlabd.bin
 
 gridlabd_bin_CPPFLAGS =
@@ -122,6 +118,7 @@ gridlabd_bin_SOURCES += $(GLD_SOURCES_PLACE_HOLDER)
 
 EXTRA_gridlabd_bin_SOURCES =
 EXTRA_gridlabd_bin_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
+
 endif
 
 GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
@@ -144,15 +141,24 @@ pkginclude_HEADERS += gldcore/schedule.h
 pkginclude_HEADERS += gldcore/test.h
 pkginclude_HEADERS += gldcore/version.h
 
+bin_SCRIPTS += gldcore/gridlabd 
+bin_SCRIPTS += gldcore/gridlabd-weather
+bin_SCRIPTS += gldcore/gridlabd-python
+bin_SCRIPTS += gldcore/gridlabd-library
+
 gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt
 
 gldcore/gridlabd.in: gldcore/gridlabd.m4sh
-	autoreconf -isf
-	autom4te -l m4sh $< > $@
+	@autoreconf -isf
+	@autom4te -l m4sh $< > $@
 
 gldcore/build.h: buildnum
 
 buildnum: utilities/build_number
-	/bin/bash -c "source $(top_srcdir)/utilities/build_number $(top_srcdir) gldcore/build.h"
-	(git remote -v ; git log -n 1 ; git status -s ; git diff ) > origin.txt
+	@/bin/bash -c "source $(top_srcdir)/utilities/build_number $(top_srcdir) gldcore/build.h"
+	@/bin/bash -c "source utilities/update_origin.sh" > origin.txt
+
+weather:
+	@(echo "Installing weather data manager" && mkdir -p $(prefix)/share/gridlabd/weather && chmod 2777 $(prefix)/share/gridlabd/weather && chmod 1755 $(bindir)/gridlabd-weather)
+	@(echo "Updating weather data index" && export GLD_ETC=$(prefix)/share/gridlabd && $(bindir)/gridlabd-weather fetch_index)

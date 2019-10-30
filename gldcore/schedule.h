@@ -42,7 +42,7 @@
 
 #define MAXBLOCKS 4
 #define MAXVALUES 64
-#define GET_BLOCK(I) ((I)>>6)&0x02)
+#define GET_BLOCK(I) (((I)>>6)&0x02)
 #define GET_VALUE(I) ((I)&0x3f)
 
 typedef uint32 SCHEDULEINDEX;
@@ -88,13 +88,14 @@ struct s_schedule {
 };
 
 
-#define SN_NORMAL   0x0001	/**< schedule normalization flag - normalize enabled */
-#define SN_ABSOLUTE 0x0002	/**< schedule normalization flag - use absolute values */
-#define SN_WEIGHTED 0x0004	/**< schedule normalization flag - use weighted values */
-#define SN_INTERPOLATED 0x0008	/**< schedule values are interpolated between defined values */
-#define SN_BOOLEAN 0x8000 /**< schedule is boolean (only one/zero values are expected) */
-#define SN_NONZERO 0x4000 /**< schedule is non-zero (no zero values are expected) */
-#define SN_POSITIVE 0x2000 /**< schedule is positive (no negative values are expected) */
+#define SN_NORMAL       0x0001 /**< schedule normalization flag - normalize enabled */
+#define SN_ABSOLUTE     0x0002 /**< schedule normalization flag - use absolute values */
+#define SN_WEIGHTED     0x0004 /**< schedule normalization flag - use weighted values */
+#define SN_INTERPOLATED 0x0008 /**< schedule values are interpolated between defined values */
+#define SN_USERDEFINED  0x0100 /**< schedule is defined by the user's model (rather than a module) */
+#define SN_POSITIVE     0x2000 /**< schedule is positive (no negative values are expected) */
+#define SN_NONZERO      0x4000 /**< schedule is non-zero (no zero values are expected) */
+#define SN_BOOLEAN      0x8000 /**< schedule is boolean (only one/zero values are expected) */
 
 #ifdef __cplusplus
 extern "C" {
@@ -117,7 +118,7 @@ void schedule_dump(SCHEDULE *sch, const char *file, const char *mode);
 void schedule_dumpall(const char *file);
 int schedule_createwait(void);
 SCHEDULE *schedule_getfirst(void);
-int schedule_saveall(FILE *fp);
+int schedule_saveall(FILE *fp,bool user_defined_only=true);
 
 #ifdef __cplusplus
 }

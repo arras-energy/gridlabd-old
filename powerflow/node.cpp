@@ -337,7 +337,7 @@ int node::create(void)
 
 int node::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Put the phase_S check right on the top, since it will apply to both solvers
 	if (has_phase(PHASE_S))
@@ -1326,7 +1326,7 @@ TIMESTAMP node::presync(TIMESTAMP t0)
 {
 	unsigned int index_val;
 	FILE *NRFileDump;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	TIMESTAMP t1 = powerflow_object::presync(t0); 
 	TIMESTAMP temp_time_value, temp_t1_value;
 	node *temp_par_node = NULL;
@@ -2276,7 +2276,7 @@ void node::NR_node_sync_fxn(OBJECT *obj)
 TIMESTAMP node::sync(TIMESTAMP t0)
 {
 	TIMESTAMP t1 = powerflow_object::sync(t0);
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	complex delta_current[3];
 	complex power_current[3];
 	complex delta_shunt[3];
@@ -2720,7 +2720,7 @@ TIMESTAMP node::postsync(TIMESTAMP t0)
 {
 	TIMESTAMP t1 = powerflow_object::postsync(t0);
 	TIMESTAMP RetValue=t1;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 #ifdef SUPPORT_OUTAGES
 	if (condition!=OC_NORMAL)	//Zero all the voltages, just in case
@@ -2851,7 +2851,7 @@ int node::kmlinit(int (*stream)(const char*,...))
 }
 int node::kmldump(int (*stream)(const char*,...))
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	if (isnan(get_latitude()) || isnan(get_longitude()))
 		return 0;
 	stream("<Placemark>\n");
@@ -3182,7 +3182,7 @@ OBJECT *node::NR_master_swing_search(const char *node_type_value,bool main_swing
 int node::NR_populate(void)
 {
 	//Object header for names
-	OBJECT *me = OBJECTHDR(this);
+	OBJECT *me = THISOBJECTHDR;
 
 	//Lock the SWING for global operations
 	if ( NR_swing_bus!=me ) LOCK_OBJECT(NR_swing_bus);
@@ -3446,7 +3446,7 @@ int node::NR_current_update(bool postpass, bool parentcall)
 	unsigned int table_index;
 	link_object *temp_link;
 	int temp_result, loop_index;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	complex temp_current_inj[3];
 	complex temp_current_val[3];
 	complex adjusted_current_val[3];
@@ -4016,7 +4016,7 @@ SIMULATIONMODE node::inter_deltaupdate_node(unsigned int64 delta_time, unsigned 
 {
 	//unsigned char pass_mod;
 	double deltat, deltatimedbl;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	STATUS return_status_val;
 
 	////See what we're on, for tracking
@@ -4453,7 +4453,7 @@ double node::perform_GFA_checks(double timestepvalue)
 	double return_time_freq, return_time_volt, return_value;
 	size_t indexval;
 	unsigned char phasevals;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	//By default, we're subject to the whims of deltamode
 	return_time_freq = -1.0;
@@ -4732,7 +4732,7 @@ double node::perform_GFA_checks(double timestepvalue)
 //Function to set a node's SWING status mid-simulation, without the SWING_PQ functionality
 STATUS node::NR_swap_swing_status(bool desired_status)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	//See if we're a child or not
 	if ((SubNode!=CHILD) && (SubNode!=DIFF_CHILD))
@@ -4775,7 +4775,7 @@ STATUS node::NR_swap_swing_status(bool desired_status)
 //Primarily used for deltamode and voltage-source inverters, but could be used in other places
 STATUS node::NR_map_current_update_function(OBJECT *callObj)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	OBJECT *phdr = NULL;
 
 	//Do a simple check -- if we're not in NR, this won't do anything anyways
@@ -4872,7 +4872,7 @@ STATUS node::NR_map_current_update_function(OBJECT *callObj)
 //VFD linking/mapping function
 STATUS node::link_VFD_functions(OBJECT *linkVFD)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Set the VFD object
 	VFD_object = linkVFD;

@@ -43,7 +43,7 @@ double_assert::double_assert(MODULE *module)
 			PT_double, "within", get_within_offset(),PT_DESCRIPTION,"Tolerance for a successful assert",
 			PT_char1024, "target", get_target_offset(),PT_DESCRIPTION,"Property to perform the assert upon",
 			NULL)<1){
-				throw "unable to publish properties in "__FILE__;
+				throw "unable to publish properties in " __FILE__;
 		}
 
 		defaults = this;

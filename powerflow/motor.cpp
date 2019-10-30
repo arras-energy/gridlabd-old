@@ -263,7 +263,7 @@ int motor::create()
 
 int motor::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int result = node::init(parent);
 
 	// Check what phases are connected on this motor
@@ -575,7 +575,7 @@ TIMESTAMP motor::postsync(TIMESTAMP t0, TIMESTAMP t1)
 //Module-level call
 SIMULATIONMODE motor::inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val, bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	STATUS return_status_val;
 
 	// make sure to capture the current time

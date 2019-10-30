@@ -24,7 +24,7 @@ struct s_module_list {
 	unsigned short major;
 	unsigned short minor;
 	void* (*getvar)(const char *varname,char *value,unsigned int size);
-	int (*setvar)(const char *varname,char *value);
+	int (*setvar)(const char *varname,const char *value);
 	int (*import_file)(const char *file);
 	int (*export_file)(const char *file);
 	int (*check)();
@@ -57,6 +57,17 @@ struct s_module_list {
 	struct s_module_list *next;
 }; /* MODULE */
 
+struct s_procinfo {
+	pid_t pid;				/* process id */
+	TIMESTAMP progress;		/* current simtime */
+	TIMESTAMP starttime;	/* sim starttime */
+	TIMESTAMP stoptime;		/* sim stoptime */
+	enumeration status;		/* current status */
+	char1024 model;			/* model name */
+	time_t start;			/* wall time of start */
+};
+typedef struct s_procinfo PROCINFO;
+
 #ifndef _MODULE_DEFINED_
 #define _MODULE_DEFINED_
 typedef struct s_module_list MODULE;
@@ -79,7 +90,7 @@ extern "C" {
 	const char* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size);
 	void *module_getvar_addr(MODULE *mod, const char *varname);
 	int module_depends(const char *name, unsigned char major, unsigned char minor, unsigned short build);
-	int module_setvar(MODULE *mod, const char *varname, char *value);
+	int module_setvar(MODULE *mod, const char *varname, const char *value);
 	int module_import(MODULE *mod, const char *filename);
 	int module_export(MODULE *mod, const char *filename);
 	int module_check(MODULE *mod);
@@ -120,6 +131,8 @@ extern "C" {
 	MODULE *module_get_next(MODULE*);
 	
 	int module_add_external_callback(const char *name, EXTERNALCALLBACK handler, void *data);
+	STATUS sched_getinfo(int n,PROCINFO *pinfo);
+	int sched_getnproc(void);
 
 #ifdef __cplusplus
 }

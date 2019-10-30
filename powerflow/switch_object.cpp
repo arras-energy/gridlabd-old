@@ -106,7 +106,7 @@ int switch_object::init(OBJECT *parent)
 	double phase_total, switch_total;
 	size_t indexa, indexb;
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	//Special flag moved to be universal for all solvers - mainly so phase checks catch it now
 	SpecialLnk = SWITCH;
@@ -670,7 +670,7 @@ void switch_object::NR_switch_sync_post(char *work_phases_pre, char *work_phases
 
 TIMESTAMP switch_object::sync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	char work_phases_pre, work_phases_post;
 
 	//Try to map the event_schedule function address, if we haven't tried yet
@@ -735,7 +735,7 @@ void switch_object::switch_sync_function(void)
 {
 	unsigned char pres_status;
 	double phase_total, switch_total;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	int result_val;
 
 	pres_status = 0x00;	//Reset individual status indicator - assumes all start open
@@ -1611,7 +1611,7 @@ void switch_object::set_switch_faulted_phases(unsigned char desired_status)
 //Module-level deltamode call
 SIMULATIONMODE switch_object::inter_deltaupdate_switch(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	TIMESTAMP t0_val, t2_val;
 	char work_phases_pre, work_phases_post;
 
@@ -1868,16 +1868,15 @@ int switch_object::kmldata(int (*stream)(const char*,...))
 
 	// control input
 	gld_global run_realtime("run_realtime");
-	gld_global server("hostname");
-	gld_global port("server_portnum");
+	gld_global server("kmlhost");
 	if ( run_realtime.get_bool() )
 	{
 		stream("<TR><TH ALIGN=LEFT>Control</TH>");
 		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
-				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"http://%s:%d/kml/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"switchA\" VALUE=\"%s\" /></FORM></TD>",
-						(const char*)server.get_string(), port.get_int16(), (const char*)get_name(), state[i] ? "OPEN" : "CLOSE");
+				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"%s/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"switchA\" VALUE=\"%s\" /></FORM></TD>",
+						(const char*)server.get_string(), (const char*)get_name(), state[i] ? "OPEN" : "CLOSE");
 			else
 				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\">&mdash;</TD>");
 		}

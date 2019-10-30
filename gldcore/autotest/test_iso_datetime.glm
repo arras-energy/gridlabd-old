@@ -2,6 +2,8 @@ module tape;
 module climate; 
 module assert;
 
+#set dateformat=ISO8601
+
 clock {
 	timezone "EST+5EDT";
 	starttime "2000-01-01T00:00:00-05:00";
@@ -25,3 +27,4 @@ object test {
 };
 
 script on_term gridlabd:dump test_clock.json;
+#on_exit 0 python3 ../test_iso_datetime.py
