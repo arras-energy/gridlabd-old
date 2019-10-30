@@ -1,5 +1,5 @@
 #! /bin/sh
-# Generated from gldcore/gridlabd.m4sh by GNU Autoconf 2.69.
+# Generated from gridlabd.m4sh by GNU Autoconf 2.69.
 ## -------------------- ##
 ## M4sh Initialization. ##
 ## -------------------- ##
@@ -353,17 +353,20 @@ elif test "x$1" = "x--valgrind" ; then :
   exit 0
 fi
 
-if test "x$GRIDLABD_DEBUG" = "x"; then :
-  if test "x$HAS_MINGW" = "xyes"; then :
-  "$bindir/gridlabd.exe" "$@"
+if test "x$GLPATH" = x; then :
+  export GLPATH="$pkglibdir:$pkgdatadir"
+else
+  export GLPATH="$pkglibdir:$pkgdatadir:$GLPATH"
+fi
+
+if test "x$TERM" = "xcygwin"; then :
+  export CXXFLAGS="-I${pkgdatadir} $CXXFLAGS"
+else
+  export CXXFLAGS="-I$pkgdatadir $CXXFLAGS"
+fi
+
+if test -x "${bindir}/gridlabd-$1"; then :
+  "${bindir}/gridlabd-$@"
 else
   "$bindir/gridlabd.bin" "$@"
 fi
-else
-  if test "x$HAS_MINGW" = "xyes"; then :
-  "$GRIDLABD_DEBUG" "$bindir/gridlabd.exe"
-else
-  "$GRIDLABD_DEBUG" "$bindir/gridlabd.bin"
-fi
-fi
-

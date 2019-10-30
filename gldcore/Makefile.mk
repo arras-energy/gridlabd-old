@@ -121,7 +121,7 @@ EXTRA_gridlabd_bin_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
 
 endif
 
-bin_SCRIPTS += gldcore/gridlabd
+bin_SCRIPTS += gldcore/gridlabd 
 
 GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
 BUILT_SOURCES += gldcore/build.h
