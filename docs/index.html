@@ -2,7 +2,31 @@
 
 <HEAD>
 <LINK rel="stylesheet" type="text/css" href="docs.css" />
-<SCRIPT LANGUAGE="JavaScript" SRC="markdown.js">
+<SCRIPT LANGUAGE="JavaScript">
+function load_markdown(href,url)
+{
+    base = url.substring(0,url.lastIndexOf('/')+1)
+    var r = new XMLHttpRequest()
+    r.open('GET',url,false)
+    r.send(null);
+    if ( r.status == 200 )
+    {
+        var rr = new XMLHttpRequest()
+        rr.open('POST','https://api.github.com/markdown/raw',false)
+        rr.send(r.responseText)
+        if ( rr.status == 200 )
+        {
+            var re = /\[\[.+\]\]/g
+            function to_url(tag)
+            {
+                ref = tag.substr(2,tag.length-4)
+                return "<A HREF=\"?page="+base+ref+".md\">"+ref+"</A>"
+            }
+            var ro = re[Symbol.replace](rr.responseText,to_url)
+            document.writeln(ro)
+        }
+    }
+}    
 </SCRIPT>
 </HEAD>
 
@@ -37,9 +61,8 @@
     }
 </SCRIPT>
 
-Project: <INPUT TYPE=TEXT VALUE="gridlabd" />
-
-Branch: <SELECT>
+Repository: https://<INPUT TYPE=TEXT VALUE="github.com" />/<INPUT TYPE=TEXT VALUE="dchassin" />/<INPUT TYPE=TEXT VALUE="gridlabd" />/
+<SELECT>
 <OPTION VALUE="master">master</OPTION>
 <SCRIPT LANGUAGE="JavaScript">
     r.open('GET','https://api.github.com/repos/dchassin/gridlabd/branches',false);
@@ -54,17 +77,15 @@ Branch: <SELECT>
             }
         })
     }
-    else
-        debug('select error (status '+r.status+')');
 </SCRIPT>
 </SELECT>
-
+/<A HREF="https://github.com/dchassin/gridlabd/tree/restructure_install/docs">docs</A>
 <HR/>
 
 <SCRIPT LANGUAGE="JavaScript">
     if ( page.substring(0,7) == 'file://' )
     {
-        error("access to local files is not permitted")
+        document.writeln("ERROR: access to local files is not permitted")
     }
     else
     {
@@ -74,7 +95,7 @@ Branch: <SELECT>
         }
         catch (err)
         {
-            error(err.message)
+            document.writeln("ERROR: "+err.message)
         }
     }
     try 
