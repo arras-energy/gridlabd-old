@@ -16,7 +16,7 @@ function load_markdown(href,url)
         rr.send(r.responseText)
         if ( rr.status == 200 )
         {
-            var re = /\[\[.+\]\]/g
+            var re = /\[\[[-A-Za-z_ 0-9]+\]\]/g
             function to_url(tag)
             {
                 ref = tag.substr(2,tag.length-4)
@@ -65,7 +65,7 @@ Repository: https://<INPUT TYPE=TEXT VALUE="github.com" />/<INPUT TYPE=TEXT VALU
 <SELECT>
 <OPTION VALUE="master">master</OPTION>
 <SCRIPT LANGUAGE="JavaScript">
-    r.open('GET','https://api.github.com/repos/dchassin/gridlabd/branches',false);
+    r.open('GET','https://api.github.com/repos/dchassin/gridlabd/branches?per_page=1000',false);
     r.send(null);
     if ( r.status == 200 )
     {
@@ -80,6 +80,22 @@ Repository: https://<INPUT TYPE=TEXT VALUE="github.com" />/<INPUT TYPE=TEXT VALU
 </SCRIPT>
 </SELECT>
 /<A HREF="https://github.com/dchassin/gridlabd/tree/restructure_install/docs">docs</A>
+/<SELECT>
+<SCRIPT LANGUAGE="JavaScript">
+    r.open('GET','https://api.github.com/repos/dchassin/gridlabd/contents/docs?ref=restructure_install',false);
+    r.send(null);
+    if ( r.status == 200 )
+    {
+        JSON.parse(r.responseText, function (key,value)
+        {
+            if ( key == 'name' && value.endsWith('.md') && value.substring(0,1) != '_' )
+            {
+                document.writeln('<OPTION VALUE="'+value+'">'+value.substring(0,value.length-3)+'</OPTION>');
+            }
+        })
+    }
+</SCRIPT>
+</SELECT>.md
 <HR/>
 
 <SCRIPT LANGUAGE="JavaScript">
