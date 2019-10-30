@@ -118,7 +118,7 @@ void schedule_dump(SCHEDULE *sch, const char *file, const char *mode);
 void schedule_dumpall(const char *file);
 int schedule_createwait(void);
 SCHEDULE *schedule_getfirst(void);
-int schedule_saveall(FILE *fp);
+int schedule_saveall(FILE *fp,bool user_defined_only=true);
 
 #ifdef __cplusplus
 }
