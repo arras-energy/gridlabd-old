@@ -409,7 +409,9 @@ bool solver_model_find(SOLVERMODEL *&model,
 		return dist < maximum_distance; 
 	}
 	else
-	return false;
+	{
+		return false;
+	}
 }
 
 int64 solver_model_apply(SOLVERMODEL *model,
