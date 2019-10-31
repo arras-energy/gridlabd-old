@@ -613,7 +613,7 @@ static void _module_list (char *path)
 	}
 
 	/* open directory */
-	output_debug("module_list(char *path='%s')", path);
+	IN_MYCONTEXT output_debug("module_list(char *path='%s')", path);
 #ifdef WIN32
 	sprintf(search,"%s\\*.dll",path);
 	hFind=FindFirstFile(search,&sFind);
@@ -645,7 +645,7 @@ static void _module_list (char *path)
 		if ( ext==NULL ) continue; /* no extension */
 		if ( strcmp(ext,".so")!=0 ) continue; /* not the right extension */
 #endif
-		output_debug("library '%s' ok", fname);
+		IN_MYCONTEXT output_debug("library '%s' ok", fname);
 		/* access DLL */
 		hLib = DLLOAD(fname);
 		if ( hLib==NULL ) 
@@ -1727,9 +1727,9 @@ void sched_lock(unsigned short proc)
 {
 	if ( process_map )
 	{
-		output_debug("module.c:sched_lock(): enter lock[%d]=%d", proc, process_map[proc].lock);
+		IN_MYCONTEXT output_debug("module.c:sched_lock(): enter lock[%d]=%d", proc, process_map[proc].lock);
 		wlock(&process_map[proc].lock);
-		output_debug("module.c:sched_lock(): exit  lock[%d]=%d", proc, process_map[proc].lock);
+		IN_MYCONTEXT output_debug("module.c:sched_lock(): exit  lock[%d]=%d", proc, process_map[proc].lock);
 	}
 	else
 		output_warning("module.c:sched_lock(): process_map does not exist");
@@ -1739,9 +1739,9 @@ void sched_unlock(unsigned short proc)
 {
 	if ( process_map )
 	{
-		output_debug("module.c:sched_unlock(): enter lock[%d]=%d", proc, process_map[proc].lock);
+		IN_MYCONTEXT output_debug("module.c:sched_unlock(): enter lock[%d]=%d", proc, process_map[proc].lock);
 		wunlock(&process_map[proc].lock);
-		output_debug("module.c:sched_unlock(): exit  lock[%d]=%d", proc, process_map[proc].lock);
+		IN_MYCONTEXT output_debug("module.c:sched_unlock(): exit  lock[%d]=%d", proc, process_map[proc].lock);
 	}
 	else
 		output_warning("module.c:sched_lock(): process_map does not exist");
@@ -1765,7 +1765,7 @@ void sched_update(TIMESTAMP clock, enumeration status)
 }
 int sched_isdefunct(pid_t pid)
 {
-	output_debug("checking status of pid %d",pid);
+	IN_MYCONTEXT output_debug("checking status of pid %d",pid);
 	/* signal 0 only checks process existence */
 	if ( pid != 0 )
 	{
@@ -1790,7 +1790,7 @@ void sched_finish(void)
 	{
 		int n = my_proc->list[t];
 		sched_lock(n);
-		output_debug("module.c:sched_finish(): process_map[n].state <- DONE", n);
+		IN_MYCONTEXT output_debug("module.c:sched_finish(): process_map[n].state <- DONE", n);
 		process_map[n].status = MLS_DONE;
 		sched_unlock(n);
 	}
@@ -1808,7 +1808,7 @@ void sched_clear(void)
 			if (sched_isdefunct(process_map[n].pid) )
 			{
 				sched_lock(n);
-				output_debug("module.c:sched_clear(): process_map[n].pid %d (proc %d) <- 0", process_map[n].pid, n);
+				IN_MYCONTEXT output_debug("module.c:sched_clear(): process_map[n].pid %d (proc %d) <- 0", process_map[n].pid, n);
 				process_map[n].pid = 0;
 				sched_unlock(n);
 			}
@@ -2078,7 +2078,7 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 		}
 		my_proc->list[t] = n;
 		process_map[n].pid = pid;
-		output_debug("module.c/sched_allocate_procs(): assigned processor %d to pid %d\n", n, pid);
+		IN_MYCONTEXT output_debug("module.c/sched_allocate_procs(): assigned processor %d to pid %d\n", n, pid);
 		strncpy(process_map[n].model,global_modelname,sizeof(process_map[n].model)-1);
 		process_map[n].start = time(NULL);
 		sched_unlock(n);
@@ -2215,7 +2215,7 @@ void sched_init(int readonly)
 	key_t shmkey = ftok(mfile,sizeof(GLDPROCINFO));
 	pid_t pid = getpid();
 	int shmid;
-	output_debug("shmkey = %d", (int)shmkey);
+	IN_MYCONTEXT output_debug("shmkey = %d", (int)shmkey);
 
 	/* get total number of processors */
 #ifndef DYN_PROC_AFFINITY
@@ -2223,7 +2223,7 @@ void sched_init(int readonly)
 #else
 	n_procs = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
-	output_debug("sched_init(): sysconf(_SC_NPROCESSORS_ONLN) = %d", n_procs);
+	IN_MYCONTEXT output_debug("sched_init(): sysconf(_SC_NPROCESSORS_ONLN) = %d", n_procs);
 	mapsize = sizeof(GLDPROCINFO)*n_procs;
 
 	if(has_run == 0){

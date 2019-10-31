@@ -30,3 +30,4 @@ ln -s /usr/local/bin/pip3 /usr/bin/pip3
 pip3 install matplotlib
 pip3 install pandas
 pip3 install mysql-connector
+pip3 install Pillow
