@@ -8,14 +8,15 @@
 #include "solver_ml.h"
 
 #define CONFIGLOG "solver_ml.log"
-#define CONFIGNAME "solver_ml.cfg"
+#define CONFIGNAME "solver_ml.conf"
 #define CONFIGPATH "/usr/local/share/gridlabd/"
 
 // default configuration settings
 double maximum_distance = 0; // 0 is never use solver model, 1e-9 is only when nearly identical
-char solver_model_logfile[1024] = CONFIGLOG;
+const char *solver_model_logfile = CONFIGLOG;
 int solver_model_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
 size_t maximum_models = 100; // maximum number of models to track
+const char *model_dumpfile = NULL; // basename of dumpfile
 
 SOLVERMODELSTATUS solver_model_status = SMS_INIT;
 SOLVERMODEL *last = NULL, *first = NULL;
@@ -47,13 +48,17 @@ SOLVERMODELSTATUS solver_model_config(const char *localconfig = CONFIGNAME,
 			char tag[1024],value[1024];
 			if ( sscanf(line,"%s%s",tag,value) == 2 )
 			{
-				if ( strcmp(tag,"maximum_metric") == 0 )
+				if ( tag[0] == '#' )
+				{
+					continue;
+				}
+				else if ( strcmp(tag,"maximum_metric") == 0 )
 				{
 					maximum_distance = atof(value);
 				}
 				else if ( strcmp(tag,"logfile") == 0 )
 				{
-					strcpy(solver_model_logfile,value);
+					solver_model_logfile = strdup(value);
 				}
 				else if ( strcmp(tag,"loglevel") == 0 )
 				{
@@ -73,6 +78,10 @@ SOLVERMODELSTATUS solver_model_config(const char *localconfig = CONFIGNAME,
 					{
 						fprintf(stdout,"solver_model_config(configname='%s'): method '%s' is not known, using basic method\n",configname,value);
 					}
+				}
+				else if ( strcmp(tag,"dumpfile") == 0 )
+				{
+					model_dumpfile = strdup(value);
 				}
 				else
 				{
@@ -124,8 +133,9 @@ int solver_model_init(void)
 	switch ( solver_model_status )
 	{
 		case SMS_INIT:
+			fprintf(stderr,"solver initialization started\n");
 			solver_model_status = solver_model_config();
-			if ( solver_model_status == SMS_INIT )
+			if ( solver_model_status == SMS_READY )
 			{
 				if ( solver_model_logfh != NULL )
 				{
@@ -135,23 +145,37 @@ int solver_model_init(void)
 				if ( solver_model_loglevel > 0 )
 				{
 					solver_model_logfh = fopen(solver_model_logfile,"w");
+					if ( solver_model_logfh )
+					{
+						fprintf(stderr,"solver log %s opened ok\n",solver_model_logfile);
+					}
+					else
+					{
+						fprintf(stderr,"solver log %s opened failed (errno=%d, strerror='%s')\n",solver_model_logfile,errno,strerror(errno));
+					}
 				}
 				else
 				{
 					unlink(solver_model_logfile);
 				}
-				solver_model_status = SMS_READY;
 				return 1;
 			}
 			else
 			{
+				fprintf(stderr,"solver configuration failed\n");
 				return 0;
 			}
 		case SMS_READY:
+			fprintf(stderr,"solver ready\n");
 			return 1;
 		case SMS_DISABLED:
+			fprintf(stderr,"solver initialization disabled\n");
+			return 0;
 		case SMS_FAILED:
+			fprintf(stderr,"solver initialization failed\n");
+			return 0;
 		default:
+			fprintf(stderr,"solver state unknown (solver_model_status=%d)\n", solver_model_status);
 			return 0;
 	}
 }
@@ -353,6 +377,11 @@ SOLVERMODEL *solver_model_getnext(SOLVERMODEL *model)
 bool solver_model_islast(SOLVERMODEL *model)
 {
 	return model ? model->next == NULL : true;
+}
+
+void solver_model_dump(SOLVERMODEL *m)
+{
+
 }
 
 // solver_find_model(SOLVERMODEL): identifies a satisfactory model and return the distance metric
