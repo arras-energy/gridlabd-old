@@ -141,7 +141,10 @@ def objects_glm() :
 			fw.write(name_str)
 			for v_id, v_info in data['objects'][obj_id_sorted].items() : 
 				if v_id not in objects_ignore and v_info:  
-					val_str = "\n"+ "\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
+					if "\n" in v_info :
+						val_str = "\n"+ "\t" + v_id+ " " + '\"\"\"' + v_info.replace('"', '\\\"') + '\"\"\";'
+					else : 
+						val_str = "\n"+"\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
 					fw.write(val_str)
 			fw.write('\n}' )
 	return True

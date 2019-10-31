@@ -29,6 +29,7 @@
 #include "zipload.h"
 #include "thermal_storage.h"
 #include "evcharger_det.h"
+#include "rbsa.h"
 
 #include "residential_enduse.h"
 #include "house_e.h"
@@ -100,6 +101,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new ZIPload(module);
 	new thermal_storage(module);
 	new evcharger_det(module);
+	new rbsa(module);
 
 	/* always return the first class registered */
 	return residential_enduse::oclass;

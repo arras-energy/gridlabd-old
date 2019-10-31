@@ -1,22 +1,22 @@
-// ceus.h
+// rbsa.h
 // Copyright (C) 2018 Stanford University
 // Author: dchassin@stanford.edu
 //
-// Commercial building loads using CEUS data
+// Commercial building loads using RBSA data
 //
 // Author: dchassin@stanford.edu
 //
 
-#ifndef _CEUS_H
-#define _CEUS_H
+#ifndef _RBSA_H
+#define _RBSA_H
 
 #include "gridlabd.h"
 
-DECL_METHOD(ceus,composition);
+DECL_METHOD(rbsa,composition);
 
 #define DATASIZE (12*_DT_SIZE*24) // N_months x N_daytypes x N_hours (e.g., 1152)
 
-class ceus : public gld_object 
+class rbsa : public gld_object 
 {
 public: // globals
 	static complex default_nominal_voltage_A;
@@ -52,31 +52,31 @@ public:
 		_DT_SIZE
 	} DAYTYPE;
 public:
-	typedef struct s_ceusdata 
+	typedef struct s_rbsadata 
 	{
 		char *filename;
 		char *enduse;
 		double data[DATASIZE];
-		struct s_ceusdata *next_file;
-		struct s_ceusdata *next_enduse;
-	} CEUSDATA;
-	static CEUSDATA *repository;
+		struct s_rbsadata *next_file;
+		struct s_rbsadata *next_enduse;
+	} RBSADATA;
+	static RBSADATA *repository;
 public:
-	static CEUSDATA *add_file(const char *filename);
-	static CEUSDATA *get_first_file(void);
-	inline static CEUSDATA *get_next_file(CEUSDATA *repo);
-	static CEUSDATA *find_file(const char *filename);
-	static CEUSDATA *add_enduse(const char *filename, const char *enduse);
-	static CEUSDATA *add_enduse(CEUSDATA *repo, const char *enduse);
-	static CEUSDATA *get_first_enduse(const char *filename);
-	inline static CEUSDATA *get_next_enduse(CEUSDATA *repo);
-	static CEUSDATA *find_enduse(const char *filename, const char *enduse);
-	static CEUSDATA *find_enduse(CEUSDATA *repo, const char *enduse);
+	static RBSADATA *add_file(const char *filename);
+	static RBSADATA *get_first_file(void);
+	inline static RBSADATA *get_next_file(RBSADATA *repo);
+	static RBSADATA *find_file(const char *filename);
+	static RBSADATA *add_enduse(const char *filename, const char *enduse);
+	static RBSADATA *add_enduse(RBSADATA *repo, const char *enduse);
+	static RBSADATA *get_first_enduse(const char *filename);
+	inline static RBSADATA *get_next_enduse(RBSADATA *repo);
+	static RBSADATA *find_enduse(const char *filename, const char *enduse);
+	static RBSADATA *find_enduse(RBSADATA *repo, const char *enduse);
 	static size_t get_index(unsigned int month, unsigned int day, unsigned int hour);
 	static size_t get_index(TIMESTAMP ts);
 	static size_t get_index(void);
-	void set_value(CEUSDATA *repo, TIMESTAMP ts, double value);
-	static double get_value(CEUSDATA *repo, TIMESTAMP ts, double scalar=1.0);
+	void set_value(RBSADATA *repo, TIMESTAMP ts, double value);
+	static double get_value(RBSADATA *repo, TIMESTAMP ts, double scalar=1.0);
 public:
 	typedef struct s_minmax {
 		double min;
@@ -91,7 +91,7 @@ public:
 	} SENSITIVITY;
 	typedef struct s_component 
 	{
-		CEUSDATA *data; // enduse name
+		RBSADATA *data; // enduse name
 		double Zr, Zi; // constant impedance factors (real, imaginary)
 		double Ir, Ii; // constant current factors (real, imaginary)
 		double Pr, Pi; // constant power factors (real, imaginary)
@@ -104,12 +104,10 @@ public:
 		struct s_component *next;
 	} COMPONENT;
 	COMPONENT *components;
-	std::string *initial_components;
 public:
 	COMPONENT *get_first_component();
 	inline COMPONENT *get_next_component(COMPONENT *c);
 	COMPONENT *add_component(const char *enduse, const char* composition=NULL);
-	const char *get_components(char *buffer=NULL, size_t len=0);
 	bool set_component(const char *enduse, const char *term, double value);
 	bool set_component(COMPONENT *component, const char *term, double value);
 	COMPONENT *find_component(const char *enduse);
@@ -125,7 +123,7 @@ public:
 	GL_ATOMIC(complex,total_power_C);
 	GL_ATOMIC(double,total_real_power);
 	GL_ATOMIC(double,total_reactive_power);
-	GL_METHOD(ceus,composition);
+	GL_METHOD(rbsa,composition);
 private:
 	template<class T> void link_property(T *&ptr, gld_object *obj, const char *name)
 	{
@@ -156,7 +154,7 @@ private:
 	double *price;
 	double *solar;
 	double *occupancy;
-	CEUSDATA *data;
+	RBSADATA *data;
 private:
 	complex *power_A;
 	complex *power_B;
@@ -168,17 +166,17 @@ private:
 	complex *shunt_B;
 	complex *shunt_C;
 public:
-	ceus(MODULE *module);
+	rbsa(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
 	TIMESTAMP presync(TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t1);
 public:
-	int filename(char*,size_t);
+	int filename(char*, size_t);
 public:
 	static CLASS *oclass;
-	static ceus *defaults;
+	static rbsa *defaults;
 };
 
-#endif // _CEUS_H
+#endif // _RBSA_H

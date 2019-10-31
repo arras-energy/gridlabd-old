@@ -67,6 +67,7 @@ typedef struct s_transferfunction {
 
 /* transform data structure */
 typedef struct s_transform {
+	const char *definition; ///< original definition of the transformation (needed for save operations)
 	double *source;	///< source vector of the function input
 	TRANSFORMSOURCE source_type; ///< data type of source
 	struct s_object_list *target_obj; ///< object of the target
@@ -124,6 +125,8 @@ int transform_add_filter(struct s_object_list *target_obj, struct s_property_map
 int transfer_function_add(char *tfname, char *domain, double timestep, double timeskew, unsigned int n, double *a, unsigned int m, double *b);
 int transfer_function_constrain(char *tfname, unsigned int64 flags, unsigned int64 nbits, double minimum, double maximum);
 
+TRANSFORM *transform_has_target(void *addr);
+int transform_write(TRANSFORM *xform, FILE *fp);
 int transform_saveall(FILE *fp);
 
 #ifdef __cplusplus

@@ -1,74 +1,79 @@
-// ceus.cpp
+// rbsa.cpp
 // Copyright (C) 2018 Stanford University
 //
-// Commercial building loads using CEUS data
+// Commercial building loads using RBSA data
 //
 // Author: dchassin@stanford.edu
 //
 
-#include "commercial.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <errno.h>
+#include <math.h>
 
-EXPORT_CREATE(ceus);
-EXPORT_INIT(ceus);
-EXPORT_SYNC(ceus);
-EXPORT_METHOD(ceus,composition);
-EXPORT_LOADMETHOD(ceus,filename);
+#include "rbsa.h"
 
-CLASS *ceus::oclass = NULL;
-ceus *ceus::defaults = NULL;
+EXPORT_CREATE(rbsa);
+EXPORT_INIT(rbsa);
+EXPORT_SYNC(rbsa);
+EXPORT_METHOD(rbsa,composition);
+EXPORT_LOADMETHOD(rbsa,filename);
 
-double ceus::default_nominal_voltage = 240.0;
-complex ceus::default_nominal_voltage_A(240.0,0.0,A);
-complex ceus::default_nominal_voltage_B(240.0,-120.0,A);
-complex ceus::default_nominal_voltage_C(240.0,+120.0,A);
-char32 ceus::default_weekday_code ="WEEKDAY";
-char32 ceus::default_saturday_code ="SATURDAY";
-char32 ceus::default_sunday_code ="SUNDAY";
-char32 ceus::default_holiday_code ="HOLIDAY";
-char32 ceus::default_month_heading = "Month";
-char32 ceus::default_daytype_heading = "Daytype";
-char32 ceus::default_hour_heading = "Hour";
-char1024 ceus::temperature_variable_name = "temperature";
-char1024 ceus::solargain_variable_name = "solar_direct";
-char1024 ceus::price_variable_name = "energy_price";
-char1024 ceus::occupancy_variable_name = "occupancy_fraction";
-double ceus::default_temperature_cooling_balance = 70.0;
-double ceus::default_temperature_cooling_base = 70.0;
-double ceus::default_temperature_cooling_design = 100.0;
-double ceus::default_temperature_heating_balance = 55.0;
-double ceus::default_temperature_heating_base = 55.0;
-double ceus::default_temperature_heating_design = 0.0;
-double ceus::default_solargain_base = 0.0;
-double ceus::default_price_base = 0.0;
-double ceus::default_occupancy_base = 1.0;
+CLASS *rbsa::oclass = NULL;
+rbsa *rbsa::defaults = NULL;
+
+double rbsa::default_nominal_voltage = 240.0;
+complex rbsa::default_nominal_voltage_A(240.0,0.0,A);
+complex rbsa::default_nominal_voltage_B(240.0,-120.0,A);
+complex rbsa::default_nominal_voltage_C(240.0,+120.0,A);
+char32 rbsa::default_weekday_code ="WEEKDAY";
+char32 rbsa::default_saturday_code ="SATURDAY";
+char32 rbsa::default_sunday_code ="SUNDAY";
+char32 rbsa::default_holiday_code ="HOLIDAY";
+char32 rbsa::default_month_heading = "Month";
+char32 rbsa::default_daytype_heading = "Daytype";
+char32 rbsa::default_hour_heading = "Hour";
+char1024 rbsa::temperature_variable_name = "temperature";
+char1024 rbsa::solargain_variable_name = "solar_direct";
+char1024 rbsa::price_variable_name = "energy_price";
+char1024 rbsa::occupancy_variable_name = "occupancy_fraction";
+double rbsa::default_temperature_cooling_balance = 70.0;
+double rbsa::default_temperature_cooling_base = 70.0;
+double rbsa::default_temperature_cooling_design = 100.0;
+double rbsa::default_temperature_heating_balance = 55.0;
+double rbsa::default_temperature_heating_base = 55.0;
+double rbsa::default_temperature_heating_design = 0.0;
+double rbsa::default_solargain_base = 0.0;
+double rbsa::default_price_base = 0.0;
+double rbsa::default_occupancy_base = 1.0;
 
 //////////////////////////
-// CEUS DATA REPOSITORY
+// RBSA DATA REPOSITORY
 //////////////////////////
-ceus::CEUSDATA *ceus::repository = NULL;
-ceus::CEUSDATA *ceus::add_file(const char *filename)
+rbsa::RBSADATA *rbsa::repository = NULL;
+rbsa::RBSADATA *rbsa::add_file(const char *filename)
 {
-	CEUSDATA *repo = (CEUSDATA*)malloc(sizeof(CEUSDATA));
+	RBSADATA *repo = (RBSADATA*)malloc(sizeof(RBSADATA));
 	if ( repo != NULL ) 
 	{
-		memset(repo,0,sizeof(CEUSDATA));
+		memset(repo,0,sizeof(RBSADATA));
 		repo->filename = strdup(filename);
 		repo->next_file = repository;
 		repository = repo;
 	}
 	return repo;
 }
-ceus::CEUSDATA *ceus::get_first_file(void)
+rbsa::RBSADATA *rbsa::get_first_file(void)
 {
 	return repository;
 }
-ceus::CEUSDATA *ceus::get_next_file(CEUSDATA *repo)
+rbsa::RBSADATA *rbsa::get_next_file(RBSADATA *repo)
 {
 	return repo->next_file;
 }
-ceus::CEUSDATA *ceus::find_file(const char *filename)
+rbsa::RBSADATA *rbsa::find_file(const char *filename)
 {
-	CEUSDATA *repo;
+	RBSADATA *repo;
 	for ( repo = get_first_file() ; repo != NULL ; repo = get_next_file(repo) ) 
 	{
 		if ( strcmp(filename,repo->filename) == 0 )
@@ -76,16 +81,16 @@ ceus::CEUSDATA *ceus::find_file(const char *filename)
 	}
 	return NULL;
 }
-ceus::CEUSDATA * ceus::add_enduse(const char *filename, const char *enduse)
+rbsa::RBSADATA * rbsa::add_enduse(const char *filename, const char *enduse)
 {
-	CEUSDATA *repo = find_file(filename);
+	RBSADATA *repo = find_file(filename);
 	if ( repo == NULL )
 	{
 		repo = add_file(filename);
 	}
 	return add_enduse(repo,enduse);
 }
-ceus::CEUSDATA * ceus::add_enduse(CEUSDATA *repo, const char *enduse)
+rbsa::RBSADATA * rbsa::add_enduse(RBSADATA *repo, const char *enduse)
 {
 	while ( repo->next_enduse != NULL && repo->enduse != NULL )
 	{
@@ -93,8 +98,8 @@ ceus::CEUSDATA * ceus::add_enduse(CEUSDATA *repo, const char *enduse)
 	}
 	if ( repo->enduse != NULL ) // this is aleady in use
 	{
-		CEUSDATA *item = (CEUSDATA*)malloc(sizeof(CEUSDATA));
-		memset(item,0,sizeof(CEUSDATA));
+		RBSADATA *item = (RBSADATA*)malloc(sizeof(RBSADATA));
+		memset(item,0,sizeof(RBSADATA));
 		item->filename = repo->filename;
 		item->next_file = repo->next_file;
 		repo->next_enduse = item;
@@ -103,21 +108,21 @@ ceus::CEUSDATA * ceus::add_enduse(CEUSDATA *repo, const char *enduse)
 	repo->enduse = strdup(enduse);
 	return repo;
 }
-ceus::CEUSDATA *ceus::get_first_enduse(const char *filename)
+rbsa::RBSADATA *rbsa::get_first_enduse(const char *filename)
 {
-	CEUSDATA *repo = find_file(filename);
+	RBSADATA *repo = find_file(filename);
 	return repo;
 }
-ceus::CEUSDATA *ceus::get_next_enduse(CEUSDATA *repo)
+rbsa::RBSADATA *rbsa::get_next_enduse(RBSADATA *repo)
 {
 	return repo->next_enduse;
 }
-ceus::CEUSDATA *ceus::find_enduse(const char *filename, const char *enduse)
+rbsa::RBSADATA *rbsa::find_enduse(const char *filename, const char *enduse)
 {
-	CEUSDATA *repo = find_file(filename);
+	RBSADATA *repo = find_file(filename);
 	return find_enduse(repo,enduse);
 }
-ceus::CEUSDATA *ceus::find_enduse(CEUSDATA *repo, const char *enduse)
+rbsa::RBSADATA *rbsa::find_enduse(RBSADATA *repo, const char *enduse)
 {
 	while ( repo != NULL )
 	{
@@ -129,12 +134,12 @@ ceus::CEUSDATA *ceus::find_enduse(CEUSDATA *repo, const char *enduse)
 	}
 	return repo;
 }
-size_t ceus::get_index(unsigned int month, unsigned int daytype, unsigned int hour)
+size_t rbsa::get_index(unsigned int month, unsigned int daytype, unsigned int hour)
 {
 	size_t index = ((((month-1)*_DT_SIZE)+(daytype-0))*24)+hour;
 	return index;
 }
-size_t ceus::get_index(TIMESTAMP ts)
+size_t rbsa::get_index(TIMESTAMP ts)
 {
 	// simple caching of last index
 	static gld_clock dt;
@@ -165,16 +170,16 @@ size_t ceus::get_index(TIMESTAMP ts)
 	}
 	return index;
 }
-size_t ceus::get_index(void)
+size_t rbsa::get_index(void)
 {
 	return get_index((TIMESTAMP)gld_clock());
 }
-void ceus::set_value(CEUSDATA *repo, TIMESTAMP ts, double value)
+void rbsa::set_value(RBSADATA *repo, TIMESTAMP ts, double value)
 {
 	size_t index = get_index(ts);
 	repo->data[index] = value;
 }
-double ceus::get_value(CEUSDATA *repo, TIMESTAMP ts, double scalar)
+double rbsa::get_value(RBSADATA *repo, TIMESTAMP ts, double scalar)
 {
 	size_t index = get_index(ts);
 	double value = repo->data[index]*scalar;
@@ -182,19 +187,19 @@ double ceus::get_value(CEUSDATA *repo, TIMESTAMP ts, double scalar)
 }
 
 //////////////////////////
-// CEUS LOAD COMPONENTS
+// RBSA LOAD COMPONENTS
 //////////////////////////
-ceus::COMPONENT *ceus::get_first_component()
+rbsa::COMPONENT *rbsa::get_first_component()
 {
 	return components;	
 }
-ceus::COMPONENT *ceus::get_next_component(COMPONENT *c)
+rbsa::COMPONENT *rbsa::get_next_component(COMPONENT *c)
 {
 	return c->next;
 }
-ceus::COMPONENT *ceus::add_component(const char *enduse, const char *composition)
+rbsa::COMPONENT *rbsa::add_component(const char *enduse, const char *composition)
 {
-	CEUSDATA *e = find_enduse(data, enduse);
+	RBSADATA *e = find_enduse(data, enduse);
 	if ( e == NULL )
 	{
 		warning("unable to add composition '%s' -- enduse '%s' not found",composition,enduse);
@@ -237,12 +242,12 @@ Error:
 	c = NULL;
 	goto Done;
 }
-bool ceus::set_component(const char *enduse, const char *term, double value)
+bool rbsa::set_component(const char *enduse, const char *term, double value)
 {
 	COMPONENT *c = find_component(enduse);
 	return c ? set_component(c,term,value) : false;
 }
-bool ceus::set_component(COMPONENT *component, const char *term, double value)
+bool rbsa::set_component(COMPONENT *component, const char *term, double value)
 {
 	struct {
 		const char *item;
@@ -271,19 +276,19 @@ bool ceus::set_component(COMPONENT *component, const char *term, double value)
 
 		{"S", component->solar.slope},
 		{"Sb", component->solar.base},
-		{"Sc", component->solar.intercept},
+		{"Sb", component->solar.intercept},
 		{"S0", component->solar.domain.min},
 		{"S1", component->solar.domain.max},
 
 		{"E", component->price.slope},
 		{"Eb", component->price.base},
-		{"Ec", component->price.intercept},
+		{"Eb", component->price.intercept},
 		{"E0", component->price.domain.min},
 		{"E1", component->price.domain.max},
 
 		{"O", component->occupancy.slope},
 		{"Ob", component->occupancy.base},
-		{"Oc", component->occupancy.intercept},
+		{"Ob", component->occupancy.intercept},
 		{"O0", component->occupancy.domain.min},
 		{"O1", component->occupancy.domain.max},
 
@@ -302,7 +307,7 @@ bool ceus::set_component(COMPONENT *component, const char *term, double value)
 	error("term '%s' is not recognized",term);
 	return false;
 }
-ceus::COMPONENT *ceus::find_component(const char *enduse)
+rbsa::COMPONENT *rbsa::find_component(const char *enduse)
 {
 	COMPONENT *c;
 	for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
@@ -314,42 +319,26 @@ ceus::COMPONENT *ceus::find_component(const char *enduse)
 	}
 	return c;
 }
-const char *ceus::get_components(char *buffer, size_t len)
-{
-	if ( buffer == NULL )
-	{
-		buffer = strdup(initial_components ? initial_components->c_str() : "");
-	}
-	else if ( len > 0 && initial_components->length() < len )
-	{
-		strcpy(buffer,initial_components ? initial_components->c_str() : "");
-	}
-	else
-	{
-		buffer = NULL;
-	}
-	return buffer;
-}
 
 ///////////////////////////////
-// CEUS CLASS IMPLEMENTATION
+// RBSA CLASS IMPLEMENTATION
 ///////////////////////////////
-ceus::ceus(MODULE *module)
+rbsa::rbsa(MODULE *module)
 {
 	if (oclass==NULL)
 	{
 		// register to receive notice for first top down. bottom up, and second top down synchronizations
-		oclass = gld_class::create(module,"ceus",sizeof(ceus),PC_PRETOPDOWN|PC_BOTTOMUP|PC_AUTOLOCK|PC_OBSERVER);
+		oclass = gld_class::create(module,"rbsa",sizeof(rbsa),PC_PRETOPDOWN|PC_BOTTOMUP|PC_AUTOLOCK|PC_OBSERVER);
 		if (oclass==NULL)
-			throw "unable to register class ceus";
+			throw "unable to register class rbsa";
 		else
 			oclass->trl = TRL_PROVEN;
 
 		defaults = this;
 		if (gl_publish_variable(oclass,
 			PT_double,"floor_area[sf]", get_floor_area_offset(), PT_DESCRIPTION, "building floor area",
-			PT_method,"filename", loadmethod_ceus_filename, PT_DESCRIPTION, "CEUS data file",
-			PT_method,"composition", method_ceus_composition, PT_DESCRIPTION, "load composition specification",
+			PT_method,"filename", loadmethod_rbsa_filename, PT_DESCRIPTION, "RBSA data file",
+			PT_method,"composition", method_rbsa_composition, PT_DESCRIPTION, "load composition specification",
 			PT_double,"total_real_power[W]", get_total_real_power_offset(), PT_DESCRIPTION, "total real power",
 			PT_double,"total_reactive_power[W]", get_total_reactive_power_offset(), PT_DESCRIPTION, "total reactive power",
 			PT_complex,"total_power_A[W]", get_total_power_A_offset(), PT_DESCRIPTION, "total complex power on phase A",
@@ -390,14 +379,14 @@ ceus::ceus(MODULE *module)
 	}
 }
 
-int ceus::create(void) 
+int rbsa::create(void) 
 {
 
 	memcpy(this,defaults,sizeof(*this));
 	return 1; 
 }
 
-int ceus::init(OBJECT *parent)
+int rbsa::init(OBJECT *parent)
 {
 	if ( floor_area <= 0.0 )
 	{
@@ -447,7 +436,7 @@ int ceus::init(OBJECT *parent)
 	return 1; 
 }
 
-TIMESTAMP ceus::presync(TIMESTAMP t1)
+TIMESTAMP rbsa::presync(TIMESTAMP t1)
 {
 	// TODO: this is not ideal, but until node clears the accumulators itself, it has to be done here instead
 	complex P(0,0,J);
@@ -464,7 +453,7 @@ TIMESTAMP ceus::presync(TIMESTAMP t1)
 	*shunt_C = S;
 	return TS_NEVER;
 }
-double ceus::apply_sensitivity(SENSITIVITY &component, double *variable)
+double rbsa::apply_sensitivity(SENSITIVITY &component, double *variable)
 {
 	if ( variable == NULL || component.slope == 0.0 )
 		return ( component.range.min + component.range.max ) / 2.0; 
@@ -487,20 +476,19 @@ double ceus::apply_sensitivity(SENSITIVITY &component, double *variable)
 	}
 	return y;
 }
-TIMESTAMP ceus::sync(TIMESTAMP t1)
+TIMESTAMP rbsa::sync(TIMESTAMP t1)
 {
 	double Pr = 0.0, Pi = 0.0;
 	double Ir = 0.0, Ii = 0.0;
 	double Zr = 0.0, Zi = 0.0;
 	total_power_A = total_power_B = total_power_C = complex(0,0,J);
-	CEUSDATA *enduse;
+	RBSADATA *enduse;
 	for ( enduse = data ; enduse != NULL ; enduse = get_next_enduse(enduse) )
 	{
 		COMPONENT *c;
 		double load = get_value(enduse,gl_globalclock,floor_area)/3.0;
 		for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
 		{
-			if ( c->data != data ) continue;
 			double scalar = load * c->fraction / 3.0 ;
 			scalar += apply_sensitivity(c->cooling,temperature);
 			scalar += apply_sensitivity(c->heating,temperature);
@@ -534,66 +522,38 @@ TIMESTAMP ceus::sync(TIMESTAMP t1)
 	total_reactive_power = total_power_A.Im() + total_power_B.Im() + total_power_C.Im();
 	return (gl_globalclock/3600+1)*3600;
 }
-TIMESTAMP ceus::postsync(TIMESTAMP t1)
+TIMESTAMP rbsa::postsync(TIMESTAMP t1)
 {
 	return TS_NEVER;
 }
 
-int ceus::composition(char *buffer, size_t len)
+int rbsa::composition(char *buffer, size_t len)
 {
-	if ( buffer == NULL ) // query
+	if ( len == 0 ) // read
 	{
-		const char *result = get_components();
-		size_t size = strlen(get_components());
-		delete[] result;
-		if ( len == 0 ) // get length
+		char enduse[1024];
+		char composition[1024];
+		if ( sscanf(buffer,"%[^:]:{%[^}]}",enduse,composition) < 2 )
 		{
-			return size+1;
+			error("composition '%s' is not formatted correctly (expected 'enduse:{component:factor;...}')",buffer);
+			return 0;
 		}
-		else // check length
+		if ( find_component(enduse) )
 		{
-			return size < len;
+			error("composition '%s' has already been specified",enduse);
+			return 0;
 		}
-	}
-	else if ( len == 0 ) // read
-	{
-		char *tmp = strdup(buffer);
-		char *item = NULL, *last = NULL;
-		while ( (item=strtok_r(item?NULL:tmp,",",&last)) != NULL )
-		{
-			while ( isspace(*item) ) item++;
-			char enduse[1024];
-			char composition[1024];
-			if ( sscanf(item,"%[^:]:{%[^}]}",enduse,composition) < 2 )
-			{
-				error("composition '%s' is not formatted correctly (expected 'enduse:{component:factor;...}')",item);
-				return 0;
-			}
-			if ( find_component(enduse) )
-			{
-				error("composition '%s' has already been specified",enduse);
-				return 0;
-			}
-			if ( add_component(enduse,composition) == NULL )
-			{
-				return 0;
-			}
-		}
-		free(tmp);
-		if ( initial_components == NULL )
-			initial_components = new std::string;
-		else
-			*initial_components = *initial_components + ",\n";
-		*initial_components = *initial_components + buffer;
-		return strlen(buffer); 
+		add_component(enduse,composition);
+		return 1; 
 	}
 	else // write
 	{
-		return strlen(get_components(buffer,len));
+		// TODO
+		return 0;
 	}
 }
 
-int ceus::filename(char *filename, size_t len)
+int rbsa::filename(char *filename, size_t len)
 {
 	if ( filename == NULL )
 	{
@@ -651,7 +611,7 @@ int ceus::filename(char *filename, size_t len)
 			int integer;
 			double real;
 		} buffer;
-		CEUSDATA *data;
+		RBSADATA *data;
 	} map[MAXDATA];
 	size_t max_column = 0;
 	memset(map,0,sizeof(map));
@@ -744,7 +704,7 @@ int ceus::filename(char *filename, size_t len)
 		}
 		if ( n == _DT_SIZE )
 		{
-			error("%s[%d,%d] -- '%s' is not a valid daytype code (must one of ceus::default_{weekday,saturday,sunday,holiday}_code globals)", (const char*)filename, count+1, column+1, map[daytype_ndx].buffer.string);
+			error("%s[%d,%d] -- '%s' is not a valid daytype code (must one of rbsa::default_{weekday,saturday,sunday,holiday}_code globals)", (const char*)filename, count+1, column+1, map[daytype_ndx].buffer.string);
 			fclose(fp);
 			return 0;
 		}
@@ -763,7 +723,7 @@ int ceus::filename(char *filename, size_t len)
 	}
 	if ( count != DATASIZE )
 	{
-		error("missing data in CEUS file '%s' (only %d records found, expected %d",(const char*)filename,count,DATASIZE);
+		error("missing data in RBSA file '%s' (only %d records found, expected %d",(const char*)filename,count,DATASIZE);
 	}
 	else
 	{
