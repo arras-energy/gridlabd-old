@@ -1537,13 +1537,17 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 	int rc = 0;
 	const char *passname[]={"NOSYNC","PRESYNC","SYNC","INVALID","POSTSYNC"};
 	char *event = NULL;
-	do {
-		/* don't call sync beyond valid horizon */
-		t2 = _object_sync(obj,(ts<(obj->valid_to>0?obj->valid_to:TS_NEVER)?ts:obj->valid_to),pass);	
-	} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER);
+	if ( obj->oclass->sync != NULL )
+	{
+		do {
+			/* don't call sync beyond valid horizon */
+			t2 = _object_sync(obj,(ts<(obj->valid_to>0?obj->valid_to:TS_NEVER)?ts:obj->valid_to),pass);	
+		} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER);
+	}
 
 	/* event handler */
-	switch (pass) {
+	switch (pass) 
+	{
 	case PC_PRETOPDOWN:
 		event = obj->events.presync;
 		break;
@@ -1557,10 +1561,12 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		break;
 	}
 	if ( event != NULL )
+	{
 		rc = object_event(obj,event,&t2);
+	}
 
 	/* do profiling, if needed */
-	if ( global_profiler==1 )
+	if ( global_profiler == 1 )
 	{
 		switch (pass) {
 		case PC_PRETOPDOWN: object_profile(obj,OPI_PRESYNC,t);break;
@@ -1569,7 +1575,7 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		default: break;
 		}
 	}
-	if ( global_debug_output>0 )
+	if ( global_debug_output > 0 )
 	{
 		char dt1[64]="(invalid)"; if ( ts!=TS_INVALID ) convert_from_timestamp(absolute_timestamp(ts),dt1,sizeof(dt1)); else strcpy(dt1,"ERROR");
 		char dt2[64]="(invalid)"; if ( t2!=TS_INVALID ) convert_from_timestamp(absolute_timestamp(t2),dt2,sizeof(dt2)); else strcpy(dt2,"ERROR");
@@ -1654,7 +1660,7 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	}
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
-		long long t2 = 0;
+		long long t2 = TS_NEVER;
 		int rc = object_event(obj,obj->events.precommit,&t2);
 		if ( rc != 0 || t2 < t1 )
 		{
@@ -1723,7 +1729,8 @@ STATUS object_finalize(OBJECT *obj)
 	}
 	if ( obj->events.finalize != NULL )
 	{
-		int rc = object_event(obj,obj->events.precommit);
+		long long rv = 0;
+		int rc = object_event(obj,obj->events.finalize,&rv);
 		if ( rc != 0 )
 		{
 			output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
