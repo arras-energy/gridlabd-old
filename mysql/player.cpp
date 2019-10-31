@@ -14,6 +14,7 @@ EXPORT_INIT(player);
 
 CLASS *player::oclass = NULL;
 player *player::defaults = NULL;
+int32_t player::maximum_threads = 0;
 
 player::player(MODULE *module)
 {
@@ -40,7 +41,7 @@ player::player(MODULE *module)
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
-
+		gl_global_create("mysql::maximum_threads",PT_int32,&maximum_threads,PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"maximum number of theads allowed during initialization sequence",NULL);
 		memset(this,0,sizeof(player));
 	}
 }
@@ -49,10 +50,71 @@ int player::create(void)
 {
 	memcpy(this,defaults,sizeof(*this));
 	db = last_database;
+	thread_rv = -1;
+	thread_status = PTS_NONE;
 	return 1; /* return 1 on success, 0 on failure */
 }
 
+void *init_proc(void *arg)
+{
+	player *instance = (player*)arg;
+	instance->set_thread_rv(instance->init_async());
+	return (void*)&(instance->get_thread_rv());
+}
+
 int player::init(OBJECT *parent)
+{
+	if ( maximum_threads == 0 )
+	{
+		// no async processing allowed
+		return init_async();
+	}
+	else if ( thread_status == PTS_NONE ) 
+	{
+		// TODO: handle maximum_threads > 0 case
+		debug("starting thread %lld",thread_id);
+		// first time in -- begin async process and defer init
+		set_parent(parent);
+		thread_rv = -1;
+		if ( ! pthread_create(&thread_id,NULL,init_proc,(void*)this) )
+		{
+			thread_status = PTS_ERROR;
+			return 0;
+		}
+		else
+		{
+			thread_status = PTS_RUNNING;
+			return 2;
+		}
+	}
+	else if ( thread_status == PTS_RUNNING )
+	{	
+		// second time in -- wait for async process to complete
+		debug("waiting for thread %lld",thread_id);
+		int rv = pthread_join(thread_id,NULL);
+		debug("thread %lld done, retval=%d",thread_id,thread_rv);
+		thread_status = PTS_DONE;
+		return rv ? thread_rv : 0;
+	}
+	else if ( thread_status == PTS_ERROR )
+	{
+		exception("thread error status detected");
+		return 0;
+	}
+	else if ( thread_status == PTS_DONE )
+	{
+		// thread already done but init if still deferred
+		thread_rv = init_async();
+		return thread_rv;
+	}
+	else
+	{
+		exception("invalid thread status %d", thread_status);
+		return 0;
+	}
+}
+
+int player::init_async()
 {
 	// check the connection
 	if ( get_connection()!=NULL )
