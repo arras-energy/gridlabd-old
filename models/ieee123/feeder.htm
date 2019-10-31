@@ -28,7 +28,59 @@
 	<TR><TH>Date/Time</TH><TD COLSPAN=3><DIV ID="clock"></DIV></TD></TR>
 	
 	<TR><TH COLSPAN=4><HR/><HR/></TH></TR>
+	<TR><TH ALIGN=LEFT COLSPAN>Regulators<HR/></TH><TH ALIGN=LEFT>Control setpoint<HR/></TH><TH ALIGN=LEFT>Control type<HR/></TH><TH ALIGN=LEFT>Tap Settings<HR/></TH></TR>
+	<TR>
+		<TD>150-15001 ABC</TD><TD><DIV ID="reg150to15001_voltage"></DIV></TD>
+		<TD><DIV ID="reg150to15001"></DIV></TD>
+		<TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Regulator 150-15001 Tap setting&rev=1&ymin=-16&ymax=16&query=SELECT t as x, cast(tap_A as decimal(8,1)), cast(tap_B as decimal(8,1)), cast(tap_C as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.regulator WHERE name='reg150to15001' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="reg150to15001_tap"></DIV></A></TD>
+	</TR>
 
+	<TR>
+		<TD>9-901 A</TD><TD><DIV ID="reg9to901_voltage"></DIV></TD>
+		<TD><DIV ID="reg9to901"></DIV></TD>
+		<TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Regulator 9-901 Tap setting&rev=1&ymin=-16&ymax=16&query=SELECT t as x, cast(tap_A as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.regulator WHERE name='reg9to901' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="reg9to901_tap"></DIV></A></TD>
+	</TR>
+
+	<TR>
+		<TD>25-2501 AC</TD><TD><DIV ID="reg25to2501_voltage"></DIV></TD>
+		<TD><DIV ID="reg25to2501"></DIV></TD>
+		<TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Regultor 25-2501 Tap setting&rev=1&ymin=-16&ymax=16&query=SELECT t as x, cast(tap_A as decimal(8,1)), cast(tap_C as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.regulator WHERE name='reg25to2501' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="reg25to2501_tap"></DIV></A></TD>
+	</TR>
+
+	<TR>
+		<TD>160-16001 ABC</TD><TD><DIV ID="reg160to16001_voltage"></DIV></TD>
+		<TD><DIV ID="reg160to16001"></DIV></TD>
+		<TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Regulator 160-16001 Tap setting&rev=1&ymin=-16&ymax=16&query=SELECT t as x, cast(tap_A as decimal(8,1)), cast(tap_B as decimal(8,1)), cast(tap_C as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.regulator WHERE name='reg160to16001' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="reg160to16001_tap"></DIV></A></TD>
+	</TR>
+
+	<TR><TH COLSPAN=4><HR/></TH></TR>
+	<TR><TH ALIGN=LEFT COLSPAN=>Capacitors<HR/></TH><TH ALIGN=LEFT>Status<HR/></TH><TH ALIGN=LEFT>Command<HR/></TH><TH ALIGN=LEFT>Voltage<HR/></TH></TR>
+	<TR><TD>83 A</TD><TD><DIV ID="cap_83A"></DIV></TD><TD>
+		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_83','switchA','OPEN'); update();" />
+		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_83','switchA','CLOSED'); update();" />
+	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 83 Phase A Voltage (V) &rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_A as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_83' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_83_voltageA"></DIV></A></TD></TR>
+	<TR><TD>83 B</TD><TD><DIV ID="cap_83B"></DIV></TD><TD>
+		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_83','switchB','OPEN'); update();" />
+		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_83','switchB','CLOSED'); update();" />
+	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 83 Phase B Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_B as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_83' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_83_voltageB"></DIV></A></TD></TR>
+	<TR><TD>83 C</TD><TD><DIV ID="cap_83C"></DIV></TD><TD>
+		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_83','switchC','OPEN'); update();" />
+		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_83','switchC','CLOSED'); update();" />
+	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 83 Phase C Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_C as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_83' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_83_voltageC"></DIV></A></TD></TR>
+	<TR><TD>88 A</TD><TD><DIV ID="cap_88A"></DIV></TD><TD>
+		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_88','switchA','OPEN'); update();" />
+		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_88','switchA','CLOSED'); update();" />
+	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 88 Phase A Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_A as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_88' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_88_voltageA"></DIV></A></TD></TR>
+	<TR><TD>90 B</TD><TD><DIV ID="cap_90B"></DIV></TD><TD>
+		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_90','switchB','OPEN'); update();" />
+		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_90','switchB','CLOSED'); update();" />
+	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 90 Phase B Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_B as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_90' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_90_voltageB"></DIV></A></TD></TR>
+	<TR><TD>92 C</TD><TD><DIV ID="cap_92C"></DIV></TD><TD>
+		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_92','switchC','OPEN'); update();" />
+		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_92','switchC','CLOSED'); update();" />
+	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 92 Phase C Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_C as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_92' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_92_voltageC"></DIV></A></TD></TR>
+
+	<TR><TH COLSPAN=4><HR/><HR/></TH></TR>
 	<TR><TH ALIGN=LEFT COLSPAN>Switch<HR/></TH><TH ALIGN=LEFT>Status<HR/></TH><TH ALIGN=LEFT>Command<HR/></TH><TH ALIGN=LEFT>Current<HR/></TH></TR>
 	<TR><TD>13-152 ABC</TD><TD><DIV ID="sw13to152"></DIV></TD><TD>
 		<INPUT TYPE="submit" VALUE="ARM" ONCLICK="arm('scheme_1','sw13to152');" />
@@ -58,6 +110,7 @@
 		<INPUT TYPE="submit" VALUE="ARM" ONCLICK="arm('scheme_1','sw151to300');" />
 		<INPUT TYPE="submit" VALUE="DISARM" ONCLICK="disarm('scheme_1','sw151to300');" />
 	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Switch 13-152 Current&rev=1&query=SELECT t as x, cast(current_in_A as decimal(8,1)), cast(current_in_B as decimal(8,1)), cast(current_in_C as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.switch WHERE name='sw151to300' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID=sw151to300_current></DIV></DIV></A></TR>
+
 	<TR><TH COLSPAN=4><HR/></TH></TR>
 	<TR><TH ALIGN=LEFT COLSPAN>Lateral<HR/><TH ALIGN=LEFT>Status<HR/></TH><TH ALIGN=LEFT>Command<HR/></TH><TH ALIGN=LEFT>Current<HR/></TH></TH></TR>
 	<TR><TD>15001-149 ABC</TD><TD><DIV ID="sw15001to149"></DIV></TD><TD>
@@ -81,7 +134,7 @@
 		<INPUT TYPE="submit" VALUE="DISARM" ONCLICK="disarm('scheme_1','sw95to195');" />
 	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Switch 13-152 Current&rev=1&query=SELECT t as x, cast(current_in_A as decimal(8,1)), cast(current_in_B as decimal(8,1)), cast(current_in_C as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.switch WHERE name='sw95to195' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID=sw95to195_current></DIV></DIV></A></TR>
 	
-	<TR><TH COLSPAN=4><HR/><HR/></TH></TR>
+	<TR><TH COLSPAN=4><HR/></TH></TR>
 
 	<TR><TH ALIGN=LEFT COLSPAN>Coordination<HR/></TH><TH ALIGN=LEFT>Pending action<HR/></TH><TH ALIGN=LEFT>Command<HR/></TH><TH ALIGN=LEFT>Armed switches<HR/></TH></TR>
 	<TR><TD>Manual</DIV></TD>
@@ -133,59 +186,6 @@
 		<TD><DIV ID="program_6_armed">sw15001to149|sw13to152|sw18to135|sw60to160|sw61to6101|sw151to300</DIV></TD>
 	</TR>
 
-	<TR><TH COLSPAN=4><HR/><HR/></TH></TR>
-	<TR><TH ALIGN=LEFT COLSPAN>Regulators<HR/></TH><TH ALIGN=LEFT>Control setpoint<HR/></TH><TH ALIGN=LEFT>Control type<HR/></TH><TH ALIGN=LEFT>Tap Settings<HR/></TH></TR>
-
-	<TR>
-		<TD>150-15001 ABC</TD><TD><DIV ID="reg150to15001_voltage"></DIV></TD>
-		<TD><DIV ID="reg150to15001"></DIV></TD>
-		<TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Regulator 150-15001 Tap setting&rev=1&ymin=-16&ymax=16&query=SELECT t as x, cast(tap_A as decimal(8,1)), cast(tap_B as decimal(8,1)), cast(tap_C as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.regulator WHERE name='reg150to15001' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="reg150to15001_tap"></DIV></A></TD>
-	</TR>
-
-	<TR>
-		<TD>9-901 A</TD><TD><DIV ID="reg9to901_voltage"></DIV></TD>
-		<TD><DIV ID="reg9to901"></DIV></TD>
-		<TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Regulator 9-901 Tap setting&rev=1&ymin=-16&ymax=16&query=SELECT t as x, cast(tap_A as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.regulator WHERE name='reg9to901' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="reg9to901_tap"></DIV></A></TD>
-	</TR>
-
-	<TR>
-		<TD>25-2501 AC</TD><TD><DIV ID="reg25to2501_voltage"></DIV></TD>
-		<TD><DIV ID="reg25to2501"></DIV></TD>
-		<TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Regultor 25-2501 Tap setting&rev=1&ymin=-16&ymax=16&query=SELECT t as x, cast(tap_A as decimal(8,1)), cast(tap_C as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.regulator WHERE name='reg25to2501' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="reg25to2501_tap"></DIV></A></TD>
-	</TR>
-
-	<TR>
-		<TD>160-16001 ABC</TD><TD><DIV ID="reg160to16001_voltage"></DIV></TD>
-		<TD><DIV ID="reg160to16001"></DIV></TD>
-		<TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Regulator 160-16001 Tap setting&rev=1&ymin=-16&ymax=16&query=SELECT t as x, cast(tap_A as decimal(8,1)), cast(tap_B as decimal(8,1)), cast(tap_C as decimal(8,1)) FROM <<<MYSQL_NAME>>>_scada.regulator WHERE name='reg160to16001' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="reg160to16001_tap"></DIV></A></TD>
-	</TR>
-
-	<TR><TH COLSPAN=4><HR/><HR/></TH></TR>
-	<TR><TH ALIGN=LEFT COLSPAN=>Capacitors<HR/></TH><TH ALIGN=LEFT>Status<HR/></TH><TH ALIGN=LEFT>Command<HR/></TH><TH ALIGN=LEFT>Voltage<HR/></TH></TR>
-	<TR><TD>83 A</TD><TD><DIV ID="cap_83A"></DIV></TD><TD>
-		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_83','switchA','OPEN'); update();" />
-		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_83','switchA','CLOSED'); update();" />
-	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 83 Phase A Voltage (V) &rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_A as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_83' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_83_voltageA"></DIV></A></TD></TR>
-	<TR><TD>83 B</TD><TD><DIV ID="cap_83B"></DIV></TD><TD>
-		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_83','switchB','OPEN'); update();" />
-		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_83','switchB','CLOSED'); update();" />
-	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 83 Phase B Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_B as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_83' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_83_voltageB"></DIV></A></TD></TR>
-	<TR><TD>83 C</TD><TD><DIV ID="cap_83C"></DIV></TD><TD>
-		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_83','switchC','OPEN'); update();" />
-		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_83','switchC','CLOSED'); update();" />
-	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 83 Phase C Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_C as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_83' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_83_voltageC"></DIV></A></TD></TR>
-	<TR><TD>88 A</TD><TD><DIV ID="cap_88A"></DIV></TD><TD>
-		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_88','switchA','OPEN'); update();" />
-		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_88','switchA','CLOSED'); update();" />
-	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 88 Phase A Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_A as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_88' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_88_voltageA"></DIV></A></TD></TR>
-	<TR><TD>90 B</TD><TD><DIV ID="cap_90B"></DIV></TD><TD>
-		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_90','switchB','OPEN'); update();" />
-		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_90','switchB','CLOSED'); update();" />
-	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 90 Phase B Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_B as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_90' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_90_voltageB"></DIV></A></TD></TR>
-	<TR><TD>92 C</TD><TD><DIV ID="cap_92C"></DIV></TD><TD>
-		<INPUT TYPE="submit" VALUE="OPEN" ONCLICK="GLDSetProperty('cap_92','switchC','OPEN'); update();" />
-		<INPUT TYPE="submit" VALUE="CLOSE" ONCLICK="GLDSetProperty('cap_92','switchC','CLOSED'); update();" />
-	</TD><TD><A HREF="http://<<<hostname>>>/<<<DOCROOT>>>/graphtool.php?title=Capacitor 92 Phase C Voltage (V)&rev=1&ymin=2300&ymax=2500&query=SELECT t as x, cast(voltage_C as decimal(8,2)) as y FROM <<<MYSQL_NAME>>>_scada.capacitor WHERE name='cap_92' ORDER BY id DESC LIMIT 60" TARGET="_blank"><DIV ID="cap_92_voltageC"></DIV></A></TD></TR>
 </TABLE>
 <HR/>
 <TABLE WIDTH="100%">

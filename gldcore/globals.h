@@ -123,14 +123,16 @@ size_t global_saveall(FILE *fp);
 		DF_ISO = 0 - ISO standard format
 		DF_US = 1 - USA date format (i.e., mm/dd/yyyy)
 		DF_EURO = 2 - EU data format (i.e., dd/mm/yyyy)
+		DF_ISO8601 = 3 - ISO8601 standard format
 
 	See Also:
 	- <global_dateformat>
  */
 typedef enum e_dateformat {
-	DF_ISO=0, 
-	DF_US=1, 
-	DF_EURO=2,
+	DF_ISO		= 0, 
+	DF_US		= 1, 
+	DF_EURO		= 2,
+	DF_ISO8601	= 3,
 } DATEFORMAT;
 
 /*	Typedef INITSEQ
@@ -272,6 +274,9 @@ GLOBAL unsigned char global_no_balance INIT(FALSE);
 
 /* Variable: global_kmlfile */
 GLOBAL char global_kmlfile[1024] INIT(""); /**< Specifies KML file to dump */
+
+/* Variable: global_kmlhost */
+GLOBAL char global_kmlhost[1024] INIT("https://raw.githubusercontent.com/dchassin/gridlabd/master/gldcore/rt"); /**< Specifies the KML image library server */
 
 /* Variable: global_modelname */
 GLOBAL char global_modelname[1024] INIT(""); /**< Name of the current model */
@@ -510,6 +515,12 @@ typedef enum {
 /* Variable:  */
 GLOBAL SIMULATIONMODE global_simulation_mode INIT(SM_INIT); /**< simulation mode */
 
+/* Variable: global_allow_deltamode 
+
+	Flag to allow simulation in delta-mode
+*/
+GLOBAL bool global_deltamode_allowed INIT(FALSE);
+
 /* Variable:  */
 GLOBAL DT global_deltamode_timestep INIT(10000000); /**< delta mode time step in ns (default is 10ms) */
 
@@ -717,6 +728,8 @@ GLOBAL bool global_validto_context INIT(VTC_SYNC); /**< events for which valid_t
 
 /* Variable:  */
 GLOBAL char1024 global_timezone_locale INIT("UTC"); /**< timezone specification */
+
+/* Type: GLMSAVEOPTIONS */
 typedef enum {
 	GSO_LEGACY 		= 0x0000,
 	GSO_NOINTERNALS = 0x0001,
@@ -724,13 +737,32 @@ typedef enum {
 	GSO_NOGLOBALS	= 0x0004,
 	GSO_NODEFAULTS	= 0x0008,
 	GSO_MINIMAL 	= 0x000f,
+	GSO_ORIGINAL	= 0x001f,
 } GLMSAVEOPTIONS;
 
 /* Variable: */
 GLOBAL bool global_ignore_errors INIT(FALSE); 
 
+/* Type: FILESAVEOPTIONS */
+typedef enum 
+{
+	FSO_MODULES 	= 0x0001,
+	FSO_PROPERTIES	= 0x0002,
+	FSO_CLASSES		= 0x0004,
+	FSO_GLOBALS		= 0x0008,
+	FSO_OBJECTS		= 0x0010,
+	FSO_SCHEDULES   = 0x0020,
+	FSO_FILTERS     = 0x0040,
+	FSO_SCRIPTS     = 0x0080,
+	FSO_CLOCK		= 0x0100,
+	FSO_ALL         = 0x01ff,
+} FILESAVEOPTIONS;
+
 /* Variable:  */
-GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< multirun mode connection */
+GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< GLM save options */
+
+/* Variable: global_filesave_options */
+GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
 #undef GLOBAL
 #undef INIT

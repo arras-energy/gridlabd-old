@@ -129,12 +129,15 @@ def get_version(path=None):
 					minor = int(info[2])
 				elif info[1] == "REV_PATCH":
 					patch = int(info[2])
-	with open(path + "/build.h") as f:
-		for line in f:
-			info = line.split(" ")
-			if info[0] == "#define":
-				if info[1] == "BUILDNUM":
-					build = int(info[2])
+	try:
+		with open(path + "/build.h") as f:
+			for line in f:
+				info = line.split(" ")
+				if info[0] == "#define":
+					if info[1] == "BUILDNUM":
+						build = int(info[2])
+	except:
+		build = 0
 	return '%d.%d.%d.%d' % (major,minor,patch,build)
 
 setup (	name = 'gridlabd',

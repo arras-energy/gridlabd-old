@@ -439,7 +439,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) TUPLE("out","%llu",(int64)(obj->out_svc));
 		TUPLE("rng_state","%llu",(int64)(obj->rng_state));
 		TUPLE("heartbeat","%llu",(int64)(obj->heartbeat));
-		(len += write(",\n\t\t\t\"%s\" : \"0x%llx%llx\"","guid",(int64)(obj->guid[0]),(int64)(obj->guid[1])));
+		(len += write(",\n\t\t\t\"%s\" : \"%llX%llX\"","guid",(int64)(obj->guid[0]),(int64)(obj->guid[1])));
 		TUPLE("flags","0x%llx",(int64)(obj->flags));
 		for ( pclass = obj->oclass ; pclass != NULL ; pclass = pclass->parent )
 		{
@@ -458,7 +458,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 	                    char *buffer = new char[sz+2];
 	                    strcpy(buffer,"");
 	                    object_property_to_string(obj,prop->name,buffer,sz+1);
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, buffer);
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(buffer));
 	                    delete [] buffer;
 	                }
 	                else if ( sz == 0 )
@@ -470,25 +470,41 @@ int GldJsonWriter::write_objects(FILE *fp)
 	                	// no output allowed for this property
 	                }
                 }
+                else if ( prop->ptype == PT_double )
+                {
+                	double *x = object_get_double_quick(obj,prop);
+                	if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": \"%g %s\"", prop->name, *x, prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": \"%g\"", prop->name, *x);
+                }
+                else if ( prop->ptype == PT_complex )
+                {
+					complex *c = object_get_complex_quick(obj,prop);
+					if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": \"%g%+gj %s\"", prop->name, c->Re(), c->Im(), prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": \"%g%+gj\"", prop->name, c->Re(), c->Im());
+                }
                 else
                 {
 					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
 					if ( value == NULL )
 						continue; // ignore values that don't convert propertly
-					int len = strlen(value);
+					int size = strlen(value);
 					// TODO: proper JSON formatted is needed for data that is either a dict or a list
 					// if ( value[0] == '{' && value[len] == '}')
 					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
 					// else if ( value[0] == '[' && value[len] == ']')
 					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
 					// else 
-					if ( value[0] == '"' && value[len-1] == '"')
+					if ( value[0] == '"' && value[size-1] == '"')
 					{
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,len-2));
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,size-2));
 					}
 					else
 					{
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,len));
+						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,size));
 					}
 				}
 			}
@@ -508,12 +524,30 @@ int GldJsonWriter::write_output(FILE *fp)
 	json = fp;
 	len += write("{\t\"application\": \"gridlabd\",\n");
 	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,version);
-	len += write_modules(fp);
-	len += write_properties(fp);
-	len += write_classes(fp);
-	len += write_globals(fp);
-	len += write_objects(fp);
-	len += write_schedules(fp);
+	if ( (global_filesave_options&FSO_MODULES) == FSO_MODULES )
+	{
+		len += write_modules(fp);
+	}
+	if ( (global_filesave_options&FSO_PROPERTIES) == FSO_PROPERTIES )
+	{
+		len += write_properties(fp);
+	}
+	if ( (global_filesave_options&FSO_CLASSES) == FSO_CLASSES )
+	{
+		len += write_classes(fp);
+	}
+	if ( (global_filesave_options&FSO_GLOBALS) == FSO_GLOBALS )
+	{
+		len += write_globals(fp);
+	}
+	if ( (global_filesave_options&FSO_SCHEDULES) == FSO_SCHEDULES )
+	{
+		len += write_schedules(fp);
+	}
+	if ( (global_filesave_options&FSO_OBJECTS) == FSO_OBJECTS )
+	{
+		len += write_objects(fp);
+	}
 	len += write("\n}\n");
 	IN_MYCONTEXT output_debug("GldJsonWriter::output() wrote %d bytes",len);
 	return len;
