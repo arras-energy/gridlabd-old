@@ -94,11 +94,8 @@ AS_IF([test "x$TERM" = "xcygwin"],
   [export CXXFLAGS="-I${pkgdatadir} $CXXFLAGS"],
   [export CXXFLAGS="-I$pkgdatadir $CXXFLAGS"])
 
-AS_IF([test "x$GRIDLABD_DEBUG" = "x"],
-  [AS_IF([test "x$HAS_MINGW" = "xyes"],
-    ["$bindir/gridlabd.exe" "$@"],
-    ["$bindir/gridlabd.bin" "$@"])],
-  [AS_IF([test "x$HAS_MINGW" = "xyes"],
-    ["$GRIDLABD_DEBUG" "$bindir/gridlabd.exe"],
-    ["$GRIDLABD_DEBUG" "$bindir/gridlabd.bin"])])
+AS_IF([test -x "${bindir}/gridlabd-$1"],
+  ["${bindir}/gridlabd-$@"],
+  ["$bindir/gridlabd.bin" "$@"])
+
 

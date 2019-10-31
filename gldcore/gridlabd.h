@@ -3863,9 +3863,9 @@ int dllkill() { return do_kill(NULL); }
 	This macro is used to implement a load method function of a class when the GridLAB-D class name differs from the C++ class name.
 	See <EXPORT_LOADMETHOD>.
  */
-#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, const char *value) \
+#define EXPORT_LOADMETHOD_C(X,C,N) EXPORT int loadmethod_##X##_##N(OBJECT *obj, char *value, size_t len=0) \
 {	C *my = OBJECTDATA(obj,C); try { if ( obj!=NULL ) { \
-	return my->N(value); \
+	return my->N(value,len); \
 	} else return 0; } \
 	T_CATCHALL(X,loadmethod); }
 

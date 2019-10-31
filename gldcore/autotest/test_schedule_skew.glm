@@ -53,3 +53,6 @@ object test {
 		within 0.00001;
 	};
 }
+
+#set glm_save_options=ORIGINAL
+#set savefile=gridlabd.glm

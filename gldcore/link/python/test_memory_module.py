@@ -1,3 +1,8 @@
+""" gldcore/link/python/test_memory_module.py
+
+This module enables all the available event handlers and tests all the commonly
+used gridlabd callback functions to ensure they work properly and don't leak memory.
+"""
 from datetime import datetime
 
 def try_everything(obj=None,t=None,context=None):
