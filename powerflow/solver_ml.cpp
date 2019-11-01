@@ -432,7 +432,7 @@ void solver_dump(unsigned int &bus_count,
 		solver_model_log(1,"unable to open bus dumpfile '%s' for write", model_busdump);
 		return;
 	}
-	fprintf(fh,"bus,name,type,phases,origphases,busflags,"
+	fprintf(fh,"id,name,type,phases,origphases,busflags,"
 		"vbase,mvabase,"
 #define POLAR(X) #X "Am," #X "Aa," #X "Bm," #X "Ba," #X "Cm," #X "Ca,"
 #define RECT(X)  #X "Ar," #X "Ai," #X "Br," #X "Bi," #X "Cr," #X "Ci,"
@@ -511,7 +511,7 @@ void solver_dump(unsigned int &bus_count,
 		solver_model_log(1,"unable to open branch dumpfile '%s' for write", model_branchdump);
 		return;
 	}
-	fprintf(fh,"branch,name,type,phases,origphases,faultphases,from,to,fault_link_below,v_ratio,status,vratio,"
+	fprintf(fh,"id,name,type,phases,origphases,faultphases,from,to,fault_link_below,v_ratio,status,vratio,"
 		"YfromAr,YfromAi,YfromBr,YfromBi,YfromCr,YfromCi,"
 		"YtoAr,YtoAi,YtoBr,YtoBi,YtoCr,YtoCi,"
 		"YSfromAr,YSfromAi,YSfromBr,YSfromBi,YSfromCr,YSfromCi,"
@@ -559,7 +559,10 @@ bool solver_model_find(SOLVERMODEL *&model,
 {
 	double dist = MAXDIST;
 	SOLVERMODEL *m;
-	solver_dump(bus_count,bus,branch_count,branch);
+	if ( model_dump_handler )
+	{
+		solver_dump(bus_count,bus,branch_count,branch);
+	}
 	for ( m = solver_model_getfirst() ; m != NULL ; m = solver_model_getnext(m) )
 	{
 		double n = solver_get_metric(m,bus_count,bus,branch_count,branch);
