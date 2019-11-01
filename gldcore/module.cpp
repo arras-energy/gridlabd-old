@@ -239,6 +239,7 @@ static CALLBACKS callbacks = {
 	{randomvar_getnext,randomvar_getspec},
 	{version_major,version_minor,version_patch,version_build,version_branch},
 	call_external_callback,
+	{python_embed_import,python_embed_call},
 	MAGIC /* used to check structure */
 };
 CALLBACKS *module_callbacks(void) { return &callbacks; }

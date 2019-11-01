@@ -88,6 +88,8 @@ GldMain::GldMain(int argc, const char *argv[])
 	cmdarg(this),
 	gui(this)
 {
+	python_embed_init(argc,argv);
+
 	id = next_id++;
 	// TODO: remove this when reetrant code is done
 	my_instance = this;
@@ -182,6 +184,8 @@ GldMain::GldMain(int argc, const char *argv[])
 
 GldMain::~GldMain(void)
 {
+	python_embed_term();
+
 	// TODO: remove this when reetrant code is done
 	my_instance = NULL;
 

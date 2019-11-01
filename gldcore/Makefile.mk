@@ -51,6 +51,7 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/object.cpp gldcore/object.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/output.cpp gldcore/output.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/platform.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/property.cpp gldcore/property.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/python_embed.cpp gldcore/python_embed.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/random.cpp gldcore/random.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/realtime.cpp gldcore/realtime.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/sanitize.cpp gldcore/sanitize.h
@@ -143,7 +144,6 @@ pkginclude_HEADERS += gldcore/version.h
 
 bin_SCRIPTS += gldcore/gridlabd 
 bin_SCRIPTS += gldcore/gridlabd-weather
-bin_SCRIPTS += gldcore/gridlabd-python
 bin_SCRIPTS += gldcore/gridlabd-library
 
 gridlabddir = $(prefix)/share/gridlabd

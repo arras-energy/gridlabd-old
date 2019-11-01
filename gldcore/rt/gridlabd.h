@@ -1351,6 +1351,10 @@ typedef struct s_callbacks {
 		const char * (*branch)(void);
 	} version;
 	int (*call_external_callback)(const char*, void *);
+	struct {
+		PyObject *(*import)(const char *module, const char *path);
+		bool (*call)(PyObject *pModule, const char *method);
+	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
 

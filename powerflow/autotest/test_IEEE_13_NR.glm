@@ -5,15 +5,18 @@
 
 clock {
 	timezone EST+5EDT;
-	starttime '2000-01-01 0:00:00';
-	stoptime '2000-01-01 0:00:01';
+	starttime '2000-01-01 00:00:00 EST';
+	stoptime '2000-01-31 00:00:00 EST';
 }
 
 module powerflow {
 	solver_method NR;
 	line_capacitance true;
+    solver_ml_config "../solver_ml.conf";
 	}
 module assert;
+
+module tape;
 
 // Phase Conductor for 601: 556,500 26/7 ACSR
 object overhead_line_conductor {
@@ -375,6 +378,11 @@ object node { //650 {
 		value 2401.7771+120.0d;
 		within 5;
 	 };
+     object recorder {
+        property "voltage_A,voltage_B,voltage_C";
+        file "voltage.csv";
+        interval 1h;
+     };
 } 
  
 object node { //680 {

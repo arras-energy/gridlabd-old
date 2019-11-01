@@ -1,7 +1,8 @@
-
 /** Solver modeling
     Enable modeling of solution to improve performance
  **/
+
+#include "gridlabd.h"
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -12,6 +13,7 @@
 #define CONFIGPATH "/usr/local/share/gridlabd/"
 
 // default configuration settings
+char1024 solver_ml_config = CONFIGPATH CONFIGNAME;
 double maximum_distance = 0; // 0 is never use solver model, 1e-9 is only when nearly identical
 const char *solver_model_logfile = CONFIGLOG;
 int solver_model_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
@@ -19,7 +21,10 @@ size_t maximum_models = 100; // maximum number of models to track
 const char *model_busdump = NULL; // name of bus dumpfile
 const char *model_branchdump = NULL; // name of branch dumpfile
 const char *model_dump_handler = NULL; // name of python solver event handler
+const char *module_import_path = NULL; // path to use when importing modules
+const char *module_import_name = NULL; // module name to import (python only)
 
+PyObject *pModule = NULL;
 SOLVERMODELSTATUS solver_model_status = SMS_INIT;
 SOLVERMODEL *last = NULL, *first = NULL;
 size_t solver_model_count = 0;
@@ -31,11 +36,11 @@ double solver_model_get_maximum_distance(void)
 	return maximum_distance;
 }
 
-SOLVERMODELSTATUS solver_model_config(const char *localconfig = CONFIGNAME, 
+SOLVERMODELSTATUS solver_model_config(const char *localconfig = NULL, 
 									  const char *shareconfig = CONFIGPATH CONFIGNAME)
 {
 	SOLVERMODELSTATUS status = SMS_INIT;
-	const char *configname = localconfig;
+	const char *configname = localconfig ? localconfig : (const char*)solver_ml_config;
 	FILE *fp = fopen(configname,"r");
 	if ( fp == NULL )
 	{
@@ -93,6 +98,14 @@ SOLVERMODELSTATUS solver_model_config(const char *localconfig = CONFIGNAME,
 				{
 					model_dump_handler = strdup(value);
 				}
+				else if ( strcmp(tag,"import") == 0 )
+				{
+					module_import_name = strdup(value);
+				}
+				else if ( strcmp(tag,"import_path") == 0 )
+				{
+					module_import_path = strdup(value);
+				}
 				else
 				{
 					fprintf(stdout,"solver_model_config(configname='%s'): tag '%s' is not valid\n",configname,tag);
@@ -106,7 +119,7 @@ SOLVERMODELSTATUS solver_model_config(const char *localconfig = CONFIGNAME,
 
 void solver_model_log(unsigned int level, const char *format, ...)
 {
-	if ( level <= solver_model_loglevel && solver_model_logfh != NULL )
+	if ( (int)level <= solver_model_loglevel && solver_model_logfh != NULL )
 	{
 		va_list ptr;
 		va_start(ptr,format);
@@ -144,8 +157,25 @@ int solver_model_init(void)
 	switch ( solver_model_status )
 	{
 		case SMS_INIT:
-			fprintf(stderr,"solver initialization started\n");
+			fprintf(stderr,"solver_model_init(): solver initialization started\n");
 			solver_model_status = solver_model_config();
+			if ( module_import_name )
+			{
+				if ( strncmp(module_import_name,"python:",7) == 0 )
+				{
+					pModule = python_import(module_import_name+7,module_import_path);
+					if ( pModule == NULL )
+					{
+						fprintf(stderr,"solver_model_init(): unable to import python module '%s'\n", module_import_name+7);
+						return 0;
+					}
+				}
+				else
+				{
+					fprintf(stderr,"solver_model_init(): unable to import module '%s'\n", module_import_name);
+					return 0;
+				}
+			}
 			if ( solver_model_status == SMS_READY )
 			{
 				if ( solver_model_logfh != NULL )
@@ -158,11 +188,11 @@ int solver_model_init(void)
 					solver_model_logfh = fopen(solver_model_logfile,"w");
 					if ( solver_model_logfh )
 					{
-						fprintf(stderr,"solver log %s opened ok\n",solver_model_logfile);
+						fprintf(stderr,"solver_model_init(): solver log %s opened ok\n",solver_model_logfile);
 					}
 					else
 					{
-						fprintf(stderr,"solver log %s opened failed (errno=%d, strerror='%s')\n",solver_model_logfile,errno,strerror(errno));
+						fprintf(stderr,"solver_model_init(): solver log %s opened failed (errno=%d, strerror='%s')\n",solver_model_logfile,errno,strerror(errno));
 					}
 				}
 				else
@@ -173,32 +203,32 @@ int solver_model_init(void)
 			}
 			else
 			{
-				fprintf(stderr,"solver configuration failed\n");
+				fprintf(stderr,"solver_model_init(): solver configuration failed\n");
 				return 0;
 			}
 		case SMS_READY:
 			if ( solver_model_state != SMS_READY )
 			{
-				fprintf(stderr,"solver ready\n");
+				fprintf(stderr,"solver_model_init(): solver ready\n");
 				solver_model_state = SMS_READY;
 			}
 			return 1;
 		case SMS_DISABLED:
 			if ( solver_model_state != SMS_DISABLED )
 			{
-				fprintf(stderr,"solver initialization disabled\n");
+				fprintf(stderr,"solver_model_init(): solver initialization disabled\n");
 				solver_model_state = SMS_DISABLED;
 			}
 			return 0;
 		case SMS_FAILED:
 			if ( solver_model_state != SMS_FAILED )
 			{
-				fprintf(stderr,"solver initialization failed\n");
+				fprintf(stderr,"solver_model_init(): solver initialization failed\n");
 				solver_model_state = SMS_FAILED;
 			}
 			return 0;
 		default:
-			fprintf(stderr,"solver state unknown (solver_model_status=%d)\n", solver_model_status);
+			fprintf(stderr,"solver_model_init(): solver state unknown (solver_model_status=%d)\n", solver_model_status);
 			return 0;
 	}
 }
@@ -542,10 +572,20 @@ void solver_dump(unsigned int &bus_count,
 	fclose(fh);
 	if ( model_dump_handler )
 	{
-		int rc = system(model_dump_handler);
-		if ( rc != 0 )
+		if ( strncmp(model_dump_handler,"python:",7) == 0 )
 		{
-			solver_model_log(1,"model_dump_handler failed, rc = %d", rc);
+			if ( ! python_call(pModule,model_dump_handler+7) )
+			{
+				solver_model_log(1,"model_dump_handler failed, rc = FALSE");
+			}
+		}
+		else
+		{
+			int rc = system(model_dump_handler);
+			if ( rc != 0 )
+			{
+				solver_model_log(1,"model_dump_handler failed, rc = %d", rc);
+			}
 		}
 	}
 }

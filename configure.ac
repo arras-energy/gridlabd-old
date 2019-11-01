@@ -645,28 +645,11 @@ AC_SUBST([MYSQL_LIBS])
 
 # Verify python version
 AM_PATH_PYTHON(3.5)
-HAVE_PYTHON="$(which python3) ($(python3 --version))"
+HAVE_PYTHON="$(/usr/local/bin/python3 --version)"
 
 ###############################################################################
 # The End
 ###############################################################################
-
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([gridlabd.spec])
-AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
-AC_OUTPUT
-
-BINDIR=`eval echo $(eval echo $bindir)`
-LIBDIR=`eval echo $(eval echo $libdir)`
-DOCDIR=`eval echo $(eval echo $docdir)`
-AS_IF([test "x$HAVE_XERCES" = xyes],
-    [CONFIG_RESULT=OK
-     AS_IF([test -z "$XERCES_VERSION" || expr "$XERCES_VERSION" \< 3 >/dev/null],
-        [AC_MSG_WARN([libxerces-c version $XERCES_VERSION])
-         AC_MSG_WARN([may not be suitable for building $PACKAGE])])],
-    [CONFIG_RESULT=failed
-     HAVE_XERCES="$HAVE_XERCES (required)"
-     AC_MSG_WARN([missing libxerces-c; build will fail until dependency is met])])
 
 AC_MSG_RESULT([
 -----------------------------------------------------------------------
@@ -710,3 +693,25 @@ AC_MSG_RESULT([
 
 -----------------------------------------------------------------------
 ])
+
+CXXFLAGS="$CPPFLAGS $(/usr/local/bin/python3-config --cflags)"
+LDFLAGS="$LDFLAGS $(/usr/local/bin/python3-config --ldflags)"
+
+BINDIR=`eval echo $(eval echo $bindir)`
+LIBDIR=`eval echo $(eval echo $libdir)`
+DOCDIR=`eval echo $(eval echo $docdir)`
+
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([gridlabd.spec])
+AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
+AC_OUTPUT
+
+AS_IF([test "x$HAVE_XERCES" = xyes],
+    [CONFIG_RESULT=OK
+     AS_IF([test -z "$XERCES_VERSION" || expr "$XERCES_VERSION" \< 3 >/dev/null],
+        [AC_MSG_WARN([libxerces-c version $XERCES_VERSION])
+         AC_MSG_WARN([may not be suitable for building $PACKAGE])])],
+    [CONFIG_RESULT=failed
+     HAVE_XERCES="$HAVE_XERCES (required)"
+     AC_MSG_WARN([missing libxerces-c; build will fail until dependency is met])])
+
