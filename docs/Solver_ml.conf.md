@@ -46,3 +46,16 @@ The `logfile` parameter sets the name of the file that contains the ML solver lo
 ## loglevel <integer>
 
 The `loglevel` parameter sets the level of log message recorded in the log.  This value can range from 0 to 9, with 0 being the least logging and 9 the most logging.
+
+## import_path <path>
+
+Add `<path>` to the module import search path.
+
+## import <module>
+
+Load `<module>`.  If loading a Python module, use the syntax `python:<filename>`.
+
+## on_dump <command>
+
+Call the method `<command>` when a bus/branch dump is performed.
+    
