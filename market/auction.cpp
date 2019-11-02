@@ -1528,9 +1528,9 @@ int auction::submit_nolock(const char *from, double quantity, double real_price,
 		biddef.market = -1;
 		biddef.raw = -1;
 	} else {
-		if((-1 & 0xFFFFFFFF00000000ULL) == 0xCCCCCCCC00000000ULL){
-			bid_key &= 0x00000000FFFFFFFFULL;
-		}
+		// if((-1 & 0xFFFFFFFF00000000ULL) == 0xCCCCCCCC00000000ULL){
+		// 	bid_key &= 0x00000000FFFFFFFFULL;
+		// }
 		translate_bid(biddef, key);
 	}
 
