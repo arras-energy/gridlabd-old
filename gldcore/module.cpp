@@ -1343,6 +1343,10 @@ static int execf(const char *format, /**< format string  */
 		IN_MYCONTEXT output_debug("command: %s",command);
 	}
 	rc = system(command);
+	if ( rc != 0 )
+	{
+		output_error("command [%s] failed, rc = %d", command, rc);
+	}
 	IN_MYCONTEXT output_debug("return code=%d",rc);
 	return rc;
 }
@@ -1361,7 +1365,7 @@ int module_compile(const char *name,	/**< name of library */
 	char ofile[1024];
 	char afile[1024];
 	const char *cc = getenv("CC")?getenv("CC"):CC;
-	const char *ccflags = getenv("CCFLAGS")?getenv("CCFLAGS"):CCFLAGS;
+	const char *ccflags = getenv("CPPFLAGS")?getenv("CPPFLAGS"):CCFLAGS;
 	const char *ldflags = getenv("LDFLAGS")?getenv("LDFLAGS"):LDFLAGS;
 	int rc;
 	size_t codesize = strlen(code), len;
