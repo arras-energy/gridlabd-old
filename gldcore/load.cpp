@@ -793,6 +793,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				IN_MYCONTEXT output_verbose("compile command: [%s]", execstr);
 				if(exec(execstr)==FAILED)
 				{
+					output_error("command was '%s'",execstr);
 					errno = EINVAL;
 					return FAILED;
 				}
@@ -812,6 +813,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				IN_MYCONTEXT output_verbose("link command: [%s]", ldstr);
 				if(exec(ldstr) == FAILED)
 				{
+					output_error("command was '%s'",execstr);
 					errno = EINVAL;
 					return FAILED;
 				}
