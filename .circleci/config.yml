@@ -8,6 +8,7 @@ jobs:
       - run:
           name: Build gridlabd
           command: |
+            sudo apt-get install python3-dev -y
             autoreconf -isf
             ./configure
             export PATH=/home/circleci/project/install/bin:$PATH
