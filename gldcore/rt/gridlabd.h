@@ -12,6 +12,8 @@
 #include <float.h>
 #include <string.h>
 
+#include <Python.h>
+
 #ifdef _WINDOWS
 #define isfinite _finite
 #endif

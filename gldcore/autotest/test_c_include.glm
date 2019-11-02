@@ -8,7 +8,7 @@
 clock {
 	timezone PST+8PDT;
 	starttime '2009-01-01 00:00:00 PST';
-	stoptime '2009-01-02 00:00:00 PST';
+	stoptime '2009-01-01 01:00:00 PST';
 }
 
 // implement a deterministic noise source and signal target

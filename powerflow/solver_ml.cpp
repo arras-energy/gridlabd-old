@@ -541,7 +541,7 @@ void solver_dump(unsigned int &bus_count,
 		solver_model_log(1,"unable to open branch dumpfile '%s' for write", model_branchdump);
 		return;
 	}
-	fprintf(fh,"id,name,type,phases,origphases,faultphases,from,to,fault_link_below,v_ratio,status,vratio,"
+	fprintf(fh,"id,name,type,phases,origphases,faultphases,from,to,fault_link_below,v_ratio,vratio,"
 		"YfromAr,YfromAi,YfromBr,YfromBi,YfromCr,YfromCi,"
 		"YtoAr,YtoAi,YtoBr,YtoBi,YtoCr,YtoCi,"
 		"YSfromAr,YSfromAi,YSfromBr,YSfromBi,YSfromCr,YSfromCi,"
@@ -556,13 +556,13 @@ void solver_dump(unsigned int &bus_count,
 		if ( phases[b->phases] == NULL ) snprintf(phaseserr,sizeof(phaseserr)-1,"ERROR:%d",(int)b->phases);
 		if ( phases[b->origphases] == NULL ) snprintf(origphaseserr,sizeof(origphaseserr)-1,"ERROR:%d",(int)b->origphases);
 		if ( phases[b->faultphases] == NULL ) snprintf(faultphaseserr,sizeof(faultphaseserr)-1,"ERROR:%d",(int)b->faultphases);
-		fprintf(fh,"%d,%s,%s,%s,%s,%s,%d,%d,%s,%g,%d,%g,"
+		fprintf(fh,"%d,%s,%s,%s,%s,%s,%d,%d,%s,%g,%g,"
 			"%g,%g,%g,%g,%g,%g,"
 			"%g,%g,%g,%g,%g,%g,"
 			"%g,%g,%g,%g,%g,%g,"
 			"%g,%g,%g,%g,%g,%g,"
 			"%s\n",
-			n,b->name?b->name:"",branchtype,phases[b->phases]?phases[b->phases]:phaseserr,phases[b->origphases]?phases[b->origphases]:origphaseserr,phases[b->faultphases]?phases[b->faultphases]:faultphaseserr,b->from,b->to,b->fault_link_below?"FALSE":"TRUE",b->v_ratio,b->status?(int)*(b->status):0,b->v_ratio,
+			n,b->name?b->name:"",branchtype,phases[b->phases]?phases[b->phases]:phaseserr,phases[b->origphases]?phases[b->origphases]:origphaseserr,phases[b->faultphases]?phases[b->faultphases]:faultphaseserr,b->from,b->to,b->fault_link_below?"FALSE":"TRUE",b->v_ratio,b->v_ratio,
 			b->Yfrom[0].Re(),b->Yfrom[0].Im(),b->Yfrom[1].Re(),b->Yfrom[1].Im(),b->Yfrom[2].Re(),b->Yfrom[2].Im(),
 			b->Yto[0].Re(),b->Yto[0].Im(),b->Yto[1].Re(),b->Yto[1].Im(),b->Yto[2].Re(),b->Yto[2].Im(),
 			b->YSfrom[0].Re(),b->YSfrom[0].Im(),b->YSfrom[1].Re(),b->YSfrom[1].Im(),b->YSfrom[2].Re(),b->YSfrom[2].Im(),
