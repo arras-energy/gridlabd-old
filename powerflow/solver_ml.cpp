@@ -83,7 +83,7 @@ SOLVERMODELSTATUS solver_model_config(const char *localconfig = NULL,
 					}
 					else 
 					{
-						fprintf(stdout,"solver_model_config(configname='%s'): method '%s' is not known, using basic method\n",configname,value);
+						fprintf(stderr,"solver_model_config(configname='%s'): method '%s' is not known, using basic method\n",configname,value);
 					}
 				}
 				else if ( strcmp(tag,"busdump") == 0 )
@@ -108,7 +108,7 @@ SOLVERMODELSTATUS solver_model_config(const char *localconfig = NULL,
 				}
 				else
 				{
-					fprintf(stdout,"solver_model_config(configname='%s'): tag '%s' is not valid\n",configname,tag);
+					fprintf(stderr,"solver_model_config(configname='%s'): tag '%s' is not valid\n",configname,tag);
 				}
 			}
 		}
@@ -157,7 +157,7 @@ int solver_model_init(void)
 	switch ( solver_model_status )
 	{
 		case SMS_INIT:
-			fprintf(stderr,"solver_model_init(): solver initialization started\n");
+			solver_model_log(1,"solver_model_init(): solver initialization started\n");
 			solver_model_status = solver_model_config();
 			if ( module_import_name )
 			{
@@ -166,13 +166,13 @@ int solver_model_init(void)
 					pModule = python_import(module_import_name+7,module_import_path);
 					if ( pModule == NULL )
 					{
-						fprintf(stderr,"solver_model_init(): unable to import python module '%s'\n", module_import_name+7);
+						solver_model_log(0,"solver_model_init(): unable to import python module '%s'\n", module_import_name+7);
 						return 0;
 					}
 				}
 				else
 				{
-					fprintf(stderr,"solver_model_init(): unable to import module '%s'\n", module_import_name);
+					solver_model_log(0,"solver_model_init(): unable to import module '%s'\n", module_import_name);
 					return 0;
 				}
 			}
@@ -188,11 +188,11 @@ int solver_model_init(void)
 					solver_model_logfh = fopen(solver_model_logfile,"w");
 					if ( solver_model_logfh )
 					{
-						fprintf(stderr,"solver_model_init(): solver log %s opened ok\n",solver_model_logfile);
+						solver_model_log(1,"solver_model_init(): solver log %s opened ok\n",solver_model_logfile);
 					}
 					else
 					{
-						fprintf(stderr,"solver_model_init(): solver log %s opened failed (errno=%d, strerror='%s')\n",solver_model_logfile,errno,strerror(errno));
+						solver_model_log(0,"solver_model_init(): solver log %s opened failed (errno=%d, strerror='%s')\n",solver_model_logfile,errno,strerror(errno));
 					}
 				}
 				else
@@ -203,32 +203,32 @@ int solver_model_init(void)
 			}
 			else
 			{
-				fprintf(stderr,"solver_model_init(): solver configuration failed\n");
+				solver_model_log(0,"solver_model_init(): solver configuration failed\n");
 				return 0;
 			}
 		case SMS_READY:
 			if ( solver_model_state != SMS_READY )
 			{
-				fprintf(stderr,"solver_model_init(): solver ready\n");
+				solver_model_log(1,"solver_model_init(): solver ready\n");
 				solver_model_state = SMS_READY;
 			}
 			return 1;
 		case SMS_DISABLED:
 			if ( solver_model_state != SMS_DISABLED )
 			{
-				fprintf(stderr,"solver_model_init(): solver initialization disabled\n");
+				solver_model_log(1,"solver_model_init(): solver initialization disabled\n");
 				solver_model_state = SMS_DISABLED;
 			}
 			return 0;
 		case SMS_FAILED:
 			if ( solver_model_state != SMS_FAILED )
 			{
-				fprintf(stderr,"solver_model_init(): solver initialization failed\n");
+				solver_model_log(0,"solver_model_init(): solver initialization failed\n");
 				solver_model_state = SMS_FAILED;
 			}
 			return 0;
 		default:
-			fprintf(stderr,"solver_model_init(): solver state unknown (solver_model_status=%d)\n", solver_model_status);
+			solver_model_log(0,"solver_model_init(): solver state unknown (solver_model_status=%d)\n", solver_model_status);
 			return 0;
 	}
 }
