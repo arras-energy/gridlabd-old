@@ -184,8 +184,10 @@ GldMain::GldMain(int argc, const char *argv[])
 
 GldMain::~GldMain(void)
 {
+#ifndef HAVE_PYTHON
 	python_embed_term();
-
+#endif
+	
 	// TODO: remove this when reetrant code is done
 	my_instance = NULL;
 
