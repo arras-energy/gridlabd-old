@@ -1493,7 +1493,7 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 		// implemented in gldcore/link/python/python.cpp
 		extern int python_event(OBJECT *obj, const char *, long long *);
 		int rv = python_event(obj,function,p_retval) ? 0 : -1;
-		output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
+		IN_MYCONTEXT output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
 		return rv;
 #else
 		output_error("python system not linked, event '%s' is not callable", event);
@@ -1537,13 +1537,17 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 	int rc = 0;
 	const char *passname[]={"NOSYNC","PRESYNC","SYNC","INVALID","POSTSYNC"};
 	char *event = NULL;
-	do {
-		/* don't call sync beyond valid horizon */
-		t2 = _object_sync(obj,(ts<(obj->valid_to>0?obj->valid_to:TS_NEVER)?ts:obj->valid_to),pass);	
-	} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER);
+	if ( obj->oclass->sync != NULL )
+	{
+		do {
+			/* don't call sync beyond valid horizon */
+			t2 = _object_sync(obj,(ts<(obj->valid_to>0?obj->valid_to:TS_NEVER)?ts:obj->valid_to),pass);	
+		} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER);
+	}
 
 	/* event handler */
-	switch (pass) {
+	switch (pass) 
+	{
 	case PC_PRETOPDOWN:
 		event = obj->events.presync;
 		break;
@@ -1557,10 +1561,12 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		break;
 	}
 	if ( event != NULL )
+	{
 		rc = object_event(obj,event,&t2);
+	}
 
 	/* do profiling, if needed */
-	if ( global_profiler==1 )
+	if ( global_profiler == 1 )
 	{
 		switch (pass) {
 		case PC_PRETOPDOWN: object_profile(obj,OPI_PRESYNC,t);break;
@@ -1569,7 +1575,7 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		default: break;
 		}
 	}
-	if ( global_debug_output>0 )
+	if ( global_debug_output > 0 )
 	{
 		char dt1[64]="(invalid)"; if ( ts!=TS_INVALID ) convert_from_timestamp(absolute_timestamp(ts),dt1,sizeof(dt1)); else strcpy(dt1,"ERROR");
 		char dt2[64]="(invalid)"; if ( t2!=TS_INVALID ) convert_from_timestamp(absolute_timestamp(t2),dt2,sizeof(dt2)); else strcpy(dt2,"ERROR");
@@ -1654,7 +1660,7 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	}
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
-		long long t2 = 0;
+		long long t2 = TS_NEVER;
 		int rc = object_event(obj,obj->events.precommit,&t2);
 		if ( rc != 0 || t2 < t1 )
 		{
@@ -1723,7 +1729,8 @@ STATUS object_finalize(OBJECT *obj)
 	}
 	if ( obj->events.finalize != NULL )
 	{
-		int rc = object_event(obj,obj->events.precommit);
+		long long rv = 0;
+		int rc = object_event(obj,obj->events.finalize,&rv);
 		if ( rc != 0 )
 		{
 			output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
@@ -1982,10 +1989,10 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 			/* this is an unfortunate special case arising from how the powerflow module is implemented */
 			if ( topological_parent != NULL )
 			{
-				output_debug("<%s:%d> (name='%s') found topological parent",obj->oclass->name, obj->id, obj->name);
+				IN_MYCONTEXT output_debug("<%s:%d> (name='%s') found topological parent",obj->oclass->name, obj->id, obj->name);
 				parent = *topological_parent;
 				if ( parent != NULL )
-					output_debug("<%s:%d> (name='%s') -- original parent is at %p", 
+					IN_MYCONTEXT output_debug("<%s:%d> (name='%s') -- original parent is at %p", 
 						obj->oclass->name, obj->id, obj->name, parent);
 			}
 
@@ -2053,11 +2060,11 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 
 			/* dump properties */
 			CLASS *last = oclass;
-			output_debug("dumping properties of '%s' (pmap=%p)", oclass->name, oclass->pmap);
+			IN_MYCONTEXT output_debug("dumping properties of '%s' (pmap=%p)", oclass->name, oclass->pmap);
 			for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 			{
 				TRANSFORM *xform;
-				output_debug("dumping property '%s' of '%s'",prop->name, prop->oclass->name);
+				IN_MYCONTEXT output_debug("dumping property '%s' of '%s'",prop->name, prop->oclass->name);
 				if ( last != prop->oclass )
 				{
 					count += fprintf(fp,"\t// class.parent = %s.%s\n", prop->oclass->module->name, prop->oclass->name);
@@ -2606,7 +2613,7 @@ OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name)
 		OBJECT *found = object_find_name(name);
 		if ( found != NULL )
 		{
-			output_debug("found object %s:%d when searching for name=%s", found->oclass->name, found->id, name);
+			IN_MYCONTEXT output_debug("found object %s:%d when searching for name=%s", found->oclass->name, found->id, name);
 			if ( found == obj && found->name == NULL )
 			{
 				// likely attempt to set name to default -- this is ok
@@ -2622,7 +2629,7 @@ OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name)
 				return NULL;
 			}
 		}
-		output_debug("adding object %s:%d as name %s", obj->oclass->name, obj->id, name);
+		IN_MYCONTEXT output_debug("adding object %s:%d as name %s", obj->oclass->name, obj->id, name);
 		item = object_tree_add(obj,name);
 		if ( item != NULL )
 		{
@@ -3029,7 +3036,7 @@ bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
 		return false;
 	for ( ; data != NULL ; data = data->next )
 	{
-		output_debug("%s:%d.%s -- setting part '%s' = '%s'", obj->oclass->name, obj->id, propname,data->name,data->value);
+		IN_MYCONTEXT output_debug("%s:%d.%s -- setting part '%s' = '%s'", obj->oclass->name, obj->id, propname,data->name,data->value);
 		if ( ! object_set_property_part(obj,prop,data->name,data->value) )
 			return false;
 	}
