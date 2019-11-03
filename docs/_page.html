@@ -34,7 +34,8 @@ function load_markdown(href,url)
 
 <SCRIPT LANGUAGE="JavaScript">
     var banner = "GridLAB-D Documentation";
-    var copyright = "Copyright (C) 2019, Regents of the Leland Stanford Junior University";
+    var now = new Date();
+    var copyright = "Copyright (C) " + now.getFullYear() + ", Regents of the Leland Stanford Junior University";
     var query = new URLSearchParams(window.location.search);
     var href = location.origin+location.pathname;
     var host = "github.com";
@@ -77,82 +78,11 @@ function load_markdown(href,url)
     }
 </SCRIPT>
 
-Document URL: https://
+Source document:
 <SCRIPT LANGUAGE="JavaScript">
-    document.writeln('<INPUT TYPE=TEXT NAME="host" VALUE="' + host + '" />');
+    url = 'https://'+host+'/'+owner+'/'+project+'/tree/'+branch+'/docs/' + doc;
+    document.write('<A ID="source" HREF="' + url + '">' + url + '</A>');
 </SCRIPT>
-/
-<SCRIPT LANGUAGE="JavaScript">
-    document.writeln('<INPUT TYPE=TEXT NAME="owner" VALUE="' + owner + '" />')
-</SCRIPT>
-/
-<SCRIPT LANGUAGE="JavaScript">
-    document.writeln('<INPUT TYPE=TEXT NAME="project" VALUE="' + project + '" />');
-</SCRIPT>
-/
-<SELECT NAME="branch">
-<SCRIPT LANGUAGE="JavaScript">
-    try 
-    {
-        var r = new XMLHttpRequest();
-        r.open('GET','https://api.'+host+'/repos/'+owner+'/'+project+'/branches?per_page=1000',false);
-        r.send(null);
-        if ( r.status == 200 )
-        {
-            JSON.parse(r.responseText, function (key,value)
-            {
-                if ( key == 'name' )
-                {
-                    document.writeln('<OPTION VALUE="'+value+'"');
-                    if ( value == branch )
-                    {
-                        document.writeln(' SELECTED');
-                    }
-                    document.writeln('>'+value+'</OPTION>\n');
-                }
-            })
-        }
-    }
-    catch (err)
-    {
-        document.writeln('<OPTION SELECTED>err.message</OPTION>');
-    }
-</SCRIPT>
-</SELECT>
-/
-<SCRIPT LANGUAGE="JavaScript">
-    document.write('<A ID="source" HREF="https://'+host+'/'+owner+'/'+project+'/tree/'+branch+'/docs">docs</A>');
-</SCRIPT>
-/
-<SELECT>
-<SCRIPT LANGUAGE="JavaScript">
-    try
-    {
-        r.open('GET','https://api.'+host+'/repos/'+owner+'/'+project+'/contents/docs?ref='+branch,false);
-        r.send(null);
-        if ( r.status == 200 )
-        {
-            JSON.parse(r.responseText, function (key,value)
-            {
-                if ( key == 'name' && value.endsWith('.md') && value.substring(0,1) != '_' )
-                {
-                    document.writeln('<OPTION VALUE="'+value+'"');
-                    if ( value == doc )
-                    {
-                        document.writeln(' SELECTED');
-                    }
-                    document.writeln('>'+value.substring(0,value.length-3)+'</OPTION>');
-                }
-            })
-        }
-    }
-    catch (err)
-    {
-        document.writeln('<OPTION SELECTED>err.message</OPTION>');
-    }
-</SCRIPT>
-</SELECT>
-.md
 <HR/>
 
 <SCRIPT LANGUAGE="JavaScript">
@@ -177,8 +107,8 @@ Document URL: https://
     } 
     catch (e) 
     {
-        document.writeln('<HR/>'+copyright);
     }
+    document.writeln('<HR/>'+copyright);
 </SCRIPT>
 
 </BODY>

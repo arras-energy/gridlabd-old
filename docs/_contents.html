@@ -5,7 +5,8 @@
 
 <BODY>
 
-<H1>Contents</H1>
+<TABLE>
+<CAPTION>Documentation Source<HR/></CAPTION>
 <SCRIPT LANGUAGE="JavaScript">
     var query = new URLSearchParams(window.location.search);
     var href = location.origin+location.pathname.replace('/_contents.html','/_page.html');
@@ -14,30 +15,34 @@
     {
         host = "github.com";
     }
+    document.writeln('<TR><TH ALIGN=LEFT>Host</TH><TD><INPUT NAME="host" VALUE="' + host + '" /></TD></TR>');
+
     var owner = query.get('owner');
     if ( owner == null )
     {
         owner = "dchassin";
     }
+    document.writeln('<TR><TH ALIGN=LEFT>Owner</TH><TD><INPUT NAME="owner" VALUE="' + owner + '" /></TD></TR>');
+
     var project = query.get('project');
     if ( project == null )
     {
         project = "gridlabd";
     }
+    document.writeln('<TR><TH ALIGN=LEFT>Project</TH><TD><INPUT NAME="project" VALUE="' + project + '" /></TD></TR>');
+
     var branch = query.get('branch');
     if ( branch == null )
     {
         branch = "master";
     }
-    var doc = query.get('doc');
-    if ( doc == null )
-    {
-        doc = "README.md";
-    }
-    // TODO: The replacement <name>.com ->raw.<name>usercontent.com is probably not general, but works for github.com.
-    //       Suggest using a static config document on the host to implement this translation.
-    var page = 'https://raw.'+host.replace(".com","usercontent.com")+'/' + owner + '/' + project + '/' + branch + '/docs/' + doc;
-    var base = page.substring(0,href.lastIndexOf('/')+1);
+    document.writeln('<TR><TH ALIGN=LEFT>Branch</TH><TD><INPUT NAME="branch" VALUE="' + branch + '" /></TD></TR>');
+</SCRIPT>
+</TABLE>
+
+<H1>Table of Contents</H1>
+
+<SCRIPT LANGUAGE="JavaScript">
     try
     {
         var r = new XMLHttpRequest();
