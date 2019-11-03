@@ -1,0 +1,186 @@
+<HTML>
+
+<HEAD>
+<LINK rel="stylesheet" type="text/css" href="docs.css" />
+<SCRIPT LANGUAGE="JavaScript">
+function load_markdown(href,url)
+{
+    base = url.substring(0,url.lastIndexOf('/')+1)
+    var r = new XMLHttpRequest()
+    r.open('GET',url,false)
+    r.send(null);
+    if ( r.status == 200 )
+    {
+        var rr = new XMLHttpRequest()
+        rr.open('POST','https://api.'+host+'/markdown/raw',false)
+        rr.send(r.responseText)
+        if ( rr.status == 200 )
+        {
+            var re = /\[\[[-A-Za-z_ 0-9]+\]\]/g
+            function to_url(tag)
+            {
+                ref = tag.substr(2,tag.length-4)
+                return "<A HREF=\"?owner=" + owner + "&project=" + project + "&branch=" + branch + "&doc=" + ref + ".md\">" + ref + "</A>"
+            }
+            var ro = re[Symbol.replace](rr.responseText,to_url)
+            document.writeln(ro)
+        }
+    }
+}    
+</SCRIPT>
+</HEAD>
+
+<BODY>
+
+<SCRIPT LANGUAGE="JavaScript">
+    var banner = "GridLAB-D Documentation";
+    var copyright = "Copyright (C) 2019, Regents of the Leland Stanford Junior University";
+    var query = new URLSearchParams(window.location.search);
+    var href = location.origin+location.pathname;
+    var host = "github.com";
+    if ( host == null )
+    {
+        host = "github.com";
+    }
+    var owner = query.get('owner');
+    if ( owner == null )
+    {
+        owner = "dchassin";
+    }
+    var project = query.get('project');
+    if ( project == null )
+    {
+        project = "gridlabd";
+    }
+    var branch = query.get('branch');
+    if ( branch == null )
+    {
+        branch = "master";
+    }
+    var doc = query.get('doc');
+    if ( doc == null )
+    {
+        doc = "README.md";
+    }
+    // TODO: The replacement <name>.com ->raw.<name>usercontent.com is probably not general, but works for github.com.
+    //       Suggest using a static config document on the host to implement this translation.
+    var page = 'https://raw.'+host.replace(".com","usercontent.com")+'/' + owner + '/' + project + '/' + branch + '/docs/' + doc;
+    var base = page.substring(0,href.lastIndexOf('/')+1);
+    try 
+    { 
+        load_markdown(href,base+'_header.md') ;
+    } 
+    catch (e) 
+    {
+        document.writeln(banner+"<HR/>");
+        // TODO: a default header
+    }
+</SCRIPT>
+
+Document URL: https://
+<SCRIPT LANGUAGE="JavaScript">
+    document.writeln('<INPUT TYPE=TEXT NAME="host" VALUE="' + host + '" />');
+</SCRIPT>
+/
+<SCRIPT LANGUAGE="JavaScript">
+    document.writeln('<INPUT TYPE=TEXT NAME="owner" VALUE="' + owner + '" />')
+</SCRIPT>
+/
+<SCRIPT LANGUAGE="JavaScript">
+    document.writeln('<INPUT TYPE=TEXT NAME="project" VALUE="' + project + '" />');
+</SCRIPT>
+/
+<SELECT NAME="branch">
+<SCRIPT LANGUAGE="JavaScript">
+    try 
+    {
+        var r = new XMLHttpRequest();
+        r.open('GET','https://api.'+host+'/repos/'+owner+'/'+project+'/branches?per_page=1000',false);
+        r.send(null);
+        if ( r.status == 200 )
+        {
+            JSON.parse(r.responseText, function (key,value)
+            {
+                if ( key == 'name' )
+                {
+                    document.writeln('<OPTION VALUE="'+value+'"');
+                    if ( value == branch )
+                    {
+                        document.writeln(' SELECTED');
+                    }
+                    document.writeln('>'+value+'</OPTION>\n');
+                }
+            })
+        }
+    }
+    catch (err)
+    {
+        document.writeln('<OPTION SELECTED>err.message</OPTION>');
+    }
+</SCRIPT>
+</SELECT>
+/
+<SCRIPT LANGUAGE="JavaScript">
+    document.write('<A ID="source" HREF="https://'+host+'/'+owner+'/'+project+'/tree/'+branch+'/docs">docs</A>');
+</SCRIPT>
+/
+<SELECT>
+<SCRIPT LANGUAGE="JavaScript">
+    try
+    {
+        r.open('GET','https://api.'+host+'/repos/'+owner+'/'+project+'/contents/docs?ref='+branch,false);
+        r.send(null);
+        if ( r.status == 200 )
+        {
+            JSON.parse(r.responseText, function (key,value)
+            {
+                if ( key == 'name' && value.endsWith('.md') && value.substring(0,1) != '_' )
+                {
+                    document.writeln('<OPTION VALUE="'+value+'"');
+                    if ( value == doc )
+                    {
+                        document.writeln(' SELECTED');
+                    }
+                    document.writeln('>'+value.substring(0,value.length-3)+'</OPTION>');
+                }
+            })
+        }
+    }
+    catch (err)
+    {
+        document.writeln('<OPTION SELECTED>err.message</OPTION>');
+    }
+</SCRIPT>
+</SELECT>
+.md
+<HR/>
+
+<SCRIPT LANGUAGE="JavaScript">
+    if ( page.substring(0,7) == 'file://' )
+    {
+        document.writeln("ERROR: access to local files is not permitted")
+    }
+    else
+    {
+        try 
+        {        
+            load_markdown(href,page);
+        }
+        catch (err)
+        {
+            document.writeln("ERROR: "+err.message)
+        }
+    }
+    try 
+    { 
+        load_markdown(href,base+'_footer.md') 
+    } 
+    catch (e) 
+    {
+        document.writeln('<HR/>'+copyright);
+    }
+</SCRIPT>
+
+</BODY>
+
+</HTML>

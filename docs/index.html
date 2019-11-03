@@ -1,129 +1,36 @@
+<!DOCTYPE HTML />
 <HTML>
 
-<HEAD>
-<LINK rel="stylesheet" type="text/css" href="docs.css" />
-<SCRIPT LANGUAGE="JavaScript">
-function load_markdown(href,url)
-{
-    base = url.substring(0,url.lastIndexOf('/')+1)
-    var r = new XMLHttpRequest()
-    r.open('GET',url,false)
-    r.send(null);
-    if ( r.status == 200 )
-    {
-        var rr = new XMLHttpRequest()
-        rr.open('POST','https://api.github.com/markdown/raw',false)
-        rr.send(r.responseText)
-        if ( rr.status == 200 )
-        {
-            var re = /\[\[[-A-Za-z_ 0-9]+\]\]/g
-            function to_url(tag)
-            {
-                ref = tag.substr(2,tag.length-4)
-                return "<A HREF=\"?page="+base+ref+".md\">"+ref+"</A>"
-            }
-            var ro = re[Symbol.replace](rr.responseText,to_url)
-            document.writeln(ro)
-        }
-    }
-}    
-</SCRIPT>
-</HEAD>
-
-<BODY>
-
-<SCRIPT LANGUAGE="JavaScript">
-    var banner = "GridLAB-D Documentation";
-    var copyright = "Copyright (C) 2019, Regents of the Leland Stanford Junior University";
+<SCRIPT>
     var query = new URLSearchParams(window.location.search);
-    var href = location.origin+location.pathname;
-    var page = query.get('page');
-    var branch = "master";
-    var owner = "dchassin";
-    var project = "gridlabd";
-    var r = new XMLHttpRequest()
+    var owner = query.get('owner');
+    if ( owner == null )
+    {
+        owner = "dchassin";
+    }
+    var project = query.get('project');
+    if ( project == null )
+    {
+        project = "gridlabd";
+    }
+    var branch = query.get('branch');
+    if ( branch == null )
+    {
+        branch = "master";
+    }
+    var doc = query.get('doc');
+    if ( doc == null )
+    {
+        doc = "README.md";
+    }
+    page = "owner=" + owner + "&project=" + project + "&branch=" + branch + "&doc=" + doc;
 </SCRIPT>
 
 <SCRIPT LANGUAGE="JavaScript">
-    if ( page == null )
-    {
-        page = 'https://raw.githubusercontent.com/'+owner+'/'+project+'/'+branch+'/docs/README.md';
-    }
-    var base = page.substring(0,href.lastIndexOf('/')+1);
-    try 
-    { 
-        load_markdown(href,base+'_header.md') 
-    } 
-    catch (e) 
-    {
-        document.writeln(banner+"<HR/>");
-        // TODO: a default header
-    }
+    document.writeln('<FRAMESET COLS="250,*">');
+    document.writeln('<FRAME SRC="_contents.html?' + page + '"/>');
+    document.writeln('<FRAME NAME="page" SRC="_page.html?' + page + '" />');
+    document.writeln('</FRAMESET>');
 </SCRIPT>
-
-Repository: https://<INPUT TYPE=TEXT VALUE="github.com" />/<INPUT TYPE=TEXT VALUE="dchassin" />/<INPUT TYPE=TEXT VALUE="gridlabd" />/
-<SELECT>
-<OPTION VALUE="master">master</OPTION>
-<SCRIPT LANGUAGE="JavaScript">
-    r.open('GET','https://api.github.com/repos/dchassin/gridlabd/branches?per_page=1000',false);
-    r.send(null);
-    if ( r.status == 200 )
-    {
-        JSON.parse(r.responseText, function (key,value)
-        {
-            if ( key == 'name' )
-            {
-                document.writeln('<OPTION VALUE="'+value+'">'+value+'</OPTION>\n');
-            }
-        })
-    }
-</SCRIPT>
-</SELECT>
-/<A HREF="https://github.com/dchassin/gridlabd/tree/restructure_install/docs">docs</A>
-/<SELECT>
-<SCRIPT LANGUAGE="JavaScript">
-    r.open('GET','https://api.github.com/repos/dchassin/gridlabd/contents/docs?ref=restructure_install',false);
-    r.send(null);
-    if ( r.status == 200 )
-    {
-        JSON.parse(r.responseText, function (key,value)
-        {
-            if ( key == 'name' && value.endsWith('.md') && value.substring(0,1) != '_' )
-            {
-                document.writeln('<OPTION VALUE="'+value+'">'+value.substring(0,value.length-3)+'</OPTION>');
-            }
-        })
-    }
-</SCRIPT>
-</SELECT>.md
-<HR/>
-
-<SCRIPT LANGUAGE="JavaScript">
-    if ( page.substring(0,7) == 'file://' )
-    {
-        document.writeln("ERROR: access to local files is not permitted")
-    }
-    else
-    {
-        try 
-        {        
-            load_markdown(href,page);
-        }
-        catch (err)
-        {
-            document.writeln("ERROR: "+err.message)
-        }
-    }
-    try 
-    { 
-        load_markdown(href,base+'_footer.md') 
-    } 
-    catch (e) 
-    {
-        document.writeln('<HR/>'+copyright);
-    }
-</SCRIPT>
-
-</BODY>
 
 </HTML>

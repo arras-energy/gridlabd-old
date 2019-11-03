@@ -1,0 +1,69 @@
+<HTML>
+<HEAD>
+<LINK rel="stylesheet" type="text/css" href="docs.css" />
+</HEAD>
+
+<BODY>
+
+<H1>Contents</H1>
+<SCRIPT LANGUAGE="JavaScript">
+    var query = new URLSearchParams(window.location.search);
+    var href = location.origin+location.pathname.replace('/_contents.html','/_page.html');
+    var host = "github.com";
+    if ( host == null )
+    {
+        host = "github.com";
+    }
+    var owner = query.get('owner');
+    if ( owner == null )
+    {
+        owner = "dchassin";
+    }
+    var project = query.get('project');
+    if ( project == null )
+    {
+        project = "gridlabd";
+    }
+    var branch = query.get('branch');
+    if ( branch == null )
+    {
+        branch = "master";
+    }
+    var doc = query.get('doc');
+    if ( doc == null )
+    {
+        doc = "README.md";
+    }
+    // TODO: The replacement <name>.com ->raw.<name>usercontent.com is probably not general, but works for github.com.
+    //       Suggest using a static config document on the host to implement this translation.
+    var page = 'https://raw.'+host.replace(".com","usercontent.com")+'/' + owner + '/' + project + '/' + branch + '/docs/' + doc;
+    var base = page.substring(0,href.lastIndexOf('/')+1);
+    try
+    {
+        var r = new XMLHttpRequest();
+        r.open('GET','https://api.'+host+'/repos/'+owner+'/'+project+'/contents/docs?ref='+branch,false);
+        r.send(null);
+        if ( r.status == 200 )
+        {
+            JSON.parse(r.responseText, function (key,value)
+            {
+                if ( key == 'name' && value.endsWith('.md') && value.substring(0,1) != '_' )
+                {
+                	docspec = href + "?owner=" + owner + "&project=" + project + "&branch=" + branch + "&doc=" + value;
+                    document.writeln('<A HREF="' + docspec + '" TARGET="page">' + value.substring(0,value.length-3) + '</A><BR/>');
+                }
+            })
+        }
+        else
+        {
+	        document.writeln("ERROR " + r.status + ": " + r.responseText);
+        }
+    }
+    catch (err)
+    {
+        document.writeln("ERROR: " + err.message);
+    }
+</SCRIPT>
+
+</BODY>
+</HTML>
