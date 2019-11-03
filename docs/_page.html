@@ -3,9 +3,8 @@
 <HEAD>
 <LINK rel="stylesheet" type="text/css" href="docs.css" />
 <SCRIPT LANGUAGE="JavaScript">
-function load_markdown(href,url)
+function load_markdown(url)
 {
-    base = url.substring(0,url.lastIndexOf('/')+1)
     var r = new XMLHttpRequest()
     r.open('GET',url,false)
     r.send(null);
@@ -25,6 +24,14 @@ function load_markdown(href,url)
             var ro = re[Symbol.replace](rr.responseText,to_url)
             document.writeln(ro)
         }
+        else if ( rr.status != 404 )
+        {
+            document.writeln('<FONT COLOR=RED>[ERROR ' + rr.status + ': '+url+']</FONT><BR/>');
+        }
+    }
+    else if ( r.status != 404 )
+    {
+        document.writeln('<FONT COLOR=RED>[ERROR ' + r.status + ': '+url+']</FONT><BR/>');
     }
 }    
 </SCRIPT>
@@ -37,7 +44,7 @@ function load_markdown(href,url)
     var now = new Date();
     var copyright = "Copyright (C) " + now.getFullYear() + ", Regents of the Leland Stanford Junior University";
     var query = new URLSearchParams(window.location.search);
-    var href = location.origin+location.pathname;
+    var href = location.origin+location.pathname.substring(0,location.pathname.lastIndexOf('/')+1);
     var host = "github.com";
     if ( host == null )
     {
@@ -65,45 +72,36 @@ function load_markdown(href,url)
     }
     // TODO: The replacement <name>.com ->raw.<name>usercontent.com is probably not general, but works for github.com.
     //       Suggest using a static config document on the host to implement this translation.
-    var page = 'https://raw.'+host.replace(".com","usercontent.com")+'/' + owner + '/' + project + '/' + branch + '/docs/' + doc;
-    var base = page.substring(0,href.lastIndexOf('/')+1);
-    try 
-    { 
-        load_markdown(href,base+'_header.md') ;
-    } 
-    catch (e) 
-    {
-        document.writeln(banner+"<HR/>");
-        // TODO: a default header
-    }
+    var base = 'https://raw.'+host.replace(".com","usercontent.com")+'/' + owner + '/' + project + '/' + branch + '/docs/';
 </SCRIPT>
 
 Source document:
 <SCRIPT LANGUAGE="JavaScript">
     url = 'https://'+host+'/'+owner+'/'+project+'/tree/'+branch+'/docs/' + doc;
-    document.write('<A ID="source" HREF="' + url + '">' + url + '</A>');
+    document.write('<A TARGET="_new" ID="source" HREF="' + url + '">' + url + '</A>');
 </SCRIPT>
 <HR/>
 
 <SCRIPT LANGUAGE="JavaScript">
-    if ( page.substring(0,7) == 'file://' )
+    try 
+    { 
+        load_markdown(base+'_header.md') ;
+    } 
+    catch (e) 
     {
-        document.writeln("ERROR: access to local files is not permitted")
+        document.writeln(banner+"<HR/>");
     }
-    else
+    try 
+    {        
+        load_markdown(base+doc);
+    }
+    catch (err)
     {
-        try 
-        {        
-            load_markdown(href,page);
-        }
-        catch (err)
-        {
-            document.writeln("ERROR: "+err.message)
-        }
+        document.writeln("ERROR: "+err.message)
     }
     try 
     { 
-        load_markdown(href,base+'_footer.md') 
+        load_markdown(base+'_footer.md') 
     } 
     catch (e) 
     {
