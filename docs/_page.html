@@ -24,14 +24,14 @@ function load_markdown(url)
             var ro = re[Symbol.replace](rr.responseText,to_url)
             document.writeln(ro)
         }
-        else if ( rr.status != 404 )
+        else //if ( rr.status != 404 )
         {                
-            document.writeln('<FONT COLOR=RED>[ERROR ' + rr.status + ': '+url+']</FONT><BR/>');
+            document.writeln('<FONT COLOR=RED>[ERROR ' + rr.status + ' ['+url+'] '+rr.responseText+'</FONT><BR/>');
         }
     }
-    else if ( r.status != 404 )
+    else //if ( r.status != 404 )
     {
-        document.writeln('<FONT COLOR=RED>[ERROR ' + r.status + ': '+url+']</FONT><BR/>');
+        document.writeln('<FONT COLOR=RED>[ERROR ' + r.status + ' ['+url+'] '+r.responseText+'</FONT><BR/>');
     }
 }    
 </SCRIPT>
