@@ -25,7 +25,7 @@ function load_markdown(url)
             document.writeln(ro)
         }
         else if ( rr.status != 404 )
-        {
+        {                
             document.writeln('<FONT COLOR=RED>[ERROR ' + rr.status + ': '+url+']</FONT><BR/>');
         }
     }
@@ -45,6 +45,7 @@ function load_markdown(url)
     var copyright = "Copyright (C) " + now.getFullYear() + ", Regents of the Leland Stanford Junior University";
     var query = new URLSearchParams(window.location.search);
     var href = location.origin+location.pathname.substring(0,location.pathname.lastIndexOf('/')+1);
+    // TODO: the defaults should come from a config.js instead
     var host = "github.com";
     if ( host == null )
     {
@@ -83,14 +84,16 @@ Source document:
 <HR/>
 
 <SCRIPT LANGUAGE="JavaScript">
+    document.writeln('<DIV ID="footer" CLASS="footer">')
     try 
     { 
         load_markdown(base+'_header.md') ;
     } 
     catch (e) 
     {
-        document.writeln(banner+"<HR/>");
+        document.writeln(banner);
     }
+    document.writeln('<HR/></DIV>')
     try 
     {        
         load_markdown(base+doc);
@@ -99,14 +102,16 @@ Source document:
     {
         document.writeln("ERROR: "+err.message)
     }
+    document.writeln('<HR/><DIV ID="footer" CLASS="footer">')
     try 
     { 
         load_markdown(base+'_footer.md') 
+        document.writeln('<P/>'+copyright);
     } 
     catch (e) 
     {
+        document.writeln(copyright);
     }
-    document.writeln('<HR/>'+copyright);
 </SCRIPT>
 
 </BODY>

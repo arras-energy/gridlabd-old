@@ -3,6 +3,7 @@
 
 <SCRIPT>
     var query = new URLSearchParams(window.location.search);
+    // TODO: the defaults should come from a config.js instead
     var owner = query.get('owner');
     if ( owner == null )
     {
