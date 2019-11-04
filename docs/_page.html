@@ -26,12 +26,12 @@ function load_markdown(url)
         }
         else //if ( rr.status != 404 )
         {                
-            document.writeln('<FONT COLOR=RED>[ERROR ' + rr.status + ' ['+url+'] '+rr.responseText+'</FONT><BR/>');
+            throw ('<FONT COLOR=RED>[ERROR ' + rr.status + ' ['+url+'] '+rr.responseText+'</FONT><BR/>');
         }
     }
     else //if ( r.status != 404 )
     {
-        document.writeln('<FONT COLOR=RED>[ERROR ' + r.status + ' ['+url+'] '+r.responseText+'</FONT><BR/>');
+        throw ('<FONT COLOR=RED>[ERROR ' + r.status + ' ['+url+'] '+r.responseText+'</FONT><BR/>');
     }
 }    
 </SCRIPT>
@@ -84,7 +84,7 @@ Source document:
 <HR/>
 
 <SCRIPT LANGUAGE="JavaScript">
-    document.writeln('<DIV ID="footer" CLASS="footer">')
+    document.writeln('<DIV ID="header" CLASS="header">')
     try 
     { 
         load_markdown(base+'_header.md') ;
@@ -93,7 +93,7 @@ Source document:
     {
         document.writeln(banner);
     }
-    document.writeln('<HR/></DIV>')
+    document.writeln('<HR/></DIV ID">')
     try 
     {        
         load_markdown(base+doc);
@@ -102,7 +102,7 @@ Source document:
     {
         document.writeln("ERROR: "+err.message)
     }
-    document.writeln('<HR/><DIV ID="footer" CLASS="footer">')
+    document.writeln('<DIV ID="footer" CLASS="footer">')
     try 
     { 
         load_markdown(base+'_footer.md') 
@@ -113,7 +113,7 @@ Source document:
         document.writeln(copyright);
     }
 </SCRIPT>
-
+<HR/>
 </BODY>
 
 </HTML>
