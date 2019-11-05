@@ -1,7 +1,9 @@
 <HTML>
 
 <HEAD>
-<LINK rel="stylesheet" type="text/css" href="docs.css" />
+<LINK rel="stylesheet" type="text/css" href="_theme.css" />
+<SCRIPT LANGUAGE="Javascript" SRC="_defaults.js"></SCRIPT>
+<SCRIPT LANGUAGE="Javascript" SRC="_config.js"></SCRIPT>
 <SCRIPT LANGUAGE="JavaScript">
 function load_markdown(url)
 {
@@ -45,32 +47,6 @@ function load_markdown(url)
     var copyright = "Copyright (C) " + now.getFullYear() + ", Regents of the Leland Stanford Junior University";
     var query = new URLSearchParams(window.location.search);
     var href = location.origin+location.pathname.substring(0,location.pathname.lastIndexOf('/')+1);
-    // TODO: the defaults should come from a config.js instead
-    var host = "github.com";
-    if ( host == null )
-    {
-        host = "github.com";
-    }
-    var owner = query.get('owner');
-    if ( owner == null )
-    {
-        owner = "dchassin";
-    }
-    var project = query.get('project');
-    if ( project == null )
-    {
-        project = "gridlabd";
-    }
-    var branch = query.get('branch');
-    if ( branch == null )
-    {
-        branch = "master";
-    }
-    var doc = query.get('doc');
-    if ( doc == null )
-    {
-        doc = "README.md";
-    }
     // TODO: The replacement <name>.com ->raw.<name>usercontent.com is probably not general, but works for github.com.
     //       Suggest using a static config document on the host to implement this translation.
     var base = 'https://raw.'+host.replace(".com","usercontent.com")+'/' + owner + '/' + project + '/' + branch + '/docs/';

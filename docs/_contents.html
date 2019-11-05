@@ -1,6 +1,8 @@
 <HTML>
 <HEAD>
-<LINK rel="stylesheet" type="text/css" href="docs.css" />
+<LINK rel="stylesheet" type="text/css" href="_theme.css" />
+<SCRIPT LANGUAGE="Javascript" SRC="_defaults.js"></SCRIPT>
+<SCRIPT LANGUAGE="Javascript" SRC="_config.js"></SCRIPT>
 <SCRIPT LANGUAGE="JavaScript">
 	function set_host(element)
 	{
@@ -63,35 +65,10 @@
 <TABLE WIDTH="100%">
 <CAPTION>GridLAB-D Documentation</CAPTION>
 <SCRIPT LANGUAGE="JavaScript">
-    var query = new URLSearchParams(window.location.search);
     var href = location.origin+location.pathname.replace('/_contents.html','/_page.html');
-    // TODO: the defaults should come from a config.js instead
-    var host = "github.com";
-    if ( host == null )
-    {
-        host = "github.com";
-    }
     document.writeln('<TR><TH ALIGN=LEFT>Host</TH><TD><INPUT ID="host" ONKEYDOWN="set_host()" NAME="host" VALUE="' + host + '" /></TD></TR>');
-
-    var owner = query.get('owner');
-    if ( owner == null )
-    {
-        owner = "dchassin";
-    }
     document.writeln('<TR><TH ALIGN=LEFT>User/Org</TH><TD><INPUT ID="owner" ONKEYDOWN="set_owner()" NAME="owner" VALUE="' + owner + '" /></TD></TR>');
-
-    var project = query.get('project');
-    if ( project == null )
-    {
-        project = "gridlabd";
-    }
     document.writeln('<TR><TH ALIGN=LEFT>Project</TH><TD><INPUT ID="project" ONKEYDOWN="set_project()" NAME="project" VALUE="' + project + '" /></TD></TR>');
-
-    var branch = query.get('branch');
-    if ( branch == null )
-    {
-        branch = "master";
-    }
     document.writeln('<TR><TH ALIGN=LEFT>Branch</TH><TD>');
     document.writeln('<SELECT ID="branch" ONCHANGE="set_branch()">')
     var r = new XMLHttpRequest();
