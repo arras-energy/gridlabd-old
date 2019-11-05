@@ -241,8 +241,8 @@ OBJECT *object_find_by_id(OBJECTNUM id){ /**< object id number */
 	@return a pointer to the object name string
  **/
 const char *object_name(OBJECT *obj, /**< a pointer to the object */
-						char *oname=NULL, /**< buffer pointer, NULL to use static buffer */
-						int size=0) /**< buffer size */
+						char *oname, /**< buffer pointer, NULL to use static buffer */
+						int size) /**< buffer size */
 { 
 	static char buffer[256]="";
 	if ( ! oname )
