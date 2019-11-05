@@ -4163,7 +4163,7 @@ static bool json_append(JSONDATA **data, const char *name, size_t namelen, const
 		return false;
 	}
 	*data = next;
-	output_debug("json_append(name='%s',value='%s')",next->name,next->value);
+	IN_MYCONTEXT output_debug("json_append(name='%s',value='%s')",next->name,next->value);
 	return true;
 }
 static int json_data(PARSER,JSONDATA **data)
@@ -6387,7 +6387,7 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): unable to locate %s in GLPATH=%s", filename, linenum, pathname,getenv("GLPATH")?getenv("GLPATH"):"");
 			REJECT;
 		}
-		output_debug("loader extension '%s' is using library '%s", libname, pathname);
+		IN_MYCONTEXT output_debug("loader extension '%s' is using library '%s", libname, pathname);
 
 		// load the library
 		void *lib = dlopen(pathname,RTLD_LAZY);
@@ -6397,7 +6397,7 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): %s", filename, linenum, dlerror());
 			REJECT;
 		}
-		output_debug("loader extension '%s' loaded ok", pathname);
+		IN_MYCONTEXT output_debug("loader extension '%s' loaded ok", pathname);
 
 		// access and call the initialization function
 		LOADERINIT init = (LOADERINIT) dlsym(lib,"init");
@@ -6410,7 +6410,7 @@ static int loader_hook(PARSER)
 				REJECT;
 			}
 		}
-		output_debug("loader extension '%s' init ok", libname);
+		IN_MYCONTEXT output_debug("loader extension '%s' init ok", libname);
 
 		// find and link the parser
 		void *parser = dlsym(lib,"parser");
@@ -6419,7 +6419,7 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): extension library '%s' does not export a parser function", filename, linenum, pathname);
 			REJECT;
 	 	}
-		output_debug("loader extension '%s' parser linked", libname);	
+		IN_MYCONTEXT output_debug("loader extension '%s' parser linked", libname);	
 
 		loader_addhook((PARSERCALL)parser);
 
@@ -7885,6 +7885,13 @@ bool load_import(const char *from, char *to, int len)
 	return true;
 }
 
+STATUS load_python(const char *filename)
+{
+	char cmd[1024];
+	sprintf(cmd,"/usr/local/bin/python3 %s",filename);
+	return system(cmd)==0 ? SUCCESS : FAILED ;
+}
+
 /** Load a file
 	@return STATUS is SUCCESS if the load was ok, FAILED if there was a problem
 	@todo Rollback the model data if the load failed (ticket #32)
@@ -7902,6 +7909,14 @@ STATUS loadall(const char *fname)
 		strcpy(file,fname);
 	}
 	char *ext = fname ? strrchr(file,'.') : NULL ;
+
+	// python script
+
+	if ( ext != NULL && strcmp(ext,".py") == 0 )
+	{
+		return load_python(fname);
+	}
+	// non-glm data file
 	if ( ext != NULL && strcmp(ext,".glm") != 0 )
 	{
 		return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
