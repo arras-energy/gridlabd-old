@@ -145,6 +145,7 @@ bin_SCRIPTS += gldcore/gridlabd
 bin_SCRIPTS += gldcore/gridlabd-weather
 bin_SCRIPTS += gldcore/gridlabd-python
 bin_SCRIPTS += gldcore/gridlabd-library
+bin_SCRIPTS += gldcore/gridlabd-manual
 
 gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt

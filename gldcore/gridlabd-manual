@@ -1,0 +1,12 @@
+#!/bin/bash
+PAGE=${GLD_ETC/share\/gridlabd/html}/index.html
+if [ -f $PAGE ]; then
+	open $PAGE &
+    exit 0
+fi
+
+if [ "$1" == "-b" -o "$1" == "--branch" ]; then
+    BRANCH="$2"
+fi
+open "http://www.gridlabd.us/index.html?branch=${BRANCH=master}" &
+
