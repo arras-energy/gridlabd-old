@@ -347,15 +347,16 @@ install-exec-hook: python-install
 index: weather library template
 
 html-local: module-html developer-html troubleshooting-html
-	mkdir -p $(prefix)/html/
-	cp -r $(top_srcdir)/documents/* $(prefix)/html/
+	mkdir -p $(prefix)/html/developer
+	cp $(top_srcdir)/documents/index.html $(prefix)/html/
+	cp -R $(top_srcdir)/documents/html/* $(prefix)/html/
+	cp -R $(top_srcdir)/gldcore/html/* $(prefix)/html/developer/
 
 module-html:
 	@mkdir -p $(top_srcdir)/documents/html/modules
 	@doxygen $(top_srcdir)/doxygen/gridlabd.conf
 
 developer-html: # TODO
-	@mkdir -p $(top_srcdir)/html/developer/
 	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null )
 
 troubleshooting-html:
