@@ -1,37 +1,8 @@
 <!DOCTYPE HTML />
 <HTML>
-
-<SCRIPT>
-    var query = new URLSearchParams(window.location.search);
-    // TODO: the defaults should come from a config.js instead
-    var owner = query.get('owner');
-    if ( owner == null )
-    {
-        owner = "dchassin";
-    }
-    var project = query.get('project');
-    if ( project == null )
-    {
-        project = "gridlabd";
-    }
-    var branch = query.get('branch');
-    if ( branch == null )
-    {
-        branch = "master";
-    }
-    var doc = query.get('doc');
-    if ( doc == null )
-    {
-        doc = "README.md";
-    }
-    page = "owner=" + owner + "&project=" + project + "&branch=" + branch + "&doc=" + doc;
-</SCRIPT>
-
-<SCRIPT LANGUAGE="JavaScript">
-    document.writeln('<FRAMESET COLS="300,*">');
-    document.writeln('<FRAME SRC="_contents.html?' + page + '"/>');
-    document.writeln('<FRAME NAME="page" SRC="_page.html?' + page + '" />');
-    document.writeln('</FRAMESET>');
-</SCRIPT>
-
+<META HTTP-EQUIV="refresh" CONTENT="0; url=http://www.gridlabd.us/" />
+</HTML>
+<BODY>
+Redirecting to <A HREF="http://www.gridlabd.us/">http://www.gridlabd.us/</A>
+</BODY>
 </HTML>
