@@ -143,6 +143,11 @@ pkginclude_HEADERS += gldcore/schedule.h
 pkginclude_HEADERS += gldcore/test.h
 pkginclude_HEADERS += gldcore/version.h
 
+bin_SCRIPTS += gldcore/gridlabd 
+bin_SCRIPTS += gldcore/gridlabd-weather
+bin_SCRIPTS += gldcore/gridlabd-python
+bin_SCRIPTS += gldcore/gridlabd-library
+
 gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt
 

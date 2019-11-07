@@ -429,7 +429,7 @@ int object_saveall(FILE *fp);
 int object_saveall_xml(FILE *fp);
 void object_stream_fixup(OBJECT *obj, CLASSNAME classname, const char *objname);
 
-const char *object_name(OBJECT *obj, char *, int);
+const char *object_name(OBJECT *obj, char *buffer=NULL, int size=0);
 int convert_from_latitude(double,char*,size_t);
 int convert_from_longitude(double,char*,size_t);
 double convert_to_latitude(const char *buffer);

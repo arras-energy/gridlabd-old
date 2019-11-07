@@ -1713,6 +1713,18 @@ static int integer(PARSER, int64 *value)
 	return _n;
 }
 
+
+static int unsigned_integer(PARSER, unsigned int64 *value)
+{
+	char result[256];
+	int size=sizeof(result);
+	START;
+	while (size>1 && isdigit(*_p)) COPY(result);
+	result[_n]='\0';
+	*value=(unsigned int64)atoi64(result);
+	return _n;
+}
+
 static int integer32(PARSER, int32 *value)
 {
 	char result[256];
@@ -4151,7 +4163,7 @@ static bool json_append(JSONDATA **data, const char *name, size_t namelen, const
 		return false;
 	}
 	*data = next;
-	output_debug("json_append(name='%s',value='%s')",next->name,next->value);
+	IN_MYCONTEXT output_debug("json_append(name='%s',value='%s')",next->name,next->value);
 	return true;
 }
 static int json_data(PARSER,JSONDATA **data)
@@ -5894,6 +5906,34 @@ static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 	}
 	DONE;
 }
+
+static int filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resolution, double *minimum, double *maximum)
+{
+	START;
+	if WHITE ACCEPT;
+	if ( LITERAL("resolution") && (WHITE,LITERAL("=")) && (WHITE,TERM(unsigned_integer(HERE,resolution))) )
+	{
+		*flags |= FC_RESOLUTION;
+		ACCEPT;
+	}
+	else if ( LITERAL("minimum") && (WHITE,LITERAL("=")) && (WHITE,TERM(real_value(HERE,minimum))) )
+	{
+		*flags |= FC_MINIMUM;
+		ACCEPT;
+	}
+	else if ( LITERAL("maximum") && (WHITE,LITERAL("=")) && (WHITE,TERM(real_value(HERE,maximum))) )
+	{
+		*flags |= FC_MAXIMUM;
+		ACCEPT;
+	}
+	else
+	{
+		output_error_raw("%s(%d): filter option at or near '%-10.10s' is not recognized", filename, linenum, HERE);
+		REJECT;
+	}
+	DONE;
+}
+
 static int filter_block(PARSER)
 {
 	char tfname[1024];
@@ -5904,6 +5944,10 @@ static int filter_block(PARSER)
 		char domain[64];
 		double timestep=1;
 		double timeskew=0;
+		unsigned int64 flags = 0;
+ 		unsigned int64 resolution = 0;
+ 		double minimum = 0.0;
+ 		double maximum = 1.0;
 		if ( (WHITE,LITERAL("(")) && (WHITE,TERM(name(HERE,domain,sizeof(domain)))) )
 		{
 			if ( strcmp(domain,"z")==0 )
@@ -5915,10 +5959,11 @@ static int filter_block(PARSER)
 				ACCEPT;
 				if ( (WHITE,LITERAL(",")) && (WHITE,TERM(double_timestep(HERE,&timestep))) ) { ACCEPT; }
 				if ( (WHITE,LITERAL(",")) && (WHITE,TERM(double_timestep(HERE,&timeskew))) ) { ACCEPT; }
+				while ( (WHITE,LITERAL(",")) && (WHITE,TERM(filter_option(HERE,&flags,&resolution,&minimum,&maximum))) ) { ACCEPT; }
 				if ( WHITE,LITERAL(")") ) { ACCEPT; }
 				else
 				{
-					output_error_raw("%s(%d): filter domain and time arguments are not valid", filename, linenum);
+					output_error_raw("%s(%d): filter '%s' arguments are not valid at or near '%-10.10s'", filename, linenum, tfname, HERE);
 					REJECT;
 				}
 
@@ -5931,6 +5976,11 @@ static int filter_block(PARSER)
 						output_error_raw("%s(%d): unable to create transfer function'%s(%s)",filename, linenum,tfname,domain);
 						REJECT;
 					}
+					else if ( transfer_function_constrain(tfname,flags,resolution,minimum,maximum)==0 )
+ 					{
+ 						output_error_raw("%s(%d): unable to constrain transfer function'%s(%s)",filename, linenum,tfname,domain);
+ 						REJECT;
+ 					}
 					else
 					{
 						ACCEPT;
@@ -6337,7 +6387,7 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): unable to locate %s in GLPATH=%s", filename, linenum, pathname,getenv("GLPATH")?getenv("GLPATH"):"");
 			REJECT;
 		}
-		output_debug("loader extension '%s' is using library '%s", libname, pathname);
+		IN_MYCONTEXT output_debug("loader extension '%s' is using library '%s", libname, pathname);
 
 		// load the library
 		void *lib = dlopen(pathname,RTLD_LAZY);
@@ -6347,7 +6397,7 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): %s", filename, linenum, dlerror());
 			REJECT;
 		}
-		output_debug("loader extension '%s' loaded ok", pathname);
+		IN_MYCONTEXT output_debug("loader extension '%s' loaded ok", pathname);
 
 		// access and call the initialization function
 		LOADERINIT init = (LOADERINIT) dlsym(lib,"init");
@@ -6360,7 +6410,7 @@ static int loader_hook(PARSER)
 				REJECT;
 			}
 		}
-		output_debug("loader extension '%s' init ok", libname);
+		IN_MYCONTEXT output_debug("loader extension '%s' init ok", libname);
 
 		// find and link the parser
 		void *parser = dlsym(lib,"parser");
@@ -6369,7 +6419,7 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): extension library '%s' does not export a parser function", filename, linenum, pathname);
 			REJECT;
 	 	}
-		output_debug("loader extension '%s' parser linked", libname);	
+		IN_MYCONTEXT output_debug("loader extension '%s' parser linked", libname);	
 
 		loader_addhook((PARSERCALL)parser);
 
@@ -7864,6 +7914,13 @@ bool load_import(const char *from, char *to, int len)
 	return true;
 }
 
+STATUS load_python(const char *filename)
+{
+	char cmd[1024];
+	sprintf(cmd,"/usr/local/bin/python3 %s",filename);
+	return system(cmd)==0 ? SUCCESS : FAILED ;
+}
+
 /** Load a file
 	@return STATUS is SUCCESS if the load was ok, FAILED if there was a problem
 	@todo Rollback the model data if the load failed (ticket #32)
@@ -7881,6 +7938,14 @@ STATUS loadall(const char *fname)
 		strcpy(file,fname);
 	}
 	char *ext = fname ? strrchr(file,'.') : NULL ;
+
+	// python script
+
+	if ( ext != NULL && strcmp(ext,".py") == 0 )
+	{
+		return load_python(fname);
+	}
+	// non-glm data file
 	if ( ext != NULL && strcmp(ext,".glm") != 0 )
 	{
 		return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;

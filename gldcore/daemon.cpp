@@ -4,6 +4,8 @@
 
 #include "gldcore.h"
 
+SET_MYCONTEXT(DMC_SERVER)
+
 static int disable_daemon_command = false;
 static int daemon_pid = 0;
 static bool daemon_wait = false;
@@ -430,7 +432,7 @@ static void daemon_loadconfig(void)
 		}
 
 	}
-	output_debug("daemon_loadconfig(): loading '%s'",(const char*)global_daemon_configfile);
+	IN_MYCONTEXT output_debug("daemon_loadconfig(): loading '%s'",(const char*)global_daemon_configfile);
 
 	// parse the config file
 	bool old_repeat = global_suppress_repeat_messages;
@@ -452,7 +454,7 @@ static void daemon_loadconfig(void)
 				{
 					if ( strcmp(item->name,name)==0 )
 					{
-						output_debug("daemon_loadconfig(): [%s] '%s' <- '%s'", (const char*)global_daemon_configfile, name, value);
+						IN_MYCONTEXT output_debug("daemon_loadconfig(): [%s] '%s' <- '%s'", (const char*)global_daemon_configfile, name, value);
 						strcpy(item->value,value);
 						found = 1;
 						break;
@@ -473,9 +475,9 @@ static void daemon_loadconfig(void)
 	}
 	if ( feof(fp) )
 	{
-		output_debug("daemon_loadconfig(): end-of-file");
+		IN_MYCONTEXT output_debug("daemon_loadconfig(): end-of-file");
 	}
-	output_debug("daemon_loadconfig(): load of '%s' completed",(const char*)global_daemon_configfile);
+	IN_MYCONTEXT output_debug("daemon_loadconfig(): load of '%s' completed",(const char*)global_daemon_configfile);
 	fclose(fp);
 	global_suppress_repeat_messages = old_repeat;
 }
@@ -498,7 +500,9 @@ static int daemon_arguments(int argc, const char *argv[])
 				struct stat fs;
 				strcpy((char*)global_daemon_configfile,*argv);
 				if ( stat((char*)global_daemon_configfile,&fs) == 0 )
-					output_debug("configuration file '%s selected", (const char*)global_daemon_configfile);
+				{
+					IN_MYCONTEXT output_debug("configuration file '%s selected", (const char*)global_daemon_configfile);
+				}
 				else
 				{
 					output_error("configuration file '%s' not found", (const char*)global_daemon_configfile);
@@ -520,7 +524,7 @@ static int daemon_arguments(int argc, const char *argv[])
 				portno = atoi(*argv);
 				if ( portno > 0 )
 				{
-					output_debug("port number %d selected",portno);
+					IN_MYCONTEXT output_debug("port number %d selected",portno);
 				}
 				else
 				{
@@ -573,7 +577,7 @@ static int daemon_configure()
 	// change the working folder
 	if ( enable_jail )
 	{
-		output_debug("jailing daemon in workdir '%s'",workdir);
+		IN_MYCONTEXT output_debug("jailing daemon in workdir '%s'",workdir);
 		if ( chroot(workdir) != 0 || chdir("/") != 0 )
 		{
 			output_error("unable to jail daemon in workdir '%s' -- %s", workdir, strerror(errno));
@@ -592,7 +596,7 @@ static int daemon_configure()
 		struct passwd *pwd = getpwnam(user);
 		if ( pwd != NULL )
 		{
-			output_debug("changing to user '%s' (uid=%d, gid=%d)",workdir,pwd->pw_uid,pwd->pw_gid);
+			IN_MYCONTEXT output_debug("changing to user '%s' (uid=%d, gid=%d)",workdir,pwd->pw_uid,pwd->pw_gid);
 			if ( setgid(pwd->pw_gid)!=0 || setuid(pwd->pw_uid)!=0 )
 			{
 				output_error("unable to change user/group to '%s' to uid=%d and gid=%d -- %s",user,pwd->pw_uid,pwd->pw_gid,strerror(errno));
@@ -607,7 +611,7 @@ static int daemon_configure()
 	}
 	else
 	{
-		output_debug("running as uid=%d, gid=%d",getuid(),getgid());
+		IN_MYCONTEXT output_debug("running as uid=%d, gid=%d",getuid(),getgid());
 	}
 
 	// check process euid
