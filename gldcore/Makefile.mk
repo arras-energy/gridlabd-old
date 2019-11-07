@@ -73,31 +73,6 @@ GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.c gldcore/cmex.h
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/ufile.c gldcore/ufile.h
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
-if HAVE_MINGW
-
-bin_PROGRAMS += gridlabd
-
-gridlabd_CPPFLAGS =
-gridlabd_CPPFLAGS += $(XERCES_CPPFLAGS)
-gridlabd_CPPFLAGS += $(AM_CPPFLAGS)
-
-gridlabd_LDFLAGS =
-gridlabd_LDFLAGS += $(XERCES_LDFLAGS)
-gridlabd_LDFLAGS += $(AM_LDFLAGS)
-
-gridlabd_LDADD =
-gridlabd_LDADD += $(XERCES_LIB)
-gridlabd_LDADD += $(CURSES_LIB)
-gridlabd_LDADD += -ldl
-
-gridlabd_SOURCES =
-gridlabd_SOURCES += $(GLD_SOURCES_PLACE_HOLDER)
-
-EXTRA_gridlabd_SOURCES =
-EXTRA_gridlabd_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
-
-else
-
 bin_PROGRAMS += gridlabd.bin
 
 gridlabd_bin_CPPFLAGS =
@@ -118,8 +93,6 @@ gridlabd_bin_SOURCES += $(GLD_SOURCES_PLACE_HOLDER)
 
 EXTRA_gridlabd_bin_SOURCES =
 EXTRA_gridlabd_bin_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
-
-endif
 
 bin_SCRIPTS += gldcore/gridlabd 
 
@@ -142,11 +115,6 @@ pkginclude_HEADERS += gldcore/property.h
 pkginclude_HEADERS += gldcore/schedule.h
 pkginclude_HEADERS += gldcore/test.h
 pkginclude_HEADERS += gldcore/version.h
-
-bin_SCRIPTS += gldcore/gridlabd 
-bin_SCRIPTS += gldcore/gridlabd-weather
-bin_SCRIPTS += gldcore/gridlabd-python
-bin_SCRIPTS += gldcore/gridlabd-library
 
 gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt
