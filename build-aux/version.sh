@@ -18,8 +18,10 @@ case $1 in
     -svnversion | --svnversion | --svnversio | --svnversi | --svnversi \
     | --svnvers | --svnver | --svnve | --svnv | --svn | --sv | --s)
         echo "$SVN" ;;
+    --number)
+        echo "$NUM" ;;
     --install )
-        echo "gridlabd-$MAJ.$MIN.$PAT-$NUM-$BRA-$SYS-$HDW" ;;
+        echo "/usr/local/opt/gridlabd/$MAJ.$MIN.$PAT-$NUM-$BRA" ;;
     --name )
         echo "$MAJ.$MIN.$PAT-$NUM-$BRA" ;;
 esac

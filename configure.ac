@@ -27,6 +27,7 @@ dnl GridLAB-D version information
 m4_define([pkgversion], sbuild_m4_esyscmd_s([build-aux/version.sh --version]))
 m4_define([pkgbranch],  sbuild_m4_esyscmd_s([build-aux/version.sh --branch]))
 m4_define([svnversion], sbuild_m4_esyscmd_s([build-aux/version.sh --svn]))
+m4_define([versionname], sbuild_m4_esyscmd_s([build-aux/version.sh --name]))
 
 AC_PREREQ([2.63])
 AC_INIT([GridLAB-D], pkgversion, [gridlabd@gmail.com], [gridlabd])
@@ -58,6 +59,8 @@ AC_SUBST(PACKAGE_BASEVERSION, pkgversion)
 AC_SUBST(PACKAGE_BRANCH, pkgbranch)
 AC_SUBST(PACKAGE_REVISION, svnversion)
 
+AC_PREFIX_DEFAULT([/usr/local/opt/gridlabd/versionname])
+
 AM_SILENT_RULES([yes])
 
 AC_ARG_ENABLE([debug],
@@ -79,21 +82,6 @@ AC_ARG_ENABLE([optimization],
         [AC_MSG_ERROR([bad value ${enableval} for --enable-optimization])])],
     [optimization=0])
 
-###############################################################################
-#windows-mingw specific flag runs
-###############################################################################
-AC_CANONICAL_HOST
-case $host_os in
-  *mingw*) mingw=true ;;
-  *) mingw=false ;;
-esac
-AM_CONDITIONAL([HAVE_MINGW], [test "x$mingw" = "xtrue"])
-
-###another trial#####
-#case $host in
-#*mingw*)
-#		LDFLAGS = $LDFLAGS -lws2_32
-#esac
 ###############################################################################
 # C compiler
 ###############################################################################
@@ -487,46 +475,6 @@ AS_IF([test -n "$DX_DOXYGEN"],
       [HAVE_DOXYGEN="$DX_DOXYGEN ($($DX_DOXYGEN --version))"],
       [HAVE_DOXYGEN=no])
 
-# Check for Matlab
-AC_ARG_WITH([matlab],
-	[AS_HELP_STRING([--with-matlab],
-		[Link to MATLAB from a given prefix (=path) @<:@default=no@:>@])],
-	[],
-	[with_matlab=no])
-MATLAB=$with_matlab
-AS_CASE([$with_matlab],
-	[yes], [],
-	[no], [],)
-AS_IF([test "x$MATLAB" != "xno"],
-	[MATLAB_CPPFLAGS="'-I$MATLAB/extern/include'"
-	AS_CASE([$host],
-		[*linux*], [AS_CASE([$build_cpu],
-							[*x86_64*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/glnxa64' '-L$MATLAB/extern/lib/glnxa64'"],
-							[*i686*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/glnx86' '-L$MATLAB/extern/lib/glnx86'"])],
-		[*darwin*], [AS_CASE([$build_cpu],
-							[*x86_64*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/maci64' '-L$MATLAB/extern/lib/maci64'"],
-							[*i686*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/macx86' '-L$MATLAB/extern/lib/macx86'"])],
-		[*mingw*], [AS_CASE([$build_cpu],
-							[*x86_64*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/win64' '-L$MATLAB/extern/lib/win64/microsoft'"],
-							[*i686*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/win32' '-L$MATLAB/extern/lib/win32/microsoft'"])])
-	MATLAB_LIBS="-lmx -leng"
-	GLD_CPPFLAGS="$GLD_CPPFLAG -DHAVE_MATLAB"
-	HAVE_MATLAB=$MATLAB],
-	[HAVE_MATLAB=no])
-AC_SUBST([MATLAB_CPPFLAGS])
-AC_SUBST([MATLAB_LDFLAGS])
-AC_SUBST([MATLAB_LDPATH])
-AC_SUBST([MATLAB_LIBS])
-	
-# Check for MinGW
-AS_IF([test "x$mingw" = "xtrue"],
-	[HAS_MINGW=yes],
-	[AS_CASE([$host],
-		[*linux*], [HAS_MINGW=no],
-		[*darwin*], [HAS_MINGW=no],
-		[*mingw*], [HAS_MINGW="no (required)"])])
-AC_SUBST([HAS_MINGW])		
-
 # Check for mysql
 AS_IF([test -f /usr/local/include/mysql.h -a /usr/local/lib/libmysqlclient.a ],
     [MYSQL="/usr/local"],
@@ -541,7 +489,7 @@ AS_IF([test "x$MYSQL" != "xno"],
 			[*darwin*], [MYSQL_LDFLAGS="'-L$MYSQL/lib'"
 				MYSQL_LIBS="-lmysqlclient"])
 		GLD_CPPFLAGS="$GLD_CPPFLAGS -DHAVE_MYSQL"
-		HAVE_MYSQL=$MYSQL],
+		HAVE_MYSQL=yes],
 	[HAVE_MYSQL=no])
 AC_SUBST([MYSQL_CPPFLAGS])
 AC_SUBST([MYSQL_LDFLAGS])
@@ -550,6 +498,16 @@ AC_SUBST([MYSQL_LIBS])
 # Verify python version
 AM_PATH_PYTHON(3.5)
 HAVE_PYTHON="$(which python3) ($(python3 --version | cut -f2 -d' '))"
+
+# check for mono
+AS_IF([test -z "$(which mono)" ],
+    [HAVE_MONO="no"],
+    [HAVE_MONO="$(which mono) ($(mono --version | head -n 1 | cut -f5 -d' '))"])
+
+# check for naturaldocs
+AS_IF([test -z "$(which naturaldocs)" ],
+    [HAVE_NATURALDOCS="no"],
+    [HAVE_NATURALDOCS="$(which naturaldocs) ($(naturaldocs --version))"])
 
 ###############################################################################
 # The End
@@ -561,11 +519,9 @@ AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
 AC_OUTPUT
 
 BINDIR=`eval echo $(eval echo $bindir)`
-LIBDIR=`eval echo $(eval echo $libdir)`
-ETCDIR=`eval echo $(eval echo $datadir)`
+LIBDIR=`eval echo $(eval echo $libdir)`/$PACKAGE
+ETCDIR=`eval echo $(eval echo $datadir)`/$PACKAGE
 DOCDIR=`eval echo $(eval echo $docdir)`
-HAVE_MONO="$(which mono) ($(mono --version | head -n 1 | cut -f5 -d' '))"
-HAVE_NATURALDOCS="$(which naturaldocs) ($(naturaldocs --version))"
 
 AC_MSG_RESULT([
 -----------------------------------------------------------------------
@@ -578,8 +534,8 @@ AC_MSG_RESULT([
     python: ..................... $HAVE_PYTHON
     mysql-connector-c: .......... $HAVE_MYSQL
     Doxygen: .................... $HAVE_DOXYGEN
-    Mono: ....................... ${HAVE_MONO:-no}
-    Natural docs:................ ${HAVE_NATURALDOCS:-no}
+    Mono: ....................... $HAVE_MONO
+    Natural docs:................ $HAVE_NATURALDOCS
 
   Atomic Builtins:
 
@@ -595,7 +551,7 @@ AC_MSG_RESULT([
   Installation paths:
 
     Scripts: .................... ${BINDIR/^$PWD/.}
-    Libraries: .................. ${LIBDIR/^$PWD/.}/$PACKAGE
+    Libraries: .................. ${LIBDIR/^$PWD/.}
     Data: ....................... ${ETCDIR/^#PWD/.}
     Documentation: .............. ${DOCDIR/^$PWD/.}
 
@@ -605,9 +561,9 @@ AC_MSG_RESULT([
     type 'make install' to install $PACKAGE in ${prefix/^$PWD/.}.
 
   Running:
-    type 'export PATH=${prefix/^$PWD/\$PWD}/bin:\$PATH' to include this version in your current path
+    type 'export PATH=/usr/local/bin:\$PATH' to include this version in your current path
     type '$PACKAGE --version' to check that you are running the correct version of $PACKAGE
-    type '$PACKAGE version select $(build-aux/version.sh --install)' to activate this version of $PACKAGE
+    type '$PACKAGE version select $(build-aux/version.sh --name)' to activate this version of $PACKAGE
 
 -----------------------------------------------------------------------
 ])

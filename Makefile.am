@@ -27,12 +27,6 @@ AM_LDFLAGS += -avoid-version
 AM_LDFLAGS += -export-dynamic
 AM_LDFLAGS += $(GLD_LDFLAGS)
 
-# These are temporary additions that should be removed or moved elsewhere once the build compiles
-if HAVE_MINGW
-AM_LDFLAGS += -lws2_32
-AM_LDFLAGS += -Xlinker --allow-multiple-definition
-endif
-
 # makefile fragments populate these variables
 BUILT_SOURCES =
 CLEANFILES =
