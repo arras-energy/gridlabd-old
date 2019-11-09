@@ -166,7 +166,7 @@ AX_WITH_CURSES
 AS_IF([test "x$ax_cv_curses" = xyes],
       [HAVE_CURSES=yes
        GLD_CPPFLAGS="$GLD_CPPFLAGS -DHAVE_CURSES"],
-      [HAVE_CURSES=no])
+      [HAVE_CURSES="no (some features are disabled)"])
 
 AC_SUBST([GLD_CFLAGS])
 
@@ -484,7 +484,7 @@ DX_XML_FEATURE([OFF])
 DX_PDF_FEATURE([OFF])
 DX_PS_FEATURE([OFF])
 AS_IF([test -n "$DX_DOXYGEN"],
-      [HAVE_DOXYGEN="$DX_DOXYGEN (Doxygen $($DX_DOXYGEN --version))"],
+      [HAVE_DOXYGEN="$DX_DOXYGEN ($($DX_DOXYGEN --version))"],
       [HAVE_DOXYGEN=no])
 
 # Check for Matlab
@@ -528,15 +528,9 @@ AS_IF([test "x$mingw" = "xtrue"],
 AC_SUBST([HAS_MINGW])		
 
 # Check for mysql
-
-AC_ARG_WITH([mysql],
-	[AS_HELP_STRING([--with-mysql],
-		[Link to MySQL from a given prefix (=path)])],
-	[],
-	[with_mysql=no])
-AS_IF([test "x$with_mysql" = "xyes"],
-    [MYSQL=/usr/local],
-    [MYSQL=$with_mysql])
+AS_IF([test -f /usr/local/include/mysql.h -a /usr/local/lib/libmysqlclient.a ],
+    [MYSQL="/usr/local"],
+    [MYSQL="no"])
 AS_IF([test "x$MYSQL" != "xno"],
 	[MYSQL_CPPFLAGS="'-I$MYSQL/include'"
 		AS_CASE([$host],
@@ -555,7 +549,7 @@ AC_SUBST([MYSQL_LIBS])
 
 # Verify python version
 AM_PATH_PYTHON(3.5)
-HAVE_PYTHON="$(which python3) ($(python3 --version))"
+HAVE_PYTHON="$(which python3) ($(python3 --version | cut -f2 -d' '))"
 
 ###############################################################################
 # The End
@@ -568,10 +562,10 @@ AC_OUTPUT
 
 BINDIR=`eval echo $(eval echo $bindir)`
 LIBDIR=`eval echo $(eval echo $libdir)`
-ETCDIR=`eval echo $(eval echo $etcdir)`
+ETCDIR=`eval echo $(eval echo $datadir)`
 DOCDIR=`eval echo $(eval echo $docdir)`
-HAVE_MONO="no"
-HAVE_NATURALDOCS="no"
+HAVE_MONO="$(which mono) ($(mono --version | head -n 1 | cut -f5 -d' '))"
+HAVE_NATURALDOCS="$(which naturaldocs) ($(naturaldocs --version))"
 
 AC_MSG_RESULT([
 -----------------------------------------------------------------------
@@ -580,13 +574,12 @@ AC_MSG_RESULT([
 
   Dependencies:
 
-    curses: ..................... $HAVE_CURSES
-    matlab: ..................... $HAVE_MATLAB
+    ncurses: .................... $HAVE_CURSES
     python: ..................... $HAVE_PYTHON
     mysql-connector-c: .......... $HAVE_MYSQL
     Doxygen: .................... $HAVE_DOXYGEN
-    Mono: ....................... $HAVE_MONO
-    Natural docs:................ $HAVE_NATURALDOCS
+    Mono: ....................... ${HAVE_MONO:-no}
+    Natural docs:................ ${HAVE_NATURALDOCS:-no}
 
   Atomic Builtins:
 
@@ -614,6 +607,7 @@ AC_MSG_RESULT([
   Running:
     type 'export PATH=${prefix/^$PWD/\$PWD}/bin:\$PATH' to include this version in your current path
     type '$PACKAGE --version' to check that you are running the correct version of $PACKAGE
+    type '$PACKAGE version select $(build-aux/version.sh --install)' to activate this version of $PACKAGE
 
 -----------------------------------------------------------------------
 ])
