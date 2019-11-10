@@ -16,6 +16,7 @@ function help()
 		  list [<pattern>]  get a list of available versions
 		  show              show the current active version
 		  set [<pattern>]   set the active version
+		  browse            browse the source code of the active version
 	END
 }
 
@@ -36,6 +37,11 @@ function check()
 	fi
 }
 
+function browse()
+{
+	open $(gridlabd git commit HEAD html_url | sed -e 's:/commit/:/tree/:')
+}
+
 function set()
 {
 	ln -sf /usr/local/opt/gridlabd/*$1* /usr/local/opt/gridlabd/current
@@ -48,7 +54,7 @@ function set()
 function show()
 {
 	if [ -L /usr/local/opt/gridlabd/current ]; then
-		basename /usr/local/opt/gridlabd/current
+		basename $(readlink /usr/local/opt/gridlabd/current)
 	else
 		echo "Current version is custom installed"
 	fi
@@ -64,12 +70,12 @@ function list()
 }
 
 if [ $# -eq 0 ]; then
-	help
-	exit 1
+	show
+	exit 0
 fi
 
 case "$1" in 
-	(help|get|show|list|check)
+	(help|browse|show|list|check|set)
 		$*
 		;;
 	(*)
