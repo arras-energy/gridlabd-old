@@ -1,5 +1,3 @@
-( [[Features]] ) ( [[Getting Started]] ) ( [[Documentation]] ) ( [[Developers]] ) ( [[Sponsors]] ) ( [[About Us]] ) ( [[News]] ) 
-
 # GridLAB-D
 
 This documentation is for the commercial release of GridLAB-D developed by Stanford University at SLAC National Accelerator Laboratory under funding from the California Energy Commission.
