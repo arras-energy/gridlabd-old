@@ -1,4 +1,6 @@
-| [[Features]] | [[Getting Started]] | [[Documentation]] | [[Developers]] | [[Sponsors]] [| [About Us]] | [[News]] | 
+---
+| [[Features]] | [[Getting Started]] | [[Documentation]] | [[Developers]] | [[Sponsors]] | [[About Us]] | [[News]] | 
+---
 
 # GridLAB-D
 
