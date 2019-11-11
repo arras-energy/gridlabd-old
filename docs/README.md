@@ -1,3 +1,7 @@
+[[Features]] [[Getting Started]] [[Documentation]] [[Developers]] [[Sponsors]] [[About Us]] [[News]]
+
+# GridLAB-D
+
 The documentation for the current release of GridLAB-D is provided by the [GridLAB-D Project on ShoutWiki](http://gridlab-d.shoutwiki.com/wiki/Main_Page).  The documentation on this site is only for the improvements supported by this repository.
 
 # How To
