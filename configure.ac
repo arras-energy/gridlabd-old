@@ -509,6 +509,23 @@ AS_IF([test -z "$(which naturaldocs)" ],
     [HAVE_NATURALDOCS="no"],
     [HAVE_NATURALDOCS="$(which naturaldocs) ($(naturaldocs --version))"])
 
+# check for AWS
+AS_IF([test -z "$(which aws)" ],
+    [HAVE_AWSCLI="no"],
+    [HAVE_AWSCLI="$(which aws) ($(aws --version | cut -f1 -d' ' | cut -f2 -d/))"])
+
+AS_IF([test -z "$(which gcloud)" ],
+    [HAVE_GCPCLI="no"],
+    [HAVE_GCPCLI="$(which gcloud) ($(gcloud --version | head -n 1 | cut -f4 -d' '))"])
+
+AS_IF([test -z "$(which az)" ],
+    [HAVE_AZCLI="no"],
+    [HAVE_AZCLI="$(which az) ($(echo $(az --version 2>/dev/null | head -n 1) | cut -f2 -d' '))"])
+
+AM_CONDITIONAL([HAVE_AWSCLI], [test ! "x$HAVE_AWSCLI" = "xno"])
+AM_CONDITIONAL([HAVE_GCPCLI], [test ! "x$HAVE_GCPCLI" = "xno"])
+AM_CONDITIONAL([HAVE_AZCLI], [test ! "x$HAVE_AZCLI" = "xno"])
+
 ###############################################################################
 # The End
 ###############################################################################
@@ -518,6 +535,7 @@ AC_CONFIG_FILES([gridlabd.spec])
 AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
 AC_OUTPUT
 
+VERSION_NAME=$(build-aux/version.sh --name)
 BINDIR=`eval echo $(eval echo $bindir)`
 LIBDIR=`eval echo $(eval echo $libdir)`/$PACKAGE
 ETCDIR=`eval echo $(eval echo $datadir)`/$PACKAGE
@@ -560,10 +578,15 @@ AC_MSG_RESULT([
     type 'make' to compile $PACKAGE.
     type 'make install' to install $PACKAGE in ${prefix/^$PWD/.}.
 
+  Cloud support:
+    AWS CLI:..................... $HAVE_AWSCLI
+    GCP CLI:..................... $HAVE_GCPCLI
+    Azure CLI:................... $HAVE_AZCLI
+
   Running:
-    type 'export PATH=/usr/local/bin:\$PATH' to include this version in your current path
+    type 'export PATH=/usr/local/opt/gridlabd/$VERSION_NAME/bin:\$PATH' to include this version in your current path
     type '$PACKAGE --version' to check that you are running the correct version of $PACKAGE
-    type '$PACKAGE version select $(build-aux/version.sh --name)' to activate this version of $PACKAGE
+    type '$PACKAGE version select $VERSION_NAME' to activate this version of $PACKAGE
 
 -----------------------------------------------------------------------
 ])
