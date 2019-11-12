@@ -474,6 +474,7 @@ DX_PS_FEATURE([OFF])
 AS_IF([test -n "$DX_DOXYGEN"],
       [HAVE_DOXYGEN="$DX_DOXYGEN ($($DX_DOXYGEN --version))"],
       [HAVE_DOXYGEN=no])
+AM_CONDITIONAL([HAVE_DOXYGEN], [test ! "x$HAVE_DOXYGEN" = "xno"])
 
 # Check for mysql
 AS_IF([test -f /usr/local/include/mysql.h -a /usr/local/lib/libmysqlclient.a ],
@@ -494,37 +495,53 @@ AS_IF([test "x$MYSQL" != "xno"],
 AC_SUBST([MYSQL_CPPFLAGS])
 AC_SUBST([MYSQL_LDFLAGS])
 AC_SUBST([MYSQL_LIBS])
+AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 
 # Verify python version
 AM_PATH_PYTHON(3.5)
 HAVE_PYTHON="$(which python3) ($(python3 --version | cut -f2 -d' '))"
+AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 
 # check for mono
 AS_IF([test -z "$(which mono)" ],
     [HAVE_MONO="no"],
     [HAVE_MONO="$(which mono) ($(mono --version | head -n 1 | cut -f5 -d' '))"])
+AM_CONDITIONAL([HAVE_MONO], [test ! "x$HAVE_MONO" = "xno"])
 
 # check for naturaldocs
 AS_IF([test -z "$(which naturaldocs)" ],
     [HAVE_NATURALDOCS="no"],
     [HAVE_NATURALDOCS="$(which naturaldocs) ($(naturaldocs --version))"])
+AM_CONDITIONAL([HAVE_NATURALDOCS], [test ! "x$HAVE_NATURALDOCS" = "xno"])
 
 # check for AWS
 AS_IF([test -z "$(which aws)" ],
     [HAVE_AWSCLI="no"],
     [HAVE_AWSCLI="$(which aws) ($(aws --version | cut -f1 -d' ' | cut -f2 -d/))"])
+AM_CONDITIONAL([HAVE_AWSCLI], [test ! "x$HAVE_AWSCLI" = "xno"])
 
 AS_IF([test -z "$(which gcloud)" ],
     [HAVE_GCPCLI="no"],
     [HAVE_GCPCLI="$(which gcloud) ($(gcloud --version | head -n 1 | cut -f4 -d' '))"])
+AM_CONDITIONAL([HAVE_GCPCLI], [test ! "x$HAVE_GCPCLI" = "xno"])
 
 AS_IF([test -z "$(which az)" ],
     [HAVE_AZCLI="no"],
     [HAVE_AZCLI="$(which az) ($(echo $(az --version 2>/dev/null | head -n 1) | cut -f2 -d' '))"])
-
-AM_CONDITIONAL([HAVE_AWSCLI], [test ! "x$HAVE_AWSCLI" = "xno"])
-AM_CONDITIONAL([HAVE_GCPCLI], [test ! "x$HAVE_GCPCLI" = "xno"])
 AM_CONDITIONAL([HAVE_AZCLI], [test ! "x$HAVE_AZCLI" = "xno"])
+
+AS_IF([test -z "$(which git)" ],
+    [HAVE_GIT="no"],
+    [HAVE_GIT="$(which git) ($(git --version | cut -f3 -d' '))"])
+AM_CONDITIONAL([HAVE_GIT], [test ! "x$HAVE_GIT" = "xno"])
+BRANCHNAME=$(git rev-parse --abbrev-ref HEAD)
+AM_CONDITIONAL([IS_MASTER],[test "x$BRANCHNAME" = "xmaster"])
+AM_CONDITIONAL([IS_DEVELOP],[test "x$BRANCHNAME" = "xdevelop"])
+AS_CASE([$BRANCHNAME],
+    [master], [SUFFIX=""],
+    [develop*], [SUFFIX="-dev"],
+    [*], [SUFFIX="no"])
+AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 
 ###############################################################################
 # The End
@@ -544,7 +561,7 @@ DOCDIR=`eval echo $(eval echo $docdir)`
 AC_MSG_RESULT([
 -----------------------------------------------------------------------
 
-  $PACKAGE $VERSION: Automatic configuration $CONFIG_RESULT.
+  $PACKAGE $VERSION: Automatic configuration for branch $BRANCHNAME.
 
   Dependencies:
 
