@@ -1,23 +1,20 @@
 
 cloud-deploy: aws-deploy gcp-deploy azure-deploy
 
-WEBSITES = www.gridlabd.us
-SUBDOMAINS = code docs www
+WEBSITES = code$(SUFFIX).gridlabd.us docs$(SUFFIX).gridlabd.us www$(SUFFIX).gridlabd.us
 
-aws-deploy: $(foreach DOMAIN,$(WEBSITES),$(foreach SITE,$(SUBDOMAINS),$(SITE)$(SUFFIX).$(DOMAIN)))
+aws-deploy: $(WEBSITES)
 
-$(foreach DOMAIN,$(WEBSITES),%.$(DOMAIN)) :
+$(WEBSITES) :
 if SUFFIX
-	@echo "Updating $@..."
-if HAVE_AWSCLI
- 	@echo "aws s3 cp cloud/websites/$@/index.html s3://$@/index.html"
- 	@echo "aws s3api put-object-acl --bucket $@ --key index.html --acl public-read"
+	@echo "deploying $@..."
 else
- 	@echo "WARNING: aws-cli is not installed"
+	@echo "cannot deploy $@..."
 endif
-else
-	@echo "cannot deploy branch $$(git rev-parse --abbrev-ref HEAD) to $@"
-endif
+# if SUFFIX
+#  	@echo "aws s3 cp cloud/websites/$@/index.html s3://$@/index.html"
+#  	@echo "aws s3api put-object-acl --bucket $@ --key index.html --acl public-read"
+# endif
 
 gcp-deploy:
 if HAVE_GCPCLI
