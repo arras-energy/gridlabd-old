@@ -25,7 +25,7 @@ $$
 
 The voltage at the terminals is
 $$
-  V_t = 0.5 \times ( V_{oc}^2 + (V_{oc}^2 + (4 \times P \times R_{in}))^{0.5}
+  V_t = 0.5 \times (V_{oc}^2 + (4 \times P \times R_{in}))^{0.5}
 $$
 
 The internal battery load is 
