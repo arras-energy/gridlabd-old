@@ -6,11 +6,11 @@ $$
 $$
 For Lithium-ion batteries, when $SOC > 0.1$ the open-circuit voltage is
 $$
-  V_{oc} = N_{series} \times ({4.1-3.6 \over 0.9} \times SOC + (4.1-{4.1-3.6 \over 0.9}))
+  V_{oc} = N_{series} \times \left[ {4.1-3.6 \over 0.9} \times SOC + \left( 4.1 - { 4.1 - 3.6 \over 0.9 } \right) \right]
 $$
 and when $SOC <= 0.1$
 $$
-  V_{oc} = N_{series} \times ({{3.6-3.2 \over 0.1}} \times SOC + 3.2)
+  V_{oc} = N_{series} \times \left( { 3.6 - 3.2 \over 0.1 } \times SOC + 3.2 \right)
 $$
 For all other battery types, $V_{oc} = V_{max}$.
 
@@ -38,6 +38,6 @@ $$
 $$
 where $SOC_r$ is the desired SOC reserve. When charging the next time is
 $$
-  t_{next} = (1-SOC) { \times E_{max} x 3600 \over P_{in} }
+  t_{next} = (1-SOC) { \times E_{max} \times 3600 \over P_{in} }
 $$
 with $E_{max}$ defined as the battery's internal energy storage capacity.
