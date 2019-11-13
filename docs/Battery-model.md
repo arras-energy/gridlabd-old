@@ -10,33 +10,34 @@ $$
 $$
 and when $SOC <= 0.1$
 $$
-  V_{oc} = N_{series} \times ({{3.6-3.2} \over {0.1}} \times SOC + 3.2)
+  V_{oc} = N_{series} \times ({{3.6-3.2 \over 0.1}} \times SOC + 3.2)
 $$
-
-For all other battery types, *V_oc* = *V_max*.
+For all other battery types, $V_{oc} = V_{max}$.
 
 The internal resistance is 
-
-*R_in* = *V_oc*^2 x | *P_br* - *P_max* | / *P_br*^2
-
+$$
+  R_{in} = V_{oc}^2 \times { | P_{br} - P_{max} | \over P_{br}^2 }
+$$
 where 
-
-*P_br* = *P_max* x *eta_rt*^0.5
+$$
+  P_{br} = P_{max} \times \eta_{rt}^{0.5}
+$$
 
 The voltage at the terminals is
-
-*V_t* = 0.5 x (*V_oc*^2 + (*V_oc*^2 + (4 x *P* x *R_in*))^0.5
+$$
+  V_t = 0.5 \times ( V_{oc}^2 + (V_{oc}^2 + (4 \times P \times R_{in}))^{0.5}
+$$
 
 The internal battery load is 
-
-*P_in* = *V_oc* x *P* / *V_t*
-
+$$
+  P_{in} = { V_{oc} \times P \over V_t }
+$$
 The time to the next battery state change when discharging is
-
-*t_next* = (*SOC_r*-*SOC*) x *E_max* x 3600 / *P_in*
-
-where *SOC_r* is the desired SOC reserve. When charging the next time is
-
-*t_next* = (1-*SOC*) x *E_max* x 3600 / *P_in*
-
-with *E_max* defined as the battery's internal energy storage capacity.
+$$
+  t_{next} = ( SOC_r - SOC ) \times { E_{max} \times 3600 \over P_{in} }
+$$
+where $SOC_r$ is the desired SOC reserve. When charging the next time is
+$$
+  t_{next} = (1-SOC) { \times E_{max} x 3600 \over P_{in} }
+$$
+with $E_{max}$ defined as the battery's internal energy storage capacity.
