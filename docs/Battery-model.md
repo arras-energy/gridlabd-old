@@ -1,16 +1,17 @@
 The internal battery model in the generators module works as follows.
 
 When the battery load is negative and the battery is not empty, then the battery load is 
-
-*P* = - *P_max*.
-
-For Lithium-ion batteries, when *SOC* > 0.1 the open-circuit voltage is
-
-*V_oc* = *N_series* * ((4.1-3.6)/0.9 x *SOC* + (4.1-(4.1-3.6)/0.9))
-
-and when SOC <= 0.1
-
-*V_oc* = *N_series* * ((3.6-3.2)/0.1 x *SOC* + 3.2)
+$$
+  P = - P_{max}.
+$$
+For Lithium-ion batteries, when $SOC > 0.1$ the open-circuit voltage is
+$$
+  V_{oc} = N_{series} \times ({4.1-3.6} \over {0.9} \times SOC + (4.1-{4.1-3.6} \over {0.9}))
+$$
+and when $SOC <= 0.1$
+$$
+  V_{oc} = N_{series} \times ({3.6-3.2} \over 0.1 \times SOC + 3.2)
+$$
 
 For all other battery types, *V_oc* = *V_max*.
 
