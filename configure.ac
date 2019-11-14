@@ -27,9 +27,10 @@ dnl GridLAB-D version information
 m4_define([pkgversion], sbuild_m4_esyscmd_s([build-aux/version.sh --version]))
 m4_define([pkgbranch],  sbuild_m4_esyscmd_s([build-aux/version.sh --branch]))
 m4_define([svnversion], sbuild_m4_esyscmd_s([build-aux/version.sh --svn]))
+m4_define([versionname], sbuild_m4_esyscmd_s([build-aux/version.sh --name]))
 
 AC_PREREQ([2.63])
-AC_INIT([GridLAB-D], pkgversion, [gridlabd@pnnl.gov], [gridlabd])
+AC_INIT([GridLAB-D], pkgversion, [gridlabd@gmail.com], [gridlabd])
 AC_CONFIG_SRCDIR([gldcore/gridlabd.h])
 AC_CONFIG_HEADER([gldcore/config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -58,6 +59,8 @@ AC_SUBST(PACKAGE_BASEVERSION, pkgversion)
 AC_SUBST(PACKAGE_BRANCH, pkgbranch)
 AC_SUBST(PACKAGE_REVISION, svnversion)
 
+AC_PREFIX_DEFAULT([/usr/local/opt/gridlabd/versionname])
+
 AM_SILENT_RULES([yes])
 
 AC_ARG_ENABLE([debug],
@@ -79,21 +82,6 @@ AC_ARG_ENABLE([optimization],
         [AC_MSG_ERROR([bad value ${enableval} for --enable-optimization])])],
     [optimization=0])
 
-###############################################################################
-#windows-mingw specific flag runs
-###############################################################################
-AC_CANONICAL_HOST
-case $host_os in
-  *mingw*) mingw=true ;;
-  *) mingw=false ;;
-esac
-AM_CONDITIONAL([HAVE_MINGW], [test "x$mingw" = "xtrue"])
-
-###another trial#####
-#case $host in
-#*mingw*)
-#		LDFLAGS = $LDFLAGS -lws2_32
-#esac
 ###############################################################################
 # C compiler
 ###############################################################################
@@ -166,7 +154,7 @@ AX_WITH_CURSES
 AS_IF([test "x$ax_cv_curses" = xyes],
       [HAVE_CURSES=yes
        GLD_CPPFLAGS="$GLD_CPPFLAGS -DHAVE_CURSES"],
-      [HAVE_CURSES=no])
+      [HAVE_CURSES="no (some features are disabled)"])
 
 AC_SUBST([GLD_CFLAGS])
 
@@ -427,96 +415,6 @@ AS_IF([test "$gld_cv_have_thread_affinity_policy" = "yes"],
 # Checks for C++ libraries.
 #--------------------------------------
 
-# Check for xerces
-unset XERCES_VERSION
-AX_LIB_XERCES([2.7])
-AM_CONDITIONAL([MISSING_XERCES], [test x$HAVE_XERCES != xyes])
-AC_SUBST([HAVE_XERCES])
-
-# Check for CppUnit
-AM_PATH_CPPUNIT([1.12], [HAVE_CPPUNIT=yes], [HAVE_CPPUNIT=no])
-AS_IF([test x"$HAVE_CPPUNIT" = xyes],
-    [AC_MSG_CHECKING([if compiler can link libcppunit])
-     SAVED_CXXFLAGS="$CXXFLAGS"
-     SAVED_LIBS="$LIBS"
-     CXXFLAGS="$CXXFLAGS $CPPUNIT_CFLAGS"
-     LIBS="$LIBS $CPPUNIT_LIBS"
-     AC_LINK_IFELSE(
-        [AC_LANG_PROGRAM(
-            [[#include <cppunit/extensions/TestFactoryRegistry.h>]],
-            [[CppUnit::TestFactoryRegistry::getRegistry();]])],
-        [],
-        [HAVE_CPPUNIT=no])
-     CXXFLAGS="$SAVED_CXXFLAGS"
-     LIBS="$SAVED_LIBS"
-     AC_MSG_RESULT([$HAVE_CPPUNIT])])
-AS_IF([test x"$HAVE_CPPUNIT" = xyes],
-    [# CppUnit doesn't separate its flags appropriately
-     COMBINED_CPPUNIT_FLAGS="$CPPUNIT_CFLAGS $CPPUNIT_LIBS"
-     CPPUNIT_CFLAGS=
-     CPPUNIT_LIBS=
-     GLD_FLAG_PARSE([COMBINED_CPPUNIT_FLAGS],
-        [CPPUNIT_LIBS], [CPPUNIT_LDFLAGS], [CPPUNIT_CPPFLAGS])],
-    [GLD_CPPFLAGS="$GLD_CPPFLAGS -D_NO_CPPUNIT"])
-AC_SUBST([CPPUNIT_CPPFLAGS])
-AC_SUBST([CPPUNIT_LDFLAGS])
-AC_SUBST([CPPUNIT_LIBS])
-
-# Check for Framework for Network Co-Simulation (FNCS)
-AC_ARG_WITH([fncs],
-    [AS_HELP_STRING([--with-fncs],
-                    [Link to FNCS from the given prefix (=path)  @<:@default=no@:>@])],
-    [],
-    [with_fncs=no])
-AS_CASE([$with_fncs],
-        [yes],  [],
-        [no],   [],
-                [GLD_FLAG_PARSE([with_fncs],
-                        [FNCS_LIBS],
-                        [FNCS_LDFLAGS],
-                        [FNCS_CPPFLAGS])])
-gld_save_LIBS="$LIBS"; LIBS="$LIBS $FNCS_LIBS"
-gld_save_LDFLAGS="$LDFLAGS"; LDFLAGS="$LDFLAGS $FNCS_LDFLAGS"
-gld_save_CPPFLAGS="$CPPFLAGS"; CPPFLAGS="$CPPFLAGS $FNCS_CPPFLAGS"
-# add libfncs to FNCS_LIBS if missing
-AS_CASE([$FNCS_LIBS],
-        [*lfncs*], [], [FNCS_LIBS="$FNCS_LIBS -lfncs"])
-AS_CASE([$LIBS],
-        [*lfncs*], [], [LIBS="$LIBS -lfncs"])
-# add libczmq to FNCS_LIBS if missing
-AS_CASE([$FNCS_LIBS],
-        [*lczmq*], [], [FNCS_LIBS="$FNCS_LIBS -lczmq"])
-AS_CASE([$LIBS],
-        [*lczmq*], [], [LIBS="$LIBS -lczmq"])
-# add libzmq to FNCS_LIBS if missing
-AS_CASE([$FNCS_LIBS],
-        [*lzmq*], [], [FNCS_LIBS="$FNCS_LIBS -lzmq"])
-AS_CASE([$LIBS],
-        [*lzmq*], [], [LIBS="$LIBS -lzmq"])
-have_fncs=yes
-AC_MSG_CHECKING([for FNCS])
-AC_LINK_IFELSE(
-    [AC_LANG_PROGRAM([[
-#include<fncs.hpp>
-]],
-[[
-fncs::time t;
-fncs::initialize();
-]])],
-    [have_fncs=yes; have_fncs_int=1],
-    [have_fncs=no; have_fncs_int=0])
-LIBS="$gld_save_LIBS"
-LDFLAGS="$gld_save_LDFLAGS"
-CPPFLAGS="$gld_save_CPPFLAGS"
-AC_SUBST([FNCS_LIBS])
-AC_SUBST([FNCS_LDFLAGS])
-AC_SUBST([FNCS_CPPFLAGS])
-AC_MSG_RESULT([$have_fncs])
-AC_DEFINE_UNQUOTED([HAVE_FNCS], [$have_fncs_int], [whether FNCS was found])
-AM_CONDITIONAL([HAVE_FNCS], [test "x$have_fncs" = xyes])
-
-AC_SUBST([GLD_CPPFLAGS])
-
 AC_LANG_POP([C++])
 
 ###############################################################################
@@ -574,59 +472,14 @@ DX_XML_FEATURE([OFF])
 DX_PDF_FEATURE([OFF])
 DX_PS_FEATURE([OFF])
 AS_IF([test -n "$DX_DOXYGEN"],
-      [HAVE_DOXYGEN="$DX_DOXYGEN (Doxygen $($DX_DOXYGEN --version))"],
+      [HAVE_DOXYGEN="$DX_DOXYGEN ($($DX_DOXYGEN --version))"],
       [HAVE_DOXYGEN=no])
-
-# Check for Matlab
-AC_ARG_WITH([matlab],
-	[AS_HELP_STRING([--with-matlab],
-		[Link to MATLAB from a given prefix (=path) @<:@default=no@:>@])],
-	[],
-	[with_matlab=no])
-MATLAB=$with_matlab
-AS_CASE([$with_matlab],
-	[yes], [],
-	[no], [],)
-AS_IF([test "x$MATLAB" != "xno"],
-	[MATLAB_CPPFLAGS="'-I$MATLAB/extern/include'"
-	AS_CASE([$host],
-		[*linux*], [AS_CASE([$build_cpu],
-							[*x86_64*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/glnxa64' '-L$MATLAB/extern/lib/glnxa64'"],
-							[*i686*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/glnx86' '-L$MATLAB/extern/lib/glnx86'"])],
-		[*darwin*], [AS_CASE([$build_cpu],
-							[*x86_64*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/maci64' '-L$MATLAB/extern/lib/maci64'"],
-							[*i686*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/macx86' '-L$MATLAB/extern/lib/macx86'"])],
-		[*mingw*], [AS_CASE([$build_cpu],
-							[*x86_64*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/win64' '-L$MATLAB/extern/lib/win64/microsoft'"],
-							[*i686*], [MATLAB_LDFLAGS="'-L$MATLAB/bin/win32' '-L$MATLAB/extern/lib/win32/microsoft'"])])
-	MATLAB_LIBS="-lmx -leng"
-	GLD_CPPFLAGS="$GLD_CPPFLAG -DHAVE_MATLAB"
-	HAVE_MATLAB=$MATLAB],
-	[HAVE_MATLAB=no])
-AC_SUBST([MATLAB_CPPFLAGS])
-AC_SUBST([MATLAB_LDFLAGS])
-AC_SUBST([MATLAB_LDPATH])
-AC_SUBST([MATLAB_LIBS])
-	
-# Check for MinGW
-AS_IF([test "x$mingw" = "xtrue"],
-	[HAS_MINGW=yes],
-	[AS_CASE([$host],
-		[*linux*], [HAS_MINGW=no],
-		[*darwin*], [HAS_MINGW=no],
-		[*mingw*], [HAS_MINGW="no (required)"])])
-AC_SUBST([HAS_MINGW])		
+AM_CONDITIONAL([HAVE_DOXYGEN], [test ! "x$HAVE_DOXYGEN" = "xno"])
 
 # Check for mysql
-
-AC_ARG_WITH([mysql],
-	[AS_HELP_STRING([--with-mysql],
-		[Link to MySQL from a given prefix (=path)])],
-	[],
-	[with_mysql=no])
-AS_IF([test "x$with_mysql" = "xyes"],
-    [MYSQL=/usr/local],
-    [MYSQL=$with_mysql])
+AS_IF([test -f /usr/local/include/mysql.h -a /usr/local/lib/libmysqlclient.a ],
+    [MYSQL="/usr/local"],
+    [MYSQL="no"])
 AS_IF([test "x$MYSQL" != "xno"],
 	[MYSQL_CPPFLAGS="'-I$MYSQL/include'"
 		AS_CASE([$host],
@@ -637,33 +490,87 @@ AS_IF([test "x$MYSQL" != "xno"],
 			[*darwin*], [MYSQL_LDFLAGS="'-L$MYSQL/lib'"
 				MYSQL_LIBS="-lmysqlclient"])
 		GLD_CPPFLAGS="$GLD_CPPFLAGS -DHAVE_MYSQL"
-		HAVE_MYSQL=$MYSQL],
+		HAVE_MYSQL=yes],
 	[HAVE_MYSQL=no])
 AC_SUBST([MYSQL_CPPFLAGS])
 AC_SUBST([MYSQL_LDFLAGS])
 AC_SUBST([MYSQL_LIBS])
+AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 
 # Verify python version
 AM_PATH_PYTHON(3.5)
-HAVE_PYTHON="$(/usr/local/bin/python3 --version)"
+HAVE_PYTHON="$(which python3) ($(python3 --version | cut -f2 -d' '))"
+AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
+
+# check for mono
+AS_IF([test -z "$(which mono)" ],
+    [HAVE_MONO="no"],
+    [HAVE_MONO="$(which mono) ($(mono --version | head -n 1 | cut -f5 -d' '))"])
+AM_CONDITIONAL([HAVE_MONO], [test ! "x$HAVE_MONO" = "xno"])
+
+# check for naturaldocs
+AS_IF([test -z "$(which naturaldocs)" ],
+    [HAVE_NATURALDOCS="no"],
+    [HAVE_NATURALDOCS="$(which naturaldocs) ($(naturaldocs --version))"])
+AM_CONDITIONAL([HAVE_NATURALDOCS], [test ! "x$HAVE_NATURALDOCS" = "xno"])
+
+# check for AWS
+AS_IF([test -z "$(which aws)" ],
+    [HAVE_AWSCLI="no"],
+    [HAVE_AWSCLI="$(which aws) ($(aws --version | cut -f1 -d' ' | cut -f2 -d/))"])
+AM_CONDITIONAL([HAVE_AWSCLI], [test ! "x$HAVE_AWSCLI" = "xno"])
+
+AS_IF([test -z "$(which gcloud)" ],
+    [HAVE_GCPCLI="no"],
+    [HAVE_GCPCLI="$(which gcloud) ($(gcloud --version | head -n 1 | cut -f4 -d' '))"])
+AM_CONDITIONAL([HAVE_GCPCLI], [test ! "x$HAVE_GCPCLI" = "xno"])
+
+AS_IF([test -z "$(which az)" ],
+    [HAVE_AZCLI="no"],
+    [HAVE_AZCLI="$(which az) ($(echo $(az --version 2>/dev/null | head -n 1) | cut -f2 -d' '))"])
+AM_CONDITIONAL([HAVE_AZCLI], [test ! "x$HAVE_AZCLI" = "xno"])
+
+AS_IF([test -z "$(which git)" ],
+    [HAVE_GIT="no"],
+    [HAVE_GIT="$(which git) ($(git --version | cut -f3 -d' '))"])
+AM_CONDITIONAL([HAVE_GIT], [test ! "x$HAVE_GIT" = "xno"])
+BRANCHNAME=$(git rev-parse --abbrev-ref HEAD)
+AM_CONDITIONAL([IS_MASTER],[test "x$BRANCHNAME" = "xmaster"])
+AM_CONDITIONAL([IS_DEVELOP],[test "x$BRANCHNAME" = "xdevelop"])
+AS_CASE([$BRANCHNAME],
+    [master], [SUFFIX=""],
+    [develop*], [SUFFIX="-dev"],
+    [*], [SUFFIX="no"])
+AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 
 ###############################################################################
 # The End
 ###############################################################################
 
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([gridlabd.spec])
+AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
+AC_OUTPUT
+
+VERSION_NAME=$(build-aux/version.sh --name)
+BINDIR=`eval echo $(eval echo $bindir)`
+LIBDIR=`eval echo $(eval echo $libdir)`/$PACKAGE
+ETCDIR=`eval echo $(eval echo $datadir)`/$PACKAGE
+DOCDIR=`eval echo $(eval echo $docdir)`
+
 AC_MSG_RESULT([
 -----------------------------------------------------------------------
 
-  $PACKAGE $VERSION: Automatic configuration $CONFIG_RESULT.
+  $PACKAGE $VERSION: Automatic configuration for branch $BRANCHNAME.
 
   Dependencies:
 
-    libxerces-c: ................ $HAVE_XERCES
-    curses: ..................... $HAVE_CURSES
-    matlab: ..................... $HAVE_MATLAB
+    ncurses: .................... $HAVE_CURSES
     python: ..................... $HAVE_PYTHON
     mysql-connector-c: .......... $HAVE_MYSQL
     Doxygen: .................... $HAVE_DOXYGEN
+    Mono: ....................... $HAVE_MONO
+    Natural docs:................ $HAVE_NATURALDOCS
 
   Atomic Builtins:
 
@@ -678,18 +585,25 @@ AC_MSG_RESULT([
 
   Installation paths:
 
-    Scripts: .................... ${BINDIR/$PWD/.}
-    Libraries: .................. ${LIBDIR/$PWD/.}/$PACKAGE
-    Documentation: .............. ${DOCDIR/$PWD/.}
+    Scripts: .................... ${BINDIR/^$PWD/.}
+    Libraries: .................. ${LIBDIR/^$PWD/.}
+    Data: ....................... ${ETCDIR/^#PWD/.}
+    Documentation: .............. ${DOCDIR/^$PWD/.}
 
   Building:
 
     type 'make' to compile $PACKAGE.
-    type 'make install' to install $PACKAGE in ${prefix/$PWD/.}.
+    type 'make install' to install $PACKAGE in ${prefix/^$PWD/.}.
+
+  Cloud support:
+    AWS CLI:..................... $HAVE_AWSCLI
+    GCP CLI:..................... $HAVE_GCPCLI
+    Azure CLI:................... $HAVE_AZCLI
 
   Running:
-    type 'export PATH=${prefix/$PWD/\$PWD}/bin:\$PATH' to include $PACKAGE in your current path
+    type 'export PATH=/usr/local/opt/gridlabd/$VERSION_NAME/bin:\$PATH' to include this version in your current path
     type '$PACKAGE --version' to check that you are running the correct version of $PACKAGE
+    type '$PACKAGE version select $VERSION_NAME' to activate this version of $PACKAGE
 
 -----------------------------------------------------------------------
 ])
