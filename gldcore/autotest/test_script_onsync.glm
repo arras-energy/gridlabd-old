@@ -1,0 +1,27 @@
+// this test checks that on_sync events are called when on_sync is declared in an object
+
+// make sure the test output doesn't already exist
+#system rm -f test.out
+
+// run for only 1 day
+clock 
+{
+	timezone "US/CA/Los Angeles";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2020-02-01 00:00:00 PST";
+}
+
+// define a runtime class that doesn't already have a sync event
+class test
+{
+	double x;
+}
+
+// create an object that has a sync event
+object test
+{
+	on_sync "echo test >> test.out";
+}
+
+// verify that the sync event ran at least once
+#on_exit 0 test -f test.out -a ! -z test.out;

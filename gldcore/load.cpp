@@ -455,7 +455,12 @@ static STATUS exec(const char *format,...)
 	vsprintf(cmd,format,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("Running '%s' in '%s'", cmd, getcwd(NULL,0));
-	return system(cmd)==0?SUCCESS:FAILED;
+	int rc = system(cmd);
+	if ( rc != 0 )
+	{
+		output_error("command [%s] failed, rc=%d",cmd,rc);
+	}
+	return rc==0?SUCCESS:FAILED;
 }
 
 static STATUS debugger(const char *target)
@@ -791,7 +796,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 						getenv("CXXFLAGS")?getenv("CXXFLAGS"):DEFAULT_CXXFLAGS,
 						cfile, ofile);
 				IN_MYCONTEXT output_verbose("compile command: [%s]", execstr);
-				if(exec(execstr)==FAILED)
+				if(exec("%s",execstr)==FAILED)
 				{
 					errno = EINVAL;
 					return FAILED;
@@ -810,7 +815,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 						getenv("LDFLAGS")?getenv("LDFLAGS"):DEFAULT_LDFLAGS,
 						ofile, afile, libs);
 				IN_MYCONTEXT output_verbose("link command: [%s]", ldstr);
-				if(exec(ldstr) == FAILED)
+				if(exec("%s",ldstr) == FAILED)
 				{
 					errno = EINVAL;
 					return FAILED;
@@ -1710,6 +1715,18 @@ static int integer(PARSER, int64 *value)
 	while (size>1 && isdigit(*_p)) COPY(result);
 	result[_n]='\0';
 	*value=atoi64(result);
+	return _n;
+}
+
+
+static int unsigned_integer(PARSER, unsigned int64 *value)
+{
+	char result[256];
+	int size=sizeof(result);
+	START;
+	while (size>1 && isdigit(*_p)) COPY(result);
+	result[_n]='\0';
+	*value=(unsigned int64)atoi64(result);
 	return _n;
 }
 
@@ -4151,7 +4168,7 @@ static bool json_append(JSONDATA **data, const char *name, size_t namelen, const
 		return false;
 	}
 	*data = next;
-	output_debug("json_append(name='%s',value='%s')",next->name,next->value);
+	IN_MYCONTEXT output_debug("json_append(name='%s',value='%s')",next->name,next->value);
 	return true;
 }
 static int json_data(PARSER,JSONDATA **data)
@@ -5894,6 +5911,34 @@ static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 	}
 	DONE;
 }
+
+static int filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resolution, double *minimum, double *maximum)
+{
+	START;
+	if WHITE ACCEPT;
+	if ( LITERAL("resolution") && (WHITE,LITERAL("=")) && (WHITE,TERM(unsigned_integer(HERE,resolution))) )
+	{
+		*flags |= FC_RESOLUTION;
+		ACCEPT;
+	}
+	else if ( LITERAL("minimum") && (WHITE,LITERAL("=")) && (WHITE,TERM(real_value(HERE,minimum))) )
+	{
+		*flags |= FC_MINIMUM;
+		ACCEPT;
+	}
+	else if ( LITERAL("maximum") && (WHITE,LITERAL("=")) && (WHITE,TERM(real_value(HERE,maximum))) )
+	{
+		*flags |= FC_MAXIMUM;
+		ACCEPT;
+	}
+	else
+	{
+		output_error_raw("%s(%d): filter option at or near '%-10.10s' is not recognized", filename, linenum, HERE);
+		REJECT;
+	}
+	DONE;
+}
+
 static int filter_block(PARSER)
 {
 	char tfname[1024];
@@ -5904,6 +5949,10 @@ static int filter_block(PARSER)
 		char domain[64];
 		double timestep=1;
 		double timeskew=0;
+		unsigned int64 flags = 0;
+ 		unsigned int64 resolution = 0;
+ 		double minimum = 0.0;
+ 		double maximum = 1.0;
 		if ( (WHITE,LITERAL("(")) && (WHITE,TERM(name(HERE,domain,sizeof(domain)))) )
 		{
 			if ( strcmp(domain,"z")==0 )
@@ -5915,10 +5964,11 @@ static int filter_block(PARSER)
 				ACCEPT;
 				if ( (WHITE,LITERAL(",")) && (WHITE,TERM(double_timestep(HERE,&timestep))) ) { ACCEPT; }
 				if ( (WHITE,LITERAL(",")) && (WHITE,TERM(double_timestep(HERE,&timeskew))) ) { ACCEPT; }
+				while ( (WHITE,LITERAL(",")) && (WHITE,TERM(filter_option(HERE,&flags,&resolution,&minimum,&maximum))) ) { ACCEPT; }
 				if ( WHITE,LITERAL(")") ) { ACCEPT; }
 				else
 				{
-					output_error_raw("%s(%d): filter domain and time arguments are not valid", filename, linenum);
+					output_error_raw("%s(%d): filter '%s' arguments are not valid at or near '%-10.10s'", filename, linenum, tfname, HERE);
 					REJECT;
 				}
 
@@ -5931,6 +5981,11 @@ static int filter_block(PARSER)
 						output_error_raw("%s(%d): unable to create transfer function'%s(%s)",filename, linenum,tfname,domain);
 						REJECT;
 					}
+					else if ( transfer_function_constrain(tfname,flags,resolution,minimum,maximum)==0 )
+ 					{
+ 						output_error_raw("%s(%d): unable to constrain transfer function'%s(%s)",filename, linenum,tfname,domain);
+ 						REJECT;
+ 					}
 					else
 					{
 						ACCEPT;
@@ -6337,7 +6392,7 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): unable to locate %s in GLPATH=%s", filename, linenum, pathname,getenv("GLPATH")?getenv("GLPATH"):"");
 			REJECT;
 		}
-		output_debug("loader extension '%s' is using library '%s", libname, pathname);
+		IN_MYCONTEXT output_debug("loader extension '%s' is using library '%s", libname, pathname);
 
 		// load the library
 		void *lib = dlopen(pathname,RTLD_LAZY);
@@ -6347,7 +6402,7 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): %s", filename, linenum, dlerror());
 			REJECT;
 		}
-		output_debug("loader extension '%s' loaded ok", pathname);
+		IN_MYCONTEXT output_debug("loader extension '%s' loaded ok", pathname);
 
 		// access and call the initialization function
 		LOADERINIT init = (LOADERINIT) dlsym(lib,"init");
@@ -6360,7 +6415,7 @@ static int loader_hook(PARSER)
 				REJECT;
 			}
 		}
-		output_debug("loader extension '%s' init ok", libname);
+		IN_MYCONTEXT output_debug("loader extension '%s' init ok", libname);
 
 		// find and link the parser
 		void *parser = dlsym(lib,"parser");
@@ -6369,7 +6424,7 @@ static int loader_hook(PARSER)
 			output_error_raw("%s(%d): extension library '%s' does not export a parser function", filename, linenum, pathname);
 			REJECT;
 	 	}
-		output_debug("loader extension '%s' parser linked", libname);	
+		IN_MYCONTEXT output_debug("loader extension '%s' parser linked", libname);	
 
 		loader_addhook((PARSERCALL)parser);
 
@@ -7426,7 +7481,36 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		global_return_code = system(value);
 		if( global_return_code==127 || global_return_code==-1 )
 		{
-			output_error_raw("%s(%d): ERROR unable to execute '%s' (status=%d)", filename, linenum, value, global_return_code);
+			output_error_raw("%s(%d): #system %s -- system('%s') failed with status %d", filename, linenum, value, value, global_return_code);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
+	else if ( strncmp(line,MACRO "command",8) == 0 )
+	{
+		char *command = strchr(line+8,' ');
+		if ( command == NULL )
+		{
+			output_error_raw("%s(%d): %scommand missing call",filename,linenum,MACRO);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		while ( isspace(*command) && *command != '\0' )
+		{
+			command++;
+		}
+		char command_line[1024];
+		sprintf(command_line,"%s/gridlabd-%s",global_execdir,command);
+		output_verbose("executing system(%s)", command_line);
+		global_return_code = system(command_line);
+		if( global_return_code != 0 )
+		{
+			output_error_raw("%s(%d): #command %s -- system('%s') failed with status %d", filename, linenum, command, command_line, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7451,7 +7535,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		global_return_code = system(value);
 		if( global_return_code != 0 )
 		{
-			output_error_raw("%s(%d): ERROR executing system(char *cmd='%s') -> non-zero exit code (status=%d)", filename, linenum, value, global_return_code);
+			output_error_raw("%s(%d): #exec %s -- system('%s') failed with status %d", filename, linenum, value, value, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7475,7 +7559,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
 		if( start_process(value)==NULL )
 		{
-			output_error_raw("%s(%d): ERROR unable to start '%s'", filename, linenum, value);
+			output_error_raw("%s(%d): #start %s -- failed", filename, linenum, value);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7835,6 +7919,13 @@ bool load_import(const char *from, char *to, int len)
 	return true;
 }
 
+STATUS load_python(const char *filename)
+{
+	char cmd[1024];
+	sprintf(cmd,"/usr/local/bin/python3 %s",filename);
+	return system(cmd)==0 ? SUCCESS : FAILED ;
+}
+
 /** Load a file
 	@return STATUS is SUCCESS if the load was ok, FAILED if there was a problem
 	@todo Rollback the model data if the load failed (ticket #32)
@@ -7852,6 +7943,14 @@ STATUS loadall(const char *fname)
 		strcpy(file,fname);
 	}
 	char *ext = fname ? strrchr(file,'.') : NULL ;
+
+	// python script
+
+	if ( ext != NULL && strcmp(ext,".py") == 0 )
+	{
+		return load_python(fname);
+	}
+	// non-glm data file
 	if ( ext != NULL && strcmp(ext,".glm") != 0 )
 	{
 		return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;

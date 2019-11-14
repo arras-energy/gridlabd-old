@@ -63,5 +63,5 @@ object test {
 #ifexist randomseed.glm
 script on_term ../diff_randomseed;
 #else
-script on_term gridlabd test_random.glm;
+script on_term ${execdir}/gridlabd test_random.glm;
 #endif

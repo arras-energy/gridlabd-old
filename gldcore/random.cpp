@@ -1387,11 +1387,11 @@ int random_set_part(void *x, const char *name, const char *value)
 		}
 		else
 		{
-			output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): type is not valid",x,name,value);
+			IN_MYCONTEXT output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): type is not valid",x,name,value);
 			return 0;
 		}
 	}
-	output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): name is not valid",x,name,value);
+	IN_MYCONTEXT output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): name is not valid",x,name,value);
 	return 0;
 }
 
