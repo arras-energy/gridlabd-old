@@ -1,5 +1,5 @@
 #! /bin/sh
-# Generated from gridlabd.m4sh by GNU Autoconf 2.69.
+# Generated from gldcore/gridlabd.m4sh by GNU Autoconf 2.69.
 ## -------------------- ##
 ## M4sh Initialization. ##
 ## -------------------- ##
@@ -317,6 +317,7 @@ fi
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
 export GLD_LIB=$libdir
+export CXXFLAGS="-I$GLD_ETC $CXXFLAGS"
 
 if test "x$GLPATH" = x; then :
   export GLPATH="$pkglibdir:$pkgdatadir"
