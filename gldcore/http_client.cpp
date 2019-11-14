@@ -268,6 +268,47 @@ HTTPRESULT *http_read(const char *url, int maxlen)
 		}
 		fclose(fp);
 	}
+
+	else if ( strncmp(url,"https://",8)==0 )
+	{
+		char tmp[1024];
+		sprintf(tmp,"/tmp/gridlabd-%d%d",getpid(),(int)time(NULL));
+		errno = 0;
+		try
+		{
+			GldCurl(url,tmp);
+		}
+		catch (const char *errmsg)
+		{
+			output_error("%s",errmsg);
+			result->status = errno ? errno : ENXIO;
+			return result;
+		}
+		catch (...)
+		{
+			output_error("unknown GldCurl exception");
+			result->status = errno ? errno : ENXIO;
+			return result;
+		}
+		FILE *fp = fopen(tmp,"rt");
+		if ( fp == NULL )
+		{
+			output_error("unable to open %s", tmp);
+			result->status = errno;
+			return result;
+		}
+		result->body.size = filelength(fileno(fp))+1;
+		result->body.data = (char*)malloc(result->body.size);
+		memset(result->body.data,0,result->body.size);
+		int nread = fread(result->body.data,1,result->body.size,fp);
+		result->status = ( nread <= 0 ? errno : 0 );
+		if ( result->status != 0 )
+		{
+			output_error("unable to read %s (errno %d)", tmp, errno);
+		}
+		fclose(fp);
+		unlink(tmp);
+	}
 	return result;
 }
 const char * http_get_header_data(HTTPRESULT *result, const char* param)

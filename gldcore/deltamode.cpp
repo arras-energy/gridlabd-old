@@ -18,9 +18,10 @@ static int delta_modulecount = 0; /* qualified module count */
 
 void delta_modecheck(const char*)
 {
-	if ( ! global_deltamode_allowed )
-
-		throw "this version of gridlabd does not support delta-mode operation";
+	if ( global_deltamode_allowed == TRUE )
+	{
+		output_warning("this version of gridlabd does not support delta-mode operation (deltamode_allowed=%s)",global_deltamode_allowed?"TRUE":"FALSE");
+	}
 }
 
 /* profile data structure */
@@ -238,8 +239,8 @@ DT delta_modedesired(DELTAMODEFLAGS *flags)
 	/* dt_desired unmodified means nobody want delta mode, return 0 */
 	if ( dt_desired != DT_INFINITY && ! global_deltamode_allowed )
 	{
-		output_error("delta-mode simulation is not allowed (allow_deltamode is FALSE)");
-		return DT_INVALID;
+		output_warning("delta-mode simulation request is ignored (deltamode_allowed=%s)",global_deltamode_allowed?"TRUE":"FALSE");
+		return DT_INFINITY;
 	}
 	else
 	{

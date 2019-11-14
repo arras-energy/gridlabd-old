@@ -5,22 +5,24 @@
 
 #include "gldcore.h"
 
+SET_MYCONTEXT(DMC_HTTPCLIENT)
+
 GldCurl::GldCurl(const char *remote, const char *local)
 {
 	// initialize libcurl
 	curl = curl_easy_init();
 	if ( ! curl )
 		throw "GldCurl: curl_easy_init() failed";
-	output_debug("GldCurl(remote='%s', local='%s'): curl init ok", remote, local);
+	IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): curl init ok", remote, local);
 
 	char errbuf[CURL_ERROR_SIZE];
 	// set error message buffer
 	if ( curl_easy_setopt(curl, CURLOPT_ERRORBUFFER,errbuf) != CURLE_OK )
 	{
-		output_debug("GldCurl(remote='%s', local='%s'): unable to set error message buffer", remote, local);
+		IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): unable to set error message buffer", remote, local);
 		throw "GldCurl: curl_easy_setopt(CURLOPT_ERRORBUFFER) failed";
 	}
-	output_debug("GldCurl(remote='%s', local='%s'): curl setopt(ERRORBUFFER) ok", remote, local);
+	IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): curl setopt(ERRORBUFFER) ok", remote, local);
 
 	// access local file
 	fp = fopen(local,"w");
@@ -28,18 +30,18 @@ GldCurl::GldCurl(const char *remote, const char *local)
 		throw "GldCurl: local fopen failed";
 	if ( curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void*)fp) != CURLE_OK )
 	{
-		output_debug("GldCurl(remote='%s', local='%s'): %s", remote, local, errbuf);
+		IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): %s", remote, local, errbuf);
 		throw "GldCurl: curl_easy_setopt(CURLOPT_WRITEDATA) failed";
 	}
-	output_debug("GldCurl(remote='%s', local='%s'): curl setopt(WRITEDATA) ok", remote, local);
+	IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): curl setopt(WRITEDATA) ok", remote, local);
 
 	// set remote URL
 	if ( curl_easy_setopt(curl, CURLOPT_URL, remote) != CURLE_OK )
 	{
-		output_debug("GldCurl(remote='%s', local='%s'): %s", remote, local, errbuf);
+		IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): %s", remote, local, errbuf);
 		throw "GldCurl: curl_easy_setopt(CURLOPT_URL) failed";
 	}
-	output_debug("GldCurl(remote='%s', local='%s'): curl setopt(URL) ok", remote, local);
+	IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): curl setopt(URL) ok", remote, local);
 
 	// TODO: set size limit with units
 	// curl_off_t size; 
@@ -47,10 +49,10 @@ GldCurl::GldCurl(const char *remote, const char *local)
 	// {
 	// 	if ( curl_easy_setopt(curl, CURLOPT_MAXFILESIZE_LARGE, size) != CURLE_OK )
 	// 	{
-	// 		output_debug("GldCurl(remote='%s', local='%s'): %s", remote, local, errbuf);
+	// 		IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): %s", remote, local, errbuf);
 	// 		throw "GldCurl: curl_easy_setopt(CURLOPT_MAXFILESIZE_LARGE) failed";
 	// 	}
-	// 	output_debug("GldCurl(remote='%s', local='%s'): curl setopt(MAXFILESIZE_LARGE,%lld) ok", remote, local,size);
+	// 	IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): curl setopt(MAXFILESIZE_LARGE,%lld) ok", remote, local,size);
 	// }
 
 	// TODO: time conditional operations
@@ -59,10 +61,10 @@ GldCurl::GldCurl(const char *remote, const char *local)
 	CURLcode res = curl_easy_perform(curl);
 	if ( res != CURLE_OK )
 	{
-		output_debug("GldCurl(remote='%s', local='%s'): %s", remote, local, errbuf);
+		IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): %s", remote, local, errbuf);
 		throw "GldCurl: curl_easy_perform() failed";
 	}
-	output_debug("GldCurl(remote='%s', local='%s'): curl perform() ok", remote, local);
+	IN_MYCONTEXT output_debug("GldCurl(remote='%s', local='%s'): curl perform() ok", remote, local);
 }
 
 GldCurl::~GldCurl(void)

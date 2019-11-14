@@ -6,9 +6,10 @@
 
 #include "gldcore.h"
 
-// SET_MYCONTEXT(DMC_SAVE) // only used if IN_MYCONTEXT is present in this module
+SET_MYCONTEXT(DMC_SAVE)
 
 #define DEFAULT_FORMAT "gld"
+
 
 int saveglm(const char *filename, FILE *fp);
 int savexml(const char *filename, FILE *fp);
@@ -35,30 +36,119 @@ int saveall(const char *filename)
 	if (ext==NULL)
 	{	/* no extension given */
 		if (filename[0]=='-') /* stdout */
+		{
 			ext=filename+1; /* format is specified after - */
+		}
 		else
+		{
 			ext=DEFAULT_FORMAT;
+		}
 	}
 	else
 		ext++;
 
+	bool known_format = false;
+	for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+	{
+		if (strcmp(ext,map[i].format)==0)
+		{
+			known_format = true;
+		}
+	}
+	if ( ! known_format )
+	{
+		/* try using python output converter through json */
+		char converter_name[1024];
+		sprintf(converter_name,"json2%s.py",ext);
+		const char *converter_path = find_file(converter_name,NULL,R_OK);
+		if ( ! converter_path )
+		{
+			output_error("saveall: extension '.%s' not a known format", ext);
+			/*	TROUBLESHOOT
+				Only the format extensions ".txt", ".gld", and ".xml" are recognized by
+				GridLAB-D.  Please end the specified output field accordingly, or omit the
+				extension entirely to force use of the default format.
+			*/
+			errno = EINVAL;
+			return 0;
+		}
+		char converter_command[1024];
+		char input_name[1024];
+		strcpy(input_name,filename);
+		char *in_ext = strrchr(input_name,'.');
+		if ( in_ext == NULL )
+		{
+			output_error("intermediate file '%s' extension not found", input_name);
+			errno = EINVAL;
+			return 0;
+		}
+		strcpy(in_ext,".json");
+		set old_fso = global_filesave_options;
+		global_filesave_options = FSO_ALL;
+		fp = fopen(input_name,"wb");
+		if ( fp == NULL )
+		{
+			output_error("unable to open intermediate file '%s' for writing", input_name);
+			return 0;
+		}
+		int rc = savejson(input_name,fp);
+		fclose(fp);
+		global_filesave_options = old_fso;
+		if ( rc == 0 )
+		{
+			output_error("save to intermediate file '%s' failed (code %d)", input_name, rc);;
+			return 0;
+		}
+		char options_name[1024];
+		sprintf(options_name,"%s_save_options",ext);
+		char buffer[1024];
+		const char *save_options = global_getvar(options_name,buffer,sizeof(buffer));
+		if ( buffer[0] == '"' )
+		{
+			save_options++;
+			buffer[strlen(buffer)-1] = '\0';
+		}
+		sprintf(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
+		output_verbose("system('%s')",converter_command);
+		rc = system(converter_command);
+		if ( rc != 0 )
+		{
+			output_error("conversion from intermediate file '%s' to output file '%s' failed (code %d)", input_name, filename, rc);
+			return 0;
+		}
+		struct stat info;
+		info.st_size = 0;
+		if ( stat(filename,&info) != 0 )
+		{
+			output_error("unable to determine size of output file '%s' (%s)", filename, strerror(errno));
+		}
+		return info.st_size;
+	}
+
 	/* setup output stream */
 	if (filename[0]=='-')
+	{
 		fp = stdout;
-	else if ((fp=fopen(filename,"wb"))==NULL){
+	}
+	else if ( (fp=fopen(filename,"wb")) == NULL )
+	{
 		output_error("saveall: unable to open stream \'%s\' for writing", filename);
 		return 0;
 	}
 
-	output_debug("starting dump to %s",filename);
+	IN_MYCONTEXT output_debug("starting dump to %s",filename);
 	/* internal streaming used */
 	if (global_streaming_io_enabled)
 	{
 		int res = stream(fp,SF_OUT)>0 ? SUCCESS : FAILED;
-		if (res==FAILED)
+		if ( res == 0 )
+		{
 			output_error("stream context is %s",stream_context());
+		}
 		if ( fp != stdout ) 
+		{
 			fclose(fp);
+		}
 		return res;
 	}
 
@@ -68,23 +158,15 @@ int saveall(const char *filename)
 		if (strcmp(ext,map[i].format)==0)
 		{
 			int rc = (*(map[i].save))(filename,fp);
-			if ( fp != stdout ) 
+			if ( fp != stdout )
+			{
 				fclose(fp);
-			output_debug("dump to %s completed ok (%d bytes written)",filename,rc);
+			}
+			IN_MYCONTEXT output_debug("dump to %s completed ok (%d bytes written)",filename,rc);
 			return rc;
 		}
 	}
-
-	output_error("saveall: extension '.%s' not a known format", ext);
-	/*	TROUBLESHOOT
-		Only the format extensions ".txt", ".gld", and ".xml" are recognized by
-		GridLAB-D.  Please end the specified output field accordingly, or omit the
-		extension entirely to force use of the default format.
-	*/
-	errno = EINVAL;
-	if ( fp != stdout ) 
-		fclose(fp);
-	return FAILED;
+	return 0;
 }
 
 int saveglm(const char *filename,FILE *fp)
@@ -145,31 +227,48 @@ int saveglm(const char *filename,FILE *fp)
 	}
 
 	/* save clock */
+	if ( (global_filesave_options&FSO_CLOCK) == FSO_CLOCK )
+	{
 		count += fprintf(fp,"\n////////////////////////////////////////////////////////\n");
 		count += fprintf(fp,"\n// CLOCK\n");
-	count += fprintf(fp,"clock {\n");
-//	count += fprintf(fp,"\ttick 1e%+d;\n",TS_SCALE);
-	count += fprintf(fp,"\ttimezone \"%s\";\n", timestamp_current_timezone());
-	if ( convert_from_timestamp(global_starttime,buffer,sizeof(buffer))>0 )
-		count += fprintf(fp,"\tstarttime \"%s\";\n", buffer);
-	if ( convert_from_timestamp(global_stoptime,buffer,sizeof(buffer))>0 )
-		count += fprintf(fp,"\tstoptime \"%s\";\n", buffer);
-//	if (getenv("TZ"))
-//		count += fprintf(fp,"\ttimezone %s;\n", getenv("TZ"));
-	count += fprintf(fp,"}\n");
+		count += fprintf(fp,"clock {\n");
+		count += fprintf(fp,"\ttimezone \"%s\";\n", timestamp_current_timezone());
+		if ( convert_from_timestamp(global_starttime,buffer,sizeof(buffer))>0 )
+		{
+			count += fprintf(fp,"\tstarttime \"%s\";\n", buffer);
+		}
+		if ( convert_from_timestamp(global_stoptime,buffer,sizeof(buffer))>0 )
+		{
+			count += fprintf(fp,"\tstoptime \"%s\";\n", buffer);
+		}
+		count += fprintf(fp,"}\n");
+	}
 
 	/* save parts */
-	if ( (global_glm_save_options&GSO_NOGLOBALS)==0 )
+	if ( (global_glm_save_options&GSO_NOGLOBALS)==0 && (global_filesave_options&FSO_GLOBALS)==FSO_GLOBALS )
 	{
 		count += global_saveall(fp);
 	}
-	count += module_saveall(fp);
-	count += class_saveall(fp);
-	if ( (global_glm_save_options&GSO_NOINTERNALS)==0 )
+	if ( (global_filesave_options&FSO_MODULES) == FSO_MODULES )
+	{
+		count += module_saveall(fp);
+	}
+	if ( (global_filesave_options&FSO_CLASSES) == FSO_CLASSES )
+	{
+		count += class_saveall(fp);
+	}
+	if ( (global_glm_save_options&GSO_NOINTERNALS)==0 && (global_filesave_options&FSO_SCHEDULES) == FSO_SCHEDULES )
+	{
 		count += schedule_saveall(fp);
-	count += transform_saveall(fp);
-	count += object_saveall(fp);
-
+	}
+	if ( (global_filesave_options&FSO_FILTERS) == FSO_FILTERS )
+	{
+		count += transform_saveall(fp);
+	}
+	if ( (global_filesave_options&FSO_OBJECTS) == FSO_OBJECTS )
+	{
+		count += object_saveall(fp);
+	}
 	count += fprintf(fp,"\n////////////////////////////////////////////////////////\n");
 	count += fprintf(fp,"// END");
 	count += fprintf(fp,"\n////////////////////////////////////////////////////////\n");

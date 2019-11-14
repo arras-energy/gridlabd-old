@@ -675,9 +675,9 @@ int convert_to_char8(const char *buffer, /**< a pointer to the string buffer */
 	case '\0':
 		return ((char*)data)[0]='\0', 1;
 	case '"':
-		return sscanf(buffer+1,"%8[^\"]",(char*)data);
+		return sscanf(buffer+1,"%8[^\"]",(char*)data) ? strlen((char*)data)+1 : 0;
 	default:
-		return sscanf(buffer,"%8s",(char*)data);
+		return sscanf(buffer,"%8[^\n]",(char*)data) ? strlen((char*)data)+1 : 0;
 	}
 }
 
@@ -724,9 +724,9 @@ int convert_to_char32(const char *buffer, /**< a pointer to the string buffer */
 	case '\0':
 		return ((char*)data)[0]='\0', 1;
 	case '"':
-		return sscanf(buffer+1,"%32[^\"]",(char*)data);
+		return sscanf(buffer+1,"%32[^\"]",(char*)data) ? strlen((char*)data)+1 : 0;
 	default:
-		return sscanf(buffer,"%32s",(char*)data);
+		return sscanf(buffer,"%32[^\n]",(char*)data) ? strlen((char*)data)+1 : 0;
 	}
 }
 
@@ -773,10 +773,9 @@ int convert_to_char256(const char *buffer, /**< a pointer to the string buffer *
 	case '\0':
 		return ((char*)data)[0]='\0', 1;
 	case '"':
-		return sscanf(buffer+1,"%256[^\"]",(char*)data);
+		return sscanf(buffer+1,"%256[^\"]",(char*)data) ? strlen((char*)data)+1 : 0;
 	default:
-		//return sscanf(buffer,"%256s",data);
-		return sscanf(buffer,"%256[^\n\r;]",(char*)data);
+		return sscanf(buffer,"%256[^\n]",(char*)data) ? strlen((char*)data)+1 : 0;
 	}
 }
 
@@ -817,9 +816,9 @@ int convert_to_char1024(const char *buffer, /**< a pointer to the string buffer 
 	case '\0':
 		return ((char*)data)[0]='\0', 1;
 	case '"':
-		return sscanf(buffer+1,"%1024[^\"]",(char*)data);
+		return sscanf(buffer+1,"%1024[^\"]",(char*)data) ? strlen((char*)data)+1 : 0;
 	default:
-		return sscanf(buffer,"%1024[^\n]",(char*)data);
+		return sscanf(buffer,"%1024[^\n]",(char*)data) ? strlen((char*)data)+1 : 0;
 	}
 }
 

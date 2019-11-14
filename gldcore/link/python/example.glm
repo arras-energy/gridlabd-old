@@ -1,11 +1,17 @@
-// load the custom python module
-module my_test
-{
-    graph_title "My test";
-}
+// gldcore/link/python/example.glm
+//
+// This example illustrates how to use a python module to collect a
+// timeseries of lognormal values using the 'on_commit' event handler.
 
-// define a global variable in gridlabd
-global int32 sample_count 0;
+// load the custom python module
+module example_module
+{
+	// set the variables used to create the graph
+    graph_title "Example";
+    graph_xlabel "Time (hour)";
+    graph_ylabel "Power (MW)";
+    graph_label "Lognormal value";
+}
 
 // setup the clock to run only 1 hour
 clock {
@@ -20,10 +26,9 @@ class test {
 
 // create an instance of the custom class
 object test {
-	name "my_test";
+	name "example";
 	x "type:lognormal(0,1); refresh:5min";
 
 	// dispatch commit calls to the python module
-	on_precommit "python:my_test.precommit";
-	on_commit "python:my_test.commit";
+	on_commit "python:example_module.commit";
 }

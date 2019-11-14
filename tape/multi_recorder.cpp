@@ -566,7 +566,7 @@ EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
 		if ( size == 0 )
 			return my->property?strlen(my->property)+1:0;
 		else
-			return (my->property?strlen(my->property)+1:0) > size;
+			return (my->property?strlen(my->property)+1:0) < size;
 	}
 	else if ( size == 0 ) // incoming value
 	{

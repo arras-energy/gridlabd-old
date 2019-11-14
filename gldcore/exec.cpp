@@ -433,12 +433,15 @@ void GldExec::init_thread_data(void)
 EXITCODE GldExec::setexitcode(EXITCODE xc)
 {
 	EXITCODE oldxc = (EXITCODE)global_exit_code;
-	if ( oldxc != XC_SUCCESS && xc != oldxc )
+	if ( xc != XC_SUCCESS && xc != oldxc )
 	{
-		output_warning("new exitcode %d overwrites existing exitcode %d", xc,oldxc);
+		IN_MYCONTEXT output_debug("new exitcode %d would overwrite existing exitcode %d", xc, oldxc);
+	}
+	else
+	{
+		IN_MYCONTEXT output_debug("exit code %d", xc);
 	}
 	global_exit_code = xc;
-	IN_MYCONTEXT output_debug("exit code %d", xc);
 	return oldxc;
 }
 
@@ -543,8 +546,25 @@ STATUS GldExec::setup_ranks(void)
 		for (obj=object_get_first(); obj!=NULL; obj=object_get_next(obj))
 		{
 			/* ignore objects that don't use this passconfig */
-			if ((obj->oclass->passconfig&passtype[i])==0 )
+			bool ignore = true;
+			switch ( passtype[i] )
+			{
+			case PC_PRETOPDOWN:
+				ignore &= (obj->events.presync==NULL);
+				break;
+			case PC_BOTTOMUP:
+				ignore &= (obj->events.sync==NULL);
+				break;
+			case PC_POSTTOPDOWN:				
+				ignore &= (obj->events.postsync==NULL);
+				break;
+			default:
+				break;
+			}
+			if ( ignore && (obj->oclass->passconfig&passtype[i]) == 0 )
+			{
 				continue;
+			}
 
 			/* add this object to the ranks for this passconfig */
 			if (index_insert(ranks[i],obj,obj->rank)==FAILED) 
@@ -1531,7 +1551,7 @@ STATUS GldExec::t_sync_all(PASSCONFIG pass)
 
 	/* run all non-schedule transforms */
 	{
-		TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_DOUBLE|XS_COMPLEX|XS_ENDUSE));// if (abs(t)<t2) t2=t;
+		TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_ALL&(~(XS_SCHEDULE|XS_LOADSHAPE))));// if (abs(t)<t2) t2=t;
 		if (st<sync.step_to)
 			sync.step_to = st;
 	}
@@ -1646,7 +1666,7 @@ void GldExec::mls_create(void)
 {
 	if ( mls_destroyed )
 	{
-		output_debug("gldcore/exec.c/exec_mls_create(): cannot create mutex after it was destroyed");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_create(): cannot create mutex after it was destroyed");
 		return;
 	}
 	int rv = 0;
@@ -1671,7 +1691,7 @@ void GldExec::mls_init(void)
 {
 	if ( mls_destroyed )
 	{
-		output_debug("gldcore/exec.c/exec_mls_init(): cannot init mutex after it was destroyed");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_init(): cannot init mutex after it was destroyed");
 		return;
 	}
 	if (mls_created == 0)
@@ -1688,12 +1708,12 @@ void GldExec::mls_start()
 {
 	if ( mls_destroyed )
 	{
-		output_debug("gldcore/exec.c/exec_mls_start(): cannot start mutex after it was destroyed");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_start(): cannot start mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_debug("gldcore/exec.c/exec_mls_start(): cannot start mutex before it was created");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_start(): cannot start mutex before it was created");
 		return;
 	}
 	int rv = 0;
@@ -1719,12 +1739,12 @@ void GldExec::mls_suspend(void)
 {
 	if ( mls_destroyed )
 	{
-		output_debug("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex after it was destroyed");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_debug("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex before it was created");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_suspend(): cannot suspend mutex before it was created");
 		return;
 	}
 	int loopctr = 10;
@@ -1766,12 +1786,12 @@ void GldExec::mls_resume(TIMESTAMP ts)
 {
 	if ( mls_destroyed )
 	{
-		output_debug("gldcore/exec.c/exec_mls_resume(): cannot resume mutex after it was destroyed");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_resume(): cannot resume mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_debug("gldcore/exec.c/exec_mls_resume(): cannot resume mutex before it was created");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_resume(): cannot resume mutex before it was created");
 		return;
 	}
 	int rv = 0;
@@ -1800,12 +1820,12 @@ void GldExec::mls_statewait(unsigned states)
 {
 	if ( mls_destroyed )
 	{
-		output_debug("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex after it was destroyed");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_debug("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex before it was created");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_statewait(): cannot statewait mutex before it was created");
 		return;
 	}
 
@@ -1833,7 +1853,7 @@ void GldExec::mls_statewait(unsigned states)
 	}
 	else
 	{	// very inefficient fallback method
-		output_debug("mutex lock failed (%s) -- using usleep(100) instead",strerror(rv));
+		IN_MYCONTEXT output_debug("mutex lock failed (%s) -- using usleep(100) instead",strerror(rv));
 		while ( (global_mainloopstate&states) == 0 )
 			usleep(100);
 	}
@@ -1843,12 +1863,12 @@ void GldExec::mls_done(void)
 {
 	if ( mls_destroyed )
 	{
-		output_debug("gldcore/exec.c/exec_mls_statewait(): cannot destroy mutex after it was destroyed");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_statewait(): cannot destroy mutex after it was destroyed");
 		return;
 	}
 	if ( ! mls_created )
 	{
-		output_debug("gldcore/exec.c/exec_mls_destroy(): cannot destroy mutex before it was created");
+		IN_MYCONTEXT output_debug("gldcore/exec.c/exec_mls_destroy(): cannot destroy mutex before it was created");
 		return;
 	}
 	int rv = 0;
@@ -2666,7 +2686,7 @@ STATUS GldExec::exec_start(void)
 
 				/* run all non-schedule transforms */
 				{
-					TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_DOUBLE|XS_COMPLEX|XS_ENDUSE));// if (abs(t)<t2) t2=t;
+					TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_ALL&(~(XS_SCHEDULE|XS_LOADSHAPE))));
 					sync_set(NULL,st,false);
 				}
 			}
