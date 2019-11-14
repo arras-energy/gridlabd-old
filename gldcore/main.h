@@ -132,8 +132,10 @@ public:
 	/*	Method: run_on_exit
 
 		Runs the on-exit command list for the exit code given
+
+		Returns: exit code of first failed call, or 0 if all calls succeeded
 	 */
-	void run_on_exit();
+	int run_on_exit();
 
 private:	// private methods
 	void set_global_browser(const char *path = NULL);

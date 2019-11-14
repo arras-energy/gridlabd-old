@@ -1245,9 +1245,28 @@ const char *find_file(const char *name, /**< the name of the file to find */
 #	define pathsep "/"
 #endif
 
-	if(path == 0){
+	if ( buffer == NULL )
+	{
+		static int internal_buffer_len = 0;
+		static char * internal_buffer = NULL;
+		if ( len > internal_buffer_len )
+		{
+			if ( internal_buffer )
+			{
+				delete [] internal_buffer;
+			}
+			internal_buffer = new char[len+1];
+			internal_buffer_len = len;
+		}
+		buffer = internal_buffer;
+	}
+
+	if ( path == NULL )
+	{
 		glpath = getenv("GLPATH");
-	} else {
+	} 
+	else 
+	{
 		glpath = path;
 	}
 
@@ -1259,20 +1278,21 @@ const char *find_file(const char *name, /**< the name of the file to find */
 	/* The alternative is to use stat(), which will not report whether
 		the user is able to access the requested modes for the specified
 		file. -mhauer */
-	if(access(name, mode) == 0)
+	if ( access(name, mode) == 0 )
 	{
 		strncpy(buffer, name, len);
 		return buffer;
 	}
 
 	/* locate unit file on GLPATH if not found locally */
-	if(glpath != 0){
+	if ( glpath != NULL )
+	{
 		strncpy(envbuf, glpath, sizeof(envbuf));
 		dir = strtok(envbuf, delim);
 		while (dir)
 		{
 			snprintf(filepath, sizeof(filepath), "%s%s%s", dir, pathsep, name);
-			if (!access(filepath,mode))
+			if ( ! access(filepath,mode) )
 			{
 				strncpy(buffer,filepath,len);
 				return buffer;
@@ -1282,7 +1302,8 @@ const char *find_file(const char *name, /**< the name of the file to find */
 	}
 
 #ifdef WIN32
-	if(module_get_exe_path(filepath, 1024)){
+	if ( module_get_exe_path(filepath, 1024) )
+	{
 		snprintf(tempfp, sizeof(tempfp), "%s%s", filepath, name);
 		if(access(tempfp, mode) == 0)
 		{
@@ -1304,13 +1325,13 @@ const char *find_file(const char *name, /**< the name of the file to find */
 	}
 #else
 	snprintf(tempfp, sizeof(tempfp), "/usr/local/lib/gridlabd/%s", name);
-	if(access(tempfp, mode) == 0)
+	if ( access(tempfp, mode) == 0 )
 	{
 		strncpy(buffer,tempfp,len);
 		return buffer;
 	}
 	snprintf(tempfp, sizeof(tempfp), "/usr/local/share/gridlabd/%s", name);
-	if(access(tempfp, mode) == 0)
+	if ( access(tempfp, mode) == 0 )
 	{
 		strncpy(buffer,tempfp,len);
 		return buffer;

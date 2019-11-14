@@ -19,10 +19,8 @@
 int init(void)
 {
 #ifndef INITRC
-	printf("hello.c: initialization ok\n");
 	return 0;
 #else
-	printf("hello.c: initialization failed\n");
 	return INITRC;
 #endif
 }

@@ -27,12 +27,6 @@ AM_LDFLAGS += -avoid-version
 AM_LDFLAGS += -export-dynamic
 AM_LDFLAGS += $(GLD_LDFLAGS)
 
-# These are temporary additions that should be removed or moved elsewhere once the build compiles
-if HAVE_MINGW
-AM_LDFLAGS += -lws2_32
-AM_LDFLAGS += -Xlinker --allow-multiple-definition
-endif
-
 # makefile fragments populate these variables
 BUILT_SOURCES =
 CLEANFILES =
@@ -54,7 +48,10 @@ include gldcore/link/python/Makefile.mk
 include gldcore/Makefile.mk
 include gldcore/rt/Makefile.mk
 include gldcore/solvers/Makefile.mk
-include python/Makefile.mk
+include gldcore/scripts/Makefile.mk
+include python_extras/Makefile.mk
+include models/Makefile.mk
+include cloud/Makefile.mk
 
 # approved modules
 include modules.mk
@@ -78,7 +75,6 @@ EXTRA_DIST += $(top_srcdir)/debian/gridlabd.install
 EXTRA_DIST += $(top_srcdir)/debian/rules*
 EXTRA_DIST += $(top_srcdir)/doxygen/build.bat
 EXTRA_DIST += $(top_srcdir)/doxygen/COPYRIGHT
-EXTRA_DIST += $(top_srcdir)/doxygen/doxygen-doc.vcproj
 EXTRA_DIST += $(top_srcdir)/doxygen/footer.html
 EXTRA_DIST += $(top_srcdir)/doxygen/gridlabd.conf
 EXTRA_DIST += $(top_srcdir)/doxygen/LICENSE
@@ -87,19 +83,19 @@ EXTRA_DIST += $(top_srcdir)/doxygen/user_manual.h
 EXTRA_DIST += $(top_srcdir)/gridlabd.spec
 EXTRA_DIST += $(top_srcdir)/README-LINUX
 EXTRA_DIST += $(top_srcdir)/README-MACOSX
-EXTRA_DIST += $(top_srcdir)/Resources/Background.png
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore-contents.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate-contents.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces-contents.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel-contents.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel.xml
-EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/index.xml
-EXTRA_DIST += $(top_srcdir)/Resources/License.rtf
-EXTRA_DIST += $(top_srcdir)/Resources/Readme.rtf
-EXTRA_DIST += $(top_srcdir)/Resources/Welcome.rtf
+# EXTRA_DIST += $(top_srcdir)/Resources/Background.png
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore-contents.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate-contents.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces-contents.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel-contents.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/index.xml
+# EXTRA_DIST += $(top_srcdir)/Resources/License.rtf
+# EXTRA_DIST += $(top_srcdir)/Resources/Readme.rtf
+# EXTRA_DIST += $(top_srcdir)/Resources/Welcome.rtf
 EXTRA_DIST += $(top_srcdir)/VERSION
 EXTRA_DIST += $(top_srcdir)/models/climate_csvreader_example.glm
 EXTRA_DIST += $(top_srcdir)/models/collector_example.glm
@@ -124,41 +120,19 @@ EXTRA_DIST += $(top_srcdir)/models/weather.csv
 EXTRA_DIST += $(top_srcdir)/models/wind_turbine_example.glm
 EXTRA_DIST += $(top_srcdir)/gldcore/gridlabd.htm
 EXTRA_DIST += $(top_srcdir)/utilities/build_number
-pkgdata_DATA += $(top_srcdir)/models/climate_csvreader_example.glm
-pkgdata_DATA += $(top_srcdir)/models/collector_example.glm
-pkgdata_DATA += $(top_srcdir)/models/diesel_deltamode_load_player_A.csv
-pkgdata_DATA += $(top_srcdir)/models/diesel_deltamode_load_player_B.csv
-pkgdata_DATA += $(top_srcdir)/models/diesel_deltamode_load_player_C.csv
-#pkgdata_DATA += $(top_srcdir)/models/Four_quadrant_inverter_example.glm
-pkgdata_DATA += $(top_srcdir)/models/house_HVAC_example.glm
-pkgdata_DATA += $(top_srcdir)/models/IEEE_13_Node_Test_Feeder.glm
-pkgdata_DATA += $(top_srcdir)/models/IEEE_13_Node_With_Houses.glm
-pkgdata_DATA += $(top_srcdir)/models/passive_controller_example.glm
-pkgdata_DATA += $(top_srcdir)/models/random_fault_generator_example.glm
-pkgdata_DATA += $(top_srcdir)/models/residential_zipload_example.glm
-pkgdata_DATA += $(top_srcdir)/models/Standard_Weather.csv
-pkgdata_DATA += $(top_srcdir)/models/subsecond_diesel_generator_example.glm
-pkgdata_DATA += $(top_srcdir)/models/taxonomy_feeder_R1-12.47-1.glm
-pkgdata_DATA += $(top_srcdir)/models/transactive_controller_example.glm
-pkgdata_DATA += $(top_srcdir)/models/WA-Seattle.tmy2
-pkgdata_DATA += $(top_srcdir)/models/WA-Yakima.tmy2
-pkgdata_DATA += $(top_srcdir)/models/waterheater_example.glm
-pkgdata_DATA += $(top_srcdir)/models/weather.csv
-pkgdata_DATA += $(top_srcdir)/models/wind_turbine_example.glm
-pkgdata_DATA += $(top_srcdir)/gldcore/gridlabd.htm
 
-if MISSING_XERCES
-all-local:
-	@echo
-	@echo "  Missing dependency: libxerces-c"
-	@echo ""
-	@echo "    libxerces-c was not found during configuration and is a required dependency."
-	@echo "    Install the libxerces-c development libraries and re-run ./configure or run"
-	@echo "    ./configure with the --with-xerces option.  Try './configure --help' for"
-	@echo "    more information."
-	@echo
-	@false
-endif
+# if MISSING_XERCES
+# all-local:
+# 	@echo
+# 	@echo "  Missing dependency: libxerces-c"
+# 	@echo ""
+# 	@echo "    libxerces-c was not found during configuration and is a required dependency."
+# 	@echo "    Install the libxerces-c development libraries and re-run ./configure or run"
+# 	@echo "    ./configure with the --with-xerces option.  Try './configure --help' for"
+# 	@echo "    more information."
+# 	@echo
+# 	@false
+# endif
 
 help:
 	@echo "Cleaning targets:"
@@ -193,8 +167,19 @@ help:
 	@echo "                  \$$HOME/rpmbuild as non-root user"
 	@echo ""
 	@echo "Documentation targets:"
-	@echo "  doxygen-doc  - Generate doxygen documentation (only if doxygen was found"
-	@echo "                 by ./configure)"
+	@echo "  html                 - Generate all html documentation"
+	@echo "  module-html          - Generate module documentation (only if doxygen was found"
+	@echo "                         by ./configure)"
+	@echo "  developer-html       - Generate developer documentation (only if natural-docs was"
+	@echo "                         found by ./configure)"
+	@echo "  troubleshooting-html - Generate troubleshooting documentation (only if gawk was"
+	@echo "                         was found by ./configure)"
+	@echo ""
+	@echo "Data targets:"
+	@echo "  index        - Download all indexes from data archives"
+	@echo "  weather      - Download the weather data index from the weather archive"
+	@echo "  library      - Download the library index from the library archive"
+	@echo "  template     - Download the template index from the template archive"
 	@echo ""
 	@echo "Developer targets (may require special tools):"
 	@echo "  clean-wc   - Recursively remove all files and directories not under"
@@ -218,8 +203,8 @@ check-local validate:
 	gridlabd --validate
 
 scratchdir = scratch
-XERCES_TARNAME = xerces-c-3.1.1
-XERCESCROOT = $(CURDIR)/$(scratchdir)/$(XERCES_TARNAME)
+# XERCES_TARNAME = xerces-c-3.1.1
+# XERCESCROOT = $(CURDIR)/$(scratchdir)/$(XERCES_TARNAME)
 
 $(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
 	-rm -f $@
@@ -231,15 +216,16 @@ $(scratchdir)/.xerces.stamp: third_party/$(XERCES_TARNAME).tar.gz
 		autoreconf -isf && ./configure && make
 	touch $@
 
-$(scratchdir)/pkg: $(scratchdir)/.xerces.stamp distdir
+$(scratchdir)/pkg: distdir # $(scratchdir)/.xerces.stamp 
 	test ! -e $@ || rm -rf $@
 	test -d $@/gldcore || mkdir -p $@/gldcore
-	cd $(distdir) && ./configure --with-xerces=$(CURDIR)/$(scratchdir)/$(XERCES_TARNAME) && make install DESTDIR=$(CURDIR)/$@/gldcore
-	cd $@ && mkdir -p climate-data/usr/local/lib/gridlabd devel/usr/local/lib/gridlabd libxerces-c/usr/lib
+# 	cd $(distdir) && ./configure --with-xerces=$(CURDIR)/$(scratchdir)/$(XERCES_TARNAME) && make install DESTDIR=$(CURDIR)/$@/gldcore
+	cd $(distdir) && ./configure && make install DESTDIR=$(CURDIR)/$@/gldcore
+	cd $@ && mkdir -p climate-data/usr/local/lib/gridlabd devel/usr/local/lib/gridlabd # libxerces-c/usr/lib
 #	mv $@/gldcore/usr/lib/gridlabd/*.zip $@/climate-data/usr/lib/gridlabd/
 	mv $@/gldcore/usr/local/include $@/devel/usr/local/include
 	mv $@/gldcore/usr/local/lib/gridlabd/*.la $@/devel/usr/local/lib/gridlabd/
-	cp $(scratchdir)/$(XERCES_TARNAME)/src/.libs/libxerces-c.* $@/libxerces-c/usr/lib/
+#	cp $(scratchdir)/$(XERCES_TARNAME)/src/.libs/libxerces-c.* $@/libxerces-c/usr/lib/
 	$(am__remove_distdir)
 
 $(scratchdir)/$(PACKAGE_TARNAME).mpkg: $(scratchdir)/pkg
@@ -306,14 +292,68 @@ rpm-prep:
 	done
 
 clean-local: python-clean
+	@rm -rf $(top_srcdir)/documents/html
+	@rm -rf $(top_srcdir)/validate.txt
+	rm -f $(top_srcdir)/gridlabd.spec 
+	rm -f $(top_srcdir)/gridlabd.bin origin.txt
+	rm -rf $(top_srcdir)/build
+	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
 
 distclean-local: python-clean
+	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
+	rm -rf $(top_srcdir)/autom4te.cache
+	rm -f $(top_srcdir)/aclocal.m4 
+	rm -f $(top_srcdir)/autoscan.log
+	rm -f $(top_srcdir)/m4/libtool.m4
+	rm -f $(top_srcdir)/ltoptions.m4
+	rm -f $(top_srcdir)/ltsugar.m4
+	rm -f $(top_srcdir)/ltversion.m4
+	rm -f $(top_srcdir)/lt~obsolete.m4
+	rm -f $(top_srcdir)/configure 
+	rm -f $(top_srcdir)/config.log 
+	rm -f $(top_srcdir)/config.status 
+	rm -f $(top_srcdir)/gridlabd.spec 
+	rm -f $(top_srcdir)/libtool 
+	rm -f $(top_srcdir)/Makefile 
+	rm -f $(top_srcdir)/Makefile.in
+	rm -f $(top_srcdir)/build-aux/ar-lib 
+	rm -f $(top_srcdir)/build-aux/compile 
+	rm -f $(top_srcdir)/build-aux/config.log 
+	rm -f $(top_srcdir)/build-aux/config.guess 
+	rm -f $(top_srcdir)/build-aux/config.sub 
+	rm -f $(top_srcdir)/build-aux/install-sh 
+	rm -f $(top_srcdir)/build-aux/ltmain.sh 
+	rm -f $(top_srcdir)/build-aux/missing 
+	rm -f $(top_srcdir)/build-aux/depcomp
+	rm -f $(top_srcdir)/gridlabd.spec 
+	rm -f $(top_srcdir)/gridlabd.bin origin.txt
+	rm -rf $(top_srcdir)/build
+	rm -rf $(top_srcdir)/documents/html
+	rm -f $(top_srcdir)/validate.txt
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
-install-exec-hook: python-install weather
+install-exec-hook: python-install
 	@if [ "`which gridlabd`" != "$(DESTDIR)$(bindir)/gridlabd" ]; then \
 		echo >&2 "***WARNING***: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
 	fi
 
+index: weather library template
+
+html-local: module-html developer-html troubleshooting-html
+	mkdir -p $(prefix)/html/developer
+	cp $(top_srcdir)/documents/index.html $(prefix)/html/
+	cp -R $(top_srcdir)/documents/html/* $(prefix)/html/
+	cp -R $(top_srcdir)/gldcore/html/* $(prefix)/html/developer/
+
+module-html:
+	@mkdir -p $(top_srcdir)/documents/html/modules
+	@doxygen $(top_srcdir)/doxygen/gridlabd.conf
+
+developer-html: # TODO
+	@(cd $(top_srcdir)/gldcore/html ; natural_docs . ; cd - > /dev/null )
+
+troubleshooting-html:
+	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/ 
+	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > $(top_srcdir)/documents/html/troubleshooting/index.html )

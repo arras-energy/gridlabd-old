@@ -73,31 +73,6 @@ GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.c gldcore/cmex.h
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/ufile.c gldcore/ufile.h
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
-if HAVE_MINGW
-
-bin_PROGRAMS += gridlabd
-
-gridlabd_CPPFLAGS =
-gridlabd_CPPFLAGS += $(XERCES_CPPFLAGS)
-gridlabd_CPPFLAGS += $(AM_CPPFLAGS)
-
-gridlabd_LDFLAGS =
-gridlabd_LDFLAGS += $(XERCES_LDFLAGS)
-gridlabd_LDFLAGS += $(AM_LDFLAGS)
-
-gridlabd_LDADD =
-gridlabd_LDADD += $(XERCES_LIB)
-gridlabd_LDADD += $(CURSES_LIB)
-gridlabd_LDADD += -ldl
-
-gridlabd_SOURCES =
-gridlabd_SOURCES += $(GLD_SOURCES_PLACE_HOLDER)
-
-EXTRA_gridlabd_SOURCES =
-EXTRA_gridlabd_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
-
-else
-
 bin_PROGRAMS += gridlabd.bin
 
 gridlabd_bin_CPPFLAGS =
@@ -118,11 +93,8 @@ gridlabd_bin_SOURCES += $(GLD_SOURCES_PLACE_HOLDER)
 
 EXTRA_gridlabd_bin_SOURCES =
 EXTRA_gridlabd_bin_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
-endif
 
 bin_SCRIPTS += gldcore/gridlabd 
-bin_SCRIPTS += gldcore/gridlabd-weather
-bin_SCRIPTS += gldcore/gridlabd-aws
 
 GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
 BUILT_SOURCES += gldcore/build.h
@@ -160,3 +132,8 @@ buildnum: utilities/build_number
 weather:
 	@(echo "Installing weather data manager" && mkdir -p $(prefix)/share/gridlabd/weather && chmod 2777 $(prefix)/share/gridlabd/weather && chmod 1755 $(bindir)/gridlabd-weather)
 	@(echo "Updating weather data index" && export GLD_ETC=$(prefix)/share/gridlabd && $(bindir)/gridlabd-weather fetch_index)
+
+template: # TODO
+
+library: # TODO
+	
