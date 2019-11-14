@@ -1,0 +1,31 @@
+#!/usr/local/bin/python3
+
+import sys
+import json
+
+def error(code,msg):
+    print("ERROR %d: %s" % (code,msg), file=sys.stderr);
+    quit(code)
+
+if len(sys.argv) > 1 and sys.argv[1] in ['-h','--help'] :
+    error(0,"Syntax: gridlabd json-get [keys ...] [--keys]");
+
+try:
+    data = json.load(sys.stdin);
+    if len(sys.argv) > 1 :
+        for item in sys.argv[1::] :
+            if item == '--keys' :
+                data = list(data.keys());
+                break;
+            elif type(data) is dict and item in data.keys() :
+                data = data[item];
+            elif type(data) is list and int(item) >=0 and int(item) <= len(data) :
+                data = data[int(item)];
+            else :
+                error(2,"%s is not valid"%item);
+    if type(data) is dict or type(data) is list :
+        print(json.dumps(data,indent=4));
+    else:
+        print(data);
+except:
+    error(1,"%s %s" % (sys.exc_info()[0],sys.exc_info()[1]));

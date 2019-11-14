@@ -135,6 +135,46 @@ void module_free(void *ptr)
 	wunlock(&malloc_lock);
 }
 
+// external callback support
+struct s_externalcallbacklist {
+	const char *name;
+	EXTERNALCALLBACK call;
+	void *data;
+	struct s_externalcallbacklist *next;
+} *externalcallbacklist = NULL;
+int n_external_callbacks = 0;
+
+// add an external callback handlers
+// returns callback number starting with 0, or -1 on failure
+extern "C" int module_add_external_callback(const char *name, EXTERNALCALLBACK handler, void *data)
+{
+	struct s_externalcallbacklist *callback = new s_externalcallbacklist;
+	if ( callback == NULL )
+	{
+		return -1; // failed
+	}
+	callback->name = strdup(name);
+	callback->call = handler;
+	callback->data = data;
+	callback->next = externalcallbacklist;
+	externalcallbacklist = callback;
+	return n_external_callbacks++;
+}
+
+int call_external_callback(const char *name, void *args)
+{
+	struct s_externalcallbacklist *item;
+	for ( item = externalcallbacklist ; item != NULL; item = item->next )
+	{
+		if ( strcmp(name,item->name) )
+		{
+			return item->call(item->data,args);
+		}
+	}
+	output_error("int call_external_callback(const char *name='%s', void *data=%p): callback not found", name, args);
+	return -1;
+}
+
 /* these are the core functions available to loadable modules
  * the structure is defined in object.h */
 #define MAGIC 0x012BB0B9
@@ -161,7 +201,7 @@ static CALLBACKS callbacks = {
 	class_define_set_member,
 	{object_get_first,object_set_dependent,object_set_parent,object_set_rank,},
 	{object_get_property, object_set_value_by_addr,object_get_value_by_addr, object_set_value_by_name,object_get_value_by_name,object_get_reference,object_get_unit,object_get_addr,class_string_to_propertytype,property_compare_basic,property_compare_op,property_get_part,property_getspec},
-	{find_objects,find_next,findlist_copy,findlist_add,findlist_del,findlist_clear},
+	{find_objects,find_next,findlist_copy,findlist_add,findlist_del,findlist_clear,findlist_create},
 	class_find_property,
 	module_malloc,
 	module_free,
@@ -198,6 +238,8 @@ static CALLBACKS callbacks = {
 	{transform_getnext,transform_add_linear,transform_add_external,transform_apply},
 	{randomvar_getnext,randomvar_getspec},
 	{version_major,version_minor,version_patch,version_build,version_branch},
+	call_external_callback,
+	{python_embed_import,python_embed_call},
 	MAGIC /* used to check structure */
 };
 CALLBACKS *module_callbacks(void) { return &callbacks; }
@@ -613,7 +655,7 @@ static void _module_list (char *path)
 	}
 
 	/* open directory */
-	output_debug("module_list(char *path='%s')", path);
+	IN_MYCONTEXT output_debug("module_list(char *path='%s')", path);
 #ifdef WIN32
 	sprintf(search,"%s\\*.dll",path);
 	hFind=FindFirstFile(search,&sFind);
@@ -645,7 +687,7 @@ static void _module_list (char *path)
 		if ( ext==NULL ) continue; /* no extension */
 		if ( strcmp(ext,".so")!=0 ) continue; /* not the right extension */
 #endif
-		output_debug("library '%s' ok", fname);
+		IN_MYCONTEXT output_debug("library '%s' ok", fname);
 		/* access DLL */
 		hLib = DLLOAD(fname);
 		if ( hLib==NULL ) 
@@ -1301,6 +1343,10 @@ static int execf(const char *format, /**< format string  */
 		IN_MYCONTEXT output_debug("command: %s",command);
 	}
 	rc = system(command);
+	if ( rc != 0 )
+	{
+		output_error("command [%s] failed, rc = %d", command, rc);
+	}
 	IN_MYCONTEXT output_debug("return code=%d",rc);
 	return rc;
 }
@@ -1319,7 +1365,7 @@ int module_compile(const char *name,	/**< name of library */
 	char ofile[1024];
 	char afile[1024];
 	const char *cc = getenv("CC")?getenv("CC"):CC;
-	const char *ccflags = getenv("CCFLAGS")?getenv("CCFLAGS"):CCFLAGS;
+	const char *ccflags = getenv("CPPFLAGS")?getenv("CPPFLAGS"):CCFLAGS;
 	const char *ldflags = getenv("LDFLAGS")?getenv("LDFLAGS"):LDFLAGS;
 	int rc;
 	size_t codesize = strlen(code), len;
@@ -1727,9 +1773,9 @@ void sched_lock(unsigned short proc)
 {
 	if ( process_map )
 	{
-		output_debug("module.c:sched_lock(): enter lock[%d]=%d", proc, process_map[proc].lock);
+		IN_MYCONTEXT output_debug("module.c:sched_lock(): enter lock[%d]=%d", proc, process_map[proc].lock);
 		wlock(&process_map[proc].lock);
-		output_debug("module.c:sched_lock(): exit  lock[%d]=%d", proc, process_map[proc].lock);
+		IN_MYCONTEXT output_debug("module.c:sched_lock(): exit  lock[%d]=%d", proc, process_map[proc].lock);
 	}
 	else
 		output_warning("module.c:sched_lock(): process_map does not exist");
@@ -1739,9 +1785,9 @@ void sched_unlock(unsigned short proc)
 {
 	if ( process_map )
 	{
-		output_debug("module.c:sched_unlock(): enter lock[%d]=%d", proc, process_map[proc].lock);
+		IN_MYCONTEXT output_debug("module.c:sched_unlock(): enter lock[%d]=%d", proc, process_map[proc].lock);
 		wunlock(&process_map[proc].lock);
-		output_debug("module.c:sched_unlock(): exit  lock[%d]=%d", proc, process_map[proc].lock);
+		IN_MYCONTEXT output_debug("module.c:sched_unlock(): exit  lock[%d]=%d", proc, process_map[proc].lock);
 	}
 	else
 		output_warning("module.c:sched_lock(): process_map does not exist");
@@ -1765,7 +1811,7 @@ void sched_update(TIMESTAMP clock, enumeration status)
 }
 int sched_isdefunct(pid_t pid)
 {
-	output_debug("checking status of pid %d",pid);
+	IN_MYCONTEXT output_debug("checking status of pid %d",pid);
 	/* signal 0 only checks process existence */
 	if ( pid != 0 )
 	{
@@ -1790,7 +1836,7 @@ void sched_finish(void)
 	{
 		int n = my_proc->list[t];
 		sched_lock(n);
-		output_debug("module.c:sched_finish(): process_map[n].state <- DONE", n);
+		IN_MYCONTEXT output_debug("module.c:sched_finish(): process_map[n].state <- DONE", n);
 		process_map[n].status = MLS_DONE;
 		sched_unlock(n);
 	}
@@ -1808,7 +1854,7 @@ void sched_clear(void)
 			if (sched_isdefunct(process_map[n].pid) )
 			{
 				sched_lock(n);
-				output_debug("module.c:sched_clear(): process_map[n].pid %d (proc %d) <- 0", process_map[n].pid, n);
+				IN_MYCONTEXT output_debug("module.c:sched_clear(): process_map[n].pid %d (proc %d) <- 0", process_map[n].pid, n);
 				process_map[n].pid = 0;
 				sched_unlock(n);
 			}
@@ -2078,7 +2124,7 @@ MYPROCINFO *sched_allocate_procs(unsigned int n_threads, pid_t pid)
 		}
 		my_proc->list[t] = n;
 		process_map[n].pid = pid;
-		output_debug("module.c/sched_allocate_procs(): assigned processor %d to pid %d\n", n, pid);
+		IN_MYCONTEXT output_debug("module.c/sched_allocate_procs(): assigned processor %d to pid %d\n", n, pid);
 		strncpy(process_map[n].model,global_modelname,sizeof(process_map[n].model)-1);
 		process_map[n].start = time(NULL);
 		sched_unlock(n);
@@ -2215,7 +2261,7 @@ void sched_init(int readonly)
 	key_t shmkey = ftok(mfile,sizeof(GLDPROCINFO));
 	pid_t pid = getpid();
 	int shmid;
-	output_debug("shmkey = %d", (int)shmkey);
+	IN_MYCONTEXT output_debug("shmkey = %d", (int)shmkey);
 
 	/* get total number of processors */
 #ifndef DYN_PROC_AFFINITY
@@ -2223,7 +2269,7 @@ void sched_init(int readonly)
 #else
 	n_procs = sysconf(_SC_NPROCESSORS_ONLN);
 #endif
-	output_debug("sched_init(): sysconf(_SC_NPROCESSORS_ONLN) = %d", n_procs);
+	IN_MYCONTEXT output_debug("sched_init(): sysconf(_SC_NPROCESSORS_ONLN) = %d", n_procs);
 	mapsize = sizeof(GLDPROCINFO)*n_procs;
 
 	if(has_run == 0){

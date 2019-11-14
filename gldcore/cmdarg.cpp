@@ -503,8 +503,140 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
-	output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
-	return 0;
+	const char *opt = strchr(argv[0],'=');
+	if ( opt++ == NULL )
+	{
+		opt = "default";
+	}
+	if ( strcmp(opt,"default") == 0 )
+	{
+		output_message("%s %s-%d", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM);
+		return 0;
+	}
+	else if ( strcmp(opt,"all" ) == 0 )
+	{	
+		output_message("%s %s-%d (%s) "
+#if defined MACOSX
+			"Darwin"
+#else // LINUX
+			"Linux"
+#endif
+			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"number" ) == 0 || strcmp(opt,"version") == 0 )
+	{
+		output_message("%s", PACKAGE_VERSION);
+		return 0;
+	}
+	else if ( strcmp(opt,"build") == 0 || strcmp(opt,"build_number") == 0 )
+	{
+		output_message("%d", BUILDNUM);
+		return 0;
+	}
+	else if ( strcmp(opt,"package") == 0 || strcmp(opt,"application") == 0 )
+	{
+		output_message("%s", PACKAGE_NAME);
+		return 0;
+	}
+	else if ( strcmp(opt,"branch") == 0 )
+	{
+		output_message("%s", BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"platform") == 0 || strcmp(opt,"system") == 0 )
+	{
+		output_message(
+#if defined MACOSX
+			"Darwin"
+#else // LINUX
+			"Linux"
+#endif
+		);
+		return 0;
+	}
+	else if ( strcmp(opt,"release") == 0 )
+	{
+		output_message("%s",BUILD_RELEASE);
+		return 0;
+	}
+	else if ( strcmp(opt,"commit") == 0 )
+	{
+		output_message("%s",BUILD_ID);
+		return 0;
+	}
+	else if ( strcmp(opt,"email") == 0 )
+	{
+		output_message("%s",PACKAGE_BUGREPORT);
+		return 0;
+	}
+	else if ( strcmp(opt,"origin") == 0 )
+	{
+		output_message("%s",BUILD_URL);
+		return 0;
+	}
+	else if ( strcmp(opt,"install") == 0 )
+	{
+		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
+		char tmp[1024];
+		strcpy(tmp,global_execdir);
+		char *p = strrchr(tmp,'/');
+		if ( p != NULL && strcmp(p,"/bin") == 0 )
+		{
+			*p = '\0';
+		}
+		output_message("%s", tmp);
+		return 0;
+	}
+	else if ( strcmp(opt,"name") == 0 )
+	{
+		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
+		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"json") == 0 )
+	{
+		bool old = global_suppress_repeat_messages;
+		global_suppress_repeat_messages = false;
+		output_message("{");
+#define OUTPUT(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\",",TAG,VALUE)
+#define OUTPUT_LAST(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\"\n}",TAG,VALUE)
+#define OUTPUT_LIST_START(TAG) output_message("\t\"%s\" : [",TAG)
+#define OUTPUT_LIST_ITEM(VALUE) output_message("\t\t\"%s\",",VALUE)
+#define OUTPUT_LIST_END(VALUE) output_message("\t\t\"%s\"],",VALUE)
+#define OUTPUT_MULTILINE(TAG,VALUE) {\
+		const char *value = VALUE;\
+		char *token=NULL, *last=NULL;\
+		char buffer[strlen(value)+1];\
+		strcpy(buffer,value);\
+		OUTPUT_LIST_START(TAG);\
+		while ( (token=strtok_r(token?NULL:buffer,"\n",&last)) != NULL )\
+		{\
+			OUTPUT_LIST_ITEM(token);\
+		}\
+		OUTPUT_LIST_END("");\
+	}
+		OUTPUT("application","%s",PACKAGE);
+		OUTPUT("version","%s",PACKAGE_VERSION);
+		OUTPUT("build_number","%06d",BUILDNUM);
+		OUTPUT("branch","%s",BRANCH);
+		OUTPUT("options","%s",BUILD_OPTIONS);
+		OUTPUT_MULTILINE("status",BUILD_STATUS);
+		OUTPUT_MULTILINE("copyright",version_copyright());
+		OUTPUT_MULTILINE("license",legal_license_text());
+		OUTPUT("system","%s",BUILD_SYSTEM);
+		OUTPUT("release","%s",BUILD_RELEASE);
+		OUTPUT("commit","%s",BUILD_ID);
+		OUTPUT("email","%s",PACKAGE_BUGREPORT);
+		OUTPUT_LAST("origin","%s",BUILD_URL);
+		global_suppress_repeat_messages = old;
+		return 0;
+	}
+	else
+	{
+		output_error("version option '%s' is not valid", opt);
+		return CMDERR;
+	}
 }
 
 DEPRECATED static int build_info(void *main, int argc, const char *argv[])
@@ -1716,7 +1848,7 @@ int GldCmdarg::origin(int argc, const char *argv[])
 		IN_MYCONTEXT output_error("origin file not found");
 		return CMDERR;
 	}
-	fp = fopen(originfile,"r");
+	fp = fopen(originfile,"rt");
 	if ( fp == NULL )
 	{
 		IN_MYCONTEXT output_error("unable to open origin file");
@@ -1736,12 +1868,70 @@ int GldCmdarg::origin(int argc, const char *argv[])
 			int old = global_suppress_repeat_messages;
 			global_suppress_repeat_messages = 0;
 			line[len] = '\0';
-			output_message("%s",line);
+			output_raw("%s",line);
 			global_suppress_repeat_messages = old;
 		}
 	}
 	fclose(fp);
 	return 1;
+}
+
+DEPRECATED static int cite(void *main, int argc, const char *argv[])
+{
+	FILE *fp;
+	char originfile[1024];
+	if ( find_file("origin.txt",NULL,R_OK,originfile,sizeof(originfile)-1) == NULL )
+	{
+		IN_MYCONTEXT output_error("origin file not found");
+		return CMDERR;
+	}
+	fp = fopen(originfile,"r");
+	if ( fp == NULL )
+	{
+		IN_MYCONTEXT output_error("unable to open origin file");
+		return CMDERR;
+	}
+	char url[1024] = "";
+	if ( ! feof(fp) )
+	{
+		char line[1024];
+		size_t len = fread(line,sizeof(line[0]),sizeof(line)-1,fp);
+		if ( ferror(fp) )
+		{
+			IN_MYCONTEXT output_error("error reading origin file");
+			return CMDERR;
+		}
+		if ( len >= 0 && url[0] == '\0' && strncmp(line,"# http",6)==0 )
+		{
+			char *end = strstr(line,"/commits/");
+			if ( end == NULL )
+				end = strchr(line,'\n');
+			if ( end )
+				*end = '\0';
+			strcpy(url,line+2);
+		}
+		else
+		{
+			strcpy(url,global_urlbase);
+		}
+	}
+	fclose(fp);
+
+#if defined MACOSX
+		const char *platform = "Darwin";
+#else // LINUX
+	const char *platform = "Linux";
+#endif
+	int year = 2000+BUILDNUM/10000;
+	int month = (BUILDNUM%10000)/100;
+	int day = (BUILDNUM%100);
+	const char *Month[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
+	output_message("Chassin, D.P., et al., \"%s %s-%d (%s)"
+		" %s\" (%d) [online]."
+		" Available at %s. Accessed %s. %d, %d", 
+		PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH,
+		platform, year, url, Month[month-1], day, year);
+	return 0;
 }
 
 #include "job.h"
@@ -1779,10 +1969,11 @@ DEPRECATED static CMDARG main_commands[] = {
 	{NULL,NULL,NULL,NULL, "Information"},
 	{"copyright",	NULL,	copyright,		NULL, "Displays copyright" },
 	{"license",		NULL,	license,		NULL, "Displays the license agreement" },
-	{"version",		"V",	version,		NULL, "Displays the version information" },
+	{"version",		"V",	version,		"[all,number,build,package,branch,platform]", "Displays the version information" },
 	{"build-info",	NULL,	build_info,		NULL, "Displays the build information" },
 	{"setup",		NULL,	setup,			NULL, "Open simulation setup screen" },
 	{"origin",		NULL,	origin,			NULL, "Display origin information" },
+	{"cite",		NULL,	cite,			NULL, "Print the complete citation for this version"},
 
 	{NULL,NULL,NULL,NULL, "Test processes"},
 	{"dsttest",		NULL,	dsttest,		NULL, "Perform daylight savings rule test" },

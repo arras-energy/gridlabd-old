@@ -12,6 +12,8 @@
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
+#include <Python.h>
+
 #include "complex.h"
 #include "timestamp.h"
 #include "class.h"
@@ -176,6 +178,7 @@ typedef struct s_callbacks {
 		void (*add)(struct s_findlist*, OBJECT*);
 		void (*del)(struct s_findlist*, OBJECT*);
 		void (*clear)(struct s_findlist*);
+		struct s_findlist *(*list_create)(struct s_findlist*,const char *);
 	} find;
 	PROPERTY *(*find_property)(CLASS *, PROPERTYNAME);
 	void *(*malloc)(size_t);
@@ -349,6 +352,11 @@ typedef struct s_callbacks {
 		unsigned int (*build)(void);
 		const char * (*branch)(void);
 	} version;
+	int (*call_external_callback)(const char*, void *);
+	struct {
+		PyObject *(*import)(const char *module, const char *path);
+		bool (*call)(PyObject *pModule, const char *method);
+	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
 
@@ -428,7 +436,7 @@ int object_saveall(FILE *fp);
 int object_saveall_xml(FILE *fp);
 void object_stream_fixup(OBJECT *obj, CLASSNAME classname, const char *objname);
 
-const char *object_name(OBJECT *obj, char *, int);
+const char *object_name(OBJECT *obj, char *buffer=NULL, int size=0);
 int convert_from_latitude(double,char*,size_t);
 int convert_from_longitude(double,char*,size_t);
 double convert_to_latitude(const char *buffer);
@@ -470,6 +478,11 @@ typedef struct s_jsondata {
 	struct s_jsondata *next;
 } JSONDATA;
 bool object_set_json(OBJECT *obj, const char *propname, JSONDATA *data);
+
+OBJECT *object_find_by_addr(void *addr);
+PROPERTY *object_get_first_property(OBJECT *obj, bool full=true);
+PROPERTY *object_get_next_property(PROPERTY *prop, bool full=true);
+PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full=true);
 
 #ifdef __cplusplus
 }

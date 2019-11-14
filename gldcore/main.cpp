@@ -17,11 +17,18 @@ SET_MYCONTEXT(DMC_MAIN)
 void GldMain::pause_at_exit(void) 
 {
 	if (global_pauseatexit)
+	{
+		int rc = 
 #if defined WIN32
 		system("pause");
 #else
 		system("read -p 'Press [RETURN] to end... ");
 #endif
+		if ( rc != 0 )
+		{
+			fprintf(stderr,"non-zero exit code (rc=%d) from system pause\n",rc);
+		}
+	}
 }
 
 /** The main entry point of GridLAB-D
@@ -65,7 +72,14 @@ int main
 			output_fatal("uncaught exception: %s", msg);
 			return_code = errno ? errno : XC_SHFAILED;
 		}
-		my_instance->run_on_exit();
+		catch (GldException *exc)
+		{
+			output_fatal("UNHANDLED EXCEPTION: %s", exc->get_message());
+			return_code = XC_EXCEPTION;
+		}
+		int rc = my_instance->run_on_exit();
+		if ( rc != 0 )
+			return rc;
 	}
 	return return_code;
 }
@@ -76,6 +90,8 @@ GldMain::GldMain(int argc, const char *argv[])
 	cmdarg(this),
 	gui(this)
 {
+	python_embed_init(argc,argv);
+
 	id = next_id++;
 	// TODO: remove this when reetrant code is done
 	my_instance = this;
@@ -170,6 +186,10 @@ GldMain::GldMain(int argc, const char *argv[])
 
 GldMain::~GldMain(void)
 {
+#ifndef HAVE_PYTHON
+	python_embed_term();
+#endif
+	
 	// TODO: remove this when reetrant code is done
 	my_instance = NULL;
 
@@ -297,7 +317,7 @@ int GldMain::add_on_exit(int xc, const char *cmd)
 	}
 }
 
-void GldMain::run_on_exit()
+int GldMain::run_on_exit()
 {
 	/* save the model */
 	if (strcmp(global_savefile,"")!=0)
@@ -363,7 +383,7 @@ void GldMain::run_on_exit()
 			if ( rc != 0 )
 			{
 				output_error("on_exit %d '%s' command failed (return code %d)", cmd->get_exitcode(), cmd->get_command(), rc);
-				return;
+				return XC_RUNERR;
 			}
 			else
 			{
@@ -378,7 +398,7 @@ void GldMain::run_on_exit()
 		if ( rc != 0 )
 		{
 			output_error("on_exit call failed (return code %d)", rc);
-			return;
+			return XC_RUNERR;
 		}
 		else
 		{
@@ -389,6 +409,7 @@ void GldMain::run_on_exit()
 	/* compute elapsed runtime */
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
 	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
+	return 0;
 }
 
 /** @} **/

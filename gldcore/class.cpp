@@ -279,6 +279,16 @@ void class_add_property(CLASS *oclass,  /**< the class to which the property is 
 		last->next = prop;
 }
 
+bool has_child_class(CLASS *oclass)
+{
+	for ( CLASS *c = class_get_first_class() ; c != NULL ; c = c->next )
+	{
+		if ( c->parent == oclass )
+			return true;
+	} 
+	return false;
+}
+
 /** Add an extended property to a class 
     @return the property pointer
  **/
@@ -305,6 +315,18 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 		// will get picked up later
 	}
 
+	if ( has_child_class(oclass) )
+	{
+		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been used to derive another class", oclass->name, name);
+		/* TROUBLESHOOT
+			Once the class has been used to derive another class, it is not possible to change its size in memory.
+		 */
+	}
+	if ( oclass->profiler.numobjs > 0 )
+		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been instantiated", oclass->name, name);
+		/* TROUBLESHOOT
+			Once the class has been used to instantiate an object, it is not possible to change its size in memory.
+		 */
 	if (prop==NULL)
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): memory allocation failed", oclass->name, name);
 		/* TROUBLESHOOT
@@ -429,8 +451,7 @@ int class_property_to_string(PROPERTY *prop, /**< the property type */
                              char *value,    /**< the value buffer to which the string is to be written */
                              int size)       /**< the maximum number of characters that can be written to the \p value buffer*/
 {
-	int rv = 0;
-	if (prop->ptype==PT_delegated)
+	if ( prop->ptype == PT_delegated )
 	{
 		output_error("unable to convert from delegated property value");
 		/*	TROUBLESHOOT
@@ -439,25 +460,22 @@ int class_property_to_string(PROPERTY *prop, /**< the property type */
 		 */
 		return 0;
 	}
-	else if ( prop->ptype == PT_method && value == NULL )
-	{
-		return property_write(prop,addr,NULL,0);
-	}
 	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST )
 	{
-		rv = property_write(prop,addr,value,size);
+		int rv = property_write(prop,addr,value,size);
 		if ( rv > 0 && prop->unit != 0 )
 		{
 			strcat(value+rv," ");
 			strcat(value+rv+1,prop->unit->name);
 			rv += (int)(1+strlen(prop->unit->name));
 		}
+		return rv;
 	}
 	else
 	{
-		rv = 0;
+		output_error("unable to convert from invalid property type");
+		return 0;
 	}
-	return rv;
 }
 
 
@@ -1165,26 +1183,55 @@ int class_saveall(FILE *fp) /**< a pointer to the stream FILE structure */
 	{	CLASS	*oclass;
 		for (oclass=class_get_first_class(); oclass!=NULL; oclass=oclass->next)
 		{
-			if ( (global_glm_save_options&GSO_NOINTERNALS) == GSO_NOINTERNALS && oclass->module != NULL )
-				continue;
 			PROPERTY *prop;
+			if ( (global_glm_save_options&GSO_NOINTERNALS) == GSO_NOINTERNALS && oclass->module != NULL )
+			{
+				// check to see if any user-defined members exist
+				bool has_user_defined_property = false;
+				for ( prop = oclass->pmap ; prop != NULL && prop->oclass == oclass; prop = prop->next )
+				{
+					if ( prop->flags & PF_EXTENDED )
+					{
+						has_user_defined_property = true;
+					}
+				}
+				if ( ! has_user_defined_property )
+				{
+					continue;
+				}
+			}
 			FUNCTION *func;
 			count += fprintf(fp,"class %s {\n",oclass->name);
 			if ( (global_glm_save_options&GSO_NOMACROS)==GSO_NOMACROS )
 			{
-				if (oclass->parent)
-					count += fprintf(fp,"#ifdef INCLUDE_PARENT_CLASS\n\tparent %s;\n#endif\n", oclass->parent->name);
-				for (func=oclass->fmap; func!=NULL && func->oclass==oclass; func=func->next)
-					count += fprintf(fp, "#ifdef INCLUDE_FUNCTIONS\n\tfunction %s();\n#endif\n", func->name);
+				if ( ! (global_glm_save_options&GSO_NOINTERNALS) )
+				{
+					if ( oclass->parent )
+					{
+						count += fprintf(fp,"#ifdef INCLUDE_PARENT_CLASS\n\tparent %s;\n#endif\n", oclass->parent->name);
+					}
+					for (func=oclass->fmap; func!=NULL && func->oclass==oclass; func=func->next)
+					{
+						count += fprintf(fp, "#ifdef INCLUDE_FUNCTIONS\n\tfunction %s();\n#endif\n", func->name);
+					}
+				}
 				for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 				{
 					const char *ptype = class_get_property_typename(prop->ptype);
-					if ( ptype != NULL )
+					if ( ptype == NULL )
+					{
+						continue;
+					}
+					if ( ! (global_glm_save_options&GSO_NOINTERNALS) || (prop->flags&PF_EXTENDED) )
 					{
 						if ( strchr(prop->name,'.') == NULL )
+						{
 							count += fprintf(fp,"\t%s %s;\n", ptype, prop->name);
+						}
 						else
+						{
 							count += fprintf(fp,"#ifdef INCLUDE_DOTTED_PROPERTIES\n\t%s %s;\n#endif\n", ptype, prop->name);
+						}
 					}
 				}
 			}
