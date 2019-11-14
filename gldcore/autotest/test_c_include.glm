@@ -8,7 +8,7 @@
 clock {
 	timezone PST+8PDT;
 	starttime '2009-01-01 00:00:00 PST';
-	stoptime '2009-01-02 00:00:00 PST';
+	stoptime '2009-01-01 01:00:00 PST';
 }
 
 // implement a deterministic noise source and signal target
@@ -22,7 +22,7 @@ class noise {
 		// or the elasping simulation time (t0-starttime)
 		// or some other deterministic source you like.
 		source = (double)t0; 
-		signal = 1.0/rand();
+		signal = (double)rand()/RAND_MAX;
 		return t0+1; // update signal every second
 	};
 }
@@ -31,8 +31,8 @@ class noise {
 module tape;
 object noise {
 	object recorder {
-		property signal;
-		file noise_source.csv;
+		property source,signal;
+		file output.csv;
 		interval -1;
 	};
 }

@@ -1,25 +1,25 @@
 version: '3.7'
 services:
 
-  ### MYSQL
-  # mysql:
-  #   image: mysql
-  #   build:
-  #     context: .
-  #     dockerfile: DockerFile-mysqld
-  #   ports:
-  #     - "3306:3306"
-  #   volumes:
-  #     - ../..:/usr/local/src/gridlabd
-  #   environment:
-  #     MYSQL_ROOT_PASSWORD: gridlabd
-
   mysql:
-    image: mysql/mysql-server:latest
+    image: mysql:5.7
     ports:
       - "3306:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: gridlabd
+      MYSQL_DATABASE: 'gridlabd'
+      MYSQL_USER: 'gridlabd'
+      MYSQL_ROOT_PASSWORD: 'gridlabd'
+    volumes:
+      - gridlabd-db:/var/lib/mysql
+
+  gridlabd:
+    image: gridlabd/slac-master:latest
+    ports:
+      - "6266-6299:6266-6299"
+
+volumes:
+  gridlabd-db:
+
 
 #  ### APACHE
 #  httpd:

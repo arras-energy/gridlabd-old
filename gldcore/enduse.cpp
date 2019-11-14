@@ -427,12 +427,14 @@ int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 	int len = 0;
 #define OUTPUT_NZ(X) if (e->X!=0) len+=sprintf(string+len,"%s" #X ": %f", len>0?"; ":"", e->X)
 #define OUTPUT(X) len+=sprintf(string+len,"%s"#X": %g", len>0?"; ":"", e->X);
+#define OUTPUT_NZ_X(X,N) if (e->X!=0) len+=sprintf(string+len,"%s" #N ": %f", len>0?"; ":"", e->X)
+#define OUTPUT_X(X,N) len+=sprintf(string+len,"%s"#N": %g", len>0?"; ":"", e->X);
 	OUTPUT_NZ(impedance_fraction);
 	OUTPUT_NZ(current_fraction);
 	OUTPUT_NZ(power_fraction);
 	OUTPUT(power_factor);
-	OUTPUT(power.Re());
-	OUTPUT_NZ(power.Im());
+	OUTPUT_X(power.Re(),"power.real");
+	OUTPUT_NZ_X(power.Im(),"power.imag");
 	return len;
 }
 
@@ -608,9 +610,9 @@ int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
 			e->power_fraction = atof(value);
 		else if (strcmp(param,"power_factor")==0)
 			e->power_factor = atof(value);
-		else if ( strcmp(param,"power.r")==0 )
+		else if ( strcmp(param,"power.real")==0 )
 			e->power.Re() = atof(value);
-		else if ( strcmp(param,"power.i")==0 )
+		else if ( strcmp(param,"power.imag")==0 )
 			e->power.Im() = atof(value);
 		else if (strcmp(param,"loadshape")==0)
 		{
