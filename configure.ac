@@ -547,11 +547,6 @@ AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 # The End
 ###############################################################################
 
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([gridlabd.spec])
-AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
-AC_OUTPUT
-
 VERSION_NAME=$(build-aux/version.sh --name)
 BINDIR=`eval echo $(eval echo $bindir)`
 LIBDIR=`eval echo $(eval echo $libdir)`/$PACKAGE
@@ -607,3 +602,11 @@ AC_MSG_RESULT([
 
 -----------------------------------------------------------------------
 ])
+
+CXXFLAGS="$CPPFLAGS $(/usr/local/bin/python3-config --cflags)"
+LDFLAGS="$LDFLAGS $(/usr/local/bin/python3-config --ldflags)"
+
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([gridlabd.spec])
+AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
+AC_OUTPUT

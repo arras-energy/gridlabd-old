@@ -329,7 +329,7 @@ EXPORT TIMESTAMP sync_load_tracker(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 			obj->clock = t0;
 			return t1;
 		default:
-			throw "invalid pass request";
+			break;
 		}
 		throw "invalid pass request";
 	}
