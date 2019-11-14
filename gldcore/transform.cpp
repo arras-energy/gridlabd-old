@@ -180,6 +180,22 @@ TRANSFERFUNCTION *transform_find_filter(const char *name)
 	return NULL;
 }
 
+int transfer_function_constrain(char *tfname, unsigned int64 flags, unsigned int64 nbits, double minimum, double maximum)
+{
+	TRANSFERFUNCTION *tf = transform_find_filter(tfname);
+	if ( tf==NULL )
+	{
+		output_error("transfer_function_constrain(name='%s',...): transfer function not found",tfname);
+		return 0;
+	}
+	tf->flags = flags;
+	tf->resolution = (maximum-minimum)/pow(2.0,(double)nbits);
+	tf->minimum = minimum;
+	tf->maximum = maximum;
+	output_debug("transfer function '%s' constraint to range (%lg,%lg( with resolution %lg (%lld bits, flags=0x%llx)",tfname,minimum,maximum,tf->resolution, nbits, flags);
+	return 1;
+}
+
 TRANSFORMSOURCE get_source_type(PROPERTY *prop)
 {
 	/* TODO extend this to support multiple sources */
@@ -244,11 +260,8 @@ int transform_add_filter(OBJECT *target_obj,		/* pointer to the target object (l
 	xform->next = schedule_xformlist;
 	schedule_xformlist = xform;
 
-	if ( global_debug_output )
-	{
-		IN_MYCONTEXT output_debug("added filter '%s' from source '%s:%s' to target '%s:%s'", filter,
-			object_name(target_obj,buffer1,sizeof(buffer1)),target_prop->name,object_name(source_obj,buffer2,sizeof(buffer2)),source_prop->name);
-	}
+	IN_MYCONTEXT output_debug("added filter '%s' from source '%s:%s' to target '%s:%s'", filter,
+ 		object_name(target_obj,buffer1,sizeof(buffer1)),target_prop->name,object_name(source_obj,buffer2,sizeof(buffer2)),source_prop->name);
 	return 1;
 
 }
@@ -343,7 +356,10 @@ void cast_from_double(PROPERTYTYPE ptype, void *addr, double value)
 	case PT_float: *(float*)addr = (float)value; break;
 	case PT_loadshape: ((loadshape*)addr)->load = value; break;
 	case PT_enduse: ((enduse*)addr)->total.Re() = value; ((enduse*)addr)->total.Im() = 0; break;
-	default: break;
+	case PT_random: ((randomvar*)addr)->value = value; break;
+ 	default: 
+ 		output_error("transform.c/cast_from_double(PROPERTYTYPE ptype=0x%x, void *addr=0x%p, double value=%lg): unsupported property type",ptype,addr,value);
+ 		break;
 	}
 }
 
@@ -366,20 +382,93 @@ TIMESTAMP apply_filter(TRANSFERFUNCTION *f,	///< transfer function
 	{
 		len = (n/4+1)*4;
 		dx = (double*)realloc(dx,len);
+		IN_MYCONTEXT output_debug("apply_transform(f={name='%s'; domain='%s'}): allocating %d doubles to dx", f->name, f->domain,len);
+	}
+	IN_MYCONTEXT
+	{
+		char buffer[1024] = "";
+		int pos = sprintf(buffer,"%s(%s) = ( ", f->name,f->domain);
+		for ( i = 0 ; i < m ; i++ )
+		{
+			switch ( m-i-1 ) {
+			case 0:
+				pos += sprintf(buffer+pos,"%+g ", b[m-i-1]);
+				break;
+			case 1:
+				pos += sprintf(buffer+pos,"%+gz ", b[m-i-1]);
+				break;
+			default:
+				pos += sprintf(buffer+pos,"%+gz^%d ", b[m-i-1], m-i-1);
+				break;
+			}
+		}
+		pos += sprintf(buffer+pos,") / ( z^%d ",n);
+		for ( i = 0 ; i < n ; i++ )
+		{
+			switch ( n-i-1 ) {
+			case 0:
+				pos += sprintf(buffer+pos,"%+g ", a[n-i-1]);
+				break;
+			case 1:
+				pos += sprintf(buffer+pos,"%+gz ", a[n-i-1]);
+				break;
+			default:
+				pos += sprintf(buffer+pos,"%+gz^%d ", a[n-i-1], n-i-1);
+				break;
+			}
+
+		}
+		pos += sprintf(buffer+pos,")");
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): %s",f->name,f->domain, buffer);
 	}
 
 	// observable form
-	for ( i=0 ; i<n ; i++ )
+	IN_MYCONTEXT output_debug("apply_transform(f={name='%s'; domain='%s'}): u = %g",f->name,f->domain, *u);
+	for ( i = 0 ; i < n ; i++ )
 	{
-		if ( i==0 )
-			dx[i] = -a[i]*x[n-1];
-		else
-			dx[i] = x[i-1] - a[i]*x[n-1];
-		if ( i<m )
+		dx[i] = - a[i]*x[n-1];
+		if ( i > 0 )
+			dx[i] += x[i-1];
+		if ( i < m )
 			dx[i] += b[i] * (*u);
 	}
+	IN_MYCONTEXT
+	{
+		char buffer[1024];
+		int pos = sprintf(buffer,"x = [");
+		for ( i = 0 ; i < n ; i++ )
+		{
+			pos += sprintf(buffer+pos,"%s %g", i>0?",":"", x[i]);
+		}
+		pos += sprintf(buffer+pos,"]");
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): %s",f->name,f->domain, buffer);
+	}
 	memcpy(x,dx,sizeof(double)*n);
+	IN_MYCONTEXT
+	{
+		char buffer[1024];
+		int pos = sprintf(buffer,"dx = [");
+		for ( i = 0 ; i < n ; i++ )
+		{
+			pos += sprintf(buffer+pos,"%s %g", i>0?",":"", x[i]);
+		}
+		pos += sprintf(buffer+pos,"]");
+		output_debug("apply_transform(f={name='%s'; domain='%s'}): %s",f->name,f->domain, buffer);
+	}
 	*y = x[n-1]; // output
+	if ( ((f->flags)&FC_MINIMUM) == FC_MINIMUM && *y < f->minimum )
+ 	{
+ 		*y = f->minimum;
+ 	}
+ 	else if ( ((f->flags)&FC_MAXIMUM) == FC_MAXIMUM && *y > f->maximum )
+ 	{
+ 		*y = f->maximum;
+ 	}
+ 	if ( ((f->flags)&FC_RESOLUTION) == FC_RESOLUTION && f->resolution > 0.0 )
+ 	{
+ 		*y = floor((*y - f->minimum)/f->resolution)*f->resolution + f->minimum;
+ 	}	
+	IN_MYCONTEXT output_debug("apply_transform(f={name='%s'; domain='%s'}): y = %g",f->name,f->domain, *y);
 	return ((int64)(t1/f->timestep)+1)*f->timestep + f->timeskew;
 }
 
@@ -391,16 +480,12 @@ TIMESTAMP transform_apply(TIMESTAMP t1, TRANSFORM *xform, double *source)
 	TIMESTAMP t2;
 	switch (xform->function_type) {
 	case XT_LINEAR:
-#ifdef _DEBUG
-		IN_MYCONTEXT output_debug("running linear transform for %s:%s", object_name(xform->target_obj,buffer,sizeof(buffer)), xform->target_prop->name);
-#endif
+		IN_MYCONTEXT output_debug("running linear transform for %s:%s", object_name(xform->target_obj), xform->target_prop->name);
 		cast_from_double(xform->target_prop->ptype, xform->target, (source?(*source):(*(xform->source))) * xform->scale + xform->bias);
 		t2 = TS_NEVER;
 		break;
 	case XT_EXTERNAL:
-#ifdef _DEBUG
-		IN_MYCONTEXT output_debug("running external transform for %s:%s", object_name(xform->target_obj,buffer,sizeof(buffer)), xform->target_prop->name);
-#endif
+		IN_MYCONTEXT output_debug("running external transform for %s:%s", object_name(xform->target_obj), xform->target_prop->name);
 		xform->retval = (*xform->function)(xform->nlhs, xform->plhs, xform->nrhs, xform->prhs);
 		if ( xform->retval==-1 ) /* error */
 			t2 = TS_ZERO;
@@ -410,9 +495,7 @@ TIMESTAMP transform_apply(TIMESTAMP t1, TRANSFORM *xform, double *source)
 			t2 = t1 + xform->retval; /* timer given */
 		break;
 	case XT_FILTER:
-#ifdef _DEBUG
-		IN_MYCONTEXT output_debug("running filter transform for %s:%s", object_name(xform->target_obj,buffer,sizeof(buffer)), xform->target_prop->name);
-#endif
+		IN_MYCONTEXT output_debug("running filter transform for %s:%s", object_name(xform->target_obj), xform->target_prop->name);
 		if ( xform->t2 <= t1 )
 			xform->t2 = apply_filter(xform->tf,xform->source,xform->x,xform->y,t1);
 		t2 = xform->t2;
@@ -434,10 +517,18 @@ TIMESTAMP transform_syncall(TIMESTAMP t1, TRANSFORMSOURCE source)
 	TIMESTAMP tskew, t;
 
 	/* process the schedule transformations */
+	IN_MYCONTEXT output_debug("transform_syncall(t1=%lld, TRANSFORMSOURCE=0x%04llx): entering",t1,(int64)source);
 	for (xform=schedule_xformlist; xform!=NULL; xform=xform->next)
 	{	
-		if (xform->source_type&source){
-			if((xform->source_type == XS_SCHEDULE) && (xform->target_obj->schedule_skew != 0)){
+		IN_MYCONTEXT output_debug("transform_syncall(t1=%lld, TRANSFORMSOURCE=0x%04llx): xform->source_type = %04llx, &source = %04llx",t1,(int64)source,(int64)xform->source_type,(int64)(xform->source_type&source));
+		if ( xform->source_type == XS_UNKNOWN )
+ 			output_warning("transform_syncall(...): transform to property '%s' of object '%s' has an unknown source type, it will always be run", xform->target_prop->name, xform->target_obj->name?xform->target_obj->name:"(unnamed)");
+ 		if ( xform->source_type == XS_UNKNOWN || (xform->source_type&source)!=0 )
+ 		{
+			if ( ( xform->source_type == XS_SCHEDULE ) 
+			  && ( xform->target_obj->schedule_skew != 0 ) )
+			{
+				IN_MYCONTEXT output_debug("transform_syncall(t1=%lld, TRANSFORMSOURCE=0x%04llx): skew = %lld",t1,(int64)source,xform->target_obj->schedule_skew);
 			    tskew = t1 - xform->target_obj->schedule_skew; // subtract so the +12 is 'twelve seconds later', not earlier
 			    SCHEDULEINDEX index = schedule_index(xform->source_schedule,tskew);
 			    int32 dtnext = schedule_dtnext(xform->source_schedule,index)*60;
@@ -453,7 +544,9 @@ TIMESTAMP transform_syncall(TIMESTAMP t1, TRANSFORMSOURCE source)
 					t = transform_apply(t1,xform,NULL);
 					if ( t<t2 ) t2=t;
 				}
-			} else {
+			} 
+			else 
+			{
 				t = transform_apply(t1,xform,NULL);
 				if ( t<t2 ) t2=t;
 			}

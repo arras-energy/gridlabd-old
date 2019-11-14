@@ -517,24 +517,24 @@ int GldCmdarg::version(int argc, const char *argv[])
 	{	
 		output_message("%s %s-%d (%s) "
 #if defined MACOSX
-			"DARWIN"
+			"Darwin"
 #else // LINUX
-			"LINUX"
+			"Linux"
 #endif
 			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
 	}
-	else if ( strcmp(opt,"number" ) == 0 )
+	else if ( strcmp(opt,"number" ) == 0 || strcmp(opt,"version") == 0 )
 	{
 		output_message("%s", PACKAGE_VERSION);
 		return 0;
 	}
-	else if ( strcmp(opt,"build") == 0 )
+	else if ( strcmp(opt,"build") == 0 || strcmp(opt,"build_number") == 0 )
 	{
 		output_message("%d", BUILDNUM);
 		return 0;
 	}
-	else if ( strcmp(opt,"package") == 0 )
+	else if ( strcmp(opt,"package") == 0 || strcmp(opt,"application") == 0 )
 	{
 		output_message("%s", PACKAGE_NAME);
 		return 0;
@@ -544,26 +544,92 @@ int GldCmdarg::version(int argc, const char *argv[])
 		output_message("%s", BRANCH);
 		return 0;
 	}
-	else if ( strcmp(opt,"platform") == 0 )
+	else if ( strcmp(opt,"platform") == 0 || strcmp(opt,"system") == 0 )
 	{
 		output_message(
 #if defined MACOSX
-			"DARWIN"
+			"Darwin"
 #else // LINUX
-			"LINUX"
+			"Linux"
 #endif
 		);
 		return 0;
 	}
+	else if ( strcmp(opt,"release") == 0 )
+	{
+		output_message("%s",BUILD_RELEASE);
+		return 0;
+	}
+	else if ( strcmp(opt,"commit") == 0 )
+	{
+		output_message("%s",BUILD_ID);
+		return 0;
+	}
+	else if ( strcmp(opt,"email") == 0 )
+	{
+		output_message("%s",PACKAGE_BUGREPORT);
+		return 0;
+	}
+	else if ( strcmp(opt,"origin") == 0 )
+	{
+		output_message("%s",BUILD_URL);
+		return 0;
+	}
 	else if ( strcmp(opt,"install") == 0 )
 	{
-		output_message("%s_%s-%d_%s_%s-x64_86", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH, 
-#if defined MACOSX
-			"macos"
-#else // LINUX
-			"linux"
-#endif
-			);
+		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
+		char tmp[1024];
+		strcpy(tmp,global_execdir);
+		char *p = strrchr(tmp,'/');
+		if ( p != NULL && strcmp(p,"/bin") == 0 )
+		{
+			*p = '\0';
+		}
+		output_message("%s", tmp);
+		return 0;
+	}
+	else if ( strcmp(opt,"name") == 0 )
+	{
+		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
+		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"json") == 0 )
+	{
+		bool old = global_suppress_repeat_messages;
+		global_suppress_repeat_messages = false;
+		output_message("{");
+#define OUTPUT(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\",",TAG,VALUE)
+#define OUTPUT_LAST(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\"\n}",TAG,VALUE)
+#define OUTPUT_LIST_START(TAG) output_message("\t\"%s\" : [",TAG)
+#define OUTPUT_LIST_ITEM(VALUE) output_message("\t\t\"%s\",",VALUE)
+#define OUTPUT_LIST_END(VALUE) output_message("\t\t\"%s\"],",VALUE)
+#define OUTPUT_MULTILINE(TAG,VALUE) {\
+		const char *value = VALUE;\
+		char *token=NULL, *last=NULL;\
+		char buffer[strlen(value)+1];\
+		strcpy(buffer,value);\
+		OUTPUT_LIST_START(TAG);\
+		while ( (token=strtok_r(token?NULL:buffer,"\n",&last)) != NULL )\
+		{\
+			OUTPUT_LIST_ITEM(token);\
+		}\
+		OUTPUT_LIST_END("");\
+	}
+		OUTPUT("application","%s",PACKAGE);
+		OUTPUT("version","%s",PACKAGE_VERSION);
+		OUTPUT("build_number","%06d",BUILDNUM);
+		OUTPUT("branch","%s",BRANCH);
+		OUTPUT("options","%s",BUILD_OPTIONS);
+		OUTPUT_MULTILINE("status",BUILD_STATUS);
+		OUTPUT_MULTILINE("copyright",version_copyright());
+		OUTPUT_MULTILINE("license",legal_license_text());
+		OUTPUT("system","%s",BUILD_SYSTEM);
+		OUTPUT("release","%s",BUILD_RELEASE);
+		OUTPUT("commit","%s",BUILD_ID);
+		OUTPUT("email","%s",PACKAGE_BUGREPORT);
+		OUTPUT_LAST("origin","%s",BUILD_URL);
+		global_suppress_repeat_messages = old;
 		return 0;
 	}
 	else
@@ -1782,7 +1848,7 @@ int GldCmdarg::origin(int argc, const char *argv[])
 		IN_MYCONTEXT output_error("origin file not found");
 		return CMDERR;
 	}
-	fp = fopen(originfile,"r");
+	fp = fopen(originfile,"rt");
 	if ( fp == NULL )
 	{
 		IN_MYCONTEXT output_error("unable to open origin file");

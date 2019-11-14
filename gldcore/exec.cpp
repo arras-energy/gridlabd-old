@@ -1548,7 +1548,7 @@ STATUS GldExec::t_sync_all(PASSCONFIG pass)
 
 	/* run all non-schedule transforms */
 	{
-		TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_DOUBLE|XS_COMPLEX|XS_ENDUSE));// if (abs(t)<t2) t2=t;
+		TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_ALL&(~(XS_SCHEDULE|XS_LOADSHAPE))));// if (abs(t)<t2) t2=t;
 		if (st<sync.step_to)
 			sync.step_to = st;
 	}
@@ -2683,7 +2683,7 @@ STATUS GldExec::exec_start(void)
 
 				/* run all non-schedule transforms */
 				{
-					TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_DOUBLE|XS_COMPLEX|XS_ENDUSE));// if (abs(t)<t2) t2=t;
+					TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_ALL&(~(XS_SCHEDULE|XS_LOADSHAPE))));
 					sync_set(NULL,st,false);
 				}
 			}

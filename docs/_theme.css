@@ -1,15 +1,20 @@
-A:LINK,A:VISITED {
-	color: blue;
-	text-decoration: none;
+BODY {
+    background-color: white;
 }
-A:ACTIVE {
-	color: blue;
-	text-decoration: underline;
+DIV.BLOCK {
+    background-color: #f0f0f0;
 }
-
-DIV.HEADER {
-	font-size: small;
+CODE.INLINE {
+    background-color: white;
 }
-DIV.FOOTER {
-	font-size: small;
+CODE.BLOCK {
+    background-color: #f0f0f0;
+}
+CODE.DEBUG {
+    background-color: yellow;
+}
+CODE.ERROR {
+    background-color: red;
+}
+LI {
 }
