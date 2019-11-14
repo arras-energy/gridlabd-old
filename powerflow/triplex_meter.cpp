@@ -215,6 +215,7 @@ int triplex_meter::init(OBJECT *parent)
 		}
 	}
 	check_prices();
+	last_t = gl_globalclock;
 
 	return triplex_node::init(parent);
 }
@@ -837,7 +838,7 @@ EXPORT TIMESTAMP sync_triplex_meter(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 			obj->clock = t0;
 			return t1;
 		default:
-			throw "invalid pass request";
+			break;
 		}
 		throw "invalid pass request";
 	}

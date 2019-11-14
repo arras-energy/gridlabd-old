@@ -231,13 +231,9 @@ int property_read(PROPERTY *prop, void *addr, const char *string)
 
 int property_write(PROPERTY *prop, void *addr, char *string, size_t size)
 {
-	if ( prop->ptype == PT_method && string == NULL ) // size inquiry
+	if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST && property_type[prop->ptype].data_to_string != NULL )
 	{
-		return property_type[prop->ptype].data_to_string(NULL,0,addr,prop);
-	}
-	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST && property_type[prop->ptype].data_to_string != NULL )
-	{
-		return property_type[prop->ptype].data_to_string(string,size,addr,prop);
+		return property_type[prop->ptype].data_to_string(string,string?size:0,addr,prop);
 	}
 	else
 	{
@@ -250,7 +246,6 @@ int property_write(PROPERTY *prop, void *addr, char *string, size_t size)
 		 */
 		return 0;
 	}
-
 }
 
 int property_create(PROPERTY *prop, void *addr)
@@ -375,14 +370,14 @@ bool property_is_default(OBJECT *obj, PROPERTY *prop)
 		property_write(prop,b,buf2,sizeof(buf2));
 		if ( obj->name == NULL )
 		{
-			output_debug("comparing %s:%d.%s [%s] == %s:default.%s [%s] --> %s",
+			IN_MYCONTEXT output_debug("comparing %s:%d.%s [%s] == %s:default.%s [%s] --> %s",
 				obj->oclass->name, obj->id, prop->name, buf1,
 				obj->oclass->name, prop->name, buf2,
 				result ? "true" : "false");
 		}
 		else
 		{
-			output_debug("comparing %s.%s [%s] == %s:default.%s [%s] --> %s",
+			IN_MYCONTEXT output_debug("comparing %s.%s [%s] == %s:default.%s [%s] --> %s",
 				obj->name, prop->name, buf1,
 				obj->oclass->name, prop->name, buf2,
 				result ? "true" : "false");
@@ -455,7 +450,7 @@ int complex_from_string(void *x, const char *str)
 				return 0;
 		}
 	}
-	output_debug("complex_from_string(void *x=%p, char *str='%s') complex parse failed (n=%d)", x,str, n);
+	IN_MYCONTEXT output_debug("complex_from_string(void *x=%p, char *str='%s') complex parse failed (n=%d)", x,str, n);
 	return 0;
 }
 

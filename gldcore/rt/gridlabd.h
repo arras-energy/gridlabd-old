@@ -12,6 +12,8 @@
 #include <float.h>
 #include <string.h>
 
+#include <Python.h>
+
 #ifdef _WINDOWS
 #define isfinite _finite
 #endif
@@ -1176,6 +1178,7 @@ typedef struct s_callbacks {
 		void (*add)(struct s_findlist*, OBJECT*);
 		void (*del)(struct s_findlist*, OBJECT*);
 		void (*clear)(struct s_findlist*);
+		struct s_findlist *(*list_create)(struct s_findlist*,const char *);
 	} find;
 	PROPERTY *(*find_property)(CLASS *, PROPERTYNAME);
 	void *(*malloc)(size_t);
@@ -1349,6 +1352,11 @@ typedef struct s_callbacks {
 		unsigned int (*build)(void);
 		const char * (*branch)(void);
 	} version;
+	int (*call_external_callback)(const char*, void *);
+	struct {
+		PyObject *(*import)(const char *module, const char *path);
+		bool (*call)(PyObject *pModule, const char *method);
+	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
 
