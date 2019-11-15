@@ -334,7 +334,7 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
-install-exec-hook: python-install
+install-exec-hook: python-install html-local index
 	@if [ "$(diff '/usr/local/bin/gridlabd' '$(DESTDIR)$(bindir)/gridlabd' >/dev/null 2>&1 || echo yes)" == "yes" ]; then \
 		echo >&2 ""; \
 		echo >&2 "*** WARNING ***"; \
@@ -357,10 +357,10 @@ install-exec-hook: python-install
 index: weather library template
 
 html-local: module-html developer-html troubleshooting-html
-	mkdir -p $(prefix)/html/developer
-	cp $(top_srcdir)/documents/index.html $(prefix)/html/
-	cp -R $(top_srcdir)/documents/html/* $(prefix)/html/
-	cp -R $(top_srcdir)/gldcore/html/* $(prefix)/html/developer/
+	mkdir -p $(prefix)/share/doc/developer
+	cp $(top_srcdir)/documents/index.html $(prefix)/share/doc/index.html
+	cp -R $(top_srcdir)/documents/html/* $(prefix)/share/doc/
+	cp -R $(top_srcdir)/gldcore/html/* $(prefix)/share/doc/developer/
 
 module-html:
 	@mkdir -p $(top_srcdir)/documents/html/modules
