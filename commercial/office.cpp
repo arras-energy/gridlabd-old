@@ -194,39 +194,36 @@ office::office(MODULE *module)
 			PT_double, "ACH", PADDR(zone.hvac.minimum_ach),
 
 			NULL)<1) throw("unable to publish properties in " __FILE__);
-		memset(defaults,0,sizeof(office));
-
-		/* set default power factors */
-		zone.lights.enduse.power_factor = 1.0;
-		zone.plugs.enduse.power_factor = 1.0;
-		zone.hvac.enduse.power_factor = 1.0;
-
-		/* set default climate to static values */
-		static double Tout = 59, RHout=0.75, Solar[9]={0,0,0,0,0,0,0,0,0};
-		zone.current.pTemperature = &Tout;
-		zone.current.pHumidity = &RHout;
-		zone.current.pSolar = Solar;
-
-		/* set default thermal conditions */
-		zone.current.air_temperature = Tout;
-		zone.current.mass_temperature = Tout;
-
-		/* set default control strategy */
-		zone.control.heating_setpoint = 70;
-		zone.control.cooling_setpoint = 75;
-		zone.control.setpoint_deadband = 1;
-		zone.control.ventilation_fraction = 1;
-		zone.control.lighting_fraction = 0.5;
 	}
 }
 
 /* Object creation is called once for each object that is created by the core */
 int office::create(void) 
 {
-	memcpy(this,defaults,sizeof(*this));
+	/* set default power factors */
+	zone.lights.enduse.power_factor = 1.0;
+	zone.plugs.enduse.power_factor = 1.0;
+	zone.hvac.enduse.power_factor = 1.0;
+
+	/* set default climate to static values */
+	static double Tout = 59, RHout=0.75, Solar[9]={0,0,0,0,0,0,0,0,0};
+	zone.current.pTemperature = &Tout;
+	zone.current.pHumidity = &RHout;
+	zone.current.pSolar = Solar;
+
+	/* set default thermal conditions */
+	zone.current.air_temperature = Tout;
+	zone.current.mass_temperature = Tout;
+
+	/* set default control strategy */
+	zone.control.heating_setpoint = 70;
+	zone.control.cooling_setpoint = 75;
+	zone.control.setpoint_deadband = 1;
+	zone.control.ventilation_fraction = 1;
+	zone.control.lighting_fraction = 0.5;
 	return 1; /* return 1 on success, 0 on failure */
 }
-
+	
 /* convert a schedule into an occupancy buffer 
    syntax: DAYS,HOURS
    where DAYS is a range of day numbers and HOURS is a range of hours
