@@ -2727,26 +2727,26 @@ TIMESTAMP house_e::sync(TIMESTAMP t0, TIMESTAMP t1)
 			if(t < thermostat_last_cycle_time + thermostat_cycle_time){
 				dt2 = (double)(thermostat_last_cycle_time + thermostat_cycle_time);
 			} else {
-				dt2 = e2solve(k1,r1,k2,r2,Teq-Tevent)*3600.0;
+				dt2 = e2solve(k1,r1,k2,r2,Teq-Tevent,0.01/3600)*3600.0;
 			}
 		} else if(thermostat_off_cycle_time >= 0 && thermostat_on_cycle_time >= 0){
 			if(thermostat_last_off_cycle_time > thermostat_last_on_cycle_time){
 				if(t < thermostat_last_off_cycle_time + thermostat_off_cycle_time){
 					dt2 = (double)(thermostat_last_off_cycle_time + thermostat_off_cycle_time);
 				} else {
-					dt2 = e2solve(k1,r1,k2,r2,Teq-Tevent)*3600;
+					dt2 = e2solve(k1,r1,k2,r2,Teq-Tevent,0.01/3600)*3600;
 				}
 			} else if(thermostat_last_off_cycle_time < thermostat_last_on_cycle_time){
 				if(t < thermostat_last_on_cycle_time + thermostat_on_cycle_time){
 					dt2 = (double)(thermostat_last_on_cycle_time + thermostat_on_cycle_time);
 				} else {
-					dt2 = e2solve(k1,r1,k2,r2,Teq-Tevent)*3600;
+					dt2 = e2solve(k1,r1,k2,r2,Teq-Tevent,0.01/3600)*3600;
 				}
 			} else {
 				if(t < thermostat_last_cycle_time + thermostat_cycle_time){
 					dt2 = (double)(thermostat_last_cycle_time + thermostat_cycle_time);
 				} else {
-					dt2 = e2solve(k1,r1,k2,r2,Teq-Tevent)*3600;
+					dt2 = e2solve(k1,r1,k2,r2,Teq-Tevent,0.01/3600)*3600;
 				}
 			}
 		} else {
