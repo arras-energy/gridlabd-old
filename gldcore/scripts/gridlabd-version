@@ -116,7 +116,7 @@ function version-show()
 function version-delete()
 {
 	if [ "$1" == "-a" ]; then
-		L='[0-9]*'
+		L="$(cd /usr/local/opt/gridlabd; ls -1d | grep -v current)"
 	else
 		L="$1"
 		if [ ! -d "$L" ]; then
@@ -125,7 +125,7 @@ function version-delete()
 	fi
 	if [ ! -z "$L" ]; then
 		for F in $L; do
-			[ ! "$F" == "current" -a -d "$F" -a ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$F" ] && $ACTION rm -rf /usr/local/opt/gridlabd/$F
+			[ ! "$F" == "current" -a -d "/usr/local/opt/gridlabd/$F" -a ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$F" ] && $ACTION rm -rf /usr/local/opt/gridlabd/$F
 		done
 	fi
 }
