@@ -1,6 +1,6 @@
 #!/bin/bash
 
-EXE="$0"
+EXE="$(basename $0)"
 function error()
 {
 	echo "$EXE: ERROR $*" > /dev/stderr
@@ -67,16 +67,20 @@ function version-save()
 function version-set()
 {
 	version-save
-	L=$(cd /usr/local/opt/gridlabd ; ls -1d *$1* | grep -v current)
+	L="$1"
+	if [ ! -d "/usr/local/opt/gridlabd/$L" ]; then
+		L=$(cd /usr/local/opt/gridlabd ; ls -1d *$1* | grep -v current)
+	fi
 	if [ -z "$L" ]; then
 		error 2 "version not found"
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
 	else
-		ln -sf /usr/local/opt/gridlabd/$L /usr/local/opt/gridlabd/current
-		ln -sf /usr/local/opt/gridlabd/current/bin/gridlabd.bin /usr/local/bin/gridlabd.bin
+		rm -f /usr/local/opt/gridlabd/current
+		ln -s /usr/local/opt/gridlabd/$L /usr/local/opt/gridlabd/current
 		for F in bin lib share include; do
-			ln -sf /usr/local/opt/gridlabd/current/$F/gridlabd /usr/local/$F/gridlabd
+			rm -f /usr/local/$F/gridlabd
+			ln -s /usr/local/opt/gridlabd/current/$F/gridlabd /usr/local/$F/gridlabd
 		done
 	fi
 }
