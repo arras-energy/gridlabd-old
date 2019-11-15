@@ -596,7 +596,7 @@ AC_MSG_RESULT([
   Running:
     type 'export PATH=/usr/local/opt/gridlabd/$VERSION_NAME/bin:\$PATH' to include this version in your current path
     type '$PACKAGE --version' to check that you are running the correct version of $PACKAGE
-    type '$PACKAGE version select $VERSION_NAME' to activate this version of $PACKAGE
+    type '/usr/local/opt/gridlabd/$VERSION_NAME/bin/$PACKAGE version set' to activate this version of $PACKAGE
 
 -----------------------------------------------------------------------
 ])
