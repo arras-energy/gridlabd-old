@@ -601,6 +601,9 @@ AC_MSG_RESULT([
 -----------------------------------------------------------------------
 ])
 
+CXXFLAGS="$CXXFLAGS $(/usr/local/bin/python3-config --cflags)"
+LDFLAGS="$LDFLAGS $(/usr/local/bin/python3-config --ldflags)"
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
 AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
