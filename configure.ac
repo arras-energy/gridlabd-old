@@ -573,9 +573,7 @@ AC_MSG_RESULT([
     __sync_add_and_fetch: ....... $HAVE_SYNC_ADD_AND_FETCH
 
   Build flags:
-    CFLAGS: ..................... ${CFLAGS:-(none)}
     CXXFLAGS: ................... ${CXXFLAGS:-(none)}
-    CPPFLAGS: ................... ${CPPFLAGS:-(none)}
     LDFLAGS: .................... ${LDFLAGS:-(none)}
 
   Installation paths:
@@ -602,9 +600,6 @@ AC_MSG_RESULT([
 
 -----------------------------------------------------------------------
 ])
-
-CXXFLAGS="$CPPFLAGS $(/usr/local/bin/python3-config --cflags)"
-LDFLAGS="$LDFLAGS $(/usr/local/bin/python3-config --ldflags)"
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])

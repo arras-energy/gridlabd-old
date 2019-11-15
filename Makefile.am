@@ -337,6 +337,8 @@ libtool: $(LIBTOOL_DEPS)
 install-exec-hook: python-install
 	@if [ "`which gridlabd`" != "$(DESTDIR)$(bindir)/gridlabd" ]; then \
 		echo >&2 "***WARNING***: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
+		echo >&2 "To add this version of gridlabd to your path, use the following command:"; \
+		echo >&2 "export PATH=$(DESTDIR)$(bindir):$$PATH"; \
 	fi
 
 index: weather library template
