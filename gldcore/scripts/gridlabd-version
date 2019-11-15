@@ -1,16 +1,30 @@
 #!/bin/bash
 
 EXE="$(basename $0)"
+
 function error()
 {
 	echo "$EXE: ERROR $*" > /dev/stderr
 	exit $1
 }
 
+case "$1" in
+--dryrun) 
+	ACTION="echo"
+	shift 1
+	;;
+--*)
+	error 9 "'$1' in an invalid option"
+	;;
+*)
+	ACTION=""
+	;;
+esac
+
 function version-help()
 {
 	cat <<-END
-		Syntax: gridlabd version <command> <options...>
+		Syntax: gridlabd version [--dryrun] <command> <options...>
 		Commands:
 		  help                    get this list of commands
 		  check [-v|-q]           check for a newer version
@@ -53,13 +67,13 @@ function version-save()
 			N=$(($N+1))
 		done
 		SAVED="$TRY"
-		mkdir -p /usr/local/opt/gridlabd/$SAVED/{bin,lib,share,include}
+		$ACTION mkdir -p /usr/local/opt/gridlabd/$SAVED/{bin,lib,share,include}
 		for F in bin lib share include; do
-			[ ! -d /usr/local/opt/gridlabd/$SAVED/$F ]; mkdir -p /usr/local/opt/gridlabd/$SAVED/$F
+			[ ! -d /usr/local/opt/gridlabd/$SAVED/$F ]; $ACTION mkdir -p /usr/local/opt/gridlabd/$SAVED/$F
 			if [ "$F" == "bin" ]; then
-				mv /usr/local/bin/gridlabd* /usr/local/opt/gridlabd/$SAVED/bin
+				$ACTION mv /usr/local/bin/gridlabd* /usr/local/opt/gridlabd/$SAVED/bin
 			else
-				[ -f /usr/local/$F/gridlabd -a ! -L /usr/local/$F/gridlabd ] && mv /usr/local/$F/gridlabd /usr/local/opt/gridlabd/$SAVED/$F
+				[ -f /usr/local/$F/gridlabd -a ! -L /usr/local/$F/gridlabd ] && $ACTION mv /usr/local/$F/gridlabd /usr/local/opt/gridlabd/$SAVED/$F
 			fi
 		done
 	fi
@@ -73,17 +87,21 @@ function version-set()
 		L=$(cd /usr/local/opt/gridlabd ; ls -1d *$1* | grep -v current)
 	fi
 	if [ -z "$L" ]; then
-		error 2 "version not found"
+		L="$(${0/$EXE/gridlabd} --version=name | sed -e 's/^gridlabd-//')"
 	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
 		error 2 "ambiguous version"
-	else
-		rm -f /usr/local/opt/gridlabd/current
-		ln -s /usr/local/opt/gridlabd/$L /usr/local/opt/gridlabd/current
-		for F in bin lib share include; do
-			rm -f /usr/local/$F/gridlabd
-			ln -s /usr/local/opt/gridlabd/current/$F/gridlabd /usr/local/$F/gridlabd
-		done
 	fi
+	if [ ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$L" ]; then
+		$ACTION rm -f /usr/local/opt/gridlabd/current
+		$ACTION ln -s /usr/local/opt/gridlabd/$L /usr/local/opt/gridlabd/current
+	fi
+	for F in bin lib share include; do
+		if [ ! "$(readlink /usr/local/$F/gridlabd)" == "/usr/local/opt/gridlabd/current/$F/gridlabd" ]; then
+			$ACTION rm -rf /usr/local/$F/gridlabd
+			$ACTION ln -s /usr/local/opt/gridlabd/current/$F/gridlabd /usr/local/$F/gridlabd
+		fi
+	done
+	echo "$L"
 }
 
 function version-show()
@@ -107,7 +125,7 @@ function version-delete()
 	fi
 	if [ ! -z "$L" ]; then
 		for F in $L; do
-			[ ! "$F" == "current" -a -d "$F" -a ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$F" ] && rm -rf /usr/local/opt/gridlabd/$F
+			[ ! "$F" == "current" -a -d "$F" -a ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$F" ] && $ACTION rm -rf /usr/local/opt/gridlabd/$F
 		done
 	fi
 }
@@ -129,5 +147,5 @@ fi
 if [ "$(type -t version-$1)" == "function" ]; then
 	version-$*
 else
-	error 9 "$1 is not a valid command"
+	error 9 "'$1' is not a valid command"
 fi
