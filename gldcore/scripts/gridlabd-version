@@ -12,12 +12,13 @@ function version-help()
 	cat <<-END
 		Syntax: gridlabd version <command> <options...>
 		Commands:
-		  help              get this list of commands
-		  check [-v|-q]     check for a newer version
-		  list [<pattern>]  get a list of available versions
-		  show              show the current active version
-		  set [<pattern>]   set the active version
-		  source            open source code of the active version
+		  help                    get this list of commands
+		  check [-v|-q]           check for a newer version
+		  list [<pattern>]        get a list of available versions
+		  show                    show the current active version
+		  set [<pattern>]         set the active version
+		  source                  open source code of the active version
+		  delete [-a|<pattern>]   delete versions
 	END
 }
 
@@ -91,6 +92,23 @@ function version-show()
 		basename $(readlink /usr/local/opt/gridlabd/current)
 	else
 		echo "Current version is custom installed"
+	fi
+}
+
+function version-delete()
+{
+	if [ "$1" == "-a" ]; then
+		L='[0-9]*'
+	else
+		L="$1"
+		if [ ! -d "$L" ]; then
+			L=$(cd /usr/local/opt/gridlabd ; ls -1d *$1* | grep -v current)
+		fi
+	fi
+	if [ ! -z "$L" ]; then
+		for F in $L; do
+			[ ! "$F" == "current" -a -d "$F" -a ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$F" ] && rm -rf /usr/local/opt/gridlabd/$F
+		done
 	fi
 }
 

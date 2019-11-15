@@ -9,6 +9,7 @@ bash$ gridlabd version list <PATTERN>
 bash$ gridlabd version show
 bash$ gridlabd version set [<PATTERN>]
 bash$ gridlabd version source
+bash$ gridlabd version delete [-a|<PATTERN>]
 ~~~
 
 # Description
@@ -51,6 +52,10 @@ The `show` command display which version is current set for all users on the sys
 ## `source`
 
 The `source` option opens the source code to the version.
+
+## `delete`
+
+The indicated version is deleted. If the version is a pattern, then multiple versions are deleted.  If `-a` is used, all versions but the current version are deleted.
 
 # See also
 * [[Install]]
