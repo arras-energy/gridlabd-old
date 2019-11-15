@@ -2607,8 +2607,6 @@ public:
 	inline void set_##X(T p, gld_wlock&) { X=p; }; \
 	inline gld_string get_##X##_string(void) { return get_##X##_property().get_string(); }; \
 	inline void set_##X(const char *str) { get_##X##_property().from_string(str); }; \
-	inline void init_##X(void) { memset((void*)&X,0,sizeof(X));}; \
-	inline void init_##X(T value) { X=value;}; \
 
 // Define: GL_STRUCT
 // Define a structured property
@@ -2635,8 +2633,6 @@ public:
 	inline void set_##X(T p, gld_wlock&) { X=p; }; \
 	inline gld_string get_##X##_string(void) { return get_##X##_property().get_string(); }; \
 	inline void set_##X(char *str) { get_##X##_property().from_string(str); }; \
-	inline void init_##X(void) { memset((void*)&X,0,sizeof(X));}; \
-	inline void init_##X(T &value) { X=value;}; \
 
 // Define: GL_STRING
 // Define a string property
@@ -2671,8 +2667,6 @@ public:
 	inline void set_##X(char *p, gld_wlock&) { strncpy(X,p,sizeof(X)); }; \
 	inline void set_##X(size_t n, char c) { gld_wlock _lock(my()); X[n]=c; }; \
 	inline void set_##X(size_t n, char c, gld_wlock&) { X[n]=c; };  \
-	inline void init_##X(void) { memset((void*)X,0,sizeof(X));}; \
-	inline void init_##X(T value) { strncpy(X,value,sizeof(X)-1); }; \
 
 // Define: GL_ARRAY
 // Define an array property
@@ -2689,12 +2683,6 @@ public:
 	inline void set_##X(T* p, gld_wlock&) { memcpy(X,p,sizeof(X)); }; \
 	inline void set_##X(size_t n, T m) { gld_wlock _lock(my()); X[n]=m; }; \
 	inline void set_##X(size_t n, T m, gld_wlock&) { X[n]=m; };  \
-	inline void init_##X(T value=0) { \
-		size_t n; \
-		for ( n = 0 ; n < (size_t)(sizeof(X)/sizeof(X[0])) ; n++ ) { \
-			X[n] = value; \
-		} \
-	}; \
 
 // Define: GL_BITFLAGS
 // Define a bitflag property
@@ -2710,7 +2698,6 @@ public:
 	inline void set_##X(T p, gld_wlock&) { X=p; }; \
 	inline gld_string get_##X##_string(void) { return get_##X##_property().get_string(); }; \
 	inline void set_##X(char *str) { get_##X##_property().from_string(str); }; \
-	inline void init_##X(T value=0) { X=value; }; \
 
 // Define: GL_METHOD(<class>,<name>)
 // Define a method property
