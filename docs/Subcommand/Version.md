@@ -1,4 +1,4 @@
-[[Version subcommand]] -- System version manager
+[[Subcommand/Version]] -- System version manager
 
 # Synopsis
 ~~~
@@ -20,7 +20,7 @@ bash$ export PATH=/usr/local/opt/gridlabd/<MAJOR>.<MINOR>.<PATCH>-<BUILD>-<BRANC
 ~~~
 However, this method does not set the version for all users on the system. The `gridlabd version` command manages the system version of GridLAB-D.  
 
-With command options, the [[version subcommand]] displays the current system version, e.g.,
+With command options, the version subcommand displays the current system version, e.g.,
 ~~~
 bash$ gridlabd version
 4.2.0-191101-master
