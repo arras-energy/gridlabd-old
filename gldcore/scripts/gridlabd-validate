@@ -14,5 +14,5 @@ echo "Running CLI version validation..."
 gridlabd $* --validate
 
 echo "Running Python version validation..."
-gldcore/link/python validate.py
+gridlabd python gldcore/link/python/validate.py $*
 
