@@ -51,8 +51,8 @@ g_assert::g_assert(MODULE *module)
 				PT_KEYWORD,"outside",(enumeration)TCOP_NI,
 			PT_char1024, "value", get_value_offset(),PT_DESCRIPTION,"the value to compare with for binary tests",
 			PT_char1024, "within", get_value2_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"the bounds within which the value must bed compared",
-			PT_char1024, "lower", get_value_offset(),PT_DESCRIPTION,"the lower bound to compare with for interval tests",
-			PT_char1024, "upper", get_value2_offset(),PT_DESCRIPTION,"the upper bound to compare with for interval tests",
+			PT_char1024, "lower", get_value_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"the lower bound to compare with for interval tests",
+			PT_char1024, "upper", get_value2_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"the upper bound to compare with for interval tests",
 			PT_char1024,"group", get_group_offset(),PT_DEFAULT,"",PT_DESCRIPTION,"a target group specification to use instead of parent object",
 			PT_timestamp,"start", get_start_offset(),PT_DEFAULT,"INIT",PT_DESCRIPTION,"time to start assertion",
 			PT_timestamp,"stop", get_stop_offset(),PT_DEFAULT,"NEVER",PT_DESCRIPTION,"time to stop assertion",
@@ -63,16 +63,6 @@ g_assert::g_assert(MODULE *module)
 				throw msg;
 		}
 	}
-	init_status();
-	init_target();
-	init_part();
-	init_relation();
-	init_value();
-	init_value2();
-	init_group();
-	init_hold();
-	init_start();
-	init_stop();
 }
 
 int g_assert::create(void) 
