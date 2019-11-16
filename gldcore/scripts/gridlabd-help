@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ "$1" == "help" ]; then
+	echo "Syntax: gridlabd help"
+	exit 0
+fi
+
+L="$( cd /usr/local/opt/gridlabd/current/bin ; ls -1d gridlabd-* )"
+
+echo "Syntax: gridlabd command [options] ..."
+echo "Commands:"
+for F in $L ; do
+	if [ ! "$F" == "help" ]; then
+		/usr/local/opt/gridlabd/current/bin/$F help | grep 'Syntax: ' | sed -e 's/Syntax: gridlabd/ /'
+	fi
+done
