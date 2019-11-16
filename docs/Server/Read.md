@@ -1,3 +1,7 @@
+[[Read]] -- Server read command
+
+# Description
+
 The following server command is supported in this version of GridLAB-D:
 ~~~~
 host% curl http://<hostname>:<portnum>/read/<object-name>.<property-name>;...
