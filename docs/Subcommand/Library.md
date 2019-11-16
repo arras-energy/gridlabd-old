@@ -3,23 +3,23 @@
 # Synopsis
 ~~~
 host% gridlabd help
-host% index <pattern>
-host% list <pattern>
-host% get <pattern>
-host% submit <file>
-host% delete <pattern>
-host% info <pattern>
-host% copy <name> [<file>]
-host% clean
-host% open <local>
-host% session <local> [<pattern>]
-host% add <local> <pattern>
-host% save <local> ["<description>"]
-host% submit <local>
-host% config show
-host% config reset
-host% config get <name>
-host% config set <name> <value>
+host% gridlabd index <pattern>
+host% gridlabd list <pattern>
+host% gridlabd get <pattern>
+host% gridlabd submit <file>
+host% gridlabd delete <pattern>
+host% gridlabd info <pattern>
+host% gridlabd copy <name> [<file>]
+host% gridlabd clean
+host% gridlabd open <local>
+host% gridlabd session <local> [<pattern>]
+host% gridlabd add <local> <pattern>
+host% gridlabd save <local> ["<description>"]
+host% gridlabd submit <local>
+host% gridlabd config show
+host% gridlabd config reset
+host% gridlabd config get <name>
+host% gridlabd config set <name> <value>
 ~~~
 
 # Description
