@@ -1,4 +1,6 @@
-# Advanced queries
+[[Player]] -- MySQL player object
+
+# Description
 
 The player object supports advanced queries. The advanced query must return two columns, `t` and `x`, ordered by `t` ascending.  The syntax is
 ~~~~
