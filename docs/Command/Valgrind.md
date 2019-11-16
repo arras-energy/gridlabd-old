@@ -1,4 +1,4 @@
-Run gridlabd with valgrind
+[[valgrind]] -- Run gridlabd with valgrind
 
 # Synopsis
 
