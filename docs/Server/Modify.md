@@ -1,3 +1,5 @@
+[[Modify]] -- Server model modify command
+
 The following server command is supported in this version:
 ~~~~
 host% curl http://<hostname>:<portnum>/modify/<object-name>.<property-name>=<value>;...
