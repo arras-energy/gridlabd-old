@@ -5,11 +5,11 @@ import json
 
 def error(code,msg):
     print("ERROR %d: %s" % (code,msg), file=sys.stderr);
-    quit(code)
+    quit(code);
 
-if len(sys.argv) > 1 and sys.argv[1] in ['-h','--help'] :
-    error(0,"Syntax: gridlabd json-get [keys ...] [--keys]");
-
+if len(sys.argv) > 1 and sys.argv[1] in ['-h','--help','help'] :
+    print("Syntax: gridlabd json-get [keys ...] [--keys]");
+    quit(0);
 try:
     data = json.load(sys.stdin);
     if len(sys.argv) > 1 :
