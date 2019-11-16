@@ -20,6 +20,7 @@ elif [ "$1" == "-l" -o "$1" == "--local" ]; then
     fi
 elif [ "$1" == "-b" -o "$1" == "--branch" ]; then
     BRANCH="$2"
+    HOST=docs
 fi
-open "http://www.gridlabd.us/index.html?branch=${BRANCH=master}" &
+open "http://${HOST:-www}.gridlabd.us/index.html?branch=${BRANCH=master}" &
 
