@@ -1,3 +1,5 @@
+[[Filter]] -- Filter modeling directive
+
 The external filter syntax has changed to make it compatible with the syntax for internal filters and property references.  The syntax for all properties that use filter inputs is
 ~~~
 filter example(z,1) = z/(z+1);
