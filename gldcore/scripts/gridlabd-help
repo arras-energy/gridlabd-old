@@ -1,16 +1,18 @@
 #!/bin/bash
 
 if [ "$1" == "help" ]; then
-	echo "Syntax: gridlabd help"
+	echo "Syntax: gridlabd help [command]"
 	exit 0
+elif [ -f "$GLD_BIN/gridlabd-$1" ]; then
+	"$GLD_BIN/gridlabd-$1" help
 fi
 
-L="$( cd /usr/local/opt/gridlabd/current/bin ; ls -1d gridlabd-* )"
+L="$( cd $GLD_BIN ; ls -1d gridlabd-* )"
 
 echo "Syntax: gridlabd command [options] ..."
 echo "Commands:"
 for F in $L ; do
 	if [ ! "$F" == "help" ]; then
-		/usr/local/opt/gridlabd/current/bin/$F help | grep 'Syntax: ' | sed -e 's/Syntax: gridlabd/ /'
+		$GLD_BIN/$F help | grep 'Syntax: ' | sed -e 's/Syntax: gridlabd/ /'
 	fi
 done
