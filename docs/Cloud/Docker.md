@@ -1,4 +1,6 @@
-Docker hub support automatic builds of GridLAB-D containers.  See [Docker cloud](https://cloud.docker.com/u/gridlabd/repository/list) for a current list of repositories.
+# Docker
+
+Docker Hub support automatic builds of GridLAB-D containers.  See [Docker cloud](https://cloud.docker.com/u/gridlabd/repository/list) for a current list of repositories.
 
 The workflow for the master branch is as follows:
 ~~~
