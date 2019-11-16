@@ -507,7 +507,7 @@ EXPORT TIMESTAMP sync_substation(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 			obj->clock = t0;
 			return t1;
 		default:
-			throw "invalid pass request";
+			break;
 		}
 		throw "invalid pass request";
 	} 

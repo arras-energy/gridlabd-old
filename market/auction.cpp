@@ -1504,7 +1504,6 @@ int auction::submit_nolock(const char *from, double quantity, double real_price,
 	char buffer[256];
 	BIDDEF biddef;
 	KEY b_id = key;
-	KEY bid_key = -1;
 	int result = 0;
 
 	/* suppress demand bidding until market stabilizes */
@@ -1528,9 +1527,6 @@ int auction::submit_nolock(const char *from, double quantity, double real_price,
 		biddef.market = -1;
 		biddef.raw = -1;
 	} else {
-		if((-1 & 0xFFFFFFFF00000000ULL) == 0xCCCCCCCC00000000ULL){
-			bid_key &= 0x00000000FFFFFFFFULL;
-		}
 		translate_bid(biddef, key);
 	}
 

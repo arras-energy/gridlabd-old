@@ -19,7 +19,7 @@ Weather data is archived in a GitHub repository. The <tt>weather</tt> subcommand
 
 ## Environment Variables
 
-The [[weather subcommand]] needs to know where you wish to store the weather files.  The environment variable `GLD_ETC` is used to indicate where the `weather` folder is.  By default this is the `/usr/local/share/gridlabd` folder.
+The weather subcommand needs to know where you wish to store the weather files.  The environment variable `GLD_ETC` is used to indicate where the `weather` folder is.  By default this is the `/usr/local/share/gridlabd` folder.
 
 ## Index
 

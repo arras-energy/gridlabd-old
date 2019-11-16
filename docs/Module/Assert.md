@@ -1,4 +1,4 @@
-[[Module/assert]] -- Assert module
+[[Assert]] -- Assert module
 
 # Synopsis
 ~~~
@@ -11,8 +11,5 @@ module assert {
 
 The `assert` module provides conditional validation of object properties.
 
-* [[assert]]
+* [[Module/Class/Assert]]
 
-# See also
-
-* [[assert]]

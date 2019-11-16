@@ -1,4 +1,4 @@
-[[Version subcommand]] -- System version manager
+[[Subcommand/Version]] -- System version manager
 
 # Synopsis
 ~~~
@@ -9,6 +9,7 @@ bash$ gridlabd version list <PATTERN>
 bash$ gridlabd version show
 bash$ gridlabd version set [<PATTERN>]
 bash$ gridlabd version source
+bash$ gridlabd version delete [-a|<PATTERN>]
 ~~~
 
 # Description
@@ -19,7 +20,7 @@ bash$ export PATH=/usr/local/opt/gridlabd/<MAJOR>.<MINOR>.<PATCH>-<BUILD>-<BRANC
 ~~~
 However, this method does not set the version for all users on the system. The `gridlabd version` command manages the system version of GridLAB-D.  
 
-With command options, the [[version subcommand]] displays the current system version, e.g.,
+With command options, the version subcommand displays the current system version, e.g.,
 ~~~
 bash$ gridlabd version
 4.2.0-191101-master
@@ -51,6 +52,10 @@ The `show` command display which version is current set for all users on the sys
 ## `source`
 
 The `source` option opens the source code to the version.
+
+## `delete`
+
+The indicated version is deleted. If the version is a pattern, then multiple versions are deleted.  If `-a` is used, all versions but the current version are deleted.
 
 # See also
 * [[Install]]
