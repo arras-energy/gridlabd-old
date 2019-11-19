@@ -1,4 +1,4 @@
-[[glm_save_options]] -- Global variable to control when is included when a GLM file is output
+[[Global/Glm_save_options]] -- Global variable to control when is included when a GLM file is output
 
 # Synopsis
 
@@ -17,7 +17,7 @@ GLM usage:
 
 # Description
 
-The [[glm_save_options]] global is used to control the contents of GLM output files.
+The `glm_save_options` global is used to control the contents of GLM output files.
 
 ## LEGACY
 
@@ -43,7 +43,12 @@ This causes the GLM file to avoid use default values.
 
 This is the minimum loadable GLM model. It is a combination of `NOINTERNALS`, `NOGLOBALS`, `NOMACROS`, and `NODEFAULTS`. When `LEGACY` is deprecated, it will become the default.
 
-# EXAMPLE
+# Example
 ~~~
   host% gridlabd -D gld_save_options=MINIMAL model.glm -o model_single_file.glm
 ~~~
+
+# See also
+
+* [[Global/Json_save_options]]
+
