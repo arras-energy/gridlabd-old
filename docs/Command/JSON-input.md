@@ -26,7 +26,7 @@ before `filename.glm` is loaded.
 The converter generates a GLM file with the same basename. Be careful not to accidentially overwrite an existing GLM file implicitly when using this option.  In particularly, the following can be result in very unexpected behavior:
 ~~~
 bash$ gridlabd -C filename.glm -o filename.json
-bash$ python3 modify-filename.py
+bash$ python3 some-script-that-modifies-filename-json.py
 bash$ gridlabd filename.json -o results.json
 ~~~
 because the last command will overwrite the original input file with a GLM file modified by the python3 script run before it.
