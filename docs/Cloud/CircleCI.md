@@ -28,39 +28,39 @@ Cloud Continuous Integration tools can be used to run simulations on hosted syst
 3. Create the `.circleci/circle.yml` file in your new GitHub repository:
 
 ~~~
-     version: 2
-     jobs:
-       build:
-         docker:
-           - image: gridlabd/slac-master
-         steps:
-           - checkout
-           - run:
-               name: Run simulation
-               command: gridlabd example.glm
-           - store_artifacts:
-               path: /root/project
+         version: 2
+         jobs:
+           build:
+             docker:
+               - image: gridlabd/slac-master
+             steps:
+               - checkout
+               - run:
+                   name: Run simulation
+                   command: gridlabd example.glm
+               - store_artifacts:
+                   path: /root/project
 ~~~
 
 4. Create your model in `example.glm`in your new GitHub repository:
 
 ~~~
-     clock {
-       timezone "US/CA/San Francisco";
-       starttime "2019-04-01 00:00:00";
-       stoptime "2019-04-02 00:00:00";
-     }
-     module residential;
-     module tape;
-     object house {
-       heating_setpoint "68 degF";
-       cooling_setpoint "72 degF";
-       object recorder {
-         property "air_temperature";
-         interval "1 min";
-         file "example.csv";
-       };
-     }
+         clock {
+             timezone "US/CA/San Francisco";
+             starttime "2019-04-01 00:00:00";
+             stoptime "2019-04-02 00:00:00";
+         }
+         module residential;
+         module tape;
+         object house {
+             heating_setpoint "68 degF";
+             cooling_setpoint "72 degF";
+             object recorder {
+                 property "air_temperature";
+                 interval "1 min";
+                 file "example.csv";
+             };
+         }
 ~~~
 
 5. Add the YML and GLM files to your repo, commit and push them to your [GitHub](https://github.com/) repository.
