@@ -28,8 +28,8 @@ user@localhost$ gridlabd aws s3 sync local-folder bucket-name [s3-sync-options]
 
 # Description
 
-To access AWS resources, you must have a valid AWS account and obtain an access token with which to configure your local agent.  
-See the [Secret credentials Tab](https://console.aws.amazon.com/iam/home?section=security_credentials) of the [AWS IAM User page](https://console.aws.amazon.com/iam/home?section=security_credentials)
+To access AWS resources, you must have a valid AWS account and obtain an access token with which to configure your local agent.  See the [Secret credentials Tab](https://console.aws.amazon.com/iam/home?section=security_credentials) of the [AWS IAM User page](https://console.aws.amazon.com/iam/home?section=security_credentials).
+
 Once have you obtained your Access Key ID and Secret Access Key, you must run the `aws configure` command to give your local agent access:
 ~~~
 user@localhost$ aws configure
