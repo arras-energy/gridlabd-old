@@ -1,4 +1,4 @@
-origin -- build origin command line option
+[[Command/Origin]] -- comnmand line option to display the build origin information
 
 # Synopsis
 ~~~
@@ -7,7 +7,7 @@ host% gridlabd --origin
 
 # Remarks
 
-The --[[origin]] command line option display information about the source code from which the currently install version of GridLAB-D is built.  The purpose of this option is to facilitate troubleshooting when a system has multiple installations with local changes. The information includes the following information collected at the time of the build
+The `--origin` command line option display information about the source code from which the currently install version of GridLAB-D is built.  The purpose of this option is to facilitate troubleshooting when a system has multiple installations with local changes. The information includes the following information collected at the time of the build
 - Output from the command `git -remote -v`
 - Output from the command `git log -n 1`
 - Output from the command `git status -s`
@@ -47,3 +47,8 @@ index cc6f1281..ead1fb0e 100755
  fi
 -#ls -l $2
 ~~~
+
+# See also
+
+* [[Command/Version]]
+* [[Subcommand/Version]]
