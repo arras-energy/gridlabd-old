@@ -1,4 +1,4 @@
-[[AWS]] -- Amazon Web Services support
+[[/Cloud/AWS]] -- Amazon Web Services support
 
 # Synopsis
 ~~~
