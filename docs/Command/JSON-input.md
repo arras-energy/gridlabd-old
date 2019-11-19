@@ -33,4 +33,4 @@ because the last command will overwrite the original input file with a GLM file 
 
 # See also
 
-* [[JSON output]]
+* [[Command/JSON output]]
