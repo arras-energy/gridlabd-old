@@ -1,4 +1,4 @@
---[[Gdb]] -- GridLAB-D debugging control command
+[[Command/Gdb]] -- Command option to start the system debugger on GridLAB-D
 
 # Synopsis
 ~~~
@@ -8,8 +8,8 @@ where `options` are the GridLAB-D command options
 
 # Description
 
-The --[[gdb]] command line option is used to start the local debugger on the local GridLAB-D install.  This command only works on systems with `gdb` installed.
+The `--gdb` command line option is used to start the local debugger on the local GridLAB-D install.  This command only works on systems with `gdb` installed.
 
 # See also
 
-* --[[lldb]]
+* [[Command/Lldb]]
