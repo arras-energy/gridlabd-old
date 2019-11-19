@@ -1,4 +1,4 @@
-[[/Command/Automatic_import_conversion]] -- Automatic conversion of input files 
+[[/Command/Automatic import conversion]] -- Automatic conversion of input files 
 
 # Synopsis
 ~~~
@@ -21,4 +21,5 @@ When a converter is run, the input file is converted in place to a GLM file by t
 
 # See also
 
+* [[/Command/JSON input]]
 * [[/Command/JSON output]]
