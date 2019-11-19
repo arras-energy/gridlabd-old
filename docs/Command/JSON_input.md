@@ -1,4 +1,4 @@
-[[Command/JSON_Input]] -- Command option for JSON input format
+[[Command/JSON Input]] -- Command option for JSON input format
 
 # Synopsis
 ~~~
@@ -33,4 +33,5 @@ because the last command will overwrite the original input file with a GLM file 
 
 # See also
 
-* [[Command/JSON_output]]
+* [[Command/JSON output]]
+* [[Global/json_save_options]]
