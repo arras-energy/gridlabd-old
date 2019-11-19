@@ -7,7 +7,13 @@ bash$ gridlabd --version[=<format>]
 
 # Description
 
-The command line option --[[version]] now supports format options to obtain specific version/build information. When no format is specified the output is `package major.minor.path-build`. The format options are as follows:
+In its simple format, the `--version` command line option output the basic version information for the active installation, e.g.,
+~~~
+bash$ gridlabd --version
+GridLAB-D 4.2.0-191115
+~~~
+
+The `--version` option also supports formatting specifications to obtain additional version, build, and installation information. The format options are as follows:
 
 ## Format
 
