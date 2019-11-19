@@ -16,5 +16,5 @@ Chassin, D.P., et al., "GridLAB-D 4.2.0-191009 (master) Darwin" (2019) [online].
 ~~~
 
 # See also
-* [[/Command/Version]]
 * [[/Command/Origin]]
+* [[/Command/Version]]
