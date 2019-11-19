@@ -2,13 +2,14 @@
 
 # Synopsis
 ~~~
-  localhost% gridlabd --gdb [options]
+  localhost% gridlabd --gdb [<options> ...]
 ~~~
-where `options` are the GridLAB-D command options
 
 # Description
 
 The `--gdb` command line option is used to start the local debugger on the local GridLAB-D install.  This command only works on systems with `gdb` installed.
+
+The GridLAB-D command line options may be provided `options` after the `--gdb` option.
 
 # See also
 
