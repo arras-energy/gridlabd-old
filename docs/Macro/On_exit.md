@@ -1,4 +1,4 @@
-[[On_exit]] - on_exit macro
+[[Macro/On_exit]] - on_exit macro
 
 # Synopsis
 ~~~
