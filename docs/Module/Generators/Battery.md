@@ -1,67 +1,67 @@
-[[Battery]] -- Battery object
+[[Module/Generators/Battery]] -- Battery object
 
 # Synopsis
 GLM:
 ~~~
 module generators;
 object battery {
-	generator_mode UNKNOWN;
-	additional_controls NONE;
-	generator_status 0;
-	rfb_size 0;
-	power_type 0;
-	battery_state WAITING;
-	number_battery_state_changes +0;
-	monitored_power +0 W;
-	power_set_high +0 W;
-	power_set_low +0 W;
-	power_set_high_highT +0 W;
-	power_set_low_highT +0 W;
-	check_power_low +0 W;
-	check_power_high +0 W;
-	voltage_set_high +0 V;
-	voltage_set_low +0 V;
-	deadband +0 V;
-	sensitivity +0;
-	high_temperature +0;
-	midpoint_temperature +0;
-	low_temperature +0;
-	scheduled_power +0 W;
-	Rinternal +0 Ohm;
-	V_Max +0 V;
-	I_Max +0+0i A;
-	E_Max +0 Wh;
-	P_Max +0 W;
-	power_factor +0;
-	Energy +0 Wh;
-	efficiency +0 unit;
-	base_efficiency +0 unit;
-	parasitic_power_draw +0 W;
-	Rated_kVA +0 kVA;
-	V_Out +0+0i V;
-	I_Out +0+0i A;
-	VA_Out +0+0i VA;
-	V_In +0+0i V;
-	I_In +0+0i A;
-	V_Internal +0+0i V;
-	I_Internal +0+0i A;
-	I_Prev +0+0i A;
-	power_transferred +0;
-	use_internal_battery_model FALSE;
-	battery_type UNKNOWON;
-	nominal_voltage +0 V;
-	rated_power +0 W;
-	battery_capacity +0 Wh;
-	round_trip_efficiency +0 pu;
-	state_of_charge +0 pu;
-	battery_load +0 W;
-	reserve_state_of_charge +0 pu;
+	generator_mode "UNKNOWN";
+	additional_controls "NONE";
+	generator_status "0";
+	rfb_size "0";
+	power_type "0";
+	battery_state "WAITING";
+	number_battery_state_changes "+0";
+	monitored_power "+0 W";
+	power_set_high "+0 W";
+	power_set_low "+0 W";
+	power_set_high_highT "+0 W";
+	power_set_low_highT "+0 W";
+	check_power_low "+0 W";
+	check_power_high "+0 W";
+	voltage_set_high "+0 V";
+	voltage_set_low "+0 V";
+	deadband "+0 V";
+	sensitivity "+0";
+	high_temperature "+0";
+	midpoint_temperature "+0";
+	low_temperature "+0";
+	scheduled_power "+0 W";
+	Rinternal "+0 Ohm";
+	V_Max "+0 V";
+	I_Max "+0+0i A";
+	E_Max "+0 Wh";
+	P_Max "+0 W";
+	power_factor "+0";
+	Energy "+0 Wh";
+	efficiency "+0 unit";
+	base_efficiency "+0 unit";
+	parasitic_power_draw "+0 W";
+	Rated_kVA "+0 kVA";
+	V_Out "+0+0i V";
+	I_Out "+0+0i A";
+	VA_Out "+0+0i VA";
+	V_In "+0+0i V";
+	I_In "+0+0i A";
+	V_Internal "+0+0i V";
+	I_Internal "+0+0i A";
+	I_Prev "+0+0i A";
+	power_transferred "+0";
+	use_internal_battery_model "FALSE";
+	battery_type "UNKNOWON";
+	nominal_voltage "+0 V";
+	rated_power "+0 W";
+	battery_capacity "+0 Wh";
+	round_trip_efficiency "+0 pu";
+	state_of_charge "+0 pu";
+	battery_load "+0 W";
+	reserve_state_of_charge "+0 pu";
 }
 ~~~
 
 # Description
 
-The [[battery]] object implements a chemical energy storage system.  Batteries must have an [[inverter]] as the parent object.
+The `battery` object implements a chemical energy storage system.  Batteries must have an `inverter` as the parent object.
 
 ## Properties
 
