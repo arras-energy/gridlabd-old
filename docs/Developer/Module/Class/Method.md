@@ -1,10 +1,63 @@
-[[Developers]] -- Information for core and module developers
+[[Developer/Module/Class/Method]] -- Method call implementation
 
-# Methods
+# Synopsis
 
-A new property has been added to GridLAB-D classes called a `method`.  Methods allow objects to receive incoming messages as a `set` command through the property implementation and route the message directly to a function to handle the message in the class implementation.
+GLM:
+~~~
+  class my_class {
+    method my_method;
+  }
+  object my_class {
+    my_method "value";
+  }
+~~~
+
+C++ Header:
+~~~
+  DECL_METHOD(my_class,my_method)
+  class my_class : public gld_object {
+  public:
+    GL_METHOD(my_class,my_method);
+  };
+~~~
+
+C++ Implementation:
+~~~
+  #include "my_class.h"
+  EXPORT_METHOD(my_class,my_method);
+  int my_class::my_method(char *buffer, size_t len)
+  {
+  	if ( buffer == NULL )
+  	{
+  		if ( len == 0 )
+  		{
+  			// return length of result only
+  	  	}
+  	  	else
+  	  	{
+  	  	  	// return non-zero if len > length of result
+  	  	}
+  	}
+  	else if ( len == 0 )
+  	{
+  		// return number of characters read from buffer
+  	}
+  	else
+  	{
+  		// return number of characters written to buffer
+  	}
+  }
+~~~
+
+# Description
+
+The property type `PT_method` allows object properties to be accessed using *method* calls.  Methods allow objects to receive incoming messages as a `set` operation through the property implementation and route the message directly to a function to handle the message in the class implementation. Methods can also be used to retrieve data using a `get` operation.
 
 To implement a method in a GridLAB-D class you must do the following.
+
+# Example
+
+The following example illustrates how to add a method handler to a GridLAB-D class.
 
 ## Class Header File
 
@@ -77,11 +130,11 @@ Example:
   		if ( len == 0 )
   		{
   			// return length of result only
-  	  	}
-  	  	else
-  	  	{
-  	  	  	// return non-zero if len > length of result
-  	  	}
+  	  }
+  	  else
+  	  {
+  	   	// return non-zero if len > length of result
+  	  }
   	}
   	else if ( len == 0 )
   	{
@@ -93,3 +146,7 @@ Example:
   	}
   }
 ~~~
+
+# See also
+
+* [[Developer/Module/Class.md]]
