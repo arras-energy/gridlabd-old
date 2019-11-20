@@ -63,6 +63,8 @@ object battery {
 
 The `battery` object implements a chemical energy storage system.  Batteries must have an `inverter` as the parent object.
 
+There are two models available. The `LEGACY` model and the `INTERNAL` model.  By default the `LEGACY` model is used.  To select the `INTERNAL` model, set the `use_internal_battery_model` property to `TRUE`.
+
 ## Properties
 
 ### generator_mode
@@ -70,14 +72,14 @@ The `battery` object implements a chemical energy storage system.  Batteries mus
 enumeration {POWER_VOLTAGE_HYBRID=7, VOLTAGE_CONTROLLED=6, POWER_DRIVEN=5, SUPPLY_DRIVEN=4, CONSTANT_PF=3, CONSTANT_PQ=2, CONSTANT_V=1, UNKNOWN=0} generator_mode; 
 ~~~
 
-LEGACY MODEL: Selects generator control mode when using legacy model; in non-legacy models, this should be `SUPPLY_DRIVEN`.
+(LEGACY) Selects generator control mode when using legacy model; in non-legacy models, this should be `SUPPLY_DRIVEN`.
 
 ### additional_controls
 ~~~
 enumeration {LINEAR_TEMPERATURE=1, NONE=0} additional_controls; 
 ~~~
 
-LEGACY MODEL: In conjunction with `POWER_DRIVEN`, `VOLTAGE_CONTROLLED`, and `POWER_VOLTAGE_HYBRID`, this will activate control set points that adjust with temperature.
+(LEGACY) In conjunction with `POWER_DRIVEN`, `VOLTAGE_CONTROLLED`, and `POWER_VOLTAGE_HYBRID`, this will activate control set points that adjust with temperature.
 
 ### generator_status
 ~~~
@@ -98,7 +100,7 @@ Default settings for certain sizes of batteries.
 enumeration {DC=1, AC=2} power_type; 
 ~~~
 
-LEGACY MODEL: Not currently used.
+(LEGACY) Not currently used.
 
 ### battery_state
 ~~~
@@ -112,21 +114,21 @@ Describes the current state of the battery
 double number_battery_state_changes; 
 ~~~
 
-LEGACY MODEL: Number of times battery switches between charging and discharging.
+(LEGACY) Number of times battery switches between charging and discharging.
 
 ### monitored_power
 ~~~
 double monitored_power[W]; 
 ~~~
 
-LEGACY MODEL: output only; power output value of parent meter when performing load following modes (`POWER_DRIVEN`).
+(LEGACY) output only; power output value of parent meter when performing load following modes (`POWER_DRIVEN`).
 
 ### power_set_high
 ~~~
 double power_set_high[W]; 
 ~~~
 
-LEGACY MODEL: High set point of dead band for load following (`POWER_DRIVEN`).
+(LEGACY) High set point of dead band for load following (`POWER_DRIVEN`).
 
 ### power_set_low
 ~~~
@@ -140,224 +142,224 @@ LEGACY MODEL: Low set point of dead band for load following (`POWER_DRIVEN`).
 double power_set_high_highT[W]; 
 ~~~
 
-LEGACY MODEL: High set point of dead band for load following at higher temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
+(LEGACY) High set point of dead band for load following at higher temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
 
 ### power_set_low_highT
 ~~~
 double power_set_low_highT[W]; 
 ~~~
 
-LEGACY MODEL: Low set point of dead band for load following at higher temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
+(LEGACY) Low set point of dead band for load following at higher temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
 
 ### check_power_low
 ~~~
 double check_power_low[W]; 
 ~~~
 
-LEGACY MODEL: High set point of dead band for load following at lower temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
+(LEGACY) High set point of dead band for load following at lower temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
 
 ### check_power_high
 ~~~
 double check_power_high[W]; 
 ~~~
 
-LEGACY MODEL: Low set point of dead band for load following at lower temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
+(LEGACY) Low set point of dead band for load following at lower temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
 
 ### voltage_set_high
 ~~~
 double voltage_set_high[V]; 
 ~~~
 
-LEGACY MODEL: Ligh set point for voltage control.
+(LEGACY) Ligh set point for voltage control.
 
 ### voltage_set_low
 ~~~
 double voltage_set_low[V]; 
 ~~~
 
-LEGACY MODEL: Low set point for voltage control.
+(LEGACY) Low set point for voltage control.
 
 ### deadband
 ~~~
 double deadband[V]; 
 ~~~
 
-LEGACY MODEL: Voltage deadband.
+(LEGACY) Voltage deadband.
 
 ### sensitivity
 ~~~
 double sensitivity; 
 ~~~
 
-LEGACY MODEL: Describes how sensitive the control is to temperature excursions; defines slope of linear control.
+(LEGACY) Describes how sensitive the control is to temperature excursions; defines slope of linear control.
 
 ### high_temperature
 ~~~
 double high_temperature; 
 ~~~
 
-LEGACY MODEL: High temperature of linear control; defines slope.
+(LEGACY) High temperature of linear control; defines slope.
 
 ### midpoint_temperature
 ~~~
 double midpoint_temperature; 
 ~~~
 
-LEGACY MODEL: Midpoint temperature of linear control; defines slope.
+(LEGACY) Midpoint temperature of linear control; defines slope.
 
 ### low_temperature
 ~~~
 double low_temperature; 
 ~~~
 
-LEGACY MODEL: Low temperature of linear control; defines slope.
+(LEGACY) Low temperature of linear control; defines slope.
 
 ### scheduled_power
 ~~~
 double scheduled_power[W]; 
 ~~~
 
-LEGACY MODEL: Real power output of battery/inverter system.
+(LEGACY) Real power output of battery/inverter system.
 
 ### Rinternal
 ~~~
 double Rinternal[Ohm]; 
 ~~~
 
-LEGACY MODEL: The internal resistance of the battery.
+(LEGACY) The internal resistance of the battery.
 
 ### V_Max
 ~~~
 double V_Max[V]; 
 ~~~
 
-LEGACY MODEL: The maximum terminal voltage of the battery.
+(LEGACY) The maximum terminal voltage of the battery.
 
 ### I_Max
 ~~~
 complex I_Max[A]; 
 ~~~
 
-LEGACY MODEL: The maximum current output of the battery.
+(LEGACY) The maximum current output of the battery.
 
 ### E_Max
 ~~~
 double E_Max[Wh]; 
 ~~~
 
-LEGACY MODEL: The maximum capacity of the battery.
+(LEGACY) The maximum capacity of the battery.
 
 ### P_Max
 ~~~
 double P_Max[W]; 
 ~~~
 
-LEGACY MODEL: The maximum power output of the battery.
+(LEGACY) The maximum power output of the battery.
 
 ### power_factor
 ~~~
 double power_factor; 
 ~~~
 
-LEGACY MODEL: The power factor output of the battery.
+(LEGACY) The power factor output of the battery.
 
 ### Energy
 ~~~
 double Energy[Wh]; 
 ~~~
 
-LEGACY MODEL: The available capacity of the battery.
+(LEGACY) The available capacity of the battery.
 
 ### efficiency
 ~~~
 double efficiency[unit]; 
 ~~~
 
-LEGACY MODEL: The efficiency of the battery.
+(LEGACY) The efficiency of the battery.
 
 ### base_efficiency
 ~~~
 double base_efficiency[unit]; 
 ~~~
 
-LEGACY MODEL: The efficiency of the battery at rated voltaged and current.
+(LEGACY) The efficiency of the battery at rated voltaged and current.
 
 ### parasitic_power_draw
 ~~~
 double parasitic_power_draw[W]; 
 ~~~
 
-LEGACY MODEL: The parasytic power draw of the battery when idle.
+(LEGACY) The parasytic power draw of the battery when idle.
 
 ### Rated_kVA
 ~~~
 double Rated_kVA[kVA]; 
 ~~~
 
-LEGACY MODEL: The rated power of the battery.
+(LEGACY) The rated power of the battery.
 
 ### V_Out
 ~~~
 complex V_Out[V]; 
 ~~~
 
-LEGACY MODEL: The AC voltage at the terminals of the battery.
+(LEGACY) The AC voltage at the terminals of the battery.
 
 ### I_Out
 ~~~
 complex I_Out[A]; 
 ~~~
 
-LEGACY MODEL: The AC current output of the battery.
+(LEGACY) The AC current output of the battery.
 
 ### VA_Out
 ~~~
 complex VA_Out[VA]; 
 ~~~
 
-LEGACY MODEL: The power output of the battery.
+(LEGACY) The power output of the battery.
 
 ### V_In
 ~~~
 complex V_In[V]; 
 ~~~
 
-LEGACY MODEL: The voltage at the terminals of the battery.
+(LEGACY) The voltage at the terminals of the battery.
 
 ### I_In
 ~~~
 complex I_In[A]; 
 ~~~
 
-LEGACY MODEL: The current flowing into the battery of the battery.
+(LEGACY) The current flowing into the battery of the battery.
 
 ### V_Internal
 ~~~
 complex V_Internal[V]; 
 ~~~
 
-LEGACY MODEL: The internal voltage of the battery.
+(LEGACY) The internal voltage of the battery.
 
 ### I_Internal
 ~~~
 complex I_Internal[A]; 
 ~~~
 
-LEGACY MODEL: The internal current of the battery.
+(LEGACY) The internal current of the battery.
 
 ### I_Prev
 ~~~
 complex I_Prev[A]; 
 ~~~
 
-LEGACY MODEL: The previous current output of the battery.
+(LEGACY) The previous current output of the battery.
 
 ### power_transferred
 ~~~
 double power_transferred; 
 ~~~
 
-LEGACY MODEL: The power output of the battery.
+(LEGACY) The power output of the battery.
 
 ### use_internal_battery_model
 ~~~
@@ -371,56 +373,56 @@ Enables the internal battery model.
 enumeration {LEAD_ACID=2, LI_ION=1, UNKNOWON=0} battery_type; 
 ~~~
 
-INTERNAL BATTERY MODEL: The type of the battery. Used to determine the soc vs voltage curve.
+(INTERNAL) The type of the battery. Used to determine the soc vs voltage curve.
 
 ### nominal_voltage
 ~~~
 double nominal_voltage[V]; 
 ~~~
 
-INTERNAL BATTERY MODEL: The rated DC voltage at the terminals of the battery.
+(INTERNAL) The rated DC voltage at the terminals of the battery.
 
 ### rated_power
 ~~~
 double rated_power[W]; 
 ~~~
 
-INTERNAL BATTERY MODEL: The rated power output of the battery.
+(INTERNAL) The rated power output of the battery.
 
 ### battery_capacity
 ~~~
 double battery_capacity[Wh]; 
 ~~~
 
-INTERNAL BATTERY MODEL: The rated battery capacity of the battery.
+(INTERNAL) The rated battery capacity of the battery.
 
 ### battery_capacity
 ~~~
 double battery_capacity[pu]; 
 ~~~
 
-INTERNAL BATTERY MODEL: The round trip efficiency of the battery according to a full discharge/charge cycle.
+(INTERNAL) The round trip efficiency of the battery according to a full discharge/charge cycle.
 
 ### state_of_charge
 ~~~
 double state_of_charge[pu]; 
 ~~~
 
-INTERNAL BATTERY MODEL: The current state of charge of the battery.
+(INTERNAL) The current state of charge of the battery.
 
 ### battery_load
 ~~~
 double battery_load[W]; 
 ~~~
 
-INTERNAL BATTERY MODEL: The current power output of the battery.
+(INTERNAL) The current power output of the battery.
 
 ### reserve_state_of_charge
 ~~~
 double reserve_state_of_charge[pu]; 
 ~~~
 
-INTERNAL BATTERY MODEL: The reserve state of charge the battery can reach.
+(INTERNAL) The reserve state of charge the battery can reach.
 
 ## Internal Model
 
