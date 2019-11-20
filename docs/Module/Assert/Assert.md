@@ -1,7 +1,6 @@
 [[Module/Assert/Assert]] -- General purpose assert object
 
 # Synopsis
-GLM:
 ~~~
 module assert;
 class assert {
