@@ -50,9 +50,9 @@ The CEUS commercial building load model is based on the commercial energy use da
 
 The parent object of a building must be a `powerflow meter` object.  In the absence of a suitable parent object, the building will use the global variables `default_nominal_voltage_A`, `default_nominal_voltage_B`, `default_nominal_voltage_C` and `default_nominal_voltage` to determine the voltage.  The solver will update the meter's power demand value when the load changes.
 
-# Properties
+## Properties
 
-##
+### `composition`
 ~~~
     method composition;
 ~~~
@@ -69,126 +69,126 @@ In general the sum the real power fractions should be 1.0 and the sum of the rea
 
 The `Area` term of the fraction of the `floor_area` affected by the enduse specified.
 
-## filename
+### `filename`
 ~~~
     method filename;
 ~~~
 
 The CEUS data file is loaded when the `filename` is specified.  Each file is loaded only once and referenced by each building that uses it.  The loads in the data are used as the basis for the loadshapes that drive the final load composition.
 
-## floor_area
+### `floor_area`
 ~~~
     double floor_area[sf];
 ~~~
 
 The floor area of the build.
 
-## price_base
+### `price_base`
 ~~~
     double price_base[$/MWh];
 ~~~
 
 The base price for the price sensitivity.
 
-## total_power_A
+### `total_power_A`
 ~~~
     complex total_power_A[VA];
 ~~~
 
 The total power on phase A.
 
-## total_power_B
+### `total_power_B`
 ~~~
     complex total_power_B[VA];
 ~~~
 
 The total power on phase B.
 
-## total_power_C
+### `total_power_C`
 ~~~
     complex total_power_C[VA];
 ~~~
 
 The total power on Phase C.
 
-## total_real_power
+### `total_real_power`
 ~~~
     double total_real_power[W];
 ~~~
 
 The total real power.
 
-## total_reactive_power
+### `total_reactive_power`
 ~~~
     double total_reactive_power[VAR];
 ~~~
 
 The total reactive power.
 
-## price_sensitivity
+### `price_sensitivity`
 ~~~
     double price_sensitivity[W*MWh/$]; 
 ~~~
 
 The price sensitivity.
 
-## solargain_base
+### `solargain_base`
 ~~~
     double solargain_base[W/m^2];
 ~~~
 
 The solar gain sensitivity base irradiance.
 
-## solargain_sensitivity
+### `solargain_sensitivity`
 ~~~
     double solargain_sensitivity[m^2];
 ~~~
 
 The solar gain sensitivity.
 
-## temperature_cooling_base
+### `temperature_cooling_base`
 ~~~
     double temperature_cooling_base[degF];
 ~~~
 
 The cooling sensitivity base temperature. 
 
-## temperature_cooling_balance
+### `temperature_cooling_balance`
 ~~~
     double temperature_cooling_balance[degF];
 ~~~
 
 Cooling sensitivity is non-zero only for outdoor air temperatures above the cooling balance temperature.
 
-## temperature_heating_base
+### `temperature_heating_base`
 ~~~
     double temperature_heating_base[degF];
 ~~~
 
 The heating sensitivity base temperature.
 
-## temperature_heating_balance
+### `temperature_heating_balance`
 ~~~
     double temperature_heating_balance[degF];
 ~~~
 
 Heating sensitivity is non-zero only for outdoor air temperatures below the heatin balance temperature.
 
-## temperature_heating_sensitivity
+### `temperature_heating_sensitivity`
 ~~~
     double temperature_heating_sensitivity[W/degF];
 ~~~
 
 The heating temperature sensitivity.
 
-## tariff
+### `tariff`
 ~~~
     object tariff;
 ~~~
 
 The tariff object is used to establish now the pricing affects loads.
 
-## weather
+### `weather`
 ~~~
     object weather;
 ~~~
@@ -218,7 +218,8 @@ $$
 
 # Example
 
-The following implements a 10,000 sf office building in California forecasting climate zone 1 with 90% constant impedance at unity power factor, and 10% constant power at power factor ~0.89:
+The following implements a `10,000 sf` office building in California forecasting climate zone 1 with 90% constant impedance at unity power factor, and 10% constant power at power factor `~0.89`:
+
 ~~~
   object ceus {
     filename "FCZ01_SOFF.csv";
@@ -243,6 +244,7 @@ The following implements a 10,000 sf office building in California forecasting c
 The temperature, price, and solar sensitivity are not implemented by enduse.  These sensitivities are applied at the whole building level only.
 
 # See also 
+
 * [[Module/Commercial]]
 * [California Commercial End-use Survey (CEUS) Website](https://www.energy.ca.gov/ceus)
 * [SLAC GISMo CEUS Data Repository](https://github.com/slacgismo/ceus_data)
