@@ -18,4 +18,4 @@ host% sudo yum install valgrind
 # See also
 * [[Command/Gdb]]
 * [[Command/Lldb]]
-* [Valgrind Docs](https://valgrind.org/docs/)
+* [Valgrind Documentation](https://valgrind.org/docs/)
