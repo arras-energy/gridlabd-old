@@ -1,6 +1,7 @@
-[[Events]] -- Object event handlers
+[[GLM/Events]] -- Object event handlers
 
-Objects can be assigned external event handlers using the `on_*` load method.  The following events may be handled: `init`, `precommit`, `presync`, `sync`, `postsync`, `commit`, `finalize`.  The syntax for implementing event handlers is
+# Synopsis
+
 ~~~
   object class {
     on_init "command";
@@ -12,7 +13,10 @@ Objects can be assigned external event handlers using the `on_*` load method.  T
     on_finalize "command";
   }
 ~~~
-where "command" is the event command. 
+
+# Description
+
+Objects can be assigned external event handlers using the `on_*` load method.  The following events may be handled: `init`, `precommit`, `presync`, `sync`, `postsync`, `commit`, `finalize`.  
 
 ## Python support
 
