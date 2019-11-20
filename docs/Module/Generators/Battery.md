@@ -468,5 +468,5 @@ $$
 with $E_{max}$ defined as the battery's internal energy storage capacity.
 
 # See also
-* [[Inverter]]
-* [[Generators]]
+* [[Module/Generators]]
+* [[Module/Generators/Inverter]]
