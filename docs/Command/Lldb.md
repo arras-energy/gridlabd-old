@@ -1,4 +1,4 @@
-[[Command/Lldb] -- Command line option to start system debugger on GridLAB-D
+[[Command/Lldb]] -- Command line option to start system debugger on GridLAB-D
 
 # Synopsis
 ~~~
