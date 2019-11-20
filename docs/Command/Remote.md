@@ -1,8 +1,8 @@
-[[Remote]] -- GridLAB-D remote command interface
+[[Command/Remote]] -- Command line option for remote GridLAB-D runs
 
 # Synopsis
 ~~~
-  localhost% gridlabd --remote hostname[:port] options ...
+  localhost% gridlabd --remote hostname[:port] [<options> ...]
 ~~~
 where
 * `hostname` is the name of the remote machine on which the daemon is running (default is `localhost`)
@@ -11,17 +11,17 @@ where
 
 # Description
 
-The --[[remote]] command line option is used to send a gridlabd command to a machine running a gridlabd [[daemon]].
+The `--remote` command line option is used to send a GridLAB-D command to a machine running a GridLAB-D daemon.
 
-The `hostname` is the internet host on which the daemon is running. If `localhost` or `127.0.0.1` is used the local machine is used.
+The `hostname` is the internet host on which the daemon is running. If `localhost` or `127.0.0.1` is specified, then the local machine is used.
 
 The `port` number is by default `6266`, or the value specified in the configuration, which is by default located at `${GLD_ETC}/gridladb.cnf`.
 
-The remaining `options` are passed to the daemon as the gridlabd command line options.
+The remaining command options are passed to the daemon as the GridLAB-D command line options.
 
 # Examples
 
-To get the gridlabd version on the remote machine:
+To get the GridLAB-D version on the remote machine:
 ~~~
   localhost% gridlabd --remote hostname --version
 ~~~
@@ -33,4 +33,4 @@ Note that the file `model.glm` must be located on the remote machine.
 
 # See also
 
-* --[[daemon]] command options
+* [[Command/Daemon]]
