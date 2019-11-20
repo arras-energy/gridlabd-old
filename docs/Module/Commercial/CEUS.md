@@ -69,126 +69,126 @@ In general the sum the real power fractions should be 1.0 and the sum of the rea
 
 The `Area` term of the fraction of the `floor_area` affected by the enduse specified.
 
-##
+## filename
 ~~~
     method filename;
 ~~~
 
 The CEUS data file is loaded when the `filename` is specified.  Each file is loaded only once and referenced by each building that uses it.  The loads in the data are used as the basis for the loadshapes that drive the final load composition.
 
-##
+## floor_area
 ~~~
     double floor_area[sf];
 ~~~
 
 The floor area of the build.
 
-##
+## price_base
 ~~~
     double price_base[$/MWh];
 ~~~
 
 The base price for the price sensitivity.
 
-##
+## total_power_A
 ~~~
     complex total_power_A[VA];
 ~~~
 
 The total power on phase A.
 
-##
+## total_power_B
 ~~~
     complex total_power_B[VA];
 ~~~
 
 The total power on phase B.
 
-##
+## total_power_C
 ~~~
     complex total_power_C[VA];
 ~~~
 
 The total power on Phase C.
 
-##
+## total_real_power
 ~~~
     double total_real_power[W];
 ~~~
 
 The total real power.
 
-##
+## total_reactive_power
 ~~~
     double total_reactive_power[VAR];
 ~~~
 
 The total reactive power.
 
-##
+## price_sensitivity
 ~~~
     double price_sensitivity[W*MWh/$]; 
 ~~~
 
 The price sensitivity.
 
-##
+## solargain_base
 ~~~
     double solargain_base[W/m^2];
 ~~~
 
 The solar gain sensitivity base irradiance.
 
-##
+## solargain_sensitivity
 ~~~
     double solargain_sensitivity[m^2];
 ~~~
 
 The solar gain sensitivity.
 
-##
+## temperature_cooling_base
 ~~~
     double temperature_cooling_base[degF];
 ~~~
 
 The cooling sensitivity base temperature. 
 
-##
+## temperature_cooling_balance
 ~~~
     double temperature_cooling_balance[degF];
 ~~~
 
 Cooling sensitivity is non-zero only for outdoor air temperatures above the cooling balance temperature.
 
-##
+## temperature_heating_base
 ~~~
     double temperature_heating_base[degF];
 ~~~
 
 The heating sensitivity base temperature.
 
-##
+## temperature_heating_balance
 ~~~
     double temperature_heating_balance[degF];
 ~~~
 
 Heating sensitivity is non-zero only for outdoor air temperatures below the heatin balance temperature.
 
-##
+## temperature_heating_sensitivity
 ~~~
     double temperature_heating_sensitivity[W/degF];
 ~~~
 
 The heating temperature sensitivity.
 
-##
+## tariff
 ~~~
     object tariff;
 ~~~
 
 The tariff object is used to establish now the pricing affects loads.
 
-##
+## weather
 ~~~
     object weather;
 ~~~
