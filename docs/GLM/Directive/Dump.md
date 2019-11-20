@@ -1,4 +1,4 @@
-[[GLM/Dump]] -- Dump request directive
+[[GLM/Directive/Dump]] -- Dump request directive
 
 # Synopsis
 GLM:
