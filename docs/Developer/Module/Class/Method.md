@@ -149,4 +149,4 @@ Example:
 
 # See also
 
-* [[Developer/Module/Class.md]]
+* [[Developer/Module/Class]]
