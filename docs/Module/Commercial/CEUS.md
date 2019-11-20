@@ -108,5 +108,5 @@ The temperature, price, and solar sensitivity are not implemented by enduse yet.
 
 # See also 
 * [[Module/Commercial]]
-* https://www.energy.ca.gov/ceus
-* https://github.com/dchassin/ceus_data
+* [California Commercial End-use Survey (CEUS) Website](https://www.energy.ca.gov/ceus)
+* [SLAC GISMo CEUS Data Repository](https://github.com/slacgismo/ceus_data)
