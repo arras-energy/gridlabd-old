@@ -19,18 +19,19 @@ class assert {
 	double hold[s];
 }
 object assert {
-  enumeration {NONE,FALSE,TRUE} status;
-  char1024 target;
-  char32 part;
-  enumeration {outsize,inside,!=,>,>=,<,<=,==} relation;
-  char1024 value;
-  char1024 within;
-  char1024 lower;
-  char1024 upper;
-  char1024 group;
-  datetime start;
-  datetime stop;
-  double hold[s];
+	parent "<object-name>";
+	status "INIT";
+	target "<property-name>";
+	part "<optional-part-name>";
+	relation "==";
+	value "<unary-comparison-value>";
+	within "<comparison-limit-value";
+	lower "<lower-binary-comparison-value>";
+	upper "<upper-binary-comparison-value>";
+	group "<optional-group-name>";
+	start "INIT";
+	stop "NEVER";
+	hold "+0 s";
 }
 ~~~
 
