@@ -36,7 +36,7 @@ creates a filter with 8 bits of resolution (256 values) over a dynamic range of 
 
 ## Polynomial
 
-The numerator and denominator are specified as a polynomial of the form $a_n z^n + a_{n-1}^z^{n-1} + \cdots + a_1 z + a_0$, e.g.,
+The numerator and denominator are specified as a polynomial of the form $a_n z^n + a_{n-1} z^{n-1} + \cdots + a_1 z + a_0$, e.g.,
 ~~~
   an z^n + ... + a1 z + a0
 ~~~
