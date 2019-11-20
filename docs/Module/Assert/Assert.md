@@ -4,6 +4,20 @@
 GLM:
 ~~~
 module assert;
+class assert {
+	enumeration {NONE=3, FALSE=2, TRUE=1, INIT=0} status;
+	char1024 target;
+	char32 part;
+	enumeration {outside=7, inside=6, !==3, >==2, >=5, <==1, <=4, ===0} relation;
+	char1024 value;
+	char1024 within;
+	char1024 lower;
+	char1024 upper;
+	char1024 group;
+	timestamp start;
+	timestamp stop;
+	double hold[s];
+}
 object assert {
   enumeration {NONE,FALSE,TRUE} status;
   char1024 target;
