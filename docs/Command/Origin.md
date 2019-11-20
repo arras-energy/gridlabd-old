@@ -5,9 +5,9 @@
 host% gridlabd --origin
 ~~~
 
-# Remarks
+# Description
 
-The `--origin` command line option display information about the source code from which the currently install version of GridLAB-D is built.  The purpose of this option is to facilitate troubleshooting when a system has multiple installations with local changes. The information includes the following information collected at the time of the build
+The `--origin` command line option displays information about the source code from which the currently installed version of GridLAB-D is built.  The purpose of this option is to facilitate troubleshooting when a system has multiple installations with local changes. The information includes the following data collected at the time of the build
 - Output from the command `git -remote -v`
 - Output from the command `git log -n 1`
 - Output from the command `git status -s`
@@ -21,7 +21,7 @@ host% gridlabd --origin
 # https://github.com/dchassin/gridlabd/commits/d2fca77b4985e28452e72e259ce6bf77d2d454b1
 ~~~
 
-The following example includes diff output from local changes
+The following example includes diff output resulting from local changes to the code
 ~~~
 # https://github.com/dchassin/gridlabd/commits/ff655ab92b650b2373d02b44bf884334d40faf06
 #  M gldcore/Makefile.mk
