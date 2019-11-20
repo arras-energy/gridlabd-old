@@ -1,4 +1,4 @@
-[[Validto_context]] -- Control how `valid_to` time is used
+[[Global/Validto_context]] -- Control how `valid_to` time is used
 
 # Synopsis
 ~~~
