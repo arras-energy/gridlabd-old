@@ -40,6 +40,7 @@ The numerator and denominator are specified as a polynomial of the form $a_n z^n
 ~~~
   an z^n + ... + a1 z + a0
 ~~~
+The order of the numerator must be strictly less than the order of the denominator. 
 
 # Example
 ~~~
