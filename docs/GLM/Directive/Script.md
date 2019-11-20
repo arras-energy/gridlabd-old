@@ -52,29 +52,17 @@ The script is executed when the simulation terminates.
 
 * Platform independence
   - In the current implementation, scripts are interpreted by the platform's native shell command processor (e.g., DOS for MS Windows, bash for linux and Mac).  This means GLM files that use scripts are not normally portable from one platform to another. 
-  - On most platforms you can specify the shell to use by preceding the command with the name of the shell, e.g.
-~~~
- script python my_script.py
-~~~
-  - provided you include the shell command in the your PATH environment.  If platform independent scripts are desired, care should be take to only use those shell features that are platform independent.  See the shell's documentation for details.
+  - On most platforms you can specify the shell to use by preceding the command with the name of the shell, e.g. `script python my_script.py`.
+  - Provided you include the shell command in the your PATH environment.  If platform independent scripts are desired, care should be take to only use those shell features that are platform independent.  See the shell's documentation for details.
 
 * Asynchronous calls
-  - On MS Windows platform the DOS shell interprets the <tt>start</tt> command as a request for asynchronous execution of the script.  On Linux/Mac platforms, a trailing <tt>&</tt> causes asynchronous execution of the script. If a script request is repeated before the previous copy if done (e.g., on_sync), this can result in many copies of the script running concurrently and the system becoming bogged down with multiple copies of the same process.
+  - On MS Windows platform the DOS shell interprets the `start` command as a request for asynchronous execution of the script.  On Linux/Mac platforms, a trailing `&` causes asynchronous execution of the script. If a script request is repeated before the previous copy if done (e.g., `on_sync`), this can result in many copies of the script running concurrently and the system becoming bogged down with multiple copies of the same process.
 
 * Variable expansion
-  - Variable names are interpreted when the script command is parsed by the GLM rather than when it is executed.  It is currently not possible to update the value of a variable when the script is executed.  As a result, the following directive will not work as expected
+  - Variable names are interpreted when the script command is parsed by the GLM rather than when it is executed.  It is currently not possible to update the value of a variable when the script is executed.  As a result, the following directive will not work as expected `script on_sync echo ${clock}` because the value of the `clock` is interpreted when the directive is encountered (when `clock` contains the start time) and not when the script is executed.  You must use the `export` option to export variables to scripts.  The correct syntax for the above example is
 ~~~
- script on_sync echo ${clock}
-~~~
-because the value of the <tt>clock</tt> is interpreted when the directive is encountered (when <tt>clock</tt> contains the start time) and not when the script is executed.  You must use the [[#export|export]] option to export variables to scripts.  The correct syntax for the above example is
-~~~
- script export clock;
- script on_sync echo $clock; // linux/mac variable expansion syntax
-~~~
-or 
-~~~
- script export clock;
- script on_sync echo %clock%; // windows variable expansion syntax
+         script export clock;
+         script on_sync echo $clock; // linux/mac variable expansion syntax
 ~~~
 
 # See also
