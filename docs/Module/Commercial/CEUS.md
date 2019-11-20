@@ -20,27 +20,27 @@
     default_solargain_base 0.0 W/m^2;
     default_price_base 0.0 $/MWh;
   }
-  class ceus {
-    method filename;
-    double floor_area[sf];
-    method composition;
-    object weather;
-    complex total_power_A[VA];
-    complex total_power_B[VA];
-    complex total_power_C[VA];
-    double total_real_power[W];
-    double total_reactive_power[VAR];
-    object weather;
-    double temperature_heating_balance[degF];
-    double temperature_cooling_balance[degF];
-    double temperature_heating_base[degF];
-    double temperature_cooling_base[degF];
-    double temperature_heating_sensitivity[W/degF];
-    double solargain_base[W/m^2];
-    double solargain_sensitivity[m^2];
-    object tariff;
-    double price_base[$/MWh];
-    double price_sensitivity[W*MWh/$]; 
+  object ceus {
+    filename "<file-name>";
+    floor_area "<real-value> sf>";
+    composition "<enduse>:{<parameter>:<value>;...}";
+    weather "<object-name>";
+    total_power_A "<complex-value> VA";
+    total_power_B "<complex-value> VA";
+    total_power_C "<complex-value> VA";
+    total_real_power[W];
+    total_reactive_power[VAR];
+    weather "<object-name>";
+    temperature_heating_balance "<real-value> degF";
+    temperature_cooling_balance "<real-value> degF";
+    temperature_heating_base "<real-value> degF"]";
+    temperature_cooling_base "<real-value> degF";
+    temperature_heating_sensitivity "<real-value> W/degF";
+    solargain_base "<real-value> W/m^2";
+    solargain_sensitivity "<real-value> m^2";
+    tariff "<object-name>";
+    price_base "<real-value> $/MWh"]";
+    price_sensitivity "<real-value> W*MWh/$"; 
   }
 ~~~
 
@@ -50,7 +50,12 @@ The CEUS commercial building load model is based on the commercial energy use da
 
 The parent object of a building must be a `powerflow meter` object.  In the absence of a suitable parent object, the building will use the global variables `default_nominal_voltage_A`, `default_nominal_voltage_B`, `default_nominal_voltage_C` and `default_nominal_voltage` to determine the voltage.  The solver will update the meter's power demand value when the load changes.
 
-The CEUS data file is loaded when the `filename` is specified.  Each file is loaded only once and referenced by each building that uses it.  The loads in the data 
+# Properties
+
+##
+~~~
+    method composition;
+~~~
 
 The load composition determines how much power is consumed by each end-use specified in the CEUS data file. The real and reactive fractions are given by the following terms
 * `Zr`: the real constant impedance fraction
@@ -64,21 +69,151 @@ In general the sum the real power fractions should be 1.0 and the sum of the rea
 
 The `Area` term of the fraction of the `floor_area` affected by the enduse specified.
 
-The `weather` object provides the current temperature, if given.  In the absence of a weather reference, no temperature sensitivity is applied to the load. The power impact of temperature changes are computed as follows:
+##
 ~~~
-  if ( temperature < temperature_heating_balance )
-      power = ( temperature - temperature_heating_base ) * temperature_heating_sensitivity
-  else if ( temperature > temperature_cooling_balance )
-      power = ( temperature - temperature_cooling_base ) * temperature_cooling_sensitivity
+    method filename;
 ~~~
+
+The CEUS data file is loaded when the `filename` is specified.  Each file is loaded only once and referenced by each building that uses it.  The loads in the data are used as the basis for the loadshapes that drive the final load composition.
+
+##
+~~~
+    double floor_area[sf];
+~~~
+
+The floor area of the build.
+
+##
+~~~
+    double price_base[$/MWh];
+~~~
+
+The base price for the price sensitivity.
+
+##
+~~~
+    complex total_power_A[VA];
+~~~
+
+The total power on phase A.
+
+##
+~~~
+    complex total_power_B[VA];
+~~~
+
+The total power on phase B.
+
+##
+~~~
+    complex total_power_C[VA];
+~~~
+
+The total power on Phase C.
+
+##
+~~~
+    double total_real_power[W];
+~~~
+
+The total real power.
+
+##
+~~~
+    double total_reactive_power[VAR];
+~~~
+
+The total reactive power.
+
+##
+~~~
+    double price_sensitivity[W*MWh/$]; 
+~~~
+
+The price sensitivity.
+
+##
+~~~
+    double solargain_base[W/m^2];
+~~~
+
+The solar gain sensitivity base irradiance.
+
+##
+~~~
+    double solargain_sensitivity[m^2];
+~~~
+
+The solar gain sensitivity.
+
+##
+~~~
+    double temperature_cooling_base[degF];
+~~~
+
+The cooling sensitivity base temperature. 
+
+##
+~~~
+    double temperature_cooling_balance[degF];
+~~~
+
+Cooling sensitivity is non-zero only for outdoor air temperatures above the cooling balance temperature.
+
+##
+~~~
+    double temperature_heating_base[degF];
+~~~
+
+The heating sensitivity base temperature.
+
+##
+~~~
+    double temperature_heating_balance[degF];
+~~~
+
+Heating sensitivity is non-zero only for outdoor air temperatures below the heatin balance temperature.
+
+##
+~~~
+    double temperature_heating_sensitivity[W/degF];
+~~~
+
+The heating temperature sensitivity.
+
+##
+~~~
+    object tariff;
+~~~
+
+The tariff object is used to establish now the pricing affects loads.
+
+##
+~~~
+    object weather;
+~~~
+
+The `weather` object provides the current temperature, if given.  In the absence of a weather reference, no temperature sensitivity is applied to the load. 
+
+# Sensitivity Model
+
+The power impact of temperature changes are computed as follows:
+$$
+    power = \left { \begin{array}{ll}
+        weather.temperature < temperature\_heating\_balance : & ( temperature - temperature\_heating\_base ) \times temperature\_heating\_sensitivity
+    \\
+        weather.temperature > temperature\_cooling\_balance : & ( temperature - temperature\_cooling\_base ) \times temperature\_cooling\_sensitivity
+    \end{array} \right.
+$$
+
 Similarly, the `weather` is used to obtain the solar irradiance sensitivity impact on power, which is computed as follows:
-~~~
-  power = ( solargain - solargain_base ) * solargain_sensitivity
-~~~
+$$
+  power = ( solargain - solargain\_base ) \times solargain\_sensitivity
+$$
 The `tariff` object provides the `price` values used to compute the load sensitivity to price. The power impact of price changes is computed as follows:
-~~~
-  power = ( price - price_base ) * price_sensitivity
-~~~
+$$
+  power = ( price - price\_base ) \times price\_sensitivity
+$$
 
 # Example
 
