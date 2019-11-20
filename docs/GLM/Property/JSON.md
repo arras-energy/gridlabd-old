@@ -1,4 +1,4 @@
-[[JSON property]] -- JSON property format
+[[GLM/Property/JSON]] -- JSON property format
 
 # Synopsis
 GLM:
@@ -37,6 +37,6 @@ The following examples set the property `z` to the value `-i`:
 ~~~
 
 # See also
-* [[JSON input]] format
-* [[JSON output]] format
+* [[Command/JSON input]]
+* [[Command/JSON output]]
 
