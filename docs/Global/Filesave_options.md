@@ -1,4 +1,4 @@
-[[filesave_options]] -- Global variable to control file save options
+[[Global/Filesave_options]] -- Global variable to control file save options
 
 # Synopsis
 
@@ -16,5 +16,5 @@ GLM file:
 The `filesave_options` global variable controls which portion of a GridLAB-D model are output when saving to a file.
 
 # See also
-* [[glm_save_options]]
+* [[Global/Glm_save_options]]
 
