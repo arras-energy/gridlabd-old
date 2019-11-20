@@ -1,6 +1,7 @@
-[[String]] - property to contain general strings
+[[GLM/Property/String]] - Property to contain general strings
 
 # Synopsis
+GLM:
 ~~~
   class class-name {
     string property-name;
@@ -20,5 +21,3 @@ property-value""";
 # Description
 
 The `string` property allows storage and import/export of strings of arbitrary length.
-
-
