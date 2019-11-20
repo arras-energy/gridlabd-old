@@ -1,4 +1,4 @@
-[[ignore_errors]] - Global variable that controls whether errors cause immediate exit
+[[Global/Ignore_errors]] - Global variable that controls whether errors cause immediate exit
 
 # Synopsis
 
