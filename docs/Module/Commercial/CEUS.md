@@ -198,11 +198,12 @@ The `weather` object provides the current temperature, if given.  In the absence
 # Sensitivity Model
 
 The power impact of temperature changes are computed as follows:
-$$
-    power = \left { \begin{array}{ll}
+$$ power = \left{ \begin{array}{ll}
         weather.temperature < temperature\_heating\_balance : & ( temperature - temperature\_heating\_base ) \times temperature\_heating\_sensitivity
     \\
         weather.temperature > temperature\_cooling\_balance : & ( temperature - temperature\_cooling\_base ) \times temperature\_cooling\_sensitivity
+    \\
+        otherwise : & 0
     \end{array} \right.
 $$
 
