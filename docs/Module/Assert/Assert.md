@@ -3,20 +3,6 @@
 # Synopsis
 ~~~
 module assert;
-class assert {
-	enumeration {NONE=3, FALSE=2, TRUE=1, INIT=0} status;
-	char1024 target;
-	char32 part;
-	enumeration {outside=7, inside=6, !==3, >==2, >=5, <==1, <=4, ===0} relation;
-	char1024 value;
-	char1024 within;
-	char1024 lower;
-	char1024 upper;
-	char1024 group;
-	timestamp start;
-	timestamp stop;
-	double hold[s];
-}
 object assert {
 	parent "<object-name>";
 	status "INIT";
@@ -43,18 +29,43 @@ The `assert` object examines a single property of parent object and compares it 
 
 The following properties are available in an `assert` object. 
 
+### `group` 
+~~~
+char1024 group;
+~~~
+
+Allows a group specification.  See [[GLM/Finding_objects]] for details.
+
+### `hold`
+~~~
+double hold[s];
+~~~
+
+Specifies how long the assert must be violated before the exception is thrown.
+
 ### `lower`
+~~~
+char1024 lower;
+~~~
 
 The `lower` property specifies the lower bound when using the `inside` or `outside` relations.
 
 ### `part`
+~~~
+char32 part;
+~~~
 
 The `part` property specifies the property part to use when comparing values.  All property parts are considered to have an underlying double value.  For information of valid property parts, see the documentation on the property in question.
 
 ### `relation`
+~~~
+enumeration {outside=7, inside=6, !==3, >==2, >=5, <==1, <=4, ===0} relation;
+~~~
+
 The `relation` operator specifies the relationship that must be satisfied.  Most relations are unary, in which case the `value` property is used for the comparison.  Some relations are binary, i.e., `inside` and `outside`, in which case the property is compared against the `lower` and `upper` values.
 
 #### `inside`
+
 Compares the target property to determine whether it is between the `lower` and `upper` values (inclusive).
 
 #### `outside`
@@ -85,7 +96,17 @@ Compares the target property to determine whether it is less than the `value`.
 
 Compares the target property to determine whether it is equal to the `value`.
 
+### `start`
+~~~
+timestamp start;
+~~~
+
+Specifies when the assert is to start being applied.
+
 ### `status`
+~~~
+enumeration {NONE=3, FALSE=2, TRUE=1, INIT=0} status;
+~~~
 
 The `status` enumeration specifies the desired outcome of the test.  
 
@@ -101,37 +122,40 @@ The `NONE` keyword is used to specify that the assert test should be ignore.
 
 The `TRUE` keyword is used to specify that the assert test should succeed.
 
+### `stop` 
+~~~
+timestamp stop;
+~~~
+
+Specifies when the assert is to stop being applied.
+
 ### `target`
+~~~
+char1024 target;
+~~~
 
 The `target` string specifies the name of the property to examine.
 
 ### `upper`
+~~~
+char1024 upper;
+~~~
 
 The `upper` property specifies the upper bound when using the `inside` or `outside` relation.
 
 ### `value`
+~~~
+char1024 value;
+~~~
 
 The `value` property specifies the value to compare to when using the `!=`, `>=`, `>`, `<=`, `<`, or `==` relations.
 
 ### `within`
+~~~
+char1024 within;
+~~~
 
 The `within` property specifies the accuracy to which `==` and `!=` comparisons are performed.
-
-### `group` 
-
-Allows a group specification.  See [[GLM/Finding_objects]] for details.
-
-### `start`
-
-Specifies when the assert is to start being applied.
-
-### `stop` 
-
-Specifies when the assert is to stop being applied.
-
-### `hold`
-
-Specifies how long the assert must be violated before the exception is thrown.
 
 # Examples
 
