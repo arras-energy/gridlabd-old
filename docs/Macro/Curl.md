@@ -8,7 +8,7 @@ GLM:
 
 # Remarks
 
-This is synonym of the `wget` macro.
+This is synonym of the `#wget` macro.
 
 # See also
 
