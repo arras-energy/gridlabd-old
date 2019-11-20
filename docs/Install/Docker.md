@@ -1,3 +1,12 @@
+[[Install/Docker]] -- Running GridLAB-D on Docker
+
+# Synopsis
+~~~
+bash$ docker run -it gridlabd/master <command>
+~~~
+
+# Description
+
 To use the latest version of GridLAB-D with docker, install docker from see www.docker.com. Then run 
 ~~~~
 host% docker pull gridlabd/slac-master:latest
@@ -75,4 +84,9 @@ host% make clean
 
 # Caveat 
 
-1. Docker has a known issue if your system goes to sleep while the daemon is running. After your system wakes up, containers may run a lot slower.  The only known solution at this time is to restart the docker daemon.
+Docker has a known issue if your system goes to sleep while the daemon is running. After your system wakes up, containers may run a lot slower.  The only known solution at this time is to restart the docker daemon.
+
+# See also
+
+* [[Subcommand/Docker]]
+
