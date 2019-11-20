@@ -1,4 +1,4 @@
-[[GLM/Filter]] -- Filter modeling directive
+[[GLM/Directive/Filter]] -- Filter modeling directive
 
 # Synopsis
 GLM:
