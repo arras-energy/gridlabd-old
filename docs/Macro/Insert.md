@@ -1,4 +1,4 @@
-[[insert]] -- insert macro
+[[Macro/Insert]] -- Macro to insert a GLM file
 
 # Synopsis
 GLM:
@@ -12,3 +12,7 @@ The `#insert` macro allows a GLM file to be included with parameters set as glob
 ~~~~
 #include using(var1=value1, var2=value2, ..., varN=valueN) "_name_.glm"
 ~~~~
+
+# See also
+
+* [[Macro/Include]]
