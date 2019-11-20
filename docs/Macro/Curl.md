@@ -1,4 +1,4 @@
-[[curl]] -- Copy URL
+[[Macro/Curl]] -- Macro to copy URL
 
 # Synopsis
 GLM:
@@ -8,4 +8,8 @@ GLM:
 
 # Remarks
 
-This is synonym of the [#wget macro](http://gridlab-d.shoutwiki.com/wiki/Macros) macro.
+This is synonym of the `wget` macro.
+
+# See also
+
+* [[Macro/Wget]]
