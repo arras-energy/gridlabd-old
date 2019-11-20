@@ -1,4 +1,4 @@
-[[Deltamode_allowed]] -- Global to control use of delta mode simulations
+[[Global/Deltamode_allowed]] -- Global to control use of delta mode simulations
 
 # Synopsis
 
