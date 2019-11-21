@@ -85,7 +85,7 @@ Returns the number of rows found instead of the number of rows changed.
 
 ### `IGNORE_SIGPIPE`
 
-Prevents the client library from installing a SIGPIPE signal handler. This can be used to avoid conflicts with a handler that the application has already installed.
+Prevents the client library from installing a `SIGPIPE` signal handler. This can be used to avoid conflicts with a handler that the application has already installed.
 
 ### `INTERACTIVE`
 
@@ -97,11 +97,11 @@ Enable `LOAD DATA LOCAL` handling.
 
 ### `MULTI_RESULTS`
 
-Tell the server that the client can handle multiple result sets from multiple-statement executions or stored procedures. This flag is automatically enabled if MULTI_STATEMENTS is enabled. MULTI_RESULTS can be enabled when you call mysql_real_connect(), either explicitly by passing the MULTI_RESULTS flag itself, or implicitly by passing MULTI_STATEMENTS (which also enables MULTI_RESULTS). In MySQL 5.7, MULTI_RESULTS is enabled by default.
+Tell the server that the client can handle multiple result sets from multiple-statement executions or stored procedures. This flag is automatically enabled if `MULTI_STATEMENTS` is enabled. `MULTI_RESULTS` can be enabled when you call `mysql_real_connect()`, either explicitly by passing the `MULTI_RESULTS` flag itself, or implicitly by passing `MULTI_STATEMENTS` (which also enables `MULTI_RESULTS`). As of MySQL 5.7, `MULTI_RESULTS` is enabled by default.
 
 ### `MULTI_STATEMENTS`
 
-Tell the server that the client may send multiple statements in a single string (separated by ; characters). If this flag is not set, multiple-statement execution is disabled. If you enable MULTI_STATEMENTS or MULTI_RESULTS, process the result for every call to `mysql_query()` or `mysql_real_query()` by using a loop that calls `mysql_next_result()` to determine whether there are more results. For an example, see [MySQL Manual Section 25.8.17, "C API Support for Multiple Statement Execution"](http://dev.mysql.com/doc/refman/5.7/en/c-api-multiple-queries.html).
+Tell the server that the client may send multiple statements in a single string (separated by ; characters). If this flag is not set, multiple-statement execution is disabled. If you enable `MULTI_STATEMENTS` or `MULTI_RESULTS`, process the result for every call to `mysql_query()` or `mysql_real_query()` by using a loop that calls `mysql_next_result()` to determine whether there are more results. For an example, see [MySQL Manual Section 25.8.17, "C API Support for Multiple Statement Execution"](http://dev.mysql.com/doc/refman/5.7/en/c-api-multiple-queries.html).
 
 ### `NO_SCHEMA`
 
@@ -117,7 +117,7 @@ Use SSL (encrypted protocol). Do not set this option within an application progr
 
 ### `REMEMBER_OPTIONS`
 
-Remember options specified by calls to mysql_options(). Without this option, if mysql_real_connect() fails, you must repeat the mysql_options() calls before trying to connect again. With this option, the mysql_options() calls need not be repeated.
+Remember options specified by calls to mysql_options(). Without this option, if `mysql_real_connect()` fails, you must repeat the `mysql_options()` calls before trying to connect again. With this option, the `mysql_options()` calls need not be repeated.
 
 ## `options`
 ~~~
@@ -136,11 +136,15 @@ Disable automatic creation of tables that don't exist.
 
 ### `NEWDB`
 
-When the NEWDB options|option is specified, then the schema is destroyed before it used.  CAUTION: this may cause loss of data and should be used with care, especially if the default schema `gridlabd` is used.
+When the NEWDB options|option is specified, then the schema is destroyed before it used.  
+
+**CAUTION**: this may cause loss of data and should be used with care, especially if the default schema `gridlabd` is used.
 
 ### `OVERWRITE`
 
-Enable deletion of existing data when an object initializes for output to a table. CAUTION: this may cause loss of data.
+Enable deletion of existing data when an object initializes for output to a table. 
+
+**CAUTION**: this may cause loss of data.
 
 ## `on_init`
 ~~~
@@ -185,6 +189,6 @@ Specifies the number of seconds offset between database times and object timesta
 Specifies whether tz_offset should consider summer time or daylight savings time rules.
 
 # See also
- 
+
 * [[/Module/Mysql]]
 
