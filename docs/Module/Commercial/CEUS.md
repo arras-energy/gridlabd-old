@@ -197,16 +197,16 @@ The `weather` object provides the current temperature, if given.  In the absence
 
 # Sensitivity Model
 
-The power impact of temperature changes are computed as follows. When $ weather.temperature < temperature_heating_balance $ then
-$$ power = ( temperature - temperature_heating_base ) \times temperature_heating_sensitivity $$/ When  $ weather.temperature > temperature_cooling_balance $ then $$ ( temperature - temperature_cooling_base ) \times temperature_cooling_sensitivity $$
+The power impact of temperature changes are computed as follows. When $ outdoor~temperature < temperature~heating~balance $ then
+$$ power = ( temperature - temperature~heating~base ) \times temperature~heating~sensitivity $$/ When  $ outdoor~temperature > temperature~cooling~balance $ then $$ ( temperature - temperature~cooling~base ) \times temperature~cooling~sensitivity $$
 
 Similarly, the `weather` is used to obtain the solar irradiance sensitivity impact on power, which is computed as follows:
 $$
-  power = ( solargain - solargain_base ) \times solargain_sensitivity
+  power = ( solargain - solargain~base ) \times solargain~sensitivity
 $$
 The `tariff` object provides the `price` values used to compute the load sensitivity to price. The power impact of price changes is computed as follows:
 $$
-  power = ( price - price_base ) \times price_sensitivity
+  power = ( price - price~base ) \times price~sensitivity
 $$
 
 # Example
