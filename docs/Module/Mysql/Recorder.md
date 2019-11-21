@@ -115,13 +115,9 @@ Specifies the source table from which data is read.
 
 Specifies the triggering condition for starting the recording.  See recorderrecorder trigger for details.
 
-# Bugs 
+# Caveats 
 
 * The `limit` parameter is not enforced until at least one row is added. Therefore, it is likely that after a given run, the number of rows is increased by 1 even though the maximum number of rows has been reached.
-
-# Version 
-
-The mysql recorder(mysql)|player was introduced in .
 
 # See also 
 
