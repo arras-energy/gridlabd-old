@@ -1,4 +1,4 @@
-recorder (mysql) - MySQL recorder class 
+[[/Module/Mysql/Recorder]] -- MySQL recorder class 
 
 # Synopsis 
 ~~~
