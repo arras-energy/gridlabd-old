@@ -1,4 +1,3 @@
-__NOTOC__
 [[/Module/Mysql/Database]] - MySQL database connection
 
 # Synopsis 
