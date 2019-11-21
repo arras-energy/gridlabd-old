@@ -197,15 +197,8 @@ The `weather` object provides the current temperature, if given.  In the absence
 
 # Sensitivity Model
 
-The power impact of temperature changes are computed as follows:
-$$ power = \left{ \begin{array}{ll}
-        weather.temperature < temperature_heating_balance : & ( temperature - temperature_heating_base ) \times temperature_heating_sensitivity
-    \\
-        weather.temperature > temperature_cooling_balance : & ( temperature - temperature_cooling_base ) \times temperature_cooling_sensitivity
-    \\
-        otherwise : & 0
-    \end{array} \right.
-$$
+The power impact of temperature changes are computed as follows. When $ weather.temperature < temperature_heating_balance $ then
+$$ power = ( temperature - temperature_heating_base ) \times temperature_heating_sensitivity $$/ When  $ weather.temperature > temperature_cooling_balance $ then $$ ( temperature - temperature_cooling_base ) \times temperature_cooling_sensitivity $$
 
 Similarly, the `weather` is used to obtain the solar irradiance sensitivity impact on power, which is computed as follows:
 $$
