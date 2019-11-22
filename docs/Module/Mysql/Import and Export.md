@@ -49,7 +49,7 @@ Table of globals
 
 ## Modules
 
-The `#modules|modules` table lists the module in use and their corresponding version information.
+The `modules` table lists the module in use and their corresponding version information.
 
 Table of modules
 ~~~
@@ -62,7 +62,7 @@ Table of modules
 
 ## Classes
 
-The `#classes|classes` table lists all the classes and properties defined (including those not in use).  Runtime classes and properties are listed with a NULL module name.
+The `classes` table lists all the classes and properties defined (including those not in use).  Runtime classes and properties are listed with a NULL module name.
 
 Table of classes
 ~~~
@@ -106,7 +106,7 @@ Table of objects
 
 ## Properties
 
-Some properties have extended specifications that are not captured by a simple read of the value.  These specifications are stored in the `#Properties|properties` table.
+Some properties have extended specifications that are not captured by a simple read of the value.  These specifications are stored in the `properties` table.
 
 Table of Extended Properties
 ~~~
