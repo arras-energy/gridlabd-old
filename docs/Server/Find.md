@@ -1,6 +1,7 @@
 [[/Server/Find]] -- Server object find query
 
 # Synopsis
+HTTP:
 ~~~
 GET /find/<collection>
 ~~~
