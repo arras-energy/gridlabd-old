@@ -14,7 +14,20 @@ The module global `table_prefix` can be used to stored multiple models in the sa
 
 ## Options
 
-TODO
+The following options can be used to change the MySQL database connection parameters during the import/export operation:
+* `--hostname <host-name>`: set the hostname
+* `--username <user-name>`: set the username
+* `--password <password>`: set the password
+* `--port <port>`: set the port number
+* `--socketname <socket-name>`: set the socket name
+* `--flags <flags>`: set the flags
+* `--table_prefix <prefix>`: set the table prefix string
+* `--new_database`: flag to enable the new database creation flag
+* `--show_query`: flag to enable the showing queries
+* `--no_create`: flag to disable the table creation flag
+* `--no_my_overwrite`: flag to disable the data overwrite flag
+* `--guid`: flag to enable use of the globally unique ids
+* `--no_transaction`: flag to disable use of transactions
 
 # Data Dictionary
 
