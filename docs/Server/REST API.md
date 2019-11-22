@@ -72,14 +72,6 @@ To set the value of an [[object (property)|object property]], use the following 
 ~~~
 The value can include `[<units]` and they will be converted automatically.  The value is read back after is set to confirm that it was accepted, including unit conversion.
 
-## `output`
-
-Output files may be requested using the query:
-~~~
-  GET /output/<filename>.<ext>
-~~~
-Only files in the working directory or subdirectories thereof may be accessed.
-
 ## Formats
 
 ### `xml`
