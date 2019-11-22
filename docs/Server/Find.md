@@ -22,3 +22,4 @@ bash$ curl http://localhost:6267/find/class=house
 # See also
 
 * [[/GLM/General/Collection]]
+* [[/Server/REST API]]
