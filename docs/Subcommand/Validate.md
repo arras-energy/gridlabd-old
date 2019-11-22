@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-bash$ gridlabd validate
+	bash$ gridlabd validate
 ~~~
 
 # Description
