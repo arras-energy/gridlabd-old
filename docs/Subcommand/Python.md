@@ -5,11 +5,14 @@ Shell:
 ~~~
   bash$ gridlabd python <options> ...
 ~~~
-where `<options>` are the python command options
 
 # Description
 
-Normally GridLAB-D requires certain environment variables to be set to function properly.  If you are running Python code, and would like to use the GridLAB-D module, you can run python inside that GridLAB-D environment using the `python` subcommand.
+Normally GridLAB-D requires certain environment variables to be set to function properly.  If you are running Python code, and would like to use the GridLAB-D module, you can run Python inside that GridLAB-D environment using the `python` subcommand, where `<options>` are the Python command options
+
+# Caveat
+
+Only `python3` is supported, and the executable must be located at `/usr/local/bin/python3`.
 
 # Example
 ~~~
@@ -21,3 +24,8 @@ Normally GridLAB-D requires certain environment variables to be set to function 
   >>> os.environ["GLPATH"]
   '/usr/local/lib/gridlabd:/usr/local/share/gridlabd'
 ~~~
+
+# See also
+
+* [[/Command/Validation]]
+* [[/Module/Python]]
