@@ -72,30 +72,6 @@ To set the value of an [[object (property)|object property]], use the following 
 ~~~
 The value can include `[<units]` and they will be converted automatically.  The value is read back after is set to confirm that it was accepted, including unit conversion.
 
-## `control`
-
-### `pause`
-To pause the simulation at a specified time, use the following query:
-~~~
-  GET /control/pauseat=<year>-<month>-<day>+<hour>:<minute>:<second>+<timezone>
-~~~
-Note that if the simulation is already paused and the time given is later than the current time, it will resume the simulation and pause at the specified time.
-
-### `resume`
-
-To resume the simulation when it is paused, use the following query:
-~~~
-  GET /control/resume
-~~~
-In this case, the simulation will run until the global `stoptime` or steady state is reached, whichever comes first.
-
-### `shutdown`
-
-To immediately shut down the simulation, use the following query:
-~~~
-  GET /control/shutdown
-~~~
-
 ## `output`
 
 Output files may be requested using the query:
