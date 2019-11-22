@@ -1,4 +1,4 @@
-[[Weather subcommand]] -- gridlabd CLI to manage the local weather data 
+[[Subcommand/Weather]] -- GridLAB-D CLI to manage the local weather data 
 
 # Synopsis
 Shell:
@@ -15,7 +15,7 @@ Shell:
 
 # Description
 
-Weather data is archived in a GitHub repository. The <tt>weather</tt> subcommand manages the local copies of archived weather data in the shared GridLAB-D folder. This allow local system to only have needed weather data and avoid having to download the entire archive from GitHub, which is quite large.
+Weather data is archived in a GitHub repository. The `weather` subcommand manages the local copies of archived weather data in the shared GridLAB-D folder. This allow local system to only have needed weather data and avoid having to download the entire archive from GitHub, which is quite large.
 
 ## `index`
 ~~~

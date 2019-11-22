@@ -81,5 +81,4 @@ The indicated version is deleted. If the version is a pattern, then multiple ver
 
 # See also
 
-* [[Install]]
-* --[[version]] command line option
+* [[Command/Version]] command line option

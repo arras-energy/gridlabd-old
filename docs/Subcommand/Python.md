@@ -1,4 +1,4 @@
-[[Python subcommand]] - subcommand to run Python in a GridLAB-D environment
+[[Subcommand/Python]] - subcommand to run Python in a GridLAB-D environment
 
 # Synopsis
 Shell:
