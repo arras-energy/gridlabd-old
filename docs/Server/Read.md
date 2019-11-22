@@ -1,4 +1,4 @@
-[[Read]] -- Server read command
+[/Control/Read]] -- Server read command
 
 # Synopsis
 HTTP:
