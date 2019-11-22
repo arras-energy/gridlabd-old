@@ -3,8 +3,8 @@
 # Synopsis
 HTTP:
 ~~~
-    GET /rb/<filename>
-    GET /rt/<filename>[:<offset>]
+    GET /rt/<filename>
+    GET /rb/<filename>[:<offset>]
 ~~~
 
 # Description
