@@ -3,14 +3,14 @@
 # Synopsis
 Shell:
 ~~~
-bash$ gridlabd version 
-bash$ gridlabd version help
-bash$ gridlabd version check [-v|-q]
-bash$ gridlabd version list <PATTERN>
-bash$ gridlabd version show
-bash$ gridlabd version set [<PATTERN>]
-bash$ gridlabd version source
-bash$ gridlabd version delete [-a|<PATTERN>]
+	bash$ gridlabd version 
+	bash$ gridlabd version help
+	bash$ gridlabd version check [-v|-q]
+	bash$ gridlabd version list <PATTERN>
+	bash$ gridlabd version show
+	bash$ gridlabd version set [<PATTERN>]
+	bash$ gridlabd version source
+	bash$ gridlabd version delete [-a|<PATTERN>]
 ~~~
 
 # Description
