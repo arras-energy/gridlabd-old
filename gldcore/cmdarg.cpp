@@ -503,6 +503,8 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
+	char branch[1024] = BRANCH, *c;
+	for ( c = branch ; c != NULL ; c = strchr(branch,'-') ) if (*c=='-') *c = '_';
 	const char *opt = strchr(argv[0],'=');
 	if ( opt++ == NULL )
 	{
@@ -591,7 +593,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 	else if ( strcmp(opt,"name") == 0 )
 	{
 		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
-		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, branch);
 		return 0;
 	}
 	else if ( strcmp(opt,"json") == 0 )

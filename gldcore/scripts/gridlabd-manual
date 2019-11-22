@@ -1,7 +1,26 @@
 #!/bin/bash
-PAGE=${GLD_ETC/share\/gridlabd/html}/index.html
-if [ -f $PAGE ]; then
-	open $PAGE &
-else
-	echo "ERROR: $PAGE not found" > /dev/stderr
+
+if [ "$1" == "-h" -o "$1" == "--help" -o "$1" == "help" ]; then
+    cat <<-END
+Syntax: gridlabd manual [options ...]
+Options:
+  -b|--branch name   open branch documentation
+  -h|--help          get this help
+  -l|--local         open local documentation
+END
+    exit 0
+elif [ "$1" == "-l" -o "$1" == "--local" ]; then
+    PAGE=${GLD_ETC/share\/gridlabd/html}/index.html
+    if [ -f $PAGE ]; then
+    	open $PAGE &
+        exit 0
+    else
+        echo "local docs '$PAGE' not found" 2>/dev/stderr
+        exit 1
+    fi
+elif [ "$1" == "-b" -o "$1" == "--branch" ]; then
+    BRANCH="$2"
+    HOST=docs
 fi
+open "http://${HOST:-www}.gridlabd.us/index.html?branch=${BRANCH=master}" &
+

@@ -547,11 +547,6 @@ AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 # The End
 ###############################################################################
 
-AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([gridlabd.spec])
-AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
-AC_OUTPUT
-
 VERSION_NAME=$(build-aux/version.sh --name)
 BINDIR=`eval echo $(eval echo $bindir)`
 LIBDIR=`eval echo $(eval echo $libdir)`/$PACKAGE
@@ -578,9 +573,7 @@ AC_MSG_RESULT([
     __sync_add_and_fetch: ....... $HAVE_SYNC_ADD_AND_FETCH
 
   Build flags:
-    CFLAGS: ..................... ${CFLAGS:-(none)}
     CXXFLAGS: ................... ${CXXFLAGS:-(none)}
-    CPPFLAGS: ................... ${CPPFLAGS:-(none)}
     LDFLAGS: .................... ${LDFLAGS:-(none)}
 
   Installation paths:
@@ -603,7 +596,15 @@ AC_MSG_RESULT([
   Running:
     type 'export PATH=/usr/local/opt/gridlabd/$VERSION_NAME/bin:\$PATH' to include this version in your current path
     type '$PACKAGE --version' to check that you are running the correct version of $PACKAGE
-    type '$PACKAGE version select $VERSION_NAME' to activate this version of $PACKAGE
+    type '/usr/local/opt/gridlabd/$VERSION_NAME/bin/$PACKAGE version set' to activate this version of $PACKAGE
 
 -----------------------------------------------------------------------
 ])
+
+CXXFLAGS="$CXXFLAGS $(/usr/local/bin/python3-config --cflags)"
+LDFLAGS="$LDFLAGS $(/usr/local/bin/python3-config --ldflags)"
+
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([gridlabd.spec])
+AC_CONFIG_FILES([gldcore/gridlabd], [chmod +x gldcore/gridlabd])
+AC_OUTPUT

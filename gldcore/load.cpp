@@ -455,7 +455,12 @@ static STATUS exec(const char *format,...)
 	vsprintf(cmd,format,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("Running '%s' in '%s'", cmd, getcwd(NULL,0));
-	return system(cmd)==0?SUCCESS:FAILED;
+	int rc = system(cmd);
+	if ( rc != 0 )
+	{
+		output_error("command [%s] failed, rc=%d",cmd,rc);
+	}
+	return rc==0?SUCCESS:FAILED;
 }
 
 static STATUS debugger(const char *target)
@@ -791,7 +796,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 						getenv("CXXFLAGS")?getenv("CXXFLAGS"):DEFAULT_CXXFLAGS,
 						cfile, ofile);
 				IN_MYCONTEXT output_verbose("compile command: [%s]", execstr);
-				if(exec(execstr)==FAILED)
+				if(exec("%s",execstr)==FAILED)
 				{
 					errno = EINVAL;
 					return FAILED;
@@ -810,7 +815,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 						getenv("LDFLAGS")?getenv("LDFLAGS"):DEFAULT_LDFLAGS,
 						ofile, afile, libs);
 				IN_MYCONTEXT output_verbose("link command: [%s]", ldstr);
-				if(exec(ldstr) == FAILED)
+				if(exec("%s",ldstr) == FAILED)
 				{
 					errno = EINVAL;
 					return FAILED;

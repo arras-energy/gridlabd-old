@@ -6,10 +6,12 @@ WEBSITES = code$(SUFFIX).gridlabd.us docs$(SUFFIX).gridlabd.us www$(SUFFIX).grid
 aws-deploy: $(WEBSITES)
 
 $(WEBSITES) :
+if HAVE_AWSCLI
 if SUFFIX
-	@echo "deploying $@..."
+	@echo "deploying $@ for SUFFIX='$(SUFFIX)'..."
 else
-	@echo "cannot deploy $@..."
+	@echo "cannot deploy $@ for SUFFIX='$(SUFFIX)'"
+endif
 endif
 # if SUFFIX
 #  	@echo "aws s3 cp cloud/websites/$@/index.html s3://$@/index.html"
