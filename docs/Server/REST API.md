@@ -70,17 +70,24 @@ To set the value of an [[object (property)|object property]], use the following 
 ~~~
   GET /<format>/<object-name>/<property-name>=<value>
 ~~~
-The value can include `[<units]` and they will be converted automatically.  The value is read back after is set to confirm that it was accepted, including unit conversion.
+The value can include `[<units>]` and they will be converted automatically.  The value is read back after is set to confirm that it was accepted, including unit conversion, if appropriate.
 
 ## Formats
 
+### `raw`
+
+The raw response to a global variable or object property request will be in the form:
+~~~
+  <value>
+~~~
+
 ### `xml`
 
-The response to global variable requests will be in the form
+The XML response to global variable requests will be in the form
 ~~~
   <globalvar>
     <name>variable-name</name>
-    <value>value unit</value>
+    <value>value</value>
   </globalvar>
 ~~~
 The response to object property requests will be in the form
@@ -88,45 +95,45 @@ The response to object property requests will be in the form
   <property>
     <object>object-name</object>
     <name>property-name</name>
-    <value>value unit</value>
+    <value>value</value>
   </property>
 ~~~
 
-## Runtime Files
+### 'json'
 
-Some client support functions require runtime libraries that are provided by the server. To read a runtime library use the query
+The JSON response to global variable requests will be in the form
 ~~~
-  host% wget http://''hostname'':6267/rt/''library_name''
-~~~
-The library content is returned.  For example, to read the default javascript library, use the query
-~~~
-  host% wget http://''hostname'':6267/rt/gridlabd.js
+{ "name" : "<variable-name>", "value" : "<value> <unit>" }
 ~~~
 
-Any global variable name surrounded by '<<<' '>>>' will be substituted on the server-side.
-
-## Server-side applications
-
-Some server-side applications may be installed for a server and called by clients by using the query
+The response to object property requests will be in the form
 ~~~
-  host% wget http://''hostname'':6267/''appname''/''scriptname''
-~~~
-The following applications are currently supported if they are installed on the server:
-
-Server applications
-~~~
-| Application | App Name | Script Extension |
-| ----------- | -------- | ---------------- |
-| Perl        | perl     | .pl              |
-| GnuPlot     | gnuplot  | .plt             |
-| Python      | python   | .r               |
-| Java        | java     | .jar             |
-| R           | r        | .r               |
-| Scilab      | scilab   | .cse             |
-| Octave      | octave   | .m               |
+{ 
+  "object" : "<object-name>", 
+  "name" : "<property-name>", 
+  "type" : "<type-name>", 
+  "value" : "<value>"
+}
 ~~~
 
-In all cases the output is copied to the client.  Typically, it is the HTML code needed to properly embed the result of the script.
+If the property name is `*` or `*[tuple]`, then the response is of the form
+~~~
+  [ { "<property-name>" : "<value>" }, ... ]
+~~~
+where all the known properties of the object are output.
+If the property name is `*[dict]`, then the response is of the form
+~~~
+  { "<property-name" : "<value>", ...}
+~~~
+
+In the event of an error, the JSON response is of the form
+~~~
+  { 
+    "error" : "<description>", 
+    "object" : "<object-name>", 
+    "property" : "<property-name>"
+  }
+~~~
 
 ## Real-time models
 
