@@ -162,7 +162,7 @@ In all cases the output is copied to the client.  Typically, it is the HTML code
 
 ## Real-time models
 
-[[Server]] mode is essential to the realtime mode and allows a web-based application to access the global variable and properties of named objects.  
+Server mode is essential to the realtime mode. Together this allows a web-based application to access the global variable and properties of named objects of a real-time simulation to emulate a control room.  See the [IEEE-123 Model](https://github.com/dchassin/gridlabd/models/ieee123) for an example.
 
 # See also
 
