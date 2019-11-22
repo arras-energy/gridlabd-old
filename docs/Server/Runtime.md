@@ -4,7 +4,7 @@
 HTTP:
 ~~~
     GET /rb/<filename>
-    GET /rt/<filename>
+    GET /rt/<filename>[:<offset>]
 ~~~
 
 # Description
@@ -19,7 +19,9 @@ Global variable names surrounded by '<<<' '>>>' will be substituted on the serve
 
 ## Binary files
 
-Binary files are download using binary file access. No changes are made to the file when it is downloaded.
+Binary files are download using binary file access. No changes are made to the file when it is downloaded. 
+
+If the `<offset>` is specified, the download will start at the byte offset specified. This can be used to obtain to resume of an incomplete download.
 
 # Example
 The following example downloads the javacsript file `gridlabd.js`:
