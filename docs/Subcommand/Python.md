@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd python <options> ...
+  bash$ gridlabd python <options> ...
 ~~~
 where `<options>` are the python command options
 
@@ -13,7 +13,7 @@ Normally GridLAB-D requires certain environment variables to be set to function 
 
 # Example
 ~~~
-  host% gridlabd python
+  bash$ gridlabd python
   Python 3.7.2 (default, Feb 12 2019, 08:15:36) 
   [Clang 10.0.0 (clang-1000.11.45.5)] on darwin
   Type "help", "copyright", "credits" or "license" for more information.
