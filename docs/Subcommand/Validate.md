@@ -1,6 +1,7 @@
 [[Validate]] -- Validation subcommand
 
 # Synopsis
+Shell:
 ~~~
 bash$ gridlabd validate
 ~~~

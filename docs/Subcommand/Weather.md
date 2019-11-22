@@ -1,7 +1,7 @@
 [[Weather subcommand]] -- gridlabd CLI to manage the local weather data 
 
 # Synopsis
-Command line:
+Shell:
 ~~~
   gridlabd weather help
   gridlabd weather index <pattern>
@@ -17,11 +17,10 @@ Command line:
 
 Weather data is archived in a GitHub repository. The <tt>weather</tt> subcommand manages the local copies of archived weather data in the shared GridLAB-D folder. This allow local system to only have needed weather data and avoid having to download the entire archive from GitHub, which is quite large.
 
-## Environment Variables
-
-The weather subcommand needs to know where you wish to store the weather files.  The environment variable `GLD_ETC` is used to indicate where the `weather` folder is.  By default this is the `/usr/local/share/gridlabd` folder.
-
-## Index
+## `index`
+~~~
+  gridlabd weather index <pattern>
+~~~
 
 The `index` subcommand is used to obtain lists of weather files in the archive. The following command obtains a list of all weather files in the archive
 ~~~
@@ -57,7 +56,10 @@ The following command obtains a list of the weather files in the archive that ha
   TX-San_Antonio_Stinson.tmy3
 ~~~
 
-## Get
+## `get`
+~~~
+  gridlabd weather get <pattern>
+~~~
 
 The `get` command downloads the specified weather files from the archive.
 
@@ -86,7 +88,10 @@ To download all the weather files matching a name pattern, use the command:
   Refreshing CA-San_Diego_North_Island_Nas.tmy3... done
 ~~~
 
-## List
+## `list`
+~~~
+  gridlabd weather list <pattern>
+~~~
 
 The `list` command displays a list of the local weather files that have been downloaded from the archive.
 
@@ -115,7 +120,10 @@ To list all the weather files matching a name pattern, use the command:
   CA-San_Diego_North_Island_Nas.tmy3
 ~~~
 
-## Delete
+## `delete`
+~~~
+  gridlabd weather delete <pattern>
+~~~
 
 The `delete` command deletes local weather files that have been downloaded from the archive.
 
@@ -133,7 +141,10 @@ To delete all the weather files matching a name pattern, use the command:
   host% gridlabd weather delete San_Diego
 ~~~
 
-## Info
+## `info`
+~~~
+  gridlabd weather info <pattern>
+~~~
 
 The <tt>info</tt> command displays information about local weather files that have been downloaded from the archive.
 
@@ -176,11 +187,17 @@ The information is output in CSV format for convenient manipulation using standa
   "/usr/local/share/gridlabd/US/CA-San_Diego_North_Island_Nas.tmy3",722906,"SAN DIEGO NORTH ISLAND NAS",CA,-8.0,32.700,-117.200,15
 ~~~
 
-## Clean
+## `clean`
+~~~
+  gridlabd weather clean
+~~~
 
 The `clean` removes existing data from the archive index cache and refreshes the current index.
 
-## Config
+## `config`
+~~~
+  gridlabd weather config {show,reset}
+~~~
 
 The weather data configuration file `gridlabd-weather.conf` is located in the `${GLD_ETC}` folder in the installation folder. (By default the local installation prefix is `/usr/local` but the system administrator can change the installation folder using the `--prefix` option when building a custom install of `gridlabd`.) You can change the default behavior of the `weather` subcommand by creating and altering the weather data configuration file.  
 
@@ -212,6 +229,10 @@ To reset the weather data configuration, use the command
 ~~~
   host% gridlabd weather config reset
 ~~~
+
+# Environment Variables
+
+The weather subcommand needs to know where you wish to store the weather files.  The environment variable `GLD_ETC` is used to indicate where the `weather` folder is.  By default this is the `/usr/local/share/gridlabd` folder.
 
 # Tutorial
 

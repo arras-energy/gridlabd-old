@@ -1,10 +1,11 @@
 [[Python subcommand]] - subcommand to run Python in a GridLAB-D environment
 
 # Synopsis
+Shell:
 ~~~
-  host% gridlabd python options
+  host% gridlabd python <options> ...
 ~~~
-where `options` are the python command options
+where `<options>` are the python command options
 
 # Description
 

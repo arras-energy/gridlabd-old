@@ -1,6 +1,7 @@
 [[Subcommand/Version]] -- System version manager
 
 # Synopsis
+Shell:
 ~~~
 bash$ gridlabd version 
 bash$ gridlabd version help
@@ -29,34 +30,56 @@ This is equivalent to `gridlabd version show`.
 
 The follow command options are supported:
 
-## `check [-v|-q]`
+## `check`
+~~~
+	gridlabd version check [-v|-q]
+~~~
 
 The `check` command determines whether the current version is up to date.
 
 ## `help`
+~~~
+	gridlabd version help
+~~~
 
 The `help` command displays the available command options.
 
-## `list [<PATTERN>]`
+## `list`
+~~~
+	gridlabd version list [<pattern>]
+~~~
 
 The `list` command displays the available versions that can be made available to all users on the system.
 
-## `set [<PATTERN>]`
+## `set`
+~~~
+	gridlabd version set [<pattern>]
+~~~
 
 The `set` command changes the version that is made available to all users on the system.
 
 ## `show`
+~~~
+	gridlabd version show
+~~~
 
 The `show` command display which version is current set for all users on the system.
 
 ## `source`
+~~~
+	gridlabd version source
+~~~
 
 The `source` option opens the source code to the version.
 
 ## `delete`
+~~~
+	gridlabd version delete [<pattern>]
+~~~
 
 The indicated version is deleted. If the version is a pattern, then multiple versions are deleted.  If `-a` is used, all versions but the current version are deleted.
 
 # See also
+
 * [[Install]]
 * --[[version]] command line option
