@@ -15,7 +15,7 @@ Some client support functions require runtime files and data that are provided b
 
 Text files are downloaded using text access, i.e., `\n` is converted to `\r\n` is necessary. 
 
-Global variable names surrounded by '<<<' '>>>' will be substituted on the server-side by the current value of the global.
+Global variable names surrounded by `<<<` and `>>>` will be substituted on the server-side by the current value of the global.
 
 ## Binary files
 
