@@ -1,4 +1,4 @@
-`MySQL Import/Export` - Import/export for MySQL databases 
+[[/Module/Mysql/Import and Export]] -- Import/export for MySQL databases 
 
 # Synopsis
 ~~~
