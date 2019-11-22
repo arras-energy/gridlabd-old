@@ -3,14 +3,14 @@
 # Synopsis
 Shell:
 ~~~
-  gridlabd weather help
-  gridlabd weather index <pattern>
-  gridlabd weather list <pattern>
-  gridlabd weather get <pattern>
-  gridlabd weather delete <pattern>
-  gridlabd weather info <pattern>
-  gridlabd weather clean
-  gridlabd weather config {show,reset}
+  bash$ gridlabd weather help
+  bash$ gridlabd weather index <pattern>
+  bash$ gridlabd weather list <pattern>
+  bash$ gridlabd weather get <pattern>
+  bash$ gridlabd weather delete <pattern>
+  bash$ gridlabd weather info <pattern>
+  bash$ gridlabd weather clean
+  bash$ gridlabd weather config {show,reset}
 ~~~
 
 # Description
