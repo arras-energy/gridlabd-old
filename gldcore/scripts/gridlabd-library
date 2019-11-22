@@ -95,7 +95,7 @@ function help()
 {	
 	if [ $# == 0 ]; then
 		cat <<-END
-			Syntax: gridlabd-library <command> [...]
+			Syntax: gridlabd library <command> [...]
 			Commands:
 			  help                 Get the list of library subcommands
 			  index <pattern>      Index of available library data matching <pattern> in archive

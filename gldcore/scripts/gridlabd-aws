@@ -13,6 +13,11 @@ function error ()
 	exit $CODE
 }
 
+if [ "$1" == "help" ]; then
+	echo "Syntax: gridlabd aws [options] <command> <subcommand> [parameters]"
+	exit 0
+fi
+
 # check awscli installation
 if [ -z "$(which aws)" ]; then
 	error 1 "awscli is not installed -- run 'pip3 install awscli'"

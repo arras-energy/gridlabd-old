@@ -1,18 +1,22 @@
-[[Python subcommand]] - subcommand to run Python in a GridLAB-D environment
+[[Subcommand/Python]] - subcommand to run Python in a GridLAB-D environment
 
 # Synopsis
+Shell:
 ~~~
-  host% gridlabd python options
+  bash$ gridlabd python <options> ...
 ~~~
-where `options` are the python command options
 
 # Description
 
-Normally GridLAB-D requires certain environment variables to be set to function properly.  If you are running Python code, and would like to use the GridLAB-D module, you can run python inside that GridLAB-D environment using the `python` subcommand.
+Normally GridLAB-D requires certain environment variables to be set to function properly.  If you are running Python code, and would like to use the GridLAB-D module, you can run Python inside that GridLAB-D environment using the `python` subcommand, where `<options>` are the Python command options
+
+# Caveat
+
+Only `python3` is supported, and the executable must be located at `/usr/local/bin/python3`.
 
 # Example
 ~~~
-  host% gridlabd python
+  bash$ gridlabd python
   Python 3.7.2 (default, Feb 12 2019, 08:15:36) 
   [Clang 10.0.0 (clang-1000.11.45.5)] on darwin
   Type "help", "copyright", "credits" or "license" for more information.
@@ -20,3 +24,8 @@ Normally GridLAB-D requires certain environment variables to be set to function 
   >>> os.environ["GLPATH"]
   '/usr/local/lib/gridlabd:/usr/local/share/gridlabd'
 ~~~
+
+# See also
+
+* [[/Command/Validation]]
+* [[/Module/Python]]

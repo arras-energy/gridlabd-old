@@ -1,18 +1,20 @@
---[[daemon]] -- GridLAB-D daemon control command
+[[/Command/Daemon]] -- GridLAB-D daemon control command
 
 # Synopsis
+
 ~~~
-  localhost% gridlabd --daemon command [options] 
+bash$ gridlabd --daemon <command> [<options> ... ] 
 ~~~
-* `command` is the --[[daemon]] command
-* `options` are the GridLAB-D --[[daemon]] command options
 
 # Description
 
-The --[[daemon]] command line option is used to control the gridlabd daemon.  The daemon listens for incoming TCP connections on port 6266 by default.  Connections can be established using the --[[remote]] command line option.
+The `<command>` is the `daemon` command. The `<options>` are the GridLAB-D `daemon` command options.
 
-The daemon recognizes the standard daemon commands: `start`, `stop`, `restart`, and `status`.  
+The `--daemon` command line option is used to control the GridLAB-D daemon process.  The daemon process listens for incoming TCP connections on port 6266 by default.  Connections can be established using the `--remote` command line option (see [[/Command/Remote]].
 
+The daemon command recognizes the standard process control commands `start`, `stop`, `restart`, and `status`.  
+
+The valid daemon command options are:
 * `-f|--configfile filename` is used to specify a configuration file other than the standard one located at `/usr/local/etc/gridlabd.cnf`.
 * `-h|--help` is used to get a list of available commands.
 * `-j|--jail` is used to isolate the daemon in the work directory (`start` only)
@@ -21,7 +23,7 @@ The daemon recognizes the standard daemon commands: `start`, `stop`, `restart`, 
 
 ## Configuration
 
-If the daemon configuration file is found at `/usr/local/etc/gridlabd.cnf` or where specified by the `-f` option, then it is loaded and used to configure the daemon. (Note that this applies also to the --[[remote]] option.)
+If the daemon configuration file is found at `/usr/local/etc/gridlabd.cnf` or where specified by the `-f` option, then it is loaded and used to configure the daemon. (Note that this applies also to the `--remote` option.)
 
 The format of the entries in the configuration file must be
 ~~~
@@ -74,12 +76,12 @@ The names are defined as follows
 ## Log
 
 The daemon generates a log to record all activity. By default the log is created in `/usr/local/var/gridlabd-log`, but this can be changed using the configuration file (see the `-f` option).  Log entries are formatted as follows:
-
+~~~
  [pid@time] message
-
+~~~
 where `pid` is the process id that generated the entry, `time` is the time at which the entry was generated, and `message` is the log entry.
 
-Normally the content of the log file is purged when a new copy of the daemon starts.  If the log file name begins with a "+" character, the old content is preserved and new entries are appended.  The "+" is not included in the log file name when the file is opened by the daemon.
+Normally the content of the log file is purged when a new copy of the daemon starts.  If the log file name begins with a `+` character, the old content is preserved and new entries are appended.  The `+` is not included in the log file name when the file is opened by the daemon.
 
 ## Process ID
 
@@ -91,22 +93,27 @@ To start the daemon
 ~~~
   localhost% gridlabd --daemon start
 ~~~
+
 To stop the daemon
 ~~~
   localhost% gridlabd --daemon stop
 ~~~
+
 To restart the daemon
 ~~~
   localhost% gridlabd --daemon restart
 ~~~
+
 To get the daemon status
 ~~~
   localhost% gridlabd --daemon status
 ~~~
+
 To start the daemon using a local configuration file
 ~~~
   localhost% gridlabd --daemon start -f gridlabd.cnf
 ~~~
+
 # See also
 
-* [[remote]]
+* [[/Command/Remote]]

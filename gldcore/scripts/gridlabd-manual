@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ "$1" == "-h" -o "$1" == "--help" ]; then
+if [ "$1" == "-h" -o "$1" == "--help" -o "$1" == "help" ]; then
     cat <<-END
-Syntax: $0 [options ...]
+Syntax: gridlabd manual [options ...]
 Options:
   -b|--branch name   open branch documentation
   -h|--help          get this help
@@ -20,6 +20,7 @@ elif [ "$1" == "-l" -o "$1" == "--local" ]; then
     fi
 elif [ "$1" == "-b" -o "$1" == "--branch" ]; then
     BRANCH="$2"
+    HOST=docs
 fi
-open "http://www.gridlabd.us/index.html?branch=${BRANCH=master}" &
+open "http://${HOST:-www}.gridlabd.us/index.html?branch=${BRANCH=master}" &
 
