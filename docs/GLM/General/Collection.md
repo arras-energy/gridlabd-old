@@ -38,7 +38,9 @@ The following operators are supported:
 
 * AND (can also be written as "and" or ";")
 
-Note that the "OR" operator is not supported at this time.
+# Caveats
+
+The "OR" operator is not supported at this time.
 
 # See also
 
