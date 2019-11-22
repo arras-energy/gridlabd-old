@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-bash$ gridlabd --server <options> ...
+  bash$ gridlabd --server <options> ...
 ~~~
 GLM:
 ~~~
