@@ -26,14 +26,14 @@ The most basic method saves each observed solution for future use.  Any new prob
     maximum_metric <real>
 ~~~
 
-The `maximum_metric` parameter control how "close" the new problem must be from one of the existing known solution before it proposes a solution.
+The `maximum_metric` parameter control how "close" the new problem must be to one of the existing known solutions before it requests a new solution.
 
 ## method
 ~~~
     method [none|basic]
 ~~~
 
-The `method` parameter control which machine learning method is applied. The current valid values are `none` to disable the ML solver, and `basic` to enable the simple solution copying method.
+The `method` parameter controls which machine learning method is applied. The current valid values are `none` to disable the machine learning solver, and `basic` to enable the simple solution copying method.
 
 ## busdump
 ~~~
@@ -54,7 +54,7 @@ The `branchdump` parameter sets the branch dump filename when `on_dump` is enabl
     on_dump <event-handler>
 ~~~
 
-The `on_dump` parameter enables external calls when a problem is presented to the NR solver.  The bus and branch dumps are performed before the `on_dump` command is executed.
+The `on_dump` parameter enables external calls when a problem is presented to the formal solver.  The bus and branch dumps are performed before the `on_dump` command is executed.
 
 ## logfile
 ~~~
@@ -82,7 +82,7 @@ Add `path` to the module import search path.
     import <module>
 ~~~
 
-Load `module`.  If loading a Python module, use the syntax `import python:filename`.
+Loads `module`.  If loading a Python module, use the syntax `import python:filename`.
 
 ## on_dump
 ~~~
