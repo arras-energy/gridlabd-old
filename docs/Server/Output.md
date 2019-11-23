@@ -1,4 +1,4 @@
-[[/Control/Output]] -- Server request to download simulation output files
+[[/Server/Output]] -- Server request to download simulation output files
 
 # Synopsis
 HTTP:
@@ -19,4 +19,4 @@ The following example downloads a CSV file produced by a recorder:
 
 # See also
 
-* [[/Control/REST API]]
+* [[/Server/REST API]]
