@@ -8,18 +8,18 @@
     tilt_direction "+0 deg";
     weather "";
     configuration "";
-    equipment_area +0 sf;
-    equipment_height +0 ft;
-    pole_stress +0 pu;
-    pole_stress_polynomial_a +0 ft*lb;
-    pole_stress_polynomial_b +0 ft*lb;
-    pole_stress_polynomial_c +0 ft*lb;
-    susceptibility +0 pu*s/m;
-    total_moment +0 ft*lb;
-    resisting_moment +0 ft*lb;
-    critical_wind_speed +0 m/s;
-    install_year 0;
-    repair_time +0 h;
+    equipment_area "+0 sf";
+    equipment_height "+0 ft";
+    pole_stress "+0 pu";
+    pole_stress_polynomial_a "+0 ft*lb";
+    pole_stress_polynomial_b "+0 ft*lb";
+    pole_stress_polynomial_c "+0 ft*lb";
+    susceptibility "+0 pu*s/m";
+    total_moment "+0 ft*lb";
+    resisting_moment "+0 ft*lb";
+    critical_wind_speed "+0 m/s";
+    install_year "0";
+    repair_time "+0 h";
   }
 ~~~
 
