@@ -3,7 +3,7 @@
 # Synopsis
 HTTP:
 ~~~
-    GET /control/<appname>/<option>
+    GET /<appname>/<option>
 ~~~
 
 # Description
