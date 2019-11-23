@@ -1,4 +1,4 @@
-[[/Control/Read]] -- Server read command
+[[/Server/Read]] -- Server read command
 
 # Synopsis
 HTTP:
@@ -32,4 +32,4 @@ The following server command is supported in this version of GridLAB-D:
 
 # See also
 
-* [[/Control/REST API]]
+* [[/Server/REST API]]
