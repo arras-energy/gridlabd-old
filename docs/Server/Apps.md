@@ -1,4 +1,4 @@
-[[/Control/Apps]] -- Server request to run applications
+[[/Server/Apps]] -- Server request to run applications
 
 # Synopsis
 HTTP:
@@ -36,4 +36,4 @@ In all cases the output is copied to the client.  Typically, it is the HTML code
 
 # See also
 
-* [[/Control/REST API]]
+* [[/Server/REST API]]
