@@ -26,11 +26,9 @@
 
 # Description
 
-The pole failure model is described in [Pole Loading Model](https://github.com/dchassin/gridlabd/raw/master/powerflow/docs/pole_loading.pdf). 
+The pole object models poles at nodes. The current pole object models pole failure by overstress failure at the base the pole from wind pressure on the equipment, wire, and tilt.  The model does not model failures from ice loading on the lines or from foundation failure.
 
-The pole reaches end of life status based on a degradation rate that is defined by minimum shell thickness of 2". See [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457) details.
-
-Generally, any node in a powerflow model can be upgraded to a pole by providing the [[weather]] and [[pole_configuration]] object references. 
+Generally, any node in a powerflow model can be upgraded to a pole by providing just the [[weather]] and [[pole_configuration]] object references. 
 
 Specifying `equipment_area` and `equipment_height` will cause the equipment wind load to be computed.
 
@@ -154,6 +152,12 @@ The resisting moment on the pole.
 ~~~
 
 Wind speed at pole failure.
+
+# Model
+
+The pole failure model is described in [Pole Loading Model](https://github.com/dchassin/gridlabd/raw/master/powerflow/docs/pole_loading.pdf). 
+
+The pole reaches end of life status based on a degradation rate that is defined by minimum shell thickness of 2". See [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457) details.
 
 # See also
 
