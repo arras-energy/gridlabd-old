@@ -1,4 +1,5 @@
 # HiPAS GridLAB-D
+[image:cec-logo.png] Brought to you by the California Energy Commission EPIC Program.
 
 This documentation is for the high-performance commercial release of GridLAB-D developed by Stanford University at SLAC National Accelerator Laboratory under funding from the California Energy Commission.
 
