@@ -1,4 +1,4 @@
-[[/Control/Runtime]] -- Server query to download runtime files and data
+[[/Server/Runtime]] -- Server query to download runtime files and data
 
 # Synopsis
 HTTP:
@@ -31,4 +31,4 @@ The following example downloads the javacsript file `gridlabd.js`:
 
 # See also
 
-* [[/Control/REST API]]
+* [[/Server/REST API]]
