@@ -7,12 +7,12 @@ Shell:
 ~~~
 GLM:
 ~~~
-#option server
-#set server_portnum=6267
+  #option server
+  #set server_portnum=6267
 ~~~
 HTTP:
 ~~~
-GET /<command>[/<options> ...]
+  GET /<command>[/<options> ...]
 ~~~
 
 # Description
@@ -103,17 +103,17 @@ The response to object property requests will be in the form
 
 The JSON response to global variable requests will be in the form
 ~~~
-{ "name" : "<variable-name>", "value" : "<value> <unit>" }
+  { "name" : "<variable-name>", "value" : "<value> <unit>" }
 ~~~
 
 The response to object property requests will be in the form
 ~~~
-{ 
-  "object" : "<object-name>", 
-  "name" : "<property-name>", 
-  "type" : "<type-name>", 
-  "value" : "<value>"
-}
+  { 
+    "object" : "<object-name>", 
+    "name" : "<property-name>", 
+    "type" : "<type-name>", 
+    "value" : "<value>"
+  }
 ~~~
 
 If the property name is `*` or `*[tuple]`, then the response is of the form

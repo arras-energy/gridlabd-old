@@ -1,4 +1,4 @@
-[[RBSA]] -- RBSA residential load model
+[[/Module/Residential/RBSA]] -- RBSA residential load model
 
 # Synopsis
 ~~~
