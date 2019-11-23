@@ -1,4 +1,4 @@
-[[solver_ml.conf]] -- Machine learning powerflow solver configuration
+[[/Module/Powerflow/Solver_ml.conf]] -- Machine learning powerflow solver configuration
 
 # Synopsis
 
