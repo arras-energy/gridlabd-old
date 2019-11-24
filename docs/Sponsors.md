@@ -1,3 +1,5 @@
+HiPAS GridLAB-D was developed with funding from the following organizations:
+
 # California Energy Commission EPIC Program
 [image:cec-logo.png]
 
