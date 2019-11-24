@@ -10,7 +10,7 @@ Welcome to the user and modeling manuals for HiPAS GridLAB-D. The following sect
 *Develop guides for integrating and extending HiPAS GridLAB-D*
 
 # GLM
-*GLM is HiPAS GridLAB-D's powerful multi-domain modeling language *
+*GLM is HiPAS GridLAB-D's powerful multi-domain modeling language*
 
 # Global
 *Variables that control features and environment of HiPAS GridLAB-D*
