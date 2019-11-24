@@ -28,7 +28,7 @@
 
 The pole object models poles at nodes. The current pole object models pole failure by overstress failure at the base the pole from wind pressure on the equipment, wire, and tilt.  The model does not model failures from ice loading on the lines or from foundation failure.
 
-Generally, any node in a powerflow model can be upgraded to a pole by providing just the [[weather]] and [[pole_configuration]] object references. 
+Generally, any node in a powerflow model can be upgraded to a pole by providing just the `weather` and `pole_configuration` object references. 
 
 Specifying `equipment_area` and `equipment_height` will cause the equipment wind load to be computed.
 
