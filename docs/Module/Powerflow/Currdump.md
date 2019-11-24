@@ -1,6 +1,6 @@
 [[/Module/Powerflow/Currdump]] -- Current dump object
 
-# Currdump
+# Synopsis
 GLM:
 ~~~
   object {
