@@ -106,4 +106,4 @@ The temperature, price, and solar sensitivity are not implemented by enduse yet.
 # See also
 
 * [NEEA Residential Building Stock Assessment](https://neea.org/data/residential-building-stock-assessment)
-* [RBSA Data Repository](https://github.com/dchassin/rbsa_data)
+* [SLAC GISMo RBSA Data Repository](https://github.com/slacgismo/rbsa_data)
