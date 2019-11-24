@@ -1,4 +1,4 @@
-Welcome to the user and modeling manuals for HiPAS GridLAB-D. The following sections provide 
+Welcome to the user and modeling manuals for HiPAS GridLAB-D. The following manual sections are available in this branch. 
 
 # Cloud
 *HiPAS GridLAB-D resources on the cloud using AWS, GitHub, and CircleCI*
