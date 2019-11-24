@@ -14,16 +14,6 @@ GLM
   }
 ~~~
 
-	char32 group; // the group ID to output data for (all nodes if empty)
-	timestamp runtime; // the time to check voltage data
-	char256 filename; // the file to dump the voltage data into
-	char256 file; // the file to dump the voltage data into
-	int32 runcount; // the number of times the file has been written to
-	int32 maxcount; // the maximum number of times the file is written
-	enumeration {polar=1, rect=0} mode; // dumps the voltages in either polar or rectangular notation
-	char8 filemode; // sets the file write mode
-	double interval[s]; // interval at which voltdump runs
-
 # Description
 
 The voltdump object produces a dump of the voltages at the nodes. This can be used to determine the cause of convergence problems.
