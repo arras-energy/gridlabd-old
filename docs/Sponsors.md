@@ -1,10 +1,10 @@
 # California Energy Commission EPIC Program
 [image:cec-logo.png]
 
-The [commercial version of GridLAB-D](https://github.com/dchassin/gridlabd) is managed by [Stanford University](https://www.stanford.edu/) at [SLAC National Accelerator Laboratory](https://slac.stanford.edu.) under funding from the [California Energy Commission](https://energy.ca.gov/) under the [Electric Program Investment Charge (EPIC) program](https://www.energy.ca.gov/programs-and-topics/programs/electric-program-investment-charge-epic-program).
+The current California version of GridLAB-D is called [HiPAS GridLAB-D 4.2](https://github.com/dchassin/gridlabd) and is managed by [Stanford University](https://www.stanford.edu/) at [SLAC National Accelerator Laboratory](https://slac.stanford.edu.) under funding from the [California Energy Commission](https://energy.ca.gov/) under the [Electric Program Investment Charge (EPIC) program](https://www.energy.ca.gov/programs-and-topics/programs/electric-program-investment-charge-epic-program).
 
 # US Department of Energy Office of Electricity
 [image:doe-logo.png]
 
-The [research version of GridLAB-D](https://github.com/gridlab-d/gridlab-d) is managed by [Battelle Memorial Institute](https://www.battelle.org/) at [Pacific Northwest National Laboratory](https://www.pnnl.gov/) under funding from the [US Department of Energy](https://www.doe.gov/) [Office of Electricity](https://www.doe.gov/electricity).
+The current US Department of Energy version is called [GridLAB-D 4.1](https://github.com/gridlab-d/gridlab-d) and is managed by [Battelle Memorial Institute](https://www.battelle.org/) at [Pacific Northwest National Laboratory](https://www.pnnl.gov/) under funding from the [US Department of Energy](https://www.doe.gov/) [Office of Electricity](https://www.doe.gov/electricity).
 
