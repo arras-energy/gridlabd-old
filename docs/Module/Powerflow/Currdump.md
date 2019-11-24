@@ -23,35 +23,35 @@ The currdump object produces a dump of the currents at the nodes. This can be us
 
 ### `group`
 ~~~
-	char32 group;
+  char32 group;
 ~~~
 
 The group ID to output data for (all links if empty).
 
 ### `runtime`
 ~~~
-	timestamp runtime; 
+  timestamp runtime; 
 ~~~
 
 The time to check current data.
 
 ### `filename`
 ~~~
-	char256 filename; 
+  char256 filename; 
 ~~~
 
 The file to dump the current data into.
 
 ### `runcount`
 ~~~
-	int32 runcount; 
+  int32 runcount; 
 ~~~
 
 The number of times the file has been written to.
 
 ### `maxcount`
 ~~~
-	int32 maxcount; 
+  int32 maxcount; 
 ~~~
 
 The maximum number of times the file is written
