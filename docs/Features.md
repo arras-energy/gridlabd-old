@@ -1,78 +1,79 @@
-This page is under construction.
+The following features are new in HiPAS GridLAB-D 4.2.
 
 # GLM Language
-* [[Curl]] macro
-* [[Dump]] directive
-* [[Insert]] macro
-* [[Events]] handlers
-* [[On_exit]] macro
-* [[Filter]] syntax
+## Directives
+* [[/GLM/Directive/Dump]]
+* [[/GLM/Directive/Filter]]
+* [[/GLM/Directive/Loader]]
+* [[/GLM/Directive/Script]]
+## General
+* [[/GLM/General/Collection]]
+## Macros
+* [[/GLM/Macro/Curl]]
+* [[/GLM/Macro/Exec]]
+* [[/GLM/Macro/Insert]]
+* [[/GLM/Macro/On_exit]]
+## Object
+* [[/GLM/Object/Events]]
+## Property
+* [[/GLM/Property/Datetime]]
+* [[/GLM/Property/JSON]]
+* [[/GLM/Property/String]]
 
-# MySQL
-* [[Database]]
-* [[Player]]
-* [[Recorder]]
+# [[/Module/Mysql]]
+* [[/Module/Mysql/Database]]
+* [[/Module/Mysql/Player]]
+* [[/Module/Mysql/Recorder]]
 
 # Server
-* [[Find]]
-* [[Modify]]
-* [[Read]]
+* [[/Server/Find]]
+* [[/Server/Modify]]
+* [[/Server/Read]]
 
 # Realtime mode
-* [[Enter_realtime]]
-* [[Realtime_metric]]
+* [[/Global/Enter_realtime]]
+* [[/Global/Realtime_metric]]
 
-# Assert
-* [[Assert]]
+# [[/Module/Assert]]
+* [[/Module/Assert/Assert]]
 
-# Residential
-* [[House]]
-* [[Rbsa]]
-* [[Paneldump]]
+# Residential Module
+* [[/Module/Residential/House]]
+* [[/Module/Residential/Rbsa]]
+* [[/Module/Residential/Global/Paneldump]]
 
 # Commercial
-* [[Ceus]]
+* [[/Module/Commercial/Ceus]]
 
 # Powerflow
-* [[Pole]]
-* [[Pole_configuration]]
+* [[/Module/Powerflow/Pole]]
+* [[/Module/Powerflow/Pole_configuration]]
 
 # Gismo
-* [[Switch_coordinator]]
-
-# Transactive
-* [[Orderbook]]
-* [[Agent]]
+* [[/Module/Gismo/Switch_coordinator]]
 
 # Subcommands
-* [[Weather subcommand]] and [YouTube Tutorial](https://youtu.be/KTeOFbt-aiE)
-* [[Python subcommand]]
-* [[Library subcommand]]
+* [[/Subcommand/Weather]]
+* [[/Subcommand/Python]]
+* [[/Subcommand/Library]]
+* [[/Subcommand/Python]]
+* [[/Subcommand/Validate]]
 
 # Command line options
-* [[Automatic import conversion]]
-* --[[version]] command options
-* --[[daemon]] and --[[remote]] command line options
-* --[[gdb]], --[[lldb]], --[[valgrind]] command line options
-* --[[origin]] command line option
-* --[[cite]] command line option
-
-# Macros
-* #[[exec]]
+* [[/Command/Automatic import conversion]]
+* [[/Command/Version]]
+* [[/Command/Daemon]]
+* [[/Command/Remote]]
+* [[/Command/Gdb]]
+* [[/Command/Lldb]]
+* [[/Command/Valgrind]]
+* [[/Command/origin]]
+* [[/Command/Cite]]
 
 # Global variables
-* [[Deltamode_allowed]]
-* [[Glm_save_options]]
-* [[Ignore_errors]]
-* [[Filesave_options]]
-* [[Converter save options]]
+* [[/Global/Deltamode_allowed]]
+* [[/Global/Glm_save_options]]
+* [[/Global/Ignore_errors]]
+* [[/Global/Filesave_options]]
+* [[/Global/Converter save options]]
 
-# New Capabilities
-* [[ISO8601]] date format
-* [[Json output]] format 
-* [[Json property]] format
-* [[Voltdump currdump]] options
-* [[Python]] module
-* [[Docker hub]] workflows
-* [[String]] property
-* [[Loader extensions]]
