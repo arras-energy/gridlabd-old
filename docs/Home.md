@@ -1,83 +1,25 @@
-The documentation for the current release of GridLAB-D is provided by the [GridLAB-D Project on ShoutWiki](http://gridlab-d.shoutwiki.com/wiki/Main_Page).  The documentation on this site is only for the improvements supported by this repository.
+# [[Features]] 
 
-# How To
-* [[Install]]
-* [[Docker]]
-* [[CircleCI]]
+*Learn the key features of HiPAS GridLAB-D*
 
-# GLM Language
-* [[Curl]] macro
-* [[Dump]] directive
-* [[Insert]] macro
-* [[Events]] handlers
-* [[On_exit]] macro
-* [[Filter]] syntax
+# [[Getting Started]] 
 
-# MySQL
-* [[Database]]
-* [[Player]]
-* [[Recorder]]
+*Get started using HiPAS GridLAB-D*
 
-# Server
-* [[Find]]
-* [[Modify]]
-* [[Read]]
+# [[Documentation]]
 
-# Realtime mode
-* [[Enter_realtime]]
-* [[Realtime_metric]]
+*Access the user and modeling manuals*
+# [[Developers]]
 
-# Assert
-* [[Assert]]
+*Access the development manuals*
 
-# Residential
-* [[House]]
-* [[Rbsa]]
-* [[Paneldump]]
+# [[Sponsors]]
 
-# Commercial
-* [[Ceus]]
+*Find out about our sponsors*
 
-# Powerflow
-* [[Pole]]
-* [[Pole_configuration]]
+# [[About Us]]
 
-# Gismo
-* [[Switch_coordinator]]
+*Join the SLAC GISMo team*
+# [[News]]
 
-# Transactive
-* [[Orderbook]]
-* [[Agent]]
-
-# Subcommands
-* [[Weather subcommand]] and [YouTube Tutorial](https://youtu.be/KTeOFbt-aiE)
-* [[Python subcommand]]
-* [[Library subcommand]]
-
-# Command line options
-* [[Automatic import conversion]]
-* --[[version]] command options
-* --[[daemon]] and --[[remote]] command line options
-* --[[gdb]], --[[lldb]], --[[valgrind]] command line options
-* --[[origin]] command line option
-* --[[cite]] command line option
-
-# Macros
-* #[[exec]]
-
-# Global variables
-* [[Deltamode_allowed]]
-* [[Glm_save_options]]
-* [[Ignore_errors]]
-* [[Filesave_options]]
-* [[Converter save options]]
-
-# New Capabilities
-* [[ISO8601]] date format
-* [[Json output]] format 
-* [[Json property]] format
-* [[Voltdump currdump]] options
-* [[Python]] module
-* [[Docker hub]] workflows
-* [[String]] property
-* [[Loader extensions]]
+*Read the latest news from SLAC GISMo*
