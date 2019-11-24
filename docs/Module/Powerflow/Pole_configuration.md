@@ -179,5 +179,5 @@ The pole treatment method.
 
 # See also
 
-* [[Pole]] object
+* [[/Module/Powerflow/Pole]]
 * [Pole Loading Model](https://github.com/dchassin/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf)
