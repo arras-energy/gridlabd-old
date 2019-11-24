@@ -22,20 +22,20 @@ The voltdump object produces a dump of the voltages at the nodes. This can be us
 
 ### `group`
 ~~~
-	char32 group; 
+  char32 group; 
 ~~~
 The group ID to output data for (all nodes if empty).
 
 ### `runtime`
 ~~~
-	timestamp runtime;
+  timestamp runtime;
 ~~~
 
 The time to check voltage data.
 
 ### `file|filename`
 ~~~
-	char256 filename;
+  char256 filename;
 ~~~
 
 The file to dump the voltage data into.
@@ -49,7 +49,7 @@ The number of times the file has been written to.
 
 ### `maxcount`
 ~~~
-	int32 maxcount;
+  int32 maxcount;
 ~~~
 
 The maximum number of times the file is written.
