@@ -2,7 +2,7 @@ Welcome to the [HiPAS GridLAB-D](http://www.gridlabd.us/) documentation.
 
 # [[Features]] 
 
-*Learn the key features of HiPAS GridLAB-D*
+*Learn the latest features of HiPAS GridLAB-D*
 
 # [[Getting Started]] 
 
