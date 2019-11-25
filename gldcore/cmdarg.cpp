@@ -1613,10 +1613,8 @@ int GldCmdarg::example(int argc, const char *argv[])
 {
 	MODULE *module;
 	CLASS *oclass;
-	OBJECT *object;
+	PROPERTY *prop;
 	char modname[1024], classname[1024];
-	int n;
-	char buffer[65536];
 	
 	if ( argc < 2 ) 
 	{
@@ -1624,7 +1622,7 @@ int GldCmdarg::example(int argc, const char *argv[])
 		return CMDERR;
 	}
 	
-	n = sscanf(argv[1],"%1023[A-Za-z_]:%1024[A-Za-z_0-9]",modname,classname);
+	int n = sscanf(argv[1],"%1023[A-Za-z_]:%1024[A-Za-z_0-9]",modname,classname);
 	if ( n!=2 )
 	{
 		output_error("--example: %s name is not valid",n==0?"module":"class");
@@ -1642,27 +1640,12 @@ int GldCmdarg::example(int argc, const char *argv[])
 		output_error("--example: class %d is not found", classname);
 		return CMDERR;
 	}
-	object = object_create_single(oclass);
-	if ( object==NULL )
+	output_raw("class %s {\n",oclass->name);
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
-		output_error("--example: unable to create example object from class %s", classname);
-		return CMDERR;
+		output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
 	}
-	global_clock = time(NULL);
-	output_redirect("error",NULL);
-	output_redirect("warning",NULL);
-	if ( !object_init(object) )
-	{
-		IN_MYCONTEXT output_warning("--example: unable to initialize example object from class %s", classname);
-	}
-	if ( object_save(buffer,sizeof(buffer),object)>0 )
-	{
-		output_raw("%s\n", buffer);
-	}
-	else
-	{
-		IN_MYCONTEXT output_warning("no output generated for object");
-	}
+	output_raw("}\n");
 	return CMDOK;
 }
 DEPRECATED static int mclassdef(void *main, int argc, const char *argv[])
