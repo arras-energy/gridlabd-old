@@ -2664,19 +2664,26 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 			output_raw("    %s ", prop->name);
 			if ( prop->keywords )
 			{
-				output_raw("[");
+				output_raw("\"%s",prop->ptype == PT_enumeration ? "{" : "[");
 				for ( KEYWORD *keyword = prop->keywords ; keyword != NULL ; keyword = keyword->next )
 				{
 					if ( keyword != prop->keywords )
-						output_raw("|");
+					{
+						output_raw( prop->ptype == PT_enumeration ? "," : (prop->flags&PF_CHARSET?"":"|"));
+					}
 					output_raw("%s",keyword->name);
 				}
-				output_raw("];\n");
+				output_raw("%s\";\n",prop->ptype == PT_enumeration ? "}" : "]");
+			}
+			else if ( prop->unit )
+			{
+				output_raw("\"<%s> %s\";\n", property_getspec(prop->ptype)->xsdname, prop->unit->name);
 			}
 			else
 			{
 				output_raw("\"<%s>\";\n", property_getspec(prop->ptype)->xsdname);
 			}
+
 		}
 		output_raw("  }\n");
 	}
