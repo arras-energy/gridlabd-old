@@ -2624,5 +2624,97 @@ void sched_controller(void)
 	}
 }
 
+void module_help_md(MODULE *mod, CLASS *oclass)
+{
+	output_raw("[[/Module/%c%s]] -- Module %s\n", toupper(mod->name[0]), mod->name+1, mod->name);
+
+	output_raw("\n# Synopsis\n");
+	output_raw("GLM:\n");
+	output_raw("~~~\n");
+	bool first = true;
+	GLOBALVAR *global = NULL;
+	char prefix[1024];
+	sprintf(prefix,"%s::",mod->name);
+	while ( (global=global_getnext(global)) != NULL )
+	{
+		if ( strncmp(global->prop->name,prefix,strlen(prefix)) == 0 )
+		{
+			if ( first )
+			{
+				output_raw("  module %s {\n",mod->name);
+			}
+			char buffer[1024];
+			output_raw("    %s \"%s\";\n",global->prop->name+strlen(prefix),global_getvar(global->prop->name,buffer,sizeof(buffer)));
+			first = false;
+		}
+	}
+	if ( first )
+	{
+		output_raw("  module %s;\n", mod->name);
+	}
+	else
+	{
+		output_raw("  }\n");
+	}
+	if ( oclass )
+	{
+		output_raw("  object %s {\n", oclass->name);
+		for ( PROPERTY *prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+		{
+			output_raw("  %s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+		output_raw("  }\n");
+	}
+	output_raw("~~~\n");
+
+	output_raw("\n# Description\n");
+	output_raw("\nTODO\n");
+
+	if ( oclass )
+	{
+		output_raw("\n## Properties\n");
+		for ( PROPERTY *prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+		{
+			output_raw("\n### `%s`\n",prop->name);
+			output_raw("~~~\n");
+			output_raw("  %s %s;\n", property_getspec(prop->ptype)->name, prop->name);
+			output_raw("~~~\n");
+			if ( prop->description )
+			{
+				output_raw("\n%c%s\n", toupper(prop->description[0]), prop->description+1);
+			}
+			else
+			{
+				output_raw("\nTODO\n");
+			}
+		}
+
+		output_raw("\n# Example\n");
+		output_raw("\n~~~\n");
+		output_raw("  object %s {\n", oclass->name);
+		for ( PROPERTY *prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+		{
+			if ( prop->default_value )
+			{
+				output_raw("    %s \"%s\";\n", prop->name, prop->default_value);
+			}
+		}
+		output_raw("~~~\n");
+	}
+
+	output_raw("\n# See also\n");
+	if ( oclass )
+	{
+		output_raw("* [[/Module/%c%s]]\n",toupper(mod->name[0]), mod->name+1);
+	}
+	else
+	{
+		for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
+		{
+			output_raw("* [[/Module/%c%s/%c%s]]\n", toupper(mod->name[0]), mod->name+1, toupper(oclass->name[0]), oclass->name+1);
+		}
+	}
+	output_raw("\n");
+}
 
 /**@}*/

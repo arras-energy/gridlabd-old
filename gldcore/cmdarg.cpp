@@ -912,7 +912,13 @@ DEPRECATED static int modhelp(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::modhelp(int argc, const char *argv[])
 {
-	if(argc > 1){
+	const char *options = strchr(argv[0],'=');
+	if ( options != NULL ) 
+	{
+		options++; 
+	}
+	if ( argc > 1 ) 
+	{
 		MODULE *mod = NULL;
 		CLASS *oclass = NULL;
 		argv++;
@@ -941,42 +947,46 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 			}
 
 			/* dump module globals */
-			printf("module %s {\n", mod->name);
-			while ((var=global_getnext(var))!=NULL)
+			if ( ! options )
 			{
-				PROPERTY *prop = var->prop;
-				const char *proptype = class_get_property_typename(prop->ptype);
-				if ( strncmp(var->prop->name,mod->name,strlen(mod->name))!=0 )
-					continue;
-				if ( (prop->access&PA_HIDDEN)==PA_HIDDEN )
-					continue;
-				if (proptype!=NULL)
+				printf("module %s {\n", mod->name);
+				while ((var=global_getnext(var))!=NULL)
 				{
-					if ( prop->unit!=NULL )
+					PROPERTY *prop = var->prop;
+					const char *proptype = class_get_property_typename(prop->ptype);
+					if ( strncmp(var->prop->name,mod->name,strlen(mod->name))!=0 )
+						continue;
+					if ( (prop->access&PA_HIDDEN)==PA_HIDDEN )
+						continue;
+					if (proptype!=NULL)
 					{
-						printf("\t%s %s[%s];", proptype, strrchr(prop->name,':')+1, prop->unit->name);
+						if ( prop->unit!=NULL )
+						{
+							printf("\t%s %s[%s];", proptype, strrchr(prop->name,':')+1, prop->unit->name);
+						}
+						else if (prop->ptype==PT_set || prop->ptype==PT_enumeration)
+						{
+							KEYWORD *key;
+							const char *fmt = ( sizeof(uint64) < sizeof(long long) ? "%s=%lu%s" : "%s=%llu%s");
+							printf("\t%s {", proptype);
+							for (key=prop->keywords; key!=NULL; key=key->next)
+								printf(fmt, key->name, key->value, key->next==NULL?"":", ");
+							printf("} %s;", strrchr(prop->name,':')+1);
+						} 
+						else 
+						{
+							printf("\t%s %s;", proptype, strrchr(prop->name,':')+1);
+						}
+						if (prop->description!=NULL)
+							printf(" // %s%s",prop->flags&PF_DEPRECATED?"(DEPRECATED) ":"",prop->description);
+						printf("\n");
 					}
-					else if (prop->ptype==PT_set || prop->ptype==PT_enumeration)
-					{
-						KEYWORD *key;
-						const char *fmt = ( sizeof(uint64) < sizeof(long long) ? "%s=%lu%s" : "%s=%llu%s");
-						printf("\t%s {", proptype);
-						for (key=prop->keywords; key!=NULL; key=key->next)
-							printf(fmt, key->name, key->value, key->next==NULL?"":", ");
-						printf("} %s;", strrchr(prop->name,':')+1);
-					} 
-					else 
-					{
-						printf("\t%s %s;", proptype, strrchr(prop->name,':')+1);
-					}
-					if (prop->description!=NULL)
-						printf(" // %s%s",prop->flags&PF_DEPRECATED?"(DEPRECATED) ":"",prop->description);
-					printf("\n");
 				}
+				printf("}\n");
 			}
-			printf("}\n");
 		}
-		if(mod == NULL){
+		if ( mod == NULL )
+		{
 			output_fatal("module %s is not found",*argv);
 			/*	TROUBLESHOOT
 				The <b>--modhelp</b> parameter was found on the command line, but
@@ -985,7 +995,11 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 			*/
 			return FAILED;
 		}
-		if(oclass != NULL)
+		if ( options && strcmp(options,"md") == 0 )
+		{
+			module_help_md(mod,oclass);
+		}
+		else if ( oclass != NULL )
 		{
 			print_class(oclass);
 		}
