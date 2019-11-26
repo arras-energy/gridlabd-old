@@ -3,11 +3,6 @@
 # Synopsis
 GLM:
 ~~~
-  module generators {
-    message_flags "DEBUG|VERBOSE";
-    enable_subsecond_models "FALSE";
-    deltamode_timestep "+1e+07 ns";
-  }
   object solar {
     generator_mode "{SUPPLY_DRIVEN,CONSTANT_PF,CONSTANT_PQ,CONSTANT_V,UNKNOWN}";
     generator_status "{ONLINE,OFFLINE}";

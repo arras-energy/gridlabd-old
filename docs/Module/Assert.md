@@ -1,17 +1,21 @@
-[[Assert]] -- Assert module
+[[/Module/Assert]] -- Module assert
 
 # Synopsis
+GLM:
 ~~~
-module assert {
-	set {QUIET=65536, WARNING=131072, DEBUG=262144, VERBOSE=524288} message_flags; // module message control flags
-}
+  module assert {
+    assert::message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+  }
 ~~~
 
 # Description
 
-The `assert` module provides conditional validation of object properties.
+TODO
 
 # See also
-
-* [[Module/Assert/Assert]]
+* [[/Module/Assert/Assert]]
+* [[/Module/Assert/Double_assert]]
+* [[/Module/Assert/Complex_assert]]
+* [[/Module/Assert/Enum_assert]]
+* [[/Module/Assert/Int_assert]]
 

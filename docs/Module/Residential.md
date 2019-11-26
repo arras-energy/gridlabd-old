@@ -4,27 +4,27 @@
 GLM:
 ~~~
   module residential {
-    message_flags "DEBUG|VERBOSE";
-    default_line_voltage "+240+0d V";
-    default_line_current "+0+0j A";
-    default_outdoor_temperature "+74 degF";
-    default_humidity "+75 %";
-    default_solar "+0 Btu/sf";
-    default_etp_iterations "100";
-    ANSI_voltage_check "TRUE";
-    enable_subsecond_models "FALSE";
-    deltamode_timestep "+1e+07 ns";
-    all_house_delta "FALSE";
-    implicit_enduses "DRYER|CLOTHESWASHER|WATERHEATER|RANGE|REFRIGERATOR|FREEZER|MICROWAVE|DISHWASHER|PLUGS|LIGHTS";
-    implicit_enduse_source "ELCAP1990";
-    house_low_temperature_warning "+55 degF";
-    house_high_temperature_warning "+95 degF";
-    thermostat_control_warning "+4.94066e-324";
-    system_dwell_time "+1 s";
-    aux_cutin_temperature "+10 degF";
-    paneldump_filename "paneldump.csv";
-    paneldump_interval "0";
-    paneldump_resolution "+0";
+    residential::message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+    residential::default_line_voltage "<string> V";
+    residential::default_line_current "<string> A";
+    residential::default_outdoor_temperature "<decimal> degF";
+    residential::default_humidity "<decimal> %";
+    residential::default_solar "<decimal> Btu/sf";
+    residential::default_etp_iterations "<integer>";
+    residential::ANSI_voltage_check "<string>";
+    residential::enable_subsecond_models "<string>";
+    residential::deltamode_timestep "<decimal> ns";
+    residential::all_house_delta "<string>";
+    residential::implicit_enduses "[NONE|DRYER|CLOTHESWASHER|WATERHEATER|EVCHARGER|RANGE|REFRIGERATOR|FREEZER|MICROWAVE|DISHWASHER|OCCUPANCY|PLUGS|LIGHTS]";
+    residential::implicit_enduse_source "{EIA2015,RBSA2014_DISCRETE,RBSA2014,ELCAP2010,ELCAP1990}";
+    residential::house_low_temperature_warning "<decimal> degF";
+    residential::house_high_temperature_warning "<decimal> degF";
+    residential::thermostat_control_warning "<decimal>";
+    residential::system_dwell_time "<decimal> s";
+    residential::aux_cutin_temperature "<decimal> degF";
+    residential::paneldump_filename "<string>";
+    residential::paneldump_interval "<integer>";
+    residential::paneldump_resolution "<decimal>";
   }
 ~~~
 

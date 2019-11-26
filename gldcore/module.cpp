@@ -2635,28 +2635,52 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 	GLOBALVAR *global = NULL;
 	char prefix[1024];
 	sprintf(prefix,"%s::",mod->name);
-	while ( (global=global_getnext(global)) != NULL )
+	if ( oclass == NULL )
 	{
-		if ( strncmp(global->prop->name,prefix,strlen(prefix)) == 0 )
+		while ( (global=global_getnext(global)) != NULL )
 		{
-			if ( first )
+			if ( strncmp(global->prop->name,prefix,strlen(prefix)) == 0 )
 			{
-				output_raw("  module %s {\n",mod->name);
+				if ( first )
+				{
+					output_raw("  module %s {\n",mod->name);
+				}
+				PROPERTY *prop = global->prop;
+				output_raw("    %s ", prop->name);
+				if ( prop->keywords )
+				{
+					output_raw("\"%s",prop->ptype == PT_enumeration ? "{" : "[");
+					for ( KEYWORD *keyword = prop->keywords ; keyword != NULL ; keyword = keyword->next )
+					{
+						if ( keyword != prop->keywords )
+						{
+							output_raw( prop->ptype == PT_enumeration ? "," : (prop->flags&PF_CHARSET?"":"|"));
+						}
+						output_raw("%s",keyword->name);
+					}
+					output_raw("%s\";\n",prop->ptype == PT_enumeration ? "}" : "]");
+				}
+				else if ( prop->unit )
+				{
+					output_raw("\"<%s> %s\";\n", property_getspec(prop->ptype)->xsdname, prop->unit->name);
+				}
+				else
+				{
+					output_raw("\"<%s>\";\n", property_getspec(prop->ptype)->xsdname);
+				}
+				first = false;
 			}
-			char buffer[1024];
-			output_raw("    %s \"%s\";\n",global->prop->name+strlen(prefix),global_getvar(global->prop->name,buffer,sizeof(buffer)));
-			first = false;
+		}
+		if ( first )
+		{
+			output_raw("  module %s;\n", mod->name);
+		}
+		else
+		{
+			output_raw("  }\n");
 		}
 	}
-	if ( first )
-	{
-		output_raw("  module %s;\n", mod->name);
-	}
 	else
-	{
-		output_raw("  }\n");
-	}
-	if ( oclass )
 	{
 		output_raw("  object %s {\n", oclass->name);
 		for ( PROPERTY *prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
@@ -2683,7 +2707,6 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 			{
 				output_raw("\"<%s>\";\n", property_getspec(prop->ptype)->xsdname);
 			}
-
 		}
 		output_raw("  }\n");
 	}
