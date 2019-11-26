@@ -2661,7 +2661,7 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 		output_raw("  object %s {\n", oclass->name);
 		for ( PROPERTY *prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 		{
-			output_raw("  %s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+			output_raw("    %s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
 		}
 		output_raw("  }\n");
 	}
@@ -2699,6 +2699,7 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 				output_raw("    %s \"%s\";\n", prop->name, prop->default_value);
 			}
 		}
+		output_raw("  }\n");
 		output_raw("~~~\n");
 	}
 

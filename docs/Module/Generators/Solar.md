@@ -9,50 +9,50 @@ GLM:
     deltamode_timestep "+1e+07 ns";
   }
   object solar {
-  generator_mode "0";
-  generator_status "0";
-  panel_type "0";
-  power_type "0";
-  INSTALLATION_TYPE "0";
-  SOLAR_TILT_MODEL "0";
-  SOLAR_POWER_MODEL "0";
-  a_coeff "0.0";
-  b_coeff "0.0";
-  dT_coeff "0.0";
-  T_coeff "0.0";
-  NOCT "0.0";
-  Tmodule "0.0";
-  Tambient "0.0";
-  wind_speed "0.0";
-  ambient_temperature "0.0";
-  Insolation "0.0";
-  Rinternal "0.0";
-  Rated_Insolation "0.0";
-  Pmax_temp_coeff "0.0";
-  Voc_temp_coeff "0.0";
-  V_Max "0+0i";
-  Voc_Max "0+0i";
-  Voc "0+0i";
-  efficiency "0.0";
-  area "0.0";
-  soiling "0.0";
-  derating "0.0";
-  Tcell "0.0";
-  Rated_kVA "0.0";
-  rated_power "0.0";
-  P_Out "0+0i";
-  V_Out "0+0i";
-  I_Out "0+0i";
-  VA_Out "0+0i";
-  weather "";
-  shading_factor "0.0";
-  tilt_angle "0.0";
-  orientation_azimuth "0.0";
-  latitude_angle_fix "FALSE";
-  latitude "0.0";
-  longitude "0.0";
-  orientation "0";
-  phases "0";
+    generator_mode "0";
+    generator_status "0";
+    panel_type "0";
+    power_type "0";
+    INSTALLATION_TYPE "0";
+    SOLAR_TILT_MODEL "0";
+    SOLAR_POWER_MODEL "0";
+    a_coeff "0.0";
+    b_coeff "0.0";
+    dT_coeff "0.0";
+    T_coeff "0.0";
+    NOCT "0.0";
+    Tmodule "0.0";
+    Tambient "0.0";
+    wind_speed "0.0";
+    ambient_temperature "0.0";
+    Insolation "0.0";
+    Rinternal "0.0";
+    Rated_Insolation "0.0";
+    Pmax_temp_coeff "0.0";
+    Voc_temp_coeff "0.0";
+    V_Max "0+0i";
+    Voc_Max "0+0i";
+    Voc "0+0i";
+    efficiency "0.0";
+    area "0.0";
+    soiling "0.0";
+    derating "0.0";
+    Tcell "0.0";
+    Rated_kVA "0.0";
+    rated_power "0.0";
+    P_Out "0+0i";
+    V_Out "0+0i";
+    I_Out "0+0i";
+    VA_Out "0+0i";
+    weather "";
+    shading_factor "0.0";
+    tilt_angle "0.0";
+    orientation_azimuth "0.0";
+    latitude_angle_fix "FALSE";
+    latitude "0.0";
+    longitude "0.0";
+    orientation "0";
+    phases "0";
   }
 ~~~
 
@@ -417,6 +417,7 @@ TODO
     longitude "0.0";
     orientation "0";
     phases "0";
+  }
 ~~~
 
 # See also
