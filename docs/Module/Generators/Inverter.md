@@ -3,13 +3,7 @@
 # Synopsis
 ~~~
   module generators {
-### `message_flags`
-~~~
-  set {QUIET=65536, WARNING=131072, DEBUG=262144, VERBOSE=524288} message_flags;
-~~~
-
-module message control flags
-
+    set {QUIET=65536, WARNING=131072, DEBUG=262144, VERBOSE=524288} message_flags;
   };
   class inverter {
     battery_soc "0.0";
