@@ -2661,7 +2661,22 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 		output_raw("  object %s {\n", oclass->name);
 		for ( PROPERTY *prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 		{
-			output_raw("    %s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+			output_raw("    %s ", prop->name);
+			if ( prop->keywords )
+			{
+				output_raw("[");
+				for ( KEYWORD *keyword = prop->keywords ; keyword != NULL ; keyword = keyword->next )
+				{
+					if ( keyword != prop->keywords )
+						output_raw("|");
+					output_raw("%s",keyword->name);
+				}
+				output_raw("];\n");
+			}
+			else
+			{
+				output_raw("\"<%s>\";\n", property_getspec(prop->ptype)->xsdname);
+			}
 		}
 		output_raw("  }\n");
 	}
@@ -2677,7 +2692,26 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 		{
 			output_raw("\n### `%s`\n",prop->name);
 			output_raw("~~~\n");
-			output_raw("  %s %s;\n", property_getspec(prop->ptype)->name, prop->name);
+			output_raw("  %s ", property_getspec(prop->ptype)->name);
+			if ( prop->keywords )
+			{
+				output_raw("{");
+				for ( KEYWORD *keyword = prop->keywords ; keyword != NULL ; keyword = keyword->next )
+				{
+					if ( keyword != prop->keywords )
+						output_raw(", ");
+					output_raw("%s",keyword->name);
+				}
+				output_raw("} ");
+			}
+			if ( prop->unit )
+			{
+				output_raw("%s[%s];\n", prop->name, prop->unit);
+			}
+			else
+			{
+				output_raw("%s;\n", prop->name);
+			}
 			output_raw("~~~\n");
 			if ( prop->description )
 			{
