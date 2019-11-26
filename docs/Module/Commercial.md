@@ -4,10 +4,10 @@
 GLM:
 ~~~
   module commercial {
-    commercial::message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
-    commercial::warn_control "<string>";
-    commercial::warn_low_temp "<decimal>";
-    commercial::warn_high_temp "<decimal>";
+    message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+    warn_control "<string>";
+    warn_low_temp "<decimal>";
+    warn_high_temp "<decimal>";
   }
 ~~~
 

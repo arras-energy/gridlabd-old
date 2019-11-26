@@ -2646,7 +2646,7 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 					output_raw("  module %s {\n",mod->name);
 				}
 				PROPERTY *prop = global->prop;
-				output_raw("    %s ", prop->name);
+				output_raw("    %s ", prop->name + strlen(prefix));
 				if ( prop->keywords )
 				{
 					output_raw("\"%s",prop->ptype == PT_enumeration ? "{" : "[");

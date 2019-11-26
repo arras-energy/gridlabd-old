@@ -4,27 +4,27 @@
 GLM:
 ~~~
   module residential {
-    residential::message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
-    residential::default_line_voltage "<string> V";
-    residential::default_line_current "<string> A";
-    residential::default_outdoor_temperature "<decimal> degF";
-    residential::default_humidity "<decimal> %";
-    residential::default_solar "<decimal> Btu/sf";
-    residential::default_etp_iterations "<integer>";
-    residential::ANSI_voltage_check "<string>";
-    residential::enable_subsecond_models "<string>";
-    residential::deltamode_timestep "<decimal> ns";
-    residential::all_house_delta "<string>";
-    residential::implicit_enduses "[NONE|DRYER|CLOTHESWASHER|WATERHEATER|EVCHARGER|RANGE|REFRIGERATOR|FREEZER|MICROWAVE|DISHWASHER|OCCUPANCY|PLUGS|LIGHTS]";
-    residential::implicit_enduse_source "{EIA2015,RBSA2014_DISCRETE,RBSA2014,ELCAP2010,ELCAP1990}";
-    residential::house_low_temperature_warning "<decimal> degF";
-    residential::house_high_temperature_warning "<decimal> degF";
-    residential::thermostat_control_warning "<decimal>";
-    residential::system_dwell_time "<decimal> s";
-    residential::aux_cutin_temperature "<decimal> degF";
-    residential::paneldump_filename "<string>";
-    residential::paneldump_interval "<integer>";
-    residential::paneldump_resolution "<decimal>";
+    message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+    default_line_voltage "<string> V";
+    default_line_current "<string> A";
+    default_outdoor_temperature "<decimal> degF";
+    default_humidity "<decimal> %";
+    default_solar "<decimal> Btu/sf";
+    default_etp_iterations "<integer>";
+    ANSI_voltage_check "<string>";
+    enable_subsecond_models "<string>";
+    deltamode_timestep "<decimal> ns";
+    all_house_delta "<string>";
+    implicit_enduses "[NONE|DRYER|CLOTHESWASHER|WATERHEATER|EVCHARGER|RANGE|REFRIGERATOR|FREEZER|MICROWAVE|DISHWASHER|OCCUPANCY|PLUGS|LIGHTS]";
+    implicit_enduse_source "{EIA2015,RBSA2014_DISCRETE,RBSA2014,ELCAP2010,ELCAP1990}";
+    house_low_temperature_warning "<decimal> degF";
+    house_high_temperature_warning "<decimal> degF";
+    thermostat_control_warning "<decimal>";
+    system_dwell_time "<decimal> s";
+    aux_cutin_temperature "<decimal> degF";
+    paneldump_filename "<string>";
+    paneldump_interval "<integer>";
+    paneldump_resolution "<decimal>";
   }
 ~~~
 

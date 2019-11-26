@@ -4,9 +4,9 @@
 GLM:
 ~~~
   module generators {
-    generators::message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
-    generators::enable_subsecond_models "<string>";
-    generators::deltamode_timestep "<decimal> ns";
+    message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+    enable_subsecond_models "<string>";
+    deltamode_timestep "<decimal> ns";
   }
 ~~~
 

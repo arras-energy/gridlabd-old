@@ -4,7 +4,7 @@
 GLM:
 ~~~
   module assert {
-    assert::message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+    message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
   }
 ~~~
 
