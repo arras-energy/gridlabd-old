@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Default_Humidity]] -- Module residential global variable default_humidity
+[[/Module/Residential/Global/Default_humidity]] -- Module residential global variable default_humidity
 
 # Synopsis
 Shell:
