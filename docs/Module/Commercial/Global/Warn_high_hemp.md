@@ -1,4 +1,4 @@
-[[/Module/Commercial/Global/Warn_High_Temp]] -- Module commercial global variable warn_high_temp
+[[/Module/Commercial/Global/Warn_high_hemp]] -- Module commercial global variable warn_high_temp
 
 # Synopsis
 Shell:
