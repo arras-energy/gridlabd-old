@@ -1,4 +1,4 @@
-[[/Module/Climate/Global/Message_Flags]] -- Module climate global variable message_flags
+[[/Module/Climate/Global/Message_flags]] -- Module climate global variable message_flags
 
 # Synopsis
 Shell:
