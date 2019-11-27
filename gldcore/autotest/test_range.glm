@@ -1,0 +1,6 @@
+#set suppress_repeat_messages=FALSE
+
+#print ${RANGE}
+#print ${RANGE:1,10}
+#print ${RANGE,1,10,0.5}
+#print ${RANGE 1,10000}
