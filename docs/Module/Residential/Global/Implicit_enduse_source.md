@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Implicit_Enduse_Source]] -- Module residential global variable implicit_enduse_source
+[[/Module/Residential/Global/Implicit_enduse_source]] -- Module residential global variable implicit_enduse_source
 
 # Synopsis
 Shell:
