@@ -57,7 +57,7 @@ range_example.glm(6): 1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10
 
 If the last value generated is exactly equal to `<stop>`, then it is included in the range output.
 
-If the range generated to too long for the available buffer space allocated to range generation, or the `<step>` is invalid for the `<start>` and `<stop>` values specified, then an error will be generated and processing will stop.
+If the range generated is too long for the available buffer space allocated to range generation, or the `<step>` is invalid for the `<start>` and `<stop>` values specified, then an error will be generated and processing will stop.
 
 # See also
 * [[GLM/Macro/For]]
