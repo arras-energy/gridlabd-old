@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Thermostat_Control_Warning]] -- Module residential global variable thermostat_control_warning
+[[/Module/Residential/Global/Thermostat_control_warning]] -- Module residential global variable thermostat_control_warning
 
 # Synopsis
 Shell:
