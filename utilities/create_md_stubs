@@ -2,7 +2,9 @@
 
 function titlecase ()
 {
-    echo $* | sed 's/.*/\L&/; s/[a-z]*/\u&/g'
+    X=$(echo $* | tr 'A-Z' 'a-z')
+    echo -n ${X:0:1} | tr 'a-z' 'A-Z'
+    echo ${X:1}
 }
 MODULES=$(grep "^include" modules.mk | cut -f2 -d' ' | cut -f1 -d'/')
 for MODULE in $MODULES; do
