@@ -1,4 +1,4 @@
-[[/Module/Commercial/Global/Warn_Control]] -- Module commercial global variable warn_control
+[[/Module/Commercial/Global/Warn_control]] -- Module commercial global variable warn_control
 
 # Synopsis
 Shell:
