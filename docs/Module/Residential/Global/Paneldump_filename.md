@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Paneldump_Filename]] -- Module residential global variable paneldump_filename
+[[/Module/Residential/Global/Paneldump_filename]] -- Module residential global variable paneldump_filename
 
 # Synopsis
 Shell:
