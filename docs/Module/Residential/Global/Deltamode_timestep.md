@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Deltamode_Timestep]] -- Module residential global variable deltamode_timestep
+[[/Module/Residential/Global/Deltamode_timestep]] -- Module residential global variable deltamode_timestep
 
 # Synopsis
 Shell:
