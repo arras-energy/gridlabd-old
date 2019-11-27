@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Default_Line_Current]] -- Module residential global variable default_line_current
+[[/Module/Residential/Global/Default_line_current]] -- Module residential global variable default_line_current
 
 # Synopsis
 Shell:
