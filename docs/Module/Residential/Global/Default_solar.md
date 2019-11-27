@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Default_Solar]] -- Module residential global variable default_solar
+[[/Module/Residential/Global/Default_solar]] -- Module residential global variable default_solar
 
 # Synopsis
 Shell:
