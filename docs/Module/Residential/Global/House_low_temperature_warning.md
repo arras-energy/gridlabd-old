@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/House_Low_Temperature_Warning]] -- Module residential global variable house_low_temperature_warning
+[[/Module/Residential/Global/House_low_temperature_warning]] -- Module residential global variable house_low_temperature_warning
 
 # Synopsis
 Shell:
