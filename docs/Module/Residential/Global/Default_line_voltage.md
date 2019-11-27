@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Default_Line_Voltage]] -- Module residential global variable default_line_voltage
+[[/Module/Residential/Global/Default_line_voltage]] -- Module residential global variable default_line_voltage
 
 # Synopsis
 Shell:
