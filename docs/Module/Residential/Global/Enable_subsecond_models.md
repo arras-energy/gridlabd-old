@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Enable_Subsecond_Models]] -- Module residential global variable enable_subsecond_models
+[[/Module/Residential/Global/Enable_subsecond_models]] -- Module residential global variable enable_subsecond_models
 
 # Synopsis
 Shell:
