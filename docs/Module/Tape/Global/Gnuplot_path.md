@@ -1,4 +1,4 @@
-[[/Module/Tape/Global/Gnuplot_Path]] -- Module tape global variable gnuplot_path
+[[/Module/Tape/Global/Gnuplot_path]] -- Module tape global variable gnuplot_path
 
 # Synopsis
 Shell:
