@@ -1,4 +1,4 @@
-[[/Module/Tape/Global/Flush_Interval]] -- Module tape global variable flush_interval
+[[/Module/Tape/Global/Flush_interval]] -- Module tape global variable flush_interval
 
 # Synopsis
 Shell:
