@@ -1,4 +1,4 @@
-[[/Module/Reliability/Global/Deltamode_Timestep]] -- Module reliability global variable deltamode_timestep
+[[/Module/Reliability/Global/Deltamode_timestep]] -- Module reliability global variable deltamode_timestep
 
 # Synopsis
 Shell:
