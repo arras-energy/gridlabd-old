@@ -1,4 +1,4 @@
-[[/Module/Assert]] -- Module assert
+[[/Module/Assert/Complex_Assert]] -- Compless assert
 
 # Synopsis
 GLM:
@@ -15,7 +15,7 @@ GLM:
 
 # Description
 
-TODO
+The complex assert object is used to verify a complex value.
 
 ## Properties
 
