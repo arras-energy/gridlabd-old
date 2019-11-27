@@ -1,4 +1,4 @@
-[[/Module/Tape/Global/Csv_Keep_Clean]] -- Module tape global variable csv_keep_clean
+[[/Module/Tape/Global/Csv_keep_clean]] -- Module tape global variable csv_keep_clean
 
 # Synopsis
 Shell:
