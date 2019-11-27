@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Paneldump_Interval]] -- Module residential global variable paneldump_interval
+[[/Module/Residential/Global/Paneldump_interval]] -- Module residential global variable paneldump_interval
 
 # Synopsis
 Shell:
