@@ -2,10 +2,10 @@
 # Synopsis
 ~~~
   module commercial {
-    default_nominal_voltage 240;
-    default_nominal_voltage_A 240+0d;
-    default_nominal_voltage_B 240+120d;
-    default_nominal_voltage_C 240-120d;
+    default_nominal_voltage "240";
+    default_nominal_voltage_A "240+0d";
+    default_nominal_voltage_B "240+120d";
+    default_nominal_voltage_C "240-120d";
     default_weekday_code "WEEKDAY";
     default_saturday_code "SATURDAY";
     default_sunday_code "SUNDAY";
@@ -13,12 +13,12 @@
     default_month_heading "Month";
     default_daytype_heading "Daytype";
     default_hour_heading "Hour";
-    default_temperature_heating_balance 55.0 degF;
-    default_temperature_cooling_balance 70.0 degF;
-    default_temperature_heating_base 55.0 degF;
-    default_temperature_cooling_base 70.0 degF;
-    default_solargain_base 0.0 W/m^2;
-    default_price_base 0.0 $/MWh;
+    default_temperature_heating_balance "55.0 degF";
+    default_temperature_cooling_balance "70.0 degF";
+    default_temperature_heating_base "55.0 degF";
+    default_temperature_cooling_base "70.0 degF";
+    default_solargain_base "0.0 W/m^2";
+    default_price_base "0.0 $/MWh";
   }
   object ceus {
     filename "<file-name>";
