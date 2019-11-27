@@ -1,25 +1,142 @@
-module reliability {
-	set {QUIET=65536, WARNING=131072, DEBUG=262144, VERBOSE=524288} message_flags; // module message control flags
-	bool enable_subsecond_models; // Flag to enable deltamode functionality in the reliability module
-	double maximum_event_length[s]; // Maximum duration of any faulting event
-	bool report_event_log; // Should the metrics object dump a logfile?
-	int32 deltamode_timestep; // Default timestep for reliability deltamode operations
-}
-class eventgen {
-	function add_event();
-	function interupdate_event_object();
-	char1024 target_group;
-	char256 fault_type;
-	enumeration {TRIANGLE=10, BETA=9, GAMMA=8, WEIBULL=7, RAYLEIGH=6, EXPONENTIAL=5, PARETO=4, BERNOULLI=3, LOGNORMAL=2, NORMAL=1, UNIFORM=0} failure_dist;
-	enumeration {TRIANGLE=10, BETA=9, GAMMA=8, WEIBULL=7, RAYLEIGH=6, EXPONENTIAL=5, PARETO=4, BERNOULLI=3, LOGNORMAL=2, NORMAL=1, UNIFORM=0} restoration_dist;
-	double failure_dist_param_1;
-	double failure_dist_param_2;
-	double restoration_dist_param_1;
-	double restoration_dist_param_2;
-	char1024 manual_outages;
-	double max_outage_length[s];
-	int32 max_simultaneous_faults;
-	char256 controlled_switch; // Name of a switch to manually fault/un-fault
-	int32 switch_state; // Current state (1=closed, 0=open) for the controlled switch
-}
+[[/Module/Reliability/Eventgen]] -- Class eventgen
+
+# Synopsis
+GLM:
+~~~
+  object eventgen {
+    target_group "<string>";
+    fault_type "<string>";
+    failure_dist "{TRIANGLE,BETA,GAMMA,WEIBULL,RAYLEIGH,EXPONENTIAL,PARETO,BERNOULLI,LOGNORMAL,NORMAL,UNIFORM}";
+    restoration_dist "{TRIANGLE,BETA,GAMMA,WEIBULL,RAYLEIGH,EXPONENTIAL,PARETO,BERNOULLI,LOGNORMAL,NORMAL,UNIFORM}";
+    failure_dist_param_1 "<decimal>";
+    failure_dist_param_2 "<decimal>";
+    restoration_dist_param_1 "<decimal>";
+    restoration_dist_param_2 "<decimal>";
+    manual_outages "<string>";
+    max_outage_length "<decimal> s";
+    max_simultaneous_faults "<integer>";
+    controlled_switch "<string>";
+    switch_state "<integer>";
+  }
+~~~
+
+# Description
+
+TODO
+
+## Properties
+
+### `target_group`
+~~~
+  char1024 target_group;
+~~~
+
+TODO
+
+### `fault_type`
+~~~
+  char256 fault_type;
+~~~
+
+TODO
+
+### `failure_dist`
+~~~
+  enumeration {TRIANGLE, BETA, GAMMA, WEIBULL, RAYLEIGH, EXPONENTIAL, PARETO, BERNOULLI, LOGNORMAL, NORMAL, UNIFORM} failure_dist;
+~~~
+
+TODO
+
+### `restoration_dist`
+~~~
+  enumeration {TRIANGLE, BETA, GAMMA, WEIBULL, RAYLEIGH, EXPONENTIAL, PARETO, BERNOULLI, LOGNORMAL, NORMAL, UNIFORM} restoration_dist;
+~~~
+
+TODO
+
+### `failure_dist_param_1`
+~~~
+  double failure_dist_param_1;
+~~~
+
+TODO
+
+### `failure_dist_param_2`
+~~~
+  double failure_dist_param_2;
+~~~
+
+TODO
+
+### `restoration_dist_param_1`
+~~~
+  double restoration_dist_param_1;
+~~~
+
+TODO
+
+### `restoration_dist_param_2`
+~~~
+  double restoration_dist_param_2;
+~~~
+
+TODO
+
+### `manual_outages`
+~~~
+  char1024 manual_outages;
+~~~
+
+TODO
+
+### `max_outage_length`
+~~~
+  double max_outage_length[s];
+~~~
+
+TODO
+
+### `max_simultaneous_faults`
+~~~
+  int32 max_simultaneous_faults;
+~~~
+
+TODO
+
+### `controlled_switch`
+~~~
+  char256 controlled_switch;
+~~~
+
+Name of a switch to manually fault/un-fault
+
+### `switch_state`
+~~~
+  int32 switch_state;
+~~~
+
+Current state (1=closed, 0=open) for the controlled switch
+
+# Example
+
+~~~
+  object eventgen {
+    target_group "";
+    fault_type "";
+    failure_dist "0";
+    restoration_dist "0";
+    failure_dist_param_1 "0.0";
+    failure_dist_param_2 "0.0";
+    restoration_dist_param_1 "0.0";
+    restoration_dist_param_2 "0.0";
+    manual_outages "";
+    max_outage_length "0.0";
+    max_simultaneous_faults "0";
+    controlled_switch "";
+    switch_state "0";
+  }
+~~~
+
+# See also
+* [[/Module/Reliability]]
 

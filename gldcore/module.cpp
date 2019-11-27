@@ -2628,7 +2628,7 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 {
 	if ( oclass )
 	{
-		output_raw("[[/Module/%c%s/%c%s]] -- Class %s\n", toupper(mod->name[0]), mod->name+1, toupper(oclass->name[0]), oclass->name+1);
+		output_raw("[[/Module/%c%s/%c%s]] -- Class %s\n", toupper(mod->name[0]), mod->name+1, toupper(oclass->name[0]), oclass->name+1, oclass->name);
 	}
 	else
 	{
