@@ -28,8 +28,8 @@
     total_power_A "<complex-value> VA";
     total_power_B "<complex-value> VA";
     total_power_C "<complex-value> VA";
-    total_real_power[W];
-    total_reactive_power[VAR];
+    total_real_power "<real-value> [W]";
+    total_reactive_power "<real-value> [VAR];
     weather "<object-name>";
     temperature_heating_balance "<real-value> degF";
     temperature_cooling_balance "<real-value> degF";
