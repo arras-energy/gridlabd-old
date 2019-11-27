@@ -1,4 +1,4 @@
-[[/Module/Generators/Global/Message_Flags]] -- Module generators global variable message_flags
+[[/Module/Generators/Global/Message_flags]] -- Module generators global variable message_flags
 
 # Synopsis
 Shell:
