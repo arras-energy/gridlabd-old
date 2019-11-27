@@ -1,4 +1,4 @@
-[[/Module/Reliability/Global/Report_Event_Log]] -- Module reliability global variable report_event_log
+[[/Module/Reliability/Global/Report_event_log]] -- Module reliability global variable report_event_log
 
 # Synopsis
 Shell:
