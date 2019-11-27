@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Ansi_Voltage_Check]] -- Module residential global variable ANSI_voltage_check
+[[/Module/Residential/Global/Ansi_voltage_check]] -- Module residential global variable ANSI_voltage_check
 
 # Synopsis
 Shell:
