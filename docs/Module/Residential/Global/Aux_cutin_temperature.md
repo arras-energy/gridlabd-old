@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Aux_Cutin_Temperature]] -- Module residential global variable aux_cutin_temperature
+[[/Module/Residential/Global/Aux_cutin_temperature]] -- Module residential global variable aux_cutin_temperature
 
 # Synopsis
 Shell:
