@@ -1,4 +1,4 @@
-[[/Module/Assert/Global/Message_Flags]] -- Module assert global variable message_flags
+[[/Module/Assert/Global/Message_flags]] -- Module assert global variable message_flags
 
 # Synopsis
 Shell:
