@@ -1,4 +1,4 @@
-[[/Module/Reliability/Global/Maximum_Event_Length]] -- Module reliability global variable maximum_event_length
+[[/Module/Reliability/Global/Maximum_event_length]] -- Module reliability global variable maximum_event_length
 
 # Synopsis
 Shell:
