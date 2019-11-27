@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Message_Flags]] -- Module residential global variable message_flags
+[[/Module/Residential/Global/Message_flags]] -- Module residential global variable message_flags
 
 # Synopsis
 Shell:
