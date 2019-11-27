@@ -1,4 +1,4 @@
-[[/Module/Commercial/Global/Warn_Low_Temp]] -- Module commercial global variable warn_low_temp
+[[/Module/Commercial/Global/Warn_low_temp]] -- Module commercial global variable warn_low_temp
 
 # Synopsis
 Shell:
