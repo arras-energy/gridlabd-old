@@ -1,4 +1,4 @@
-[[/Module/Powerflow/Global/All_Powerflow_Delta]] -- Module powerflow global variable all_powerflow_delta
+[[/Module/Powerflow/Global/All_powerflow_delta]] -- Module powerflow global variable all_powerflow_delta
 
 # Synopsis
 Shell:
