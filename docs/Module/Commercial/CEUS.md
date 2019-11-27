@@ -39,7 +39,7 @@
     solargain_base "<real-value> W/m^2";
     solargain_sensitivity "<real-value> m^2";
     tariff "<object-name>";
-    price_base "<real-value> $/MWh"]";
+    price_base "<real-value> $/MWh";
     price_sensitivity "<real-value> W*MWh/$"; 
   }
 ~~~
