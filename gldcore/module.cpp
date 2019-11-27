@@ -2773,6 +2773,61 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 		output_raw("  }\n");
 		output_raw("~~~\n");
 	}
+	else
+	{
+		bool first = true;
+		GLOBALVAR *global = NULL;
+		char prefix[1024];
+		sprintf(prefix,"%s::",mod->name);
+		if ( oclass == NULL )
+		{
+			while ( (global=global_getnext(global)) != NULL )
+			{
+				if ( strncmp(global->prop->name,prefix,strlen(prefix)) == 0 )
+				{
+					if ( first )
+					{
+						output_raw("\n## Globals\n");
+					}
+					PROPERTY *prop = global->prop;
+					output_raw("\n### `%s`\n", prop->name + strlen(prefix));
+					output_raw("~~~\n");
+					output_raw("  %s ", prop->name + strlen(prefix));
+					if ( prop->keywords )
+					{
+						output_raw("\"%s",prop->ptype == PT_enumeration ? "{" : "[");
+						for ( KEYWORD *keyword = prop->keywords ; keyword != NULL ; keyword = keyword->next )
+						{
+							if ( keyword != prop->keywords )
+							{
+								output_raw( prop->ptype == PT_enumeration ? "," : (prop->flags&PF_CHARSET?"":"|"));
+							}
+							output_raw("%s",keyword->name);
+						}
+						output_raw("%s\";\n",prop->ptype == PT_enumeration ? "}" : "]");
+					}
+					else if ( prop->unit )
+					{
+						output_raw("\"<%s> %s\";\n", property_getspec(prop->ptype)->xsdname, prop->unit->name);
+					}
+					else
+					{
+						output_raw("\"<%s>\";\n", property_getspec(prop->ptype)->xsdname);
+					}
+					output_raw("~~~\n");
+					if ( prop->description )
+					{
+						output_raw("\n%c%s\n", toupper(prop->description[0]), prop->description+1);
+					}
+					else
+					{
+						output_raw("\nTODO\n");
+					}
+					first = false;
+				}
+			}		
+		}
+	}
 
 	output_raw("\n# See also\n");
 	if ( oclass )

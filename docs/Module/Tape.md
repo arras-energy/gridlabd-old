@@ -16,6 +16,43 @@ GLM:
 
 TODO
 
+## Globals
+
+### `gnuplot_path`
+~~~
+  gnuplot_path "<string>";
+~~~
+
+TODO
+
+### `flush_interval`
+~~~
+  flush_interval "<integer>";
+~~~
+
+TODO
+
+### `csv_data_only`
+~~~
+  csv_data_only "<integer>";
+~~~
+
+TODO
+
+### `csv_keep_clean`
+~~~
+  csv_keep_clean "<integer>";
+~~~
+
+TODO
+
+### `delta_mode_needed`
+~~~
+  delta_mode_needed "<string>";
+~~~
+
+TODO
+
 # See also
 * [[/Module/Tape/Player]]
 * [[/Module/Tape/Shaper]]

@@ -13,6 +13,22 @@ GLM:
 
 TODO
 
+## Globals
+
+### `message_flags`
+~~~
+  message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+~~~
+
+Module message control flags
+
+### `bid_offset`
+~~~
+  bid_offset "<decimal> $";
+~~~
+
+The bid offset value that prevents bids from being wrongly triggered
+
 # See also
 * [[/Module/Market/Auction]]
 * [[/Module/Market/Controller]]

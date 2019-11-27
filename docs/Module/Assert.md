@@ -12,6 +12,15 @@ GLM:
 
 TODO
 
+## Globals
+
+### `message_flags`
+~~~
+  message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+~~~
+
+Module message control flags
+
 # See also
 * [[/Module/Assert/Assert]]
 * [[/Module/Assert/Double_assert]]
