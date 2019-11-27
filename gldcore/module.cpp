@@ -2626,7 +2626,14 @@ void sched_controller(void)
 
 void module_help_md(MODULE *mod, CLASS *oclass)
 {
-	output_raw("[[/Module/%c%s]] -- Module %s\n", toupper(mod->name[0]), mod->name+1, mod->name);
+	if ( oclass )
+	{
+		output_raw("[[/Module/%c%s/%c%s]] -- Class %s\n", toupper(mod->name[0]), mod->name+1, toupper(oclass->name[0]), oclass->name+1);
+	}
+	else
+	{
+		output_raw("[[/Module/%c%s]] -- Module %s\n", toupper(mod->name[0]), mod->name+1, mod->name);
+	}
 
 	output_raw("\n# Synopsis\n");
 	output_raw("GLM:\n");

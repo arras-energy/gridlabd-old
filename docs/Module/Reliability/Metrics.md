@@ -1,78 +1,16 @@
-[[/Module/Reliability]] -- Module reliability
-
-# Synopsis
-GLM:
-~~~
-  object metrics {
-    report_file "<string>";
-    customer_group "<string>";
-    module_metrics_object "<string>";
-    metrics_of_interest "<string>";
-    metric_interval "<decimal> s";
-    report_interval "<decimal> s";
-  }
-~~~
-
-# Description
-
-TODO
-
-## Properties
-
-### `report_file`
-~~~
-  char1024 report_file;
-~~~
-
-TODO
-
-### `customer_group`
-~~~
-  char1024 customer_group;
-~~~
-
-TODO
-
-### `module_metrics_object`
-~~~
-  object module_metrics_object;
-~~~
-
-TODO
-
-### `metrics_of_interest`
-~~~
-  char1024 metrics_of_interest;
-~~~
-
-TODO
-
-### `metric_interval`
-~~~
-  double metric_interval[s];
-~~~
-
-TODO
-
-### `report_interval`
-~~~
-  double report_interval[s];
-~~~
-
-TODO
-
-# Example
-
-~~~
-  object metrics {
-    report_file "";
-    customer_group "";
-    metrics_of_interest "";
-    metric_interval "0.0";
-    report_interval "0.0";
-  }
-~~~
-
-# See also
-* [[/Module/Reliability]]
+module reliability {
+	set {QUIET=65536, WARNING=131072, DEBUG=262144, VERBOSE=524288} message_flags; // module message control flags
+	bool enable_subsecond_models; // Flag to enable deltamode functionality in the reliability module
+	double maximum_event_length[s]; // Maximum duration of any faulting event
+	bool report_event_log; // Should the metrics object dump a logfile?
+	int32 deltamode_timestep; // Default timestep for reliability deltamode operations
+}
+class metrics {
+	char1024 report_file;
+	char1024 customer_group;
+	object module_metrics_object;
+	char1024 metrics_of_interest;
+	double metric_interval[s];
+	double report_interval[s];
+}
 
