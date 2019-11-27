@@ -1,4 +1,4 @@
-[[/Module/Tape/Global/Csv_Data_Only]] -- Module tape global variable csv_data_only
+[[/Module/Tape/Global/Csv_data_only]] -- Module tape global variable csv_data_only
 
 # Synopsis
 Shell:
