@@ -1,4 +1,4 @@
-[[/Module/Reliability/Global/Message_Flags]] -- Module reliability global variable message_flags
+[[/Module/Reliability/Global/Message_flags]] -- Module reliability global variable message_flags
 
 # Synopsis
 Shell:
