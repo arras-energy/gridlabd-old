@@ -1,4 +1,4 @@
-[[/Module/Market/Global/Bid_Offset]] -- Module market global variable bid_offset
+[[/Module/Market/Global/Bid_offset]] -- Module market global variable bid_offset
 
 # Synopsis
 Shell:
