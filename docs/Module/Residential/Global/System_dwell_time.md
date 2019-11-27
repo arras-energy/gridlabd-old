@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/System_Dwell_Time]] -- Module residential global variable system_dwell_time
+[[/Module/Residential/Global/System_dwell_time]] -- Module residential global variable system_dwell_time
 
 # Synopsis
 Shell:
