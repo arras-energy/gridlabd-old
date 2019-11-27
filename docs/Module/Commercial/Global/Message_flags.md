@@ -1,4 +1,4 @@
-[[/Module/Commercial/Global/Message_Flags]] -- Module commercial global variable message_flags
+[[/Module/Commercial/Global/Message_flags]] -- Module commercial global variable message_flags
 
 # Synopsis
 Shell:
