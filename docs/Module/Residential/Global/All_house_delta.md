@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/All_House_Delta]] -- Module residential global variable all_house_delta
+[[/Module/Residential/Global/All_house_delta]] -- Module residential global variable all_house_delta
 
 # Synopsis
 Shell:
