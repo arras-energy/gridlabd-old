@@ -1,4 +1,4 @@
-[[/Module/Residential/Global/Default_Outdoor_Temperature]] -- Module residential global variable default_outdoor_temperature
+[[/Module/Residential/Global/Default_outdoor_temperature]] -- Module residential global variable default_outdoor_temperature
 
 # Synopsis
 Shell:
