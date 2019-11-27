@@ -920,6 +920,11 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 	double step = 1.0;
 	char delim = ' ';
 	sscanf(name,"RANGE%c%lg,%lg,%lg",&delim,&start,&stop,&step);
+	if ( strchr(" ;,",delim) == NULL )
+	{
+		output_error("global_range(buffer=%x,size=%d,name='%s'): delimiter '%s' is not supported, using space",buffer,size,name,delim);
+		delim = ' ';
+	}
 	int len = 0;
 	char temp[size+100];
 	for ( double value = start ; value <= stop ; value += step )
@@ -929,12 +934,12 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 		len += sprintf(temp+len,"%g",value);
 		if ( len > size )
 		{
-			output_error("global_range(buffer=%x,size=%d,name='%s'): buffer too small",buffer,size,name);
+			output_error("global_range(buffer=%x,size=%d,name='%s'): buffer too small, range truncated",buffer,size,name);
 			len = size-1;
 			break;
 		}
 	}
-	return strncpy(buffer,temp,len);
+	return strncpy(buffer,temp,len+1);
 }
 
 bool GldGlobals::isdefined(const char *name)
