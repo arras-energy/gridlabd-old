@@ -1,4 +1,4 @@
-[[/Module/Generators/Global/Enable_Subsecond_Models]] -- Module generators global variable enable_subsecond_models
+[[/Module/Generators/Global/Enable_subsecond_models]] -- Module generators global variable enable_subsecond_models
 
 # Synopsis
 Shell:
