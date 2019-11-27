@@ -1,4 +1,4 @@
-[[/Module/Tape/Global/Delta_Mode_Needed]] -- Module tape global variable delta_mode_needed
+[[/Module/Tape/Global/Delta_mode_needed]] -- Module tape global variable delta_mode_needed
 
 # Synopsis
 Shell:
