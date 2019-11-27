@@ -1,4 +1,4 @@
-[[/Module/Reliability/Global/Enable_Subsecond_Models]] -- Module reliability global variable enable_subsecond_models
+[[/Module/Reliability/Global/Enable_subsecond_models]] -- Module reliability global variable enable_subsecond_models
 
 # Synopsis
 Shell:
