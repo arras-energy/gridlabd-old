@@ -1,0 +1,18 @@
+[[/Module/Tape/Global/Delta_Mode_Needed]] -- Module tape global variable delta_mode_needed
+
+# Synopsis
+Shell:
+~~~
+  host% gridlabd -D|--define delta_mode_needed=<value>
+~~~
+GLM:
+~~~
+  #set delta_mode_needed=<value>
+~~~
+
+# Description
+
+TODO
+
+# See also
+* [[/Module/Tape]]

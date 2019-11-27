@@ -1,0 +1,18 @@
+[[/Module/Residential/Global/Aux_Cutin_Temperature]] -- Module residential global variable aux_cutin_temperature
+
+# Synopsis
+Shell:
+~~~
+  host% gridlabd -D|--define aux_cutin_temperature=<value>
+~~~
+GLM:
+~~~
+  #set aux_cutin_temperature=<value>
+~~~
+
+# Description
+
+TODO
+
+# See also
+* [[/Module/Residential]]
