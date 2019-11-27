@@ -913,6 +913,35 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	}
 }
 
+DEPRECATED const char *global_range(char *buffer, int size, const char *name)
+{
+	double start = 0.0;
+	double stop = 1.0;
+	double step = 1.0;
+	char delim = ' ';
+	sscanf(name,"RANGE%c%lg,%lg,%lg",&delim,&start,&stop,&step);
+	if ( strchr(" ;,",delim) == NULL )
+	{
+		output_error("global_range(buffer=%x,size=%d,name='%s'): delimiter '%s' is not supported, using space",buffer,size,name,delim);
+		delim = ' ';
+	}
+	int len = 0;
+	char temp[size+100];
+	for ( double value = start ; value <= stop ; value += step )
+	{
+		if ( len > 0 )
+			len += sprintf(temp+len,"%c",delim);
+		len += sprintf(temp+len,"%g",value);
+		if ( len > size )
+		{
+			output_error("global_range(buffer=%x,size=%d,name='%s'): buffer too small, range truncated",buffer,size,name);
+			len = size-1;
+			break;
+		}
+	}
+	return strncpy(buffer,temp,len+1);
+}
+
 bool GldGlobals::isdefined(const char *name)
 {
 	return find(name)!=NULL;
@@ -1192,6 +1221,10 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	/* expansions */
 	if ( parameter_expansion(buffer,size,name) )
 		return buffer;
+
+	// ranges
+	if ( strncmp(name,"RANGE",5) == 0 )
+		return global_range(buffer,size,name);
 
 	var = global_find(name);
 	if(var == NULL)
