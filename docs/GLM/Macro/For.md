@@ -10,7 +10,7 @@ GLM:
 
 # Description
 
-The `#for` macro causes the parser to loop through a section of GLM multiple time with the specified global `<var>` set a each of the space-delimited entries in `<list>`.
+The `#for` macro causes the parser to loop through a section of GLM multiple time with the specified global `<var>` set to each of the space-delimited entries in `<list>`.
 
 # Example
 
