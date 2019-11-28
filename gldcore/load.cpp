@@ -6555,15 +6555,8 @@ Unterminated:
 
 static int suppress = 0;
 static int nesting = 0;
-static char *forloop = NULL;
-static char *lastfor = NULL;
-static char *forvar = NULL;
-static char *forvalue = NULL;
-static std::list<std::string> forbuffer;
-static int forbufferline = -1;
 static int macro_line[64];
 static int process_macro(char *line, int size, char *filename, int linenum);
-
 static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[65536];
@@ -6633,97 +6626,188 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 	return n;
 }
 
+///////////////////////////////////////////////////////////////////////////
+//
+// Forloop machine implementation
+//
+
+// TODO: convert this to a class so nesting is possible
+typedef enum e_forloopstate {
+	FOR_NONE   = 0, // no for loop active
+	FOR_BODY   = 1, // for loop started, body capture in progress
+	FOR_REPLAY = 2, // for loop replay in progress
+} FORLOOPSTATE;
+FORLOOPSTATE forloopstate = FOR_NONE;
+static char *forloop = NULL; // for loop value list
+static char *lastfor = NULL; // pointer to last strtok_r value
+static char *forvar = NULL; // global variable to use
+static const char *forvalue = NULL; // current value of global variable
+static std::list<std::string> forbuffer; // captured body
+static std::list<std::string>::const_iterator forbufferline; // body line iterator
+bool forloop_verbose = false;
+
+// Fetch the current state of the forloop machine
+// Returns: the forloop state
+inline static FORLOOPSTATE for_get_state(void)
+{
+	return forloopstate;
+}
+
+// Change the current state of the forloop machine
+// Returns: the last forloop state
+inline static FORLOOPSTATE for_set_state(FORLOOPSTATE n)
+{
+	const char *str[] = {"FOR_NONE","FOR_BODY","FOR_REPLAY"};
+	FORLOOPSTATE m = forloopstate;
+	forloopstate = n;
+	if ( forloop_verbose ) output_verbose("forloop state changed from '%s' to '%s'",str[(int)m],str[(int)n]);
+	return m;
+}
+
+// Test the current state of the forloop machine
+// Returns: 'true' if in state 'n', 'false' if not in state 'n'
+static bool for_is_state(FORLOOPSTATE n)
+{
+	return for_get_state() == n;
+}
+
+// Open a new instance of the forloop machine
+// Returns: 'true' if forloop opened, 'false' if forloop not opened
+static bool for_open(const char *var, const char *range)
+{
+	if ( forloop != NULL )
+	{
+		output_error_raw("%s(%d): nested forloop not supported", filename, linenum);
+		return false;
+	}
+	forloop = strdup(range);
+	forvar = strdup(var);
+	if ( forloop_verbose ) output_verbose("beginning forloop on variable '%s' in range [%s]", forvar, forloop);			
+	for_set_state(FOR_BODY);
+	return true;
+}
+
+// Update the global variable of the forloop machine
+// Returns: the next value, or NULL if not remains
+static const char * for_setvar()
+{
+	const char *value = strtok_r(forvalue==NULL?forloop:NULL," ",&lastfor);
+	if ( value != NULL )
+	{
+		if ( forloop_verbose ) output_verbose("setting for variable '%s' to '%s'",forvar,value);
+		bool old = global_strictnames;
+		global_strictnames = false;
+		global_setvar(forvar,value);
+		global_strictnames = old;
+	}
+	else
+	{
+		if ( forloop_verbose ) output_verbose("no more values for variable '%s' after '%s'",forvar,forvalue);
+	}
+	return value;
+}
+
+// Capture a GLM line to the forloop machine to replay later
+static bool for_capture(const char *line)
+{
+	if ( strncmp(line,MACRO "done",5) == 0 )
+	{
+		if ( forloop_verbose ) output_verbose("capture of forloop body done with after %d lines", forbuffer.size());
+		for_set_state(FOR_REPLAY);
+		return false;
+	}
+	else
+	{
+		if ( forloop_verbose ) output_verbose("capturing forloop body line %d as '%s'", forbuffer.size(), line);
+		forbuffer.push_back(std::string(line));
+		forbufferline = forbuffer.end();
+		return true;
+	}
+}
+
+// Replay the next line in the forloop
+static const char *for_replay()
+{
+	// need to get first/next value in list
+	if ( forbufferline == forbuffer.end() )
+	{
+		if ( forloop_verbose ) output_verbose("end of replay buffer with forloop var '%s'='%s'", forvar,forvalue);
+		forvalue = for_setvar();
+		forbufferline = forbuffer.begin();
+	}
+
+	// no values left
+	if ( forvalue == NULL )
+	{
+		output_verbose("forloop in var '%s' replay complete", forvar, forloop);	
+		if ( forloop ) free(forloop);
+		lastfor = NULL;
+		if ( forvar ) free(forvar);
+		forvalue = NULL;
+		forbuffer.clear();
+		forbufferline = forbuffer.end();
+		for_set_state(FOR_NONE);
+		return NULL;
+	}
+	else
+	{
+		// get next line
+		const char *line = (forbufferline++)->c_str();
+		if ( forloop_verbose ) output_verbose("forloop replaying line '%s' with '%s'='%s'", line,forvar,forvalue);
+		return line;
+	}
+}
+
 static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
-	char line[65536*10];
+	char line[0x4000];
 	int n = 0, i = 0;
 	int _linenum=0;
 	int startnest = nesting;
 	int bnest = 0, quote = 0;
 	int hassc = 0; // has semicolon
 	int quoteline = 0;
-	while ( fgets(line,sizeof(line),fp) != NULL )
+	while ( for_is_state(FOR_REPLAY) || fgets(line,sizeof(line),fp) != NULL )
 	{
 		int len;
 		char subst[65536];
 
-		/* comments must have preceding whitespace in macros */
-		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
-		_linenum++;
-		if ( c != NULL ) /* truncate at comment */
+		if ( for_is_state(FOR_BODY) && for_capture(line) )
 		{
-			strcpy(c,"\n");
+			continue;
 		}
-		len = (int)strlen(line);
-		if ( len >= size-1 )
+		if ( for_is_state(FOR_REPLAY) )
 		{
-			output_error("load.c: buffer exhaustion reading %i lines past line %i", _linenum, linenum);
-			if ( quote != 0 )
+			const char *replay = for_replay();
+			if ( replay )
 			{
-				output_error("look for an unterminated doublequote string on line %i", quoteline);
+				// load next line
+				strcpy(line,replay);
 			}
-			return 0;
-		}
-
-		// capture forloop contents
-		if ( forloop )
-		{
-			// end of forloop
-			if ( strcmp(line,"#done") == 0 )
-			{
-				forvalue = strtok_r(forloop," ",&lastfor);
-				if ( forvalue == NULL )
-				{
-					// none
-				}
-				else
-				{
-					bool old = global_strictnames;
-					global_strictnames = false;
-					global_setvar(forvar,forvalue);
-					global_strictnames = old;
-					forbufferline = 0;
-				}
-			}
-
-			// inside forloop
-			else if ( forbufferline == -1 )
-			{
-				forbuffer.push_back(line);
-				output_verbose("forloop captured '%s'",line);
-				continue;
-			}
-
-			// replay forloop
 			else
 			{
-				// starting buffer
-				if ( forbufferline == -1 )
+				// done, resume normal processing of input stream
+				continue;
+			}
+		}
+		else 
+		{
+			/* comments must have preceding whitespace in macros */
+			char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
+			_linenum++;
+			if ( c != NULL ) /* truncate at comment */
+			{
+				strcpy(c,"\n");
+			}
+			len = (int)strlen(line);
+			if ( len >= size-1 )
+			{
+				output_error("load.c: buffer exhaustion reading %i lines past line %i", _linenum, linenum);
+				if ( quote != 0 )
 				{
-					// last entry for this value
-					forvalue = strtok_r(NULL," ",&lastfor);
-					if ( forvalue == NULL )
-					{
-						// done
-					}
-					else
-					{
-						bool old = global_strictnames;
-						global_strictnames = false;
-						global_setvar(forvar,forvalue);
-						global_strictnames = old;
-						forbufferline = 0;
-					}
+					output_error("look for an unterminated doublequote string on line %i", quoteline);
 				}
-
-				// continuing buffer
-				else
-				{
-					// TODO: copy next item to line
-					// char *next = forbuffer[forbuffer.size()-forbufferline-1].c_str();
-					// output_verbose("replaying '%s'",next);
-					// strcpy(line,next);
-				}
+				return 0;
 			}
 		}
 	
@@ -7737,69 +7821,15 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		char var[64], range[1024];
 		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
 		{
-			if ( forloop != NULL )
-			{
-				output_error_raw("%s(%d): nested #for not supported", filename, linenum);
-				return FALSE;
-			}
-			forloop = strdup(range);
-			forvar = strdup(var);
-			lastfor = NULL;
-			forbuffer.clear();
-			output_verbose("beginning for loop on variable '%s' in range [%s]", forvar, forloop);			
 			strcpy(line,"\n");
-			return TRUE;
+			return for_open(var,range) ? TRUE : FALSE;
 		}
-		else 
+		else
 		{
-			output_error_raw("%s(%d): '#for VAR in RANGE' syntax error", filename, linenum);
-			return FALSE;
+			output_error_raw("%s(%d): for macro syntax error", filename, linenum);
+			return false;
 		}
 	}
-	// else if ( strncmp(line, MACRO "done",6) == 0 )
-	// {
-	// 	if ( forloop )
-	// 	{
-	// 		const char *value = NULL;
-	// 		strcpy(line,"\n");
-	// 		int len = 0;
-	// 		char *subst = (char*)malloc(sizeof(forbuffer));
-	// 		while ( (value=strtok_r(value==NULL?forloop:NULL," ",&lastfor)) != NULL )
-	// 		{
-	// 			bool old_strict = global_strictnames;
-	// 			global_strictnames = false;
-	// 			global_setvar(forvar,value);
-	// 			output_verbose("for %s = '%s'",forvar,value);
-	// 			global_strictnames = old_strict;
-	// 			if ( len + forbufferlen >= size )
-	// 			{
-	// 				output_error_raw("%s(%d): buffer overrun in for loop", filename, linenum);
-	// 				return FALSE;
-	// 			}
-	// 			if ( (len=replace_variables(subst,forbuffer,sizeof(subst),suppress==0)) >= 0 )
-	// 			{
-	// 				strcpy(line,subst);
-	// 			}
-	// 			else
-	// 			{
-	// 				output_error_raw("%s(%d): unable to continue", filename,linenum);
-	// 				return -1;
-	// 			}
-	// 			strcpy(line+len,forbuffer);
-	// 			len += forbufferlen;
-	// 		}
-	// 		output_verbose("completed for loop on variable '%s', result is '%s'", forvar, line);			
-	// 		free(forloop);
-	// 		free(forvar);
-	// 		forloop = NULL;
-	// 		return TRUE;
-	// 	}
-	// 	else
-	// 	{
-	// 		output_error_raw("%s(%d): #done without #for", filename, linenum);
-	// 		return FALSE;
-	// 	}
-	// }
 	else
 	{
 		char tmp[1024], *p;
