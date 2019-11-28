@@ -942,6 +942,21 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 	return strncpy(buffer,temp,len+1);
 }
 
+DEPRECATED const char *global_python(char *buffer, int size, const char *command)
+{
+	std::string result = python_eval(command);
+	if ( (int)result.size() >= size )
+	{
+		output_error("global_python(buffer=0x%x,int size=%d, command='%s'): result too big for buffer", buffer, size, command);
+		strcpy(buffer,"");
+		return buffer;
+	}
+	else
+	{
+		return strcpy(buffer,result.c_str());
+	}
+}
+
 bool GldGlobals::isdefined(const char *name)
 {
 	return find(name)!=NULL;
@@ -1215,7 +1230,7 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	}
 
 	/* sequences */
-	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':')!=NULL )
+	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':') != NULL )
 		return global_seq(buffer,size,name);
 
 	/* expansions */
@@ -1223,8 +1238,12 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 		return buffer;
 
 	// ranges
-	if ( strncmp(name,"RANGE",5) == 0 )
+	if ( strncmp(name,"RANGE",5) == 0 && strchr(" ;,",name[5]) != NULL )
 		return global_range(buffer,size,name);
+
+	// python call
+	if ( strncmp(name,"PYTHON ",7) == 0 )
+		return global_python(buffer,size,name+7);
 
 	var = global_find(name);
 	if(var == NULL)
