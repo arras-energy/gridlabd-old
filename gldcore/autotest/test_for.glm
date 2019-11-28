@@ -1,7 +1,9 @@
 #set suppress_repeat_messages=FALSE
 
+#define X=0
+
 #for X in 1 2 3 4
-#print testing for loop 
-#print ${X}
-#warning got it
+#print testing for loop: X='${X}'
+
+#warning got X=${X}
 #done

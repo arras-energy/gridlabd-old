@@ -6558,23 +6558,25 @@ static int nesting = 0;
 static char *forloop = NULL;
 static char *lastfor = NULL;
 static char *forvar = NULL;
-static char forbuffer[65536*10] = "";
-static int forbufferlen = 0;
+static char *forvalue = NULL;
+static std::list<std::string> forbuffer;
+static int forbufferline = -1;
 static int macro_line[64];
 static int process_macro(char *line, int size, char *filename, int linenum);
+
 static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[65536];
 	int n=0;
 	int linenum=0;
 	int startnest = nesting;
-	while (fgets(line,sizeof(line),fp)!=NULL)
+	while ( fgets(line,sizeof(line),fp) != NULL )
 	{
 		int len;
 		char subst[65536];
 
 		/* comments must have preceding whitespace in macros */
-		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
+		char *c = ( ( line[0] != '#' ) ? strstr(line,COMMENT) : strstr(line, " " COMMENT) );
 		linenum++;
 		if ( c != NULL ) 
 		{
@@ -6587,15 +6589,6 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 			return 0;
 		}
 
-	
-#ifndef OLDSTYLE
-		/* check for oldstyle file under newstyle parse */
-		if (linenum==1 && strncmp(line,"# ",2)==0)
-		{
-			output_error("%s looks like a version 1.x GLM files, please convert this file to new style before loading", filename);
-			return 0;
-		}
-#endif
 		/* expand variables */
 		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
 		{
@@ -6608,11 +6601,13 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* expand macros */
-		if (strncmp(line,MACRO,strlen(MACRO))==0)
+		if ( strncmp(line,MACRO,strlen(MACRO)) == 0 )
 		{
 			/* macro disables reading */
-			if (process_macro(line,sizeof(line),filename,linenum)==FALSE)
+			if ( process_macro(line,sizeof(line),filename,linenum) == FALSE )
+			{
 				return 0;
+			}
 			len = (int)strlen(line);
 			strcat(buffer,line);
 			buffer += len;
@@ -6621,7 +6616,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* if reading is enabled */
-		else if (suppress==0)
+		else if ( suppress == 0 )
 		{
 			strcpy(buffer,subst);
 			buffer+=len;
@@ -6629,7 +6624,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 			n+=len;
 		}
 	}
-	if (nesting != startnest)
+	if ( nesting != startnest )
 	{
 		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,linenum,MACRO,filename,macro_line[nesting-1]);
 		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
@@ -6647,7 +6642,7 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 	int bnest = 0, quote = 0;
 	int hassc = 0; // has semicolon
 	int quoteline = 0;
-	while (fgets(line,sizeof(line),fp)!=NULL)
+	while ( fgets(line,sizeof(line),fp) != NULL )
 	{
 		int len;
 		char subst[65536];
@@ -6655,12 +6650,16 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		/* comments must have preceding whitespace in macros */
 		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
 		_linenum++;
-		if (c!=NULL) /* truncate at comment */
+		if ( c != NULL ) /* truncate at comment */
+		{
 			strcpy(c,"\n");
+		}
 		len = (int)strlen(line);
-		if (len>=size-1){
+		if ( len >= size-1 )
+		{
 			output_error("load.c: buffer exhaustion reading %i lines past line %i", _linenum, linenum);
-			if(quote != 0){
+			if ( quote != 0 )
+			{
 				output_error("look for an unterminated doublequote string on line %i", quoteline);
 			}
 			return 0;
@@ -6669,21 +6668,62 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		// capture forloop contents
 		if ( forloop )
 		{
+			// end of forloop
 			if ( strcmp(line,"#done") == 0 )
 			{
-				// TODO: read forbuffer back into line, once for each value in forloop
-				strcpy(line,"\n");
-			}
-			else
-			{
-				if ( forbufferlen + strlen(line) >= sizeof(forbuffer) )
+				forvalue = strtok_r(forloop," ",&lastfor);
+				if ( forvalue == NULL )
 				{
-					output_error("load.c: forloop buffer overrun", _linenum, linenum);
-					return -1;
+					// none
 				}
-				forbufferlen += sprintf(forbuffer+forbufferlen,"%s",line);
+				else
+				{
+					bool old = global_strictnames;
+					global_strictnames = false;
+					global_setvar(forvar,forvalue);
+					global_strictnames = old;
+					forbufferline = 0;
+				}
+			}
+
+			// inside forloop
+			else if ( forbufferline == -1 )
+			{
+				forbuffer.push_back(line);
 				output_verbose("forloop captured '%s'",line);
 				continue;
+			}
+
+			// replay forloop
+			else
+			{
+				// starting buffer
+				if ( forbufferline == -1 )
+				{
+					// last entry for this value
+					forvalue = strtok_r(NULL," ",&lastfor);
+					if ( forvalue == NULL )
+					{
+						// done
+					}
+					else
+					{
+						bool old = global_strictnames;
+						global_strictnames = false;
+						global_setvar(forvar,forvalue);
+						global_strictnames = old;
+						forbufferline = 0;
+					}
+				}
+
+				// continuing buffer
+				else
+				{
+					// TODO: copy next item to line
+					// char *next = forbuffer[forbuffer.size()-forbufferline-1].c_str();
+					// output_verbose("replaying '%s'",next);
+					// strcpy(line,next);
+				}
 			}
 		}
 	
@@ -6699,10 +6739,10 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* expand macros */
-		if (strncmp(line,MACRO,strlen(MACRO))==0)
+		if ( strncmp(line,MACRO,strlen(MACRO)) == 0 )
 		{
 			/* macro disables reading */
-			if (process_macro(line,sizeof(line),filename,linenum + _linenum - 1)==FALSE)
+			if ( process_macro(line,sizeof(line),filename,linenum + _linenum - 1) == FALSE )
 			{
 				return 0;
 			} 
@@ -6718,52 +6758,69 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* if reading is enabled */
-		else if (suppress==0)
+		else if ( suppress == 0 )
 		{
 			strcpy(buffer,subst);
 			buffer+=len;
 			size -= len;
 			n+=len;
-			for(i = 0; i < len; ++i){
-				if(quote == 0){
-					if(subst[i] == '\"'){
+			for ( i = 0 ; i < len ; ++i )
+			{
+				if ( quote == 0 ) 
+				{
+					if ( subst[i] == '\"' )
+					{
 						quoteline = linenum + _linenum - 1;
 						quote = 1;
-					} else if(subst[i] == '{'){
+					} 
+					else if ( subst[i] == '{' )
+					{
 						++bnest;
 						++hassc;
 						// @TODO push context
-					} else if(subst[i] == '}'){
+					} 
+					else if ( subst[i] == '}' ) 
+					{
 						--bnest;
 						// @TODO pop context
-					} else if(subst[i] == ';'){
+					} 
+					else if( subst[i] == ';' )
+					{
 						++hassc;
 					}
-				} else {
-					if(subst[i] == '\"'){
+				} 
+				else 
+				{
+					if ( subst[i] == '\"' )
+					{
 						quote = 0;
 					}
 				}
 			}
-		} else {
+		} 
+		else 
+		{
 			strcpy(buffer,"\n");
 			buffer+=strlen("\n");
 			size -= 1;
 			n += 1;
 		}
-		if(bnest == 0 && hassc > 0 && nesting == startnest){ // make sure we read ALL of an #if block, if possible
+		if ( bnest == 0 && hassc > 0 && nesting == startnest ) // make sure we read ALL of an #if block, if possible
+		{ 
 			/* end of block */
 			return n;
 		}
 
 	}
-	if(quote != 0){
+	if ( quote != 0 )
+	{
 		output_warning("unterminated doublequote string");
 	}
-	if(bnest != 0){
+	if ( bnest != 0 )
+	{
 		output_warning("incomplete loader block");
 	}
-	if (nesting != startnest)
+	if ( nesting != startnest )
 	{
 		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,_linenum,MACRO,filename,macro_line[nesting-1]);
 		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,_linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
@@ -7688,6 +7745,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			forloop = strdup(range);
 			forvar = strdup(var);
 			lastfor = NULL;
+			forbuffer.clear();
 			output_verbose("beginning for loop on variable '%s' in range [%s]", forvar, forloop);			
 			strcpy(line,"\n");
 			return TRUE;
