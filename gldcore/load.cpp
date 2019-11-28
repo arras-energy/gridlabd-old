@@ -6555,6 +6555,11 @@ Unterminated:
 
 static int suppress = 0;
 static int nesting = 0;
+static char *forloop = NULL;
+static char *lastfor = NULL;
+static char *forvar = NULL;
+static char forbuffer[65536*10] = "";
+static int forbufferlen = 0;
 static int macro_line[64];
 static int process_macro(char *line, int size, char *filename, int linenum);
 static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
@@ -6571,11 +6576,16 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		/* comments must have preceding whitespace in macros */
 		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
 		linenum++;
-		if (c!=NULL) /* truncate at comment */
+		if ( c != NULL ) 
+		{
+			/* truncate at comment */
 			strcpy(c,"\n");
+		}
 		len = (int)strlen(line);
-		if (len>=size-1)
+		if ( len >= size-1 )
+		{
 			return 0;
+		}
 
 	
 #ifndef OLDSTYLE
@@ -6587,8 +6597,10 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		}
 #endif
 		/* expand variables */
-		if ((len=replace_variables(subst,line,sizeof(subst),suppress==0))>=0)
+		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
+		{
 			strcpy(line,subst);
+		}
 		else
 		{
 			output_error_raw("%s(%d): unable to continue", filename,linenum);
@@ -6628,7 +6640,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 
 static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
-	char line[10240];
+	char line[65536*10];
 	int n = 0, i = 0;
 	int _linenum=0;
 	int startnest = nesting;
@@ -6653,18 +6665,33 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 			}
 			return 0;
 		}
-	
-#ifndef OLDSTYLE
-		/* check for oldstyle file under newstyle parse */
-		if (_linenum==1 && strncmp(line,"# ",2)==0)
+
+		// capture forloop contents
+		if ( forloop )
 		{
-			output_error("%s looks like a version 1.x GLM files, please convert this file to new style before loading", filename);
-			return 0;
+			if ( strcmp(line,"#done") == 0 )
+			{
+				// TODO: read forbuffer back into line, once for each value in forloop
+				strcpy(line,"\n");
+			}
+			else
+			{
+				if ( forbufferlen + strlen(line) >= sizeof(forbuffer) )
+				{
+					output_error("load.c: forloop buffer overrun", _linenum, linenum);
+					return -1;
+				}
+				forbufferlen += sprintf(forbuffer+forbufferlen,"%s",line);
+				output_verbose("forloop captured '%s'",line);
+				continue;
+			}
 		}
-#endif
-		/* expand variables */
-		if ((len=replace_variables(subst,line,sizeof(subst),suppress==0))>=0)
+	
+		// expand variables
+		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
+		{
 			strcpy(line,subst);
+		}
 		else
 		{
 			output_error_raw("%s(%d): unable to continue", filename,_linenum);
@@ -6675,12 +6702,14 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		if (strncmp(line,MACRO,strlen(MACRO))==0)
 		{
 			/* macro disables reading */
-			if (process_macro(line,sizeof(line),filename,linenum + _linenum - 1)==FALSE){
+			if (process_macro(line,sizeof(line),filename,linenum + _linenum - 1)==FALSE)
+			{
 				return 0;
-			} else {
+			} 
+			else 
+			{
 				++hassc;
 			}
-			//strcat(buffer,line);
 			strcpy(buffer,line);
 			len = (int)strlen(buffer); // include anything else in the buffer, then advance
 			buffer += len;
@@ -7646,6 +7675,73 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
+	else if ( strncmp(line, MACRO "for",3) == 0 )
+	{
+		char var[64], range[1024];
+		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
+		{
+			if ( forloop != NULL )
+			{
+				output_error_raw("%s(%d): nested #for not supported", filename, linenum);
+				return FALSE;
+			}
+			forloop = strdup(range);
+			forvar = strdup(var);
+			lastfor = NULL;
+			output_verbose("beginning for loop on variable '%s' in range [%s]", forvar, forloop);			
+			strcpy(line,"\n");
+			return TRUE;
+		}
+		else 
+		{
+			output_error_raw("%s(%d): '#for VAR in RANGE' syntax error", filename, linenum);
+			return FALSE;
+		}
+	}
+	// else if ( strncmp(line, MACRO "done",6) == 0 )
+	// {
+	// 	if ( forloop )
+	// 	{
+	// 		const char *value = NULL;
+	// 		strcpy(line,"\n");
+	// 		int len = 0;
+	// 		char *subst = (char*)malloc(sizeof(forbuffer));
+	// 		while ( (value=strtok_r(value==NULL?forloop:NULL," ",&lastfor)) != NULL )
+	// 		{
+	// 			bool old_strict = global_strictnames;
+	// 			global_strictnames = false;
+	// 			global_setvar(forvar,value);
+	// 			output_verbose("for %s = '%s'",forvar,value);
+	// 			global_strictnames = old_strict;
+	// 			if ( len + forbufferlen >= size )
+	// 			{
+	// 				output_error_raw("%s(%d): buffer overrun in for loop", filename, linenum);
+	// 				return FALSE;
+	// 			}
+	// 			if ( (len=replace_variables(subst,forbuffer,sizeof(subst),suppress==0)) >= 0 )
+	// 			{
+	// 				strcpy(line,subst);
+	// 			}
+	// 			else
+	// 			{
+	// 				output_error_raw("%s(%d): unable to continue", filename,linenum);
+	// 				return -1;
+	// 			}
+	// 			strcpy(line+len,forbuffer);
+	// 			len += forbufferlen;
+	// 		}
+	// 		output_verbose("completed for loop on variable '%s', result is '%s'", forvar, line);			
+	// 		free(forloop);
+	// 		free(forvar);
+	// 		forloop = NULL;
+	// 		return TRUE;
+	// 	}
+	// 	else
+	// 	{
+	// 		output_error_raw("%s(%d): #done without #for", filename, linenum);
+	// 		return FALSE;
+	// 	}
+	// }
 	else
 	{
 		char tmp[1024], *p;
