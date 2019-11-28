@@ -913,6 +913,35 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	}
 }
 
+DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
+{
+	FILE *fp = popen(command, "r");
+	if ( fp == NULL ) 
+	{
+		output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
+		return strcpy(buffer,"");
+	}
+	char line[1024];
+	int pos = 0;
+	strcpy(buffer,"");
+	while ( fgets(line, sizeof(line)-1, fp) != NULL ) 
+	{
+		int len = strlen(line);
+		if ( pos+len >= size )
+		{
+			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): result too large",buffer,size,command);
+			pclose(fp);
+			return strcpy(buffer,"");
+		}
+		strcpy(buffer+pos,line);
+		pos += len;
+		if ( buffer[pos-1] == '\n' )
+			buffer[pos-1] = ' ';
+	}
+	pclose(fp);
+	return buffer;
+}
+
 DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 {
 	double start = 0.0;
@@ -1221,6 +1250,10 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	/* expansions */
 	if ( parameter_expansion(buffer,size,name) )
 		return buffer;
+
+	// shells
+	if ( strncmp(name,"SHELL ",6) == 0 )
+		return global_shell(buffer,size,name+6);
 
 	// ranges
 	if ( strncmp(name,"RANGE",5) == 0 )
