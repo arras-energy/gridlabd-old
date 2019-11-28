@@ -135,6 +135,46 @@ void module_free(void *ptr)
 	wunlock(&malloc_lock);
 }
 
+// external callback support
+struct s_externalcallbacklist {
+	const char *name;
+	EXTERNALCALLBACK call;
+	void *data;
+	struct s_externalcallbacklist *next;
+} *externalcallbacklist = NULL;
+int n_external_callbacks = 0;
+
+// add an external callback handlers
+// returns callback number starting with 0, or -1 on failure
+extern "C" int module_add_external_callback(const char *name, EXTERNALCALLBACK handler, void *data)
+{
+	struct s_externalcallbacklist *callback = new s_externalcallbacklist;
+	if ( callback == NULL )
+	{
+		return -1; // failed
+	}
+	callback->name = strdup(name);
+	callback->call = handler;
+	callback->data = data;
+	callback->next = externalcallbacklist;
+	externalcallbacklist = callback;
+	return n_external_callbacks++;
+}
+
+int call_external_callback(const char *name, void *args)
+{
+	struct s_externalcallbacklist *item;
+	for ( item = externalcallbacklist ; item != NULL; item = item->next )
+	{
+		if ( strcmp(name,item->name) )
+		{
+			return item->call(item->data,args);
+		}
+	}
+	output_error("int call_external_callback(const char *name='%s', void *data=%p): callback not found", name, args);
+	return -1;
+}
+
 /* these are the core functions available to loadable modules
  * the structure is defined in object.h */
 #define MAGIC 0x012BB0B9
@@ -198,6 +238,8 @@ static CALLBACKS callbacks = {
 	{transform_getnext,transform_add_linear,transform_add_external,transform_apply},
 	{randomvar_getnext,randomvar_getspec},
 	{version_major,version_minor,version_patch,version_build,version_branch},
+	call_external_callback,
+	{python_embed_import,python_embed_call},
 	MAGIC /* used to check structure */
 };
 CALLBACKS *module_callbacks(void) { return &callbacks; }
@@ -1301,6 +1343,10 @@ static int execf(const char *format, /**< format string  */
 		IN_MYCONTEXT output_debug("command: %s",command);
 	}
 	rc = system(command);
+	if ( rc != 0 )
+	{
+		output_error("command [%s] failed, rc = %d", command, rc);
+	}
 	IN_MYCONTEXT output_debug("return code=%d",rc);
 	return rc;
 }
@@ -1319,7 +1365,7 @@ int module_compile(const char *name,	/**< name of library */
 	char ofile[1024];
 	char afile[1024];
 	const char *cc = getenv("CC")?getenv("CC"):CC;
-	const char *ccflags = getenv("CCFLAGS")?getenv("CCFLAGS"):CCFLAGS;
+	const char *ccflags = getenv("CPPFLAGS")?getenv("CPPFLAGS"):CCFLAGS;
 	const char *ldflags = getenv("LDFLAGS")?getenv("LDFLAGS"):LDFLAGS;
 	int rc;
 	size_t codesize = strlen(code), len;

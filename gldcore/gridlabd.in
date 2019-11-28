@@ -1,5 +1,5 @@
 #! /bin/sh
-# Generated from gridlabd.m4sh by GNU Autoconf 2.69.
+# Generated from gldcore/gridlabd.m4sh by GNU Autoconf 2.69.
 ## -------------------- ##
 ## M4sh Initialization. ##
 ## -------------------- ##
@@ -317,6 +317,15 @@ fi
 export GLD_ETC=$pkgdatadir
 export GLD_BIN=$bindir
 export GLD_LIB=$libdir
+export PYCCFLAGS="$(/usr/local/bin/python3-config --cflags)"
+export INCLUDE="-I$GLD_ETC -I/usr/local/include -I/usr/include"
+export CFLAGS="${INCLUDE} ${PYCCFLAGS} ${CFLAGS}"
+export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
+export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
+export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
+export PYLDFLAGS="$(/usr/local/bin/python3-config --ldflags)"
+export LIB="-L/usr/local/lib/gridlabd -L/usr/local/lib -L/usr/lib"
+export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
 
 if test "x$GLPATH" = x; then :
   export GLPATH="$pkglibdir:$pkgdatadir"

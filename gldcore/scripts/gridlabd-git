@@ -18,8 +18,8 @@ fi
 function help ()
 {
     cat <<END
-Syntax: $command \<options...\>
-Options:
+Syntax: gridlabd git command [options] ...
+Commands:
   blob <id> <keys>      obtain information on blob <id>
   commit <id> <keys>    obtain information on commit <id>
   rate <keys>           obtain information on rate limits

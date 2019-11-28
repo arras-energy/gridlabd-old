@@ -433,12 +433,15 @@ void GldExec::init_thread_data(void)
 EXITCODE GldExec::setexitcode(EXITCODE xc)
 {
 	EXITCODE oldxc = (EXITCODE)global_exit_code;
-	if ( oldxc != XC_SUCCESS && xc != oldxc )
+	if ( xc != XC_SUCCESS && xc != oldxc )
 	{
-		output_warning("new exitcode %d overwrites existing exitcode %d", xc,oldxc);
+		IN_MYCONTEXT output_debug("new exitcode %d would overwrite existing exitcode %d", xc, oldxc);
+	}
+	else
+	{
+		IN_MYCONTEXT output_debug("exit code %d", xc);
 	}
 	global_exit_code = xc;
-	IN_MYCONTEXT output_debug("exit code %d", xc);
 	return oldxc;
 }
 

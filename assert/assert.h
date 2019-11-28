@@ -4,8 +4,8 @@
 
  **/
 
-#ifndef _ASSERT_H
-#define _ASSERT_H
+#ifndef _G_ASSERT_H
+#define _G_ASSERT_H
 
 #include "gridlabd.h"
 

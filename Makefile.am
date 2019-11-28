@@ -51,6 +51,7 @@ include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
 include python_extras/Makefile.mk
 include models/Makefile.mk
+include cloud/Makefile.mk
 
 # approved modules
 include modules.mk
@@ -334,9 +335,24 @@ libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
 install-exec-hook: python-install
-	@if [ "`which gridlabd`" != "$(DESTDIR)$(bindir)/gridlabd" ]; then \
-		echo >&2 "***WARNING***: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
+	@if [ "$(diff '/usr/local/bin/gridlabd' '$(DESTDIR)$(bindir)/gridlabd' >/dev/null 2>&1 || echo yes)" == "yes" ]; then \
+		echo >&2 ""; \
+		echo >&2 "*** WARNING ***"; \
+		echo >&2 "Install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
+		echo >&2 ""; \
 	fi
+	@echo ""
+	@echo "Install complete. Here are some useful commands now:"
+	@echo ""
+	@echo "To include this version in your command path:"
+	@echo "  export PATH=$(DESTDIR)$(bindir):$$PATH"
+	@echo ""
+	@echo "To run this version directly without using the command path:"
+	@echo "  $(DESTDIR)$(bindir)/gridlabd"
+	@echo ""
+	@echo "To make this version the default for all user on this system:"
+	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
+	@echo ""
 
 index: weather library template
 
