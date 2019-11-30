@@ -14,11 +14,12 @@ jobs:
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
-            cd /usr/local
-            sudo curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
+            cd /tmp
+            curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
             sudo unzip -qq natural_docs
-            sudo rm -f natural_docs.zip
-            sudo mv Natural\ Docs natural_docs
+            rm -f natural_docs.zip
+            cd /usr/local
+            sudo mv /tmp/Natural\ Docs natural_docs
             sudo echo '#!/bin/bash' > /usr/local/bin/natural_docs
             sudo echo 'mono /usr/local/natural_docs/NaturalDocs.exe \$*' >> /usr/local/bin/natural_docs
             sudo chmod a+x /usr/local/bin/natural_docs
