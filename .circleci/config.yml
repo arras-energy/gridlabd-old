@@ -21,6 +21,10 @@ jobs:
             sudo apt-get update
             sudo apt-get install monodevelop -y
       - run:
+          name: Install gawk (TODO add to base image)
+          command: |
+            sudo apt-get install gawk -y
+      - run:
           name: Build gridlabd
           command: |
             autoreconf -isf
