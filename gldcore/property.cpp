@@ -256,7 +256,7 @@ int property_create(PROPERTY *prop, void *addr)
 		{
 			return property_type[prop->ptype].create(addr);
 		}
-		if ( (int)property_type[prop->ptype].size>0 )
+		if ( (int)property_type[prop->ptype].size > 0 )
 		{
 			if ( prop->default_value == NULL && property_type[prop->ptype].default_value != NULL )
 			{
@@ -271,10 +271,13 @@ int property_create(PROPERTY *prop, void *addr)
 				}
 				prop->default_value = strdup(tmp);
 			}
-			if ( prop->default_value && property_read(prop,addr,prop->default_value) == 0 )
+			if ( prop->default_value != NULL )
 			{
-				output_error("property '%s' default value '%s is invalid", prop->name, prop->default_value);
-				memset(addr,0,property_type[prop->ptype].size);
+				if ( property_read(prop,addr,prop->default_value) == 0 )
+				{
+					output_error("property '%s' default value '%s' is invalid", prop->name, prop->default_value);
+					memset(addr,0,property_type[prop->ptype].size);
+				}
 			}
 			else
 			{
