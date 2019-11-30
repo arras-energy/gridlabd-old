@@ -321,11 +321,11 @@ const char *ceus::get_components(char *buffer, size_t len)
 {
 	if ( buffer == NULL )
 	{
-		buffer = strdup(initial_components ? initial_components->c_str() : "");
+		buffer = strdup(initial_components!=NULL?initial_components->c_str():"");
 	}
-	else if ( len > 0 && initial_components->length() < len )
+	else if ( len > 0 && initial_components != NULL && initial_components->length() < len )
 	{
-		strcpy(buffer,initial_components ? initial_components->c_str() : "");
+		strcpy(buffer,(initial_components != NULL ? initial_components->c_str() : ""));
 	}
 	else
 	{
