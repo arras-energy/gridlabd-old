@@ -6,12 +6,6 @@ jobs:
     steps:
       - checkout   
       - run:
-          name: Install mono (TODO add to base image) 
-          command: |
-            cd /tmp
-            sudo apt-get update
-            sudo apt-get install monodevelop -y
-      - run:
           name: Install natural_docs (TODO add to base image)
           command: |
             curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
@@ -22,6 +16,12 @@ jobs:
             echo '#!/bin/bash' > /home/circleci/project/install/bin/natural_docs
             echo 'mono /home/circleci/project/install/natural_docs/NaturalDocs.exe \$*' >> /home/circleci/project/install/bin/natural_docs
             chmod a+x /home/circleci/project/install/bin/natural_docs
+      - run:
+          name: Install mono (TODO add to base image) 
+          command: |
+            cd /tmp
+            sudo apt-get update
+            sudo apt-get install monodevelop -y
       - run:
           name: Build gridlabd
           command: |
