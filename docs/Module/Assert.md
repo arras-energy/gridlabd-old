@@ -11,5 +11,7 @@ module assert {
 
 The `assert` module provides conditional validation of object properties.
 
-* [[Module/Class/Assert]]
+# See also
+
+* [[Module/Assert/Assert]]
 

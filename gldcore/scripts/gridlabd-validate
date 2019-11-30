@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$1" == "help" ]; then
+	echo "Syntax: gridlabd validate [options] ..."
+	exit 0
+fi
+
 if [ ! -d "build-aux" ]; then
 	echo "ERROR: validate must be run from top source directory (where build-aux is found)" > /dev/stderr
 	exit 1

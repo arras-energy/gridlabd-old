@@ -1,8 +1,8 @@
-The main documentation page for this project is located at https://dchassin.github.io/gridlabd.
+The main documentation page for this project is located at http://docs.gridlabd.us/.
 
 ## Important Note
 
-This repository is SLAC National Accelerator's develop fork of GridLAB-D (see https://github.com/gridlab-d/gridlab-d for the official code repository of GridLAB-D).  Only SLAC projects may contribute to this repository.  Changes made in this fork will be migrated back to PNNL's official repository at PNNL's discretion.
+This repository is SLAC National Accelerator's development fork of GridLAB-D (see https://github.com/gridlab-d/gridlab-d for the official code repository of GridLAB-D).  Only SLAC projects may contribute to this repository.  Changes made in this fork will be migrated back to PNNL's official repository at PNNL's discretion.
 
 # User quick start
 
