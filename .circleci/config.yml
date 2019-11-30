@@ -8,11 +8,12 @@ jobs:
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
+            cd /tmp
             curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
             sudo unzip -qq natural_docs
             rm -f natural_docs.zip
             mkdir -p /home/circleci/project/install/bin
-            mv /tmp/Natural\ Docs /home/circleci/project/install/natural_docs
+            mv 'Natural Docs' /home/circleci/project/install/natural_docs
             echo '#!/bin/bash' > /home/circleci/project/install/bin/natural_docs
             echo 'mono /home/circleci/project/install/natural_docs/NaturalDocs.exe \$*' >> /home/circleci/project/install/bin/natural_docs
             chmod a+x /home/circleci/project/install/bin/natural_docs
