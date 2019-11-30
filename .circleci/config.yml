@@ -5,7 +5,7 @@ jobs:
       - image: slacgismo/circleci_gridlabd_base:latest
     steps:
       - checkout   
-        - run:
+      - run:
           name: Install mono (TODO add to base image) 
           command: |
             cd /tmp
@@ -13,7 +13,7 @@ jobs:
             echo "deb http://download.mono-project.com/repo/ubuntu wheezy/snapshots/4.8.0 main" | tee /etc/apt/sources.list.d/mono-official.list
             apt-get -q update -y
             apt-get -q install mono-devel -y
-        - run:
+      - run:
           name: Install natural_docs (TODO add to base image)
           command: |
             cd /usr/local
@@ -24,7 +24,7 @@ jobs:
             echo '#!/bin/bash' > /usr/local/bin/natural_docs
             echo 'mono /usr/local/natural_docs/NaturalDocs.exe \$*' >> /usr/local/bin/natural_docs
             chmod a+x /usr/local/bin/natural_docs
-        - run:
+      - run:
           name: Build gridlabd
           command: |
             autoreconf -isf
