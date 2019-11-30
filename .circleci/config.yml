@@ -8,16 +8,12 @@ jobs:
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
-            WORKDIR=$PWD
-            cd /tmp
             curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
-            sudo unzip -qq natural_docs
+            unzip -qq natural_docs
             rm -f natural_docs.zip
-            mkdir -p $WORKDIR/bin
-            mv 'Natural Docs' $WORKDIR/natural_docs
-            echo '#!/bin/bash' > $WORKDIR/bin/natural_docs
-            echo 'mono $WORKDIR/natural_docs/NaturalDocs.exe \$*' >> $WORKDIR/bin/natural_docs
-            chmod a+x $WORKDIR/bin/natural_docs
+            echo '#!/bin/bash' > natural_docs
+            echo 'mono $PWD/Natural\ Docs\/NaturalDocs.exe \$*' >> natural_docs
+            chmod a+x natural_docs
       - run:
           name: Install mono (TODO add to base image) 
           command: |
@@ -29,7 +25,7 @@ jobs:
           command: |
             autoreconf -isf
             ./configure
-            export PATH=/home/circleci/project/install/bin:$PWD/bin:$PATH
+            export PATH=/home/circleci/project/install/bin:$PWD:$PATH
             sudo make -j16 install-validate
       - store_artifacts:
           path: /home/circleci/project/validate.txt
