@@ -9,10 +9,8 @@ jobs:
           name: Install mono (TODO add to base image) 
           command: |
             cd /tmp
-            sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF
-            sudo echo "deb http://download.mono-project.com/repo/ubuntu wheezy/snapshots/4.8.0 main" | tee /etc/apt/sources.list.d/mono-official.list
-            sudo apt-get -q update -y
-            sudo apt-get -q install mono-devel -y
+            sudo apt-get update
+            sudo apt-get install monodevelop -y
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
