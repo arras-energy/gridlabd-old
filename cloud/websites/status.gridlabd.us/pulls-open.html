@@ -104,7 +104,7 @@
                 var body = null;
                 var created_at = null;
                 var is_draft = null;
-                //console.info(r.responseText);
+                console.info(r.responseText);
                 JSON.parse(r.responseText, function (key,value)
                 {
                     if ( key === "number" )
@@ -117,12 +117,12 @@
                         is_draft = null;
                         // console.info("  number -> " + value);
                     }
-                    else if ( key === "title")
+                    else if ( key === "title" && title == null )
                     {
                         title = value;
                         // console.info("  title -> " + value);
                     }
-                    else if ( key === "body" )
+                    else if ( key === "body" && body == null )
                     {
                         if ( value == null )
                             body = "";
@@ -130,30 +130,27 @@
                             body = value;
                         // console.info("  body -> " + value);
                     }
-                    else if ( key === "state" )
+                    else if ( key === "state" && state == null )
                     {
                         state = value;
                         // console.info("  state -> " + value);
                     }
-                    else if ( key === "created_at" )
+                    else if ( key === "created_at" && created_at == null )
                     {
                         created_at = value;
                         // console.info("  created_at -> " + value);
                     }
-                    else if ( key === "draft" )
+                    else if ( key === "draft" && is_draft == null )
                     {
                         is_draft = value;
-                        console.info("  is_draft -> " + is_draft);
-                    }
-                    else if ( key === "author_association" )
-                    {
+                        // console.info("  is_draft -> " + is_draft);
                         // console.info("  author_association -> " + value);
                         if ( number != null && title != null && body != null && state === "open" )
                         {
                             // console.info("*** output ***");
                             if ( is_draft === true )
                             {
-                                report += "\n# Working #" + number + ": " + title + "\n";
+                                report += "\n# Draft  #" + number + ": " + title + "\n";
                             }
                             else if ( is_draft === false )
                             {
