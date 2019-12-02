@@ -79,37 +79,50 @@ The PDF is $\phi(x) = \left\\{ \frac{1}{\sqrt{2\pi}x\sigma} e^{\frac{(\ln x-\mu)
 exponential(lambda)
 ~~~
 
-
+The PDF is $\phi(x) = \left\\{ TODO \right.$.
 
 ## `beta`
 ~~~
 beta(<alpha>,<beta>)
 ~~~
 
+The PDF is $\phi(x) = \left\\{ TODO \right.$.
+
 ## `gamma`
 ~~~
 gamma(<alpha>,<beta>)
 ~~~
+
+The PDF is $\phi(x) = \left\\{ TODO \right.$.
 
 ## `weibull`
 ~~~
 weibull(<l>,<k>)
 ~~~
 
+The PDF is $\phi(x) = \left\\{ TODO \right.$.
+
 ## `rayleigh`
 ~~~
 rayleigh(<s>)
 ~~~
+
+The PDF is $\phi(x) = \left\\{ TODO \right.$.
 
 ## `triangle`
 ~~~
 triangle(<min>,<max>)
 ~~~
 
+The PDF is $\phi(x) = \left\\{ TODO \right.$.
+
 ## `triangle_asy`
 ~~~
 triangle_asy(<min>,<max>,<center>)
 ~~~
 
+The PDF is $\phi(x) = \left\\{ TODO \right.$.
+
 # See also
 * [[/GLM/Property/Randomvar]]
+* [[/GLM/Property/Functional]]
