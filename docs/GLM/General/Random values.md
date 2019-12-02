@@ -28,7 +28,7 @@ Random variables are generated using one of the following distributions.
 degenerate($a$)
 ~~~
 
-The PDF is the Dirac $\delta$ function $$\phi(x;a) = \left\\{ \begin{array}{ll} 1 & : x = a \\ 0 & : x \ne a \end{array} \right.$$
+The PDF is the Dirac $\delta$ function $\phi(x;a) = \left\\{ \begin{array}{ll} 1 & : x = a \\ 0 & : x \ne a \end{array} \right.$
 
 ## `uniform`
 ~~~
