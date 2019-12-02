@@ -10,17 +10,24 @@ Options:
 END
     exit 0
 elif [ "$1" == "-l" -o "$1" == "--local" ]; then
-    PAGE=${GLD_ETC/share\/gridlabd/html}/index.html
-    if [ -f $PAGE ]; then
-    	open $PAGE &
-        exit 0
+  if [ -z "$2" ]; then
+      PAGE=$GLD_DOC/index.html
     else
-        echo "local docs '$PAGE' not found" 2>/dev/stderr
-        exit 1
+      PAGE="$2/index.html"
     fi
+  if [ -f $PAGE ]; then
+  	open $PAGE &
+      exit 0
+  else
+      echo "local docs '$PAGE' not found" 2>/dev/stderr
+      exit 1
+  fi
 elif [ "$1" == "-b" -o "$1" == "--branch" ]; then
+  if [ -z "$2" ]; then
+    BRANCH=$(gridlabd --version=branch)
+  else
     BRANCH="$2"
-    HOST=docs
+  fi
 fi
-open "http://${HOST:-www}.gridlabd.us/index.html?branch=${BRANCH=master}" &
+open "http://docs.gridlabd.us/index.html?branch=${BRANCH=master}" &
 
