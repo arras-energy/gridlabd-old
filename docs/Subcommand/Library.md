@@ -1,36 +1,40 @@
-[[library]] -- library management subcommands
+[[Subcommand/Library]] -- library management subcommands
 
 # Synopsis
+Shell:
 ~~~
-host% gridlabd help
-host% gridlabd index <pattern>
-host% gridlabd list <pattern>
-host% gridlabd get <pattern>
-host% gridlabd submit <file>
-host% gridlabd delete <pattern>
-host% gridlabd info <pattern>
-host% gridlabd copy <name> [<file>]
-host% gridlabd clean
-host% gridlabd open <local>
-host% gridlabd session <local> [<pattern>]
-host% gridlabd add <local> <pattern>
-host% gridlabd save <local> ["<description>"]
-host% gridlabd submit <local>
-host% gridlabd config show
-host% gridlabd config reset
-host% gridlabd config get <name>
-host% gridlabd config set <name> <value>
+  bash$ gridlabd help
+  bash$ gridlabd index <pattern>
+  bash$ gridlabd list <pattern>
+  bash$ gridlabd get <pattern>
+  bash$ gridlabd submit <file>
+  bash$ gridlabd delete <pattern>
+  bash$ gridlabd info <pattern>
+  bash$ gridlabd copy <name> [<file>]
+  bash$ gridlabd clean
+  bash$ gridlabd open <local>
+  bash$ gridlabd session <local> [<pattern>]
+  bash$ gridlabd add <local> <pattern>
+  bash$ gridlabd save <local> ["<description>"]
+  bash$ gridlabd submit <local>
+  bash$ gridlabd config show
+  bash$ gridlabd config reset
+  bash$ gridlabd config get <name>
+  bash$ gridlabd config set <name> <value>
 ~~~
 
 # Description
 
-Use the [[library]] subcommand to manage GridLAB-D's library files.
+Use the `library` subcommand to manage GridLAB-D's library files.
 
-## Help
-
-The [[library help]] subcommand obtains a list of the valid commands.
+## `help`
 ~~~
-host% gridlabd library help
+  gridlabd help
+~~~
+
+The `library help` subcommand obtains a list of the valid commands.
+~~~
+bash$ gridlabd library help
 Syntax: gridlabd-library <command> [...]
 Commands:
   help                 Get the list of library subcommands
@@ -55,58 +59,98 @@ Commands:
          get <N> <V>   Get configuration variable name <N>
 ~~~
 
-## Index _pattern_
+## `index`
+~~~
+  gridlabd library index <pattern>
+~~~
 
 The `index` command outputs a list of library files in the archive that match <pattern>.  
 ~~~
-host% gridlabd index wood_pole
+bash$ gridlabd index wood_pole
 wood_pole.glm
 ~~~
 
-## List _pattern_
+## `list`
+~~~
+  gridlabd library list <pattern>
+~~~
 
 The `list` command outputs a list of the library files that are available locally.
 
-## Get _pattern_
+## `get`
+~~~
+  gridlabd library get <pattern>
+~~~
 
 The `get` command obtains a local copy of library files.
 
-## Delete _pattern_
+## `delete`
+~~~
+  gridlabd library delete <pattern>
+~~~
 
 The `delete` command removes local copies of library files.
 
-## Info _pattern_
+## `info`
+~~~
+  gridlabd library info <pattern>
+~~~
 
 The `info` command outputs details about library files
 
-## Copy _name_ [_file_]
+## `copy`
+~~~
+  gridlabd library copy <name> [<file>]
+~~~
 
 Make a working copy of a library file.
 
-## Clean
+## `clean`
+~~~
+  gridlabd library clean
+~~~
 
 Clean the local cache of the library index.
 
-## Open _local_
+## `open`
+~~~
+  gridlabd library open <local>
+~~~
 
 Open a local working session of the library archive.
 
-## Session _local_ [_pattern_]
+## `session`
+~~~
+  gridlabd library session <local> [<pattern>]
+~~~
 
 Output a list of the local working sessions. The first one is the active session.
 
-## Add _local_ _pattern_
+## `add`
+~~~
+  gridlabd library add <local> <pattern>
+~~~
 
 Add the files matching _pattern_ to the current working session.
 
-## Save _local_ ["_description_"]
+## `save`
+~~~
+  gridlabd library save <local> ["<description>"]
+~~~
 
 Add the current working session.
 
-## Submit _local_
+## `submit`
+~~~
+  gridlabd library submit <local>
+~~~
 
 Submit the local working session to the archive for review.
 
-## Config {show|reset|get _name_|set _name_ _value_}
+## `config`
+~~~
+  gridlabd library config {show|reset|get}
+  gridlabd library config set <name> <value>
+~~~
 
 Manage the library manager configuration.
