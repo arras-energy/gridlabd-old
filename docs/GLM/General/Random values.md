@@ -58,7 +58,7 @@ The PDF is $\phi(x;p) = \left\\{ 1 : x \ge p ; 0 : x < p \right.$.
 sampled(N,a_1,a_2,...,a_N)
 ~~~
 
-The PDF is $\phi(x;a_1,a_2,\cdots,a_N) = \left\\{ 1/N : x = a_1 ; 1/N : x = a_2 ; \cdots ; 1/N & : x = a_N \right. $.
+The PDF is $\phi(x;a_1,a_2,\cdots,a_N) = \left\\{ 1/N : x = a_1 ; 1/N : x = a_2 ; \cdots ; 1/N : x = a_N \right. $.
 
 ## `pareto`
 ~~~
