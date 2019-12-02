@@ -40,8 +40,8 @@ class example {
 }
 module tape;
 object example {
-    x {type:normal(0.0,1.0): min=-3.0, max=+3.0; refresh=1.0min;};
-    y {type:normal(0.0,0.9); min=-3.0; max=+3.0; refresh=1.0min; correlation:x*0.1};
+    x {type:normal(0.0,1.0): min:-3.0, max:+3.0; refresh:1.0min;};
+    y {type:normal(0.0,0.9); min:-3.0; max:+3.0; refresh:1.0min; correlation:x*0.1};
     object recorder {
         property "x,y";
         file "example.csv";
