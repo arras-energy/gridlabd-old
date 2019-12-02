@@ -13,7 +13,7 @@ object <class-name> {
         [max:<upper-bound>;] 
         [refresh: <update-rate>] 
         [state:<seed>] 
-        [correlation:[<object>.]<property>[*<scale>[+<zero>]]]
+        [correlation:[<object>.]<property>[*<scale>[+<bias>]]]
         };
 }
 ~~~
@@ -24,24 +24,26 @@ The `randomvar` property type implements a pseudo-random value that changes peri
 
 Correlated random variables are generated using the equation 
 $$
-    x = (x_0-zero) \times scale + zero + x_1
+    x = x_1 + x_0 \times scale + bias
 $$
-where $x_0$ is the remote variable from `<object>.<property>` and $x_1$ is the local random variable.
+where $x_0$ is the current value obtained from `<object>.<property>` and $x_1$ is the sample from `<distribution>(<parameters>)`.
 
 For details on the supported distributions, see [[/GLM/General/Random values]]
 
 # Example
 
-The following example generates a random Gaussian truncated to the range (-5,15) time series with a new sample every minute with a mean 5.0 and standard deviation of 3.0.
+The following example generates two standard random Gaussian that are 10% correlated.
 ~~~
 class example {
     randomvar x;
+    randomvar y;
 }
 module tape;
 object example {
-    x {type:normal(5,3); min=-5; max=15; refresh=1min};
+    x {type:normal(0.0,1.0): min=-3.0, max=+3.0; refresh=1.0min;};
+    y {type:normal(0.0,0.9); min=-3.0; max=+3.0; refresh=1.0min; correlation:x*0.1};
     object recorder {
-        property "x";
+        property "x,y";
         file "example.csv";
         interval -1;
     };
