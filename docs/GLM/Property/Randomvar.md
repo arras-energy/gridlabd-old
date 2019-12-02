@@ -7,13 +7,19 @@ class <class-name> {
     randomvar <property-name>;
 }
 object <class-name> {
-    <property-name> {type:<distribution>(<parameters>); [min:<lower-bound>;] [max:<upper-bound>;] [refresh: <update-rate>]};
+    <property-name> {type:<distribution>(<parameters>); [min:<lower-bound>;] [max:<upper-bound>;] [refresh: <update-rate>] [state:<seed>] [correlation:[<object>.]<property>[*<scale>[+<zero>]]]};
 }
 ~~~
 
 # Description
 
 The `randomvar` property type implements a pseudo-random value that changes periodically according to the `<distribution>` given. The meaning of the `<parameters>` depends on the `<distribution>` chosen. The distributed may be truncated at the `<lower-bound>` and `<upper-bound>`. The frequency of the updates is given by the `<update-rate>`.
+
+Correlated random variables are generated using the equation 
+$$
+    x = (x_0-zero) \times scale + zero + x_1
+$$
+where $x_0$ is the remote variable from `<object>.<property>` and $x_1$ is the local random variable.
 
 For details on the supported distributions, see [[/GLM/General/Random values]]
 
