@@ -7,7 +7,14 @@ class <class-name> {
     randomvar <property-name>;
 }
 object <class-name> {
-    <property-name> {type:<distribution>(<parameters>); [min:<lower-bound>;] [max:<upper-bound>;] [refresh: <update-rate>] [state:<seed>] [correlation:[<object>.]<property>[*<scale>[+<zero>]]]};
+    <property-name> {
+        type:<distribution>(<parameters>); 
+        [min:<lower-bound>;] 
+        [max:<upper-bound>;] 
+        [refresh: <update-rate>] 
+        [state:<seed>] 
+        [correlation:[<object>.]<property>[*<scale>[+<zero>]]]
+        };
 }
 ~~~
 
