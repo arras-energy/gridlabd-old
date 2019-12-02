@@ -72,7 +72,7 @@ The PDF is $\phi(x;k) = \left\\{ k \frac{m^k}{x^{k+1}} : m \le x ; 0 : x < m \ri
 lognormal(mu,sigma)
 ~~~
 
-The PDF is $\phi(x) = \left\\{ \frac{1}{\sqrt{2\pi}x\sigma} e^{\frac{(\ln x-\mu)^2}{2\sigma^2}}$$ : x > 0 ; 0 : x \le 0 \right.$.
+The PDF is $\phi(x) = \left\\{ \frac{1}{\sqrt{2\pi}x\sigma} e^{\frac{(\ln x-\mu)^2}{2\sigma^2}} : x > 0 ; 0 : x \le 0 \right.$.
 
 ## `exponential`
 ~~~
