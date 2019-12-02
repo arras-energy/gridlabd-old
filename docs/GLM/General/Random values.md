@@ -35,7 +35,7 @@ The PDF is $\phi(x;a) = \left\\{ 1 : x = a ; 0 : x \ne a \right.$
 uniform(a,b)
 ~~~
 
-The PDF is $\phi(x;a,b) = \left\\{ \frac{1}{b-a} : a \le x < b ; 0 : x < a ; x \ge b \right.$
+The PDF is $\phi(x;a,b) = \left\\{ \frac{1}{b-a} : a \le x < b ; 0 : x < a ; 0 : x \ge b \right.$
 
 ## `normal`
 ~~~
