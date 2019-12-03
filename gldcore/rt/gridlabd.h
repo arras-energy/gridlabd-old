@@ -402,7 +402,7 @@ typedef complex triplex[3];
 typedef struct s_correlation CORRELATION;
 struct s_correlation {
 	struct s_object_list *object;
-	PROPERTY *property;
+	struct s_property_map *property;
 	double *source;
 	double scale;
 	double bias;
