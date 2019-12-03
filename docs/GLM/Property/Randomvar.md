@@ -54,5 +54,16 @@ object example {
 }
 ~~~
 
+# Caveat
+
+The order in which the random variables is defined is important to creating correlations.  As a result, the `correlation` specification must refer to an existing random variable.  In addition, because each random variable may depend on only one other random variable, the standard method of creating $N>2$ correlated random variables is not supported directly.  Instead, a cascade of $N=2$ random variables must be defined.  This can be accomplished by performing Gauss elimination on the Cholesky decomposition of the covariance matrix to obtain a bi-diagonal matrix of the form
+~~~
+(     s[1]^2          0          0          0          0 )
+(   s[1]s[2]     s[2]^2          0          0          0 )
+(          0   s[2]s[3]     s[3]^2          0          0 )
+(          0          0          .          .          0 )
+(          0          0          0 s[N-1]s[N]     s[N]^2 )
+~~~
+
 # See also
 * [[/GLM/General/Random values]]
