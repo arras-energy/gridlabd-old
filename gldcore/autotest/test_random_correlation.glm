@@ -1,3 +1,10 @@
+// test_random_correlation.glm
+// 
+// Verify that random correlations work ok.  
+//
+// Test fails if the maximum covariance error exceeds 0.4%.
+// Test also generates a plot of the correlated variables generated, FYI.
+
 clock {
     starttime '2020-01-01 00:00:00';
     stoptime '2020-01-02 00:00:00';
@@ -19,4 +26,4 @@ object example {
         interval -1;
     };
 }
-#on_exit 0 python3 ../check_correlation.py example.csv 0.975 -0.878 0.800 0.004
+#on_exit 0 python3 check_correlation.py example.csv 0.975 -0.878 0.800 0.004 && python3 plotxy.py example.csv example.png 'x=1,y=2,style=".",grid=True'
