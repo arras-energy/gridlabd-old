@@ -19,4 +19,4 @@ object example {
         interval -1;
     };
 }
-#on_exit 0 python3 check_correlation.py example.csv 0.975 -0.878 0.800 0.001
+#on_exit 0 python3 ../check_correlation.py example.csv 0.975 -0.878 0.800 0.001
