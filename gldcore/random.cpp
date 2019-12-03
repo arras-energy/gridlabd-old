@@ -1339,11 +1339,23 @@ int convert_from_randomvar(char *string,int size,void *data, PROPERTY *prop)
 
 int randomvar_create(void *ptr)
 {
+	static randomvar *last = NULL;
 	randomvar *var = (randomvar*)ptr;
 	memset(var,0,sizeof(randomvar));
-	var->next = randomvar_list;
 	var->state = randwarn(NULL);
-	randomvar_list = var;
+	var->next = NULL;
+	if ( randomvar_list == NULL )
+	{
+		randomvar_list = var;
+	}
+	if ( last == NULL )
+	{
+		last = var;
+	}
+	else
+	{
+		last->next = var;
+	}
 	n_randomvars++;
 	return 1;
 }
