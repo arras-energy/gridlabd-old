@@ -125,4 +125,4 @@ The PDF is $\phi(x) = \left\\{ TODO \right.$.
 
 # See also
 * [[/GLM/Property/Randomvar]]
-* [[/GLM/Property/Functional]]
+* [[/GLM/General/Functional]]
