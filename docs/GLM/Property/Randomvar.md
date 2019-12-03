@@ -8,12 +8,13 @@ class <class-name> {
 }
 object <class-name> {
     <property-name> {
-        type:<distribution>(<parameters>); 
+        <value> | type:<distribution>(<parameters>); 
         [min:<lower-bound>;] 
         [max:<upper-bound>;] 
         [refresh: <update-rate>] 
         [state:<seed>] 
-        [correlation:[<object>.]<property>[*<scale>[+<bias>]]]
+        [correlation:[<object-name>.]<property-name>[*<scale>[+<bias>]]]
+        [integrate;]
         };
 }
 ~~~
@@ -26,7 +27,7 @@ Correlated random variables are generated using the equation
 $$
     x = x_1 + x_0 \times scale + bias
 $$
-where $x_0$ is the current value obtained from `<object>.<property>` and $x_1$ is the sample from `<distribution>(<parameters>)`.
+where $x_0$ is the current value obtained from `<object-name>.<property-name>` and $x_1$ is the sample from `<distribution>(<parameters>)`.
 
 For details on the supported distributions, see [[/GLM/General/Random values]]
 
@@ -40,8 +41,9 @@ class example {
 }
 module tape;
 object example {
+    name my_object;
     x {type:normal(0.0,1.0): min:-3.0, max:+3.0; refresh:1.0min;};
-    y {type:normal(0.0,0.9); min:-3.0; max:+3.0; refresh:1.0min; correlation:x*0.1};
+    y {type:normal(0.0,0.9); min:-3.0; max:+3.0; refresh:1.0min; correlation:my_object.x*0.1};
     object recorder {
         property "x,y";
         file "example.csv";

@@ -1135,6 +1135,7 @@ clock_t randomvar_synctime = 0;
 
 int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 {
+	//output_verbose("convert_to_randomvar(string='%-.64s...', ...)",string);
 	randomvar *var = (randomvar*)data;
 	char buffer[1024];
 	char *token = NULL;
@@ -1146,7 +1147,7 @@ int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 	var->next = next;
 
 	/* check string length before copying to buffer */
-	if (strlen(string)>sizeof(buffer)-1)
+	if ( strlen(string) > sizeof(buffer)-1 )
 	{
 		output_error("convert_to_randomvar(string='%-.64s...', ...) input string is too long (max is 1023)",string);
 		return 0;
@@ -1154,27 +1155,38 @@ int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 	strcpy(buffer,string);
 
 	/* parse tuples separate by semicolon*/
-	while ((token=strtok_s(token==NULL?buffer:NULL,";",&last))!=NULL)
+	while ( (token=strtok_s(token==NULL?buffer:NULL,";",&last)) != NULL)
 	{
 		/* colon separate tuple parts */
 		char *param = token;
 		char *value = strchr(token,':');
 
 		/* isolate param and token and eliminate leading whitespaces */
-		while (*param!='\0' && (isspace(*param) || iscntrl(*param))) param++;		
-		if (value==NULL)
+		while ( *param != '\0' && (isspace(*param)||iscntrl(*param)) ) 
+		{
+			param++;		
+		}
+		if ( value == NULL )
 		{
 			char *one = NULL;
 			if ( ! one )
+			{
 				one = strdup("1");
+			}
 			value = one;
 		}
 		else
+		{
 			*value++ = '\0'; /* separate value from param */
-		while (isspace(*value) || iscntrl(*value)) value++;
+		}
+		while ( isspace(*value) || iscntrl(*value) )
+		{
+			value++;
+		}
 
 		// parse params
-		if (strcmp(param,"type")==0)
+		//output_verbose("convert_to_randomvar(string='%-.64s...', ...) processing param '%s' value '%s'",string,param,value);
+		if ( strcmp(param,"type") == 0 )
 		{
 			char *a;
 			a = strchr(value,'(');
@@ -1183,14 +1195,14 @@ int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 				int nargs;
 				*a++ = '\0';
 				var->type = random_type(value);
-				if ( var->type==RT_INVALID )
+				if ( var->type == RT_INVALID )
 				{
 					output_error("convert_to_randomvar(string='%-.64s...', ...) type '%s' is invalid",string,value);
 					return 0;
 				}
 				var->a = atof(a);
 				nargs = random_nargs(value);
-				if ( nargs==2 )
+				if ( nargs == 2 )
 				{
 					char *b = strchr(a,',');
 					if ( b )
@@ -1212,13 +1224,17 @@ int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 			}
 		}
 		else if (strcmp(param,"min")==0)
+		{
 			var->low = atof(value);
+		}
 		else if (strcmp(param,"max")==0)
+		{
 			var->high = atof(value);
+		}
 		else if (strcmp(param,"refresh")==0)
 		{
 			char unit[256];
-			if ( sscanf(value,"%d%s",&(var->update_rate),unit)==2)
+			if ( sscanf(value,"%d%s",&(var->update_rate),unit) == 2 )
 			{
 				double dt = var->update_rate;
 				if ( !unit_convert(unit,"s",&dt) )
@@ -1227,16 +1243,72 @@ int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 					return 0;
 				}
 				else
+				{
 					var->update_rate = (int)dt;
+				}
 			}
 		}
-		else if (strcmp(param,"state")==0)
+		else if ( strcmp(param,"state") == 0 )
 		{
 			var->state = atoi(value);
 		}
-		else if (strcmp(param,"integrate")==0)
+		else if (strcmp(param,"integrate") == 0 )
 		{
 			var->flags |= RNF_INTEGRATE;
+		}
+		else if ( strcmp(param,"correlation") == 0 )
+		{
+			char source_name[129];
+			char object_name[64];
+			char property_name[64];
+			double scale=1.0, bias=0.0;
+			if ( sscanf(value,"%[^*]*%lg%lg",source_name,&scale,&bias) < 1 )
+			{
+				output_error("convert_to_randomvar(string='%-.64s...',...) correlation specification is invalid",string);
+				return 0;
+			}
+			var->correlation = new CORRELATION;
+			if ( var->correlation == NULL )
+			{
+				output_error("convert_to_randomvar(string='%-.64s...',...) memory allocation failed",string);
+				return 0;				
+			}
+			if ( sscanf(source_name,"%[^.].%[^\n]",object_name,property_name) != 2 )
+			{
+				var->correlation->object = load_get_current_object();
+				if ( var->correlation->object )
+				{
+					strcpy(property_name,source_name);
+				}
+				else
+				{
+					output_error("convert_to_randomvar(string='%-.64s...',...) missing object name",string);
+					return 0;				
+				}
+			} 
+			else
+			{
+				var->correlation->object = object_find_name(object_name);
+			}
+			if ( var->correlation->object == NULL )
+			{
+				output_error("convert_to_randomvar(string='%-.64s...',...) object '%s' not found", string, object_name);
+				return 0;
+			}
+			var->correlation->property = class_find_property(var->correlation->object->oclass,property_name);
+			if ( var->correlation->property == NULL )
+			{
+				output_error("convert_to_randomvar(string='%-.64s...',...) property '%s' not found", string, property_name);
+				return 0;
+			}
+			var->correlation->source = object_get_double(var->correlation->object,var->correlation->property);
+			if ( var->correlation->source == NULL )
+			{
+				output_error("convert_to_randomvar(string='%-.64s...',...) source '%s.%s' is not a double", string, object_name, property_name);
+				return 0;
+			}	
+			var->correlation->scale = scale;
+			var->correlation->bias = bias;		
 		}
 		/* fixed value */
 		else if (param[0]=='-' || param[0]=='+' || isdigit(param[0]) || param[0]=='.')
@@ -1280,10 +1352,20 @@ int randomvar_update(randomvar *var)
 {
 	do {
 		double v = pseudorandom_value(var->type,&(var->state),var->a,var->b);
+		if ( var->correlation )
+		{
+			double vv = v + (*(var->correlation->source)) * var->correlation->scale + var->correlation->bias;
+			output_debug("randomvar_update(): correlation is to %s.%s: %g + %g*%g%+g -> %g", var->correlation->object->name, var->correlation->property->name, v, *(var->correlation->source), var->correlation->scale, var->correlation->bias, vv);
+			v = vv;
+		}
 		if ( var->flags&RNF_INTEGRATE )
+		{
 			var->value += v;
+		}
 		else
+		{
 			var->value = v;
+		}
 	} while ( var->low<var->high && !( var->low<var->value && var->value<var->high ) );
 	return 1;
 }

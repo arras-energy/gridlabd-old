@@ -1,0 +1,24 @@
+#set debug=TRUE
+
+clock {
+    starttime '2020-01-01 00:00:00';
+    stoptime '2020-01-02 00:00:00';
+}
+class example {
+    randomvar x;
+    randomvar y;
+}
+module tape
+{
+    csv_data_only 1;
+}
+object example {
+    x "type:normal(0.0,1.0); min:-3.0; max:+3.0; refresh:1min;";
+    y "type:normal(0.0,0.01); min:-3.0; max:+3.0; refresh:1min; correlation:x*0.99;";
+    object recorder {
+        property "x,y";
+        file "example.csv";
+        interval -1;
+    };
+}
+#on_exit 0 python3 plotxy.py example.csv example.png 'x=1,y=2,style=".",grid=True' && open example.png
