@@ -1267,7 +1267,7 @@ int convert_to_randomvar(const char *string, void *data, PROPERTY *prop)
 				output_error("convert_to_randomvar(string='%-.64s...',...) correlation specification is invalid",string);
 				return 0;
 			}
-			var->correlation = new CORRELATION;
+			var->correlation = (CORRELATION*)malloc(sizeof(CORRELATION));
 			if ( var->correlation == NULL )
 			{
 				output_error("convert_to_randomvar(string='%-.64s...',...) memory allocation failed",string);
