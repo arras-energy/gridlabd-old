@@ -9,7 +9,7 @@ if len(sys.argv) > 0:
 	err = eval(sys.argv[5]);
 	maxerr = numpy.max(numpy.abs([[s1,s12],[s12,s2]]-cov))
 	if maxerr > err :
-		print(sys.argv[0],": covariance error is too large")
+		print(sys.argv[0],": covariance error (%g) is too large, cov = %s"%(maxerr,cov.flatten()))
 		quit(1);
 else:
     raise Exception("Syntax: python3 check_correlation.py <s1> <s2> <maximum-error>")
