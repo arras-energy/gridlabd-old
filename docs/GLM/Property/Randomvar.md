@@ -29,11 +29,13 @@ $$
 $$
 where $x_0$ is the current value obtained from `<object-name>.<property-name>` and $x_1$ is the sample from `<distribution>(<parameters>)`.
 
+If `integrate` is specified, each new random value is added the current value.
+
 For details on the supported distributions, see [[/GLM/General/Random values]]
 
 # Example
 
-The following example generates two standard random Gaussian that are 10% correlated.
+The following example generates two standard random Gaussian that are 90% anti-correlated.
 ~~~
 class example {
     randomvar x;
@@ -43,7 +45,7 @@ module tape;
 object example {
     name my_object;
     x {type:normal(0.0,1.0): min:-3.0, max:+3.0; refresh:1.0min;};
-    y {type:normal(0.0,0.9); min:-3.0; max:+3.0; refresh:1.0min; correlation:my_object.x*0.1};
+    y {type:normal(0.0,0.1); min:-3.0; max:+3.0; refresh:1.0min; correlation:my_object.x*-0.9};
     object recorder {
         property "x,y";
         file "example.csv";
