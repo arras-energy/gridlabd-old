@@ -27,6 +27,7 @@
 #include "unit.h"
 
 typedef struct s_class_list CLASS;
+typedef struct s_object_list OBJECT;
 
 #ifndef FADDR
 
@@ -1420,6 +1421,8 @@ struct s_property_specs
 	} compare[_TCOP_LAST]; 
 	double (*get_part)(void*,const char *name); 
 	int (*set_part)(void*,const char *name,const char *value);
+	std::string *(*get_initial)(OBJECT *, PROPERTY *);
+	std::string *(*get_restorable)(OBJECT *, PROPERTY *);
 };
 
 /*	Typedef: PROPERTYSPEC
