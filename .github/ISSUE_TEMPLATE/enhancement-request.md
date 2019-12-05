@@ -1,20 +1,20 @@
 ---
 name: Enhancement request
 about: Suggest an enhancement idea for this project
-title: "[type a brief description of your enhancement request]"
+title: "(Provide a one-line synopsis of your enhancement request)"
 labels: enhancement
 assignees: dchassin
 
 ---
 
-**Is your feature request related to a problem? Please describe.**
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+## Background
+(Write a clear and concise description of what the problem is. For example, "it's difficult to..." or "I can't...")
 
-**Describe the solution you'd like**
-A clear and concise description of what you want to happen.
+## Proposed solution
+(Suggest a clear and concise description of what you want to happen.)
 
-**Describe alternatives you've considered**
-A clear and concise description of any alternative solutions or features you've considered.
+## Alternatives
+(Describe a clear and concise description of any alternative solutions you've tried or considered.)
 
-**Additional context**
-Add any other context or screenshots about the feature request here.
+## Additional context
+(Add any other context, supporting information, or screenshots about the proposed change request here.)
