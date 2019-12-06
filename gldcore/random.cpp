@@ -1335,6 +1335,11 @@ size_t randomvar_getspec(char *str, size_t size, const randomvar *var)
 		return 0;
 }
 
+STRING random_get_reloadable(OBJECT *, PROPERTY *)
+{
+	return STRING();
+}
+
 TIMESTAMP randomvar_syncall(TIMESTAMP t1)
 {
 	if ( randomvar_list )

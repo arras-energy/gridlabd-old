@@ -101,6 +101,7 @@ int random_set_part(void *x, const char *name, const char *value);
 unsigned entropy_source(void);
 randomvar *randomvar_getnext(randomvar *var);
 size_t randomvar_getspec(char *str, size_t size, const randomvar *var);
+STRING random_get_reloadable(OBJECT *, PROPERTY *);
 
 #ifdef __cplusplus
 }

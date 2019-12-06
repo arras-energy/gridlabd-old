@@ -40,7 +40,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"float", "decimal", "0.0", sizeof(float), 24, convert_from_float, convert_to_float},
 	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, loadshape_create,NULL,{TCOPS(double)},NULL,NULL,NULL,NULL,},
 	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part,enduse_set_part,NULL,NULL,},
-	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part,NULL,NULL,},
+	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part,NULL,random_get_reloadable,},
 	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method},
 	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},NULL,NULL,NULL,NULL,},
 };

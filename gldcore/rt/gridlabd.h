@@ -16,9 +16,9 @@
 
 #ifdef __cplusplus
 #include <string>
-#define CSTRING std::string*
+#define STRING std::string*
 #else
-#define CSTRING void*
+#define STRING void*
 #endif
 
 #ifdef _WINDOWS
@@ -1049,8 +1049,8 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	} compare[_TCOP_LAST]; /**< the list of comparison operators available for this type */
 	double (*get_part)(void*,char *name); /**< the function to get a part of a property */
 	int (*set_part)(void*,const char *name,const char *value);
-	CSTRING (*get_initial)(OBJECT *, PROPERTY *);
-	CSTRING (*get_restorable)(OBJECT *, PROPERTY *);
+	STRING (*get_initial)(OBJECT *, PROPERTY *);
+	STRING (*get_restorable)(OBJECT *, PROPERTY *);
 	// @todo for greater generality this should be implemented as a linked list
 } PROPERTYSPEC;
 

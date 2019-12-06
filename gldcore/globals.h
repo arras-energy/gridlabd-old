@@ -743,9 +743,10 @@ typedef enum {
 /* Variable: */
 GLOBAL bool global_ignore_errors INIT(FALSE); 
 
-/* Type: FILESAVEOPTIONS */
-typedef enum 
-{
+/* Enum: e_filesaveoptions
+ */
+enum e_filesaveoptions {
+	// construction options
 	FSO_MODULES     = 0x0001,
 	FSO_PROPERTIES  = 0x0002,
 	FSO_CLASSES	    = 0x0004,
@@ -756,10 +757,14 @@ typedef enum
 	FSO_SCRIPTS     = 0x0080,
 	FSO_CLOCK       = 0x0100,
 	FSO_ALL         = 0x01ff,
-	FSO_CURRENT     = 0x0000,
-	FSO_INITIAL	    = 0x1000,
-	FSO_RELOADABLE	= 0x2000,
-} FILESAVEOPTIONS;
+	// conversion options
+	FSO_CURRENT     = 0x0000, // save the current value
+	FSO_INITIAL	    = 0x1000, // save the initial value
+	FSO_RELOADABLE	= 0x2000, // save a reloadable value (reconstruct generating data)
+};
+
+/* Type: FILESAVEOPTIONS */
+typedef enum e_filesaveoptions FILESAVEOPTIONS;
 
 /* Variable:  */
 GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< GLM save options */
