@@ -36,6 +36,16 @@ typedef enum {
 	RT_TRIANGLE,	/**< Triangle distribution; double a, double b */
 } RANDOMTYPE;
 
+typedef struct s_correlation CORRELATION;
+struct s_correlation {
+	struct s_object_list *object;
+	PROPERTY *property;
+	double *source;
+	double scale;
+	double bias;
+	struct s_correlation *next;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -79,6 +89,7 @@ struct s_randomvar {
 	double low, high;			/**< RNG truncations limits */
 	unsigned int update_rate;	/**< RNG refresh rate in seconds */
 	unsigned int flags;			/**< RNG flags */
+	CORRELATION *correlation;	// correlation 
 	/* internal parameters */
 	randomvar *next;
 };
