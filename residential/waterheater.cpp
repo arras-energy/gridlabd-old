@@ -106,7 +106,7 @@ waterheater::waterheater(MODULE *module) : residential_enduse(module){
 			PT_double,"heating_element_capacity[kW]",PADDR(heating_element_capacity), PT_DESCRIPTION,  "the power of the heating element",
 			PT_double,"inlet_water_temperature[degF]",PADDR(Tinlet), PT_DESCRIPTION,  "the inlet temperature of the water tank",
 			PT_enumeration,"waterheater_model",PADDR(current_model), PT_DESCRIPTION, "the water heater model to use",
-				PT_KEYWORD,"ONEZNODE",(enumeration)ONENODE,
+				PT_KEYWORD,"ONENODE",(enumeration)ONENODE,
 				PT_KEYWORD,"TWONODE",(enumeration)TWONODE,
 				PT_KEYWORD,"FORTRAN",(enumeration)FORTRAN,
 				PT_KEYWORD,"NONE",(enumeration)NONE,
