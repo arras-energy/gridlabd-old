@@ -622,6 +622,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 		OUTPUT("version","%s",PACKAGE_VERSION);
 		OUTPUT("build_number","%06d",BUILDNUM);
 		OUTPUT("branch","%s",BRANCH);
+		OUTPUT("package-name","%s",PACKAGE_NAME);
 		OUTPUT("options","%s",BUILD_OPTIONS);
 		OUTPUT_MULTILINE("status",BUILD_STATUS);
 		OUTPUT_MULTILINE("copyright",version_copyright());
