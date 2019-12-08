@@ -2694,7 +2694,7 @@ static int expanded_value(const char *text, char *result, int size, const char *
 					object_namespace(value,sizeof(value));
 				else if (strcmp(varname,"class")==0)
 					strcpy(value,current_object?current_object->oclass->name:"");
-				else if (strcmp(varname,"gridlabd")==0)
+				else if (strcmp(varname,PACKAGE)==0)
 					strcpy(value,global_execdir);
 				else if (strcmp(varname,"hostname")==0)
 					strcpy(value,global_hostname); 

@@ -98,7 +98,7 @@ static PyMethodDef module_methods[] = {
 
 static struct PyModuleDef gridlabd_module_def = {
     PyModuleDef_HEAD_INIT,
-    "gridlabd",   /* name of module */
+    PACKAGE,   /* name of module */
     "Python " PACKAGE_NAME " simulation", /* module documentation, may be NULL */
     -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
@@ -411,7 +411,7 @@ static void restore_environ(void)
 }
 
 static int argc = 1;
-static const char *argv[1024] = {"gridlabd"};
+static const char *argv[1024] = {PACKAGE};
 static enum {
     GMS_NEW = 0, // module has been newly loaded 
     GMS_COMMAND, // module has received at least one command
@@ -2144,7 +2144,7 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
     python_module.on_term = GET_CALLBACK(term);
 
     PyList_Append(modlist,mod);
-    PyModule_AddObject(mod,"gridlabd",this_module);
+    PyModule_AddObject(mod,PACKAGE,this_module);
 
     return &python_module;
 }

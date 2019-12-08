@@ -229,7 +229,7 @@ static bool run_job(char *file, double *elapsed_time=NULL)
 #ifdef WIN32
 		_pgmptr,
 #else
-		"gridlabd",
+		PACKAGE,
 #endif
 		job_cmdargs, name);
 	dt = my_instance->get_exec()->clock() - dt;
