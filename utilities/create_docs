@@ -20,7 +20,7 @@ for DOC in $*; do
 		exit 2
 	fi
 	cat >$FILE <<END
-[[$DOC]] -- TODO one-line info on $NAME
+[[/$DOC]] -- TODO one-line info on $NAME
 
 # Synopsis
 GLM:
