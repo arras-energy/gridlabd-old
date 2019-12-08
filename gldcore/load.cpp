@@ -726,7 +726,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				sprintf(include_file_str+ifs_off, "#include \"%s\"\n;", lptr->file);
 				ifs_off+=strlen(lptr->file)+13;
 			}
-			if (write_file(fp,"/* automatically generated from GridLAB-D */\n\n"
+			if (write_file(fp,"/* automatically generated from %s */\n\n"
 					"int gld_major=%d, gld_minor=%d;\n\n"
 					"%s\n\n"
 					"#include <gridlabd.h>\n\n"
@@ -734,6 +734,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 					"CALLBACKS *callback = NULL;\n"
 					"static CLASS *myclass = NULL;\n"
 					"static int setup_class(CLASS *);\n\n",
+					PACKAGE_NAME,
 					REV_MAJOR, REV_MINOR,
 					include_file_str,
 					global_getvar("use_msvc",tbuf,63)!=NULL

@@ -2485,7 +2485,7 @@ void sched_continuous(void)
 			int n;
 			char line[1024];
 			clear();
-			mvprintw(0,0,"GridLAB-D Process Control - Version %d.%d.%d-%d (%s)",REV_MAJOR,REV_MINOR,REV_PATCH,version_build(),version_branch());
+			mvprintw(0,0,"%s Process Control - Version %d.%d.%d-%d (%s)",PACKAGE_NAME,REV_MAJOR,REV_MINOR,REV_PATCH,version_build(),version_branch());
 			sched_getinfo(-1,line,sizeof(line));
 			mvprintw(2,0,"%s",line);
 			sched_getinfo(-2,line,sizeof(line));

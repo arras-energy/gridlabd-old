@@ -99,7 +99,7 @@ static PyMethodDef module_methods[] = {
 static struct PyModuleDef gridlabd_module_def = {
     PyModuleDef_HEAD_INIT,
     "gridlabd",   /* name of module */
-    "Python GridLAB-D simulation", /* module documentation, may be NULL */
+    "Python " PACKAGE_NAME " simulation", /* module documentation, may be NULL */
     -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
     module_methods,

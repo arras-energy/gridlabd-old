@@ -372,8 +372,8 @@ int job(void *main, int argc, const char *argv[])
 #endif
 // TODO
 //	if ( global_getvar("mailto",mailto,sizeof(mailto))!=NULL 
-//		&& vsystem(MAILER " -s 'GridLAB-D Job Report' %s <%s", 
-//			count, mailto, report_file)==0 )
+//		&& vsystem(MAILER " -s '%s Job Report' %s <%s", 
+//			PACKAGE_NAME, count, mailto, report_file)==0 )
 //		IN_MYCONTEXT output_verbose("Mail message send to %s",mailto);
 //	else
 //		output_error("Error sending notification to %s", mailto);
