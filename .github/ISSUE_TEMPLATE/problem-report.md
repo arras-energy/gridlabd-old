@@ -22,7 +22,7 @@ assignees: dchassin
 
 ## System information
 * GridLAB-D version: (insert output of `gridlabd --version=all` here)
-* Operating system: (insert output of `name -a` here)
+* Operating system: (insert output of `uname -a` here)
 
 ## Supporting information
 (Add any other context about the problem here.)
