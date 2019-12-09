@@ -1,4 +1,4 @@
-[image:doe-logo.png] [image:stanford-logo.jpg] [image:slac-logo.png]
+[image:doe-logo.png] [image:stanford-logo.png] [image:slac-logo.png]
 
 [SLAC National Accelerator Laboratory](https://slac.stanford.edu/) is operated by [Stanford University](https://www.stanford.edu/) for the [US Department of Energy](https://www.doe.gov/) under Contract DE-AC02-76SF00515.
 
