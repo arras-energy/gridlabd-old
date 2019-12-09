@@ -335,12 +335,6 @@ libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
 install-exec-hook: python-install html-local index
-	@if [ "$(diff '/usr/local/bin/gridlabd' '$(DESTDIR)$(bindir)/gridlabd' >/dev/null 2>&1 || echo yes)" == "yes" ]; then \
-		echo >&2 ""; \
-		echo >&2 "*** WARNING ***"; \
-		echo >&2 "Install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
-		echo >&2 ""; \
-	fi
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
 	@echo ""
