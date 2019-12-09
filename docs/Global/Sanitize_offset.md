@@ -1,4 +1,4 @@
-[[/Global/Sanitize_offset.md]] -- Sanitization lat/lon offset
+[[/Global/Sanitize_offset]] -- Sanitization lat/lon offset
 
 # Synopsis
 GLM:

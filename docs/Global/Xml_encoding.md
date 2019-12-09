@@ -1,4 +1,4 @@
-[[/Global/Xml_encoding.md]] -- XML data encoding
+[[/Global/Xml_encoding]] -- XML data encoding
 
 # Synopsis
 GLM:

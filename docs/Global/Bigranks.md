@@ -1,4 +1,4 @@
-[[/Global/Bigranks.md]] -- Enable fast/blind set_rank operations
+[[/Global/Bigranks]] -- Enable fast/blind set_rank operations
 
 # Synopsis
 GLM:

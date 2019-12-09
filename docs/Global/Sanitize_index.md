@@ -1,4 +1,4 @@
-[[/Global/Sanitize_index.md]] -- Sanitization index file spec
+[[/Global/Sanitize_index]] -- Sanitization index file spec
 
 # Synopsis
 GLM:

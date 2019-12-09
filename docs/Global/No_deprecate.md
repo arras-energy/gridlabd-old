@@ -1,4 +1,4 @@
-[[/Global/No_deprecate.md]] -- Suppress deprecated usage message enable flag
+[[/Global/No_deprecate]] -- Suppress deprecated usage message enable flag
 
 # Synopsis
 GLM:

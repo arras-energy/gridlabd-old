@@ -1,4 +1,4 @@
-[[/Global/Version_build.md]] -- Build number
+[[/Global/Version_build]] -- Build number
 
 # Synopsis
 GLM:

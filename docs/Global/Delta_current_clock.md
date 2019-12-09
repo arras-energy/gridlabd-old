@@ -1,4 +1,4 @@
-[[/Global/Delta_current_clock.md]] -- Absolute delta time (global clock offset)
+[[/Global/Delta_current_clock]] -- Absolute delta time (global clock offset)
 
 # Synopsis
 GLM:

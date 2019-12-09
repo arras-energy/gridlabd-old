@@ -1,4 +1,4 @@
-[[/Global/Quiet.md]] -- Quiet output status flag
+[[/Global/Quiet]] -- Quiet output status flag
 
 # Synopsis
 GLM:

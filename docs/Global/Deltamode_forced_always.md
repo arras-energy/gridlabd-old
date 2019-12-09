@@ -1,4 +1,4 @@
-[[/Global/Deltamode_forced_always.md]] -- Forced deltamode for debugging -- prevents event-driven mode
+[[/Global/Deltamode_forced_always]] -- Forced deltamode for debugging -- prevents event-driven mode
 
 # Synopsis
 GLM:

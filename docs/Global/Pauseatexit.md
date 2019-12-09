@@ -1,4 +1,4 @@
-[[/Global/Pauseatexit.md]] -- Pause at exit flag
+[[/Global/Pauseatexit]] -- Pause at exit flag
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Svnroot.md]] -- Svnroot
+[[/Global/Svnroot]] -- Svnroot
 
 # Synopsis
 GLM:

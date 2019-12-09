@@ -1,4 +1,4 @@
-[[/Global/Platform.md]] -- Operating platform
+[[/Global/Platform]] -- Operating platform
 
 # Synopsis
 GLM:

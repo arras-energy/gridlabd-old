@@ -1,4 +1,4 @@
-[[/Global/Sanitize_prefix.md]] -- Sanitized name prefix
+[[/Global/Sanitize_prefix]] -- Sanitized name prefix
 
 # Synopsis
 GLM:

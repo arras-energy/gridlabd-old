@@ -1,4 +1,4 @@
-[[/Global/Sanitize.md]] -- Sanitize process options
+[[/Global/Sanitize]] -- Sanitize process options
 
 # Synopsis
 GLM:

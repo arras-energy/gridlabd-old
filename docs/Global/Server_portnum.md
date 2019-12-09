@@ -1,4 +1,4 @@
-[[/Global/Server_portnum.md]] -- Server port number (default is find first open starting at 6267)
+[[/Global/Server_portnum]] -- Server port number (default is find first open starting at 6267)
 
 # Synopsis
 GLM:

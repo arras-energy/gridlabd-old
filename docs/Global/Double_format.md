@@ -1,4 +1,4 @@
-[[/Global/Double_format.md]] -- Format for writing double values
+[[/Global/Double_format]] -- Format for writing double values
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Website.md]] -- Url base string (deprecated)
+[[/Global/Website]] -- Url base string (deprecated)
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Literal_if.md]] -- Do not interpret lhs of #if macro as a variable name)
+[[/Global/Literal_if]] -- Do not interpret lhs of #if macro as a variable name)
 
 # Synopsis
 GLM:

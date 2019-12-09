@@ -1,4 +1,4 @@
-[[/Global/Autostart_gui.md]] -- Automatic GUI start enable flag
+[[/Global/Autostart_gui]] -- Automatic GUI start enable flag
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Workdir.md]] -- Working directory
+[[/Global/Workdir]] -- Working directory
 
 # Synopsis
 GLM:

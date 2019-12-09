@@ -1,4 +1,4 @@
-[[/Global/Version_minor.md]] -- Minor version
+[[/Global/Version_minor]] -- Minor version
 
 # Synopsis
 GLM:

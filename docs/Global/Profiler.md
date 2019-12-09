@@ -1,4 +1,4 @@
-[[/Global/Profiler.md]] -- Profiler enable flag
+[[/Global/Profiler]] -- Profiler enable flag
 
 # Synopsis
 GLM:

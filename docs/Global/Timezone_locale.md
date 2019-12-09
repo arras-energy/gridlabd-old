@@ -1,4 +1,4 @@
-[[/Global/Timezone_locale.md]] -- Timezone specified by the clock directive
+[[/Global/Timezone_locale]] -- Timezone specified by the clock directive
 
 # Synopsis
 GLM:

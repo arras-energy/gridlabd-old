@@ -1,4 +1,4 @@
-[[/Global/Test.md]] -- Test enable flag
+[[/Global/Test]] -- Test enable flag
 
 # Synopsis
 GLM:

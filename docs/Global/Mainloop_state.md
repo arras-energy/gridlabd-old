@@ -1,4 +1,4 @@
-[[/Global/Mainloop_state.md]] -- Main sync loop state flag
+[[/Global/Mainloop_state]] -- Main sync loop state flag
 
 # Synopsis
 GLM:

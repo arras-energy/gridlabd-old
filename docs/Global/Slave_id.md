@@ -1,4 +1,4 @@
-[[/Global/Slave_id.md]] -- Unused
+[[/Global/Slave_id]] -- Unused
 
 # Synopsis
 GLM:

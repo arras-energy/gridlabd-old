@@ -1,4 +1,4 @@
-[[/Global/Streaming_io.md]] -- Streaming I/O enable flag
+[[/Global/Streaming_io]] -- Streaming I/O enable flag
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Return_code.md]] -- Unused
+[[/Global/Return_code]] -- Unused
 
 # Synopsis
 GLM:

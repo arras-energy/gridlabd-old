@@ -1,4 +1,4 @@
-[[/Global/Github.md]] -- Github file repository
+[[/Global/Github]] -- Github file repository
 
 # Synopsis
 GLM:

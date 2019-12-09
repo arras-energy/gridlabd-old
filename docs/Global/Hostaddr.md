@@ -1,4 +1,4 @@
-[[/Global/Hostaddr.md]] -- Unused
+[[/Global/Hostaddr]] -- Unused
 
 # Synopsis
 GLM:

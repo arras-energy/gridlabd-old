@@ -1,4 +1,4 @@
-[[/Global/Modelname.md]] -- Model name
+[[/Global/Modelname]] -- Model name
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_file.md]] -- Checkpoint file base name
+[[/Global/Checkpoint_file]] -- Checkpoint file base name
 
 # Synopsis
 GLM:

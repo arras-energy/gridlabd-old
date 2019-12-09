@@ -1,4 +1,4 @@
-[[/Global/Deltamode_updateorder.md]] -- Order in which modules are update in deltamode
+[[/Global/Deltamode_updateorder]] -- Order in which modules are update in deltamode
 
 # Synopsis
 GLM:

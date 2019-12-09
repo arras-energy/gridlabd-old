@@ -1,4 +1,4 @@
-[[/Global/Run_realtime.md]] -- Realtime enable flag
+[[/Global/Run_realtime]] -- Realtime enable flag
 
 # Synopsis
 GLM:

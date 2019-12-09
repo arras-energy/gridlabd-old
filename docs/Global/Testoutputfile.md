@@ -1,4 +1,4 @@
-[[/Global/Testoutputfile.md]] -- Filename for test output
+[[/Global/Testoutputfile]] -- Filename for test output
 
 # Synopsis
 GLM:

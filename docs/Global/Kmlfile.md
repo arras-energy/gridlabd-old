@@ -1,4 +1,4 @@
-[[/Global/Kmlfile.md]] -- KML output file name
+[[/Global/Kmlfile]] -- KML output file name
 
 # Synopsis
 GLM:

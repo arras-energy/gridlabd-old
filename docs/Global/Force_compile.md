@@ -1,4 +1,4 @@
-[[/Global/Force_compile.md]] -- Force recompile enable flag
+[[/Global/Force_compile]] -- Force recompile enable flag
 
 # Synopsis
 GLM:

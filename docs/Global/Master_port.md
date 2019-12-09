@@ -1,4 +1,4 @@
-[[/Global/Master_port.md]] -- Master server port number
+[[/Global/Master_port]] -- Master server port number
 
 # Synopsis
 GLM:

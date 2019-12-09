@@ -1,4 +1,4 @@
-[[/Global/Inline_block_size.md]] -- Inline code block size
+[[/Global/Inline_block_size]] -- Inline code block size
 
 # Synopsis
 GLM:

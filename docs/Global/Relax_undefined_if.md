@@ -1,4 +1,4 @@
-[[/Global/Relax_undefined_if.md]] -- Allow #if macro to handle undefined global variable as empty strings
+[[/Global/Relax_undefined_if]] -- Allow #if macro to handle undefined global variable as empty strings
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Init_sequence.md]] -- Initialization sequence control flag
+[[/Global/Init_sequence]] -- Initialization sequence control flag
 
 # Synopsis
 GLM:

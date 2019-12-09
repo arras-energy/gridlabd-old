@@ -1,4 +1,4 @@
-[[/Global/Daemon_configfile.md]] -- Name of configuration file used by the daemon
+[[/Global/Daemon_configfile]] -- Name of configuration file used by the daemon
 
 # Synopsis
 GLM:

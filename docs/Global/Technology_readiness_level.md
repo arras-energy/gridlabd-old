@@ -1,4 +1,4 @@
-[[/Global/Technology_readiness_level.md]] -- Technology readiness level
+[[/Global/Technology_readiness_level]] -- Technology readiness level
 
 # Synopsis
 GLM:

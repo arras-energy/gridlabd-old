@@ -1,4 +1,4 @@
-[[/Global/Dumpall.md]] -- Dumpall enable flag
+[[/Global/Dumpall]] -- Dumpall enable flag
 
 # Synopsis
 GLM:

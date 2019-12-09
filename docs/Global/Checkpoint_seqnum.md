@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_seqnum.md]] -- Checkpoint sequence number
+[[/Global/Checkpoint_seqnum]] -- Checkpoint sequence number
 
 # Synopsis
 GLM:

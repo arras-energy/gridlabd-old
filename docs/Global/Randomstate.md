@@ -1,4 +1,4 @@
-[[/Global/Randomstate.md]] -- Random number generator state value
+[[/Global/Randomstate]] -- Random number generator state value
 
 # Synopsis
 GLM:

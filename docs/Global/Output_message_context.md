@@ -1,4 +1,4 @@
-[[/Global/Output_message_context.md]] -- Control context from which debug messages are allowed
+[[/Global/Output_message_context]] -- Control context from which debug messages are allowed
 
 # Synopsis
 GLM:

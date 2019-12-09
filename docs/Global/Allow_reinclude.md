@@ -1,4 +1,4 @@
-[[/Global/Allow_reinclude.md]] -- Allow the same include file to be included multiple times
+[[/Global/Allow_reinclude]] -- Allow the same include file to be included multiple times
 
 # Synopsis
 GLM:

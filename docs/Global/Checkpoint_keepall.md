@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_keepall.md]] -- Checkpoint file keep enable flag
+[[/Global/Checkpoint_keepall]] -- Checkpoint file keep enable flag
 
 # Synopsis
 GLM:

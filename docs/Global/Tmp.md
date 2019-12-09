@@ -1,4 +1,4 @@
-[[/Global/Tmp.md]] -- Temporary folder name
+[[/Global/Tmp]] -- Temporary folder name
 
 # Synopsis
 GLM:

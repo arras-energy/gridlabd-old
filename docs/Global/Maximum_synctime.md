@@ -1,4 +1,4 @@
-[[/Global/Maximum_synctime.md]] -- Maximum sync time for deltamode
+[[/Global/Maximum_synctime]] -- Maximum sync time for deltamode
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Gdb.md]] -- Gdb enable flag
+[[/Global/Gdb]] -- Gdb enable flag
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Check_version.md]] -- Check version enable flag
+[[/Global/Check_version]] -- Check version enable flag
 
 # Synopsis
 GLM:

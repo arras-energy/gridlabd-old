@@ -1,4 +1,4 @@
-[[/Global/Compileonly.md]] -- Compile only enable flag
+[[/Global/Compileonly]] -- Compile only enable flag
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Infourl.md]] -- URL to use for obtaining online help
+[[/Global/Infourl]] -- URL to use for obtaining online help
 
 # Synopsis
 GLM:

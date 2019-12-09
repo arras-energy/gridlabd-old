@@ -1,4 +1,4 @@
-[[/Global/Object_scan.md]] -- Format for reading anonymous object names
+[[/Global/Object_scan]] -- Format for reading anonymous object names
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Gitraw.md]] -- Github raw file access
+[[/Global/Gitraw]] -- Github raw file access
 
 # Synopsis
 GLM:

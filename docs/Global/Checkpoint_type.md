@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_type.md]] -- Checkpoint type usage flag
+[[/Global/Checkpoint_type]] -- Checkpoint type usage flag
 
 # Synopsis
 GLM:

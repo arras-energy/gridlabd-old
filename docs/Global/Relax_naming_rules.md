@@ -1,4 +1,4 @@
-[[/Global/Relax_naming_rules.md]] -- Relax object naming rules enable flag
+[[/Global/Relax_naming_rules]] -- Relax object naming rules enable flag
 
 # Synopsis
 GLM:

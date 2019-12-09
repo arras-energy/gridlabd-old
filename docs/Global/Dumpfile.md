@@ -1,4 +1,4 @@
-[[/Global/Dumpfile.md]] -- Dump filename
+[[/Global/Dumpfile]] -- Dump filename
 
 # Synopsis
 GLM:

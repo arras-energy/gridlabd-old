@@ -1,4 +1,4 @@
-[[/Global/Starttime.md]] -- Simulation start time
+[[/Global/Starttime]] -- Simulation start time
 
 # Synopsis
 GLM:

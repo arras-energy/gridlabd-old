@@ -1,4 +1,4 @@
-[[/Global/Strictnames.md]] -- Strict global name enable flag
+[[/Global/Strictnames]] -- Strict global name enable flag
 
 # Synopsis
 GLM:

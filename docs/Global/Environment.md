@@ -1,4 +1,4 @@
-[[/Global/Environment.md]] -- Operating environment
+[[/Global/Environment]] -- Operating environment
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Deltamode_iteration_limit.md]] -- Iteration limit for each delta timestep (object and interupdate)
+[[/Global/Deltamode_iteration_limit]] -- Iteration limit for each delta timestep (object and interupdate)
 
 # Synopsis
 GLM:

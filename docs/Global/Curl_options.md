@@ -1,4 +1,4 @@
-[[/Global/Curl_options.md]] -- Wget/curl options
+[[/Global/Curl_options]] -- Wget/curl options
 
 # Synopsis
 GLM:

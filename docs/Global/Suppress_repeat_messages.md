@@ -1,4 +1,4 @@
-[[/Global/Suppress_repeat_messages.md]] -- Suppress repeated messages enable flag
+[[/Global/Suppress_repeat_messages]] -- Suppress repeated messages enable flag
 
 # Synopsis
 GLM:

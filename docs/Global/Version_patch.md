@@ -1,4 +1,4 @@
-[[/Global/Version_patch.md]] -- Patch number
+[[/Global/Version_patch]] -- Patch number
 
 # Synopsis
 GLM:

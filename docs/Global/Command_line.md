@@ -1,4 +1,4 @@
-[[/Global/Command_line.md]] -- Command line
+[[/Global/Command_line]] -- Command line
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Version_branch.md]] -- Branch name
+[[/Global/Version_branch]] -- Branch name
 
 # Synopsis
 GLM:

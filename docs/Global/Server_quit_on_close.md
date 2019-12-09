@@ -1,4 +1,4 @@
-[[/Global/Server_quit_on_close.md]] -- Server quit on connection closed enable flag
+[[/Global/Server_quit_on_close]] -- Server quit on connection closed enable flag
 
 # Synopsis
 GLM:

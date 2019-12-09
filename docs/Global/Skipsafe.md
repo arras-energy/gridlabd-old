@@ -1,4 +1,4 @@
-[[/Global/Skipsafe.md]] -- Skip sync safe enable flag
+[[/Global/Skipsafe]] -- Skip sync safe enable flag
 
 # Synopsis
 GLM:

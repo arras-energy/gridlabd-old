@@ -1,4 +1,4 @@
-[[/Global/Validate.md]] -- Validation test options
+[[/Global/Validate]] -- Validation test options
 
 # Synopsis
 GLM:

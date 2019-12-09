@@ -1,4 +1,4 @@
-[[/Global/Savefile.md]] -- Save filename
+[[/Global/Savefile]] -- Save filename
 
 # Synopsis
 GLM:

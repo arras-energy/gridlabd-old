@@ -1,4 +1,4 @@
-[[/Global/Randomseed.md]] -- Random number generator seed value
+[[/Global/Randomseed]] -- Random number generator seed value
 
 # Synopsis
 GLM:

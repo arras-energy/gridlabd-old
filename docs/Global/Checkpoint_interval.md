@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_interval.md]] -- Checkpoint interval
+[[/Global/Checkpoint_interval]] -- Checkpoint interval
 
 # Synopsis
 GLM:

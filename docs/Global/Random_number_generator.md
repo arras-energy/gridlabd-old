@@ -1,4 +1,4 @@
-[[/Global/Random_number_generator.md]] -- Random number generator version control flag
+[[/Global/Random_number_generator]] -- Random number generator version control flag
 
 # Synopsis
 GLM:

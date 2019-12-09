@@ -1,4 +1,4 @@
-[[/Global/Init_max_defer.md]] -- Deferred initialization limit
+[[/Global/Init_max_defer]] -- Deferred initialization limit
 
 # Synopsis
 GLM:

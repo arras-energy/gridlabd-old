@@ -1,4 +1,4 @@
-[[/Global/Debugger.md]] -- Debugger enable flag
+[[/Global/Debugger]] -- Debugger enable flag
 
 # Synopsis
 GLM:

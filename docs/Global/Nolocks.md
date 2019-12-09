@@ -1,4 +1,4 @@
-[[/Global/Nolocks.md]] -- Locking disable flag
+[[/Global/Nolocks]] -- Locking disable flag
 
 # Synopsis
 GLM:

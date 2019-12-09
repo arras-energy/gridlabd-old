@@ -1,4 +1,4 @@
-[[/Global/Warn.md]] -- Warning output status flag
+[[/Global/Warn]] -- Warning output status flag
 
 # Synopsis
 GLM:

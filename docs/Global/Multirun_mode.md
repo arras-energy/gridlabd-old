@@ -1,4 +1,4 @@
-[[/Global/Multirun_mode.md]] -- Multirun enable flag
+[[/Global/Multirun_mode]] -- Multirun enable flag
 
 # Synopsis
 GLM:

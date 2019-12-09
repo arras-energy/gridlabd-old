@@ -1,4 +1,4 @@
-[[/Global/Pauseat.md]] -- Pause at time
+[[/Global/Pauseat]] -- Pause at time
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Object_tree_balance.md]] -- Object index tree balancing enable flag
+[[/Global/Object_tree_balance]] -- Object index tree balancing enable flag
 
 # Synopsis
 GLM:

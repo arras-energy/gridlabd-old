@@ -1,4 +1,4 @@
-[[/Global/Exit_code.md]] -- The exit code for GridLAB-D
+[[/Global/Exit_code]] -- The exit code for GridLAB-D
 
 # Synopsis
 GLM:

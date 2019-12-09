@@ -1,4 +1,4 @@
-[[/Global/Stoptime.md]] -- Simulation stop time
+[[/Global/Stoptime]] -- Simulation stop time
 
 # Synopsis
 GLM:

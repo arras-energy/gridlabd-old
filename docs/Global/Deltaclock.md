@@ -1,4 +1,4 @@
-[[/Global/Deltaclock.md]] -- Cumulative delta runtime with respect to the global clock
+[[/Global/Deltaclock]] -- Cumulative delta runtime with respect to the global clock
 
 # Synopsis
 GLM:

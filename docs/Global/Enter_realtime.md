@@ -1,4 +1,4 @@
-[[/Global/Enter_realtime.md]] -- Real-time entry time global variable
+[[/Global/Enter_realtime]] -- Real-time entry time global variable
 
 # Synopsis
 GLM:

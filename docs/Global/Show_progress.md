@@ -1,4 +1,4 @@
-[[/Global/Show_progress.md]] -- Show progress enable flag
+[[/Global/Show_progress]] -- Show progress enable flag
 
 # Synopsis
 GLM:

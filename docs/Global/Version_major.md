@@ -1,4 +1,4 @@
-[[/Global/Version_major.md]] -- Major version
+[[/Global/Version_major]] -- Major version
 
 # Synopsis
 GLM:

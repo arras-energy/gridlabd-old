@@ -1,4 +1,4 @@
-[[/Global/Browser.md]] -- Browser selection
+[[/Global/Browser]] -- Browser selection
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Deltamode_maximumtime.md]] -- Maximum time (ns) deltamode can run
+[[/Global/Deltamode_maximumtime]] -- Maximum time (ns) deltamode can run
 
 # Synopsis
 GLM:

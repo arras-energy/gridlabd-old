@@ -1,4 +1,4 @@
-[[/Global/Run_powerworld.md]] -- Boolean that that says your system is set up correctly to run with PowerWorld
+[[/Global/Run_powerworld]] -- Boolean that that says your system is set up correctly to run with PowerWorld
 
 # Synopsis
 GLM:

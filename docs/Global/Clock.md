@@ -1,4 +1,4 @@
-[[/Global/Clock.md]] -- Global clock
+[[/Global/Clock]] -- Global clock
 
 # Synopsis
 GLM:

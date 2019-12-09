@@ -1,4 +1,4 @@
-[[/Global/Include.md]] -- Include folder path
+[[/Global/Include]] -- Include folder path
 
 # Synopsis
 GLM:

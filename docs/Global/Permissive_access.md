@@ -1,4 +1,4 @@
-[[/Global/Permissive_access.md]] -- Enable permissive property access
+[[/Global/Permissive_access]] -- Enable permissive property access
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Hostname.md]] -- Unused
+[[/Global/Hostname]] -- Unused
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Debug.md]] -- Debug output status flag
+[[/Global/Debug]] -- Debug output status flag
 
 # Synopsis
 GLM:

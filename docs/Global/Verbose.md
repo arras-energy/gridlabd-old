@@ -1,4 +1,4 @@
-[[/Global/Verbose.md]] -- Verbose enable flag
+[[/Global/Verbose]] -- Verbose enable flag
 
 # Synopsis
 GLM:

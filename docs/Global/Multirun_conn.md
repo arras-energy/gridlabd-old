@@ -1,4 +1,4 @@
-[[/Global/Multirun_conn.md]] -- Unused
+[[/Global/Multirun_conn]] -- Unused
 
 # Synopsis
 GLM:

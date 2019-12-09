@@ -1,4 +1,4 @@
-[[/Global/Threadcount.md]] -- Number of threads to use while using multicore
+[[/Global/Threadcount]] -- Number of threads to use while using multicore
 
 # Synopsis
 GLM:

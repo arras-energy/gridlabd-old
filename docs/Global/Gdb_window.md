@@ -1,4 +1,4 @@
-[[/Global/Gdb_window.md]] -- Gdb window enable flag
+[[/Global/Gdb_window]] -- Gdb window enable flag
 
 # Synopsis
 GLM:

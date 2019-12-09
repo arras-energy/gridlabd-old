@@ -1,4 +1,4 @@
-[[/Global/Simulation_mode.md]] -- Current time simulation type
+[[/Global/Simulation_mode]] -- Current time simulation type
 
 # Synopsis
 GLM:

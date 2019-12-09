@@ -1,4 +1,4 @@
-[[/Global/Slave_port.md]] -- Unused
+[[/Global/Slave_port]] -- Unused
 
 # Synopsis
 GLM:

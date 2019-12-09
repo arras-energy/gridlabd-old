@@ -1,4 +1,4 @@
-[[/Global/Exename.md]] -- The current binary name
+[[/Global/Exename]] -- The current binary name
 
 # Synopsis
 GLM:

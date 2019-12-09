@@ -1,4 +1,4 @@
-[[/Global/Object_format.md]] -- Format for writing anonymous object names
+[[/Global/Object_format]] -- Format for writing anonymous object names
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Complex_format.md]] -- Format for writing complex values
+[[/Global/Complex_format]] -- Format for writing complex values
 
 # Synopsis
 GLM:

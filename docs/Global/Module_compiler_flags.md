@@ -1,4 +1,4 @@
-[[/Global/Module_compiler_flags.md]] -- Module compiler flags
+[[/Global/Module_compiler_flags]] -- Module compiler flags
 
 # Synopsis
 GLM:

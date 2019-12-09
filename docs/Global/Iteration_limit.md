@@ -1,4 +1,4 @@
-[[/Global/Iteration_limit.md]] -- Iteration limit
+[[/Global/Iteration_limit]] -- Iteration limit
 
 # Synopsis
 GLM:

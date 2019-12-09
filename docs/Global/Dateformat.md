@@ -1,4 +1,4 @@
-[[/Global/Dateformat.md]] -- Date format string
+[[/Global/Dateformat]] -- Date format string
 
 # Synopsis
 GLM:

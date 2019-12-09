@@ -1,4 +1,4 @@
-[[/Global/Autoclean.md]] -- Autoclean enable flag
+[[/Global/Autoclean]] -- Autoclean enable flag
 
 # Synopsis
 GLM:

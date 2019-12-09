@@ -1,4 +1,4 @@
-[[/Global/Trace.md]] -- Trace function list
+[[/Global/Trace]] -- Trace function list
 
 # Synopsis
 GLM:

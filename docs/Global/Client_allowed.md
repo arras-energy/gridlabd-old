@@ -1,4 +1,4 @@
-[[/Global/Client_allowed.md]] -- Clients from which to accept connecdtions
+[[/Global/Client_allowed]] -- Clients from which to accept connecdtions
 
 # Synopsis
 GLM:

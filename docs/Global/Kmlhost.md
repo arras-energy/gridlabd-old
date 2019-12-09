@@ -1,4 +1,4 @@
-[[/Global/Kmlhost.md]] -- KML server URL
+[[/Global/Kmlhost]] -- KML server URL
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Minimum_timestep.md]] -- Minimum timestep
+[[/Global/Minimum_timestep]] -- Minimum timestep
 
 # Synopsis
 GLM:

@@ -1,4 +1,4 @@
-[[/Global/Mt_analysis.md]] -- Perform multithread profile optimization analysis
+[[/Global/Mt_analysis]] -- Perform multithread profile optimization analysis
 
 # Synopsis
 GLM:

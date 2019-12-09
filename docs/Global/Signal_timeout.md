@@ -1,4 +1,4 @@
-[[/Global/Signal_timeout.md]] -- Unused
+[[/Global/Signal_timeout]] -- Unused
 
 # Synopsis
 GLM:

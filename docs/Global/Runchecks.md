@@ -1,4 +1,4 @@
-[[/Global/Runchecks.md]] -- Runchecks enable flag
+[[/Global/Runchecks]] -- Runchecks enable flag
 
 # Synopsis
 GLM:

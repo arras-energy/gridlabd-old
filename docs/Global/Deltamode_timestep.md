@@ -1,4 +1,4 @@
-[[/Global/Deltamode_timestep.md]] -- Uniform step size for deltamode simulations
+[[/Global/Deltamode_timestep]] -- Uniform step size for deltamode simulations
 
 # Synopsis
 GLM:

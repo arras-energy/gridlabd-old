@@ -1,4 +1,4 @@
-[[/Global/Urlbase.md]] -- Url base string
+[[/Global/Urlbase]] -- Url base string
 
 # Synopsis
 GLM:

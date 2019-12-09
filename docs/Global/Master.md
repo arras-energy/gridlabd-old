@@ -1,4 +1,4 @@
-[[/Global/Master.md]] -- Master server hostname
+[[/Global/Master]] -- Master server hostname
 
 # Synopsis
 GLM:

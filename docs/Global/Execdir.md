@@ -1,4 +1,4 @@
-[[/Global/Execdir.md]] -- Directory where executable binary was found
+[[/Global/Execdir]] -- Directory where executable binary was found
 
 # Synopsis
 GLM:
