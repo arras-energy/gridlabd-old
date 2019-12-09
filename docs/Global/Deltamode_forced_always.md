@@ -1,4 +1,4 @@
-[[/Global/Deltamode_forced_always.md]] -- Forced deltamode for debugging -- prevents event-driven mode)
+[[/Global/Deltamode_forced_always.md]] -- Forced deltamode for debugging -- prevents event-driven mode
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define deltamode_forced_always=FALSE
 
 # Description
 
-Forced deltamode for debugging -- prevents event-driven mode)
+Forced deltamode for debugging -- prevents event-driven mode
 
 # Example
 

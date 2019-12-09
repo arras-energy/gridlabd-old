@@ -1,4 +1,4 @@
-[[/Global/Deltaclock.md]] -- Cumulative delta runtime with respect to the global clock)
+[[/Global/Deltaclock.md]] -- Cumulative delta runtime with respect to the global clock
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define deltaclock=0
 
 # Description
 
-Cumulative delta runtime with respect to the global clock)
+Cumulative delta runtime with respect to the global clock
 
 # Example
 

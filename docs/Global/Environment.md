@@ -1,4 +1,4 @@
-[[/Global/Environment.md]] -- Operating environment)
+[[/Global/Environment.md]] -- Operating environment
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define environment=batch
 
 # Description
 
-Operating environment)
+Operating environment
 
 # Example
 

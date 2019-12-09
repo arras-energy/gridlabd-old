@@ -1,4 +1,4 @@
-[[/Global/Dumpfile.md]] -- Dump filename)
+[[/Global/Dumpfile.md]] -- Dump filename
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define dumpfile=gridlabd.json
 
 # Description
 
-Dump filename)
+Dump filename
 
 # Example
 

@@ -1,4 +1,4 @@
-[[/Global/Kmlfile.md]] -- KML output file name)
+[[/Global/Kmlfile.md]] -- KML output file name
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define kmlfile=""
 
 # Description
 
-KML output file name)
+KML output file name
 
 # Example
 

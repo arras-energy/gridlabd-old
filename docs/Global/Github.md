@@ -1,4 +1,4 @@
-[[/Global/Github.md]] -- Github file repository)
+[[/Global/Github.md]] -- Github file repository
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define github=https://github.com/gridlab-d
 
 # Description
 
-Github file repository)
+Github file repository
 
 # Example
 

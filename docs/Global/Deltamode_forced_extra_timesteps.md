@@ -1,4 +1,4 @@
-[[/Global/Deltamode_forced_extra_timesteps.md]] -- Forced extra deltamode timesteps before returning to event-driven mode)
+[[/Global/Deltamode_forced_extra_timesteps.md]] -- Forced extra deltamode timesteps before returning to event-driven mode
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define deltamode_forced_extra_timesteps=0
 
 # Description
 
-Forced extra deltamode timesteps before returning to event-driven mode)
+Forced extra deltamode timesteps before returning to event-driven mode
 
 # Example
 

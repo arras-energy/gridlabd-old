@@ -1,4 +1,4 @@
-[[/Global/Init_max_defer.md]] -- Deferred initialization limit)
+[[/Global/Init_max_defer.md]] -- Deferred initialization limit
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define init_max_defer=64
 
 # Description
 
-Deferred initialization limit)
+Deferred initialization limit
 
 # Example
 

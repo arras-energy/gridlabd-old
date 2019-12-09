@@ -1,4 +1,4 @@
-[[/Global/Exit_code.md]] -- The exit code for GridLAB-D)
+[[/Global/Exit_code.md]] -- The exit code for GridLAB-D
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define exit_code=0
 
 # Description
 
-The exit code for GridLAB-D)
+The exit code for GridLAB-D
 
 # Example
 

@@ -1,4 +1,4 @@
-[[/Global/Dumpall.md]] -- Dumpall enable flag)
+[[/Global/Dumpall.md]] -- Dumpall enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define dumpall=FALSE
 
 # Description
 
-Dumpall enable flag)
+Dumpall enable flag
 
 # Example
 

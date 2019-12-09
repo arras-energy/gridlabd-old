@@ -1,4 +1,4 @@
-[[/Global/Gitraw.md]] -- Github raw file access)
+[[/Global/Gitraw.md]] -- Github raw file access
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define gitraw=https://raw.githubusercontent.com/gridlab-d
 
 # Description
 
-Github raw file access)
+Github raw file access
 
 # Example
 

@@ -1,4 +1,4 @@
-[[/Global/Master.md]] -- Master server hostname)
+[[/Global/Master.md]] -- Master server hostname
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define master=""
 
 # Description
 
-Master server hostname)
+Master server hostname
 
 # Example
 

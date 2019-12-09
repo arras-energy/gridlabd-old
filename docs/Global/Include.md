@@ -1,4 +1,4 @@
-[[/Global/Include.md]] -- Include folder path)
+[[/Global/Include.md]] -- Include folder path
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define include=""
 
 # Description
 
-Include folder path)
+Include folder path
 
 # Example
 

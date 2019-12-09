@@ -1,4 +1,4 @@
-[[/Global/Infourl.md]] -- URL to use for obtaining online help)
+[[/Global/Infourl.md]] -- URL to use for obtaining online help
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define infourl=http://gridlab-d.shoutwiki.com/w/index.php?title
 
 # Description
 
-URL to use for obtaining online help)
+URL to use for obtaining online help
 
 # Example
 

@@ -1,4 +1,4 @@
-[[/Global/Force_compile.md]] -- Force recompile enable flag)
+[[/Global/Force_compile.md]] -- Force recompile enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define force_compile=0
 
 # Description
 
-Force recompile enable flag)
+Force recompile enable flag
 
 # Example
 

@@ -1,4 +1,4 @@
-[[/Global/Gdb_window.md]] -- Gdb window enable flag)
+[[/Global/Gdb_window.md]] -- Gdb window enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define gdb_window=FALSE
 
 # Description
 
-Gdb window enable flag)
+Gdb window enable flag
 
 # Example
 

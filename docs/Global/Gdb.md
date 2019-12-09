@@ -1,4 +1,4 @@
-[[/Global/Gdb.md]] -- Gdb enable flag)
+[[/Global/Gdb.md]] -- Gdb enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define gdb=FALSE
 
 # Description
 
-Gdb enable flag)
+Gdb enable flag
 
 # Example
 

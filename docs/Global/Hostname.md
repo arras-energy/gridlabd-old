@@ -1,4 +1,4 @@
-[[/Global/Hostname.md]] -- Unused)
+[[/Global/Hostname.md]] -- Unused
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define hostname=localhost
 
 # Description
 
-Unused)
+Unused
 
 # Example
 

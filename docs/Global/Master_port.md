@@ -1,4 +1,4 @@
-[[/Global/Master_port.md]] -- Master server port number)
+[[/Global/Master_port.md]] -- Master server port number
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define master_port=0
 
 # Description
 
-Master server port number)
+Master server port number
 
 # Example
 

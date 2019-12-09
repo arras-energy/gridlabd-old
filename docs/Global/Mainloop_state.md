@@ -1,4 +1,4 @@
-[[/Global/Mainloop_state.md]] -- Main sync loop state flag)
+[[/Global/Mainloop_state.md]] -- Main sync loop state flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define mainloop_state=INIT
 
 # Description
 
-Main sync loop state flag)
+Main sync loop state flag
 
 # Example
 

@@ -1,4 +1,4 @@
-[[/Global/Maximum_synctime.md]] -- Maximum sync time for deltamode)
+[[/Global/Maximum_synctime.md]] -- Maximum sync time for deltamode
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define maximum_synctime=60
 
 # Description
 
-Maximum sync time for deltamode)
+Maximum sync time for deltamode
 
 # Example
 

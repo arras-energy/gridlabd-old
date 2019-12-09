@@ -1,4 +1,4 @@
-[[/Global/Kmlhost.md]] -- KML server URL)
+[[/Global/Kmlhost.md]] -- KML server URL
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define kmlhost=https://raw.githubusercontent.com/dchassin/gridl
 
 # Description
 
-KML server URL)
+KML server URL
 
 # Example
 

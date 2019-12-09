@@ -1,4 +1,4 @@
-[[/Global/Deltamode_iteration_limit.md]] -- Iteration limit for each delta timestep (object and interupdate))
+[[/Global/Deltamode_iteration_limit.md]] -- Iteration limit for each delta timestep (object and interupdate)
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define deltamode_iteration_limit=10
 
 # Description
 
-Iteration limit for each delta timestep (object and interupdate))
+Iteration limit for each delta timestep (object and interupdate)
 
 # Example
 

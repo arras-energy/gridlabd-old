@@ -1,4 +1,4 @@
-[[/Global/Init_sequence.md]] -- Initialization sequence control flag)
+[[/Global/Init_sequence.md]] -- Initialization sequence control flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define init_sequence=DEFERRED
 
 # Description
 
-Initialization sequence control flag)
+Initialization sequence control flag
 
 # Example
 

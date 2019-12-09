@@ -1,4 +1,4 @@
-[[/Global/Iteration_limit.md]] -- Iteration limit)
+[[/Global/Iteration_limit.md]] -- Iteration limit
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define iteration_limit=100
 
 # Description
 
-Iteration limit)
+Iteration limit
 
 # Example
 

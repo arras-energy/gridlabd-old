@@ -1,4 +1,4 @@
-[[/Global/Hostaddr.md]] -- Unused)
+[[/Global/Hostaddr.md]] -- Unused
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define hostaddr=127.0.0.1
 
 # Description
 
-Unused)
+Unused
 
 # Example
 

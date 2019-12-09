@@ -1,4 +1,4 @@
-[[/Global/Deltamode_maximumtime.md]] -- Maximum time (ns) deltamode can run)
+[[/Global/Deltamode_maximumtime.md]] -- Maximum time (ns) deltamode can run
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define deltamode_maximumtime=3600000000000
 
 # Description
 
-Maximum time (ns) deltamode can run)
+Maximum time (ns) deltamode can run
 
 # Example
 

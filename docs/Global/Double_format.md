@@ -1,4 +1,4 @@
-[[/Global/Double_format.md]] -- Format for writing double values)
+[[/Global/Double_format.md]] -- Format for writing double values
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define double_format=%+lg
 
 # Description
 
-Format for writing double values)
+Format for writing double values
 
 # Example
 

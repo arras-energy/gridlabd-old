@@ -1,4 +1,4 @@
-[[/Global/Deltamode_updateorder.md]] -- Order in which modules are update in deltamode)
+[[/Global/Deltamode_updateorder.md]] -- Order in which modules are update in deltamode
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define deltamode_updateorder=""
 
 # Description
 
-Order in which modules are update in deltamode)
+Order in which modules are update in deltamode
 
 # Example
 
