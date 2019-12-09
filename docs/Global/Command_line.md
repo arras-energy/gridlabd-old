@@ -1,4 +1,4 @@
-[[/Global/Command_line.md]] -- Command line)
+[[/Global/Command_line.md]] -- Command line
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define command_line="/usr/local/opt/gridlabd/4.2.0-191202-devel
 
 # Description
 
-Command line)
+Command line
 
 # Example
 

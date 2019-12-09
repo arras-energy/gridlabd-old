@@ -1,4 +1,4 @@
-[[/Global/Autoclean.md]] -- Autoclean enable flag)
+[[/Global/Autoclean.md]] -- Autoclean enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define autoclean=TRUE
 
 # Description
 
-Autoclean enable flag)
+Autoclean enable flag
 
 # Example
 

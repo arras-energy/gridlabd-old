@@ -1,4 +1,4 @@
-[[/Global/Debug.md]] -- Debug output status flag)
+[[/Global/Debug.md]] -- Debug output status flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define debug=FALSE
 
 # Description
 
-Debug output status flag)
+Debug output status flag
 
 # Example
 

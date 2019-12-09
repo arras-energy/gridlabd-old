@@ -1,4 +1,4 @@
-[[/Global/Check_version.md]] -- Check version enable flag)
+[[/Global/Check_version.md]] -- Check version enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define check_version=FALSE
 
 # Description
 
-Check version enable flag)
+Check version enable flag
 
 # Example
 

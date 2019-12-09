@@ -1,4 +1,4 @@
-[[/Global/Clock.md]] -- Global clock)
+[[/Global/Clock.md]] -- Global clock
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define clock=2000-01-01 00:00:00 UTC
 
 # Description
 
-Global clock)
+Global clock
 
 # Example
 

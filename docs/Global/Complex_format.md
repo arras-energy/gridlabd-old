@@ -1,4 +1,4 @@
-[[/Global/Complex_format.md]] -- Format for writing complex values)
+[[/Global/Complex_format.md]] -- Format for writing complex values
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define complex_format=%+lg%+lg%c
 
 # Description
 
-Format for writing complex values)
+Format for writing complex values
 
 # Example
 

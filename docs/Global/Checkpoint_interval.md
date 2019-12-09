@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_interval.md]] -- Checkpoint interval)
+[[/Global/Checkpoint_interval.md]] -- Checkpoint interval
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define checkpoint_interval=0
 
 # Description
 
-Checkpoint interval)
+Checkpoint interval
 
 # Example
 

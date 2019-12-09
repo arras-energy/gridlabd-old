@@ -1,4 +1,4 @@
-[[/Global/Debugger.md]] -- Debugger enable flag)
+[[/Global/Debugger.md]] -- Debugger enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define debugger=FALSE
 
 # Description
 
-Debugger enable flag)
+Debugger enable flag
 
 # Example
 

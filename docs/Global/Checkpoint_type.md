@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_type.md]] -- Checkpoint type usage flag)
+[[/Global/Checkpoint_type.md]] -- Checkpoint type usage flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define checkpoint_type=NONE
 
 # Description
 
-Checkpoint type usage flag)
+Checkpoint type usage flag
 
 # Example
 

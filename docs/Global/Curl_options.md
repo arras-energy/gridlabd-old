@@ -1,4 +1,4 @@
-[[/Global/Curl_options.md]] -- Wget/curl options)
+[[/Global/Curl_options.md]] -- Wget/curl options
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define curl_options="maxsize:100MB;update:newer"
 
 # Description
 
-Wget/curl options)
+Wget/curl options
 
 # Example
 

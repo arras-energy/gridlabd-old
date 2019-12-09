@@ -1,4 +1,4 @@
-[[/Global/Autostart_gui.md]] -- Automatic GUI start enable flag)
+[[/Global/Autostart_gui.md]] -- Automatic GUI start enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define autostart_gui=TRUE
 
 # Description
 
-Automatic GUI start enable flag)
+Automatic GUI start enable flag
 
 # Example
 

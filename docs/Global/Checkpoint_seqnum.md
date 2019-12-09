@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_seqnum.md]] -- Checkpoint sequence number)
+[[/Global/Checkpoint_seqnum.md]] -- Checkpoint sequence number
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define checkpoint_seqnum=0
 
 # Description
 
-Checkpoint sequence number)
+Checkpoint sequence number
 
 # Example
 

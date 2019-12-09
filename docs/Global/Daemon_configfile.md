@@ -1,4 +1,4 @@
-[[/Global/Daemon_configfile.md]] -- Name of configuration file used by the daemon)
+[[/Global/Daemon_configfile.md]] -- Name of configuration file used by the daemon
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define daemon_configfile=gridlabd.cnf
 
 # Description
 
-Name of configuration file used by the daemon)
+Name of configuration file used by the daemon
 
 # Example
 

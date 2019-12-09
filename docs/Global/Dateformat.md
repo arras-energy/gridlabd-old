@@ -1,4 +1,4 @@
-[[/Global/Dateformat.md]] -- Date format string)
+[[/Global/Dateformat.md]] -- Date format string
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define dateformat=ISO
 
 # Description
 
-Date format string)
+Date format string
 
 # Example
 

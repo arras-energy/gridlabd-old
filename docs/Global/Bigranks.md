@@ -1,4 +1,4 @@
-[[/Global/Bigranks.md]] -- Enable fast/blind set_rank operations)
+[[/Global/Bigranks.md]] -- Enable fast/blind set_rank operations
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define bigranks=TRUE
 
 # Description
 
-Enable fast/blind set_rank operations)
+Enable fast/blind set_rank operations
 
 # Example
 

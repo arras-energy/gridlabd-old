@@ -1,4 +1,4 @@
-[[/Global/Delta_current_clock.md]] -- Absolute delta time (global clock offset))
+[[/Global/Delta_current_clock.md]] -- Absolute delta time (global clock offset)
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define delta_current_clock=+0
 
 # Description
 
-Absolute delta time (global clock offset))
+Absolute delta time (global clock offset)
 
 # Example
 

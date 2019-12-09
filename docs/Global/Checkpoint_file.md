@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_file.md]] -- Checkpoint file base name)
+[[/Global/Checkpoint_file.md]] -- Checkpoint file base name
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define checkpoint_file=""
 
 # Description
 
-Checkpoint file base name)
+Checkpoint file base name
 
 # Example
 

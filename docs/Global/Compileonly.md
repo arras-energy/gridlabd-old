@@ -1,4 +1,4 @@
-[[/Global/Compileonly.md]] -- Compile only enable flag)
+[[/Global/Compileonly.md]] -- Compile only enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define compileonly=FALSE
 
 # Description
 
-Compile only enable flag)
+Compile only enable flag
 
 # Example
 

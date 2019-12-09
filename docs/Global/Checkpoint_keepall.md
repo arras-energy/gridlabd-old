@@ -1,4 +1,4 @@
-[[/Global/Checkpoint_keepall.md]] -- Checkpoint file keep enable flag)
+[[/Global/Checkpoint_keepall.md]] -- Checkpoint file keep enable flag
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define checkpoint_keepall=FALSE
 
 # Description
 
-Checkpoint file keep enable flag)
+Checkpoint file keep enable flag
 
 # Example
 

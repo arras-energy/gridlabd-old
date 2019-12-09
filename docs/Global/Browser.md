@@ -1,4 +1,4 @@
-[[/Global/Browser.md]] -- Browser selection)
+[[/Global/Browser.md]] -- Browser selection
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define browser=safari
 
 # Description
 
-Browser selection)
+Browser selection
 
 # Example
 

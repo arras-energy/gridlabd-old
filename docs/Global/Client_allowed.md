@@ -1,4 +1,4 @@
-[[/Global/Client_allowed.md]] -- Clients from which to accept connecdtions)
+[[/Global/Client_allowed.md]] -- Clients from which to accept connecdtions
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define client_allowed=""
 
 # Description
 
-Clients from which to accept connecdtions)
+Clients from which to accept connecdtions
 
 # Example
 

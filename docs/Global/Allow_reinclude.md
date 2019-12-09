@@ -1,4 +1,4 @@
-[[/Global/Allow_reinclude.md]] -- Allow the same include file to be included multiple times)
+[[/Global/Allow_reinclude.md]] -- Allow the same include file to be included multiple times
 
 # Synopsis
 GLM:
@@ -13,7 +13,7 @@ bash$ gridlabd --define allow_reinclude=FALSE
 
 # Description
 
-Allow the same include file to be included multiple times)
+Allow the same include file to be included multiple times
 
 # Example
 
