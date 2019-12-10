@@ -4076,6 +4076,16 @@ inline int method_extract(char *value, va_list args)
 
 #endif // __cplusplus
 
+inline PyObject *python_import(const char *module, const char *path=NULL)
+{
+	return callback->python.import(module, path);
+}
+
+inline bool python_call(PyObject *pModule, const char *method)
+{
+	return callback->python.call(pModule,method);
+}
+
 /** @} **/
 #endif
 

@@ -1,0 +1,151 @@
+#!/bin/bash
+
+EXE="$(basename $0)"
+
+function error()
+{
+	echo "$EXE: ERROR $*" > /dev/stderr
+	exit $1
+}
+
+case "$1" in
+--dryrun) 
+	ACTION="echo"
+	shift 1
+	;;
+--*)
+	error 9 "'$1' in an invalid option"
+	;;
+*)
+	ACTION=""
+	;;
+esac
+
+function version-help()
+{
+	cat <<-END
+		Syntax: gridlabd version [--dryrun] <command> <options...>
+		Commands:
+		  help                    get this list of commands
+		  check [-v|-q]           check for a newer version
+		  list [<pattern>]        get a list of available versions
+		  show                    show the current active version
+		  set [<pattern>]         set the active version
+		  source                  open source code of the active version
+		  delete [-a|<pattern>]   delete versions
+	END
+}
+
+function version-check()
+{
+	head=$(gridlabd git commit HEAD sha)
+	commit=$(gridlabd git commit $(gridlabd --version=commit) sha)
+	if [ "$1" == "-v" ]; then
+		echo "HEAD $head"
+		echo "COMMIT $commit"
+	fi
+	if [ "$head" != "$commit" ]; then
+		[ -z "$1" ] && error 1 "$(gridlabd --version) is outdated"
+	else
+		[ -z "$1" ] && error 0 "$(gridlabd --version) is ok"
+	fi
+}
+
+function version-source()
+{
+	open $(gridlabd git commit HEAD html_url | sed -e 's:/commit/:/tree/:')
+}
+
+function version-save()
+{
+	if [ -f /usr/local/bin/gridlabd -a ! -L /usr/local/bin/gridlabd ]; then
+		SAVED="$(/usr/local/bin/gridlabd --version | cut -f2 -d' ')-saved_$(date '+%Y%m%d')"
+		N=0
+		TRY="$SAVED"
+		while [ -d /usr/local/opt/gridlabd/$TRY ]; do
+			TRY="$SAVED-$N"
+			N=$(($N+1))
+		done
+		SAVED="$TRY"
+		$ACTION mkdir -p /usr/local/opt/gridlabd/$SAVED/{bin,lib,share,include}
+		for F in bin lib share include; do
+			[ ! -d /usr/local/opt/gridlabd/$SAVED/$F ]; $ACTION mkdir -p /usr/local/opt/gridlabd/$SAVED/$F
+			if [ "$F" == "bin" ]; then
+				$ACTION mv /usr/local/bin/gridlabd* /usr/local/opt/gridlabd/$SAVED/bin
+			else
+				[ -f /usr/local/$F/gridlabd -a ! -L /usr/local/$F/gridlabd ] && $ACTION mv /usr/local/$F/gridlabd /usr/local/opt/gridlabd/$SAVED/$F
+			fi
+		done
+	fi
+}
+
+function version-set()
+{
+	version-save
+	L="$1"
+	if [ ! -d "/usr/local/opt/gridlabd/$L" ]; then
+		L=$(cd /usr/local/opt/gridlabd ; ls -1d *$1* | grep -v current)
+	fi
+	if [ -z "$L" ]; then
+		L="$(${0/$EXE/gridlabd} --version=name | sed -e 's/^gridlabd-//')"
+	elif [ "$(echo $L | wc -w)" -gt 1 ]; then
+		error 2 "ambiguous version"
+	fi
+	if [ ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$L" ]; then
+		$ACTION rm -f /usr/local/opt/gridlabd/current
+		$ACTION ln -s /usr/local/opt/gridlabd/$L /usr/local/opt/gridlabd/current
+	fi
+	for F in bin lib share include; do
+		if [ ! "$(readlink /usr/local/$F/gridlabd)" == "/usr/local/opt/gridlabd/current/$F/gridlabd" ]; then
+			$ACTION rm -rf /usr/local/$F/gridlabd
+			$ACTION ln -s /usr/local/opt/gridlabd/current/$F/gridlabd /usr/local/$F/gridlabd
+		fi
+	done
+	echo "$L"
+}
+
+function version-show()
+{
+	if [ -L /usr/local/opt/gridlabd/current ]; then
+		basename $(readlink /usr/local/opt/gridlabd/current)
+	else
+		echo "Current version is custom installed"
+	fi
+}
+
+function version-delete()
+{
+	if [ "$1" == "-a" ]; then
+		L="$(cd /usr/local/opt/gridlabd; ls -1d | grep -v current)"
+	else
+		L="$1"
+		if [ ! -d "$L" ]; then
+			L=$(cd /usr/local/opt/gridlabd ; ls -1d *$1* | grep -v current)
+		fi
+	fi
+	if [ ! -z "$L" ]; then
+		for F in $L; do
+			[ ! "$F" == "current" -a -d "/usr/local/opt/gridlabd/$F" -a ! "$(readlink /usr/local/opt/gridlabd/current)" == "/usr/local/opt/gridlabd/$F" ] && $ACTION rm -rf /usr/local/opt/gridlabd/$F
+		done
+	fi
+}
+
+function version-list()
+{
+	if [ $# -eq 0 ]; then
+		basename /usr/local/opt/gridlabd/* | grep -v '^current$'
+	else
+		basename /usr/local/opt/gridlabd/*$1*
+	fi
+}
+
+if [ $# -eq 0 ]; then
+	version-show
+	exit 0
+fi
+
+if [ "$(type -t version-$1)" == "function" ]; then
+	version-$*
+else
+	error 9 "'$1' is not a valid command"
+fi

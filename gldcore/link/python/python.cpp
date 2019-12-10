@@ -50,6 +50,8 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args);
 static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args);
 static PyObject *gridlabd_pstatus(PyObject *self, PyObject *args);
 
+static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args);
+
 static PyMethodDef module_methods[] = {
     {"title", gridlabd_title, METH_VARARGS, "Get the software title"},
     {"version", gridlabd_version, METH_VARARGS, "Get the software version"},
@@ -88,15 +90,16 @@ static PyMethodDef module_methods[] = {
     {"set_value", gridlabd_set_value, METH_VARARGS, "Set a GridLAB-D object property"},
     // utilities
     {"convert_unit", gridlabd_convert_unit, METH_VARARGS, "Convert units of a float, complex or string"},
+    // callbacks
+    {"add_callback", gridlabd_add_callback, METH_VARARGS, "Add external callback for modules"},
     {"pstatus", gridlabd_pstatus, METH_VARARGS, "Read gridlabd process status"},
-
     {NULL, NULL, 0, NULL}
 };
 
 static struct PyModuleDef gridlabd_module_def = {
     PyModuleDef_HEAD_INIT,
-    "gridlabd",   /* name of module */
-    "Python GridLAB-D simulation", /* module documentation, may be NULL */
+    PACKAGE,   /* name of module */
+    "Python " PACKAGE_NAME " simulation", /* module documentation, may be NULL */
     -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
     module_methods,
@@ -195,8 +198,13 @@ static PyObject *gridlabd_output(PyObject *self, PyObject *args)
 {
     char *text;
     if ( ! PyArg_ParseTuple(args,"s",&text) )
+    {
         return gridlabd_exception("missing text argument");
-    return PyLong_FromLong(output_message("%s",text));
+    }
+    else
+    {
+        return PyLong_FromLong(output_message("%s",text));
+    }
 
 }
 
@@ -204,24 +212,39 @@ static PyObject *gridlabd_debug(PyObject *self, PyObject *args)
 {
     char *text;
     if ( ! PyArg_ParseTuple(args,"s",&text) )
+    {
         return gridlabd_exception("missing text argument");
-    return PyLong_FromLong(output_debug("%s",text));
+    }
+    else
+    {
+        return PyLong_FromLong(output_debug("%s",text));
+    }
 }
 
 static PyObject *gridlabd_warning(PyObject *self, PyObject *args)
 {
     char *text;
     if ( ! PyArg_ParseTuple(args,"s",&text) )
+    {
         return gridlabd_exception("missing text argument");
-    return PyLong_FromLong(output_warning("%s",text));
+    }
+    else
+    {
+        return PyLong_FromLong(output_warning("%s",text));
+    }
 }
 
 static PyObject *gridlabd_error(PyObject *self, PyObject *args)
 {
     char *text;
     if ( ! PyArg_ParseTuple(args,"s",&text) )
+    {
         return gridlabd_exception("missing text argument");
-    return PyLong_FromLong(output_error("%s",text));
+    }
+    else
+    {
+        return PyLong_FromLong(output_error("%s",text));
+    }
 
 }
 
@@ -249,23 +272,61 @@ static PyObject *gridlabd_traceback(const char *context=NULL)
 static PyObject *gridlabdException;
 static PyObject *this_module = NULL;
 
-class Callback {
+class Callback 
+{
     static const char *name;
 public:
-    inline Callback(const char *str) { output_debug("entering python:%s...",str); name = str; };
-    inline ~Callback(void) { output_debug("exiting python:%s...",name); name = NULL; };
-    static inline bool is_active(void) { return name==NULL; };
+    inline Callback(const char *str) 
+    { 
+        output_debug("entering python:%s...",str); name = str; 
+    };
+    inline ~Callback(void) 
+    { 
+        output_debug("exiting python:%s...",name); name = NULL; 
+    };
+    static inline bool is_active(void) 
+    { 
+        return name==NULL; 
+    };
 };
 const char * Callback::name = NULL;
-class ReadLock {
+
+class ReadLock 
+{
 public:
-    inline ReadLock() { if ( ! Callback::is_active() ) exec_rlock_sync(); };
-    inline ~ReadLock() { if ( ! Callback::is_active() ) exec_runlock_sync(); };
+    inline ReadLock() 
+    { 
+        if ( ! Callback::is_active() ) 
+        {
+            exec_rlock_sync(); 
+        }
+    };
+    inline ~ReadLock() 
+    { 
+        if ( ! Callback::is_active() ) 
+        {
+            exec_runlock_sync(); 
+        }
+    };
 };
-class WriteLock {
+
+class WriteLock 
+{
 public:
-    inline WriteLock() { if ( ! Callback::is_active() ) exec_wlock_sync(); };
-    inline ~WriteLock() { if ( ! Callback::is_active() ) exec_wunlock_sync(); };
+    inline WriteLock() 
+    { 
+        if ( ! Callback::is_active() ) 
+        {
+            exec_wlock_sync(); 
+        }
+    };
+    inline ~WriteLock() 
+    { 
+        if ( ! Callback::is_active() ) 
+        {
+            exec_wunlock_sync(); 
+        }
+    };
 };
 
 ///////////////////////////
@@ -275,7 +336,9 @@ PyMODINIT_FUNC PyInit_gridlabd(void)
 {
     this_module = PyModule_Create(&gridlabd_module_def);
     if ( this_module == NULL )
+    {
         return NULL;
+    }
     gridlabdException = PyErr_NewException("gridlabd.exception",NULL,NULL);
     Py_XINCREF(gridlabdException);
     PyModule_AddObject(this_module,"exception",gridlabdException);
@@ -329,19 +392,26 @@ static void save_environ(void)
     for ( i = 0 ; i < 1023 ; i++ )
     {
         if ( environ[i] == NULL )
+        {
             break;
-        saved_environ[i] = strdup(environ[i]);
+        }
+        else
+        {
+            saved_environ[i] = strdup(environ[i]);
+        }
     }
     saved_environ[i] = NULL;
 }
 static void restore_environ(void)
 {
     if ( saved_environ )
+    {
         environ = saved_environ;
+    }
 }
 
 static int argc = 1;
-static const char *argv[1024] = {"gridlabd"};
+static const char *argv[1024] = {PACKAGE};
 static enum {
     GMS_NEW = 0, // module has been newly loaded 
     GMS_COMMAND, // module has received at least one command
@@ -383,7 +453,9 @@ static PyObject *gridlabd_command(PyObject *self, PyObject *args)
     const char *command;
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &command) )
+    {
         return NULL;
+    }
     if ( argc < (int)(sizeof(argv)/sizeof(argv[0])) )
     {
         argv[argc] = strdup(command);
@@ -441,7 +513,9 @@ static PyObject *gridlabd_add(PyObject *self, PyObject *args)
     char *block;
     PyObject *data, *item;
     if ( !PyArg_ParseTuple(args,"sO", &block, &data) )
+    {
         return NULL;
+    }
     if ( strcmp(block,"global") == 0 )
     {
         PyObject *type = PyDict_GetItemString(data,"type");
@@ -609,9 +683,14 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     const char *command;
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &command) )
+    {
         return NULL;
+    }
     if ( glmfh != NULL )
+    {
         fclose(glmfh);
+        glmfh = NULL;
+    }
     if ( strcmp(command,"thread") == 0 || strcmp(command,"pause") == 0 )
     {
         PyEval_InitThreads();
@@ -627,12 +706,21 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         }
         exec_mls_statewait(~MLS_INIT);
         if ( strcmp(command,"pause") == 0 )
+        {
             exec_mls_suspend();
+        }
         if ( gridlabd_module_status != GMS_RUNNING )
         {
             return gridlabd_exception("start('%s'): %s", command, gridlabd_module_status_msg[gridlabd_module_status]);
         }
-        return PyErr_Occurred() ? NULL : PyLong_FromLong(0);
+        else if ( PyErr_Occurred() )
+        {
+            return NULL;
+        }
+        else
+        {
+            return PyLong_FromLong(0);
+        }
     }
     else if ( strcmp(command, "wait") == 0 )
     {
@@ -641,7 +729,9 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         return PyErr_Occurred() ? NULL : PyLong_FromLong((long)code);
     }
     else
+    {
         return gridlabd_exception("start mode '%s' is not recognized", command);
+    }
     return NULL;
 }
 
@@ -674,7 +764,14 @@ static PyObject *gridlabd_cancel(PyObject *self, PyObject *args)
     }
     pthread_cancel(main_thread);
     gridlabd_module_status = GMS_CANCELLED;
-    return PyErr_Occurred() ? NULL : PyLong_FromLong(0);
+    if ( PyErr_Occurred() )
+    {
+        return NULL;
+    }
+    else
+    {
+        return PyLong_FromLong(0);
+    }
 }
 
 //
@@ -690,7 +787,14 @@ static PyObject *gridlabd_pause(PyObject *self, PyObject *args)
     }
     exec_mls_resume(global_clock);
     exec_mls_statewait(MLS_PAUSED);
-    return PyErr_Occurred() ? NULL : PyLong_FromLong(global_clock);
+    if ( PyErr_Occurred() )
+    {
+        return NULL;
+    }
+    else 
+    {
+        return PyLong_FromLong(global_clock);
+    }
 }
 
 //
@@ -704,16 +808,27 @@ static PyObject *gridlabd_pauseat(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("cannot pause unless running");
     }
-   char *value;
+    char *value;
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &value) )
+    {
         return NULL;
+    }
     TIMESTAMP ts = convert_to_timestamp(value);
     exec_mls_resume(ts);
     if ( global_mainloopstate != MLS_RUNNING )
+    {
         exec_mls_statewait(MLS_RUNNING);
+    }
     exec_mls_statewait(MLS_PAUSED);
-    return PyErr_Occurred() ? NULL : PyLong_FromLong(global_clock);
+    if ( PyErr_Occurred() )
+    {
+        return NULL;
+    }
+    else 
+    {
+        return PyLong_FromLong(global_clock);
+    }
 }
 
 //
@@ -728,7 +843,15 @@ static PyObject *gridlabd_resume(PyObject *self, PyObject *args)
         return gridlabd_exception("cannot resume unless running");
     }
     exec_mls_resume(TS_NEVER);
-    return PyErr_Occurred() ? NULL : PyLong_FromLong(0);
+    if ( PyErr_Occurred() )
+    {
+        return NULL;
+    }
+    else 
+    {
+        return PyLong_FromLong(0);
+    }
+
 }
 
 //
@@ -741,14 +864,24 @@ static PyObject *gridlabd_save(PyObject *self, PyObject *args)
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
+    {
         return NULL;
+    }
     ReadLock();
     int len = saveall(name);
     if ( len <= 0 )
     {
        return gridlabd_exception("uname to save '%s'", name);
     }
-    return PyErr_Occurred() ? NULL : PyLong_FromLong(len);
+    if ( PyErr_Occurred() )
+    {
+        return NULL;
+    }
+    else 
+    {
+        return PyLong_FromLong(len);
+    }
+
 }
 
 //
@@ -766,94 +899,100 @@ static PyObject *gridlabd_get(PyObject *self, PyObject *args)
     char *type;
     PyObject *data = NULL;
     restore_environ();
-    if ( PyArg_ParseTuple(args,"s", &type) )
+    if ( ! PyArg_ParseTuple(args,"s", &type) )
     {
-        if ( strcmp(type,"objects") == 0 )
-        {
-            data = PyList_New(0);
-            OBJECT *obj;
-            for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
-            {
-                if ( obj->name )
-                {
-                    PyObject *item = Py_BuildValue("s",obj->name);
-                    PyList_Append(data,item);
-                    Py_DECREF(item);
-                }
-                else
-                {
-                    char name[1024];
-                    snprintf(name,sizeof(name),"%s:%d",obj->oclass->name,obj->id);
-                    PyObject *item = Py_BuildValue("s",name);
-                    PyList_Append(data,item);
-                    Py_DECREF(item);
-                }
-            }
-        }
-        else if ( strcmp(type,"classes") == 0 )
-        {
-            data = PyList_New(0);
-            CLASS *oclass;
-            for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
-            {
-                PyObject *item = Py_BuildValue("s",oclass->name);
-                PyList_Append(data,item);
-                Py_DECREF(item);
-            }
-        }
-        else if ( strcmp(type,"modules") == 0 )
-        {
-            data = PyList_New(0);
-            MODULE *mod;
-            for ( mod = module_get_first() ; mod != NULL ; mod = mod->next )
-            {
-                PyObject *item = Py_BuildValue("s",mod->name);
-                PyList_Append(data,item);
-                Py_DECREF(item);
-            }
-        }
-        else if ( strcmp(type,"globals") == 0 )
-        {
-            data = PyList_New(0);
-            GLOBALVAR *var;
-            for ( var = global_find(NULL) ; var != NULL ; var = var->next )
-            {
-                PyObject *item = Py_BuildValue("s",var->prop->name);
-                PyList_Append(data,item);
-                Py_DECREF(item);
-            } 
-        }
-        else if ( strcmp(type,"transforms") == 0 )
-        {
-            data = PyList_New(0);
-            TRANSFORM *transform = NULL;
-            while ( (transform = transform_getnext(NULL)) != NULL )
-            {
-                if ( transform->function_type == XT_FILTER )
-                {
-                    PyObject *item = Py_BuildValue("s",transform->tf->name);
-                    PyList_Append(data,item);
-                    Py_DECREF(item);
-                }
-            } 
-            return data;
-        }
-        else if ( strcmp(type,"schedules") == 0 )
-        {
-            data = PyList_New(0);
-            SCHEDULE *sch;
-            for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
-            {
-                PyObject *item = Py_BuildValue("s",sch->name);
-                PyList_Append(data,item);
-                Py_DECREF(item);
-            }
-            return data;
-        }
-        else
-            return gridlabd_exception("get(type='%s'): type '%s' is not valid", type);
+        return NULL;
     }
-    return data;
+    if ( strcmp(type,"objects") == 0 )
+    {
+        data = PyList_New(0);
+        OBJECT *obj;
+        for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
+        {
+            if ( obj->name )
+            {
+                PyObject *item = Py_BuildValue("s",obj->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
+            }
+            else
+            {
+                char name[1024];
+                snprintf(name,sizeof(name),"%s:%d",obj->oclass->name,obj->id);
+                PyObject *item = Py_BuildValue("s",name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
+            }
+        }
+        return data;
+    }
+    else if ( strcmp(type,"classes") == 0 )
+    {
+        data = PyList_New(0);
+        CLASS *oclass;
+        for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
+        {
+            PyObject *item = Py_BuildValue("s",oclass->name);
+            PyList_Append(data,item);
+            Py_DECREF(item);
+        }
+        return data;
+    }
+    else if ( strcmp(type,"modules") == 0 )
+    {
+        data = PyList_New(0);
+        MODULE *mod;
+        for ( mod = module_get_first() ; mod != NULL ; mod = mod->next )
+        {
+            PyObject *item = Py_BuildValue("s",mod->name);
+            PyList_Append(data,item);
+            Py_DECREF(item);
+        }
+        return data;
+    }
+    else if ( strcmp(type,"globals") == 0 )
+    {
+        data = PyList_New(0);
+        GLOBALVAR *var;
+        for ( var = global_find(NULL) ; var != NULL ; var = var->next )
+        {
+            PyObject *item = Py_BuildValue("s",var->prop->name);
+            PyList_Append(data,item);
+            Py_DECREF(item);
+        } 
+        return data;
+    }
+    else if ( strcmp(type,"transforms") == 0 )
+    {
+        data = PyList_New(0);
+        TRANSFORM *transform = NULL;
+        while ( (transform = transform_getnext(NULL)) != NULL )
+        {
+            if ( transform->function_type == XT_FILTER )
+            {
+                PyObject *item = Py_BuildValue("s",transform->tf->name);
+                PyList_Append(data,item);
+                Py_DECREF(item);
+            }
+        } 
+        return data;
+    }
+    else if ( strcmp(type,"schedules") == 0 )
+    {
+        data = PyList_New(0);
+        SCHEDULE *sch;
+        for ( sch = schedule_getfirst() ; sch != NULL ; sch = schedule_getnext(sch) )
+        {
+            PyObject *item = Py_BuildValue("s",sch->name);
+            PyList_Append(data,item);
+            Py_DECREF(item);
+        }
+        return data;
+    }
+    else
+    {
+        return gridlabd_exception("get(type='%s'): type '%s' is not valid", type);
+    }
 }
 
 //
@@ -866,14 +1005,21 @@ static PyObject *gridlabd_get_global(PyObject *self, PyObject *args)
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "s", &name) )
+    {
         return NULL;
+    }
     char value[1024];
     ReadLock();
     const char *result = global_getvar(name,value,sizeof(value));
     if ( result == NULL )
+    {
+        Py_INCREF(Py_None);
         return Py_None;
+    }
     else
+    {
         return Py_BuildValue("s",value);
+    }
 }
 
 //
@@ -897,12 +1043,20 @@ static PyObject *gridlabd_set_global(PyObject *self, PyObject *args)
     }
     if ( global_setvar(name,value) == FAILED )
     {
-        if ( ret ) Py_DECREF(ret);
+        if ( ret ) 
+        {
+            Py_DECREF(ret);
+        }
         return gridlabd_exception("unable to set global '%s' to value '%s'",name,value);
+    }
+    else if ( ret == NULL )
+    {
+        Py_INCREF(Py_None);
+        return Py_None;
     }
     else
     {
-        return ret ? ret : Py_None;
+        return ret;
     }
 }
 
@@ -917,17 +1071,24 @@ static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
     char *property;
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "ss", &name, &property) )
+    {
         return NULL;
+    }
     OBJECT *obj = object_find_name(name);
     if ( obj == NULL )
+    {
         return gridlabd_exception("object '%s' not found", name);
+    }
 
-    char value[1024];
+    char value[65536*10];
     ReadLock();
     int len = object_get_value_by_name(obj,property,value,sizeof(value));
     if ( len < 0 )
+    {
         return gridlabd_exception("object '%s' property '%s' not found", name, property);
-    return Py_BuildValue("s",value);
+    }
+    PyObject *result = Py_BuildValue("s",value);
+    return result;
 }
 
 //
@@ -942,16 +1103,22 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
     char *value;
     restore_environ();
     if ( ! PyArg_ParseTuple(args, "sss", &name, &property, &value) )
+    {
         return NULL;
+    }
     OBJECT *obj = object_find_name(name);
     if ( obj == NULL )
+    {
         return gridlabd_exception("object '%s' not found", name);
+    }
 
     char previous[1024]="";
     WriteLock();
     int len = object_get_value_by_name(obj,property,previous,sizeof(previous));
     if ( len < 0 )
+    {
         return gridlabd_exception("unable to get old value of '%s.%s'", name,property);
+    }
     len = object_set_value_by_name(obj,property,value);
     if ( len < 0 )
     {
@@ -964,15 +1131,21 @@ static PROPERTY *get_first_property(OBJECT *obj)
 {
     return obj->oclass->pmap;
 }
-static PROPERTY *get_next_property(PROPERTY *prop)
+static PROPERTY *get_next_property(PROPERTY *prop,bool inherit=true)
 {
     PROPERTY *next = prop->next;
-    if ( next == NULL )
+    if ( next == NULL && inherit )
+    {
         return prop->oclass->parent ? prop->oclass->parent->pmap : NULL;
+    }
     else if ( next->oclass == prop->oclass )
+    {
         return next;
+    }
     else
+    {
         return NULL;
+    }
 }
 
 //
@@ -989,12 +1162,16 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
+    {
         return NULL;
+    }
     CLASS *oclass;
     for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
     {
         if ( strcmp(oclass->name,name) == 0 )
+        {
             break;
+        }
     }
     if ( oclass == NULL )
     {
@@ -1032,19 +1209,47 @@ static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
             PyDict_SetItemString(property,"type",item=Py_BuildValue("s",spec->name));
             Py_DECREF(item);
             char access[1024] = "";
-            switch ( prop->access ) {
-            case PA_PUBLIC: strcpy(access,"PUBLIC"); break;
-            case PA_REFERENCE: strcpy(access,"REFERENCE"); break;
-            case PA_PROTECTED: strcpy(access,"PROTECTED"); break;
-            case PA_PRIVATE: strcpy(access,"PRIVATE"); break;
-            case PA_HIDDEN: strcpy(access,"HIDDEN"); break;
-            case PA_N: strcpy(access,"NONE"); break;
+            switch ( prop->access ) 
+            {
+            case PA_PUBLIC: 
+                strcpy(access,"PUBLIC"); 
+                break;
+            case PA_REFERENCE: 
+                strcpy(access,"REFERENCE"); 
+                break;
+            case PA_PROTECTED: 
+                strcpy(access,"PROTECTED"); 
+                break;
+            case PA_PRIVATE: 
+                strcpy(access,"PRIVATE"); 
+                break;
+            case PA_HIDDEN: 
+                strcpy(access,"HIDDEN"); 
+                break;
+            case PA_N: 
+                strcpy(access,"NONE"); 
+                break;
             default:
-                if ( prop->access & PA_R ) strcat(access,"R");
-                if ( prop->access & PA_W ) strcat(access,"W");
-                if ( prop->access & PA_S ) strcat(access,"S");
-                if ( prop->access & PA_L ) strcat(access,"L");
-                if ( prop->access & PA_H ) strcat(access,"H");
+                if ( prop->access & PA_R ) 
+                {
+                    strcat(access,"R");
+                }
+                if ( prop->access & PA_W ) 
+                {
+                    strcat(access,"W");
+                }
+                if ( prop->access & PA_S ) 
+                {
+                    strcat(access,"S");
+                }
+                if ( prop->access & PA_L ) 
+                {
+                    strcat(access,"L");
+                }
+                if ( prop->access & PA_H ) 
+                {
+                    strcat(access,"H");
+                }
                 break;
             }
             PyDict_SetItemString(property,"access",item=Py_BuildValue("s",access));
@@ -1089,7 +1294,9 @@ static PyObject *gridlabd_get_object(PyObject *self, PyObject *args)
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
+    {
         return NULL;
+    }
     OBJECT *obj = object_find_name(name);
     if ( obj == NULL )
     {
@@ -1212,7 +1419,9 @@ static PyObject *gridlabd_get_transform(PyObject *self, PyObject *args)
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
+    {
         return NULL;
+    }
     return gridlabd_exception("not implemented yet");
 }
 
@@ -1226,7 +1435,9 @@ static PyObject *gridlabd_get_schedule(PyObject *self, PyObject *args)
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
+    {
         return NULL;
+    }
     SCHEDULE *sch = schedule_find_byname(name);
     if ( sch == NULL )
     {
@@ -1266,7 +1477,9 @@ static PyObject *gridlabd_load(PyObject *self, PyObject *args)
 {
     char *file;
     if ( ! PyArg_ParseTuple(args,"s", &file) )
+    {
         return NULL;
+    }
     size_t before = object_get_count();
     if ( loadall(file) != SUCCESS )
     {
@@ -1339,6 +1552,31 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("unable to convert unit -- internal error");
     }
+}
+
+//
+// >>> gridlabd.add_callback(name,object)
+//
+// Returns: float or complex
+//
+int external_callback(void *data,void *args)
+{
+    return -1;
+}
+static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args)
+{
+    const char *name;
+    PyObject *call;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args,"sO", &name, &call) )
+    {
+        return gridlabd_exception("invalid arguments");
+    }
+    if ( ! PyCallable_Check(call) )
+    {
+        return gridlabd_exception("arg 2 is not callable");
+    }
+    return Py_BuildValue("i",module_add_external_callback(name,external_callback,call));
 }
 
 //
@@ -1471,14 +1709,22 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
             }
             TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
+            {
                 t2 = PyLong_AsLong(result);
+            }
             else
+            {
                 output_error("python on_precommit(%d) returned an invalid type (expected long)",t0);
+            }
             Py_DECREF(result);
             if ( t2 == TS_INVALID )
+            {
                 return t2;
+            }
             else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+            {
                 t1 = t2;
+            }
         }
         else
         {
@@ -1510,14 +1756,22 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
             }
             TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
+            {
                 t2 = PyLong_AsLong(result);
+            }
             else
+            {
                 output_error("python on_presync(%d) returned an invalid type (expected long)",t0);
+            }
             Py_DECREF(result);
             if ( t2 == TS_INVALID )
+            {
                 return t2;
+            }
             else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+            {
                 t1 = t2;
+            }
         }
         else
         {
@@ -1548,14 +1802,22 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
             }
             TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
+            {
                 t2 = PyLong_AsLong(result);
+            }
             else
+            {
                 output_error("python on_sync(%d) returned an invalid type (expected long)",t0);
+            }
             Py_DECREF(result);
             if ( t2 == TS_INVALID )
+            {
                 return t2;
+            }
             else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+            {
                 t1 = t2;
+            }
         }
         else
         {
@@ -1586,14 +1848,22 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
             }
             TIMESTAMP t2 = TS_INVALID; 
             if ( PyLong_Check(result) )
+            {
                 t2 = PyLong_AsLong(result);
+            }
             else
+            {
                 output_error("python on_postsync(%d) returned an invalid type (expected long)",t0);
+            }
             Py_DECREF(result);
             if ( t2 == TS_INVALID )
+            {
                 return t2;
+            }
             else if ( absolute_timestamp(t2) < absolute_timestamp(t1) )
+            {
                 t1 = t2;
+            }
         }
         else
         {
@@ -1713,7 +1983,9 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
         {
             char name[1024];
             if ( obj->name == NULL )
+            {
                 sprintf(name,"%s:%d", obj->oclass->name, obj->id);
+            }
             PyObject *args = Py_BuildValue("(si)",obj->name?obj->name:name,global_clock);
             PyObject *result = PyEval_CallObject(call,args);
             Py_DECREF(args);
@@ -1729,7 +2001,10 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
                     }
                     return 0;
                 }
-                *p_retval = PyLong_AsLong(result);
+                else if ( result )
+                {
+                    *p_retval = PyLong_AsLong(result);
+                }
             }
             if ( result )
             {
@@ -1770,12 +2045,16 @@ static bool get_callback(
     }
 
     if ( *list == NULL )
+    {
         *list = PyList_New(0);
+    }
     PyObject *call = PyDict_GetItemString(dict,def);
     if ( call )
     {
         if ( PyCallable_Check(call) )
+        {
             PyList_Append(*list,call);
+        }
         else 
         {
             output_error("%s.%s is not callable",file,def);
@@ -1789,7 +2068,6 @@ int python_module_setvar(const char *varname, const char *value)
 {
     PyObject *item = Py_BuildValue("s", value);
     PyModule_AddObject(this_module,varname,item);
-    Py_DECREF(item);
     return strlen(value);
 }
 
@@ -1818,12 +2096,16 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
     }
 
     if ( modlist == NULL )
+    {
         modlist = PyList_New(0);
+    }
     int n;
     for ( n = 0 ; n < PyList_Size(modlist) ; n++ )
     {
         if ( PyList_GetItem(modlist,n) == mod )
+        {
             return &python_module;
+        }
     }
 
     // TODO: link module to core
@@ -1862,7 +2144,7 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
     python_module.on_term = GET_CALLBACK(term);
 
     PyList_Append(modlist,mod);
-    PyModule_AddObject(mod,"gridlabd",this_module);
+    PyModule_AddObject(mod,PACKAGE,this_module);
 
     return &python_module;
 }
@@ -1877,7 +2159,9 @@ static PyObject *gridlabd_module(PyObject *self, PyObject *args)
     char *name = NULL;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
+    {
         return gridlabd_exception("unable to import python module (name not given)");
+    }
     MODULE *mod = python_module_load(name,0,NULL);
     if ( ! module_find(name) )
     {
@@ -1885,6 +2169,8 @@ static PyObject *gridlabd_module(PyObject *self, PyObject *args)
         module_add(mod);
     }
     else
+    {
         output_message("python module '%s' already loaded", name);
+    }
     return PyLong_FromLong(PyList_Size(modlist)-1);
 }

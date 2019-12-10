@@ -241,8 +241,8 @@ OBJECT *object_find_by_id(OBJECTNUM id){ /**< object id number */
 	@return a pointer to the object name string
  **/
 const char *object_name(OBJECT *obj, /**< a pointer to the object */
-						char *oname=NULL, /**< buffer pointer, NULL to use static buffer */
-						int size=0) /**< buffer size */
+						char *oname, /**< buffer pointer, NULL to use static buffer */
+						int size) /**< buffer size */
 { 
 	static char buffer[256]="";
 	if ( ! oname )
@@ -1003,8 +1003,7 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value)
 	}
 	else if ( strcmp(name,"guid")==0 )
 	{
-		obj->guid[0] = atoi(value);
-		return SUCCESS;
+		return sscanf(value,"%08llX%08llX",obj->guid,obj->guid+1) != 2 ? SUCCESS : FAILED;
 	}
 	else {
 		output_error("object %s:%d called set_header_value() for invalid field '%s'", obj->oclass->name, obj->id, name);
@@ -1494,7 +1493,7 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 		// implemented in gldcore/link/python/python.cpp
 		extern int python_event(OBJECT *obj, const char *, long long *);
 		int rv = python_event(obj,function,p_retval) ? 0 : -1;
-		output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
+		IN_MYCONTEXT output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
 		return rv;
 #else
 		output_error("python system not linked, event '%s' is not callable", event);
@@ -1538,13 +1537,17 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 	int rc = 0;
 	const char *passname[]={"NOSYNC","PRESYNC","SYNC","INVALID","POSTSYNC"};
 	char *event = NULL;
-	do {
-		/* don't call sync beyond valid horizon */
-		t2 = _object_sync(obj,(ts<(obj->valid_to>0?obj->valid_to:TS_NEVER)?ts:obj->valid_to),pass);	
-	} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER);
+	if ( obj->oclass->sync != NULL )
+	{
+		do {
+			/* don't call sync beyond valid horizon */
+			t2 = _object_sync(obj,(ts<(obj->valid_to>0?obj->valid_to:TS_NEVER)?ts:obj->valid_to),pass);	
+		} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER);
+	}
 
 	/* event handler */
-	switch (pass) {
+	switch (pass) 
+	{
 	case PC_PRETOPDOWN:
 		event = obj->events.presync;
 		break;
@@ -1558,10 +1561,12 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		break;
 	}
 	if ( event != NULL )
+	{
 		rc = object_event(obj,event,&t2);
+	}
 
 	/* do profiling, if needed */
-	if ( global_profiler==1 )
+	if ( global_profiler == 1 )
 	{
 		switch (pass) {
 		case PC_PRETOPDOWN: object_profile(obj,OPI_PRESYNC,t);break;
@@ -1570,7 +1575,7 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		default: break;
 		}
 	}
-	if ( global_debug_output>0 )
+	if ( global_debug_output > 0 )
 	{
 		char dt1[64]="(invalid)"; if ( ts!=TS_INVALID ) convert_from_timestamp(absolute_timestamp(ts),dt1,sizeof(dt1)); else strcpy(dt1,"ERROR");
 		char dt2[64]="(invalid)"; if ( t2!=TS_INVALID ) convert_from_timestamp(absolute_timestamp(t2),dt2,sizeof(dt2)); else strcpy(dt2,"ERROR");
@@ -1655,7 +1660,7 @@ STATUS object_precommit(OBJECT *obj, TIMESTAMP t1)
 	}
 	if ( rv == 1 && obj->events.precommit != NULL )
 	{
-		long long t2 = 0;
+		long long t2 = TS_NEVER;
 		int rc = object_event(obj,obj->events.precommit,&t2);
 		if ( rc != 0 || t2 < t1 )
 		{
@@ -1724,7 +1729,8 @@ STATUS object_finalize(OBJECT *obj)
 	}
 	if ( obj->events.finalize != NULL )
 	{
-		int rc = object_event(obj,obj->events.precommit);
+		long long rv = 0;
+		int rc = object_event(obj,obj->events.finalize,&rv);
 		if ( rc != 0 )
 		{
 			output_error("object %s:%d precommit at ts=%d event handler failed with code %d",obj->oclass->name,obj->id,global_starttime,rc);
@@ -1983,10 +1989,10 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 			/* this is an unfortunate special case arising from how the powerflow module is implemented */
 			if ( topological_parent != NULL )
 			{
-				output_debug("<%s:%d> (name='%s') found topological parent",obj->oclass->name, obj->id, obj->name);
+				IN_MYCONTEXT output_debug("<%s:%d> (name='%s') found topological parent",obj->oclass->name, obj->id, obj->name);
 				parent = *topological_parent;
 				if ( parent != NULL )
-					output_debug("<%s:%d> (name='%s') -- original parent is at %p", 
+					IN_MYCONTEXT output_debug("<%s:%d> (name='%s') -- original parent is at %p", 
 						obj->oclass->name, obj->id, obj->name, parent);
 			}
 
@@ -2016,6 +2022,34 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 				count += fprintf(fp, "\tlatitude \"%s\";\n", convert_from_latitude(obj->latitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
 			if ( !isnan(obj->longitude) )
 				count += fprintf(fp, "\tlongitude \"%s\";\n", convert_from_longitude(obj->longitude, buffer, sizeof(buffer)) ? buffer : "(invalid)");
+			if ( obj->schedule_skew != 0 )
+				count += fprintf(fp, "\tschedule_skew \"%lld\";\n", (int64)obj->schedule_skew);
+			if ( obj->in_svc != TS_ZERO )
+				count += fprintf(fp, "\tin_svc \"%s\";\n", convert_from_timestamp(obj->in_svc,buffer,sizeof(buffer)) ? buffer : "(invalid)");
+			if ( obj->in_svc_micro != 0 )
+				count += fprintf(fp, "\tin_svc_micro \"%u\";\n", obj->in_svc_micro);
+			if ( obj->out_svc != TS_NEVER )
+				count += fprintf(fp, "\tout_svc \"%s\";\n", convert_from_timestamp(obj->out_svc,buffer,sizeof(buffer)) ? buffer : "(invalid)");
+			if ( obj->out_svc_micro != 0 )
+				count += fprintf(fp, "\tout_svc_micro \"%u\";\n", obj->out_svc_micro);
+			if ( obj->heartbeat != 0 )
+				count += fprintf(fp, "\theartbeat \"%lld\";\n", (int64)obj->heartbeat);
+			if ( obj->guid[0] != 0 || obj->guid[1] != 0 )
+				count += fprintf(fp, "\tguid \"%08llX%08llX\";\n", obj->guid[0], obj->guid[1]);
+			if ( obj->events.init )
+				count += fprintf(fp, "\ton_init \"%s\";\n", obj->events.init);
+			if ( obj->events.precommit )
+				count += fprintf(fp, "\ton_precommit \"%s\";\n", obj->events.precommit);
+			if ( obj->events.presync )
+				count += fprintf(fp, "\ton_presync \"%s\";\n", obj->events.presync);
+			if ( obj->events.sync )
+				count += fprintf(fp, "\ton_sync \"%s\";\n", obj->events.sync);
+			if ( obj->events.postsync )
+				count += fprintf(fp, "\ton_postsync \"%s\";\n", obj->events.postsync);
+			if ( obj->events.commit )
+				count += fprintf(fp, "\ton_commit \"%s\";\n", obj->events.commit);
+			if ( obj->events.finalize )
+				count += fprintf(fp, "\ton_finalize \"%s\";\n", obj->events.finalize);
 			if ( (global_glm_save_options&GSO_NOINTERNALS)==0 )
 			{
 				if ( convert_from_set(buffer, sizeof(buffer), &(obj->flags), object_flag_property()) > 0 )
@@ -2026,10 +2060,11 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 
 			/* dump properties */
 			CLASS *last = oclass;
-			output_debug("dumping properties of '%s' (pmap=%p)", oclass->name, oclass->pmap);
+			IN_MYCONTEXT output_debug("dumping properties of '%s' (pmap=%p)", oclass->name, oclass->pmap);
 			for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 			{
-				output_debug("dumping property '%s' of '%s'",prop->name, prop->oclass->name);
+				TRANSFORM *xform;
+				IN_MYCONTEXT output_debug("dumping property '%s' of '%s'",prop->name, prop->oclass->name);
 				if ( last != prop->oclass )
 				{
 					count += fprintf(fp,"\t// class.parent = %s.%s\n", prop->oclass->module->name, prop->oclass->name);
@@ -2058,6 +2093,12 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 	                {
 	                	// no output allowed for this property
 	                }
+                }
+                else if ( (global_glm_save_options&GSO_ORIGINAL)==GSO_ORIGINAL && (xform=transform_has_target(property_addr(obj,prop))) != NULL )
+                {
+                	count += fprintf(fp,"\t%s ", prop->name);
+                	count += transform_write(xform,fp);
+                	count += fprintf(fp,";\n");
                 }
                 else if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
 				{
@@ -2572,7 +2613,7 @@ OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name)
 		OBJECT *found = object_find_name(name);
 		if ( found != NULL )
 		{
-			output_debug("found object %s:%d when searching for name=%s", found->oclass->name, found->id, name);
+			IN_MYCONTEXT output_debug("found object %s:%d when searching for name=%s", found->oclass->name, found->id, name);
 			if ( found == obj && found->name == NULL )
 			{
 				// likely attempt to set name to default -- this is ok
@@ -2588,7 +2629,7 @@ OBJECTNAME object_set_name(OBJECT *obj, OBJECTNAME name)
 				return NULL;
 			}
 		}
-		output_debug("adding object %s:%d as name %s", obj->oclass->name, obj->id, name);
+		IN_MYCONTEXT output_debug("adding object %s:%d as name %s", obj->oclass->name, obj->id, name);
 		item = object_tree_add(obj,name);
 		if ( item != NULL )
 		{
@@ -2723,15 +2764,18 @@ int object_select_namespace(const char *space)
 int object_locate_property(void *addr, OBJECT **pObj, PROPERTY **pProp)
 {
 	OBJECT *obj;
-	for (obj=first_object; obj!=NULL; obj=obj->next)
+	for ( obj = first_object ; obj != NULL; obj = obj->next )
 	{
-		if ((int64)addr>(int64)obj && (int64)addr<(int64)(obj+1)+(int64)obj->oclass->size)
+		int64 offset = (int64)addr - (int64)(obj+1);
+		IN_MYCONTEXT output_debug("object_locate_property(void *addr=%p, OBJECT **pObj, PROPERTY **pProp): checking object %s %s (id %d) at %p (offset %ld, size %ld)", 
+			addr, obj->name?"name":"class",obj->name?obj->name:obj->oclass->name, obj->id, obj, offset, obj->oclass->size);
+		if ( offset >= 0 && offset <= obj->oclass->size )
 		{
-			int offset = (int)((int64)addr - (int64)(obj+1));
-			PROPERTY *prop; 
-			for (prop=obj->oclass->pmap; prop!=NULL && prop->oclass==obj->oclass; prop=prop->next)
+			for ( PROPERTY *prop = obj->oclass->pmap ; prop != NULL && prop->oclass == obj->oclass ; prop = prop->next )
 			{
-				if ((int64)prop->addr == offset)
+				IN_MYCONTEXT output_debug("object_locate_property(void *addr=%p, OBJECT **pObj, PROPERTY **pProp): checking property %s at offset %d", 
+					addr, prop->name, prop->addr);
+				if ( (int64)prop->addr == offset)
 				{
 					*pObj = obj;
 					*pProp = prop;
@@ -2740,6 +2784,7 @@ int object_locate_property(void *addr, OBJECT **pObj, PROPERTY **pProp)
 			}
 		}
 	}
+	IN_MYCONTEXT output_debug("object_locate_property(void *addr=%p, OBJECT **pObj, PROPERTY **pProp): no object found", addr);
 	return FAILED;
 }
 
@@ -2991,12 +3036,52 @@ bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
 		return false;
 	for ( ; data != NULL ; data = data->next )
 	{
-		output_debug("%s:%d.%s -- setting part '%s' = '%s'", obj->oclass->name, obj->id, propname,data->name,data->value);
+		IN_MYCONTEXT output_debug("%s:%d.%s -- setting part '%s' = '%s'", obj->oclass->name, obj->id, propname,data->name,data->value);
 		if ( ! object_set_property_part(obj,prop,data->name,data->value) )
 			return false;
 	}
 	return true;
 }
 
+OBJECT *object_find_by_addr(void *addr)
+{
+	for ( OBJECT *obj = first_object ; obj != NULL ; obj = obj->next )
+	{
+		if ( addr >= obj && addr < (char*)(((OBJECT*)addr)+1)+obj->oclass->size )
+			return obj;
+	}
+	return NULL;
+}
+
+PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full)
+{
+	for ( PROPERTY *prop = object_get_first_property(obj,full) ; prop != NULL ; prop = object_get_next_property(prop,full) )
+	{
+		void *item = property_addr(obj,prop);
+		if ( item == addr )
+			return prop;
+	}
+	return NULL;
+}
+
+PROPERTY *object_get_first_property(OBJECT *obj, bool full)
+{
+	for ( CLASS *oclass = obj->oclass ; oclass != NULL ; oclass = ( full == true ? oclass->parent : NULL ) )
+	{	
+		if ( oclass->pmap != NULL )
+		{
+			return obj->oclass->pmap;
+		}
+	}
+	return NULL;
+}
+
+PROPERTY *object_get_next_property(PROPERTY *prop, bool full)
+{
+	if ( full == true )
+		return (prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL));
+	else
+		return prop->next;
+}
 
 /** @} **/
