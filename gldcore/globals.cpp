@@ -360,7 +360,7 @@ DEPRECATED static void buildtmp(void)
 	if (!(tmp = getenv("TMP")) && !(tmp = getenv("TEMP")))
 		tmp = TMP;
 	user = getenv(USERVAR);
-	snprintf(global_tmp, sizeof(global_tmp), "%s%s%s" PATHSEP "gridlabd",
+	snprintf(global_tmp, sizeof(global_tmp), "%s%s%s" PATHSEP PACKAGE,
 			tmp, (user ? PATHSEP : ""), (user ? user : ""));
 }
 
@@ -913,6 +913,35 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	}
 }
 
+DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
+{
+	FILE *fp = popen(command, "r");
+	if ( fp == NULL ) 
+	{
+		output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
+		return strcpy(buffer,"");
+	}
+	char line[1024];
+	int pos = 0;
+	strcpy(buffer,"");
+	while ( fgets(line, sizeof(line)-1, fp) != NULL ) 
+	{
+		int len = strlen(line);
+		if ( pos+len >= size )
+		{
+			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): result too large",buffer,size,command);
+			pclose(fp);
+			return strcpy(buffer,"");
+		}
+		strcpy(buffer+pos,line);
+		pos += len;
+		if ( buffer[pos-1] == '\n' )
+			buffer[pos-1] = ' ';
+	}
+	pclose(fp);
+	return buffer;
+}
+
 DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 {
 	double start = 0.0;
@@ -940,6 +969,21 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 		}
 	}
 	return strncpy(buffer,temp,len+1);
+}
+
+DEPRECATED const char *global_python(char *buffer, int size, const char *command)
+{
+	std::string result = python_eval(command);
+	if ( (int)result.size() >= size )
+	{
+		output_error("global_python(buffer=0x%x,int size=%d, command='%s'): result too big for buffer", buffer, size, command);
+		strcpy(buffer,"");
+		return buffer;
+	}
+	else
+	{
+		return strcpy(buffer,result.c_str());
+	}
 }
 
 bool GldGlobals::isdefined(const char *name)
@@ -1215,16 +1259,24 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	}
 
 	/* sequences */
-	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':')!=NULL )
+	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':') != NULL )
 		return global_seq(buffer,size,name);
 
 	/* expansions */
 	if ( parameter_expansion(buffer,size,name) )
 		return buffer;
 
+	// shells
+	if ( strncmp(name,"SHELL ",6) == 0 )
+		return global_shell(buffer,size,name+6);
+
 	// ranges
-	if ( strncmp(name,"RANGE",5) == 0 )
+	if ( strncmp(name,"RANGE",5) == 0 && strchr(" ;,",name[5]) != NULL )
 		return global_range(buffer,size,name);
+
+	// python call
+	if ( strncmp(name,"PYTHON ",7) == 0 )
+		return global_python(buffer,size,name+7);
 
 	var = global_find(name);
 	if(var == NULL)

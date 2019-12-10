@@ -122,6 +122,7 @@ The following example collects the mean, sum, and count of samples drawn from a 
 
 # See also
 
+* [[/GLM/General/Collection]]
 * [[/Module/Mysql]]
 * [[/Module/Mysql/Database]]
 * [[/Module/Tape/Collector]]

@@ -399,6 +399,15 @@ typedef struct s_object_list* object; /* GridLAB objects */
 typedef unsigned int64 set; /* sets (each of up to 64 values may be defined) */
 typedef double triplet[3];
 typedef complex triplex[3];
+typedef struct s_correlation CORRELATION;
+struct s_correlation {
+	struct s_object_list *object;
+	struct s_property_map *property;
+	double *source;
+	double scale;
+	double bias;
+	struct s_correlation *next;
+};
 typedef struct s_randomvar {
 	double value;				/**< current value */
 	unsigned int state;			/**< RNG state */
@@ -407,6 +416,7 @@ typedef struct s_randomvar {
 	double low, high;			/**< RNG truncations limits */
 	unsigned int update_rate;	/**< RNG refresh rate in seconds */
 	unsigned int flags;			/**< RNG flags */
+	CORRELATION *correlation;	// correlation 
 	/* internal parameters */
 	struct s_randomvar *next;
 } randomvar;

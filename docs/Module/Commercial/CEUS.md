@@ -2,10 +2,10 @@
 # Synopsis
 ~~~
   module commercial {
-    default_nominal_voltage 240;
-    default_nominal_voltage_A 240+0d;
-    default_nominal_voltage_B 240+120d;
-    default_nominal_voltage_C 240-120d;
+    default_nominal_voltage "240";
+    default_nominal_voltage_A "240+0d";
+    default_nominal_voltage_B "240+120d";
+    default_nominal_voltage_C "240-120d";
     default_weekday_code "WEEKDAY";
     default_saturday_code "SATURDAY";
     default_sunday_code "SUNDAY";
@@ -13,12 +13,12 @@
     default_month_heading "Month";
     default_daytype_heading "Daytype";
     default_hour_heading "Hour";
-    default_temperature_heating_balance 55.0 degF;
-    default_temperature_cooling_balance 70.0 degF;
-    default_temperature_heating_base 55.0 degF;
-    default_temperature_cooling_base 70.0 degF;
-    default_solargain_base 0.0 W/m^2;
-    default_price_base 0.0 $/MWh;
+    default_temperature_heating_balance "55.0 degF";
+    default_temperature_cooling_balance "70.0 degF";
+    default_temperature_heating_base "55.0 degF";
+    default_temperature_cooling_base "70.0 degF";
+    default_solargain_base "0.0 W/m^2";
+    default_price_base "0.0 $/MWh";
   }
   object ceus {
     filename "<file-name>";
@@ -28,8 +28,8 @@
     total_power_A "<complex-value> VA";
     total_power_B "<complex-value> VA";
     total_power_C "<complex-value> VA";
-    total_real_power[W];
-    total_reactive_power[VAR];
+    total_real_power "<real-value> [W]";
+    total_reactive_power "<real-value> [VAR];
     weather "<object-name>";
     temperature_heating_balance "<real-value> degF";
     temperature_cooling_balance "<real-value> degF";
@@ -39,7 +39,7 @@
     solargain_base "<real-value> W/m^2";
     solargain_sensitivity "<real-value> m^2";
     tariff "<object-name>";
-    price_base "<real-value> $/MWh"]";
+    price_base "<real-value> $/MWh";
     price_sensitivity "<real-value> W*MWh/$"; 
   }
 ~~~
