@@ -504,7 +504,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 #ifdef WIN32
 		_pgmptr,
 #else
-		"gridlabd",
+		global_execname,
 #endif
 		dir,validate_cmdargs, name);
 	dt = my_instance->get_exec()->clock() - dt;
@@ -779,7 +779,7 @@ int validate(void *main, int argc, const char *argv[])
 	if ( report_fp==NULL )
 		output_warning("unable to open '%s' for writing", report_file);
 	report_title("VALIDATION TEST REPORT");
-	report_title("GridLAB-D %d.%d.%d-%d (%s)", global_version_major, global_version_minor, global_version_patch, global_version_build, global_version_branch);
+	report_title("%s %d.%d.%d-%d (%s)", PACKAGE_NAME,global_version_major, global_version_minor, global_version_patch, global_version_build, global_version_branch);
 	
 	report_newrow();
 	report_newtable("TEST CONFIGURATION");

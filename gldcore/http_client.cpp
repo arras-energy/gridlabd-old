@@ -78,7 +78,7 @@ HTTP* hopen(const char *url, int maxlen)
 	}
 
 	/* format/send request */
-	len = sprintf(request,"GET %s HTTP/1.1\r\nHost: %s:80\r\nUser-Agent: GridLAB-D/%d.%d\r\nConnection: close\r\n\r\n",filespec,hostname,REV_MAJOR,REV_MINOR);
+	len = sprintf(request,"GET %s HTTP/1.1\r\nHost: %s:80\r\nUser-Agent: %s/%d.%d\r\nConnection: close\r\n\r\n",PACKAGE_NAME,filespec,hostname,REV_MAJOR,REV_MINOR);
 	IN_MYCONTEXT output_debug("sending HTTP message \n%s", request);
 	if ( send(http->sd,request,len,0)<len )
 	{
@@ -267,6 +267,47 @@ HTTPRESULT *http_read(const char *url, int maxlen)
 				result->status = 0;
 		}
 		fclose(fp);
+	}
+
+	else if ( strncmp(url,"https://",8)==0 )
+	{
+		char tmp[1024];
+		sprintf(tmp,"/tmp/gridlabd-%d%d",getpid(),(int)time(NULL));
+		errno = 0;
+		try
+		{
+			GldCurl(url,tmp);
+		}
+		catch (const char *errmsg)
+		{
+			output_error("%s",errmsg);
+			result->status = errno ? errno : ENXIO;
+			return result;
+		}
+		catch (...)
+		{
+			output_error("unknown GldCurl exception");
+			result->status = errno ? errno : ENXIO;
+			return result;
+		}
+		FILE *fp = fopen(tmp,"rt");
+		if ( fp == NULL )
+		{
+			output_error("unable to open %s", tmp);
+			result->status = errno;
+			return result;
+		}
+		result->body.size = filelength(fileno(fp))+1;
+		result->body.data = (char*)malloc(result->body.size);
+		memset(result->body.data,0,result->body.size);
+		int nread = fread(result->body.data,1,result->body.size,fp);
+		result->status = ( nread <= 0 ? errno : 0 );
+		if ( result->status != 0 )
+		{
+			output_error("unable to read %s (errno %d)", tmp, errno);
+		}
+		fclose(fp);
+		unlink(tmp);
 	}
 	return result;
 }

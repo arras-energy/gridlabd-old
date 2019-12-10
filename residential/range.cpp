@@ -1058,30 +1058,30 @@ void range::update_T_and_or_h(double nHours)
 			Tlower = Tinlet;
 			break;
 
-			// Correct h if it overshot...
-			if (h < ROUNDOFF) 
-			{
-				// We've over-depleted the oven slightly.  Make a quickie
-				// adjustment to Tlower/Tw to account for it...
+			// // Correct h if it overshot...
+			// if (h < ROUNDOFF) 
+			// {
+			// 	// We've over-depleted the oven slightly.  Make a quickie
+			// 	// adjustment to Tlower/Tw to account for it...
 
-				double vol_over = oven_volume/GALPCF * h/height;  // Negative...
-				double energy_over = vol_over * food_density * specificheat_food * (/*Tupper*/ Tw - Tlower);
-				double Tnew = Tlower + energy_over/Cw;
-				Tw = Tlower = Tnew;
-				h = 0;
-			} 
-			else if (h > height) 
-			{
-				// Ditto for over-recovery...
-				double vol_over = oven_volume/GALPCF * (h-height)/height;
-				double energy_over = vol_over * food_density * specificheat_food * (/*Tupper*/ Tw - Tlower);
-				double Tnew = /*Tupper*/ Tw + energy_over/Cw;
-				// Tw = Tupper;
-				Tw = Tnew;
-				Tlower = Tinlet;
-				h = height;
-			} 
-			break;
+			// 	double vol_over = oven_volume/GALPCF * h/height;  // Negative...
+			// 	double energy_over = vol_over * food_density * specificheat_food * (/*Tupper*/ Tw - Tlower);
+			// 	double Tnew = Tlower + energy_over/Cw;
+			// 	Tw = Tlower = Tnew;
+			// 	h = 0;
+			// } 
+			// else if (h > height) 
+			// {
+			// 	// Ditto for over-recovery...
+			// 	double vol_over = oven_volume/GALPCF * (h-height)/height;
+			// 	double energy_over = vol_over * food_density * specificheat_food * (/*Tupper*/ Tw - Tlower);
+			// 	double Tnew = /*Tupper*/ Tw + energy_over/Cw;
+			// 	// Tw = Tupper;
+			// 	Tw = Tnew;
+			// 	Tlower = Tinlet;
+			// 	h = height;
+			// } 
+			// break;
 
 		default:
 			break;
