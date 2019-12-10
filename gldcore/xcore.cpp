@@ -120,7 +120,7 @@ extern "C" int xstart(void)
 		NULL );   // array of values
 	XSetForeground( dsp, gc, black );
 
-	XSetStandardProperties(dsp, win, "GridLAB-D", "GridLAB-D", None,NULL,0,NULL);
+	XSetStandardProperties(dsp, win, PACKAGE_NAME, PACKAGE_NAME, None,NULL,0,NULL);
 
 	font = XLoadFont(dsp,"*-lucida-bold-r-normal-*-12-*");
 

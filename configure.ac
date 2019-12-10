@@ -24,13 +24,16 @@ m4_define([sbuild_m4_esyscmd_s],
 [sbuild_m4_chomp(m4_esyscmd([$1]))])
 
 dnl GridLAB-D version information
+m4_define([pkg], sbuild_m4_esyscmd_s([build-aux/version.sh --package]))
+m4_define([pkgname], sbuild_m4_esyscmd_s([build-aux/version.sh --package-name]))
 m4_define([pkgversion], sbuild_m4_esyscmd_s([build-aux/version.sh --version]))
 m4_define([pkgbranch],  sbuild_m4_esyscmd_s([build-aux/version.sh --branch]))
-m4_define([svnversion], sbuild_m4_esyscmd_s([build-aux/version.sh --svn]))
+m4_define([gitversion], sbuild_m4_esyscmd_s([build-aux/version.sh --git]))
 m4_define([versionname], sbuild_m4_esyscmd_s([build-aux/version.sh --name]))
+m4_define([pkginstall], sbuild_m4_esyscmd_s([build-aux/version.sh --install]))
 
 AC_PREREQ([2.63])
-AC_INIT([GridLAB-D], pkgversion, [gridlabd@gmail.com], [gridlabd])
+AC_INIT(pkgname, pkgversion, [gridlabd@gmail.com], pkg)
 AC_CONFIG_SRCDIR([gldcore/gridlabd.h])
 AC_CONFIG_HEADER([gldcore/config.h])
 AC_CONFIG_MACRO_DIR([m4])
@@ -57,9 +60,9 @@ AC_CANONICAL_HOST
 # Export version info as autoconf variables
 AC_SUBST(PACKAGE_BASEVERSION, pkgversion)
 AC_SUBST(PACKAGE_BRANCH, pkgbranch)
-AC_SUBST(PACKAGE_REVISION, svnversion)
+AC_SUBST(PACKAGE_REVISION, gitversion)
 
-AC_PREFIX_DEFAULT([/usr/local/opt/gridlabd/versionname])
+AC_PREFIX_DEFAULT(pkginstall)
 
 AM_SILENT_RULES([yes])
 
@@ -462,7 +465,7 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AC_PROG_MKDIR_P
 
-DX_INIT_DOXYGEN([gridlabd], [['$(top_srcdir)/doxygen/gridlabd.conf']])
+DX_INIT_DOXYGEN(pkg, [['$(top_srcdir)/doxygen/gridlabd.conf']])
 DX_HTML_FEATURE([ON])
 DX_CHM_FEATURE([OFF])
 DX_CHI_FEATURE([OFF])
@@ -573,9 +576,7 @@ AC_MSG_RESULT([
     __sync_add_and_fetch: ....... $HAVE_SYNC_ADD_AND_FETCH
 
   Build flags:
-    CFLAGS: ..................... ${CFLAGS:-(none)}
     CXXFLAGS: ................... ${CXXFLAGS:-(none)}
-    CPPFLAGS: ................... ${CPPFLAGS:-(none)}
     LDFLAGS: .................... ${LDFLAGS:-(none)}
 
   Installation paths:
@@ -598,12 +599,12 @@ AC_MSG_RESULT([
   Running:
     type 'export PATH=/usr/local/opt/gridlabd/$VERSION_NAME/bin:\$PATH' to include this version in your current path
     type '$PACKAGE --version' to check that you are running the correct version of $PACKAGE
-    type '$PACKAGE version select $VERSION_NAME' to activate this version of $PACKAGE
+    type '/usr/local/opt/gridlabd/$VERSION_NAME/bin/$PACKAGE version set' to activate this version of $PACKAGE
 
 -----------------------------------------------------------------------
 ])
 
-CXXFLAGS="$CPPFLAGS $(/usr/local/bin/python3-config --cflags)"
+CXXFLAGS="$CXXFLAGS $(/usr/local/bin/python3-config --cflags)"
 LDFLAGS="$LDFLAGS $(/usr/local/bin/python3-config --ldflags)"
 
 AC_CONFIG_FILES([Makefile])

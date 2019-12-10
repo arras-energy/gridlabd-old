@@ -134,6 +134,8 @@ extern "C" {
 	STATUS sched_getinfo(int n,PROCINFO *pinfo);
 	int sched_getnproc(void);
 
+	void module_help_md(MODULE *mod, CLASS *oclass=NULL);
+
 #ifdef __cplusplus
 }
 #endif

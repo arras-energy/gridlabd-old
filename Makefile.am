@@ -334,18 +334,27 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool
 
-install-exec-hook: python-install weather
-	@if [ "`which gridlabd`" != "$(DESTDIR)$(bindir)/gridlabd" ]; then \
-		echo >&2 "***WARNING***: install target $(DESTDIR)$(bindir)/gridlabd is not in the current path (`which gridlabd` is found instead)"; \
-	fi
+install-exec-hook: python-install html-local index
+	@echo ""
+	@echo "Install complete. Here are some useful commands now:"
+	@echo ""
+	@echo "To include this version in your command path:"
+	@echo "  export PATH=$(DESTDIR)$(bindir):$$PATH"
+	@echo ""
+	@echo "To run this version directly without using the command path:"
+	@echo "  $(DESTDIR)$(bindir)/gridlabd"
+	@echo ""
+	@echo "To make this version the default for all user on this system:"
+	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
+	@echo ""
 
 index: weather library template
 
 html-local: module-html developer-html troubleshooting-html
-	mkdir -p $(prefix)/html/developer
-	cp $(top_srcdir)/documents/index.html $(prefix)/html/
-	cp -R $(top_srcdir)/documents/html/* $(prefix)/html/
-	cp -R $(top_srcdir)/gldcore/html/* $(prefix)/html/developer/
+	mkdir -p $(prefix)/share/doc/developer
+	cp $(top_srcdir)/documents/index.html $(prefix)/share/doc/index.html
+	cp -R $(top_srcdir)/documents/html/* $(prefix)/share/doc/
+	cp -R $(top_srcdir)/gldcore/html/* $(prefix)/share/doc/developer/
 
 module-html:
 	@mkdir -p $(top_srcdir)/documents/html/modules

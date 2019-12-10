@@ -3538,7 +3538,7 @@ EXITCODE GldExec::run_scripts(SIMPLELIST *list)
 		if ( sscanf(item->data,"%[a-z]:%[^\n]",group,call) == 2 && strcmp(group,"system") != 0 )
 		{
 			// special access
-			if ( strcmp(group,"gridlabd") == 0 )
+			if ( strcmp(group,PACKAGE) == 0 )
 			{
 				EXITCODE rc = run_gridlabd_script(call);
 				if ( rc != XC_SUCCESS )
