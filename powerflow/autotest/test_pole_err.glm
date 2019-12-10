@@ -1,0 +1,81 @@
+// this model should fail because the pole 2 tilt is too large
+module powerflow;
+module climate;
+
+#set suppress_repeat_messages=FALSE
+
+clock {
+	starttime '2020-01-01 00:00:00';
+	stoptime '2021-01-01 00:00:00';
+}
+
+object climate {
+	name weather;
+	tmyfile "../CA-Chino_Airport.tmy3";
+}
+
+object pole_configuration {
+	name "WOOD-C-45/5";
+	pole_type WOOD;
+	pole_length 45 ft;
+	pole_depth 4.5 ft;
+	ground_diameter (32.5/3.14);
+	top_diameter (19/3.14);
+	fiber_strength 8000 psi;
+	repair_time 1 h;
+}
+
+object pole {
+	name pole1;
+	weather weather;
+	configuration "WOOD-C-45/5"; 
+	phases ABC;
+	nominal_voltage 12470;
+	tilt_angle 5 deg;
+	tilt_direction 270;
+	install_year 1990;
+}
+
+object line_spacing {
+	name spacing1;
+	distance_AE 30;
+	distance_BE 35;
+	distance_CE 40;
+}
+
+object overhead_line_conductor {
+	name conductor1;
+	diameter 0.5 in;
+}
+object line_configuration {
+	name linetype1;
+	spacing spacing1;
+	conductor_A conductor1;
+	conductor_B conductor1;
+	conductor_C conductor1;
+}
+
+object overhead_line {
+	phases ABC;
+	from pole1;
+	to pole2;
+	length 500 ft;
+	configuration linetype1;
+}
+object pole {
+	name pole2;
+	weather weather;
+	configuration "WOOD-C-45/5"; 
+	phases ABC;
+	nominal_voltage 12470;
+	tilt_angle 9 deg;
+	tilt_direction 270;
+	install_year 2000;
+}
+
+module tape;
+object multi_recorder {
+	interval 3600;
+	property "weather:wind_speed,pole1:pole_stress,pole1:susceptibility, pole1:total_moment, pole1:resisting_moment, pole2:pole_stress,pole2:susceptibility, pole1:critical_wind_speed, pole2:critical_wind_speed, pole2:total_moment, pole2:resisting_moment";
+	file test_pole.csv;
+}

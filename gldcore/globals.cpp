@@ -15,7 +15,8 @@ DEPRECATED static GLOBALVAR *global_varlist = NULL, *lastvar = NULL;
 DEPRECATED static KEYWORD df_keys[] = {
 	{"ISO", DF_ISO, df_keys+1},
 	{"US", DF_US, df_keys+2},
-	{"EURO", DF_EURO, NULL},
+	{"EURO", DF_EURO, df_keys+3},
+	{"ISO8601", DF_ISO8601, NULL},
 };
 DEPRECATED static KEYWORD trl_keys[] = {
 	{"PRINCIPLE",	TRL_PRINCIPLE, trl_keys+1},
@@ -163,7 +164,19 @@ DEPRECATED static KEYWORD gso_keys[] = {
 	{"MINIMAL",		GSO_MINIMAL,	gso_keys+2},
 	{"NOGLOBALS",	GSO_NOGLOBALS,	gso_keys+3},
 	{"NODEFAULTS",	GSO_NODEFAULTS, gso_keys+4},
-	{"NOMACROS",	GSO_NOMACROS,	NULL},
+	{"NOMACROS",	GSO_NOMACROS,	gso_keys+5},
+	{"ORIGINAL",	GSO_ORIGINAL,	NULL},
+};
+DEPRECATED static KEYWORD fso_keys[] = {
+	{"ALL",			FSO_ALL,		fso_keys+1},
+	{"MODULES",		FSO_MODULES,	fso_keys+2},
+	{"PROPERTIES",	FSO_PROPERTIES,	fso_keys+3},
+	{"CLASSES",		FSO_CLASSES,	fso_keys+4},
+	{"GLOBALS",		FSO_GLOBALS,	fso_keys+5},
+	{"OBJECTS",		FSO_OBJECTS,	fso_keys+6},
+	{"SCHEDULES",	FSO_SCHEDULES,	fso_keys+7},
+	{"FILTERS",		FSO_FILTERS,	fso_keys+8},
+	{"SCRIPTS",		FSO_FILTERS,	NULL},
 };
 
 DEPRECATED static struct s_varmap {
@@ -210,6 +223,7 @@ DEPRECATED static struct s_varmap {
 	{"object_scan", PT_char32, &global_object_scan, PA_PUBLIC, "format for reading anonymous object names"},
 	{"object_tree_balance", PT_bool, &global_no_balance, PA_PUBLIC, "object index tree balancing enable flag"},
 	{"kmlfile", PT_char1024, &global_kmlfile, PA_PUBLIC, "KML output file name"},
+	{"kmlhost", PT_char1024, &global_kmlhost, PA_PUBLIC, "KML server URL"},
 	{"modelname", PT_char1024, &global_modelname, PA_REFERENCE, "model name"},
 	{"execdir",PT_char1024, &global_execdir, PA_REFERENCE, "directory where executable binary was found"},
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},
@@ -279,6 +293,7 @@ DEPRECATED static struct s_varmap {
 	{"sanitize_index", PT_char1024, &global_sanitizeindex, PA_PUBLIC, "sanitization index file spec"},
 	{"sanitize_offset", PT_char32, &global_sanitizeoffset, PA_PUBLIC, "sanitization lat/lon offset"},
 	{"simulation_mode",PT_enumeration,&global_simulation_mode,PA_PUBLIC, "current time simulation type",sm_keys},
+	{"deltamode_allowed", PT_bool, &global_deltamode_allowed, PA_PUBLIC, "flag to allow simulation in deltamode",NULL,delta_modecheck},
 	{"deltamode_timestep",PT_int32,&global_deltamode_timestep,PA_PUBLIC, "uniform step size for deltamode simulations"},
 	{"deltamode_maximumtime", PT_int64,&global_deltamode_maximumtime,PA_PUBLIC, "maximum time (ns) deltamode can run"},
 	{"deltaclock", PT_int64, &global_deltaclock, PA_PUBLIC, "cumulative delta runtime with respect to the global clock"},
@@ -304,6 +319,8 @@ DEPRECATED static struct s_varmap {
 	{"daemon_configfile", PT_char1024, &global_daemon_configfile, PA_PUBLIC, "name of configuration file used by the daemon"},
 	{"timezone_locale", PT_char1024, &global_timezone_locale, PA_REFERENCE, "timezone specified by the clock directive"},
 	{"glm_save_options", PT_set, &global_glm_save_options, PA_PUBLIC, "options to control GLM file save format", gso_keys},
+	{"filesave_options", PT_set, &global_filesave_options, PA_PUBLIC, "control elements saved on output", fso_keys},
+	{"ignore_errors", PT_bool, &global_ignore_errors, PA_PUBLIC, "disable exit on error behavior"},
 	/* add new global variables here */
 };
 
@@ -343,7 +360,7 @@ DEPRECATED static void buildtmp(void)
 	if (!(tmp = getenv("TMP")) && !(tmp = getenv("TEMP")))
 		tmp = TMP;
 	user = getenv(USERVAR);
-	snprintf(global_tmp, sizeof(global_tmp), "%s%s%s" PATHSEP "gridlabd",
+	snprintf(global_tmp, sizeof(global_tmp), "%s%s%s" PATHSEP PACKAGE,
 			tmp, (user ? PATHSEP : ""), (user ? user : ""));
 }
 
@@ -896,6 +913,79 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	}
 }
 
+DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
+{
+	FILE *fp = popen(command, "r");
+	if ( fp == NULL ) 
+	{
+		output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
+		return strcpy(buffer,"");
+	}
+	char line[1024];
+	int pos = 0;
+	strcpy(buffer,"");
+	while ( fgets(line, sizeof(line)-1, fp) != NULL ) 
+	{
+		int len = strlen(line);
+		if ( pos+len >= size )
+		{
+			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): result too large",buffer,size,command);
+			pclose(fp);
+			return strcpy(buffer,"");
+		}
+		strcpy(buffer+pos,line);
+		pos += len;
+		if ( buffer[pos-1] == '\n' )
+			buffer[pos-1] = ' ';
+	}
+	pclose(fp);
+	return buffer;
+}
+
+DEPRECATED const char *global_range(char *buffer, int size, const char *name)
+{
+	double start = 0.0;
+	double stop = 1.0;
+	double step = 1.0;
+	char delim = ' ';
+	sscanf(name,"RANGE%c%lg,%lg,%lg",&delim,&start,&stop,&step);
+	if ( strchr(" ;,",delim) == NULL )
+	{
+		output_error("global_range(buffer=%x,size=%d,name='%s'): delimiter '%s' is not supported, using space",buffer,size,name,delim);
+		delim = ' ';
+	}
+	int len = 0;
+	char temp[size+100];
+	for ( double value = start ; value <= stop ; value += step )
+	{
+		if ( len > 0 )
+			len += sprintf(temp+len,"%c",delim);
+		len += sprintf(temp+len,"%g",value);
+		if ( len > size )
+		{
+			output_error("global_range(buffer=%x,size=%d,name='%s'): buffer too small, range truncated",buffer,size,name);
+			len = size-1;
+			break;
+		}
+	}
+	return strncpy(buffer,temp,len+1);
+}
+
+DEPRECATED const char *global_python(char *buffer, int size, const char *command)
+{
+	std::string result = python_eval(command);
+	if ( (int)result.size() >= size )
+	{
+		output_error("global_python(buffer=0x%x,int size=%d, command='%s'): result too big for buffer", buffer, size, command);
+		strcpy(buffer,"");
+		return buffer;
+	}
+	else
+	{
+		return strcpy(buffer,result.c_str());
+	}
+}
+
 bool GldGlobals::isdefined(const char *name)
 {
 	return find(name)!=NULL;
@@ -1143,6 +1233,9 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 		//Used specifically to run MYSQL integration autotests
 		{"MYSQL",global_true},
 #endif
+#ifdef HAVE_PYTHON
+		{"PYTHON",global_true},
+#endif
 	};
 	size_t i;	
 	if(buffer == NULL){
@@ -1166,12 +1259,24 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	}
 
 	/* sequences */
-	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':')!=NULL )
+	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':') != NULL )
 		return global_seq(buffer,size,name);
 
 	/* expansions */
 	if ( parameter_expansion(buffer,size,name) )
 		return buffer;
+
+	// shells
+	if ( strncmp(name,"SHELL ",6) == 0 )
+		return global_shell(buffer,size,name+6);
+
+	// ranges
+	if ( strncmp(name,"RANGE",5) == 0 && strchr(" ;,",name[5]) != NULL )
+		return global_range(buffer,size,name);
+
+	// python call
+	if ( strncmp(name,"PYTHON ",7) == 0 )
+		return global_python(buffer,size,name+7);
 
 	var = global_find(name);
 	if(var == NULL)

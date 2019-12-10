@@ -271,19 +271,19 @@ bool ceus::set_component(COMPONENT *component, const char *term, double value)
 
 		{"S", component->solar.slope},
 		{"Sb", component->solar.base},
-		{"Sb", component->solar.intercept},
+		{"Sc", component->solar.intercept},
 		{"S0", component->solar.domain.min},
 		{"S1", component->solar.domain.max},
 
 		{"E", component->price.slope},
 		{"Eb", component->price.base},
-		{"Eb", component->price.intercept},
+		{"Ec", component->price.intercept},
 		{"E0", component->price.domain.min},
 		{"E1", component->price.domain.max},
 
 		{"O", component->occupancy.slope},
 		{"Ob", component->occupancy.base},
-		{"Ob", component->occupancy.intercept},
+		{"Oc", component->occupancy.intercept},
 		{"O0", component->occupancy.domain.min},
 		{"O1", component->occupancy.domain.max},
 
@@ -313,6 +313,22 @@ ceus::COMPONENT *ceus::find_component(const char *enduse)
 		}
 	}
 	return c;
+}
+const char *ceus::get_components(char *buffer, size_t len)
+{
+	if ( buffer == NULL )
+	{
+		buffer = strdup(initial_components ? initial_components->c_str() : "");
+	}
+	else if ( len > 0 && initial_components->length() < len )
+	{
+		strcpy(buffer,initial_components ? initial_components->c_str() : "");
+	}
+	else
+	{
+		buffer = NULL;
+	}
+	return buffer;
 }
 
 ///////////////////////////////
@@ -484,6 +500,7 @@ TIMESTAMP ceus::sync(TIMESTAMP t1)
 		double load = get_value(enduse,gl_globalclock,floor_area)/3.0;
 		for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
 		{
+			if ( c->data != data ) continue;
 			double scalar = load * c->fraction / 3.0 ;
 			scalar += apply_sensitivity(c->cooling,temperature);
 			scalar += apply_sensitivity(c->heating,temperature);
@@ -524,32 +541,79 @@ TIMESTAMP ceus::postsync(TIMESTAMP t1)
 
 int ceus::composition(char *buffer, size_t len)
 {
-	if ( len == 0 ) // read
+	if ( buffer == NULL ) // query
 	{
-		char enduse[1024];
-		char composition[1024];
-		if ( sscanf(buffer,"%[^:]:{%[^}]}",enduse,composition) < 2 )
+		const char *result = get_components();
+		size_t size = strlen(get_components());
+		delete[] result;
+		if ( len == 0 ) // get length
 		{
-			error("composition '%s' is not formatted correctly (expected 'enduse:{component:factor;...}')",buffer);
-			return 0;
+			return size+1;
 		}
-		if ( find_component(enduse) )
+		else // check length
 		{
-			error("composition '%s' has already been specified",enduse);
-			return 0;
+			return size < len;
 		}
-		add_component(enduse,composition);
-		return 1; 
+	}
+	else if ( len == 0 ) // read
+	{
+		char *tmp = strdup(buffer);
+		char *item = NULL, *last = NULL;
+		while ( (item=strtok_r(item?NULL:tmp,",",&last)) != NULL )
+		{
+			while ( isspace(*item) ) item++;
+			char enduse[1024];
+			char composition[1024];
+			if ( sscanf(item,"%[^:]:{%[^}]}",enduse,composition) < 2 )
+			{
+				error("composition '%s' is not formatted correctly (expected 'enduse:{component:factor;...}')",item);
+				return 0;
+			}
+			if ( find_component(enduse) )
+			{
+				error("composition '%s' has already been specified",enduse);
+				return 0;
+			}
+			if ( add_component(enduse,composition) == NULL )
+			{
+				return 0;
+			}
+		}
+		free(tmp);
+		if ( initial_components == NULL )
+			initial_components = new std::string;
+		else
+			*initial_components = *initial_components + ",\n";
+		*initial_components = *initial_components + buffer;
+		return strlen(buffer); 
 	}
 	else // write
 	{
-		// TODO
-		return 0;
+		return strlen(get_components(buffer,len));
 	}
 }
 
-int ceus::filename(const char *filename)
+int ceus::filename(char *filename, size_t len)
 {
+	if ( filename == NULL )
+	{
+		return repository && repository->filename ? strlen(repository->filename)+1 : 0;
+	}
+	else if ( len > 0 )
+	{
+		if ( repository == NULL || repository->filename == NULL )
+		{
+			return 0;
+		}
+		size_t size = strlen(repository->filename);
+		if ( size >= len )
+		{
+			return 0;
+		}
+		strcpy(filename,repository->filename);
+		return (int)size; 
+	}
+
 	// link to existing data if already loaded
 	data = find_file(filename);
 	if ( data != NULL )

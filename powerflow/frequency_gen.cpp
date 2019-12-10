@@ -103,7 +103,7 @@ int frequency_gen::create(void)
 
 int frequency_gen::init(OBJECT *parent)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	size_t index;
 
 	//Store nominal frequency value for calculations
@@ -332,7 +332,7 @@ TIMESTAMP frequency_gen::presync(TIMESTAMP t0)
 
 TIMESTAMP frequency_gen::postsync(TIMESTAMP t0)
 {
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	node *ParNode = OBJECTDATA(obj->parent,node);
 	TIMESTAMP tret = powerflow_object::postsync(t0);
 	TIMESTAMP tupdate, tupdate_b;

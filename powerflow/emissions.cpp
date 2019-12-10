@@ -291,7 +291,7 @@ int emissions::create(void)
 int emissions::init(OBJECT *parent)
 {
 	int rval;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	rval = powerflow_object::init(parent);
  

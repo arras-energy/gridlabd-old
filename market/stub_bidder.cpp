@@ -42,7 +42,7 @@ int stub_bidder::init(OBJECT *parent)
 	next_t = 0;
 	lastbid_id = -1;
 	lastmkt_id = -1;
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	if (market==NULL)			
 		throw "market is not defined";
 	thismkt_id = (int64*)gl_get_addr(market,"market_id");
@@ -70,7 +70,7 @@ int stub_bidder::isa(CLASSNAME classname)
 
 TIMESTAMP stub_bidder::sync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	char mktname[1024];
 	char ctrname[1024];
 

@@ -152,6 +152,7 @@ typedef struct _stat STAT;
 #define snprintf _snprintf
 #else
 #include <unistd.h>
+#include <dlfcn.h>
 typedef struct stat STAT;
 #define FSTAT fstat
 #endif
@@ -291,7 +292,6 @@ void inline_code_term(void)
 #define FN_EXPORT		0x1000
 
 /* used for tracking #include directives in files */
-#define BUFFERSIZE (65536*1000)
 typedef struct s_include_list {
 	char file[256];
 	struct s_include_list *next;
@@ -304,7 +304,7 @@ INCLUDELIST *header_list = NULL;
 
 static char *forward_slashes(char *a)
 {
-	static char buffer[1024];
+	static char buffer[MAXPATHNAMELEN];
 	char *b=buffer;
 	while (*a!='\0' && b<buffer+sizeof(buffer))
 	{
@@ -366,7 +366,7 @@ static void filename_parts(char *fullname, char *path, char *name, char *ext)
 
 static int append_init(const char* format,...)
 {
-	static char code[1024];
+	static char code[MAXCODEBLOCKSIZE];
 	va_list ptr;
 	va_start(ptr,format);
 	vsprintf(code,format,ptr);
@@ -389,7 +389,7 @@ static int append_init(const char* format,...)
 }
 static int append_code(const char* format,...)
 {
-	static char code[65536];
+	static char code[MAXCODEBLOCKSIZE];
 	va_list ptr;
 	va_start(ptr,format);
 	vsprintf(code,format,ptr);
@@ -438,7 +438,7 @@ static void mark_linex(const char *filename, int linenum)
 	char buffer[64];
 	if (global_getvar("noglmrefs",buffer, 63)==NULL)
 	{
-		char fname[1024];
+		char fname[MAXPATHNAMELEN];
 		strcpy(fname,filename);
 		append_code("#line %d \"%s\"\n", linenum, forward_slashes(fname));
 	}
@@ -455,7 +455,12 @@ static STATUS exec(const char *format,...)
 	vsprintf(cmd,format,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("Running '%s' in '%s'", cmd, getcwd(NULL,0));
-	return system(cmd)==0?SUCCESS:FAILED;
+	int rc = system(cmd);
+	if ( rc != 0 )
+	{
+		output_error("command [%s] failed, rc=%d",cmd,rc);
+	}
+	return rc==0?SUCCESS:FAILED;
 }
 
 static STATUS debugger(const char *target)
@@ -721,7 +726,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				sprintf(include_file_str+ifs_off, "#include \"%s\"\n;", lptr->file);
 				ifs_off+=strlen(lptr->file)+13;
 			}
-			if (write_file(fp,"/* automatically generated from GridLAB-D */\n\n"
+			if (write_file(fp,"/* automatically generated from %s */\n\n"
 					"int gld_major=%d, gld_minor=%d;\n\n"
 					"%s\n\n"
 					"#include <gridlabd.h>\n\n"
@@ -729,6 +734,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 					"CALLBACKS *callback = NULL;\n"
 					"static CLASS *myclass = NULL;\n"
 					"static int setup_class(CLASS *);\n\n",
+					PACKAGE_NAME,
 					REV_MAJOR, REV_MINOR,
 					include_file_str,
 					global_getvar("use_msvc",tbuf,63)!=NULL
@@ -791,7 +797,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 						getenv("CXXFLAGS")?getenv("CXXFLAGS"):DEFAULT_CXXFLAGS,
 						cfile, ofile);
 				IN_MYCONTEXT output_verbose("compile command: [%s]", execstr);
-				if(exec(execstr)==FAILED)
+				if(exec("%s",execstr)==FAILED)
 				{
 					errno = EINVAL;
 					return FAILED;
@@ -810,7 +816,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 						getenv("LDFLAGS")?getenv("LDFLAGS"):DEFAULT_LDFLAGS,
 						ofile, afile, libs);
 				IN_MYCONTEXT output_verbose("link command: [%s]", ldstr);
-				if(exec(ldstr) == FAILED)
+				if(exec("%s",ldstr) == FAILED)
 				{
 					errno = EINVAL;
 					return FAILED;
@@ -1062,17 +1068,25 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = object_find_by_id(item->by->id + (op[0]=='+'?+1:-1)*id);
 		if ( oclass == NULL || obj==NULL )
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
-				format_object(item->by), item->id);
-			return FAILED;
+			obj = object_find_name(item->id);
+			if ( obj == NULL )
+			{
+				output_error_raw("%s(%d): cannot resolve implicit reference from %s to %s", filename, item->line,
+					format_object(item->by), item->id);
+				return FAILED;
+			}
 		}
 	}
 	else if (sscanf(item->id,global_object_scan,classname,&id)==2)
 	{
 		obj = load_get_index(id);
+		if ( obj == NULL )
+		{
+			obj = object_find_name(item->id);
+		}
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve explicit reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
@@ -1089,7 +1103,7 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		obj = get_next_unlinked(oclass);
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): unable resolve reference from %s to %s", filename, item->line,
+			output_error_raw("%s(%d): cannot resolve last reference from %s to %s", filename, item->line,
 				format_object(item->by), item->id);
 			return FAILED;
 		}
@@ -1474,6 +1488,66 @@ static int structured_value(PARSER, char *result, int size)
 	result[_n]='\0';
 	return (int)(_p - start);
 }
+
+static int multiline_value(PARSER,char *result,int size)
+{
+	const char *start = _p;
+	const char *end = strstr(_p,"\"\"\"");
+	if ( end == NULL )
+	{
+		output_error_raw("%s(%d): unterminated multi-line value ('\"\"\"' not found)",filename,linenum);
+		return 0;
+	}
+
+	std::string value("");
+	for ( ; _p < end ; _p++)
+	{
+		const char *esc = strchr(_p,'\\');
+		if ( esc == NULL )
+		{
+			value += std::string(_p,end-_p);
+			break;
+		}
+		if ( esc > _p )
+		{
+			std::string fragment(_p,esc-_p);
+			value = value + fragment;
+		}
+		switch ( esc[1] ) {
+		case 'n':
+			value += std::string("\n");
+			break;
+		case 't':
+			value += std::string("\t");
+			break;
+		case 'b':
+			value += std::string("\b");
+			break;
+		case 'f':
+			value += std::string("\f");
+			break;
+		case 'r':
+			value += std::string("\r");
+			break;
+		// TODO: need \uXXXX
+		default:
+			break;
+		}
+		_p = esc+1;
+	}
+	int len = value.length();
+	if ( len < size )
+	{
+		strcpy(result,value.c_str());
+		return (int)(end-start);
+	}
+	else
+	{
+		output_error_raw("%s(%d): multi-line value too long for loader buffer (len %d > size %d)",filename,linenum,len,size);
+		return 0;
+	}
+}
+
 static int value(PARSER, char *result, int size)
 {
 	/* everything to a semicolon */
@@ -1481,9 +1555,16 @@ static int value(PARSER, char *result, int size)
 	const char *start=_p;
 	int quote=0;
 	START;
-	if ( *_p=='{' ) 
+	if ( strncmp(_p,"\"\"\"",3) == 0 )
+	{
+		int len = multiline_value(_p+3,result,size);
+		return len > 0 ? (len+6) : 0;
+	}
+	else if ( *_p == '{' ) 
+	{
 		return structured_value(_p,result,size);
-	while (size>1 && *_p!='\0' && !(*_p==delim && quote == 0) && *_p!='\n') 
+	}
+	while ( size > 1 && *_p != '\0' && !(*_p==delim && quote == 0) && *_p != '\n' ) 
 	{
 		if ( _p[0]=='\\' && _p[1]!='\0' )
 		{
@@ -1496,11 +1577,15 @@ static int value(PARSER, char *result, int size)
 			quote = (1+quote) % 2;
 		}
 		else
+		{
 			COPY(result);
+		}
 	}
 	result[_n]='\0';
-	if (quote&1)
+	if ( quote&1 )
+	{
 		output_warning("%s(%d): missing closing double quote", filename, linenum);
+	}
 	return (int)(_p - start);
 }
 
@@ -1631,6 +1716,18 @@ static int integer(PARSER, int64 *value)
 	while (size>1 && isdigit(*_p)) COPY(result);
 	result[_n]='\0';
 	*value=atoi64(result);
+	return _n;
+}
+
+
+static int unsigned_integer(PARSER, unsigned int64 *value)
+{
+	char result[256];
+	int size=sizeof(result);
+	START;
+	while (size>1 && isdigit(*_p)) COPY(result);
+	result[_n]='\0';
+	*value=(unsigned int64)atoi64(result);
 	return _n;
 }
 
@@ -2597,7 +2694,7 @@ static int expanded_value(const char *text, char *result, int size, const char *
 					object_namespace(value,sizeof(value));
 				else if (strcmp(varname,"class")==0)
 					strcpy(value,current_object?current_object->oclass->name:"");
-				else if (strcmp(varname,"gridlabd")==0)
+				else if (strcmp(varname,PACKAGE)==0)
 					strcpy(value,global_execdir);
 				else if (strcmp(varname,"hostname")==0)
 					strcpy(value,global_hostname); 
@@ -2883,7 +2980,7 @@ static int module_properties(PARSER, MODULE *mod)
 			if WHITE ACCEPT;
 			if LITERAL(";")
 			{
-				if (module_setvar(mod,propname,propvalue)>0)
+				if (module_setvar(mod,propname,(const char*)propvalue)>0)
 				{
 					ACCEPT;
 					goto Next;
@@ -4072,7 +4169,7 @@ static bool json_append(JSONDATA **data, const char *name, size_t namelen, const
 		return false;
 	}
 	*data = next;
-	output_debug("json_append(name='%s',value='%s')",next->name,next->value);
+	IN_MYCONTEXT output_debug("json_append(name='%s',value='%s')",next->name,next->value);
 	return true;
 }
 static int json_data(PARSER,JSONDATA **data)
@@ -4199,7 +4296,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
 static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
 	char propname[64];
-	char propval[1024];
+	static char propval[65536*10];
 	double dval;
 	complex cval;
 	void *source=NULL;
@@ -4447,6 +4544,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
+
 				int n = sscanf(sources,"%[^:,]:%[^,]",sobj,sprop);
 				OBJECT *source_obj;
 				PROPERTY *source_prop;
@@ -4671,6 +4769,19 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							ACCEPT;
 						}
 					}
+					else if ( strcmp(propname,"guid")==0 )
+					{
+						if ( sscanf(propval,"%08llX%08llX",obj->guid,obj->guid+1) != 2 )
+						{
+							output_error("%s(%d): guid '%s' is not valid",filename,linenum,propval);
+							REJECT;
+							DONE;
+						}
+						else
+						{
+							ACCEPT;
+						}
+					}
 					else
 					{
 						output_error_raw("%s(%d): property %s is not defined in class %s", filename, linenum, propname, oclass->name);
@@ -4690,7 +4801,20 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						ACCEPT;
 					}
 				}
-				else if (object_set_value_by_name(obj,propname,propval)==0)
+				else if ( prop->ptype >= PT_char8 && prop->ptype <= PT_char1024 )
+				{
+					int len = object_set_value_by_name(obj,propname,propval);
+					if ( len < (int)strlen(propval) )
+					{
+						output_error_raw("%s(%d): property %s of %s could not be set to value '%s' (only %d bytes read)", filename, linenum, propname, format_object(obj), propval, len);
+						REJECT;
+					}
+					else
+					{
+						ACCEPT;
+					}
+				}
+				else if ( object_set_value_by_name(obj,propname,propval) == 0 )
 				{
 					output_error_raw("%s(%d): property %s of %s could not be set to value '%s'", filename, linenum, propname, format_object(obj), propval);
 					REJECT;
@@ -5788,6 +5912,34 @@ static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 	}
 	DONE;
 }
+
+static int filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resolution, double *minimum, double *maximum)
+{
+	START;
+	if WHITE ACCEPT;
+	if ( LITERAL("resolution") && (WHITE,LITERAL("=")) && (WHITE,TERM(unsigned_integer(HERE,resolution))) )
+	{
+		*flags |= FC_RESOLUTION;
+		ACCEPT;
+	}
+	else if ( LITERAL("minimum") && (WHITE,LITERAL("=")) && (WHITE,TERM(real_value(HERE,minimum))) )
+	{
+		*flags |= FC_MINIMUM;
+		ACCEPT;
+	}
+	else if ( LITERAL("maximum") && (WHITE,LITERAL("=")) && (WHITE,TERM(real_value(HERE,maximum))) )
+	{
+		*flags |= FC_MAXIMUM;
+		ACCEPT;
+	}
+	else
+	{
+		output_error_raw("%s(%d): filter option at or near '%-10.10s' is not recognized", filename, linenum, HERE);
+		REJECT;
+	}
+	DONE;
+}
+
 static int filter_block(PARSER)
 {
 	char tfname[1024];
@@ -5798,6 +5950,10 @@ static int filter_block(PARSER)
 		char domain[64];
 		double timestep=1;
 		double timeskew=0;
+		unsigned int64 flags = 0;
+ 		unsigned int64 resolution = 0;
+ 		double minimum = 0.0;
+ 		double maximum = 1.0;
 		if ( (WHITE,LITERAL("(")) && (WHITE,TERM(name(HERE,domain,sizeof(domain)))) )
 		{
 			if ( strcmp(domain,"z")==0 )
@@ -5809,10 +5965,11 @@ static int filter_block(PARSER)
 				ACCEPT;
 				if ( (WHITE,LITERAL(",")) && (WHITE,TERM(double_timestep(HERE,&timestep))) ) { ACCEPT; }
 				if ( (WHITE,LITERAL(",")) && (WHITE,TERM(double_timestep(HERE,&timeskew))) ) { ACCEPT; }
+				while ( (WHITE,LITERAL(",")) && (WHITE,TERM(filter_option(HERE,&flags,&resolution,&minimum,&maximum))) ) { ACCEPT; }
 				if ( WHITE,LITERAL(")") ) { ACCEPT; }
 				else
 				{
-					output_error_raw("%s(%d): filter domain and time arguments are not valid", filename, linenum);
+					output_error_raw("%s(%d): filter '%s' arguments are not valid at or near '%-10.10s'", filename, linenum, tfname, HERE);
 					REJECT;
 				}
 
@@ -5825,6 +5982,11 @@ static int filter_block(PARSER)
 						output_error_raw("%s(%d): unable to create transfer function'%s(%s)",filename, linenum,tfname,domain);
 						REJECT;
 					}
+					else if ( transfer_function_constrain(tfname,flags,resolution,minimum,maximum)==0 )
+ 					{
+ 						output_error_raw("%s(%d): unable to constrain transfer function'%s(%s)",filename, linenum,tfname,domain);
+ 						REJECT;
+ 					}
 					else
 					{
 						ACCEPT;
@@ -6194,6 +6356,119 @@ static int modify_directive(PARSER)
 
 ////////////////////////////////////////////////////////////////////////////////////
 
+typedef int (*PARSERCALL)(PARSER);
+struct s_loaderhook {
+	PARSERCALL call;
+	struct s_loaderhook *next;
+};
+typedef struct s_loaderhook LOADERHOOK;
+
+static LOADERHOOK *loaderhooks = NULL;
+
+void loader_addhook(PARSERCALL call)
+{
+	LOADERHOOK *hook = new LOADERHOOK;
+	if ( hook == NULL )
+	{
+		throw "loader_addhook(): memory allocation failed";
+	}
+	hook->call = call;
+	hook->next = loaderhooks;
+	loaderhooks = hook;
+}
+
+typedef int (*LOADERINIT)(void);
+static int loader_hook(PARSER)
+{
+	char libname[1024];
+	START;
+	if ( WHITE ) ACCEPT;
+	if ( LITERAL("extension") && WHITE && name(HERE,libname,sizeof(libname)) )
+	{
+		// find the library
+		char pathname[1024];
+		snprintf(pathname, sizeof(pathname), "%s" DLEXT, libname);
+		if ( find_file(pathname, NULL, X_OK|R_OK, pathname,sizeof(pathname)) == NULL )
+		{
+			output_error_raw("%s(%d): unable to locate %s in GLPATH=%s", filename, linenum, pathname,getenv("GLPATH")?getenv("GLPATH"):"");
+			REJECT;
+		}
+		IN_MYCONTEXT output_debug("loader extension '%s' is using library '%s", libname, pathname);
+
+		// load the library
+		void *lib = dlopen(pathname,RTLD_LAZY);
+		if ( lib == NULL )
+		{
+			output_error_raw("%s(%d): extension library '%s' load failed", filename, linenum, pathname);
+			output_error_raw("%s(%d): %s", filename, linenum, dlerror());
+			REJECT;
+		}
+		IN_MYCONTEXT output_debug("loader extension '%s' loaded ok", pathname);
+
+		// access and call the initialization function
+		LOADERINIT init = (LOADERINIT) dlsym(lib,"init");
+		if ( init )
+		{
+			int rc = init();
+			if ( rc != 0 )
+			{
+				output_error_raw("%s(%d): extension library '%s' init() failed, return code %d", filename, linenum, pathname, rc);
+				REJECT;
+			}
+		}
+		IN_MYCONTEXT output_debug("loader extension '%s' init ok", libname);
+
+		// find and link the parser
+		void *parser = dlsym(lib,"parser");
+	 	if ( parser == NULL )
+	 	{
+			output_error_raw("%s(%d): extension library '%s' does not export a parser function", filename, linenum, pathname);
+			REJECT;
+	 	}
+		IN_MYCONTEXT output_debug("loader extension '%s' parser linked", libname);	
+
+		loader_addhook((PARSERCALL)parser);
+
+		// add init callback
+		INITCALL initcall = (INITCALL) dlsym(lib,"on_init");
+		if ( initcall )
+		{
+			my_instance->get_exec()->add_initcall(initcall);
+		}
+
+		// add term callback
+		TERMCALL termcall = (TERMCALL) dlsym(lib,"on_term");
+		if ( termcall )
+		{
+			my_instance->get_exec()->add_termcall(termcall);
+		}
+
+		// add exit callback
+		EXITCALL exitcall = (EXITCALL) dlsym(lib,"term");
+		if ( exitcall )
+		{
+			my_instance->add_on_exit(exitcall);
+		}
+
+		ACCEPT;
+		DONE;
+	}
+	else 
+	{
+		for ( LOADERHOOK *hook = loaderhooks ; hook != NULL ; hook = hook->next )
+		{
+			if ( TERM(hook->call(HERE)) )
+			{
+				ACCEPT;
+				DONE;
+			}
+		}
+		REJECT;
+	}
+}
+
+////////////////////////////////////////////////////////////////////////////////////
+
 static int gridlabd_file(PARSER)
 {
 	START;
@@ -6217,6 +6492,7 @@ static int gridlabd_file(PARSER)
 	OR if TERM(script_directive(HERE)) { ACCEPT; DONE; }
 	OR if TERM(dump_directive(HERE)) { ACCEPT; DONE; }
 	OR if TERM(modify_directive(HERE)) { ACCEPT; DONE; }
+	OR if TERM(loader_hook(HERE)) { ACCEPT; DONE; }
 	OR if (*(HERE)=='\0') {ACCEPT; DONE;}
 	else REJECT;
 	DONE;
@@ -6288,32 +6564,30 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 	int n=0;
 	int linenum=0;
 	int startnest = nesting;
-	while (fgets(line,sizeof(line),fp)!=NULL)
+	while ( fgets(line,sizeof(line),fp) != NULL )
 	{
 		int len;
 		char subst[65536];
 
 		/* comments must have preceding whitespace in macros */
-		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
+		char *c = ( ( line[0] != '#' ) ? strstr(line,COMMENT) : strstr(line, " " COMMENT) );
 		linenum++;
-		if (c!=NULL) /* truncate at comment */
-			strcpy(c,"\n");
-		len = (int)strlen(line);
-		if (len>=size-1)
-			return 0;
-
-	
-#ifndef OLDSTYLE
-		/* check for oldstyle file under newstyle parse */
-		if (linenum==1 && strncmp(line,"# ",2)==0)
+		if ( c != NULL ) 
 		{
-			output_error("%s looks like a version 1.x GLM files, please convert this file to new style before loading", filename);
+			/* truncate at comment */
+			strcpy(c,"\n");
+		}
+		len = (int)strlen(line);
+		if ( len >= size-1 )
+		{
 			return 0;
 		}
-#endif
+
 		/* expand variables */
-		if ((len=replace_variables(subst,line,sizeof(subst),suppress==0))>=0)
+		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
+		{
 			strcpy(line,subst);
+		}
 		else
 		{
 			output_error_raw("%s(%d): unable to continue", filename,linenum);
@@ -6321,11 +6595,13 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* expand macros */
-		if (strncmp(line,MACRO,strlen(MACRO))==0)
+		if ( strncmp(line,MACRO,strlen(MACRO)) == 0 )
 		{
 			/* macro disables reading */
-			if (process_macro(line,sizeof(line),filename,linenum)==FALSE)
+			if ( process_macro(line,sizeof(line),filename,linenum) == FALSE )
+			{
 				return 0;
+			}
 			len = (int)strlen(line);
 			strcat(buffer,line);
 			buffer += len;
@@ -6334,7 +6610,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* if reading is enabled */
-		else if (suppress==0)
+		else if ( suppress == 0 )
 		{
 			strcpy(buffer,subst);
 			buffer+=len;
@@ -6342,7 +6618,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 			n+=len;
 		}
 	}
-	if (nesting != startnest)
+	if ( nesting != startnest )
 	{
 		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,linenum,MACRO,filename,macro_line[nesting-1]);
 		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
@@ -6351,45 +6627,196 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 	return n;
 }
 
+///////////////////////////////////////////////////////////////////////////
+//
+// Forloop machine implementation
+//
+
+// TODO: convert this to a class so nesting is possible
+typedef enum e_forloopstate {
+	FOR_NONE   = 0, // no for loop active
+	FOR_BODY   = 1, // for loop started, body capture in progress
+	FOR_REPLAY = 2, // for loop replay in progress
+} FORLOOPSTATE;
+FORLOOPSTATE forloopstate = FOR_NONE;
+static char *forloop = NULL; // for loop value list
+static char *lastfor = NULL; // pointer to last strtok_r value
+static char *forvar = NULL; // global variable to use
+static const char *forvalue = NULL; // current value of global variable
+static std::list<std::string> forbuffer; // captured body
+static std::list<std::string>::const_iterator forbufferline; // body line iterator
+bool forloop_verbose = false;
+
+// Fetch the current state of the forloop machine
+// Returns: the forloop state
+inline static FORLOOPSTATE for_get_state(void)
+{
+	return forloopstate;
+}
+
+// Change the current state of the forloop machine
+// Returns: the last forloop state
+inline static FORLOOPSTATE for_set_state(FORLOOPSTATE n)
+{
+	const char *str[] = {"FOR_NONE","FOR_BODY","FOR_REPLAY"};
+	FORLOOPSTATE m = forloopstate;
+	forloopstate = n;
+	if ( forloop_verbose ) output_verbose("forloop state changed from '%s' to '%s'",str[(int)m],str[(int)n]);
+	return m;
+}
+
+// Test the current state of the forloop machine
+// Returns: 'true' if in state 'n', 'false' if not in state 'n'
+static bool for_is_state(FORLOOPSTATE n)
+{
+	return for_get_state() == n;
+}
+
+// Open a new instance of the forloop machine
+// Returns: 'true' if forloop opened, 'false' if forloop not opened
+static bool for_open(const char *var, const char *range)
+{
+	if ( forloop != NULL )
+	{
+		output_error_raw("%s(%d): nested forloop not supported", filename, linenum);
+		return false;
+	}
+	forloop = strdup(range);
+	forvar = strdup(var);
+	if ( forloop_verbose ) output_verbose("beginning forloop on variable '%s' in range [%s]", forvar, forloop);			
+	for_set_state(FOR_BODY);
+	return true;
+}
+
+// Update the global variable of the forloop machine
+// Returns: the next value, or NULL if not remains
+static const char * for_setvar()
+{
+	const char *value = strtok_r(forvalue==NULL?forloop:NULL," ",&lastfor);
+	if ( value != NULL )
+	{
+		if ( forloop_verbose ) output_verbose("setting for variable '%s' to '%s'",forvar,value);
+		bool old = global_strictnames;
+		global_strictnames = false;
+		global_setvar(forvar,value);
+		global_strictnames = old;
+	}
+	else
+	{
+		if ( forloop_verbose ) output_verbose("no more values for variable '%s' after '%s'",forvar,forvalue);
+	}
+	return value;
+}
+
+// Capture a GLM line to the forloop machine to replay later
+static bool for_capture(const char *line)
+{
+	if ( strncmp(line,MACRO "done",5) == 0 )
+	{
+		if ( forloop_verbose ) output_verbose("capture of forloop body done with after %d lines", forbuffer.size());
+		for_set_state(FOR_REPLAY);
+		return false;
+	}
+	else
+	{
+		if ( forloop_verbose ) output_verbose("capturing forloop body line %d as '%s'", forbuffer.size(), line);
+		forbuffer.push_back(std::string(line));
+		forbufferline = forbuffer.end();
+		return true;
+	}
+}
+
+// Replay the next line in the forloop
+static const char *for_replay()
+{
+	// need to get first/next value in list
+	if ( forbufferline == forbuffer.end() )
+	{
+		if ( forloop_verbose ) output_verbose("end of replay buffer with forloop var '%s'='%s'", forvar,forvalue);
+		forvalue = for_setvar();
+		forbufferline = forbuffer.begin();
+	}
+
+	// no values left
+	if ( forvalue == NULL )
+	{
+		output_verbose("forloop in var '%s' replay complete", forvar, forloop);	
+		if ( forloop ) free(forloop);
+		lastfor = NULL;
+		if ( forvar ) free(forvar);
+		forvalue = NULL;
+		forbuffer.clear();
+		forbufferline = forbuffer.end();
+		for_set_state(FOR_NONE);
+		return NULL;
+	}
+	else
+	{
+		// get next line
+		const char *line = (forbufferline++)->c_str();
+		if ( forloop_verbose ) output_verbose("forloop replaying line '%s' with '%s'='%s'", line,forvar,forvalue);
+		return line;
+	}
+}
+
 static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
-	char line[10240];
+	char line[0x4000];
 	int n = 0, i = 0;
 	int _linenum=0;
 	int startnest = nesting;
 	int bnest = 0, quote = 0;
 	int hassc = 0; // has semicolon
 	int quoteline = 0;
-	while (fgets(line,sizeof(line),fp)!=NULL)
+	while ( for_is_state(FOR_REPLAY) || fgets(line,sizeof(line),fp) != NULL )
 	{
 		int len;
 		char subst[65536];
 
-		/* comments must have preceding whitespace in macros */
-		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
-		_linenum++;
-		if (c!=NULL) /* truncate at comment */
-			strcpy(c,"\n");
-		len = (int)strlen(line);
-		if (len>=size-1){
-			output_error("load.c: buffer exhaustion reading %i lines past line %i", _linenum, linenum);
-			if(quote != 0){
-				output_error("look for an unterminated doublequote string on line %i", quoteline);
+		if ( for_is_state(FOR_BODY) && for_capture(line) )
+		{
+			continue;
+		}
+		if ( for_is_state(FOR_REPLAY) )
+		{
+			const char *replay = for_replay();
+			if ( replay )
+			{
+				// load next line
+				strcpy(line,replay);
 			}
-			return 0;
+			else
+			{
+				// done, resume normal processing of input stream
+				continue;
+			}
+		}
+		else 
+		{
+			/* comments must have preceding whitespace in macros */
+			char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
+			_linenum++;
+			if ( c != NULL ) /* truncate at comment */
+			{
+				strcpy(c,"\n");
+			}
+			len = (int)strlen(line);
+			if ( len >= size-1 )
+			{
+				output_error("load.c: buffer exhaustion reading %i lines past line %i", _linenum, linenum);
+				if ( quote != 0 )
+				{
+					output_error("look for an unterminated doublequote string on line %i", quoteline);
+				}
+				return 0;
+			}
 		}
 	
-#ifndef OLDSTYLE
-		/* check for oldstyle file under newstyle parse */
-		if (_linenum==1 && strncmp(line,"# ",2)==0)
+		// expand variables
+		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
 		{
-			output_error("%s looks like a version 1.x GLM files, please convert this file to new style before loading", filename);
-			return 0;
-		}
-#endif
-		/* expand variables */
-		if ((len=replace_variables(subst,line,sizeof(subst),suppress==0))>=0)
 			strcpy(line,subst);
+		}
 		else
 		{
 			output_error_raw("%s(%d): unable to continue", filename,_linenum);
@@ -6397,15 +6824,17 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* expand macros */
-		if (strncmp(line,MACRO,strlen(MACRO))==0)
+		if ( strncmp(line,MACRO,strlen(MACRO)) == 0 )
 		{
 			/* macro disables reading */
-			if (process_macro(line,sizeof(line),filename,linenum + _linenum - 1)==FALSE){
+			if ( process_macro(line,sizeof(line),filename,linenum + _linenum - 1) == FALSE )
+			{
 				return 0;
-			} else {
+			} 
+			else 
+			{
 				++hassc;
 			}
-			//strcat(buffer,line);
 			strcpy(buffer,line);
 			len = (int)strlen(buffer); // include anything else in the buffer, then advance
 			buffer += len;
@@ -6414,52 +6843,69 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* if reading is enabled */
-		else if (suppress==0)
+		else if ( suppress == 0 )
 		{
 			strcpy(buffer,subst);
 			buffer+=len;
 			size -= len;
 			n+=len;
-			for(i = 0; i < len; ++i){
-				if(quote == 0){
-					if(subst[i] == '\"'){
+			for ( i = 0 ; i < len ; ++i )
+			{
+				if ( quote == 0 ) 
+				{
+					if ( subst[i] == '\"' )
+					{
 						quoteline = linenum + _linenum - 1;
 						quote = 1;
-					} else if(subst[i] == '{'){
+					} 
+					else if ( subst[i] == '{' )
+					{
 						++bnest;
 						++hassc;
 						// @TODO push context
-					} else if(subst[i] == '}'){
+					} 
+					else if ( subst[i] == '}' ) 
+					{
 						--bnest;
 						// @TODO pop context
-					} else if(subst[i] == ';'){
+					} 
+					else if( subst[i] == ';' )
+					{
 						++hassc;
 					}
-				} else {
-					if(subst[i] == '\"'){
+				} 
+				else 
+				{
+					if ( subst[i] == '\"' )
+					{
 						quote = 0;
 					}
 				}
 			}
-		} else {
+		} 
+		else 
+		{
 			strcpy(buffer,"\n");
 			buffer+=strlen("\n");
 			size -= 1;
 			n += 1;
 		}
-		if(bnest == 0 && hassc > 0 && nesting == startnest){ // make sure we read ALL of an #if block, if possible
+		if ( bnest == 0 && hassc > 0 && nesting == startnest ) // make sure we read ALL of an #if block, if possible
+		{ 
 			/* end of block */
 			return n;
 		}
 
 	}
-	if(quote != 0){
+	if ( quote != 0 )
+	{
 		output_warning("unterminated doublequote string");
 	}
-	if(bnest != 0){
+	if ( bnest != 0 )
+	{
 		output_warning("incomplete loader block");
 	}
-	if (nesting != startnest)
+	if ( nesting != startnest )
 	{
 		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,_linenum,MACRO,filename,macro_line[nesting-1]);
 		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,_linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
@@ -7206,7 +7652,61 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		global_return_code = system(value);
 		if( global_return_code==127 || global_return_code==-1 )
 		{
-			output_error_raw("%s(%d): ERROR unable to execute '%s' (status=%d)", filename, linenum, value, global_return_code);
+			output_error_raw("%s(%d): #system %s -- system('%s') failed with status %d", filename, linenum, value, value, global_return_code);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
+	else if ( strncmp(line,MACRO "command",8) == 0 )
+	{
+		char *command = strchr(line+8,' ');
+		if ( command == NULL )
+		{
+			output_error_raw("%s(%d): %scommand missing call",filename,linenum,MACRO);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		while ( isspace(*command) && *command != '\0' )
+		{
+			command++;
+		}
+		char command_line[1024];
+		sprintf(command_line,"%s/gridlabd-%s",global_execdir,command);
+		output_verbose("executing system(%s)", command_line);
+		global_return_code = system(command_line);
+		if( global_return_code != 0 )
+		{
+			output_error_raw("%s(%d): #command %s -- system('%s') failed with status %d", filename, linenum, command, command_line, global_return_code);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
+	else if (strncmp(line,MACRO "exec",5)==0)
+	{
+		char *term = strchr(line+5,' ');
+		char value[1024];
+		if (term==NULL)
+		{
+			output_error_raw("%s(%d): %ssystem missing system call",filename,linenum,MACRO);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		strcpy(value, strip_right_white(term+1));
+		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
+		global_return_code = system(value);
+		if( global_return_code != 0 )
+		{
+			output_error_raw("%s(%d): #exec %s -- system('%s') failed with status %d", filename, linenum, value, value, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7230,7 +7730,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
 		if( start_process(value)==NULL )
 		{
-			output_error_raw("%s(%d): ERROR unable to start '%s'", filename, linenum, value);
+			output_error_raw("%s(%d): #start %s -- failed", filename, linenum, value);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7317,6 +7817,20 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
+	else if ( strncmp(line, MACRO "for",3) == 0 )
+	{
+		char var[64], range[1024];
+		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
+		{
+			strcpy(line,"\n");
+			return for_open(var,range) ? TRUE : FALSE;
+		}
+		else
+		{
+			output_error_raw("%s(%d): for macro syntax error", filename, linenum);
+			return false;
+		}
+	}
 	else
 	{
 		char tmp[1024], *p;
@@ -7353,7 +7867,7 @@ STATUS loadall_glm(char *file) /**< a pointer to the first character in the file
 	{
 		modtime = stat.st_mtime;
 		fsize = stat.st_size;
-		buffer = (char*)malloc(BUFFERSIZE); /* lots of space */
+		buffer = (char*)malloc(MAXGLMSIZE); /* lots of space */
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
 	if (buffer==NULL)
@@ -7366,7 +7880,7 @@ STATUS loadall_glm(char *file) /**< a pointer to the first character in the file
 		p=buffer;
 
 	buffer[0] = '\0';
-	if (buffer_read(fp,buffer,file,BUFFERSIZE)==0)
+	if (buffer_read(fp,buffer,file,MAXGLMSIZE)==0)
 	{
 		fclose(fp);
 		goto Failed;
@@ -7552,6 +8066,51 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
 	return technology_readiness_level;
 }
 
+/** convert a non-GLM file to GLM, if possible */
+bool load_import(const char *from, char *to, int len)
+{
+	const char *ext = strrchr(from,'.');
+	if ( ext == NULL )
+	{
+		output_error("load_import(from='%s',...): invalid extension", from);
+		return false;
+	}
+	char converter_name[1024], converter_path[1024];
+	sprintf(converter_name,"%s2glm.py",ext+1);
+	if ( find_file(converter_name, converter_path, R_OK, converter_path, sizeof(converter_path)) == NULL )
+	{
+		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext+1);
+		return false;
+	}
+	if ( strlen(from) >= (size_t)(len-1) )
+	{
+		output_error("load_import(from='%s',...): 'from' is too long to handle", from);
+		return false;
+	}
+	strcpy(to,from);
+	char *glmext = strrchr(to,'.');
+	if ( glmext == NULL )
+		strcat(to,".glm");
+	else
+		strcpy(glmext,".glm");
+	char cmd[4096];
+	sprintf(cmd,"python3 %s -i %s -o %s",converter_path,from,to);
+	int rc = system(cmd);
+	if ( rc != 0 )
+	{
+		output_error("%s: return code %d",converter_path,rc);
+		return false;
+	}
+	return true;
+}
+
+STATUS load_python(const char *filename)
+{
+	char cmd[1024];
+	sprintf(cmd,"/usr/local/bin/python3 %s",filename);
+	return system(cmd)==0 ? SUCCESS : FAILED ;
+}
+
 /** Load a file
 	@return STATUS is SUCCESS if the load was ok, FAILED if there was a problem
 	@todo Rollback the model data if the load failed (ticket #32)
@@ -7559,12 +8118,28 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
  **/
 STATUS loadall(const char *fname)
 {
+	/* if nothing requested only config files are loaded */
+	if ( fname == NULL )
+		return SUCCESS;
+
 	char file[1024] = "";
 	if ( fname )
 	{
 		strcpy(file,fname);
 	}
 	char *ext = fname ? strrchr(file,'.') : NULL ;
+
+	// python script
+
+	if ( ext != NULL && strcmp(ext,".py") == 0 )
+	{
+		return load_python(fname);
+	}
+	// non-glm data file
+	if ( ext != NULL && strcmp(ext,".glm") != 0 )
+	{
+		return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
+	}
 	unsigned int old_obj_count = object_get_count();
 	char conf[1024];
 	static int loaded_files = 0;
@@ -7611,10 +8186,6 @@ STATUS loadall(const char *fname)
 				return FAILED;
 		}
 	}
-
-	/* if nothing requested only config files are loaded */
-	if ( fname == NULL )
-		return SUCCESS;
 
 	/* handle default extension */
 	strcpy(filename,file);

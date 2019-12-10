@@ -142,7 +142,7 @@ int transformer_configuration::create(void)
 int transformer_configuration::init(OBJECT *parent)
 {
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	// if aggregate rating is not set and 3 phase is specified
 	if (kVA_rating==0)

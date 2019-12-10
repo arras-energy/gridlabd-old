@@ -4,7 +4,7 @@ mysql_mysql_la_CPPFLAGS =
 mysql_mysql_la_CPPFLAGS += $(MYSQL_CPPFLAGS)
 mysql_mysql_la_CPPFLAGS += $(AM_CPPFLAGS)
 
-mysql_mysql_la_LDFLAGS =
+mysql_mysql_la_LDFLAGS = -lpthread
 mysql_mysql_la_LDFLAGS += $(MYSQL_LDFLAGS)
 mysql_mysql_la_LDFLAGS += $(AM_LDFLAGS)
 
