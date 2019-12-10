@@ -160,17 +160,26 @@ TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1)
 			else
 			{
 				double P = e->voltage_factor>0 ? e->shape->load * (e->power_fraction + e->current_fraction + e->impedance_fraction) : 0.0;
+				output_debug("enduse_sync(enduse *e='%s', PASSCONFIG pass='%s', TIMESTAMP t1=%lld): load=%lg, power fraction=%lg, current fraction=%lg, impedance fraction=%lg -> power=%lg",
+					e->name, "PC_BOTTOMUP", t1, e->shape->load, e->power_fraction, e->current_fraction, e->impedance_fraction, P);
 				e->total.Re() = P;
 				if (fabs(e->power_factor)<1)
 					e->total.Im() = (e->power_factor<0?-1:1)*P*sqrt(1/(e->power_factor*e->power_factor)-1);
 				else
 					e->total.Im() = 0;
+				output_debug("enduse_sync(enduse *e='%s', PASSCONFIG pass='%s', TIMESTAMP t1=%lld): load=%lg, power factor=%lg -> total=%lg%+lgj",
+					e->name, "PC_BOTTOMUP", t1, e->shape->load, e->power_factor, e->total.Re(), e->total.Im());
 
 				// beware: these are misnomers (they are e->constant_power, e->constant_current, ...)
 				e->power.Re() = e->total.Re() * e->power_fraction; 
 				e->power.Im() = e->total.Im() * e->power_fraction;
-				e->current.Re() = e->total.Re() * e->current_fraction; e->current.Im() = e->total.Im() * e->current_fraction;
-				e->admittance.Re() = e->total.Re() * e->impedance_fraction; e->admittance.Im() = e->total.Im() * e->impedance_fraction;
+				e->current.Re() = e->total.Re() * e->current_fraction; 
+				e->current.Im() = e->total.Im() * e->current_fraction;
+				e->admittance.Re() = e->total.Re() * e->impedance_fraction; 
+				e->admittance.Im() = e->total.Im() * e->impedance_fraction;
+				output_debug("enduse_sync(enduse *e='%s', PASSCONFIG pass='%s', TIMESTAMP t1=%lld): total=%lg%+lgj, power fraction=%lg -> power=%lg%+lg, current=%lg%+lg, admittance=%lg%+lg",
+					e->name, "PC_BOTTOMUP", t1, e->total.Re(), e->total.Im(), e->power_fraction,
+					e->power.Re(), e->power.Im(), e->current.Re(), e->current.Im(), e->admittance.Re(), e->admittance.Im());
 			}
 		}
 		else if (e->voltage_factor > 0 && !(e->config&EUC_HEATLOAD)) // no shape electric - use ZIP component directly
@@ -418,12 +427,14 @@ int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 	int len = 0;
 #define OUTPUT_NZ(X) if (e->X!=0) len+=sprintf(string+len,"%s" #X ": %f", len>0?"; ":"", e->X)
 #define OUTPUT(X) len+=sprintf(string+len,"%s"#X": %g", len>0?"; ":"", e->X);
+#define OUTPUT_NZ_X(X,N) if (e->X!=0) len+=sprintf(string+len,"%s" #N ": %f", len>0?"; ":"", e->X)
+#define OUTPUT_X(X,N) len+=sprintf(string+len,"%s"#N": %g", len>0?"; ":"", e->X);
 	OUTPUT_NZ(impedance_fraction);
 	OUTPUT_NZ(current_fraction);
 	OUTPUT_NZ(power_fraction);
 	OUTPUT(power_factor);
-	OUTPUT(power.Re());
-	OUTPUT_NZ(power.Im());
+	OUTPUT_X(power.Re(),"power.real");
+	OUTPUT_NZ_X(power.Im(),"power.imag");
 	return len;
 }
 
@@ -599,9 +610,9 @@ int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
 			e->power_fraction = atof(value);
 		else if (strcmp(param,"power_factor")==0)
 			e->power_factor = atof(value);
-		else if ( strcmp(param,"power.r")==0 )
+		else if ( strcmp(param,"power.real")==0 )
 			e->power.Re() = atof(value);
-		else if ( strcmp(param,"power.i")==0 )
+		else if ( strcmp(param,"power.imag")==0 )
 			e->power.Im() = atof(value);
 		else if (strcmp(param,"loadshape")==0)
 		{

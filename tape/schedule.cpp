@@ -299,7 +299,7 @@ int schedule::create()
 
 int schedule::init(OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	int rv = 1;
 
 	currval = default_value;

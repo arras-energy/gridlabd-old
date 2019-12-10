@@ -266,7 +266,8 @@ int meter::init(OBJECT *parent)
 	}
 
 	check_prices();
-	last_t = dt = 0;
+	last_t = gl_globalclock;
+	dt = 0;
 
 	//Update tracking flag
 	//Get server mode variable
@@ -719,7 +720,7 @@ double meter::process_bill(TIMESTAMP t1){
 //Module-level call
 SIMULATIONMODE meter::inter_deltaupdate_meter(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	double deltat, deltatimedbl;
 	STATUS return_status_val;
 
@@ -899,7 +900,7 @@ EXPORT TIMESTAMP sync_meter(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 			obj->clock = t0;
 			return t1;
 		default:
-			throw "invalid pass request";
+			break;
 		}
 		throw "invalid pass request";
 	}

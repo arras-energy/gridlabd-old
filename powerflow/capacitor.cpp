@@ -154,7 +154,7 @@ int capacitor::init(OBJECT *parent)
 {
 	int result = node::init();
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 
 	if ((control == VARVOLT) && (SecondaryRemote!=NULL))	//Something set in the secondary sensor location & VARVOLT scheme
 	{
@@ -902,7 +902,7 @@ bool capacitor::cap_sync_fxn(double time_value)
 		}
 		else if (((phases_connected & PHASE_D) != PHASE_D) && ((phases & PHASE_D) == PHASE_D))	//Delta connected node, but Wye connected Cap
 		{
-			GL_THROW("Capacitor:%d is Wye-connected on a Delta-connected node.  This is not supported at this time.",OBJECTHDR(this)->id);
+			GL_THROW("Capacitor:%d is Wye-connected on a Delta-connected node.  This is not supported at this time.",THISOBJECTHDR->id);
 			/*  TROUBLESHOOT
 			Wye-connected capacitors on a delta-connected node are not supported at this time.  They may be added in a future release when
 			the functionality is needed.
@@ -933,7 +933,7 @@ bool capacitor::cap_sync_fxn(double time_value)
 			Phase_Mismatch = true;	//Flag us as an exception.  Otherwise values are wrong.
 		}
 		else	//No case should exist here, so if it does, scream about it.
-			GL_THROW("Unable to determine connection for capacitor:%d",OBJECTHDR(this)->id);
+			GL_THROW("Unable to determine connection for capacitor:%d",THISOBJECTHDR->id);
 			/*  TROUBLESHOOT
 			The capacitor object encountered a connection it was unable to decipher.  Please submit this as
 			a bug report with your code.
@@ -1579,7 +1579,7 @@ int capacitor::isa(CLASSNAME classname)
 //Module-level call
 SIMULATIONMODE capacitor::inter_deltaupdate_capacitor(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val,bool interupdate_pos)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	double curr_time_value;	//Current time of simulation
 	double deltat, deltatimedbl;
 	double result_dbl;		//Working variable for capacitors
@@ -1853,16 +1853,15 @@ int capacitor::kmldata(int (*stream)(const char*,...))
 
 	// control input
 	gld_global run_realtime("run_realtime");
-	gld_global server("hostname");
-	gld_global port("server_portnum");
+	gld_global server("kmlhost");
 	if ( run_realtime.get_bool() )
 	{
 		stream("<TR><TH ALIGN=LEFT>&nbsp;</TH>");
 		for ( size_t i = 0 ; i<sizeof(phase)/sizeof(phase[0]) ; i++ )
 		{
 			if ( phase[i] )
-				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"http://%s:%d/kml/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"switchA\" VALUE=\"%s\" /></FORM></TD>",
-						(const char*)server.get_string(), port.get_int16(), (const char*)get_name(), state[i] ? "OPEN" : "CLOSE");
+				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\"><FORM ACTION=\"%s/%s\" METHOD=GET><INPUT TYPE=SUBMIT NAME=\"switchA\" VALUE=\"%s\" /></FORM></TD>",
+						(const char*)server.get_string(), (const char*)get_name(), state[i] ? "OPEN" : "CLOSE");
 			else
 				stream("<TD ALIGN=CENTER COLSPAN=2 STYLE=\"font-family:courier;\">&mdash;</TD>");
 		}

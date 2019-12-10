@@ -104,10 +104,12 @@ public:
 		struct s_component *next;
 	} COMPONENT;
 	COMPONENT *components;
+	std::string *initial_components;
 public:
 	COMPONENT *get_first_component();
 	inline COMPONENT *get_next_component(COMPONENT *c);
 	COMPONENT *add_component(const char *enduse, const char* composition=NULL);
+	const char *get_components(char *buffer=NULL, size_t len=0);
 	bool set_component(const char *enduse, const char *term, double value);
 	bool set_component(COMPONENT *component, const char *term, double value);
 	COMPONENT *find_component(const char *enduse);
@@ -173,7 +175,7 @@ public:
 	TIMESTAMP sync(TIMESTAMP t1);
 	TIMESTAMP postsync(TIMESTAMP t1);
 public:
-	int filename(const char*);
+	int filename(char*,size_t);
 public:
 	static CLASS *oclass;
 	static ceus *defaults;

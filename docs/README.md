@@ -1,11 +1,6 @@
-Projects currently active in this repository
+# HiPAS GridLAB-D
+*Brought to you by the [CEC EPIC Program](https://www.energy.ca.gov/programs-and-topics/programs/electric-program-investment-charge-epic-program)*<BR/>[image:cec-logo.png] 
 
-HiPAS: High-performance upgrades to GridLAB-D
+This documentation is for [HiPAS GridLAB-D](http://www.gridlabd.us/), the high-performance commercial release of GridLAB-D developed by Stanford University at SLAC National Accelerator Laboratory under funding from the California Energy Commission.
 
-OpenFIDO: Open framework for interoperable data operations
-
-GLOW: GridLAB-D Open Workspace
-
-GRIP: Grid Resilience 
-
-PowerNET: PowerNET with markets
+The documentation for the current research version of [GridLAB-D](https://www.gridlabd.org) developed by Battelle Memorial Institute at Pacific Northwest National Laboratory under funding from the US Department of Energy is available from [ShoutWiki](http://gridlab-d.shoutwiki.com/wiki/Main_Page).  

@@ -504,7 +504,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 #ifdef WIN32
 		_pgmptr,
 #else
-		"gridlabd",
+		global_execname,
 #endif
 		dir,validate_cmdargs, name);
 	dt = my_instance->get_exec()->clock() - dt;
@@ -745,6 +745,17 @@ char *encode_result(char *data,size_t sz)
 	return code;
 }
 
+static unsigned long long hash(const char *str)
+{
+	unsigned long code = 5381;
+	int c;
+	while ( (c=*str++) )
+	{
+		code = (((code<<5)+code)+c);
+	}
+	return code;
+}
+
 /** main validation routine */
 int validate(void *main, int argc, const char *argv[])
 {
@@ -768,7 +779,7 @@ int validate(void *main, int argc, const char *argv[])
 	if ( report_fp==NULL )
 		output_warning("unable to open '%s' for writing", report_file);
 	report_title("VALIDATION TEST REPORT");
-	report_title("GridLAB-D %d.%d.%d-%d (%s)", global_version_major, global_version_minor, global_version_patch, global_version_build, global_version_branch);
+	report_title("%s %d.%d.%d-%d (%s)", PACKAGE_NAME,global_version_major, global_version_minor, global_version_patch, global_version_build, global_version_branch);
 	
 	report_newrow();
 	report_newtable("TEST CONFIGURATION");
@@ -973,7 +984,7 @@ int validate(void *main, int argc, const char *argv[])
 
 	report_data();
 	report_data("Result code");
-	report_data("%s",encode_result(result_code,next_id));
+	report_data("%llX",final.get_nfailed()==0?0:hash(encode_result(result_code,next_id)));
 	report_newrow();
 
 	report_newrow();

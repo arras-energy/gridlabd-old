@@ -1,0 +1,7 @@
+// this test checks that a loader extension with no initialization works ok
+#system gcc -shared -o hello.so -fPIC -D NOINIT ../hello.c
+extension hello;
+
+hello
+
+#print ok

@@ -178,7 +178,7 @@ void *instance_runproc(void *ptr)
 		case CI_MMAP:
 #ifdef WIN32
 			/* run new instance */
-			sprintf(cmd,"%s/gridlabd %s %s --slave %s:%"FMT_INT64"x %s &", global_execdir, global_verbose_mode?"--verbose":"", global_debug_output?"--debug":"", global_hostname,inst->cacheid, inst->model);
+			sprintf(cmd,"%s/gridlabd %s %s --slave %s:%" FMT_INT64 "x %s &", global_execdir, global_verbose_mode?"--verbose":"", global_debug_output?"--debug":"", global_hostname,inst->cacheid, inst->model);
 			IN_MYCONTEXT output_verbose("starting new instance with command '%s'", cmd);
 			rc = system(cmd);
 			break;
@@ -757,7 +757,7 @@ TIMESTAMP instance_syncall(TIMESTAMP t1)
 			}
 		}
 	
-		IN_MYCONTEXT output_debug("instance sync time is %"FMT_INT64"d", t2);
+		IN_MYCONTEXT output_debug("instance sync time is %" FMT_INT64 "d", t2);
 		instance_synctime += (clock_t)exec_clock() - ts;
 		return t2;
 	}

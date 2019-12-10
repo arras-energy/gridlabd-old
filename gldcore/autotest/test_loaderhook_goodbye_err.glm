@@ -1,0 +1,9 @@
+// this test checks that a syntax error is handled properly when a loader extension is used
+#system gcc -shared -o hello.so -fPIC ../hello.c
+extension hello;
+
+hello
+
+goodbye
+
+#print not ok

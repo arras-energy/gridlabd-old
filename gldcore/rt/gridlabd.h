@@ -12,6 +12,8 @@
 #include <float.h>
 #include <string.h>
 
+#include <Python.h>
+
 #ifdef _WINDOWS
 #define isfinite _finite
 #endif
@@ -397,6 +399,15 @@ typedef struct s_object_list* object; /* GridLAB objects */
 typedef unsigned int64 set; /* sets (each of up to 64 values may be defined) */
 typedef double triplet[3];
 typedef complex triplex[3];
+typedef struct s_correlation CORRELATION;
+struct s_correlation {
+	struct s_object_list *object;
+	struct s_property_map *property;
+	double *source;
+	double scale;
+	double bias;
+	struct s_correlation *next;
+};
 typedef struct s_randomvar {
 	double value;				/**< current value */
 	unsigned int state;			/**< RNG state */
@@ -405,6 +416,7 @@ typedef struct s_randomvar {
 	double low, high;			/**< RNG truncations limits */
 	unsigned int update_rate;	/**< RNG refresh rate in seconds */
 	unsigned int flags;			/**< RNG flags */
+	CORRELATION *correlation;	// correlation 
 	/* internal parameters */
 	struct s_randomvar *next;
 } randomvar;
@@ -436,6 +448,7 @@ typedef enum {_PT_FIRST=-1,
 	PT_enduse,		/**< Enduse load data */
 	PT_random,		/**< Randomized number */
 	PT_method,		/**< Method interface */
+	PT_string,
 #ifdef USE_TRIPLETS
 	PT_triple, /**< triplet of doubles (not supported) */
 	PT_triplex, /**< triplet of complexes (not supported) */
@@ -549,7 +562,7 @@ struct s_property_map {
 	PROPERTYNAME name; /**< property name */
 	PROPERTYTYPE ptype; /**< property type */
 	uint32 size; /**< property array size */
-	uint32 width; /**< property byte size, copied from array in class.c */
+	int32 width; /**< property byte size, copied from array in class.c (see PSZ_* for special values) */
 	PROPERTYACCESS access; /**< property access flags */
 	UNIT *unit; /**< property unit, if any; \p NULL if none */
 	PROPERTYADDR addr; /**< property location, offset from OBJECT header; OBJECT header itself for methods */
@@ -1025,7 +1038,7 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	char *name; /**< the property type name */
 	char *xsdname;
 	unsigned int size; /**< the size of 1 instance */
-	unsigned int csize; /**< the minimum size of a converted instance (not including '\0' or unit, 0 means a call to property_minimum_buffersize() is necessary) */ 
+	int csize; /**< the minimum size of a converted instance (not including '\0' or unit, 0 means a call to property_minimum_buffersize() is necessary) */ 
 	int (*data_to_string)(char *,int,void*,PROPERTY*); /**< the function to convert from data to a string */
 	int (*string_to_data)(const char *,void*,PROPERTY*); /**< the function to convert from a string to data */
 	int (*create)(void*); /**< the function used to create the property, if any */
@@ -1174,6 +1187,7 @@ typedef struct s_callbacks {
 		void (*add)(struct s_findlist*, OBJECT*);
 		void (*del)(struct s_findlist*, OBJECT*);
 		void (*clear)(struct s_findlist*);
+		struct s_findlist *(*list_create)(struct s_findlist*,const char *);
 	} find;
 	PROPERTY *(*find_property)(CLASS *, PROPERTYNAME);
 	void *(*malloc)(size_t);
@@ -1347,6 +1361,11 @@ typedef struct s_callbacks {
 		unsigned int (*build)(void);
 		const char * (*branch)(void);
 	} version;
+	int (*call_external_callback)(const char*, void *);
+	struct {
+		PyObject *(*import)(const char *module, const char *path);
+		bool (*call)(PyObject *pModule, const char *method);
+	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
 

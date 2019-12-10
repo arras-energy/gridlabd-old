@@ -61,7 +61,7 @@ int triplex_line::init(OBJECT *parent)
 	double temp_rating_emergency = 20000.0;
 	size_t index;
 	OBJECT *temp_obj;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	triplex_line_configuration *temp_config = NULL;
 	
 	int result = line::init(parent);
@@ -172,7 +172,7 @@ int triplex_line::init(OBJECT *parent)
 void triplex_line::phase_conductor_checks(void)
 {
 	//Map the configuration and object header
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	triplex_line_configuration *line_config = OBJECTDATA(configuration,triplex_line_configuration);
 
 	//See if an impedance matrix is specified first -- if so, skip this
@@ -239,7 +239,7 @@ void triplex_line::recalc(void)
 {
 	triplex_line_configuration *line_config = OBJECTDATA(configuration,triplex_line_configuration);
 
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	
 	if (line_config->impedance11 != 0.0 || line_config->impedance22 != 0.0)
 	{
