@@ -261,7 +261,7 @@ static int daemon_run(int sockfd)
 #define MAXARGS 256
 	char **argv = (char**)malloc(sizeof(char*)*MAXARGS);
 	memset(argv,0,sizeof(char*)*MAXARGS);
-	const char *program = "gridlabd";
+	const char *program = PACKAGE;
 	argv[0] = new char[strlen(program)+1];
 	strcpy(argv[0],program);
 	int argc = parse_command(command, argv+1, MAXARGS-1)+1;
