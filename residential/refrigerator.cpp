@@ -149,7 +149,7 @@ int refrigerator::create()
 	load.power_fraction = 1;
 	is_240 = true;	
 
-	gl_warning("explicit %s model is experimental", OBJECTHDR(this)->oclass->name);
+	gl_warning("explicit %s model is experimental", THISOBJECTHDR->oclass->name);
 	/* TROUBLESHOOT
 		The refrigerator explicit model has some serious issues and should be considered for complete
 		removal.  It is highly suggested that this model NOT be used.
@@ -168,7 +168,7 @@ int refrigerator::init(OBJECT *parent)
 			return 2; // defer
 		}
 	}
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	hdr->flags |= OF_SKIPSAFE;
 
 	// defaults for unset values */
@@ -283,7 +283,7 @@ int refrigerator::isa(char *classname)
 
 TIMESTAMP refrigerator::presync(TIMESTAMP t0, TIMESTAMP t1){
 
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 
 	if(start_time==0)
 	{
@@ -327,7 +327,7 @@ TIMESTAMP refrigerator::postsync(TIMESTAMP t0, TIMESTAMP t1){
 
 double refrigerator::update_refrigerator_state(double dt0,TIMESTAMP t1)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	
 	// accumulate the energy
 	energy_used += refrigerator_power*dt0;

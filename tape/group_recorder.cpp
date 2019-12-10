@@ -57,7 +57,7 @@ int group_recorder::create(){
 
 int group_recorder::init(OBJECT *obj){
 	OBJECT *gr_obj = 0;
-	OBJECT *thisobj = OBJECTHDR(this);
+	OBJECT *thisobj = THISOBJECTHDR;
 	int retvalue;
 
 	// check for group

@@ -35,7 +35,7 @@ static bool edit_bool(int row, int col, int len, PROPERTY *prop)
 static bool edit_in_place(int row, int col, int len, PROPERTY *prop)
 {
 	mvprintw(row,col-1,"[");
-	if ( prop->width>0 && prop->width<(size_t)len ) len=prop->width;
+	if ( prop->width>0 && prop->width<len ) len=prop->width;
 	if ( col+len>width-2 ) len = width-2-col;
 	mvprintw(row,col+len+1,"]");
 	int key;
@@ -214,7 +214,7 @@ int setup(void *main, int argc, const char *argv[])
 		for ( i=0; i<width; i++ ) hline[i]='-';
 
 		// header
-		mvprintw(0,0,"GridLAB-D %d.%d.%d-%d (%s) Setup Editor",
+		mvprintw(0,0,"%s %d.%d.%d-%d (%s) Setup Editor",PACKAGE_NAME,
 			global_version_major, global_version_minor, global_version_patch, global_version_build,global_version_branch);
 		mvprintw(1,0,"%s",hline);
 		

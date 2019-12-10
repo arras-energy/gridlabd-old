@@ -127,7 +127,7 @@ int collect::sort(int sort_mode) {
 
 void collect::fetch_double(double **prop, PROPERTYNAME name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_double_by_name(parent, name);
 	if ( *prop == NULL )
 	{
@@ -149,7 +149,7 @@ void collect::fetch_double(double **prop, PROPERTYNAME name, OBJECT *parent)
 
 void collect::fetch_int(int **prop, PROPERTYNAME name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_int32_by_name(parent, name);
 	if ( *prop == NULL )
 	{

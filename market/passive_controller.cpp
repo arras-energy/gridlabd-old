@@ -207,7 +207,7 @@ passive_controller::passive_controller(MODULE *mod)
 
 void passive_controller::fetch_double(double **prop, const char *name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_double_by_name(parent, name);
 	if ( *prop == NULL )
 	{
@@ -229,7 +229,7 @@ void passive_controller::fetch_double(double **prop, const char *name, OBJECT *p
 
 void passive_controller::fetch_int(int **prop, const char *name, OBJECT *parent)
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	*prop = gl_get_int32_by_name(parent, name);
 	if ( *prop == NULL )
 	{
@@ -263,7 +263,7 @@ int passive_controller::create()
 
 int passive_controller::init(OBJECT *parent)
 {	
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	PROPERTY *enduseProperty;
 
 	if ( parent == NULL ) {
@@ -774,7 +774,7 @@ TIMESTAMP passive_controller::sync(TIMESTAMP t0, TIMESTAMP t1 ) {
 }
 
 TIMESTAMP passive_controller::postsync(TIMESTAMP t0, TIMESTAMP t1 ) {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 	char ctrname[1024];
 	char spvrname[1024];
 	
@@ -1517,7 +1517,7 @@ int passive_controller::calc_proboff(TIMESTAMP t0, TIMESTAMP t1 ) {
 
 int passive_controller::calc_pfc(TIMESTAMP t0, TIMESTAMP t1 ) 
 {
-	OBJECT *hdr = OBJECTHDR(this);
+	OBJECT *hdr = THISOBJECTHDR;
 		
 	if ( output_state_addr != 0 ) { 
 		output_state = *(int *)output_state_addr; // keep water heater in previous state

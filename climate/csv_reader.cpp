@@ -77,7 +77,7 @@ int csv_reader::open(const char *file)
 	int has_cols = 0;
 	int linenum = 0;
 	int i = 0;
-	OBJECT *obj = OBJECTHDR(this);
+	OBJECT *obj = THISOBJECTHDR;
 	weather *wtr = 0;
 
 	if ( file == 0 ) 

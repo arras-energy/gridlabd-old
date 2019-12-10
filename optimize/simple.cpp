@@ -78,7 +78,7 @@ int simple::create(void)
 /* Object initialization is called once after all object have been created */
 int simple::init(OBJECT *parent)
 {
-	OBJECT *my = OBJECTHDR(this);
+	OBJECT *my = THISOBJECTHDR;
 	char buffer[1024];
 	struct {
 		char *name;
@@ -239,7 +239,7 @@ TIMESTAMP simple::presync(TIMESTAMP t0, TIMESTAMP t1)
 /* Postsync is called when the clock needs to advance on the second top-down pass */
 TIMESTAMP simple::postsync(TIMESTAMP t0, TIMESTAMP t1)
 {
-	OBJECT *my = OBJECTHDR(this);
+	OBJECT *my = THISOBJECTHDR;
 	char buffer[1024];
 
 	// trial limit reached or objective cannot be calculated
