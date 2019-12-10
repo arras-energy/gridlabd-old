@@ -226,7 +226,7 @@ void glengine::protocolConnect(){
 		exception("Connection to gridlab-d failed!");
 	}
 
-	debug(1,"connection open with GridLAB-D Version %d.%d.%d-%d (%s)", major, minor, patch, build, branch);
+	debug(1,"connection open with %s Version %d.%d.%d-%d (%s)", PACKAGE_NAME, major, minor, patch, build, branch);
 
 	if ( !recvProtocol(protocol) ){
 		exception("unexpected message [%s]", buffer);
