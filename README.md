@@ -1,8 +1,8 @@
-The main documentation page for this project is located at https://dchassin.github.io/gridlabd.
+The main documentation page for this project is located at http://docs.gridlabd.us/.
 
 ## Important Note
 
-This repository is SLAC National Accelerator's develop fork of GridLAB-D (see https://github.com/gridlab-d/gridlab-d for the official code repository of GridLAB-D).  Only SLAC projects may contribute to this repository.  Changes made in this fork will be migrated back to PNNL's official repository at PNNL's discretion.
+This repository is SLAC National Accelerator's development fork of GridLAB-D (see https://github.com/gridlab-d/gridlab-d for the official code repository of GridLAB-D).  Only SLAC projects may contribute to this repository.  Changes made in this fork will be migrated back to PNNL's official repository at PNNL's discretion.
 
 # User quick start
 
@@ -20,9 +20,17 @@ Note that this alias will interfere with the host-based installation.
 
 # Developer quick start
 
-Linux developers should first consult https://github.com/dchassin/gridlabd/blob/master/README-LINUX.md and Mac OS X developers should consult https://github.com/dchassin/gridlabd/blob/master/README-MACOSX.md. This fork of GridLAB-D does not support MS Windows directly. You must use docker or a virtual machine running linux.
+*Note*: This fork of GridLAB-D does not support MS Windows directly. You must use docker or a virtual machine running linux.
 
-Assuming your development system is ready (see https://github.com/dchassin/gridlabd/wiki/Install#mac-osx-and-linux for details), you can "quickly" download and build a host-based installation from a branch using the following commands:
+Normally on Linux and Mac OS X developers you should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. 
+~~~
+host% git clone https://github.com/dchassin/gridlabd gridlabd
+host% gridlabd/install.sh
+~~~
+
+The `gridlabd` command is added to the `/usr/local/bin` folder, so this folder must be included in the path for all users, e.g., as specified in `/etc/profile` or `/etc/profile.d`.
+
+You may work with a user installation instead of a system installation. Assuming your development system is ready (see https://github.com/dchassin/gridlabd/wiki/Install#mac-osx-and-linux for details), you can "quickly" download and build a host-based installation from a branch using the following commands:
 ~~~
   host% git clone https://github.com/dchassin/gridlabd -b _branch-name_ _work-folder_
   host% cd _work-folder_
@@ -33,6 +41,7 @@ Assuming your development system is ready (see https://github.com/dchassin/gridl
   host% gridlabd --version
   host% gridlabd --validate
 ~~~
+
 ## Useful configure options
  - `--with-mysql=/usr/local` to enable support for mysql (assuming you install mysql-dev on your system)
  - `CXXFLAGS='-w -O0 -g'` to enable debugging of C++ source code (e.g., module code)

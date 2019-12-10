@@ -12,6 +12,8 @@
 #include <float.h>
 #include <string.h>
 
+#include <Python.h>
+
 #ifdef _WINDOWS
 #define isfinite _finite
 #endif
@@ -397,6 +399,15 @@ typedef struct s_object_list* object; /* GridLAB objects */
 typedef unsigned int64 set; /* sets (each of up to 64 values may be defined) */
 typedef double triplet[3];
 typedef complex triplex[3];
+typedef struct s_correlation CORRELATION;
+struct s_correlation {
+	struct s_object_list *object;
+	struct s_property_map *property;
+	double *source;
+	double scale;
+	double bias;
+	struct s_correlation *next;
+};
 typedef struct s_randomvar {
 	double value;				/**< current value */
 	unsigned int state;			/**< RNG state */
@@ -405,6 +416,7 @@ typedef struct s_randomvar {
 	double low, high;			/**< RNG truncations limits */
 	unsigned int update_rate;	/**< RNG refresh rate in seconds */
 	unsigned int flags;			/**< RNG flags */
+	CORRELATION *correlation;	// correlation 
 	/* internal parameters */
 	struct s_randomvar *next;
 } randomvar;
@@ -1350,6 +1362,11 @@ typedef struct s_callbacks {
 		unsigned int (*build)(void);
 		const char * (*branch)(void);
 	} version;
+	int (*call_external_callback)(const char*, void *);
+	struct {
+		PyObject *(*import)(const char *module, const char *path);
+		bool (*call)(PyObject *pModule, const char *method);
+	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
 

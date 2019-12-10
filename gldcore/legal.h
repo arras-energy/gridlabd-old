@@ -15,6 +15,7 @@ extern "C" {
 
 STATUS legal_notice(void);
 STATUS legal_license(void);
+const char *legal_license_text(void);
 
 void check_version(int mt);
 

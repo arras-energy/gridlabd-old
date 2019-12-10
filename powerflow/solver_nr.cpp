@@ -31,8 +31,11 @@ Initialization after returning to service?
 ***********************************************************************
 */
 
+#include <unistd.h>
 
 #include "solver_nr.h"
+#include "solver_ml.h"
+
 using namespace std;
 
 #define MT // this enables multithreaded SuperLU
@@ -251,13 +254,46 @@ void sparse_tonr(SPARSE* sm, NR_SOLVER_VARS *matrices_LU)
 	n>0 to indicate success after n interations, or 
 	n<0 to indicate failure after n iterations
  **/
-int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count, BRANCHDATA *branch, NR_SOLVER_STRUCT *powerflow_values, NRSOLVERMODE powerflow_type , NR_MESHFAULT_IMPEDANCE *mesh_imped_vals, bool *bad_computations)
-{	
+int64 solver_nr(unsigned int bus_count, 
+				BUSDATA *bus, 
+				unsigned int branch_count, 
+				BRANCHDATA *branch, 
+				NR_SOLVER_STRUCT *powerflow_values, 
+				NRSOLVERMODE powerflow_type , 
+				NR_MESHFAULT_IMPEDANCE *mesh_imped_vals, 
+				bool *bad_computations)
+{
 	// Begin solver timer
 	clock_t t_start = clock();
 
 	//Internal iteration counter - just NR limits
-	int64 Iteration;
+	int64 Iteration = 0;
+
+	// Support solution modeling
+	try 
+	{
+		if ( solver_model_init() )
+		{
+			SOLVERMODEL *model = NULL;
+			if ( solver_model_find(model,bus_count,bus,branch_count,branch) )
+			{
+				// model found
+				if ( solver_model_apply(model,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration) > 0 )
+				{
+					// model is ok
+					return Iteration;
+				}
+			}
+		}
+	}
+	catch (const char *msg)
+	{
+		gl_warning("solver_ml: model failed -- %s",msg);
+	}
+	catch (...)
+	{
+		gl_warning("solver_ml: model failed -- unknown exception");
+	}
 
 	//File pointer for debug outputs
 	FILE *FPoutVal;
@@ -3977,6 +4013,19 @@ int64 solver_nr(unsigned int bus_count, BUSDATA *bus, unsigned int branch_count,
 	}
 	else	//Must have converged 
 	{
+		try 
+		{
+			solver_model_new(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
+		}
+		catch (const char *msg)
+		{
+			gl_error("solver_ml: model save failed -- %s",msg);
+		}
+		catch (...)
+		{
+			gl_error("solver_ml: model save failed -- unknown exception");
+		}
+
 		if ( nr_profile != NULL ) 
 		{	
 			double t = clock() - t_start;	
