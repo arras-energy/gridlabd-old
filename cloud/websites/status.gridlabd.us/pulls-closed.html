@@ -1,0 +1,180 @@
+<HTML>
+    <HEAD>
+        <SCRIPT LANGUAGE="Javascript">
+
+            function set_default(name, value) 
+            {
+                // console.info("set_default('" + name + "',value='" + value + "') --> cookie = '" + document.cookie + "'");
+                if ( document.cookie.indexOf("BLOCKED=") >= 0 )
+                {
+                    return;
+                }
+                if ( value == null )
+                {
+                    document.cookie = name + "=;";
+                }
+                else
+                {
+                    document.cookie = name + "=" + value + ";path=/";
+                }
+            }
+
+            function get_default(name,deflt,asnull) 
+            {
+                var query = new URLSearchParams(window.location.search);
+                // console.info("get_default('" + name + "',value='" + deflt + "')...");
+                var value = query.get(name);
+                var type = 'query';
+                if ( value == null )
+                {
+                    var ca = document.cookie.split(';');
+                    // console.info("  cookie = " + ca);
+                    for ( var i = 0 ; i < ca.length ; i++ ) 
+                    {
+                        var c = ca[i].trim();
+                        if ( c.indexOf(name+'=') == 0 ) 
+                        {
+                            value = c.substring(c.indexOf('=')+1, c.length);
+                            type = 'cookie';
+                        }
+                    }
+                    if ( value == null )
+                    {
+                        value = deflt;
+                        type = 'default';
+                    }
+                }
+                if ( asnull != null && value === asnull )
+                {
+                    value = null;
+                    type += ' asnull'
+                }
+                // console.info("  " + type + " --> " + name + " = '" + deflt + "'");
+                return value;
+            }
+
+            var token = get_default("token","",null);;
+            function run_query(query)
+            {
+                // console.info("GET " + query + "'...")
+                var r = new XMLHttpRequest();
+                r.open('GET',"https://api.github.com" + query,false);
+                if ( token != null )
+                {
+                    r.setRequestHeader("Authorization","token " + token);
+                }
+                r.send(null);
+                // console.info("  GET -> " + r.status);
+                return r;
+            }
+
+           function load_markdown(text)
+            {
+                var rr = new XMLHttpRequest();
+                rr.open('POST','https://api.github.com/markdown/raw',false);
+                if ( token != null )
+                {
+                    rr.setRequestHeader("Authorization","token " + token);
+                }
+                rr.send(text);
+                return rr;
+            }            
+
+        </SCRIPT>
+    </HEAD>
+
+    <BODY>
+        <SCRIPT LANGUAGE="Javascript">
+            stop = new Date();
+
+            if ( token == null || token === "" )
+            {
+                token = prompt("Enter your personal GitHub access token\n(Cancel grants temporarty access)");
+                set_default("token",token);
+            }
+
+            start = new Date(prompt("Enter report start date (yyyy-mm-dd): ",stop.getFullYear() + "-" + (stop.getMonth()+1) + "-01"));
+
+            r = run_query("/repos/dchassin/gridlabd/pulls?state=closed&per_page=100&sort=updated&direction=desc");
+            if ( r.status == 200 )
+            {
+                report = "GridLAB-D Pull Requests Completed for period " + start.getFullYear() + "-" + (start.getMonth()+1) + "-" + start.getDate() + " - " + stop.getFullYear() + "-" + (stop.getMonth()+1) + "-" + stop.getDate() + "\n";
+                var count = 0;
+                var number = null;
+                var title = null;
+                var closed_at = null;
+                var body = null;
+                var state = null;
+                JSON.parse(r.responseText, function (key,value)
+                {
+                    if ( key === "number" )
+                    {
+                        number = value;
+                        title = null;
+                        body = null;
+                        closed_at = null;
+                        state = null;
+                        // console.info("  number -> " + value);
+                    }
+                    else if ( key === "title")
+                    {
+                        title = value;
+                        // console.info("  title -> " + value);
+                    }
+                    else if ( key === "body" )
+                    {
+                        body = value;
+                        // console.info("  body -> " + value);
+                    }
+                    else if ( key === "state" )
+                    {
+                        state = value;
+                        // console.info("  state -> " + value);
+                    }
+                    else if ( key === "closed_at" )
+                    {
+                        closed_at = value;
+                        // console.info("  closed_at -> " + value);
+                    }
+                    else if ( key === "author_association" )
+                    {
+                        // console.info("  author_association -> " + value);
+                        if ( number != null && title != null && closed_at != null && body != null && state === "closed" )
+                        {
+                            closed_dt = new Date(closed_at);
+                            console.info("start '" + start + "'; closed '" + closed_dt + "'; stop '" + stop + "'"); 
+                            if ( start <= closed_dt && closed_dt <= stop )
+                            {
+                                // console.info("*** output ***");
+                                report += "\n# Update #" + number + ": " + title + "\n";
+                                report += "Completed " + closed_at.substring(0,closed_at.indexOf("T")) + "\n";
+                                report += "\n" + body + "\n";
+                                count += 1;
+                            }
+                        }
+                        number = null;
+                        title = null;
+                        closed_at = null;
+                        body = null;
+                        state = null;
+                    }
+                }) 
+                report += "\nEnd of report: " + count + " pull requests closed\n";
+                console.info(report);
+                md = load_markdown(report);
+                if ( md.status != 200 )
+                {
+                    report += "ERROR " + rr.status + ": ";
+                }
+                document.writeln(md.responseText);               
+            }
+            else
+            {
+                document.writeln("<H1>Error: " + r.status + "</H1>");
+                document.writeln(r.responseText);
+            }
+
+        </SCRIPT>
+    </BODY>
+
+</HTML>

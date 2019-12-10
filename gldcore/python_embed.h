@@ -13,5 +13,6 @@ void python_embed_init(int argc, const char *argv[]);
 void python_embed_term();
 PyObject *python_embed_import(const char *module, const char *path=NULL);
 bool python_embed_call(PyObject *pModule, const char *name);
+std::string python_eval(const char *command);
 
 #endif

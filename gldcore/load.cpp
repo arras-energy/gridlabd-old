@@ -726,7 +726,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				sprintf(include_file_str+ifs_off, "#include \"%s\"\n;", lptr->file);
 				ifs_off+=strlen(lptr->file)+13;
 			}
-			if (write_file(fp,"/* automatically generated from GridLAB-D */\n\n"
+			if (write_file(fp,"/* automatically generated from %s */\n\n"
 					"int gld_major=%d, gld_minor=%d;\n\n"
 					"%s\n\n"
 					"#include <gridlabd.h>\n\n"
@@ -734,6 +734,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 					"CALLBACKS *callback = NULL;\n"
 					"static CLASS *myclass = NULL;\n"
 					"static int setup_class(CLASS *);\n\n",
+					PACKAGE_NAME,
 					REV_MAJOR, REV_MINOR,
 					include_file_str,
 					global_getvar("use_msvc",tbuf,63)!=NULL
@@ -2693,7 +2694,7 @@ static int expanded_value(const char *text, char *result, int size, const char *
 					object_namespace(value,sizeof(value));
 				else if (strcmp(varname,"class")==0)
 					strcpy(value,current_object?current_object->oclass->name:"");
-				else if (strcmp(varname,"gridlabd")==0)
+				else if (strcmp(varname,PACKAGE)==0)
 					strcpy(value,global_execdir);
 				else if (strcmp(varname,"hostname")==0)
 					strcpy(value,global_hostname); 
@@ -6563,32 +6564,30 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 	int n=0;
 	int linenum=0;
 	int startnest = nesting;
-	while (fgets(line,sizeof(line),fp)!=NULL)
+	while ( fgets(line,sizeof(line),fp) != NULL )
 	{
 		int len;
 		char subst[65536];
 
 		/* comments must have preceding whitespace in macros */
-		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
+		char *c = ( ( line[0] != '#' ) ? strstr(line,COMMENT) : strstr(line, " " COMMENT) );
 		linenum++;
-		if (c!=NULL) /* truncate at comment */
-			strcpy(c,"\n");
-		len = (int)strlen(line);
-		if (len>=size-1)
-			return 0;
-
-	
-#ifndef OLDSTYLE
-		/* check for oldstyle file under newstyle parse */
-		if (linenum==1 && strncmp(line,"# ",2)==0)
+		if ( c != NULL ) 
 		{
-			output_error("%s looks like a version 1.x GLM files, please convert this file to new style before loading", filename);
+			/* truncate at comment */
+			strcpy(c,"\n");
+		}
+		len = (int)strlen(line);
+		if ( len >= size-1 )
+		{
 			return 0;
 		}
-#endif
+
 		/* expand variables */
-		if ((len=replace_variables(subst,line,sizeof(subst),suppress==0))>=0)
+		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
+		{
 			strcpy(line,subst);
+		}
 		else
 		{
 			output_error_raw("%s(%d): unable to continue", filename,linenum);
@@ -6596,11 +6595,13 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* expand macros */
-		if (strncmp(line,MACRO,strlen(MACRO))==0)
+		if ( strncmp(line,MACRO,strlen(MACRO)) == 0 )
 		{
 			/* macro disables reading */
-			if (process_macro(line,sizeof(line),filename,linenum)==FALSE)
+			if ( process_macro(line,sizeof(line),filename,linenum) == FALSE )
+			{
 				return 0;
+			}
 			len = (int)strlen(line);
 			strcat(buffer,line);
 			buffer += len;
@@ -6609,7 +6610,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* if reading is enabled */
-		else if (suppress==0)
+		else if ( suppress == 0 )
 		{
 			strcpy(buffer,subst);
 			buffer+=len;
@@ -6617,7 +6618,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 			n+=len;
 		}
 	}
-	if (nesting != startnest)
+	if ( nesting != startnest )
 	{
 		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,linenum,MACRO,filename,macro_line[nesting-1]);
 		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
@@ -6626,45 +6627,196 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 	return n;
 }
 
+///////////////////////////////////////////////////////////////////////////
+//
+// Forloop machine implementation
+//
+
+// TODO: convert this to a class so nesting is possible
+typedef enum e_forloopstate {
+	FOR_NONE   = 0, // no for loop active
+	FOR_BODY   = 1, // for loop started, body capture in progress
+	FOR_REPLAY = 2, // for loop replay in progress
+} FORLOOPSTATE;
+FORLOOPSTATE forloopstate = FOR_NONE;
+static char *forloop = NULL; // for loop value list
+static char *lastfor = NULL; // pointer to last strtok_r value
+static char *forvar = NULL; // global variable to use
+static const char *forvalue = NULL; // current value of global variable
+static std::list<std::string> forbuffer; // captured body
+static std::list<std::string>::const_iterator forbufferline; // body line iterator
+bool forloop_verbose = false;
+
+// Fetch the current state of the forloop machine
+// Returns: the forloop state
+inline static FORLOOPSTATE for_get_state(void)
+{
+	return forloopstate;
+}
+
+// Change the current state of the forloop machine
+// Returns: the last forloop state
+inline static FORLOOPSTATE for_set_state(FORLOOPSTATE n)
+{
+	const char *str[] = {"FOR_NONE","FOR_BODY","FOR_REPLAY"};
+	FORLOOPSTATE m = forloopstate;
+	forloopstate = n;
+	if ( forloop_verbose ) output_verbose("forloop state changed from '%s' to '%s'",str[(int)m],str[(int)n]);
+	return m;
+}
+
+// Test the current state of the forloop machine
+// Returns: 'true' if in state 'n', 'false' if not in state 'n'
+static bool for_is_state(FORLOOPSTATE n)
+{
+	return for_get_state() == n;
+}
+
+// Open a new instance of the forloop machine
+// Returns: 'true' if forloop opened, 'false' if forloop not opened
+static bool for_open(const char *var, const char *range)
+{
+	if ( forloop != NULL )
+	{
+		output_error_raw("%s(%d): nested forloop not supported", filename, linenum);
+		return false;
+	}
+	forloop = strdup(range);
+	forvar = strdup(var);
+	if ( forloop_verbose ) output_verbose("beginning forloop on variable '%s' in range [%s]", forvar, forloop);			
+	for_set_state(FOR_BODY);
+	return true;
+}
+
+// Update the global variable of the forloop machine
+// Returns: the next value, or NULL if not remains
+static const char * for_setvar()
+{
+	const char *value = strtok_r(forvalue==NULL?forloop:NULL," ",&lastfor);
+	if ( value != NULL )
+	{
+		if ( forloop_verbose ) output_verbose("setting for variable '%s' to '%s'",forvar,value);
+		bool old = global_strictnames;
+		global_strictnames = false;
+		global_setvar(forvar,value);
+		global_strictnames = old;
+	}
+	else
+	{
+		if ( forloop_verbose ) output_verbose("no more values for variable '%s' after '%s'",forvar,forvalue);
+	}
+	return value;
+}
+
+// Capture a GLM line to the forloop machine to replay later
+static bool for_capture(const char *line)
+{
+	if ( strncmp(line,MACRO "done",5) == 0 )
+	{
+		if ( forloop_verbose ) output_verbose("capture of forloop body done with after %d lines", forbuffer.size());
+		for_set_state(FOR_REPLAY);
+		return false;
+	}
+	else
+	{
+		if ( forloop_verbose ) output_verbose("capturing forloop body line %d as '%s'", forbuffer.size(), line);
+		forbuffer.push_back(std::string(line));
+		forbufferline = forbuffer.end();
+		return true;
+	}
+}
+
+// Replay the next line in the forloop
+static const char *for_replay()
+{
+	// need to get first/next value in list
+	if ( forbufferline == forbuffer.end() )
+	{
+		if ( forloop_verbose ) output_verbose("end of replay buffer with forloop var '%s'='%s'", forvar,forvalue);
+		forvalue = for_setvar();
+		forbufferline = forbuffer.begin();
+	}
+
+	// no values left
+	if ( forvalue == NULL )
+	{
+		output_verbose("forloop in var '%s' replay complete", forvar, forloop);	
+		if ( forloop ) free(forloop);
+		lastfor = NULL;
+		if ( forvar ) free(forvar);
+		forvalue = NULL;
+		forbuffer.clear();
+		forbufferline = forbuffer.end();
+		for_set_state(FOR_NONE);
+		return NULL;
+	}
+	else
+	{
+		// get next line
+		const char *line = (forbufferline++)->c_str();
+		if ( forloop_verbose ) output_verbose("forloop replaying line '%s' with '%s'='%s'", line,forvar,forvalue);
+		return line;
+	}
+}
+
 static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
-	char line[10240];
+	char line[0x4000];
 	int n = 0, i = 0;
 	int _linenum=0;
 	int startnest = nesting;
 	int bnest = 0, quote = 0;
 	int hassc = 0; // has semicolon
 	int quoteline = 0;
-	while (fgets(line,sizeof(line),fp)!=NULL)
+	while ( for_is_state(FOR_REPLAY) || fgets(line,sizeof(line),fp) != NULL )
 	{
 		int len;
 		char subst[65536];
 
-		/* comments must have preceding whitespace in macros */
-		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
-		_linenum++;
-		if (c!=NULL) /* truncate at comment */
-			strcpy(c,"\n");
-		len = (int)strlen(line);
-		if (len>=size-1){
-			output_error("load.c: buffer exhaustion reading %i lines past line %i", _linenum, linenum);
-			if(quote != 0){
-				output_error("look for an unterminated doublequote string on line %i", quoteline);
+		if ( for_is_state(FOR_BODY) && for_capture(line) )
+		{
+			continue;
+		}
+		if ( for_is_state(FOR_REPLAY) )
+		{
+			const char *replay = for_replay();
+			if ( replay )
+			{
+				// load next line
+				strcpy(line,replay);
 			}
-			return 0;
+			else
+			{
+				// done, resume normal processing of input stream
+				continue;
+			}
+		}
+		else 
+		{
+			/* comments must have preceding whitespace in macros */
+			char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
+			_linenum++;
+			if ( c != NULL ) /* truncate at comment */
+			{
+				strcpy(c,"\n");
+			}
+			len = (int)strlen(line);
+			if ( len >= size-1 )
+			{
+				output_error("load.c: buffer exhaustion reading %i lines past line %i", _linenum, linenum);
+				if ( quote != 0 )
+				{
+					output_error("look for an unterminated doublequote string on line %i", quoteline);
+				}
+				return 0;
+			}
 		}
 	
-#ifndef OLDSTYLE
-		/* check for oldstyle file under newstyle parse */
-		if (_linenum==1 && strncmp(line,"# ",2)==0)
+		// expand variables
+		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
 		{
-			output_error("%s looks like a version 1.x GLM files, please convert this file to new style before loading", filename);
-			return 0;
-		}
-#endif
-		/* expand variables */
-		if ((len=replace_variables(subst,line,sizeof(subst),suppress==0))>=0)
 			strcpy(line,subst);
+		}
 		else
 		{
 			output_error_raw("%s(%d): unable to continue", filename,_linenum);
@@ -6672,15 +6824,17 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* expand macros */
-		if (strncmp(line,MACRO,strlen(MACRO))==0)
+		if ( strncmp(line,MACRO,strlen(MACRO)) == 0 )
 		{
 			/* macro disables reading */
-			if (process_macro(line,sizeof(line),filename,linenum + _linenum - 1)==FALSE){
+			if ( process_macro(line,sizeof(line),filename,linenum + _linenum - 1) == FALSE )
+			{
 				return 0;
-			} else {
+			} 
+			else 
+			{
 				++hassc;
 			}
-			//strcat(buffer,line);
 			strcpy(buffer,line);
 			len = (int)strlen(buffer); // include anything else in the buffer, then advance
 			buffer += len;
@@ -6689,52 +6843,69 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* if reading is enabled */
-		else if (suppress==0)
+		else if ( suppress == 0 )
 		{
 			strcpy(buffer,subst);
 			buffer+=len;
 			size -= len;
 			n+=len;
-			for(i = 0; i < len; ++i){
-				if(quote == 0){
-					if(subst[i] == '\"'){
+			for ( i = 0 ; i < len ; ++i )
+			{
+				if ( quote == 0 ) 
+				{
+					if ( subst[i] == '\"' )
+					{
 						quoteline = linenum + _linenum - 1;
 						quote = 1;
-					} else if(subst[i] == '{'){
+					} 
+					else if ( subst[i] == '{' )
+					{
 						++bnest;
 						++hassc;
 						// @TODO push context
-					} else if(subst[i] == '}'){
+					} 
+					else if ( subst[i] == '}' ) 
+					{
 						--bnest;
 						// @TODO pop context
-					} else if(subst[i] == ';'){
+					} 
+					else if( subst[i] == ';' )
+					{
 						++hassc;
 					}
-				} else {
-					if(subst[i] == '\"'){
+				} 
+				else 
+				{
+					if ( subst[i] == '\"' )
+					{
 						quote = 0;
 					}
 				}
 			}
-		} else {
+		} 
+		else 
+		{
 			strcpy(buffer,"\n");
 			buffer+=strlen("\n");
 			size -= 1;
 			n += 1;
 		}
-		if(bnest == 0 && hassc > 0 && nesting == startnest){ // make sure we read ALL of an #if block, if possible
+		if ( bnest == 0 && hassc > 0 && nesting == startnest ) // make sure we read ALL of an #if block, if possible
+		{ 
 			/* end of block */
 			return n;
 		}
 
 	}
-	if(quote != 0){
+	if ( quote != 0 )
+	{
 		output_warning("unterminated doublequote string");
 	}
-	if(bnest != 0){
+	if ( bnest != 0 )
+	{
 		output_warning("incomplete loader block");
 	}
-	if (nesting != startnest)
+	if ( nesting != startnest )
 	{
 		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,_linenum,MACRO,filename,macro_line[nesting-1]);
 		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,_linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
@@ -7644,6 +7815,20 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		{
 			strcpy(line,"\n");
 			return TRUE;
+		}
+	}
+	else if ( strncmp(line, MACRO "for",3) == 0 )
+	{
+		char var[64], range[1024];
+		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
+		{
+			strcpy(line,"\n");
+			return for_open(var,range) ? TRUE : FALSE;
+		}
+		else
+		{
+			output_error_raw("%s(%d): for macro syntax error", filename, linenum);
+			return false;
 		}
 	}
 	else

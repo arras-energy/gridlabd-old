@@ -1,0 +1,9 @@
+#set suppress_repeat_messages=FALSE
+
+#for X in 1 2 3 4
+
+#print for X=${X}
+
+#done
+
+#print done at X=${X}
