@@ -2,7 +2,7 @@
 
 # Introduction
 
-In California, Investor Owned Utilities (IOUs) are required to complete detailed ICA system wide to define the maximum node level hosting capacity to remain within power system criteria. System ICA values are used to expedite interconnection permitting for DER under the Rule 21 interconnection process (Interconnection Use Case). Results must be updated monthly and data must be mapped for review with hourly capacity limitation data available for download by the user. ICA with DER growth scenarios are also required for all annual IOU distribution system planning processes (Planning Use Case). The CPUC provided guidance to IOUs in late 2017 to complete ICA system wide in response to completed IOU demonstration projects and the DER WG final report. 
+In California, Investor Owned Utilities (IOUs) are required to complete detailed system-wide integration capacity analysis (ICA) to determine the maximum node level hosting capacity allowed to remain within key power system criteria. System ICA results are used to expedite interconnection permitting for distributed energy resource (DER) additions under the Rule 21 interconnection process (Interconnection Use Case). Results must be updated monthly and data must be mapped for review with hourly capacity limitation data available for download by the user. ICA with DER growth scenarios are also required for all annual IOU distribution system planning processes (Planning Use Case). The CPUC provided guidance to IOUs in late 2017 to complete ICA system wide in response to completed IOU demonstration projects and the DER WG final report. 
 
 The current ICA specifications are as follows: 
  - Iterative methodology required
