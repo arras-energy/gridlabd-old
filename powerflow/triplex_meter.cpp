@@ -217,7 +217,6 @@ int triplex_meter::init(OBJECT *parent)
 		}
 	}
 	check_prices();
-	last_t = gl_globalclock;
 
 	return triplex_node::init(parent);
 }

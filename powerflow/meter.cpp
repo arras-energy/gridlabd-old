@@ -268,8 +268,6 @@ int meter::init(OBJECT *parent)
 	}
 
 	check_prices();
-	last_t = gl_globalclock;
-	dt = 0;
 
 	//Update tracking flag
 	//Get server mode variable
