@@ -122,6 +122,9 @@ public:
 			if ( n_failed ) output_message("%d unexpected errors",n_failed); 
 			if ( n_exceptions ) output_message("%d unexpected exceptions",n_exceptions); 
 			output_message("%d tests succeeded",n_ok);
+			if ( n_ok < n_files && 100.0*n_ok/n_files > 99.0 )
+				output_message(">99%% success rate");
+			else				
 				output_message("%.0f%% success rate", 100.0*n_ok/n_files);
 		}
 		runlock();
