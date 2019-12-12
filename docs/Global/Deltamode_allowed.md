@@ -1,4 +1,4 @@
-[[Global/Deltamode_allowed]] -- Global to control use of delta mode simulations
+[[/Global/Deltamode_allowed]] -- Global to control use of delta mode simulations
 
 # Synopsis
 
@@ -11,9 +11,13 @@ Command line:
 host% gridlabd -D deltamode_allowed=[FALSE|TRUE]
 ~~~
 
-# Remarks
+# Description
 
-In version 4.2 delta mode is not allowed by default.  To enable delta mode in a model you must use
+In version 4.2 delta mode is not allowed by default.  
+
+# Example
+
+The following will enable delta mode in a model 
 ~~~
 #set deltamode_allowed=TRUE
 ~~~

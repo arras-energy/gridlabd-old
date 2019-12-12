@@ -1,9 +1,9 @@
-[[Macro/Curl]] -- Macro to copy URL
+[[/GLM/Macro/Curl]] -- Macro to copy URL
 
 # Synopsis
 GLM:
 ~~~
-  #curl <url> <file>
+#curl <url> <file>
 ~~~
 
 # Remarks
@@ -12,4 +12,4 @@ This is synonym of the `#wget` macro.
 
 # See also
 
-* [[Macro/Wget]]
+* [[/GLM/Macro/Wget]]
