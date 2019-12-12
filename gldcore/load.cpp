@@ -726,7 +726,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				sprintf(include_file_str+ifs_off, "#include \"%s\"\n;", lptr->file);
 				ifs_off+=strlen(lptr->file)+13;
 			}
-			if (write_file(fp,"/* automatically generated from GridLAB-D */\n\n"
+			if (write_file(fp,"/* automatically generated from %s */\n\n"
 					"int gld_major=%d, gld_minor=%d;\n\n"
 					"%s\n\n"
 					"#include <gridlabd.h>\n\n"
@@ -734,6 +734,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 					"CALLBACKS *callback = NULL;\n"
 					"static CLASS *myclass = NULL;\n"
 					"static int setup_class(CLASS *);\n\n",
+					PACKAGE_NAME,
 					REV_MAJOR, REV_MINOR,
 					include_file_str,
 					global_getvar("use_msvc",tbuf,63)!=NULL
@@ -2693,7 +2694,7 @@ static int expanded_value(const char *text, char *result, int size, const char *
 					object_namespace(value,sizeof(value));
 				else if (strcmp(varname,"class")==0)
 					strcpy(value,current_object?current_object->oclass->name:"");
-				else if (strcmp(varname,"gridlabd")==0)
+				else if (strcmp(varname,PACKAGE)==0)
 					strcpy(value,global_execdir);
 				else if (strcmp(varname,"hostname")==0)
 					strcpy(value,global_hostname); 

@@ -363,7 +363,7 @@ DEPRECATED static void buildtmp(void)
 	if (!(tmp = getenv("TMP")) && !(tmp = getenv("TEMP")))
 		tmp = TMP;
 	user = getenv(USERVAR);
-	snprintf(global_tmp, sizeof(global_tmp), "%s%s%s" PATHSEP "gridlabd",
+	snprintf(global_tmp, sizeof(global_tmp), "%s%s%s" PATHSEP PACKAGE,
 			tmp, (user ? PATHSEP : ""), (user ? user : ""));
 }
 

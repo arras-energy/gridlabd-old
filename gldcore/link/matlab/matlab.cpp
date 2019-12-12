@@ -285,7 +285,7 @@ EXPORT bool glx_create(glxlink *mod, CALLBACKS *fntable)
 	callback = fntable;
 	MATLABLINK *matlab = new MATLABLINK;
 	memset(matlab,0,sizeof(MATLABLINK));
-	matlab->rootname="gridlabd";
+	matlab->rootname=PACKAGE;
 	mod->set_data(matlab);
 	mod->valid_to=0;
 	return true;
