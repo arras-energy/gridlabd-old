@@ -1,7 +1,7 @@
 %YAML 1.2
 ---
 # See http://www.sublimetext.com/docs/3/syntax.html
-name: GridLAB-D
+name: gridlabd
 file_extensions:
   - glm
 scope: source.glm
@@ -16,11 +16,12 @@ contexts:
     # The main context is the initial starting point of our syntax.
     # Include other contexts from here (or specify them directly).
     - include: keywords
+    - include: macros
     - include: numbers
     - include: strings
 
   macros:
-    - match: '\b#(define|undef|sets|if|ifdef|ifndef|else|endif|print|warning|error|include|insert|insert|ifexist|setenv|option|start|system)\b'
+    - match: '\b(#)?[a-z]+\b'
       scope: keyword.macro.glm
 
   keywords:
