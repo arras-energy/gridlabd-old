@@ -7828,8 +7828,15 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		else
 		{
 			output_error_raw("%s(%d): for macro syntax error", filename, linenum);
-			return false;
+			return FALSE;
 		}
+	}
+	const char *cmd = strchr(line,'#');
+	int rc = system(cmd+1);
+	if ( rc != 127 )
+	{
+		strcpy(line,"\n");
+		return rc==0;
 	}
 	else
 	{
