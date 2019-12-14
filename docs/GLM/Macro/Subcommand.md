@@ -13,8 +13,16 @@ Subcommand may be called directly from within GLM files using by using the macro
 # Example
 
 ~~~
-#aws ls s3:mybucket
+#aws s3 ls
 ~~~
 
 # See also
-* [[TODO]]
+* [[/Subcommand/Aws]]
+* [[/Subcommand/Git]]
+* [[/Subcommand/Help]]
+* [[/Subcommand/Library]]
+* [[/Subcommand/Manual]]
+* [[/Subcommand/Python]]
+* [[/Subcommand/Validate]]
+* [[/Subcommand/Version]]
+* [[/Subcommand/Weather]]
