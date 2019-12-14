@@ -7831,8 +7831,9 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return FALSE;
 		}
 	}
-	const char *cmd = strchr(line,'#');
-	int rc = system(cmd+1);
+	char cmd[1024];
+	sprintf(cmd,"%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
+	int rc = system(cmd);
 	if ( rc != 127 )
 	{
 		strcpy(line,"\n");
