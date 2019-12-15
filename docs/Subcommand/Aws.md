@@ -21,3 +21,4 @@ The `aws` subcommand is used to access Amazon Web Services through the Command L
 
 # See also
 * [[/GLM/Macro/Subcommand]]
+* [[/Subcommand/Aws]]
