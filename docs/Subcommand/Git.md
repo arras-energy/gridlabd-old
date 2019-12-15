@@ -20,7 +20,7 @@ bash$ gridlabd git [--version] [--help] [-C <path>] [-c <name>=<value>]
 
 # Description
 
-The `git` subcommand is used to access GitHub resources through the Command Line Interface. See [AWS Command Line Interface](https://aws.amazon.com/cli/) for details.
+The `git` subcommand is used to access GitHub resources through the Command Line Interface. See [GitHub Help](https://help.github.com/) for details.
 
 # Example
 ~~~
