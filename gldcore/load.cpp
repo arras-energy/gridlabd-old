@@ -7915,7 +7915,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 				break;
 			}
 		}
-		output_error_raw("%s(%d): " MACRO "%s macro is not recognized", filename,linenum,tmp);
+		output_error_raw("%s(%d): %s macro is not recognized", filename,linenum,tmp);
 		strcpy(line,"\n");
 		return FALSE;
 	}
