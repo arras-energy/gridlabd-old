@@ -1,0 +1,3 @@
+#begin python
+gridlabd.verbose(str(gridlabd.version()))
+#end
