@@ -6759,8 +6759,46 @@ static const char *for_replay()
 	}
 }
 
-typedef struct s_languagemap LANGUAGE;
-static const LANGUAGE *get_language(void);
+static LANGUAGE builtin_languages[] = {
+	{"python",python_parser,NULL},
+};
+static LANGUAGE *language_list = builtin_languages;
+static LANGUAGE *language = NULL;
+void load_add_language(const char *name, bool (*parser)(const char*))
+{
+	LANGUAGE *item = new LANGUAGE;
+	item->name = strdup(name);
+	item->parser = parser;
+	item->next = language_list;
+	language_list = item;
+}
+static int set_language(const char *name)
+{
+	if ( name == NULL )
+	{
+		if ( language == NULL )
+		{
+			output_error_raw("%s(%d): no language set", filename, linenum);
+			return FALSE;
+		}
+		language = NULL;
+		return TRUE;
+	}
+	for ( language = language_list ; language != NULL ; language = language->next  )
+	{
+		if ( strcmp(language->name,name) == 0 )
+		{
+			return TRUE;
+		}
+	}
+	output_error_raw("%s(%d): language '%s' not recognized", filename, linenum, name);
+	return FALSE;
+}
+static const LANGUAGE *get_language(void)
+{
+	return language;
+}
+
 static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[0x4000];
@@ -7160,43 +7198,6 @@ char *strsep(char **from, const char *delim) {
     return ret;
 }
 #endif
-
-// set loader language
-// returns TRUE on success, FALSE on failure
-struct s_languagemap {
-	const char *name;
-	bool (*parser)(const char *buffer);
-} language_list[] = {
-	{"python",python_parser},
-};
-const LANGUAGE *language = NULL;
-static int set_language(const char *name)
-{
-	if ( name == NULL )
-	{
-		if ( language == NULL )
-		{
-			output_error_raw("%s(%d): no language set", filename, linenum);
-			return FALSE;
-		}
-		language = NULL;
-		return TRUE;
-	}
-	for ( unsigned long n = 0 ; n < sizeof(language_list)/sizeof(language_list[0]) ; n++ )
-	{
-		if ( strcmp(language_list[n].name,name) == 0 )
-		{
-			language = language_list+n;
-			return TRUE;
-		}
-	}
-	output_error_raw("%s(%d): language '%s' not recognized", filename, linenum, name);
-	return FALSE;
-}
-static const LANGUAGE *get_language(void)
-{
-	return language;
-}
 
 /** @return TRUE/SUCCESS for a successful macro read, FALSE/FAILED on parse error (which halts the loader) */
 static int process_macro(char *line, int size, char *_filename, int linenum)
