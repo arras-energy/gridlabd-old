@@ -10,8 +10,15 @@ GLM
 
 # Description
 
-The #begin macro is used activate a new language interpreter. The new interpreter is active until the #end macro is encountered. The languages currently supported are
-* python
+The #begin macro is used activate a new language interpreter. The new interpreter is active until the #end macro is encountered. 
+
+## Built-in Languages
+
+The following languages are currently provide through built-in support.
+
+### `python`
+
+The Python3 interpreter is linked to the GLM loader automatically when GridLAB-D is built.  The `gridlabd` module is also automatically loaded when the GridLAB-D Python interface is started.  For more information on the `gridlabd` module, see [[/Module/Python]]
 
 # Example
 
@@ -24,3 +31,4 @@ gridlabd.output(gridlabd.version())
 
 # See also
 * [[/GLM/Global/Python]]
+* [[/Module/Python]]
