@@ -4348,14 +4348,15 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		{
 			ACCEPT;
 		}
-		else {
+		else 
+		{
 			PROPERTY *prop = class_find_property(oclass,propname);
 			OBJECT *subobj=NULL;
 			current_object = obj; /* object context */
 			current_module = obj->oclass->module; /* module context */
 			char targetprop[1024];
 			char targetvalue[1024];
-			if (prop!=NULL && prop->ptype==PT_object && TERM(object_block(HERE,NULL,&subobj)))
+			if ( prop != NULL && prop->ptype==PT_object && TERM(object_block(HERE,NULL,&subobj)) )
 			{
 				char objname[64];
 				if (subobj->name) strcpy(objname,subobj->name); else sprintf(objname,"%s:%d", subobj->oclass->name,subobj->id);
@@ -4367,7 +4368,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 			}
-			else if ( prop==NULL && strcmp(propname,"parent")==0
+			else if ( prop == NULL && strcmp(propname,"parent") == 0
 					&& (WHITE,LITERAL("childless")) && (WHITE,LITERAL(":"))
 					&& (WHITE,TERM(name(HERE,targetprop,sizeof(targetprop))))
 					&& (WHITE,LITERAL("="))
@@ -4393,7 +4394,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && LITERAL("inherit"))
+			else if ( prop != NULL && LITERAL("inherit") )
 			{
 				char value[1024];
 				if ( obj->parent==NULL )
@@ -4412,7 +4413,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_complex && TERM(complex_unit(HERE,&cval,&unit)))
+			else if ( prop != NULL && prop->ptype==PT_complex && TERM(complex_unit(HERE,&cval,&unit)) )
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_complex(unit,prop->unit,&cval)==0)
 				{
@@ -4425,9 +4426,12 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 				else
+				{
+					object_set_initial_complex(obj,propname,&cval,unit);
 					ACCEPT;
+				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(expression(HERE, &dval, &unit, obj)))
+			else if ( prop != NULL && prop->ptype==PT_double && TERM(expression(HERE, &dval, &unit, obj)) )
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 				{
@@ -4440,9 +4444,12 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 				else
+				{
+					object_set_initial_double(obj,propname,dval,unit);
 					ACCEPT;
+				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_bool && TERM(expression(HERE, &dval, &unit, obj)))
+			else if ( prop != NULL && prop->ptype==PT_bool && TERM(expression(HERE, &dval, &unit, obj)) )
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 				{
@@ -4455,9 +4462,12 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 				else
+				{
+					object_set_initial_double(obj,propname,dval,unit);
 					ACCEPT;
+				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(functional_unit(HERE,&dval,&unit)))
+			else if ( prop != NULL && prop->ptype==PT_double && TERM(functional_unit(HERE,&dval,&unit)) )
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 				{
@@ -4470,20 +4480,26 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 				else
+				{
+					object_set_initial_double(obj,propname,dval,unit);
 					ACCEPT;
+				}
 			}
-			else if(prop != NULL && is_int(prop->ptype) && TERM(functional_unit(HERE, &dval, &unit))){
+			else if ( prop != NULL && is_int(prop->ptype) && TERM(functional_unit(HERE, &dval, &unit)) )
+			{
 				int64 ival = 0;
 				int16 ival16 = 0;
 				int32 ival32 = 0;
 				int64 ival64 = 0;
 				int rv = 0;
 
-				if(unit != NULL && prop->unit != NULL && strcmp((char *)(unit), "") != 0 && unit_convert_ex(unit, prop->unit, &dval) == 0){
+				if ( unit != NULL && prop->unit != NULL && strcmp((char *)(unit), "") != 0 && unit_convert_ex(unit, prop->unit, &dval) == 0 )
+				{
 					output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
 					REJECT;
 				} else {
-					switch(prop->ptype){
+					switch ( prop->ptype )
+					{
 						case PT_int16:
 							ival = ival16 = (int16)dval;
 							rv = object_set_int16_by_name(obj, propname, ival16);
@@ -4500,24 +4516,19 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							output_error("function_int operating on a non-integer (we shouldn't be here)");
 							REJECT;
 					} /* end switch */
-					if(rv == 0){
+					if ( rv == 0 )
+					{
 						output_error_raw("%s(%d): int property %s of %s %s could not be set to integer '%lld'", filename, linenum, propname, format_object(obj), ival);
 						REJECT;
-					} else {
+					} 
+					else 
+					{
+						object_set_initial_double(obj,propname,dval,unit);
 						ACCEPT;
 					}
-#if 0
-				if (object_set_double_by_name(obj,propname,dval)==0)
-				{
-					output_message("%s(%d): property %s of %s %s could not be set to unitless double '%g'", filename, linenum, propname, format_object(obj), dval);
-					REJECT;
-				} else {
-					ACCEPT;
-				}
-#endif
 				} /* end unit_convert_ex else */
 			}
-			else if (prop!=NULL
+			else if ( prop!=NULL
 				&& ( ( prop->ptype>=PT_double && prop->ptype<=PT_int64 ) || ( prop->ptype>=PT_bool && prop->ptype<=PT_timestamp ) || ( prop->ptype>=PT_float && prop->ptype<=PT_enduse ) )
 				&& TERM(linear_transform(HERE, &xstype, &source,&scale,&bias,obj)))
 			{
@@ -4532,11 +4543,11 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				else if ( source!=NULL )
 				{
 					/* a transform is unresolved */
-					if (first_unresolved==source)
-
+					if ( first_unresolved == source )
+					{
 						/* source was the unresolved entry, for now it will be the transform itself */
 						first_unresolved->ref = (void*)transform_getnext(NULL);
-
+					}
 					ACCEPT;
 				}
 			}
@@ -4577,11 +4588,12 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				else if ( source!=NULL )
 				{
 					/* a transform is unresolved */
-					if (first_unresolved==source)
+					if ( first_unresolved == source )
+					{
 
 						/* source was the unresolved entry, for now it will be the transform itself */
 						first_unresolved->ref = (void*)transform_getnext(NULL);
-
+					}
 					ACCEPT;
 				}
 			}
@@ -4788,7 +4800,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						REJECT;
 					}
 				}
-				else if (prop->ptype==PT_object)
+				else if ( prop->ptype == PT_object )
 				{	void *addr = object_get_addr(obj,propname);
 					if (addr==NULL)
 					{
@@ -4811,6 +4823,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					}
 					else
 					{
+						object_set_initial_value(obj,propname,propval);
 						ACCEPT;
 					}
 				}

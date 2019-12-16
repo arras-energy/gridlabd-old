@@ -14,6 +14,8 @@
 
 #include <Python.h>
 
+#include <list>
+
 #ifdef _WINDOWS
 #define isfinite _finite
 #endif
@@ -763,6 +765,7 @@ struct s_object_list {
 	unsigned long long guid[2]; /**< globally unique identifier */
 	EVENTHANDLERS events;
 	/* IMPORTANT: flags must be last */
+	void *initial_values; // initial values implementation is not accessible from modules
 	unsigned long long flags; /**< object flags */
 }; /**< Object header structure */
 
@@ -1174,7 +1177,7 @@ typedef struct s_callbacks {
 		int (*get_value_by_name)(OBJECT *, PROPERTYNAME, char*, int size);
 		OBJECT *(*get_reference)(OBJECT *, char*);
 		char *(*get_unit)(OBJECT *, PROPERTYNAME);
-		void *(*get_addr)(OBJECT *, PROPERTYNAME);
+		void *(*get_addr)(OBJECT *, PROPERTYNAME, PROPERTY**);
 		int (*set_value_by_type)(PROPERTYTYPE,void *data,char *);
 		bool (*compare_basic)(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void* x, void* a, void* b, char *part);
 		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, char *opstr);
@@ -1452,9 +1455,10 @@ inline int gl_set_rank(OBJECT* obj, ///< the object whose rank is being set
 /// Get a pointer to the data of an object property (by name)
 /// @return a pointer to the data
 inline void *gl_get_addr(OBJECT *obj, ///< the object whose property is sought
-						 PROPERTYNAME name) ///< the name of the property being sought
+						 PROPERTYNAME name,
+						 PROPERTY **pref=NULL) ///< the name of the property being sought
 {
-	return callback->properties.get_addr(obj,name);
+	return callback->properties.get_addr(obj,name,pref);
 }
 
 /// Get the typed value of a property

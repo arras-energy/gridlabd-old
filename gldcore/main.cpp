@@ -431,7 +431,8 @@ bool GldMain::reset(void)
 		return false;
 	if ( ! class_reset() )
 		return false;
-	// TODO reset objects
+	if ( ! object_reset() )
+		return false;
 	// TODO reset randomvars
 	// TODO reset filters
 	// TODO reset globals

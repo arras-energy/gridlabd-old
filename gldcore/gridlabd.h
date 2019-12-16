@@ -1107,7 +1107,10 @@ inline DEPRECATED bool *gl_get_bool(OBJECT *obj, /**< object to set dependency *
 
 #define gl_get_string DEPRECATED (*callback->objvar.string_var)
 
-#define gl_get_addr DEPRECATED (*callback->properties.get_addr)
+inline void *gl_get_addr(OBJECT *obj, const char *name, PROPERTY **pref=NULL) 
+{
+	return (*callback->properties.get_addr)(obj,name,pref);
+}
 
 /** @} **/
 
