@@ -1519,5 +1519,32 @@ int class_get_xsd(CLASS *oclass, /**< a pointer to the class to convert to XSD *
 	return (int)n;
 }
 
+DEPRECATED bool class_reset(CLASS *oclass)
+{
+	if ( oclass == NULL )
+	{
+		for ( CLASS *oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
+		{
+			if ( ! class_reset(oclass) )
+				return false;
+		}
+		return true;			
+	}
+	else
+	{
+		oclass->profiler.lock = 0;
+		oclass->profiler.clocks = 0;
+		oclass->profiler.count = 0;
+		return true;
+	}
+}
+
+bool GldProfiler::reset(void)
+{
+	lock = 0;
+	clocks = 0;
+	count = 0;
+	return true;
+}
 
 /**@}**/

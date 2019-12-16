@@ -1798,7 +1798,10 @@ int http_control_request(HTTPCNX *http, char *action)
 		exec_mls_resume(global_clock);
 		output_verbose("waiting for pause");
 		while ( global_mainloopstate!=MLS_PAUSED )
+		{
+			// TODO this is not the right way to wait
 			usleep(100000);
+		}
 		return 1;
 	}
 	else if ( sscanf(action,"pauseat=%[-0-9%:A-Za-z ]",buffer)==1 )
@@ -1830,6 +1833,20 @@ int http_control_request(HTTPCNX *http, char *action)
 	{
 		output_verbose("main loop stopped");
 		global_stoptime = global_clock;
+	}
+	else if ( strcmp(action,"reset") == 0 )
+	{
+		extern GldMain *my_instance;
+		if ( ! my_instance->reset() )
+		{
+			output_error("simulation reset failed");
+			return 0;
+		}
+		else
+		{
+			output_verbose("simulation reset");
+			return 0;
+		}
 	}
 	return 0;
 }

@@ -555,6 +555,12 @@ DEPRECATED int class_add_loadmethod(CLASS *oclass, const char *name, LOADMETHODC
  */
 DEPRECATED LOADMETHOD *class_get_loadmethod(CLASS *oclass,const char *name);
 
+/* Function: class_reset
+
+	This function is obsolete
+ */
+DEPRECATED bool class_reset(CLASS *oclass=NULL);
+
 #ifdef __cplusplus
 }
 
@@ -585,6 +591,9 @@ public:
 
 	// Destructor: ~GldProfiler
 	~GldProfiler(void);
+
+	// Function: reset
+	bool reset();
 };
 
 class GldMain;
@@ -757,6 +766,9 @@ public:
 	
 	// Function: get_loadmethod
 	LOADMETHOD *get_loadmethod(const char *name);
+
+	// Function: reset
+	bool reset(void);
 };
 
 #endif

@@ -412,4 +412,29 @@ int GldMain::run_on_exit()
 	return 0;
 }
 
+bool GldMain::pause(TIMESTAMP at)
+{
+	if ( at < global_clock )
+		at = global_clock;
+	exec_mls_resume(global_clock);
+	while ( global_mainloopstate!=MLS_PAUSED )
+	{
+		// TODO this is not the right way to wait
+		usleep(100000);
+	}
+	return true;
+}
+
+bool GldMain::reset(void)
+{
+	if ( ! pause() )
+		return false;
+	if ( ! class_reset() )
+		return false;
+	// TODO reset objects
+	// TODO reset randomvars
+	// TODO reset filters
+	// TODO reset globals
+	return true;
+}
 /** @} **/

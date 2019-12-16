@@ -202,6 +202,14 @@ public:
 	// Method: global_push
 	inline void global_push(char *name, char *value) { return globals.push(name,value);};
 
+	// Method: pause
+	bool pause(TIMESTAMP at=TS_ZERO);
+
+	// Method: resume
+	inline bool resume(TIMESTAMP until=TS_NEVER) { return pause(until); };
+
+	// Method: reset
+	bool reset(void);
 };
 
 DEPRECATED extern GldMain *my_instance; // TODO: move this into main() to make system globally reentrant
