@@ -506,6 +506,8 @@ bool object_reset(OBJECT *obj=NULL);
 void object_set_initial_value(OBJECT *obj, const char *name, const char *value);
 void object_set_initial_double(OBJECT *obj, const char *name, double value, UNIT *unit=NULL);
 void object_set_initial_complex(OBJECT *obj, const char *name, complex *value, UNIT *unit=NULL);
+void object_set_initial_randomvar(OBJECT *obj, const char *name, randomvar *value, UNIT *unit=NULL);
+void object_set_initial_filter(OBJECT *obj, const char *name, TRANSFORM *value, UNIT *unit=NULL);
 
 #ifdef __cplusplus
 }

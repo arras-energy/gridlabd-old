@@ -3128,6 +3128,20 @@ void object_set_initial_complex(OBJECT *obj, const char *name, complex *value, U
 	object_set_initial_value(obj,name,buffer);
 }
 
+void object_set_initial_randomvar(OBJECT *obj, const char *name, randomvar *value, UNIT *unit)
+{
+	char buffer[1024];
+	PROPERTY *prop = object_get_property(obj,name,NULL);
+	if ( convert_from_randomvar(buffer,sizeof(buffer),(void*)value,prop) <= 0 )
+		throw_exception("object_set_initial_randomvar(obj=<%s:%d>,name='%s',...): conversion to string failed", obj->oclass->name, obj->id, name, value);
+}
+
+void object_set_initial_filter(OBJECT *obj, const char *name, TRANSFORM *value, UNIT *unit)
+{
+	char buffer[1024];
+	transform_to_string(value,buffer,sizeof(buffer)-1);
+}
+
 GldObjectInitialValue::GldObjectInitialValue(OBJECT *o, const char *n, const char *v)
 {
 	obj = o;

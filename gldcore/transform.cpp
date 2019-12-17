@@ -619,39 +619,129 @@ int transform_saveall(FILE *fp)
 	TRANSFERFUNCTION *tf;
 	for ( tf = tflist ; tf != NULL ; tf = tf->next )
 	{
-		count += fprintf(fp,"filter %s(%s,%gs,%gs) = (", tf->name, tf->domain, tf->timestep, tf->timeskew);
-		for ( int m = tf->m - 1 ; m >= 0 ; m-- )
-		{
-			if ( tf->b[m] != 1.0 || m == 0 )
-			{
-				count += fprintf(fp,"%+g",tf->b[m]);
-			}
-			if ( m > 0 )
-			{
-				count += fprintf(fp,"%s",tf->domain);
-			}
-			if ( m > 1 )
-			{
-				count += fprintf(fp,"^%d",m);
-			}
-		}
-		count += fprintf(fp,") / (");
-		for ( int n = tf->n - 1 ; n >= 0 ; n-- )
-		{
-			if ( tf->a[n] != 1.0 || n == 0 )
-			{
-				count += fprintf(fp,"%+g",tf->a[n]);
-			}
-			if ( n > 0 )
-			{
-				count += fprintf(fp,"%s",tf->domain);
-			}
-			if ( n > 1 )
-			{
-				count += fprintf(fp,"^%d",n);
-			}
-		}
-		count += fprintf(fp,");");
+		char buffer[1024];
+		transferfunction_to_string(tf,buffer,sizeof(buffer)-1);
+		count += fprintf(fp,"%s;\n",buffer);
 	}
 	return count;
 }
+
+int transferfunction_to_string(TRANSFERFUNCTION *tf, char *buffer, size_t maxlen)
+{
+	int len = 0;
+	len += snprintf(buffer+len,maxlen-len-1,"filter %s(%s,%gs,%gs,minimum=%g,maximum=%g,resolution=%g) = (", tf->name, tf->domain, tf->timestep, tf->timeskew,tf->minimum,tf->maximum,tf->resolution);
+	for ( int m = tf->m - 1 ; m >= 0 ; m-- )
+	{
+		if ( tf->b[m] != 1.0 || m == 0 )
+		{
+			len += snprintf(buffer+len,maxlen-len-1,"%+g",tf->b[m]);
+			if ( len <= 0 )
+				throw_exception("transferfunction_to_string(tf='%s',buffer=0x%x,len=%d): buffer too small", tf->name, buffer, maxlen);
+		}
+		if ( m > 0 )
+		{
+			len += snprintf(buffer+len,maxlen-len-1,"%s",tf->domain);
+			if ( len <= 0 )
+				throw_exception("transferfunction_to_string(tf='%s',buffer=0x%x,len=%d): buffer too small", tf->name, buffer, maxlen);
+		}
+		if ( m > 1 )
+		{
+			len += snprintf(buffer+len,maxlen-len-1,"^%d",m);
+			if ( len <= 0 )
+				throw_exception("transferfunction_to_string(tf='%s',buffer=0x%x,len=%d): buffer too small", tf->name, buffer, maxlen);
+		}
+	}
+	len += snprintf(buffer+len,maxlen-len-1,") / (");
+	if ( len <= 0 )
+		throw_exception("transferfunction_to_string(xfrom='%s',buffer=0x%x,len=%d): buffer too small", tf->name, buffer, maxlen);
+	for ( int n = tf->n - 1 ; n >= 0 ; n-- )
+	{
+		if ( tf->a[n] != 1.0 || n == 0 )
+		{
+			len += snprintf(buffer+len,maxlen-len-1,"%+g",tf->a[n]);
+			if ( len <= 0 )
+				throw_exception("transferfunction_to_string(tf='%s',buffer=0x%x,len=%d): buffer too small", tf->name, buffer, maxlen);
+		}
+		if ( n > 0 )
+		{
+			len += snprintf(buffer+len,maxlen-len-1,"%s",tf->domain);
+			if ( len <= 0 )
+				throw_exception("transferfunction_to_string(tf='%s',buffer=0x%x,len=%d): buffer too small", tf->name, buffer, maxlen);
+		}
+		if ( n > 1 )
+		{
+			len += snprintf(buffer+len,maxlen-len-1,"^%d",n);
+			if ( len <= 0 )
+				throw_exception("transferfunction_to_string(tf='%s',buffer=0x%x,len=%d): buffer too small", tf->name, buffer, maxlen);
+		}
+	}
+	len += snprintf(buffer+len,maxlen-len-1,");");
+	if ( len <= 0 )
+		throw_exception("transferfunction_to_string(tf='%s',buffer=0x%x,len=%d): buffer too small", tf->name, buffer, maxlen);
+	return len;
+}
+int transform_to_string(TRANSFORM *xform, char *buffer, size_t maxlen)
+{
+	int len = 0;
+	const char *name;
+	switch ( xform->function_type ) {
+	case XT_LINEAR:
+
+		name = xform->source_schedule?xform->source_schedule->name:get_source_name(xform->source);
+		len += snprintf(buffer+len,maxlen-len-1,"%s*%g+%g",name,xform->scale,xform->bias);
+		if ( len <= 0 )
+			throw_exception("transform_to_string(source='%s',buffer=0x%x,len=%d): buffer too small", name, buffer, maxlen);
+		break;
+	case XT_EXTERNAL:
+		name = module_find_transform_function(xform->function);
+		len += snprintf(buffer+len,maxlen-len-1,"%s(",name);
+		if ( len <= 0 )
+			throw_exception("transform_to_string(function='%s',buffer=0x%x,len=%d): buffer too small", name, buffer, maxlen);
+		for ( int n = 0 ; n < xform->nrhs ; n++ )
+		{
+			if ( n > 0 )
+			{
+				len += snprintf(buffer+len,maxlen-len-1,",");
+				if ( len <= 0 )
+					throw_exception("transform_to_string(function='%s',buffer=0x%x,len=%d): buffer too small", name, buffer, maxlen);
+			}
+			len += snprintf(buffer+len,maxlen-len-1,"%s",xform->prhs[n].prop->name);
+			if ( len <= 0 )
+				throw_exception("transform_to_string(function='%s',buffer=0x%x,len=%d): buffer too small", name, buffer, maxlen);
+		}
+		len += snprintf(buffer+len,maxlen-len-1,")");
+		if ( len <= 0 )
+			throw_exception("transform_to_string(function='%s',buffer=0x%x,len=%d): buffer too small", name, buffer, maxlen);
+		break;
+	case XT_FILTER:
+		name = xform->tf->name;
+		len += transferfunction_to_string(xform->tf,buffer,maxlen);
+		if ( len <= 0 )
+			throw_exception("transform_to_string(tf='%s',buffer=0x%x,len=%d): buffer too small", name, buffer, maxlen);
+		break;	
+	default:
+		break;	
+	}
+	return len;
+}
+
+bool transform_reset(TRANSFORM *xform)
+{
+	if ( xform == NULL )
+	{		
+		for ( xform = schedule_xformlist ; xform != NULL ; xform = xform->next )
+		{
+			if ( xform->function_type == XT_FILTER && ! transform_reset(xform) )
+			{
+				return false;
+			}
+		}
+	}
+	else if ( xform->function_type == XT_FILTER )
+	{
+		memset(xform->x,0,sizeof(xform->x[0])*(xform->tf->n-1));
+		xform->y[0] = 0;
+	}
+	return true;
+}
+

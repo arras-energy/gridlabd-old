@@ -4546,7 +4546,8 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					if ( first_unresolved == source )
 					{
 						/* source was the unresolved entry, for now it will be the transform itself */
-						first_unresolved->ref = (void*)transform_getnext(NULL);
+						TRANSFORM *tf = transform_getnext(NULL);
+						first_unresolved->ref = (void*)tf;
 					}
 					ACCEPT;
 				}
@@ -4590,9 +4591,9 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					/* a transform is unresolved */
 					if ( first_unresolved == source )
 					{
-
 						/* source was the unresolved entry, for now it will be the transform itself */
-						first_unresolved->ref = (void*)transform_getnext(NULL);
+						TRANSFORM *tf = transform_getnext(NULL);
+						first_unresolved->ref = (void*)tf;
 					}
 					ACCEPT;
 				}
@@ -4634,10 +4635,11 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				{
 					/* a transform is unresolved */
 					if (first_unresolved==source)
-
+					{
 						/* source was the unresolved entry, for now it will be the transform itself */
-						first_unresolved->ref = (void*)transform_getnext(NULL);
-
+						TRANSFORM *tf = transform_getnext(NULL);
+						first_unresolved->ref = (void*)tf;
+					}
 					ACCEPT;
 				}
 			}

@@ -128,6 +128,9 @@ int transfer_function_constrain(char *tfname, unsigned int64 flags, unsigned int
 TRANSFORM *transform_has_target(void *addr);
 int transform_write(TRANSFORM *xform, FILE *fp);
 int transform_saveall(FILE *fp);
+int transform_to_string(TRANSFORM *xfrom, char *buffer, size_t maxlen);
+int transferfunction_to_string(TRANSFERFUNCTION *tf, char *buffer, size_t maxlen);
+bool transform_reset(TRANSFORM *xform=NULL);
 
 #ifdef __cplusplus
 }

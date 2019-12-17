@@ -84,6 +84,7 @@ typedef struct s_randomvar randomvar;
 struct s_randomvar {
 	double value;				/**< current value */
 	unsigned int state;			/**< RNG state */
+	unsigned int initial_state;	/**< RNG initial state */
 	RANDOMTYPE type;			/**< RNG distribution */
 	double a, b;				/**< RNG distribution parameters */
 	double low, high;			/**< RNG truncations limits */
@@ -112,6 +113,7 @@ int random_set_part(void *x, const char *name, const char *value);
 unsigned entropy_source(void);
 randomvar *randomvar_getnext(randomvar *var);
 size_t randomvar_getspec(char *str, size_t size, const randomvar *var);
+bool randomvar_reset(randomvar *var=NULL);
 
 #ifdef __cplusplus
 }

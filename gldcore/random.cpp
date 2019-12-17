@@ -1385,6 +1385,7 @@ int randomvar_update(randomvar *var)
 int randomvar_init(randomvar *var)
 {
 	randomvar_update(var);
+	var->initial_state = var->state;
 	return 1;
 }
 
@@ -1489,6 +1490,12 @@ int random_set_part(void *x, const char *name, const char *value)
 	return 0;
 }
 
+bool randomvar_reset(randomvar *var)
+{
+	var->state = var->initial_state;
+	randomvar_update(var);
+	return true;
+}
 
 /** @} **/
 

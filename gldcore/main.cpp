@@ -433,7 +433,10 @@ bool GldMain::reset(void)
 		return false;
 	if ( ! object_reset() )
 		return false;
-	// TODO reset randomvars
+	if ( ! randomvar_reset() )
+		return false;
+	if ( ! transform_reset() )
+		return false;
 	// TODO reset filters
 	// TODO reset globals
 	return true;
