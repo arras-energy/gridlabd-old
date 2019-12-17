@@ -379,10 +379,12 @@ STATUS GldGlobals::init(void)
 	global_version_build = version_build();
 	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch));
 
-	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++){
+	for ( i = 0 ; i < sizeof(map) / sizeof(map[0]); i++ )
+	{
 		struct s_varmap *p = &(map[i]);
 		GLOBALVAR *var = global_create(p->name, p->type, p->addr, PT_ACCESS, p->access, p->description?PT_DESCRIPTION:0, p->description, NULL);
-		if(var == NULL){
+		if ( var == NULL )
+		{
 			output_error("global_init(): global variable '%s' registration failed", p->name);
 			/* TROUBLESHOOT
 				The global variable initialization process was unable to register
@@ -390,7 +392,9 @@ STATUS GldGlobals::init(void)
 				detailed explanation of the error.  Follow the troubleshooting for
 				that message and try again.
 			*/
-		} else {
+		} 
+		else 
+		{
 			var->prop->keywords = p->keys;
 			var->callback = p->callback;
 		}
@@ -437,7 +441,13 @@ GLOBALVAR *GldGlobals::getnext(const GLOBALVAR *previous) /**< a pointer to the 
 /** Restores global varlist to a previous start position **/
 void GldGlobals::restore(GLOBALVAR *pos)
 {
-	global_varlist = pos;
+	while ( global_varlist != pos && global_varlist != NULL )
+	{
+		GLOBALVAR *next = global_varlist->next;
+		property_free(global_varlist->prop);
+		free(global_varlist);
+		global_varlist = next;
+	}
 }
 void GldGlobals::push(char *name, char *value)
 {
@@ -1398,6 +1408,32 @@ size_t GldGlobals::saveall(FILE *fp)
 	return count;
 }
 
+void GldGlobals::saveinit(void)
+{
+	for ( GLOBALVAR *var = global_varlist ; var != NULL ; var = var->next )
+	{
+		char temp[4096];
+		class_property_to_string(var->prop, (void *)var->prop->addr, temp, sizeof(temp));
+		var->init = strdup(temp);
+	}
+}
+bool GldGlobals::reset(GLOBALVAR *var)
+{
+	if ( var == NULL )
+	{
+		for ( var = global_varlist ; var != NULL ; var = var->next )
+		{
+			if ( ! global_reset(var) )
+				return false;
+		}
+	}
+	else
+	{
+		class_string_to_property(var->prop,(void*)var->prop->addr,var->init);
+	}
+	return true;
+}
+
 GldGlobals::GldGlobals(GldMain *inst) :
 	instance(*inst)
 {
@@ -1550,5 +1586,9 @@ DEPRECATED void *global_remote_read(void *local, GLOBALVAR *var)
 DEPRECATED void global_remote_write(void *local, GLOBALVAR *var)
 {
 	return my_instance->get_globals()->remote_write(local,var);
+}
+DEPRECATED bool global_reset(GLOBALVAR *var)
+{
+	return my_instance->get_globals()->reset(var);
 }
 /**@}**/

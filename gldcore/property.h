@@ -1541,6 +1541,13 @@ DEPRECATED PROPERTYTYPE property_getnext_type(PROPERTYTYPE ptype);
 */
 DEPRECATED PROPERTY *property_malloc(PROPERTYTYPE, CLASS *, const char *, void *, DELEGATEDTYPE *);
 
+/*	Function: property_free
+
+	Returns: 
+	void
+ */
+void property_free(PROPERTY *prop);
+
 /* 	Function: property_size
 
 	Returns: 

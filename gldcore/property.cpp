@@ -181,6 +181,12 @@ Error:
 	return NULL;
 }
 
+void property_free(PROPERTY *prop)
+{
+	if ( prop->name ) free((void*)prop->name);
+	free((void*)prop);
+}
+
 /** Get the size of a single instance of a property
 	@return the size in bytes of the a property
  **/

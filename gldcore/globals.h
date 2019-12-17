@@ -44,6 +44,7 @@ typedef struct s_globalvar
 	void (*callback)(const char *);
 	LOCKVAR lock;
 	struct s_globalvar *next;
+	char *init;
 } GLOBALVAR;
 
 /*	Typedef: EXITCODE
@@ -111,6 +112,7 @@ size_t global_getcount(void);
 void global_restore(GLOBALVAR *pos);
 void global_push(char *name, char *value);
 size_t global_saveall(FILE *fp);
+bool global_reset(GLOBALVAR *var);
 
 #ifdef __cplusplus
 }
@@ -838,6 +840,10 @@ public:
 	void remote_write(void *local, GLOBALVAR *var);
 	// Method: saveall
 	size_t saveall(FILE *fp);
+	// Method: saveinit
+	void saveinit(void);
+	// Method: reset
+	bool reset(GLOBALVAR *var=NULL);
 private:
 	// Method: parameter_expansion
 	bool parameter_expansion(char *buffer, size_t size, const char *spec);

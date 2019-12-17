@@ -180,6 +180,8 @@ GldMain::GldMain(int argc, const char *argv[])
 		return;
 	}
 #endif
+
+	get_globals()->saveinit();
 	
 	return;
 }
@@ -415,9 +417,11 @@ int GldMain::run_on_exit()
 bool GldMain::pause(TIMESTAMP at)
 {
 	if ( at < global_clock )
+	{
 		at = global_clock;
+	}
 	exec_mls_resume(global_clock);
-	while ( global_mainloopstate!=MLS_PAUSED )
+	while ( global_mainloopstate != MLS_PAUSED )
 	{
 		// TODO this is not the right way to wait
 		usleep(100000);
@@ -427,18 +431,19 @@ bool GldMain::pause(TIMESTAMP at)
 
 bool GldMain::reset(void)
 {
-	if ( ! pause() )
+	if ( pause() 
+		&& class_reset() 
+		&& object_reset() 
+		&& randomvar_reset() 
+		&& transform_reset() 
+		&& globals.reset() )
+	{
+		exec_mls_resume(global_clock);
+		return true;
+	}
+	else
+	{
 		return false;
-	if ( ! class_reset() )
-		return false;
-	if ( ! object_reset() )
-		return false;
-	if ( ! randomvar_reset() )
-		return false;
-	if ( ! transform_reset() )
-		return false;
-	// TODO reset filters
-	// TODO reset globals
-	return true;
+	}
 }
 /** @} **/
