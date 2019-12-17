@@ -1150,6 +1150,22 @@ int GldCmdarg::globals(int argc, const char *argv[])
 	const char *list[65536];
 	int i, n=0;
 	GLOBALVAR *var = NULL;
+	const char *opt = strchr(argv[0],'=');
+	if ( opt++ )
+	{
+		while ( isspace(*opt) ) opt++;
+		char buffer[1024];
+		if ( global_getvar(opt,buffer,sizeof(buffer)-1) != NULL )
+		{
+			output_message("%s",buffer);
+			return 0;
+		}
+		else
+		{
+			output_error("global '%s' not found",opt);
+			return CMDERR;
+		}
+	}
 
 	/* load the list into the array */
 	while ((var=global_getnext(var))!=NULL)
