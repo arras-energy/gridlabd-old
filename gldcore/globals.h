@@ -286,6 +286,9 @@ GLOBAL char global_modelname[1024] INIT(""); /**< Name of the current model */
 /* Variable: global_execdir */
 GLOBAL char global_execdir[1024] INIT(""); /**< Path to folder containing installed application files */
 
+/* Variable: global_basedir */
+GLOBAL char global_basedir[1024] INIT(""); /**< Path to folder containing installed application files */
+
 /* Variable: global_strictnames */
 GLOBAL bool global_strictnames INIT(true); /**< Enforce strict global naming (prevents globals from being implicitly created by assignment) */
 
@@ -765,6 +768,9 @@ GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< GLM save options */
 
 /* Variable: global_filesave_options */
 GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
+
+/* Variable: global_python3 */
+GLOBAL char1024 global_python3_binary INIT("/usr/local/bin/python3"); /**< python3 executable */
 
 #undef GLOBAL
 #undef INIT

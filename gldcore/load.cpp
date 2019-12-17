@@ -8122,7 +8122,7 @@ bool load_import(const char *from, char *to, int len)
 STATUS load_python(const char *filename)
 {
 	char cmd[1024];
-	sprintf(cmd,"/usr/local/bin/python3 %s",filename);
+	sprintf(cmd,"%s %s",(const char*)global_python3_binary, filename);
 	return system(cmd)==0 ? SUCCESS : FAILED ;
 }
 

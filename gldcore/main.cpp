@@ -234,12 +234,13 @@ void GldMain::set_global_execname(const char *path)
 
 void GldMain::set_global_execdir(const char *path)
 {
-	char *pd1, *pd2;
+	char *p;
 	strcpy(global_execdir,path);
-	pd1 = strrchr(global_execdir,'/');
-	pd2 = strrchr(global_execdir,'\\');
-	if (pd1>pd2) *pd1='\0';
-	else if (pd2>pd1) *pd2='\0';
+	p = strrchr(global_execdir,'/');
+	if ( p ) *p = '\0';
+	strcpy(global_basedir,global_execdir);
+	p = strrchr(global_basedir,'/');
+	if ( p ) *p = '\0';
 	return;
 }
 

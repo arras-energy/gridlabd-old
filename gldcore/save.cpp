@@ -108,7 +108,7 @@ int saveall(const char *filename)
 			save_options++;
 			buffer[strlen(buffer)-1] = '\0';
 		}
-		sprintf(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
+		sprintf(converter_command,"%s %s -i %s -o %s %s",(const char*)global_python3_binary,converter_path,input_name,filename,save_options?save_options:"");
 		output_verbose("system('%s')",converter_command);
 		rc = system(converter_command);
 		if ( rc != 0 )

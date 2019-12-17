@@ -225,6 +225,7 @@ DEPRECATED static struct s_varmap {
 	{"kmlfile", PT_char1024, &global_kmlfile, PA_PUBLIC, "KML output file name"},
 	{"kmlhost", PT_char1024, &global_kmlhost, PA_PUBLIC, "KML server URL"},
 	{"modelname", PT_char1024, &global_modelname, PA_REFERENCE, "model name"},
+	{"basedir",PT_char1024, &global_basedir, PA_REFERENCE, "directory where the application was installed"},
 	{"execdir",PT_char1024, &global_execdir, PA_REFERENCE, "directory where executable binary was found"},
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},
 	{"website", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string (deprecated)"}, /** @todo deprecate use of 'website' */
@@ -321,6 +322,7 @@ DEPRECATED static struct s_varmap {
 	{"glm_save_options", PT_set, &global_glm_save_options, PA_PUBLIC, "options to control GLM file save format", gso_keys},
 	{"filesave_options", PT_set, &global_filesave_options, PA_PUBLIC, "control elements saved on output", fso_keys},
 	{"ignore_errors", PT_bool, &global_ignore_errors, PA_PUBLIC, "disable exit on error behavior"},
+	{"python3_binary", PT_char1024, &global_python3_binary, PA_PUBLIC, "binary image for python3"},
 	/* add new global variables here */
 };
 
