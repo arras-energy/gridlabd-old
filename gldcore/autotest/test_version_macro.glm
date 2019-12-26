@@ -1,0 +1,10 @@
+#option debug
+#set suppress_repeat_messages=false
+
+#version 4.2.1
+#version -ne 4.1
+#version -gt 4.2.0
+#version -le 999999
+#version -lt 99.99.99
+#version -ge 4.2.1 -ge 191217
+#version -ge develop
