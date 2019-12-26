@@ -7817,7 +7817,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if ( strncmp(line, MACRO "for",3) == 0 )
+	else if ( strncmp(line, MACRO "for",4) == 0 )
 	{
 		char var[64], range[1024];
 		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
