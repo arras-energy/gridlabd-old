@@ -2,12 +2,12 @@ The repository is only for building and installing the current version of GridLA
 
 # Downloading and installing from the source repository
 
-The development and master release source code can be downloaded from the GitHub project https://github.com/dchassin/gridlabd.  You can install to the system folders, in which case all users will have access to the install, the user folders in which case only the current user will have access to the install, or to a working folder, which is typical for development installations.
+The development and master release source code can be downloaded from the GitHub project https://github.com/slacgismo/gridlabd.  You can install to the system folders, in which case all users will have access to the install, the user folders in which case only the current user will have access to the install, or to a working folder, which is typical for development installations.
 
 ## Downloading the source
 
 ```
-  host% git clone https://github.com/dchassin/gridlabd source
+  host% git clone https://github.com/slacgismo/gridlabd source
 ```
 
 ## Install to the system folders
@@ -45,7 +45,7 @@ The development and master release source code can be downloaded from the GitHub
 
 # Using docker
 
-See https://github.com/dchassin/gridlabd/tree/master/utilities/docker for DockerFile and readme.
+See https://github.com/slacgismo/gridlabd/tree/master/utilities/docker for DockerFile and readme.
 
 ## Windows build
 
@@ -107,7 +107,7 @@ If not, change your `PATH` environment variable so it does.
 ~~~
 % mkdir source
 % cd source
-% git clone https://github.com/dchassin/gridlabd .
+% git clone https://github.com/slacgismo/gridlabd .
 % autoreconf -isf
 % ./customize status
 Enabled:

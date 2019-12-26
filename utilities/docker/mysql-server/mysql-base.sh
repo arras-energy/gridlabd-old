@@ -14,7 +14,7 @@
 #  
 
 # configuration
-GITREPO=https://github.com/dchassin/gridlabd 
+GITREPO=https://github.com/slacgismo/gridlabd 
 GITBRANCH=build_docker_mysql_base
 XERCES=xerces-c-src_2_8_0
 MYSQL=mysql-connector-c-6.1.11-linux-glibc2.12-x86_64
@@ -34,10 +34,10 @@ apt-get install git -y
 
 # clone gridlabd
 echo "###"
-echo "### CLONING ${GITREPO:-https://github.com/dchassin/gridlabd} -b ${GITBRANCH:-master} ###"
+echo "### CLONING ${GITREPO:-https://github.com/slacgismo/gridlabd} -b ${GITBRANCH:-master} ###"
 echo "###"
 cd /usr/local/src
-git clone ${GITREPO:-https://github.com/dchassin/gridlabd} -b ${GITBRANCH:-master} gridlabd
+git clone ${GITREPO:-https://github.com/slacgismo/gridlabd} -b ${GITBRANCH:-master} gridlabd
 
 # install xercesc
 echo "###"

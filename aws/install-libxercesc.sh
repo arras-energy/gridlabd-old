@@ -4,6 +4,6 @@
 cd /home/ec2-user
 mkdir gridlabd
 cd gridlabd
-git clone https://github.com/dchassin/gridlab-d source
+git clone https://github.com/slacgismo/gridlabd source
 cd /home/ec2-user/gridlabd/source/third_party/
 . install_xercesc # need to source the script for automated run.

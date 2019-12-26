@@ -1,4 +1,4 @@
-REPO=${REPO:-https://github.com/dchassin/gridlabd}
+REPO=${REPO:-https://github.com/slacgismo/gridlabd}
 BRANCH=${BRANCH:-master}
 WEATHER='CA WA'
 echo "
@@ -116,7 +116,7 @@ fi
 # download weather data
 if [ "${GET_WEATHER:-no}" == "yes" ]; then
 	if [ -d /usr/local/share/gridlabd ]; then
-		git clone https://github.com/dchassin/weather /usr/local/src/weather
+		git clone https://github.com/slacgismo/weather /usr/local/src/weather
 		for state in ${WEATHER}; do
 			ln /usr/local/src/weather/US/${state}*.tmy3  /usr/local/share/gridlabd
 		done

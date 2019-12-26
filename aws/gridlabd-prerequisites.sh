@@ -24,7 +24,7 @@ sh install-armadillo.sh
 
 # clone IEEE123 model in www folder
 cd /var/www/html
-git clone https://github.com/dchassin/ieee123-aws
+git clone https://github.com/slacgismo/ieee123-aws
 cp -R ieee123-aws/* .
 rm -rf ieee123-aws/
 mkdir data output
