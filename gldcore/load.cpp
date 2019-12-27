@@ -7903,6 +7903,14 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return FALSE;
 		}
 	}
+	char cmd[1024];
+	sprintf(cmd,"%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
+	int rc = system(cmd);
+	if ( rc != 127 )
+	{
+		strcpy(line,"\n");
+		return rc==0;
+	}
 	else
 	{
 		char tmp[1024], *p;
