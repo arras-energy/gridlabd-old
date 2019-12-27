@@ -202,6 +202,15 @@ public:
 	// Method: global_push
 	inline void global_push(char *name, char *value) { return globals.push(name,value);};
 
+	/* 	Method: subcommand
+
+		Run the subcommand in the current environment, redirecting output to stdout/stderr.
+
+		Returns:
+		-1	failed to start command
+		>=0 command exit code
+	 */
+	int subcommand(const char *format,...);
 };
 
 DEPRECATED extern GldMain *my_instance; // TODO: move this into main() to make system globally reentrant

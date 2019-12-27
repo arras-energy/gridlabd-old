@@ -915,6 +915,7 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 
 DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 {
+	// TODO: reimplmenent this so it capture stderr also (see GldMain::subcommand)
 	FILE *fp = popen(command, "r");
 	if ( fp == NULL ) 
 	{
