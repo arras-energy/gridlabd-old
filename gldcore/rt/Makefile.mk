@@ -44,3 +44,7 @@ dist_pkgdata_DATA += gldcore/rt/json2glm.py
 dist_pkgdata_DATA += gldcore/rt/json2txt.py
 dist_pkgdata_DATA += gldcore/rt/json2png.py
 dist_pkgdata_DATA += gldcore/rt/json2png-oneline.py
+dist_pkgdata_DATA += gldcore/rt/mdb2glm.py
+#dist_pkgdata_DATA += gldcore/rt/mdb2glm-cyme.py
+dist_pktdata_DATA += gldcore/rt/txt2glm.py
+#dist_pktdata_DATA += gldcore/rt/txt2glm-cyme.py
