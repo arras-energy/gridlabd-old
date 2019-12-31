@@ -5,7 +5,7 @@ from datetime import datetime
 
 def help():
 	print('Syntax:')
-	print('txt2glm.py -i|--ifile <input-file>[,<input-file>[,...]] -o|--ofile <output-file> -t|--type <input-type> [<options> ...]')
+	print('txt2glm.py -i|--ifile <input-file>[,<input-file>[,...]] -o|--ofile <output-file> -t|--type <input-type>')
 	print('  -i|--ifile     : [REQUIRED] txt input file name.')
 	print('  -o|--ofile     : [REQUIRED] glm output file name.')
 	print('  -t|--type      : [REQUIRED] specify input type')
@@ -14,7 +14,6 @@ def help():
 
 filename_txt = []
 filename_glm = None
-basename = None
 input_type = None
 
 try : 
