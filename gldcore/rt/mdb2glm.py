@@ -5,7 +5,7 @@ from datetime import datetime
 
 def help():
 	print('Syntax:')
-	print('mdb2glm.py -i|--ifile <input-file> -o|--ofile <output-file> -t|--type <input-type> [<options> ...]')
+	print('mdb2glm.py -i|--ifile <input-file> -o|--ofile <output-file> -t|--type <input-type>')
 	print('  -i|--ifile     : [REQUIRED] mdb input file name.')
 	print('  -o|--ofile     : [REQUIRED] glm output file name.')
 	print('  -t|--type      : [REQUIRED] specify input type')
