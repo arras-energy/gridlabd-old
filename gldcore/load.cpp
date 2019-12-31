@@ -8155,11 +8155,15 @@ bool load_import(const char *from, char *to, int len)
 		output_error("load_import(from='%s',...): invalid extension", from);
 		return false;
 	}
+	else
+	{
+		ext++;
+	}
 	char converter_name[1024], converter_path[1024];
-	sprintf(converter_name,"%s2glm.py",ext+1);
+	sprintf(converter_name,"%s2glm.py",ext);
 	if ( find_file(converter_name, converter_path, R_OK, converter_path, sizeof(converter_path)) == NULL )
 	{
-		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext+1);
+		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext);
 		return false;
 	}
 	if ( strlen(from) >= (size_t)(len-1) )
@@ -8173,8 +8177,12 @@ bool load_import(const char *from, char *to, int len)
 		strcat(to,".glm");
 	else
 		strcpy(glmext,".glm");
+	char load_options[1024] = "";
+	char load_options_var[64];
+	sprintf(load_options_var,"%s_load_options",ext);
+	global_getvar(load_options_var,load_options,sizeof(load_options));
 	char cmd[4096];
-	sprintf(cmd,"python3 %s -i %s -o %s",converter_path,from,to);
+	sprintf(cmd,"python3 %s -i %s -o %s %s",converter_path,from,to,load_options);
 	int rc = system(cmd);
 	if ( rc != 0 )
 	{

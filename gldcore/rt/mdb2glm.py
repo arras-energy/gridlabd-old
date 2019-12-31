@@ -10,7 +10,7 @@ def help():
 	print('  -o|--ofile     : [REQUIRED] glm output file name.')
 	print('  -t|--type      : [REQUIRED] specify input type')
 	print('Input types')
-	print('  cyme           : cyme conversion');
+	print('  cyme           : cyme input');
 
 filename_mdb = None
 filename_glm = None
@@ -18,7 +18,7 @@ basename = None
 input_type = None
 
 try : 
-	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t",["help","ifile=","ofile=","type="])
+	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:",["help","ifile=","ofile=","type="])
 except getopt.GetoptError:
 	sys.exit(2)
 if not opts : 
@@ -29,24 +29,24 @@ for opt, arg in opts:
 		help()
 		sys.exit(0)
 	elif opt in ("-i", "--ifile"):
-		filename_mdb.append(arg)
+		filename_mdb = arg.strip();
 	elif opt in ("-o", "--ofile"):
-		filename_glm = arg
+		filename_glm = arg.strip();
 	elif opt in ("-t","--type"):
-		output_type = arg
+		input_type = arg.strip();
 	else:
-		raise Exception("'%s' is an invalid command line option" % opt)
+		raise Exception(f"'{opt}' is an invalid command line option")
 
-modname = sys.argv[0].replace("mdb2glm.py","mdb2glm-%s.py"%output_type)
+modname = sys.argv[0].replace("mdb2glm.py",f"mdb2glm-{input_type}.py");
 if os.path.exists(modname):
 
 	import importlib, copy
-	modspec = importlib.util.spec_from_file_location(output_type, modname)
-	mod = importlib.import_module("mdb2glm-%s"%output_type)
+	importlib.util.spec_from_file_location(input_type, modname);
+	mod = importlib.import_module(f"mdb2glm-{input_type}");
 	argv = copy.deepcopy(sys.argv)
 	argv[0] = modname
 	mod.main(argv)
 
 else:
 
-	raise Exception("type '%s' is not valid" % output_type)
+	raise Exception(f"type '{input_type}' is not valid -- {modname} not found");

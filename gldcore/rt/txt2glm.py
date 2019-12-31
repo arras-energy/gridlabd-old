@@ -17,7 +17,7 @@ filename_glm = None
 input_type = None
 
 try : 
-	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t",["help","ifile=","ofile=","type="])
+	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:",["help","ifile=","ofile=","type="])
 except getopt.GetoptError:
 	sys.exit(2)
 if not opts : 
@@ -28,11 +28,11 @@ for opt, arg in opts:
 		help()
 		sys.exit(0)
 	elif opt in ("-i", "--ifile"):
-		filename_txt.append(arg.split(","))
+		filename_txt.append(arg.strip().split(","))
 	elif opt in ("-o", "--ofile"):
-		filename_glm = arg
+		filename_glm = arg.strip();
 	elif opt in ("-t","--type"):
-		output_type = arg
+		output_type = arg.strip();
 	else:
 		raise Exception("'%s' is an invalid command line option" % opt)
 

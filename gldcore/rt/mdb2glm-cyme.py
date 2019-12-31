@@ -21,22 +21,28 @@ conductors is the full path to a .csv file containing conductor information for 
 Note that db_network and db_equipment can be the same file is both network and equipment databases were exported to one .mdb file from CYME.
 """
 
-import feeder, csv, random, math, copy, subprocess, locale, tempfile, traceback
+import csv, random, math, copy, subprocess, locale, tempfile, traceback
 from os.path import join as pJoin
 import warnings
 from io import StringIO
 import sys, os, json, traceback, shutil
 from pathlib import Path
 import matplotlib
-
-matplotlib.pyplot.switch_backend("Agg")
+#matplotlib.pyplot.switch_backend("Agg")
 from matplotlib import pyplot as plt
 import numpy as np
 from numpy.linalg import inv
 import platform
 
+import importlib, copy
+importlib.util.spec_from_file_location("feeder", sys.argv[0].replace("mdb2glm-cyme","feeder"));
+feeder = importlib.import_module("feeder");
+
 m2ft = 1.0 / 0.3048  # Conversion factor for meters to feet
 
+def main(argv):
+	# TODO implement conversion from main()
+	raise Exception(f"cyme conversion not implemented for main({argv})");
 
 def flatten(*args, **kwargs):
 	dicty = dict(*args, **kwargs)

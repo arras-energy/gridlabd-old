@@ -48,3 +48,4 @@ dist_pkgdata_DATA += gldcore/rt/mdb2glm.py
 dist_pkgdata_DATA += gldcore/rt/mdb2glm-cyme.py
 dist_pkgdata_DATA += gldcore/rt/txt2glm.py
 dist_pkgdata_DATA += gldcore/rt/txt2glm-cyme.py
+dist_pkgdata_DATA += gldcore/rt/feeder.py
