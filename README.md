@@ -24,7 +24,7 @@ Note that this alias will interfere with the host-based installation.
 
 Normally on Linux and Mac OS X developers you should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. 
 ~~~
-host% git clone https://github.com/dchassin/gridlabd gridlabd
+host% git clone https://github.com/slacgismo/gridlabd gridlabd
 host% gridlabd/install.sh
 ~~~
 

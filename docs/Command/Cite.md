@@ -12,11 +12,11 @@ The `--cite` command line option is used to obtain the citation for the current 
 
 # Example
 
-The following example prints the citation text for the GitHub user `dchassin`'s MacOS `master` version of GridLAB-D 4.2 built on October 9, 2019.
+The following example prints the citation text for the GitHub user `slacgismo`'s MacOS `master` version of GridLAB-D 4.2 built on October 9, 2019.
 
 ~~~
 host% gridlabd --cite
-Chassin, D.P., et al., "GridLAB-D 4.2.0-191009 (master) Darwin" (2019) [online]. Available at https://github.com/dchassin/gridlabd. Accessed Oct. 9, 2019
+Chassin, D.P., et al., "GridLAB-D 4.2.0-191009 (master) Darwin" (2019) [online]. Available at https://github.com/slacgismo/gridlabd. Accessed Oct. 9, 2019
 ~~~
 
 # See also

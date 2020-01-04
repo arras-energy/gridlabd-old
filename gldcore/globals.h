@@ -276,7 +276,7 @@ GLOBAL unsigned char global_no_balance INIT(FALSE);
 GLOBAL char global_kmlfile[1024] INIT(""); /**< Specifies KML file to dump */
 
 /* Variable: global_kmlhost */
-GLOBAL char global_kmlhost[1024] INIT("https://raw.githubusercontent.com/dchassin/gridlabd/master/gldcore/rt"); /**< Specifies the KML image library server */
+GLOBAL char global_kmlhost[1024] INIT("https://raw.githubusercontent.com/slacgismo/gridlabd/master/gldcore/rt"); /**< Specifies the KML image library server */
 
 /* Variable: global_modelname */
 GLOBAL char global_modelname[1024] INIT(""); /**< Name of the current model */
