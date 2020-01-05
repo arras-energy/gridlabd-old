@@ -96,17 +96,18 @@
 
             start = new Date(prompt("Enter report start date (yyyy-mm-dd): ",stop.getFullYear() + "-" + (stop.getMonth()+1) + "-01"));
 
-            r = run_query("/repos/slacgismo/gridlabd/issues?state=open&per_page=100&sort=updated&direction=desc");
+            r = run_query("/repos/slacgismo/gridlabd/issues?state=open&per_page=100&sort=updated&direction=asc&since="+start+"T00:00:00Z");
+            item_number = 1;
             if ( r.status == 200 )
             {
-                report = "GridLAB-D active work since " + start.getFullYear() + "-" + (start.getMonth()+1) + "-" + start.getDate() + " - " + stop.getFullYear() + " as of " + stop.getFullYear() + "-" + (stop.getMonth()+1) + "-" + stop.getDate() + "\n";
+                report = "GridLAB-D activity from " + start.getFullYear() + "-" + (start.getMonth()+1) + "-" + start.getDate() + " to " + stop.getFullYear() + "-" + (stop.getMonth()+1) + "-" + stop.getDate() + "\n";
                 var count = 0;
                 var number = null;
                 var title = null;
                 var body = null;
                 var created_at = null;
 
-                // console.info(r.getResponseHeader("link"));
+                //console.info(r.getResponseHeader("link"));
                 JSON.parse(r.responseText, function (key,value)
                 {
                     if ( key === "number" && number == null )
@@ -153,7 +154,7 @@
                             if ( start <= closed_dt && closed_dt <= stop )
                             {
                                 // console.info("*** output ***");
-                                report += "\n- [" + number + "](https://github.com/slacgismo/gridlabd/issues/" + number + ") - " + title + " [updated " + updated_at.substring(0,updated_at.indexOf("T")) + "]\n";
+                                report += "\n" + item_number + ". " + title + " ([" + number + "](https://github.com/slacgismo/gridlabd/issues/" + number + ") updated " + updated_at.substring(0,updated_at.indexOf("T")) + ")\n";
                                 // report += "Opened " + created_at.substring(0,created_at.indexOf("T")) + "\n";
                                 //report += "\n" + body + "\n\n";
                                 count += 1;
@@ -166,7 +167,6 @@
                         created_at = null;
                     }
                 }) 
-                report += "\nEnd of report: " + count + " issues active\n";
                 // console.info(report);
                 md = load_markdown(report);
                 if ( md.status != 200 )
