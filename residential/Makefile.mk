@@ -9,6 +9,8 @@ residential_residential_la_LDFLAGS += $(AM_LDFLAGS)
 residential_residential_la_LIBADD = -ldl
 
 residential_residential_la_SOURCES =
+residential_residential_la_SOURCES += residential/apartment.cpp
+residential_residential_la_SOURCES += residential/apartment.h
 residential_residential_la_SOURCES += residential/appliance.cpp
 residential_residential_la_SOURCES += residential/appliance.h
 residential_residential_la_SOURCES += residential/clotheswasher.cpp

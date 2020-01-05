@@ -35,7 +35,7 @@ object apartment
 	unit_cooling_setpoint "<temperature> degF";
 	unit_heating_type {NONE,CENTRAL,BASEBOARD,RESISTIVE,HEATPUMP};
 	unit_heating_setpoint "<temperature> degF";
-	unit_appliance_types {NONE|DISHWASHER|REFRIGERATOR|CLOTHESWASHER|DRYER};
+	unit_appliance_types {NONE|DISHWASHER|REFRIGERATOR|WASHER|DRYER};
 }
 ~~~
 
@@ -162,7 +162,7 @@ This parameter determines the exterior wall area to interior volume/mass ratios 
 ### `unit_appliance_types`
 
 ~~~
-enumeration {NONE,DISHWASHER,REFRIGERATOR,CLOTHESWASHER,DRYER,ALL};
+enumeration {NONE,DISHWASHER,REFRIGERATOR,WASHER,DRYER,ALL};
 ~~~
 
 This parameter determines which appliances are included in the apartment units. 
