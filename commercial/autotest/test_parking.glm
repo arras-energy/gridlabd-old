@@ -1,0 +1,25 @@
+module commercial
+{
+    nightlight_threshold "50 W/m^2";
+}
+module tape;
+
+clock {
+    timezone "US/CA/San Francisco";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2021-01-01 00:00:00 PST";
+}
+
+object parking
+{
+    lighting_nightonly TRUE;
+    lighting_power "10+0.1i kVA";
+    ventilation_power "5+0.2i kVA";
+    charger_power "100 kVA";
+    object recorder
+    {
+        file "parking.csv";
+        interval "1h";
+        property "lighting_power,ventilation_power,charger_power,total_power";
+    };
+}

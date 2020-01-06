@@ -5,13 +5,23 @@ GLM:
 ~~~
 module commercial;
 object parking {
+  weather "<climate-name>";
+  lighting_nightonly {TRUE,FALSE};
+  charger_count <integer>;
+  charger_active <integer>;
+  charger_unit_power <complex> kVA;
+  charger_lighting_power <complex> kVA;
+  charger_ventilation_power <complex> kVA;
+  charger_power <complex> kVA;
+~~~
+Future support:
+~~~
   total_size 100;
   total_chargers 10;
   total_level 1;
   total_elevetors 0;
   elevator_usage "0.2 pu/pu";
   charger_unit_power "6.7+0.0j kVA";
-  elevator_unit_power "7+1j kW";
   elevator_unit_energy "20 Wh";
   charging_price "0.25 $/kWh";
   parking_fee "1.00 $/h";
@@ -36,9 +46,72 @@ object parking {
 
 # Description
 
-The `parking` object define a commercial parking structure equipped with electric vehicle chargers.  The number of spots `total_size` and number of chargers `total_chargers` determines the overall capacity of the parking facility.  
+The `parking` object defines a commercial parking structure equipped with electric vehicle chargers.  
 
-The unit power `charger_unit_power` set the power deliver capacity for each charging station.  The `charging_power` is determined by the number of EVs present.  Lighting and fan power are constant. Elevator power is determined by the number of arrivals and departures and the elevator usage, assuming that the parking lot fills from the ground floor in but empties randomly. EV chargers are assumed to be on the ground floor and therefore have no elevator load associated.
+The unit power `charger_unit_power` set the power deliver capacity for each charging station.  The `charging_power` is determined by the number of EVs present.  Lighting and fan power are constant. If `lighting_nightonly` is `TRUE`, lighting is only active during the nightime hours, i.e., 6pm to 6am. If the `weather` object is specified, lighting is active from sunset to sunrise.
+
+## Properties
+
+### `weather`
+~~~
+object weather;
+~~~
+
+This parameter indicates whether weather data is used to determine the nighttime lighting requirement.  If present, nighttime is based on solar insolation levels. A insolation level below `nightlight_limit` will cause the lights to be turned on.
+
+### `charger_active`
+
+### `charger_installed`
+
+### `charger_power`
+~~~
+complex charger_power[kVA];
+~~~
+
+This parameter indicates the total charging power for the parking structure.  This quantity changes whenever the number of EVs or an EV charger state changes.
+
+### `charger_unit_power`
+~~~
+complex charger_unit_power[kVA];
+~~~
+
+This parameter sets the power demand for a single charging station when active. When inactive, the power draw is assumed to be zero.
+
+### `lighting_nightonly`
+~~~
+bool lighting_nightonly`;
+~~~
+
+This parameter determines whether lighting is on only at time.  If `weather` is specified, then lighting is enabled when it is dark outside.  Otherwise, lighting is enable on a schedule, i.e., 6pm to 6am.
+
+### `lighting_power`
+~~~
+complex lighting_power[kVA];
+~~~
+
+This parameter sets the total lighting power demand of the parking structure. This quantity is invariant.
+
+### `total_power`
+~~~
+complex total_power[kVA];
+~~~
+
+This parameter indicates the total power demand of the parking structure. This quantity is updated automatically whenever the number of vehicles in parking structure changes or an EV charger changes state.
+
+### `ventilation_power`
+~~~
+complex fan_power[kVA];
+~~~
+
+This parameter sets the total fan power in the parking structure.  This quantity is invariant.
+
+
+
+# Future support
+
+The number of spots `total_size` and number of chargers `total_chargers` determines the overall capacity of the parking facility.  
+
+Elevator power is determined by the number of arrivals and departures and the elevator usage, assuming that the parking lot fills from the ground floor in but empties randomly. EV chargers are assumed to be on the ground floor and therefore have no elevator load associated.
 
 The `parking_fee` and `charging_price` are used to compute the `total_revenue`.  The `fee_waiver` is used to compute the fee for using a charger spot.  The `fee_waiver` is the factor applied to the `parking_fee` for occupying a charging spot.  The `idle_penalty` is the factor applied to the `parking_fee` for occupying a charging spot when not charging.
 
@@ -78,13 +151,6 @@ double elevator_usage[pu];
 ~~~
 
 This parameter sets the fraction increase in the number of people who use the elevator per floor. Note that this quantity is truncated at 100% for floors greater than `1/elevator_usage` without warning, i.e., it is assumed that everyone uses the elevator beyond a certain floor.
-
-### `charger_unit_power`
-~~~
-complex charger_unit_power[kVA];
-~~~
-
-This parameter set the power demand for a single charging station when active. When inactive, the power draw is assumed to be zero.
 
 ### `elevator_unit_power`
 ~~~
@@ -184,33 +250,12 @@ complex total_energy[kVAh]
 
 This parameter indicates the total energy consumed by the parking structure.  This quantity is updated automatically whenever the total power changes.
 
-### `lighting_power`
-~~~
-complex lighting_power[kVA];
-~~~
-
-This parameter sets the total lighting power demand of the parking structure. This quantity is invariant.
-
 ### `elevator_power`
 ~~~
 complex elevator_power[kVA];
 ~~~
 
 This parameter indicates the total elevator load in the parking structure. This quantity changes twice whenever the number of vehicles in the parking structure changes.
-
-### `fan_power`
-~~~
-complex fan_power[kVA];
-~~~
-
-This parameter sets the total fan power in the parking structure.  This quantity is invariant.
-
-### `charger_power`
-~~~
-complex charger_power[kVA];
-~~~
-
-This parameter indicates the total charging power for the parking structure.  This quantity changes whenever the number of EVs or an EV charger state changes.
 
 ### `total_revenue`
 ~~~
