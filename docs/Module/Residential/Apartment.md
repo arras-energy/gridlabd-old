@@ -55,7 +55,7 @@ This parameter describes the total heating/cooling capacity of the central plant
 
 If the value specified does not meet the peak heating or cooling load, a warning is generated that indicates what the peak demand is.
 
-### `central_plant_cop`
+### `central_plant_efficiency`
 
 ~~~
 double central_plant_efficiency[Btu/kWh];
@@ -77,7 +77,7 @@ This parameter determines whether the units are provided cooling from a central 
 set {NONE,STEAM,HOTWATER,FOURPIPE,FORCEDAIR} central_plant_type;
 ~~~
 
-This parameter determines the type of central in use.  If the central plant is `FORCEDAIR` or `FOURPIPE`, then cooling is available. 
+This parameter determines the type of central in use, if any.  If the central plant is `FORCEDAIR` or `FOURPIPE`, then cooling is available. 
 
 ### `central_washing_count`
 
@@ -85,7 +85,7 @@ This parameter determines the type of central in use.  If the central plant is `
 integer central_washing_count;
 ~~~
 
-This parameter determines whether centrally located (common) washing and drying appliances are located in the building.
+This parameter determines how many centrally located (common) washing and drying appliances are located in the building.
 
 ### `circulation_elevator_count`
 
@@ -125,7 +125,7 @@ This parameter determines how many parking chargers are active at any moment in 
 complex parking_charger_capacity[kVA];
 ~~~
 
-This parameters determines the charging capacity of a charger.
+This parameters determines the charging capacity of each charger.
 
 ### `parking_charger_count`
 
@@ -157,7 +157,7 @@ This parameter determines the number of parking spots installed.
 integer storeys;
 ~~~
 
-This parameter determines the exterior wall area to interior volume/mass ratios used for the thermal model. 
+This parameter specifies the number of floors. This determines the exterior wall area to interior volume/mass ratios used for the thermal model. 
 
 ### `unit_appliance_types`
 
@@ -225,10 +225,10 @@ double unit_temperature[degF];
 
 This parameter indicates the mean temperature of the occupied units.
 
-### `unit_occupancy`
+### `unit_occupancy_factor`
 
 ~~~
-double unit_occupancy[pu];
+double unit_occupancy_factor[pu];
 ~~~
 
 This parameter determines the total unit occupancy factor. Unoccupied units do not contribute to the electric load, but their thermal response to conditions is modeled.

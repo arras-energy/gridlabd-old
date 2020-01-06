@@ -25,8 +25,9 @@ public:
 	GL_ATOMIC(double,central_plant_efficiency);
 	typedef enum {CPT_NONE,CPT_STEAM,CPT_HOTWATER,CPT_FOURPIPE,CPT_FORCEDAIR} CENTRALPLANTTYPE;
 	GL_ATOMIC(enumeration,central_plant_type);
-	GL_ATOMIC(bool,central_plant_has_cooling);
 	GL_ATOMIC(int16,central_washing_count);
+	GL_ATOMIC(bool,central_plant_has_cooling);
+	GL_ATOMIC(int16,circulation_elevator_count);
 	GL_ATOMIC(int16,parking_size);
 	GL_ATOMIC(bool,parking_is_indoor);
 	GL_ATOMIC(int16,parking_charger_count);
@@ -54,14 +55,14 @@ public:
 	int create(void);
 	int init(OBJECT *parent);
 	TIMESTAMP precommit(TIMESTAMP t1);
-	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
+	TIMESTAMP presync(TIMESTAMP t1);
+	TIMESTAMP sync(TIMESTAMP t1);
+	TIMESTAMP postsync(TIMESTAMP t1);
 	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 
 public:
 	static CLASS *oclass;
-	static g_assert *defaults;
+	static apartment *defaults;
 };
 
 #endif // _G_APARTMENT_H
