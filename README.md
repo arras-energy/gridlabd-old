@@ -59,4 +59,3 @@ This will allow anyone to identify the exact version you are using to obtain it 
 ## Contributions
 
 Please see https://github.com/dchassin/gridlabd/blob/master/CONTRIBUTING.md for information on making contributions to this repository.
-
