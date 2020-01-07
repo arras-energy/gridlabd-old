@@ -63,6 +63,7 @@
                 {
                     r.setRequestHeader("Authorization","token " + token);
                 }
+                r.setRequestHeader("Accept","application/vnd.github.shadow-cat-preview+json");
                 r.send(null);
                 // console.info("  GET -> " + r.status);
                 return r;
@@ -95,72 +96,78 @@
 
             start = new Date(prompt("Enter report start date (yyyy-mm-dd): ",stop.getFullYear() + "-" + (stop.getMonth()+1) + "-01"));
 
-            r = run_query("/repos/slacgismo/gridlabd/pulls?state=closed&per_page=100&sort=updated&direction=desc");
+            r = run_query("/repos/slacgismo/gridlabd/issues?state=open&per_page=100&sort=updated&direction=asc&since="+start+"T00:00:00Z");
+            item_number = 1;
             if ( r.status == 200 )
             {
-                report = "GridLAB-D Pull Requests Completed for period " + start.getFullYear() + "-" + (start.getMonth()+1) + "-" + start.getDate() + " - " + stop.getFullYear() + "-" + (stop.getMonth()+1) + "-" + stop.getDate() + "\n";
+                report = "GridLAB-D activity from " + start.getFullYear() + "-" + (start.getMonth()+1) + "-" + start.getDate() + " to " + stop.getFullYear() + "-" + (stop.getMonth()+1) + "-" + stop.getDate() + "\n";
                 var count = 0;
                 var number = null;
                 var title = null;
-                var closed_at = null;
                 var body = null;
-                var state = null;
+                var created_at = null;
+
+                //console.info(r.getResponseHeader("link"));
                 JSON.parse(r.responseText, function (key,value)
                 {
-                    if ( key === "number" )
+                    if ( key === "number" && number == null )
                     {
                         number = value;
                         title = null;
                         body = null;
-                        closed_at = null;
+                        created_at = null;
                         state = null;
+                        is_draft = null;
                         // console.info("  number -> " + value);
                     }
-                    else if ( key === "title")
+                    else if ( key === "title" && title == null )
                     {
                         title = value;
                         // console.info("  title -> " + value);
                     }
-                    else if ( key === "body" )
-                    {
-                        body = value;
-                        // console.info("  body -> " + value);
-                    }
-                    else if ( key === "state" )
+                    else if ( key === "state" && state == null )
                     {
                         state = value;
                         // console.info("  state -> " + value);
                     }
-                    else if ( key === "closed_at" )
+                    else if ( key === "created_at" && created_at == null )
                     {
-                        closed_at = value;
+                        created_at = value;
+                        // console.info("  created_at -> " + value);
+                    }
+                    else if ( key === "updated_at" )
+                    {
+                        updated_at = value;
                         // console.info("  closed_at -> " + value);
                     }
-                    else if ( key === "author_association" )
+                    else if ( key === "body" && body == null )
                     {
-                        // console.info("  author_association -> " + value);
-                        if ( number != null && title != null && closed_at != null && body != null && state === "closed" )
+                        if ( value == null )
+                            body = "";
+                        else
+                            body = value;
+                        // console.info("  body -> " + value);
+                        if ( number != null && title != null && body != null && state === "open" )
                         {
-                            closed_dt = new Date(closed_at);
-                            console.info("start '" + start + "'; closed '" + closed_dt + "'; stop '" + stop + "'"); 
+                            closed_dt = new Date(updated_at);
+                            // console.info("start '" + start + "'; closed '" + updated_at + "'; stop '" + stop + "'"); 
                             if ( start <= closed_dt && closed_dt <= stop )
                             {
                                 // console.info("*** output ***");
-                                report += "\n# Update #" + number + ": " + title + "\n";
-                                report += "Completed " + closed_at.substring(0,closed_at.indexOf("T")) + "\n";
-                                report += "\n" + body + "\n";
+                                report += "\n" + item_number + ". " + title + " ([" + number + "](https://github.com/slacgismo/gridlabd/issues/" + number + ") updated " + updated_at.substring(0,updated_at.indexOf("T")) + ")\n";
+                                // report += "Opened " + created_at.substring(0,created_at.indexOf("T")) + "\n";
+                                //report += "\n" + body + "\n\n";
                                 count += 1;
                             }
                         }
                         number = null;
                         title = null;
-                        closed_at = null;
                         body = null;
                         state = null;
+                        created_at = null;
                     }
                 }) 
-                report += "\nEnd of report: " + count + " pull requests closed\n";
-                console.info(report);
+                // console.info(report);
                 md = load_markdown(report);
                 if ( md.status != 200 )
                 {
