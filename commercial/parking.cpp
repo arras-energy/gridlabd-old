@@ -8,7 +8,7 @@
 EXPORT_CREATE(parking);
 EXPORT_INIT(parking);
 EXPORT_PRECOMMIT(parking);
-EXPORT_COMMIT(parking);
+// EXPORT_COMMIT(parking);
 
 #define SYNCEVENTS PC_AUTOLOCK// PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN
 
@@ -55,6 +55,22 @@ int parking::create(void)
 
 int parking::init(OBJECT *parent)
 {
+    if ( parent )
+    {
+        gld_object *obj = get_object(parent);
+        if ( ! obj->isa("load") )
+        {
+            exception("'parent' is not a load object");
+        }
+        p_power_A = (double*)(gld_property(obj,"base_power_A").get_addr());
+        p_power_B = (double*)(gld_property(obj,"base_power_B").get_addr());
+        p_power_C = (double*)(gld_property(obj,"base_power_C").get_addr());
+    }
+    else
+    {
+        p_power_A = p_power_B = p_power_C = NULL;
+    }
+
     if ( weather )
     {
         gld_object *obj = get_object(weather);
@@ -68,11 +84,16 @@ int parking::init(OBJECT *parent)
 
 TIMESTAMP parking::precommit(TIMESTAMP t1)
 {
+    // base power calculations
+    total_power = lighting_power + ventilation_power + charger_power;
+    int n_phases = (p_power_A?1:0) + (p_power_B?1:0) + (p_power_C?1:0);
+    if ( p_power_A) *p_power_A = total_power.Re()/n_phases;
+    if ( p_power_B) *p_power_B = total_power.Re()/n_phases;
+    if ( p_power_C) *p_power_C = total_power.Re()/n_phases;
     return TS_NEVER;
 }
 
 TIMESTAMP parking::commit(TIMESTAMP t1, TIMESTAMP t2)
-{   
-    total_power = lighting_power + ventilation_power + charger_power;
+{  
     return TS_NEVER;
 }

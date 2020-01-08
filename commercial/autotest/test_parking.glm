@@ -10,16 +10,37 @@ clock {
     stoptime "2021-01-01 00:00:00 PST";
 }
 
-object parking
+module powerflow;
+
+object meter
 {
-    lighting_nightonly TRUE;
-    lighting_power "10+0.1i kVA";
-    ventilation_power "5+0.2i kVA";
-    charger_power "100 kVA";
-    object recorder
+    phases ABC;
+    nominal_voltage 480;
+    object load 
     {
-        file "parking.csv";
+        phases ABC;
+        nominal_voltage 480;
+        power_fraction_A 1.0;
+        power_fraction_B 1.0;
+        power_fraction_C 1.0;
+        object parking
+        {
+            lighting_nightonly TRUE;
+            lighting_power "10+0.1i kVA";
+            ventilation_power "5+0.2i kVA";
+            charger_power "100 kVA";
+            object recorder
+            {
+                file "parking.csv";
+                interval "1h";
+                property "lighting_power,ventilation_power,charger_power,total_power";
+            };
+        };
+    };
+    object recorder 
+    {
+        file "meter.csv";
+        property "measured_power_A,measured_power_B,measured_power_C";
         interval "1h";
-        property "lighting_power,ventilation_power,charger_power,total_power";
     };
 }

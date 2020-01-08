@@ -34,6 +34,12 @@ public:
     TIMESTAMP postsync(TIMESTAMP t1);
     TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 
+private:
+
+    /* pointers to load variables */
+    double *p_power_A;
+    double *p_power_B;
+    double *p_power_C;
 public:
     
     static CLASS *oclass;
