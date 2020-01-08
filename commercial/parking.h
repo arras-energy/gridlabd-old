@@ -6,14 +6,18 @@ class parking : public gld_object
 {
 
 public:
+
+    // module globals
     static double default_nightlight_threshold;
 
 public:
 
+    // published variables
     GL_ATOMIC(object,weather);
     GL_ATOMIC(bool,lighting_nightonly);
+    GL_ATOMIC(complex,lighting_capacity);
     GL_ATOMIC(int16,charger_installed);
-    GL_ATOMIC(int16,charger_active);
+    GL_ATOMIC(double,charger_active);
     GL_ATOMIC(complex,charger_unit_power);
     GL_ATOMIC(complex,lighting_power);
     GL_ATOMIC(complex,ventilation_power);
@@ -22,7 +26,7 @@ public:
 
 public:
 
-    /* required implementations */
+    // required methods
     parking(MODULE *module);
     ~parking();
 
@@ -36,12 +40,19 @@ public:
 
 private:
 
-    /* pointers to load variables */
+    // pointers to load variables
     double *p_power_A;
     double *p_power_B;
     double *p_power_C;
+
+private:
+
+    // private methods
+    bool lighting_needed(TIMESTAMP t1);
+
 public:
     
+    // special statics required by gldcore
     static CLASS *oclass;
     static parking *defaults;
 };

@@ -1,6 +1,6 @@
 module commercial
 {
-    nightlight_threshold "50 W/m^2";
+    nightlight_threshold "5 W/m^2";
 }
 module tape;
 
@@ -10,8 +10,32 @@ clock {
     stoptime "2021-01-01 00:00:00 PST";
 }
 
-module powerflow;
+schedule parking_load
+{
+    weekday {
+        * 21-4 * * 1-5 0.1;
+        * 5 * * 1-5 0.2;
+        * 6 * * 1-5 0.5;
+        * 7 * * 1-5 0.8;
+        * 8-17 * * 1-5 0.9;
+        * 18 * * 1-5 0.8;
+        * 19 * * 1-5 0.5;
+        * 20 * * 1-5 0.2;
+    }
+    weekend {
+        * 17-6 * * 6-0 0.1;
+        * 7-16 * * 6-0 0.2;
+    }
+}
 
+module climate;
+object climate 
+{
+    name "yakima";
+    tmyfile "../WA-Yakima.tmy3";
+}
+
+module powerflow;
 object meter
 {
     phases ABC;
@@ -25,10 +49,12 @@ object meter
         power_fraction_C 1.0;
         object parking
         {
+            weather "yakima";
             lighting_nightonly TRUE;
-            lighting_power "10+0.1i kVA";
-            ventilation_power "5+0.2i kVA";
-            charger_power "100 kVA";
+            lighting_capacity "10+0.1j kVA";
+            ventilation_power "5+0.2j kVA";
+            charger_unit_power "6.7+0.5j kVA";
+            charger_active parking_load*10;
             object recorder
             {
                 file "parking.csv";

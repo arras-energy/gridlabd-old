@@ -32,8 +32,9 @@ parking::parking(MODULE *module)
         if (gl_publish_variable(oclass,
             PT_object,"weather",get_weather_offset(),PT_DESCRIPTION,"weather object for lighting data",
             PT_bool,"lighting_nightonly",get_lighting_nightonly_offset(),PT_DEFAULT,"TRUE",PT_DESCRIPTION,"lighting is used only at night (requires weather)",
+            PT_complex,"lighting_capacity",get_lighting_capacity_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"installed capacity for lighting",
             PT_int16,"charger_installed",get_charger_installed_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"number of chargers installed",
-            PT_int16,"charger_active",get_charger_active_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"number of chargers active",
+            PT_double,"charger_active",get_charger_active_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"number of chargers active",
             PT_complex,"charger_unit_power",get_charger_unit_power_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"power demand for a single charger",
             PT_complex,"lighting_power",get_lighting_power_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"power demand for lighting",
             PT_complex,"ventilation_power",get_ventilation_power_offset(),PT_DEFAULT,"0",PT_DESCRIPTION,"power demand for ventilation",
@@ -76,7 +77,9 @@ int parking::init(OBJECT *parent)
         gld_object *obj = get_object(weather);
         if ( ! obj->isa("climate") )
             exception("'weather' is not a climate object");
-        // TODO check weather object
+        gld_property insolation(weather,"solar_global");
+        if ( ! insolation.is_valid() )
+            exception("%s does not publish 'solar_global' property", obj->get_name());
     }
 
     return 1;
@@ -85,12 +88,32 @@ int parking::init(OBJECT *parent)
 TIMESTAMP parking::precommit(TIMESTAMP t1)
 {
     // base power calculations
+    charger_power = charger_unit_power * charger_active;
+    lighting_power = ( ! lighting_nightonly || lighting_needed(t1) ) ? lighting_capacity : 0.0;
     total_power = lighting_power + ventilation_power + charger_power;
     int n_phases = (p_power_A?1:0) + (p_power_B?1:0) + (p_power_C?1:0);
     if ( p_power_A) *p_power_A = total_power.Re()/n_phases;
     if ( p_power_B) *p_power_B = total_power.Re()/n_phases;
     if ( p_power_C) *p_power_C = total_power.Re()/n_phases;
     return TS_NEVER;
+}
+
+bool parking::lighting_needed(TIMESTAMP t1)
+{
+    if ( weather )
+    {
+        // use daylight sensor
+        gld_property insolation(weather,"solar_global");
+        double solar_global = insolation.get_double();
+        return solar_global < default_nightlight_threshold;
+    }
+    else
+    {
+        // use timeclock
+        gld_clock timeclock(t1);
+        int hour = timeclock.get_hour();
+        return hour >= 18 || hour <= 6;
+    }
 }
 
 TIMESTAMP parking::commit(TIMESTAMP t1, TIMESTAMP t2)
