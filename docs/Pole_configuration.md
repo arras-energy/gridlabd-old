@@ -29,9 +29,9 @@
 
 # Description
 
-See [Pole Loading Model](https://github.com/dchassin/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf) for details on values for the pole library.
+See [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf) for details on values for the pole library.
 
 # See also
 
 * [[Pole]] object
-* [Pole Loading Model](https://github.com/dchassin/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf)
+* [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf)

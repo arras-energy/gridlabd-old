@@ -16,7 +16,7 @@ bash$ brew install autoconf automake libtool gnu-sed python3
 bash$ pip3 install numpy pandas matplolib
 bash$ ln -s /usr/local/bin/gsed /usr/local/bin/sed
 bash$ export PATH=/usr/local/bin:/usr/bin:/bin
-bash$ git clone https://github.com/dchassin/gridlabd gridlabd
+bash$ git clone https://github.com/slacgismo/gridlabd gridlabd
 bash$ cd gridlabd
 bash$ autoreconf -isf
 bash$ ./configure

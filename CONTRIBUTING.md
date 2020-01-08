@@ -30,7 +30,7 @@ _Note_: When a merge is performed, the PR is automatically closed and the branch
 
 ## Documentation changes
 
-All documentation changes arising from new features and capabilities should be made to this repository's wiki pages at https://github.com/dchassin/gridlabd/wiki. Fixes or correction to GridLAB-D's online documentation should be made to https://gridlab-d.shoutwiki.org/, subject to review and approval by the PNNL team.
+All documentation changes arising from new features and capabilities should be made to this repository's wiki pages at https://github.com/slacgismo/gridlabd/wiki. Fixes or correction to GridLAB-D's online documentation should be made to https://gridlab-d.shoutwiki.org/, subject to review and approval by the PNNL team.
 
 # Coding Conventions
 
@@ -39,3 +39,4 @@ The general GridLAB-D coding conventions are described at http://gridlab-d.shout
 # Copyrights and Licensing
 
 All code changes are copyright of the original authors or their assignees.  All code must be licensed in accordance with the original GridLAB-D license (see https://github.com/gridlab-d/gridlab-d/blob/master/LICENSE).  Please do not contribute code which conflicts with this license. In particular, so-called "contaminating licenses" are prohibited.
+
