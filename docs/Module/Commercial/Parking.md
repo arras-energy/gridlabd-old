@@ -69,14 +69,14 @@ This parameter sets the power demand for a single charging station when active. 
 double lighting_capacity;
 ~~~
 
-This parameter set the nominal power capacity of the install lighting.
+This parameter sets the nominal power capacity of the install lighting.
 
 ### `lighting_nightonly`
 ~~~
 bool lighting_nightonly`;
 ~~~
 
-This parameter determines whether lighting is on only at time.  If `weather` is specified, then lighting is enabled when it is dark outside.  Otherwise, lighting is enable on a schedule, i.e., 6pm to 6am.
+This parameter sets whether lighting is on only at time.  If `weather` is specified, then lighting is enabled when it is dark outside.  Otherwise, lighting is enable on a schedule, i.e., 6pm to 6am.
 
 ### `lighting_power`
 ~~~
@@ -94,10 +94,10 @@ This parameter indicates the total power demand of the parking structure. This q
 
 ### `ventilation_power`
 ~~~
-complex fan_power[kVA];
+complex ventilation_power[kVA];
 ~~~
 
-This parameter sets the total fan power in the parking structure.  This quantity is invariant.
+This parameter sets the total fan power in the parking structure.  
 
 # Example
 
