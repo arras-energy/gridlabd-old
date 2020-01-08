@@ -44,6 +44,9 @@ double charger_active;
 This parameter sets how many vehicle chargers running. Fractional values are accepted. The value should be less than or equal to `charger_installed`.
 
 ### `charger_installed`
+~~~
+int16 charger_installed;
+~~~
 
 This parameter sets how many vehicle chargers are installed.
 
@@ -61,6 +64,13 @@ complex charger_unit_power[kVA];
 
 This parameter sets the power demand for a single charging station when active. When inactive, the power draw is assumed to be zero.
 
+### `lighting_capacity`
+~~~
+double lighting_capacity;
+~~~
+
+This parameter set the nominal power capacity of the install lighting.
+
 ### `lighting_nightonly`
 ~~~
 bool lighting_nightonly`;
@@ -73,7 +83,7 @@ This parameter determines whether lighting is on only at time.  If `weather` is 
 complex lighting_power[kVA];
 ~~~
 
-This parameter sets the total lighting power demand of the parking structure. This quantity is invariant.
+This parameter indicates the total lighting power demand of the parking structure. This quantity may vary depending time of day and weather.
 
 ### `total_power`
 ~~~
