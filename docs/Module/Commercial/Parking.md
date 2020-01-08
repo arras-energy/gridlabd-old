@@ -3,16 +3,21 @@
 # Synopsis
 GLM:
 ~~~
-module commercial;
+module commercial
+{
+  nightlight_threshold 5.0 W/m^2;
+}
 object parking {
   weather "<climate-name>";
   lighting_nightonly {TRUE,FALSE};
+  lighting_capacity <complex> kVA;
   charger_count <integer>;
-  charger_active <integer>;
+  charger_active <double>;
   charger_unit_power <complex> kVA;
   charger_lighting_power <complex> kVA;
   charger_ventilation_power <complex> kVA;
   charger_power <complex> kVA;
+  total_power <complex> kWA;
 ~~~
 Future support:
 ~~~
@@ -57,11 +62,18 @@ The unit power `charger_unit_power` set the power deliver capacity for each char
 object weather;
 ~~~
 
-This parameter indicates whether weather data is used to determine the nighttime lighting requirement.  If present, nighttime is based on solar insolation levels. A insolation level below `nightlight_limit` will cause the lights to be turned on.
+This parameter indicates whether `climate` data object is used to determine the nighttime lighting requirement.  If present, nighttime is based on `global_solar` insolation value in the climate model. A insolation level below `nightlight_threshold` will cause the lights to be turned on.
 
 ### `charger_active`
+~~~
+double charger_active;
+~~~
+
+This parameter sets how many vehicle chargers running. Fractional values are accepted. The value should be less than or equal to `charger_installed`.
 
 ### `charger_installed`
+
+This parameter sets how many vehicle chargers are installed.
 
 ### `charger_power`
 ~~~
@@ -296,9 +308,14 @@ $$
 # Example
 
 ~~~
-object parking {
-  total_spots 100;
-  total_chargers 10;
+object parking
+{
+  lighting_nightonly TRUE;
+  lighting_capacity 10+0.1j kVA;
+  ventilation_power 5+0.2j kVA;
+  charger_unit_power 6.7+0.5j kVA;
+  charger_installed 10;
+  charger_active 7.5;
 }
 ~~~
 
