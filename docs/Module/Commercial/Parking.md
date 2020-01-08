@@ -18,34 +18,6 @@ object parking {
   charger_ventilation_power <complex> kVA;
   charger_power <complex> kVA;
   total_power <complex> kWA;
-~~~
-Future support:
-~~~
-  total_size 100;
-  total_chargers 10;
-  total_level 1;
-  total_elevetors 0;
-  elevator_usage "0.2 pu/pu";
-  charger_unit_power "6.7+0.0j kVA";
-  elevator_unit_energy "20 Wh";
-  charging_price "0.25 $/kWh";
-  parking_fee "1.00 $/h";
-  fee_waiver "0.0 pu";
-  idle_penalty "2.0 pu";
-  total_cars 0;
-  ev_count 0;
-  ev_active 0;
-  ev_fraction "0.0 pu";
-  arrivals default_parking_arrivals[pu/h];
-  departures default_parking_departures[pu/h];
-  total_power "0+0j kVA";
-  total_energy "0+0j kVAh"
-  lighting_power "0+0j kVA";
-  elevator_power "0+0j kVA";
-  fan_power "0+0j kVA";
-  charger_power "0+0j kVA";
-  total_revenue "0.00 $";
-  parking_log "";
 }
 ~~~
 
@@ -117,9 +89,57 @@ complex fan_power[kVA];
 
 This parameter sets the total fan power in the parking structure.  This quantity is invariant.
 
+# Example
 
+~~~
+object parking
+{
+  lighting_nightonly TRUE;
+  lighting_capacity 10+0.1j kVA;
+  ventilation_power 5+0.2j kVA;
+  charger_unit_power 6.7+0.5j kVA;
+  charger_installed 10;
+  charger_active 7.5;
+}
+~~~
+
+# See also
+* [[/Module/Commercial]]
+
+---
 
 # Future support
+
+GLM:
+~~~
+  ...
+  total_size 100;
+  total_chargers 10;
+  total_level 1;
+  total_elevetors 0;
+  elevator_usage "0.2 pu/pu";
+  charger_unit_power "6.7+0.0j kVA";
+  elevator_unit_energy "20 Wh";
+  charging_price "0.25 $/kWh";
+  parking_fee "1.00 $/h";
+  fee_waiver "0.0 pu";
+  idle_penalty "2.0 pu";
+  total_cars 0;
+  ev_count 0;
+  ev_active 0;
+  ev_fraction "0.0 pu";
+  arrivals default_parking_arrivals[pu/h];
+  departures default_parking_departures[pu/h];
+  total_power "0+0j kVA";
+  total_energy "0+0j kVAh"
+  lighting_power "0+0j kVA";
+  elevator_power "0+0j kVA";
+  fan_power "0+0j kVA";
+  charger_power "0+0j kVA";
+  total_revenue "0.00 $";
+  parking_log "";
+}
+~~~
 
 The number of spots `total_size` and number of chargers `total_chargers` determines the overall capacity of the parking facility.  
 
@@ -305,19 +325,3 @@ $$
   TotalRevenue = TODO
 $$
 
-# Example
-
-~~~
-object parking
-{
-  lighting_nightonly TRUE;
-  lighting_capacity 10+0.1j kVA;
-  ventilation_power 5+0.2j kVA;
-  charger_unit_power 6.7+0.5j kVA;
-  charger_installed 10;
-  charger_active 7.5;
-}
-~~~
-
-# See also
-* [[/Module/Commercial]]
