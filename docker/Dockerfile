@@ -21,6 +21,7 @@ rm -f /lib/systemd/system/anaconda.target.wants/*;
 VOLUME [ "/sys/fs/cgroup" ]
 WORKDIR /tmp
 COPY utilities/docker/centos/*.sh /tmp/
+COPY .git /tmp/repo/.git
 RUN chmod +wx *.sh
 RUN bash system.sh
 RUN bash gridlabd.sh
