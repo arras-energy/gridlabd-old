@@ -1,7 +1,14 @@
 FROM centos:7
+
+COPY .git /tmp/repo/.git
+RUN yum install git -y && \
+    export CURRENT_BRANCH="git -C /tmp/repo rev-parse --abbrev-ref HEAD" && \
+    rm -rf /tmp/repo
+
 ENV container docker
 ENV REPO=https://github.com/slacgismo/gridlabd
-ENV BRANCH=${SOURCE_BRANCH}
+ENV BRANCH=$CURRENT_BRANCH
+RUN echo "CURRENT_BRANCH : $CURRENT_BRANCH"
 ENV ENABLE=gismo
 ENV GET_WEATHER=no
 ENV REMOVE_SOURCE=yes
