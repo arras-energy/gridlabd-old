@@ -1,5 +1,5 @@
 REPO=${REPO:-https://github.com/slacgismo/gridlabd}
-echo "Current branch is set to $BRANCH"
+echo "Current branch is set to : $BRANCH"
 BRANCH=${BRANCH:-master}
 WEATHER='CA WA'
 echo "
