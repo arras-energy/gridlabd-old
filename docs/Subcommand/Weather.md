@@ -207,7 +207,7 @@ To get a list of the current weather data configuration use the command
   GITHUB="https://github.com"
   GITHUBUSERCONTENT="https://raw.githubusercontent.com"
   COUNTRY="US"
-  GITUSER="dchassin"
+  GITUSER="slacgismo"
   GITREPO="gridlabd-weather"
   GITBRANCH="master"
   DATADIR="/usr/local/share/gridlabd/weather"

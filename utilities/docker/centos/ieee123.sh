@@ -1,4 +1,4 @@
-REPO=${REPO:-https://codeload.github.com/dchassin/ieee123-aws/zip}
+REPO=${REPO:-https://codeload.github.com/slacgismo/ieee123-aws/zip}
 BRANCH=${BRANCH:-master}
 echo "
 #####################################
