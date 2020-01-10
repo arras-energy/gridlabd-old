@@ -1,6 +1,5 @@
 REPO=${REPO:-https://github.com/slacgismo/gridlabd}
-# BRANCH=${BRANCH:-master}
-BRANCH="${git -C /tmp/repo rev-parse --abbrev-ref HEAD}"
+BRANCH=${BRANCH:-master}
 echo "BRANCH : ${BRANCH}"
 WEATHER='CA WA'
 echo "
