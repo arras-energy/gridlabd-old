@@ -2,9 +2,8 @@ FROM centos:7
 
 ENV container docker
 ENV REPO=https://github.com/slacgismo/gridlabd
-ARG SOURCE_BRANCH
-ENV SOURCE_BRANCH $SOURCE_BRANCH
-ENV BRANCH=$SOURCE_BRANCH
+ARG BRANCH
+RUN echo "Building $BRANCH"
 ENV ENABLE=gismo
 ENV GET_WEATHER=no
 ENV REMOVE_SOURCE=yes
