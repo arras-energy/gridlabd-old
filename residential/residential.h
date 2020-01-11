@@ -6,6 +6,8 @@
 #ifndef _RESIDENTIAL_H
 #define _RESIDENTIAL_H
 
+#include <armadillo>
+
 #include "gridlabd.h"
 #include "module.h"
 
@@ -80,6 +82,8 @@ typedef struct s_panel {
 typedef	CIRCUIT *(*ATTACHFUNCTION)(OBJECT *, enduse *, double , int is220); ///< type definition for attach function
 
 typedef enum {HORIZONTAL, NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST,N_SOLAR_SURFACES} ORIENTATION;
+
+#include "apartment.h"
 
 #endif  /* _RESIDENTIAL_H */
 

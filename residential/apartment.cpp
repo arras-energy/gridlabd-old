@@ -3,7 +3,9 @@
 	Copyright (C) 2020, Regents of the Leland Stanford Junior University
 */
 
-#include "apartment.h"
+#include "residential.h"
+
+using namespace arma;
 
 EXPORT_CREATE(apartment);
 EXPORT_INIT(apartment);
@@ -13,6 +15,8 @@ EXPORT_COMMIT(apartment);
 
 CLASS *apartment::oclass = NULL;
 apartment *apartment::defaults = NULL;
+
+char1024 apartment::load_property = "base_power";
 
 apartment::apartment(MODULE *module)
 {
@@ -76,6 +80,7 @@ apartment::apartment(MODULE *module)
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
 				throw msg;
+        gl_global_create("residential::load_property",PT_char1024,&load_property,NULL);
 		}
 	}
 }
@@ -87,11 +92,43 @@ int apartment::create(void)
 
 int apartment::init(OBJECT *parent)
 {
+	A  << -(U_AU+U_AC+U_AM)/C_A << U_AU/C_A << U_AC/C_A << U_AM/C_A << endr
+	   << U_AU/C_U << -(U_AU+U_UC+U_UM)/C_U << U_UC/C_U << U_UM/C_U << endr
+	   << U_AC/C_C << U_UC/C_C << -(U_AC+U_UC+U_CM)/C_C << U_CM/C_C << endr
+	   << U_AM/C_M << U_UM/C_M << U_CM/C_M << -(U_AM+U_UM+U_CM)/C_M << endr;
+	B1 << U_OA/C_A << 1/C_A << 1/C_A << 1/C_A << 0 << 0 << 0 << endr
+	   << U_OU/C_U << 0 << 0 << 0 << 1/C_U << 0 << 0 << endr
+	   << U_OC/C_C << 0 << 0 << 0 << 0 << 1/C_C << 1/C_C << endr
+	   << U_OM/C_M << 0 << 0 << 0 << 0 << 0 << 0 << endr;
+	B2 << 1/C_A << 0 << 0 << endr
+	   << 0 << 1/C_U << 0 << endr
+	   << 0 << 0 << 1/C_C << endr
+	   << 0 << 0 << 0 << endr;
+	B2inv = pinv(B2);
 	return 1;
 }
 
 TIMESTAMP apartment::precommit(TIMESTAMP t1)
 {
+	q << T_O << endr
+	  << Q_AS << endr
+	  << Q_AV << endr
+	  << Q_AE << endr
+	  << Q_US << endr
+	  << Q_CS << endr
+	  << Q_CV << endr;
+	T << 0 << endr
+	  << 0 << endr
+	  << 0 << endr
+	  << 0 << endr;
+	u = -B2inv * (A*T+B1*q);
+	for ( unsigned int i = 0 ; i < u.n_elem ; i++ )
+	{
+		if ( u_min[i] > u_max[i] ) {continue;}
+		if ( u[i] < u_min[i] ) {u[i] = u_min[i];}
+		else if ( u[i] > u_max[i] ) {u[i] = u_max[i];}
+	}
+	dT = A*T + B1*q +B2*u;
 	return TS_NEVER;
 }
 

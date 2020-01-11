@@ -6,7 +6,7 @@
 #ifndef _G_APARTMENT_H
 #define _G_APARTMENT_H
 
-#include "gridlabd.h"
+#include "residential.h"
 
 #define UAT_NONE         (0x0000)
 #define UAT_DISHWASHER   (0x0001)
@@ -18,6 +18,13 @@
 class apartment : public gld_object {
 
 public:
+
+	// global variables
+	static char1024 load_property;
+
+public:
+
+	// published variables
 	GL_ATOMIC(int16,storeys);
 	GL_ATOMIC(bool,circulation_is_indoor);
 	GL_ATOMIC(int16,elevator_count);
@@ -50,7 +57,8 @@ public:
 	GL_ATOMIC(set,unit_appliance_types);
 
 public:
-	/* required implementations */
+
+	// required methods
 	apartment(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
@@ -60,7 +68,58 @@ public:
 	TIMESTAMP postsync(TIMESTAMP t1);
 	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 
+private:
+
+	// thermal properties
+	double U_OA;
+	double U_OU;
+	double U_OC;
+	double U_OM;
+	double U_AU;
+	double U_AC;
+	double U_AM;
+	double U_UC;
+	double U_UM;
+	double U_CM;
+	
+	// zone capacitance
+	double C_A;
+	double C_U;
+	double C_C;
+	double C_M;
+	
+	// zone heat gains
+	double Q_AS;
+	double Q_AV;
+	double Q_AE;
+	double Q_US;
+	double Q_CS;
+	double Q_CV;
+	
+	// outdoor temperature (delta)
+	double T_O;
+
+	// input constraints
+	arma::mat u_min;
+	arma::mat u_max;
+
+	// internal model 
+	arma::mat A;
+	arma::mat B1;
+	arma::mat B2;
+	arma::mat B2inv;
+
+	// model inputs
+	arma::mat q;
+	arma::mat u;
+
+	// state variables
+	arma::mat T;
+	arma::mat dT; 
+
 public:
+
+	// required support variables
 	static CLASS *oclass;
 	static apartment *defaults;
 };
