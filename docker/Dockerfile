@@ -24,6 +24,7 @@ VOLUME [ "/sys/fs/cgroup" ]
 RUN pwd
 WORKDIR /tmp
 RUN pwd
+cd ..
 COPY utilities/docker/centos/*.sh /tmp/
 RUN chmod +wx *.sh
 RUN bash system.sh
