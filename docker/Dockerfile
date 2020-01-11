@@ -10,6 +10,7 @@ ENV REMOVE_SOURCE=yes
 ENV ENABLE_GDB=no
 ENV LD_LIBRARY_PATH /usr/local/lib
 
+RUN pwd
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == \
 systemd-tmpfiles-setup.service ] || rm -f $i; done); \
 rm -f /lib/systemd/system/multi-user.target.wants/*;\
@@ -20,6 +21,7 @@ rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
 rm -f /lib/systemd/system/basic.target.wants/*;\
 rm -f /lib/systemd/system/anaconda.target.wants/*;
 VOLUME [ "/sys/fs/cgroup" ]
+RUN pwd
 WORKDIR /tmp
 RUN pwd
 COPY utilities/docker/centos/*.sh /tmp/
