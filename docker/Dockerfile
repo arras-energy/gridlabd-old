@@ -21,6 +21,7 @@ rm -f /lib/systemd/system/basic.target.wants/*;\
 rm -f /lib/systemd/system/anaconda.target.wants/*;
 VOLUME [ "/sys/fs/cgroup" ]
 WORKDIR /tmp
+RUN pwd
 COPY utilities/docker/centos/*.sh /tmp/
 COPY .git /tmp/repo/.git
 RUN chmod +wx *.sh
