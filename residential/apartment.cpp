@@ -10,7 +10,6 @@ using namespace arma;
 EXPORT_CREATE(apartment);
 EXPORT_INIT(apartment);
 EXPORT_PRECOMMIT(apartment);
-EXPORT_SYNC(apartment);
 EXPORT_COMMIT(apartment);
 
 CLASS *apartment::oclass = NULL;
@@ -18,12 +17,14 @@ apartment *apartment::defaults = NULL;
 
 char1024 apartment::load_property = "base_power";
 
+#define PASSCONFIG PC_AUTOLOCK
+
 apartment::apartment(MODULE *module)
 {
 	if (oclass==NULL)
 	{
 		// register to receive notice for first top down. bottom up, and second top down synchronizations
-		oclass = gld_class::create(module,"apartment",sizeof(apartment),PC_AUTOLOCK|PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN);
+		oclass = gld_class::create(module,"apartment",sizeof(apartment),PASSCONFIG);
 		if (oclass==NULL)
 			throw "unable to register class apartment";
 		else
@@ -105,11 +106,10 @@ int apartment::init(OBJECT *parent)
 	   << 0 << 0 << 1/C_C << endr
 	   << 0 << 0 << 0 << endr;
 	B2inv = pinv(B2);
-	return 1;
-}
-
-TIMESTAMP apartment::precommit(TIMESTAMP t1)
-{
+	T << 0 << endr
+	  << 0 << endr
+	  << 0 << endr
+	  << 0 << endr;
 	q << T_O << endr
 	  << Q_AS << endr
 	  << Q_AV << endr
@@ -117,10 +117,19 @@ TIMESTAMP apartment::precommit(TIMESTAMP t1)
 	  << Q_US << endr
 	  << Q_CS << endr
 	  << Q_CV << endr;
-	T << 0 << endr
-	  << 0 << endr
-	  << 0 << endr
-	  << 0 << endr;
+	return 1;
+}
+
+TIMESTAMP apartment::precommit(TIMESTAMP t1)
+{
+	double dt = t1 - gl_globalclock;
+	q[0] = T_O;
+	q[1] = Q_AS;
+	q[2] = Q_AV;
+	q[3] = Q_AE;
+	q[4] = Q_US;
+	q[5] = Q_CS;
+	q[6] = Q_CV;
 	u = -B2inv * (A*T+B1*q);
 	for ( unsigned int i = 0 ; i < u.n_elem ; i++ )
 	{
@@ -129,22 +138,10 @@ TIMESTAMP apartment::precommit(TIMESTAMP t1)
 		else if ( u[i] > u_max[i] ) {u[i] = u_max[i];}
 	}
 	dT = A*T + B1*q +B2*u;
-	return TS_NEVER;
-}
-
-TIMESTAMP apartment::presync(TIMESTAMP t1)
-{	
-	return TS_NEVER;
-}
-
-TIMESTAMP apartment::sync(TIMESTAMP t1)
-{	
-	return TS_NEVER;
-}
-
-TIMESTAMP apartment::postsync(TIMESTAMP t1)
-{	
-	return TS_NEVER;
+	T += dT*dt;
+	TIMESTAMP ta = t1 + 3600/abs(dT.max());
+	TIMESTAMP tb = ((t1/3600)+1)*3600;
+	return min(ta,tb);
 }
 
 TIMESTAMP apartment::commit(TIMESTAMP t1, TIMESTAMP t2)
