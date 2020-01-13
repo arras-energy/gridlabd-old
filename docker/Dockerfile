@@ -27,8 +27,7 @@ RUN ls
 WORKDIR /tmp
 RUN pwd
 RUN ls
-RUN cd ..
-RUN ls
+RUN find / -type d -name "utilities"
 COPY utilities/docker/centos/*.sh /tmp/
 RUN chmod +wx *.sh
 RUN bash system.sh
