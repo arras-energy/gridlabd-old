@@ -17,6 +17,4 @@ fi
 
 cd gridlabd 
 bash ./install.sh --verbose
-export PATH=$(build-aux/version.sh --install)/bin/gridlabd version set
-export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
 
