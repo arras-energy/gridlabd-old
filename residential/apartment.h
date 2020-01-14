@@ -63,7 +63,6 @@ public:
 	int create(void);
 	int init(OBJECT *parent);
 	TIMESTAMP precommit(TIMESTAMP t1);
-	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
 
 private:
 

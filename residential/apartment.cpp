@@ -10,7 +10,6 @@ using namespace arma;
 EXPORT_CREATE(apartment);
 EXPORT_INIT(apartment);
 EXPORT_PRECOMMIT(apartment);
-EXPORT_COMMIT(apartment);
 
 CLASS *apartment::oclass = NULL;
 apartment *apartment::defaults = NULL;
@@ -142,10 +141,5 @@ TIMESTAMP apartment::precommit(TIMESTAMP t1)
 	TIMESTAMP ta = t1 + 3600/abs(dT.max());
 	TIMESTAMP tb = ((t1/3600)+1)*3600;
 	return min(ta,tb);
-}
-
-TIMESTAMP apartment::commit(TIMESTAMP t1, TIMESTAMP t2)
-{	
-	return TS_NEVER;
 }
 
