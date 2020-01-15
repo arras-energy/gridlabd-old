@@ -50,6 +50,7 @@ public:
 	// global variables
 	static char1024 load_property;
 	static double maximum_temperature_update;
+	static TIMESTAMP maximum_timestep;
 
 public:
 
@@ -152,11 +153,12 @@ private:
 	
 	// modes
 	int mode; // central system mode
-	int m[3]; // occupied, unoccupied, core zones modes
+	matrix m; // zone modes
 
 	// temperature (w.r.t. apartment setpoint temperature
 	double Tout;
 	matrix Tbal;
+	matrix Teq;
 
 	// input constraints
 	matrix u_min;
@@ -173,7 +175,7 @@ private:
 
 	// state variables
 	matrix T;
-	matrix dT; 
+	matrix dT;
 
 public:
 

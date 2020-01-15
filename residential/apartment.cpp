@@ -16,6 +16,7 @@ apartment *apartment::defaults = NULL;
 
 char1024 apartment::load_property = "base_power";
 double apartment::maximum_temperature_update = 0.1;
+TIMESTAMP apartment::maximum_timestep = 60;
 
 #define PASSCONFIG PC_AUTOLOCK
 
@@ -96,21 +97,43 @@ TIMESTAMP apartment::precommit(TIMESTAMP t1)
 	  << Q_CS + Q_CV << endr;
 
 	// compute the zone balance temperatures
-	Tbal = -Ainv*B1*q;
+	matrix B1q = B1*q;
+	Tbal = -Ainv*B1q;
 	Tbal[3] = 0;
+
+	// find the zone modes
 	m = sign(Tbal-Tout);
 
-	// determine then
+	// find the system mode
+	mode = m.min();
+	if ( mode == 0 )
+	{
+		mode = m.max();
+	}
 
-	u = -B2inv * (A*T+B1*q);
+	// solve for the required control input to meet the load
+	u = -B2inv * (A*T+B1q);
+
+	// constrain the control input to capacity limits
 	for ( unsigned int i = 0 ; i < u.n_elem ; i++ )
 	{
 		if ( u_min[i] > u_max[i] ) {continue;}
 		if ( u[i] < u_min[i] ) {u[i] = u_min[i];}
 		else if ( u[i] > u_max[i] ) {u[i] = u_max[i];}
 	}
-	dT = A*T + B1*q +B2*u;
-	T += dT*dt;
-	return t1 + 3600*0.1/abs(dT.max()); // 0.1 degF change max
+
+	// calculate the equilibrium temperature given the control input
+	Teq = -Ainv * (B1q+B2*u);
+
+	// calculate the temperature change
+	dT = Teq + (exp(A*dt)-matrix(4,4).eye())*T;
+	T += dT;
+
+	// calculate the power 
+
+	// calculate the time to the next required solution
+	TIMESTAMP a = ((TIMESTAMP)(t1/maximum_timestep+1))*maximum_timestep; 
+	TIMESTAMP b = t1 + 3600*maximum_temperature_update/abs(dT.max());
+	return min(a,b);
 }
 
