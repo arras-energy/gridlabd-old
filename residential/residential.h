@@ -8,6 +8,8 @@
 
 #include <armadillo>
 
+typedef arma::mat matrix;
+
 #include "gridlabd.h"
 #include "module.h"
 
