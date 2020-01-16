@@ -3,7 +3,7 @@
 #include "gldcore.h"
 #include <string.h>
 
-const wchar_t *program = NULL;
+wchar_t *program = NULL;
 PyObject *main_module = NULL;
 
 void python_embed_init(int argc, const char *argv[])
