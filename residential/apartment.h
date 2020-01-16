@@ -8,42 +8,65 @@
 
 #include "residential.h"
 
-// system type local
-#define SYSTEMTYPELOCAL set
-#define STL_NONE 0x0000
-#define STL_HEAT 0x0001
-#define STL_COOL 0x0002
-#define STL_BOTH 0x0003
+// core configuration
+#define CC_NONE 0x0000
+#define CC_INDOOR 0x0001
+#define CC_DOUBLE 0x0003
+#define CC_CONDITIONED 0x0005
+
+// parking configuration
+#define PC_OUTDOOR 0x0000
+#define PC_INDOOR 0x0001
 
 // system type central
-#define SYSTEMTYPECENTRAL set
 #define STC_NONE 0x0000
 #define STC_HEAT 0x0001
 #define STC_COOL 0x0002
 #define STC_BOTH 0x0003
 
-// system type ventilation
-#define SYSTEMTYPEVENTILATION enumeration
-#define STV_NONE 0x0000
-#define STV_CENTRAL 0x0001
-
 // system type economizer
-#define SYSTEMTYPEECONOMIZER enumeration
 #define STE_NONE 0x0000
 #define STE_DRYBULB 0x0001 // single temperature measurement only
-#define STE_WEBBULB 0x0002 // single temperature and humidity measurement
+#define STE_WETBULB 0x0002 // single temperature and humidity measurement
 #define STE_DIFFERENTIAL 0x0003 // dual temperature and humidity measurement
 
+// system mode
+#define SM_OFF 0x0000
+#define SM_VENTILATING 0x0001
+#define SM_HEATING 0x0002
+#define SM_COOLING 0x0003
+
+// system type ventilation
+#define STV_NONE 0x0000
+#define STV_LOCAL 0x0001
+#define STV_CENTRAL 0x0002
+
 // unit appliance types
-#define UNITAPPLIANCETYPE set
 #define UAT_NONE         (0x0000)
-#define UAT_DISHWASHER   (0x0001)
-#define UAT_REFRIGERATOR (0x0002)
-#define UAT_WASHER       (0x0004)
-#define UAT_DRYER        (0x0008)
-#define UAT_ALL          (0x000f)
+#define UAT_COOKING      (0x0001)
+#define UAT_DISHWASHER   (0x0002)
+#define UAT_DRYER        (0x0004)
+#define UAT_REFRIGERATOR (0x0008)
+#define UAT_WASHER       (0x0010)
+#define UAT_ALL          (0x001f)
+
+// unit system type
+#define UST_NONE 0x0000
+#define UST_HEAT 0x0001
+#define UST_COOL 0x0002
+#define UST_BOTH 0x0003
 
 class apartment : public gld_object {
+
+public:
+	typedef set CORECONFIGURATION;
+	typedef enumeration PARKINGCONFIGURATION;
+	typedef set SYSTEMTYPECENTRAL;
+	typedef enumeration SYSTEMTYPEECONOMIZER;
+	typedef enumeration SYSTEMMODE;
+	typedef enumeration SYSTEMTYPEVENTILATION; 
+	typedef set UNITAPPLIANCETYPE;
+	typedef set UNITSYSTEMTYPE;
 
 public:
 
@@ -56,72 +79,79 @@ public:
 
 	// published variables
 	GL_ATOMIC(int16,building_floors); // must be set by user
-	GL_ATOMIC(double,building_floor_height);
 	GL_ATOMIC(double,building_floor_depth);
+	GL_ATOMIC(double,building_floor_height);
 	GL_ATOMIC(double,building_occupancy_factor);
-	GL_ATOMIC(int16,building_units); // must be set by user
 	GL_ATOMIC(double,building_outdoor_temperature);
+	GL_ATOMIC(int16,building_units); // must be set by user
 
-	GL_ATOMIC(double,system_cooling_capacity);
-	GL_ATOMIC(double,system_cooling_efficiency);
-	GL_ATOMIC(double,system_heating_capacity);
-	GL_ATOMIC(double,system_heating_efficiency);
-	GL_ATOMIC(SYSTEMTYPELOCAL,system_type_local);
-	GL_ATOMIC(SYSTEMTYPECENTRAL,system_type_central);
-	GL_ATOMIC(SYSTEMTYPEVENTILATION,system_type_ventilation);
-	GL_ATOMIC(SYSTEMTYPEECONOMIZER,system_type_economizer);
-	GL_ATOMIC(double,system_cooling_air_temperature);
-	GL_ATOMIC(double,system_heating_air_temperature);
-
-	GL_ATOMIC(bool,core_is_indoor);
+	GL_ATOMIC(double,core_cooling_setpoint);
+	GL_ATOMIC(CORECONFIGURATION,core_configuration);
 	GL_ATOMIC(int16,core_elevators);
-	GL_ATOMIC(double,core_dimension_width);
-	GL_ATOMIC(double,core_temperature_cooling_setpoint);
-	GL_ATOMIC(double,core_temperature_heating_setpoint);
+	GL_ATOMIC(double,core_heating_setpoint);
+	GL_ATOMIC(SYSTEMMODE,core_mode);
 	GL_ATOMIC(int16,core_laundry_units);
+	GL_ATOMIC(double,core_width);
 
-	GL_ATOMIC(set,unit_appliance_types)
-	GL_ATOMIC(double,unit_demand_lights);
-	GL_ATOMIC(double,unit_demand_plugs);
-	GL_ATOMIC(double,unit_demand_cooking);
-	GL_ATOMIC(double,unit_demand_dishwasher);
-	GL_ATOMIC(double,unit_demand_refrigerator);
-	GL_ATOMIC(double,unit_demand_washer);
-	GL_ATOMIC(double,unit_demand_dryer);
-	GL_ATOMIC(double,unit_dimension_depth);
-	GL_ATOMIC(double,unit_dimension_width);
-	GL_ATOMIC(double,unit_cooling_capacity);
-	GL_ATOMIC(double,unit_cooling_efficiency);
-	GL_ATOMIC(double,unit_heating_capacity);
-	GL_ATOMIC(double,unit_heating_efficiency);
-	GL_ATOMIC(double,unit_temperature_cooling_setpoint);
-	GL_ATOMIC(double,unit_temperature_heating_setpoint);
-
-	GL_ATOMIC(double,unoccupied_temperature_cooling_setpoint);
-	GL_ATOMIC(double,unoccupied_temperature_heating_setpoint);
-
-	GL_ATOMIC(int16,parking_size);
-	GL_ATOMIC(bool,parking_is_indoor);
-	GL_ATOMIC(int16,parking_charger_count);
-	GL_ATOMIC(double,parking_charger_capacity);
-	GL_ATOMIC(int16,parking_charger_active);
+	GL_ATOMIC(double,parking_capacity_chargers);
+	GL_ATOMIC(double,parking_capacity_elevators);
+	GL_ATOMIC(double,parking_capacity_lights);
+	GL_ATOMIC(double,parking_capacity_ventilation);
+	GL_ATOMIC(int16,parking_chargers_active);
+	GL_ATOMIC(int16,parking_chargers_installed);
+	GL_ATOMIC(PARKINGCONFIGURATION,parking_configuration);
+	GL_ATOMIC(double,parking_demand_chargers);
+	GL_ATOMIC(double,parking_demand_elevators);
 	GL_ATOMIC(double,parking_demand_lights);
 	GL_ATOMIC(double,parking_demand_ventilation);
-	GL_ATOMIC(double,parking_demand_chargers);
+	GL_ATOMIC(int16,parking_size);
 
-	GL_ATOMIC(double,power_system);
-	GL_ATOMIC(double,power_units);
 	GL_ATOMIC(double,power_core);
 	GL_ATOMIC(double,power_parking);
+	GL_ATOMIC(double,power_system);
 	GL_ATOMIC(double,power_total);
+	GL_ATOMIC(double,power_units);
 
-public:
+	GL_ATOMIC(double,system_cooling_air_temperature);
+	GL_ATOMIC(double,system_cooling_capacity);
+	GL_ATOMIC(double,system_cooling_efficiency);
+	GL_ATOMIC(double,system_heating_air_temperature);
+	GL_ATOMIC(double,system_heating_capacity);
+	GL_ATOMIC(double,system_heating_efficiency);
+	GL_ATOMIC(SYSTEMMODE,system_mode);
+	GL_ATOMIC(SYSTEMTYPECENTRAL,system_type_central);
+	GL_ATOMIC(SYSTEMTYPEECONOMIZER,system_type_economizer);
+	GL_ATOMIC(SYSTEMTYPEVENTILATION,system_type_ventilation);
 
-	// required methods
-	apartment(MODULE *module);
-	int create(void);
-	int init(OBJECT *parent);
-	TIMESTAMP precommit(TIMESTAMP t1);
+	GL_ATOMIC(UNITAPPLIANCETYPE,unit_appliance_types);
+	GL_ATOMIC(double,unit_capacity_cooking);
+	GL_ATOMIC(double,unit_capacity_dishwasher);
+	GL_ATOMIC(double,unit_capacity_dryer);
+	GL_ATOMIC(double,unit_capacity_lights);
+	GL_ATOMIC(double,unit_capacity_plugs);
+	GL_ATOMIC(double,unit_capacity_refrigerator);
+	GL_ATOMIC(double,unit_capacity_washer);
+	GL_ATOMIC(double,unit_cooling_capacity);
+	GL_ATOMIC(double,unit_cooling_efficiency);
+	GL_ATOMIC(double,unit_cooling_setpoint);
+	GL_ATOMIC(double,unit_demand_cooking);
+	GL_ATOMIC(double,unit_demand_dishwasher);
+	GL_ATOMIC(double,unit_demand_dryer);
+	GL_ATOMIC(double,unit_demand_lights);
+	GL_ATOMIC(double,unit_demand_plugs);
+	GL_ATOMIC(double,unit_demand_refrigerator);
+	GL_ATOMIC(double,unit_demand_washer);
+	GL_ATOMIC(double,unit_depth);
+	GL_ATOMIC(double,unit_heating_capacity);
+	GL_ATOMIC(double,unit_heating_efficiency);
+	GL_ATOMIC(double,unit_heating_setpoint);
+	GL_ATOMIC(SYSTEMMODE,unit_mode);
+	GL_ATOMIC(UNITSYSTEMTYPE,unit_system_type);
+	GL_ATOMIC(double,unit_width);
+
+	GL_ATOMIC(double,vacant_cooling_setpoint);
+	GL_ATOMIC(double,vacant_heating_setpoint);
+	GL_ATOMIC(SYSTEMMODE,vacant_mode);
 
 private:
 
@@ -165,7 +195,7 @@ private:
 	matrix u_max;
 
 	// internal model 
-	matrix A, Ainv;
+	matrix A, Ainv, Aeig, Avec;
 	matrix B1, B1inv;
 	matrix B2, B2inv;
 
@@ -176,6 +206,14 @@ private:
 	// state variables
 	matrix T;
 	matrix dT;
+
+public:
+
+	// required methods
+	apartment(MODULE *module);
+	int create(void);
+	int init(OBJECT *parent);
+	TIMESTAMP precommit(TIMESTAMP t1);
 
 public:
 
