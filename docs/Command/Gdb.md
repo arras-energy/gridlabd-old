@@ -1,4 +1,4 @@
-[[Command/Gdb]] -- Command option to start the system debugger on GridLAB-D
+[[/Command/Gdb]] -- Command option to start the system debugger on GridLAB-D
 
 # Synopsis
 ~~~
@@ -13,6 +13,6 @@ The GridLAB-D command line options may be provided `options` after the `--gdb` o
 
 # See also
 
-* [[Command/Lldb]]
-* [[Command/Valgrind]]
+* [[/Command/Lldb]]
+* [[/Command/Valgrind]]
 * [GDB Documentation](https://www.gnu.org/software/gdb/documentation/)
