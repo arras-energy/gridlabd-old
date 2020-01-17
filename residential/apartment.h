@@ -155,6 +155,9 @@ public:
 
 private:
 
+	// multizone solver
+	msolver *solver;
+	
 	// thermal properties
 	double U_OA;	// occupied-outdoor UA
 	double U_OU;	// unoccupied-outdoor UA
@@ -184,34 +187,11 @@ private:
 	
 	// modes
 	int mode; // central system mode
-	matrix m; // zone modes
 	double Econ; // economizer factor
 
 	// temperature (w.r.t. apartment setpoint temperature)
 	double Tout;	// outdoor air temperature
-	matrix Tbal;	// zone balance temperature 
-	matrix Teq; 	// zone equilibrium temperature
 	double Tret; 	// return air temperature
-
-	// input constraints
-	matrix u_min;	// maximum cooling capacity (negative u limit)
-	matrix u_max;	// maximum heating capacity (positive u limit)
-
-	// internal model 
-	matrix A, Ainv, Aeig;
-	matrix B1, B1inv;
-	matrix B2, B2inv;
-
-	// model inputs
-	matrix q;		// thermal disturbances
-	matrix u;		// thermal controls
-
-	// state variables
-	matrix T;		// zone temperatures
-	matrix dT;		// zone temperature derivatives at t0
-
-	// helper methods
-	matrix update_u(void); 	// updates u and returns Teq
 
 public:
 

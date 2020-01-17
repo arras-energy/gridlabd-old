@@ -5,8 +5,6 @@
 
 #include "residential.h"
 
-using namespace arma;
-
 EXPORT_CREATE(apartment);
 EXPORT_INIT(apartment);
 EXPORT_PRECOMMIT(apartment);
@@ -209,89 +207,101 @@ int apartment::init(OBJECT *parent)
 		// TODO
 	}
 
-	A  << -(U_OA+U_AU+U_AC+U_AM)/C_A << U_AU/C_A << U_AC/C_A << U_AM/C_A << endr
-	   << U_AU/C_U << -(U_OU+U_AU+U_UC+U_UM)/C_U << U_UC/C_U << U_UM/C_U << endr
-	   << U_AC/C_C << U_UC/C_C << -(U_OC+U_AC+U_UC+U_CM)/C_C << U_CM/C_C << endr
-	   << U_AM/C_M << U_UM/C_M << U_CM/C_M << -(U_OM+U_AM+U_UM+U_CM)/C_M << endr;
-	B1 << U_OA/C_A << 1/C_A << 1/C_A << 1/C_A << 0 << 0 << 0 << endr
-	   << U_OU/C_U << 0 << 0 << 0 << 1/C_U << 0 << 0 << endr
-	   << U_OC/C_C << 0 << 0 << 0 << 0 << 1/C_C << 1/C_C << endr
-	   << U_OM/C_M << 0 << 0 << 0 << 0 << 0 << 0 << endr;
-	B2 << 1/C_A << 0 << 0 << endr
-	   << 0 << 1/C_U << 0 << endr
-	   << 0 << 0 << 1/C_C << endr
-	   << 0 << 0 << 0 << endr;
-	try
-	{
-		Aeig = diagmat(arma::real(eig_gen(A)));
-		Ainv = inv(A);
-		B1inv = inv(B1);
-		B2inv = inv(B2);
-	}
-	catch (...)
-	{
-		error("unable to process solution matrices");
-		return 0;
-	}
+	solver = msolve("new");
 
-	// initialize at equilibrum temperature
-	T = update_u();
+	msolve("set",solver,"N",4);
+	
+	msolve("set",solver,"U",0,U_OA);
+	msolve("set",solver,"U",1,U_OU);
+	msolve("set",solver,"U",2,U_OC);
+	msolve("set",solver,"U",3,U_OM);
+	msolve("set",solver,"U",4,U_AU);
+	msolve("set",solver,"U",5,U_AC);
+	msolve("set",solver,"U",6,U_AM);
+	msolve("set",solver,"U",7,U_UC);
+	msolve("set",solver,"U",8,U_UM);
+	msolve("set",solver,"U",9,U_CM);
+
+	msolve("set",solver,"C",0,C_A);
+	msolve("set",solver,"C",1,C_U);
+	msolve("set",solver,"C",2,C_C);
+	msolve("set",solver,"C",3,C_M);
+
+	msolve("set",solver,"umin",0,-unit_cooling_capacity*building_units*building_occupancy_factor);
+	msolve("set",solver,"umin",1,-unit_cooling_capacity*building_units*(1-building_occupancy_factor));
+	msolve("set",solver,"umin",2,-system_cooling_capacity+unit_cooling_capacity*building_units);
+	msolve("set",solver,"umin",3,0.0);
+
+	msolve("set",solver,"umax",0,unit_heating_capacity*building_units*building_occupancy_factor);
+	msolve("set",solver,"umax",1,unit_heating_capacity*building_units*(1-building_occupancy_factor));
+	msolve("set",solver,"umax",2,system_heating_capacity-unit_heating_capacity*building_units);
+	msolve("set",solver,"umax",3,0.0);
+
+	msolve("set",solver,"q",0,building_outdoor_temperature);
+	msolve("set",solver,"q",1,Q_AS+Q_AV+Q_AE);
+	msolve("set",solver,"q",2,Q_US);
+	msolve("set",solver,"q",3,Q_CS+Q_CV);
+
+	msolve("solve",solver,0);
+
 	return 1;
 }
 
-matrix apartment::update_u(void)
-{
-	// get the loads
-	q << Tout << endr
-	  << Q_AS + Q_AV + Q_AE << endr
-	  << Q_US << endr
-	  << Q_CS + Q_CV << endr;
+// matrix apartment::update_u(void)
+// {
+// 	// get the loads
+// 	q << Tout << endr
+// 	  << Q_AS + Q_AV + Q_AE << endr
+// 	  << Q_US << endr
+// 	  << Q_CS + Q_CV << endr;
 
-	// compute the zone balance temperatures
-	matrix B1q = B1*q;
-	Tbal = -Ainv*B1q;
-	Tbal[3] = 0;
+// 	// compute the zone balance temperatures
+// 	matrix B1q = B1*q;
+// 	Tbal = -Ainv*B1q;
+// 	Tbal[3] = 0;
 
-	// find the zone modes
-	m = sign(Tbal-Tout);
+// 	// find the zone modes
+// 	m = sign(Tbal-Tout);
 
-	// find the system mode
-	mode = m.min();
-	if ( mode == 0 )
-	{
-		mode = m.max();
-	}
+// 	// find the system mode
+// 	mode = m.min();
+// 	if ( mode == 0 )
+// 	{
+// 		mode = m.max();
+// 	}
 
-	// solve for the required control input to meet the load
-	u = -B2inv * (A*T+B1q);
+// 	// solve for the required control input to meet the load
+// 	u = -B2inv * (A*T+B1q);
 
-	// constrain the control input to capacity limits
-	for ( unsigned int i = 0 ; i < u.n_elem ; i++ )
-	{
-		if ( u_min[i] > u_max[i] ) {continue;}
-		if ( u[i] < u_min[i] ) {u[i] = u_min[i];}
-		else if ( u[i] > u_max[i] ) {u[i] = u_max[i];}
-	}
-	// find the equilibrium temperature
-	return -Ainv * (B1q+B2*u);
-}
+// 	// constrain the control input to capacity limits
+// 	for ( unsigned int i = 0 ; i < u.n_elem ; i++ )
+// 	{
+// 		if ( u_min[i] > u_max[i] ) {continue;}
+// 		if ( u[i] < u_min[i] ) {u[i] = u_min[i];}
+// 		else if ( u[i] > u_max[i] ) {u[i] = u_max[i];}
+// 	}
+// 	// find the equilibrium temperature
+// 	return -Ainv * (B1q+B2*u);
+// }
 
 TIMESTAMP apartment::precommit(TIMESTAMP t1)
 {
 	double dt = t1 - gl_globalclock;
 
 	// calculate the equilibrium temperature given the control input
-	Teq = update_u();
+	// Teq = update_u();
 
-	// calculate the temperature change
-	dT = Teq + (exp(Aeig*dt)-matrix(4,4).eye())*T;
-	T += dT;
+	// // calculate the temperature change
+	// dT = Teq + (exp(Aeig*dt)-matrix(4,4).eye())*T;
+	// T += dT;
 
 	// calculate the power 
 
 	// calculate the time to the next required solution
-	TIMESTAMP a = ((TIMESTAMP)(t1/maximum_timestep+1))*maximum_timestep; 
-	TIMESTAMP b = t1 + 3600*maximum_temperature_update/abs(dT.max());
-	return min(a,b);
+	// TIMESTAMP a = ((TIMESTAMP)(t1/maximum_timestep+1))*maximum_timestep; 
+	// TIMESTAMP b = t1 + 3600*maximum_temperature_update/abs(dT.max());
+	// return min(a,b);
+	msolve("solve",solver,dt);
+	return TS_NEVER;
 }
 

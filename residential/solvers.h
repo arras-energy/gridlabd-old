@@ -62,6 +62,12 @@ struct s_msolver
 	//
 	double *T; 
 
+	// Member: Tset
+	//
+	// Temperature setpoint for controlled zones
+	//
+	double *Tset;
+
 	// Member: u
 	//
 	// Control inputs (size N-1) in the order T1..T(N-1).
@@ -89,11 +95,22 @@ struct s_msolver
 	//
 	double *umax; 
 
-	// Member: data
+	// Member: Tbal
 	//
-	// This is an internal reference the MSolver class
+	// Provides the solution to the autonomous system (equilibrium without control inputs)
 	//
-	void *data;
+	double *Tbal;
+
+	// Member: Teq
+	//
+	// Provides the solution to the equilibrium system (equilibrium with control inputs)
+	double *Teq;
+
+	// Member: solver
+	//
+	// This is an internal pointer the solver implementation class
+	//
+	void *solver;
 };
 
 //	Type: msolver
@@ -104,28 +121,25 @@ struct s_msolver
 //
 typedef struct s_msolver msolver;
 
-//	Define: MSO_NEW
-//	msolver new operation flag
-#define	MSO_NEW (0) 
-
-//	Define: MSO_CREATE
-//	msolver create operation flag
-#define MSO_CREATE (1)
-
-//	Define: MSO_DELETE
-//	msolver delete operation flag
-#define MSO_DELETE (2) 
-
-//	Define: MSO_UPDATE
-//	msolver update operation flag
-#define MSO_UPDATE (3) 
-
-//	Define: MSO_SOLVE
-//	msolver solve operation flag
-#define MSO_SOLVE (4) 
-
-
 //	Function: msolve
-msolver *msolve(int op, ...);
+//
+//	Multizone solver API
+//
+//	The calling convention is as follows:
+//
+//	msolve("new")
+//		Allocates memory for a new solver
+//
+//	msolver("set",msolver*,param,index,value)
+//		Sets a model parameter to the value given
+//
+//	msolver("update",msolver*)
+//		Update the solver internal model after a "set" operation
+//		This generates the autonomous and closed loop equilibrium points Tbal and Teq
+//
+//	msolver("solver",msolver*,dt)
+//		Solves the model for the elapsed time dt
+//
+msolver *msolve(const char *op, ...);
 
 #endif

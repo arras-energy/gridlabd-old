@@ -6,13 +6,8 @@
 #ifndef _RESIDENTIAL_H
 #define _RESIDENTIAL_H
 
-#include <armadillo>
-
-typedef arma::mat matrix;
-typedef arma::vec vector;
-
 #include "gridlabd.h"
-#include "module.h"
+#include "solvers.h"
 
 /* useful constants */
 #define RHOWATER	(62.4)			// lb/cf
