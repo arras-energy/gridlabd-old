@@ -1,4 +1,4 @@
-[[Command/Python input]] -- Command line option for running Python scripts
+[[/Command/Python input]] -- Command line option for running Python scripts
 
 # Synopsis
 ~~~
@@ -18,5 +18,5 @@ will run the script `my-script.py` in the current GridLAB-D Python environment.
 Only `python3` is supported, and the Python executable must installed (or linked) in the `/usr/local/bin` folder.
 
 # See also
-* [[Module/Python]]
-* [[Subcommand/Python]]
+* [[/Module/Python]]
+* [[/Subcommand/Python]]

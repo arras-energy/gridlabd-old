@@ -441,6 +441,18 @@ int GldCmdarg::compile(int argc, const char *argv[])
 	global_compileonly = !global_compileonly;
 	return 0;
 }
+
+
+DEPRECATED static int initialize(void *main, int argc, const char *argv[])
+{
+	return ((GldMain*)main)->get_cmdarg()->initialize(argc,argv);
+}
+int GldCmdarg::initialize(int argc, const char *argv[])
+{
+	global_initializeonly = !global_initializeonly;
+	return 0;
+}
+
 DEPRECATED static int license(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->license(argc,argv);
@@ -2016,6 +2028,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"bothstdout",	NULL,	bothstdout,		NULL, "Merges all output on stdout" },
 	{"check_version", NULL,	_check_version,	NULL, "Perform online version check to see if any updates are available" },
 	{"compile",		"C",	compile,		NULL, "Toggles compile-only flags" },
+	{"initialize",	"I",	initialize,		NULL, "Toggles initialize-only flags" },
 	{"environment",	"e",	environment,	"<appname>", "Set the application to use for run environment" },
 	{"output",		"o",	output,			"<file>", "Enables save of output to a file (default is gridlabd.glm)" },
 	{"pause",		NULL,	pauseatexit,	NULL, "Toggles pause-at-exit feature" },

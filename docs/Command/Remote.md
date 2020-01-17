@@ -1,4 +1,4 @@
-[[Command/Remote]] -- Command line option for remote GridLAB-D runs
+[[/Command/Remote]] -- Command line option for remote GridLAB-D runs
 
 # Synopsis
 ~~~
@@ -33,4 +33,4 @@ Note that the file `model.glm` must be located on the remote machine.
 
 # See also
 
-* [[Command/Daemon]]
+* [[/Command/Daemon]]
