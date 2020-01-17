@@ -156,43 +156,46 @@ public:
 private:
 
 	// thermal properties
-	double U_OA;
-	double U_OU;
-	double U_OC;
-	double U_OM;
-	double U_AU;
-	double U_AC;
-	double U_AM;
-	double U_UC;
-	double U_UM;
-	double U_CM;
+	double U_OA;	// occupied-outdoor UA
+	double U_OU;	// unoccupied-outdoor UA
+	double U_OC;	// core-outdoor UA
+	double U_OM;	// mass-outdoor UA
+	double U_AU;	// occupied-unoccupied UA
+	double U_AC;	// occupied-core UA
+	double U_AM;	// occupied-mass UA
+	double U_UC;	// unoccupied-core UA
+	double U_UM;	// unoccupied-mass UA
+	double U_CM;	// core-mass UA
 	
 	// zone capacitance
-	double C_A;
-	double C_U;
-	double C_C;
-	double C_M;
+	double C_A;		// occupied zone thermal capacity
+	double C_U;		// unoccupied zone thermal capacity
+	double C_C;		// core zone thermal capacity
+	double C_M;		// mass zone thermal capacity
 	
 	// zone heat gains
-	double Q_AS;
-	double Q_AV;
-	double Q_AE;
-	double Q_US;
-	double Q_CS;
-	double Q_CV;
+	double Q_AS;	// occupied zone solar heat gain
+	double Q_AV;	// occupied zone ventilation heat gain (loss is negative)
+	double Q_AE;	// occupied zone equipment heat gain
+	double Q_US;	// unoccupied zone solar heat gain
+	double Q_CS;	// core zone solar heat gain
+	double Q_CV;	// core zone ventilation heat gain
+	double a;		// mass heat leakage fraction
 	
 	// modes
 	int mode; // central system mode
 	matrix m; // zone modes
+	double Econ; // economizer factor
 
-	// temperature (w.r.t. apartment setpoint temperature
-	double Tout;
-	matrix Tbal;
-	matrix Teq;
+	// temperature (w.r.t. apartment setpoint temperature)
+	double Tout;	// outdoor air temperature
+	matrix Tbal;	// zone balance temperature 
+	matrix Teq; 	// zone equilibrium temperature
+	double Tret; 	// return air temperature
 
 	// input constraints
-	matrix u_min;
-	matrix u_max;
+	matrix u_min;	// maximum cooling capacity (negative u limit)
+	matrix u_max;	// maximum heating capacity (positive u limit)
 
 	// internal model 
 	matrix A, Ainv, Aeig;
@@ -200,15 +203,15 @@ private:
 	matrix B2, B2inv;
 
 	// model inputs
-	matrix q;
-	matrix u;
+	matrix q;		// thermal disturbances
+	matrix u;		// thermal controls
 
 	// state variables
-	matrix T;
-	matrix dT;
+	matrix T;		// zone temperatures
+	matrix dT;		// zone temperature derivatives at t0
 
 	// helper methods
-	matrix update_u(void);
+	matrix update_u(void); 	// updates u and returns Teq
 
 public:
 
