@@ -49,10 +49,10 @@ apartment::apartment(MODULE *module)
 			PT_int16,"core_elevators",get_core_elevators_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"number of elevators operating in the core space",
 			PT_double,"core_heating_setpoint[degF]",get_core_heating_setpoint_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"heating setpoint in the core space",
 			PT_enumeration,"core_mode",get_core_mode_offset(), PT_DEFAULT,"OFF", PT_DESCRIPTION,"operating mode of the core zone",
-				PT_KEYWORD, "OFF", SM_OFF,
-				PT_KEYWORD, "VENTILATING", SM_VENTILATING,
-				PT_KEYWORD, "HEATING", SM_HEATING,
-				PT_KEYWORD, "COOLING", SM_COOLING,
+				PT_KEYWORD, "OFF", SPM_OFF,
+				PT_KEYWORD, "VENTILATING", SPM_VENTILATING,
+				PT_KEYWORD, "HEATING", SPM_HEATING,
+				PT_KEYWORD, "COOLING", SPM_COOLING,
 			PT_int16,"core_laundry_units",get_core_laundry_units_offset(), PT_DEFAULT,"", PT_DESCRIPTION,"number of community/shared washer/dryers pairs installed in the core space",
 			PT_double,"core_width[ft]",get_core_width_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"width of the core space",
 
@@ -84,10 +84,10 @@ apartment::apartment(MODULE *module)
 			PT_double,"system_heating_capacity[kBtu/h]",get_system_heating_capacity_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"system heating capacity",
 			PT_double,"system_heating_efficiency[kBtu/kWh]",get_system_heating_efficiency_offset(), PT_DEFAULT,"10.0 kBtu/kWh", PT_DESCRIPTION,"system heating efficiency",
 			PT_enumeration,"system_mode",get_system_mode_offset(), PT_DEFAULT,"OFF", PT_DESCRIPTION,"operating mode of the central system",
-				PT_KEYWORD, "OFF", SM_OFF,
-				PT_KEYWORD, "VENTILATING", SM_VENTILATING,
-				PT_KEYWORD, "HEATING", SM_HEATING,
-				PT_KEYWORD, "COOLING", SM_COOLING,
+				PT_KEYWORD, "OFF", SPM_OFF,
+				PT_KEYWORD, "VENTILATING", SPM_VENTILATING,
+				PT_KEYWORD, "HEATING", SPM_HEATING,
+				PT_KEYWORD, "COOLING", SPM_COOLING,
 			PT_set,"system_type_central",get_system_type_central_offset(), PT_DEFAULT,"NONE", PT_DESCRIPTION,"central system type, if any",
 				PT_KEYWORD, "NONE", STC_NONE,
 				PT_KEYWORD, "HEAT", STC_HEAT,
@@ -131,10 +131,10 @@ apartment::apartment(MODULE *module)
 			PT_double,"unit_heating_efficiency[kBtu/kWh]",get_unit_heating_efficiency_offset(), PT_DEFAULT,"10.0 kBtu/kWh", PT_DESCRIPTION,"unit heating system efficiency",
 			PT_double,"unit_heating_setpoint[degF]",get_unit_heating_setpoint_offset(), PT_DEFAULT,"70 degF", PT_DESCRIPTION,"unit heating system temperature setpoint",
 			PT_enumeration,"unit_mode",get_unit_mode_offset(), PT_DEFAULT,"", PT_DESCRIPTION,"unit system mode",
-				PT_KEYWORD, "OFF", SM_OFF,
-				PT_KEYWORD, "VENTILATING", SM_VENTILATING,
-				PT_KEYWORD, "HEATING", SM_HEATING,
-				PT_KEYWORD, "COOLING", SM_COOLING,
+				PT_KEYWORD, "OFF", SPM_OFF,
+				PT_KEYWORD, "VENTILATING", SPM_VENTILATING,
+				PT_KEYWORD, "HEATING", SPM_HEATING,
+				PT_KEYWORD, "COOLING", SPM_COOLING,
 			PT_set,"unit_system_type",get_unit_system_type_offset(), PT_DEFAULT,"", PT_DESCRIPTION,"UNITSYSTEMTYPE",
 				PT_KEYWORD, "NONE", UST_NONE,
 				PT_KEYWORD, "HEAT", UST_HEAT,
@@ -145,10 +145,10 @@ apartment::apartment(MODULE *module)
 			PT_double,"vacant_cooling_setpoint[degF]",get_vacant_cooling_setpoint_offset(), PT_DEFAULT,"120 degF", PT_DESCRIPTION,"vacant unit cooling setpoint",
 			PT_double,"vacant_heating_setpoint[degF]",get_vacant_heating_setpoint_offset(), PT_DEFAULT,"50 degF", PT_DESCRIPTION,"vacant unit heating setpoint",
 			PT_enumeration,"vacant_mode",get_vacant_mode_offset(), PT_DEFAULT,"", PT_DESCRIPTION,"vacant unit system mode",
-				PT_KEYWORD, "OFF", SM_OFF,
-				PT_KEYWORD, "VENTILATING", SM_VENTILATING,
-				PT_KEYWORD, "HEATING", SM_HEATING,
-				PT_KEYWORD, "COOLING", SM_COOLING,
+				PT_KEYWORD, "OFF", SPM_OFF,
+				PT_KEYWORD, "VENTILATING", SPM_VENTILATING,
+				PT_KEYWORD, "HEATING", SPM_HEATING,
+				PT_KEYWORD, "COOLING", SPM_COOLING,
 
 			NULL)<1){
 				char msg[256];
@@ -223,27 +223,24 @@ int apartment::init(OBJECT *parent)
 	   << 0 << 0 << 0 << endr;
 	try
 	{
+		Aeig = diagmat(arma::real(eig_gen(A)));
 		Ainv = inv(A);
-		eig_gen(Aeig,A);
 		B1inv = inv(B1);
 		B2inv = inv(B2);
 	}
 	catch (...)
 	{
-		error("unable to invert matrices");
+		error("unable to process solution matrices");
 		return 0;
 	}
-	T << 0 << endr
-	  << 0 << endr
-	  << 0 << endr
-	  << 0 << endr;
+
+	// initialize at equilibrum temperature
+	T = update_u();
 	return 1;
 }
 
-TIMESTAMP apartment::precommit(TIMESTAMP t1)
+matrix apartment::update_u(void)
 {
-	double dt = t1 - gl_globalclock;
-
 	// get the loads
 	q << Tout << endr
 	  << Q_AS + Q_AV + Q_AE << endr
@@ -275,9 +272,16 @@ TIMESTAMP apartment::precommit(TIMESTAMP t1)
 		if ( u[i] < u_min[i] ) {u[i] = u_min[i];}
 		else if ( u[i] > u_max[i] ) {u[i] = u_max[i];}
 	}
+	// find the equilibrium temperature
+	return -Ainv * (B1q+B2*u);
+}
+
+TIMESTAMP apartment::precommit(TIMESTAMP t1)
+{
+	double dt = t1 - gl_globalclock;
 
 	// calculate the equilibrium temperature given the control input
-	Teq = -Ainv * (B1q+B2*u);
+	Teq = update_u();
 
 	// calculate the temperature change
 	dT = Teq + (exp(Aeig*dt)-matrix(4,4).eye())*T;

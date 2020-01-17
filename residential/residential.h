@@ -9,6 +9,7 @@
 #include <armadillo>
 
 typedef arma::mat matrix;
+typedef arma::vec vector;
 
 #include "gridlabd.h"
 #include "module.h"

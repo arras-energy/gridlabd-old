@@ -30,11 +30,11 @@
 #define STE_WETBULB 0x0002 // single temperature and humidity measurement
 #define STE_DIFFERENTIAL 0x0003 // dual temperature and humidity measurement
 
-// system mode
-#define SM_OFF 0x0000
-#define SM_VENTILATING 0x0001
-#define SM_HEATING 0x0002
-#define SM_COOLING 0x0003
+// system plant mode
+#define SPM_OFF 0x0000
+#define SPM_VENTILATING 0x0001
+#define SPM_HEATING 0x0002
+#define SPM_COOLING 0x0003
 
 // system type ventilation
 #define STV_NONE 0x0000
@@ -63,7 +63,7 @@ public:
 	typedef enumeration PARKINGCONFIGURATION;
 	typedef set SYSTEMTYPECENTRAL;
 	typedef enumeration SYSTEMTYPEECONOMIZER;
-	typedef enumeration SYSTEMMODE;
+	typedef enumeration SYSTEMPLANTMODE;
 	typedef enumeration SYSTEMTYPEVENTILATION; 
 	typedef set UNITAPPLIANCETYPE;
 	typedef set UNITSYSTEMTYPE;
@@ -89,7 +89,7 @@ public:
 	GL_ATOMIC(CORECONFIGURATION,core_configuration);
 	GL_ATOMIC(int16,core_elevators);
 	GL_ATOMIC(double,core_heating_setpoint);
-	GL_ATOMIC(SYSTEMMODE,core_mode);
+	GL_ATOMIC(SYSTEMPLANTMODE,core_mode);
 	GL_ATOMIC(int16,core_laundry_units);
 	GL_ATOMIC(double,core_width);
 
@@ -118,7 +118,7 @@ public:
 	GL_ATOMIC(double,system_heating_air_temperature);
 	GL_ATOMIC(double,system_heating_capacity);
 	GL_ATOMIC(double,system_heating_efficiency);
-	GL_ATOMIC(SYSTEMMODE,system_mode);
+	GL_ATOMIC(SYSTEMPLANTMODE,system_mode);
 	GL_ATOMIC(SYSTEMTYPECENTRAL,system_type_central);
 	GL_ATOMIC(SYSTEMTYPEECONOMIZER,system_type_economizer);
 	GL_ATOMIC(SYSTEMTYPEVENTILATION,system_type_ventilation);
@@ -145,13 +145,13 @@ public:
 	GL_ATOMIC(double,unit_heating_capacity);
 	GL_ATOMIC(double,unit_heating_efficiency);
 	GL_ATOMIC(double,unit_heating_setpoint);
-	GL_ATOMIC(SYSTEMMODE,unit_mode);
+	GL_ATOMIC(SYSTEMPLANTMODE,unit_mode);
 	GL_ATOMIC(UNITSYSTEMTYPE,unit_system_type);
 	GL_ATOMIC(double,unit_width);
 
 	GL_ATOMIC(double,vacant_cooling_setpoint);
 	GL_ATOMIC(double,vacant_heating_setpoint);
-	GL_ATOMIC(SYSTEMMODE,vacant_mode);
+	GL_ATOMIC(SYSTEMPLANTMODE,vacant_mode);
 
 private:
 
@@ -195,7 +195,7 @@ private:
 	matrix u_max;
 
 	// internal model 
-	matrix A, Ainv, Aeig, Avec;
+	matrix A, Ainv, Aeig;
 	matrix B1, B1inv;
 	matrix B2, B2inv;
 
@@ -206,6 +206,9 @@ private:
 	// state variables
 	matrix T;
 	matrix dT;
+
+	// helper methods
+	matrix update_u(void);
 
 public:
 
