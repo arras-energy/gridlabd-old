@@ -34,8 +34,10 @@ apartment::apartment(MODULE *module)
 			PT_int16,"building_floors",get_building_floors_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"number of floors in building",
 			PT_double,"building_floor_depth[ft]",get_building_floor_depth_offset(), PT_DEFAULT,"2.0 ft", PT_DESCRIPTION,"ceiling-to-floor depth",
 			PT_double,"building_floor_height[ft]",get_building_floor_height_offset(), PT_DEFAULT,"8.0 ft", PT_DESCRIPTION,"floor-to-ceiling height",
+			PT_double,"building_heat_leakage[pu]",get_building_heat_leakage_offset(), PT_DEFAULT,"0.10 pu", PT_DESCRIPTION,"fraction of zone heat gains that leak into mass",
 			PT_double,"building_occupancy_factor[pu]",get_building_occupancy_factor_offset(), PT_DEFAULT,"0.95 pu", PT_DESCRIPTION,"fraction of building units that are occupied",
 			PT_double,"building_outdoor_temperature[degF]",get_building_outdoor_temperature_offset(), PT_DEFAULT,"59 degF", PT_DESCRIPTION,"temperature outside the building",
+			PT_double,"building_overdesign_factor[pu]",get_building_overdesign_factor_offset(), PT_DEFAULT, "0.5 pu", PT_DESCRIPTION,"overdesign factor for building systems",
 			PT_int16,"building_units",get_building_units_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"number of units in the building",
 
 			PT_set,"core_configuration",get_core_configuration_offset(), PT_DEFAULT,"NONE", PT_DESCRIPTION,"configuration of the core",
@@ -211,93 +213,95 @@ int apartment::init(OBJECT *parent)
 
 	msolve("set",solver,"N",4);
 	
-	msolve("set",solver,"U",0,U_OA);
-	msolve("set",solver,"U",1,U_OU);
-	msolve("set",solver,"U",2,U_OC);
-	msolve("set",solver,"U",3,U_OM);
-	msolve("set",solver,"U",4,U_AU);
-	msolve("set",solver,"U",5,U_AC);
-	msolve("set",solver,"U",6,U_AM);
-	msolve("set",solver,"U",7,U_UC);
-	msolve("set",solver,"U",8,U_UM);
-	msolve("set",solver,"U",9,U_CM);
+	msolve("copy",solver,"U",
+		U_OA,U_OU,U_OC,U_OM,
+		U_AU,U_AC,U_AM,
+		U_UC,U_UM,
+		U_CM);
 
-	msolve("set",solver,"C",0,C_A);
-	msolve("set",solver,"C",1,C_U);
-	msolve("set",solver,"C",2,C_C);
-	msolve("set",solver,"C",3,C_M);
+	msolve("copy",solver,"C",C_A,C_U,C_C,C_M);
 
-	msolve("set",solver,"umin",0,-unit_cooling_capacity*building_units*building_occupancy_factor);
-	msolve("set",solver,"umin",1,-unit_cooling_capacity*building_units*(1-building_occupancy_factor));
-	msolve("set",solver,"umin",2,-system_cooling_capacity+unit_cooling_capacity*building_units);
-	msolve("set",solver,"umin",3,0.0);
+	msolve("copy",solver,"umin",
+		-(1+building_overdesign_factor) * unit_cooling_capacity * building_units * building_occupancy_factor,
+		-(1+building_overdesign_factor) * unit_cooling_capacity * building_units * (1-building_occupancy_factor),
+		-(1+building_overdesign_factor) * ( system_cooling_capacity + unit_cooling_capacity * building_units ),
+		0.0);
 
-	msolve("set",solver,"umax",0,unit_heating_capacity*building_units*building_occupancy_factor);
-	msolve("set",solver,"umax",1,unit_heating_capacity*building_units*(1-building_occupancy_factor));
-	msolve("set",solver,"umax",2,system_heating_capacity-unit_heating_capacity*building_units);
-	msolve("set",solver,"umax",3,0.0);
+	msolve("copy",solver,"umax",
+		(1+building_overdesign_factor) * unit_heating_capacity * building_units * building_occupancy_factor,
+		(1+building_overdesign_factor) * unit_heating_capacity * building_units * (1-building_occupancy_factor),
+		(1+building_overdesign_factor) * ( system_heating_capacity - unit_heating_capacity * building_units),
+		0.0);
 
-	msolve("set",solver,"q",0,building_outdoor_temperature);
-	msolve("set",solver,"q",1,Q_AS+Q_AV+Q_AE);
-	msolve("set",solver,"q",2,Q_US);
-	msolve("set",solver,"q",3,Q_CS+Q_CV);
+	// set the zone-zone leakages
+	msolve("set",solver,"a",1-building_heat_leakage);
 
+	update();
 	msolve("solve",solver,0);
 
 	return 1;
 }
 
-// matrix apartment::update_u(void)
-// {
-// 	// get the loads
-// 	q << Tout << endr
-// 	  << Q_AS + Q_AV + Q_AE << endr
-// 	  << Q_US << endr
-// 	  << Q_CS + Q_CV << endr;
+void apartment::update()
+{
+	// set the heat gain
+	msolve("copy",solver,"q",
+		building_outdoor_temperature,
+		Q_AS + Q_AV + Q_AE,
+		Q_US,
+		Q_CS + Q_CV);
 
-// 	// compute the zone balance temperatures
-// 	matrix B1q = B1*q;
-// 	Tbal = -Ainv*B1q;
-// 	Tbal[3] = 0;
+	// update occupied unit setpoints
+	if ( unit_mode == SPM_COOLING )
+	{
+		msolve("set",solver,"Tset",0,unit_cooling_setpoint);
+	}
+	else if ( unit_mode == SPM_HEATING )
+	{
+		msolve("set",solver,"Tset",0,unit_heating_setpoint);
+	}
+	else
+	{
+		// setpoint does not change
+	}
 
-// 	// find the zone modes
-// 	m = sign(Tbal-Tout);
+	// update occupied unit setpoints
+	if ( vacant_mode == SPM_COOLING )
+	{
+		msolve("set",solver,"Tset",1,vacant_cooling_setpoint);
+	}
+	else if ( vacant_mode == SPM_HEATING )
+	{
+		msolve("set",solver,"Tset",1,vacant_heating_setpoint);
+	}
+	else
+	{
+		// setpoint does not change
+	}
 
-// 	// find the system mode
-// 	mode = m.min();
-// 	if ( mode == 0 )
-// 	{
-// 		mode = m.max();
-// 	}
-
-// 	// solve for the required control input to meet the load
-// 	u = -B2inv * (A*T+B1q);
-
-// 	// constrain the control input to capacity limits
-// 	for ( unsigned int i = 0 ; i < u.n_elem ; i++ )
-// 	{
-// 		if ( u_min[i] > u_max[i] ) {continue;}
-// 		if ( u[i] < u_min[i] ) {u[i] = u_min[i];}
-// 		else if ( u[i] > u_max[i] ) {u[i] = u_max[i];}
-// 	}
-// 	// find the equilibrium temperature
-// 	return -Ainv * (B1q+B2*u);
-// }
+	// update occupied unit setpoints
+	if ( core_mode == SPM_COOLING )
+	{
+		msolve("set",solver,"Tset",2,core_cooling_setpoint);
+	}
+	else if ( core_mode == SPM_HEATING )
+	{
+		msolve("set",solver,"Tset",2,core_heating_setpoint);
+	}
+	else
+	{
+		// setpoint does not change
+	}
+}
 
 TIMESTAMP apartment::precommit(TIMESTAMP t1)
 {
 	double dt = t1 - gl_globalclock;
 
-	// calculate the equilibrium temperature given the control input
-	// Teq = update_u();
-
-	// // calculate the temperature change
-	// dT = Teq + (exp(Aeig*dt)-matrix(4,4).eye())*T;
-	// T += dT;
-
 	// calculate the power 
 
 	// calculate the time to the next required solution
+
 	// TIMESTAMP a = ((TIMESTAMP)(t1/maximum_timestep+1))*maximum_timestep; 
 	// TIMESTAMP b = t1 + 3600*maximum_temperature_update/abs(dT.max());
 	// return min(a,b);

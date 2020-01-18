@@ -81,8 +81,10 @@ public:
 	GL_ATOMIC(int16,building_floors); // must be set by user
 	GL_ATOMIC(double,building_floor_depth);
 	GL_ATOMIC(double,building_floor_height);
+	GL_ATOMIC(double,building_heat_leakage);
 	GL_ATOMIC(double,building_occupancy_factor);
 	GL_ATOMIC(double,building_outdoor_temperature);
+	GL_ATOMIC(double,building_overdesign_factor);
 	GL_ATOMIC(int16,building_units); // must be set by user
 
 	GL_ATOMIC(double,core_cooling_setpoint);
@@ -157,7 +159,7 @@ private:
 
 	// multizone solver
 	msolver *solver;
-	
+
 	// thermal properties
 	double U_OA;	// occupied-outdoor UA
 	double U_OU;	// unoccupied-outdoor UA
@@ -183,10 +185,8 @@ private:
 	double Q_US;	// unoccupied zone solar heat gain
 	double Q_CS;	// core zone solar heat gain
 	double Q_CV;	// core zone ventilation heat gain
-	double a;		// mass heat leakage fraction
 	
 	// modes
-	int mode; // central system mode
 	double Econ; // economizer factor
 
 	// temperature (w.r.t. apartment setpoint temperature)
@@ -200,6 +200,9 @@ public:
 	int create(void);
 	int init(OBJECT *parent);
 	TIMESTAMP precommit(TIMESTAMP t1);
+
+	// support methods
+	void update(void);
 
 public:
 

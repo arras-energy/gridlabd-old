@@ -97,6 +97,7 @@ private:
 	msolver *data;
 public:
 	void init(int size);
+	inline int get_size(void) { return N; };
 	inline void set_modified(int su) { modified |= su; };
 	void update(bool force = false);
 	void solve(double dt);
@@ -263,13 +264,27 @@ msolver *msolve(const char *op, ...)
 		solver = new MSolver();
 		data = solver->get_data();
 	}
-	else if ( strcmp(op,"set") == 0 )
+	else if ( strcmp(op,"set") == 0 || strcmp(op,"copy") == 0 )
 	{
 		data = va_arg(ptr,msolver*);
 		solver = (MSolver*)(data->solver);
 		assert(solver->get_data()==data);
 		const char *param = va_arg(ptr,const char*);
-		int N = va_arg(ptr,int);
+
+		// first time call must be N to initialize solver
+		if ( strcmp(op,"set") == 0 && strcmp(param,"N") == 0 )
+		{
+			solver->init(va_arg(ptr,int));
+		}
+
+		// N must be 2 or more
+		int N = solver->get_size();
+		if ( N < 2 )
+		{
+			throw "msolver N must be greater than 1";
+		}
+
+		// parameter update map
 		struct s_parameter_map 
 		{
 			const char *name;
@@ -286,39 +301,59 @@ msolver *msolve(const char *op, ...)
 			{"umax", data->umin, N-1,       SU_U},
 			{"Tset", data->Tset, N-1,       SU_T},
 		}, *p;
-		if ( strcmp(param,"N") == 0 )
+
+		// process changes to N
+		if ( strcmp(op,"set") == 0 ) 
 		{
-			if ( N < 2 )
+			if ( strcmp(param,"N") == 0 )
 			{
-				throw "msolver N must be greater than 1";
+				for ( p = map ; p < map + sizeof(map)/sizeof(map[0]) ; p++ )
+				{
+					if ( p->array != NULL )
+						delete [] p->array;
+					p->array = new double[p->size];
+				}
+				data->N = N;
 			}
-			for ( p = map ; p < map + sizeof(map)/sizeof(map[0]) ; p++ )
+			else
 			{
-				if ( p->array != NULL )
-					delete [] p->array;
-				p->array = new double[p->size];
+				// process changes to a single value
+				N = va_arg(ptr,int);
+				double value = va_arg(ptr,double);
+
+				// find mapping
+				for ( p = map ; p < map + sizeof(map)/sizeof(map[0]) ; p++ )
+				{
+					if ( strcmp(param,p->name) == 0 )
+					{
+						// copy single entry
+						if ( N >= 0 && N < p->size )
+						{
+							p->array[N] = value;
+							solver->set_modified(p->modifies);
+							break;
+						}
+						else
+						{
+							throw "msolver parameter index out of range";
+						}
+					}
+				}
 			}
-			data->N = N;
-			solver->init(N);
 		}
-		else
+		else // copy
 		{
-			int N = data->N;
-			double value = va_arg(ptr,double);
+			// find mapping
 			for ( p = map ; p < map + sizeof(map)/sizeof(map[0]) ; p++ )
 			{
 				if ( strcmp(param,p->name) == 0 )
 				{
-					if ( N >= 0 && N < p->size )
+					for ( int n = 0 ; n < p->size ; n++ )
 					{
-						p->array[N] = value;
-						solver->set_modified(p->modifies);
-						break;
+						p->array[N] = va_arg(ptr,double);
 					}
-					else
-					{
-						throw "msolver parameter index out of range";
-					}
+					solver->set_modified(p->modifies);
+					break;
 				}
 			}
 		}
