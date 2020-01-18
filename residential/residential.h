@@ -81,6 +81,30 @@ typedef	CIRCUIT *(*ATTACHFUNCTION)(OBJECT *, enduse *, double , int is220); ///<
 
 typedef enum {HORIZONTAL, NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST,N_SOLAR_SURFACES} ORIENTATION;
 
+//////////////////////////////////////////////////////////////////////////
+// implicit loadshapes - these are enabled by using implicit_enduses global
+//////////////////////////////////////////////////////////////////////////
+typedef struct s_implicit_enduse_list {
+	const char *implicit_name;
+	struct {
+		double breaker_amps; 
+		int circuit_is220;
+		struct {
+			double z, i, p;
+		} fractions;
+		double power_factor;
+		double heat_fraction;
+	} load;
+	const char *shape;
+	const char *schedule_name;
+	const char *schedule_definition;
+} IMPLICITENDUSEDATA;
+#include "elcap1990.h"
+#include "elcap2010.h"
+#include "rbsa2014.h"
+#include "rbsa2014_discrete.h"
+#include "eia2015.h"
+
 #include "apartment.h"
 
 #endif  /* _RESIDENTIAL_H */
