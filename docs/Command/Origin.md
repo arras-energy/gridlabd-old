@@ -1,4 +1,4 @@
-[[Command/Origin]] -- comnmand line option to display the build origin information
+[[/Command/Origin]] -- comnmand line option to display the build origin information
 
 # Synopsis
 ~~~
@@ -50,5 +50,5 @@ index cc6f1281..ead1fb0e 100755
 
 # See also
 
-* [[Command/Version]]
-* [[Subcommand/Version]]
+* [[/Command/Version]]
+* [[/Subcommand/Version]]

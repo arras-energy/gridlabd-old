@@ -20,3 +20,6 @@ Compile only enable flag
 ~~~
 #set compileonly=FALSE
 ~~~
+
+# See also
+* [[/Command/Compile]]
