@@ -2,12 +2,87 @@
 	Copyright (C) 2008 Battelle Memorial Institute
 **/
 
+#include <stdio.h>
+#include <exception>
+
+#define ARMA_DONT_PRINT_ERRORS
 #include <armadillo>
 
 #define USE_GLSOLVERS
-
 #include "residential.h"
 #include "solvers.h"
+
+using namespace arma;
+
+bool solver_enable_dump = true;
+bool solver_enable_debug = true;
+bool solver_enable_verbose = true;
+
+static void exception(const char *format, ...)
+{
+	char *message = NULL;
+	va_list ptr;
+	va_start(ptr,format);
+	vasprintf(&message,format,ptr);
+	va_end(ptr);
+	throw message ? message : "memory allocation failure";
+}
+
+static void debug(const char *format, ...)
+{
+	if ( solver_enable_debug )
+	{
+		char *message = NULL;
+		va_list ptr;
+		va_start(ptr,format);
+		vasprintf(&message,format,ptr);
+		va_end(ptr);
+		cerr << "solvers[DEBUG]: " << (message ? message : "memory allocation failure") << endl;
+	}
+}
+
+static void verbose(const char *format, ...)
+{
+	if ( solver_enable_verbose )
+	{
+		char *message = NULL;
+		va_list ptr;
+		va_start(ptr,format);
+		vasprintf(&message,format,ptr);
+		va_end(ptr);
+		cerr << "solvers[VERBOSE]: " << (message ? message : "memory allocation failure") << endl;
+	}
+}
+
+static void dump_array(const char *t, double *p, size_t N)
+{
+	cerr << t << "[" << N << "] = [ "; 
+	for ( size_t n = 0 ; n < N; n++ ) 
+	{
+		cerr << (n>0?", ":"") << p[n]; 
+	}
+	cerr << "]" << endl;
+}
+
+static void dump_matrix(const char *t, mat x)
+{
+	cerr << t 
+	     << "[" 
+	     << x.n_rows 
+	     << "x" 
+	     << x.n_cols 
+	     << "] = " 
+	     << endl
+	     << x 
+	     << endl;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//
+// ETP Solver -- single-zone thermal model solver
+//
+//////////////////////////////////////////////////////////////////////////////
+
 
 double e2solve(double a, 
                double n, 
@@ -31,11 +106,11 @@ double e2solve(double a,
 		int version;
 		if ( etp->get("version",&version,NULL) == 0 || version != 1 )
 		{
-			throw "incorrect ETP solver version";
+			exception("incorrect ETP solver version (version=%d)",version);
 		}
 		if ( etp->get("init",&data,NULL) == 0 )
 		{
-			throw "unable to initialize ETP solver data";
+			exception("unable to initialize ETP solver data");
 		}
 		data.i = 100;
 	}
@@ -70,8 +145,6 @@ double e2solve(double a,
 //
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace arma;
-
 // status update flags
 #define SU_NONE 0x0000
 #define SU_A    0x0001
@@ -81,6 +154,14 @@ using namespace arma;
 #define SU_T    0x0010
 #define SU_U    0x0020
 
+typedef struct s_parameter_map 
+{
+	const char *name;
+	double **array;
+	int size;
+	int modifies;
+} PARAMETERMAP;
+
 class MSolver
 {
 public:
@@ -89,35 +170,35 @@ public:
 private:
 	int N;
 	mat A, B1, B2;
-	mat T, q, u, Tset;
+	mat T, q, u, Tset, dT;
 	mat Ainv, B1inv, B2inv, Aeig;
-	mat umin, umax;
 	mat Tbal, Teq;
 	int modified;
 	msolver *data;
 public:
 	void init(int size);
+	PARAMETERMAP *get_map(const char *name=NULL);
+	inline size_t get_mapsize() { return mapsize; };
 	inline int get_size(void) { return N; };
-	inline void set_modified(int su) { modified |= su; };
+	inline void set_modified(int su) { modified |= su; debug("modified |= 0x%04X -> 0x%04x",su,modified); };
 	void update(bool force = false);
 	void solve(double dt);
 	inline msolver *get_data(void) { return data; };
+	void dump(const char *heading=NULL);
+private:
+	PARAMETERMAP *map;
+	size_t mapsize;
 };
 
 MSolver::MSolver()
 {
+	N = 0;
 	data = new msolver;
-	memset(data,0,sizeof(data[0]));
-	data->U = NULL;
-	data->C = NULL;
-	data->q = NULL;
-	data->T = NULL;
-	data->u = NULL;
-	data->a = NULL;
-	data->umin = NULL;
-	data->umax = NULL;
+	memset(data,0,sizeof(msolver));
 	data->solver = this;
-	modified = false;
+	modified = SU_NONE;
+	map = NULL;
+	mapsize = 0;
 }
 
 MSolver::~MSolver(void)
@@ -136,120 +217,233 @@ MSolver::~MSolver(void)
 	}
 }
 
+PARAMETERMAP *MSolver::get_map(const char *name)
+{
+	if ( name == NULL )
+	{
+		return map;
+	}
+	for ( size_t m = 0 ; m < get_mapsize() ; m++ )
+	{
+		if ( strcmp(name,map[m].name) == 0 )
+		{
+			return map + m;
+		}
+	}
+	exception("MSolver::get_map(name='%s'): parameter name not found");
+	return NULL;
+}
+
 void MSolver::init(int size)
 {
 	if ( N != 0 )
-		throw "cannot reinitialize solver";
+		exception("cannot reinitialize solver (old size %d, new size %d)", N, size);
 	N = size;
-	A = mat(size,size);
-	B1 = mat(size,size);
-	B2 = mat(size,size);
-	T = mat(size,1);
-	q = mat(size,1);
-	u = mat(size,1);
-	Tset = mat(size,1);
+	A = mat(size,size).zeros();
+	B1 = mat(size,size).zeros();
+	B2 = mat(size,size).zeros();
+	T = mat(size,1).zeros();
+	q = mat(size,1).zeros();
+	u = mat(size,1).zeros();
+	Tset = mat(size,1).zeros();
+	dT = mat(size,1).zeros();
+	PARAMETERMAP tmp[] = {
+		{"U",    &(data->U),    N*(N+1)/2, SU_A|SU_B1},
+		{"C",    &(data->C),    N,         SU_A|SU_B1|SU_B2},
+		{"T",    &(data->T),    N+1,       SU_NONE},
+		{"q",    &(data->q),    N,         SU_Q},
+		{"a",    &(data->a),    1,         SU_B1|SU_B2},
+		{"umin", &(data->umin), N-1,       SU_U},
+		{"umax", &(data->umax), N-1,       SU_U},
+		{"Tset", &(data->Tset), N-1,       SU_T},
+		{"dT",   &(data->dT),	N,         SU_NONE},
+	};
+	mapsize = sizeof(tmp)/sizeof(tmp[0]);
+	map = new PARAMETERMAP[mapsize];
+	memcpy(map,tmp,sizeof(tmp));
 }
+
 void MSolver::update(bool force)
 {
-	// build A if needed
-	if ( (modified&SU_A) | force)
+	debug("MSolver::update(force=%s): modified = 0x%04X", force?"true":"false", modified);
+	const char *error = NULL;
+	try
 	{
-		int n = N;
-		for ( int i = 0 ; i < N ; i++ )
+		// build A if needed
+		if ( (modified&SU_A) | force)
 		{
-			A(i,i) = - data->U[i];
-			for ( int j = i+1 ; j < N ; j++ )
+			debug("A outdated");
+			int n = N;
+			for ( int i = 0 ; i < N ; i++ )
 			{
-				A(i,i) -= data->U[n];
-				A(i,j) = data->U[n] / data->C[i];
-				A(j,i) = data->U[n] / data->C[j];
-				n++;
+				A(i,i) = - data->U[i];
+				for ( int j = i+1 ; j < N ; j++ )
+				{
+					A(i,i) -= data->U[n];
+					A(i,j) = data->U[n] / data->C[i];
+					A(j,i) = data->U[n] / data->C[j];
+					n++;
+				}
+				A(i,i) /= data->C[i];
 			}
-			A(i,i) /= data->C[i];
+			if ( solver_enable_debug ) dump_matrix("updating A",A);			
+			Ainv = inv(A);
+			if ( solver_enable_debug ) dump_matrix("updating Ainv",Ainv);
+			Aeig = diagmat(arma::real(eig_gen(A)));
+			if ( solver_enable_debug ) dump_matrix("updating Aeig",Aeig);
 		}
-		Ainv = inv(A);
-		Aeig = diagmat(arma::real(eig_gen(A)));
-	}
 
-	// build B1 if needed
-	if ( (modified&SU_B1) | force )
-	{
-		for ( int i = 0 ; i < N ; i++ )
+		// build B1 if needed
+		if ( (modified&SU_B1) | force )
 		{
-			B1(i,0) = data->U[i] / data->C[i];
-			if ( i < N-1 )
+			debug("B1 outdated");
+			for ( int i = 0 ; i < N ; i++ )
 			{
-				B1(i,i+1) = data->a[0] / data->C[i];
+				B1(i,0) = data->U[i] / data->C[i];
+				if ( i < N-1 )
+				{
+					B1(i,i+1) = data->a[0] / data->C[i];
+					B1(N-1,i+1) = (1-data->a[0]) / data->C[N-1];
+				}
 			}
-			else
-			{
-				B1(N-1,i+1) = (1-data->a[0]) / data->C[N-1];
-			}
+			if ( solver_enable_debug ) dump_matrix("updating B1",B1);
+			B1inv = inv(B1);
+			if ( solver_enable_debug ) dump_matrix("updating B1inv",B1inv);
 		}
-		B1inv = inv(B1);
-	}
 
-	// build B2 if needed
-	if ( (modified&SU_B2) | force )
-	{
-		for ( int i = 0 ; i < N ; i++ )
+		// build B2 if needed
+		if ( (modified&SU_B2) | force )
 		{
-			if ( i < N-1 )
+			debug("B2 outdated");
+			for ( int i = 0 ; i < N ; i++ )
 			{
-				B2(i,i) = data->a[0] / data->C[i];
-				B2(N-1,i) = (1-data->a[0]) / data->C[N-1];
+				if ( i < N-1 )
+				{
+					B2(i,i) = data->a[0] / data->C[i];
+					B2(N-1,i) = (1-data->a[0]) / data->C[N-1];
+				}
+				else
+				{
+					B2(N-1,N-1) = 1 / data->C[N-1];
+				}
 			}
-			else
+			if ( solver_enable_debug ) dump_matrix("updating B2",B2);
+			B2inv = inv(B2);
+			if ( solver_enable_debug ) dump_matrix("updating B2inv",B2inv);
+		}
+
+		// build q if needed
+		if ( (modified&SU_Q) | force )
+		{
+			debug("q outdated");
+			q[0] = data->T[0];
+			for ( int i = 1 ; i < N ; i++ )
 			{
-				B2(N-1,N-1) = 1 / data->C[N-1];
+				q(i,0) = data->q[i-1];
+			}	
+			if ( solver_enable_debug ) dump_matrix("updating q",q);
+		}
+
+		if ( (modified&(SU_A|SU_B1|SU_Q)) | force )
+		{
+			debug("Tbal outdated");
+			Tbal = -Ainv*B1*q;
+			if ( solver_enable_debug ) dump_matrix("updating Tbal",Tbal);
+		}
+
+		// update the control input if needed
+		if ( (modified&(SU_B2|SU_A|SU_T|SU_B1|SU_Q)) | force )
+		{
+			debug("u outdated");
+			u = -B2inv*(A*Tset+B1*q);
+			if ( solver_enable_debug ) dump_matrix("updating u",u);
+			modified |= SU_U;
+		}
+
+		// constrain the control input to capacity limits (should use clamp but that doesn't compile)
+		if ( (modified&SU_U) | force )
+		{
+			debug("u outdating");
+			for ( int i = 0 ; i < N ; i++ )
+			{
+				if ( data->umin[i] > data->umax[i] ) 
+				{ 
+					continue; 
+				}
+				if ( u[i] < data->umin[i] ) 
+				{ 
+					u[i] = data->umin[i]; 
+				}
+				else if ( u[i] > data->umax[i] ) 
+				{ 
+					u[i] = data->umax[i]; 
+				}
 			}
+			if ( solver_enable_debug ) dump_matrix("updating u",u);
 		}
-		B2inv = inv(B2);
-	}
 
-	// build q if needed
-	if ( (modified&SU_Q) | force )
-	{
-		q[0] = data->T[0];
-		for ( int i = 1 ; i < N ; i++ )
+		if ( (modified&(SU_A|SU_B1|SU_Q|SU_B2|SU_U)) | force )
 		{
-			q(i,0) = data->q[i-1];
-		}	
-	}
-
-	if ( (modified&(SU_A|SU_B1|SU_Q)) | force )
-	{
-		Tbal = -Ainv*B1*q;
-	}
-
-	// update the control input if needed
-	if ( (modified&(SU_B2|SU_A|SU_T|SU_B1|SU_Q)) | force )
-	{
-		u = -B2inv*(A*Tset+B1*q);
-		modified |= SU_U;
-	}
-
-	// constrain the control input to capacity limits (should use clamp but that doesn't compile)
-	if ( (modified&SU_U) | force )
-	{
-		for ( int i = 0 ; i < N ; i++ )
-		{
-			if ( umin[i] > umax[i] ) { continue; }
-			if ( u[i] < umin[i] ) { u[i] = umin[i]; }
-			else if ( u[i] > umax[i] ) { u[i] = umax[i]; }
+			debug("Teq outdated");
+			Teq = Tbal - Ainv*B2*u;
+			if ( solver_enable_debug ) dump_matrix("updating Teq",Teq);
 		}
+		modified = SU_NONE;
 	}
-
-	if ( (modified&(SU_A|SU_B1|SU_Q|SU_B2|SU_U)) | force )
+	catch (std::exception &msg)
 	{
-		Teq = Tbal - Ainv*B2*u;
+		dump(msg.what());
+		error = msg.what();
 	}
-	modified = SU_NONE;
+	if ( error )
+	{
+		exception("MSolver::update() failed on error %s",error);
+	}
 }
 
 void MSolver::solve(double dt)
 {
-	T = Teq + (exp(Aeig*dt)-mat(4,4).eye())*T;
+	const char *error = NULL;
+	try
+	{
+		debug("updating T");
+		dT = T - (Teq + (exp(Aeig*dt)-mat(4,4).eye())*T);
+		if ( solver_enable_debug ) dump_matrix("dT",dT);
+		T += dT;
+		if ( solver_enable_debug ) dump_matrix("T",T);
+	}
+	catch (std::exception &msg)
+	{
+		dump(msg.what());
+		error = msg.what();
+	}
+	if ( error )
+	{
+		exception("MSolver::solve() failed on error %s",error);
+	}
+}
+
+void MSolver::dump(const char *heading)
+{
+	if ( solver_enable_dump )
+	{
+		debug("dumping MSolver data");
+		cerr << "MSolver dump " << (heading?heading:"with no context") << "" << endl;
+		cerr << "  N = " << N << endl;
+		cerr << "MSolver input data:" << endl;
+		for ( PARAMETERMAP *p = get_map() ; p < get_map()+get_mapsize() ; p++ )
+		{
+			dump_array(p->name,*(p->array),p->size);
+		}
+		cerr << "MSolver solution data:" << endl;
+		dump_matrix("A",A);
+		dump_matrix("B1",B1);
+		dump_matrix("B2",B2);
+		dump_matrix("T",T);
+		dump_matrix("q",q);
+		dump_matrix("u",u);
+		dump_matrix("Tset",Tset);
+	}
 }
 
 msolver *msolve(const char *op, ...)
@@ -263,6 +457,16 @@ msolver *msolve(const char *op, ...)
 	{
 		solver = new MSolver();
 		data = solver->get_data();
+	}
+	else if ( strcmp(op,"get") == 0 )
+	{
+		data = va_arg(ptr,msolver*);
+		solver = (MSolver*)(data->solver);
+		assert(solver->get_data()==data);
+		const char *param = va_arg(ptr,const char *);
+		PARAMETERMAP *map = solver->get_map(param);
+		double **ref = va_arg(ptr,double**);
+		*ref = *(map->array);
 	}
 	else if ( strcmp(op,"set") == 0 || strcmp(op,"copy") == 0 )
 	{
@@ -278,84 +482,65 @@ msolver *msolve(const char *op, ...)
 		}
 
 		// N must be 2 or more
-		int N = solver->get_size();
-		if ( N < 2 )
+		if ( solver->get_size() < 2 )
 		{
-			throw "msolver N must be greater than 1";
+			exception("msolver N must be greater than 1 (N=%d)",solver->get_size());
 		}
-
-		// parameter update map
-		struct s_parameter_map 
-		{
-			const char *name;
-			double *array;
-			int size;
-			bool modifies;
-		} map[] = {
-			{"U",    data->U,    N*(N+1)/2, SU_A|SU_B1},
-			{"C",    data->C,    N,         SU_A|SU_B1|SU_B2},
-			{"T",    data->T,    N+1,       SU_NONE},
-			{"q",    data->q,    N,         SU_Q},
-			{"a",    data->a,    1,         SU_B1|SU_B2},
-			{"umin", data->umin, N-1,       SU_U},
-			{"umax", data->umin, N-1,       SU_U},
-			{"Tset", data->Tset, N-1,       SU_T},
-		}, *p;
 
 		// process changes to N
 		if ( strcmp(op,"set") == 0 ) 
 		{
 			if ( strcmp(param,"N") == 0 )
 			{
-				for ( p = map ; p < map + sizeof(map)/sizeof(map[0]) ; p++ )
+				for ( PARAMETERMAP *map = solver->get_map() ; map < solver->get_map() + solver->get_mapsize() ; map++ )
 				{
-					if ( p->array != NULL )
-						delete [] p->array;
-					p->array = new double[p->size];
+					if ( *(map->array) != NULL )
+						delete [] *(map->array);
+					*(map->array) = new double[map->size];
 				}
-				data->N = N;
+				data->N = solver->get_size();
+				verbose("msolver(op='set',param='%s',value=%d): ok",param,data->N);
 			}
 			else
 			{
+				// find mapping
+				PARAMETERMAP *map = solver->get_map(param);
+
 				// process changes to a single value
-				N = va_arg(ptr,int);
+				int n = 0;
+				if ( map->size > 1 )
+				{
+					n = va_arg(ptr,int);
+				}
 				double value = va_arg(ptr,double);
 
-				// find mapping
-				for ( p = map ; p < map + sizeof(map)/sizeof(map[0]) ; p++ )
+				// copy single entry
+				if ( n >= 0 && n < map->size )
 				{
-					if ( strcmp(param,p->name) == 0 )
-					{
-						// copy single entry
-						if ( N >= 0 && N < p->size )
-						{
-							p->array[N] = value;
-							solver->set_modified(p->modifies);
-							break;
-						}
-						else
-						{
-							throw "msolver parameter index out of range";
-						}
-					}
+					(*(map->array))[n] = value;
+					solver->set_modified(map->modifies);
 				}
+				else
+				{
+					exception("msolver(op='set',param='%s',index=%d,value=%g): index out of bound (size=%d)",param,n,value,map->size);
+				}
+				verbose("msolver(op='set',param='%s',index=%d,value=%g): ok",param,n,value);
 			}
 		}
 		else // copy
 		{
 			// find mapping
-			for ( p = map ; p < map + sizeof(map)/sizeof(map[0]) ; p++ )
+			PARAMETERMAP *map = solver->get_map(param);
+
+			// copy entire array
+			for ( int n = 0 ; n < map->size ; n++ )
 			{
-				if ( strcmp(param,p->name) == 0 )
-				{
-					for ( int n = 0 ; n < p->size ; n++ )
-					{
-						p->array[N] = va_arg(ptr,double);
-					}
-					solver->set_modified(p->modifies);
-					break;
-				}
+				double value = va_arg(ptr,double);
+				(*(map->array))[n] = value;
+				verbose("msolver(op='copy',param='%s',index=%d,value=%g): ok",param,n,value);
 			}
+			solver->set_modified(map->modifies);
+			verbose("msolver(op='copy',param='%s',range=%d..%d): ok",param,0,map->size-1);
 		}
 	}
 	else if ( strcmp(op,"update") == 0 )
@@ -380,12 +565,11 @@ msolver *msolve(const char *op, ...)
 		solver = (MSolver*)(data->solver);
 		assert(solver->get_data()==data);
 		delete solver;
-		delete data;
 		data = NULL;
 	}
 	else 
 	{
-		throw "msolve operation is invalid";
+		exception("msolve(op='%s'): operation is invalid ",op);
 	}
 
 	va_end(ptr);

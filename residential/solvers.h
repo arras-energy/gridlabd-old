@@ -106,6 +106,9 @@ struct s_msolver
 	// Provides the solution to the equilibrium system (equilibrium with control inputs)
 	double *Teq;
 
+	// Member: dT
+	double *dT;
+
 	// Member: solver
 	//
 	// This is an internal pointer the solver implementation class
@@ -132,6 +135,7 @@ typedef struct s_msolver msolver;
 //
 //	msolver("set",msolver*,param,index,value)
 //		Sets a model parameter to the value given
+//		Note that if the param is scalar, index is omitted.
 //
 //	msolver("update",msolver*)
 //		Update the solver internal model after a "set" operation
