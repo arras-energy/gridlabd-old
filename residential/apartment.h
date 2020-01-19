@@ -144,40 +144,37 @@ public:
 	GL_ATOMIC(double,unit_demand_refrigerator);
 	GL_ATOMIC(double,unit_demand_washer);
 	GL_ATOMIC(double,unit_depth);
+	GL_ATOMIC(double,unit_door_area);
 	GL_ATOMIC(double,unit_heating_capacity);
 	GL_ATOMIC(double,unit_heating_efficiency);
 	GL_ATOMIC(double,unit_heating_setpoint);
 	GL_ATOMIC(SYSTEMPLANTMODE,unit_mode);
 	GL_ATOMIC(UNITSYSTEMTYPE,unit_system_type);
 	GL_ATOMIC(double,unit_width);
+	GL_ATOMIC(double,unit_window_area);
 
 	GL_ATOMIC(double,vacant_cooling_setpoint);
 	GL_ATOMIC(double,vacant_heating_setpoint);
 	GL_ATOMIC(SYSTEMPLANTMODE,vacant_mode);
+
+	GL_ATOMIC(double,Rext);
+	GL_ATOMIC(double,Rint);
+	GL_ATOMIC(double,Rwindow);
+	GL_ATOMIC(double,Rdoor);
+	GL_ATOMIC(double,Rmass);
+	GL_ATOMIC(double,Rroof);
+	GL_ATOMIC(double,Rground);
+
+	GL_ATOMIC(object,weather);
+	GL_ATOMIC(property,temperature);
+	GL_ATOMIC(property,humidity);
+	GL_ATOMIC(property,solar);
 
 private:
 
 	// multizone solver
 	msolver *solver;
 
-	// thermal properties
-	double U_OA;	// occupied-outdoor UA
-	double U_OU;	// unoccupied-outdoor UA
-	double U_OC;	// core-outdoor UA
-	double U_OM;	// mass-outdoor UA
-	double U_AU;	// occupied-unoccupied UA
-	double U_AC;	// occupied-core UA
-	double U_AM;	// occupied-mass UA
-	double U_UC;	// unoccupied-core UA
-	double U_UM;	// unoccupied-mass UA
-	double U_CM;	// core-mass UA
-	
-	// zone capacitance
-	double C_A;		// occupied zone thermal capacity
-	double C_U;		// unoccupied zone thermal capacity
-	double C_C;		// core zone thermal capacity
-	double C_M;		// mass zone thermal capacity
-	
 	// zone heat gains
 	double Q_AS;	// occupied zone solar heat gain
 	double Q_AV;	// occupied zone ventilation heat gain (loss is negative)

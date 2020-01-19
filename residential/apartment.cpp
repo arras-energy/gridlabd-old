@@ -126,29 +126,43 @@ apartment::apartment(MODULE *module)
 			PT_double,"unit_demand_plugs[pu]",get_unit_demand_plugs_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"fraction of the plugs power capacity that is active",
 			PT_double,"unit_demand_refrigerator[pu]",get_unit_demand_refrigerator_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"fraction of the refrigerator power capacity that is active",
 			PT_double,"unit_demand_washer[pu]",get_unit_demand_washer_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"fraction of the washer power capacity that is active",
-			PT_double,"unit_depth[ft]",get_unit_depth_offset(), PT_DEFAULT,"40 ft", PT_DESCRIPTION,"double",
+			PT_double,"unit_depth[ft]",get_unit_depth_offset(), PT_DEFAULT,"40 ft", PT_DESCRIPTION,"interior to exterior dimension of unit",
+			PT_double,"unit_door_area[sf]",get_unit_door_area_offset(), PT_DEFAULT,"20 sf", PT_DESCRIPTION,"area of unit door",
 			PT_double,"unit_heating_capacity[kBtu/h]",get_unit_heating_capacity_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"heating capacity of the unit system, if any",
 			PT_double,"unit_heating_efficiency[kBtu/kWh]",get_unit_heating_efficiency_offset(), PT_DEFAULT,"10.0 kBtu/kWh", PT_DESCRIPTION,"unit heating system efficiency",
 			PT_double,"unit_heating_setpoint[degF]",get_unit_heating_setpoint_offset(), PT_DEFAULT,"70 degF", PT_DESCRIPTION,"unit heating system temperature setpoint",
-			PT_enumeration,"unit_mode",get_unit_mode_offset(), PT_DEFAULT,"", PT_DESCRIPTION,"unit system mode",
+			PT_enumeration,"unit_mode",get_unit_mode_offset(), PT_DEFAULT,"OFF", PT_DESCRIPTION,"unit system mode",
 				PT_KEYWORD, "OFF", SPM_OFF,
 				PT_KEYWORD, "VENTILATING", SPM_VENTILATING,
 				PT_KEYWORD, "HEATING", SPM_HEATING,
 				PT_KEYWORD, "COOLING", SPM_COOLING,
-			PT_set,"unit_system_type",get_unit_system_type_offset(), PT_DEFAULT,"", PT_DESCRIPTION,"UNITSYSTEMTYPE",
+			PT_set,"unit_system_type",get_unit_system_type_offset(), PT_DEFAULT,"NONE", PT_DESCRIPTION,"UNITSYSTEMTYPE",
 				PT_KEYWORD, "NONE", UST_NONE,
 				PT_KEYWORD, "HEAT", UST_HEAT,
 				PT_KEYWORD, "COOL", UST_COOL,
 				PT_KEYWORD, "BOTH", UST_BOTH,
-			PT_double,"unit_width[ft]",get_unit_width_offset(), PT_DEFAULT,"", PT_DESCRIPTION,"double",
+			PT_double,"unit_width[ft]",get_unit_width_offset(), PT_DEFAULT,"4 ft", PT_DESCRIPTION,"double",
+			PT_double,"unit_window_area[sf]",get_unit_window_area_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"area of unit door",
 
 			PT_double,"vacant_cooling_setpoint[degF]",get_vacant_cooling_setpoint_offset(), PT_DEFAULT,"120 degF", PT_DESCRIPTION,"vacant unit cooling setpoint",
 			PT_double,"vacant_heating_setpoint[degF]",get_vacant_heating_setpoint_offset(), PT_DEFAULT,"50 degF", PT_DESCRIPTION,"vacant unit heating setpoint",
-			PT_enumeration,"vacant_mode",get_vacant_mode_offset(), PT_DEFAULT,"", PT_DESCRIPTION,"vacant unit system mode",
+			PT_enumeration,"vacant_mode",get_vacant_mode_offset(), PT_DEFAULT,"OFF", PT_DESCRIPTION,"vacant unit system mode",
 				PT_KEYWORD, "OFF", SPM_OFF,
 				PT_KEYWORD, "VENTILATING", SPM_VENTILATING,
 				PT_KEYWORD, "HEATING", SPM_HEATING,
 				PT_KEYWORD, "COOLING", SPM_COOLING,
+
+			PT_double,"Rext[Btu/degF/h]",get_Rext_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"exterior wall R-value",
+			PT_double,"Rint[Btu/degF/h]",get_Rint_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"interior wall R-value",
+			PT_double,"Rwindow[Btu/degF/h]",get_Rwindow_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"window R-value",
+			PT_double,"Rdoor[Btu/degF/h]",get_Rdoor_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"door R-value",
+			PT_double,"Rmass[Btu/degF/h]",get_Rmass_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"air-mass R-value",
+			PT_double,"Rroof[Btu/degF/h]",get_Rroof_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"roof R-value",
+			PT_double,"Rground[Btu/degF/h]",get_Rground_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"ground R-value",
+
+			PT_property,"temperature",get_temperature_offset(), PT_DEFAULT, "residential::default_temperature", PT_DESCRIPTION, "reference to an object containing temperature data",
+			PT_property,"humidity",get_humidity_offset(), PT_DEFAULT, "residential::default_humidity", PT_DESCRIPTION, "reference to an object containing humidity data",
+			PT_property,"solar",get_solar_offset(), PT_DEFAULT, "residential::default_solar", PT_DESCRIPTION, "reference to an object containing solar data",
 
 			NULL)<1){
 				char msg[256];
@@ -162,6 +176,7 @@ apartment::apartment(MODULE *module)
 
 int apartment::create(void) 
 {
+	solver = NULL;
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -210,15 +225,61 @@ int apartment::init(OBJECT *parent)
 	}
 
 	solver = msolve("new");
-
 	msolve("set",solver,"N",4);
 	
-	msolve("copy",solver,"U",
-		U_OA,U_OU,U_OC,U_OM,
-		U_AU,U_AC,U_AM,
-		U_UC,U_UM,
-		U_CM);
+	// building design parameters
+	double N = building_floors;
+	double M = building_units / N;
+	double X = unit_width;
+	double Y = unit_depth;
+	double Z = building_floor_height;
+	double W = core_width;
+	double A = X*Y;
+	double Au = Y*Z;
+	double Aw = unit_window_area>0 ? unit_window_area : (0.5*X*Z);
+	double Ad = unit_door_area>0 ? unit_door_area : 20.0;
+	double Ao = X*Z - Aw;
+	double Ac = X*Z - Ad;
+	double V = X*Y*Z;
+	if ( building_occupancy_factor <= 0.0 || building_occupancy_factor > 1.0 )
+	{
+		exception("building_occupancy_factor must be in the range positive and less than 1.0 (building_occupancy_factor = %g)", building_occupancy_factor);
+	}
+	double beta = building_occupancy_factor;
+	double Kx = (core_configuration&CC_INDOOR) ? 0.0 : 1.0;
+	double Kd = (core_configuration&CC_DOUBLE) ? 1.0 : 0.0;
+	double F = building_floor_depth;
 
+	// building thermal properties
+	double rhoair = 0.0735;	// density of air [lb/cf]
+	double Sair = 0.2402*rhoair; // volumetric heat capacity of air @ 80F [BTU/F.cf]
+	double Sint = 10.0; // mass of interior furnishing per unit floor area (lb/sf)
+	double Cint = Sint*A;
+	double Sfloor = 150.0; // density of concrete floor (Btu/cf)
+
+	// building thermal parameters
+	double U_OA = N*M*beta*(Kx+1)*(Ao/Rext+Aw/Rwindow);
+	double U_OU = U_OA*(1-beta)/beta;
+	double U_OC = N*(1-Kx)*(2*W*Z+M*(Kd+1)*X)*(Ao/Rext+Aw/Rwindow);
+	double U_OM = N*F*(M*X+2*(Kd+1)*Y+2*W)/Rext;
+	double U_AU = N*M*beta*(1-beta)*Au/Rint;
+	double U_AC = N*M*beta*(Ac/((1-Kx)*Rint+Kx*Rext) + Ad/Rdoor);
+	double U_AM = N*M*beta*A/Rmass;
+	double U_UC = U_AC*(1-beta)/beta;
+	double U_UM = U_AM*(1-beta)/beta;
+	double U_CM = N*M*W*(Kd+1)/Rmass;
+	// TODO: add floor and roof UA values	
+	msolve("copy",solver,"U",
+		U_OA, U_OU, U_OC, U_OM,
+		      U_AU, U_AC, U_AM,
+		            U_UC, U_UM,
+		                  U_CM);
+
+	// zone capacitance
+	double C_A = N*M*beta*V*Sair;
+	double C_U = C_A*(1-beta)/beta;
+	double C_C = N*M*X*W*Z*Sair;
+	double C_M = N*M*(Sfloor*(A+Kd*X*W) + Cint);
 	msolve("copy",solver,"C",C_A,C_U,C_C,C_M);
 
 	msolve("copy",solver,"umin",
@@ -303,9 +364,20 @@ TIMESTAMP apartment::precommit(TIMESTAMP t1)
 	// calculate the time to the next required solution
 
 	// TIMESTAMP a = ((TIMESTAMP)(t1/maximum_timestep+1))*maximum_timestep; 
-	// TIMESTAMP b = t1 + 3600*maximum_temperature_update/abs(dT.max());
 	// return min(a,b);
 	msolve("solve",solver,dt);
-	return TS_NEVER;
+	double *dT;
+	msolve("get",solver,"dT",&dT);
+	double dTmax = dT[0];
+	for ( int n = 1; n < 4; n++ )
+	{
+		if ( dT[n] > dTmax )
+		{
+			dTmax = dT[n];
+		}
+	}
+	debug("next time update in %d s",dTmax);
+	TIMESTAMP b = t1 + 3600*maximum_temperature_update/abs(dTmax);
+	return b;
 }
 
