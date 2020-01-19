@@ -675,15 +675,15 @@ int convert_to_oproperty(const char *s, void *data, PROPERTY *p)
 	// attempt to use module reference resolution
 	if ( sscanf(s,"%[^:]::%s",mname,vname) == 2 )
 	{
-		// TODO
-		return -1;
+		GLOBALVAR *var = global_find(s);
+		return property_read(var->prop,data,s);
 	}
 
 	// attempt to use global reference resolution
 	if ( sscanf(s,":%s",vname) == 1 )
 	{
-		// TODO
-		return -1;
+		GLOBALVAR *var = global_find(vname);
+		return property_read(var->prop,data,s);
 	}
 
 
@@ -695,6 +695,25 @@ int convert_to_oproperty(const char *s, void *data, PROPERTY *p)
 int convert_from_oproperty(char *buffer, int len, void *data, PROPERTY *p)
 {
 	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)data;
+	if ( ref->obj == NULL )
+	{
+		// null reference
+		if ( ref->prop == NULL )
+		{
+			if ( len > 0 )
+			{	
+				buffer[0] = '\0';
+			}
+			return 0;
+		}
+
+		// global reference
+		else
+		{
+			// TODO
+			return property_write(ref->prop,data,buffer,len);
+		}
+	}
 	void *addr = (void *)((char *)(ref->obj + 1) + (int64)(ref->prop->addr));
 	return object_get_value_by_addr(ref->obj, addr, buffer, len, ref->prop);
 }
