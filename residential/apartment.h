@@ -74,8 +74,12 @@ public:
 	static char1024 load_property;
 	static double maximum_temperature_update;
 	static TIMESTAMP maximum_timestep;
+	static double default_outdoor_humidity;
+	static double default_solar_gain;
 
 public:
+
+	GL_ATOMIC(object,weather);
 
 	// published variables
 	GL_ATOMIC(int16,building_floors); // must be set by user
@@ -83,7 +87,9 @@ public:
 	GL_ATOMIC(double,building_floor_height);
 	GL_ATOMIC(double,building_heat_leakage);
 	GL_ATOMIC(double,building_occupancy_factor);
-	GL_ATOMIC(double,building_outdoor_temperature);
+	GL_ATOMIC(property,building_outdoor_temperature);
+	GL_ATOMIC(property,building_outdoor_humidity);
+	GL_ATOMIC(property,building_solar_gain);
 	GL_ATOMIC(double,building_overdesign_factor);
 	GL_ATOMIC(int16,building_units); // must be set by user
 
@@ -165,10 +171,9 @@ public:
 	GL_ATOMIC(double,Rroof);
 	GL_ATOMIC(double,Rground);
 
-	GL_ATOMIC(object,weather);
-	GL_ATOMIC(property,temperature);
-	GL_ATOMIC(property,humidity);
-	GL_ATOMIC(property,solar);
+	GL_ATOMIC(bool,solver_enable_dump);
+	GL_ATOMIC(bool,solver_enable_debug);
+	GL_ATOMIC(bool,solver_enable_verbose);
 
 private:
 

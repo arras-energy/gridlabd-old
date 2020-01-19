@@ -36,8 +36,11 @@ apartment::apartment(MODULE *module)
 			PT_double,"building_floor_height[ft]",get_building_floor_height_offset(), PT_DEFAULT,"8.0 ft", PT_DESCRIPTION,"floor-to-ceiling height",
 			PT_double,"building_heat_leakage[pu]",get_building_heat_leakage_offset(), PT_DEFAULT,"0.10 pu", PT_DESCRIPTION,"fraction of zone heat gains that leak into mass",
 			PT_double,"building_occupancy_factor[pu]",get_building_occupancy_factor_offset(), PT_DEFAULT,"0.95 pu", PT_DESCRIPTION,"fraction of building units that are occupied",
-			PT_double,"building_outdoor_temperature[degF]",get_building_outdoor_temperature_offset(), PT_DEFAULT,"59 degF", PT_DESCRIPTION,"temperature outside the building",
+			PT_property,"building_outdoor_temperature",get_building_outdoor_temperature_offset(), PT_DEFAULT, "residential::default_outdoor_temperature", PT_DESCRIPTION, "reference to an object containing temperature data",
+			PT_property,"building_outdoor_humidity",get_building_outdoor_humidity_offset(), PT_DEFAULT, "residential::default_outdoor_humidity", PT_DESCRIPTION, "reference to an object containing humidity data",
 			PT_double,"building_overdesign_factor[pu]",get_building_overdesign_factor_offset(), PT_DEFAULT, "0.5 pu", PT_DESCRIPTION,"overdesign factor for building systems",
+			PT_property,"building_solar_gain",get_building_solar_gain_offset(), PT_DEFAULT, "residential::default_outdoor_solar", PT_DESCRIPTION, "reference to an object containing solar data",
+
 			PT_int16,"building_units",get_building_units_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"number of units in the building",
 
 			PT_set,"core_configuration",get_core_configuration_offset(), PT_DEFAULT,"NONE", PT_DESCRIPTION,"configuration of the core",
@@ -153,16 +156,16 @@ apartment::apartment(MODULE *module)
 				PT_KEYWORD, "COOLING", SPM_COOLING,
 
 			PT_double,"Rext[Btu/degF/h]",get_Rext_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"exterior wall R-value",
-			PT_double,"Rint[Btu/degF/h]",get_Rint_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"interior wall R-value",
-			PT_double,"Rwindow[Btu/degF/h]",get_Rwindow_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"window R-value",
-			PT_double,"Rdoor[Btu/degF/h]",get_Rdoor_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"door R-value",
-			PT_double,"Rmass[Btu/degF/h]",get_Rmass_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"air-mass R-value",
-			PT_double,"Rroof[Btu/degF/h]",get_Rroof_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"roof R-value",
-			PT_double,"Rground[Btu/degF/h]",get_Rground_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"ground R-value",
+			PT_double,"Rint[Btu/degF/h]",get_Rint_offset(), PT_DEFAULT,"5", PT_DESCRIPTION,"interior wall R-value",
+			PT_double,"Rwindow[Btu/degF/h]",get_Rwindow_offset(), PT_DEFAULT,"2", PT_DESCRIPTION,"window R-value",
+			PT_double,"Rdoor[Btu/degF/h]",get_Rdoor_offset(), PT_DEFAULT,"3", PT_DESCRIPTION,"door R-value",
+			PT_double,"Rmass[Btu/degF/h]",get_Rmass_offset(), PT_DEFAULT,"1", PT_DESCRIPTION,"air-mass R-value",
+			PT_double,"Rroof[Btu/degF/h]",get_Rroof_offset(), PT_DEFAULT,"60", PT_DESCRIPTION,"roof R-value",
+			PT_double,"Rground[Btu/degF/h]",get_Rground_offset(), PT_DEFAULT,"60", PT_DESCRIPTION,"ground R-value",
 
-			PT_property,"temperature",get_temperature_offset(), PT_DEFAULT, "residential::default_temperature", PT_DESCRIPTION, "reference to an object containing temperature data",
-			PT_property,"humidity",get_humidity_offset(), PT_DEFAULT, "residential::default_humidity", PT_DESCRIPTION, "reference to an object containing humidity data",
-			PT_property,"solar",get_solar_offset(), PT_DEFAULT, "residential::default_solar", PT_DESCRIPTION, "reference to an object containing solar data",
+			PT_bool,"solver_enable_dump",get_solver_enable_dump_offset(), PT_DEFAULT,"FALSE", PT_DESCRIPTION,"enable solver matrix dumps",
+			PT_bool,"solver_enable_debug",get_solver_enable_debug_offset(), PT_DEFAULT,"FALSE", PT_DESCRIPTION,"enable solver debug output",
+			PT_bool,"solver_enable_verbose",get_solver_enable_verbose_offset(), PT_DEFAULT,"FALSE", PT_DESCRIPTION,"enable solver verbose output",
 
 			NULL)<1){
 				char msg[256];
@@ -225,6 +228,10 @@ int apartment::init(OBJECT *parent)
 	}
 
 	solver = msolve("new");
+	msolve("set",solver,"debug",solver_enable_debug);
+	msolve("set",solver,"dump",solver_enable_dump);
+	msolve("set",solver,"verbose",solver_enable_verbose);
+
 	msolve("set",solver,"N",4);
 	
 	// building design parameters
@@ -305,9 +312,15 @@ int apartment::init(OBJECT *parent)
 
 void apartment::update()
 {
+	msolve("set",solver,"debug",solver_enable_debug);
+	msolve("set",solver,"dump",solver_enable_dump);
+	msolve("set",solver,"verbose",solver_enable_verbose);
+
+	gl_debug("Tout = %g", get_building_outdoor_temperature());
+
 	// set the heat gain
 	msolve("copy",solver,"q",
-		building_outdoor_temperature,
+		get_building_outdoor_temperature(),
 		Q_AS + Q_AV + Q_AE,
 		Q_US,
 		Q_CS + Q_CV);
