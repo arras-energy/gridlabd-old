@@ -14,7 +14,7 @@ apartment *apartment::defaults = NULL;
 
 char1024 apartment::load_property = "base_power";
 double apartment::maximum_temperature_update = 0.1;
-TIMESTAMP apartment::maximum_timestep = 60;
+TIMESTAMP apartment::maximum_timestep = 3600;
 
 #define PASSCONFIG PC_AUTOLOCK
 
@@ -36,10 +36,10 @@ apartment::apartment(MODULE *module)
 			PT_double,"building_floor_height[ft]",get_building_floor_height_offset(), PT_DEFAULT,"8.0 ft", PT_DESCRIPTION,"floor-to-ceiling height",
 			PT_double,"building_heat_leakage[pu]",get_building_heat_leakage_offset(), PT_DEFAULT,"0.10 pu", PT_DESCRIPTION,"fraction of zone heat gains that leak into mass",
 			PT_double,"building_occupancy_factor[pu]",get_building_occupancy_factor_offset(), PT_DEFAULT,"0.95 pu", PT_DESCRIPTION,"fraction of building units that are occupied",
-			PT_property,"building_outdoor_temperature",get_building_outdoor_temperature_offset(), PT_DEFAULT, "residential::default_outdoor_temperature", PT_DESCRIPTION, "reference to an object containing temperature data",
-			PT_property,"building_outdoor_humidity",get_building_outdoor_humidity_offset(), PT_DEFAULT, "residential::default_outdoor_humidity", PT_DESCRIPTION, "reference to an object containing humidity data",
+			PT_property,"building_outdoor_temperature",building_outdoor_temperature.get_offset(this), PT_DEFAULT,"residential::default_outdoor_temperature", PT_DESCRIPTION, "reference to an object containing temperature data",
+			PT_property,"building_outdoor_humidity",building_outdoor_humidity.get_offset(this), PT_DEFAULT,"residential::default_outdoor_humidity", PT_DESCRIPTION, "reference to an object containing humidity data",
 			PT_double,"building_overdesign_factor[pu]",get_building_overdesign_factor_offset(), PT_DEFAULT, "0.5 pu", PT_DESCRIPTION,"overdesign factor for building systems",
-			PT_property,"building_solar_gain",get_building_solar_gain_offset(), PT_DEFAULT, "residential::default_outdoor_solar", PT_DESCRIPTION, "reference to an object containing solar data",
+			PT_property,"building_solar_gain",building_solar_gain.get_offset(this), PT_DEFAULT,"residential::default_outdoor_solar", PT_DESCRIPTION, "reference to an object containing solar data",
 
 			PT_int16,"building_units",get_building_units_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"number of units in the building",
 
@@ -180,6 +180,9 @@ apartment::apartment(MODULE *module)
 int apartment::create(void) 
 {
 	solver = NULL;
+	building_outdoor_temperature = gld_property("residential::default_outdoor_temperature");
+	building_outdoor_humidity = gld_property("residential::default_outdoor_humidity");
+	building_solar_gain = gld_property("residential::default_solar_gain");
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -316,11 +319,18 @@ void apartment::update()
 	msolve("set",solver,"dump",solver_enable_dump);
 	msolve("set",solver,"verbose",solver_enable_verbose);
 
-	gl_debug("Tout = %g", get_building_outdoor_temperature());
+	if ( ! building_outdoor_temperature.is_valid() )
+	{
+		exception("building_outdoor_temperature is not valid");
+	}
+	else
+	{
+		debug("Tout = %g", building_outdoor_temperature.get_double());
+	}
 
 	// set the heat gain
 	msolve("copy",solver,"q",
-		get_building_outdoor_temperature(),
+		building_outdoor_temperature.get_double("degF"),
 		Q_AS + Q_AV + Q_AE,
 		Q_US,
 		Q_CS + Q_CV);
@@ -371,26 +381,39 @@ void apartment::update()
 TIMESTAMP apartment::precommit(TIMESTAMP t1)
 {
 	double dt = t1 - gl_globalclock;
+	debug("current time is %d",gl_globalclock);
+	debug("advancing to %d",t1);
 
 	// calculate the power 
 
 	// calculate the time to the next required solution
 
-	// TIMESTAMP a = ((TIMESTAMP)(t1/maximum_timestep+1))*maximum_timestep; 
 	// return min(a,b);
 	msolve("solve",solver,dt);
 	double *dT;
 	msolve("get",solver,"dT",&dT);
-	double dTmax = dT[0];
+	double dTmax = abs(dT[0]);
 	for ( int n = 1; n < 4; n++ )
 	{
-		if ( dT[n] > dTmax )
+		double x = abs(dT[n]);
+		if ( abs(x) > dTmax )
 		{
-			dTmax = dT[n];
+			dTmax = x;
 		}
 	}
-	debug("next time update in %d s",dTmax);
-	TIMESTAMP b = t1 + 3600*maximum_temperature_update/abs(dTmax);
-	return b;
+	debug("dTmax = %g",dTmax);
+
+	debug("elasped time is %g",dt);
+	TIMESTAMP a = ((TIMESTAMP)(t1/maximum_timestep+1))*maximum_timestep; 
+	debug("maximum update to %d",a);
+	if ( maximum_timestep > 0 )
+	{ 
+		TIMESTAMP b = (dt==0 || dTmax == 0) ? TS_NEVER : (TIMESTAMP)(t1+3600*maximum_temperature_update/dTmax);
+		if ( b <= t1 ) b = t1+1;
+		debug("model update %d",b);
+		if ( b < a ) a = b;
+	}
+	debug("next update in %d sec",a-t1);
+	return a;
 }
 

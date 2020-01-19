@@ -1,7 +1,7 @@
 // apartment.glm
 // Copyright (C) 2020 Regents of the Leland Stanford Junior University
 
-#set debug=1
+#set debug=0
 
 clock {
 	timezone "US/CA/San Francisco";
@@ -11,7 +11,7 @@ clock {
 
 module residential
 {
-	default_temperature "59.0 degF";
+	default_outdoor_temperature "59.0 degF";
 	default_humidity "70%";
 	default_solar "100 W/m^2";
 }
@@ -31,9 +31,9 @@ global double solar_global[W/m^2] = "100 W/m^2";
 
 object apartment
 {
-	temperature ":temperature";
-	humidity ":humidity";
-	solar ":solar_global";
+	temperature "::temperature";
+	humidity "::humidity";
+	solar "::solar_global";
 	building_floors 5;
 	building_units 100;
 	core_configuration INDOOR|DOUBLE|CONDITIONED;

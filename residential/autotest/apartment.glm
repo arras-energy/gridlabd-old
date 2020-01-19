@@ -1,8 +1,11 @@
 // apartment.glm
 // Copyright (C) 2020 Regents of the Leland Stanford Junior University
 
-#set verbose=1
-#set debug=1
+#set verbose=0
+#set debug=0
+#set suppress_repeat_messages=0
+#set profiler=0
+
 #set dumpfile=apartment.json
 
 clock {
@@ -18,12 +21,23 @@ module residential
 	default_solar "100 W/m^2";
 }
 
+class weather 
+{
+	double temperature[degF];
+}
+
+object weather
+{
+	name "weather";
+	temperature "60.0 degF";
+}
 // no weather test
 object apartment
 {
 	solver_enable_dump TRUE;
-	solver_enable_debug TRUE;
-	solver_enable_verbose TRUE;
+	solver_enable_debug ${debug};
+	solver_enable_verbose ${verbose};
+//	building_outdoor_temperature "weather:temperature";
 	building_floors 5;
 	building_units 100;
 	core_configuration INDOOR|DOUBLE|CONDITIONED;

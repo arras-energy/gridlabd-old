@@ -44,7 +44,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"randomvar",     "string",  NULL,      sizeof(randomvar),       24,          convert_from_randomvar,      convert_to_randomvar,      randomvar_create,     NULL, {TCOPS(double)}, random_get_part,         random_set_part,    },
 	{"method",        "string",  NULL,      0,                       PSZ_DYNAMIC, convert_from_method,         convert_to_method          },
 	{"string",        "string",  "",        sizeof(STRING),          PSZ_AUTO,    convert_from_string,         convert_to_string,         string_create,        NULL, {TCOPS(string)}, },
-	{"property",      "string",  NULL,      sizeof(OBJECTPROPERTY*), 256,         convert_from_oproperty,      convert_to_oproperty,      oproperty_create,     NULL, {TCNONE},        },
+	{"property",      "string",  NULL,      sizeof(OBJECTPROPERTY*), 256,         convert_from_propertyref,    convert_to_propertyref,    propertyref_create,   NULL, {TCNONE},        },
 };
 
 PROPERTYTYPE property_getfirst_type(void)
@@ -644,16 +644,15 @@ int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
 	return n;
 }
 
-int oproperty_create(void *ptr)
+int propertyref_create(void *ptr)
 {
-	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)ptr;
-	ref->obj = NULL;
-	ref->prop = NULL;
+	memset(ptr,0,sizeof(OBJECTPROPERTY));
 	return sizeof(OBJECTPROPERTY);
 }
 
-int convert_to_oproperty(const char *s, void *data, PROPERTY *p)
+int convert_to_propertyref(const char *s, void *data, PROPERTY *p)
 {
+	output_debug("convert_to_propertyref(s='%s',data=0x%X,p='%s')",s,data,p?p->name:"<none>");
 	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)data;
 	char oname[64];
 	char pname[64];
@@ -661,6 +660,7 @@ int convert_to_oproperty(const char *s, void *data, PROPERTY *p)
 	char vname[64];
 	OBJECT *obj;
 	PROPERTY *prop;
+	int result = -1;
 
 	// attempt to use object reference resolution
 	if ( sscanf(s,"%[^:]:%s",oname,pname) == 2 
@@ -669,32 +669,38 @@ int convert_to_oproperty(const char *s, void *data, PROPERTY *p)
 	{
 		ref->obj = obj;
 		ref->prop = prop;
-		return strlen(s);
+		result = strlen(s);
 	}
 
 	// attempt to use module reference resolution
-	if ( sscanf(s,"%[^:]::%s",mname,vname) == 2 )
+	else if ( sscanf(s,"%[^:]::%s",mname,vname) == 2 )
 	{
 		GLOBALVAR *var = global_find(s);
-		return property_read(var->prop,data,s);
+		result = (var == NULL) ? -1 : property_read(var->prop,data,s);
 	}
 
 	// attempt to use global reference resolution
-	if ( sscanf(s,":%s",vname) == 1 )
+	else if ( sscanf(s,":%s",vname) == 1 )
 	{
 		GLOBALVAR *var = global_find(vname);
-		return property_read(var->prop,data,s);
+		result = (var == NULL) ? -1 : property_read(var->prop,data,s);
 	}
 
-
 	// assign value to reference
-	void *addr = (void *)((char *)(ref->obj + 1) + (int64)(ref->prop->addr));
-	return object_set_value_by_addr(ref->obj, addr, s, ref->prop);
+	else
+	{
+		void *addr = (void *)((char *)(ref->obj + 1) + (int64)(ref->prop->addr));
+		result = object_set_value_by_addr(ref->obj, addr, s, ref->prop);
+	}
+	output_debug("convert_to_propertyref(s='%s',data=0x%X,p='%s') -> %d",s,data,p?p->name:"<none>",result);
+	return result;
 }
 
-int convert_from_oproperty(char *buffer, int len, void *data, PROPERTY *p)
+int convert_from_propertyref(char *buffer, int len, void *data, PROPERTY *p)
 {
+	output_debug("convert_from_propertyref(buffer=0x%X,len=%d,data=0x%X,p='%s')",buffer,len,data,p?p->name:"<none>");
 	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)data;
+	int result = -1;
 	if ( ref->obj == NULL )
 	{
 		// null reference
@@ -704,17 +710,22 @@ int convert_from_oproperty(char *buffer, int len, void *data, PROPERTY *p)
 			{	
 				buffer[0] = '\0';
 			}
-			return 0;
+			result = 0;
 		}
 
 		// global reference
 		else
 		{
 			// TODO
-			return property_write(ref->prop,data,buffer,len);
+			result = property_write(ref->prop,data,buffer,len);
 		}
 	}
-	void *addr = (void *)((char *)(ref->obj + 1) + (int64)(ref->prop->addr));
-	return object_get_value_by_addr(ref->obj, addr, buffer, len, ref->prop);
+	else
+	{
+		void *addr = (void *)((char *)(ref->obj + 1) + (int64)(ref->prop->addr));
+		result = object_get_value_by_addr(ref->obj, addr, buffer, len, ref->prop);
+	}
+	output_debug("convert_from_propertyref(buffer='%s',len=%d,data=0x%X,p='%s') -> %d",buffer,len,data,p?p->name:"<none>",result);
+	return result;
 }
 // EOF

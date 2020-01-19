@@ -1437,8 +1437,9 @@ typedef struct s_property_specs PROPERTYSPEC;
  */
 struct s_object_property
 {
-	struct s_object_list *obj;
 	PROPERTY *prop;
+	PROPERTYNAME part;
+	struct s_object_list *obj;
 };
 
 /*	Typedef: OBJECTPROPERTY
@@ -1677,7 +1678,7 @@ int convert_from_string(char *buffer, int len, void *data, PROPERTY *p);
 	=0 - no data
 	<0 - failure
  */
-int oproperty_create(void *ptr);
+int propertyref_create(void *ptr);
 
 /*	Function: convert_to_property
 
@@ -1686,7 +1687,7 @@ int oproperty_create(void *ptr);
 	=0 - no data
 	<0 - failure
  */
-int convert_to_oproperty(const char *s, void *data, PROPERTY *p);
+int convert_to_propertyref(const char *s, void *data, PROPERTY *p);
 
 /*	Function: convert_from_property
 
@@ -1695,7 +1696,7 @@ int convert_to_oproperty(const char *s, void *data, PROPERTY *p);
 	=0 - no data
 	<0 - failure
  */
-int convert_from_oproperty(char *buffer, int len, void *data, PROPERTY *p);
+int convert_from_propertyref(char *buffer, int len, void *data, PROPERTY *p);
 
 #ifdef __cplusplus
 }
