@@ -14,10 +14,6 @@
 
 using namespace arma;
 
-bool solver_enable_dump = true;
-bool solver_enable_debug = true;
-bool solver_enable_verbose = true;
-
 static void exception(const char *format, ...)
 {
 	char *message = NULL;
@@ -30,28 +26,22 @@ static void exception(const char *format, ...)
 
 static void debug(const char *format, ...)
 {
-	if ( solver_enable_debug )
-	{
-		char *message = NULL;
-		va_list ptr;
-		va_start(ptr,format);
-		vasprintf(&message,format,ptr);
-		va_end(ptr);
-		cerr << "solvers[DEBUG]: " << (message ? message : "memory allocation failure") << endl;
-	}
+	char *message = NULL;
+	va_list ptr;
+	va_start(ptr,format);
+	vasprintf(&message,format,ptr);
+	va_end(ptr);
+	gl_debug("(solvers) %s", message ? message : "memory allocation failure");
 }
 
 static void verbose(const char *format, ...)
 {
-	if ( solver_enable_verbose )
-	{
-		char *message = NULL;
-		va_list ptr;
-		va_start(ptr,format);
-		vasprintf(&message,format,ptr);
-		va_end(ptr);
-		cerr << "solvers[VERBOSE]: " << (message ? message : "memory allocation failure") << endl;
-	}
+	char *message = NULL;
+	va_list ptr;
+	va_start(ptr,format);
+	vasprintf(&message,format,ptr);
+	va_end(ptr);
+	gl_verbose("(solvers) %s", message ? message : "memory allocation failure");
 }
 
 static void dump_array(const char *t, double *p, size_t N)
@@ -175,6 +165,9 @@ private:
 	mat Tbal, Teq;
 	int modified;
 	msolver *data;
+	bool enable_dump;
+	bool enable_debug;
+	bool enable_verbose;
 public:
 	void init(int size);
 	PARAMETERMAP *get_map(const char *name=NULL);
@@ -185,6 +178,12 @@ public:
 	void solve(double dt);
 	inline msolver *get_data(void) { return data; };
 	void dump(const char *heading=NULL);
+	inline void set_enable_dump(bool state) { enable_dump = state; };
+	inline void set_enable_debug(bool state) { enable_debug = state; };
+	inline void set_enable_verbose(bool state) { enable_verbose = state; };
+	inline bool is_enable_dump(void) { return enable_dump; };
+	inline bool is_enable_debug(void) { return enable_debug; };
+	inline bool is_enable_verbose(void) { return enable_verbose; };
 private:
 	PARAMETERMAP *map;
 	size_t mapsize;
@@ -199,6 +198,9 @@ MSolver::MSolver()
 	modified = SU_NONE;
 	map = NULL;
 	mapsize = 0;
+	enable_dump = false;
+	enable_debug = false;
+	enable_verbose = false;
 }
 
 MSolver::~MSolver(void)
@@ -272,7 +274,7 @@ void MSolver::update(bool force)
 		// build A if needed
 		if ( (modified&SU_A) | force)
 		{
-			debug("A outdated");
+			if ( enable_debug ) debug("A outdated");
 			int n = N;
 			for ( int i = 0 ; i < N ; i++ )
 			{
@@ -286,17 +288,17 @@ void MSolver::update(bool force)
 				}
 				A(i,i) /= data->C[i];
 			}
-			if ( solver_enable_debug ) dump_matrix("updating A",A);			
+			if ( enable_dump ) dump_matrix("updating A",A);			
 			Ainv = inv(A);
-			if ( solver_enable_debug ) dump_matrix("updating Ainv",Ainv);
+			if ( enable_dump ) dump_matrix("updating Ainv",Ainv);
 			Aeig = diagmat(arma::real(eig_gen(A)));
-			if ( solver_enable_debug ) dump_matrix("updating Aeig",Aeig);
+			if ( enable_dump ) dump_matrix("updating Aeig",Aeig);
 		}
 
 		// build B1 if needed
 		if ( (modified&SU_B1) | force )
 		{
-			debug("B1 outdated");
+			if ( enable_debug ) debug("B1 outdated");
 			for ( int i = 0 ; i < N ; i++ )
 			{
 				B1(i,0) = data->U[i] / data->C[i];
@@ -306,15 +308,15 @@ void MSolver::update(bool force)
 					B1(N-1,i+1) = (1-data->a[0]) / data->C[N-1];
 				}
 			}
-			if ( solver_enable_debug ) dump_matrix("updating B1",B1);
+			if ( enable_dump ) dump_matrix("updating B1",B1);
 			B1inv = inv(B1);
-			if ( solver_enable_debug ) dump_matrix("updating B1inv",B1inv);
+			if ( enable_dump ) dump_matrix("updating B1inv",B1inv);
 		}
 
 		// build B2 if needed
 		if ( (modified&SU_B2) | force )
 		{
-			debug("B2 outdated");
+			if ( enable_debug ) debug("B2 outdated");
 			for ( int i = 0 ; i < N ; i++ )
 			{
 				if ( i < N-1 )
@@ -327,43 +329,43 @@ void MSolver::update(bool force)
 					B2(N-1,N-1) = 1 / data->C[N-1];
 				}
 			}
-			if ( solver_enable_debug ) dump_matrix("updating B2",B2);
+			if ( enable_dump ) dump_matrix("updating B2",B2);
 			B2inv = inv(B2);
-			if ( solver_enable_debug ) dump_matrix("updating B2inv",B2inv);
+			if ( enable_dump ) dump_matrix("updating B2inv",B2inv);
 		}
 
 		// build q if needed
 		if ( (modified&SU_Q) | force )
 		{
-			debug("q outdated");
+			if ( enable_debug ) debug("q outdated");
 			q[0] = data->T[0];
 			for ( int i = 1 ; i < N ; i++ )
 			{
 				q(i,0) = data->q[i-1];
 			}	
-			if ( solver_enable_debug ) dump_matrix("updating q",q);
+			if ( enable_dump ) dump_matrix("updating q",q);
 		}
 
 		if ( (modified&(SU_A|SU_B1|SU_Q)) | force )
 		{
-			debug("Tbal outdated");
+			if ( enable_debug ) debug("Tbal outdated");
 			Tbal = -Ainv*B1*q;
-			if ( solver_enable_debug ) dump_matrix("updating Tbal",Tbal);
+			if ( enable_dump ) dump_matrix("updating Tbal",Tbal);
 		}
 
 		// update the control input if needed
 		if ( (modified&(SU_B2|SU_A|SU_T|SU_B1|SU_Q)) | force )
 		{
-			debug("u outdated");
+			if ( enable_debug ) debug("u outdated");
 			u = -B2inv*(A*Tset+B1*q);
-			if ( solver_enable_debug ) dump_matrix("updating u",u);
+			if ( enable_dump ) dump_matrix("updating u",u);
 			modified |= SU_U;
 		}
 
 		// constrain the control input to capacity limits (should use clamp but that doesn't compile)
 		if ( (modified&SU_U) | force )
 		{
-			debug("u outdating");
+			if ( enable_debug ) debug("u outdating");
 			for ( int i = 0 ; i < N ; i++ )
 			{
 				if ( data->umin[i] > data->umax[i] ) 
@@ -379,14 +381,14 @@ void MSolver::update(bool force)
 					u[i] = data->umax[i]; 
 				}
 			}
-			if ( solver_enable_debug ) dump_matrix("updating u",u);
+			if ( enable_dump ) dump_matrix("updating u",u);
 		}
 
 		if ( (modified&(SU_A|SU_B1|SU_Q|SU_B2|SU_U)) | force )
 		{
-			debug("Teq outdated");
+			if ( enable_debug ) debug("Teq outdated");
 			Teq = Tbal - Ainv*B2*u;
-			if ( solver_enable_debug ) dump_matrix("updating Teq",Teq);
+			if ( enable_dump ) dump_matrix("updating Teq",Teq);
 		}
 		modified = SU_NONE;
 	}
@@ -406,11 +408,11 @@ void MSolver::solve(double dt)
 	const char *error = NULL;
 	try
 	{
-		debug("updating T");
+		if ( enable_debug ) debug("updating T");
 		dT = T - (Teq + (exp(Aeig*dt)-mat(4,4).eye())*T);
-		if ( solver_enable_debug ) dump_matrix("dT",dT);
+		if ( enable_dump ) dump_matrix("dT",dT);
 		T += dT;
-		if ( solver_enable_debug ) dump_matrix("T",T);
+		if ( enable_dump ) dump_matrix("T",T);
 	}
 	catch (std::exception &msg)
 	{
@@ -425,25 +427,22 @@ void MSolver::solve(double dt)
 
 void MSolver::dump(const char *heading)
 {
-	if ( solver_enable_dump )
+	if ( enable_debug ) debug("dumping MSolver data");
+	cerr << "MSolver dump " << (heading?heading:"with no context") << "" << endl;
+	cerr << "  N = " << N << endl;
+	cerr << "MSolver input data:" << endl;
+	for ( PARAMETERMAP *p = get_map() ; p < get_map()+get_mapsize() ; p++ )
 	{
-		debug("dumping MSolver data");
-		cerr << "MSolver dump " << (heading?heading:"with no context") << "" << endl;
-		cerr << "  N = " << N << endl;
-		cerr << "MSolver input data:" << endl;
-		for ( PARAMETERMAP *p = get_map() ; p < get_map()+get_mapsize() ; p++ )
-		{
-			dump_array(p->name,*(p->array),p->size);
-		}
-		cerr << "MSolver solution data:" << endl;
-		dump_matrix("A",A);
-		dump_matrix("B1",B1);
-		dump_matrix("B2",B2);
-		dump_matrix("T",T);
-		dump_matrix("q",q);
-		dump_matrix("u",u);
-		dump_matrix("Tset",Tset);
+		dump_array(p->name,*(p->array),p->size);
 	}
+	cerr << "MSolver solution data:" << endl;
+	dump_matrix("A",A);
+	dump_matrix("B1",B1);
+	dump_matrix("B2",B2);
+	dump_matrix("T",T);
+	dump_matrix("q",q);
+	dump_matrix("u",u);
+	dump_matrix("Tset",Tset);
 }
 
 msolver *msolve(const char *op, ...)
@@ -475,31 +474,42 @@ msolver *msolve(const char *op, ...)
 		assert(solver->get_data()==data);
 		const char *param = va_arg(ptr,const char*);
 
-		// first time call must be N to initialize solver
-		if ( strcmp(op,"set") == 0 && strcmp(param,"N") == 0 )
-		{
-			solver->init(va_arg(ptr,int));
-		}
-
-		// N must be 2 or more
-		if ( solver->get_size() < 2 )
-		{
-			exception("msolver N must be greater than 1 (N=%d)",solver->get_size());
-		}
-
 		// process changes to N
 		if ( strcmp(op,"set") == 0 ) 
 		{
 			if ( strcmp(param,"N") == 0 )
 			{
+				data->N = va_arg(ptr,int);
+				if ( data->N < 2 )
+				{
+					exception("msolver N must be greater than 1 (N=%d)",solver->get_size());
+				}
+				solver->init(data->N);
 				for ( PARAMETERMAP *map = solver->get_map() ; map < solver->get_map() + solver->get_mapsize() ; map++ )
 				{
 					if ( *(map->array) != NULL )
 						delete [] *(map->array);
 					*(map->array) = new double[map->size];
 				}
-				data->N = solver->get_size();
 				verbose("msolver(op='set',param='%s',value=%d): ok",param,data->N);
+			}
+			else if ( strcmp(param,"dump") == 0 )
+			{
+				int value = va_arg(ptr,int);
+				solver->set_enable_dump(value?true:false);
+				verbose("msolver(op='set',param='%s',value=%d): enable_dump <- %s",param,value,solver->is_enable_dump()?"true":"false");
+			}
+			else if ( strcmp(param,"debug") == 0 )
+			{
+				int value = va_arg(ptr,int);
+				solver->set_enable_debug(value?true:false);
+				verbose("msolver(op='set',param='%s',value=%d): enable_debug <- %s",param,value,solver->is_enable_debug()?"true":"false");
+			}
+			else if ( strcmp(param,"verbose") == 0 )
+			{
+				int value = va_arg(ptr,int);
+				solver->set_enable_verbose(value?true:false);
+				verbose("msolver(op='set',param='%s',value=%d): enable_verbose <- %s",param,value,solver->is_enable_verbose()?"true":"false");
 			}
 			else
 			{
