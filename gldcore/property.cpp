@@ -18,31 +18,33 @@ double complex_get_part(void *x, const char *name);
 
 /* IMPORTANT: this list must match PROPERTYTYPE enum in property.h */
 PROPERTYSPEC property_type[_PT_LAST] = {
-	{"void", "string", NULL, 0, 0, convert_from_void,convert_to_void},
-	{"double", "decimal", "0.0", sizeof(double), 24, convert_from_double,convert_to_double,NULL,NULL,{TCOPS(double)},},
-	{"complex", "string", "0+0i", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,{TCOPS(double)},complex_get_part,complex_set_part},
-	{"enumeration", "string", "0", sizeof(enumeration), 1024, convert_from_enumeration,convert_to_enumeration,NULL,NULL,{TCOPS(uint64)},},
-	{"set", "string", "0", sizeof(set), 1024, convert_from_set,convert_to_set,NULL,NULL,{TCOPS(uint64)},},
-	{"int16", "integer", "0", sizeof(int16), 6, convert_from_int16,convert_to_int16,NULL,NULL,{TCOPS(uint16)},},
-	{"int32", "integer", "0", sizeof(int32), 12, convert_from_int32,convert_to_int32,NULL,NULL,{TCOPS(uint32)},},
-	{"int64", "integer", "0", sizeof(int64), 24, convert_from_int64,convert_to_int64,NULL,NULL,{TCOPS(uint64)},},
-	{"char8", "string", "", sizeof(char8), 8, convert_from_char8,convert_to_char8,NULL,NULL,{TCOPS(string)},},
-	{"char32", "string", "", sizeof(char32), 32, convert_from_char32,convert_to_char32,NULL,NULL,{TCOPS(string)},},
-	{"char256", "string", "", sizeof(char256), 256, convert_from_char256,convert_to_char256,NULL,NULL,{TCOPS(string)},},
-	{"char1024", "string", "", sizeof(char1024), 1024, convert_from_char1024,convert_to_char1024,NULL,NULL,{TCOPS(string)},},
-	{"object", "string", NULL, sizeof(OBJECT*), 64, convert_from_object,convert_to_object,NULL,NULL,{TCOPB(object)},object_get_part,object_set_part},
-	{"delegated", "string", NULL, 0, PSZ_DYNAMIC, convert_from_delegated, convert_to_delegated},
-	{"bool", "string", "FALSE", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,{TCOPB(bool)},},
-	{"timestamp", "string", "TS_ZERO", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,{TCOPS(uint64)},timestamp_get_part,timestamp_set_part},
-	{"double_array", "string", "", sizeof(double_array), 1024, convert_from_double_array, convert_to_double_array,double_array_create,NULL,{TCNONE},double_array_get_part,NULL},
-	{"complex_array", "string", "", sizeof(complex_array), 1024, convert_from_complex_array, convert_to_complex_array,complex_array_create,NULL,{TCNONE},complex_array_get_part,NULL},
-	{"real", "decimal", "0.0", sizeof(real), 24, convert_from_real, convert_to_real},
-	{"float", "decimal", "0.0", sizeof(float), 24, convert_from_float, convert_to_float},
-	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, loadshape_create,NULL,{TCOPS(double)},},
-	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part,enduse_set_part},
-	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part},
-	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method},
-	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
+//   name,            xsdname,   default,   size,                    convertsize, data_to_string,              string_to_data,            create,               stream, compare ops,   get_part,                set_part
+	{"void",          "string",  NULL,      0,                       0,           convert_from_void,           convert_to_void            },
+	{"double",        "decimal", "0.0",     sizeof(double),          24,          convert_from_double,         convert_to_double,         NULL,                 NULL, {TCOPS(double)}, },
+	{"complex",       "string",  "0+0i",    sizeof(complex),         48,          convert_from_complex,        convert_to_complex,        NULL,                 NULL, {TCOPS(double)}, complex_get_part,        complex_set_part,  },
+	{"enumeration",   "string",  "0",       sizeof(enumeration),     1024,        convert_from_enumeration,    convert_to_enumeration,    NULL,                 NULL, {TCOPS(uint64)}, },
+	{"set",           "string",  "0",       sizeof(set),             1024,        convert_from_set,            convert_to_set,            NULL,                 NULL, {TCOPS(uint64)}, },
+	{"int16",         "integer", "0",       sizeof(int16),           6,           convert_from_int16,          convert_to_int16,          NULL,                 NULL, {TCOPS(uint16)}, },
+	{"int32",         "integer", "0",       sizeof(int32),           12,          convert_from_int32,          convert_to_int32,          NULL,                 NULL, {TCOPS(uint32)}, },
+	{"int64",         "integer", "0",       sizeof(int64),           24,          convert_from_int64,          convert_to_int64,          NULL,                 NULL, {TCOPS(uint64)}, },
+	{"char8",         "string",  "",        sizeof(char8),           8,           convert_from_char8,          convert_to_char8,          NULL,                 NULL, {TCOPS(string)}, },
+	{"char32",        "string",  "",        sizeof(char32),          32,          convert_from_char32,         convert_to_char32,         NULL,                 NULL, {TCOPS(string)}, },
+	{"char256",       "string",  "",        sizeof(char256),         256,         convert_from_char256,        convert_to_char256,        NULL,                 NULL, {TCOPS(string)}, },
+	{"char1024",      "string",  "",        sizeof(char1024),        1024,        convert_from_char1024,       convert_to_char1024,       NULL,                 NULL, {TCOPS(string)}, },
+	{"object",        "string",  NULL,      sizeof(OBJECT*),         64,          convert_from_object,         convert_to_object,         NULL,                 NULL, {TCOPB(object)}, object_get_part,         object_set_part,    },
+	{"delegated",     "string",  NULL,      0,                       PSZ_DYNAMIC, convert_from_delegated,      convert_to_delegated       },
+	{"bool",          "string",  "FALSE",   sizeof(bool),            6,           convert_from_boolean,        convert_to_boolean,        NULL,                 NULL, {TCOPB(bool)},   },
+	{"timestamp",     "string",  "TS_ZERO", sizeof(int64),           32,          convert_from_timestamp_stub, convert_to_timestamp_stub, NULL,                 NULL, {TCOPS(uint64)}, timestamp_get_part,      timestamp_set_part, },
+	{"double_array",  "string",  "",        sizeof(double_array),    1024,        convert_from_double_array,   convert_to_double_array,   double_array_create,  NULL, {TCNONE},        double_array_get_part,   NULL,               },
+	{"complex_array", "string",  "",        sizeof(complex_array),   1024,        convert_from_complex_array,  convert_to_complex_array,  complex_array_create, NULL, {TCNONE},        complex_array_get_part,  NULL,               },
+	{"real",          "decimal", "0.0",     sizeof(real),            24,          convert_from_real,           convert_to_real            },
+	{"float",         "decimal", "0.0",     sizeof(float),           24,          convert_from_float,          convert_to_float           },
+	{"loadshape",     "string",  NULL,      sizeof(loadshape),       1024,        convert_from_loadshape,      convert_to_loadshape,      loadshape_create,     NULL, {TCOPS(double)}, },
+	{"enduse",        "string",  NULL,      sizeof(enduse),          1024,        convert_from_enduse,         convert_to_enduse,         enduse_create,        NULL, {TCOPS(double)}, enduse_get_part,         enduse_set_part,    },
+	{"randomvar",     "string",  NULL,      sizeof(randomvar),       24,          convert_from_randomvar,      convert_to_randomvar,      randomvar_create,     NULL, {TCOPS(double)}, random_get_part,         random_set_part,    },
+	{"method",        "string",  NULL,      0,                       PSZ_DYNAMIC, convert_from_method,         convert_to_method          },
+	{"string",        "string",  "",        sizeof(STRING),          PSZ_AUTO,    convert_from_string,         convert_to_string,         string_create,        NULL, {TCOPS(string)}, },
+	{"property",      "string",  NULL,      sizeof(OBJECTPROPERTY*), 256,         convert_from_oproperty,      convert_to_oproperty,      oproperty_create,     NULL, {TCNONE},        },
 };
 
 PROPERTYTYPE property_getfirst_type(void)
@@ -632,8 +634,7 @@ int convert_to_string(const char *s, void *data, PROPERTY *p)
 {
 	STRING *str = (STRING*)data;
 	**str = s;
-	int len = strlen(s);
-	return len;
+	return (*str)->size();
 }
 
 int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
@@ -641,5 +642,60 @@ int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
 	STRING *str = (STRING*)data;
 	int n = snprintf(buffer,(size_t)len,"%s",(*str)->c_str());
 	return n;
+}
+
+int oproperty_create(void *ptr)
+{
+	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)ptr;
+	ref->obj = NULL;
+	ref->prop = NULL;
+	return sizeof(OBJECTPROPERTY);
+}
+
+int convert_to_oproperty(const char *s, void *data, PROPERTY *p)
+{
+	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)data;
+	char oname[64];
+	char pname[64];
+	char mname[64];
+	char vname[64];
+	OBJECT *obj;
+	PROPERTY *prop;
+
+	// attempt to use object reference resolution
+	if ( sscanf(s,"%[^:]:%s",oname,pname) == 2 
+		&& (obj=object_find_name(oname)) != NULL
+		&& (prop=object_get_property(obj,pname,NULL)) != NULL )
+	{
+		ref->obj = obj;
+		ref->prop = prop;
+		return strlen(s);
+	}
+
+	// attempt to use module reference resolution
+	if ( sscanf(s,"%[^:]::%s",mname,vname) == 2 )
+	{
+		// TODO
+		return -1;
+	}
+
+	// attempt to use global reference resolution
+	if ( sscanf(s,":%s",vname) == 1 )
+	{
+		// TODO
+		return -1;
+	}
+
+
+	// assign value to reference
+	void *addr = (void *)((char *)(ref->obj + 1) + (int64)(ref->prop->addr));
+	return object_set_value_by_addr(ref->obj, addr, s, ref->prop);
+}
+
+int convert_from_oproperty(char *buffer, int len, void *data, PROPERTY *p)
+{
+	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)data;
+	void *addr = (void *)((char *)(ref->obj + 1) + (int64)(ref->prop->addr));
+	return object_get_value_by_addr(ref->obj, addr, buffer, len, ref->prop);
 }
 // EOF
