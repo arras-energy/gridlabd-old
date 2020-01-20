@@ -205,6 +205,7 @@ public:
 
 	// support methods
 	void update(void);
+	void update_modes();
 
 public:
 

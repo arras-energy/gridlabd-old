@@ -107,7 +107,16 @@ struct s_msolver
 	double *Teq;
 
 	// Member: dT
+	//
+	// Provide the dT portion of the solution at t=0
+	//
 	double *dT;
+
+	// Member: m
+	//
+	// Provide the implied heating/cooling mode of the solution at t=0
+	//
+	double *mode;
 
 	// Member: solver
 	//

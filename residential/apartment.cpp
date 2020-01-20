@@ -380,6 +380,9 @@ void apartment::update()
 		Q_US,
 		Q_CS + Q_CV);
 
+	// determine the system modes
+	update_modes();
+
 	// update occupied unit setpoints
 	if ( unit_mode == SPM_COOLING )
 	{
@@ -423,17 +426,27 @@ void apartment::update()
 	}
 }
 
+void apartment::update_modes(void)
+{
+	double mode[4];
+	msolve("get",solver,"mode",&mode);
+	if ( system_type_central&STC_HEAT )
+	{
+
+	}
+	if ( system_type_central&STC_COOL )
+	{
+
+	}
+}
+
 TIMESTAMP apartment::precommit(TIMESTAMP t1)
 {
 	double dt = t1 - gl_globalclock;
 	debug("current time is %d",gl_globalclock);
 	debug("advancing to %d",t1);
 
-	// calculate the power 
-
-	// calculate the time to the next required solution
-
-	// return min(a,b);
+	// solve for the state at time t1
 	msolve("solve",solver,dt);
 	double *dT;
 	msolve("get",solver,"dT",&dT);
@@ -448,6 +461,11 @@ TIMESTAMP apartment::precommit(TIMESTAMP t1)
 	}
 	debug("dTmax = %g",dTmax);
 
+	// calculate the power 
+
+	// calculate the time to the next required solution
+
+	// return min(a,b);
 	debug("elasped time is %g",dt);
 	TIMESTAMP a = ((TIMESTAMP)(t1/maximum_timestep+1))*maximum_timestep; 
 	debug("maximum update to %d",a);

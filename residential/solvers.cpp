@@ -176,6 +176,7 @@ private:
 	mat T, q, u, Tset, dT;
 	mat Ainv, B1inv, B2inv, Aeig;
 	mat Tbal, Teq;
+	mat mode;
 	int modified;
 	msolver *data;
 	bool enable_dump;
@@ -220,14 +221,13 @@ MSolver::~MSolver(void)
 {
 	if ( data )
 	{
-		if ( data->U ) delete [] data->U;
-		if ( data->C ) delete [] data->C;
-		if ( data->q ) delete [] data->q;
-		if ( data->T ) delete [] data->T;
-		if ( data->u ) delete [] data->u;
-		if ( data->a ) delete [] data->a;
-		if ( data->umin ) delete [] data->umin;
-		if ( data->umax ) delete [] data->umax;
+		for ( size_t m = 0 ; m < get_mapsize() ; m++ )
+		{
+			if ( map[m].array != NULL )
+			{
+				delete [] map[m].array;
+			}
+		}
 		delete data;
 	}
 }
@@ -272,6 +272,7 @@ void MSolver::init(int size)
 		{"umax", &(data->umax), N-1,       SU_U},
 		{"Tset", &(data->Tset), N-1,       SU_T},
 		{"dT",   &(data->dT),	N,         SU_NONE},
+		{"mode", &(data->mode), N,         SU_NONE},
 	};
 	mapsize = sizeof(tmp)/sizeof(tmp[0]);
 	map = new PARAMETERMAP[mapsize];
@@ -303,6 +304,7 @@ void MSolver::update(bool force)
 			}
 			if ( enable_dump ) ::dump("updating A",A);			
 			vec eig = arma::real(eig_gen(A));
+#warning "not certain eigenvalue vectors isn't sorted"
 			if ( eig.max() >= 0 )
 			{
 				::dump("eig",eig);
@@ -370,6 +372,8 @@ void MSolver::update(bool force)
 			if ( enable_debug ) debug("Tbal outdated");
 			Tbal = -Ainv*B1*q;
 			if ( enable_dump ) ::dump("updating Tbal",Tbal);
+			mode = Tbal-q[0];
+			if ( enable_dump ) ::dump("updating mode",mode);
 		}
 
 		// update the control input if needed
