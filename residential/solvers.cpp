@@ -44,7 +44,7 @@ static void verbose(const char *format, ...)
 	gl_verbose("(solvers) %s", message ? message : "memory allocation failure");
 }
 
-static void dump_array(const char *t, double *p, size_t N)
+static void dump(const char *t, double *p, size_t N)
 {
 	cerr << t << "[" << N << "] = [ "; 
 	for ( size_t n = 0 ; n < N; n++ ) 
@@ -54,7 +54,20 @@ static void dump_array(const char *t, double *p, size_t N)
 	cerr << "]" << endl;
 }
 
-static void dump_matrix(const char *t, mat x)
+static void dump(const char *t, mat x)
+{
+	cerr << t 
+	     << "[" 
+	     << x.n_rows 
+	     << "x" 
+	     << x.n_cols 
+	     << "] = " 
+	     << endl
+	     << x 
+	     << endl;
+}
+
+static void dump(const char *t, vec x)
 {
 	cerr << t 
 	     << "[" 
@@ -288,11 +301,17 @@ void MSolver::update(bool force)
 				}
 				A(i,i) /= data->C[i];
 			}
-			if ( enable_dump ) dump_matrix("updating A",A);			
+			if ( enable_dump ) ::dump("updating A",A);			
+			vec eig = arma::real(eig_gen(A));
+			if ( eig.max() >= 0 )
+			{
+				::dump("eig",eig);
+				exception("solution matrix A is not physically feasible (non-negative eigenvalue found)");
+			}
+			Aeig = diagmat(eig);
+			if ( enable_dump ) ::dump("updating Aeig",Aeig);
 			Ainv = inv(A);
-			if ( enable_dump ) dump_matrix("updating Ainv",Ainv);
-			Aeig = diagmat(arma::real(eig_gen(A)));
-			if ( enable_dump ) dump_matrix("updating Aeig",Aeig);
+			if ( enable_dump ) ::dump("updating Ainv",Ainv);
 		}
 
 		// build B1 if needed
@@ -308,9 +327,9 @@ void MSolver::update(bool force)
 					B1(N-1,i+1) = (1-data->a[0]) / data->C[N-1];
 				}
 			}
-			if ( enable_dump ) dump_matrix("updating B1",B1);
+			if ( enable_dump ) ::dump("updating B1",B1);
 			B1inv = inv(B1);
-			if ( enable_dump ) dump_matrix("updating B1inv",B1inv);
+			if ( enable_dump ) ::dump("updating B1inv",B1inv);
 		}
 
 		// build B2 if needed
@@ -329,9 +348,9 @@ void MSolver::update(bool force)
 					B2(N-1,N-1) = 1 / data->C[N-1];
 				}
 			}
-			if ( enable_dump ) dump_matrix("updating B2",B2);
+			if ( enable_dump ) ::dump("updating B2",B2);
 			B2inv = inv(B2);
-			if ( enable_dump ) dump_matrix("updating B2inv",B2inv);
+			if ( enable_dump ) ::dump("updating B2inv",B2inv);
 		}
 
 		// build q if needed
@@ -343,14 +362,14 @@ void MSolver::update(bool force)
 			{
 				q(i,0) = data->q[i-1];
 			}	
-			if ( enable_dump ) dump_matrix("updating q",q);
+			if ( enable_dump ) ::dump("updating q",q);
 		}
 
 		if ( (modified&(SU_A|SU_B1|SU_Q)) | force )
 		{
 			if ( enable_debug ) debug("Tbal outdated");
 			Tbal = -Ainv*B1*q;
-			if ( enable_dump ) dump_matrix("updating Tbal",Tbal);
+			if ( enable_dump ) ::dump("updating Tbal",Tbal);
 		}
 
 		// update the control input if needed
@@ -358,7 +377,7 @@ void MSolver::update(bool force)
 		{
 			if ( enable_debug ) debug("u outdated");
 			u = -B2inv*(A*Tset+B1*q);
-			if ( enable_dump ) dump_matrix("updating u",u);
+			if ( enable_dump ) ::dump("updating u",u);
 			modified |= SU_U;
 		}
 
@@ -381,14 +400,14 @@ void MSolver::update(bool force)
 					u[i] = data->umax[i]; 
 				}
 			}
-			if ( enable_dump ) dump_matrix("updating u",u);
+			if ( enable_dump ) ::dump("updating u",u);
 		}
 
 		if ( (modified&(SU_A|SU_B1|SU_Q|SU_B2|SU_U)) | force )
 		{
 			if ( enable_debug ) debug("Teq outdated");
 			Teq = Tbal - Ainv*B2*u;
-			if ( enable_dump ) dump_matrix("updating Teq",Teq);
+			if ( enable_dump ) ::dump("updating Teq",Teq);
 		}
 		modified = SU_NONE;
 	}
@@ -410,9 +429,9 @@ void MSolver::solve(double dt)
 	{
 		if ( enable_debug ) debug("updating T");
 		dT = T - (Teq + (exp(Aeig*dt)-mat(4,4).eye())*T);
-		if ( enable_dump ) dump_matrix("dT",dT);
+		if ( enable_dump ) ::dump("dT",dT);
 		T += dT;
-		if ( enable_dump ) dump_matrix("T",T);
+		if ( enable_dump ) ::dump("T",T);
 	}
 	catch (std::exception &msg)
 	{
@@ -433,16 +452,16 @@ void MSolver::dump(const char *heading)
 	cerr << "MSolver input data:" << endl;
 	for ( PARAMETERMAP *p = get_map() ; p < get_map()+get_mapsize() ; p++ )
 	{
-		dump_array(p->name,*(p->array),p->size);
+		::dump(p->name,*(p->array),p->size);
 	}
 	cerr << "MSolver solution data:" << endl;
-	dump_matrix("A",A);
-	dump_matrix("B1",B1);
-	dump_matrix("B2",B2);
-	dump_matrix("T",T);
-	dump_matrix("q",q);
-	dump_matrix("u",u);
-	dump_matrix("Tset",Tset);
+	::dump("A",A);
+	::dump("B1",B1);
+	::dump("B2",B2);
+	::dump("T",T);
+	::dump("q",q);
+	::dump("u",u);
+	::dump("Tset",Tset);
 }
 
 msolver *msolve(const char *op, ...)
