@@ -245,7 +245,6 @@ int apartment::init(OBJECT *parent)
 	double Z = building_floor_height;
 	double W = core_width;
 	double A = X*Y;
-	double Au = Y*Z;
 	double Aw = unit_window_area>0 ? unit_window_area : (0.5*X*Z);
 	double Ad = unit_door_area>0 ? unit_door_area : 20.0;
 	double Ao = X*Z - Aw;
@@ -262,17 +261,17 @@ int apartment::init(OBJECT *parent)
 
 	// building thermal properties
 	double rhoair = 0.0735;	// density of air [lb/cf]
-	double Sair = 0.2402*rhoair; // volumetric heat capacity of air @ 80F [BTU/F.cf]
-	double Sint = 10.0; // mass of interior furnishing per unit floor area (lb/sf)
+	double Sair = 0.2402*rhoair; // volumetric heat capacity of air @ 80F [BTU/F/cf]
+	double Sint = 10.0; // heat capacity furnishing per unit floor area (Btu/F/sf)
 	double Cint = Sint*A;
-	double Sfloor = 150.0; // density of concrete floor (Btu/cf)
+	double Sfloor = 150.0; // density of concrete floor (lb/cf)
 
 	// building thermal parameters
 	double U_OA = N*M*beta*(Kx+1)*(Ao/Rext+Aw/Rwindow);
 	double U_OU = U_OA*(1-beta)/beta;
 	double U_OC = N*(1-Kx)*(2*W*Z+M*(Kd+1)*X)*(Ao/Rext+Aw/Rwindow);
 	double U_OM = N*F*(M*X+2*(Kd+1)*Y+2*W)/Rext;
-	double U_AU = N*M*beta*(1-beta)*Au/Rint;
+	double U_AU = N*M*beta*(1-beta)*A/Rint;
 	double U_AC = N*M*beta*(Ac/((1-Kx)*Rint+Kx*Rext) + Ad/Rdoor);
 	double U_AM = N*M*beta*A/Rmass;
 	double U_UC = U_AC*(1-beta)/beta;
@@ -307,8 +306,54 @@ int apartment::init(OBJECT *parent)
 	// set the zone-zone leakages
 	msolve("set",solver,"a",1-building_heat_leakage);
 
-	update();
-	msolve("solve",solver,0);
+	try
+	{
+		update();
+		msolve("solve",solver,0);
+	}
+	catch (const char *errmsg)
+	{
+		error("%s",errmsg);
+#define DUMP(T,X) gl_output("%8.8s = %-12g # " #T,#X,X);
+		gl_output("apartment '%s' model dump follows:",get_name());
+		DUMP("number of floors",N)
+		DUMP("number of units per floor",M)
+		DUMP("unit width (ft)",X)
+		DUMP("unit depth (ft)",Y)
+		DUMP("unit height (ft)",Z)
+		DUMP("core width (ft)",W)
+		DUMP("unit floor area (sf)",A)
+		DUMP("unit window area (sf)",Aw)
+		DUMP("unit door area (sf)",Ad)
+		DUMP("unit exterior wall area (sf)",Ao)
+		DUMP("unit core wall area (sf)",Ac)
+		DUMP("unit volume (cf)",V)
+		DUMP("occupancy factor (pu)",beta)
+		DUMP("indoor core fraction (pu)",Kx)
+		DUMP("indoor core double loading fraction (pu)",Kd)
+		DUMP("floor thickness (ft)",F)
+		DUMP("volumetric air density (lb/cf)",rhoair)
+		DUMP("air specific heat capacity (Btu/degF/cf)",Sair)
+		DUMP("interior mass loading (Btu/degF/sf)",Sint)
+		DUMP("interior heat capacity (Btu/degF)",Cint)
+		DUMP("density of floor mass (lb/cf)",Sfloor)
+		DUMP("UA outdoor occupied (Btu/degF/h)",U_OA)
+		DUMP("UA outdoor unoccupied (Btu/degF/h)",U_OU)
+		DUMP("UA outdoor core (Btu/degF/h)",U_OC)
+		DUMP("UA outdoor mass (Btu/degF/h)",U_OM)
+		DUMP("UA occupied unoccupied (Btu/degF/h)",U_AU)
+		DUMP("UA occupied core (Btu/degF/h)",U_UC)
+		DUMP("UA occupied mass (Btu/degF/h)",U_AM)
+		DUMP("UA unoccupied core (Btu/degF/h)",U_UC)
+		DUMP("UA unoccupied mass (Btu/degF/h)",U_UM)
+		DUMP("UA core mass (Btu/degF/h)",U_CM)
+		DUMP("occupied zone heat capacity (Btu/degF)",C_A)
+		DUMP("unoccupied zone heat capacity (Btu/degF)",C_U)
+		DUMP("core zone heat capacity (Btu/degF)",C_C)
+		DUMP("mass heat capacity (Btu/degF)",C_M)
+#undef DUMP
+		return 0;		
+	}
 
 	return 1;
 }
