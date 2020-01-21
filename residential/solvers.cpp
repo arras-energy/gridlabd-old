@@ -157,13 +157,28 @@ double e2solve(double a,
 #define SU_T    0x0010
 #define SU_U    0x0020
 
-typedef struct s_parameter_map 
+class parameter_map 
 {
-	const char *name;
+private:
+	std::string name;
 	double **array;
-	int size;
+	size_t size;
 	int modifies;
-} PARAMETERMAP;
+public:
+	parameter_map(const char *n, double **a, size_t s, int m)
+	: name(n), array(a), size(s), modifies(m) {}
+	~parameter_map(void) { delete [] *array; }
+public:
+	inline std::string &get_name(void) { return name; };
+	inline double *&get_array(void) { return *array; };
+	inline double get_value(size_t n) { assert(n>0&&n<size); return (*array)[n]; };
+	inline void set_value(size_t n, double x) { assert(n>0&&n<size); (*array)[n] = x; };
+	inline double get_value_x(size_t n) { return (*array)[n]; };
+	inline void set_value_x(size_t n, double x) { (*array)[n] = x; };
+	inline void copy_values(double *a) { memcpy(*array,a,size*sizeof(double)); };
+	inline size_t get_size(void) { return size; };
+	inline int get_modifies(int n=0xffff) { return modifies&n; };
+};
 
 class MSolver
 {
@@ -184,8 +199,10 @@ private:
 	bool enable_verbose;
 public:
 	void init(int size);
-	PARAMETERMAP *get_map(const char *name=NULL);
-	inline size_t get_mapsize() { return mapsize; };
+	std::list<parameter_map> &get_map(void);
+	parameter_map &find_map(const char *name);
+	void add_map(const char *name, double **array, size_t size, int modifies);
+	inline size_t get_mapsize() { return map.size(); };
 	inline int get_size(void) { return N; };
 	inline void set_modified(int su) { modified |= su; debug("modified |= 0x%04X -> 0x%04x",su,modified); };
 	void update(bool force = false);
@@ -199,8 +216,7 @@ public:
 	inline bool is_enable_debug(void) { return enable_debug; };
 	inline bool is_enable_verbose(void) { return enable_verbose; };
 private:
-	PARAMETERMAP *map;
-	size_t mapsize;
+	std::list<parameter_map> map;
 };
 
 MSolver::MSolver()
@@ -210,8 +226,6 @@ MSolver::MSolver()
 	memset(data,0,sizeof(msolver));
 	data->solver = this;
 	modified = SU_NONE;
-	map = NULL;
-	mapsize = 0;
 	enable_dump = false;
 	enable_debug = false;
 	enable_verbose = false;
@@ -221,32 +235,33 @@ MSolver::~MSolver(void)
 {
 	if ( data )
 	{
-		for ( size_t m = 0 ; m < get_mapsize() ; m++ )
-		{
-			if ( map[m].array != NULL )
-			{
-				delete [] map[m].array;
-			}
-		}
+		map.clear();
 		delete data;
 	}
 }
 
-PARAMETERMAP *MSolver::get_map(const char *name)
+void MSolver::add_map(const char *name, double **array, size_t size, int modifies)
 {
-	if ( name == NULL )
+	parameter_map *m = new parameter_map(name,array,size,modifies);
+	*array = new double[size];
+	map.insert(map.end(),*m);
+}
+std::list<parameter_map> &MSolver::get_map(void)
+{
+	return map;
+}
+
+parameter_map &MSolver::find_map(const char *name)
+{
+	for ( std::list<parameter_map>::iterator m = map.begin() ; m != map.end() ; m++ )
 	{
-		return map;
-	}
-	for ( size_t m = 0 ; m < get_mapsize() ; m++ )
-	{
-		if ( strcmp(name,map[m].name) == 0 )
+		if ( m->get_name() == name )
 		{
-			return map + m;
+			return *m;
 		}
 	}
-	exception("MSolver::get_map(name='%s'): parameter name not found");
-	return NULL;
+	exception("MSolver::get_map(name='%s'): parameter name not found",name);
+	throw "an internal logic error occurred";
 }
 
 void MSolver::init(int size)
@@ -262,21 +277,16 @@ void MSolver::init(int size)
 	u = mat(size,1).zeros();
 	Tset = mat(size,1).zeros();
 	dT = mat(size,1).zeros();
-	PARAMETERMAP tmp[] = {
-		{"U",    &(data->U),    N*(N+1)/2, SU_A|SU_B1},
-		{"C",    &(data->C),    N,         SU_A|SU_B1|SU_B2},
-		{"T",    &(data->T),    N+1,       SU_NONE},
-		{"q",    &(data->q),    N,         SU_Q},
-		{"a",    &(data->a),    1,         SU_B1|SU_B2},
-		{"umin", &(data->umin), N-1,       SU_U},
-		{"umax", &(data->umax), N-1,       SU_U},
-		{"Tset", &(data->Tset), N-1,       SU_T},
-		{"dT",   &(data->dT),	N,         SU_NONE},
-		{"mode", &(data->mode), N,         SU_NONE},
-	};
-	mapsize = sizeof(tmp)/sizeof(tmp[0]);
-	map = new PARAMETERMAP[mapsize];
-	memcpy(map,tmp,sizeof(tmp));
+	add_map("U",    &(data->U),    N*(N+1)/2, SU_A|SU_B1);
+	add_map("C",    &(data->C),    N,         SU_A|SU_B1|SU_B2);
+	add_map("T",    &(data->T),    N+1,       SU_NONE);
+	add_map("q",    &(data->q),    N,         SU_Q);
+	add_map("a",    &(data->a),    1,         SU_B1|SU_B2);
+	add_map("umin", &(data->umin), N-1,       SU_U);
+	add_map("umax", &(data->umax), N-1,       SU_U);
+	add_map("Tset", &(data->Tset), N-1,       SU_T);
+	add_map("dT",   &(data->dT),   N,         SU_NONE);
+	add_map("mode", &(data->mode), N,         SU_NONE);
 }
 
 void MSolver::update(bool force)
@@ -454,9 +464,9 @@ void MSolver::dump(const char *heading)
 	cerr << "MSolver dump " << (heading?heading:"with no context") << "" << endl;
 	cerr << "  N = " << N << endl;
 	cerr << "MSolver input data:" << endl;
-	for ( PARAMETERMAP *p = get_map() ; p < get_map()+get_mapsize() ; p++ )
+	for ( std::list<parameter_map>::iterator m = map.begin() ; m != map.end() ; m++ )
 	{
-		::dump(p->name,*(p->array),p->size);
+		::dump(m->get_name().c_str(),m->get_array(),m->get_size());
 	}
 	cerr << "MSolver solution data:" << endl;
 	::dump("A",A);
@@ -486,9 +496,8 @@ msolver *msolve(const char *op, ...)
 		solver = (MSolver*)(data->solver);
 		assert(solver->get_data()==data);
 		const char *param = va_arg(ptr,const char *);
-		PARAMETERMAP *map = solver->get_map(param);
 		double **ref = va_arg(ptr,double**);
-		*ref = *(map->array);
+		*ref = solver->find_map(param).get_array();
 	}
 	else if ( strcmp(op,"set") == 0 || strcmp(op,"copy") == 0 )
 	{
@@ -508,12 +517,6 @@ msolver *msolve(const char *op, ...)
 					exception("msolver N must be greater than 1 (N=%d)",solver->get_size());
 				}
 				solver->init(data->N);
-				for ( PARAMETERMAP *map = solver->get_map() ; map < solver->get_map() + solver->get_mapsize() ; map++ )
-				{
-					if ( *(map->array) != NULL )
-						delete [] *(map->array);
-					*(map->array) = new double[map->size];
-				}
 				verbose("msolver(op='set',param='%s',value=%d): ok",param,data->N);
 			}
 			else if ( strcmp(param,"dump") == 0 )
@@ -536,44 +539,29 @@ msolver *msolve(const char *op, ...)
 			}
 			else
 			{
-				// find mapping
-				PARAMETERMAP *map = solver->get_map(param);
-
-				// process changes to a single value
+				parameter_map &m = solver->find_map(param);
 				int n = 0;
-				if ( map->size > 1 )
+				if ( m.get_size() > 1 )
 				{
 					n = va_arg(ptr,int);
 				}
 				double value = va_arg(ptr,double);
-
-				// copy single entry
-				if ( n >= 0 && n < map->size )
-				{
-					(*(map->array))[n] = value;
-					solver->set_modified(map->modifies);
-				}
-				else
-				{
-					exception("msolver(op='set',param='%s',index=%d,value=%g): index out of bound (size=%d)",param,n,value,map->size);
-				}
+				m.set_value(n,value);
+				solver->set_modified(m.get_modifies());
 				verbose("msolver(op='set',param='%s',index=%d,value=%g): ok",param,n,value);
 			}
 		}
 		else // copy
 		{
-			// find mapping
-			PARAMETERMAP *map = solver->get_map(param);
-
-			// copy entire array
-			for ( int n = 0 ; n < map->size ; n++ )
+			parameter_map &m = solver->find_map(param);
+			for ( size_t n = 0 ; n < m.get_size() ; n++ )
 			{
 				double value = va_arg(ptr,double);
-				(*(map->array))[n] = value;
-				verbose("msolver(op='copy',param='%s',index=%d,value=%g): ok",param,n,value);
+				m.set_value(n,value);
+				if ( solver->is_enable_verbose() ) verbose("msolver(op='copy',param='%s',index=%d,value=%g): ok",param,n,value);
 			}
-			solver->set_modified(map->modifies);
-			verbose("msolver(op='copy',param='%s',range=%d..%d): ok",param,0,map->size-1);
+			solver->set_modified(m.get_modifies());
+			verbose("msolver(op='copy',param='%s',range=%d..%d): ok",param,0,m.get_size()-1);
 		}
 	}
 	else if ( strcmp(op,"update") == 0 )
