@@ -51,12 +51,13 @@ apartment::apartment(MODULE *module)
 			PT_double,"core_cooling_setpoint[degF]",get_core_cooling_setpoint_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"cooling setpoint in the core space",
 			PT_int16,"core_elevators",get_core_elevators_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"number of elevators operating in the core space",
 			PT_double,"core_heating_setpoint[degF]",get_core_heating_setpoint_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"heating setpoint in the core space",
-			PT_enumeration,"core_mode",get_core_mode_offset(), PT_DEFAULT,"OFF", PT_DESCRIPTION,"operating mode of the core zone",
+			PT_set,"core_mode",get_core_mode_offset(), PT_DEFAULT,"OFF", PT_DESCRIPTION,"operating mode of the core zone",
 				PT_KEYWORD, "OFF", SPM_OFF,
 				PT_KEYWORD, "VENTILATING", SPM_VENTILATING,
 				PT_KEYWORD, "HEATING", SPM_HEATING,
 				PT_KEYWORD, "COOLING", SPM_COOLING,
-			PT_int16,"core_laundry_units",get_core_laundry_units_offset(), PT_DEFAULT,"", PT_DESCRIPTION,"number of community/shared washer/dryers pairs installed in the core space",
+			PT_int16,"core_laundry_units",get_core_laundry_units_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"number of community/shared washer/dryers pairs installed in the core space",
+			PT_double,"core_temperature[degF]",get_core_temperature_offset(), PT_DESCRIPTION,"core zone air temperature",
 			PT_double,"core_width[ft]",get_core_width_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"width of the core space",
 
 			PT_double,"parking_capacity_chargers[kW]",get_parking_capacity_chargers_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"installed vehicle charger capacity",
@@ -144,6 +145,7 @@ apartment::apartment(MODULE *module)
 				PT_KEYWORD, "HEAT", UST_HEAT,
 				PT_KEYWORD, "COOL", UST_COOL,
 				PT_KEYWORD, "BOTH", UST_BOTH,
+			PT_double,"unit_temperature[degF]", get_unit_heating_efficiency_offset(), PT_DESCRIPTION,"occupied unit air temperature",
 			PT_double,"unit_width[ft]",get_unit_width_offset(), PT_DEFAULT,"4 ft", PT_DESCRIPTION,"double",
 			PT_double,"unit_window_area[sf]",get_unit_window_area_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"area of unit door",
 
@@ -154,6 +156,7 @@ apartment::apartment(MODULE *module)
 				PT_KEYWORD, "VENTILATING", SPM_VENTILATING,
 				PT_KEYWORD, "HEATING", SPM_HEATING,
 				PT_KEYWORD, "COOLING", SPM_COOLING,
+			PT_double,"vacant_temperature[degF]",get_vacant_temperature_offset(), PT_DESCRIPTION,"vacant unit air temperature",
 
 			PT_double,"Rext[Btu/degF/h]",get_Rext_offset(), PT_DEFAULT,"19", PT_DESCRIPTION,"exterior wall R-value",
 			PT_double,"Rint[Btu/degF/h]",get_Rint_offset(), PT_DEFAULT,"5", PT_DESCRIPTION,"interior wall R-value",
@@ -314,7 +317,7 @@ int apartment::init(OBJECT *parent)
 	catch (const char *errmsg)
 	{
 		error("%s",errmsg);
-#define DUMP(T,X) gl_output("%8.8s = %-12g # " #T,#X,X);
+#define DUMP(T,X) gl_output("%18.18s = %-12g # " T,#X,X);
 		gl_output("apartment '%s' model dump follows:",get_name());
 		DUMP("number of floors",N)
 		DUMP("number of units per floor",M)
@@ -351,6 +354,18 @@ int apartment::init(OBJECT *parent)
 		DUMP("unoccupied zone heat capacity (Btu/degF)",C_U)
 		DUMP("core zone heat capacity (Btu/degF)",C_C)
 		DUMP("mass heat capacity (Btu/degF)",C_M)
+		DUMP("occupied zone solar gain",Q_AS);
+		DUMP("occupied zone ventilation gain",Q_AV);
+		DUMP("occupied zone equipment gain",Q_AE);
+		DUMP("unoccupied zone solar gain",Q_US);
+		DUMP("core zone solar gain",Q_CS);
+		DUMP("core zone ventilation gain",Q_CV);
+		DUMP("unit air temperature",unit_temperature);
+		DUMP("vacant air temperature",vacant_temperature);
+		DUMP("core air temperature",core_temperature);
+		DUMP("occupied zone mode",unit_mode);
+		DUMP("unoccupied zone mode",vacant_mode);
+		DUMP("core zone mode",core_mode);
 #undef DUMP
 		return 0;		
 	}
@@ -430,14 +445,24 @@ void apartment::update_modes(void)
 {
 	double mode[4];
 	msolve("get",solver,"mode",&mode);
-	if ( system_type_central&STC_HEAT )
-	{
 
+	// core mode
+	if ( system_type_central&STC_HEAT && mode[2] > 0 )
+	{	
+		core_mode = SPM_HEATING;
 	}
-	if ( system_type_central&STC_COOL )
+	else if ( system_type_central&STC_COOL && mode[2] > 0 )
 	{
-
+		core_mode = SPM_COOLING;
 	}
+	else if ( system_type_ventilation&STV_CENTRAL )
+	{
+		core_mode = SPM_VENTILATING;
+	}
+
+	// unit/vacant mode
+	unit_mode = mode[0]<0 ? SPM_COOLING : (mode[0]>0 ? SPM_HEATING : SPM_OFF);
+	vacant_mode = mode[1]<0 ? SPM_COOLING : (mode[1]>0 ? SPM_HEATING : SPM_OFF);
 }
 
 TIMESTAMP apartment::precommit(TIMESTAMP t1)

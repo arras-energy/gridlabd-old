@@ -32,9 +32,9 @@
 
 // system plant mode
 #define SPM_OFF 0x0000
-#define SPM_VENTILATING 0x0001
-#define SPM_HEATING 0x0002
-#define SPM_COOLING 0x0003
+#define SPM_VENTILATING 0x0001 // air only (also needed for economizer operation)
+#define SPM_HEATING 0x0002 // heating enabled
+#define SPM_COOLING 0x0004 // cooling enabled
 
 // system type ventilation
 #define STV_NONE 0x0000
@@ -63,7 +63,7 @@ public:
 	typedef enumeration PARKINGCONFIGURATION;
 	typedef set SYSTEMTYPECENTRAL;
 	typedef enumeration SYSTEMTYPEECONOMIZER;
-	typedef enumeration SYSTEMPLANTMODE;
+	typedef set SYSTEMPLANTMODE;
 	typedef enumeration SYSTEMTYPEVENTILATION; 
 	typedef set UNITAPPLIANCETYPE;
 	typedef set UNITSYSTEMTYPE;
@@ -97,8 +97,9 @@ public:
 	GL_ATOMIC(CORECONFIGURATION,core_configuration);
 	GL_ATOMIC(int16,core_elevators);
 	GL_ATOMIC(double,core_heating_setpoint);
-	GL_ATOMIC(SYSTEMPLANTMODE,core_mode);
 	GL_ATOMIC(int16,core_laundry_units);
+	GL_ATOMIC(SYSTEMPLANTMODE,core_mode);
+	GL_ATOMIC(double,core_temperature);
 	GL_ATOMIC(double,core_width);
 
 	GL_ATOMIC(double,parking_capacity_chargers);
@@ -156,11 +157,13 @@ public:
 	GL_ATOMIC(double,unit_heating_setpoint);
 	GL_ATOMIC(SYSTEMPLANTMODE,unit_mode);
 	GL_ATOMIC(UNITSYSTEMTYPE,unit_system_type);
+	GL_ATOMIC(double,unit_temperature);
 	GL_ATOMIC(double,unit_width);
 	GL_ATOMIC(double,unit_window_area);
 
 	GL_ATOMIC(double,vacant_cooling_setpoint);
 	GL_ATOMIC(double,vacant_heating_setpoint);
+	GL_ATOMIC(double,vacant_temperature);
 	GL_ATOMIC(SYSTEMPLANTMODE,vacant_mode);
 
 	GL_ATOMIC(double,Rext);
