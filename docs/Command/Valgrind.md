@@ -1,4 +1,4 @@
-[[Command/Valgrind]] -- Run gridlabd with valgrind
+[[/Command/Valgrind]] -- Run gridlabd with valgrind
 
 # Synopsis
 
@@ -16,6 +16,6 @@ host% sudo yum install valgrind
 ~~~
 
 # See also
-* [[Command/Gdb]]
-* [[Command/Lldb]]
+* [[/Command/Gdb]]
+* [[/Command/Lldb]]
 * [Valgrind Documentation](https://valgrind.org/docs/)

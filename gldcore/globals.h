@@ -421,6 +421,9 @@ GLOBAL int global_nondeterminism_warning INIT(0); /**< flag to enable nondetermi
 /* Variable: global_compileonly */
 GLOBAL int global_compileonly INIT(0); /**< flag to enable compile-only option (does not actually start the simulation) */
 
+/* Variable: global_compileonly */
+GLOBAL int global_initializeonly INIT(0); /**< flag to enable initialize-only option (does not actually start the simulation) */
+
 /* Variable: global_server_portnum */
 GLOBAL int global_server_portnum INIT(0); /**< port used in server mode (6267 was assigned by IANA Dec 2010) */
 

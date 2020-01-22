@@ -149,6 +149,7 @@ public:
 	int mt_profile(int argc, const char *argv[]);
 	int pauseatexit(int argc, const char *argv[]);
 	int compile(int argc, const char *argv[]);
+	int initialize(int argc, const char *argv[]);
 	int license(int argc, const char *argv[]);
 	int server_portnum(int argc, const char *argv[]);
 	int server_inaddr(int argc, const char *argv[]);
