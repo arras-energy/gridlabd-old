@@ -460,7 +460,8 @@ void apartment::update_modes(void)
 		core_mode = SPM_VENTILATING;
 	}
 
-	// unit/vacant mode
+	// TODO: unit/vacant mode
+#warning "unit/vacant mode not implemented"
 	unit_mode = mode[0]<0 ? SPM_COOLING : (mode[0]>0 ? SPM_HEATING : SPM_OFF);
 	vacant_mode = mode[1]<0 ? SPM_COOLING : (mode[1]>0 ? SPM_HEATING : SPM_OFF);
 }
