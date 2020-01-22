@@ -1,0 +1,16 @@
+// test_industial.glm
+// Copyright (C) 2020, Regents of the Leland Stanford Junior University
+
+clock
+{
+	timezone "US/CA/San Francisco";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
+
+module industrial;
+
+object industrial
+{
+	naics_code 3118; // bakery
+}
