@@ -39,20 +39,20 @@ industrial::industrial(MODULE *module)
 				PT_DEFAULT, "1.0", 
 				PT_DESCRIPTION, "power factor for constant impedance load",
 
-			PT_double, "stall_voltage[pu]", get_stall_voltage_offset(),
-				PT_DEFAULT, "0.6 pu",
-				PT_DESCRIPTION, "voltage at which motors will stall",
+			// PT_double, "stall_voltage[pu]", get_stall_voltage_offset(),
+			// 	PT_DEFAULT, "0.6 pu",
+			// 	PT_DESCRIPTION, "voltage at which motors will stall",
 
-			PT_double, "start_voltage[pu]", get_start_voltage_offset(),
-				PT_DEFAULT, "0.7 pu",
-				PT_DESCRIPTION, "voltage at which motors will start",
+			// PT_double, "start_voltage[pu]", get_start_voltage_offset(),
+			// 	PT_DEFAULT, "0.7 pu",
+			// 	PT_DESCRIPTION, "voltage at which motors will start",
 
 			PT_double, "total_power[W]", get_total_power_offset(),
 				PT_DEFAULT, "0 MW",
 				PT_DESCRIPTION, "total facility power demand",
 
-			PT_bool, "motor_stalled", get_motor_stalled_offset(),
-				PT_DESCRIPTION, "motor are stalled",
+			// PT_bool, "motor_stalled", get_motor_stalled_offset(),
+			// 	PT_DESCRIPTION, "motor are stalled",
 
 			NULL)<1){
 				char msg[256];
