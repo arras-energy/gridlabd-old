@@ -28,7 +28,7 @@ object load
 
 module industrial
 {
-	naics_data_file "../naics_data_file.csv";
+	naics_data_file "../../naics_data_file.csv";
 }
 
 object industrial
