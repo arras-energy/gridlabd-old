@@ -22,10 +22,7 @@ The `industrial` object implements a general industrial load model based on NAIC
 
 ~~~
 module powerflow;
-module industrial
-{
-	naics_data_file "naics_data_file.csv";
-}
+module industrial;
 object load
 {
 	phases ABCD;
