@@ -13,9 +13,9 @@ module industrial
 
 # Description
 
-The NAICS data file contains the load composition for various industrial loads.
+The NAICS data file contains the load composition for various industrial loads. All motor and power electronic loads are considered to be constant power.
 
-The current data support the following facilities:
+The current data supports the following facilities:
 
 | NAICS Code | Industrial Load Type       | NERC Code | Motor A | Motor B | Motor C | Motor D | Power Electronics | Constant Impedance | Constant Current |
 | ---------- | -------------------------- | --------- | ------- | ------- | ------- | ------- | ----------------- | ------------------ | ---------------- |
