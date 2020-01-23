@@ -51,6 +51,9 @@ industrial::industrial(MODULE *module)
 				PT_DEFAULT, "0 MW",
 				PT_DESCRIPTION, "total facility power demand",
 
+			PT_bool, "motor_stalled", get_motor_stalled_offset(),
+				PT_DESCRIPTION, "motor are stalled",
+
 			NULL)<1){
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
@@ -102,6 +105,7 @@ TIMESTAMP industrial::precommit(TIMESTAMP t1)
 	base_load[0]->setp(phase_power);
 	base_load[1]->setp(phase_power);
 	base_load[2]->setp(phase_power);
+	// TODO: implement stalling behavior based on voltage
 	return TS_NEVER;
 }
 
