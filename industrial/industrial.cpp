@@ -47,7 +47,7 @@ industrial::industrial(MODULE *module)
 				PT_DEFAULT, "0.7 pu",
 				PT_DESCRIPTION, "voltage at which motors will start",
 
-			PT_double, "total_power[MW]", get_total_power_offset(),
+			PT_double, "total_power[W]", get_total_power_offset(),
 				PT_DEFAULT, "0 MW",
 				PT_DESCRIPTION, "total facility power demand",
 
