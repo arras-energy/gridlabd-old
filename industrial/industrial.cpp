@@ -117,7 +117,8 @@ TIMESTAMP industrial::precommit(TIMESTAMP t1)
 
 naics::naics(const char *filename)
 {
-	FILE *fp = fopen(filename,"r");
+	char pathname[1024];
+	FILE *fp = fopen(gl_findfile(filename,NULL,R_OK,pathname,sizeof(pathname)) ? pathname : filename,"r");
 	if ( fp == NULL )
 	{
 		throw "unable to open naics data file";
