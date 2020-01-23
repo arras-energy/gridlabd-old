@@ -1,6 +1,8 @@
 // test_industial.glm
 // Copyright (C) 2020, Regents of the Leland Stanford Junior University
 
+#set savefile=test_industrial.json
+
 clock
 {
 	timezone "US/CA/San Francisco";
@@ -8,6 +10,7 @@ clock
 	stoptime "2021-01-01 00:00:00 PST";
 }
 
+module tape;
 module powerflow;
 
 object load
@@ -15,6 +18,12 @@ object load
 	phases ABCD;
 	nominal_voltage 12.47 kV;
 	name "test";
+	object recorder 
+	{
+		file "test_industrial.csv";
+		property constant_power_A,constant_power_B,constant_power_C,constant_current_A,constant_current_B,constant_current_C,constant_impedance_A,constant_impedance_B,constant_impedance_C;
+		interval 1h;
+	};
 }
 
 module industrial
@@ -26,4 +35,5 @@ object industrial
 {
 	parent "test";
 	naics_code 32511; // bakery
+	total_power 1.0 MW;
 }
