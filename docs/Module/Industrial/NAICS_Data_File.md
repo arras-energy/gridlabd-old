@@ -9,6 +9,7 @@ module industrial
 {
     naics_data_file "<file-name>";
 }
+~~~
 
 # Description
 
