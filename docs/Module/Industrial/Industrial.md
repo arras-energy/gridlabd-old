@@ -41,6 +41,6 @@ object load
 
 # See also
 
-* (NERC Technical Reference Document: Dynamic Load Modeling (December 2016))[https://www.nerc.com/comm/PC/LoadModelingTaskForceDL/Dynamic%20Load%20Modeling%20Tech%20Ref%202016-11-14%20-%20FINAL.PDF]
-* (NAICS Codes)[https://www.naics.com/code-search]
+* [NERC Technical Reference Document: Dynamic Load Modeling (December 2016)](https://www.nerc.com/comm/PC/LoadModelingTaskForceDL/Dynamic%20Load%20Modeling%20Tech%20Ref%202016-11-14%20-%20FINAL.PDF)
+* [NAICS Codes](https://www.naics.com/code-search)
 * [[/Module/Industrial]]
