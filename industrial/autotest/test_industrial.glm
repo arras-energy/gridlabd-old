@@ -34,6 +34,6 @@ module industrial
 object industrial
 {
 	parent "test";
-	naics_code 32511; // bakery
+	naics_code 325; // petro-chemical plant
 	total_power 1.0 MW;
 }
