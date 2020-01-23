@@ -1,4 +1,4 @@
-[[/Module/Industrial/NAICS_Data_File]] -- NAICS Data File
+[[/Module/Industrial/NAICS Data]] -- NAICS Data File
 
 # Synopsis
 
