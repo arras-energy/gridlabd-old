@@ -8,9 +8,22 @@ clock
 	stoptime "2021-01-01 00:00:00 PST";
 }
 
-module industrial;
+module powerflow;
+
+object load
+{
+	phases ABCD;
+	nominal_voltage 12.47 kV;
+	name "test";
+}
+
+module industrial
+{
+	naics_data_file "../naics_data_file.csv";
+}
 
 object industrial
 {
-	naics_code 3118; // bakery
+	parent "test";
+	naics_code 32511; // bakery
 }
