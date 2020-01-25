@@ -5,6 +5,7 @@
 #define _DATABASE_H
 
 #include "gridlabd.h"
+#include "jsondata.h"
 
 // Define: DBO_SHOWQUERY
 //  Show query when verbose is on
@@ -62,6 +63,8 @@ private:
     CURL *curl_read;
     char *url;
     void curl_init();
+    jsondata get(const std::string& query);
+    jsondata post(std::string& post);
 
 public:
 

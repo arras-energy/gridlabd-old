@@ -3,8 +3,6 @@
 
 #include "database.h"
 
-#include <iostream>
-
 EXPORT_CREATE(database);
 EXPORT_INIT(database);
 // EXPORT_COMMIT(database);
@@ -65,7 +63,7 @@ database::database(MODULE *module)
             NULL);
 
         gl_global_create("influxdb::default_hostname",
-            PT_char256,database::default_password.get_addr(),
+            PT_char256,database::default_hostname.get_addr(),
             PT_ACCESS,PA_PUBLIC,
             PT_DESCRIPTION,"default InfluxDB hostname",
             NULL);
@@ -77,12 +75,10 @@ database::database(MODULE *module)
             NULL);
 
         gl_global_create("influxdb::default_database",
-            PT_char256,database::default_password.get_addr(),
+            PT_char256,database::default_database.get_addr(),
             PT_ACCESS,PA_PUBLIC,
             PT_DESCRIPTION,"default InfluxDB database",
             NULL);
-
-       curl_init();
     }
 }
 
@@ -123,8 +119,12 @@ void database::curl_init()
     curl_easy_setopt(curl_write, CURLOPT_TCP_KEEPINTVL, 60L);
     FILE *devnull = fopen("/dev/null", "w+");
     curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, devnull);
+    curl_easy_setopt(curl_write, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    curl_easy_setopt(curl_write, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl_write, CURLOPT_USERPWD, (const char *)password);
 
-    sprintf(url,"http://%s:%d/query?db=%s&q=",(const char*)hostname,port,(const char*)dbname);
+    // setup curl read
+    sprintf(url,"http://%s:%d/query?db=%s&q=%%s",(const char*)hostname,port,(const char*)dbname);
     curl_read = curl_easy_init();
     curl_easy_setopt(curl_read, CURLOPT_SSL_VERIFYPEER, 0); 
     curl_easy_setopt(curl_read, CURLOPT_CONNECTTIMEOUT, 10);
@@ -132,15 +132,63 @@ void database::curl_init()
     curl_easy_setopt(curl_read, CURLOPT_TCP_KEEPIDLE, 120L);
     curl_easy_setopt(curl_read, CURLOPT_TCP_KEEPINTVL, 60L);
     curl_easy_setopt(curl_read, CURLOPT_WRITEFUNCTION, WriteCallback);
+    curl_easy_setopt(curl_read, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    curl_easy_setopt(curl_read, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl_read, CURLOPT_USERPWD, (const char *)password);
+
+    get("show databases");
+}
+
+jsondata database::get(const std::string& query)
+{
+    std::string buffer;
+    char *query_string;
+    asprintf(&query_string,url,curl_easy_escape(curl_read, query.c_str(), query.size()));
+    CURLcode response;
+    curl_easy_setopt(curl_read, CURLOPT_URL, query_string);
+    curl_easy_setopt(curl_read, CURLOPT_WRITEDATA, &buffer);
+    response = curl_easy_perform(curl_read);
+    if (response != CURLE_OK) 
+    {
+        exception(curl_easy_strerror(response));
+    }
+    // std::cout << query_string << " -> " << buffer.c_str() << std::endl;
+    free(query_string);
+    return jsondata(buffer.c_str());
+}
+
+jsondata database::post(std::string& post)
+{
+    CURLcode response;
+    long code;
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, post.c_str());
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) post.length());
+    response = curl_easy_perform(curl_write);
+    curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
+    if ( response != CURLE_OK ) 
+    {
+        exception(curl_easy_strerror(response));
+    }
+    if ( code < 200 || code > 206 ) 
+    {
+        exception((std::string("influxdb response code = ") + std::to_string(code)).c_str());
+    }
+    return jsondata();
 }
 
 int database::create(void) 
 {
+    username = default_username;
+    dbname = default_database;
+    password = default_password;
+    hostname = default_hostname;
+    port = default_port;
     return 1; /* return 1 on success, 0 on failure */
 }
 
 int database::init(OBJECT *parent)
 {
+    curl_init();
     return 1;
 }
 

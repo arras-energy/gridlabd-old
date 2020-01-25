@@ -1,6 +1,8 @@
-module influxdb;
+module influxdb
+{
+	default_database "test";
+}
 
 object database
 {
-    
 }

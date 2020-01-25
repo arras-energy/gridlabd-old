@@ -14,6 +14,6 @@ influxdb_influxdb_la_LIBADD += $(INFLUXDB_LIBS)
 influxdb_influxdb_la_SOURCES =
 influxdb_influxdb_la_SOURCES += influxdb/collector.cpp influxdb/collector.h
 influxdb_influxdb_la_SOURCES += influxdb/database.cpp influxdb/database.h
-influxdb_influxdb_la_SOURCES += influxdb/influxdb.cpp influxdb/influxdb.h
+influxdb_influxdb_la_SOURCES += influxdb/influxdb.cpp influxdb/influxdb.h influxdb/jsondata.h
 influxdb_influxdb_la_SOURCES += influxdb/player.cpp influxdb/player.h
 influxdb_influxdb_la_SOURCES += influxdb/recorder.cpp influxdb/recorder.h
