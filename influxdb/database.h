@@ -4,8 +4,9 @@
 #ifndef _DATABASE_H
 #define _DATABASE_H
 
-#include "gridlabd.h"
 #include "jsondata.h"
+
+#include "gridlabd.h"
 
 // Define: DBO_SHOWQUERY
 //  Show query when verbose is on
@@ -22,6 +23,8 @@
 // Define: DBO_OVERWRITE
 //  Overwrite existing file when dumping and backing up
 #define DBO_OVERWRITE  0x0008 
+
+typedef std::list<gld_property> references;
 
 class database : public gld_object
 {
@@ -63,8 +66,23 @@ private:
     CURL *curl_read;
     char *url;
     void curl_init();
-    jsondata get(const std::string& query);
-    jsondata post(std::string& post);
+    DynamicJsonDocument get(const std::string& query);
+    DynamicJsonDocument get(const char *format,...);
+    DynamicJsonDocument post_query(std::string& query);
+    DynamicJsonDocument post_query(const char *format,...);
+    DynamicJsonDocument post_write(std::string& post);
+    DynamicJsonDocument post_write(const char *format,...);
+
+    bool find_database(const char *name);
+    bool create_database(const char *name);
+    bool drop_database(const char *name);
+
+    bool find_table(const char *name=NULL);
+    bool create_table(const char *name=NULL);
+    bool drop_table(const char *name=NULL);
+
+    bool add_data(const char *table,TIMESTAMP t, references list);
+    bool get_data(const char *table,TIMESTAMP t0, TIMESTAMP t1, references list);
 
 public:
 

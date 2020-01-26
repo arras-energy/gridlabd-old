@@ -1,6 +1,8 @@
 // database.cpp
 // Copyright (C) 2020 Regents of the Leland Stanford Junior University
 
+#include <iostream>
+
 #include "database.h"
 
 EXPORT_CREATE(database);
@@ -135,11 +137,84 @@ void database::curl_init()
     curl_easy_setopt(curl_read, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
     curl_easy_setopt(curl_read, CURLOPT_SSL_VERIFYPEER, 0L);
     curl_easy_setopt(curl_read, CURLOPT_USERPWD, (const char *)password);
-
-    get("show databases");
 }
 
-jsondata database::get(const std::string& query)
+bool database::find_table(const char *name)
+{
+    if ( name == NULL )
+        name = dbname;
+    return find_database(name);
+}
+
+bool database::create_table(const char *name)
+{
+    if ( name == NULL )
+        name = dbname;
+    return create_database(name);
+}
+
+bool database::drop_table(const char *name)
+{
+    if ( name == NULL )
+        name = dbname;
+    return drop_database(name);
+}
+
+bool database::find_database(const char *name)
+{
+    DynamicJsonDocument result = get("show databases");
+    bool found = false;
+#define GET(result,n) (result["results"][0]["series"][0]["values"][n][0])
+    const char *item;
+    for ( size_t n = 0; (item=GET(result,n)) != NULL ; n++ )
+    {
+        if ( strcmp(item,name) == 0 )
+        {
+            found = true;
+            break;
+        }
+    }
+    return found;
+}
+
+bool database::create_database(const char *name)
+{
+    verbose("creating database %s", name);
+    DynamicJsonDocument result = post_query("create database %s",name);
+    if ( result["results"][0]["statement_id"] == 0 )
+        return true;
+    else
+    {
+        exception("database::create_database(name='%s'): failed, result = %s", name, (const char*)result["results"]);
+    }
+    return find_database(name);
+}
+
+bool database::drop_database(const char *name)
+{
+    verbose("dropping database %s", name);
+    DynamicJsonDocument result = post_query("drop database %s",name);
+    if ( result["results"][0]["statement_id"] == 0 )
+        return true;
+    else
+    {
+        exception("database::drop_database(name='%s'): failed, result = %s", name, (const char*)result["results"]);
+    }
+    return ! find_database(name);
+}
+
+DynamicJsonDocument database::get(const char *format, ...)
+{
+    va_list ptr;
+    va_start(ptr,format);
+    char *buffer;
+    vasprintf(&buffer,format,ptr);
+    DynamicJsonDocument result = get(std::string(buffer));
+    free(buffer);
+    va_end(ptr);
+    return result;
+}
+DynamicJsonDocument database::get(const std::string& query)
 {
     std::string buffer;
     char *query_string;
@@ -147,6 +222,47 @@ jsondata database::get(const std::string& query)
     CURLcode response;
     curl_easy_setopt(curl_read, CURLOPT_URL, query_string);
     curl_easy_setopt(curl_read, CURLOPT_WRITEDATA, &buffer);
+    curl_easy_setopt(curl_read, CURLOPT_POST, 0);
+    response = curl_easy_perform(curl_read);
+    if (response != CURLE_OK) 
+    {
+        exception(curl_easy_strerror(response));
+    }
+    free(query_string);
+    DynamicJsonDocument result(1024);
+    DeserializationError error = deserializeJson(result,buffer);
+    if ( error )
+    {
+        exception("json error: %s , data follows\n%s",error.c_str(),buffer.c_str());
+    }
+    debug("database::get(query='%s') -> '%s'",query_string,buffer.c_str());
+    return result;
+}
+
+DynamicJsonDocument database::post_query(const char *format, ...)
+{
+    va_list ptr;
+    va_start(ptr,format);
+    char *buffer;
+    vasprintf(&buffer,format,ptr);
+    std::string post(buffer);
+    DynamicJsonDocument result = post_query(post);
+    free(buffer);
+    va_end(ptr);
+    return result;
+}
+DynamicJsonDocument database::post_query(std::string& query)
+{
+    std::string buffer;
+    char *query_string;
+    asprintf(&query_string,url,curl_easy_escape(curl_read, query.c_str(), query.size()));
+    CURLcode response;
+    curl_easy_setopt(curl_read, CURLOPT_URL, query_string);
+    curl_easy_setopt(curl_read, CURLOPT_WRITEDATA, &buffer);
+    query.insert(0,"q=");
+    curl_easy_setopt(curl_read, CURLOPT_POST, 1);
+    curl_easy_setopt(curl_read, CURLOPT_POSTFIELDS, query.c_str());
+    curl_easy_setopt(curl_read, CURLOPT_POSTFIELDSIZE, (long) query.length());
     response = curl_easy_perform(curl_read);
     if (response != CURLE_OK) 
     {
@@ -154,13 +270,35 @@ jsondata database::get(const std::string& query)
     }
     // std::cout << query_string << " -> " << buffer.c_str() << std::endl;
     free(query_string);
-    return jsondata(buffer.c_str());
+
+    // test result
+    DynamicJsonDocument result(1024);
+    DeserializationError error = deserializeJson(result,buffer);
+    if ( error )
+    {
+        exception("json error: %s , data follows\n%s",error.c_str(),buffer.c_str());
+    }
+    debug("database::post_query(query='%s') -> '%s'",query_string,buffer.c_str());
+    return result;
 }
 
-jsondata database::post(std::string& post)
+DynamicJsonDocument database::post_write(const char *format, ...)
+{
+    va_list ptr;
+    va_start(ptr,format);
+    char *buffer;
+    vasprintf(&buffer,format,ptr);
+    std::string data(buffer);
+    DynamicJsonDocument result = post_write(data);
+    free(buffer);
+    va_end(ptr);
+    return result;
+}
+DynamicJsonDocument database::post_write(std::string& post)
 {
     CURLcode response;
     long code;
+    post.insert(0,"q=");
     curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, post.c_str());
     curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) post.length());
     response = curl_easy_perform(curl_write);
@@ -171,9 +309,50 @@ jsondata database::post(std::string& post)
     }
     if ( code < 200 || code > 206 ) 
     {
-        exception((std::string("influxdb response code = ") + std::to_string(code)).c_str());
+        char *url;
+        curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
+        exception("influxdb post response code = %d, url = '%s', post = '%s'",code,url, post.c_str());
     }
-    return jsondata();
+    debug("database::get(post='%s') -> code = %d",post.c_str(),code);
+    DynamicJsonDocument result(20);
+    deserializeJson(result,post.c_str());
+    return result;
+}
+
+bool database::add_data(const char *table, TIMESTAMP t, references items)
+{
+    exception("database::add_record() not implemented yet");
+    std::string buffer;
+    for ( references::iterator prop = items.begin() ; prop != items.end() ; prop++ )
+    {
+        OBJECT *obj = prop->get_object();
+        char record[4096];
+        if ( obj == NULL )
+        {
+            exception("database::add_data(table='%s',t=%lld,items=...) object is NULL");
+        }
+        else if ( obj->name == NULL )
+        {
+            sprintf(record,"%s_%d,name=\"%s\",value=\"%s\" %lld\n",obj->oclass->name,obj->id,prop->get_name(),(const char*)prop->get_string(),t);
+        }
+        else
+        {
+            sprintf(record,"%s,name=\"%s\",value=\"%s\" %lld\n",obj->name,prop->get_name(),(const char*)prop->get_string(),t);
+        }
+        buffer.append(record);
+    }
+    post_write(buffer);
+    return false;
+}
+
+bool database::get_data(const char *table, TIMESTAMP t0, TIMESTAMP t1, references items)
+{
+    exception("database::get_record() not implemented yet");
+    for ( references::iterator prop = items.begin() ; prop != items.end() ; prop++ )
+    {
+        std::cout << (const char*)prop->get_name() << " = " << (const char*)prop->get_string();
+    }
+    return false;
 }
 
 int database::create(void) 
@@ -189,6 +368,23 @@ int database::create(void)
 int database::init(OBJECT *parent)
 {
     curl_init();
+    if ( find_database(dbname) && (options&DBO_DROPSCHEMA) )
+    {
+        if ( ! drop_database(dbname) )
+        {
+            exception("unable to drop database %s", (const char*)dbname);
+        }
+    }
+    if ( ! find_database(dbname) && ! (options&DBO_NOCREATE) )
+    {
+        if ( ! create_database(dbname) )
+        {
+            exception("unable to create database %s",(const char*)dbname);
+        }
+    }
+
+    gld_property("")
+
     return 1;
 }
 

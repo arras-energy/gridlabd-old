@@ -1,8 +1,14 @@
+#option verbose
+#option debug
+
 module influxdb
 {
-	default_database "test";
+	default_database "test_local_database";
 }
 
 object database
 {
+	options NEWDB;
 }
+
+#on_exit 0 curl -XPOST 'http://${influxdb::default_hostname}:${influxdb::default_port}/query' --data 'q=drop+database+${influxdb::default_database}'
