@@ -90,7 +90,11 @@ def globals_glm() :
 					tmp_str = '\n' + 'global ' + p_info['type'] +' '+ p_id +' '+ p_info['value'] +';'
 					set_str = '\n' + '#set ' + p_id + '=' + p_info['value']
 				else : 
-					tmp_str = '\n' + 'global ' + p_info['type'] +' '+ p_id +' \"'+ p_info['value'] +'\";'
+					if p_info['type']=='char1024' :
+
+						tmp_str = '\n' + '#define' +' '+ p_id +' = \"'+ p_info['value'] +'\"'
+					else :
+						tmp_str = '\n' + 'global ' + p_info['type'] +' '+ p_id +' \"'+ p_info['value'] +'\";'
 					set_str = '\n' + '#set ' + p_id + '=\"' + p_info['value'] + '\"'
 				else_str = '\n' + '#else'
 				endif_str = '\n' + '#endif //' + p_id
