@@ -385,11 +385,15 @@ DynamicJsonDocument database::post_data(std::string& body)
     return result;
 }
 
-void database::start_measurement(measurements & measurement,const char *name)
+void database::start_measurement(measurements & measurement,const char *name,const char *tags, std::list<gld_property> *taglist)
 {
     if ( measurement.size() > 0 && measurement.back() != '\n' )
-        exception("cannot start a new measurement until the existing measurement has a value");
+        exception("cannot use start_measurement() before begin_measurements() is called");
     measurement.append(name);
+    if ( tags == NULL )
+        tags = this->tags;
+    if ( taglist == NULL )
+        taglist = this->taglist;
     if ( tags[0] != '\0' )
     {
         measurement.append(",");

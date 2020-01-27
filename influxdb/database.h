@@ -96,7 +96,7 @@ private:
 
 private:
     typedef std::string measurements;
-    void start_measurement(measurements & measurement,const char *name);
+    void start_measurement(measurements & measurement,const char *name,const char *tags=NULL,std::list<gld_property> *taglist=NULL);
     void add_tag(measurements &measurement, const char *name, const char *value);
     void add_tag(measurements &measurement, const char *name, double value);
     void add_tag(measurements &measurement, const char *name, long long value);
