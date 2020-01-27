@@ -3032,8 +3032,17 @@ public:
 	inline gld_property(void) : pstruct(nullpstruct), obj(NULL) {};
 
 	// Constructor: gld_property(gld_object *o, const char *n)
-	inline gld_property(gld_object *o, const char *n) : pstruct(nullpstruct), obj(o->my()) { gld_property(o->my(),n); };
-
+	inline gld_property(gld_object *o, const char *n) : pstruct(nullpstruct), obj(o->my())
+	{ 
+		if (o) 
+			callback->properties.get_property(o->my(),n,&pstruct); 
+		else 
+		{
+			GLOBALVAR *v=callback->global.find(n); 
+			pstruct.prop= (v?v->prop:NULL);
+		} 
+	};
+	
 	// Constructor: gld_property(OBJECT *o, const char *n)
 	inline gld_property(OBJECT *o, const char *n) : pstruct(nullpstruct), obj(o)
 	{ 
