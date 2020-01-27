@@ -24,8 +24,6 @@
 //  Overwrite existing file when dumping and backing up
 #define DBO_OVERWRITE  0x0008 
 
-typedef std::list<gld_property> references;
-
 class database : public gld_object
 {
 
@@ -58,7 +56,7 @@ public:
 
     int create(void);
     int init(OBJECT *parent);
-    void term(void);
+    int finalize(void);
 
 private:
 
@@ -72,6 +70,7 @@ private:
     DynamicJsonDocument post_query(const char *format,...);
     DynamicJsonDocument post_write(std::string& post);
     DynamicJsonDocument post_write(const char *format,...);
+    DynamicJsonDocument post_data(std::string& body);
 
     bool find_database(const char *name);
     bool create_database(const char *name);
@@ -81,8 +80,23 @@ private:
     bool create_table(const char *name=NULL);
     bool drop_table(const char *name=NULL);
 
-    bool add_data(const char *table,TIMESTAMP t, references list);
-    bool get_data(const char *table,TIMESTAMP t0, TIMESTAMP t1, references list);
+    typedef std::string measurements;
+    void start_measurement(measurements & measurement,const char *name);
+    void add_tag(measurements &measurement, const char *name, const char *value);
+    void add_tag(measurements &measurement, const char *name, double value);
+    void add_tag(measurements &measurement, const char *name, long long value);
+    void add_tag(measurements &measurement, const char *name, gld_property &value);
+    void add_tag(measurements &measurement, const char *name, gld_global &value);
+    void set_value(measurements &measurement, const char *value, TIMESTAMP t=0);
+    void set_value(measurements &measurement, double value, TIMESTAMP t=0);
+    void set_value(measurements &measurement, long long value, TIMESTAMP t=0);
+    void set_value(measurements &measurement, gld_property &value, TIMESTAMP t=0);
+    void set_value(measurements &measurement, gld_global &value, TIMESTAMP t=0);
+    void write_data(measurements &measurement, const char *data, size_t len, size_t max);
+    void commit_measurements(measurements &measurement);
+
+private:
+    void add_log(const char *format, ...);
 
 public:
 

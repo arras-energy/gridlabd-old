@@ -1,5 +1,10 @@
-#option verbose
-#option debug
+
+clock 
+{
+	timezone "US/CA/San Francisco";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
 
 module influxdb
 {
@@ -11,4 +16,13 @@ object database
 	options NEWDB;
 }
 
-#on_exit 0 curl -XPOST 'http://${influxdb::default_hostname}:${influxdb::default_port}/query' --data 'q=drop+database+${influxdb::default_database}'
+object database
+{
+}
+
+module residential;
+object house
+{
+
+}
+#on_exit 0 curl -s -XPOST 'http://${influxdb::default_hostname}:${influxdb::default_port}/query' --data 'q=drop+database+${influxdb::default_database}'  >/dev/null

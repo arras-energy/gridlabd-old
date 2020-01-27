@@ -3410,6 +3410,9 @@ public:
 	// Method: GLOBALVAR*
 	inline operator GLOBALVAR*(void) { return var; };
 
+	// Method: get_name
+	inline const char* get_name(void) { return var->prop->name; };
+
 	// Method: is_valid
 	inline bool is_valid(void) { return var!=NULL; };
 

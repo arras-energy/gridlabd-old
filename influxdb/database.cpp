@@ -7,7 +7,7 @@
 
 EXPORT_CREATE(database);
 EXPORT_INIT(database);
-// EXPORT_COMMIT(database);
+EXPORT_FINALIZE(database);
 
 CLASS *database::oclass = NULL;
 database *database::defaults = NULL;
@@ -87,6 +87,43 @@ database::database(MODULE *module)
 database::~database(void)
 {
 
+}
+
+int database::create(void) 
+{
+    username = default_username;
+    dbname = default_database;
+    password = default_password;
+    hostname = default_hostname;
+    port = default_port;
+    return 1; /* return 1 on success, 0 on failure */
+}
+
+int database::init(OBJECT *parent)
+{
+    curl_init();
+    if ( find_database(dbname) && (options&DBO_DROPSCHEMA) )
+    {
+        if ( ! drop_database(dbname) )
+        {
+            exception("unable to drop database %s", (const char*)dbname);
+        }
+    }
+    if ( ! find_database(dbname) && ! (options&DBO_NOCREATE) )
+    {
+        if ( ! create_database(dbname) )
+        {
+            exception("unable to create database %s",(const char*)dbname);
+        }
+    }
+    add_log("initialized");
+    return 1;
+}
+
+int database::finalize(void)
+{
+    add_log("finalized");
+    return 1;
 }
 
 static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
@@ -294,13 +331,14 @@ DynamicJsonDocument database::post_write(const char *format, ...)
     va_end(ptr);
     return result;
 }
-DynamicJsonDocument database::post_write(std::string& post)
+
+DynamicJsonDocument database::post_write(std::string& body)
 {
     CURLcode response;
     long code;
-    post.insert(0,"q=");
-    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, post.c_str());
-    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) post.length());
+    body.insert(0,"q=");
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, body.c_str());
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) body.length());
     response = curl_easy_perform(curl_write);
     curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
     if ( response != CURLE_OK ) 
@@ -311,84 +349,158 @@ DynamicJsonDocument database::post_write(std::string& post)
     {
         char *url;
         curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
-        exception("influxdb post response code = %d, url = '%s', post = '%s'",code,url, post.c_str());
+        exception("influxdb post response code = %d, url = '%s', body = '%s'",code,url, body.c_str());
     }
-    debug("database::get(post='%s') -> code = %d",post.c_str(),code);
+    debug("database::post(body='%s') -> code = %d",body.c_str(),code);
     DynamicJsonDocument result(20);
-    deserializeJson(result,post.c_str());
+    deserializeJson(result,body.c_str());
     return result;
 }
 
-bool database::add_data(const char *table, TIMESTAMP t, references items)
+DynamicJsonDocument database::post_data(std::string& body)
 {
-    exception("database::add_record() not implemented yet");
-    std::string buffer;
-    for ( references::iterator prop = items.begin() ; prop != items.end() ; prop++ )
+    CURLcode response;
+    long code;
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, body.c_str());
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) body.length());
+    response = curl_easy_perform(curl_write);
+    curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
+    if ( response != CURLE_OK ) 
     {
-        OBJECT *obj = prop->get_object();
-        char record[4096];
-        if ( obj == NULL )
-        {
-            exception("database::add_data(table='%s',t=%lld,items=...) object is NULL");
-        }
-        else if ( obj->name == NULL )
-        {
-            sprintf(record,"%s_%d,name=\"%s\",value=\"%s\" %lld\n",obj->oclass->name,obj->id,prop->get_name(),(const char*)prop->get_string(),t);
-        }
-        else
-        {
-            sprintf(record,"%s,name=\"%s\",value=\"%s\" %lld\n",obj->name,prop->get_name(),(const char*)prop->get_string(),t);
-        }
-        buffer.append(record);
+        exception(curl_easy_strerror(response));
     }
-    post_write(buffer);
-    return false;
+    if ( code < 200 || code > 206 ) 
+    {
+        char *url;
+        curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
+        exception("influxdb post response code = %d, url = '%s', body = '%s'",code,url, body.c_str());
+    }
+    debug("database::post(body='%s') -> code = %d",body.c_str(),code);
+    DynamicJsonDocument result(20);
+    deserializeJson(result,body.c_str());
+    return result;
 }
 
-bool database::get_data(const char *table, TIMESTAMP t0, TIMESTAMP t1, references items)
+void database::start_measurement(measurements & measurement,const char *name)
 {
-    exception("database::get_record() not implemented yet");
-    for ( references::iterator prop = items.begin() ; prop != items.end() ; prop++ )
-    {
-        std::cout << (const char*)prop->get_name() << " = " << (const char*)prop->get_string();
-    }
-    return false;
+    if ( measurement.size() > 0 && measurement.back() != '\n' )
+        exception("cannot start a new measurement until the existing measurement has a value");
+    measurement.append(name);
 }
 
-int database::create(void) 
+void database::write_data(measurements &measurement, const char *data, size_t len, size_t max)
 {
-    username = default_username;
-    dbname = default_database;
-    password = default_password;
-    hostname = default_hostname;
-    port = default_port;
-    return 1; /* return 1 on success, 0 on failure */
+    if ( len > 0 && len < max )
+    {
+        measurement.append(data);
+    }
+    else
+    {
+        exception("database::write_data(...,data='%s',len=%ld,max=%ld) write failed", data,len,max);
+    }
 }
 
-int database::init(OBJECT *parent)
+void database::add_tag(measurements &measurement, const char *field, const char *value)
 {
-    curl_init();
-    if ( find_database(dbname) && (options&DBO_DROPSCHEMA) )
+    if ( value )
     {
-        if ( ! drop_database(dbname) )
-        {
-            exception("unable to drop database %s", (const char*)dbname);
-        }
+        char buf[1024];
+        size_t len = snprintf(buf,sizeof(buf),",%s=%s",field,value);
+        write_data(measurement,buf,len,sizeof(buf));
     }
-    if ( ! find_database(dbname) && ! (options&DBO_NOCREATE) )
-    {
-        if ( ! create_database(dbname) )
-        {
-            exception("unable to create database %s",(const char*)dbname);
-        }
-    }
-
-    gld_property("")
-
-    return 1;
+}
+void database::add_tag(measurements &measurement, const char *field, double value)
+{
+    char buf[1024];
+    size_t len = snprintf(buf,sizeof(buf),",%s=%lg",field,value);
+    write_data(measurement,buf,len,sizeof(buf));
 }
 
-void database::term(void)
+void database::add_tag(measurements &measurement, const char *field, long long value)
 {
-    return;
+    char buf[1024];
+    size_t len = snprintf(buf,sizeof(buf),",%s=%lld",field,value);
+    write_data(measurement,buf,len,sizeof(buf));
+}
+
+void database::add_tag(measurements &measurement, const char *field, gld_property &value)
+{
+    char buf[1024];
+    size_t len = snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
+    write_data(measurement,buf,len,sizeof(buf));
+}
+
+void database::add_tag(measurements &measurement, const char *field, gld_global &value)
+{
+    char buf[1024];
+    size_t len = snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
+    write_data(measurement,buf,len,sizeof(buf));
+}
+
+void database::set_value(measurements &measurement, const char *value, TIMESTAMP t)
+{
+    if ( t == 0 ) t = gl_globalclock;
+    char buf[1024];
+    size_t len = snprintf(buf,sizeof(buf)," value=\"%s\" %lld\n",value?value:"",t);
+    write_data(measurement,buf,len,sizeof(buf));
+}
+
+void database::set_value(measurements &measurement, double value, TIMESTAMP t)
+{
+    if ( t == 0 ) t = gl_globalclock;
+    char buf[1024];
+    size_t len = snprintf(buf,sizeof(buf)," value=%lg %lld\n",value,t);
+    write_data(measurement,buf,len,sizeof(buf));
+}
+
+void database::set_value(measurements &measurement, long long value, TIMESTAMP t)
+{
+    if ( t == 0 ) t = gl_globalclock;
+    char buf[1024];
+    size_t len = snprintf(buf,sizeof(buf)," value=%lld %lld\n",value,t);
+    write_data(measurement,buf,len,sizeof(buf));
+}
+
+void database::set_value(measurements &measurement, gld_property &value, TIMESTAMP t)
+{
+    if ( t == 0 ) t = gl_globalclock;
+    char buf[1024];
+    size_t len = snprintf(buf,sizeof(buf)," value=%s %lld\n",(const char*)value.get_string(),t);
+    write_data(measurement,buf,len,sizeof(buf));
+}
+
+void database::set_value(measurements &measurement, gld_global &value, TIMESTAMP t)
+{
+    if ( t == 0 ) t = gl_globalclock;
+    char buf[1024];
+    size_t len = snprintf(buf,sizeof(buf)," value=%s %lld\n",(const char*)value.get_string(),t);
+    write_data(measurement,buf,len,sizeof(buf));
+}
+
+void database::commit_measurements(measurements &measurement)
+{
+    debug("committing measurements: %s", measurement.c_str());
+    post_data(measurement);
+}
+
+void database::add_log(const char *format, ...)
+{
+    va_list ptr;
+    va_start(ptr,format);
+    char buf[1024] = "(error logging message)";
+    vsnprintf(buf,sizeof(buf),format,ptr);
+    measurements log;
+    start_measurement(log,"log");
+    char guid[64];
+    sprintf(guid,"%08llx%08llx",get_guid()[0],get_guid()[1]);
+    add_tag(log,"guid",guid);
+    add_tag(log,"clock",(double)clock()/(double)CLOCKS_PER_SEC);
+    add_tag(log,"object",get_name());
+    add_tag(log,"hostname",get_hostname());
+    add_tag(log,"port",(long long)get_port());
+    add_tag(log,"username",get_username());
+    add_tag(log,"database",get_dbname());
+    set_value(log,buf);
+    commit_measurements(log);
+    va_end(ptr);
 }
