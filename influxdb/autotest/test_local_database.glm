@@ -17,14 +17,20 @@ module influxdb
 
 object database
 {
+	// multiple static tags
 	tags `mytag=test1,guid={GUID},tag1=xyz`;
+
+	// single dynamic tag
 	tag "database";
 	options NEWDB;
 }
 
 object database
 {
+	// difference static tags
 	tags `mytag=test2,guid={GUID},tag2=abc`;
+
+	// multiple dynamic tags
 	tag "username";
 	tag "hostname";
 }
@@ -32,10 +38,10 @@ object database
 module residential;
 object house
 {
-
+	// just something to keep the clock running
 }
 
-// only clean if running in validation folder
+// only clean if running in validation folder (useful for developers who run this model from autotest)
 #ifexist ../test_local_database.glm
 #on_exit 0 curl -s -XPOST 'http://${influxdb::default_hostname}:${influxdb::default_port}/query' --data 'q=drop+database+${influxdb::default_database}'  >/dev/null
 #endif
