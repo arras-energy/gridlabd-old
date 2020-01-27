@@ -27,7 +27,7 @@ object database
 
 object database
 {
-	// difference static tags
+	// different static tags
 	tags `mytag=test2,guid={GUID},tag2=abc`;
 
 	// multiple dynamic tags
