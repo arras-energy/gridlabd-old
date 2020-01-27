@@ -1,3 +1,7 @@
+// test_local_database.glm
+// Copyright (C) 2020 Regents of the Leland Stanford Junior University
+
+#set savefile=gridlabd.json
 
 clock 
 {
@@ -13,11 +17,16 @@ module influxdb
 
 object database
 {
+	tags `mytag=test1,guid={GUID},tag1=xyz`;
+	tag "database";
 	options NEWDB;
 }
 
 object database
 {
+	tags `mytag=test2,guid={GUID},tag2=abc`;
+	tag "username";
+	tag "hostname";
 }
 
 module residential;
@@ -25,4 +34,8 @@ object house
 {
 
 }
+
+// only clean if running in validation folder
+#ifexist ../test_local_database.glm
 #on_exit 0 curl -s -XPOST 'http://${influxdb::default_hostname}:${influxdb::default_port}/query' --data 'q=drop+database+${influxdb::default_database}'  >/dev/null
+#endif

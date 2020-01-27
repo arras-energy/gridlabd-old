@@ -43,6 +43,8 @@ database::database(MODULE *module)
                 PT_KEYWORD,"NOCREATE",(int64)DBO_NOCREATE,PT_DESCRIPTION,"prevent automatic creation of non-existent schemas",
                 PT_KEYWORD,"NEWDB",(int64)DBO_DROPSCHEMA,PT_DESCRIPTION,"destroy existing schemas before use them (risky)",
                 PT_KEYWORD,"OVERWRITE",(int64)DBO_OVERWRITE,PT_DESCRIPTION,"destroy existing files before output dump/backup results (risky)",
+            PT_char1024,"tags",get_tags_offset(),PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"constant tag list added to log entries (comma separated, no spaces)",
+            PT_method,"tag",get_tag_offset(),PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"property tag add method",
             PT_double,"sync_interval[s]",get_sync_interval_offset(),PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"interval at which on_sync is called",
             PT_int32,"tz_offset",get_tz_offset_offset(),PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"timezone offset used by timestamp in the database",
             PT_bool,"uses_dst",get_uses_dst_offset(),PT_ACCESS,PA_PUBLIC,PT_DESCRIPTION,"timestamps in database include summer time offsets",
@@ -96,6 +98,7 @@ int database::create(void)
     password = default_password;
     hostname = default_hostname;
     port = default_port;
+    taglist = new std::list<gld_property>;
     return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -386,6 +389,15 @@ void database::start_measurement(measurements & measurement,const char *name)
     if ( measurement.size() > 0 && measurement.back() != '\n' )
         exception("cannot start a new measurement until the existing measurement has a value");
     measurement.append(name);
+    if ( tags[0] != '\0' )
+    {
+        measurement.append(",");
+        measurement.append(tags);
+    }
+    for ( std::list<gld_property>::iterator tag = taglist->begin() ; tag != taglist->end() ; tag++ )
+    {
+        add_tag(measurement,tag->get_name(),*tag);
+    }
 }
 
 void database::write_data(measurements &measurement, const char *data, size_t len, size_t max)
@@ -487,20 +499,75 @@ void database::add_log(const char *format, ...)
 {
     va_list ptr;
     va_start(ptr,format);
-    char buf[1024] = "(error logging message)";
+    char buf[1024] = "(error formatting log message)";
     vsnprintf(buf,sizeof(buf),format,ptr);
     measurements log;
     start_measurement(log,"log");
     char guid[64];
     sprintf(guid,"%08llx%08llx",get_guid()[0],get_guid()[1]);
-    add_tag(log,"guid",guid);
+    add_tag(log,"type","log");
     add_tag(log,"clock",(double)clock()/(double)CLOCKS_PER_SEC);
-    add_tag(log,"object",get_name());
-    add_tag(log,"hostname",get_hostname());
-    add_tag(log,"port",(long long)get_port());
-    add_tag(log,"username",get_username());
-    add_tag(log,"database",get_dbname());
     set_value(log,buf);
     commit_measurements(log);
     va_end(ptr);
 }
+
+int database::get_taglist_size()
+{
+    size_t need = 0;
+    for ( std::list<gld_property>::iterator tag = taglist->begin() ; tag != taglist->end() ; tag++ )
+    {
+       need += snprintf(NULL,0,"%s%s=%s",need==0?"":",",tag->get_name(),(const char *)tag->get_string());
+    }
+    return need;
+}
+
+int database::get_taglist(char *buffer, int size)
+{
+    size_t pos = 0;
+    for ( std::list<gld_property>::iterator tag = taglist->begin() ; tag != taglist->end() ; tag++ )
+    {
+       pos += snprintf(buffer+pos,size-pos,"%s%s=%s",pos==0?"":",",tag->get_name(),(const char *)tag->get_string());
+    }
+    return pos;
+}
+
+int database::add_taglist(char *buffer)
+{
+    gld_property *prop = new gld_property(my(),buffer);
+    if ( prop->is_valid() )
+    {
+        taglist->push_back(*prop);
+        return strlen(buffer);
+    }
+    else
+    {
+        error("'%s' is not a valid property", buffer);
+        return 0;
+    }
+}
+
+int database::tag(char *buffer, size_t size)
+{
+    if ( buffer == NULL ) // size query/check
+    {
+        int need = get_taglist_size();
+        return size == 0 ? need : ( need < (int)size ? need : 0 );
+    }
+    else if ( size == 0 )
+    {
+        return add_taglist(buffer);
+    }
+    else
+    {
+        return get_taglist(buffer,size);
+    }
+}
+
+EXPORT int method_database_tag(OBJECT *obj, char *buffer, size_t size)
+{
+    class database *my = OBJECTDATA(obj,class database);
+    return my->tag(buffer,size);
+}
+
+
