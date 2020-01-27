@@ -8,6 +8,10 @@
 
 #include "gridlabd.h"
 
+// Define: DBO_NONE
+//  No option specified
+#define DBO_NONE       0x0000
+
 // Define: DBO_SHOWQUERY
 //  Show query when verbose is on
 #define DBO_SHOWQUERY  0x0001 
