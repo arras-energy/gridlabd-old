@@ -45,7 +45,7 @@ The `tags` property allows a list of constant tags to be added to all InfluxDB w
 ### `options`
 
 ~~~
-enumeration {SHOWQUERY|NOCREATE|NEWDB|OVERWRITE} options;
+enumeration {SHOWQUERY,NOCREATE,NEWDB,OVERWRITE} options;
 ~~~
 
 The `options` property control the database query options.  The following options are supported:
