@@ -28,7 +28,7 @@
 //  Overwrite existing file when dumping and backing up
 #define DBO_OVERWRITE  0x0008 
 
-DECL_METHOD(database,tag);
+DECL_METHOD(database,logtag);
 
 class database : public gld_object
 {
@@ -54,8 +54,8 @@ public:
     GL_ATOMIC(int16,port);
     GL_STRING(char256,dbname);
     GL_ATOMIC(set,options);
-    GL_ATOMIC(char1024,tags);
-    GL_METHOD(database,tag);
+    GL_STRING(char32,logname);
+    GL_METHOD(database,logtag);
     GL_ATOMIC(double,sync_interval);
     GL_ATOMIC(int32,tz_offset);
     GL_ATOMIC(bool,uses_dst);
@@ -90,6 +90,7 @@ private:
 
 private:
     std::list<gld_property> *taglist;
+    std::string *tagtext;
     int get_taglist_size();
     int get_taglist(char *buffer,int size);
     int add_taglist(char *buffer);

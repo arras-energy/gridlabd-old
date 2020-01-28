@@ -13,8 +13,10 @@ object database
     port <port-number>;
     database "<dbname>;
     options [SHOWQUERY|NOCREATE|NEWDB|OVERWRITE];
-    tags "<tag-list>";
-    tag "<property-name>";
+    logname "<measurement-name>";
+    logtag "<property-name>";
+    logtag "<tag-name>=<tag-value>";
+    logtag "<logtag>,<logtag>,...,<logtag>";
 }
 ~~~
 
@@ -26,21 +28,37 @@ The database object is used to maintain a connection to an InfluxDB server. Mult
 
 The following properties are supported by the `database` class.
 
-### `tag`
+### `database`
 
 ~~~
-method tag;
+string database;
 ~~~
 
-The `tag` method allows properties to be added to the tag list used by all InfluxDB write operations.  The `tag` method may be used multiple times, once for each property added.  Alternative, the properties may be listed as one or more comma-separate value lists.
+Specifies the name of the database to use.
 
-### `tags`
+### `hostname`
 
 ~~~
-string tags;
+string hostname;
 ~~~
 
-The `tags` property allows a list of constant tags to be added to all InfluxDB write operations. The tags must be of the form `<tag>=<value>`. Multiple tags may be used, separated by commas.  No spaces or special characters are permitted in tags or values.
+Specifies the DNS name to use when connecting to a server.
+
+### `logname`
+
+~~~
+string logname;
+~~~
+
+The `logname` property enables logging of database operations in a measurement so named.
+
+### `logtag`
+
+~~~
+method logtag;
+~~~
+
+The `logtag` method allows properties and `tag=value` pairs to be added to the log tag list used by log write operations.  The `logtag` method may be used multiple times, and tags may be listed as one or more comma-separate values.
 
 ### `options`
 
@@ -50,29 +68,33 @@ enumeration {SHOWQUERY,NOCREATE,NEWDB,OVERWRITE} options;
 
 The `options` property control the database query options.  The following options are supported:
 
-#### `SHOWQUERY`
+#### `NEWDB`
 
-Specifies that queries are to be showed in verbose output.
+Specifies that existing databases are to be destroyed when starting the simulation.
 
 #### `NOCREATE`
 
 Specifies that databases are not to be created automatically when starting the simulation.
 
-#### `NEWDB`
+#### `NONE`
 
-Specifies that existing databases are to be destroyed when starting the simulation.
+Specifies that no database options have been provided.
 
 #### `OVERWRITE`
 
 Specifies that existing records are to be overwritten. This is the default in InfluxDB.
 
-### `database`
+#### `SHOWQUERY`
+
+Specifies that queries are to be showed in verbose output.
+
+### `password`
 
 ~~~
-string database;
+string password;
 ~~~
 
-Specifies the name of the database to use.
+Specifies the password to use when authenticated server connections are required.
 
 ### `port`
 
@@ -89,23 +111,6 @@ string username;
 ~~~
 
 Specifies the user name to use when authenticated server connections are required.
-
-### `password`
-
-~~~
-string password;
-~~~
-
-Specifies the password to use when authenticated server connections are required.
-
-
-### `hostname`
-
-~~~
-string hostname;
-~~~
-
-Specifies the DNS name to use when connecting to a server.
 
 # See also
 

@@ -17,22 +17,21 @@ module influxdb
 
 object database
 {
-	// multiple static tags
-	tags `mytag=test1,guid={GUID},tag1=xyz`;
+	logname "log";
 
 	// single dynamic tag
-	tag "database";
+	logtag `mytag=test1,guid={GUID},database`;
+
 	options NEWDB;
 }
 
 object database
 {
-	// different static tags
-	tags `mytag=test2,guid={GUID},tag2=abc`;
+	logname "log";
 
 	// multiple dynamic tags
-	tag "username";
-	tag "hostname";
+	logtag "username";
+	logtag `mytag=test2,tag2=abc,hostname,guid={GUID}`;
 }
 
 module residential;
