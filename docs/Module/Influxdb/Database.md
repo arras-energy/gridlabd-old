@@ -7,12 +7,12 @@ GLM:
 ~~~
 object database
 {
-	username "<username>";
+    username "<username>";
     password "<password>";
     hostname "<hostname>";
     port <port-number>;
     database "<dbname>;
-    options [SHOWQUERY|NOCREATE|NEWDB|OVERWRITE];
+    options [SHOWQUERY|NEWDB];
     logname "<measurement-name>";
     logtag "<property-name>";
     logtag "<tag-name>=<tag-value>";
@@ -34,7 +34,7 @@ The following properties are supported by the `database` class.
 string database;
 ~~~
 
-Specifies the name of the database to use.
+Specifies the name of the database to use. The default database is `gridlabd`.
 
 ### `hostname`
 
@@ -42,7 +42,7 @@ Specifies the name of the database to use.
 string hostname;
 ~~~
 
-Specifies the DNS name to use when connecting to a server.
+Specifies the DNS name to use when connecting to a server. The default hostname is `localhost`.
 
 ### `logname`
 
@@ -63,7 +63,7 @@ The `logtag` method allows properties and `tag=value` pairs to be added to the l
 ### `options`
 
 ~~~
-enumeration {SHOWQUERY,NOCREATE,NEWDB,OVERWRITE} options;
+enumeration {SHOWQUERY,NEWDB} options;
 ~~~
 
 The `options` property control the database query options.  The following options are supported:
@@ -72,17 +72,9 @@ The `options` property control the database query options.  The following option
 
 Specifies that existing databases are to be destroyed when starting the simulation.
 
-#### `NOCREATE`
-
-Specifies that databases are not to be created automatically when starting the simulation.
-
 #### `NONE`
 
 Specifies that no database options have been provided.
-
-#### `OVERWRITE`
-
-Specifies that existing records are to be overwritten. This is the default in InfluxDB.
 
 #### `SHOWQUERY`
 
@@ -94,7 +86,7 @@ Specifies that queries are to be showed in verbose output.
 string password;
 ~~~
 
-Specifies the password to use when authenticated server connections are required.
+Specifies the password to use when authenticated server connections are required. The default password is `gridlabd`.
 
 ### `port`
 
@@ -102,7 +94,7 @@ Specifies the password to use when authenticated server connections are required
 integer port;
 ~~~
 
-Specifies the port number to use to connect to the server.
+Specifies the port number to use to connect to the server. The default port is `8086`.
 
 ### `username`
 
@@ -110,7 +102,7 @@ Specifies the port number to use to connect to the server.
 string username;
 ~~~
 
-Specifies the user name to use when authenticated server connections are required.
+Specifies the user name to use when authenticated server connections are required. The default username is `gridlabd`.
 
 # See also
 
