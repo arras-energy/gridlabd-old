@@ -35,6 +35,16 @@ class database : public gld_object
 
 public:
 
+    typedef std::list<gld_property> properties;
+    typedef struct {
+        std::string measurements;
+        std::string tags;
+        std::string values;
+        TIMESTAMP time;
+    } measurements;
+
+public:
+
     static char32 default_username;
     static char32 default_password;
     static char256 default_hostname;
@@ -90,7 +100,6 @@ private:
 
 private:
 
-    typedef std::list<gld_property> properties;
     properties *taglist;
     std::string *tagtext;
     int get_taglist_size();
@@ -99,12 +108,6 @@ private:
 
 private:
 
-    typedef struct {
-        std::string measurements;
-        std::string tags;
-        std::string values;
-        TIMESTAMP time;
-    } measurements;
     void start_measurement(measurements & measurement,const char *name,const char *tags=NULL,properties *taglist=NULL);
     void add_tag(measurements &measurement, const char *name, const char *value);
     void add_tag(measurements &measurement, const char *name, double value);
