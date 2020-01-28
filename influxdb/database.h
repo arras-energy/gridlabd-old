@@ -89,35 +89,47 @@ private:
     bool drop_table(const char *name=NULL);
 
 private:
-    std::list<gld_property> *taglist;
+
+    typedef std::list<gld_property> properties;
+    properties *taglist;
     std::string *tagtext;
     int get_taglist_size();
     int get_taglist(char *buffer,int size);
     int add_taglist(char *buffer);
 
 private:
-    typedef std::string measurements;
-    void start_measurement(measurements & measurement,const char *name,const char *tags=NULL,std::list<gld_property> *taglist=NULL);
+
+    typedef struct {
+        std::string measurements;
+        std::string tags;
+        std::string values;
+        TIMESTAMP time;
+    } measurements;
+    void start_measurement(measurements & measurement,const char *name,const char *tags=NULL,properties *taglist=NULL);
     void add_tag(measurements &measurement, const char *name, const char *value);
     void add_tag(measurements &measurement, const char *name, double value);
     void add_tag(measurements &measurement, const char *name, long long value);
+    void add_tag(measurements &measurement, const char *name, bool value);
     void add_tag(measurements &measurement, const char *name, gld_property &value);
     void add_tag(measurements &measurement, const char *name, gld_global &value);
-    void set_value(measurements &measurement, const char *value, TIMESTAMP t=0);
-    void set_value(measurements &measurement, double value, TIMESTAMP t=0);
-    void set_value(measurements &measurement, long long value, TIMESTAMP t=0);
-    void set_value(measurements &measurement, gld_property &value, TIMESTAMP t=0);
-    void set_value(measurements &measurement, gld_global &value, TIMESTAMP t=0);
+    void add_field(measurements &measurement, const char *name, const char *value);
+    void add_field(measurements &measurement, const char *name, double value);
+    void add_field(measurements &measurement, const char *name, long long value);
+    void add_field(measurements &measurement, const char *name, bool value);
+    void add_field(measurements &measurement, gld_property &value);
+    void add_field(measurements &measurement, gld_global &value);
     void write_data(measurements &measurement, const char *data, size_t len, size_t max);
-    void commit_measurements(measurements &measurement);
+    void commit_measurements(measurements &measurement, TIMESTAMP t=0);
 
 private:
+
     void add_log(const char *format, ...);
 
 public:
 
     static CLASS *oclass;
     static class database *defaults;
+
 };
 
 #endif

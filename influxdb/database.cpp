@@ -386,136 +386,138 @@ DynamicJsonDocument database::post_data(std::string& body)
     return result;
 }
 
-void database::start_measurement(measurements & measurement,const char *name,const char *tags, std::list<gld_property> *tagprops)
+void database::start_measurement(measurements & measurement,const char *name,const char *tags, properties *tagprops)
 {
-    if ( measurement.size() > 0 && measurement.back() != '\n' )
+    if ( measurement.measurements.size() > 0 && measurement.measurements.back() != '\n' )
         exception("cannot use start_measurement() before begin_measurements() is called");
-    measurement.append(name);
-    if ( tags == NULL )
-        tags = tagtext->c_str();
-    if ( tagprops == NULL )
-        tagprops = taglist;
-    if ( tags[0] != '\0' )
+    measurement.tags = name;
+    if ( tags != NULL )
     {
-        measurement.append(",");
-        measurement.append(tags);
+        measurement.tags.append(",");
+        measurement.tags.append(tags);
     }
-    for ( std::list<gld_property>::iterator tag = tagprops->begin() ; tag != tagprops->end() ; tag++ )
+    if ( tagprops != NULL )
     {
-        add_tag(measurement,tag->get_name(),*tag);
+        for ( properties::iterator prop = tagprops->begin() ; prop != tagprops->end() ; prop++ )
+        {
+            add_tag(measurement,prop->get_name(),*prop);
+        }
     }
-}
-
-void database::write_data(measurements &measurement, const char *data, size_t len, size_t max)
-{
-    if ( len > 0 && len < max )
-    {
-        measurement.append(data);
-    }
-    else
-    {
-        exception("database::write_data(...,data='%s',len=%ld,max=%ld) write failed", data,len,max);
-    }
+    measurement.values = "";
+    measurement.time = 0;
 }
 
 void database::add_tag(measurements &measurement, const char *field, const char *value)
 {
     if ( value )
     {
-        char buf[1024];
-        size_t len = snprintf(buf,sizeof(buf),",%s=%s",field,value);
-        write_data(measurement,buf,len,sizeof(buf));
+        char buf[1024] = "(format error)";
+        snprintf(buf,sizeof(buf),",%s=%s",field,value);
+        measurement.tags.append(buf);
     }
 }
 void database::add_tag(measurements &measurement, const char *field, double value)
 {
-    char buf[1024];
-    size_t len = snprintf(buf,sizeof(buf),",%s=%lg",field,value);
-    write_data(measurement,buf,len,sizeof(buf));
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%lg",field,value);
+    measurement.tags.append(buf);
 }
 
 void database::add_tag(measurements &measurement, const char *field, long long value)
 {
-    char buf[1024];
-    size_t len = snprintf(buf,sizeof(buf),",%s=%lld",field,value);
-    write_data(measurement,buf,len,sizeof(buf));
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%lld",field,value);
+    measurement.tags.append(buf);
+}
+
+void database::add_tag(measurements &measurement, const char *field, bool value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%s",field,value?"true":"false");
+    measurement.tags.append(buf);
 }
 
 void database::add_tag(measurements &measurement, const char *field, gld_property &value)
 {
-    char buf[1024];
-    size_t len = snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
-    write_data(measurement,buf,len,sizeof(buf));
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
+    measurement.tags.append(buf);
 }
 
 void database::add_tag(measurements &measurement, const char *field, gld_global &value)
 {
-    char buf[1024];
-    size_t len = snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
-    write_data(measurement,buf,len,sizeof(buf));
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
+    measurement.tags.append(buf);
 }
 
-void database::set_value(measurements &measurement, const char *value, TIMESTAMP t)
+void database::add_field(measurements &measurement, const char *name, const char *value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=\"%s\"",measurement.values.size()>0?",":"",name,value?value:"");
+    measurement.values.append(buf);
+}
+
+void database::add_field(measurements &measurement, const char *name, double value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=%lg",measurement.values.size()>0?",":"",name,value);
+    measurement.values.append(buf);
+}
+
+void database::add_field(measurements &measurement, const char *name, long long value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=%lld",measurement.values.size()>0?",":"",name,value);
+    measurement.values.append(buf);
+}
+
+void database::add_field(measurements &measurement, const char *name, bool value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=%s",measurement.values.size()>0?",":"",name,value?"true":"false");
+    measurement.values.append(buf);
+}
+
+void database::add_field(measurements &measurement, gld_property &value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=%s",measurement.values.size()>0?",":"",value.get_name(),(const char*)value.get_string());
+    measurement.values.append(buf);
+}
+
+void database::add_field(measurements &measurement, gld_global &value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=%s",measurement.values.size()>0?",":"",value.get_name(),(const char*)value.get_string());
+    measurement.values.append(buf);
+}
+
+void database::commit_measurements(measurements &measurement, TIMESTAMP t)
 {
     if ( t == 0 ) t = gl_globalclock;
-    char buf[1024];
-    size_t len = snprintf(buf,sizeof(buf)," value=\"%s\" %lld\n",value?value:"",t);
-    write_data(measurement,buf,len,sizeof(buf));
-}
-
-void database::set_value(measurements &measurement, double value, TIMESTAMP t)
-{
-    if ( t == 0 ) t = gl_globalclock;
-    char buf[1024];
-    size_t len = snprintf(buf,sizeof(buf)," value=%lg %lld\n",value,t);
-    write_data(measurement,buf,len,sizeof(buf));
-}
-
-void database::set_value(measurements &measurement, long long value, TIMESTAMP t)
-{
-    if ( t == 0 ) t = gl_globalclock;
-    char buf[1024];
-    size_t len = snprintf(buf,sizeof(buf)," value=%lld %lld\n",value,t);
-    write_data(measurement,buf,len,sizeof(buf));
-}
-
-void database::set_value(measurements &measurement, gld_property &value, TIMESTAMP t)
-{
-    if ( t == 0 ) t = gl_globalclock;
-    char buf[1024];
-    size_t len = snprintf(buf,sizeof(buf)," value=%s %lld\n",(const char*)value.get_string(),t);
-    write_data(measurement,buf,len,sizeof(buf));
-}
-
-void database::set_value(measurements &measurement, gld_global &value, TIMESTAMP t)
-{
-    if ( t == 0 ) t = gl_globalclock;
-    char buf[1024];
-    size_t len = snprintf(buf,sizeof(buf)," value=%s %lld\n",(const char*)value.get_string(),t);
-    write_data(measurement,buf,len,sizeof(buf));
-}
-
-void database::commit_measurements(measurements &measurement)
-{
-    debug("committing measurements: %s", measurement.c_str());
-    post_data(measurement);
+    measurement.measurements.append(measurement.tags);
+    measurement.measurements.append(" ");
+    measurement.measurements.append(measurement.values);
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf)," %lld\n",t);
+    measurement.measurements.append(buf);
+    debug("committing measurements: %s", measurement.measurements.c_str());
+    post_data(measurement.measurements);
 }
 
 void database::add_log(const char *format, ...)
 {
     if ( logname[0] != '\0' )
     {
+        measurements log;
+        start_measurement(log,logname,tagtext->c_str(),taglist);
+        add_field(log,"cputime",(double)clock()/(double)CLOCKS_PER_SEC);
         va_list ptr;
         va_start(ptr,format);
         char buf[1024] = "(error formatting log message)";
         vsnprintf(buf,sizeof(buf),format,ptr);
-        measurements log;
-        start_measurement(log,logname);
-        char guid[64];
-        sprintf(guid,"%08llx%08llx",get_guid()[0],get_guid()[1]);
-        add_tag(log,"type","log");
-        add_tag(log,"clock",(double)clock()/(double)CLOCKS_PER_SEC);
-        set_value(log,buf);
+        add_field(log,"message",buf);
         commit_measurements(log);
         va_end(ptr);
     }
@@ -523,20 +525,15 @@ void database::add_log(const char *format, ...)
 
 int database::get_taglist_size()
 {
-    size_t need = 0;
-    for ( std::list<gld_property>::iterator tag = taglist->begin() ; tag != taglist->end() ; tag++ )
-    {
-       need += snprintf(NULL,0,"%s%s=%s",need==0?"":",",tag->get_name(),(const char *)tag->get_string());
-    }
-    return need;
+    return get_taglist(NULL,0);
 }
 
 int database::get_taglist(char *buffer, int size)
 {
-    size_t pos = 0;
+    size_t pos = snprintf((size==0)?NULL:buffer,size,"%s",tagtext->c_str());
     for ( std::list<gld_property>::iterator tag = taglist->begin() ; tag != taglist->end() ; tag++ )
     {
-       pos += snprintf(buffer+pos,size-pos,"%s%s=%s",pos==0?"":",",tag->get_name(),(const char *)tag->get_string());
+       pos += snprintf((size==0)?NULL:(buffer+pos),(size==0)?0:(size-pos),"%s%s=%s",pos==0?"":",",tag->get_name(),(const char *)tag->get_string());
     }
     return pos;
 }
