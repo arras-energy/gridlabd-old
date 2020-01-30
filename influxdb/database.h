@@ -4,8 +4,9 @@
 #ifndef _DATABASE_H
 #define _DATABASE_H
 
-#include "jsondata.h"
+#include <time.h>
 
+#include "jsondata.h"
 #include "gridlabd.h"
 
 // Define: DBO_NONE
@@ -30,18 +31,10 @@
 
 DECL_METHOD(database,logtag);
 
+typedef std::list<gld_property> properties;
+
 class database : public gld_object
 {
-
-public:
-
-    typedef std::list<gld_property> properties;
-    typedef struct {
-        std::string measurements;
-        std::string tags;
-        std::string values;
-        TIMESTAMP time;
-    } measurements;
 
 public:
 
@@ -100,38 +93,64 @@ private:
 
 private:
 
+    bool initialized_ok;
     properties *taglist;
     std::string *tagtext;
     int get_taglist_size();
     int get_taglist(char *buffer,int size);
     int add_taglist(char *buffer);
+    size_t log_id;
 
-private:
+public:
 
-    void start_measurement(measurements & measurement,const char *name,const char *tags=NULL,properties *taglist=NULL);
-    void add_tag(measurements &measurement, const char *name, const char *value);
-    void add_tag(measurements &measurement, const char *name, double value);
-    void add_tag(measurements &measurement, const char *name, long long value);
-    void add_tag(measurements &measurement, const char *name, bool value);
-    void add_tag(measurements &measurement, const char *name, gld_property &value);
-    void add_tag(measurements &measurement, const char *name, gld_global &value);
-    void add_field(measurements &measurement, const char *name, const char *value);
-    void add_field(measurements &measurement, const char *name, double value);
-    void add_field(measurements &measurement, const char *name, long long value);
-    void add_field(measurements &measurement, const char *name, bool value);
-    void add_field(measurements &measurement, gld_property &value);
-    void add_field(measurements &measurement, gld_global &value);
-    void write_data(measurements &measurement, const char *data, size_t len, size_t max);
-    void commit_measurements(measurements &measurement, TIMESTAMP t=0);
-
-private:
-
+    inline bool is_initialized(void) { return initialized_ok; };
     void add_log(const char *format, ...);
 
 public:
 
     static CLASS *oclass;
     static class database *defaults;
+
+    friend class measurements;
+};
+
+class measurements 
+{
+
+private:
+
+    database &db;
+    std::string measurement;
+    std::string tags;
+    std::string values;
+    TIMESTAMP time;
+    size_t count;
+    const size_t limit;
+
+public:
+
+    measurements(database *d, int n_max = 65536) : db(*d), limit((unsigned)n_max) { reset(false); };
+    ~measurements() { flush(); };
+
+public:
+
+    void reset(bool do_flush=true);
+    void flush(void);
+    void start(const char *name,const char *static_tags=NULL,properties *dynamic_tags=NULL);
+    void add_tag(const char *name, const char *value);
+    void add_tag(const char *name, double value);
+    void add_tag(const char *name, long long value);
+    void add_tag(const char *name, bool value);
+    void add_tag(const char *name, gld_property &value);
+    void add_tag(const char *name, gld_global &value);
+    void add_field(const char *name, const char *value);
+    void add_field(const char *name, double value);
+    void add_field(const char *name, long long value);
+    void add_field(const char *name, bool value);
+    void add_field(const char *name, gld_property &value, bool with_units = false);
+    void add_field(const char *name, gld_global &value);
+    void set_time(TIMESTAMP t=0);
+    void commit();
 
 };
 

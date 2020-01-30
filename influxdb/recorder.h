@@ -4,9 +4,12 @@
 #ifndef _RECORDER_H
 #define _RECORDER_H
 
-#include "influxdb.h"
+#include "jsondata.h"
+#include "gridlabd.h"
+#include "database.h"
 
-#define MO_USEUNITS		0x0001	// add units to column names
+#define MO_NONE     0x0000 // no measurement options specified
+#define MO_USEUNITS	0x0001 // add units to column names
 
 class recorder : public gld_object 
 {
@@ -16,19 +19,24 @@ public:
 	GL_STRING(char1024,property);
 	GL_STRING(char1024,table);
 	GL_ATOMIC(double,interval);
-	GL_ATOMIC(object,connection);
+	GL_OBJECT(database,connection);
 	GL_ATOMIC(set,options);
 	GL_STRING(char1024,tags);
 
 private:
 
-	database::properties property_list;
+	void make_property_list(const char *delim = ", \t;");
+	properties *property_list;
+	database *db;
+	char *oldvalues;
+	measurements *measurement;
 
 public:
 
 	recorder(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
+	int finalize(void);
 	TIMESTAMP commit(TIMESTAMP t0, TIMESTAMP t1);
 
 public:

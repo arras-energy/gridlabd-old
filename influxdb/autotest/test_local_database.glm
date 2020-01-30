@@ -3,6 +3,8 @@
 
 #set savefile=gridlabd.json
 
+#option profile
+
 clock 
 {
 	timezone "US/CA/San Francisco";
@@ -17,6 +19,7 @@ module influxdb
 
 object database
 {
+	name "primary";
 	logname "log";
 
 	// single dynamic tag
@@ -27,6 +30,7 @@ object database
 
 object database
 {
+	name "secondary";
 	logname "log";
 
 	// multiple dynamic tags
@@ -35,9 +39,18 @@ object database
 }
 
 module residential;
-object house
+object house:..10
 {
 	// just something to keep the clock running
+	object recorder
+	{
+		connection "primary";
+		name `house_{id}`;
+		property "air_temperature,panel.power";
+		table "temperature";
+		interval 60 s;
+		options UNITS;
+	};
 }
 
 // only clean if running in validation folder (useful for developers who run this model from autotest)

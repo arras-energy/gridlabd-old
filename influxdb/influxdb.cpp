@@ -16,6 +16,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
     INIT_MMF(influxdb);
 
     database *first = new database(module);
+    new recorder(module);
 
     return first->oclass;
 }

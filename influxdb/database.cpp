@@ -101,6 +101,8 @@ int database::create(void)
     port = default_port;
     taglist = new std::list<gld_property>;
     tagtext = new std::string;
+    log_id = 1;
+    initialized_ok = false;
     return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -121,6 +123,7 @@ int database::init(OBJECT *parent)
             exception("unable to create database %s",(const char*)dbname);
         }
     }
+    initialized_ok = true;
     add_log("initialized");
     return 1;
 }
@@ -277,7 +280,7 @@ DynamicJsonDocument database::get(const std::string& query)
     {
         exception("json error: %s , data follows\n%s",error.c_str(),buffer.c_str());
     }
-    debug("database::get(query='%s') -> '%s'",query_string,buffer.c_str());
+    gl_debug("database::get(query='%s') -> '%s'",query_string,buffer.c_str());
     return result;
 }
 
@@ -320,7 +323,7 @@ DynamicJsonDocument database::post_query(std::string& query)
     {
         exception("json error: %s , data follows\n%s",error.c_str(),buffer.c_str());
     }
-    debug("database::post_query(query='%s') -> '%s'",query_string,buffer.c_str());
+    gl_debug("database::post_query(query='%s') -> '%s'",query_string,buffer.c_str());
     return result;
 }
 
@@ -356,7 +359,7 @@ DynamicJsonDocument database::post_write(std::string& body)
         curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
         exception("influxdb post response code = %d, url = '%s', body = '%s'",code,url, body.c_str());
     }
-    debug("database::post(body='%s') -> code = %d",body.c_str(),code);
+    gl_debug("database::post(body='%s') -> code = %d",body.c_str(),code);
     DynamicJsonDocument result(20);
     deserializeJson(result,body.c_str());
     return result;
@@ -380,145 +383,29 @@ DynamicJsonDocument database::post_data(std::string& body)
         curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
         exception("influxdb post response code = %d, url = '%s', body = '%s'",code,url, body.c_str());
     }
-    debug("database::post(body='%s') -> code = %d",body.c_str(),code);
-    DynamicJsonDocument result(20);
+    gl_debug("database::post(body='%s') -> code = %d",body.c_str(),code);
+    DynamicJsonDocument result(4096);
     deserializeJson(result,body.c_str());
     return result;
 }
 
-void database::start_measurement(measurements & measurement,const char *name,const char *tags, properties *tagprops)
-{
-    if ( measurement.measurements.size() > 0 && measurement.measurements.back() != '\n' )
-        exception("cannot use start_measurement() before begin_measurements() is called");
-    measurement.tags = name;
-    if ( tags != NULL )
-    {
-        measurement.tags.append(",");
-        measurement.tags.append(tags);
-    }
-    if ( tagprops != NULL )
-    {
-        for ( properties::iterator prop = tagprops->begin() ; prop != tagprops->end() ; prop++ )
-        {
-            add_tag(measurement,prop->get_name(),*prop);
-        }
-    }
-    measurement.values = "";
-    measurement.time = 0;
-}
-
-void database::add_tag(measurements &measurement, const char *field, const char *value)
-{
-    if ( value )
-    {
-        char buf[1024] = "(format error)";
-        snprintf(buf,sizeof(buf),",%s=%s",field,value);
-        measurement.tags.append(buf);
-    }
-}
-void database::add_tag(measurements &measurement, const char *field, double value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),",%s=%lg",field,value);
-    measurement.tags.append(buf);
-}
-
-void database::add_tag(measurements &measurement, const char *field, long long value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),",%s=%lld",field,value);
-    measurement.tags.append(buf);
-}
-
-void database::add_tag(measurements &measurement, const char *field, bool value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),",%s=%s",field,value?"true":"false");
-    measurement.tags.append(buf);
-}
-
-void database::add_tag(measurements &measurement, const char *field, gld_property &value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
-    measurement.tags.append(buf);
-}
-
-void database::add_tag(measurements &measurement, const char *field, gld_global &value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
-    measurement.tags.append(buf);
-}
-
-void database::add_field(measurements &measurement, const char *name, const char *value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),"%s%s=\"%s\"",measurement.values.size()>0?",":"",name,value?value:"");
-    measurement.values.append(buf);
-}
-
-void database::add_field(measurements &measurement, const char *name, double value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),"%s%s=%lg",measurement.values.size()>0?",":"",name,value);
-    measurement.values.append(buf);
-}
-
-void database::add_field(measurements &measurement, const char *name, long long value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),"%s%s=%lld",measurement.values.size()>0?",":"",name,value);
-    measurement.values.append(buf);
-}
-
-void database::add_field(measurements &measurement, const char *name, bool value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),"%s%s=%s",measurement.values.size()>0?",":"",name,value?"true":"false");
-    measurement.values.append(buf);
-}
-
-void database::add_field(measurements &measurement, gld_property &value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),"%s%s=%s",measurement.values.size()>0?",":"",value.get_name(),(const char*)value.get_string());
-    measurement.values.append(buf);
-}
-
-void database::add_field(measurements &measurement, gld_global &value)
-{
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf),"%s%s=%s",measurement.values.size()>0?",":"",value.get_name(),(const char*)value.get_string());
-    measurement.values.append(buf);
-}
-
-void database::commit_measurements(measurements &measurement, TIMESTAMP t)
-{
-    if ( t == 0 ) t = gl_globalclock;
-    measurement.measurements.append(measurement.tags);
-    measurement.measurements.append(" ");
-    measurement.measurements.append(measurement.values);
-    char buf[1024] = "(format error)";
-    snprintf(buf,sizeof(buf)," %lld\n",t);
-    measurement.measurements.append(buf);
-    debug("committing measurements: %s", measurement.measurements.c_str());
-    post_data(measurement.measurements);
-}
-
 void database::add_log(const char *format, ...)
 {
+    if ( ! initialized_ok )
+        exception("add_log(format='%s',...): database not initialized yet",format);
     if ( logname[0] != '\0' )
     {
-        measurements log;
-        start_measurement(log,logname,tagtext->c_str(),taglist);
-        add_field(log,"cputime",(double)clock()/(double)CLOCKS_PER_SEC);
+        measurements log(this);
+        log.start(logname,tagtext->c_str(),taglist);
+        log.set_time(log_id++);
+        log.add_field("clock",(long long)gl_globalclock);
+        log.add_field("cputime",(double)clock()/(double)CLOCKS_PER_SEC);
         va_list ptr;
         va_start(ptr,format);
         char buf[1024] = "(error formatting log message)";
         vsnprintf(buf,sizeof(buf),format,ptr);
-        add_field(log,"message",buf);
-        commit_measurements(log);
+        log.add_field("message",buf);
+        log.commit();
         va_end(ptr);
     }
 }
@@ -596,6 +483,196 @@ EXPORT int method_database_logtag(OBJECT *obj, char *buffer, size_t size)
 {
     class database *my = OBJECTDATA(obj,class database);
     return my->logtag(buffer,size);
+}
+
+////////////////////
+// measurements
+////////////////////
+
+void measurements::reset(bool do_flush)
+{
+    if ( do_flush ) 
+    {
+        flush();
+    }
+    else
+    {    
+        measurement.clear(); 
+        tags.clear(); 
+        values.clear(); 
+        time = 0;
+        count = 0;
+    }
+}
+
+void measurements::flush()
+{
+    if ( count > 0 )
+    {
+        db.post_data(measurement);
+        reset(false);
+    }    
+}
+
+void measurements::start(const char *name, const char *static_tags, properties *dynamic_tags)
+{
+    if ( measurement.size() > 0 && measurement.back() != '\n' )
+        throw "cannot use start() before commit() or reset() is called";
+    tags = name;
+    if ( static_tags != NULL && static_tags[0] != '\0' )
+    {
+        tags.append(",");
+        tags.append(static_tags);
+    }
+    if ( dynamic_tags != NULL && dynamic_tags->size() > 0 )
+    {
+        for ( properties::iterator prop = dynamic_tags->begin() ; prop != dynamic_tags->end() ; prop++ )
+        {
+            add_tag(prop->get_name(),*prop);
+        }
+    }
+    values = "";
+    time = gl_globalclock;
+}
+
+void measurements::add_tag(const char *field, const char *value)
+{
+    if ( value )
+    {
+        char buf[1024] = "(format error)";
+        snprintf(buf,sizeof(buf),",%s=%s",field,value);
+        tags.append(buf);
+    }
+}
+void measurements::add_tag(const char *field, double value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%lg",field,value);
+    tags.append(buf);
+}
+
+void measurements::add_tag(const char *field, long long value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%lld",field,value);
+    tags.append(buf);
+}
+
+void measurements::add_tag(const char *field, bool value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%s",field,value?"true":"false");
+    tags.append(buf);
+}
+
+void measurements::add_tag(const char *field, gld_property &value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
+    tags.append(buf);
+}
+
+void measurements::add_tag(const char *field, gld_global &value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),",%s=%s",field,(const char*)value.get_string());
+    tags.append(buf);
+}
+
+void measurements::add_field(const char *name, const char *value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=\"%s\"",values.size()>0?",":"",name,value?value:"");
+    values.append(buf);
+}
+
+void measurements::add_field(const char *name, double value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=%lg",values.size()>0?",":"",name,value);
+    values.append(buf);
+}
+
+void measurements::add_field(const char *name, long long value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=%lld",values.size()>0?",":"",name,value);
+    values.append(buf);
+}
+
+void measurements::add_field(const char *name, bool value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=%s",values.size()>0?",":"",name,value?"true":"false");
+    values.append(buf);
+}
+
+void measurements::add_field(const char *name, gld_property &value, bool with_units)
+{
+    char buf[1024] = "(format error)";
+    gld_unit *unit = value.get_unit();
+    if ( with_units && unit->is_valid() )
+    {
+        complex z;
+        switch ( value.get_type() ) 
+        {
+        case PT_double:
+            snprintf(buf,sizeof(buf),"%s\"%s[%s]\"=%g",values.size()>0?",":"",name?name:value.get_name(),unit->get_name(),value.get_double());
+            break;
+        case PT_complex:
+            z = value.get_complex();
+            snprintf(buf,sizeof(buf),"%s\"%s[%s]\"=\"%g%+gj\"",values.size()>0?",":"",name?name:value.get_name(),unit->get_name(),z.Re(),z.Im());
+            break;
+        default:
+            snprintf(buf,sizeof(buf),"%s\"%s[%s]\"=\"%s\"",values.size()>0?",":"",name?name:value.get_name(),unit->get_name(),(const char*)value.get_string());
+            break;
+        }
+    }
+    else 
+    {
+        switch ( value.get_type() )
+        {
+        case PT_bool:
+            snprintf(buf,sizeof(buf),"%s%s=%s",values.size()>0?",":"",name?name:value.get_name(),value.get_bool()?"true":"false");
+            break;
+        case PT_int16:
+        case PT_int32:
+        case PT_int64:
+            snprintf(buf,sizeof(buf),"%s%s=%lld",values.size()>0?",":"",name?name:value.get_name(),(long long)value.get_integer());
+            break;
+        default:
+            snprintf(buf,sizeof(buf),"%s%s=\"%s\"",values.size()>0?",":"",name?name:value.get_name(),(const char*)value.get_string());
+            break;
+        }
+    }
+    values.append(buf);
+}
+
+void measurements::add_field(const char *name, gld_global &value)
+{
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf),"%s%s=\"%s\"",values.size()>0?",":"",name?name:value.get_name(),(const char*)value.get_string());
+    values.append(buf);
+}
+
+void measurements::set_time(TIMESTAMP t)
+{
+    time = ( t == 0 ? gl_globalclock : t);
+}
+
+void measurements::commit()
+{
+    measurement.append(tags);
+    measurement.append(" ");
+    measurement.append(values);
+    char buf[1024] = "(format error)";
+    snprintf(buf,sizeof(buf)," %lld\n",time);
+    measurement.append(buf);
+    if ( ++count >= limit )
+    {
+        flush();
+    }
+
 }
 
 

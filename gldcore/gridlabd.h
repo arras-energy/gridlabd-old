@@ -2448,7 +2448,7 @@ public:
 	
 	// Method: is_valid
 	// Check whether the unit is valid
-	inline bool is_valid(void) { return core.name[0]!='\0'; };
+	inline bool is_valid(void) { return (UNIT*)&core != NULL && core.name[0]!='\0'; };
 
 public: 
 
@@ -2723,6 +2723,19 @@ public:
 	static inline size_t get_##X##_offset(void) { return (size_t)method_##C##_##X; }; \
 	inline int get_##X(char *buffer, size_t len) { return X(buffer,len); }; \
 	inline int set_##X(char *buffer) { return X(buffer,0); }
+
+#define GL_OBJECT(T,X) protected: OBJECT* X; public: \
+	static inline size_t get_##X##_offset(void) { return (char*)&(defaults->X)-(char*)defaults; }; \
+	inline gld_object *get_##X(void) { return get_object(X); }; \
+	inline gld_property get_##X##_property(void) { return gld_property(my(),#X); }; \
+	inline gld_object *get_##X(gld_rlock&) { return get_object(X); }; \
+	inline gld_object *get_##X(gld_wlock&) { return get_object(X); }; \
+	inline void set_##X(OBJECT* p) { X=p; }; \
+	inline void set_##X(OBJECT* p, gld_wlock&) { X=p; }; \
+	inline void set_##X(const char *str) { get_##X##_property().from_string(str); }; \
+	inline void init_##X(void) { memset((void*)&X,0,sizeof(X));}; \
+	inline void init_##X(OBJECT* value) { X=value;}; \
+	inline T *get_##X##_object(void) { return (T*)(X+1);};
 
 // Define: IMPL_METHOD(class,name)
 // Parameters:
@@ -3230,6 +3243,9 @@ public:
 	inline bool is_bool(void) { return pstruct.prop->ptype==PT_bool; };
 
 	// TODO these need to use throw instead of returning overloaded values
+
+	// Method: get_bool(void)
+	inline bool get_bool(void) { return *(bool*)get_addr(); };
 
 	// Method: get_double(void)
 	inline double get_double(void) { errno=0; switch(pstruct.prop->ptype) { case PT_double: case PT_random: case PT_enduse: case PT_loadshape: return has_part() ? get_part() : *(double*)get_addr(); default: errno=EINVAL; return NaN;} };

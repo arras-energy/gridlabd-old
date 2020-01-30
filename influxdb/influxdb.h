@@ -4,6 +4,7 @@
 #ifndef _INFLUXDB_H
 #define _INFLUXDB_H
 
+#include "jsondata.h"
 #include "gridlabd.h"
 
 #include <curl/curl.h>
