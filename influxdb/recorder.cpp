@@ -49,12 +49,6 @@ int recorder::create(void)
 
 int recorder::init(OBJECT *parent)
 {
-	if ( my()->name == NULL )
-	{
-		error("recorder must have a name for the measurement");
-		return 0;
-	}
-
 	// check connection
 	if ( connection == NULL )
 	{
@@ -69,9 +63,13 @@ int recorder::init(OBJECT *parent)
 	}
 	db = get_connection_object();
 	if ( db->is_initialized() )
+	{
 		db->add_log("connecting recorder %s",my()->name);
+	}
 	else
+	{
 		return 2;
+	}
 	measurement = new measurements(db);
 
 	// connect the target properties
@@ -111,7 +109,11 @@ TIMESTAMP recorder::commit(TIMESTAMP t0, TIMESTAMP t1)
 			gl_verbose("%s: sampling time has arrived", get_name());
 	}
 
-	const char *name = get_object(my())->get_name();
+	const char *name = (const char*)get_table();
+	if ( strcmp(name,"") == 0 )
+	{
+		name = get_object(my())->get_name();
+	}
 	measurement->start(name,tags);
 	for ( properties::iterator prop = property_list->begin() ; prop != property_list->end() ; prop++ )
 	{

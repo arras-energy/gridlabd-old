@@ -9,7 +9,7 @@ clock
 {
 	timezone "US/CA/San Francisco";
 	starttime "2020-01-01 00:00:00 PST";
-	stoptime "2020-02-01 00:00:00 PST";
+	stoptime "2020-01-02 00:00:00 PST";
 }
 
 module influxdb
@@ -45,10 +45,17 @@ object house:..10
 	object recorder
 	{
 		connection "primary";
-		name `house_{id}`;
 		property "air_temperature,panel.power";
-		table "temperature";
-		interval 60 s;
+		interval 1 min;
+		options UNITS;
+	};
+	object recorder
+	{
+		connection "secondary";
+		property "panel.energy";
+		tags `id=meter_{id}`;
+		interval 1 h;
+		table "metering";
 		options UNITS;
 	};
 }
