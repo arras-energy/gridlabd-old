@@ -31,7 +31,7 @@ recorder::recorder(MODULE *module)
 			PT_double,"interval[s]",get_interval_offset(),PT_DESCRIPTION,"sampling interval",
 			PT_object,"connection",get_connection_offset(),PT_DESCRIPTION,"database connection",
 			PT_set,"options",get_options_offset(),PT_DESCRIPTION,"data insert options",
-				PT_KEYWORD,"NONE",(set)MO_NONE,PT_DESCRIPTION,"no options specified"
+				PT_KEYWORD,"NONE",(set)MO_NONE,PT_DESCRIPTION,"no options specified",
 				PT_KEYWORD,"UNITS",(set)MO_USEUNITS,PT_DESCRIPTION,"include units in column names",
 			PT_char1024,"tags",get_tags_offset(),PT_DESCRIPTION,"tags to include with each record",
 			NULL)<1){
