@@ -105,7 +105,8 @@ public:
 
     inline bool is_initialized(void) { return initialized_ok; };
     void add_log(const char *format, ...);
-
+    static const char *get_header_value(OBJECT *obj, const char *item, char *buffer, size_t len);
+    
 public:
 
     static CLASS *oclass;

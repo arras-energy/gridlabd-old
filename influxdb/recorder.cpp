@@ -26,8 +26,10 @@ recorder::recorder(MODULE *module)
 		defaults = this;
 		if (gl_publish_variable(oclass,
 			PT_char1024,"property",get_property_offset(),PT_DESCRIPTION,"target property name",
+			PT_char1024,"values",get_property_offset(),PT_DESCRIPTION,"target property name",
 			PT_char1024,"table",get_table_offset(),PT_DESCRIPTION,"table name to store samples",
 			PT_char1024,"file",get_table_offset(),PT_DESCRIPTION,"file name (for tape compatibility)",
+			PT_char1024,"measurement",get_table_offset(),PT_DESCRIPTION,"table name to store samples",
 			PT_double,"interval[s]",get_interval_offset(),PT_DESCRIPTION,"sampling interval",
 			PT_object,"connection",get_connection_offset(),PT_DESCRIPTION,"database connection",
 			PT_set,"options",get_options_offset(),PT_DESCRIPTION,"data insert options",
@@ -45,6 +47,8 @@ recorder::recorder(MODULE *module)
 int recorder::create(void) 
 {
 	property_list = NULL;
+    taglist = new std::list<gld_property>;
+    tagtext = new std::string;
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -95,6 +99,8 @@ int recorder::init(OBJECT *parent)
 		oldvalues = NULL;
 	}
 
+	add_taglist(tags);
+
 	return 1;
 }
 
@@ -115,7 +121,7 @@ TIMESTAMP recorder::commit(TIMESTAMP t0, TIMESTAMP t1)
 	{
 		name = get_object(my())->get_name();
 	}
-	measurement->start(name,tags);
+	measurement->start(name,tagtext->c_str(),taglist);
 	for ( properties::iterator prop = property_list->begin() ; prop != property_list->end() ; prop++ )
 	{
 		measurement->add_field(prop->get_name(),*prop,(options&MO_USEUNITS)==MO_USEUNITS);
@@ -146,6 +152,73 @@ void recorder::make_property_list(const char *delim)
         property_list->push_back(*prop);
         token = strtok_r(NULL,delim,&saveptr);
     }
+}
+
+int recorder::get_taglist_size()
+{
+    return get_taglist(NULL,0);
+}
+
+int recorder::get_taglist(char *buffer, int size)
+{
+    size_t pos = snprintf((size==0)?NULL:buffer,size,"%s",tagtext->c_str());
+    for ( std::list<gld_property>::iterator tag = taglist->begin() ; tag != taglist->end() ; tag++ )
+    {
+       pos += snprintf((size==0)?NULL:(buffer+pos),(size==0)?0:(size-pos),"%s%s=%s",pos==0?"":",",tag->get_name(),(const char *)tag->get_string());
+    }
+    return pos;
+}
+
+int recorder::add_taglist(char *buffer)
+{
+    char value[1024];
+    int len = strlen(buffer);
+    while ( buffer[0] != '\0' )
+    {
+        if ( sscanf(buffer,"%[^,]",value) != 1 )
+        {
+            error("add_taglist(str='%s'): taglist is invalid");
+            return 0;
+        }
+        if ( strchr(value,'=') == NULL ) // simple property
+        {
+        	gld_object *parent = get_object(my()->parent);
+        	std::string name = parent->get_name();
+            gld_property *prop = new gld_property((OBJECT*)parent,value);
+            if ( prop->is_valid() )
+            {
+                taglist->push_back(*prop);
+            }
+            else
+            {
+            	char header_value[1024];
+            	if ( database::get_header_value(my()->parent,value,header_value,sizeof(header_value)) == NULL )
+    			{
+				    error("'%s' is not a valid property of object '%s'", value,name.c_str());
+			        return 0;
+			    }
+			    if ( header_value[0] != '\0' )
+				{		    	
+	            	char header_tag[2048];
+	            	snprintf(header_tag,sizeof(header_tag),"%s=%s",value,header_value);
+		            if ( tagtext->size() > 0 )
+		                tagtext->append(",");
+	    	        tagtext->append(header_tag);
+	    	    }
+            }
+        }
+        else // literal tag=value
+        {
+            if ( tagtext->size() > 0 )
+                tagtext->append(",");
+            tagtext->append(value);
+        }
+        buffer = strchr(buffer,',');
+        if ( buffer++ == NULL )
+            break;
+        while ( isspace(*buffer) ) buffer++;
+    }
+    return len;
 }
 
 EXPORT TIMESTAMP heartbeat_recorder(OBJECT *obj)

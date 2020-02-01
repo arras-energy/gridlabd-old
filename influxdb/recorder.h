@@ -30,6 +30,11 @@ private:
 	database *db;
 	char *oldvalues;
 	measurements *measurement;
+    properties *taglist;
+    std::string *tagtext;
+    int get_taglist_size();
+    int get_taglist(char *buffer,int size);
+    int add_taglist(char *buffer);
 
 public:
 

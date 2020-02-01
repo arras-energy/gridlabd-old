@@ -296,6 +296,7 @@ DynamicJsonDocument database::post_query(const char *format, ...)
     va_end(ptr);
     return result;
 }
+
 DynamicJsonDocument database::post_query(std::string& query)
 {
     std::string buffer;
@@ -477,6 +478,132 @@ int database::logtag(char *buffer, size_t size)
     {
         return get_taglist(buffer,size);
     }
+}
+
+const char *database::get_header_value(OBJECT *obj, const char *item, char *buffer, size_t len)
+{
+    buffer[0] = '\0';
+    if ( strcmp(item,"name") == 0 )
+    {
+        if ( obj->name == NULL )
+            snprintf(buffer,len,"%s:%d", obj->oclass->name, obj->id);
+        else
+            snprintf(buffer,len,"%s", obj->oclass->name);
+    }
+    else if ( strcmp(item,"class") == 0 )
+    {
+        snprintf(buffer,len,"%s", obj->oclass->name);
+    }
+    else if ( strcmp(item,"module") == 0 )
+    {
+        if ( obj->oclass->module ) snprintf(buffer,len,"%s", obj->oclass->module->name);
+    }
+    else if ( strcmp(item,"id") == 0 )
+    {
+        snprintf(buffer,len,"%llu", (unsigned long long)obj->id);    
+    }
+    else if ( strcmp(item,"parent") == 0 )
+    {
+        if ( obj->parent ) get_header_value(obj->parent,"name",buffer,len);
+    }
+    else if ( strcmp(item,"child_count") == 0 )
+    {
+        if ( obj->child_count > 0 ) snprintf(buffer,len,"%llu",(unsigned long long)obj->child_count);
+    }
+    else if ( strcmp(item,"schedule_skew") == 0 )
+    {
+        if ( obj->schedule_skew != 0 ) snprintf(buffer,len,"%lld",(long long)obj->schedule_skew);
+    }
+    else if ( strcmp(item,"rank") == 0 )
+    {
+        snprintf(buffer,len,"%llu",(unsigned long long)obj->rank); 
+    }
+    else if ( strcmp(item,"clock") == 0 )
+    {
+        snprintf(buffer,len,"%lld",(long long)obj->clock);
+    }
+    else if ( strcmp(item,"valid_to") == 0 )
+    {
+        if ( obj->valid_to < TS_NEVER ) snprintf(buffer,len,"%lld",(long long)obj->clock);
+    }
+    else if ( strcmp(item,"latitude") == 0 )
+    {
+        if ( isfinite(obj->latitude) ) snprintf(buffer,len,"%lg",(double)obj->latitude);
+    }
+    else if ( strcmp(item,"longitude") == 0 )
+    {
+        if ( isfinite(obj->longitude) ) snprintf(buffer,len,"%lg",(double)obj->longitude);
+    }
+    else if ( strcmp(item,"in_svc") == 0 )
+    {
+        if ( obj->in_svc > 0 ) snprintf(buffer,len,"%lld",(long long)obj->in_svc);
+    }
+    else if ( strcmp(item,"out_svc") == 0 )
+    {
+        if ( obj->out_svc < TS_NEVER ) snprintf(buffer,len,"%lld",(long long)obj->out_svc);
+    }
+    else if ( strcmp(item,"flags") == 0 )
+    {
+        snprintf(buffer,len,"%llx",(unsigned long long)obj->flags);
+    }
+    else if ( strcmp(item,"heartbeat") == 0 )
+    {
+        if ( obj->heartbeat > 0 ) snprintf(buffer,len,"%llu",(unsigned long long)obj->heartbeat);
+    }
+    else if ( strcmp(item,"groupid") == 0 )
+    {
+        char *c, *p = buffer;
+        for ( c = obj->groupid ; *c != '\0' && p < buffer+len-1 ; c++ )
+        {
+            if ( strchr(", \t",*c) )
+            {
+                *p++ = '\\';
+            }
+            *p++ = *c;
+        }
+    }
+    else if ( strcmp(item,"rng_state") == 0 )
+    {
+        snprintf(buffer,len,"%llu",(long long)obj->rng_state);
+    }
+    else if ( strcmp(item,"guid") == 0 )
+    {
+        snprintf(buffer,len,"%08llX%08llX",obj->guid[0],obj->guid[1]);
+    }
+    else if ( strcmp(item,"on_init") == 0 )
+    {
+        snprintf(buffer,len,"%s", obj->events.init ? obj->events.init : "");
+    }
+    else if ( strcmp(item,"on_precommit") == 0 )
+    {
+        snprintf(buffer,len,"%s", obj->events.precommit ? obj->events.precommit : "");
+    }
+    else if ( strcmp(item,"on_presync") == 0 )
+    {
+        snprintf(buffer,len,"%s", obj->events.presync ? obj->events.presync : "");
+    }
+    else if ( strcmp(item,"on_sync") == 0 )
+    {
+        snprintf(buffer,len,"%s", obj->events.sync ? obj->events.sync : "");
+    }
+    else if ( strcmp(item,"on_postsync") == 0 )
+    {
+        snprintf(buffer,len,"%s", obj->events.postsync ? obj->events.postsync : "");
+    }
+    else if ( strcmp(item,"on_commit") == 0 )
+    {
+        snprintf(buffer,len,"%s", obj->events.commit ? obj->events.commit : "");
+    }
+    else if ( strcmp(item,"on_finalize") == 0 )
+    {
+        snprintf(buffer,len,"%s", obj->events.finalize ? obj->events.finalize : "");
+    }
+    else
+    {
+        gl_error("get_header_value(obj=<%s:%d>,item='%s',...): invalid header item name",obj->oclass->name,obj->id,item);
+        return NULL;
+    }   
+    return buffer;
 }
 
 EXPORT int method_database_logtag(OBJECT *obj, char *buffer, size_t size)
