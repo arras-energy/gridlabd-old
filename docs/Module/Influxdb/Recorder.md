@@ -85,7 +85,7 @@ The `tags` property specifies the data tags used when inserting data fields in t
 
 # Example
 
-The following example collects 10 house air temperature, power, and energy records into tables at different sampling intervals. The 1 minute data is stored in separate table for each house, and the 1 hour data is stored in a single table for all houses with tags to identify each recorder.
+The following example collects 10 house air temperature, power, and energy records into tables at different sampling intervals. The 1 minute data is stored in separate table for each house with values stored as floats and the units specified in the field name. The 1 hour data is stored in a single table for all houses. Values stored as a string with units, and a tag is given to identify each house.
 
 ~~~
 module influxdb;
@@ -107,10 +107,9 @@ object house:..10
 	{
 		connection "example";
 		property "panel.energy";
-		tags `id=meter_{id}`;
+		tags `name`;
 		interval 1 h;
 		table "metering";
-		options UNITS;
 	};
 }
 ~~~
