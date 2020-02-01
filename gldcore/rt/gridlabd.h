@@ -1165,6 +1165,7 @@ typedef struct s_callbacks {
 		int (*set_dependent)(OBJECT*,OBJECT*);
 		int (*set_parent)(OBJECT*,OBJECT*);
 		int (*set_rank)(OBJECT*,unsigned int);
+		const char *(*get_header_string)(OBJECT*,const char*,char*,size_t);
 	} object;
 	struct {
 		PROPERTY *(*get_property)(OBJECT*,PROPERTYNAME,PROPERTYSTRUCT*);
