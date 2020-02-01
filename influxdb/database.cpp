@@ -17,6 +17,7 @@ char32 database::default_password = "gridlabd";
 char256 database::default_hostname = "localhost";
 int32 database::default_port = 8086;
 char256 database::default_database = "gridlabd";
+bool database::use_background_insert = false;
 
 CURLcode curl_status = CURLE_FAILED_INIT;
 
@@ -84,6 +85,12 @@ database::database(MODULE *module)
             PT_ACCESS,PA_PUBLIC,
             PT_DESCRIPTION,"default InfluxDB database",
             NULL);
+
+        // gl_global_create("influxdb::use_background_insert",
+        //     PT_bool,&database::use_background_insert,
+        //     PT_ACCESS,PA_PUBLIC,
+        //     PT_DESCRIPTION,"use background thread to insert data into database",
+        //     NULL);
     }
 }
 
@@ -248,6 +255,35 @@ bool database::drop_database(const char *name)
     return ! find_database(name);
 }
 
+DynamicJsonDocument auto_deserialize(const char *buffer, size_t size=1024)
+{
+    if ( buffer[0] == '\0' )
+    {
+        DynamicJsonDocument result(1);
+        deserializeJson(result,"[]");
+        return result;
+    }
+
+    while ( true )
+    {
+        DynamicJsonDocument result(size);
+        DeserializationError error = deserializeJson(result,buffer);
+        if ( error == DeserializationError::Ok )
+        {
+            return result;
+        }
+        else if ( error == DeserializationError::NoMemory )
+        {
+            size *= 2;
+        }
+        else
+        {
+            gl_error("json error '%s', data=[%s]",error.c_str(),buffer);
+            throw "database::auto_deserialize() failed";
+        }
+    }
+}
+
 DynamicJsonDocument database::get(const char *format, ...)
 {
     va_list ptr;
@@ -274,14 +310,7 @@ DynamicJsonDocument database::get(const std::string& query)
         exception(curl_easy_strerror(response));
     }
     free(query_string);
-    DynamicJsonDocument result(1024);
-    DeserializationError error = deserializeJson(result,buffer);
-    if ( error )
-    {
-        exception("json error: %s , data follows\n%s",error.c_str(),buffer.c_str());
-    }
-    gl_debug("database::get(query='%s') -> '%s'",query_string,buffer.c_str());
-    return result;
+    return auto_deserialize(buffer.c_str());
 }
 
 DynamicJsonDocument database::post_query(const char *format, ...)
@@ -314,17 +343,8 @@ DynamicJsonDocument database::post_query(std::string& query)
     {
         exception(curl_easy_strerror(response));
     }
-    // std::cout << query_string << " -> " << buffer.c_str() << std::endl;
     free(query_string);
-
-    // test result
-    DynamicJsonDocument result(1024);
-    DeserializationError error = deserializeJson(result,buffer);
-    if ( error )
-    {
-        exception("json error: %s , data follows\n%s",error.c_str(),buffer.c_str());
-    }
-    gl_debug("database::post_query(query='%s') -> '%s'",query_string,buffer.c_str());
+    DynamicJsonDocument result = auto_deserialize(buffer.c_str(),buffer.size()/10);
     return result;
 }
 
@@ -344,10 +364,12 @@ DynamicJsonDocument database::post_write(const char *format, ...)
 DynamicJsonDocument database::post_write(std::string& body)
 {
     CURLcode response;
+    std::string buffer;
     long code;
     body.insert(0,"q=");
     curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, body.c_str());
     curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) body.length());
+    curl_easy_setopt(curl_read, CURLOPT_WRITEDATA, &buffer);
     response = curl_easy_perform(curl_write);
     curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
     if ( response != CURLE_OK ) 
@@ -360,34 +382,64 @@ DynamicJsonDocument database::post_write(std::string& body)
         curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
         exception("influxdb post response code = %d, url = '%s', body = '%s'",code,url, body.c_str());
     }
-    gl_debug("database::post(body='%s') -> code = %d",body.c_str(),code);
-    DynamicJsonDocument result(20);
-    deserializeJson(result,body.c_str());
+    gl_debug("database::post(body='%s') -> code = %d, result = '%s'",body.c_str(),code,buffer.c_str());
+    DynamicJsonDocument result = auto_deserialize(buffer.c_str(),buffer.size()/10);
     return result;
+}
+
+static void *background_post(void *ptr)
+{
+    CURLcode response;
+    CURL *curl_write = (CURL*)ptr;
+    long code;
+    response = curl_easy_perform(curl_write);
+    curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
+    if ( response != CURLE_OK ) 
+    {
+        gl_error(curl_easy_strerror(response));
+    }
+    if ( code < 200 || code > 206 ) 
+    {
+        char *url;
+        curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
+        gl_error("background_post(url='%s')-> code = %d",url,code);
+    }
+    return NULL;
 }
 
 DynamicJsonDocument database::post_data(std::string& body)
 {
     CURLcode response;
+    std::string buffer;
     long code;
     curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, body.c_str());
     curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) body.length());
-    response = curl_easy_perform(curl_write);
-    curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
-    if ( response != CURLE_OK ) 
-    {
-        exception(curl_easy_strerror(response));
+    curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, &buffer);
+    pthread_t id;
+    if ( use_background_insert && pthread_create(&id,NULL,background_post,&curl_write) == 0 )
+    {    
+        DynamicJsonDocument result(1);
+        deserializeJson(result,"[]");
+        return result;
     }
-    if ( code < 200 || code > 206 ) 
+    else
     {
-        char *url;
-        curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
-        exception("influxdb post response code = %d, url = '%s', body = '%s'",code,url, body.c_str());
+        response = curl_easy_perform(curl_write);
+        curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
+        if ( response != CURLE_OK ) 
+        {
+            exception(curl_easy_strerror(response));
+        }
+        if ( code < 200 || code > 206 ) 
+        {
+            char *url;
+            curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
+            exception("influxdb post response code = %d, url = '%s', body = '%s'",code,url, body.c_str());
+        }
+        gl_debug("database::post(body='%s') -> code = %d, result = '%s'",body.c_str(),code,buffer.c_str());
+        DynamicJsonDocument result = auto_deserialize(buffer.c_str(),buffer.size()/10);
+        return result;
     }
-    gl_debug("database::post(body='%s') -> code = %d",body.c_str(),code);
-    DynamicJsonDocument result(4096);
-    deserializeJson(result,body.c_str());
-    return result;
 }
 
 void database::add_log(const char *format, ...)

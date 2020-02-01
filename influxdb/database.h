@@ -43,6 +43,7 @@ public:
     static char256 default_hostname;
     static int32 default_port;
     static char256 default_database;
+    static bool use_background_insert;
 
 public:
 
