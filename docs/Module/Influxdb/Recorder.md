@@ -9,10 +9,10 @@ object recorder
 	connection "<object-name>";
 	interval "<real>[<time-unit>]";
 	options [NONE|UNITS];
+	measurement|table|file "<name>";
 	parent "<object-name>";
-	property "<property-name>,...";
-	table|file "<name>";
 	tags "<tag>=<value>,...";
+	values|property "<property-name>,...";
 }
 ~~~
 
@@ -31,13 +31,21 @@ object connection;
 
 The `connection` property specifies which `database` object is used to perform the `insert` queries that transfer data from the simulation to the InfluxDB server.
 
-### `file`
+### `fields`
 
 ~~~
-string file;
+string fields;
 ~~~
 
-The `file` property is a legacy support property. It is an alias for the `table` property. This is equivalent to a `measurement` in InfluxDB.
+The `fields` property specifies one or more properties that will be collected as fields in the target InfluxDB table. To provide compatibility with `tape.recorder` and `mysql.recorder`, the property `property` is an alias for `fields`.
+
+### `measurement`
+
+~~~
+string measurement;
+~~~
+
+The `measurement` property specifies to which InfluxDB measurement table the data is added. To provide compatibility with `tape.recorder` and `mysql.recorder`, the properties `table` and `file` are aliases for `measurement`.
 
 ### `interval`
 
@@ -63,29 +71,17 @@ object parent;
 
 The `parent` property specifies the object from which properties and values will be obtained. The `parent` property can be omitted if the object is embedded in the definition of another object.
 
-### `property`
-
-~~~
-string property;
-~~~
-
-The `property` property specifies one or more properties that will be collected as fields in the target InfluxDB table.
-
-### `table`
-
-~~~
-string table;
-~~~
-
-The `table` property specifies the table name into which data is inserted.  If omitted, the object name is used.
-
 ### `tags`
 
 ~~~
 string tags;
 ~~~
 
-The `tags` property specifies the data tags used when inserting data fields in the table.
+The `tags` property specifies the data tags used when inserting data fields in the table. There are two valid specifications for tags.
+
+- `name`: specifies an object property or header field.  These are copied when the recorder is initialized and are not updated if they change during the simulation.  These are inserted as `<name>=<value>`.
+
+- `tag=value`: specifies are static tags that are inserted verbatim.
 
 # Example
 

@@ -25,8 +25,8 @@ recorder::recorder(MODULE *module)
 
 		defaults = this;
 		if (gl_publish_variable(oclass,
+			PT_char1024,"fields",get_property_offset(),PT_DESCRIPTION,"target property name",
 			PT_char1024,"property",get_property_offset(),PT_DESCRIPTION,"target property name",
-			PT_char1024,"values",get_property_offset(),PT_DESCRIPTION,"target property name",
 			PT_char1024,"table",get_table_offset(),PT_DESCRIPTION,"table name to store samples",
 			PT_char1024,"file",get_table_offset(),PT_DESCRIPTION,"file name (for tape compatibility)",
 			PT_char1024,"measurement",get_table_offset(),PT_DESCRIPTION,"table name to store samples",

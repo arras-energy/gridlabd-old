@@ -45,14 +45,14 @@ object house:..10
 	object recorder
 	{
 		connection "primary";
-		values "air_temperature,panel";
+		fields "air_temperature,panel";
 		tags "name";
 		interval 1 min;
 	};
 	object recorder
 	{
 		connection "secondary";
-		values "panel.energy";
+		fields "panel.energy";
 		tags "name,class,module,id,parent,child_count,schedule_skew,rank,clock,valid_to,latitude,longitude,in_svc,out_svc,flags,heartbeat,groupid,rng_state,guid,on_init,on_precommit,on_presync,on_sync,on_postsync,on_commit,on_finalize";
 		interval 1 h;
 		measurement "metering";
