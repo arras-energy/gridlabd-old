@@ -3,7 +3,7 @@
 
 #set savefile=gridlabd.json
 
-#option profile
+#exec nc -z localhost 8086 2>/dev/null || (echo "ERROR: influxdb not running on localhost";false)
 
 clock 
 {
