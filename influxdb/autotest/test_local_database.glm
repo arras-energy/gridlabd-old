@@ -41,6 +41,8 @@ object database
 module residential;
 object house:..10
 {
+	name `house_{id}`;
+
 	// just something to keep the clock running
 	object recorder
 	{
@@ -58,6 +60,14 @@ object house:..10
 		measurement "metering";
 		options UNITS;
 	};
+}
+
+object recorder
+{
+	connection "primary";
+	fields "house_2:mass_temperature,house_5:mass_temperature";
+	interval 1 h;
+	measurement "mass";
 }
 
 // only clean if running in validation folder (useful for developers who run this model from autotest)

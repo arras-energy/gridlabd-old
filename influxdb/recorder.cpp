@@ -146,9 +146,26 @@ void recorder::make_property_list(const char *delim)
 
     while ( token != NULL )
     {
-    	gld_property *prop = new gld_property(my()->parent,token);
+    	char oname[256], pname[256];
+    	gld_property *prop = NULL;
+    	OBJECT *parent = my()->parent;
+    	if ( sscanf(token,"%[^:]:%s",oname,pname) == 2 )
+    	{
+    		prop = new gld_property(oname,pname);
+    	}
+    	else if ( parent != NULL )
+    	{
+    		prop = new gld_property(parent,token);
+    	}
+    	else
+    	{
+    		exception("field '%s' cannot be used if parent is not specified",token);
+    	}
+    	
     	if ( ! prop->is_valid() )
+    	{
     		exception("property %s is not valid",token);
+    	}
         property_list->push_back(*prop);
         token = strtok_r(NULL,delim,&saveptr);
     }
@@ -183,6 +200,10 @@ int recorder::add_taglist(char *buffer)
         if ( strchr(value,'=') == NULL ) // simple property
         {
         	gld_object *parent = get_object(my()->parent);
+        	if ( parent == NULL )
+        	{
+        		exception("cannot use tag '%s' unless parent is specified",value);
+        	}
         	std::string name = parent->get_name();
             gld_property *prop = new gld_property((OBJECT*)parent,value);
             if ( prop->is_valid() )

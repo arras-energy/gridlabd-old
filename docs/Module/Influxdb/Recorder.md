@@ -39,6 +39,8 @@ string fields;
 
 The `fields` property specifies one or more properties that will be collected as fields in the target InfluxDB table. To provide compatibility with `tape.recorder` and `mysql.recorder`, the property `property` is an alias for `fields`.
 
+Fields can be specified using the syntax `<object-name>:<property-name>`.  In this case the recorder parent need not be specified.  
+
 ### `measurement`
 
 ~~~
@@ -69,7 +71,7 @@ The `options` property specifies how the real and complex values are stored in t
 object parent;
 ~~~
 
-The `parent` property specifies the object from which properties and values will be obtained. The `parent` property can be omitted if the object is embedded in the definition of another object.
+The `parent` property specifies the object from which fields and tags will be read. The `parent` property can be omitted if the recorder is embedded in the definition of another object or if the recorder using only fields that specify the object name.
 
 ### `tags`
 
