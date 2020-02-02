@@ -8,6 +8,7 @@
 EXPORT_CREATE(database);
 EXPORT_INIT(database);
 EXPORT_FINALIZE(database);
+EXPORT_DESTROY(database);
 
 CLASS *database::oclass = NULL;
 database *database::defaults = NULL;
@@ -110,7 +111,19 @@ int database::create(void)
     tagtext = new std::string;
     log_id = 1;
     initialized_ok = false;
+    url = NULL;
+    curl_write = NULL;
+    curl_read = NULL;
     return 1; /* return 1 on success, 0 on failure */
+}
+
+void database::destroy(void)
+{
+    if ( taglist ) delete taglist;
+    if ( tagtext ) delete tagtext;
+    if ( curl_write ) curl_easy_cleanup(curl_write);
+    if ( curl_read ) curl_easy_cleanup(curl_read);
+    if ( url ) free(url);
 }
 
 int database::init(OBJECT *parent)
@@ -161,10 +174,10 @@ void database::curl_init()
     }
 
     // setup curl write
-    url = new char[65536];
-    sprintf(url,"http://%s:%d/write?db=%s",(const char*)hostname,port,(const char*)dbname);
     curl_write = curl_easy_init();
+    asprintf(&url,"http://%s:%d/write?db=%s",(const char*)hostname,port,(const char*)dbname);
     curl_easy_setopt(curl_write, CURLOPT_URL, url);
+    free(url);
     curl_easy_setopt(curl_write, CURLOPT_SSL_VERIFYPEER, 0);
     curl_easy_setopt(curl_write, CURLOPT_CONNECTTIMEOUT, 10);
     curl_easy_setopt(curl_write, CURLOPT_TIMEOUT, 10);
@@ -178,8 +191,9 @@ void database::curl_init()
     curl_easy_setopt(curl_write, CURLOPT_USERPWD, (const char *)password);
 
     // setup curl read
-    sprintf(url,"http://%s:%d/query?db=%s&q=%%s",(const char*)hostname,port,(const char*)dbname);
     curl_read = curl_easy_init();
+    asprintf(&url,"http://%s:%d/query?db=%s&q=%%s",(const char*)hostname,port,(const char*)dbname);
+    // Note: URL is saved for later when running queries
     curl_easy_setopt(curl_read, CURLOPT_SSL_VERIFYPEER, 0); 
     curl_easy_setopt(curl_read, CURLOPT_CONNECTTIMEOUT, 10);
     curl_easy_setopt(curl_read, CURLOPT_TIMEOUT, 10);

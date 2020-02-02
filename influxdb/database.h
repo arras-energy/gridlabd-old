@@ -67,6 +67,7 @@ public:
 public:
 
     int create(void);
+    void destroy(void);
     int init(OBJECT *parent);
     int finalize(void);
 
