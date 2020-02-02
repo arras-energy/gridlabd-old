@@ -671,6 +671,7 @@ struct s_class_list {
 	PROPERTY *pmap;
 	FUNCTION *fmap;
 	FUNCTIONADDR create;
+	FUNCTIONADDR destroy;
 	FUNCTIONADDR init;
 	FUNCTIONADDR precommit;
 	FUNCTIONADDR sync;

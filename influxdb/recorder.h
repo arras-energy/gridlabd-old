@@ -40,6 +40,7 @@ public:
 
 	recorder(MODULE *module);
 	int create(void);
+	void destroy(void);
 	int init(OBJECT *parent);
 	int finalize(void);
 	TIMESTAMP commit(TIMESTAMP t0, TIMESTAMP t1);

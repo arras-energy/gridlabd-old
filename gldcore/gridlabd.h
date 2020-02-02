@@ -3923,6 +3923,13 @@ int dllkill() { return do_kill(NULL); }
  */
 #define EXPORT_METHOD(X,N) EXPORT_METHOD_C(X,X,N)
 
+/*	Define: EXPORT_DESTROY(class)
+
+	This macro is used to implement a destroy function of a class.
+ */
+#define EXPORT_DESTROY_C(X,N) EXPORT void destroy_##X(OBJECT *obj) { OBJECTDATA(obj,N)->destroy(); free(obj); }
+#define EXPORT_DESTROY(C) EXPORT_DESTROY_C(C,C)
+
 #endif
 
 /****************************************

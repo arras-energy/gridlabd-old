@@ -484,6 +484,8 @@ OBJECT *object_find_by_addr(void *addr);
 PROPERTY *object_get_first_property(OBJECT *obj, bool full=true);
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full=true);
 PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full=true);
+void object_destroy(OBJECT *obj);
+void object_destroy_all(void);
 
 #ifdef __cplusplus
 }

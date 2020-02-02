@@ -7,6 +7,7 @@ EXPORT_CREATE(recorder);
 EXPORT_INIT(recorder);
 EXPORT_COMMIT(recorder);
 EXPORT_FINALIZE(recorder);
+EXPORT_DESTROY(recorder);
 
 CLASS *recorder::oclass = NULL;
 recorder *recorder::defaults = NULL;
@@ -50,6 +51,13 @@ int recorder::create(void)
     taglist = new std::list<gld_property>;
     tagtext = new std::string;
 	return 1; /* return 1 on success, 0 on failure */
+}
+
+void recorder::destroy(void)
+{
+	delete property_list;
+	delete taglist;
+	delete tagtext;
 }
 
 int recorder::init(OBJECT *parent)

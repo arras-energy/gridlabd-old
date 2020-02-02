@@ -5,11 +5,13 @@
 
 #exec nc -z localhost 8086 2>/dev/null || (echo "ERROR: influxdb not running on localhost";false)
 
+#option profile
+
 clock 
 {
 	timezone "US/CA/San Francisco";
 	starttime "2020-01-01 00:00:00 PST";
-	stoptime "2020-01-02 00:00:00 PST";
+	stoptime "2020-02-01 00:00:00 PST";
 }
 
 module influxdb
@@ -49,7 +51,7 @@ object house:..10
 		connection "primary";
 		fields "air_temperature,panel";
 		tags "name";
-		interval 1 min;
+		interval 5 min;
 	};
 	object recorder
 	{

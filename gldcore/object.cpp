@@ -3208,4 +3208,20 @@ PROPERTY *object_get_next_property(PROPERTY *prop, bool full)
 		return prop->next;
 }
 
+void object_destroy(OBJECT *obj)
+{
+	if ( obj->oclass->destroy != NULL )
+	{
+		obj->oclass->destroy(obj);
+	}
+}
+
+void object_destroy_all(void)
+{
+	for ( OBJECT *obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
+	{
+		object_destroy(obj);
+	}
+}
+
 /** @} **/

@@ -81,6 +81,7 @@ int main
 		if ( rc != 0 )
 			return rc;
 	}
+	delete my_instance;
 	return return_code;
 }
 unsigned int GldMain::next_id = 0;
@@ -190,6 +191,9 @@ GldMain::~GldMain(void)
 	python_embed_term();
 #endif
 	
+	// TODO: add general destruction calls
+	object_destroy_all();
+
 	// TODO: remove this when reetrant code is done
 	my_instance = NULL;
 

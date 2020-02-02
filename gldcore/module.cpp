@@ -545,14 +545,18 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 		return NULL;
 
 	/* connect intrinsic functions */
-	for (c=mod->oclass; c!=NULL; c=c->next) {
+	for ( c = mod->oclass ; c != NULL ; c = c->next ) 
+	{
 		char fname[1024];
-		struct {
+		struct 
+		{
 			FUNCTIONADDR *func;
 			const char *name;
 			int optional;
-		} map[] = {
+		} map[] = 
+		{
 			{&c->create,"create",FALSE},
+			{&c->destroy,"destroy",TRUE},
 			{&c->init,"init",TRUE},
 			{&c->precommit,"precommit",TRUE},
 			{&c->sync,"sync",TRUE},
@@ -565,25 +569,26 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			{&c->update,"update",TRUE},
 			{&c->heartbeat,"heartbeat",TRUE},
 		};
-		size_t i;
-		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+		for ( size_t i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ )
 		{
 			snprintf(fname, sizeof(fname) ,"%s_%s",map[i].name,isforeign?fmod:c->name);
-			if ((*(map[i].func) = (FUNCTIONADDR)DLSYM(hLib,fname))==NULL && !map[i].optional)
+			*(map[i].func) = (FUNCTIONADDR)DLSYM(hLib,fname);
+			if ( *(map[i].func) == NULL && ! map[i].optional )
 			{
-				output_fatal("intrinsic %s is not defined in class %s", fname,file);
+				output_fatal("required intrinsic '%s' is not defined in class '%s'", fname,file);
 				/*	TROUBLESHOOT
 					A required intrinsic function was not found.  Please review and modify the class definition.
 				 */
 				errno=EINVAL;
 				return NULL;
 			}
-			else
+			else if ( ! map[i].optional )
 			{
-				if(!map[i].optional)
-				{
-					IN_MYCONTEXT output_verbose("%s(%d): module '%s' intrinsic %s found", __FILE__, __LINE__, file, fname);
-				}
+				IN_MYCONTEXT output_debug("%s(%d): module '%s' required intrinsic '%s' found", __FILE__, __LINE__, file, fname);
+			}
+			else if ( *(map[i].func) != NULL )
+			{
+				IN_MYCONTEXT output_debug("%s(%d): module '%s' optional intrinsic '%s' found", __FILE__, __LINE__, file, fname);
 			}
 		}
 	}
