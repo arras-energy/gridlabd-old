@@ -10,8 +10,7 @@ jobs:
             cd /tmp
             wget -q https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
             sudo dpkg -i influxdb_1.7.9_amd64.deb
-            sudo mkdir /var/log/influx
-            sudo /usr/bin/influxd run 1>/var/log/influx/influxd.log 2>/var/log/influx/influxd.err &
+            sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
             sleep 10
             nc -z localhost 8086 
       - run:
