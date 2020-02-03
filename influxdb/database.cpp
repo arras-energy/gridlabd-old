@@ -21,6 +21,8 @@ int32 database::default_port = 8086;
 char256 database::default_database = "gridlabd";
 bool database::synchronous_postdata = false;
 
+static FILE *devnull = NULL;
+
 CURLcode curl_status = CURLE_FAILED_INIT;
 
 database::database(MODULE *module)
@@ -100,10 +102,12 @@ database::database(MODULE *module)
             PT_DESCRIPTION,"default InfluxDB connection protocol",
             NULL);
     }
+    devnull = fopen("/dev/null","w+");
 }
 
 database::~database(void)
 {
+    fclose(devnull);
 }
 
 int database::create(void) 
@@ -197,7 +201,6 @@ void database::curl_init()
     curl_easy_setopt(curl_write, CURLOPT_POST, 1);
     curl_easy_setopt(curl_write, CURLOPT_TCP_KEEPIDLE, 120L);
     curl_easy_setopt(curl_write, CURLOPT_TCP_KEEPINTVL, 60L);
-    FILE *devnull = fopen("/dev/null", "w+");
     curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, devnull);
     curl_easy_setopt(curl_write, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
     curl_easy_setopt(curl_write, CURLOPT_SSL_VERIFYPEER, 0L);
@@ -428,7 +431,6 @@ void *background_postdata(void *ptr)
     curl_easy_setopt(curl_write, CURLOPT_POST, 1);
     curl_easy_setopt(curl_write, CURLOPT_TCP_KEEPIDLE, 120L);
     curl_easy_setopt(curl_write, CURLOPT_TCP_KEEPINTVL, 60L);
-    FILE *devnull = fopen("/dev/null", "w+");
     curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, devnull);
     curl_easy_setopt(curl_write, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
     curl_easy_setopt(curl_write, CURLOPT_SSL_VERIFYPEER, 0L);
