@@ -13,6 +13,7 @@ EXPORT_DESTROY(database);
 CLASS *database::oclass = NULL;
 database *database::defaults = NULL;
 
+char32 database::connection_protocol = "http";
 char32 database::default_username = "gridlabd";
 char32 database::default_password = "gridlabd";
 char256 database::default_hostname = "localhost";
@@ -85,6 +86,12 @@ database::database(MODULE *module)
             PT_char256,database::default_database.get_addr(),
             PT_ACCESS,PA_PUBLIC,
             PT_DESCRIPTION,"default InfluxDB database",
+            NULL);
+
+        gl_global_create("influxdb::connection_protocol",
+            PT_char32,database::connection_protocol.get_addr(),
+            PT_ACCESS,PA_PUBLIC,
+            PT_DESCRIPTION,"default InfluxDB connection protocol",
             NULL);
 
         // gl_global_create("influxdb::use_background_insert",
@@ -175,7 +182,7 @@ void database::curl_init()
 
     // setup curl write
     curl_write = curl_easy_init();
-    asprintf(&url,"http://%s:%d/write?db=%s",(const char*)hostname,port,(const char*)dbname);
+    asprintf(&url,"%s://%s:%d/write?db=%s",(const char*)connection_protocol,(const char*)hostname,port,(const char*)dbname);
     curl_easy_setopt(curl_write, CURLOPT_URL, url);
     free(url);
     curl_easy_setopt(curl_write, CURLOPT_SSL_VERIFYPEER, 0);
@@ -192,7 +199,7 @@ void database::curl_init()
 
     // setup curl read
     curl_read = curl_easy_init();
-    asprintf(&url,"http://%s:%d/query?db=%s&q=%%s",(const char*)hostname,port,(const char*)dbname);
+    asprintf(&url,"%s://%s:%d/query?db=%s&q=%%s",(const char*)connection_protocol,(const char*)hostname,port,(const char*)dbname);
     // Note: URL is saved for later when running queries
     curl_easy_setopt(curl_read, CURLOPT_SSL_VERIFYPEER, 0); 
     curl_easy_setopt(curl_read, CURLOPT_CONNECTTIMEOUT, 10);

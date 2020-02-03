@@ -38,6 +38,7 @@ class database : public gld_object
 
 public:
 
+    static char32 connection_protocol;
     static char32 default_username;
     static char32 default_password;
     static char256 default_hostname;
