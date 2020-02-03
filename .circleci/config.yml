@@ -10,7 +10,9 @@ jobs:
             cd /tmp
             wget https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
             sudo dpkg -i influxdb_1.7.9_amd64.deb
-            sudo /etc/init.d/influxdb start || sudo /etc/init.d/influxdb status            
+            sudo /etc/init.d/influxdb start || true
+            sleep 1
+            sudo /etc/init.d/influxdb status            
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
