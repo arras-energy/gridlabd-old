@@ -18,6 +18,7 @@ module influxdb
 {
 	default_database "test_local_database";
 	connection_protocol "http";
+	synchronous_postdata FALSE;
 }
 
 object database

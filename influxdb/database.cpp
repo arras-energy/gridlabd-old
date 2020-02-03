@@ -19,7 +19,7 @@ char32 database::default_password = "gridlabd";
 char256 database::default_hostname = "localhost";
 int32 database::default_port = 8086;
 char256 database::default_database = "gridlabd";
-bool database::use_background_insert = false;
+bool database::synchronous_postdata = false;
 
 CURLcode curl_status = CURLE_FAILED_INIT;
 
@@ -90,6 +90,12 @@ database::database(MODULE *module)
 
         gl_global_create("influxdb::connection_protocol",
             PT_char32,database::connection_protocol.get_addr(),
+            PT_ACCESS,PA_PUBLIC,
+            PT_DESCRIPTION,"default InfluxDB connection protocol",
+            NULL);
+
+        gl_global_create("influxdb::synchronous_postdata",
+            PT_bool,&database::synchronous_postdata,
             PT_ACCESS,PA_PUBLIC,
             PT_DESCRIPTION,"default InfluxDB connection protocol",
             NULL);
@@ -459,11 +465,13 @@ void database::post_data(std::string& body)
     item->password = password;
     item->data = strdup(body.c_str());
     item->size = body.size();
-    if ( pthread_create(&item->thread_id,NULL,background_postdata,item) != 0 )
+    if ( synchronous_postdata || pthread_create(&item->thread_id,NULL,background_postdata,item) != 0 )
     {
-        warning("background_postdata failed: running query synchronously (which is slower)");
+        if ( ! synchronous_postdata )
+        {
+            warning("background_postdata failed: running query synchronously (which is slower)");
+        }
         background_postdata((void*)item);
-        free((void*)item->data);
         delete item;
     }
     else
