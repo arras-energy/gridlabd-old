@@ -3,22 +3,20 @@
 
 #set savefile=gridlabd.json
 
-#exec nc -z localhost 8086 2>/dev/null || (echo "ERROR: influxdb not running on localhost";false)
-
 #option profile
 
 clock 
 {
 	timezone "US/CA/San Francisco";
 	starttime "2020-01-01 00:00:00 PST";
-	stoptime "2020-02-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
 }
 
 module influxdb
 {
 	default_database "test_local_database";
 	connection_protocol "http";
-	synchronous_postdata TRUE;
+	synchronous_postdata FALSE;
 }
 
 object database
