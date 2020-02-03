@@ -52,7 +52,7 @@ object house:..10
 		connection "primary";
 		fields "air_temperature,panel";
 		tags "name";
-		interval 5 min;
+		interval 1 min;
 	};
 	object recorder
 	{

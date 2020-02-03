@@ -93,18 +93,17 @@ database::database(MODULE *module)
             PT_ACCESS,PA_PUBLIC,
             PT_DESCRIPTION,"default InfluxDB connection protocol",
             NULL);
-
-        // gl_global_create("influxdb::use_background_insert",
-        //     PT_bool,&database::use_background_insert,
-        //     PT_ACCESS,PA_PUBLIC,
-        //     PT_DESCRIPTION,"use background thread to insert data into database",
-        //     NULL);
     }
 }
 
 database::~database(void)
 {
-
+    for ( postlist::iterator item = post->begin() ; item != post->end() ; item ++ )
+    {
+        pthread_join(item->thread_id,NULL);
+        free((void*)item->data);
+    }
+    delete post;
 }
 
 int database::create(void) 
@@ -121,6 +120,7 @@ int database::create(void)
     url = NULL;
     curl_write = NULL;
     curl_read = NULL;
+    post = new postlist;
     return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -408,58 +408,70 @@ DynamicJsonDocument database::post_write(std::string& body)
     return result;
 }
 
-static void *background_post(void *ptr)
+void *background_postdata(void *ptr)
 {
+    struct s_postdata *post = (struct s_postdata *)ptr;
     CURLcode response;
-    CURL *curl_write = (CURL*)ptr;
     long code;
+    CURL *curl_write = curl_easy_init();
+    char *url;
+    asprintf(&url,"%s://%s:%d/write?db=%s",post->protocol,post->hostname,post->port,post->dbname);
+    curl_easy_setopt(curl_write, CURLOPT_URL, url);
+    free(url);
+    curl_easy_setopt(curl_write, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_easy_setopt(curl_write, CURLOPT_CONNECTTIMEOUT, 10);
+    curl_easy_setopt(curl_write, CURLOPT_TIMEOUT, 10);
+    curl_easy_setopt(curl_write, CURLOPT_POST, 1);
+    curl_easy_setopt(curl_write, CURLOPT_TCP_KEEPIDLE, 120L);
+    curl_easy_setopt(curl_write, CURLOPT_TCP_KEEPINTVL, 60L);
+    FILE *devnull = fopen("/dev/null", "w+");
+    curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, devnull);
+    curl_easy_setopt(curl_write, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+    curl_easy_setopt(curl_write, CURLOPT_SSL_VERIFYPEER, 0L);
+    curl_easy_setopt(curl_write, CURLOPT_USERPWD, post->password);
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, post->data);
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) post->size);
+    curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, NULL);
     response = curl_easy_perform(curl_write);
-    curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
     if ( response != CURLE_OK ) 
     {
         gl_error(curl_easy_strerror(response));
     }
-    if ( code < 200 || code > 206 ) 
-    {
-        char *url;
-        curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
-        gl_error("background_post(url='%s')-> code = %d",url,code);
-    }
-    return NULL;
-}
-
-DynamicJsonDocument database::post_data(std::string& body)
-{
-    CURLcode response;
-    std::string buffer;
-    long code;
-    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, body.c_str());
-    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) body.length());
-    curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, &buffer);
-    pthread_t id;
-    if ( use_background_insert && pthread_create(&id,NULL,background_post,&curl_write) == 0 )
-    {    
-        DynamicJsonDocument result(1);
-        deserializeJson(result,"[]");
-        return result;
-    }
     else
     {
-        response = curl_easy_perform(curl_write);
         curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
-        if ( response != CURLE_OK ) 
-        {
-            exception(curl_easy_strerror(response));
-        }
         if ( code < 200 || code > 206 ) 
         {
             char *url;
             curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
-            exception("influxdb post response code = %d, url = '%s', body = '%s'",code,url, body.c_str());
+            gl_error("influxdb post response code = %d, url = '%s', body = '%s'",code,url,post->data);
         }
-        gl_debug("database::post(body='%s') -> code = %d, result = '%s'",body.c_str(),code,buffer.c_str());
-        DynamicJsonDocument result = auto_deserialize(buffer.c_str(),buffer.size()/10);
-        return result;
+    }
+    curl_easy_cleanup(curl_write);
+    return NULL;
+}
+
+void database::post_data(std::string& body)
+{
+    struct s_postdata *item = new struct s_postdata;
+    item->protocol = connection_protocol;
+    item->hostname = hostname;
+    item->port = port;
+    item->dbname = dbname;
+    item->username = username;
+    item->password = password;
+    item->data = strdup(body.c_str());
+    item->size = body.size();
+    if ( pthread_create(&item->thread_id,NULL,background_postdata,item) != 0 )
+    {
+        warning("background_postdata failed: running query synchronously (which is slower)");
+        background_postdata((void*)item);
+        free((void*)item->data);
+        delete item;
+    }
+    else
+    {
+        post->push_back(*item);
     }
 }
 

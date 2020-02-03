@@ -33,6 +33,21 @@ DECL_METHOD(database,logtag);
 
 typedef std::list<gld_property> properties;
 
+struct s_postdata
+{
+    const char *protocol;
+    const char *hostname;
+    const char *password;
+    const char *username;
+    int port;
+    const char *dbname;
+    const char *data;
+    long size;
+    pthread_t thread_id;
+};
+typedef struct s_postdata postdata;
+typedef std::list<postdata> postlist;
+
 class database : public gld_object
 {
 
@@ -84,7 +99,9 @@ private:
     DynamicJsonDocument post_query(const char *format,...);
     DynamicJsonDocument post_write(std::string& post);
     DynamicJsonDocument post_write(const char *format,...);
-    DynamicJsonDocument post_data(std::string& body);
+
+    postlist *post;
+    void post_data(std::string& body);
 
     bool find_database(const char *name);
     bool create_database(const char *name);
