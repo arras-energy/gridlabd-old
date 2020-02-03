@@ -8,9 +8,10 @@ jobs:
           name: Install influxdb (TODO add to base image)
           command: |
             cd /tmp
-            wget https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
+            wget -q https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
             sudo dpkg -i influxdb_1.7.9_amd64.deb
             sudo /usr/bin/influxd run 1>/var/log/influx/influxd.log 2>/var/log/influx/influxd.err &
+            /usr/bin/influxd config
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
