@@ -4,14 +4,13 @@ jobs:
     docker:
       - image: slacgismo/circleci_gridlabd_base:latest
     steps:
-      - checkout   
       - run:
           name: Install influxdb (TODO add to base image)
           command: |
             cd /tmp
             wget https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
             sudo dpkg -i influxdb_1.7.9_amd64.deb
-            sudo /etc/init.d/influxdb start | sudo /etc/init.d/influxdb status            
+            sudo /etc/init.d/influxdb start || sudo /etc/init.d/influxdb status            
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
@@ -31,6 +30,7 @@ jobs:
           name: Install gawk (TODO add to base image)
           command: |
             sudo apt-get install gawk -y
+      - checkout   
       - run:
           name: Build gridlabd
           command: |
