@@ -429,7 +429,7 @@ void *background_postdata(void *ptr)
     curl_easy_setopt(curl_write, CURLOPT_USERPWD, item->password);
     curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, item->data);
     curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) item->size);
-    curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, NULL);
+    curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, &item->result);
     item->response = curl_easy_perform(curl_write);
     if ( item->response != CURLE_OK ) 
     {

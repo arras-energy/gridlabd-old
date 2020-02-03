@@ -46,6 +46,7 @@ struct s_postdata
     pthread_t thread_id;
     CURLcode response;
     long code;
+    std::string result;
 };
 typedef struct s_postdata postdata;
 typedef std::list<postdata> postlist;
