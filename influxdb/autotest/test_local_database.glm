@@ -9,14 +9,14 @@ clock
 {
 	timezone "US/CA/San Francisco";
 	starttime "2020-01-01 00:00:00 PST";
-	stoptime "2021-01-01 00:00:00 PST";
+	stoptime "2020-02-01 00:00:00 PST";
 }
 
 module influxdb
 {
 	default_database "test_local_database";
 	connection_protocol "http";
-	synchronous_postdata FALSE;
+	synchronous_postdata TRUE;
 }
 
 object database
