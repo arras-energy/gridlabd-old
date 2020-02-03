@@ -11,8 +11,8 @@ jobs:
             wget -q https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
             sudo dpkg -i influxdb_1.7.9_amd64.deb
             sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
-            sleep 10
-            nc -z localhost 8086 
+            sleep 5
+            nc -z localhost 8086 && "InfluxDB started ok" || "InfluxDB startup failed!"
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
@@ -53,4 +53,10 @@ jobs:
           destination: validate-output.tar.gz
           when: on_fail
       - store_artifacts:
-          path: /var/log/influx
+          path: /tmp/influxd.log
+          destination: influxd.log
+          when: on_fail
+      - store_artifacts:
+          path: /tmp/influxd.err
+          destination: influxd.err
+          when: on_fail
