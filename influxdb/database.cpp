@@ -98,12 +98,6 @@ database::database(MODULE *module)
 
 database::~database(void)
 {
-    for ( postlist::iterator item = post->begin() ; item != post->end() ; item ++ )
-    {
-        pthread_join(item->thread_id,NULL);
-        free((void*)item->data);
-    }
-    delete post;
 }
 
 int database::create(void) 
@@ -131,6 +125,12 @@ void database::destroy(void)
     if ( curl_write ) curl_easy_cleanup(curl_write);
     if ( curl_read ) curl_easy_cleanup(curl_read);
     if ( url ) free(url);
+    for ( postlist::iterator item = post->begin() ; item != post->end() ; item ++ )
+    {
+        pthread_join(item->thread_id,NULL);
+        post->erase(item);
+    }
+    delete post;
 }
 
 int database::init(OBJECT *parent)
@@ -410,12 +410,10 @@ DynamicJsonDocument database::post_write(std::string& body)
 
 void *background_postdata(void *ptr)
 {
-    struct s_postdata *post = (struct s_postdata *)ptr;
-    CURLcode response;
-    long code;
+    struct s_postdata *item = (struct s_postdata *)ptr;
     CURL *curl_write = curl_easy_init();
     char *url;
-    asprintf(&url,"%s://%s:%d/write?db=%s",post->protocol,post->hostname,post->port,post->dbname);
+    asprintf(&url,"%s://%s:%d/write?db=%s",item->protocol,item->hostname,item->port,item->dbname);
     curl_easy_setopt(curl_write, CURLOPT_URL, url);
     free(url);
     curl_easy_setopt(curl_write, CURLOPT_SSL_VERIFYPEER, 0);
@@ -428,26 +426,25 @@ void *background_postdata(void *ptr)
     curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, devnull);
     curl_easy_setopt(curl_write, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
     curl_easy_setopt(curl_write, CURLOPT_SSL_VERIFYPEER, 0L);
-    curl_easy_setopt(curl_write, CURLOPT_USERPWD, post->password);
-    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, post->data);
-    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) post->size);
+    curl_easy_setopt(curl_write, CURLOPT_USERPWD, item->password);
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDS, item->data);
+    curl_easy_setopt(curl_write, CURLOPT_POSTFIELDSIZE, (long) item->size);
     curl_easy_setopt(curl_write, CURLOPT_WRITEDATA, NULL);
-    response = curl_easy_perform(curl_write);
-    if ( response != CURLE_OK ) 
+    item->response = curl_easy_perform(curl_write);
+    if ( item->response != CURLE_OK ) 
     {
-        gl_error(curl_easy_strerror(response));
+        gl_error(curl_easy_strerror(item->response));
     }
     else
     {
-        curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
-        if ( code < 200 || code > 206 ) 
+        curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &item->code);
+        if ( item->code < 200 || item->code > 206 ) 
         {
-            char *url;
-            curl_easy_getinfo(curl_write, CURLINFO_EFFECTIVE_URL, &url);
-            gl_error("influxdb post response code = %d, url = '%s', body = '%s'",code,url,post->data);
+            gl_error("influxdb post item response code = %d, url = '%s', body = '%s'",item->code,url,item->data);
         }
     }
     curl_easy_cleanup(curl_write);
+    free((void*)item->data);
     return NULL;
 }
 
