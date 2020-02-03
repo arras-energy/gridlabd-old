@@ -6,6 +6,11 @@ jobs:
     steps:
       - checkout   
       - run:
+          name: Install influxdb (TODO add to base image)
+          command: |
+            wget https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
+            sudo dpkg -i influxdb_1.7.9_amd64.deb
+      - run:
           name: Install natural_docs (TODO add to base image)
           command: |
             curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
@@ -20,12 +25,6 @@ jobs:
             cd /tmp
             sudo apt-get update
             sudo apt-get install monodevelop -y
-      - run:
-          name: Install influxdb (TODO add to base image)
-          command: |
-            wget https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
-            sudo dpkg -i influxdb_1.7.9_amd64.deb
-            sudo /etc/init.d/influxdb start
       - run:
           name: Install gawk (TODO add to base image)
           command: |
