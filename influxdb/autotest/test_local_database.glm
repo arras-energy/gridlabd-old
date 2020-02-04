@@ -17,7 +17,7 @@ clock
 module influxdb
 {
 	default_database "test_local_database";
-	connection_protocol "http";
+	connection_protocol "https";
 	synchronous_postdata TRUE;
 }
 
