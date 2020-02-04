@@ -4,7 +4,8 @@
 #set savefile=gridlabd.json
 
 #option profile
-#option debug
+#set debug=TRUE
+#set suppress_repeat_messages=FALSE
 
 clock 
 {
