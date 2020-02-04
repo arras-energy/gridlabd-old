@@ -12,7 +12,7 @@ jobs:
             sudo dpkg -i influxdb_1.7.9_amd64.deb
             sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
             sleep 5
-            curl http://localhost:8086/ping
+            curl 'http://localhost:8086/query?db=test_local_database&q=show%20databases'
       - checkout   
       - run:
           name: Build gridlabd
