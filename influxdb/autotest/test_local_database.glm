@@ -4,6 +4,7 @@
 #set savefile=gridlabd.json
 
 #option profile
+#option debug
 
 clock 
 {

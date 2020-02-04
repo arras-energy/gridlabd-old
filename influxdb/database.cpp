@@ -337,9 +337,11 @@ DynamicJsonDocument database::get(const std::string& query)
     response = curl_easy_perform(curl_read);
     if (response != CURLE_OK) 
     {
+        gl_debug("database::get(query='%s') -> response %d",query.c_str(), response);
         exception(curl_easy_strerror(response));
     }
     free(query_string);
+    gl_debug("database::get(query='%s') -> %s",query.c_str(),buffer.c_str());
     return auto_deserialize(buffer.c_str());
 }
 
@@ -371,9 +373,11 @@ DynamicJsonDocument database::post_query(std::string& query)
     response = curl_easy_perform(curl_read);
     if (response != CURLE_OK) 
     {
+        gl_debug("database::post_query(query='%s') -> response %d",query.c_str(), response);
         exception(curl_easy_strerror(response));
     }
     free(query_string);
+    gl_debug("database::post_query(query='%s') -> %s",query.c_str(),buffer.c_str());
     DynamicJsonDocument result = auto_deserialize(buffer.c_str(),buffer.size()/10);
     return result;
 }
@@ -404,6 +408,7 @@ DynamicJsonDocument database::post_write(std::string& body)
     curl_easy_getinfo(curl_write, CURLINFO_RESPONSE_CODE, &code);
     if ( response != CURLE_OK ) 
     {
+        gl_debug("database::post_write(body='%s') -> response %d",body.c_str(), response);
         exception(curl_easy_strerror(response));
     }
     if ( code < 200 || code > 206 ) 
@@ -451,6 +456,7 @@ void *background_postdata(void *ptr)
             gl_error("influxdb post item response code = %d, url = '%s', body = '%s'",item->code,url,item->data);
         }
     }
+    gl_debug("background_postdata(data='%s') -> response %d, code %d, result = %s",item->data, item->response, item->code, item->result.c_str());
     curl_easy_cleanup(curl_write);
     free((void*)item->data);
     return NULL;
