@@ -5,11 +5,11 @@ jobs:
       - image: slacgismo/circleci_gridlabd_base:latest
     steps:
       - run:
-        name: Install influxdb (TODO add to base image)
-        command: |
-          cd /tmp
-          wget -q https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
-          sudo dpkg -i influxdb_1.7.9_amd64.deb
+          name: Install influxdb (TODO add to base image)
+          command: |
+            cd /tmp
+            wget -q https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
+            sudo dpkg -i influxdb_1.7.9_amd64.deb
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
