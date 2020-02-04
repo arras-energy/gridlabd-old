@@ -337,7 +337,7 @@ DynamicJsonDocument database::get(const std::string& query)
     response = curl_easy_perform(curl_read);
     if (response != CURLE_OK) 
     {
-        gl_debug("database::get(query='%s') -> response %d",query.c_str(), response);
+        gl_debug("database::get(query='%s') -> response %d",query_string.c_str(), response);
         exception(curl_easy_strerror(response));
     }
     free(query_string);
@@ -373,7 +373,7 @@ DynamicJsonDocument database::post_query(std::string& query)
     response = curl_easy_perform(curl_read);
     if (response != CURLE_OK) 
     {
-        gl_debug("database::post_query(query='%s') -> response %d",query.c_str(), response);
+        gl_debug("database::post_query(query='%s') -> response %d",query_string.c_str(), response);
         exception(curl_easy_strerror(response));
     }
     free(query_string);
