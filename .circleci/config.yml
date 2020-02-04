@@ -5,30 +5,49 @@ jobs:
       - image: slacgismo/circleci_gridlabd_base:latest
     steps:
       - run:
-          name: Install influxdb (TODO add to base image)
+        name: Install influxdb (TODO add to base image)
+        command: |
+          cd /tmp
+          wget -q https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
+          sudo dpkg -i influxdb_1.7.9_amd64.deb
+      - run:
+          name: Install natural_docs (TODO add to base image)
+          command: |
+            curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
+            unzip -qq natural_docs
+            rm -f natural_docs.zip
+            echo '#!/bin/bash' > natural_docs
+            echo 'mono $PWD/Natural\ Docs\/NaturalDocs.exe \$*' >> natural_docs
+            chmod a+x natural_docs
+      - run:
+          name: Install mono (TODO add to base image) 
           command: |
             cd /tmp
-            wget -q https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
-            sudo dpkg -i influxdb_1.7.9_amd64.deb
+            sudo apt-get update
+            sudo apt-get install monodevelop -y
+      - run:
+          name: Install gawk (TODO add to base image)
+          command: |
+            sudo apt-get install gawk -y
       - checkout   
       - run:
           name: Build gridlabd
           command: |
             sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
             sleep 5
-            curl 'http://localhost:8086/query?db=test_local_database&q=show%20databases'
             autoreconf -isf
             ./configure
             export PATH=/home/circleci/project/install/bin:$PWD:$PATH
-            sudo make -i -j16 install || echo "build failed"
-            /usr/local/opt/gridlabd/*/bin/gridlabd -W influxdb --validate --verbose --debug
+            sudo make -j16 install-validate
       - store_artifacts:
           path: /home/circleci/project/validate.txt
           destination: /gridlabd/validate.txt
-          when: on_fail
       - store_artifacts:
-          path: /home/circleci/project/influxdb/autotest
-          destination: /autotest
+          path: /home/circleci/project/documents
+          destination: /gridlabd/documents
+      - store_artifacts:
+          path: /home/circleci/project/validate-output.tar.gz
+          destination: validate-output.tar.gz
           when: on_fail
       - store_artifacts:
           path: /tmp/influxd.log
