@@ -13,6 +13,7 @@ jobs:
       - run:
           name: Install natural_docs (TODO add to base image)
           command: |
+            cd /tmp
             curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
             unzip -qq natural_docs
             rm -f natural_docs.zip
@@ -28,6 +29,7 @@ jobs:
       - run:
           name: Install gawk (TODO add to base image)
           command: |
+            cd /tmp
             sudo apt-get install gawk -y
       - checkout   
       - run:
