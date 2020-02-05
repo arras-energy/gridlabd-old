@@ -4,7 +4,7 @@
 
 for i in `find . -type d -name autotest -print`; do 
 	for f in `find $i -type d -name 'test_*' -print`; do
-		m -rf $f
+		rm -rf $f
 	done
 done
 
