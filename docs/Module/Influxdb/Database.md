@@ -76,10 +76,6 @@ Specifies that existing databases are to be destroyed when starting the simulati
 
 Specifies that no database options have been provided.
 
-#### `SHOWQUERY`
-
-Specifies that queries are to be showed in verbose output.
-
 ### `password`
 
 ~~~
@@ -103,6 +99,10 @@ string username;
 ~~~
 
 Specifies the user name to use when authenticated server connections are required. The default username is `gridlabd`.
+
+# Caveats
+
+For compatibility with MySQL, the properties `tz_offset`, `sync_interval`, and `use_dst` are allowed but ignored.
 
 # See also
 
