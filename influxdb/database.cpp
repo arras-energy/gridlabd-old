@@ -138,7 +138,6 @@ void database::destroy(void)
     for ( postlist::iterator item = post->begin() ; item != post->end() ; item ++ )
     {
         pthread_join(item->thread_id,NULL);
-        post->erase(item);
     }
     delete post;
 }
@@ -453,6 +452,7 @@ void *background_postdata(void *ptr)
     }
     curl_easy_cleanup(curl_write);
     free((void*)item->data);
+    item->data = NULL;
     return NULL;
 }
 
