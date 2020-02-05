@@ -3,45 +3,45 @@ import os
 import sys, getopt
 from datetime import datetime 
 
+config = {"input":"txt", "output":"glm", "type":[]}
+
 def help():
-	print('Syntax:')
-	print('txt2glm-cyme.py -i|--ifile <input-file>[,<input-file>[,...]] -o|--ofile <output-file>')
-	print('  -i|--ifile     : [REQUIRED] txt input file name.')
-	print('  -o|--ofile     : [REQUIRED] glm output file name.')
+	return """txt2glm-cyme.py -i|--ifile <input-file>[,<input-file>[,...]] -o|--ofile <output-file>
+    -i|--ifile     : [REQUIRED] txt input file name
+    -o|--ofile     : [REQUIRED] glm output file name
+    """
 
-filename_txt = [];
-filename_glm = None;
+def convert(input_file=None, output_file=None, output_type=None):
 
-try : 
-	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t",["help","ifile=","ofile=","type="]);
-except getopt.GetoptError:
-	sys.exit(2);
-if not opts : 
-	help();
-	sys.exit(1);
-for opt, arg in opts:
-	if opt in ("-h","--help"):
-		help();
-		sys.exit(0);
-	elif opt in ("-i", "--ifile"):
-		filename_txt.append(arg.split(","))
-	elif opt in ("-o", "--ofile"):
-		filename_glm = arg;
-	elif opt in ("-t","--type"):
-		output_type = arg;
-	else:
-		raise Exception(f"'{opt}' is an invalid command line option");
+	if not input_file:
+		raise Exception(f"missing input file name")
 
-if filename_txt == []:
-	raise Exception(f"missing input file name");
+	if not output_file:
+		raise Exception(f"missing output file name")
 
-if filename_glm == None:
-	raise Exception(f"missing output file name");
+	with open(input_file,"r") as txt:
+		with open(output_file,"w") as glm:
 
-with open(filename_glm,"w") as glm:
-	for input_name in filename_txt.split(","):
-		with open(input_name,"r") as txt:
+			glm.write(f"#warning CYME conversion from {input_file} incomplete\n")
 
-			# TODO process input
-			raise Exception(f"conversion of '{input_name}' to '{filename_glm}' not implemented yet");
+if __name__ == '__main__':
+	
+	opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:",["help","ifile=","ofile=","type="]);
 
+	if not opts : 
+		print(help())
+		sys.exit(0)
+	for opt, arg in opts:
+		if opt in ("-h","--help"):
+			print(help())
+			sys.exit(0);
+		elif opt in ("-i", "--ifile"):
+			input_file = arg.strip()
+		elif opt in ("-o", "--ofile"):
+			output_file = arg.strip()
+		elif opt in ("-t", "--type"):
+			output_type = arg.strip()
+		else:
+			raise Exception(f"'{opt}' is an invalid command line option");
+
+	convert(input_file=input_file,output_file=output_file)
