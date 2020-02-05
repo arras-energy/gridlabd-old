@@ -39,7 +39,7 @@ if filename_glm == None:
 	raise Exception(f"missing output file name");
 
 with open(filename_glm,"w") as glm:
-	for input_name in filename_txt:
+	for input_name in filename_txt.split(","):
 		with open(input_name,"r") as txt:
 
 			# TODO process input
