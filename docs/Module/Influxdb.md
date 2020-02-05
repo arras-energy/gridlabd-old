@@ -13,6 +13,7 @@ module database
 	default_hostname "localhost";
 	default_port 8086;
 	default_database "gridlabd";
+    synchronous_postdata [FALSE|TRUE];
 }
 ~~~
 
