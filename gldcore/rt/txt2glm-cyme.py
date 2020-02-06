@@ -20,7 +20,7 @@ def convert(input_file=None, output_file=None, output_type=None):
 		raise Exception(f"missing output file name")
 
 	sections = get_sections(input_file)
-	print(sections)
+	print(json.dumps(sections,indent=4))
 
 	with open(output_file,"w") as glm:
 
@@ -32,19 +32,23 @@ def get_sections(input_file):
 		text = txt.read().split("\n\n")
 		for section in text:
 			lines = section.splitlines()
+			if len(lines) == 0:
+				continue
 			heading = lines[0]
+			if len(heading) == 0:
+				continue
 			if heading[0] != "[" or heading[-1] != "]":
 				raise Exception(f"{heading} is an invalid section heading")
 			heading_name = heading[1:-1]
 			if len(lines) > 1:
+				data = {}
 				if lines[1][0:6] == "FORMAT":
 					# CSV data
 					header = lines[1].split("=")[1].split(",")
-					name = header[0]
 					tags = header[1:]
 					values = {}
 					for line in lines[2:]:
-						values.zip(header,line.split()[1])
+						values[line[0]] = dict(zip(header[1:],line.split()))
 					data["values"] = values
 					sections[heading_name] = data
 				else:
