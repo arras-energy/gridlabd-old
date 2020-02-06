@@ -26,9 +26,11 @@ feeder = importlib.import_module("feeder");
 
 m2ft = 1.0 / 0.3048  # Conversion factor for meters to feet
 
-def main(argv):
-	# TODO implement conversion from main()
-	raise Exception(f"cyme conversion not implemented for main({argv})");
+def convert(input_name,output_name):
+	glmCirc = convertCymeModel(input_name, "/tmp")
+	with open(output_name,'w') as f:
+	   glmString = sortedWrite(glmCirc)
+	   f.write(glmString)
 
 def flatten(*args, **kwargs):
 	dicty = dict(*args, **kwargs)

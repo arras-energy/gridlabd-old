@@ -47,7 +47,6 @@ if os.path.exists(modname):
 	modspec = importlib.util.spec_from_file_location(output_type, modname)
 	mod = importlib.import_module(f"txt2glm-{output_type}")
 	mod.convert(input_file=input_file,output_file=output_file)
-	sys.exit(0)
 
 else:
 

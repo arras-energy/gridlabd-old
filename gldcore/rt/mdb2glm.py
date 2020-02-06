@@ -12,9 +12,8 @@ def help():
 	print('Input types')
 	print('  cyme           : cyme input');
 
-filename_mdb = None
-filename_glm = None
-basename = None
+input_name = None
+output_name = None
 input_type = None
 
 try : 
@@ -29,9 +28,9 @@ for opt, arg in opts:
 		help()
 		sys.exit(0)
 	elif opt in ("-i", "--ifile"):
-		filename_mdb = arg.strip();
+		input_name = arg.strip();
 	elif opt in ("-o", "--ofile"):
-		filename_glm = arg.strip();
+		output_name = arg.strip();
 	elif opt in ("-t","--type"):
 		input_type = arg.strip();
 	else:
@@ -45,7 +44,7 @@ if os.path.exists(modname):
 	mod = importlib.import_module(f"mdb2glm-{input_type}");
 	argv = copy.deepcopy(sys.argv)
 	argv[0] = modname
-	mod.main(argv)
+	mod.convert(input_name,output_name)
 
 else:
 
