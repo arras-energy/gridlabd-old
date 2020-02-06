@@ -3508,4 +3508,4 @@ def _tests(keepFiles=True):
 
 
 if __name__ == "__main__":
-	_tests()
+	main(sys.argv)
