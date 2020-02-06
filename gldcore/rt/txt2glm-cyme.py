@@ -19,10 +19,40 @@ def convert(input_file=None, output_file=None, output_type=None):
 	if not output_file:
 		raise Exception(f"missing output file name")
 
-	with open(input_file,"r") as txt:
-		with open(output_file,"w") as glm:
+	sections = get_sections(input_file)
+	print(sections)
 
-			glm.write(f"#warning CYME conversion from {input_file} incomplete\n")
+	with open(output_file,"w") as glm:
+
+		glm.write(f"#warning CYME conversion from {input_file} incomplete\n")
+
+def get_sections(input_file):
+	sections = {}
+	with open(input_file,"r") as txt:
+		text = txt.read().split("\n\n")
+		for section in text:
+			lines = section.splitlines()
+			heading = lines[0]
+			if heading[0] != "[" or heading[-1] != "]":
+				raise Exception(f"{heading} is an invalid section heading")
+			heading_name = heading[1:-1]
+			if len(lines) > 1:
+				if lines[1][0:6] == "FORMAT":
+					# CSV data
+					header = lines[1].split("=")[1].split(",")
+					name = header[0]
+					tags = header[1:]
+					values = {}
+					for line in lines[2:]:
+						values.zip(header,line.split()[1])
+					data["values"] = values
+					sections[heading_name] = data
+				else:
+					# tuples
+					sections[heading_name] = []
+			else:
+				sections[heading_name] = []
+	return sections
 
 if __name__ == '__main__':
 	
@@ -45,3 +75,4 @@ if __name__ == '__main__':
 			raise Exception(f"'{opt}' is an invalid command line option");
 
 	convert(input_file=input_file,output_file=output_file)
+	
