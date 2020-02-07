@@ -1,10 +1,15 @@
-"""
-This is how it should be done:
+"""Convert CYME MDB to GridLAB-D GLM
 
-glmCirc = convertCymeModel(path/to/cymeModel.md, /path/to/working/dir/)
-with open('/path/to/output.glm','w') as f:
-   glmString = sortedWrite(glmCirc)
-   f.write(glmString)
+Python API:
+    convert(ifile,ofile,options=[])
+
+CLI:
+    python3 mdb2glm-cyme.py -i|--input <input-file> -o|--output <output-file> [options...]
+
+Options:
+  -v enable verbose output
+  -d enable debug output
+  -q disable warning output
 """
 
 import csv, random, math, copy, subprocess, locale, tempfile, traceback
@@ -26,7 +31,7 @@ feeder = importlib.import_module("feeder");
 
 m2ft = 1.0 / 0.3048  # Conversion factor for meters to feet
 
-def convert(input_name,output_name,options=[]):
+def convert(ifile,ofile,options=[]):
     """Convert CYME MDB to GLM
     Parameters:
       input_name (str)   [REQUIRED] input MDB filename
@@ -35,7 +40,7 @@ def convert(input_name,output_name,options=[]):
     Options
       -v enable verbose output
       -d enable debugging output
-      -q silence warning output
+      -q disable warning output
     """
     verbose=False
     debug=False
@@ -49,12 +54,12 @@ def convert(input_name,output_name,options=[]):
     if "-q" in options:
         quiet = True
         options.remove("-q")
-    set_context(input_name,verbose,debug,quiet)
+    set_context(ifile,verbose,debug,quiet)
     if len(options) > 0:
         print_error(f"{options[0]} is not valid")
         return
-    glmCirc = convertCymeModel(input_name)
-    with open(output_name,'w') as f:
+    glmCirc = convertCymeModel(ifile)
+    with open(ofile,'w') as f:
        glmString = sortedWrite(glmCirc)
        f.write(glmString)
 
@@ -3220,7 +3225,7 @@ def convertCymeModel(network_db, test=False, _type=1, feeder_id=None):
     return glmTree
 
 def main(argv):
-    raise Exception("mdb2glm.py command line call not supported yet")
+    raise Exception("mdb2glm.py CLI not implemented yet")
 
 if __name__ == "__main__":
     main(sys.argv)
