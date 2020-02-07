@@ -1,3 +1,8 @@
+# mdb2glm-cyme.py
+# Copyright (C) 2020 Regents of the Leland Stanford Junior University
+# Adapted by dchassin@slac.stanford.edu from NRECA OMF CYME-GLM converter (see https://github.com/dpinney/omf)
+# License: GPL-3
+
 """Convert CYME MDB to GridLAB-D GLM
 
 Python API:
@@ -2911,19 +2916,20 @@ def convertCymeModel(network_db, test=False, _type=1, feeder_id=None):
                     # Add dictionaries to feeder tree object
                     # JOHN FITZGERALD KENNEDY.  giving an hour for everything to settle down.  needed for regulators and verification
     genericHeaders = [
-        {
-            "timezone": "PST+8PDT",
-            "stoptime": "'2000-01-01 01:00:00'",
-            "starttime": "'2000-01-01 00:00:00'",
-            "clock": "clock",
-        },
-        {"omftype": "#set", "argument": "minimum_timestep=60"},
-        {"omftype": "#set", "argument": "profiler=0"},
+        # {
+        #     "timezone": "PST+8PDT",
+        #     "stoptime": "'2000-01-01 01:00:00'",
+        #     "starttime": "'2000-01-01 00:00:00'",
+        #     "clock": "clock",
+        # },
+        # {"omftype": "#set", "argument": "minimum_timestep=60"},
+        # {"omftype": "#set", "argument": "profiler=0"},
         {"omftype": "#set", "argument": "relax_naming_rules=1"},
         {"omftype": "module", "argument": "generators"},
-        {"omftype": "module", "argument": "tape"},
-        {"module": "residential", "implicit_enduses": "NONE"},
-        {"solver_method": "NR", "NR_iteration_limit": "50", "module": "powerflow"},
+        {"omftype": "module", "argument": "powerflow"},
+        # {"omftype": "module", "argument": "tape"},
+        # {"module": "residential", "implicit_enduses": "NONE"},
+        # {"solver_method": "NR", "NR_iteration_limit": "50", "module": "powerflow"},
     ]
     for headId in range(len(genericHeaders)):
         glmTree[headId] = genericHeaders[headId]
