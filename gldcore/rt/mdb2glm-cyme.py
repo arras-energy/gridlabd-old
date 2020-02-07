@@ -53,7 +53,7 @@ def convert(input_name,output_name,options=[]):
     if len(options) > 0:
         print_error(f"{options[0]} is not valid")
         return
-    glmCirc = convertCymeModel(input_name, os.path.dirname(input_name))
+    glmCirc = convertCymeModel(input_name)
     with open(output_name,'w') as f:
        glmString = sortedWrite(glmCirc)
        f.write(glmString)
@@ -105,16 +105,12 @@ def flatten(*args, **kwargs):
             dicty[k] = v
     return dicty
 
-def _csvDump(database_file, modelDir):
+def _csvDump(database_file):
     # Get the list of table names with "mdb-tables"
     table_names = subprocess.Popen(
         ["mdb-tables", "-1", database_file], stdout=subprocess.PIPE
     ).communicate()[0]
     tables = table_names.decode("utf-8").split("\n")
-    if not os.path.isdir((pJoin(modelDir, "cymeCsvDump"))):
-        os.makedirs((pJoin(modelDir, "cymeCsvDump")))
-        # Dump each table as a CSV file using "mdb-export",
-        # converting " " in table names to "_" for the CSV filenames.
     csvdata = {}
     for table in tables:
         if table != "":
@@ -122,7 +118,7 @@ def _csvDump(database_file, modelDir):
             csvdata[table] = subprocess.Popen(
                 ["mdb-export", database_file, table], 
                 stdout=subprocess.PIPE
-            ).communicate()[0]
+            ).communicate()[0].decode("utf-8")
     return csvdata
 
 def _findNetworkId(csvData):
@@ -204,15 +200,13 @@ def _csvToArray(csvFileName):
         return outArray
 
 
-def _csvToDictList(csvFileName, feederId):
+def _csvToDictList(csvData, feederId):
     included_columns = []
     header = []
     mapped = []
     deleteRows = []
     content = []
-    sourceFile = csv.reader(open(csvFileName))
-    header = sourceFile.__next__()
-    csvDict = csv.DictReader(open(csvFileName, "r"))
+    csvDict = csv.DictReader(StringIO(csvData))
     for row in csvDict:
         # Equipment files, all equipment gets added
         if "NetworkId" not in header:
@@ -223,7 +217,7 @@ def _csvToDictList(csvFileName, feederId):
 
 
 def checkMissingNodes(
-    nodes, sectionDevices, objectList, feederId, modelDir, cymsection
+    nodes, sectionDevices, objectList, feederId, cymsection
 ):
     dbNodes = []
     MISSINGNO = {"name": None}
@@ -333,7 +327,7 @@ def checkMissingNodes(
             inFile.write(row + "\n")
 
 
-def _readSource(feederId, _type, modelDir):
+def _readSource(csvdata, feederId, _type):
     """store information for the swing bus"""
     # Stores information found in CYMSOURCE or CYMEQUIVALENTSOURCE in the network database
     cymsource = {}
@@ -346,17 +340,14 @@ def _readSource(feederId, _type, modelDir):
 
     if _type == 1:
         # Check to see if the network database contains models for more than one database and if we chose a valid feeder_id to convert
-        feeder_db = _csvToDictList(
-            pJoin(modelDir, "cymeCsvDump", "CYMSOURCE.csv"), feederId
+        feeder_db = _csvToDictList(csvdata["CYMSOURCE"], feederId
         )
     elif _type == 2:
         # Check to see if the network database contains models for more than one database and if we chose a valid feeder_id to convert
-        feeder_db = _csvToDictList(
-            pJoin(modelDir, "cymeCsvDump", "CYMEQUIVALENTSOURCE.csv"), feederId
+        feeder_db = _csvToDictList(csvdata["CYMEQUIVALENTSOURCE"], feederId
         )
         # feeder_db_net =  networkDatabase.execute("SELECT NetworkId FROM CYMNETWORK").fetchall()
-        feeder_db_net = _csvToDictList(
-            pJoin(modelDir, "cymeCsvDump", "CYMNETWORK.csv"), feederId
+        feeder_db_net = _csvToDictList(csvdata["CYMNETWORK"], feederId
         )
         if feeder_db_net == None:
             raise RuntimeError(
@@ -440,7 +431,7 @@ def _readSource(feederId, _type, modelDir):
     return cymsource, feeder_id, swingBus
 
 
-def _readNode(feederId, modelDir):
+def _readNode(csvdata, feederId):
     """store lat/lon information on nodes"""
     # Helper for lat/lon conversion.
     x_pixel_range = 1200
@@ -448,7 +439,7 @@ def _readNode(feederId, modelDir):
     cymnode = {}
     struct = {"name": None, "latitude": None, "longitude": None}
 
-    node_db = _csvToDictList(pJoin(modelDir, "cymeCsvDump", "CYMNODE.csv"), feederId)
+    node_db = _csvToDictList(csvdata["CYMNODE"], feederId)
     if len(node_db) == 0:
         print_verbose(f"no node locations were found for feeder id {feederId}")
     else:
@@ -475,7 +466,7 @@ def _readNode(feederId, modelDir):
     return cymnode, x_scale, y_scale
 
 
-def _readOverheadByPhase(feederId, modelDir):
+def _readOverheadByPhase(csvdata, feederId):
     """store information from CYMOVERHEADBYPHASE"""
     data_dict = {}
     # Stores information found in CYMOVERHEADBYPHASE in the network database
@@ -488,8 +479,7 @@ def _readOverheadByPhase(feederId, modelDir):
         "configuration": None,
     }
 
-    overheadbyphase_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMOVERHEADBYPHASE.csv"), feederId
+    overheadbyphase_db = _csvToDictList(csvdata["CYMOVERHEADBYPHASE"], feederId
     )
     if len(overheadbyphase_db) == 0:
         print_verbose(f"no phase conductors, spacing, and lengths were found for feeder_id {feederId}")
@@ -533,7 +523,7 @@ def _readOverheadByPhase(feederId, modelDir):
     return overheadConductors, data_dict, olc, uniqueSpacing
 
 
-def _readGenericLine(csvName, feederId, modelDir, underground=False):
+def _readGenericLine(csvdata, csvName, feederId, underground=False):
     """store information from csvName"""
     data_dict = {}
     # Stores information found in CYMOVERHEADLINEUNBALANCED in the network database
@@ -545,7 +535,7 @@ def _readGenericLine(csvName, feederId, modelDir, underground=False):
 
     struct["cable_id" if underground else "configuration"] = None
 
-    db = _csvToDictList(pJoin(modelDir, "cymeCsvDump", csvName), feederId)
+    db = _csvToDictList(csvdata[csvName], feederId)
     if len(db) == 0:
         print_verbose(f"no lines were found in {csvName} for feeder_id: {feederId}")
     else:
@@ -570,30 +560,29 @@ def _readGenericLine(csvName, feederId, modelDir, underground=False):
     return conductors, data_dict
 
 
-def _readOverheadLineUnbalanced(feederId, modelDir):
+def _readOverheadLineUnbalanced(csvdata, feederId):
     """store information from CYMOVERHEADLINEUNBALANCED"""
-    return _readGenericLine("CYMOVERHEADLINEUNBALANCED.csv", feederId, modelDir)
+    return _readGenericLine(csvdata,"CYMOVERHEADLINEUNBALANCED", feederId)
 
 
-def _readOverheadLine(feederId, modelDir):
-    return _readGenericLine("CYMOVERHEADLINE.csv", feederId, modelDir)
+def _readOverheadLine(csvdata, feederId):
+    return _readGenericLine(csvdata,"CYMOVERHEADLINE", feederId)
 
 
-def _readUndergroundLine(feederId, modelDir):
-    return _readGenericLine(
-        "CYMUNDERGROUNDLINE.csv", feederId, modelDir, underground=True
+def _readUndergroundLine(csvdata, feederId):
+    return _readGenericLine(csvdata,
+        "CYMUNDERGROUNDLINE", feederId, underground=True
     )
 
 
-def _readQOverheadLine(feederId, modelDir):
+def _readQOverheadLine(csvdata, feederId):
     data_dict = {}
     struct = {
         "name": None,  # Information structure for each object found in CYMOVERHEADBYPHASE
         "configuration": None,
     }
     spacingIds = []
-    db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQOVERHEADLINE.csv"), feederId
+    db = _csvToDictList(csvdata["CYMEQOVERHEADLINE"], feederId
     )
     if len(db) == 0:
         print_verbose("no overhead lines found for feeder_id {feederId}")
@@ -610,12 +599,11 @@ def _readQOverheadLine(feederId, modelDir):
     return data_dict, spacingIds
 
 
-def _readReactors(feederId, modelDir):
+def _readReactors(csvdata,feederId):
     data_dict = {}
     struct = {"name": None, "configuration": None}
     reactorIds = []
-    seriesreactor_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMSERIESREACTOR.csv"), feederId
+    seriesreactor_db = _csvToDictList(csvdata["CYMSERIESREACTOR"], feederId
     )
     if len(seriesreactor_db) == 0:
         print_verbose(f"no series reactors were found for feeder_id {feederId}")
@@ -632,11 +620,10 @@ def _readReactors(feederId, modelDir):
     return data_dict, reactorIds
 
 
-def _readEqReactors(feederId, modelDir):
+def _readEqReactors(csvdata, feederId):
     data_dict = {}
     struct = {"name": None, "reactance": None}
-    db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQSERIESREACTOR.csv"), feederId
+    db = _csvToDictList(csvdata["CYMEQSERIESREACTOR"], feederId
     )
     if len(db) == 0:
         print_verbose(f"no reactor equipment was found for feeder_id {feederId}")
@@ -650,7 +637,7 @@ def _readEqReactors(feederId, modelDir):
     return data_dict
 
 
-def _readSection(feederId, modelDir):
+def _readSection(csvdata, feederId):
     """store information from CYMSECTION"""
     data_dict = {}  # Stores information found in CYMSECTION in the network database
     struct = {
@@ -660,8 +647,7 @@ def _readSection(feederId, modelDir):
         "phases": None,
     }
     # section_db = networkDatabase.execute("SELECT SectionId, FromNodeId, ToNodeId, Phase FROM CYMSECTION WHERE NetworkId = '{:s}'".format(feederId)).fetchall()
-    section_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMSECTION.csv"), feederId
+    section_db = _csvToDictList(csvdata["CYMSECTION"], feederId
     )
     if len(section_db) == 0:
         print_verbose(f"no section information was found for feeder_id: {feederId}")
@@ -677,7 +663,7 @@ def _readSection(feederId, modelDir):
     return data_dict
 
 
-def _readSectionDevice(feederId, modelDir):
+def _readSectionDevice(csvdata, feederId):
     """store information from CYMSECTIONDEVICE"""
     data_dict = (
         {}
@@ -689,8 +675,7 @@ def _readSectionDevice(feederId, modelDir):
         "location": None,
     }
     # section_device_db = networkDatabase.execute("SELECT DeviceNumber, DeviceType, SectionId, Location FROM CYMSECTIONDEVICE WHERE NetworkId = '{:s}'".format(feederId)).fetchall()
-    section_device_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMSECTIONDEVICE.csv"), feederId
+    section_device_db = _csvToDictList(csvdata["CYMSECTIONDEVICE"], feederId
     )
     if len(section_device_db) == 0:
         print_verbose(f"no section device found for feeder_id {feederId}")
@@ -766,7 +751,7 @@ def _findParents(sectionDict, deviceDict, loadDict):
             deviceDict[loaddevice]["phases"] = sectionDict[lineId]["phases"]
 
 
-def _readSwitch(feederId, modelDir):
+def _readSwitch(csvdata, feederId):
     data_dict = {}  # Stores information found in CYMSWITCH in the network database
     struct = {
         "name": None,  # Information structure for each object found in CYMSWITCH
@@ -774,8 +759,7 @@ def _readSwitch(feederId, modelDir):
         "status": None,
     }
     # switch_db = networkDatabase.execute("SELECT DeviceNumber, EquipmentId, ClosedPhase FROM CYMSWITCH WHERE NetworkId = '{:s}'".format(feederId)).fetchall()
-    switch_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMSWITCH.csv"), feederId
+    switch_db = _csvToDictList(csvdata["CYMSWITCH"], feederId
     )
     if len(switch_db) == 0:
         print_verbose(f"No switches were found in CYMSWITCH for feeder_id {feederId}")
@@ -793,7 +777,7 @@ def _readSwitch(feederId, modelDir):
     return data_dict
 
 
-def _readSectionalizer(feederId, modelDir):
+def _readSectionalizer(csvdata, feederId):
     data_dict = (
         {}
     )  # Stores information found in CYMSECTIONALIZER in the network database
@@ -802,8 +786,7 @@ def _readSectionalizer(feederId, modelDir):
         "status": None,
     }
     # sectionalizer_db = networkDatabase.execute("SELECT DeviceNumber, NormalStatus FROM CYMSECTIONALIZER WHERE NetworkId = '{:s}'".format(feederId)).fetchall()
-    sectionalizer_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMSECTIONALIZER.csv"), feederId
+    sectionalizer_db = _csvToDictList(csvdata["CYMSECTIONALIZER"], feederId
     )
     if len(sectionalizer_db) == 0:
         print_verbose(f"no sectionalizers were found for feeder_id {feederId}")
@@ -819,7 +802,7 @@ def _readSectionalizer(feederId, modelDir):
     return data_dict
 
 
-def _readFuse(feederId, modelDir):
+def _readFuse(csvdata, feederId):
     data_dict = {}  # Stores information found in CYMFUSE in the network database
     struct = {
         "name": None,  # Information structure for each object found in CYMFUSE
@@ -827,7 +810,7 @@ def _readFuse(feederId, modelDir):
         "equipment_id": None,
     }
     # fuse_db = networkDatabase.execute("SELECT DeviceNumber, EquipmentId, NormalStatus FROM CYMFUSE WHERE NetworkId = '{:s}'".format(feederId)).fetchall()
-    fuse_db = _csvToDictList(pJoin(modelDir, "cymeCsvDump", "CYMFUSE.csv"), feederId)
+    fuse_db = _csvToDictList(csvdata["CYMFUSE"], feederId)
     if len(fuse_db) == 0:
         print_verbose(f"no fuses were found for feeder_id {feederId}")
     else:
@@ -844,11 +827,10 @@ def _readFuse(feederId, modelDir):
     return data_dict
 
 
-def _readRecloser(feederId, modelDir):
+def _readRecloser(csvdata, feederId):
     data_dict = {}
     struct = {"name": None, "status": None}
-    recloser_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMRECLOSER.csv"), feederId
+    recloser_db = _csvToDictList(csvdata["CYMRECLOSER"], feederId
     )
     if len(recloser_db) == 0:
         print_verbose(f"no reclosers were found for feeder_id {feederId}")
@@ -864,7 +846,7 @@ def _readRecloser(feederId, modelDir):
     return data_dict
 
 
-def _readRegulator(feederId, modelDir):
+def _readRegulator(csvdata, feederId):
     data_dict = {}
     # Stores information found in CYMREGULATOR in the network database
     struct = {
@@ -877,8 +859,7 @@ def _readRegulator(feederId, modelDir):
         "tap_pos_C": None,
     }
     # regulator_db = networkDatabase.execute("SELECT DeviceNumber, EquipmentId, BandWidth, BoostPercent, TapPositionA, TapPositionB, TapPositionC FROM CYMREGULATOR WHERE NetworkId = '{:s}'".format(feederId)).fetchall()
-    regulator_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMREGULATOR.csv"), feederId
+    regulator_db = _csvToDictList(csvdata["CYMREGULATOR"], feederId
     )
     if len(regulator_db) == 0:
         print_verbose(f"no regulators were found for feeder_id: {feederId}")
@@ -897,7 +878,7 @@ def _readRegulator(feederId, modelDir):
     return data_dict
 
 
-def _readShuntCapacitor(feederId, modelDir):
+def _readShuntCapacitor(csvdata, feederId):
     data_dict = {}
     # Stores information found in CYMSHUNTCAPACITOR in the network database
     struct = {
@@ -922,8 +903,7 @@ def _readShuntCapacitor(feederId, modelDir):
         "control_level": None,
     }
 
-    shuntcapacitor_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMSHUNTCAPACITOR.csv"), feederId
+    shuntcapacitor_db = _csvToDictList(csvdata["CYMSHUNTCAPACITOR"], feederId
     )
     if len(shuntcapacitor_db) == 0:
         print_verbose(f"no shunt capacitors were found for feeder_id {feederId}")
@@ -1073,7 +1053,7 @@ def _cleanPhases(phases):
     return p
 
 
-def _readCustomerLoad(feederId, modelDir):
+def _readCustomerLoad(csvdata, feederId):
     data_dict = (
         {}
     )  # Stores information found in CYMCUSTOMERLOAD in the network database
@@ -1094,8 +1074,7 @@ def _readCustomerLoad(feederId, modelDir):
     load_real = 0
     load_imag = 0
     # customerload_db = networkDatabase.execute("SELECT DeviceNumber, DeviceType, ConsumerClassId, Phase, LoadValueType, Phase, LoadValue1, LoadValue2, ConnectedKVA FROM CYMCUSTOMERLOAD WHERE NetworkId = '{:s}'".format(feederId)).fetchall()
-    customerload_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMCUSTOMERLOAD.csv"), feederId
+    customerload_db = _csvToDictList(csvdata["CYMCUSTOMERLOAD"], feederId
     )
     if len(customerload_db) == 0:
         print_verbose("no loads were found for feeder_id {feederId}.")
@@ -1163,15 +1142,14 @@ def _readCustomerLoad(feederId, modelDir):
     return data_dict
 
 
-def _readThreeWindingTransformer(feederId, modelDir):
+def _readThreeWindingTransformer(csvdata, feederId):
     data_dict = {}  # Stores information found in CYMREGULATOR in the network database
     struct = {
         "name": None,  # Information structure for each object found in CYMREGULATOR
         "equipment_name": None,
     }
     # threewxfmr_db = networkDatabase.execute("SELECT DeviceNumber, EquipmentId FROM CYMTHREEWINDINGTRANSFORMER WHERE NetworkId = '{:s}'".format(feederId)).fetchall()
-    threewxfmr_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMTHREEWINDINGTRANSFORMER.csv"), feederId
+    threewxfmr_db = _csvToDictList(csvdata["CYMTHREEWINDINGTRANSFORMER"], feederId
     )
     if len(threewxfmr_db) == 0:
         print_verbose(f"no three-winding transformers were found for feeder_id {feederId}")
@@ -1185,12 +1163,11 @@ def _readThreeWindingTransformer(feederId, modelDir):
     return data_dict
 
 
-def _readTransformer(feederId, modelDir):
+def _readTransformer(csvdata, feederId):
     data_dict = {}
     struct = {"name": None, "equipment_name": None}
     # xfmrDb = networkDatabase.execute("SELECT DeviceNumber, EquipmentId FROM CYMTRANSFORMER WHERE NetworkId = '{:s}'".format(feederId)).fetchall()
-    xfmrDb = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMTRANSFORMER.csv"), feederId
+    xfmrDb = _csvToDictList(csvdata["CYMTRANSFORMER"], feederId
     )
     if len(xfmrDb) == 0:
         print_verbose(f"no transformers were found for feeder id {feederId}")
@@ -1204,7 +1181,7 @@ def _readTransformer(feederId, modelDir):
     return data_dict
 
 
-def _readEqConductor(feederId, modelDir):
+def _readEqConductor(csvdata, feederId):
     data_dict = (
         {}
     )  # Stores information found in CYMEQCONDUCTOR in the equipment database
@@ -1214,7 +1191,7 @@ def _readEqConductor(feederId, modelDir):
         "geometric_mean_radius": None,
         "resistance": None,
     }
-    db = _csvToDictList(pJoin(modelDir, "cymeCsvDump", "CYMEQCONDUCTOR.csv"), feederId)
+    db = _csvToDictList(csvdata["CYMEQCONDUCTOR"], feederId)
     if len(db) == 0:
         print_warning(f"no conductors were found for feeder_id {feederId}")
     else:
@@ -1235,7 +1212,7 @@ def _readEqConductor(feederId, modelDir):
     return data_dict
 
 
-def _readEqOverheadLineUnbalanced(feederId, modelDir):
+def _readEqOverheadLineUnbalanced(csvdata, feederId):
     """store information from CYMEQOVERHEADLINEUNBALANCED"""
     data_dict = (
         {}
@@ -1254,8 +1231,7 @@ def _readEqOverheadLineUnbalanced(feederId, modelDir):
         "z33": None,
     }
     # ug_line_db = networkDatabase.execute("SELECT EquipmentId, SelfResistanceA, SelfResistanceB, SelfResistanceC, SelfReactanceA, SelfReactanceB, SelfReactanceC, MutualResistanceAB, MutualResistanceBC, MutualResistanceCA, MutualReactanceAB, MutualReactanceBC, MutualReactanceCA FROM CYMEQOVERHEADLINEUNBALANCED WHERE EquipmentId = '{:s}'".format("LINE606")).fetchall()
-    oh_line_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQOVERHEADLINEUNBALANCED.csv"), feederId
+    oh_line_db = _csvToDictList(csvdata["CYMEQOVERHEADLINEUNBALANCED"], feederId
     )
     if len(oh_line_db) == 0:
         print_verbose(f"no underground line configurations were found for feeder_id {feederId}.")
@@ -1289,7 +1265,7 @@ def _readEqOverheadLineUnbalanced(feederId, modelDir):
     return data_dict
 
 
-def _readEqGeometricalArrangement(feederId, modelDir):
+def _readEqGeometricalArrangement(csvdata, feederId):
     data_dict = {}
     # Stores information found in CYMEQGEOMETRICALARRANGEMENT in the equipment database
     struct = {
@@ -1302,8 +1278,7 @@ def _readEqGeometricalArrangement(feederId, modelDir):
         "distance_CN": None,
     }
     # db = equipmentDatabase.execute("SELECT EquipmentId, ConductorA_Horizontal, ConductorA_Vertical, ConductorB_Horizontal, ConductorB_Vertical, ConductorC_Horizontal, ConductorC_Vertical, NeutralConductor_Horizontal, NeutralConductor_Vertical FROM CYMEQGEOMETRICALARRANGEMENT").fetchall()
-    db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQGEOMETRICALARRANGEMENT.csv"), feederId
+    db = _csvToDictList(csvdata["CYMEQGEOMETRICALARRANGEMENT"], feederId
     )
     if len(db) == 0:
         print_verfbose(f"no geometric spacing information found for feeder_id {feederId}")
@@ -1329,7 +1304,7 @@ def _readEqGeometricalArrangement(feederId, modelDir):
     return data_dict
 
 
-def _readUgConfiguration(feederId, modelDir):
+def _readUgConfiguration(csvdata, feederId):
     from itertools import product
 
     data_dict = {}
@@ -1362,11 +1337,9 @@ def _readUgConfiguration(feederId, modelDir):
         "z33": 0 + 1j,
     }
     try:
-        undergroundcable = _csvToDictList(
-            pJoin(modelDir, "cymeCsvDump", "CYMEQCABLE.csv"), feederId
+        undergroundcable = _csvToDictList(csvdata["CYMEQCABLE"], feederId
         )
-        undergroundcableconductor = _csvToDictList(
-            pJoin(modelDir, "cymeCsvDump", "CYMEQCABLECONDUCTOR.csv"), feederId
+        undergroundcableconductor = _csvToDictList(csvdata["CYMEQCABLECONDUCTOR"], feederId
         )
     except:
         undergroundcableconductor = {}
@@ -1437,7 +1410,7 @@ def _readUgConfiguration(feederId, modelDir):
     return data_dict
 
 
-def _readEqAvgGeometricalArrangement(feederId, modelDir):
+def _readEqAvgGeometricalArrangement(csvdata, feederId):
     data_dict = {}
     struct = {
         "name": None,
@@ -1449,8 +1422,7 @@ def _readEqAvgGeometricalArrangement(feederId, modelDir):
         "distance_CN": None,
     }
     # cymeqaveragegeoarrangement_db = equipmentDatabase.execute("SELECT EquipmentId, GMDPhaseToPhase, GMDPhaseToNeutral FROM CYMEQAVERAGEGEOARRANGEMENT").fetchall()
-    cymeqaveragegeoarrangement_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQAVERAGEGEOARRANGEMENT.csv"), feederId
+    cymeqaveragegeoarrangement_db = _csvToDictList(csvdata["CYMEQAVERAGEGEOARRANGEMENT"], feederId
     )
     if len(cymeqaveragegeoarrangement_db) == 0:
         print_verbose(f"no average spacing information found for feeder_id {feederId}")
@@ -1474,7 +1446,7 @@ def _readEqAvgGeometricalArrangement(feederId, modelDir):
     return data_dict
 
 
-def _readEqRegulator(feederId, modelDir):
+def _readEqRegulator(csvdata, feederId):
     data_dict = (
         {}
     )  # Stores information found in CYMEQREGULATOR in the equipment database
@@ -1486,8 +1458,7 @@ def _readEqRegulator(feederId, modelDir):
         "bandwidth": None,
     }
     # db = equipmentDatabase.execute("SELECT EquipmentId, NumberOfTaps FROM CYMEQREGULATOR").fetchall()
-    db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQREGULATOR.csv"), feederId
+    db = _csvToDictList(csvdata["CYMEQREGULATOR"], feederId
     )
 
     if len(db) == 0:
@@ -1510,7 +1481,7 @@ def _readEqRegulator(feederId, modelDir):
     return data_dict
 
 
-def _readEqThreeWAutoXfmr(feederId, modelDir):
+def _readEqThreeWAutoXfmr(csvdata, feederId):
     data_dict = {}
     # Stores information found in CYMEQOVERHEADLINE in the equipment database
     struct = {
@@ -1521,8 +1492,7 @@ def _readEqThreeWAutoXfmr(feederId, modelDir):
         "impedance": None,
     }
 
-    db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQTHREEWINDAUTOTRANSFORMER.csv"), feederId
+    db = _csvToDictList(csvdata["CYMEQTHREEWINDAUTOTRANSFORMER"], feederId
     )
     if len(db) == 0:
         print_verbose(f"no three-winding autotransformer information found for feeder_id {feederId}")
@@ -1558,11 +1528,11 @@ def _readEqThreeWAutoXfmr(feederId, modelDir):
     return data_dict
 
 
-def _readEqAutoXfmr(feederId, modelDir):
-    return _readEqXfmr(feederId, modelDir, _auto=True)
+def _readEqAutoXfmr(csvdata, feederId):
+    return _readEqXfmr(csvdata, feederId, _auto=True)
 
 
-def _readEqXfmr(feederId, modelDir, _auto=False):
+def _readEqXfmr(csvdata, feederId, _auto=False):
     transformer_text = "AUTOTRANSFORMER" if _auto else "TRANSFORMER"
     data_dict = {}
     struct = {
@@ -1572,8 +1542,7 @@ def _readEqXfmr(feederId, modelDir, _auto=False):
         "SecondaryVoltage": None,
         "impedance": None,
     }
-    db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQ{}.csv".format(transformer_text)), feederId
+    db = _csvToDictList(csvdata[f"CYMEQ{transformer_text}"], feederId
     )
     if len(db) == 0:
         print_verbose(f"no average {transformer_text.lower()} equipment information found for feeder id: {feederId}")
@@ -1608,11 +1577,10 @@ def _readEqXfmr(feederId, modelDir, _auto=False):
     return data_dict
 
 
-def _readPhotovoltaic(feederId, modelDir):
+def _readPhotovoltaic(csvdata, feederId):
     data_dict = {}
     struct = {"name": None, "configuration": None}
-    cymphotovoltaic_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMPHOTOVOLTAIC.csv"), feederId
+    cymphotovoltaic_db = _csvToDictList(csvdata["CYMPHOTOVOLTAIC"], feederId
     )
     if len(cymphotovoltaic_db) == 0:
         print_verbose(f"no photovoltaics was found for feeder id {feederId}")
@@ -1626,11 +1594,10 @@ def _readPhotovoltaic(feederId, modelDir):
     return data_dict
 
 
-def _readEqPhotovoltaic(feederId, modelDir):
+def _readEqPhotovoltaic(csvdata, feederId):
     data_dict = {}
     struct = {"name": None, "current": 4.59, "voltage": 17.30, "efficiency": 0.155}
-    cymeqphotovoltaic_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQPHOTOVOLTAIC.csv"), feederId
+    cymeqphotovoltaic_db = _csvToDictList(csvdata["CYMEQPHOTOVOLTAIC"], feederId
     )
     if len(cymeqphotovoltaic_db) == 0:
         print_verbose(f"no photovoltaic information found for feeder id {feederId}")
@@ -1645,7 +1612,7 @@ def _readEqPhotovoltaic(feederId, modelDir):
     return data_dict
 
 
-def _readEqBattery(feederId, modelDir):
+def _readEqBattery(csvdata, feederId):
     data_dict = {}
     struct = {
         "name": None,
@@ -1655,8 +1622,7 @@ def _readEqBattery(feederId, modelDir):
         "charge_efficiency": None,
         "discharge_efficiency": None,
     }
-    cymeqbattery_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMEQBESS.csv"), feederId
+    cymeqbattery_db = _csvToDictList(csvdata["CYMEQBESS"], feederId
     )
     if len(cymeqbattery_db) == 0:
         print_verbose(f"no battery information found for feeder id {feederId}")
@@ -1680,11 +1646,10 @@ def _readEqBattery(feederId, modelDir):
     return data_dict
 
 
-def _readBattery(feederId, modelDir):
+def _readBattery(csvdata, feederId):
     data_dict = {}
     struct = {"name": None, "configuration": None, "phase": None}
-    cymbattery_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMBESS.csv"), feederId
+    cymbattery_db = _csvToDictList(csvdata["CYMBESS"], feederId
     )
     if len(cymbattery_db) == 0:
         print_verbose(f"no battery information found for feeder id {feederId}")
@@ -1699,11 +1664,10 @@ def _readBattery(feederId, modelDir):
     return data_dict
 
 
-def _readGenerator(feederId, modelDir):
+def _readGenerator(csvdata, feederId):
     data_dict = {}
     struct = {"name": None, "generation": None, "power_factor": None}
-    cymgenerator_db = _csvToDictList(
-        pJoin(modelDir, "cymeCsvDump", "CYMDGGENERATIONMODEL.csv"), feederId
+    cymgenerator_db = _csvToDictList(csvdata["CYMDGGENERATIONMODEL"], feederId
     )
     if len(cymgenerator_db) == 0:
         print_verbose(f"no generator information found for feeder id {feederId}")
@@ -1768,7 +1732,7 @@ def _find_SPCT_rating(load_str):
     return str(past_rating)
 
 
-def convertCymeModel(network_db, modelDir, test=False, _type=1, feeder_id=None):
+def convertCymeModel(network_db, test=False, _type=1, feeder_id=None):
 
     # HACK: manual network ID detection.
     dbflag = 1 if "OakPass" in str(network_db) else 0
@@ -1800,55 +1764,53 @@ def convertCymeModel(network_db, modelDir, test=False, _type=1, feeder_id=None):
     # net_db = _openDatabase(network_db)
 
     # Dumping csv's to folder
-    csvdata = _csvDump(network_db, modelDir)
+    csvdata = _csvDump(network_db)
 
     # import pdb
     # pdb.set_trace()
     # feeder_id =_csvToDictList(pJoin(modelDir,'cymeCsvDump',"CYMNETWORK.csv"),columns=['NetworkId'])
-    feeder_id = _findNetworkId(csvdata["CYMNETWORK"].decode("utf-8"))
+    feeder_id = _findNetworkId(csvdata["CYMNETWORK"])
 
     # -1-CYME CYMSOURCE ***
-    cymsource, feeder_id, swingBus = _readSource(feeder_id, _type, modelDir)
+    cymsource, feeder_id, swingBus = _readSource(csvdata, feeder_id, _type)
 
     # -2-CYME CYMNODE ***
-    cymnode, x_scale, y_scale = _readNode(feeder_id, modelDir)
+    cymnode, x_scale, y_scale = _readNode(csvdata, feeder_id)
 
     # -3-CYME OVERHEADBYPHASE ***
     OH_conductors, cymoverheadbyphase, ohConfigurations, uniqueOhSpacing = _readOverheadByPhase(
-        feeder_id, modelDir
-    )
+        csvdata, feeder_id)
 
     # -4-CYME UNDERGROUNDLINE ***
-    UG_conductors, cymundergroundline = _readUndergroundLine(feeder_id, modelDir)
+    UG_conductors, cymundergroundline = _readUndergroundLine(csvdata, feeder_id)
 
     # -5-CYME CYMOVERHEADLINEBALANCED ***
     UOLConfigNames, cymUnbalancedOverheadLine = _readOverheadLineUnbalanced(
-        feeder_id, modelDir
-    )
+        csvdata, feeder_id)
 
     # -5-CYME CYMSWITCH***
-    cymswitch = _readSwitch(feeder_id, modelDir)
+    cymswitch = _readSwitch(csvdata, feeder_id)
 
     # -6-CYME CYMSECTIONALIZER***
-    cymsectionalizer = _readSectionalizer(feeder_id, modelDir)
+    cymsectionalizer = _readSectionalizer(csvdata, feeder_id)
 
     # -7-CYME CYMFUSE***
-    cymfuse = _readFuse(feeder_id, modelDir)
+    cymfuse = _readFuse(csvdata, feeder_id)
 
     # -8-CYME CYMRECLOSER***
-    cymrecloser = _readRecloser(feeder_id, modelDir)
+    cymrecloser = _readRecloser(csvdata, feeder_id)
 
     # -9-CYME CYMREGULATOR***
-    cymregulator = _readRegulator(feeder_id, modelDir)
+    cymregulator = _readRegulator(csvdata, feeder_id)
 
     # -10-CYME CYMSHUNTCAPACITOR***
-    cymshuntcapacitor = _readShuntCapacitor(feeder_id, modelDir)
+    cymshuntcapacitor = _readShuntCapacitor(csvdata, feeder_id)
 
     # -11-CYME CYMCUSTOMERLOAD***
-    cymcustomerload = _readCustomerLoad(feeder_id, modelDir)
+    cymcustomerload = _readCustomerLoad(csvdata, feeder_id)
 
     # -12-CYME CYMSECTION ***
-    cymsection = _readSection(feeder_id, modelDir)
+    cymsection = _readSection(csvdata, feeder_id)
     for section in cymsection.keys():
         fromNode = cymsection[section]["from"]
         toNode = cymsection[section]["to"]
@@ -1866,26 +1828,26 @@ def convertCymeModel(network_db, modelDir, test=False, _type=1, feeder_id=None):
         )
 
         # -13-CYME CYMSECTIONDEVICE ***
-    cymsectiondevice = _readSectionDevice(feeder_id, modelDir)
+    cymsectiondevice = _readSectionDevice(csvdata, feeder_id)
     # OVERHEAD LINES
-    cymoverheadline, lineIds = _readOverheadLine(feeder_id, modelDir)
+    cymoverheadline, lineIds = _readOverheadLine(csvdata, feeder_id)
     # OVERHEAD LINE CONFIGS
-    cymeqoverheadline, spacingIds = _readQOverheadLine(feeder_id, modelDir)
+    cymeqoverheadline, spacingIds = _readQOverheadLine(csvdata, feeder_id)
     # PV
-    cymphotovoltaic = _readPhotovoltaic(feeder_id, modelDir)
+    cymphotovoltaic = _readPhotovoltaic(csvdata, feeder_id)
     # PV CONFIGS
-    cymeqphotovoltaic = _readEqPhotovoltaic(feeder_id, modelDir)
+    cymeqphotovoltaic = _readEqPhotovoltaic(csvdata, feeder_id)
 
     try:
         # BATTERY
-        cymbattery = _readBattery(feeder_id, modelDir)
+        cymbattery = _readBattery(csvdata, feeder_id)
         # BATTERY CONFIGS
-        cymeqbattery = _readEqBattery(feeder_id, modelDir)
+        cymeqbattery = _readEqBattery(csvdata, feeder_id)
     except:
         pass  # TODO: better way to handle generator failure.
     try:
         # GENERATOR
-        cymgenerator = _readGenerator(feeder_id, modelDir)
+        cymgenerator = _readGenerator(csvdata, feeder_id)
     except:
         pass  # TODO: give this a more detailed way to handle generator failure.
         # Check that the section actually is a device.
@@ -2043,34 +2005,34 @@ def convertCymeModel(network_db, modelDir, test=False, _type=1, feeder_id=None):
             )
 
             # -14-CYME CYMTRANSFORMER***
-    cymxfmr = _readTransformer(feeder_id, modelDir)
+    cymxfmr = _readTransformer(csvdata, feeder_id)
     # -15-CYME CYMTHREEWINDINGTRANSFORMER***
-    cym3wxfmr = _readThreeWindingTransformer(feeder_id, modelDir)
+    cym3wxfmr = _readThreeWindingTransformer(csvdata, feeder_id)
     # -16-CYME CYMEQCONDUCTOR***
-    cymeqconductor = _readEqConductor(feeder_id, modelDir)
+    cymeqconductor = _readEqConductor(csvdata, feeder_id)
     # -17-CYME CYMEQCONDUCTOR***
-    cymeqoverheadlineunbalanced = _readEqOverheadLineUnbalanced(feeder_id, modelDir)
+    cymeqoverheadlineunbalanced = _readEqOverheadLineUnbalanced(csvdata, feeder_id)
     # -17-CYME CYMEQGEOMETRICALARRANGEMENT***
     if dbflag == 0:
-        cymeqgeometricalarrangement = _readEqGeometricalArrangement(feeder_id, modelDir)
+        cymeqgeometricalarrangement = _readEqGeometricalArrangement(csvdata, feeder_id)
     elif dbflag == 1:
         cymeqgeometricalarrangement = _readEqAvgGeometricalArrangement(
-            feeder_id, modelDir
+            csvdata, feeder_id
         )
         # -18-CYME convertCymeModelXLSX Sheet***
-    cymcsvundergroundcable = _readUgConfiguration(feeder_id, modelDir)
+    cymcsvundergroundcable = _readUgConfiguration(csvdata, feeder_id)
     # -19-CYME CYMEQREGULATOR***
-    cymeqregulator = _readEqRegulator(feeder_id, modelDir)
+    cymeqregulator = _readEqRegulator(csvdata, feeder_id)
     # -20-CYME CYMEQTHREEWINDAUTOTRANSFORMER***
-    cymeq3wautoxfmr = _readEqThreeWAutoXfmr(feeder_id, modelDir)
+    cymeq3wautoxfmr = _readEqThreeWAutoXfmr(csvdata, feeder_id)
     # -21-CYME CYMEQAUTOTRANSFORMER***
-    cymeqautoxfmr = _readEqAutoXfmr(feeder_id, modelDir)
+    cymeqautoxfmr = _readEqAutoXfmr(csvdata, feeder_id)
     # -22-CYME CYME REACTORS***
-    cymreactor, reactorIds = _readReactors(feeder_id, modelDir)
+    cymreactor, reactorIds = _readReactors(csvdata, feeder_id)
     # -23-CYME CYMEQREACTORS***
-    cymeqreactor = _readEqReactors(feeder_id, modelDir)
+    cymeqreactor = _readEqReactors(csvdata, feeder_id)
     # -24-CYME CYMEQTRANSFORMER***
-    cymeqxfmr = _readEqXfmr(feeder_id, modelDir)
+    cymeqxfmr = _readEqXfmr(csvdata, feeder_id)
 
     # Check number of sources
     meters = {}
@@ -3217,7 +3179,7 @@ def convertCymeModel(network_db, modelDir, test=False, _type=1, feeder_id=None):
                 print_error(e)
                 pass
                 # TODO: have this missing nodes report not put files all over the place.
-                # checkMissingNodes(nodes, cymsectiondevice, objectList, feeder_id, modelDir, cymsection)
+                # checkMissingNodes(nodes, cymsectiondevice, objectList, feeder_id, cymsection)
 
                 # JOHN FITZGERALD KENNEDY.  add regulator to source
     biggestkey = max(glmTree.keys())
@@ -3255,111 +3217,10 @@ def convertCymeModel(network_db, modelDir, test=False, _type=1, feeder_id=None):
         "time_delay": "30.0",
         "control_level": "INDIVIDUAL",
     }
-    # Clean up the csvDump.
-    # shutil.rmtree(pJoin(modelDir, "cymeCsvDump"))
     return glmTree
 
-
-def _tests(keepFiles=True):
-    testFile = ["IEEE13.mdb"]
-    inputDir = "./static/testFiles/"
-    # outputDir = tempfile.mkdtemp()
-    outputDir = "./scratch/cymeToGridlabTests/"
-    exceptionCount = 0
-    try:
-        shutil.rmtree(outputDir)
-    except:
-        pass  # no test directory yet.
-    finally:
-        os.mkdir(outputDir)
-    locale.setlocale(locale.LC_ALL, "")
-    for db_network in testFile:
-        try:
-            # Main conversion of CYME model.
-            cyme_base = convertCymeModel(inputDir + db_network, inputDir)
-            glmString = feeder.sortedWrite(cyme_base)
-            testFilename = db_network[:-4]
-            gfile = open(inputDir + testFilename + ".glm", "w")
-            gfile.write(glmString)
-            gfile.close()
-            inFileStats = os.stat(pJoin(inputDir, db_network))
-            outFileStats = os.stat(pJoin(inputDir, testFilename + ".glm"))
-            inFileSize = inFileStats.st_size
-            outFileSize = outFileStats.st_size
-            treeObj = feeder.parse(inputDir + testFilename + ".glm")
-            # print ("WROTE GLM FOR " + db_network)
-            with open(pJoin(outputDir, "convResults.txt"), "a") as resultsFile:
-                resultsFile.write("WROTE GLM FOR " + testFilename + "\n")
-                resultsFile.write(
-                    "Input .mdb File Size: "
-                    + str(locale.format("%d", inFileSize, grouping=True))
-                    + "\n"
-                )
-                resultsFile.write(
-                    "Output .glm File Size: "
-                    + str(locale.format("%d", outFileSize, grouping=True))
-                    + "\n"
-                )
-        except:
-            print_error(f"conversion failed")
-            testFilename = "failed"
-            with open(pJoin(outputDir, "convResults.txt"), "a") as resultsFile:
-                resultsFile.write("FAILED CONVERTING " + testFilename + "\n")
-            traceback.print_exc()
-            exceptionCount += 3
-            continue  # No use trying to draw or run if conversion fails.
-        try:
-            from omf.milToGridlab import (
-                phasingMismatchFix,
-                missingConductorsFix,
-                fixOrphanedLoads,
-            )
-
-            treeObj = phasingMismatchFix(treeObj)
-            treeObj = missingConductorsFix(treeObj)
-            treeObj = fixOrphanedLoads(treeObj)
-            # run milToGridlab fixes
-        except:
-            print_warning(f"unable to construct a workable model")
-            traceback.print_exc()
-        try:
-            # Draw the GLM.
-            myGraph = feeder.treeToNxGraph(cyme_base)
-            feeder.latLonNxGraph(myGraph, neatoLayout=False)
-            plt.savefig(outputDir + testFilename + ".png")
-            with open(pJoin(outputDir, "convResults.txt"), "a") as resultsFile:
-                resultsFile.write("DREW GLM FOR " + testFilename + "\n")
-            print_verbose(f"drew glm of {db_network}")
-        except:
-            exceptionCount += 1
-            with open(pJoin(outputDir, "convResults.txt"), "a") as resultsFile:
-                resultsFile.write("FAILED DRAWING" + testFilename + "\n")
-            print_verbose(f"failed to draw {db_network}")
-        try:
-            from omf.solvers import gridlabd
-            # Run powerflow on the GLM.
-            output = gridlabd.runInFilesystem(
-                treeObj, keepFiles=True, workDir=outputDir
-            )
-            if output["stderr"] == "":
-                gridlabdStderr = "GridLabD ran successfully without error."
-            else:
-                gridlabdStderr = output["stderr"]
-            with open(outputDir + testFilename + ".JSON", "w") as outFile:
-                json.dump(output, outFile, indent=4)
-            with open(pJoin(outputDir, "convResults.txt"), "a") as resultsFile:
-                resultsFile.write("RAN GRIDLAB ON " + testFilename + "\n")
-                resultsFile.write("STDERR: " + gridlabdStderr + "\n\n")
-            print_verbose(f"gridlabd run of {db_network} ok")
-        except:
-            exceptionCount += 1
-            with open(pJoin(outputDir, "convResults.txt"), "a") as resultsFile:
-                resultsFile.write("POWERFLOW FAILED FOR " + testFilename + "\n")
-            print_error(f"powerflow solution failed")
-    if not keepFiles:
-        shutil.rmtree(outputDir)
-    return exceptionCount
-
+def main(argv):
+    raise Exception("mdb2glm.py command line call not supported yet")
 
 if __name__ == "__main__":
     main(sys.argv)
