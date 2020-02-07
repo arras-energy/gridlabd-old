@@ -57,43 +57,64 @@ int saveall(const char *filename)
 	}
 	if ( ! known_format )
 	{
-		/* try using python output converter through json */
-		char converter_name[1024];
-		sprintf(converter_name,"json2%s.py",ext);
-		const char *converter_path = find_file(converter_name,NULL,R_OK);
-		if ( ! converter_path )
-		{
-			output_error("saveall: extension '.%s' not a known format", ext);
-			/*	TROUBLESHOOT
-				Only the format extensions ".txt", ".gld", and ".xml" are recognized by
-				GridLAB-D.  Please end the specified output field accordingly, or omit the
-				extension entirely to force use of the default format.
-			*/
-			errno = EINVAL;
-			return 0;
-		}
 		char converter_command[1024];
+		int rc;
+		char converter_name[1024];
 		char input_name[1024];
 		strcpy(input_name,filename);
 		char *in_ext = strrchr(input_name,'.');
 		if ( in_ext == NULL )
 		{
-			output_error("intermediate file '%s' extension not found", input_name);
+			output_error("'%s' extension not found", input_name);
 			errno = EINVAL;
 			return 0;
 		}
-		strcpy(in_ext,".json");
-		set old_fso = global_filesave_options;
-		global_filesave_options = FSO_ALL;
-		fp = fopen(input_name,"wb");
-		if ( fp == NULL )
+		sprintf(converter_name,"glm2%s.py",ext);
+		const char *converter_path = find_file(converter_name,NULL,R_OK);
+		if ( ! converter_path )
 		{
-			output_error("unable to open intermediate file '%s' for writing", input_name);
-			return 0;
+			/* try using python output converter through json */
+			sprintf(converter_name,"json2%s.py",ext);
+			const char *converter_path = find_file(converter_name,NULL,R_OK);
+			if ( ! converter_path )
+			{
+				output_error("saveall: extension '.%s' not a known format", ext);
+				/*	TROUBLESHOOT
+					Only the format extensions ".txt", ".gld", and ".xml" are recognized by
+					GridLAB-D.  Please end the specified output field accordingly, or omit the
+					extension entirely to force use of the default format.
+				*/
+				errno = EINVAL;
+				return 0;
+			}
+			strcpy(in_ext,".json");
+			set old_fso = global_filesave_options;
+			global_filesave_options = FSO_ALL;
+			fp = fopen(input_name,"wb");
+			if ( fp == NULL )
+			{
+				output_error("unable to open intermediate file '%s' for writing", input_name);
+				return 0;
+			}
+			rc = savejson(input_name,fp);
+			fclose(fp);
+			global_filesave_options = old_fso;
 		}
-		int rc = savejson(input_name,fp);
-		fclose(fp);
-		global_filesave_options = old_fso;
+		else
+		{
+			strcpy(in_ext,".glm");
+			set old_fso = global_filesave_options;
+			global_filesave_options = FSO_ALL;
+			fp = fopen(input_name,"wb");
+			if ( fp == NULL )
+			{
+				output_error("unable to open intermediate file '%s' for writing", input_name);
+				return 0;
+			}
+			rc = saveglm(input_name,fp);
+			fclose(fp);
+			global_filesave_options = old_fso;
+		}
 		if ( rc == 0 )
 		{
 			output_error("save to intermediate file '%s' failed (code %d)", input_name, rc);;
@@ -113,7 +134,7 @@ int saveall(const char *filename)
 		rc = system(converter_command);
 		if ( rc != 0 )
 		{
-			output_error("conversion from intermediate file '%s' to output file '%s' failed (code %d)", input_name, filename, rc);
+			output_error("conversion from '%s' to output file '%s' failed (code %d)", input_name, filename, rc);
 			return 0;
 		}
 		struct stat info;
