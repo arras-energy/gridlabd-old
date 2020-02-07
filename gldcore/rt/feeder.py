@@ -73,19 +73,18 @@ def glmToOmd(glmPath, omdPath, attachFilePaths=[]):
 	with open(omdPath, 'w') as outFile:
 		json.dump(omd, outFile, indent=4)
 
-def omdToGlm(omdPath, outDir):
+def omdToGlm(omdPath, outPath):
 	''' Write an .omd to a .glm and associated files. '''
 	# Read the omd
 	omd = json.load(open(omdPath))
 	# Write attachments and glm.
 	attachments = omd.get('attachments','')
 	for attach in attachments:
-		with open (os.path.join(outDir, attach),'w') as attachFile:
+		with open (outPath.replace(".glm",f"-{attach}"),'w') as attachFile:
 			attachFile.write(attachments[attach])
 	# Write the glm.
 	glmString = sortedWrite(omd['tree'])
-	glmName = os.path.basename(omdPath)[0:-4] + '.glm'
-	with open(os.path.join(outDir, glmName),'w') as glmFile:
+	with open(outPath,'w') as glmFile:
 		glmFile.write(glmString)
 
 def chart(inTree, labels=False, neatoLayout=False, showPlot=False):
