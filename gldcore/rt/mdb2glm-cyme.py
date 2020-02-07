@@ -2955,7 +2955,7 @@ def convertCymeModel(network_db, modelDir, test=False, _type=1, feeder_id=None):
             "clock": "clock",
         },
         {"omftype": "#set", "argument": "minimum_timestep=60"},
-        {"omftype": "#set", "argument": "profiler=1"},
+        {"omftype": "#set", "argument": "profiler=0"},
         {"omftype": "#set", "argument": "relax_naming_rules=1"},
         {"omftype": "module", "argument": "generators"},
         {"omftype": "module", "argument": "tape"},
