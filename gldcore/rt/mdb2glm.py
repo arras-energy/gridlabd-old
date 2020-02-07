@@ -15,6 +15,7 @@ def help():
 input_name = None
 output_name = None
 input_type = None
+options = []
 
 try : 
     opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:",["help","ifile=","ofile=","type="])
@@ -32,9 +33,11 @@ for opt, arg in opts:
     elif opt in ("-o", "--ofile"):
         output_name = arg.strip();
     elif opt in ("-t","--type"):
-        input_type = arg.strip();
+        types = arg.strip().split(" ")
+        input_type = types[0];
+        options.extend(types[1:])
     else:
-        raise Exception(f"'{opt}' is an invalid command line option")
+        options.append(arg.strip())
 
 modname = sys.argv[0].replace("mdb2glm.py",f"mdb2glm-{input_type}.py");
 if os.path.exists(modname):
@@ -44,7 +47,7 @@ if os.path.exists(modname):
     mod = importlib.import_module(f"mdb2glm-{input_type}");
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname
-    mod.convert(input_name,output_name)
+    mod.convert(input_name,output_name,options)
 
 else:
 

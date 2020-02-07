@@ -26,8 +26,33 @@ feeder = importlib.import_module("feeder");
 
 m2ft = 1.0 / 0.3048  # Conversion factor for meters to feet
 
-def convert(input_name,output_name,verbose=False,debug=False,quiet=False):
+def convert(input_name,output_name,options=[]):
+    """Convert CYME MDB to GLM
+    Parameters:
+      input_name (str)   [REQUIRED] input MDB filename
+      output_name (str)  [REQUIRED] output GLM filename
+      options (list)     [OPTIONAL] converter options
+    Options
+      -v enable verbose output
+      -d enable debugging output
+      -q silence warning output
+    """
+    verbose=False
+    debug=False
+    quiet=False    
+    if "-v" in options:
+        verbose = True
+        options.remove("-v")
+    if "-d" in options:
+        debug = True
+        options.remove("-d")
+    if "-q" in options:
+        quiet = True
+        options.remove("-q")
     set_context(input_name,verbose,debug,quiet)
+    if len(options) > 0:
+        print_error(f"{options[0]} is not valid")
+        return
     glmCirc = convertCymeModel(input_name, os.path.dirname(input_name))
     with open(output_name,'w') as f:
        glmString = sortedWrite(glmCirc)
