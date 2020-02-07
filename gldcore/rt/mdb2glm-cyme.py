@@ -2926,10 +2926,9 @@ def convertCymeModel(network_db, test=False, _type=1, feeder_id=None):
         # {"omftype": "#set", "argument": "profiler=0"},
         {"omftype": "#set", "argument": "relax_naming_rules=1"},
         {"omftype": "module", "argument": "generators"},
-        {"omftype": "module", "argument": "powerflow"},
         # {"omftype": "module", "argument": "tape"},
         # {"module": "residential", "implicit_enduses": "NONE"},
-        # {"solver_method": "NR", "NR_iteration_limit": "50", "module": "powerflow"},
+        {"solver_method": "NR", "NR_iteration_limit": "50", "module": "powerflow"},
     ]
     for headId in range(len(genericHeaders)):
         glmTree[headId] = genericHeaders[headId]
