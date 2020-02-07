@@ -20,12 +20,12 @@ bash$ gridlabd -D mdb_load_options="-t cyme" <model-name>.mdb
 Converters use the following calling syntax:
 
 ~~~
-bash$ python3 <ext>2glm.py -i filename.<ext> -o filename.glm [-t <type-option>]
+bash$ python3 <ext>2glm.py -i filename.<ext> -o filename.glm [-t <type-option>] [options...]
 ~~~
 
 # Caveats
 
-When a converter is run, the input file is converted in place to a GLM file by the same name, but with the `.glm` extension instead.  If the GLM file already exists, **the existing GLM file may be overwritten**.
+When a converter is run, the input file is converted in place to a GLM file by the same name, but with the `.glm` extension instead.  If the GLM file already exists, **the existing GLM file may be overwritten**. 
 
 # See also
 
