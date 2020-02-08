@@ -20,7 +20,9 @@ options = []
 try : 
     opts, args = getopt.getopt(sys.argv[1:],"hi:o:t:",["help","ifile=","ofile=","type="])
 except getopt.GetoptError:
+    print("ERROR    [mdb2glm.py]: command line options not valid")
     sys.exit(2)
+
 if not opts : 
     help()
     sys.exit(1)
@@ -29,9 +31,9 @@ for opt, arg in opts:
         help()
         sys.exit(0)
     elif opt in ("-i", "--ifile"):
-        input_name = arg.strip();
+        input_name = arg.strip()
     elif opt in ("-o", "--ofile"):
-        output_name = arg.strip();
+        output_name = arg.strip()
     elif opt in ("-t","--type"):
         types = arg.strip().split(" ")
         input_type = types[0];
@@ -39,16 +41,25 @@ for opt, arg in opts:
     else:
         options.append(arg.strip())
 
-modname = sys.argv[0].replace("mdb2glm.py",f"mdb2glm-{input_type}.py");
+if input_type is None:
+    print("ERROR    [mdb2glm.py]: conversion type not specified (-t <type> option is missing)")
+    sys.exit(1)
+
+modname = sys.argv[0].replace("mdb2glm.py",f"mdb2glm-{input_type}.py")
 if os.path.exists(modname):
 
     import importlib, copy
-    importlib.util.spec_from_file_location(input_type, modname);
-    mod = importlib.import_module(f"mdb2glm-{input_type}");
+    importlib.util.spec_from_file_location(input_type, modname)
+    mod = importlib.import_module(f"mdb2glm-{input_type}")
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname
-    mod.convert(input_name,output_name,options)
+    try:
+        mod.convert(input_name,output_name,options)
+    except Exception as err:
+        print(f"ERROR    [{os.path.basename(modname)}]: {err}");
+        sys.exit(1)
 
 else:
 
-    raise Exception(f"type '{input_type}' is not valid -- {modname} not found");
+    print(f"ERROR    [mdb2glm.py]: type '{input_type}' is not valid -- {modname} not found");
+    sys.exit(2)
