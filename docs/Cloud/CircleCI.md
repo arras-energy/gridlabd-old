@@ -1,5 +1,3 @@
-\newpage
-
 [[/Cloud/CircleCI]] - Cloud Continuous Integration support
 
 # Synopsis

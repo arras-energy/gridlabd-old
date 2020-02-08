@@ -1,5 +1,3 @@
-\newpage
-
 [[/Cloud/AWS]] -- Amazon Web Services support
 
 # Synopsis
