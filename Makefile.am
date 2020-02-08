@@ -348,6 +348,9 @@ install-exec-hook: python-install html-local index
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
 
+install-system: install
+	@$(DESTDIR)$(bindir)/gridlabd version set
+
 index: weather library template
 
 html-local: module-html developer-html troubleshooting-html
