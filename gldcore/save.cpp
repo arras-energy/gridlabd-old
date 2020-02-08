@@ -15,6 +15,7 @@ int saveglm(const char *filename, FILE *fp);
 int savexml(const char *filename, FILE *fp);
 int savejson(const char *filename, FILE *fp);
 int savexml_strict(const char *filename, FILE *fp);
+int saveomd(const char *filename, FILE *fp);
 
 int saveall(const char *filename)
 {
@@ -29,6 +30,7 @@ int saveall(const char *filename)
 		//{"xml", savexml_strict},
 		{"xml", savexml},
 		{"json", savejson},
+		{"omd", saveomd},
 	};
 	size_t i;
 
@@ -509,4 +511,69 @@ int savejson(const char *filename, FILE *fp)
 {
 	GldJsonWriter json(filename);
 	return json.write_output(fp);
+}
+
+int saveomd(const char *filename, FILE *fp)
+{
+	int len = 0;
+	len += fprintf(fp,"{\n");
+	len += fprintf(fp,"\t\"links\": [],\n");
+	len += fprintf(fp,"\t\"hiddenLinks\": [],\n");
+	len += fprintf(fp,"\t\"nodes\": [],\n");
+	len += fprintf(fp,"\t\"layoutVars\": {\n");
+	len += fprintf(fp,"\t\t\"theta\": \"0.8\",\n");
+	len += fprintf(fp,"\t\t\"gravity\": \"0.01\",\n");
+	len += fprintf(fp,"\t\t\"friction\": \"0.9\",\n");
+	len += fprintf(fp,"\t\t\"linkStrength\": \"5\",\n");
+	len += fprintf(fp,"\t\t\"linkDistance\": \"5\",\n");
+	len += fprintf(fp,"\t\t\"charge\": \"-5\"\n");
+	len += fprintf(fp,"\t},\n");
+	len += fprintf(fp,"\t\"attachments\": {},\n");
+	len += fprintf(fp,"\t\"tree\": {\n");
+
+	len += fprintf(fp,"\t\t\"-1\" : {\n");
+	len += fprintf(fp,"\t\t\t\"omftype\": \"module\",\n");
+	len += fprintf(fp,"\t\t\t\"argument\": \"generators\"\n");
+	len += fprintf(fp,"\t\t},\n");
+
+	len += fprintf(fp,"\t\t\"-2\" : {\n");
+	len += fprintf(fp,"\t\t\t\"solver_method\": \"NR\",\n");
+	len += fprintf(fp,"\t\t\t\"module\": \"powerflow\"\n");
+	len += fprintf(fp,"\t\t},\n");
+
+	len += fprintf(fp,"\t\t\"-3\" : {\n");
+	len += fprintf(fp,"\t\t\t\"omftype\": \"#set\",\n");
+	len += fprintf(fp,"\t\t\t\"argument\": \"relax_naming_rules=1\"\n");
+	len += fprintf(fp,"\t\t},\n");
+
+	OBJECT *obj;
+	for ( obj = object_get_first() ; obj != NULL ; obj = obj->next )
+	{
+		len += fprintf(fp,"\t\t\"%d\" : {\n",obj->id);
+		len += fprintf(fp,"\t\t\t\"object\" : \"%s\",\n",obj->oclass->name);
+		if ( obj->name )
+		{
+			len += fprintf(fp,"\t\t\t\"name\" : \"%s\",\n",obj->name);
+		}
+		else
+		{
+			len += fprintf(fp,"\t\t\t\"name\" : \"%s:%d\",\n",obj->oclass->name, obj->id);
+		}
+		len += fprintf(fp,"\t\t\t\"object\" : \"%s\"%s\n",obj->oclass->name,object_get_first_property(obj)?",":"");
+		for ( PROPERTY *prop = object_get_first_property(obj) ; prop != NULL ; prop = object_get_next_property(prop) )
+		{
+			char buffer[65536];
+			if ( prop->access != PA_PUBLIC )
+				continue;
+			object_property_to_string_x(obj,prop,buffer,sizeof(buffer));
+			if ( buffer[0] == '"' )
+				len += fprintf(fp,"\t\t\t\"%s\" : %s%s\n",prop->name,buffer,object_get_next_property(prop)==NULL?"":",");
+			else
+				len += fprintf(fp,"\t\t\t\"%s\" : \"%s\"%s\n",prop->name,buffer,object_get_next_property(prop)==NULL?"":",");
+		}
+		len += fprintf(fp,"\t\t}%s\n", obj->next==NULL?"":",");
+	}
+	len += fprintf(fp,"\t}\n");
+	len += fprintf(fp,"}\n");
+	return len;
 }
