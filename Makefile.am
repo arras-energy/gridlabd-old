@@ -135,16 +135,18 @@ EXTRA_DIST += $(top_srcdir)/utilities/build_number
 # endif
 
 help:
-	@echo "Cleaning targets:"
-	@echo "  clean        - Erase from the build tree the files built by 'make all'"
-	@echo "  distclean    - Same as 'make clean' plus erase anything ./configure created"
-	@echo "  mostlyclean  - Erase intermediate files (such as .o files)"
-	@echo ""
 	@echo "Building targets:"
 	@echo "  all            - Build $(PACKAGE) (same as 'make')"
 	@echo "  install        - Install $(PACKAGE) to $(prefix)"
 	@echo "  install-strip  - Same as install, but follow by stripping debug symbols"
+	@echo "  install-clean  - Same as install-system, but runs distclean, autoreconf, and configure first"
+	@echo "  install-system - Same as install, but links target to /usr/local for all system users"
 	@echo "  uninstall      - Erase files installed by 'make install'"
+	@echo ""
+	@echo "Cleaning targets:"
+	@echo "  clean        - Erase from the build tree the files built by 'make all'"
+	@echo "  distclean    - Same as 'make clean' plus erase anything ./configure created"
+	@echo "  mostlyclean  - Erase intermediate files (such as .o files)"
 	@echo ""
 	@echo "Testing targets:"
 	@echo "  validate  - Run the test/validation suite (requires Python)"
@@ -350,6 +352,9 @@ install-exec-hook: python-install html-local index
 
 install-system: install
 	@$(DESTDIR)$(bindir)/gridlabd version set
+
+install-clean: distclean
+	@autoreconf -isf && ./configure && make -j30 install-system
 
 index: weather library template
 
