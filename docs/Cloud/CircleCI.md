@@ -1,7 +1,11 @@
+\newpage
+
 [[/Cloud/CircleCI]] - Cloud Continuous Integration support
 
 # Synopsis
+
 YML:
+
 ~~~
  version: 2
  jobs:
