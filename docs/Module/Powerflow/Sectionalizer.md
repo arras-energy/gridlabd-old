@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Sectionalizer]] -- Class sectionalizer
 
 # Synopsis
+
 GLM:
+
 ~~~
   object sectionalizer {
     phase_A_state "{CLOSED,OPEN}";

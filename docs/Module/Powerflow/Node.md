@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Node]] -- Class node
 
 # Synopsis
+
 GLM:
+
 ~~~
   object node {
     bustype "{SWING_PQ,SWING,PV,PQ}";

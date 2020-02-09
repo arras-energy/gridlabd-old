@@ -27,7 +27,7 @@ with one tuple for each entry of the GET request.
 
 The following server command is supported in this version of GridLAB-D:
 ~~~~
-    host% curl http://<hostname>:<portnum>/read/<object-name>.<property-name>;...
+bash$ curl http://<hostname>:<portnum>/read/<object-name>.<property-name>;...
 ~~~~
 
 # See also

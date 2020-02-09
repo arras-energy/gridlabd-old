@@ -1,7 +1,9 @@
 [[/Module/Residential/Residential_enduse]] -- Class residential_enduse
 
 # Synopsis
+
 GLM:
+
 ~~~
   object residential_enduse {
     shape "<string>";

@@ -1,7 +1,9 @@
 [[/Module/Mysql/Import and Export]] -- Import/export for MySQL databases 
 
 # Synopsis
+
 GLM:
+
 ~~~
 export mysql <options> <schema>;
 import mysql <options> <schema>;

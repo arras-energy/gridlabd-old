@@ -1,4 +1,4 @@
-[[Server/Control]] -- Server control operations
+[[/Server/Control]] -- Server control operations
 
 # Synopsis
 HTTP:

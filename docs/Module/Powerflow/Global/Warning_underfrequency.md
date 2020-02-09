@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define warning_underfrequency=<value>
+bash$ gridlabd -D|--define warning_underfrequency=<value>
 ~~~
 GLM:
 ~~~

@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define default_humidity=<value>
+bash$ gridlabd -D|--define default_humidity=<value>
 ~~~
 GLM:
 ~~~

@@ -1,7 +1,9 @@
 [[/Module/Assert/Double_assert]] -- Class double_assert
 
 # Synopsis
+
 GLM:
+
 ~~~
   object double_assert {
     status "{ASSERT_NONE,ASSERT_FALSE,ASSERT_TRUE}";

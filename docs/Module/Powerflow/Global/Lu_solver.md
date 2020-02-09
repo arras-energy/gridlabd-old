@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define lu_solver=<value>
+bash$ gridlabd -D|--define lu_solver=<value>
 ~~~
 GLM:
 ~~~

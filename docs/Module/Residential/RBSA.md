@@ -1,6 +1,7 @@
 [[/Module/Residential/RBSA]] -- RBSA residential load model
 
 # Synopsis
+
 ~~~
   module residential {
     default_nominal_voltage "240 V"; 

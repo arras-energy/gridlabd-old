@@ -1,7 +1,9 @@
 [[/Module/Residential]] -- Module residential
 
 # Synopsis
+
 GLM:
+
 ~~~
   module residential {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";

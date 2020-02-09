@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define line_capacitance=<value>
+bash$ gridlabd -D|--define line_capacitance=<value>
 ~~~
 GLM:
 ~~~

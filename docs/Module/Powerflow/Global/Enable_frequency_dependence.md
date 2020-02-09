@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define enable_frequency_dependence=<value>
+bash$ gridlabd -D|--define enable_frequency_dependence=<value>
 ~~~
 GLM:
 ~~~

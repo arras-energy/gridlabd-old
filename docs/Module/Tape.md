@@ -1,7 +1,9 @@
 [[/Module/Tape]] -- Module tape
 
 # Synopsis
+
 GLM:
+
 ~~~
   module tape {
     gnuplot_path "<string>";

@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define implicit_enduse_source=<value>
+bash$ gridlabd -D|--define implicit_enduse_source=<value>
 ~~~
 GLM:
 ~~~

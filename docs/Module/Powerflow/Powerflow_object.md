@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Powerflow_object]] -- Class powerflow_object
 
 # Synopsis
+
 GLM:
+
 ~~~
   object powerflow_object {
     phases "[ABCDNSG]";

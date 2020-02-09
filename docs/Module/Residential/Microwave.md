@@ -1,7 +1,9 @@
 [[/Module/Residential/Microwave]] -- Class microwave
 
 # Synopsis
+
 GLM:
+
 ~~~
   object microwave {
     installed_power "<decimal> kW";

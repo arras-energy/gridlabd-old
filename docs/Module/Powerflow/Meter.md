@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Meter]] -- Class meter
 
 # Synopsis
+
 GLM:
+
 ~~~
   object meter {
     measured_real_energy "<decimal> Wh";

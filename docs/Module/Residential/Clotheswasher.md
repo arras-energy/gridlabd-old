@@ -1,7 +1,9 @@
 [[/Module/Residential/Clotheswasher]] -- Class clotheswasher
 
 # Synopsis
+
 GLM:
+
 ~~~
   object clotheswasher {
     motor_power "<decimal> kW";

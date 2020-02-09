@@ -1,7 +1,9 @@
 [[/Glm/Macro/Ifexist]] -- Macro to conditionally process GLM lines when a file exists
 
 # Synopsis
+
 GLM:
+
 ~~~
 #ifexist <path-name>
 ...

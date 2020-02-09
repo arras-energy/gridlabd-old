@@ -1,6 +1,7 @@
-[[Module/Assert/Assert]] -- General purpose assert object
+[[/Module/Assert/Assert]] -- General purpose assert object
 
 # Synopsis
+
 ~~~
 module assert;
 object assert {
@@ -34,7 +35,7 @@ The following properties are available in an `assert` object.
 char1024 group;
 ~~~
 
-Allows a group specification.  See [[GLM/Finding_objects]] for details.
+Allows a group specification.  See [[/GLM/Finding_objects]] for details.
 
 ### `hold`
 ~~~
@@ -220,4 +221,4 @@ object meter {
 Some units have an absolute offset (e.g., `degC`, `degF`) that convert absolute values, not relative values.  Thus `within 0.01 degF` will not work as expected when compared to a property in `degC` because `0.01 degF` is about `-17 degC`. The only solution is to provide the value in the same units as the property, or to use units that don't have an absolute offset, e.g., `R` or `K`).
 
 # See also
-* [[Module/Assert]]
+* [[/Module/Assert]]

@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define market_price_name=<value>
+bash$ gridlabd -D|--define market_price_name=<value>
 ~~~
 GLM:
 ~~~

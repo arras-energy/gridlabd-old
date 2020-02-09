@@ -1,7 +1,9 @@
 [[/Module/Climate/Weather]] -- Class weather
 
 # Synopsis
+
 GLM:
+
 ~~~
   object weather {
     temperature "<decimal> degF";

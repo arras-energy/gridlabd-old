@@ -1,7 +1,9 @@
 [[/Module/Residential/Evcharger_det]] -- Class evcharger_det
 
 # Synopsis
+
 GLM:
+
 ~~~
   object evcharger_det {
     charge_rate "<decimal> W";

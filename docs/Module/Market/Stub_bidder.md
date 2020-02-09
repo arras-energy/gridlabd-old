@@ -1,7 +1,9 @@
 [[/Module/Market/Stub_bidder]] -- Class stub_bidder
 
 # Synopsis
+
 GLM:
+
 ~~~
   object stub_bidder {
     bid_period "<decimal> s";

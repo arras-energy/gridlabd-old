@@ -1,7 +1,9 @@
 [[/Module/Market/Double_controller]] -- Class double_controller
 
 # Synopsis
+
 GLM:
+
 ~~~
   object double_controller {
     thermostat_mode "{COOL,HEAT,OFF,INVALID}";

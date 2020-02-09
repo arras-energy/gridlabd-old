@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define solver_profile_headers_included=<value>
+bash$ gridlabd -D|--define solver_profile_headers_included=<value>
 ~~~
 GLM:
 ~~~

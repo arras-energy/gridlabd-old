@@ -1,7 +1,9 @@
 [[/Module/Tape/Group_recorder]] -- Class group_recorder
 
 # Synopsis
+
 GLM:
+
 ~~~
   object group_recorder {
     file "<string>";

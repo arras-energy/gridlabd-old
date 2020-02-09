@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Voltdump]] -- Class voltdump
 
 # Synopsis
+
 GLM:
+
 ~~~
   object voltdump {
     group "<string>";

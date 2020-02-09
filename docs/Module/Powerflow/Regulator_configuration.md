@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Regulator_configuration]] -- Class regulator_configuration
 
 # Synopsis
+
 GLM:
+
 ~~~
   object regulator_configuration {
     connect_type "{CLOSED_DELTA,OPEN_DELTA_CABA,OPEN_DELTA_BCAC,OPEN_DELTA_ABBC,WYE_WYE,UNKNOWN}";

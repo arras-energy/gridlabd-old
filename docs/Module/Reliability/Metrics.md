@@ -1,7 +1,9 @@
 [[/Module/Reliability/Metrics]] -- Class metrics
 
 # Synopsis
+
 GLM:
+
 ~~~
   object metrics {
     report_file "<string>";

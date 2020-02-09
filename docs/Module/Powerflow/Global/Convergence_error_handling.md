@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define convergence_error_handling=<value>
+bash$ gridlabd -D|--define convergence_error_handling=<value>
 ~~~
 GLM:
 ~~~

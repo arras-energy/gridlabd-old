@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define NR_iteration_limit=<value>
+bash$ gridlabd -D|--define NR_iteration_limit=<value>
 ~~~
 GLM:
 ~~~

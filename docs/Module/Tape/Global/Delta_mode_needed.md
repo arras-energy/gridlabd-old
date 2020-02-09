@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define delta_mode_needed=<value>
+bash$ gridlabd -D|--define delta_mode_needed=<value>
 ~~~
 GLM:
 ~~~

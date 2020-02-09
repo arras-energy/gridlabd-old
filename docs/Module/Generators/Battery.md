@@ -1,7 +1,9 @@
-[[Module/Generators/Battery]] -- Battery object
+[[/Module/Generators/Battery]] -- Battery object
 
 # Synopsis
+
 GLM:
+
 ~~~
 module generators;
 object battery {
@@ -462,5 +464,5 @@ $$
 with $E_{max}$ defined as the battery's internal energy storage capacity.
 
 # See also
-* [[Module/Generators]]
-* [[Module/Generators/Inverter]]
+* [[/Module/Generators]]
+* [[/Module/Generators/Inverter]]

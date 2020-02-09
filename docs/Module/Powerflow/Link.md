@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Link]] -- Class link
 
 # Synopsis
+
 GLM:
+
 ~~~
   object link {
     status "{OPEN,CLOSED}";

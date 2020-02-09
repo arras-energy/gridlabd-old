@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define warning_overfrequency=<value>
+bash$ gridlabd -D|--define warning_overfrequency=<value>
 ~~~
 GLM:
 ~~~

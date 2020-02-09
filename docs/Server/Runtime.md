@@ -26,7 +26,7 @@ If the `<offset>` is specified, the download will start at the byte offset speci
 # Example
 The following example downloads the javacsript file `gridlabd.js`:
 ~~~
-  host% curl http://localhost:6267/rt/gridlabd.js
+bash$ curl http://localhost:6267/rt/gridlabd.js
 ~~~
 
 # See also

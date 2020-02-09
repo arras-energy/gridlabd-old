@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define csv_data_only=<value>
+bash$ gridlabd -D|--define csv_data_only=<value>
 ~~~
 GLM:
 ~~~

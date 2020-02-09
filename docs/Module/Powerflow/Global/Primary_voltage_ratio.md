@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define primary_voltage_ratio=<value>
+bash$ gridlabd -D|--define primary_voltage_ratio=<value>
 ~~~
 GLM:
 ~~~

@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Vfd]] -- Class vfd
 
 # Synopsis
+
 GLM:
+
 ~~~
   object vfd {
     rated_motor_speed "<decimal> 1/min";

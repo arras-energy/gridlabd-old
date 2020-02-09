@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define thermostat_control_warning=<value>
+bash$ gridlabd -D|--define thermostat_control_warning=<value>
 ~~~
 GLM:
 ~~~

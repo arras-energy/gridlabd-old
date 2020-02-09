@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define NR_superLU_procs=<value>
+bash$ gridlabd -D|--define NR_superLU_procs=<value>
 ~~~
 GLM:
 ~~~

@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define NR_matrix_output_interval=<value>
+bash$ gridlabd -D|--define NR_matrix_output_interval=<value>
 ~~~
 GLM:
 ~~~

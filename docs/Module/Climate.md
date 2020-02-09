@@ -1,7 +1,9 @@
 [[/Module/Climate]] -- Module climate
 
 # Synopsis
+
 GLM:
+
 ~~~
   module climate {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";

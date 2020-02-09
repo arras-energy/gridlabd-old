@@ -1,7 +1,9 @@
 [[/Module/Generators/Windturb_dg]] -- Class windturb_dg
 
 # Synopsis
+
 GLM:
+
 ~~~
   object windturb_dg {
     Gen_status "{ONLINE,OFFLINE}";

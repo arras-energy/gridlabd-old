@@ -1,7 +1,9 @@
 [[/GLM/Property/Randomvar]] -- Random variables
 
 # Synopsis
+
 GLM:
+
 ~~~
 class <class-name> {
     randomvar <property-name>;

@@ -1,7 +1,9 @@
 [[/Module/Tape/Player]] -- Class player
 
 # Synopsis
+
 GLM:
+
 ~~~
   object player {
     property "<string>";

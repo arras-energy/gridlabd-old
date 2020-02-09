@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define all_powerflow_delta=<value>
+bash$ gridlabd -D|--define all_powerflow_delta=<value>
 ~~~
 GLM:
 ~~~

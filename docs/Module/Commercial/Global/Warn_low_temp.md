@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define warn_low_temp=<value>
+bash$ gridlabd -D|--define warn_low_temp=<value>
 ~~~
 GLM:
 ~~~

@@ -1,7 +1,9 @@
 [[/Module/Residential/Freezer]] -- Class freezer
 
 # Synopsis
+
 GLM:
+
 ~~~
   object freezer {
     size "<decimal> cf";

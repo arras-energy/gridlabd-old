@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define ground_impedance=<value>
+bash$ gridlabd -D|--define ground_impedance=<value>
 ~~~
 GLM:
 ~~~

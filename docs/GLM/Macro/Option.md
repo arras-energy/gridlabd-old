@@ -1,11 +1,15 @@
 [[/Glm/Macro/Option]] -- Macro to specify a command-line option
 
 # Synopsis
+
 GLM:
+
 ~~~
 #option <keyword>
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd --<option> ...
 ~~~

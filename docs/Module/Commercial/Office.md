@@ -1,7 +1,9 @@
 [[/Module/Commercial/Office]] -- Class office
 
 # Synopsis
+
 GLM:
+
 ~~~
   object office {
     floor_area "<decimal> sf";

@@ -1,4 +1,4 @@
-[[GLM/Object/Events]] -- Object event handlers
+[[/GLM/Object/Events]] -- Object event handlers
 
 # Synopsis
 

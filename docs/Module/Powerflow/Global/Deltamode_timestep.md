@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define deltamode_timestep=<value>
+bash$ gridlabd -D|--define deltamode_timestep=<value>
 ~~~
 GLM:
 ~~~

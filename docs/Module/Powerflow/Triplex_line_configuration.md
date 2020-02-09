@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Triplex_line_configuration]] -- Class triplex_line_configuration
 
 # Synopsis
+
 GLM:
+
 ~~~
   object triplex_line_configuration {
     conductor_1 "<string>";

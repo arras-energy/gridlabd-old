@@ -1,7 +1,9 @@
 [[/Module/Tape/Metrics_collector]] -- Class metrics_collector
 
 # Synopsis
+
 GLM:
+
 ~~~
   object metrics_collector {
     interval "<decimal> s";

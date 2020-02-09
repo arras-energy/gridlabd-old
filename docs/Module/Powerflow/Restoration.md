@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Restoration]] -- Class restoration
 
 # Synopsis
+
 GLM:
+
 ~~~
   object restoration {
     reconfig_attempts "<integer>";

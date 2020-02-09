@@ -1,7 +1,9 @@
 [[/Module/Generators/Microturbine]] -- Class microturbine
 
 # Synopsis
+
 GLM:
+
 ~~~
   object microturbine {
     generator_mode "{SUPPLY_DRIVEN,CONSTANT_PF,CONSTANT_PQ,CONSTANT_V,UNKNOWN}";

@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define solver_profile_filename=<value>
+bash$ gridlabd -D|--define solver_profile_filename=<value>
 ~~~
 GLM:
 ~~~

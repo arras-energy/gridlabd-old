@@ -1,7 +1,9 @@
 [[/Module/Market/Stubauction]] -- Class stubauction
 
 # Synopsis
+
 GLM:
+
 ~~~
   object stubauction {
     unit "<string>";

@@ -1,7 +1,9 @@
 [[/Module/Commercial]] -- Module commercial
 
 # Synopsis
+
 GLM:
+
 ~~~
   module commercial {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";

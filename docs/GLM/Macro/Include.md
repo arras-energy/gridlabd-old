@@ -1,7 +1,9 @@
 [[/Glm/Macro/Include]] -- Macro to include another GLM
 
 # Synopsis
+
 GLM:
+
 ~~~
 #include "file-name"
 #include <library-name>

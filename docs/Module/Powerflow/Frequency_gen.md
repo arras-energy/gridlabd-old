@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Frequency_gen]] -- Class frequency_gen
 
 # Synopsis
+
 GLM:
+
 ~~~
   object frequency_gen {
     Frequency_Mode "{AUTO,OFF}";

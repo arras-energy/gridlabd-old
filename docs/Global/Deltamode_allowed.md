@@ -8,7 +8,7 @@ GLM:
 ~~~
 Command line:
 ~~~
-host% gridlabd -D deltamode_allowed=[FALSE|TRUE]
+bash$ gridlabd -D deltamode_allowed=[FALSE|TRUE]
 ~~~
 
 # Description

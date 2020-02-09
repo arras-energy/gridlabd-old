@@ -1,7 +1,9 @@
 [[/Module/Market/Passive_controller]] -- Class passive_controller
 
 # Synopsis
+
 GLM:
+
 ~~~
   object passive_controller {
     input_state "<integer>";

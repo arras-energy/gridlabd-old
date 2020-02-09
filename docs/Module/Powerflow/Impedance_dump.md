@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Impedance_dump]] -- Class impedance_dump
 
 # Synopsis
+
 GLM:
+
 ~~~
   object impedance_dump {
     group "<string>";

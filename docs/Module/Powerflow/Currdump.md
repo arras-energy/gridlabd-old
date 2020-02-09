@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Currdump]] -- Current dump object
 
 # Synopsis
+
 GLM:
+
 ~~~
   object {
     group "";

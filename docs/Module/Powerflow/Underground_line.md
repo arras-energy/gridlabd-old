@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Underground_line]] -- Class underground_line
 
 # Synopsis
+
 GLM:
+
 ~~~
   object underground_line {
     configuration "<string>";

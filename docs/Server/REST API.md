@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  bash$ gridlabd --server <options> ...
+bash$ gridlabd --server <options> ...
 ~~~
 GLM:
 ~~~
@@ -23,7 +23,7 @@ The `--server` option enable the REST API while a simulation is running.  The RE
 
 To start GridLAB-D in `server` mode, simply include the command line argument `--server`, e.g.,
 ~~~
-  bash$ gridlabd --server modelname.glm
+bash$ gridlabd --server modelname.glm
 ~~~
 Typical the server is started on port 6267 of the localhost, with open access to the world.  These parameters of the server may be changed using the following server configuration globals:
 
@@ -66,7 +66,7 @@ and for complex values
 ~~~
 The `<precision>` must be a single digit from 0 to 9.  The format must be one of `a`, `f`, `e`, `g`, `A`, `F`, `E`, `G`, as interpreted by `printf()`.  The part may `i` or `j` for complex rectangular, `d` for complex polar with angle in degrees, `r` for complex polar with angle in radians, `M` for magnitude only, `D` for angle only in degrees, `R` for angle only in radians.
 
-To set the value of an [[object (property)|object property]], use the following query
+To set the value of an [[/object (property)|object property]], use the following query
 ~~~
   GET /<format>/<object-name>/<property-name>=<value>
 ~~~

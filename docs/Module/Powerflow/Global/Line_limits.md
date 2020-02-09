@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define line_limits=<value>
+bash$ gridlabd -D|--define line_limits=<value>
 ~~~
 GLM:
 ~~~

@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Underground_line_conductor]] -- Class underground_line_conductor
 
 # Synopsis
+
 GLM:
+
 ~~~
   object underground_line_conductor {
     outer_diameter "<decimal> in";

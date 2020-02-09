@@ -1,7 +1,9 @@
 [[/Module/Generators/Dc_dc_converter]] -- Class dc_dc_converter
 
 # Synopsis
+
 GLM:
+
 ~~~
   object dc_dc_converter {
     dc_dc_converter_type "{BUCK_BOOST,BOOST,BUCK}";

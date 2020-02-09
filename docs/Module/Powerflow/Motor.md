@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Motor]] -- Class motor
 
 # Synopsis
+
 GLM:
+
 ~~~
   object motor {
     base_power "<decimal> W";

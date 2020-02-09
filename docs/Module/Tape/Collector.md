@@ -1,7 +1,9 @@
 [[/Module/Tape/Collector]] -- Class collector
 
 # Synopsis
+
 GLM:
+
 ~~~
   object collector {
     trigger "<string>";

@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Line_spacing]] -- Class line_spacing
 
 # Synopsis
+
 GLM:
+
 ~~~
   object line_spacing {
     distance_AB "<decimal> ft";

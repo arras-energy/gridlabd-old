@@ -1,7 +1,9 @@
 [[/Module/Residential/ZIPload]] -- Class ZIPload
 
 # Synopsis
+
 GLM:
+
 ~~~
   object ZIPload {
     heat_fraction "<decimal>";

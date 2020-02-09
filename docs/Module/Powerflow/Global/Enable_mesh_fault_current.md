@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define enable_mesh_fault_current=<value>
+bash$ gridlabd -D|--define enable_mesh_fault_current=<value>
 ~~~
 GLM:
 ~~~

@@ -1,7 +1,9 @@
 [[/Module/Generators/Controller_dg]] -- Class controller_dg
 
 # Synopsis
+
 GLM:
+
 ~~~
   object controller_dg {
     groupid_dg "<string>";

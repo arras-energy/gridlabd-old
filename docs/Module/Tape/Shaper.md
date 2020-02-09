@@ -1,7 +1,9 @@
 [[/Module/Tape/Shaper]] -- Class shaper
 
 # Synopsis
+
 GLM:
+
 ~~~
   object shaper {
     file "<string>";

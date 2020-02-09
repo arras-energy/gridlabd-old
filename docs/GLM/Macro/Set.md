@@ -1,11 +1,15 @@
 [[/Glm/Macro/Set]] -- Macro to set a global variable
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set <name>=<value>
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D <name>=<value> ...
 bash$ gridlabd --define <name>=<value> ...

@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Overhead_line]] -- Class overhead_line
 
 # Synopsis
+
 GLM:
+
 ~~~
   object overhead_line {
     configuration "<string>";

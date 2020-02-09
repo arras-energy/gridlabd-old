@@ -1,7 +1,9 @@
 [[/Module/Residential/Refrigerator]] -- Class refrigerator
 
 # Synopsis
+
 GLM:
+
 ~~~
   object refrigerator {
     size "<decimal> cf";

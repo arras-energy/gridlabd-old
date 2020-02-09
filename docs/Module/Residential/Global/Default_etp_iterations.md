@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define default_etp_iterations=<value>
+bash$ gridlabd -D|--define default_etp_iterations=<value>
 ~~~
 GLM:
 ~~~

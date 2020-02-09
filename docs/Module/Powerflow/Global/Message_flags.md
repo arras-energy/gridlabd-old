@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define message_flags=<value>
+bash$ gridlabd -D|--define message_flags=<value>
 ~~~
 GLM:
 ~~~

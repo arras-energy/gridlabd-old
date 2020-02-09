@@ -1,7 +1,9 @@
 [[/Module/Residential/Waterheater]] -- Class waterheater
 
 # Synopsis
+
 GLM:
+
 ~~~
   object waterheater {
     tank_volume "<decimal> gal";

@@ -1,11 +1,15 @@
 [[/Subcommand/Aws]] -- Amazon Web Services subcommand
 
 # Synopsis
+
 GLM:
+
 ~~~
 #aws [options] <command> <subcommand> [parameters]
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd aws [options] <command> <subcommand> [parameters]
 ~~~

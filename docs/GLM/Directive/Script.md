@@ -1,17 +1,18 @@
-[[GLM/Directive/Script]] - Directive to run external commands on simulation events
+[[/GLM/Directive/Script]] - Directive to run external commands on simulation events
 
 # Synopsis
+
 ~~~
- script command;
- script on_create command;
- script on_init command;
- script on_precommit command;
- script on_presync command;
- script on_sync command;
- script on_postsync command;
- script on_commit command;
- script on_term command;
- script export global-name;
+script command;
+script on_create command;
+script on_init command;
+script on_precommit command;
+script on_presync command;
+script on_sync command;
+script on_postsync command;
+script on_commit command;
+script on_term command;
+script export global-name;
 ~~~
 
 # Description
@@ -60,11 +61,12 @@ The script is executed when the simulation terminates.
 
 * Variable expansion
   - Variable names are interpreted when the script command is parsed by the GLM rather than when it is executed.  It is currently not possible to update the value of a variable when the script is executed.  As a result, the following directive will not work as expected `script on_sync echo ${clock}` because the value of the `clock` is interpreted when the directive is encountered (when `clock` contains the start time) and not when the script is executed.  You must use the `export` option to export variables to scripts.  The correct syntax for the above example is
+
 ~~~
-         script export clock;
-         script on_sync echo $clock; // linux/mac variable expansion syntax
+script export clock;
+script on_sync echo $clock; // linux/mac variable expansion syntax
 ~~~
 
 # See also
 
-* [[Global/Threadcount]]
+* [[/Global/Threadcount]]

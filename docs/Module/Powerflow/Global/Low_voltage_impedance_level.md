@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define low_voltage_impedance_level=<value>
+bash$ gridlabd -D|--define low_voltage_impedance_level=<value>
 ~~~
 GLM:
 ~~~

@@ -17,7 +17,7 @@
 
 # Description
 
-The main Newton-Raphson (NR) powerflow solver can be matched with a secondary machine learning (ML) solver that models and mimics how the NR solver functions.  When the ML solver sees a problem that is "close" to problems it has learned, it proposes a solution to that problem and skips running the NR solver. The [[solver_ml.conf]] configuration controls how the machine learning solver behaves.
+The main Newton-Raphson (NR) powerflow solver can be matched with a secondary machine learning (ML) solver that models and mimics how the NR solver functions.  When the ML solver sees a problem that is "close" to problems it has learned, it proposes a solution to that problem and skips running the NR solver. The [[/solver_ml.conf]] configuration controls how the machine learning solver behaves.
 
 The most basic method saves each observed solution for future use.  Any new problem is compared to previous problems using a distance metric, and the solution to the closest problem is used if the distance metric is less than the `maximum_metric`.  If no solution is found, the new solution is saved for future use.
 

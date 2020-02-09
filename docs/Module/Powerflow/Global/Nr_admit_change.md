@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define NR_admit_change=<value>
+bash$ gridlabd -D|--define NR_admit_change=<value>
 ~~~
 GLM:
 ~~~

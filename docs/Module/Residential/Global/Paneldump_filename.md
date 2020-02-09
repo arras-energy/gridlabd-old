@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define paneldump_filename=<value>
+bash$ gridlabd -D|--define paneldump_filename=<value>
 ~~~
 GLM:
 ~~~

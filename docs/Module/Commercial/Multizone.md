@@ -1,7 +1,9 @@
 [[/Module/Commercial/Multizone]] -- Class multizone
 
 # Synopsis
+
 GLM:
+
 ~~~
   object multizone {
     from "<string>";

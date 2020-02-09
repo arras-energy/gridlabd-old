@@ -1,6 +1,7 @@
-[[Global/Exec]] - Execute macro
+[[/Global/Exec]] - Execute macro
 
 # Synopsis
+
 ~~~
   #exec <command>
 ~~~
@@ -11,4 +12,4 @@ The `#exec` macro is similar to the `#system` macro, except that it will cause t
 
 # See also
 
-* [[Global/System]]
+* [[/Global/System]]

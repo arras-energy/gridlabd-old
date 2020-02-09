@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define report_event_log=<value>
+bash$ gridlabd -D|--define report_event_log=<value>
 ~~~
 GLM:
 ~~~

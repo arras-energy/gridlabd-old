@@ -1,12 +1,16 @@
 [[/Command/JSON output]] -- JSON output format
 
 # Synopsis
+
 Command line:
+
 ~~~
-  bash$ gridlabd [options] input.glm -o output.json
-  bash$ curl http://localhost:6267/json/output.json
+bash$ gridlabd [options] input.glm -o output.json
+bash$ curl http://localhost:6267/json/output.json
 ~~~
+
 GLM:
+
 ~~~
   #set savefile=filename.json
   #set dumpfile=filename.json

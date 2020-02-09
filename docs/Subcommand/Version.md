@@ -1,4 +1,4 @@
-[[Subcommand/Version]] -- System version manager
+[[/Subcommand/Version]] -- System version manager
 
 # Synopsis
 Shell:
@@ -81,4 +81,4 @@ The indicated version is deleted. If the version is a pattern, then multiple ver
 
 # See also
 
-* [[Command/Version]] command line option
+* [[/Command/Version]] command line option

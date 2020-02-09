@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Power_metrics]] -- Class power_metrics
 
 # Synopsis
+
 GLM:
+
 ~~~
   object power_metrics {
     SAIFI "<decimal>";

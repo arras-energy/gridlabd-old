@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Volt_var_control]] -- Class volt_var_control
 
 # Synopsis
+
 GLM:
+
 ~~~
   object volt_var_control {
     control_method "{STANDBY,ACTIVE}";

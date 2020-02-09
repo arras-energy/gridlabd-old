@@ -1,7 +1,9 @@
 [[/Module/Residential/Lights]] -- Class lights
 
 # Synopsis
+
 GLM:
+
 ~~~
   object lights {
     type "{HID,SSL,CFL,FLUORESCENT,INCANDESCENT}";

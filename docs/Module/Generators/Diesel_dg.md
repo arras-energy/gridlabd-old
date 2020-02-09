@@ -1,7 +1,9 @@
 [[/Module/Generators/Diesel_dg]] -- Class diesel_dg
 
 # Synopsis
+
 GLM:
+
 ~~~
   object diesel_dg {
     Gen_mode "{CONSTANTP,CONSTANTPQ,CONSTANTE,UNKNOWN}";

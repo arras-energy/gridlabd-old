@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Billdump]] -- Class billdump
 
 # Synopsis
+
 GLM:
+
 ~~~
   object billdump {
     group "<string>";

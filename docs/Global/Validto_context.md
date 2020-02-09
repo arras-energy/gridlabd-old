@@ -1,13 +1,14 @@
-[[Global/Validto_context]] -- Control how `valid_to` time is used
+[[/Global/Validto_context]] -- Control how `valid_to` time is used
 
 # Synopsis
+
 ~~~
   #set validto_context=SYNC|PRECOMMIT|COMMIT
 ~~~
 
 # Description
 
-The global variable [[validto_context]] may be used to control whether `precommit` and `commit` events are suppressed before the `valid_to` time is reached.
+The global variable [[/validto_context]] may be used to control whether `precommit` and `commit` events are suppressed before the `valid_to` time is reached.
 
 ## SYNC
 

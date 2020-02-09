@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Line]] -- Class line
 
 # Synopsis
+
 GLM:
+
 ~~~
   object line {
     configuration "<string>";

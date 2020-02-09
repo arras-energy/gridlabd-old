@@ -1,7 +1,9 @@
 [[/Glm/Macro/Error]] -- Error output message
 
 # Synopsis
+
 GLM:
+
 ~~~
 #error <message>
 ~~~

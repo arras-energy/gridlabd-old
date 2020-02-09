@@ -1,7 +1,9 @@
 [[/GLM/Macro/For]] -- For loop control macro
 
 # Synopsis
+
 GLM:
+
 ~~~
 #for <var> in <list>
 ...

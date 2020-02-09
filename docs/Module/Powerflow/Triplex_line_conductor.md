@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Triplex_line_conductor]] -- Class triplex_line_conductor
 
 # Synopsis
+
 GLM:
+
 ~~~
   object triplex_line_conductor {
     resistance "<decimal> Ohm/mile";

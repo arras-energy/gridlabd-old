@@ -1,7 +1,9 @@
 [[/Module/Generators]] -- Module generators
 
 # Synopsis
+
 GLM:
+
 ~~~
   module generators {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";

@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Switch]] -- Class switch
 
 # Synopsis
+
 GLM:
+
 ~~~
   object switch {
     phase_A_state "{CLOSED,OPEN}";

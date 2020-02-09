@@ -1,6 +1,7 @@
 [[/Module/Mysql/Player]] -- MySQL player object
 
 # Synopsis
+
 ~~~
 module mysql;
 object player {

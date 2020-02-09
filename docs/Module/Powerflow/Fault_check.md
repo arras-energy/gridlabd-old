@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Fault_check]] -- Class fault_check
 
 # Synopsis
+
 GLM:
+
 ~~~
   object fault_check {
     check_mode "{ALL,ONCHANGE,SINGLE}";

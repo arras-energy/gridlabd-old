@@ -1,7 +1,9 @@
 [[/Glm/Macro/Debug]] -- Debug output message
 
 # Synopsis
+
 GLM:
+
 ~~~
 #debug <message>
 ~~~

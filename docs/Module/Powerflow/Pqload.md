@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Pqload]] -- Class pqload
 
 # Synopsis
+
 GLM:
+
 ~~~
   object pqload {
     weather "<string>";

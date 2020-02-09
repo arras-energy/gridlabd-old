@@ -1,7 +1,9 @@
 [[/Module/Market/Generator_controller]] -- Class generator_controller
 
 # Synopsis
+
 GLM:
+
 ~~~
   object generator_controller {
     generator_state "{STARTING,RUNNING,OFF}";

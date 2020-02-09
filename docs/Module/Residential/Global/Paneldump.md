@@ -1,6 +1,7 @@
-[[Paneldump]] -- Residential panel circuit dump
+[[/Paneldump]] -- Residential panel circuit dump
 
 # Synopsis
+
 ~~~
   module residential {
     paneldump_interval interval;

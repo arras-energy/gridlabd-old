@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define show_matrix_values=<value>
+bash$ gridlabd -D|--define show_matrix_values=<value>
 ~~~
 GLM:
 ~~~

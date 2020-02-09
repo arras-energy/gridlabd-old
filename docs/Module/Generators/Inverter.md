@@ -1,6 +1,7 @@
 [[/Module/Generators/Inverter]] -- Connect a DC source to an AC node.
 
 # Synopsis
+
 ~~~
   module generators {
     set {QUIET=65536, WARNING=131072, DEBUG=262144, VERBOSE=524288} message_flags;
@@ -174,7 +175,7 @@
 
 # Description
 
-The minimum definition for an [[inverter]] is 
+The minimum definition for an [[/inverter]] is 
 ~~~
   object inverter {
     generator_mode CONSTANT_PF;

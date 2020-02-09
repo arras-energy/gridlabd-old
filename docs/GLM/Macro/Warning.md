@@ -1,7 +1,9 @@
 [[/Glm/Macro/Warning]] -- Warning output message
 
 # Synopsis
+
 GLM:
+
 ~~~
 #warning <message>
 ~~~

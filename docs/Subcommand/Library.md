@@ -1,26 +1,26 @@
-[[Subcommand/Library]] -- library management subcommands
+[[/Subcommand/Library]] -- library management subcommands
 
 # Synopsis
 Shell:
 ~~~
-  bash$ gridlabd help
-  bash$ gridlabd index <pattern>
-  bash$ gridlabd list <pattern>
-  bash$ gridlabd get <pattern>
-  bash$ gridlabd submit <file>
-  bash$ gridlabd delete <pattern>
-  bash$ gridlabd info <pattern>
-  bash$ gridlabd copy <name> [<file>]
-  bash$ gridlabd clean
-  bash$ gridlabd open <local>
-  bash$ gridlabd session <local> [<pattern>]
-  bash$ gridlabd add <local> <pattern>
-  bash$ gridlabd save <local> ["<description>"]
-  bash$ gridlabd submit <local>
-  bash$ gridlabd config show
-  bash$ gridlabd config reset
-  bash$ gridlabd config get <name>
-  bash$ gridlabd config set <name> <value>
+bash$ gridlabd help
+bash$ gridlabd index <pattern>
+bash$ gridlabd list <pattern>
+bash$ gridlabd get <pattern>
+bash$ gridlabd submit <file>
+bash$ gridlabd delete <pattern>
+bash$ gridlabd info <pattern>
+bash$ gridlabd copy <name> [<file>]
+bash$ gridlabd clean
+bash$ gridlabd open <local>
+bash$ gridlabd session <local> [<pattern>]
+bash$ gridlabd add <local> <pattern>
+bash$ gridlabd save <local> ["<description>"]
+bash$ gridlabd submit <local>
+bash$ gridlabd config show
+bash$ gridlabd config reset
+bash$ gridlabd config get <name>
+bash$ gridlabd config set <name> <value>
 ~~~
 
 # Description

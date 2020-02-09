@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Series_reactor]] -- Class series_reactor
 
 # Synopsis
+
 GLM:
+
 ~~~
   object series_reactor {
     phase_A_impedance "<string> Ohm";

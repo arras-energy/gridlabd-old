@@ -1,11 +1,15 @@
 [[/Subcommand/Help]] -- GridLAB-D subcommand help
 
 # Synopsis
+
 GLM:
+
 ~~~
 #git help [<subcommand>]
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd help [<subcommand>]
 ~~~

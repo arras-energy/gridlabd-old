@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define csv_keep_clean=<value>
+bash$ gridlabd -D|--define csv_keep_clean=<value>
 ~~~
 GLM:
 ~~~

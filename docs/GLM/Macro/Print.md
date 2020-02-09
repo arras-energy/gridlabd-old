@@ -1,7 +1,9 @@
 [[/Glm/Macro/Print]] -- Print output message
 
 # Synopsis
+
 GLM:
+
 ~~~
 #print <message>
 ~~~

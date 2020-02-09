@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Triplex_meter]] -- Class triplex_meter
 
 # Synopsis
+
 GLM:
+
 ~~~
   object triplex_meter {
     measured_real_energy "<decimal> Wh";

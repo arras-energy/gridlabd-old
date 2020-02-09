@@ -1,7 +1,9 @@
 [[/Glm/Macro/Verbose]] -- Verbose output message
 
 # Synopsis
+
 GLM:
+
 ~~~
 #verbose <message>
 ~~~

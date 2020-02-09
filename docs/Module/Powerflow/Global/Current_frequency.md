@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define current_frequency=<value>
+bash$ gridlabd -D|--define current_frequency=<value>
 ~~~
 GLM:
 ~~~

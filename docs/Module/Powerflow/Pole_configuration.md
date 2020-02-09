@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Pole_configuration]] -- Pole configuration library
 
 # Synopsis
+
 GLM:
+
 ~~~
   object pole_configuration {
     pole_status "OK";

@@ -1,7 +1,9 @@
 [[/Module/Tape/Histogram]] -- Class histogram
 
 # Synopsis
+
 GLM:
+
 ~~~
   object histogram {
     filename "<string>";

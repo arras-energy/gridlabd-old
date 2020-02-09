@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define system_dwell_time=<value>
+bash$ gridlabd -D|--define system_dwell_time=<value>
 ~~~
 GLM:
 ~~~

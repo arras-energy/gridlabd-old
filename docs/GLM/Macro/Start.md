@@ -1,7 +1,9 @@
 [[/Glm/Macro/Start]] -- Macro to asynchronously start a process
 
 # Synopsis
+
 GLM:
+
 ~~~
 #start <command>
 ~~~

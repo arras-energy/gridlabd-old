@@ -1,7 +1,9 @@
 [[/GLM/Property/Functional]] -- Functional property initialization
 
 # Synopsis
+
 GLM:
+
 ~~~
 random.<distribution>(<parameters>)
 ~~~

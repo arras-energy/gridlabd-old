@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Triplex_load]] -- Class triplex_load
 
 # Synopsis
+
 GLM:
+
 ~~~
   object triplex_load {
     load_class "{A,I,C,R,U}";

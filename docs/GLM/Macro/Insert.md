@@ -1,7 +1,9 @@
 [[/GLM/Macro/Insert]] -- Macro to insert a GLM file
 
 # Synopsis
+
 GLM:
+
 ~~~~
 #insert name(var1=value1, var2=value2, ..., varN=valueN)
 ~~~~

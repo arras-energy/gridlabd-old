@@ -15,8 +15,8 @@ You may obtain collections of objects using the `find` method. The query element
 
 The following obtains a list of all objects of class `house` in `my-model.glm`:
 ~~~~
-    bash$ gridlabd --server my-model.glm &
-    bash$ curl http://localhost:6267/find/class=house
+bash$ gridlabd --server my-model.glm &
+bash$ curl http://localhost:6267/find/class=house
 ~~~~
 
 # See also

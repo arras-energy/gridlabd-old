@@ -1,4 +1,4 @@
-[[python]] -- Python module
+[[/python]] -- Python module
 
 # Synopsis
 
@@ -60,7 +60,7 @@ Units:
 
 # Description
 
-The [[python]] module `gridlabd` loads an instance of GridLAB-D into the current instance of python.  Only one instance may be loaded per instance of python.
+The [[/python]] module `gridlabd` loads an instance of GridLAB-D into the current instance of python.  Only one instance may be loaded per instance of python.
 
 A `.glm` file may load a Python module to implement event handlers.  The syntax for loading a Python module is the same as that for loading a GridLAB-D module:
 ~~~
@@ -190,7 +190,7 @@ Set the value of the property of an object. The value must be a string that can 
 
 ## gridlabd.save(file) 
 
-Saves the full model to the file.  The currently supported formats are `.glm`, `.xml`, and `.json`.  For GLM files, the save content is controlled by the [[glm_save_options]] global variable.
+Saves the full model to the file.  The currently supported formats are `.glm`, `.xml`, and `.json`.  For GLM files, the save content is controlled by the [[/glm_save_options]] global variable.
 
 # Example
 
@@ -227,7 +227,7 @@ The following is the file `test.py`:
 ~~~
 The following example runs the model in Python:
 ~~~
-  host% python3
+bash$ python3
   Python 3.7.0 (default, Aug 22 2018, 15:22:29) 
   [Clang 8.0.0 (clang-800.0.42.1)] on darwin
   Type "help", "copyright", "credits" or "license" for more information.
@@ -332,4 +332,4 @@ The first few lines of output are in `house.csv`:
 
 # See also
 
-* [[Python subcommand]]
+* [[/Python subcommand]]

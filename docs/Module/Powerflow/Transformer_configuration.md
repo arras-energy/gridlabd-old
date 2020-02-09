@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Transformer_configuration]] -- Class transformer_configuration
 
 # Synopsis
+
 GLM:
+
 ~~~
   object transformer_configuration {
     connect_type "{SINGLE_PHASE_CENTER_TAPPED,SINGLE_PHASE,DELTA_GWYE,DELTA_DELTA,WYE_WYE,UNKNOWN}";

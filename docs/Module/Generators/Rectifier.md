@@ -1,7 +1,9 @@
 [[/Module/Generators/Rectifier]] -- Class rectifier
 
 # Synopsis
+
 GLM:
+
 ~~~
   object rectifier {
     rectifier_type "{TWELVE_PULSE,SIX_PULSE,THREE_PULSE,TWO_PULSE,ONE_PULSE}";

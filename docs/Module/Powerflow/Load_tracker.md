@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Load_tracker]] -- Class load_tracker
 
 # Synopsis
+
 GLM:
+
 ~~~
   object load_tracker {
     target "<string>";

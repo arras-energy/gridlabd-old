@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define enable_subsecond_models=<value>
+bash$ gridlabd -D|--define enable_subsecond_models=<value>
 ~~~
 GLM:
 ~~~

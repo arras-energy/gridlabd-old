@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define flush_interval=<value>
+bash$ gridlabd -D|--define flush_interval=<value>
 ~~~
 GLM:
 ~~~

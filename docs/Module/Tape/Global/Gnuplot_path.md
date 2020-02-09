@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define gnuplot_path=<value>
+bash$ gridlabd -D|--define gnuplot_path=<value>
 ~~~
 GLM:
 ~~~

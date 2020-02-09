@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Triplex_node]] -- Class triplex_node
 
 # Synopsis
+
 GLM:
+
 ~~~
   object triplex_node {
     bustype "{SWING_PQ,SWING,PV,PQ}";

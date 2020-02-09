@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Triplex_line]] -- Class triplex_line
 
 # Synopsis
+
 GLM:
+
 ~~~
   object triplex_line {
     configuration "<string>";

@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Substation]] -- Class substation
 
 # Synopsis
+
 GLM:
+
 ~~~
   object substation {
     zero_sequence_voltage "<string> V";

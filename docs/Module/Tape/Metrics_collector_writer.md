@@ -1,7 +1,9 @@
 [[/Module/Tape/Metrics_collector_writer]] -- Class metrics_collector_writer
 
 # Synopsis
+
 GLM:
+
 ~~~
   object metrics_collector_writer {
     filename "<string>";

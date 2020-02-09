@@ -1,7 +1,9 @@
 [[/Module/Tape/Violation_recorder]] -- Class violation_recorder
 
 # Synopsis
+
 GLM:
+
 ~~~
   object violation_recorder {
     file "<string>";

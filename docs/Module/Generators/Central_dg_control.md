@@ -1,7 +1,9 @@
 [[/Module/Generators/Central_dg_control]] -- Class central_dg_control
 
 # Synopsis
+
 GLM:
+
 ~~~
   object central_dg_control {
     controlled_dgs "<string>";

@@ -1,7 +1,9 @@
 [[/Module/Market/Supervisory_control]] -- Class supervisory_control
 
 # Synopsis
+
 GLM:
+
 ~~~
   object supervisory_control {
     unit "<string>";

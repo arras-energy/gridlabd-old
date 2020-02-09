@@ -1,7 +1,9 @@
 [[/Module/Market/Controller]] -- Class controller
 
 # Synopsis
+
 GLM:
+
 ~~~
   object controller {
     simple_mode "{DOUBLE_RAMP,WATERHEATER,HOUSE_PRECOOL,HOUSE_PREHEAT,HOUSE_COOL,HOUSE_HEAT,NONE}";

@@ -1,7 +1,9 @@
 [[/Module/Residential/Thermal_storage]] -- Class thermal_storage
 
 # Synopsis
+
 GLM:
+
 ~~~
   object thermal_storage {
     total_capacity "<decimal> Btu";

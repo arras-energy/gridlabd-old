@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Transformer]] -- Class transformer
 
 # Synopsis
+
 GLM:
+
 ~~~
   object transformer {
     configuration "<string>";

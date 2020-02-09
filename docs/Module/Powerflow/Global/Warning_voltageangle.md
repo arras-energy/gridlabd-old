@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define warning_voltageangle=<value>
+bash$ gridlabd -D|--define warning_voltageangle=<value>
 ~~~
 GLM:
 ~~~

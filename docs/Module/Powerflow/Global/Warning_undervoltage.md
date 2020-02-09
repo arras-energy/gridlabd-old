@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define warning_undervoltage=<value>
+bash$ gridlabd -D|--define warning_undervoltage=<value>
 ~~~
 GLM:
 ~~~

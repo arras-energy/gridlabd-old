@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define bid_offset=<value>
+bash$ gridlabd -D|--define bid_offset=<value>
 ~~~
 GLM:
 ~~~

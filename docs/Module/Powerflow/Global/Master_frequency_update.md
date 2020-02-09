@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define master_frequency_update=<value>
+bash$ gridlabd -D|--define master_frequency_update=<value>
 ~~~
 GLM:
 ~~~

@@ -1,7 +1,9 @@
 [[/Module/Market]] -- Module market
 
 # Synopsis
+
 GLM:
+
 ~~~
   module market {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";

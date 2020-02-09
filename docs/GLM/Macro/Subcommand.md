@@ -1,7 +1,9 @@
 [[/GLM/Macro/Subcommand]] -- Subcommand macros
 
 # Synopsis
+
 GLM:
+
 ~~~
 #<subcommand> <options> ...
 ~~~

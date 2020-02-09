@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define fault_impedance=<value>
+bash$ gridlabd -D|--define fault_impedance=<value>
 ~~~
 GLM:
 ~~~

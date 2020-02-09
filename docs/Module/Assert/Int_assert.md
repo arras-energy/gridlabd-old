@@ -1,7 +1,9 @@
 [[/Module/Assert/Int_assert]] -- Class int_assert
 
 # Synopsis
+
 GLM:
+
 ~~~
   object int_assert {
     status "{ASSERT_NONE,ASSERT_FALSE,ASSERT_TRUE}";

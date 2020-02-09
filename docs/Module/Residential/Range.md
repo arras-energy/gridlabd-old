@@ -1,7 +1,9 @@
 [[/Module/Residential/Range]] -- Class range
 
 # Synopsis
+
 GLM:
+
 ~~~
   object range {
     oven_volume "<decimal> gal";

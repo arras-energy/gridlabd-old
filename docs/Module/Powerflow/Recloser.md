@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Recloser]] -- Class recloser
 
 # Synopsis
+
 GLM:
+
 ~~~
   object recloser {
     retry_time "<decimal> s";

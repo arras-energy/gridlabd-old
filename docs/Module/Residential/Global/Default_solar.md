@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define default_solar=<value>
+bash$ gridlabd -D|--define default_solar=<value>
 ~~~
 GLM:
 ~~~

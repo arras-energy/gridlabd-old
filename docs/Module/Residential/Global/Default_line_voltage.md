@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define default_line_voltage=<value>
+bash$ gridlabd -D|--define default_line_voltage=<value>
 ~~~
 GLM:
 ~~~

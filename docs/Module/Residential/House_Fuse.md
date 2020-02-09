@@ -1,4 +1,4 @@
-[[House]] -- Upgrade of residential house model
+[[/House]] -- Upgrade of residential house model
 
 # Smart Fuse
 

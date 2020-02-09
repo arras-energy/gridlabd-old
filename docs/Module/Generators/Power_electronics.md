@@ -1,7 +1,9 @@
 [[/Module/Generators/Power_electronics]] -- Class power_electronics
 
 # Synopsis
+
 GLM:
+
 ~~~
   object power_electronics {
     generator_mode "{SUPPLY_DRIVEN,CONSTANT_PF,CONSTANT_PQ,CONSTANT_V,UNKNOWN}";

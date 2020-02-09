@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define default_line_current=<value>
+bash$ gridlabd -D|--define default_line_current=<value>
 ~~~
 GLM:
 ~~~

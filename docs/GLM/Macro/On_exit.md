@@ -1,6 +1,7 @@
 [[/GLM/Macro/On_exit]] - Macro to handle exit conditions
 
 # Synopsis
+
 ~~~
 #on_exit exitcode command
 ~~~

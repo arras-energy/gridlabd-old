@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Regulator]] -- Class regulator
 
 # Synopsis
+
 GLM:
+
 ~~~
   object regulator {
     configuration "<string>";

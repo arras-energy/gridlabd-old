@@ -1,4 +1,4 @@
-[[/Cloud/CircleCI]] - Cloud Continuous Integration support
+[[/Cloud/CircleCI]] -- Cloud Continuous Integration support
 
 # Synopsis
 

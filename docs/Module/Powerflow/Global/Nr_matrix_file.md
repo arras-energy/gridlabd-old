@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define NR_matrix_file=<value>
+bash$ gridlabd -D|--define NR_matrix_file=<value>
 ~~~
 GLM:
 ~~~

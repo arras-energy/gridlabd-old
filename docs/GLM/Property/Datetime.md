@@ -1,7 +1,9 @@
-[[GLM/Property/Datetime]] -- Datetime property
+[[/GLM/Property/Datetime]] -- Datetime property
 
 # Synopsis
+
 GLM:
+
 ~~~
   class <class-name> {
     datetime <property-name>;

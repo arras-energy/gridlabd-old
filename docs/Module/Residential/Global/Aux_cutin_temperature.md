@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define aux_cutin_temperature=<value>
+bash$ gridlabd -D|--define aux_cutin_temperature=<value>
 ~~~
 GLM:
 ~~~

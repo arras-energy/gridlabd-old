@@ -1,7 +1,9 @@
-[[Switch_coordinator]] -- Manage switches in powerflow module
+[[/Switch_coordinator]] -- Manage switches in powerflow module
 
 # Synopsis
+
 GLM:
+
 ~~~
   module gismo;
   object switch_coordinator
@@ -20,7 +22,7 @@ GLM:
 
 # Description
 
-The [[switch_coordinator]] object implements a switch coordination scheme for up to 32 switches in the powerflow module.  Switches are connected to the coordinator using the `connect` method by listing the name of the switch that is to be connected.
+The [[/switch_coordinator]] object implements a switch coordination scheme for up to 32 switches in the powerflow module.  Switches are connected to the coordinator using the `connect` method by listing the name of the switch that is to be connected.
 
 # Properties
 
@@ -99,4 +101,4 @@ The `DIRECT` status does not control relative to `NORMAL` state, rather it contr
 
 # See also
 
-* [[Module/Powerflow/Switch]]
+* [[/Module/Powerflow/Switch]]

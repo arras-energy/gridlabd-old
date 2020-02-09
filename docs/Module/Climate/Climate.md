@@ -1,7 +1,9 @@
 [[/Module/Climate/Climate]] -- Class climate
 
 # Synopsis
+
 GLM:
+
 ~~~
   object climate {
     solar_elevation "<decimal> rad";

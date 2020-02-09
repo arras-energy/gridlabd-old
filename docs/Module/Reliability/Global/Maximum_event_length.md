@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define maximum_event_length=<value>
+bash$ gridlabd -D|--define maximum_event_length=<value>
 ~~~
 GLM:
 ~~~

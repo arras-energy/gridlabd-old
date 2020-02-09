@@ -1,8 +1,9 @@
 [[/Command/Origin]] -- comnmand line option to display the build origin information
 
 # Synopsis
+
 ~~~
-host% gridlabd --origin
+bash$ gridlabd --origin
 ~~~
 
 # Description
@@ -17,7 +18,7 @@ The `--origin` command line option displays information about the source code fr
 
 The following is the output for a clean build of a branch
 ~~~
-host% gridlabd --origin
+bash$ gridlabd --origin
 # https://github.com/slacgismo/gridlabd/commits/d2fca77b4985e28452e72e259ce6bf77d2d454b1
 ~~~
 

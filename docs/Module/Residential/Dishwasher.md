@@ -1,7 +1,9 @@
 [[/Module/Residential/Dishwasher]] -- Class dishwasher
 
 # Synopsis
+
 GLM:
+
 ~~~
   object dishwasher {
     control_power "<decimal> W";

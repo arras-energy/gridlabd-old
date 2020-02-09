@@ -1,11 +1,15 @@
 [[/Glm/Macro/Setenv]] -- Macro to set an environment variable
 
 # Synopsis
+
 GLM:
+
 ~~~
 #setenv <name>=<value>
 ~~~
+
 Shell:
+
 ~~~
 bash$ export <name>=<value> ; gridlabd ...
 ~~~

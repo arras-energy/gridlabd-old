@@ -1,7 +1,9 @@
 [[/Module/Assert]] -- Module assert
 
 # Synopsis
+
 GLM:
+
 ~~~
   module assert {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";

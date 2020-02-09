@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Fuse]] -- Class fuse
 
 # Synopsis
+
 GLM:
+
 ~~~
   object fuse {
     phase_A_status "{GOOD,BLOWN}";

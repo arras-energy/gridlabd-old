@@ -1,7 +1,9 @@
 [[/Module/Assert/Complex_assert]] -- Class complex_assert
 
 # Synopsis
+
 GLM:
+
 ~~~
   object complex_assert {
     status "{ASSERT_NONE,ASSERT_FALSE,ASSERT_TRUE}";

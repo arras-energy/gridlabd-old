@@ -1,7 +1,9 @@
 [[/Glm/Macro/Wget]] -- Macro to download a file from a remote host
 
 # Synopsis
+
 GLM:
+
 ~~~
 #wget <url>
 ~~~

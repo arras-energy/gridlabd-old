@@ -1,7 +1,9 @@
 [[/Module/Tape/Multi_recorder]] -- Class multi_recorder
 
 # Synopsis
+
 GLM:
+
 ~~~
   object multi_recorder {
     interval "<decimal> s";

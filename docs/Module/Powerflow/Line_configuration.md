@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Line_configuration]] -- Class line_configuration
 
 # Synopsis
+
 GLM:
+
 ~~~
   object line_configuration {
     conductor_A "<string>";

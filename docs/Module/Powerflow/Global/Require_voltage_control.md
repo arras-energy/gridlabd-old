@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define require_voltage_control=<value>
+bash$ gridlabd -D|--define require_voltage_control=<value>
 ~~~
 GLM:
 ~~~

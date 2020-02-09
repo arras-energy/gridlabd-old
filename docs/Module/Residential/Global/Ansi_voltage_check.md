@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define ANSI_voltage_check=<value>
+bash$ gridlabd -D|--define ANSI_voltage_check=<value>
 ~~~
 GLM:
 ~~~

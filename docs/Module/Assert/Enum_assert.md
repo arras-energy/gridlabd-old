@@ -1,7 +1,9 @@
 [[/Module/Assert/Enum_assert]] -- Class enum_assert
 
 # Synopsis
+
 GLM:
+
 ~~~
   object enum_assert {
     status "{ASSERT_NONE,ASSERT_FALSE,ASSERT_TRUE}";

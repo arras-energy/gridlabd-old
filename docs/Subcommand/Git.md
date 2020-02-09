@@ -1,7 +1,9 @@
 [[/Subcommand/Git]] -- GitHub access subcommand
 
 # Synopsis
+
 GLM:
+
 ~~~
 #git [--version] [--help] [-C <path>] [-c <name>=<value>]
      [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]
@@ -9,7 +11,9 @@ GLM:
      [--git-dir=<path>] [--work-tree=<path>] [--namespace=<name>]
      <command> [<args>]
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd git [--version] [--help] [-C <path>] [-c <name>=<value>]
                    [--exec-path[=<path>]] [--html-path] [--man-path] [--info-path]

@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define geographic_degree=<value>
+bash$ gridlabd -D|--define geographic_degree=<value>
 ~~~
 GLM:
 ~~~

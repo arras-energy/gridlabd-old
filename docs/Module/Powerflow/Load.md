@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Load]] -- Class load
 
 # Synopsis
+
 GLM:
+
 ~~~
   object load {
     load_class "{A,I,C,R,U}";

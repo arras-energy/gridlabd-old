@@ -1,7 +1,9 @@
 [[/Module/Residential/Evcharger]] -- Class evcharger
 
 # Synopsis
+
 GLM:
+
 ~~~
   object evcharger {
     charger_type "{HIGH,MEDIUM,LOW}";

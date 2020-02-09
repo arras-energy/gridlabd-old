@@ -1,4 +1,4 @@
-[[Subcommand/Validate]] -- Validation subcommand
+[[/Subcommand/Validate]] -- Validation subcommand
 
 # Synopsis
 Shell:

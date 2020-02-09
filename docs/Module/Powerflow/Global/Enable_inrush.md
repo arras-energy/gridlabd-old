@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define enable_inrush=<value>
+bash$ gridlabd -D|--define enable_inrush=<value>
 ~~~
 GLM:
 ~~~

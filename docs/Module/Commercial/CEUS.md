@@ -1,5 +1,6 @@
-[[CEUS]] -- Commercial End-Use Survey data-driven building model
+[[/CEUS]] -- Commercial End-Use Survey data-driven building model
 # Synopsis
+
 ~~~
   module commercial {
     default_nominal_voltage "240";
@@ -245,6 +246,6 @@ The temperature, price, and solar sensitivity are not implemented by enduse.  Th
 
 # See also 
 
-* [[Module/Commercial]]
+* [[/Module/Commercial]]
 * [California Commercial End-use Survey (CEUS) Website](https://www.energy.ca.gov/ceus)
 * [SLAC GISMo CEUS Data Repository](https://github.com/slacgismo/ceus_data)

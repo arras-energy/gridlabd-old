@@ -1,6 +1,7 @@
 [[/Module/Powerflow/Pole]] -- Power pole model
 
 # Synopsis
+
 ~~~
   object pole {
     // node properties

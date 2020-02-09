@@ -1,7 +1,9 @@
 [[/Glm/Macro/System]] -- Macro to run a command in the host system environment
 
 # Synopsis
+
 GLM:
+
 ~~~
 #system <command>
 ~~~

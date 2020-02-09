@@ -1,13 +1,15 @@
-[[Global/Converter save options]] -- Options to automatic file conversion modules
+[[/Global/Converter save options]] -- Options to automatic file conversion modules
 
 # Synopsis
+
 GLM:
+
 ~~~
   #set <ext>_save_options=<options>
 ~~~
 Command line:
 ~~~
-  host% gridlabd -D <ext>_save_options=<options>
+bash$ gridlabd -D <ext>_save_options=<options>
 ~~~
 
 # Description
@@ -18,10 +20,10 @@ Automatic converters support extension using the converter naming convention `<i
 
 The following example passes the command line option `-t profile` to the `json2png.py` converter after the simulation is completed.
 ~~~
-  host% gridlabd model.glm -o output.png -D png_save_options="-t profile"
+bash$ gridlabd model.glm -o output.png -D png_save_options="-t profile"
 ~~~
 
 # See also
 
-* [[Command/JSON Input]]
-* [[Command/JSON Output]]
+* [[/Command/JSON Input]]
+* [[/Command/JSON Output]]

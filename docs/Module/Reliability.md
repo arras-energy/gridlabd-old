@@ -1,7 +1,9 @@
 [[/Module/Reliability]] -- Module reliability
 
 # Synopsis
+
 GLM:
+
 ~~~
   module reliability {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";

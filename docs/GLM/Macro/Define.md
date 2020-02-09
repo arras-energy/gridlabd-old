@@ -1,7 +1,9 @@
 [[/Glm/Macro/Define]] -- Macro to define a new global variable
 
 # Synopsis
+
 GLM:
+
 ~~~
 #define <variable-name>=<value>
 ~~~

@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define default_outdoor_temperature=<value>
+bash$ gridlabd -D|--define default_outdoor_temperature=<value>
 ~~~
 GLM:
 ~~~

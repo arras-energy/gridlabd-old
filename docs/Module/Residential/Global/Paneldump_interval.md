@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define paneldump_interval=<value>
+bash$ gridlabd -D|--define paneldump_interval=<value>
 ~~~
 GLM:
 ~~~

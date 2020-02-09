@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define all_house_delta=<value>
+bash$ gridlabd -D|--define all_house_delta=<value>
 ~~~
 GLM:
 ~~~

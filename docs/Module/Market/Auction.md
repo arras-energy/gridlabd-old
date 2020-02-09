@@ -1,7 +1,9 @@
 [[/Module/Market/Auction]] -- Class auction
 
 # Synopsis
+
 GLM:
+
 ~~~
   object auction {
     unit "<string>";

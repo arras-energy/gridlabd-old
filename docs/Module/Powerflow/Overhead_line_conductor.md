@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Overhead_line_conductor]] -- Class overhead_line_conductor
 
 # Synopsis
+
 GLM:
+
 ~~~
   object overhead_line_conductor {
     geometric_mean_radius "<decimal> ft";

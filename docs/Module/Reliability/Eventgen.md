@@ -1,7 +1,9 @@
 [[/Module/Reliability/Eventgen]] -- Class eventgen
 
 # Synopsis
+
 GLM:
+
 ~~~
   object eventgen {
     target_group "<string>";

@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define nominal_frequency=<value>
+bash$ gridlabd -D|--define nominal_frequency=<value>
 ~~~
 GLM:
 ~~~

@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Capacitor]] -- Class capacitor
 
 # Synopsis
+
 GLM:
+
 ~~~
   object capacitor {
     pt_phase "[NDCBA]";

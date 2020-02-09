@@ -1,7 +1,9 @@
 [[/Module/Generators/Energy_storage]] -- Class energy_storage
 
 # Synopsis
+
 GLM:
+
 ~~~
   object energy_storage {
     generator_mode "{SUPPLY_DRIVEN,CONSTANT_PF,CONSTANT_PQ,CONSTANT_V,UNKNOWN}";

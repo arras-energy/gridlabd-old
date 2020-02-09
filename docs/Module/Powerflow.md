@@ -1,7 +1,9 @@
 [[/Module/Powerflow]] -- Module powerflow
 
 # Synopsis
+
 GLM:
+
 ~~~
   module powerflow {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";

@@ -1,7 +1,9 @@
 [[/Module/Residential/Dryer]] -- Class dryer
 
 # Synopsis
+
 GLM:
+
 ~~~
   object dryer {
     motor_power "<decimal> W";

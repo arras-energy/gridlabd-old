@@ -1,7 +1,9 @@
 [[/Module/Residential/House]] -- Class house
 
 # Synopsis
+
 GLM:
+
 ~~~
   object house {
     weather "<string>";

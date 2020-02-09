@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Emissions]] -- Class emissions
 
 # Synopsis
+
 GLM:
+
 ~~~
   object emissions {
     Nuclear_Order "<decimal>";

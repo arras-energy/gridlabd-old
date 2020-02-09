@@ -3,7 +3,7 @@
 # Synopsis
 Shell:
 ~~~
-  host% gridlabd -D|--define maximum_voltage_error=<value>
+bash$ gridlabd -D|--define maximum_voltage_error=<value>
 ~~~
 GLM:
 ~~~

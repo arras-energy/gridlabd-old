@@ -1,7 +1,9 @@
 [[/Glm/Macro/Sleep]] -- Macro to sleep the GLM load for 
 
 # Synopsis
+
 GLM:
+
 ~~~
 #sleep <milliseconds>
 ~~~

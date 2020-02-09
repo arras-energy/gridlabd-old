@@ -1,7 +1,9 @@
 [[/Module/Residential/Plugload]] -- Class plugload
 
 # Synopsis
+
 GLM:
+
 ~~~
   object plugload {
     circuit_split "<decimal>";

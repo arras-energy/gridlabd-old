@@ -1,7 +1,9 @@
 [[/Module/Residential/Occupantload]] -- Class occupantload
 
 # Synopsis
+
 GLM:
+
 ~~~
   object occupantload {
     number_of_occupants "<integer>";

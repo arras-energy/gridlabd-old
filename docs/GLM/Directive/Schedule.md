@@ -1,7 +1,9 @@
 [[/GLM/Directive/Schedule]] -- define a value that changes over time in a pre-defined manner
 
 # Synopsis
+
 GLM:
+
 ~~~
 schedule <schedule-name> 
 {
@@ -14,10 +16,12 @@ schedule <schedule-name> 
     [interpolate;]
     <minutes> <hours> <days> <months> <weekdays> <value>[;] [// <GLM comment>]
     <minutes> <hours> <days> <months> <weekdays> <value>[;] [# <schedule comment>]
-    <minutes> <hours> <days> <months> <weekdays> <value>[;] [[<minutes> <hours> <days> <months> <weekdays> <value>;] <...>]
+    <minutes> <hours> <days> <months> <weekdays> <value>[;] [[/<minutes> <hours> <days> <months> <weekdays> <value>;] <...>]
     <...>
 ~~~
- -or-
+
+-or-
+
 ~~~
 schedule <schedule-name> 
 {
@@ -31,7 +35,7 @@ schedule <schedule-name> 
     <blockname> {
     <minutes> <hours> <days> <months> <weekdays> <value>[;] [// <GLM comment>]
     <minutes> <hours> <days> <months> <weekdays> <value>[;] [# <schedule comment>]
-    <minutes> <hours> <days> <months> <weekdays> <value>[;] [[<minutes> <hours> <days> <months> <weekdays> <value>;] <...>]
+    <minutes> <hours> <days> <months> <weekdays> <value>[;] [[/<minutes> <hours> <days> <months> <weekdays> <value>;] <...>]
         <...>
     }
     <...>
@@ -49,7 +53,7 @@ schedule my_schedule 
 {
     <minutes> <hours> <days> <months> <weekdays> <value>[;] [// <GLM comment>]
     <minutes> <hours> <days> <months> <weekdays> <value>[;] [# <schedule comment>]
-    <minutes> <hours> <days> <months> <weekdays> <value>[;] [[<minutes> <hours> <days> <months> <weekdays> <value>;] <...>]
+    <minutes> <hours> <days> <months> <weekdays> <value>[;] [[/<minutes> <hours> <days> <months> <weekdays> <value>;] <...>]
 }
 ~~~
 

@@ -1,7 +1,9 @@
 [[/Module/Tape/Recorder]] -- Class recorder
 
 # Synopsis
+
 GLM:
+
 ~~~
   object recorder {
     trigger "<string>";

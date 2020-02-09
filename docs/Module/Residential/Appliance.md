@@ -1,7 +1,9 @@
 [[/Module/Residential/Appliance]] -- Class appliance
 
 # Synopsis
+
 GLM:
+
 ~~~
   object appliance {
     powers "<string>";

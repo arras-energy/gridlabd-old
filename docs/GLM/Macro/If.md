@@ -1,7 +1,9 @@
 [[/Glm/Macro/If]] -- Conditional test macro
 
 # Synopsis
+
 GLM:
+
 ~~~
 #if <value1> <comparison> <value2>
 ...
