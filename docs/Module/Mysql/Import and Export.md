@@ -18,18 +18,31 @@ The module global `table_prefix` can be used to stored multiple models in the sa
 ## Options
 
 The following options can be used to change the MySQL database connection parameters during the import/export operation:
+
 * `--hostname <host-name>`: set the hostname
+
 * `--username <user-name>`: set the username
+
 * `--password <password>`: set the password
+
 * `--port <port>`: set the port number
+
 * `--socketname <socket-name>`: set the socket name
+
 * `--flags <flags>`: set the flags
+
 * `--table_prefix <prefix>`: set the table prefix string
+
 * `--new_database`: flag to enable the new database creation flag
+
 * `--show_query`: flag to enable the showing queries
+
 * `--no_create`: flag to disable the table creation flag
+
 * `--no_my_overwrite`: flag to disable the data overwrite flag
+
 * `--guid`: flag to enable use of the globally unique ids
+
 * `--no_transaction`: flag to disable use of transactions
 
 # Data Dictionary
@@ -39,7 +52,7 @@ The following tables are used by the `import`/`export` proceduce in the `mysql` 
 ## Globals
 
 Table of globals
-~~~
+
 | Column name | Data type | Flags | Default |
 | ----------- | --------- | ----- | ------- | 
 | name        | char(64)  | PK/NN |         | 
@@ -48,27 +61,25 @@ Table of globals
 | value       | text      |       | NULL    |
 | unit        | text      |       | NULL    |
 | description | text      |       | NULL    |
-~~~
 
 ## Modules
 
 The `modules` table lists the module in use and their corresponding version information.
 
 Table of modules
-~~~
+
 | Column name | Data type | Flags | Default |
 | ----------- | --------- | ----- | ------- |
 | name        | char(64)  | PK/NN |         |
 | major       | int(11)   |       | NULL    |
 | minor       | int(11)   |       | NULL    |
-~~~
 
 ## Classes
 
 The `classes` table lists all the classes and properties defined (including those not in use).  Runtime classes and properties are listed with a NULL module name.
 
 Table of classes
-~~~
+
 | Column name | Data type | Flags    | Default |
 | ----------- | --------- | -------- | ------- |
 | id          | int(11)   | PK/NN/AI |         |
@@ -79,12 +90,11 @@ Table of classes
 | flags       | int(11)   |          |  NULL   |
 | units       | text      |          |  NULL   |
 | description | text      |          |  NULL   |
-~~~
 
 ## Objects
 
 Table of objects
-~~~
+
 | Column name   | Data type | Flags | Default               |
 | ------------- | --------- | ----- | --------------------- |
 | id            | int(11)   | PK/NN |                       |
@@ -105,21 +115,19 @@ Table of objects
 | rngstate      | int(11)   |       | NULL                  |
 | heartbeat     | timestamp | NN    | '1970-01-01 00:00:00' |
 | flags         | int(11)   |       | NULL                  |
-~~~
 
 ## Properties
 
 Some properties have extended specifications that are not captured by a simple read of the value.  These specifications are stored in the `properties` table.
 
 Table of Extended Properties
-~~~
+
 | Column name | Data type | Flags | Default |
 | ----------- | --------- | ----- | ------- |
 | id          | mediumint | NN    |         |
 | property    | char(64)  | NN    |         |
 | type        | char(16)  | NN    |         |
 | specs       | text      |       |         |
-~~~
 
 ## Transforms
 
@@ -130,30 +138,28 @@ $$
 	y=function(x_1,x_2,...,x_n)
 $$
 where $x_1, x_2, ..., x_n$ and $y$ are all specified in the form `class:id.property`
-~~~
+
 | Column name   | Data type | Flags | Default |
 | ------------- | --------- | ----- | ------- |
 | source        | char(255) | NN    |         |
 | target        | char(255) | NN    |         |
 | specification | text      | NN    |         |  
-~~~
 
 ## Schedules
 
 Schedules are recorded in the original input form which there were defined.  See `schedule` for details.
 
 Table of schedules
-~~~
+
 | Column name | Data type | Flags | Default |
 | ----------- | --------- | ----- | ------- |
 | name        | char(64)  | PK/NN |         | 
 | definition  | text      |       |         |
-~~~
 
 ## Property types
 
 Property types
-~~~
+
 | Value | Description                          |
 | ----- | ------------------------------------ |
 | 0     | void                                 |
@@ -183,12 +189,11 @@ Property types
 | 24    | triplex (unused)                     |
 | 25    | property keyword (internal use only) |
 | 29    | parent class (internal use only)     |
-~~~
 
 ## Property flags
 
 Property flags
-~~~
+
 | Value  | Description                                                         |
 | ------ | ------------------------------------------------------------------- |
 | 0x0001 | Property recalculation is pending                                   |
@@ -196,12 +201,11 @@ Property flags
 | 0x0004 | Property was added at runtime                                       |
 | 0x4000 | Property is deprecated without usage warning                        |
 | 0x8000 | Property is deprecated with usage warning                           |
-~~~
 
 ## Object flags
 
 Object flags
-~~~
+
 | Value  | Description                                                            |
 | ------ | ---------------------------------------------------------------------- |
 | 0x0001 | External PLC is active (disables internal PLC code)                    |
@@ -214,7 +218,6 @@ Object flags
 | 0x0080 | Object supports forecasting                                            |
 | 0x0100 | Object initiatlization was successful                                  |
 | 0x4000 | Reranking flag (internal core use only)                                |
-~~~
 
 ## Class tables
 
