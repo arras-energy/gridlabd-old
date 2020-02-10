@@ -60,6 +60,7 @@ TODO
 ## Properties
 
 ### `phase_A_state`
+
 ~~~
   enumeration {CLOSED, OPEN} phase_A_state;
 ~~~
@@ -67,6 +68,7 @@ TODO
 Defines the current state of the phase A switch
 
 ### `phase_B_state`
+
 ~~~
   enumeration {CLOSED, OPEN} phase_B_state;
 ~~~
@@ -74,6 +76,7 @@ Defines the current state of the phase A switch
 Defines the current state of the phase B switch
 
 ### `phase_C_state`
+
 ~~~
   enumeration {CLOSED, OPEN} phase_C_state;
 ~~~
@@ -81,6 +84,7 @@ Defines the current state of the phase B switch
 Defines the current state of the phase C switch
 
 ### `operating_mode`
+
 ~~~
   enumeration {BANKED, INDIVIDUAL} operating_mode;
 ~~~
@@ -88,6 +92,7 @@ Defines the current state of the phase C switch
 Defines whether the switch operates in a banked or per-phase control mode
 
 ### `switch_resistance`
+
 ~~~
   double switch_resistance[Ohm];
 ~~~
@@ -95,12 +100,14 @@ Defines whether the switch operates in a banked or per-phase control mode
 The resistance value of the switch when it is not blown.
 
 ### `status`
+
 ~~~
   enumeration {OPEN, CLOSED} status;
 ~~~
 
 
 ### `from`
+
 ~~~
   object from;
 ~~~
@@ -108,6 +115,7 @@ The resistance value of the switch when it is not blown.
 From_node - source node
 
 ### `to`
+
 ~~~
   object to;
 ~~~
@@ -115,6 +123,7 @@ From_node - source node
 To_node - load node
 
 ### `power_in`
+
 ~~~
   complex power_in[VA];
 ~~~
@@ -122,6 +131,7 @@ To_node - load node
 Power flow in (w.r.t from node)
 
 ### `power_out`
+
 ~~~
   complex power_out[VA];
 ~~~
@@ -129,6 +139,7 @@ Power flow in (w.r.t from node)
 Power flow out (w.r.t to node)
 
 ### `power_out_real`
+
 ~~~
   double power_out_real[W];
 ~~~
@@ -136,6 +147,7 @@ Power flow out (w.r.t to node)
 Power flow out (w.r.t to node), real
 
 ### `power_losses`
+
 ~~~
   complex power_losses[VA];
 ~~~
@@ -143,6 +155,7 @@ Power flow out (w.r.t to node), real
 Power losses
 
 ### `power_in_A`
+
 ~~~
   complex power_in_A[VA];
 ~~~
@@ -150,6 +163,7 @@ Power losses
 Power flow in (w.r.t from node), phase A
 
 ### `power_in_B`
+
 ~~~
   complex power_in_B[VA];
 ~~~
@@ -157,6 +171,7 @@ Power flow in (w.r.t from node), phase A
 Power flow in (w.r.t from node), phase B
 
 ### `power_in_C`
+
 ~~~
   complex power_in_C[VA];
 ~~~
@@ -164,6 +179,7 @@ Power flow in (w.r.t from node), phase B
 Power flow in (w.r.t from node), phase C
 
 ### `power_out_A`
+
 ~~~
   complex power_out_A[VA];
 ~~~
@@ -171,6 +187,7 @@ Power flow in (w.r.t from node), phase C
 Power flow out (w.r.t to node), phase A
 
 ### `power_out_B`
+
 ~~~
   complex power_out_B[VA];
 ~~~
@@ -178,6 +195,7 @@ Power flow out (w.r.t to node), phase A
 Power flow out (w.r.t to node), phase B
 
 ### `power_out_C`
+
 ~~~
   complex power_out_C[VA];
 ~~~
@@ -185,6 +203,7 @@ Power flow out (w.r.t to node), phase B
 Power flow out (w.r.t to node), phase C
 
 ### `power_losses_A`
+
 ~~~
   complex power_losses_A[VA];
 ~~~
@@ -192,6 +211,7 @@ Power flow out (w.r.t to node), phase C
 Power losses, phase A
 
 ### `power_losses_B`
+
 ~~~
   complex power_losses_B[VA];
 ~~~
@@ -199,6 +219,7 @@ Power losses, phase A
 Power losses, phase B
 
 ### `power_losses_C`
+
 ~~~
   complex power_losses_C[VA];
 ~~~
@@ -206,6 +227,7 @@ Power losses, phase B
 Power losses, phase C
 
 ### `current_out_A`
+
 ~~~
   complex current_out_A[A];
 ~~~
@@ -213,6 +235,7 @@ Power losses, phase C
 Current flow out of link (w.r.t. to node), phase A
 
 ### `current_out_B`
+
 ~~~
   complex current_out_B[A];
 ~~~
@@ -220,6 +243,7 @@ Current flow out of link (w.r.t. to node), phase A
 Current flow out of link (w.r.t. to node), phase B
 
 ### `current_out_C`
+
 ~~~
   complex current_out_C[A];
 ~~~
@@ -227,6 +251,7 @@ Current flow out of link (w.r.t. to node), phase B
 Current flow out of link (w.r.t. to node), phase C
 
 ### `current_in_A`
+
 ~~~
   complex current_in_A[A];
 ~~~
@@ -234,6 +259,7 @@ Current flow out of link (w.r.t. to node), phase C
 Current flow to link (w.r.t from node), phase A
 
 ### `current_in_B`
+
 ~~~
   complex current_in_B[A];
 ~~~
@@ -241,6 +267,7 @@ Current flow to link (w.r.t from node), phase A
 Current flow to link (w.r.t from node), phase B
 
 ### `current_in_C`
+
 ~~~
   complex current_in_C[A];
 ~~~
@@ -248,6 +275,7 @@ Current flow to link (w.r.t from node), phase B
 Current flow to link (w.r.t from node), phase C
 
 ### `fault_current_in_A`
+
 ~~~
   complex fault_current_in_A[A];
 ~~~
@@ -255,6 +283,7 @@ Current flow to link (w.r.t from node), phase C
 Fault current flowing in, phase A
 
 ### `fault_current_in_B`
+
 ~~~
   complex fault_current_in_B[A];
 ~~~
@@ -262,6 +291,7 @@ Fault current flowing in, phase A
 Fault current flowing in, phase B
 
 ### `fault_current_in_C`
+
 ~~~
   complex fault_current_in_C[A];
 ~~~
@@ -269,6 +299,7 @@ Fault current flowing in, phase B
 Fault current flowing in, phase C
 
 ### `fault_current_out_A`
+
 ~~~
   complex fault_current_out_A[A];
 ~~~
@@ -276,6 +307,7 @@ Fault current flowing in, phase C
 Fault current flowing out, phase A
 
 ### `fault_current_out_B`
+
 ~~~
   complex fault_current_out_B[A];
 ~~~
@@ -283,6 +315,7 @@ Fault current flowing out, phase A
 Fault current flowing out, phase B
 
 ### `fault_current_out_C`
+
 ~~~
   complex fault_current_out_C[A];
 ~~~
@@ -290,6 +323,7 @@ Fault current flowing out, phase B
 Fault current flowing out, phase C
 
 ### `fault_voltage_A`
+
 ~~~
   complex fault_voltage_A[A];
 ~~~
@@ -297,6 +331,7 @@ Fault current flowing out, phase C
 Fault voltage, phase A
 
 ### `fault_voltage_B`
+
 ~~~
   complex fault_voltage_B[A];
 ~~~
@@ -304,6 +339,7 @@ Fault voltage, phase A
 Fault voltage, phase B
 
 ### `fault_voltage_C`
+
 ~~~
   complex fault_voltage_C[A];
 ~~~
@@ -311,6 +347,7 @@ Fault voltage, phase B
 Fault voltage, phase C
 
 ### `flow_direction`
+
 ~~~
   set {CN, CR, CF, BN, BR, BF, AN, AR, AF, UNKNOWN} flow_direction;
 ~~~
@@ -318,6 +355,7 @@ Fault voltage, phase C
 Flag used for describing direction of the flow of power
 
 ### `mean_repair_time`
+
 ~~~
   double mean_repair_time[s];
 ~~~
@@ -325,6 +363,7 @@ Flag used for describing direction of the flow of power
 Time after a fault clears for the object to be back in service
 
 ### `continuous_rating`
+
 ~~~
   double continuous_rating[A];
 ~~~
@@ -332,6 +371,7 @@ Time after a fault clears for the object to be back in service
 Continuous rating for this link object (set individual line segments
 
 ### `emergency_rating`
+
 ~~~
   double emergency_rating[A];
 ~~~
@@ -339,6 +379,7 @@ Continuous rating for this link object (set individual line segments
 Emergency rating for this link object (set individual line segments
 
 ### `inrush_convergence_value`
+
 ~~~
   double inrush_convergence_value[V];
 ~~~
@@ -346,6 +387,7 @@ Emergency rating for this link object (set individual line segments
 Tolerance, as change in line voltage drop between iterations, for deltamode in-rush completion
 
 ### `phases`
+
 ~~~
   set {A, B, C, D, N, S, G} phases;
 ~~~
@@ -353,6 +395,7 @@ Tolerance, as change in line voltage drop between iterations, for deltamode in-r
 TODO
 
 ### `nominal_voltage`
+
 ~~~
   double nominal_voltage[V];
 ~~~
@@ -360,6 +403,7 @@ TODO
 TODO
 
 ### `supernode_name`
+
 ~~~
   char1024 supernode_name;
 ~~~
@@ -416,5 +460,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

@@ -24,6 +24,7 @@ The currdump object produces a dump of the currents at the nodes. This can be us
 ## Properties
 
 ### `group`
+
 ~~~
   char32 group;
 ~~~
@@ -31,6 +32,7 @@ The currdump object produces a dump of the currents at the nodes. This can be us
 The group ID to output data for (all links if empty).
 
 ### `runtime`
+
 ~~~
   timestamp runtime; 
 ~~~
@@ -38,6 +40,7 @@ The group ID to output data for (all links if empty).
 The time to check current data.
 
 ### `filename`
+
 ~~~
   char256 filename; 
 ~~~
@@ -45,6 +48,7 @@ The time to check current data.
 The file to dump the current data into.
 
 ### `runcount`
+
 ~~~
   int32 runcount; 
 ~~~
@@ -52,6 +56,7 @@ The file to dump the current data into.
 The number of times the file has been written to.
 
 ### `maxcount`
+
 ~~~
   int32 maxcount; 
 ~~~
@@ -59,6 +64,7 @@ The number of times the file has been written to.
 The maximum number of times the file is written
 
 ### `interval`
+
 ~~~
   double interval[s]; 
 ~~~
@@ -66,6 +72,7 @@ The maximum number of times the file is written
 Interval at which currdump runs. This allows to set an interval at which the volt/curr dump should be appended with. Note, use the filemode `"a"` to facilitate interval dump.
 
 ### `filemode`
+
 ~~~
   char8 filemode; 
 ~~~
@@ -73,6 +80,7 @@ Interval at which currdump runs. This allows to set an interval at which the vol
 Sets the file write mode. Use `w` to write a new file each dump. Use `a` to append each dump to the end of file when a new timestamp is generated.
 
 ### `mode`
+
 ~~~
   enumeration {POLAR=1, RECT=0} mode;
 ~~~

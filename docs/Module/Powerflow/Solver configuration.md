@@ -22,6 +22,7 @@ The main Newton-Raphson (NR) powerflow solver can be matched with a secondary ma
 The most basic method saves each observed solution for future use.  Any new problem is compared to previous problems using a distance metric, and the solution to the closest problem is used if the distance metric is less than the `maximum_metric`.  If no solution is found, the new solution is saved for future use.
 
 ## maximum_metric
+
 ~~~
   maximum_metric <real>
 ~~~
@@ -29,6 +30,7 @@ The most basic method saves each observed solution for future use.  Any new prob
 The `maximum_metric` parameter control how "close" the new problem must be to one of the existing known solutions before it requests a new solution.
 
 ## method
+
 ~~~
   method [none|basic]
 ~~~
@@ -36,6 +38,7 @@ The `maximum_metric` parameter control how "close" the new problem must be to on
 The `method` parameter controls which machine learning method is applied. The current valid values are `none` to disable the machine learning solver, and `basic` to enable the simple solution copying method.
 
 ## busdump
+
 ~~~
   busdump <filename>
 ~~~
@@ -43,6 +46,7 @@ The `method` parameter controls which machine learning method is applied. The cu
 The `busdump` parameter sets the bus dump filename when `on_dump` is enabled.
 
 ## branchdump
+
 ~~~
   branchdump <filename>
 ~~~
@@ -50,6 +54,7 @@ The `busdump` parameter sets the bus dump filename when `on_dump` is enabled.
 The `branchdump` parameter sets the branch dump filename when `on_dump` is enabled.
 
 ## on_dump
+
 ~~~
   on_dump <event-handler>
 ~~~
@@ -57,6 +62,7 @@ The `branchdump` parameter sets the branch dump filename when `on_dump` is enabl
 The `on_dump` parameter enables external calls when a problem is presented to the formal solver.  The bus and branch dumps are performed before the `on_dump` command is executed.
 
 ## logfile
+
 ~~~
   logfile <filename>
 ~~~
@@ -64,6 +70,7 @@ The `on_dump` parameter enables external calls when a problem is presented to th
 The `logfile` parameter sets the name of the file that contains the ML solver log.  By default this is `/usr/local/var/gridlabd/solver_ml.log`.
 
 ## loglevel
+
 ~~~
   loglevel <integer>
 ~~~
@@ -71,6 +78,7 @@ The `logfile` parameter sets the name of the file that contains the ML solver lo
 The `loglevel` parameter sets the level of log message recorded in the log.  This value can range from 0 to 9, with 0 being the least logging and 9 the most logging.
 
 ## import_path
+
 ~~~
   import_path <path>
 ~~~
@@ -78,6 +86,7 @@ The `loglevel` parameter sets the level of log message recorded in the log.  Thi
 Add `path` to the module import search path.
 
 ## import
+
 ~~~
   import <module>
 ~~~
@@ -85,6 +94,7 @@ Add `path` to the module import search path.
 Loads `module`.  If loading a Python module, use the syntax `import python:filename`.
 
 ## on_dump
+
 ~~~
   on_dump <command>
 ~~~

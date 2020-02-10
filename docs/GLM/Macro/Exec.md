@@ -1,9 +1,9 @@
-[[/Global/Exec]] - Execute macro
+[[/Global/Exec]] -- Execute macro
 
 # Synopsis
 
 ~~~
-  #exec <command>
+#exec <command>
 ~~~
 
 # Description

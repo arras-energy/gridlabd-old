@@ -218,6 +218,7 @@ object inverter {
 ## Properties
 
 ### `battery_soc[pu]`
+
 ~~~
   double battery_soc[pu];
 ~~~
@@ -225,6 +226,7 @@ object inverter {
 FOUR QUADRANT MODEL: The state of charge of an attached battery
 
 ### `c_0`
+
 ~~~
   double c_0;
 ~~~
@@ -232,6 +234,7 @@ FOUR QUADRANT MODEL: The state of charge of an attached battery
 MULTIPOINT EFFICIENCY MODEL: the first coefficient in the efficienty curve
 
 ### `c_1`
+
 ~~~
   double c_1;
 ~~~
@@ -239,6 +242,7 @@ MULTIPOINT EFFICIENCY MODEL: the first coefficient in the efficienty curve
 MULTIPOINT EFFICIENCY MODEL: the second coefficient in the efficienty curve
 
 ### `c_2`
+
 ~~~
   double c_2;
 ~~~
@@ -246,6 +250,7 @@ MULTIPOINT EFFICIENCY MODEL: the second coefficient in the efficienty curve
 MULTIPOINT EFFICIENCY MODEL: the third coefficient in the efficienty curve
 
 ### `c_3`
+
 ~~~
   double c_3;
 ~~~
@@ -253,6 +258,7 @@ MULTIPOINT EFFICIENCY MODEL: the third coefficient in the efficienty curve
 MULTIPOINT EFFICIENCY MODEL: the fourth coefficient in the efficienty curve
 
 ### `charge_lockout_time[s]`
+
 ~~~
   double charge_lockout_time[s];
 ~~~
@@ -260,6 +266,7 @@ MULTIPOINT EFFICIENCY MODEL: the fourth coefficient in the efficienty curve
 FOUR QUADRANT MODEL: Lockout time when a charging operation occurs before another LOAD_FOLLOWING dispatch operation can occur
 
 ### `charge_off_threshold[W]`
+
 ~~~
   double charge_off_threshold[W];
 ~~~
@@ -267,6 +274,7 @@ FOUR QUADRANT MODEL: Lockout time when a charging operation occurs before anothe
 FOUR QUADRANT MODEL: power level at which the inverter should cease charging the battery in LOAD_FOLLOWING
 
 ### `charge_on_threshold[W]`
+
 ~~~
   double charge_on_threshold[W];
 ~~~
@@ -274,6 +282,7 @@ FOUR QUADRANT MODEL: power level at which the inverter should cease charging the
 FOUR QUADRANT MODEL: power level at which the inverter should try charging the battery in LOAD_FOLLOWING
 
 ### `charge_threshold[W]`
+
 ~~~
   double charge_threshold[W];
 ~~~
@@ -281,6 +290,7 @@ FOUR QUADRANT MODEL: power level at which the inverter should try charging the b
 FOUR QUADRANT MODEL: Level at which all inverters in the group will begin charging attached batteries. Regulated minimum load level.
 
 ### `curr_VA_out_A[VA];complex`
+
 ~~~
   AC power on A phase in three-phase system curr_VA_out_A[VA];complex;
 ~~~
@@ -288,6 +298,7 @@ FOUR QUADRANT MODEL: Level at which all inverters in the group will begin chargi
 240-V connection on a triplex system
 
 ### `curr_VA_out_B[VA]`
+
 ~~~
   complex curr_VA_out_B[VA];
 ~~~
@@ -295,6 +306,7 @@ FOUR QUADRANT MODEL: Level at which all inverters in the group will begin chargi
 AC power on B phase in three-phase system
 
 ### `curr_VA_out_C[VA]`
+
 ~~~
   complex curr_VA_out_C[VA];
 ~~~
@@ -302,6 +314,7 @@ AC power on B phase in three-phase system
 AC power on C phase in three-phase system
 
 ### `delay_time[s]`
+
 ~~~
   double delay_time[s];
 ~~~
@@ -309,6 +322,7 @@ AC power on C phase in three-phase system
 TODO
 
 ### `delta_epA`
+
 ~~~
   double delta_epA;
 ~~~
@@ -316,6 +330,7 @@ TODO
 DELTAMODE: The change in real current error for phase A or triplex phase.
 
 ### `delta_epB`
+
 ~~~
   double delta_epB;
 ~~~
@@ -323,6 +338,7 @@ DELTAMODE: The change in real current error for phase A or triplex phase.
 DELTAMODE: The change in real current error for phase B.
 
 ### `delta_epC`
+
 ~~~
   double delta_epC;
 ~~~
@@ -330,6 +346,7 @@ DELTAMODE: The change in real current error for phase B.
 DELTAMODE: The change in real current error for phase C.
 
 ### `delta_eqA`
+
 ~~~
   double delta_eqA;
 ~~~
@@ -337,6 +354,7 @@ DELTAMODE: The change in real current error for phase C.
 DELTAMODE: The change in reactive current error for phase A or triplex phase.
 
 ### `delta_eqB`
+
 ~~~
   double delta_eqB;
 ~~~
@@ -344,6 +362,7 @@ DELTAMODE: The change in reactive current error for phase A or triplex phase.
 DELTAMODE: The change in reactive current error for phase B.
 
 ### `delta_eqC`
+
 ~~~
   double delta_eqC;
 ~~~
@@ -351,6 +370,7 @@ DELTAMODE: The change in reactive current error for phase B.
 DELTAMODE: The change in reactive current error for phase C.
 
 ### `delta_mdA`
+
 ~~~
   double delta_mdA;
 ~~~
@@ -358,6 +378,7 @@ DELTAMODE: The change in reactive current error for phase C.
 DELTAMODE: The change in d-axis current modulation for phase A or triplex phase.
 
 ### `delta_mdB`
+
 ~~~
   double delta_mdB;
 ~~~
@@ -365,6 +386,7 @@ DELTAMODE: The change in d-axis current modulation for phase A or triplex phase.
 DELTAMODE: The change in d-axis current modulation for phase B.
 
 ### `delta_mdC`
+
 ~~~
   double delta_mdC;
 ~~~
@@ -372,6 +394,7 @@ DELTAMODE: The change in d-axis current modulation for phase B.
 DELTAMODE: The change in d-axis current modulation for phase C.
 
 ### `delta_mqA`
+
 ~~~
   double delta_mqA;
 ~~~
@@ -379,6 +402,7 @@ DELTAMODE: The change in d-axis current modulation for phase C.
 DELTAMODE: The change in q-axis current modulation for phase A or triplex phase.
 
 ### `delta_mqB`
+
 ~~~
   double delta_mqB;
 ~~~
@@ -386,6 +410,7 @@ DELTAMODE: The change in q-axis current modulation for phase A or triplex phase.
 DELTAMODE: The change in q-axis current modulation for phase B.
 
 ### `delta_mqC`
+
 ~~~
   double delta_mqC;
 ~~~
@@ -393,6 +418,7 @@ DELTAMODE: The change in q-axis current modulation for phase B.
 DELTAMODE: The change in q-axis current modulation for phase C.
 
 ### `disable_volt_var_if_no_input_power`
+
 ~~~
   bool disable_volt_var_if_no_input_power;
 ~~~
@@ -400,6 +426,7 @@ DELTAMODE: The change in q-axis current modulation for phase C.
 TODO
 
 ### `discharge_lockout_time[s]`
+
 ~~~
   double discharge_lockout_time[s];
 ~~~
@@ -407,6 +434,7 @@ TODO
 FOUR QUADRANT MODEL: Lockout time when a discharging operation occurs before another LOAD_FOLLOWING dispatch operation can occur
 
 ### `discharge_off_threshold[W]`
+
 ~~~
   double discharge_off_threshold[W];
 ~~~
@@ -414,6 +442,7 @@ FOUR QUADRANT MODEL: Lockout time when a discharging operation occurs before ano
 FOUR QUADRANT MODEL: power level at which the inverter should cease discharging the battery in LOAD_FOLLOWING
 
 ### `discharge_on_threshold[W]`
+
 ~~~
   double discharge_on_threshold[W];
 ~~~
@@ -421,6 +450,7 @@ FOUR QUADRANT MODEL: power level at which the inverter should cease discharging 
 FOUR QUADRANT MODEL: power level at which the inverter should try discharging the battery in LOAD_FOLLOWING
 
 ### `discharge_threshold[W]`
+
 ~~~
   double discharge_threshold[W];
 ~~~
@@ -429,6 +459,7 @@ FOUR QUADRANT MODEL: Level at which all inverters in the group will begin discha
 
 double ;
 ### `dynamic_model_mode`
+
 ~~~
   enumeration {PI=1, PID=0} dynamic_model_mode;
 ~~~
@@ -436,6 +467,7 @@ double ;
 DELTAMODE: Underlying model to use for deltamode control
 
 ### `enable_1547_checks`
+
 ~~~
   bool enable_1547_checks;
 ~~~
@@ -443,6 +475,7 @@ DELTAMODE: Underlying model to use for deltamode control
 DELTAMODE: Enable IEEE 1547-2003 disconnect checking
 
 ### `enable_ramp_rates_reactive`
+
 ~~~
   bool enable_ramp_rates_reactive;
 ~~~
@@ -450,6 +483,7 @@ DELTAMODE: Enable IEEE 1547-2003 disconnect checking
 DELTAMODE: Boolean used to indicate whether inverter ramp rate is enforced or not
 
 ### `enable_ramp_rates_real`
+
 ~~~
   bool enable_ramp_rates_real;
 ~~~
@@ -457,6 +491,7 @@ DELTAMODE: Boolean used to indicate whether inverter ramp rate is enforced or no
 DELTAMODE: Boolean used to indicate whether inverter ramp rate is enforced or not
 
 ### `epA`
+
 ~~~
   double epA;
 ~~~
@@ -464,6 +499,7 @@ DELTAMODE: Boolean used to indicate whether inverter ramp rate is enforced or no
 DELTAMODE: The real current error for phase A or triplex phase.
 
 ### `epB`
+
 ~~~
   double epB;
 ~~~
@@ -471,6 +507,7 @@ DELTAMODE: The real current error for phase A or triplex phase.
 DELTAMODE: The real current error for phase B.
 
 ### `epC`
+
 ~~~
   double epC;
 ~~~
@@ -478,6 +515,7 @@ DELTAMODE: The real current error for phase B.
 DELTAMODE: The real current error for phase C.
 
 ### `eqA`
+
 ~~~
   double eqA;
 ~~~
@@ -485,6 +523,7 @@ DELTAMODE: The real current error for phase C.
 DELTAMODE: The reactive current error for phase A or triplex phase.
 
 ### `eqB`
+
 ~~~
   double eqB;
 ~~~
@@ -492,6 +531,7 @@ DELTAMODE: The reactive current error for phase A or triplex phase.
 DELTAMODE: The reactive current error for phase B.
 
 ### `eqC`
+
 ~~~
   double eqC;
 ~~~
@@ -499,6 +539,7 @@ DELTAMODE: The reactive current error for phase B.
 DELTAMODE: The reactive current error for phase C.
 
 ### `excess_input_power[W]`
+
 ~~~
   double excess_input_power[W];
 ~~~
@@ -506,6 +547,7 @@ DELTAMODE: The reactive current error for phase C.
 FOUR QUADRANT MODEL: Excess power at the input of the inverter that is otherwise just lost, or could be shunted to a battery
 
 ### `four_quadrant_control_mode`
+
 ~~~
   enumeration {VOLTAGE_SOURCE=9, GROUP_LOAD_FOLLOWING=7, LOAD_FOLLOWING=5, VOLT_VAR_FREQ_PWR=8, VOLT_VAR=4, CONSTANT_PF=2, CONSTANT_PQ=1, NONE=0} four_quadrant_control_mode;
 ~~~
@@ -513,6 +555,7 @@ FOUR QUADRANT MODEL: Excess power at the input of the inverter that is otherwise
 FOUR QUADRANT MODEL: Activates various control modes
 
 ### `freq_pwr_sched`
+
 ~~~
   char1024 freq_pwr_sched;
 ~~~
@@ -520,6 +563,7 @@ FOUR QUADRANT MODEL: Activates various control modes
 TODO
 
 ### `generator_mode;enumeration {SUPPLY_DRIVEN=5, CONSTANT_PF=4, CONSTANT_PQ=2, CONSTANT_V=1, UNKNOWN=0}`
+
 ~~~
   LEGACY MODEL: Selects generator control mode when using legacy model generator_mode;enumeration {SUPPLY_DRIVEN=5, CONSTANT_PF=4, CONSTANT_PQ=2, CONSTANT_V=1, UNKNOWN=0};
 ~~~
@@ -527,6 +571,7 @@ TODO
 in non-legacy models, this should be SUPPLY_DRIVEN.
 
 ### `generator_status`
+
 ~~~
   enumeration {ONLINE=2, OFFLINE=1} generator_status;
 ~~~
@@ -534,6 +579,7 @@ in non-legacy models, this should be SUPPLY_DRIVEN.
 describes whether the generator is online or offline
 
 ### `group_max_charge_rate[W]`
+
 ~~~
   double group_max_charge_rate[W];
 ~~~
@@ -541,6 +587,7 @@ describes whether the generator is online or offline
 FOUR QUADRANT MODEL: Sum of the charge rates of the batteries involved in the group load-following.
 
 ### `group_max_discharge_rate[W]`
+
 ~~~
   double group_max_discharge_rate[W];
 ~~~
@@ -548,6 +595,7 @@ FOUR QUADRANT MODEL: Sum of the charge rates of the batteries involved in the gr
 FOUR QUADRANT MODEL: Sum of the discharge rates of the batteries involved in the group load-following.
 
 ### `group_rated_power[W]`
+
 ~~~
   double group_rated_power[W];
 ~~~
@@ -555,6 +603,7 @@ FOUR QUADRANT MODEL: Sum of the discharge rates of the batteries involved in the
 FOUR QUADRANT MODEL: Sum of the inverter power ratings of the inverters involved in the group power-factor regulation.
 
 ### `I_In[A]`
+
 ~~~
   complex I_In[A];
 ~~~
@@ -562,6 +611,7 @@ FOUR QUADRANT MODEL: Sum of the inverter power ratings of the inverters involved
 DC current
 
 ### `IdqA`
+
 ~~~
   complex IdqA;
 ~~~
@@ -569,6 +619,7 @@ DC current
 DELTAMODE: The dq-axis current for phase A or triplex phase.
 
 ### `IdqB`
+
 ~~~
   complex IdqB;
 ~~~
@@ -576,6 +627,7 @@ DELTAMODE: The dq-axis current for phase A or triplex phase.
 DELTAMODE: The dq-axis current for phase B.
 
 ### `IdqC`
+
 ~~~
   complex IdqC;
 ~~~
@@ -583,6 +635,7 @@ DELTAMODE: The dq-axis current for phase B.
 DELTAMODE: The dq-axis current for phase C.
 
 ### `IEEE_1547_trip_method`
+
 ~~~
   enumeration {OVER_VOLTAGE_HIGH=9, OVER_VOLTAGE_LOW=8, UNDER_VOLTAGE_HIGH=7, UNDER_VOLTAGE_MID=6, UNDER_VOLTAGE_LOW=5, UNDER_FREQUENCY_LOW=4, UNDER_FREQUENCY_HIGH=3, OVER_FREQUENCY_LOW=2, OVER_FREQUENCY_HIGH=1, NONE=0} IEEE_1547_trip_method;
 ~~~
@@ -590,6 +643,7 @@ DELTAMODE: The dq-axis current for phase C.
 High over-voltage level trip
 
 ### `IEEE_1547_version`
+
 ~~~
   enumeration {IEEE1547A=2, IEEE1547=1, NONE=0} IEEE_1547_version;
 ~~~
@@ -597,6 +651,7 @@ High over-voltage level trip
 DELTAMODE: Version of IEEE 1547 to use to populate defaults
 
 ### `inverter_1547_status`
+
 ~~~
   bool inverter_1547_status;
 ~~~
@@ -604,6 +659,7 @@ DELTAMODE: Version of IEEE 1547 to use to populate defaults
 DELTAMODE: Indicator if the inverter is curtailed due to a 1547 violation or not
 
 ### `inverter_convergence_criterion`
+
 ~~~
   double inverter_convergence_criterion;
 ~~~
@@ -611,6 +667,7 @@ DELTAMODE: Indicator if the inverter is curtailed due to a 1547 violation or not
 The maximum change in error threshold for exitting deltamode.
 
 ### `inverter_droop_fp`
+
 ~~~
   bool inverter_droop_fp;
 ~~~
@@ -618,6 +675,7 @@ The maximum change in error threshold for exitting deltamode.
 DELTAMODE: Boolean used to indicate whether inverter f/p droop is included or not
 
 ### `inverter_droop_vq`
+
 ~~~
   bool inverter_droop_vq;
 ~~~
@@ -625,6 +683,7 @@ DELTAMODE: Boolean used to indicate whether inverter f/p droop is included or no
 DELTAMODE: Boolean used to indicate whether inverter q/v droop is included or not
 
 ### `inverter_efficiency`
+
 ~~~
   double inverter_efficiency;
 ~~~
@@ -632,6 +691,7 @@ DELTAMODE: Boolean used to indicate whether inverter q/v droop is included or no
 FOUR QUADRANT MODEL: The efficiency of the inverter
 
 ### `inverter_manufacturer`
+
 ~~~
   enumeration {XANTREX=3, SMA=2, FRONIUS=1, NONE=0} inverter_manufacturer;
 ~~~
@@ -639,6 +699,7 @@ FOUR QUADRANT MODEL: The efficiency of the inverter
 MULTIPOINT EFFICIENCY MODEL: the manufacturer of the inverter to setup up pre-existing efficiency curves
 
 ### `inverter_type;enumeration {FOUR_QUADRANT=4, PWM=3, TWELVE_PULSE=2, SIX_PULSE=1, TWO_PULSE=0}`
+
 ~~~
   LEGACY MODEL: Sets efficiencies and other parameters inverter_type;enumeration {FOUR_QUADRANT=4, PWM=3, TWELVE_PULSE=2, SIX_PULSE=1, TWO_PULSE=0};
 ~~~
@@ -646,6 +707,7 @@ MULTIPOINT EFFICIENCY MODEL: the manufacturer of the inverter to setup up pre-ex
 if using four_quadrant_control_mode, set this to FOUR_QUADRANT
 
 ### `islanded_state`
+
 ~~~
   bool islanded_state;
 ~~~
@@ -653,6 +715,7 @@ if using four_quadrant_control_mode, set this to FOUR_QUADRANT
 FOUR QUADRANT MODEL: Boolean used to let control modes to act under island conditions
 
 ### `kdd`
+
 ~~~
   double kdd;
 ~~~
@@ -660,6 +723,7 @@ FOUR QUADRANT MODEL: Boolean used to let control modes to act under island condi
 DELTAMODE: The d-axis differentiator gain for the current modulation PID controller
 
 ### `kdq`
+
 ~~~
   double kdq;
 ~~~
@@ -667,6 +731,7 @@ DELTAMODE: The d-axis differentiator gain for the current modulation PID control
 DELTAMODE: The q-axis differentiator gain for the current modulation PID controller
 
 ### `ki_Vterminal`
+
 ~~~
   double ki_Vterminal;
 ~~~
@@ -674,6 +739,7 @@ DELTAMODE: The q-axis differentiator gain for the current modulation PID control
 DELTAMODE: The integrator gain for the VSI terminal voltage modulation
 
 ### `kid`
+
 ~~~
   double kid;
 ~~~
@@ -681,6 +747,7 @@ DELTAMODE: The integrator gain for the VSI terminal voltage modulation
 DELTAMODE: The d-axis proportional gain for the current modulation PI controller.
 
 ### `kiq`
+
 ~~~
   double kiq;
 ~~~
@@ -688,6 +755,7 @@ DELTAMODE: The d-axis proportional gain for the current modulation PI controller
 DELTAMODE: The q-axis proportional gain for the current modulation PI controller.
 
 ### `kp_Vterminal`
+
 ~~~
   double kp_Vterminal;
 ~~~
@@ -695,6 +763,7 @@ DELTAMODE: The q-axis proportional gain for the current modulation PI controller
 DELTAMODE: The proportional gain for the VSI terminal voltage modulation
 
 ### `kpd`
+
 ~~~
   double kpd;
 ~~~
@@ -702,6 +771,7 @@ DELTAMODE: The proportional gain for the VSI terminal voltage modulation
 DELTAMODE: The d-axis integration gain for the current modulation PI controller.
 
 ### `kpq`
+
 ~~~
   double kpq;
 ~~~
@@ -709,6 +779,7 @@ DELTAMODE: The d-axis integration gain for the current modulation PI controller.
 DELTAMODE: The q-axis integration gain for the current modulation PI controller.
 
 ### `max_charge_rate[W]`
+
 ~~~
   double max_charge_rate[W];
 ~~~
@@ -716,6 +787,7 @@ DELTAMODE: The q-axis integration gain for the current modulation PI controller.
 FOUR QUADRANT MODEL: maximum rate the battery can be charged in LOAD_FOLLOWING
 
 ### `max_discharge_rate[W]`
+
 ~~~
   double max_discharge_rate[W];
 ~~~
@@ -723,6 +795,7 @@ FOUR QUADRANT MODEL: maximum rate the battery can be charged in LOAD_FOLLOWING
 FOUR QUADRANT MODEL: maximum rate the battery can be discharged in LOAD_FOLLOWING
 
 ### `max_pwr_slew_rate[W/s]`
+
 ~~~
   double max_pwr_slew_rate[W/s];
 ~~~
@@ -730,6 +803,7 @@ FOUR QUADRANT MODEL: maximum rate the battery can be discharged in LOAD_FOLLOWIN
 TODO
 
 ### `max_ramp_down_reactive[VAr/s]`
+
 ~~~
   double max_ramp_down_reactive[VAr/s];
 ~~~
@@ -737,6 +811,7 @@ TODO
 DELTAMODE: The reactive power ramp down rate limit
 
 ### `max_ramp_down_real[W/s]`
+
 ~~~
   double max_ramp_down_real[W/s];
 ~~~
@@ -744,6 +819,7 @@ DELTAMODE: The reactive power ramp down rate limit
 DELTAMODE: The real power ramp down rate limit
 
 ### `max_ramp_up_reactive[VAr/s]`
+
 ~~~
   double max_ramp_up_reactive[VAr/s];
 ~~~
@@ -751,6 +827,7 @@ DELTAMODE: The real power ramp down rate limit
 DELTAMODE: The reactive power ramp up rate limit
 
 ### `max_ramp_up_real[W/s]`
+
 ~~~
   double max_ramp_up_real[W/s];
 ~~~
@@ -758,6 +835,7 @@ DELTAMODE: The reactive power ramp up rate limit
 DELTAMODE: The real power ramp up rate limit
 
 ### `maximum_dc_power`
+
 ~~~
   double maximum_dc_power;
 ~~~
@@ -765,6 +843,7 @@ DELTAMODE: The real power ramp up rate limit
 MULTIPOINT EFFICIENCY MODEL: the maximum dc power point for the efficiency curve
 
 ### `maximum_dc_voltage`
+
 ~~~
   double maximum_dc_voltage;
 ~~~
@@ -772,6 +851,7 @@ MULTIPOINT EFFICIENCY MODEL: the maximum dc power point for the efficiency curve
 MULTIPOINT EFFICIENCY MODEL: the maximum dc voltage point for the efficiency curve
 
 ### `mdA`
+
 ~~~
   double mdA;
 ~~~
@@ -779,6 +859,7 @@ MULTIPOINT EFFICIENCY MODEL: the maximum dc voltage point for the efficiency cur
 DELTAMODE: The d-axis current modulation for phase A or triplex phase.
 
 ### `mdB`
+
 ~~~
   double mdB;
 ~~~
@@ -786,6 +867,7 @@ DELTAMODE: The d-axis current modulation for phase A or triplex phase.
 DELTAMODE: The d-axis current modulation for phase B.
 
 ### `mdC`
+
 ~~~
   double mdC;
 ~~~
@@ -793,6 +875,7 @@ DELTAMODE: The d-axis current modulation for phase B.
 DELTAMODE: The d-axis current modulation for phase C.
 
 ### `minimum_dc_power`
+
 ~~~
   double minimum_dc_power;
 ~~~
@@ -800,6 +883,7 @@ DELTAMODE: The d-axis current modulation for phase C.
 MULTIPOINT EFFICIENCY MODEL: the minimum dc power point for the efficiency curve
 
 ### `mqA`
+
 ~~~
   double mqA;
 ~~~
@@ -807,6 +891,7 @@ MULTIPOINT EFFICIENCY MODEL: the minimum dc power point for the efficiency curve
 DELTAMODE: The q-axis current modulation for phase A or triplex phase.
 
 ### `mqB`
+
 ~~~
   double mqB;
 ~~~
@@ -814,6 +899,7 @@ DELTAMODE: The q-axis current modulation for phase A or triplex phase.
 DELTAMODE: The q-axis current modulation for phase B.
 
 ### `mqC`
+
 ~~~
   double mqC;
 ~~~
@@ -821,6 +907,7 @@ DELTAMODE: The q-axis current modulation for phase B.
 DELTAMODE: The q-axis current modulation for phase C.
 
 ### `nominal_frequency[Hz]`
+
 ~~~
   double nominal_frequency[Hz];
 ~~~
@@ -828,6 +915,7 @@ DELTAMODE: The q-axis current modulation for phase C.
 TODO
 
 ### `over_freq_high_cutout[Hz]`
+
 ~~~
   double over_freq_high_cutout[Hz];
 ~~~
@@ -835,6 +923,7 @@ TODO
 DELTAMODE: OF2 set point for IEEE 1547a
 
 ### `over_freq_high_disconenct_time[s]`
+
 ~~~
   double over_freq_high_disconenct_time[s];
 ~~~
@@ -842,6 +931,7 @@ DELTAMODE: OF2 set point for IEEE 1547a
 DELTAMODE: OF2 clearing time for IEEE1547a
 
 ### `over_freq_low_cutout[Hz]`
+
 ~~~
   double over_freq_low_cutout[Hz];
 ~~~
@@ -849,6 +939,7 @@ DELTAMODE: OF2 clearing time for IEEE1547a
 DELTAMODE: OF1 set point for IEEE 1547a
 
 ### `over_freq_low_disconenct_time[s]`
+
 ~~~
   double over_freq_low_disconenct_time[s];
 ~~~
@@ -856,6 +947,7 @@ DELTAMODE: OF1 set point for IEEE 1547a
 DELTAMODE: OF1 clearing time for IEEE 1547a
 
 ### `over_voltage_high_cutout[pu]`
+
 ~~~
   double over_voltage_high_cutout[pu];
 ~~~
@@ -863,6 +955,7 @@ DELTAMODE: OF1 clearing time for IEEE 1547a
 High voltage value for overvoltage
 
 ### `over_voltage_high_disconnect_time[s]`
+
 ~~~
   double over_voltage_high_disconnect_time[s];
 ~~~
@@ -870,6 +963,7 @@ High voltage value for overvoltage
 Highest voltage clearing time for overvoltage
 
 ### `over_voltage_low_cutout[pu]`
+
 ~~~
   double over_voltage_low_cutout[pu];
 ~~~
@@ -877,6 +971,7 @@ Highest voltage clearing time for overvoltage
 Lowest voltage value for overvoltage
 
 ### `over_voltage_low_disconnect_time[s]`
+
 ~~~
   double over_voltage_low_disconnect_time[s];
 ~~~
@@ -884,6 +979,7 @@ Lowest voltage value for overvoltage
 Lowest voltage clearing time for overvoltage
 
 ### `P_Out[VA]`
+
 ~~~
   double P_Out[VA];
 ~~~
@@ -891,6 +987,7 @@ Lowest voltage clearing time for overvoltage
 FOUR QUADRANT MODEL: Scheduled real power out in CONSTANT_PQ control mode
 
 ### `pf_reg`
+
 ~~~
   enumeration {EXCLUDED=2, INCLUDED_ALT=3, INCLUDED=1} pf_reg;
 ~~~
@@ -898,6 +995,7 @@ FOUR QUADRANT MODEL: Scheduled real power out in CONSTANT_PQ control mode
 Activate (or not) power factor regulation in four_quadrant_control_mode
 
 ### `pf_reg_activate`
+
 ~~~
   double pf_reg_activate;
 ~~~
@@ -905,6 +1003,7 @@ Activate (or not) power factor regulation in four_quadrant_control_mode
 FOUR QUADRANT MODEL: Lowest acceptable power-factor level below which power-factor regulation will activate.
 
 ### `pf_reg_activate_lockout_time[s]`
+
 ~~~
   double pf_reg_activate_lockout_time[s];
 ~~~
@@ -912,6 +1011,7 @@ FOUR QUADRANT MODEL: Lowest acceptable power-factor level below which power-fact
 FOUR QUADRANT MODEL: Mandatory pause between the deactivation of power-factor regulation and it reactivation
 
 ### `pf_reg_deactivate`
+
 ~~~
   double pf_reg_deactivate;
 ~~~
@@ -919,6 +1019,7 @@ FOUR QUADRANT MODEL: Mandatory pause between the deactivation of power-factor re
 FOUR QUADRANT MODEL: Lowest acceptable power-factor above which no power-factor regulation is needed.
 
 ### `pf_reg_high`
+
 ~~~
   double pf_reg_high;
 ~~~
@@ -926,6 +1027,7 @@ FOUR QUADRANT MODEL: Lowest acceptable power-factor above which no power-factor 
 FOUR QUADRANT MODEL: Upper limit for power-factor - if exceeds, go full reverse reactive
 
 ### `pf_reg_low`
+
 ~~~
   double pf_reg_low;
 ~~~
@@ -933,6 +1035,7 @@ FOUR QUADRANT MODEL: Upper limit for power-factor - if exceeds, go full reverse 
 FOUR QUADRANT MODEL: Lower limit for power-factor - if exceeds, stop regulating - pf_target_var is below this
 
 ### `pf_target`
+
 ~~~
   double pf_target;
 ~~~
@@ -940,6 +1043,7 @@ FOUR QUADRANT MODEL: Lower limit for power-factor - if exceeds, stop regulating 
 FOUR QUADRANT MODEL: Desired power-factor to maintain (signed) positive is inductive
 
 ### `phaseA_I_Out[V];complex`
+
 ~~~
   AC current on A phase in three-phase system phaseA_I_Out[V];complex;
 ~~~
@@ -947,6 +1051,7 @@ FOUR QUADRANT MODEL: Desired power-factor to maintain (signed) positive is induc
 240-V connection on a triplex system
 
 ### `phaseA_V_Out[V];complex`
+
 ~~~
   AC voltage on A phase in three-phase system phaseA_V_Out[V];complex;
 ~~~
@@ -954,6 +1059,7 @@ FOUR QUADRANT MODEL: Desired power-factor to maintain (signed) positive is induc
 240-V connection on a triplex system
 
 ### `phaseB_I_Out[V]`
+
 ~~~
   complex phaseB_I_Out[V];
 ~~~
@@ -961,6 +1067,7 @@ FOUR QUADRANT MODEL: Desired power-factor to maintain (signed) positive is induc
 AC current on B phase in three-phase system
 
 ### `phaseB_V_Out[V]`
+
 ~~~
   complex phaseB_V_Out[V];
 ~~~
@@ -968,6 +1075,7 @@ AC current on B phase in three-phase system
 AC voltage on B phase in three-phase system
 
 ### `phaseC_I_Out[V]`
+
 ~~~
   complex phaseC_I_Out[V];
 ~~~
@@ -975,6 +1083,7 @@ AC voltage on B phase in three-phase system
 AC current on C phase in three-phase system
 
 ### `phaseC_V_Out[V]`
+
 ~~~
   complex phaseC_V_Out[V];
 ~~~
@@ -982,6 +1091,7 @@ AC current on C phase in three-phase system
 AC voltage on C phase in three-phase system
 
 ### `phases`
+
 ~~~
   set {S=112, N=8, C=4, B=2, A=1} phases;
 ~~~
@@ -989,6 +1099,7 @@ AC voltage on C phase in three-phase system
 The phases the inverter is attached to
 
 ### `power_A[VA];complex`
+
 ~~~
   AC power on A phase in three-phase system power_A[VA];complex;
 ~~~
@@ -996,6 +1107,7 @@ The phases the inverter is attached to
 240-V connection on a triplex system
 
 ### `power_B[VA]`
+
 ~~~
   complex power_B[VA];
 ~~~
@@ -1003,6 +1115,7 @@ The phases the inverter is attached to
 AC power on B phase in three-phase system
 
 ### `power_C[VA]`
+
 ~~~
   complex power_C[VA];
 ~~~
@@ -1010,6 +1123,7 @@ AC power on B phase in three-phase system
 AC power on C phase in three-phase system
 
 ### `power_factor[unit]`
+
 ~~~
   double power_factor[unit];
 ~~~
@@ -1017,6 +1131,7 @@ AC power on C phase in three-phase system
 FOUR QUADRANT MODEL: The power factor used for CONSTANT_PF control mode
 
 ### `power_in[W]`
+
 ~~~
   double power_in[W];
 ~~~
@@ -1024,6 +1139,7 @@ FOUR QUADRANT MODEL: The power factor used for CONSTANT_PF control mode
 LEGACY MODEL: No longer used
 
 ### `Pref`
+
 ~~~
   double Pref;
 ~~~
@@ -1031,6 +1147,7 @@ LEGACY MODEL: No longer used
 DELTAMODE: The real power reference.
 
 ### `prev_VA_out_A[VA];complex`
+
 ~~~
   AC power on A phase in three-phase system prev_VA_out_A[VA];complex;
 ~~~
@@ -1038,6 +1155,7 @@ DELTAMODE: The real power reference.
 240-V connection on a triplex system
 
 ### `prev_VA_out_B[VA]`
+
 ~~~
   complex prev_VA_out_B[VA];
 ~~~
@@ -1045,6 +1163,7 @@ DELTAMODE: The real power reference.
 AC power on B phase in three-phase system
 
 ### `prev_VA_out_C[VA]`
+
 ~~~
   complex prev_VA_out_C[VA];
 ~~~
@@ -1052,6 +1171,7 @@ AC power on B phase in three-phase system
 AC power on C phase in three-phase system
 
 ### `Q1[pu]`
+
 ~~~
   double Q1[pu];
 ~~~
@@ -1059,6 +1179,7 @@ AC power on C phase in three-phase system
 FOUR QUADRANT MODEL: VAR point 1 in volt/var curve. Used in VOLT_VAR control mode.
 
 ### `Q2[pu]`
+
 ~~~
   double Q2[pu];
 ~~~
@@ -1066,6 +1187,7 @@ FOUR QUADRANT MODEL: VAR point 1 in volt/var curve. Used in VOLT_VAR control mod
 FOUR QUADRANT MODEL: VAR point 2 in volt/var curve. Used in VOLT_VAR control mode.
 
 ### `Q3[pu]`
+
 ~~~
   double Q3[pu];
 ~~~
@@ -1073,6 +1195,7 @@ FOUR QUADRANT MODEL: VAR point 2 in volt/var curve. Used in VOLT_VAR control mod
 FOUR QUADRANT MODEL: VAR point 3 in volt/var curve. Used in VOLT_VAR control mode.
 
 ### `Q4[pu]`
+
 ~~~
   double Q4[pu];
 ~~~
@@ -1080,6 +1203,7 @@ FOUR QUADRANT MODEL: VAR point 3 in volt/var curve. Used in VOLT_VAR control mod
 FOUR QUADRANT MODEL: VAR point 4 in volt/var curve. Used in VOLT_VAR control mode.
 
 ### `Q_Out[VAr]`
+
 ~~~
   double Q_Out[VAr];
 ~~~
@@ -1087,6 +1211,7 @@ FOUR QUADRANT MODEL: VAR point 4 in volt/var curve. Used in VOLT_VAR control mod
 FOUR QUADRANT MODEL: Schedule reactive power out in CONSTANT_PQ control mode
 
 ### `Qref`
+
 ~~~
   double Qref;
 ~~~
@@ -1094,6 +1219,7 @@ FOUR QUADRANT MODEL: Schedule reactive power out in CONSTANT_PQ control mode
 DELTAMODE: The reactive power reference.
 
 ### `R_fp`
+
 ~~~
   double R_fp;
 ~~~
@@ -1101,6 +1227,7 @@ DELTAMODE: The reactive power reference.
 DELTAMODE: The droop parameter of the f/p droop
 
 ### `R_vq`
+
 ~~~
   double R_vq;
 ~~~
@@ -1108,6 +1235,7 @@ DELTAMODE: The droop parameter of the f/p droop
 DELTAMODE: The droop parameter of the v/q droop
 
 ### `rated_battery_power[W]`
+
 ~~~
   double rated_battery_power[W];
 ~~~
@@ -1115,6 +1243,7 @@ DELTAMODE: The droop parameter of the v/q droop
 FOUR QUADRANT MODEL: The rated power of battery when battery is attached
 
 ### `rated_power[VA]`
+
 ~~~
   double rated_power[VA];
 ~~~
@@ -1122,6 +1251,7 @@ FOUR QUADRANT MODEL: The rated power of battery when battery is attached
 FOUR QUADRANT MODEL: The rated power of the inverter
 
 ### `reconnect_time[s]`
+
 ~~~
   double reconnect_time[s];
 ~~~
@@ -1129,6 +1259,7 @@ FOUR QUADRANT MODEL: The rated power of the inverter
 DELTAMODE: Time delay after IEEE 1547-2003 violation clears before resuming generation
 
 ### `sense_object`
+
 ~~~
   object sense_object;
 ~~~
@@ -1136,6 +1267,7 @@ DELTAMODE: Time delay after IEEE 1547-2003 violation clears before resuming gene
 FOUR QUADRANT MODEL: name of the object the inverter is trying to mitigate the load on (node/link) in LOAD_FOLLOWING
 
 ### `soc_reserve[pu]`
+
 ~~~
   double soc_reserve[pu];
 ~~~
@@ -1143,6 +1275,7 @@ FOUR QUADRANT MODEL: name of the object the inverter is trying to mitigate the l
 FOUR QUADRANT MODEL: The reserve state of charge of an attached battery for islanding cases
 
 ### `Tfreq_delay`
+
 ~~~
   double Tfreq_delay;
 ~~~
@@ -1150,6 +1283,7 @@ FOUR QUADRANT MODEL: The reserve state of charge of an attached battery for isla
 DELTAMODE: The time constant for delayed frequency seen by the inverter
 
 ### `Tp_delay`
+
 ~~~
   double Tp_delay;
 ~~~
@@ -1157,6 +1291,7 @@ DELTAMODE: The time constant for delayed frequency seen by the inverter
 DELTAMODE: The time constant for delayed real power seen by the VSI droop controller
 
 ### `Tq_delay`
+
 ~~~
   double Tq_delay;
 ~~~
@@ -1164,6 +1299,7 @@ DELTAMODE: The time constant for delayed real power seen by the VSI droop contro
 DELTAMODE: The time constant for delayed reactive power seen by the VSI droop controller
 
 ### `Tvol_delay`
+
 ~~~
   double Tvol_delay;
 ~~~
@@ -1171,6 +1307,7 @@ DELTAMODE: The time constant for delayed reactive power seen by the VSI droop co
 DELTAMODE: The time constant for delayed voltage seen by the inverter
 
 ### `under_freq_high_cutout[Hz]`
+
 ~~~
   double under_freq_high_cutout[Hz];
 ~~~
@@ -1178,6 +1315,7 @@ DELTAMODE: The time constant for delayed voltage seen by the inverter
 DELTAMODE: UF2 set point for IEEE 1547a
 
 ### `under_freq_high_disconenct_time[s]`
+
 ~~~
   double under_freq_high_disconenct_time[s];
 ~~~
@@ -1185,6 +1323,7 @@ DELTAMODE: UF2 set point for IEEE 1547a
 DELTAMODE: UF2 clearing time for IEEE1547a
 
 ### `under_freq_low_cutout[Hz]`
+
 ~~~
   double under_freq_low_cutout[Hz];
 ~~~
@@ -1192,6 +1331,7 @@ DELTAMODE: UF2 clearing time for IEEE1547a
 DELTAMODE: UF1 set point for IEEE 1547a
 
 ### `under_freq_low_disconenct_time[s]`
+
 ~~~
   double under_freq_low_disconenct_time[s];
 ~~~
@@ -1199,6 +1339,7 @@ DELTAMODE: UF1 set point for IEEE 1547a
 DELTAMODE: UF1 clearing time for IEEE 1547a
 
 ### `under_voltage_high_cutout[pu]`
+
 ~~~
   double under_voltage_high_cutout[pu];
 ~~~
@@ -1206,6 +1347,7 @@ DELTAMODE: UF1 clearing time for IEEE 1547a
 High value of low voltage threshold for undervoltage
 
 ### `under_voltage_high_disconnect_time[s]`
+
 ~~~
   double under_voltage_high_disconnect_time[s];
 ~~~
@@ -1213,6 +1355,7 @@ High value of low voltage threshold for undervoltage
 Highest voltage clearing time for undervoltage
 
 ### `under_voltage_low_cutout[pu]`
+
 ~~~
   double under_voltage_low_cutout[pu];
 ~~~
@@ -1220,6 +1363,7 @@ Highest voltage clearing time for undervoltage
 Lowest voltage threshold for undervoltage
 
 ### `under_voltage_low_disconnect_time[s]`
+
 ~~~
   double under_voltage_low_disconnect_time[s];
 ~~~
@@ -1227,6 +1371,7 @@ Lowest voltage threshold for undervoltage
 Lowest voltage clearing time for undervoltage
 
 ### `under_voltage_middle_cutout[pu]`
+
 ~~~
   double under_voltage_middle_cutout[pu];
 ~~~
@@ -1234,6 +1379,7 @@ Lowest voltage clearing time for undervoltage
 Middle-lowest voltage threshold for undervoltage
 
 ### `under_voltage_middle_disconnect_time[s]`
+
 ~~~
   double under_voltage_middle_disconnect_time[s];
 ~~~
@@ -1241,6 +1387,7 @@ Middle-lowest voltage threshold for undervoltage
 Middle-lowest voltage clearing time for undervoltage
 
 ### `use_multipoint_efficiency`
+
 ~~~
   bool use_multipoint_efficiency;
 ~~~
@@ -1248,6 +1395,7 @@ Middle-lowest voltage clearing time for undervoltage
 FOUR QUADRANT MODEL: boolean to used the multipoint efficiency curve for the inverter when solar is attached
 
 ### `V1[pu]`
+
 ~~~
   double V1[pu];
 ~~~
@@ -1255,6 +1403,7 @@ FOUR QUADRANT MODEL: boolean to used the multipoint efficiency curve for the inv
 FOUR QUADRANT MODEL: voltage point 1 in volt/var curve. Used in VOLT_VAR control mode.
 
 ### `V2[pu]`
+
 ~~~
   double V2[pu];
 ~~~
@@ -1262,6 +1411,7 @@ FOUR QUADRANT MODEL: voltage point 1 in volt/var curve. Used in VOLT_VAR control
 FOUR QUADRANT MODEL: voltage point 2 in volt/var curve. Used in VOLT_VAR control mode.
 
 ### `V3[pu]`
+
 ~~~
   double V3[pu];
 ~~~
@@ -1269,6 +1419,7 @@ FOUR QUADRANT MODEL: voltage point 2 in volt/var curve. Used in VOLT_VAR control
 FOUR QUADRANT MODEL: voltage point 3 in volt/var curve. Used in VOLT_VAR control mode.
 
 ### `V4[pu]`
+
 ~~~
   double V4[pu];
 ~~~
@@ -1276,6 +1427,7 @@ FOUR QUADRANT MODEL: voltage point 3 in volt/var curve. Used in VOLT_VAR control
 FOUR QUADRANT MODEL: voltage point 4 in volt/var curve. Used in VOLT_VAR control mode.
 
 ### `V_base[V]`
+
 ~~~
   double V_base[V];
 ~~~
@@ -1283,6 +1435,7 @@ FOUR QUADRANT MODEL: voltage point 4 in volt/var curve. Used in VOLT_VAR control
 FOUR QUADRANT MODEL: The base voltage on the grid side of the inverter. Used in VOLT_VAR control mode.
 
 ### `V_In[V]`
+
 ~~~
   complex V_In[V];
 ~~~
@@ -1290,6 +1443,7 @@ FOUR QUADRANT MODEL: The base voltage on the grid side of the inverter. Used in 
 DC voltage
 
 ### `VA_In[VA]`
+
 ~~~
   complex VA_In[VA];
 ~~~
@@ -1297,6 +1451,7 @@ DC voltage
 DC power
 
 ### `VA_Out[VA]`
+
 ~~~
   complex VA_Out[VA];
 ~~~
@@ -1304,6 +1459,7 @@ DC power
 AC power
 
 ### `Vdc[V]`
+
 ~~~
   double Vdc[V];
 ~~~
@@ -1311,6 +1467,7 @@ AC power
 LEGACY MODEL: DC voltage
 
 ### `volt_var_control_lockout[s]`
+
 ~~~
   double volt_var_control_lockout[s];
 ~~~
@@ -1318,6 +1475,7 @@ LEGACY MODEL: DC voltage
 FOUR QUADRANT QUADRANT MODEL: the lockout time between volt/var actions.
 
 ### `volt_var_sched`
+
 ~~~
   char1024 volt_var_sched;
 ~~~
@@ -1325,6 +1483,7 @@ FOUR QUADRANT QUADRANT MODEL: the lockout time between volt/var actions.
 TODO
 
 ### `VSI_freq`
+
 ~~~
   double VSI_freq;
 ~~~
@@ -1332,6 +1491,7 @@ TODO
 VSI frequency
 
 ### `VSI_mode`
+
 ~~~
   enumeration {VSI_DROOP=1, VSI_ISOCHRONOUS=0} VSI_mode;
 ~~~
@@ -1339,6 +1499,7 @@ VSI frequency
 VSI MODEL: Selects VSI mode for either isochronous or droop one
 
 ### `VSI_Rfilter[pu]`
+
 ~~~
   complex VSI_Rfilter[pu];
 ~~~
@@ -1346,6 +1507,7 @@ VSI MODEL: Selects VSI mode for either isochronous or droop one
 VSI filter resistance (p.u.)
 
 ### `VSI_Xfilter[pu]`
+
 ~~~
   complex VSI_Xfilter[pu];
 ~~~
@@ -1354,6 +1516,7 @@ VSI filter inductance (p.u.)
 
 
 # Example
+
 ~~~
 module generators;
 object inverter {

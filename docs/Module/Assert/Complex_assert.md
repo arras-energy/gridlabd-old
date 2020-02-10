@@ -22,6 +22,7 @@ TODO
 ## Properties
 
 ### `status`
+
 ~~~
   enumeration {ASSERT_NONE, ASSERT_FALSE, ASSERT_TRUE} status;
 ~~~
@@ -29,6 +30,7 @@ TODO
 Conditions for the assert checks
 
 ### `once`
+
 ~~~
   enumeration {ONCE_DONE, ONCE_TRUE, ONCE_FALSE} once;
 ~~~
@@ -36,6 +38,7 @@ Conditions for the assert checks
 Conditions for a single assert check
 
 ### `operation`
+
 ~~~
   enumeration {ANGLE, MAGNITUDE, IMAGINARY, REAL, FULL} operation;
 ~~~
@@ -43,6 +46,7 @@ Conditions for a single assert check
 Complex operation for the comparison
 
 ### `value`
+
 ~~~
   complex value;
 ~~~
@@ -50,6 +54,7 @@ Complex operation for the comparison
 Value to assert
 
 ### `within`
+
 ~~~
   double within;
 ~~~
@@ -57,6 +62,7 @@ Value to assert
 Tolerance for a successful assert
 
 ### `target`
+
 ~~~
   char1024 target;
 ~~~
@@ -77,5 +83,6 @@ Property to perform the assert upon
 ~~~
 
 # See also
+
 * [[/Module/Assert]]
 

@@ -70,6 +70,7 @@ There are two models available. The `LEGACY` model and the `INTERNAL` model.  By
 ## Properties
 
 ### additional_controls
+
 ~~~
 enumeration {LINEAR_TEMPERATURE=1, NONE=0} additional_controls; 
 ~~~
@@ -77,6 +78,7 @@ enumeration {LINEAR_TEMPERATURE=1, NONE=0} additional_controls;
 (LEGACY) In conjunction with `POWER_DRIVEN`, `VOLTAGE_CONTROLLED`, and `POWER_VOLTAGE_HYBRID`, this will activate control set points that adjust with temperature.
 
 ### base_efficiency
+
 ~~~
 double base_efficiency[unit]; 
 ~~~
@@ -84,6 +86,7 @@ double base_efficiency[unit];
 (LEGACY) The efficiency of the battery at rated voltaged and current.
 
 ### battery_capacity
+
 ~~~
 double battery_capacity[Wh]; 
 ~~~
@@ -91,6 +94,7 @@ double battery_capacity[Wh];
 (INTERNAL) The rated battery capacity of the battery.
 
 ### battery_load
+
 ~~~
 double battery_load[W]; 
 ~~~
@@ -98,6 +102,7 @@ double battery_load[W];
 (INTERNAL) The current power output of the battery.
 
 ### battery_state
+
 ~~~
 enumeration {CONFLICTED=5, EMPTY=4, FULL=3, WAITING=0, DISCHARGING=2, CHARGING=1} battery_state; 
 ~~~
@@ -105,6 +110,7 @@ enumeration {CONFLICTED=5, EMPTY=4, FULL=3, WAITING=0, DISCHARGING=2, CHARGING=1
 Describes the current state of the battery
 
 ### battery_type
+
 ~~~
 enumeration {LEAD_ACID=2, LI_ION=1, UNKNOWON=0} battery_type; 
 ~~~
@@ -112,6 +118,7 @@ enumeration {LEAD_ACID=2, LI_ION=1, UNKNOWON=0} battery_type;
 (INTERNAL) The type of the battery. Used to determine the soc vs voltage curve.
 
 ### check_power_low
+
 ~~~
 double check_power_low[W]; 
 ~~~
@@ -119,6 +126,7 @@ double check_power_low[W];
 (LEGACY) High set point of dead band for load following at lower temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
 
 ### check_power_high
+
 ~~~
 double check_power_high[W]; 
 ~~~
@@ -126,6 +134,7 @@ double check_power_high[W];
 (LEGACY) Low set point of dead band for load following at lower temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
 
 ### deadband
+
 ~~~
 double deadband[V]; 
 ~~~
@@ -133,6 +142,7 @@ double deadband[V];
 (LEGACY) Voltage deadband.
 
 ### E_Max
+
 ~~~
 double E_Max[Wh]; 
 ~~~
@@ -140,6 +150,7 @@ double E_Max[Wh];
 (LEGACY) The maximum capacity of the battery.
 
 ### efficiency
+
 ~~~
 double efficiency[unit]; 
 ~~~
@@ -147,6 +158,7 @@ double efficiency[unit];
 (LEGACY) The efficiency of the battery.
 
 ### Energy
+
 ~~~
 double Energy[Wh]; 
 ~~~
@@ -154,6 +166,7 @@ double Energy[Wh];
 (LEGACY) The available capacity of the battery.
 
 ### generator_mode
+
 ~~~
 enumeration {POWER_VOLTAGE_HYBRID=7, VOLTAGE_CONTROLLED=6, POWER_DRIVEN=5, SUPPLY_DRIVEN=4, CONSTANT_PF=3, CONSTANT_PQ=2, CONSTANT_V=1, UNKNOWN=0} generator_mode; 
 ~~~
@@ -161,6 +174,7 @@ enumeration {POWER_VOLTAGE_HYBRID=7, VOLTAGE_CONTROLLED=6, POWER_DRIVEN=5, SUPPL
 (LEGACY) Selects generator control mode when using legacy model; in non-legacy models, this should be `SUPPLY_DRIVEN`.
 
 ### generator_status
+
 ~~~
 enumeration {ONLINE=2, OFFLINE=1} generator_status; 
 ~~~
@@ -168,6 +182,7 @@ enumeration {ONLINE=2, OFFLINE=1} generator_status;
 Describes whether the generator is online or offline.
 
 ### high_temperature
+
 ~~~
 double high_temperature; 
 ~~~
@@ -175,6 +190,7 @@ double high_temperature;
 (LEGACY) High temperature of linear control; defines slope.
 
 ### I_In
+
 ~~~
 complex I_In[A]; 
 ~~~
@@ -182,6 +198,7 @@ complex I_In[A];
 (LEGACY) The current flowing into the battery of the battery.
 
 ### I_Internal
+
 ~~~
 complex I_Internal[A]; 
 ~~~
@@ -189,6 +206,7 @@ complex I_Internal[A];
 (LEGACY) The internal current of the battery.
 
 ### I_Max
+
 ~~~
 complex I_Max[A]; 
 ~~~
@@ -196,6 +214,7 @@ complex I_Max[A];
 (LEGACY) The maximum current output of the battery.
 
 ### I_Out
+
 ~~~
 complex I_Out[A]; 
 ~~~
@@ -203,6 +222,7 @@ complex I_Out[A];
 (LEGACY) The AC current output of the battery.
 
 ### I_Prev
+
 ~~~
 complex I_Prev[A]; 
 ~~~
@@ -210,6 +230,7 @@ complex I_Prev[A];
 (LEGACY) The previous current output of the battery.
 
 ### low_temperature
+
 ~~~
 double low_temperature; 
 ~~~
@@ -217,6 +238,7 @@ double low_temperature;
 (LEGACY) Low temperature of linear control; defines slope.
 
 ### midpoint_temperature
+
 ~~~
 double midpoint_temperature; 
 ~~~
@@ -224,6 +246,7 @@ double midpoint_temperature;
 (LEGACY) Midpoint temperature of linear control; defines slope.
 
 ### monitored_power
+
 ~~~
 double monitored_power[W]; 
 ~~~
@@ -231,6 +254,7 @@ double monitored_power[W];
 (LEGACY) output only; power output value of parent meter when performing load following modes (`POWER_DRIVEN`).
 
 ### nominal_voltage
+
 ~~~
 double nominal_voltage[V]; 
 ~~~
@@ -238,6 +262,7 @@ double nominal_voltage[V];
 (INTERNAL) The rated DC voltage at the terminals of the battery.
 
 ### number_battery_state_changes
+
 ~~~
 double number_battery_state_changes; 
 ~~~
@@ -245,6 +270,7 @@ double number_battery_state_changes;
 (LEGACY) Number of times battery switches between charging and discharging.
 
 ### P_Max
+
 ~~~
 double P_Max[W]; 
 ~~~
@@ -252,6 +278,7 @@ double P_Max[W];
 (LEGACY) The maximum power output of the battery.
 
 ### parasitic_power_draw
+
 ~~~
 double parasitic_power_draw[W]; 
 ~~~
@@ -259,6 +286,7 @@ double parasitic_power_draw[W];
 (LEGACY) The parasytic power draw of the battery when idle.
 
 ### power_factor
+
 ~~~
 double power_factor; 
 ~~~
@@ -266,6 +294,7 @@ double power_factor;
 (LEGACY) The power factor output of the battery.
 
 ### power_set_high
+
 ~~~
 double power_set_high[W]; 
 ~~~
@@ -273,6 +302,7 @@ double power_set_high[W];
 (LEGACY) High set point of dead band for load following (`POWER_DRIVEN`).
 
 ### power_set_high_highT
+
 ~~~
 double power_set_high_highT[W]; 
 ~~~
@@ -280,11 +310,13 @@ double power_set_high_highT[W];
 (LEGACY) High set point of dead band for load following at higher temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
 
 ### power_set_low
+
 ~~~
 double power_set_low[W]; 
 ~~~
 
 ### power_set_low_highT
+
 ~~~
 double power_set_low_highT[W]; 
 ~~~
@@ -292,6 +324,7 @@ double power_set_low_highT[W];
 (LEGACY) Low set point of dead band for load following at higher temperatures (`POWER_DRIVEN` + `LINEAR_TEMPERATURE`).
 
 ### power_transferred
+
 ~~~
 double power_transferred; 
 ~~~
@@ -299,6 +332,7 @@ double power_transferred;
 (LEGACY) The power output of the battery.
 
 ### power_type
+
 ~~~
 enumeration {DC=1, AC=2} power_type; 
 ~~~
@@ -306,6 +340,7 @@ enumeration {DC=1, AC=2} power_type;
 (LEGACY) Not currently used.
 
 ### Rated_kVA
+
 ~~~
 double Rated_kVA[kVA]; 
 ~~~
@@ -313,6 +348,7 @@ double Rated_kVA[kVA];
 (LEGACY) The rated power of the battery.
 
 ### rated_power
+
 ~~~
 double rated_power[W]; 
 ~~~
@@ -320,6 +356,7 @@ double rated_power[W];
 (INTERNAL) The rated power output of the battery.
 
 ### reserve_state_of_charge
+
 ~~~
 double reserve_state_of_charge[pu]; 
 ~~~
@@ -327,6 +364,7 @@ double reserve_state_of_charge[pu];
 (INTERNAL) The reserve state of charge the battery can reach.
 
 ### rfb_size
+
 ~~~
 enumeration {LARGE=4, MED_HIGH_ENERGY=3, MED_COMMERCIAL=2, SMALL=1, HOUSEHOLD=5} rfb_size; 
 ~~~
@@ -336,6 +374,7 @@ Default settings for certain sizes of batteries.
 LEGACY MODEL: Low set point of dead band for load following (`POWER_DRIVEN`).
 
 ### Rinternal
+
 ~~~
 double Rinternal[Ohm]; 
 ~~~
@@ -343,6 +382,7 @@ double Rinternal[Ohm];
 (LEGACY) The internal resistance of the battery.
 
 ### scheduled_power
+
 ~~~
 double scheduled_power[W]; 
 ~~~
@@ -350,6 +390,7 @@ double scheduled_power[W];
 (LEGACY) Real power output of battery/inverter system.
 
 ### sensitivity
+
 ~~~
 double sensitivity; 
 ~~~
@@ -357,6 +398,7 @@ double sensitivity;
 (LEGACY) Describes how sensitive the control is to temperature excursions; defines slope of linear control.
 
 ### state_of_charge
+
 ~~~
 double state_of_charge[pu]; 
 ~~~
@@ -364,6 +406,7 @@ double state_of_charge[pu];
 (INTERNAL) The current state of charge of the battery.
 
 ### V_Max
+
 ~~~
 double V_Max[V]; 
 ~~~
@@ -371,6 +414,7 @@ double V_Max[V];
 (LEGACY) The maximum terminal voltage of the battery.
 
 ### voltage_set_high
+
 ~~~
 double voltage_set_high[V]; 
 ~~~
@@ -378,6 +422,7 @@ double voltage_set_high[V];
 (LEGACY) Ligh set point for voltage control.
 
 ### voltage_set_low
+
 ~~~
 double voltage_set_low[V]; 
 ~~~
@@ -385,6 +430,7 @@ double voltage_set_low[V];
 (LEGACY) Low set point for voltage control.
 
 ### V_In
+
 ~~~
 complex V_In[V]; 
 ~~~
@@ -392,6 +438,7 @@ complex V_In[V];
 (LEGACY) The voltage at the terminals of the battery.
 
 ### V_Internal
+
 ~~~
 complex V_Internal[V]; 
 ~~~
@@ -399,6 +446,7 @@ complex V_Internal[V];
 (LEGACY) The internal voltage of the battery.
 
 ### V_Out
+
 ~~~
 complex V_Out[V]; 
 ~~~
@@ -406,6 +454,7 @@ complex V_Out[V];
 (LEGACY) The AC voltage at the terminals of the battery.
 
 ### VA_Out
+
 ~~~
 complex VA_Out[VA]; 
 ~~~
@@ -413,6 +462,7 @@ complex VA_Out[VA];
 (LEGACY) The power output of the battery.
 
 ### use_internal_battery_model
+
 ~~~
 bool use_internal_battery_model; 
 ~~~
@@ -464,5 +514,6 @@ $$
 with $E_{max}$ defined as the battery's internal energy storage capacity.
 
 # See also
+
 * [[/Module/Generators]]
 * [[/Module/Generators/Inverter]]

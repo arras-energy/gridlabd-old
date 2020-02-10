@@ -69,6 +69,7 @@ TODO
 ## Properties
 
 ### `tank_volume`
+
 ~~~
   double tank_volume[gal];
 ~~~
@@ -76,6 +77,7 @@ TODO
 The volume of water in the tank when it is full
 
 ### `tank_UA`
+
 ~~~
   double tank_UA[Btu*h/degF];
 ~~~
@@ -83,6 +85,7 @@ The volume of water in the tank when it is full
 The UA of the tank (surface area divided by R-value)
 
 ### `tank_diameter`
+
 ~~~
   double tank_diameter[ft];
 ~~~
@@ -90,6 +93,7 @@ The UA of the tank (surface area divided by R-value)
 The diameter of the water heater tank
 
 ### `tank_height`
+
 ~~~
   double tank_height[ft];
 ~~~
@@ -97,6 +101,7 @@ The diameter of the water heater tank
 The height of the water heater tank
 
 ### `water_demand`
+
 ~~~
   double water_demand[gpm];
 ~~~
@@ -104,6 +109,7 @@ The height of the water heater tank
 The hot water draw from the water heater
 
 ### `heating_element_capacity`
+
 ~~~
   double heating_element_capacity[kW];
 ~~~
@@ -111,6 +117,7 @@ The hot water draw from the water heater
 The power of the heating element
 
 ### `inlet_water_temperature`
+
 ~~~
   double inlet_water_temperature[degF];
 ~~~
@@ -118,6 +125,7 @@ The power of the heating element
 The inlet temperature of the water tank
 
 ### `waterheater_model`
+
 ~~~
   enumeration {NONE, FORTRAN, TWONODE, ONEZNODE} waterheater_model;
 ~~~
@@ -125,6 +133,7 @@ The inlet temperature of the water tank
 The water heater model to use
 
 ### `heat_mode`
+
 ~~~
   enumeration {HEAT_PUMP, GASHEAT, ELECTRIC} heat_mode;
 ~~~
@@ -132,6 +141,7 @@ The water heater model to use
 The energy source for heating the water heater
 
 ### `location`
+
 ~~~
   enumeration {GARAGE, INSIDE} location;
 ~~~
@@ -139,6 +149,7 @@ The energy source for heating the water heater
 Whether the water heater is inside or outside
 
 ### `tank_setpoint`
+
 ~~~
   double tank_setpoint[degF];
 ~~~
@@ -146,6 +157,7 @@ Whether the water heater is inside or outside
 The temperature around which the water heater will heat its contents
 
 ### `thermostat_deadband`
+
 ~~~
   double thermostat_deadband[degF];
 ~~~
@@ -153,6 +165,7 @@ The temperature around which the water heater will heat its contents
 The degree to heat the water tank, when needed
 
 ### `temperature`
+
 ~~~
   double temperature[degF];
 ~~~
@@ -160,6 +173,7 @@ The degree to heat the water tank, when needed
 The outlet temperature of the water tank
 
 ### `height`
+
 ~~~
   double height[ft];
 ~~~
@@ -167,6 +181,7 @@ The outlet temperature of the water tank
 The height of the hot water column within the water tank
 
 ### `demand`
+
 ~~~
   complex demand[kVA];
 ~~~
@@ -174,6 +189,7 @@ The height of the hot water column within the water tank
 The water heater power consumption
 
 ### `actual_load`
+
 ~~~
   double actual_load[kW];
 ~~~
@@ -181,6 +197,7 @@ The water heater power consumption
 The actual load based on the current voltage across the coils
 
 ### `previous_load`
+
 ~~~
   double previous_load[kW];
 ~~~
@@ -188,6 +205,7 @@ The actual load based on the current voltage across the coils
 The previous load based on voltage across the coils at the last sync operation
 
 ### `actual_power`
+
 ~~~
   complex actual_power[kVA];
 ~~~
@@ -195,6 +213,7 @@ The previous load based on voltage across the coils at the last sync operation
 The actual power based on the current voltage across the coils
 
 ### `is_waterheater_on`
+
 ~~~
   double is_waterheater_on;
 ~~~
@@ -202,6 +221,7 @@ The actual power based on the current voltage across the coils
 Simple logic output to determine state of waterheater (1-on, 0-off)
 
 ### `gas_fan_power`
+
 ~~~
   double gas_fan_power[kW];
 ~~~
@@ -209,6 +229,7 @@ Simple logic output to determine state of waterheater (1-on, 0-off)
 Load of a running gas waterheater
 
 ### `gas_standby_power`
+
 ~~~
   double gas_standby_power[kW];
 ~~~
@@ -216,6 +237,7 @@ Load of a running gas waterheater
 Load of a gas waterheater in standby
 
 ### `heat_pump_coefficient_of_performance`
+
 ~~~
   double heat_pump_coefficient_of_performance[Btu/kWh];
 ~~~
@@ -223,6 +245,7 @@ Load of a gas waterheater in standby
 Current COP of the water heater pump - currently calculated internally and not an input
 
 ### `Tcontrol`
+
 ~~~
   double Tcontrol[degF];
 ~~~
@@ -230,6 +253,7 @@ Current COP of the water heater pump - currently calculated internally and not a
 In heat pump operation, defines the blended temperature used for turning on and off HP - currently calculated internally and not an input
 
 ### `current_tank_status`
+
 ~~~
   enumeration {EMPTY, PARTIAL, FULL} current_tank_status;
 ~~~
@@ -237,6 +261,7 @@ In heat pump operation, defines the blended temperature used for turning on and 
 TODO
 
 ### `dr_signal`
+
 ~~~
   double dr_signal;
 ~~~
@@ -244,6 +269,7 @@ TODO
 The on/off signal to send to the fortran waterheater model
 
 ### `COP`
+
 ~~~
   double COP;
 ~~~
@@ -251,6 +277,7 @@ The on/off signal to send to the fortran waterheater model
 The cop of the fortran heat pump water heater model.
 
 ### `operating_mode`
+
 ~~~
   double operating_mode;
 ~~~
@@ -258,6 +285,7 @@ The cop of the fortran heat pump water heater model.
 The operating mode the fortran water heater should be using.
 
 ### `fortran_sim_time`
+
 ~~~
   double fortran_sim_time[s];
 ~~~
@@ -265,6 +293,7 @@ The operating mode the fortran water heater should be using.
 The amount of time the fortran model should simulate.
 
 ### `waterheater_power`
+
 ~~~
   double waterheater_power[kW];
 ~~~
@@ -272,6 +301,7 @@ The amount of time the fortran model should simulate.
 The current power draw from the fortran water heater.
 
 ### `load_state`
+
 ~~~
   enumeration {STABLE, RECOVERING, DEPLETING} load_state;
 ~~~
@@ -279,6 +309,7 @@ The current power draw from the fortran water heater.
 TODO
 
 ### `actual_voltage`
+
 ~~~
   double actual_voltage;
 ~~~
@@ -286,6 +317,7 @@ TODO
 TODO
 
 ### `nominal_voltage`
+
 ~~~
   double nominal_voltage;
 ~~~
@@ -293,6 +325,7 @@ TODO
 TODO
 
 ### `re_override`
+
 ~~~
   enumeration {OV_OFF, OV_NORMAL, OV_ON} re_override;
 ~~~
@@ -300,6 +333,7 @@ TODO
 The override setting for the water heater
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -307,6 +341,7 @@ The override setting for the water heater
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -314,6 +349,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -321,6 +357,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -328,6 +365,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -335,6 +373,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -342,6 +381,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -349,6 +389,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -356,6 +397,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -363,6 +405,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -370,6 +413,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -377,6 +421,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -384,6 +429,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -391,6 +437,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -398,6 +445,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -405,6 +453,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -412,6 +461,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -419,6 +469,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -426,6 +477,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -433,6 +485,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -482,5 +535,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

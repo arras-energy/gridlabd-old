@@ -50,6 +50,7 @@ TODO
 ## Properties
 
 ### `charger_type`
+
 ~~~
   enumeration {HIGH, MEDIUM, LOW} charger_type;
 ~~~
@@ -57,6 +58,7 @@ TODO
 TODO
 
 ### `vehicle_type`
+
 ~~~
   enumeration {HYBRID, ELECTRIC} vehicle_type;
 ~~~
@@ -64,6 +66,7 @@ TODO
 TODO
 
 ### `state`
+
 ~~~
   enumeration {WORK, HOME, UNKNOWN} state;
 ~~~
@@ -71,6 +74,7 @@ TODO
 TODO
 
 ### `p_go_home`
+
 ~~~
   double p_go_home[unit/h];
 ~~~
@@ -78,6 +82,7 @@ TODO
 TODO
 
 ### `p_go_work`
+
 ~~~
   double p_go_work[unit/h];
 ~~~
@@ -85,6 +90,7 @@ TODO
 TODO
 
 ### `work_dist`
+
 ~~~
   double work_dist[mile];
 ~~~
@@ -92,6 +98,7 @@ TODO
 TODO
 
 ### `capacity`
+
 ~~~
   double capacity[kWh];
 ~~~
@@ -99,6 +106,7 @@ TODO
 TODO
 
 ### `charge`
+
 ~~~
   double charge[unit];
 ~~~
@@ -106,6 +114,7 @@ TODO
 TODO
 
 ### `charge_at_work`
+
 ~~~
   bool charge_at_work;
 ~~~
@@ -113,6 +122,7 @@ TODO
 TODO
 
 ### `charge_throttle`
+
 ~~~
   double charge_throttle[unit];
 ~~~
@@ -120,6 +130,7 @@ TODO
 TODO
 
 ### `charger_efficiency`
+
 ~~~
   double charger_efficiency[unit];
 ~~~
@@ -127,6 +138,7 @@ TODO
 Efficiency of the charger in terms of energy in to battery stored
 
 ### `power_train_efficiency`
+
 ~~~
   double power_train_efficiency[mile/kWh];
 ~~~
@@ -134,6 +146,7 @@ Efficiency of the charger in terms of energy in to battery stored
 Miles per kWh of battery charge
 
 ### `mileage_classification`
+
 ~~~
   double mileage_classification[mile];
 ~~~
@@ -141,6 +154,7 @@ Miles per kWh of battery charge
 Miles expected range on battery only
 
 ### `demand_profile`
+
 ~~~
   char1024 demand_profile;
 ~~~
@@ -148,6 +162,7 @@ Miles expected range on battery only
 TODO
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -155,6 +170,7 @@ TODO
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -162,6 +178,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -169,6 +186,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -176,6 +194,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -183,6 +202,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -190,6 +210,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -197,6 +218,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -204,6 +226,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -211,6 +234,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -218,6 +242,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -225,6 +250,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -232,6 +258,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -239,6 +266,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -246,6 +274,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -253,6 +282,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -260,6 +290,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -267,6 +298,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -274,6 +306,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -281,6 +314,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -311,5 +345,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

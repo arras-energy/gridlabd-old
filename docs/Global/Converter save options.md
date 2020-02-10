@@ -7,7 +7,9 @@ GLM:
 ~~~
   #set <ext>_save_options=<options>
 ~~~
+
 Command line:
+
 ~~~
 bash$ gridlabd -D <ext>_save_options=<options>
 ~~~
@@ -19,6 +21,7 @@ Automatic converters support extension using the converter naming convention `<i
 # Example
 
 The following example passes the command line option `-t profile` to the `json2png.py` converter after the simulation is completed.
+
 ~~~
 bash$ gridlabd model.glm -o output.png -D png_save_options="-t profile"
 ~~~

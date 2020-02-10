@@ -25,6 +25,7 @@ TODO
 ## Properties
 
 ### `group`
+
 ~~~
   char32 group;
 ~~~
@@ -32,6 +33,7 @@ TODO
 The group ID to output data for (all nodes if empty)
 
 ### `runtime`
+
 ~~~
   timestamp runtime;
 ~~~
@@ -39,6 +41,7 @@ The group ID to output data for (all nodes if empty)
 The time to check voltage data
 
 ### `filename`
+
 ~~~
   char256 filename;
 ~~~
@@ -46,6 +49,7 @@ The time to check voltage data
 The file to dump the voltage data into
 
 ### `file`
+
 ~~~
   char256 file;
 ~~~
@@ -53,6 +57,7 @@ The file to dump the voltage data into
 The file to dump the voltage data into
 
 ### `runcount`
+
 ~~~
   int32 runcount;
 ~~~
@@ -60,6 +65,7 @@ The file to dump the voltage data into
 The number of times the file has been written to
 
 ### `maxcount`
+
 ~~~
   int32 maxcount;
 ~~~
@@ -67,6 +73,7 @@ The number of times the file has been written to
 The maximum number of times the file is written
 
 ### `mode`
+
 ~~~
   enumeration {polar, rect} mode;
 ~~~
@@ -74,6 +81,7 @@ The maximum number of times the file is written
 Dumps the voltages in either polar or rectangular notation
 
 ### `filemode`
+
 ~~~
   char8 filemode;
 ~~~
@@ -81,6 +89,7 @@ Dumps the voltages in either polar or rectangular notation
 Sets the file write mode
 
 ### `interval`
+
 ~~~
   double interval[s];
 ~~~
@@ -104,5 +113,6 @@ Interval at which voltdump runs
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

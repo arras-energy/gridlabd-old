@@ -217,6 +217,6 @@ compiler.
 
 # See also
 
-- [[/GLM/General/Transform]]
+*- [[/GLM/General/Transform]]
 - [[/GLM/Property/Double]]
 - [[/GLM/Property/Loadshape]]

@@ -20,6 +20,7 @@ TODO
 ## Globals
 
 ### `message_flags`
+
 ~~~
   message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
 ~~~
@@ -27,6 +28,7 @@ TODO
 Module message control flags
 
 ### `warn_control`
+
 ~~~
   warn_control "<string>";
 ~~~
@@ -34,6 +36,7 @@ Module message control flags
 TODO
 
 ### `warn_low_temp`
+
 ~~~
   warn_low_temp "<decimal>";
 ~~~
@@ -41,6 +44,7 @@ TODO
 TODO
 
 ### `warn_high_temp`
+
 ~~~
   warn_high_temp "<decimal>";
 ~~~
@@ -48,6 +52,7 @@ TODO
 TODO
 
 # See also
+
 * [[/Module/Commercial/Office]]
 * [[/Module/Commercial/Multizone]]
 * [[/Module/Commercial/Ceus]]

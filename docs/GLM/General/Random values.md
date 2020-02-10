@@ -140,5 +140,6 @@ triangle_asy(<min>,<max>,<center>)
 The PDF is $\phi(x) = \left\\{ TODO \right.$.
 
 # See also
+
 * [[/GLM/Property/Randomvar]]
 * [[/GLM/General/Functional]]

@@ -31,6 +31,7 @@ The `assert` object examines a single property of parent object and compares it 
 The following properties are available in an `assert` object. 
 
 ### `group` 
+
 ~~~
 char1024 group;
 ~~~
@@ -38,6 +39,7 @@ char1024 group;
 Allows a group specification.  See [[/GLM/Finding_objects]] for details.
 
 ### `hold`
+
 ~~~
 double hold[s];
 ~~~
@@ -45,6 +47,7 @@ double hold[s];
 Specifies how long the assert must be violated before the exception is thrown.
 
 ### `lower`
+
 ~~~
 char1024 lower;
 ~~~
@@ -52,6 +55,7 @@ char1024 lower;
 The `lower` property specifies the lower bound when using the `inside` or `outside` relations.
 
 ### `part`
+
 ~~~
 char32 part;
 ~~~
@@ -59,6 +63,7 @@ char32 part;
 The `part` property specifies the property part to use when comparing values.  All property parts are considered to have an underlying double value.  For information of valid property parts, see the documentation on the property in question.
 
 ### `relation`
+
 ~~~
 enumeration {outside=7, inside=6, !==3, >==2, >=5, <==1, <=4, ===0} relation;
 ~~~
@@ -98,6 +103,7 @@ Compares the target property to determine whether it is less than the `value`.
 Compares the target property to determine whether it is equal to the `value`.
 
 ### `start`
+
 ~~~
 timestamp start;
 ~~~
@@ -105,6 +111,7 @@ timestamp start;
 Specifies when the assert is to start being applied.
 
 ### `status`
+
 ~~~
 enumeration {NONE=3, FALSE=2, TRUE=1, INIT=0} status;
 ~~~
@@ -124,6 +131,7 @@ The `NONE` keyword is used to specify that the assert test should be ignore.
 The `TRUE` keyword is used to specify that the assert test should succeed.
 
 ### `stop` 
+
 ~~~
 timestamp stop;
 ~~~
@@ -131,6 +139,7 @@ timestamp stop;
 Specifies when the assert is to stop being applied.
 
 ### `target`
+
 ~~~
 char1024 target;
 ~~~
@@ -138,6 +147,7 @@ char1024 target;
 The `target` string specifies the name of the property to examine.
 
 ### `upper`
+
 ~~~
 char1024 upper;
 ~~~
@@ -145,6 +155,7 @@ char1024 upper;
 The `upper` property specifies the upper bound when using the `inside` or `outside` relation.
 
 ### `value`
+
 ~~~
 char1024 value;
 ~~~
@@ -152,6 +163,7 @@ char1024 value;
 The `value` property specifies the value to compare to when using the `!=`, `>=`, `>`, `<=`, `<`, or `==` relations.
 
 ### `within`
+
 ~~~
 char1024 within;
 ~~~
@@ -161,6 +173,7 @@ The `within` property specifies the accuracy to which `==` and `!=` comparisons 
 # Examples
 
 The first example asserts that the temperature is `50 degF`.  The second example asserts that the temperature is between `0` and `40 degC`. The third example asserts that the temperature is within `1 degF` of `49.5 degF`.
+
 ~~~
 module assert;
 module climate;
@@ -186,7 +199,9 @@ object climate {
   };
 }
 ~~~
+
 The fourth example asserts that the real part of the voltage is `120`.  The fifth example asserts that the magnitude of the voltage exceeds `120`.  The sixth example asserts that the angle of the voltage angle is between `-45 deg` and `45 deg`.
+
 ~~~
 module assert;
 module powerflow;
@@ -216,9 +231,11 @@ object meter {
   };
 }
 ~~~
+
 # Caveats
 
 Some units have an absolute offset (e.g., `degC`, `degF`) that convert absolute values, not relative values.  Thus `within 0.01 degF` will not work as expected when compared to a property in `degC` because `0.01 degF` is about `-17 degC`. The only solution is to provide the value in the same units as the property, or to use units that don't have an absolute offset, e.g., `R` or `K`).
 
 # See also
+
 * [[/Module/Assert]]

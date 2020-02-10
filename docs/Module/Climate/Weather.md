@@ -36,6 +36,7 @@ TODO
 ## Properties
 
 ### `temperature`
+
 ~~~
   double temperature[degF];
 ~~~
@@ -43,6 +44,7 @@ TODO
 TODO
 
 ### `humidity`
+
 ~~~
   double humidity[%];
 ~~~
@@ -50,6 +52,7 @@ TODO
 TODO
 
 ### `solar_dir`
+
 ~~~
   double solar_dir[W/sf];
 ~~~
@@ -57,6 +60,7 @@ TODO
 TODO
 
 ### `solar_direct`
+
 ~~~
   double solar_direct[W/sf];
 ~~~
@@ -64,6 +68,7 @@ TODO
 TODO
 
 ### `solar_diff`
+
 ~~~
   double solar_diff[W/sf];
 ~~~
@@ -71,6 +76,7 @@ TODO
 TODO
 
 ### `solar_diffuse`
+
 ~~~
   double solar_diffuse[W/sf];
 ~~~
@@ -78,6 +84,7 @@ TODO
 TODO
 
 ### `solar_global`
+
 ~~~
   double solar_global[W/sf];
 ~~~
@@ -85,6 +92,7 @@ TODO
 TODO
 
 ### `global_horizontal_extra`
+
 ~~~
   double global_horizontal_extra[W/sf];
 ~~~
@@ -92,6 +100,7 @@ TODO
 TODO
 
 ### `wind_speed`
+
 ~~~
   double wind_speed[mph];
 ~~~
@@ -99,6 +108,7 @@ TODO
 TODO
 
 ### `wind_dir`
+
 ~~~
   double wind_dir[deg];
 ~~~
@@ -106,6 +116,7 @@ TODO
 TODO
 
 ### `opq_sky_cov`
+
 ~~~
   double opq_sky_cov[pu];
 ~~~
@@ -113,6 +124,7 @@ TODO
 TODO
 
 ### `tot_sky_cov`
+
 ~~~
   double tot_sky_cov[pu];
 ~~~
@@ -120,6 +132,7 @@ TODO
 TODO
 
 ### `rainfall`
+
 ~~~
   double rainfall[in/h];
 ~~~
@@ -127,6 +140,7 @@ TODO
 TODO
 
 ### `snowdepth`
+
 ~~~
   double snowdepth[in];
 ~~~
@@ -134,6 +148,7 @@ TODO
 TODO
 
 ### `pressure`
+
 ~~~
   double pressure[mbar];
 ~~~
@@ -141,6 +156,7 @@ TODO
 TODO
 
 ### `month`
+
 ~~~
   int16 month;
 ~~~
@@ -148,6 +164,7 @@ TODO
 TODO
 
 ### `day`
+
 ~~~
   int16 day;
 ~~~
@@ -155,6 +172,7 @@ TODO
 TODO
 
 ### `hour`
+
 ~~~
   int16 hour;
 ~~~
@@ -162,6 +180,7 @@ TODO
 TODO
 
 ### `minute`
+
 ~~~
   int16 minute;
 ~~~
@@ -169,6 +188,7 @@ TODO
 TODO
 
 ### `second`
+
 ~~~
   int16 second;
 ~~~
@@ -203,5 +223,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Climate]]
 

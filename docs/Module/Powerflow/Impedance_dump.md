@@ -20,6 +20,7 @@ TODO
 ## Properties
 
 ### `group`
+
 ~~~
   char32 group;
 ~~~
@@ -27,6 +28,7 @@ TODO
 The group ID to output data for (all links if empty)
 
 ### `filename`
+
 ~~~
   char256 filename;
 ~~~
@@ -34,6 +36,7 @@ The group ID to output data for (all links if empty)
 The file to dump the current data into
 
 ### `runtime`
+
 ~~~
   timestamp runtime;
 ~~~
@@ -41,6 +44,7 @@ The file to dump the current data into
 The time to check voltage data
 
 ### `runcount`
+
 ~~~
   int32 runcount;
 ~~~
@@ -59,5 +63,6 @@ The number of times the file has been written to
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

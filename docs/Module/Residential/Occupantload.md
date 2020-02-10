@@ -39,6 +39,7 @@ TODO
 ## Properties
 
 ### `number_of_occupants`
+
 ~~~
   int32 number_of_occupants;
 ~~~
@@ -46,6 +47,7 @@ TODO
 TODO
 
 ### `occupancy_fraction`
+
 ~~~
   double occupancy_fraction[unit];
 ~~~
@@ -53,6 +55,7 @@ TODO
 TODO
 
 ### `heatgain_per_person`
+
 ~~~
   double heatgain_per_person[Btu/h];
 ~~~
@@ -60,6 +63,7 @@ TODO
 TODO
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -67,6 +71,7 @@ TODO
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -74,6 +79,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -81,6 +87,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -88,6 +95,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -95,6 +103,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -102,6 +111,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -109,6 +119,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -116,6 +127,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -123,6 +135,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -130,6 +143,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -137,6 +151,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -144,6 +159,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -151,6 +167,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -158,6 +175,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -165,6 +183,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -172,6 +191,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -179,6 +199,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -186,6 +207,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -193,6 +215,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -212,5 +235,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

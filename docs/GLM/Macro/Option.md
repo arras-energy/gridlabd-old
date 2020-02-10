@@ -21,6 +21,7 @@ The `#option` macro is equivalent to specifying the `<option>` on the command li
 # Examples
 
 The following toggles verbose output
+
 ~~~
 #option verbose
 ~~~

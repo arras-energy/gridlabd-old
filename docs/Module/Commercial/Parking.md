@@ -32,6 +32,7 @@ The unit power `charger_unit_power` set the power deliver capacity for each char
 ## Properties
 
 ### `weather`
+
 ~~~
 object weather;
 ~~~
@@ -39,6 +40,7 @@ object weather;
 This parameter indicates whether `climate` data object is used to determine the nighttime lighting requirement.  If present, nighttime is based on `global_solar` insolation value in the climate model. A insolation level below `nightlight_threshold` will cause the lights to be turned on.
 
 ### `charger_active`
+
 ~~~
 double charger_active;
 ~~~
@@ -46,6 +48,7 @@ double charger_active;
 This parameter sets how many vehicle chargers running. Fractional values are accepted. The value should be less than or equal to `charger_installed`.
 
 ### `charger_installed`
+
 ~~~
 int16 charger_installed;
 ~~~
@@ -53,6 +56,7 @@ int16 charger_installed;
 This parameter sets how many vehicle chargers are installed.
 
 ### `charger_power`
+
 ~~~
 complex charger_power[kVA];
 ~~~
@@ -60,6 +64,7 @@ complex charger_power[kVA];
 This parameter indicates the total charging power for the parking structure.  This quantity changes whenever the number of EVs or an EV charger state changes.
 
 ### `charger_unit_power`
+
 ~~~
 complex charger_unit_power[kVA];
 ~~~
@@ -67,6 +72,7 @@ complex charger_unit_power[kVA];
 This parameter sets the power demand for a single charging station when active. When inactive, the power draw is assumed to be zero.
 
 ### `lighting_capacity`
+
 ~~~
 double lighting_capacity;
 ~~~
@@ -74,6 +80,7 @@ double lighting_capacity;
 This parameter sets the nominal power capacity of the install lighting.
 
 ### `lighting_nightonly`
+
 ~~~
 bool lighting_nightonly`;
 ~~~
@@ -81,6 +88,7 @@ bool lighting_nightonly`;
 This parameter sets whether lighting is on only at time.  If `weather` is specified, then lighting is enabled when it is dark outside.  Otherwise, lighting is enable on a schedule, i.e., 6pm to 6am.
 
 ### `lighting_power`
+
 ~~~
 complex lighting_power[kVA];
 ~~~
@@ -88,6 +96,7 @@ complex lighting_power[kVA];
 This parameter indicates the total lighting power demand of the parking structure. This quantity may vary depending time of day and weather.
 
 ### `total_power`
+
 ~~~
 complex total_power[kVA];
 ~~~
@@ -95,6 +104,7 @@ complex total_power[kVA];
 This parameter indicates the total power demand of the parking structure. This quantity is updated automatically whenever the number of vehicles in parking structure changes or an EV charger changes state.
 
 ### `ventilation_power`
+
 ~~~
 complex ventilation_power[kVA];
 ~~~
@@ -116,6 +126,7 @@ object parking
 ~~~
 
 # See also
+
 * [[/Module/Commercial]]
 
 ---
@@ -162,6 +173,7 @@ The `parking_fee` and `charging_price` are used to compute the `total_revenue`. 
 ## Properties
 
 ### `total_size`
+
 ~~~
 int32 total_size;
 ~~~
@@ -169,6 +181,7 @@ int32 total_size;
 This parameter sets the total number of parking spots in the parking structure.
 
 ### `total_chargers`
+
 ~~~
 int32 total_chargers;
 ~~~
@@ -176,6 +189,7 @@ int32 total_chargers;
 This parameter sets the total number of electric vehicle chargers in the parking structure.
 
 ### `total_levels`
+
 ~~~
 int32 total_levels;
 ~~~
@@ -183,6 +197,7 @@ int32 total_levels;
 This parameter sets the total number of floor in the parking structure. This parameter affects elevator power as the parking structure fills up.
 
 ### `total_elevators`
+
 ~~~
 int32 total_elevators;
 ~~~
@@ -190,6 +205,7 @@ int32 total_elevators;
 This parameter sets the total number of elevators available in the parking structure.  This parameter limits the maximum elevator power at any given time.
 
 ### `elevator_usage`
+
 ~~~
 double elevator_usage[pu];
 ~~~
@@ -197,6 +213,7 @@ double elevator_usage[pu];
 This parameter sets the fraction increase in the number of people who use the elevator per floor. Note that this quantity is truncated at 100% for floors greater than `1/elevator_usage` without warning, i.e., it is assumed that everyone uses the elevator beyond a certain floor.
 
 ### `elevator_unit_power`
+
 ~~~
 complex elevator_unit_power[kVA]
 ~~~
@@ -204,6 +221,7 @@ complex elevator_unit_power[kVA]
 This parameter sets the power required for an elevator to move one floor. When not running the elevator, the power draw is assumed to be zero.
 
 ### `elevator_unit_energy`
+
 ~~~
 double elevator_unit_energy[kVA]
 ~~~
@@ -211,6 +229,7 @@ double elevator_unit_energy[kVA]
 The parameter sets the energy required for an elevator to move one floor. Note the time to move one floor is always `elevator_unit_energy/elevator_unit_power.real`.
 
 ### `charging_price`
+
 ~~~
 double charging_price[$/kWh];
 ~~~
@@ -218,6 +237,7 @@ double charging_price[$/kWh];
 This parameter sets the energy price for charging an electric vehicle.
 
 ### `parking_fee`
+
 ~~~
 double parking_fee[$/h];
 ~~~
@@ -225,6 +245,7 @@ double parking_fee[$/h];
 This parameter sets the hourly price of parking without charging.
 
 ### `fee_waiver`
+
 ~~~
 double fee_waiver[pu];
 ~~~
@@ -232,6 +253,7 @@ double fee_waiver[pu];
 This parameter sets the fee waiver fraction for electric vehicle when charging. A value of `0.0` indicate that no waiver is available. A value of `1.0` indicates that the entire parking fee is waived.  A negative value indicates that a surcharged is applied when occupying a charging station.
 
 ### `idle_penalty`
+
 ~~~
 double idle_penalty[pu];
 ~~~
@@ -239,6 +261,7 @@ double idle_penalty[pu];
 This parameter sets the idle charger penalty applied to electric vehicles that occupy a charging station but are not charging.  The penalty is a fraction of the parking fee.  A value of `0.0` indicates that no penalty is applied.  A positive value indicates that fraction of the parking fee applied when not charging.  A negative value is not allowed. 
 
 ### `total_cars`
+
 ~~~
 int32 total_cars;
 ~~~
@@ -246,6 +269,7 @@ int32 total_cars;
 This parameter indicates the total number of cars present in the parking structure, including EVs.
 
 ### `ev_count`
+
 ~~~
 int32 ev_count;
 ~~~
@@ -253,6 +277,7 @@ int32 ev_count;
 This parameter indicates the total number of electric vehicles in the parking structure.
 
 ### `ev_active`
+
 ~~~
 int32 ev_active;
 ~~~
@@ -260,6 +285,7 @@ int32 ev_active;
 This parameter indicates the total number of actively charging EVs in the parking structure.
 
 ### `ev_fraction`
+
 ~~~
 double ev_fraction[pu];
 ~~~
@@ -267,6 +293,7 @@ double ev_fraction[pu];
 This parameter sets the fraction of all vehicles parked that are electric vehicles.
 
 ### `arrivals`
+
 ~~~
 double arrivals[pu/h];
 ~~~
@@ -274,6 +301,7 @@ double arrivals[pu/h];
 This parameter sets the fractional parking arrivals pu unit parking structure size per hour.
 
 ### `departures`
+
 ~~~
 double departures[pu/h];
 ~~~
@@ -281,6 +309,7 @@ double departures[pu/h];
 This parameter sets the fractional parking departures pu unit parking size per hour.
 
 ### `total_power`
+
 ~~~
 complex total_power[kVA];
 ~~~
@@ -288,6 +317,7 @@ complex total_power[kVA];
 This parameter indicates the total power demand of the parking structure. This quantity is updated automatically whenever the number of vehicles in parking structure changes or an EV charger changes state.
 
 ### `total_energy`
+
 ~~~
 complex total_energy[kVAh]
 ~~~
@@ -295,6 +325,7 @@ complex total_energy[kVAh]
 This parameter indicates the total energy consumed by the parking structure.  This quantity is updated automatically whenever the total power changes.
 
 ### `elevator_power`
+
 ~~~
 complex elevator_power[kVA];
 ~~~
@@ -302,6 +333,7 @@ complex elevator_power[kVA];
 This parameter indicates the total elevator load in the parking structure. This quantity changes twice whenever the number of vehicles in the parking structure changes.
 
 ### `total_revenue`
+
 ~~~
 double total_revenue[$];
 ~~~
@@ -309,6 +341,7 @@ double total_revenue[$];
 This parameter indicates the total revenue generated by the parking structure. This value changes whenever a vehicle departs the parking structure or a vehicle charger turns off.
 
 ### `parking_log`
+
 ~~~
 string parking_log;
 ~~~

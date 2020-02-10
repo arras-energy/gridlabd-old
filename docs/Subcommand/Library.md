@@ -1,7 +1,9 @@
 [[/Subcommand/Library]] -- library management subcommands
 
 # Synopsis
+
 Shell:
+
 ~~~
 bash$ gridlabd help
 bash$ gridlabd index <pattern>
@@ -28,6 +30,7 @@ bash$ gridlabd config set <name> <value>
 Use the `library` subcommand to manage GridLAB-D's library files.
 
 ## `help`
+
 ~~~
   gridlabd help
 ~~~
@@ -60,6 +63,7 @@ Commands:
 ~~~
 
 ## `index`
+
 ~~~
   gridlabd library index <pattern>
 ~~~
@@ -71,6 +75,7 @@ wood_pole.glm
 ~~~
 
 ## `list`
+
 ~~~
   gridlabd library list <pattern>
 ~~~
@@ -78,6 +83,7 @@ wood_pole.glm
 The `list` command outputs a list of the library files that are available locally.
 
 ## `get`
+
 ~~~
   gridlabd library get <pattern>
 ~~~
@@ -85,6 +91,7 @@ The `list` command outputs a list of the library files that are available locall
 The `get` command obtains a local copy of library files.
 
 ## `delete`
+
 ~~~
   gridlabd library delete <pattern>
 ~~~
@@ -92,6 +99,7 @@ The `get` command obtains a local copy of library files.
 The `delete` command removes local copies of library files.
 
 ## `info`
+
 ~~~
   gridlabd library info <pattern>
 ~~~
@@ -99,6 +107,7 @@ The `delete` command removes local copies of library files.
 The `info` command outputs details about library files
 
 ## `copy`
+
 ~~~
   gridlabd library copy <name> [<file>]
 ~~~
@@ -106,6 +115,7 @@ The `info` command outputs details about library files
 Make a working copy of a library file.
 
 ## `clean`
+
 ~~~
   gridlabd library clean
 ~~~
@@ -113,6 +123,7 @@ Make a working copy of a library file.
 Clean the local cache of the library index.
 
 ## `open`
+
 ~~~
   gridlabd library open <local>
 ~~~
@@ -120,6 +131,7 @@ Clean the local cache of the library index.
 Open a local working session of the library archive.
 
 ## `session`
+
 ~~~
   gridlabd library session <local> [<pattern>]
 ~~~
@@ -127,6 +139,7 @@ Open a local working session of the library archive.
 Output a list of the local working sessions. The first one is the active session.
 
 ## `add`
+
 ~~~
   gridlabd library add <local> <pattern>
 ~~~
@@ -134,6 +147,7 @@ Output a list of the local working sessions. The first one is the active session
 Add the files matching _pattern_ to the current working session.
 
 ## `save`
+
 ~~~
   gridlabd library save <local> ["<description>"]
 ~~~
@@ -141,6 +155,7 @@ Add the files matching _pattern_ to the current working session.
 Add the current working session.
 
 ## `submit`
+
 ~~~
   gridlabd library submit <local>
 ~~~
@@ -148,6 +163,7 @@ Add the current working session.
 Submit the local working session to the archive for review.
 
 ## `config`
+
 ~~~
   gridlabd library config {show|reset|get}
   gridlabd library config set <name> <value>

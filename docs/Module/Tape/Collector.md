@@ -23,6 +23,7 @@ TODO
 ## Properties
 
 ### `trigger`
+
 ~~~
   char32 trigger;
 ~~~
@@ -30,6 +31,7 @@ TODO
 TODO
 
 ### `file`
+
 ~~~
   char1024 file;
 ~~~
@@ -37,6 +39,7 @@ TODO
 TODO
 
 ### `limit`
+
 ~~~
   int32 limit;
 ~~~
@@ -44,6 +47,7 @@ TODO
 TODO
 
 ### `group`
+
 ~~~
   char256 group;
 ~~~
@@ -51,6 +55,7 @@ TODO
 TODO
 
 ### `flush`
+
 ~~~
   int32 flush;
 ~~~
@@ -58,6 +63,7 @@ TODO
 TODO
 
 ### `interval`
+
 ~~~
   double interval[s];
 ~~~
@@ -65,6 +71,7 @@ TODO
 TODO
 
 ### `property`
+
 ~~~
   method property;
 ~~~
@@ -85,5 +92,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Tape]]
 

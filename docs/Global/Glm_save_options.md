@@ -3,12 +3,15 @@
 # Synopsis
 
 Command line usage:
+
 ~~~
 bash$ gridlabd [--define|-D] glm_save_options=LEGACY ...
 bash$ gridlabd [--define|-D] glm_save_options=MINIMAL ...
 bash$ gridlabd [--define|-D] glm_save_options=[NODEFAULTS|NOINTERNALS|NOGLOBALS|NOMACROS] ...
 ~~~
+
 GLM usage:
+
 ~~~
   #set glm_save_options=LEGACY
   #set glm_save_options=MINIMAL
@@ -44,6 +47,7 @@ This causes the GLM file to avoid use default values.
 This is the minimum loadable GLM model. It is a combination of `NOINTERNALS`, `NOGLOBALS`, `NOMACROS`, and `NODEFAULTS`. When `LEGACY` is deprecated, it will become the default.
 
 # Example
+
 ~~~
 bash$ gridlabd -D gld_save_options=MINIMAL model.glm -o model_single_file.glm
 ~~~

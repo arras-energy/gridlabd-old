@@ -35,6 +35,7 @@ TODO
 ## Properties
 
 ### `rectifier_type`
+
 ~~~
   enumeration {TWELVE_PULSE, SIX_PULSE, THREE_PULSE, TWO_PULSE, ONE_PULSE} rectifier_type;
 ~~~
@@ -42,6 +43,7 @@ TODO
 TODO
 
 ### `generator_mode`
+
 ~~~
   enumeration {SUPPLY_DRIVEN, CONSTANT_PF, CONSTANT_PQ, CONSTANT_V, UNKNOWN} generator_mode;
 ~~~
@@ -49,6 +51,7 @@ TODO
 TODO
 
 ### `V_Out`
+
 ~~~
   complex V_Out[V];
 ~~~
@@ -56,6 +59,7 @@ TODO
 TODO
 
 ### `V_Rated`
+
 ~~~
   double V_Rated[V];
 ~~~
@@ -63,6 +67,7 @@ TODO
 TODO
 
 ### `I_Out`
+
 ~~~
   complex I_Out[A];
 ~~~
@@ -70,6 +75,7 @@ TODO
 TODO
 
 ### `VA_Out`
+
 ~~~
   complex VA_Out[VA];
 ~~~
@@ -77,6 +83,7 @@ TODO
 TODO
 
 ### `P_Out`
+
 ~~~
   double P_Out;
 ~~~
@@ -84,6 +91,7 @@ TODO
 TODO
 
 ### `Q_Out`
+
 ~~~
   double Q_Out;
 ~~~
@@ -91,6 +99,7 @@ TODO
 TODO
 
 ### `Vdc`
+
 ~~~
   complex Vdc[V];
 ~~~
@@ -98,6 +107,7 @@ TODO
 TODO
 
 ### `voltage_A`
+
 ~~~
   complex voltage_A[V];
 ~~~
@@ -105,6 +115,7 @@ TODO
 TODO
 
 ### `voltage_B`
+
 ~~~
   complex voltage_B[V];
 ~~~
@@ -112,6 +123,7 @@ TODO
 TODO
 
 ### `voltage_C`
+
 ~~~
   complex voltage_C[V];
 ~~~
@@ -119,6 +131,7 @@ TODO
 TODO
 
 ### `current_A`
+
 ~~~
   complex current_A[V];
 ~~~
@@ -126,6 +139,7 @@ TODO
 TODO
 
 ### `current_B`
+
 ~~~
   complex current_B[V];
 ~~~
@@ -133,6 +147,7 @@ TODO
 TODO
 
 ### `current_C`
+
 ~~~
   complex current_C[V];
 ~~~
@@ -140,6 +155,7 @@ TODO
 TODO
 
 ### `power_A_In`
+
 ~~~
   complex power_A_In[VA];
 ~~~
@@ -147,6 +163,7 @@ TODO
 TODO
 
 ### `power_B_In`
+
 ~~~
   complex power_B_In[VA];
 ~~~
@@ -154,6 +171,7 @@ TODO
 TODO
 
 ### `power_C_In`
+
 ~~~
   complex power_C_In[VA];
 ~~~
@@ -161,6 +179,7 @@ TODO
 TODO
 
 ### `phases`
+
 ~~~
   set {S, N, C, B, A} phases;
 ~~~
@@ -194,5 +213,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Generators]]
 

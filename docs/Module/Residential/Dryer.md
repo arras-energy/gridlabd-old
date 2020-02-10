@@ -84,6 +84,7 @@ TODO
 ## Properties
 
 ### `motor_power`
+
 ~~~
   double motor_power[W];
 ~~~
@@ -91,6 +92,7 @@ TODO
 TODO
 
 ### `dryer_coil_power`
+
 ~~~
   double dryer_coil_power[W];
 ~~~
@@ -98,6 +100,7 @@ TODO
 TODO
 
 ### `controls_power`
+
 ~~~
   double controls_power[W];
 ~~~
@@ -105,6 +108,7 @@ TODO
 TODO
 
 ### `circuit_split`
+
 ~~~
   double circuit_split;
 ~~~
@@ -112,6 +116,7 @@ TODO
 TODO
 
 ### `queue`
+
 ~~~
   double queue[unit];
 ~~~
@@ -119,6 +124,7 @@ TODO
 Number of loads accumulated
 
 ### `queue_min`
+
 ~~~
   double queue_min[unit];
 ~~~
@@ -126,6 +132,7 @@ Number of loads accumulated
 TODO
 
 ### `queue_max`
+
 ~~~
   double queue_max[unit];
 ~~~
@@ -133,6 +140,7 @@ TODO
 TODO
 
 ### `stall_voltage`
+
 ~~~
   double stall_voltage[V];
 ~~~
@@ -140,6 +148,7 @@ TODO
 TODO
 
 ### `start_voltage`
+
 ~~~
   double start_voltage[V];
 ~~~
@@ -147,6 +156,7 @@ TODO
 TODO
 
 ### `stall_impedance`
+
 ~~~
   complex stall_impedance[Ohm];
 ~~~
@@ -154,6 +164,7 @@ TODO
 TODO
 
 ### `trip_delay`
+
 ~~~
   double trip_delay[s];
 ~~~
@@ -161,6 +172,7 @@ TODO
 TODO
 
 ### `reset_delay`
+
 ~~~
   double reset_delay[s];
 ~~~
@@ -168,6 +180,7 @@ TODO
 TODO
 
 ### `total_power`
+
 ~~~
   double total_power[W];
 ~~~
@@ -175,6 +188,7 @@ TODO
 TODO
 
 ### `state`
+
 ~~~
   enumeration {CONTROL_ONLY, MOTOR_COIL_ONLY, MOTOR_ONLY, TRIPPED, STALLED, STOPPED} state;
 ~~~
@@ -182,6 +196,7 @@ TODO
 TODO
 
 ### `energy_baseline`
+
 ~~~
   double energy_baseline[kWh];
 ~~~
@@ -189,6 +204,7 @@ TODO
 TODO
 
 ### `energy_used`
+
 ~~~
   double energy_used[kWh];
 ~~~
@@ -196,6 +212,7 @@ TODO
 TODO
 
 ### `next_t`
+
 ~~~
   double next_t;
 ~~~
@@ -203,6 +220,7 @@ TODO
 TODO
 
 ### `control_check`
+
 ~~~
   bool control_check;
 ~~~
@@ -210,6 +228,7 @@ TODO
 TODO
 
 ### `motor_only_check1`
+
 ~~~
   bool motor_only_check1;
 ~~~
@@ -217,6 +236,7 @@ TODO
 TODO
 
 ### `motor_only_check2`
+
 ~~~
   bool motor_only_check2;
 ~~~
@@ -224,6 +244,7 @@ TODO
 TODO
 
 ### `motor_only_check3`
+
 ~~~
   bool motor_only_check3;
 ~~~
@@ -231,6 +252,7 @@ TODO
 TODO
 
 ### `motor_only_check4`
+
 ~~~
   bool motor_only_check4;
 ~~~
@@ -238,6 +260,7 @@ TODO
 TODO
 
 ### `motor_only_check5`
+
 ~~~
   bool motor_only_check5;
 ~~~
@@ -245,6 +268,7 @@ TODO
 TODO
 
 ### `motor_only_check6`
+
 ~~~
   bool motor_only_check6;
 ~~~
@@ -252,6 +276,7 @@ TODO
 TODO
 
 ### `dryer_on`
+
 ~~~
   bool dryer_on;
 ~~~
@@ -259,6 +284,7 @@ TODO
 TODO
 
 ### `dryer_ready`
+
 ~~~
   bool dryer_ready;
 ~~~
@@ -266,6 +292,7 @@ TODO
 TODO
 
 ### `dryer_check`
+
 ~~~
   bool dryer_check;
 ~~~
@@ -273,6 +300,7 @@ TODO
 TODO
 
 ### `motor_coil_only_check1`
+
 ~~~
   bool motor_coil_only_check1;
 ~~~
@@ -280,6 +308,7 @@ TODO
 TODO
 
 ### `motor_coil_only_check2`
+
 ~~~
   bool motor_coil_only_check2;
 ~~~
@@ -287,6 +316,7 @@ TODO
 TODO
 
 ### `motor_coil_only_check3`
+
 ~~~
   bool motor_coil_only_check3;
 ~~~
@@ -294,6 +324,7 @@ TODO
 TODO
 
 ### `motor_coil_only_check4`
+
 ~~~
   bool motor_coil_only_check4;
 ~~~
@@ -301,6 +332,7 @@ TODO
 TODO
 
 ### `motor_coil_only_check5`
+
 ~~~
   bool motor_coil_only_check5;
 ~~~
@@ -308,6 +340,7 @@ TODO
 TODO
 
 ### `motor_coil_only_check6`
+
 ~~~
   bool motor_coil_only_check6;
 ~~~
@@ -315,6 +348,7 @@ TODO
 TODO
 
 ### `dryer_run_prob`
+
 ~~~
   double dryer_run_prob;
 ~~~
@@ -322,6 +356,7 @@ TODO
 TODO
 
 ### `dryer_turn_on`
+
 ~~~
   double dryer_turn_on;
 ~~~
@@ -329,6 +364,7 @@ TODO
 TODO
 
 ### `pulse_interval_1`
+
 ~~~
   double pulse_interval_1[s];
 ~~~
@@ -336,6 +372,7 @@ TODO
 TODO
 
 ### `pulse_interval_2`
+
 ~~~
   double pulse_interval_2[s];
 ~~~
@@ -343,6 +380,7 @@ TODO
 TODO
 
 ### `pulse_interval_3`
+
 ~~~
   double pulse_interval_3[s];
 ~~~
@@ -350,6 +388,7 @@ TODO
 TODO
 
 ### `pulse_interval_4`
+
 ~~~
   double pulse_interval_4[s];
 ~~~
@@ -357,6 +396,7 @@ TODO
 TODO
 
 ### `pulse_interval_5`
+
 ~~~
   double pulse_interval_5[s];
 ~~~
@@ -364,6 +404,7 @@ TODO
 TODO
 
 ### `pulse_interval_6`
+
 ~~~
   double pulse_interval_6[s];
 ~~~
@@ -371,6 +412,7 @@ TODO
 TODO
 
 ### `pulse_interval_7`
+
 ~~~
   double pulse_interval_7[s];
 ~~~
@@ -378,6 +420,7 @@ TODO
 TODO
 
 ### `energy_needed`
+
 ~~~
   double energy_needed[kWh];
 ~~~
@@ -385,6 +428,7 @@ TODO
 TODO
 
 ### `daily_dryer_demand`
+
 ~~~
   double daily_dryer_demand[kWh];
 ~~~
@@ -392,6 +436,7 @@ TODO
 TODO
 
 ### `actual_dryer_demand`
+
 ~~~
   double actual_dryer_demand[kWh];
 ~~~
@@ -399,6 +444,7 @@ TODO
 TODO
 
 ### `motor_on_off`
+
 ~~~
   double motor_on_off;
 ~~~
@@ -406,6 +452,7 @@ TODO
 TODO
 
 ### `motor_coil_on_off`
+
 ~~~
   double motor_coil_on_off;
 ~~~
@@ -413,6 +460,7 @@ TODO
 TODO
 
 ### `is_240`
+
 ~~~
   bool is_240;
 ~~~
@@ -420,6 +468,7 @@ TODO
 Load is 220/240 V (across both phases)
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -427,6 +476,7 @@ Load is 220/240 V (across both phases)
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -434,6 +484,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -441,6 +492,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -448,6 +500,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -455,6 +508,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -462,6 +516,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -469,6 +524,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -476,6 +532,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -483,6 +540,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -490,6 +548,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -497,6 +556,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -504,6 +564,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -511,6 +572,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -518,6 +580,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -525,6 +588,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -532,6 +596,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -539,6 +604,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -546,6 +612,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -553,6 +620,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -617,5 +685,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

@@ -19,6 +19,7 @@ TODO
 ## Properties
 
 ### `phases`
+
 ~~~
   set {A, B, C, D, N, S, G} phases;
 ~~~
@@ -26,6 +27,7 @@ TODO
 TODO
 
 ### `nominal_voltage`
+
 ~~~
   double nominal_voltage[V];
 ~~~
@@ -33,6 +35,7 @@ TODO
 TODO
 
 ### `supernode_name`
+
 ~~~
   char1024 supernode_name;
 ~~~
@@ -50,5 +53,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

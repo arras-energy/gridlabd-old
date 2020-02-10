@@ -5,52 +5,52 @@
 GLM:
 
 ~~~
-  module powerflow {
-    message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
-    show_matrix_values "<string>";
-    primary_voltage_ratio "<decimal>";
-    nominal_frequency "<decimal>";
-    require_voltage_control "<string>";
-    geographic_degree "<decimal>";
-    fault_impedance "<string>";
-    ground_impedance "<string>";
-    warning_underfrequency "<decimal>";
-    warning_overfrequency "<decimal>";
-    warning_undervoltage "<decimal>";
-    warning_overvoltage "<decimal>";
-    warning_voltageangle "<decimal>";
-    maximum_voltage_error "<decimal>";
-    solver_method "{NR,GS,FBS}";
-    NR_matrix_file "<string>";
-    NR_matrix_output_interval "{ALL,PER_CALL,ONCE,NEVER}";
-    NR_matrix_output_references "<string>";
-    line_capacitance "<string>";
-    line_limits "<string>";
-    lu_solver "<string>";
-    NR_iteration_limit "<integer>";
-    NR_deltamode_iteration_limit "<integer>";
-    NR_superLU_procs "<integer>";
-    default_maximum_voltage_error "<decimal>";
-    default_maximum_power_error "<decimal>";
-    NR_admit_change "<string>";
-    enable_subsecond_models "<string>";
-    all_powerflow_delta "<string>";
-    deltamode_timestep "<decimal> ns";
-    current_frequency "<decimal> Hz";
-    master_frequency_update "<string>";
-    enable_frequency_dependence "<string>";
-    default_resistance "<decimal>";
-    enable_inrush "<string>";
-    low_voltage_impedance_level "<decimal>";
-    enable_mesh_fault_current "<string>";
-    convergence_error_handling "{COLLAPSE,IGNORE,FATAL}";
-    solver_profile_enable "<string>";
-    solver_profile_filename "<string>";
-    solver_profile_headers_included "<string>";
-    solver_headers "<string>";
-    solver_ml_config "<string>";
-    market_price_name "<string>";
-  }
+module powerflow {
+  message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
+  show_matrix_values "<string>";
+  primary_voltage_ratio "<decimal>";
+  nominal_frequency "<decimal>";
+  require_voltage_control "<string>";
+  geographic_degree "<decimal>";
+  fault_impedance "<string>";
+  ground_impedance "<string>";
+  warning_underfrequency "<decimal>";
+  warning_overfrequency "<decimal>";
+  warning_undervoltage "<decimal>";
+  warning_overvoltage "<decimal>";
+  warning_voltageangle "<decimal>";
+  maximum_voltage_error "<decimal>";
+  solver_method "{NR,GS,FBS}";
+  NR_matrix_file "<string>";
+  NR_matrix_output_interval "{ALL,PER_CALL,ONCE,NEVER}";
+  NR_matrix_output_references "<string>";
+  line_capacitance "<string>";
+  line_limits "<string>";
+  lu_solver "<string>";
+  NR_iteration_limit "<integer>";
+  NR_deltamode_iteration_limit "<integer>";
+  NR_superLU_procs "<integer>";
+  default_maximum_voltage_error "<decimal>";
+  default_maximum_power_error "<decimal>";
+  NR_admit_change "<string>";
+  enable_subsecond_models "<string>";
+  all_powerflow_delta "<string>";
+  deltamode_timestep "<decimal> ns";
+  current_frequency "<decimal> Hz";
+  master_frequency_update "<string>";
+  enable_frequency_dependence "<string>";
+  default_resistance "<decimal>";
+  enable_inrush "<string>";
+  low_voltage_impedance_level "<decimal>";
+  enable_mesh_fault_current "<string>";
+  convergence_error_handling "{COLLAPSE,IGNORE,FATAL}";
+  solver_profile_enable "<string>";
+  solver_profile_filename "<string>";
+  solver_profile_headers_included "<string>";
+  solver_headers "<string>";
+  solver_ml_config "<string>";
+  market_price_name "<string>";
+}
 ~~~
 
 # Description
@@ -60,6 +60,7 @@ TODO
 ## Globals
 
 ### `message_flags`
+
 ~~~
   message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
 ~~~
@@ -67,6 +68,7 @@ TODO
 Module message control flags
 
 ### `show_matrix_values`
+
 ~~~
   show_matrix_values "<string>";
 ~~~
@@ -74,6 +76,7 @@ Module message control flags
 TODO
 
 ### `primary_voltage_ratio`
+
 ~~~
   primary_voltage_ratio "<decimal>";
 ~~~
@@ -81,6 +84,7 @@ TODO
 TODO
 
 ### `nominal_frequency`
+
 ~~~
   nominal_frequency "<decimal>";
 ~~~
@@ -88,6 +92,7 @@ TODO
 TODO
 
 ### `require_voltage_control`
+
 ~~~
   require_voltage_control "<string>";
 ~~~
@@ -95,6 +100,7 @@ TODO
 TODO
 
 ### `geographic_degree`
+
 ~~~
   geographic_degree "<decimal>";
 ~~~
@@ -102,6 +108,7 @@ TODO
 TODO
 
 ### `fault_impedance`
+
 ~~~
   fault_impedance "<string>";
 ~~~
@@ -109,6 +116,7 @@ TODO
 TODO
 
 ### `ground_impedance`
+
 ~~~
   ground_impedance "<string>";
 ~~~
@@ -116,6 +124,7 @@ TODO
 TODO
 
 ### `warning_underfrequency`
+
 ~~~
   warning_underfrequency "<decimal>";
 ~~~
@@ -123,6 +132,7 @@ TODO
 TODO
 
 ### `warning_overfrequency`
+
 ~~~
   warning_overfrequency "<decimal>";
 ~~~
@@ -130,6 +140,7 @@ TODO
 TODO
 
 ### `warning_undervoltage`
+
 ~~~
   warning_undervoltage "<decimal>";
 ~~~
@@ -137,6 +148,7 @@ TODO
 TODO
 
 ### `warning_overvoltage`
+
 ~~~
   warning_overvoltage "<decimal>";
 ~~~
@@ -144,6 +156,7 @@ TODO
 TODO
 
 ### `warning_voltageangle`
+
 ~~~
   warning_voltageangle "<decimal>";
 ~~~
@@ -151,6 +164,7 @@ TODO
 TODO
 
 ### `maximum_voltage_error`
+
 ~~~
   maximum_voltage_error "<decimal>";
 ~~~
@@ -158,6 +172,7 @@ TODO
 TODO
 
 ### `solver_method`
+
 ~~~
   solver_method "{NR,GS,FBS}";
 ~~~
@@ -165,6 +180,7 @@ TODO
 TODO
 
 ### `NR_matrix_file`
+
 ~~~
   NR_matrix_file "<string>";
 ~~~
@@ -172,6 +188,7 @@ TODO
 TODO
 
 ### `NR_matrix_output_interval`
+
 ~~~
   NR_matrix_output_interval "{ALL,PER_CALL,ONCE,NEVER}";
 ~~~
@@ -179,6 +196,7 @@ TODO
 TODO
 
 ### `NR_matrix_output_references`
+
 ~~~
   NR_matrix_output_references "<string>";
 ~~~
@@ -186,6 +204,7 @@ TODO
 TODO
 
 ### `line_capacitance`
+
 ~~~
   line_capacitance "<string>";
 ~~~
@@ -193,6 +212,7 @@ TODO
 TODO
 
 ### `line_limits`
+
 ~~~
   line_limits "<string>";
 ~~~
@@ -200,6 +220,7 @@ TODO
 TODO
 
 ### `lu_solver`
+
 ~~~
   lu_solver "<string>";
 ~~~
@@ -207,6 +228,7 @@ TODO
 TODO
 
 ### `NR_iteration_limit`
+
 ~~~
   NR_iteration_limit "<integer>";
 ~~~
@@ -214,6 +236,7 @@ TODO
 TODO
 
 ### `NR_deltamode_iteration_limit`
+
 ~~~
   NR_deltamode_iteration_limit "<integer>";
 ~~~
@@ -221,6 +244,7 @@ TODO
 TODO
 
 ### `NR_superLU_procs`
+
 ~~~
   NR_superLU_procs "<integer>";
 ~~~
@@ -228,6 +252,7 @@ TODO
 TODO
 
 ### `default_maximum_voltage_error`
+
 ~~~
   default_maximum_voltage_error "<decimal>";
 ~~~
@@ -235,6 +260,7 @@ TODO
 TODO
 
 ### `default_maximum_power_error`
+
 ~~~
   default_maximum_power_error "<decimal>";
 ~~~
@@ -242,6 +268,7 @@ TODO
 TODO
 
 ### `NR_admit_change`
+
 ~~~
   NR_admit_change "<string>";
 ~~~
@@ -249,6 +276,7 @@ TODO
 TODO
 
 ### `enable_subsecond_models`
+
 ~~~
   enable_subsecond_models "<string>";
 ~~~
@@ -256,6 +284,7 @@ TODO
 Enable deltamode capabilities within the powerflow module
 
 ### `all_powerflow_delta`
+
 ~~~
   all_powerflow_delta "<string>";
 ~~~
@@ -263,6 +292,7 @@ Enable deltamode capabilities within the powerflow module
 Forces all powerflow objects that are capable to participate in deltamode
 
 ### `deltamode_timestep`
+
 ~~~
   deltamode_timestep "<decimal> ns";
 ~~~
@@ -270,6 +300,7 @@ Forces all powerflow objects that are capable to participate in deltamode
 Desired minimum timestep for deltamode-related simulations
 
 ### `current_frequency`
+
 ~~~
   current_frequency "<decimal> Hz";
 ~~~
@@ -277,6 +308,7 @@ Desired minimum timestep for deltamode-related simulations
 Current system-level frequency of the powerflow system
 
 ### `master_frequency_update`
+
 ~~~
   master_frequency_update "<string>";
 ~~~
@@ -284,6 +316,7 @@ Current system-level frequency of the powerflow system
 Tracking variable to see if an object has become the system frequency updater
 
 ### `enable_frequency_dependence`
+
 ~~~
   enable_frequency_dependence "<string>";
 ~~~
@@ -291,6 +324,7 @@ Tracking variable to see if an object has become the system frequency updater
 Flag to enable frequency-based variations in impedance values of lines and loads
 
 ### `default_resistance`
+
 ~~~
   default_resistance "<decimal>";
 ~~~
@@ -298,6 +332,7 @@ Flag to enable frequency-based variations in impedance values of lines and loads
 TODO
 
 ### `enable_inrush`
+
 ~~~
   enable_inrush "<string>";
 ~~~
@@ -305,6 +340,7 @@ TODO
 Flag to enable in-rush calculations for lines and transformers in deltamode
 
 ### `low_voltage_impedance_level`
+
 ~~~
   low_voltage_impedance_level "<decimal>";
 ~~~
@@ -312,6 +348,7 @@ Flag to enable in-rush calculations for lines and transformers in deltamode
 Lower limit of voltage (in per-unit) at which all load types are converted to impedance for in-rush calculations
 
 ### `enable_mesh_fault_current`
+
 ~~~
   enable_mesh_fault_current "<string>";
 ~~~
@@ -319,6 +356,7 @@ Lower limit of voltage (in per-unit) at which all load types are converted to im
 Flag to enable mesh-based fault current calculations
 
 ### `convergence_error_handling`
+
 ~~~
   convergence_error_handling "{COLLAPSE,IGNORE,FATAL}";
 ~~~
@@ -326,6 +364,7 @@ Flag to enable mesh-based fault current calculations
 Flag to handle convergence error
 
 ### `solver_profile_enable`
+
 ~~~
   solver_profile_enable "<string>";
 ~~~
@@ -333,6 +372,7 @@ Flag to handle convergence error
 Flag to enable NR solver profiler
 
 ### `solver_profile_filename`
+
 ~~~
   solver_profile_filename "<string>";
 ~~~
@@ -340,6 +380,7 @@ Flag to enable NR solver profiler
 Name of NR solver profile file
 
 ### `solver_profile_headers_included`
+
 ~~~
   solver_profile_headers_included "<string>";
 ~~~
@@ -347,6 +388,7 @@ Name of NR solver profile file
 Flag to include headers in NR solver profile file
 
 ### `solver_headers`
+
 ~~~
   solver_headers "<string>";
 ~~~
@@ -354,6 +396,7 @@ Flag to include headers in NR solver profile file
 Headers in NR solver profile file
 
 ### `solver_ml_config`
+
 ~~~
   solver_ml_config "<string>";
 ~~~
@@ -361,6 +404,7 @@ Headers in NR solver profile file
 ML solver configuration file location
 
 ### `market_price_name`
+
 ~~~
   market_price_name "<string>";
 ~~~
@@ -368,6 +412,7 @@ ML solver configuration file location
 TODO
 
 # See also
+
 * [[/Module/Powerflow/Powerflow_object]]
 * [[/Module/Powerflow/Powerflow_library]]
 * [[/Module/Powerflow/Node]]

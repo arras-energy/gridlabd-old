@@ -19,6 +19,7 @@ TODO
 ## Properties
 
 ### `status`
+
 ~~~
   enumeration {ASSERT_NONE, ASSERT_FALSE, ASSERT_TRUE} status;
 ~~~
@@ -26,6 +27,7 @@ TODO
 Conditions for the assert checks
 
 ### `value`
+
 ~~~
   int32 value;
 ~~~
@@ -33,6 +35,7 @@ Conditions for the assert checks
 Value to assert
 
 ### `target`
+
 ~~~
   char1024 target;
 ~~~
@@ -50,5 +53,6 @@ Property to perform the assert upon
 ~~~
 
 # See also
+
 * [[/Module/Assert]]
 

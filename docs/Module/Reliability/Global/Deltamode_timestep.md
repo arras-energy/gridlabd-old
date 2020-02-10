@@ -1,11 +1,15 @@
 [[/Module/Reliability/Global/Deltamode_timestep]] -- Module reliability global variable deltamode_timestep
 
 # Synopsis
+
 Shell:
+
 ~~~
 bash$ gridlabd -D|--define deltamode_timestep=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set deltamode_timestep=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Reliability]]

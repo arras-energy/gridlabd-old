@@ -64,6 +64,7 @@ TODO
 ## Properties
 
 ### `solar_elevation`
+
 ~~~
   double solar_elevation[rad];
 ~~~
@@ -71,6 +72,7 @@ TODO
 Solar elevation angle in radians
 
 ### `solar_azimuth`
+
 ~~~
   double solar_azimuth[rad];
 ~~~
@@ -78,6 +80,7 @@ Solar elevation angle in radians
 Solar azimuth angle in radians
 
 ### `solar_zenith`
+
 ~~~
   double solar_zenith[rad];
 ~~~
@@ -85,6 +88,7 @@ Solar azimuth angle in radians
 Solar zenith angle in radians
 
 ### `city`
+
 ~~~
   char32 city;
 ~~~
@@ -92,6 +96,7 @@ Solar zenith angle in radians
 Weather data city name
 
 ### `tmyfile`
+
 ~~~
   char1024 tmyfile;
 ~~~
@@ -99,6 +104,7 @@ Weather data city name
 Weather data file name
 
 ### `temperature`
+
 ~~~
   double temperature[degF];
 ~~~
@@ -106,6 +112,7 @@ Weather data file name
 Current temperature
 
 ### `humidity`
+
 ~~~
   double humidity[pu];
 ~~~
@@ -113,6 +120,7 @@ Current temperature
 Current humidity
 
 ### `solar_flux`
+
 ~~~
   double solar_flux[W/sf];
 ~~~
@@ -120,6 +128,7 @@ Current humidity
 Current solar irradiance (9 orientiations)
 
 ### `solar_direct`
+
 ~~~
   double solar_direct[W/sf];
 ~~~
@@ -127,6 +136,7 @@ Current solar irradiance (9 orientiations)
 Solar direct irradiance
 
 ### `solar_diffuse`
+
 ~~~
   double solar_diffuse[W/sf];
 ~~~
@@ -134,6 +144,7 @@ Solar direct irradiance
 Solar diffuse irradiance
 
 ### `solar_global`
+
 ~~~
   double solar_global[W/sf];
 ~~~
@@ -141,6 +152,7 @@ Solar diffuse irradiance
 Solar global flux irradiance
 
 ### `extraterrestrial_global_horizontal`
+
 ~~~
   double extraterrestrial_global_horizontal[W/sf];
 ~~~
@@ -148,6 +160,7 @@ Solar global flux irradiance
 Solar global extraterrestrial irradiance
 
 ### `extraterrestrial_direct_normal`
+
 ~~~
   double extraterrestrial_direct_normal[W/sf];
 ~~~
@@ -155,6 +168,7 @@ Solar global extraterrestrial irradiance
 Solar direct normal extraterrestrial irradiance
 
 ### `pressure`
+
 ~~~
   double pressure[mbar];
 ~~~
@@ -162,6 +176,7 @@ Solar direct normal extraterrestrial irradiance
 Current air pressure
 
 ### `wind_speed`
+
 ~~~
   double wind_speed[m/s];
 ~~~
@@ -169,6 +184,7 @@ Current air pressure
 Current wind speed
 
 ### `wind_dir`
+
 ~~~
   double wind_dir[rad];
 ~~~
@@ -176,6 +192,7 @@ Current wind speed
 Current direction in radians
 
 ### `wind_gust`
+
 ~~~
   double wind_gust[m/s];
 ~~~
@@ -183,6 +200,7 @@ Current direction in radians
 Current wind gusts
 
 ### `record.low`
+
 ~~~
   double record.low[degF];
 ~~~
@@ -190,6 +208,7 @@ Current wind gusts
 Record low temperature observed
 
 ### `record.low_day`
+
 ~~~
   int32 record.low_day;
 ~~~
@@ -197,6 +216,7 @@ Record low temperature observed
 Day of year for record low observation
 
 ### `record.high`
+
 ~~~
   double record.high[degF];
 ~~~
@@ -204,6 +224,7 @@ Day of year for record low observation
 Record high temperature observed
 
 ### `record.high_day`
+
 ~~~
   int32 record.high_day;
 ~~~
@@ -211,6 +232,7 @@ Record high temperature observed
 Day of year for record high observation
 
 ### `record.solar`
+
 ~~~
   double record.solar[W/sf];
 ~~~
@@ -218,6 +240,7 @@ Day of year for record high observation
 Record high solar irradiance observed
 
 ### `rainfall`
+
 ~~~
   double rainfall[in/h];
 ~~~
@@ -225,6 +248,7 @@ Record high solar irradiance observed
 Rainfall observed
 
 ### `snowdepth`
+
 ~~~
   double snowdepth[in];
 ~~~
@@ -232,6 +256,7 @@ Rainfall observed
 Snow depth observed
 
 ### `interpolate`
+
 ~~~
   enumeration {QUADRATIC, LINEAR, NONE} interpolate;
 ~~~
@@ -239,6 +264,7 @@ Snow depth observed
 The interpolation mode used on the climate data
 
 ### `solar_horiz`
+
 ~~~
   double solar_horiz;
 ~~~
@@ -246,6 +272,7 @@ The interpolation mode used on the climate data
 TODO
 
 ### `solar_north`
+
 ~~~
   double solar_north;
 ~~~
@@ -253,6 +280,7 @@ TODO
 TODO
 
 ### `solar_northeast`
+
 ~~~
   double solar_northeast;
 ~~~
@@ -260,6 +288,7 @@ TODO
 TODO
 
 ### `solar_east`
+
 ~~~
   double solar_east;
 ~~~
@@ -267,6 +296,7 @@ TODO
 TODO
 
 ### `solar_southeast`
+
 ~~~
   double solar_southeast;
 ~~~
@@ -274,6 +304,7 @@ TODO
 TODO
 
 ### `solar_south`
+
 ~~~
   double solar_south;
 ~~~
@@ -281,6 +312,7 @@ TODO
 TODO
 
 ### `solar_southwest`
+
 ~~~
   double solar_southwest;
 ~~~
@@ -288,6 +320,7 @@ TODO
 TODO
 
 ### `solar_west`
+
 ~~~
   double solar_west;
 ~~~
@@ -295,6 +328,7 @@ TODO
 TODO
 
 ### `solar_northwest`
+
 ~~~
   double solar_northwest;
 ~~~
@@ -302,6 +336,7 @@ TODO
 TODO
 
 ### `solar_raw`
+
 ~~~
   double solar_raw[W/sf];
 ~~~
@@ -309,6 +344,7 @@ TODO
 TODO
 
 ### `ground_reflectivity`
+
 ~~~
   double ground_reflectivity[pu];
 ~~~
@@ -316,6 +352,7 @@ TODO
 Ground reflectivity observed
 
 ### `reader`
+
 ~~~
   object reader;
 ~~~
@@ -323,6 +360,7 @@ Ground reflectivity observed
 Weather reader object
 
 ### `forecast`
+
 ~~~
   char1024 forecast;
 ~~~
@@ -330,6 +368,7 @@ Weather reader object
 Forecasting specifications
 
 ### `cloud_model`
+
 ~~~
   enumeration {CUMULUS, NONE} cloud_model;
 ~~~
@@ -337,6 +376,7 @@ Forecasting specifications
 The cloud model to use
 
 ### `cloud_opacity`
+
 ~~~
   double cloud_opacity[pu];
 ~~~
@@ -344,6 +384,7 @@ The cloud model to use
 Cloud opacity factor
 
 ### `opq_sky_cov`
+
 ~~~
   double opq_sky_cov[pu];
 ~~~
@@ -351,6 +392,7 @@ Cloud opacity factor
 Cloud sky coverage factor
 
 ### `cloud_speed_factor`
+
 ~~~
   double cloud_speed_factor[pu];
 ~~~
@@ -358,6 +400,7 @@ Cloud sky coverage factor
 Cloud speed factor
 
 ### `solar_cloud_direct`
+
 ~~~
   double solar_cloud_direct[W/sf];
 ~~~
@@ -365,6 +408,7 @@ Cloud speed factor
 Cloud direct irradiance
 
 ### `solar_cloud_diffuse`
+
 ~~~
   double solar_cloud_diffuse[W/sf];
 ~~~
@@ -372,6 +416,7 @@ Cloud direct irradiance
 Cloud diffuse irradiance
 
 ### `solar_cloud_global`
+
 ~~~
   double solar_cloud_global[W/sf];
 ~~~
@@ -379,6 +424,7 @@ Cloud diffuse irradiance
 Cloud global irradiance
 
 ### `cloud_alpha`
+
 ~~~
   double cloud_alpha[pu];
 ~~~
@@ -386,6 +432,7 @@ Cloud global irradiance
 Cloud alpha
 
 ### `cloud_num_layers`
+
 ~~~
   double cloud_num_layers[pu];
 ~~~
@@ -393,6 +440,7 @@ Cloud alpha
 Number of cloud layers
 
 ### `cloud_aerosol_transmissivity`
+
 ~~~
   double cloud_aerosol_transmissivity[pu];
 ~~~
@@ -454,5 +502,6 @@ Cloud aerosal transmissivity
 ~~~
 
 # See also
+
 * [[/Module/Climate]]
 

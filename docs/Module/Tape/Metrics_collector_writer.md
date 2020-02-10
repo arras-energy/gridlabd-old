@@ -18,6 +18,7 @@ TODO
 ## Properties
 
 ### `filename`
+
 ~~~
   char256 filename;
 ~~~
@@ -25,6 +26,7 @@ TODO
 The JSON formatted output file name
 
 ### `interval`
+
 ~~~
   double interval[s];
 ~~~
@@ -41,5 +43,6 @@ Interval at which the metrics_collector_writer output is stored in JSON format
 ~~~
 
 # See also
+
 * [[/Module/Tape]]
 

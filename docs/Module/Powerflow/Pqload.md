@@ -250,6 +250,7 @@ TODO
 ## Properties
 
 ### `weather`
+
 ~~~
   object weather;
 ~~~
@@ -257,6 +258,7 @@ TODO
 TODO
 
 ### `T_nominal`
+
 ~~~
   double T_nominal[degF];
 ~~~
@@ -264,6 +266,7 @@ TODO
 TODO
 
 ### `Zp_T`
+
 ~~~
   double Zp_T[ohm/degF];
 ~~~
@@ -271,6 +274,7 @@ TODO
 TODO
 
 ### `Zp_H`
+
 ~~~
   double Zp_H[ohm/%];
 ~~~
@@ -278,6 +282,7 @@ TODO
 TODO
 
 ### `Zp_S`
+
 ~~~
   double Zp_S[ohm*h/Btu];
 ~~~
@@ -285,6 +290,7 @@ TODO
 TODO
 
 ### `Zp_W`
+
 ~~~
   double Zp_W[ohm/mph];
 ~~~
@@ -292,6 +298,7 @@ TODO
 TODO
 
 ### `Zp_R`
+
 ~~~
   double Zp_R[ohm*h/in];
 ~~~
@@ -299,6 +306,7 @@ TODO
 TODO
 
 ### `Zp`
+
 ~~~
   double Zp[ohm];
 ~~~
@@ -306,6 +314,7 @@ TODO
 TODO
 
 ### `Zq_T`
+
 ~~~
   double Zq_T[F/degF];
 ~~~
@@ -313,6 +322,7 @@ TODO
 TODO
 
 ### `Zq_H`
+
 ~~~
   double Zq_H[F/%];
 ~~~
@@ -320,6 +330,7 @@ TODO
 TODO
 
 ### `Zq_S`
+
 ~~~
   double Zq_S[F*h/Btu];
 ~~~
@@ -327,6 +338,7 @@ TODO
 TODO
 
 ### `Zq_W`
+
 ~~~
   double Zq_W[F/mph];
 ~~~
@@ -334,6 +346,7 @@ TODO
 TODO
 
 ### `Zq_R`
+
 ~~~
   double Zq_R[F*h/in];
 ~~~
@@ -341,6 +354,7 @@ TODO
 TODO
 
 ### `Zq`
+
 ~~~
   double Zq[F];
 ~~~
@@ -348,6 +362,7 @@ TODO
 TODO
 
 ### `Im_T`
+
 ~~~
   double Im_T[A/degF];
 ~~~
@@ -355,6 +370,7 @@ TODO
 TODO
 
 ### `Im_H`
+
 ~~~
   double Im_H[A/%];
 ~~~
@@ -362,6 +378,7 @@ TODO
 TODO
 
 ### `Im_S`
+
 ~~~
   double Im_S[A*h/Btu];
 ~~~
@@ -369,6 +386,7 @@ TODO
 TODO
 
 ### `Im_W`
+
 ~~~
   double Im_W[A/mph];
 ~~~
@@ -376,6 +394,7 @@ TODO
 TODO
 
 ### `Im_R`
+
 ~~~
   double Im_R[A*h/in];
 ~~~
@@ -383,6 +402,7 @@ TODO
 TODO
 
 ### `Im`
+
 ~~~
   double Im[A];
 ~~~
@@ -390,6 +410,7 @@ TODO
 TODO
 
 ### `Ia_T`
+
 ~~~
   double Ia_T[deg/degF];
 ~~~
@@ -397,6 +418,7 @@ TODO
 TODO
 
 ### `Ia_H`
+
 ~~~
   double Ia_H[deg/%];
 ~~~
@@ -404,6 +426,7 @@ TODO
 TODO
 
 ### `Ia_S`
+
 ~~~
   double Ia_S[deg*h/Btu];
 ~~~
@@ -411,6 +434,7 @@ TODO
 TODO
 
 ### `Ia_W`
+
 ~~~
   double Ia_W[deg/mph];
 ~~~
@@ -418,6 +442,7 @@ TODO
 TODO
 
 ### `Ia_R`
+
 ~~~
   double Ia_R[deg*h/in];
 ~~~
@@ -425,6 +450,7 @@ TODO
 TODO
 
 ### `Ia`
+
 ~~~
   double Ia[deg];
 ~~~
@@ -432,6 +458,7 @@ TODO
 TODO
 
 ### `Pp_T`
+
 ~~~
   double Pp_T[W/degF];
 ~~~
@@ -439,6 +466,7 @@ TODO
 TODO
 
 ### `Pp_H`
+
 ~~~
   double Pp_H[W/%];
 ~~~
@@ -446,6 +474,7 @@ TODO
 TODO
 
 ### `Pp_S`
+
 ~~~
   double Pp_S[W*h/Btu];
 ~~~
@@ -453,6 +482,7 @@ TODO
 TODO
 
 ### `Pp_W`
+
 ~~~
   double Pp_W[W/mph];
 ~~~
@@ -460,6 +490,7 @@ TODO
 TODO
 
 ### `Pp_R`
+
 ~~~
   double Pp_R[W*h/in];
 ~~~
@@ -467,6 +498,7 @@ TODO
 TODO
 
 ### `Pp`
+
 ~~~
   double Pp[W];
 ~~~
@@ -474,6 +506,7 @@ TODO
 TODO
 
 ### `Pq_T`
+
 ~~~
   double Pq_T[VAr/degF];
 ~~~
@@ -481,6 +514,7 @@ TODO
 TODO
 
 ### `Pq_H`
+
 ~~~
   double Pq_H[VAr/%];
 ~~~
@@ -488,6 +522,7 @@ TODO
 TODO
 
 ### `Pq_S`
+
 ~~~
   double Pq_S[VAr*h/Btu];
 ~~~
@@ -495,6 +530,7 @@ TODO
 TODO
 
 ### `Pq_W`
+
 ~~~
   double Pq_W[VAr/mph];
 ~~~
@@ -502,6 +538,7 @@ TODO
 TODO
 
 ### `Pq_R`
+
 ~~~
   double Pq_R[VAr*h/in];
 ~~~
@@ -509,6 +546,7 @@ TODO
 TODO
 
 ### `Pq`
+
 ~~~
   double Pq[VAr];
 ~~~
@@ -516,6 +554,7 @@ TODO
 TODO
 
 ### `input_temp`
+
 ~~~
   double input_temp[degF];
 ~~~
@@ -523,6 +562,7 @@ TODO
 TODO
 
 ### `input_humid`
+
 ~~~
   double input_humid[%];
 ~~~
@@ -530,6 +570,7 @@ TODO
 TODO
 
 ### `input_solar`
+
 ~~~
   double input_solar[Btu/h];
 ~~~
@@ -537,6 +578,7 @@ TODO
 TODO
 
 ### `input_wind`
+
 ~~~
   double input_wind[mph];
 ~~~
@@ -544,6 +586,7 @@ TODO
 TODO
 
 ### `input_rain`
+
 ~~~
   double input_rain[in/h];
 ~~~
@@ -551,6 +594,7 @@ TODO
 TODO
 
 ### `output_imped_p`
+
 ~~~
   double output_imped_p[Ohm];
 ~~~
@@ -558,6 +602,7 @@ TODO
 TODO
 
 ### `output_imped_q`
+
 ~~~
   double output_imped_q[Ohm];
 ~~~
@@ -565,6 +610,7 @@ TODO
 TODO
 
 ### `output_current_m`
+
 ~~~
   double output_current_m[A];
 ~~~
@@ -572,6 +618,7 @@ TODO
 TODO
 
 ### `output_current_a`
+
 ~~~
   double output_current_a[deg];
 ~~~
@@ -579,6 +626,7 @@ TODO
 TODO
 
 ### `output_power_p`
+
 ~~~
   double output_power_p[W];
 ~~~
@@ -586,6 +634,7 @@ TODO
 TODO
 
 ### `output_power_q`
+
 ~~~
   double output_power_q[VAr];
 ~~~
@@ -593,6 +642,7 @@ TODO
 TODO
 
 ### `output_impedance`
+
 ~~~
   complex output_impedance[ohm];
 ~~~
@@ -600,6 +650,7 @@ TODO
 TODO
 
 ### `output_current`
+
 ~~~
   complex output_current[A];
 ~~~
@@ -607,6 +658,7 @@ TODO
 TODO
 
 ### `output_power`
+
 ~~~
   complex output_power[VA];
 ~~~
@@ -614,6 +666,7 @@ TODO
 TODO
 
 ### `load_class`
+
 ~~~
   enumeration {A, I, C, R, U} load_class;
 ~~~
@@ -621,6 +674,7 @@ TODO
 Flag to track load type, not currently used for anything except sorting
 
 ### `constant_power_A`
+
 ~~~
   complex constant_power_A[VA];
 ~~~
@@ -628,6 +682,7 @@ Flag to track load type, not currently used for anything except sorting
 Constant power load on phase A, specified as VA
 
 ### `constant_power_B`
+
 ~~~
   complex constant_power_B[VA];
 ~~~
@@ -635,6 +690,7 @@ Constant power load on phase A, specified as VA
 Constant power load on phase B, specified as VA
 
 ### `constant_power_C`
+
 ~~~
   complex constant_power_C[VA];
 ~~~
@@ -642,6 +698,7 @@ Constant power load on phase B, specified as VA
 Constant power load on phase C, specified as VA
 
 ### `constant_power_A_real`
+
 ~~~
   double constant_power_A_real[W];
 ~~~
@@ -649,6 +706,7 @@ Constant power load on phase C, specified as VA
 Constant power load on phase A, real only, specified as W
 
 ### `constant_power_B_real`
+
 ~~~
   double constant_power_B_real[W];
 ~~~
@@ -656,6 +714,7 @@ Constant power load on phase A, real only, specified as W
 Constant power load on phase B, real only, specified as W
 
 ### `constant_power_C_real`
+
 ~~~
   double constant_power_C_real[W];
 ~~~
@@ -663,6 +722,7 @@ Constant power load on phase B, real only, specified as W
 Constant power load on phase C, real only, specified as W
 
 ### `constant_power_A_reac`
+
 ~~~
   double constant_power_A_reac[VAr];
 ~~~
@@ -670,6 +730,7 @@ Constant power load on phase C, real only, specified as W
 Constant power load on phase A, imaginary only, specified as VAr
 
 ### `constant_power_B_reac`
+
 ~~~
   double constant_power_B_reac[VAr];
 ~~~
@@ -677,6 +738,7 @@ Constant power load on phase A, imaginary only, specified as VAr
 Constant power load on phase B, imaginary only, specified as VAr
 
 ### `constant_power_C_reac`
+
 ~~~
   double constant_power_C_reac[VAr];
 ~~~
@@ -684,6 +746,7 @@ Constant power load on phase B, imaginary only, specified as VAr
 Constant power load on phase C, imaginary only, specified as VAr
 
 ### `constant_current_A`
+
 ~~~
   complex constant_current_A[A];
 ~~~
@@ -691,6 +754,7 @@ Constant power load on phase C, imaginary only, specified as VAr
 Constant current load on phase A, specified as Amps
 
 ### `constant_current_B`
+
 ~~~
   complex constant_current_B[A];
 ~~~
@@ -698,6 +762,7 @@ Constant current load on phase A, specified as Amps
 Constant current load on phase B, specified as Amps
 
 ### `constant_current_C`
+
 ~~~
   complex constant_current_C[A];
 ~~~
@@ -705,6 +770,7 @@ Constant current load on phase B, specified as Amps
 Constant current load on phase C, specified as Amps
 
 ### `constant_current_A_real`
+
 ~~~
   double constant_current_A_real[A];
 ~~~
@@ -712,6 +778,7 @@ Constant current load on phase C, specified as Amps
 Constant current load on phase A, real only, specified as Amps
 
 ### `constant_current_B_real`
+
 ~~~
   double constant_current_B_real[A];
 ~~~
@@ -719,6 +786,7 @@ Constant current load on phase A, real only, specified as Amps
 Constant current load on phase B, real only, specified as Amps
 
 ### `constant_current_C_real`
+
 ~~~
   double constant_current_C_real[A];
 ~~~
@@ -726,6 +794,7 @@ Constant current load on phase B, real only, specified as Amps
 Constant current load on phase C, real only, specified as Amps
 
 ### `constant_current_A_reac`
+
 ~~~
   double constant_current_A_reac[A];
 ~~~
@@ -733,6 +802,7 @@ Constant current load on phase C, real only, specified as Amps
 Constant current load on phase A, imaginary only, specified as Amps
 
 ### `constant_current_B_reac`
+
 ~~~
   double constant_current_B_reac[A];
 ~~~
@@ -740,6 +810,7 @@ Constant current load on phase A, imaginary only, specified as Amps
 Constant current load on phase B, imaginary only, specified as Amps
 
 ### `constant_current_C_reac`
+
 ~~~
   double constant_current_C_reac[A];
 ~~~
@@ -747,6 +818,7 @@ Constant current load on phase B, imaginary only, specified as Amps
 Constant current load on phase C, imaginary only, specified as Amps
 
 ### `constant_impedance_A`
+
 ~~~
   complex constant_impedance_A[Ohm];
 ~~~
@@ -754,6 +826,7 @@ Constant current load on phase C, imaginary only, specified as Amps
 Constant impedance load on phase A, specified as Ohms
 
 ### `constant_impedance_B`
+
 ~~~
   complex constant_impedance_B[Ohm];
 ~~~
@@ -761,6 +834,7 @@ Constant impedance load on phase A, specified as Ohms
 Constant impedance load on phase B, specified as Ohms
 
 ### `constant_impedance_C`
+
 ~~~
   complex constant_impedance_C[Ohm];
 ~~~
@@ -768,6 +842,7 @@ Constant impedance load on phase B, specified as Ohms
 Constant impedance load on phase C, specified as Ohms
 
 ### `constant_impedance_A_real`
+
 ~~~
   double constant_impedance_A_real[Ohm];
 ~~~
@@ -775,6 +850,7 @@ Constant impedance load on phase C, specified as Ohms
 Constant impedance load on phase A, real only, specified as Ohms
 
 ### `constant_impedance_B_real`
+
 ~~~
   double constant_impedance_B_real[Ohm];
 ~~~
@@ -782,6 +858,7 @@ Constant impedance load on phase A, real only, specified as Ohms
 Constant impedance load on phase B, real only, specified as Ohms
 
 ### `constant_impedance_C_real`
+
 ~~~
   double constant_impedance_C_real[Ohm];
 ~~~
@@ -789,6 +866,7 @@ Constant impedance load on phase B, real only, specified as Ohms
 Constant impedance load on phase C, real only, specified as Ohms
 
 ### `constant_impedance_A_reac`
+
 ~~~
   double constant_impedance_A_reac[Ohm];
 ~~~
@@ -796,6 +874,7 @@ Constant impedance load on phase C, real only, specified as Ohms
 Constant impedance load on phase A, imaginary only, specified as Ohms
 
 ### `constant_impedance_B_reac`
+
 ~~~
   double constant_impedance_B_reac[Ohm];
 ~~~
@@ -803,6 +882,7 @@ Constant impedance load on phase A, imaginary only, specified as Ohms
 Constant impedance load on phase B, imaginary only, specified as Ohms
 
 ### `constant_impedance_C_reac`
+
 ~~~
   double constant_impedance_C_reac[Ohm];
 ~~~
@@ -810,6 +890,7 @@ Constant impedance load on phase B, imaginary only, specified as Ohms
 Constant impedance load on phase C, imaginary only, specified as Ohms
 
 ### `constant_power_AN`
+
 ~~~
   complex constant_power_AN[VA];
 ~~~
@@ -817,6 +898,7 @@ Constant impedance load on phase C, imaginary only, specified as Ohms
 Constant power wye-connected load on phase A, specified as VA
 
 ### `constant_power_BN`
+
 ~~~
   complex constant_power_BN[VA];
 ~~~
@@ -824,6 +906,7 @@ Constant power wye-connected load on phase A, specified as VA
 Constant power wye-connected load on phase B, specified as VA
 
 ### `constant_power_CN`
+
 ~~~
   complex constant_power_CN[VA];
 ~~~
@@ -831,6 +914,7 @@ Constant power wye-connected load on phase B, specified as VA
 Constant power wye-connected load on phase C, specified as VA
 
 ### `constant_power_AN_real`
+
 ~~~
   double constant_power_AN_real[W];
 ~~~
@@ -838,6 +922,7 @@ Constant power wye-connected load on phase C, specified as VA
 Constant power wye-connected load on phase A, real only, specified as W
 
 ### `constant_power_BN_real`
+
 ~~~
   double constant_power_BN_real[W];
 ~~~
@@ -845,6 +930,7 @@ Constant power wye-connected load on phase A, real only, specified as W
 Constant power wye-connected load on phase B, real only, specified as W
 
 ### `constant_power_CN_real`
+
 ~~~
   double constant_power_CN_real[W];
 ~~~
@@ -852,6 +938,7 @@ Constant power wye-connected load on phase B, real only, specified as W
 Constant power wye-connected load on phase C, real only, specified as W
 
 ### `constant_power_AN_reac`
+
 ~~~
   double constant_power_AN_reac[VAr];
 ~~~
@@ -859,6 +946,7 @@ Constant power wye-connected load on phase C, real only, specified as W
 Constant power wye-connected load on phase A, imaginary only, specified as VAr
 
 ### `constant_power_BN_reac`
+
 ~~~
   double constant_power_BN_reac[VAr];
 ~~~
@@ -866,6 +954,7 @@ Constant power wye-connected load on phase A, imaginary only, specified as VAr
 Constant power wye-connected load on phase B, imaginary only, specified as VAr
 
 ### `constant_power_CN_reac`
+
 ~~~
   double constant_power_CN_reac[VAr];
 ~~~
@@ -873,6 +962,7 @@ Constant power wye-connected load on phase B, imaginary only, specified as VAr
 Constant power wye-connected load on phase C, imaginary only, specified as VAr
 
 ### `constant_current_AN`
+
 ~~~
   complex constant_current_AN[A];
 ~~~
@@ -880,6 +970,7 @@ Constant power wye-connected load on phase C, imaginary only, specified as VAr
 Constant current wye-connected load on phase A, specified as Amps
 
 ### `constant_current_BN`
+
 ~~~
   complex constant_current_BN[A];
 ~~~
@@ -887,6 +978,7 @@ Constant current wye-connected load on phase A, specified as Amps
 Constant current wye-connected load on phase B, specified as Amps
 
 ### `constant_current_CN`
+
 ~~~
   complex constant_current_CN[A];
 ~~~
@@ -894,6 +986,7 @@ Constant current wye-connected load on phase B, specified as Amps
 Constant current wye-connected load on phase C, specified as Amps
 
 ### `constant_current_AN_real`
+
 ~~~
   double constant_current_AN_real[A];
 ~~~
@@ -901,6 +994,7 @@ Constant current wye-connected load on phase C, specified as Amps
 Constant current wye-connected load on phase A, real only, specified as Amps
 
 ### `constant_current_BN_real`
+
 ~~~
   double constant_current_BN_real[A];
 ~~~
@@ -908,6 +1002,7 @@ Constant current wye-connected load on phase A, real only, specified as Amps
 Constant current wye-connected load on phase B, real only, specified as Amps
 
 ### `constant_current_CN_real`
+
 ~~~
   double constant_current_CN_real[A];
 ~~~
@@ -915,6 +1010,7 @@ Constant current wye-connected load on phase B, real only, specified as Amps
 Constant current wye-connected load on phase C, real only, specified as Amps
 
 ### `constant_current_AN_reac`
+
 ~~~
   double constant_current_AN_reac[A];
 ~~~
@@ -922,6 +1018,7 @@ Constant current wye-connected load on phase C, real only, specified as Amps
 Constant current wye-connected load on phase A, imaginary only, specified as Amps
 
 ### `constant_current_BN_reac`
+
 ~~~
   double constant_current_BN_reac[A];
 ~~~
@@ -929,6 +1026,7 @@ Constant current wye-connected load on phase A, imaginary only, specified as Amp
 Constant current wye-connected load on phase B, imaginary only, specified as Amps
 
 ### `constant_current_CN_reac`
+
 ~~~
   double constant_current_CN_reac[A];
 ~~~
@@ -936,6 +1034,7 @@ Constant current wye-connected load on phase B, imaginary only, specified as Amp
 Constant current wye-connected load on phase C, imaginary only, specified as Amps
 
 ### `constant_impedance_AN`
+
 ~~~
   complex constant_impedance_AN[Ohm];
 ~~~
@@ -943,6 +1042,7 @@ Constant current wye-connected load on phase C, imaginary only, specified as Amp
 Constant impedance wye-connected load on phase A, specified as Ohms
 
 ### `constant_impedance_BN`
+
 ~~~
   complex constant_impedance_BN[Ohm];
 ~~~
@@ -950,6 +1050,7 @@ Constant impedance wye-connected load on phase A, specified as Ohms
 Constant impedance wye-connected load on phase B, specified as Ohms
 
 ### `constant_impedance_CN`
+
 ~~~
   complex constant_impedance_CN[Ohm];
 ~~~
@@ -957,6 +1058,7 @@ Constant impedance wye-connected load on phase B, specified as Ohms
 Constant impedance wye-connected load on phase C, specified as Ohms
 
 ### `constant_impedance_AN_real`
+
 ~~~
   double constant_impedance_AN_real[Ohm];
 ~~~
@@ -964,6 +1066,7 @@ Constant impedance wye-connected load on phase C, specified as Ohms
 Constant impedance wye-connected load on phase A, real only, specified as Ohms
 
 ### `constant_impedance_BN_real`
+
 ~~~
   double constant_impedance_BN_real[Ohm];
 ~~~
@@ -971,6 +1074,7 @@ Constant impedance wye-connected load on phase A, real only, specified as Ohms
 Constant impedance wye-connected load on phase B, real only, specified as Ohms
 
 ### `constant_impedance_CN_real`
+
 ~~~
   double constant_impedance_CN_real[Ohm];
 ~~~
@@ -978,6 +1082,7 @@ Constant impedance wye-connected load on phase B, real only, specified as Ohms
 Constant impedance wye-connected load on phase C, real only, specified as Ohms
 
 ### `constant_impedance_AN_reac`
+
 ~~~
   double constant_impedance_AN_reac[Ohm];
 ~~~
@@ -985,6 +1090,7 @@ Constant impedance wye-connected load on phase C, real only, specified as Ohms
 Constant impedance wye-connected load on phase A, imaginary only, specified as Ohms
 
 ### `constant_impedance_BN_reac`
+
 ~~~
   double constant_impedance_BN_reac[Ohm];
 ~~~
@@ -992,6 +1098,7 @@ Constant impedance wye-connected load on phase A, imaginary only, specified as O
 Constant impedance wye-connected load on phase B, imaginary only, specified as Ohms
 
 ### `constant_impedance_CN_reac`
+
 ~~~
   double constant_impedance_CN_reac[Ohm];
 ~~~
@@ -999,6 +1106,7 @@ Constant impedance wye-connected load on phase B, imaginary only, specified as O
 Constant impedance wye-connected load on phase C, imaginary only, specified as Ohms
 
 ### `constant_power_AB`
+
 ~~~
   complex constant_power_AB[VA];
 ~~~
@@ -1006,6 +1114,7 @@ Constant impedance wye-connected load on phase C, imaginary only, specified as O
 Constant power delta-connected load on phase A, specified as VA
 
 ### `constant_power_BC`
+
 ~~~
   complex constant_power_BC[VA];
 ~~~
@@ -1013,6 +1122,7 @@ Constant power delta-connected load on phase A, specified as VA
 Constant power delta-connected load on phase B, specified as VA
 
 ### `constant_power_CA`
+
 ~~~
   complex constant_power_CA[VA];
 ~~~
@@ -1020,6 +1130,7 @@ Constant power delta-connected load on phase B, specified as VA
 Constant power delta-connected load on phase C, specified as VA
 
 ### `constant_power_AB_real`
+
 ~~~
   double constant_power_AB_real[W];
 ~~~
@@ -1027,6 +1138,7 @@ Constant power delta-connected load on phase C, specified as VA
 Constant power delta-connected load on phase A, real only, specified as W
 
 ### `constant_power_BC_real`
+
 ~~~
   double constant_power_BC_real[W];
 ~~~
@@ -1034,6 +1146,7 @@ Constant power delta-connected load on phase A, real only, specified as W
 Constant power delta-connected load on phase B, real only, specified as W
 
 ### `constant_power_CA_real`
+
 ~~~
   double constant_power_CA_real[W];
 ~~~
@@ -1041,6 +1154,7 @@ Constant power delta-connected load on phase B, real only, specified as W
 Constant power delta-connected load on phase C, real only, specified as W
 
 ### `constant_power_AB_reac`
+
 ~~~
   double constant_power_AB_reac[VAr];
 ~~~
@@ -1048,6 +1162,7 @@ Constant power delta-connected load on phase C, real only, specified as W
 Constant power delta-connected load on phase A, imaginary only, specified as VAr
 
 ### `constant_power_BC_reac`
+
 ~~~
   double constant_power_BC_reac[VAr];
 ~~~
@@ -1055,6 +1170,7 @@ Constant power delta-connected load on phase A, imaginary only, specified as VAr
 Constant power delta-connected load on phase B, imaginary only, specified as VAr
 
 ### `constant_power_CA_reac`
+
 ~~~
   double constant_power_CA_reac[VAr];
 ~~~
@@ -1062,6 +1178,7 @@ Constant power delta-connected load on phase B, imaginary only, specified as VAr
 Constant power delta-connected load on phase C, imaginary only, specified as VAr
 
 ### `constant_current_AB`
+
 ~~~
   complex constant_current_AB[A];
 ~~~
@@ -1069,6 +1186,7 @@ Constant power delta-connected load on phase C, imaginary only, specified as VAr
 Constant current delta-connected load on phase A, specified as Amps
 
 ### `constant_current_BC`
+
 ~~~
   complex constant_current_BC[A];
 ~~~
@@ -1076,6 +1194,7 @@ Constant current delta-connected load on phase A, specified as Amps
 Constant current delta-connected load on phase B, specified as Amps
 
 ### `constant_current_CA`
+
 ~~~
   complex constant_current_CA[A];
 ~~~
@@ -1083,6 +1202,7 @@ Constant current delta-connected load on phase B, specified as Amps
 Constant current delta-connected load on phase C, specified as Amps
 
 ### `constant_current_AB_real`
+
 ~~~
   double constant_current_AB_real[A];
 ~~~
@@ -1090,6 +1210,7 @@ Constant current delta-connected load on phase C, specified as Amps
 Constant current delta-connected load on phase A, real only, specified as Amps
 
 ### `constant_current_BC_real`
+
 ~~~
   double constant_current_BC_real[A];
 ~~~
@@ -1097,6 +1218,7 @@ Constant current delta-connected load on phase A, real only, specified as Amps
 Constant current delta-connected load on phase B, real only, specified as Amps
 
 ### `constant_current_CA_real`
+
 ~~~
   double constant_current_CA_real[A];
 ~~~
@@ -1104,6 +1226,7 @@ Constant current delta-connected load on phase B, real only, specified as Amps
 Constant current delta-connected load on phase C, real only, specified as Amps
 
 ### `constant_current_AB_reac`
+
 ~~~
   double constant_current_AB_reac[A];
 ~~~
@@ -1111,6 +1234,7 @@ Constant current delta-connected load on phase C, real only, specified as Amps
 Constant current delta-connected load on phase A, imaginary only, specified as Amps
 
 ### `constant_current_BC_reac`
+
 ~~~
   double constant_current_BC_reac[A];
 ~~~
@@ -1118,6 +1242,7 @@ Constant current delta-connected load on phase A, imaginary only, specified as A
 Constant current delta-connected load on phase B, imaginary only, specified as Amps
 
 ### `constant_current_CA_reac`
+
 ~~~
   double constant_current_CA_reac[A];
 ~~~
@@ -1125,6 +1250,7 @@ Constant current delta-connected load on phase B, imaginary only, specified as A
 Constant current delta-connected load on phase C, imaginary only, specified as Amps
 
 ### `constant_impedance_AB`
+
 ~~~
   complex constant_impedance_AB[Ohm];
 ~~~
@@ -1132,6 +1258,7 @@ Constant current delta-connected load on phase C, imaginary only, specified as A
 Constant impedance delta-connected load on phase A, specified as Ohms
 
 ### `constant_impedance_BC`
+
 ~~~
   complex constant_impedance_BC[Ohm];
 ~~~
@@ -1139,6 +1266,7 @@ Constant impedance delta-connected load on phase A, specified as Ohms
 Constant impedance delta-connected load on phase B, specified as Ohms
 
 ### `constant_impedance_CA`
+
 ~~~
   complex constant_impedance_CA[Ohm];
 ~~~
@@ -1146,6 +1274,7 @@ Constant impedance delta-connected load on phase B, specified as Ohms
 Constant impedance delta-connected load on phase C, specified as Ohms
 
 ### `constant_impedance_AB_real`
+
 ~~~
   double constant_impedance_AB_real[Ohm];
 ~~~
@@ -1153,6 +1282,7 @@ Constant impedance delta-connected load on phase C, specified as Ohms
 Constant impedance delta-connected load on phase A, real only, specified as Ohms
 
 ### `constant_impedance_BC_real`
+
 ~~~
   double constant_impedance_BC_real[Ohm];
 ~~~
@@ -1160,6 +1290,7 @@ Constant impedance delta-connected load on phase A, real only, specified as Ohms
 Constant impedance delta-connected load on phase B, real only, specified as Ohms
 
 ### `constant_impedance_CA_real`
+
 ~~~
   double constant_impedance_CA_real[Ohm];
 ~~~
@@ -1167,6 +1298,7 @@ Constant impedance delta-connected load on phase B, real only, specified as Ohms
 Constant impedance delta-connected load on phase C, real only, specified as Ohms
 
 ### `constant_impedance_AB_reac`
+
 ~~~
   double constant_impedance_AB_reac[Ohm];
 ~~~
@@ -1174,6 +1306,7 @@ Constant impedance delta-connected load on phase C, real only, specified as Ohms
 Constant impedance delta-connected load on phase A, imaginary only, specified as Ohms
 
 ### `constant_impedance_BC_reac`
+
 ~~~
   double constant_impedance_BC_reac[Ohm];
 ~~~
@@ -1181,6 +1314,7 @@ Constant impedance delta-connected load on phase A, imaginary only, specified as
 Constant impedance delta-connected load on phase B, imaginary only, specified as Ohms
 
 ### `constant_impedance_CA_reac`
+
 ~~~
   double constant_impedance_CA_reac[Ohm];
 ~~~
@@ -1188,6 +1322,7 @@ Constant impedance delta-connected load on phase B, imaginary only, specified as
 Constant impedance delta-connected load on phase C, imaginary only, specified as Ohms
 
 ### `measured_voltage_A`
+
 ~~~
   complex measured_voltage_A;
 ~~~
@@ -1195,6 +1330,7 @@ Constant impedance delta-connected load on phase C, imaginary only, specified as
 Current measured voltage on phase A
 
 ### `measured_voltage_B`
+
 ~~~
   complex measured_voltage_B;
 ~~~
@@ -1202,6 +1338,7 @@ Current measured voltage on phase A
 Current measured voltage on phase B
 
 ### `measured_voltage_C`
+
 ~~~
   complex measured_voltage_C;
 ~~~
@@ -1209,6 +1346,7 @@ Current measured voltage on phase B
 Current measured voltage on phase C
 
 ### `measured_voltage_AB`
+
 ~~~
   complex measured_voltage_AB;
 ~~~
@@ -1216,6 +1354,7 @@ Current measured voltage on phase C
 Current measured voltage on phases AB
 
 ### `measured_voltage_BC`
+
 ~~~
   complex measured_voltage_BC;
 ~~~
@@ -1223,6 +1362,7 @@ Current measured voltage on phases AB
 Current measured voltage on phases BC
 
 ### `measured_voltage_CA`
+
 ~~~
   complex measured_voltage_CA;
 ~~~
@@ -1230,6 +1370,7 @@ Current measured voltage on phases BC
 Current measured voltage on phases CA
 
 ### `phase_loss_protection`
+
 ~~~
   bool phase_loss_protection;
 ~~~
@@ -1237,6 +1378,7 @@ Current measured voltage on phases CA
 Trip all three phases of the load if a fault occurs
 
 ### `base_power_A`
+
 ~~~
   double base_power_A[VA];
 ~~~
@@ -1244,6 +1386,7 @@ Trip all three phases of the load if a fault occurs
 In similar format as ZIPload, this represents the nominal power on phase A before applying ZIP fractions
 
 ### `base_power_B`
+
 ~~~
   double base_power_B[VA];
 ~~~
@@ -1251,6 +1394,7 @@ In similar format as ZIPload, this represents the nominal power on phase A befor
 In similar format as ZIPload, this represents the nominal power on phase B before applying ZIP fractions
 
 ### `base_power_C`
+
 ~~~
   double base_power_C[VA];
 ~~~
@@ -1258,6 +1402,7 @@ In similar format as ZIPload, this represents the nominal power on phase B befor
 In similar format as ZIPload, this represents the nominal power on phase C before applying ZIP fractions
 
 ### `power_pf_A`
+
 ~~~
   double power_pf_A[pu];
 ~~~
@@ -1265,6 +1410,7 @@ In similar format as ZIPload, this represents the nominal power on phase C befor
 In similar format as ZIPload, this is the power factor of the phase A constant power portion of load
 
 ### `current_pf_A`
+
 ~~~
   double current_pf_A[pu];
 ~~~
@@ -1272,6 +1418,7 @@ In similar format as ZIPload, this is the power factor of the phase A constant p
 In similar format as ZIPload, this is the power factor of the phase A constant current portion of load
 
 ### `impedance_pf_A`
+
 ~~~
   double impedance_pf_A[pu];
 ~~~
@@ -1279,6 +1426,7 @@ In similar format as ZIPload, this is the power factor of the phase A constant c
 In similar format as ZIPload, this is the power factor of the phase A constant impedance portion of load
 
 ### `power_pf_B`
+
 ~~~
   double power_pf_B[pu];
 ~~~
@@ -1286,6 +1434,7 @@ In similar format as ZIPload, this is the power factor of the phase A constant i
 In similar format as ZIPload, this is the power factor of the phase B constant power portion of load
 
 ### `current_pf_B`
+
 ~~~
   double current_pf_B[pu];
 ~~~
@@ -1293,6 +1442,7 @@ In similar format as ZIPload, this is the power factor of the phase B constant p
 In similar format as ZIPload, this is the power factor of the phase B constant current portion of load
 
 ### `impedance_pf_B`
+
 ~~~
   double impedance_pf_B[pu];
 ~~~
@@ -1300,6 +1450,7 @@ In similar format as ZIPload, this is the power factor of the phase B constant c
 In similar format as ZIPload, this is the power factor of the phase B constant impedance portion of load
 
 ### `power_pf_C`
+
 ~~~
   double power_pf_C[pu];
 ~~~
@@ -1307,6 +1458,7 @@ In similar format as ZIPload, this is the power factor of the phase B constant i
 In similar format as ZIPload, this is the power factor of the phase C constant power portion of load
 
 ### `current_pf_C`
+
 ~~~
   double current_pf_C[pu];
 ~~~
@@ -1314,6 +1466,7 @@ In similar format as ZIPload, this is the power factor of the phase C constant p
 In similar format as ZIPload, this is the power factor of the phase C constant current portion of load
 
 ### `impedance_pf_C`
+
 ~~~
   double impedance_pf_C[pu];
 ~~~
@@ -1321,6 +1474,7 @@ In similar format as ZIPload, this is the power factor of the phase C constant c
 In similar format as ZIPload, this is the power factor of the phase C constant impedance portion of load
 
 ### `power_fraction_A`
+
 ~~~
   double power_fraction_A[pu];
 ~~~
@@ -1328,6 +1482,7 @@ In similar format as ZIPload, this is the power factor of the phase C constant i
 This is the constant power fraction of base power on phase A
 
 ### `current_fraction_A`
+
 ~~~
   double current_fraction_A[pu];
 ~~~
@@ -1335,6 +1490,7 @@ This is the constant power fraction of base power on phase A
 This is the constant current fraction of base power on phase A
 
 ### `impedance_fraction_A`
+
 ~~~
   double impedance_fraction_A[pu];
 ~~~
@@ -1342,6 +1498,7 @@ This is the constant current fraction of base power on phase A
 This is the constant impedance fraction of base power on phase A
 
 ### `power_fraction_B`
+
 ~~~
   double power_fraction_B[pu];
 ~~~
@@ -1349,6 +1506,7 @@ This is the constant impedance fraction of base power on phase A
 This is the constant power fraction of base power on phase B
 
 ### `current_fraction_B`
+
 ~~~
   double current_fraction_B[pu];
 ~~~
@@ -1356,6 +1514,7 @@ This is the constant power fraction of base power on phase B
 This is the constant current fraction of base power on phase B
 
 ### `impedance_fraction_B`
+
 ~~~
   double impedance_fraction_B[pu];
 ~~~
@@ -1363,6 +1522,7 @@ This is the constant current fraction of base power on phase B
 This is the constant impedance fraction of base power on phase B
 
 ### `power_fraction_C`
+
 ~~~
   double power_fraction_C[pu];
 ~~~
@@ -1370,6 +1530,7 @@ This is the constant impedance fraction of base power on phase B
 This is the constant power fraction of base power on phase C
 
 ### `current_fraction_C`
+
 ~~~
   double current_fraction_C[pu];
 ~~~
@@ -1377,6 +1538,7 @@ This is the constant power fraction of base power on phase C
 This is the constant current fraction of base power on phase C
 
 ### `impedance_fraction_C`
+
 ~~~
   double impedance_fraction_C[pu];
 ~~~
@@ -1384,6 +1546,7 @@ This is the constant current fraction of base power on phase C
 This is the constant impedance fraction of base power on phase C
 
 ### `bustype`
+
 ~~~
   enumeration {SWING_PQ, SWING, PV, PQ} bustype;
 ~~~
@@ -1391,6 +1554,7 @@ This is the constant impedance fraction of base power on phase C
 Defines whether the node is a PQ, PV, or SWING node
 
 ### `busflags`
+
 ~~~
   set {ISSOURCE, HASSOURCE} busflags;
 ~~~
@@ -1398,6 +1562,7 @@ Defines whether the node is a PQ, PV, or SWING node
 Flag indicates node has a source for voltage, i.e. connects to the swing node
 
 ### `reference_bus`
+
 ~~~
   object reference_bus;
 ~~~
@@ -1405,6 +1570,7 @@ Flag indicates node has a source for voltage, i.e. connects to the swing node
 Reference bus from which frequency is defined
 
 ### `maximum_voltage_error`
+
 ~~~
   double maximum_voltage_error[V];
 ~~~
@@ -1412,6 +1578,7 @@ Reference bus from which frequency is defined
 Convergence voltage limit or convergence criteria
 
 ### `voltage_A`
+
 ~~~
   complex voltage_A[V];
 ~~~
@@ -1419,6 +1586,7 @@ Convergence voltage limit or convergence criteria
 Bus voltage, Phase A to ground
 
 ### `voltage_B`
+
 ~~~
   complex voltage_B[V];
 ~~~
@@ -1426,6 +1594,7 @@ Bus voltage, Phase A to ground
 Bus voltage, Phase B to ground
 
 ### `voltage_C`
+
 ~~~
   complex voltage_C[V];
 ~~~
@@ -1433,6 +1602,7 @@ Bus voltage, Phase B to ground
 Bus voltage, Phase C to ground
 
 ### `voltage_AB`
+
 ~~~
   complex voltage_AB[V];
 ~~~
@@ -1440,6 +1610,7 @@ Bus voltage, Phase C to ground
 Line voltages, Phase AB
 
 ### `voltage_BC`
+
 ~~~
   complex voltage_BC[V];
 ~~~
@@ -1447,6 +1618,7 @@ Line voltages, Phase AB
 Line voltages, Phase BC
 
 ### `voltage_CA`
+
 ~~~
   complex voltage_CA[V];
 ~~~
@@ -1454,6 +1626,7 @@ Line voltages, Phase BC
 Line voltages, Phase CA
 
 ### `current_A`
+
 ~~~
   complex current_A[A];
 ~~~
@@ -1461,6 +1634,7 @@ Line voltages, Phase CA
 Bus current injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_B`
+
 ~~~
   complex current_B[A];
 ~~~
@@ -1468,6 +1642,7 @@ Bus current injection (in = positive), this an accumulator only, not a output or
 Bus current injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_C`
+
 ~~~
   complex current_C[A];
 ~~~
@@ -1475,6 +1650,7 @@ Bus current injection (in = positive), this an accumulator only, not a output or
 Bus current injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_A`
+
 ~~~
   complex power_A[VA];
 ~~~
@@ -1482,6 +1658,7 @@ Bus current injection (in = positive), this an accumulator only, not a output or
 Bus power injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_B`
+
 ~~~
   complex power_B[VA];
 ~~~
@@ -1489,6 +1666,7 @@ Bus power injection (in = positive), this an accumulator only, not a output or i
 Bus power injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_C`
+
 ~~~
   complex power_C[VA];
 ~~~
@@ -1496,6 +1674,7 @@ Bus power injection (in = positive), this an accumulator only, not a output or i
 Bus power injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `shunt_A`
+
 ~~~
   complex shunt_A[S];
 ~~~
@@ -1503,6 +1682,7 @@ Bus power injection (in = positive), this an accumulator only, not a output or i
 Bus shunt admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_B`
+
 ~~~
   complex shunt_B[S];
 ~~~
@@ -1510,6 +1690,7 @@ Bus shunt admittance, this an accumulator only, not a output or input variable
 Bus shunt admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_C`
+
 ~~~
   complex shunt_C[S];
 ~~~
@@ -1517,6 +1698,7 @@ Bus shunt admittance, this an accumulator only, not a output or input variable
 Bus shunt admittance, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_A`
+
 ~~~
   complex prerotated_current_A[A];
 ~~~
@@ -1524,6 +1706,7 @@ Bus shunt admittance, this an accumulator only, not a output or input variable
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_B`
+
 ~~~
   complex prerotated_current_B[A];
 ~~~
@@ -1531,6 +1714,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_C`
+
 ~~~
   complex prerotated_current_C[A];
 ~~~
@@ -1538,6 +1722,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `current_AB`
+
 ~~~
   complex current_AB[A];
 ~~~
@@ -1545,6 +1730,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Bus current delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_BC`
+
 ~~~
   complex current_BC[A];
 ~~~
@@ -1552,6 +1738,7 @@ Bus current delta-connected injection (in = positive), this an accumulator only,
 Bus current delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_CA`
+
 ~~~
   complex current_CA[A];
 ~~~
@@ -1559,6 +1746,7 @@ Bus current delta-connected injection (in = positive), this an accumulator only,
 Bus current delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_AN`
+
 ~~~
   complex current_AN[A];
 ~~~
@@ -1566,6 +1754,7 @@ Bus current delta-connected injection (in = positive), this an accumulator only,
 Bus current wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_BN`
+
 ~~~
   complex current_BN[A];
 ~~~
@@ -1573,6 +1762,7 @@ Bus current wye-connected injection (in = positive), this an accumulator only, n
 Bus current wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_CN`
+
 ~~~
   complex current_CN[A];
 ~~~
@@ -1580,6 +1770,7 @@ Bus current wye-connected injection (in = positive), this an accumulator only, n
 Bus current wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_AB`
+
 ~~~
   complex power_AB[VA];
 ~~~
@@ -1587,6 +1778,7 @@ Bus current wye-connected injection (in = positive), this an accumulator only, n
 Bus power delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_BC`
+
 ~~~
   complex power_BC[VA];
 ~~~
@@ -1594,6 +1786,7 @@ Bus power delta-connected injection (in = positive), this an accumulator only, n
 Bus power delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_CA`
+
 ~~~
   complex power_CA[VA];
 ~~~
@@ -1601,6 +1794,7 @@ Bus power delta-connected injection (in = positive), this an accumulator only, n
 Bus power delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_AN`
+
 ~~~
   complex power_AN[VA];
 ~~~
@@ -1608,6 +1802,7 @@ Bus power delta-connected injection (in = positive), this an accumulator only, n
 Bus power wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_BN`
+
 ~~~
   complex power_BN[VA];
 ~~~
@@ -1615,6 +1810,7 @@ Bus power wye-connected injection (in = positive), this an accumulator only, not
 Bus power wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_CN`
+
 ~~~
   complex power_CN[VA];
 ~~~
@@ -1622,6 +1818,7 @@ Bus power wye-connected injection (in = positive), this an accumulator only, not
 Bus power wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `shunt_AB`
+
 ~~~
   complex shunt_AB[S];
 ~~~
@@ -1629,6 +1826,7 @@ Bus power wye-connected injection (in = positive), this an accumulator only, not
 Bus shunt delta-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_BC`
+
 ~~~
   complex shunt_BC[S];
 ~~~
@@ -1636,6 +1834,7 @@ Bus shunt delta-connected admittance, this an accumulator only, not a output or 
 Bus shunt delta-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_CA`
+
 ~~~
   complex shunt_CA[S];
 ~~~
@@ -1643,6 +1842,7 @@ Bus shunt delta-connected admittance, this an accumulator only, not a output or 
 Bus shunt delta-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_AN`
+
 ~~~
   complex shunt_AN[S];
 ~~~
@@ -1650,6 +1850,7 @@ Bus shunt delta-connected admittance, this an accumulator only, not a output or 
 Bus shunt wye-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_BN`
+
 ~~~
   complex shunt_BN[S];
 ~~~
@@ -1657,6 +1858,7 @@ Bus shunt wye-connected admittance, this an accumulator only, not a output or in
 Bus shunt wye-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_CN`
+
 ~~~
   complex shunt_CN[S];
 ~~~
@@ -1664,6 +1866,7 @@ Bus shunt wye-connected admittance, this an accumulator only, not a output or in
 Bus shunt wye-connected admittance, this an accumulator only, not a output or input variable
 
 ### `mean_repair_time`
+
 ~~~
   double mean_repair_time[s];
 ~~~
@@ -1671,6 +1874,7 @@ Bus shunt wye-connected admittance, this an accumulator only, not a output or in
 Time after a fault clears for the object to be back in service
 
 ### `frequency_measure_type`
+
 ~~~
   enumeration {PLL, SIMPLE, NONE} frequency_measure_type;
 ~~~
@@ -1678,6 +1882,7 @@ Time after a fault clears for the object to be back in service
 PLL frequency measurement
 
 ### `sfm_Tf`
+
 ~~~
   double sfm_Tf[s];
 ~~~
@@ -1685,6 +1890,7 @@ PLL frequency measurement
 Transducer time constant for simplified frequency measurement (seconds)
 
 ### `pll_Kp`
+
 ~~~
   double pll_Kp[pu];
 ~~~
@@ -1692,6 +1898,7 @@ Transducer time constant for simplified frequency measurement (seconds)
 Proportional gain of PLL frequency measurement
 
 ### `pll_Ki`
+
 ~~~
   double pll_Ki[pu];
 ~~~
@@ -1699,6 +1906,7 @@ Proportional gain of PLL frequency measurement
 Integration gain of PLL frequency measurement
 
 ### `measured_angle_A`
+
 ~~~
   double measured_angle_A[rad];
 ~~~
@@ -1706,6 +1914,7 @@ Integration gain of PLL frequency measurement
 Bus angle measurement, phase A
 
 ### `measured_frequency_A`
+
 ~~~
   double measured_frequency_A[Hz];
 ~~~
@@ -1713,6 +1922,7 @@ Bus angle measurement, phase A
 Frequency measurement, phase A
 
 ### `measured_angle_B`
+
 ~~~
   double measured_angle_B[rad];
 ~~~
@@ -1720,6 +1930,7 @@ Frequency measurement, phase A
 Bus angle measurement, phase B
 
 ### `measured_frequency_B`
+
 ~~~
   double measured_frequency_B[Hz];
 ~~~
@@ -1727,6 +1938,7 @@ Bus angle measurement, phase B
 Frequency measurement, phase B
 
 ### `measured_angle_C`
+
 ~~~
   double measured_angle_C[rad];
 ~~~
@@ -1734,6 +1946,7 @@ Frequency measurement, phase B
 Bus angle measurement, phase C
 
 ### `measured_frequency_C`
+
 ~~~
   double measured_frequency_C[Hz];
 ~~~
@@ -1741,6 +1954,7 @@ Bus angle measurement, phase C
 Frequency measurement, phase C
 
 ### `measured_frequency`
+
 ~~~
   double measured_frequency[Hz];
 ~~~
@@ -1748,6 +1962,7 @@ Frequency measurement, phase C
 Frequency measurement - average of present phases
 
 ### `service_status`
+
 ~~~
   enumeration {OUT_OF_SERVICE, IN_SERVICE} service_status;
 ~~~
@@ -1755,6 +1970,7 @@ Frequency measurement - average of present phases
 In and out of service flag
 
 ### `service_status_double`
+
 ~~~
   double service_status_double;
 ~~~
@@ -1762,6 +1978,7 @@ In and out of service flag
 In and out of service flag - type double - will indiscriminately override service_status - useful for schedules
 
 ### `previous_uptime`
+
 ~~~
   double previous_uptime[min];
 ~~~
@@ -1769,6 +1986,7 @@ In and out of service flag - type double - will indiscriminately override servic
 Previous time between disconnects of node in minutes
 
 ### `current_uptime`
+
 ~~~
   double current_uptime[min];
 ~~~
@@ -1776,6 +1994,7 @@ Previous time between disconnects of node in minutes
 Current time since last disconnect of node in minutes
 
 ### `Norton_dynamic`
+
 ~~~
   bool Norton_dynamic;
 ~~~
@@ -1783,6 +2002,7 @@ Current time since last disconnect of node in minutes
 Flag to indicate a Norton-equivalent connection -- used for generators and deltamode
 
 ### `generator_dynamic`
+
 ~~~
   bool generator_dynamic;
 ~~~
@@ -1790,6 +2010,7 @@ Flag to indicate a Norton-equivalent connection -- used for generators and delta
 Flag to indicate a voltage-sourcing or swing-type generator is present -- used for generators and deltamode
 
 ### `GFA_enable`
+
 ~~~
   bool GFA_enable;
 ~~~
@@ -1797,6 +2018,7 @@ Flag to indicate a voltage-sourcing or swing-type generator is present -- used f
 Disable/Enable Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_low_trip`
+
 ~~~
   double GFA_freq_low_trip[Hz];
 ~~~
@@ -1804,6 +2026,7 @@ Disable/Enable Grid Friendly Appliance(TM)-type functionality
 Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_high_trip`
+
 ~~~
   double GFA_freq_high_trip[Hz];
 ~~~
@@ -1811,6 +2034,7 @@ Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 High frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_low_trip`
+
 ~~~
   double GFA_volt_low_trip[pu];
 ~~~
@@ -1818,6 +2042,7 @@ High frequency trip point for Grid Friendly Appliance(TM)-type functionality
 Low voltage trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_high_trip`
+
 ~~~
   double GFA_volt_high_trip[pu];
 ~~~
@@ -1825,6 +2050,7 @@ Low voltage trip point for Grid Friendly Appliance(TM)-type functionality
 High voltage trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_reconnect_time`
+
 ~~~
   double GFA_reconnect_time[s];
 ~~~
@@ -1832,6 +2058,7 @@ High voltage trip point for Grid Friendly Appliance(TM)-type functionality
 Reconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_disconnect_time`
+
 ~~~
   double GFA_freq_disconnect_time[s];
 ~~~
@@ -1839,6 +2066,7 @@ Reconnect time for Grid Friendly Appliance(TM)-type functionality
 Frequency violation disconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_disconnect_time`
+
 ~~~
   double GFA_volt_disconnect_time[s];
 ~~~
@@ -1846,6 +2074,7 @@ Frequency violation disconnect time for Grid Friendly Appliance(TM)-type functio
 Voltage violation disconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_status`
+
 ~~~
   bool GFA_status;
 ~~~
@@ -1853,6 +2082,7 @@ Voltage violation disconnect time for Grid Friendly Appliance(TM)-type functiona
 Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_trip_method`
+
 ~~~
   enumeration {OVER_VOLTAGE, UNDER_VOLTAGE, OVER_FREQUENCY, UNDER_FREQUENCY, NONE} GFA_trip_method;
 ~~~
@@ -1860,6 +2090,7 @@ Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 GFA trip for over-voltage
 
 ### `topological_parent`
+
 ~~~
   object topological_parent;
 ~~~
@@ -1867,6 +2098,7 @@ GFA trip for over-voltage
 Topological parent as per GLM configuration
 
 ### `phases`
+
 ~~~
   set {A, B, C, D, N, S, G} phases;
 ~~~
@@ -1874,6 +2106,7 @@ Topological parent as per GLM configuration
 TODO
 
 ### `nominal_voltage`
+
 ~~~
   double nominal_voltage[V];
 ~~~
@@ -1881,6 +2114,7 @@ TODO
 TODO
 
 ### `supernode_name`
+
 ~~~
   char1024 supernode_name;
 ~~~
@@ -2126,5 +2360,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

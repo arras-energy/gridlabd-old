@@ -81,6 +81,7 @@ TODO
 ## Properties
 
 ### `Gen_status`
+
 ~~~
   enumeration {ONLINE, OFFLINE} Gen_status;
 ~~~
@@ -88,6 +89,7 @@ TODO
 Generator is currently available to supply power
 
 ### `Gen_type`
+
 ~~~
   enumeration {SYNCHRONOUS, INDUCTION} Gen_type;
 ~~~
@@ -95,6 +97,7 @@ Generator is currently available to supply power
 Standard synchronous generator; is also used to 'fake' a doubly-fed induction generator for now
 
 ### `Gen_mode`
+
 ~~~
   enumeration {CONSTANTPQ, CONSTANTP, CONSTANTE} Gen_mode;
 ~~~
@@ -102,6 +105,7 @@ Standard synchronous generator; is also used to 'fake' a doubly-fed induction ge
 Maintains the real and reactive output at the terminals - currently unsupported
 
 ### `Turbine_Model`
+
 ~~~
   enumeration {BERGEY_10kW, GE_25MW, VESTAS_V82, USER_DEFINED, GENERIC_IND_LARGE, GENERIC_IND_MID, GENERIC_IND_SMALL, GENERIC_SYNCH_LARGE, GENERIC_SYNCH_MID, GENERIC_SYNCH_SMALL} Turbine_Model;
 ~~~
@@ -109,6 +113,7 @@ Maintains the real and reactive output at the terminals - currently unsupported
 Sets all defaults to represent the power output of a Bergey 10kW turbine
 
 ### `turbine_height`
+
 ~~~
   double turbine_height[m];
 ~~~
@@ -116,6 +121,7 @@ Sets all defaults to represent the power output of a Bergey 10kW turbine
 Describes the height of the wind turbine hub above the ground
 
 ### `roughness_length_factor`
+
 ~~~
   double roughness_length_factor;
 ~~~
@@ -123,6 +129,7 @@ Describes the height of the wind turbine hub above the ground
 European Wind Atlas unitless correction factor for adjusting wind speed at various heights above ground and terrain types, default=0.055
 
 ### `blade_diam`
+
 ~~~
   double blade_diam[m];
 ~~~
@@ -130,6 +137,7 @@ European Wind Atlas unitless correction factor for adjusting wind speed at vario
 Diameter of blades
 
 ### `blade_diameter`
+
 ~~~
   double blade_diameter[m];
 ~~~
@@ -137,6 +145,7 @@ Diameter of blades
 Diameter of blades
 
 ### `cut_in_ws`
+
 ~~~
   double cut_in_ws[m/s];
 ~~~
@@ -144,6 +153,7 @@ Diameter of blades
 Minimum wind speed for generator operation
 
 ### `cut_out_ws`
+
 ~~~
   double cut_out_ws[m/s];
 ~~~
@@ -151,6 +161,7 @@ Minimum wind speed for generator operation
 Maximum wind speed for generator operation
 
 ### `ws_rated`
+
 ~~~
   double ws_rated[m/s];
 ~~~
@@ -158,6 +169,7 @@ Maximum wind speed for generator operation
 Rated wind speed for generator operation
 
 ### `ws_maxcp`
+
 ~~~
   double ws_maxcp[m/s];
 ~~~
@@ -165,6 +177,7 @@ Rated wind speed for generator operation
 Wind speed at which generator reaches maximum Cp
 
 ### `Cp_max`
+
 ~~~
   double Cp_max[pu];
 ~~~
@@ -172,6 +185,7 @@ Wind speed at which generator reaches maximum Cp
 Maximum coefficient of performance
 
 ### `Cp_rated`
+
 ~~~
   double Cp_rated[pu];
 ~~~
@@ -179,6 +193,7 @@ Maximum coefficient of performance
 Rated coefficient of performance
 
 ### `Cp`
+
 ~~~
   double Cp[pu];
 ~~~
@@ -186,6 +201,7 @@ Rated coefficient of performance
 Calculated coefficient of performance
 
 ### `Rated_VA`
+
 ~~~
   double Rated_VA[VA];
 ~~~
@@ -193,6 +209,7 @@ Calculated coefficient of performance
 Rated generator power output
 
 ### `Rated_V`
+
 ~~~
   double Rated_V[V];
 ~~~
@@ -200,6 +217,7 @@ Rated generator power output
 Rated generator terminal voltage
 
 ### `Pconv`
+
 ~~~
   double Pconv[W];
 ~~~
@@ -207,6 +225,7 @@ Rated generator terminal voltage
 Amount of electrical power converted from mechanical power delivered
 
 ### `P_converted`
+
 ~~~
   double P_converted[W];
 ~~~
@@ -214,6 +233,7 @@ Amount of electrical power converted from mechanical power delivered
 Amount of electrical power converted from mechanical power delivered
 
 ### `GenElecEff`
+
 ~~~
   double GenElecEff[%];
 ~~~
@@ -221,6 +241,7 @@ Amount of electrical power converted from mechanical power delivered
 Calculated generator electrical efficiency
 
 ### `generator_efficiency`
+
 ~~~
   double generator_efficiency[%];
 ~~~
@@ -228,6 +249,7 @@ Calculated generator electrical efficiency
 Calculated generator electrical efficiency
 
 ### `TotalRealPow`
+
 ~~~
   double TotalRealPow[W];
 ~~~
@@ -235,6 +257,7 @@ Calculated generator electrical efficiency
 Total real power output
 
 ### `total_real_power`
+
 ~~~
   double total_real_power[W];
 ~~~
@@ -242,6 +265,7 @@ Total real power output
 Total real power output
 
 ### `TotalReacPow`
+
 ~~~
   double TotalReacPow[VA];
 ~~~
@@ -249,6 +273,7 @@ Total real power output
 Total reactive power output
 
 ### `total_reactive_power`
+
 ~~~
   double total_reactive_power[VA];
 ~~~
@@ -256,6 +281,7 @@ Total reactive power output
 Total reactive power output
 
 ### `power_A`
+
 ~~~
   complex power_A[VA];
 ~~~
@@ -263,6 +289,7 @@ Total reactive power output
 Total complex power injected on phase A
 
 ### `power_B`
+
 ~~~
   complex power_B[VA];
 ~~~
@@ -270,6 +297,7 @@ Total complex power injected on phase A
 Total complex power injected on phase B
 
 ### `power_C`
+
 ~~~
   complex power_C[VA];
 ~~~
@@ -277,6 +305,7 @@ Total complex power injected on phase B
 Total complex power injected on phase C
 
 ### `WSadj`
+
 ~~~
   double WSadj[m/s];
 ~~~
@@ -284,6 +313,7 @@ Total complex power injected on phase C
 Speed of wind at hub height
 
 ### `wind_speed_adjusted`
+
 ~~~
   double wind_speed_adjusted[m/s];
 ~~~
@@ -291,6 +321,7 @@ Speed of wind at hub height
 Speed of wind at hub height
 
 ### `Wind_Speed`
+
 ~~~
   double Wind_Speed[m/s];
 ~~~
@@ -298,6 +329,7 @@ Speed of wind at hub height
 Wind speed at 5-15m level (typical measurement height)
 
 ### `wind_speed`
+
 ~~~
   double wind_speed[m/s];
 ~~~
@@ -305,6 +337,7 @@ Wind speed at 5-15m level (typical measurement height)
 Wind speed at 5-15m level (typical measurement height)
 
 ### `air_density`
+
 ~~~
   double air_density[kg/m^3];
 ~~~
@@ -312,6 +345,7 @@ Wind speed at 5-15m level (typical measurement height)
 Estimated air density
 
 ### `R_stator`
+
 ~~~
   double R_stator[pu*Ohm];
 ~~~
@@ -319,6 +353,7 @@ Estimated air density
 Induction generator primary stator resistance in p.u.
 
 ### `X_stator`
+
 ~~~
   double X_stator[pu*Ohm];
 ~~~
@@ -326,6 +361,7 @@ Induction generator primary stator resistance in p.u.
 Induction generator primary stator reactance in p.u.
 
 ### `R_rotor`
+
 ~~~
   double R_rotor[pu*Ohm];
 ~~~
@@ -333,6 +369,7 @@ Induction generator primary stator reactance in p.u.
 Induction generator primary rotor resistance in p.u.
 
 ### `X_rotor`
+
 ~~~
   double X_rotor[pu*Ohm];
 ~~~
@@ -340,6 +377,7 @@ Induction generator primary rotor resistance in p.u.
 Induction generator primary rotor reactance in p.u.
 
 ### `R_core`
+
 ~~~
   double R_core[pu*Ohm];
 ~~~
@@ -347,6 +385,7 @@ Induction generator primary rotor reactance in p.u.
 Induction generator primary core resistance in p.u.
 
 ### `X_magnetic`
+
 ~~~
   double X_magnetic[pu*Ohm];
 ~~~
@@ -354,6 +393,7 @@ Induction generator primary core resistance in p.u.
 Induction generator primary core reactance in p.u.
 
 ### `Max_Vrotor`
+
 ~~~
   double Max_Vrotor[pu*V];
 ~~~
@@ -361,6 +401,7 @@ Induction generator primary core reactance in p.u.
 Induction generator maximum induced rotor voltage in p.u., e.g. 1.2
 
 ### `Min_Vrotor`
+
 ~~~
   double Min_Vrotor[pu*V];
 ~~~
@@ -368,6 +409,7 @@ Induction generator maximum induced rotor voltage in p.u., e.g. 1.2
 Induction generator minimum induced rotor voltage in p.u., e.g. 0.8
 
 ### `Rs`
+
 ~~~
   double Rs[pu*Ohm];
 ~~~
@@ -375,6 +417,7 @@ Induction generator minimum induced rotor voltage in p.u., e.g. 0.8
 Synchronous generator primary stator resistance in p.u.
 
 ### `Xs`
+
 ~~~
   double Xs[pu*Ohm];
 ~~~
@@ -382,6 +425,7 @@ Synchronous generator primary stator resistance in p.u.
 Synchronous generator primary stator reactance in p.u.
 
 ### `Rg`
+
 ~~~
   double Rg[pu*Ohm];
 ~~~
@@ -389,6 +433,7 @@ Synchronous generator primary stator reactance in p.u.
 Synchronous generator grounding resistance in p.u.
 
 ### `Xg`
+
 ~~~
   double Xg[pu*Ohm];
 ~~~
@@ -396,6 +441,7 @@ Synchronous generator grounding resistance in p.u.
 Synchronous generator grounding reactance in p.u.
 
 ### `Max_Ef`
+
 ~~~
   double Max_Ef[pu*V];
 ~~~
@@ -403,6 +449,7 @@ Synchronous generator grounding reactance in p.u.
 Synchronous generator maximum induced rotor voltage in p.u., e.g. 0.8
 
 ### `Min_Ef`
+
 ~~~
   double Min_Ef[pu*V];
 ~~~
@@ -410,6 +457,7 @@ Synchronous generator maximum induced rotor voltage in p.u., e.g. 0.8
 Synchronous generator minimum induced rotor voltage in p.u., e.g. 0.8
 
 ### `pf`
+
 ~~~
   double pf[pu];
 ~~~
@@ -417,6 +465,7 @@ Synchronous generator minimum induced rotor voltage in p.u., e.g. 0.8
 Desired power factor in CONSTANTP mode (can be modified over time)
 
 ### `power_factor`
+
 ~~~
   double power_factor[pu];
 ~~~
@@ -424,6 +473,7 @@ Desired power factor in CONSTANTP mode (can be modified over time)
 Desired power factor in CONSTANTP mode (can be modified over time)
 
 ### `voltage_A`
+
 ~~~
   complex voltage_A[V];
 ~~~
@@ -431,6 +481,7 @@ Desired power factor in CONSTANTP mode (can be modified over time)
 Terminal voltage on phase A
 
 ### `voltage_B`
+
 ~~~
   complex voltage_B[V];
 ~~~
@@ -438,6 +489,7 @@ Terminal voltage on phase A
 Terminal voltage on phase B
 
 ### `voltage_C`
+
 ~~~
   complex voltage_C[V];
 ~~~
@@ -445,6 +497,7 @@ Terminal voltage on phase B
 Terminal voltage on phase C
 
 ### `current_A`
+
 ~~~
   complex current_A[A];
 ~~~
@@ -452,6 +505,7 @@ Terminal voltage on phase C
 Calculated terminal current on phase A
 
 ### `current_B`
+
 ~~~
   complex current_B[A];
 ~~~
@@ -459,6 +513,7 @@ Calculated terminal current on phase A
 Calculated terminal current on phase B
 
 ### `current_C`
+
 ~~~
   complex current_C[A];
 ~~~
@@ -466,6 +521,7 @@ Calculated terminal current on phase B
 Calculated terminal current on phase C
 
 ### `EfA`
+
 ~~~
   complex EfA[V];
 ~~~
@@ -473,6 +529,7 @@ Calculated terminal current on phase C
 Synchronous generator induced voltage on phase A
 
 ### `EfB`
+
 ~~~
   complex EfB[V];
 ~~~
@@ -480,6 +537,7 @@ Synchronous generator induced voltage on phase A
 Synchronous generator induced voltage on phase B
 
 ### `EfC`
+
 ~~~
   complex EfC[V];
 ~~~
@@ -487,6 +545,7 @@ Synchronous generator induced voltage on phase B
 Synchronous generator induced voltage on phase C
 
 ### `Vrotor_A`
+
 ~~~
   complex Vrotor_A[V];
 ~~~
@@ -494,6 +553,7 @@ Synchronous generator induced voltage on phase C
 Induction generator induced voltage on phase A in p.u.
 
 ### `Vrotor_B`
+
 ~~~
   complex Vrotor_B[V];
 ~~~
@@ -501,6 +561,7 @@ Induction generator induced voltage on phase A in p.u.
 Induction generator induced voltage on phase B in p.u.
 
 ### `Vrotor_C`
+
 ~~~
   complex Vrotor_C[V];
 ~~~
@@ -508,6 +569,7 @@ Induction generator induced voltage on phase B in p.u.
 Induction generator induced voltage on phase C in p.u.
 
 ### `Irotor_A`
+
 ~~~
   complex Irotor_A[V];
 ~~~
@@ -515,6 +577,7 @@ Induction generator induced voltage on phase C in p.u.
 Induction generator induced current on phase A in p.u.
 
 ### `Irotor_B`
+
 ~~~
   complex Irotor_B[V];
 ~~~
@@ -522,6 +585,7 @@ Induction generator induced current on phase A in p.u.
 Induction generator induced current on phase B in p.u.
 
 ### `Irotor_C`
+
 ~~~
   complex Irotor_C[V];
 ~~~
@@ -529,6 +593,7 @@ Induction generator induced current on phase B in p.u.
 Induction generator induced current on phase C in p.u.
 
 ### `phases`
+
 ~~~
   set {S, N, C, B, A} phases;
 ~~~
@@ -608,5 +673,6 @@ Specifies which phases to connect to - currently not supported and assumes three
 ~~~
 
 # See also
+
 * [[/Module/Generators]]
 

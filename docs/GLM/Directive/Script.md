@@ -1,4 +1,4 @@
-[[/GLM/Directive/Script]] - Directive to run external commands on simulation events
+[[/GLM/Directive/Script]] -- Directive to run external commands on simulation events
 
 # Synopsis
 

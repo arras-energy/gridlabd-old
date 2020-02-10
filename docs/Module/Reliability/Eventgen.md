@@ -29,6 +29,7 @@ TODO
 ## Properties
 
 ### `target_group`
+
 ~~~
   char1024 target_group;
 ~~~
@@ -36,6 +37,7 @@ TODO
 TODO
 
 ### `fault_type`
+
 ~~~
   char256 fault_type;
 ~~~
@@ -43,6 +45,7 @@ TODO
 TODO
 
 ### `failure_dist`
+
 ~~~
   enumeration {TRIANGLE, BETA, GAMMA, WEIBULL, RAYLEIGH, EXPONENTIAL, PARETO, BERNOULLI, LOGNORMAL, NORMAL, UNIFORM} failure_dist;
 ~~~
@@ -50,6 +53,7 @@ TODO
 TODO
 
 ### `restoration_dist`
+
 ~~~
   enumeration {TRIANGLE, BETA, GAMMA, WEIBULL, RAYLEIGH, EXPONENTIAL, PARETO, BERNOULLI, LOGNORMAL, NORMAL, UNIFORM} restoration_dist;
 ~~~
@@ -57,6 +61,7 @@ TODO
 TODO
 
 ### `failure_dist_param_1`
+
 ~~~
   double failure_dist_param_1;
 ~~~
@@ -64,6 +69,7 @@ TODO
 TODO
 
 ### `failure_dist_param_2`
+
 ~~~
   double failure_dist_param_2;
 ~~~
@@ -71,6 +77,7 @@ TODO
 TODO
 
 ### `restoration_dist_param_1`
+
 ~~~
   double restoration_dist_param_1;
 ~~~
@@ -78,6 +85,7 @@ TODO
 TODO
 
 ### `restoration_dist_param_2`
+
 ~~~
   double restoration_dist_param_2;
 ~~~
@@ -85,6 +93,7 @@ TODO
 TODO
 
 ### `manual_outages`
+
 ~~~
   char1024 manual_outages;
 ~~~
@@ -92,6 +101,7 @@ TODO
 TODO
 
 ### `max_outage_length`
+
 ~~~
   double max_outage_length[s];
 ~~~
@@ -99,6 +109,7 @@ TODO
 TODO
 
 ### `max_simultaneous_faults`
+
 ~~~
   int32 max_simultaneous_faults;
 ~~~
@@ -106,6 +117,7 @@ TODO
 TODO
 
 ### `controlled_switch`
+
 ~~~
   char256 controlled_switch;
 ~~~
@@ -113,6 +125,7 @@ TODO
 Name of a switch to manually fault/un-fault
 
 ### `switch_state`
+
 ~~~
   int32 switch_state;
 ~~~
@@ -140,5 +153,6 @@ Current state (1=closed, 0=open) for the controlled switch
 ~~~
 
 # See also
+
 * [[/Module/Reliability]]
 

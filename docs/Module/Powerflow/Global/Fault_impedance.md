@@ -1,11 +1,15 @@
 [[/Module/Powerflow/Global/Fault_impedance]] -- Module powerflow global variable fault_impedance
 
 # Synopsis
+
 Shell:
+
 ~~~
 bash$ gridlabd -D|--define fault_impedance=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set fault_impedance=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Powerflow]]

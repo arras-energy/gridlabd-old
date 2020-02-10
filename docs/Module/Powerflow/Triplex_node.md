@@ -100,6 +100,7 @@ TODO
 ## Properties
 
 ### `bustype`
+
 ~~~
   enumeration {SWING_PQ, SWING, PV, PQ} bustype;
 ~~~
@@ -107,6 +108,7 @@ TODO
 Defines whether the node is a PQ, PV, or SWING node
 
 ### `busflags`
+
 ~~~
   set {ISSOURCE, HASSOURCE} busflags;
 ~~~
@@ -114,6 +116,7 @@ Defines whether the node is a PQ, PV, or SWING node
 Flag indicates node has a source for voltage, i.e. connects to the swing node
 
 ### `reference_bus`
+
 ~~~
   object reference_bus;
 ~~~
@@ -121,6 +124,7 @@ Flag indicates node has a source for voltage, i.e. connects to the swing node
 Reference bus from which frequency is defined
 
 ### `maximum_voltage_error`
+
 ~~~
   double maximum_voltage_error[V];
 ~~~
@@ -128,6 +132,7 @@ Reference bus from which frequency is defined
 Convergence voltage limit or convergence criteria
 
 ### `voltage_1`
+
 ~~~
   complex voltage_1[V];
 ~~~
@@ -135,6 +140,7 @@ Convergence voltage limit or convergence criteria
 Bus voltage, phase 1 to ground
 
 ### `voltage_2`
+
 ~~~
   complex voltage_2[V];
 ~~~
@@ -142,6 +148,7 @@ Bus voltage, phase 1 to ground
 Bus voltage, phase 2 to ground
 
 ### `voltage_N`
+
 ~~~
   complex voltage_N[V];
 ~~~
@@ -149,6 +156,7 @@ Bus voltage, phase 2 to ground
 Bus voltage, phase N to ground
 
 ### `voltage_12`
+
 ~~~
   complex voltage_12[V];
 ~~~
@@ -156,6 +164,7 @@ Bus voltage, phase N to ground
 Bus voltage, phase 1 to 2
 
 ### `voltage_1N`
+
 ~~~
   complex voltage_1N[V];
 ~~~
@@ -163,6 +172,7 @@ Bus voltage, phase 1 to 2
 Bus voltage, phase 1 to N
 
 ### `voltage_2N`
+
 ~~~
   complex voltage_2N[V];
 ~~~
@@ -170,6 +180,7 @@ Bus voltage, phase 1 to N
 Bus voltage, phase 2 to N
 
 ### `current_1`
+
 ~~~
   complex current_1[A];
 ~~~
@@ -177,6 +188,7 @@ Bus voltage, phase 2 to N
 Constant current load on phase 1, also acts as accumulator
 
 ### `current_2`
+
 ~~~
   complex current_2[A];
 ~~~
@@ -184,6 +196,7 @@ Constant current load on phase 1, also acts as accumulator
 Constant current load on phase 2, also acts as accumulator
 
 ### `current_N`
+
 ~~~
   complex current_N[A];
 ~~~
@@ -191,6 +204,7 @@ Constant current load on phase 2, also acts as accumulator
 Constant current load on phase N, also acts as accumulator
 
 ### `current_1_real`
+
 ~~~
   double current_1_real[A];
 ~~~
@@ -198,6 +212,7 @@ Constant current load on phase N, also acts as accumulator
 Constant current load on phase 1, real
 
 ### `current_2_real`
+
 ~~~
   double current_2_real[A];
 ~~~
@@ -205,6 +220,7 @@ Constant current load on phase 1, real
 Constant current load on phase 2, real
 
 ### `current_N_real`
+
 ~~~
   double current_N_real[A];
 ~~~
@@ -212,6 +228,7 @@ Constant current load on phase 2, real
 Constant current load on phase N, real
 
 ### `current_1_reac`
+
 ~~~
   double current_1_reac[A];
 ~~~
@@ -219,6 +236,7 @@ Constant current load on phase N, real
 Constant current load on phase 1, imag
 
 ### `current_2_reac`
+
 ~~~
   double current_2_reac[A];
 ~~~
@@ -226,6 +244,7 @@ Constant current load on phase 1, imag
 Constant current load on phase 2, imag
 
 ### `current_N_reac`
+
 ~~~
   double current_N_reac[A];
 ~~~
@@ -233,6 +252,7 @@ Constant current load on phase 2, imag
 Constant current load on phase N, imag
 
 ### `current_12`
+
 ~~~
   complex current_12[A];
 ~~~
@@ -240,6 +260,7 @@ Constant current load on phase N, imag
 Constant current load on phase 1 to 2
 
 ### `current_12_real`
+
 ~~~
   double current_12_real[A];
 ~~~
@@ -247,6 +268,7 @@ Constant current load on phase 1 to 2
 Constant current load on phase 1 to 2, real
 
 ### `current_12_reac`
+
 ~~~
   double current_12_reac[A];
 ~~~
@@ -254,6 +276,7 @@ Constant current load on phase 1 to 2, real
 Constant current load on phase 1 to 2, imag
 
 ### `prerotated_current_1`
+
 ~~~
   complex prerotated_current_1[A];
 ~~~
@@ -261,6 +284,7 @@ Constant current load on phase 1 to 2, imag
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_2`
+
 ~~~
   complex prerotated_current_2[A];
 ~~~
@@ -268,6 +292,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_12`
+
 ~~~
   complex prerotated_current_12[A];
 ~~~
@@ -275,6 +300,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `residential_nominal_current_1`
+
 ~~~
   complex residential_nominal_current_1[A];
 ~~~
@@ -282,6 +308,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Posted current on phase 1 from a residential object, if attached
 
 ### `residential_nominal_current_2`
+
 ~~~
   complex residential_nominal_current_2[A];
 ~~~
@@ -289,6 +316,7 @@ Posted current on phase 1 from a residential object, if attached
 Posted current on phase 2 from a residential object, if attached
 
 ### `residential_nominal_current_12`
+
 ~~~
   complex residential_nominal_current_12[A];
 ~~~
@@ -296,6 +324,7 @@ Posted current on phase 2 from a residential object, if attached
 Posted current on phase 1 to 2 from a residential object, if attached
 
 ### `residential_nominal_current_1_real`
+
 ~~~
   double residential_nominal_current_1_real[A];
 ~~~
@@ -303,6 +332,7 @@ Posted current on phase 1 to 2 from a residential object, if attached
 Posted current on phase 1, real, from a residential object, if attached
 
 ### `residential_nominal_current_1_imag`
+
 ~~~
   double residential_nominal_current_1_imag[A];
 ~~~
@@ -310,6 +340,7 @@ Posted current on phase 1, real, from a residential object, if attached
 Posted current on phase 1, imag, from a residential object, if attached
 
 ### `residential_nominal_current_2_real`
+
 ~~~
   double residential_nominal_current_2_real[A];
 ~~~
@@ -317,6 +348,7 @@ Posted current on phase 1, imag, from a residential object, if attached
 Posted current on phase 2, real, from a residential object, if attached
 
 ### `residential_nominal_current_2_imag`
+
 ~~~
   double residential_nominal_current_2_imag[A];
 ~~~
@@ -324,6 +356,7 @@ Posted current on phase 2, real, from a residential object, if attached
 Posted current on phase 2, imag, from a residential object, if attached
 
 ### `residential_nominal_current_12_real`
+
 ~~~
   double residential_nominal_current_12_real[A];
 ~~~
@@ -331,6 +364,7 @@ Posted current on phase 2, imag, from a residential object, if attached
 Posted current on phase 1 to 2, real, from a residential object, if attached
 
 ### `residential_nominal_current_12_imag`
+
 ~~~
   double residential_nominal_current_12_imag[A];
 ~~~
@@ -338,6 +372,7 @@ Posted current on phase 1 to 2, real, from a residential object, if attached
 Posted current on phase 1 to 2, imag, from a residential object, if attached
 
 ### `power_1`
+
 ~~~
   complex power_1[VA];
 ~~~
@@ -345,6 +380,7 @@ Posted current on phase 1 to 2, imag, from a residential object, if attached
 Constant power on phase 1 (120V)
 
 ### `power_2`
+
 ~~~
   complex power_2[VA];
 ~~~
@@ -352,6 +388,7 @@ Constant power on phase 1 (120V)
 Constant power on phase 2 (120V)
 
 ### `power_12`
+
 ~~~
   complex power_12[VA];
 ~~~
@@ -359,6 +396,7 @@ Constant power on phase 2 (120V)
 Constant power on phase 1 to 2 (240V)
 
 ### `power_1_real`
+
 ~~~
   double power_1_real[W];
 ~~~
@@ -366,6 +404,7 @@ Constant power on phase 1 to 2 (240V)
 Constant power on phase 1, real
 
 ### `power_2_real`
+
 ~~~
   double power_2_real[W];
 ~~~
@@ -373,6 +412,7 @@ Constant power on phase 1, real
 Constant power on phase 2, real
 
 ### `power_12_real`
+
 ~~~
   double power_12_real[W];
 ~~~
@@ -380,6 +420,7 @@ Constant power on phase 2, real
 Constant power on phase 1 to 2, real
 
 ### `power_1_reac`
+
 ~~~
   double power_1_reac[VAr];
 ~~~
@@ -387,6 +428,7 @@ Constant power on phase 1 to 2, real
 Constant power on phase 1, imag
 
 ### `power_2_reac`
+
 ~~~
   double power_2_reac[VAr];
 ~~~
@@ -394,6 +436,7 @@ Constant power on phase 1, imag
 Constant power on phase 2, imag
 
 ### `power_12_reac`
+
 ~~~
   double power_12_reac[VAr];
 ~~~
@@ -401,6 +444,7 @@ Constant power on phase 2, imag
 Constant power on phase 1 to 2, imag
 
 ### `shunt_1`
+
 ~~~
   complex shunt_1[S];
 ~~~
@@ -408,6 +452,7 @@ Constant power on phase 1 to 2, imag
 Constant shunt impedance on phase 1
 
 ### `shunt_2`
+
 ~~~
   complex shunt_2[S];
 ~~~
@@ -415,6 +460,7 @@ Constant shunt impedance on phase 1
 Constant shunt impedance on phase 2
 
 ### `shunt_12`
+
 ~~~
   complex shunt_12[S];
 ~~~
@@ -422,6 +468,7 @@ Constant shunt impedance on phase 2
 Constant shunt impedance on phase 1 to 2
 
 ### `impedance_1`
+
 ~~~
   complex impedance_1[Ohm];
 ~~~
@@ -429,6 +476,7 @@ Constant shunt impedance on phase 1 to 2
 Constant series impedance on phase 1
 
 ### `impedance_2`
+
 ~~~
   complex impedance_2[Ohm];
 ~~~
@@ -436,6 +484,7 @@ Constant series impedance on phase 1
 Constant series impedance on phase 2
 
 ### `impedance_12`
+
 ~~~
   complex impedance_12[Ohm];
 ~~~
@@ -443,6 +492,7 @@ Constant series impedance on phase 2
 Constant series impedance on phase 1 to 2
 
 ### `impedance_1_real`
+
 ~~~
   double impedance_1_real[Ohm];
 ~~~
@@ -450,6 +500,7 @@ Constant series impedance on phase 1 to 2
 Constant series impedance on phase 1, real
 
 ### `impedance_2_real`
+
 ~~~
   double impedance_2_real[Ohm];
 ~~~
@@ -457,6 +508,7 @@ Constant series impedance on phase 1, real
 Constant series impedance on phase 2, real
 
 ### `impedance_12_real`
+
 ~~~
   double impedance_12_real[Ohm];
 ~~~
@@ -464,6 +516,7 @@ Constant series impedance on phase 2, real
 Constant series impedance on phase 1 to 2, real
 
 ### `impedance_1_reac`
+
 ~~~
   double impedance_1_reac[Ohm];
 ~~~
@@ -471,6 +524,7 @@ Constant series impedance on phase 1 to 2, real
 Constant series impedance on phase 1, imag
 
 ### `impedance_2_reac`
+
 ~~~
   double impedance_2_reac[Ohm];
 ~~~
@@ -478,6 +532,7 @@ Constant series impedance on phase 1, imag
 Constant series impedance on phase 2, imag
 
 ### `impedance_12_reac`
+
 ~~~
   double impedance_12_reac[Ohm];
 ~~~
@@ -485,6 +540,7 @@ Constant series impedance on phase 2, imag
 Constant series impedance on phase 1 to 2, imag
 
 ### `house_present`
+
 ~~~
   bool house_present;
 ~~~
@@ -492,6 +548,7 @@ Constant series impedance on phase 1 to 2, imag
 Boolean for detecting whether a house is attached, not an input
 
 ### `GFA_enable`
+
 ~~~
   bool GFA_enable;
 ~~~
@@ -499,6 +556,7 @@ Boolean for detecting whether a house is attached, not an input
 Disable/Enable Grid Friendly Applicance(TM)-type functionality
 
 ### `GFA_freq_low_trip`
+
 ~~~
   double GFA_freq_low_trip[Hz];
 ~~~
@@ -506,6 +564,7 @@ Disable/Enable Grid Friendly Applicance(TM)-type functionality
 Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_high_trip`
+
 ~~~
   double GFA_freq_high_trip[Hz];
 ~~~
@@ -513,6 +572,7 @@ Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 High frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_low_trip`
+
 ~~~
   double GFA_volt_low_trip[pu];
 ~~~
@@ -520,6 +580,7 @@ High frequency trip point for Grid Friendly Appliance(TM)-type functionality
 Low voltage trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_high_trip`
+
 ~~~
   double GFA_volt_high_trip[pu];
 ~~~
@@ -527,6 +588,7 @@ Low voltage trip point for Grid Friendly Appliance(TM)-type functionality
 High voltage trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_reconnect_time`
+
 ~~~
   double GFA_reconnect_time[s];
 ~~~
@@ -534,6 +596,7 @@ High voltage trip point for Grid Friendly Appliance(TM)-type functionality
 Reconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_disconnect_time`
+
 ~~~
   double GFA_freq_disconnect_time[s];
 ~~~
@@ -541,6 +604,7 @@ Reconnect time for Grid Friendly Appliance(TM)-type functionality
 Frequency violation disconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_disconnect_time`
+
 ~~~
   double GFA_volt_disconnect_time[s];
 ~~~
@@ -548,6 +612,7 @@ Frequency violation disconnect time for Grid Friendly Appliance(TM)-type functio
 Voltage violation disconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_status`
+
 ~~~
   bool GFA_status;
 ~~~
@@ -555,6 +620,7 @@ Voltage violation disconnect time for Grid Friendly Appliance(TM)-type functiona
 Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `service_status`
+
 ~~~
   enumeration {OUT_OF_SERVICE, IN_SERVICE} service_status;
 ~~~
@@ -562,6 +628,7 @@ Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 In and out of service flag
 
 ### `service_status_double`
+
 ~~~
   double service_status_double;
 ~~~
@@ -569,6 +636,7 @@ In and out of service flag
 In and out of service flag - type double - will indiscriminately override service_status - useful for schedules
 
 ### `previous_uptime`
+
 ~~~
   double previous_uptime[min];
 ~~~
@@ -576,6 +644,7 @@ In and out of service flag - type double - will indiscriminately override servic
 Previous time between disconnects of node in minutes
 
 ### `current_uptime`
+
 ~~~
   double current_uptime[min];
 ~~~
@@ -583,6 +652,7 @@ Previous time between disconnects of node in minutes
 Current time since last disconnect of node in minutes
 
 ### `topological_parent`
+
 ~~~
   object topological_parent;
 ~~~
@@ -590,6 +660,7 @@ Current time since last disconnect of node in minutes
 Topological parent as per GLM configuration
 
 ### `frequency_measure_type`
+
 ~~~
   enumeration {PLL, SIMPLE, NONE} frequency_measure_type;
 ~~~
@@ -597,6 +668,7 @@ Topological parent as per GLM configuration
 PLL frequency measurement
 
 ### `sfm_Tf`
+
 ~~~
   double sfm_Tf[s];
 ~~~
@@ -604,6 +676,7 @@ PLL frequency measurement
 Transducer time constant for simplified frequency measurement (seconds)
 
 ### `pll_Kp`
+
 ~~~
   double pll_Kp[pu];
 ~~~
@@ -611,6 +684,7 @@ Transducer time constant for simplified frequency measurement (seconds)
 Proportional gain of PLL frequency measurement
 
 ### `pll_Ki`
+
 ~~~
   double pll_Ki[pu];
 ~~~
@@ -618,6 +692,7 @@ Proportional gain of PLL frequency measurement
 Integration gain of PLL frequency measurement
 
 ### `measured_angle_1`
+
 ~~~
   double measured_angle_1[rad];
 ~~~
@@ -625,6 +700,7 @@ Integration gain of PLL frequency measurement
 Bus angle measurement, phase 1N
 
 ### `measured_frequency_1`
+
 ~~~
   double measured_frequency_1[Hz];
 ~~~
@@ -632,6 +708,7 @@ Bus angle measurement, phase 1N
 Frequency measurement, phase 1N
 
 ### `measured_angle_2`
+
 ~~~
   double measured_angle_2[rad];
 ~~~
@@ -639,6 +716,7 @@ Frequency measurement, phase 1N
 Bus angle measurement, phase 2N
 
 ### `measured_frequency_2`
+
 ~~~
   double measured_frequency_2[Hz];
 ~~~
@@ -646,6 +724,7 @@ Bus angle measurement, phase 2N
 Frequency measurement, phase 2N
 
 ### `measured_angle_12`
+
 ~~~
   double measured_angle_12[rad];
 ~~~
@@ -653,6 +732,7 @@ Frequency measurement, phase 2N
 Bus angle measurement, across the phases
 
 ### `measured_frequency_12`
+
 ~~~
   double measured_frequency_12[Hz];
 ~~~
@@ -660,6 +740,7 @@ Bus angle measurement, across the phases
 Frequency measurement, across the phases
 
 ### `measured_frequency`
+
 ~~~
   double measured_frequency[Hz];
 ~~~
@@ -667,6 +748,7 @@ Frequency measurement, across the phases
 Frequency measurement - average of present phases
 
 ### `phases`
+
 ~~~
   set {A, B, C, D, N, S, G} phases;
 ~~~
@@ -674,6 +756,7 @@ Frequency measurement - average of present phases
 TODO
 
 ### `nominal_voltage`
+
 ~~~
   double nominal_voltage[V];
 ~~~
@@ -681,6 +764,7 @@ TODO
 TODO
 
 ### `supernode_name`
+
 ~~~
   char1024 supernode_name;
 ~~~
@@ -777,5 +861,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

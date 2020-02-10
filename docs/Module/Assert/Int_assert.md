@@ -22,6 +22,7 @@ TODO
 ## Properties
 
 ### `status`
+
 ~~~
   enumeration {ASSERT_NONE, ASSERT_FALSE, ASSERT_TRUE} status;
 ~~~
@@ -29,6 +30,7 @@ TODO
 TODO
 
 ### `once`
+
 ~~~
   enumeration {ONCE_DONE, ONCE_TRUE, ONCE_FALSE} once;
 ~~~
@@ -36,6 +38,7 @@ TODO
 TODO
 
 ### `within_mode`
+
 ~~~
   enumeration {WITHIN_RATIO, WITHIN_VALUE} within_mode;
 ~~~
@@ -43,6 +46,7 @@ TODO
 TODO
 
 ### `value`
+
 ~~~
   int32 value;
 ~~~
@@ -50,6 +54,7 @@ TODO
 TODO
 
 ### `within`
+
 ~~~
   int32 within;
 ~~~
@@ -57,6 +62,7 @@ TODO
 TODO
 
 ### `target`
+
 ~~~
   char1024 target;
 ~~~
@@ -77,5 +83,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Assert]]
 

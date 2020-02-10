@@ -23,6 +23,7 @@ The `PRECOMMIT` option may be used to suppress calls to `precommit` prior to the
 The `COMMIT` option may be used to suppress calls to `commit` prior to the `valid_to` time.
 
 # Example
+
 ~~~
   class test {
       randomvar x;

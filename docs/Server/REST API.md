@@ -1,11 +1,15 @@
 [[/Server/REST API]] -- GridLAB-D REST API
 
 # Synopsis
+
 Shell:
+
 ~~~
 bash$ gridlabd --server <options> ...
 ~~~
+
 GLM:
+
 ~~~
   #option server
   #set server_portnum=6267

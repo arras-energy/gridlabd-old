@@ -78,6 +78,7 @@ TODO
 ## Properties
 
 ### `size`
+
 ~~~
   double size[cf];
 ~~~
@@ -85,6 +86,7 @@ TODO
 Volume of the refrigerator
 
 ### `rated_capacity`
+
 ~~~
   double rated_capacity[Btu/h];
 ~~~
@@ -92,6 +94,7 @@ Volume of the refrigerator
 TODO
 
 ### `temperature`
+
 ~~~
   double temperature[degF];
 ~~~
@@ -99,6 +102,7 @@ TODO
 TODO
 
 ### `setpoint`
+
 ~~~
   double setpoint[degF];
 ~~~
@@ -106,6 +110,7 @@ TODO
 TODO
 
 ### `deadband`
+
 ~~~
   double deadband[degF];
 ~~~
@@ -113,6 +118,7 @@ TODO
 TODO
 
 ### `cycle_time`
+
 ~~~
   double cycle_time[s];
 ~~~
@@ -120,6 +126,7 @@ TODO
 TODO
 
 ### `output`
+
 ~~~
   double output;
 ~~~
@@ -127,6 +134,7 @@ TODO
 TODO
 
 ### `event_temp`
+
 ~~~
   double event_temp;
 ~~~
@@ -134,6 +142,7 @@ TODO
 TODO
 
 ### `UA`
+
 ~~~
   double UA[Btu/degF/h];
 ~~~
@@ -141,6 +150,7 @@ TODO
 TODO
 
 ### `compressor_off_normal_energy`
+
 ~~~
   double compressor_off_normal_energy;
 ~~~
@@ -148,6 +158,7 @@ TODO
 TODO
 
 ### `compressor_off_normal_power`
+
 ~~~
   double compressor_off_normal_power[W];
 ~~~
@@ -155,6 +166,7 @@ TODO
 TODO
 
 ### `compressor_on_normal_energy`
+
 ~~~
   double compressor_on_normal_energy;
 ~~~
@@ -162,6 +174,7 @@ TODO
 TODO
 
 ### `compressor_on_normal_power`
+
 ~~~
   double compressor_on_normal_power[W];
 ~~~
@@ -169,6 +182,7 @@ TODO
 TODO
 
 ### `defrost_energy`
+
 ~~~
   double defrost_energy;
 ~~~
@@ -176,6 +190,7 @@ TODO
 TODO
 
 ### `defrost_power`
+
 ~~~
   double defrost_power[W];
 ~~~
@@ -183,6 +198,7 @@ TODO
 TODO
 
 ### `icemaking_energy`
+
 ~~~
   double icemaking_energy;
 ~~~
@@ -190,6 +206,7 @@ TODO
 TODO
 
 ### `icemaking_power`
+
 ~~~
   double icemaking_power[W];
 ~~~
@@ -197,6 +214,7 @@ TODO
 TODO
 
 ### `ice_making_probability`
+
 ~~~
   double ice_making_probability;
 ~~~
@@ -204,6 +222,7 @@ TODO
 TODO
 
 ### `FF_Door_Openings`
+
 ~~~
   int32 FF_Door_Openings;
 ~~~
@@ -211,6 +230,7 @@ TODO
 TODO
 
 ### `door_opening_energy`
+
 ~~~
   int32 door_opening_energy;
 ~~~
@@ -218,6 +238,7 @@ TODO
 TODO
 
 ### `door_opening_power`
+
 ~~~
   int32 door_opening_power;
 ~~~
@@ -225,6 +246,7 @@ TODO
 TODO
 
 ### `DO_Thershold`
+
 ~~~
   double DO_Thershold;
 ~~~
@@ -232,6 +254,7 @@ TODO
 TODO
 
 ### `dr_mode_double`
+
 ~~~
   double dr_mode_double;
 ~~~
@@ -239,6 +262,7 @@ TODO
 TODO
 
 ### `energy_needed`
+
 ~~~
   double energy_needed;
 ~~~
@@ -246,6 +270,7 @@ TODO
 TODO
 
 ### `energy_used`
+
 ~~~
   double energy_used;
 ~~~
@@ -253,6 +278,7 @@ TODO
 TODO
 
 ### `refrigerator_power`
+
 ~~~
   double refrigerator_power;
 ~~~
@@ -260,6 +286,7 @@ TODO
 TODO
 
 ### `icemaker_running`
+
 ~~~
   bool icemaker_running;
 ~~~
@@ -267,6 +294,7 @@ TODO
 TODO
 
 ### `check_DO`
+
 ~~~
   int32 check_DO;
 ~~~
@@ -274,6 +302,7 @@ TODO
 TODO
 
 ### `is_240`
+
 ~~~
   bool is_240;
 ~~~
@@ -281,6 +310,7 @@ TODO
 TODO
 
 ### `defrostDelayed`
+
 ~~~
   double defrostDelayed;
 ~~~
@@ -288,6 +318,7 @@ TODO
 TODO
 
 ### `long_compressor_cycle_due`
+
 ~~~
   bool long_compressor_cycle_due;
 ~~~
@@ -295,6 +326,7 @@ TODO
 TODO
 
 ### `long_compressor_cycle_time`
+
 ~~~
   double long_compressor_cycle_time;
 ~~~
@@ -302,6 +334,7 @@ TODO
 TODO
 
 ### `long_compressor_cycle_power`
+
 ~~~
   double long_compressor_cycle_power;
 ~~~
@@ -309,6 +342,7 @@ TODO
 TODO
 
 ### `long_compressor_cycle_energy`
+
 ~~~
   double long_compressor_cycle_energy;
 ~~~
@@ -316,6 +350,7 @@ TODO
 TODO
 
 ### `long_compressor_cycle_threshold`
+
 ~~~
   double long_compressor_cycle_threshold;
 ~~~
@@ -323,6 +358,7 @@ TODO
 TODO
 
 ### `defrost_criterion`
+
 ~~~
   enumeration {COMPRESSOR_TIME, DOOR_OPENINGS, TIMED} defrost_criterion;
 ~~~
@@ -330,6 +366,7 @@ TODO
 TODO
 
 ### `run_defrost`
+
 ~~~
   bool run_defrost;
 ~~~
@@ -337,6 +374,7 @@ TODO
 TODO
 
 ### `door_opening_criterion`
+
 ~~~
   double door_opening_criterion;
 ~~~
@@ -344,6 +382,7 @@ TODO
 TODO
 
 ### `compressor_defrost_time`
+
 ~~~
   double compressor_defrost_time;
 ~~~
@@ -351,6 +390,7 @@ TODO
 TODO
 
 ### `delay_defrost_time`
+
 ~~~
   double delay_defrost_time;
 ~~~
@@ -358,6 +398,7 @@ TODO
 TODO
 
 ### `daily_door_opening`
+
 ~~~
   int32 daily_door_opening;
 ~~~
@@ -365,6 +406,7 @@ TODO
 TODO
 
 ### `state`
+
 ~~~
   enumeration {COMPRESSSOR_ON_NORMAL, COMPRESSSOR_ON_LONG, COMPRESSSOR_OFF_NORMAL, DEFROST} state;
 ~~~
@@ -372,6 +414,7 @@ TODO
 TODO
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -379,6 +422,7 @@ TODO
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -386,6 +430,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -393,6 +438,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -400,6 +446,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -407,6 +454,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -414,6 +462,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -421,6 +470,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -428,6 +478,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -435,6 +486,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -442,6 +494,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -449,6 +502,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -456,6 +510,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -463,6 +518,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -470,6 +526,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -477,6 +534,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -484,6 +542,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -491,6 +550,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -498,6 +558,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -505,6 +566,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -563,5 +625,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

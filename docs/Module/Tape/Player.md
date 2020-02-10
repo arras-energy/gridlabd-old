@@ -21,6 +21,7 @@ TODO
 ## Properties
 
 ### `property`
+
 ~~~
   char256 property;
 ~~~
@@ -28,6 +29,7 @@ TODO
 TODO
 
 ### `file`
+
 ~~~
   char1024 file;
 ~~~
@@ -35,6 +37,7 @@ TODO
 TODO
 
 ### `filetype`
+
 ~~~
   char8 filetype;
 ~~~
@@ -42,6 +45,7 @@ TODO
 TODO
 
 ### `mode`
+
 ~~~
   char32 mode;
 ~~~
@@ -49,6 +53,7 @@ TODO
 TODO
 
 ### `loop`
+
 ~~~
   int32 loop;
 ~~~
@@ -68,5 +73,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Tape]]
 

@@ -1,13 +1,17 @@
 [[/Module/Residential/Global/House_high_temperature_warning]] -- Module residential global variable house_high_temperature_warning
 
 # Synopsis
+
 Shell:
+
 ~~~
 bash$ gridlabd -D|--define house_high_temperature_warning=<value>
 ~~~
+
 GLM:
+
 ~~~
-  #set house_high_temperature_warning=<value>
+#set house_high_temperature_warning=<value>
 ~~~
 
 # Description
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Residential]]

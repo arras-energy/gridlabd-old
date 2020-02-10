@@ -15,6 +15,7 @@ The `#sleep` macro causes the GLM loader to pause for `<milliseconds>`.
 # Examples
 
 The following pauses the loader for 1 second.
+
 ~~~
 #sleep 1000
 ~~~

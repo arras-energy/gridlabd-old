@@ -113,6 +113,7 @@ TODO
 ## Properties
 
 ### `control_power`
+
 ~~~
   double control_power[W];
 ~~~
@@ -120,6 +121,7 @@ TODO
 TODO
 
 ### `dishwasher_coil_power_1`
+
 ~~~
   double dishwasher_coil_power_1[W];
 ~~~
@@ -127,6 +129,7 @@ TODO
 TODO
 
 ### `dishwasher_coil_power_2`
+
 ~~~
   double dishwasher_coil_power_2[W];
 ~~~
@@ -134,6 +137,7 @@ TODO
 TODO
 
 ### `dishwasher_coil_power_3`
+
 ~~~
   double dishwasher_coil_power_3[W];
 ~~~
@@ -141,6 +145,7 @@ TODO
 TODO
 
 ### `motor_power`
+
 ~~~
   double motor_power[W];
 ~~~
@@ -148,6 +153,7 @@ TODO
 TODO
 
 ### `circuit_split`
+
 ~~~
   double circuit_split;
 ~~~
@@ -155,6 +161,7 @@ TODO
 TODO
 
 ### `queue`
+
 ~~~
   double queue[unit];
 ~~~
@@ -162,6 +169,7 @@ TODO
 Number of loads accumulated
 
 ### `stall_voltage`
+
 ~~~
   double stall_voltage[V];
 ~~~
@@ -169,6 +177,7 @@ Number of loads accumulated
 TODO
 
 ### `start_voltage`
+
 ~~~
   double start_voltage[V];
 ~~~
@@ -176,6 +185,7 @@ TODO
 TODO
 
 ### `stall_impedance`
+
 ~~~
   complex stall_impedance[Ohm];
 ~~~
@@ -183,6 +193,7 @@ TODO
 TODO
 
 ### `trip_delay`
+
 ~~~
   double trip_delay[s];
 ~~~
@@ -190,6 +201,7 @@ TODO
 TODO
 
 ### `reset_delay`
+
 ~~~
   double reset_delay[s];
 ~~~
@@ -197,6 +209,7 @@ TODO
 TODO
 
 ### `total_power`
+
 ~~~
   double total_power[W];
 ~~~
@@ -204,6 +217,7 @@ TODO
 TODO
 
 ### `state`
+
 ~~~
   enumeration {HEATEDDRY_ONLY, CONTROL_ONLY, COIL_ONLY, MOTOR_COIL_ONLY, MOTOR_ONLY, TRIPPED, STALLED, STOPPED} state;
 ~~~
@@ -211,6 +225,7 @@ TODO
 TODO
 
 ### `energy_baseline`
+
 ~~~
   double energy_baseline[kWh];
 ~~~
@@ -218,6 +233,7 @@ TODO
 TODO
 
 ### `energy_used`
+
 ~~~
   double energy_used[kWh];
 ~~~
@@ -225,6 +241,7 @@ TODO
 TODO
 
 ### `control_check1`
+
 ~~~
   bool control_check1;
 ~~~
@@ -232,6 +249,7 @@ TODO
 TODO
 
 ### `control_check2`
+
 ~~~
   bool control_check2;
 ~~~
@@ -239,6 +257,7 @@ TODO
 TODO
 
 ### `control_check3`
+
 ~~~
   bool control_check3;
 ~~~
@@ -246,6 +265,7 @@ TODO
 TODO
 
 ### `control_check4`
+
 ~~~
   bool control_check4;
 ~~~
@@ -253,6 +273,7 @@ TODO
 TODO
 
 ### `control_check5`
+
 ~~~
   bool control_check5;
 ~~~
@@ -260,6 +281,7 @@ TODO
 TODO
 
 ### `control_check6`
+
 ~~~
   bool control_check6;
 ~~~
@@ -267,6 +289,7 @@ TODO
 TODO
 
 ### `control_check7`
+
 ~~~
   bool control_check7;
 ~~~
@@ -274,6 +297,7 @@ TODO
 TODO
 
 ### `control_check8`
+
 ~~~
   bool control_check8;
 ~~~
@@ -281,6 +305,7 @@ TODO
 TODO
 
 ### `control_check9`
+
 ~~~
   bool control_check9;
 ~~~
@@ -288,6 +313,7 @@ TODO
 TODO
 
 ### `control_check10`
+
 ~~~
   bool control_check10;
 ~~~
@@ -295,6 +321,7 @@ TODO
 TODO
 
 ### `control_check11`
+
 ~~~
   bool control_check11;
 ~~~
@@ -302,6 +329,7 @@ TODO
 TODO
 
 ### `control_check12`
+
 ~~~
   bool control_check12;
 ~~~
@@ -309,6 +337,7 @@ TODO
 TODO
 
 ### `control_check_temp`
+
 ~~~
   bool control_check_temp;
 ~~~
@@ -316,6 +345,7 @@ TODO
 TODO
 
 ### `motor_only_check1`
+
 ~~~
   bool motor_only_check1;
 ~~~
@@ -323,6 +353,7 @@ TODO
 TODO
 
 ### `motor_only_check2`
+
 ~~~
   bool motor_only_check2;
 ~~~
@@ -330,6 +361,7 @@ TODO
 TODO
 
 ### `motor_only_check3`
+
 ~~~
   bool motor_only_check3;
 ~~~
@@ -337,6 +369,7 @@ TODO
 TODO
 
 ### `motor_only_check4`
+
 ~~~
   bool motor_only_check4;
 ~~~
@@ -344,6 +377,7 @@ TODO
 TODO
 
 ### `motor_only_check5`
+
 ~~~
   bool motor_only_check5;
 ~~~
@@ -351,6 +385,7 @@ TODO
 TODO
 
 ### `motor_only_check6`
+
 ~~~
   bool motor_only_check6;
 ~~~
@@ -358,6 +393,7 @@ TODO
 TODO
 
 ### `motor_only_check7`
+
 ~~~
   bool motor_only_check7;
 ~~~
@@ -365,6 +401,7 @@ TODO
 TODO
 
 ### `motor_only_check8`
+
 ~~~
   bool motor_only_check8;
 ~~~
@@ -372,6 +409,7 @@ TODO
 TODO
 
 ### `motor_only_check9`
+
 ~~~
   bool motor_only_check9;
 ~~~
@@ -379,6 +417,7 @@ TODO
 TODO
 
 ### `motor_only_temp1`
+
 ~~~
   bool motor_only_temp1;
 ~~~
@@ -386,6 +425,7 @@ TODO
 TODO
 
 ### `motor_only_temp2`
+
 ~~~
   bool motor_only_temp2;
 ~~~
@@ -393,6 +433,7 @@ TODO
 TODO
 
 ### `motor_coil_only_check1`
+
 ~~~
   bool motor_coil_only_check1;
 ~~~
@@ -400,6 +441,7 @@ TODO
 TODO
 
 ### `motor_coil_only_check2`
+
 ~~~
   bool motor_coil_only_check2;
 ~~~
@@ -407,6 +449,7 @@ TODO
 TODO
 
 ### `heateddry_check1`
+
 ~~~
   bool heateddry_check1;
 ~~~
@@ -414,6 +457,7 @@ TODO
 TODO
 
 ### `heateddry_check2`
+
 ~~~
   bool heateddry_check2;
 ~~~
@@ -421,6 +465,7 @@ TODO
 TODO
 
 ### `coil_only_check1`
+
 ~~~
   bool coil_only_check1;
 ~~~
@@ -428,6 +473,7 @@ TODO
 TODO
 
 ### `coil_only_check2`
+
 ~~~
   bool coil_only_check2;
 ~~~
@@ -435,6 +481,7 @@ TODO
 TODO
 
 ### `coil_only_check3`
+
 ~~~
   bool coil_only_check3;
 ~~~
@@ -442,6 +489,7 @@ TODO
 TODO
 
 ### `Heateddry_option_check`
+
 ~~~
   bool Heateddry_option_check;
 ~~~
@@ -449,6 +497,7 @@ TODO
 TODO
 
 ### `queue_min`
+
 ~~~
   double queue_min[unit];
 ~~~
@@ -456,6 +505,7 @@ TODO
 TODO
 
 ### `queue_max`
+
 ~~~
   double queue_max[unit];
 ~~~
@@ -463,6 +513,7 @@ TODO
 TODO
 
 ### `pulse_interval_1`
+
 ~~~
   double pulse_interval_1[s];
 ~~~
@@ -470,6 +521,7 @@ TODO
 TODO
 
 ### `pulse_interval_2`
+
 ~~~
   double pulse_interval_2[s];
 ~~~
@@ -477,6 +529,7 @@ TODO
 TODO
 
 ### `pulse_interval_3`
+
 ~~~
   double pulse_interval_3[s];
 ~~~
@@ -484,6 +537,7 @@ TODO
 TODO
 
 ### `pulse_interval_4`
+
 ~~~
   double pulse_interval_4[s];
 ~~~
@@ -491,6 +545,7 @@ TODO
 TODO
 
 ### `pulse_interval_5`
+
 ~~~
   double pulse_interval_5[s];
 ~~~
@@ -498,6 +553,7 @@ TODO
 TODO
 
 ### `pulse_interval_6`
+
 ~~~
   double pulse_interval_6[s];
 ~~~
@@ -505,6 +561,7 @@ TODO
 TODO
 
 ### `pulse_interval_7`
+
 ~~~
   double pulse_interval_7[s];
 ~~~
@@ -512,6 +569,7 @@ TODO
 TODO
 
 ### `pulse_interval_8`
+
 ~~~
   double pulse_interval_8[s];
 ~~~
@@ -519,6 +577,7 @@ TODO
 TODO
 
 ### `pulse_interval_9`
+
 ~~~
   double pulse_interval_9[s];
 ~~~
@@ -526,6 +585,7 @@ TODO
 TODO
 
 ### `pulse_interval_10`
+
 ~~~
   double pulse_interval_10[s];
 ~~~
@@ -533,6 +593,7 @@ TODO
 TODO
 
 ### `pulse_interval_11`
+
 ~~~
   double pulse_interval_11[s];
 ~~~
@@ -540,6 +601,7 @@ TODO
 TODO
 
 ### `pulse_interval_12`
+
 ~~~
   double pulse_interval_12[s];
 ~~~
@@ -547,6 +609,7 @@ TODO
 TODO
 
 ### `pulse_interval_13`
+
 ~~~
   double pulse_interval_13[s];
 ~~~
@@ -554,6 +617,7 @@ TODO
 TODO
 
 ### `pulse_interval_14`
+
 ~~~
   double pulse_interval_14[s];
 ~~~
@@ -561,6 +625,7 @@ TODO
 TODO
 
 ### `pulse_interval_15`
+
 ~~~
   double pulse_interval_15[s];
 ~~~
@@ -568,6 +633,7 @@ TODO
 TODO
 
 ### `pulse_interval_16`
+
 ~~~
   double pulse_interval_16[s];
 ~~~
@@ -575,6 +641,7 @@ TODO
 TODO
 
 ### `pulse_interval_17`
+
 ~~~
   double pulse_interval_17[s];
 ~~~
@@ -582,6 +649,7 @@ TODO
 TODO
 
 ### `pulse_interval_18`
+
 ~~~
   double pulse_interval_18[s];
 ~~~
@@ -589,6 +657,7 @@ TODO
 TODO
 
 ### `pulse_interval_19`
+
 ~~~
   double pulse_interval_19[s];
 ~~~
@@ -596,6 +665,7 @@ TODO
 TODO
 
 ### `dishwasher_run_prob`
+
 ~~~
   double dishwasher_run_prob;
 ~~~
@@ -603,6 +673,7 @@ TODO
 TODO
 
 ### `energy_needed`
+
 ~~~
   double energy_needed[kWh];
 ~~~
@@ -610,6 +681,7 @@ TODO
 TODO
 
 ### `dishwasher_demand`
+
 ~~~
   double dishwasher_demand[kWh];
 ~~~
@@ -617,6 +689,7 @@ TODO
 TODO
 
 ### `daily_dishwasher_demand`
+
 ~~~
   double daily_dishwasher_demand[kWh];
 ~~~
@@ -624,6 +697,7 @@ TODO
 TODO
 
 ### `actual_dishwasher_demand`
+
 ~~~
   double actual_dishwasher_demand[kWh];
 ~~~
@@ -631,6 +705,7 @@ TODO
 TODO
 
 ### `motor_on_off`
+
 ~~~
   double motor_on_off;
 ~~~
@@ -638,6 +713,7 @@ TODO
 TODO
 
 ### `motor_coil_on_off`
+
 ~~~
   double motor_coil_on_off;
 ~~~
@@ -645,6 +721,7 @@ TODO
 TODO
 
 ### `is_240`
+
 ~~~
   bool is_240;
 ~~~
@@ -652,6 +729,7 @@ TODO
 Load is 220/240 V (across both phases)
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -659,6 +737,7 @@ Load is 220/240 V (across both phases)
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -666,6 +745,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -673,6 +753,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -680,6 +761,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -687,6 +769,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -694,6 +777,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -701,6 +785,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -708,6 +793,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -715,6 +801,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -722,6 +809,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -729,6 +817,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -736,6 +825,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -743,6 +833,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -750,6 +841,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -757,6 +849,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -764,6 +857,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -771,6 +865,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -778,6 +873,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -785,6 +881,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -878,5 +975,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

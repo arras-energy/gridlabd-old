@@ -85,6 +85,7 @@ TODO
 ## Properties
 
 ### `unit`
+
 ~~~
   char32 unit;
 ~~~
@@ -92,6 +93,7 @@ TODO
 Unit of quantity
 
 ### `period`
+
 ~~~
   double period[s];
 ~~~
@@ -99,6 +101,7 @@ Unit of quantity
 Interval of time between market clearings
 
 ### `latency`
+
 ~~~
   double latency[s];
 ~~~
@@ -106,6 +109,7 @@ Interval of time between market clearings
 Latency between market clearing and delivery
 
 ### `market_id`
+
 ~~~
   int64 market_id;
 ~~~
@@ -113,6 +117,7 @@ Latency between market clearing and delivery
 Unique identifier of market clearing
 
 ### `network`
+
 ~~~
   object network;
 ~~~
@@ -120,6 +125,7 @@ Unique identifier of market clearing
 The comm network used by object to talk to the market (if any)
 
 ### `verbose`
+
 ~~~
   bool verbose;
 ~~~
@@ -127,6 +133,7 @@ The comm network used by object to talk to the market (if any)
 Enable verbose auction operations
 
 ### `linkref`
+
 ~~~
   object linkref;
 ~~~
@@ -134,6 +141,7 @@ Enable verbose auction operations
 Reference to link object that has demand as power_out (only used when not all loads are bidding)
 
 ### `pricecap`
+
 ~~~
   double pricecap;
 ~~~
@@ -141,6 +149,7 @@ Reference to link object that has demand as power_out (only used when not all lo
 The maximum price (magnitude) allowed
 
 ### `price_cap`
+
 ~~~
   double price_cap;
 ~~~
@@ -148,6 +157,7 @@ The maximum price (magnitude) allowed
 The maximum price (magnitude) allowed
 
 ### `special_mode`
+
 ~~~
   enumeration {BUYERS_ONLY, SELLERS_ONLY, NONE} special_mode;
 ~~~
@@ -155,6 +165,7 @@ The maximum price (magnitude) allowed
 TODO
 
 ### `statistic_mode`
+
 ~~~
   enumeration {OFF, ON} statistic_mode;
 ~~~
@@ -162,6 +173,7 @@ TODO
 TODO
 
 ### `fixed_price`
+
 ~~~
   double fixed_price;
 ~~~
@@ -169,6 +181,7 @@ TODO
 TODO
 
 ### `fixed_quantity`
+
 ~~~
   double fixed_quantity;
 ~~~
@@ -176,6 +189,7 @@ TODO
 TODO
 
 ### `capacity_reference_object`
+
 ~~~
   object capacity_reference_object;
 ~~~
@@ -183,6 +197,7 @@ TODO
 TODO
 
 ### `capacity_reference_property`
+
 ~~~
   char32 capacity_reference_property;
 ~~~
@@ -190,6 +205,7 @@ TODO
 TODO
 
 ### `capacity_reference_bid_price`
+
 ~~~
   double capacity_reference_bid_price;
 ~~~
@@ -197,6 +213,7 @@ TODO
 TODO
 
 ### `max_capacity_reference_bid_quantity`
+
 ~~~
   double max_capacity_reference_bid_quantity;
 ~~~
@@ -204,6 +221,7 @@ TODO
 TODO
 
 ### `capacity_reference_bid_quantity`
+
 ~~~
   double capacity_reference_bid_quantity;
 ~~~
@@ -211,6 +229,7 @@ TODO
 TODO
 
 ### `init_price`
+
 ~~~
   double init_price;
 ~~~
@@ -218,6 +237,7 @@ TODO
 TODO
 
 ### `init_stdev`
+
 ~~~
   double init_stdev;
 ~~~
@@ -225,6 +245,7 @@ TODO
 TODO
 
 ### `future_mean_price`
+
 ~~~
   double future_mean_price;
 ~~~
@@ -232,6 +253,7 @@ TODO
 TODO
 
 ### `use_future_mean_price`
+
 ~~~
   bool use_future_mean_price;
 ~~~
@@ -239,6 +261,7 @@ TODO
 TODO
 
 ### `current_market.start_time`
+
 ~~~
   timestamp current_market.start_time;
 ~~~
@@ -246,6 +269,7 @@ TODO
 TODO
 
 ### `current_market.end_time`
+
 ~~~
   timestamp current_market.end_time;
 ~~~
@@ -253,6 +277,7 @@ TODO
 TODO
 
 ### `current_market.clearing_price`
+
 ~~~
   double current_market.clearing_price[$];
 ~~~
@@ -260,6 +285,7 @@ TODO
 TODO
 
 ### `current_market.clearing_quantity`
+
 ~~~
   double current_market.clearing_quantity;
 ~~~
@@ -267,6 +293,7 @@ TODO
 TODO
 
 ### `current_market.clearing_type`
+
 ~~~
   enumeration {NULL, FAILURE, EXACT, MARGINAL_PRICE, MARGINAL_BUYER, MARGINAL_SELLER} current_market.clearing_type;
 ~~~
@@ -274,6 +301,7 @@ TODO
 TODO
 
 ### `current_market.marginal_quantity_load`
+
 ~~~
   double current_market.marginal_quantity_load;
 ~~~
@@ -281,6 +309,7 @@ TODO
 TODO
 
 ### `current_market.marginal_quantity`
+
 ~~~
   double current_market.marginal_quantity;
 ~~~
@@ -288,6 +317,7 @@ TODO
 TODO
 
 ### `current_market.marginal_quantity_bid`
+
 ~~~
   double current_market.marginal_quantity_bid;
 ~~~
@@ -295,6 +325,7 @@ TODO
 TODO
 
 ### `current_market.marginal_quantity_frac`
+
 ~~~
   double current_market.marginal_quantity_frac;
 ~~~
@@ -302,6 +333,7 @@ TODO
 TODO
 
 ### `current_market.seller_total_quantity`
+
 ~~~
   double current_market.seller_total_quantity;
 ~~~
@@ -309,6 +341,7 @@ TODO
 TODO
 
 ### `current_market.buyer_total_quantity`
+
 ~~~
   double current_market.buyer_total_quantity;
 ~~~
@@ -316,6 +349,7 @@ TODO
 TODO
 
 ### `current_market.seller_min_price`
+
 ~~~
   double current_market.seller_min_price;
 ~~~
@@ -323,6 +357,7 @@ TODO
 TODO
 
 ### `current_market.buyer_total_unrep`
+
 ~~~
   double current_market.buyer_total_unrep;
 ~~~
@@ -330,6 +365,7 @@ TODO
 TODO
 
 ### `current_market.cap_ref_unrep`
+
 ~~~
   double current_market.cap_ref_unrep;
 ~~~
@@ -337,6 +373,7 @@ TODO
 TODO
 
 ### `next_market.start_time`
+
 ~~~
   timestamp next_market.start_time;
 ~~~
@@ -344,6 +381,7 @@ TODO
 TODO
 
 ### `next_market.end_time`
+
 ~~~
   timestamp next_market.end_time;
 ~~~
@@ -351,6 +389,7 @@ TODO
 TODO
 
 ### `next_market.clearing_price`
+
 ~~~
   double next_market.clearing_price[$];
 ~~~
@@ -358,6 +397,7 @@ TODO
 TODO
 
 ### `next_market.clearing_quantity`
+
 ~~~
   double next_market.clearing_quantity;
 ~~~
@@ -365,6 +405,7 @@ TODO
 TODO
 
 ### `next_market.clearing_type`
+
 ~~~
   enumeration {NULL, FAILURE, EXACT, MARGINAL_PRICE, MARGINAL_BUYER, MARGINAL_SELLER} next_market.clearing_type;
 ~~~
@@ -372,6 +413,7 @@ TODO
 TODO
 
 ### `next_market.marginal_quantity_load`
+
 ~~~
   double next_market.marginal_quantity_load;
 ~~~
@@ -379,6 +421,7 @@ TODO
 TODO
 
 ### `next_market.marginal_quantity_bid`
+
 ~~~
   double next_market.marginal_quantity_bid;
 ~~~
@@ -386,6 +429,7 @@ TODO
 TODO
 
 ### `next_market.marginal_quantity_frac`
+
 ~~~
   double next_market.marginal_quantity_frac;
 ~~~
@@ -393,6 +437,7 @@ TODO
 TODO
 
 ### `next_market.seller_total_quantity`
+
 ~~~
   double next_market.seller_total_quantity;
 ~~~
@@ -400,6 +445,7 @@ TODO
 TODO
 
 ### `next_market.buyer_total_quantity`
+
 ~~~
   double next_market.buyer_total_quantity;
 ~~~
@@ -407,6 +453,7 @@ TODO
 TODO
 
 ### `next_market.seller_min_price`
+
 ~~~
   double next_market.seller_min_price;
 ~~~
@@ -414,6 +461,7 @@ TODO
 TODO
 
 ### `next_market.cap_ref_unrep`
+
 ~~~
   double next_market.cap_ref_unrep;
 ~~~
@@ -421,6 +469,7 @@ TODO
 TODO
 
 ### `past_market.start_time`
+
 ~~~
   timestamp past_market.start_time;
 ~~~
@@ -428,6 +477,7 @@ TODO
 TODO
 
 ### `past_market.end_time`
+
 ~~~
   timestamp past_market.end_time;
 ~~~
@@ -435,6 +485,7 @@ TODO
 TODO
 
 ### `past_market.clearing_price`
+
 ~~~
   double past_market.clearing_price[$];
 ~~~
@@ -442,6 +493,7 @@ TODO
 TODO
 
 ### `past_market.clearing_quantity`
+
 ~~~
   double past_market.clearing_quantity;
 ~~~
@@ -449,6 +501,7 @@ TODO
 TODO
 
 ### `past_market.clearing_type`
+
 ~~~
   enumeration {NULL, FAILURE, EXACT, MARGINAL_PRICE, MARGINAL_BUYER, MARGINAL_SELLER} past_market.clearing_type;
 ~~~
@@ -456,6 +509,7 @@ TODO
 TODO
 
 ### `past_market.marginal_quantity_load`
+
 ~~~
   double past_market.marginal_quantity_load;
 ~~~
@@ -463,6 +517,7 @@ TODO
 TODO
 
 ### `past_market.marginal_quantity_bid`
+
 ~~~
   double past_market.marginal_quantity_bid;
 ~~~
@@ -470,6 +525,7 @@ TODO
 TODO
 
 ### `past_market.marginal_quantity_frac`
+
 ~~~
   double past_market.marginal_quantity_frac;
 ~~~
@@ -477,6 +533,7 @@ TODO
 TODO
 
 ### `past_market.seller_total_quantity`
+
 ~~~
   double past_market.seller_total_quantity;
 ~~~
@@ -484,6 +541,7 @@ TODO
 TODO
 
 ### `past_market.buyer_total_quantity`
+
 ~~~
   double past_market.buyer_total_quantity;
 ~~~
@@ -491,6 +549,7 @@ TODO
 TODO
 
 ### `past_market.seller_min_price`
+
 ~~~
   double past_market.seller_min_price;
 ~~~
@@ -498,6 +557,7 @@ TODO
 TODO
 
 ### `past_market.cap_ref_unrep`
+
 ~~~
   double past_market.cap_ref_unrep;
 ~~~
@@ -505,6 +565,7 @@ TODO
 TODO
 
 ### `margin_mode`
+
 ~~~
   enumeration {PROB, DENY, NORMAL} margin_mode;
 ~~~
@@ -512,6 +573,7 @@ TODO
 TODO
 
 ### `warmup`
+
 ~~~
   int32 warmup;
 ~~~
@@ -519,6 +581,7 @@ TODO
 TODO
 
 ### `ignore_failed_market`
+
 ~~~
   enumeration {TRUE, FALSE} ignore_failed_market;
 ~~~
@@ -526,6 +589,7 @@ TODO
 TODO
 
 ### `ignore_pricecap`
+
 ~~~
   enumeration {TRUE, FALSE} ignore_pricecap;
 ~~~
@@ -533,6 +597,7 @@ TODO
 TODO
 
 ### `transaction_log_file`
+
 ~~~
   char256 transaction_log_file;
 ~~~
@@ -540,6 +605,7 @@ TODO
 TODO
 
 ### `transaction_log_limit`
+
 ~~~
   int32 transaction_log_limit;
 ~~~
@@ -547,6 +613,7 @@ TODO
 TODO
 
 ### `curve_log_file`
+
 ~~~
   char256 curve_log_file;
 ~~~
@@ -554,6 +621,7 @@ TODO
 TODO
 
 ### `curve_log_limit`
+
 ~~~
   int32 curve_log_limit;
 ~~~
@@ -561,6 +629,7 @@ TODO
 TODO
 
 ### `curve_log_info`
+
 ~~~
   enumeration {EXTRA, NORMAL} curve_log_info;
 ~~~
@@ -641,5 +710,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Market]]
 

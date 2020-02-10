@@ -1,7 +1,9 @@
 [[/Subcommand/Weather]] -- GridLAB-D CLI to manage the local weather data 
 
 # Synopsis
+
 Shell:
+
 ~~~
 bash$ gridlabd weather help
 bash$ gridlabd weather index <pattern>
@@ -18,6 +20,7 @@ bash$ gridlabd weather config {show,reset}
 Weather data is archived in a GitHub repository. The `weather` subcommand manages the local copies of archived weather data in the shared GridLAB-D folder. This allow local system to only have needed weather data and avoid having to download the entire archive from GitHub, which is quite large.
 
 ## `index`
+
 ~~~
   gridlabd weather index <pattern>
 ~~~
@@ -57,6 +60,7 @@ bash$ gridlabd weather index San
 ~~~
 
 ## `get`
+
 ~~~
   gridlabd weather get <pattern>
 ~~~
@@ -89,6 +93,7 @@ bash$ gridlabd weather get San_Diego
 ~~~
 
 ## `list`
+
 ~~~
   gridlabd weather list <pattern>
 ~~~
@@ -121,6 +126,7 @@ bash$ gridlabd weather list San_Diego
 ~~~
 
 ## `delete`
+
 ~~~
   gridlabd weather delete <pattern>
 ~~~
@@ -142,6 +148,7 @@ bash$ gridlabd weather delete San_Diego
 ~~~
 
 ## `info`
+
 ~~~
   gridlabd weather info <pattern>
 ~~~
@@ -188,6 +195,7 @@ bash$ gridlabd weather info San_Diego
 ~~~
 
 ## `clean`
+
 ~~~
   gridlabd weather clean
 ~~~
@@ -195,6 +203,7 @@ bash$ gridlabd weather info San_Diego
 The `clean` removes existing data from the archive index cache and refreshes the current index.
 
 ## `config`
+
 ~~~
   gridlabd weather config {show,reset}
 ~~~

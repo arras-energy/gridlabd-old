@@ -49,6 +49,7 @@ TODO
 ## Properties
 
 ### `generator_mode`
+
 ~~~
   enumeration {SUPPLY_DRIVEN, CONSTANT_PF, CONSTANT_PQ, CONSTANT_V, UNKNOWN} generator_mode;
 ~~~
@@ -56,6 +57,7 @@ TODO
 TODO
 
 ### `generator_status`
+
 ~~~
   enumeration {ONLINE, OFFLINE} generator_status;
 ~~~
@@ -63,6 +65,7 @@ TODO
 TODO
 
 ### `power_type`
+
 ~~~
   enumeration {DC, AC} power_type;
 ~~~
@@ -70,6 +73,7 @@ TODO
 TODO
 
 ### `Rinternal`
+
 ~~~
   double Rinternal;
 ~~~
@@ -77,6 +81,7 @@ TODO
 TODO
 
 ### `Rload`
+
 ~~~
   double Rload;
 ~~~
@@ -84,6 +89,7 @@ TODO
 TODO
 
 ### `V_Max`
+
 ~~~
   double V_Max[V];
 ~~~
@@ -91,6 +97,7 @@ TODO
 TODO
 
 ### `I_Max`
+
 ~~~
   complex I_Max[A];
 ~~~
@@ -98,6 +105,7 @@ TODO
 TODO
 
 ### `frequency`
+
 ~~~
   double frequency[Hz];
 ~~~
@@ -105,6 +113,7 @@ TODO
 TODO
 
 ### `Max_Frequency`
+
 ~~~
   double Max_Frequency[Hz];
 ~~~
@@ -112,6 +121,7 @@ TODO
 TODO
 
 ### `Min_Frequency`
+
 ~~~
   double Min_Frequency[Hz];
 ~~~
@@ -119,6 +129,7 @@ TODO
 TODO
 
 ### `Fuel_Used`
+
 ~~~
   double Fuel_Used[kVA];
 ~~~
@@ -126,6 +137,7 @@ TODO
 TODO
 
 ### `Heat_Out`
+
 ~~~
   double Heat_Out[kVA];
 ~~~
@@ -133,6 +145,7 @@ TODO
 TODO
 
 ### `KV`
+
 ~~~
   double KV;
 ~~~
@@ -140,6 +153,7 @@ TODO
 TODO
 
 ### `Power_Angle`
+
 ~~~
   double Power_Angle;
 ~~~
@@ -147,6 +161,7 @@ TODO
 TODO
 
 ### `Max_P`
+
 ~~~
   double Max_P[kW];
 ~~~
@@ -154,6 +169,7 @@ TODO
 TODO
 
 ### `Min_P`
+
 ~~~
   double Min_P[kW];
 ~~~
@@ -161,6 +177,7 @@ TODO
 TODO
 
 ### `phaseA_V_Out`
+
 ~~~
   complex phaseA_V_Out[kV];
 ~~~
@@ -168,6 +185,7 @@ TODO
 TODO
 
 ### `phaseB_V_Out`
+
 ~~~
   complex phaseB_V_Out[kV];
 ~~~
@@ -175,6 +193,7 @@ TODO
 TODO
 
 ### `phaseC_V_Out`
+
 ~~~
   complex phaseC_V_Out[kV];
 ~~~
@@ -182,6 +201,7 @@ TODO
 TODO
 
 ### `phaseA_I_Out`
+
 ~~~
   complex phaseA_I_Out[A];
 ~~~
@@ -189,6 +209,7 @@ TODO
 TODO
 
 ### `phaseB_I_Out`
+
 ~~~
   complex phaseB_I_Out[A];
 ~~~
@@ -196,6 +217,7 @@ TODO
 TODO
 
 ### `phaseC_I_Out`
+
 ~~~
   complex phaseC_I_Out[A];
 ~~~
@@ -203,6 +225,7 @@ TODO
 TODO
 
 ### `power_A_Out`
+
 ~~~
   complex power_A_Out;
 ~~~
@@ -210,6 +233,7 @@ TODO
 TODO
 
 ### `power_B_Out`
+
 ~~~
   complex power_B_Out;
 ~~~
@@ -217,6 +241,7 @@ TODO
 TODO
 
 ### `power_C_Out`
+
 ~~~
   complex power_C_Out;
 ~~~
@@ -224,6 +249,7 @@ TODO
 TODO
 
 ### `VA_Out`
+
 ~~~
   complex VA_Out;
 ~~~
@@ -231,6 +257,7 @@ TODO
 TODO
 
 ### `pf_Out`
+
 ~~~
   double pf_Out;
 ~~~
@@ -238,6 +265,7 @@ TODO
 TODO
 
 ### `E_A_Internal`
+
 ~~~
   complex E_A_Internal;
 ~~~
@@ -245,6 +273,7 @@ TODO
 TODO
 
 ### `E_B_Internal`
+
 ~~~
   complex E_B_Internal;
 ~~~
@@ -252,6 +281,7 @@ TODO
 TODO
 
 ### `E_C_Internal`
+
 ~~~
   complex E_C_Internal;
 ~~~
@@ -259,6 +289,7 @@ TODO
 TODO
 
 ### `efficiency`
+
 ~~~
   double efficiency;
 ~~~
@@ -266,6 +297,7 @@ TODO
 TODO
 
 ### `Rated_kVA`
+
 ~~~
   double Rated_kVA[kVA];
 ~~~
@@ -273,6 +305,7 @@ TODO
 TODO
 
 ### `phases`
+
 ~~~
   set {S, N, C, B, A} phases;
 ~~~
@@ -320,5 +353,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Generators]]
 

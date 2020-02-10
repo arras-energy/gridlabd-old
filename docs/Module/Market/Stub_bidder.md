@@ -23,6 +23,7 @@ TODO
 ## Properties
 
 ### `bid_period`
+
 ~~~
   double bid_period[s];
 ~~~
@@ -30,6 +31,7 @@ TODO
 TODO
 
 ### `count`
+
 ~~~
   int16 count;
 ~~~
@@ -37,6 +39,7 @@ TODO
 TODO
 
 ### `market`
+
 ~~~
   object market;
 ~~~
@@ -44,6 +47,7 @@ TODO
 TODO
 
 ### `role`
+
 ~~~
   enumeration {SELLER, BUYER} role;
 ~~~
@@ -51,6 +55,7 @@ TODO
 TODO
 
 ### `price`
+
 ~~~
   double price;
 ~~~
@@ -58,6 +63,7 @@ TODO
 TODO
 
 ### `quantity`
+
 ~~~
   double quantity;
 ~~~
@@ -65,6 +71,7 @@ TODO
 TODO
 
 ### `bid_id`
+
 ~~~
   int64 bid_id;
 ~~~
@@ -85,5 +92,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Market]]
 

@@ -41,6 +41,7 @@ TODO
 ## Properties
 
 ### `connect_type`
+
 ~~~
   enumeration {CLOSED_DELTA, OPEN_DELTA_CABA, OPEN_DELTA_BCAC, OPEN_DELTA_ABBC, WYE_WYE, UNKNOWN} connect_type;
 ~~~
@@ -48,6 +49,7 @@ TODO
 Designation of connection style
 
 ### `band_center`
+
 ~~~
   double band_center[V];
 ~~~
@@ -55,6 +57,7 @@ Designation of connection style
 Band center setting of regulator control
 
 ### `band_width`
+
 ~~~
   double band_width[V];
 ~~~
@@ -62,6 +65,7 @@ Band center setting of regulator control
 Band width setting of regulator control
 
 ### `time_delay`
+
 ~~~
   double time_delay[s];
 ~~~
@@ -69,6 +73,7 @@ Band width setting of regulator control
 Mechanical time delay between tap changes
 
 ### `dwell_time`
+
 ~~~
   double dwell_time[s];
 ~~~
@@ -76,6 +81,7 @@ Mechanical time delay between tap changes
 Time delay before a control action of regulator control
 
 ### `raise_taps`
+
 ~~~
   int16 raise_taps;
 ~~~
@@ -83,6 +89,7 @@ Time delay before a control action of regulator control
 Number of regulator raise taps, or the maximum raise voltage tap position
 
 ### `lower_taps`
+
 ~~~
   int16 lower_taps;
 ~~~
@@ -90,6 +97,7 @@ Number of regulator raise taps, or the maximum raise voltage tap position
 Number of regulator lower taps, or the minimum lower voltage tap position
 
 ### `current_transducer_ratio`
+
 ~~~
   double current_transducer_ratio[pu];
 ~~~
@@ -97,6 +105,7 @@ Number of regulator lower taps, or the minimum lower voltage tap position
 Primary rating of current transformer
 
 ### `power_transducer_ratio`
+
 ~~~
   double power_transducer_ratio[pu];
 ~~~
@@ -104,6 +113,7 @@ Primary rating of current transformer
 Potential transformer rating
 
 ### `compensator_r_setting_A`
+
 ~~~
   double compensator_r_setting_A[V];
 ~~~
@@ -111,6 +121,7 @@ Potential transformer rating
 Line Drop Compensation R setting of regulator control (in volts) on Phase A
 
 ### `compensator_r_setting_B`
+
 ~~~
   double compensator_r_setting_B[V];
 ~~~
@@ -118,6 +129,7 @@ Line Drop Compensation R setting of regulator control (in volts) on Phase A
 Line Drop Compensation R setting of regulator control (in volts) on Phase B
 
 ### `compensator_r_setting_C`
+
 ~~~
   double compensator_r_setting_C[V];
 ~~~
@@ -125,6 +137,7 @@ Line Drop Compensation R setting of regulator control (in volts) on Phase B
 Line Drop Compensation R setting of regulator control (in volts) on Phase C
 
 ### `compensator_x_setting_A`
+
 ~~~
   double compensator_x_setting_A[V];
 ~~~
@@ -132,6 +145,7 @@ Line Drop Compensation R setting of regulator control (in volts) on Phase C
 Line Drop Compensation X setting of regulator control (in volts) on Phase A
 
 ### `compensator_x_setting_B`
+
 ~~~
   double compensator_x_setting_B[V];
 ~~~
@@ -139,6 +153,7 @@ Line Drop Compensation X setting of regulator control (in volts) on Phase A
 Line Drop Compensation X setting of regulator control (in volts) on Phase B
 
 ### `compensator_x_setting_C`
+
 ~~~
   double compensator_x_setting_C[V];
 ~~~
@@ -146,6 +161,7 @@ Line Drop Compensation X setting of regulator control (in volts) on Phase B
 Line Drop Compensation X setting of regulator control (in volts) on Phase C
 
 ### `CT_phase`
+
 ~~~
   set {C, B, A} CT_phase;
 ~~~
@@ -153,6 +169,7 @@ Line Drop Compensation X setting of regulator control (in volts) on Phase C
 Phase(s) monitored by CT
 
 ### `PT_phase`
+
 ~~~
   set {C, B, A} PT_phase;
 ~~~
@@ -160,6 +177,7 @@ Phase(s) monitored by CT
 Phase(s) monitored by PT
 
 ### `regulation`
+
 ~~~
   double regulation;
 ~~~
@@ -167,6 +185,7 @@ Phase(s) monitored by PT
 Regulation of voltage regulator in %
 
 ### `control_level`
+
 ~~~
   enumeration {BANK, INDIVIDUAL} control_level;
 ~~~
@@ -174,6 +193,7 @@ Regulation of voltage regulator in %
 Designates whether control is on per-phase or banked level
 
 ### `Control`
+
 ~~~
   enumeration {REMOTE_NODE, LINE_DROP_COMP, OUTPUT_VOLTAGE, MANUAL} Control;
 ~~~
@@ -181,6 +201,7 @@ Designates whether control is on per-phase or banked level
 Type of control used for regulating voltage
 
 ### `reverse_flow_control`
+
 ~~~
   enumeration {LOCK_CURRENT_POSITION, LOCK_NEUTRAL, LOCK_NONE} reverse_flow_control;
 ~~~
@@ -188,6 +209,7 @@ Type of control used for regulating voltage
 Type of control used when power is flowing in reverse through the regulator
 
 ### `Type`
+
 ~~~
   enumeration {B, A} Type;
 ~~~
@@ -195,6 +217,7 @@ Type of control used when power is flowing in reverse through the regulator
 Defines regulator type
 
 ### `tap_pos_A`
+
 ~~~
   int16 tap_pos_A;
 ~~~
@@ -202,6 +225,7 @@ Defines regulator type
 Initial tap position of phase A
 
 ### `tap_pos_B`
+
 ~~~
   int16 tap_pos_B;
 ~~~
@@ -209,6 +233,7 @@ Initial tap position of phase A
 Initial tap position of phase B
 
 ### `tap_pos_C`
+
 ~~~
   int16 tap_pos_C;
 ~~~
@@ -248,5 +273,6 @@ Initial tap position of phase C
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

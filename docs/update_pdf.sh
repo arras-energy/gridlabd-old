@@ -14,6 +14,7 @@ if [ $# -eq 0 ]; then
 	pandoc --toc --toc-depth=2 gridlabd.md -o pages.pdf
 	gridlabd --version=all | cut -f3-4 -d' ' | sed 's/_/\\_/g' > version.tex
 	pdflatex gridlabd
+	rm -rf gridlabd.md pages.pdf gridlabd.md gridlabd.aux gridlabd.log version.tex $TMPDIR
 	exit 0
 fi
 
@@ -25,6 +26,7 @@ if [ ! -d "$*" -a -d "$CHAPTER" ]; then
 	mkdir "$*"
 	cp -r "$CHAPTER"/* "$*"
 	find "$*" -name '[A-Z]*.md' -exec $0 \{\} \; 
+	#find "$*" -name '[A-Z]*.md' -print0 | sort -z | xargs -0 $0 
 
 elif [ -f "$*" ]; then
 
@@ -34,14 +36,12 @@ elif [ -f "$*" ]; then
 	pandoc "$FILE" -o /tmp/update_pdf-$$.pdf 1>/tmp/update_pdf-$$.out 2>&1 || echo "ERROR: $* cannot be processed" > /dev/stderr
 	if [ -f /tmp/update_pdf-$$.pdf ]; then
 		echo "
-## $NAME
-"
-		sed -E 's/^#/###/g;s/\[\[(.+)\]\]/\1/g' < "$FILE"
-		echo "
 
 \\newpage
 
+## $NAME
 "
+		sed -E 's/^#/###/g;s/\[\[(.+)\]\]/\1/g' < "$FILE"
 	else
 		cat /tmp/update_pdf-$$.out > /dev/stderr
 	fi

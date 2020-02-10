@@ -1,7 +1,9 @@
 [[/Global/Filesave_options]] -- Global variable to control file save options
 
 # Synopsis
+
 GLM file:
+
 ~~~
 #set filesave_options=[MODULES|PROPERTIES|CLASSES|GLOBALS|OBJECTS|SCHEDULES|FILTERS|SCRIPTS|CLOCK|ALL]
 ~~~
@@ -23,5 +25,6 @@ The `filesave_options` global variable controls which portion of a GridLAB-D mod
 ~~~
 
 # See also
+
 * [[/Global/Glm_save_options]]
 

@@ -1,6 +1,7 @@
 [[/Module/Mysql/Collector]] -- MySQL collector class 
 
 # Synopsis 
+
 ~~~
  module mysql;
  object collector {
@@ -22,6 +23,7 @@ The `mysql` collector is designed to be compatible the the `tape` collector obje
 # Properties
 
 ## `connection` 
+
 ~~~
 	
 ~~~
@@ -29,6 +31,7 @@ The `mysql` collector is designed to be compatible the the `tape` collector obje
 Specifies the database object used to connect to MySQL.  If none is provided, the last database defined is used.
 
 ## `file` 
+
 ~~~
 	
 ~~~
@@ -36,6 +39,7 @@ Specifies the database object used to connect to MySQL.  If none is provided, th
 A synonym for `table` for compability with `tape` collector `file` property.
 
 ## `interval` 
+
 ~~~
 	
 ~~~
@@ -43,6 +47,7 @@ A synonym for `table` for compability with `tape` collector `file` property.
 Specifies the sampling interval.  By default the interval is specified in seconds, but if units are specifies conversion will be automatic.
 
 ## `mode` 
+
 ~~~
 	
 ~~~
@@ -50,6 +55,7 @@ Specifies the sampling interval.  By default the interval is specified in second
 Specifies the file I/O mode to use, which may be either "w", "w+", "a", or "a+".  If "w" or "w+" is used, the table is purged before data from the current run is added. If "a" or "a+" is used, the data from the current run is appended.
 
 ## `options` 
+
 ~~~
 	
 ~~~
@@ -57,6 +63,7 @@ Specifies the file I/O mode to use, which may be either "w", "w+", "a", or "a+".
 Specifies the recorder options, as follows:
 
 ### `PURGE` 
+
 ~~~
 	
 ~~~
@@ -64,6 +71,7 @@ Specifies the recorder options, as follows:
 Purges the table of all existing data (by dropping and recreating the table) before storing new data.
 
 ## `property` 
+
 ~~~
 	
 ~~~
@@ -87,6 +95,7 @@ Each property may include any valid part, e.g.:
 * for timestamp `.seconds`, `.minutes`, `.hours`, `.days`, `.year`, `.month`, `.day`, `.hour`, `.minute`, `.second`, `.weekday`, `.yearday`, `.isdst`.
 
 ## `table` 
+
 ~~~
 	
 ~~~

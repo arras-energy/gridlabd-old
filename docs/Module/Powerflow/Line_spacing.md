@@ -26,6 +26,7 @@ TODO
 ## Properties
 
 ### `distance_AB`
+
 ~~~
   double distance_AB[ft];
 ~~~
@@ -33,6 +34,7 @@ TODO
 TODO
 
 ### `distance_BC`
+
 ~~~
   double distance_BC[ft];
 ~~~
@@ -40,6 +42,7 @@ TODO
 TODO
 
 ### `distance_AC`
+
 ~~~
   double distance_AC[ft];
 ~~~
@@ -47,6 +50,7 @@ TODO
 TODO
 
 ### `distance_AN`
+
 ~~~
   double distance_AN[ft];
 ~~~
@@ -54,6 +58,7 @@ TODO
 TODO
 
 ### `distance_BN`
+
 ~~~
   double distance_BN[ft];
 ~~~
@@ -61,6 +66,7 @@ TODO
 TODO
 
 ### `distance_CN`
+
 ~~~
   double distance_CN[ft];
 ~~~
@@ -68,6 +74,7 @@ TODO
 TODO
 
 ### `distance_AE`
+
 ~~~
   double distance_AE[ft];
 ~~~
@@ -75,6 +82,7 @@ TODO
 Distance between phase A wire and earth
 
 ### `distance_BE`
+
 ~~~
   double distance_BE[ft];
 ~~~
@@ -82,6 +90,7 @@ Distance between phase A wire and earth
 Distance between phase B wire and earth
 
 ### `distance_CE`
+
 ~~~
   double distance_CE[ft];
 ~~~
@@ -89,6 +98,7 @@ Distance between phase B wire and earth
 Distance between phase C wire and earth
 
 ### `distance_NE`
+
 ~~~
   double distance_NE[ft];
 ~~~
@@ -113,5 +123,6 @@ Distance between neutral wire and earth
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

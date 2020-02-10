@@ -19,6 +19,7 @@ The `#verbose` macro outputs a message to the verbose stream.
 ~~~
 
 # See also
+
 * [[/GLM/Macro/Debug]]
 * [[/GLM/Macro/Error]]
 * [[/GLM/Macro/Print]]

@@ -111,6 +111,7 @@ TODO
 ## Properties
 
 ### `zero_sequence_voltage`
+
 ~~~
   complex zero_sequence_voltage[V];
 ~~~
@@ -118,6 +119,7 @@ TODO
 The zero sequence representation of the voltage for the substation object.
 
 ### `positive_sequence_voltage`
+
 ~~~
   complex positive_sequence_voltage[V];
 ~~~
@@ -125,6 +127,7 @@ The zero sequence representation of the voltage for the substation object.
 The positive sequence representation of the voltage for the substation object.
 
 ### `negative_sequence_voltage`
+
 ~~~
   complex negative_sequence_voltage[V];
 ~~~
@@ -132,6 +135,7 @@ The positive sequence representation of the voltage for the substation object.
 The negative sequence representation of the voltage for the substation object.
 
 ### `base_power`
+
 ~~~
   double base_power[VA];
 ~~~
@@ -139,6 +143,7 @@ The negative sequence representation of the voltage for the substation object.
 The 3 phase VA power rating of the substation.
 
 ### `power_convergence_value`
+
 ~~~
   double power_convergence_value[VA];
 ~~~
@@ -146,6 +151,7 @@ The 3 phase VA power rating of the substation.
 Default convergence criterion before power is posted to pw_load objects if connected, otherwise ignored
 
 ### `reference_phase`
+
 ~~~
   enumeration {PHASE_C, PHASE_B, PHASE_A} reference_phase;
 ~~~
@@ -153,6 +159,7 @@ Default convergence criterion before power is posted to pw_load objects if conne
 The reference phase for the positive sequence voltage.
 
 ### `transmission_level_constant_power_load`
+
 ~~~
   complex transmission_level_constant_power_load[VA];
 ~~~
@@ -160,6 +167,7 @@ The reference phase for the positive sequence voltage.
 The average constant power load to be posted directly to the pw_load object.
 
 ### `transmission_level_constant_current_load`
+
 ~~~
   complex transmission_level_constant_current_load[A];
 ~~~
@@ -167,6 +175,7 @@ The average constant power load to be posted directly to the pw_load object.
 The average constant current load at nominal voltage to be posted directly to the pw_load object.
 
 ### `transmission_level_constant_impedance_load`
+
 ~~~
   complex transmission_level_constant_impedance_load[Ohm];
 ~~~
@@ -174,6 +183,7 @@ The average constant current load at nominal voltage to be posted directly to th
 The average constant impedance load at nominal voltage to be posted directly to the pw_load object.
 
 ### `distribution_load`
+
 ~~~
   complex distribution_load[VA];
 ~~~
@@ -181,6 +191,7 @@ The average constant impedance load at nominal voltage to be posted directly to 
 The total load of all three phases at the substation object.
 
 ### `distribution_power_A`
+
 ~~~
   complex distribution_power_A[VA];
 ~~~
@@ -188,6 +199,7 @@ The total load of all three phases at the substation object.
 TODO
 
 ### `distribution_power_B`
+
 ~~~
   complex distribution_power_B[VA];
 ~~~
@@ -195,6 +207,7 @@ TODO
 TODO
 
 ### `distribution_power_C`
+
 ~~~
   complex distribution_power_C[VA];
 ~~~
@@ -202,6 +215,7 @@ TODO
 TODO
 
 ### `distribution_voltage_A`
+
 ~~~
   complex distribution_voltage_A[V];
 ~~~
@@ -209,6 +223,7 @@ TODO
 TODO
 
 ### `distribution_voltage_B`
+
 ~~~
   complex distribution_voltage_B[V];
 ~~~
@@ -216,6 +231,7 @@ TODO
 TODO
 
 ### `distribution_voltage_C`
+
 ~~~
   complex distribution_voltage_C[V];
 ~~~
@@ -223,6 +239,7 @@ TODO
 TODO
 
 ### `distribution_voltage_AB`
+
 ~~~
   complex distribution_voltage_AB[V];
 ~~~
@@ -230,6 +247,7 @@ TODO
 TODO
 
 ### `distribution_voltage_BC`
+
 ~~~
   complex distribution_voltage_BC[V];
 ~~~
@@ -237,6 +255,7 @@ TODO
 TODO
 
 ### `distribution_voltage_CA`
+
 ~~~
   complex distribution_voltage_CA[V];
 ~~~
@@ -244,6 +263,7 @@ TODO
 TODO
 
 ### `distribution_current_A`
+
 ~~~
   complex distribution_current_A[A];
 ~~~
@@ -251,6 +271,7 @@ TODO
 TODO
 
 ### `distribution_current_B`
+
 ~~~
   complex distribution_current_B[A];
 ~~~
@@ -258,6 +279,7 @@ TODO
 TODO
 
 ### `distribution_current_C`
+
 ~~~
   complex distribution_current_C[A];
 ~~~
@@ -265,6 +287,7 @@ TODO
 TODO
 
 ### `distribution_real_energy`
+
 ~~~
   double distribution_real_energy[Wh];
 ~~~
@@ -272,6 +295,7 @@ TODO
 TODO
 
 ### `bustype`
+
 ~~~
   enumeration {SWING_PQ, SWING, PV, PQ} bustype;
 ~~~
@@ -279,6 +303,7 @@ TODO
 Defines whether the node is a PQ, PV, or SWING node
 
 ### `busflags`
+
 ~~~
   set {ISSOURCE, HASSOURCE} busflags;
 ~~~
@@ -286,6 +311,7 @@ Defines whether the node is a PQ, PV, or SWING node
 Flag indicates node has a source for voltage, i.e. connects to the swing node
 
 ### `reference_bus`
+
 ~~~
   object reference_bus;
 ~~~
@@ -293,6 +319,7 @@ Flag indicates node has a source for voltage, i.e. connects to the swing node
 Reference bus from which frequency is defined
 
 ### `maximum_voltage_error`
+
 ~~~
   double maximum_voltage_error[V];
 ~~~
@@ -300,6 +327,7 @@ Reference bus from which frequency is defined
 Convergence voltage limit or convergence criteria
 
 ### `voltage_A`
+
 ~~~
   complex voltage_A[V];
 ~~~
@@ -307,6 +335,7 @@ Convergence voltage limit or convergence criteria
 Bus voltage, Phase A to ground
 
 ### `voltage_B`
+
 ~~~
   complex voltage_B[V];
 ~~~
@@ -314,6 +343,7 @@ Bus voltage, Phase A to ground
 Bus voltage, Phase B to ground
 
 ### `voltage_C`
+
 ~~~
   complex voltage_C[V];
 ~~~
@@ -321,6 +351,7 @@ Bus voltage, Phase B to ground
 Bus voltage, Phase C to ground
 
 ### `voltage_AB`
+
 ~~~
   complex voltage_AB[V];
 ~~~
@@ -328,6 +359,7 @@ Bus voltage, Phase C to ground
 Line voltages, Phase AB
 
 ### `voltage_BC`
+
 ~~~
   complex voltage_BC[V];
 ~~~
@@ -335,6 +367,7 @@ Line voltages, Phase AB
 Line voltages, Phase BC
 
 ### `voltage_CA`
+
 ~~~
   complex voltage_CA[V];
 ~~~
@@ -342,6 +375,7 @@ Line voltages, Phase BC
 Line voltages, Phase CA
 
 ### `current_A`
+
 ~~~
   complex current_A[A];
 ~~~
@@ -349,6 +383,7 @@ Line voltages, Phase CA
 Bus current injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_B`
+
 ~~~
   complex current_B[A];
 ~~~
@@ -356,6 +391,7 @@ Bus current injection (in = positive), this an accumulator only, not a output or
 Bus current injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_C`
+
 ~~~
   complex current_C[A];
 ~~~
@@ -363,6 +399,7 @@ Bus current injection (in = positive), this an accumulator only, not a output or
 Bus current injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_A`
+
 ~~~
   complex power_A[VA];
 ~~~
@@ -370,6 +407,7 @@ Bus current injection (in = positive), this an accumulator only, not a output or
 Bus power injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_B`
+
 ~~~
   complex power_B[VA];
 ~~~
@@ -377,6 +415,7 @@ Bus power injection (in = positive), this an accumulator only, not a output or i
 Bus power injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_C`
+
 ~~~
   complex power_C[VA];
 ~~~
@@ -384,6 +423,7 @@ Bus power injection (in = positive), this an accumulator only, not a output or i
 Bus power injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `shunt_A`
+
 ~~~
   complex shunt_A[S];
 ~~~
@@ -391,6 +431,7 @@ Bus power injection (in = positive), this an accumulator only, not a output or i
 Bus shunt admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_B`
+
 ~~~
   complex shunt_B[S];
 ~~~
@@ -398,6 +439,7 @@ Bus shunt admittance, this an accumulator only, not a output or input variable
 Bus shunt admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_C`
+
 ~~~
   complex shunt_C[S];
 ~~~
@@ -405,6 +447,7 @@ Bus shunt admittance, this an accumulator only, not a output or input variable
 Bus shunt admittance, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_A`
+
 ~~~
   complex prerotated_current_A[A];
 ~~~
@@ -412,6 +455,7 @@ Bus shunt admittance, this an accumulator only, not a output or input variable
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_B`
+
 ~~~
   complex prerotated_current_B[A];
 ~~~
@@ -419,6 +463,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_C`
+
 ~~~
   complex prerotated_current_C[A];
 ~~~
@@ -426,6 +471,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `current_AB`
+
 ~~~
   complex current_AB[A];
 ~~~
@@ -433,6 +479,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Bus current delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_BC`
+
 ~~~
   complex current_BC[A];
 ~~~
@@ -440,6 +487,7 @@ Bus current delta-connected injection (in = positive), this an accumulator only,
 Bus current delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_CA`
+
 ~~~
   complex current_CA[A];
 ~~~
@@ -447,6 +495,7 @@ Bus current delta-connected injection (in = positive), this an accumulator only,
 Bus current delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_AN`
+
 ~~~
   complex current_AN[A];
 ~~~
@@ -454,6 +503,7 @@ Bus current delta-connected injection (in = positive), this an accumulator only,
 Bus current wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_BN`
+
 ~~~
   complex current_BN[A];
 ~~~
@@ -461,6 +511,7 @@ Bus current wye-connected injection (in = positive), this an accumulator only, n
 Bus current wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_CN`
+
 ~~~
   complex current_CN[A];
 ~~~
@@ -468,6 +519,7 @@ Bus current wye-connected injection (in = positive), this an accumulator only, n
 Bus current wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_AB`
+
 ~~~
   complex power_AB[VA];
 ~~~
@@ -475,6 +527,7 @@ Bus current wye-connected injection (in = positive), this an accumulator only, n
 Bus power delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_BC`
+
 ~~~
   complex power_BC[VA];
 ~~~
@@ -482,6 +535,7 @@ Bus power delta-connected injection (in = positive), this an accumulator only, n
 Bus power delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_CA`
+
 ~~~
   complex power_CA[VA];
 ~~~
@@ -489,6 +543,7 @@ Bus power delta-connected injection (in = positive), this an accumulator only, n
 Bus power delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_AN`
+
 ~~~
   complex power_AN[VA];
 ~~~
@@ -496,6 +551,7 @@ Bus power delta-connected injection (in = positive), this an accumulator only, n
 Bus power wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_BN`
+
 ~~~
   complex power_BN[VA];
 ~~~
@@ -503,6 +559,7 @@ Bus power wye-connected injection (in = positive), this an accumulator only, not
 Bus power wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_CN`
+
 ~~~
   complex power_CN[VA];
 ~~~
@@ -510,6 +567,7 @@ Bus power wye-connected injection (in = positive), this an accumulator only, not
 Bus power wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `shunt_AB`
+
 ~~~
   complex shunt_AB[S];
 ~~~
@@ -517,6 +575,7 @@ Bus power wye-connected injection (in = positive), this an accumulator only, not
 Bus shunt delta-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_BC`
+
 ~~~
   complex shunt_BC[S];
 ~~~
@@ -524,6 +583,7 @@ Bus shunt delta-connected admittance, this an accumulator only, not a output or 
 Bus shunt delta-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_CA`
+
 ~~~
   complex shunt_CA[S];
 ~~~
@@ -531,6 +591,7 @@ Bus shunt delta-connected admittance, this an accumulator only, not a output or 
 Bus shunt delta-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_AN`
+
 ~~~
   complex shunt_AN[S];
 ~~~
@@ -538,6 +599,7 @@ Bus shunt delta-connected admittance, this an accumulator only, not a output or 
 Bus shunt wye-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_BN`
+
 ~~~
   complex shunt_BN[S];
 ~~~
@@ -545,6 +607,7 @@ Bus shunt wye-connected admittance, this an accumulator only, not a output or in
 Bus shunt wye-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_CN`
+
 ~~~
   complex shunt_CN[S];
 ~~~
@@ -552,6 +615,7 @@ Bus shunt wye-connected admittance, this an accumulator only, not a output or in
 Bus shunt wye-connected admittance, this an accumulator only, not a output or input variable
 
 ### `mean_repair_time`
+
 ~~~
   double mean_repair_time[s];
 ~~~
@@ -559,6 +623,7 @@ Bus shunt wye-connected admittance, this an accumulator only, not a output or in
 Time after a fault clears for the object to be back in service
 
 ### `frequency_measure_type`
+
 ~~~
   enumeration {PLL, SIMPLE, NONE} frequency_measure_type;
 ~~~
@@ -566,6 +631,7 @@ Time after a fault clears for the object to be back in service
 PLL frequency measurement
 
 ### `sfm_Tf`
+
 ~~~
   double sfm_Tf[s];
 ~~~
@@ -573,6 +639,7 @@ PLL frequency measurement
 Transducer time constant for simplified frequency measurement (seconds)
 
 ### `pll_Kp`
+
 ~~~
   double pll_Kp[pu];
 ~~~
@@ -580,6 +647,7 @@ Transducer time constant for simplified frequency measurement (seconds)
 Proportional gain of PLL frequency measurement
 
 ### `pll_Ki`
+
 ~~~
   double pll_Ki[pu];
 ~~~
@@ -587,6 +655,7 @@ Proportional gain of PLL frequency measurement
 Integration gain of PLL frequency measurement
 
 ### `measured_angle_A`
+
 ~~~
   double measured_angle_A[rad];
 ~~~
@@ -594,6 +663,7 @@ Integration gain of PLL frequency measurement
 Bus angle measurement, phase A
 
 ### `measured_frequency_A`
+
 ~~~
   double measured_frequency_A[Hz];
 ~~~
@@ -601,6 +671,7 @@ Bus angle measurement, phase A
 Frequency measurement, phase A
 
 ### `measured_angle_B`
+
 ~~~
   double measured_angle_B[rad];
 ~~~
@@ -608,6 +679,7 @@ Frequency measurement, phase A
 Bus angle measurement, phase B
 
 ### `measured_frequency_B`
+
 ~~~
   double measured_frequency_B[Hz];
 ~~~
@@ -615,6 +687,7 @@ Bus angle measurement, phase B
 Frequency measurement, phase B
 
 ### `measured_angle_C`
+
 ~~~
   double measured_angle_C[rad];
 ~~~
@@ -622,6 +695,7 @@ Frequency measurement, phase B
 Bus angle measurement, phase C
 
 ### `measured_frequency_C`
+
 ~~~
   double measured_frequency_C[Hz];
 ~~~
@@ -629,6 +703,7 @@ Bus angle measurement, phase C
 Frequency measurement, phase C
 
 ### `measured_frequency`
+
 ~~~
   double measured_frequency[Hz];
 ~~~
@@ -636,6 +711,7 @@ Frequency measurement, phase C
 Frequency measurement - average of present phases
 
 ### `service_status`
+
 ~~~
   enumeration {OUT_OF_SERVICE, IN_SERVICE} service_status;
 ~~~
@@ -643,6 +719,7 @@ Frequency measurement - average of present phases
 In and out of service flag
 
 ### `service_status_double`
+
 ~~~
   double service_status_double;
 ~~~
@@ -650,6 +727,7 @@ In and out of service flag
 In and out of service flag - type double - will indiscriminately override service_status - useful for schedules
 
 ### `previous_uptime`
+
 ~~~
   double previous_uptime[min];
 ~~~
@@ -657,6 +735,7 @@ In and out of service flag - type double - will indiscriminately override servic
 Previous time between disconnects of node in minutes
 
 ### `current_uptime`
+
 ~~~
   double current_uptime[min];
 ~~~
@@ -664,6 +743,7 @@ Previous time between disconnects of node in minutes
 Current time since last disconnect of node in minutes
 
 ### `Norton_dynamic`
+
 ~~~
   bool Norton_dynamic;
 ~~~
@@ -671,6 +751,7 @@ Current time since last disconnect of node in minutes
 Flag to indicate a Norton-equivalent connection -- used for generators and deltamode
 
 ### `generator_dynamic`
+
 ~~~
   bool generator_dynamic;
 ~~~
@@ -678,6 +759,7 @@ Flag to indicate a Norton-equivalent connection -- used for generators and delta
 Flag to indicate a voltage-sourcing or swing-type generator is present -- used for generators and deltamode
 
 ### `GFA_enable`
+
 ~~~
   bool GFA_enable;
 ~~~
@@ -685,6 +767,7 @@ Flag to indicate a voltage-sourcing or swing-type generator is present -- used f
 Disable/Enable Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_low_trip`
+
 ~~~
   double GFA_freq_low_trip[Hz];
 ~~~
@@ -692,6 +775,7 @@ Disable/Enable Grid Friendly Appliance(TM)-type functionality
 Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_high_trip`
+
 ~~~
   double GFA_freq_high_trip[Hz];
 ~~~
@@ -699,6 +783,7 @@ Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 High frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_low_trip`
+
 ~~~
   double GFA_volt_low_trip[pu];
 ~~~
@@ -706,6 +791,7 @@ High frequency trip point for Grid Friendly Appliance(TM)-type functionality
 Low voltage trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_high_trip`
+
 ~~~
   double GFA_volt_high_trip[pu];
 ~~~
@@ -713,6 +799,7 @@ Low voltage trip point for Grid Friendly Appliance(TM)-type functionality
 High voltage trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_reconnect_time`
+
 ~~~
   double GFA_reconnect_time[s];
 ~~~
@@ -720,6 +807,7 @@ High voltage trip point for Grid Friendly Appliance(TM)-type functionality
 Reconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_disconnect_time`
+
 ~~~
   double GFA_freq_disconnect_time[s];
 ~~~
@@ -727,6 +815,7 @@ Reconnect time for Grid Friendly Appliance(TM)-type functionality
 Frequency violation disconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_disconnect_time`
+
 ~~~
   double GFA_volt_disconnect_time[s];
 ~~~
@@ -734,6 +823,7 @@ Frequency violation disconnect time for Grid Friendly Appliance(TM)-type functio
 Voltage violation disconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_status`
+
 ~~~
   bool GFA_status;
 ~~~
@@ -741,6 +831,7 @@ Voltage violation disconnect time for Grid Friendly Appliance(TM)-type functiona
 Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_trip_method`
+
 ~~~
   enumeration {OVER_VOLTAGE, UNDER_VOLTAGE, OVER_FREQUENCY, UNDER_FREQUENCY, NONE} GFA_trip_method;
 ~~~
@@ -748,6 +839,7 @@ Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 GFA trip for over-voltage
 
 ### `topological_parent`
+
 ~~~
   object topological_parent;
 ~~~
@@ -755,6 +847,7 @@ GFA trip for over-voltage
 Topological parent as per GLM configuration
 
 ### `phases`
+
 ~~~
   set {A, B, C, D, N, S, G} phases;
 ~~~
@@ -762,6 +855,7 @@ Topological parent as per GLM configuration
 TODO
 
 ### `nominal_voltage`
+
 ~~~
   double nominal_voltage[V];
 ~~~
@@ -769,6 +863,7 @@ TODO
 TODO
 
 ### `supernode_name`
+
 ~~~
   char1024 supernode_name;
 ~~~
@@ -876,5 +971,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

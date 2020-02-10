@@ -30,6 +30,7 @@ TODO
 ## Properties
 
 ### `reconfig_attempts`
+
 ~~~
   int32 reconfig_attempts;
 ~~~
@@ -37,6 +38,7 @@ TODO
 Number of reconfigurations/timestep to try before giving up
 
 ### `reconfig_iteration_limit`
+
 ~~~
   int32 reconfig_iteration_limit;
 ~~~
@@ -44,6 +46,7 @@ Number of reconfigurations/timestep to try before giving up
 Number of iterations to let PF go before flagging this as a bad reconfiguration
 
 ### `source_vertex`
+
 ~~~
   object source_vertex;
 ~~~
@@ -51,6 +54,7 @@ Number of iterations to let PF go before flagging this as a bad reconfiguration
 Source vertex object for reconfiguration
 
 ### `faulted_section`
+
 ~~~
   object faulted_section;
 ~~~
@@ -58,6 +62,7 @@ Source vertex object for reconfiguration
 Faulted section for reconfiguration
 
 ### `feeder_power_limit`
+
 ~~~
   char1024 feeder_power_limit;
 ~~~
@@ -65,6 +70,7 @@ Faulted section for reconfiguration
 Comma-separated power limit (VA) for feeders during reconfiguration
 
 ### `feeder_power_links`
+
 ~~~
   char1024 feeder_power_links;
 ~~~
@@ -72,6 +78,7 @@ Comma-separated power limit (VA) for feeders during reconfiguration
 Comma-separated list of link-based objects for monitoring power through
 
 ### `feeder_vertex_list`
+
 ~~~
   char1024 feeder_vertex_list;
 ~~~
@@ -79,6 +86,7 @@ Comma-separated list of link-based objects for monitoring power through
 Comma-separated object list that defines the feeder vertices
 
 ### `microgrid_power_limit`
+
 ~~~
   char1024 microgrid_power_limit;
 ~~~
@@ -86,6 +94,7 @@ Comma-separated object list that defines the feeder vertices
 Comma-separated power limit (complex VA) for microgrids during reconfiguration
 
 ### `microgrid_power_links`
+
 ~~~
   char1024 microgrid_power_links;
 ~~~
@@ -93,6 +102,7 @@ Comma-separated power limit (complex VA) for microgrids during reconfiguration
 Comma-separated list of link-based objects for monitoring power through
 
 ### `microgrid_vertex_list`
+
 ~~~
   char1024 microgrid_vertex_list;
 ~~~
@@ -100,6 +110,7 @@ Comma-separated list of link-based objects for monitoring power through
 Comma-separated object list that defines the microgrid vertices
 
 ### `lower_voltage_limit`
+
 ~~~
   double lower_voltage_limit[pu];
 ~~~
@@ -107,6 +118,7 @@ Comma-separated object list that defines the microgrid vertices
 Lower voltage limit for the reconfiguration validity checks - per unit
 
 ### `upper_voltage_limit`
+
 ~~~
   double upper_voltage_limit[pu];
 ~~~
@@ -114,6 +126,7 @@ Lower voltage limit for the reconfiguration validity checks - per unit
 Upper voltage limit for the reconfiguration validity checks - per unit
 
 ### `output_filename`
+
 ~~~
   char1024 output_filename;
 ~~~
@@ -121,6 +134,7 @@ Upper voltage limit for the reconfiguration validity checks - per unit
 Output text file name to describe final or attempted switching operations
 
 ### `generate_all_scenarios`
+
 ~~~
   bool generate_all_scenarios;
 ~~~
@@ -147,5 +161,6 @@ Flag to determine if restoration reconfiguration and continues, or explores the 
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

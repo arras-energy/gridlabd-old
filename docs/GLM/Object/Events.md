@@ -21,12 +21,15 @@ Objects can be assigned external event handlers using the `on_*` load method.  T
 ## Python support
 
 If the command is to be processed in the Python environment, use the "python:" prefix, e.g.,
+
 ~~~
   object name {
     on_sync "python:module.method";
   }
 ~~~
+
 In this case, the function `method` in the python3 `module` must be defined as follows:
+
 ~~~
 def method(name,t1):
   // process object name at timestamp t1
@@ -45,6 +48,7 @@ The following global variables are copied to the shell environment when the scri
 * ''object_name'': <tt>OBJECT</tt> is the object name
 
 # Example
+
 ~~~
   module residential;
   #set suppress_repeat_messages=0

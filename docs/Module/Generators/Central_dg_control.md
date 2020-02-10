@@ -25,6 +25,7 @@ TODO
 ## Properties
 
 ### `controlled_dgs`
+
 ~~~
   char32 controlled_dgs;
 ~~~
@@ -32,6 +33,7 @@ TODO
 The group ID of the dg objects the controller controls.
 
 ### `feederhead_meter`
+
 ~~~
   object feederhead_meter;
 ~~~
@@ -39,6 +41,7 @@ The group ID of the dg objects the controller controls.
 The name of the meter.
 
 ### `control_mode_0`
+
 ~~~
   enumeration {PEAK_SHAVING, CONSTANT_PF, NO_CONTROL} control_mode_0;
 ~~~
@@ -46,6 +49,7 @@ The name of the meter.
 TODO
 
 ### `control_mode_1`
+
 ~~~
   enumeration {PEAK_SHAVING, CONSTANT_PF, NO_CONTROL} control_mode_1;
 ~~~
@@ -53,6 +57,7 @@ TODO
 TODO
 
 ### `control_mode_2`
+
 ~~~
   enumeration {PEAK_SHAVING, CONSTANT_PF, NO_CONTROL} control_mode_2;
 ~~~
@@ -60,6 +65,7 @@ TODO
 TODO
 
 ### `control_mode_3`
+
 ~~~
   enumeration {PEAK_SHAVING, CONSTANT_PF, NO_CONTROL} control_mode_3;
 ~~~
@@ -67,6 +73,7 @@ TODO
 TODO
 
 ### `peak_S`
+
 ~~~
   double peak_S[W];
 ~~~
@@ -74,6 +81,7 @@ TODO
 TODO
 
 ### `pf_low`
+
 ~~~
   double pf_low[unit];
 ~~~
@@ -81,6 +89,7 @@ TODO
 TODO
 
 ### `pf_high`
+
 ~~~
   double pf_high[unit];
 ~~~
@@ -103,5 +112,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Generators]]
 

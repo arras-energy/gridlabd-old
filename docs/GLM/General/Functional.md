@@ -15,6 +15,7 @@ Functional may be used to generate initial values.
 For details on the supported distributions, see [[/GLM/General/Random values]]
 
 # Example
+
 ~~~
 class example
 {
@@ -27,4 +28,5 @@ object example
 ~~~
 
 # See also
+
 * [[/GLM/General/Random values]]

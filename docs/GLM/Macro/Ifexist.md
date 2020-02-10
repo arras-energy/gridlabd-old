@@ -11,7 +11,9 @@ GLM:
 ...
 #endif
 ~~~
+
 or
+
 ~~~
 #ifexist "<path-name>"
 ...
@@ -37,5 +39,6 @@ The `#ifexist` macro is used to conditionally process GLM lines when a file is f
 1. TODO enumerate known issues using Ifexist
 
 # See also
+
 * [[/Glm/Macro/If]]
 

@@ -56,6 +56,7 @@ Units:
   >>> gridlabd.convert_unit(string,to)
   >>> gridlabd.convert_unit(real,from,to)
   >>> gridlabd.convert_unit(complex,from,to) # TODO
+
 ~~~
 
 # Description
@@ -111,6 +112,7 @@ In addition, objects may call individual event handlers by defining the handler 
       # add your code here
       return gridlabd.NEVER # return an integer value of t or later to cause iteration
                             # return an integer value less than t to stop simulation
+
 ~~~
 The object event handler are specified in a GLM file as follows:
 ~~~

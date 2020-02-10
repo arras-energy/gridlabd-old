@@ -89,6 +89,7 @@ TODO
 ## Properties
 
 ### `floor_area`
+
 ~~~
   double floor_area[sf];
 ~~~
@@ -96,6 +97,7 @@ TODO
 TODO
 
 ### `floor_height`
+
 ~~~
   double floor_height[ft];
 ~~~
@@ -103,6 +105,7 @@ TODO
 TODO
 
 ### `exterior_ua`
+
 ~~~
   double exterior_ua[Btu/degF/h];
 ~~~
@@ -110,6 +113,7 @@ TODO
 TODO
 
 ### `interior_ua`
+
 ~~~
   double interior_ua[Btu/degF/h];
 ~~~
@@ -117,6 +121,7 @@ TODO
 TODO
 
 ### `interior_mass`
+
 ~~~
   double interior_mass[Btu/degF];
 ~~~
@@ -124,6 +129,7 @@ TODO
 TODO
 
 ### `glazing`
+
 ~~~
   double glazing[sf];
 ~~~
@@ -131,6 +137,7 @@ TODO
 TODO
 
 ### `glazing.north`
+
 ~~~
   double glazing.north[sf];
 ~~~
@@ -138,6 +145,7 @@ TODO
 TODO
 
 ### `glazing.northeast`
+
 ~~~
   double glazing.northeast[sf];
 ~~~
@@ -145,6 +153,7 @@ TODO
 TODO
 
 ### `glazing.east`
+
 ~~~
   double glazing.east[sf];
 ~~~
@@ -152,6 +161,7 @@ TODO
 TODO
 
 ### `glazing.southeast`
+
 ~~~
   double glazing.southeast[sf];
 ~~~
@@ -159,6 +169,7 @@ TODO
 TODO
 
 ### `glazing.south`
+
 ~~~
   double glazing.south[sf];
 ~~~
@@ -166,6 +177,7 @@ TODO
 TODO
 
 ### `glazing.southwest`
+
 ~~~
   double glazing.southwest[sf];
 ~~~
@@ -173,6 +185,7 @@ TODO
 TODO
 
 ### `glazing.west`
+
 ~~~
   double glazing.west[sf];
 ~~~
@@ -180,6 +193,7 @@ TODO
 TODO
 
 ### `glazing.northwest`
+
 ~~~
   double glazing.northwest[sf];
 ~~~
@@ -187,6 +201,7 @@ TODO
 TODO
 
 ### `glazing.horizontal`
+
 ~~~
   double glazing.horizontal[sf];
 ~~~
@@ -194,6 +209,7 @@ TODO
 TODO
 
 ### `glazing.coefficient`
+
 ~~~
   double glazing.coefficient[pu];
 ~~~
@@ -201,6 +217,7 @@ TODO
 TODO
 
 ### `occupancy`
+
 ~~~
   double occupancy;
 ~~~
@@ -208,6 +225,7 @@ TODO
 TODO
 
 ### `occupants`
+
 ~~~
   double occupants;
 ~~~
@@ -215,6 +233,7 @@ TODO
 TODO
 
 ### `schedule`
+
 ~~~
   char256 schedule;
 ~~~
@@ -222,6 +241,7 @@ TODO
 TODO
 
 ### `air_temperature`
+
 ~~~
   double air_temperature[degF];
 ~~~
@@ -229,6 +249,7 @@ TODO
 TODO
 
 ### `mass_temperature`
+
 ~~~
   double mass_temperature[degF];
 ~~~
@@ -236,6 +257,7 @@ TODO
 TODO
 
 ### `temperature_change`
+
 ~~~
   double temperature_change[degF/h];
 ~~~
@@ -243,6 +265,7 @@ TODO
 TODO
 
 ### `outdoor_temperature`
+
 ~~~
   double outdoor_temperature[degF];
 ~~~
@@ -250,6 +273,7 @@ TODO
 TODO
 
 ### `Qh`
+
 ~~~
   double Qh[Btu/h];
 ~~~
@@ -257,6 +281,7 @@ TODO
 TODO
 
 ### `Qs`
+
 ~~~
   double Qs[Btu/h];
 ~~~
@@ -264,6 +289,7 @@ TODO
 TODO
 
 ### `Qi`
+
 ~~~
   double Qi[Btu/h];
 ~~~
@@ -271,6 +297,7 @@ TODO
 TODO
 
 ### `Qz`
+
 ~~~
   double Qz[Btu/h];
 ~~~
@@ -278,6 +305,7 @@ TODO
 TODO
 
 ### `hvac_mode`
+
 ~~~
   enumeration {OFF, VENT, ECON, COOL, AUX, HEAT} hvac_mode;
 ~~~
@@ -285,6 +313,7 @@ TODO
 TODO
 
 ### `hvac.cooling.balance_temperature`
+
 ~~~
   double hvac.cooling.balance_temperature[degF];
 ~~~
@@ -292,6 +321,7 @@ TODO
 TODO
 
 ### `hvac.cooling.capacity`
+
 ~~~
   double hvac.cooling.capacity[Btu/h];
 ~~~
@@ -299,6 +329,7 @@ TODO
 TODO
 
 ### `hvac.cooling.capacity_perF`
+
 ~~~
   double hvac.cooling.capacity_perF[Btu/degF/h];
 ~~~
@@ -306,6 +337,7 @@ TODO
 TODO
 
 ### `hvac.cooling.design_temperature`
+
 ~~~
   double hvac.cooling.design_temperature[degF];
 ~~~
@@ -313,6 +345,7 @@ TODO
 TODO
 
 ### `hvac.cooling.efficiency`
+
 ~~~
   double hvac.cooling.efficiency[pu];
 ~~~
@@ -320,6 +353,7 @@ TODO
 TODO
 
 ### `hvac.cooling.cop`
+
 ~~~
   double hvac.cooling.cop[pu];
 ~~~
@@ -327,6 +361,7 @@ TODO
 TODO
 
 ### `hvac.heating.balance_temperature`
+
 ~~~
   double hvac.heating.balance_temperature[degF];
 ~~~
@@ -334,6 +369,7 @@ TODO
 TODO
 
 ### `hvac.heating.capacity`
+
 ~~~
   double hvac.heating.capacity[Btu/h];
 ~~~
@@ -341,6 +377,7 @@ TODO
 TODO
 
 ### `hvac.heating.capacity_perF`
+
 ~~~
   double hvac.heating.capacity_perF[Btu/degF/h];
 ~~~
@@ -348,6 +385,7 @@ TODO
 TODO
 
 ### `hvac.heating.design_temperature`
+
 ~~~
   double hvac.heating.design_temperature[degF];
 ~~~
@@ -355,6 +393,7 @@ TODO
 TODO
 
 ### `hvac.heating.efficiency`
+
 ~~~
   double hvac.heating.efficiency[pu];
 ~~~
@@ -362,6 +401,7 @@ TODO
 TODO
 
 ### `hvac.heating.cop`
+
 ~~~
   double hvac.heating.cop[pu];
 ~~~
@@ -369,6 +409,7 @@ TODO
 TODO
 
 ### `lights.capacity`
+
 ~~~
   double lights.capacity[kW];
 ~~~
@@ -376,6 +417,7 @@ TODO
 TODO
 
 ### `lights.fraction`
+
 ~~~
   double lights.fraction[pu];
 ~~~
@@ -383,6 +425,7 @@ TODO
 TODO
 
 ### `plugs.capacity`
+
 ~~~
   double plugs.capacity[kW];
 ~~~
@@ -390,6 +433,7 @@ TODO
 TODO
 
 ### `plugs.fraction`
+
 ~~~
   double plugs.fraction[pu];
 ~~~
@@ -397,6 +441,7 @@ TODO
 TODO
 
 ### `demand`
+
 ~~~
   complex demand[kW];
 ~~~
@@ -404,6 +449,7 @@ TODO
 TODO
 
 ### `total_load`
+
 ~~~
   complex total_load[kW];
 ~~~
@@ -411,6 +457,7 @@ TODO
 TODO
 
 ### `energy`
+
 ~~~
   complex energy[kWh];
 ~~~
@@ -418,6 +465,7 @@ TODO
 TODO
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -425,6 +473,7 @@ TODO
 TODO
 
 ### `power`
+
 ~~~
   complex power[kW];
 ~~~
@@ -432,6 +481,7 @@ TODO
 TODO
 
 ### `current`
+
 ~~~
   complex current[A];
 ~~~
@@ -439,6 +489,7 @@ TODO
 TODO
 
 ### `admittance`
+
 ~~~
   complex admittance[1/Ohm];
 ~~~
@@ -446,6 +497,7 @@ TODO
 TODO
 
 ### `hvac.demand`
+
 ~~~
   complex hvac.demand[kW];
 ~~~
@@ -453,6 +505,7 @@ TODO
 TODO
 
 ### `hvac.load`
+
 ~~~
   complex hvac.load[kW];
 ~~~
@@ -460,6 +513,7 @@ TODO
 TODO
 
 ### `hvac.energy`
+
 ~~~
   complex hvac.energy[kWh];
 ~~~
@@ -467,6 +521,7 @@ TODO
 TODO
 
 ### `hvac.power_factor`
+
 ~~~
   double hvac.power_factor;
 ~~~
@@ -474,6 +529,7 @@ TODO
 TODO
 
 ### `lights.demand`
+
 ~~~
   complex lights.demand[kW];
 ~~~
@@ -481,6 +537,7 @@ TODO
 TODO
 
 ### `lights.load`
+
 ~~~
   complex lights.load[kW];
 ~~~
@@ -488,6 +545,7 @@ TODO
 TODO
 
 ### `lights.energy`
+
 ~~~
   complex lights.energy[kWh];
 ~~~
@@ -495,6 +553,7 @@ TODO
 TODO
 
 ### `lights.power_factor`
+
 ~~~
   double lights.power_factor;
 ~~~
@@ -502,6 +561,7 @@ TODO
 TODO
 
 ### `lights.heatgain_fraction`
+
 ~~~
   double lights.heatgain_fraction;
 ~~~
@@ -509,6 +569,7 @@ TODO
 TODO
 
 ### `lights.heatgain`
+
 ~~~
   double lights.heatgain[kW];
 ~~~
@@ -516,6 +577,7 @@ TODO
 TODO
 
 ### `plugs.demand`
+
 ~~~
   complex plugs.demand[kW];
 ~~~
@@ -523,6 +585,7 @@ TODO
 TODO
 
 ### `plugs.load`
+
 ~~~
   complex plugs.load[kW];
 ~~~
@@ -530,6 +593,7 @@ TODO
 TODO
 
 ### `plugs.energy`
+
 ~~~
   complex plugs.energy[kWh];
 ~~~
@@ -537,6 +601,7 @@ TODO
 TODO
 
 ### `plugs.power_factor`
+
 ~~~
   double plugs.power_factor;
 ~~~
@@ -544,6 +609,7 @@ TODO
 TODO
 
 ### `plugs.heatgain_fraction`
+
 ~~~
   double plugs.heatgain_fraction;
 ~~~
@@ -551,6 +617,7 @@ TODO
 TODO
 
 ### `plugs.heatgain`
+
 ~~~
   double plugs.heatgain[kW];
 ~~~
@@ -558,6 +625,7 @@ TODO
 TODO
 
 ### `cooling_setpoint`
+
 ~~~
   double cooling_setpoint[degF];
 ~~~
@@ -565,6 +633,7 @@ TODO
 TODO
 
 ### `heating_setpoint`
+
 ~~~
   double heating_setpoint[degF];
 ~~~
@@ -572,6 +641,7 @@ TODO
 TODO
 
 ### `thermostat_deadband`
+
 ~~~
   double thermostat_deadband[degF];
 ~~~
@@ -579,6 +649,7 @@ TODO
 TODO
 
 ### `control.ventilation_fraction`
+
 ~~~
   double control.ventilation_fraction;
 ~~~
@@ -586,6 +657,7 @@ TODO
 TODO
 
 ### `control.lighting_fraction`
+
 ~~~
   double control.lighting_fraction;
 ~~~
@@ -593,6 +665,7 @@ TODO
 TODO
 
 ### `ACH`
+
 ~~~
   double ACH;
 ~~~
@@ -680,5 +753,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Commercial]]
 
