@@ -1,7 +1,9 @@
 [[/Server/Runtime]] -- Server query to download runtime files and data
 
 # Synopsis
+
 HTTP:
+
 ~~~
     GET /rt/<filename>
     GET /rb/<filename>[:<offset>]
@@ -24,7 +26,9 @@ Binary files are download using binary file access. No changes are made to the f
 If the `<offset>` is specified, the download will start at the byte offset specified. This can be used to obtain to resume of an incomplete download.
 
 # Example
+
 The following example downloads the javacsript file `gridlabd.js`:
+
 ~~~
 bash$ curl http://localhost:6267/rt/gridlabd.js
 ~~~

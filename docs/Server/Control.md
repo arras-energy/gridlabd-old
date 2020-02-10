@@ -1,7 +1,9 @@
 [[/Server/Control]] -- Server control operations
 
 # Synopsis
+
 HTTP:
+
 ~~~
     GET /control/resume
     GET /control/pause
@@ -16,15 +18,12 @@ HTTP:
 The `control` message manages the state of the simulation main loop. The following operations are supported:
 
 * `resume` is used to resume simulation after a pause.
-
 * `pause`, `pause_wait`, and `pause_at` are used to pause the simulation to allow prolonged access to the current state of the model.
-
 * `stop` is used to bring the simulation to a normal end at the current time.
-
 * `shutdown` is used to initiate immediate emergency shutdown of the simulation without going through the normal end procedure.
 
-*Table 1: Mainloop state machine transition matrix*
-~~~
+Table 1: Mainloop state machine transition matrix*
+
 |         | Message                                                    |
 |         | ---------------------------------------------------------- |
 | State   | resume  | pause  | pause_wait | pause_at | shutdown | stop |
@@ -34,7 +33,6 @@ The `control` message manages the state of the simulation main loop. The followi
 | PAUSED  | RUNNING | PAUSED | PAUSED     | PAUSED   | exit()   | DONE |
 | DONE    |         |        |            |          | exit()   | DONE |
 | LOCKED  |         |        |            |          | exit()   |      |
-~~~
 
 ## `resume`
 

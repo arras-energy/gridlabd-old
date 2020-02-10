@@ -9,12 +9,12 @@ if [ $# -eq 0 ]; then
 	# copy md files to a clean working folder
 	rm -rf $TMPDIR
 	mkdir $TMPDIR
-	find * -type d -prune -exec $0 $TMPDIR/\{\} \; > gridlabd.md
+	find * -type d -prune -exec $0 $TMPDIR/\{\} \; > $TMPDIR/gridlabd.md
 	echo "Compiling gridlabd.pdf..." > /dev/stderr
-	pandoc --toc --toc-depth=2 gridlabd.md -o pages.pdf
-	gridlabd --version=all | cut -f3-4 -d' ' | sed 's/_/\\_/g' > version.tex
-	pdflatex gridlabd
-	rm -rf gridlabd.md pages.pdf gridlabd.md gridlabd.aux gridlabd.log version.tex $TMPDIR
+	pandoc --toc --toc-depth=2 $TMPDIR/gridlabd.md -o $TMPDIR/pages.pdf
+	gridlabd --version=all | cut -f3-4 -d' ' | sed 's/_/\\_/g' > $TMPDIR/version.tex
+	pdflatex $TMPDIR/gridlabd
+	rm -rf $TMPDIR
 	exit 0
 fi
 

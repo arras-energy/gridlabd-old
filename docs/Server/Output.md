@@ -1,7 +1,9 @@
 [[/Server/Output]] -- Server request to download simulation output files
 
 # Synopsis
+
 HTTP:
+
 ~~~
     GET /output/<filename.ext>
 ~~~
@@ -13,6 +15,7 @@ Output files may be requested using the `output` query. Only files in the workin
 # Example
 
 The following example downloads a CSV file produced by a recorder:
+
 ~~~
 bash$ curl http://localhost:6267/output/my_recorder_file.csv
 ~~~

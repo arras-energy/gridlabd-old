@@ -36,6 +36,7 @@ Use the `library` subcommand to manage GridLAB-D's library files.
 ~~~
 
 The `library help` subcommand obtains a list of the valid commands.
+
 ~~~
 bash$ gridlabd library help
 Syntax: gridlabd-library <command> [...]
@@ -68,7 +69,8 @@ Commands:
   gridlabd library index <pattern>
 ~~~
 
-The `index` command outputs a list of library files in the archive that match <pattern>.  
+The `index` command outputs a list of library files in the archive that match <pattern>.
+  
 ~~~
 bash$ gridlabd index wood_pole
 wood_pole.glm

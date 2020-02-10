@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Solver_ml.conf]] -- Machine learning powerflow solver configuration
 
 # Synopsis
+
 /usr/local/share/gridlabd/solver_ml.conf:
+
 ~~~
   maximum_metric <real>
   method [none|basic]
