@@ -9,11 +9,15 @@ if [ $# -eq 0 ]; then
 	# copy md files to a clean working folder
 	rm -rf $TMPDIR
 	mkdir $TMPDIR
-	find * -type d -prune -exec $0 $TMPDIR/\{\} \; > $TMPDIR/gridlabd.md
+	find * -type d -prune -exec echo $0 $TMPDIR/\{\} \; | sort | bash > $TMPDIR/gridlabd.md
+	cp gridlabd.tex $TMPDIR
+	cd $TMPDIR
 	echo "Compiling gridlabd.pdf..." > /dev/stderr
-	pandoc --toc --toc-depth=2 $TMPDIR/gridlabd.md -o $TMPDIR/pages.pdf
-	gridlabd --version=all | cut -f3-4 -d' ' | sed 's/_/\\_/g' > $TMPDIR/version.tex
-	pdflatex $TMPDIR/gridlabd
+	pandoc --toc --toc-depth=2 gridlabd.md -o pages.pdf
+	gridlabd --version=all | cut -f3-4 -d' ' | sed 's/_/\\_/g' > version.tex
+	pdflatex gridlabd
+	cd -
+	mv $TMPDIR/gridlabd.pdf .
 	rm -rf $TMPDIR
 	exit 0
 fi
@@ -25,7 +29,7 @@ if [ ! -d "$*" -a -d "$CHAPTER" ]; then
 	echo "Processing chapter $CHAPTER..." > /dev/stderr
 	mkdir "$*"
 	cp -r "$CHAPTER"/* "$*"
-	find "$*" -name '[A-Z]*.md' -exec $0 \{\} \; 
+	find "$*" -name '[A-Z]*.md' -exec echo $0 \{\} \; | sort | bash
 	#find "$*" -name '[A-Z]*.md' -print0 | sort -z | xargs -0 $0 
 
 elif [ -f "$*" ]; then
