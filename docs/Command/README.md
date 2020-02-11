@@ -3,12 +3,13 @@
 GridLAB-D supports a large number of command line options.  The general syntax for a command line is
 
 ~~~
-bash$ gridlabd [subcommand [options ...]] [--pre-load-options ...] [files ...] [--post-load-options ...]
+bash$ gridlabd [subcommand [options ...]] 
+bash$ gridlabd [--pre-load-options ...] [files ...] [--post-load-options ...]
 ~~~
 
-The command line is parse in two passes. The first pass handles the subcommand, if any.  The second pass handles the input files options.  During the second pass, options are handled in the order in which they're received.
+The command line is parsed in two passes. The first pass handles the subcommand, if any.  The second pass handles the input files options.  During the second pass, options are handled in the order in which they're received.
 
-Note that most subcommand and some options halt processing the command line when they are completed.
+Note that most subcommands and some options halt processing of the command line when they are completed.
 
 # Subcommands
 
