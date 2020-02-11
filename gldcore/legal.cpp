@@ -86,49 +86,25 @@ STATUS legal_notice(void)
  **/
 const char *legal_license_text(void)
 {
-	return 
-		"1. Battelle Memorial Institute and the Regents of the Leland Stanford\n"
-		"   Junior University (hereinafter known as the ''Grantors'') hereby grant\n"
-		"   permission to any person or entity lawfully obtaining a copy of\n"
-		"   this software and associated documentation files (hereinafter ''the\n"
-		"   Software'') to redistribute and use the Software in source and\n"
-		"   binary forms, with or without modification.  Such person or entity\n"
-		"   may use, copy, modify, merge, publish, distribute, sublicense,\n"
-		"   and/or sell copies of the Software, and may permit others to do so,\n"
-		"   subject to the following conditions:\n"
-		"   - Redistributions of source code must retain the above copyright\n"
-		"     notice, this list of conditions and the following disclaimers.\n"
-		"   - Redistributions in binary form must reproduce the above copyright\n"
-		"     notice, this list of conditions and the following disclaimer in\n"
-		"     the documentation and/or other materials provided with the\n"
-		"     distribution.\n"
-		"   - Other than as used herein, the name of a Grantor may not be used\n"
-		"     in any form whatsoever without the express written consent of said\n"
-		"     Grantor.\n"
-		"2. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS\n"
-		"   ''AS IS'' AND WITHOUT EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT\n"
-		"   LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR\n"
-		"   A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL BATTELLE OR\n"
-		"   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,\n"
-		"   EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,\n"
-		"   PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR\n"
-		"   PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY\n"
-		"   OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING\n"
-		"   NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS\n"
-		"   SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.\n"
-		"3. The Software was originally produced by Battelle under Contract No.\n"
-		"   DE-AC05-76RL01830 with the Department of Energy.  The U.S. Government\n"
-		"   is granted for itself and others acting on its behalf a nonexclusive,\n"
-		"   paid-up, irrevocable worldwide license in this data to reproduce,\n"
-		"   prepare derivative works, distribute copies to the public, perform\n"
-		"   publicly and display publicly, and to permit others to do so.  The\n"
-		"   specific term of the license can be identified by inquiry made to\n"
-		"   Battelle or DOE.  Neither the United States nor the United States\n"
-		"   Department of Energy, nor any of their employees, makes any warranty,\n"
-		"   express or implied, or assumes any legal liability or responsibility\n"
-		"   for the accuracy, completeness or usefulness of any data, apparatus,\n"
-		"   product or process disclosed, or represents that its use would not\n"
-		"   infringe privately owned rights.\n";
+
+	char tmp[1024];
+	strcpy(tmp,global_execdir);
+	char *p = strrchr(tmp,'/');
+	if ( p != NULL && strcmp(p,"/bin") == 0 )
+	{
+		*p = '\0';
+	}
+	char license_filename[1024];
+	sprintf(license_filename,"%s/LICENSE",tmp);
+	FILE *fp = fopen(license_filename,"r");
+	if ( fp == NULL )
+	{
+		sprintf(tmp,"file '%s' not found", license_filename);
+		return strdup(tmp);
+	}
+	static char license_text[65536];
+	license_text[fread(license_text,1,sizeof(license_text)-1,fp)] = '\0';
+	return license_text;
 }
 
 STATUS legal_license(void)
@@ -169,7 +145,7 @@ static pthread_t check_version_thread_id;
 void *check_version_proc(void *ptr)
 {
 	int patch, build;
-	const char *url = "https://raw.githubusercontent.com/dchassin/gridlabd/master/gldcore/versions.txt";
+	const char *url = "https://raw.githubusercontent.com/slacgismo/gridlabd/master/gldcore/versions.txt";
 	HTTPRESULT *result = http_read(url,0x1000);
 	char target[32];
 	char *pv = NULL, *nv = NULL;

@@ -69,7 +69,7 @@ host% docker system prune -a
 ## Creating an image locally from a custom branch
 
 If you'd like to create an image locally with a specific branch (ex `test_branch`) instead of pulling from DockerHub (where the default branch is `master`). 
-1. Clone the `dchassin/gridlabd` repository locally and switch to the desired branch (`test_branch`). 
+1. Clone the `slacgismo/gridlabd` repository locally and switch to the desired branch (`test_branch`). 
 2. Navigate to `utilities/docker/centos` 
 3. Edit `Makefile.conf` to define `GRIDLABD_IMG=gridlabd/test_branch`, change the tag to `GRIDLABD_TAG=test` and change any other options as desired. 
 4. Build the image manually by running: 

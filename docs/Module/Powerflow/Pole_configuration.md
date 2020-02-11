@@ -26,7 +26,7 @@ GLM:
 
 # Description
 
-The `pole_configuration` object contains information about pole designs, and is referred to by `pole` objects.  See [Pole Loading Model](https://github.com/dchassin/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf) for details on values for the pole library.
+The `pole_configuration` object contains information about pole designs, and is referred to by `pole` objects.  See [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf) for details on values for the pole library.
 
 ## Properties
 
@@ -180,4 +180,6 @@ The pole treatment method.
 # See also
 
 * [[/Module/Powerflow/Pole]]
-* [Pole Loading Model](https://github.com/dchassin/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf)
+* [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf)
+* [UEP Bulletin 1728F-804](https://www.rd.usda.gov/files/UEP_Bulletin_1728F-804.pdf)
+

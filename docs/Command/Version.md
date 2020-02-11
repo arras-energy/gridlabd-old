@@ -1,4 +1,4 @@
-[[Command/Version]] -- Command line option to obtain the current version information
+[[/Command/Version]] -- Command line option to obtain the current version information
 
 # Synopsis
 ~~~
@@ -53,8 +53,8 @@ Outputs the installation name, e.g., `gridlabd-4.2.0-191115-develop_fix_manual`.
 
 # See also
 
-* [[Subcommand/Version]]
-* [[Command/Origin]]
+* [[/Subcommand/Version]]
+* [[/Command/Origin]]
 
 
 Outputs `package-major.minor.patch-build-branch-system-hardware`.
