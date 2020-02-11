@@ -181,3 +181,5 @@ The pole treatment method.
 
 * [[/Module/Powerflow/Pole]]
 * [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/grip/powerflow/docs/pole_loading.pdf)
+* [UEP Bulletin 1728F-804](https://www.rd.usda.gov/files/UEP_Bulletin_1728F-804.pdf)
+
