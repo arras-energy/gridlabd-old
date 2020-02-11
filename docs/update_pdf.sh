@@ -27,10 +27,20 @@ CHAPTER=$(basename "$*")
 if [ ! -d "$*" -a -d "$CHAPTER" ]; then
 
 	echo "Processing chapter $CHAPTER..." > /dev/stderr
+	echo "
+
+\\newpage
+
+# $CHAPTER Introduction
+"
+	if [ -f "$CHAPTER/README.md" ]; then
+		tail +2 "$CHAPTER/README.md" | sed -E 's/^(#+) /##\1 /g;s/\[\[(.+)\]\]/\1/g'
+	else
+		echo "This chapter covers the topic '$CHAPTER'"
+	fi
 	mkdir "$*"
 	cp -r "$CHAPTER"/* "$*"
-	find "$*" -name '[A-Z]*.md' -exec echo $0 \{\} \; | sort | bash
-	#find "$*" -name '[A-Z]*.md' -print0 | sort -z | xargs -0 $0 
+	find "$*" -name "README.md" -prune -o -name '[A-Z]*.md' -exec echo $0 \{\} \; | sort | bash
 
 elif [ -f "$*" ]; then
 
@@ -45,7 +55,7 @@ elif [ -f "$*" ]; then
 
 ## $NAME
 "
-		sed -E 's/^#/###/g;s/\[\[(.+)\]\]/\1/g' < "$FILE"
+		sed -E 's/^(#+) /##\1 /g;s/\[\[(.+)\]\]/\1/g' < "$FILE"
 	else
 		cat /tmp/update_pdf-$$.out > /dev/stderr
 	fi
