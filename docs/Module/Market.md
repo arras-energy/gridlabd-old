@@ -1,7 +1,9 @@
 [[/Module/Market]] -- Module market
 
 # Synopsis
+
 GLM:
+
 ~~~
   module market {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
@@ -16,6 +18,7 @@ TODO
 ## Globals
 
 ### `message_flags`
+
 ~~~
   message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
 ~~~
@@ -23,6 +26,7 @@ TODO
 Module message control flags
 
 ### `bid_offset`
+
 ~~~
   bid_offset "<decimal> $";
 ~~~
@@ -30,6 +34,7 @@ Module message control flags
 The bid offset value that prevents bids from being wrongly triggered
 
 # See also
+
 * [[/Module/Market/Auction]]
 * [[/Module/Market/Controller]]
 * [[/Module/Market/Stubauction]]

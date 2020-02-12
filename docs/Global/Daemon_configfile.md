@@ -1,11 +1,15 @@
 [[/Global/Daemon_configfile]] -- Name of configuration file used by the daemon
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set daemon_configfile=gridlabd.cnf
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D daemon_configfile=gridlabd.cnf
 bash$ gridlabd --define daemon_configfile=gridlabd.cnf

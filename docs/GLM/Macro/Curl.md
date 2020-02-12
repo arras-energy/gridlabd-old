@@ -1,7 +1,9 @@
 [[/GLM/Macro/Curl]] -- Macro to copy URL
 
 # Synopsis
+
 GLM:
+
 ~~~
 #curl <url> <file>
 ~~~

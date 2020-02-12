@@ -1,11 +1,15 @@
 [[/Module/Powerflow/Global/Market_price_name]] -- Module powerflow global variable market_price_name
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define market_price_name=<value>
+bash$ gridlabd -D|--define market_price_name=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set market_price_name=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Powerflow]]

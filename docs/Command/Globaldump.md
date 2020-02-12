@@ -1,11 +1,12 @@
-[[/Command/Globaldump]] -  Perform a dump of the global variables
+[[/Command/Globaldump]] -- Perform a dump of the global variables
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --globaldump                                            
 ~~~
 
 # Description
 
- Perform a dump of the global variables.
+Perform a dump of the global variables.
 

@@ -1,6 +1,7 @@
 [[/Command/Version]] -- Command line option to obtain the current version information
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --version[=<format>]
 ~~~
@@ -8,6 +9,7 @@ bash$ gridlabd --version[=<format>]
 # Description
 
 In its simple format, the `--version` command line option output the basic version information for the active installation, e.g.,
+
 ~~~
 bash$ gridlabd --version
 GridLAB-D 4.2.0-191115

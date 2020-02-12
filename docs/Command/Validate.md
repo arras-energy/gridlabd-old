@@ -1,11 +1,12 @@
-[[/Command/Validate]] -  Perform model validation check
+[[/Command/Validate]] -- Perform model validation check
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --validate ...                                          
 ~~~
 
 # Description
 
- Perform model validation check.
+Perform model validation check.
 
