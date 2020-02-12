@@ -1,7 +1,9 @@
 [[/Module/Tape]] -- Module tape
 
 # Synopsis
+
 GLM:
+
 ~~~
   module tape {
     gnuplot_path "<string>";
@@ -19,6 +21,7 @@ TODO
 ## Globals
 
 ### `gnuplot_path`
+
 ~~~
   gnuplot_path "<string>";
 ~~~
@@ -26,6 +29,7 @@ TODO
 TODO
 
 ### `flush_interval`
+
 ~~~
   flush_interval "<integer>";
 ~~~
@@ -33,6 +37,7 @@ TODO
 TODO
 
 ### `csv_data_only`
+
 ~~~
   csv_data_only "<integer>";
 ~~~
@@ -40,6 +45,7 @@ TODO
 TODO
 
 ### `csv_keep_clean`
+
 ~~~
   csv_keep_clean "<integer>";
 ~~~
@@ -47,6 +53,7 @@ TODO
 TODO
 
 ### `delta_mode_needed`
+
 ~~~
   delta_mode_needed "<string>";
 ~~~
@@ -54,6 +61,7 @@ TODO
 TODO
 
 # See also
+
 * [[/Module/Tape/Player]]
 * [[/Module/Tape/Shaper]]
 * [[/Module/Tape/Recorder]]

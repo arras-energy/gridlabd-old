@@ -1,7 +1,9 @@
 [[/Module/Market/Passive_controller]] -- Class passive_controller
 
 # Synopsis
+
 GLM:
+
 ~~~
   object passive_controller {
     input_state "<integer>";
@@ -92,6 +94,7 @@ TODO
 ## Properties
 
 ### `input_state`
+
 ~~~
   int32 input_state;
 ~~~
@@ -99,6 +102,7 @@ TODO
 TODO
 
 ### `input_setpoint`
+
 ~~~
   double input_setpoint;
 ~~~
@@ -106,6 +110,7 @@ TODO
 TODO
 
 ### `input_chained`
+
 ~~~
   bool input_chained;
 ~~~
@@ -113,6 +118,7 @@ TODO
 TODO
 
 ### `observation`
+
 ~~~
   double observation;
 ~~~
@@ -120,6 +126,7 @@ TODO
 The observed value
 
 ### `mean_observation`
+
 ~~~
   double mean_observation;
 ~~~
@@ -127,6 +134,7 @@ The observed value
 The observed mean value
 
 ### `stdev_observation`
+
 ~~~
   double stdev_observation;
 ~~~
@@ -134,6 +142,7 @@ The observed mean value
 The observed standard deviation value
 
 ### `expectation`
+
 ~~~
   double expectation;
 ~~~
@@ -141,6 +150,7 @@ The observed standard deviation value
 The observed expected value
 
 ### `sensitivity`
+
 ~~~
   double sensitivity;
 ~~~
@@ -148,6 +158,7 @@ The observed expected value
 The sensitivity of the control actuator to observation deviations
 
 ### `period`
+
 ~~~
   double period[s];
 ~~~
@@ -155,6 +166,7 @@ The sensitivity of the control actuator to observation deviations
 The cycle period for the controller logic
 
 ### `expectation_prop`
+
 ~~~
   char32 expectation_prop;
 ~~~
@@ -162,6 +174,7 @@ The cycle period for the controller logic
 The name of the property to observe for the expected value
 
 ### `expectation_obj`
+
 ~~~
   object expectation_obj;
 ~~~
@@ -169,6 +182,7 @@ The name of the property to observe for the expected value
 The object to watch for the expectation property
 
 ### `expectation_property`
+
 ~~~
   char32 expectation_property;
 ~~~
@@ -176,6 +190,7 @@ The object to watch for the expectation property
 The name of the property to observe for the expected value
 
 ### `expectation_object`
+
 ~~~
   object expectation_object;
 ~~~
@@ -183,6 +198,7 @@ The name of the property to observe for the expected value
 The object to watch for the expectation property
 
 ### `setpoint_prop`
+
 ~~~
   char32 setpoint_prop;
 ~~~
@@ -190,6 +206,7 @@ The object to watch for the expectation property
 The name of the setpoint property in the parent object
 
 ### `setpoint`
+
 ~~~
   char32 setpoint;
 ~~~
@@ -197,6 +214,7 @@ The name of the setpoint property in the parent object
 The name of the setpoint property in the parent object
 
 ### `state_prop`
+
 ~~~
   char32 state_prop;
 ~~~
@@ -204,6 +222,7 @@ The name of the setpoint property in the parent object
 The name of the actuator property in the parent object
 
 ### `state_property`
+
 ~~~
   char32 state_property;
 ~~~
@@ -211,6 +230,7 @@ The name of the actuator property in the parent object
 The name of the actuator property in the parent object
 
 ### `observation_obj`
+
 ~~~
   object observation_obj;
 ~~~
@@ -218,6 +238,7 @@ The name of the actuator property in the parent object
 The object to observe
 
 ### `observation_prop`
+
 ~~~
   char32 observation_prop;
 ~~~
@@ -225,6 +246,7 @@ The object to observe
 The name of the observation property
 
 ### `observation_object`
+
 ~~~
   object observation_object;
 ~~~
@@ -232,6 +254,7 @@ The name of the observation property
 The object to observe
 
 ### `observation_property`
+
 ~~~
   char32 observation_property;
 ~~~
@@ -239,6 +262,7 @@ The object to observe
 The name of the observation property
 
 ### `mean_observation_prop`
+
 ~~~
   char32 mean_observation_prop;
 ~~~
@@ -246,6 +270,7 @@ The name of the observation property
 The name of the mean observation property
 
 ### `stdev_observation_prop`
+
 ~~~
   char32 stdev_observation_prop;
 ~~~
@@ -253,6 +278,7 @@ The name of the mean observation property
 The name of the standard deviation observation property
 
 ### `stdev_observation_property`
+
 ~~~
   char32 stdev_observation_property;
 ~~~
@@ -260,6 +286,7 @@ The name of the standard deviation observation property
 The name of the standard deviation observation property
 
 ### `cycle_length`
+
 ~~~
   int32 cycle_length;
 ~~~
@@ -267,6 +294,7 @@ The name of the standard deviation observation property
 Length of time between processing cycles
 
 ### `base_setpoint`
+
 ~~~
   double base_setpoint;
 ~~~
@@ -274,6 +302,7 @@ Length of time between processing cycles
 The base setpoint to base control off of
 
 ### `critical_day`
+
 ~~~
   double critical_day;
 ~~~
@@ -281,6 +310,7 @@ The base setpoint to base control off of
 Used to switch between TOU and CPP days, 1 is CPP, 0 is TOU
 
 ### `two_tier_cpp`
+
 ~~~
   bool two_tier_cpp;
 ~~~
@@ -288,6 +318,7 @@ Used to switch between TOU and CPP days, 1 is CPP, 0 is TOU
 TODO
 
 ### `daily_elasticity`
+
 ~~~
   double daily_elasticity;
 ~~~
@@ -295,6 +326,7 @@ TODO
 TODO
 
 ### `sub_elasticity_first_second`
+
 ~~~
   double sub_elasticity_first_second;
 ~~~
@@ -302,6 +334,7 @@ TODO
 TODO
 
 ### `sub_elasticity_first_third`
+
 ~~~
   double sub_elasticity_first_third;
 ~~~
@@ -309,6 +342,7 @@ TODO
 TODO
 
 ### `second_tier_hours`
+
 ~~~
   int32 second_tier_hours;
 ~~~
@@ -316,6 +350,7 @@ TODO
 TODO
 
 ### `third_tier_hours`
+
 ~~~
   int32 third_tier_hours;
 ~~~
@@ -323,6 +358,7 @@ TODO
 TODO
 
 ### `first_tier_hours`
+
 ~~~
   int32 first_tier_hours;
 ~~~
@@ -330,6 +366,7 @@ TODO
 TODO
 
 ### `first_tier_price`
+
 ~~~
   double first_tier_price;
 ~~~
@@ -337,6 +374,7 @@ TODO
 TODO
 
 ### `second_tier_price`
+
 ~~~
   double second_tier_price;
 ~~~
@@ -344,6 +382,7 @@ TODO
 TODO
 
 ### `third_tier_price`
+
 ~~~
   double third_tier_price;
 ~~~
@@ -351,6 +390,7 @@ TODO
 TODO
 
 ### `old_first_tier_price`
+
 ~~~
   double old_first_tier_price;
 ~~~
@@ -358,6 +398,7 @@ TODO
 TODO
 
 ### `old_second_tier_price`
+
 ~~~
   double old_second_tier_price;
 ~~~
@@ -365,6 +406,7 @@ TODO
 TODO
 
 ### `old_third_tier_price`
+
 ~~~
   double old_third_tier_price;
 ~~~
@@ -372,6 +414,7 @@ TODO
 TODO
 
 ### `Percent_change_in_price`
+
 ~~~
   double Percent_change_in_price;
 ~~~
@@ -379,6 +422,7 @@ TODO
 TODO
 
 ### `Percent_change_in_peakoffpeak_ratio`
+
 ~~~
   double Percent_change_in_peakoffpeak_ratio;
 ~~~
@@ -386,6 +430,7 @@ TODO
 TODO
 
 ### `Percent_change_in_Criticalpeakoffpeak_ratio`
+
 ~~~
   double Percent_change_in_Criticalpeakoffpeak_ratio;
 ~~~
@@ -393,6 +438,7 @@ TODO
 TODO
 
 ### `linearize_elasticity`
+
 ~~~
   bool linearize_elasticity;
 ~~~
@@ -400,6 +446,7 @@ TODO
 TODO
 
 ### `price_offset`
+
 ~~~
   double price_offset;
 ~~~
@@ -407,6 +454,7 @@ TODO
 TODO
 
 ### `pool_pump_model`
+
 ~~~
   bool pool_pump_model;
 ~~~
@@ -414,6 +462,7 @@ TODO
 Boolean flag for turning on the pool pump version of the DUTYCYCLE control
 
 ### `base_duty_cycle`
+
 ~~~
   double base_duty_cycle;
 ~~~
@@ -421,6 +470,7 @@ Boolean flag for turning on the pool pump version of the DUTYCYCLE control
 This is the duty cycle before modification due to the price signal
 
 ### `trigger_time_under_frequency`
+
 ~~~
   int32 trigger_time_under_frequency;
 ~~~
@@ -428,6 +478,7 @@ This is the duty cycle before modification due to the price signal
 Time to stay in triggered off state in seconds
 
 ### `trigger_time_over_frequency`
+
 ~~~
   int32 trigger_time_over_frequency;
 ~~~
@@ -435,6 +486,7 @@ Time to stay in triggered off state in seconds
 Time to stay in triggered on state in seconds
 
 ### `release_time_under_frequency`
+
 ~~~
   int32 release_time_under_frequency;
 ~~~
@@ -442,6 +494,7 @@ Time to stay in triggered on state in seconds
 Time to stay in released on state in seconds
 
 ### `release_time_over_frequency`
+
 ~~~
   int32 release_time_over_frequency;
 ~~~
@@ -449,6 +502,7 @@ Time to stay in released on state in seconds
 Time to stay in released off state in seconds
 
 ### `release_point_under_frequency`
+
 ~~~
   double release_point_under_frequency;
 ~~~
@@ -456,6 +510,7 @@ Time to stay in released off state in seconds
 Frequency value for releasing GFA in under frequency mode
 
 ### `release_point_over_frequency`
+
 ~~~
   double release_point_over_frequency;
 ~~~
@@ -463,6 +518,7 @@ Frequency value for releasing GFA in under frequency mode
 Frequency value for releasing GFA in over frequency mode
 
 ### `trigger_point_under_frequency`
+
 ~~~
   double trigger_point_under_frequency;
 ~~~
@@ -470,6 +526,7 @@ Frequency value for releasing GFA in over frequency mode
 Frequency value for triggereing GFA in under frequency mode
 
 ### `trigger_point_over_frequency`
+
 ~~~
   double trigger_point_over_frequency;
 ~~~
@@ -477,6 +534,7 @@ Frequency value for triggereing GFA in under frequency mode
 Frequency value for triggereing GFA in over frequency mode
 
 ### `frequency`
+
 ~~~
   double frequency;
 ~~~
@@ -484,6 +542,7 @@ Frequency value for triggereing GFA in over frequency mode
 Frequency value
 
 ### `PFC_mode`
+
 ~~~
   enumeration {OVER_UNDER_FREQUENCY, UNDER_FREQUENCY, OVER_FREQUENCY} PFC_mode;
 ~~~
@@ -491,6 +550,7 @@ Frequency value
 Operation mode of the primary frequency controller
 
 ### `PFC_state`
+
 ~~~
   enumeration {RELEASED_ON, RELEASED_OFF, FORCED_ON, FORCED_OFF, TRIGGERED_ON, TRIGGERED_OFF, FREE} PFC_state;
 ~~~
@@ -498,6 +558,7 @@ Operation mode of the primary frequency controller
 State of the primary frequency controller
 
 ### `state_observed`
+
 ~~~
   char32 state_observed;
 ~~~
@@ -505,6 +566,7 @@ State of the primary frequency controller
 The name of the observed state property in the parent object
 
 ### `power_observed`
+
 ~~~
   char32 power_observed;
 ~~~
@@ -512,6 +574,7 @@ The name of the observed state property in the parent object
 The name of the observed state property in the parent object
 
 ### `output_observed`
+
 ~~~
   int32 output_observed;
 ~~~
@@ -519,6 +582,7 @@ The name of the observed state property in the parent object
 TODO
 
 ### `bid_delay`
+
 ~~~
   int32 bid_delay;
 ~~~
@@ -526,6 +590,7 @@ TODO
 Time the controller will bid in advance before clearing
 
 ### `voltage_lockout`
+
 ~~~
   double voltage_lockout[%];
 ~~~
@@ -533,6 +598,7 @@ Time the controller will bid in advance before clearing
 Lockout primary frequency control if voltage is deviating % from nominal
 
 ### `voltage_lockout_time`
+
 ~~~
   double voltage_lockout_time[s];
 ~~~
@@ -540,6 +606,7 @@ Lockout primary frequency control if voltage is deviating % from nominal
 Voltage lockout period
 
 ### `voltage_lockout_state`
+
 ~~~
   int32 voltage_lockout_state;
 ~~~
@@ -547,6 +614,7 @@ Voltage lockout period
 Value to determine if water heater is in voltage lockout
 
 ### `distribution_type`
+
 ~~~
   enumeration {UNIFORM, EXPONENTIAL, NORMAL} distribution_type;
 ~~~
@@ -554,6 +622,7 @@ Value to determine if water heater is in voltage lockout
 TODO
 
 ### `comfort_level`
+
 ~~~
   double comfort_level;
 ~~~
@@ -561,6 +630,7 @@ TODO
 TODO
 
 ### `range_high`
+
 ~~~
   double range_high;
 ~~~
@@ -568,6 +638,7 @@ TODO
 TODO
 
 ### `range_low`
+
 ~~~
   double range_low;
 ~~~
@@ -575,6 +646,7 @@ TODO
 TODO
 
 ### `ramp_high`
+
 ~~~
   double ramp_high;
 ~~~
@@ -582,6 +654,7 @@ TODO
 TODO
 
 ### `ramp_low`
+
 ~~~
   double ramp_low;
 ~~~
@@ -589,6 +662,7 @@ TODO
 TODO
 
 ### `prob_off`
+
 ~~~
   double prob_off;
 ~~~
@@ -596,6 +670,7 @@ TODO
 TODO
 
 ### `output_state`
+
 ~~~
   int32 output_state;
 ~~~
@@ -603,6 +678,7 @@ TODO
 The target setpoint given the input observations
 
 ### `output_setpoint`
+
 ~~~
   double output_setpoint;
 ~~~
@@ -610,6 +686,7 @@ The target setpoint given the input observations
 TODO
 
 ### `control_mode`
+
 ~~~
   enumeration {PRIMARY_FREQUENCY_CONTROL, DIRECT_LOAD_CONTROL, ELASTICITY_MODEL, PROBABILITY_OFF, DUTYCYCLE, RAMP, NONE} control_mode;
 ~~~
@@ -617,6 +694,7 @@ TODO
 The control mode to use for determining controller action
 
 ### `dlc_mode`
+
 ~~~
   enumeration {CYCLING, OFF} dlc_mode;
 ~~~
@@ -624,6 +702,7 @@ The control mode to use for determining controller action
 This mode is roughly designed to force cycle an AC unit
 
 ### `cycle_length_off`
+
 ~~~
   double cycle_length_off[s];
 ~~~
@@ -631,6 +710,7 @@ This mode is roughly designed to force cycle an AC unit
 TODO
 
 ### `cycle_length_on`
+
 ~~~
   double cycle_length_on[s];
 ~~~
@@ -719,5 +799,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Market]]
 

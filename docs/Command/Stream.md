@@ -1,11 +1,12 @@
-[[/Command/Stream]] -  Toggles streaming I/O
+[[/Command/Stream]] -- Toggles streaming I/O
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --stream                                                
 ~~~
 
 # Description
 
- Toggles streaming I/O.
+Toggles streaming I/O.
 

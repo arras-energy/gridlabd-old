@@ -1,11 +1,12 @@
-[[/Command/Scheduletest]] -  Perform schedule pseudo-object test
+[[/Command/Scheduletest]] -- Perform schedule pseudo-object test
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --scheduletest                                          
 ~~~
 
 # Description
 
- Perform schedule pseudo-object test.
+Perform schedule pseudo-object test.
 

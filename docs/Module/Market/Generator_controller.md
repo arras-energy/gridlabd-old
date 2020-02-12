@@ -1,7 +1,9 @@
 [[/Module/Market/Generator_controller]] -- Class generator_controller
 
 # Synopsis
+
 GLM:
+
 ~~~
   object generator_controller {
     generator_state "{STARTING,RUNNING,OFF}";
@@ -44,6 +46,7 @@ TODO
 ## Properties
 
 ### `generator_state`
+
 ~~~
   enumeration {STARTING, RUNNING, OFF} generator_state;
 ~~~
@@ -51,6 +54,7 @@ TODO
 Current generator state
 
 ### `amortization_type`
+
 ~~~
   enumeration {LINEAR_BID, LINEAR_COST, EXPONENTIAL} amortization_type;
 ~~~
@@ -58,6 +62,7 @@ Current generator state
 Amortization compounding method
 
 ### `generator_state_number`
+
 ~~~
   int32 generator_state_number;
 ~~~
@@ -65,6 +70,7 @@ Amortization compounding method
 Current generator state as numeric value
 
 ### `market`
+
 ~~~
   object market;
 ~~~
@@ -72,6 +78,7 @@ Current generator state as numeric value
 Market the object will watch and bid into
 
 ### `bid_curve`
+
 ~~~
   char1024 bid_curve;
 ~~~
@@ -79,6 +86,7 @@ Market the object will watch and bid into
 Bidding curve text format
 
 ### `bid_curve_file`
+
 ~~~
   char1024 bid_curve_file;
 ~~~
@@ -86,6 +94,7 @@ Bidding curve text format
 Bidding curve file name
 
 ### `bid_generator_rating`
+
 ~~~
   double bid_generator_rating[VA];
 ~~~
@@ -93,6 +102,7 @@ Bidding curve file name
 Size of generator in VA for the bid curve
 
 ### `update_curve`
+
 ~~~
   bool update_curve;
 ~~~
@@ -100,6 +110,7 @@ Size of generator in VA for the bid curve
 Flag to force updating of bidding curve parse
 
 ### `is_marginal_gen`
+
 ~~~
   bool is_marginal_gen;
 ~~~
@@ -107,6 +118,7 @@ Flag to force updating of bidding curve parse
 Flag to indicate if the generator is a marginal generator
 
 ### `generator_rating`
+
 ~~~
   double generator_rating[VA];
 ~~~
@@ -114,6 +126,7 @@ Flag to indicate if the generator is a marginal generator
 Size of generator in VA for the active bid
 
 ### `generator_output`
+
 ~~~
   double generator_output;
 ~~~
@@ -121,6 +134,7 @@ Size of generator in VA for the active bid
 Current real power output of generator
 
 ### `input_unit_base`
+
 ~~~
   double input_unit_base[MW];
 ~~~
@@ -128,6 +142,7 @@ Current real power output of generator
 Base multiplier for generator bid units
 
 ### `startup_cost`
+
 ~~~
   double startup_cost[$];
 ~~~
@@ -135,6 +150,7 @@ Base multiplier for generator bid units
 Cost to start the generator from OFF status
 
 ### `shutdown_cost`
+
 ~~~
   double shutdown_cost[$];
 ~~~
@@ -142,6 +158,7 @@ Cost to start the generator from OFF status
 Cost to shut down the generator prematurely
 
 ### `minimum_runtime`
+
 ~~~
   double minimum_runtime[s];
 ~~~
@@ -149,6 +166,7 @@ Cost to shut down the generator prematurely
 Minimum time the generator should run to avoid shutdown cost
 
 ### `minimum_downtime`
+
 ~~~
   double minimum_downtime[s];
 ~~~
@@ -156,6 +174,7 @@ Minimum time the generator should run to avoid shutdown cost
 Minimum down time for the generator before it can bid again
 
 ### `capacity_factor`
+
 ~~~
   double capacity_factor;
 ~~~
@@ -163,6 +182,7 @@ Minimum down time for the generator before it can bid again
 Calculation of generator's current capacity factor based on the market period
 
 ### `amortization_factor`
+
 ~~~
   double amortization_factor[1/s];
 ~~~
@@ -170,6 +190,7 @@ Calculation of generator's current capacity factor based on the market period
 Exponential decay factor in 1/s for shutdown cost repayment
 
 ### `bid_delay`
+
 ~~~
   double bid_delay;
 ~~~
@@ -177,6 +198,7 @@ Exponential decay factor in 1/s for shutdown cost repayment
 Time before a market closes to bid
 
 ### `generator_attachment`
+
 ~~~
   enumeration {BUILDING, STANDALONE} generator_attachment;
 ~~~
@@ -184,6 +206,7 @@ Time before a market closes to bid
 Generator attachment type - determines interactions
 
 ### `building_load_curr`
+
 ~~~
   double building_load_curr;
 ~~~
@@ -191,6 +214,7 @@ Generator attachment type - determines interactions
 Present building load value (if BUILDING attachment)
 
 ### `building_load_bid`
+
 ~~~
   double building_load_bid;
 ~~~
@@ -198,6 +222,7 @@ Present building load value (if BUILDING attachment)
 Expected building load value for currently bidding market period (if BUILDING attachment)
 
 ### `year_runtime_limit`
+
 ~~~
   double year_runtime_limit[h];
 ~~~
@@ -205,6 +230,7 @@ Expected building load value for currently bidding market period (if BUILDING at
 Total number of hours the generator can run in a year
 
 ### `current_year_runtime`
+
 ~~~
   double current_year_runtime[h];
 ~~~
@@ -212,6 +238,7 @@ Total number of hours the generator can run in a year
 Total number of hours generator has run this year
 
 ### `runtime_year_end`
+
 ~~~
   char1024 runtime_year_end;
 ~~~
@@ -219,6 +246,7 @@ Total number of hours generator has run this year
 Date and time the generator runtime year resets
 
 ### `scaling_factor`
+
 ~~~
   double scaling_factor[unit];
 ~~~
@@ -226,6 +254,7 @@ Date and time the generator runtime year resets
 Scaling factor applied to license premium calculation
 
 ### `license_premium`
+
 ~~~
   double license_premium;
 ~~~
@@ -233,6 +262,7 @@ Scaling factor applied to license premium calculation
 Current value of the generator license premium calculated
 
 ### `hours_in_year`
+
 ~~~
   double hours_in_year[h];
 ~~~
@@ -240,6 +270,7 @@ Current value of the generator license premium calculated
 Number of hours assumed for the total year
 
 ### `op_and_maint_cost`
+
 ~~~
   double op_and_maint_cost[$];
 ~~~
@@ -247,6 +278,7 @@ Number of hours assumed for the total year
 Operation and maintenance cost per runtime year
 
 ### `bid_id`
+
 ~~~
   int64 bid_id;
 ~~~
@@ -290,5 +322,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Market]]
 

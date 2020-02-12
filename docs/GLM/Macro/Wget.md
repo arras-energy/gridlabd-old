@@ -1,7 +1,9 @@
 [[/Glm/Macro/Wget]] -- Macro to download a file from a remote host
 
 # Synopsis
+
 GLM:
+
 ~~~
 #wget <url>
 ~~~
@@ -23,5 +25,6 @@ The only protocol support is HTTP.  HTTPS is not supported.
 No header options are available.
 
 # See also
+
 * [[/Path/Document]]
 

@@ -1,7 +1,9 @@
 [[/Module/Tape/Group_recorder]] -- Class group_recorder
 
 # Synopsis
+
 GLM:
+
 ~~~
   object group_recorder {
     file "<string>";
@@ -24,6 +26,7 @@ TODO
 ## Properties
 
 ### `file`
+
 ~~~
   char256 file;
 ~~~
@@ -31,6 +34,7 @@ TODO
 Output file name
 
 ### `group`
+
 ~~~
   char1024 group;
 ~~~
@@ -38,6 +42,7 @@ Output file name
 Group definition string
 
 ### `interval`
+
 ~~~
   double interval[s];
 ~~~
@@ -45,6 +50,7 @@ Group definition string
 Recordering interval (0 'every iteration', -1 'on change')
 
 ### `flush_interval`
+
 ~~~
   double flush_interval[s];
 ~~~
@@ -52,6 +58,7 @@ Recordering interval (0 'every iteration', -1 'on change')
 File flush interval (0 never, negative on samples)
 
 ### `strict`
+
 ~~~
   bool strict;
 ~~~
@@ -59,6 +66,7 @@ File flush interval (0 never, negative on samples)
 Causes the group_recorder to stop the simulation should there be a problem opening or writing with the group_recorder
 
 ### `print_units`
+
 ~~~
   bool print_units;
 ~~~
@@ -66,6 +74,7 @@ Causes the group_recorder to stop the simulation should there be a problem openi
 Flag to append units to each written value, if applicable
 
 ### `property`
+
 ~~~
   char256 property;
 ~~~
@@ -73,6 +82,7 @@ Flag to append units to each written value, if applicable
 Property to record
 
 ### `limit`
+
 ~~~
   int32 limit;
 ~~~
@@ -80,6 +90,7 @@ Property to record
 The maximum number of lines to write to the file
 
 ### `format`
+
 ~~~
   bool format;
 ~~~
@@ -87,6 +98,7 @@ The maximum number of lines to write to the file
 Determines whether output timestamp is formatted to be formatted as human-readable (default) or epoch
 
 ### `complex_part`
+
 ~~~
   enumeration {ANG_RAD, ANG_DEG, MAG, IMAG, REAL, NONE} complex_part;
 ~~~
@@ -111,5 +123,6 @@ The complex part to record if complex properties are gathered
 ~~~
 
 # See also
+
 * [[/Module/Tape]]
 

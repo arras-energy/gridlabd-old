@@ -1,11 +1,15 @@
 [[/Global/Literal_if]] -- Do not interpret LHS of `#if` macro as a variable name
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set literal_if=[TRUE,FALSE]
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D literal_if=FALSE
 bash$ gridlabd --define literal_if=FALSE
