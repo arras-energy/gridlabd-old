@@ -765,7 +765,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 }
 
 DEPRECATED static int guid_first=1;
-DEPRECATED char *global_guid(char *buffer, int size)
+DEPRECATED const char *global_guid(char *buffer, int size)
 {
 	if ( size>36 )
 	{
@@ -784,7 +784,7 @@ DEPRECATED char *global_guid(char *buffer, int size)
 		return NULL;
 	}
 }
-DEPRECATED char *global_run(char *buffer, int size)
+DEPRECATED const char *global_run(char *buffer, int size)
 {
 	DEPRECATED static char value[37]="";
 	if ( value[0]=='\0' )
@@ -797,7 +797,7 @@ DEPRECATED char *global_run(char *buffer, int size)
 	else
 		return NULL;
 }
-DEPRECATED char *global_now(char *buffer, int size)
+DEPRECATED const char *global_now(char *buffer, int size)
 {
 	if ( size>32 )
 	{
@@ -812,7 +812,7 @@ DEPRECATED char *global_now(char *buffer, int size)
 		return NULL;
 	}
 }
-DEPRECATED char *global_today(char *buffer, int size)
+DEPRECATED const char *global_today(char *buffer, int size)
 {
 	if ( size>32 )
 	{
@@ -827,7 +827,7 @@ DEPRECATED char *global_today(char *buffer, int size)
 		return NULL;
 	}
 }
-DEPRECATED char *global_urand(char *buffer, int size)
+DEPRECATED const char *global_urand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
@@ -841,7 +841,7 @@ DEPRECATED char *global_urand(char *buffer, int size)
 	}
 
 }
-DEPRECATED char *global_nrand(char *buffer, int size)
+DEPRECATED const char *global_nrand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
@@ -855,7 +855,7 @@ DEPRECATED char *global_nrand(char *buffer, int size)
 	}
 
 }
-DEPRECATED char *global_true(char *buffer, int size)
+DEPRECATED const char *global_true(char *buffer, int size)
 {
 	if ( size>1 )
 		return strcpy(buffer,"1");
@@ -863,6 +863,19 @@ DEPRECATED char *global_true(char *buffer, int size)
 	{
 		output_error("global_now(...): buffer too small");
 		return NULL;
+	}
+}
+
+DEPRECATED const char *global_lastobject(char *buffer, int size)
+{
+	OBJECT *obj = object_get_last();
+	if ( obj->name )
+	{
+		return snprintf(buffer,size,"%s",obj->name) < size ? buffer : NULL;
+	}
+	else
+	{
+		return snprintf(buffer,size,"%s:%d",obj->oclass->name,obj->id) < size ? buffer : NULL;
 	}
 }
 
@@ -1211,7 +1224,7 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	GLOBALVAR *var = NULL;
 	struct {
 		const char *name;
-		char *(*call)(char *buffer,int size);
+		const char *(*call)(char *buffer,int size);
 	} map[] = {
 		{"GUID",global_guid},
 		{"NOW",global_now},
@@ -1237,6 +1250,7 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 #ifdef HAVE_PYTHON
 		{"PYTHON",global_true},
 #endif
+		{"LAST_OBJECT",global_lastobject},
 	};
 	size_t i;	
 	if(buffer == NULL){
