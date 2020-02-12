@@ -1,7 +1,9 @@
 [[/Module/Generators/Energy_storage]] -- Class energy_storage
 
 # Synopsis
+
 GLM:
+
 ~~~
   object energy_storage {
     generator_mode "{SUPPLY_DRIVEN,CONSTANT_PF,CONSTANT_PQ,CONSTANT_V,UNKNOWN}";
@@ -33,6 +35,7 @@ TODO
 ## Properties
 
 ### `generator_mode`
+
 ~~~
   enumeration {SUPPLY_DRIVEN, CONSTANT_PF, CONSTANT_PQ, CONSTANT_V, UNKNOWN} generator_mode;
 ~~~
@@ -40,6 +43,7 @@ TODO
 TODO
 
 ### `generator_status`
+
 ~~~
   enumeration {ONLINE, OFFLINE} generator_status;
 ~~~
@@ -47,6 +51,7 @@ TODO
 TODO
 
 ### `power_type`
+
 ~~~
   enumeration {DC, AC} power_type;
 ~~~
@@ -54,6 +59,7 @@ TODO
 TODO
 
 ### `Rinternal`
+
 ~~~
   double Rinternal;
 ~~~
@@ -61,6 +67,7 @@ TODO
 TODO
 
 ### `V_Max`
+
 ~~~
   double V_Max[V];
 ~~~
@@ -68,6 +75,7 @@ TODO
 TODO
 
 ### `I_Max`
+
 ~~~
   complex I_Max[A];
 ~~~
@@ -75,6 +83,7 @@ TODO
 TODO
 
 ### `E_Max`
+
 ~~~
   double E_Max;
 ~~~
@@ -82,6 +91,7 @@ TODO
 TODO
 
 ### `Energy`
+
 ~~~
   double Energy;
 ~~~
@@ -89,6 +99,7 @@ TODO
 TODO
 
 ### `efficiency`
+
 ~~~
   double efficiency;
 ~~~
@@ -96,6 +107,7 @@ TODO
 TODO
 
 ### `Rated_kVA`
+
 ~~~
   double Rated_kVA[kVA];
 ~~~
@@ -103,6 +115,7 @@ TODO
 TODO
 
 ### `V_Out`
+
 ~~~
   complex V_Out[V];
 ~~~
@@ -110,6 +123,7 @@ TODO
 TODO
 
 ### `I_Out`
+
 ~~~
   complex I_Out[A];
 ~~~
@@ -117,6 +131,7 @@ TODO
 TODO
 
 ### `VA_Out`
+
 ~~~
   complex VA_Out[VA];
 ~~~
@@ -124,6 +139,7 @@ TODO
 TODO
 
 ### `V_In`
+
 ~~~
   complex V_In[V];
 ~~~
@@ -131,6 +147,7 @@ TODO
 TODO
 
 ### `I_In`
+
 ~~~
   complex I_In[A];
 ~~~
@@ -138,6 +155,7 @@ TODO
 TODO
 
 ### `V_Internal`
+
 ~~~
   complex V_Internal[V];
 ~~~
@@ -145,6 +163,7 @@ TODO
 TODO
 
 ### `I_Internal`
+
 ~~~
   complex I_Internal[A];
 ~~~
@@ -152,6 +171,7 @@ TODO
 TODO
 
 ### `I_Prev`
+
 ~~~
   complex I_Prev[A];
 ~~~
@@ -159,6 +179,7 @@ TODO
 TODO
 
 ### `phases`
+
 ~~~
   set {S, N, C, B, A} phases;
 ~~~
@@ -192,5 +213,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Generators]]
 

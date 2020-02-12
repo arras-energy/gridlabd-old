@@ -1,11 +1,15 @@
 [[/Global/Initializeonly]] -- Initialize only enable flag
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set Initializeonly=FALSE
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D Initializeonly=FALSE
 bash$ gridlabd --define Initializeonly=FALSE
@@ -22,4 +26,5 @@ Initialize only enable flag
 ~~~
 
 # See also
+
 * [[/Command/Initialize]]

@@ -1,7 +1,9 @@
 [[/Module/Market/Double_controller]] -- Class double_controller
 
 # Synopsis
+
 GLM:
+
 ~~~
   object double_controller {
     thermostat_mode "{COOL,HEAT,OFF,INVALID}";
@@ -56,6 +58,7 @@ TODO
 ## Properties
 
 ### `thermostat_mode`
+
 ~~~
   enumeration {COOL, HEAT, OFF, INVALID} thermostat_mode;
 ~~~
@@ -63,6 +66,7 @@ TODO
 TODO
 
 ### `last_mode`
+
 ~~~
   enumeration {COOL, HEAT, OFF, INVALID} last_mode;
 ~~~
@@ -70,6 +74,7 @@ TODO
 TODO
 
 ### `resolve_mode`
+
 ~~~
   enumeration {STICKY, DEADBAND, NONE} resolve_mode;
 ~~~
@@ -77,6 +82,7 @@ TODO
 TODO
 
 ### `setup_mode`
+
 ~~~
   enumeration {HOUSE, NONE} setup_mode;
 ~~~
@@ -84,6 +90,7 @@ TODO
 TODO
 
 ### `bid_mode`
+
 ~~~
   enumeration {OFF, ON} bid_mode;
 ~~~
@@ -91,6 +98,7 @@ TODO
 TODO
 
 ### `last_mode_timer`
+
 ~~~
   int64 last_mode_timer;
 ~~~
@@ -98,6 +106,7 @@ TODO
 TODO
 
 ### `cool_ramp_low`
+
 ~~~
   double cool_ramp_low;
 ~~~
@@ -105,6 +114,7 @@ TODO
 TODO
 
 ### `cool_ramp_high`
+
 ~~~
   double cool_ramp_high;
 ~~~
@@ -112,6 +122,7 @@ TODO
 TODO
 
 ### `cool_range_low`
+
 ~~~
   double cool_range_low;
 ~~~
@@ -119,6 +130,7 @@ TODO
 TODO
 
 ### `cool_range_high`
+
 ~~~
   double cool_range_high;
 ~~~
@@ -126,6 +138,7 @@ TODO
 TODO
 
 ### `cool_set_base`
+
 ~~~
   double cool_set_base;
 ~~~
@@ -133,6 +146,7 @@ TODO
 TODO
 
 ### `cool_setpoint`
+
 ~~~
   double cool_setpoint;
 ~~~
@@ -140,6 +154,7 @@ TODO
 TODO
 
 ### `heat_ramp_low`
+
 ~~~
   double heat_ramp_low;
 ~~~
@@ -147,6 +162,7 @@ TODO
 TODO
 
 ### `heat_ramp_high`
+
 ~~~
   double heat_ramp_high;
 ~~~
@@ -154,6 +170,7 @@ TODO
 TODO
 
 ### `heat_range_low`
+
 ~~~
   double heat_range_low;
 ~~~
@@ -161,6 +178,7 @@ TODO
 TODO
 
 ### `heat_range_high`
+
 ~~~
   double heat_range_high;
 ~~~
@@ -168,6 +186,7 @@ TODO
 TODO
 
 ### `heat_set_base`
+
 ~~~
   double heat_set_base;
 ~~~
@@ -175,6 +194,7 @@ TODO
 TODO
 
 ### `heat_setpoint`
+
 ~~~
   double heat_setpoint;
 ~~~
@@ -182,6 +202,7 @@ TODO
 TODO
 
 ### `temperature_name`
+
 ~~~
   char32 temperature_name;
 ~~~
@@ -189,6 +210,7 @@ TODO
 TODO
 
 ### `cool_setpoint_name`
+
 ~~~
   char32 cool_setpoint_name;
 ~~~
@@ -196,6 +218,7 @@ TODO
 TODO
 
 ### `cool_demand_name`
+
 ~~~
   char32 cool_demand_name;
 ~~~
@@ -203,6 +226,7 @@ TODO
 TODO
 
 ### `heat_setpoint_name`
+
 ~~~
   char32 heat_setpoint_name;
 ~~~
@@ -210,6 +234,7 @@ TODO
 TODO
 
 ### `heat_demand_name`
+
 ~~~
   char32 heat_demand_name;
 ~~~
@@ -217,6 +242,7 @@ TODO
 TODO
 
 ### `load_name`
+
 ~~~
   char32 load_name;
 ~~~
@@ -224,6 +250,7 @@ TODO
 TODO
 
 ### `total_load_name`
+
 ~~~
   char32 total_load_name;
 ~~~
@@ -231,6 +258,7 @@ TODO
 TODO
 
 ### `deadband_name`
+
 ~~~
   char32 deadband_name;
 ~~~
@@ -238,6 +266,7 @@ TODO
 TODO
 
 ### `state_name`
+
 ~~~
   char32 state_name;
 ~~~
@@ -245,6 +274,7 @@ TODO
 TODO
 
 ### `market`
+
 ~~~
   object market;
 ~~~
@@ -252,6 +282,7 @@ TODO
 The market to bid into
 
 ### `market_period`
+
 ~~~
   double market_period;
 ~~~
@@ -259,6 +290,7 @@ The market to bid into
 TODO
 
 ### `bid_price`
+
 ~~~
   double bid_price;
 ~~~
@@ -266,6 +298,7 @@ TODO
 The bid price
 
 ### `bid_quant`
+
 ~~~
   double bid_quant;
 ~~~
@@ -273,6 +306,7 @@ The bid price
 The bid quantity
 
 ### `load`
+
 ~~~
   char32 load;
 ~~~
@@ -280,6 +314,7 @@ The bid quantity
 The current controlled load
 
 ### `total`
+
 ~~~
   char32 total;
 ~~~
@@ -287,6 +322,7 @@ The current controlled load
 The uncontrolled load (if any)
 
 ### `last_price`
+
 ~~~
   double last_price;
 ~~~
@@ -294,6 +330,7 @@ The uncontrolled load (if any)
 TODO
 
 ### `temperature`
+
 ~~~
   double temperature;
 ~~~
@@ -301,6 +338,7 @@ TODO
 TODO
 
 ### `cool_bid`
+
 ~~~
   double cool_bid;
 ~~~
@@ -308,6 +346,7 @@ TODO
 TODO
 
 ### `heat_bid`
+
 ~~~
   double heat_bid;
 ~~~
@@ -315,6 +354,7 @@ TODO
 TODO
 
 ### `cool_demand`
+
 ~~~
   double cool_demand;
 ~~~
@@ -322,6 +362,7 @@ TODO
 TODO
 
 ### `heat_demand`
+
 ~~~
   double heat_demand;
 ~~~
@@ -329,6 +370,7 @@ TODO
 TODO
 
 ### `price`
+
 ~~~
   double price;
 ~~~
@@ -336,6 +378,7 @@ TODO
 TODO
 
 ### `avg_price`
+
 ~~~
   double avg_price;
 ~~~
@@ -343,6 +386,7 @@ TODO
 TODO
 
 ### `stdev_price`
+
 ~~~
   double stdev_price;
 ~~~
@@ -398,5 +442,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Market]]
 
