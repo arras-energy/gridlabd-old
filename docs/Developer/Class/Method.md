@@ -1,8 +1,9 @@
-[[Developer/Module/Class/Method]] -- Method call implementation
+[[/Developer/Module/Class/Method]] -- Method call implementation
 
 # Synopsis
 
 GLM:
+
 ~~~
   class my_class {
     method my_method;
@@ -13,6 +14,7 @@ GLM:
 ~~~
 
 C++ Header:
+
 ~~~
   DECL_METHOD(my_class,my_method)
   class my_class : public gld_object {
@@ -22,6 +24,7 @@ C++ Header:
 ~~~
 
 C++ Implementation:
+
 ~~~
   #include "my_class.h"
   EXPORT_METHOD(my_class,my_method);
@@ -62,9 +65,10 @@ The following example illustrates how to add a method handler to a GridLAB-D cla
 ## Class Header File
 
 1. Add `DECL_METHOD(class,name)` to the header file.
-1. Add `GL_METHOD(class,name)` entry to the class declaration.
+2. Add `GL_METHOD(class,name)` entry to the class declaration.
 
 Example:
+
 ~~~
   DECL_METHOD(my_class,my_method)
   class my_class : public gld_object {
@@ -80,10 +84,11 @@ Example:
 ## Class Implementation file
 
 1. Add `EXPORT_METHOD(class,name);` to the implementation file.
-1. Add `PT_method, "name", get_name_offset(), PT_DESCRIPTION, "description",` to the `gl_publish_variable()` call.
-1. Implement `int class::name(char *buffer, size_t len) {...}`.
+2. Add `PT_method, "name", get_name_offset(), PT_DESCRIPTION, "description",` to the `gl_publish_variable()` call.
+3. Implement `int class::name(char *buffer, size_t len) {...}`.
 
 Example:
+
 ~~~
   #include "my_class.h"
   EXPORT_CREATE(my_class);
@@ -149,4 +154,4 @@ Example:
 
 # See also
 
-* [[Developer/Module/Class]]
+* [[/Developer/Module/Class]]

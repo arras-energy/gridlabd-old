@@ -1,7 +1,9 @@
 [[/Module/Generators]] -- Module generators
 
 # Synopsis
+
 GLM:
+
 ~~~
   module generators {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
@@ -17,6 +19,7 @@ TODO
 ## Globals
 
 ### `message_flags`
+
 ~~~
   message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
 ~~~
@@ -24,6 +27,7 @@ TODO
 Module message control flags
 
 ### `enable_subsecond_models`
+
 ~~~
   enable_subsecond_models "<string>";
 ~~~
@@ -31,6 +35,7 @@ Module message control flags
 Enable deltamode capabilities within the generators module
 
 ### `deltamode_timestep`
+
 ~~~
   deltamode_timestep "<decimal> ns";
 ~~~
@@ -38,6 +43,7 @@ Enable deltamode capabilities within the generators module
 Desired minimum timestep for deltamode-related simulations
 
 # See also
+
 * [[/Module/Generators/Diesel_dg]]
 * [[/Module/Generators/Windturb_dg]]
 * [[/Module/Generators/Power_electronics]]

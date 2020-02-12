@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Power_metrics]] -- Class power_metrics
 
 # Synopsis
+
 GLM:
+
 ~~~
   object power_metrics {
     SAIFI "<decimal>";
@@ -25,6 +27,7 @@ TODO
 ## Properties
 
 ### `SAIFI`
+
 ~~~
   double SAIFI;
 ~~~
@@ -32,6 +35,7 @@ TODO
 Displays annual SAIFI values as per IEEE 1366-2003
 
 ### `SAIFI_int`
+
 ~~~
   double SAIFI_int;
 ~~~
@@ -39,6 +43,7 @@ Displays annual SAIFI values as per IEEE 1366-2003
 Displays SAIFI values over the period specified by base_time_value as per IEEE 1366-2003
 
 ### `SAIDI`
+
 ~~~
   double SAIDI;
 ~~~
@@ -46,6 +51,7 @@ Displays SAIFI values over the period specified by base_time_value as per IEEE 1
 Displays annual SAIDI values as per IEEE 1366-2003
 
 ### `SAIDI_int`
+
 ~~~
   double SAIDI_int;
 ~~~
@@ -53,6 +59,7 @@ Displays annual SAIDI values as per IEEE 1366-2003
 Displays SAIDI values over the period specified by base_time_value as per IEEE 1366-2003
 
 ### `CAIDI`
+
 ~~~
   double CAIDI;
 ~~~
@@ -60,6 +67,7 @@ Displays SAIDI values over the period specified by base_time_value as per IEEE 1
 Displays annual CAIDI values as per IEEE 1366-2003
 
 ### `CAIDI_int`
+
 ~~~
   double CAIDI_int;
 ~~~
@@ -67,6 +75,7 @@ Displays annual CAIDI values as per IEEE 1366-2003
 Displays SAIDI values over the period specified by base_time_value as per IEEE 1366-2003
 
 ### `ASAI`
+
 ~~~
   double ASAI;
 ~~~
@@ -74,6 +83,7 @@ Displays SAIDI values over the period specified by base_time_value as per IEEE 1
 Displays annual AISI values as per IEEE 1366-2003
 
 ### `ASAI_int`
+
 ~~~
   double ASAI_int;
 ~~~
@@ -81,6 +91,7 @@ Displays annual AISI values as per IEEE 1366-2003
 Displays AISI values over the period specified by base_time_value as per IEEE 1366-2003
 
 ### `MAIFI`
+
 ~~~
   double MAIFI;
 ~~~
@@ -88,6 +99,7 @@ Displays AISI values over the period specified by base_time_value as per IEEE 13
 Displays annual MAIFI values as per IEEE 1366-2003
 
 ### `MAIFI_int`
+
 ~~~
   double MAIFI_int;
 ~~~
@@ -95,6 +107,7 @@ Displays annual MAIFI values as per IEEE 1366-2003
 Displays MAIFI values over the period specified by base_time_value as per IEEE 1366-2003
 
 ### `base_time_value`
+
 ~~~
   double base_time_value[s];
 ~~~
@@ -120,5 +133,6 @@ Time period over which _int values are claculated
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

@@ -1,6 +1,7 @@
 [[/Command/Compile]] -- Command line option to only Compile a model
 
 # Synopsis
+
 ~~~
 bash$ gridlabd -C filename [options ...]
 bash$ gridlabd --compile filename [options ...]

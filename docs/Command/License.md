@@ -1,11 +1,12 @@
-[[/Command/License]] -  Displays the license agreement
+[[/Command/License]] -- Displays the license agreement
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --license                                               
 ~~~
 
 # Description
 
- Displays the license agreement.
+Displays the license agreement.
 

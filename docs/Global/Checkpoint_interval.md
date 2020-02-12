@@ -1,11 +1,15 @@
 [[/Global/Checkpoint_interval]] -- Checkpoint interval
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set checkpoint_interval=0
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D checkpoint_interval=0
 bash$ gridlabd --define checkpoint_interval=0
