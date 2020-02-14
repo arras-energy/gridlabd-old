@@ -24,6 +24,44 @@ typedef struct stat STAT;
 
 SET_MYCONTEXT(DMC_LOAD)
 
+typedef struct s_unresolved {
+	OBJECT *by;
+	PROPERTYTYPE ptype;
+	void *ref;
+	int flags;
+	CLASS *oclass;
+	const char *id;
+	const char *file;
+	unsigned int line;
+	struct s_unresolved *next;
+} UNRESOLVED;
+
+typedef struct s_unresolved_func {
+	char1024 funcstr;
+	OBJECT *obj;
+	double *targ;
+	unsigned int line;
+	struct s_unresolved_func *next;
+} UNR_FUNC;
+
+typedef struct s_unresolved_static {
+	char256	member_name;
+	char256 class_name;
+	struct s_unresolved_static *next;
+} UNR_STATIC;
+
+UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags);
+STATUS load_resolve_all();
+STATUS load_set_index(OBJECT *obj, OBJECTNUM id);
+OBJECT *load_get_index(OBJECTNUM id);
+double load_latitude(char *buffer);
+double load_longitude(char *buffer);
+int time_value(char *, TIMESTAMP *t);
+int time_value_datetime(char *c, TIMESTAMP *t);
+int time_value_datetimezone(char *c, TIMESTAMP *t);
+int set_flags(OBJECT *obj, char *propval);
+void load_add_language(const char *name, bool (*parser)(const char*));
+
 static int include_fail = 0;
 static time_t modtime = 0;
 
@@ -39,9 +77,9 @@ static void syntax_error(const char *filename, const int linenum, const char *fo
 	va_start(ptr,format);
 	char msg[1024];
 	vsnprintf(msg,sizeof(msg),format,ptr);
-	GldException *exc = new GldException("%s(%d): %s",filename,linenum,msg);
+	GldException *error = new GldException("%s(%d): %s",filename,linenum,msg);
 	va_end(ptr);
-	exc->throw_now();
+	error->throw_now();
 }
 
 static char *format_object(OBJECT *obj)
@@ -8191,6 +8229,12 @@ STATUS loadall(const char *fname)
 	catch (const char *message)
 	{
 		syntax_error(filename,linenum,"%s",message);
+		return FAILED;
+	}
+	catch (GldException *error)
+	{
+		output_error_raw("%s",error->get_message());
+		delete error;
 		return FAILED;
 	}
 }
