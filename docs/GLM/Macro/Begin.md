@@ -1,7 +1,9 @@
 [[/GLM/Macro/Begin]] -- Macro to change language interpreter
 
 # Synopsis
+
 GLM
+
 ~~~
 #begin <language>
 <code>
@@ -23,6 +25,7 @@ The Python3 interpreter is linked to the GLM loader automatically when GridLAB-D
 # Example
 
 The following example outputs the current version information.
+
 ~~~
 #begin python
 gridlabd.output(gridlabd.version())
@@ -30,5 +33,6 @@ gridlabd.output(gridlabd.version())
 ~~~
 
 # See also
+
 * [[/GLM/Global/Python]]
 * [[/Module/Python]]

@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Load_tracker]] -- Class load_tracker
 
 # Synopsis
+
 GLM:
+
 ~~~
   object load_tracker {
     target "<string>";
@@ -23,6 +25,7 @@ TODO
 ## Properties
 
 ### `target`
+
 ~~~
   object target;
 ~~~
@@ -30,6 +33,7 @@ TODO
 Target object to track the load of
 
 ### `target_property`
+
 ~~~
   char256 target_property;
 ~~~
@@ -37,6 +41,7 @@ Target object to track the load of
 Property on the target object representing the load
 
 ### `operation`
+
 ~~~
   enumeration {ANGLE, MAGNITUDE, IMAGINARY, REAL} operation;
 ~~~
@@ -44,6 +49,7 @@ Property on the target object representing the load
 Operation to perform on complex property types
 
 ### `full_scale`
+
 ~~~
   double full_scale;
 ~~~
@@ -51,6 +57,7 @@ Operation to perform on complex property types
 Magnitude of the load at full load, used for feed-forward control
 
 ### `setpoint`
+
 ~~~
   double setpoint;
 ~~~
@@ -58,6 +65,7 @@ Magnitude of the load at full load, used for feed-forward control
 Load setpoint to track to
 
 ### `deadband`
+
 ~~~
   double deadband;
 ~~~
@@ -65,6 +73,7 @@ Load setpoint to track to
 Percentage deadband
 
 ### `damping`
+
 ~~~
   double damping;
 ~~~
@@ -72,6 +81,7 @@ Percentage deadband
 Load setpoint to track to
 
 ### `output`
+
 ~~~
   double output;
 ~~~
@@ -79,6 +89,7 @@ Load setpoint to track to
 Output scaling value
 
 ### `feedback`
+
 ~~~
   double feedback;
 ~~~
@@ -101,5 +112,6 @@ The feedback signal, for reference purposes
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

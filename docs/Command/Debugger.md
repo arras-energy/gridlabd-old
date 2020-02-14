@@ -1,11 +1,12 @@
-[[/Command/Debugger]] -  Enables the debugger
+[[/Command/Debugger]] -- Enables the debugger
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --debugger                                              
 ~~~
 
 # Description
 
- Enables the debugger.
+Enables the debugger.
 

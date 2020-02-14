@@ -1,26 +1,30 @@
 [[/Module/Powerflow/Pole_configuration]] -- Pole configuration library
 
 # Synopsis
+
 GLM:
+
 ~~~
   object pole_configuration {
-    pole_status "OK";
-    tilt_angle "+0 rad";
-    tilt_direction "+0 deg";
-    weather "";
-    configuration "";
-    equipment_area "+0 sf";
-    equipment_height "+0 ft";
-    pole_stress "+0 pu";
-    pole_stress_polynomial_a "+0 ft*lb";
-    pole_stress_polynomial_b "+0 ft*lb";
-    pole_stress_polynomial_c "+0 ft*lb";
-    susceptibility "+0 pu*s/m";
-    total_moment "+0 ft*lb";
-    resisting_moment "+0 ft*lb";
-    critical_wind_speed "+0 m/s";
-    install_year "0";
-    repair_time "+0 h";
+    pole type "WOOD";
+    design_ice_thickness 0.25; 
+    desing_wind_loading 4.0;
+    design_temperature 15.0; 
+    overload_factor_vertical 1.9; 
+    overload_factor_transverse_general 1.75;
+    overload_factor_transverse_crossing 2.2;
+    overload_factor_transverse_wire 1.65;
+    overload_factor_longitudinal_general 1.0;
+    overload_factor_longitudinal_deadend 1.3;
+    strength_factor_250b_wood 0.85;
+    strength_factor_250b_support 1.0;
+    pole_length 45.0;
+    pole_depth 4.5;
+    ground_diameter 32.5/3.14; 
+    top_diameter 19/3.14;
+    fiber_strength 8000;
+    repair_time 0;
+    treatment_method "CRESOTE";
   }
 ~~~
 
@@ -31,6 +35,7 @@ The `pole_configuration` object contains information about pole designs, and is 
 ## Properties
 
 ### `pole_type`
+
 ~~~
   enumeration {STEEL=1, CONCRETE=2, WOOD=0} pole_type; 
 ~~~
@@ -38,6 +43,7 @@ The `pole_configuration` object contains information about pole designs, and is 
 The material from which pole is made.
 
 ### `design_ice_thickness`
+
 ~~~
   double design_ice_thickness[in]; 
 ~~~
@@ -45,6 +51,7 @@ The material from which pole is made.
 The design ice thickness on conductors.
 
 ### `design_wind_loading`
+
 ~~~
   double design_wind_loading[psi]; 
 ~~~
@@ -52,6 +59,7 @@ The design ice thickness on conductors.
 The design wind loading of the pole.
 
 ### `design_temperature`
+
 ~~~
   double design_temperature[degF]; 
 ~~~
@@ -59,6 +67,7 @@ The design wind loading of the pole.
 The design temperature of the pole.
 
 ### `overload_factor_vertical`
+
 ~~~
   double overload_factor_vertical; 
 ~~~
@@ -66,6 +75,7 @@ The design temperature of the pole.
 The vertical design overload factor.
 
 ### `overload_factor_transverse_general`
+
 ~~~
   double overload_factor_transverse_general; 
 ~~~
@@ -73,6 +83,7 @@ The vertical design overload factor.
 The general transverse design overload factor.
 
 ### `overload_factor_transverse_crossing`
+
 ~~~
   double overload_factor_transverse_crossing; 
 ~~~
@@ -80,6 +91,7 @@ The general transverse design overload factor.
 The transverse crossing design overload factor.
 
 ### `overload_factor_transverse_wire`
+
 ~~~
   double overload_factor_transverse_wire; 
 ~~~
@@ -87,6 +99,7 @@ The transverse crossing design overload factor.
 The transverse wire design overload factor.
 
 ### `overload_factor_longitudinal_general`
+
 ~~~
   double overload_factor_longitudinal_general; 
 ~~~
@@ -94,6 +107,7 @@ The transverse wire design overload factor.
 The longitudinal general design overload factor.
 
 ### `overload_factor_longitudinal_deadend`
+
 ~~~
   double overload_factor_longitudinal_deadend; 
 ~~~
@@ -101,6 +115,7 @@ The longitudinal general design overload factor.
 The longitudinal deadend design overload factor.
 
 ### `strength_factor_250b_wood`
+
 ~~~
   double strength_factor_250b_wood; 
 ~~~
@@ -108,6 +123,7 @@ The longitudinal deadend design overload factor.
 The Rule 250B wood structure design strength factor.
 
 ### `strength_factor_250b_support`
+
 ~~~
   double strength_factor_250b_support; 
 ~~~
@@ -115,6 +131,7 @@ The Rule 250B wood structure design strength factor.
 The Rule 250B support hardware design strength factor.
 
 ### `strength_factor_250c_wood`
+
 ~~~
   double strength_factor_250c_wood; 
 ~~~
@@ -122,6 +139,7 @@ The Rule 250B support hardware design strength factor.
 The Rule 250C wood structure design strength factor.
 
 ### `strength_factor_250c_support`
+
 ~~~
   double strength_factor_250c_support;
 ~~~
@@ -129,6 +147,7 @@ The Rule 250C wood structure design strength factor.
 The Rule 250C support hardware design strength factor.
 
 ### `pole_length`
+
 ~~~
   double pole_length[ft]; 
 ~~~
@@ -136,6 +155,7 @@ The Rule 250C support hardware design strength factor.
 The total length of pole including underground portion.
 
 ### `pole_depth`
+
 ~~~
   double pole_depth[ft]; 
 ~~~
@@ -143,6 +163,7 @@ The total length of pole including underground portion.
 The depth of pole underground.
 
 ### `ground_diameter`
+
 ~~~
   double ground_diameter[in]; 
 ~~~
@@ -150,6 +171,7 @@ The depth of pole underground.
 The diameter of pole at ground level.
 
 ### `top_diameter`
+
 ~~~
   double top_diameter[in]; 
 ~~~
@@ -157,6 +179,7 @@ The diameter of pole at ground level.
 The diameter of pole at top.
 
 ### `fiber_strength`
+
 ~~~
   double fiber_strength[psi]; 
 ~~~
@@ -164,6 +187,7 @@ The diameter of pole at top.
 The pole structural strength.
 
 ### `repair_time`
+
 ~~~
   double repair_time[h]; 
 ~~~
@@ -171,6 +195,7 @@ The pole structural strength.
 The nominal pole repair time.
 
 ### `treatment_method`
+
 ~~~
   enumeration {NONE, CREOSOTE, PENTA, CCA} treatment_method; 
 ~~~

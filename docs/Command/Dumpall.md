@@ -1,11 +1,12 @@
-[[/Command/Dumpall]] -  Dumps the global variable list
+[[/Command/Dumpall]] -- Dumps the global variable list
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --dumpall                                               
 ~~~
 
 # Description
 
- Dumps the global variable list.
+Dumps the global variable list.
 

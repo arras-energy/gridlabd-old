@@ -1,11 +1,15 @@
 [[/Module/Powerflow/Global/Warning_voltageangle]] -- Module powerflow global variable warning_voltageangle
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define warning_voltageangle=<value>
+bash$ gridlabd -D|--define warning_voltageangle=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set warning_voltageangle=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Powerflow]]
