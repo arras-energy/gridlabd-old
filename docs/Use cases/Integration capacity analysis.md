@@ -11,22 +11,22 @@ The ICA quantifies the potential DER generation which can interconnect without v
 
 *ICA System Criteria*
 
- - Thermal Loading:  maximum load or generation which can be connected to a node without exceeding the thermal value of any equipment in the feeder. 
+- Thermal Loading:  maximum load or generation which can be connected to a node without exceeding the thermal value of any equipment in the feeder. 
   - Iterative power flows are used to determine the maximum value which can be connected at each node before a thermal overload occurs. 
  
- - Steady State Voltage (SSV): maximum load or generation which can be connected to a node without moving the voltage at any part of feeder outside the range of +/-5% of nominal (For 120V, the range would be 114V to 126V).
+- Steady State Voltage (SSV): maximum load or generation which can be connected to a node without moving the voltage at any part of feeder outside the range of +/-5% of nominal (For 120V, the range would be 114V to 126V).
   - Iterative power flows are used to determine the maximum value which can be connected at each node before the voltage deviates from the range 
 
- - Protection systems:  maximum load or generation which can be connected to a node without reducing the protection device’s ability to detect faults (reduction of reach).
+- Protection systems:  maximum load or generation which can be connected to a node without reducing the protection device’s ability to detect faults (reduction of reach).
   - Perform a fault flow analysis to evaluate the reduction in fault current flow at protection sensing devices due to DER interconnected downstream from the protection sensing device. Protection limit is when to when DER reduces fault at sensing relay to less than 2.3*Minimum Trip Setting
 
 - Voltage Fluctuation & Power Quality:  maximum load or generation which can be connected to a node without changing the voltage by more than 3%.
   - Simulate the DER turning on and turning off and compare the voltages before and after to determine change in voltage and % change. 
 
- - Operational Flexibility: maximum load or generation which can be connected to a node without exceeding loading beyond an automated SCADA switching devices.  Both values must be evaluated:
+- Operational Flexibility: maximum load or generation which can be connected to a node without exceeding loading beyond an automated SCADA switching devices.  Both values must be evaluated:
 	1. ICA values not accounting for Operational Flexibility-reverse flow up to substation low-side
 	2. ICA values accounting for Operational Flexibility-no reverse flow up to substation low-side
- - Determine the load connected beyond the automated SCADA switching device, the ICA value considering operational flexibility is limited to the amount of load beyond the SCADA switching device.  
+  - Determine the load connected beyond the automated SCADA switching device, the ICA value considering operational flexibility is limited to the amount of load beyond the SCADA switching device.  
 
 # Methodology 
 -Define feeder network 
@@ -39,7 +39,9 @@ The ICA quantifies the potential DER generation which can interconnect without v
 | ------------- |:-------------:|
 | Steady State Voltage      | +/- 5% nominal |
 | Voltage Fluctuation    | <3% △    |
-| Thermal Loading  |   <Equipment Rating    || Protection  |   <2.3 Trip Setting  ||Operational Flexibility  |   <loading at SCADA switching devices  |
+| Thermal Loading  |   <Equipment Rating    |
+| Protection  |   <2.3 Trip Setting  |
+|Operational Flexibility  |   <loading at SCADA switching devices  |
 
 
 # Data Inputs 
