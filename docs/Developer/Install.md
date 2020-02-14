@@ -1,9 +1,11 @@
 [[/Developer/Install]] -- Installation procedure
 
 # Synopsis
-Shell:
+
+Command line:
+
 ~~~
-  bash$ ./install.sh [<install-options>] [<configure-options>]
+bash$ ./install.sh [<install-options>] [<configure-options>]
 ~~~
 
 # Description
@@ -25,8 +27,9 @@ Prior to building and installing GridLAB-D you will need to prepare your system.
 ### Install `curl`
 
 You must first install `curl` on your system, if you have not already done so. To verify whether you have `curl` installed, open a command shell or terminal and type the command:
+
 ~~~
-  bash$ curl --version
+bash$ curl --version
 ~~~
 
 The exact command to install `curl` will depend on your hardware and software platform.  Generally, Mac OS X users should use [`brew`](https://brew.sh).  Linux users should use `yum`, `apt`, or whichever package installer is available.
@@ -34,31 +37,36 @@ The exact command to install `curl` will depend on your hardware and software pl
 ## Automated installation
 
 An automated developer's installer is available for GridLAB-D.  To run this installer, type
+
 ~~~
-  bash$ curl -L http://code.gridlabd.us/<branch>/install.sh | bash
+bash$ curl -L http://code.gridlabd.us/<branch>/install.sh | bash
 ~~~
 
 ### Manual installation
 
 Manual installation is discouraged because the process is complex, highly error-prone, and varies widely from one platform to another.  However, it is necessary on platforms that are not supported by the automated installation script.  The general approach is roughly as follows, keeping in mind that the specific will vary from one system to another, and you may need to install certain tools and libraries to be successful.
+
 ~~~
-  bash$ git clone https://github.com/slacgismo/gridlabd gridlabd
-  bash$ cd gridlabd
-  bash$ autoreconf -isf
-  bash$ ./configure
-  bash$ make install
-  bash$ export PATH=/usr/local/bin:$PATH
-  bash$ export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
-  bash$ gridlabd validate
+bash$ git clone https://github.com/slacgismo/gridlabd gridlabd
+bash$ cd gridlabd
+bash$ autoreconf -isf
+bash$ ./configure
+bash$ make install
+bash$ export PATH=/usr/local/bin:$PATH
+bash$ export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
+bash$ gridlabd validate
 ~~~
 
 You can manually install to the system folders, in which case all users will have access to the install, the user folders in which case only the current user will have access to the install, or to a working folder, which is typical for development installations. By default, the build is configured to install the `/usr/local/opt/gridlabd` and link the installed version to `/usr/local`. The linking process is managed by the `gridlabd version` subcommand, as described in the [[/Subcommand/Version]] page. To change this, use the `--prefix=<location>` option on the `./configure` command, e.g., to install a user-only copy:
+
 ~~~
-  bash$ ./configure --prefix=$HOME/gridlabd
+bash$ ./configure --prefix=$HOME/gridlabd
 ~~~
+
 or to install a development copy:
+
 ~~~
-  bash$ ./configure --prefix=$PWD/install
+bash$ ./configure --prefix=$PWD/install
 ~~~
 
 ## Options

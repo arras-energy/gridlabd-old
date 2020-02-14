@@ -1,11 +1,12 @@
-[[/Command/Copyright]] -  Displays copyright
+[[/Command/Copyright]] -- Displays copyright
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --copyright                                             
 ~~~
 
 # Description
 
- Displays copyright.
+Displays copyright.
 

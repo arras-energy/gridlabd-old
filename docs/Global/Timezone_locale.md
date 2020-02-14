@@ -1,11 +1,15 @@
 [[/Global/Timezone_locale]] -- Timezone specified by the clock directive
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set timezone_locale=UTC0
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D timezone_locale=UTC0
 bash$ gridlabd --define timezone_locale=UTC0

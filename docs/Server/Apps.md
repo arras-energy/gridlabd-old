@@ -1,7 +1,9 @@
 [[/Server/Apps]] -- Server request to run applications
 
 # Synopsis
+
 HTTP:
+
 ~~~
     GET /<appname>/<option>
 ~~~
@@ -13,6 +15,7 @@ Server-side applications may be installed for a server and called by clients by 
 # Example
 
 The following example run the python script `hello.py`
+
 ~~~
   GET /python/hello.py
 ~~~
@@ -20,6 +23,7 @@ The following example run the python script `hello.py`
 The following applications are currently supported if they are installed on the server:
 
 Server applications
+
 ~~~
 | Application | App Name | Script Extension |
 | ----------- | -------- | ---------------- |

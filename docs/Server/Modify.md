@@ -1,7 +1,9 @@
 [[/Server/Modify]] -- Server model modify command
 
 # Synopsis
+
 HTTP:
+
 ~~~~
     GET /modify/<object-name>.<property-name>=<value>;...
 ~~~~
