@@ -6,23 +6,25 @@ GLM:
 
 ~~~
   object pole_configuration {
-    pole_status "OK";
-    tilt_angle "+0 rad";
-    tilt_direction "+0 deg";
-    weather "";
-    configuration "";
-    equipment_area "+0 sf";
-    equipment_height "+0 ft";
-    pole_stress "+0 pu";
-    pole_stress_polynomial_a "+0 ft*lb";
-    pole_stress_polynomial_b "+0 ft*lb";
-    pole_stress_polynomial_c "+0 ft*lb";
-    susceptibility "+0 pu*s/m";
-    total_moment "+0 ft*lb";
-    resisting_moment "+0 ft*lb";
-    critical_wind_speed "+0 m/s";
-    install_year "0";
-    repair_time "+0 h";
+    pole type "WOOD";
+    design_ice_thickness 0.25; 
+    desing_wind_loading 4.0;
+    design_temperature 15.0; 
+    overload_factor_vertical 1.9; 
+    overload_factor_transverse_general 1.75;
+    overload_factor_transverse_crossing 2.2;
+    overload_factor_transverse_wire 1.65;
+    overload_factor_longitudinal_general 1.0;
+    overload_factor_longitudinal_deadend 1.3;
+    strength_factor_250b_wood 0.85;
+    strength_factor_250b_support 1.0;
+    pole_length 45.0;
+    pole_depth 4.5;
+    ground_diameter 32.5/3.14; 
+    top_diameter 19/3.14;
+    fiber_strength 8000;
+    repair_time 0;
+    treatment_method "CRESOTE";
   }
 ~~~
 

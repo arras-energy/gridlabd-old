@@ -767,6 +767,9 @@ GLOBAL set global_glm_save_options INIT(GSO_LEGACY);	/**< GLM save options */
 /* Variable: global_filesave_options */
 GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
+/* Variable: global_datadir */
+GLOBAL char1024 global_datadir INIT("");
+
 #undef GLOBAL
 #undef INIT
 
