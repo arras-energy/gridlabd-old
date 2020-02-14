@@ -39,8 +39,9 @@ static void syntax_error(const char *filename, const int linenum, const char *fo
 	va_start(ptr,format);
 	char msg[1024];
 	vsnprintf(msg,sizeof(msg),format,ptr);
-	output_error_raw("%s(%d): %s",filename,linenum,msg);
+	GldException *exc = new GldException("%s(%d): %s",filename,linenum,msg);
 	va_end(ptr);
+	exc->throw_now();
 }
 
 static char *format_object(OBJECT *obj)
@@ -8164,12 +8165,6 @@ STATUS loadall(const char *fname)
 		{
 			load_status = loadall_glm_roll(filename);
 		}
-#ifdef HAVE_XERCES
-		else if(strcmp(ext, ".xml")==0)
-		{
-			load_status = loadall_xml(filename);
-		}
-#endif
 		else
 		{
 			output_error("%s: unable to load unknown file type", filename, ext);
@@ -8184,14 +8179,6 @@ STATUS loadall(const char *fname)
 				return FAILED;
 			}
 		}
-
-		/* handle new objects */
-	//	new_obj_count = object_get_count();
-	//	if((load_status == FAILED) && (old_obj_count < new_obj_count)){
-	//		for(i = old_obj_count+1; i <= new_obj_count; ++i){
-	//			object_remove_by_id(i);
-	//		}
-	//	}
 
 		calculate_trl();
 

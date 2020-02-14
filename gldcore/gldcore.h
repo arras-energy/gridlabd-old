@@ -129,7 +129,6 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include "linkage.h"
 #include "list.h"
 #include "load.h"
-#include "load_xml.h"
 #include "loadshape.h"
 #include "local.h"
 #include "lock.h"

@@ -17,8 +17,6 @@
 #include "globals.h"
 #include "module.h"
 
-#include "load_xml.h"
-
 #define UR_NONE  0x00 /* no flags */
 #define UR_RANKS 0x01 /* reference has ranking impact */
 #define UR_TRANSFORM 0x02 /* reference is via a transform */
