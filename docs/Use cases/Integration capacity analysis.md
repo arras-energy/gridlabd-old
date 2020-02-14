@@ -6,10 +6,10 @@ In California, Investor Owned Utilities (IOUs) are required to complete system-w
 
 # Introduction
 
-The ICA quantifies the potential DER generation which can interconnect without violating thermal, power quality/voltage, protection, and safety/reliability criteria throughout the distribution system. The DER interconnection use case is required to be completed using iterative power flow modeling system-wide. *The iterative methodology requires varying DER generation level at each node, independently, until a system criteria violation occurs somewhere within a feeder.* The ICA value for that node is then the minimum power injection associated with any violation criteria. All three phase nodes and line sections in radial distribution feeders are to be evaluated.  ICA must be conducted assuming "technology agnostic" hourly generation profiles with multiple configuration scenarios. Utilities have successfully implemented technology agnostic ICA with 576 hourly profile and accounting for operation of voltage regulators and pre-existing conditions.
+The ICA quantifies the potential DER generation which can interconnect without violating thermal, power quality/voltage, protection, and safety/reliability criteria throughout the distribution system. The DER interconnection use case is required to be completed using iterative power flow modeling system-wide. **The iterative methodology requires varying DER generation level at each node, independently, until a system criteria violation occurs somewhere within a feeder.** The ICA value for that node is then the minimum power injection associated with any violation criteria. All three phase nodes and line sections in radial distribution feeders are to be evaluated.  ICA must be conducted assuming "technology agnostic" hourly generation profiles with multiple configuration scenarios. Utilities have successfully implemented technology agnostic ICA with 576 hourly profile and accounting for operation of voltage regulators and pre-existing conditions.
 
 
-*ICA System Criteria*
+**ICA System Criteria**
 
 - Thermal Loading:  maximum load or generation which can be connected to a node without exceeding the thermal value of any equipment in the feeder. 
   - Iterative power flows are used to determine the maximum value which can be connected at each node before a thermal overload occurs. 
