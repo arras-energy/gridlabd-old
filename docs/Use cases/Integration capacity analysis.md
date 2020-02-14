@@ -23,10 +23,11 @@ The ICA quantifies the potential DER generation which can interconnect without v
 - Voltage Fluctuation & Power Quality:  maximum load or generation which can be connected to a node without changing the voltage by more than 3%.
   - Simulate the DER turning on and turning off and compare the voltages before and after to determine change in voltage and % change. 
 
-- Operational Flexibility: maximum load or generation which can be connected to a node without exceeding loading beyond an automated SCADA switching devices.  Both values must be evaluated:
+- Operational Flexibility: maximum load or generation which can be connected to a node without exceeding loading beyond an automated SCADA switching devices.  
+  - Determine the load connected beyond the automated SCADA switching device, the ICA value considering operational flexibility is limited to the amount of load beyond the SCADA switching device.  
+  Both operational flexibility values must be evaluated:
 	1. ICA values not accounting for Operational Flexibility-reverse flow up to substation low-side
 	2. ICA values accounting for Operational Flexibility-no reverse flow up to substation low-side
-  - Determine the load connected beyond the automated SCADA switching device, the ICA value considering operational flexibility is limited to the amount of load beyond the SCADA switching device.  
 
 # Methodology 
 - Define feeder network 
@@ -63,11 +64,11 @@ The ICA quantifies the potential DER generation which can interconnect without v
 
 # Results
 The ICA value must be published associated with the limiting system criteria, along with: 
-- Circuit ID
-- Circuit Load Profile
-- Section ID
-- Voltage (kV)
-- Substation ID
+- Circuit ID;
+- Circuit Load Profile;
+- Section ID;
+- Voltage (kV);
+- Substation ID;
 - Substation Load Profile System; 
 - Customer class proportions on circuit;
 - Existing generation (MW);
