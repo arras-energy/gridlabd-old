@@ -11,19 +11,19 @@ The ICA quantifies the potential DER generation which can interconnect without v
 
 *ICA System Criteria*
 
- -Thermal Loading:  maximum load or generation which can be connected to a node without exceeding the thermal value of any equipment in the feeder. 
-  -Iterative power flows are used to determine the maximum value which can be connected at each node before a thermal overload occurs. 
+ - Thermal Loading:  maximum load or generation which can be connected to a node without exceeding the thermal value of any equipment in the feeder. 
+  - Iterative power flows are used to determine the maximum value which can be connected at each node before a thermal overload occurs. 
  
- -Steady State Voltage (SSV): maximum load or generation which can be connected to a node without moving the voltage at any part of feeder outside the range of +/-5% of nominal (For 120V, the range would be 114V to 126V).
-  -Iterative power flows are used to determine the maximum value which can be connected at each node before the voltage deviates from the range 
+ - Steady State Voltage (SSV): maximum load or generation which can be connected to a node without moving the voltage at any part of feeder outside the range of +/-5% of nominal (For 120V, the range would be 114V to 126V).
+  - Iterative power flows are used to determine the maximum value which can be connected at each node before the voltage deviates from the range 
 
- -Protection systems:  maximum load or generation which can be connected to a node without reducing the protection device’s ability to detect faults (reduction of reach).
-  -Perform a fault flow analysis to evaluate the reduction in fault current flow at protection sensing devices due to DER interconnected downstream from the protection sensing device. Protection limit is when to when DER reduces fault at sensing relay to less than 2.3*Minimum Trip Setting
+ - Protection systems:  maximum load or generation which can be connected to a node without reducing the protection device’s ability to detect faults (reduction of reach).
+  - Perform a fault flow analysis to evaluate the reduction in fault current flow at protection sensing devices due to DER interconnected downstream from the protection sensing device. Protection limit is when to when DER reduces fault at sensing relay to less than 2.3*Minimum Trip Setting
 
--Voltage Fluctuation & Power Quality:  maximum load or generation which can be connected to a node without changing the voltage by more than 3%.
-  -Simulate the DER turning on and turning off and compare the voltages before and after to determine change in voltage and % change. 
+- Voltage Fluctuation & Power Quality:  maximum load or generation which can be connected to a node without changing the voltage by more than 3%.
+  - Simulate the DER turning on and turning off and compare the voltages before and after to determine change in voltage and % change. 
 
- -Operational Flexibility: maximum load or generation which can be connected to a node without exceeding loading beyond an automated SCADA switching devices.  Both values must be evaluated:
+ - Operational Flexibility: maximum load or generation which can be connected to a node without exceeding loading beyond an automated SCADA switching devices.  Both values must be evaluated:
 	1. ICA values not accounting for Operational Flexibility-reverse flow up to substation low-side
 	2. ICA values accounting for Operational Flexibility-no reverse flow up to substation low-side
  - Determine the load connected beyond the automated SCADA switching device, the ICA value considering operational flexibility is limited to the amount of load beyond the SCADA switching device.  
@@ -44,15 +44,15 @@ The ICA quantifies the potential DER generation which can interconnect without v
 
 # Data Inputs 
 - Feeder network data including all equipment, settings, and configuration information
--Electrical characteristics such as thermal ratings for all 3-phase conductors in the feeder, resistance of each 3-phase line section, line-neutral voltages at each node, current, and fault duties. 
+- Electrical characteristics such as thermal ratings for all 3-phase conductors in the feeder, resistance of each 3-phase line section, line-neutral voltages at each node, current, and fault duties. 
 - 576 hourly profiles (monthly min and max day) based on localized load shapes
--Sequence of power injection or load quantities at node
+- Sequence of power injection or load quantities at node
 
 # Configurations
- - Node reduction, minimizing the number of nodes analyzed, and limitation category reduction for strong feeders are acceptable methods for computational efficiency
+- Node reduction, minimizing the number of nodes analyzed, and limitation category reduction for strong feeders are acceptable methods for computational efficiency
 - Voltage regulating devices must be allowed to float in power flow simulations
 - Pre-existing conditions should only be included when adding DER degrades the pre-existing condition, but ICA values should not reflect this limit if adding DER improves pre-existing condition
--ICA values should be assessed for the following scenarios for each node considered:
+- ICA values should be assessed for the following scenarios for each node considered:
   - Uniform Generation
   - Uniform Load
   - Fixed PV 
@@ -61,15 +61,16 @@ The ICA quantifies the potential DER generation which can interconnect without v
 
 # Results
 The ICA value must be published associated with the limiting system criteria, along with: 
--Circuit ID
-- Circuit Load Profile- Section ID
+- Circuit ID
+- Circuit Load Profile
+- Section ID
 - Voltage (kV)
 - Substation ID
 - Substation Load Profile System; 
--Customer class proportions on circuit;
+- Customer class proportions on circuit;
 - Existing generation (MW);
 - Queued generation (MW); 
--Total generation (MW); 
--Hosting capacity for uniform generation (MW); 
--Hosting capacity for uniform load (MW); 
--Hosting capacity for generic PV system (MW). 
+- Total generation (MW); 
+- Hosting capacity for uniform generation (MW); 
+- Hosting capacity for uniform load (MW); 
+- Hosting capacity for generic PV system (MW). 
