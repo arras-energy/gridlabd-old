@@ -12,10 +12,10 @@ The ICA quantifies the potential DER generation which can interconnect without v
 **ICA System Criteria**
 
 - Thermal Loading:  maximum load or generation which can be connected to a node without exceeding the thermal value of any equipment in the feeder. 
-  - Iterative power flows are used to determine the maximum value which can be connected at each node before a thermal overload occurs. 
+  - Iterative power flows  to determine the maximum value which can be connected at each node before a thermal overload occurs. 
  
 - Steady State Voltage (SSV): maximum load or generation which can be connected to a node without moving the voltage at any part of feeder outside the range of +/-5% of nominal (For 120V, the range would be 114V to 126V).
-  - Iterative power flows are used to determine the maximum value which can be connected at each node before the voltage deviates from the range 
+  - Iterative power flows to determine the maximum value which can be connected at each node before the voltage deviates from the range 
 
 - Protection systems:  maximum load or generation which can be connected to a node without reducing the protection device’s ability to detect faults (reduction of reach).
   - Perform a fault flow analysis to evaluate the reduction in fault current flow at protection sensing devices due to DER interconnected downstream from the protection sensing device. Protection limit is when to when DER reduces fault at sensing relay to less than 2.3*Minimum Trip Setting
