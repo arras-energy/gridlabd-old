@@ -29,10 +29,10 @@ The ICA quantifies the potential DER generation which can interconnect without v
   - Determine the load connected beyond the automated SCADA switching device, the ICA value considering operational flexibility is limited to the amount of load beyond the SCADA switching device.  
 
 # Methodology 
--Define feeder network 
--Identify all three phase nodes and relevant line sections in radial distribution feeders (circuits) 
--Iterate analysis over every node with interconnection potential
--Vary generation or load level at each node until violations occur in an ICA category
+- Define feeder network 
+- Identify all three phase nodes and relevant line sections in radial distribution feeders (circuits) 
+- Iterate analysis over every node with interconnection potential
+- Vary generation or load level at each node until violations occur in an ICA category
 
 
 | Category    | Violation Limit  |
