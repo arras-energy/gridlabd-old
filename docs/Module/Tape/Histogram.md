@@ -1,7 +1,9 @@
 [[/Module/Tape/Histogram]] -- Class histogram
 
 # Synopsis
+
 GLM:
+
 ~~~
   object histogram {
     filename "<string>";
@@ -26,6 +28,7 @@ TODO
 ## Properties
 
 ### `filename`
+
 ~~~
   char1024 filename;
 ~~~
@@ -33,6 +36,7 @@ TODO
 The name of the file to write
 
 ### `filetype`
+
 ~~~
   char8 filetype;
 ~~~
@@ -40,6 +44,7 @@ The name of the file to write
 The format to output a histogram in
 
 ### `mode`
+
 ~~~
   char32 mode;
 ~~~
@@ -47,6 +52,7 @@ The format to output a histogram in
 The mode of file output
 
 ### `group`
+
 ~~~
   char1024 group;
 ~~~
@@ -54,6 +60,7 @@ The mode of file output
 The GridLAB-D group expression to use for this histogram
 
 ### `bins`
+
 ~~~
   char1024 bins;
 ~~~
@@ -61,6 +68,7 @@ The GridLAB-D group expression to use for this histogram
 The specific bin values to use
 
 ### `property`
+
 ~~~
   char256 property;
 ~~~
@@ -68,6 +76,7 @@ The specific bin values to use
 The property to sample
 
 ### `min`
+
 ~~~
   double min;
 ~~~
@@ -75,6 +84,7 @@ The property to sample
 The minimum value of the auto-sized bins to use
 
 ### `max`
+
 ~~~
   double max;
 ~~~
@@ -82,6 +92,7 @@ The minimum value of the auto-sized bins to use
 The maximum value of the auto-sized bins to use
 
 ### `samplerate`
+
 ~~~
   double samplerate[s];
 ~~~
@@ -89,6 +100,7 @@ The maximum value of the auto-sized bins to use
 The rate at which samples are read
 
 ### `countrate`
+
 ~~~
   double countrate[s];
 ~~~
@@ -96,6 +108,7 @@ The rate at which samples are read
 The reate at which bins are counted and written
 
 ### `bin_count`
+
 ~~~
   int32 bin_count;
 ~~~
@@ -103,6 +116,7 @@ The reate at which bins are counted and written
 The number of auto-sized bins to use
 
 ### `limit`
+
 ~~~
   int32 limit;
 ~~~
@@ -129,5 +143,6 @@ The number of samples to write
 ~~~
 
 # See also
+
 * [[/Module/Tape]]
 

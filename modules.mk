@@ -4,6 +4,7 @@ include climate/Makefile.mk
 include commercial/Makefile.mk
 include generators/Makefile.mk
 include influxdb/Makefile.mk
+include industrial/Makefile.mk
 include market/Makefile.mk
 include powerflow/Makefile.mk
 include reliability/Makefile.mk

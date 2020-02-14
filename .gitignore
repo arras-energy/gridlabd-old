@@ -124,3 +124,6 @@ gldcore/link/python/example.png
 .*
 *.log
 object_profile.txt
+docs/gridlabd.aux
+docs/gridlabd.pdf
+docs/version.tex

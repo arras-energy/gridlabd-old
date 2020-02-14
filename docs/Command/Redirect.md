@@ -1,11 +1,12 @@
-[[/Command/Redirect]] -  Redirects an output to stream to a file (or null)
+[[/Command/Redirect]] -- Redirects an output to stream to a file (or null)
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --redirect <stream>[:<file>]                            
 ~~~
 
 # Description
 
- Redirects an output to stream to a file (or null).
+Redirects an output to stream to a file (or null).
 

@@ -1,11 +1,12 @@
-[[/Command/Pcontrol]] -  Enters process controller
+[[/Command/Pcontrol]] -- Enters process controller
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --pcontrol                                              
 ~~~
 
 # Description
 
- Enters process controller.
+Enters process controller.
 

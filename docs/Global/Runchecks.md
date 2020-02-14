@@ -1,11 +1,15 @@
 [[/Global/Runchecks]] -- Runchecks enable flag
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set runchecks=FALSE
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D runchecks=FALSE
 bash$ gridlabd --define runchecks=FALSE

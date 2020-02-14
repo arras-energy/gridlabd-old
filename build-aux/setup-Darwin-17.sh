@@ -20,3 +20,7 @@ pip3 install matplotlib pandas numpy
 # influxdb
 brew install influxdb
 brew services start influxdb
+
+brew install pandoc
+brew cask install basictex
+
