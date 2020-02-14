@@ -3,11 +3,13 @@
 # Synopsis
 
 AWS Login:
+
 ~~~
 user@localhost$ gridlabd aws configure
 ~~~
 
 EC2:
+
 ~~~
 user@localhost$ gridlabd ec2 create-image [ec2-createimage-options]
 user@localhost$ gridlabd ec2 copy-image [ec2-copyimage-options]
@@ -20,6 +22,7 @@ user@localhost$ gridlabd ec2 terminate-instances [ec2-terminateinstances-options
 ~~~
 
 S3:
+
 ~~~
 user@localhost$ gridlabd aws s3 mb bucket-name [s3-mb-options]
 user@localhost$ gridlabd aws s3 cp from to [s3-cp-options]
@@ -31,6 +34,7 @@ user@localhost$ gridlabd aws s3 sync local-folder bucket-name [s3-sync-options]
 To access AWS resources, you must have a valid AWS account and obtain an access token with which to configure your local agent.  See the [Secret credentials Tab](https://console.aws.amazon.com/iam/home?section=security_credentials) of the [AWS IAM User page](https://console.aws.amazon.com/iam/home?section=security_credentials).
 
 Once have you obtained your Access Key ID and Secret Access Key, you must run the `aws configure` command to give your local agent access:
+
 ~~~
 user@localhost$ aws configure
 AWS Access Key ID [None]: *******
@@ -67,7 +71,7 @@ Describes one or more GridLAB-D AWS instances. See [`aws ec2 describe-instances 
 
 ### aws ec2 reboot-instances
 
-Reboots one or more GridLAB-D AWS instances.See [`aws ec2 reboot-instances help`](https://docs.aws.amazon.com/cli/latest/reference/opsworks/reboot-instances.html) for details.
+Reboots one or more GridLAB-D AWS instances. See [`aws ec2 reboot-instances help`](https://docs.aws.amazon.com/cli/latest/reference/opsworks/reboot-instances.html) for details.
 
 ### aws ec2 stop-instances
 
@@ -96,17 +100,20 @@ Synchronizes local files with an S3 bucket. See [`aws s3 sync help`](https://doc
 # Examples
 
 The following command connects to an EC2 instance and installs GridLAB-D:
+
 ~~~
 user@localhost$ ssh -i my-key.pem ec2-user@my-instance-ip
 ec2-user@my-instance-ip$ sudo yum install git -y
-ec2-user@my-instance-ip$ git clone https://github.com/dchassin/gridlabd gridlabd
+ec2-user@my-instance-ip$ git clone https://github.com/slacgismo/gridlabd gridlabd
 ec2-user@my-instance-ip$ gridlabd/install.sh
 ~~~
 
 The following GLM includes a standard library file:
+
 ~~~
 #include [http://library.gridlabd.us/CA/SLAC/wood_pole.glm]
 ~~~
 
 # See also
+
 * [[/Subcommand/Aws]]

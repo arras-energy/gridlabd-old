@@ -1,5 +1,6 @@
 #set suppress_repeat_messages=false
 #set strictnames=0
+#set literal_if=FALSE
 
 // this shouldn't be necessary once ticket:630 is resolved
 #define ok=ok

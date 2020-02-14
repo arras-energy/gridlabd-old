@@ -1,11 +1,15 @@
 [[/Module/Powerflow/Global/Warning_overvoltage]] -- Module powerflow global variable warning_overvoltage
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define warning_overvoltage=<value>
+bash$ gridlabd -D|--define warning_overvoltage=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set warning_overvoltage=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Powerflow]]

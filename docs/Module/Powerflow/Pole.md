@@ -1,6 +1,7 @@
 [[/Module/Powerflow/Pole]] -- Power pole model
 
 # Synopsis
+
 ~~~
   object pole {
     // node properties
@@ -35,6 +36,7 @@ Specifying `equipment_area` and `equipment_height` will cause the equipment wind
 ## Properties
 
 ### `pole_status`
+
 ~~~
   enumeration {FAILED=0,OK=1} pole_status;
 ~~~
@@ -42,6 +44,7 @@ Specifying `equipment_area` and `equipment_height` will cause the equipment wind
 The status of the pole.
 
 ### `tilt_angle`
+
 ~~~
   double tilt_angle[deg];
 ~~~
@@ -49,6 +52,7 @@ The status of the pole.
 The tilt angle of the pole.
 
 ### `tilt_direction`
+
 ~~~
   double tilt_direction[deg];
 ~~~
@@ -56,6 +60,7 @@ The tilt angle of the pole.
 The tilt direction of the pole.
 
 ### `weather`
+
 ~~~
   object weather;
 ~~~
@@ -63,6 +68,7 @@ The tilt direction of the pole.
 Reference to the source of the weather data.
 
 ### `configuration`
+
 ~~~
   object configuration;
 ~~~
@@ -70,6 +76,7 @@ Reference to the source of the weather data.
 Reference to the pole configuration.
 
 ### `equipment_area`
+
 ~~~
   double equipment_area[sf];
 ~~~
@@ -77,6 +84,7 @@ Reference to the pole configuration.
 Cross sectional area of the equipment.
 
 ### `equipment_height`
+
 ~~~
   double equipment_height[ft];
 ~~~
@@ -84,6 +92,7 @@ Cross sectional area of the equipment.
 Height of the equipment centroid on the pole.
 
 ### `install_year`
+
 ~~~
   int32 install_year;
 ~~~
@@ -91,6 +100,7 @@ Height of the equipment centroid on the pole.
 Year the pole was installed.
 
 ### `repair_time`
+
 ~~~
   double repair_time[h];
 ~~~
@@ -98,6 +108,7 @@ Year the pole was installed.
 Time required to repair or replace the pole after failure.
 
 ### `pole_stress`
+
 ~~~
   double pole_stress[pu]; 
 ~~~
@@ -105,6 +116,7 @@ Time required to repair or replace the pole after failure.
 Ratio of actual stress to critical stress.
 
 ### `pole_stress_polynomial_a`
+
 ~~~
   double pole_stress_polynomial_a[ft*lb]; 
 ~~~
@@ -112,6 +124,7 @@ Ratio of actual stress to critical stress.
 Constant a of the pole stress polynomial function.
 
 ### `pole_stress_polynomial_b`
+
 ~~~
   double pole_stress_polynomial_b[ft*lb]; 
 ~~~
@@ -119,6 +132,7 @@ Constant a of the pole stress polynomial function.
 Constant b of the pole stress polynomial function
 
 ### `pole_stress_polynomial_c`
+
 ~~~
   double pole_stress_polynomial_c[ft*lb]; 
 ~~~
@@ -126,6 +140,7 @@ Constant b of the pole stress polynomial function
 Constant c of the pole stress polynomial function.
 
 ### `susceptibility`
+
 ~~~
   double susceptibility[pu*s/m]; 
 ~~~
@@ -133,6 +148,7 @@ Constant c of the pole stress polynomial function.
 Susceptibility of pole to wind stress (derivative of pole stress w.r.t wind speed).
 
 ### `total_moment`
+
 ~~~
   double total_moment[ft*lb];
 ~~~
@@ -140,6 +156,7 @@ Susceptibility of pole to wind stress (derivative of pole stress w.r.t wind spee
 The total moment on the pole.
 
 ### `resisting_moment`
+
 ~~~
   double resisting_moment[ft*lb]; 
 ~~~
@@ -147,6 +164,7 @@ The total moment on the pole.
 The resisting moment on the pole.
 
 ### `critical_wind_speed`
+
 ~~~
   double critical_wind_speed[m/s];
 ~~~
@@ -155,12 +173,12 @@ Wind speed at pole failure.
 
 # Model
 
-The pole failure model is described in [Pole Loading Model](https://github.com/dchassin/gridlabd/raw/master/powerflow/docs/pole_loading.pdf). 
+The pole failure model is described in [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/master/powerflow/docs/pole_loading.pdf). 
 
 The pole reaches end of life status based on a degradation rate that is defined by minimum shell thickness of 2". See [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457) details.
 
 # See also
 
 * [[/Module/Powerflow/Pole_configuration]]
-* [Pole Loading Model](https://github.com/dchassin/gridlabd/raw/master/powerflow/docs/pole_loading.pdf)
+* [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/master/powerflow/docs/pole_loading.pdf)
 * [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457)
