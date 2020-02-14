@@ -25,9 +25,9 @@ The ICA quantifies the potential DER generation which can interconnect without v
 
 - Operational Flexibility: maximum load or generation which can be connected to a node without exceeding loading beyond an automated SCADA switching devices.  
   - Determine the load connected beyond the automated SCADA switching device, the ICA value considering operational flexibility is limited to the amount of load beyond the SCADA switching device.  
-  Both operational flexibility values must be evaluated:
-	1. ICA values not accounting for Operational Flexibility-reverse flow up to substation low-side
-	2. ICA values accounting for Operational Flexibility-no reverse flow up to substation low-side
+Both operational flexibility values must be evaluated:
+  1. ICA values not accounting for Operational Flexibility-reverse flow up to substation low-side
+  2. ICA values accounting for Operational Flexibility-no reverse flow up to substation low-side
 
 # Methodology 
 - Define feeder network 
