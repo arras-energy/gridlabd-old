@@ -1,161 +1,12 @@
-/** load.cpp
-	Copyright (C) 2008 Battelle Memorial Institute
-	
-	@file load.c
-	@addtogroup load_glm GLM file loader
-	@ingroup core
-
-	@note The function of GLM files has evolved from Version 1.  Now GLM files
-	are used to synthesize models, whereas XML files are used to store models.
-
-	@bug This loader uses a crude parser.  Someday it will be replaced by a more robust
-	implementation that will be easier to fix, manage, improve, update, grow, etc.
-
-	@par Comments
-	All text from the first instance of "//" to the end of a line is treated as
-	a comment.  The "//" must follow a whitespace to be considered a comment delimiter.
-	When a "//" follows a non-white character, it is not recognized as a comment delimiter.
-	@code
-	// comments are preceded by two slashes, which must follow a white-space
-	#set urlbase=http://www.nowhere.net/ // www.nowhere.net/ is not a comment
-	@endcode
-
-	@par Variables
-	Any global variable or environment variable can be substituted into the incoming
-	stream by using the \p ${varname} syntax.  First global variables are matched, and
-	if none is found, then environment variables are matched.  If the global variable
-	name is provided in the form \p ${module::varname} then the module global is
-	substituted if it exists.
-
-	@todo Command substitution using \p $(command).
-
-	@todo Regular expressions using \p ${varname/from/to} and \p ${varname//from/to}.
-
-	@par Macros
-	The "#" character at the beginning of a line followed by a non-white character
-	will cause the word that follows to be treated as a macro.  When a "#" is followed
-	by a white-space it will cause the parser to consider the file to be an old-style
-	GLM file and abandon the loading process.
-
-	The following macros are recognized:
-@code
-#set <global>="<value>" // sets the existing global variable to the value
-
-#define <global>="<value>" // defines a new global variable as the value
-
-#setenv <variable>=<expression> // set the environment variable to the expression
-
-#include "<file>" // includes the file in the load process
-
-#if <expression> // includes the text if expression is non-zero otherwise includes alternate
-... <text> ...
-#else
-... <alternate> ...
-#endif
-
-#ifdef <global> // includes the text if global is defined otherwise includes alternate
-... <text> ...
-#else
-... <alternate> ...
-#endif
-
-#ifndef <global> // includes the text if global is undefined otherwise includes alternate
-... <text> ...
-#else
-... <alternate> ...
-#endif
-
-#ifexist <file> // includes the text if file exists otherwise includes alternate
-... <text> ...
-#else
-... <alternate> ...
-#endif
-
-#print <expression> // displays the expression on the output stream
-
-#error <expression> // displays the expression on the error stream and fails the load
-
-#warning <expression> // displays the warning on the warning stream
-
-@endcode
-
-	The following blocks are recognized at the root level:
-@code
-clock {
-	timezone "ZZZTTTZZZ"; // sets the timezone to use for the simulation
-	timestamp "YYYY-MM-DD HH:MM:SS ZZZ"; // sets the global clock starting time
-}
-
-global {
-	<global> <expression>; // sets the global to the expression
-}
-
-module {
-	<variable> <expression>; // sets the module variable to expression
-	class <class> { // verifies existing static class
-		<type> <property>[<unit>]; // defines /verifies a property in class
-	}
-}
-	
-class <class> { // creates a new runtime class
-
-	// publish a GridLAB-D property
-	<type> <property>[<unit>]; 
-
-	// define an intrinsic function (i.e., create, init, presync, sync, postsync, etc.)
-	intrinsic <name> ( <arglist> ) 
-	{
-		<C++ code>
-	};
-
-	// embed a C++ member variable or function
-	public|protected|private <C++ member definition>;
-
-	// declare a function in another class
-	function <class-name>::<function-name>;
-
-	// publish a C++ member function
-	export <C++ member definition>;
-}
-
-object <class>[:<spec>] { // spec may be <id>, or <startid>..<endid>, or ..<count>
-	<property> <expression>;
-	[parent] object ...; // create a child object
-	<object-property> object ...; // reference another object
-}
-@endcode
-
- @{
-
- **/
+// load.cpp
+// Copyright (C) 2008 Battelle Memorial Institute
+// Copyright (C) 2020 Regents of the Leland Stanford Junior University
 
 #include "gldcore.h"
 
-/* define this to use # for comment and % for macros (the way Version 1.x works) */
-/* #define OLDSTYLE	*/
-
-#ifdef OLDSTYLE
-#define COMMENT "#"
-#define MACRO "%"
-#else
-#define COMMENT "//"
-#define MACRO "#"
-#endif
-
-#ifdef WIN32
-#include <io.h>
-#include <process.h>
-#include <direct.h>
-typedef struct _stat STAT;
-#define FSTAT _fstat
-#define tzset _tzset
-#define snprintf _snprintf
-#else
-#include <unistd.h>
 #include <dlfcn.h>
 typedef struct stat STAT;
 #define FSTAT fstat
-#endif
 
 #include "cmdarg.h"
 #include "complex.h"
@@ -173,13 +24,32 @@ typedef struct stat STAT;
 
 SET_MYCONTEXT(DMC_LOAD)
 
-static unsigned int linenum=1;
 static int include_fail = 0;
-static char filename[1024];
 static time_t modtime = 0;
 
 static char start_ts[64];
 static char stop_ts[64];
+
+static char filename[1024];
+static unsigned int linenum=1;
+// static void syntax_error(const char *format, ...)
+// {
+// 	va_list ptr;
+// 	va_start(ptr,format);
+// 	char msg[1024];
+// 	vsnprintf(msg,sizeof(msg),format,ptr);
+// 	output_error_raw("%s(%d): %s",filename,linenum,msg);
+// 	va_end(ptr);
+// }
+// static void syntax_error(const char *filename, const int linenum, const char *format, ...)
+// {
+// 	va_list ptr;
+// 	va_start(ptr,format);
+// 	char msg[1024];
+// 	vsnprintf(msg,sizeof(msg),format,ptr);
+// 	output_error_raw("%s(%d): %s",filename,linenum,msg);
+// 	va_end(ptr);
+// }
 
 static char *format_object(OBJECT *obj)
 {
@@ -6570,7 +6440,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		char subst[65536];
 
 		/* comments must have preceding whitespace in macros */
-		char *c = ( ( line[0] != '#' ) ? strstr(line,COMMENT) : strstr(line, " " COMMENT) );
+		char *c = ( ( line[0] != '#' ) ? strstr(line,"//") : strstr(line, " " "//") );
 		linenum++;
 		if ( c != NULL ) 
 		{
@@ -6595,7 +6465,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* expand macros */
-		if ( strncmp(line,MACRO,strlen(MACRO)) == 0 )
+		if ( line[0] == '#' )
 		{
 			/* macro disables reading */
 			if ( process_macro(line,sizeof(line),filename,linenum) == FALSE )
@@ -6620,8 +6490,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 	}
 	if ( nesting != startnest )
 	{
-		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,linenum,MACRO,filename,macro_line[nesting-1]);
-		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
+		output_error_raw("%s(%d): Unbalanced #if/#endif at %s(%d) ~ started with nestlevel %i, ending %i", filename,linenum,filename,macro_line[nesting-1], startnest, nesting);
 		return -1;
 	}
 	return n;
@@ -6711,7 +6580,7 @@ static const char * for_setvar()
 // Capture a GLM line to the forloop machine to replay later
 static bool for_capture(const char *line)
 {
-	if ( strncmp(line,MACRO "done",5) == 0 )
+	if ( strncmp(line,"#done",5) == 0 )
 	{
 		if ( forloop_verbose ) output_verbose("capture of forloop body done with after %d lines", forbuffer.size());
 		for_set_state(FOR_REPLAY);
@@ -6834,7 +6703,7 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		else 
 		{
 			/* comments must have preceding whitespace in macros */
-			char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
+			char *c = line[0]!='#'?strstr(line,"//"):strstr(line, " " "//");
 			_linenum++;
 			if ( c != NULL ) /* truncate at comment */
 			{
@@ -6866,7 +6735,7 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		/* expand macros */
 		const char *m = line;
 		while ( isspace(*m) ) m++;
-		if ( get_language() || strncmp(m,MACRO,strlen(MACRO)) == 0 )
+		if ( get_language() || m[0] == '#' )
 		{
 			/* macro disables reading */
 			if ( process_macro(line,sizeof(line),filename,linenum + _linenum - 1) == FALSE )
@@ -6949,8 +6818,7 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 	}
 	if ( nesting != startnest )
 	{
-		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,_linenum,MACRO,filename,macro_line[nesting-1]);
-		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,_linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
+		output_error_raw("%s(%d): Unbalanced #if/#endif at %s(%d) ~ started with nestlevel %i, ending %i", filename,_linenum,filename,macro_line[nesting-1], startnest, nesting);
 		return -1;
 	}
 	return n;
@@ -7209,7 +7077,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		const char *m = line;
 		while ( isspace(*m) ) m++;
 		int status;
-		if ( strncmp(m,MACRO "end",4) == 0 )
+		if ( strncmp(m,"#end",4) == 0 )
 		{
 			status = language->parser(NULL);
 			set_language(NULL);
@@ -7225,7 +7093,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		return status;
 	}
 	while ( isspace(*line) ) line++; // trim
-	if (strncmp(line,MACRO "endif",6)==0)
+	if (strncmp(line,"#endif",6)==0)
 	{
 		if (nesting>0)
 		{
@@ -7234,13 +7102,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			suppress &= ~(1<<nesting);
 		}
 		else{
-			output_error_raw("%s(%d): %sendif is mismatched", filename, linenum,MACRO);
+			output_error_raw("%s(%d): #endif is mismatched", filename, linenum);
 		}
 		strcpy(line,"\n");
 
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "else",5)==0)
+	else if (strncmp(line,"#else",5)==0)
 	{
 		char *term;
 
@@ -7256,19 +7124,19 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strip_right_white(term);
 		if(strlen(term)!=0)
 		{
-			output_error_raw("%s(%d): %selse macro should not contain any terms",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #else macro should not contain any terms",filename,linenum);
 			return FALSE;
 		}
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "ifdef",6)==0)
+	else if (strncmp(line,"#ifdef",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sifdef macro missing term",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #ifdef macro missing term",filename,linenum);
 			return FALSE;
 		}
 		//if (sscanf(term+1,"%[^\n\r]",value)==1 && global_getvar(value, buffer, 63)==NULL && getenv(value)==NULL)
@@ -7283,14 +7151,14 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "ifexist",8)==0)
+	else if (strncmp(line,"#ifexist",8)==0)
 	{
 		char *term = strchr(line+8,' ');
 		char value[1024];
 		char path[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sifexist macro missing term",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #ifexist macro missing term",filename,linenum);
 			return FALSE;
 		}
 		while(isspace((unsigned char)(*term)))
@@ -7310,13 +7178,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "ifndef",7)==0)
+	else if (strncmp(line,"#ifndef",7)==0)
 	{
 		char *term = strchr(line+7,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sifndef macro missing term",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #ifndef macro missing term",filename,linenum);
 			return FALSE;
 		}
 		//if (sscanf(term+1,"%[^\n\r]",value)==1 && global_getvar(value, buffer, 63)!=NULL || getenv(value)!=NULL))
@@ -7330,7 +7198,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "if",3)==0)
+	else if (strncmp(line,"#if",3)==0)
 	{
 		char var[32], op[4];
 		const char *value;
@@ -7340,7 +7208,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 				&& sscanf(line+4,"%31[a-zA-Z_0-9_:.] %3[!<>=] %1023[^ \t\n] %1023[^\n]\n",var,op,val,junk) < 3 )
 				|| strcmp(junk,"") != 0 )
 		{
-			output_error_raw("%s(%d): %sif macro statement syntax error", filename,linenum,MACRO);
+			output_error_raw("%s(%d): #if macro statement syntax error", filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7383,7 +7251,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 	}
 
 	/* macros that are short for other macros */
-	if ( strncmp(line,MACRO "insert",7)==0 )
+	if ( strncmp(line,"#insert",7)==0 )
 	{
 		char name[1024];
 		char values[1024]="";
@@ -7401,7 +7269,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 	}
 
 	/* these macros can be suppressed */
-	if (strncmp(line,MACRO "include",8)==0)
+	if (strncmp(line,"#include",8)==0)
 	{
 		char *term = strchr(line+8,' ');
 		char value[1024];
@@ -7409,7 +7277,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		GLOBALVAR *old_stack = NULL;
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sinclude macro missing term",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #include macro missing term",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7533,13 +7401,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return FALSE;
 		}
 	}
-	else if (strncmp(line,MACRO "setenv",7)==0)
+	else if (strncmp(line,"#setenv",7)==0)
 	{
 		char *term = strchr(line+7,' ');
 		char value[65536];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %ssetenv macro missing term",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #setenv macro missing term",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7555,13 +7423,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return SUCCESS;
 	}
-	else if (strncmp(line,MACRO "set",4)==0)
+	else if (strncmp(line,"#set",4)==0)
 	{
 		char *term = strchr(line+4,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sset macro missing term",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #set macro missing term",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7570,7 +7438,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		STATUS result;
 		if (strchr(value,'=')==NULL)
 		{
-			output_error_raw("%s(%d): %sset missing assignment",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #set missing assignment",filename,linenum);
 			return FAILED;
 		}
 		else
@@ -7580,27 +7448,27 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			result = global_setvar(value);
 			global_strictnames = strncmp(value,"strictnames=",12)==0 ? global_strictnames : oldstrict;
 			if (result==FAILED)
-				output_error_raw("%s(%d): %sset term not found",filename,linenum,MACRO);
+				output_error_raw("%s(%d): #set term not found",filename,linenum);
 			strcpy(line,"\n");
 			return result==SUCCESS;
 		}
 	}
-	else if (strncmp(line,MACRO "binpath",8)==0)
+	else if (strncmp(line,"#binpath",8)==0)
 	{
 		output_error("#binpath is no longer supported, use PATH environment variable instead");
 		return FALSE;
 	}
-	else if (strncmp(line,MACRO "libpath",8)==0)
+	else if (strncmp(line,"#libpath",8)==0)
 	{
 		output_error("#libpath is no longer supported, use LDFLAGS environment variable instead");
 		return FALSE;
 	}
-	else if (strncmp(line,MACRO "incpath",8)==0)
+	else if (strncmp(line,"#incpath",8)==0)
 	{
 		output_error("#incpath is no longer supported, use CXXFLAGS environment variable instead");
 		return FALSE;
 	}
-	else if (strncmp(line,MACRO "define",7)==0)
+	else if (strncmp(line,"#define",7)==0)
 	{
 		char *term = strchr(line+7,' ');
 		char value[1024];
@@ -7608,7 +7476,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		int oldstrict = global_strictnames;
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sdefine macro missing term",filename,linenum, MACRO);
+			output_error_raw("%s(%d): #define macro missing term",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7619,17 +7487,17 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		result = global_setvar(value,"\"\""); // extra "" is used in case value is term is empty string
 		global_strictnames = oldstrict;
 		if (result==FAILED)
-			output_error_raw("%s(%d): %sdefine term not found",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #define term not found",filename,linenum);
 		strcpy(line,"\n");
 		return result==SUCCESS;
 	}
-	else if (strncmp(line,MACRO "print",6)==0)
+	else if (strncmp(line,"#print",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sprint missing message text",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #print missing message text",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7638,13 +7506,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "verbose",6)==0)
+	else if (strncmp(line,"#verbose",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sprint missing message text",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #print missing message text",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7653,13 +7521,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "error",6)==0)
+	else if (strncmp(line,"#error",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %serror missing expression",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #error missing expression",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7668,13 +7536,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return FALSE;
 	}
-	else if (strncmp(line,MACRO "warning",8)==0)
+	else if (strncmp(line,"#warning",8)==0)
 	{
 		char *term = strchr(line+8,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %swarning missing message text",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #warning missing message text",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7683,13 +7551,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "debug",6)==0)
+	else if (strncmp(line,"#debug",6)==0)
 	{
 		char *term = strchr(line+8,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sdebug missing message text",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #debug missing message text",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7698,13 +7566,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "system",7)==0)
+	else if (strncmp(line,"#system",7)==0)
 	{
 		char *term = strchr(line+7,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %ssystem missing system call",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #system missing system call",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7723,12 +7591,12 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if ( strncmp(line,MACRO "command",8) == 0 )
+	else if ( strncmp(line,"#command",8) == 0 )
 	{
 		char *command = strchr(line+8,' ');
 		if ( command == NULL )
 		{
-			output_error_raw("%s(%d): %scommand missing call",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #command missing call",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7752,13 +7620,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if (strncmp(line,MACRO "exec",5)==0)
+	else if (strncmp(line,"#exec",5)==0)
 	{
 		char *term = strchr(line+5,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %ssystem missing system call",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #system missing system call",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7777,13 +7645,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if (strncmp(line,MACRO "start",6)==0)
+	else if (strncmp(line,"#start",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sstart missing system call",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #start missing system call",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7801,13 +7669,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if ( strncmp(line,MACRO "option",7)==0 )
+	else if ( strncmp(line,"#option",7)==0 )
 	{
 		char *term = strchr(line+7,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %soption missing command option name",filename,linenum,MACRO);
+			output_error_raw("%s(%d): #option missing command option name",filename,linenum);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7815,14 +7683,14 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return cmdarg_runoption(value)>=0;
 	}
-	else if ( strncmp(line,MACRO "wget",5)==0 || strncmp(line,MACRO "curl",5)==0 )
+	else if ( strncmp(line,"#wget",5)==0 || strncmp(line,"#curl",5)==0 )
 	{
 		char url[1024], file[1024];
 		size_t n = sscanf(line+5,"%s %[^\n\r]",url,file);
 		strcpy(line,"\n");
 		if ( n<1 )
 		{
-			output_error_raw("%s(%d): %swget missing url", filename, linenum, MACRO);
+			output_error_raw("%s(%d): #wget missing url", filename, linenum);
 			return FALSE;
 		}
 		else if ( n==1 )
@@ -7850,7 +7718,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		return TRUE;
 	}
-	else if ( strncmp(line,MACRO "sleep",6)==0 )
+	else if ( strncmp(line,"#sleep",6)==0 )
 	{
 		int msec = atoi(line+6);
 		IN_MYCONTEXT output_debug("sleeping %.3f seconds...",msec/1000.0);
@@ -7858,18 +7726,18 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if ( strncmp(line,MACRO "on_exit",8) == 0 )
+	else if ( strncmp(line,"#on_exit",8) == 0 )
 	{
 		int xc;
 		char cmd[1024];
 		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
 		{
-			output_error_raw("%s(%d): " MACRO "on_exit syntax error", filename,linenum);
+			output_error_raw("%s(%d): " "#on_exit syntax error", filename,linenum);
 			return FALSE;
 		}
 		else if ( ! my_instance->add_on_exit(xc,cmd) )
 		{
-			output_error_raw("%s(%d): " MACRO "on_exit %d command '%s' failed", filename,linenum,xc,cmd);
+			output_error_raw("%s(%d): " "#on_exit %d command '%s' failed", filename,linenum,xc,cmd);
 			return FALSE;
 		}
 		else
@@ -7878,18 +7746,18 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if ( strncmp(line, MACRO "begin",6) == 0 )
+	else if ( strncmp(line, "#begin",6) == 0 )
 	{
 		char name[256];
 		if ( sscanf(line+7,"%s",name) == 0 )
 		{
-			output_error_raw("%s(%d): " MACRO "begin macro missing language term", filename, linenum);
+			output_error_raw("%s(%d): " "#begin macro missing language term", filename, linenum);
 			return FALSE;
 		}
 		strcpy(line,"\n");
 		return set_language(name);
 	}
-	else if ( strncmp(line, MACRO "for",4) == 0 )
+	else if ( strncmp(line, "#for",4) == 0 )
 	{
 		char var[64], range[1024];
 		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
