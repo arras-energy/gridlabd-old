@@ -32,24 +32,16 @@ static char stop_ts[64];
 
 static char filename[1024];
 static unsigned int linenum=1;
-// static void syntax_error(const char *format, ...)
-// {
-// 	va_list ptr;
-// 	va_start(ptr,format);
-// 	char msg[1024];
-// 	vsnprintf(msg,sizeof(msg),format,ptr);
-// 	output_error_raw("%s(%d): %s",filename,linenum,msg);
-// 	va_end(ptr);
-// }
-// static void syntax_error(const char *filename, const int linenum, const char *format, ...)
-// {
-// 	va_list ptr;
-// 	va_start(ptr,format);
-// 	char msg[1024];
-// 	vsnprintf(msg,sizeof(msg),format,ptr);
-// 	output_error_raw("%s(%d): %s",filename,linenum,msg);
-// 	va_end(ptr);
-// }
+
+static void syntax_error(const char *filename, const int linenum, const char *format, ...)
+{
+	va_list ptr;
+	va_start(ptr,format);
+	char msg[1024];
+	vsnprintf(msg,sizeof(msg),format,ptr);
+	output_error_raw("%s(%d): %s",filename,linenum,msg);
+	va_end(ptr);
+}
 
 static char *format_object(OBJECT *obj)
 {
@@ -1142,7 +1134,7 @@ void start_parse(int &mm, int &m, int &n, int &l, int linenum)
 #define REPEAT _p=__p;_m=__m; _mm=__mm; _n=__n; _l=__l; linenum=__ln;
 #define END_REPEAT }
 
-static void syntax_error(const char *p)
+static void syntax_error_here(const char *p)
 {
 	char context[16], *nl;
 	strncpy(context,p,15);
@@ -2486,7 +2478,7 @@ static int clock_properties(PARSER)
 		REJECT;
 	}
 	OR if (WHITE,LITERAL("}")) {/* don't accept yet */ DONE;}
-	OR { syntax_error(HERE); REJECT; }
+	OR { syntax_error_here(HERE); REJECT; }
 	/* may be repeated */
 Next:
 	if TERM(clock_properties(HERE)) ACCEPT;
@@ -2874,7 +2866,7 @@ static int module_properties(PARSER, MODULE *mod)
 		}
 	}
 	OR if LITERAL("}") {/* don't accept yet */ DONE;}
-	OR { syntax_error(HERE); REJECT; }
+	OR { syntax_error_here(HERE); REJECT; }
 	/* may be repeated */
 Next:
 	if TERM(module_properties(HERE,mod)) ACCEPT;
@@ -3510,7 +3502,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 		ACCEPT;
 	}
 	else if LITERAL("}") {/* don't accept yet */ DONE;}
-	else { syntax_error(HERE); REJECT; }
+	else { syntax_error_here(HERE); REJECT; }
 	/* may be repeated */
 	if TERM(class_properties(HERE,oclass,functions,initcode,initsize)) ACCEPT;
 	DONE;
@@ -4702,7 +4694,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		}
 	}
 	else if LITERAL("}") {/* don't accept yet */ DONE;}
-	else { syntax_error(HERE); REJECT; }
+	else { syntax_error_here(HERE); REJECT; }
 	/* may be repeated */
 	if TERM(object_properties(HERE,oclass,obj))
 	{
