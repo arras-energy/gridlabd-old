@@ -20,5 +20,5 @@ object meter {
     phases ABCN;
 }
 
-#warning last object = ${LAST_OBJECT}
+#warning last object = ${object.find class=meter}
 module commercial;
