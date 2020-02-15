@@ -8266,3 +8266,19 @@ GldLoader::~GldLoader(void)
 {
 	
 }
+
+bool GldLoader::load(const char *filename)
+{
+	return loadall(filename) == SUCCESS;
+}
+
+GldObject GldLoader::get_current_object(void)
+{
+	return GldObject(load_get_current_object());
+}
+
+GldModule GldLoader::get_current_module(void)
+{
+	return GldModule(load_get_current_module());
+}
+

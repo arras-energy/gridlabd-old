@@ -164,7 +164,13 @@ public:
 	// Method: global_saveall
 	inline size_t global_saveall(FILE *fp) { return globals.saveall(fp);};
 
-public:		
+public:
+
+	// Section: Loader access
+	inline bool load_file(const char *filename) { return loader.load(filename); };
+
+public:
+
 	// Section: Globals variable access
 
 	// Method: global_init

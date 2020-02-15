@@ -64,15 +64,15 @@ public:
 
 	// Method: loadall
 	// Loads a file into the loader's instance
-	bool loadall(const char *filename);
+	bool load(const char *filename);
 
 	// Method: get_current_object
 	// Obtains the object currently being processed by the loader
-	OBJECT *get_current_object(void);
+	GldObject get_current_object(void);
 
 	// Method: get_current_module
 	// Obtains the module currently being processed b the loader
-	MODULE *get_current_module(void);
+	GldModule get_current_module(void);
 };
 
 #endif
