@@ -1,1 +1,0 @@
-#git commit ${SHELL git log --format="%H" -n 1}
