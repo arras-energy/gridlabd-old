@@ -61,6 +61,7 @@ private: // instance variables
 	GldExec exec;
 	GldCmdarg cmdarg;
 	GldGui gui;
+	GldLoader loader;
 public: // public variables
 	LOCKVAR rlock_count;
 	LOCKVAR rlock_spin;
