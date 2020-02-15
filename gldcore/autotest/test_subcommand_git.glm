@@ -1,1 +1,1 @@
-#git log -n 1
+#git commit ${SHELL git log --format="%H" -n 1}
