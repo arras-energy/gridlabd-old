@@ -8228,13 +8228,18 @@ STATUS loadall(const char *fname)
 	}
 	catch (const char *message)
 	{
-		syntax_error(filename,linenum,"%s",message);
+		output_error_raw("%s(%d) %s",filename,linenum,message);
 		return FAILED;
 	}
 	catch (GldException *error)
 	{
 		output_error_raw("%s",error->get_message());
 		delete error;
+		return FAILED;
+	}
+	catch (...)
+	{
+		output_error_raw("%s(%d) unknown loader exception caught",filename,linenum);
 		return FAILED;
 	}
 }
