@@ -6403,7 +6403,11 @@ static int gridlabd_file(PARSER)
 	OR if TERM(modify_directive(HERE)) { ACCEPT; DONE; }
 	OR if TERM(loader_hook(HERE)) { ACCEPT; DONE; }
 	OR if (*(HERE)=='\0') {ACCEPT; DONE;}
-	else REJECT;
+	else
+	{
+		syntax_error_here(HERE);
+		REJECT;
+	}
 	DONE;
 }
 
