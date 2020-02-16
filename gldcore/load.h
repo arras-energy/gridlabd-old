@@ -46,12 +46,6 @@ DEPRECATED MODULE *load_get_current_module(void);
 class GldLoader
 {
 
-private:
-
-	// Field: instance
-	// Reference to the GldMain simulation instance
-	GldMain &instance;
-
 public:
 
 	// Constructor: GldLoader
@@ -64,7 +58,7 @@ public:
 
 public:
 
-	// Method: loadall
+	// Method: load
 	// Loads a file into the loader's instance
 	bool load(const char *filename);
 
@@ -75,14 +69,6 @@ public:
 	// Method: get_current_module
 	// Obtains the module currently being processed b the loader
 	GldModule get_current_module(void);
-
-public:
-
-	static struct s_threadlist 
-	{
-		pthread_t *data;
-		struct s_threadlist *next;
-	} *threadlist;
 
 private:
 
@@ -130,27 +116,35 @@ private:
 	} INCLUDELIST;
 
 	typedef int (*PARSERCALL)(PARSER);
-	struct s_loaderhook {
+
+	typedef struct s_loaderhook 
+	{
 		PARSERCALL call;
 		struct s_loaderhook *next;
-	};
-	typedef struct s_loaderhook LOADERHOOK;
+	} LOADERHOOK;
+	
 	typedef int (*LOADERINIT)(void);
 
 	// TODO: convert this to a class so nesting is possible
-	typedef enum e_forloopstate {
+	typedef enum e_forloopstate 
+	{
 		FOR_NONE   = 0, // no for loop active
 		FOR_BODY   = 1, // for loop started, body capture in progress
 		FOR_REPLAY = 2, // for loop replay in progress
 	} FORLOOPSTATE;
 
+	static struct s_threadlist 
+	{
+		pthread_t *data;
+		struct s_threadlist *next;
+	} *threadlist;
+
 private:
+
+	GldMain &instance;
 
 	int include_fail;
 	time_t modtime;
-
-	char start_ts[64];
-	char stop_ts[64];
 
 	char filename[1024];
 	unsigned int linenum;

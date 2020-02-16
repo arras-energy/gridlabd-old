@@ -6,20 +6,6 @@
 
 #include <dlfcn.h>
 
-#include "cmdarg.h"
-#include "complex.h"
-#include "object.h"
-#include "load.h"
-#include "output.h"
-#include "random.h"
-#include "convert.h"
-#include "schedule.h"
-#include "transform.h"
-#include "instance.h"
-#include "linkage.h"
-#include "gui.h"
-#include "curl.h"
-
 /* TODO: remove these when reentrant code is completed */
 DEPRECATED extern GldMain *my_instance;
 DEPRECATED STATUS loadall(const char *filename)
@@ -63,8 +49,6 @@ GldLoader::GldLoader(GldMain *main)
 {
 	include_fail = 0;
 	modtime = 0;
-	memset(start_ts,0,sizeof(start_ts));
-	memset(stop_ts,0,sizeof(stop_ts));
 	memset(filename,0,sizeof(filename));
 	linenum = 1;
 	code_used = 0;
@@ -88,7 +72,8 @@ GldLoader::GldLoader(GldMain *main)
 	forvar = NULL;
 	forvalue = NULL;
 	forloop_verbose = false;
-	static LANGUAGE builtin_languages[] = {
+	static LANGUAGE builtin_languages[] = 
+	{
 		{"python",python_parser,NULL},
 	};
 	language_list = builtin_languages;
@@ -2524,12 +2509,6 @@ int GldLoader::clock_block(PARSER)
 	{
 		syntax_error(filename,linenum,"expected clock block closing }");
 		REJECT;
-	}
-	if(0 != start_ts[0]){
-		;
-	}
-	if(0 != stop_ts[0]){
-		;
 	}
 	DONE;
 }
