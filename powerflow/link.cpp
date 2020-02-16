@@ -13677,5 +13677,29 @@ void lu_matrix_inverse(complex *input_mat, complex *output_mat, int size_val)
 	gl_free(x_vec);
 }
 
+void link_object::get_current_in_mags(double *a)
+{
+	rlock();
+	a[0] = current_in[0].Mag();
+	a[1] = current_in[1].Mag();
+	a[3] = current_in[2].Mag();
+	runlock();
+}
+
+void link_object::get_indiv_power_in(double *a)
+{
+	rlock();
+
+	//Force the link to do an update (will be ignored first run anyways (zero))
+	calculate_power();
+
+	//Takes all measurements from input side of link (output can not quite be up to date)
+	a[0] = indiv_power_in[0].Im();
+	a[1] = indiv_power_in[1].Im();
+	a[2] = indiv_power_in[2].Im();
+	
+	runlock();
+}
+
 
 /**@}*/
