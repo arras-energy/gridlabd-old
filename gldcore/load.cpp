@@ -5,8 +5,6 @@
 #include "gldcore.h"
 
 #include <dlfcn.h>
-typedef struct stat STAT;
-#define FSTAT fstat
 
 #include "cmdarg.h"
 #include "complex.h"
@@ -22,170 +20,26 @@ typedef struct stat STAT;
 #include "gui.h"
 #include "curl.h"
 
+/* TODO: remove these when reentrant code is completed */
+DEPRECATED extern GldMain *my_instance;
+DEPRECATED STATUS loadall(const char *filename)
+{
+	return my_instance->get_loader()->load(filename) ? SUCCESS : FAILED;
+}
+DEPRECATED OBJECT *load_get_current_object(void)
+{
+	return my_instance->get_loader()->get_current_object();
+}
+DEPRECATED MODULE *load_get_current_module(void)
+{
+	return my_instance->get_loader()->get_current_module();
+}
+
+#define WARNING_NON_REENTRANT
+
 SET_MYCONTEXT(DMC_LOAD)
 
-typedef struct s_languagemap LANGUAGE;
-
-struct s_languagemap {
-	const char *name;
-	bool (*parser)(const char *buffer);
-	struct s_languagemap *next;
-};
-
-typedef struct s_unresolved {
-	OBJECT *by;
-	PROPERTYTYPE ptype;
-	void *ref;
-	int flags;
-	CLASS *oclass;
-	const char *id;
-	const char *file;
-	unsigned int line;
-	struct s_unresolved *next;
-} UNRESOLVED;
-
-typedef struct s_unresolved_func {
-	char1024 funcstr;
-	OBJECT *obj;
-	double *targ;
-	unsigned int line;
-	struct s_unresolved_func *next;
-} UNR_FUNC;
-
-typedef struct s_unresolved_static {
-	char256	member_name;
-	char256 class_name;
-	struct s_unresolved_static *next;
-} UNR_STATIC;
-
-UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags);
-STATUS load_resolve_all();
-STATUS load_set_index(OBJECT *obj, OBJECTNUM id);
-OBJECT *load_get_index(OBJECTNUM id);
-double load_latitude(char *buffer);
-double load_longitude(char *buffer);
-int time_value(char *, TIMESTAMP *t);
-int time_value_datetime(char *c, TIMESTAMP *t);
-int time_value_datetimezone(char *c, TIMESTAMP *t);
-int set_flags(OBJECT *obj, char *propval);
-void load_add_language(const char *name, bool (*parser)(const char*));
-
-static int include_fail = 0;
-static time_t modtime = 0;
-
-static char start_ts[64];
-static char stop_ts[64];
-
-static char filename[1024];
-static unsigned int linenum=1;
-
-static void syntax_error(const char *filename, const int linenum, const char *format, ...)
-{
-	va_list ptr;
-	va_start(ptr,format);
-	char msg[1024];
-	vsnprintf(msg,sizeof(msg),format,ptr);
-	GldException *error = new GldException("%s(%d): %s",filename,linenum,msg);
-	va_end(ptr);
-	error->throw_now();
-}
-
-static char *format_object(OBJECT *obj)
-{
-	static char256 buffer;
-	strcpy(buffer,"(unidentified)");
-	if (obj->name==NULL)
-		sprintf(buffer,global_object_format,obj->oclass->name,obj->id);
-	else
-		sprintf(buffer,"%s (%s:%d)",obj->name,obj->oclass->name, obj->id);
-	return buffer;
-}
-
-static char *strip_right_white(char *b){
-	size_t len, i;
-	len = strlen(b) - 1;
-	for(i = len; i >= 0; --i){
-		if(b[i] == '\r' || b[i] == '\n' || b[i] == ' ' || b[i] == '\t'){
-			b[i] = '\0';
-		} else {
-			break;
-		}
-	}
-	return b;
-}
-
-/* inline source code support */
-char *code_block = NULL;
-char *global_block = NULL;
-char *init_block = NULL;
-int code_used = 0;
-
-int inline_code_init(void)
-{
-	if ( code_block==NULL )
-	{
-		code_block = (char *)malloc(global_inline_block_size);
-		if ( code_block==NULL ) {
-			output_error("code_block malloc failed (inline_block_size=%d)", global_inline_block_size);
-			/* TROUBLESHOOT
-			   The memory allocation for the inline code block failed.
-			   Try freeing up memory or reducing the size of the inline blocks (inline_block_size global variable).
-			 */
-			return 0;
-		}
-		memset(code_block,0,global_inline_block_size);
-	}
-	if ( global_block==NULL )
-	{
-		global_block = (char*)malloc(global_inline_block_size);
-		if ( global_block==NULL ) {
-			output_error("global_block malloc failed (inline_block_size=%d)", global_inline_block_size);
-			/* TROUBLESHOOT
-			   The memory allocation for the inline global code block failed.
-			   Try freeing up memory or reducing the size of the inline blocks (inline_block_size global variable).
-			 */
-			return 0;
-		}
-		memset(global_block,0,global_inline_block_size);
-	}
-	if ( init_block==NULL )
-	{
-		init_block = (char*)malloc(global_inline_block_size);
-		if ( init_block==NULL ) {
-			output_error("init_block malloc failed (inline_block_size=%d)", global_inline_block_size);
-			/* TROUBLESHOOT
-			   The memory allocation for the inline init block failed.
-			   Try freeing up memory or reducing the size of the inline blocks (inline_block_size global variable).
-			 */
-			return 0;
-		}
-		memset(init_block,0,global_inline_block_size);
-	}
-	return 1;
-}
-
-void inline_code_term(void)
-{
-	if ( code_block!=NULL )
-	{
-		free(code_block);
-		code_block = NULL;
-	}
-	if ( global_block!=NULL )
-	{
-		free(global_block);
-		global_block = NULL;
-	}
-	if ( init_block!=NULL )
-	{
-		free(init_block);
-		init_block = NULL;
-	}
-	return;
-}
-
-
-/* used to track which functions are included in runtime classes */
+// flags that identify functions are included in runtime classes
 #define FN_CREATE		0x0001
 #define FN_INIT			0x0002
 #define FN_NOTIFY		0x0004
@@ -200,27 +54,138 @@ void inline_code_term(void)
 #define FN_FINALIZE		0x0800
 #define FN_EXPORT		0x1000
 
-/* used for tracking #include directives in files */
-typedef struct s_include_list {
-	char file[256];
-	struct s_include_list *next;
-} INCLUDELIST;
+struct GldLoader::s_threadlist *GldLoader::threadlist = NULL;
 
-INCLUDELIST *include_list = NULL;
-INCLUDELIST *header_list = NULL;
+//
+// Public methods
+//
 
-//UNR_STATIC *static_list = NULL;
-
-static char *forward_slashes(char *a)
+GldLoader::GldLoader(GldMain *main)
+: instance(*main)
 {
+	include_fail = 0;
+	modtime = 0;
+	memset(start_ts,0,sizeof(start_ts));
+	memset(stop_ts,0,sizeof(stop_ts));
+	memset(filename,0,sizeof(filename));
+	linenum = 1;
+	code_block = new char[global_inline_block_size];
+	global_block = new char[global_inline_block_size];
+	init_block = new char[global_inline_block_size];
+	code_used = 0;
+	include_list = NULL;
+	header_list = NULL;
+	outlinenum = 0;
+	outfilename = NULL;
+	object_index = NULL;
+	object_linked = NULL;
+	object_index_size = 65536;
+	first_unresolved = NULL;
+	current_object = NULL; 
+	current_module = NULL; 
+	loaderhooks = NULL;
+	suppress = 0;
+	nesting = 0;
+	memset(macro_line,0,sizeof(macro_line));
+	forloopstate = FOR_NONE;
+	forloop = NULL;
+	lastfor = NULL;
+	forvar = NULL;
+	forvalue = NULL;
+	forloop_verbose = false;
+	static LANGUAGE builtin_languages[] = {
+		{"python",python_parser,NULL},
+	};
+	language_list = builtin_languages;
+	language = NULL;
+}
+
+GldLoader::~GldLoader(void)
+{
+	delete[] code_block;
+	delete[] global_block;
+	delete[] init_block;
+}
+
+bool GldLoader::load(const char *filename)
+{
+	return loadall(filename) == SUCCESS;
+}
+
+GldObject GldLoader::get_current_object(void)
+{
+	return GldObject(current_object);
+}
+
+GldModule GldLoader::get_current_module(void)
+{
+	return GldModule(current_module);
+}
+
+//
+// Private methods
+//
+
+void GldLoader::syntax_error(const char *filename, const int linenum, const char *format, ...)
+{
+	va_list ptr;
+	va_start(ptr,format);
+	char msg[1024];
+	vsnprintf(msg,sizeof(msg),format,ptr);
+	GldException *error = new GldException("%s(%d): %s",filename,linenum,msg);
+	va_end(ptr);
+	error->throw_now();
+}
+
+char *GldLoader::format_object(OBJECT *obj)
+{
+	WARNING_NON_REENTRANT;
+	static char256 buffer;
+	strcpy(buffer,"(unidentified)");
+	if ( obj->name == NULL )
+	{
+		sprintf(buffer,global_object_format,obj->oclass->name,obj->id);
+	}
+	else
+	{
+		sprintf(buffer,"%s (%s:%d)",obj->name,obj->oclass->name, obj->id);
+	}
+	return buffer;
+}
+
+char *GldLoader::strip_right_white(char *b)
+{
+	size_t len, i;
+	len = strlen(b) - 1;
+	for ( i = len; i >= 0; --i )
+	{
+		if ( b[i] == '\r' || b[i] == '\n' || b[i] == ' ' || b[i] == '\t' )
+		{
+			b[i] = '\0';
+		} 
+		else 
+		{
+			break;
+		}
+	}
+	return b;
+}
+
+char *GldLoader::forward_slashes(const char *a)
+{
+	WARNING_NON_REENTRANT;
 	static char buffer[MAXPATHNAMELEN];
 	char *b=buffer;
-	while (*a!='\0' && b<buffer+sizeof(buffer))
+	while ( *a != '\0' && b < buffer+sizeof(buffer)-1 )
 	{
-		if (*a=='\\')
+		if ( *a == '\\' )
+		{
 			*b = '/';
+		}
 		else
+		{
 			*b = *a;
+		}
 		a++;
 		b++;
 	}
@@ -228,9 +193,9 @@ static char *forward_slashes(char *a)
 	return buffer;
 }
 
-/* extract parts of a filename */
-static void filename_parts(char *fullname, char *path, char *name, char *ext)
+void GldLoader::filename_parts(const char *fullname, char *path, char *name, char *ext)
 {
+	WARNING_NON_REENTRANT;
 	/* fix delimiters (result is a static copy) */
 	char *file = forward_slashes(fullname);
 
@@ -244,20 +209,22 @@ static void filename_parts(char *fullname, char *path, char *name, char *ext)
 	path[0] = name[0] = ext[0] = '\0';
 	
 	/* if both found but dot is before delimiter */
-	if (e && s && e<s) 
+	if ( e != NULL && s != NULL && e < s ) 
+	{
 		
-		/* there is not extension */
+		/* there is no extension */
 		e = NULL;
+	}
 	
 	/* copy extension (if any) and terminate filename at dot */
-	if (e)
+	if ( e != NULL )
 	{
 		strcpy(ext,e+1);
 		*e = '\0';
 	}
 
 	/* if path is given */
-	if (s)
+	if ( s != NULL )
 	{
 		/* copy name and terminate path */
 		strcpy(name,s+1);
@@ -272,9 +239,9 @@ static void filename_parts(char *fullname, char *path, char *name, char *ext)
 		strcpy(name,file);
 }
 
-
-static int append_init(const char* format,...)
+int GldLoader::append_init(const char* format,...)
 {
+	WARNING_NON_REENTRANT;
 	static char code[MAXCODEBLOCKSIZE];
 	va_list ptr;
 	va_start(ptr,format);
@@ -296,8 +263,10 @@ static int append_init(const char* format,...)
 	strcat(init_block,code);
 	return ++code_used;
 }
-static int append_code(const char* format,...)
+
+int GldLoader::append_code(const char* format,...)
 {
+	WARNING_NON_REENTRANT;
 	static char code[MAXCODEBLOCKSIZE];
 	va_list ptr;
 	va_start(ptr,format);
@@ -319,8 +288,10 @@ static int append_code(const char* format,...)
 	strcat(code_block,code);
 	return ++code_used;
 }
-static int append_global(const char* format,...)
+
+int GldLoader::append_global(const char* format,...)
 {
+	WARNING_NON_REENTRANT;
 	static char code[1024];
 	va_list ptr;
 	va_start(ptr,format);
@@ -342,7 +313,8 @@ static int append_global(const char* format,...)
 	strcat(global_block,code);
 	return ++code_used;
 }
-static void mark_linex(const char *filename, int linenum)
+
+void GldLoader::mark_linex(const char *filename, int linenum)
 {
 	char buffer[64];
 	if (global_getvar("noglmrefs",buffer, 63)==NULL)
@@ -352,11 +324,13 @@ static void mark_linex(const char *filename, int linenum)
 		append_code("#line %d \"%s\"\n", linenum, forward_slashes(fname));
 	}
 }
-static void mark_line()
+
+void GldLoader::mark_line(void)
 {
 	mark_linex(filename,linenum);
 }
-static STATUS exec(const char *format,...)
+
+STATUS GldLoader::exec(const char *format,...)
 {
 	char cmd[1024];
 	va_list ptr;
@@ -372,54 +346,32 @@ static STATUS exec(const char *format,...)
 	return rc==0?SUCCESS:FAILED;
 }
 
-static STATUS debugger(const char *target)
+STATUS GldLoader::debugger(const char *target)
 {
 	int result;
 	IN_MYCONTEXT output_debug("Starting debugger");
-#ifdef _MSC_VER
-#define getpid _getpid
-	result = exec("start %s gdb --quiet %s --pid=%d",global_gdb_window?"":"/b",target,global_process_id)>=0?SUCCESS:FAILED;
-	system("pause");
-#else
 	IN_MYCONTEXT output_debug("Use 'dll-symbols %s' to load symbols",target);
 	result = exec("gdb --quiet %s --pid=%d &",target,global_process_id)>=0?SUCCESS:FAILED;
-#endif
 	return result == 0 ? SUCCESS : FAILED;
 }
 
-static char *setup_class(CLASS *oclass)
+char *GldLoader::setup_class(CLASS *oclass)
 {
+	WARNING_NON_REENTRANT;
 	static char buffer[65536] = "";
 	int len = 0;
-	/* no longer needed now that property extension works */
 	PROPERTY *prop;
 	len += sprintf(buffer+len,"\tOBJECT obj; obj.oclass = oclass; %s *t = (%s*)((&obj)+1);\n",oclass->name,oclass->name);
 	len += sprintf(buffer+len,"\toclass->size = sizeof(%s);\n", oclass->name);
-//	len += sprintf(buffer+len,"\tif (callback->define_map(oclass,\n");
 	for (prop=oclass->pmap; prop!=NULL; prop=prop->next)
 	{
 		len += sprintf(buffer+len,"\t(*(callback->properties.get_property))(&obj,\"%s\",NULL)->addr = (PROPERTYADDR)((char*)&(t->%s) - (char*)t);\n",prop->name,prop->name);
-//		if (prop->unit==NULL)
-//			len += sprintf(buffer+len,"\t\tPT_%s,\"%s\",(char*)&(t->%s)-(char*)t,\n",
-//				class_get_property_typename(prop->ptype),prop->name,prop->name);
-//		else
-//			len += sprintf(buffer+len,"\t\tPT_%s,\"%s[%s]\",(char*)&(t->%s)-char(*)t,\n",
-//				class_get_property_typename(prop->ptype),prop->name,prop->unit->name,prop->name);
-//		if (prop->keywords)
-//		{
-//			KEYWORD *key;
-//			for (key=prop->keywords; key!=NULL; key=key->next)
-//				len += sprintf(buffer+len, "\t\t\tPT_KEYWORD, \"%s\", %d,\n", key->name, key->value);
-//		}
 	}
-//	len += sprintf(buffer+len,"\t\tNULL)<1) throw(\"unable to publish properties in class %s\");\n", oclass->name);
 	len += sprintf(buffer+len,"\t/* begin init block */\n%s\n\t/* end init block */\n",init_block);
 	return buffer;
 }
 
-static int outlinenum = 0;
-static char *outfilename = NULL;
-static int write_file(FILE *fp, const char *data, ...)
+int GldLoader::write_file(FILE *fp, const char *data, ...)
 {
 	char buffer[65536];
 	char var_buf[64];
@@ -431,66 +383,51 @@ static int write_file(FILE *fp, const char *data, ...)
 	va_start(ptr,data);
 	vsprintf(buffer,data,ptr);
 	va_end(ptr);
-	while ((c=strstr(d,"/*RESETLINE*/\n"))!=NULL)
+	while ( (c=strstr(d,"/*RESETLINE*/\n")) != NULL )
 	{
-		for (b=d; b<c; b++)
+		for ( b = d ; b < c; b++ )
 		{
-			if (*b=='\n')
+			if ( *b == '\n' )
+			{
 				outlinenum++;
+			}
 			fputc(*b,fp);
 			diff++;
 			len++;
 		}
 		d =  c + strlen("/*RESETLINE*/\n");
-		if (global_getvar("noglmrefs",var_buf,63)==NULL)
+		if ( global_getvar("noglmrefs",var_buf,63) == NULL )
+		{
 			len += fprintf(fp,"#line %d \"%s\"\n", ++outlinenum+1,forward_slashes(outfilename));
+		}
 	}
-	for (b=d; *b!='\0'; b++)
+	for ( b = d ; *b != '\0' ; b++ )
 	{
-		if (*b=='\n')
+		if ( *b == '\n' )
+		{
 			outlinenum++;
+		}
 		fputc(*b,fp);
 		len++;
 	}
 	return len;
 }
 
-#if 0 // unused function
-static void reset_line(FILE *fp, const char *file)
-{
-	char buffer[64];
-	if (global_getvar("noglmrefs", buffer, 63)==NULL)
-	{
-		char fname[1024];
-		strcpy(fname,file);
-		write_file(fp,"#line %s \"%s\"\n", outlinenum,forward_slashes(fname));
-	}
-}
-#endif
-
-// Recursively make directories if they don't exist
-static int mkdirs(char *path)
+int GldLoader::mkdirs(const char *path)
 {
 	int rc;
-	//struct stat st;
-
-#ifdef WIN32
-#	define PATHSEP '\\'
-#	define mkdir(P,M) _mkdir((P)) // windows does not use mode info
-#	define access _access
-#else
-#	define PATHSEP '/'
-#endif
-
-	if (!path) {
+	if ( path == NULL ) 
+	{
 		errno = EINVAL;
 		return -1;
 	}
-	if ((rc = access(path, F_OK)) && errno == ENOENT) {
+	if ( (rc=access(path, F_OK)) && errno == ENOENT ) 
+	{
 		// path doesn't exist
 		char *pos, *end, *tmp;
 		IN_MYCONTEXT output_verbose("creating directory '%s'", path);
-		if (!(tmp = (char *) malloc(strlen(path) + 1))) {
+		if ( ! (tmp=(char *)malloc(strlen(path) + 1)) ) 
+		{
 			errno = ENOMEM;
 			output_fatal("mkdirs() failed: '%s'", strerror(errno));
 			return -1;
@@ -498,11 +435,15 @@ static int mkdirs(char *path)
 		strcpy(tmp, path);
 		end = tmp + strlen(tmp);
 		// strip off directories until one is found that exists
-		while ((pos = strrchr(tmp, PATHSEP))) {
+		while ( (pos=strrchr(tmp, '/')) ) 
+		{
 			*pos = '\0';
-			if (!(*tmp) || !(rc = access(tmp, F_OK)))
+			if ( ! (*tmp) || ! (rc=access(tmp, F_OK)) )
+			{
 				break;
-			if (errno != ENOENT) {
+			}
+			if ( errno != ENOENT ) 
+			{
 				output_error("cannot access directory '%s': %s", tmp, strerror(errno));
 				free(tmp);
 				tmp = NULL;
@@ -510,10 +451,13 @@ static int mkdirs(char *path)
 			}
 		}
 		// add back components creating them as we go
-		for (pos = tmp + strlen(tmp); pos < end; pos = tmp + strlen(tmp)) {
-			if (*pos == '\0') {
-				*pos = PATHSEP;
-				if ((rc = mkdir(tmp, 0775)) && errno != EEXIST) {
+		for ( pos = tmp+strlen(tmp) ; pos < end ; pos = tmp+strlen(tmp) ) 
+		{
+			if ( *pos == '\0' ) 
+			{
+				*pos = '/';
+				if ( (rc=mkdir(tmp, 0775)) && errno != EEXIST ) 
+				{
 					output_error("cannot create directory '%s': %s", tmp, strerror(errno));
 					free(tmp);
 					tmp = NULL;
@@ -524,12 +468,15 @@ static int mkdirs(char *path)
 		free(tmp);
 		tmp = NULL;
 		return 0;
-	} else if (rc)
+	} 
+	else if (rc)
+	{
 		output_error("cannot access directory '%s': %s", path, strerror(errno));
+	}
 	return rc;
 }
 
-static STATUS compile_code(CLASS *oclass, int64 functions)
+STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 {
 	char include_file_str[1024];
 	char buffer[256];
@@ -537,11 +484,10 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 
 	include_file_str[0] = '\0';
 
-#ifdef HAVE_CONFIG
 	/* check global_include */
-	if (strlen(global_include)==0)
+	if ( strlen(global_include) == 0 )
 	{
-		if (getenv("GRIDLABD"))
+		if ( getenv("GRIDLABD") )
 		{
 			strncpy(global_include,getenv("GRIDLABD"),sizeof(global_include));
 			IN_MYCONTEXT output_verbose("global_include is not set, assuming value of GRIDLABD variable '%s'", global_include);
@@ -557,14 +503,13 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 			return FAILED;
 		}
 	}
-#endif
 
-	if (code_used>0)
+	if ( code_used > 0 )
 	{
 		MODULE *mod;
 
 		FILE *fp;
-		STAT stat;
+		struct stat stat;
 		int outdated = true;
 		char cfile[1024];
 		char ofile[1024];
@@ -577,12 +522,15 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 
 		/* build class implementation files */
 		strncpy(tmp, global_tmp, sizeof(tmp));
-		if (mkdirs(tmp)) {
+		if ( mkdirs(tmp) ) 
+		{
 			errno = 0;
 			return FAILED;
 		}
-		if (strlen(tmp)>0 && tmp[strlen(tmp)-1]!='/' && tmp[strlen(tmp)-1]!='\\')
+		if ( strlen(tmp) > 0 && tmp[strlen(tmp)-1] != '/' )
+		{
 			strcat(tmp,"/");
+		}
 		sprintf(cfile,"%s%s.cpp", (use_msvc||global_gdb||global_gdb_window)?"":tmp,oclass->name);
 		sprintf(ofile,"%s%s.%s", (use_msvc||global_gdb||global_gdb_window)?"":tmp,oclass->name, use_msvc?"obj":"o");
 		sprintf(file,"%s%s", (use_msvc||global_gdb||global_gdb_window)?"":tmp, oclass->name);
@@ -590,17 +538,17 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 
 		/* peek at library file */
 		fp = fopen(afile,"r");
-		if (fp!=NULL && FSTAT(fileno(fp),&stat)==0)
+		if ( fp != NULL && fstat(fileno(fp),&stat) == 0 )
 		{
-			if (global_debug_mode || use_msvc || global_gdb || global_gdb_window )
+			if ( global_debug_mode || use_msvc || global_gdb || global_gdb_window )
 			{
 				IN_MYCONTEXT output_verbose("%s is being used for debugging", afile);
 			}
-			else if (global_force_compile)
+			else if ( global_force_compile )
 			{
 				IN_MYCONTEXT output_verbose("%s recompile is forced", afile);
 			}
-			else if (modtime<stat.st_mtime)
+			else if ( modtime < stat.st_mtime )
 			{
 				IN_MYCONTEXT output_verbose("%s is up to date", afile);
 				outdated = false;
@@ -609,16 +557,19 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 			{
 				IN_MYCONTEXT output_verbose("%s is outdated", afile);
 			}
+		}
+		if ( fp != NULL )
+		{
 			fclose(fp);
 		}
 		
-		if (outdated)
+		if ( outdated )
 		{
 			/* write source file */
 			fp = fopen(cfile,"w");
 
 			IN_MYCONTEXT output_verbose("writing inline code to '%s'", cfile);
-			if (fp==NULL)
+			if ( fp == NULL )
 			{
 				output_fatal("unable to open '%s' for writing", cfile);
 				/*	TROUBLESHOOT
@@ -631,11 +582,12 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 			}
 			outfilename = cfile;
 			ifs_off = 0;
-			for(lptr = header_list; lptr != 0; lptr = lptr->next){
+			for ( lptr = header_list ; lptr != 0; lptr = lptr->next )
+			{
 				sprintf(include_file_str+ifs_off, "#include \"%s\"\n;", lptr->file);
 				ifs_off+=strlen(lptr->file)+13;
 			}
-			if (write_file(fp,"/* automatically generated from %s */\n\n"
+			if ( write_file(fp,"/* automatically generated from %s */\n\n"
 					"int gld_major=%d, gld_minor=%d;\n\n"
 					"%s\n\n"
 					"#include <gridlabd.h>\n\n"
@@ -680,118 +632,71 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				return FAILED;
 			}
 			fclose(fp);
-			outfilename=NULL;
+			outfilename = NULL;
 
 			/* compile object file */
 			IN_MYCONTEXT output_verbose("compiling inline code from '%s'", cfile);
-			if (!use_msvc)
-			{
 #define DEFAULT_CXX "g++"
 #define DEFAULT_CXXFLAGS ""
 #define DEFAULT_LDFLAGS ""
-				char execstr[1024];
-				char ldstr[1024];
-				char mopt[8]="";
-				const char *libs = "-lstdc++";
-#ifdef WIN32
-				snprintf(mopt,sizeof(mopt),"-m%d",sizeof(void*)*8);
-				libs = "";
-#endif
+			char execstr[1024];
+			char ldstr[1024];
+			char mopt[8]="";
+			const char *libs = "-lstdc++";
 
-				sprintf(execstr, "%s %s %s %s %s -fPIC -c \"%s\" -o \"%s\"",
-						getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
-						global_warn_mode?"-w":"",
-						global_debug_output?"-g -O0":"-O0",
-						mopt,
-						getenv("CXXFLAGS")?getenv("CXXFLAGS"):DEFAULT_CXXFLAGS,
-						cfile, ofile);
-				IN_MYCONTEXT output_verbose("compile command: [%s]", execstr);
-				if(exec("%s",execstr)==FAILED)
-				{
-					errno = EINVAL;
-					return FAILED;
-				}
-				if ( !global_debug_output )
-					unlink(cfile);
-				else
-					output_verbose("keeping %s for debugging",cfile);
-
-				/* link new runtime module */
-				IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
-				sprintf(ldstr, "%s %s %s %s -shared -Wl,\"%s\" -o \"%s\" %s",
-						getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
-						mopt,
-						global_debug_output?"-g -O0":"",
-						getenv("LDFLAGS")?getenv("LDFLAGS"):DEFAULT_LDFLAGS,
-						ofile, afile, libs);
-				IN_MYCONTEXT output_verbose("link command: [%s]", ldstr);
-				if(exec("%s",ldstr) == FAILED)
-				{
-					errno = EINVAL;
-					return FAILED;
-				}
-				/* post linking command (optional) */
-				if ( global_getvar("LDPOSTLINK",tbuf,sizeof(tbuf))!=NULL )
-				{
-					/* SE linux needs the new module marked as relocatable (textrel_shlib_t) */
-					exec("%s '%s'", tbuf, afile);
-				}
-
-				if ( !global_debug_output )
-					unlink(ofile);
+			sprintf(execstr, "%s %s %s %s %s -fPIC -c \"%s\" -o \"%s\"",
+					getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
+					global_warn_mode?"-w":"",
+					global_debug_output?"-g -O0":"-O0",
+					mopt,
+					getenv("CXXFLAGS")?getenv("CXXFLAGS"):DEFAULT_CXXFLAGS,
+					cfile, ofile);
+			IN_MYCONTEXT output_verbose("compile command: [%s]", execstr);
+			if ( exec("%s",execstr) == FAILED )
+			{
+				errno = EINVAL;
+				return FAILED;
+			}
+			if ( !global_debug_output )
+			{
+				unlink(cfile);
 			}
 			else
 			{
-				char exports[1024] = "/EXPORT:init ";
-
-				sprintf(exports+strlen(exports),"/EXPORT:create_%s ",oclass->name); /* create is required */
-				if (functions&FN_INIT) sprintf(exports+strlen(exports),"/EXPORT:init_%s ",oclass->name);
-				if (functions&FN_PRECOMMIT) sprintf(exports+strlen(exports),"/EXPORT:precommit_%s ",oclass->name);
-				if (functions&FN_PRESYNC || functions&FN_SYNC || functions&FN_POSTSYNC) sprintf(exports+strlen(exports),"/EXPORT:sync_%s ",oclass->name);
-				if (functions&FN_ISA) sprintf(exports+strlen(exports),"/EXPORT:isa_%s ",oclass->name);
-				if (functions&FN_NOTIFY) sprintf(exports+strlen(exports),"/EXPORT:notify_%s ",oclass->name);
-				if (functions&FN_PLC) sprintf(exports+strlen(exports),"/EXPORT:plc_%s ",oclass->name);
-				if (functions&FN_RECALC) sprintf(exports+strlen(exports),"/EXPORT:recalc_%s ",oclass->name);
-				if (functions&FN_COMMIT) sprintf(exports+strlen(exports),"/EXPORT:commit_%s ",oclass->name);
-				if (functions&FN_FINALIZE) sprintf(exports+strlen(exports),"/EXPORT:finalize_%s ",oclass->name);
-
-				if (exec("cl /Od /DWIN32 /D_DEBUG /D_WINDOWS /D_USRDLL /D_CRT_SECURE_NO_DEPRECATE /D_WINDLL /D_MBCS /Gm /EHsc /RTC1 "
-#if __WORDSIZE__==64
-					"/Wp64 "
-#endif
-					"/MDd /nologo /W3 /Zi /TP /wd4996 /errorReport:none /c %s  %s%s%s /Fo%s"
-					"", cfile, strlen(global_include)>0?"/I \"":"", global_include, strlen(global_include)>0?"\"":"", ofile)==FAILED)
-				{
-					output_error("MSVC compile failed for '%s'", cfile);
-					return FAILED;
-				}
-
-				if (exec("link %s /OUT:%s /NOLOGO /DLL /MANIFEST /MANIFESTFILE:%s.manifest "
-					"/SUBSYSTEM:WINDOWS "
-#ifdef _DEBUG
-					"/DEBUG "
-#endif
-#if __WORDSIZE__==64
-					"/MACHINE:X64 "
-#else
-					"/MACHINE:X86 "
-#endif
-					"/ERRORREPORT:NONE "
-					"%s "
-					"kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib "
-					"uuid.lib odbc32.lib odbccp32.lib", file,afile,oclass->name,exports)==FAILED)
-				{
-					output_error("MSVC link failed for '%s'", cfile);
-					return FAILED;
-				}
+				output_verbose("keeping %s for debugging",cfile);
 			}
 
+			/* link new runtime module */
+			IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
+			sprintf(ldstr, "%s %s %s %s -shared -Wl,\"%s\" -o \"%s\" %s",
+					getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
+					mopt,
+					global_debug_output?"-g -O0":"",
+					getenv("LDFLAGS")?getenv("LDFLAGS"):DEFAULT_LDFLAGS,
+					ofile, afile, libs);
+			IN_MYCONTEXT output_verbose("link command: [%s]", ldstr);
+			if ( exec("%s",ldstr) == FAILED )
+			{
+				errno = EINVAL;
+				return FAILED;
+			}
+			/* post linking command (optional) */
+			if ( global_getvar("LDPOSTLINK",tbuf,sizeof(tbuf))!=NULL )
+			{
+				/* SE linux needs the new module marked as relocatable (textrel_shlib_t) */
+				exec("%s '%s'", tbuf, afile);
+			}
+
+			if ( !global_debug_output )
+			{
+				unlink(ofile);
+			}
 		}
 
 		/* load runtime module */
 		IN_MYCONTEXT output_verbose("loading dynamic link library %s...", afile);
 		mod = module_load(oclass->name,0,NULL);
-		if (mod==NULL)
+		if ( mod == NULL )
 		{
 			output_error("unable to load inline code");
 			return FAILED;
@@ -801,13 +706,13 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 		/* start debugger if requested */
 		if ( global_gdb || global_gdb_window )
 		{
-			if (global_debug_mode)
+			if ( global_debug_mode )
 			{
 				IN_MYCONTEXT output_debug("using gdb requires GLD debugger be disabled");
 			}
 			global_debug_output = 1;
 			IN_MYCONTEXT output_verbose("attaching debugger to process id %d", getpid());
-			if (debugger(afile)==FAILED)
+			if ( debugger(afile) == FAILED )
 			{
 				output_error("debugger load failed: %s", errno?strerror(errno):"(no details)");
 				return FAILED;
@@ -824,7 +729,9 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 		strcpy(oclass->runtime,afile);
 	}
 	else
+	{
 		oclass->has_runtime = false;
+	}
 
 	/* clear buffers */
 	code_block[0] = global_block[0] = init_block[0] = '\0';
@@ -833,49 +740,53 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 	return SUCCESS;
 }
 
-
-static OBJECT **object_index = NULL;
-static char *object_linked = NULL;
-static unsigned int object_index_size = 65536;
-/*static*/ STATUS load_set_index(OBJECT *obj, OBJECTNUM id)
+STATUS GldLoader::load_set_index(OBJECT *obj, OBJECTNUM id)
 {
-	if (object_index==NULL)
+	if ( object_index == NULL )
 	{
 		object_index = (OBJECT**)malloc(sizeof(OBJECT*)*object_index_size);
 		memset(object_index,0,sizeof(OBJECT*)*object_index_size);
 		object_linked = (char *)malloc(sizeof(unsigned char)*object_index_size);
 		memset(object_linked,0,sizeof(unsigned char)*object_index_size);
 	}
-	if (id>=object_index_size) /* index needs to grow */
+	if ( id >= object_index_size ) /* index needs to grow */
 	{
 		int new_size = (id/object_index_size+1)*object_index_size;
 		object_index = (OBJECT**)realloc(object_index,sizeof(OBJECT*)*new_size);
-//		memset(object_index+object_index_size*sizeof(OBJECT *),0,sizeof(OBJECT*)*(new_size-object_index_size));
 		object_linked = (char *)realloc(object_linked,sizeof(unsigned char)*new_size);
-//		memset(object_linked+object_index_size*sizeof(unsigned char),0,sizeof(unsigned char)*(new_size-object_index_size));
 		object_index_size = new_size;
 	}
-	if (object_index==NULL) { errno = ENOMEM; return FAILED;}
+	if ( object_index == NULL ) 
+	{ 
+		errno = ENOMEM; 
+		return FAILED;
+	}
 	/* collision check here */
 	object_index[id] = obj;
 	object_linked[id] = 0;
 	return SUCCESS;
 }
-/*static*/ OBJECT *load_get_index(OBJECTNUM id)
+
+OBJECT *GldLoader::load_get_index(OBJECTNUM id)
 {
-	if (object_index==NULL || id<0 || id>=object_index_size)
+	if ( object_index == NULL || id < 0 || id >= object_index_size )
+	{
 		return NULL;
+	}
 	object_linked[id]++;
 	return object_index[id];
 }
-static OBJECT *get_next_unlinked(CLASS *oclass)
+
+OBJECT *GldLoader::get_next_unlinked(CLASS *oclass)
 {
 	unsigned int id;
-	if (object_index==NULL)
-		return NULL;
-	for (id=0; id<object_index_size; id++)
+	if ( object_index == NULL )
 	{
-		if (object_linked[id]==0 && object_index[id]!=NULL && object_index[id]->oclass==oclass)
+		return NULL;
+	}
+	for ( id = 0; id < object_index_size; id++ )
+	{
+		if ( object_linked[id] == 0 && object_index[id] != NULL && object_index[id]->oclass == oclass )
 		{
 			object_linked[id]++;
 			return object_index[id];
@@ -883,25 +794,31 @@ static OBJECT *get_next_unlinked(CLASS *oclass)
 	}
 	return NULL;
 }
-static void free_index(void)
+
+void GldLoader::free_index(void)
 {
-	if (object_index!=NULL)
+	if ( object_index != NULL )
+	{
 		free(object_index);
-	object_index=NULL;
+	}
+	object_index = NULL;
 	object_index_size = 65536;
 }
 
-static UNRESOLVED *first_unresolved = NULL;
-/*static*/ UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags)
+GldLoader::UNRESOLVED *GldLoader::add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags)
 {
 	UNRESOLVED *item = (UNRESOLVED*)malloc(sizeof(UNRESOLVED));
-	if (item==NULL) { errno = ENOMEM; return NULL; }
+	if ( item == NULL ) 
+	{ 
+		errno = ENOMEM; 
+		return NULL; 
+	}
 	item->by = by;
 	item->ptype = ptype;
 	item->ref = ref;
 	item->oclass = oclass;
 	item->id = strdup(id);
-	if (first_unresolved!=NULL && strcmp(first_unresolved->file,file)==0)
+	if ( first_unresolved != NULL && strcmp(first_unresolved->file,file) == 0 )
 	{
 		item->file = first_unresolved->file; // means keep using the same file
 		first_unresolved->file = NULL;
@@ -917,7 +834,8 @@ static UNRESOLVED *first_unresolved = NULL;
 	first_unresolved = item;
 	return item;
 }
-static int resolve_object(UNRESOLVED *item, const char *filename)
+
+int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 {
 	OBJECT *obj;
 	char classname[65];
@@ -927,9 +845,11 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 	char op[2];
 	char star;
 
-	if(0 == strcmp(item->id, "root"))
+	if ( 0 == strcmp(item->id, "root") )
+	{
 		obj = NULL;
-	else if (sscanf(item->id,"childless:%[^=]=%s",propname,target))
+	}
+	else if ( sscanf(item->id,"childless:%[^=]=%s",propname,target) == 2 )
 	{
 		for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
 		{
@@ -940,42 +860,42 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 				break;
 			}
 		}
-		if ( obj==NULL )
+		if ( obj == NULL )
 		{
 			syntax_error(filename,item->line,"no childless objects found in %s=%s (parent unresolved)", propname, target);
 			return FAILED;
 		}
 	}
-	else if (sscanf(item->id,"%64[^.].%64[^:]:",classname,propname)==2)
+	else if ( sscanf(item->id,"%64[^.].%64[^:]:",classname,propname) == 2 )
 	{
 		const char *value = strchr(item->id,':');
 		FINDLIST *match;
-		if (value++==NULL)
+		if ( value++ == NULL )
 		{
 			syntax_error(filename,item->line,"%s reference to %s is missing match value",
 				format_object(item->by), item->id);
 			return FAILED;
 		}
 		match = find_objects(FL_NEW,FT_CLASS,SAME,classname,AND,FT_PROPERTY,propname,SAME,value,FT_END);
-		if (match==NULL || match->hit_count==0)
+		if ( match == NULL || match->hit_count == 0 )
 		{
 			syntax_error(filename,item->line,"%s reference to %s does not match any existing objects",
 				format_object(item->by), item->id);
 			return FAILED;
 		}
-		else if (match->hit_count>1)
+		else if ( match->hit_count > 1 )
 		{
 			syntax_error(filename,item->line,"%s reference to %s matches more than one object",
 				format_object(item->by), item->id);
 			return FAILED;
 		}
-		obj=find_first(match);
+		obj = find_first(match);
 	}
-	else if (sscanf(item->id,"%[^:]:id%[+-]%d",classname,op,&id)==3)
+	else if ( sscanf(item->id,"%[^:]:id%[+-]%d",classname,op,&id) == 3 )
 	{
 		CLASS *oclass = class_get_class_from_classname(classname);
 		obj = object_find_by_id(item->by->id + (op[0]=='+'?+1:-1)*id);
-		if ( oclass == NULL || obj==NULL )
+		if ( oclass == NULL || obj == NULL )
 		{
 			obj = object_find_name(item->id);
 			if ( obj == NULL )
@@ -986,38 +906,38 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 			}
 		}
 	}
-	else if (sscanf(item->id,global_object_scan,classname,&id)==2)
+	else if ( sscanf(item->id,global_object_scan,classname,&id) == 2 )
 	{
 		obj = load_get_index(id);
 		if ( obj == NULL )
 		{
 			obj = object_find_name(item->id);
 		}
-		if (obj==NULL)
+		if ( obj == NULL )
 		{
 			syntax_error(filename,item->line,"cannot resolve explicit reference from %s to %s",
 				format_object(item->by), item->id);
 			return FAILED;
 		}
-		if ((strcmp(obj->oclass->name,classname)!=0) && (strcmp("id", classname) != 0))
-		{ /* "id:###" is our wildcard.  some converters use it for dangerous simplicity. -mh */
+		if ( strcmp(obj->oclass->name,classname) !=0 && strcmp("id", classname) != 0 )
+		{
 			syntax_error(filename,item->line,"class of reference from %s to %s mismatched",
 				format_object(item->by), item->id);
 			return FAILED;
 		}
 	}
-	else if (sscanf(item->id,"%[^:]:%c",classname,&star)==2 && star=='*')
+	else if ( sscanf(item->id,"%[^:]:%c",classname,&star) == 2 && star == '*' )
 	{
 		CLASS *oclass = class_get_class_from_classname(classname);
 		obj = get_next_unlinked(oclass);
-		if (obj==NULL)
+		if ( obj == NULL )
 		{
 			syntax_error(filename,item->line,"cannot resolve last reference from %s to %s",
 				format_object(item->by), item->id);
 			return FAILED;
 		}
 	}
-	else if ((obj=object_find_name(item->id))!=NULL)
+	else if ( (obj=object_find_name(item->id)) != NULL )
 	{
 		/* found it already*/
 	}
@@ -1027,11 +947,14 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 		return FAILED;
 	}
 	*(OBJECT**)(item->ref) = obj;
-	if ((item->flags&UR_RANKS)==UR_RANKS)
+	if ( (item->flags&UR_RANKS) == UR_RANKS )
+	{
 		object_set_rank(obj,item->by->rank);
+	}
 	return SUCCESS;
 }
-static int resolve_double(UNRESOLVED *item, const char *context)
+
+int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
 {
 	char oname[65];
 	char pname[65];
@@ -1109,7 +1032,7 @@ static int resolve_double(UNRESOLVED *item, const char *context)
 	return FAILED;
 }
 
-static STATUS resolve_list(UNRESOLVED *item)
+STATUS GldLoader::resolve_list(UNRESOLVED *item)
 {
 	UNRESOLVED *next;
 	const char *filename = NULL;
@@ -1153,19 +1076,19 @@ static STATUS resolve_list(UNRESOLVED *item)
 		free((void*)filename);
 	return SUCCESS;
 }
-/*static*/ STATUS load_resolve_all()
+
+STATUS GldLoader::load_resolve_all(void)
 {
 	STATUS result = resolve_list(first_unresolved);
 	first_unresolved = NULL;
 	return result;
 }
 
-void start_parse(int &mm, int &m, int &n, int &l, int linenum)
+void GldLoader::start_parse(int &mm, int &m, int &n, int &l, int linenum)
 {
 	mm = m = n = l = 0;
 	l = linenum;
 }
-#define PARSER const char *_p
 #define START int _mm, _m, _n, _l; start_parse(_mm,_m,_n,_l,linenum);
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
@@ -1181,7 +1104,7 @@ void start_parse(int &mm, int &m, int &n, int &l, int linenum)
 #define REPEAT _p=__p;_m=__m; _mm=__mm; _n=__n; _l=__l; linenum=__ln;
 #define END_REPEAT }
 
-static void syntax_error_here(const char *p)
+void GldLoader::syntax_error_here(const char *p)
 {
 	char context[16], *nl;
 	strncpy(context,p,15);
@@ -1193,7 +1116,7 @@ static void syntax_error_here(const char *p)
 		syntax_error(filename,linenum,"syntax error");
 }
 
-static int white(PARSER)
+int GldLoader::white(PARSER)
 {
 	int len = 0;
 	for(len = 0; *_p != '\0' && isspace((unsigned char)(*_p)); ++_p){
@@ -1204,21 +1127,7 @@ static int white(PARSER)
 	return len;
 }
 
-#if 0 // unused function
-static int comment(PARSER)
-{
-	int _n = white(_p);
-	if (_p[_n]=='#')
-	{
-		while (_p[_n]!='\n')
-			_n++;
-		linenum++;
-	}
-	return _n;
-}
-#endif
-
-static int pattern(PARSER, const char *pattern, char *result, int size)
+int GldLoader::pattern(PARSER, const char *pattern, char *result, int size)
 {
 	char format[64];
 	START;
@@ -1228,24 +1137,14 @@ static int pattern(PARSER, const char *pattern, char *result, int size)
 	DONE;
 }
 
-#if 0 // usused function
-static int scan(PARSER, char *format, char *result, int size)
-{
-	START;
-	if (sscanf(_p,format,result)==1)
-		_n = (int)strlen(result);
-	DONE;
-}
-#endif
-
-static int literal(PARSER, const char *text)
+int GldLoader::literal(PARSER, const char *text)
 {
 	if (strncmp(_p,text,strlen(text))==0)
 		return (int)strlen(text);
 	return 0;
 }
 
-static int dashed_name(PARSER, char *result, int size)
+int GldLoader::dashed_name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	/* names cannot start with a digit */
@@ -1255,7 +1154,7 @@ static int dashed_name(PARSER, char *result, int size)
 	DONE;
 }
 
-static int name(PARSER, char *result, int size)
+int GldLoader::name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	/* names cannot start with a digit */
@@ -1264,7 +1163,7 @@ static int name(PARSER, char *result, int size)
 	result[_n]='\0';
 	DONE;
 }
-static int namelist(PARSER, char *result, int size)
+int GldLoader::namelist(PARSER, char *result, int size)
 {	/* basic list of names */
 	START;
 	/* names cannot start with a digit */
@@ -1273,7 +1172,7 @@ static int namelist(PARSER, char *result, int size)
 	result[_n]='\0';
 	DONE;
 }
-static int variable_list(PARSER, char *result, int size)
+int GldLoader::variable_list(PARSER, char *result, int size)
 {	/* basic list of variable names */
 	START;
 	/* names cannot start with a digit */
@@ -1283,7 +1182,7 @@ static int variable_list(PARSER, char *result, int size)
 	DONE;
 }
 
-static int property_list(PARSER, char *result, int size)
+int GldLoader::property_list(PARSER, char *result, int size)
 {	/* basic list of variable names */
 	START;
 	/* names cannot start with a digit */
@@ -1293,7 +1192,7 @@ static int property_list(PARSER, char *result, int size)
 	DONE;
 }
 
-static int unitspec(PARSER, UNIT **unit)
+int GldLoader::unitspec(PARSER, UNIT **unit)
 {
 	char result[1024];
 	size_t size = sizeof(result);
@@ -1316,7 +1215,7 @@ static int unitspec(PARSER, UNIT **unit)
 	DONE;
 }
 
-static int unitsuffix(PARSER, UNIT **unit)
+int GldLoader::unitsuffix(PARSER, UNIT **unit)
 {
 	START;
 	if (LITERAL("["))
@@ -1337,14 +1236,14 @@ static int unitsuffix(PARSER, UNIT **unit)
 	DONE;
 }
 
-static int nameunit(PARSER,char *result,int size,UNIT **unit)
+int GldLoader::nameunit(PARSER,char *result,int size,UNIT **unit)
 {
 	START;
 	if (TERM(name(HERE,result,size)) && TERM(unitsuffix(HERE,unit))) ACCEPT; DONE;
 	REJECT;
 }
 
-static int dotted_name(PARSER, char *result, int size)
+int GldLoader::dotted_name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='.') COPY(result);
@@ -1352,7 +1251,7 @@ static int dotted_name(PARSER, char *result, int size)
 	DONE;
 }
 
-static int hostname(PARSER, char *result, int size)
+int GldLoader::hostname(PARSER, char *result, int size)
 {	/* full path name */
 	START;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='.' || *_p=='-' || *_p==':' ) COPY(result);
@@ -1360,7 +1259,7 @@ static int hostname(PARSER, char *result, int size)
 	DONE;
 }
 
-static int delim_value(PARSER, char *result, int size, const char *delims)
+int GldLoader::delim_value(PARSER, char *result, int size, const char *delims)
 {
 	/* everything to any of delims */
 	int quote=0;
@@ -1380,7 +1279,8 @@ static int delim_value(PARSER, char *result, int size, const char *delims)
 	result[_n]='\0';
 	return (int)(_p - start);
 }
-static int structured_value(PARSER, char *result, int size)
+
+int GldLoader::structured_value(PARSER, char *result, int size)
 {
 	int depth=0;
 	const char *start=_p;
@@ -1398,7 +1298,7 @@ static int structured_value(PARSER, char *result, int size)
 	return (int)(_p - start);
 }
 
-static int multiline_value(PARSER,char *result,int size)
+int GldLoader::multiline_value(PARSER,char *result,int size)
 {
 	const char *start = _p;
 	const char *end = strstr(_p,"\"\"\"");
@@ -1457,7 +1357,7 @@ static int multiline_value(PARSER,char *result,int size)
 	}
 }
 
-static int value(PARSER, char *result, int size)
+int GldLoader::value(PARSER, char *result, int size)
 {
 	/* everything to a semicolon */
 	char delim=';';
@@ -1498,126 +1398,7 @@ static int value(PARSER, char *result, int size)
 	return (int)(_p - start);
 }
 
-#if 0
-static int functional_int(PARSER, int64 *value){
-	char result[256];
-	int size=sizeof(result);
-	double pValue;
-	char32 fname;
-	START;
-//	while (size>1 && isdigit(*_p)) COPY(result);
-//	result[_n]='\0';
-//	*value=atoi64(result);
-	/* copy-pasted from functional */
-	if (LITERAL("random.") && TERM(name(HERE,fname,sizeof(fname))))
-	{
-		RANDOMTYPE rtype = random_type(fname);
-		int nargs = random_nargs(fname);
-		double a;
-		if (rtype==RT_INVALID || nargs==0 || (WHITE,!LITERAL("(")))
-		{
-			output_message("%s(%d): %s is not a valid random distribution", filename,linenum,fname);
-			REJECT;
-		}
-		if (nargs==-1)
-		{
-			if (WHITE,TERM(real_value(HERE,&a)))
-			{
-				double b[1024];
-				int maxb = sizeof(b)/sizeof(b[0]);
-				int n;
-				b[0] = a;
-				for (n=1; n<maxb && (WHITE,LITERAL(",")); n++)
-				{
-					if (WHITE,TERM(real_value(HERE,&b[n])))
-						continue;
-					else
-					{
-						// variable arg list
-						output_message("%s(%d): expected a %s distribution term after ,", filename,linenum, fname);
-						REJECT;
-					}
-				}
-				if (WHITE,LITERAL(")"))
-				{
-					pValue = random_value(rtype,n,b);
-					ACCEPT;
-				}
-				else
-				{
-					output_message("%s(%d): missing ) after %s distribution terms", filename,linenum, fname);
-					REJECT;
-				}
-			}
-			else
-			{
-				output_message("%s(%d): expected first term of %s distribution", filename,linenum, fname);
-				REJECT;
-			}
-		}
-		else 
-		{
-			if (WHITE,TERM(real_value(HERE,&a)))
-			{
-				// fixed arg list
-				double b,c;
-				if (nargs==1)
-				{
-					if (WHITE,LITERAL(")"))
-					{
-						pValue = random_value(rtype,a);
-						ACCEPT;
-					}
-					else
-					{
-						output_message("%s(%d): expected ) after %s distribution term", filename,linenum, fname);
-						REJECT;
-					}
-				}
-				else if (nargs==2)
-				{
-					if ( (WHITE,LITERAL(",")) && (WHITE,TERM(real_value(HERE,&b))) && (WHITE,LITERAL(")")))
-					{
-						pValue = random_value(rtype,a,b);
-						ACCEPT;
-					}
-					else
-					{
-						output_message("%s(%d): missing second %s distribution term and/or )", filename,linenum, fname);
-						REJECT;
-					}
-				}
-				else if (nargs==3)
-				{
-					if ( (WHITE,LITERAL(",")) && (WHITE,TERM(real_value(HERE,&b))) && WHITE,LITERAL(",") && (WHITE,TERM(real_value(HERE,&c))) && (WHITE,LITERAL(")")))
-					{
-						pValue = random_value(rtype,a,b,c);
-						ACCEPT;
-					}
-					else
-					{
-						output_message("%s(%d): missing terms and/or ) in %s distribution ", filename,linenum, fname);
-						REJECT;
-					}
-				}
-				else
-				{
-					output_message("%s(%d): %d terms is not supported", filename,linenum, nargs);
-					REJECT;
-				}
-			}
-			else
-			{
-				output_message("%s(%d): expected first term of %s distribution", filename,linenum, fname);
-				REJECT;
-			}
-		}
-	} // end if "random."
-	return _n;
-}
-#endif
-
-static int integer(PARSER, int64 *value)
+int GldLoader::integer(PARSER, int64 *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -1628,8 +1409,7 @@ static int integer(PARSER, int64 *value)
 	return _n;
 }
 
-
-static int unsigned_integer(PARSER, unsigned int64 *value)
+int GldLoader::unsigned_integer(PARSER, unsigned int64 *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -1640,7 +1420,7 @@ static int unsigned_integer(PARSER, unsigned int64 *value)
 	return _n;
 }
 
-static int integer32(PARSER, int32 *value)
+int GldLoader::integer32(PARSER, int32 *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -1651,7 +1431,7 @@ static int integer32(PARSER, int32 *value)
 	return _n;
 }
 
-static int integer16(PARSER, int16 *value)
+int GldLoader::integer16(PARSER, int16 *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -1662,7 +1442,7 @@ static int integer16(PARSER, int16 *value)
 	return _n;
 }
 
-static int real_value(PARSER, double *value)
+int GldLoader::real_value(PARSER, double *value)
 {
 	char result[256];
 	int ndigits=0;
@@ -1683,7 +1463,7 @@ static int real_value(PARSER, double *value)
 	return _n;
 }
 
-static int functional(PARSER, double *pValue)
+int GldLoader::functional(PARSER, double *pValue)
 {
 	char fname[32];
 	START;
@@ -1802,68 +1582,41 @@ static int functional(PARSER, double *pValue)
 	DONE;
 }
 
-/* Expression rules:
- *	every value is either a double value, or a PT_double object property of the form "this.propname"
- *	valid operators are {+, -, *, /, ^}
- *	every expression begins and ends with parenthesis
- *	every value is followed by an operator or a close parenthesis
- *	every operator is followed by a value or an open parenthesis
- *	every open parenthesis is followed by a value
- *	every close parenthesis is followed by an operator or the end of the expression
- *	parenthesis must be matched
- *	every value or operator must consume trailing whitespace
- * Step one: form the expression list
- * Step two: break the list into a tree
- * Step three: evaluate the tree bottom-up
- *
- *
- *	Dijkstra's Shunting Yard algorithm
- *	ref: wikipedia (sadly)
- *
- *	- read a token
- *	- if the token is a number, add it to the output queue
- *	- if the token is a function token, then push it onto the stack
- *	- if the token is an operator, o1, then:
- *		- while there is an operator, o2, at the top of the stack, and either
- *			- o1 is associative or left-associative and its precedence is less than or equal to that of o2, or
- *			- o1 is right-associative and its precedence is less than that of o2
- *			then pop o2 off the stack and onto the output queue
- *	- if the token is a left parenthesis, then push it onto the stack.
- *	- if the toekn is a right parenthesis:
- *		- until the token at the top is a left parenthesis, pop operators off the stack onto the output queue
- *		- pop the left parenthesis from the stack, but not onto the output queue
- *		- if the token at the top of the stack is a function token, pop it and onto the output queue
- *		- if the stack runs out without finding a left parenthesis, then there are mismatched parentheses
- *	- when there are no more tokens to read:
- *		- while there are still operator tokens on the stack,
- *			- if the operator token is a parenthesis, we have a mismatched parenthesis
- *			- pop the operator onto the queue
- * - FIN
- */
-struct s_rpn {
+struct s_rpn 
+{
 	int op;
 	double val; // if op = 0, check val
 };
 
-double pos(double a)
+static double pos(double a)
 {
 	return a > 0.0 ? a : 0.0;
 }
-double neg(double a)
+
+static double neg(double a)
 {
 	return a < 0.0 ? -a : 0.0;
 }
-double nonzero(double a)
+
+static double nonzero(double a)
 {
 	return a != 0.0;
 }
-struct s_rpn_func {
+
+static double sign(double a)
+{
+	return a < 0.0 ? -1.0 : ( a > 0 ? +1.0 : 0.0);
+}
+
+struct s_rpn_func 
+{
 	const char *name;
 	int args; /* use a mode instead? else assume only doubles */
 	int index;
 	double (*fptr)(double);
 	/* fptr? for now, just to recognize */
-} rpn_map[] = {
+} rpn_map[] = 
+{
 	{"sin", 1, -1, sin},
 	{"cos", 1, -2, cos},
 	{"tan", 1, -3, tan},
@@ -1877,12 +1630,14 @@ struct s_rpn_func {
 	{"log10", 1, -11, log10},
 	{"floor", 1, -12, floor},
 	{"ceil", 1, -13, ceil},
-	{"pos", 1, -14, pos}, // returns only positive values
-	{"neg", 1, -15, neg}, // returns only positive values
+	{"pos", 1, -14, pos}, // clamp positive
+	{"neg", 1, -15, neg}, // clamp negative
 	{"nonzero", 1, -16, nonzero}, // returns 1 if nonzero
+	{"sign",1,-17,sign},
+	{"exp",1,-18,exp},
 };
 
-static int rpnfunc(PARSER, int *val)
+int GldLoader::rpnfunc(PARSER, int *val)
 {
 	int i = 0, count = 0;
 	START;
@@ -1895,10 +1650,6 @@ static int rpnfunc(PARSER, int *val)
 	}
 	return 0;
 }
-
-//static const int OP_END = 0, OP_OPEN = 1, OP_CLOSE = 2, OP_POW = 3,
-//		OP_MULT = 4, OP_MOD = 5, OP_DIV = 6, OP_ADD = 7, OP_SUB = 8;
-//static int OP_SIN = -1, OP_COS = -2, OP_TAN = -3, OP_ABS = -4;
 
 #define OP_END 0
 #define OP_OPEN 1
@@ -1926,7 +1677,8 @@ static int op_prec[] = {0, 0, 0, 3, 2, 2, 2, 1, 1};
 	op_stk[++op_i] = (T);							\
 	++rpn_sz;							
 	
-static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
+int GldLoader::expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj)
+{
 	double val_q[128], tVal;
 	char tname[128]; /* type name for this.prop */
 	char oname[128], pname[128];
@@ -2182,7 +1934,7 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 	DONE;
 }
 
-static int functional_unit(PARSER,double *pValue,UNIT **unit)
+int GldLoader::functional_unit(PARSER,double *pValue,UNIT **unit)
 {
 	START;
 	if TERM(functional(HERE,pValue))
@@ -2196,7 +1948,7 @@ static int functional_unit(PARSER,double *pValue,UNIT **unit)
 	REJECT;
 }
 
-static int complex_value(PARSER, complex *pValue)
+int GldLoader::complex_value(PARSER, complex *pValue)
 {
 	double r, i, m, a;
 	START;
@@ -2248,7 +2000,7 @@ static int complex_value(PARSER, complex *pValue)
 	REJECT;
 }
 
-static int complex_unit(PARSER,complex *pValue,UNIT **unit)
+int GldLoader::complex_unit(PARSER,complex *pValue,UNIT **unit)
 {
 	START;
 	if TERM(complex_value(HERE,pValue))
@@ -2262,7 +2014,7 @@ static int complex_unit(PARSER,complex *pValue,UNIT **unit)
 	REJECT;
 }
 
-static int time_value_seconds(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_seconds(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2272,7 +2024,7 @@ static int time_value_seconds(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_minutes(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_minutes(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2282,7 +2034,7 @@ static int time_value_minutes(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_hours(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_hours(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2292,7 +2044,7 @@ static int time_value_hours(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_days(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_days(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2302,7 +2054,7 @@ static int time_value_days(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_datetime(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_datetime(PARSER, TIMESTAMP *t)
 {
 	DATETIME dt;
 	START;
@@ -2332,7 +2084,7 @@ static int time_value_datetime(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-static int time_value_datetimezone(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_datetimezone(PARSER, TIMESTAMP *t)
 {
 	DATETIME dt;
 	START;
@@ -2362,7 +2114,7 @@ static int time_value_datetimezone(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-static int time_value_isodatetime(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_isodatetime(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2382,7 +2134,7 @@ static int time_value_isodatetime(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-static int time_value(PARSER, TIMESTAMP *t)
+int GldLoader::time_value(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2408,7 +2160,7 @@ static int time_value(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-double load_latitude(char *buffer)
+double GldLoader::load_latitude(char *buffer)
 {
 	char oname[128], pname[128];
 	double v = convert_to_latitude(buffer);
@@ -2430,7 +2182,7 @@ double load_latitude(char *buffer)
 	return v;
 }
 
-double load_longitude(char *buffer)
+double GldLoader::load_longitude(char *buffer)
 {
 	char oname[128], pname[128];
 	double v = convert_to_longitude(buffer);
@@ -2452,7 +2204,7 @@ double load_longitude(char *buffer)
 	return v;
 }
 
-static int clock_properties(PARSER)
+int GldLoader::clock_properties(PARSER)
 {
 	TIMESTAMP tsval;
 	char timezone[64];
@@ -2532,7 +2284,7 @@ Next:
 	DONE;
 }
 
-static int pathname(PARSER, char *path, int size)
+int GldLoader::pathname(PARSER, char *path, int size)
 {
 	START;
 	if TERM(pattern(HERE,"[-A-Za-z0-9/\\:_,. ]",path,size)) {ACCEPT;}
@@ -2555,9 +2307,7 @@ static int pathname(PARSER, char *path, int size)
 	{var} embeds the current value of the current object's variable <var>
 
  **/
-static OBJECT *current_object = NULL; /* context object */
-static MODULE *current_module = NULL; /* context module */
-static int expanded_value(const char *text, char *result, int size, const char *delims)
+int GldLoader::expanded_value(const char *text, char *result, int size, const char *delims)
 {
 	int n=0;
 	if (text[n] == '`')
@@ -2678,7 +2428,7 @@ static int expanded_value(const char *text, char *result, int size, const char *
 
  **/
 
-static int alternate_value(PARSER, char *value, int size)
+int GldLoader::alternate_value(PARSER, char *value, int size)
 {
 	double test;
 	char value1[1024];
@@ -2736,7 +2486,7 @@ static int alternate_value(PARSER, char *value, int size)
 /** Line specs are generated internally to maintain proper filename and line number context. 
 	Line specs are always alone on a line and take the form @pathname;linenum
  **/
-static int line_spec(PARSER)
+int GldLoader::line_spec(PARSER)
 {
 	char fname[1024];
 	int32 lnum;
@@ -2760,7 +2510,7 @@ static int line_spec(PARSER)
 	DONE;
 }
 
-static int clock_block(PARSER)
+int GldLoader::clock_block(PARSER)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2790,7 +2540,7 @@ static int clock_block(PARSER)
 	DONE;
 }
 
-static int module_properties(PARSER, MODULE *mod)
+int GldLoader::module_properties(PARSER, MODULE *mod)
 {
 	int64 val;
 	char classname[MAXCLASSNAMELEN];
@@ -2920,7 +2670,7 @@ Next:
 	DONE;
 }
 
-static int module_block(PARSER)
+int GldLoader::module_block(PARSER)
 {
 	char module_name[64];
 	char fmod[8],mod[54];
@@ -2980,7 +2730,7 @@ static int module_block(PARSER)
 	DONE;
 }
 
-static int property_specs(PARSER, KEYWORD **keys)
+int GldLoader::property_specs(PARSER, KEYWORD **keys)
 {
 	char keyname[32];
 	int32 keyvalue;
@@ -3003,7 +2753,7 @@ static int property_specs(PARSER, KEYWORD **keys)
 	DONE;
 }
 
-static int property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
+int GldLoader::property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
 {
 	char type[32];
 	START;
@@ -3030,7 +2780,7 @@ static int property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
 	DONE;
 }
 
-static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function, const char **ftype, const char **fname)
+int GldLoader::class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function, const char **ftype, const char **fname)
 {
 	char buffer[1024];
 	START;
@@ -3130,7 +2880,7 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	DONE;
 }
 
-static int argument_list(PARSER, char *args, int size)
+int GldLoader::argument_list(PARSER, char *args, int size)
 {
 	START;
 	if WHITE ACCEPT;
@@ -3156,7 +2906,7 @@ static int argument_list(PARSER, char *args, int size)
 	DONE;
 }
 
-static int source_code(PARSER, char *code, int size)
+int GldLoader::source_code(PARSER, char *code, int size)
 {
 	int _n = 0;
 	int nest = 0;
@@ -3256,7 +3006,7 @@ static int source_code(PARSER, char *code, int size)
 	return 0;
 }
 
-static int class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, char *code, int size)
+int GldLoader::class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, char *code, int size)
 {
 	const char *fname = NULL;
 	const char *ftype = NULL;
@@ -3291,7 +3041,7 @@ static int class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, cha
 	DONE;
 }
 
-static int class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, char *arglist, int asize, char *code, int csize)
+int GldLoader::class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, char *arglist, int asize, char *code, int csize)
 {
 	int startline;
 	char buffer[64];
@@ -3326,7 +3076,7 @@ static int class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, 
 	DONE;
 }
 
-static int class_explicit_declaration(PARSER, char *type, int size)//, bool *is_static)
+int GldLoader::class_explicit_declaration(PARSER, char *type, int size)//, bool *is_static)
 {
 	START;
 	if WHITE ACCEPT;
@@ -3364,7 +3114,7 @@ static int class_explicit_declaration(PARSER, char *type, int size)//, bool *is_
 	DONE;
 }
 
-static int class_explicit_definition(PARSER, CLASS *oclass)
+int GldLoader::class_explicit_definition(PARSER, CLASS *oclass)
 {
 	int startline;
 	char type[64];
@@ -3411,7 +3161,7 @@ static int class_explicit_definition(PARSER, CLASS *oclass)
 	DONE;
 }
 
-static int class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *fname, int fsize)
+int GldLoader::class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *fname, int fsize)
 {
 	char classname[MAXCLASSNAMELEN+1];
 	START;
@@ -3454,7 +3204,7 @@ static int class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *f
 	DONE;
 }
 
-static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize)
+int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize)
 {
 	static char code[65536];
 	char arglist[1024];
@@ -3555,7 +3305,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 	DONE;
 }
 
-static int class_block(PARSER)
+int GldLoader::class_block(PARSER)
 {
 	char classname[MAXCLASSNAMELEN+1];
 	CLASS *oclass;
@@ -3791,7 +3541,7 @@ static int class_block(PARSER)
 	DONE;
 }
 
-int set_flags(OBJECT *obj, char *propval)
+int GldLoader::set_flags(OBJECT *obj, char *propval)
 {
 	if (convert_to_set(propval,&(obj->flags),object_flag_property())<=0)
 	{
@@ -3801,7 +3551,8 @@ int set_flags(OBJECT *obj, char *propval)
 	return 1;
 }
 
-int is_int(PROPERTYTYPE pt){
+int GldLoader::is_int(PROPERTYTYPE pt)
+{
 	if(pt == PT_int16 || pt == PT_int32 || pt == PT_int64){
 		return (int)pt;
 	} else {
@@ -3809,7 +3560,7 @@ int is_int(PROPERTYTYPE pt){
 	}
 }
 
-static int schedule_ref(PARSER, SCHEDULE **sch)
+int GldLoader::schedule_ref(PARSER, SCHEDULE **sch)
 {
 	char name[64];
 	START;
@@ -3824,7 +3575,8 @@ static int schedule_ref(PARSER, SCHEDULE **sch)
 		REJECT;
 	DONE;
 }
-static int property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *from)
+
+int GldLoader::property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *from)
 {
 	FULLNAME oname;
 	char pname[64];
@@ -3897,7 +3649,7 @@ static int property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *fro
 	DONE;
 }
 
-static int transform_source(PARSER, TRANSFORMSOURCE *xstype, void **source, OBJECT *from)
+int GldLoader::transform_source(PARSER, TRANSFORMSOURCE *xstype, void **source, OBJECT *from)
 {
 	SCHEDULE *sch;
 	START;
@@ -3915,7 +3667,7 @@ static int transform_source(PARSER, TRANSFORMSOURCE *xstype, void **source, OBJE
 	DONE;
 }
 
-static int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *filtername, size_t namesize, OBJECT *from)
+int GldLoader::filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *filtername, size_t namesize, OBJECT *from)
 {
 	char fncname[1024];
 	char varlist[4096];
@@ -3945,7 +3697,7 @@ static int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size
 	DONE;
 }
 
-static int external_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *functionname, size_t namesize, OBJECT *from)
+int GldLoader::external_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *functionname, size_t namesize, OBJECT *from)
 {
 	char fncname[1024];
 	char varlist[4096];
@@ -3963,7 +3715,7 @@ static int external_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, si
 	REJECT;
 	DONE;
 }
-static int linear_transform(PARSER, TRANSFORMSOURCE *xstype, void **source, double *scale, double *bias, OBJECT *from)
+int GldLoader::linear_transform(PARSER, TRANSFORMSOURCE *xstype, void **source, double *scale, double *bias, OBJECT *from)
 {
 	START;
 	if WHITE ACCEPT;
@@ -4028,22 +3780,7 @@ static int linear_transform(PARSER, TRANSFORMSOURCE *xstype, void **source, doub
 	DONE;
 }
 
-OBJECT *load_get_current_object(void)
-{
-	return current_object;
-}
-MODULE *load_get_current_module(void)
-{
-	return current_module;
-}
-char *makecopy(char *s)
-{
-	char *copy = (char*)malloc(strlen(s)+1);
-	strcpy(copy,s);
-	return copy;
-}
-
-static void json_free(JSONDATA **data)
+void GldLoader::json_free(JSONDATA **data)
 {
 	if ( data==NULL || *data == NULL )
 		return;
@@ -4053,7 +3790,7 @@ static void json_free(JSONDATA **data)
 	free((void*)(*data));
 	*data = NULL;
 }
-static bool json_append(JSONDATA **data, const char *name, size_t namelen, const char *value, size_t valuelen)
+bool GldLoader::json_append(JSONDATA **data, const char *name, size_t namelen, const char *value, size_t valuelen)
 {
 	JSONDATA *next = (JSONDATA*)malloc(sizeof(JSONDATA));
 	if ( next == NULL )
@@ -4081,7 +3818,7 @@ static bool json_append(JSONDATA **data, const char *name, size_t namelen, const
 	IN_MYCONTEXT output_debug("json_append(name='%s',value='%s')",next->name,next->value);
 	return true;
 }
-static int json_data(PARSER,JSONDATA **data)
+int GldLoader::json_data(PARSER,JSONDATA **data)
 {
 	// this parser is for simple json "dict" data only
 	// and will not accept json lists or nested data
@@ -4179,7 +3916,7 @@ static int json_data(PARSER,JSONDATA **data)
 	DONE;
 }
 
-static int json_block(PARSER, OBJECT *obj, const char *propname)
+int GldLoader::json_block(PARSER, OBJECT *obj, const char *propname)
 {
 	JSONDATA *data = NULL;
 	START;
@@ -4201,8 +3938,8 @@ static int json_block(PARSER, OBJECT *obj, const char *propname)
 	}
 	DONE;
 }
-static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
-static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
+
+int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
 	char propname[64];
 	static char propval[65536*10];
@@ -4602,31 +4339,31 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					}
 					else if (strcmp(propname,"on_init")==0 )
 					{
-						obj->events.init = makecopy(propval);
+						obj->events.init = strdup(propval);
 					}
 					else if (strcmp(propname,"on_precommit")==0 )
 					{
-						obj->events.precommit = makecopy(propval);
+						obj->events.precommit = strdup(propval);
 					}
 					else if (strcmp(propname,"on_presync")==0 )
 					{
-						obj->events.presync = makecopy(propval);
+						obj->events.presync = strdup(propval);
 					}
 					else if (strcmp(propname,"on_sync")==0 )
 					{
-						obj->events.sync = makecopy(propval);
+						obj->events.sync = strdup(propval);
 					}
 					else if (strcmp(propname,"on_postsync")==0 )
 					{
-						obj->events.postsync = makecopy(propval);
+						obj->events.postsync = strdup(propval);
 					}
 					else if (strcmp(propname,"on_commit")==0 )
 					{
-						obj->events.commit = makecopy(propval);
+						obj->events.commit = strdup(propval);
 					}
 					else if (strcmp(propname,"on_finalize")==0 )
 					{
-						obj->events.finalize = makecopy(propval);
+						obj->events.finalize = strdup(propval);
 					}
 					else if (strcmp(propname,"name")==0)
 					{
@@ -4754,7 +4491,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 	DONE;
 }
 
-static int object_name_id(PARSER,char *classname, int64 *id)
+int GldLoader::object_name_id(PARSER,char *classname, int64 *id)
 {
 	START;
 	if WHITE ACCEPT;
@@ -4782,7 +4519,7 @@ static int object_name_id(PARSER,char *classname, int64 *id)
 		REJECT;
 }
 
-static int object_name_id_range(PARSER,char *classname, int64 *from, int64 *to)
+int GldLoader::object_name_id_range(PARSER,char *classname, int64 *from, int64 *to)
 {
 	START;
 	if WHITE ACCEPT;
@@ -4797,7 +4534,7 @@ static int object_name_id_range(PARSER,char *classname, int64 *from, int64 *to)
 	DONE;
 }
 
-static int object_name_id_count(PARSER,char *classname, int64 *count)
+int GldLoader::object_name_id_count(PARSER,char *classname, int64 *count)
 {
 	START;
 	if WHITE ACCEPT;
@@ -4812,7 +4549,7 @@ static int object_name_id_count(PARSER,char *classname, int64 *count)
 	DONE;
 }
 
-static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
+int GldLoader::object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 {
 #define NAMEOBJ  /* DPC: not sure what this does, but it doesn't seem to be harmful */
 #ifdef NAMEOBJ
@@ -4978,7 +4715,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 	DONE;
 }
 
-static int import(PARSER)
+int GldLoader::import(PARSER)
 {
 	char modname[32];
 	char fname[1024];
@@ -5039,7 +4776,7 @@ static int import(PARSER)
 	DONE
 }
 
-static int export_model(PARSER)
+int GldLoader::export_model(PARSER)
 {
 	char modname[32];
 	char fname[1024];
@@ -5102,7 +4839,7 @@ static int export_model(PARSER)
 	DONE
 }
 
-static int library(PARSER)
+int GldLoader::library(PARSER)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5128,33 +4865,7 @@ static int library(PARSER)
 	REJECT;
 }
 
-#if 0 // unused function
-static int comment_block(PARSER)
-{
-	int startline = linenum;
-	if (_p[0]=='/' && _p[1]=='*')
-	{
-		int result=0;
-		int matched=0;
-		_p+=2;
-		while (_p[0]!='*' && _p[1]=='/')
-		{
-			_p++; result++;
-			if (_p[0]=='\0')
-			{
-				syntax_error(filename,startline,"unterminated C-style comment");
-				return 0;
-			}
-			if (_p[0]=='\n')
-				linenum++;
-		}
-		return matched?result:0;
-	}
-	return 0;
-}
-#endif
-
-static int schedule(PARSER)
+int GldLoader::schedule(PARSER)
 {
 	int startline = linenum;
 	char schedname[64];
@@ -5194,7 +4905,7 @@ static int schedule(PARSER)
 	DONE;
 }
 
-static int linkage_term(PARSER,instance *inst)
+int GldLoader::linkage_term(PARSER,::instance *inst)
 {
 	int startline = linenum;
 	char fromobj[64];
@@ -5263,7 +4974,7 @@ static int linkage_term(PARSER,instance *inst)
 	DONE;
 	
 }
-static int instance_block(PARSER)
+int GldLoader::instance_block(PARSER)
 {
 	int startline = linenum;
 	char instance_host[256];
@@ -5271,7 +4982,7 @@ static int instance_block(PARSER)
 	if WHITE ACCEPT;
 	if ( LITERAL("instance") && WHITE && TERM(hostname(HERE,instance_host,sizeof(instance_host))) && (WHITE,LITERAL("{")))
 	{
-		instance *inst = instance_create(instance_host);
+		::instance *inst = instance_create(instance_host);
 		if ( !inst ) 
 		{ 
 			syntax_error(filename,startline,"unable to define an instance on %s", instance_host);
@@ -5287,10 +4998,8 @@ static int instance_block(PARSER)
 		REJECT;
 	DONE;
 }
-////////////////////////////////////////////////////////////////////////////////////
-// GUI parser
 
-static int gnuplot(PARSER, GUIENTITY *entity)
+int GldLoader::gnuplot(PARSER, GUIENTITY *entity)
 {
 	char *p = entity->gnuplot;
 	int _n = 0;
@@ -5307,23 +5016,7 @@ static int gnuplot(PARSER, GUIENTITY *entity)
 	return _n;
 }
 
-#if 0 // unused function
-static int gui_link_globalvar(PARSER, GLOBALVAR **var)
-{
-	char varname[64];
-	START;
-	if (LITERAL("link") && (WHITE,LITERAL(":")) && name(HERE,varname,sizeof(varname)))
-	{
-		*var = global_find(varname);
-		ACCEPT;
-	}
-	else
-		REJECT;
-	DONE;
-}
-#endif
-
-static int gui_entity_parameter(PARSER, GUIENTITY *entity)
+int GldLoader::gui_entity_parameter(PARSER, GUIENTITY *entity)
 {
 	char buffer[1024];
 	char varname[64];
@@ -5542,7 +5235,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	REJECT;
 }
 
-static int gui_entity_action(PARSER, GUIENTITY *parent)
+int GldLoader::gui_entity_action(PARSER, GUIENTITY *parent)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5567,7 +5260,7 @@ static int gui_entity_action(PARSER, GUIENTITY *parent)
 	REJECT;
 }
 
-static int gui_entity_type(PARSER, GUIENTITYTYPE *type)
+int GldLoader::gui_entity_type(PARSER, GUIENTITYTYPE *type)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5593,7 +5286,7 @@ static int gui_entity_type(PARSER, GUIENTITYTYPE *type)
 	REJECT;
 }
 
-static int gui_entity(PARSER, GUIENTITY *parent)
+int GldLoader::gui_entity(PARSER, GUIENTITY *parent)
 {
 	//char buffer[1024];
 	GUIENTITYTYPE type;
@@ -5632,7 +5325,7 @@ static int gui_entity(PARSER, GUIENTITY *parent)
 	REJECT;
 }
 
-static int gui(PARSER)
+int GldLoader::gui(PARSER)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5653,7 +5346,7 @@ static int gui(PARSER)
 	DONE;
 }
 
-static int C_code_block(PARSER, char *buffer, int size)
+int GldLoader::C_code_block(PARSER, char *buffer, int size)
 {
 	int n_curly = 0;
 	int in_quotes = 0;
@@ -5679,11 +5372,10 @@ static int C_code_block(PARSER, char *buffer, int size)
 		if (skip) _n++,*d++=*++_p;
 	} while ( *++_p!='\0' && _n++<size && n_curly>=0 );
 	*--d='\0'; _n--; // don't include the last curly
-//	IN_MYCONTEXT output_debug("*** Begin external 'C' code ***\n%s\n *** End external 'C' code ***\n", buffer);
 	DONE;
 }
 
-static int filter_name(PARSER, char *result, int size)
+int GldLoader::filter_name(PARSER, char *result, int size)
 {
 	START;
 	/* names cannot start with a digit */
@@ -5692,7 +5384,7 @@ static int filter_name(PARSER, char *result, int size)
 	result[_n]='\0';
 	DONE;
 }
-static int double_timestep(PARSER,double *step)
+int GldLoader::double_timestep(PARSER,double *step)
 {
 	START;
 	if ( WHITE,TERM(real_value(HERE,step)) )
@@ -5722,7 +5414,7 @@ static int double_timestep(PARSER,double *step)
 	}
 	DONE;
 }
-static int filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
+int GldLoader::filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 {
 	double x[64];
 	double m = -1;
@@ -5763,7 +5455,8 @@ static int filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 	}
 	DONE;
 }
-static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
+
+int GldLoader::filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 {
 	double x[64]; // maximum 64th order polynomial
 	int m = -1; // order of polynomial
@@ -5822,7 +5515,7 @@ static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 	DONE;
 }
 
-static int filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resolution, double *minimum, double *maximum)
+int GldLoader::filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resolution, double *minimum, double *maximum)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5849,7 +5542,7 @@ static int filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resoluti
 	DONE;
 }
 
-static int filter_block(PARSER)
+int GldLoader::filter_block(PARSER)
 {
 	char tfname[1024];
 	START;
@@ -5920,7 +5613,7 @@ static int filter_block(PARSER)
 	DONE;
 }
 
-static int extern_block(PARSER)
+int GldLoader::extern_block(PARSER)
 {
 	char code[65536];
 	char libname[1024];
@@ -5986,7 +5679,7 @@ static int extern_block(PARSER)
 	DONE;
 }
 
-static int global_declaration(PARSER)
+int GldLoader::global_declaration(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("global") )
@@ -6028,7 +5721,7 @@ static int global_declaration(PARSER)
 		REJECT;
 }
 
-static int link_declaration(PARSER)
+int GldLoader::link_declaration(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("link") )
@@ -6049,8 +5742,7 @@ static int link_declaration(PARSER)
 		REJECT;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-static int script_directive(PARSER)
+int GldLoader::script_directive(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("script") )
@@ -6199,7 +5891,7 @@ static int script_directive(PARSER)
 		REJECT;
 }
 
-static int dump_directive(PARSER)
+int GldLoader::dump_directive(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("dump") )
@@ -6229,8 +5921,7 @@ static int dump_directive(PARSER)
 		REJECT;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-static int modify_directive(PARSER)
+int GldLoader::modify_directive(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("modify") )
@@ -6263,18 +5954,8 @@ static int modify_directive(PARSER)
 	DONE;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
 
-typedef int (*PARSERCALL)(PARSER);
-struct s_loaderhook {
-	PARSERCALL call;
-	struct s_loaderhook *next;
-};
-typedef struct s_loaderhook LOADERHOOK;
-
-static LOADERHOOK *loaderhooks = NULL;
-
-void loader_addhook(PARSERCALL call)
+void GldLoader::loader_addhook(PARSERCALL call)
 {
 	LOADERHOOK *hook = new LOADERHOOK;
 	if ( hook == NULL )
@@ -6286,8 +5967,7 @@ void loader_addhook(PARSERCALL call)
 	loaderhooks = hook;
 }
 
-typedef int (*LOADERINIT)(void);
-static int loader_hook(PARSER)
+int GldLoader::loader_hook(PARSER)
 {
 	char libname[1024];
 	START;
@@ -6376,9 +6056,7 @@ static int loader_hook(PARSER)
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-
-static int gridlabd_file(PARSER)
+int GldLoader::gridlabd_file(PARSER)
 {
 	START;
 	if WHITE {ACCEPT; DONE;}
@@ -6411,7 +6089,7 @@ static int gridlabd_file(PARSER)
 	DONE;
 }
 
-int replace_variables(char *to,char *from,int len,int warn)
+int GldLoader::replace_variables(char *to,char *from,int len,int warn)
 {
 	char *p, *e=from;
 	int n = 0;
@@ -6467,11 +6145,7 @@ Unterminated:
 	}
 }
 
-static int suppress = 0;
-static int nesting = 0;
-static int macro_line[64];
-static int process_macro(char *line, int size, char *filename, int linenum);
-static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
+int GldLoader::buffer_read(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[65536];
 	int n=0;
@@ -6539,36 +6213,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 	return n;
 }
 
-///////////////////////////////////////////////////////////////////////////
-//
-// Forloop machine implementation
-//
-
-// TODO: convert this to a class so nesting is possible
-typedef enum e_forloopstate {
-	FOR_NONE   = 0, // no for loop active
-	FOR_BODY   = 1, // for loop started, body capture in progress
-	FOR_REPLAY = 2, // for loop replay in progress
-} FORLOOPSTATE;
-FORLOOPSTATE forloopstate = FOR_NONE;
-static char *forloop = NULL; // for loop value list
-static char *lastfor = NULL; // pointer to last strtok_r value
-static char *forvar = NULL; // global variable to use
-static const char *forvalue = NULL; // current value of global variable
-static std::list<std::string> forbuffer; // captured body
-static std::list<std::string>::const_iterator forbufferline; // body line iterator
-bool forloop_verbose = false;
-
-// Fetch the current state of the forloop machine
-// Returns: the forloop state
-inline static FORLOOPSTATE for_get_state(void)
-{
-	return forloopstate;
-}
-
-// Change the current state of the forloop machine
-// Returns: the last forloop state
-inline static FORLOOPSTATE for_set_state(FORLOOPSTATE n)
+GldLoader::FORLOOPSTATE GldLoader::for_set_state(GldLoader::FORLOOPSTATE n)
 {
 	const char *str[] = {"FOR_NONE","FOR_BODY","FOR_REPLAY"};
 	FORLOOPSTATE m = forloopstate;
@@ -6577,16 +6222,14 @@ inline static FORLOOPSTATE for_set_state(FORLOOPSTATE n)
 	return m;
 }
 
-// Test the current state of the forloop machine
-// Returns: 'true' if in state 'n', 'false' if not in state 'n'
-static bool for_is_state(FORLOOPSTATE n)
+bool GldLoader::for_is_state(GldLoader::FORLOOPSTATE n)
 {
 	return for_get_state() == n;
 }
 
 // Open a new instance of the forloop machine
 // Returns: 'true' if forloop opened, 'false' if forloop not opened
-static bool for_open(const char *var, const char *range)
+bool GldLoader::for_open(const char *var, const char *range)
 {
 	if ( forloop != NULL )
 	{
@@ -6602,7 +6245,7 @@ static bool for_open(const char *var, const char *range)
 
 // Update the global variable of the forloop machine
 // Returns: the next value, or NULL if not remains
-static const char * for_setvar()
+const char * GldLoader::for_setvar(void)
 {
 	const char *value = strtok_r(forvalue==NULL?forloop:NULL," ",&lastfor);
 	if ( value != NULL )
@@ -6621,7 +6264,7 @@ static const char * for_setvar()
 }
 
 // Capture a GLM line to the forloop machine to replay later
-static bool for_capture(const char *line)
+bool GldLoader::for_capture(const char *line)
 {
 	if ( strncmp(line,"#done",5) == 0 )
 	{
@@ -6639,7 +6282,7 @@ static bool for_capture(const char *line)
 }
 
 // Replay the next line in the forloop
-static const char *for_replay()
+const char *GldLoader::for_replay(void)
 {
 	// need to get first/next value in list
 	if ( forbufferline == forbuffer.end() )
@@ -6671,12 +6314,7 @@ static const char *for_replay()
 	}
 }
 
-static LANGUAGE builtin_languages[] = {
-	{"python",python_parser,NULL},
-};
-static LANGUAGE *language_list = builtin_languages;
-static LANGUAGE *language = NULL;
-void load_add_language(const char *name, bool (*parser)(const char*))
+void GldLoader::load_add_language(const char *name, bool (*parser)(const char*))
 {
 	LANGUAGE *item = new LANGUAGE;
 	item->name = strdup(name);
@@ -6684,7 +6322,8 @@ void load_add_language(const char *name, bool (*parser)(const char*))
 	item->next = language_list;
 	language_list = item;
 }
-static int set_language(const char *name)
+
+int GldLoader::set_language(const char *name)
 {
 	if ( name == NULL )
 	{
@@ -6706,12 +6345,8 @@ static int set_language(const char *name)
 	syntax_error(filename,linenum,"language '%s' not recognized", name);
 	return FALSE;
 }
-static const LANGUAGE *get_language(void)
-{
-	return language;
-}
 
-static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
+int GldLoader::buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[0x4000];
 	int n = 0, i = 0;
@@ -6868,14 +6503,14 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 }
 
 
-static int include_file(char *incname, char *buffer, int size, int _linenum)
+int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 {
 	int move = 0;
 	char *p = buffer;
 	int count = 0;
 	char *ext = 0;
 	char *name = 0;
-	STAT stat;
+	struct stat stat;
 	char ff[1024];
 	FILE *fp = 0;
 	char buffer2[20480];
@@ -6940,7 +6575,7 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 	old_linenum = linenum;
 	linenum = 1;
 
-	if(FSTAT(fileno(fp), &stat) == 0){
+	if(fstat(fileno(fp), &stat) == 0){
 		if(stat.st_mtime > modtime){
 			modtime = stat.st_mtime;
 		}
@@ -6989,7 +6624,7 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 }
 
 /** @return 1 if the variable is autodefined */
-int is_autodef(char *value)
+static int is_autodef(char *value)
 {
 #ifdef WIN32
 	if ( strcmp(value,"WINDOWS")==0 ) return 1;
@@ -7007,12 +6642,8 @@ int is_autodef(char *value)
 	if ( strcmp(value,"MATLAB")==0 ) return 1;
 #endif
 
-#ifdef HAVE_XERCES
-	if ( strcmp(value,"XERCES")==0 ) return 1;
-#endif
-
-#ifdef HAVE_CPPUNIT
-	if ( strcmp(value,"CPPUNIT")==0 ) return 1;
+#ifdef HAVE_PYTHON
+	if ( strcmp(value,"PYTHON")==0 ) return 1;
 #endif
 
 	return 0;
@@ -7021,14 +6652,10 @@ int is_autodef(char *value)
 /* started processes */
 #include "threadpool.h"
 #include "signal.h"
-struct s_threadlist 
+
+void GldLoader::kill_processes(void)
 {
-	pthread_t *data;
-	struct s_threadlist *next;
-} *threadlist = NULL;
-void kill_processes(void)
-{
-	while ( threadlist!=NULL )
+	while ( threadlist != NULL )
 	{
 		struct s_threadlist *next = threadlist->next;
 		int sig = SIGTERM;
@@ -7053,7 +6680,7 @@ void kill_processes(void)
 }
 
 /** @return -1 on failure, thread_id on success **/
-void* start_process(const char *cmd)
+void* GldLoader::start_process(const char *cmd)
 {
 	static bool first = true;
 	pthread_t *pThreadInfo = (pthread_t*)malloc(sizeof(pthread_t));
@@ -7080,38 +6707,8 @@ void* start_process(const char *cmd)
 	return threadlist;
 }
 
-#ifdef WIN32
-/* TODO: move this to a better place */
-char *strsep(char **from, const char *delim) {
-    char *s, *dp, *ret;
-
-    if ((s = *from) == NULL)
-        return NULL;
-
-    ret = s;
-    while (*s != '\0') {
-        /* loop until the end of s, checking against each delimiting character,
-         * if we find a delimiter set **s to '\0' and return our previous token
-         * to the user. */
-        dp = (char *)delim;
-        while (*dp != '\0') {
-            if (*s == *dp) {
-                *s = '\0';
-                *from = s + 1;
-                return ret;
-            }
-            dp++;
-        }
-        s++;
-    }
-    /* end of string case */
-    *from = NULL;
-    return ret;
-}
-#endif
-
 /** @return TRUE/SUCCESS for a successful macro read, FALSE/FAILED on parse error (which halts the loader) */
-static int process_macro(char *line, int size, char *_filename, int linenum)
+int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 {
 	char *var, *val, *save;
 	char buffer[64];
@@ -7362,7 +6959,6 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			}
 			else
 			{
-//				line+=len; size-=len; // not relevant to the block loader, was already consumed
 				len = sprintf(line,"@%s;%d\n",filename,linenum);
 				line+=len; size-=len;
 				return size>0;
@@ -7456,13 +7052,9 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		//if (sscanf(term+1,"%[^\n\r]",value)==1)
 		strcpy(value, strip_right_white(term+1));
-#ifdef WIN32
-		putenv(value);
-#else
 		var = strtok_r(value, "=", &save);
                     val = strtok_r(NULL, "=", &save);
                     setenv(var, val, 1);
-#endif
 		strcpy(line,"\n");
 		return SUCCESS;
 	}
@@ -7840,99 +7432,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 	}
 }
 
-STATUS loadall_glm(char *file) /**< a pointer to the first character in the file name string */
-{
-	OBJECT *obj, *first = object_get_first();
-	char *buffer = NULL, *p = NULL;
-	int fsize = 0;
-	STATUS status=FAILED;
-	STAT stat;
-	FILE *fp;
-	int move=0;
-	errno = 0;
-
-	fp = fopen(file,"rt");
-	if (fp==NULL)
-		goto Failed;
-	if (FSTAT(fileno(fp),&stat)==0)
-	{
-		modtime = stat.st_mtime;
-		fsize = stat.st_size;
-		buffer = (char*)malloc(MAXGLMSIZE); /* lots of space */
-	}
-	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
-	if (buffer==NULL)
-	{
-		output_error("unable to allocate buffer for file '%s': %s", file, errno?strerror(errno):"(no details)");
-		errno = ENOMEM;
-		goto Done;
-	}
-	else
-		p=buffer;
-
-	buffer[0] = '\0';
-	if (buffer_read(fp,buffer,file,MAXGLMSIZE)==0)
-	{
-		fclose(fp);
-		goto Failed;
-	}
-	fclose(fp);
-
-	/* reset line counter for parser */
-	linenum = 1;
-	while (*p!='\0')
-	{
-		move = gridlabd_file(p);
-		if (move==0)
-			break;
-		p+=move;
-	}
-	status = (*p=='\0') ? SUCCESS : FAILED;
-	if (status==FAILED)
-	{
-		char *eol = strchr(p,'\n');
-		if (eol!=NULL)
-			*eol='\0';
-		syntax_error(file,linenum,"load failed at or near '%.12s...'",*p=='\0'?"end of line":p);
-		if (p==0)
-			output_error("%s doesn't appear to be a GLM file", file);
-		goto Failed;
-	}
-	else if ((status=load_resolve_all())==FAILED)
-		goto Failed;
-
-	/* establish ranks */
-	for (obj=first?first:object_get_first(); obj!=NULL; obj=obj->next)
-		object_set_parent(obj,obj->parent);
-	IN_MYCONTEXT output_verbose("%d object%s loaded", object_get_count(), object_get_count()>1?"s":"");
-	goto Done;
-Failed:
-	if ( errno != 0 )
-	{
-		output_error("unable to load '%s': %s", file, errno?strerror(errno):"(no details)");
-		/*	TROUBLESHOOT
-			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
-			favor of prior error messages.
-		*/
-	}
-	else if ( exec_getexitcode() != XC_SUCCESS )
-	{
-		output_error("unable to load '%s': %s", file, exec_getexitcodestr());
-		/*	TROUBLESHOOT
-			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
-			favor of prior error messages.
-		*/
-	}
-Done:
-	free(buffer);
-	buffer = NULL;
-	free_index();
-	linenum=1; // parser starts at 1
-	return status;
-}
-
-/**/
-STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character in the file name string */
+STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first character in the file name string */
 {
 	char file[1024];
 	strcpy(file,fname);
@@ -7942,7 +7442,7 @@ STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character
 	char buffer[20480];
 	int fsize = 0;
 	STATUS status=FAILED;
-	STAT stat;
+	struct stat stat;
 	FILE *fp;
 	int move = 0;
 	errno = 0;
@@ -7950,7 +7450,7 @@ STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character
 	fp = fopen(file,"rt");
 	if (fp==NULL)
 		goto Failed;
-	if (FSTAT(fileno(fp),&stat)==0)
+	if (fstat(fileno(fp),&stat)==0)
 	{
 		modtime = stat.st_mtime;
 		fsize = stat.st_size;
@@ -8033,7 +7533,7 @@ Done:
 	return status;
 }
 
-TECHNOLOGYREADINESSLEVEL calculate_trl(void)
+TECHNOLOGYREADINESSLEVEL GldLoader::calculate_trl(void)
 {
 	char buffer[1024];
 	CLASS *oclass;
@@ -8058,7 +7558,7 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
 }
 
 /** convert a non-GLM file to GLM, if possible */
-bool load_import(const char *from, char *to, int len)
+bool GldLoader::load_import(const char *from, char *to, int len)
 {
 	const char *ext = strrchr(from,'.');
 	if ( ext == NULL )
@@ -8095,7 +7595,7 @@ bool load_import(const char *from, char *to, int len)
 	return true;
 }
 
-STATUS load_python(const char *filename)
+STATUS GldLoader::load_python(const char *filename)
 {
 	char cmd[1024];
 	sprintf(cmd,"/usr/local/bin/python3 %s",filename);
@@ -8107,7 +7607,7 @@ STATUS load_python(const char *filename)
 	@todo Rollback the model data if the load failed (ticket #32)
 	@todo Support nested loads and maintain context during subloads (ticket #33)
  **/
-STATUS loadall(const char *fname)
+STATUS GldLoader::loadall(const char *fname)
 {
 	try 
 	{
@@ -8138,8 +7638,6 @@ STATUS loadall(const char *fname)
 		static int loaded_files = 0;
 		STATUS load_status = FAILED;
 
-		if ( !inline_code_init() ) return FAILED;
-
 		if ( old_obj_count > 1 && global_forbid_multiload )
 		{
 			output_error("loadall: only one file load is supported at this time.");
@@ -8162,7 +7660,7 @@ STATUS loadall(const char *fname)
 			else
 			{
 				strcpy(filename, "gridlabd.conf");
-				if ( loadall_glm_roll(conf)==FAILED )
+				if ( loadall_glm(conf)==FAILED )
 				{
 					return FAILED;
 				}
@@ -8182,7 +7680,7 @@ STATUS loadall(const char *fname)
 						Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
 					 */
 				}
-				else if (loadall_glm_roll(dbg)==FAILED)
+				else if (loadall_glm(dbg)==FAILED)
 				{
 					return FAILED;
 				}
@@ -8213,7 +7711,7 @@ STATUS loadall(const char *fname)
 		}
 		else if (ext==NULL || strcmp(ext, ".glm")==0)
 		{
-			load_status = loadall_glm_roll(filename);
+			load_status = loadall_glm(filename);
 		}
 		else
 		{
@@ -8231,9 +7729,6 @@ STATUS loadall(const char *fname)
 		}
 
 		calculate_trl();
-
-		/* destroy inline code buffers */
-		inline_code_term();
 
 		loaded_files++;
 		return load_status;
@@ -8255,30 +7750,3 @@ STATUS loadall(const char *fname)
 		return FAILED;
 	}
 }
-
-GldLoader::GldLoader(GldMain *main)
-: instance(*main)
-{
-
-}
-
-GldLoader::~GldLoader(void)
-{
-	
-}
-
-bool GldLoader::load(const char *filename)
-{
-	return loadall(filename) == SUCCESS;
-}
-
-GldObject GldLoader::get_current_object(void)
-{
-	return GldObject(load_get_current_object());
-}
-
-GldModule GldLoader::get_current_module(void)
-{
-	return GldModule(load_get_current_module());
-}
-

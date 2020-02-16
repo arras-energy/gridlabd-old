@@ -86,11 +86,17 @@ public:
 	 */
 	inline GldCmdarg *get_cmdarg() { return &cmdarg; };
 
-	/* Method get_gui
+	/* Method: get_gui
 
 		This function returns a reference to the GUI implementation
 	 */
 	inline GldGui *get_gui() { return &gui; };
+
+	/* Method: get_loader
+
+		This function returns a reference the the loader implementation
+	 */
+	inline GldLoader *get_loader() { return &loader; };
 
 private:
 	static unsigned int next_id; // next instance id
