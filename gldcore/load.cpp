@@ -35,8 +35,6 @@ DEPRECATED MODULE *load_get_current_module(void)
 	return my_instance->get_loader()->get_current_module();
 }
 
-#define WARNING_NON_REENTRANT
-
 SET_MYCONTEXT(DMC_LOAD)
 
 // flags that identify functions are included in runtime classes
@@ -69,9 +67,6 @@ GldLoader::GldLoader(GldMain *main)
 	memset(stop_ts,0,sizeof(stop_ts));
 	memset(filename,0,sizeof(filename));
 	linenum = 1;
-	code_block = new char[global_inline_block_size];
-	global_block = new char[global_inline_block_size];
-	init_block = new char[global_inline_block_size];
 	code_used = 0;
 	include_list = NULL;
 	header_list = NULL;
@@ -102,9 +97,6 @@ GldLoader::GldLoader(GldMain *main)
 
 GldLoader::~GldLoader(void)
 {
-	delete[] code_block;
-	delete[] global_block;
-	delete[] init_block;
 }
 
 bool GldLoader::load(const char *filename)
@@ -137,20 +129,16 @@ void GldLoader::syntax_error(const char *filename, const int linenum, const char
 	error->throw_now();
 }
 
-char *GldLoader::format_object(OBJECT *obj)
+std::string GldLoader::format_object(OBJECT *obj)
 {
-	WARNING_NON_REENTRANT;
-	static char256 buffer;
-	strcpy(buffer,"(unidentified)");
 	if ( obj->name == NULL )
 	{
-		sprintf(buffer,global_object_format,obj->oclass->name,obj->id);
+		return std::string(obj->oclass->name) + ":" + std::to_string(obj->id);
 	}
 	else
 	{
-		sprintf(buffer,"%s (%s:%d)",obj->name,obj->oclass->name, obj->id);
+		return std::string(obj->name) + " (" + obj->oclass->name + ":" + std::to_string(obj->id) + ")";
 	}
-	return buffer;
 }
 
 char *GldLoader::strip_right_white(char *b)
@@ -171,10 +159,9 @@ char *GldLoader::strip_right_white(char *b)
 	return b;
 }
 
-char *GldLoader::forward_slashes(const char *a)
+std::string GldLoader::forward_slashes(const char *a)
 {
-	WARNING_NON_REENTRANT;
-	static char buffer[MAXPATHNAMELEN];
+	char buffer[MAXPATHNAMELEN];
 	char *b=buffer;
 	while ( *a != '\0' && b < buffer+sizeof(buffer)-1 )
 	{
@@ -190,14 +177,14 @@ char *GldLoader::forward_slashes(const char *a)
 		b++;
 	}
 	*b='\0';
-	return buffer;
+	return std::string(buffer);
 }
 
 void GldLoader::filename_parts(const char *fullname, char *path, char *name, char *ext)
 {
-	WARNING_NON_REENTRANT;
 	/* fix delimiters (result is a static copy) */
-	char *file = forward_slashes(fullname);
+	char file[MAXPATHNAMELEN];
+	strcpy(file,forward_slashes(fullname).c_str());
 
 	/* find the last delimiter */
 	char *s = strrchr(file,'/');
@@ -241,16 +228,14 @@ void GldLoader::filename_parts(const char *fullname, char *path, char *name, cha
 
 int GldLoader::append_init(const char* format,...)
 {
-	WARNING_NON_REENTRANT;
-	static char code[MAXCODEBLOCKSIZE];
+	char *code = NULL;
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(code,format,ptr);
+	vasprintf(&code,format,ptr);
 	va_end(ptr);
-
-	if (strlen(init_block)+strlen(code)>global_inline_block_size)
+	if ( code == NULL )
 	{
-		output_fatal("insufficient buffer space to compile init code (inline_block_size=%d)", global_inline_block_size);
+		output_fatal("insufficient memory to compile init code");
 		/*	TROUBLESHOOT
 			The loader creates a buffer in which it can temporarily hold source
 			initialization code from your GLM file.  This error occurs when the buffer space
@@ -260,22 +245,21 @@ int GldLoader::append_init(const char* format,...)
 		*/
 		return 0;
 	}
-	strcat(init_block,code);
+	init_block.append(code);
+	free(code);
 	return ++code_used;
 }
 
 int GldLoader::append_code(const char* format,...)
 {
-	WARNING_NON_REENTRANT;
-	static char code[MAXCODEBLOCKSIZE];
+	char *code = NULL;
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(code,format,ptr);
+	vasprintf(&code,format,ptr);
 	va_end(ptr);
-
-	if (strlen(code_block)+strlen(code)>global_inline_block_size)
+	if ( code == NULL )
 	{
-		output_fatal("insufficient buffer space to compile init code (inline_block_size=%d)", global_inline_block_size);
+		output_fatal("insufficient memory to compile runtime code");
 		/*	TROUBLESHOOT
 			The loader creates a buffer in which it can temporarily hold source
 			runtime code from your GLM file.  This error occurs when the buffer space
@@ -285,22 +269,21 @@ int GldLoader::append_code(const char* format,...)
 		*/
 		return 0;
 	}
-	strcat(code_block,code);
+	code_block.append(code);
+	free(code);
 	return ++code_used;
 }
 
 int GldLoader::append_global(const char* format,...)
 {
-	WARNING_NON_REENTRANT;
-	static char code[1024];
+	char *code = NULL;
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(code,format,ptr);
+	vasprintf(&code,format,ptr);
 	va_end(ptr);
-
-	if (strlen(global_block)+strlen(code)>global_inline_block_size)
+	if ( code == NULL )
 	{
-		output_fatal("insufficient buffer space to compile init code (inline_block_size=%d)", global_inline_block_size);
+		output_fatal("insufficient memory to compile global code");
 		/*	TROUBLESHOOT
 			The loader creates a buffer in which it can temporarily hold source
 			global code from your GLM file.  This error occurs when the buffer space
@@ -310,7 +293,8 @@ int GldLoader::append_global(const char* format,...)
 		*/
 		return 0;
 	}
-	strcat(global_block,code);
+	global_block.append(code);
+	free(code);
 	return ++code_used;
 }
 
@@ -321,7 +305,7 @@ void GldLoader::mark_linex(const char *filename, int linenum)
 	{
 		char fname[MAXPATHNAMELEN];
 		strcpy(fname,filename);
-		append_code("#line %d \"%s\"\n", linenum, forward_slashes(fname));
+		append_code("#line %d \"%s\"\n", linenum, forward_slashes(fname).c_str());
 	}
 }
 
@@ -355,20 +339,28 @@ STATUS GldLoader::debugger(const char *target)
 	return result == 0 ? SUCCESS : FAILED;
 }
 
-char *GldLoader::setup_class(CLASS *oclass)
+std::string GldLoader::setup_class(CLASS *oclass)
 {
-	WARNING_NON_REENTRANT;
-	static char buffer[65536] = "";
-	int len = 0;
+	std::string result;
+	char buffer[65536] = "";
+	
+	snprintf(buffer,sizeof(buffer),"\tOBJECT obj; obj.oclass = oclass; %s *t = (%s*)((&obj)+1);\n",oclass->name,oclass->name);
+	result.append(buffer);
+	
+	snprintf(buffer,sizeof(buffer),"\toclass->size = sizeof(%s);\n", oclass->name);
+	result.append(buffer);
+
 	PROPERTY *prop;
-	len += sprintf(buffer+len,"\tOBJECT obj; obj.oclass = oclass; %s *t = (%s*)((&obj)+1);\n",oclass->name,oclass->name);
-	len += sprintf(buffer+len,"\toclass->size = sizeof(%s);\n", oclass->name);
 	for (prop=oclass->pmap; prop!=NULL; prop=prop->next)
 	{
-		len += sprintf(buffer+len,"\t(*(callback->properties.get_property))(&obj,\"%s\",NULL)->addr = (PROPERTYADDR)((char*)&(t->%s) - (char*)t);\n",prop->name,prop->name);
+		snprintf(buffer,sizeof(buffer),"\t(*(callback->properties.get_property))(&obj,\"%s\",NULL)->addr = (PROPERTYADDR)((char*)&(t->%s) - (char*)t);\n",prop->name,prop->name);
+		result.append(buffer);
 	}
-	len += sprintf(buffer+len,"\t/* begin init block */\n%s\n\t/* end init block */\n",init_block);
-	return buffer;
+	
+	snprintf(buffer,sizeof(buffer),"\t/* begin init block */\n%s\n\t/* end init block */\n",init_block.c_str());
+	result.append(buffer);
+
+	return result;
 }
 
 int GldLoader::write_file(FILE *fp, const char *data, ...)
@@ -398,7 +390,7 @@ int GldLoader::write_file(FILE *fp, const char *data, ...)
 		d =  c + strlen("/*RESETLINE*/\n");
 		if ( global_getvar("noglmrefs",var_buf,63) == NULL )
 		{
-			len += fprintf(fp,"#line %d \"%s\"\n", ++outlinenum+1,forward_slashes(outfilename));
+			len += fprintf(fp,"#line %d \"%s\"\n", ++outlinenum+1,forward_slashes(outfilename).c_str());
 		}
 	}
 	for ( b = d ; *b != '\0' ; b++ )
@@ -616,10 +608,10 @@ STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 					"\tif (!setup_class(myclass)) return NULL;\n"
 					"\treturn myclass;"
 					"}\n",oclass->name)<0
-				|| write_file(fp,"%s",code_block)<0 
-				|| write_file(fp,"%s",global_block)<0
+				|| write_file(fp,"%s",code_block.c_str())<0 
+				|| write_file(fp,"%s",global_block.c_str())<0
 				|| write_file(fp,"static int setup_class(CLASS *oclass)\n"
-					"{\t\n%s\treturn 1;\n}\n",setup_class(oclass))<0 
+					"{\t\n%s\treturn 1;\n}\n",setup_class(oclass).c_str())<0 
 				)
 			{
 				output_fatal("unable to write to '%s'", cfile);
@@ -734,7 +726,9 @@ STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 	}
 
 	/* clear buffers */
-	code_block[0] = global_block[0] = init_block[0] = '\0';
+	code_block.clear();
+	global_block.clear();
+	init_block.clear();
 	code_used = 0;
 
 	return SUCCESS;
@@ -873,20 +867,20 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 		if ( value++ == NULL )
 		{
 			syntax_error(filename,item->line,"%s reference to %s is missing match value",
-				format_object(item->by), item->id);
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
 		match = find_objects(FL_NEW,FT_CLASS,SAME,classname,AND,FT_PROPERTY,propname,SAME,value,FT_END);
 		if ( match == NULL || match->hit_count == 0 )
 		{
 			syntax_error(filename,item->line,"%s reference to %s does not match any existing objects",
-				format_object(item->by), item->id);
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
 		else if ( match->hit_count > 1 )
 		{
 			syntax_error(filename,item->line,"%s reference to %s matches more than one object",
-				format_object(item->by), item->id);
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
 		obj = find_first(match);
@@ -901,7 +895,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 			if ( obj == NULL )
 			{
 				syntax_error(filename,item->line,"cannot resolve implicit reference from %s to %s",
-					format_object(item->by), item->id);
+					format_object(item->by).c_str(), item->id);
 				return FAILED;
 			}
 		}
@@ -916,13 +910,13 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 		if ( obj == NULL )
 		{
 			syntax_error(filename,item->line,"cannot resolve explicit reference from %s to %s",
-				format_object(item->by), item->id);
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
 		if ( strcmp(obj->oclass->name,classname) !=0 && strcmp("id", classname) != 0 )
 		{
 			syntax_error(filename,item->line,"class of reference from %s to %s mismatched",
-				format_object(item->by), item->id);
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
 	}
@@ -933,7 +927,7 @@ int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 		if ( obj == NULL )
 		{
 			syntax_error(filename,item->line,"cannot resolve last reference from %s to %s",
-				format_object(item->by), item->id);
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
 	}
@@ -2969,7 +2963,7 @@ int GldLoader::source_code(PARSER, char *code, int size)
 			if (c1=='*' && c2=='/')
 			{
 				if (!global_debug_output && global_getvar("noglmrefs",buffer,63)==NULL)
-					sprintf(code+strlen(code),"#line %d \"%s\"\n", linenum,forward_slashes(filename));
+					sprintf(code+strlen(code),"#line %d \"%s\"\n", linenum,forward_slashes(filename).c_str());
 				state = CODE;
 			}
 			break;
@@ -3060,7 +3054,7 @@ int GldLoader::class_export_function(PARSER, CLASS *oclass, char *fname, int fsi
 			if (global_getvar("noglmrefs",buffer,63)==NULL)
 				append_init("#line %d \"%s\"\n"
 					"\tif ((*(callback->function.define))(oclass,\"%s\",(FUNCTIONADDR)&%s::%s)==NULL) return 0;\n"
-					"/*RESETLINE*/\n", startline, forward_slashes(filename),
+					"/*RESETLINE*/\n", startline, forward_slashes(filename).c_str(),
 					fname,oclass->name,fname);
 
 			ACCEPT;
@@ -3226,7 +3220,7 @@ int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *i
 		append_global("FUNCTIONADDR %s::%s = NULL;\n",oclass->name,fname);
 		if (global_getvar("noglmrefs",buffer,63)==NULL)
 			append_init("#line %d \"%s\"\n\tif ((%s::%s=gl_get_function(\"%s\",\"%s\"))==NULL) throw \"%s::%s not defined\";\n", 
-				linenum, forward_slashes(filename), oclass->name, fname, 
+				linenum, forward_slashes(filename).c_str(), oclass->name, fname, 
 				eclass->name, fname, eclass->name, fname);
 		append_code("\tstatic FUNCTIONADDR %s;\n",fname);
 		ACCEPT;
@@ -4067,7 +4061,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_complex_by_name(obj,propname,cval)==0)
 				{
-					syntax_error(filename,linenum,"complex property %s of %s %s could not be set to complex value '%g%+gi'", propname, format_object(obj), cval.Re(), cval.Im());
+					syntax_error(filename,linenum,"complex property %s of %s %s could not be set to complex value '%g%+gi'", propname, format_object(obj).c_str(), cval.Re(), cval.Im());
 					REJECT;
 				}
 				else
@@ -4082,7 +4076,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					syntax_error(filename,linenum,"double property %s of %s %s could not be set to expression evaluating to '%g'", propname, format_object(obj), dval);
+					syntax_error(filename,linenum,"double property %s of %s %s could not be set to expression evaluating to '%g'", propname, format_object(obj).c_str(), dval);
 					REJECT;
 				}
 				else
@@ -4097,7 +4091,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_value_by_name(obj,propname,dval>0?"TRUE":"FALSE")==0)
 				{
-					syntax_error(filename,linenum,"double property %s of %s %s could not be set to expression evaluating to '%g'", propname, format_object(obj), dval);
+					syntax_error(filename,linenum,"double property %s of %s %s could not be set to expression evaluating to '%g'", propname, format_object(obj).c_str(), dval);
 					REJECT;
 				}
 				else
@@ -4112,7 +4106,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					syntax_error(filename,linenum,"double property %s of %s %s could not be set to double value '%g' having unit '%s'", propname, format_object(obj), dval, unit->name);
+					syntax_error(filename,linenum,"double property %s of %s %s could not be set to double value '%g' having unit '%s'", propname, format_object(obj).c_str(), dval, unit->name);
 					REJECT;
 				}
 				else
@@ -4147,20 +4141,11 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							REJECT;
 					} /* end switch */
 					if(rv == 0){
-						syntax_error(filename,linenum,"int property %s of %s %s could not be set to integer '%lld'", propname, format_object(obj), ival);
+						syntax_error(filename,linenum,"int property %s of %s %s could not be set to integer '%lld'", propname, format_object(obj).c_str(), ival);
 						REJECT;
 					} else {
 						ACCEPT;
 					}
-#if 0
-				if (object_set_double_by_name(obj,propname,dval)==0)
-				{
-					output_message("%s(%d): property %s of %s %s could not be set to unitless double '%g'", filename, linenum, propname, format_object(obj), dval);
-					REJECT;
-				} else {
-					ACCEPT;
-				}
-#endif
 				} /* end unit_convert_ex else */
 			}
 			else if (prop!=NULL
@@ -4438,7 +4423,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				{	void *addr = object_get_addr(obj,propname);
 					if (addr==NULL)
 					{
-						syntax_error(filename,linenum,"unable to get %s member %s", format_object(obj), propname);
+						syntax_error(filename,linenum,"unable to get %s member %s", format_object(obj).c_str(), propname);
 						REJECT;
 					}
 					else
@@ -4452,7 +4437,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					int len = object_set_value_by_name(obj,propname,propval);
 					if ( len < (int)strlen(propval) )
 					{
-						syntax_error(filename,linenum,"property %s of %s could not be set to value '%s' (only %d bytes read)", propname, format_object(obj), propval, len);
+						syntax_error(filename,linenum,"property %s of %s could not be set to value '%s' (only %d bytes read)", propname, format_object(obj).c_str(), propval, len);
 						REJECT;
 					}
 					else
@@ -4462,7 +4447,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else if ( object_set_value_by_name(obj,propname,propval) == 0 )
 				{
-					syntax_error(filename,linenum,"property %s of %s could not be set to value '%s'", propname, format_object(obj), propval);
+					syntax_error(filename,linenum,"property %s of %s could not be set to value '%s'", propname, format_object(obj).c_str(), propval);
 					REJECT;
 				}
 				else

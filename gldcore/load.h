@@ -155,9 +155,9 @@ private:
 	char filename[1024];
 	unsigned int linenum;
 
-	char *code_block;
-	char *global_block;
-	char *init_block;
+	std::string code_block;
+	std::string global_block;
+	std::string init_block;
 	int code_used;
 
 	INCLUDELIST *include_list;
@@ -197,9 +197,9 @@ private:
 private:
 
 	void syntax_error(const char *filename, const int linenum, const char *format, ...);
-	char *format_object(OBJECT *obj);
+	std::string format_object(OBJECT *obj);
 	char *strip_right_white(char *b);
-	char *forward_slashes(const char *a);
+	std::string forward_slashes(const char *a);
 	void filename_parts(const char *fullname, char *path, char *name, char *ext);
 	int append_init(const char* format,...);
 	int append_code(const char* format,...);
@@ -208,7 +208,7 @@ private:
 	void mark_line(void);
 	STATUS exec(const char *format,...);
 	STATUS debugger(const char *target);
-	char *setup_class(CLASS *oclass);
+	std::string setup_class(CLASS *oclass);
 	int write_file(FILE *fp, const char *data, ...);
 	int mkdirs(const char *path);
 	STATUS compile_code(CLASS *oclass, int64 functions);
