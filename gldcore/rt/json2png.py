@@ -119,9 +119,19 @@ elif output_type == 'profile':
 	def get_voltages(values):
 		ph = get_string(values,"phases")
 		vn = abs(get_complex(values,"nominal_voltage"))
-		va = abs(get_complex(values,"voltage_A"))/vn
-		vb = abs(get_complex(values,"voltage_B"))/vn
-		vc = abs(get_complex(values,"voltage_C"))/vn
+		result = []
+		try:
+			va = abs(get_complex(values,"voltage_A"))/vn
+		except:
+			va = None
+		try:
+			vb = abs(get_complex(values,"voltage_B"))/vn
+		except:
+			vb = None
+		try:
+			vc = abs(get_complex(values,"voltage_C"))/vn
+		except:
+			vc = None
 		return ph,vn,va,vb,vc
 
 	def profile(objects,root,pos=0):
@@ -148,9 +158,9 @@ elif output_type == 'profile':
 				if "B" in ph0 and "B" in ph1: plt.plot([pos,pos+linklen],[vb0,vb1],"%sr"%linktype)
 				if "C" in ph0 and "C" in ph1: plt.plot([pos,pos+linklen],[vc0,vc1],"%sb"%linktype)
 				if limit:
-					if va1>1+limit or vb1>1+limit or vc1>1+limit : 
+					if (not va1 is None and va1>1+limit) or (not vb1 is None and vb1>1+limit) or (not vc1 is None and vc1>1+limit) : 
 						print("json2png.py WARNING: node %s voltage is high (%g, %g, %g), phases = '%s', nominal voltage=%g" % (to,va1*vn1,vb1*vn1,vc1*vn1,ph1,vn1));
-					if (va1>0 and va1<1-limit) or (vb1>0 and vb1<1-limit) or (vc1>0 and vc1<1-limit) : 
+					if (not va1 is None and va1<1-limit) or (not vb1 is None and vb1<1-limit) or (not vc1 is None and vc1<1-limit) : 
 						print("json2png.py WARNING: node %s voltage is low (%g, %g, %g), phases = '%s', nominal voltage=%g" % (to,va1*vn1,vb1*vn1,vc1*vn1,ph1,vn1));
 		if count > 1 and with_nodes:
 			plt.plot([pos,pos,pos],[va0,vb0,vc0],':*',color='grey',linewidth=1)

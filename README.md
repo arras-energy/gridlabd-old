@@ -20,19 +20,20 @@ Note that this alias will interfere with the host-based installation.
 
 # Developer quick start
 
-*Note*: This fork of GridLAB-D does not support MS Windows directly. You must use docker or a virtual machine running linux.
+*Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
 
 Normally on Linux and Mac OS X developers you should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. 
 ~~~
-host% git clone https://github.com/dchassin/gridlabd gridlabd
+host% git clone https://github.com/slacgismo/gridlabd gridlabd
 host% gridlabd/install.sh
 ~~~
 
 The `gridlabd` command is added to the `/usr/local/bin` folder, so this folder must be included in the path for all users, e.g., as specified in `/etc/profile` or `/etc/profile.d`.
 
-You may work with a user installation instead of a system installation. Assuming your development system is ready (see https://github.com/dchassin/gridlabd/wiki/Install#mac-osx-and-linux for details), you can "quickly" download and build a host-based installation from a branch using the following commands:
+You may work with a user installation instead of a system installation. Assuming your development system is ready (see https://github.com/slacgismo/gridlabd/wiki/Install#mac-osx-and-linux for details), you can "quickly" download and build a host-based installation from a branch using the following commands:
+
 ~~~
-  host% git clone https://github.com/dchassin/gridlabd -b _branch-name_ _work-folder_
+  host% git clone https://github.com/slacgismo/gridlabd -b _branch-name_ _work-folder_
   host% cd _work-folder_
   host% autoreconf -isf
   host% ./configure --enable-silent-rules --prefix=$PWD/install [_options_]
@@ -61,10 +62,10 @@ Chassin, D.P., et al., "GridLAB-D Version _major_._minor_._patch_-_build_ (_bran
 You may use the `--cite` command option to obtain the correct citation for your version:
 ~~~
 host% gridlabd --cite
-Chassin, D.P., et al. "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (2019) [online]. Available at https://github.com/dchassin/gridlabd/commit/dfc392dc0208419ce9be0706f699fdd9a11e3f5b, Accessed on: Oct. 8, 2019.
+Chassin, D.P., et al. "GridLAB-D 4.2.0-191008 (fix_python_validate) DARWIN", (2019) [online]. Available at https://github.com/slacgismo/gridlabd/commit/dfc392dc0208419ce9be0706f699fdd9a11e3f5b, Accessed on: Oct. 8, 2019.
 ~~~
 This will allow anyone to identify the exact version you are using to obtain it from GitHub.
 
 ## Contributions
 
-Please see https://github.com/dchassin/gridlabd/blob/master/CONTRIBUTING.md for information on making contributions to this repository.
+Please see https://github.com/slacgismo/gridlabd/blob/master/CONTRIBUTING.md for information on making contributions to this repository.

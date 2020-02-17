@@ -1,26 +1,28 @@
-[[Subcommand/Library]] -- library management subcommands
+[[/Subcommand/Library]] -- library management subcommands
 
 # Synopsis
+
 Shell:
+
 ~~~
-  bash$ gridlabd help
-  bash$ gridlabd index <pattern>
-  bash$ gridlabd list <pattern>
-  bash$ gridlabd get <pattern>
-  bash$ gridlabd submit <file>
-  bash$ gridlabd delete <pattern>
-  bash$ gridlabd info <pattern>
-  bash$ gridlabd copy <name> [<file>]
-  bash$ gridlabd clean
-  bash$ gridlabd open <local>
-  bash$ gridlabd session <local> [<pattern>]
-  bash$ gridlabd add <local> <pattern>
-  bash$ gridlabd save <local> ["<description>"]
-  bash$ gridlabd submit <local>
-  bash$ gridlabd config show
-  bash$ gridlabd config reset
-  bash$ gridlabd config get <name>
-  bash$ gridlabd config set <name> <value>
+bash$ gridlabd help
+bash$ gridlabd index <pattern>
+bash$ gridlabd list <pattern>
+bash$ gridlabd get <pattern>
+bash$ gridlabd submit <file>
+bash$ gridlabd delete <pattern>
+bash$ gridlabd info <pattern>
+bash$ gridlabd copy <name> [<file>]
+bash$ gridlabd clean
+bash$ gridlabd open <local>
+bash$ gridlabd session <local> [<pattern>]
+bash$ gridlabd add <local> <pattern>
+bash$ gridlabd save <local> ["<description>"]
+bash$ gridlabd submit <local>
+bash$ gridlabd config show
+bash$ gridlabd config reset
+bash$ gridlabd config get <name>
+bash$ gridlabd config set <name> <value>
 ~~~
 
 # Description
@@ -28,11 +30,13 @@ Shell:
 Use the `library` subcommand to manage GridLAB-D's library files.
 
 ## `help`
+
 ~~~
   gridlabd help
 ~~~
 
 The `library help` subcommand obtains a list of the valid commands.
+
 ~~~
 bash$ gridlabd library help
 Syntax: gridlabd-library <command> [...]
@@ -60,17 +64,20 @@ Commands:
 ~~~
 
 ## `index`
+
 ~~~
   gridlabd library index <pattern>
 ~~~
 
-The `index` command outputs a list of library files in the archive that match <pattern>.  
+The `index` command outputs a list of library files in the archive that match <pattern>.
+  
 ~~~
 bash$ gridlabd index wood_pole
 wood_pole.glm
 ~~~
 
 ## `list`
+
 ~~~
   gridlabd library list <pattern>
 ~~~
@@ -78,6 +85,7 @@ wood_pole.glm
 The `list` command outputs a list of the library files that are available locally.
 
 ## `get`
+
 ~~~
   gridlabd library get <pattern>
 ~~~
@@ -85,6 +93,7 @@ The `list` command outputs a list of the library files that are available locall
 The `get` command obtains a local copy of library files.
 
 ## `delete`
+
 ~~~
   gridlabd library delete <pattern>
 ~~~
@@ -92,6 +101,7 @@ The `get` command obtains a local copy of library files.
 The `delete` command removes local copies of library files.
 
 ## `info`
+
 ~~~
   gridlabd library info <pattern>
 ~~~
@@ -99,6 +109,7 @@ The `delete` command removes local copies of library files.
 The `info` command outputs details about library files
 
 ## `copy`
+
 ~~~
   gridlabd library copy <name> [<file>]
 ~~~
@@ -106,6 +117,7 @@ The `info` command outputs details about library files
 Make a working copy of a library file.
 
 ## `clean`
+
 ~~~
   gridlabd library clean
 ~~~
@@ -113,6 +125,7 @@ Make a working copy of a library file.
 Clean the local cache of the library index.
 
 ## `open`
+
 ~~~
   gridlabd library open <local>
 ~~~
@@ -120,6 +133,7 @@ Clean the local cache of the library index.
 Open a local working session of the library archive.
 
 ## `session`
+
 ~~~
   gridlabd library session <local> [<pattern>]
 ~~~
@@ -127,6 +141,7 @@ Open a local working session of the library archive.
 Output a list of the local working sessions. The first one is the active session.
 
 ## `add`
+
 ~~~
   gridlabd library add <local> <pattern>
 ~~~
@@ -134,6 +149,7 @@ Output a list of the local working sessions. The first one is the active session
 Add the files matching _pattern_ to the current working session.
 
 ## `save`
+
 ~~~
   gridlabd library save <local> ["<description>"]
 ~~~
@@ -141,6 +157,7 @@ Add the files matching _pattern_ to the current working session.
 Add the current working session.
 
 ## `submit`
+
 ~~~
   gridlabd library submit <local>
 ~~~
@@ -148,6 +165,7 @@ Add the current working session.
 Submit the local working session to the archive for review.
 
 ## `config`
+
 ~~~
   gridlabd library config {show|reset|get}
   gridlabd library config set <name> <value>
