@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Fault_check]] -- Class fault_check
 
 # Synopsis
+
 GLM:
+
 ~~~
   object fault_check {
     check_mode "{ALL,ONCHANGE,SINGLE}";
@@ -21,6 +23,7 @@ TODO
 ## Properties
 
 ### `check_mode`
+
 ~~~
   enumeration {ALL, ONCHANGE, SINGLE} check_mode;
 ~~~
@@ -28,6 +31,7 @@ TODO
 Frequency of fault checks
 
 ### `output_filename`
+
 ~~~
   char1024 output_filename;
 ~~~
@@ -35,6 +39,7 @@ Frequency of fault checks
 Output filename for list of unsupported nodes
 
 ### `reliability_mode`
+
 ~~~
   bool reliability_mode;
 ~~~
@@ -42,6 +47,7 @@ Output filename for list of unsupported nodes
 General flag indicating if fault_check is operating under faulting or restoration mode -- reliability set this
 
 ### `strictly_radial`
+
 ~~~
   bool strictly_radial;
 ~~~
@@ -49,6 +55,7 @@ General flag indicating if fault_check is operating under faulting or restoratio
 Flag to indicate if a system is known to be strictly radial -- uses radial assumptions for reliability alterations
 
 ### `full_output_file`
+
 ~~~
   bool full_output_file;
 ~~~
@@ -56,6 +63,7 @@ Flag to indicate if a system is known to be strictly radial -- uses radial assum
 Flag to indicate if the output_filename report contains both supported and unsupported nodes -- if false, just does unsupported
 
 ### `grid_association`
+
 ~~~
   bool grid_association;
 ~~~
@@ -63,6 +71,7 @@ Flag to indicate if the output_filename report contains both supported and unsup
 Flag to indicate if multiple, distinct grids are allowed in a GLM, or if anything not attached to the master swing is removed
 
 ### `eventgen_object`
+
 ~~~
   object eventgen_object;
 ~~~
@@ -83,5 +92,6 @@ Link to generic eventgen object to handle unexpected faults
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

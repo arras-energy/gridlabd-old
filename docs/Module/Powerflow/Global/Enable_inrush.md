@@ -1,11 +1,15 @@
 [[/Module/Powerflow/Global/Enable_inrush]] -- Module powerflow global variable enable_inrush
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define enable_inrush=<value>
+bash$ gridlabd -D|--define enable_inrush=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set enable_inrush=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Powerflow]]

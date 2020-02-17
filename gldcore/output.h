@@ -38,6 +38,7 @@ void output_both_stdout();
 FILE *output_set_stream(FILESTREAM fs, FILE *newfp);
 FILE* output_redirect(const char *name, const char *path);
 FILE* output_redirect_stream(const char *name, FILE *fp);
+FILE* output_get_stream(const char *name);
 int output_fatal(const char *format,...);
 int output_error(const char *format,...);
 int output_error_raw(const char *format,...);

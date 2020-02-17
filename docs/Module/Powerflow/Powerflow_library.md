@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Powerflow_library]] -- Class powerflow_library
 
 # Synopsis
+
 GLM:
+
 ~~~
   object powerflow_library {
   }
@@ -21,5 +23,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

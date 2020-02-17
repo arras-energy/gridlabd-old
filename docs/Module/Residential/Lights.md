@@ -1,7 +1,9 @@
 [[/Module/Residential/Lights]] -- Class lights
 
 # Synopsis
+
 GLM:
+
 ~~~
   object lights {
     type "{HID,SSL,CFL,FLUORESCENT,INCANDESCENT}";
@@ -41,6 +43,7 @@ TODO
 ## Properties
 
 ### `type`
+
 ~~~
   enumeration {HID, SSL, CFL, FLUORESCENT, INCANDESCENT} type;
 ~~~
@@ -48,6 +51,7 @@ TODO
 Lighting type (affects power_factor)
 
 ### `placement`
+
 ~~~
   enumeration {OUTDOOR, INDOOR} placement;
 ~~~
@@ -55,6 +59,7 @@ Lighting type (affects power_factor)
 Lighting location (affects where heatgains go)
 
 ### `installed_power`
+
 ~~~
   double installed_power[kW];
 ~~~
@@ -62,6 +67,7 @@ Lighting location (affects where heatgains go)
 Installed lighting capacity
 
 ### `power_density`
+
 ~~~
   double power_density[W/sf];
 ~~~
@@ -69,6 +75,7 @@ Installed lighting capacity
 Installed power density
 
 ### `curtailment`
+
 ~~~
   double curtailment[pu];
 ~~~
@@ -76,6 +83,7 @@ Installed power density
 Lighting curtailment factor
 
 ### `demand`
+
 ~~~
   double demand[pu];
 ~~~
@@ -83,6 +91,7 @@ Lighting curtailment factor
 The current lighting demand
 
 ### `actual_power`
+
 ~~~
   complex actual_power[kVA];
 ~~~
@@ -90,6 +99,7 @@ The current lighting demand
 Actual power demand of lights object
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -97,6 +107,7 @@ Actual power demand of lights object
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -104,6 +115,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -111,6 +123,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -118,6 +131,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -125,6 +139,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -132,6 +147,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -139,6 +155,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -146,6 +163,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -153,6 +171,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -160,6 +179,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -167,6 +187,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -174,6 +195,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -181,6 +203,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -188,6 +211,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -195,6 +219,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -202,6 +227,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -209,6 +235,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -216,6 +243,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -223,6 +251,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -246,5 +275,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

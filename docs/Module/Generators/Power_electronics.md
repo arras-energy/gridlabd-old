@@ -1,7 +1,9 @@
 [[/Module/Generators/Power_electronics]] -- Class power_electronics
 
 # Synopsis
+
 GLM:
+
 ~~~
   object power_electronics {
     generator_mode "{SUPPLY_DRIVEN,CONSTANT_PF,CONSTANT_PQ,CONSTANT_V,UNKNOWN}";
@@ -28,6 +30,7 @@ TODO
 ## Properties
 
 ### `generator_mode`
+
 ~~~
   enumeration {SUPPLY_DRIVEN, CONSTANT_PF, CONSTANT_PQ, CONSTANT_V, UNKNOWN} generator_mode;
 ~~~
@@ -35,6 +38,7 @@ TODO
 TODO
 
 ### `generator_status`
+
 ~~~
   enumeration {ONLINE, OFFLINE} generator_status;
 ~~~
@@ -42,6 +46,7 @@ TODO
 TODO
 
 ### `converter_type`
+
 ~~~
   enumeration {CURRENT_SOURCED, VOLTAGE_SOURCED} converter_type;
 ~~~
@@ -49,6 +54,7 @@ TODO
 TODO
 
 ### `switch_type`
+
 ~~~
   enumeration {DARLINGTON, IBJT, JFET, SCR, MOSFET, BJT, IDEAL_SWITCH} switch_type;
 ~~~
@@ -56,6 +62,7 @@ TODO
 TODO
 
 ### `filter_type`
+
 ~~~
   enumeration {BAND_PASS, BAND_STOP, HIGH_PASS, LOW_PASS} filter_type;
 ~~~
@@ -63,6 +70,7 @@ TODO
 TODO
 
 ### `filter_implementation`
+
 ~~~
   enumeration {PARALLEL_RESONANT, SERIES_RESONANT, INDUCTIVE, CAPACITVE, IDEAL_FILTER} filter_implementation;
 ~~~
@@ -70,6 +78,7 @@ TODO
 TODO
 
 ### `filter_frequency`
+
 ~~~
   enumeration {F240HZ, F180HZ, F120HZ} filter_frequency;
 ~~~
@@ -77,6 +86,7 @@ TODO
 TODO
 
 ### `power_type`
+
 ~~~
   enumeration {DC, AC} power_type;
 ~~~
@@ -84,6 +94,7 @@ TODO
 TODO
 
 ### `Rated_kW`
+
 ~~~
   double Rated_kW[kW];
 ~~~
@@ -91,6 +102,7 @@ TODO
 TODO
 
 ### `Max_P`
+
 ~~~
   double Max_P[kW];
 ~~~
@@ -98,6 +110,7 @@ TODO
 TODO
 
 ### `Min_P`
+
 ~~~
   double Min_P[kW];
 ~~~
@@ -105,6 +118,7 @@ TODO
 TODO
 
 ### `Rated_kVA`
+
 ~~~
   double Rated_kVA[kVA];
 ~~~
@@ -112,6 +126,7 @@ TODO
 TODO
 
 ### `Rated_kV`
+
 ~~~
   double Rated_kV[kV];
 ~~~
@@ -119,6 +134,7 @@ TODO
 TODO
 
 ### `phases`
+
 ~~~
   set {S, N, C, B, A} phases;
 ~~~
@@ -147,5 +163,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Generators]]
 
