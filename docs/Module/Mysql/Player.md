@@ -1,6 +1,7 @@
 [[/Module/Mysql/Player]] -- MySQL player object
 
 # Synopsis
+
 ~~~
 module mysql;
 object player {
@@ -27,6 +28,7 @@ The source table must have a sequence field, `id`, and a time field, `t`, to fun
 ## Advanced queries
 
 The player object supports advanced queries. The advanced query must return two columns, `t` and `x`, ordered by `t` ascending.  The syntax is
+
 ~~~~
 object player {
     query "select time_value as t, double_value as x order by t asc";
@@ -40,6 +42,7 @@ The player object supports asynchronous initialization using the `maximum_thread
 # Properties
 
 ## `connection`
+
 ~~~
   object connection;
 ~~~
@@ -47,6 +50,7 @@ The player object supports asynchronous initialization using the `maximum_thread
 Specifies the database object used to connect to MySQL.  If none is provided, the last database defined is used.
 
 ## `file`
+
 ~~~
   char1024 file;
 ~~~
@@ -54,29 +58,33 @@ Specifies the database object used to connect to MySQL.  If none is provided, th
 This is a synonym for `table`, and is provided for compatibility with tape player.
 
 ## `filetype`
+
 ~~~
-  char8 filetype;
+char8 filetype;
 ~~~
 
 Provided for compability with tape player and has no real effect.
 
 ## loop
+
 ~~~
-  int32 loop;
+int32 loop;
 ~~~
 
 The input data table will be treated as a tape loop if the field type is an integer or double.  The loop property determines how many time the input data table will rewind before the player ceases to update the target object's properties.
 
 ## mode
+
 ~~~
-  char32 mode;
+char32 mode;
 ~~~
 
 Specifies the read mode to use, which may be either "r" or "r+".  This is provided for compatibility with tape player and has no real affect.
 
 ## options
+
 ~~~
-  void options;
+void options;
 ~~~
 
 No options are supported at this time.
@@ -84,7 +92,7 @@ No options are supported at this time.
 ## property
 
 ~~~
-  char256 property;
+char256 property;
 ~~~
 
 Specifies the target property (or properties) that are to be updated.  The properties must match the field names in the source table.  The data types are automatically converted using the following rules:
@@ -100,8 +108,9 @@ Specifies the target property (or properties) that are to be updated.  The prope
 * All other data types are extracted from the database as strings and are converted by GridLAB-D's built-in types conversion routines.
 
 ## table
+
 ~~~
-  char1024 table;
+char1024 table;
 ~~~
 
 Specifies the source table from which data is read.

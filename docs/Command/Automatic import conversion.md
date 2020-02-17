@@ -5,6 +5,7 @@
 ~~~
 bash$ gridlabd <filename>.<ext>
 ~~~
+
 # Description
 
 The GridLAB-D GLM loader will automatically convert to GLM format all input files that have "known" extensions.  A known extension is one for which a Python converter exists in GLPATH. Python converters use the naming convention `<ext>2glm.py` and are normally stored in the GridLAB-D `shared` folder.

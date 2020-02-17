@@ -22,9 +22,14 @@ yum -q install python36 python36-devel python36-pip python36-tkinter -y
 [ -f /usr/bin/python3 ] || ln -s /usr/bin/python3.6 /usr/bin/python3
 pip3 --quiet install --upgrade pip
 ln -s /usr/local/bin/pip3 /usr/bin/pip3
-pip3 --quiet install matplotlib
-pip3 --quiet install pandas
-pip3 --quiet install mysql-connector
+ln -s /usr/local/bin/python3 /usr/bin/python3
+echo '#/bin/bash' > /usr/local/bin/python3-config
+echo '/usr/bin/python3-config $*' >> /usr/local/bin/python3-config
+chmod +x /usr/local/bin/python3-config
+/usr/local/bin/pip3 --quiet install matplotlib
+/usr/local/bin/pip3 --quiet install pandas
+/usr/local/bin/pip3 --quiet install mysql-connector
+/usr/local/bin/pip3 --quiet install Pillow
 
 # doxygen
 yum -q install gawk -y

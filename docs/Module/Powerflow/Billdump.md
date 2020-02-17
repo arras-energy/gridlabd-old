@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Billdump]] -- Class billdump
 
 # Synopsis
+
 GLM:
+
 ~~~
   object billdump {
     group "<string>";
@@ -19,6 +21,7 @@ TODO
 ## Properties
 
 ### `group`
+
 ~~~
   char32 group;
 ~~~
@@ -26,6 +29,7 @@ TODO
 The group ID to output data for (all nodes if empty)
 
 ### `runtime`
+
 ~~~
   timestamp runtime;
 ~~~
@@ -33,6 +37,7 @@ The group ID to output data for (all nodes if empty)
 The time to check voltage data
 
 ### `filename`
+
 ~~~
   char256 filename;
 ~~~
@@ -40,6 +45,7 @@ The time to check voltage data
 The file to dump the voltage data into
 
 ### `runcount`
+
 ~~~
   int32 runcount;
 ~~~
@@ -47,6 +53,7 @@ The file to dump the voltage data into
 The number of times the file has been written to
 
 ### `meter_type`
+
 ~~~
   enumeration {METER, TRIPLEX_METER} meter_type;
 ~~~
@@ -66,5 +73,6 @@ Describes whether to collect from 3-phase or S-phase meters
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

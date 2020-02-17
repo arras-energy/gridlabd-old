@@ -1,11 +1,15 @@
 [[/Global/Enter_realtime]] -- Real-time entry time global variable
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set enter_realtime=NEVER
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D enter_realtime=NEVER
 bash$ gridlabd --define enter_realtime=NEVER

@@ -11,3 +11,5 @@ brew install naturaldocs
 brew install python3
 brew install mdbtools
 pip3 install matplotlib pandas numpy networkx
+brew install pandoc
+brew cask install basictex
