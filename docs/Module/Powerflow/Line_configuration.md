@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Line_configuration]] -- Class line_configuration
 
 # Synopsis
+
 GLM:
+
 ~~~
   object line_configuration {
     conductor_A "<string>";
@@ -41,6 +43,7 @@ TODO
 ## Properties
 
 ### `conductor_A`
+
 ~~~
   object conductor_A;
 ~~~
@@ -48,6 +51,7 @@ TODO
 TODO
 
 ### `conductor_B`
+
 ~~~
   object conductor_B;
 ~~~
@@ -55,6 +59,7 @@ TODO
 TODO
 
 ### `conductor_C`
+
 ~~~
   object conductor_C;
 ~~~
@@ -62,6 +67,7 @@ TODO
 TODO
 
 ### `conductor_N`
+
 ~~~
   object conductor_N;
 ~~~
@@ -69,6 +75,7 @@ TODO
 TODO
 
 ### `spacing`
+
 ~~~
   object spacing;
 ~~~
@@ -76,6 +83,7 @@ TODO
 TODO
 
 ### `z11`
+
 ~~~
   complex z11[Ohm/mile];
 ~~~
@@ -83,6 +91,7 @@ TODO
 TODO
 
 ### `z12`
+
 ~~~
   complex z12[Ohm/mile];
 ~~~
@@ -90,6 +99,7 @@ TODO
 TODO
 
 ### `z13`
+
 ~~~
   complex z13[Ohm/mile];
 ~~~
@@ -97,6 +107,7 @@ TODO
 TODO
 
 ### `z21`
+
 ~~~
   complex z21[Ohm/mile];
 ~~~
@@ -104,6 +115,7 @@ TODO
 TODO
 
 ### `z22`
+
 ~~~
   complex z22[Ohm/mile];
 ~~~
@@ -111,6 +123,7 @@ TODO
 TODO
 
 ### `z23`
+
 ~~~
   complex z23[Ohm/mile];
 ~~~
@@ -118,6 +131,7 @@ TODO
 TODO
 
 ### `z31`
+
 ~~~
   complex z31[Ohm/mile];
 ~~~
@@ -125,6 +139,7 @@ TODO
 TODO
 
 ### `z32`
+
 ~~~
   complex z32[Ohm/mile];
 ~~~
@@ -132,6 +147,7 @@ TODO
 TODO
 
 ### `z33`
+
 ~~~
   complex z33[Ohm/mile];
 ~~~
@@ -139,6 +155,7 @@ TODO
 TODO
 
 ### `c11`
+
 ~~~
   double c11[nF/mile];
 ~~~
@@ -146,6 +163,7 @@ TODO
 TODO
 
 ### `c12`
+
 ~~~
   double c12[nF/mile];
 ~~~
@@ -153,6 +171,7 @@ TODO
 TODO
 
 ### `c13`
+
 ~~~
   double c13[nF/mile];
 ~~~
@@ -160,6 +179,7 @@ TODO
 TODO
 
 ### `c21`
+
 ~~~
   double c21[nF/mile];
 ~~~
@@ -167,6 +187,7 @@ TODO
 TODO
 
 ### `c22`
+
 ~~~
   double c22[nF/mile];
 ~~~
@@ -174,6 +195,7 @@ TODO
 TODO
 
 ### `c23`
+
 ~~~
   double c23[nF/mile];
 ~~~
@@ -181,6 +203,7 @@ TODO
 TODO
 
 ### `c31`
+
 ~~~
   double c31[nF/mile];
 ~~~
@@ -188,6 +211,7 @@ TODO
 TODO
 
 ### `c32`
+
 ~~~
   double c32[nF/mile];
 ~~~
@@ -195,6 +219,7 @@ TODO
 TODO
 
 ### `c33`
+
 ~~~
   double c33[nF/mile];
 ~~~
@@ -202,6 +227,7 @@ TODO
 TODO
 
 ### `rating.summer.continuous`
+
 ~~~
   double rating.summer.continuous[A];
 ~~~
@@ -209,6 +235,7 @@ TODO
 Amp rating in summer, continuous
 
 ### `rating.summer.emergency`
+
 ~~~
   double rating.summer.emergency[A];
 ~~~
@@ -216,6 +243,7 @@ Amp rating in summer, continuous
 Amp rating in summer, short term
 
 ### `rating.winter.continuous`
+
 ~~~
   double rating.winter.continuous[A];
 ~~~
@@ -223,6 +251,7 @@ Amp rating in summer, short term
 Amp rating in winter, continuous
 
 ### `rating.winter.emergency`
+
 ~~~
   double rating.winter.emergency[A];
 ~~~
@@ -259,5 +288,6 @@ Amp rating in winter, short term
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

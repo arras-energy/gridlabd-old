@@ -57,6 +57,15 @@ typedef struct s_unresolved_static {
 	struct s_unresolved_static *next;
 } UNR_STATIC;
 
+typedef struct s_languagemap LANGUAGE;
+// set loader language
+// returns TRUE on success, FALSE on failure
+struct s_languagemap {
+	const char *name;
+	bool (*parser)(const char *buffer);
+	struct s_languagemap *next;
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -73,6 +82,7 @@ UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *ocl
 STATUS load_resolve_all();
 OBJECT *load_get_current_object(void);
 MODULE *load_get_current_module(void);
+void load_add_language(const char *name, bool (*parser)(const char*));
 
 #ifdef __cplusplus
 }

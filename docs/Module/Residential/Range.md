@@ -1,7 +1,9 @@
 [[/Module/Residential/Range]] -- Class range
 
 # Synopsis
+
 GLM:
+
 ~~~
   object range {
     oven_volume "<decimal> gal";
@@ -88,6 +90,7 @@ TODO
 ## Properties
 
 ### `oven_volume`
+
 ~~~
   double oven_volume[gal];
 ~~~
@@ -95,6 +98,7 @@ TODO
 The volume of the oven
 
 ### `oven_UA`
+
 ~~~
   double oven_UA[Btu/degF/h];
 ~~~
@@ -102,6 +106,7 @@ The volume of the oven
 The UA of the oven (surface area divided by R-value)
 
 ### `oven_diameter`
+
 ~~~
   double oven_diameter[ft];
 ~~~
@@ -109,6 +114,7 @@ The UA of the oven (surface area divided by R-value)
 The diameter of the oven
 
 ### `oven_demand`
+
 ~~~
   double oven_demand[gpm];
 ~~~
@@ -116,6 +122,7 @@ The diameter of the oven
 The hot food take out from the oven
 
 ### `heating_element_capacity`
+
 ~~~
   double heating_element_capacity[kW];
 ~~~
@@ -123,6 +130,7 @@ The hot food take out from the oven
 The power of the heating element
 
 ### `inlet_food_temperature`
+
 ~~~
   double inlet_food_temperature[degF];
 ~~~
@@ -130,6 +138,7 @@ The power of the heating element
 The inlet temperature of the food
 
 ### `heat_mode`
+
 ~~~
   enumeration {GASHEAT, ELECTRIC} heat_mode;
 ~~~
@@ -137,6 +146,7 @@ The inlet temperature of the food
 The energy source for heating the oven
 
 ### `location`
+
 ~~~
   enumeration {GARAGE, INSIDE} location;
 ~~~
@@ -144,6 +154,7 @@ The energy source for heating the oven
 Whether the range is inside or outside
 
 ### `oven_setpoint`
+
 ~~~
   double oven_setpoint[degF];
 ~~~
@@ -151,6 +162,7 @@ Whether the range is inside or outside
 The temperature around which the oven will heat its contents
 
 ### `thermostat_deadband`
+
 ~~~
   double thermostat_deadband[degF];
 ~~~
@@ -158,6 +170,7 @@ The temperature around which the oven will heat its contents
 The degree to heat the food in the oven, when needed
 
 ### `temperature`
+
 ~~~
   double temperature[degF];
 ~~~
@@ -165,6 +178,7 @@ The degree to heat the food in the oven, when needed
 The outlet temperature of the oven
 
 ### `height`
+
 ~~~
   double height[ft];
 ~~~
@@ -172,6 +186,7 @@ The outlet temperature of the oven
 The height of the oven
 
 ### `food_density`
+
 ~~~
   double food_density;
 ~~~
@@ -179,6 +194,7 @@ The height of the oven
 Food density
 
 ### `specificheat_food`
+
 ~~~
   double specificheat_food;
 ~~~
@@ -186,6 +202,7 @@ Food density
 TODO
 
 ### `queue_cooktop`
+
 ~~~
   double queue_cooktop[unit];
 ~~~
@@ -193,6 +210,7 @@ TODO
 Number of loads accumulated
 
 ### `queue_oven`
+
 ~~~
   double queue_oven[unit];
 ~~~
@@ -200,6 +218,7 @@ Number of loads accumulated
 Number of loads accumulated
 
 ### `queue_min`
+
 ~~~
   double queue_min[unit];
 ~~~
@@ -207,6 +226,7 @@ Number of loads accumulated
 TODO
 
 ### `queue_max`
+
 ~~~
   double queue_max[unit];
 ~~~
@@ -214,6 +234,7 @@ TODO
 TODO
 
 ### `time_cooktop_operation`
+
 ~~~
   double time_cooktop_operation;
 ~~~
@@ -221,6 +242,7 @@ TODO
 TODO
 
 ### `time_cooktop_setting`
+
 ~~~
   double time_cooktop_setting;
 ~~~
@@ -228,6 +250,7 @@ TODO
 TODO
 
 ### `cooktop_run_prob`
+
 ~~~
   double cooktop_run_prob;
 ~~~
@@ -235,6 +258,7 @@ TODO
 TODO
 
 ### `oven_run_prob`
+
 ~~~
   double oven_run_prob;
 ~~~
@@ -242,6 +266,7 @@ TODO
 TODO
 
 ### `cooktop_coil_setting_1`
+
 ~~~
   double cooktop_coil_setting_1[kW];
 ~~~
@@ -249,6 +274,7 @@ TODO
 TODO
 
 ### `cooktop_coil_setting_2`
+
 ~~~
   double cooktop_coil_setting_2[kW];
 ~~~
@@ -256,6 +282,7 @@ TODO
 TODO
 
 ### `cooktop_coil_setting_3`
+
 ~~~
   double cooktop_coil_setting_3[kW];
 ~~~
@@ -263,6 +290,7 @@ TODO
 TODO
 
 ### `total_power_oven`
+
 ~~~
   double total_power_oven[kW];
 ~~~
@@ -270,6 +298,7 @@ TODO
 TODO
 
 ### `total_power_cooktop`
+
 ~~~
   double total_power_cooktop[kW];
 ~~~
@@ -277,6 +306,7 @@ TODO
 TODO
 
 ### `total_power_range`
+
 ~~~
   double total_power_range[kW];
 ~~~
@@ -284,6 +314,7 @@ TODO
 TODO
 
 ### `demand_cooktop`
+
 ~~~
   double demand_cooktop[unit/day];
 ~~~
@@ -291,6 +322,7 @@ TODO
 Number of loads accumulating daily
 
 ### `demand_oven`
+
 ~~~
   double demand_oven[unit/day];
 ~~~
@@ -298,6 +330,7 @@ Number of loads accumulating daily
 Number of loads accumulating daily
 
 ### `stall_voltage`
+
 ~~~
   double stall_voltage[V];
 ~~~
@@ -305,6 +338,7 @@ Number of loads accumulating daily
 TODO
 
 ### `start_voltage`
+
 ~~~
   double start_voltage[V];
 ~~~
@@ -312,6 +346,7 @@ TODO
 TODO
 
 ### `stall_impedance`
+
 ~~~
   complex stall_impedance[Ohm];
 ~~~
@@ -319,6 +354,7 @@ TODO
 TODO
 
 ### `trip_delay`
+
 ~~~
   double trip_delay[s];
 ~~~
@@ -326,6 +362,7 @@ TODO
 TODO
 
 ### `reset_delay`
+
 ~~~
   double reset_delay[s];
 ~~~
@@ -333,6 +370,7 @@ TODO
 TODO
 
 ### `time_oven_operation`
+
 ~~~
   double time_oven_operation[s];
 ~~~
@@ -340,6 +378,7 @@ TODO
 TODO
 
 ### `time_oven_setting`
+
 ~~~
   double time_oven_setting[s];
 ~~~
@@ -347,6 +386,7 @@ TODO
 TODO
 
 ### `state_cooktop`
+
 ~~~
   enumeration {CT_TRIPPED, CT_STALLED, STAGE_8_ONLY, STAGE_7_ONLY, STAGE_6_ONLY, CT_STOPPED} state_cooktop;
 ~~~
@@ -354,6 +394,7 @@ TODO
 TODO
 
 ### `cooktop_energy_baseline`
+
 ~~~
   double cooktop_energy_baseline[kWh];
 ~~~
@@ -361,6 +402,7 @@ TODO
 TODO
 
 ### `cooktop_energy_used`
+
 ~~~
   double cooktop_energy_used;
 ~~~
@@ -368,6 +410,7 @@ TODO
 TODO
 
 ### `Toff`
+
 ~~~
   double Toff;
 ~~~
@@ -375,6 +418,7 @@ TODO
 TODO
 
 ### `Ton`
+
 ~~~
   double Ton;
 ~~~
@@ -382,6 +426,7 @@ TODO
 TODO
 
 ### `cooktop_interval_setting_1`
+
 ~~~
   double cooktop_interval_setting_1[s];
 ~~~
@@ -389,6 +434,7 @@ TODO
 TODO
 
 ### `cooktop_interval_setting_2`
+
 ~~~
   double cooktop_interval_setting_2[s];
 ~~~
@@ -396,6 +442,7 @@ TODO
 TODO
 
 ### `cooktop_interval_setting_3`
+
 ~~~
   double cooktop_interval_setting_3[s];
 ~~~
@@ -403,6 +450,7 @@ TODO
 TODO
 
 ### `cooktop_energy_needed`
+
 ~~~
   double cooktop_energy_needed[kWh];
 ~~~
@@ -410,6 +458,7 @@ TODO
 TODO
 
 ### `heat_needed`
+
 ~~~
   bool heat_needed;
 ~~~
@@ -417,6 +466,7 @@ TODO
 TODO
 
 ### `oven_check`
+
 ~~~
   bool oven_check;
 ~~~
@@ -424,6 +474,7 @@ TODO
 TODO
 
 ### `remainon`
+
 ~~~
   bool remainon;
 ~~~
@@ -431,6 +482,7 @@ TODO
 TODO
 
 ### `cooktop_check`
+
 ~~~
   bool cooktop_check;
 ~~~
@@ -438,6 +490,7 @@ TODO
 TODO
 
 ### `actual_load`
+
 ~~~
   double actual_load[kW];
 ~~~
@@ -445,6 +498,7 @@ TODO
 The actual load based on the current voltage across the coils
 
 ### `previous_load`
+
 ~~~
   double previous_load[kW];
 ~~~
@@ -452,6 +506,7 @@ The actual load based on the current voltage across the coils
 The actual load based on current voltage stored for use in controllers
 
 ### `actual_power`
+
 ~~~
   complex actual_power[kVA];
 ~~~
@@ -459,6 +514,7 @@ The actual load based on current voltage stored for use in controllers
 The actual power based on the current voltage across the coils
 
 ### `is_range_on`
+
 ~~~
   double is_range_on;
 ~~~
@@ -466,6 +522,7 @@ The actual power based on the current voltage across the coils
 Simple logic output to determine state of range (1-on, 0-off)
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -473,6 +530,7 @@ Simple logic output to determine state of range (1-on, 0-off)
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -480,6 +538,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -487,6 +546,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -494,6 +554,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -501,6 +562,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -508,6 +570,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -515,6 +578,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -522,6 +586,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -529,6 +594,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -536,6 +602,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -543,6 +610,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -550,6 +618,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -557,6 +626,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -564,6 +634,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -571,6 +642,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -578,6 +650,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -585,6 +658,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -592,6 +666,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -599,6 +674,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -669,5 +745,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

@@ -1,11 +1,15 @@
 [[/Global/Checkpoint_file]] -- Checkpoint file base name
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set checkpoint_file=""
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D checkpoint_file=""
 bash$ gridlabd --define checkpoint_file=""

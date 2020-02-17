@@ -1,7 +1,9 @@
 [[/Module/Residential/ZIPload]] -- Class ZIPload
 
 # Synopsis
+
 GLM:
+
 ~~~
   object ZIPload {
     heat_fraction "<decimal>";
@@ -59,6 +61,7 @@ TODO
 ## Properties
 
 ### `heat_fraction`
+
 ~~~
   double heat_fraction;
 ~~~
@@ -66,6 +69,7 @@ TODO
 Fraction of ZIPload that is transferred as heat
 
 ### `base_power`
+
 ~~~
   double base_power[kW];
 ~~~
@@ -73,6 +77,7 @@ Fraction of ZIPload that is transferred as heat
 Base real power of the overall load
 
 ### `power_pf`
+
 ~~~
   double power_pf;
 ~~~
@@ -80,6 +85,7 @@ Base real power of the overall load
 Power factor for constant power portion
 
 ### `current_pf`
+
 ~~~
   double current_pf;
 ~~~
@@ -87,6 +93,7 @@ Power factor for constant power portion
 Power factor for constant current portion
 
 ### `impedance_pf`
+
 ~~~
   double impedance_pf;
 ~~~
@@ -94,6 +101,7 @@ Power factor for constant current portion
 Power factor for constant impedance portion
 
 ### `is_240`
+
 ~~~
   bool is_240;
 ~~~
@@ -101,6 +109,7 @@ Power factor for constant impedance portion
 Load is 220/240 V (across both phases)
 
 ### `breaker_val`
+
 ~~~
   double breaker_val[A];
 ~~~
@@ -108,6 +117,7 @@ Load is 220/240 V (across both phases)
 Amperage of connected breaker
 
 ### `actual_power`
+
 ~~~
   complex actual_power[kVA];
 ~~~
@@ -115,6 +125,7 @@ Amperage of connected breaker
 Variable to pull actual load as function of voltage
 
 ### `multiplier`
+
 ~~~
   double multiplier;
 ~~~
@@ -122,6 +133,7 @@ Variable to pull actual load as function of voltage
 This variable is used to modify the base power as a function of multiplier x base_power
 
 ### `heatgain_only`
+
 ~~~
   bool heatgain_only;
 ~~~
@@ -129,6 +141,7 @@ This variable is used to modify the base power as a function of multiplier x bas
 Allows the zipload to generate heat only (no kW), not activated by default
 
 ### `demand_response_mode`
+
 ~~~
   bool demand_response_mode;
 ~~~
@@ -136,6 +149,7 @@ Allows the zipload to generate heat only (no kW), not activated by default
 Activates equilibrium dynamic representation of demand response
 
 ### `number_of_devices`
+
 ~~~
   int16 number_of_devices;
 ~~~
@@ -143,6 +157,7 @@ Activates equilibrium dynamic representation of demand response
 Number of devices to model - base power is the total load of all devices
 
 ### `thermostatic_control_range`
+
 ~~~
   int16 thermostatic_control_range;
 ~~~
@@ -150,6 +165,7 @@ Number of devices to model - base power is the total load of all devices
 Range of the thermostat's control operation
 
 ### `number_of_devices_off`
+
 ~~~
   double number_of_devices_off;
 ~~~
@@ -157,6 +173,7 @@ Range of the thermostat's control operation
 Total number of devices that are off
 
 ### `number_of_devices_on`
+
 ~~~
   double number_of_devices_on;
 ~~~
@@ -164,6 +181,7 @@ Total number of devices that are off
 Total number of devices that are on
 
 ### `rate_of_cooling`
+
 ~~~
   double rate_of_cooling[K/h];
 ~~~
@@ -171,6 +189,7 @@ Total number of devices that are on
 Rate at which devices cool down
 
 ### `rate_of_heating`
+
 ~~~
   double rate_of_heating[K/h];
 ~~~
@@ -178,6 +197,7 @@ Rate at which devices cool down
 Rate at which devices heat up
 
 ### `temperature`
+
 ~~~
   int16 temperature;
 ~~~
@@ -185,6 +205,7 @@ Rate at which devices heat up
 Temperature of the device's controlled media (eg air temp or water temp)
 
 ### `phi`
+
 ~~~
   double phi;
 ~~~
@@ -192,6 +213,7 @@ Temperature of the device's controlled media (eg air temp or water temp)
 Duty cycle of the device
 
 ### `demand_rate`
+
 ~~~
   double demand_rate[1/h];
 ~~~
@@ -199,6 +221,7 @@ Duty cycle of the device
 Consumer demand rate that prematurely turns on a device or population
 
 ### `nominal_power`
+
 ~~~
   double nominal_power;
 ~~~
@@ -206,6 +229,7 @@ Consumer demand rate that prematurely turns on a device or population
 The rated amount of power demanded by devices that are on
 
 ### `duty_cycle`
+
 ~~~
   double duty_cycle[pu];
 ~~~
@@ -213,6 +237,7 @@ The rated amount of power demanded by devices that are on
 Fraction of time in the on state
 
 ### `recovery_duty_cycle`
+
 ~~~
   double recovery_duty_cycle[pu];
 ~~~
@@ -220,6 +245,7 @@ Fraction of time in the on state
 Fraction of time in the on state, while in recovery interval
 
 ### `period`
+
 ~~~
   double period[h];
 ~~~
@@ -227,6 +253,7 @@ Fraction of time in the on state, while in recovery interval
 Time interval to apply duty cycle
 
 ### `phase`
+
 ~~~
   double phase[pu];
 ~~~
@@ -234,6 +261,7 @@ Time interval to apply duty cycle
 Initial phase of load; duty will be assumed to occur at beginning of period
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -241,6 +269,7 @@ Initial phase of load; duty will be assumed to occur at beginning of period
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -248,6 +277,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -255,6 +285,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -262,6 +293,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -269,6 +301,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -276,6 +309,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -283,6 +317,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -290,6 +325,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -297,6 +333,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -304,6 +341,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -311,6 +349,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -318,6 +357,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -325,6 +365,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -332,6 +373,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -339,6 +381,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -346,6 +389,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -353,6 +397,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -360,6 +405,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -367,6 +413,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -408,5 +455,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

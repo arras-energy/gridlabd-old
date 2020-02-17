@@ -1,18 +1,23 @@
 [[/Module/Commercial/Global/Warn_control]] -- Module commercial global variable warn_control
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define warn_control=<value>
+bash$ gridlabd -D|--define warn_control=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set warn_control=<value>
 ~~~
 
 # Description
 
-TODO
+Control whether warnings are issues when control problems are detected.
 
 # See also
+
 * [[/Module/Commercial]]

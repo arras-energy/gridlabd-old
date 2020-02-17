@@ -1,14 +1,17 @@
-[[Global/Glm_save_options]] -- Global variable to control when is included when a GLM file is output
+[[/Global/Glm_save_options]] -- Global variable to control when is included when a GLM file is output
 
 # Synopsis
 
 Command line usage:
+
 ~~~
-  host% gridlabd [--define|-D] glm_save_options=LEGACY ...
-  host% gridlabd [--define|-D] glm_save_options=MINIMAL ...
-  host% gridlabd [--define|-D] glm_save_options=[NODEFAULTS|NOINTERNALS|NOGLOBALS|NOMACROS] ...
+bash$ gridlabd [--define|-D] glm_save_options=LEGACY ...
+bash$ gridlabd [--define|-D] glm_save_options=MINIMAL ...
+bash$ gridlabd [--define|-D] glm_save_options=[NODEFAULTS|NOINTERNALS|NOGLOBALS|NOMACROS] ...
 ~~~
+
 GLM usage:
+
 ~~~
   #set glm_save_options=LEGACY
   #set glm_save_options=MINIMAL
@@ -44,11 +47,12 @@ This causes the GLM file to avoid use default values.
 This is the minimum loadable GLM model. It is a combination of `NOINTERNALS`, `NOGLOBALS`, `NOMACROS`, and `NODEFAULTS`. When `LEGACY` is deprecated, it will become the default.
 
 # Example
+
 ~~~
-  host% gridlabd -D gld_save_options=MINIMAL model.glm -o model_single_file.glm
+bash$ gridlabd -D gld_save_options=MINIMAL model.glm -o model_single_file.glm
 ~~~
 
 # See also
 
-* [[Global/Json_save_options]]
+* [[/Global/Json_save_options]]
 
