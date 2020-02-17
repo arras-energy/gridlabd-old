@@ -80,21 +80,22 @@ static struct s_redirection {
 	FILE *profile;
 	FILE *progress;
 } redirect;
+static struct {
+	const char *name;
+	FILE **file;
+	const char *defaultfile;
+	FILE *defaultstream;
+} map[] = {
+	{"output",&redirect.output,"gridlabd.out",stdout},
+	{"error",&redirect.error,"gridlabd.err",stderr},
+	{"warning",&redirect.warning,"gridlabd.wrn",stderr},
+	{"debug",&redirect.debug,"gridlabd.dbg",stderr},
+	{"verbose",&redirect.verbose,"gridlabd.inf",stderr},
+	{"profile",&redirect.profile,"gridlabd.pro",stderr},
+	{"progress",&redirect.progress,"gridlabd.prg",stderr},
+};
 FILE* output_redirect_stream(const char *name, FILE *fp)
 {
-	struct {
-		const char *name;
-		FILE **file;
-		const char *defaultfile;
-	} map[] = {
-		{"output",&redirect.output,"gridlabd.out"},
-		{"error",&redirect.error,"gridlabd.err"},
-		{"warning",&redirect.warning,"gridlabd.wrn"},
-		{"debug",&redirect.debug,"gridlabd.dbg"},
-		{"verbose",&redirect.verbose,"gridlabd.inf"},
-		{"profile",&redirect.profile,"gridlabd.pro"},
-		{"progress",&redirect.progress,"gridlabd.prg"},
-	};
 	size_t i;
 	for (i=0; i<sizeof(map)/sizeof(map[0]); i++) 
 	{
@@ -104,7 +105,9 @@ FILE* output_redirect_stream(const char *name, FILE *fp)
 			*(map[i].file) = fp;
 #ifndef WIN32
 			if (*(map[i].file))
+			{
 				setlinebuf(*(map[i].file));
+			}
 #endif
 			return oldfp;
 		}
@@ -112,6 +115,24 @@ FILE* output_redirect_stream(const char *name, FILE *fp)
 	return NULL;
 }
 
+FILE* output_get_stream(const char *name)
+{
+	size_t i;
+	FILE *fp = stderr;
+	for ( i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ ) 
+	{
+		if ( strcmp(name,map[i].name) == 0 )
+		{
+			fp = *(map[i].file);
+			if ( fp == NULL )
+			{
+				fp = map[i].defaultstream;
+			}
+			break;
+		}
+	}
+	return fp;
+}
 void (*notify_error)(void) = NULL;
 int output_notify_error(void (*notify)(void))
 {

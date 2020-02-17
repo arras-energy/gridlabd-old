@@ -1,7 +1,9 @@
 [[/GLM/Macro/For]] -- For loop control macro
 
 # Synopsis
+
 GLM:
+
 ~~~
 #for <var> in <list>
 ...
@@ -15,6 +17,7 @@ The `#for` macro causes the parser to loop through a section of GLM multiple tim
 # Example
 
 The following example creates three different random number generators:
+
 ~~~
 class random_source 
 {
@@ -33,4 +36,5 @@ object random-source
 For loops cannot be nested at this time.
 
 # See also
+
 * [[/GLM/General/Range]]

@@ -1,7 +1,9 @@
-[[GLM/Directive/Filter]] -- Filter modeling directive
+[[/GLM/Directive/Filter]] -- Filter modeling directive
 
 # Synopsis
+
 GLM:
+
 ~~~
 filter <name>(<domain>[,<timestep>[,<timeskew>[,<option>=<value>]]]) = <polynomial>/<polynomial>;
 ~~~
@@ -29,20 +31,25 @@ Specifies the time-shift for the discrete-time sampling.
 ## Resolution and saturation
 
 In addition, filters now support resolution and saturation limits, e.g.,
+
 ~~~
 filter delay(z,5min,10s,resolution=8,minimum=-2.5,maximum=2.5) = 1/z;
 ~~~
+
 creates a filter with 8 bits of resolution (256 values) over a dynamic range of 5.0.
 
 ## Polynomial
 
 The numerator and denominator are specified as a polynomial of the form $a_n z^n + a_{n-1} z^{n-1} + \cdots + a_1 z + a_0$, e.g.,
+
 ~~~
   an z^n + ... + a1 z + a0
 ~~~
+
 The order of the numerator must be strictly less than the order of the denominator. 
 
 # Example
+
 ~~~
 filter example(z,1) = z/(z+1);
 object test {
