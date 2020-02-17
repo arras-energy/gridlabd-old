@@ -1145,7 +1145,17 @@ double capacitor::cap_postPost_fxn(double result, double time_value)
 
 	if ((control==VAR) || (control==VARVOLT))	//Grab the power values from remote link
 	{
-		RLink->get_indiv_power_in(VArVals);
+		READLOCK_OBJECT(RLink->my());
+
+		//Force the link to do an update (will be ignored first run anyways (zero))
+		RLink->calculate_power();
+
+		//Takes all measurements from input side of link (output can not quite be up to date)
+		VArVals[0] = RLink->indiv_power_in[0].Im();
+		VArVals[1] = RLink->indiv_power_in[1].Im();
+		VArVals[2] = RLink->indiv_power_in[2].Im();
+		
+		READUNLOCK_OBJECT(RLink->my());
 
 		//If NR, force us to do a reiteration if something changed - FBS handles this just due to the nature of how it solves
 		//Basically copied out of actual logic above
@@ -1339,7 +1349,14 @@ double capacitor::cap_postPost_fxn(double result, double time_value)
 	}
 	else if (control==CURRENT)	//Grab the current injection values
 	{
-		RLink->get_current_in_mags(CurrentVals);
+		READLOCK_OBJECT(RLink->my());
+
+		//Pull off the output currents
+		CurrentVals[0]=RLink->current_in[0].Mag();
+		CurrentVals[1]=RLink->current_in[1].Mag();
+		CurrentVals[2]=RLink->current_in[2].Mag();
+		
+		READUNLOCK_OBJECT(RLink->my());
 
 		//If NR, check logic to see if we need to request another pass
 		if (solver_method == SM_NR)

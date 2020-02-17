@@ -68,8 +68,6 @@ public: /// @todo make this private and create interfaces to control values
 	double *link_limits[2][3];		/**< pointers for line limits (emergency vs. continuous) for link objects and by phase - pointered for variation */
 	double link_rating[2][3];		/**< Values for current line rating - gives individual segments the ability to set */
 	double *get_double(OBJECT *obj, const char *name);	/**< Gets address of double - mainly for mean_repair_time */
-	void get_current_in_mags(double *a);
-	void get_indiv_power_in(double *a);
 public:
 	enumeration status;	///< link status (open disconnect nodes)
 	enumeration prev_status;	///< Previous link status (used for recalculation detection)
