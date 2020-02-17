@@ -50,7 +50,7 @@ function version-check()
 		echo "LOCAL $local"
 	fi
 	if [ "$remote" == "none" ]; then
-		[ -z "$1" ] && error 2 "$(gridlabd --version) has no remote"
+		[ -z "$1" ] && error 2 "$(gridlabd --version) remote '$origin/$branch' not found"
 	elif [ "$local" != "$remote" ]; then
 		[ -z "$1" ] && error 1 "$(gridlabd --version) is outdated"
 	else
