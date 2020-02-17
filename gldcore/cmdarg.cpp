@@ -558,7 +558,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 	}
 	else if ( strcmp(opt,"branch") == 0 )
 	{
-		output_message("%s", BRANCH);
+		output_message("%s", BUILD_BRANCH);
 		return 0;
 	}
 	else if ( strcmp(opt,"platform") == 0 || strcmp(opt,"system") == 0 )
