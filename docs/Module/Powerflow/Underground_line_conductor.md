@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Underground_line_conductor]] -- Class underground_line_conductor
 
 # Synopsis
+
 GLM:
+
 ~~~
   object underground_line_conductor {
     outer_diameter "<decimal> in";
@@ -31,6 +33,7 @@ TODO
 ## Properties
 
 ### `outer_diameter`
+
 ~~~
   double outer_diameter[in];
 ~~~
@@ -38,6 +41,7 @@ TODO
 Outer diameter of conductor and sheath
 
 ### `conductor_gmr`
+
 ~~~
   double conductor_gmr[ft];
 ~~~
@@ -45,6 +49,7 @@ Outer diameter of conductor and sheath
 Geometric mean radius of the conductor
 
 ### `conductor_diameter`
+
 ~~~
   double conductor_diameter[in];
 ~~~
@@ -52,6 +57,7 @@ Geometric mean radius of the conductor
 Diameter of conductor
 
 ### `conductor_resistance`
+
 ~~~
   double conductor_resistance[Ohm/mile];
 ~~~
@@ -59,6 +65,7 @@ Diameter of conductor
 Resistance of conductor in ohm/mile
 
 ### `neutral_gmr`
+
 ~~~
   double neutral_gmr[ft];
 ~~~
@@ -66,6 +73,7 @@ Resistance of conductor in ohm/mile
 Geometric mean radius of an individual neutral conductor/strand
 
 ### `neutral_diameter`
+
 ~~~
   double neutral_diameter[in];
 ~~~
@@ -73,6 +81,7 @@ Geometric mean radius of an individual neutral conductor/strand
 Diameter of individual neutral conductor/strand of concentric neutral
 
 ### `neutral_resistance`
+
 ~~~
   double neutral_resistance[Ohm/mile];
 ~~~
@@ -80,6 +89,7 @@ Diameter of individual neutral conductor/strand of concentric neutral
 Resistance of an individual neutral conductor/strand in ohm/mile
 
 ### `neutral_strands`
+
 ~~~
   int16 neutral_strands;
 ~~~
@@ -87,6 +97,7 @@ Resistance of an individual neutral conductor/strand in ohm/mile
 Number of cable strands in neutral conductor
 
 ### `shield_thickness`
+
 ~~~
   double shield_thickness[in];
 ~~~
@@ -94,6 +105,7 @@ Number of cable strands in neutral conductor
 The thickness of Tape shield in inches
 
 ### `shield_diameter`
+
 ~~~
   double shield_diameter[in];
 ~~~
@@ -101,6 +113,7 @@ The thickness of Tape shield in inches
 The outside diameter of Tape shield in inches
 
 ### `insulation_relative_permitivitty`
+
 ~~~
   double insulation_relative_permitivitty[unit];
 ~~~
@@ -108,6 +121,7 @@ The outside diameter of Tape shield in inches
 Permitivitty of insulation, relative to air
 
 ### `shield_gmr`
+
 ~~~
   double shield_gmr[ft];
 ~~~
@@ -115,6 +129,7 @@ Permitivitty of insulation, relative to air
 Geometric mean radius of shielding sheath
 
 ### `shield_resistance`
+
 ~~~
   double shield_resistance[Ohm/mile];
 ~~~
@@ -122,6 +137,7 @@ Geometric mean radius of shielding sheath
 Resistance of shielding sheath in ohms/mile
 
 ### `rating.summer.continuous`
+
 ~~~
   double rating.summer.continuous[A];
 ~~~
@@ -129,6 +145,7 @@ Resistance of shielding sheath in ohms/mile
 Amp rating in summer, continuous
 
 ### `rating.summer.emergency`
+
 ~~~
   double rating.summer.emergency[A];
 ~~~
@@ -136,6 +153,7 @@ Amp rating in summer, continuous
 Amp rating in summer, short term
 
 ### `rating.winter.continuous`
+
 ~~~
   double rating.winter.continuous[A];
 ~~~
@@ -143,6 +161,7 @@ Amp rating in summer, short term
 Amp rating in winter, continuous
 
 ### `rating.winter.emergency`
+
 ~~~
   double rating.winter.emergency[A];
 ~~~
@@ -174,5 +193,6 @@ Amp rating in winter, short term
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

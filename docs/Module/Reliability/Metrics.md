@@ -1,7 +1,9 @@
 [[/Module/Reliability/Metrics]] -- Class metrics
 
 # Synopsis
+
 GLM:
+
 ~~~
   object metrics {
     report_file "<string>";
@@ -20,6 +22,7 @@ TODO
 ## Properties
 
 ### `report_file`
+
 ~~~
   char1024 report_file;
 ~~~
@@ -27,6 +30,7 @@ TODO
 TODO
 
 ### `customer_group`
+
 ~~~
   char1024 customer_group;
 ~~~
@@ -34,6 +38,7 @@ TODO
 TODO
 
 ### `module_metrics_object`
+
 ~~~
   object module_metrics_object;
 ~~~
@@ -41,6 +46,7 @@ TODO
 TODO
 
 ### `metrics_of_interest`
+
 ~~~
   char1024 metrics_of_interest;
 ~~~
@@ -48,6 +54,7 @@ TODO
 TODO
 
 ### `metric_interval`
+
 ~~~
   double metric_interval[s];
 ~~~
@@ -55,6 +62,7 @@ TODO
 TODO
 
 ### `report_interval`
+
 ~~~
   double report_interval[s];
 ~~~
@@ -74,5 +82,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Reliability]]
 
