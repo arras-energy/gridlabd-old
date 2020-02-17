@@ -7797,40 +7797,6 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if ( strncmp(line,MACRO "on_exit",8) == 0 )
-	{
-		int xc;
-		char cmd[1024];
-		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
-		{
-			output_error_raw("%s(%d): on_exit syntax error", filename,linenum);
-			return FALSE;
-		}
-		else if ( ! my_instance->add_on_exit(xc,cmd) )
-		{
-			output_error_raw("%s(%d): on_exit %d command '%s'", filename,linenum,xc,cmd);
-			return FALSE;
-		}
-		else
-		{
-			strcpy(line,"\n");
-			return TRUE;
-		}
-	}
-	else if ( strncmp(line, MACRO "for",4) == 0 )
-	{
-		char var[64], range[1024];
-		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
-		{
-			strcpy(line,"\n");
-			return for_open(var,range) ? TRUE : FALSE;
-		}
-		else
-		{
-			output_error_raw("%s(%d): for macro syntax error", filename, linenum);
-			return FALSE;
-		}
-	}
 	else if ( strncmp(line, MACRO "version", 8) == 0 )
 	{
 		int criteria = 0;
@@ -7913,6 +7879,40 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 
+	}
+	else if ( strncmp(line,MACRO "on_exit",8) == 0 )
+	{
+		int xc;
+		char cmd[1024];
+		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
+		{
+			output_error_raw("%s(%d): on_exit syntax error", filename,linenum);
+			return FALSE;
+		}
+		else if ( ! my_instance->add_on_exit(xc,cmd) )
+		{
+			output_error_raw("%s(%d): on_exit %d command '%s'", filename,linenum,xc,cmd);
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
+	else if ( strncmp(line, MACRO "for",4) == 0 )
+	{
+		char var[64], range[1024];
+		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
+		{
+			strcpy(line,"\n");
+			return for_open(var,range) ? TRUE : FALSE;
+		}
+		else
+		{
+			output_error_raw("%s(%d): for macro syntax error", filename, linenum);
+			return FALSE;
+		}
 	}
 	else
 	{
