@@ -16,3 +16,4 @@ commercial_commercial_la_SOURCES += commercial/hvac.cpp commercial/hvac.h
 commercial_commercial_la_SOURCES += commercial/multizone.cpp commercial/multizone.h
 commercial_commercial_la_SOURCES += commercial/office.cpp commercial/office.h
 commercial_commercial_la_SOURCES += commercial/solvers.cpp commercial/solvers.h
+commercial_commercial_la_SOURCES += commercial/parking.cpp commercial/parking.h

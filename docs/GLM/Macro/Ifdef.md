@@ -1,7 +1,9 @@
 [[/Glm/Macro/Ifdef]] -- Macro to conditionally process GLM lines when a global variable is defined
 
 # Synopsis
+
 GLM:
+
 ~~~
 #ifdef <name>
 ...
@@ -25,6 +27,7 @@ The `#ifdef` macro is used to conditionally process GLM lines when the variable 
 ~~~
 
 # See also
+
 * [[/Glm/Macro/If]]
 * [[/Glm/Macro/Ifndef]]
 

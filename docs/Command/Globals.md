@@ -1,13 +1,9 @@
-[[/Command/Globals]] -- Global dump
+[[/Command/Globals]] -- Displays a sorted list of all global variables
 
 # Synopsis
-GLM:
+
 ~~~
-#option globals[=<name>]
-~~~
-Shell:
-~~~
-bash$ gridlabd [...] --globals[=<name>]
+bash$ gridlabd --globals                                               
 ~~~
 
 # Description

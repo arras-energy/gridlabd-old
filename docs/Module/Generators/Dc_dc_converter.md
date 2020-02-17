@@ -1,7 +1,9 @@
 [[/Module/Generators/Dc_dc_converter]] -- Class dc_dc_converter
 
 # Synopsis
+
 GLM:
+
 ~~~
   object dc_dc_converter {
     dc_dc_converter_type "{BUCK_BOOST,BOOST,BUCK}";
@@ -27,6 +29,7 @@ TODO
 ## Properties
 
 ### `dc_dc_converter_type`
+
 ~~~
   enumeration {BUCK_BOOST, BOOST, BUCK} dc_dc_converter_type;
 ~~~
@@ -34,6 +37,7 @@ TODO
 TODO
 
 ### `generator_mode`
+
 ~~~
   enumeration {SUPPLY_DRIVEN, CONSTANT_PF, CONSTANT_PQ, CONSTANT_V, UNKNOWN} generator_mode;
 ~~~
@@ -41,6 +45,7 @@ TODO
 TODO
 
 ### `V_Out`
+
 ~~~
   complex V_Out[V];
 ~~~
@@ -48,6 +53,7 @@ TODO
 TODO
 
 ### `I_Out`
+
 ~~~
   complex I_Out[A];
 ~~~
@@ -55,6 +61,7 @@ TODO
 TODO
 
 ### `Vdc`
+
 ~~~
   complex Vdc[V];
 ~~~
@@ -62,6 +69,7 @@ TODO
 TODO
 
 ### `VA_Out`
+
 ~~~
   complex VA_Out[VA];
 ~~~
@@ -69,6 +77,7 @@ TODO
 TODO
 
 ### `P_Out`
+
 ~~~
   double P_Out;
 ~~~
@@ -76,6 +85,7 @@ TODO
 TODO
 
 ### `Q_Out`
+
 ~~~
   double Q_Out;
 ~~~
@@ -83,6 +93,7 @@ TODO
 TODO
 
 ### `service_ratio`
+
 ~~~
   double service_ratio;
 ~~~
@@ -90,6 +101,7 @@ TODO
 TODO
 
 ### `V_In`
+
 ~~~
   complex V_In[V];
 ~~~
@@ -97,6 +109,7 @@ TODO
 TODO
 
 ### `I_In`
+
 ~~~
   complex I_In[A];
 ~~~
@@ -104,6 +117,7 @@ TODO
 TODO
 
 ### `VA_In`
+
 ~~~
   complex VA_In[VA];
 ~~~
@@ -111,6 +125,7 @@ TODO
 TODO
 
 ### `phases`
+
 ~~~
   set {S, N, C, B, A} phases;
 ~~~
@@ -138,5 +153,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Generators]]
 

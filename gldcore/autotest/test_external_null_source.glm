@@ -7,7 +7,7 @@
 // deterministic noise source
 extern "C" noise_source : noise@1 // inline "C" code follows
 {
-    #include <math.h>
+	double cos(double), sin(double);
 	int noise(int nlhs, GLXDATA *plhs, int nrhs, GLXDATA *prhs)
 	{	/* make sure the correct number of args are passed in */
 		if ( nlhs!=1 || nlhs!=1 ) return -1;

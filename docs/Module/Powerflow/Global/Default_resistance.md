@@ -1,11 +1,15 @@
 [[/Module/Powerflow/Global/Default_resistance]] -- Module powerflow global variable default_resistance
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define default_resistance=<value>
+bash$ gridlabd -D|--define default_resistance=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set default_resistance=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Powerflow]]

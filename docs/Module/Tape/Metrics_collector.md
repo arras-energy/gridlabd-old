@@ -1,7 +1,9 @@
 [[/Module/Tape/Metrics_collector]] -- Class metrics_collector
 
 # Synopsis
+
 GLM:
+
 ~~~
   object metrics_collector {
     interval "<decimal> s";
@@ -15,6 +17,7 @@ TODO
 ## Properties
 
 ### `interval`
+
 ~~~
   double interval[s];
 ~~~
@@ -30,5 +33,6 @@ Interval at which the metrics_collector output is stored in JSON format
 ~~~
 
 # See also
+
 * [[/Module/Tape]]
 

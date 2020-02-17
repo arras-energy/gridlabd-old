@@ -1,11 +1,15 @@
 [[/Global/Gdb_window]] -- Gdb window enable flag
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set gdb_window=FALSE
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D gdb_window=FALSE
 bash$ gridlabd --define gdb_window=FALSE

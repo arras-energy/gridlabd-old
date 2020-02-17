@@ -278,7 +278,7 @@ GLOBAL unsigned char global_no_balance INIT(FALSE);
 GLOBAL char global_kmlfile[1024] INIT(""); /**< Specifies KML file to dump */
 
 /* Variable: global_kmlhost */
-GLOBAL char global_kmlhost[1024] INIT("https://raw.githubusercontent.com/dchassin/gridlabd/master/gldcore/rt"); /**< Specifies the KML image library server */
+GLOBAL char global_kmlhost[1024] INIT("https://raw.githubusercontent.com/slacgismo/gridlabd/master/gldcore/rt"); /**< Specifies the KML image library server */
 
 /* Variable: global_modelname */
 GLOBAL char global_modelname[1024] INIT(""); /**< Name of the current model */
@@ -425,6 +425,9 @@ GLOBAL int global_nondeterminism_warning INIT(0); /**< flag to enable nondetermi
 
 /* Variable: global_compileonly */
 GLOBAL int global_compileonly INIT(0); /**< flag to enable compile-only option (does not actually start the simulation) */
+
+/* Variable: global_compileonly */
+GLOBAL int global_initializeonly INIT(0); /**< flag to enable initialize-only option (does not actually start the simulation) */
 
 /* Variable: global_server_portnum */
 GLOBAL int global_server_portnum INIT(0); /**< port used in server mode (6267 was assigned by IANA Dec 2010) */
@@ -656,7 +659,7 @@ GLOBAL bool global_reinclude INIT(false); /**< allow the same include file to be
 GLOBAL bool global_relax_undefined_if INIT(false); /**< allow #if macro to handle undefined global variables */
 
 /* Variable:  */
-GLOBAL bool global_literal_if INIT(false); /**< do not interpret lhs of #if as a variable name */
+GLOBAL bool global_literal_if INIT(true); /**< do not interpret lhs of #if as a variable name */
 
 /* Variable:  */
 GLOBAL char1024 global_daemon_configfile INIT("gridlabd.cnf"); /**< name of daemon configuration file */
@@ -771,6 +774,9 @@ GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
 /* Variable: global_python3 */
 GLOBAL char1024 global_python3_binary INIT("/usr/local/bin/python3"); /**< python3 executable */
+
+/* Variable: global_datadir */
+GLOBAL char1024 global_datadir INIT("");
 
 #undef GLOBAL
 #undef INIT
