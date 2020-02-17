@@ -1,7 +1,9 @@
 [[/GLM/Property/Randomvar]] -- Random variables
 
 # Synopsis
+
 GLM:
+
 ~~~
 class <class-name> {
     randomvar <property-name>;
@@ -36,6 +38,7 @@ For details on the supported distributions, see [[/GLM/General/Random values]]
 # Example
 
 The following example generates two standard random Gaussian that are 90% anti-correlated.
+
 ~~~
 class example {
     randomvar x;
@@ -57,6 +60,7 @@ object example {
 # Caveat
 
 The order in which the random variables is defined is important to creating correlations.  As a result, the `correlation` specification must refer to an existing random variable.  In addition, because each random variable may depend on only one other random variable, the standard method of creating $N>2$ correlated random variables is not supported directly.  Instead, a cascade of $N=2$ random variables must be defined.  This can be accomplished by performing Gauss elimination on the Cholesky decomposition of the covariance matrix to obtain a bi-diagonal matrix of the form
+
 ~~~
 (     s[1]^2          0          0          0          0 )
 (   s[1]s[2]     s[2]^2          0          0          0 )
@@ -66,4 +70,5 @@ The order in which the random variables is defined is important to creating corr
 ~~~
 
 # See also
+
 * [[/GLM/General/Random values]]

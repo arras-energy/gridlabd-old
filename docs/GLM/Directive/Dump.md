@@ -1,9 +1,11 @@
-[[GLM/Directive/Dump]] -- Dump request directive
+[[/GLM/Directive/Dump]] -- Dump request directive
 
 # Synopsis
+
 GLM:
+
 ~~~
-  dump interval filename;
+dump interval filename;
 ~~~
 
 # Description

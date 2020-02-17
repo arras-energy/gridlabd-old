@@ -1,7 +1,9 @@
 [[/Glm/Macro/Warning]] -- Warning output message
 
 # Synopsis
+
 GLM:
+
 ~~~
 #warning <message>
 ~~~
@@ -17,6 +19,7 @@ The `#warning` macro outputs a message to the warning stream.
 ~~~
 
 # See also
+
 * [[/GLM/Macro/Debug]]
 * [[/GLM/Macro/Error]]
 * [[/GLM/Macro/Print]]

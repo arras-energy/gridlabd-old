@@ -124,3 +124,6 @@ gldcore/link/python/example.png
 *-checkpoint.ipynb
 .*
 *.log
+docs/gridlabd.aux
+docs/gridlabd.pdf
+docs/version.tex
