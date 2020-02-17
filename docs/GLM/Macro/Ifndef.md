@@ -1,7 +1,9 @@
 [[/Glm/Macro/Ifndef]] -- Macro to conditionally process GLM lines when a global variable is not defined
 
 # Synopsis
+
 GLM:
+
 ~~~
 #ifndef <name>
 ...
@@ -25,6 +27,7 @@ The `#ifndef` macro is the opposite of the `#ifdef` macro.
 ~~~
 
 # See also
+
 * [[/Glm/Macro/If]]
 * [[/Glm/Macro/Ifdef]]
 

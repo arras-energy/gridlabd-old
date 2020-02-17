@@ -1,7 +1,9 @@
 [[/Module/Residential/House]] -- Class house
 
 # Synopsis
+
 GLM:
+
 ~~~
   object house {
     weather "<string>";
@@ -219,6 +221,7 @@ TODO
 ## Properties
 
 ### `weather`
+
 ~~~
   object weather;
 ~~~
@@ -226,6 +229,7 @@ TODO
 Reference to the climate object
 
 ### `floor_area`
+
 ~~~
   double floor_area[sf];
 ~~~
@@ -233,6 +237,7 @@ Reference to the climate object
 Home conditioned floor area
 
 ### `gross_wall_area`
+
 ~~~
   double gross_wall_area[sf];
 ~~~
@@ -240,6 +245,7 @@ Home conditioned floor area
 Gross outdoor wall area
 
 ### `ceiling_height`
+
 ~~~
   double ceiling_height[ft];
 ~~~
@@ -247,6 +253,7 @@ Gross outdoor wall area
 Average ceiling height
 
 ### `aspect_ratio`
+
 ~~~
   double aspect_ratio;
 ~~~
@@ -254,6 +261,7 @@ Average ceiling height
 Aspect ratio of the home's footprint
 
 ### `envelope_UA`
+
 ~~~
   double envelope_UA[Btu/degF/h];
 ~~~
@@ -261,6 +269,7 @@ Aspect ratio of the home's footprint
 Overall UA of the home's envelope
 
 ### `window_wall_ratio`
+
 ~~~
   double window_wall_ratio;
 ~~~
@@ -268,6 +277,7 @@ Overall UA of the home's envelope
 Ratio of window area to wall area
 
 ### `number_of_doors`
+
 ~~~
   double number_of_doors;
 ~~~
@@ -275,6 +285,7 @@ Ratio of window area to wall area
 Ratio of door area to wall area
 
 ### `exterior_wall_fraction`
+
 ~~~
   double exterior_wall_fraction;
 ~~~
@@ -282,6 +293,7 @@ Ratio of door area to wall area
 Ratio of exterior wall area to total wall area
 
 ### `interior_exterior_wall_ratio`
+
 ~~~
   double interior_exterior_wall_ratio;
 ~~~
@@ -289,6 +301,7 @@ Ratio of exterior wall area to total wall area
 Ratio of interior to exterior walls
 
 ### `exterior_ceiling_fraction`
+
 ~~~
   double exterior_ceiling_fraction;
 ~~~
@@ -296,6 +309,7 @@ Ratio of interior to exterior walls
 Ratio of external ceiling sf to floor area
 
 ### `exterior_floor_fraction`
+
 ~~~
   double exterior_floor_fraction;
 ~~~
@@ -303,6 +317,7 @@ Ratio of external ceiling sf to floor area
 Ratio of floor area used in UA calculation
 
 ### `window_shading`
+
 ~~~
   double window_shading;
 ~~~
@@ -310,6 +325,7 @@ Ratio of floor area used in UA calculation
 Transmission coefficient through window due to glazing
 
 ### `window_exterior_transmission_coefficient`
+
 ~~~
   double window_exterior_transmission_coefficient;
 ~~~
@@ -317,6 +333,7 @@ Transmission coefficient through window due to glazing
 Coefficient for the amount of energy that passes through window
 
 ### `solar_heatgain_factor`
+
 ~~~
   double solar_heatgain_factor;
 ~~~
@@ -324,6 +341,7 @@ Coefficient for the amount of energy that passes through window
 Product of the window area, window transmitivity, and the window exterior transmission coefficient
 
 ### `airchange_per_hour`
+
 ~~~
   double airchange_per_hour[unit/h];
 ~~~
@@ -331,6 +349,7 @@ Product of the window area, window transmitivity, and the window exterior transm
 Number of air-changes per hour
 
 ### `airchange_UA`
+
 ~~~
   double airchange_UA[Btu/degF/h];
 ~~~
@@ -338,6 +357,7 @@ Number of air-changes per hour
 Additional UA due to air infiltration
 
 ### `UA`
+
 ~~~
   double UA[Btu/degF/h];
 ~~~
@@ -345,6 +365,7 @@ Additional UA due to air infiltration
 The total UA
 
 ### `internal_gain`
+
 ~~~
   double internal_gain[Btu/h];
 ~~~
@@ -352,6 +373,7 @@ The total UA
 Internal heat gains
 
 ### `solar_gain`
+
 ~~~
   double solar_gain[Btu/h];
 ~~~
@@ -359,6 +381,7 @@ Internal heat gains
 Solar heat gains
 
 ### `incident_solar_radiation`
+
 ~~~
   double incident_solar_radiation[Btu/h/sf];
 ~~~
@@ -366,6 +389,7 @@ Solar heat gains
 Average incident solar radiation hitting the house
 
 ### `heat_cool_gain`
+
 ~~~
   double heat_cool_gain[Btu/h];
 ~~~
@@ -373,6 +397,7 @@ Average incident solar radiation hitting the house
 System heat gains(losses)
 
 ### `include_solar_quadrant`
+
 ~~~
   set {W, S, E, N, H, NONE} include_solar_quadrant;
 ~~~
@@ -380,6 +405,7 @@ System heat gains(losses)
 Bit set for determining which solar incidence quadrants should be included in the solar heatgain
 
 ### `horizontal_diffuse_solar_radiation`
+
 ~~~
   double horizontal_diffuse_solar_radiation[Btu/h/sf];
 ~~~
@@ -387,6 +413,7 @@ Bit set for determining which solar incidence quadrants should be included in th
 Incident solar radiation hitting the top of the house
 
 ### `north_incident_solar_radiation`
+
 ~~~
   double north_incident_solar_radiation[Btu/h/sf];
 ~~~
@@ -394,6 +421,7 @@ Incident solar radiation hitting the top of the house
 Incident solar radiation hitting the north side of the house
 
 ### `northwest_incident_solar_radiation`
+
 ~~~
   double northwest_incident_solar_radiation[Btu/h/sf];
 ~~~
@@ -401,6 +429,7 @@ Incident solar radiation hitting the north side of the house
 Incident solar radiation hitting the northwest side of the house
 
 ### `west_incident_solar_radiation`
+
 ~~~
   double west_incident_solar_radiation[Btu/h/sf];
 ~~~
@@ -408,6 +437,7 @@ Incident solar radiation hitting the northwest side of the house
 Incident solar radiation hitting the west side of the house
 
 ### `southwest_incident_solar_radiation`
+
 ~~~
   double southwest_incident_solar_radiation[Btu/h/sf];
 ~~~
@@ -415,6 +445,7 @@ Incident solar radiation hitting the west side of the house
 Incident solar radiation hitting the southwest side of the house
 
 ### `south_incident_solar_radiation`
+
 ~~~
   double south_incident_solar_radiation[Btu/h/sf];
 ~~~
@@ -422,6 +453,7 @@ Incident solar radiation hitting the southwest side of the house
 Incident solar radiation hitting the south side of the house
 
 ### `southeast_incident_solar_radiation`
+
 ~~~
   double southeast_incident_solar_radiation[Btu/h/sf];
 ~~~
@@ -429,6 +461,7 @@ Incident solar radiation hitting the south side of the house
 Incident solar radiation hitting the southeast side of the house
 
 ### `east_incident_solar_radiation`
+
 ~~~
   double east_incident_solar_radiation[Btu/h/sf];
 ~~~
@@ -436,6 +469,7 @@ Incident solar radiation hitting the southeast side of the house
 Incident solar radiation hitting the east side of the house
 
 ### `northeast_incident_solar_radiation`
+
 ~~~
   double northeast_incident_solar_radiation[Btu/h/sf];
 ~~~
@@ -443,6 +477,7 @@ Incident solar radiation hitting the east side of the house
 Incident solar radiation hitting the northeast side of the house
 
 ### `heating_cop_curve`
+
 ~~~
   enumeration {CURVED, LINEAR, FLAT, DEFAULT} heating_cop_curve;
 ~~~
@@ -450,6 +485,7 @@ Incident solar radiation hitting the northeast side of the house
 Defines the function type to use for the adjusted heating COP as a function of outside air temperature.
 
 ### `heating_cap_curve`
+
 ~~~
   enumeration {CURVED, LINEAR, FLAT, DEFAULT} heating_cap_curve;
 ~~~
@@ -457,6 +493,7 @@ Defines the function type to use for the adjusted heating COP as a function of o
 Defines the function type to use for the adjusted heating capacity as a function of outside air temperature.
 
 ### `cooling_cop_curve`
+
 ~~~
   enumeration {CURVED, LINEAR, FLAT, DEFAULT} cooling_cop_curve;
 ~~~
@@ -464,6 +501,7 @@ Defines the function type to use for the adjusted heating capacity as a function
 Defines the function type to use for the adjusted cooling COP as a function of outside air temperature.
 
 ### `cooling_cap_curve`
+
 ~~~
   enumeration {CURVED, LINEAR, FLAT, DEFAULT} cooling_cap_curve;
 ~~~
@@ -471,6 +509,7 @@ Defines the function type to use for the adjusted cooling COP as a function of o
 Defines the function type to use for the adjusted cooling capacity as a function of outside air temperature.
 
 ### `use_latent_heat`
+
 ~~~
   bool use_latent_heat;
 ~~~
@@ -478,6 +517,7 @@ Defines the function type to use for the adjusted cooling capacity as a function
 Boolean for using the heat latency of the air to the humidity when cooling.
 
 ### `include_fan_heatgain`
+
 ~~~
   bool include_fan_heatgain;
 ~~~
@@ -485,6 +525,7 @@ Boolean for using the heat latency of the air to the humidity when cooling.
 Boolean to choose whether to include the heat generated by the fan in the ETP model.
 
 ### `thermostat_deadband`
+
 ~~~
   double thermostat_deadband[degF];
 ~~~
@@ -492,6 +533,7 @@ Boolean to choose whether to include the heat generated by the fan in the ETP mo
 Deadband of thermostat control
 
 ### `dlc_offset`
+
 ~~~
   double dlc_offset[degF];
 ~~~
@@ -499,6 +541,7 @@ Deadband of thermostat control
 Used as a cap to offset the thermostat deadband for direct load control applications
 
 ### `thermostat_cycle_time`
+
 ~~~
   int16 thermostat_cycle_time;
 ~~~
@@ -506,6 +549,7 @@ Used as a cap to offset the thermostat deadband for direct load control applicat
 Minimum time in seconds between thermostat updates
 
 ### `thermostat_off_cycle_time`
+
 ~~~
   int16 thermostat_off_cycle_time;
 ~~~
@@ -513,6 +557,7 @@ Minimum time in seconds between thermostat updates
 The minimum amount of time the thermostat cycle must stay in the off state
 
 ### `thermostat_on_cycle_time`
+
 ~~~
   int16 thermostat_on_cycle_time;
 ~~~
@@ -520,6 +565,7 @@ The minimum amount of time the thermostat cycle must stay in the off state
 The minimum amount of time the thermostat cycle must stay in the on state
 
 ### `thermostat_last_cycle_time`
+
 ~~~
   timestamp thermostat_last_cycle_time;
 ~~~
@@ -527,6 +573,7 @@ The minimum amount of time the thermostat cycle must stay in the on state
 Last time the thermostat changed state
 
 ### `heating_setpoint`
+
 ~~~
   double heating_setpoint[degF];
 ~~~
@@ -534,6 +581,7 @@ Last time the thermostat changed state
 Thermostat heating setpoint
 
 ### `cooling_setpoint`
+
 ~~~
   double cooling_setpoint[degF];
 ~~~
@@ -541,6 +589,7 @@ Thermostat heating setpoint
 Thermostat cooling setpoint
 
 ### `design_heating_setpoint`
+
 ~~~
   double design_heating_setpoint[degF];
 ~~~
@@ -548,6 +597,7 @@ Thermostat cooling setpoint
 System design heating setpoint
 
 ### `design_cooling_setpoint`
+
 ~~~
   double design_cooling_setpoint[degF];
 ~~~
@@ -555,6 +605,7 @@ System design heating setpoint
 System design cooling setpoint
 
 ### `over_sizing_factor`
+
 ~~~
   double over_sizing_factor;
 ~~~
@@ -562,6 +613,7 @@ System design cooling setpoint
 Over sizes the heating and cooling system from standard specifications (0.2 ='s 120% sizing)
 
 ### `simulate_window_openings`
+
 ~~~
   bool simulate_window_openings;
 ~~~
@@ -569,6 +621,7 @@ Over sizes the heating and cooling system from standard specifications (0.2 ='s 
 Activates a representation of an occupant opening a window and de-activating the HVAC system
 
 ### `is_window_open`
+
 ~~~
   double is_window_open;
 ~~~
@@ -576,6 +629,7 @@ Activates a representation of an occupant opening a window and de-activating the
 Defines the state of the window opening, 1=open, 2=closed
 
 ### `window_low_temperature_cutoff`
+
 ~~~
   double window_low_temperature_cutoff[degF];
 ~~~
@@ -583,6 +637,7 @@ Defines the state of the window opening, 1=open, 2=closed
 Lowest temperature at which the window opening might occur
 
 ### `window_high_temperature_cutoff`
+
 ~~~
   double window_high_temperature_cutoff[degF];
 ~~~
@@ -590,6 +645,7 @@ Lowest temperature at which the window opening might occur
 Highest temperature at which the window opening might occur
 
 ### `window_quadratic_coefficient`
+
 ~~~
   double window_quadratic_coefficient;
 ~~~
@@ -597,6 +653,7 @@ Highest temperature at which the window opening might occur
 Quadratic coefficient for describing function between low and high temperature cutoffs
 
 ### `window_linear_coefficient`
+
 ~~~
   double window_linear_coefficient;
 ~~~
@@ -604,6 +661,7 @@ Quadratic coefficient for describing function between low and high temperature c
 Linear coefficient for describing function between low and high temperature cutoffs
 
 ### `window_constant_coefficient`
+
 ~~~
   double window_constant_coefficient;
 ~~~
@@ -611,6 +669,7 @@ Linear coefficient for describing function between low and high temperature cuto
 Constant coefficient for describing function between low and high temperature cutoffs
 
 ### `window_temperature_delta`
+
 ~~~
   double window_temperature_delta;
 ~~~
@@ -618,6 +677,7 @@ Constant coefficient for describing function between low and high temperature cu
 Change in outdoor temperature required to update the window opening model
 
 ### `design_heating_capacity`
+
 ~~~
   double design_heating_capacity[Btu/h];
 ~~~
@@ -625,6 +685,7 @@ Change in outdoor temperature required to update the window opening model
 System heating capacity
 
 ### `design_cooling_capacity`
+
 ~~~
   double design_cooling_capacity[Btu/h];
 ~~~
@@ -632,6 +693,7 @@ System heating capacity
 System cooling capacity
 
 ### `cooling_design_temperature`
+
 ~~~
   double cooling_design_temperature[degF];
 ~~~
@@ -639,6 +701,7 @@ System cooling capacity
 System cooling design temperature
 
 ### `heating_design_temperature`
+
 ~~~
   double heating_design_temperature[degF];
 ~~~
@@ -646,6 +709,7 @@ System cooling design temperature
 System heating design temperature
 
 ### `design_peak_solar`
+
 ~~~
   double design_peak_solar[Btu/h/sf];
 ~~~
@@ -653,6 +717,7 @@ System heating design temperature
 System design solar load
 
 ### `design_internal_gains`
+
 ~~~
   double design_internal_gains[W/sf];
 ~~~
@@ -660,6 +725,7 @@ System design solar load
 System design internal gains
 
 ### `air_heat_fraction`
+
 ~~~
   double air_heat_fraction[pu];
 ~~~
@@ -667,6 +733,7 @@ System design internal gains
 Fraction of heat gain/loss that goes to air (as opposed to mass)
 
 ### `mass_solar_gain_fraction`
+
 ~~~
   double mass_solar_gain_fraction[pu];
 ~~~
@@ -674,6 +741,7 @@ Fraction of heat gain/loss that goes to air (as opposed to mass)
 Fraction of the heat gain/loss from the solar gains that goes to the mass
 
 ### `mass_internal_gain_fraction`
+
 ~~~
   double mass_internal_gain_fraction[pu];
 ~~~
@@ -681,6 +749,7 @@ Fraction of the heat gain/loss from the solar gains that goes to the mass
 Fraction of heat gain/loss from the internal gains that goes to the mass
 
 ### `auxiliary_heat_capacity`
+
 ~~~
   double auxiliary_heat_capacity[Btu/h];
 ~~~
@@ -688,6 +757,7 @@ Fraction of heat gain/loss from the internal gains that goes to the mass
 Installed auxiliary heating capacity
 
 ### `aux_heat_deadband`
+
 ~~~
   double aux_heat_deadband[degF];
 ~~~
@@ -695,6 +765,7 @@ Installed auxiliary heating capacity
 Temperature offset from standard heat activation to auxiliary heat activation
 
 ### `aux_heat_temperature_lockout`
+
 ~~~
   double aux_heat_temperature_lockout[degF];
 ~~~
@@ -702,6 +773,7 @@ Temperature offset from standard heat activation to auxiliary heat activation
 Temperature at which auxiliary heat will not engage above
 
 ### `aux_heat_time_delay`
+
 ~~~
   double aux_heat_time_delay[s];
 ~~~
@@ -709,6 +781,7 @@ Temperature at which auxiliary heat will not engage above
 Time required for heater to run until auxiliary heating engages
 
 ### `cooling_supply_air_temp`
+
 ~~~
   double cooling_supply_air_temp[degF];
 ~~~
@@ -716,6 +789,7 @@ Time required for heater to run until auxiliary heating engages
 Temperature of air blown out of the cooling system
 
 ### `heating_supply_air_temp`
+
 ~~~
   double heating_supply_air_temp[degF];
 ~~~
@@ -723,6 +797,7 @@ Temperature of air blown out of the cooling system
 Temperature of air blown out of the heating system
 
 ### `duct_pressure_drop`
+
 ~~~
   double duct_pressure_drop[inH2O];
 ~~~
@@ -730,6 +805,7 @@ Temperature of air blown out of the heating system
 End-to-end pressure drop for the ventilation ducts, in inches of water
 
 ### `fan_design_power`
+
 ~~~
   double fan_design_power[W];
 ~~~
@@ -737,6 +813,7 @@ End-to-end pressure drop for the ventilation ducts, in inches of water
 Designed maximum power draw of the ventilation fan
 
 ### `fan_low_power_fraction`
+
 ~~~
   double fan_low_power_fraction[pu];
 ~~~
@@ -744,6 +821,7 @@ Designed maximum power draw of the ventilation fan
 Fraction of ventilation fan power draw during low-power mode (two-speed only)
 
 ### `fan_power`
+
 ~~~
   double fan_power[kW];
 ~~~
@@ -751,6 +829,7 @@ Fraction of ventilation fan power draw during low-power mode (two-speed only)
 Current ventilation fan power draw
 
 ### `fan_design_airflow`
+
 ~~~
   double fan_design_airflow[cfm];
 ~~~
@@ -758,6 +837,7 @@ Current ventilation fan power draw
 Designed airflow for the ventilation system
 
 ### `fan_impedance_fraction`
+
 ~~~
   double fan_impedance_fraction[pu];
 ~~~
@@ -765,6 +845,7 @@ Designed airflow for the ventilation system
 Impedance component of fan ZIP load
 
 ### `fan_power_fraction`
+
 ~~~
   double fan_power_fraction[pu];
 ~~~
@@ -772,6 +853,7 @@ Impedance component of fan ZIP load
 Power component of fan ZIP load
 
 ### `fan_current_fraction`
+
 ~~~
   double fan_current_fraction[pu];
 ~~~
@@ -779,6 +861,7 @@ Power component of fan ZIP load
 Current component of fan ZIP load
 
 ### `fan_power_factor`
+
 ~~~
   double fan_power_factor[pu];
 ~~~
@@ -786,6 +869,7 @@ Current component of fan ZIP load
 Power factor of the fan load
 
 ### `heating_demand`
+
 ~~~
   double heating_demand[kW];
 ~~~
@@ -793,6 +877,7 @@ Power factor of the fan load
 The current power draw to run the heating system
 
 ### `cooling_demand`
+
 ~~~
   double cooling_demand[kW];
 ~~~
@@ -800,6 +885,7 @@ The current power draw to run the heating system
 The current power draw to run the cooling system
 
 ### `heating_COP`
+
 ~~~
   double heating_COP[pu];
 ~~~
@@ -807,6 +893,7 @@ The current power draw to run the cooling system
 System heating performance coefficient
 
 ### `cooling_COP`
+
 ~~~
   double cooling_COP[Btu/kWh];
 ~~~
@@ -814,6 +901,7 @@ System heating performance coefficient
 System cooling performance coefficient
 
 ### `air_temperature`
+
 ~~~
   double air_temperature[degF];
 ~~~
@@ -821,6 +909,7 @@ System cooling performance coefficient
 Indoor air temperature
 
 ### `outdoor_temperature`
+
 ~~~
   double outdoor_temperature[degF];
 ~~~
@@ -828,6 +917,7 @@ Indoor air temperature
 Outdoor air temperature
 
 ### `outdoor_rh`
+
 ~~~
   double outdoor_rh[%];
 ~~~
@@ -835,6 +925,7 @@ Outdoor air temperature
 Outdoor relative humidity
 
 ### `mass_heat_capacity`
+
 ~~~
   double mass_heat_capacity[Btu/degF];
 ~~~
@@ -842,6 +933,7 @@ Outdoor relative humidity
 Interior mass heat capacity
 
 ### `mass_heat_coeff`
+
 ~~~
   double mass_heat_coeff[Btu/degF/h];
 ~~~
@@ -849,6 +941,7 @@ Interior mass heat capacity
 Interior mass heat exchange coefficient
 
 ### `mass_temperature`
+
 ~~~
   double mass_temperature[degF];
 ~~~
@@ -856,6 +949,7 @@ Interior mass heat exchange coefficient
 Interior mass temperature
 
 ### `air_volume`
+
 ~~~
   double air_volume[cf];
 ~~~
@@ -863,6 +957,7 @@ Interior mass temperature
 Air volume
 
 ### `air_mass`
+
 ~~~
   double air_mass[lb];
 ~~~
@@ -870,6 +965,7 @@ Air volume
 Air mass
 
 ### `air_heat_capacity`
+
 ~~~
   double air_heat_capacity[Btu/degF];
 ~~~
@@ -877,6 +973,7 @@ Air mass
 Air thermal mass
 
 ### `latent_load_fraction`
+
 ~~~
   double latent_load_fraction[pu];
 ~~~
@@ -884,6 +981,7 @@ Air thermal mass
 Fractional increase in cooling load due to latent heat
 
 ### `total_thermal_mass_per_floor_area`
+
 ~~~
   double total_thermal_mass_per_floor_area[Btu/degF/sf];
 ~~~
@@ -891,6 +989,7 @@ Fractional increase in cooling load due to latent heat
 TODO
 
 ### `interior_surface_heat_transfer_coeff`
+
 ~~~
   double interior_surface_heat_transfer_coeff[Btu/h/degF/sf];
 ~~~
@@ -898,6 +997,7 @@ TODO
 TODO
 
 ### `number_of_stories`
+
 ~~~
   double number_of_stories;
 ~~~
@@ -905,6 +1005,7 @@ TODO
 Number of stories within the structure
 
 ### `is_AUX_on`
+
 ~~~
   double is_AUX_on;
 ~~~
@@ -912,6 +1013,7 @@ Number of stories within the structure
 Logic statement to determine population statistics - is the AUX on? 0 no, 1 yes
 
 ### `is_HEAT_on`
+
 ~~~
   double is_HEAT_on;
 ~~~
@@ -919,6 +1021,7 @@ Logic statement to determine population statistics - is the AUX on? 0 no, 1 yes
 Logic statement to determine population statistics - is the HEAT on? 0 no, 1 yes
 
 ### `is_COOL_on`
+
 ~~~
   double is_COOL_on;
 ~~~
@@ -926,6 +1029,7 @@ Logic statement to determine population statistics - is the HEAT on? 0 no, 1 yes
 Logic statement to determine population statistics - is the COOL on? 0 no, 1 yes
 
 ### `thermal_storage_present`
+
 ~~~
   double thermal_storage_present;
 ~~~
@@ -933,6 +1037,7 @@ Logic statement to determine population statistics - is the COOL on? 0 no, 1 yes
 Logic statement for determining if energy storage is present
 
 ### `thermal_storage_in_use`
+
 ~~~
   double thermal_storage_in_use;
 ~~~
@@ -940,6 +1045,7 @@ Logic statement for determining if energy storage is present
 Logic statement for determining if energy storage is being utilized
 
 ### `thermostat_mode`
+
 ~~~
   enumeration {COOL, HEAT, AUTO, OFF} thermostat_mode;
 ~~~
@@ -947,6 +1053,7 @@ Logic statement for determining if energy storage is being utilized
 Tells the thermostat whether it is even allowed to heat or cool the house.
 
 ### `system_type`
+
 ~~~
   set {RESISTIVE, TWOSTAGE, FORCEDAIR, AIRCONDITIONING, GAS, NONE} system_type;
 ~~~
@@ -954,6 +1061,7 @@ Tells the thermostat whether it is even allowed to heat or cool the house.
 Heating/cooling system type/options
 
 ### `auxiliary_strategy`
+
 ~~~
   set {LOCKOUT, TIMER, DEADBAND, NONE} auxiliary_strategy;
 ~~~
@@ -961,6 +1069,7 @@ Heating/cooling system type/options
 Auxiliary heating activation strategies
 
 ### `system_mode`
+
 ~~~
   enumeration {AUX, COOL, OFF, HEAT, UNKNOWN} system_mode;
 ~~~
@@ -968,6 +1077,7 @@ Auxiliary heating activation strategies
 Heating/cooling system operation state
 
 ### `last_system_mode`
+
 ~~~
   enumeration {AUX, COOL, OFF, HEAT, UNKNOWN} last_system_mode;
 ~~~
@@ -975,6 +1085,7 @@ Heating/cooling system operation state
 Heating/cooling system operation state
 
 ### `heating_system_type`
+
 ~~~
   enumeration {RESISTANCE, HEAT_PUMP, GAS, NONE} heating_system_type;
 ~~~
@@ -982,6 +1093,7 @@ Heating/cooling system operation state
 TODO
 
 ### `cooling_system_type`
+
 ~~~
   enumeration {HEAT_PUMP, ELECTRIC, NONE} cooling_system_type;
 ~~~
@@ -989,6 +1101,7 @@ TODO
 TODO
 
 ### `auxiliary_system_type`
+
 ~~~
   enumeration {ELECTRIC, NONE} auxiliary_system_type;
 ~~~
@@ -996,6 +1109,7 @@ TODO
 TODO
 
 ### `fan_type`
+
 ~~~
   enumeration {TWO_SPEED, ONE_SPEED, NONE} fan_type;
 ~~~
@@ -1003,6 +1117,7 @@ TODO
 TODO
 
 ### `thermal_integrity_level`
+
 ~~~
   enumeration {UNKNOWN, VERY_GOOD, GOOD, ABOVE_NORMAL, NORMAL, BELOW_NORMAL, LITTLE, VERY_LITTLE} thermal_integrity_level;
 ~~~
@@ -1010,6 +1125,7 @@ TODO
 Default envelope UA settings
 
 ### `glass_type`
+
 ~~~
   enumeration {LOW_E_GLASS, GLASS, OTHER} glass_type;
 ~~~
@@ -1017,6 +1133,7 @@ Default envelope UA settings
 Glass used in the windows
 
 ### `window_frame`
+
 ~~~
   enumeration {INSULATED, WOOD, THERMAL_BREAK, ALUMINIUM, ALUMINUM, NONE} window_frame;
 ~~~
@@ -1024,6 +1141,7 @@ Glass used in the windows
 Type of window frame
 
 ### `glazing_treatment`
+
 ~~~
   enumeration {HIGH_S, LOW_S, REFL, ABS, CLEAR, OTHER} glazing_treatment;
 ~~~
@@ -1031,6 +1149,7 @@ Type of window frame
 The treatment to increase the reflectivity of the exterior windows
 
 ### `glazing_layers`
+
 ~~~
   enumeration {OTHER, THREE, TWO, ONE} glazing_layers;
 ~~~
@@ -1038,6 +1157,7 @@ The treatment to increase the reflectivity of the exterior windows
 Number of layers of glass in each window
 
 ### `motor_model`
+
 ~~~
   enumeration {FULL, BASIC, NONE} motor_model;
 ~~~
@@ -1045,6 +1165,7 @@ Number of layers of glass in each window
 Indicates the level of detail used in modelling the hvac motor parameters
 
 ### `motor_efficiency`
+
 ~~~
   enumeration {VERY_GOOD, GOOD, AVERAGE, POOR, VERY_POOR} motor_efficiency;
 ~~~
@@ -1052,6 +1173,7 @@ Indicates the level of detail used in modelling the hvac motor parameters
 When using motor model, describes the efficiency of the motor
 
 ### `last_mode_timer`
+
 ~~~
   int64 last_mode_timer;
 ~~~
@@ -1059,6 +1181,7 @@ When using motor model, describes the efficiency of the motor
 TODO
 
 ### `hvac_motor_efficiency`
+
 ~~~
   double hvac_motor_efficiency[unit];
 ~~~
@@ -1066,6 +1189,7 @@ TODO
 When using motor model, percent efficiency of hvac motor
 
 ### `hvac_motor_loss_power_factor`
+
 ~~~
   double hvac_motor_loss_power_factor[unit];
 ~~~
@@ -1073,6 +1197,7 @@ When using motor model, percent efficiency of hvac motor
 When using motor model, power factor of motor losses
 
 ### `Rroof`
+
 ~~~
   double Rroof[degF*sf*h/Btu];
 ~~~
@@ -1080,6 +1205,7 @@ When using motor model, power factor of motor losses
 Roof R-value
 
 ### `Rwall`
+
 ~~~
   double Rwall[degF*sf*h/Btu];
 ~~~
@@ -1087,6 +1213,7 @@ Roof R-value
 Wall R-value
 
 ### `Rfloor`
+
 ~~~
   double Rfloor[degF*sf*h/Btu];
 ~~~
@@ -1094,6 +1221,7 @@ Wall R-value
 Floor R-value
 
 ### `Rwindows`
+
 ~~~
   double Rwindows[degF*sf*h/Btu];
 ~~~
@@ -1101,6 +1229,7 @@ Floor R-value
 Window R-value
 
 ### `Rdoors`
+
 ~~~
   double Rdoors[degF*sf*h/Btu];
 ~~~
@@ -1108,6 +1237,7 @@ Window R-value
 Door R-value
 
 ### `hvac_breaker_rating`
+
 ~~~
   double hvac_breaker_rating[A];
 ~~~
@@ -1115,6 +1245,7 @@ Door R-value
 Determines the amount of current the HVAC circuit breaker can handle
 
 ### `hvac_power_factor`
+
 ~~~
   double hvac_power_factor[unit];
 ~~~
@@ -1122,6 +1253,7 @@ Determines the amount of current the HVAC circuit breaker can handle
 Power factor of hvac
 
 ### `hvac_load`
+
 ~~~
   double hvac_load[kW];
 ~~~
@@ -1129,6 +1261,7 @@ Power factor of hvac
 Heating/cooling system load
 
 ### `last_heating_load`
+
 ~~~
   double last_heating_load[kW];
 ~~~
@@ -1136,6 +1269,7 @@ Heating/cooling system load
 Stores the previous heating/cooling system load
 
 ### `last_cooling_load`
+
 ~~~
   double last_cooling_load[kW];
 ~~~
@@ -1143,6 +1277,7 @@ Stores the previous heating/cooling system load
 Stores the previous heating/cooling system load
 
 ### `hvac_power`
+
 ~~~
   complex hvac_power[kVA];
 ~~~
@@ -1150,6 +1285,7 @@ Stores the previous heating/cooling system load
 Describes hvac load complex power consumption
 
 ### `total_load`
+
 ~~~
   double total_load[kW];
 ~~~
@@ -1157,6 +1293,7 @@ Describes hvac load complex power consumption
 Total panel enduse load
 
 ### `panel`
+
 ~~~
   enduse panel;
 ~~~
@@ -1164,6 +1301,7 @@ Total panel enduse load
 The enduse load description
 
 ### `panel.energy`
+
 ~~~
   complex panel.energy[kVAh];
 ~~~
@@ -1171,6 +1309,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `panel.power`
+
 ~~~
   complex panel.power[kVA];
 ~~~
@@ -1178,6 +1317,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `panel.peak_demand`
+
 ~~~
   complex panel.peak_demand[kVA];
 ~~~
@@ -1185,6 +1325,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `panel.heatgain`
+
 ~~~
   double panel.heatgain[Btu/h];
 ~~~
@@ -1192,6 +1333,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `panel.cumulative_heatgain`
+
 ~~~
   double panel.cumulative_heatgain[Btu];
 ~~~
@@ -1199,6 +1341,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `panel.heatgain_fraction`
+
 ~~~
   double panel.heatgain_fraction[pu];
 ~~~
@@ -1206,6 +1349,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `panel.current_fraction`
+
 ~~~
   double panel.current_fraction[pu];
 ~~~
@@ -1213,6 +1357,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `panel.impedance_fraction`
+
 ~~~
   double panel.impedance_fraction[pu];
 ~~~
@@ -1220,6 +1365,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `panel.power_fraction`
+
 ~~~
   double panel.power_fraction[pu];
 ~~~
@@ -1227,6 +1373,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `panel.power_factor`
+
 ~~~
   double panel.power_factor;
 ~~~
@@ -1234,6 +1381,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `panel.constant_power`
+
 ~~~
   complex panel.constant_power[kVA];
 ~~~
@@ -1241,6 +1389,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `panel.constant_current`
+
 ~~~
   complex panel.constant_current[kVA];
 ~~~
@@ -1248,6 +1397,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `panel.constant_admittance`
+
 ~~~
   complex panel.constant_admittance[kVA];
 ~~~
@@ -1255,6 +1405,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `panel.voltage_factor`
+
 ~~~
   double panel.voltage_factor[pu];
 ~~~
@@ -1262,6 +1413,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `panel.breaker_amps`
+
 ~~~
   double panel.breaker_amps[A];
 ~~~
@@ -1269,6 +1421,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `panel.configuration`
+
 ~~~
   set {IS220, IS110} panel.configuration;
 ~~~
@@ -1276,6 +1429,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `design_internal_gain_density`
+
 ~~~
   double design_internal_gain_density[W/sf];
 ~~~
@@ -1283,6 +1437,7 @@ The load configuration options
 Average density of heat generating devices in the house
 
 ### `compressor_on`
+
 ~~~
   bool compressor_on;
 ~~~
@@ -1290,6 +1445,7 @@ Average density of heat generating devices in the house
 TODO
 
 ### `compressor_count`
+
 ~~~
   int64 compressor_count;
 ~~~
@@ -1297,6 +1453,7 @@ TODO
 TODO
 
 ### `hvac_last_on`
+
 ~~~
   timestamp hvac_last_on;
 ~~~
@@ -1304,6 +1461,7 @@ TODO
 TODO
 
 ### `hvac_last_off`
+
 ~~~
   timestamp hvac_last_off;
 ~~~
@@ -1311,6 +1469,7 @@ TODO
 TODO
 
 ### `hvac_period_length`
+
 ~~~
   double hvac_period_length[s];
 ~~~
@@ -1318,6 +1477,7 @@ TODO
 TODO
 
 ### `hvac_duty_cycle`
+
 ~~~
   double hvac_duty_cycle;
 ~~~
@@ -1325,6 +1485,7 @@ TODO
 TODO
 
 ### `a`
+
 ~~~
   double a;
 ~~~
@@ -1332,6 +1493,7 @@ TODO
 TODO
 
 ### `b`
+
 ~~~
   double b;
 ~~~
@@ -1339,6 +1501,7 @@ TODO
 TODO
 
 ### `c`
+
 ~~~
   double c;
 ~~~
@@ -1346,6 +1509,7 @@ TODO
 TODO
 
 ### `d`
+
 ~~~
   double d;
 ~~~
@@ -1353,6 +1517,7 @@ TODO
 TODO
 
 ### `c1`
+
 ~~~
   double c1;
 ~~~
@@ -1360,6 +1525,7 @@ TODO
 TODO
 
 ### `c2`
+
 ~~~
   double c2;
 ~~~
@@ -1367,6 +1533,7 @@ TODO
 TODO
 
 ### `A3`
+
 ~~~
   double A3;
 ~~~
@@ -1374,6 +1541,7 @@ TODO
 TODO
 
 ### `A4`
+
 ~~~
   double A4;
 ~~~
@@ -1381,6 +1549,7 @@ TODO
 TODO
 
 ### `k1`
+
 ~~~
   double k1;
 ~~~
@@ -1388,6 +1557,7 @@ TODO
 TODO
 
 ### `k2`
+
 ~~~
   double k2;
 ~~~
@@ -1395,6 +1565,7 @@ TODO
 TODO
 
 ### `r1`
+
 ~~~
   double r1;
 ~~~
@@ -1402,6 +1573,7 @@ TODO
 TODO
 
 ### `r2`
+
 ~~~
   double r2;
 ~~~
@@ -1409,6 +1581,7 @@ TODO
 TODO
 
 ### `Teq`
+
 ~~~
   double Teq;
 ~~~
@@ -1416,6 +1589,7 @@ TODO
 TODO
 
 ### `Tevent`
+
 ~~~
   double Tevent;
 ~~~
@@ -1423,6 +1597,7 @@ TODO
 TODO
 
 ### `Qi`
+
 ~~~
   double Qi;
 ~~~
@@ -1430,6 +1605,7 @@ TODO
 TODO
 
 ### `Qa`
+
 ~~~
   double Qa;
 ~~~
@@ -1437,6 +1613,7 @@ TODO
 TODO
 
 ### `Qm`
+
 ~~~
   double Qm;
 ~~~
@@ -1444,6 +1621,7 @@ TODO
 TODO
 
 ### `Qh`
+
 ~~~
   double Qh;
 ~~~
@@ -1451,6 +1629,7 @@ TODO
 TODO
 
 ### `Qlatent`
+
 ~~~
   double Qlatent;
 ~~~
@@ -1458,6 +1637,7 @@ TODO
 TODO
 
 ### `dTair`
+
 ~~~
   double dTair;
 ~~~
@@ -1465,6 +1645,7 @@ TODO
 TODO
 
 ### `adj_cooling_cap`
+
 ~~~
   double adj_cooling_cap;
 ~~~
@@ -1472,6 +1653,7 @@ TODO
 TODO
 
 ### `adj_heating_cap`
+
 ~~~
   double adj_heating_cap;
 ~~~
@@ -1479,6 +1661,7 @@ TODO
 TODO
 
 ### `adj_cooling_cop`
+
 ~~~
   double adj_cooling_cop;
 ~~~
@@ -1486,6 +1669,7 @@ TODO
 TODO
 
 ### `adj_heating_cop`
+
 ~~~
   double adj_heating_cop;
 ~~~
@@ -1493,6 +1677,7 @@ TODO
 TODO
 
 ### `thermostat_control`
+
 ~~~
   enumeration {NONE, BAND, FULL} thermostat_control;
 ~~~
@@ -1500,6 +1685,7 @@ TODO
 Determine level of internal thermostatic control
 
 ### `gas_enduses`
+
 ~~~
   char1024 gas_enduses;
 ~~~
@@ -1507,6 +1693,7 @@ Determine level of internal thermostatic control
 List of implicit enduses that use gas instead of electricity
 
 ### `circuit`
+
 ~~~
   method circuit;
 ~~~
@@ -1514,6 +1701,7 @@ List of implicit enduses that use gas instead of electricity
 Smart breaker message handlers
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -1521,6 +1709,7 @@ Smart breaker message handlers
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -1528,6 +1717,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -1535,6 +1725,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -1542,6 +1733,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -1549,6 +1741,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -1556,6 +1749,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -1563,6 +1757,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -1570,6 +1765,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -1577,6 +1773,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -1584,6 +1781,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -1591,6 +1789,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -1598,6 +1797,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -1605,6 +1805,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -1612,6 +1813,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -1619,6 +1821,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -1626,6 +1829,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -1633,6 +1837,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -1640,6 +1845,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -1647,6 +1853,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -1829,5 +2036,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

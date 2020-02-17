@@ -1,8 +1,9 @@
-[[Command/Lldb]] -- Command line option to start system debugger on GridLAB-D
+[[/Command/Lldb]] -- Command line option to start system debugger on GridLAB-D
 
 # Synopsis
+
 ~~~
-  localhost% gridlabd --lldb [<options> ...]
+bash$ gridlabd --lldb [<options> ...]
 ~~~
 
 # Description
@@ -13,6 +14,6 @@ The GridLAB-D command options may be provided after the `--lldb` option.
 
 # See also
 
-* [[Command/Gdb]]
-* [[Command/Valgrind]]
+* [[/Command/Gdb]]
+* [[/Command/Valgrind]]
 * [LLDB Documentation](https://lldb.llvm.org)

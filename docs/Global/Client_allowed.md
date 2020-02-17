@@ -1,11 +1,15 @@
 [[/Global/Client_allowed]] -- Clients from which to accept connecdtions
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set client_allowed=""
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D client_allowed=""
 bash$ gridlabd --define client_allowed=""

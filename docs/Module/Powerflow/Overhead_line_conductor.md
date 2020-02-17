@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Overhead_line_conductor]] -- Class overhead_line_conductor
 
 # Synopsis
+
 GLM:
+
 ~~~
   object overhead_line_conductor {
     geometric_mean_radius "<decimal> ft";
@@ -21,6 +23,7 @@ TODO
 ## Properties
 
 ### `geometric_mean_radius`
+
 ~~~
   double geometric_mean_radius[ft];
 ~~~
@@ -28,6 +31,7 @@ TODO
 Radius of the conductor
 
 ### `resistance`
+
 ~~~
   double resistance[Ohm/mile];
 ~~~
@@ -35,6 +39,7 @@ Radius of the conductor
 Resistance in Ohms/mile of the conductor
 
 ### `diameter`
+
 ~~~
   double diameter[in];
 ~~~
@@ -42,6 +47,7 @@ Resistance in Ohms/mile of the conductor
 Diameter of line for capacitance calculations
 
 ### `rating.summer.continuous`
+
 ~~~
   double rating.summer.continuous[A];
 ~~~
@@ -49,6 +55,7 @@ Diameter of line for capacitance calculations
 Continuous summer amp rating
 
 ### `rating.summer.emergency`
+
 ~~~
   double rating.summer.emergency[A];
 ~~~
@@ -56,6 +63,7 @@ Continuous summer amp rating
 Emergency summer amp rating
 
 ### `rating.winter.continuous`
+
 ~~~
   double rating.winter.continuous[A];
 ~~~
@@ -63,6 +71,7 @@ Emergency summer amp rating
 Continuous winter amp rating
 
 ### `rating.winter.emergency`
+
 ~~~
   double rating.winter.emergency[A];
 ~~~
@@ -84,5 +93,6 @@ Emergency winter amp rating
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 
