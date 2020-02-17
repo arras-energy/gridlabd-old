@@ -1,7 +1,9 @@
 [[/Module/Tape/Violation_recorder]] -- Class violation_recorder
 
 # Synopsis
+
 GLM:
+
 ~~~
   object violation_recorder {
     file "<string>";
@@ -42,6 +44,7 @@ TODO
 ## Properties
 
 ### `file`
+
 ~~~
   char256 file;
 ~~~
@@ -49,6 +52,7 @@ TODO
 Output file name
 
 ### `summary`
+
 ~~~
   char256 summary;
 ~~~
@@ -56,6 +60,7 @@ Output file name
 Summary output file name
 
 ### `virtual_substation`
+
 ~~~
   char256 virtual_substation;
 ~~~
@@ -63,6 +68,7 @@ Summary output file name
 Name of the substation node to monitor for reverse flow violation
 
 ### `interval`
+
 ~~~
   double interval[s];
 ~~~
@@ -70,6 +76,7 @@ Name of the substation node to monitor for reverse flow violation
 Recording interval (0 'every iteration', -1 'on change')
 
 ### `flush_interval`
+
 ~~~
   double flush_interval[s];
 ~~~
@@ -77,6 +84,7 @@ Recording interval (0 'every iteration', -1 'on change')
 File flush interval (0 never, negative on samples)
 
 ### `strict`
+
 ~~~
   bool strict;
 ~~~
@@ -84,6 +92,7 @@ File flush interval (0 never, negative on samples)
 Causes the violation_recorder to stop the simulation should there be a problem opening or writing with the violation_recorder
 
 ### `echo`
+
 ~~~
   bool echo;
 ~~~
@@ -91,6 +100,7 @@ Causes the violation_recorder to stop the simulation should there be a problem o
 Causes the violation_recorder to echo messages to the screen
 
 ### `limit`
+
 ~~~
   int32 limit;
 ~~~
@@ -98,6 +108,7 @@ Causes the violation_recorder to echo messages to the screen
 The maximum number of lines to write to the file
 
 ### `violation_delay`
+
 ~~~
   int32 violation_delay;
 ~~~
@@ -105,6 +116,7 @@ The maximum number of lines to write to the file
 The number of seconds to skip before recording violations
 
 ### `xfrmr_thermal_limit_upper`
+
 ~~~
   double xfrmr_thermal_limit_upper;
 ~~~
@@ -112,6 +124,7 @@ The number of seconds to skip before recording violations
 Xfrmr_thermal_limit_upper
 
 ### `xfrmr_thermal_limit_lower`
+
 ~~~
   double xfrmr_thermal_limit_lower;
 ~~~
@@ -119,6 +132,7 @@ Xfrmr_thermal_limit_upper
 Xfrmr_thermal_limit_lower
 
 ### `line_thermal_limit_upper`
+
 ~~~
   double line_thermal_limit_upper;
 ~~~
@@ -126,6 +140,7 @@ Xfrmr_thermal_limit_lower
 Line_thermal_limit_upper
 
 ### `line_thermal_limit_lower`
+
 ~~~
   double line_thermal_limit_lower;
 ~~~
@@ -133,6 +148,7 @@ Line_thermal_limit_upper
 Line_thermal_limit_lower
 
 ### `node_instantaneous_voltage_limit_upper`
+
 ~~~
   double node_instantaneous_voltage_limit_upper;
 ~~~
@@ -140,6 +156,7 @@ Line_thermal_limit_lower
 Node_instantaneous_voltage_limit_upper
 
 ### `node_instantaneous_voltage_limit_lower`
+
 ~~~
   double node_instantaneous_voltage_limit_lower;
 ~~~
@@ -147,6 +164,7 @@ Node_instantaneous_voltage_limit_upper
 Node_instantaneous_voltage_limit_lower
 
 ### `node_continuous_voltage_limit_upper`
+
 ~~~
   double node_continuous_voltage_limit_upper;
 ~~~
@@ -154,6 +172,7 @@ Node_instantaneous_voltage_limit_lower
 Node_continuous_voltage_limit_upper
 
 ### `node_continuous_voltage_limit_lower`
+
 ~~~
   double node_continuous_voltage_limit_lower;
 ~~~
@@ -161,6 +180,7 @@ Node_continuous_voltage_limit_upper
 Node_continuous_voltage_limit_lower
 
 ### `node_continuous_voltage_interval`
+
 ~~~
   double node_continuous_voltage_interval;
 ~~~
@@ -168,6 +188,7 @@ Node_continuous_voltage_limit_lower
 Node_continuous_voltage_interval
 
 ### `secondary_dist_voltage_rise_upper_limit`
+
 ~~~
   double secondary_dist_voltage_rise_upper_limit;
 ~~~
@@ -175,6 +196,7 @@ Node_continuous_voltage_interval
 Secondary_dist_voltage_rise_upper_limit
 
 ### `secondary_dist_voltage_rise_lower_limit`
+
 ~~~
   double secondary_dist_voltage_rise_lower_limit;
 ~~~
@@ -182,6 +204,7 @@ Secondary_dist_voltage_rise_upper_limit
 Secondary_dist_voltage_rise_lower_limit
 
 ### `substation_breaker_A_limit`
+
 ~~~
   double substation_breaker_A_limit;
 ~~~
@@ -189,6 +212,7 @@ Secondary_dist_voltage_rise_lower_limit
 Breaker_phase_A_limit
 
 ### `substation_breaker_B_limit`
+
 ~~~
   double substation_breaker_B_limit;
 ~~~
@@ -196,6 +220,7 @@ Breaker_phase_A_limit
 Breaker_phase_B_limit
 
 ### `substation_breaker_C_limit`
+
 ~~~
   double substation_breaker_C_limit;
 ~~~
@@ -203,6 +228,7 @@ Breaker_phase_B_limit
 Breaker_phase_C_limit
 
 ### `substation_pf_lower_limit`
+
 ~~~
   double substation_pf_lower_limit;
 ~~~
@@ -210,6 +236,7 @@ Breaker_phase_C_limit
 Substation_pf_lower_limit
 
 ### `inverter_v_chng_per_interval_upper_bound`
+
 ~~~
   double inverter_v_chng_per_interval_upper_bound;
 ~~~
@@ -217,6 +244,7 @@ Substation_pf_lower_limit
 Inverter_v_chng_per_interval_upper_bound
 
 ### `inverter_v_chng_per_interval_lower_bound`
+
 ~~~
   double inverter_v_chng_per_interval_lower_bound;
 ~~~
@@ -224,6 +252,7 @@ Inverter_v_chng_per_interval_upper_bound
 Inverter_v_chng_per_interval_lower_bound
 
 ### `inverter_v_chng_interval`
+
 ~~~
   double inverter_v_chng_interval;
 ~~~
@@ -231,6 +260,7 @@ Inverter_v_chng_per_interval_lower_bound
 Inverter_v_chng_interval
 
 ### `violation_flag`
+
 ~~~
   set {ALLVIOLATIONS, VIOLATION8, VIOLATION7, VIOLATION6, VIOLATION5, VIOLATION4, VIOLATION3, VIOLATION2, VIOLATION1, VIOLATION0} violation_flag;
 ~~~
@@ -273,5 +303,6 @@ Bit set for determining which violations to check
 ~~~
 
 # See also
+
 * [[/Module/Tape]]
 

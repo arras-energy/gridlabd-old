@@ -1,11 +1,15 @@
 [[/Global/Pauseatexit]] -- Pause at exit flag
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set pauseatexit=FALSE
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D pauseatexit=FALSE
 bash$ gridlabd --define pauseatexit=FALSE

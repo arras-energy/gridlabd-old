@@ -1,7 +1,9 @@
 [[/Module/Residential/Clotheswasher]] -- Class clotheswasher
 
 # Synopsis
+
 GLM:
+
 ~~~
   object clotheswasher {
     motor_power "<decimal> kW";
@@ -90,6 +92,7 @@ TODO
 ## Properties
 
 ### `motor_power`
+
 ~~~
   double motor_power[kW];
 ~~~
@@ -97,6 +100,7 @@ TODO
 TODO
 
 ### `circuit_split`
+
 ~~~
   double circuit_split;
 ~~~
@@ -104,6 +108,7 @@ TODO
 TODO
 
 ### `queue`
+
 ~~~
   double queue[unit];
 ~~~
@@ -111,6 +116,7 @@ TODO
 The total laundry accumulated
 
 ### `demand`
+
 ~~~
   double demand[unit/day];
 ~~~
@@ -118,6 +124,7 @@ The total laundry accumulated
 The amount of laundry accumulating daily
 
 ### `energy_meter`
+
 ~~~
   complex energy_meter[kWh];
 ~~~
@@ -125,6 +132,7 @@ The amount of laundry accumulating daily
 TODO
 
 ### `stall_voltage`
+
 ~~~
   double stall_voltage[V];
 ~~~
@@ -132,6 +140,7 @@ TODO
 TODO
 
 ### `start_voltage`
+
 ~~~
   double start_voltage[V];
 ~~~
@@ -139,6 +148,7 @@ TODO
 TODO
 
 ### `clothesWasherPower`
+
 ~~~
   double clothesWasherPower;
 ~~~
@@ -146,6 +156,7 @@ TODO
 TODO
 
 ### `stall_impedance`
+
 ~~~
   complex stall_impedance[Ohm];
 ~~~
@@ -153,6 +164,7 @@ TODO
 TODO
 
 ### `trip_delay`
+
 ~~~
   double trip_delay[s];
 ~~~
@@ -160,6 +172,7 @@ TODO
 TODO
 
 ### `reset_delay`
+
 ~~~
   double reset_delay[s];
 ~~~
@@ -167,6 +180,7 @@ TODO
 TODO
 
 ### `Is_on`
+
 ~~~
   double Is_on;
 ~~~
@@ -174,6 +188,7 @@ TODO
 TODO
 
 ### `normal_perc`
+
 ~~~
   double normal_perc;
 ~~~
@@ -181,6 +196,7 @@ TODO
 TODO
 
 ### `perm_press_perc`
+
 ~~~
   double perm_press_perc;
 ~~~
@@ -188,6 +204,7 @@ TODO
 TODO
 
 ### `NORMAL_PREWASH_POWER`
+
 ~~~
   double NORMAL_PREWASH_POWER;
 ~~~
@@ -195,6 +212,7 @@ TODO
 TODO
 
 ### `NORMAL_WASH_POWER`
+
 ~~~
   double NORMAL_WASH_POWER;
 ~~~
@@ -202,6 +220,7 @@ TODO
 TODO
 
 ### `NORMAL_SPIN_LOW_POWER`
+
 ~~~
   double NORMAL_SPIN_LOW_POWER;
 ~~~
@@ -209,6 +228,7 @@ TODO
 TODO
 
 ### `NORMAL_SPIN_MEDIUM_POWER`
+
 ~~~
   double NORMAL_SPIN_MEDIUM_POWER;
 ~~~
@@ -216,6 +236,7 @@ TODO
 TODO
 
 ### `NORMAL_SPIN_HIGH_POWER`
+
 ~~~
   double NORMAL_SPIN_HIGH_POWER;
 ~~~
@@ -223,6 +244,7 @@ TODO
 TODO
 
 ### `NORMAL_SMALLWASH_POWER`
+
 ~~~
   double NORMAL_SMALLWASH_POWER;
 ~~~
@@ -230,6 +252,7 @@ TODO
 TODO
 
 ### `NORMAL_PREWASH_ENERGY`
+
 ~~~
   double NORMAL_PREWASH_ENERGY;
 ~~~
@@ -237,6 +260,7 @@ TODO
 TODO
 
 ### `NORMAL_WASH_ENERGY`
+
 ~~~
   double NORMAL_WASH_ENERGY;
 ~~~
@@ -244,6 +268,7 @@ TODO
 TODO
 
 ### `NORMAL_SPIN_LOW_ENERGY`
+
 ~~~
   double NORMAL_SPIN_LOW_ENERGY;
 ~~~
@@ -251,6 +276,7 @@ TODO
 TODO
 
 ### `NORMAL_SPIN_MEDIUM_ENERGY`
+
 ~~~
   double NORMAL_SPIN_MEDIUM_ENERGY;
 ~~~
@@ -258,6 +284,7 @@ TODO
 TODO
 
 ### `NORMAL_SPIN_HIGH_ENERGY`
+
 ~~~
   double NORMAL_SPIN_HIGH_ENERGY;
 ~~~
@@ -265,6 +292,7 @@ TODO
 TODO
 
 ### `NORMAL_SMALLWASH_ENERGY`
+
 ~~~
   double NORMAL_SMALLWASH_ENERGY;
 ~~~
@@ -272,6 +300,7 @@ TODO
 TODO
 
 ### `PERMPRESS_PREWASH_POWER`
+
 ~~~
   double PERMPRESS_PREWASH_POWER;
 ~~~
@@ -279,6 +308,7 @@ TODO
 TODO
 
 ### `PERMPRESS_WASH_POWER`
+
 ~~~
   double PERMPRESS_WASH_POWER;
 ~~~
@@ -286,6 +316,7 @@ TODO
 TODO
 
 ### `PERMPRESS_SPIN_LOW_POWER`
+
 ~~~
   double PERMPRESS_SPIN_LOW_POWER;
 ~~~
@@ -293,6 +324,7 @@ TODO
 TODO
 
 ### `PERMPRESS_SPIN_MEDIUM_POWER`
+
 ~~~
   double PERMPRESS_SPIN_MEDIUM_POWER;
 ~~~
@@ -300,6 +332,7 @@ TODO
 TODO
 
 ### `PERMPRESS_SPIN_HIGH_POWER`
+
 ~~~
   double PERMPRESS_SPIN_HIGH_POWER;
 ~~~
@@ -307,6 +340,7 @@ TODO
 TODO
 
 ### `PERMPRESS_SMALLWASH_POWER`
+
 ~~~
   double PERMPRESS_SMALLWASH_POWER;
 ~~~
@@ -314,6 +348,7 @@ TODO
 TODO
 
 ### `PERMPRESS_PREWASH_ENERGY`
+
 ~~~
   double PERMPRESS_PREWASH_ENERGY;
 ~~~
@@ -321,6 +356,7 @@ TODO
 TODO
 
 ### `PERMPRESS_WASH_ENERGY`
+
 ~~~
   double PERMPRESS_WASH_ENERGY;
 ~~~
@@ -328,6 +364,7 @@ TODO
 TODO
 
 ### `PERMPRESS_SPIN_LOW_ENERGY`
+
 ~~~
   double PERMPRESS_SPIN_LOW_ENERGY;
 ~~~
@@ -335,6 +372,7 @@ TODO
 TODO
 
 ### `PERMPRESS_SPIN_MEDIUM_ENERGY`
+
 ~~~
   double PERMPRESS_SPIN_MEDIUM_ENERGY;
 ~~~
@@ -342,6 +380,7 @@ TODO
 TODO
 
 ### `PERMPRESS_SPIN_HIGH_ENERGY`
+
 ~~~
   double PERMPRESS_SPIN_HIGH_ENERGY;
 ~~~
@@ -349,6 +388,7 @@ TODO
 TODO
 
 ### `PERMPRESS_SMALLWASH_ENERGY`
+
 ~~~
   double PERMPRESS_SMALLWASH_ENERGY;
 ~~~
@@ -356,6 +396,7 @@ TODO
 TODO
 
 ### `GENTLE_PREWASH_POWER`
+
 ~~~
   double GENTLE_PREWASH_POWER;
 ~~~
@@ -363,6 +404,7 @@ TODO
 TODO
 
 ### `GENTLE_WASH_POWER`
+
 ~~~
   double GENTLE_WASH_POWER;
 ~~~
@@ -370,6 +412,7 @@ TODO
 TODO
 
 ### `GENTLE_SPIN_LOW_POWER`
+
 ~~~
   double GENTLE_SPIN_LOW_POWER;
 ~~~
@@ -377,6 +420,7 @@ TODO
 TODO
 
 ### `GENTLE_SPIN_MEDIUM_POWER`
+
 ~~~
   double GENTLE_SPIN_MEDIUM_POWER;
 ~~~
@@ -384,6 +428,7 @@ TODO
 TODO
 
 ### `GENTLE_SPIN_HIGH_POWER`
+
 ~~~
   double GENTLE_SPIN_HIGH_POWER;
 ~~~
@@ -391,6 +436,7 @@ TODO
 TODO
 
 ### `GENTLE_SMALLWASH_POWER`
+
 ~~~
   double GENTLE_SMALLWASH_POWER;
 ~~~
@@ -398,6 +444,7 @@ TODO
 TODO
 
 ### `GENTLE_PREWASH_ENERGY`
+
 ~~~
   double GENTLE_PREWASH_ENERGY;
 ~~~
@@ -405,6 +452,7 @@ TODO
 TODO
 
 ### `GENTLE_WASH_ENERGY`
+
 ~~~
   double GENTLE_WASH_ENERGY;
 ~~~
@@ -412,6 +460,7 @@ TODO
 TODO
 
 ### `GENTLE_SPIN_LOW_ENERGY`
+
 ~~~
   double GENTLE_SPIN_LOW_ENERGY;
 ~~~
@@ -419,6 +468,7 @@ TODO
 TODO
 
 ### `GENTLE_SPIN_MEDIUM_ENERGY`
+
 ~~~
   double GENTLE_SPIN_MEDIUM_ENERGY;
 ~~~
@@ -426,6 +476,7 @@ TODO
 TODO
 
 ### `GENTLE_SPIN_HIGH_ENERGY`
+
 ~~~
   double GENTLE_SPIN_HIGH_ENERGY;
 ~~~
@@ -433,6 +484,7 @@ TODO
 TODO
 
 ### `GENTLE_SMALLWASH_ENERGY`
+
 ~~~
   double GENTLE_SMALLWASH_ENERGY;
 ~~~
@@ -440,6 +492,7 @@ TODO
 TODO
 
 ### `queue_min`
+
 ~~~
   double queue_min[unit];
 ~~~
@@ -447,6 +500,7 @@ TODO
 TODO
 
 ### `queue_max`
+
 ~~~
   double queue_max[unit];
 ~~~
@@ -454,6 +508,7 @@ TODO
 TODO
 
 ### `clotheswasher_run_prob`
+
 ~~~
   double clotheswasher_run_prob;
 ~~~
@@ -461,6 +516,7 @@ TODO
 TODO
 
 ### `state`
+
 ~~~
   enumeration {SPIN4, SPIN3, SPIN2, SPIN1, WASH, PREWASH, STOPPED} state;
 ~~~
@@ -468,6 +524,7 @@ TODO
 TODO
 
 ### `spin_mode`
+
 ~~~
   enumeration {SMALLWASH, SPIN_WASH, SPIN_HIGH, SPIN_MEDIUM, SPIN_LOW} spin_mode;
 ~~~
@@ -475,6 +532,7 @@ TODO
 TODO
 
 ### `wash_mode`
+
 ~~~
   enumeration {GENTLE, PERM_PRESS, NORMAL} wash_mode;
 ~~~
@@ -482,6 +540,7 @@ TODO
 TODO
 
 ### `shape`
+
 ~~~
   loadshape shape;
 ~~~
@@ -489,6 +548,7 @@ TODO
 TODO
 
 ### `load`
+
 ~~~
   enduse load;
 ~~~
@@ -496,6 +556,7 @@ TODO
 The enduse load description
 
 ### `energy`
+
 ~~~
   complex energy[kVAh];
 ~~~
@@ -503,6 +564,7 @@ The enduse load description
 The total energy consumed since the last meter reading
 
 ### `power`
+
 ~~~
   complex power[kVA];
 ~~~
@@ -510,6 +572,7 @@ The total energy consumed since the last meter reading
 The total power consumption of the load
 
 ### `peak_demand`
+
 ~~~
   complex peak_demand[kVA];
 ~~~
@@ -517,6 +580,7 @@ The total power consumption of the load
 The peak power consumption since the last meter reading
 
 ### `heatgain`
+
 ~~~
   double heatgain[Btu/h];
 ~~~
@@ -524,6 +588,7 @@ The peak power consumption since the last meter reading
 The heat transferred from the enduse to the parent
 
 ### `cumulative_heatgain`
+
 ~~~
   double cumulative_heatgain[Btu];
 ~~~
@@ -531,6 +596,7 @@ The heat transferred from the enduse to the parent
 The cumulative heatgain from the enduse to the parent
 
 ### `heatgain_fraction`
+
 ~~~
   double heatgain_fraction[pu];
 ~~~
@@ -538,6 +604,7 @@ The cumulative heatgain from the enduse to the parent
 The fraction of the heat that goes to the parent
 
 ### `current_fraction`
+
 ~~~
   double current_fraction[pu];
 ~~~
@@ -545,6 +612,7 @@ The fraction of the heat that goes to the parent
 The fraction of total power that is constant current
 
 ### `impedance_fraction`
+
 ~~~
   double impedance_fraction[pu];
 ~~~
@@ -552,6 +620,7 @@ The fraction of total power that is constant current
 The fraction of total power that is constant impedance
 
 ### `power_fraction`
+
 ~~~
   double power_fraction[pu];
 ~~~
@@ -559,6 +628,7 @@ The fraction of total power that is constant impedance
 The fraction of the total power that is constant power
 
 ### `power_factor`
+
 ~~~
   double power_factor;
 ~~~
@@ -566,6 +636,7 @@ The fraction of the total power that is constant power
 The power factor of the load
 
 ### `constant_power`
+
 ~~~
   complex constant_power[kVA];
 ~~~
@@ -573,6 +644,7 @@ The power factor of the load
 The constant power portion of the total load
 
 ### `constant_current`
+
 ~~~
   complex constant_current[kVA];
 ~~~
@@ -580,6 +652,7 @@ The constant power portion of the total load
 The constant current portion of the total load
 
 ### `constant_admittance`
+
 ~~~
   complex constant_admittance[kVA];
 ~~~
@@ -587,6 +660,7 @@ The constant current portion of the total load
 The constant admittance portion of the total load
 
 ### `voltage_factor`
+
 ~~~
   double voltage_factor[pu];
 ~~~
@@ -594,6 +668,7 @@ The constant admittance portion of the total load
 The voltage change factor
 
 ### `breaker_amps`
+
 ~~~
   double breaker_amps[A];
 ~~~
@@ -601,6 +676,7 @@ The voltage change factor
 The rated breaker amperage
 
 ### `configuration`
+
 ~~~
   set {IS220, IS110} configuration;
 ~~~
@@ -608,6 +684,7 @@ The rated breaker amperage
 The load configuration options
 
 ### `override`
+
 ~~~
   enumeration {OFF, ON, NORMAL} override;
 ~~~
@@ -615,6 +692,7 @@ The load configuration options
 TODO
 
 ### `power_state`
+
 ~~~
   enumeration {UNKNOWN, ON, OFF} power_state;
 ~~~
@@ -687,5 +765,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Residential]]
 

@@ -1,6 +1,7 @@
 [[/Module/Mysql/Recorder]] -- MySQL recorder class 
 
 # Synopsis 
+
 ~~~
 module mysql;
 object recorder {
@@ -25,6 +26,7 @@ The `mysql` recorder is designed to be compatible the `tape` recorder object so 
 # Properties
 
 ## `connection`
+
 ~~~
    object connection;
 ~~~
@@ -32,6 +34,7 @@ The `mysql` recorder is designed to be compatible the `tape` recorder object so 
 Specifies the database object used to connect to MySQL.  If none is provided, the last database defined is used.
 
 ## `datetime_fieldname` 
+
 ~~~
    char32 datetime_fieldname;
 ~~~
@@ -39,6 +42,7 @@ Specifies the database object used to connect to MySQL.  If none is provided, th
 Specifies the field name to use for the date-time field in stored records.  The default is "t". 
 
 ## `file` 
+
 ~~~
    char1024 file;
 ~~~
@@ -46,6 +50,7 @@ Specifies the field name to use for the date-time field in stored records.  The 
 A synonym for table for compability with recorderrecorder file.
 
 ## `header_fieldnames` 
+
 ~~~
    char1024 header_fieldnames;
 ~~~
@@ -53,6 +58,7 @@ A synonym for table for compability with recorderrecorder file.
 Specifies the header data to store in each record inserted.  The default is none (i.e., "").  Valid fields are "name", "class", "latitude", "longitude".  The values are comma-delimited.  Name is limited to 64 characters, class is limited to 32 characters, and latitude/longitude are doubles conforming to ISO Standard 6709. 
 
 ## `interval` 
+
 ~~~
    double interval[s];
 ~~~
@@ -60,6 +66,7 @@ Specifies the header data to store in each record inserted.  The default is none
 Specifies the sampling interval.  By default the interval is specifies in seconds, but if units are specifies conversion will be automatic.
 
 ## `mode` 
+
 ~~~
    char32 mode;
 ~~~
@@ -67,6 +74,7 @@ Specifies the sampling interval.  By default the interval is specifies in second
 Specifies the read mode to use, which may be either "w", "w+", "a", or "a+".  If "w" or "w+" is used, the table is purged before data from the current run is added. If "a" or "a+" is used, the data from the current run is appended.
 
 ## `options` 
+
 ~~~
    set {PURGE,UNITS,NOADD} options;
 ~~~
@@ -86,6 +94,7 @@ Adds the internal units to the field name when the property does not already spe
 Prevents the recorder from automatically adding columns that are missing.
 
 ## `property` 
+
 ~~~
    char1024 property;
 ~~~
@@ -95,6 +104,7 @@ Properties may also include object names, in which case the parent is ignored an
 Parts of complex properties can be referenced using the object.part syntax, and will be stored as object_part in the database. 
 
 ## `recordid_fieldname` 
+
 ~~~
    char32 recorderid_fieldname;
 ~~~
@@ -102,6 +112,7 @@ Parts of complex properties can be referenced using the object.part syntax, and 
 Specifies the record id field name to use when adding records to a table.  The default is "id". 
 
 ## `table` 
+
 ~~~
    char1024 table;
 ~~~
@@ -109,6 +120,7 @@ Specifies the record id field name to use when adding records to a table.  The d
 Specifies the source table from which data is read.
 
 ## `trigger`
+
 ~~~
    char32 trigger;
 ~~~
@@ -119,7 +131,9 @@ Specifies the triggering condition for starting the recording.  See recorderreco
 
 * The `limit` parameter is not enforced until at least one row is added. Therefore, it is likely that after a given run, the number of rows is increased by 1 even though the maximum number of rows has been reached.
 
-# See also 
+# See also
+
+* 
 
 * [[/Module/Mysql]]
 * [[/Module/Mysql/Database]]

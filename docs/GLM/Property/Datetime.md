@@ -1,7 +1,9 @@
-[[GLM/Property/Datetime]] -- Datetime property
+[[/GLM/Property/Datetime]] -- Datetime property
 
 # Synopsis
+
 GLM:
+
 ~~~
   class <class-name> {
     datetime <property-name>;
@@ -25,3 +27,5 @@ The following ISO8601 date/time formats are now supported for all timestamp valu
 GridLAB-D does not current support output in ISO 8601 format
 
 # See also
+
+*

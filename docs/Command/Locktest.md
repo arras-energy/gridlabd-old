@@ -1,11 +1,12 @@
-[[/Command/Locktest]] -  Perform memory locking test
+[[/Command/Locktest]] -- Perform memory locking test
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --locktest                                              
 ~~~
 
 # Description
 
- Perform memory locking test.
+Perform memory locking test.
 

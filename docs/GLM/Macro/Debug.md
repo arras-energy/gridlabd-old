@@ -1,7 +1,9 @@
 [[/Glm/Macro/Debug]] -- Debug output message
 
 # Synopsis
+
 GLM:
+
 ~~~
 #debug <message>
 ~~~
@@ -17,6 +19,7 @@ The `#debug` macro outputs a message to the debugging stream.
 ~~~
 
 # See also
+
 * [[/GLM/Macro/Error]]
 * [[/GLM/Macro/Print]]
 * [[/GLM/Macro/Verbose]]
