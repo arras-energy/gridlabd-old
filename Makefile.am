@@ -287,7 +287,7 @@ distclean-local: python-clean
 	@rm -f $(top_srcdir)/validate.txt
 
 libtool: $(LIBTOOL_DEPS)
-	$(SHELL) ./config.status libtool
+	$(SHELL) ./config.status libtool > /dev/null
 
 install-exec-hook: python-install html-local index
 	cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
@@ -303,6 +303,9 @@ install-exec-hook: python-install html-local index
 	@echo "To make this version the default for all user on this system:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
+
+system: install
+	$(DESTDIR)$(bindir)/gridlabd version set
 
 index: weather library template
 
