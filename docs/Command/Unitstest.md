@@ -1,11 +1,12 @@
-[[/Command/Unitstest]] -  Perform unit conversion system test
+[[/Command/Unitstest]] -- Perform unit conversion system test
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --unitstest                                             
 ~~~
 
 # Description
 
- Perform unit conversion system test.
+Perform unit conversion system test.
 

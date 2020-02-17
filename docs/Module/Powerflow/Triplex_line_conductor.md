@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Triplex_line_conductor]] -- Class triplex_line_conductor
 
 # Synopsis
+
 GLM:
+
 ~~~
   object triplex_line_conductor {
     resistance "<decimal> Ohm/mile";
@@ -20,6 +22,7 @@ TODO
 ## Properties
 
 ### `resistance`
+
 ~~~
   double resistance[Ohm/mile];
 ~~~
@@ -27,6 +30,7 @@ TODO
 Resistance of cable in ohm/mile
 
 ### `geometric_mean_radius`
+
 ~~~
   double geometric_mean_radius[ft];
 ~~~
@@ -34,6 +38,7 @@ Resistance of cable in ohm/mile
 Geometric mean radius of the cable
 
 ### `rating.summer.continuous`
+
 ~~~
   double rating.summer.continuous[A];
 ~~~
@@ -41,6 +46,7 @@ Geometric mean radius of the cable
 Amp ratings for the cable during continuous operation in summer
 
 ### `rating.summer.emergency`
+
 ~~~
   double rating.summer.emergency[A];
 ~~~
@@ -48,6 +54,7 @@ Amp ratings for the cable during continuous operation in summer
 Amp ratings for the cable during short term operation in summer
 
 ### `rating.winter.continuous`
+
 ~~~
   double rating.winter.continuous[A];
 ~~~
@@ -55,6 +62,7 @@ Amp ratings for the cable during short term operation in summer
 Amp ratings for the cable during continuous operation in winter
 
 ### `rating.winter.emergency`
+
 ~~~
   double rating.winter.emergency[A];
 ~~~
@@ -75,5 +83,6 @@ Amp ratings for the cable during short term operation in winter
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

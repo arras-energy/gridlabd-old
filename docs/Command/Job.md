@@ -1,11 +1,12 @@
-[[/Command/Job]] -  Start a job
+[[/Command/Job]] -- Start a job
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --job ...                                               
 ~~~
 
 # Description
 
- Start a job.
+Start a job.
 

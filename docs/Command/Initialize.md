@@ -1,6 +1,7 @@
 [[/Command/Initialize]] -- Command line option to only initialize a model
 
 # Synopsis
+
 ~~~
 bash$ gridlabd -I filename [options ...]
 bash$ gridlabd --initialize filename [options ...]

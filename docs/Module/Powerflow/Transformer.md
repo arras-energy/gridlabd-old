@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Transformer]] -- Class transformer
 
 # Synopsis
+
 GLM:
+
 ~~~
   object transformer {
     configuration "<string>";
@@ -69,6 +71,7 @@ TODO
 ## Properties
 
 ### `configuration`
+
 ~~~
   object configuration;
 ~~~
@@ -76,6 +79,7 @@ TODO
 Configuration library used for transformer setup
 
 ### `climate`
+
 ~~~
   object climate;
 ~~~
@@ -83,6 +87,7 @@ Configuration library used for transformer setup
 Climate object used to describe thermal model ambient temperature
 
 ### `ambient_temperature`
+
 ~~~
   double ambient_temperature[degC];
 ~~~
@@ -90,6 +95,7 @@ Climate object used to describe thermal model ambient temperature
 Ambient temperature in degrees C
 
 ### `top_oil_hot_spot_temperature`
+
 ~~~
   double top_oil_hot_spot_temperature[degC];
 ~~~
@@ -97,6 +103,7 @@ Ambient temperature in degrees C
 Top-oil hottest-spot temperature, degrees C
 
 ### `winding_hot_spot_temperature`
+
 ~~~
   double winding_hot_spot_temperature[degC];
 ~~~
@@ -104,6 +111,7 @@ Top-oil hottest-spot temperature, degrees C
 Winding hottest-spot temperature, degrees C
 
 ### `percent_loss_of_life`
+
 ~~~
   double percent_loss_of_life;
 ~~~
@@ -111,6 +119,7 @@ Winding hottest-spot temperature, degrees C
 The percent loss of life
 
 ### `aging_constant`
+
 ~~~
   double aging_constant;
 ~~~
@@ -118,6 +127,7 @@ The percent loss of life
 The aging rate slope for the transformer insulation
 
 ### `use_thermal_model`
+
 ~~~
   bool use_thermal_model;
 ~~~
@@ -125,6 +135,7 @@ The aging rate slope for the transformer insulation
 Boolean to enable use of thermal model
 
 ### `transformer_replacement_count`
+
 ~~~
   double transformer_replacement_count;
 ~~~
@@ -132,6 +143,7 @@ Boolean to enable use of thermal model
 Counter of the number times the transformer has been replaced due to lifetime failure
 
 ### `aging_granularity`
+
 ~~~
   double aging_granularity[s];
 ~~~
@@ -139,6 +151,7 @@ Counter of the number times the transformer has been replaced due to lifetime fa
 Maximum timestep before updating thermal and aging model in seconds
 
 ### `phase_A_primary_flux_value`
+
 ~~~
   double phase_A_primary_flux_value[Wb];
 ~~~
@@ -146,6 +159,7 @@ Maximum timestep before updating thermal and aging model in seconds
 Instantaneous magnetic flux in phase A on the primary side of the transformer during saturation calculations
 
 ### `phase_B_primary_flux_value`
+
 ~~~
   double phase_B_primary_flux_value[Wb];
 ~~~
@@ -153,6 +167,7 @@ Instantaneous magnetic flux in phase A on the primary side of the transformer du
 Instantaneous magnetic flux in phase B on the primary side of the transformer during saturation calculations
 
 ### `phase_C_primary_flux_value`
+
 ~~~
   double phase_C_primary_flux_value[Wb];
 ~~~
@@ -160,6 +175,7 @@ Instantaneous magnetic flux in phase B on the primary side of the transformer du
 Instantaneous magnetic flux in phase C on the primary side of the transformer during saturation calculations
 
 ### `phase_A_secondary_flux_value`
+
 ~~~
   double phase_A_secondary_flux_value[Wb];
 ~~~
@@ -167,6 +183,7 @@ Instantaneous magnetic flux in phase C on the primary side of the transformer du
 Instantaneous magnetic flux in phase A on the secondary side of the transformer during saturation calculations
 
 ### `phase_B_secondary_flux_value`
+
 ~~~
   double phase_B_secondary_flux_value[Wb];
 ~~~
@@ -174,6 +191,7 @@ Instantaneous magnetic flux in phase A on the secondary side of the transformer 
 Instantaneous magnetic flux in phase B on the secondary side of the transformer during saturation calculations
 
 ### `phase_C_secondary_flux_value`
+
 ~~~
   double phase_C_secondary_flux_value[Wb];
 ~~~
@@ -181,12 +199,14 @@ Instantaneous magnetic flux in phase B on the secondary side of the transformer 
 Instantaneous magnetic flux in phase C on the secondary side of the transformer during saturation calculations
 
 ### `status`
+
 ~~~
   enumeration {OPEN, CLOSED} status;
 ~~~
 
 
 ### `from`
+
 ~~~
   object from;
 ~~~
@@ -194,6 +214,7 @@ Instantaneous magnetic flux in phase C on the secondary side of the transformer 
 From_node - source node
 
 ### `to`
+
 ~~~
   object to;
 ~~~
@@ -201,6 +222,7 @@ From_node - source node
 To_node - load node
 
 ### `power_in`
+
 ~~~
   complex power_in[VA];
 ~~~
@@ -208,6 +230,7 @@ To_node - load node
 Power flow in (w.r.t from node)
 
 ### `power_out`
+
 ~~~
   complex power_out[VA];
 ~~~
@@ -215,6 +238,7 @@ Power flow in (w.r.t from node)
 Power flow out (w.r.t to node)
 
 ### `power_out_real`
+
 ~~~
   double power_out_real[W];
 ~~~
@@ -222,6 +246,7 @@ Power flow out (w.r.t to node)
 Power flow out (w.r.t to node), real
 
 ### `power_losses`
+
 ~~~
   complex power_losses[VA];
 ~~~
@@ -229,6 +254,7 @@ Power flow out (w.r.t to node), real
 Power losses
 
 ### `power_in_A`
+
 ~~~
   complex power_in_A[VA];
 ~~~
@@ -236,6 +262,7 @@ Power losses
 Power flow in (w.r.t from node), phase A
 
 ### `power_in_B`
+
 ~~~
   complex power_in_B[VA];
 ~~~
@@ -243,6 +270,7 @@ Power flow in (w.r.t from node), phase A
 Power flow in (w.r.t from node), phase B
 
 ### `power_in_C`
+
 ~~~
   complex power_in_C[VA];
 ~~~
@@ -250,6 +278,7 @@ Power flow in (w.r.t from node), phase B
 Power flow in (w.r.t from node), phase C
 
 ### `power_out_A`
+
 ~~~
   complex power_out_A[VA];
 ~~~
@@ -257,6 +286,7 @@ Power flow in (w.r.t from node), phase C
 Power flow out (w.r.t to node), phase A
 
 ### `power_out_B`
+
 ~~~
   complex power_out_B[VA];
 ~~~
@@ -264,6 +294,7 @@ Power flow out (w.r.t to node), phase A
 Power flow out (w.r.t to node), phase B
 
 ### `power_out_C`
+
 ~~~
   complex power_out_C[VA];
 ~~~
@@ -271,6 +302,7 @@ Power flow out (w.r.t to node), phase B
 Power flow out (w.r.t to node), phase C
 
 ### `power_losses_A`
+
 ~~~
   complex power_losses_A[VA];
 ~~~
@@ -278,6 +310,7 @@ Power flow out (w.r.t to node), phase C
 Power losses, phase A
 
 ### `power_losses_B`
+
 ~~~
   complex power_losses_B[VA];
 ~~~
@@ -285,6 +318,7 @@ Power losses, phase A
 Power losses, phase B
 
 ### `power_losses_C`
+
 ~~~
   complex power_losses_C[VA];
 ~~~
@@ -292,6 +326,7 @@ Power losses, phase B
 Power losses, phase C
 
 ### `current_out_A`
+
 ~~~
   complex current_out_A[A];
 ~~~
@@ -299,6 +334,7 @@ Power losses, phase C
 Current flow out of link (w.r.t. to node), phase A
 
 ### `current_out_B`
+
 ~~~
   complex current_out_B[A];
 ~~~
@@ -306,6 +342,7 @@ Current flow out of link (w.r.t. to node), phase A
 Current flow out of link (w.r.t. to node), phase B
 
 ### `current_out_C`
+
 ~~~
   complex current_out_C[A];
 ~~~
@@ -313,6 +350,7 @@ Current flow out of link (w.r.t. to node), phase B
 Current flow out of link (w.r.t. to node), phase C
 
 ### `current_in_A`
+
 ~~~
   complex current_in_A[A];
 ~~~
@@ -320,6 +358,7 @@ Current flow out of link (w.r.t. to node), phase C
 Current flow to link (w.r.t from node), phase A
 
 ### `current_in_B`
+
 ~~~
   complex current_in_B[A];
 ~~~
@@ -327,6 +366,7 @@ Current flow to link (w.r.t from node), phase A
 Current flow to link (w.r.t from node), phase B
 
 ### `current_in_C`
+
 ~~~
   complex current_in_C[A];
 ~~~
@@ -334,6 +374,7 @@ Current flow to link (w.r.t from node), phase B
 Current flow to link (w.r.t from node), phase C
 
 ### `fault_current_in_A`
+
 ~~~
   complex fault_current_in_A[A];
 ~~~
@@ -341,6 +382,7 @@ Current flow to link (w.r.t from node), phase C
 Fault current flowing in, phase A
 
 ### `fault_current_in_B`
+
 ~~~
   complex fault_current_in_B[A];
 ~~~
@@ -348,6 +390,7 @@ Fault current flowing in, phase A
 Fault current flowing in, phase B
 
 ### `fault_current_in_C`
+
 ~~~
   complex fault_current_in_C[A];
 ~~~
@@ -355,6 +398,7 @@ Fault current flowing in, phase B
 Fault current flowing in, phase C
 
 ### `fault_current_out_A`
+
 ~~~
   complex fault_current_out_A[A];
 ~~~
@@ -362,6 +406,7 @@ Fault current flowing in, phase C
 Fault current flowing out, phase A
 
 ### `fault_current_out_B`
+
 ~~~
   complex fault_current_out_B[A];
 ~~~
@@ -369,6 +414,7 @@ Fault current flowing out, phase A
 Fault current flowing out, phase B
 
 ### `fault_current_out_C`
+
 ~~~
   complex fault_current_out_C[A];
 ~~~
@@ -376,6 +422,7 @@ Fault current flowing out, phase B
 Fault current flowing out, phase C
 
 ### `fault_voltage_A`
+
 ~~~
   complex fault_voltage_A[A];
 ~~~
@@ -383,6 +430,7 @@ Fault current flowing out, phase C
 Fault voltage, phase A
 
 ### `fault_voltage_B`
+
 ~~~
   complex fault_voltage_B[A];
 ~~~
@@ -390,6 +438,7 @@ Fault voltage, phase A
 Fault voltage, phase B
 
 ### `fault_voltage_C`
+
 ~~~
   complex fault_voltage_C[A];
 ~~~
@@ -397,6 +446,7 @@ Fault voltage, phase B
 Fault voltage, phase C
 
 ### `flow_direction`
+
 ~~~
   set {CN, CR, CF, BN, BR, BF, AN, AR, AF, UNKNOWN} flow_direction;
 ~~~
@@ -404,6 +454,7 @@ Fault voltage, phase C
 Flag used for describing direction of the flow of power
 
 ### `mean_repair_time`
+
 ~~~
   double mean_repair_time[s];
 ~~~
@@ -411,6 +462,7 @@ Flag used for describing direction of the flow of power
 Time after a fault clears for the object to be back in service
 
 ### `continuous_rating`
+
 ~~~
   double continuous_rating[A];
 ~~~
@@ -418,6 +470,7 @@ Time after a fault clears for the object to be back in service
 Continuous rating for this link object (set individual line segments
 
 ### `emergency_rating`
+
 ~~~
   double emergency_rating[A];
 ~~~
@@ -425,6 +478,7 @@ Continuous rating for this link object (set individual line segments
 Emergency rating for this link object (set individual line segments
 
 ### `inrush_convergence_value`
+
 ~~~
   double inrush_convergence_value[V];
 ~~~
@@ -432,6 +486,7 @@ Emergency rating for this link object (set individual line segments
 Tolerance, as change in line voltage drop between iterations, for deltamode in-rush completion
 
 ### `phases`
+
 ~~~
   set {A, B, C, D, N, S, G} phases;
 ~~~
@@ -439,6 +494,7 @@ Tolerance, as change in line voltage drop between iterations, for deltamode in-r
 TODO
 
 ### `nominal_voltage`
+
 ~~~
   double nominal_voltage[V];
 ~~~
@@ -446,6 +502,7 @@ TODO
 TODO
 
 ### `supernode_name`
+
 ~~~
   char1024 supernode_name;
 ~~~
@@ -511,5 +568,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

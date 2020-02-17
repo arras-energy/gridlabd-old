@@ -1,27 +1,27 @@
 Welcome to the [HiPAS GridLAB-D](http://www.gridlabd.us/) documentation.
 
-# [[Features]] 
+# [[/Features]] 
 
 *Learn the latest features of HiPAS GridLAB-D*
 
-# [[Getting Started]] 
+# [[/Getting Started]] 
 
 *Get started using HiPAS GridLAB-D*
 
-# [[Documentation]]
+# [[/Documentation]]
 
 *Access the user and modeling manuals*
-# [[Developers]]
+# [[/Developers]]
 
 *Access the development manuals*
 
-# [[Sponsors]]
+# [[/Sponsors]]
 
 *Find out about our sponsors*
 
-# [[About Us]]
+# [[/About Us]]
 
 *Join the SLAC GISMo team*
-# [[News]]
+# [[/News]]
 
 *Read the latest news from SLAC GISMo*

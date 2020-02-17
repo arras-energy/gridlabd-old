@@ -1,7 +1,9 @@
 [[/Module/Climate/Csv_reader]] -- Class csv_reader
 
 # Synopsis
+
 GLM:
+
 ~~~
   object csv_reader {
     index "<integer>";
@@ -31,6 +33,7 @@ TODO
 ## Properties
 
 ### `index`
+
 ~~~
   int32 index;
 ~~~
@@ -38,6 +41,7 @@ TODO
 TODO
 
 ### `city_name`
+
 ~~~
   char32 city_name;
 ~~~
@@ -45,6 +49,7 @@ TODO
 TODO
 
 ### `state_name`
+
 ~~~
   char32 state_name;
 ~~~
@@ -52,6 +57,7 @@ TODO
 TODO
 
 ### `lat_deg`
+
 ~~~
   double lat_deg;
 ~~~
@@ -59,6 +65,7 @@ TODO
 TODO
 
 ### `lat_min`
+
 ~~~
   double lat_min;
 ~~~
@@ -66,6 +73,7 @@ TODO
 TODO
 
 ### `long_deg`
+
 ~~~
   double long_deg;
 ~~~
@@ -73,6 +81,7 @@ TODO
 TODO
 
 ### `long_min`
+
 ~~~
   double long_min;
 ~~~
@@ -80,6 +89,7 @@ TODO
 TODO
 
 ### `low_temp`
+
 ~~~
   double low_temp;
 ~~~
@@ -87,6 +97,7 @@ TODO
 TODO
 
 ### `high_temp`
+
 ~~~
   double high_temp;
 ~~~
@@ -94,6 +105,7 @@ TODO
 TODO
 
 ### `peak_solar`
+
 ~~~
   double peak_solar;
 ~~~
@@ -101,6 +113,7 @@ TODO
 TODO
 
 ### `elevation`
+
 ~~~
   int32 elevation;
 ~~~
@@ -108,6 +121,7 @@ TODO
 TODO
 
 ### `status`
+
 ~~~
   enumeration {ERROR, OPEN, INIT} status;
 ~~~
@@ -115,6 +129,7 @@ TODO
 TODO
 
 ### `timefmt`
+
 ~~~
   char32 timefmt;
 ~~~
@@ -122,6 +137,7 @@ TODO
 TODO
 
 ### `timezone`
+
 ~~~
   char32 timezone;
 ~~~
@@ -129,6 +145,7 @@ TODO
 TODO
 
 ### `timezone_offset`
+
 ~~~
   double timezone_offset;
 ~~~
@@ -136,6 +153,7 @@ TODO
 TODO
 
 ### `columns`
+
 ~~~
   char256 columns;
 ~~~
@@ -143,6 +161,7 @@ TODO
 TODO
 
 ### `filename`
+
 ~~~
   char256 filename;
 ~~~
@@ -174,5 +193,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Climate]]
 

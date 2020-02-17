@@ -1,5 +1,6 @@
-[[CEUS]] -- Commercial End-Use Survey data-driven building model
+[[/CEUS]] -- Commercial End-Use Survey data-driven building model
 # Synopsis
+
 ~~~
   module commercial {
     default_nominal_voltage "240";
@@ -53,6 +54,7 @@ The parent object of a building must be a `powerflow meter` object.  In the abse
 ## Properties
 
 ### `composition`
+
 ~~~
     method composition;
 ~~~
@@ -70,6 +72,7 @@ In general the sum the real power fractions should be 1.0 and the sum of the rea
 The `Area` term of the fraction of the `floor_area` affected by the enduse specified.
 
 ### `filename`
+
 ~~~
     method filename;
 ~~~
@@ -77,6 +80,7 @@ The `Area` term of the fraction of the `floor_area` affected by the enduse speci
 The CEUS data file is loaded when the `filename` is specified.  Each file is loaded only once and referenced by each building that uses it.  The loads in the data are used as the basis for the loadshapes that drive the final load composition.
 
 ### `floor_area`
+
 ~~~
     double floor_area[sf];
 ~~~
@@ -84,6 +88,7 @@ The CEUS data file is loaded when the `filename` is specified.  Each file is loa
 The floor area of the build.
 
 ### `price_base`
+
 ~~~
     double price_base[$/MWh];
 ~~~
@@ -91,6 +96,7 @@ The floor area of the build.
 The base price for the price sensitivity.
 
 ### `total_power_A`
+
 ~~~
     complex total_power_A[VA];
 ~~~
@@ -98,6 +104,7 @@ The base price for the price sensitivity.
 The total power on phase A.
 
 ### `total_power_B`
+
 ~~~
     complex total_power_B[VA];
 ~~~
@@ -105,6 +112,7 @@ The total power on phase A.
 The total power on phase B.
 
 ### `total_power_C`
+
 ~~~
     complex total_power_C[VA];
 ~~~
@@ -112,6 +120,7 @@ The total power on phase B.
 The total power on Phase C.
 
 ### `total_real_power`
+
 ~~~
     double total_real_power[W];
 ~~~
@@ -119,6 +128,7 @@ The total power on Phase C.
 The total real power.
 
 ### `total_reactive_power`
+
 ~~~
     double total_reactive_power[VAR];
 ~~~
@@ -126,6 +136,7 @@ The total real power.
 The total reactive power.
 
 ### `price_sensitivity`
+
 ~~~
     double price_sensitivity[W*MWh/$]; 
 ~~~
@@ -133,6 +144,7 @@ The total reactive power.
 The price sensitivity.
 
 ### `solargain_base`
+
 ~~~
     double solargain_base[W/m^2];
 ~~~
@@ -140,6 +152,7 @@ The price sensitivity.
 The solar gain sensitivity base irradiance.
 
 ### `solargain_sensitivity`
+
 ~~~
     double solargain_sensitivity[m^2];
 ~~~
@@ -147,6 +160,7 @@ The solar gain sensitivity base irradiance.
 The solar gain sensitivity.
 
 ### `temperature_cooling_base`
+
 ~~~
     double temperature_cooling_base[degF];
 ~~~
@@ -154,6 +168,7 @@ The solar gain sensitivity.
 The cooling sensitivity base temperature. 
 
 ### `temperature_cooling_balance`
+
 ~~~
     double temperature_cooling_balance[degF];
 ~~~
@@ -161,6 +176,7 @@ The cooling sensitivity base temperature.
 Cooling sensitivity is non-zero only for outdoor air temperatures above the cooling balance temperature.
 
 ### `temperature_heating_base`
+
 ~~~
     double temperature_heating_base[degF];
 ~~~
@@ -168,6 +184,7 @@ Cooling sensitivity is non-zero only for outdoor air temperatures above the cool
 The heating sensitivity base temperature.
 
 ### `temperature_heating_balance`
+
 ~~~
     double temperature_heating_balance[degF];
 ~~~
@@ -175,6 +192,7 @@ The heating sensitivity base temperature.
 Heating sensitivity is non-zero only for outdoor air temperatures below the heatin balance temperature.
 
 ### `temperature_heating_sensitivity`
+
 ~~~
     double temperature_heating_sensitivity[W/degF];
 ~~~
@@ -182,6 +200,7 @@ Heating sensitivity is non-zero only for outdoor air temperatures below the heat
 The heating temperature sensitivity.
 
 ### `tariff`
+
 ~~~
     object tariff;
 ~~~
@@ -189,6 +208,7 @@ The heating temperature sensitivity.
 The tariff object is used to establish now the pricing affects loads.
 
 ### `weather`
+
 ~~~
     object weather;
 ~~~
@@ -243,8 +263,10 @@ The following implements a `10,000 sf` office building in California forecasting
 
 The temperature, price, and solar sensitivity are not implemented by enduse.  These sensitivities are applied at the whole building level only.
 
-# See also 
+# See also
 
-* [[Module/Commercial]]
+* 
+
+* [[/Module/Commercial]]
 * [California Commercial End-use Survey (CEUS) Website](https://www.energy.ca.gov/ceus)
 * [SLAC GISMo CEUS Data Repository](https://github.com/slacgismo/ceus_data)

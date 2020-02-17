@@ -1,11 +1,12 @@
-[[/Command/Plist]] -  List runs on processes
+[[/Command/Plist]] -- List runs on processes
 
 # Synopsis
+
 ~~~
 bash$ gridlabd --plist                                                 
 ~~~
 
 # Description
 
- List runs on processes.
+List runs on processes.
 
