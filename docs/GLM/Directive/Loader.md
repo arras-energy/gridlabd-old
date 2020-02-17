@@ -1,7 +1,9 @@
-[[GLM/Directive/Extension]] -- Add GLM parser extensions to the GLM loader
+[[/GLM/Directive/Extension]] -- Add GLM parser extensions to the GLM loader
 
 # Synopsis
+
 GLM:
+
 ~~~
   extension <name>;
 ~~~
@@ -41,6 +43,7 @@ If exported, this function is called when a gridlabd main execution loop has end
 # Example
 
 The file `hello.c` implements the initiatization and parser:
+
 ~~~
   int init(void)
   {
@@ -59,7 +62,9 @@ The file `hello.c` implements the initiatization and parser:
     }
   }
 ~~~
+
 The file `hello.glm` calls the parser when the term `hello` is encountered:
+
 ~~~
 extension hello;
 hello;

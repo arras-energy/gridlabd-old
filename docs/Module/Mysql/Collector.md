@@ -1,6 +1,7 @@
 [[/Module/Mysql/Collector]] -- MySQL collector class 
 
 # Synopsis 
+
 ~~~
  module mysql;
  object collector {
@@ -22,50 +23,53 @@ The `mysql` collector is designed to be compatible the the `tape` collector obje
 # Properties
 
 ## `connection` 
+
 ~~~
-	
+string connection;	
 ~~~
 
 Specifies the database object used to connect to MySQL.  If none is provided, the last database defined is used.
 
 ## `file` 
+
 ~~~
-	
+string file;
 ~~~
 
 A synonym for `table` for compability with `tape` collector `file` property.
 
 ## `interval` 
+
 ~~~
-	
+double interval[s];
 ~~~
 
 Specifies the sampling interval.  By default the interval is specified in seconds, but if units are specifies conversion will be automatic.
 
 ## `mode` 
+
 ~~~
-	
+string mode;
 ~~~
 
 Specifies the file I/O mode to use, which may be either "w", "w+", "a", or "a+".  If "w" or "w+" is used, the table is purged before data from the current run is added. If "a" or "a+" is used, the data from the current run is appended.
 
 ## `options` 
+
 ~~~
-	
+enumeration {NONE,PURGE} options;
 ~~~
 
 Specifies the recorder options, as follows:
 
 ### `PURGE` 
-~~~
-	
-~~~
 
 Purges the table of all existing data (by dropping and recreating the table) before storing new data.
 
 ## `property` 
+
 ~~~
-	
+string property;	
 ~~~
 
 Specifies the property (or properties) that are to be collected.  This is a comma-delimited list if more than one property is collected.  Each property must have an aggregator function included.  This may be one of the following
@@ -87,8 +91,9 @@ Each property may include any valid part, e.g.:
 * for timestamp `.seconds`, `.minutes`, `.hours`, `.days`, `.year`, `.month`, `.day`, `.hour`, `.minute`, `.second`, `.weekday`, `.yearday`, `.isdst`.
 
 ## `table` 
+
 ~~~
-	
+string table;
 ~~~
 
 Specifies the source table from which data is read.
@@ -96,6 +101,7 @@ Specifies the source table from which data is read.
 # Example
 
 The following example collects the mean, sum, and count of samples drawn from a set of random values in 10 test objects and stores them in the default `gridlabd` database on the local MySQL server using the `gridlabd` username.
+
 ~~~
  module mysql;
  object database {

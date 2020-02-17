@@ -13,6 +13,9 @@
  **/
 
 #include "gldcore.h"
+#include <iostream>
+
+using namespace std;
 
 SET_MYCONTEXT(DMC_CMDARG)
 
@@ -441,6 +444,18 @@ int GldCmdarg::compile(int argc, const char *argv[])
 	global_compileonly = !global_compileonly;
 	return 0;
 }
+
+
+DEPRECATED static int initialize(void *main, int argc, const char *argv[])
+{
+	return ((GldMain*)main)->get_cmdarg()->initialize(argc,argv);
+}
+int GldCmdarg::initialize(int argc, const char *argv[])
+{
+	global_initializeonly = !global_initializeonly;
+	return 0;
+}
+
 DEPRECATED static int license(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->license(argc,argv);
@@ -1835,6 +1850,39 @@ int GldCmdarg::printenv(int argc, const char *argv[])
 	return system("printenv") == 0 ? 0 : CMDERR;
 }
 
+DEPRECATED static int formats(void *main, int argc, const char *argv[])
+{
+	return ((GldMain*)main)->get_cmdarg()->formats(argc,argv);
+}
+int GldCmdarg::formats(int argc, const char *argv[])
+{
+	cout << "{" << endl;
+
+	cout << "\t\"glm\" : {" << endl;
+	cout << "\t\t\"json\" : {" << endl;
+	cout << "\t\t\t\"run\" : \"" << global_execname << " {inputfile} -o {outputfile}\"" << endl;
+	cout << "\t\t}" << endl;
+	cout << "\t}," << endl;
+
+	// TODO: use a directory listing to get all available converters
+	cout << "\t\"json\" : {" << endl;
+	cout << "\t\t\"glm\" : {" << endl;
+	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2glm.py {inputfile} -o {outputfile}\"" << endl;
+	cout << "\t\t}," << endl;
+	
+	cout << "\t\t\"png\" : {" << endl;
+	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2png.py {inputfile} -o {outputfile}\"" << endl;
+	cout << "\t\t\t\"type\" : [" << endl;
+	cout << "\t\t\t\t\"summary\"," << endl;
+	cout << "\t\t\t\t\"profile\"" << endl;
+	cout << "\t\t\t]" << endl;
+	cout << "\t\t}" << endl;
+	cout << "\t}" << endl;
+	
+	cout << "}" << endl;
+	return 0;
+}
+
 DEPRECATED static int origin(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->origin(argc,argv);
@@ -1997,6 +2045,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"xmlstrict",	NULL,	xmlstrict,		NULL, "Toggle strict XML formatting (default is enabled)" },
 	{"xsd",			NULL,	xsd,			"[module[:class]]", "Prints the XSD of a module or class" },
 	{"xsl",			NULL,	xsl,			"module[,module[,...]]]", "Create the XSL file for the module(s) listed" },
+	{"formats",     NULL,   formats,        NULL, "get a list supported file formats"},
 
 	{NULL,NULL,NULL,NULL, "Help"},
 	{"help",		"h",	help,			NULL, "Displays command line help" },
@@ -2016,6 +2065,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"bothstdout",	NULL,	bothstdout,		NULL, "Merges all output on stdout" },
 	{"check_version", NULL,	_check_version,	NULL, "Perform online version check to see if any updates are available" },
 	{"compile",		"C",	compile,		NULL, "Toggles compile-only flags" },
+	{"initialize",	"I",	initialize,		NULL, "Toggles initialize-only flags" },
 	{"environment",	"e",	environment,	"<appname>", "Set the application to use for run environment" },
 	{"output",		"o",	output,			"<file>", "Enables save of output to a file (default is gridlabd.glm)" },
 	{"pause",		NULL,	pauseatexit,	NULL, "Toggles pause-at-exit feature" },

@@ -1,7 +1,9 @@
 [[/Glm/Macro/Include]] -- Macro to include another GLM
 
 # Synopsis
+
 GLM:
+
 ~~~
 #include "file-name"
 #include <library-name>
@@ -18,10 +20,12 @@ The `#include using(<parameters>) "file-name"` syntax is equivalent to `#insert 
 # Examples
 
 The following includes `my-file.glm` in the current GLM loader stream.
+
 ~~~
 #include "my-file.glm"
 ~~~
 
 # See also
+
 * [[/Glm/Macro/Insert]]
 
