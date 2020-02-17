@@ -1,6 +1,7 @@
-[[/GLM/Macro/On_exit]] - Macro to handle exit conditions
+[[/GLM/Macro/On_exit]] -- Macro to handle exit conditions
 
 # Synopsis
+
 ~~~
 #on_exit exitcode command
 ~~~
@@ -14,6 +15,7 @@ When the value `-1` is used for the `exitcode`, any non-zero exit condition will
 ## Example
 
 The following example run a series of models with VARIABLE incremented for each run
+
 ~~~
 // set the initial value to 0
 #ifndef VARIABLE
@@ -26,7 +28,9 @@ The following example run a series of models with VARIABLE incremented for each 
 #on_exit 0 ${exename} -D VARIABLE=$((${VARIABLE}+1)) ${modelname} &
 #endif
 ~~~
+
 which produces the output
+
 ~~~
 0
 1

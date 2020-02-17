@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Frequency_gen]] -- Class frequency_gen
 
 # Synopsis
+
 GLM:
+
 ~~~
   object frequency_gen {
     Frequency_Mode "{AUTO,OFF}";
@@ -33,6 +35,7 @@ TODO
 ## Properties
 
 ### `Frequency_Mode`
+
 ~~~
   enumeration {AUTO, OFF} Frequency_Mode;
 ~~~
@@ -40,6 +43,7 @@ TODO
 Frequency object operations mode
 
 ### `Frequency`
+
 ~~~
   double Frequency[Hz];
 ~~~
@@ -47,6 +51,7 @@ Frequency object operations mode
 Instantaneous frequency value
 
 ### `FreqChange`
+
 ~~~
   double FreqChange[Hz/s];
 ~~~
@@ -54,6 +59,7 @@ Instantaneous frequency value
 Frequency change from last timestep
 
 ### `Deadband`
+
 ~~~
   double Deadband[Hz];
 ~~~
@@ -61,6 +67,7 @@ Frequency change from last timestep
 Frequency deadband of the governor
 
 ### `Tolerance`
+
 ~~~
   double Tolerance[%];
 ~~~
@@ -68,6 +75,7 @@ Frequency deadband of the governor
 % threshold a power difference must be before it is cared about
 
 ### `M`
+
 ~~~
   double M[pu*s];
 ~~~
@@ -75,6 +83,7 @@ Frequency deadband of the governor
 Inertial constant of the system
 
 ### `D`
+
 ~~~
   double D[%];
 ~~~
@@ -82,6 +91,7 @@ Inertial constant of the system
 Load-damping constant
 
 ### `Rated_power`
+
 ~~~
   double Rated_power[W];
 ~~~
@@ -89,6 +99,7 @@ Load-damping constant
 Rated power of system (base power)
 
 ### `Gen_power`
+
 ~~~
   double Gen_power[W];
 ~~~
@@ -96,6 +107,7 @@ Rated power of system (base power)
 Mechanical power equivalent
 
 ### `Load_power`
+
 ~~~
   double Load_power[W];
 ~~~
@@ -103,6 +115,7 @@ Mechanical power equivalent
 Last sensed load value
 
 ### `Gov_delay`
+
 ~~~
   double Gov_delay[s];
 ~~~
@@ -110,6 +123,7 @@ Last sensed load value
 Governor delay time
 
 ### `Ramp_rate`
+
 ~~~
   double Ramp_rate[W/s];
 ~~~
@@ -117,6 +131,7 @@ Governor delay time
 Ramp ideal ramp rate
 
 ### `Low_Freq_OI`
+
 ~~~
   double Low_Freq_OI[Hz];
 ~~~
@@ -124,6 +139,7 @@ Ramp ideal ramp rate
 Low frequency setpoint for GFA devices
 
 ### `High_Freq_OI`
+
 ~~~
   double High_Freq_OI[Hz];
 ~~~
@@ -131,6 +147,7 @@ Low frequency setpoint for GFA devices
 High frequency setpoint for GFA devices
 
 ### `avg24`
+
 ~~~
   double avg24[Hz];
 ~~~
@@ -138,6 +155,7 @@ High frequency setpoint for GFA devices
 Average of last 24 hourly instantaneous measurements
 
 ### `std24`
+
 ~~~
   double std24[Hz];
 ~~~
@@ -145,6 +163,7 @@ Average of last 24 hourly instantaneous measurements
 Standard deviation of last 24 hourly instantaneous measurements
 
 ### `avg168`
+
 ~~~
   double avg168[Hz];
 ~~~
@@ -152,6 +171,7 @@ Standard deviation of last 24 hourly instantaneous measurements
 Average of last 168 hourly instantaneous measurements
 
 ### `std168`
+
 ~~~
   double std168[Hz];
 ~~~
@@ -159,6 +179,7 @@ Average of last 168 hourly instantaneous measurements
 Standard deviation of last 168 hourly instantaneous measurements
 
 ### `Num_Resp_Eqs`
+
 ~~~
   int32 Num_Resp_Eqs;
 ~~~
@@ -192,5 +213,6 @@ Total number of equations the response can contain
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 
