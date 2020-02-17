@@ -1,11 +1,15 @@
 [[/Global/Mainloop_state]] -- Main sync loop state flag
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set mainloop_state=INIT
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D mainloop_state=INIT
 bash$ gridlabd --define mainloop_state=INIT

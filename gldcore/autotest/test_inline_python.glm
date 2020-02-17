@@ -1,0 +1,3 @@
+#begin python
+gridlabd.output(str(gridlabd.version()))
+#end

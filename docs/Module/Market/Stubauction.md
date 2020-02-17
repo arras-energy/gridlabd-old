@@ -1,7 +1,9 @@
 [[/Module/Market/Stubauction]] -- Class stubauction
 
 # Synopsis
+
 GLM:
+
 ~~~
   object stubauction {
     unit "<string>";
@@ -29,6 +31,7 @@ TODO
 ## Properties
 
 ### `unit`
+
 ~~~
   char32 unit;
 ~~~
@@ -36,6 +39,7 @@ TODO
 Unit of quantity
 
 ### `period`
+
 ~~~
   double period[s];
 ~~~
@@ -43,6 +47,7 @@ Unit of quantity
 Interval of time between market clearings
 
 ### `last.P`
+
 ~~~
   double last.P;
 ~~~
@@ -50,6 +55,7 @@ Interval of time between market clearings
 Last cleared price
 
 ### `current_market.clearing_price`
+
 ~~~
   double current_market.clearing_price;
 ~~~
@@ -57,6 +63,7 @@ Last cleared price
 Next cleared price
 
 ### `past_market.clearing_price`
+
 ~~~
   double past_market.clearing_price;
 ~~~
@@ -64,6 +71,7 @@ Next cleared price
 Last cleared price
 
 ### `next.P`
+
 ~~~
   double next.P;
 ~~~
@@ -71,6 +79,7 @@ Last cleared price
 Next cleared price
 
 ### `avg24`
+
 ~~~
   double avg24;
 ~~~
@@ -78,6 +87,7 @@ Next cleared price
 Daily average of price
 
 ### `std24`
+
 ~~~
   double std24;
 ~~~
@@ -85,6 +95,7 @@ Daily average of price
 Daily stdev of price
 
 ### `avg72`
+
 ~~~
   double avg72;
 ~~~
@@ -92,6 +103,7 @@ Daily stdev of price
 Three day price average
 
 ### `std72`
+
 ~~~
   double std72;
 ~~~
@@ -99,6 +111,7 @@ Three day price average
 Three day price stdev
 
 ### `avg168`
+
 ~~~
   double avg168;
 ~~~
@@ -106,6 +119,7 @@ Three day price stdev
 Weekly average of price
 
 ### `std168`
+
 ~~~
   double std168;
 ~~~
@@ -113,6 +127,7 @@ Weekly average of price
 Weekly stdev of price
 
 ### `market_id`
+
 ~~~
   int64 market_id;
 ~~~
@@ -120,6 +135,7 @@ Weekly stdev of price
 Unique identifier of market clearing
 
 ### `verbose`
+
 ~~~
   bool verbose;
 ~~~
@@ -127,6 +143,7 @@ Unique identifier of market clearing
 Enable verbose stubauction operations
 
 ### `control_mode`
+
 ~~~
   enumeration {DISABLED, NORMAL} control_mode;
 ~~~
@@ -156,5 +173,6 @@ The control mode to use for determining average and deviation calculations
 ~~~
 
 # See also
+
 * [[/Module/Market]]
 

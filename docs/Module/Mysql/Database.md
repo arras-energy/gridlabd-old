@@ -1,6 +1,7 @@
-[[/Module/Mysql/Database]] - MySQL database connection
+[[/Module/Mysql/Database]] -- MySQL database connection
 
 # Synopsis 
+
 ~~~
 module mysql;
 object database {
@@ -27,6 +28,7 @@ At least one database object must defined for recorder, player, and collector ob
 # Properties
 
 ## `hostname`
+
 ~~~
   char256 hostname;
 ~~~
@@ -34,6 +36,7 @@ At least one database object must defined for recorder, player, and collector ob
 Specifies the MySQL server hostname.  If not specified, the object uses the hostname provided in the MySLQ module global `hostname`, which is by default `127.0.0.1` or `localhost`. Note that using `localhost` will default to using a socket connection, whereas using `127.0.0.1` will default to using a TCP/IP connection.
 
 ## `username`
+
 ~~~
    char32 username;
 ~~~
@@ -41,6 +44,7 @@ Specifies the MySQL server hostname.  If not specified, the object uses the host
 Specifies the MySQL username.  If not specified, this is the value provided in the MySLQ module global `username`, which is by default `gridlabd`.
 
 ## `password`
+
 ~~~
   char32 password;
 ~~~
@@ -48,6 +52,7 @@ Specifies the MySQL username.  If not specified, this is the value provided in t
 Specifies the MySQL password.  If not specified, this is the value provided in the MySQL module global `password`, which is by default an empty string (i.e., no password needed).
 
 ## `schema`
+
 ~~~
   char256 schema;
 ~~~
@@ -55,6 +60,7 @@ Specifies the MySQL password.  If not specified, this is the value provided in t
 Specifies the database schema to use.  If none is specified, the value specified in the MySQL module global `schema` is used, which is by default `gridlabd`.  If a blank schema name is specified, the modelname is used.  The schema will be automatically created if it does not exist unless the `NOCREATE` option is specified.
 
 ## `port`
+
 ~~~
   int32 port;
 ~~~
@@ -62,6 +68,7 @@ Specifies the database schema to use.  If none is specified, the value specified
 Specifies the port used to access the MySQL server. If not specified, the value specified in the MySQL module global `port` is used, which is by default `6266`.
 
 ## `socketname`
+
 ~~~
   char1024 socketname;
 ~~~
@@ -69,6 +76,7 @@ Specifies the port used to access the MySQL server. If not specified, the value 
 Specifies the socketname used to access the MySQL server. If none specified, the value specified in the MySQL module global `socketname` is used, which is by default `/tmp/mysql.sock`.
 
 ## `clientflags`
+
 ~~~
   set {COMPRESS,FOUND_ROWS,IGNORE_SIGPIPE,INTERACTIVE,LOCAL_FILES,MULTI_RESULTS,MULTI_STATEMENTS,NO_SCHEMA,ODBC,SSL,REMEMBER_OPTIONS} clientflags;
 ~~~
@@ -120,6 +128,7 @@ Use SSL (encrypted protocol). Do not set this option within an application progr
 Remember options specified by calls to mysql_options(). Without this option, if `mysql_real_connect()` fails, you must repeat the `mysql_options()` calls before trying to connect again. With this option, the `mysql_options()` calls need not be repeated.
 
 ## `options`
+
 ~~~
   set {SHOWQUERY,NOCREATE,NEWDB,OVERWRITE} options;
 ~~~
@@ -147,6 +156,7 @@ Enable deletion of existing data when an object initializes for output to a tabl
 **CAUTION**: this may cause loss of data.
 
 ## `on_init`
+
 ~~~
   char1024 on_init;
 ~~~
@@ -154,6 +164,7 @@ Enable deletion of existing data when an object initializes for output to a tabl
 Specifies the MySQL script to execute when the database object is initialized.  Scripts support all valid MySQL commands, as well as the DUMP and BACKUP commands.
 
 ## `on_sync`
+
 ~~~
   char1024 on_sync;
 ~~~
@@ -161,6 +172,7 @@ Specifies the MySQL script to execute when the database object is initialized.  
 Specifies the MySQL script to execute when the database object is synchronized.  Scripts support all valid MySQL commands, as well as the DUMP and BACKUP commands.
 
 ## `on_term`
+
 ~~~
   char1024 on_term;
 ~~~
@@ -168,6 +180,7 @@ Specifies the MySQL script to execute when the database object is synchronized. 
 Specifies the MySQL script to execute when the database object is termination.  Scripts support all valid MySQL commands, as well as the DUMP and BACKUP commands.
 
 ## `sync_interval`
+
 ~~~
   double sync_interval[s];
 ~~~
@@ -175,6 +188,7 @@ Specifies the MySQL script to execute when the database object is termination.  
 Specifies the interval between database object synchronization events.
 
 ## `tz_offset`
+
 ~~~
   int32 tz_offset;
 ~~~
@@ -182,6 +196,7 @@ Specifies the interval between database object synchronization events.
 Specifies the number of seconds offset between database times and object timestamps.
 
 ## `uses_dst`
+
 ~~~
   bool use_date;
 ~~~

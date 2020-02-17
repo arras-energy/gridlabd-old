@@ -1,7 +1,9 @@
 [[/Module/Generators/Controller_dg]] -- Class controller_dg
 
 # Synopsis
+
 GLM:
+
 ~~~
   object controller_dg {
     groupid_dg "<string>";
@@ -21,6 +23,7 @@ TODO
 ## Properties
 
 ### `groupid_dg`
+
 ~~~
   char32 groupid_dg;
 ~~~
@@ -28,6 +31,7 @@ TODO
 The group ID of the dg objects the controller controls.
 
 ### `ki`
+
 ~~~
   double ki;
 ~~~
@@ -35,6 +39,7 @@ The group ID of the dg objects the controller controls.
 Parameter of the propotional control
 
 ### `kp`
+
 ~~~
   double kp;
 ~~~
@@ -42,6 +47,7 @@ Parameter of the propotional control
 Parameter of the integral control
 
 ### `gain`
+
 ~~~
   double gain;
 ~~~
@@ -49,6 +55,7 @@ Parameter of the integral control
 Gain of the controller
 
 ### `ki_QV`
+
 ~~~
   double ki_QV;
 ~~~
@@ -56,6 +63,7 @@ Gain of the controller
 Parameter of the propotional control for secondary voltage control
 
 ### `kp_QV`
+
 ~~~
   double kp_QV;
 ~~~
@@ -63,6 +71,7 @@ Parameter of the propotional control for secondary voltage control
 Parameter of the integral control for secondary voltage control
 
 ### `gain_QV`
+
 ~~~
   double gain_QV;
 ~~~
@@ -84,5 +93,6 @@ Gain of the controller for secondary voltage control
 ~~~
 
 # See also
+
 * [[/Module/Generators]]
 

@@ -1,11 +1,15 @@
 [[/Global/Deltamode_timestep]] -- Uniform step size for deltamode simulations
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set deltamode_timestep=10000000
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D deltamode_timestep=10000000
 bash$ gridlabd --define deltamode_timestep=10000000

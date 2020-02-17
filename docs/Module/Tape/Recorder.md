@@ -1,7 +1,9 @@
 [[/Module/Tape/Recorder]] -- Class recorder
 
 # Synopsis
+
 GLM:
+
 ~~~
   object recorder {
     trigger "<string>";
@@ -31,6 +33,7 @@ TODO
 ## Properties
 
 ### `trigger`
+
 ~~~
   char32 trigger;
 ~~~
@@ -38,6 +41,7 @@ TODO
 TODO
 
 ### `file`
+
 ~~~
   char1024 file;
 ~~~
@@ -45,6 +49,7 @@ TODO
 TODO
 
 ### `filetype`
+
 ~~~
   char8 filetype;
 ~~~
@@ -52,6 +57,7 @@ TODO
 TODO
 
 ### `mode`
+
 ~~~
   char32 mode;
 ~~~
@@ -59,6 +65,7 @@ TODO
 TODO
 
 ### `multifile`
+
 ~~~
   char1024 multifile;
 ~~~
@@ -66,6 +73,7 @@ TODO
 TODO
 
 ### `limit`
+
 ~~~
   int32 limit;
 ~~~
@@ -73,6 +81,7 @@ TODO
 TODO
 
 ### `plotcommands`
+
 ~~~
   char1024 plotcommands;
 ~~~
@@ -80,6 +89,7 @@ TODO
 TODO
 
 ### `xdata`
+
 ~~~
   char32 xdata;
 ~~~
@@ -87,6 +97,7 @@ TODO
 TODO
 
 ### `columns`
+
 ~~~
   char32 columns;
 ~~~
@@ -94,6 +105,7 @@ TODO
 TODO
 
 ### `flush`
+
 ~~~
   int32 flush;
 ~~~
@@ -101,6 +113,7 @@ TODO
 TODO
 
 ### `format`
+
 ~~~
   bool format;
 ~~~
@@ -108,6 +121,7 @@ TODO
 TODO
 
 ### `interval`
+
 ~~~
   double interval[s];
 ~~~
@@ -115,6 +129,7 @@ TODO
 TODO
 
 ### `strftime_format`
+
 ~~~
   char256 strftime_format;
 ~~~
@@ -122,6 +137,7 @@ TODO
 TODO
 
 ### `property`
+
 ~~~
   method property;
 ~~~
@@ -129,6 +145,7 @@ TODO
 TODO
 
 ### `output`
+
 ~~~
   enumeration {SVG, PNG, PDF, JPG, GIF, EPS, SCREEN} output;
 ~~~
@@ -136,6 +153,7 @@ TODO
 TODO
 
 ### `header_units`
+
 ~~~
   enumeration {NONE, ALL, DEFAULT} header_units;
 ~~~
@@ -143,6 +161,7 @@ TODO
 TODO
 
 ### `line_units`
+
 ~~~
   enumeration {NONE, ALL, DEFAULT} line_units;
 ~~~
@@ -173,5 +192,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Tape]]
 
