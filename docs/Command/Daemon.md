@@ -26,32 +26,36 @@ The valid daemon command options are:
 If the daemon configuration file is found at `/usr/local/etc/gridlabd.cnf` or where specified by the `-f` option, then it is loaded and used to configure the daemon. (Note that this applies also to the `--remote` option.)
 
 The format of the entries in the configuration file must be
+
 ~~~
-  name=value
+name=value
 ~~~
+
 where `name` is the name of the parameter and `value` is the value you wish to give it.
 
 Valid parameter names and their defaults are as follows
+
 ~~~
-  # default gridlabd daemon configuration
-  log=/usr/local/var/gridlabd-log
-  pid=/usr/local/var/gridlabd-pid
-  workdir=/
-  user=
-  output=
-  verbose=
-  error=
-  warning=
-  debug=
-  profile=
-  progress=
-  maxbacklog=4
-  clientmask=0.0.0.0
-  port=6266
-  umask=0
-  keepalive=1
-  timeout=10
+# default gridlabd daemon configuration
+log=/usr/local/var/gridlabd-log
+pid=/usr/local/var/gridlabd-pid
+workdir=/
+user=
+output=
+verbose=
+error=
+warning=
+debug=
+profile=
+progress=
+maxbacklog=4
+clientmask=0.0.0.0
+port=6266
+umask=0
+keepalive=1
+timeout=10
 ~~~
+
 The names are defined as follows
 
 * `log`: the location of the log file
@@ -76,9 +80,11 @@ The names are defined as follows
 ## Log
 
 The daemon generates a log to record all activity. By default the log is created in `/usr/local/var/gridlabd-log`, but this can be changed using the configuration file (see the `-f` option).  Log entries are formatted as follows:
+
 ~~~
- [pid@time] message
+[pid@time] message
 ~~~
+
 where `pid` is the process id that generated the entry, `time` is the time at which the entry was generated, and `message` is the log entry.
 
 Normally the content of the log file is purged when a new copy of the daemon starts.  If the log file name begins with a `+` character, the old content is preserved and new entries are appended.  The `+` is not included in the log file name when the file is opened by the daemon.
@@ -90,28 +96,33 @@ The process of the primary daemon is saved in `/usr/local/var/gridlabd-pid` whil
 # Examples
 
 To start the daemon
+
 ~~~
-  localhost% gridlabd --daemon start
+bash$ gridlabd --daemon start
 ~~~
 
 To stop the daemon
+
 ~~~
-  localhost% gridlabd --daemon stop
+bash$ gridlabd --daemon stop
 ~~~
 
 To restart the daemon
+
 ~~~
-  localhost% gridlabd --daemon restart
+bash$ gridlabd --daemon restart
 ~~~
 
 To get the daemon status
+
 ~~~
-  localhost% gridlabd --daemon status
+bash$ gridlabd --daemon status
 ~~~
 
 To start the daemon using a local configuration file
+
 ~~~
-  localhost% gridlabd --daemon start -f gridlabd.cnf
+bash$ gridlabd --daemon start -f gridlabd.cnf
 ~~~
 
 # See also

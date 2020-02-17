@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Powerflow_object]] -- Class powerflow_object
 
 # Synopsis
+
 GLM:
+
 ~~~
   object powerflow_object {
     phases "[ABCDNSG]";
@@ -17,6 +19,7 @@ TODO
 ## Properties
 
 ### `phases`
+
 ~~~
   set {A, B, C, D, N, S, G} phases;
 ~~~
@@ -24,6 +27,7 @@ TODO
 TODO
 
 ### `nominal_voltage`
+
 ~~~
   double nominal_voltage[V];
 ~~~
@@ -31,6 +35,7 @@ TODO
 TODO
 
 ### `supernode_name`
+
 ~~~
   char1024 supernode_name;
 ~~~
@@ -48,5 +53,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

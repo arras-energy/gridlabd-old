@@ -2806,6 +2806,13 @@ STATUS GldExec::exec_start(void)
 			if(sync_get(NULL) != global_clock){
 				clock_update_modules();
 			}
+
+			// initialize only stops here
+			if ( global_initializeonly )
+			{
+				break;
+			}
+
 		} // end of while loop
 
 		/* disable signal handler */
@@ -2817,7 +2824,6 @@ STATUS GldExec::exec_start(void)
 			char buffer[64];
 			IN_MYCONTEXT output_verbose("simulation at steady state at %s", convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"invalid time");
 		}
-
 	}
 	catch (const char *msg)
 	{
