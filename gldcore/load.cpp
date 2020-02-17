@@ -6722,6 +6722,46 @@ static const char *for_replay()
 	}
 }
 
+static LANGUAGE builtin_languages[] = {
+	{"python",python_parser,NULL},
+};
+static LANGUAGE *language_list = builtin_languages;
+static LANGUAGE *language = NULL;
+void load_add_language(const char *name, bool (*parser)(const char*))
+{
+	LANGUAGE *item = new LANGUAGE;
+	item->name = strdup(name);
+	item->parser = parser;
+	item->next = language_list;
+	language_list = item;
+}
+static int set_language(const char *name)
+{
+	if ( name == NULL )
+	{
+		if ( language == NULL )
+		{
+			output_error_raw("%s(%d): no language set", filename, linenum);
+			return FALSE;
+		}
+		language = NULL;
+		return TRUE;
+	}
+	for ( language = language_list ; language != NULL ; language = language->next  )
+	{
+		if ( strcmp(language->name,name) == 0 )
+		{
+			return TRUE;
+		}
+	}
+	output_error_raw("%s(%d): language '%s' not recognized", filename, linenum, name);
+	return FALSE;
+}
+static const LANGUAGE *get_language(void)
+{
+	return language;
+}
+
 static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[0x4000];
@@ -6787,7 +6827,9 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* expand macros */
-		if ( strncmp(line,MACRO,strlen(MACRO)) == 0 )
+		const char *m = line;
+		while ( isspace(*m) ) m++;
+		if ( get_language() || strncmp(m,MACRO,strlen(MACRO)) == 0 )
 		{
 			/* macro disables reading */
 			if ( process_macro(line,sizeof(line),filename,linenum + _linenum - 1) == FALSE )
@@ -7123,10 +7165,29 @@ char *strsep(char **from, const char *delim) {
 /** @return TRUE/SUCCESS for a successful macro read, FALSE/FAILED on parse error (which halts the loader) */
 static int process_macro(char *line, int size, char *_filename, int linenum)
 {
-#ifndef WIN32
-	char *var, *val, *save;	// used by *nix
-#endif
+	char *var, *val, *save;
 	char buffer[64];
+	if ( get_language() )
+	{
+		const char *m = line;
+		while ( isspace(*m) ) m++;
+		int status;
+		if ( strncmp(m,MACRO "end",4) == 0 )
+		{
+			status = language->parser(NULL);
+			set_language(NULL);
+		}
+		else
+		{
+			status = language->parser(line);
+		}
+		if ( status == true )
+		{
+			strcpy(line,"\n");
+		}
+		return status;
+	}
+	while ( isspace(*line) ) line++; // trim
 	if (strncmp(line,MACRO "endif",6)==0)
 	{
 		if (nesting>0)
@@ -7766,12 +7827,12 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		char cmd[1024];
 		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
 		{
-			output_error_raw("%s(%d): on_exit syntax error", filename,linenum);
+			output_error_raw("%s(%d): " MACRO "on_exit syntax error", filename,linenum);
 			return FALSE;
 		}
 		else if ( ! my_instance->add_on_exit(xc,cmd) )
 		{
-			output_error_raw("%s(%d): on_exit %d command '%s'", filename,linenum,xc,cmd);
+			output_error_raw("%s(%d): " MACRO "on_exit %d command '%s' failed", filename,linenum,xc,cmd);
 			return FALSE;
 		}
 		else
@@ -7780,7 +7841,18 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if ( strncmp(line, MACRO "for",3) == 0 )
+	else if ( strncmp(line, MACRO "begin",6) == 0 )
+	{
+		char name[256];
+		if ( sscanf(line+7,"%s",name) == 0 )
+		{
+			output_error_raw("%s(%d): " MACRO "begin macro missing language term", filename, linenum);
+			return FALSE;
+		}
+		strcpy(line,"\n");
+		return set_language(name);
+	}
+	else if ( strncmp(line, MACRO "for",4) == 0 )
 	{
 		char var[64], range[1024];
 		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
@@ -7791,8 +7863,16 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		else
 		{
 			output_error_raw("%s(%d): for macro syntax error", filename, linenum);
-			return false;
+			return FALSE;
 		}
+	}
+	char cmd[1024];
+	sprintf(cmd,"%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
+	int rc = system(cmd);
+	if ( rc != 127 )
+	{
+		strcpy(line,"\n");
+		return rc==0;
 	}
 	else
 	{
@@ -7806,7 +7886,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 				break;
 			}
 		}
-		output_error_raw("%s(%d): macro command '%s' is not recognized", filename,linenum,tmp);
+		output_error_raw("%s(%d): %s macro is not recognized", filename,linenum,tmp);
 		strcpy(line,"\n");
 		return FALSE;
 	}
@@ -8081,129 +8161,154 @@ STATUS load_python(const char *filename)
  **/
 STATUS loadall(const char *fname)
 {
-	/* if nothing requested only config files are loaded */
-	if ( fname == NULL )
-		return SUCCESS;
-
-	char file[1024] = "";
-	if ( fname )
+	try 
 	{
-		strcpy(file,fname);
-	}
-	char *ext = fname ? strrchr(file,'.') : NULL ;
+		/* if nothing requested only config files are loaded */
+		if ( fname == NULL )
+			return SUCCESS;
 
-	// python script
+		char file[1024] = "";
+		if ( fname )
+		{
+			strcpy(file,fname);
+		}
+		char *ext = fname ? strrchr(file,'.') : NULL ;
 
-	if ( ext != NULL && strcmp(ext,".py") == 0 )
-	{
-		return load_python(fname);
-	}
-	// non-glm data file
-	if ( ext != NULL && strcmp(ext,".glm") != 0 )
-	{
-		return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
-	}
-	unsigned int old_obj_count = object_get_count();
-	char conf[1024];
-	static int loaded_files = 0;
-	STATUS load_status = FAILED;
+		// python script
 
-	if ( !inline_code_init() ) return FAILED;
+		if ( ext != NULL && strcmp(ext,".py") == 0 )
+		{
+			return load_python(fname);
+		}
+		// non-glm data file
+		if ( ext != NULL && strcmp(ext,".glm") != 0 )
+		{
+			return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
+		}
+		unsigned int old_obj_count = object_get_count();
+		char conf[1024];
+		static int loaded_files = 0;
+		STATUS load_status = FAILED;
 
-	if(old_obj_count > 1 && global_forbid_multiload){
-		output_error("loadall: only one file load is supported at this time.");
-		return FAILED; /* not what they expected--do not proceed */
-	}
+		if ( !inline_code_init() ) return FAILED;
 
-	/* first time only */
-	if (loaded_files==0)
-	{
-		/* load the gridlabd.conf file */
-		if (find_file("gridlabd.conf",NULL,R_OK,conf,sizeof(conf))==NULL)
-			output_warning("gridlabd.conf was not found");
-			/* TROUBLESHOOT
-				The <code>gridlabd.conf</code> was not found in the <b>GLPATH</b> environment path.
-				This file is always loaded before a GLM file is loaded.
-				Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
-			 */
-		else{
-			strcpy(filename, "gridlabd.conf");
-			if(loadall_glm_roll(conf)==FAILED){
+		if ( old_obj_count > 1 && global_forbid_multiload )
+		{
+			output_error("loadall: only one file load is supported at this time.");
+			return FAILED; /* not what they expected--do not proceed */
+		}
+
+		/* first time only */
+		if ( loaded_files == 0 ) 
+		{
+			/* load the gridlabd.conf file */
+			if (find_file("gridlabd.conf",NULL,R_OK,conf,sizeof(conf))==NULL)
+			{
+				output_warning("gridlabd.conf was not found");
+				/* TROUBLESHOOT
+					The <code>gridlabd.conf</code> was not found in the <b>GLPATH</b> environment path.
+					This file is always loaded before a GLM file is loaded.
+					Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
+				 */
+			}
+			else
+			{
+				strcpy(filename, "gridlabd.conf");
+				if ( loadall_glm_roll(conf)==FAILED )
+				{
+					return FAILED;
+				}
+			}
+
+			/* load the debugger.conf file */
+			if (global_debug_mode)
+			{
+				char dbg[1024];
+				
+				if (find_file("debugger.conf",NULL,R_OK,dbg,sizeof(dbg))==NULL)
+				{
+					output_warning("debugger.conf was not found");
+					/* TROUBLESHOOT
+						The <code>debugger.conf</code> was not found in the <b>GLPATH</b> environment path.
+						This file is loaded when the debugger is enabled.
+						Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
+					 */
+				}
+				else if (loadall_glm_roll(dbg)==FAILED)
+				{
+					return FAILED;
+				}
+			}
+		}
+
+		/* handle default extension */
+		strcpy(filename,file);
+		if (ext==NULL || ext<file+strlen(file)-5)
+		{
+			ext = filename+strlen(filename);
+			strcat(filename,".glm");
+		}
+
+		/* load the appropriate type of file */
+		if (global_streaming_io_enabled || (ext!=NULL && isdigit(ext[1])) )
+		{
+			FILE *fp = fopen(file,"rb");
+			if (fp==NULL || stream(fp,SF_IN)<0)
+			{
+				output_error("%s: unable to read stream", file);
+				return FAILED;
+			}
+			else
+			{
+				load_status = SUCCESS;
+			}
+		}
+		else if (ext==NULL || strcmp(ext, ".glm")==0)
+		{
+			load_status = loadall_glm_roll(filename);
+		}
+#ifdef HAVE_XERCES
+		else if(strcmp(ext, ".xml")==0)
+		{
+			load_status = loadall_xml(filename);
+		}
+#endif
+		else
+		{
+			output_error("%s: unable to load unknown file type", filename, ext);
+		}
+
+		/* objects should not be started until all deferred schedules are done */
+		if ( global_threadcount>1 )
+		{
+			if ( schedule_createwait()==FAILED )
+			{
+				output_error_raw("%s(%d): load failed on schedule error", filename, linenum);
 				return FAILED;
 			}
 		}
 
-		/* load the debugger.conf file */
-		if (global_debug_mode)
-		{
-			char dbg[1024];
-			
-			if (find_file("debugger.conf",NULL,R_OK,dbg,sizeof(dbg))==NULL)
-				output_warning("debugger.conf was not found");
-				/* TROUBLESHOOT
-					The <code>debugger.conf</code> was not found in the <b>GLPATH</b> environment path.
-					This file is loaded when the debugger is enabled.
-					Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
-				 */
-			else if (loadall_glm_roll(dbg)==FAILED)
-				return FAILED;
-		}
-	}
+		/* handle new objects */
+	//	new_obj_count = object_get_count();
+	//	if((load_status == FAILED) && (old_obj_count < new_obj_count)){
+	//		for(i = old_obj_count+1; i <= new_obj_count; ++i){
+	//			object_remove_by_id(i);
+	//		}
+	//	}
 
-	/* handle default extension */
-	strcpy(filename,file);
-	if (ext==NULL || ext<file+strlen(file)-5)
+		calculate_trl();
+
+		/* destroy inline code buffers */
+		inline_code_term();
+
+		loaded_files++;
+		return load_status;
+	}
+	catch (const char *message)
 	{
-		ext = filename+strlen(filename);
-		strcat(filename,".glm");
+		output_error_raw("%s(%d): %s",filename,linenum,message);
+		return FAILED;
 	}
-
-	/* load the appropriate type of file */
-	if (global_streaming_io_enabled || (ext!=NULL && isdigit(ext[1])) )
-	{
-		FILE *fp = fopen(file,"rb");
-		if (fp==NULL || stream(fp,SF_IN)<0)
-		{
-			output_error("%s: unable to read stream", file);
-			return FAILED;
-		}
-		else
-			load_status = SUCCESS;
-	}
-	else if (ext==NULL || strcmp(ext, ".glm")==0)
-		load_status = loadall_glm_roll(filename);
-#ifdef HAVE_XERCES
-	else if(strcmp(ext, ".xml")==0)
-		load_status = loadall_xml(filename);
-#endif
-	else
-		output_error("%s: unable to load unknown file type", filename, ext);
-
-	/* objects should not be started until all deferred schedules are done */
-	if ( global_threadcount>1 )
-	{
-		if ( schedule_createwait()==FAILED )
-		{
-			output_error_raw("%s(%d): load failed on schedule error", filename, linenum);
-			return FAILED;
-		}
-	}
-
-	/* handle new objects */
-//	new_obj_count = object_get_count();
-//	if((load_status == FAILED) && (old_obj_count < new_obj_count)){
-//		for(i = old_obj_count+1; i <= new_obj_count; ++i){
-//			object_remove_by_id(i);
-//		}
-//	}
-
-	calculate_trl();
-
-	/* destroy inline code buffers */
-	inline_code_term();
-
-	loaded_files++;
-	return load_status;
 }
 
 /** @} */

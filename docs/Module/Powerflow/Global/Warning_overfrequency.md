@@ -1,11 +1,15 @@
 [[/Module/Powerflow/Global/Warning_overfrequency]] -- Module powerflow global variable warning_overfrequency
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define warning_overfrequency=<value>
+bash$ gridlabd -D|--define warning_overfrequency=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set warning_overfrequency=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Powerflow]]

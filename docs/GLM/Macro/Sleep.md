@@ -1,7 +1,9 @@
 [[/Glm/Macro/Sleep]] -- Macro to sleep the GLM load for 
 
 # Synopsis
+
 GLM:
+
 ~~~
 #sleep <milliseconds>
 ~~~
@@ -13,6 +15,7 @@ The `#sleep` macro causes the GLM loader to pause for `<milliseconds>`.
 # Examples
 
 The following pauses the loader for 1 second.
+
 ~~~
 #sleep 1000
 ~~~

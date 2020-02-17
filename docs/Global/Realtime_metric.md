@@ -1,7 +1,9 @@
-[[Realtime_metric]] -- Metric to measure the performance of the realtime simulation
+[[/Realtime_metric]] -- Metric to measure the performance of the realtime simulation
 
 # Synopsis
+
 GLM:
+
 ~~~
 #print ${realtime_metric}
 ~~~

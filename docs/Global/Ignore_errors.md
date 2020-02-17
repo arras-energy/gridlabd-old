@@ -1,13 +1,16 @@
-[[Global/Ignore_errors]] - Global variable that controls whether errors cause immediate exit
+[[/Global/Ignore_errors]] -- Global variable that controls whether errors cause immediate exit
 
 # Synopsis
 
 Shell:
+
 ~~~
-  bash$ gridlabd -D ignore_errors=[FALSE|TRUE] ...
-  bash$ gridlabd --define ignore_errors=[FALSE|TRUE] ...
+bash$ gridlabd -D ignore_errors=[FALSE|TRUE] ...
+bash$ gridlabd --define ignore_errors=[FALSE|TRUE] ...
 ~~~
+
 GLM:
+
 ~~~
   #set ignore_errors=[FALSE|TRUE]  
 ~~~

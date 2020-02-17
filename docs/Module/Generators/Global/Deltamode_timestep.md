@@ -1,11 +1,15 @@
 [[/Module/Generators/Global/Deltamode_Timestep]] -- Module generators global variable deltamode_timestep
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define deltamode_timestep=<value>
+bash$ gridlabd -D|--define deltamode_timestep=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set deltamode_timestep=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Generators]]

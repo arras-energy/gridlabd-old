@@ -1,3 +1,4 @@
+#set literal_if=FALSE
 #define TEST=yes
 
 #if TEST!=yes 

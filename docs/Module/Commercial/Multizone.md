@@ -1,7 +1,9 @@
 [[/Module/Commercial/Multizone]] -- Class multizone
 
 # Synopsis
+
 GLM:
+
 ~~~
   object multizone {
     from "<string>";
@@ -17,6 +19,7 @@ TODO
 ## Properties
 
 ### `from`
+
 ~~~
   object from;
 ~~~
@@ -24,6 +27,7 @@ TODO
 TODO
 
 ### `to`
+
 ~~~
   object to;
 ~~~
@@ -31,6 +35,7 @@ TODO
 TODO
 
 ### `ua`
+
 ~~~
   double ua;
 ~~~
@@ -46,5 +51,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Commercial]]
 

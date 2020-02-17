@@ -1,7 +1,9 @@
 [[/Module/Tape/Shaper]] -- Class shaper
 
 # Synopsis
+
 GLM:
+
 ~~~
   object shaper {
     file "<string>";
@@ -21,6 +23,7 @@ TODO
 ## Properties
 
 ### `file`
+
 ~~~
   char1024 file;
 ~~~
@@ -28,6 +31,7 @@ TODO
 TODO
 
 ### `filetype`
+
 ~~~
   char8 filetype;
 ~~~
@@ -35,6 +39,7 @@ TODO
 TODO
 
 ### `mode`
+
 ~~~
   char32 mode;
 ~~~
@@ -42,6 +47,7 @@ TODO
 TODO
 
 ### `group`
+
 ~~~
   char256 group;
 ~~~
@@ -49,6 +55,7 @@ TODO
 TODO
 
 ### `property`
+
 ~~~
   char256 property;
 ~~~
@@ -56,6 +63,7 @@ TODO
 TODO
 
 ### `magnitude`
+
 ~~~
   double magnitude;
 ~~~
@@ -63,6 +71,7 @@ TODO
 TODO
 
 ### `events`
+
 ~~~
   double events;
 ~~~
@@ -84,5 +93,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Tape]]
 

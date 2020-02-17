@@ -1,7 +1,9 @@
 [[/Module/Market/Controller]] -- Class controller
 
 # Synopsis
+
 GLM:
+
 ~~~
   object controller {
     simple_mode "{DOUBLE_RAMP,WATERHEATER,HOUSE_PRECOOL,HOUSE_PREHEAT,HOUSE_COOL,HOUSE_HEAT,NONE}";
@@ -102,6 +104,7 @@ TODO
 ## Properties
 
 ### `simple_mode`
+
 ~~~
   enumeration {DOUBLE_RAMP, WATERHEATER, HOUSE_PRECOOL, HOUSE_PREHEAT, HOUSE_COOL, HOUSE_HEAT, NONE} simple_mode;
 ~~~
@@ -109,6 +112,7 @@ TODO
 TODO
 
 ### `bid_mode`
+
 ~~~
   enumeration {PROXY, OFF, ON} bid_mode;
 ~~~
@@ -116,6 +120,7 @@ TODO
 TODO
 
 ### `use_override`
+
 ~~~
   enumeration {ON, OFF} use_override;
 ~~~
@@ -123,6 +128,7 @@ TODO
 TODO
 
 ### `ramp_low`
+
 ~~~
   double ramp_low[degF];
 ~~~
@@ -130,6 +136,7 @@ TODO
 The comfort response below the setpoint
 
 ### `ramp_high`
+
 ~~~
   double ramp_high[degF];
 ~~~
@@ -137,6 +144,7 @@ The comfort response below the setpoint
 The comfort response above the setpoint
 
 ### `range_low`
+
 ~~~
   double range_low;
 ~~~
@@ -144,6 +152,7 @@ The comfort response above the setpoint
 The setpoint limit on the low side
 
 ### `range_high`
+
 ~~~
   double range_high;
 ~~~
@@ -151,6 +160,7 @@ The setpoint limit on the low side
 The setpoint limit on the high side
 
 ### `target`
+
 ~~~
   char32 target;
 ~~~
@@ -158,6 +168,7 @@ The setpoint limit on the high side
 The observed property (e.g., air temperature)
 
 ### `setpoint`
+
 ~~~
   char32 setpoint;
 ~~~
@@ -165,6 +176,7 @@ The observed property (e.g., air temperature)
 The controlled property (e.g., heating setpoint)
 
 ### `demand`
+
 ~~~
   char32 demand;
 ~~~
@@ -172,6 +184,7 @@ The controlled property (e.g., heating setpoint)
 The controlled load when on
 
 ### `load`
+
 ~~~
   char32 load;
 ~~~
@@ -179,6 +192,7 @@ The controlled load when on
 The current controlled load
 
 ### `total`
+
 ~~~
   char32 total;
 ~~~
@@ -186,6 +200,7 @@ The current controlled load
 The uncontrolled load (if any)
 
 ### `market`
+
 ~~~
   char32 market;
 ~~~
@@ -193,6 +208,7 @@ The uncontrolled load (if any)
 The market to bid into
 
 ### `state`
+
 ~~~
   char32 state;
 ~~~
@@ -200,6 +216,7 @@ The market to bid into
 The state property of the controlled load
 
 ### `avg_target`
+
 ~~~
   char32 avg_target;
 ~~~
@@ -207,6 +224,7 @@ The state property of the controlled load
 TODO
 
 ### `std_target`
+
 ~~~
   char32 std_target;
 ~~~
@@ -214,6 +232,7 @@ TODO
 TODO
 
 ### `bid_price`
+
 ~~~
   double bid_price;
 ~~~
@@ -221,6 +240,7 @@ TODO
 The bid price
 
 ### `bid_quantity`
+
 ~~~
   double bid_quantity;
 ~~~
@@ -228,6 +248,7 @@ The bid price
 The bid quantity
 
 ### `set_temp`
+
 ~~~
   double set_temp[degF];
 ~~~
@@ -235,6 +256,7 @@ The bid quantity
 The reset value
 
 ### `base_setpoint`
+
 ~~~
   double base_setpoint[degF];
 ~~~
@@ -242,6 +264,7 @@ The reset value
 TODO
 
 ### `market_price`
+
 ~~~
   double market_price;
 ~~~
@@ -249,6 +272,7 @@ TODO
 The current market clearing price seen by the controller.
 
 ### `period`
+
 ~~~
   double period[s];
 ~~~
@@ -256,6 +280,7 @@ The current market clearing price seen by the controller.
 Interval of time between market clearings
 
 ### `control_mode`
+
 ~~~
   enumeration {DEV_LEVEL, DOUBLE_RAMP, RAMP} control_mode;
 ~~~
@@ -263,6 +288,7 @@ Interval of time between market clearings
 TODO
 
 ### `resolve_mode`
+
 ~~~
   enumeration {SLIDING, DEADBAND} resolve_mode;
 ~~~
@@ -270,6 +296,7 @@ TODO
 TODO
 
 ### `slider_setting`
+
 ~~~
   double slider_setting;
 ~~~
@@ -277,6 +304,7 @@ TODO
 TODO
 
 ### `slider_setting_heat`
+
 ~~~
   double slider_setting_heat;
 ~~~
@@ -284,6 +312,7 @@ TODO
 TODO
 
 ### `slider_setting_cool`
+
 ~~~
   double slider_setting_cool;
 ~~~
@@ -291,6 +320,7 @@ TODO
 TODO
 
 ### `override`
+
 ~~~
   char32 override;
 ~~~
@@ -298,6 +328,7 @@ TODO
 TODO
 
 ### `heating_range_high`
+
 ~~~
   double heating_range_high[degF];
 ~~~
@@ -305,6 +336,7 @@ TODO
 TODO
 
 ### `heating_range_low`
+
 ~~~
   double heating_range_low[degF];
 ~~~
@@ -312,6 +344,7 @@ TODO
 TODO
 
 ### `heating_ramp_high`
+
 ~~~
   double heating_ramp_high;
 ~~~
@@ -319,6 +352,7 @@ TODO
 TODO
 
 ### `heating_ramp_low`
+
 ~~~
   double heating_ramp_low;
 ~~~
@@ -326,6 +360,7 @@ TODO
 TODO
 
 ### `cooling_range_high`
+
 ~~~
   double cooling_range_high[degF];
 ~~~
@@ -333,6 +368,7 @@ TODO
 TODO
 
 ### `cooling_range_low`
+
 ~~~
   double cooling_range_low[degF];
 ~~~
@@ -340,6 +376,7 @@ TODO
 TODO
 
 ### `cooling_ramp_high`
+
 ~~~
   double cooling_ramp_high;
 ~~~
@@ -347,6 +384,7 @@ TODO
 TODO
 
 ### `cooling_ramp_low`
+
 ~~~
   double cooling_ramp_low;
 ~~~
@@ -354,6 +392,7 @@ TODO
 TODO
 
 ### `heating_base_setpoint`
+
 ~~~
   double heating_base_setpoint[degF];
 ~~~
@@ -361,6 +400,7 @@ TODO
 TODO
 
 ### `cooling_base_setpoint`
+
 ~~~
   double cooling_base_setpoint[degF];
 ~~~
@@ -368,6 +408,7 @@ TODO
 TODO
 
 ### `deadband`
+
 ~~~
   char32 deadband;
 ~~~
@@ -375,6 +416,7 @@ TODO
 TODO
 
 ### `heating_setpoint`
+
 ~~~
   char32 heating_setpoint;
 ~~~
@@ -382,6 +424,7 @@ TODO
 TODO
 
 ### `heating_demand`
+
 ~~~
   char32 heating_demand;
 ~~~
@@ -389,6 +432,7 @@ TODO
 TODO
 
 ### `cooling_setpoint`
+
 ~~~
   char32 cooling_setpoint;
 ~~~
@@ -396,6 +440,7 @@ TODO
 TODO
 
 ### `cooling_demand`
+
 ~~~
   char32 cooling_demand;
 ~~~
@@ -403,6 +448,7 @@ TODO
 TODO
 
 ### `sliding_time_delay`
+
 ~~~
   double sliding_time_delay[s];
 ~~~
@@ -410,6 +456,7 @@ TODO
 Time interval desired for the sliding resolve mode to change from cooling or heating to off
 
 ### `use_predictive_bidding`
+
 ~~~
   bool use_predictive_bidding;
 ~~~
@@ -417,6 +464,7 @@ Time interval desired for the sliding resolve mode to change from cooling or hea
 TODO
 
 ### `device_actively_engaged`
+
 ~~~
   double device_actively_engaged;
 ~~~
@@ -424,6 +472,7 @@ TODO
 TODO
 
 ### `cleared_market`
+
 ~~~
   int32 cleared_market;
 ~~~
@@ -431,6 +480,7 @@ TODO
 TODO
 
 ### `locked`
+
 ~~~
   int32 locked;
 ~~~
@@ -438,6 +488,7 @@ TODO
 TODO
 
 ### `p_ON`
+
 ~~~
   double p_ON;
 ~~~
@@ -445,6 +496,7 @@ TODO
 TODO
 
 ### `p_OFF`
+
 ~~~
   double p_OFF;
 ~~~
@@ -452,6 +504,7 @@ TODO
 TODO
 
 ### `p_ONLOCK`
+
 ~~~
   double p_ONLOCK;
 ~~~
@@ -459,6 +512,7 @@ TODO
 TODO
 
 ### `p_OFFLOCK`
+
 ~~~
   double p_OFFLOCK;
 ~~~
@@ -466,6 +520,7 @@ TODO
 TODO
 
 ### `delta_u`
+
 ~~~
   double delta_u;
 ~~~
@@ -473,6 +528,7 @@ TODO
 TODO
 
 ### `regulation_market_on`
+
 ~~~
   char32 regulation_market_on;
 ~~~
@@ -480,6 +536,7 @@ TODO
 The willing to change state from ON->OFF market to bid into for regulation case
 
 ### `regulation_market_off`
+
 ~~~
   char32 regulation_market_off;
 ~~~
@@ -487,6 +544,7 @@ The willing to change state from ON->OFF market to bid into for regulation case
 The willing to change state from OFF->ON market to bid into for regulation case
 
 ### `fast_regulation_signal`
+
 ~~~
   double fast_regulation_signal[s];
 ~~~
@@ -494,6 +552,7 @@ The willing to change state from OFF->ON market to bid into for regulation case
 The regulation signal that the controller compares against (i.e., how often is there a control action
 
 ### `market_price_on`
+
 ~~~
   double market_price_on;
 ~~~
@@ -501,6 +560,7 @@ The regulation signal that the controller compares against (i.e., how often is t
 The current market clearing price seen by the controller in ON->OFF regulation market
 
 ### `market_price_off`
+
 ~~~
   double market_price_off;
 ~~~
@@ -508,6 +568,7 @@ The current market clearing price seen by the controller in ON->OFF regulation m
 The current market clearing price seen by the controller  in OFF->ON regulation market
 
 ### `period_on`
+
 ~~~
   double period_on[s];
 ~~~
@@ -515,6 +576,7 @@ The current market clearing price seen by the controller  in OFF->ON regulation 
 Interval of time between market clearings in ON->OFF regulation market
 
 ### `period_off`
+
 ~~~
   double period_off[s];
 ~~~
@@ -522,6 +584,7 @@ Interval of time between market clearings in ON->OFF regulation market
 Interval of time between market clearings in  OFF->ON regulation market
 
 ### `regulation_period`
+
 ~~~
   int32 regulation_period;
 ~~~
@@ -529,6 +592,7 @@ Interval of time between market clearings in  OFF->ON regulation market
 Fast regulation signal period
 
 ### `r1`
+
 ~~~
   double r1;
 ~~~
@@ -536,6 +600,7 @@ Fast regulation signal period
 Temporary diagnostic variable
 
 ### `mu0`
+
 ~~~
   double mu0;
 ~~~
@@ -543,6 +608,7 @@ Temporary diagnostic variable
 Temporary diagnostic variable
 
 ### `mu1`
+
 ~~~
   double mu1;
 ~~~
@@ -550,6 +616,7 @@ Temporary diagnostic variable
 Temporary diagnostic variable
 
 ### `average_target`
+
 ~~~
   char32 average_target;
 ~~~
@@ -557,6 +624,7 @@ Temporary diagnostic variable
 TODO
 
 ### `standard_deviation_target`
+
 ~~~
   char32 standard_deviation_target;
 ~~~
@@ -564,6 +632,7 @@ TODO
 TODO
 
 ### `bid_id`
+
 ~~~
   int64 bid_id;
 ~~~
@@ -571,6 +640,7 @@ TODO
 TODO
 
 ### `bid_delay`
+
 ~~~
   int32 bid_delay;
 ~~~
@@ -578,6 +648,7 @@ TODO
 TODO
 
 ### `thermostat_state`
+
 ~~~
   char32 thermostat_state;
 ~~~
@@ -585,6 +656,7 @@ TODO
 The name of the thermostat state property within the object being controlled
 
 ### `proxy_average`
+
 ~~~
   double proxy_average;
 ~~~
@@ -592,6 +664,7 @@ The name of the thermostat state property within the object being controlled
 TODO
 
 ### `proxy_standard_deviation`
+
 ~~~
   double proxy_standard_deviation;
 ~~~
@@ -599,6 +672,7 @@ TODO
 TODO
 
 ### `proxy_market_id`
+
 ~~~
   int64 proxy_market_id;
 ~~~
@@ -606,6 +680,7 @@ TODO
 TODO
 
 ### `proxy_market2_id`
+
 ~~~
   int64 proxy_market2_id;
 ~~~
@@ -613,6 +688,7 @@ TODO
 TODO
 
 ### `proxy_clear_price`
+
 ~~~
   double proxy_clear_price[$];
 ~~~
@@ -620,6 +696,7 @@ TODO
 TODO
 
 ### `proxy_clear_price2`
+
 ~~~
   double proxy_clear_price2[$];
 ~~~
@@ -627,6 +704,7 @@ TODO
 TODO
 
 ### `proxy_price_cap`
+
 ~~~
   double proxy_price_cap;
 ~~~
@@ -634,6 +712,7 @@ TODO
 TODO
 
 ### `proxy_price_cap2`
+
 ~~~
   double proxy_price_cap2;
 ~~~
@@ -641,6 +720,7 @@ TODO
 TODO
 
 ### `proxy_market_unit`
+
 ~~~
   char32 proxy_market_unit;
 ~~~
@@ -648,6 +728,7 @@ TODO
 TODO
 
 ### `proxy_initial_price`
+
 ~~~
   double proxy_initial_price;
 ~~~
@@ -655,6 +736,7 @@ TODO
 TODO
 
 ### `proxy_marginal_fraction`
+
 ~~~
   double proxy_marginal_fraction;
 ~~~
@@ -662,6 +744,7 @@ TODO
 TODO
 
 ### `proxy_marginal_fraction2`
+
 ~~~
   double proxy_marginal_fraction2;
 ~~~
@@ -669,6 +752,7 @@ TODO
 TODO
 
 ### `proxy_clearing_quantity`
+
 ~~~
   double proxy_clearing_quantity;
 ~~~
@@ -676,6 +760,7 @@ TODO
 TODO
 
 ### `proxy_clearing_quantity2`
+
 ~~~
   double proxy_clearing_quantity2;
 ~~~
@@ -683,6 +768,7 @@ TODO
 TODO
 
 ### `proxy_seller_total_quantity`
+
 ~~~
   double proxy_seller_total_quantity;
 ~~~
@@ -690,6 +776,7 @@ TODO
 TODO
 
 ### `proxy_seller_total_quantity2`
+
 ~~~
   double proxy_seller_total_quantity2;
 ~~~
@@ -697,6 +784,7 @@ TODO
 TODO
 
 ### `proxy_margin_mode`
+
 ~~~
   enumeration {PROB, DENY, NORMAL} proxy_margin_mode;
 ~~~
@@ -704,6 +792,7 @@ TODO
 TODO
 
 ### `proxy_clearing_type`
+
 ~~~
   enumeration {NULL, FAILURE, EXACT, MARGINAL_PRICE, MARGINAL_BUYER, MARGINAL_SELLER} proxy_clearing_type;
 ~~~
@@ -711,6 +800,7 @@ TODO
 TODO
 
 ### `proxy_clearing_type2`
+
 ~~~
   enumeration {NULL, FAILURE, EXACT, MARGINAL_PRICE, MARGINAL_BUYER, MARGINAL_SELLER} proxy_clearing_type2;
 ~~~
@@ -813,5 +903,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Market]]
 

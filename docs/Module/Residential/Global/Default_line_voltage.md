@@ -1,11 +1,15 @@
 [[/Module/Residential/Global/Default_line_voltage]] -- Module residential global variable default_line_voltage
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define default_line_voltage=<value>
+bash$ gridlabd -D|--define default_line_voltage=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set default_line_voltage=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Residential]]
