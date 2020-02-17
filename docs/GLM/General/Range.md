@@ -1,9 +1,11 @@
-[[GLM/General/Range]] -- Generate number series in a range
+[[/GLM/General/Range]] -- Generate number series in a range
 
 # Synopsis
+
 GLM:
+
 ~~~
-  ${RANGE[<delimiter>[<start>[,<stop>[,<step>]]]]}
+${RANGE[<delimiter>[<start>[,<stop>[,<step>]]]]}
 ~~~
 
 # Description
@@ -35,16 +37,18 @@ This syntax will generate a range from `<start>` to `<stop>` using `<delimiter>`
 The following GLM file generates various ranges.
 
 `range_example.glm`:
+
 ~~~
-  #set suppress_repeat_messages=FALSE
-  #print ${RANGE}
-  #print ${RANGE,}
-  #print ${RANGE -1}
-  #print ${RANGE;1,10};
-  #print ${RANGE,1,10,0.5}
+#set suppress_repeat_messages=FALSE
+#print ${RANGE}
+#print ${RANGE,}
+#print ${RANGE -1}
+#print ${RANGE;1,10};
+#print ${RANGE,1,10,0.5}
 ~~~
 
 The output is as follows:
+
 ~~~
 range_example.glm(2): 0 1
 range_example.glm(3): 0,1
@@ -60,4 +64,5 @@ If the last value generated is exactly equal to `<stop>`, then it is included in
 If the range generated is too long for the available buffer space allocated to range generation, or the `<step>` is invalid for the `<start>` and `<stop>` values specified, then an error will be generated and processing will stop.
 
 # See also
-* [[GLM/Macro/For]]
+
+* [[/GLM/Macro/For]]

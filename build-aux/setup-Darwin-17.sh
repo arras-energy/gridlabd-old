@@ -10,3 +10,5 @@ brew install mono
 brew install naturaldocs
 brew install python3
 pip3 install matplotlib pandas numpy
+brew install pandoc
+brew cask install basictex

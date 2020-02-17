@@ -1,7 +1,9 @@
 [[/Module/Market/Supervisory_control]] -- Class supervisory_control
 
 # Synopsis
+
 GLM:
+
 ~~~
   object supervisory_control {
     unit "<string>";
@@ -22,6 +24,7 @@ TODO
 ## Properties
 
 ### `unit`
+
 ~~~
   char32 unit;
 ~~~
@@ -29,6 +32,7 @@ TODO
 Unit of quantity
 
 ### `period`
+
 ~~~
   double period[s];
 ~~~
@@ -36,6 +40,7 @@ Unit of quantity
 Interval of time between market clearings
 
 ### `market_id`
+
 ~~~
   int32 market_id;
 ~~~
@@ -43,6 +48,7 @@ Interval of time between market clearings
 Unique identifier of market clearing
 
 ### `nominal_frequency`
+
 ~~~
   double nominal_frequency[Hz];
 ~~~
@@ -50,6 +56,7 @@ Unique identifier of market clearing
 Nominal frequency
 
 ### `droop`
+
 ~~~
   double droop[%];
 ~~~
@@ -57,6 +64,7 @@ Nominal frequency
 Droop value for the supervisor
 
 ### `frequency_deadband`
+
 ~~~
   double frequency_deadband[Hz];
 ~~~
@@ -64,6 +72,7 @@ Droop value for the supervisor
 Frequency deadband for assigning trigger frequencies
 
 ### `PFC_mode`
+
 ~~~
   enumeration {OVER_UNDER_FREQUENCY, UNDER_FREQUENCY, OVER_FREQUENCY} PFC_mode;
 ~~~
@@ -71,6 +80,7 @@ Frequency deadband for assigning trigger frequencies
 Operation mode of the primary frequency controller
 
 ### `bid_sort_mode`
+
 ~~~
   enumeration {VOLTAGE_EXTREMES, VOLTAGE_DEVIAION_FROM_NOMINAL, POWER_DECREASING, POWER_INCREASING, NONE} bid_sort_mode;
 ~~~
@@ -93,5 +103,6 @@ Determines how the bids into the market is sorted to contruct the PF curve
 ~~~
 
 # See also
+
 * [[/Module/Market]]
 

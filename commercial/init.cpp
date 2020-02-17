@@ -21,6 +21,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new office(module);
 	new multizone(module); 
 	new ceus(module);
+	new parking(module);
 
 	/* always return the first class registered */
 	return office::oclass;

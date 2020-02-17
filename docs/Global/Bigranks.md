@@ -1,11 +1,15 @@
 [[/Global/Bigranks]] -- Enable fast/blind set_rank operations
 
 # Synopsis
+
 GLM:
+
 ~~~
 #set bigranks=TRUE
 ~~~
+
 Shell:
+
 ~~~
 bash$ gridlabd -D bigranks=TRUE
 bash$ gridlabd --define bigranks=TRUE

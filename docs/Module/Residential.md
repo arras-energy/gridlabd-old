@@ -1,7 +1,9 @@
 [[/Module/Residential]] -- Module residential
 
 # Synopsis
+
 GLM:
+
 ~~~
   module residential {
     message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
@@ -35,6 +37,7 @@ TODO
 ## Globals
 
 ### `message_flags`
+
 ~~~
   message_flags "[QUIET|WARNING|DEBUG|VERBOSE]";
 ~~~
@@ -42,6 +45,7 @@ TODO
 Module message control flags
 
 ### `default_line_voltage`
+
 ~~~
   default_line_voltage "<string> V";
 ~~~
@@ -49,6 +53,7 @@ Module message control flags
 Line voltage to use when no circuit is attached
 
 ### `default_line_current`
+
 ~~~
   default_line_current "<string> A";
 ~~~
@@ -56,6 +61,7 @@ Line voltage to use when no circuit is attached
 Line current calculated when no circuit is attached
 
 ### `default_outdoor_temperature`
+
 ~~~
   default_outdoor_temperature "<decimal> degF";
 ~~~
@@ -63,6 +69,7 @@ Line current calculated when no circuit is attached
 Outdoor air temperature when no climate data is found
 
 ### `default_humidity`
+
 ~~~
   default_humidity "<decimal> %";
 ~~~
@@ -70,6 +77,7 @@ Outdoor air temperature when no climate data is found
 Humidity when no climate data is found
 
 ### `default_solar`
+
 ~~~
   default_solar "<decimal> Btu/sf";
 ~~~
@@ -77,6 +85,7 @@ Humidity when no climate data is found
 Solar gains when no climate data is found
 
 ### `default_etp_iterations`
+
 ~~~
   default_etp_iterations "<integer>";
 ~~~
@@ -84,6 +93,7 @@ Solar gains when no climate data is found
 Number of iterations ETP solver will run
 
 ### `ANSI_voltage_check`
+
 ~~~
   ANSI_voltage_check "<string>";
 ~~~
@@ -91,6 +101,7 @@ Number of iterations ETP solver will run
 Enable or disable messages about ANSI voltage limit violations in the house
 
 ### `enable_subsecond_models`
+
 ~~~
   enable_subsecond_models "<string>";
 ~~~
@@ -98,6 +109,7 @@ Enable or disable messages about ANSI voltage limit violations in the house
 Enable deltamode capabilities within the residential module
 
 ### `deltamode_timestep`
+
 ~~~
   deltamode_timestep "<decimal> ns";
 ~~~
@@ -105,6 +117,7 @@ Enable deltamode capabilities within the residential module
 Desired minimum timestep for deltamode-related simulations
 
 ### `all_house_delta`
+
 ~~~
   all_house_delta "<string>";
 ~~~
@@ -112,6 +125,7 @@ Desired minimum timestep for deltamode-related simulations
 Modeling convenient - enables all houses in deltamode
 
 ### `implicit_enduses`
+
 ~~~
   implicit_enduses "[NONE|DRYER|CLOTHESWASHER|WATERHEATER|EVCHARGER|RANGE|REFRIGERATOR|FREEZER|MICROWAVE|DISHWASHER|OCCUPANCY|PLUGS|LIGHTS]";
 ~~~
@@ -119,6 +133,7 @@ Modeling convenient - enables all houses in deltamode
 List of implicit enduses that are active in houses
 
 ### `implicit_enduse_source`
+
 ~~~
   implicit_enduse_source "{EIA2015,RBSA2014_DISCRETE,RBSA2014,ELCAP2010,ELCAP1990}";
 ~~~
@@ -126,6 +141,7 @@ List of implicit enduses that are active in houses
 TODO
 
 ### `house_low_temperature_warning`
+
 ~~~
   house_low_temperature_warning "<decimal> degF";
 ~~~
@@ -133,6 +149,7 @@ TODO
 The low house indoor temperature at which a warning will be generated
 
 ### `house_high_temperature_warning`
+
 ~~~
   house_high_temperature_warning "<decimal> degF";
 ~~~
@@ -140,6 +157,7 @@ The low house indoor temperature at which a warning will be generated
 The high house indoor temperature at which a warning will be generated
 
 ### `thermostat_control_warning`
+
 ~~~
   thermostat_control_warning "<decimal>";
 ~~~
@@ -147,6 +165,7 @@ The high house indoor temperature at which a warning will be generated
 Boolean to indicate whether a warning is generated when indoor temperature is out of control limits
 
 ### `system_dwell_time`
+
 ~~~
   system_dwell_time "<decimal> s";
 ~~~
@@ -154,6 +173,7 @@ Boolean to indicate whether a warning is generated when indoor temperature is ou
 The heating/cooling system dwell time interval for changing system state
 
 ### `aux_cutin_temperature`
+
 ~~~
   aux_cutin_temperature "<decimal> degF";
 ~~~
@@ -161,6 +181,7 @@ The heating/cooling system dwell time interval for changing system state
 The outdoor air temperature below which AUX heating is used
 
 ### `paneldump_filename`
+
 ~~~
   paneldump_filename "<string>";
 ~~~
@@ -168,6 +189,7 @@ The outdoor air temperature below which AUX heating is used
 The name of the file into which the paneldump is saved
 
 ### `paneldump_interval`
+
 ~~~
   paneldump_interval "<integer>";
 ~~~
@@ -175,6 +197,7 @@ The name of the file into which the paneldump is saved
 The interval at which the paneldump is performed (0:disabled; <0:difference; >0:integral)
 
 ### `paneldump_resolution`
+
 ~~~
   paneldump_resolution "<decimal>";
 ~~~
@@ -182,6 +205,7 @@ The interval at which the paneldump is performed (0:disabled; <0:difference; >0:
 The resolution at which the paneldump is performed (differences less than this are ignored)
 
 # See also
+
 * [[/Module/Residential/Residential_enduse]]
 * [[/Module/Residential/Appliance]]
 * [[/Module/Residential/House]]

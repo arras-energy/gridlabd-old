@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Transformer_configuration]] -- Class transformer_configuration
 
 # Synopsis
+
 GLM:
+
 ~~~
   object transformer_configuration {
     connect_type "{SINGLE_PHASE_CENTER_TAPPED,SINGLE_PHASE,DELTA_GWYE,DELTA_DELTA,WYE_WYE,UNKNOWN}";
@@ -53,6 +55,7 @@ TODO
 ## Properties
 
 ### `connect_type`
+
 ~~~
   enumeration {SINGLE_PHASE_CENTER_TAPPED, SINGLE_PHASE, DELTA_GWYE, DELTA_DELTA, WYE_WYE, UNKNOWN} connect_type;
 ~~~
@@ -60,6 +63,7 @@ TODO
 Connect type enum: Wye-Wye, single-phase, etc.
 
 ### `install_type`
+
 ~~~
   enumeration {VAULT, PADMOUNT, POLETOP, UNKNOWN} install_type;
 ~~~
@@ -67,6 +71,7 @@ Connect type enum: Wye-Wye, single-phase, etc.
 Defines location of the transformer installation
 
 ### `coolant_type`
+
 ~~~
   enumeration {DRY, MINERAL_OIL, UNKNOWN} coolant_type;
 ~~~
@@ -74,6 +79,7 @@ Defines location of the transformer installation
 Coolant type, used in life time model
 
 ### `cooling_type`
+
 ~~~
   enumeration {DFOW, DFOA, NDFOW, NDFOA, FA, OA, UNKNOWN} cooling_type;
 ~~~
@@ -81,6 +87,7 @@ Coolant type, used in life time model
 Type of coolant fluid used in life time model
 
 ### `primary_voltage`
+
 ~~~
   double primary_voltage[V];
 ~~~
@@ -88,6 +95,7 @@ Type of coolant fluid used in life time model
 Primary voltage level in L-L value kV
 
 ### `secondary_voltage`
+
 ~~~
   double secondary_voltage[V];
 ~~~
@@ -95,6 +103,7 @@ Primary voltage level in L-L value kV
 Secondary voltage level kV
 
 ### `power_rating`
+
 ~~~
   double power_rating[kVA];
 ~~~
@@ -102,6 +111,7 @@ Secondary voltage level kV
 KVA rating of transformer, total
 
 ### `powerA_rating`
+
 ~~~
   double powerA_rating[kVA];
 ~~~
@@ -109,6 +119,7 @@ KVA rating of transformer, total
 KVA rating of transformer, phase A
 
 ### `powerB_rating`
+
 ~~~
   double powerB_rating[kVA];
 ~~~
@@ -116,6 +127,7 @@ KVA rating of transformer, phase A
 KVA rating of transformer, phase B
 
 ### `powerC_rating`
+
 ~~~
   double powerC_rating[kVA];
 ~~~
@@ -123,6 +135,7 @@ KVA rating of transformer, phase B
 KVA rating of transformer, phase C
 
 ### `resistance`
+
 ~~~
   double resistance[pu*Ohm];
 ~~~
@@ -130,6 +143,7 @@ KVA rating of transformer, phase C
 Series impedance, pu, real
 
 ### `reactance`
+
 ~~~
   double reactance[pu*Ohm];
 ~~~
@@ -137,6 +151,7 @@ Series impedance, pu, real
 Series impedance, pu, imag
 
 ### `impedance`
+
 ~~~
   complex impedance[pu*Ohm];
 ~~~
@@ -144,6 +159,7 @@ Series impedance, pu, imag
 Series impedance, pu
 
 ### `resistance1`
+
 ~~~
   double resistance1[pu*Ohm];
 ~~~
@@ -151,6 +167,7 @@ Series impedance, pu
 Secondary series impedance (only used when you want to define each individual winding seperately, pu, real
 
 ### `reactance1`
+
 ~~~
   double reactance1[pu*Ohm];
 ~~~
@@ -158,6 +175,7 @@ Secondary series impedance (only used when you want to define each individual wi
 Secondary series impedance (only used when you want to define each individual winding seperately, pu, imag
 
 ### `impedance1`
+
 ~~~
   complex impedance1[pu*Ohm];
 ~~~
@@ -165,6 +183,7 @@ Secondary series impedance (only used when you want to define each individual wi
 Secondary series impedance (only used when you want to define each individual winding seperately, pu
 
 ### `resistance2`
+
 ~~~
   double resistance2[pu*Ohm];
 ~~~
@@ -172,6 +191,7 @@ Secondary series impedance (only used when you want to define each individual wi
 Secondary series impedance (only used when you want to define each individual winding seperately, pu, real
 
 ### `reactance2`
+
 ~~~
   double reactance2[pu*Ohm];
 ~~~
@@ -179,6 +199,7 @@ Secondary series impedance (only used when you want to define each individual wi
 Secondary series impedance (only used when you want to define each individual winding seperately, pu, imag
 
 ### `impedance2`
+
 ~~~
   complex impedance2[pu*Ohm];
 ~~~
@@ -186,6 +207,7 @@ Secondary series impedance (only used when you want to define each individual wi
 Secondary series impedance (only used when you want to define each individual winding seperately, pu
 
 ### `shunt_resistance`
+
 ~~~
   double shunt_resistance[pu*Ohm];
 ~~~
@@ -193,6 +215,7 @@ Secondary series impedance (only used when you want to define each individual wi
 Shunt impedance on primary side, pu, real
 
 ### `shunt_reactance`
+
 ~~~
   double shunt_reactance[pu*Ohm];
 ~~~
@@ -200,6 +223,7 @@ Shunt impedance on primary side, pu, real
 Shunt impedance on primary side, pu, imag
 
 ### `shunt_impedance`
+
 ~~~
   complex shunt_impedance[pu*Ohm];
 ~~~
@@ -207,6 +231,7 @@ Shunt impedance on primary side, pu, imag
 Shunt impedance on primary side, pu
 
 ### `core_coil_weight`
+
 ~~~
   double core_coil_weight[lb];
 ~~~
@@ -214,6 +239,7 @@ Shunt impedance on primary side, pu
 The weight of the core and coil assembly in pounds
 
 ### `tank_fittings_weight`
+
 ~~~
   double tank_fittings_weight[lb];
 ~~~
@@ -221,6 +247,7 @@ The weight of the core and coil assembly in pounds
 The weight of the tank and fittings in pounds
 
 ### `oil_volume`
+
 ~~~
   double oil_volume[gal];
 ~~~
@@ -228,6 +255,7 @@ The weight of the tank and fittings in pounds
 The number of gallons of oil in the transformer
 
 ### `rated_winding_time_constant`
+
 ~~~
   double rated_winding_time_constant[h];
 ~~~
@@ -235,6 +263,7 @@ The number of gallons of oil in the transformer
 The rated winding time constant in hours
 
 ### `rated_winding_hot_spot_rise`
+
 ~~~
   double rated_winding_hot_spot_rise[degC];
 ~~~
@@ -242,6 +271,7 @@ The rated winding time constant in hours
 Winding hottest-spot rise over ambient temperature at rated load, degrees C
 
 ### `rated_top_oil_rise`
+
 ~~~
   double rated_top_oil_rise[degC];
 ~~~
@@ -249,6 +279,7 @@ Winding hottest-spot rise over ambient temperature at rated load, degrees C
 Top-oil hottest-spot rise over ambient temperature at rated load, degrees C
 
 ### `no_load_loss`
+
 ~~~
   double no_load_loss[pu];
 ~~~
@@ -256,6 +287,7 @@ Top-oil hottest-spot rise over ambient temperature at rated load, degrees C
 Another method of specifying transformer impedances, defined as per unit power values (shunt)
 
 ### `full_load_loss`
+
 ~~~
   double full_load_loss[pu];
 ~~~
@@ -263,6 +295,7 @@ Another method of specifying transformer impedances, defined as per unit power v
 Another method of specifying transformer impedances, defined as per unit power values (shunt and series)
 
 ### `reactance_resistance_ratio`
+
 ~~~
   double reactance_resistance_ratio;
 ~~~
@@ -270,6 +303,7 @@ Another method of specifying transformer impedances, defined as per unit power v
 The reactance to resistance ratio (X/R)
 
 ### `installed_insulation_life`
+
 ~~~
   double installed_insulation_life[h];
 ~~~
@@ -277,6 +311,7 @@ The reactance to resistance ratio (X/R)
 The normal lifetime of the transformer insulation at rated load, hours
 
 ### `magnetization_location`
+
 ~~~
   enumeration {BOTH, SECONDARY, PRIMARY, NONE} magnetization_location;
 ~~~
@@ -284,6 +319,7 @@ The normal lifetime of the transformer insulation at rated load, hours
 Winding to place magnetization influence for in-rush calculations
 
 ### `inrush_saturation_enabled`
+
 ~~~
   bool inrush_saturation_enabled;
 ~~~
@@ -291,6 +327,7 @@ Winding to place magnetization influence for in-rush calculations
 Flag to include saturation effects during inrush calculations
 
 ### `L_A`
+
 ~~~
   double L_A[pu];
 ~~~
@@ -298,6 +335,7 @@ Flag to include saturation effects during inrush calculations
 Air core inductance of transformer
 
 ### `phi_K`
+
 ~~~
   double phi_K[pu];
 ~~~
@@ -305,6 +343,7 @@ Air core inductance of transformer
 Knee flux value where the air core inductance interstes the flux axis of the saturation curve
 
 ### `phi_M`
+
 ~~~
   double phi_M[pu];
 ~~~
@@ -312,6 +351,7 @@ Knee flux value where the air core inductance interstes the flux axis of the sat
 Peak magnetization flux at rated voltage of the saturation curve
 
 ### `I_M`
+
 ~~~
   double I_M[pu];
 ~~~
@@ -319,6 +359,7 @@ Peak magnetization flux at rated voltage of the saturation curve
 Peak magnetization current at rated voltage of the saturation curve
 
 ### `T_D`
+
 ~~~
   double T_D;
 ~~~
@@ -372,5 +413,6 @@ Inrush decay time constant for inrush current
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 
