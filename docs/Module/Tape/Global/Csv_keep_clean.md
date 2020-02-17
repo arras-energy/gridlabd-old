@@ -1,11 +1,15 @@
 [[/Module/Tape/Global/Csv_keep_clean]] -- Module tape global variable csv_keep_clean
 
 # Synopsis
+
 Shell:
+
 ~~~
-  host% gridlabd -D|--define csv_keep_clean=<value>
+bash$ gridlabd -D|--define csv_keep_clean=<value>
 ~~~
+
 GLM:
+
 ~~~
   #set csv_keep_clean=<value>
 ~~~
@@ -15,4 +19,5 @@ GLM:
 TODO
 
 # See also
+
 * [[/Module/Tape]]

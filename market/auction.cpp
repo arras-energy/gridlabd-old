@@ -1677,5 +1677,6 @@ EXPORT TIMESTAMP sync_auction(OBJECT *obj, TIMESTAMP t1, PASSCONFIG pass)
 		return t2;
 	}
 	SYNC_CATCHALL(auction);
+	return TS_INVALID;
 }
 
