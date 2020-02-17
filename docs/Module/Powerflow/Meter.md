@@ -1,7 +1,9 @@
 [[/Module/Powerflow/Meter]] -- Class meter
 
 # Synopsis
+
 GLM:
+
 ~~~
   object meter {
     measured_real_energy "<decimal> Wh";
@@ -156,6 +158,7 @@ TODO
 ## Properties
 
 ### `measured_real_energy`
+
 ~~~
   double measured_real_energy[Wh];
 ~~~
@@ -163,6 +166,7 @@ TODO
 Metered real energy consumption, cummalitive
 
 ### `measured_real_energy_delta`
+
 ~~~
   double measured_real_energy_delta[Wh];
 ~~~
@@ -170,6 +174,7 @@ Metered real energy consumption, cummalitive
 Delta in metered real energy consumption from last specified measured_energy_delta_timestep
 
 ### `measured_reactive_energy`
+
 ~~~
   double measured_reactive_energy[VAh];
 ~~~
@@ -177,6 +182,7 @@ Delta in metered real energy consumption from last specified measured_energy_del
 Metered reactive energy consumption, cummalitive
 
 ### `measured_reactive_energy_delta`
+
 ~~~
   double measured_reactive_energy_delta[VAh];
 ~~~
@@ -184,6 +190,7 @@ Metered reactive energy consumption, cummalitive
 Delta in metered reactive energy consumption from last specified measured_energy_delta_timestep
 
 ### `measured_energy_delta_timestep`
+
 ~~~
   double measured_energy_delta_timestep[s];
 ~~~
@@ -191,6 +198,7 @@ Delta in metered reactive energy consumption from last specified measured_energy
 Period of timestep for real and reactive delta energy calculation
 
 ### `measured_power`
+
 ~~~
   complex measured_power[VA];
 ~~~
@@ -198,6 +206,7 @@ Period of timestep for real and reactive delta energy calculation
 Metered complex power
 
 ### `measured_power_A`
+
 ~~~
   complex measured_power_A[VA];
 ~~~
@@ -205,6 +214,7 @@ Metered complex power
 Metered complex power on phase A
 
 ### `measured_power_B`
+
 ~~~
   complex measured_power_B[VA];
 ~~~
@@ -212,6 +222,7 @@ Metered complex power on phase A
 Metered complex power on phase B
 
 ### `measured_power_C`
+
 ~~~
   complex measured_power_C[VA];
 ~~~
@@ -219,6 +230,7 @@ Metered complex power on phase B
 Metered complex power on phase C
 
 ### `measured_demand`
+
 ~~~
   double measured_demand[W];
 ~~~
@@ -226,6 +238,7 @@ Metered complex power on phase C
 Greatest metered real power during simulation
 
 ### `measured_real_power`
+
 ~~~
   double measured_real_power[W];
 ~~~
@@ -233,6 +246,7 @@ Greatest metered real power during simulation
 Metered real power
 
 ### `measured_reactive_power`
+
 ~~~
   double measured_reactive_power[VAr];
 ~~~
@@ -240,6 +254,7 @@ Metered real power
 Metered reactive power
 
 ### `meter_power_consumption`
+
 ~~~
   complex meter_power_consumption[VA];
 ~~~
@@ -247,6 +262,7 @@ Metered reactive power
 Metered power used for operating the meter; standby and communication losses
 
 ### `measured_voltage_A`
+
 ~~~
   complex measured_voltage_A[V];
 ~~~
@@ -254,6 +270,7 @@ Metered power used for operating the meter; standby and communication losses
 Measured line-to-neutral voltage on phase A
 
 ### `measured_voltage_B`
+
 ~~~
   complex measured_voltage_B[V];
 ~~~
@@ -261,6 +278,7 @@ Measured line-to-neutral voltage on phase A
 Measured line-to-neutral voltage on phase B
 
 ### `measured_voltage_C`
+
 ~~~
   complex measured_voltage_C[V];
 ~~~
@@ -268,6 +286,7 @@ Measured line-to-neutral voltage on phase B
 Measured line-to-neutral voltage on phase C
 
 ### `measured_voltage_AB`
+
 ~~~
   complex measured_voltage_AB[V];
 ~~~
@@ -275,6 +294,7 @@ Measured line-to-neutral voltage on phase C
 Measured line-to-line voltage on phase AB
 
 ### `measured_voltage_BC`
+
 ~~~
   complex measured_voltage_BC[V];
 ~~~
@@ -282,6 +302,7 @@ Measured line-to-line voltage on phase AB
 Measured line-to-line voltage on phase BC
 
 ### `measured_voltage_CA`
+
 ~~~
   complex measured_voltage_CA[V];
 ~~~
@@ -289,6 +310,7 @@ Measured line-to-line voltage on phase BC
 Measured line-to-line voltage on phase CA
 
 ### `measured_real_max_voltage_in_interval_A`
+
 ~~~
   double measured_real_max_voltage_in_interval_A;
 ~~~
@@ -296,6 +318,7 @@ Measured line-to-line voltage on phase CA
 Measured real max line-to-neutral voltage on phase A over a specified interval
 
 ### `measured_real_max_voltage_in_interval_B`
+
 ~~~
   double measured_real_max_voltage_in_interval_B;
 ~~~
@@ -303,6 +326,7 @@ Measured real max line-to-neutral voltage on phase A over a specified interval
 Measured real max line-to-neutral voltage on phase B over a specified interval
 
 ### `measured_real_max_voltage_in_interval_C`
+
 ~~~
   double measured_real_max_voltage_in_interval_C;
 ~~~
@@ -310,6 +334,7 @@ Measured real max line-to-neutral voltage on phase B over a specified interval
 Measured real max line-to-neutral voltage on phase C over a specified interval
 
 ### `measured_reactive_max_voltage_in_interval_A`
+
 ~~~
   double measured_reactive_max_voltage_in_interval_A;
 ~~~
@@ -317,6 +342,7 @@ Measured real max line-to-neutral voltage on phase C over a specified interval
 Measured reactive max line-to-neutral voltage on phase A over a specified interval
 
 ### `measured_reactive_max_voltage_in_interval_B`
+
 ~~~
   double measured_reactive_max_voltage_in_interval_B;
 ~~~
@@ -324,6 +350,7 @@ Measured reactive max line-to-neutral voltage on phase A over a specified interv
 Measured reactive max line-to-neutral voltage on phase B over a specified interval
 
 ### `measured_reactive_max_voltage_in_interval_C`
+
 ~~~
   double measured_reactive_max_voltage_in_interval_C;
 ~~~
@@ -331,6 +358,7 @@ Measured reactive max line-to-neutral voltage on phase B over a specified interv
 Measured reactive max line-to-neutral voltage on phase C over a specified interval
 
 ### `measured_real_max_voltage_in_interval_AB`
+
 ~~~
   double measured_real_max_voltage_in_interval_AB;
 ~~~
@@ -338,6 +366,7 @@ Measured reactive max line-to-neutral voltage on phase C over a specified interv
 Measured real max line-to-line voltage on phase A over a specified interval
 
 ### `measured_real_max_voltage_in_interval_BC`
+
 ~~~
   double measured_real_max_voltage_in_interval_BC;
 ~~~
@@ -345,6 +374,7 @@ Measured real max line-to-line voltage on phase A over a specified interval
 Measured real max line-to-line voltage on phase B over a specified interval
 
 ### `measured_real_max_voltage_in_interval_CA`
+
 ~~~
   double measured_real_max_voltage_in_interval_CA;
 ~~~
@@ -352,6 +382,7 @@ Measured real max line-to-line voltage on phase B over a specified interval
 Measured real max line-to-line voltage on phase C over a specified interval
 
 ### `measured_reactive_max_voltage_in_interval_AB`
+
 ~~~
   double measured_reactive_max_voltage_in_interval_AB;
 ~~~
@@ -359,6 +390,7 @@ Measured real max line-to-line voltage on phase C over a specified interval
 Measured reactive max line-to-line voltage on phase A over a specified interval
 
 ### `measured_reactive_max_voltage_in_interval_BC`
+
 ~~~
   double measured_reactive_max_voltage_in_interval_BC;
 ~~~
@@ -366,6 +398,7 @@ Measured reactive max line-to-line voltage on phase A over a specified interval
 Measured reactive max line-to-line voltage on phase B over a specified interval
 
 ### `measured_reactive_max_voltage_in_interval_CA`
+
 ~~~
   double measured_reactive_max_voltage_in_interval_CA;
 ~~~
@@ -373,6 +406,7 @@ Measured reactive max line-to-line voltage on phase B over a specified interval
 Measured reactive max line-to-line voltage on phase C over a specified interval
 
 ### `measured_real_min_voltage_in_interval_A`
+
 ~~~
   double measured_real_min_voltage_in_interval_A;
 ~~~
@@ -380,6 +414,7 @@ Measured reactive max line-to-line voltage on phase C over a specified interval
 Measured real min line-to-neutral voltage on phase A over a specified interval
 
 ### `measured_real_min_voltage_in_interval_B`
+
 ~~~
   double measured_real_min_voltage_in_interval_B;
 ~~~
@@ -387,6 +422,7 @@ Measured real min line-to-neutral voltage on phase A over a specified interval
 Measured real min line-to-neutral voltage on phase B over a specified interval
 
 ### `measured_real_min_voltage_in_interval_C`
+
 ~~~
   double measured_real_min_voltage_in_interval_C;
 ~~~
@@ -394,6 +430,7 @@ Measured real min line-to-neutral voltage on phase B over a specified interval
 Measured real min line-to-neutral voltage on phase C over a specified interval
 
 ### `measured_reactive_min_voltage_in_interval_A`
+
 ~~~
   double measured_reactive_min_voltage_in_interval_A;
 ~~~
@@ -401,6 +438,7 @@ Measured real min line-to-neutral voltage on phase C over a specified interval
 Measured reactive min line-to-neutral voltage on phase A over a specified interval
 
 ### `measured_reactive_min_voltage_in_interval_B`
+
 ~~~
   double measured_reactive_min_voltage_in_interval_B;
 ~~~
@@ -408,6 +446,7 @@ Measured reactive min line-to-neutral voltage on phase A over a specified interv
 Measured reactive min line-to-neutral voltage on phase B over a specified interval
 
 ### `measured_reactive_min_voltage_in_interval_C`
+
 ~~~
   double measured_reactive_min_voltage_in_interval_C;
 ~~~
@@ -415,6 +454,7 @@ Measured reactive min line-to-neutral voltage on phase B over a specified interv
 Measured reactive min line-to-neutral voltage on phase C over a specified interval
 
 ### `measured_real_min_voltage_in_interval_AB`
+
 ~~~
   double measured_real_min_voltage_in_interval_AB;
 ~~~
@@ -422,6 +462,7 @@ Measured reactive min line-to-neutral voltage on phase C over a specified interv
 Measured real min line-to-line voltage on phase A over a specified interval
 
 ### `measured_real_min_voltage_in_interval_BC`
+
 ~~~
   double measured_real_min_voltage_in_interval_BC;
 ~~~
@@ -429,6 +470,7 @@ Measured real min line-to-line voltage on phase A over a specified interval
 Measured real min line-to-line voltage on phase B over a specified interval
 
 ### `measured_real_min_voltage_in_interval_CA`
+
 ~~~
   double measured_real_min_voltage_in_interval_CA;
 ~~~
@@ -436,6 +478,7 @@ Measured real min line-to-line voltage on phase B over a specified interval
 Measured real min line-to-line voltage on phase C over a specified interval
 
 ### `measured_reactive_min_voltage_in_interval_AB`
+
 ~~~
   double measured_reactive_min_voltage_in_interval_AB;
 ~~~
@@ -443,6 +486,7 @@ Measured real min line-to-line voltage on phase C over a specified interval
 Measured reactive min line-to-line voltage on phase A over a specified interval
 
 ### `measured_reactive_min_voltage_in_interval_BC`
+
 ~~~
   double measured_reactive_min_voltage_in_interval_BC;
 ~~~
@@ -450,6 +494,7 @@ Measured reactive min line-to-line voltage on phase A over a specified interval
 Measured reactive min line-to-line voltage on phase B over a specified interval
 
 ### `measured_reactive_min_voltage_in_interval_CA`
+
 ~~~
   double measured_reactive_min_voltage_in_interval_CA;
 ~~~
@@ -457,6 +502,7 @@ Measured reactive min line-to-line voltage on phase B over a specified interval
 Measured reactive min line-to-line voltage on phase C over a specified interval
 
 ### `measured_avg_voltage_mag_in_interval_A`
+
 ~~~
   double measured_avg_voltage_mag_in_interval_A;
 ~~~
@@ -464,6 +510,7 @@ Measured reactive min line-to-line voltage on phase C over a specified interval
 Measured avg line-to-neutral voltage magnitude on phase A over a specified interval
 
 ### `measured_avg_voltage_mag_in_interval_B`
+
 ~~~
   double measured_avg_voltage_mag_in_interval_B;
 ~~~
@@ -471,6 +518,7 @@ Measured avg line-to-neutral voltage magnitude on phase A over a specified inter
 Measured avg line-to-neutral voltage magnitude on phase B over a specified interval
 
 ### `measured_avg_voltage_mag_in_interval_C`
+
 ~~~
   double measured_avg_voltage_mag_in_interval_C;
 ~~~
@@ -478,6 +526,7 @@ Measured avg line-to-neutral voltage magnitude on phase B over a specified inter
 Measured avg line-to-neutral voltage magnitude on phase C over a specified interval
 
 ### `measured_avg_voltage_mag_in_interval_AB`
+
 ~~~
   double measured_avg_voltage_mag_in_interval_AB;
 ~~~
@@ -485,6 +534,7 @@ Measured avg line-to-neutral voltage magnitude on phase C over a specified inter
 Measured avg line-to-line voltage magnitude on phase A over a specified interval
 
 ### `measured_avg_voltage_mag_in_interval_BC`
+
 ~~~
   double measured_avg_voltage_mag_in_interval_BC;
 ~~~
@@ -492,6 +542,7 @@ Measured avg line-to-line voltage magnitude on phase A over a specified interval
 Measured avg line-to-line voltage magnitude on phase B over a specified interval
 
 ### `measured_avg_voltage_mag_in_interval_CA`
+
 ~~~
   double measured_avg_voltage_mag_in_interval_CA;
 ~~~
@@ -499,6 +550,7 @@ Measured avg line-to-line voltage magnitude on phase B over a specified interval
 Measured avg line-to-line voltage magnitude on phase C over a specified interval
 
 ### `measured_current_A`
+
 ~~~
   complex measured_current_A[A];
 ~~~
@@ -506,6 +558,7 @@ Measured avg line-to-line voltage magnitude on phase C over a specified interval
 Measured current on phase A
 
 ### `measured_current_B`
+
 ~~~
   complex measured_current_B[A];
 ~~~
@@ -513,6 +566,7 @@ Measured current on phase A
 Measured current on phase B
 
 ### `measured_current_C`
+
 ~~~
   complex measured_current_C[A];
 ~~~
@@ -520,6 +574,7 @@ Measured current on phase B
 Measured current on phase C
 
 ### `customer_interrupted`
+
 ~~~
   bool customer_interrupted;
 ~~~
@@ -527,6 +582,7 @@ Measured current on phase C
 Reliability flag - goes active if the customer is in an 'interrupted' state
 
 ### `customer_interrupted_secondary`
+
 ~~~
   bool customer_interrupted_secondary;
 ~~~
@@ -534,6 +590,7 @@ Reliability flag - goes active if the customer is in an 'interrupted' state
 Reliability flag - goes active if the customer is in an 'secondary interrupted' state - i.e., momentary
 
 ### `monthly_bill`
+
 ~~~
   double monthly_bill[$];
 ~~~
@@ -541,6 +598,7 @@ Reliability flag - goes active if the customer is in an 'secondary interrupted' 
 Accumulator for the current month's bill
 
 ### `previous_monthly_bill`
+
 ~~~
   double previous_monthly_bill[$];
 ~~~
@@ -548,6 +606,7 @@ Accumulator for the current month's bill
 Total monthly bill for the previous month
 
 ### `previous_monthly_energy`
+
 ~~~
   double previous_monthly_energy[kWh];
 ~~~
@@ -555,6 +614,7 @@ Total monthly bill for the previous month
 Total monthly energy for the previous month
 
 ### `monthly_fee`
+
 ~~~
   double monthly_fee[$];
 ~~~
@@ -562,6 +622,7 @@ Total monthly energy for the previous month
 Once a month flat fee for customer hook-up
 
 ### `monthly_energy`
+
 ~~~
   double monthly_energy[kWh];
 ~~~
@@ -569,6 +630,7 @@ Once a month flat fee for customer hook-up
 Accumulator for the current month's energy consumption
 
 ### `bill_mode`
+
 ~~~
   enumeration {TIERED_RTP, HOURLY, TIERED, UNIFORM, NONE} bill_mode;
 ~~~
@@ -576,6 +638,7 @@ Accumulator for the current month's energy consumption
 Billing structure desired
 
 ### `power_market`
+
 ~~~
   object power_market;
 ~~~
@@ -583,6 +646,7 @@ Billing structure desired
 Market (auction object) where the price is being received from
 
 ### `bill_day`
+
 ~~~
   int32 bill_day;
 ~~~
@@ -590,6 +654,7 @@ Market (auction object) where the price is being received from
 Day of month bill is to be processed (currently limited to days 1-28)
 
 ### `price`
+
 ~~~
   double price[$/kWh];
 ~~~
@@ -597,6 +662,7 @@ Day of month bill is to be processed (currently limited to days 1-28)
 Current price of electricity
 
 ### `price_base`
+
 ~~~
   double price_base[$/kWh];
 ~~~
@@ -604,6 +670,7 @@ Current price of electricity
 Used only in TIERED_RTP mode to describe the price before the first tier
 
 ### `first_tier_price`
+
 ~~~
   double first_tier_price[$/kWh];
 ~~~
@@ -611,6 +678,7 @@ Used only in TIERED_RTP mode to describe the price before the first tier
 Price of electricity between first tier and second tier energy usage
 
 ### `first_tier_energy`
+
 ~~~
   double first_tier_energy[kWh];
 ~~~
@@ -618,6 +686,7 @@ Price of electricity between first tier and second tier energy usage
 Switching point between base price and first tier price
 
 ### `second_tier_price`
+
 ~~~
   double second_tier_price[$/kWh];
 ~~~
@@ -625,6 +694,7 @@ Switching point between base price and first tier price
 Price of electricity between second tier and third tier energy usage
 
 ### `second_tier_energy`
+
 ~~~
   double second_tier_energy[kWh];
 ~~~
@@ -632,6 +702,7 @@ Price of electricity between second tier and third tier energy usage
 Switching point between first tier price and second tier price
 
 ### `third_tier_price`
+
 ~~~
   double third_tier_price[$/kWh];
 ~~~
@@ -639,6 +710,7 @@ Switching point between first tier price and second tier price
 Price of electricity when energy usage exceeds third tier energy usage
 
 ### `third_tier_energy`
+
 ~~~
   double third_tier_energy[kWh];
 ~~~
@@ -646,6 +718,7 @@ Price of electricity when energy usage exceeds third tier energy usage
 Switching point between second tier price and third tier price
 
 ### `bustype`
+
 ~~~
   enumeration {SWING_PQ, SWING, PV, PQ} bustype;
 ~~~
@@ -653,6 +726,7 @@ Switching point between second tier price and third tier price
 Defines whether the node is a PQ, PV, or SWING node
 
 ### `busflags`
+
 ~~~
   set {ISSOURCE, HASSOURCE} busflags;
 ~~~
@@ -660,6 +734,7 @@ Defines whether the node is a PQ, PV, or SWING node
 Flag indicates node has a source for voltage, i.e. connects to the swing node
 
 ### `reference_bus`
+
 ~~~
   object reference_bus;
 ~~~
@@ -667,6 +742,7 @@ Flag indicates node has a source for voltage, i.e. connects to the swing node
 Reference bus from which frequency is defined
 
 ### `maximum_voltage_error`
+
 ~~~
   double maximum_voltage_error[V];
 ~~~
@@ -674,6 +750,7 @@ Reference bus from which frequency is defined
 Convergence voltage limit or convergence criteria
 
 ### `voltage_A`
+
 ~~~
   complex voltage_A[V];
 ~~~
@@ -681,6 +758,7 @@ Convergence voltage limit or convergence criteria
 Bus voltage, Phase A to ground
 
 ### `voltage_B`
+
 ~~~
   complex voltage_B[V];
 ~~~
@@ -688,6 +766,7 @@ Bus voltage, Phase A to ground
 Bus voltage, Phase B to ground
 
 ### `voltage_C`
+
 ~~~
   complex voltage_C[V];
 ~~~
@@ -695,6 +774,7 @@ Bus voltage, Phase B to ground
 Bus voltage, Phase C to ground
 
 ### `voltage_AB`
+
 ~~~
   complex voltage_AB[V];
 ~~~
@@ -702,6 +782,7 @@ Bus voltage, Phase C to ground
 Line voltages, Phase AB
 
 ### `voltage_BC`
+
 ~~~
   complex voltage_BC[V];
 ~~~
@@ -709,6 +790,7 @@ Line voltages, Phase AB
 Line voltages, Phase BC
 
 ### `voltage_CA`
+
 ~~~
   complex voltage_CA[V];
 ~~~
@@ -716,6 +798,7 @@ Line voltages, Phase BC
 Line voltages, Phase CA
 
 ### `current_A`
+
 ~~~
   complex current_A[A];
 ~~~
@@ -723,6 +806,7 @@ Line voltages, Phase CA
 Bus current injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_B`
+
 ~~~
   complex current_B[A];
 ~~~
@@ -730,6 +814,7 @@ Bus current injection (in = positive), this an accumulator only, not a output or
 Bus current injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_C`
+
 ~~~
   complex current_C[A];
 ~~~
@@ -737,6 +822,7 @@ Bus current injection (in = positive), this an accumulator only, not a output or
 Bus current injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_A`
+
 ~~~
   complex power_A[VA];
 ~~~
@@ -744,6 +830,7 @@ Bus current injection (in = positive), this an accumulator only, not a output or
 Bus power injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_B`
+
 ~~~
   complex power_B[VA];
 ~~~
@@ -751,6 +838,7 @@ Bus power injection (in = positive), this an accumulator only, not a output or i
 Bus power injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_C`
+
 ~~~
   complex power_C[VA];
 ~~~
@@ -758,6 +846,7 @@ Bus power injection (in = positive), this an accumulator only, not a output or i
 Bus power injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `shunt_A`
+
 ~~~
   complex shunt_A[S];
 ~~~
@@ -765,6 +854,7 @@ Bus power injection (in = positive), this an accumulator only, not a output or i
 Bus shunt admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_B`
+
 ~~~
   complex shunt_B[S];
 ~~~
@@ -772,6 +862,7 @@ Bus shunt admittance, this an accumulator only, not a output or input variable
 Bus shunt admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_C`
+
 ~~~
   complex shunt_C[S];
 ~~~
@@ -779,6 +870,7 @@ Bus shunt admittance, this an accumulator only, not a output or input variable
 Bus shunt admittance, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_A`
+
 ~~~
   complex prerotated_current_A[A];
 ~~~
@@ -786,6 +878,7 @@ Bus shunt admittance, this an accumulator only, not a output or input variable
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_B`
+
 ~~~
   complex prerotated_current_B[A];
 ~~~
@@ -793,6 +886,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `prerotated_current_C`
+
 ~~~
   complex prerotated_current_C[A];
 ~~~
@@ -800,6 +894,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Deltamode-functionality - bus current injection (in = positive), but will not be rotated by powerflow for off-nominal frequency, this an accumulator only, not a output or input variable
 
 ### `current_AB`
+
 ~~~
   complex current_AB[A];
 ~~~
@@ -807,6 +902,7 @@ Deltamode-functionality - bus current injection (in = positive), but will not be
 Bus current delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_BC`
+
 ~~~
   complex current_BC[A];
 ~~~
@@ -814,6 +910,7 @@ Bus current delta-connected injection (in = positive), this an accumulator only,
 Bus current delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_CA`
+
 ~~~
   complex current_CA[A];
 ~~~
@@ -821,6 +918,7 @@ Bus current delta-connected injection (in = positive), this an accumulator only,
 Bus current delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_AN`
+
 ~~~
   complex current_AN[A];
 ~~~
@@ -828,6 +926,7 @@ Bus current delta-connected injection (in = positive), this an accumulator only,
 Bus current wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_BN`
+
 ~~~
   complex current_BN[A];
 ~~~
@@ -835,6 +934,7 @@ Bus current wye-connected injection (in = positive), this an accumulator only, n
 Bus current wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `current_CN`
+
 ~~~
   complex current_CN[A];
 ~~~
@@ -842,6 +942,7 @@ Bus current wye-connected injection (in = positive), this an accumulator only, n
 Bus current wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_AB`
+
 ~~~
   complex power_AB[VA];
 ~~~
@@ -849,6 +950,7 @@ Bus current wye-connected injection (in = positive), this an accumulator only, n
 Bus power delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_BC`
+
 ~~~
   complex power_BC[VA];
 ~~~
@@ -856,6 +958,7 @@ Bus power delta-connected injection (in = positive), this an accumulator only, n
 Bus power delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_CA`
+
 ~~~
   complex power_CA[VA];
 ~~~
@@ -863,6 +966,7 @@ Bus power delta-connected injection (in = positive), this an accumulator only, n
 Bus power delta-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_AN`
+
 ~~~
   complex power_AN[VA];
 ~~~
@@ -870,6 +974,7 @@ Bus power delta-connected injection (in = positive), this an accumulator only, n
 Bus power wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_BN`
+
 ~~~
   complex power_BN[VA];
 ~~~
@@ -877,6 +982,7 @@ Bus power wye-connected injection (in = positive), this an accumulator only, not
 Bus power wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `power_CN`
+
 ~~~
   complex power_CN[VA];
 ~~~
@@ -884,6 +990,7 @@ Bus power wye-connected injection (in = positive), this an accumulator only, not
 Bus power wye-connected injection (in = positive), this an accumulator only, not a output or input variable
 
 ### `shunt_AB`
+
 ~~~
   complex shunt_AB[S];
 ~~~
@@ -891,6 +998,7 @@ Bus power wye-connected injection (in = positive), this an accumulator only, not
 Bus shunt delta-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_BC`
+
 ~~~
   complex shunt_BC[S];
 ~~~
@@ -898,6 +1006,7 @@ Bus shunt delta-connected admittance, this an accumulator only, not a output or 
 Bus shunt delta-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_CA`
+
 ~~~
   complex shunt_CA[S];
 ~~~
@@ -905,6 +1014,7 @@ Bus shunt delta-connected admittance, this an accumulator only, not a output or 
 Bus shunt delta-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_AN`
+
 ~~~
   complex shunt_AN[S];
 ~~~
@@ -912,6 +1022,7 @@ Bus shunt delta-connected admittance, this an accumulator only, not a output or 
 Bus shunt wye-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_BN`
+
 ~~~
   complex shunt_BN[S];
 ~~~
@@ -919,6 +1030,7 @@ Bus shunt wye-connected admittance, this an accumulator only, not a output or in
 Bus shunt wye-connected admittance, this an accumulator only, not a output or input variable
 
 ### `shunt_CN`
+
 ~~~
   complex shunt_CN[S];
 ~~~
@@ -926,6 +1038,7 @@ Bus shunt wye-connected admittance, this an accumulator only, not a output or in
 Bus shunt wye-connected admittance, this an accumulator only, not a output or input variable
 
 ### `mean_repair_time`
+
 ~~~
   double mean_repair_time[s];
 ~~~
@@ -933,6 +1046,7 @@ Bus shunt wye-connected admittance, this an accumulator only, not a output or in
 Time after a fault clears for the object to be back in service
 
 ### `frequency_measure_type`
+
 ~~~
   enumeration {PLL, SIMPLE, NONE} frequency_measure_type;
 ~~~
@@ -940,6 +1054,7 @@ Time after a fault clears for the object to be back in service
 PLL frequency measurement
 
 ### `sfm_Tf`
+
 ~~~
   double sfm_Tf[s];
 ~~~
@@ -947,6 +1062,7 @@ PLL frequency measurement
 Transducer time constant for simplified frequency measurement (seconds)
 
 ### `pll_Kp`
+
 ~~~
   double pll_Kp[pu];
 ~~~
@@ -954,6 +1070,7 @@ Transducer time constant for simplified frequency measurement (seconds)
 Proportional gain of PLL frequency measurement
 
 ### `pll_Ki`
+
 ~~~
   double pll_Ki[pu];
 ~~~
@@ -961,6 +1078,7 @@ Proportional gain of PLL frequency measurement
 Integration gain of PLL frequency measurement
 
 ### `measured_angle_A`
+
 ~~~
   double measured_angle_A[rad];
 ~~~
@@ -968,6 +1086,7 @@ Integration gain of PLL frequency measurement
 Bus angle measurement, phase A
 
 ### `measured_frequency_A`
+
 ~~~
   double measured_frequency_A[Hz];
 ~~~
@@ -975,6 +1094,7 @@ Bus angle measurement, phase A
 Frequency measurement, phase A
 
 ### `measured_angle_B`
+
 ~~~
   double measured_angle_B[rad];
 ~~~
@@ -982,6 +1102,7 @@ Frequency measurement, phase A
 Bus angle measurement, phase B
 
 ### `measured_frequency_B`
+
 ~~~
   double measured_frequency_B[Hz];
 ~~~
@@ -989,6 +1110,7 @@ Bus angle measurement, phase B
 Frequency measurement, phase B
 
 ### `measured_angle_C`
+
 ~~~
   double measured_angle_C[rad];
 ~~~
@@ -996,6 +1118,7 @@ Frequency measurement, phase B
 Bus angle measurement, phase C
 
 ### `measured_frequency_C`
+
 ~~~
   double measured_frequency_C[Hz];
 ~~~
@@ -1003,6 +1126,7 @@ Bus angle measurement, phase C
 Frequency measurement, phase C
 
 ### `measured_frequency`
+
 ~~~
   double measured_frequency[Hz];
 ~~~
@@ -1010,6 +1134,7 @@ Frequency measurement, phase C
 Frequency measurement - average of present phases
 
 ### `service_status`
+
 ~~~
   enumeration {OUT_OF_SERVICE, IN_SERVICE} service_status;
 ~~~
@@ -1017,6 +1142,7 @@ Frequency measurement - average of present phases
 In and out of service flag
 
 ### `service_status_double`
+
 ~~~
   double service_status_double;
 ~~~
@@ -1024,6 +1150,7 @@ In and out of service flag
 In and out of service flag - type double - will indiscriminately override service_status - useful for schedules
 
 ### `previous_uptime`
+
 ~~~
   double previous_uptime[min];
 ~~~
@@ -1031,6 +1158,7 @@ In and out of service flag - type double - will indiscriminately override servic
 Previous time between disconnects of node in minutes
 
 ### `current_uptime`
+
 ~~~
   double current_uptime[min];
 ~~~
@@ -1038,6 +1166,7 @@ Previous time between disconnects of node in minutes
 Current time since last disconnect of node in minutes
 
 ### `Norton_dynamic`
+
 ~~~
   bool Norton_dynamic;
 ~~~
@@ -1045,6 +1174,7 @@ Current time since last disconnect of node in minutes
 Flag to indicate a Norton-equivalent connection -- used for generators and deltamode
 
 ### `generator_dynamic`
+
 ~~~
   bool generator_dynamic;
 ~~~
@@ -1052,6 +1182,7 @@ Flag to indicate a Norton-equivalent connection -- used for generators and delta
 Flag to indicate a voltage-sourcing or swing-type generator is present -- used for generators and deltamode
 
 ### `GFA_enable`
+
 ~~~
   bool GFA_enable;
 ~~~
@@ -1059,6 +1190,7 @@ Flag to indicate a voltage-sourcing or swing-type generator is present -- used f
 Disable/Enable Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_low_trip`
+
 ~~~
   double GFA_freq_low_trip[Hz];
 ~~~
@@ -1066,6 +1198,7 @@ Disable/Enable Grid Friendly Appliance(TM)-type functionality
 Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_high_trip`
+
 ~~~
   double GFA_freq_high_trip[Hz];
 ~~~
@@ -1073,6 +1206,7 @@ Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 High frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_low_trip`
+
 ~~~
   double GFA_volt_low_trip[pu];
 ~~~
@@ -1080,6 +1214,7 @@ High frequency trip point for Grid Friendly Appliance(TM)-type functionality
 Low voltage trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_high_trip`
+
 ~~~
   double GFA_volt_high_trip[pu];
 ~~~
@@ -1087,6 +1222,7 @@ Low voltage trip point for Grid Friendly Appliance(TM)-type functionality
 High voltage trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_reconnect_time`
+
 ~~~
   double GFA_reconnect_time[s];
 ~~~
@@ -1094,6 +1230,7 @@ High voltage trip point for Grid Friendly Appliance(TM)-type functionality
 Reconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_freq_disconnect_time`
+
 ~~~
   double GFA_freq_disconnect_time[s];
 ~~~
@@ -1101,6 +1238,7 @@ Reconnect time for Grid Friendly Appliance(TM)-type functionality
 Frequency violation disconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_volt_disconnect_time`
+
 ~~~
   double GFA_volt_disconnect_time[s];
 ~~~
@@ -1108,6 +1246,7 @@ Frequency violation disconnect time for Grid Friendly Appliance(TM)-type functio
 Voltage violation disconnect time for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_status`
+
 ~~~
   bool GFA_status;
 ~~~
@@ -1115,6 +1254,7 @@ Voltage violation disconnect time for Grid Friendly Appliance(TM)-type functiona
 Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 
 ### `GFA_trip_method`
+
 ~~~
   enumeration {OVER_VOLTAGE, UNDER_VOLTAGE, OVER_FREQUENCY, UNDER_FREQUENCY, NONE} GFA_trip_method;
 ~~~
@@ -1122,6 +1262,7 @@ Low frequency trip point for Grid Friendly Appliance(TM)-type functionality
 GFA trip for over-voltage
 
 ### `topological_parent`
+
 ~~~
   object topological_parent;
 ~~~
@@ -1129,6 +1270,7 @@ GFA trip for over-voltage
 Topological parent as per GLM configuration
 
 ### `phases`
+
 ~~~
   set {A, B, C, D, N, S, G} phases;
 ~~~
@@ -1136,6 +1278,7 @@ Topological parent as per GLM configuration
 TODO
 
 ### `nominal_voltage`
+
 ~~~
   double nominal_voltage[V];
 ~~~
@@ -1143,6 +1286,7 @@ TODO
 TODO
 
 ### `supernode_name`
+
 ~~~
   char1024 supernode_name;
 ~~~
@@ -1296,5 +1440,6 @@ TODO
 ~~~
 
 # See also
+
 * [[/Module/Powerflow]]
 

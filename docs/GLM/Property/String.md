@@ -1,7 +1,9 @@
-[[GLM/Property/String]] - Property to contain general strings
+[[/GLM/Property/String]] -- Property to contain general strings
 
 # Synopsis
+
 GLM:
+
 ~~~
   class class-name {
     string property-name;
@@ -10,7 +12,9 @@ GLM:
     property-name "property-value";
   }
 ~~~
+
 or
+
 ~~~
   object class-name {
     property-name """multiline

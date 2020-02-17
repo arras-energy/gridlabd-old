@@ -1,7 +1,9 @@
-[[Switch_coordinator]] -- Manage switches in powerflow module
+[[/Gismo/Switch_coordinator]] -- Manage switches in powerflow module
 
 # Synopsis
+
 GLM:
+
 ~~~
   module gismo;
   object switch_coordinator
@@ -20,11 +22,12 @@ GLM:
 
 # Description
 
-The [[switch_coordinator]] object implements a switch coordination scheme for up to 32 switches in the powerflow module.  Switches are connected to the coordinator using the `connect` method by listing the name of the switch that is to be connected.
+The [[/switch_coordinator]] object implements a switch coordination scheme for up to 32 switches in the powerflow module.  Switches are connected to the coordinator using the `connect` method by listing the name of the switch that is to be connected.
 
 # Properties
 
 ## `arm`
+
 ~~~
   method arm;
 ~~~
@@ -32,6 +35,7 @@ The [[switch_coordinator]] object implements a switch coordination scheme for up
 The `arm` method allows a specific switch to be armed for the next operation. The specified switch will be added to the `armed` list.
 
 ## `armed `
+
 ~~~
   set {NONE=0, switch_1-name=1, switch_2-name=2, ..., switch_N-name=2^(N-1)} armed;
 ~~~
@@ -39,6 +43,7 @@ The `arm` method allows a specific switch to be armed for the next operation. Th
 The switch coordinator works by maintaining a list of `armed` switches which are subject to the next switch coordination status change. 
 
 ## `connect`
+
 ~~~
   method connect;
 ~~~
@@ -46,6 +51,7 @@ The switch coordinator works by maintaining a list of `armed` switches which are
 Use this property to connect a switch object to the switch coordinate.  This property may be called up to 32 times to connect at most 32 switches.
 
 ## `disarm`
+
 ~~~
   method disarm;
 ~~~
@@ -53,6 +59,7 @@ Use this property to connect a switch object to the switch coordinate.  This pro
 The `disarm` method allows a specific switch to be disarmed for the next operation.  The specified switch will be removed from the `armed` list.
 
 ## `status`
+
 ~~~
   enumeration {DIRECT=3, TOGGLE=2, ARMED=1, IDLE=0} status;
 ~~~
@@ -81,6 +88,7 @@ All the switches not listed will be unchanged.
 # Example
 
 The following example creates and switch coordinator, connects three switch, and sets the initial switch configuration to close switches 1 and 2.
+
 ~~~
   object switch_coordinator
   {
@@ -99,4 +107,4 @@ The `DIRECT` status does not control relative to `NORMAL` state, rather it contr
 
 # See also
 
-* [[Module/Powerflow/Switch]]
+* [[/Module/Powerflow/Switch]]
