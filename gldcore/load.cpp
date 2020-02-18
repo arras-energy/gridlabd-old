@@ -730,6 +730,8 @@ STATUS GldLoader::load_set_index(OBJECT *obj, OBJECTNUM id)
 	}
 	if ( id >= object_index_size ) /* index needs to grow */
 	{
+#warning GldLoader::load_set_index has unbound memory allocation
+// see https://github.com/gridlab-d/gridlab-d/issues/1228 for details
 		int new_size = (id/object_index_size+1)*object_index_size;
 		object_index = (OBJECT**)realloc(object_index,sizeof(OBJECT*)*new_size);
 		object_linked = (char *)realloc(object_linked,sizeof(unsigned char)*new_size);
