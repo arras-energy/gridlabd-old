@@ -9,6 +9,8 @@
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
+#include <map>
+
 #include "globals.h"
 #include "module.h"
 
@@ -139,6 +141,14 @@ private:
 		struct s_threadlist *next;
 	} *threadlist;
 
+	typedef struct s_indexmap
+	{
+		OBJECT *obj;
+		size_t count;
+	} INDEXITEM;
+
+	typedef std::map<OBJECTNUM,INDEXITEM> INDEXMAP;
+
 private:
 
 	GldMain &instance;
@@ -160,9 +170,10 @@ private:
 	int outlinenum;
 	char *outfilename;
 
-	OBJECT **object_index;
-	char *object_linked;
-	unsigned int object_index_size;
+	// OBJECT **object_index;
+	// char *object_linked;
+	// unsigned int object_index_size;
+	INDEXMAP indexmap;
 
 	UNRESOLVED *first_unresolved;
 

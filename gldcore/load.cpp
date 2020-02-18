@@ -56,9 +56,9 @@ GldLoader::GldLoader(GldMain *main)
 	header_list = NULL;
 	outlinenum = 0;
 	outfilename = NULL;
-	object_index = NULL;
-	object_linked = NULL;
-	object_index_size = 65536;
+	// object_index = NULL;
+	// object_linked = NULL;
+	// object_index_size = 65536;
 	first_unresolved = NULL;
 	current_object = NULL; 
 	current_module = NULL; 
@@ -82,6 +82,7 @@ GldLoader::GldLoader(GldMain *main)
 
 GldLoader::~GldLoader(void)
 {
+	// TODO: cleanup other allocated items
 }
 
 bool GldLoader::load(const char *filename)
@@ -721,56 +722,27 @@ STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 
 STATUS GldLoader::load_set_index(OBJECT *obj, OBJECTNUM id)
 {
-	if ( object_index == NULL )
-	{
-		object_index = (OBJECT**)malloc(sizeof(OBJECT*)*object_index_size);
-		memset(object_index,0,sizeof(OBJECT*)*object_index_size);
-		object_linked = (char *)malloc(sizeof(unsigned char)*object_index_size);
-		memset(object_linked,0,sizeof(unsigned char)*object_index_size);
-	}
-	if ( id >= object_index_size ) /* index needs to grow */
-	{
-#warning GldLoader::load_set_index has unbound memory allocation
-// see https://github.com/gridlab-d/gridlab-d/issues/1228 for details
-		int new_size = (id/object_index_size+1)*object_index_size;
-		object_index = (OBJECT**)realloc(object_index,sizeof(OBJECT*)*new_size);
-		object_linked = (char *)realloc(object_linked,sizeof(unsigned char)*new_size);
-		object_index_size = new_size;
-	}
-	if ( object_index == NULL ) 
-	{ 
-		errno = ENOMEM; 
-		return FAILED;
-	}
-	/* collision check here */
-	object_index[id] = obj;
-	object_linked[id] = 0;
+	INDEXITEM item = {obj,0};
+	indexmap[id] = item;
 	return SUCCESS;
 }
 
 OBJECT *GldLoader::load_get_index(OBJECTNUM id)
 {
-	if ( object_index == NULL || id < 0 || id >= object_index_size )
-	{
-		return NULL;
-	}
-	object_linked[id]++;
-	return object_index[id];
+	INDEXITEM &item = indexmap[id];
+	item.count++;
+	return item.obj;
 }
 
 OBJECT *GldLoader::get_next_unlinked(CLASS *oclass)
 {
-	unsigned int id;
-	if ( object_index == NULL )
+	for ( INDEXMAP::iterator iter = indexmap.begin() ; iter != indexmap.end() ; iter++ )
 	{
-		return NULL;
-	}
-	for ( id = 0; id < object_index_size; id++ )
-	{
-		if ( object_linked[id] == 0 && object_index[id] != NULL && object_index[id]->oclass == oclass )
+		INDEXITEM &item = iter->second;
+		if ( item.count == 0 && item.obj != NULL && item.obj->oclass == oclass )
 		{
-			object_linked[id]++;
-			return object_index[id];
+			item.count++;
+			return item.obj;
 		}
 	}
 	return NULL;
@@ -778,12 +750,7 @@ OBJECT *GldLoader::get_next_unlinked(CLASS *oclass)
 
 void GldLoader::free_index(void)
 {
-	if ( object_index != NULL )
-	{
-		free(object_index);
-	}
-	object_index = NULL;
-	object_index_size = 65536;
+	indexmap.clear();
 }
 
 GldLoader::UNRESOLVED *GldLoader::add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags)

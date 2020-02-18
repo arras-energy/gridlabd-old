@@ -35,31 +35,11 @@
 #include <wchar.h>
 #include <sys/errno.h>
 
-#ifdef HAVE_XERCES
-#include <xercesc/framework/XMLFormatter.hpp>
-#include <xercesc/sax2/DefaultHandler.hpp>
-#endif
-
-#ifdef WIN32
-#define _WIN32_WINNT 0x0400
-#include <direct.h>
-#include <io.h>
-#include <windows.h>
-#include <winbase.h>
-#include <winsock2.h>
-#include <io.h>
-#include <process.h>
-#ifndef __MINGW__
-#define snprintf _snprintf
-#endif
-#else
 #include <sys/ioctl.h>
 #include <dirent.h>
 #include <unistd.h>
 
 #include "gld_sock.h"
-
-#endif
 
 
 #if HAVE_SCHED_H
@@ -81,6 +61,7 @@
 		The value of true (!0)
  */
 #define TRUE (!FALSE)
+
 #endif
 
 /*	Typedef: STATUS
