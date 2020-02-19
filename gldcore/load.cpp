@@ -6558,74 +6558,6 @@ static int suppress = 0;
 static int nesting = 0;
 static int macro_line[64];
 static int process_macro(char *line, int size, char *filename, int linenum);
-static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
-{
-	char line[65536];
-	int n=0;
-	int linenum=0;
-	int startnest = nesting;
-	while ( fgets(line,sizeof(line),fp) != NULL )
-	{
-		int len;
-		char subst[65536];
-
-		/* comments must have preceding whitespace in macros */
-		char *c = ( ( line[0] != '#' ) ? strstr(line,COMMENT) : strstr(line, " " COMMENT) );
-		linenum++;
-		if ( c != NULL ) 
-		{
-			/* truncate at comment */
-			strcpy(c,"\n");
-		}
-		len = (int)strlen(line);
-		if ( len >= size-1 )
-		{
-			return 0;
-		}
-
-		/* expand variables */
-		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
-		{
-			strcpy(line,subst);
-		}
-		else
-		{
-			output_error_raw("%s(%d): unable to continue", filename,linenum);
-			return -1;
-		}
-
-		/* expand macros */
-		if ( strncmp(line,MACRO,strlen(MACRO)) == 0 )
-		{
-			/* macro disables reading */
-			if ( process_macro(line,sizeof(line),filename,linenum) == FALSE )
-			{
-				return 0;
-			}
-			len = (int)strlen(line);
-			strcat(buffer,line);
-			buffer += len;
-			size -= len;
-			n += len;
-		}
-
-		/* if reading is enabled */
-		else if ( suppress == 0 )
-		{
-			strcpy(buffer,subst);
-			buffer+=len;
-			size -= len;
-			n+=len;
-		}
-	}
-	if ( nesting != startnest )
-	{
-		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,linenum,MACRO,filename,macro_line[nesting-1]);
-		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
-		return -1;
-	}
-	return n;
-}
 
 ///////////////////////////////////////////////////////////////////////////
 //
@@ -7141,6 +7073,9 @@ void kill_processes(void)
 	}
 }
 
+STATUS loadall_glm_roll(const char *fname); /**< a pointer to the first character in the file name string */
+bool load_import(const char *from, char *to, int len);
+
 /** @return -1 on failure, thread_id on success **/
 void* start_process(const char *cmd)
 {
@@ -7532,6 +7467,49 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			if ( old_stack ) global_restore(old_stack);
 			return FALSE;
 		}
+	}
+	else if ( strncmp(line, MACRO "input", 6) == 0 )
+	{
+		char name[1024];
+		char options[1024] = "";
+		if ( sscanf(line+6,"%*[ \t]\"%[^\"]\"%*[ \t]%[^\n]",name,options) < 1 )
+		{
+			output_error_raw("%s(%d): #input missing filename",filename,linenum);
+			return FALSE;
+		}
+		char *ext = strrchr(name,'.');
+		char oldvalue[1024] = "";
+		char varname[1024] = "";
+		if ( ext && strcmp(ext,".glm") != 0 )
+		{
+			if ( strcmp(options,"") != 0 )
+			{
+				sprintf(varname,"%s_load_options",ext+1);
+				int old_global_strictnames = global_strictnames;
+				if ( global_isdefined(varname) )
+				{
+					global_getvar(varname,oldvalue,sizeof(oldvalue));
+				}
+				else
+				{
+					global_strictnames = FALSE;
+				}
+				global_setvar(varname,options,NULL);
+				global_strictnames = old_global_strictnames;	
+			}
+		}
+		char glmname[1024];
+		if ( load_import(name,glmname,sizeof(glmname)) == FAILED )
+		{
+			output_error_raw("%s(%d): load of '%s' failed",filename,linenum,glmname);
+			return FALSE;
+		}
+		if ( strcmp(varname,"") != 0 && strcmp(oldvalue,"") != 0)
+		{
+			global_setvar(varname,oldvalue,NULL);
+		}
+		strcpy(line,"");
+		return TRUE;
 	}
 	else if (strncmp(line,MACRO "setenv",7)==0)
 	{
@@ -7927,97 +7905,6 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return FALSE;
 	}
-}
-
-STATUS loadall_glm(char *file) /**< a pointer to the first character in the file name string */
-{
-	OBJECT *obj, *first = object_get_first();
-	char *buffer = NULL, *p = NULL;
-	int fsize = 0;
-	STATUS status=FAILED;
-	STAT stat;
-	FILE *fp;
-	int move=0;
-	errno = 0;
-
-	fp = fopen(file,"rt");
-	if (fp==NULL)
-		goto Failed;
-	if (FSTAT(fileno(fp),&stat)==0)
-	{
-		modtime = stat.st_mtime;
-		fsize = stat.st_size;
-		buffer = (char*)malloc(MAXGLMSIZE); /* lots of space */
-	}
-	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
-	if (buffer==NULL)
-	{
-		output_error("unable to allocate buffer for file '%s': %s", file, errno?strerror(errno):"(no details)");
-		errno = ENOMEM;
-		goto Done;
-	}
-	else
-		p=buffer;
-
-	buffer[0] = '\0';
-	if (buffer_read(fp,buffer,file,MAXGLMSIZE)==0)
-	{
-		fclose(fp);
-		goto Failed;
-	}
-	fclose(fp);
-
-	/* reset line counter for parser */
-	linenum = 1;
-	while (*p!='\0')
-	{
-		move = gridlabd_file(p);
-		if (move==0)
-			break;
-		p+=move;
-	}
-	status = (*p=='\0') ? SUCCESS : FAILED;
-	if (status==FAILED)
-	{
-		char *eol = strchr(p,'\n');
-		if (eol!=NULL)
-			*eol='\0';
-		output_error_raw("%s(%d): load failed at or near '%.12s...'", file, linenum,*p=='\0'?"end of line":p);
-		if (p==0)
-			output_error("%s doesn't appear to be a GLM file", file);
-		goto Failed;
-	}
-	else if ((status=load_resolve_all())==FAILED)
-		goto Failed;
-
-	/* establish ranks */
-	for (obj=first?first:object_get_first(); obj!=NULL; obj=obj->next)
-		object_set_parent(obj,obj->parent);
-	IN_MYCONTEXT output_verbose("%d object%s loaded", object_get_count(), object_get_count()>1?"s":"");
-	goto Done;
-Failed:
-	if ( errno != 0 )
-	{
-		output_error("unable to load '%s': %s", file, errno?strerror(errno):"(no details)");
-		/*	TROUBLESHOOT
-			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
-			favor of prior error messages.
-		*/
-	}
-	else if ( exec_getexitcode() != XC_SUCCESS )
-	{
-		output_error("unable to load '%s': %s", file, exec_getexitcodestr());
-		/*	TROUBLESHOOT
-			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
-			favor of prior error messages.
-		*/
-	}
-Done:
-	free(buffer);
-	buffer = NULL;
-	free_index();
-	linenum=1; // parser starts at 1
-	return status;
 }
 
 /**/

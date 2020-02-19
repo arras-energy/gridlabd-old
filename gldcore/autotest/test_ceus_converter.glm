@@ -18,7 +18,11 @@ object meter {
     bustype SWING;
     nominal_voltage 120.0;
     phases ABCN;
+#input "ceus.csv" -f ami -t ceus
+#input "ceus.csv" -f scada -t ceus
+#input "ceus.csv" -f ami -t rbsa
+#input "ceus.csv" -f scada -t rbsa
 }
 
-#warning last object = ${object.find class=meter}
+
 module commercial;
