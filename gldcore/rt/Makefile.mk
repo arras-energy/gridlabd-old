@@ -45,6 +45,7 @@ dist_pkgdata_DATA += gldcore/rt/json2txt.py
 dist_pkgdata_DATA += gldcore/rt/json2png.py
 dist_pkgdata_DATA += gldcore/rt/json2png-oneline.py
 dist_pkgdata_DATA += gldcore/rt/csv2glm.py
+dist_pkgdata_DATA += gldcore/rt/csv-ceus2glm-ceus.py
 dist_pkgdata_DATA += gldcore/rt/csv-ami2glm-rbsa.py
 dist_pkgdata_DATA += gldcore/rt/csv-ami2glm-ceus.py
 dist_pkgdata_DATA += gldcore/rt/csv-scada2glm-rbsa.py

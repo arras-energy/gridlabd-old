@@ -5,24 +5,19 @@ clock {
 }
 
 module tape;
-object recorder {
-    parent main;
-    file test_ceus_converter.csv;
-    property measured_power_A,measured_power_B,measured_power_C,measured_real_power,measured_reactive_power;
-    interval 1h;
-};
 
 module powerflow;
+module commercial;
 object meter {
     name main;
     bustype SWING;
     nominal_voltage 120.0;
     phases ABCN;
-#input "ceus.csv" -f ami -t ceus
-#input "ceus.csv" -f scada -t ceus
-#input "ceus.csv" -f ami -t rbsa
-#input "ceus.csv" -f scada -t rbsa
+#input "../ceus.csv" -f ceus -t ceus -p name=building -p floor_area=15000sf
+    object recorder {
+        file test_ceus_converter.csv;
+        property measured_power_A,measured_power_B,measured_power_C,measured_real_power,measured_reactive_power;
+        interval 1h;
+    };
 }
 
-
-module commercial;

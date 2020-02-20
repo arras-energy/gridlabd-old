@@ -23,8 +23,9 @@ input_file = None
 input_type = None
 output_file = None
 output_type = None
+options = {}
 
-opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:",["help","config","ifile=","ofile=","type=","from="])
+opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:p:",["help","config","ifile=","ofile=","type=","from=","property="])
 
 if not opts : 
     help()
@@ -45,8 +46,11 @@ for opt, arg in opts:
         input_type = arg.strip();
     elif opt in ("-t","--type"):
         output_type = arg.strip();
+    elif opt in ("-p","--property"):
+        prop = arg.split("=")
+        options[prop[0]] = prop[1]
     else:
-        error(f"'{opt}' is an invalid command line option")
+        error(f"{opt}={arg} is not a valid option");
 
 if input_file == None:
     error("missing input file")
@@ -61,6 +65,6 @@ modname = sys.argv[0].replace("csv2glm.py",f"csv-{input_type}2glm-{output_type}.
 if os.path.exists(modname):
     modspec = importlib.util.spec_from_file_location(output_type, f"{modname}.py")
     mod = importlib.import_module(f"csv-{input_type}2glm-{output_type}")
-    mod.convert(input_file,output_file)
+    mod.convert(input_file,output_file,options)
 else:
     error(f"{modname} not found")
