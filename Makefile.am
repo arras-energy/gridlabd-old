@@ -47,6 +47,7 @@ include gldcore/link/matlab/Makefile.mk
 include gldcore/link/python/Makefile.mk
 include gldcore/Makefile.mk
 include gldcore/rt/Makefile.mk
+include gldcore/converters/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
 include python_extras/Makefile.mk
