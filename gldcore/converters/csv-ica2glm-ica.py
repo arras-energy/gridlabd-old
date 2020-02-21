@@ -7,5 +7,4 @@ def convert(input_file, output_file, options):
         reader = csv.reader(csvfile)
         with open(output_file,"w") as glmfile:
             for row in reader:
-                print(row)
                 glmfile.write(f"#define {row[0]}=\"{row[1]}\"\n")
