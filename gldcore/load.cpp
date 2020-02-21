@@ -7508,8 +7508,9 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		{
 			global_setvar(varname,oldvalue,NULL);
 		}
-		strcpy(line,"");
-		return TRUE;
+		output_verbose("loading converted file '%s'...", glmname);
+		strcpy(line,"\n");
+		return loadall_glm_roll(glmname);
 	}
 	else if (strncmp(line,MACRO "setenv",7)==0)
 	{
@@ -8113,11 +8114,14 @@ STATUS loadall(const char *fname)
 		{
 			return load_python(fname);
 		}
-		// non-glm data file
+
+		// non-glm file
 		if ( ext != NULL && strcmp(ext,".glm") != 0 )
 		{
-			return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
+			return load_import(fname,file,sizeof(file)) ? loadall_glm_roll(file) : FAILED;
 		}
+
+		// glm file
 		unsigned int old_obj_count = object_get_count();
 		char conf[1024];
 		static int loaded_files = 0;
