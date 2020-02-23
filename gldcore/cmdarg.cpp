@@ -1985,8 +1985,9 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 
 DEPRECATED static int depends(void *main, int argc, const char *argv[])
 {
-	fprintf(stdout,"%s",my_instance->get_loader()->get_depends(argc==0?NULL:argv[1]).c_str());
-	return ( argc == 0 ) ? 0 : 1;
+	const char *format = strchr(argv[0],'=');
+	fprintf(stdout,"%s",my_instance->get_loader()->get_depends(format?format+1:NULL).c_str());
+	return 0;
 }
 
 #include "job.h"

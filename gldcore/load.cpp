@@ -7727,12 +7727,12 @@ std::string GldLoader::get_depends(const char *format)
 			}
 			result.append("]");
 		}
-		result.append("}\n");
+		result.append("\n}\n");
 		return result;
 	}
 	else
 	{
-		throw new GldException("--depends=%s: invalid format",format);
+		throw new GldException("GldLoader::get_depends(format='%s'): invalid format",format);
 	}
 }
 
