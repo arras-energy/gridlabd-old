@@ -6983,7 +6983,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		}
 	}
 
-	else if ( strncmp(line, MACRO "input", 6) == 0 )
+	else if ( strncmp(line, "#input", 6) == 0 )
 	{
 		char name[1024];
 		char options[1024] = "";
@@ -7027,7 +7027,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return loadall_glm_roll(glmname);
 	}
-	else if (strncmp(line,MACRO "setenv",7)==0)
+	else if (strncmp(line, "#setenv",7)==0)
 
 	{
 		char *term = strchr(line+7,' ');
