@@ -2,7 +2,7 @@
 	Copyright (C) 2008 Battelle Memorial Institute
 	@file init.cpp
 	@defgroup market Module template
-	@ingroups modules
+	@ingroup modules
 
 	The market module implements various power market structures.
 
