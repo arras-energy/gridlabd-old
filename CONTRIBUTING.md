@@ -39,3 +39,4 @@ The general GridLAB-D coding conventions are described at http://gridlab-d.shout
 # Copyrights and Licensing
 
 All code changes are copyright of the original authors or their assignees.  All code must be licensed in accordance with the original GridLAB-D license (see https://github.com/gridlab-d/gridlab-d/blob/master/LICENSE).  Please do not contribute code which conflicts with this license. In particular, so-called "contaminating licenses" are prohibited.
+
