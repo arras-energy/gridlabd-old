@@ -1,5 +1,7 @@
-// $Id: triplex_meter.h 942 2008-09-19 20:03:17Z dchassin $
-//	Copyright (C) 2008 Battelle Memorial Institute
+// File: triplex_meter.h
+// Copyright (C) 2008 Battelle Memorial Institute
+// Updated for HiPAS GridLAB-D
+// Copyright (C) 2020 Regents of Leland Stanford Junior University
 
 #ifndef _TRIPLEXMETER_H
 #define _TRIPLEXMETER_H
@@ -36,9 +38,8 @@ public:
 	bool tpmeter_interrupted;		///< Reliability flag - goes active if the customer is in an "interrupted" state
 	bool tpmeter_interrupted_secondary;	///< Reliability flag - goes active if the customer is in a "secondary interrupted" state - i.e., momentary
 	TIMESTAMP next_time;
-	double starting_measured_real_energy;
-	double starting_measured_reactive_energy;
-	double last_hourly_acc;
+	TIMESTAMP dt;
+	TIMESTAMP last_t;
 
 #ifdef SUPPORT_OUTAGES
 	int16 sustained_count;	///< reliability sustained event counter
@@ -95,7 +96,6 @@ public:
 	inline triplex_meter(CLASS *cl=oclass):triplex_node(cl){};
 	int create(void);
 	int init(OBJECT *parent);
-	TIMESTAMP precommit(TIMESTAMP t1);
 	TIMESTAMP presync(TIMESTAMP t0);
 	TIMESTAMP sync(TIMESTAMP t0);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);

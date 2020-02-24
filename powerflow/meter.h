@@ -1,5 +1,7 @@
-// $Id: meter.h 4738 2014-07-03 00:55:39Z dchassin $
-//	Copyright (C) 2008 Battelle Memorial Institute
+// File: meter.h
+// Copyright (C) 2008 Battelle Memorial Institute
+// Updated for HiPAS GridLAB-D
+// Copyright (C) 2020 Regents of Leland Stanford Junior University
 
 #ifndef _METER_H
 #define _METER_H
@@ -41,9 +43,8 @@ public:
 	bool meter_interrupted_secondary;	///< Reliability flag - goes active if the customer is in an "secondary interrupted" state - i.e., momentary
 	bool meter_NR_servered;			///< Flag for NR solver, server mode (not standalone), and SWING designation
 	TIMESTAMP next_time;
-	double starting_measured_real_energy;
-	double starting_measured_reactive_energy;
-	double last_hourly_acc;
+	TIMESTAMP dt;
+	TIMESTAMP last_t;
 
 #ifdef SUPPORT_OUTAGES
 	int16 sustained_count;	//reliability sustained event counter
@@ -112,7 +113,6 @@ public:
 	inline meter(CLASS *cl=oclass):node(cl){};
 	int create(void);
 	int init(OBJECT *parent);
-	TIMESTAMP precommit(TIMESTAMP t1);
 	TIMESTAMP presync(TIMESTAMP t0);
 	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
 	TIMESTAMP sync(TIMESTAMP t0);
