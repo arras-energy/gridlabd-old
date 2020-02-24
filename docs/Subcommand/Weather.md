@@ -275,5 +275,5 @@ The weather subcommand needs to know where you wish to store the weather files. 
 
 # Tutorial
 
-[Tutorial video](https://youtu.be/KTeOFbt-aiE) (~10 minutes)
+[video:KTeOFbt-aiE]
 
