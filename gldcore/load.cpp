@@ -6078,12 +6078,6 @@ Unterminated:
 	}
 }
 
-
-static int suppress = 0;
-static int nesting = 0;
-static int macro_line[64];
-static int process_macro(char *line, int size, char *filename, int linenum);
-
 int GldLoader::buffer_read(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[65536];
@@ -6618,7 +6612,6 @@ void GldLoader::kill_processes(void)
 	}
 }
 
-STATUS loadall_glm_roll(const char *fname); /**< a pointer to the first character in the file name string */
 bool load_import(const char *from, char *to, int len);
 
 /** @return -1 on failure, thread_id on success **/
@@ -7025,7 +7018,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		output_verbose("loading converted file '%s'...", glmname);
 		strcpy(line,"\n");
-		return loadall_glm_roll(glmname);
+		return loadall_glm(glmname);
 	}
 	else if (strncmp(line, "#setenv",7)==0)
 
@@ -7632,7 +7625,7 @@ STATUS GldLoader::loadall(const char *fname)
 		// non-glm file
 		if ( ext != NULL && strcmp(ext,".glm") != 0 )
 		{
-			return load_import(fname,file,sizeof(file)) ? loadall_glm_roll(file) : FAILED;
+			return load_import(fname,file,sizeof(file)) ? loadall_glm(file) : FAILED;
 		}
 
 		// glm file
