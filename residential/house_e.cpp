@@ -682,10 +682,6 @@ int house_e::create()
 	char *token = NULL;
 	error_flag = 0;
 
-	fprintf(stderr,"load.power_fraction@%p = %g\n", &load.power_fraction, load.power_fraction);
-	fprintf(stderr,"load.current_fraction@%p = %g\n", &load.current_fraction, load.current_fraction);
-	fprintf(stderr,"load.impedance_fraction@%p = %g\n", &load.impedance_fraction, load.impedance_fraction);
-
 	design_internal_gain_density = 0.6;
 	thermal_integrity_level = TI_UNKNOWN;
 	hvac_breaker_rating = 0;

@@ -4998,7 +4998,11 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		REJECT;
 	}
 	if WHITE ACCEPT;
-	if (LITERAL("{")) ACCEPT else
+	if ( LITERAL("{") ) 
+	{
+		ACCEPT 
+	}
+	else
 	{
 		output_error_raw("%s(%d): expected object block starting {", filename, linenum);
 		REJECT;
@@ -5008,24 +5012,24 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 #ifdef NAMEOBJ
 	nameobj.name = classname;
 #endif
-	if (id2==-1) id2=id+1; /* create singleton */
+	if ( id2 == -1 ) id2=id+1; /* create singleton */
 	BEGIN_REPEAT;
-	while (id<id2)
+	while ( id < id2 )
 	{
 		REPEAT;
-		if (oclass->create!=NULL)
+		if ( oclass->create != NULL )
 		{
 #ifdef NAMEOBJ
 			obj = &nameobj;
 #endif
-			if ((*oclass->create)(&obj,parent)==0) 
+			if ( (*oclass->create)(&obj,parent) == 0 ) 
 			{
 				output_error_raw("%s(%d): create failed for object %s:%d", filename, linenum, classname, id);
 				REJECT;
 			}
-			else if (obj==NULL
+			else if ( obj == NULL
 #ifdef NAMEOBJ
-				|| obj==&nameobj
+				|| obj == &nameobj
 #endif
 				) 
 			{
@@ -5043,16 +5047,19 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 			}
 			object_set_parent(obj,parent);
 		}
-		if (id!=-1 && load_set_index(obj,(OBJECTNUM)id)==FAILED)
+		if ( id != -1 && load_set_index(obj,(OBJECTNUM)id) == FAILED )
 		{
 			output_error_raw("%s(%d): unable to index object id number for %s:%d", filename, linenum, classname, id);
 			REJECT;
 		}
-		else if TERM(object_properties(HERE,oclass,obj))
+		else if ( TERM(object_properties(HERE,oclass,obj)) )
 		{
 			ACCEPT;
 		} 
-		else REJECT;
+		else 
+		{
+			REJECT;
+		}
 		if (id==-1) id2--; else id++;
 	}
 	END_REPEAT;
