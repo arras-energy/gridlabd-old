@@ -29,6 +29,7 @@ industrial::industrial(MODULE *module)
 		if (gl_publish_variable(oclass,
 			
 			PT_int32, "naics_code", get_naics_code_offset(), 
+				PT_DEFAULT,"0", 
 				PT_DESCRIPTION, "NAICS facility code",
 
 			PT_double, "power_pf", get_power_pf_offset(), 
