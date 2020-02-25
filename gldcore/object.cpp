@@ -350,7 +350,9 @@ OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 	random_key(obj->guid,sizeof(obj->guid)/sizeof(obj->guid[0]));
 
 	for ( prop=obj->oclass->pmap; prop!=NULL; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)))
+	{
 		property_create(prop,property_addr(obj,prop));
+	}
 	
 	if ( first_object == NULL )
 	{

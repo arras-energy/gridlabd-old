@@ -340,7 +340,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"interior_exterior_wall_ratio",PADDR(interior_exterior_wall_ratio),PT_DESCRIPTION,"ratio of interior to exterior walls",
 			PT_double,"exterior_ceiling_fraction",PADDR(exterior_ceiling_fraction),PT_DESCRIPTION,"ratio of external ceiling sf to floor area",
 			PT_double,"exterior_floor_fraction",PADDR(exterior_floor_fraction),PT_DESCRIPTION,"ratio of floor area used in UA calculation",
-			PT_double,"window_shading",PADDR(glazing_shgc),PT_DESCRIPTION,"transmission coefficient through window due to glazing",
+			PT_double,"window_shading",PADDR(glazing_shgc), PT_DEFAULT,"0", PT_DESCRIPTION,"transmission coefficient through window due to glazing",
 			PT_double,"window_exterior_transmission_coefficient",PADDR(window_exterior_transmission_coefficient),PT_DESCRIPTION,"coefficient for the amount of energy that passes through window",
 			PT_double,"solar_heatgain_factor",PADDR(solar_heatgain_factor),PT_ACCESS,PA_REFERENCE,PT_DESCRIPTION,"product of the window area, window transmitivity, and the window exterior transmission coefficient",
 			PT_double,"airchange_per_hour[unit/h]",PADDR(airchange_per_hour),PT_DESCRIPTION,"number of air-changes per hour",
@@ -610,6 +610,11 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 
 			PT_char1024, "gas_enduses", PADDR(gas_enduses), PT_DESCRIPTION, "list of implicit enduses that use gas instead of electricity",
 			PT_method, "circuit", get_smart_breaker_offset(), PT_ACCESS,PA_PROTECTED, PT_DESCRIPTION, "smart breaker message handlers", 
+
+			PT_double, "load_power_fraction", PADDR(load.power_fraction), PT_DEFAULT, "0.8", PT_DESCRIPTION,"fraction of total load that is constant power",
+			PT_double, "load_impedance_fraction", PADDR(load.impedance_fraction), PT_DEFAULT, "0.2", PT_DESCRIPTION,"fraction of total load that is constant impedance",
+			PT_double, "load_current_fraction", PADDR(load.current_fraction), PT_DEFAULT, "0.0", PT_DESCRIPTION,"fraction of total load that is constant current",
+			
 			NULL)<1) 
 			GL_THROW("unable to publish properties in %s",__FILE__);			
 
@@ -677,12 +682,10 @@ int house_e::create()
 	char *token = NULL;
 	error_flag = 0;
 
-	//glazing_shgc = 0.65; // assuming generic double glazing
-	// now zero to catch lookup trigger
-	glazing_shgc = 0;
-	load.power_fraction = 0.8;
-	load.impedance_fraction = 0.2;
-	load.current_fraction = 0.0;
+	fprintf(stderr,"load.power_fraction@%p = %g\n", &load.power_fraction, load.power_fraction);
+	fprintf(stderr,"load.current_fraction@%p = %g\n", &load.current_fraction, load.current_fraction);
+	fprintf(stderr,"load.impedance_fraction@%p = %g\n", &load.impedance_fraction, load.impedance_fraction);
+
 	design_internal_gain_density = 0.6;
 	thermal_integrity_level = TI_UNKNOWN;
 	hvac_breaker_rating = 0;
