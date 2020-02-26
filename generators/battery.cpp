@@ -28,7 +28,7 @@ battery::battery(MODULE *module)
 			oclass->trl = TRL_PROOF;
 
 		if (gl_publish_variable(oclass,
-			PT_enumeration,"generator_mode",PADDR(gen_mode_v), PT_DESCRIPTION, "LEGACY MODEL: Selects generator control mode when using legacy model; in non-legacy models, this should be SUPPLY_DRIVEN.",
+			PT_enumeration,"generator_mode",PADDR(gen_mode_v), PT_DEFAULT,"UNKNOWN", PT_DESCRIPTION, "LEGACY MODEL: Selects generator control mode when using legacy model; in non-legacy models, this should be SUPPLY_DRIVEN.",
 				PT_KEYWORD,"UNKNOWN",(enumeration)GM_UNKNOWN,
 				PT_KEYWORD,"CONSTANT_V",(enumeration)GM_CONSTANT_V,
 				PT_KEYWORD,"CONSTANT_PQ",(enumeration)GM_CONSTANT_PQ,
@@ -112,7 +112,7 @@ battery::battery(MODULE *module)
 			//internal battery model parameters
 			PT_bool,"use_internal_battery_model", PADDR(use_internal_battery_model), PT_DEFAULT,"FALSE", PT_DESCRIPTION, "Enables the INTERNAL BATTERY MODEL.",
 			PT_enumeration,"battery_type", PADDR(battery_type), PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the type of the battery. Used to determine the soc vs voltage curve.",
-				PT_KEYWORD, "UNKNOWON", (enumeration)UNKNOWN,
+				PT_KEYWORD, "UNKNOWN", (enumeration)UNKNOWN,
 				PT_KEYWORD, "LI_ION", (enumeration)LI_ION,
 				PT_KEYWORD, "LEAD_ACID", (enumeration)LEAD_ACID,
 
