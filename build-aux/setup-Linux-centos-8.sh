@@ -13,11 +13,11 @@ yum -q install svn -y
 
 # python3 support needed as of 4.2
 yum -q install python3 python36-devel python3-pip python3-tkinter -y
+[ -l /usr/local/bin/python3 ] || ln -sf /usr/bin/python3 /usr/local/bin/python3
 pip3 --quiet install --upgrade pip
 echo '#/bin/bash' > /usr/local/bin/python3-config
 echo '/usr/bin/python3-config $*' >> /usr/local/bin/python3-config
 chmod +x /usr/local/bin/python3-config
-[ -x /usr/local/bin/python3 ] || ln -s /usr/bin/python3 /usr/local/bin/python3
 /usr/local/bin/python3 -m pip --quiet install matplotlib
 /usr/local/bin/python3 -m pip --quiet install pandas
 /usr/local/bin/python3 -m pip --quiet install mysql-connector

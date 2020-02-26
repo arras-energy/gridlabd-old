@@ -89,7 +89,8 @@ GldMain::GldMain(int argc, const char *argv[])
 : 	globals(this), 
 	exec(this), 
 	cmdarg(this),
-	gui(this)
+	gui(this),
+	loader(this)
 {
 	python_embed_init(argc,argv);
 

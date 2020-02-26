@@ -650,21 +650,30 @@ Done:
 	return new bool(status==SUCCESS) ;
 }
 
+std::list<pthread_t> thread_list;
 /** Wait for deferred schedule creations to finish 
     @return the global status of schedule creation
  **/
 int schedule_createwait(void)
 {
-	if ( sc_running==0 && sc_done==sc_started ) return sc_status;
-	pthread_mutex_lock(&sc_activelock);
-	while ( sc_running>0 || sc_done<sc_started )
+	int status = SUCCESS;
+	for ( std::list<pthread_t>::iterator thread = thread_list.begin() ; thread != thread_list.end() ; thread++ )
 	{
-		IN_MYCONTEXT output_debug("waiting for deferred schedule creations to complete (%d of %d active)", sc_running, global_threadcount);
-		pthread_cond_wait(&sc_active,&sc_activelock);
+		void *rc;
+		pthread_join(*thread,&rc);
+		status |= *(int*)rc;
 	}
-	IN_MYCONTEXT output_debug("all deferred schedule creations completed %s", sc_status==SUCCESS ? "successfully" : "with at least one failure");
-	pthread_mutex_unlock(&sc_activelock);
-	return sc_status;
+	return status;
+	// if ( sc_running==0 && sc_done==sc_started ) return sc_status;
+	// pthread_mutex_lock(&sc_activelock);
+	// while ( sc_running>0 || sc_done<sc_started )
+	// {
+	// 	IN_MYCONTEXT output_debug("waiting for deferred schedule creations to complete (%d of %d active)", sc_running, global_threadcount);
+	// 	pthread_cond_wait(&sc_active,&sc_activelock);
+	// }
+	// IN_MYCONTEXT output_debug("all deferred schedule creations completed %s", sc_status==SUCCESS ? "successfully" : "with at least one failure");
+	// pthread_mutex_unlock(&sc_activelock);
+	// return sc_status;
 }
 
 /** Create a schedule. 
@@ -765,6 +774,7 @@ SCHEDULE *schedule_create(const char *name,		/**< the name of the schedule */
 			output_warning("schedule_createproc failed, schedule '%s' created inline instead", sch->name);
 			return schedule_createproc(sch) ? sch : NULL;
 		}
+		thread_list.push_back(thread_id);
 		sc_started++;
 		return sch;
 	}
