@@ -88,9 +88,9 @@ battery::battery(MODULE *module)
 
 			PT_double, "Rinternal[Ohm]", PADDR(Rinternal), PT_DEFAULT, "10 Ohm", PT_DESCRIPTION, "LEGACY MODEL: the internal resistance of the battery.",
 			PT_double, "V_Max[V]", PADDR(V_Max), PT_DEFAULT, "0 V", PT_DESCRIPTION, "LEGACY MODEL: the maximum terminal voltage of the battery.",
-			PT_complex, "I_Max[A]", PADDR(I_Max), PT_DEFAULT, "0 V", PT_DESCRIPTION, "LEGACY MODEL: the maximum current output of the battery.",
-			PT_double, "E_Max[Wh]", PADDR(E_Max), PT_DEFAULT, "0 V", PT_DESCRIPTION, "LEGACY MODEL: the maximum capacity of the battery.",
-			PT_double, "P_Max[W]", PADDR(Max_P), PT_DEFAULT, "0 V", PT_DESCRIPTION, "LEGACY MODEL: the maximum power output of the battery.",
+			PT_complex, "I_Max[A]", PADDR(I_Max), PT_DEFAULT, "0 A", PT_DESCRIPTION, "LEGACY MODEL: the maximum current output of the battery.",
+			PT_double, "E_Max[Wh]", PADDR(E_Max), PT_DEFAULT, "0 Wh", PT_DESCRIPTION, "LEGACY MODEL: the maximum capacity of the battery.",
+			PT_double, "P_Max[W]", PADDR(Max_P), PT_DEFAULT, "0 W", PT_DESCRIPTION, "LEGACY MODEL: the maximum power output of the battery.",
 			PT_double, "power_factor", PADDR(pf), PT_DESCRIPTION, "LEGACY MODEL: the power factor output of the battery.",
 			PT_double, "Energy[Wh]",PADDR(Energy), PT_DEFAULT, "-1", PT_DESCRIPTION, "LEGACY MODEL: the available capacity of the battery.",
 			PT_double, "efficiency[unit]", PADDR(efficiency), PT_DEFAULT,"0 unit", PT_DESCRIPTION, "LEGACY MODEL: the efficiency of the battery.",
