@@ -150,31 +150,25 @@ public:
 	{
 		va_list ptr;
 		va_start(ptr,format);
-		size_t size = vsnprintf(NULL,0,format,ptr);
-		char *buf = new char[size];
+		char *buf = NULL;
 		try {
-			if ( buf )
+			if ( vasprintf(&buf,format,ptr) < 0 )
 			{
-				if ( vsnprintf(buf,size-1,format,ptr) < 0 )
-				{
-					msg = std::string("GldException::GldException(): vsnprintf() failed");
-				}
-				else
-				{
-					msg = std::string(buf);
-				}
+				msg.assign("GldException::GldException(): vasprintf() failed");
 			}
 			else
 			{
-				msg = std::string("GldException::GldException(): memory allocation failed");
+				msg.assign(buf);
 			}
 		}
 		catch (...) 
 		{
-			msg = std::string("GldException::GldException(): unknown exception in constructor");
+			msg.assign("GldException::GldException(): unknown exception in constructor");
 		}
-		if ( buf ) 
-			delete [] buf;
+		if ( buf )
+		{ 
+			free(buf);
+		}
 		va_end(ptr);
 	};
 
