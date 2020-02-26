@@ -7701,6 +7701,7 @@ std::string GldLoader::get_depends(const char *format)
 		for ( DEPENDENCY_TREE::iterator item = dependency_tree.begin() ; item != dependency_tree.end() ; item++ )
 		{
 			result.append(item->first + ": ");
+			item->second.unique();
 			for ( std::list<std::string>::iterator target = item->second.begin() ; target != item->second.end() ; target++ )
 				result.append(*target + " ");
 			result.append("\n\n");
@@ -7717,6 +7718,7 @@ std::string GldLoader::get_depends(const char *format)
 			result.append("\t\"");
 			result.append(item->first);
 			result.append("\" : [");
+			item->second.unique();
 			for ( std::list<std::string>::iterator target = item->second.begin() ; target != item->second.end() ; target++ )
 			{
 				if ( target != item->second.begin() )
@@ -7741,13 +7743,10 @@ void GldLoader::add_depend(const char *filename, const char *dependency)
 	if ( strcmp(filename,"") == 0 )
 		filename = global_modelname;
 
-	if ( strcmp(filename,dependency) != 0 )
+	std::list<std::string> &item = dependency_tree[filename];
+	if ( strcmp(filename,dependency) != 0 && std::find(item.begin(),item.end(),std::string(filename)) == item.end() )
 	{
-		dependency_tree[filename].push_back(dependency);
-	}
-	else
-	{
-		dependency_tree[filename];
+		item.push_back(dependency);
 	}
 }
 
