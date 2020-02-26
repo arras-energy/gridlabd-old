@@ -61,6 +61,7 @@ private: // instance variables
 	GldExec exec;
 	GldCmdarg cmdarg;
 	GldGui gui;
+	GldLoader loader;
 public: // public variables
 	LOCKVAR rlock_count;
 	LOCKVAR rlock_spin;
@@ -85,11 +86,17 @@ public:
 	 */
 	inline GldCmdarg *get_cmdarg() { return &cmdarg; };
 
-	/* Method get_gui
+	/* Method: get_gui
 
 		This function returns a reference to the GUI implementation
 	 */
 	inline GldGui *get_gui() { return &gui; };
+
+	/* Method: get_loader
+
+		This function returns a reference the the loader implementation
+	 */
+	inline GldLoader *get_loader() { return &loader; };
 
 private:
 	static unsigned int next_id; // next instance id
@@ -163,7 +170,13 @@ public:
 	// Method: global_saveall
 	inline size_t global_saveall(FILE *fp) { return globals.saveall(fp);};
 
-public:		
+public:
+
+	// Section: Loader access
+	inline bool load_file(const char *filename) { return loader.load(filename); };
+
+public:
+
 	// Section: Globals variable access
 
 	// Method: global_init

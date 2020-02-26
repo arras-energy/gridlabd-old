@@ -528,6 +528,51 @@ void object_set_initial_filter(OBJECT *obj, const char *name, TRANSFORM *value, 
 #define MYCLOCK (MY->clock) /**< get an object's own clock */
 #define MYRANK (MY->rank) /**< get an object's own rank */
 
+// Class: GldObject
+// Object implementation
+class GldObject
+{
+
+private:
+
+	// Property: obj
+	// Reference to underlying object header
+	OBJECT *obj;
+
+public:
+
+	// Constructor: GldObject
+	// Construct an object implementation
+	inline GldObject(OBJECT *ref) { obj = ref; };
+
+	// Destructor: ~GldObject
+	// Destroy an object implementation
+	inline ~GldObject(void) {};
+
+	// Method: OBJECT*
+	// Obtain a reference to the underlying object header
+	inline operator OBJECT* (void) { return obj; };
+
+public:
+
+	// Method: get_header
+	inline OBJECT *get_header(void) { return obj; };
+
+	// Method: get_id
+	inline size_t get_id(void) { return obj->id; };
+
+	// Method: get_class
+	inline CLASS *get_class(void) { return obj->oclass; };
+
+	// Method: get_name
+	inline std::string get_name(void) { return obj->name ? std::string(obj->name) : (std::string(obj->oclass->name) + ":" + std::to_string(obj->id)); };
+
+public:
+
+	// Method: get_data
+	inline void *get_data(void) { return obj+1; };
+};
+
 #endif
 
 /** @} **/
