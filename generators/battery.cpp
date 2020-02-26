@@ -38,11 +38,11 @@ battery::battery(MODULE *module)
 				PT_KEYWORD,"VOLTAGE_CONTROLLED",(enumeration)GM_VOLTAGE_CONTROLLED,
 				PT_KEYWORD,"POWER_VOLTAGE_HYBRID",(enumeration)GM_POWER_VOLTAGE_HYBRID,
 
-			PT_enumeration,"additional_controls",PADDR(additional_controls), PT_DESCRIPTION, "LEGACY MODEL: In conjunction with POWER_DRIVEN, VOLTAGE_CONTROLLED, and POWER_VOLTAGE_HYBRID, this will activate control set points that adjust with temperature",
+			PT_enumeration,"additional_controls",PADDR(additional_controls), PT_DEFAULT, "NONE", PT_DESCRIPTION, "LEGACY MODEL: In conjunction with POWER_DRIVEN, VOLTAGE_CONTROLLED, and POWER_VOLTAGE_HYBRID, this will activate control set points that adjust with temperature",
 				PT_KEYWORD,"NONE",(enumeration)AC_NONE,
 				PT_KEYWORD,"LINEAR_TEMPERATURE",(enumeration)AC_LINEAR_TEMPERATURE,
 
-			PT_enumeration,"generator_status",PADDR(gen_status_v), PT_DESCRIPTION, "describes whether the generator is online or offline",
+			PT_enumeration,"generator_status",PADDR(gen_status_v), PT_DEFAULT,"ONLINE", PT_DESCRIPTION, "describes whether the generator is online or offline",
 				PT_KEYWORD,"OFFLINE",(enumeration)OFFLINE,
 				PT_KEYWORD,"ONLINE",(enumeration)ONLINE,	
 
@@ -77,31 +77,27 @@ battery::battery(MODULE *module)
 			PT_double, "check_power_high[W]", PADDR(check_power_high), PT_DESCRIPTION, "LEGACY MODEL: low set point of dead band for load following at lower temperatures (POWER_DRIVEN + LINEAR_TEMPERATURE)",
 			PT_double, "voltage_set_high[V]", PADDR(voltage_set_high), PT_DESCRIPTION, "LEGACY MODEL: high set point for voltage control",
 			PT_double, "voltage_set_low[V]", PADDR(voltage_set_low), PT_DESCRIPTION, "LEGACY MODEL: low set point for voltage control",
-			PT_double, "deadband[V]", PADDR(deadband), PT_DESCRIPTION, "LEGACY MODEL: voltage deadband",
+			PT_double, "deadband[V]", PADDR(deadband), PT_DEFAULT,"0 V", PT_DESCRIPTION, "LEGACY MODEL: voltage deadband",
 			PT_double, "sensitivity", PADDR(sensitivity), PT_DESCRIPTION, "LEGACY MODEL: describes how sensitive the control is to temperature excursions; defines slope of linear control",
-			PT_double, "high_temperature", PADDR(high_temperature), PT_DESCRIPTION, "LEGACY MODEL: high temperature of linear control; defines slope",
-			PT_double, "midpoint_temperature", PADDR(midpoint_temperature), PT_DESCRIPTION, "LEGACY MODEL: midpoint temperature of linear control; defines slope",
-			PT_double, "low_temperature", PADDR(low_temperature), PT_DESCRIPTION, "LEGACY MODEL: low temperature of linear control; defines slope",
+			PT_double, "high_temperature[degF]", PADDR(high_temperature), PT_DEFAULT,"100 degF", PT_DESCRIPTION, "LEGACY MODEL: high temperature of linear control; defines slope",
+			PT_double, "midpoint_temperature[degF]", PADDR(midpoint_temperature), PT_DEFAULT,"50 degF", PT_DESCRIPTION, "LEGACY MODEL: midpoint temperature of linear control; defines slope",
+			PT_double, "low_temperature[degF]", PADDR(low_temperature), PT_DEFAULT,"0 degF", PT_DESCRIPTION, "LEGACY MODEL: low temperature of linear control; defines slope",
 
 			//Used for PQ mode
 			PT_double, "scheduled_power[W]", PADDR(B_scheduled_power), PT_DESCRIPTION, "LEGACY MODEL: real power output of battery/inverter system",
 
-			PT_double, "Rinternal[Ohm]", PADDR(Rinternal), PT_DESCRIPTION, "LEGACY MODEL: the internal resistance of the battery.",
-			PT_double, "V_Max[V]", PADDR(V_Max), PT_DESCRIPTION, "LEGACY MODEL: the maximum terminal voltage of the battery.",
-			PT_complex, "I_Max[A]", PADDR(I_Max), PT_DESCRIPTION, "LEGACY MODEL: the maximum current output of the battery.",
-			PT_double, "E_Max[Wh]", PADDR(E_Max), PT_DESCRIPTION, "LEGACY MODEL: the maximum capacity of the battery.",
-			PT_double, "P_Max[W]", PADDR(Max_P), PT_DESCRIPTION, "LEGACY MODEL: the maximum power output of the battery.",
+			PT_double, "Rinternal[Ohm]", PADDR(Rinternal), PT_DEFAULT, "10 Ohm", PT_DESCRIPTION, "LEGACY MODEL: the internal resistance of the battery.",
+			PT_double, "V_Max[V]", PADDR(V_Max), PT_DEFAULT, "0 V", PT_DESCRIPTION, "LEGACY MODEL: the maximum terminal voltage of the battery.",
+			PT_complex, "I_Max[A]", PADDR(I_Max), PT_DEFAULT, "0 V", PT_DESCRIPTION, "LEGACY MODEL: the maximum current output of the battery.",
+			PT_double, "E_Max[Wh]", PADDR(E_Max), PT_DEFAULT, "0 V", PT_DESCRIPTION, "LEGACY MODEL: the maximum capacity of the battery.",
+			PT_double, "P_Max[W]", PADDR(Max_P), PT_DEFAULT, "0 V", PT_DESCRIPTION, "LEGACY MODEL: the maximum power output of the battery.",
 			PT_double, "power_factor", PADDR(pf), PT_DESCRIPTION, "LEGACY MODEL: the power factor output of the battery.",
-			PT_double, "Energy[Wh]",PADDR(Energy), PT_DESCRIPTION, "LEGACY MODEL: the available capacity of the battery.",
-			PT_double, "efficiency[unit]", PADDR(efficiency), PT_DESCRIPTION, "LEGACY MODEL: the efficiency of the battery.",
-			PT_double, "base_efficiency[unit]", PADDR(base_efficiency), PT_DESCRIPTION, "LEGACY MODEL: the efficiency of the battery at rated voltaged and current.",
-			PT_double, "parasitic_power_draw[W]", PADDR(parasitic_power_draw), PT_DESCRIPTION, "LEGACY MODEL: the parasytic power draw of the battery when idle.",
+			PT_double, "Energy[Wh]",PADDR(Energy), PT_DEFAULT, "-1", PT_DESCRIPTION, "LEGACY MODEL: the available capacity of the battery.",
+			PT_double, "efficiency[unit]", PADDR(efficiency), PT_DEFAULT,"0 unit", PT_DESCRIPTION, "LEGACY MODEL: the efficiency of the battery.",
+			PT_double, "base_efficiency[unit]", PADDR(base_efficiency), PT_DEFAULT,"0 unit", PT_DESCRIPTION, "LEGACY MODEL: the efficiency of the battery at rated voltaged and current.",
+			PT_double, "parasitic_power_draw[W]", PADDR(parasitic_power_draw), PT_DEFAULT,"0 W", PT_DESCRIPTION, "LEGACY MODEL: the parasytic power draw of the battery when idle.",
 
-
-			//PT_int64, "generator_mode_choice", PADDR(generator_mode_choice),
-
-			PT_double, "Rated_kVA[kVA]", PADDR(Rated_kVA), PT_DESCRIPTION, "LEGACY MODEL: the rated power of the battery.",
-			//PT_double, "Rated_kV[kV]", PADDR(Rated_kV),
+			PT_double, "Rated_kVA[kVA]", PADDR(Rated_kVA), PT_DEPRECATED, PT_DEFAULT,"1 kVA", PT_DESCRIPTION, "LEGACY MODEL: the rated power of the battery.",
 			PT_complex, "V_Out[V]", PADDR(V_Out), PT_DESCRIPTION, "LEGACY MODEL: the AC voltage at the terminals of the battery.",
 			PT_complex, "I_Out[A]", PADDR(I_Out), PT_DESCRIPTION, "LEGACY MODEL: the AC current output of the battery.",
 			PT_complex, "VA_Out[VA]", PADDR(VA_Out), PT_DESCRIPTION, "LEGACY MODEL: the power output of the battery.",
@@ -113,10 +109,8 @@ battery::battery(MODULE *module)
 
 			PT_double,"power_transferred",PADDR(power_transferred), PT_DESCRIPTION, "LEGACY MODEL: the power output of the battery.",
 
-			//resistasnces and max P, Q
-
 			//internal battery model parameters
-			PT_bool,"use_internal_battery_model", PADDR(use_internal_battery_model), PT_DESCRIPTION, "Enables the INTERNAL BATTERY MODEL.",
+			PT_bool,"use_internal_battery_model", PADDR(use_internal_battery_model), PT_DEFAULT,"FALSE", PT_DESCRIPTION, "Enables the INTERNAL BATTERY MODEL.",
 			PT_enumeration,"battery_type", PADDR(battery_type), PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the type of the battery. Used to determine the soc vs voltage curve.",
 				PT_KEYWORD, "UNKNOWON", (enumeration)UNKNOWN,
 				PT_KEYWORD, "LI_ION", (enumeration)LI_ION,
@@ -126,11 +120,11 @@ battery::battery(MODULE *module)
 			PT_double,"rated_power[W]", PADDR(p_max), PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the rated power output of the battery.",
 			PT_double,"battery_capacity[Wh]", PADDR(e_max), PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the rated battery capacity of the battery.",
 			PT_double,"round_trip_efficiency[pu]", PADDR(eta_rt), PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the round trip efficiency of the battery according to a full discharge/charge cycle.",
-			PT_double,"state_of_charge[pu]", PADDR(soc), PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the current state of charge of the battery.",
+			PT_double,"state_of_charge[pu]", PADDR(soc), PT_DEFAULT,"-1 pu", PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the current state of charge of the battery.",
 			PT_double,"battery_load[W]", PADDR(bat_load), PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the current power output of the battery.",
-			PT_double,"reserve_state_of_charge[pu]", PADDR(b_soc_reserve), PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the reserve state of charge the battery can reach.",
+			PT_double,"reserve_state_of_charge[pu]", PADDR(b_soc_reserve), PT_DEFAULT,"0 pu", PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the reserve state of charge the battery can reach.",
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
-		defaults = this;
+		defaults = NULL;
 		memset(this,0,sizeof(battery));
 
 		if (gl_publish_function(oclass,	"preupdate_battery_object", (FUNCTIONADDR)preupdate_battery)==NULL)
@@ -147,50 +141,16 @@ battery::battery(MODULE *module)
 
 /* Object creation is called once for each object that is created by the core */
 int battery::create(void) 
-{
-	memcpy(this,defaults,sizeof(*this));
-	
-	gen_status_v = ONLINE;
-	//rfb_size_v = SMALL;
-
-	Rinternal = 10;
-	V_Max = 0;
-	I_Max = 0;
-	E_Max = 0;
-	Energy = -1;
+{	
+	// these value have no class-specified defaults and are non-zero or may override the base-class defaults
 	recalculate = true;
 	margin = 1000;
-
-	no_of_cycles = 0;
-	deadband = 0;
-	parasitic_power_draw = 0;
-	additional_controls = AC_NONE;
-	midpoint_temperature = 50;
-	low_temperature = 0;
-	high_temperature = 100;
-	sensitivity = 0.5;
-	
-	Max_P = 0;//< maximum real power capacity in kW
-    Min_P = 0;//< minimus real power capacity in kW
-	
-	//double Max_Q;//< maximum reactive power capacity in kVar
-    //double Min_Q;//< minimus reactive power capacity in kVar
-	Rated_kVA = 1; //< nominal capacity in kVA
-	//double Rated_kV; //< nominal line-line voltage in kV
-	
-	efficiency =  0;
-	base_efficiency = 0;
+    Min_P = 0;
 	Iteration_Toggle = false;
-
 	E_Next = 0;
 	connected = true;
 	complex VA_Internal;
-
-	use_internal_battery_model = false;
-	soc = -1;
-	b_soc_reserve = 0;
 	state_change_time = 0;
-	
 	first_run = true;
 	enableDelta = false;
 	state_change_time_delta = 0;
