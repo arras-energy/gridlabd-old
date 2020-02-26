@@ -72,6 +72,10 @@ public:
 	// Obtains the module currently being processed b the loader
 	GldModule get_current_module(void);
 
+	// Method: get_depends
+	// Obtains the current simulation's dependency tree
+	std::string get_depends(const char *format=NULL);
+
 private:
 
 	typedef struct s_languagemap 
@@ -149,6 +153,8 @@ private:
 
 	typedef std::map<OBJECTNUM,INDEXITEM> INDEXMAP;
 
+	typedef std::map<std::string, std::list<std::string> > DEPENDENCY_TREE;
+
 private:
 
 	GldMain &instance;
@@ -198,6 +204,8 @@ private:
 
 	LANGUAGE *language_list;
 	LANGUAGE *language;
+
+	DEPENDENCY_TREE dependency_tree;
 
 private:
 
@@ -356,6 +364,7 @@ private:
 	bool load_import(const char *from, char *to, int len);
 	STATUS load_python(const char *filename);
 	STATUS loadall(const char *fname);
+	void add_depend(const char *filename, const char *dependency);
 };
 
 #endif

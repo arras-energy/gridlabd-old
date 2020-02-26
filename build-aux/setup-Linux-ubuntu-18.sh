@@ -12,7 +12,9 @@ apt-get -q update
 apt-get -q install python3.7 -y
 apt-get -q install python3-pip -y
 apt-get -q install python3.7-dev -y
-
+echo '#/bin/bash
+/usr/bin/python3-config $*' > /usr/local/bin/python3-config
+chmod +x /usr/local/bin/python3-config
 # change default python3 to python3.7 for validation
 update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
 
