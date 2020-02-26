@@ -2235,15 +2235,20 @@ STATUS GldCmdarg::load(int argc,const char *argv[])
 					   in normal more or leaving off the model file name.
 					 */
 				}
-				else {
+				else 
+				{
 					clock_t start = clock();
 
 					/* preserve name of first model only */
 					if (strcmp(global_modelname,"")==0)
+					{
 						strcpy(global_modelname,*argv);
+					}
 
-					if (!loadall(*argv))
+					if ( ! instance->load_file(*argv) )
+					{
 						status = FAILED;
+					}
 					loader_time += clock() - start;
 				}
 			}
