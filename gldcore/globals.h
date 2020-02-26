@@ -207,6 +207,9 @@ GLOBAL unsigned global_version_build INIT(BUILDNUM); /**< The software's build n
 /* Variable: global_version_branch */
 GLOBAL char global_version_branch[256] INIT(BRANCH); /**< The software's branch designator */
 
+/* Variable: global_version */
+GLOBAL char global_version[1024] INIT(""); /**< The software's official version designation */
+
 /* Variable: global_command_line */
 GLOBAL char global_command_line[1024]; /**< The current command-line */
 
