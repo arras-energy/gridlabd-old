@@ -144,4 +144,19 @@ extern "C" {
 int GetLastError();
 #endif
 
+class GldModule
+{
+
+private:
+
+	MODULE *mod;
+
+public:
+
+	inline GldModule(MODULE *ref) { mod = ref; };
+	inline ~GldModule(void) {};
+
+	inline operator MODULE* (void) { return mod; };
+};
+
 #endif
