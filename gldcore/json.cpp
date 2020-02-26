@@ -490,7 +490,13 @@ int GldJsonWriter::write_objects(FILE *fp)
                 {
 					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
 					if ( value == NULL )
+					{
 						continue; // ignore values that don't convert propertly
+					}
+					if ( (global_filesave_options&FSO_MINIMAL)==FSO_MINIMAL && prop->default_value != NULL && strcmp(value,prop->default_value) == 0 )
+					{
+						continue; // ignore values that are precisely the default value
+					}
 					int size = strlen(value);
 					// TODO: proper JSON formatted is needed for data that is either a dict or a list
 					// if ( value[0] == '{' && value[len] == '}')
