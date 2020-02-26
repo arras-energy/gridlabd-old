@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 
 ENV container docker
 ENV REPO=https://github.com/slacgismo/gridlabd
