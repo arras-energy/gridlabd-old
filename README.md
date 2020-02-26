@@ -2,7 +2,7 @@ The main documentation page for this project is located at http://docs.gridlabd.
 
 ## Important Note
 
-This repository is SLAC National Accelerator's development fork of GridLAB-D (see https://github.com/gridlab-d/gridlab-d for the official code repository of GridLAB-D).  Only SLAC projects may contribute to this repository.  Changes made in this fork will be migrated back to PNNL's official repository at PNNL's discretion.
+This repository is SLAC National Accelerator's version of HiPAS GridLAB-D.  Only SLAC projects may contribute to this repository.  Changes made in this repository will be migrated back to the [original GridLAB-D repository](https://github.com/gridlab-d/gridlab-d) at PNNL's discretion.
 
 # User quick start
 
