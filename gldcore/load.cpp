@@ -7744,7 +7744,7 @@ void GldLoader::add_depend(const char *filename, const char *dependency)
 		filename = global_modelname;
 
 	std::list<std::string> &item = dependency_tree[filename];
-	if ( strcmp(filename,dependency) != 0 && std::find(item.begin(),item.end(),std::string(filename)) == item.end() )
+	if ( strcmp(filename,dependency) != 0 )
 	{
 		item.push_back(dependency);
 	}
