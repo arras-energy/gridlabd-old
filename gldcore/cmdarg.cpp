@@ -14,6 +14,7 @@
 
 #include "gldcore.h"
 #include <iostream>
+#include <map>
 
 using namespace std;
 
@@ -1982,6 +1983,13 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 	return 0;
 }
 
+DEPRECATED static int depends(void *main, int argc, const char *argv[])
+{
+	const char *format = strchr(argv[0],'=');
+	fprintf(stdout,"%s",my_instance->get_loader()->get_depends(format?format+1:NULL).c_str());
+	return 0;
+}
+
 #include "job.h"
 #include "validate.h"
 
@@ -2022,6 +2030,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"setup",		NULL,	setup,			NULL, "Open simulation setup screen" },
 	{"origin",		NULL,	origin,			NULL, "Display origin information" },
 	{"cite",		NULL,	cite,			NULL, "Print the complete citation for this version"},
+	{"depends",		NULL,	depends,		NULL, "Generate dependency tree"},
 
 	{NULL,NULL,NULL,NULL, "Test processes"},
 	{"dsttest",		NULL,	dsttest,		NULL, "Perform daylight savings rule test" },
