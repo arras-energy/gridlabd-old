@@ -19,6 +19,7 @@ jobs:
             unzip -qq natural_docs
             rm -f natural_docs.zip
             echo '#!/bin/bash' > natural_docs
+            sudo chmod 777 /usr/local/bin
             echo 'mono $PWD/Natural\ Docs\/NaturalDocs.exe \$*' >> /usr/local/bin/natural_docs
             chmod a+x /usr/local/bin/natural_docs
       - run:
