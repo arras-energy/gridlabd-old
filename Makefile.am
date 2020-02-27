@@ -304,6 +304,9 @@ install-exec-hook: python-install html-local index
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
 
+reconfigure: distclean
+	autoreconf -isf && ./configure
+
 system: install
 	$(DESTDIR)$(bindir)/gridlabd version set
 

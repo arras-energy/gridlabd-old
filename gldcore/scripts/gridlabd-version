@@ -123,7 +123,7 @@ function version-show()
 function version-delete()
 {
 	if [ "$1" == "-a" ]; then
-		L="$(cd /usr/local/opt/gridlabd; ls -1d | grep -v current)"
+		L="$(ls -1 /usr/local/opt/gridlabd | grep -v current)"
 	else
 		L="$1"
 		if [ ! -d "$L" ]; then
