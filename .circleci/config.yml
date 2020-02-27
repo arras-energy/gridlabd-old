@@ -13,7 +13,7 @@ jobs:
             sudo apt-get install monodevelop -y
             sudo apt-get install gawk -y
             sudo mkdir /usr/local/opt
-            chmod 777 /usr/local/opt
+            sudo chmod 777 /usr/local/opt
             cd /usr/local/opt
             curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
             unzip -qq natural_docs
