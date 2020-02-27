@@ -307,7 +307,7 @@ install-exec-hook: python-install html-local index
 reconfigure: distclean
 	autoreconf -isf && ./configure
 
-system: reconfigure install
+system: install
 	$(DESTDIR)$(bindir)/gridlabd version set
 
 index: weather library template
