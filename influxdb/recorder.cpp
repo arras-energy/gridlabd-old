@@ -207,19 +207,19 @@ int recorder::add_taglist(char *buffer)
         }
         if ( strchr(value,'=') == NULL ) // simple property
         {
-        	gld_object *parent = get_object(my()->parent);
-        	if ( parent == NULL )
+        	if ( my()->parent == NULL )
         	{
         		exception("cannot use tag '%s' unless parent is specified",value);
         	}
-        	std::string name = parent->get_name();
-            gld_property *prop = new gld_property((OBJECT*)parent,value);
+            gld_property *prop = new gld_property(my()->parent,value);
             if ( prop->is_valid() )
             {
                 taglist->push_back(*prop);
             }
             else
             {
+                gld_object *parent = get_object(my()->parent);
+                std::string name = parent->get_name();
             	char header_value[1024];
             	if ( database::get_header_value(my()->parent,value,header_value,sizeof(header_value)) == NULL )
     			{
