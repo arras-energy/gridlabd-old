@@ -7345,6 +7345,89 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
+	else if ( strncmp(line, "#version", 8) == 0 )
+	{
+		int criteria = 0;
+		bool invert = false;
+		char *next = NULL, *last = NULL;
+		bool ok = false;
+		while ( (next=strtok_r(next?NULL:line+9," \t",&last)) )
+		{
+			unsigned int major=0, minor=0, patch=0, build=0;
+			char value1[1024], value2[1024];
+			if ( next[0] == '\0' )
+			{
+				continue;
+			}
+			if ( next[0] == '-' )
+			{
+				if ( strcmp(next,"-lt") == 0 )
+				{
+					criteria = -1;
+					invert = false;					
+				}
+				else if ( strcmp(next,"-le") == 0 )
+				{
+					criteria = +1;
+					invert = true;
+				}
+				else if ( strcmp(next,"-eq") == 0 )
+				{
+					criteria = 0;
+					invert = false;
+				}
+				else if ( strcmp(next,"-ge") == 0 )
+				{
+					criteria = -1;
+					invert = true;					
+				}
+				else if ( strcmp(next,"-gt") == 0 )
+				{
+					criteria = +1;
+					invert = false;
+				}
+				else if ( strcmp(next,"-ne") == 0 )
+				{
+					criteria = 0;
+					invert = true;
+				}
+				else
+				{
+					output_error_raw("%s(%d): version test '%s' is not valid",filename,linenum,next);
+					return FALSE;
+				}
+				continue;
+			}
+			else if ( sscanf(next,"%u.%u.%u",&major,&minor,&patch) > 1 )
+			{
+				sprintf(value1,"%u.%u.%u",global_version_major, global_version_minor, global_version_patch);
+				sprintf(value2,"%u.%u.%u",major,minor,patch);
+			}
+			else if ( sscanf(next,"%u",&build) == 1 )
+			{
+				sprintf(value1,"%06d",global_version_build);
+				sprintf(value2,"%06d",build);
+			}
+			else
+			{
+				sprintf(value1,"%s",global_version_branch);
+				sprintf(value2,"%s",next);
+			}
+			bool test = (strcmp(value1,value2) == criteria);
+			ok |= ( invert ? !test : test);
+			IN_MYCONTEXT output_debug("version check: strcmp('%s','%s') %s %d -> %s, ok is now %s",value1,value2,invert?"!=":"==",criteria,test^invert?"true":"false",ok?"true":"false");
+		}
+		if ( ! ok )
+		{
+			output_error_raw("%s(%d): version '%d.%d.%d-%d-%s' does not satisfy the version requirement",filename,linenum,
+				global_version_major, global_version_minor, global_version_patch, global_version_build, global_version_branch);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		strcpy(line,"\n");
+		return TRUE;
+
+	}
 	else if ( strncmp(line,"#on_exit",8) == 0 )
 	{
 		int xc;
