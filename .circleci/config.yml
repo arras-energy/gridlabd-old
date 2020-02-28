@@ -25,6 +25,7 @@ jobs:
       - run:
           name: Build gridlabd
           command: |
+            cd /tmp
             autoreconf -isf
             ./configure
             sudo make -j16 install
