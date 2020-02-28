@@ -12,13 +12,13 @@ bash$ docker run -it -v $(pwd):$(pwd) slacgismo/gridlabd:latest gridlabd -W $(pw
 To use the latest version of GridLAB-D with docker, install docker from see www.docker.com. Then run 
 
 ~~~
-bash$ docker pull gridlabd/slac-master:latest
+bash$ docker pull slacgismo/gridlabd:latest
 ~~~
 
 For convenience you may tag the image you wish to use by default:
 
 ~~~
-bash$ docker tag gridlabd/slac-master:latest gridlabd
+bash$ docker tag slacgismo/gridlabd:latest gridlabd
 ~~~
 
 To get more information about available docker images, see https://hub.docker.com/u/gridlabd/.
@@ -66,7 +66,7 @@ To get a list of available and active docker images:
 ~~~
 bash$ gridlabd --docker status
 REPOSITORY             TAG                 IMAGE ID            CREATED             SIZE
-gridlabd/slac-master   latest              398e452f9a01        2 days ago          1.56GB
+slacgismo/gridlabd     latest              398e452f9a01        2 days ago          1.56GB
 gridlabd               latest              398e452f9a01        2 days ago          1.56GB
 ~~~
 
