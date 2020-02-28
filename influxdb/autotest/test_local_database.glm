@@ -1,0 +1,78 @@
+// test_local_database.glm
+// Copyright (C) 2020 Regents of the Leland Stanford Junior University
+
+#set savefile=gridlabd.json
+
+#option profile
+
+clock 
+{
+	timezone "US/CA/San Francisco";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2020-02-01 00:00:00 PST";
+}
+
+module influxdb
+{
+	default_database "test_local_database";
+	connection_protocol "http";
+	synchronous_postdata TRUE;
+}
+
+object database
+{
+	name "primary";
+	logname "log";
+
+	// single dynamic tag
+	logtag `mytag=test1,guid={GUID},database`;
+
+	options NEWDB;
+}
+
+object database
+{
+	name "secondary";
+	logname "log";
+
+	// multiple dynamic tags
+	logtag "username";
+	logtag `mytag=test2,tag2=abc,hostname,guid={GUID}`;
+}
+
+module residential;
+object house:..10
+{
+	name `house_{id}`;
+
+	// just something to keep the clock running
+	object recorder
+	{
+		connection "primary";
+		fields "air_temperature,panel";
+		tags "name";
+		interval 1 min;
+	};
+	object recorder
+	{
+		connection "secondary";
+		fields "panel.energy";
+		tags "name,class,module,id,parent,child_count,schedule_skew,rank,clock,valid_to,latitude,longitude,in_svc,out_svc,flags,heartbeat,groupid,rng_state,guid,on_init,on_precommit,on_presync,on_sync,on_postsync,on_commit,on_finalize";
+		interval 15 min;
+		measurement "metering";
+		options UNITS;
+	};
+}
+
+object recorder
+{
+	connection "primary";
+	fields "house_2:mass_temperature,house_5:mass_temperature";
+	interval 1 h;
+	measurement "mass";
+}
+
+// only clean if running in validation folder (useful for developers who run this model from autotest)
+#ifexist ../test_local_database.glm
+#on_exit 0 curl -s -XPOST 'http://${influxdb::default_hostname}:${influxdb::default_port}/query' --data 'q=drop+database+${influxdb::default_database}'  >/dev/null
+#endif
