@@ -155,6 +155,7 @@ typedef struct s_callbacks {
 		int (*set_dependent)(OBJECT*,OBJECT*);
 		int (*set_parent)(OBJECT*,OBJECT*);
 		OBJECTRANK (*set_rank)(OBJECT*,OBJECTRANK);
+		const char *(*get_header_string)(OBJECT *obj, const char *item, char *buffer, size_t len);
 	} object;
 	struct {
 		PROPERTY *(*get_property)(OBJECT*,PROPERTYNAME,PROPERTYSTRUCT*);
@@ -430,6 +431,7 @@ OBJECTRANK object_set_rank(OBJECT *obj, OBJECTRANK rank);
 OBJECT *object_find_by_id(OBJECTNUM id);
 OBJECT *object_get_first(void);
 OBJECT *object_get_next(OBJECT *obj);
+OBJECT *object_get_last(void);
 unsigned int object_get_count(void);
 size_t object_dump(char *buffer, size_t size, OBJECT *obj);
 size_t object_save(char *buffer, size_t size, OBJECT *obj);
@@ -484,10 +486,14 @@ OBJECT *object_find_by_addr(void *addr);
 PROPERTY *object_get_first_property(OBJECT *obj, bool full=true);
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full=true);
 PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full=true);
+void object_destroy(OBJECT *obj);
+void object_destroy_all(void);
 
 #ifdef __cplusplus
 }
 #endif
+
+const char* object_get_header_string(OBJECT *obj, const char *item, char *buffer, size_t len);
 
 #define object_size(X) ((X)?(X)->size:-1) /**< get the size of the object X */
 #define object_id(X) ((X)?(X)->id:-1) /**< get the id of the object X */

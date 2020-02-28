@@ -6494,7 +6494,7 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 
 	/* open file */
 	fp = find_file(incname,NULL,R_OK,ff,sizeof(ff)) ? fopen(ff, "rt") : NULL;
-	
+
 	if(fp == NULL){
 		syntax_error(incname,_linenum,"include file open failed: %s", errno?strerror(errno):"(no details)");
 		return -1;
@@ -6504,6 +6504,7 @@ int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 		IN_MYCONTEXT output_verbose("include_file(char *incname='%s', char *buffer=0x%p, int size=%d): search of GLPATH='%s' result is '%s'",
 			incname, buffer, size, getenv("GLPATH") ? getenv("GLPATH") : "NULL", ff);
 	}
+	add_depend(incname,ff);
 
 	old_linenum = linenum;
 	linenum = 1;
@@ -6611,6 +6612,8 @@ void GldLoader::kill_processes(void)
 		threadlist=next;
 	}
 }
+
+bool load_import(const char *from, char *to, int len);
 
 /** @return -1 on failure, thread_id on success **/
 void* GldLoader::start_process(const char *cmd)
@@ -6882,6 +6885,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			strcpy(filename, value);	// use include file name for errors while within context
 			len=(int)include_file(value,line,size,linenum);
 			strcpy(filename, oldfile);	// pop include filename, use calling filename
+			add_depend(filename,value);
 			if (len<0)
 			{
 				syntax_error(filename,linenum,"#include failed");
@@ -6950,6 +6954,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			strcpy(filename,tmpname);
 			len = (int)include_file(tmpname,line,size,linenum);
 			strcpy(filename,oldfile);
+			add_depend(filename,tmpname);
 			if ( len<0 )
 			{
 				output_error("%s(%d): unable to include load [%s] from temp file '%s'", filename, linenum, value,tmpname);
@@ -6973,7 +6978,53 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			return FALSE;
 		}
 	}
-	else if (strncmp(line,"#setenv",7)==0)
+
+	else if ( strncmp(line, "#input", 6) == 0 )
+	{
+		char name[1024];
+		char options[1024] = "";
+		if ( sscanf(line+6,"%*[ \t]\"%[^\"]\"%*[ \t]%[^\n]",name,options) < 1 )
+		{
+			output_error_raw("%s(%d): #input missing filename",filename,linenum);
+			return FALSE;
+		}
+		char *ext = strrchr(name,'.');
+		char oldvalue[1024] = "";
+		char varname[1024] = "";
+		if ( ext && strcmp(ext,".glm") != 0 )
+		{
+			if ( strcmp(options,"") != 0 )
+			{
+				sprintf(varname,"%s_load_options",ext+1);
+				int old_global_strictnames = global_strictnames;
+				if ( global_isdefined(varname) )
+				{
+					global_getvar(varname,oldvalue,sizeof(oldvalue));
+				}
+				else
+				{
+					global_strictnames = FALSE;
+				}
+				global_setvar(varname,options,NULL);
+				global_strictnames = old_global_strictnames;	
+			}
+		}
+		char glmname[1024];
+		if ( load_import(name,glmname,sizeof(glmname)) == FAILED )
+		{
+			output_error_raw("%s(%d): load of '%s' failed",filename,linenum,glmname);
+			return FALSE;
+		}
+		if ( strcmp(varname,"") != 0 && strcmp(oldvalue,"") != 0)
+		{
+			global_setvar(varname,oldvalue,NULL);
+		}
+		output_verbose("loading converted file '%s'...", glmname);
+		strcpy(line,"\n");
+		return loadall_glm(glmname);
+	}
+	else if (strncmp(line, "#setenv",7)==0)
+
 	{
 		char *term = strchr(line+7,' ');
 		char value[65536];
@@ -7294,6 +7345,89 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
+	else if ( strncmp(line, "#version", 8) == 0 )
+	{
+		int criteria = 0;
+		bool invert = false;
+		char *next = NULL, *last = NULL;
+		bool ok = false;
+		while ( (next=strtok_r(next?NULL:line+9," \t",&last)) )
+		{
+			unsigned int major=0, minor=0, patch=0, build=0;
+			char value1[1024], value2[1024];
+			if ( next[0] == '\0' )
+			{
+				continue;
+			}
+			if ( next[0] == '-' )
+			{
+				if ( strcmp(next,"-lt") == 0 )
+				{
+					criteria = -1;
+					invert = false;					
+				}
+				else if ( strcmp(next,"-le") == 0 )
+				{
+					criteria = +1;
+					invert = true;
+				}
+				else if ( strcmp(next,"-eq") == 0 )
+				{
+					criteria = 0;
+					invert = false;
+				}
+				else if ( strcmp(next,"-ge") == 0 )
+				{
+					criteria = -1;
+					invert = true;					
+				}
+				else if ( strcmp(next,"-gt") == 0 )
+				{
+					criteria = +1;
+					invert = false;
+				}
+				else if ( strcmp(next,"-ne") == 0 )
+				{
+					criteria = 0;
+					invert = true;
+				}
+				else
+				{
+					output_error_raw("%s(%d): version test '%s' is not valid",filename,linenum,next);
+					return FALSE;
+				}
+				continue;
+			}
+			else if ( sscanf(next,"%u.%u.%u",&major,&minor,&patch) > 1 )
+			{
+				sprintf(value1,"%u.%u.%u",global_version_major, global_version_minor, global_version_patch);
+				sprintf(value2,"%u.%u.%u",major,minor,patch);
+			}
+			else if ( sscanf(next,"%u",&build) == 1 )
+			{
+				sprintf(value1,"%06d",global_version_build);
+				sprintf(value2,"%06d",build);
+			}
+			else
+			{
+				sprintf(value1,"%s",global_version_branch);
+				sprintf(value2,"%s",next);
+			}
+			bool test = (strcmp(value1,value2) == criteria);
+			ok |= ( invert ? !test : test);
+			IN_MYCONTEXT output_debug("version check: strcmp('%s','%s') %s %d -> %s, ok is now %s",value1,value2,invert?"!=":"==",criteria,test^invert?"true":"false",ok?"true":"false");
+		}
+		if ( ! ok )
+		{
+			output_error_raw("%s(%d): version '%d.%d.%d-%d-%s' does not satisfy the version requirement",filename,linenum,
+				global_version_major, global_version_minor, global_version_patch, global_version_build, global_version_branch);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		strcpy(line,"\n");
+		return TRUE;
+
+	}
 	else if ( strncmp(line,"#on_exit",8) == 0 )
 	{
 		int xc;
@@ -7365,7 +7499,10 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 }
 
+
+/**/
 STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first character in the file name string */
+
 {
 	char file[1024];
 	strcpy(file,fname);
@@ -7393,6 +7530,8 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 		return SUCCESS;
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
+	add_depend(filename,file);
+
 	/* removed malloc check since it doesn't malloc any more */
 	buffer[0] = '\0';
 
@@ -7505,7 +7644,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 	}
 	char converter_name[1024], converter_path[1024];
 	sprintf(converter_name,"%s2glm.py",ext);
-	if ( find_file(converter_name, converter_path, R_OK, converter_path, sizeof(converter_path)) == NULL )
+	if ( find_file(converter_name, NULL, R_OK, converter_path, sizeof(converter_path)) == NULL )
 	{
 		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext);
 		return false;
@@ -7526,7 +7665,8 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 	sprintf(load_options_var,"%s_load_options",ext);
 	global_getvar(load_options_var,load_options,sizeof(load_options));
 	char cmd[4096];
-	sprintf(cmd,"python3 %s -i %s -o %s %s",converter_path,from,to,load_options);
+	sprintf(cmd,"python3 %s -i %s -o %s \"%s\"",converter_path,from,to,load_options);
+	output_verbose("running %s", cmd);
 	int rc = system(cmd);
 	if ( rc != 0 )
 	{
@@ -7562,6 +7702,7 @@ STATUS GldLoader::loadall(const char *fname)
 			strcpy(file,fname);
 		}
 		char *ext = fname ? strrchr(file,'.') : NULL ;
+		add_depend(filename,fname);
 
 		// python script
 
@@ -7569,11 +7710,14 @@ STATUS GldLoader::loadall(const char *fname)
 		{
 			return load_python(fname);
 		}
-		// non-glm data file
+
+		// non-glm file
 		if ( ext != NULL && strcmp(ext,".glm") != 0 )
 		{
-			return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
+			return load_import(fname,file,sizeof(file)) ? loadall_glm(file) : FAILED;
 		}
+
+		// glm file
 		unsigned int old_obj_count = object_get_count();
 		char conf[1024];
 		static int loaded_files = 0;
@@ -7600,6 +7744,7 @@ STATUS GldLoader::loadall(const char *fname)
 			}
 			else
 			{
+				add_depend(fname,"gridlabd.conf");
 				strcpy(filename, "gridlabd.conf");
 				if ( loadall_glm(conf)==FAILED )
 				{
@@ -7691,3 +7836,63 @@ STATUS GldLoader::loadall(const char *fname)
 		return FAILED;
 	}
 }
+
+std::string GldLoader::get_depends(const char *format)
+{
+	if ( format == NULL || strcmp(format,"makefile") == 0 )
+	{
+		std::string result = std::string("# generated by gridlabd ") + global_version + "\n\n" 
+			+ "all: " + global_modelname + "\n\n";
+
+		for ( DEPENDENCY_TREE::iterator item = dependency_tree.begin() ; item != dependency_tree.end() ; item++ )
+		{
+			result.append(item->first + ": ");
+			item->second.unique();
+			for ( std::list<std::string>::iterator target = item->second.begin() ; target != item->second.end() ; target++ )
+				result.append(*target + " ");
+			result.append("\n\n");
+		}
+		return result;
+	}
+	else if ( strcmp(format,"json") == 0 )
+	{
+		std::string result = std::string("{\n");
+		for ( DEPENDENCY_TREE::iterator item = dependency_tree.begin() ; item != dependency_tree.end() ; item++ )
+		{
+			if ( item != dependency_tree.begin() )
+				result.append(",\n");
+			result.append("\t\"");
+			result.append(item->first);
+			result.append("\" : [");
+			item->second.unique();
+			for ( std::list<std::string>::iterator target = item->second.begin() ; target != item->second.end() ; target++ )
+			{
+				if ( target != item->second.begin() )
+					result.append(",");
+				result.append("\"");
+				result.append(*target);
+				result.append("\"");
+			}
+			result.append("]");
+		}
+		result.append("\n}\n");
+		return result;
+	}
+	else
+	{
+		throw new GldException("GldLoader::get_depends(format='%s'): invalid format",format);
+	}
+}
+
+void GldLoader::add_depend(const char *filename, const char *dependency)
+{
+	if ( strcmp(filename,"") == 0 )
+		filename = global_modelname;
+
+	std::list<std::string> &item = dependency_tree[filename];
+	if ( strcmp(filename,dependency) != 0 )
+	{
+		item.push_back(dependency);
+	}
+}
+

@@ -194,6 +194,7 @@ DEPRECATED static struct s_varmap {
 	{"version.patch", PT_int32, &global_version_patch, PA_REFERENCE, "patch number"},
 	{"version.build", PT_int32, &global_version_build, PA_REFERENCE, "build number"},
 	{"version.branch", PT_char256, &global_version_branch, PA_REFERENCE, "branch name"},
+	{"version",	PT_char1024, &global_version, PA_REFERENCE, "full version information"},
 	{"command_line", PT_char1024, &global_command_line, PA_REFERENCE, "command line"},
 	{"environment", PT_char1024, &global_environment, PA_PUBLIC, "operating environment"},
 	{"quiet", PT_bool, &global_quiet_mode, PA_PUBLIC, "quiet output status flag"},
@@ -380,6 +381,7 @@ STATUS GldGlobals::init(void)
 	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch));
 	strcpy(global_datadir,global_execdir);
 	strcpy(strstr(global_datadir,"/bin"),"/share/gridlabd");
+	sprintf(global_version,"%d.%d.%d-%d-%s",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
 
 	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++){
 		struct s_varmap *p = &(map[i]);
@@ -767,7 +769,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 }
 
 DEPRECATED static int guid_first=1;
-DEPRECATED char *global_guid(char *buffer, int size)
+DEPRECATED const char *global_guid(char *buffer, int size)
 {
 	if ( size>36 )
 	{
@@ -786,7 +788,7 @@ DEPRECATED char *global_guid(char *buffer, int size)
 		return NULL;
 	}
 }
-DEPRECATED char *global_run(char *buffer, int size)
+DEPRECATED const char *global_run(char *buffer, int size)
 {
 	DEPRECATED static char value[37]="";
 	if ( value[0]=='\0' )
@@ -799,7 +801,7 @@ DEPRECATED char *global_run(char *buffer, int size)
 	else
 		return NULL;
 }
-DEPRECATED char *global_now(char *buffer, int size)
+DEPRECATED const char *global_now(char *buffer, int size)
 {
 	if ( size>32 )
 	{
@@ -814,7 +816,7 @@ DEPRECATED char *global_now(char *buffer, int size)
 		return NULL;
 	}
 }
-DEPRECATED char *global_today(char *buffer, int size)
+DEPRECATED const char *global_today(char *buffer, int size)
 {
 	if ( size>32 )
 	{
@@ -829,7 +831,7 @@ DEPRECATED char *global_today(char *buffer, int size)
 		return NULL;
 	}
 }
-DEPRECATED char *global_urand(char *buffer, int size)
+DEPRECATED const char *global_urand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
@@ -843,7 +845,7 @@ DEPRECATED char *global_urand(char *buffer, int size)
 	}
 
 }
-DEPRECATED char *global_nrand(char *buffer, int size)
+DEPRECATED const char *global_nrand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
@@ -857,7 +859,7 @@ DEPRECATED char *global_nrand(char *buffer, int size)
 	}
 
 }
-DEPRECATED char *global_true(char *buffer, int size)
+DEPRECATED const char *global_true(char *buffer, int size)
 {
 	if ( size>1 )
 		return strcpy(buffer,"1");
@@ -1200,6 +1202,35 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	return 0;
 }
 
+DEPRECATED const char *global_object_last(char *buffer, int size)
+{
+	OBJECT *obj = object_get_last();
+	if ( obj->name )
+	{
+		return snprintf(buffer,size,"%s",obj->name) < size ? buffer : NULL;
+	}
+	else
+	{
+		return snprintf(buffer,size,"%s:%d",obj->oclass->name,obj->id) < size ? buffer : NULL;
+	}
+}
+
+DEPRECATED const char *global_object_find(char *buffer, int size, const char *spec)
+{
+	// TODO
+	return NULL;
+}
+
+DEPRECATED const char *global_object(const char *type, const char *arg, char *buffer, size_t size)
+{
+	if ( strcmp(type,"last") == 0 )
+		return global_object_last(buffer,size);
+	else if ( strcmp(type,"find") == 0 )
+		return global_object_find(buffer,size,arg);
+	else
+		return NULL;
+}
+
 /** Get the value of a global variable in a safer fashion
 	@return a \e char * pointer to the buffer holding the buffer where we wrote the data,
 		\p NULL if insufficient buffer space or if the \p name was not found.
@@ -1213,7 +1244,7 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	GLOBALVAR *var = NULL;
 	struct {
 		const char *name;
-		char *(*call)(char *buffer,int size);
+		const char *(*call)(char *buffer,int size);
 	} map[] = {
 		{"GUID",global_guid},
 		{"NOW",global_now},
@@ -1280,6 +1311,24 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	// python call
 	if ( strncmp(name,"PYTHON ",7) == 0 )
 		return global_python(buffer,size,name+7);
+
+	// object calls
+	struct {
+		const char *name;
+		const char *(*call)(const char *type, const char *arg, char *buffer, size_t size);
+	} cmap[] = 
+	{
+		{"object", global_object},
+	};
+	char p1[64], p2[64], p3[1024]="";
+	if ( sscanf(name,"%[^.].%s %[^\n]",p1,p2,p3) > 1 )
+	{
+		for ( size_t n = 0 ; n < sizeof(cmap)/sizeof(cmap[0]) ; n++ )
+		{
+			if ( strcmp(cmap[n].name,p1) == 0 )
+				return cmap[n].call(p2,p3,buffer,size);
+		}
+	}
 
 	var = global_find(name);
 	if(var == NULL)

@@ -1,6 +1,14 @@
-# $Id: Makefile.am 4738 2014-07-03 00:55:39Z dchassin $
+# File: Makefile.am
+#
+# GridLAB-D 4.0
 # Copyright (C) 2008 Battelle Memorial Institute
 # This file is distributed under the same terms as GridLAB-D.
+#
+# HiPAS GridLAB-D 4.2
+#   Copyright (C) 2020 Regents of the Leland Stanford Junior University
+#
+# Authors: 
+#   DP Chassin (dchassin@slac.stanford.edu)
 
 ACLOCAL_AMFLAGS = -I m4
 
@@ -47,6 +55,7 @@ include gldcore/link/matlab/Makefile.mk
 include gldcore/link/python/Makefile.mk
 include gldcore/Makefile.mk
 include gldcore/rt/Makefile.mk
+include gldcore/converters/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
 include python_extras/Makefile.mk
@@ -65,59 +74,6 @@ include aminclude.mk
 dist_doc_DATA += COPYRIGHT
 dist_doc_DATA += LICENSE
 
-EXTRA_DIST += $(top_srcdir)/debian/changelog
-EXTRA_DIST += $(top_srcdir)/debian/compat
-EXTRA_DIST += $(top_srcdir)/debian/control
-EXTRA_DIST += $(top_srcdir)/debian/copyright
-EXTRA_DIST += $(top_srcdir)/debian/docs
-EXTRA_DIST += $(top_srcdir)/debian/gridlabd-dev.install
-EXTRA_DIST += $(top_srcdir)/debian/gridlabd.install
-EXTRA_DIST += $(top_srcdir)/debian/rules*
-EXTRA_DIST += $(top_srcdir)/doxygen/build.bat
-EXTRA_DIST += $(top_srcdir)/doxygen/COPYRIGHT
-EXTRA_DIST += $(top_srcdir)/doxygen/footer.html
-EXTRA_DIST += $(top_srcdir)/doxygen/gridlabd.conf
-EXTRA_DIST += $(top_srcdir)/doxygen/LICENSE
-EXTRA_DIST += $(top_srcdir)/doxygen/STATUS
-EXTRA_DIST += $(top_srcdir)/doxygen/user_manual.h
-EXTRA_DIST += $(top_srcdir)/gridlabd.spec
-EXTRA_DIST += $(top_srcdir)/README-LINUX
-EXTRA_DIST += $(top_srcdir)/README-MACOSX
-# EXTRA_DIST += $(top_srcdir)/Resources/Background.png
-# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore-contents.xml
-# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/01gldcore.xml
-# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate-contents.xml
-# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/02climate.xml
-# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces-contents.xml
-# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/03libxerces.xml
-# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel-contents.xml
-# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/04devel.xml
-# EXTRA_DIST += $(top_srcdir)/Resources/GridLAB-D.pmdoc/index.xml
-# EXTRA_DIST += $(top_srcdir)/Resources/License.rtf
-# EXTRA_DIST += $(top_srcdir)/Resources/Readme.rtf
-# EXTRA_DIST += $(top_srcdir)/Resources/Welcome.rtf
-EXTRA_DIST += $(top_srcdir)/VERSION
-EXTRA_DIST += $(top_srcdir)/models/climate_csvreader_example.glm
-EXTRA_DIST += $(top_srcdir)/models/collector_example.glm
-EXTRA_DIST += $(top_srcdir)/models/diesel_deltamode_load_player_A.csv
-EXTRA_DIST += $(top_srcdir)/models/diesel_deltamode_load_player_B.csv
-EXTRA_DIST += $(top_srcdir)/models/diesel_deltamode_load_player_C.csv
-#EXTRA_DIST += $(top_srcdir)/models/Four_quadrant_inverter_example.glm
-EXTRA_DIST += $(top_srcdir)/models/house_HVAC_example.glm
-EXTRA_DIST += $(top_srcdir)/models/IEEE_13_Node_Test_Feeder.glm
-EXTRA_DIST += $(top_srcdir)/models/IEEE_13_Node_With_Houses.glm
-EXTRA_DIST += $(top_srcdir)/models/passive_controller_example.glm
-EXTRA_DIST += $(top_srcdir)/models/random_fault_generator_example.glm
-EXTRA_DIST += $(top_srcdir)/models/residential_zipload_example.glm
-EXTRA_DIST += $(top_srcdir)/models/Standard_Weather.csv
-EXTRA_DIST += $(top_srcdir)/models/subsecond_diesel_generator_example.glm
-EXTRA_DIST += $(top_srcdir)/models/taxonomy_feeder_R1-12.47-1.glm
-EXTRA_DIST += $(top_srcdir)/models/transactive_controller_example.glm
-EXTRA_DIST += $(top_srcdir)/models/WA-Seattle.tmy2
-EXTRA_DIST += $(top_srcdir)/models/WA-Yakima.tmy2
-EXTRA_DIST += $(top_srcdir)/models/waterheater_example.glm
-EXTRA_DIST += $(top_srcdir)/models/weather.csv
-EXTRA_DIST += $(top_srcdir)/models/wind_turbine_example.glm
 EXTRA_DIST += $(top_srcdir)/gldcore/gridlabd.htm
 EXTRA_DIST += $(top_srcdir)/utilities/build_number
 
@@ -334,9 +290,9 @@ distclean-local: python-clean
 	@rm -f $(top_srcdir)/validate.txt
 
 libtool: $(LIBTOOL_DEPS)
-	$(SHELL) ./config.status libtool
+	$(SHELL) ./config.status libtool > /dev/null
 
-install-exec-hook: python-install html-local index
+install-exec-hook: python-install index
 	cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
@@ -351,11 +307,11 @@ install-exec-hook: python-install html-local index
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
 
-install-system: install
-	@$(DESTDIR)$(bindir)/gridlabd version set
+reconfigure: distclean
+	autoreconf -isf && ./configure
 
-install-clean: distclean
-	@autoreconf -isf && ./configure && make -j30 install-system
+system: install
+	$(DESTDIR)$(bindir)/gridlabd version set
 
 index: weather library template
 

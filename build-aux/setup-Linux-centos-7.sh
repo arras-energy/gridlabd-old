@@ -71,3 +71,19 @@ cd /tmp
 curl http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m/mdbtools-0.7.1-3.el7.x86_64.rpm
 rpm -Uvh mdbtools-0.7.1-3.el7.x86_64.rpm
 yum -q install mdbtools -y
+
+# influx db
+cat <<EOF | tee /etc/yum.repos.d/influxdb.repo 
+[influxdb] 
+name = InfluxDB Repository - RHEL \$releasever 
+baseurl = https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable 
+enabled = 1 
+gpgcheck = 1 
+gpgkey = https://repos.influxdata.com/influxdb.key 
+EOF
+yum install influxdb -y
+/bin/systemctl start  influxdb.service
+/bin/systemctl enable influxdb.service
+firewall-cmd --permanent --zone=public --add-port=8086/tcp
+firewall-cmd --permanent --zone=public --add-port=8083/tcp
+firewall-cmd --reload
