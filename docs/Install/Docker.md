@@ -91,12 +91,17 @@ bash$ docker system prune -a
 
 If you'd like to create an image locally with a specific branch (ex `test_branch`) instead of pulling from DockerHub (where the default branch is `master`). 
 
-1. Clone the `slacgismo/gridlabd` repository locally and switch to the desired branch (`test_branch`). 
+1. Clone the `slacgismo/gridlabd` repository locally and switch to the desired branch (e.g., `develop`). 
+
+~~~
+bash$ git clone https://github.com/slacgismo/gridlabd -b develop /usr/local/src/gridlabd
+~~~
 
 1. Build the image manually by running: 
 
 ~~~
-bash$ docker build -f docker/Dockerfile
+bash$ cd /usr/local/src/gridlabd/docker
+bash$ docker build --build-arg "BRANCH=develop" .
 ~~~
 
 Note, you may first need to run 
