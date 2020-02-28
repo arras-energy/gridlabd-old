@@ -7644,7 +7644,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 	}
 	char converter_name[1024], converter_path[1024];
 	sprintf(converter_name,"%s2glm.py",ext);
-	if ( find_file(converter_name, converter_path, R_OK, converter_path, sizeof(converter_path)) == NULL )
+	if ( find_file(converter_name, NULL, R_OK, converter_path, sizeof(converter_path)) == NULL )
 	{
 		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext);
 		return false;
