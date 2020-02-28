@@ -1,0 +1,10 @@
+v_per_unit_max_limit,1.05
+v_per_unit_min_limit,0.95
+change_in_voltage_limit,3
+linear_search_step,5000
+linear_search_initial,1000
+ica_type,1
+binary_search_initial,1000
+bineary_search_step,500000
+bineary_search_tolerance,500
+bineary_search_max,15000000
