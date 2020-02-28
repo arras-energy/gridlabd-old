@@ -4,7 +4,7 @@
 
 ~~~
 bash$ docker pull slacgismo/gridlabd:latest
-bash$ docker run -it -v $(pwd):$(pwd) slacgismo/gridlabd:latest gridlabd -W $(pwd)' <...>
+bash$ docker run -it -v $(pwd):$(pwd) slacgismo/gridlabd:latest gridlabd -W $(pwd) <...>
 ~~~
 
 # Description
