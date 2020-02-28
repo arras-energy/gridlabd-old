@@ -55,6 +55,7 @@ include gldcore/link/matlab/Makefile.mk
 include gldcore/link/python/Makefile.mk
 include gldcore/Makefile.mk
 include gldcore/rt/Makefile.mk
+include gldcore/converters/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
 include python_extras/Makefile.mk
@@ -289,7 +290,7 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
 
-install-exec-hook: python-install html-local index
+install-exec-hook: python-install index
 	cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"

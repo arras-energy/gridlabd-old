@@ -1364,6 +1364,10 @@ OBJECT *object_get_next(OBJECT *obj){ /**< the object from which to start */
 	}
 }
 
+OBJECT *object_get_last(void)
+{
+	return last_object;
+}
 
 /*	Set the rank of the object (internal use only) 
 	This function keeps track of which object initiated
