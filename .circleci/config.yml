@@ -10,26 +10,16 @@ jobs:
           command: |
             cd /tmp
             sudo apt-get update
-            sudo apt-get install monodevelop -y
             sudo apt-get install gawk -y
-            sudo mkdir /usr/local/opt
-            sudo chmod -R 777 /usr/local
-            cd /usr/local/opt
-            curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
-            unzip -qq natural_docs
-            rm -f natural_docs.zip
-            echo '#!/bin/bash' > natural_docs
-            sudo chmod 777 /usr/local/bin
-            echo 'mono $PWD/Natural\ Docs\/NaturalDocs.exe \$*' >> /usr/local/bin/natural_docs
-            chmod a+x /usr/local/bin/natural_docs
       - run:
           name: Build gridlabd
           command: |
+            sudo mkdir /usr/local/opt
+            sudo chmod 2777 /usr/local/opt
             cd /home/circleci/project
             autoreconf -isf
             ./configure
-            sudo make -j16 install
-            /usr/local/opt/gridlabd/4.2.1-*/bin/gridlabd version set
+            make -j16 system
             export LD_LIBRARY_PATH=.
             gridlabd --validate
       - store_artifacts:
