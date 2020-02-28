@@ -1,5 +1,14 @@
-# $Id: configure.ac 4738 2014-07-03 00:55:39Z dchassin $                                            -*- Autoconf -*-
-# Copyright (C) 2008 Battelle Memorial Institute
+# File: configure.ac -*- Autoconf -*-
+#
+# GridLAB-D 4.0
+#   Copyright (C) 2008 Battelle Memorial Institute
+#
+# HiPAS GridLAB-D 4.2
+#   Copyright (C) 2020 Regents of the Leland Stanford Junior University
+#
+# Authors:
+#   DP Chassin (dchassin@slac.stanford.edu)
+#
 # Process this file with autoconf to produce a configure script.
 # This file is distributed under the same terms as GridLAB-D.
 
@@ -551,15 +560,22 @@ AM_CONDITIONAL([SUFFIX],[test ! "x$SUFFIX" = "xno"] )
 ###############################################################################
 
 VERSION_NAME=$(build-aux/version.sh --name)
-BINDIR=`eval echo $(eval echo $bindir)`
-LIBDIR=`eval echo $(eval echo $libdir)`/$PACKAGE
-ETCDIR=`eval echo $(eval echo $datadir)`/$PACKAGE
-DOCDIR=`eval echo $(eval echo $docdir)`
+PREFIX=/usr/local/opt/gridlabd
+DSTDIR=$PREFIX/$VERSION_NAME
+BINDIR=$DSTDIR/bin
+LIBDIR=$DSTDIR/lib/gridlabd
+ETCDIR=$DSTDIR/share/gridlabd
+DOCDIR=$DSTDIR/share/doc/gridlabd
 
 AC_MSG_RESULT([
 -----------------------------------------------------------------------
 
-  $PACKAGE $VERSION: Automatic configuration for branch $BRANCHNAME.
+  HiPAS GridLAB-D Automatic configuration:
+
+    Package: .................... $PACKAGE 
+    Version: .................... $VERSION
+    Branch: ..................... $BRANCHNAME
+    Install prefix: ............. ${DSTDIR/^$PWD/.}
 
   Dependencies:
 
@@ -568,7 +584,7 @@ AC_MSG_RESULT([
     mysql-connector-c: .......... $HAVE_MYSQL
     Doxygen: .................... $HAVE_DOXYGEN
     Mono: ....................... $HAVE_MONO
-    Natural docs:................ $HAVE_NATURALDOCS
+    Natural docs: ............... $HAVE_NATURALDOCS
 
   Atomic Builtins:
 
@@ -576,6 +592,7 @@ AC_MSG_RESULT([
     __sync_add_and_fetch: ....... $HAVE_SYNC_ADD_AND_FETCH
 
   Build flags:
+
     CXXFLAGS: ................... ${CXXFLAGS:-(none)}
     LDFLAGS: .................... ${LDFLAGS:-(none)}
 
@@ -589,17 +606,28 @@ AC_MSG_RESULT([
   Building:
 
     type 'make' to compile $PACKAGE.
-    type 'make install' to install $PACKAGE in ${prefix/^$PWD/.}.
+    type 'make install' to install $PACKAGE in ${DSTDIR/^$PWD/.}.
+    type 'make system' to install $PACKAGE as set system version
 
   Cloud support:
-    AWS CLI:..................... $HAVE_AWSCLI
-    GCP CLI:..................... $HAVE_GCPCLI
-    Azure CLI:................... $HAVE_AZCLI
 
-  Running:
-    type 'export PATH=/usr/local/opt/gridlabd/$VERSION_NAME/bin:\$PATH' to include this version in your current path
-    type '$PACKAGE --version' to check that you are running the correct version of $PACKAGE
-    type '/usr/local/opt/gridlabd/$VERSION_NAME/bin/$PACKAGE version set' to activate this version of $PACKAGE
+    AWS CLI: .................... $HAVE_AWSCLI
+    GCP CLI: .................... $HAVE_GCPCLI
+    Azure CLI: .................. $HAVE_AZCLI
+
+  Some useful commands:
+
+    To add $PACKAGE to your path:
+
+        export PATH=$DSTDIR/bin:\$PATH
+
+    To check that your running the current version of $PACKAGE:
+
+        $PACKAGE --version
+
+    To set this $PACKAGE version $VERSION as the system version:
+
+        $DSTDIR/bin/$PACKAGE version set
 
 -----------------------------------------------------------------------
 ])
