@@ -1,0 +1,23 @@
+clock {
+    timezone US/CA/Los Angeles;
+    starttime '2018-01-01 00:00:00 PST';
+    stoptime '2019-01-01 00:00:00 PST';
+}
+
+module tape;
+
+module powerflow;
+module commercial;
+object meter {
+    name main;
+    bustype SWING;
+    nominal_voltage 120.0;
+    phases ABCN;
+#input "../ceus.csv" -f ceus -t ceus -p name=building -p floor_area=15000sf
+    object recorder {
+        file test_ceus_converter.csv;
+        property measured_power_A,measured_power_B,measured_power_C,measured_real_power,measured_reactive_power;
+        interval 1h;
+    };
+}
+
