@@ -4,8 +4,7 @@
 
 ~~~
 bash$ docker pull slacgismo/gridlabd:latest
-bash$ alias gridlabd='docker run -it -v$(pwd):$(pwd) slacgismo/gridlabd:latest /usr/local/bin/gridlabd -W $(pwd)'
-bash$ gridlabd <...>
+bash$ docker run -it -v $(pwd):$(pwd) slacgismo/gridlabd:latest gridlabd -W $(pwd)' <...>
 ~~~
 
 # Description
