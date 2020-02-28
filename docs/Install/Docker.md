@@ -27,13 +27,13 @@ To get more information about available docker images, see https://hub.docker.co
 To run your GridLAB-D docker image version of GridLAB-D:
 
 ~~~~
-bash$ docker run -vit $(pwd):/model gridlabd gridlabd -W /model my_model.glm
+bash$ docker run -it -v $(pwd):$(pwd) gridlabd gridlabd -W $(pwd) my_model.glm
 ~~~~
 
 If you are using a system where command aliases are allowed (e.g., linux):
 
 ~~~
-bash$ alias gridlabd='docker run -vit $(pwd):/model gld gridlabd -W /model'
+bash$ alias gridlabd='docker run -it -v $(pwd):$(pwd) gridlabd gridlabd -W $(pwd)'
 ~~~
 
 You can add this command to your shell profile, e.g., `$HOME/.bash_profile`.
@@ -93,13 +93,13 @@ bash$ docker system prune -a
 
 You can create an image locally with a specific branch (e.g., `develop`) instead of pulling from DockerHub (where the default branch is `master`). 
 
-1. Clone the `https://github.com/slacgismo/gridlabd` and checkout the desired branch (e.g., `develop`). 
+Firsrt, clone the `https://github.com/slacgismo/gridlabd` and checkout the desired branch (e.g., `develop`). 
 
 ~~~
 bash$ git clone https://github.com/slacgismo/gridlabd -b develop /usr/local/src/gridlabd
 ~~~
 
-1. Build the image locally: 
+Then build the image locally: 
 
 ~~~
 bash$ cd /usr/local/src/gridlabd/docker
