@@ -324,6 +324,8 @@ int GldMain::add_on_exit(int xc, const char *cmd)
 
 int GldMain::run_on_exit()
 {
+	save_outputs();
+
 	/* save the model */
 	if (strcmp(global_savefile,"")!=0)
 	{

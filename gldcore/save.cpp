@@ -489,3 +489,32 @@ int savejson(const char *filename, FILE *fp)
 	GldJsonWriter json(filename);
 	return json.write_output(fp);
 }
+
+typedef std::map<std::string,std::string> SAVEMAP;
+SAVEMAP savelist;
+void save_on_exit(const char *name, const char *options)
+{
+	std::string file(name);
+	std::string args(options);
+	savelist[file] = args;
+}
+
+void save_outputs(void)
+{
+	char filename[1024];
+	strcpy(filename,global_modelname);
+	const char *ext = strrchr(filename,'.');
+	if ( ext == NULL )
+	{
+		strcat(filename,".json");
+	}
+	else if ( strcmp(ext+1,".json") != 0 )
+	{
+		strcpy(strrchr(filename,'.'),".json");
+	}
+	saveall(filename);
+	for ( SAVEMAP::iterator item = savelist.begin() ; item != savelist.end() ; item++ )
+	{
+		throw_exception("automatic conversion of '%s' to '%s %s' not implemented", filename, item->first.c_str(), item->second.c_str());
+	}
+}
