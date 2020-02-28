@@ -22,7 +22,7 @@ jobs:
             make -j16
             sudo make system
             export LD_LIBRARY_PATH=.
-            gridlabd --validate
+            sudo gridlabd --validate
       - store_artifacts:
           path: /home/circleci/project/validate.txt
           destination: /gridlabd/validate.txt
