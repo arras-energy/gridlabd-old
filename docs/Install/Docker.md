@@ -46,13 +46,13 @@ bash$ gridlabd my_model.glm
 
 ## Using multiple local installations
 
-If you have installed GridLAB-D locally, you enable a docker image to run in its place:
+If you have installed GridLAB-D locally, you can enable a docker image to run in its place:
 
 ~~~
 bash$ gridlabd --docker enable <imagename>
 ~~~
 
-Subsequent gridlabd commands will use the docker image `gridlabd` instead of the local installation.
+Subsequent `gridlabd` commands will use the docker image `<imagename>` instead of the local installation.
 
 To disable a docker image:
 
@@ -60,7 +60,7 @@ To disable a docker image:
 bash$ gridlabd --docker disable
 ~~~
 
-Subsequent gridlabd commands will use the local installation instead of the docker image `gridlabd`.
+Subsequent gridlabd commands will use the local installation instead of the docker image.
 
 To get a list of available and active docker images:
 
@@ -71,7 +71,9 @@ gridlabd/slac-master   latest              398e452f9a01        2 days ago       
 gridlabd               latest              398e452f9a01        2 days ago          1.56GB
 ~~~
 
-If the repository `gridlabd` is listed, then gridlabd will use the docker instance instead of the current installed version.
+If the repository `gridlabd` is listed, then gridlabd will use the docker image instead of the current installed version.
+
+Note: the `gridlabd --docker` command uses a the `docker tag` command to indicate which image is active.  If an tag image named `gridlabd` is present, that image will be used instead of the local installation. 
 
 ## Image clean-up 
 
@@ -87,24 +89,22 @@ To remove any stopped containers and all unused images add a flag `-a` :
 bash$ docker system prune -a
 ~~~
 
-## Creating an image locally from a custom branch
+## Building an image locally from local source
 
-If you'd like to create an image locally with a specific branch (ex `test_branch`) instead of pulling from DockerHub (where the default branch is `master`). 
+You can create an image locally with a specific branch (e.g., `develop`) instead of pulling from DockerHub (where the default branch is `master`). 
 
-1. Clone the `slacgismo/gridlabd` repository locally and switch to the desired branch (e.g., `develop`). 
+1. Clone the `https://github.com/slacgismo/gridlabd` and checkout the desired branch (e.g., `develop`). 
 
 ~~~
 bash$ git clone https://github.com/slacgismo/gridlabd -b develop /usr/local/src/gridlabd
 ~~~
 
-1. Build the image manually by running: 
+1. Build the image locally: 
 
 ~~~
 bash$ cd /usr/local/src/gridlabd/docker
 bash$ docker build --build-arg "BRANCH=develop" .
 ~~~
-
-Note, you may first need to run 
 
 # Caveat 
 
