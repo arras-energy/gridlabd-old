@@ -429,6 +429,7 @@ OBJECTRANK object_set_rank(OBJECT *obj, OBJECTRANK rank);
 OBJECT *object_find_by_id(OBJECTNUM id);
 OBJECT *object_get_first(void);
 OBJECT *object_get_next(OBJECT *obj);
+OBJECT *object_get_last(void);
 unsigned int object_get_count(void);
 size_t object_dump(char *buffer, size_t size, OBJECT *obj);
 size_t object_save(char *buffer, size_t size, OBJECT *obj);
