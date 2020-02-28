@@ -19,7 +19,8 @@ jobs:
             cd /home/circleci/project
             autoreconf -isf
             ./configure
-            make -j16 system
+            make -j16
+            sudo make system
             export LD_LIBRARY_PATH=.
             gridlabd --validate
       - store_artifacts:
