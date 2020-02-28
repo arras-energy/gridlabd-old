@@ -93,6 +93,9 @@ public:
 	// Method: get_size
 	inline size_t get_size(void) { return size; };
 
+	// Method: get_addr
+	inline void *get_addr(void) { return (void*)buffer; };
+
 	// Method: get_length
 	inline size_t get_length(void) { return strlen(buffer); };
 
