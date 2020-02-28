@@ -2447,7 +2447,7 @@ public:
 	
 	// Method: is_valid
 	// Check whether the unit is valid
-	inline bool is_valid(void) { return core.name[0]!='\0'; };
+	inline bool is_valid(void) { return (UNIT*)&core != NULL && core.name[0]!='\0'; };
 
 public: 
 
@@ -2723,6 +2723,19 @@ public:
 	inline int get_##X(char *buffer, size_t len) { return X(buffer,len); }; \
 	inline int set_##X(char *buffer) { return X(buffer,0); }
 
+#define GL_OBJECT(T,X) protected: OBJECT* X; public: \
+	static inline size_t get_##X##_offset(void) { return (char*)&(defaults->X)-(char*)defaults; }; \
+	inline gld_object *get_##X(void) { return get_object(X); }; \
+	inline gld_property get_##X##_property(void) { return gld_property(my(),#X); }; \
+	inline gld_object *get_##X(gld_rlock&) { return get_object(X); }; \
+	inline gld_object *get_##X(gld_wlock&) { return get_object(X); }; \
+	inline void set_##X(OBJECT* p) { X=p; }; \
+	inline void set_##X(OBJECT* p, gld_wlock&) { X=p; }; \
+	inline void set_##X(const char *str) { get_##X##_property().from_string(str); }; \
+	inline void init_##X(void) { memset((void*)&X,0,sizeof(X));}; \
+	inline void init_##X(OBJECT* value) { X=value;}; \
+	inline T *get_##X##_object(void) { return (T*)(X+1);};
+
 // Define: IMPL_METHOD(class,name)
 // Parameters:
 // buffer - a char* reference to the buffer containing the value
@@ -2829,6 +2842,9 @@ public:
 
 	// Method: get_flags
 	inline uint64 get_flags(uint64 mask=0xffffffffffffffff) { return (my()->flags)&mask; };
+
+	// Method: get_header_string
+	inline const char *get_header_string(const char *item, char *buffer=NULL, size_t len=0) { return callback->object.get_header_string(my(),item,buffer,len); };
 
 protected: 
 
@@ -3041,7 +3057,7 @@ public:
 			pstruct.prop= (v?v->prop:NULL);
 		} 
 	};
-
+	
 	// Constructor: gld_property(OBJECT *o, const char *n)
 	inline gld_property(OBJECT *o, const char *n) : pstruct(nullpstruct), obj(o)
 	{ 
@@ -3230,6 +3246,9 @@ public:
 
 	// TODO these need to use throw instead of returning overloaded values
 
+	// Method: get_bool(void)
+	inline bool get_bool(void) { return *(bool*)get_addr(); };
+
 	// Method: get_double(void)
 	inline double get_double(void) { errno=0; switch(pstruct.prop->ptype) { case PT_double: case PT_random: case PT_enduse: case PT_loadshape: return has_part() ? get_part() : *(double*)get_addr(); default: errno=EINVAL; return NaN;} };
 
@@ -3408,6 +3427,9 @@ public:
 
 	// Method: GLOBALVAR*
 	inline operator GLOBALVAR*(void) { return var; };
+
+	// Method: get_name
+	inline const char* get_name(void) { return var->prop->name; };
 
 	// Method: is_valid
 	inline bool is_valid(void) { return var!=NULL; };
@@ -3899,6 +3921,13 @@ int dllkill() { return do_kill(NULL); }
 	See <EXPORT_METHOD_C>.
  */
 #define EXPORT_METHOD(X,N) EXPORT_METHOD_C(X,X,N)
+
+/*	Define: EXPORT_DESTROY(class)
+
+	This macro is used to implement a destroy function of a class.
+ */
+#define EXPORT_DESTROY_C(X,N) EXPORT void destroy_##X(OBJECT *obj) { OBJECTDATA(obj,N)->destroy(); free(obj); }
+#define EXPORT_DESTROY(C) EXPORT_DESTROY_C(C,C)
 
 #endif
 
