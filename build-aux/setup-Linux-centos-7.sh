@@ -65,3 +65,19 @@ mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 	chmod a+x /usr/local/bin/natural_docs
 fi
 
+# influx db
+cat <<EOF | tee /etc/yum.repos.d/influxdb.repo 
+[influxdb] 
+name = InfluxDB Repository - RHEL \$releasever 
+baseurl = https://repos.influxdata.com/rhel/\$releasever/\$basearch/stable 
+enabled = 1 
+gpgcheck = 1 
+gpgkey = https://repos.influxdata.com/influxdb.key 
+EOF
+yum install influxdb -y
+/bin/systemctl start  influxdb.service
+/bin/systemctl enable influxdb.service
+firewall-cmd --permanent --zone=public --add-port=8086/tcp
+firewall-cmd --permanent --zone=public --add-port=8083/tcp
+firewall-cmd --reload
+
