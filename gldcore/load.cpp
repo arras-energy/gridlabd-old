@@ -6591,6 +6591,8 @@ void GldLoader::kill_processes(void)
 	}
 }
 
+bool load_import(const char *from, char *to, int len);
+
 /** @return -1 on failure, thread_id on success **/
 void* GldLoader::start_process(const char *cmd)
 {
@@ -6954,7 +6956,53 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			return FALSE;
 		}
 	}
-	else if (strncmp(line,"#setenv",7)==0)
+
+	else if ( strncmp(line, "#input", 6) == 0 )
+	{
+		char name[1024];
+		char options[1024] = "";
+		if ( sscanf(line+6,"%*[ \t]\"%[^\"]\"%*[ \t]%[^\n]",name,options) < 1 )
+		{
+			output_error_raw("%s(%d): #input missing filename",filename,linenum);
+			return FALSE;
+		}
+		char *ext = strrchr(name,'.');
+		char oldvalue[1024] = "";
+		char varname[1024] = "";
+		if ( ext && strcmp(ext,".glm") != 0 )
+		{
+			if ( strcmp(options,"") != 0 )
+			{
+				sprintf(varname,"%s_load_options",ext+1);
+				int old_global_strictnames = global_strictnames;
+				if ( global_isdefined(varname) )
+				{
+					global_getvar(varname,oldvalue,sizeof(oldvalue));
+				}
+				else
+				{
+					global_strictnames = FALSE;
+				}
+				global_setvar(varname,options,NULL);
+				global_strictnames = old_global_strictnames;	
+			}
+		}
+		char glmname[1024];
+		if ( load_import(name,glmname,sizeof(glmname)) == FAILED )
+		{
+			output_error_raw("%s(%d): load of '%s' failed",filename,linenum,glmname);
+			return FALSE;
+		}
+		if ( strcmp(varname,"") != 0 && strcmp(oldvalue,"") != 0)
+		{
+			global_setvar(varname,oldvalue,NULL);
+		}
+		output_verbose("loading converted file '%s'...", glmname);
+		strcpy(line,"\n");
+		return loadall_glm(glmname);
+	}
+	else if (strncmp(line, "#setenv",7)==0)
+
 	{
 		char *term = strchr(line+7,' ');
 		char value[65536];
@@ -7429,7 +7477,10 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 }
 
+
+/**/
 STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first character in the file name string */
+
 {
 	char file[1024];
 	strcpy(file,fname);
@@ -7565,11 +7616,15 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		output_error("load_import(from='%s',...): invalid extension", from);
 		return false;
 	}
-	char converter_name[1024], converter_path[1024];
-	sprintf(converter_name,"%s2glm.py",ext+1);
-	if ( find_file(converter_name, converter_path, R_OK, converter_path, sizeof(converter_path)) == NULL )
+	else
 	{
-		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext+1);
+		ext++;
+	}
+	char converter_name[1024], converter_path[1024];
+	sprintf(converter_name,"%s2glm.py",ext);
+	if ( find_file(converter_name, NULL, R_OK, converter_path, sizeof(converter_path)) == NULL )
+	{
+		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext);
 		return false;
 	}
 	if ( strlen(from) >= (size_t)(len-1) )
@@ -7583,8 +7638,13 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		strcat(to,".glm");
 	else
 		strcpy(glmext,".glm");
+	char load_options[1024] = "";
+	char load_options_var[64];
+	sprintf(load_options_var,"%s_load_options",ext);
+	global_getvar(load_options_var,load_options,sizeof(load_options));
 	char cmd[4096];
-	sprintf(cmd,"python3 %s -i %s -o %s",converter_path,from,to);
+	sprintf(cmd,"python3 %s -i %s -o %s \"%s\"",converter_path,from,to,load_options);
+	output_verbose("running %s", cmd);
 	int rc = system(cmd);
 	if ( rc != 0 )
 	{
@@ -7628,11 +7688,14 @@ STATUS GldLoader::loadall(const char *fname)
 		{
 			return load_python(fname);
 		}
-		// non-glm data file
+
+		// non-glm file
 		if ( ext != NULL && strcmp(ext,".glm") != 0 )
 		{
-			return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
+			return load_import(fname,file,sizeof(file)) ? loadall_glm(file) : FAILED;
 		}
+
+		// glm file
 		unsigned int old_obj_count = object_get_count();
 		char conf[1024];
 		static int loaded_files = 0;

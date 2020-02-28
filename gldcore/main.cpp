@@ -81,6 +81,7 @@ int main
 		if ( rc != 0 )
 			return rc;
 	}
+	delete my_instance;
 	return return_code;
 }
 unsigned int GldMain::next_id = 0;
@@ -190,12 +191,9 @@ GldMain::~GldMain(void)
 #ifndef HAVE_PYTHON
 	python_embed_term();
 #endif
-
-	/* compute elapsed runtime */
-	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
-	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
-
-	exit(exec.getexitcode());
+	
+	// TODO: add general destruction calls
+	object_destroy_all();
 
 	// TODO: remove this when reetrant code is done
 	my_instance = NULL;
