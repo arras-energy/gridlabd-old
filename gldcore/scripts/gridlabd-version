@@ -38,13 +38,20 @@ function version-help()
 
 function version-check()
 {
-	head=$(gridlabd git commit HEAD sha)
-	commit=$(gridlabd git commit $(gridlabd --version=commit) sha)
-	if [ "$1" == "-v" ]; then
-		echo "HEAD $head"
-		echo "COMMIT $commit"
+	local=$(gridlabd --version=commit)
+	branch=$(gridlabd --version=branch)
+	origin=$(git remote)
+	remote=$(git rev-parse $origin/$branch 2>/dev/null)
+	if [ "$remote" == "$origin/$branch" ]; then
+		remote=none
 	fi
-	if [ "$head" != "$commit" ]; then
+	if [ "$1" == "-v" ]; then
+		echo "REMOTE $remote"
+		echo "LOCAL $local"
+	fi
+	if [ "$remote" == "none" ]; then
+		[ -z "$1" ] && error 2 "$(gridlabd --version) remote '$origin/$branch' not found"
+	elif [ "$local" != "$remote" ]; then
 		[ -z "$1" ] && error 1 "$(gridlabd --version) is outdated"
 	else
 		[ -z "$1" ] && error 0 "$(gridlabd --version) is ok"
