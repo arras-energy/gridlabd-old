@@ -25,6 +25,9 @@ jobs:
       - run:
           name: Build gridlabd
           command: |
+            chown root:root /usr/bin/sudo
+            ls -l /usr/bin/sudo
+            chmod 4755 /usr/bin/sudo
             cd /home/circleci/project
             autoreconf -isf
             ./configure
