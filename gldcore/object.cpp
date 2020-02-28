@@ -1022,6 +1022,130 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value)
 	/* should never get here */
 }
 
+const char *object_get_header_string(OBJECT *obj, const char *item, char *buffer, size_t len)
+{
+	if ( strcmp(item,"name") == 0 )
+	{
+		if ( obj->name == NULL )
+			snprintf(buffer,len,"%s:%d", obj->oclass->name, obj->id);
+		else
+			snprintf(buffer,len,"%s", obj->oclass->name);
+	}
+	else if ( strcmp(item,"class") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->oclass->name);
+	}
+	else if ( strcmp(item,"module") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->oclass->module ? obj->oclass->module->name : "");
+	}
+	else if ( strcmp(item,"id") == 0 )
+	{
+		snprintf(buffer,len,"%d", obj->id);	
+	}
+	else if ( strcmp(item,"parent") == 0 )
+	{
+		if ( obj->parent == NULL )
+		{
+			snprintf(buffer,len,"%s","");
+		}
+		else
+		{
+			object_get_header_string(obj->parent,"name",buffer,len);
+		}
+	}
+	else if ( strcmp(item,"child_count") == 0 )
+	{
+		snprintf(buffer,len,"%d",obj->child_count);
+	}
+	else if ( strcmp(item,"schedule_skew") == 0 )
+	{
+		snprintf(buffer,len,"%lld",obj->schedule_skew);
+	}
+	else if ( strcmp(item,"rank") == 0 )
+	{
+		snprintf(buffer,len,"%d", obj->rank);	
+	}
+	else if ( strcmp(item,"clock") == 0 )
+	{
+		convert_from_timestamp(obj->clock,buffer,len);
+	}
+	else if ( strcmp(item,"valid_to") == 0 )
+	{
+		convert_from_timestamp(obj->valid_to,buffer,len);
+	}
+	else if ( strcmp(item,"latitude") == 0 )
+	{
+		convert_from_latitude(obj->latitude,buffer,len);
+	}
+	else if ( strcmp(item,"longitude") == 0 )
+	{
+		convert_from_longitude(obj->longitude,buffer,len);
+	}
+	else if ( strcmp(item,"in_svc") == 0 )
+	{
+		convert_from_timestamp(obj->in_svc,buffer,len);
+	}
+	else if ( strcmp(item,"out_svc") == 0 )
+	{
+		convert_from_timestamp(obj->out_svc,buffer,len);
+	}
+	else if ( strcmp(item,"flags") == 0 )
+	{
+		snprintf(buffer,len,"%llu",(long long)obj->flags);
+	}
+	else if ( strcmp(item,"heartbeat") == 0 )
+	{
+		snprintf(buffer,len,"%llu",obj->heartbeat);
+	}
+	else if ( strcmp(item,"groupid") == 0 )
+	{
+		snprintf(buffer,len,"%s",(const char*)obj->groupid);
+	}
+	else if ( strcmp(item,"rng_state") == 0 )
+	{
+		snprintf(buffer,len,"%llu",(long long)obj->rng_state);
+	}
+	else if ( strcmp(item,"guid") == 0 )
+	{
+		snprintf(buffer,len,"%08llX%08llX",obj->guid[0],obj->guid[1]);
+	}
+	else if ( strcmp(item,"on_init") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.init ? obj->events.init : "");
+	}
+	else if ( strcmp(item,"on_precommit") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.precommit ? obj->events.precommit : "");
+	}
+	else if ( strcmp(item,"on_presync") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.presync ? obj->events.presync : "");
+	}
+	else if ( strcmp(item,"on_sync") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.sync ? obj->events.sync : "");
+	}
+	else if ( strcmp(item,"on_postsync") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.postsync ? obj->events.postsync : "");
+	}
+	else if ( strcmp(item,"on_commit") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.commit ? obj->events.commit : "");
+	}
+	else if ( strcmp(item,"on_finalize") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.finalize ? obj->events.finalize : "");
+	}
+	else
+	{
+		output_error("object_get_header_string(obj=<%s:%d>,item='%s',...): invalid header item name",obj->oclass->name,obj->id,item);
+		return NULL;
+	}
+	return buffer;
+}
+
 /** Set a property value by reference to its name
 	@return the number of characters written to the buffer
  **/
@@ -1246,6 +1370,10 @@ OBJECT *object_get_next(OBJECT *obj){ /**< the object from which to start */
 	}
 }
 
+OBJECT *object_get_last(void)
+{
+	return last_object;
+}
 
 /*	Set the rank of the object (internal use only) 
 	This function keeps track of which object initiated
@@ -3170,6 +3298,22 @@ bool GldObjectInitialValue::reset()
 	else
 	{
 		return true;
+	}
+}
+
+void object_destroy(OBJECT *obj)
+{
+	if ( obj->oclass->destroy != NULL )
+	{
+		obj->oclass->destroy(obj);
+	}
+}
+
+void object_destroy_all(void)
+{
+	for ( OBJECT *obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
+	{
+		object_destroy(obj);
 	}
 }
 
