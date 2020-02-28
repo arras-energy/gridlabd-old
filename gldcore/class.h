@@ -243,6 +243,8 @@ struct s_class_list {
 	FUNCTION *fmap;
 	// Field: create
 	FUNCTIONADDR create;
+	// Field: destroy
+	FUNCTIONADDR destroy;
 	// Field: init
 	FUNCTIONADDR init;
 	// Field: precommit
@@ -619,6 +621,7 @@ private:
 	PROPERTY *pmap;
 	FUNCTION *fmap;
 	FUNCTIONADDR create;
+	FUNCTIONADDR destroy;
 	FUNCTIONADDR init;
 	FUNCTIONADDR precommit;
 	FUNCTIONADDR sync;
