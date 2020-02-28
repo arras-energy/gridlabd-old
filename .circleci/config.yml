@@ -4,16 +4,39 @@ jobs:
     docker:
       - image: slacgismo/circleci_gridlabd_base:latest
     steps:
-      - checkout   
       - run:
-          name: Install needed tools (TODO add to base image)
+          name: Install influxdb (TODO add to base image)
+          command: |
+            cd /tmp
+            wget -q https://dl.influxdata.com/influxdb/releases/influxdb_1.7.9_amd64.deb
+            sudo dpkg -i influxdb_1.7.9_amd64.deb
+      - run:
+          name: Install natural_docs (TODO add to base image)
+          command: |
+            cd /tmp
+            curl https://www.naturaldocs.org/download/natural_docs/2.0.2/Natural_Docs_2.0.2.zip > natural_docs.zip
+            unzip -qq natural_docs
+            rm -f natural_docs.zip
+            echo '#!/bin/bash' > natural_docs
+            echo 'mono $PWD/Natural\ Docs\/NaturalDocs.exe \$*' >> natural_docs
+            chmod a+x natural_docs
+      - run:
+          name: Install mono (TODO add to base image) 
           command: |
             cd /tmp
             sudo apt-get update
+            sudo apt-get install monodevelop -y
+      - run:
+          name: Install gawk (TODO add to base image)
+          command: |
+            cd /tmp
             sudo apt-get install gawk -y
+      - checkout   
       - run:
           name: Build gridlabd
           command: |
+            sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
+            sleep 5
             cd /home/circleci/project
             autoreconf -isf
             ./configure
@@ -24,4 +47,12 @@ jobs:
       - store_artifacts:
           path: /home/circleci/project/validate-output.tar.gz
           destination: validate-output.tar.gz
+          when: on_fail
+      - store_artifacts:
+          path: /tmp/influxd.log
+          destination: /server/influxd.log
+          when: on_fail
+      - store_artifacts:
+          path: /tmp/influxd.err
+          destination: /server/influxd.err
           when: on_fail
