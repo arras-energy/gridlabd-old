@@ -1,0 +1,5 @@
+#option debug
+#set suppress_repeat_messages=false
+
+#version -ge 4.2.1
+#version -lt 4.2.1
