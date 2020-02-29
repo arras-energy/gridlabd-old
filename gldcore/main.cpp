@@ -555,8 +555,8 @@ static int pcloses(FILE *iop, bool wait=true)
 	}
 	if ( ! wait )
 	{
-		(void)fclose(cur->output);
-		(void)fclose(cur->error);
+		if ( cur->output ) (void)fclose(cur->output);
+		if ( cur->error ) (void)fclose(cur->error);
 		kill(cur->pid,SIGHUP);
 		pid = 0;
 	}
@@ -566,8 +566,8 @@ static int pcloses(FILE *iop, bool wait=true)
 		{
 			pid = waitpid(cur->pid, &pstat, 0);
 		} while ( pid == -1 && errno == EINTR );
-		(void)fclose(cur->output);
-		(void)fclose(cur->error);
+		if ( cur->output ) (void)fclose(cur->output);
+		if ( cur->error ) (void)fclose(cur->error);
 	}
 
 	/* remove the entry from the linked list */
@@ -604,7 +604,7 @@ int GldMain::subcommand(const char *format, ...)
 	}
 	while ( fgets(line, sizeof(line)-1, error) != NULL ) 
 	{
-		output_message(line);
+		output_error(line);
 	}
 	int rc = pcloses(output);
 	if ( rc > 0 )
