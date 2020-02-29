@@ -106,7 +106,7 @@ object transformer {
      to _transformer_meter;
      configuration substation_config;
      object recorder {
-          property power_out_real;
+          property power_out_real,power_out[VA:4fi],power_out[VA:4gd];
           limit 100000000;
           interval 60;
           file totalload_5_houses_Aug.csv;

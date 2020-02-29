@@ -312,7 +312,14 @@ static int recorder_open(OBJECT *obj)
 					prop = 0;
 					unitstr[0] = 0;
 					propstr[0] = 0;
-					if(2 == sscanf(token, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr)){
+					if ( sscanf(token, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr) == 2 )
+					{
+						char *format = strchr(unitstr,':');
+						if ( format )
+						{
+							*format++ = '\0';
+							strcpy(my->output_format,format);
+						}
 						unit = gl_find_unit(unitstr);
 						if(unit == 0){
 							gl_error("recorder:%d: unable to find unit '%s' for property '%s'", obj->id, unitstr, propstr);
@@ -573,7 +580,14 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 
 		// everything that looks like a property name, then read units up to ]
 		while (isspace(*item)) item++;
-		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,]]", (char*)pstr, (char*)ustr)){
+		if ( sscanf(item,"%[A-Za-z0-9_.][%[^]\n,]]", (char*)pstr, (char*)ustr) == 2 )
+		{
+			char *format = strchr(ustr,':');
+			if ( format )
+			{
+				*format++ = '\0';
+				strcpy(rec->output_format,format);
+			}
 			unit = gl_find_unit(ustr);
 			if(unit == NULL){
 				gl_error("recorder:%d: unable to find unit '%s' for property '%s'",obj->id, (char*)ustr,(char*)pstr);
