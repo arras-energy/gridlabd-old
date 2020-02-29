@@ -27,5 +27,5 @@ This requires development and implementation in GridLAB-D of data-driven methods
 
 # Publications
 
-* [Buechler et al, Machine Learning-Based Power Flow Solver, 2020.pdf]
-* [Powell et al, Fast Solutions in Power System Simulation, submitted to HICSS, 15-June-2019.pdf]
+* [http:Buechler et al, Machine Learning-Based Power Flow Solver, 2020.pdf]
+* [http:Powell et al, Fast Solutions in Power System Simulation, submitted to HICSS, 15-June-2019.pdf]
