@@ -477,7 +477,7 @@ static int popens(const char *program, FILE **output, FILE **error)
 	}
 	else if ( pid == 0 )
 	{
-		/* child */
+		/* child writes on 1 */
 		for ( struct pid *pcur = pidlist ; pcur ; pcur = pcur->next )
 		{
 			(void)close(fileno(pcur->output));
@@ -491,7 +491,7 @@ static int popens(const char *program, FILE **output, FILE **error)
 				(void)dup2(pdout[1], STDOUT_FILENO);
 				(void)close(pdout[1]);
 			}
-		} 		
+		}	
 		if ( error )
 		{
 			(void)close(pderr[0]);
@@ -507,15 +507,15 @@ static int popens(const char *program, FILE **output, FILE **error)
 	}
 	else
 	{
-		/* parent */
+		/* parent reads on 0 */
 		if ( output ) 
 		{
-			*output = fdopen(pdout[1], "w");
+			*output = fdopen(pdout[1], "r");
 			(void)close(pdout[0]);
 		}
 		if ( error ) 
 		{
-			*error = fdopen(pderr[1], "w");
+			*error = fdopen(pderr[1], "r");
 			(void)close(pderr[0]);
 		}
 		/* Link into list of file descriptors. */
@@ -591,18 +591,18 @@ int GldMain::subcommand(const char *format, ...)
 	vsnprintf(command,sizeof(command)-1,format,ptr);
 	va_end(ptr);
 
-	FILE *output, *error;
+	FILE *output = NULL, *error = NULL;
 	if ( ! popens(command, &output, &error) ) 
 	{
 		output_error("GldMain::subcommand(format='%s'): unable to run command '%s'",format,command);
 		return -1;
 	}
 	char line[1024];
-	while ( fgets(line, sizeof(line)-1, output) != NULL ) 
+	while ( output && fgets(line, sizeof(line)-1, output) != NULL ) 
 	{
 		output_message(line);
 	}
-	while ( fgets(line, sizeof(line)-1, error) != NULL ) 
+	while ( error && fgets(line, sizeof(line)-1, error) != NULL ) 
 	{
 		output_error(line);
 	}
@@ -613,4 +613,5 @@ int GldMain::subcommand(const char *format, ...)
 	}
 	return rc;
 }
+
 /** @} **/
