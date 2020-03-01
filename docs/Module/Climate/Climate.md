@@ -54,6 +54,7 @@ GLM:
     cloud_alpha "<decimal> pu";
     cloud_num_layers "<decimal> pu";
     cloud_aerosol_transmissivity "<decimal> pu";
+    heat_index "<decimal> degF";
   }
 ~~~
 
@@ -446,6 +447,14 @@ Number of cloud layers
 ~~~
 
 Cloud aerosal transmissivity
+
+### `heat_index`
+
+~~~
+double heat_index[degF];
+~~~
+
+Computed heat index based on [NOAA heat index equation](https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml).
 
 # Example
 
