@@ -8,7 +8,7 @@
 clock {
      timezone EST+5EDT;
      timestamp '2010-08-15 00:00:00';
-     stoptime '2010-08-15 00:02:00';
+     stoptime '2010-08-15 00:10:00';
 }
 
 #set double_format=%+.12lg
@@ -106,7 +106,8 @@ object transformer {
      to _transformer_meter;
      configuration substation_config;
      object recorder {
-          property power_out_real,power_out[VA:4fi],power_out[VA:4gd];
+          property power_out_real[uW],power_out_real[uW:4a],power_out_real[uW:4e],power_out_real[uW:4f],power_out_real[uW:4g],power_out_real[uW:4A],power_out_real[uW:4E],power_out_real[uW:4F],power_out_real[uW:4G];
+          property power_out[uVA:4fi],power_out[uVA:4fj],power_out[uVA:4fd],power_out[uVA:4fr],power_out[uVA:4fM],power_out[uVA:4fR],power_out[uVA:4fD],power_out[uVA:4fX],power_out[uVA:4fY];
           limit 100000000;
           interval 60;
           file totalload_5_houses_Aug.csv;
@@ -417,7 +418,7 @@ object house {
 //  1281844860  2010-08-15 00:01:00 EDT
 object recorder {
 	parent H_5;
-	property Rroof, Rwall,Rfloor,Rdoors;
+	property Rroof,Rwall,Rfloor,Rdoors;
 	file test_recorder_epoch.csv;
 	format 1;
 	interval 60;
@@ -425,7 +426,7 @@ object recorder {
 
 object multi_recorder {
 	parent H_5;
-	property Rroof, H_4:Rroof,H_3:Rroof,H_2:Rroof,H_1:Rroof;
+	property Rroof,H_4:Rroof,H_3:Rroof,H_2:Rroof,H_1:Rroof;
 	file test_multirecorder_epoch.csv;
 	format 1;
 	interval 60;
