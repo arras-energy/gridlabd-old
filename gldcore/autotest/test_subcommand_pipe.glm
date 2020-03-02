@@ -1,0 +1,1 @@
+#exec echo "this is a standard message" > /dev/stdout
