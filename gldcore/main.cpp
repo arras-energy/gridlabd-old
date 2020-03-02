@@ -426,39 +426,41 @@ int GldMain::run_on_exit()
 #include <stdlib.h>
 #include <string.h>
 #include <paths.h>
+
 static struct pid {
-	FILE *input;
 	FILE *output;
 	FILE *error;
 	pid_t pid;
 	struct pid *next;
 } *pidlist;
+
 extern char **environ;
-/*	Function: popen3
+
+/*	Function: popens
 	
 	Runs a program and connects its stdout and stderr to the FILEs.
 
 	Returns:
 	-1	failed
  */
-static int popen3(const char *program, FILE **input, FILE **output, FILE **error)
+static int popens(const char *program, FILE **output, FILE **error)
 {
+
 	struct pid * volatile cur;
-	int pdes[2];
+	int pdout[2],pderr[2];
 	pid_t pid;
-	struct pid *pcur;
-	const char *argp[] = {getenv("SHELL"), "-c", NULL, NULL};
-	if ( input == NULL && output == NULL && error == NULL ) 
+	if ( output == NULL && error == NULL )
 	{
 		errno = EINVAL;
-		return 0;
+		return -1;
 	}
+	const char *argp[] = {getenv("SHELL"), "-c", NULL, NULL};
 	cur = (struct pid*)malloc(sizeof(struct pid));
 	if ( cur == NULL )
 	{
 		return 0;
 	}
-	if ( pipe(pdes) < 0 ) 
+	if ( pipe(pdout) < 0 || pipe(pderr) < 0 ) 
 	{
 		free(cur);
 		return 0;
@@ -467,36 +469,37 @@ static int popen3(const char *program, FILE **input, FILE **output, FILE **error
 	if ( pid == -1 )
 	{
 		/* error */
-		(void)close(pdes[0]);
-		(void)close(pdes[1]);
+		(void)close(pdout[0]);
+		(void)close(pdout[1]);
+		(void)close(pderr[0]);
+		(void)close(pderr[1]);
 		free(cur);
 		return 0;
 	}
 	else if ( pid == 0 )
 	{
-		/* child */
-		for (pcur = pidlist; pcur; pcur = pcur->next)
+		/* child writes on 1 */
+		for ( struct pid *pcur = pidlist ; pcur ; pcur = pcur->next )
 		{
-			close(fileno(pcur->input));
-			close(fileno(pcur->output));
-			close(fileno(pcur->error));
+			(void)close(fileno(pcur->output));
+			(void)close(fileno(pcur->error));
 		}
-		if ( input ) 
+		if ( output ) 
 		{
-			(void) close(pdes[0]);
-			if (pdes[1] != STDOUT_FILENO) 
+			(void) close(pdout[0]);
+			if ( pdout[1] != STDOUT_FILENO ) 
 			{
-				(void)dup2(pdes[1], STDOUT_FILENO);
-				(void)close(pdes[1]);
+				(void)dup2(pdout[1], STDOUT_FILENO);
+				(void)close(pdout[1]);
 			}
-		} 		
-		else if ( output )
+		}	
+		if ( error )
 		{
-			(void)close(pdes[1]);
-			if (pdes[0] != STDIN_FILENO) 
+			(void)close(pderr[0]);
+			if ( pderr[1] != STDERR_FILENO ) 
 			{
-				(void)dup2(pdes[0], STDIN_FILENO);
-				(void)close(pdes[0]);
+				(void)dup2(pderr[1], STDERR_FILENO);
+				(void)close(pderr[1]);
 			}
 		}
 		argp[2] = (char *)program;
@@ -505,19 +508,18 @@ static int popen3(const char *program, FILE **input, FILE **output, FILE **error
 	}
 	else
 	{
-		/* parent */
-		if ( input ) 
+		/* parent reads on 0 */
+		if ( output ) 
 		{
-			*input = fdopen(pdes[0], "r");
-			(void)close(pdes[1]);
+			*output = fdopen(pdout[0], "r");
+			(void)close(pdout[1]);
 		}
-		else if ( output ) 
+		if ( error ) 
 		{
-			*output = fdopen(pdes[1], "w");
-			(void)close(pdes[0]);
+			*error = fdopen(pderr[0], "r");
+			(void)close(pderr[1]);
 		}
 		/* Link into list of file descriptors. */
-		cur->input = ( input ? *input : NULL );
 		cur->output = ( output ? *output : NULL );
 		cur->error = ( error ? *error : NULL );
 		cur->pid =  pid;
@@ -527,7 +529,7 @@ static int popen3(const char *program, FILE **input, FILE **output, FILE **error
 	}
 }
 
-/*	Function: pclose3
+/*	Function: pcloses
 
 	Waits for the process associated with the stream to terminate and closes its pipes.
  
@@ -535,7 +537,7 @@ static int popen3(const char *program, FILE **input, FILE **output, FILE **error
  	-1  	if stream is not associated with a `popen3' command, if already closed, or waitpid returns an error.
  	status	if ok
  */
-static int pclose3(FILE *iop)
+static int pcloses(FILE *iop, bool wait=true)
 {
 	struct pid *cur, *last;
 	int pstat;
@@ -543,7 +545,7 @@ static int pclose3(FILE *iop)
 	/* Find the appropriate file pointer. */
 	for ( last = NULL, cur = pidlist ; cur ; last = cur, cur = cur->next )
 	{
-		if ( cur->input == iop || cur->output == iop || cur->error == iop )
+		if ( cur->output == iop || cur->error == iop )
 		{
 			break;
 		}
@@ -552,11 +554,23 @@ static int pclose3(FILE *iop)
 	{
 		return (-1);
 	}
-	(void)fclose(iop);
-	do 
+	if ( ! wait )
 	{
-		pid = waitpid(cur->pid, &pstat, 0);
-	} while ( pid == -1 && errno == EINTR );
+		if ( cur->output ) (void)fclose(cur->output);
+		if ( cur->error ) (void)fclose(cur->error);
+		kill(cur->pid,SIGHUP);
+		pid = 0;
+	}
+	else
+	{
+		do 
+		{
+			pid = waitpid(cur->pid, &pstat, 0);
+		} while ( pid == -1 && errno == EINTR );
+		if ( cur->output ) (void)fclose(cur->output);
+		if ( cur->error ) (void)fclose(cur->error);
+	}
+
 	/* remove the entry from the linked list */
 	if (last == NULL)
 	{
@@ -567,7 +581,7 @@ static int pclose3(FILE *iop)
 		last->next = cur->next;
 	}
 	free(cur);
-	return ( pid == -1 ? -1 : pstat );
+	return ( pid == -1 ? errno : pstat );
 }
 
 int GldMain::subcommand(const char *format, ...)
@@ -578,23 +592,27 @@ int GldMain::subcommand(const char *format, ...)
 	vsnprintf(command,sizeof(command)-1,format,ptr);
 	va_end(ptr);
 
-	// TODO: reimplement this so it captures stderr also
-	FILE *output;
-	if ( ! popen3(command, NULL, &output, &stderr) ) 
+	FILE *output = NULL, *error = NULL;
+	if ( ! popens(command, &output, &error) ) 
 	{
 		output_error("GldMain::subcommand(format='%s'): unable to run command '%s'",format,command);
 		return -1;
 	}
 	char line[1024];
-	while ( fgets(line, sizeof(line)-1, output) != NULL ) 
+	while ( output && fgets(line, sizeof(line)-1, output) != NULL ) 
 	{
 		output_message(line);
 	}
-	int rc = pclose3(output);
+	while ( error && fgets(line, sizeof(line)-1, error) != NULL ) 
+	{
+		output_error(line);
+	}
+	int rc = pcloses(output);
 	if ( rc > 0 )
 	{
 		output_error("GldMain::subcommand(format='%s'): command '%s' returns code %d",format,command,rc);
 	}
 	return rc;
 }
+
 /** @} **/
