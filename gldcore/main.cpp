@@ -46,42 +46,39 @@ int main
 	int return_code = XC_SUCCESS;
 	try {
 		my_instance = new GldMain(argc,argv);
+		if ( my_instance == NULL )
+		{
+			output_error("unable to create new instance");
+			return_code = XC_SHFAILED;	
+		}
+		else
+		{
+			return_code = my_instance->mainloop(argc,argv);
+			return_code = my_instance->run_on_exit();
+			delete my_instance;
+			my_instance = NULL;
+		}
 	}
 	catch (const char *msg)
 	{
-		output_fatal("uncaught exception: %s", msg);
+		output_error("%s", msg);
 		return_code = errno ? errno : XC_SHFAILED;
+		return_code = XC_EXCEPTION;
 	}
 	catch (GldException *exc)
 	{
-		output_fatal("GldException: %s", exc->get_message());
-		return_code = errno ? errno : XC_SHFAILED;
+		output_error("%s", exc->get_message());
+		return_code = XC_EXCEPTION;
 	}
-	if ( my_instance == NULL )
+	catch (...)
 	{
-		output_error("unable to create new instance");
-		return_code = XC_SHFAILED;	
+		output_error("unknown exception");
+		return_code = XC_EXCEPTION;
 	}
-	else
+	if ( my_instance != NULL )
 	{
-		try {
-			return_code = my_instance->mainloop(argc,argv);
-		}
-		catch (const char *msg)
-		{
-			output_fatal("uncaught exception: %s", msg);
-			return_code = errno ? errno : XC_SHFAILED;
-		}
-		catch (GldException *exc)
-		{
-			output_fatal("UNHANDLED EXCEPTION: %s", exc->get_message());
-			return_code = XC_EXCEPTION;
-		}
-		int rc = my_instance->run_on_exit();
-		if ( rc != 0 )
-			return rc;
+		delete my_instance;
 	}
-	delete my_instance;
 	return return_code;
 }
 unsigned int GldMain::next_id = 0;
