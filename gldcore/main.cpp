@@ -445,6 +445,7 @@ extern char **environ;
  */
 static int popens(const char *program, FILE **output, FILE **error)
 {
+
 	struct pid * volatile cur;
 	int pdout[2],pderr[2];
 	pid_t pid;
@@ -486,7 +487,7 @@ static int popens(const char *program, FILE **output, FILE **error)
 		if ( output ) 
 		{
 			(void) close(pdout[0]);
-			if (pdout[1] != STDOUT_FILENO) 
+			if ( pdout[1] != STDOUT_FILENO ) 
 			{
 				(void)dup2(pdout[1], STDOUT_FILENO);
 				(void)close(pdout[1]);
@@ -495,7 +496,7 @@ static int popens(const char *program, FILE **output, FILE **error)
 		if ( error )
 		{
 			(void)close(pderr[0]);
-			if (pderr[1] != STDERR_FILENO) 
+			if ( pderr[1] != STDERR_FILENO ) 
 			{
 				(void)dup2(pderr[1], STDERR_FILENO);
 				(void)close(pderr[1]);
@@ -510,13 +511,13 @@ static int popens(const char *program, FILE **output, FILE **error)
 		/* parent reads on 0 */
 		if ( output ) 
 		{
-			*output = fdopen(pdout[1], "r");
-			(void)close(pdout[0]);
+			*output = fdopen(pdout[0], "r");
+			(void)close(pdout[1]);
 		}
 		if ( error ) 
 		{
-			*error = fdopen(pderr[1], "r");
-			(void)close(pderr[0]);
+			*error = fdopen(pderr[0], "r");
+			(void)close(pderr[1]);
 		}
 		/* Link into list of file descriptors. */
 		cur->output = ( output ? *output : NULL );
