@@ -1,20 +1,7 @@
-/** $Id: meter.cpp 1182 2008-12-22 22:08:36Z dchassin $
-	Copyright (C) 2008 Battelle Memorial Institute
-	@file meter.cpp
-	@addtogroup powerflow_meter Meter
-	@ingroup powerflow
-
-	@note The meter object now only implements polyphase meters.  For a singlephase
-	meter, see the triplex_meter object.
-
-	Distribution meter can be either single phase or polyphase meters.
-	For polyphase meters, the line voltages are nominally 277V line-to-line, and
-	480V line-to-ground.  The ground is not presented explicitly (it is assumed).
-
-	Total cumulative energy, instantantenous power and peak demand are metered.
-
-	@{
- **/
+// File: meter.cpp
+// Copyright (C) 2008 Battelle Memorial Institute
+// Updated for HiPAS GridLAB-D
+// Copyright (C) 2020 Regents of Leland Stanford Junior University
 
 #include "powerflow.h"
 using namespace std;
