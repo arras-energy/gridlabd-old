@@ -1,5 +1,7 @@
-// $Id: meter.h 4738 2014-07-03 00:55:39Z dchassin $
-//	Copyright (C) 2008 Battelle Memorial Institute
+// File: meter.h
+// Copyright (C) 2008 Battelle Memorial Institute
+// Updated for HiPAS GridLAB-D
+// Copyright (C) 2020 Regents of Leland Stanford Junior University
 
 #ifndef _METER_H
 #define _METER_H
