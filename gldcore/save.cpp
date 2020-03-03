@@ -515,6 +515,20 @@ void save_outputs(void)
 	saveall(filename);
 	for ( SAVEMAP::iterator item = savelist.begin() ; item != savelist.end() ; item++ )
 	{
-		throw_exception("automatic conversion of '%s' to '%s %s' not implemented", filename, item->first.c_str(), item->second.c_str());
+		const char *from = strrchr(filename,'.');
+		if ( from == NULL )
+		{
+			throw_exception("intermediate output file '%s' has no extension", filename);
+		}
+		const char *to = strrchr(item->first.c_str(),'.');
+		if ( to == NULL )
+		{
+			throw_exception("output file '%s' has no extension", item->first.c_str());
+		}
+		int rc = my_instance->subcommand("/usr/local/bin/python3 %s/%s2%s.py -i %s -o %s %s",(const char*)global_datadir,from+1,to+1,filename,item->first.c_str(),item->second.c_str());
+		if ( rc != 0 )
+		{
+			throw_exception("automatic conversion of '%s' to '%s %s' failed with return code %d", filename, item->first.c_str(), item->second.c_str(), rc);
+		}
 	}
 }

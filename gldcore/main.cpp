@@ -585,31 +585,39 @@ static int pcloses(FILE *iop, bool wait=true)
 
 int GldMain::subcommand(const char *format, ...)
 {
-	char command[65536];
+	char *command;
 	va_list ptr;
 	va_start(ptr,format);
-	vsnprintf(command,sizeof(command)-1,format,ptr);
+	if ( vasprintf(&command,format,ptr) < 0 )
+	{
+		output_error("GldMain::subcommand(format='%s',...): memory allocation failed",format);
+		return -1;
+	}
 	va_end(ptr);
 
 	FILE *output = NULL, *error = NULL;
+	int rc = 0;
 	if ( ! popens(command, &output, &error) ) 
 	{
-		output_error("GldMain::subcommand(format='%s'): unable to run command '%s'",format,command);
-		return -1;
+		output_error("GldMain::subcommand(format='%s',...): unable to run command '%s'",format,command);
+		rc = -1;
 	}
-	char line[1024];
-	while ( output && fgets(line, sizeof(line)-1, output) != NULL ) 
+	else
 	{
-		output_message(line);
-	}
-	while ( error && fgets(line, sizeof(line)-1, error) != NULL ) 
-	{
-		output_error(line);
-	}
-	int rc = pcloses(output);
-	if ( rc > 0 )
-	{
-		output_error("GldMain::subcommand(format='%s'): command '%s' returns code %d",format,command,rc);
+		char line[1024];
+		while ( output && fgets(line, sizeof(line)-1, output) != NULL ) 
+		{
+			output_message(line);
+		}
+		while ( error && fgets(line, sizeof(line)-1, error) != NULL ) 
+		{
+			output_error(line);
+		}
+		rc = pcloses(output);
+		if ( rc > 0 )
+		{
+			output_error("GldMain::subcommand(format='%s',...): command '%s' returns code %d",format,command,rc);
+		}
 	}
 	return rc;
 }
