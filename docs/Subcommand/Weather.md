@@ -29,6 +29,7 @@ The `index` subcommand is used to obtain lists of weather files in the archive. 
 
 ~~~
 bash$ gridlabd weather index
+
   AK-Adak_Nas.tmy3
   AK-Ambler.tmy3
   AK-Anaktuvuk_Pass.tmy3
@@ -42,6 +43,7 @@ The following command obtains a list of all the California weather files in the 
 
 ~~~
 bash$ gridlabd weather index ^CA
+
   CA-Alturas.tmy3
   CA-Arcata_Airport.tmy3
   CA-Bakersfield_Meadows_Field.tmy3
@@ -55,6 +57,7 @@ The following command obtains a list of the weather files in the archive that ha
 
 ~~~
 bash$ gridlabd weather index San
+
   AK-Sand_Point.tmy3
   CA-San_Diego_Lindbergh_Field.tmy3
   CA-San_Diego_Miramar_Nas.tmy3
@@ -83,6 +86,7 @@ To download all the weather files in a state, use the command:
 
 ~~~
 bash$ gridlabd weather get ^CA
+
   Downloading CA-Alturas.tmy3... done
   Downloading CA-Arcata_Airport.tmy3... done
   Downloading CA-Bakersfield_Meadows_Field.tmy3... done
@@ -111,7 +115,6 @@ bash$ gridlabd weather get San_Diego
 The `list` command displays a list of the local weather files that have been downloaded from the archive.
 
 To list a single weather file use the command:
-
 ~~~
 bash$ gridlabd weather list CA-San_Diego_Lindbergh_Field.tmy3
   CA-San_Diego_Lindbergh_Field.tmy3
@@ -134,6 +137,7 @@ To list all the weather files matching a name pattern, use the command:
 
 ~~~
 bash$ gridlabd weather list San_Diego
+
   CA-San_Diego_Lindbergh_Field.tmy3
   CA-San_Diego_Miramar_Nas.tmy3
   CA-San_Diego_Montgomer.tmy3
@@ -186,6 +190,7 @@ To display information about all the downloaded weather files in a state, use th
 
 ~~~
 bash$ gridlabd weather info ^CA
+
   Filepath,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation
   "/usr/local/share/gridlabd/US/CA-Alturas.tmy3",725958,"ALTURAS",CA,-8.0,41.500,-120.533,1341
   "/usr/local/share/gridlabd/US/CA-Arcata_Airport.tmy3",725945,"ARCATA AIRPORT",CA,-8.0,40.983,-124.100,62
@@ -200,6 +205,7 @@ To display information about all the downloaded weather files matching a name pa
 
 ~~~
 bash$ gridlabd weather info San_Diego
+
   Filepath,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation
   "/usr/local/share/gridlabd/US/CA-San_Diego_Lindbergh_Field.tmy3",722900,"SAN DIEGO LINDBERGH FIELD",CA,-8.0,32.733,-117.167,4
   "/usr/local/share/gridlabd/US/CA-San_Diego_Miramar_Nas.tmy3",722930,"SAN DIEGO MIRAMAR NAS",CA,-8.0,32.867,-117.133,140
@@ -211,6 +217,7 @@ The information is output in CSV format for convenient manipulation using standa
 
 ~~~
 bash$ gridlabd weather info San_Diego
+
   Filepath,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation
   "/usr/local/share/gridlabd/US/CA-San_Diego_Lindbergh_Field.tmy3",722900,"SAN DIEGO LINDBERGH FIELD",CA,-8.0,32.733,-117.167,4
   "/usr/local/share/gridlabd/CA-San_Diego_Miramar_Nas.tmy3",722930,"SAN DIEGO MIRAMAR NAS",CA,-8.0,32.867,-117.133,140
@@ -236,12 +243,14 @@ The weather data configuration file `gridlabd-weather.conf` is located in the `$
 
 To get a list of the current weather data configuration use the command
 
+
 ~~~
 bash$ gridlabd weather config show
   GITHUB="https://github.com"
   GITHUBUSERCONTENT="https://raw.githubusercontent.com"
   COUNTRY="US"
   GITUSER="slacgismo"
+
   GITREPO="gridlabd-weather"
   GITBRANCH="master"
   DATADIR="/usr/local/share/gridlabd/weather"
