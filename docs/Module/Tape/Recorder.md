@@ -139,10 +139,42 @@ TODO
 ### `property`
 
 ~~~
-  method property;
+method property;
 ~~~
 
-TODO
+The `property` field enumerates the targets that will be recorded into the file specified.  The properties must belong to the parent object. When multiple properties are specified they must be separated by commas.  Property may be specified with a unit and a format specification using the syntax:
+
+~~~
+property "<name>[<unit>:<format]";
+~~~
+
+where `<unit>` must be a valid unit that is compatible with the unit of property.  The `<format>` value must be specified as follows for `double` properties:
+
+~~~
+  <digit><letter>
+~~~
+
+where `<digit>` is a number from 0 to 9 specifying the precision of the output number, and `<letter>` is one of ['a','e','f','g','A','E','F','G'], corresponding to the double formats used by `sprintf()`.
+
+When the properties is a `complex`, the format specification must also include one of ['i','j','d','r',M','D','R','X','Y'], indicating the follow forms of the complex value
+
+* `i`: Rectangular form with 'i' as the complex variable.
+
+* `j`: Rectangular form with 'j' as the complex variable.
+
+* `r`: Polar form with angle specified in radians.
+
+* `d`: Polar form with angle specified in degrees.
+
+* `M`: Magnitude only
+
+* `D`: Angle only in degrees
+
+* `R`: Angle only in radians
+
+* `X`: Real part only
+
+* `Y`: Imaginary part only
 
 ### `output`
 

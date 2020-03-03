@@ -7238,7 +7238,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		char command_line[1024];
 		sprintf(command_line,"%s/gridlabd-%s",global_execdir,command);
 		output_verbose("executing system(%s)", command_line);
-		global_return_code = system(command_line);
+		global_return_code = my_instance->subcommand("%s",command_line);
 		if( global_return_code != 0 )
 		{
 			syntax_error(filename,linenum,"#command %s -- system('%s') failed with status %d", command, command_line, global_return_code);
@@ -7263,7 +7263,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		strcpy(value, strip_right_white(term+1));
 		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
-		global_return_code = system(value);
+		global_return_code = my_instance->subcommand("%s",value);
 		if( global_return_code != 0 )
 		{
 			syntax_error(filename,linenum,"#exec %s -- system('%s') failed with status %d", value, value, global_return_code);

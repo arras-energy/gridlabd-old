@@ -10,7 +10,7 @@ This PR addresses issue(s) #NUMBER1, #NUMBER2, etc. (Optional: This PR is a cont
 1. list all significant code changes
 
 ## Documentation changes
-- (name)[url]
+- [/path/to/markdown/doc](docs-browser-url)
 
 ## Test and Validation Notes
 1. Enumerate any testing and validation considerations.
