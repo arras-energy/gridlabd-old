@@ -1,22 +1,8 @@
-/** $Id: triplex_meter.cpp 1002 2008-09-29 15:58:23Z d3m998 $
-	Copyright (C) 2008 Battelle Memorial Institute
-	@file triplex_meter.cpp
-	@addtogroup powerflow_triplex_meter Meter
-	@ingroup powerflow
+// File: triplex_meter.cpp
+// Copyright (C) 2008 Battelle Memorial Institute
+// Updated for HiPAS GridLAB-D
+// Copyright (C) 2020 Regents of Leland Stanford Junior University
 
-	Distribution triplex_meter can be either single phase or polyphase triplex_meters.
-	Single phase triplex_meters present three lines to objects
-	- Line 1-G: 120V,
-	- Line 2-G: 120V
-	- Line 3-G: 0V
-	- Line 1-2: 240V
-	- Line 2-3: 120V
-	- Line 1-3: 120V
-
-	Total cumulative energy, instantantenous power and peak demand are triplex_metered.
-
-	@{
- **/
 #include "powerflow.h"
 using namespace std;
 
