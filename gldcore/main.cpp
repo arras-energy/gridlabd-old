@@ -82,6 +82,7 @@ int main
 			return rc;
 	}
 	delete my_instance;
+	my_instance = NULL;
 	return return_code;
 }
 unsigned int GldMain::next_id = 0;
