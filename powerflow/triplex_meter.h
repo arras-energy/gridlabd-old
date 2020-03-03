@@ -1,5 +1,7 @@
-// $Id: triplex_meter.h 942 2008-09-19 20:03:17Z dchassin $
-//	Copyright (C) 2008 Battelle Memorial Institute
+// File: triplex_meter.h
+// Copyright (C) 2008 Battelle Memorial Institute
+// Updated for HiPAS GridLAB-D
+// Copyright (C) 2020 Regents of Leland Stanford Junior University
 
 #ifndef _TRIPLEXMETER_H
 #define _TRIPLEXMETER_H
