@@ -95,6 +95,8 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 		my->flush = -1; /* -1 (default): flush when buffer full, 0 flush each line, >0 flush seconds */
 		my->property = NULL;
 		my->property_len = 0;
+		memset(my->output_format,0,sizeof(my->output_format));
+		memset(my->output_scalar,0,sizeof(my->output_scalar));
 		return 1;
 	}
 	return 0;
@@ -284,72 +286,100 @@ static int recorder_open(OBJECT *obj)
 
 	/* if type is file or file is stdin */
 	f = get_ftable(my->mode);
-	if(f != 0){
+	if ( f != 0 )
+	{
 		my->ops = f->recorder;
-	} else {
+	} 
+	else 
+	{
 		return 0;
 	}
-	if(my->ops == NULL)
+	if ( my->ops == NULL )
+	{
 		return 0;
+	}
 	set_csv_options();
 
 	// set out_property here
-	{size_t offset = 0;
-		char unit_buffer[1024];
-		char *token = 0;
-		char propstr[1024], unitstr[64];
-		PROPERTY *prop = 0;
-		UNIT *unit = 0;
-		int first = 1;
-		switch(my->header_units){
-			case HU_DEFAULT:
-				strcpy(my->out_property, my->property);
-				break;
-			case HU_ALL:
-				strcpy(unit_buffer, my->property);
-				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
-					unit = 0;
-					prop = 0;
-					unitstr[0] = 0;
-					propstr[0] = 0;
-					if(2 == sscanf(token, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr)){
-						unit = gl_find_unit(unitstr);
-						if(unit == 0){
-							gl_error("recorder:%d: unable to find unit '%s' for property '%s'", obj->id, unitstr, propstr);
-							return 0;
-						}
-					}
-					prop = gl_get_property(obj->parent, propstr,NULL);
-					if(prop->unit != 0 && unit == 0){
-						unit = prop->unit;
-					}
-					// print the property, and if there is one, the unit
-					if(unit != 0){
-						sprintf(my->out_property+offset, "%s%s[%s]", (first ? "" : ","), propstr, (unitstr[0] ? unitstr : unit->name));
-						offset += strlen(propstr) + (first ? 0 : 1) + 2 + strlen(unitstr[0] ? unitstr : unit->name);
-					} else {
-						sprintf(my->out_property+offset, "%s%s", (first ? "" : ","), propstr);
-						offset += strlen(propstr) + (first ? 0 : 1);
-					}
-					first = 0;
+	size_t offset = 0;
+	char unit_buffer[1024];
+	char *token = 0;
+	char propstr[1024], unitstr[64];
+	PROPERTY *prop = 0;
+	UNIT *unit = 0;
+	int first = 1;
+	int fmt_count = 0;
+	char *last_token;
+	switch ( my->header_units )
+	{
+	case HU_DEFAULT:
+		strcpy(my->out_property, my->property);
+		break;
+	case HU_ALL:
+		strcpy(unit_buffer, my->property);
+		for ( token = strtok_s(unit_buffer,",",&last_token) ; token != NULL ; fmt_count++, token = strtok_s(NULL, ",",&last_token) )
+		{
+			unit = 0;
+			prop = 0;
+			unitstr[0] = 0;
+			propstr[0] = 0;
+			if ( sscanf(token, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr) == 2 )
+			{
+				char *colon = strchr(unitstr,':');
+				if ( colon != NULL ) 
+				{
+					*colon = '\0';
 				}
-				break;
-			case HU_NONE:
-				strcpy(unit_buffer, my->property);
-				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
-					if(2 == sscanf(token, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr)){
-						; // no logic change
-					}
-					// print just the property, regardless of type or explicitly declared property
-					sprintf(my->out_property+offset, "%s%s", (first ? "" : ","), propstr);
-					offset += strlen(propstr) + (first ? 0 : 1);
-					first = 0;
+				unit = gl_find_unit(unitstr);
+				if ( unit == NULL )
+				{
+					gl_error("recorder:%d: unable to find unit '%s' for property '%s'", obj->id, unitstr, propstr);
+					return 0;
 				}
-				break;
-			default:
-				// error
-				break;
+			}
+			prop = gl_get_property(obj->parent, propstr,NULL);
+			if ( prop == NULL )
+			{
+				gl_error("recorder:%d: property '%s' not found in parent", obj->id, propstr);
+				return 0;
+			}
+			if ( prop->unit != NULL && unit == NULL )
+			{
+				unit = prop->unit;
+			}
+			// print the property, and if there is one, the unit
+			if ( unit != NULL )
+			{
+				sprintf(my->out_property+offset, "%s%s[%s]", (first ? "" : ","), propstr, (unitstr[0] ? unitstr : unit->name));
+				offset += strlen(propstr) + (first ? 0 : 1) + 2 + strlen(unitstr[0] ? unitstr : unit->name);
+			} 
+			else 
+			{
+				sprintf(my->out_property+offset, "%s%s", (first ? "" : ","), propstr);
+				offset += strlen(propstr) + (first ? 0 : 1);
+			}
+			first = 0;
 		}
+		break;
+	case HU_NONE:
+		strcpy(unit_buffer, my->property);
+		for ( token = strtok_s(unit_buffer, ",", &last_token) ; token != NULL ; token = strtok_s(NULL, ",", &last_token) )
+		{
+			if ( sscanf(token, "%[A-Za-z0-9_.][%[^]\n,]]", propstr, unitstr) < 1 )
+			{
+				gl_error("invalid property/format specification '%s'", token);
+				return 0;
+			}
+			// print just the property, regardless of type or explicitly declared property
+			sprintf(my->out_property+offset, "%s%s", (first ? "" : ","), propstr);
+			offset += strlen(propstr) + (first ? 0 : 1);
+			first = 0;
+		}
+		break;
+	default:
+		gl_error("invalid property header unit specification");
+		return 0;
+		break;
 	}
 
 	/* set up the delta_mode recorder if enabled */
@@ -559,11 +589,13 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 	char256 pstr, ustr;
 	char *cpart = 0;
 	int64 cid = -1;
+	memset(list,0,sizeof(list));
+	int fmt_count = 0;
+	char *last_token;
 
 	strcpy(list,property_list); /* avoid destroying orginal list */
-	for (item=strtok(list,","); item!=NULL; item=strtok(NULL,","))
+	for ( item = strtok_s(list,",",&last_token) ; item != NULL ; fmt_count++, item = strtok_s(NULL,",",&last_token) )
 	{
-		
 		prop = NULL;
 		target = NULL;
 		scale = 1.0;
@@ -572,12 +604,30 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 		cid = -1;
 
 		// everything that looks like a property name, then read units up to ]
-		while (isspace(*item)) item++;
-		if(2 == sscanf(item,"%[A-Za-z0-9_.][%[^]\n,]]", (char*)pstr, (char*)ustr)){
-			unit = gl_find_unit(ustr);
-			if(unit == NULL){
-				gl_error("recorder:%d: unable to find unit '%s' for property '%s'",obj->id, (char*)ustr,(char*)pstr);
-				return NULL;
+		while ( isspace(*item) ) item++;
+		if ( sscanf(item,"%255[A-Za-z0-9_.][%255[^]\n,]]", (char*)pstr, (char*)ustr) > 1 )
+		{
+			char *format = strchr(ustr,':');
+			if ( format )
+			{
+				*format++ = '\0';
+				if ( strchr("0123456789",format[0]) == NULL 
+					|| strchr("aefgAEFG",format[1]) == NULL 
+					|| ( format[2] != '\0' && strchr("ijdrMDRXY",format[2]) == NULL ) )
+				{
+					gl_error("recorder:%d: invalid double/complex format '%s'",format);
+					return 0;
+				}
+				rec->output_format[fmt_count] = strdup(format);
+			}
+			if ( ustr[0] != '\0' )
+			{
+				unit = gl_find_unit(ustr);
+				if ( unit == NULL )
+				{
+					gl_error("recorder:%d: unable to find unit '%s' for property '%s'",obj->id, (char*)ustr,(char*)pstr);
+					return NULL;
+				}
 			}
 			item = pstr;
 		}
@@ -656,10 +706,95 @@ CDECL int read_properties(struct recorder *my, OBJECT *obj, PROPERTY *prop, char
 	memset(&fake, 0, sizeof(PROPERTY));
 	fake.ptype = PT_double;
 	fake.unit = 0;
-	for ( p = prop ;  p != NULL ; p = p->next )
+	int fmt_count = 0;
+	for ( p = prop ;  p != NULL ; fmt_count++, p = p->next )
 	{
 		void *addr = ( p->oclass == NULL ? p->addr : GETADDR(obj,p) );
-		if(p->ptype == PT_double)
+		if ( my->output_format[fmt_count] != NULL )
+		{
+			char prec = my->output_format[fmt_count][0];
+			char type = my->output_format[fmt_count][1];
+			char part = my->output_format[fmt_count][2];
+			double &scalar = my->output_scalar[fmt_count];
+			const char *unit_name = p->unit ? p->unit->name : "";
+			if ( p->unit != NULL && scalar == 0.0 )
+			{
+				scalar = 1.0;
+				p2 = gl_get_property(obj, p->name, NULL);
+				if ( p2 != NULL && p2->unit != NULL && gl_convert_ex(p2->unit, p->unit, &scalar) == 0 )
+				{
+					gl_error("unable to convert %s to %s for output format %s", p->unit, p2->unit, my->output_format[fmt_count]);
+					return 0;
+				}
+			}
+			if ( p->ptype == PT_double )
+			{
+				if ( part != '\0' )
+				{
+					gl_error("output format part '%c' is not valid for property %s", part, p->name);
+					return 0;
+				}
+				char fmt[64];
+				sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+				double value = (*gl_get_double(obj, p)) * scalar;
+				sz = sprintf(tmp,fmt,value);
+			}
+			else if ( p->ptype == PT_complex )
+			{
+				if ( part == '\0' )
+				{
+					gl_error("output format part required missing complex specifier for property %s", p->name);
+					return 0;
+				}
+				char fmt[64];
+				complex value = (*gl_get_complex(obj, p)) * scalar;
+				switch ( part )
+				{
+				case 'i':
+				case 'j':
+					sprintf(fmt,"%%.%c%c%%+.%c%c%c%s%s",prec,type,prec,type,part,unit_name?" ":"",unit_name?unit_name:"");
+					sz = sprintf(tmp,fmt,value.Re(),value.Im());
+					break;
+				case 'r':
+					sprintf(fmt,"%%.%c%c%%+.%c%c%c%s%s",prec,type,prec,type,part,unit_name?" ":"",unit_name?unit_name:"");
+					sz = sprintf(tmp,fmt,value.Mag(),value.Arg());
+					break;
+				case 'd':
+					sprintf(fmt,"%%.%c%c%%+.%c%c%c%s%s",prec,type,prec,type,part,unit_name?" ":"",unit_name?unit_name:"");
+					sz = sprintf(tmp,fmt,value.Mag(),value.Ang());
+					break;
+				case 'M':
+					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					sz = sprintf(tmp,fmt,value.Mag());
+					break;
+				case 'D':
+					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					sz = sprintf(tmp,fmt,value.Ang());
+					break;
+				case 'R':
+					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					sz = sprintf(tmp,fmt,value.Arg());
+					break;
+				case 'X':
+					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					sz = sprintf(tmp,fmt,value.Re());
+					break;
+				case 'Y':
+					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					sz = sprintf(tmp,fmt,value.Im());
+					break;
+				default:
+					gl_error("output format '%s' is not valid for a complex value",(const char*)my->output_format[fmt_count]);
+					return 0;
+				}
+			}	
+			else
+			{
+				gl_error("output format is not valid for property type %d",p->ptype);
+				return 0;
+			}
+		}
+		else if ( p->ptype == PT_double )
 		{
 			double value;
 			switch(my->line_units)
@@ -698,7 +833,9 @@ CDECL int read_properties(struct recorder *my, OBJECT *obj, PROPERTY *prop, char
 				default:
 					break;
 			}
-		} else {
+		} 
+		else 
+		{
 			sz = gl_get_value(obj,addr,tmp,sizeof(tmp)-1,p); /* pointer => int64 */
 		}
 		if ( count + sz >= size )
@@ -779,7 +916,8 @@ EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	}
 
 	/* update property value */
-	if ((my->target != NULL) && (my->interval == 0 || my->interval == -1)){	
+	if ( ( my->target != NULL ) && ( my->interval <= 0 ) )
+	{	
 		if(read_properties(my, obj->parent,my->target,buffer,sizeof(buffer))==0)
 		{
 			sprintf(buffer,"unable to read property '%s' of %s %d", my->property, obj->parent->oclass->name, obj->parent->id);
@@ -787,7 +925,8 @@ EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 			my->status = TS_ERROR;
 		}
 	}
-	if ((my->target != NULL) && (my->interval > 0)){
+	else if ( ( my->target != NULL ) && ( my->interval > 0 ) )
+	{
 		if((t0 >=my->last.ts + my->interval) || ((t0 == my->last.ts) && (my->last.ns == 0))){
 			if(read_properties(my, obj->parent,my->target,buffer,sizeof(buffer))==0)
 			{
