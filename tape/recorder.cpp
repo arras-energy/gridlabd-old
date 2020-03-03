@@ -709,7 +709,6 @@ CDECL int read_properties(struct recorder *my, OBJECT *obj, PROPERTY *prop, char
 	int fmt_count = 0;
 	for ( p = prop ;  p != NULL ; fmt_count++, p = p->next )
 	{
-		//printf("processing property %s (type %d), unit '%s', output format '%s', scalar '%g'\n", p->name, p->ptype, p->unit->name, my->output_format[fmt_count], my->output_scalar[fmt_count]);
 		void *addr = ( p->oclass == NULL ? p->addr : GETADDR(obj,p) );
 		if ( my->output_format[fmt_count] != NULL )
 		{
