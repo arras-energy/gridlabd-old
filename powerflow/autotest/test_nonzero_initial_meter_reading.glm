@@ -1,0 +1,48 @@
+module powerflow;
+module assert;
+
+clock 
+{
+    timezone "US/CA/Los Angeles";
+    starttime "2020-01-01 00:00:00 PST";
+    stoptime "2020-01-01 01:00:00 PST";
+}
+
+object meter 
+{
+    nominal_voltage 480;
+    phases ABC;
+    measured_real_energy "1";
+    measured_reactive_energy "1";
+    measured_energy_delta_timestep "1h";
+    object load
+    {
+        nominal_voltage 480;
+        phases ABC;
+        base_power_A 1;
+        base_power_B 2;
+        base_power_C 3;
+        power_fraction_A 1;
+        power_fraction_B 1;
+        power_fraction_C 1;
+        power_pf_A 0.95;
+        power_pf_B 0.95;
+        power_pf_C 0.95;
+    };
+    object assert
+    {
+        target "measured_real_energy";
+        value "6.70 Wh";
+        within " 0.01 Wh";
+        relation "==";
+        start "2020-01-01 01:00:00 PST";
+    };
+    object assert
+    {
+        target "measured_reactive_energy";
+        value "2.87 Wh";
+        within " 0.01 Wh";
+        relation "==";
+        start "2020-01-01 01:00:00 PST";
+    };
+}

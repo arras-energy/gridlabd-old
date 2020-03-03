@@ -194,6 +194,8 @@ struct recorder {
 	int32 samples;
 	PROPERTY *target;
 	char256 strftime_format;
+	char *output_format[256];
+	double output_scalar[256];
 };
 /** @}
 	@addtogroup collector
