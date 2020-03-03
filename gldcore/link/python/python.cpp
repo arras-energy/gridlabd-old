@@ -473,7 +473,7 @@ static void *gridlabd_main(void *)
     gridlabd_module_status = GMS_RUNNING;
     return_code = main_python(argc,argv);
     gridlabd_module_status = ( return_code==0 ? GMS_SUCCESS : GMS_FAILED );
-    exec_mls_done();
+    if ( my_instance ) exec_mls_done();
     return (void*)&return_code;
 }
 
