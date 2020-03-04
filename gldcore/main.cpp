@@ -55,8 +55,6 @@ int main
 		{
 			return_code = my_instance->mainloop(argc,argv);
 			return_code = my_instance->run_on_exit();
-			delete my_instance;
-			my_instance = NULL;
 		}
 	}
 	catch (const char *msg)
@@ -78,9 +76,8 @@ int main
 	if ( my_instance != NULL )
 	{
 		delete my_instance;
+		my_instance = NULL;
 	}
-	delete my_instance;
-	my_instance = NULL;
 	return return_code;
 }
 unsigned int GldMain::next_id = 0;
