@@ -491,16 +491,24 @@ int savejson(const char *filename, FILE *fp)
 }
 
 typedef std::map<std::string,std::string> SAVEMAP;
-SAVEMAP savelist;
+SAVEMAP *savelist = NULL;
 void save_on_exit(const char *name, const char *options)
 {
 	std::string file(name);
 	std::string args(options);
-	savelist[file] = args;
+	if ( savelist == NULL )
+		savelist = new SAVEMAP;
+	if ( savelist == NULL )
+		throw_exception("save_on_exit(name='%s',options='%s') memory allocation failed",name,options);
+	(*savelist)[file] = args;
 }
 
 void save_outputs(void)
 {
+	if ( savelist == NULL )
+	{
+		return;
+	}
 	char filename[1024];
 	strcpy(filename,global_modelname);
 	const char *ext = strrchr(filename,'.');
@@ -513,7 +521,7 @@ void save_outputs(void)
 		strcpy(strrchr(filename,'.'),".json");
 	}
 	saveall(filename);
-	for ( SAVEMAP::iterator item = savelist.begin() ; item != savelist.end() ; item++ )
+	for ( SAVEMAP::iterator item = savelist->begin() ; item != savelist->end() ; item++ )
 	{
 		const char *from = strrchr(filename,'.');
 		if ( from == NULL )
@@ -531,4 +539,6 @@ void save_outputs(void)
 			throw_exception("automatic conversion of '%s' to '%s %s' failed with return code %d", filename, item->first.c_str(), item->second.c_str(), rc);
 		}
 	}
+	delete savelist;
+	savelist = NULL;
 }
