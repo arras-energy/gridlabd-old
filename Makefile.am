@@ -308,6 +308,9 @@ install-exec-hook: python-install index
 reconfigure: distclean
 	autoreconf -isf && ./configure
 
+reconfigure-debug: distclean
+	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
+
 system: install
 	$(DESTDIR)$(bindir)/gridlabd version set
 
