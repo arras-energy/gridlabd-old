@@ -54,13 +54,14 @@ int main
 		else
 		{
 			return_code = my_instance->mainloop(argc,argv);
-			return_code = my_instance->run_on_exit();
+			int rc = my_instance->run_on_exit();
+			if ( return_code != 0 )
+				return_code = rc;
 		}
 	}
 	catch (const char *msg)
 	{
 		output_error("%s", msg);
-		return_code = errno ? errno : XC_SHFAILED;
 		return_code = XC_EXCEPTION;
 	}
 	catch (GldException *exc)
