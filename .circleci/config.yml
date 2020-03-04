@@ -31,6 +31,9 @@ jobs:
           command: |
             cd /tmp
             sudo apt-get install gawk -y
+      - run:
+          name: Install python libraries (TODO add to base image)
+          command: pip3 -q install Pillow -y
       - checkout   
       - run:
           name: Build gridlabd
