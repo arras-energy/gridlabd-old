@@ -9,7 +9,7 @@
 #define _eventgen_H
 
 #include <stdarg.h>
-#include <json/json.h>
+#include "../third_party/jsonCpp/json/json.h"
 #include "gridlabd.h"
 #include "reliability.h"
 #include "metrics.h"
@@ -74,7 +74,8 @@ public:
         int implemented_fault;
         inline external_event() 
         {
-        	type = fault_object = effected_safety_device = NULL;
+        	type = NULL;
+        	fault_object = effected_safety_device = NULL;
         };
 };
 
