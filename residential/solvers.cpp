@@ -8,11 +8,11 @@
 #define ARMA_DONT_PRINT_ERRORS
 #include <armadillo>
 
+using namespace arma;
+
 #define USE_GLSOLVERS
 #include "residential.h"
 #include "solvers.h"
-
-using namespace arma;
 
 static void exception(const char *format, ...)
 {
