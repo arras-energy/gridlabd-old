@@ -2,17 +2,14 @@
 	Copyright (C) 2008 Battelle Memorial Institute
 **/
 
-#include <stdio.h>
-#include <exception>
-
 #define ARMA_DONT_PRINT_ERRORS
 #include <armadillo>
-
-using namespace arma;
 
 #define USE_GLSOLVERS
 #include "residential.h"
 #include "solvers.h"
+
+using namespace arma;
 
 static void exception(const char *format, ...)
 {
@@ -32,6 +29,7 @@ static void debug(const char *format, ...)
 	vasprintf(&message,format,ptr);
 	va_end(ptr);
 	gl_debug("(solvers) %s", message ? message : "memory allocation failure");
+	if ( message ) free(message);
 }
 
 static void verbose(const char *format, ...)
@@ -42,6 +40,7 @@ static void verbose(const char *format, ...)
 	vasprintf(&message,format,ptr);
 	va_end(ptr);
 	gl_verbose("(solvers) %s", message ? message : "memory allocation failure");
+	if ( message ) free(message);
 }
 
 static void dump(const char *t, double *p, size_t N)
