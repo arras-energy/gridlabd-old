@@ -2095,24 +2095,29 @@ void eventgen::parse_external_fault_events(char *events_char)
 	Json::Reader json_rdr;
 	Json::Value json_events;
 	bool parse_successful = json_rdr.parse(events_str, json_events);
-	if(parse_successful) {
-		for(Json::ValueIterator i = json_events.begin(); i != json_events.end(); i++) {
+	if ( parse_successful ) 
+	{
+		for ( Json::ValueIterator i = json_events.begin(); i != json_events.end(); i++ ) 
+		{
 			Json::Value json_event = *i;
 			std::string event_name = "";
-			if(json_event.isMember("name")){
+			if ( json_event.isMember("name") )
+			{
 				event_name = json_event["name"].asString();
 			}
 
 			bool event_exists = false;
-			int j = 0;
-			for(j = 0; j < external_events.size(); j++) {
-				if(event_name.compare(external_events[j]->name) == 0) {
+			for ( size_t j = 0; j < external_events.size(); j++ ) 
+			{
+				if ( event_name.compare(external_events[j]->name) == 0 ) 
+				{
 					event_exists = true;
 					external_events[j]->disable_event = true;
 					break;
 				}
 			}
-			if(!event_exists) {
+			if ( ! event_exists ) 
+			{
 				external_event *new_event = new external_event;
 				new_event->name = event_name;
 				std::string type_cc = json_event["type"].asCString();
@@ -2129,12 +2134,16 @@ void eventgen::parse_external_fault_events(char *events_char)
 				new_event->fault_object = gl_get_object(name_c);
 				if(new_event->fault_object != NULL) {
 					external_events.push_back(new_event);
-				} else {
+				} 
+				else 
+				{
 					gl_warning("eventgen::parse_external_fault_event: no object with name %s was found. Ignoring fault event.", obj_name_str.c_str());
 				}
 			}
 		}
-	} else {
+	} 
+	else 
+	{
 		GL_THROW("eventgent::parse_external_fault_events():Json parse failed to parse string = %s", events_char);
 	}
 }
