@@ -1,8 +1,8 @@
-/* File: random.h 
+/* File: randomvar.h 
  * Copyright (C) 2008, Battelle Memorial Institute
 
  	Copyright (C) 2008 Battelle Memorial Institute
-	@file random.h
+	@file randomvar.h
 	@addtogroup random
 	@ingroup core
  @{

@@ -36,7 +36,7 @@
 #include "linkage.h"
 #include "output.h"
 #include "globals.h"
-#include "random.h"
+#include "randomvar.h"
 #include "exec.h"
 #include "instance.h"
 

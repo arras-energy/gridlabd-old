@@ -187,7 +187,7 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include "output.h"
 #include "platform.h"
 #include "property.h"
-#include "random.h"
+#include "randomvar.h"
 #include "realtime.h"
 #include "sanitize.h"
 #include "save.h"
@@ -1495,7 +1495,7 @@ inline DEPRECATED char *gl_strftime(TIMESTAMP ts, char *buffer, int size)
 }
 /** Calculate the next power of 2 greater than a number
  **/
-inline size_t nextpow2(register size_t x)
+inline size_t nextpow2(size_t x)
 {
 	if (x<0) return 0;
 	x--;
