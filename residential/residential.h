@@ -99,11 +99,6 @@ typedef struct s_implicit_enduse_list {
 	const char *schedule_name;
 	const char *schedule_definition;
 } IMPLICITENDUSEDATA;
-#include "elcap1990.h"
-#include "elcap2010.h"
-#include "rbsa2014.h"
-#include "rbsa2014_discrete.h"
-#include "eia2015.h"
 
 #include "apartment.h"
 

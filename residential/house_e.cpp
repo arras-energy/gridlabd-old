@@ -82,6 +82,12 @@
 
 #include "residential.h"
 
+#include "elcap1990.h"
+#include "elcap2010.h"
+#include "rbsa2014.h"
+#include "rbsa2014_discrete.h"
+#include "eia2015.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
