@@ -8,8 +8,8 @@
  @{
  **/
 
-#ifndef _RANDOM_H
-#define _RANDOM_H
+#ifndef _RANDOMVAR_H
+#define _RANDOMVAR_H
 
 #if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
 #error "this header may only be included from gldcore.h or gridlabd.h"
