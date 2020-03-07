@@ -301,7 +301,7 @@ void MSolver::update(bool force)
 			int n = N;
 			for ( int i = 0 ; i < N ; i++ )
 			{
-				A(i,i) = - data->U[i];
+				A(i,i) = -data->U[i];
 				for ( int j = i+1 ; j < N ; j++ )
 				{
 					A(i,i) -= data->U[n];
@@ -309,11 +309,14 @@ void MSolver::update(bool force)
 					A(j,i) = data->U[n] / data->C[j];
 					n++;
 				}
+				for ( int j = 0 ; j < i ; j++ )
+				{
+					A(i,i) -= A(i,j) * data->C[i];
+				}
 				A(i,i) /= data->C[i];
 			}
 			if ( enable_dump ) ::dump("updating A",A);			
 			vec eig = arma::real(eig_gen(A));
-#warning "not certain eigenvalue vectors isn't sorted"
 			if ( eig.max() >= 0 )
 			{
 				::dump("eig",eig);

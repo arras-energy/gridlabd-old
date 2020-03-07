@@ -35,6 +35,7 @@ apartment::apartment(MODULE *module)
 			PT_double,"building_floor_depth[ft]",get_building_floor_depth_offset(), PT_DEFAULT,"2.0 ft", PT_DESCRIPTION,"ceiling-to-floor depth",
 			PT_double,"building_floor_height[ft]",get_building_floor_height_offset(), PT_DEFAULT,"8.0 ft", PT_DESCRIPTION,"floor-to-ceiling height",
 			PT_double,"building_heat_leakage[pu]",get_building_heat_leakage_offset(), PT_DEFAULT,"0.10 pu", PT_DESCRIPTION,"fraction of zone heat gains that leak into mass",
+			PT_double,"building_mass_temperature[degF]",get_building_mass_temperature_offset(), PT_DESCRIPTION, "temperature of the building mass",
 			PT_double,"building_occupancy_factor[pu]",get_building_occupancy_factor_offset(), PT_DEFAULT,"0.95 pu", PT_DESCRIPTION,"fraction of building units that are occupied",
 			PT_property,"building_outdoor_temperature",building_outdoor_temperature.get_offset(this), PT_DEFAULT,"residential::default_outdoor_temperature", PT_DESCRIPTION, "reference to an object containing temperature data",
 			PT_property,"building_outdoor_humidity",building_outdoor_humidity.get_offset(this), PT_DEFAULT,"residential::default_outdoor_humidity", PT_DESCRIPTION, "reference to an object containing humidity data",
@@ -145,9 +146,9 @@ apartment::apartment(MODULE *module)
 				PT_KEYWORD, "HEAT", UST_HEAT,
 				PT_KEYWORD, "COOL", UST_COOL,
 				PT_KEYWORD, "BOTH", UST_BOTH,
-			PT_double,"unit_temperature[degF]", get_unit_heating_efficiency_offset(), PT_DESCRIPTION,"occupied unit air temperature",
-			PT_double,"unit_width[ft]",get_unit_width_offset(), PT_DEFAULT,"4 ft", PT_DESCRIPTION,"double",
-			PT_double,"unit_window_area[sf]",get_unit_window_area_offset(), PT_DEFAULT,"0", PT_DESCRIPTION,"area of unit door",
+			PT_double,"unit_temperature[degF]", get_unit_heating_efficiency_offset(), PT_DEFAULT, "72 degF", PT_DESCRIPTION,"occupied unit air temperature",
+			PT_double,"unit_width[ft]",get_unit_width_offset(), PT_DEFAULT,"24 ft", PT_DESCRIPTION,"double",
+			PT_double,"unit_window_area[sf]",get_unit_window_area_offset(), PT_DESCRIPTION,"area of unit door",
 
 			PT_double,"vacant_cooling_setpoint[degF]",get_vacant_cooling_setpoint_offset(), PT_DEFAULT,"120 degF", PT_DESCRIPTION,"vacant unit cooling setpoint",
 			PT_double,"vacant_heating_setpoint[degF]",get_vacant_heating_setpoint_offset(), PT_DEFAULT,"50 degF", PT_DESCRIPTION,"vacant unit heating setpoint",
@@ -234,9 +235,9 @@ int apartment::init(OBJECT *parent)
 	}
 
 	solver = msolve("new");
-	msolve("set",solver,"debug",solver_enable_debug);
-	msolve("set",solver,"dump",solver_enable_dump);
-	msolve("set",solver,"verbose",solver_enable_verbose);
+	msolve("set",solver,"debug",(int)(solver_enable_debug?1:0));
+	msolve("set",solver,"dump",(int)(solver_enable_dump?1:0));
+	msolve("set",solver,"verbose",(int)(solver_enable_verbose?1:0));
 
 	msolve("set",solver,"N",4);
 	
@@ -252,6 +253,7 @@ int apartment::init(OBJECT *parent)
 	double Ad = unit_door_area>0 ? unit_door_area : 20.0;
 	double Ao = X*Z - Aw;
 	double Ac = X*Z - Ad;
+	double Au = Y*Z;
 	double V = X*Y*Z;
 	if ( building_occupancy_factor <= 0.0 || building_occupancy_factor > 1.0 )
 	{
@@ -272,9 +274,9 @@ int apartment::init(OBJECT *parent)
 	// building thermal parameters
 	double U_OA = N*M*beta*(Kx+1)*(Ao/Rext+Aw/Rwindow);
 	double U_OU = U_OA*(1-beta)/beta;
-	double U_OC = N*(1-Kx)*(2*W*Z+M*(Kd+1)*X)*(Ao/Rext+Aw/Rwindow);
+	double U_OC = N*(1-Kx)*(2*W*Z+M*(1-Kd)*X)*(Ao/Rext+Aw/Rwindow);
 	double U_OM = N*F*(M*X+2*(Kd+1)*Y+2*W)/Rext;
-	double U_AU = N*M*beta*(1-beta)*A/Rint;
+	double U_AU = N*M*beta*(1-beta)*Au/Rint;
 	double U_AC = N*M*beta*(Ac/((1-Kx)*Rint+Kx*Rext) + Ad/Rdoor);
 	double U_AM = N*M*beta*A/Rmass;
 	double U_UC = U_AC*(1-beta)/beta;
@@ -283,15 +285,15 @@ int apartment::init(OBJECT *parent)
 	// TODO: add floor and roof UA values	
 	msolve("copy",solver,"U",
 		U_OA, U_OU, U_OC, U_OM,
-		      U_AU, U_AC, U_AM,
-		            U_UC, U_UM,
-		                  U_CM);
+		U_AU, U_AC, U_AM,
+		U_UC, U_UM,
+		U_CM);
 
 	// zone capacitance
 	double C_A = N*M*beta*V*Sair;
 	double C_U = C_A*(1-beta)/beta;
 	double C_C = N*M*X*W*Z*Sair;
-	double C_M = N*M*(Sfloor*(A+Kd*X*W) + Cint);
+	double C_M = N*M*(Sfloor*F*(1+X*W)+Cint);
 	msolve("copy",solver,"C",C_A,C_U,C_C,C_M);
 
 	msolve("copy",solver,"umin",
@@ -328,6 +330,7 @@ int apartment::init(OBJECT *parent)
 		DUMP("unit floor area (sf)",A)
 		DUMP("unit window area (sf)",Aw)
 		DUMP("unit door area (sf)",Ad)
+		DUMP("unit wall area (sf)",Au)
 		DUMP("unit exterior wall area (sf)",Ao)
 		DUMP("unit core wall area (sf)",Ac)
 		DUMP("unit volume (cf)",V)
@@ -340,6 +343,15 @@ int apartment::init(OBJECT *parent)
 		DUMP("interior mass loading (Btu/degF/sf)",Sint)
 		DUMP("interior heat capacity (Btu/degF)",Cint)
 		DUMP("density of floor mass (lb/cf)",Sfloor)
+
+		DUMP("Exterior wall R-value",Rext);
+		DUMP("Window R-value",Rwindow);
+		DUMP("Interior wall R-value",Rint);
+		DUMP("Door R-value",Rdoor);
+		DUMP("Mass R-value",Rmass);
+		DUMP("Roof R-value",Rroof);
+		DUMP("Ground R-value",Rground);
+
 		DUMP("UA outdoor occupied (Btu/degF/h)",U_OA)
 		DUMP("UA outdoor unoccupied (Btu/degF/h)",U_OU)
 		DUMP("UA outdoor core (Btu/degF/h)",U_OC)
@@ -350,19 +362,23 @@ int apartment::init(OBJECT *parent)
 		DUMP("UA unoccupied core (Btu/degF/h)",U_UC)
 		DUMP("UA unoccupied mass (Btu/degF/h)",U_UM)
 		DUMP("UA core mass (Btu/degF/h)",U_CM)
+		
 		DUMP("occupied zone heat capacity (Btu/degF)",C_A)
 		DUMP("unoccupied zone heat capacity (Btu/degF)",C_U)
 		DUMP("core zone heat capacity (Btu/degF)",C_C)
 		DUMP("mass heat capacity (Btu/degF)",C_M)
+		
 		DUMP("occupied zone solar gain",Q_AS);
 		DUMP("occupied zone ventilation gain",Q_AV);
 		DUMP("occupied zone equipment gain",Q_AE);
 		DUMP("unoccupied zone solar gain",Q_US);
 		DUMP("core zone solar gain",Q_CS);
 		DUMP("core zone ventilation gain",Q_CV);
+		
 		DUMP("unit air temperature",unit_temperature);
 		DUMP("vacant air temperature",vacant_temperature);
 		DUMP("core air temperature",core_temperature);
+		DUMP("mass temperature",building_mass_temperature);
 		DUMP("occupied zone mode",unit_mode);
 		DUMP("unoccupied zone mode",vacant_mode);
 		DUMP("core zone mode",core_mode);
@@ -394,6 +410,13 @@ void apartment::update()
 		Q_AS + Q_AV + Q_AE,
 		Q_US,
 		Q_CS + Q_CV);
+
+	// set the temperatures
+	msolve("copy",solver,"T",
+		unit_temperature,
+		vacant_temperature,
+		core_temperature,
+		building_mass_temperature);
 
 	// determine the system modes
 	update_modes();
