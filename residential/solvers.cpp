@@ -400,7 +400,7 @@ void MSolver::update(bool force)
 		// constrain the control input to capacity limits (should use clamp but that doesn't compile)
 		if ( (modified&SU_U) | force )
 		{
-			if ( enable_debug ) debug("u outdating");
+			if ( enable_debug ) debug("u outdated");
 			for ( int i = 0 ; i < N ; i++ )
 			{
 				if ( data->umin[i] > data->umax[i] ) 
