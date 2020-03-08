@@ -83,7 +83,7 @@ int json_number(const char *input, GldJson &data)
 	else
 		n += len;
 	GldJson number(JSON_NUMBER);
-	number.append()
+	number.append(value)
 	return 0;
 }
 
