@@ -54,12 +54,13 @@ GLM:
     cloud_alpha "<decimal> pu";
     cloud_num_layers "<decimal> pu";
     cloud_aerosol_transmissivity "<decimal> pu";
+    heat_index "<decimal> degF";
   }
 ~~~
 
 # Description
 
-TODO
+The climate object contains data from the [National Renewable Energy Laboratory Typical Meteorological Year weather archive](https://rredc.nrel.gov/solar/old_data/nsrdb/1991-2005/tmy3/).  TMY data is a collection of "typical" weather months assembled into a complete year.  It does not represent a single year and is therefore not suitable for simulation where actual weather data is required.  
 
 ## Properties
 
@@ -447,6 +448,14 @@ Number of cloud layers
 
 Cloud aerosal transmissivity
 
+### `heat_index`
+
+~~~
+double heat_index[degF];
+~~~
+
+Computed heat index based on [NOAA heat index equation](https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml).
+
 # Example
 
 ~~~
@@ -500,6 +509,10 @@ Cloud aerosal transmissivity
     cloud_aerosol_transmissivity "0.95 pu";
   }
 ~~~
+
+# Caveat
+
+There is often a weather discontinuity at the boundary between months that can sometimes result in a disturbance input to models that are sensitivity to changes in weather.
 
 # See also
 

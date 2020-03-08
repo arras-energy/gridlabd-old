@@ -576,6 +576,11 @@ int inverter::init(OBJECT *parent)
 			return 2; // defer
 		}
 	}
+	else
+	{
+		throw "cannot initialize an inverter without a parent";
+	}
+
 	// construct circuit variable map to meter
 	static complex default_line123_voltage[3], default_line1_current[3];
 	static int default_meter_status;	//Not really a good place to do this, but keep consistent
