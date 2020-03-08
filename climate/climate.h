@@ -198,6 +198,7 @@ class climate : public gld_object
 	GL_ATOMIC(double,cloud_reflectivity);
 	GL_ATOMIC(double,cloud_speed_factor);
 	GL_ATOMIC(enumeration,cloud_model);
+	GL_ATOMIC(double,heat_index);
 
 	// data not shared with classes in this module (no locks needed)
 private:
@@ -227,6 +228,7 @@ private:
 	int get_binary_cloud_value_for_location(double latitude, double longitude, int *cloud);
 	double convert_to_binary_cloud();
 	void convert_to_fuzzy_cloud( double cut_elevation, int num_fuzzy_layers, double alpha);
+	void update_heatindex(void);
 private:
 	TIMESTAMP prev_NTime;
 	int MIN_LAT_INDEX;

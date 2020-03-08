@@ -15,9 +15,7 @@ yum -q install libcurl-devel -y
 # python3 support needed as of 4.2
 yum -q install python37 python3-devel python3-tkinter -y
 [ -f /bin/python3 -a ! -f /usr/local/bin/python3 ] && ln -s /bin/python3 /usr/local/bin/python3
-pip3 --quiet install matplotlib
-pip3 --quiet install pandas
-pip3 --quiet install mysql-connector
+pip3 --quiet install matplotlib pandas mysql-connector Pillow
 chmod -R a+w /usr/local/lib64/python3.7/site-packages
 
 # mono
