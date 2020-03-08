@@ -26,40 +26,6 @@ DEPRECATED CDECL int json_create(void *ptr);
 DEPRECATED CDECL double json_get_part(void *c, const char *name);
 DEPRECATED CDECL int json_set_part(void *c, const char *name, const char *value);
 
-enum e_jsontype {JSON_NULL, JSON_FALSE, JSON_TRUE, JSON_NUMBER, JSON_STRING, JSON_ARRAY, JSON_OBJECT};	
-typedef enum e_jsontype JSONTYPE;
-class GldJson 
-{
-private:
-	JSONTYPE type;
-	size_t sz;
-	size_t refs;
-	union {
-		std::list<GldJson> *obj;
-		double num;
-		struct s_strbuf {
-			size_t len;
-			char *buf;
-		} str;
-	} data;
-public:
-	inline GldJson(JSONTYPE t = JSON_NULL) : type(t) {};
-	inline GldJson(double x) : type(JSON_NUMBER) { data.num = x; };
-	inline GldJson(const char *x) : type(JSON_STRING) { data.str.buf = strdup(x); data.str.len = strlen(x); };
-	inline GldJson(std::list<GldJson> *x) : type(JSON_OBJECT) { data.obj = x; };
-	inline ~GldJson(void) {if (--refs==0) set_data(); };
-	// get accessors
-	inline JSONTYPE get_type(void) const { return type; };
-	// set accessors
-	void set_data(void);
-	void set_data(double x);
-	void set_data(const char *x, size_t sz = 0);
-	void set_data(GldJson *x);
-	inline void append(GldJson &item) { data.obj->push_back(item); };
-	inline void append(double x) { data.obj->push_back(*(new GldJson(x))); };
-	inline void append(const char *x) { data.obj->push_back(*(new GldJson(x))); };
-};
-
 class GldJsonWriter
 {
 private:
