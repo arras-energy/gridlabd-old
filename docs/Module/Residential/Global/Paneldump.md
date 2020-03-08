@@ -1,4 +1,4 @@
-[[/Residential/Paneldump]] -- Residential panel circuit dump
+[[/Residential/Global/Paneldump]] -- Residential panel circuit dump
 
 # Synopsis
 

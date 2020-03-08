@@ -26,10 +26,7 @@ ln -s /usr/local/bin/python3 /usr/bin/python3
 echo '#/bin/bash' > /usr/local/bin/python3-config
 echo '/usr/bin/python3-config $*' >> /usr/local/bin/python3-config
 chmod +x /usr/local/bin/python3-config
-/usr/local/bin/pip3 --quiet install matplotlib
-/usr/local/bin/pip3 --quiet install pandas
-/usr/local/bin/pip3 --quiet install mysql-connector
-/usr/local/bin/pip3 --quiet install Pillow
+/usr/local/bin/pip3 --quiet install matplotlib pandas mysql-connector Pillow
 
 # doxygen
 yum -q install gawk -y
