@@ -18,10 +18,7 @@ pip3 --quiet install --upgrade pip
 echo '#/bin/bash' > /usr/local/bin/python3-config
 echo '/usr/bin/python3-config $*' >> /usr/local/bin/python3-config
 chmod +x /usr/local/bin/python3-config
-/usr/local/bin/python3 -m pip --quiet install matplotlib
-/usr/local/bin/python3 -m pip --quiet install pandas
-/usr/local/bin/python3 -m pip --quiet install mysql-connector
-/usr/local/bin/python3 -m pip --quiet install Pillow
+/usr/local/bin/python3 -m pip --quiet install matplotlib pandas mysql-connector Pillow
 
 # doxygen
 if [ ! -x /usr/bin/doxygen ]; then

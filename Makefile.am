@@ -91,14 +91,19 @@ EXTRA_DIST += $(top_srcdir)/utilities/build_number
 # endif
 
 help:
+	@echo "Configuration targets:"
+	@echo "  reconfigure       - Reconfigures a release build from a clean start"
+	@echo "  reconfigure-debug - Reconfigures a debugging build from a clean start"
+	@echo ""
 	@echo "Cleaning targets:"
-	@echo "  clean        - Erase from the build tree the files built by 'make all'"
-	@echo "  distclean    - Same as 'make clean' plus erase anything ./configure created"
-	@echo "  mostlyclean  - Erase intermediate files (such as .o files)"
+	@echo "  clean          - Erase from the build tree the files built by 'make all'"
+	@echo "  distclean      - Same as 'make clean' plus erase anything ./configure created"
+	@echo "  mostlyclean    - Erase intermediate files (such as .o files)"
 	@echo ""
 	@echo "Building targets:"
 	@echo "  all            - Build $(PACKAGE) (same as 'make')"
 	@echo "  install        - Install $(PACKAGE) to $(prefix)"
+	@echo "  system         - Build and install $(PACKAGE) to the system folders"
 	@echo "  install-strip  - Same as install, but follow by stripping debug symbols"
 	@echo "  uninstall      - Erase files installed by 'make install'"
 	@echo ""
@@ -307,6 +312,9 @@ install-exec-hook: python-install index
 
 reconfigure: distclean
 	autoreconf -isf && ./configure
+
+reconfigure-debug: distclean
+	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
 
 system: install
 	$(DESTDIR)$(bindir)/gridlabd version set
