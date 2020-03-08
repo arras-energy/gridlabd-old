@@ -37,10 +37,20 @@ jobs:
             sudo pip3 -q install Pillow
       - checkout   
       - run:
+          name: Install armadillo
+          command: |
+            sudo apt-get install cmake -y
+            cd /home/circleci/project/third_party
+            tar xfz armadillo-7.800.1.tar.gz
+            cd armadillo-7.800.1
+            cmake .
+            make
+      - run:
           name: Build gridlabd
           command: |
             sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
             sleep 5
+            sudo make install
             cd /home/circleci/project
             autoreconf -isf
             ./configure
