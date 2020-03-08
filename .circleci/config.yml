@@ -41,6 +41,10 @@ jobs:
           command: |
             sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
             sleep 5
+            cd /home/circleci/project/third_party/armadillo-7.800.1
+            cmake .
+            make
+            sudo make install
             cd /home/circleci/project
             autoreconf -isf
             ./configure
