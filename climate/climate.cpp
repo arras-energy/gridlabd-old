@@ -612,6 +612,7 @@ climate::climate(MODULE *module) : gld_object()
 			PT_double,"cloud_alpha[pu]",PADDR(cloud_alpha),PT_DEFAULT,"400 pu", PT_DESCRIPTION,"cloud alpha",
 			PT_double,"cloud_num_layers[pu]",PADDR(cloud_num_layers),PT_DEFAULT,"40 pu", PT_DESCRIPTION,"number of cloud layers",
 			PT_double,"cloud_aerosol_transmissivity[pu]",PADDR(cloud_aerosol_transmissivity),PT_DEFAULT,"0.95 pu", PT_DESCRIPTION,"cloud aerosal transmissivity",
+			PT_double,"heat_index[degF]",PADDR(heat_index),PT_DESCRIPTION,"heat index based on temperature and humidity",
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		gl_publish_function(oclass,	"calculate_solar_radiation_degrees", (FUNCTIONADDR)calculate_solar_radiation_degrees);
 		gl_publish_function(oclass,	"calculate_solar_radiation_radians", (FUNCTIONADDR)calculate_solar_radiation_radians);
@@ -2259,6 +2260,7 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 			default:
 				GL_THROW("climate::sync -- unrecognized interpolation mode!");
 		}
+		update_heatindex();
 		update_forecasts(t0);
 		tmy_rv = -(t0+(3600*TS_SECOND-t0%(3600 *TS_SECOND))); /// negative means soft event
 	}
@@ -2303,6 +2305,38 @@ TIMESTAMP climate::presync(TIMESTAMP t0) /* called in presync */
 				return tmy_rv;
 
 
+}
+
+void climate::update_heatindex(void)
+{
+	double T = temperature;
+	double RH = humidity * 100;
+
+	// see https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml for details
+	if ( heat_index < 80 )
+	{
+		heat_index = 0.75*T + 0.25*( 61.0+1.2*(T-68.0)+0.094*RH);
+	}
+	else
+	{
+		heat_index = -42.379 
+			+ 2.04901523*T 
+			+ 10.14333127*RH 
+			- 0.22475541*T*RH 
+			- 0.00683783*T*T 
+			- 0.05481717*RH*RH 
+			+ 0.00122874*T*T*RH 
+			+ 0.00085282*T*RH*RH 
+			- 0.00000199*T*T*RH*RH;
+		if ( RH < 13 && T < 112 )
+		{
+			heat_index -= ((13-RH)/4)*sqrt((17-fabs(T-95.))/17);
+		}
+		else if ( RH > 85 && T < 87 )
+		{
+			heat_index += ((RH-85)/10) * ((87-T)/5);
+		}
+	}
 }
 
 /**@}**/
