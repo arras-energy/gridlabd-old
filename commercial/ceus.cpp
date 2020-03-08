@@ -319,6 +319,10 @@ ceus::COMPONENT *ceus::find_component(const char *enduse)
 }
 const char *ceus::get_components(char *buffer, size_t len)
 {
+	if ( initial_components == NULL )
+	{
+		return NULL;
+	}
 	if ( buffer == NULL )
 	{
 		buffer = strdup(initial_components!=NULL?initial_components->c_str():"");
@@ -579,17 +583,19 @@ int ceus::composition(char *buffer, size_t len)
 	{
 		// query
 		const char *result = get_components();
-		size_t size = strlen(get_components());
-		delete[] result;
-		if ( len == 0 ) 
+		size_t size = 0;
+		if ( result )
 		{
-			// get length
-			return size+1;
+			size = strlen(result) + 1;
+			delete[] result;
+		}
+		if ( len == 0 ) // get length
+		{
+			return size;
 		}
 		else 
 		{
-			// check length
-			return size < len;
+			return size <= len;
 		}
 	}
 	else if ( len == 0 ) 
@@ -631,8 +637,8 @@ int ceus::composition(char *buffer, size_t len)
 	}
 	else 
 	{
-		// write
-		return strlen(get_components(buffer,len));
+		const char *result = get_components(buffer,len);
+		return result ? strlen(result) : 0;
 	}
 }
 
