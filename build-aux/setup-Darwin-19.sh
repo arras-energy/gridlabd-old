@@ -17,7 +17,7 @@ brew install doxygen
 
 # python3
 brew install python3
-pip3 install matplotlib pandas numpy
+pip3 install matplotlib pandas numpy Pillow
 
 # influxdb
 brew install influxdb

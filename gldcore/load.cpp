@@ -6956,7 +6956,19 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			return FALSE;
 		}
 	}
-
+	else if ( strncmp(line, "#output", 7) == 0 )
+	{
+		char name[1024];
+		char options[1024] = "";
+		if ( sscanf(line+7,"%*[ \t]\"%[^\"]\"%*[ \t]%[^\n]",name,options) < 1 )
+		{
+			output_error_raw("%s(%d): #output missing filename",filename,linenum);
+			return FALSE;
+		}
+		save_on_exit(name,options);
+		strcpy(line,"\n");
+		return TRUE;
+	}
 	else if ( strncmp(line, "#input", 6) == 0 )
 	{
 		char name[1024];
