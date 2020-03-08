@@ -31,7 +31,7 @@ typedef enum e_jsontype JSONTYPE;
 class GldJson 
 {
 private:
-	const JSONTYPE type;
+	JSONTYPE type;
 	size_t sz;
 	size_t refs;
 	union {
@@ -43,7 +43,7 @@ private:
 		} str;
 	} data;
 public:
-	inline GldJson(GldJson &j) : type(j.type) {refs++; }; // TODO: copy constructor
+	inline GldJson(GldJson &j) : { type = j.get_type(); refs++; }; // TODO: copy constructor
 	inline GldJson(JSONTYPE t = JSON_NULL) : type(t) {};
 	inline GldJson(double x) : type(JSON_NUMBER) { data.num = x; };
 	inline GldJson(const char *x) : type(JSON_STRING) { data.str.buf = strdup(x); data.str.len = strlen(x); };
