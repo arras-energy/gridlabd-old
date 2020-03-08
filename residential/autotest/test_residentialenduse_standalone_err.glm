@@ -22,3 +22,9 @@ object residential_enduse {
 	name res-enduse-basic;
 	shape "type:analog; schedule: weekly; energy: 10 kWh";
 }
+
+// this object should generate an error about a missing schedule
+object residential_enduse {
+	name res-enduse-none;
+	shape "type:analog; energy: 10kWh";
+}

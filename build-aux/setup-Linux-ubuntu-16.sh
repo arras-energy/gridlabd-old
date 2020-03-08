@@ -18,9 +18,7 @@ update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.7 1
 
 # install python libraries by validation
 pip3 -q install --upgrade pip
-pip -q install pandas
-pip -q install matplotlib
-pip -q install mysql-client
+pip -q install pandas matplotlib mysql-client Pillow
 
 # install system build tools needed by gridlabd
 apt-get -q install git -y

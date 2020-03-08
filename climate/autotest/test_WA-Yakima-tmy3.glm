@@ -17,6 +17,11 @@ object climate {
 	tmyfile "../WA-Yakima.tmy3"; 
 	tzoffset -8;
 	elevation 325;
+	object recorder {
+		file "test_WA-Yakima-tmy3.csv";
+		property "temperature,humidity,heat_index";
+		interval "1 h";
+	};
 	object double_assert {
 		target "temperature";
 		in '2006-02-20 23:00:00';

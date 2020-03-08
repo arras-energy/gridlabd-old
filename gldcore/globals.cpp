@@ -383,7 +383,9 @@ STATUS GldGlobals::init(void)
 	global_version_build = version_build();
 	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch));
 	strcpy(global_datadir,global_execdir);
-	strcpy(strstr(global_datadir,"/bin"),"/share/gridlabd");
+	char *bin = strstr(global_datadir,"/bin");
+	if ( bin ) *bin = '\0';
+	strcat(global_datadir,"/share/gridlabd");
 	sprintf(global_version,"%d.%d.%d-%d-%s",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
 
 	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++){
