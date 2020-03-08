@@ -577,3 +577,56 @@ int saveomd(const char *filename, FILE *fp)
 	len += fprintf(fp,"}\n");
 	return len;
 }
+
+typedef std::map<std::string,std::string> SAVEMAP;
+SAVEMAP *savelist = NULL;
+void save_on_exit(const char *name, const char *options)
+{
+	std::string file(name);
+	std::string args(options);
+	if ( savelist == NULL )
+		savelist = new SAVEMAP;
+	if ( savelist == NULL )
+		throw_exception("save_on_exit(name='%s',options='%s') memory allocation failed",name,options);
+	(*savelist)[file] = args;
+}
+
+void save_outputs(void)
+{
+	if ( savelist == NULL )
+	{
+		return;
+	}
+	char filename[1024];
+	strcpy(filename,global_modelname);
+	const char *ext = strrchr(filename,'.');
+	if ( ext == NULL )
+	{
+		strcat(filename,".json");
+	}
+	else if ( strcmp(ext+1,".json") != 0 )
+	{
+		strcpy(strrchr(filename,'.'),".json");
+	}
+	saveall(filename);
+	for ( SAVEMAP::iterator item = savelist->begin() ; item != savelist->end() ; item++ )
+	{
+		const char *from = strrchr(filename,'.');
+		if ( from == NULL )
+		{
+			throw_exception("intermediate output file '%s' has no extension", filename);
+		}
+		const char *to = strrchr(item->first.c_str(),'.');
+		if ( to == NULL )
+		{
+			throw_exception("output file '%s' has no extension", item->first.c_str());
+		}
+		int rc = my_instance->subcommand("/usr/local/bin/python3 %s/%s2%s.py -i %s -o %s %s",(const char*)global_datadir,from+1,to+1,filename,item->first.c_str(),item->second.c_str());
+		if ( rc != 0 )
+		{
+			throw_exception("automatic conversion of '%s' to '%s %s' failed with return code %d", filename, item->first.c_str(), item->second.c_str(), rc);
+		}
+	}
+	delete savelist;
+	savelist = NULL;
+}
