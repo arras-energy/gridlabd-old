@@ -1,0 +1,85 @@
+// apartment.glm
+// Copyright (C) 2020 Regents of the Leland Stanford Junior University
+
+#set debug=0
+
+clock {
+	timezone "US/CA/San Francisco";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+} 
+
+module residential
+{
+	default_outdoor_temperature "59.0 degF";
+	default_humidity "70%";
+	default_solar "100 W/m^2";
+}
+
+// no weather test
+object apartment
+{
+	building_floors 5;
+	building_units 100;
+	core_configuration INDOOR|DOUBLE|CONDITIONED;
+}
+
+// global weather test
+global double temperature[degF] = "59.0 degF";
+global double humidity[%] = "70%";
+global double solar_global[W/m^2] = "100 W/m^2";
+
+object apartment
+{
+	temperature "::temperature";
+	humidity "::humidity";
+	solar "::solar_global";
+	building_floors 5;
+	building_units 100;
+	core_configuration INDOOR|DOUBLE|CONDITIONED;
+}
+
+// custom weather test
+class weather
+{
+	double temperature[degF];
+	double humidity[%];
+	double solar_global[W/m^2];
+}
+
+object weather
+{
+	temperature "59.0 degF";
+	humidity "70%";
+	solar_global "100 W/m^2";
+}
+
+object apartment
+{
+	temperature "weather:temperature";
+	humidity "weather:humidity";
+	solar "weather:solar_global";
+	building_floors 5;
+	building_units 100;
+	core_configuration INDOOR|DOUBLE|CONDITIONED;
+}
+
+// residential module weather test
+
+
+// climate module weather test
+module climate;
+
+object climate
+{
+	name sfo;
+	tmyfile "CA-San_francisco.tmy2";
+}
+
+object apartment
+{
+	weather "sfo";
+	building_floors 5;
+	building_units 100;
+	core_configuration INDOOR|DOUBLE|CONDITIONED;
+}

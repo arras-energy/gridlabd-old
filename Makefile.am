@@ -26,6 +26,7 @@ AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
 
 AM_CXXFLAGS = -Wall -O3 -g
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
+AM_CXXFLAGS += -I/usr/include -I/usr/local/include
 AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
 
 AM_LDFLAGS =
@@ -33,6 +34,7 @@ AM_LDFLAGS += -no-undefined
 AM_LDFLAGS += -module
 AM_LDFLAGS += -avoid-version
 AM_LDFLAGS += -export-dynamic
+AM_LDFLAGS += -L/usr/lib -L/usr/local/lib
 AM_LDFLAGS += $(GLD_LDFLAGS)
 
 # makefile fragments populate these variables
