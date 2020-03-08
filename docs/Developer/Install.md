@@ -51,9 +51,9 @@ bash$ git clone https://github.com/slacgismo/gridlabd gridlabd
 bash$ cd gridlabd
 bash$ autoreconf -isf
 bash$ ./configure
-bash$ make install
+bash$ make system
 bash$ export PATH=/usr/local/bin:$PATH
-bash$ export LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH
+bash$ export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-/usr/local/lib}
 bash$ gridlabd validate
 ~~~
 
@@ -68,6 +68,23 @@ or to install a development copy:
 ~~~
 bash$ ./configure --prefix=$PWD/install
 ~~~
+
+### Change branch
+
+When you change the branch in the source, you will have to completely rebuild the installation.  The easiest way to do this is
+
+~~~
+bash$ make reconfigure
+bash$ make system
+~~~
+
+If you want to speed up the installation, you can use the parallel make process, e.g.,
+
+~~~
+bash$ make -j30 system
+~~~
+
+which allows multiple build steps to run in parallel (in this case 30 at a time).
 
 ## Options
 
