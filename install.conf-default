@@ -22,7 +22,7 @@ CHECK="yes"
 # Control generation of docs. By default the HTML documents are generated into the "html"
 # folder in the install path. Docs generation is disabled by the "--no-docs" option.
 #
-DOCS="yes"
+DOCS="no"
 
 #
 # Force build in spite of issues like running as root and installing into a non-empty folder.
