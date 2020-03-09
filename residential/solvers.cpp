@@ -443,7 +443,8 @@ void MSolver::solve(double dt)
 	const char *error = NULL;
 	try
 	{
-		if ( enable_debug ) debug("updating T");
+		if ( enable_debug ) debug("updating T(dt=%g)",dt);
+		if ( enable_dump ) ::dump("dt",&dt,1);
 		dT = T - (Teq + (exp(Aeig*dt)-mat(4,4).eye())*T);
 		if ( enable_dump ) ::dump("dT",dT);
 		T += dT;
@@ -470,6 +471,21 @@ void MSolver::dump(const char *heading)
 	{
 		::dump(m->get_name().c_str(),m->get_array(),m->get_size());
 	}
+	cerr << "MSolver problem data:" << endl;
+	::dump("U",data->U,N*(N+1)/2);
+	::dump("C",data->C,N);
+	::dump("q",data->q,N);
+	::dump("T",data->T,N);
+	::dump("Tset",data->Tset,N-1);
+	::dump("u",data->u,N-1);
+	::dump("a",data->a,1);
+	::dump("umin",data->umin,N-1);
+	::dump("umax",data->umax,N-1);
+	cerr << "MSolver internal data:" << endl;
+	::dump("Tbal",data->Tbal,N);
+	::dump("Teq",data->Teq,N);
+	::dump("dT",data->dT,N);
+	::dump("mode",data->mode,N-1);
 	cerr << "MSolver solution data:" << endl;
 	::dump("A",A);
 	::dump("B1",B1);
@@ -589,6 +605,13 @@ msolver *msolve(const char *op, ...)
 		assert(solver->get_data()==data);
 		delete solver;
 		data = NULL;
+	}
+	else if ( strcmp(op,"dump") == 0 )
+	{
+		data = va_arg(ptr,msolver*);
+		solver = (MSolver*)(data->solver);
+		assert(solver->get_data()==data);
+		solver->dump();
 	}
 	else 
 	{

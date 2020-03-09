@@ -64,7 +64,7 @@ struct s_msolver
 
 	// Member: Tset
 	//
-	// Temperature setpoint for controlled zones
+	// Temperature setpoint for N-1 controlled zones
 	//
 	double *Tset;
 
