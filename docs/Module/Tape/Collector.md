@@ -103,13 +103,13 @@ Aggregating options are `min`, `max`, `count`, `avg`, `std`, `mean`, `var`, `mbe
 
 ~~~
   object collector {
-    trigger "";
-    file "";
-    limit "0";
-    group "";
-    flush "0";
-    interval "0.0";
-  }
+	  name "collector_1";
+	  group "groupid=residential_meters";
+	  property "sum(measured_real_energy[kWh])";
+	  file "residential_meters.csv";
+	  interval 30;
+	  flush 0;
+}
 ~~~
 
 # See also
