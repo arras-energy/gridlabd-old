@@ -16,5 +16,5 @@ if [ ! -d /usr/local/src/gridlabd ]; then
 fi
 
 cd gridlabd 
-bash ./install.sh --verbose
+bash ./install.sh ${INSTALL_OPTIONS:---verbose}
 
