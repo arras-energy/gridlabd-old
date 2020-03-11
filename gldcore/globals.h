@@ -654,6 +654,8 @@ GLOBAL bool global_relax_undefined_if INIT(false); /**< allow #if macro to handl
 GLOBAL bool global_literal_if INIT(false); /**< do not interpret lhs of #if as a variable name */
 
 /* Variable:  */
+GLOBAL bool global_allow_variant_aggregates INIT(false); /* allow aggregates to include time varying results */
+/* Variable:  */
 GLOBAL char1024 global_daemon_configfile INIT("gridlabd.cnf"); /**< name of daemon configuration file */
 typedef enum {
 	DMC_MAIN		= 0x0000000000000001,
