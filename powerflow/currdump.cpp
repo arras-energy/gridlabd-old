@@ -36,6 +36,7 @@ currdump::currdump(MODULE *mod)
 			PT_enumeration, "mode", PADDR(mode),
 				PT_KEYWORD, "RECT", (enumeration)CDM_RECT,
 				PT_KEYWORD, "POLAR", (enumeration)CDM_POLAR,
+			PT_int32, "version", PADDR(version), PT_DESCRIPTION, "dump format version",
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		
 	}
@@ -51,6 +52,7 @@ int currdump::create(void)
 	interval = 0;
 	strcpy(filemode,"w");
 	maxcount = 1;
+	version = 0;
 	return 1;
 }
 
@@ -85,6 +87,14 @@ int currdump::init(OBJECT *parent)
 			strcpy(filemode,"w");
 		}
 	}
+	if ( version < 0 || version > 2 )
+	{
+		gl_error("format version %d is invalid", version);
+	}
+	else if ( version == 0 )
+	{
+		version = 2;
+	}
 	return 1;
 }
 
@@ -93,40 +103,40 @@ int currdump::isa(char *classname)
 	return strcmp(classname,"currdump")==0;
 }
 
-void currdump::dump(TIMESTAMP t){
-	char namestr[64];
+void currdump::dump(TIMESTAMP t)
+{
 	char timestr[64];
 	FINDLIST *links = NULL;
 	OBJECT *obj = NULL;
 	FILE *outfile = NULL;
 	link_object *plink;
-//	CLASS *nodeclass = NULL;
-//	PROPERTY *vA, *vB, *vC;
 
-	if(group[0] == 0){
+	if ( group[0] == 0 )
+	{
 		links = gl_find_objects(FL_NEW,FT_MODULE,SAME,"powerflow",FT_END);
-	} else {
+	} 
+	else 
+	{
 		links = gl_find_objects(FL_NEW,FT_MODULE,SAME,"powerflow",AND,FT_GROUPID,SAME,group.get_string(),FT_END);
 	}
 
-	if(links == NULL){
+	if ( links == NULL )
+	{
 		gl_warning("no links were found to dump");
 		return;
 	}
 
-	if (strcmp(filemode,"a")==0)
+	if ( strcmp(filemode,"a") == 0 ) 
 	{
 		gl_verbose("voltdump is appending data to %s",filename.get_string());
 	}
 
 	outfile = fopen(filename, filemode);
-	if(outfile == NULL){
+	if ( outfile == NULL )
+	{
 		gl_error("currdump unable to open %s for output", filename.get_string());
 		return;
 	}
-
-	//nodeclass = node::oclass;
-	//vA=gl_find_property(nodeclass, "
 
 	int link_count = 0;
 	while ( (obj=gl_find_next(links, obj)) != NULL )
@@ -137,25 +147,47 @@ void currdump::dump(TIMESTAMP t){
 	}
 	/* print column names */
 	gl_printtime(t, timestr, 64);
-	fprintf(outfile,"# %s run at %s on %i links\n", filename.get_string(), timestr, link_count);
-	if(mode == CDM_RECT){
-		fprintf(outfile,"link_name,currA_real,currA_imag,currB_real,currB_imag,currC_real,currC_imag\n");
+	if ( version < 2 )
+	{
+		fprintf(outfile,"# %s run at %s on %i links\nlink_name,", filename.get_string(), timestr, link_count);
 	}
-	else if (mode == CDM_POLAR){
-		fprintf(outfile,"link_name,currA_mag,currA_angle,currB_mag,currB_angle,currC_mag,currC_angle\n");
+	else
+	{
+		fprintf(outfile,"link_name,datetime,");
+	}
+	if ( mode == CDM_RECT )
+	{
+		fprintf(outfile,"currA_real,currA_imag,currB_real,currB_imag,currC_real,currC_imag\n");
+	}
+	else if ( mode == CDM_POLAR )
+	{
+		fprintf(outfile,"currA_mag,currA_angle,currB_mag,currB_angle,currC_mag,currC_angle\n");
 	}
 	obj = 0;
 	while ( (obj=gl_find_next(links,obj)) != NULL )
 	{
-		if(gl_object_isa(obj, "link", "powerflow")){
+		if ( gl_object_isa(obj, "link", "powerflow") )
+		{
 			plink = OBJECTDATA(obj,link_object);
-			if(obj->name == NULL){
-				sprintf(namestr, "%s:%i", obj->oclass->name, obj->id);
+			if ( obj->name == NULL ) 
+			{
+				fprintf(outfile, "%s:%i,", obj->oclass->name, obj->id);
 			}
-			if(mode == CDM_RECT){
-				fprintf(outfile,"%s,%f,%f,%f,%f,%f,%f\n",(obj->name ? obj->name : namestr),plink->read_I_in[0].Re(),plink->read_I_in[0].Im(),plink->read_I_in[1].Re(),plink->read_I_in[1].Im(),plink->read_I_in[2].Re(),plink->read_I_in[2].Im());
-			} else if (mode == CDM_POLAR){
-				fprintf(outfile,"%s,%f,%f,%f,%f,%f,%f\n",(obj->name ? obj->name : namestr),plink->read_I_in[0].Mag(),plink->read_I_in[0].Arg(),plink->read_I_in[1].Mag(),plink->read_I_in[1].Arg(),plink->read_I_in[2].Mag(),plink->read_I_in[2].Arg());
+			else
+			{
+				fprintf(outfile, "%s,", obj->name);
+			}
+			if ( version > 1 )
+			{
+				fprintf(outfile,"%s,",timestr);
+			}
+			if ( mode == CDM_RECT )
+			{
+				fprintf(outfile,"%f,%f,%f,%f,%f,%f\n",plink->read_I_in[0].Re(),plink->read_I_in[0].Im(),plink->read_I_in[1].Re(),plink->read_I_in[1].Im(),plink->read_I_in[2].Re(),plink->read_I_in[2].Im());
+			} 
+			else if ( mode == CDM_POLAR )
+			{
+				fprintf(outfile,"%f,%f,%f,%f,%f,%f\n",plink->read_I_in[0].Mag(),plink->read_I_in[0].Arg(),plink->read_I_in[1].Mag(),plink->read_I_in[1].Arg(),plink->read_I_in[2].Mag(),plink->read_I_in[2].Arg());
 			}
 		}
 	}
