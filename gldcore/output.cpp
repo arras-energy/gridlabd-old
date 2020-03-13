@@ -731,10 +731,15 @@ int output_progress()
 {
 	char buffer[64];
 	int res = 0;
-	const char *ts; 
+	const char *ts;
+	double fractional_progress = QNAN;
+	if ( global_stoptime < TS_NEVER )
+	{
+			fractional_progress = (double)(global_clock - global_starttime) / (double)(global_stoptime - global_starttime);
+	}
 
 	/* handle delta mode highres time */
-	if ( global_simulation_mode==SM_DELTA )
+	if ( global_simulation_mode == SM_DELTA )
 	{
 		DATETIME t;
 		unsigned int64 secs = global_deltaclock/1000000000;
@@ -744,23 +749,27 @@ int output_progress()
 		ts = buffer;
 	}
 	else
+	{
 		ts = convert_from_timestamp(global_clock,buffer,sizeof(buffer))>0?buffer:"(invalid)";
+	}
 
-	if (redirect.progress)
+	if ( redirect.progress )
 	{
 		res = fprintf(redirect.progress,"%s\n",ts);
 		fflush(redirect.progress);
 	}
-	else if (global_keep_progress)
-		res = output_message("%sProcessing %s...", prefix, ts);
-	else if (global_show_progress)
+	else if ( global_keep_progress )
+	{
+		res = output_message("%sProcessing %s (%.1f%% done)...", prefix, ts, fractional_progress*100);
+	}
+	else if ( global_show_progress )
 	{
 		static int len=0;
 		int i=len, slen = (int)strlen(ts)+15;
 		while (i--) putchar(' ');
 		putchar('\r');
 		if (slen>len) len=slen;
-		res = output_raw("%sProcessing %s...\r", prefix, ts);
+		res = output_raw("%sProcessing %s (%.1f%% done)...\r", prefix, ts, fractional_progress*100);
 	}
 	return res;
 }
