@@ -55,6 +55,7 @@ int voltdump::create(void)
 	mode = VDM_RECT;
 	strcpy(filemode,"");
 	interval = 0;
+	version = 0;
 	return 1;
 }
 
