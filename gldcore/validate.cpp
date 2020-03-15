@@ -93,20 +93,17 @@ public:
 		{
 			IN_MYCONTEXT output_debug("processing %s", ptr);
 		}
+		else if ( global_keep_progress )
+		{
+			output_message("Processing %s...",ptr); 
+		}
 		else
 		{
 			static size_t len = 0;
 			char blank[1024];
 			memset(blank,32,len);
 			blank[len]='\0';
-			if ( global_keep_progress )
-			{
-				len = output_raw("Processing %s...\n",ptr)-len; 
-			}
-			else
-			{
-				len = output_raw("%s\rProcessing %s...\r",blank,ptr)-len; 
-			}
+			len = output_raw("%s\rProcessing %s...\r",blank,ptr)-len; 
 		}
 		wlock(); 
 		n_files++;
