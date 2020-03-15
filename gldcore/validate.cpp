@@ -99,7 +99,14 @@ public:
 			char blank[1024];
 			memset(blank,32,len);
 			blank[len]='\0';
-			len = output_raw("%s\rProcessing %s...\r",blank,ptr)-len; 
+			if ( global_keep_progress )
+			{
+				len = output_raw("Processing %s...\n",ptr)-len; 
+			}
+			else
+			{
+				len = output_raw("%s\rProcessing %s...\r",blank,ptr)-len; 
+			}
 		}
 		wlock(); 
 		n_files++;
