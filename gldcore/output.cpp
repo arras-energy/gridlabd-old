@@ -760,7 +760,7 @@ int output_progress()
 	}
 	else if ( global_keep_progress )
 	{
-		res = output_message("%sProcessing %s (%.1f%% done)...", prefix, ts, fractional_progress*100);
+		res = output_raw("%sProcessing %s (%.1f%% done)...\n", prefix, ts, fractional_progress*100);
 	}
 	else if ( global_show_progress )
 	{
