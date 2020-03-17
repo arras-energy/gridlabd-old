@@ -755,7 +755,7 @@ int output_progress()
 
 	if ( redirect.progress )
 	{
-		res = fprintf(redirect.progress,"%s\n",ts);
+		res = fprintf(redirect.progress,"%s,%.3f\n",ts,fractional_progress);
 		fflush(redirect.progress);
 	}
 	else if ( global_keep_progress )
