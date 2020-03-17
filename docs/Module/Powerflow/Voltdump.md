@@ -87,7 +87,7 @@ Dumps the voltages in either polar or rectangular notation
   char8 filemode;
 ~~~
 
-Sets the file write mode
+Sets the file write mode. Use w to write a new file each dump. Use a to append each dump to the end of file when a new timestamp is generated.
 
 ### `interval`
 
