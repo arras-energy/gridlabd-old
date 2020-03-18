@@ -15,6 +15,7 @@ GLM:
     mode "{polar,rect}";
     filemode "<string>";
     interval "<decimal> s";
+    version "2";
   }
 ~~~
 
@@ -86,7 +87,7 @@ Dumps the voltages in either polar or rectangular notation
   char8 filemode;
 ~~~
 
-Sets the file write mode
+Sets the file write mode. Use w to write a new file each dump. Use a to append each dump to the end of file when a new timestamp is generated.
 
 ### `interval`
 
@@ -95,6 +96,13 @@ Sets the file write mode
 ~~~
 
 Interval at which voltdump runs
+
+### `version`
+~~~
+  int32 version;
+~~~
+
+Specifies the format version to output. The default is version 2, which omits the comment row when a new timestamp is seen, and adds a `datetime` column to the output.
 
 # Example
 
