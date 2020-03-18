@@ -18,10 +18,17 @@ bash$ gridlabd --define keep_progress=TRUE
 # Description
 
 Keep progress enable flag. By default this is `FALSE`, which indicates that only `CR` is output between progress 
-reports.  If `TRUE`, then `CRLF` is output.
+reports.  If `TRUE`, then `CRLF` is output. Note, disabling the `supress_repeat_messages` flag allows the display of every line of progress.
 
 # Example
 
 ~~~
+#set supress_repeat_messages=FALSE
 #set keep_progress=TRUE
 ~~~
+
+# See also
+
+* [[/Global/Suppress_repeat_messages]]
+
+
