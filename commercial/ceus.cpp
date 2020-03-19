@@ -354,14 +354,14 @@ ceus::ceus(MODULE *module)
 
 		defaults = this;
 		if (gl_publish_variable(oclass,
-			PT_double,"floor_area[sf]", get_floor_area_offset(), PT_DESCRIPTION, "building floor area",
-			PT_method,"filename", loadmethod_ceus_filename, PT_DESCRIPTION, "CEUS data file",
-			PT_method,"composition", method_ceus_composition, PT_DESCRIPTION, "load composition specification",
-			PT_double,"total_real_power[W]", get_total_real_power_offset(), PT_DESCRIPTION, "total real power",
-			PT_double,"total_reactive_power[W]", get_total_reactive_power_offset(), PT_DESCRIPTION, "total reactive power",
-			PT_complex,"total_power_A[W]", get_total_power_A_offset(), PT_DESCRIPTION, "total complex power on phase A",
-			PT_complex,"total_power_B[W]", get_total_power_B_offset(), PT_DESCRIPTION, "total complex power on phase B",
-			PT_complex,"total_power_C[W]", get_total_power_C_offset(), PT_DESCRIPTION, "total complex power on phase C",
+			PT_double,"floor_area[sf]", get_floor_area_offset(), PT_REQUIRED, PT_DESCRIPTION, "building floor area",
+			PT_method,"filename", loadmethod_ceus_filename, PT_REQUIRED, PT_DESCRIPTION, "CEUS data file",
+			PT_method,"composition", method_ceus_composition, PT_REQUIRED, PT_DESCRIPTION, "load composition specification",
+			PT_double,"total_real_power[W]", get_total_real_power_offset(), PT_OUTPUT, PT_DESCRIPTION, "total real power",
+			PT_double,"total_reactive_power[W]", get_total_reactive_power_offset(), PT_OUTPUT, PT_DESCRIPTION, "total reactive power",
+			PT_complex,"total_power_A[W]", get_total_power_A_offset(), PT_OUTPUT, PT_DESCRIPTION, "total complex power on phase A",
+			PT_complex,"total_power_B[W]", get_total_power_B_offset(), PT_OUTPUT, PT_DESCRIPTION, "total complex power on phase B",
+			PT_complex,"total_power_C[W]", get_total_power_C_offset(), PT_OUTPUT, PT_DESCRIPTION, "total complex power on phase C",
 			PT_object,"weather",get_weather_offset(), PT_DESCRIPTION, "weather object for temperature and solar gain",
 			PT_object,"tariff",get_tariff_offset(), PT_DESCRIPTION, "tariff object for energy price sensitivity",
 			NULL)<1)
