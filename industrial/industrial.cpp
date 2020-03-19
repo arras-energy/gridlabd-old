@@ -29,6 +29,7 @@ industrial::industrial(MODULE *module)
 		if (gl_publish_variable(oclass,
 			
 			PT_int32, "naics_code", get_naics_code_offset(), 
+				PT_REQUIRED,
 				PT_DEFAULT,"0", 
 				PT_DESCRIPTION, "NAICS facility code",
 
@@ -49,6 +50,7 @@ industrial::industrial(MODULE *module)
 			// 	PT_DESCRIPTION, "voltage at which motors will start",
 
 			PT_double, "total_power[W]", get_total_power_offset(),
+				PT_OUTPUT,
 				PT_DEFAULT, "0 MW",
 				PT_DESCRIPTION, "total facility power demand",
 
