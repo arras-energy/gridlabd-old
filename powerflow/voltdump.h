@@ -24,6 +24,7 @@ public:
 	enumeration mode;		///< dumps the voltages in either polar or rectangular notation
 	char8 filemode;
 	double interval;
+	int32 version;
 public:
 	static CLASS *oclass;
 public:

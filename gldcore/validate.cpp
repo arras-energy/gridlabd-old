@@ -93,6 +93,10 @@ public:
 		{
 			IN_MYCONTEXT output_debug("processing %s", ptr);
 		}
+		else if ( global_keep_progress )
+		{
+			output_message("Processing %s...",ptr); 
+		}
 		else
 		{
 			static size_t len = 0;
