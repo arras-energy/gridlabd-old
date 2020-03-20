@@ -41,7 +41,7 @@ battery::battery(MODULE *module)
 				PT_KEYWORD,"POWER_VOLTAGE_HYBRID",(enumeration)GM_POWER_VOLTAGE_HYBRID,
 
 			PT_enumeration,"additional_controls",PADDR(additional_controls), 
-				T_DEFAULT, "NONE", 
+				PT_DEFAULT, "NONE", 
 				PT_DESCRIPTION, "LEGACY MODEL: In conjunction with POWER_DRIVEN, VOLTAGE_CONTROLLED, and POWER_VOLTAGE_HYBRID, this will activate control set points that adjust with temperature",
 				PT_KEYWORD,"NONE",(enumeration)AC_NONE,
 				PT_KEYWORD,"LINEAR_TEMPERATURE",(enumeration)AC_LINEAR_TEMPERATURE,
