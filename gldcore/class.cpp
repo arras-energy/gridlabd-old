@@ -922,6 +922,10 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			{
 				prop->flags |= PF_REQUIRED;
 			}
+			else if ( proptype == PT_DYNAMIC )
+			{
+				prop->flags |= PF_DYNAMIC;
+			}
 			else if ( proptype == PT_UNITS )
 			{
 				char *unitspec = va_arg(arg,char*);

@@ -10,7 +10,7 @@ bash$ gridlabd --modhelp module[:class]
 
 Display structure of a class or all classes in a module.
 
-The comment section includes whether the property is a required input, optional, output, or deprecated.
+The comment section includes whether the property is a required input, optional, dynamic, output, or deprecated.
 
 # Example
 

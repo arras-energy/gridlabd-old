@@ -10,20 +10,20 @@ bash$ gridlabd --example module:class
 
 Display an example of an instance of the class after init.
 
-The properties are groups according to whether they are required, optional, output, or deprecated.
+The properties are groups according to whether they are required, optional, dynamic, output, or deprecated.
 
 # Example
 
 ~~~
 bash$ gridlabd --example climate:climate
 class climate {
-	// required inputs
+	// required input properties
 	tmyfile "";
-	// optional inputs
+	// optional input properties
 	city "";
 	reader "";
 	forecast "";
-	// outputs
+	// output properties
 	solar_elevation "0.0";
 	solar_azimuth "0.0";
 	solar_zenith "0.0";

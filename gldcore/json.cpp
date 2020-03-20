@@ -252,6 +252,7 @@ int GldJsonWriter::write_classes(FILE *fp)
 			if ( prop->flags&PF_DEPRECATED_NONOTICE ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"DEPRECATED_NONOTICE"); }
 			if ( prop->flags&PF_REQUIRED ) strcat(flags,flags[0]?"|":""),strcat(flags,"REQUIRED");
 			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?"|":""),strcat(flags,"OUTPUT");
+			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?"|":""),strcat(flags,"DYNAMIC");
 			if ( flags[0] != '\0' )
 			{
 				len += write(",\n\t\t\t\t\"flags\" : \"%s\"",flags);
@@ -330,6 +331,7 @@ int GldJsonWriter::write_globals(FILE *fp)
 			if ( prop->flags&PF_DEPRECATED_NONOTICE ) strcat(flags,flags[0]?"|":""),strcat(flags,"DEPRECATED_NONOTICE");
 			if ( prop->flags&PF_REQUIRED ) strcat(flags,flags[0]?"|":""),strcat(flags,"REQUIRED");
 			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?"|":""),strcat(flags,"OUTPUT");
+			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?"|":""),strcat(flags,"DYNAMIC");
 			if ( prop->flags ) len += write("\t\t\t\t\"flags\" : \"%s\",",flags);
 			len += write("\n\t\t\t\"access\" : \"%s\",",access);			
 			if ( buffer[0] == '\"' )

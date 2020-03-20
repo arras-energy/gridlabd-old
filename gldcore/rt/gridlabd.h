@@ -468,7 +468,12 @@ typedef enum {_PT_FIRST=-1,
 	PT_DEPRECATED,
 	PT_HAS_NOTIFY,
 	PT_HAS_NOTIFY_OVERRIDE,
+	PT_DEFAULT,
+	PT_REQUIRED,
+	PT_OUTPUT,
+	PT_DYNAMIC,
 } PROPERTYTYPE; /**< property types */
+
 typedef const char *CLASSNAME; /**< the name a GridLAB class */
 typedef unsigned int OBJECTRANK; /**< Object rank number */
 typedef unsigned short OBJECTSIZE; /** Object data size */

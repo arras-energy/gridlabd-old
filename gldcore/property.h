@@ -1102,6 +1102,7 @@ enum e_propertytype {_PT_FIRST=-1,
 	PT_DEFAULT,
 	PT_REQUIRED,
 	PT_OUTPUT,
+	PT_DYNAMIC,
 };
 
 // Define: MAXGLMSIZE
@@ -1269,17 +1270,23 @@ typedef uint32 PROPERTYFLAGS;
  */
 #define PF_EXTENDED 0x0004 
 
-/*	Define: PT_REQUIRED
+/*	Define: PF_REQUIRED
 	Indicates that the property must be set after creation
 	for initialization to complete correctly
  */
 #define PF_REQUIRED 0x0008
 
-/*	Define: PT_OUTPUT
+/*	Define: PF_OUTPUT
 	Indicates that the property is updating internally and cannot
 	be modified by external sources
  */
 #define PF_OUTPUT	0x0010
+
+/*	Define: PF_DYNAMIC
+	Indicates that the property can changes in response to changes
+	in other properties
+ */
+#define PF_DYNAMIC	0x0020
 
 /*	Define: PF_DEPRECATED_NONOTICE
 	The property is deprecated but no reference warning is desired
