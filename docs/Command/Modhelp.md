@@ -36,6 +36,7 @@ class climate {
 	double humidity[pu]; // (OUTPUT) current humidity
 	...
 }
+~~~
 
 # See also
 
