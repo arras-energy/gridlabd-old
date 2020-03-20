@@ -24,3 +24,20 @@ Do not interpret LHS of #if macro as a variable name. The default value if `TRUE
 ~~~
 #set literal_if=FALSE
 ~~~
+
+For example, when `literal_if` global is set to `FALSE` the if statement should be defined as follows: 
+~~~
+#set literal_if=FALSE
+#define TEST_VARIABLE='on'
+#if TEST_VARIABLE=='on'
+#print "Test code success" //THIS CODE WILL EXECUTE
+#endif 
+~~~
+When `literal_if` global is set to `TRUE` the if statement should be defined as follows:
+~~~
+#set literal_if=TRUE
+#define TEST_VARIABLE='on'
+#if ${TEST_VARIABLE}=='on'
+#print "Test code success" //THIS CODE WILL EXECUTE
+#endif 
+~~~

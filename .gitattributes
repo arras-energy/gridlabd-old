@@ -44,3 +44,4 @@
 *.doc binary
 *.xls binary
 *.xlsx binary
+.circleci/config.yml merge=ours

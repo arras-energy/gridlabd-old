@@ -24,6 +24,7 @@ public:
 	double interval;
 	int32 maxcount;
 	char8 filemode;
+	int32 version;
 public:
 	static CLASS *oclass;
 public:
