@@ -38,7 +38,7 @@ inverter::inverter(MODULE *module)
 				PT_KEYWORD,"PWM",(enumeration)PWM,
 				PT_KEYWORD,"FOUR_QUADRANT",(enumeration)FOUR_QUADRANT,
 
-				PT_enumeration,"four_quadrant_control_mode",PADDR(four_quadrant_control_mode), PT_DESCRIPTION, "FOUR QUADRANT MODEL: Activates various control modes",
+			PT_enumeration,"four_quadrant_control_mode",PADDR(four_quadrant_control_mode), PT_DESCRIPTION, "FOUR QUADRANT MODEL: Activates various control modes",
 				PT_KEYWORD,"NONE",(enumeration)FQM_NONE,
 				PT_KEYWORD,"CONSTANT_PQ",(enumeration)FQM_CONSTANT_PQ,
 				PT_KEYWORD,"CONSTANT_PF",(enumeration)FQM_CONSTANT_PF,
