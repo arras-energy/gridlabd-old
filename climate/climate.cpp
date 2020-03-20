@@ -2313,7 +2313,7 @@ void climate::update_heatindex(void)
 	double RH = humidity * 100;
 
 	// see https://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml for details
-	if ( heat_index < 80 )
+	if ( T < 80 )
 	{
 		heat_index = 0.75*T + 0.25*( 61.0+1.2*(T-68.0)+0.094*RH);
 	}

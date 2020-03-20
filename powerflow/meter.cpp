@@ -369,6 +369,29 @@ void meter::BOTH_meter_sync_fxn()
 		if (NR_node_reference==-99)	//Childed
 		{
 			TempNodeRef=*NR_subnode_reference;
+
+ 			//See if our parent was initialized
+ 			if (TempNodeRef == -1)
+ 			{
+ 				//Try to initialize it, for giggles
+ 				node *Temp_Node = OBJECTDATA(SubNodeParent,node);
+
+ 				//Call the initialization
+ 				Temp_Node->NR_populate();
+
+ 				//Pull our reference
+ 				TempNodeRef=*NR_subnode_reference;
+
+ 				//Check it again
+ 				if (TempNodeRef == -1)
+ 				{
+ 					exception("uninitialized parent is causing odd issues - fix your model!");
+ 					/*  TROUBLESHOOT
+ 					A childed meter object is having issues mapping to its parent node - this typically happens in very odd cases of islanded/orphaned
+ 					topologies that only contain nodes (no links).  Adjust your GLM to work around this issue.
+ 					*/
+ 				}
+ 			}
 		}
 		else	//Normal
 		{

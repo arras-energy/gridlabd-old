@@ -16,3 +16,4 @@ reliability_reliability_la_SOURCES += reliability/main.cpp
 reliability_reliability_la_SOURCES += reliability/metrics.cpp
 reliability_reliability_la_SOURCES += reliability/metrics.h
 reliability_reliability_la_SOURCES += reliability/reliability.h
+reliability_reliability_la_SOURCES += third_party/jsonCpp/jsoncpp.cpp
