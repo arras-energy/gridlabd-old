@@ -16,5 +16,10 @@ if [ ! -d /usr/local/src/gridlabd ]; then
 fi
 
 cd gridlabd 
-bash ./install.sh ${INSTALL_OPTIONS:---verbose}
-
+autoreconf -isf 
+./configure 
+make -j30 install
+if [ -x "$INSTALL/bin/gridlabd-version" -a "$TEST" == "yes" ]; then
+	log "ACTIVATE: automatic"
+	run $INSTALL/bin/gridlabd version set "$VERSION"
+make validate
