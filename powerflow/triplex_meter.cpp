@@ -272,12 +272,46 @@ TIMESTAMP triplex_meter::sync(TIMESTAMP t0)
 {
 	int TempNodeRef;
 
+ 	//Check for straggler nodes - fix so segfaults don't occur
+ 	if ((prev_NTime==0) && (solver_method == SM_NR))
+ 	{
+ 		//See if we've been initialized yet - links typically do this, but single buses get missed
+ 		if (NR_node_reference == -1)
+ 		{
+ 			//Call the populate routine
+ 			NR_populate();
+ 		}
+ 	}
+
 	//Reliability check
 	if ((fault_check_object != NULL) && (solver_method == SM_NR))	//proper solver fault_check is present (so might need to set flag
 	{
 		if (NR_node_reference==-99)	//Childed
 		{
 			TempNodeRef=*NR_subnode_reference;
+
+ 			//See if our parent was initialized
+ 			if (TempNodeRef == -1)
+ 			{
+ 				//Try to initialize it, for giggles
+ 				node *Temp_Node = OBJECTDATA(SubNodeParent,node);
+
+ 				//Call the initialization
+ 				Temp_Node->NR_populate();
+
+ 				//Pull our reference
+ 				TempNodeRef=*NR_subnode_reference;
+
+ 				//Check it again
+ 				if (TempNodeRef == -1)
+ 				{
+ 					exception("uninitialized parent is causing odd issues - fix your model!");
+ 					/*  TROUBLESHOOT
+ 					A childed triplex_meter object is having issues mapping to its parent node - this typically happens in very odd cases of islanded/orphaned
+ 					topologies that only contain nodes (no links).  Adjust your GLM to work around this issue.
+ 					*/
+ 				}
+ 			}
 		}
 		else	//Normal
 		{

@@ -9,6 +9,7 @@
 #define _eventgen_H
 
 #include <stdarg.h>
+#include "../third_party/jsonCpp/json/json.h"
 #include "gridlabd.h"
 #include "reliability.h"
 #include "metrics.h"
@@ -61,8 +62,26 @@ typedef struct s_relevantstruct {
 	struct s_relevantstruct *next;	//Link to next item
 } RELEVANTSTRUCT;	//"off-key" event structure
 
+class external_event {
+public:
+        std::string name;
+        char * type;
+        OBJECT *fault_object;
+        OBJECT *effected_safety_device;
+        bool enable_event;
+        bool event_enabled;
+        bool disable_event;
+        int implemented_fault;
+        inline external_event() 
+        {
+        	type = NULL;
+        	fault_object = effected_safety_device = NULL;
+        };
+};
+
 class eventgen : public gld_object {
 private:
+	std::vector<external_event *> external_events;
 	double curr_fail_dist_params[2];	/**< Current parameters of failure_dist - used to track changes */
 	double curr_rest_dist_params[2];	/**< Current parameters of restore_dist - used to track changes */
 	enumeration curr_fail_dist;			/**< Current failure distribution type - used to track changes */
@@ -87,6 +106,8 @@ private:
 	void do_event(TIMESTAMP t1_ts, double t1_dbl, bool entry_type);	/**< Function to execute a status change on objects driven by event_gen */
 	void regen_events(TIMESTAMP t1_ts, double t1_dbl);				/**< Function to update time to next event on the system */
 
+	void parse_external_fault_events(char *event_char);
+
 public:
 	RELEVANTSTRUCT Unhandled_Events;	/**< unhandled event linked list */
 	enumeration failure_dist;		/**< failure distribution */
@@ -103,10 +124,12 @@ public:
 	char1024 manual_fault_list;	/**< List for manual faulting */
 	char256 controlled_switch; /**< Name of a switch to manually fault/un-fault */
 	int switch_state; /**< Current state (1=closed, 0=open) for the controlled switch */
+	char1024 external_fault_event;
 	void gen_random_time(enumeration rand_dist_type, double param_1, double param_2, TIMESTAMP *event_time, unsigned int *event_nanoseconds, double *event_double);	//Random time function - easier to call this way
 	int add_unhandled_event(OBJECT *obj_to_fault, const char *event_type, TIMESTAMP fail_time, TIMESTAMP rest_length, int implemented_fault, bool fault_state);	/**< Function to add unhandled event into the structure */
 	double *get_double(OBJECT *obj, const char *name);	/**< Gets address of double - mainly for mean_repair_time */
 	SIMULATIONMODE inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);
+	bool use_external_faults;
 public:
 	/* required implementations */
 	eventgen(MODULE *module);
