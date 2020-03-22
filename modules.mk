@@ -18,3 +18,6 @@ include tape_plot/Makefile.mk
 # TODO: removed until 4.2 upgrades are implemented
 #include connection/Makefile.mk 
 #include optimize/Makefile.mk 
+
+# TODO: new modules
+include tariff/Makefile.mk
