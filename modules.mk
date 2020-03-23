@@ -21,3 +21,4 @@ include tape_plot/Makefile.mk
 
 # TODO: new modules
 include tariff/Makefile.mk
+include revenue/Makefile.mk
