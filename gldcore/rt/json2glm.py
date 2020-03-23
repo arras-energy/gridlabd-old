@@ -56,7 +56,6 @@ def clock_glm() :
 		fw.write(end_str)
 	return True
 
-
 def classes_glm() : 
 	global data 
 	global fw 
