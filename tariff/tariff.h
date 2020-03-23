@@ -1,4 +1,4 @@
-// File: main.cpp
+// File: tariff.h
 // Copyright (C) 2020 Regents of the Leland Stanford Junior University
 
 #ifndef _TARIFF_H
