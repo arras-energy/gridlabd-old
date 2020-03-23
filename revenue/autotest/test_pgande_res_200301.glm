@@ -1,7 +1,7 @@
 
 #set savefile=test_pgande_res_200301.json
 
-module tariff
+module revenue
 {
 	dcare_discount -34.8 %;
 	climate_credit 27.70 $;

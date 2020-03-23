@@ -15,9 +15,14 @@
 #define GLOBAL extern
 #endif
 
+GLOBAL double dcare_discount INIT(0);
+GLOBAL double climate_credit INIT(0);
+GLOBAL char1024 climate_credit_months;
+GLOBAL char1024 summer_season_months;
+GLOBAL char1024 winter_season_months;
 // TODO: declare module globals here
-// GLOBAL {{{global1_type}}} {{{global1_name}}} INIT({{{global1_init}}});
 
+#include "tariff.h"
 #include "billing.h"
 
 #endif // _REVENUE_H

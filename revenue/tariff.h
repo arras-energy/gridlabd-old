@@ -5,26 +5,7 @@
 
 #define _TARIFF_H
 
-#include "gridlabd.h"
-
-#ifdef DLMAIN
-#define INIT(X) = X
-#define GLOBAL
-#else
-#define INIT(X)
-#define GLOBAL extern
-#endif
-
-// TODO: declare module globals here
-GLOBAL double dcare_discount INIT(0);
-GLOBAL double climate_credit INIT(0);
-GLOBAL char1024 climate_credit_months;
-GLOBAL char1024 summer_season_months;
-GLOBAL char1024 winter_season_months;
-
-// TODO: include classes
-// #include "{{{class1}}}.h"
-// #include "{{{class2}}}.h"
+#include "revenue.h"
 
 class tariff : public gld_object 
 {

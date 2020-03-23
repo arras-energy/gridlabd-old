@@ -22,11 +22,17 @@ public:
 	GL_ATOMIC(int32,bill_day);
 	GL_ATOMIC(TIMESTAMP,bill_date);
 	GL_ATOMIC(int32,billing_days);
+	GL_ATOMIC(double,total_bill);
 	GL_ATOMIC(double,total_charges);
 	GL_ATOMIC(double,energy_charges);
 	GL_ATOMIC(double,capacity_charges);
-	GL_ATOMIC(double,peaking_charges);
-	GL_ATOMIC(double,program_credits);
+	GL_ATOMIC(double,ramping_charges);
+	GL_ATOMIC(double,fixed_charges);
+	GL_ATOMIC(double,total_credits);
+	GL_ATOMIC(double,energy_credits);
+	GL_ATOMIC(double,capacity_credits);
+	GL_ATOMIC(double,ramping_credits);
+	GL_ATOMIC(double,fixed_credits);
 
 private:
 
