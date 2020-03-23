@@ -16,5 +16,13 @@ if [ ! -d /usr/local/src/gridlabd ]; then
 fi
 
 cd gridlabd 
-bash ./install.sh ${INSTALL_OPTIONS:---verbose}
+autoreconf -isf 
+./configure 
+make -j30 install
 
+
+
+VERSION=${VERSION:-`build-aux/version.sh --name`}
+/usr/local/opt/gridlabd/${VERSION}/bin/gridlabd version set 
+gridlabd --version=all
+make validate
