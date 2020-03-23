@@ -31,4 +31,6 @@ elif [ "$LINK" == "yes" ]; then
 	done
 	run sudo ln -sf $PREFIX/opt/gridlabd/current/bin/gridlabd.bin $PREFIX/bin/gridlabd.bin
 fi
+pwd
+gridlabd --version=all
 make validate
