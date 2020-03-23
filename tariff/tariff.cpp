@@ -29,6 +29,14 @@ tariff::tariff(MODULE *module)
 		defaults = this;
 		if (gl_publish_variable(oclass,
 			// TODO: add properties 
+			PT_char32, "rate_design", get_rate_design_offset(),
+			PT_double, "minimum_daily_amount[$]", get_minimum_daily_amount_offset(),
+			PT_double, "energy_charge_base[$/kWh]", get_energy_charge_base_offset(),
+			PT_double, "energy_charge_100[$/kWh]", get_energy_charge_100_offset(),
+			PT_double, "energy_charge_400[$/kWh]", get_energy_charge_400_offset(),
+			PT_double, "average_total_rate[$/kWh]", get_average_total_rate_offset(),
+			PT_double, "minimum_average_rate_limit[$]", get_minimum_average_rate_limit_offset(),
+			PT_double, "discount", get_discount_offset(),			
 			NULL)<1){
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);

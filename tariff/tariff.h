@@ -18,9 +18,9 @@
 // TODO: declare module globals here
 GLOBAL double dcare_discount INIT(0);
 GLOBAL double climate_credit INIT(0);
-GLOBAL double_array climate_credit_months;
-GLOBAL double_array summer_season_months;
-GLOBAL double_array winter_season_months;
+GLOBAL char1024 climate_credit_months;
+GLOBAL char1024 summer_season_months;
+GLOBAL char1024 winter_season_months;
 
 // TODO: include classes
 // #include "{{{class1}}}.h"
@@ -36,6 +36,14 @@ private:
 public:
 
 	// TODO: add published data
+	GL_STRING(char32,rate_design)
+	GL_ATOMIC(double,minimum_daily_amount)
+	GL_ATOMIC(double,energy_charge_base)
+	GL_ATOMIC(double,energy_charge_100)
+	GL_ATOMIC(double,energy_charge_400)
+	GL_ATOMIC(double,average_total_rate)
+	GL_ATOMIC(double,minimum_average_rate_limit)
+	GL_ATOMIC(double,discount)
 
 private:
 

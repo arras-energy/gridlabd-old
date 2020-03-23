@@ -1,13 +1,13 @@
 
-#print ${version}
+#set savefile=test_pgande_res_200301.json
 
 module tariff
 {
 	dcare_discount -34.8 %;
 	climate_credit 27.70 $;
 	climate_credit_months [4,10];
-	summer_season [6,7,8,9];
-	winter_season [1,2,3,4,5,10,11,12];
+	summer_season_months [6,7,8,9];
+	winter_season_months [1,2,3,4,5,10,11,12];
 };
 
 object tariff {
@@ -34,7 +34,7 @@ object tariff {
 	name "ES";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_amount 0.32854 $;
-	discount 0.03115;
+	discount 0.03115 $;
 	minimum_average_rate_limit 0.04892 $;
 	energy_charge_base 0.23522 $/kWh;
 	energy_charge_100 0.29600 $/kWh;

@@ -15,23 +15,21 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 
 	INIT_MMF(tariff);
 
-	CLASS *first = NULL;
-	
 	// TODO: add the first class here
-	// first = new {{{class1}}}(module);
+	new tariff(module);
 
 	// TODO: add more classes here
 	// new {{{class2}}}(module);
 
 	// TODO: register module globals here
-	gl_global_create("dcase_discount",PT_double,&dcare_discount,PT_UNITS,"$",NULL);
-	gl_global_create("climate_credit",PT_double,&climate_credit,PT_UNITS,"$",NULL);
-	gl_global_create("climate_credit_months",PT_double_array,&climate_credit_months,NULL);
-	gl_global_create("summer_season_months",PT_double_array,&summer_season_months,NULL);
-	gl_global_create("winter_season_months",PT_double_array,&winter_season_months,NULL);
+	gl_global_create("tariff::dcare_discount",PT_double,&dcare_discount,PT_UNITS,"$",NULL);
+	gl_global_create("tariff::climate_credit",PT_double,&climate_credit,PT_UNITS,"$",NULL);
+	gl_global_create("tariff::climate_credit_months",PT_char1024,&climate_credit_months,NULL);
+	gl_global_create("tariff::summer_season_months",PT_char1024,&summer_season_months,NULL);
+	gl_global_create("tariff::winter_season_months",PT_char1024,&winter_season_months,NULL);
 
 	// always return the first class registered */
-	return first;
+	return tariff::oclass;
 }
 
 
