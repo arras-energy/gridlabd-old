@@ -24,6 +24,6 @@ autoreconf -isf
 make -j30 install
 
 VERSION=${VERSION:-`build-aux/version.sh --name`}
-run /usr/local/opt/gridlabd/${VERSION}/bin/gridlabd version set 
+/usr/local/opt/gridlabd/${VERSION}/bin/gridlabd version set 
 gridlabd --version=all
 make validate
