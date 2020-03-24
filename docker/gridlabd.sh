@@ -1,3 +1,6 @@
+
+#!/bin/bash
+
 REPO=${REPO:-https://github.com/slacgismo/gridlabd}
 BRANCH=${BRANCH:-master}
 echo "
@@ -20,9 +23,7 @@ autoreconf -isf
 ./configure 
 make -j30 install
 
-
-
 VERSION=${VERSION:-`build-aux/version.sh --name`}
-/usr/local/opt/gridlabd/${VERSION}/bin/gridlabd version set 
+run /usr/local/opt/gridlabd/${VERSION}/bin/gridlabd version set 
 gridlabd --version=all
 make validate
