@@ -1,4 +1,4 @@
-FROM centos:8
+FROM slacgismo/gridlabd_dockerhub_base:latest
 
 ENV container docker
 ENV REPO=https://github.com/slacgismo/gridlabd
