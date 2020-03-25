@@ -70,10 +70,10 @@ enumeration	(ONLINE, OFFLINE) generator_status
 ### panel_type	
 
 ~~~
-enumeration (SINGLE_CRYSTAL_SILICON, MULTI_CRYSTAL_SILICON, AMORPHOUS_SILICON, THIN_FILM_GA_AS, CONCENTRATOR) panel_type
+enumeration    (SINGLE_CRYSTAL_SILICON, MULTI_CRYSTAL_SILICON, AMORPHOUS_SILICON, THIN_FILM_GA_AS, CONCENTRATOR) panel_type
 ~~~
 
-Uses pre-defined panel technologies.(SINGLE_CRYSTAL_SILICON, MULTI_CRYSTAL_SILICON, AMORPHOUS_SILICON, THIN_FILM_GA_AS, CONCENTRATOR)
+Uses pre-defined panel technologies. Types supported: SINGLE_CRYSTAL_SILICON, MULTI_CRYSTAL_SILICON, AMORPHOUS_SILICON, THIN_FILM_GA_AS, CONCENTRATOR
 
 ### power_type	
 ~~~
@@ -81,43 +81,189 @@ enumeration	(AC, DC) power_type
 ~~~
 Defines whether the connection is AC or DC. Currently not used.
 
+### INSTALLATION_TYPE
 
-INSTALLATION_TYPE	enumeration	none	(ROOF_MOUNTED, GROUND_MOUNTED) Currently not used.
-SOLAR_TILT_MODEL	enumeration	none	(DEFAULT, SOLPOS) Defines the tilt model to utilize for tilted array calculations.
-SOLAR_POWER_MODEL	enumeration	none	(DEFAULT, FLATPLATE) Defines if the PV array output efficiency should be adjusted for temperatures of the cells using a simple efficiency method, or the SAM simple flat plate efficiency model. New in 2.3! 
-a_coeff	double	none	a coefficient for temperature correction forumula New in 2.3! 
-b_coeff	double	none	b coefficient for temperature correction forumula New in 2.3! 
-dT_coeff	double	%/degC	Temperature difference coefficient for temperature correction forumula New in 2.3! 
-T_coeff	double	none	Maximum power temperature coefficient for temperature correction forumula New in 2.3! 
-NOCT	double	degF	Nominal operating cell temperature.
-Tmodule	double	degF	Calculated internal temperature of the PV module.
-Tambient	double	degF	Outside air temperature.
-wind_speed	double	mph	Outside wind speed. Currently not used.
-ambient_temperature	double	degF	Current ambient temperature of air
-Insolation	double	W/sf	Solar radiation incident upon the solar panel.
-Rinternal	double	Ohm	Currently not used.
-Rated_Insolation	double	W/sf	Insolation level that the cell is rated for.
-Pmax_temp_coeff	double		Coefficient for the effects of temperature changes on the actual power output.
-Voc_temp_coeff	double		Coefficient for the effects of temperature changes on the DC terminal voltage.
-V_Max	complex	V	Defines the maximum operating voltage of the PV module.
-Voc_Max	complex	V	Voc max of the solar module
-Voc	complex	V	Defines the open circuit voltage as specified by the PV manufacturer.
-efficiency	double	unit	Defines the efficiency of power conversion from the solar insolation to DC power.
-area	double	sf	Defines the surface area of the solar module.
-soiling	double	pu	Soiling of the array factor - representing dirt on the array.  New in 2.3! 
-derating	double	pu	Panel derating to account for manufacturing variances.  New in 2.3! 
-Rated kVA	double	kVA	Currently not used.
-P_Out	complex	kW	Currently not used.
-V_Out	complex	V	DC voltage passed to the inverter object
-I_Out	complex	A	DC current passed to the inverter object
-VA_Out	complex	VA	Actual power delivered to the inverter
-weather	object	n/a	Reference to a climate object from which temperature, humidity, and solar flux are collected
-shading_factor	double	pu	Shading factor for scaling solar power to the array  New in 2.3! 
-tilt_angle	double	deg	Tilt angle of PV array  New in 2.3! 
-orientation_azimuth	double	deg	Facing direction of the PV array  New in 2.3! 
-latitude_angle_fix	bool	n/a	Fix tilt angle to installation latitude value (latitude comes from climate data) New in 2.3! 
-orientation	enumeration	n/a	Type of panel orientation. Types DEFAULT and FIXED_AXIS are currently implemented  New in 2.3! 
-phases	set	n/a	(A,B,C,N,S) Currently not used.
+~~~
+enumeration	(ROOF_MOUNTED, GROUND_MOUNTED) INSTALLATION_TYPE
+~~~
+Currently not used.
+
+### SOLAR_TILT_MODEL
+~~~
+enumeration	(DEFAULT, SOLPOS) SOLAR_TILT_MODEL
+~~~
+Defines the tilt model to utilize for tilted array calculations.
+
+### SOLAR_POWER_MODEL
+~~~
+enumeration	(DEFAULT, FLATPLATE) SOLAR_POWER_MODEL
+~~~
+Defines if the PV array output efficiency should be adjusted for temperatures of the cells using a simple efficiency method, or the SAM simple flat plate efficiency model. 
+### a_coeff
+~~~
+double    (a) a_coeff
+~~~
+coefficient for temperature correction forumula.
+### b_coeff
+~~~
+double    (b) b_coeff
+~~~
+coefficient for temperature correction forumula.
+### dT_coeff
+~~~
+double	dT_coeff[%/degC]	
+~~~
+Temperature difference coefficient for temperature correction forumula. 
+### T_coeff
+~~~
+double	T_coeff	 
+~~~
+Maximum power temperature coefficient for temperature correction forumula.
+### NOCT
+~~~
+double	NOCT[degF]	
+~~~
+Nominal operating cell temperature.
+### Tmodule
+~~~
+double	Tmodule[degF]	
+~~~
+Calculated internal temperature of the PV module.
+### Tambient
+~~~
+double	Tambient[degF]	
+~~~
+Outside air temperature.
+### wind_speed	
+~~~
+double	wind_speed[mph]	
+~~~
+Outside wind speed. Currently not used.
+### ambient_temperature
+~~~
+double	ambient_temperature[degF]	
+~~~
+Current ambient temperature of air.
+### Insolation	
+~~~
+double    Insolation[W/sf]	
+~~~
+Solar radiation incident upon the solar panel.
+### Rinternal
+~~~
+double	Rinternal[Ohm]	
+~~~
+Currently not used.
+### Rated_Insolation
+~~~
+double	Rated_Insolation[W/sf]	
+~~~
+Insolation level that the cell is rated for.
+### Pmax_temp_coeff
+~~~
+double    Pmax_temp_coeff	
+~~~
+Coefficient for the effects of temperature changes on the actual power output.
+### Voc_temp_coeff
+~~~
+double	Voc_temp_coeff
+~~~
+Coefficient for the effects of temperature changes on the DC terminal voltage.
+### V_Max	
+~~~
+complex   V_Max[V]	
+~~~
+Defines the maximum operating voltage of the PV module.
+### Voc_Max
+~~~
+complex	Voc_Max[V]	
+~~~
+Voc max of the solar module.
+### Voc
+~~~
+complex	Voc[V]	
+~~~
+Defines the open circuit voltage as specified by the PV manufacturer.
+### efficiency
+~~~
+double	efficiency	
+~~~
+Defines the efficiency of power conversion from the solar insolation to DC power.
+### area
+~~~
+double	area[sf]	
+~~~
+Defines the surface area of the solar module.
+### soiling
+~~~
+double	soiling[pu]	
+~~~
+Soiling of the array factor - representing dirt on the array. 
+### derating
+~~~
+double	derating[pu]	
+~~~
+Panel derating to account for manufacturing variances.
+### Rated
+~~~
+double	Rated[kVA]	
+~~~
+Currently not used.
+### P_Out
+~~~
+complex	P_Out[kW]	
+~~~
+Currently not used.
+### V_Out
+~~~
+complex	V_Out[V]	
+~~~
+DC voltage passed to the inverter object.
+### I_Out
+~~~
+complex	I_Out[A]	
+~~~
+DC current passed to the inverter object.
+### VA_Out
+~~~
+complex	VA_Out[VA]	
+~~~
+Actual power delivered to the inverter.
+### weather
+~~~
+object	weather	
+~~~
+Reference to a climate object from which temperature, humidity, and solar flux are collected.
+### shading_factor
+~~~
+double	shading_factor[pu]	
+~~~
+Shading factor for scaling solar power to the array. 
+### tilt_angle	
+~~~
+double    tilt_angle[deg]	
+~~~
+Tilt angle of PV array.
+### orientation_azimuth
+~~~
+double	orientation_azimuth[deg]	
+~~~
+Facing direction of the PV array.  
+### latitude_angle_fix
+~~~
+bool	latitude_angle_fix	
+~~~
+Fix tilt angle to installation latitude value (latitude comes from climate data). 
+### orientation
+~~~
+enumeration	orientation	
+~~~
+Type of panel orientation. Types DEFAULT and FIXED_AXIS are currently implemented. 
+### phases
+~~~
+set	(A,B,C,N,S) phases
+~~~
+Currently not used.
 
 # Example
 
