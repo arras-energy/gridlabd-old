@@ -57,56 +57,56 @@ A solar panel (also known as solar module or photovoltaic module/panel) is an as
 ### generator_mode	
 
 ~~~
-enumeration (UNKNOWN,CONSTANT_V,CONSTANT_PQ,CONSTANT_PF,SUPPLY_DRIVEN) generator_mode
+enumeration {SUPPLY_DRIVEN=5, CONSTANT_PF=4, CONSTANT_PQ=2, CONSTANT_V=1, UNKNOWN=0} generator_mode
 ~~~
 Currently solar must operate in SUPPLY_DRIVEN.
 
 ### generator_status	
 
 ~~~
-enumeration	(ONLINE, OFFLINE) generator_status
+enumeration	{ONLINE=2, OFFLINE=1} generator_status
 ~~~
 
 ### panel_type	
 
 ~~~
-enumeration    (SINGLE_CRYSTAL_SILICON, MULTI_CRYSTAL_SILICON, AMORPHOUS_SILICON, THIN_FILM_GA_AS, CONCENTRATOR) panel_type
+enumeration    {CONCENTRATOR=5, THIN_FILM_GA_AS=4, AMORPHOUS_SILICON=3, MULTI_CRYSTAL_SILICON=2, SINGLE_CRYSTAL_SILICON=1} panel_type
 ~~~
 
 Uses pre-defined panel technologies. Types supported: SINGLE_CRYSTAL_SILICON, MULTI_CRYSTAL_SILICON, AMORPHOUS_SILICON, THIN_FILM_GA_AS, CONCENTRATOR
 
 ### power_type	
 ~~~
-enumeration	(AC, DC) power_type
+enumeration	{DC=1, AC=2} power_type
 ~~~
 Defines whether the connection is AC or DC. Currently not used.
 
 ### INSTALLATION_TYPE
 
 ~~~
-enumeration	(ROOF_MOUNTED, GROUND_MOUNTED) INSTALLATION_TYPE
+enumeration	{GROUND_MOUNTED=2, ROOF_MOUNTED=1} INSTALLATION_TYPE
 ~~~
 Currently not used.
 
 ### SOLAR_TILT_MODEL
 ~~~
-enumeration	(DEFAULT, SOLPOS) SOLAR_TILT_MODEL
+enumeration	{DEFAULT=1, SOLPOS=2} SOLAR_TILT_MODEL
 ~~~
 Defines the tilt model to utilize for tilted array calculations.
 
 ### SOLAR_POWER_MODEL
 ~~~
-enumeration	(DEFAULT, FLATPLATE) SOLAR_POWER_MODEL
+enumeration	{DEFAULT=1, FLATPLATE=2} SOLAR_POWER_MODEL
 ~~~
 Defines if the PV array output efficiency should be adjusted for temperatures of the cells using a simple efficiency method, or the SAM simple flat plate efficiency model. 
 ### a_coeff
 ~~~
-double    (a) a_coeff
+double    a_coeff
 ~~~
 coefficient for temperature correction forumula.
 ### b_coeff
 ~~~
-double    (b) b_coeff
+double    b_coeff
 ~~~
 coefficient for temperature correction forumula.
 ### dT_coeff
@@ -256,12 +256,12 @@ bool	latitude_angle_fix
 Fix tilt angle to installation latitude value (latitude comes from climate data). 
 ### orientation
 ~~~
-enumeration	orientation	
+enumeration	{DEFAULT=0,FIXED_AXIS=1,ONE_AXIS=2,TWO_AXIS=3,AZIMUTH_AXIS=4} orientation	
 ~~~
 Type of panel orientation. Types DEFAULT and FIXED_AXIS are currently implemented. 
 ### phases
 ~~~
-set	(A,B,C,N,S) phases
+set	{S=5, N=4, C=3, B=2, A=1} phases
 ~~~
 Currently not used.
 
