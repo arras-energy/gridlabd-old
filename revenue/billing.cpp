@@ -5,10 +5,7 @@
 
 EXPORT_CREATE(billing);
 EXPORT_INIT(billing);
-EXPORT_PRECOMMIT(billing);
 EXPORT_COMMIT(billing);
-EXPORT_SYNC(billing);
-EXPORT_NOTIFY(billing);
 
 CLASS *billing::oclass = NULL;
 billing *billing::defaults = NULL;
@@ -30,37 +27,55 @@ billing::billing(MODULE *module)
 		if (gl_publish_variable(oclass,
 			// TODO: add properties
 			PT_object,"tariff",get_tariff_offset(),
+				PT_REQUIRED,
 				PT_DESCRIPTION,"reference to the tariff object used for this bill",
 			PT_object,"meter",get_meter_offset(),
+				PT_REQUIRED,
 				PT_DESCRIPTION,"reference to the meter object use for this bill",
 			PT_int32,"bill_day",get_bill_day_offset(),
 				PT_DESCRIPTION,"day of month when the bill is generated",
 			PT_timestamp,"bill_date",get_bill_date_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"date of the last bill generated",
 			PT_int32,"billing_days",get_billing_days_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"number of day of last bill",
 			PT_double,"total_bill[$]",get_total_bill_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill total",
 			PT_double,"total_charges[$]",get_total_charges_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill total charges",
 			PT_double,"energy_charges[$]",get_energy_charges_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill energy charges",
 			PT_double,"capacity_charges[$]",get_capacity_charges_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill capacity charges",
 			PT_double,"ramping_charges[$]",get_ramping_charges_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill ramping charges",
 			PT_double,"fixed_charges[$]",get_fixed_charges_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill fixed charges",
 			PT_double,"total_credits[$]",get_total_credits_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill total credits",
 			PT_double,"energy_credits[$]",get_energy_credits_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill energy credits",
 			PT_double,"capacity_credits[$]",get_capacity_credits_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill capacity credits",
 			PT_double,"ramping_credits[$]",get_ramping_charges_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill ramping credits",
 			PT_double,"fixed_credits[$]",get_fixed_credits_offset(),
+				PT_OUTPUT,
 				PT_DESCRIPTION,"last bill fixed credits",
+			PT_double,"metering_interval[s]",get_metering_interval_offset(),
+				// TODO: PT_DEFAULT, "1 day",
+				PT_DESCRIPTION,"interval at which meter is observed",
 			NULL)<1){
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
@@ -77,70 +92,62 @@ int billing::create(void)
 
 int billing::init(OBJECT *parent)
 {
+	python_module = python_import(billing_module,billing_library);
+	if ( python_module == NULL )
+	{
+		exception("unable to load python billing module %s",(const char*)billing_module);
+		return 0;
+	}
+
 	if ( bill_day == 0 )
 	{
-		bill_day = gl_random_uniform(RNGSTATE,1,28);
+		bill_day = gl_random_uniform(RNGSTATE,1,31);
 	}
-	else if ( bill_day > 28 || bill_day < -28 )
+	else if ( abs(bill_day) > 31 )
 	{
-		exception("bill_day must be between -28 and 28, inclusive");
+		exception("bill_day must be between -31 and 31, inclusive");
+	}
+
+	if ( metering_interval == 0 )
+	{
+		metering_interval = 86400;
 	}
 
 	return 1; /* return 2 on deferral, 1 on success, 0 on failure */
 }
 
-TIMESTAMP billing::precommit(TIMESTAMP t0)
-{
-	TIMESTAMP t2 = TS_NEVER;
-	// TODO: precommit event
-	return t2;
-}
-
-TIMESTAMP billing::presync(TIMESTAMP t0)
-{
-	TIMESTAMP t2 = TS_NEVER;
-	// TODO: presync event
-	return t2;
-}
-
-TIMESTAMP billing::sync(TIMESTAMP t0)
-{
-	TIMESTAMP t2 = TS_NEVER;
-	// TODO: sync event
-	return t2;
-}
-
-TIMESTAMP billing::postsync(TIMESTAMP t0)
-{
-	TIMESTAMP t2 = TS_NEVER;
-	// TODO: postsync event
-	return t2;
-}
-
 TIMESTAMP billing::commit(TIMESTAMP t0, TIMESTAMP t1)
 {
-	TIMESTAMP t2 = TS_NEVER;
-	// TODO: commit event
-	return t2;
+	gld_clock dt0(t0);
+	if ( is_billing_time(dt0) )
+	{
+		compute_bill();
+	}
+	return (TIMESTAMP)(ceil(t0/metering_interval)*metering_interval);
 }
 
-TIMESTAMP billing::finalize(TIMESTAMP t0, TIMESTAMP t1)
+bool billing::is_billing_time(gld_clock &dt0)
 {
-	TIMESTAMP t2 = TS_NEVER;
-	// TODO: finalize event
-	return t2;
+	int year = dt0.get_year();
+	bool is_leapyear = false;
+	if ( year % 4 == 0 ) is_leapyear = true;
+	if ( year % 100 == 0 ) is_leapyear = false;
+	if ( year % 400 == 0 ) is_leapyear = true;
+	int days_in_month[12] = {31,is_leapyear?29:28,31,30,31,30,31,31,30,31,30,31};
+	int effective_bill_day = bill_day;
+	int month = dt0.get_month()-1;
+	if ( bill_day > days_in_month[month] )
+		effective_bill_day = days_in_month[month];
+	return ( effective_bill_day == dt0.get_day() && dt0.get_hour() == 0 && dt0.get_minute() == 0 && dt0.get_second() == 0 );
 }
 
-int billing::prenotify(PROPERTY *prop, const char *value)
+void billing::compute_bill(void)
 {
-	// TODO: handle changing value
-	return 1;
+	gld_object *tariff_obj = get_object(tariff);
+	const char *tariff_name = tariff_obj->get_name();
+	if ( ! python_call(python_module,billing_function,"{sssiss}","classname",my()->oclass->name,"id",get_id(),"tariff",tariff_name) )
+	{
+		error("call to %s.%s() failed", (const char*)billing_module, (const char*)billing_function);
+	}
+	return;
 }
-
-int billing::postnotify(PROPERTY *prop, const char *value)
-{
-	// TODO: handle changed value
-	return 1;
-}
-
-/** @} **/

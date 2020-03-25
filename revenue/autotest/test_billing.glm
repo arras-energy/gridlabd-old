@@ -1,4 +1,6 @@
 
+//#option verbose
+//#option debug
 #set savefile=test_billing.json
 
 clock
@@ -24,16 +26,11 @@ object house
 	parent "meter1";
 }
 
-module revenue;
-
-object tariff
-{
-	name "tariff1";
-}
+#include "pgande_res_200301.glm"
 
 object billing 
 {
 	meter "meter1";
-	tariff "tariff1";
-	bill_day 28;
+	tariff "E-1";
+	bill_day 30;
 }

@@ -13,6 +13,7 @@ class billing : public gld_object
 private:
 
 	// TODO: add private data
+	PyObject *python_module;
 
 public:
 
@@ -33,10 +34,13 @@ public:
 	GL_ATOMIC(double,capacity_credits);
 	GL_ATOMIC(double,ramping_credits);
 	GL_ATOMIC(double,fixed_credits);
+	GL_ATOMIC(double,metering_interval);
 
 private:
 
 	// TODO: add private methods
+	bool is_billing_time(gld_clock &dt);
+	void compute_bill(void);
 
 public:
 	
@@ -48,17 +52,10 @@ public:
 public:
 
 	// TODO: optional methods
-	TIMESTAMP precommit(TIMESTAMP t1);
-	TIMESTAMP presync(TIMESTAMP t1);
-	TIMESTAMP sync(TIMESTAMP t1);
-	TIMESTAMP postsync(TIMESTAMP t1);
 	TIMESTAMP commit(TIMESTAMP t1, TIMESTAMP t2);
-	TIMESTAMP finalize(TIMESTAMP t1, TIMESTAMP t2);
-
-	int postnotify(PROPERTY *prop, const char *value);
-	int prenotify(PROPERTY *prop, const char *value);
 
 public:
+
 	static CLASS *oclass;
 	static billing *defaults;
 };

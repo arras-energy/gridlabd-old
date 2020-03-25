@@ -1,13 +1,13 @@
 
-#set savefile=test_pgande_res_200301.json
-
 module revenue
 {
-	dcare_discount -34.8 %;
-	climate_credit 27.70 $;
-	climate_credit_months [4,10];
+	lowincome_discount -34.8 %;
+	program_credit 27.70 $;
+	program_credit_months [4,10];
 	summer_season_months [6,7,8,9];
 	winter_season_months [1,2,3,4,5,10,11,12];
+	billing_module "test_billing";
+	billing_library ".";
 };
 
 object tariff {
