@@ -118,7 +118,7 @@ battery::battery(MODULE *module)
 			//internal battery model parameters
 			PT_bool,"use_internal_battery_model", PADDR(use_internal_battery_model), PT_DESCRIPTION, "Enables the INTERNAL BATTERY MODEL.",
 			PT_enumeration,"battery_type", PADDR(battery_type), PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the type of the battery. Used to determine the soc vs voltage curve.",
-				PT_KEYWORD, "UNKNOWON", (enumeration)UNKNOWN,
+				PT_KEYWORD, "UNKNOWN", (enumeration)UNKNOWN,
 				PT_KEYWORD, "LI_ION", (enumeration)LI_ION,
 				PT_KEYWORD, "LEAD_ACID", (enumeration)LEAD_ACID,
 

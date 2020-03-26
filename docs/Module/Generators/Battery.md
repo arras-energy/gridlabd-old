@@ -50,7 +50,7 @@ object battery {
 	I_Prev "+0+0i A";
 	power_transferred "+0";
 	use_internal_battery_model "FALSE";
-	battery_type "UNKNOWON";
+	battery_type "UNKNOWN";
 	nominal_voltage "+0 V";
 	rated_power "+0 W";
 	battery_capacity "+0 Wh";
@@ -112,7 +112,7 @@ Describes the current state of the battery
 ### battery_type
 
 ~~~
-enumeration {LEAD_ACID=2, LI_ION=1, UNKNOWON=0} battery_type; 
+enumeration {LEAD_ACID=2, LI_ION=1, UNKNOWN=0} battery_type; 
 ~~~
 
 (INTERNAL) The type of the battery. Used to determine the soc vs voltage curve.
