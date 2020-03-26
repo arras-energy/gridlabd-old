@@ -86,18 +86,18 @@ billing::billing(MODULE *module)
 
 int billing::create(void) 
 {
-	// TODO: create object
-	return 1; /* return 1 on success, 0 on failure */
-}
-
-int billing::init(OBJECT *parent)
-{
 	python_module = python_import(billing_module,billing_library);
 	if ( python_module == NULL )
 	{
 		exception("unable to load python billing module %s",(const char*)billing_module);
 		return 0;
 	}
+	python_data = PyDict_New();
+	return 1; /* return 1 on success, 0 on failure */
+}
+
+int billing::init(OBJECT *parent)
+{
 
 	if ( bill_day == 0 )
 	{
@@ -145,7 +145,7 @@ void billing::compute_bill(void)
 {
 	gld_object *tariff_obj = get_object(tariff);
 	const char *tariff_name = tariff_obj->get_name();
-	if ( ! python_call(python_module,billing_function,"{sssiss}","classname",my()->oclass->name,"id",get_id(),"tariff",tariff_name) )
+	if ( ! python_call(python_module,billing_function,"{sssisO}","classname",my()->oclass->name,"id",get_id(),"data",python_data) )
 	{
 		error("call to %s.%s() failed", (const char*)billing_module, (const char*)billing_function);
 	}

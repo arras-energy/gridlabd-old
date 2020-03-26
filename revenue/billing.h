@@ -14,6 +14,7 @@ private:
 
 	// TODO: add private data
 	PyObject *python_module;
+	PyObject *python_data;
 
 public:
 
