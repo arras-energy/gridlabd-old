@@ -1,10 +1,7 @@
-import sys
 
 def compute_bill(gridlabd,**kwargs):
-	name = gridlabd.get_object(f"{kwargs['classname']}:{kwargs['id']}")
-	print(f"test_billing.py/compute_bill(gridlabd={gridlabd},**kwargs={kwargs}): calculating bill for {gridlabd.get_object(name)}...")
+	clock = gridlabd.get_global('clock')
+	obj = gridlabd.get_object(f"{kwargs['classname']}:{kwargs['id']}")
+	print(f"computing bill '{obj['name']}' using meter '{obj['meter']}' on tariff '{obj['tariff']}' at time '{clock}'...")
 	return
 
-if __name__ == '__main__':
-	import gridlabd as gld
-	compute_bill(gld,classname='billing',id=0)

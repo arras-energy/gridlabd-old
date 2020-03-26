@@ -385,6 +385,7 @@ static PyObject *gridlabd_exception(const char *format, ...)
 //
 extern "C" char **environ;
 static char **saved_environ = NULL;
+#ifndef MAIN_PYTHON
 static void save_environ(void)
 {
     saved_environ = (char**)malloc(sizeof(char*)*1024);
@@ -402,6 +403,7 @@ static void save_environ(void)
     }
     saved_environ[i] = NULL;
 }
+#endif
 static void restore_environ(void)
 {
     if ( saved_environ )
@@ -421,6 +423,7 @@ static enum {
     GMS_SUCCESS, // module has completed successfully
     GMS_CANCELLED, // module simulation was cancelled
 } gridlabd_module_status = GMS_NEW;
+#ifndef MAIN_PYTHON
 static const char *gridlabd_module_status_msg[] = {
     "module is new but not received commands yet", // NEW
     "module has received commands but not started yet", // COMMAND
@@ -430,8 +433,9 @@ static const char *gridlabd_module_status_msg[] = {
     "simulation has completed", // SUCCESS
     "simulation was cancelled", // CANCELLED
 };
-static pthread_t main_thread;
 static int return_code = 0;
+#endif
+static pthread_t main_thread;
 
 static PyObject *gridlabd_reset(PyObject *self, PyObject *args)
 {
@@ -468,6 +472,7 @@ static PyObject *gridlabd_command(PyObject *self, PyObject *args)
 }
 
 extern "C" int main_python(int, const char*[]);
+#ifndef MAIN_PYTHON
 static void *gridlabd_main(void *)
 {
     gridlabd_module_status = GMS_RUNNING;
@@ -476,6 +481,7 @@ static void *gridlabd_main(void *)
     if ( my_instance ) exec_mls_done();
     return (void*)&return_code;
 }
+#endif
 
 //
 // >>> gridlabd.create(blockname,blockdata)
@@ -693,6 +699,9 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     }
     if ( strcmp(command,"thread") == 0 || strcmp(command,"pause") == 0 )
     {
+#ifdef MAIN_PYTHON
+        return NULL;
+#else
         PyEval_InitThreads();
         save_environ();
         exec_mls_create();
@@ -721,12 +730,17 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         {
             return PyLong_FromLong(0);
         }
+#endif
     }
     else if ( strcmp(command, "wait") == 0 )
     {
+#ifdef MAIN_PYTHON
+        return NULL;
+#else
         int code = *(int*)gridlabd_main(NULL);
         output_debug("gridlabd_main(NULL) returned code %d",code);
         return PyErr_Occurred() ? NULL : PyLong_FromLong((long)code);
+#endif
     }
     else
     {

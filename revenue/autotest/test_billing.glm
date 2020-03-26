@@ -32,5 +32,5 @@ object billing
 {
 	meter "meter1";
 	tariff "E-1";
-	bill_day 30;
+	bill_day 1;
 }

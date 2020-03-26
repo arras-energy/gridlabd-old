@@ -6,19 +6,22 @@
 wchar_t *program = NULL;
 PyObject *main_module = NULL;
 
+PyMODINIT_FUNC PyInit_gridlabd(void);
+
 void python_embed_init(int argc, const char *argv[])
 {
     program = Py_DecodeLocale(argv[0],NULL);
     Py_SetProgramName(program);
     Py_Initialize();
-    main_module = PyModule_GetDict(PyImport_AddModule("__main__"));
+    // main_module = PyModule_GetDict(PyImport_AddModule("__main__"));
+    main_module = PyInit_gridlabd();
     if ( main_module == NULL )
     {
         output_error("python_embed_init(argc=%d,argv=[...]: unable to load module __main__ module",argc);
         throw "python exception";
     }
-    python_parser("import " PACKAGE);
-    python_parser();
+    // python_parser("import " PACKAGE);
+    // python_parser();
     output_verbose("python initialization ok");
 }
 
