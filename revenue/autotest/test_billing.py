@@ -59,6 +59,16 @@ def compute_bill(gridlabd,**kwargs):
 				print(f"  Tier 3 usage..... %7.1f  kWh" % (tier3))
 		charges = tier1 * float(tariff["energy_charge_base"]) + tier2 *	float(tariff["energy_charge_100"]) + tier3 * float(tariff["energy_charge_400"])	
 
+	# apply discount, if any
+	discount = float(tariff["discount"])
+	if discount > 0:
+		charges -= usage * discount;
+
+	# apply daily minimum
+	minimum = float(tariff["minimum_daily_charge"])
+	if charges < minimum * billing_days:
+		charges = minimum * billing_days
+
 	if verbose:
 		print(f"  Energy charges... %8.2f US$" % (charges))
 
