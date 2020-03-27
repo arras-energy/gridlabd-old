@@ -137,30 +137,37 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
     {
         PyObject *pType, *pValue, *pTraceback;
         PyErr_Fetch(&pType, &pValue, &pTraceback);
-        PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
-        PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
-        const char *msg = bytes?PyBytes_AS_STRING(bytes):"function call failed";
-        output_error("python_embed_call(pModule,name='%s'): %s",truncate(name), msg);
-        if ( repr ) Py_XDECREF(repr);
-        if ( bytes ) Py_XDECREF(bytes);
-        PyObject *pContext = PyException_GetContext(pTraceback);
-        if ( pContext )
+        if ( pValue )
         {
-            PyObject *repr = pContext ? PyObject_Repr(pContext) : NULL;
+            PyObject *repr = PyObject_Repr(pValue);
             PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
-            const char *msg = bytes?PyBytes_AS_STRING(bytes):"function call failed";
-            output_error("python_embed_call(pModule,name='%s'): context is %s",truncate(name), msg);
-            Py_XDECREF(pContext);
+            const char *msg = bytes ? PyBytes_AS_STRING(bytes) : "function call failed";
+            output_error("python_embed_call(pModule,name='%s'): %s",truncate(name), msg);
             if ( repr ) Py_XDECREF(repr);
             if ( bytes ) Py_XDECREF(bytes);
+            PyObject *pContext = PyException_GetContext(pValue);
+            if ( pContext )
+            {
+                PyObject *repr = pContext ? PyObject_Repr(pContext) : NULL;
+                PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+                const char *msg = bytes?PyBytes_AS_STRING(bytes):"function call failed";
+                output_error("python_embed_call(pModule,name='%s'): context is %s",truncate(name), msg);
+                Py_XDECREF(pContext);
+                if ( repr ) Py_XDECREF(repr);
+                if ( bytes ) Py_XDECREF(bytes);
+            }
+            else
+            {
+                output_error("python_embed_call(pModule,name='%s'): context not available",truncate(name));
+            }
         }
         else
         {
-            output_error("python_embed_call(pModule,name='%s'): context not available",truncate(name));
+            output_error("python_embed_call(pModule,name='%s'): no error information available",truncate(name));
         }
         return false;
     }
-    if ( pResult != NULL )
+    else if ( pResult != NULL )
     {
         Py_DECREF(pResult);
     }
