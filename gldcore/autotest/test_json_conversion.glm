@@ -13,7 +13,7 @@ module climate;
 
 object climate {
   name TX_Houston;
-  tmyfile "WA-Yakima.tmy3";
+  tmyfile "../WA-Yakima.tmy3";
   interpolate QUADRATIC;
 };
 
