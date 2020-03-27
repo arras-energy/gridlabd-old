@@ -14,11 +14,13 @@ def compute_bill(gridlabd,**kwargs):
 	classname = kwargs['classname']
 	id = kwargs['id']
 	data = kwargs['data']
-	obj = gridlabd.get_object(f"{classname}:{id}")
-	meter = gridlabd.get_object(obj["meter"])
-	tariff = gridlabd.get_object(obj["tariff"])
+	bill_name = f"{classname}:{id}"
+	bill = gridlabd.get_object(bill_name)
+	bill_name = bill["name"]
+	baseline = float(bill["baseline_demand"])
+	tariff = gridlabd.get_object(bill["tariff"])
+	meter = gridlabd.get_object(bill["meter"])
 	energy = float(meter["measured_real_energy"])/1000
-	baseline = float(obj["baseline_demand"])
 
 	# get duration
 	clock = datetime.strptime(gridlabd.get_global('clock'),'%Y-%m-%d %H:%M:%S %Z')
@@ -38,9 +40,9 @@ def compute_bill(gridlabd,**kwargs):
 
 	# calculate bill
 	tariff_name = tariff["name"]
-	meter_name = obj['meter']
+	meter_name = meter["name"]
 	if verbose:
-		print(f"Bill '{obj['name']}' for meter '{meter_name}' on tariff '{tariff_name}' at time '{clock}':")
+		print(f"Bill '{bill_name}' for meter '{meter_name}' on tariff '{tariff_name}' at time '{clock}':")
 		print(f"  Billing days..... %5.0f    days" % (billing_days))
 		print(f"  Meter reading.... %7.1f  kWh" % (energy))
 	if baseline == 0.0:
@@ -68,13 +70,18 @@ def compute_bill(gridlabd,**kwargs):
 	minimum = float(tariff["minimum_daily_charge"])
 	if charges < minimum * billing_days:
 		charges = minimum * billing_days
-
 	if verbose:
 		print(f"  Energy charges... %8.2f US$" % (charges))
 
 	# output billing record only if charges are non-zero
 	if charges > 0:
 		csvwriter.writerow([clock,meter_name,tariff_name,int(billing_days),round(usage,1),0,round(charges,2)])
+
+	# update billing data
+	gridlabd.set_value(bill_name,"total_bill",str(float(bill["total_bill"])+charges))
+	gridlabd.set_value(bill_name,"billing_days",str(billing_days))
+	gridlabd.set_value(bill_name,"energy_charges",str(float(bill["energy_charges"])+charges))
+	gridlabd.set_value(bill_name,"total_charges",str(float(bill["total_charges"])+charges))
 
 	return
 

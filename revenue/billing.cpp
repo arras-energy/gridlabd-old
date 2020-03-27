@@ -127,6 +127,7 @@ TIMESTAMP billing::commit(TIMESTAMP t0, TIMESTAMP t1)
 	if ( is_billing_time(dt0) )
 	{
 		compute_bill();
+		bill_date = gl_globalclock;
 	}
 	return (TIMESTAMP)(ceil(t0/metering_interval)*metering_interval);
 }
