@@ -36,6 +36,7 @@ public:
 	GL_ATOMIC(double,ramping_credits);
 	GL_ATOMIC(double,fixed_credits);
 	GL_ATOMIC(double,metering_interval);
+	GL_ATOMIC(double,baseline_demand);
 
 private:
 

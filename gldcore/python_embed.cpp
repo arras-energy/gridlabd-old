@@ -140,9 +140,24 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
         PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
         PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
         const char *msg = bytes?PyBytes_AS_STRING(bytes):"function call failed";
-        output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
+        output_error("python_embed_call(pModule,name='%s'): %s",truncate(name), msg);
         if ( repr ) Py_XDECREF(repr);
         if ( bytes ) Py_XDECREF(bytes);
+        PyObject *pContext = PyException_GetContext(pTraceback);
+        if ( pContext )
+        {
+            PyObject *repr = pContext ? PyObject_Repr(pContext) : NULL;
+            PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+            const char *msg = bytes?PyBytes_AS_STRING(bytes):"function call failed";
+            output_error("python_embed_call(pModule,name='%s'): context is %s",truncate(name), msg);
+            Py_XDECREF(pContext);
+            if ( repr ) Py_XDECREF(repr);
+            if ( bytes ) Py_XDECREF(bytes);
+        }
+        else
+        {
+            output_error("python_embed_call(pModule,name='%s'): context not available",truncate(name));
+        }
         return false;
     }
     if ( pResult != NULL )

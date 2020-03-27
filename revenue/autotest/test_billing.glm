@@ -11,26 +11,18 @@ clock
 }
 
 module powerflow;
-
-object triplex_meter
-{
-	name "meter1";
-	phases AS;
-	nominal_voltage 120 V;
-}
-
 module residential;
 
-object house
-{
-	parent "meter1";
-}
+#ifexist "../house.glm"
+#define TESTDIR=..
+#else
+#define TESTDIR=.
+#endif
 
-#include "pgande_res_200301.glm"
+#include "${TESTDIR}/pgande_res_200301.glm"
 
-object billing 
-{
-	meter "meter1";
-	tariff "E-1";
-	bill_day 1;
-}
+#include using(ID=1,TARIFF=E1) "${TESTDIR}/house.glm"
+#include using(ID=2,TARIFF=EM) "${TESTDIR}/house.glm"
+#include using(ID=3,TARIFF=ES) "${TESTDIR}/house.glm"
+#include using(ID=4,TARIFF=ESR) "${TESTDIR}/house.glm"
+#include using(ID=5,TARIFF=ET) "${TESTDIR}/house.glm"

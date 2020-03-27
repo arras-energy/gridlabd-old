@@ -18,7 +18,7 @@ public:
 
 	// TODO: add published data
 	GL_STRING(char32,rate_design)
-	GL_ATOMIC(double,minimum_daily_amount)
+	GL_ATOMIC(double,minimum_daily_charge)
 	GL_ATOMIC(double,energy_charge_base)
 	GL_ATOMIC(double,energy_charge_100)
 	GL_ATOMIC(double,energy_charge_400)

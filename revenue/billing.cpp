@@ -76,6 +76,8 @@ billing::billing(MODULE *module)
 			PT_double,"metering_interval[s]",get_metering_interval_offset(),
 				// TODO: PT_DEFAULT, "1 day",
 				PT_DESCRIPTION,"interval at which meter is observed",
+			PT_double,"baseline_demand[kWh/day]",get_baseline_demand_offset(),
+				PT_DESCRIPTION,"daily demand of baseline tier",
 			NULL)<1){
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
@@ -113,6 +115,9 @@ int billing::init(OBJECT *parent)
 		metering_interval = 86400;
 	}
 
+	// need to call billing code once to initialize it
+	compute_bill();
+
 	return 1; /* return 2 on deferral, 1 on success, 0 on failure */
 }
 
@@ -143,8 +148,6 @@ bool billing::is_billing_time(gld_clock &dt0)
 
 void billing::compute_bill(void)
 {
-	gld_object *tariff_obj = get_object(tariff);
-	const char *tariff_name = tariff_obj->get_name();
 	if ( ! python_call(python_module,billing_function,"{sssisO}","classname",my()->oclass->name,"id",get_id(),"data",python_data) )
 	{
 		error("call to %s.%s() failed", (const char*)billing_module, (const char*)billing_function);
