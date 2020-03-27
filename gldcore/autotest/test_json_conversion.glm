@@ -8,12 +8,11 @@ clock {
 	stoptime ${STOPTIME};
 };
 
-
 module climate;
 
 object climate {
   name TX_Houston;
-  tmyfile "WA-Yakima.tmy3";
+  tmyfile "../WA-Yakima.tmy3";
   interpolate QUADRATIC;
 };
 
@@ -50,7 +49,7 @@ object house {
 			power_fraction 0.0;
 			current_fraction 0.0;
 			object recorder {
-#ifndef BASELINE
+#ifndef SECONDRUN
 				file "baseline.csv";
 #else 
 				file "new_run.csv";
@@ -61,6 +60,8 @@ object house {
 		}; //WH
 	}; //House
 
-#ifndef BASELINE
-#on_exit 0 gridlabd -D BASELINE test_json_conversion.glm -o json1.json && gridlabd json1.json && diff -wq baseline.csv new_run.csv
+#ifndef SECONDRUN
+#exec gridlabd -D SECONDRUN test_json_conversion.glm -o test_json_conversion_out.json 
+#else
+#exec gridlabd test_json_conversion_out.json && diff -wq baseline.csv new_run.csv
 #endif

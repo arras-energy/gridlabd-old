@@ -387,6 +387,7 @@ int GldMain::run_on_exit()
 			if ( rc != 0 )
 			{
 				output_error("on_exit %d '%s' command failed (return code %d)", cmd->get_exitcode(), cmd->get_command(), rc);
+				exec.setexitcode(XC_RUNERR);
 				return XC_RUNERR;
 			}
 			else
@@ -605,13 +606,15 @@ int GldMain::subcommand(const char *format, ...)
 	else
 	{
 		char line[1024];
+		FILE *output_stream = output_get_stream("output");
 		while ( output && fgets(line, sizeof(line)-1, output) != NULL ) 
 		{
-			output_message(line);
+			fprintf(output_stream,"%s",line);
 		}
+		FILE *error_stream = output_get_stream("error");
 		while ( error && fgets(line, sizeof(line)-1, error) != NULL ) 
 		{
-			output_error(line);
+			fprintf(error_stream,"%s",line);
 		}
 		rc = pcloses(output);
 		if ( rc > 0 )
