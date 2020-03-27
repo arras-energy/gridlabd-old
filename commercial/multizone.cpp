@@ -39,16 +39,12 @@ multizone::multizone(MODULE *module)
 			PT_object, "to", PADDR(to),
 			PT_double, "ua", PADDR(ua),
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
-		defaults = this;
-		/* TODO: set the default values of all properties here */
-		memset(this,0,sizeof(multizone));
 	}
 }
 
 /* Object creation is called once for each object that is created by the core */
 int multizone::create(void)
 {
-	memcpy(this,defaults,sizeof(multizone));
 	return 1; /* return 1 on success, 0 on failure */
 }
 

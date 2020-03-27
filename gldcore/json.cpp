@@ -250,6 +250,9 @@ int GldJsonWriter::write_classes(FILE *fp)
 			if ( prop->flags&PF_EXTENDED ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"EXTENDED"); }
 			if ( prop->flags&PF_DEPRECATED ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"DEPRECATED"); }
 			if ( prop->flags&PF_DEPRECATED_NONOTICE ) { if ( flags[0] != '\0' ) strcat(flags,"|"); strcat(flags,"DEPRECATED_NONOTICE"); }
+			if ( prop->flags&PF_REQUIRED ) strcat(flags,flags[0]?"|":""),strcat(flags,"REQUIRED");
+			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?"|":""),strcat(flags,"OUTPUT");
+			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?"|":""),strcat(flags,"DYNAMIC");
 			if ( flags[0] != '\0' )
 			{
 				len += write(",\n\t\t\t\t\"flags\" : \"%s\"",flags);
@@ -321,6 +324,15 @@ int GldJsonWriter::write_globals(FILE *fp)
 				if ( prop->access & PA_H ) strcat(access,"H");
 				break;
 			}
+			char flags[1024] = "";
+			if ( prop->flags&PF_EXTENDED ) strcat(flags,"EXTENDED");
+			if ( prop->flags&PF_CHARSET ) strcat(flags,flags[0]?"|":""),strcat(flags,"CHARSET");
+			if ( prop->flags&PF_DEPRECATED ) strcat(flags,flags[0]?"|":""),strcat(flags,"DEPRECATED");
+			if ( prop->flags&PF_DEPRECATED_NONOTICE ) strcat(flags,flags[0]?"|":""),strcat(flags,"DEPRECATED_NONOTICE");
+			if ( prop->flags&PF_REQUIRED ) strcat(flags,flags[0]?"|":""),strcat(flags,"REQUIRED");
+			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?"|":""),strcat(flags,"OUTPUT");
+			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?"|":""),strcat(flags,"DYNAMIC");
+			if ( prop->flags ) len += write("\t\t\t\t\"flags\" : \"%s\",",flags);
 			len += write("\n\t\t\t\"access\" : \"%s\",",access);			
 			if ( buffer[0] == '\"' )
 				len += write("\n\t\t\t\"value\" : \"%s\"", escape(buffer+1,strlen(buffer)-2));
@@ -490,7 +502,13 @@ int GldJsonWriter::write_objects(FILE *fp)
                 {
 					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
 					if ( value == NULL )
+					{
 						continue; // ignore values that don't convert propertly
+					}
+					if ( (global_filesave_options&FSO_MINIMAL)==FSO_MINIMAL && prop->default_value != NULL && strcmp(value,prop->default_value) == 0 )
+					{
+						continue; // ignore values that are precisely the default value
+					}
 					int size = strlen(value);
 					// TODO: proper JSON formatted is needed for data that is either a dict or a list
 					// if ( value[0] == '{' && value[len] == '}')
