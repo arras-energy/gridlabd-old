@@ -5,8 +5,6 @@
 #exec gridlabd test_json_conversion_save.json 
 #exec diff -wq waterheater_1.csv waterheater_2.csv
 
-#error stop here
-
 #else
 
 #define STARTTIME="2020-01-01 00:00:00"
