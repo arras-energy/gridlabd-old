@@ -319,9 +319,9 @@ reconfigure-debug: distclean
 docker: $(PREFIX)/docker.img
 
 $(PREFIX)/docker.img: docker/Dockerfile Makefile
-	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_BRANCH) docker
-	mkdir -p $(PREFIX)
-	docker save -o $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest $(PREFIX)/docker.img
+	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_ORIGIN) docker
+	mkdir -p $(prefix)
+	docker save -o $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest $(prefix)/docker.img
 
 system: install
 	$(DESTDIR)$(bindir)/gridlabd version set
