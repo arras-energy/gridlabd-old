@@ -1434,7 +1434,8 @@ struct s_property_specs
 	int csize; 
 	int (*data_to_string)(char *,int,void*,PROPERTY*); 
 	int (*string_to_data)(const char *,void*,PROPERTY*); 
-	int (*create)(void*); 
+	int (*to_initial)(char *,int,void*,PROPERTY*); 
+	int (*create)(void*);
 	size_t (*stream)(FILE*,int,void*,PROPERTY*); 
 	struct {
 		PROPERTYCOMPAREOP op;

@@ -1512,6 +1512,43 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 	}
 }
 
+/* Convert an object property to a string that can be used to initialize
+ */
+const char *object_property_to_initial(OBJECT *obj, const char *name, char *buffer, int sz)
+{	
+	PROPERTY *prop = class_find_property(obj->oclass,name);
+	if ( prop == NULL )
+	{
+		errno = ENOENT;
+		return NULL;
+	}
+	void *addr = GETADDR(obj,prop); /* warning: cast from pointer to integer of different size */
+	PROPERTYSPEC *spec = property_getspec(prop->ptype);
+	if ( spec->to_initial == NULL )
+	{
+		if ( class_property_to_string(prop,addr,buffer,sz) >= 0 )
+		{
+			return buffer;
+		}
+		else
+		{
+			output_error("gldcore/object.c:object_property_to_initial(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property value into buffer",
+				obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
+			return "";
+		}	
+	}
+	else if ( spec->to_initial(buffer,sz,addr,prop) >= 0 )
+	{
+		return buffer;
+	}
+	else
+	{
+		output_error("gldcore/object.c:object_property_to_initial(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property initialization into buffer",
+			obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
+		return "";
+	}
+}
+
 void object_profile(OBJECT *obj, OBJECTPROFILEITEM pass, clock_t t)
 {
 	if ( global_profiler==1 )

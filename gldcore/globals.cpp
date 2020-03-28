@@ -178,6 +178,7 @@ DEPRECATED static KEYWORD fso_keys[] = {
 	{"FILTERS",		FSO_FILTERS,	fso_keys+8},
 	{"SCRIPTS",		FSO_SCRIPTS,	fso_keys+9},
 	{"CLOCK",		FSO_CLOCK,		fso_keys+10},
+	{"INITIAL",     FSO_INITIAL,    fso_keys+11},
 	{"MINIMAL",		FSO_MINIMAL,	NULL},
 };
 
@@ -699,30 +700,30 @@ STATUS GldGlobals::setvar(const char *def, ...) /**< the definition */
 }
 STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 {
-	char name[65]="", value[1024]="";
-	if (sscanf(def,"%[^=]=%[^\r\n]",name,value)<2)
+	char name[65]="", sep[32]="", value[1024]="";
+	if ( sscanf(def,"%64[^ \t=]%31[ \t=]%1023[^\r\n]",name,sep,value) < 3 )
 	{
 		char *v;
 		v = va_arg(ptr,char*);
-		if (v!=NULL) 
+		if ( v != NULL ) 
 		{
 			strncpy(value,v,sizeof(value));
 			if (strcmp(value,v)!=0)
-				output_error("global_setvar(char *name='%s',...): value is too long to store");
+				output_error("GldGlobals::setvar_v(const char *def='%s',...): va_list value is too long to store",def);
 				/* TROUBLESHOOT
 					An attempt to set a global variable failed because the value of the variable
 					was too long.
 				 */
 		}
 	}
-	if (strcmp(name,"")!=0) /* something was defined */
+	if ( strcmp(name,"") != 0 ) /* something was defined */
 	{
 		GLOBALVAR *var = global_find(name);
 		DEPRECATED static LOCKVAR globalvar_lock = 0; // TODO: this is non-reentrant
 		int retval;
-		if (var==NULL)
+		if ( var == NULL )
 		{
-			if (global_strictnames)
+			if ( global_strictnames )
 			{
 				output_error("strict naming prevents implicit creation of %s", name);
 				/* TROUBLESHOOT
@@ -749,8 +750,9 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		wlock(&globalvar_lock);
 		retval = class_string_to_property(var->prop,(void*)var->prop->addr,value);
 		wunlock(&globalvar_lock);
-		if (retval==0){
-			output_error("global_setvar(): unable to set %s to %s",name,value);
+		if ( retval == 0 )
+		{
+			output_error("GldGlobals::setvar_v(const char *def='%s',...): unable to set %s %s %s",def,name,sep,value);
 			/* TROUBLESHOOT
 				The input value was not convertable into the desired type for the input
 				variable.  Check the input range, review the input file, and adjust
@@ -758,8 +760,10 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 			 */
 			return FAILED;
 		}
-		else if (var->callback) 
+		else if ( var->callback ) 
+		{
 			var->callback(var->prop->name);
+		}
 
 		return SUCCESS;
 	}

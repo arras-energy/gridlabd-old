@@ -28,6 +28,9 @@ DEPRECATED int convert_from_double(char *buffer, int size, void *data, PROPERTY 
 // Function: convert_to_double
 DEPRECATED int convert_to_double(const char *buffer, void *data, PROPERTY *prop);
 
+// Function: convert_from_double
+DEPRECATED int initial_from_double(char *buffer, int size, void *data, PROPERTY *prop);
+
 // Function: convert_from_complex
 DEPRECATED int convert_from_complex(char *buffer, int size, void *data, PROPERTY *prop);
 

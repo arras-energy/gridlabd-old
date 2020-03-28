@@ -1048,6 +1048,7 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	int csize; /**< the minimum size of a converted instance (not including '\0' or unit, 0 means a call to property_minimum_buffersize() is necessary) */ 
 	int (*data_to_string)(char *,int,void*,PROPERTY*); /**< the function to convert from data to a string */
 	int (*string_to_data)(const char *,void*,PROPERTY*); /**< the function to convert from a string to data */
+	int (*to_initial)(char *,int,void*,PROPERTY*); /**< function to get initialization string */
 	int (*create)(void*); /**< the function used to create the property, if any */
 	size_t (*stream)(FILE*,int,void*,PROPERTY*); /**< the function to read data from a stream */
 	struct {

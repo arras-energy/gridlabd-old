@@ -583,34 +583,49 @@ TRANSFORM *transform_has_target(void *addr)
 	}
 	return NULL;
 }
-int transform_write(TRANSFORM *xform, FILE *fp)
+
+int transform_to_string(char *buffer, int size, TRANSFORM *xform)
 {
 	int count = 0;
 	double *source = xform->source;
 	switch ( xform->function_type ) {
 	case XT_LINEAR:
-		count += fprintf(fp,"%s*%g+%g",xform->source_schedule?xform->source_schedule->name:get_source_name(source),xform->scale,xform->bias);
+		count += snprintf(buffer,size,"%s*%g+%g",xform->source_schedule?xform->source_schedule->name:get_source_name(source),xform->scale,xform->bias);
 		break;
 	case XT_EXTERNAL:
-		count += fprintf(fp,"%s(",module_find_transform_function(xform->function));
+		count += snprintf(buffer,size,"%s(",module_find_transform_function(xform->function));
 		for ( int n = 0 ; n < xform->nrhs ; n++ )
 		{
 			if ( n > 0 )
 			{
-				count += fprintf(fp,",");
+				count += snprintf(buffer,size,",");
 			}
-			count += fprintf(fp,"%s",xform->prhs[n].prop->name);
+			count += snprintf(buffer,size,"%s",xform->prhs[n].prop->name);
 		}
-		count += fprintf(fp,")");
+		count += snprintf(buffer,size,")");
 		break;
 	case XT_FILTER:
-		count += fprintf(fp,"%s(%s);", xform->tf->name, get_source_name(source));
+		count += snprintf(buffer,size,"%s(%s)", xform->tf->name, get_source_name(source));
 		break;
 	default:
-		throw_exception("transform_write(TRANSFORM *xform=%p, FILE *fp=%p): xform->source_type = %d is invalid", xform, fp, xform->source_type);
+		throw_exception("transform_to_string(char *buffer=%p, int size=%d, TRANSFORM *xform=%p): xform->source_type = %d is invalid", buffer, size, xform, xform->source_type);
 		break;
 	}
 	return count;
+
+}
+int transform_write(TRANSFORM *xform, FILE *fp)
+{
+	char buffer[1024];
+	if ( transform_to_string(buffer,sizeof(buffer)-1,xform) > 0 )
+	{
+		return fprintf(fp,"%s;",buffer);
+	}
+	else
+	{
+		throw_exception("transform_write(TRANSFORM *xform=%p, FILE *fp=%p): unable to write transform to buffer", xform, fp);
+		return -1;
+	}
 }
 
 int transform_saveall(FILE *fp)

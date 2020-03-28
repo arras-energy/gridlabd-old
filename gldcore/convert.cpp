@@ -147,6 +147,26 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 	return n;
 }
 
+/** Convert to initial
+	Converts a double to an initialization string that can be read to convert_from_string
+ **/
+int initial_from_double(char *buffer,
+                       int size,
+                       void *data,
+                       PROPERTY *prop)
+{
+	OBJECT *obj = (OBJECT*)data;
+	// TODO: check transforms, schedules, etc for this value as a target
+	for ( TRANSFORM *xform = transform_getnext(NULL) ; xform != NULL ; xform = transform_getnext(xform) )
+	{
+		if ( xform->target_obj == obj && xform->target_prop == prop )
+		{
+			return transform_to_string(buffer,size,xform);
+		}
+	}
+	return convert_from_double(buffer,size,data,prop);
+}
+
 /** Convert from a complex
 	Converts a complex property to a string.  This function uses
 	the global variable \p global_complex_format to perform the conversion.

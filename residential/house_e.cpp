@@ -97,87 +97,98 @@ void house_e::update_smartfuse(CIRCUIT *c)
 }
 int house_e::smart_breaker(char *buffer, size_t len)
 {
-	char reply[1024] = "";
+	if ( buffer == NULL ) // get size
+	{
+		return 1024;
+	}
+	else if ( len == 0 ) // read from buffer
+	{
+		char reply[1024] = "";
 
-	// parse the incoming message
-	char target[64] = "unknown", cmd[1024], value[1024];
-	int nargs = sscanf(buffer,"%[^&]&%[^=]=%[^\n]",target,cmd,value);
-	if ( nargs < 2 )
-	{
-		error("house_e::smart_breaker(char *buffer='%s', size_t len=%d): incoming message rejected (sscanf()=%d)",buffer,len,nargs);
-		jprintf(reply,sizeof(reply),"error","invalid message format",NULL);
-	}
+		// parse the incoming message
+		char target[64] = "unknown", cmd[1024], value[1024];
+		int nargs = sscanf(buffer,"%[^&]&%[^=]=%[^\n]",target,cmd,value);
+		if ( nargs < 2 )
+		{
+			error("house_e::smart_breaker(char *buffer='%s', size_t len=%d): incoming message rejected (sscanf()=%d)",buffer,len,nargs);
+			jprintf(reply,sizeof(reply),"error","invalid message format",NULL);
+		}
 
-	// find the circuit this message applies to
-	CIRCUIT *c;
-	for ( c = panel.circuits ; c != NULL ; c = c->next )
-	{
-		if ( c->pLoad->name != NULL && strcmp(c->pLoad->name,target) == 0 )
-			break;
-	}
-	if ( c == NULL ) // circuit not found
-	{
-		error("house_e::smart_breaker(char *buffer='%s', size_t len=%d): incoming message rejected (circuit '%s' not found)",buffer,len,target);
-		jprintf(reply,sizeof(reply),"status","error","data","circuit not found",NULL);
-	}
-	else // handle the message
-	{
-		bool ok = false;
-		if ( strcmp(cmd,"GET") == 0 )
+		// find the circuit this message applies to
+		CIRCUIT *c;
+		for ( c = panel.circuits ; c != NULL ; c = c->next )
 		{
-			ok = true;
+			if ( c->pLoad->name != NULL && strcmp(c->pLoad->name,target) == 0 )
+				break;
 		}
-		else if ( strcmp(cmd,"RESET") == 0 )
+		if ( c == NULL ) // circuit not found
 		{
-			c->status = BRK_CLOSED;
-			ok = true;
+			error("house_e::smart_breaker(char *buffer='%s', size_t len=%d): incoming message rejected (circuit '%s' not found)",buffer,len,target);
+			jprintf(reply,sizeof(reply),"status","error","data","circuit not found",NULL);
 		}
-		else if ( strcmp(cmd,"OPEN") == 0 )
+		else // handle the message
 		{
-			c->status = BRK_OPEN;
-			ok = true;
-		}
-		else if ( strcmp(cmd,"CONTROL") == 0 )
-		{
-			if ( c->smartfuse == NULL )
+			bool ok = false;
+			if ( strcmp(cmd,"GET") == 0 )
 			{
-				c->smartfuse->powerRef = atof(value);
 				ok = true;
 			}
-			else
+			else if ( strcmp(cmd,"RESET") == 0 )
 			{
-				jprintf(reply,sizeof(reply),"status","error","data","smartfuse not installed",NULL);
-				ok = false;
+				c->status = BRK_CLOSED;
+				ok = true;
+			}
+			else if ( strcmp(cmd,"OPEN") == 0 )
+			{
+				c->status = BRK_OPEN;
+				ok = true;
+			}
+			else if ( strcmp(cmd,"CONTROL") == 0 )
+			{
+				if ( c->smartfuse == NULL )
+				{
+					c->smartfuse->powerRef = atof(value);
+					ok = true;
+				}
+				else
+				{
+					jprintf(reply,sizeof(reply),"status","error","data","smartfuse not installed",NULL);
+					ok = false;
+				}
+			}
+			if ( ok )
+			{	
+				char amps[64];
+				sprintf(amps,"%.0f",c->max_amps);
+				char volts[64];
+				sprintf(volts,"%.0f",c->pV->Mag());
+				char data[1024];
+				jprintf(data,sizeof(data),"breaker",c->status==BRK_OPEN?"OPEN":(c->status==BRK_CLOSED?"CLOSED":(c->status==BRK_FAULT?"FAULT":"ERROR")),
+					"max",amps,
+					"voltage",volts,
+					"control","None",
+					NULL);
+				jprintf(reply,sizeof(reply),"status","ok","data",data,NULL);
+			}
+			else if ( strcmp(reply,"") == 0 ) // no reply to explain failure -- use general failure reply
+			{
+				jprintf(reply,sizeof(reply),"status","error","data","command rejected",NULL);
 			}
 		}
-		if ( ok )
-		{	
-			char amps[64];
-			sprintf(amps,"%.0f",c->max_amps);
-			char volts[64];
-			sprintf(volts,"%.0f",c->pV->Mag());
-			char data[1024];
-			jprintf(data,sizeof(data),"breaker",c->status==BRK_OPEN?"OPEN":(c->status==BRK_CLOSED?"CLOSED":(c->status==BRK_FAULT?"FAULT":"ERROR")),
-				"max",amps,
-				"voltage",volts,
-				"control","None",
-				NULL);
-			jprintf(reply,sizeof(reply),"status","ok","data",data,NULL);
-		}
-		else if ( strcmp(reply,"") == 0 ) // no reply to explain failure -- use general failure reply
+		size_t rv = strlen(reply);
+		if ( rv >= len )
 		{
-			jprintf(reply,sizeof(reply),"status","error","data","command rejected",NULL);
+			// note this can occur is a closing NULL is missing from the jprintf call
+			error("house_e::smart_breaker(char *buffer='%s', size_t len=%d): reply '%s' is too long for the return buffer",buffer,len,reply);
+			return 0; // return 0 if no return message, non-zero for message
 		}
+		strcpy(buffer,reply);
+		return rv;
 	}
-	size_t rv = strlen(reply);
-	if ( rv >= len )
+	else // copy to buffer
 	{
-		// note this can occur is a closing NULL is missing from the jprintf call
-		error("house_e::smart_breaker(char *buffer='%s', size_t len=%d): reply '%s' is too long for the return buffer",buffer,len,reply);
-		return 0; // return 0 if no return message, non-zero for message
+		return strlen(strcpy(buffer,""))+1;
 	}
-	strcpy(buffer,reply);
-	return rv;
 }
 
 //////////////////////////////////////////////////////////////////////////

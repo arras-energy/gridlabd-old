@@ -488,6 +488,8 @@ PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full=true);
 void object_destroy(OBJECT *obj);
 void object_destroy_all(void);
 
+const char *object_property_to_initial(OBJECT *obj, const char *name, char *buffer, int sz);
+
 #ifdef __cplusplus
 }
 #endif

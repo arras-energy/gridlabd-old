@@ -126,6 +126,7 @@ int transfer_function_add(char *tfname, char *domain, double timestep, double ti
 int transfer_function_constrain(char *tfname, unsigned int64 flags, unsigned int64 nbits, double minimum, double maximum);
 
 TRANSFORM *transform_has_target(void *addr);
+int transform_to_string(char *buffer, int size, TRANSFORM *xform);
 int transform_write(TRANSFORM *xform, FILE *fp);
 int transform_saveall(FILE *fp);
 

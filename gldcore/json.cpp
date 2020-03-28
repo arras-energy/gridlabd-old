@@ -411,11 +411,12 @@ int GldJsonWriter::write_objects(FILE *fp)
 	len += write(",\n\t\"objects\" : {");
 
 	/* scan each object in the model */
+	size_t buffer_size = 5000;
+	char *buffer = (char*)malloc(buffer_size);
 	for ( obj = object_get_first() ; obj != NULL ; obj = obj->next )
 	{
 		PROPERTY *prop;
 		CLASS *pclass;
-		char buffer[1025];
 		if ( obj != object_get_first() )
 			len += write(",");
 		if ( obj->oclass == NULL ) // ignore objects with no defined class
@@ -457,21 +458,31 @@ int GldJsonWriter::write_objects(FILE *fp)
 		{
 			for ( prop = pclass->pmap ; prop!=NULL && prop->oclass == pclass->pmap->oclass; prop = prop->next )
 			{
-				char buffer[1025*5];
+                size_t sz = object_property_getsize(obj,prop)+1;
+                if ( buffer_size < sz )
+                {
+                	buffer = (char*)realloc(buffer,sz);
+                	buffer_size = sz;
+                }
+                sz = buffer_size;
+            	const char *value = NULL;
+
+            	// prepare output value
 				if ( prop->access != PA_PUBLIC )
+				{
 					continue;
+				}
 				else if ( prop->ptype == PT_enduse )
+				{
 					continue;
+				}
 				else if ( prop->ptype == PT_method )
                 {
-                    size_t sz = object_property_getsize(obj,prop);
                     if ( sz > 0 )
                     {
-	                    char *buffer = new char[sz+2];
 	                    strcpy(buffer,"");
-	                    object_property_to_string(obj,prop->name,buffer,sz+1);
+	                    object_property_to_string(obj,prop->name,buffer,sz);
 						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(buffer));
-	                    delete [] buffer;
 	                }
 	                else if ( sz == 0 )
 	                {
@@ -482,13 +493,20 @@ int GldJsonWriter::write_objects(FILE *fp)
 	                	// no output allowed for this property
 	                }
                 }
-                else if ( prop->ptype == PT_double )
+                else if ( prop->ptype == PT_double || prop->ptype == PT_randomvar )
                 {
-                	double *x = object_get_double_quick(obj,prop);
-                	if ( prop->unit )
-						len += write(",\n\t\t\t\"%s\": \"%g %s\"", prop->name, *x, prop->unit->name);
-					else
-						len += write(",\n\t\t\t\"%s\": \"%g\"", prop->name, *x);
+                	if ( global_filesave_options&FSO_INITIAL )
+                	{
+                		value = object_property_to_initial(obj,prop->name, buffer, sizeof(buffer));
+                	}
+                	else
+                	{
+	                	double *x = object_get_double_quick(obj,prop);
+	                	if ( prop->unit )
+							len += write(",\n\t\t\t\"%s\": \"%g %s\"", prop->name, *x, prop->unit->name);
+						else
+							len += write(",\n\t\t\t\"%s\": \"%g\"", prop->name, *x);
+					}
                 }
                 else if ( prop->ptype == PT_complex )
                 {
@@ -500,15 +518,20 @@ int GldJsonWriter::write_objects(FILE *fp)
                 }
                 else
                 {
-					const char *value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
-					if ( value == NULL )
-					{
-						continue; // ignore values that don't convert propertly
-					}
-					if ( (global_filesave_options&FSO_MINIMAL)==FSO_MINIMAL && prop->default_value != NULL && strcmp(value,prop->default_value) == 0 )
-					{
-						continue; // ignore values that are precisely the default value
-					}
+					value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
+				}
+
+				// process output value
+				if ( value == NULL )
+				{
+					continue; // ignore values that don't convert propertly
+				}
+				else if ( (global_filesave_options&FSO_MINIMAL)==FSO_MINIMAL && prop->default_value != NULL && strcmp(value,prop->default_value) == 0 )
+				{
+					continue; // ignore values that are precisely the default value
+				}
+				else
+				{
 					int size = strlen(value);
 					// TODO: proper JSON formatted is needed for data that is either a dict or a list
 					// if ( value[0] == '{' && value[len] == '}')
@@ -529,6 +552,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		}
 		len += write("\n\t\t}");
 	}
+	if ( buffer ) free(buffer);
 
 	len += write("\n\t}");
 	IN_MYCONTEXT output_debug("GldJsonWriter::objects() wrote %d bytes",len);

@@ -765,6 +765,7 @@ typedef enum
 	FSO_CLOCK		= 0x0100,
 	FSO_ALL         = 0x01ff,
 	FSO_MINIMAL		= 0x8000,
+	FSO_INITIAL     = 0xa1ff,
 } FILESAVEOPTIONS;
 
 /* Variable:  */
