@@ -1496,11 +1496,12 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 		return NULL;
 	}
 	void *addr = GETADDR(obj,prop); /* warning: cast from pointer to integer of different size */
+	PROPERTYSPEC *spec = property_getspec(prop->ptype);
 	if ( prop->ptype == PT_delegated )
 	{
 		return prop->delegation->to_string(addr,buffer,sz) ? buffer : NULL;
 	}
-	else if ( class_property_to_string(prop,addr,buffer,sz) >= 0 )
+	else if ( spec->data_to_string(buffer,sz,addr,prop) >= 0 )
 	{
 		return buffer;
 	}
@@ -1526,7 +1527,7 @@ const char *object_property_to_initial(OBJECT *obj, const char *name, char *buff
 	PROPERTYSPEC *spec = property_getspec(prop->ptype);
 	if ( spec->to_initial == NULL )
 	{
-		if ( class_property_to_string(prop,addr,buffer,sz) >= 0 )
+		if ( spec->data_to_string(buffer,sz,addr,prop) >= 0 )
 		{
 			return buffer;
 		}
