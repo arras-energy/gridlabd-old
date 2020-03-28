@@ -493,7 +493,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 	                	// no output allowed for this property
 	                }
                 }
-                else if ( prop->ptype == PT_double || prop->ptype == PT_randomvar )
+                else if ( prop->ptype == PT_double )
                 {
                 	if ( global_filesave_options&FSO_INITIAL )
                 	{
