@@ -1,11 +1,17 @@
-#ifndef SAVEFILE
+// File: test_json_conversion.glm
+//
+// This autotest verifies that a GLM converted to JSON and back to GLM 
+// produces the same output as the original GLM
+//
 
-#exec gridlabd -D SAVEFILE=waterheater_1.csv waterheater.glm
+#ifndef SAVEFILE // main run does not specify SAVEFILE
+
+#exec gridlabd -D SAVEFILE=waterheater_1.csv test_json_conversion.glm
 #exec gridlabd -D SAVEFILE=waterheater_2.csv test_json_conversion.glm -o test_json_conversion_save.json 
 #exec gridlabd test_json_conversion_save.json 
 #exec diff -wq waterheater_1.csv waterheater_2.csv
 
-#else
+#else // simulation run specifies SAVEFILE
 
 #define STARTTIME="2020-01-01 00:00:00"
 #define STOPTIME="2020-01-02 00:00:00"
@@ -64,4 +70,5 @@ object house {
 			};//RECORDER
 		}; //WH
 	}; //House
-#endif
+
+#endif // SAVEFILE
