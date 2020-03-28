@@ -55,7 +55,7 @@ int main
 		{
 			return_code = my_instance->mainloop(argc,argv);
 			int rc = my_instance->run_on_exit();
-			if ( return_code != 0 )
+			if ( rc != 0 )
 				return_code = rc;
 		}
 	}
@@ -403,6 +403,7 @@ int GldMain::run_on_exit()
 		if ( rc != 0 )
 		{
 			output_error("on_exit call failed (return code %d)", rc);
+			exec.setexitcode(XC_RUNERR);
 			return XC_RUNERR;
 		}
 		else
