@@ -207,6 +207,10 @@ private:
 
 	DEPENDENCY_TREE dependency_tree;
 
+	const char *last_term;
+	char *last_term_buffer;
+	size_t last_term_buffer_size;
+
 private:
 
 	void syntax_error(const char *filename, const int linenum, const char *format, ...);
@@ -365,6 +369,10 @@ private:
 	STATUS load_python(const char *filename);
 	STATUS loadall(const char *fname);
 	void add_depend(const char *filename, const char *dependency);
+	void clear_last_term(void);
+	void set_last_term(const char *p);
+	void save_last_term(const char *p);
+	const char *get_last_term(void);
 };
 
 #endif

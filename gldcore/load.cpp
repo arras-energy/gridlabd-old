@@ -78,10 +78,14 @@ GldLoader::GldLoader(GldMain *main)
 	};
 	language_list = builtin_languages;
 	language = NULL;
+	last_term = NULL;
+	last_term_buffer = NULL;
+	last_term_buffer_size = 1024;
 }
 
 GldLoader::~GldLoader(void)
 {
+	if ( last_term_buffer ) free(last_term_buffer);
 	// TODO: cleanup other allocated items
 }
 
@@ -1032,12 +1036,44 @@ STATUS GldLoader::load_resolve_all(void)
 	return result;
 }
 
+void GldLoader::clear_last_term(void)
+{
+	last_term = NULL;
+}
+
+void GldLoader::set_last_term(const char *p)
+{
+	last_term = p;
+}
+
+void GldLoader::save_last_term(const char *p)
+{
+	if ( last_term != NULL )
+	{
+		size_t len = p-last_term+1;
+		if ( len < last_term_buffer_size || last_term_buffer == NULL )
+		{
+			last_term_buffer = (char*)realloc(last_term_buffer,len);
+			last_term_buffer_size = len;
+		}
+		strncpy(last_term_buffer,last_term,len);
+		last_term_buffer[len] = '\0';
+	}
+}
+
+const char *GldLoader::get_last_term()
+{
+	return last_term ? last_term_buffer : NULL;
+}
+
 void GldLoader::start_parse(int &mm, int &m, int &n, int &l, int linenum)
 {
 	mm = m = n = l = 0;
 	l = linenum;
 }
-#define START int _mm, _m, _n, _l; start_parse(_mm,_m,_n,_l,linenum);
+
+#define START int _mm, _m, _n, _l; start_parse(_mm,_m,_n,_l,linenum); 
+#define MARK true // (set_last_term(HERE),true)
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
 #define OR {_m=0;}
@@ -1046,7 +1082,9 @@ void GldLoader::start_parse(int &mm, int &m, int &n, int &l, int linenum)
 #define LITERAL(X) (_mm=literal(HERE,(X)),_m+=_mm,_mm>0)
 #define PEEK(C) (_p[_m]==(C))
 #define TERM(X) (_mm=(X),_m+=_mm,_mm>0)
+#define MARKTERM(X) TERM(X) // (set_last_term(HERE),TERM(X))
 #define COPY(X) {size--; (X)[_n++]=*_p++;}
+#define SAVETERM // save_last_term(HERE);
 #define DONE return _n;
 #define BEGIN_REPEAT {const char *__p=_p; int __mm=_mm, __m=_m, __n=_n, __l=_l; int __ln=linenum;
 #define REPEAT _p=__p;_m=__m; _mm=__mm; _n=__n; _l=__l; linenum=__ln;
@@ -3895,13 +3933,24 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 	UNIT *unit=NULL;
 	OBJECT *subobj=NULL;
 	START;
-	if WHITE ACCEPT;
-	if TERM(line_spec(HERE)) {ACCEPT;}
-	if WHITE ACCEPT;
-	if TERM(object_block(HERE,obj,&subobj)) 
+	if WHITE 
+	{
+		ACCEPT;
+	}
+	if ( TERM(line_spec(HERE)) ) 
+	{
+		ACCEPT;
+	}
+	if WHITE 
+	{
+		ACCEPT;
+	}
+	if ( TERM(object_block(HERE,obj,&subobj)) )
 	{		
-		if (WHITE,LITERAL(";"))
-		{	ACCEPT;}
+		if ( WHITE,LITERAL(";") )
+		{	
+			ACCEPT;
+		}
 		else
 		{
 			syntax_error(filename,linenum,"missing ; at end of nested object block",propname);
@@ -3909,15 +3958,16 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 		}
 			
 	}
-	else if (TERM(dotted_name(HERE,propname,sizeof(propname))) && WHITE)
+	else if ( TERM(dotted_name(HERE,propname,sizeof(propname))) && WHITE )
 	{
 		LOADMETHOD *method = class_get_loadmethod(obj->oclass,propname);
-		if ( method!=NULL )
+		if ( method != NULL )
 		{
-			if ( TERM(value(HERE,propval,sizeof(propval))) )
+			if ( MARKTERM(value(HERE,propval,sizeof(propval))) )
 			{
 				if ( method->call(obj,propval)==1 )
 				{
+					SAVETERM;
 					ACCEPT;
 				}
 				else
@@ -3932,8 +3982,9 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				REJECT;
 			}
 		}
-		else if (TERM(json_block(HERE,obj,propname)))
+		else if ( MARKTERM(json_block(HERE,obj,propname)) )
 		{
+			SAVETERM;
 			ACCEPT;
 		}
 		else {
@@ -3943,19 +3994,23 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 			current_module = obj->oclass->module; /* module context */
 			char targetprop[1024];
 			char targetvalue[1024];
-			if (prop!=NULL && prop->ptype==PT_object && TERM(object_block(HERE,NULL,&subobj)))
+			if ( prop!=NULL && prop->ptype == PT_object && MARKTERM(object_block(HERE,NULL,&subobj)) )
 			{
 				char objname[64];
 				if (subobj->name) strcpy(objname,subobj->name); else sprintf(objname,"%s:%d", subobj->oclass->name,subobj->id);
 				if (object_set_value_by_name(obj,propname,objname))
+				{
+					SAVETERM;
 					ACCEPT
+				}
 				else
 				{
 					syntax_error(filename,linenum,"unable to link subobject to property '%s'",propname);
 					REJECT;
 				}
 			}
-			else if ( prop==NULL && strcmp(propname,"parent")==0
+			else if ( prop == NULL && strcmp(propname,"parent")==0
+					&& MARK
 					&& (WHITE,LITERAL("childless")) && (WHITE,LITERAL(":"))
 					&& (WHITE,TERM(name(HERE,targetprop,sizeof(targetprop))))
 					&& (WHITE,LITERAL("="))
@@ -3978,10 +4033,11 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				else
 				{
+					SAVETERM;
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && LITERAL("inherit"))
+			else if ( prop != NULL && LITERAL("inherit") )
 			{
 				char value[1024];
 				if ( obj->parent==NULL )
@@ -3999,8 +4055,10 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					syntax_error(filename,linenum,"unable to set value of inherit property '%s'", propname);
 					REJECT;
 				}
+				// DPC 3/28/20: is SAVE/ACCEPT needed here?
 			}
-			else if (prop!=NULL && prop->ptype==PT_complex && TERM(complex_unit(HERE,&cval,&unit)))
+			else if ( prop != NULL && prop->ptype == PT_complex 
+				&& MARK && TERM(complex_unit(HERE,&cval,&unit)))
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_complex(unit,prop->unit,&cval)==0)
 				{
@@ -4013,9 +4071,13 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 				else
+				{
+					SAVETERM;
 					ACCEPT;
+				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(expression(HERE, &dval, &unit, obj)))
+			else if ( prop != NULL && prop->ptype == PT_double 
+				&& MARK && TERM(expression(HERE, &dval, &unit, obj)))
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 				{
@@ -4028,9 +4090,13 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 				else
+				{
+					SAVETERM;
 					ACCEPT;
+				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_bool && TERM(expression(HERE, &dval, &unit, obj)))
+			else if ( prop != NULL && prop->ptype == PT_bool 
+				&& MARK && TERM(expression(HERE, &dval, &unit, obj)))
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 				{
@@ -4043,9 +4109,13 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 				else
+				{
+					SAVETERM;
 					ACCEPT;
+				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(functional_unit(HERE,&dval,&unit)))
+			else if ( prop != NULL && prop->ptype == PT_double 
+				&& MARK && TERM(functional_unit(HERE,&dval,&unit)) )
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 				{
@@ -4058,20 +4128,28 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 				else
+				{
+					SAVETERM;
 					ACCEPT;
+				}
 			}
-			else if(prop != NULL && is_int(prop->ptype) && TERM(functional_unit(HERE, &dval, &unit))){
+			else if ( prop != NULL && is_int(prop->ptype) 
+				&& MARK && TERM(functional_unit(HERE, &dval, &unit)) )
+			{
 				int64 ival = 0;
 				int16 ival16 = 0;
 				int32 ival32 = 0;
 				int64 ival64 = 0;
 				int rv = 0;
 
-				if(unit != NULL && prop->unit != NULL && strcmp((char *)(unit), "") != 0 && unit_convert_ex(unit, prop->unit, &dval) == 0){
+				if ( unit != NULL && prop->unit != NULL && strcmp((char *)(unit), "") != 0 && unit_convert_ex(unit, prop->unit, &dval) == 0 )
+				{
 					syntax_error(filename,linenum,"units of value are incompatible with units of property, cannot convert from %s to %s", unit->name,prop->unit->name);
 					REJECT;
-				} else {
-					switch(prop->ptype){
+				} 
+				else 
+				{
+					switch ( prop->ptype ) {
 						case PT_int16:
 							ival = ival16 = (int16)dval;
 							rv = object_set_int16_by_name(obj, propname, ival16);
@@ -4088,17 +4166,21 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							output_error("function_int operating on a non-integer (we shouldn't be here)");
 							REJECT;
 					} /* end switch */
-					if(rv == 0){
+					if ( rv == 0 )
+					{
 						syntax_error(filename,linenum,"int property %s of %s %s could not be set to integer '%lld'", propname, format_object(obj).c_str(), ival);
 						REJECT;
-					} else {
+					} 
+					else 
+					{
+						SAVETERM;
 						ACCEPT;
 					}
 				} /* end unit_convert_ex else */
 			}
 			else if (prop!=NULL
-				&& ( ( prop->ptype>=PT_double && prop->ptype<=PT_int64 ) || ( prop->ptype>=PT_bool && prop->ptype<=PT_timestamp ) || ( prop->ptype>=PT_float && prop->ptype<=PT_enduse ) )
-				&& TERM(linear_transform(HERE, &xstype, &source,&scale,&bias,obj)))
+				&& ( ( prop->ptype>=PT_double && prop->ptype<=PT_int64 ) || ( prop->ptype>=PT_bool && prop->ptype<=PT_timestamp ) || ( prop->ptype>=PT_float && prop->ptype<=PT_enduse ) )				
+				&& MARK && TERM(linear_transform(HERE, &xstype, &source,&scale,&bias,obj)))
 			{
 				void *target = (void*)((char*)(obj+1) + (int64)prop->addr);
 
@@ -4116,10 +4198,12 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						/* source was the unresolved entry, for now it will be the transform itself */
 						first_unresolved->ref = (void*)transform_getnext(NULL);
 
+					SAVETERM;
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(filter_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
+			else if (prop!=NULL && prop->ptype==PT_double 
+				&& MARK && TERM(filter_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
@@ -4161,10 +4245,12 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						/* source was the unresolved entry, for now it will be the transform itself */
 						first_unresolved->ref = (void*)transform_getnext(NULL);
 
+					SAVETERM;
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
+			else if (prop!=NULL && prop->ptype==PT_double 
+				&& MARK && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
@@ -4205,10 +4291,11 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						/* source was the unresolved entry, for now it will be the transform itself */
 						first_unresolved->ref = (void*)transform_getnext(NULL);
 
+					SAVETERM;
 					ACCEPT;
 				}
 			}
-			else if TERM(alternate_value(HERE,propval,sizeof(propval)))
+			else if ( MARKTERM(alternate_value(HERE,propval,sizeof(propval))) )
 			{
 				if (prop==NULL)
 				{
@@ -4223,7 +4310,10 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							REJECT;
 						}
 						else
+						{
+							SAVETERM;
 							ACCEPT;
+						}
 					}
 					else if (strcmp(propname,"rank")==0)
 					{
@@ -4233,70 +4323,94 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							REJECT;
 						}
 						else
+						{
+							SAVETERM;
 							ACCEPT;
+						}
 					}
 					else if (strcmp(propname,"clock")==0)
 					{
 						obj->clock = atoi64(propval); // @todo convert_to_timestamp should be used
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"valid_to")==0)
 					{
 						obj->valid_to = atoi64(propval); // @todo convert_to_timestamp should be used
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"schedule_skew")==0)
 					{
 						obj->schedule_skew = atoi64(propval);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"latitude")==0)
 					{
 						obj->latitude = load_latitude(propval);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"longitude")==0)
 					{
 						obj->longitude = load_longitude(propval);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"in")==0 || strcmp(propname,"in_svc")==0)
 					{
 						obj->in_svc = convert_to_timestamp_delta(propval,&obj->in_svc_micro,&obj->in_svc_double);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"out")==0 || strcmp(propname,"out_svc")==0)
 					{
 						obj->out_svc = convert_to_timestamp_delta(propval,&obj->out_svc_micro,&obj->out_svc_double);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"on_init")==0 )
 					{
 						obj->events.init = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_precommit")==0 )
 					{
 						obj->events.precommit = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_presync")==0 )
 					{
 						obj->events.presync = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_sync")==0 )
 					{
 						obj->events.sync = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_postsync")==0 )
 					{
 						obj->events.postsync = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_commit")==0 )
 					{
 						obj->events.commit = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_finalize")==0 )
 					{
 						obj->events.finalize = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"name")==0)
 					{
@@ -4306,11 +4420,15 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							REJECT;
 						}
 						else
+						{
+							SAVETERM;
 							ACCEPT;
+						}
 					}
 					else if ( strcmp(propname,"heartbeat")==0 )
 					{
 						obj->heartbeat = convert_to_timestamp(propval);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"groupid")==0){
@@ -4323,7 +4441,10 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							REJECT;
 						}
 						else
-							ACCEPT;
+						{
+							SAVETERM;
+							ACCEPT;							
+						}
 					}
 					else if (strcmp(propname,"library")==0)
 					{
@@ -4332,8 +4453,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							An attempt to use the <b>library</b> GLM directive was made.  Library directives
 							are not supported yet.
 						 */
-						ACCEPT;
-						DONE;
+						REJECT;
 					}
 					else if ( strcmp(propname,"module")==0 )
 					{
@@ -4341,10 +4461,10 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						{
 							output_error("%s(%d): module '%s' does not match module of class '%s.%s'",filename,linenum,propval,obj->oclass->module->name,obj->oclass->name);
 							REJECT;
-							DONE;
 						}
 						else
 						{
+							SAVETERM;
 							ACCEPT;
 						}
 					}
@@ -4354,10 +4474,10 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						{
 							output_error("%s(%d): guid '%s' is not valid",filename,linenum,propval);
 							REJECT;
-							DONE;
 						}
 						else
 						{
+							SAVETERM;
 							ACCEPT;
 						}
 					}
@@ -4377,6 +4497,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					else
 					{
 						add_unresolved(obj,PT_object,addr,oclass,propval,filename,linenum,UR_NONE);
+						SAVETERM;
 						ACCEPT;
 					}
 				}
@@ -4390,6 +4511,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					}
 					else
 					{
+						SAVETERM;
 						ACCEPT;
 					}
 				}
@@ -4399,7 +4521,9 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					REJECT;
 				}
 				else
+				{
 					ACCEPT; // @todo shouldn't this be REJECT?
+				}
 			}
 		}
 		if WHITE ACCEPT;
@@ -4412,6 +4536,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 	}
 	else if LITERAL("}") {/* don't accept yet */ DONE;}
 	else { syntax_error_here(HERE); REJECT; }
+
 	/* may be repeated */
 	if TERM(object_properties(HERE,oclass,obj))
 	{
