@@ -1,3 +1,14 @@
+#ifndef SAVEFILE
+
+#exec gridlabd -D SAVEFILE=waterheater_1.csv waterheater.glm
+#exec gridlabd -D SAVEFILE=waterheater_2.csv test_json_conversion.glm -o test_json_conversion_save.json 
+#exec gridlabd test_json_conversion_save.json 
+#exec diff -wq waterheater_1.csv waterheater_2.csv
+
+#error stop here
+
+#else
+
 #define STARTTIME="2020-01-01 00:00:00"
 #define STOPTIME="2020-01-02 00:00:00"
 
@@ -49,19 +60,10 @@ object house {
 			power_fraction 0.0;
 			current_fraction 0.0;
 			object recorder {
-#ifndef SECONDRUN
-				file "baseline.csv";
-#else 
-				file "new_run.csv";
-#endif
+				file "${SAVEFILE}";
 				property water_demand;
 				interval 60;
 			};//RECORDER
 		}; //WH
 	}; //House
-
-#ifndef SECONDRUN
-#exec gridlabd -D SECONDRUN test_json_conversion.glm -o test_json_conversion_out.json 
-#else
-#exec gridlabd test_json_conversion_out.json && diff -wq baseline.csv new_run.csv
 #endif
