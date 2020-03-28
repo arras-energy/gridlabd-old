@@ -316,6 +316,13 @@ reconfigure: distclean
 reconfigure-debug: distclean
 	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
 
+docker: $(PREFIX)/docker.img
+
+$(PREFIX)/docker.img: docker/Dockerfile Makefile
+	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_BRANCH) docker
+	mkdir -p $(PREFIX)
+	docker save -o $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest $(PREFIX)/docker.img
+
 system: install
 	$(DESTDIR)$(bindir)/gridlabd version set
 
