@@ -1495,6 +1495,40 @@ int convert_from_method (	char *buffer, /**< a pointer to the string buffer */
 	return rc;
 }
 
+/** The method API must support four queries to module method handlers
+
+		method_call(obj,NULL,0) --> returns the size of buffer needed to hold result
+		method_call(obj,NULL,size) --> returns 1 if size is larger than buffer size needed
+		method_call(obj,buffer,0) --> returns 1 if the buffer can be read into the obj
+		method_call(obj,buffer,size) --> returns 1 if the buffer can be written by the obj
+		method_call(obj,MC_EXTRACT,...)
+ **/
+int initial_from_method (	char *buffer, /**< a pointer to the string buffer */
+							int size, /**< the size of the string buffer */
+							void *data, /**< a pointer to the data that is not changed */
+							PROPERTY *prop) /**< a pointer to keywords that are supported */
+{
+	if ( prop == NULL ) 
+	{
+		output_error("gldcore/initial_from_method(): prop is null"); 
+		return -1; 
+	}
+	OBJECT *obj = (OBJECT*)((char*)data-(int64)(prop->addr))-1;
+	if ( buffer == NULL ) 
+	{ 
+		// special request for size of result
+		return prop->method(obj,NULL,0); 
+	}
+	else if ( prop->method(obj,NULL,0) > size ) 
+	{ 
+		output_error("gldcore/initial_from_method(prop='%s'): result is too large to handle with a buffer of size %d", prop->name, size); 
+		return -1; 
+	}
+	int rc = (prop->method)(obj,buffer,size);
+	IN_MYCONTEXT output_debug("gldcore/initial_from_method(buffer='%s', size=%d, object='%s', prop='%s') -> %d", buffer, size, obj->name?obj->name:"(anon)", prop->name, rc);
+	return rc;
+}
+
 int convert_to_method (	const char *buffer, /**< a pointer to the string buffer that is ignored */
 						void *data, /**< a pointer to the data that is not changed */
 						PROPERTY *prop) /**< a pointer to keywords that are supported */

@@ -157,6 +157,9 @@ DEPRECATED int convert_from_method(char *buffer, int size, void *data, PROPERTY 
 // Function: convert_to_method
 DEPRECATED int convert_to_method(const char *buffer, void *data, PROPERTY *prop);
 
+// Function: initial_from_method
+DEPRECATED int initial_from_method(char *buffer, int size, void *data, PROPERTY *prop);
+
 #ifdef __cplusplus
 }
 #endif

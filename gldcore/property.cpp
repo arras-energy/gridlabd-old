@@ -41,7 +41,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, initial_from_loadshape,loadshape_create,NULL,{TCOPS(double)},},
 	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, initial_from_enduse,enduse_create,NULL,{TCOPS(double)},enduse_get_part,enduse_set_part},
 	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, initial_from_randomvar,randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part},
-	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method},
+	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method,initial_from_method},
 	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, NULL,string_create,NULL,{TCOPS(string)},},
 };
 
