@@ -139,22 +139,26 @@ def convert(ifile,ofile) :
 				obj_id_sorted = sorted(obj_id, key=lambda tup: tup[0])
 				id_list,ordered_obj_list= zip(*obj_id_sorted)
 			for obj_id_sorted in ordered_obj_list : 
-				header_str = '\n' + 'object ' + data['objects'][obj_id_sorted]["class"] + '{'
+				classname = data['objects'][obj_id_sorted]["class"]
+				header_str = f"\nobject {classname} " + "{"
 				fw.write(header_str)
 				if ':' in obj_id_sorted : 
-					new_name = data['objects'][obj_id_sorted]['class']+'_'+data['objects'][obj_id_sorted]['id']
+					object_id = data['objects'][obj_id_sorted]['id']
+					new_name = f"{classname}_{object_id}"
 				else :
 					new_name = obj_id_sorted 
-				name_str = '\n' + '\t' + "name \"" + new_name + '\";'
+				name_str = f"\n\tname \"{new_name}\";" 
 				fw.write(name_str)
 				for v_id, v_info in data['objects'][obj_id_sorted].items() : 
-					if v_id not in objects_ignore and v_info:  
+					if v_id not in objects_ignore and v_info:
+						v_str = v_info.replace('"', '\\\"')
 						if "\n" in v_info :
-							val_str = "\n"+ "\t" + v_id+ " " + '\"\"\"' + v_info.replace('"', '\\\"') + '\"\"\";'
+							var_str = f"\n\t{v_id} \"\"\"{v_str}\"\"\";"
 						else : 
-							val_str = "\n"+"\t" + v_id + " " + "\"" + v_info.replace('"', '\\\"') + "\";"
+							val_str = f"\n\t{v_id} \"{v_str}\";"
 						fw.write(val_str)
 				fw.write('\n}' )
+		fw.write('\n')
 
 if __name__ == '__main__':
 	main()

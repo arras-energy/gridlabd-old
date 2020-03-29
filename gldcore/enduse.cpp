@@ -438,6 +438,11 @@ int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 	return len;
 }
 
+int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop)
+{
+	return 0;
+}
+
 int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefix)
 {
 	enduse *my=NULL; // temporary enduse structure used for mapping variables

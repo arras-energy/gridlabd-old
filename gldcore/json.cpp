@@ -416,7 +416,6 @@ int GldJsonWriter::write_objects(FILE *fp)
 	for ( obj = object_get_first() ; obj != NULL ; obj = obj->next )
 	{
 		PROPERTY *prop;
-		CLASS *pclass;
 		if ( obj != object_get_first() )
 			len += write(",");
 		if ( obj->oclass == NULL ) // ignore objects with no defined class
@@ -447,106 +446,105 @@ int GldJsonWriter::write_objects(FILE *fp)
 		if ( convert_from_timestamp(obj->clock,buffer,sizeof(buffer)) )
 			TUPLE("clock","%s",buffer);
 		if ( obj->valid_to > TS_ZERO && obj->valid_to < TS_NEVER ) TUPLE("valid_to","%llu",(int64)(obj->valid_to));
-		TUPLE("schedule_skew","%llu",obj->schedule_skew);
+		if ( obj->schedule_skew != 0 ) TUPLE("schedule_skew","%llu",obj->schedule_skew);
 		if ( obj->in_svc > TS_ZERO && obj->in_svc < TS_NEVER ) TUPLE("in","%llu",(int64)(obj->in_svc));
 		if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) TUPLE("out","%llu",(int64)(obj->out_svc));
 		TUPLE("rng_state","%llu",(int64)(obj->rng_state));
-		TUPLE("heartbeat","%llu",(int64)(obj->heartbeat));
+		if ( obj->heartbeat != 0 ) TUPLE("heartbeat","%llu",(int64)(obj->heartbeat));
 		(len += write(",\n\t\t\t\"%s\" : \"%llX%llX\"","guid",(int64)(obj->guid[0]),(int64)(obj->guid[1])));
 		TUPLE("flags","0x%llx",(int64)(obj->flags));
-		for ( pclass = obj->oclass ; pclass != NULL ; pclass = pclass->parent )
+		for ( prop = object_get_first_property(obj) ; prop != NULL ; prop = object_get_next_property(prop) )
 		{
-			for ( prop = pclass->pmap ; prop!=NULL && prop->oclass == pclass->pmap->oclass; prop = prop->next )
-			{
-                size_t sz = object_property_getsize(obj,prop)+1;
-                if ( buffer_size < sz )
-                {
-                	buffer = (char*)realloc(buffer,sz);
-                	buffer_size = sz;
-                }
-                sz = buffer_size;
-            	const char *value = NULL;
+            size_t sz = object_property_getsize(obj,prop)+1;
+            if ( buffer_size < sz )
+            {
+            	buffer = (char*)realloc(buffer,sz);
+            	buffer_size = sz;
+            }
+            sz = buffer_size;
+        	const char *value = NULL;
 
-            	// prepare output value
-				if ( prop->access != PA_PUBLIC )
-				{
-					continue;
-				}
-				else if ( prop->ptype == PT_enduse )
-				{
-					continue;
-				}
-				else if ( prop->ptype == PT_method )
+        	// prepare output value
+			if ( prop->access != PA_PUBLIC )
+			{
+				continue; // ignore private values
+			}
+        	else if ( (global_filesave_options&FSO_INITIAL) == FSO_INITIAL )
+        	{
+        		// initialization value is desired
+        		value = object_property_to_initial(obj,prop->name, buffer, sizeof(buffer));
+        	}
+			else if ( prop->ptype == PT_enduse )
+			{
+				// ignore enduse values
+				continue;
+			}
+			else if ( prop->ptype == PT_method )
+            {
+            	// special handling required for methods
+                if ( sz > 0 )
                 {
-                    if ( sz > 0 )
-                    {
-	                    strcpy(buffer,"");
-	                    object_property_to_string(obj,prop->name,buffer,sz);
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(buffer));
-	                }
-	                else if ( sz == 0 )
-	                {
-						len += write(",\n\t\t\t\"%s\": \"\"", prop->name);
-	                }
-	                else
-	                {
-	                	// no output allowed for this property
-	                }
+                    strcpy(buffer,"");
+                    object_property_to_string(obj,prop->name,buffer,sz);
+					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(buffer));
                 }
-                else if ( prop->ptype == PT_double )
+                else if ( sz == 0 )
                 {
-                	if ( global_filesave_options&FSO_INITIAL )
-                	{
-                		value = object_property_to_initial(obj,prop->name, buffer, sizeof(buffer));
-                	}
-                	else
-                	{
-	                	double *x = object_get_double_quick(obj,prop);
-	                	if ( prop->unit )
-							len += write(",\n\t\t\t\"%s\": \"%g %s\"", prop->name, *x, prop->unit->name);
-						else
-							len += write(",\n\t\t\t\"%s\": \"%g\"", prop->name, *x);
-					}
-                }
-                else if ( prop->ptype == PT_complex )
-                {
-					complex *c = object_get_complex_quick(obj,prop);
-					if ( prop->unit )
-						len += write(",\n\t\t\t\"%s\": \"%g%+gj %s\"", prop->name, c->Re(), c->Im(), prop->unit->name);
-					else
-						len += write(",\n\t\t\t\"%s\": \"%g%+gj\"", prop->name, c->Re(), c->Im());
+					len += write(",\n\t\t\t\"%s\": \"\"", prop->name);
                 }
                 else
                 {
-					value = object_property_to_string(obj,prop->name, buffer, sizeof(buffer));
-				}
+                	// no output allowed for this property
+                }
+            }
+            else if ( prop->ptype == PT_double )
+            {
+            	double *x = object_get_double_quick(obj,prop);
+            	if ( prop->unit )
+					len += write(",\n\t\t\t\"%s\": \"%g %s\"", prop->name, *x, prop->unit->name);
+				else
+					len += write(",\n\t\t\t\"%s\": \"%g\"", prop->name, *x);
+            }
+            else if ( prop->ptype == PT_complex )
+            {
+				complex *c = object_get_complex_quick(obj,prop);
+				if ( prop->unit )
+					len += write(",\n\t\t\t\"%s\": \"%g%+gj %s\"", prop->name, c->Re(), c->Im(), prop->unit->name);
+				else
+					len += write(",\n\t\t\t\"%s\": \"%g%+gj\"", prop->name, c->Re(), c->Im());
+            }
+            else
+            {
+				value = object_property_to_string(obj, prop->name, buffer, sizeof(buffer));
+			}
 
-				// process output value
-				if ( value == NULL )
+			// process output value
+			if ( value == NULL )
+			{
+				continue; // ignore values that don't convert propertly
+			}
+			else if ( (global_filesave_options&FSO_MINIMAL) == FSO_MINIMAL 
+					&& prop->default_value != NULL 
+					&& strcmp(value,prop->default_value) == 0 )
+			{
+				continue; // ignore values that are precisely the default value
+			}
+			else
+			{
+				int size = strlen(value);
+				// TODO: proper JSON formatted is needed for data that is either a dict or a list
+				// if ( value[0] == '{' && value[len] == '}')
+				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+				// else if ( value[0] == '[' && value[len] == ']')
+				// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
+				// else 
+				if ( value[0] == '"' && value[size-1] == '"')
 				{
-					continue; // ignore values that don't convert propertly
-				}
-				else if ( (global_filesave_options&FSO_MINIMAL)==FSO_MINIMAL && prop->default_value != NULL && strcmp(value,prop->default_value) == 0 )
-				{
-					continue; // ignore values that are precisely the default value
+					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,size-2));
 				}
 				else
 				{
-					int size = strlen(value);
-					// TODO: proper JSON formatted is needed for data that is either a dict or a list
-					// if ( value[0] == '{' && value[len] == '}')
-					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-					// else if ( value[0] == '[' && value[len] == ']')
-					// 	len += write(",\n\t\t\t\"%s\" : %s", prop->name, value);
-					// else 
-					if ( value[0] == '"' && value[size-1] == '"')
-					{
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value+1,size-2));
-					}
-					else
-					{
-						len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,size));
-					}
+					len += write(",\n\t\t\t\"%s\": \"%s\"", prop->name, escape(value,size));
 				}
 			}
 		}

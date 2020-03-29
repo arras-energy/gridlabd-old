@@ -1496,12 +1496,11 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 		return NULL;
 	}
 	void *addr = GETADDR(obj,prop); /* warning: cast from pointer to integer of different size */
-	PROPERTYSPEC *spec = property_getspec(prop->ptype);
 	if ( prop->ptype == PT_delegated )
 	{
 		return prop->delegation->to_string(addr,buffer,sz) ? buffer : NULL;
 	}
-	else if ( spec->data_to_string(buffer,sz,addr,prop) >= 0 )
+	else if ( property_write(prop,addr,buffer,sz) >= 0 )
 	{
 		return buffer;
 	}
@@ -1527,8 +1526,11 @@ const char *object_property_to_initial(OBJECT *obj, const char *name, char *buff
 	PROPERTYSPEC *spec = property_getspec(prop->ptype);
 	if ( spec->to_initial == NULL )
 	{
-		if ( spec->data_to_string(buffer,sz,addr,prop) >= 0 )
+		int len = property_write(prop,addr,buffer,sz);
+		if ( len >= 0 )
 		{
+			buffer[len] = '\0';
+			// output_debug("current value of '%s:%d.%s' is '%s'", obj->oclass->name, obj->id, prop->name, buffer);
 			return buffer;
 		}
 		else
@@ -1538,15 +1540,21 @@ const char *object_property_to_initial(OBJECT *obj, const char *name, char *buff
 			return "";
 		}	
 	}
-	else if ( spec->to_initial(buffer,sz,addr,prop) >= 0 )
+	else 
 	{
-		return buffer;
-	}
-	else
-	{
-		output_error("gldcore/object.c:object_property_to_initial(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property initialization into buffer",
-			obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
-		return "";
+		int len = spec->to_initial(buffer,sz,addr,prop);
+		if ( len >= 0 )
+		{
+			buffer[len] = '\0';
+			// output_debug("initial value of '%s:%d.%s' is '%s'", obj->oclass->name, obj->id, prop->name, buffer);
+			return buffer;
+		}
+		else
+		{
+			output_error("gldcore/object.c:object_property_to_initial(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property initialization into buffer",
+				obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
+			return "";
+		}
 	}
 }
 

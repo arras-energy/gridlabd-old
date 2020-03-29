@@ -1176,6 +1176,17 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 	}
 	return 1;
 } 
+
+int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
+{
+	loadshape *ls = (loadshape*)data;
+	if ( ls->type == MT_UNKNOWN )
+	{
+		return 0;
+	}
+	return convert_from_loadshape(string,size,data,prop);
+}
+
 int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 {
 	loadshape *ls = (loadshape*)data;

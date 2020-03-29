@@ -179,6 +179,8 @@ DEPRECATED static KEYWORD fso_keys[] = {
 	{"SCRIPTS",		FSO_SCRIPTS,	fso_keys+9},
 	{"CLOCK",		FSO_CLOCK,		fso_keys+10},
 	{"INITIAL",     FSO_INITIAL,    fso_keys+11},
+	{"ALLINITIAL",	FSO_ALLINITIAL,	fso_keys+12},
+	{"ALLMINIMAL",	FSO_ALLMINIMAL,	fso_keys+13},
 	{"MINIMAL",		FSO_MINIMAL,	NULL},
 };
 
