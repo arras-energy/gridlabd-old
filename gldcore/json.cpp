@@ -472,7 +472,7 @@ int GldJsonWriter::write_objects(FILE *fp)
         	else if ( (global_filesave_options&FSO_INITIAL) == FSO_INITIAL )
         	{
         		// initialization value is desired
-        		value = object_property_to_initial(obj,prop->name, buffer, sizeof(buffer));
+        		value = object_property_to_initial(obj,prop->name, buffer, buffer_size);
         	}
 			else if ( prop->ptype == PT_enduse )
 			{
