@@ -517,17 +517,23 @@ EXPORT int method_recorder_property(OBJECT *obj, ...)
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	va_list args;
 	va_start(args,obj);
-	void *arg0 = va_arg(args,void*);
-
-	// legacy calls
-	char *value = (char*)arg0;
+	char *value = va_arg(args,char*);
 	size_t size = va_arg(args,size_t);
 	if ( value == NULL ) // check size needed to hold result
 	{
+		if ( my->property == NULL )
+		{
+			return 0;
+		}
+		size_t len = strlen(my->property)+1;
 		if ( size == 0 )
-			return my->property?strlen(my->property)+1:0;
+		{
+			return len;
+		}
 		else
-			return (my->property?strlen(my->property)+1:0) < size;
+		{
+			return len < size ? 0 : len;
+		}
 	}
 	else if ( size == 0 ) // copy from data
 	{
@@ -558,7 +564,8 @@ EXPORT int method_recorder_property(OBJECT *obj, ...)
 		if ( size > strlen(my->property) )
 		{
 			strcpy(value,my->property);
-			return strlen(my->property);
+			size_t len = strlen(my->property);
+			return len;
 		}
 		else
 		{
