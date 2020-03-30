@@ -73,7 +73,7 @@ def convert(ifile,ofile) :
 		# modules
 		fw.write('\n // MODULES') 
 		for p_id, p_info in data['modules'].items() : 
-			tmp_str = '\n' + 'module ' + p_id + '{'
+			tmp_str = '\n' + 'module ' + p_id + '\n{'
 			fw.write(tmp_str)
 			for f_id, f_info in data['globals'].items() : 
 				if p_id in f_id and '::' in f_id and f_info['access'] == "PUBLIC" and f_info['value']: 
@@ -115,7 +115,7 @@ def convert(ifile,ofile) :
 			val_str = ''
 			for v_id, v_info in data['classes'][p_id].items() :
 				if 'flags' in v_info and 'EXTENDED' in v_info['flags']:
-					header_str = '\n' + 'class ' + p_id + ' {'
+					header_str = '\n' + 'class ' + p_id + '\n{'
 					val_str = val_str + "\n" + "\t" + v_info['type'] + " " + v_id + ';'
 			if header_str : 
 				fw.write(header_str)
@@ -125,7 +125,7 @@ def convert(ifile,ofile) :
 		# schedules
 		fw.write('\n // SCHEDULES')
 		for p_id, p_info in data['schedules'].items() : 
-			header_str = '\n' + 'schedule ' + p_id + '{'
+			header_str = '\n' + 'schedule ' + p_id + '\n{'
 			fw.write(header_str)
 			fw.write(p_info)
 			fw.write('\n}' )
@@ -140,7 +140,7 @@ def convert(ifile,ofile) :
 				id_list,ordered_obj_list= zip(*obj_id_sorted)
 			for obj_id_sorted in ordered_obj_list : 
 				classname = data['objects'][obj_id_sorted]["class"]
-				header_str = f"\nobject {classname} " + "{"
+				header_str = f"\nobject {classname} " + "\n{"
 				fw.write(header_str)
 				if ':' in obj_id_sorted : 
 					object_id = data['objects'][obj_id_sorted]['id']

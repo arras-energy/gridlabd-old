@@ -584,6 +584,18 @@ TRANSFORM *transform_has_target(void *addr)
 	return NULL;
 }
 
+TRANSFORM *transform_find(OBJECT *obj, PROPERTY *prop)
+{
+	for ( TRANSFORM *xform = transform_getnext(NULL) ; xform != NULL ; xform = transform_getnext(xform) )
+	{
+		if ( xform->target_obj == obj && xform->target_prop == prop )
+		{
+			return xform;
+		}
+	}
+	return NULL;
+}
+
 int transform_to_string(char *buffer, int size, TRANSFORM *xform)
 {
 	int count = 0;

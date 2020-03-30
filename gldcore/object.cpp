@@ -3227,12 +3227,20 @@ bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
 	return true;
 }
 
-OBJECT *object_find_by_addr(void *addr)
+OBJECT *object_find_by_addr(void *addr, PROPERTY *prop)
 {
-	for ( OBJECT *obj = first_object ; obj != NULL ; obj = obj->next )
+	static OBJECT *last_object = NULL; // caching last found
+	for ( OBJECT *obj = last_object ? last_object : first_object ; obj != NULL ; obj = obj->next )
 	{
-		if ( addr >= obj && addr < (char*)(((OBJECT*)addr)+1)+obj->oclass->size )
+		if ( addr >= obj && addr < (char*)(((OBJECT*)obj)+1)+obj->oclass->size )
+		{
+			last_object = obj;
 			return obj;
+		}
+		if ( obj->next == NULL && last_object )
+		{
+			obj = first_object;
+		}
 	}
 	return NULL;
 }

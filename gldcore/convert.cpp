@@ -129,22 +129,67 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 		return strcspn(buffer+4," \t\n");
 	}
 	char unit[256];
-	int n = sscanf(buffer,"%lg%s",(double*)data,unit);
-	if ( n>1 && prop->unit!=NULL ) /* unit given and unit allowed */
+	int n = sscanf(buffer,"%lg%[^ \t\n]",(double*)data,unit);
+	if ( n == 1 )
 	{
-		UNIT *from = unit_find(unit);
-		if ( from != prop->unit && unit_convert_ex(from,prop->unit,(double*)data)==0)
+		return n;
+	}
+	else if ( n == 2 )
+	{ 
+		if ( prop->unit == NULL ) 
 		{
-			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit conversion failed", buffer, sizeof(void*), data, prop->name);
+			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit given to unitless property", buffer, sizeof(void*), data, prop->name);
 			/* TROUBLESHOOT 
-			   This error is caused by an attempt to convert a value from a unit that is
-			   incompatible with the unit of the target property.  Check your units and
-			   try again.
+			   This error is caused by an attempt to convert a value with units to a 
+			   target property that has no units.  Check your units and try again.
 		     */
 			return 0;
 		}
+		else
+		{
+			UNIT *from = unit_find(unit);
+			if ( from != prop->unit && unit_convert_ex(from,prop->unit,(double*)data)==0)
+			{
+				output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit conversion failed", buffer, sizeof(void*), data, prop->name);
+				/* TROUBLESHOOT 
+				   This error is caused by an attempt to convert a value from a unit that is
+				   incompatible with the unit of the target property.  Check your units and
+				   try again.
+			     */
+				return 0;
+			}
+			else
+			{
+				return 2;
+			}
+		}
 	}
-	return n;
+	else if ( n == 0 ) // simple parsing failed, try transforms
+	{
+		TRANSFORMSOURCE xstype;
+		void *source;
+		double scale, bias;
+		OBJECT *from = object_find_by_addr(data, prop);
+		if ( my_instance->get_loader()->linear_transform(buffer,&xstype,&source,&scale,&bias,from) <= 0)
+		{
+			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): cannot parse transform", buffer, sizeof(void*), data, prop->name);
+			return 0;
+		}
+		else if ( ! transform_add_linear(xstype,(double*)source,data,scale,bias,from,prop,(xstype == XS_SCHEDULE ? (SCHEDULE*)source : 0)) )
+		{
+			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): cannot parse transform", buffer, sizeof(void*), data, prop->name);
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+	else
+	{
+		output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): internal error", buffer, sizeof(void*), data, prop->name);
+		return 0;
+	}
 }
 
 /** Convert to initial
@@ -155,16 +200,18 @@ int initial_from_double(char *buffer,
                        void *data,
                        PROPERTY *prop)
 {
-	OBJECT *obj = (OBJECT*)data;
-	// TODO: check transforms, schedules, etc for this value as a target
-	for ( TRANSFORM *xform = transform_getnext(NULL) ; xform != NULL ; xform = transform_getnext(xform) )
-	{
-		if ( xform->target_obj == obj && xform->target_prop == prop )
-		{
-			return transform_to_string(buffer,size,xform);
-		}
+	OBJECT *obj = object_find_by_addr(data,prop);
+	TRANSFORM *xform = transform_find(obj,prop);
+	if ( xform != NULL )
+	{	
+		// found a transform for this property
+		return transform_to_string(buffer,size,xform);		
 	}
-	return convert_from_double(buffer,size,data,prop);
+	// TODO: check transforms, schedules, etc for this value as a target
+	else
+	{
+		return convert_from_double(buffer,size,data,prop);
+	}
 }
 
 /** Convert from a complex

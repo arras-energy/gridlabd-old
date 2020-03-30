@@ -75,7 +75,7 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 		gl_set_parent(*obj,parent);
 		strcpy(my->file,"");
 		strcpy(my->multifile,"");
-		strcpy(my->filetype,"txt");
+		strcpy(my->filetype,"csv");
 		strcpy(my->mode, "file");
 		strcpy(my->delim,",");
 		my->interval = -1; /* transients only */
@@ -124,10 +124,23 @@ static int recorder_open(OBJECT *obj)
 	}
 
 	/* if no filename given */
-	if (strcmp(fname,"")==0)
+	if ( strcmp(my->file,"") == 0 )
+	{	
 
 		/* use object name-id as default file name */
-		sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)my->filetype);
+		if ( obj->parent->name == NULL )
+		{
+			sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)my->filetype);
+		}
+		else
+		{
+			sprintf(fname,"%s.%s",obj->parent->name, (char*)my->filetype);
+		}
+	}
+	else
+	{
+		strcpy(fname,my->file);
+	}
 
 	/* open multiple-run input file & temp output file */
 	if(my->type == FT_FILE && my->multifile[0] != 0){

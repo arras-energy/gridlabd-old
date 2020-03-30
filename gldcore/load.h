@@ -306,7 +306,9 @@ private:
 	int transform_source(PARSER, TRANSFORMSOURCE *xstype, void **source, OBJECT *from);
 	int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *filtername, size_t namesize, OBJECT *from);
 	int external_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *functionname, size_t namesize, OBJECT *from);
+public:
 	int linear_transform(PARSER, TRANSFORMSOURCE *xstype, void **source, double *scale, double *bias, OBJECT *from);
+private:
 	void json_free(JSONDATA **data);
 	bool json_append(JSONDATA **data, const char *name, size_t namelen, const char *value, size_t valuelen);
 	int json_data(PARSER,JSONDATA **data);
