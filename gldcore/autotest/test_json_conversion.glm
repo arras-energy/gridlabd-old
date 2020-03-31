@@ -22,62 +22,71 @@
 
 #else // simulation run specifies SAVEFILE
 
-#define STARTTIME="2020-01-01 00:00:00"
-#define STOPTIME="2020-01-02 00:00:00"
+#define STARTTIME="2020-01-01 00:00:00 EST"
+#define STOPTIME="2020-01-02 00:00:00 EST"
 
-#set randomseed=7
 clock {
 	timezone EST+5EDT;
 	starttime ${STARTTIME};
 	stoptime ${STOPTIME};
-};
+}
 
 module climate;
-
-object climate {
-  name TX_Houston;
-  tmyfile "../WA-Yakima.tmy3";
-  interpolate QUADRATIC;
-};
-
 module residential;
 module tape 
 {
 	csv_data_only 1;
 }
+
+#set randomseed=7
+
 class waterheater
 {
 	loadshape wh_shape;
 	char1024 supernode_name;
 }
 
-schedule waterheater_demand_prob {
+schedule waterheater_demand_prob 
+{
 	* 5-21 * * * 0.99;
 	* 22-4 * * * 0.01;
 }
 
-object house {
-		name "house_1";
-		floor_area random.triangle(1000,1500);
-		cooling_setpoint 76 degF;
-		heating_setpoint 65 degF;
-		hvac_power_factor 0.75;
-		object waterheater {
-			name "waterheater_1";
-			wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
-			tank_setpoint 130;
-			water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules
-			heating_element_capacity 4500 W;
-			tank_volume 50 gal;
-			power_factor 1.0;
-			power_fraction 0.0;
-			current_fraction 0.0;
-			object recorder {
-				file "${SAVEFILE}";
-				property water_demand;
-				interval 60;
-			};//RECORDER
-		}; //WH
-	}; //House
+object climate 
+{
+  name TX_Houston;
+  tmyfile "../WA-Yakima.tmy3";
+  interpolate QUADRATIC;
+};
+
+object house 
+{
+	name "house_1";
+	floor_area random.triangle(1000,1500);
+	cooling_setpoint 76 degF;
+	heating_setpoint 65 degF;
+	hvac_power_factor 0.75;
+}
+
+object waterheater 
+{
+	name "waterheater_1";
+	wh_shape "type: pulsed; schedule: waterheater_demand_prob; energy: 7.2 kWh; count: 6; power: 300 W";
+	tank_setpoint 130;
+	water_demand this.wh_shape*0.165; //scaling issue with loadshape/schedules
+	heating_element_capacity 4500 W;
+	tank_volume 50 gal;
+	power_factor 1.0;
+	power_fraction 0.0;
+	current_fraction 0.0;
+}
+
+object recorder 
+{
+	parent "waterheater_1";
+	file "${SAVEFILE}";
+	property water_demand;
+	interval 60;
+}
 
 #endif // SAVEFILE
