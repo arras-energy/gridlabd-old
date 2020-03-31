@@ -4459,7 +4459,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					{
 						if ( strcmp(propval,obj->oclass->module->name)!=0 )
 						{
-							output_error("%s(%d): module '%s' does not match module of class '%s.%s'",filename,linenum,propval,obj->oclass->module->name,obj->oclass->name);
+							syntax_error(filename,linenum,"module '%s' does not match module of class '%s.%s'",propval,obj->oclass->module->name,obj->oclass->name);
 							REJECT;
 						}
 						else
@@ -4472,7 +4472,20 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					{
 						if ( sscanf(propval,"%08llX%08llX",obj->guid,obj->guid+1) != 2 )
 						{
-							output_error("%s(%d): guid '%s' is not valid",filename,linenum,propval);
+							syntax_error(filename,linenum,"guid '%s' is not valid",propval);
+							REJECT;
+						}
+						else
+						{
+							SAVETERM;
+							ACCEPT;
+						}
+					}
+					else if ( strcmp(propname,"rng_state") == 0 )
+					{
+						if ( sscanf(propval,"%d",&obj->rng_state) != 1 )
+						{
+							syntax_error(filename,linenum,"rng_state '%s' is not valid",propval);
 							REJECT;
 						}
 						else
