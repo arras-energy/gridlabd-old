@@ -75,7 +75,7 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 		gl_set_parent(*obj,parent);
 		strcpy(my->file,"");
 		strcpy(my->multifile,"");
-		strcpy(my->filetype,"csv");
+		strcpy(my->filetype,"txt");
 		strcpy(my->mode, "file");
 		strcpy(my->delim,",");
 		my->interval = -1; /* transients only */
@@ -104,13 +104,12 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 
 static int recorder_open(OBJECT *obj)
 {
-	char1024 fname="";
 	char32 flags="w";
 	TAPEFUNCS *f = 0;
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	int retvalue;
 
-	if ( my->property == NULL || strcmp(my->property,"") == 0 )
+	if ( my->property == NULL )
 	{
 		gl_error("at least one property must be specified");
 		return 0;
@@ -124,27 +123,17 @@ static int recorder_open(OBJECT *obj)
 	}
 
 	/* if no filename given */
-	if ( strcmp(my->file,"") == 0 )
-	{	
-
-		/* use object name-id as default file name */
-		if ( obj->parent->name == NULL )
-		{
-			sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)my->filetype);
-		}
-		else
-		{
-			sprintf(fname,"%s.%s",obj->parent->name, (char*)my->filetype);
-		}
-	}
-	else
+	if (strcmp(my->file,"")==0)
 	{
-		strcpy(fname,my->file);
+		/* use object name-id as default file name */
+		sprintf(my->file,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)my->filetype);
 	}
 
 	/* open multiple-run input file & temp output file */
-	if(my->type == FT_FILE && my->multifile[0] != 0){
-		if(my->interval < 1){
+	if ( my->type == FT_FILE && my->multifile[0] != 0 )
+	{
+		if ( my->interval < 1 )
+		{
 			gl_error("transient recorders cannot use multi-run output files");
 			return 0;
 		}
@@ -402,7 +391,7 @@ static int recorder_open(OBJECT *obj)
 		}
 	}
 
-	return my->ops->open(my, fname, flags);
+	return my->ops->open(my, my->file, flags);
 }
 
 static int write_recorder(struct recorder *my, char *ts, char *value)
@@ -530,23 +519,17 @@ EXPORT int method_recorder_property(OBJECT *obj, ...)
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	va_list args;
 	va_start(args,obj);
-	char *value = va_arg(args,char*);
+	void *arg0 = va_arg(args,void*);
+
+	// legacy calls
+	char *value = (char*)arg0;
 	size_t size = va_arg(args,size_t);
 	if ( value == NULL ) // check size needed to hold result
 	{
-		if ( my->property == NULL )
-		{
-			return 0;
-		}
-		size_t len = strlen(my->property)+1;
 		if ( size == 0 )
-		{
-			return len;
-		}
+			return my->property?strlen(my->property)+1:0;
 		else
-		{
-			return len < size ? 0 : len;
-		}
+			return (my->property?strlen(my->property)+1:0) < size;
 	}
 	else if ( size == 0 ) // copy from data
 	{
@@ -577,8 +560,7 @@ EXPORT int method_recorder_property(OBJECT *obj, ...)
 		if ( size > strlen(my->property) )
 		{
 			strcpy(value,my->property);
-			size_t len = strlen(my->property);
-			return len;
+			return strlen(my->property);
 		}
 		else
 		{
@@ -605,9 +587,6 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 	memset(list,0,sizeof(list));
 	int fmt_count = 0;
 	char *last_token;
-
-	// safety
-	if ( property_list == NULL ) return NULL;
 
 	strcpy(list,property_list); /* avoid destroying orginal list */
 	for ( item = strtok_s(list,",",&last_token) ; item != NULL ; fmt_count++, item = strtok_s(NULL,",",&last_token) )
@@ -883,14 +862,13 @@ EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	COMPAREOP comparison;
 	char1024 buffer = "";
 	
-	if ( my->status == TS_DONE )
+	if (my->status==TS_DONE)
 	{
 		close_recorder(my); /* note: potentially called every sync pass for multiple timesteps, catch fp==NULL in tape ops */
 		return TS_NEVER;
 	}
 
-	if ( obj->parent == NULL )
-	{
+	if(obj->parent == NULL){
 		char tb[32];
 		sprintf(buffer, "'%s' lacks a parent object", obj->name ? obj->name : (sprintf(tb, "recorder:%i", obj->id),tb));
 		close_recorder(my);
@@ -898,48 +876,37 @@ EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 		goto Error;
 	}
 
-	if ( my->last.ts < 1 && my->interval != -1 )
+	if(my->last.ts < 1 && my->interval != -1)
 	{
 		my->last.ts = t0;
 		my->last.ns = 0;
 	}
 
 	/* connect to property */
-	if ( my->target == NULL )
-	{
+	if (my->target==NULL){
 		my->target = link_properties(my, obj->parent, my->property);
 	}
-	if ( my->target == NULL )
+	if (my->target==NULL)
 	{
-		if ( my->property == NULL )
-		{
-			sprintf(buffer,"property is not specified");
-		}
-		else
-		{
-			sprintf(buffer,"property '%s' contains a property of %s %d that is not found", my->property, obj->parent->oclass->name, obj->parent->id);
-		}
+		sprintf(buffer,"'%s' contains a property of %s %d that is not found", my->property, obj->parent->oclass->name, obj->parent->id);
 		close_recorder(my);
 		my->status = TS_ERROR;
 		goto Error;
 	}
 
 	// update clock
-	if ( (my->status==TS_OPEN) && (t0 > obj->clock) ) 
+	if ((my->status==TS_OPEN) && (t0 > obj->clock)) 
 	{	
 		obj->clock = t0;
 		// if the recorder is clock-based, write the value
-		if ( (my->interval > 0) && (my->last.ts < t0) && (my->last.value[0] != 0) )
-		{
-			if ( my->last.ns == 0 )
+		if((my->interval > 0) && (my->last.ts < t0) && (my->last.value[0] != 0)){
+			if (my->last.ns == 0)
 			{
 				recorder_write(obj);
 				my->last.value[0] = 0; // once it's been finalized, dump it
 			}
 			else	//Just dump it, we already recorded this "timestamp"
-			{
 				my->last.value[0] = 0;
-			}
 		}
 	}
 
@@ -955,9 +922,8 @@ EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	}
 	else if ( ( my->target != NULL ) && ( my->interval > 0 ) )
 	{
-		if( (t0 >=my->last.ts + my->interval) || ((t0 == my->last.ts) && (my->last.ns == 0)) ) 
-		{
-			if ( read_properties(my, obj->parent,my->target,buffer,sizeof(buffer)) == 0 )
+		if((t0 >=my->last.ts + my->interval) || ((t0 == my->last.ts) && (my->last.ns == 0))){
+			if(read_properties(my, obj->parent,my->target,buffer,sizeof(buffer))==0)
 			{
 				sprintf(buffer,"unable to read property '%s' of %s %d", my->property, obj->parent->oclass->name, obj->parent->id);
 				close_recorder(my);
@@ -970,7 +936,7 @@ EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 
 	/* check trigger, if any */
 	comparison = (COMPAREOP)my->trigger[0];
-	if ( comparison != NONE )
+	if (comparison!=NONE)
 	{
 		int desired = comparison==LT ? -1 : (comparison==EQ ? 0 : (comparison==GT ? 1 : -2));
 
@@ -982,22 +948,22 @@ EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 			return (my->interval==0 || my->interval==-1) ? TS_NEVER : t0+my->interval;
 		}
 	}
-	else if ( my->status == TS_INIT && !recorder_open(obj) )
+	else if (my->status==TS_INIT && !recorder_open(obj))
 	{
 		close_recorder(my);
 		return TS_NEVER;
 	}
 
-	if ( my->last.ts < 1 && my->interval != -1 )
+	if(my->last.ts < 1 && my->interval != -1)
 	{
 		my->last.ts = t0;
 		my->last.ns = 0;
 	}
 
 	/* write tape */
-	if ( my->status == TS_OPEN )
+	if (my->status==TS_OPEN)
 	{	
-		if ( my->interval == 0 /* sample on every pass */
+		if (my->interval==0 /* sample on every pass */
 			|| ((my->interval==-1) && my->last.ts!=t0 && strcmp(buffer,my->last.value)!=0) /* sample only when value changes */
 			)
 
@@ -1005,20 +971,18 @@ EXPORT TIMESTAMP sync_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 			strncpy(my->last.value,buffer,sizeof(my->last.value));
 
 			/* Deltamode-related check -- if we're ahead, don't overwrite this */
-			if ( my->last.ts < t0 )
+			if (my->last.ts < t0)
 			{
 				my->last.ts = t0;
 				my->last.ns = 0;
 				recorder_write(obj);
 			}
-		} 
-		else if ( (my->interval > 0) && (my->last.ts == t0) && (my->last.ns == 0) )
-		{
+		} else if ((my->interval > 0) && (my->last.ts == t0) && (my->last.ns == 0)){
 			strncpy(my->last.value,buffer,sizeof(my->last.value));
 		}
 	}
 Error:
-	if ( my->status == TS_ERROR )
+	if (my->status==TS_ERROR)
 	{
 		gl_error("recorder %d %s\n",obj->id, (char*)buffer);
 		close_recorder(my);
@@ -1026,14 +990,12 @@ Error:
 		return TS_NEVER;
 	}
 
-	if ( my->interval == 0 || my->interval == -1 ) 
+	if (my->interval==0 || my->interval==-1) 
 	{
 		return TS_NEVER;
 	}
 	else
-	{
 		return my->last.ts+my->interval;
-	}
 }
 
 /**@}*/
