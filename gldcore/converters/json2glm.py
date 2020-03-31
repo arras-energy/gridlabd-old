@@ -42,8 +42,7 @@ def convert(ifile,ofile) :
 	if os.path.exists(ofile):
 		os.remove(ofile)
 	data = {}
-	objects_ignore = ["id", "class", "rank", "clock", "schedule_skew", \
-	"rng_state", "heartbeat", "guid", "flags"]
+	objects_ignore = ["id", "class", "rank", "clock", "flags"]
 	globals_ignore = ['clock', 'timezone_locale', 'starttime', 'stoptime','glm_save_options'] # REMOVE glm_save_options when bug is fixed
 	classkeys_ignore = ['object_size', 'trl', 'profiler.numobjs', 'profiler.clocks', 'profiler.count', 'parent']
 
@@ -63,7 +62,7 @@ def convert(ifile,ofile) :
 		start_str = '\n' + '\t' + 'starttime'+ ' \"' + data['globals']['starttime']['value']+'\";'
 		stop_str = '\n' + '\t' + 'stoptime'+' \"'+ data['globals']['stoptime']['value']+'\";'
 		end_str = '\n' + '}'
-		fw.write('\n // CLOCK')	
+		fw.write('\n\n// CLOCK')	
 		fw.write(header_str)
 		fw.write(tmzone_str)
 		fw.write(start_str)
@@ -71,7 +70,7 @@ def convert(ifile,ofile) :
 		fw.write(end_str)
 
 		# modules
-		fw.write('\n // MODULES') 
+		fw.write('\n\n// MODULES') 
 		for p_id, p_info in data['modules'].items() : 
 			tmp_str = '\n' + 'module ' + p_id + '\n{'
 			fw.write(tmp_str)
@@ -83,7 +82,7 @@ def convert(ifile,ofile) :
 			fw.write('\n}')
 
 		# globals
-		fw.write('\n // GLOBALS')
+		fw.write('\n\n// GLOBALS')
 		for p_id, p_info in data['globals'].items() : 
 			if p_info['access'] == "PUBLIC" and p_info['value'] and 'infourl' not in p_id and "::" not in p_id: 
 				ifndef_str = '\n' + '#ifndef ' + p_id 
@@ -109,7 +108,7 @@ def convert(ifile,ofile) :
 				fw.write(val_str)	
 
 		# classes
-		fw.write('\n // CLASSES')
+		fw.write('\n\n// CLASSES')
 		for p_id, p_info in data['classes'].items() : 
 			header_str = ''
 			val_str = ''
@@ -123,7 +122,7 @@ def convert(ifile,ofile) :
 				fw.write("\n}")
 
 		# schedules
-		fw.write('\n // SCHEDULES')
+		fw.write('\n\n// SCHEDULES')
 		for p_id, p_info in data['schedules'].items() : 
 			header_str = '\n' + 'schedule ' + p_id + '\n{'
 			fw.write(header_str)
@@ -131,7 +130,7 @@ def convert(ifile,ofile) :
 			fw.write('\n}' )
 
 		# objects
-		fw.write('\n // OBJECTS')
+		fw.write('\n\n// OBJECTS')
 		obj_id = []
 		if data['objects'] :
 			for p_id, p_info in data['objects'].items() : 
