@@ -797,17 +797,29 @@ int loadshape_init(loadshape *ls) /**< load shape */
 		break;
 	}
 	
+	// save the initial RNG state so initializatio is reproduceable
+	int rs = ls->rng_state;
+
 	/* initialize the random number generator state */
-	ls->rng_state = randwarn(NULL);
+	if ( ls->rng_state == 0 )
+	{
+		ls->rng_state = randwarn(NULL);
+	}
 
 	/* establish the initial parameters */
 	loadshape_recalc(ls);
 
 	/* randomize the initial state */
-	if (ls->q==0) ls->q = ls->d[0]<ls->d[1] ? random_uniform(&(ls->rng_state), ls->d[0], ls->d[1]) : random_uniform(&(ls->rng_state), ls->d[1], ls->d[0]); ; 
+	if (ls->q==0) ls->q = ( ls->d[0] < ls->d[1] ) ? random_uniform(&(ls->rng_state), ls->d[0], ls->d[1]) : random_uniform(&(ls->rng_state), ls->d[1], ls->d[0]); ; 
 
 	/* initial power per-unit factor */
 	if (ls->dPdV==0) ls->dPdV = 1.0;
+
+	// save the initial RNG state
+	if ( rs != 0 )
+	{
+		ls->rng_state = rs;
+	}
 
 	return 0;
 }
@@ -1132,11 +1144,11 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 		break;
 	case MT_PULSED:
 		if (ls->params.pulsed.pulsetype==MPT_TIME)
-			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; duration: %g s",
-			ls->schedule->name, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->params.pulsed.pulsevalue);
+			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; duration: %g s; rng_state: %u",
+			ls->schedule->name, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->params.pulsed.pulsevalue, ls->rng_state);
 		else if (ls->params.pulsed.pulsetype==MPT_POWER)
-			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; power: %g kW",
-			ls->schedule->name, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->params.pulsed.pulsevalue);
+			return sprintf(string,"type: pulsed; schedule: %s; energy: %g kWh; count: %g; power: %g kW; rng_state: %u",
+			ls->schedule->name, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->params.pulsed.pulsevalue, ls->rng_state);
 		else
 		{
 			output_error("convert_from_loadshape(...,data={schedule->name='%s',...},prop={name='%s',...}) has an invalid pulsetype", ls->schedule->name, prop->name);
@@ -1145,11 +1157,11 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 		break;
 	case MT_MODULATED:
 		if (ls->params.pulsed.pulsetype==MPT_TIME)
-			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %g; duration: %g s; pulse: %g kWh; modulation: %s",
-			ls->schedule->name, ls->params.modulated.energy, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, modulation[ls->params.modulated.modulation]);
+			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %g; duration: %g s; pulse: %g kWh; modulation: %s; rng_state: %u",
+			ls->schedule->name, ls->params.modulated.energy, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, modulation[ls->params.modulated.modulation], ls->rng_state);
 		else if (ls->params.pulsed.pulsetype==MPT_POWER)
-			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %g; power: %g kW; pulse: %g kWh; modulation: %s",
-			ls->schedule->name, ls->params.modulated.energy, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, modulation[ls->params.modulated.modulation]);
+			return sprintf(string,"type: modulated; schedule: %s; energy: %g kWh; count: %g; power: %g kW; pulse: %g kWh; modulation: %s; rng_state: %u",
+			ls->schedule->name, ls->params.modulated.energy, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, modulation[ls->params.modulated.modulation], ls->rng_state);
 		else
 		{
 			output_error("convert_from_loadshape(...,data={schedule->name='%s',...},prop={name='%s',...}) has an invalid pulsetype", ls->schedule->name, prop->name);
@@ -1158,11 +1170,11 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 		break;
 	case MT_QUEUED:
 		if (ls->params.pulsed.pulsetype==MPT_TIME)
-			return sprintf(string,"type: queue; schedule: %s; energy: %g kWh; count: %g; duration: %g s; q_on: %g; q_off: %g",
-			ls->schedule->name, ls->params.queued.energy, ls->params.queued.scalar, ls->params.queued.pulsevalue, ls->params.queued.q_on, ls->params.queued.q_off);
+			return sprintf(string,"type: queue; schedule: %s; energy: %g kWh; count: %g; duration: %g s; q_on: %g; q_off: %g; rng_state: %u",
+			ls->schedule->name, ls->params.queued.energy, ls->params.queued.scalar, ls->params.queued.pulsevalue, ls->params.queued.q_on, ls->params.queued.q_off, ls->rng_state);
 		else if (ls->params.pulsed.pulsetype==MPT_POWER)
-			return sprintf(string,"type: queued; schedule: %s; energy: %g kWh; count: %g; power: %g kW; q_on: %g; q_off: %g",
-			ls->schedule->name, ls->params.queued.energy, ls->params.queued.scalar, ls->params.queued.pulsevalue, ls->params.queued.q_on, ls->params.queued.q_off);
+			return sprintf(string,"type: queued; schedule: %s; energy: %g kWh; count: %g; power: %g kW; q_on: %g; q_off: %g; rng_state: %u",
+			ls->schedule->name, ls->params.queued.energy, ls->params.queued.scalar, ls->params.queued.pulsevalue, ls->params.queued.q_on, ls->params.queued.q_off, ls->rng_state);
 		else
 		{
 			output_error("convert_from_loadshape(...,data={schedule->name='%s',...},prop={name='%s',...}) has an invalid pulsetype", ls->schedule->name, prop->name);
@@ -1190,6 +1202,7 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 {
 	loadshape *ls = (loadshape*)data;
+	memset(ls,0,sizeof(loadshape));
 	char buffer[1024];
 	char *token = NULL;
 
@@ -1622,42 +1635,68 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 			if (ls->type!=MT_SCHEDULED)
 				output_warning("convert_to_loadshape(string='%-.64s...', ...) %s is not used by analog loadshapes",string, param);
 			else if (sample_from_diversity(&(ls->rng_state),&ls->params.scheduled.low,value)==0)
+			{
 				output_error("convert_to_loadshape(string='%-.64s...', ...) %s syntax error, '%s' not valid", string, param, value);
+				return 0;
+			}
 		}
 		else if (strcmp(param,"on-time")==0)
 		{
 			if (ls->type!=MT_SCHEDULED)
 				output_warning("convert_to_loadshape(string='%-.64s...', ...) %s is not used by analog loadshapes",string, param);
 			else if	(sample_from_diversity(&(ls->rng_state),&ls->params.scheduled.on_time,value)==0)
+			{
 				output_error("convert_to_loadshape(string='%-.64s...', ...) %s syntax error, '%s' not valid", string, param, value);
+				return 0;
+			}
 		}
 		else if (strcmp(param,"on-ramp")==0)
 		{
 			if (ls->type!=MT_SCHEDULED)
 				output_warning("convert_to_loadshape(string='%-.64s...', ...) %s is not used by analog loadshapes",string, param);
 			else if	(sample_from_diversity(&(ls->rng_state),&ls->params.scheduled.on_ramp,value)==0)
+			{
 				output_error("convert_to_loadshape(string='%-.64s...', ...) %s syntax error, '%s' not valid", string, param, value);
+				return 0;
+			}
 		}
 		else if (strcmp(param,"high")==0)
 		{
 			if (ls->type!=MT_SCHEDULED)
 				output_warning("convert_to_loadshape(string='%-.64s...', ...) %s is not used by analog loadshapes",string, param);
 			else if	(sample_from_diversity(&(ls->rng_state),&ls->params.scheduled.high,value)==0)
+			{
 				output_error("convert_to_loadshape(string='%-.64s...', ...) %s syntax error, '%s' not valid", string, param, value);
+				return 0;
+			}
 		}
 		else if (strcmp(param,"off-time")==0)
 		{
 			if (ls->type!=MT_SCHEDULED)
 				output_warning("convert_to_loadshape(string='%-.64s...', ...) %s is not used by analog loadshapes",string, param);
 			else if (sample_from_diversity(&(ls->rng_state),&ls->params.scheduled.off_time,value)==0)
+			{
 				output_error("convert_to_loadshape(string='%-.64s...', ...) %s syntax error, '%s' not valid", string, param, value);
+				return 0;
+			}
 		}
 		else if (strcmp(param,"off-ramp")==0)
 		{
 			if (ls->type!=MT_SCHEDULED)
 				output_warning("convert_to_loadshape(string='%-.64s...', ...) %s is not used by analog loadshapes",string, param);
 			else if (sample_from_diversity(&(ls->rng_state),&ls->params.scheduled.off_ramp,value)==0)
+			{
 				output_error("convert_to_loadshape(string='%-.64s...', ...) %s syntax error, '%s' not valid", string, param, value);
+				return 0;
+			}
+		}
+		else if ( strcmp(param,"rng_state") == 0 )
+		{
+			if ( sscanf(value,"%u",&ls->rng_state) != 1 )
+			{
+				output_error("convert_to_loadshape(string='%-.64s...', ...) %s syntax error, '%s' not a valid rng_state", string, param, value);
+				return 0;
+			}
 		}
 		else if (strcmp(param,"")!=0)
 		{
@@ -1667,7 +1706,7 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 	}
 
 	/* reinitialize the loadshape */
-	if (loadshape_init((loadshape*)data))
+	if ( loadshape_init(ls) )
 		return 0;
 
 	/* everything converted ok */
