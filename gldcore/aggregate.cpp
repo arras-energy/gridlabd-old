@@ -187,7 +187,7 @@ GldAggregator::GldAggregator(const char *aggregator, /**< aggregator (min,max,av
 			PGMCONSTFLAGS flags = find_pgmconstants(pgm); 
 			
 			/* the search must be over the same class so that the property offset is known in advance */
-			if ((flags&CF_CLASS)!=CF_CLASS)
+			if ( ! global_allow_variant_aggregates && ! (flags&CF_CONSTANT) )
 			{
 				output_error("aggregate group expression '%s' does not result in a set with a fixed class", group_expression);
 				/* TROUBLESHOOT

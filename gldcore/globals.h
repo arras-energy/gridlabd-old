@@ -660,6 +660,8 @@ GLOBAL bool global_relax_undefined_if INIT(false); /**< allow #if macro to handl
 GLOBAL bool global_literal_if INIT(true); /**< do not interpret lhs of #if as a variable name */
 
 /* Variable:  */
+GLOBAL bool global_allow_variant_aggregates INIT(false); /* allow aggregates to include time varying results */
+/* Variable:  */
 GLOBAL char1024 global_daemon_configfile INIT("gridlabd.cnf"); /**< name of daemon configuration file */
 typedef enum {
 	DMC_MAIN		= 0x0000000000000001,
@@ -762,6 +764,7 @@ typedef enum
 	FSO_SCRIPTS     = 0x0080,
 	FSO_CLOCK		= 0x0100,
 	FSO_ALL         = 0x01ff,
+	FSO_MINIMAL		= 0x8000,
 } FILESAVEOPTIONS;
 
 /* Variable:  */

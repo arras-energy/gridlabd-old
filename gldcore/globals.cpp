@@ -176,7 +176,9 @@ DEPRECATED static KEYWORD fso_keys[] = {
 	{"OBJECTS",		FSO_OBJECTS,	fso_keys+6},
 	{"SCHEDULES",	FSO_SCHEDULES,	fso_keys+7},
 	{"FILTERS",		FSO_FILTERS,	fso_keys+8},
-	{"SCRIPTS",		FSO_FILTERS,	NULL},
+	{"SCRIPTS",		FSO_SCRIPTS,	fso_keys+9},
+	{"CLOCK",		FSO_CLOCK,		fso_keys+10},
+	{"MINIMAL",		FSO_MINIMAL,	NULL},
 };
 
 DEPRECATED static struct s_varmap {
@@ -322,6 +324,8 @@ DEPRECATED static struct s_varmap {
 	{"glm_save_options", PT_set, &global_glm_save_options, PA_PUBLIC, "options to control GLM file save format", gso_keys},
 	{"filesave_options", PT_set, &global_filesave_options, PA_PUBLIC, "control elements saved on output", fso_keys},
 	{"ignore_errors", PT_bool, &global_ignore_errors, PA_PUBLIC, "disable exit on error behavior"},
+	{"keep_progress", PT_bool, &global_keep_progress, PA_PUBLIC, "keep each progress line"},
+	{"allow_variant_aggregates", PT_bool, &global_allow_variant_aggregates, PA_PUBLIC, "permits aggregates to include time-varying criteria"},
 	/* add new global variables here */
 };
 

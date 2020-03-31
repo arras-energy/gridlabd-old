@@ -18,7 +18,8 @@ GLM:
 
 # Description
 
-TODO
+Collectors aggregate multiple object properties into a single value. They do not use the parent property but instead use the group property to form a collection of objects over which the aggregate is taken.
+
 
 ## Properties
 
@@ -28,7 +29,7 @@ TODO
   char32 trigger;
 ~~~
 
-TODO
+Trigger which will start the recording.
 
 ### `file`
 
@@ -36,7 +37,7 @@ TODO
   char1024 file;
 ~~~
 
-TODO
+File name specification
 
 ### `limit`
 
@@ -44,7 +45,7 @@ TODO
   int32 limit;
 ~~~
 
-TODO
+Size limit of allowed entries in the recording.
 
 ### `group`
 
@@ -52,7 +53,11 @@ TODO
   char256 group;
 ~~~
 
-TODO
+Defines the group to be recorded and the aggregator
+
+~~~
+property aggregator(property)[,...];
+~~~
 
 ### `flush`
 
@@ -60,7 +65,7 @@ TODO
   int32 flush;
 ~~~
 
-TODO
+By default the output buffer is flushed to disk when it is full (the size of the buffer is system specific). This default corresponds to the flush value -1. If flush is set to 0, the buffer is flushed every time a record is written. If flush is set to a value greater than 0, the buffer is flushed whenever the condition clock mod flush == 0 is satisfied.
 
 ### `interval`
 
@@ -68,7 +73,7 @@ TODO
   double interval[s];
 ~~~
 
-TODO
+Recording interval.
 
 ### `property`
 
@@ -76,19 +81,35 @@ TODO
   method property;
 ~~~
 
-TODO
+The group property specifies the grouping rule for creating the collection. Groups may be specified using any registered property of the object, such as class, size, parent, id, or rank. The property value is aggregated as a minimum, maximum, count, average, standard deviation, mean, variance (2nd moment), mean bias error (1st moment), or kurtosis (3rd moment). 
+
+If the property is a complex number, the property must be specified in the form
+
+~~~
+  property.part
+~~~
+
+where `part` is `real`, `imag` (for imaginary), `mag` for magnitude, `ang` for the angle in degrees, or `arg` for angle in radians.
+
+For example, a collector over all water heater objects might aggregate the power property using
+~~~
+count(power),min(power),max(power),std(power)
+~~~
+which would print the number of water heaters, the minimum power used by any one water heater, the maximum power used, and the standard deviation of the power used by the set of water heaters.
+
+Aggregating options are `min`, `max`, `count`, `avg`, `std`, `mean`, `var`, `mbe`, `kur`, `sum`, `prod`, `skew`, and `gamma`. (`kur` and `skew` remain unimplemented, and will tell you so if you try to use them).
 
 # Example
 
 ~~~
   object collector {
-    trigger "";
-    file "";
-    limit "0";
-    group "";
-    flush "0";
-    interval "0.0";
-  }
+	  name "collector_1";
+	  group "groupid=residential_meters";
+	  property "sum(measured_real_energy[kWh])";
+	  file "residential_meters.csv";
+	  interval 30;
+	  flush 0;
+}
 ~~~
 
 # See also

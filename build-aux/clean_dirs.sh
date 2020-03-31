@@ -8,10 +8,12 @@ for i in `find . -type d -name autotest -print`; do
 	done
 done
 
-for f in `find . -type d -name '.deps' -print`; do
-	rm -rf $f
-done
-
 for f in `find . -type d -name '.libs' -print`; do
 	rm -rf $f
 done
+
+if [ "$1" == "--depends" ]; then
+	for f in `find . -type d -name '.deps' -print`; do
+		rm -rf $f
+	done
+fi

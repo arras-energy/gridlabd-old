@@ -289,6 +289,18 @@ const char *object_get_unit(OBJECT *obj, const char *name)
 	}
 }
 
+static void object_create_properties(OBJECT *obj,CLASS *oclass)
+{
+	if ( oclass->parent != NULL )
+	{
+		object_create_properties(obj,oclass->parent);
+	}
+	for ( PROPERTY *prop = oclass->pmap ; prop != NULL ; prop = prop->next )
+	{
+		property_create(prop,property_addr(obj,prop));
+	}
+}
+
 /** Create a single object.
 	@return a pointer to object header, \p NULL of error, set \p errno as follows:
 	- \p EINVAL type is not valid
@@ -297,7 +309,6 @@ const char *object_get_unit(OBJECT *obj, const char *name)
 OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 {
 	OBJECT *obj = 0;
-	PROPERTY *prop;
 	int sz = sizeof(OBJECT);
 
 	if ( oclass == NULL )
@@ -349,9 +360,8 @@ OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 	obj->heartbeat = 0;
 	random_key(obj->guid,sizeof(obj->guid)/sizeof(obj->guid[0]));
 
-	for ( prop=obj->oclass->pmap; prop!=NULL; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)))
-		property_create(prop,property_addr(obj,prop));
-	
+	object_create_properties(obj,obj->oclass);
+
 	if ( first_object == NULL )
 	{
 		first_object = obj;
@@ -3198,7 +3208,9 @@ PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full)
 
 PROPERTY *object_get_first_property(OBJECT *obj, bool full)
 {
-	for ( CLASS *oclass = obj->oclass ; oclass != NULL ; oclass = ( full == true ? oclass->parent : NULL ) )
+	for ( CLASS *oclass = obj->oclass ; 
+		oclass != NULL ; 
+		oclass = ( full == true ? oclass->parent : NULL ) )
 	{	
 		if ( oclass->pmap != NULL )
 		{
@@ -3211,9 +3223,13 @@ PROPERTY *object_get_first_property(OBJECT *obj, bool full)
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full)
 {
 	if ( full == true )
-		return (prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL));
+	{
+		return ( prop->next ? prop->next : ( prop->oclass->parent ? prop->oclass->parent->pmap : NULL ) );
+	}
 	else
+	{
 		return prop->next;
+	}
 }
 
 void object_destroy(OBJECT *obj)
