@@ -939,7 +939,7 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
 		if ((item->flags&UR_TRANSFORM)==UR_TRANSFORM)
 		{
 			/* find transform that uses this target */
-			while ((xform=transform_getnext(xform))!=NULL)
+			for ( TRANSFORM *xform = transform_getnext(NULL) ; xform != NULL ; xform = transform_getnext(xform) )
 			{
 				/* the reference is to the schedule's source */
 				if (xform==item->ref)
@@ -947,6 +947,11 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
 					ref = &(xform->source);
 					break;
 				}
+			}
+			if ( xform == NULL )
+			{
+				syntax_error(filename,item->line,"transform reference not found");
+				return FAILED;
 			}
 		}
 
