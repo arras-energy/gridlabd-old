@@ -443,7 +443,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		if ( ! isnan(obj->longitude) ) TUPLE("longitude","%f",obj->longitude);
 		if ( obj->groupid[0] != '\0' ) TUPLE("groupid","%s",(const char*)obj->groupid);
 		TUPLE("rank","%u",(unsigned int)obj->rank);
-		if ( convert_from_timestamp(obj->clock,buffer,sizeof(buffer)) )
+		if ( convert_from_timestamp(obj->clock,buffer,buffer_size) )
 			TUPLE("clock","%s",buffer);
 		if ( obj->valid_to > TS_ZERO && obj->valid_to < TS_NEVER ) TUPLE("valid_to","%llu",(int64)(obj->valid_to));
 		if ( obj->schedule_skew != 0 ) TUPLE("schedule_skew","%llu",obj->schedule_skew);
@@ -515,7 +515,7 @@ int GldJsonWriter::write_objects(FILE *fp)
             }
             else
             {
-				value = object_property_to_string(obj, prop->name, buffer, sizeof(buffer));
+				value = object_property_to_string(obj, prop->name, buffer, buffer_size);
 			}
 
 			// process output value
