@@ -1151,7 +1151,7 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 			ls->schedule->name, ls->params.pulsed.energy, ls->params.pulsed.scalar, ls->params.pulsed.pulsevalue, ls->rng_state);
 		else
 		{
-			output_error("convert_from_loadshape(...,data={schedule->name='%s',...},prop={name='%s',...}) has an invalid pulsetype", ls->schedule->name, prop->name);
+			output_error("initial_from_loadshape(...,data={schedule->name='%s',...},prop={name='%s',...}) has an invalid pulsetype", ls->schedule->name, prop->name);
 			return 0;
 		}
 		break;
@@ -1164,7 +1164,7 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 			ls->schedule->name, ls->params.modulated.energy, ls->params.modulated.scalar, ls->params.modulated.pulsevalue, ls->params.modulated.pulseenergy, modulation[ls->params.modulated.modulation], ls->rng_state);
 		else
 		{
-			output_error("convert_from_loadshape(...,data={schedule->name='%s',...},prop={name='%s',...}) has an invalid pulsetype", ls->schedule->name, prop->name);
+			output_error("initial_from_loadshape(...,data={schedule->name='%s',...},prop={name='%s',...}) has an invalid pulsetype", ls->schedule->name, prop->name);
 			return 0;
 		}
 		break;
@@ -1177,7 +1177,7 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 			ls->schedule->name, ls->params.queued.energy, ls->params.queued.scalar, ls->params.queued.pulsevalue, ls->params.queued.q_on, ls->params.queued.q_off, ls->rng_state);
 		else
 		{
-			output_error("convert_from_loadshape(...,data={schedule->name='%s',...},prop={name='%s',...}) has an invalid pulsetype", ls->schedule->name, prop->name);
+			output_error("initial_from_loadshape(...,data={schedule->name='%s',...},prop={name='%s',...}) has an invalid pulsetype", ls->schedule->name, prop->name);
 			return 0;
 		}
 		break;
