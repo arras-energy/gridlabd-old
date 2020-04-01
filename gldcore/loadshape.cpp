@@ -1126,7 +1126,7 @@ TIMESTAMP loadshape_syncall(TIMESTAMP t1)
 	return t2;
 }
 
-int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
+int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 {
 	const char *modulation[] = {"unknown","amplitude","pulsewidth","frequency"};
 	char buffer[9];
@@ -1189,14 +1189,9 @@ int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 	return 1;
 } 
 
-int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
+int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 {
-	loadshape *ls = (loadshape*)data;
-	if ( ls->type == MT_UNKNOWN )
-	{
-		return 0;
-	}
-	return convert_from_loadshape(string,size,data,prop);
+	return convert_from_double(string,size,data,prop);
 }
 
 int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
