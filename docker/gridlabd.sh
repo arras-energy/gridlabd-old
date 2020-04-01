@@ -22,5 +22,19 @@ cd gridlabd
 autoreconf -isf 
 ./configure 
 make -j30 system
-export LD_LIBRARY_PATH=.
-gridlabd -T 0 --validate
+export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
+
+# get weather
+if [ "${GET_WEATHER:-yes}" == "yes" ]; then
+	make index
+fi
+
+# run validation
+if [ "${RUN_VALIDATION:-no}" == "yes" ]; then
+	gridlabd -T 0 --validate
+fi
+
+# cleanup source
+if [ "${REMOVE_SOURCE:-yes}" == "yes" ]; then
+	rm -rf /usr/local/src/gridlabd
+fi
