@@ -948,7 +948,7 @@ int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
 					break;
 				}
 			}
-			if ( xform == NULL )
+			if ( ref == NULL )
 			{
 				syntax_error(filename,item->line,"transform reference not found");
 				return FAILED;
