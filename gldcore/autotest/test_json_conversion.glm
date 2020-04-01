@@ -9,13 +9,13 @@
 #ifndef SAVEFILE // main run does not specify SAVEFILE
 
 #warning *** Running step 1 *** 
-#exec gridlabd -D SAVEFILE=waterheater_1.csv test_json_conversion.glm
+#gridlabd -D SAVEFILE=waterheater_1.csv test_json_conversion.glm
 
 #warning *** Running step 2 *** 
-#exec gridlabd -D SAVEFILE=waterheater_2.csv -D filesave_options=ALLINITIAL -I test_json_conversion.glm -o test_json_conversion_save.json 
+#gridlabd -D SAVEFILE=waterheater_2.csv -D filesave_options=ALLINITIAL -I test_json_conversion.glm -o test_json_conversion_save.json 
 
 #warning *** Running step 3 *** 
-#exec gridlabd test_json_conversion_save.json -o test_json_conversion_final.glm
+#gridlabd test_json_conversion_save.json -o test_json_conversion_final.glm
 
 #warning *** Running step 4 *** 
 #exec diff -wq waterheater_1.csv waterheater_2.csv

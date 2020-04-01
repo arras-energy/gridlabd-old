@@ -7407,7 +7407,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		char value[1024];
 		if (term==NULL)
 		{
-			syntax_error(filename,linenum,"#system missing system call");
+			syntax_error(filename,linenum,"#exec missing system call");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7417,6 +7417,31 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		if( global_return_code != 0 )
 		{
 			syntax_error(filename,linenum,"#exec %s -- system('%s') failed with status %d", value, value, global_return_code);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
+	else if (strncmp(line,"#gridlabd",9)==0)
+	{
+		char *term = strchr(line+9,' ');
+		char value[1024];
+		if (term==NULL)
+		{
+			syntax_error(filename,linenum,"#gridlabd missing command line");
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		strcpy(value, strip_right_white(term+1));
+		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s %s')", filename, linenum, global_execname, value);
+		global_return_code = my_instance->subcommand("%s %s",global_execname,value);
+		if( global_return_code != 0 )
+		{
+			syntax_error(filename,linenum,"#gridlabd %s -- system('%s %s') failed with status %d", value, global_execname, value, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
