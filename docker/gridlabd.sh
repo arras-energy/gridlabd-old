@@ -21,9 +21,6 @@ fi
 cd gridlabd 
 autoreconf -isf 
 ./configure 
-make -j30 install
-
-VERSION=${VERSION:-`build-aux/version.sh --name`}
-/usr/local/opt/gridlabd/${VERSION}/bin/gridlabd version set 
-gridlabd --version=all
-make validate
+make -j30 system
+export LD_LIBRARY_PATH=.
+gridlabd -T 0 --validate
