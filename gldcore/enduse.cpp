@@ -410,7 +410,7 @@ TIMESTAMP enduse_syncall(TIMESTAMP t1)
 	return t2;*/
 }
 
-int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
+int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 {
 /*
 	loadshape *shape;
@@ -427,8 +427,8 @@ int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 	int len = 0;
 #define OUTPUT_NZ(X) if (e->X!=0) len+=sprintf(string+len,"%s" #X ": %f", len>0?"; ":"", e->X)
 #define OUTPUT(X) len+=sprintf(string+len,"%s"#X": %g", len>0?"; ":"", e->X);
-#define OUTPUT_NZ_X(X,N) if (e->X!=0) len+=sprintf(string+len,"%s" #N ": %f", len>0?"; ":"", e->X)
-#define OUTPUT_X(X,N) len+=sprintf(string+len,"%s"#N": %g", len>0?"; ":"", e->X);
+#define OUTPUT_NZ_X(X,N) if (e->X!=0) len+=sprintf(string+len,"%s%s: %f", len>0?"; ":"", N, e->X)
+#define OUTPUT_X(X,N) len+=sprintf(string+len,"%s%s: %g", len>0?"; ":"", N, e->X);
 	OUTPUT_NZ(impedance_fraction);
 	OUTPUT_NZ(current_fraction);
 	OUTPUT_NZ(power_fraction);
@@ -438,9 +438,9 @@ int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 	return len;
 }
 
-int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop)
+int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 {
-	return 0;
+	return convert_from_complex(string,size,data,prop);
 }
 
 int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefix)
