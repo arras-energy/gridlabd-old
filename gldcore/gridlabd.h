@@ -4096,9 +4096,13 @@ inline PyObject *python_import(const char *module, const char *path=NULL)
 	return callback->python.import(module, path);
 }
 
-inline bool python_call(PyObject *pModule, const char *method)
+inline bool python_call(PyObject *pModule, const char *method, const char *vargsfmt, ...)
 {
-	return callback->python.call(pModule,method);
+	va_list ptr;
+	va_start(ptr,vargsfmt);
+	bool ok = callback->python.call(pModule,method,vargsfmt,ptr);
+	va_end(ptr);
+	return ok;
 }
 
 /** @} **/
