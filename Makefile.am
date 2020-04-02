@@ -261,7 +261,7 @@ clean-local: python-clean
 	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
 
 distclean-local: python-clean
-	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
+	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh --depends)
 	@rm -rf $(top_srcdir)/autom4te.cache
 	@rm -f $(top_srcdir)/aclocal.m4 
 	@rm -f $(top_srcdir)/autoscan.log
@@ -315,6 +315,13 @@ reconfigure: distclean
 
 reconfigure-debug: distclean
 	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
+
+docker: $(PREFIX)/docker.img
+
+$(PREFIX)/docker.img: docker/Dockerfile Makefile
+	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_ORIGIN) docker
+	mkdir -p $(prefix)
+	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
 
 system: install
 	$(DESTDIR)$(bindir)/gridlabd version set

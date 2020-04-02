@@ -252,39 +252,35 @@ int property_create(PROPERTY *prop, void *addr)
 {
 	if (prop && prop->ptype>_PT_FIRST && prop->ptype<_PT_LAST)
 	{
-		if (property_type[prop->ptype].create)
+		if ( property_type[prop->ptype].create != NULL )
 		{
 			return property_type[prop->ptype].create(addr);
 		}
-		if ( (int)property_type[prop->ptype].size > 0 )
+		else if ( (int)property_type[prop->ptype].size > 0 )
 		{
-			if ( prop->default_value == NULL && property_type[prop->ptype].default_value != NULL )
+			const char *tmp = prop->default_value ? prop->default_value : property_type[prop->ptype].default_value;
+			if ( tmp != NULL )
 			{
-				char tmp[1024];
-				if ( prop->unit )
+				if ( property_read(prop,addr,tmp) == 0 )
 				{
-					sprintf(tmp,"%s %s", property_type[prop->ptype].default_value, prop->unit->name);
+					output_error("property '%s' default value '%s' is invalid", prop->name, tmp);
+					return 0;
 				}
 				else
 				{
-					strcpy(tmp,property_type[prop->ptype].default_value);
-				}
-				prop->default_value = strdup(tmp);
-			}
-			if ( prop->default_value != NULL )
-			{
-				if ( property_read(prop,addr,prop->default_value) == 0 )
-				{
-					output_error("property '%s' default value '%s' is invalid", prop->name, prop->default_value);
-					memset(addr,0,property_type[prop->ptype].size);
+					return 1;
 				}
 			}
 			else
 			{
 				memset(addr,0,property_type[prop->ptype].size);
+				return 1;
 			}
 		}
-		return 1;
+		else // zero-size object
+		{
+			return 1;
+		}
 	}
 	else
 	{

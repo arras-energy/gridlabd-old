@@ -898,35 +898,35 @@ int class_define_map(CLASS *oclass, /**< the object class */
 					goto Error;
 				}
 			}
-			else if (proptype==PT_EXTEND)
+			else if ( proptype == PT_EXTEND )
 			{
 				oclass->size += property_type[prop->ptype].size;
 			}
-			else if (proptype==PT_EXTENDBY)
+			else if ( proptype == PT_EXTENDBY) 
 			{
 				oclass->size += va_arg(arg,unsigned int);
 			}
-			else if (proptype==PT_FLAGS)
+			else if ( proptype == PT_FLAGS )
 			{
 				prop->flags |= va_arg(arg,unsigned int);
 			}
-			else if (proptype==PT_DEPRECATED)
+			else if ( proptype == PT_DEPRECATED )
 			{
 				prop->flags |= PF_DEPRECATED;
 			}
 			else if ( proptype == PT_OUTPUT )
- 			{
- 				prop->flags |= PF_OUTPUT;
- 			}
- 			else if ( proptype == PT_REQUIRED )
- 			{
- 				prop->flags |= PF_REQUIRED;
- 			}
- 			else if ( proptype == PT_DYNAMIC )
- 			{
- 				prop->flags |= PF_DYNAMIC;
- 			}
-			else if (proptype==PT_UNITS)
+			{
+				prop->flags |= PF_OUTPUT;
+			}
+			else if ( proptype == PT_REQUIRED )
+			{
+				prop->flags |= PF_REQUIRED;
+			}
+			else if ( proptype == PT_DYNAMIC )
+			{
+				prop->flags |= PF_DYNAMIC;
+			}
+			else if ( proptype == PT_UNITS )
 			{
 				char *unitspec = va_arg(arg,char*);
 				try 

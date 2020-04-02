@@ -176,7 +176,9 @@ DEPRECATED static KEYWORD fso_keys[] = {
 	{"OBJECTS",		FSO_OBJECTS,	fso_keys+6},
 	{"SCHEDULES",	FSO_SCHEDULES,	fso_keys+7},
 	{"FILTERS",		FSO_FILTERS,	fso_keys+8},
-	{"SCRIPTS",		FSO_FILTERS,	NULL},
+	{"SCRIPTS",		FSO_SCRIPTS,	fso_keys+9},
+	{"CLOCK",		FSO_CLOCK,		fso_keys+10},
+	{"MINIMAL",		FSO_MINIMAL,	NULL},
 };
 
 DEPRECATED static struct s_varmap {

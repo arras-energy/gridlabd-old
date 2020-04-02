@@ -28,8 +28,7 @@ complex_assert::complex_assert(MODULE *module)
 			oclass->trl = TRL_PROVEN;
 
 		if (gl_publish_variable(oclass,
-			// TO DO:  publish your variables here
-			PT_enumeration,"status",get_status_offset(),PT_DESCRIPTION,"Conditions for the assert checks",
+			PT_enumeration,"status",get_status_offset(),PT_DEFAULT,"ASSERT_TRUE",PT_DESCRIPTION,"Conditions for the assert checks",
 				PT_KEYWORD,"ASSERT_TRUE",(enumeration)ASSERT_TRUE,
 				PT_KEYWORD,"ASSERT_FALSE",(enumeration)ASSERT_FALSE,
 				PT_KEYWORD,"ASSERT_NONE",(enumeration)ASSERT_NONE,
@@ -51,22 +50,12 @@ complex_assert::complex_assert(MODULE *module)
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
-
-		defaults = this;
-		status = ASSERT_TRUE;
-		within = 0.0;
-		value = 0.0;
-		once = ONCE_FALSE;
-		once_value = 0;
-		operation = FULL;
 	}
 }
 
 /* Object creation is called once for each object that is created by the core */
 int complex_assert::create(void) 
 {
-	memcpy(this,defaults,sizeof(*this));
-
 	return 1; /* return 1 on success, 0 on failure */
 }
 
