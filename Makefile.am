@@ -15,16 +15,16 @@ ACLOCAL_AMFLAGS = -I m4
 CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
-AM_CPPFLAGS = -Wall -O3 -g
+AM_CPPFLAGS = -Wall
 AM_CPPFLAGS += -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CPPFLAGS += $(GLD_CPPFLAGS)
 
-AM_CFLAGS = -Wall -O3 -g
+AM_CFLAGS = -Wall
 AM_CFLAGS +=  -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CFLAGS += $(PTHREAD_CFLAGS)
 AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
 
-AM_CXXFLAGS = -Wall -O3 -g
+AM_CXXFLAGS = -Wall
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
 AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
 

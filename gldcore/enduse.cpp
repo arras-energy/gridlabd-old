@@ -440,7 +440,10 @@ int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 
 int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 {
-	return convert_from_complex(string,size,data,prop);
+	int len = convert_from_complex(string,size,data,prop);
+output_warning(">>> convert_from_enduse(string=%p,size=%d,data=%p <enduse:%s>,prop=<property:%s>) -> %d (string='%s')",
+	string,size,data,((enduse*)data)->name,prop->name,len,string);
+	return len;
 }
 
 int enduse_publish(CLASS *oclass, PROPERTYADDR struct_address, const char *prefix)

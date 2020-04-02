@@ -223,7 +223,7 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 	complex *v = (complex*)data;
 
 	double scale = 1.0;
-	if ( prop->unit!=NULL )
+	if ( prop && prop->unit!=NULL )
 	{
 
 		/* only do conversion if the target unit differs from the class's unit for that property */

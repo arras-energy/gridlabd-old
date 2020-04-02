@@ -1191,7 +1191,10 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 
 int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 {
-	return convert_from_double(string,size,data,prop);
+	int len = convert_from_double(string,size,data,prop);
+output_warning(">>> convert_from_loadshape(string=%p,size=%d,data=%p <loadshape:%s>,prop=<property:%s>) --> %d (string='%s')",
+	string,size,data,((loadshape*)data)->schedule?((loadshape*)data)->schedule->name:"(null)",prop->name,len,string);
+	return len;
 }
 
 int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
