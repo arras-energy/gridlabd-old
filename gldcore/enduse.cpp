@@ -208,7 +208,9 @@ TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1)
 
 		e->t_last = t1;
 	}
-	return (e->shape && e->shape->type != MT_UNKNOWN) ? e->shape->t2 : TS_NEVER;
+	TIMESTAMP rt = (e->shape && e->shape->type != MT_UNKNOWN) ? e->shape->t2 : TS_NEVER;
+	return rt;
+
 }
 
 typedef struct s_endusesyncdata {
@@ -397,17 +399,6 @@ TIMESTAMP enduse_syncall(TIMESTAMP t1)
 
 	enduse_synctime += (clock_t)exec_clock() - ts;
 	return t2;
-
-	/*enduse *e;
-	TIMESTAMP t2 = TS_NEVER;
-	clock_t start = exec_clock();
-	for (e=enduse_list; e!=NULL; e=e->next)
-	{
-		TIMESTAMP t3 = enduse_sync(e,PC_PRETOPDOWN,t1);
-		if (t3<t2) t2 = t3;
-	}
-	enduse_synctime += exec_clock() - start;
-	return t2;*/
 }
 
 int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop)
@@ -441,8 +432,6 @@ int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 {
 	int len = convert_from_complex(string,size,data,prop);
-output_warning(">>> convert_from_enduse(string=%p,size=%d,data=%p <enduse:%s>,prop=<property:%s>) -> %d (string='%s')",
-	string,size,data,((enduse*)data)->name,prop->name,len,string);
 	return len;
 }
 

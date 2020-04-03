@@ -826,6 +826,7 @@ int loadshape_init(loadshape *ls) /**< load shape */
 
 TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 {
+
 	/* if the clock is running and the loadshape is driven by a schedule */
 	if (ls->schedule!=NULL && t1 > ls->t0)
 	{
@@ -928,7 +929,8 @@ TIMESTAMP loadshape_sync(loadshape *ls, TIMESTAMP t1)
 		}
 	}
 	ls->t0 = t1;
-	return ls->t2>0?ls->t2:TS_NEVER;
+	TIMESTAMP rt = ( ls->t2 > 0 ) ? ls->t2 : TS_NEVER;
+	return rt;
 }
 
 typedef struct s_loadshapesyncdata {
@@ -1192,15 +1194,12 @@ int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop)
 {
 	int len = convert_from_double(string,size,data,prop);
-output_warning(">>> convert_from_loadshape(string=%p,size=%d,data=%p <loadshape:%s>,prop=<property:%s>) --> %d (string='%s')",
-	string,size,data,((loadshape*)data)->schedule?((loadshape*)data)->schedule->name:"(null)",prop->name,len,string);
 	return len;
 }
 
 int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 {
 	loadshape *ls = (loadshape*)data;
-	memset(ls,0,sizeof(loadshape));
 	char buffer[1024];
 	char *token = NULL;
 
@@ -1690,11 +1689,13 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 		}
 		else if ( strcmp(param,"rng_state") == 0 )
 		{
-			if ( sscanf(value,"%u",&ls->rng_state) != 1 )
+			unsigned int state = strtol(value,NULL,10);
+			if ( state == 0 )
 			{
 				output_error("convert_to_loadshape(string='%-.64s...', ...) %s syntax error, '%s' not a valid rng_state", string, param, value);
 				return 0;
 			}
+			ls->rng_state = state;
 		}
 		else if (strcmp(param,"")!=0)
 		{

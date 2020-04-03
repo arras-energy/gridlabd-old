@@ -99,7 +99,7 @@ struct s_loadshape {
 	TIMESTAMP t0;	/**< time of last update (in seconds since epoch) */
 	TIMESTAMP t2;	/**< time of next update (in seconds since epoch) */
 	unsigned int rng_state; /**< state of the random number generator */
-
+		
 	struct s_loadshape *next;	/* next loadshape in list */
 };
 
