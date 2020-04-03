@@ -74,7 +74,7 @@ GldLoader::GldLoader(GldMain *main)
 	forloop_verbose = false;
 	static LANGUAGE builtin_languages[] = 
 	{
-		{"python",python_parser,NULL},
+		{"python",python_loader_init,python_parser,NULL},
 	};
 	language_list = builtin_languages;
 	language = NULL;
@@ -6397,22 +6397,25 @@ const char *GldLoader::for_replay(void)
 	}
 }
 
-void GldLoader::load_add_language(const char *name, bool (*parser)(const char*))
+
+void GldLoader::load_add_language(const char *name, bool (*parser)(const char*,void*context), void* (*init)(int,const char**))
 {
 	LANGUAGE *item = new LANGUAGE;
 	item->name = strdup(name);
 	item->parser = parser;
+	item->init = init;
 	item->next = language_list;
 	language_list = item;
 }
 
+PyObject *python_loader_module = NULL;
 int GldLoader::set_language(const char *name)
 {
 	if ( name == NULL )
 	{
 		if ( language == NULL )
 		{
-			syntax_error(filename,linenum,"no language set");
+			output_warning("%s(%d): no language set",filename,linenum);
 			return FALSE;
 		}
 		language = NULL;
@@ -6422,6 +6425,10 @@ int GldLoader::set_language(const char *name)
 	{
 		if ( strcmp(language->name,name) == 0 )
 		{
+			if ( strcmp(name,"python") == 0 && python_loader_module == NULL )
+			{
+				python_loader_module = (PyObject*)python_loader_init(0,NULL);
+			}
 			return TRUE;
 		}
 	}
@@ -6805,12 +6812,12 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		int status;
 		if ( strncmp(m,"#end",4) == 0 )
 		{
-			status = language->parser(NULL);
+			status = language->parser(NULL,NULL);
 			set_language(NULL);
 		}
 		else
 		{
-			status = language->parser(line);
+			status = language->parser(line,NULL);
 		}
 		if ( status == true )
 		{

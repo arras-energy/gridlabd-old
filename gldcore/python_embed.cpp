@@ -5,6 +5,7 @@
 
 wchar_t *program = NULL;
 PyObject *main_module = NULL;
+PyObject *gridlabd_module = NULL;
 
 PyMODINIT_FUNC PyInit_gridlabd(void);
 
@@ -13,16 +14,26 @@ void python_embed_init(int argc, const char *argv[])
     program = Py_DecodeLocale(argv[0],NULL);
     Py_SetProgramName(program);
     Py_Initialize();
-    // main_module = PyModule_GetDict(PyImport_AddModule("__main__"));
-    main_module = PyInit_gridlabd();
+    main_module = PyModule_GetDict(PyImport_AddModule("__main__"));
     if ( main_module == NULL )
     {
         output_error("python_embed_init(argc=%d,argv=[...]: unable to load module __main__ module",argc);
-        throw "python exception";
+        throw "python initialization failied";
     }
-    // python_parser("import " PACKAGE);
-    // python_parser();
     output_verbose("python initialization ok");
+    const char *import_list[] = {"gridlabd"};
+    if ( python_loader_init(sizeof(import_list)/sizeof(import_list[0]),import_list) == NULL )
+        throw "python initial import failed";
+    python_parser("import " PACKAGE);
+    python_parser();
+    gridlabd_module = PyModule_GetDict(PyImport_AddModule(PACKAGE));
+    if ( gridlabd_module == NULL )
+        throw "python module import failed";
+}
+
+void *python_loader_init(int argc, const char **argv)
+{
+    return main_module;
 }
 
 void python_embed_term()
@@ -127,8 +138,8 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
         return false;
     }
 
-    PyObject *pGridlabd = PyDict_GetItemString(main_module,"gridlabd");
-    PyObject *pArgs = Py_BuildValue("(O)",pGridlabd?pGridlabd:main_module);
+    PyObject *pGridlabd = PyDict_GetItemString(pModule,"gridlabd");
+    PyObject *pArgs = Py_BuildValue("(O)",pGridlabd?pGridlabd:PyInit_gridlabd());
     PyObject *pKwargs = vargsfmt ? Py_VaBuildValue(vargsfmt,varargs) : NULL;
     PyObject *pResult = PyObject_Call(pFunc,pArgs,pKwargs);
     if ( pGridlabd ) Py_DECREF(pGridlabd);
@@ -266,7 +277,7 @@ std::string python_eval(const char *command)
 //   python_parser(NULL) to parse input buffer
 // Returns true on success, false on failure
 static std::string input_buffer("");
-bool python_parser(const char *line)
+bool python_parser(const char *line, void *context)
 {
     // end input -> run code
     if ( line != NULL )
@@ -275,8 +286,14 @@ bool python_parser(const char *line)
         return true;
     }
 
+    PyObject *module = (PyObject*)context;
+    if ( module == NULL )
+    {
+        module = main_module;
+    }
+
     const char *command = input_buffer.c_str();
-    PyObject *result = PyRun_String(command,Py_file_input,main_module,main_module);
+    PyObject *result = PyRun_String(command,Py_file_input,module,module);
     if ( result == NULL )
     {
         output_error("python_embed_call(parser_module='gridlabd',command='%s') failed",truncate(command));
