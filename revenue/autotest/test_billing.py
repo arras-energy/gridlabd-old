@@ -5,6 +5,9 @@ csvfile = open("billing.csv","w")
 csvwriter = writer(csvfile);
 csvwriter.writerow(["datetime","meter","tariff","billing_days","energy","demand","charges"])
 
+def to_float(x):
+	return float(x.split(' ')[0])
+
 def compute_bill(gridlabd,**kwargs):
 
 	verbose = gridlabd.get_global("verbose")=="TRUE"
@@ -17,10 +20,10 @@ def compute_bill(gridlabd,**kwargs):
 	bill_name = f"{classname}:{id}"
 	bill = gridlabd.get_object(bill_name)
 	bill_name = bill["name"]
-	baseline = float(bill["baseline_demand"])
+	baseline = to_float(bill["baseline_demand"])
 	tariff = gridlabd.get_object(bill["tariff"])
 	meter = gridlabd.get_object(bill["meter"])
-	energy = float(meter["measured_real_energy"])/1000
+	energy = to_float(meter["measured_real_energy"])/1000
 
 	# get duration
 	clock = datetime.strptime(gridlabd.get_global('clock'),'%Y-%m-%d %H:%M:%S %Z')
@@ -48,7 +51,7 @@ def compute_bill(gridlabd,**kwargs):
 	if baseline == 0.0:
 		if verbose:
 			print(f"  Energy usage..... %7.1f  kWh" % (usage))
-		charges = usage * float(tariff["energy_charge_base"])
+		charges = usage * to_float(tariff["energy_charge_base"])
 	else:
 		tier1 = min(usage,baseline*billing_days)
 		tier2 = min(usage-tier1,baseline*billing_days*4)
@@ -59,15 +62,15 @@ def compute_bill(gridlabd,**kwargs):
 				print(f"  Tier 2 usage..... %7.1f  kWh" % (tier2))
 			if tier3 > 0:
 				print(f"  Tier 3 usage..... %7.1f  kWh" % (tier3))
-		charges = tier1 * float(tariff["energy_charge_base"]) + tier2 *	float(tariff["energy_charge_100"]) + tier3 * float(tariff["energy_charge_400"])	
+		charges = tier1 * to_float(tariff["energy_charge_base"]) + tier2 *	to_float(tariff["energy_charge_100"]) + tier3 * to_float(tariff["energy_charge_400"])	
 
 	# apply discount, if any
-	discount = float(tariff["discount"])
+	discount = to_float(tariff["discount"])
 	if discount > 0:
 		charges -= usage * discount;
 
 	# apply daily minimum
-	minimum = float(tariff["minimum_daily_charge"])
+	minimum = to_float(tariff["minimum_daily_charge"])
 	if charges < minimum * billing_days:
 		charges = minimum * billing_days
 	if verbose:
@@ -78,10 +81,10 @@ def compute_bill(gridlabd,**kwargs):
 		csvwriter.writerow([clock,meter_name,tariff_name,int(billing_days),round(usage,1),0,round(charges,2)])
 
 	# update billing data
-	gridlabd.set_value(bill_name,"total_bill",str(float(bill["total_bill"])+charges))
+	gridlabd.set_value(bill_name,"total_bill",str(to_float(bill["total_bill"])+charges))
 	gridlabd.set_value(bill_name,"billing_days",str(billing_days))
-	gridlabd.set_value(bill_name,"energy_charges",str(float(bill["energy_charges"])+charges))
-	gridlabd.set_value(bill_name,"total_charges",str(float(bill["total_charges"])+charges))
+	gridlabd.set_value(bill_name,"energy_charges",str(to_float(bill["energy_charges"])+charges))
+	gridlabd.set_value(bill_name,"total_charges",str(to_float(bill["total_charges"])+charges))
 
 	return
 
