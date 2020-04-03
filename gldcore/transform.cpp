@@ -600,9 +600,13 @@ int transform_to_string(char *buffer, int size, TRANSFORM *xform)
 {
 	int count = 0;
 	double *source = xform->source;
+	const char * source_name;
 	switch ( xform->function_type ) {
 	case XT_LINEAR:
-		count += snprintf(buffer,size,"%s*%g+%g",xform->source_schedule?xform->source_schedule->name:get_source_name(source),xform->scale,xform->bias);
+		source_name = xform->source_schedule?xform->source_schedule->name:get_source_name(source);
+		if ( source_name == NULL && get_source_name(source) )
+			source_name = "(source not found)";
+		count += snprintf(buffer,size,"%s*%g+%g",source_name,xform->scale,xform->bias);
 		break;
 	case XT_EXTERNAL:
 		count += snprintf(buffer,size,"%s(",module_find_transform_function(xform->function));
@@ -617,7 +621,10 @@ int transform_to_string(char *buffer, int size, TRANSFORM *xform)
 		count += snprintf(buffer,size,")");
 		break;
 	case XT_FILTER:
-		count += snprintf(buffer,size,"%s(%s)", xform->tf->name, get_source_name(source));
+		source_name = get_source_name(source);
+		if ( source_name == NULL && get_source_name(source) )
+			source_name = "(source not found)";
+		count += snprintf(buffer,size,"%s(%s)", xform->tf->name, source_name);
 		break;
 	default:
 		throw_exception("transform_to_string(char *buffer=%p, int size=%d, TRANSFORM *xform=%p): xform->source_type = %d is invalid", buffer, size, xform, xform->source_type);
