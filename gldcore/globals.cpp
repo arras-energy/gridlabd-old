@@ -752,7 +752,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		wlock(&globalvar_lock);
 		retval = class_string_to_property(var->prop,(void*)var->prop->addr,value);
 		wunlock(&globalvar_lock);
-		if ( retval == 0 )
+		if ( retval < 0 )
 		{
 			output_error("GldGlobals::setvar_v(const char *def='%s',...): unable to set %s %s %s",def,name,sep,value);
 			/* TROUBLESHOOT
@@ -1456,7 +1456,7 @@ size_t GldGlobals::saveall(FILE *fp)
 		if ( strstr(var->prop->name,"::") == NULL
 			&& global_getvar(var->prop->name,buffer,sizeof(buffer)-1) != NULL )
 		{
-			count += fprintf(fp,"#set %s=%s;\n",var->prop->name,buffer);
+			count += fprintf(fp,"#set %s=%s\n",var->prop->name,buffer);
 		}
 	}
 	return count;
