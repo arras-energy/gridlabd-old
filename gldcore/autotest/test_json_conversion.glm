@@ -10,9 +10,8 @@
 
 #gridlabd -D SAVEFILE=waterheater_1.csv test_json_conversion.glm
 #gridlabd -D SAVEFILE=waterheater_2.csv -D filesave_options=ALLINITIAL -I test_json_conversion.glm -o test_json_conversion_save.json 
-#gridlabd test_json_conversion_save.json -o test_json_conversion_final.glm
+#gridlabd test_json_conversion_save.json -D filesave_options=ALLINITIAL -o test_json_conversion_final.glm
 #exec diff -wq waterheater_1.csv waterheater_2.csv
-#gridlabd test_json_conversion_final.glm
 
 #else // simulation run specifies SAVEFILE
 
