@@ -289,6 +289,18 @@ const char *object_get_unit(OBJECT *obj, const char *name)
 	}
 }
 
+static void object_create_properties(OBJECT *obj,CLASS *oclass)
+{
+	if ( oclass->parent != NULL )
+	{
+		object_create_properties(obj,oclass->parent);
+	}
+	for ( PROPERTY *prop = oclass->pmap ; prop != NULL ; prop = prop->next )
+	{
+		property_create(prop,property_addr(obj,prop));
+	}
+}
+
 /** Create a single object.
 	@return a pointer to object header, \p NULL of error, set \p errno as follows:
 	- \p EINVAL type is not valid
@@ -297,7 +309,6 @@ const char *object_get_unit(OBJECT *obj, const char *name)
 OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 {
 	OBJECT *obj = 0;
-	PROPERTY *prop;
 	int sz = sizeof(OBJECT);
 
 	if ( oclass == NULL )
@@ -350,9 +361,8 @@ OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 	obj->initial_values = NULL;
 	random_key(obj->guid,sizeof(obj->guid)/sizeof(obj->guid[0]));
 
-	for ( prop=obj->oclass->pmap; prop!=NULL; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)))
-		property_create(prop,property_addr(obj,prop));
-	
+	object_create_properties(obj,obj->oclass);
+
 	if ( first_object == NULL )
 	{
 		first_object = obj;
@@ -1496,7 +1506,7 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 	{
 		return prop->delegation->to_string(addr,buffer,sz) ? buffer : NULL;
 	}
-	else if ( class_property_to_string(prop,addr,buffer,sz) >= 0 )
+	else if ( property_write(prop,addr,buffer,sz) >= 0 )
 	{
 		return buffer;
 	}
@@ -1505,6 +1515,52 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 		output_error("gldcore/object.c:object_property_to_string(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property value into buffer",
 			obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
 		return "";
+	}
+}
+
+/* Convert an object property to a string that can be used to initialize
+ */
+const char *object_property_to_initial(OBJECT *obj, const char *name, char *buffer, int sz)
+{	
+	PROPERTY *prop = class_find_property(obj->oclass,name);
+	if ( prop == NULL )
+	{
+		errno = ENOENT;
+		return NULL;
+	}
+	void *addr = GETADDR(obj,prop); /* warning: cast from pointer to integer of different size */
+	PROPERTYSPEC *spec = property_getspec(prop->ptype);
+	if ( spec->to_initial == NULL )
+	{
+		int len = property_write(prop,addr,buffer,sz);
+		if ( len >= 0 )
+		{
+			buffer[len] = '\0';
+			// output_debug("current value of '%s:%d.%s' is '%s'", obj->oclass->name, obj->id, prop->name, buffer);
+			return buffer;
+		}
+		else
+		{
+			output_error("gldcore/object.c:object_property_to_initial(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property value into buffer",
+				obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
+			return "";
+		}	
+	}
+	else 
+	{
+		int len = spec->to_initial(buffer,sz,addr,prop);
+		if ( len >= 0 )
+		{
+			buffer[len] = '\0';
+			// output_debug("initial value of '%s:%d.%s' is '%s'", obj->oclass->name, obj->id, prop->name, buffer);
+			return buffer;
+		}
+		else
+		{
+			output_error("gldcore/object.c:object_property_to_initial(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property initialization into buffer",
+				obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
+			return "";
+		}
 	}
 }
 
@@ -3177,12 +3233,20 @@ bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
 	return true;
 }
 
-OBJECT *object_find_by_addr(void *addr)
+OBJECT *object_find_by_addr(void *addr, PROPERTY *prop)
 {
-	for ( OBJECT *obj = first_object ; obj != NULL ; obj = obj->next )
+	static OBJECT *last_object = NULL; // caching last found
+	for ( OBJECT *obj = last_object ? last_object : first_object ; obj != NULL ; obj = obj->next )
 	{
-		if ( addr >= obj && addr < (char*)(((OBJECT*)addr)+1)+obj->oclass->size )
+		if ( addr >= obj && addr < (char*)(((OBJECT*)obj)+1)+obj->oclass->size )
+		{
+			last_object = obj;
 			return obj;
+		}
+		if ( obj->next == NULL && last_object )
+		{
+			obj = first_object;
+		}
 	}
 	return NULL;
 }
@@ -3200,7 +3264,9 @@ PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full)
 
 PROPERTY *object_get_first_property(OBJECT *obj, bool full)
 {
-	for ( CLASS *oclass = obj->oclass ; oclass != NULL ; oclass = ( full == true ? oclass->parent : NULL ) )
+	for ( CLASS *oclass = obj->oclass ; 
+		oclass != NULL ; 
+		oclass = ( full == true ? oclass->parent : NULL ) )
 	{	
 		if ( oclass->pmap != NULL )
 		{
@@ -3213,9 +3279,13 @@ PROPERTY *object_get_first_property(OBJECT *obj, bool full)
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full)
 {
 	if ( full == true )
-		return (prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL));
+	{
+		return ( prop->next ? prop->next : ( prop->oclass->parent ? prop->oclass->parent->pmap : NULL ) );
+	}
 	else
+	{
 		return prop->next;
+	}
 }
 
 bool object_reset(OBJECT *obj)

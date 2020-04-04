@@ -28,15 +28,26 @@ line_sensor::line_sensor(MODULE *module)
 
 		defaults = this;
 		if (gl_publish_variable(oclass,
-			PT_enumeration,"measured_phase",get_measured_phase_offset(), PT_DESCRIPTION,"phase from which measurement is taken",
+			PT_enumeration,"measured_phase",get_measured_phase_offset(), 
+				PT_REQUIRED,
+				PT_DESCRIPTION,"phase from which measurement is taken",
 				PT_KEYWORD, "A", (enumeration)PHASE_A,
 				PT_KEYWORD, "B", (enumeration)PHASE_B,
 				PT_KEYWORD, "C", (enumeration)PHASE_C,
-			PT_complex,"measured_voltage[V]",get_measured_voltage_offset(), PT_DESCRIPTION,"voltage measurement (with noise)",
-			PT_complex,"measured_current[A]",get_measured_current_offset(), PT_DESCRIPTION,"current measurement (with noise)",
-			PT_complex,"measured_power[VA]",get_measured_power_offset(), PT_DESCRIPTION,"power measurement (with noise)",
-			PT_double,"location[ft]",get_location_offset(), PT_DESCRIPTION,"sensor placement downline",
-			PT_double_array,"covariance", get_covariance_offset(), PT_DESCRIPTION,"sensor covariance matrix (components are [Vr Vi Ir Ii])",
+			PT_complex,"measured_voltage[V]",get_measured_voltage_offset(), 
+				PT_OUTPUT,
+				PT_DESCRIPTION,"voltage measurement (with noise)",
+			PT_complex,"measured_current[A]",get_measured_current_offset(), 
+				PT_OUTPUT,
+				PT_DESCRIPTION,"current measurement (with noise)",
+			PT_complex,"measured_power[VA]",get_measured_power_offset(), 
+				PT_OUTPUT,
+				PT_DESCRIPTION,"power measurement (with noise)",
+			PT_double,"location[ft]",get_location_offset(), 
+				PT_REQUIRED,
+				PT_DESCRIPTION,"sensor placement downline",
+			PT_double_array,"covariance", get_covariance_offset(), 
+				PT_DESCRIPTION,"sensor covariance matrix (components are [Vr Vi Ir Ii])",
 			NULL)<1){
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);

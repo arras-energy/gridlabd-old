@@ -373,7 +373,7 @@ typedef struct s_callbacks {
 	int (*call_external_callback)(const char*, void *);
 	struct {
 		PyObject *(*import)(const char *module, const char *path);
-		bool (*call)(PyObject *pModule, const char *method);
+		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs);
 	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
@@ -499,7 +499,7 @@ typedef struct s_jsondata {
 bool object_set_json(OBJECT *obj, const char *propname, JSONDATA *data);
 void object_save_initial_value(OBJECT *obj, const char *name, const char *value);
 
-OBJECT *object_find_by_addr(void *addr);
+OBJECT *object_find_by_addr(void *addr, PROPERTY *prop=NULL);
 PROPERTY *object_get_first_property(OBJECT *obj, bool full=true);
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full=true);
 PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full=true);
@@ -512,6 +512,7 @@ void object_set_initial_double(OBJECT *obj, const char *name, double value, UNIT
 void object_set_initial_complex(OBJECT *obj, const char *name, complex *value, UNIT *unit=NULL);
 void object_set_initial_randomvar(OBJECT *obj, const char *name, randomvar *value, UNIT *unit=NULL);
 void object_set_initial_filter(OBJECT *obj, const char *name, TRANSFORM *value, UNIT *unit=NULL);
+const char *object_property_to_initial(OBJECT *obj, const char *name, char *buffer, int sz);
 
 #ifdef __cplusplus
 }

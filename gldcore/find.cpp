@@ -984,7 +984,7 @@ int expression(PARSER, FINDPGM **pgm)
 			strcpy(v.string, pvalue);
 			//printf("find(): v.string=\"%s\", pvalue=\"%s\"\n", v.string, pvalue);
 			add_pgm(pgm, comparemap[op%7].string, OFFSET(groupid), v, NULL, findlist_del);
-			(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_NAME);
+			(*pgm)->constflags = PGMCONSTFLAGS((*pgm)->constflags|CF_GROUPID);
 			ACCEPT;
 			DONE;
 		}

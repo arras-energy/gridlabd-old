@@ -184,8 +184,14 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 			{
 				printf("%s\t%s %s;", tabs, propname, prop->name);
 			}
-			if (prop->description!=NULL)
-				printf(" // %s%s",prop->flags&PF_DEPRECATED?"(DEPRECATED) ":"",prop->description);
+			char flags[1024] = "";
+			if ( prop->flags&PF_DEPRECATED ) strcat(flags,flags[0]?",":"("),strcat(flags,"DEPRECATED");
+			if ( prop->flags&PF_REQUIRED ) strcat(flags,flags[0]?",":"("),strcat(flags,"REQUIRED");
+			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?",":"("),strcat(flags,"OUTPUT");
+			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?",":"("),strcat(flags,"DYNAMIC");
+			if ( flags[0] ) strcat(flags,") ");
+			if ( flags[0] != '\0' || prop->description != NULL )
+			printf(" // %s%s",flags,prop->description?prop->description:"");
 			printf("\n");
 		}
 	}
@@ -1690,9 +1696,55 @@ int GldCmdarg::example(int argc, const char *argv[])
 		return CMDERR;
 	}
 	output_raw("class %s {\n",oclass->name);
+	bool first = true;
 	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
-		output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		if ( (prop->flags&PF_REQUIRED) && ! (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// required input properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+	}
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+	{
+		if ( ! (prop->flags&PF_REQUIRED) && ! (prop->flags&PF_OUTPUT) && ! (prop->flags&PF_DYNAMIC) && ! (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// optional input properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+	}
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+	{
+		if ( ! (prop->flags&PF_DYNAMIC) && (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// dynamic properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+	}
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+	{
+		if ( (prop->flags&PF_OUTPUT) && ! (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// output properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+	}
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+	{
+		if ( prop->flags&PF_DEPRECATED )
+		{
+			if ( first ) output_raw("\t// deprecated properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
 	}
 	output_raw("}\n");
 	return CMDOK;

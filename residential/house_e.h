@@ -65,6 +65,8 @@ typedef enum e_implicit_enduse_source {
 #define EAST		0x0004
 #define SOUTH		0x0008
 #define WEST		0x0010
+#define ALLWALLS	0x001e
+#define ALL         0x001f
 
 EXPORT SIMULATIONMODE interupdate_house_e(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);
 EXPORT STATUS postupdate_house_e(OBJECT *obj);

@@ -44,7 +44,9 @@ public:
 	};
 	inline int run(void)
 	{
-		return system(command);
+		int rc = system(command);
+		output_debug("onexitcommand(xc=%d,cmd='%s').run() --> exit code %d",exitcode,command,rc);
+		return rc;
 	};
 };
 

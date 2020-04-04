@@ -73,10 +73,14 @@ unsigned entropy_source(void)
 int random_init(void)
 {
 	/* randomizes the random number generator start value */
-	if (global_randomseed==0)
-		global_randomseed = entropy_source();
-	if (global_randomstate==0)
+	if ( global_randomseed == 0 )
+	{
+		global_randomstate = global_randomseed = entropy_source();
+	}
+	else if ( global_randomstate == 0 )
+	{
 		global_randomstate = global_randomseed;
+	}
 
 	srand(1);
 	ur_state = &global_randomstate;
@@ -1335,6 +1339,46 @@ int convert_from_randomvar(char *string,int size,void *data, PROPERTY *prop)
 {
 	randomvar *var = (randomvar*)data;
 	return sprintf(string,"%lf",var->value);
+}
+
+int initial_from_randomvar(char *string, int size, void *data, PROPERTY *prop)
+{
+	randomvar *var = (randomvar*)data;
+	char buffer[1024];
+	char tmp[1024];
+	if ( _random_specs(var->type,var->a,var->b,tmp,sizeof(tmp)-1) )
+	{
+		int len = snprintf(buffer,sizeof(buffer)-1,"type:%s",tmp);
+		if ( var->low != 0.0 && var->low < var->high )
+		{
+			len += snprintf(buffer,sizeof(buffer)-1-len,"; min:%g",var->low);
+		}
+		if ( var->high != 0.0 && var->low < var->high )
+		{
+			len += snprintf(buffer,sizeof(buffer)-1-len,"; max:%g",var->high);
+		}
+		if ( var->update_rate != 0 )
+		{
+			len += snprintf(buffer,sizeof(buffer)-1-len,"; refresh:%d",var->update_rate);
+		}
+		if ( (var->flags&RNF_INTEGRATE) == RNF_INTEGRATE )
+		{
+			len += snprintf(buffer,sizeof(buffer)-1-len,"; integrate");
+		}
+		if ( var->correlation != NULL )
+		{
+			object_name(var->correlation->object,tmp,sizeof(tmp)-1);
+			len += snprintf(buffer,sizeof(buffer)-1-len,"; correlate:%s.%s*%lg%+lg",
+				tmp, var->correlation->property->name, var->correlation->scale, var->correlation->bias);			
+		}
+		len += snprintf(buffer,sizeof(buffer)-1-len,"; state:%d",var->state);
+		return len;
+	}
+	else
+	{
+		output_error("initial value of randomvar type %d cannot be reconstructred",var->type);
+		return -1;
+	}
 }
 
 int randomvar_create(void *ptr)
