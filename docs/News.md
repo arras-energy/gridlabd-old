@@ -1,5 +1,6 @@
+# Technical Advisory Committee Meetings and User Workshops
 
-The HiPAS GridLAB-D Technical Advisory Committee Meetings and User Workshops held every September in Oakland California.  Please see [Gridworks Distribution Systems Modeling Tools](https://gridworks.org/initiatives/distribution-system-modeling-tools/) for more information.
+The HiPAS GridLAB-D Technical Advisory Committee Meetings and User Workshops are held every September in Oakland California.  Please see [Gridworks Distribution Systems Modeling Tools](https://gridworks.org/initiatives/distribution-system-modeling-tools/) for more information.
 
 # Recent Updates
 
