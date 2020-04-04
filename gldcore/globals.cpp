@@ -168,16 +168,19 @@ DEPRECATED static KEYWORD gso_keys[] = {
 	{"ORIGINAL",	GSO_ORIGINAL,	NULL},
 };
 DEPRECATED static KEYWORD fso_keys[] = {
-	{"ALL",			FSO_ALL,		fso_keys+1},
-	{"MODULES",		FSO_MODULES,	fso_keys+2},
-	{"PROPERTIES",	FSO_PROPERTIES,	fso_keys+3},
-	{"CLASSES",		FSO_CLASSES,	fso_keys+4},
-	{"GLOBALS",		FSO_GLOBALS,	fso_keys+5},
-	{"OBJECTS",		FSO_OBJECTS,	fso_keys+6},
-	{"SCHEDULES",	FSO_SCHEDULES,	fso_keys+7},
-	{"FILTERS",		FSO_FILTERS,	fso_keys+8},
-	{"SCRIPTS",		FSO_SCRIPTS,	fso_keys+9},
-	{"CLOCK",		FSO_CLOCK,		fso_keys+10},
+	{"ALLINITIAL",	FSO_ALLINITIAL,	fso_keys+1},
+	{"ALLMINIMAL",	FSO_ALLMINIMAL,	fso_keys+2},
+	{"ALL",			FSO_ALL,		fso_keys+3},
+	{"MODULES",		FSO_MODULES,	fso_keys+4},
+	{"PROPERTIES",	FSO_PROPERTIES,	fso_keys+5},
+	{"CLASSES",		FSO_CLASSES,	fso_keys+6},
+	{"GLOBALS",		FSO_GLOBALS,	fso_keys+7},
+	{"OBJECTS",		FSO_OBJECTS,	fso_keys+8},
+	{"SCHEDULES",	FSO_SCHEDULES,	fso_keys+9},
+	{"FILTERS",		FSO_FILTERS,	fso_keys+10},
+	{"SCRIPTS",		FSO_SCRIPTS,	fso_keys+11},
+	{"CLOCK",		FSO_CLOCK,		fso_keys+12},
+	{"INITIAL",     FSO_INITIAL,    fso_keys+13},
 	{"MINIMAL",		FSO_MINIMAL,	NULL},
 };
 
@@ -232,8 +235,8 @@ DEPRECATED static struct s_varmap {
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},
 	{"website", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string (deprecated)"}, /** @todo deprecate use of 'website' */
 	{"urlbase", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string"},
-	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*))random_init},
 	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,(void(*)(const char*))random_init},
+	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*))random_init},
 	{"include", PT_char1024, &global_include, PA_REFERENCE, "include folder path"},
 	{"trace", PT_char1024, &global_trace, PA_PUBLIC, "trace function list"},
 	{"gdb_window", PT_bool, &global_gdb_window, PA_PUBLIC, "gdb window enable flag"},
@@ -699,30 +702,30 @@ STATUS GldGlobals::setvar(const char *def, ...) /**< the definition */
 }
 STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 {
-	char name[65]="", value[1024]="";
-	if (sscanf(def,"%[^=]=%[^\r\n]",name,value)<2)
+	char name[65]="", sep[32]="", value[1024]="";
+	if ( sscanf(def,"%64[^ \t=]%31[ \t=]%1023[^\r\n]",name,sep,value) < 3 )
 	{
 		char *v;
 		v = va_arg(ptr,char*);
-		if (v!=NULL) 
+		if ( v != NULL ) 
 		{
 			strncpy(value,v,sizeof(value));
 			if (strcmp(value,v)!=0)
-				output_error("global_setvar(char *name='%s',...): value is too long to store");
+				output_error("GldGlobals::setvar_v(const char *def='%s',...): va_list value is too long to store",def);
 				/* TROUBLESHOOT
 					An attempt to set a global variable failed because the value of the variable
 					was too long.
 				 */
 		}
 	}
-	if (strcmp(name,"")!=0) /* something was defined */
+	if ( strcmp(name,"") != 0 ) /* something was defined */
 	{
 		GLOBALVAR *var = global_find(name);
 		DEPRECATED static LOCKVAR globalvar_lock = 0; // TODO: this is non-reentrant
 		int retval;
-		if (var==NULL)
+		if ( var == NULL )
 		{
-			if (global_strictnames)
+			if ( global_strictnames )
 			{
 				output_error("strict naming prevents implicit creation of %s", name);
 				/* TROUBLESHOOT
@@ -749,8 +752,9 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		wlock(&globalvar_lock);
 		retval = class_string_to_property(var->prop,(void*)var->prop->addr,value);
 		wunlock(&globalvar_lock);
-		if (retval==0){
-			output_error("global_setvar(): unable to set %s to %s",name,value);
+		if ( retval < 0 )
+		{
+			output_error("GldGlobals::setvar_v(const char *def='%s',...): unable to set %s %s %s",def,name,sep,value);
 			/* TROUBLESHOOT
 				The input value was not convertable into the desired type for the input
 				variable.  Check the input range, review the input file, and adjust
@@ -758,8 +762,10 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 			 */
 			return FAILED;
 		}
-		else if (var->callback) 
+		else if ( var->callback ) 
+		{
 			var->callback(var->prop->name);
+		}
 
 		return SUCCESS;
 	}
@@ -1450,7 +1456,7 @@ size_t GldGlobals::saveall(FILE *fp)
 		if ( strstr(var->prop->name,"::") == NULL
 			&& global_getvar(var->prop->name,buffer,sizeof(buffer)-1) != NULL )
 		{
-			count += fprintf(fp,"#set %s=%s;\n",var->prop->name,buffer);
+			count += fprintf(fp,"#set %s=%s\n",var->prop->name,buffer);
 		}
 	}
 	return count;

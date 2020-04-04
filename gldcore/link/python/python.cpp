@@ -334,6 +334,10 @@ public:
 ///////////////////////////
 PyMODINIT_FUNC PyInit_gridlabd(void)
 {
+    if ( this_module != NULL )
+    {
+        return this_module;
+    }
     this_module = PyModule_Create(&gridlabd_module_def);
     if ( this_module == NULL )
     {

@@ -103,8 +103,8 @@ AC_MSG_NOTICE
 AC_MSG_NOTICE([C compiler])
 AC_MSG_NOTICE
 
-: ${CFLAGS="-Wall -O2 -g"}
-: ${CXXFLAGS="-Wall -O2 -g"}
+: ${CFLAGS="-Wall"}
+: ${CXXFLAGS="-Wall"}
 AC_PROG_CC
 AC_GNU_SOURCE   # defines _GNU_SOURCE
 AM_PROG_CC_C_O  # required for automake to support subdir-objects
@@ -634,8 +634,8 @@ AC_MSG_RESULT([
 -----------------------------------------------------------------------
 ])
 
-CXXFLAGS="$CXXFLAGS $(/usr/local/bin/python3-config --cflags)"
-LDFLAGS="$LDFLAGS $(/usr/local/bin/python3-config --ldflags)"
+CXXFLAGS="$(/usr/local/bin/python3-config --cflags) $CXXFLAGS "
+LDFLAGS="$(/usr/local/bin/python3-config --ldflags) $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
