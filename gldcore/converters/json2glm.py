@@ -77,8 +77,9 @@ def convert(ifile,ofile) :
 			for f_id, f_info in data['globals'].items() : 
 				if p_id in f_id and '::' in f_id and f_info['access'] == "PUBLIC" and f_info['value']: 
 					mod_var = f_id.split('::')
-					val_str = '\n\t' + mod_var[1] +' '+ f_info['value'] + ';'
-					fw.write(val_str)
+					if mod_var[0] == p_id:
+						val_str = '\n\t' + mod_var[1] +' '+ f_info['value'] + ';'
+						fw.write(val_str)
 			fw.write('\n}')
 
 		# globals
