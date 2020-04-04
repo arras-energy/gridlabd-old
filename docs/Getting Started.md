@@ -12,4 +12,4 @@ If you wish to access the files in the current folder while running GridLAB-D in
 bash% docker run -vit $PWD:$PWD slacgismo/gridlabd:latest gridlabd -W $PWD <filename>
 ~~~
 
-More information on using GridLAB-D docker containers can be found at [/Install/Docker].
+More information on using GridLAB-D docker containers can be found at [[/Install/Docker]].
