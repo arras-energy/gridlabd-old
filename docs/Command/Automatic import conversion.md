@@ -15,12 +15,14 @@ The GridLAB-D GLM loader will automatically convert to GLM format all input file
 Converters use the following calling syntax:
 
 ~~~
-bash$ python3 ext2glm.py -i filename.ext -o filename.glm
+bash$ python3 <ext>2glm.py -i filename.<ext> -o filename.glm
 ~~~
+
+where `<ext>` is the extension that is supported.
 
 # Caveats
 
-When a converter is run, the input file is converted in place to a GLM file by the same name, but with the `.glm` extension instead.  If the GLM file already exists, **the existing GLM file may be overwritten**.
+When a converter is run, the input file is converted in stored in a GLM file by the same name, but with the `.glm` extension instead.  If the GLM file already exists, **the existing GLM file may be overwritten**.
 
 # See also
 

@@ -8,9 +8,12 @@ The following features are new or improved in HiPAS GridLAB-D 4.2.
 # Command line options
 
 * [[/Command/Automatic import conversion]]
+* [[/Command/Automatic export conversion]]
 * [[/Command/Cite]]
 * [[/Command/Daemon]]
+* [[/Command/Depends]]
 * [[/Command/Gdb]]
+* [[/Command/Initialize]]
 * [[/Command/JSON input]]
 * [[/Command/JSON output]]
 * [[/Command/Lldb]]
