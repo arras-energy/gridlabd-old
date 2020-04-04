@@ -79,8 +79,6 @@ public:
 	double derating_factor;			//Inverter derating factor - makes user specifiable
 
 	// location of the array
-	double latitude;
-	double longitude;
 	enum ORIENTATION {DEFAULT=0, FIXED_AXIS=1, ONE_AXIS=2, TWO_AXIS=3, AZIMUTH_AXIS=4};
 	enumeration orientation_type;	//Describes orientation features of PV
 

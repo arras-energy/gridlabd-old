@@ -81,7 +81,8 @@ private:
 	typedef struct s_languagemap 
 	{
 		const char *name;
-		bool (*parser)(const char *buffer);
+		void *(*init)(int argc, const char **argv);
+		bool (*parser)(const char *buffer, void *context);
 		struct s_languagemap *next;
 	} LANGUAGE;
 
@@ -207,6 +208,10 @@ private:
 
 	DEPENDENCY_TREE dependency_tree;
 
+	const char *last_term;
+	char *last_term_buffer;
+	size_t last_term_buffer_size;
+
 private:
 
 	void syntax_error(const char *filename, const int linenum, const char *format, ...);
@@ -302,7 +307,9 @@ private:
 	int transform_source(PARSER, TRANSFORMSOURCE *xstype, void **source, OBJECT *from);
 	int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *filtername, size_t namesize, OBJECT *from);
 	int external_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *functionname, size_t namesize, OBJECT *from);
+public:
 	int linear_transform(PARSER, TRANSFORMSOURCE *xstype, void **source, double *scale, double *bias, OBJECT *from);
+private:
 	void json_free(JSONDATA **data);
 	bool json_append(JSONDATA **data, const char *name, size_t namelen, const char *value, size_t valuelen);
 	int json_data(PARSER,JSONDATA **data);
@@ -358,13 +365,17 @@ private:
 	int process_macro(char *line, int size, char *_filename, int linenum);
 	static void kill_processes(void);
 	void* start_process(const char *cmd);
-	void load_add_language(const char *name, bool (*parser)(const char*));
+	void load_add_language(const char *name, bool (*parser)(const char*,void *context), void* (*init)(int,const char**)=NULL);
 	STATUS loadall_glm(const char *file);
 	TECHNOLOGYREADINESSLEVEL calculate_trl(void);
 	bool load_import(const char *from, char *to, int len);
 	STATUS load_python(const char *filename);
 	STATUS loadall(const char *fname);
 	void add_depend(const char *filename, const char *dependency);
+	void clear_last_term(void);
+	void set_last_term(const char *p);
+	void save_last_term(const char *p);
+	const char *get_last_term(void);
 };
 
 #endif
