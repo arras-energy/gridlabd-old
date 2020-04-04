@@ -356,7 +356,7 @@ typedef struct s_callbacks {
 	int (*call_external_callback)(const char*, void *);
 	struct {
 		PyObject *(*import)(const char *module, const char *path);
-		bool (*call)(PyObject *pModule, const char *method);
+		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs);
 	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
@@ -482,12 +482,14 @@ typedef struct s_jsondata {
 } JSONDATA;
 bool object_set_json(OBJECT *obj, const char *propname, JSONDATA *data);
 
-OBJECT *object_find_by_addr(void *addr);
+OBJECT *object_find_by_addr(void *addr, PROPERTY *prop=NULL);
 PROPERTY *object_get_first_property(OBJECT *obj, bool full=true);
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full=true);
 PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full=true);
 void object_destroy(OBJECT *obj);
 void object_destroy_all(void);
+
+const char *object_property_to_initial(OBJECT *obj, const char *name, char *buffer, int sz);
 
 #ifdef __cplusplus
 }

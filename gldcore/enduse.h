@@ -221,6 +221,12 @@ DEPRECATED int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
  */
 DEPRECATED int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop);
 
+/*	Function: initial_from_enduse
+
+	This function converts an enduse to a initialization string
+ */
+DEPRECATED int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop);
+
 /*	Function: enduse_publish
 
 	This function publishes the properties of an enduse
@@ -285,6 +291,9 @@ public:
 
 	// Method: convert_from_enduse
 	int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop);
+
+	// Method: convert_from_enduse
+	int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop);
 
 	// Method: get_part
 	double get_part(void *c, const char *name);
