@@ -104,7 +104,6 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 
 static int recorder_open(OBJECT *obj)
 {
-	char1024 fname="";
 	char32 flags="w";
 	TAPEFUNCS *f = 0;
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
@@ -122,23 +121,19 @@ static int recorder_open(OBJECT *obj)
 		gl_error("invalid interval value (%d)", my->interval);
 		return 0;
 	}
-	/* if prefix is omitted (no colons found) */
-//	if (sscanf(my->file,"%32[^:]:%1024[^:]:%[^:]",type,fname,flags)==1)
-//	{
-		/* filename is file by default */
-		strcpy(fname,my->file);
-//		strcpy(type,"file");
-//	}
 
 	/* if no filename given */
-	if (strcmp(fname,"")==0)
-
+	if (strcmp(my->file,"")==0)
+	{
 		/* use object name-id as default file name */
-		sprintf(fname,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)my->filetype);
+		sprintf(my->file,"%s-%d.%s",obj->parent->oclass->name,obj->parent->id, (char*)my->filetype);
+	}
 
 	/* open multiple-run input file & temp output file */
-	if(my->type == FT_FILE && my->multifile[0] != 0){
-		if(my->interval < 1){
+	if ( my->type == FT_FILE && my->multifile[0] != 0 )
+	{
+		if ( my->interval < 1 )
+		{
 			gl_error("transient recorders cannot use multi-run output files");
 			return 0;
 		}
@@ -396,7 +391,7 @@ static int recorder_open(OBJECT *obj)
 		}
 	}
 
-	return my->ops->open(my, fname, flags);
+	return my->ops->open(my, my->file, flags);
 }
 
 static int write_recorder(struct recorder *my, char *ts, char *value)

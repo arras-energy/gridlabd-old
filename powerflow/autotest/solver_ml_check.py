@@ -1,6 +1,6 @@
 import pandas as pd 
 
-def check_dumps():
+def check_dumps(gridlabd):
 
     bus = pd.read_csv("solver_bus.csv")
     assert((bus["EOL"]=="EOL").all())
