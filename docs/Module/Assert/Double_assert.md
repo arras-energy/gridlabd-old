@@ -17,7 +17,7 @@ GLM:
 
 # Description
 
-TODO
+This class is used to sasert double values.
 
 ## Properties
 
