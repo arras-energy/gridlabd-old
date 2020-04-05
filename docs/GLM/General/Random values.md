@@ -97,7 +97,7 @@ The PDF is $\phi(x) = \left\\{ \begin{array}{lll} \lambda e^{\lambda x} & x\ge0 
 beta(<alpha>,<beta>)
 ~~~
 
-The PDF is $\phi(x) = \left\\{ TODO \right.$.
+The PDF is $\phi(x;\alpha,\beta) = \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{(\alpha-1)}(1-x)^{(\beta-1)}$.
 
 ## `gamma`
 
