@@ -89,7 +89,7 @@ The PDF is $\phi(x) = \left\\{ \frac{1}{\sqrt{2\pi}x\sigma} e^{\frac{(\ln x-\mu)
 exponential(lambda)
 ~~~
 
-The PDF is $\phi(x) = \left\\{ TODO \right.$.
+The PDF is $\phi(x) = \left\\{ \begin{array}{lll} \lambda e^{\lambda x} & x\ge0 \\\\ 0 & x\lt0 \end{array} \right.$.
 
 ## `beta`
 
