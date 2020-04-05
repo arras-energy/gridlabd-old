@@ -113,7 +113,7 @@ The PDF is $\phi(x;\alpha,\beta) = \frac{1}{\Gamma(\alpha)\beta^\alpha}x^{(\alph
 weibull(l,k)
 ~~~
 
-The PDF is $\phi(x;k,\lambda) = \frac{k}{\lambda}\left(\frac{x}{\lambda}\right}^{k-1}e^{-\left(\frac{x}\lambda}\right)^k$.
+The PDF is $\phi(x;k,\lambda) = \frac{k}{\lambda}\left(\frac{x}{\lambda}\right)}^{k-1}e^{-\left(\frac{x}\lambda}\right)^k$.
 
 ## `rayleigh`
 
@@ -121,7 +121,7 @@ The PDF is $\phi(x;k,\lambda) = \frac{k}{\lambda}\left(\frac{x}{\lambda}\right}^
 rayleigh(sigma)
 ~~~
 
-The PDF is $\phi(x;\sigma) = \frac{xe^-\frac{x^2}{2\sigma^2}}\sigma^2}$.
+The PDF is $\phi(x;\sigma) = \frac{xe^-\frac{x^2}{2\sigma^2}}{\sigma^2}$.
 
 ## `triangle`
 
