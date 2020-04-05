@@ -129,7 +129,7 @@ The PDF is $\phi(x;\sigma) = \frac{xe^-\frac{x^2}{2\sigma^2}}{\sigma^2}$.
 triangle(a,b)
 ~~~
 
-The PDF is $\phi(x;a,b) = \left\\{ \begin{array}{ll} \frac{4(x-a)}{(b-a)^2} & a \lt x \le (a+b)/2 \\\\ \frac{4(b-x)}{(b-a)^2} & (a+b)/2 < x \le b \\\\ 0 & x \le a ~|~ x \gt b \end{array}\right.$.
+The PDF is $\phi(x;a,b) = \left\\{ \begin{array}{ll} \frac{4(x-a)}{(b-a)^2} & a \lt x \le (a+b)/2 \\\\ \frac{4(b-x)}{(b-a)^2} & (a+b)/2 < x \le b \\\\ 0 & x \le a\ |\ x \gt b \end{array}\right.$.
 
 # See also
 
