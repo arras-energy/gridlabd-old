@@ -67,38 +67,38 @@ solar::solar(MODULE *module)
 			   PT_KEYWORD, "ROOF_MOUNTED", (enumeration)ROOF_MOUNTED,
                PT_KEYWORD, "GROUND_MOUNTED",(enumeration)GROUND_MOUNTED,
 
-			PT_enumeration, "SOLAR_TILT_MODEL", PADDR(solar_model_tilt), PT_DESCRIPTION, "solar tilt model used to compute insolation values",
+			PT_enumeration, "SOLAR_TILT_MODEL", PADDR(solar_model_tilt), PT_DEFAULT,"DEFAULT", PT_DESCRIPTION, "solar tilt model used to compute insolation values",
 				PT_KEYWORD, "DEFAULT", (enumeration)LIUJORDAN,
 				PT_KEYWORD, "SOLPOS", (enumeration)SOLPOS,
 				PT_KEYWORD, "PLAYERVALUE", (enumeration)PLAYERVAL,
 
-			PT_enumeration, "SOLAR_POWER_MODEL", PADDR(solar_power_model),
+			PT_enumeration, "SOLAR_POWER_MODEL", PADDR(solar_power_model), PT_DEFAULT,"DEFAULT",
 				PT_KEYWORD, "DEFAULT", (enumeration)BASEEFFICIENT,
 				PT_KEYWORD, "FLATPLATE", (enumeration)FLATPLATE,
 
-			PT_double, "a_coeff", PADDR(module_acoeff), PT_DESCRIPTION, "a coefficient for module temperature correction formula",
-			PT_double, "b_coeff[s/m]", PADDR(module_bcoeff), PT_DESCRIPTION, "b coefficient for module temperature correction formula",
-			PT_double, "dT_coeff[m*m*degC/kW]", PADDR(module_dTcoeff), PT_DESCRIPTION, "Temperature difference coefficient for module temperature correction formula",
-			PT_double, "T_coeff[%/degC]", PADDR(module_Tcoeff), PT_DESCRIPTION, "Maximum power temperature coefficient for module temperature correction formula",
+			PT_double, "a_coeff", PADDR(module_acoeff), PT_DEFAULT,"-2.81", PT_DESCRIPTION, "a coefficient for module temperature correction formula",
+			PT_double, "b_coeff[s/m]", PADDR(module_bcoeff), PT_DEFAULT,"-0.0455 s/m", PT_DESCRIPTION, "b coefficient for module temperature correction formula",
+			PT_double, "dT_coeff[m^2*degC/kW]", PADDR(module_dTcoeff), PT_DEFAULT,"0 m^2*degC/kW", PT_DESCRIPTION, "Temperature difference coefficient for module temperature correction formula",
+			PT_double, "T_coeff[%/degC]", PADDR(module_Tcoeff), PT_DEFAULT,"-0.5 %/degC", PT_DESCRIPTION, "Maximum power temperature coefficient for module temperature correction formula",
 
-			PT_double, "NOCT[degF]", PADDR(NOCT), //Nominal operating cell temperature NOCT in deg F
-            PT_double, "Tmodule[degF]", PADDR(Tmodule), //Temperature of PV module
-			PT_double, "Tambient[degC]", PADDR(Tambient), //Ambient temperature for cell efficiency calculations
-			PT_double, "wind_speed[mph]", PADDR(wind_speed), //Wind speed
-			PT_double, "ambient_temperature[degF]", PADDR(Tamb), PT_DESCRIPTION, "Current ambient temperature of air",
-			PT_double, "Insolation[W/sf]", PADDR(Insolation),
-			PT_double, "Rinternal[Ohm]", PADDR(Rinternal),
-			PT_double, "Rated_Insolation[W/sf]", PADDR(Rated_Insolation),
-			PT_double, "Pmax_temp_coeff", PADDR(Pmax_temp_coeff),  //temp coefficient of rated Power in %/ deg C
+			PT_double, "NOCT[degF]", PADDR(NOCT), PT_DEFAULT,"118.4 degF", PT_DESCRIPTION,"Nominal operating cell temperature NOCT in deg F",
+            PT_double, "Tmodule[degF]", PADDR(Tmodule), PT_DESCRIPTION,"Temperature of PV module",
+			PT_double, "Tambient[degC]", PADDR(Tambient), PT_DEFAULT,"25 degC", PT_DESCRIPTION,"Ambient temperature for cell efficiency calculations",
+			PT_double, "wind_speed[mph]", PADDR(wind_speed), PT_DEFAULT,"0 mph", PT_DESCRIPTION,"Wind speed",
+			PT_double, "ambient_temperature[degF]", PADDR(Tamb), PT_DEFAULT,"77 degF", PT_DESCRIPTION, "Current ambient temperature of air from climate data",
+			PT_double, "Insolation[W/sf]", PADDR(Insolation), PT_DEFAULT,"0 W/sf", 
+			PT_double, "Rinternal[Ohm]", PADDR(Rinternal), PT_DEFAULT, "0.05 Ohm",
+			PT_double, "Rated_Insolation[W/sf]", PADDR(Rated_Insolation), PT_DEFAULT, "92.902 W/sf",
+			PT_double, "Pmax_temp_coeff", PADDR(Pmax_temp_coeff), PT_DESCRIPTION,"temperature coefficient of rated power in %/degC",
             PT_double, "Voc_temp_coeff", PADDR(Voc_temp_coeff),
-			PT_complex, "V_Max[V]", PADDR(V_Max), // Vmax of solar module found on specs
-			PT_complex, "Voc_Max[V]", PADDR(Voc_Max),  //Voc max of solar module
-			PT_complex, "Voc[V]", PADDR(Voc), 
+			PT_complex, "V_Max[V]", PADDR(V_Max), PT_DEFAULT,"27.1+0i", PT_DESCRIPTION,"Vmax of solar module found on specs",
+			PT_complex, "Voc_Max[V]", PADDR(Voc_Max), PT_DEFAULT,"34+0i", PT_DESCRIPTION,"Voc max of solar module",
+			PT_complex, "Voc[V]", PADDR(Voc), PT_DEFAULT,"34+0i", 
 			PT_double, "efficiency[unit]", PADDR(efficiency),
-			PT_double, "area[sf]", PADDR(area),  //solar panel area
-			PT_double, "soiling[pu]", PADDR(soiling_factor), PT_DESCRIPTION, "Soiling of array factor - representing dirt on array",
-			PT_double, "derating[pu]", PADDR(derating_factor), PT_DESCRIPTION, "Panel derating to account for manufacturing variances",
-			PT_double, "Tcell[degC]", PADDR(Tcell),
+			PT_double, "area[sf]", PADDR(area), PT_DESCRIPTION,"solar panel area",
+			PT_double, "soiling[pu]", PADDR(soiling_factor), PT_DEFAULT,"0.95 pu", PT_DESCRIPTION, "Soiling of array factor - representing dirt on array",
+			PT_double, "derating[pu]", PADDR(derating_factor), PT_DEFAULT,"0.95 pu", PT_DESCRIPTION, "Panel derating to account for manufacturing variances",
+			PT_double, "Tcell[degC]", PADDR(Tcell), PT_DEFAULT,"69.8 degF",
 
 			PT_double, "Rated_kVA[kVA]", PADDR(Rated_kVA), PT_DEPRECATED, PT_DESCRIPTION, "This variable has issues with inconsistent handling in the code, so we will deprecate this in the future (VA maps to kVA, for example).",
 			PT_double, "rated_power[W]", PADDR(Max_P), PT_DESCRIPTION, "Used to define the size of the solar panel in power rather than square footage.", 
@@ -108,30 +108,25 @@ solar::solar(MODULE *module)
 			PT_complex, "VA_Out[VA]", PADDR(VA_Out),
 			PT_object, "weather", PADDR(weather),
 
-			PT_double, "shading_factor[pu]", PADDR(shading_factor), PT_DESCRIPTION, "Shading factor for scaling solar power to the array",
-			PT_double, "tilt_angle[deg]", PADDR(tilt_angle), PT_DESCRIPTION, "Tilt angle of PV array",
-			PT_double, "orientation_azimuth[deg]", PADDR(orientation_azimuth), PT_DESCRIPTION, "Facing direction of the PV array",
-			PT_bool, "latitude_angle_fix", PADDR(fix_angle_lat), PT_DESCRIPTION, "Fix tilt angle to installation latitude value",
+			PT_double, "shading_factor[pu]", PADDR(shading_factor), PT_DEFAULT,"1 pu", PT_DESCRIPTION, "Shading factor for scaling solar power to the array",
+			PT_double, "tilt_angle[deg]", PADDR(tilt_angle), PT_DEFAULT,"45 deg", PT_DESCRIPTION, "Tilt angle of PV array",
+			PT_double, "orientation_azimuth[deg]", PADDR(orientation_azimuth), PT_DEFAULT,"180 deg", PT_DESCRIPTION, "Facing direction of the PV array",
+			PT_bool, "latitude_angle_fix", PADDR(fix_angle_lat), PT_DEFAULT,"FALSE", PT_DESCRIPTION, "Fix tilt angle to installation latitude value",
 
-			PT_double, "latitude[deg]", PADDR(latitude), PT_DESCRIPTION, "The location of the array in degrees latitude",
-			PT_double, "longitude[deg]", PADDR(longitude), PT_DESCRIPTION, "The location of the array in degrees longitude",
-
-			PT_enumeration, "orientation", PADDR(orientation_type),
+			PT_enumeration, "orientation", PADDR(orientation_type), PT_DEFAULT,"DEFAULT",
 				PT_KEYWORD, "DEFAULT", (enumeration)DEFAULT,
 				PT_KEYWORD, "FIXED_AXIS", (enumeration)FIXED_AXIS,
 				//PT_KEYWORD, "ONE_AXIS", ONE_AXIS,			//To be implemented later
 				//PT_KEYWORD, "TWO_AXIS", TWO_AXIS,			//To be implemented later
 				//PT_KEYWORD, "AZIMUTH_AXIS", AZIMUTH_AXIS,	//To be implemented later
 
-
-			//resistances and max P, Q
-
-			    PT_set, "phases", PADDR(phases),//Solar doesn't need phase information for anything.
+		    PT_set, "phases", PADDR(phases), PT_DEPRECATED, //Solar doesn't need phase information for anything.
 				PT_KEYWORD, "A",(set)PHASE_A,
 				PT_KEYWORD, "B",(set)PHASE_B,
 				PT_KEYWORD, "C",(set)PHASE_C,
 				PT_KEYWORD, "N",(set)PHASE_N,
 				PT_KEYWORD, "S",(set)PHASE_S,
+
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 		//Deltamode linkage
@@ -147,65 +142,9 @@ solar::solar(MODULE *module)
 /* Object creation is called once for each object that is created by the core */
 int solar::create(void) 
 {
-	//NOCT = 45; Tcell = 21; Tambient = 25;//degC ; Rated_Insolation = 1000;//rated insolation is 1000 W/m2 , taken from GE solar cell performance sheet
-	// 1 sq m  = 10.764 sq ft.
-	NOCT = 118.4; //degF
-    Tcell = 21.0;  //degC
-	Tambient = 25.0; //degC
-	Tamb = 77;	//degF
-	wind_speed = 0.0;
-	Insolation = 0;
-	Rinternal = 0.05;
+	// non-trivial internal initializations
 	prevTemp = 15.0;	//Start at a reasonable ambient temp (degC) - default temp is 59 degF = 15 degC
 	currTemp = 15.0;	//Start at a reasonable ambient temp (degC)
-	prevTime = 0;
-	Rated_Insolation = 92.902; //W/Sf for 1000 W/m2
-    V_Max = complex (27.1,0);  // max. power voltage (Vmp) from GE solar cell performance charatcetristics
-	Voc_Max = complex(34,0); //taken from GEPVp-200-M-Module performance characteristics
-	Voc = complex (34,0);  //taken from GEPVp-200-M-Module performance characteristics
-	P_Out = 0.0;
-
-	area = 0; //sq f , 30m2
-    
-	//Defaults for flagging
-	efficiency = 0;
-	Pmax_temp_coeff = 0.0;
-	Voc_temp_coeff  = 0.0;
-
-	pSolarD = NULL;
-	pSolarH = NULL;
-	pSolarG = NULL;
-	pAlbedo = NULL;
-	pWindSpeed = NULL;
-
-	module_acoeff = -2.81;		//Coefficients from Sandia database - represents 
-	module_bcoeff = -0.0455;	//glass/cell/polymer sheet insulated back, raised structure mounting
-	module_dTcoeff = 0.0;		
-	module_Tcoeff = -0.5;		//%/C - default from SAM - appears to be a monocrystalline or polycrystalline silicon
-
-	shading_factor = 1;					//By default, no shading
-	tilt_angle = 45;					//45-deg angle by default
-	orientation_azimuth = 180.0;		//Equator facing, by default - for LIUJORDAN model
-	orientation_azimuth_corrected = 0;	//By default, still zero
-	fix_angle_lat = false;				//By default, tilt angle fix not enabled (because ideal insolation, by default)
-
-	soiling_factor = 0.95;				//Soiling assumed to block 5% solar irradiance
-	derating_factor = 0.95;				//Manufacturing variations expected to remove 5% of energy
-
-	orientation_type = DEFAULT;	//Default = ideal tracking
-	solar_model_tilt = LIUJORDAN;	//"Classic" tilt model - from Duffie and Beckman (same as ETP inputs)
-	solar_power_model = BASEEFFICIENT; //Use older power output calculation model - unsure where it came from
-
-	// by default, the array has no position
-	latitude = NaN;
-	longitude = NaN;
-
-	//Null out the function pointers
-	calc_solar_radiation = NULL;
-
-	//Deltamode flags
-	deltamode_inclusive = false;
-	first_sync_delta_enabled = false;
 
 	return 1; /* return 1 on success, 0 on failure */
 }
@@ -929,14 +868,14 @@ TIMESTAMP solar::sync(TIMESTAMP t0, TIMESTAMP t1)
 					}
 					else
 					{
-						ret_value = ((int64 (*)(OBJECT *, double, double, double, double, double *))(*calc_solar_radiation))(weather, RAD(tilt_angle), latitude, longitude, shading_factor, &Insolation);
+						ret_value = ((int64 (*)(OBJECT *, double, double, double, double, double *))(*calc_solar_radiation))(weather, RAD(tilt_angle), obj->latitude, obj->longitude, shading_factor, &Insolation);
 					}
 					break;
 				}
 			case FIXED_AXIS: // NOTE that this means FIXED, stationary. There is no AXIS at all. FIXED_AXIS is known as Single Axis Tracking by some, so the term is misleading.
 				{
 					//Snag solar insolation - prorate by shading (direct axis) - uses model selected earlier
-					ret_value = ((int64 (*)(OBJECT *, double, double, double, double, double, double *))(*calc_solar_radiation))(weather,RAD(tilt_angle),RAD(orientation_azimuth_corrected),latitude,longitude,shading_factor,&Insolation);
+					ret_value = ((int64 (*)(OBJECT *, double, double, double, double, double, double *))(*calc_solar_radiation))(weather,RAD(tilt_angle),RAD(orientation_azimuth_corrected),obj->latitude,obj->longitude,shading_factor,&Insolation);
 					//ret_value = ((int64 (*)(OBJECT *, double, double, double, double *))(*calc_solar_radiation))(weather,tilt_angle,orientation_azimuth_corrected,shading_factor,&Insolation);
 
 					//Make sure it worked

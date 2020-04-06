@@ -40,6 +40,7 @@ m4_define([pkgbranch],  sbuild_m4_esyscmd_s([build-aux/version.sh --branch]))
 m4_define([gitversion], sbuild_m4_esyscmd_s([build-aux/version.sh --git]))
 m4_define([versionname], sbuild_m4_esyscmd_s([build-aux/version.sh --name]))
 m4_define([pkginstall], sbuild_m4_esyscmd_s([build-aux/version.sh --install]))
+m4_define([pkgorigin],sbuild_m4_esyscmd_s([git rev-parse --abbrev-ref HEAD]))
 
 AC_PREREQ([2.63])
 AC_INIT(pkgname, pkgversion, [gridlabd@gmail.com], pkg)
@@ -69,6 +70,7 @@ AC_CANONICAL_HOST
 # Export version info as autoconf variables
 AC_SUBST(PACKAGE_BASEVERSION, pkgversion)
 AC_SUBST(PACKAGE_BRANCH, pkgbranch)
+AC_SUBST(PACKAGE_ORIGIN, pkgorigin)
 AC_SUBST(PACKAGE_REVISION, gitversion)
 
 AC_PREFIX_DEFAULT(pkginstall)
@@ -101,8 +103,8 @@ AC_MSG_NOTICE
 AC_MSG_NOTICE([C compiler])
 AC_MSG_NOTICE
 
-: ${CFLAGS="-Wall -O2 -g"}
-: ${CXXFLAGS="-Wall -O2 -g"}
+: ${CFLAGS="-Wall"}
+: ${CXXFLAGS="-Wall"}
 AC_PROG_CC
 AC_GNU_SOURCE   # defines _GNU_SOURCE
 AM_PROG_CC_C_O  # required for automake to support subdir-objects
@@ -574,7 +576,7 @@ AC_MSG_RESULT([
 
     Package: .................... $PACKAGE 
     Version: .................... $VERSION
-    Branch: ..................... $BRANCHNAME
+    Branch: ..................... $PACKAGE_ORIGIN
     Install prefix: ............. ${DSTDIR/^$PWD/.}
 
   Dependencies:
@@ -632,8 +634,8 @@ AC_MSG_RESULT([
 -----------------------------------------------------------------------
 ])
 
-CXXFLAGS="$CXXFLAGS $(/usr/local/bin/python3-config --cflags)"
-LDFLAGS="$LDFLAGS $(/usr/local/bin/python3-config --ldflags)"
+CXXFLAGS="$(/usr/local/bin/python3-config --cflags) $CXXFLAGS "
+LDFLAGS="$(/usr/local/bin/python3-config --ldflags) $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
