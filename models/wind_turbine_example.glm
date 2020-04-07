@@ -6,7 +6,7 @@ clock {
 
 #define PF=FBS
 
-#set profiler=1;
+//#set profiler=1;
 #set double_format=%+.12lg
 #set randomseed=10;
 #set relax_naming_rules=1;

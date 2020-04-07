@@ -1,7 +1,7 @@
 // $Id: Solar test$
 //	Copyright (C) 2009 Battelle Memorial Institute
 
-#set profiler=1
+//#set profiler=1
 //#set threadcount=1;
 #set relax_naming_rules=1
 

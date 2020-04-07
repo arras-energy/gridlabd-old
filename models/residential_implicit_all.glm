@@ -10,7 +10,7 @@ clock {
 module tape;
 module residential;
 
-#set profiler=1
+//#set profiler=1
 #set iteration_limit=10
 //#set environment="server"
 //#set pauseat='2010-01-01 12:00:00'

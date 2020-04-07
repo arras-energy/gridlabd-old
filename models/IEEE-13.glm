@@ -4,7 +4,7 @@ clock {
 	timezone EST+5EDT;
 }
 
-#set profiler=1
+//#set profiler=1
 #set iteration_limit=100000;
 #set relax_naming_rules=1;
 

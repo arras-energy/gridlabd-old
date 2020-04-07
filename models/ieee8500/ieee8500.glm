@@ -22,7 +22,7 @@ module climate;
 module tape;
 
 #set minimum_timestep=60;
-#set profiler=1;
+//#set profiler=1;
 #set relax_naming_rules=1;
 #set suppress_repeat_messages=0;
 #set strictnames=FALSE

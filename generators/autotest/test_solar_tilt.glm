@@ -1,7 +1,7 @@
 // Verify solar model algorithms are correct by validating power output for solar objects with different axis tilts (90,20 degrees)
 // GridLab-D output has been validated against SAM output. See "Incorporation of NREL Solar Advisor Model Photovoltaic Capabilities with GridLAB-D" (Tuffner et al. 2012).
 
-#set profiler=1;
+//#set profiler=1;
 
 clock {
      //timezone PST+8PDT;

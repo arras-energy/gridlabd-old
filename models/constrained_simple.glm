@@ -4,7 +4,7 @@
 
 #set tmp=.
 #set verbose=1
-#set profiler=1
+//#set profiler=1
 #define include=../../core
 
 module optimize;

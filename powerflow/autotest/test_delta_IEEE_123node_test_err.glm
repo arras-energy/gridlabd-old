@@ -12,7 +12,7 @@ clock {
 }
 
 #set suppress_repeat_messages=1
-#set profiler=1
+//#set profiler=1
 #set double_format=%+.12lg
 #set complex_format=%+.12lg%+.12lg%c
 
