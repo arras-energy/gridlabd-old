@@ -25,15 +25,15 @@ object apartment
 }
 
 // global weather test
-global double temperature[degF] = "59.0 degF";
-global double humidity[%] = "70%";
-global double solar_global[W/m^2] = "100 W/m^2";
+global double temperature[degF] "59.0 degF";
+global double humidity[%] "70%";
+global double solar_global[W/m^2] "100 W/m^2";
 
 object apartment
 {
-	temperature "::temperature";
-	humidity "::humidity";
-	solar "::solar_global";
+	building_outdoor_temperature "::temperature";
+	building_outdoor_humidity "::humidity";
+	building_solar_gain "::solar_global";
 	building_floors 5;
 	building_units 100;
 	core_configuration INDOOR|DOUBLE|CONDITIONED;
@@ -56,9 +56,9 @@ object weather
 
 object apartment
 {
-	temperature "weather:temperature";
-	humidity "weather:humidity";
-	solar "weather:solar_global";
+	building_outdoor_temperature "weather:temperature";
+	building_outdoor_humidity "weather:humidity";
+	building_solar_gain "weather:solar_global";
 	building_floors 5;
 	building_units 100;
 	core_configuration INDOOR|DOUBLE|CONDITIONED;

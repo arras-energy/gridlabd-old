@@ -659,13 +659,24 @@ int convert_to_propertyref(const char *s, void *data, PROPERTY *p)
 	int result = -1;
 
 	// attempt to use object reference resolution
-	if ( sscanf(s,"%[^:]:%s",oname,pname) == 2 
-		&& (obj=object_find_name(oname)) != NULL
-		&& (prop=object_get_property(obj,pname,NULL)) != NULL )
+	if ( sscanf(s,"%[^:]:%s",oname,pname) == 2 )
 	{
-		ref->obj = obj;
-		ref->prop = prop;
-		result = strlen(s);
+		if ( (obj=object_find_name(oname)) != NULL )
+		{
+			output_error("object '%s' not found",oname);
+			return -1;
+		}
+		else if ( (prop=object_get_property(obj,pname,NULL)) != NULL )
+		{
+			output_error("property '%s' not found in object '%s'", pname, oname);
+			return -1;
+		}
+		else
+		{
+			ref->obj = obj;
+			ref->prop = prop;
+			result = strlen(s);
+		}
 	}
 
 	// attempt to use module reference resolution

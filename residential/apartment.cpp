@@ -31,8 +31,13 @@ apartment::apartment(MODULE *module)
 
 		defaults = this;
 		if (gl_publish_variable(oclass,
+
+			PT_object,"weather", get_weather_offset(),
+				PT_DESCRIPTION,"weather object to use for outdoor conditions",
+
 			PT_int16,"building_floors",get_building_floors_offset(), 
 				PT_REQUIRED,
+				PT_DEFAULT, "0",
 				PT_DESCRIPTION,"number of floors in building",
 			PT_double,"building_floor_depth[ft]",get_building_floor_depth_offset(), 
 				PT_DEFAULT,"+2 ft", 
@@ -49,7 +54,6 @@ apartment::apartment(MODULE *module)
 				PT_DEFAULT,"+0.95 pu", 
 				PT_DESCRIPTION,"fraction of building units that are occupied",
 			PT_property,"building_outdoor_temperature",building_outdoor_temperature.get_offset(this), 
-				PT_DEFAULT,"residential::default_outdoor_temperature", 
 				PT_DESCRIPTION, "reference to an object containing temperature data",
 			PT_property,"building_outdoor_humidity",building_outdoor_humidity.get_offset(this), 
 				PT_DEFAULT,"residential::default_outdoor_humidity", 
@@ -63,6 +67,7 @@ apartment::apartment(MODULE *module)
 
 			PT_int16,"building_units",get_building_units_offset(), 
 				PT_REQUIRED,
+				PT_DEFAULT, "0",
 				PT_DESCRIPTION,"number of units in the building",
 
 			PT_set,"core_configuration",get_core_configuration_offset(), 
@@ -357,9 +362,7 @@ apartment::apartment(MODULE *module)
 int apartment::create(void) 
 {
 	solver = NULL;
-	building_outdoor_temperature = gld_property("residential::default_outdoor_temperature");
-	building_outdoor_humidity = gld_property("residential::default_outdoor_humidity");
-	building_solar_gain = gld_property("residential::default_solar_gain");
+	building_outdoor_temperature.from_string("residential::default_outdoor_temperature");
 	return 1; /* return 1 on success, 0 on failure */
 }
 
@@ -570,7 +573,9 @@ void apartment::update()
 
 	if ( ! building_outdoor_temperature.is_valid() )
 	{
-		exception("building_outdoor_temperature is not valid");
+		OBJECT *obj = building_outdoor_temperature.get_object();
+		PROPERTY *prop = building_outdoor_temperature.get_property();
+		exception("building_outdoor_temperature <object:%p> <property:%p> is not valid",obj,prop);
 	}
 	else
 	{
