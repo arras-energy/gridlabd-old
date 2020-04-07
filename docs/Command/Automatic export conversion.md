@@ -14,6 +14,12 @@ The GridLAB-D GLM save routines will automatically save output to files that hav
 
 The data saved in the file may be controlled using [[/Global/Filesave_options]].
 
+## Supported File Formats
+
+### ZIP
+
+ZIP files are exported using the `-o filename.zip` command line option.  When output to ZIP is used, all the files in the folder in which contains the JSON output file will be stored in the resulting ZIP file. If the ZIP file is already present, it will be overwritten.
+
 ## Converter Implementation
 
 Converters use the following calling syntax:
