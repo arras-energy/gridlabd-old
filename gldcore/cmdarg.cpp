@@ -648,7 +648,14 @@ int GldCmdarg::version(int argc, const char *argv[])
 		OUTPUT_MULTILINE("copyright",version_copyright());
 		OUTPUT_MULTILINE("license",legal_license_text());
 		OUTPUT("system","%s",BUILD_SYSTEM);
-		OUTPUT("install","%s",global_execdir);
+		char tmp[1024];
+		strcpy(tmp,global_execdir);
+		char *p = strrchr(tmp,'/');
+		if ( p != NULL && strcmp(p,"/bin") == 0 )
+		{
+			*p = '\0';
+		}
+		OUTPUT("install","%s",tmp);
 		output_message("\t\"name\" : \"%s-%s-%d-%s\",", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		OUTPUT("release","%s",BUILD_RELEASE);
 		OUTPUT("commit","%s",BUILD_ID);
