@@ -26,6 +26,14 @@ bash$ python3 <ext>2glm.py -i filename.<ext> -o filename.glm
 
 where `<ext>` is the extension that is supported.
 
+# Examples
+
+Extract files in `my-model.zip` and run `my-model.glm`:
+
+~~~
+bash$ gridlabd my-model.zip
+~~~
+
 # Caveats
 
 When a converter is run, the input file is converted in stored in a GLM file by the same name, but with the `.glm` extension instead.  If the GLM file already exists, **the existing GLM file may be overwritten**.

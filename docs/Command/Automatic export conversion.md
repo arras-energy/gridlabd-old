@@ -30,6 +30,14 @@ bash$ python3 json2<ext>.py -i filename.glm -o filename.<ext>
 
 where `<ext>` is the extension that is supported.
 
+# Examples
+
+Run `my-model.glm` and store all files in `my-model.zip`
+
+~~~
+bash$ gridlabd my-model.glm -o my-model.zip
+~~~
+
 # Caveats
 
 When a converter is run, the output file is stored in JSON file by the same name, but with the `.json` extension instead.  If the JSON file already exists, **the existing JSON file may be overwritten**.
