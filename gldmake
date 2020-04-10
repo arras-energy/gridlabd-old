@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# This script will automatically choose the correct build process 
+# given the status of the source tree.
+#
+# Option 1: new build --> autoreconf -isf && ./configure && make ...
+#
+# Option 2: recent build --> make ...
+#
+# Option 3: old build --> make reconfigure && make ...
+#
+
+SRC_BRANCH=$(./build-aux/version.sh --branch)
+SRC_NUMBER=$(./build-aux/version.sh --number)
+
+DST_BRANCH=$(gridlabd --version=branch)
+DST_NUMBER=$(gridlabd --version=number)
+
+if [ ! -f Makefile ]; then
+	echo "$0: no makefile --> first time build"
+	COMMAND='autoreconf -isf && ./configure && make'
+elif [ "$SRC_BRANCH" == "$DST_BRANCH" -a "$SRC_NUMBER" == "$DST_NUMBER" ]; then
+	echo "$0: build and install versions match --> simple rebuild"
+	COMMAND='make'
+else
+	echo "$0: build and install versions do not match --> full rebuild"
+	COMMAND='make reconfigure && make'
+fi
+
+echo "$COMMAND $*"
+echo "$COMMAND $*" | bash
