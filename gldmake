@@ -10,16 +10,13 @@
 # Option 3: old build --> make reconfigure && make ...
 #
 
-SRC_BRANCH=$(./build-aux/version.sh --branch)
-SRC_NUMBER=$(./build-aux/version.sh --number)
-
-DST_BRANCH=$(gridlabd --version=branch)
-DST_NUMBER=$(gridlabd --version=number)
+SOURCE=$(./build-aux/version.sh --install)
+TARGET=$(gridlabd --version=install)
 
 if [ ! -f Makefile ]; then
 	echo "$0: no makefile --> first time build"
 	COMMAND='autoreconf -isf && ./configure && make'
-elif [ "$SRC_BRANCH" == "$DST_BRANCH" -a "$SRC_NUMBER" == "$DST_NUMBER" ]; then
+elif [ "$SOURCE" == "$TARGET" ]; then
 	echo "$0: build and install versions match --> simple rebuild"
 	COMMAND='make'
 else
