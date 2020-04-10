@@ -2,7 +2,7 @@ version: 2
 jobs:
   build:
     docker:
-      - image: slacgismo/gridlabd_circleci_base:latest
+      - image: slacgismo/gridlabd_circleci_base:200407
     steps:
       - checkout   
       - run:
