@@ -17,11 +17,15 @@ DST_BRANCH=$(gridlabd --version=branch)
 DST_NUMBER=$(gridlabd --version=number)
 
 if [ ! -f Makefile ]; then
+	echo "$0: no makefile --> first time build"
 	COMMAND='autoreconf -isf && ./configure && make'
 elif [ "$SRC_BRANCH" == "$DST_BRANCH" -a "$SRC_NUMBER" == "$DST_NUMBER" ]; then
+	echo "$0: build and install versions match --> simple rebuild"
 	COMMAND='make'
 else
+	echo "$0: build and install versions do not match --> full rebuild"
 	COMMAND='make reconfigure && make'
 fi
 
+echo "$COMMAND $*"
 echo "$COMMAND $*" | bash
