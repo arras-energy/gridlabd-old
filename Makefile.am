@@ -329,9 +329,9 @@ $(PREFIX)/docker.img: docker/Dockerfile Makefile
 	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
 
 system: install
-	@echo "Setting $$(./build-aux --install) to the current system version"
+	@echo "Setting $$(./build-aux/version.sh --install) to the current system version"
 	@$(DESTDIR)$(bindir)/gridlabd version set
-	@if [ ! "$$(gridlabd --version=install)" == "$$(./build-aux --install)" ]; then \
+	@if [ ! "$$(gridlabd --version=install)" == "$$(./build-aux/version.sh --install)" ]; then \
 		echo '*** WARNING : build and install versions differ ***'; \
 	fi
 
