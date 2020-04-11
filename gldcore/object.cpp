@@ -289,6 +289,18 @@ const char *object_get_unit(OBJECT *obj, const char *name)
 	}
 }
 
+static void object_create_properties(OBJECT *obj,CLASS *oclass)
+{
+	if ( oclass->parent != NULL )
+	{
+		object_create_properties(obj,oclass->parent);
+	}
+	for ( PROPERTY *prop = oclass->pmap ; prop != NULL ; prop = prop->next )
+	{
+		property_create(prop,property_addr(obj,prop));
+	}
+}
+
 /** Create a single object.
 	@return a pointer to object header, \p NULL of error, set \p errno as follows:
 	- \p EINVAL type is not valid
@@ -297,7 +309,6 @@ const char *object_get_unit(OBJECT *obj, const char *name)
 OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 {
 	OBJECT *obj = 0;
-	PROPERTY *prop;
 	int sz = sizeof(OBJECT);
 
 	if ( oclass == NULL )
@@ -349,9 +360,8 @@ OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 	obj->heartbeat = 0;
 	random_key(obj->guid,sizeof(obj->guid)/sizeof(obj->guid[0]));
 
-	for ( prop=obj->oclass->pmap; prop!=NULL; prop=(prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL)))
-		property_create(prop,property_addr(obj,prop));
-	
+	object_create_properties(obj,obj->oclass);
+
 	if ( first_object == NULL )
 	{
 		first_object = obj;
@@ -1016,6 +1026,130 @@ static int set_header_value(OBJECT *obj, const char *name, const char *value)
 	/* should never get here */
 }
 
+const char *object_get_header_string(OBJECT *obj, const char *item, char *buffer, size_t len)
+{
+	if ( strcmp(item,"name") == 0 )
+	{
+		if ( obj->name == NULL )
+			snprintf(buffer,len,"%s:%d", obj->oclass->name, obj->id);
+		else
+			snprintf(buffer,len,"%s", obj->oclass->name);
+	}
+	else if ( strcmp(item,"class") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->oclass->name);
+	}
+	else if ( strcmp(item,"module") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->oclass->module ? obj->oclass->module->name : "");
+	}
+	else if ( strcmp(item,"id") == 0 )
+	{
+		snprintf(buffer,len,"%d", obj->id);	
+	}
+	else if ( strcmp(item,"parent") == 0 )
+	{
+		if ( obj->parent == NULL )
+		{
+			snprintf(buffer,len,"%s","");
+		}
+		else
+		{
+			object_get_header_string(obj->parent,"name",buffer,len);
+		}
+	}
+	else if ( strcmp(item,"child_count") == 0 )
+	{
+		snprintf(buffer,len,"%d",obj->child_count);
+	}
+	else if ( strcmp(item,"schedule_skew") == 0 )
+	{
+		snprintf(buffer,len,"%lld",obj->schedule_skew);
+	}
+	else if ( strcmp(item,"rank") == 0 )
+	{
+		snprintf(buffer,len,"%d", obj->rank);	
+	}
+	else if ( strcmp(item,"clock") == 0 )
+	{
+		convert_from_timestamp(obj->clock,buffer,len);
+	}
+	else if ( strcmp(item,"valid_to") == 0 )
+	{
+		convert_from_timestamp(obj->valid_to,buffer,len);
+	}
+	else if ( strcmp(item,"latitude") == 0 )
+	{
+		convert_from_latitude(obj->latitude,buffer,len);
+	}
+	else if ( strcmp(item,"longitude") == 0 )
+	{
+		convert_from_longitude(obj->longitude,buffer,len);
+	}
+	else if ( strcmp(item,"in_svc") == 0 )
+	{
+		convert_from_timestamp(obj->in_svc,buffer,len);
+	}
+	else if ( strcmp(item,"out_svc") == 0 )
+	{
+		convert_from_timestamp(obj->out_svc,buffer,len);
+	}
+	else if ( strcmp(item,"flags") == 0 )
+	{
+		snprintf(buffer,len,"%llu",(long long)obj->flags);
+	}
+	else if ( strcmp(item,"heartbeat") == 0 )
+	{
+		snprintf(buffer,len,"%llu",obj->heartbeat);
+	}
+	else if ( strcmp(item,"groupid") == 0 )
+	{
+		snprintf(buffer,len,"%s",(const char*)obj->groupid);
+	}
+	else if ( strcmp(item,"rng_state") == 0 )
+	{
+		snprintf(buffer,len,"%llu",(long long)obj->rng_state);
+	}
+	else if ( strcmp(item,"guid") == 0 )
+	{
+		snprintf(buffer,len,"%08llX%08llX",obj->guid[0],obj->guid[1]);
+	}
+	else if ( strcmp(item,"on_init") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.init ? obj->events.init : "");
+	}
+	else if ( strcmp(item,"on_precommit") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.precommit ? obj->events.precommit : "");
+	}
+	else if ( strcmp(item,"on_presync") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.presync ? obj->events.presync : "");
+	}
+	else if ( strcmp(item,"on_sync") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.sync ? obj->events.sync : "");
+	}
+	else if ( strcmp(item,"on_postsync") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.postsync ? obj->events.postsync : "");
+	}
+	else if ( strcmp(item,"on_commit") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.commit ? obj->events.commit : "");
+	}
+	else if ( strcmp(item,"on_finalize") == 0 )
+	{
+		snprintf(buffer,len,"%s", obj->events.finalize ? obj->events.finalize : "");
+	}
+	else
+	{
+		output_error("object_get_header_string(obj=<%s:%d>,item='%s',...): invalid header item name",obj->oclass->name,obj->id,item);
+		return NULL;
+	}
+	return buffer;
+}
+
 /** Set a property value by reference to its name
 	@return the number of characters written to the buffer
  **/
@@ -1240,6 +1374,10 @@ OBJECT *object_get_next(OBJECT *obj){ /**< the object from which to start */
 	}
 }
 
+OBJECT *object_get_last(void)
+{
+	return last_object;
+}
 
 /*	Set the rank of the object (internal use only) 
 	This function keeps track of which object initiated
@@ -1362,7 +1500,7 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 	{
 		return prop->delegation->to_string(addr,buffer,sz) ? buffer : NULL;
 	}
-	else if ( class_property_to_string(prop,addr,buffer,sz) >= 0 )
+	else if ( property_write(prop,addr,buffer,sz) >= 0 )
 	{
 		return buffer;
 	}
@@ -1371,6 +1509,52 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 		output_error("gldcore/object.c:object_property_to_string(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property value into buffer",
 			obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
 		return "";
+	}
+}
+
+/* Convert an object property to a string that can be used to initialize
+ */
+const char *object_property_to_initial(OBJECT *obj, const char *name, char *buffer, int sz)
+{	
+	PROPERTY *prop = class_find_property(obj->oclass,name);
+	if ( prop == NULL )
+	{
+		errno = ENOENT;
+		return NULL;
+	}
+	void *addr = GETADDR(obj,prop); /* warning: cast from pointer to integer of different size */
+	PROPERTYSPEC *spec = property_getspec(prop->ptype);
+	if ( spec->to_initial == NULL )
+	{
+		int len = property_write(prop,addr,buffer,sz);
+		if ( len >= 0 )
+		{
+			buffer[len] = '\0';
+			// output_debug("current value of '%s:%d.%s' is '%s'", obj->oclass->name, obj->id, prop->name, buffer);
+			return buffer;
+		}
+		else
+		{
+			output_error("gldcore/object.c:object_property_to_initial(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property value into buffer",
+				obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
+			return "";
+		}	
+	}
+	else 
+	{
+		int len = spec->to_initial(buffer,sz,addr,prop);
+		if ( len >= 0 )
+		{
+			buffer[len] = '\0';
+			// output_debug("initial value of '%s:%d.%s' is '%s'", obj->oclass->name, obj->id, prop->name, buffer);
+			return buffer;
+		}
+		else
+		{
+			output_error("gldcore/object.c:object_property_to_initial(obj=<%s:%d>('%s'), name='%s', buffer=%p, sz=%u): unable to extract property initialization into buffer",
+				obj->oclass->name, obj->id, obj->name?obj->name:"(none)", prop->name, buffer, sz);
+			return "";
+		}
 	}
 }
 
@@ -3043,12 +3227,20 @@ bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
 	return true;
 }
 
-OBJECT *object_find_by_addr(void *addr)
+OBJECT *object_find_by_addr(void *addr, PROPERTY *prop)
 {
-	for ( OBJECT *obj = first_object ; obj != NULL ; obj = obj->next )
+	static OBJECT *last_object = NULL; // caching last found
+	for ( OBJECT *obj = last_object ? last_object : first_object ; obj != NULL ; obj = obj->next )
 	{
-		if ( addr >= obj && addr < (char*)(((OBJECT*)addr)+1)+obj->oclass->size )
+		if ( addr >= obj && addr < (char*)(((OBJECT*)obj)+1)+obj->oclass->size )
+		{
+			last_object = obj;
 			return obj;
+		}
+		if ( obj->next == NULL && last_object )
+		{
+			obj = first_object;
+		}
 	}
 	return NULL;
 }
@@ -3066,22 +3258,42 @@ PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full)
 
 PROPERTY *object_get_first_property(OBJECT *obj, bool full)
 {
-	for ( CLASS *oclass = obj->oclass ; oclass != NULL ; oclass = ( full == true ? oclass->parent : NULL ) )
-	{	
-		if ( oclass->pmap != NULL )
-		{
-			return obj->oclass->pmap;
-		}
+	CLASS *oclass = obj->oclass;
+	PROPERTY *prop = oclass->pmap;
+	while ( prop == NULL && full && oclass->parent != NULL )
+	{
+		oclass = oclass->parent;
+		prop = oclass->pmap;
 	}
-	return NULL;
+	return prop;
 }
 
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full)
 {
 	if ( full == true )
-		return (prop->next?prop->next:(prop->oclass->parent?prop->oclass->parent->pmap:NULL));
+	{
+		return ( prop->next ? prop->next : ( prop->oclass->parent ? prop->oclass->parent->pmap : NULL ) );
+	}
 	else
+	{
 		return prop->next;
+	}
+}
+
+void object_destroy(OBJECT *obj)
+{
+	if ( obj->oclass->destroy != NULL )
+	{
+		obj->oclass->destroy(obj);
+	}
+}
+
+void object_destroy_all(void)
+{
+	for ( OBJECT *obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
+	{
+		object_destroy(obj);
+	}
 }
 
 /** @} **/

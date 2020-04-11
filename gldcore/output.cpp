@@ -80,21 +80,22 @@ static struct s_redirection {
 	FILE *profile;
 	FILE *progress;
 } redirect;
+static struct {
+	const char *name;
+	FILE **file;
+	const char *defaultfile;
+	FILE *defaultstream;
+} map[] = {
+	{"output",&redirect.output,"gridlabd.out",stdout},
+	{"error",&redirect.error,"gridlabd.err",stderr},
+	{"warning",&redirect.warning,"gridlabd.wrn",stderr},
+	{"debug",&redirect.debug,"gridlabd.dbg",stderr},
+	{"verbose",&redirect.verbose,"gridlabd.inf",stderr},
+	{"profile",&redirect.profile,"gridlabd.pro",stderr},
+	{"progress",&redirect.progress,"gridlabd.prg",stderr},
+};
 FILE* output_redirect_stream(const char *name, FILE *fp)
 {
-	struct {
-		const char *name;
-		FILE **file;
-		const char *defaultfile;
-	} map[] = {
-		{"output",&redirect.output,"gridlabd.out"},
-		{"error",&redirect.error,"gridlabd.err"},
-		{"warning",&redirect.warning,"gridlabd.wrn"},
-		{"debug",&redirect.debug,"gridlabd.dbg"},
-		{"verbose",&redirect.verbose,"gridlabd.inf"},
-		{"profile",&redirect.profile,"gridlabd.pro"},
-		{"progress",&redirect.progress,"gridlabd.prg"},
-	};
 	size_t i;
 	for (i=0; i<sizeof(map)/sizeof(map[0]); i++) 
 	{
@@ -104,7 +105,9 @@ FILE* output_redirect_stream(const char *name, FILE *fp)
 			*(map[i].file) = fp;
 #ifndef WIN32
 			if (*(map[i].file))
+			{
 				setlinebuf(*(map[i].file));
+			}
 #endif
 			return oldfp;
 		}
@@ -112,6 +115,24 @@ FILE* output_redirect_stream(const char *name, FILE *fp)
 	return NULL;
 }
 
+FILE* output_get_stream(const char *name)
+{
+	size_t i;
+	FILE *fp = stderr;
+	for ( i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ ) 
+	{
+		if ( strcmp(name,map[i].name) == 0 )
+		{
+			fp = *(map[i].file);
+			if ( fp == NULL )
+			{
+				fp = map[i].defaultstream;
+			}
+			break;
+		}
+	}
+	return fp;
+}
 void (*notify_error)(void) = NULL;
 int output_notify_error(void (*notify)(void))
 {
@@ -476,7 +497,7 @@ int output_test(const char *format,...) /**< \bprintf style argument list */
 			/* can't write to output file, write to stderr instead */
 			return (*printerr)("TEST: %s\n",buffer);
 		}
-		fprintf(fp,"GridLAB-D Version %s.%s\n", global_getvar("version.major", major_b, 32), global_getvar("version.minor", minor_b, 32));
+		fprintf(fp,"%s Version %s.%s.%d-%d\n", PACKAGE_NAME, global_getvar("version.major", major_b, 32), global_getvar("version.minor", minor_b, 32), REV_PATCH, BUILDNUM);
 		fprintf(fp,"Test results from run started %s", asctime(localtime(&now)));
 		fprintf(fp,"Command line: %s\n", global_getvar("command_line", commandline, 255));
 		if ( global_multirun_mode!=MRM_STANDALONE )
@@ -710,10 +731,15 @@ int output_progress()
 {
 	char buffer[64];
 	int res = 0;
-	const char *ts; 
+	const char *ts;
+	double fractional_progress = QNAN;
+	if ( global_stoptime < TS_NEVER )
+	{
+			fractional_progress = (double)(global_clock - global_starttime) / (double)(global_stoptime - global_starttime);
+	}
 
 	/* handle delta mode highres time */
-	if ( global_simulation_mode==SM_DELTA )
+	if ( global_simulation_mode == SM_DELTA )
 	{
 		DATETIME t;
 		unsigned int64 secs = global_deltaclock/1000000000;
@@ -723,23 +749,27 @@ int output_progress()
 		ts = buffer;
 	}
 	else
-		ts = convert_from_timestamp(global_clock,buffer,sizeof(buffer))>0?buffer:"(invalid)";
-
-	if (redirect.progress)
 	{
-		res = fprintf(redirect.progress,"%s\n",ts);
+		ts = convert_from_timestamp(global_clock,buffer,sizeof(buffer))>0?buffer:"(invalid)";
+	}
+
+	if ( redirect.progress )
+	{
+		res = fprintf(redirect.progress,"%s,%.3f\n",ts,fractional_progress);
 		fflush(redirect.progress);
 	}
-	else if (global_keep_progress)
-		res = output_message("%sProcessing %s...", prefix, ts);
-	else if (global_show_progress)
+	else if ( global_keep_progress )
+	{
+		res = output_raw("%sProcessing %s (%.1f%% done)...\n", prefix, ts, fractional_progress*100);
+	}
+	else if ( global_show_progress )
 	{
 		static int len=0;
 		int i=len, slen = (int)strlen(ts)+15;
 		while (i--) putchar(' ');
 		putchar('\r');
 		if (slen>len) len=slen;
-		res = output_raw("%sProcessing %s...\r", prefix, ts);
+		res = output_raw("%sProcessing %s (%.1f%% done)...\r", prefix, ts, fractional_progress*100);
 	}
 	return res;
 }
@@ -864,7 +894,7 @@ int output_xsl(const char *fname, int n_mods, const char *p_mods[])
 
 	/* heading */
 	fprintf(fp,"<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
-	fprintf(fp,"<!-- output by GridLAB-D -->\n");
+	fprintf(fp,"<!-- output by %s -->\n", PACKAGE_NAME);
 	
 	/* document */
 	fprintf(fp,"<html xsl:version=\"1.0\" xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" xmlns=\"http://www.w3.org/1999/xhtml\">\n");
@@ -874,7 +904,7 @@ int output_xsl(const char *fname, int n_mods, const char *p_mods[])
 			fprintf(fp,"<head>\n");
 			{
 				GLOBALVAR *stylesheet = global_find("stylesheet");
-				fprintf(fp,"<title>GridLAB-D <xsl:value-of select=\"version.major\"/>.<xsl:value-of select=\"version.minor\"/> - <xsl:value-of select=\"modelname\"/></title>\n");
+				fprintf(fp,"<title>%s <xsl:value-of select=\"version.major\"/>.<xsl:value-of select=\"version.minor\"/> - <xsl:value-of select=\"modelname\"/></title>\n",PACKAGE_NAME);
 				if (stylesheet==NULL || stylesheet->prop->ptype!=PT_char1024) /* only char1024 is allowed */
 					fprintf(fp,"<link rel=\"stylesheet\" href=\"%sgridlabd-%d_%d.css\" type=\"text/css\"/>\n",global_urlbase,global_version_major,global_version_minor);
 				else
@@ -901,7 +931,7 @@ int output_xsl(const char *fname, int n_mods, const char *p_mods[])
 				fprintf(fp,"</OL>\n");
 
 				/* global variable dump */
-				fprintf(fp,"<H2><A NAME=\"global_variables\">GridLAB-D system variables</A></H2>\n");
+				fprintf(fp,"<H2><A NAME=\"global_variables\">%s system variables</A></H2>\n", PACKAGE_NAME);
 				fprintf(fp,"<TABLE BORDER=\"1\">\n");
 				while ( (var=global_getnext(var)) )
 				{
@@ -992,7 +1022,7 @@ int output_xsl(const char *fname, int n_mods, const char *p_mods[])
 				{
 
 					/* heading info */
-					fprintf(fp,"# Generated by GridLAB-D <xsl:value-of select=\"version.major\"/>.<xsl:value-of select=\"version.minor\"/>\n");
+					fprintf(fp,"# Generated by %s <xsl:value-of select=\"version.major\"/>.<xsl:value-of select=\"version.minor\"/>\n",PACKAGE_NAME);
 					fprintf(fp,"# Command line..... <xsl:value-of select=\"command_line\"/>\n");
 					fprintf(fp,"# Model name....... <xsl:value-of select=\"modelname\"/>\n");
 					fprintf(fp,"# Start at......... <xsl:value-of select=\"starttime\"/>\n");

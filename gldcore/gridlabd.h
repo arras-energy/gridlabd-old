@@ -176,7 +176,6 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include "linkage.h"
 #include "list.h"
 #include "load.h"
-#include "load_xml.h"
 #include "loadshape.h"
 #include "local.h"
 #include "lock.h"
@@ -2448,7 +2447,7 @@ public:
 	
 	// Method: is_valid
 	// Check whether the unit is valid
-	inline bool is_valid(void) { return core.name[0]!='\0'; };
+	inline bool is_valid(void) { return (UNIT*)&core != NULL && core.name[0]!='\0'; };
 
 public: 
 
@@ -2607,8 +2606,6 @@ public:
 	inline void set_##X(T p, gld_wlock&) { X=p; }; \
 	inline gld_string get_##X##_string(void) { return get_##X##_property().get_string(); }; \
 	inline void set_##X(const char *str) { get_##X##_property().from_string(str); }; \
-	inline void init_##X(void) { memset((void*)&X,0,sizeof(X));}; \
-	inline void init_##X(T value) { X=value;}; \
 
 // Define: GL_STRUCT
 // Define a structured property
@@ -2635,8 +2632,6 @@ public:
 	inline void set_##X(T p, gld_wlock&) { X=p; }; \
 	inline gld_string get_##X##_string(void) { return get_##X##_property().get_string(); }; \
 	inline void set_##X(char *str) { get_##X##_property().from_string(str); }; \
-	inline void init_##X(void) { memset((void*)&X,0,sizeof(X));}; \
-	inline void init_##X(T &value) { X=value;}; \
 
 // Define: GL_STRING
 // Define a string property
@@ -2671,8 +2666,6 @@ public:
 	inline void set_##X(char *p, gld_wlock&) { strncpy(X,p,sizeof(X)); }; \
 	inline void set_##X(size_t n, char c) { gld_wlock _lock(my()); X[n]=c; }; \
 	inline void set_##X(size_t n, char c, gld_wlock&) { X[n]=c; };  \
-	inline void init_##X(void) { memset((void*)X,0,sizeof(X));}; \
-	inline void init_##X(T value) { strncpy(X,value,sizeof(X)-1); }; \
 
 // Define: GL_ARRAY
 // Define an array property
@@ -2689,12 +2682,6 @@ public:
 	inline void set_##X(T* p, gld_wlock&) { memcpy(X,p,sizeof(X)); }; \
 	inline void set_##X(size_t n, T m) { gld_wlock _lock(my()); X[n]=m; }; \
 	inline void set_##X(size_t n, T m, gld_wlock&) { X[n]=m; };  \
-	inline void init_##X(T value=0) { \
-		size_t n; \
-		for ( n = 0 ; n < (size_t)(sizeof(X)/sizeof(X[0])) ; n++ ) { \
-			X[n] = value; \
-		} \
-	}; \
 
 // Define: GL_BITFLAGS
 // Define a bitflag property
@@ -2710,7 +2697,6 @@ public:
 	inline void set_##X(T p, gld_wlock&) { X=p; }; \
 	inline gld_string get_##X##_string(void) { return get_##X##_property().get_string(); }; \
 	inline void set_##X(char *str) { get_##X##_property().from_string(str); }; \
-	inline void init_##X(T value=0) { X=value; }; \
 
 // Define: GL_METHOD(<class>,<name>)
 // Define a method property
@@ -2723,6 +2709,19 @@ public:
 	static inline size_t get_##X##_offset(void) { return (size_t)method_##C##_##X; }; \
 	inline int get_##X(char *buffer, size_t len) { return X(buffer,len); }; \
 	inline int set_##X(char *buffer) { return X(buffer,0); }
+
+#define GL_OBJECT(T,X) protected: OBJECT* X; public: \
+	static inline size_t get_##X##_offset(void) { return (char*)&(defaults->X)-(char*)defaults; }; \
+	inline gld_object *get_##X(void) { return get_object(X); }; \
+	inline gld_property get_##X##_property(void) { return gld_property(my(),#X); }; \
+	inline gld_object *get_##X(gld_rlock&) { return get_object(X); }; \
+	inline gld_object *get_##X(gld_wlock&) { return get_object(X); }; \
+	inline void set_##X(OBJECT* p) { X=p; }; \
+	inline void set_##X(OBJECT* p, gld_wlock&) { X=p; }; \
+	inline void set_##X(const char *str) { get_##X##_property().from_string(str); }; \
+	inline void init_##X(void) { memset((void*)&X,0,sizeof(X));}; \
+	inline void init_##X(OBJECT* value) { X=value;}; \
+	inline T *get_##X##_object(void) { return (T*)(X+1);};
 
 // Define: IMPL_METHOD(class,name)
 // Parameters:
@@ -2830,6 +2829,9 @@ public:
 
 	// Method: get_flags
 	inline uint64 get_flags(uint64 mask=0xffffffffffffffff) { return (my()->flags)&mask; };
+
+	// Method: get_header_string
+	inline const char *get_header_string(const char *item, char *buffer=NULL, size_t len=0) { return callback->object.get_header_string(my(),item,buffer,len); };
 
 protected: 
 
@@ -3042,7 +3044,7 @@ public:
 			pstruct.prop= (v?v->prop:NULL);
 		} 
 	};
-
+	
 	// Constructor: gld_property(OBJECT *o, const char *n)
 	inline gld_property(OBJECT *o, const char *n) : pstruct(nullpstruct), obj(o)
 	{ 
@@ -3231,6 +3233,9 @@ public:
 
 	// TODO these need to use throw instead of returning overloaded values
 
+	// Method: get_bool(void)
+	inline bool get_bool(void) { return *(bool*)get_addr(); };
+
 	// Method: get_double(void)
 	inline double get_double(void) { errno=0; switch(pstruct.prop->ptype) { case PT_double: case PT_random: case PT_enduse: case PT_loadshape: return has_part() ? get_part() : *(double*)get_addr(); default: errno=EINVAL; return NaN;} };
 
@@ -3409,6 +3414,9 @@ public:
 
 	// Method: GLOBALVAR*
 	inline operator GLOBALVAR*(void) { return var; };
+
+	// Method: get_name
+	inline const char* get_name(void) { return var->prop->name; };
 
 	// Method: is_valid
 	inline bool is_valid(void) { return var!=NULL; };
@@ -3901,6 +3909,13 @@ int dllkill() { return do_kill(NULL); }
  */
 #define EXPORT_METHOD(X,N) EXPORT_METHOD_C(X,X,N)
 
+/*	Define: EXPORT_DESTROY(class)
+
+	This macro is used to implement a destroy function of a class.
+ */
+#define EXPORT_DESTROY_C(X,N) EXPORT void destroy_##X(OBJECT *obj) { OBJECTDATA(obj,N)->destroy(); free(obj); }
+#define EXPORT_DESTROY(C) EXPORT_DESTROY_C(C,C)
+
 #endif
 
 /****************************************
@@ -4075,6 +4090,20 @@ inline int method_extract(char *value, va_list args)
 }
 
 #endif // __cplusplus
+
+inline PyObject *python_import(const char *module, const char *path=NULL)
+{
+	return callback->python.import(module, path);
+}
+
+inline bool python_call(PyObject *pModule, const char *method, const char *vargsfmt, ...)
+{
+	va_list ptr;
+	va_start(ptr,vargsfmt);
+	bool ok = callback->python.call(pModule,method,vargsfmt,ptr);
+	va_end(ptr);
+	return ok;
+}
 
 /** @} **/
 #endif

@@ -12,6 +12,8 @@
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
 
+#include <Python.h>
+
 #include "complex.h"
 #include "timestamp.h"
 #include "class.h"
@@ -153,6 +155,7 @@ typedef struct s_callbacks {
 		int (*set_dependent)(OBJECT*,OBJECT*);
 		int (*set_parent)(OBJECT*,OBJECT*);
 		OBJECTRANK (*set_rank)(OBJECT*,OBJECTRANK);
+		const char *(*get_header_string)(OBJECT *obj, const char *item, char *buffer, size_t len);
 	} object;
 	struct {
 		PROPERTY *(*get_property)(OBJECT*,PROPERTYNAME,PROPERTYSTRUCT*);
@@ -350,6 +353,11 @@ typedef struct s_callbacks {
 		unsigned int (*build)(void);
 		const char * (*branch)(void);
 	} version;
+	int (*call_external_callback)(const char*, void *);
+	struct {
+		PyObject *(*import)(const char *module, const char *path);
+		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs);
+	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
 
@@ -422,6 +430,7 @@ OBJECTRANK object_set_rank(OBJECT *obj, OBJECTRANK rank);
 OBJECT *object_find_by_id(OBJECTNUM id);
 OBJECT *object_get_first(void);
 OBJECT *object_get_next(OBJECT *obj);
+OBJECT *object_get_last(void);
 unsigned int object_get_count(void);
 size_t object_dump(char *buffer, size_t size, OBJECT *obj);
 size_t object_save(char *buffer, size_t size, OBJECT *obj);
@@ -472,14 +481,20 @@ typedef struct s_jsondata {
 } JSONDATA;
 bool object_set_json(OBJECT *obj, const char *propname, JSONDATA *data);
 
-OBJECT *object_find_by_addr(void *addr);
+OBJECT *object_find_by_addr(void *addr, PROPERTY *prop=NULL);
 PROPERTY *object_get_first_property(OBJECT *obj, bool full=true);
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full=true);
 PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full=true);
+void object_destroy(OBJECT *obj);
+void object_destroy_all(void);
+
+const char *object_property_to_initial(OBJECT *obj, const char *name, char *buffer, int sz);
 
 #ifdef __cplusplus
 }
 #endif
+
+const char* object_get_header_string(OBJECT *obj, const char *item, char *buffer, size_t len);
 
 #define object_size(X) ((X)?(X)->size:-1) /**< get the size of the object X */
 #define object_id(X) ((X)?(X)->id:-1) /**< get the id of the object X */
@@ -495,6 +510,51 @@ PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full=true);
 #define MYPARENT (MY->parent) /**< get the parent from the object's data structure */
 #define MYCLOCK (MY->clock) /**< get an object's own clock */
 #define MYRANK (MY->rank) /**< get an object's own rank */
+
+// Class: GldObject
+// Object implementation
+class GldObject
+{
+
+private:
+
+	// Property: obj
+	// Reference to underlying object header
+	OBJECT *obj;
+
+public:
+
+	// Constructor: GldObject
+	// Construct an object implementation
+	inline GldObject(OBJECT *ref) { obj = ref; };
+
+	// Destructor: ~GldObject
+	// Destroy an object implementation
+	inline ~GldObject(void) {};
+
+	// Method: OBJECT*
+	// Obtain a reference to the underlying object header
+	inline operator OBJECT* (void) { return obj; };
+
+public:
+
+	// Method: get_header
+	inline OBJECT *get_header(void) { return obj; };
+
+	// Method: get_id
+	inline size_t get_id(void) { return obj->id; };
+
+	// Method: get_class
+	inline CLASS *get_class(void) { return obj->oclass; };
+
+	// Method: get_name
+	inline std::string get_name(void) { return obj->name ? std::string(obj->name) : (std::string(obj->oclass->name) + ":" + std::to_string(obj->id)); };
+
+public:
+
+	// Method: get_data
+	inline void *get_data(void) { return obj+1; };
+};
 
 #endif
 

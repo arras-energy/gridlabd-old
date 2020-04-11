@@ -1,282 +1,29 @@
-/** load.cpp
-	Copyright (C) 2008 Battelle Memorial Institute
-	
-	@file load.c
-	@addtogroup load_glm GLM file loader
-	@ingroup core
-
-	@note The function of GLM files has evolved from Version 1.  Now GLM files
-	are used to synthesize models, whereas XML files are used to store models.
-
-	@bug This loader uses a crude parser.  Someday it will be replaced by a more robust
-	implementation that will be easier to fix, manage, improve, update, grow, etc.
-
-	@par Comments
-	All text from the first instance of "//" to the end of a line is treated as
-	a comment.  The "//" must follow a whitespace to be considered a comment delimiter.
-	When a "//" follows a non-white character, it is not recognized as a comment delimiter.
-	@code
-	// comments are preceded by two slashes, which must follow a white-space
-	#set urlbase=http://www.nowhere.net/ // www.nowhere.net/ is not a comment
-	@endcode
-
-	@par Variables
-	Any global variable or environment variable can be substituted into the incoming
-	stream by using the \p ${varname} syntax.  First global variables are matched, and
-	if none is found, then environment variables are matched.  If the global variable
-	name is provided in the form \p ${module::varname} then the module global is
-	substituted if it exists.
-
-	@todo Command substitution using \p $(command).
-
-	@todo Regular expressions using \p ${varname/from/to} and \p ${varname//from/to}.
-
-	@par Macros
-	The "#" character at the beginning of a line followed by a non-white character
-	will cause the word that follows to be treated as a macro.  When a "#" is followed
-	by a white-space it will cause the parser to consider the file to be an old-style
-	GLM file and abandon the loading process.
-
-	The following macros are recognized:
-@code
-#set <global>="<value>" // sets the existing global variable to the value
-
-#define <global>="<value>" // defines a new global variable as the value
-
-#setenv <variable>=<expression> // set the environment variable to the expression
-
-#include "<file>" // includes the file in the load process
-
-#if <expression> // includes the text if expression is non-zero otherwise includes alternate
-... <text> ...
-#else
-... <alternate> ...
-#endif
-
-#ifdef <global> // includes the text if global is defined otherwise includes alternate
-... <text> ...
-#else
-... <alternate> ...
-#endif
-
-#ifndef <global> // includes the text if global is undefined otherwise includes alternate
-... <text> ...
-#else
-... <alternate> ...
-#endif
-
-#ifexist <file> // includes the text if file exists otherwise includes alternate
-... <text> ...
-#else
-... <alternate> ...
-#endif
-
-#print <expression> // displays the expression on the output stream
-
-#error <expression> // displays the expression on the error stream and fails the load
-
-#warning <expression> // displays the warning on the warning stream
-
-@endcode
-
-	The following blocks are recognized at the root level:
-@code
-clock {
-	timezone "ZZZTTTZZZ"; // sets the timezone to use for the simulation
-	timestamp "YYYY-MM-DD HH:MM:SS ZZZ"; // sets the global clock starting time
-}
-
-global {
-	<global> <expression>; // sets the global to the expression
-}
-
-module {
-	<variable> <expression>; // sets the module variable to expression
-	class <class> { // verifies existing static class
-		<type> <property>[<unit>]; // defines /verifies a property in class
-	}
-}
-	
-class <class> { // creates a new runtime class
-
-	// publish a GridLAB-D property
-	<type> <property>[<unit>]; 
-
-	// define an intrinsic function (i.e., create, init, presync, sync, postsync, etc.)
-	intrinsic <name> ( <arglist> ) 
-	{
-		<C++ code>
-	};
-
-	// embed a C++ member variable or function
-	public|protected|private <C++ member definition>;
-
-	// declare a function in another class
-	function <class-name>::<function-name>;
-
-	// publish a C++ member function
-	export <C++ member definition>;
-}
-
-object <class>[:<spec>] { // spec may be <id>, or <startid>..<endid>, or ..<count>
-	<property> <expression>;
-	[parent] object ...; // create a child object
-	<object-property> object ...; // reference another object
-}
-@endcode
-
- @{
-
- **/
+// load.cpp
+// Copyright (C) 2008 Battelle Memorial Institute
+// Copyright (C) 2020 Regents of the Leland Stanford Junior University
 
 #include "gldcore.h"
 
-/* define this to use # for comment and % for macros (the way Version 1.x works) */
-/* #define OLDSTYLE	*/
-
-#ifdef OLDSTYLE
-#define COMMENT "#"
-#define MACRO "%"
-#else
-#define COMMENT "//"
-#define MACRO "#"
-#endif
-
-#ifdef WIN32
-#include <io.h>
-#include <process.h>
-#include <direct.h>
-typedef struct _stat STAT;
-#define FSTAT _fstat
-#define tzset _tzset
-#define snprintf _snprintf
-#else
-#include <unistd.h>
 #include <dlfcn.h>
-typedef struct stat STAT;
-#define FSTAT fstat
-#endif
 
-#include "cmdarg.h"
-#include "complex.h"
-#include "object.h"
-#include "load.h"
-#include "output.h"
-#include "random.h"
-#include "convert.h"
-#include "schedule.h"
-#include "transform.h"
-#include "instance.h"
-#include "linkage.h"
-#include "gui.h"
-#include "curl.h"
+/* TODO: remove these when reentrant code is completed */
+DEPRECATED extern GldMain *my_instance;
+DEPRECATED STATUS loadall(const char *filename)
+{
+	return my_instance->get_loader()->load(filename) ? SUCCESS : FAILED;
+}
+DEPRECATED OBJECT *load_get_current_object(void)
+{
+	return my_instance->get_loader()->get_current_object();
+}
+DEPRECATED MODULE *load_get_current_module(void)
+{
+	return my_instance->get_loader()->get_current_module();
+}
 
 SET_MYCONTEXT(DMC_LOAD)
 
-static unsigned int linenum=1;
-static int include_fail = 0;
-static char filename[1024];
-static time_t modtime = 0;
-
-static char start_ts[64];
-static char stop_ts[64];
-
-static char *format_object(OBJECT *obj)
-{
-	static char256 buffer;
-	strcpy(buffer,"(unidentified)");
-	if (obj->name==NULL)
-		sprintf(buffer,global_object_format,obj->oclass->name,obj->id);
-	else
-		sprintf(buffer,"%s (%s:%d)",obj->name,obj->oclass->name, obj->id);
-	return buffer;
-}
-
-static char *strip_right_white(char *b){
-	size_t len, i;
-	len = strlen(b) - 1;
-	for(i = len; i >= 0; --i){
-		if(b[i] == '\r' || b[i] == '\n' || b[i] == ' ' || b[i] == '\t'){
-			b[i] = '\0';
-		} else {
-			break;
-		}
-	}
-	return b;
-}
-
-/* inline source code support */
-char *code_block = NULL;
-char *global_block = NULL;
-char *init_block = NULL;
-int code_used = 0;
-
-int inline_code_init(void)
-{
-	if ( code_block==NULL )
-	{
-		code_block = (char *)malloc(global_inline_block_size);
-		if ( code_block==NULL ) {
-			output_error("code_block malloc failed (inline_block_size=%d)", global_inline_block_size);
-			/* TROUBLESHOOT
-			   The memory allocation for the inline code block failed.
-			   Try freeing up memory or reducing the size of the inline blocks (inline_block_size global variable).
-			 */
-			return 0;
-		}
-		memset(code_block,0,global_inline_block_size);
-	}
-	if ( global_block==NULL )
-	{
-		global_block = (char*)malloc(global_inline_block_size);
-		if ( global_block==NULL ) {
-			output_error("global_block malloc failed (inline_block_size=%d)", global_inline_block_size);
-			/* TROUBLESHOOT
-			   The memory allocation for the inline global code block failed.
-			   Try freeing up memory or reducing the size of the inline blocks (inline_block_size global variable).
-			 */
-			return 0;
-		}
-		memset(global_block,0,global_inline_block_size);
-	}
-	if ( init_block==NULL )
-	{
-		init_block = (char*)malloc(global_inline_block_size);
-		if ( init_block==NULL ) {
-			output_error("init_block malloc failed (inline_block_size=%d)", global_inline_block_size);
-			/* TROUBLESHOOT
-			   The memory allocation for the inline init block failed.
-			   Try freeing up memory or reducing the size of the inline blocks (inline_block_size global variable).
-			 */
-			return 0;
-		}
-		memset(init_block,0,global_inline_block_size);
-	}
-	return 1;
-}
-
-void inline_code_term(void)
-{
-	if ( code_block!=NULL )
-	{
-		free(code_block);
-		code_block = NULL;
-	}
-	if ( global_block!=NULL )
-	{
-		free(global_block);
-		global_block = NULL;
-	}
-	if ( init_block!=NULL )
-	{
-		free(init_block);
-		init_block = NULL;
-	}
-	return;
-}
-
-
-/* used to track which functions are included in runtime classes */
+// flags that identify functions are included in runtime classes
 #define FN_CREATE		0x0001
 #define FN_INIT			0x0002
 #define FN_NOTIFY		0x0004
@@ -291,39 +38,143 @@ void inline_code_term(void)
 #define FN_FINALIZE		0x0800
 #define FN_EXPORT		0x1000
 
-/* used for tracking #include directives in files */
-typedef struct s_include_list {
-	char file[256];
-	struct s_include_list *next;
-} INCLUDELIST;
+struct GldLoader::s_threadlist *GldLoader::threadlist = NULL;
 
-INCLUDELIST *include_list = NULL;
-INCLUDELIST *header_list = NULL;
+//
+// Public methods
+//
 
-//UNR_STATIC *static_list = NULL;
-
-static char *forward_slashes(char *a)
+GldLoader::GldLoader(GldMain *main)
+: instance(*main)
 {
-	static char buffer[MAXPATHNAMELEN];
-	char *b=buffer;
-	while (*a!='\0' && b<buffer+sizeof(buffer))
+	include_fail = 0;
+	modtime = 0;
+	memset(filename,0,sizeof(filename));
+	linenum = 1;
+	code_used = 0;
+	include_list = NULL;
+	header_list = NULL;
+	outlinenum = 0;
+	outfilename = NULL;
+	// object_index = NULL;
+	// object_linked = NULL;
+	// object_index_size = 65536;
+	first_unresolved = NULL;
+	current_object = NULL; 
+	current_module = NULL; 
+	loaderhooks = NULL;
+	suppress = 0;
+	nesting = 0;
+	memset(macro_line,0,sizeof(macro_line));
+	forloopstate = FOR_NONE;
+	forloop = NULL;
+	lastfor = NULL;
+	forvar = NULL;
+	forvalue = NULL;
+	forloop_verbose = false;
+	static LANGUAGE builtin_languages[] = 
 	{
-		if (*a=='\\')
+		{"python",python_loader_init,python_parser,NULL},
+	};
+	language_list = builtin_languages;
+	language = NULL;
+	last_term = NULL;
+	last_term_buffer = NULL;
+	last_term_buffer_size = 1024;
+}
+
+GldLoader::~GldLoader(void)
+{
+	if ( last_term_buffer ) free(last_term_buffer);
+	// TODO: cleanup other allocated items
+}
+
+bool GldLoader::load(const char *filename)
+{
+	return loadall(filename) == SUCCESS;
+}
+
+GldObject GldLoader::get_current_object(void)
+{
+	return GldObject(current_object);
+}
+
+GldModule GldLoader::get_current_module(void)
+{
+	return GldModule(current_module);
+}
+
+//
+// Private methods
+//
+
+void GldLoader::syntax_error(const char *filename, const int linenum, const char *format, ...)
+{
+	va_list ptr;
+	va_start(ptr,format);
+	char msg[1024];
+	vsnprintf(msg,sizeof(msg),format,ptr);
+	GldException *error = new GldException("%s(%d): %s",filename,linenum,msg);
+	va_end(ptr);
+	error->throw_now();
+}
+
+std::string GldLoader::format_object(OBJECT *obj)
+{
+	if ( obj->name == NULL )
+	{
+		return std::string(obj->oclass->name) + ":" + std::to_string(obj->id);
+	}
+	else
+	{
+		return std::string(obj->name) + " (" + obj->oclass->name + ":" + std::to_string(obj->id) + ")";
+	}
+}
+
+char *GldLoader::strip_right_white(char *b)
+{
+	size_t len, i;
+	len = strlen(b) - 1;
+	for ( i = len; i >= 0; --i )
+	{
+		if ( b[i] == '\r' || b[i] == '\n' || b[i] == ' ' || b[i] == '\t' )
+		{
+			b[i] = '\0';
+		} 
+		else 
+		{
+			break;
+		}
+	}
+	return b;
+}
+
+std::string GldLoader::forward_slashes(const char *a)
+{
+	char buffer[MAXPATHNAMELEN];
+	char *b=buffer;
+	while ( *a != '\0' && b < buffer+sizeof(buffer)-1 )
+	{
+		if ( *a == '\\' )
+		{
 			*b = '/';
+		}
 		else
+		{
 			*b = *a;
+		}
 		a++;
 		b++;
 	}
 	*b='\0';
-	return buffer;
+	return std::string(buffer);
 }
 
-/* extract parts of a filename */
-static void filename_parts(char *fullname, char *path, char *name, char *ext)
+void GldLoader::filename_parts(const char *fullname, char *path, char *name, char *ext)
 {
 	/* fix delimiters (result is a static copy) */
-	char *file = forward_slashes(fullname);
+	char file[MAXPATHNAMELEN];
+	strcpy(file,forward_slashes(fullname).c_str());
 
 	/* find the last delimiter */
 	char *s = strrchr(file,'/');
@@ -335,20 +186,22 @@ static void filename_parts(char *fullname, char *path, char *name, char *ext)
 	path[0] = name[0] = ext[0] = '\0';
 	
 	/* if both found but dot is before delimiter */
-	if (e && s && e<s) 
+	if ( e != NULL && s != NULL && e < s ) 
+	{
 		
-		/* there is not extension */
+		/* there is no extension */
 		e = NULL;
+	}
 	
 	/* copy extension (if any) and terminate filename at dot */
-	if (e)
+	if ( e != NULL )
 	{
 		strcpy(ext,e+1);
 		*e = '\0';
 	}
 
 	/* if path is given */
-	if (s)
+	if ( s != NULL )
 	{
 		/* copy name and terminate path */
 		strcpy(name,s+1);
@@ -363,18 +216,16 @@ static void filename_parts(char *fullname, char *path, char *name, char *ext)
 		strcpy(name,file);
 }
 
-
-static int append_init(const char* format,...)
+int GldLoader::append_init(const char* format,...)
 {
-	static char code[MAXCODEBLOCKSIZE];
+	char *code = NULL;
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(code,format,ptr);
+	vasprintf(&code,format,ptr);
 	va_end(ptr);
-
-	if (strlen(init_block)+strlen(code)>global_inline_block_size)
+	if ( code == NULL )
 	{
-		output_fatal("insufficient buffer space to compile init code (inline_block_size=%d)", global_inline_block_size);
+		output_fatal("insufficient memory to compile init code");
 		/*	TROUBLESHOOT
 			The loader creates a buffer in which it can temporarily hold source
 			initialization code from your GLM file.  This error occurs when the buffer space
@@ -384,20 +235,21 @@ static int append_init(const char* format,...)
 		*/
 		return 0;
 	}
-	strcat(init_block,code);
+	init_block.append(code);
+	free(code);
 	return ++code_used;
 }
-static int append_code(const char* format,...)
+
+int GldLoader::append_code(const char* format,...)
 {
-	static char code[MAXCODEBLOCKSIZE];
+	char *code = NULL;
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(code,format,ptr);
+	vasprintf(&code,format,ptr);
 	va_end(ptr);
-
-	if (strlen(code_block)+strlen(code)>global_inline_block_size)
+	if ( code == NULL )
 	{
-		output_fatal("insufficient buffer space to compile init code (inline_block_size=%d)", global_inline_block_size);
+		output_fatal("insufficient memory to compile runtime code");
 		/*	TROUBLESHOOT
 			The loader creates a buffer in which it can temporarily hold source
 			runtime code from your GLM file.  This error occurs when the buffer space
@@ -407,20 +259,21 @@ static int append_code(const char* format,...)
 		*/
 		return 0;
 	}
-	strcat(code_block,code);
+	code_block.append(code);
+	free(code);
 	return ++code_used;
 }
-static int append_global(const char* format,...)
+
+int GldLoader::append_global(const char* format,...)
 {
-	static char code[1024];
+	char *code = NULL;
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(code,format,ptr);
+	vasprintf(&code,format,ptr);
 	va_end(ptr);
-
-	if (strlen(global_block)+strlen(code)>global_inline_block_size)
+	if ( code == NULL )
 	{
-		output_fatal("insufficient buffer space to compile init code (inline_block_size=%d)", global_inline_block_size);
+		output_fatal("insufficient memory to compile global code");
 		/*	TROUBLESHOOT
 			The loader creates a buffer in which it can temporarily hold source
 			global code from your GLM file.  This error occurs when the buffer space
@@ -430,24 +283,28 @@ static int append_global(const char* format,...)
 		*/
 		return 0;
 	}
-	strcat(global_block,code);
+	global_block.append(code);
+	free(code);
 	return ++code_used;
 }
-static void mark_linex(const char *filename, int linenum)
+
+void GldLoader::mark_linex(const char *filename, int linenum)
 {
 	char buffer[64];
 	if (global_getvar("noglmrefs",buffer, 63)==NULL)
 	{
 		char fname[MAXPATHNAMELEN];
 		strcpy(fname,filename);
-		append_code("#line %d \"%s\"\n", linenum, forward_slashes(fname));
+		append_code("#line %d \"%s\"\n", linenum, forward_slashes(fname).c_str());
 	}
 }
-static void mark_line()
+
+void GldLoader::mark_line(void)
 {
 	mark_linex(filename,linenum);
 }
-static STATUS exec(const char *format,...)
+
+STATUS GldLoader::exec(const char *format,...)
 {
 	char cmd[1024];
 	va_list ptr;
@@ -455,57 +312,48 @@ static STATUS exec(const char *format,...)
 	vsprintf(cmd,format,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("Running '%s' in '%s'", cmd, getcwd(NULL,0));
-	return system(cmd)==0?SUCCESS:FAILED;
+	int rc = system(cmd);
+	if ( rc != 0 )
+	{
+		output_error("command [%s] failed, rc=%d",cmd,rc);
+	}
+	return rc==0?SUCCESS:FAILED;
 }
 
-static STATUS debugger(const char *target)
+STATUS GldLoader::debugger(const char *target)
 {
 	int result;
 	IN_MYCONTEXT output_debug("Starting debugger");
-#ifdef _MSC_VER
-#define getpid _getpid
-	result = exec("start %s gdb --quiet %s --pid=%d",global_gdb_window?"":"/b",target,global_process_id)>=0?SUCCESS:FAILED;
-	system("pause");
-#else
 	IN_MYCONTEXT output_debug("Use 'dll-symbols %s' to load symbols",target);
 	result = exec("gdb --quiet %s --pid=%d &",target,global_process_id)>=0?SUCCESS:FAILED;
-#endif
 	return result == 0 ? SUCCESS : FAILED;
 }
 
-static char *setup_class(CLASS *oclass)
+std::string GldLoader::setup_class(CLASS *oclass)
 {
-	static char buffer[65536] = "";
-	int len = 0;
-	/* no longer needed now that property extension works */
+	std::string result;
+	char buffer[65536] = "";
+	
+	snprintf(buffer,sizeof(buffer),"\tOBJECT obj; obj.oclass = oclass; %s *t = (%s*)((&obj)+1);\n",oclass->name,oclass->name);
+	result.append(buffer);
+	
+	snprintf(buffer,sizeof(buffer),"\toclass->size = sizeof(%s);\n", oclass->name);
+	result.append(buffer);
+
 	PROPERTY *prop;
-	len += sprintf(buffer+len,"\tOBJECT obj; obj.oclass = oclass; %s *t = (%s*)((&obj)+1);\n",oclass->name,oclass->name);
-	len += sprintf(buffer+len,"\toclass->size = sizeof(%s);\n", oclass->name);
-//	len += sprintf(buffer+len,"\tif (callback->define_map(oclass,\n");
 	for (prop=oclass->pmap; prop!=NULL; prop=prop->next)
 	{
-		len += sprintf(buffer+len,"\t(*(callback->properties.get_property))(&obj,\"%s\",NULL)->addr = (PROPERTYADDR)((char*)&(t->%s) - (char*)t);\n",prop->name,prop->name);
-//		if (prop->unit==NULL)
-//			len += sprintf(buffer+len,"\t\tPT_%s,\"%s\",(char*)&(t->%s)-(char*)t,\n",
-//				class_get_property_typename(prop->ptype),prop->name,prop->name);
-//		else
-//			len += sprintf(buffer+len,"\t\tPT_%s,\"%s[%s]\",(char*)&(t->%s)-char(*)t,\n",
-//				class_get_property_typename(prop->ptype),prop->name,prop->unit->name,prop->name);
-//		if (prop->keywords)
-//		{
-//			KEYWORD *key;
-//			for (key=prop->keywords; key!=NULL; key=key->next)
-//				len += sprintf(buffer+len, "\t\t\tPT_KEYWORD, \"%s\", %d,\n", key->name, key->value);
-//		}
+		snprintf(buffer,sizeof(buffer),"\t(*(callback->properties.get_property))(&obj,\"%s\",NULL)->addr = (PROPERTYADDR)((char*)&(t->%s) - (char*)t);\n",prop->name,prop->name);
+		result.append(buffer);
 	}
-//	len += sprintf(buffer+len,"\t\tNULL)<1) throw(\"unable to publish properties in class %s\");\n", oclass->name);
-	len += sprintf(buffer+len,"\t/* begin init block */\n%s\n\t/* end init block */\n",init_block);
-	return buffer;
+	
+	snprintf(buffer,sizeof(buffer),"\t/* begin init block */\n%s\n\t/* end init block */\n",init_block.c_str());
+	result.append(buffer);
+
+	return result;
 }
 
-static int outlinenum = 0;
-static char *outfilename = NULL;
-static int write_file(FILE *fp, const char *data, ...)
+int GldLoader::write_file(FILE *fp, const char *data, ...)
 {
 	char buffer[65536];
 	char var_buf[64];
@@ -517,66 +365,51 @@ static int write_file(FILE *fp, const char *data, ...)
 	va_start(ptr,data);
 	vsprintf(buffer,data,ptr);
 	va_end(ptr);
-	while ((c=strstr(d,"/*RESETLINE*/\n"))!=NULL)
+	while ( (c=strstr(d,"/*RESETLINE*/\n")) != NULL )
 	{
-		for (b=d; b<c; b++)
+		for ( b = d ; b < c; b++ )
 		{
-			if (*b=='\n')
+			if ( *b == '\n' )
+			{
 				outlinenum++;
+			}
 			fputc(*b,fp);
 			diff++;
 			len++;
 		}
 		d =  c + strlen("/*RESETLINE*/\n");
-		if (global_getvar("noglmrefs",var_buf,63)==NULL)
-			len += fprintf(fp,"#line %d \"%s\"\n", ++outlinenum+1,forward_slashes(outfilename));
+		if ( global_getvar("noglmrefs",var_buf,63) == NULL )
+		{
+			len += fprintf(fp,"#line %d \"%s\"\n", ++outlinenum+1,forward_slashes(outfilename).c_str());
+		}
 	}
-	for (b=d; *b!='\0'; b++)
+	for ( b = d ; *b != '\0' ; b++ )
 	{
-		if (*b=='\n')
+		if ( *b == '\n' )
+		{
 			outlinenum++;
+		}
 		fputc(*b,fp);
 		len++;
 	}
 	return len;
 }
 
-#if 0 // unused function
-static void reset_line(FILE *fp, const char *file)
-{
-	char buffer[64];
-	if (global_getvar("noglmrefs", buffer, 63)==NULL)
-	{
-		char fname[1024];
-		strcpy(fname,file);
-		write_file(fp,"#line %s \"%s\"\n", outlinenum,forward_slashes(fname));
-	}
-}
-#endif
-
-// Recursively make directories if they don't exist
-static int mkdirs(char *path)
+int GldLoader::mkdirs(const char *path)
 {
 	int rc;
-	//struct stat st;
-
-#ifdef WIN32
-#	define PATHSEP '\\'
-#	define mkdir(P,M) _mkdir((P)) // windows does not use mode info
-#	define access _access
-#else
-#	define PATHSEP '/'
-#endif
-
-	if (!path) {
+	if ( path == NULL ) 
+	{
 		errno = EINVAL;
 		return -1;
 	}
-	if ((rc = access(path, F_OK)) && errno == ENOENT) {
+	if ( (rc=access(path, F_OK)) && errno == ENOENT ) 
+	{
 		// path doesn't exist
 		char *pos, *end, *tmp;
 		IN_MYCONTEXT output_verbose("creating directory '%s'", path);
-		if (!(tmp = (char *) malloc(strlen(path) + 1))) {
+		if ( ! (tmp=(char *)malloc(strlen(path) + 1)) ) 
+		{
 			errno = ENOMEM;
 			output_fatal("mkdirs() failed: '%s'", strerror(errno));
 			return -1;
@@ -584,11 +417,15 @@ static int mkdirs(char *path)
 		strcpy(tmp, path);
 		end = tmp + strlen(tmp);
 		// strip off directories until one is found that exists
-		while ((pos = strrchr(tmp, PATHSEP))) {
+		while ( (pos=strrchr(tmp, '/')) ) 
+		{
 			*pos = '\0';
-			if (!(*tmp) || !(rc = access(tmp, F_OK)))
+			if ( ! (*tmp) || ! (rc=access(tmp, F_OK)) )
+			{
 				break;
-			if (errno != ENOENT) {
+			}
+			if ( errno != ENOENT ) 
+			{
 				output_error("cannot access directory '%s': %s", tmp, strerror(errno));
 				free(tmp);
 				tmp = NULL;
@@ -596,10 +433,13 @@ static int mkdirs(char *path)
 			}
 		}
 		// add back components creating them as we go
-		for (pos = tmp + strlen(tmp); pos < end; pos = tmp + strlen(tmp)) {
-			if (*pos == '\0') {
-				*pos = PATHSEP;
-				if ((rc = mkdir(tmp, 0775)) && errno != EEXIST) {
+		for ( pos = tmp+strlen(tmp) ; pos < end ; pos = tmp+strlen(tmp) ) 
+		{
+			if ( *pos == '\0' ) 
+			{
+				*pos = '/';
+				if ( (rc=mkdir(tmp, 0775)) && errno != EEXIST ) 
+				{
 					output_error("cannot create directory '%s': %s", tmp, strerror(errno));
 					free(tmp);
 					tmp = NULL;
@@ -610,12 +450,15 @@ static int mkdirs(char *path)
 		free(tmp);
 		tmp = NULL;
 		return 0;
-	} else if (rc)
+	} 
+	else if (rc)
+	{
 		output_error("cannot access directory '%s': %s", path, strerror(errno));
+	}
 	return rc;
 }
 
-static STATUS compile_code(CLASS *oclass, int64 functions)
+STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 {
 	char include_file_str[1024];
 	char buffer[256];
@@ -623,11 +466,10 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 
 	include_file_str[0] = '\0';
 
-#ifdef HAVE_CONFIG
 	/* check global_include */
-	if (strlen(global_include)==0)
+	if ( strlen(global_include) == 0 )
 	{
-		if (getenv("GRIDLABD"))
+		if ( getenv("GRIDLABD") )
 		{
 			strncpy(global_include,getenv("GRIDLABD"),sizeof(global_include));
 			IN_MYCONTEXT output_verbose("global_include is not set, assuming value of GRIDLABD variable '%s'", global_include);
@@ -643,14 +485,13 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 			return FAILED;
 		}
 	}
-#endif
 
-	if (code_used>0)
+	if ( code_used > 0 )
 	{
 		MODULE *mod;
 
 		FILE *fp;
-		STAT stat;
+		struct stat stat;
 		int outdated = true;
 		char cfile[1024];
 		char ofile[1024];
@@ -663,12 +504,15 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 
 		/* build class implementation files */
 		strncpy(tmp, global_tmp, sizeof(tmp));
-		if (mkdirs(tmp)) {
+		if ( mkdirs(tmp) ) 
+		{
 			errno = 0;
 			return FAILED;
 		}
-		if (strlen(tmp)>0 && tmp[strlen(tmp)-1]!='/' && tmp[strlen(tmp)-1]!='\\')
+		if ( strlen(tmp) > 0 && tmp[strlen(tmp)-1] != '/' )
+		{
 			strcat(tmp,"/");
+		}
 		sprintf(cfile,"%s%s.cpp", (use_msvc||global_gdb||global_gdb_window)?"":tmp,oclass->name);
 		sprintf(ofile,"%s%s.%s", (use_msvc||global_gdb||global_gdb_window)?"":tmp,oclass->name, use_msvc?"obj":"o");
 		sprintf(file,"%s%s", (use_msvc||global_gdb||global_gdb_window)?"":tmp, oclass->name);
@@ -676,17 +520,17 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 
 		/* peek at library file */
 		fp = fopen(afile,"r");
-		if (fp!=NULL && FSTAT(fileno(fp),&stat)==0)
+		if ( fp != NULL && fstat(fileno(fp),&stat) == 0 )
 		{
-			if (global_debug_mode || use_msvc || global_gdb || global_gdb_window )
+			if ( global_debug_mode || use_msvc || global_gdb || global_gdb_window )
 			{
 				IN_MYCONTEXT output_verbose("%s is being used for debugging", afile);
 			}
-			else if (global_force_compile)
+			else if ( global_force_compile )
 			{
 				IN_MYCONTEXT output_verbose("%s recompile is forced", afile);
 			}
-			else if (modtime<stat.st_mtime)
+			else if ( modtime < stat.st_mtime )
 			{
 				IN_MYCONTEXT output_verbose("%s is up to date", afile);
 				outdated = false;
@@ -695,16 +539,19 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 			{
 				IN_MYCONTEXT output_verbose("%s is outdated", afile);
 			}
+		}
+		if ( fp != NULL )
+		{
 			fclose(fp);
 		}
 		
-		if (outdated)
+		if ( outdated )
 		{
 			/* write source file */
 			fp = fopen(cfile,"w");
 
 			IN_MYCONTEXT output_verbose("writing inline code to '%s'", cfile);
-			if (fp==NULL)
+			if ( fp == NULL )
 			{
 				output_fatal("unable to open '%s' for writing", cfile);
 				/*	TROUBLESHOOT
@@ -717,11 +564,12 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 			}
 			outfilename = cfile;
 			ifs_off = 0;
-			for(lptr = header_list; lptr != 0; lptr = lptr->next){
+			for ( lptr = header_list ; lptr != 0; lptr = lptr->next )
+			{
 				sprintf(include_file_str+ifs_off, "#include \"%s\"\n;", lptr->file);
 				ifs_off+=strlen(lptr->file)+13;
 			}
-			if (write_file(fp,"/* automatically generated from GridLAB-D */\n\n"
+			if ( write_file(fp,"/* automatically generated from %s */\n\n"
 					"int gld_major=%d, gld_minor=%d;\n\n"
 					"%s\n\n"
 					"#include <gridlabd.h>\n\n"
@@ -729,6 +577,7 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 					"CALLBACKS *callback = NULL;\n"
 					"static CLASS *myclass = NULL;\n"
 					"static int setup_class(CLASS *);\n\n",
+					PACKAGE_NAME,
 					REV_MAJOR, REV_MINOR,
 					include_file_str,
 					global_getvar("use_msvc",tbuf,63)!=NULL
@@ -749,10 +598,10 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 					"\tif (!setup_class(myclass)) return NULL;\n"
 					"\treturn myclass;"
 					"}\n",oclass->name)<0
-				|| write_file(fp,"%s",code_block)<0 
-				|| write_file(fp,"%s",global_block)<0
+				|| write_file(fp,"%s",code_block.c_str())<0 
+				|| write_file(fp,"%s",global_block.c_str())<0
 				|| write_file(fp,"static int setup_class(CLASS *oclass)\n"
-					"{\t\n%s\treturn 1;\n}\n",setup_class(oclass))<0 
+					"{\t\n%s\treturn 1;\n}\n",setup_class(oclass).c_str())<0 
 				)
 			{
 				output_fatal("unable to write to '%s'", cfile);
@@ -765,118 +614,71 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 				return FAILED;
 			}
 			fclose(fp);
-			outfilename=NULL;
+			outfilename = NULL;
 
 			/* compile object file */
 			IN_MYCONTEXT output_verbose("compiling inline code from '%s'", cfile);
-			if (!use_msvc)
-			{
 #define DEFAULT_CXX "g++"
 #define DEFAULT_CXXFLAGS ""
 #define DEFAULT_LDFLAGS ""
-				char execstr[1024];
-				char ldstr[1024];
-				char mopt[8]="";
-				const char *libs = "-lstdc++";
-#ifdef WIN32
-				snprintf(mopt,sizeof(mopt),"-m%d",sizeof(void*)*8);
-				libs = "";
-#endif
+			char execstr[1024];
+			char ldstr[1024];
+			char mopt[8]="";
+			const char *libs = "-lstdc++";
 
-				sprintf(execstr, "%s %s %s %s %s -fPIC -c \"%s\" -o \"%s\"",
-						getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
-						global_warn_mode?"-w":"",
-						global_debug_output?"-g -O0":"-O0",
-						mopt,
-						getenv("CXXFLAGS")?getenv("CXXFLAGS"):DEFAULT_CXXFLAGS,
-						cfile, ofile);
-				IN_MYCONTEXT output_verbose("compile command: [%s]", execstr);
-				if(exec(execstr)==FAILED)
-				{
-					errno = EINVAL;
-					return FAILED;
-				}
-				if ( !global_debug_output )
-					unlink(cfile);
-				else
-					output_verbose("keeping %s for debugging",cfile);
-
-				/* link new runtime module */
-				IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
-				sprintf(ldstr, "%s %s %s %s -shared -Wl,\"%s\" -o \"%s\" %s",
-						getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
-						mopt,
-						global_debug_output?"-g -O0":"",
-						getenv("LDFLAGS")?getenv("LDFLAGS"):DEFAULT_LDFLAGS,
-						ofile, afile, libs);
-				IN_MYCONTEXT output_verbose("link command: [%s]", ldstr);
-				if(exec(ldstr) == FAILED)
-				{
-					errno = EINVAL;
-					return FAILED;
-				}
-				/* post linking command (optional) */
-				if ( global_getvar("LDPOSTLINK",tbuf,sizeof(tbuf))!=NULL )
-				{
-					/* SE linux needs the new module marked as relocatable (textrel_shlib_t) */
-					exec("%s '%s'", tbuf, afile);
-				}
-
-				if ( !global_debug_output )
-					unlink(ofile);
+			sprintf(execstr, "%s %s %s %s %s -fPIC -c \"%s\" -o \"%s\"",
+					getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
+					global_warn_mode?"-w":"",
+					global_debug_output?"-g -O0":"-O0",
+					mopt,
+					getenv("CXXFLAGS")?getenv("CXXFLAGS"):DEFAULT_CXXFLAGS,
+					cfile, ofile);
+			IN_MYCONTEXT output_verbose("compile command: [%s]", execstr);
+			if ( exec("%s",execstr) == FAILED )
+			{
+				errno = EINVAL;
+				return FAILED;
+			}
+			if ( !global_debug_output )
+			{
+				unlink(cfile);
 			}
 			else
 			{
-				char exports[1024] = "/EXPORT:init ";
-
-				sprintf(exports+strlen(exports),"/EXPORT:create_%s ",oclass->name); /* create is required */
-				if (functions&FN_INIT) sprintf(exports+strlen(exports),"/EXPORT:init_%s ",oclass->name);
-				if (functions&FN_PRECOMMIT) sprintf(exports+strlen(exports),"/EXPORT:precommit_%s ",oclass->name);
-				if (functions&FN_PRESYNC || functions&FN_SYNC || functions&FN_POSTSYNC) sprintf(exports+strlen(exports),"/EXPORT:sync_%s ",oclass->name);
-				if (functions&FN_ISA) sprintf(exports+strlen(exports),"/EXPORT:isa_%s ",oclass->name);
-				if (functions&FN_NOTIFY) sprintf(exports+strlen(exports),"/EXPORT:notify_%s ",oclass->name);
-				if (functions&FN_PLC) sprintf(exports+strlen(exports),"/EXPORT:plc_%s ",oclass->name);
-				if (functions&FN_RECALC) sprintf(exports+strlen(exports),"/EXPORT:recalc_%s ",oclass->name);
-				if (functions&FN_COMMIT) sprintf(exports+strlen(exports),"/EXPORT:commit_%s ",oclass->name);
-				if (functions&FN_FINALIZE) sprintf(exports+strlen(exports),"/EXPORT:finalize_%s ",oclass->name);
-
-				if (exec("cl /Od /DWIN32 /D_DEBUG /D_WINDOWS /D_USRDLL /D_CRT_SECURE_NO_DEPRECATE /D_WINDLL /D_MBCS /Gm /EHsc /RTC1 "
-#if __WORDSIZE__==64
-					"/Wp64 "
-#endif
-					"/MDd /nologo /W3 /Zi /TP /wd4996 /errorReport:none /c %s  %s%s%s /Fo%s"
-					"", cfile, strlen(global_include)>0?"/I \"":"", global_include, strlen(global_include)>0?"\"":"", ofile)==FAILED)
-				{
-					output_error("MSVC compile failed for '%s'", cfile);
-					return FAILED;
-				}
-
-				if (exec("link %s /OUT:%s /NOLOGO /DLL /MANIFEST /MANIFESTFILE:%s.manifest "
-					"/SUBSYSTEM:WINDOWS "
-#ifdef _DEBUG
-					"/DEBUG "
-#endif
-#if __WORDSIZE__==64
-					"/MACHINE:X64 "
-#else
-					"/MACHINE:X86 "
-#endif
-					"/ERRORREPORT:NONE "
-					"%s "
-					"kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib "
-					"uuid.lib odbc32.lib odbccp32.lib", file,afile,oclass->name,exports)==FAILED)
-				{
-					output_error("MSVC link failed for '%s'", cfile);
-					return FAILED;
-				}
+				output_verbose("keeping %s for debugging",cfile);
 			}
 
+			/* link new runtime module */
+			IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
+			sprintf(ldstr, "%s %s %s %s -shared -Wl,\"%s\" -o \"%s\" %s",
+					getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
+					mopt,
+					global_debug_output?"-g -O0":"",
+					getenv("LDFLAGS")?getenv("LDFLAGS"):DEFAULT_LDFLAGS,
+					ofile, afile, libs);
+			IN_MYCONTEXT output_verbose("link command: [%s]", ldstr);
+			if ( exec("%s",ldstr) == FAILED )
+			{
+				errno = EINVAL;
+				return FAILED;
+			}
+			/* post linking command (optional) */
+			if ( global_getvar("LDPOSTLINK",tbuf,sizeof(tbuf))!=NULL )
+			{
+				/* SE linux needs the new module marked as relocatable (textrel_shlib_t) */
+				exec("%s '%s'", tbuf, afile);
+			}
+
+			if ( !global_debug_output )
+			{
+				unlink(ofile);
+			}
 		}
 
 		/* load runtime module */
 		IN_MYCONTEXT output_verbose("loading dynamic link library %s...", afile);
 		mod = module_load(oclass->name,0,NULL);
-		if (mod==NULL)
+		if ( mod == NULL )
 		{
 			output_error("unable to load inline code");
 			return FAILED;
@@ -886,13 +688,13 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 		/* start debugger if requested */
 		if ( global_gdb || global_gdb_window )
 		{
-			if (global_debug_mode)
+			if ( global_debug_mode )
 			{
 				IN_MYCONTEXT output_debug("using gdb requires GLD debugger be disabled");
 			}
 			global_debug_output = 1;
 			IN_MYCONTEXT output_verbose("attaching debugger to process id %d", getpid());
-			if (debugger(afile)==FAILED)
+			if ( debugger(afile) == FAILED )
 			{
 				output_error("debugger load failed: %s", errno?strerror(errno):"(no details)");
 				return FAILED;
@@ -909,84 +711,66 @@ static STATUS compile_code(CLASS *oclass, int64 functions)
 		strcpy(oclass->runtime,afile);
 	}
 	else
+	{
 		oclass->has_runtime = false;
+	}
 
 	/* clear buffers */
-	code_block[0] = global_block[0] = init_block[0] = '\0';
+	code_block.clear();
+	global_block.clear();
+	init_block.clear();
 	code_used = 0;
 
 	return SUCCESS;
 }
 
-
-static OBJECT **object_index = NULL;
-static char *object_linked = NULL;
-static unsigned int object_index_size = 65536;
-/*static*/ STATUS load_set_index(OBJECT *obj, OBJECTNUM id)
+STATUS GldLoader::load_set_index(OBJECT *obj, OBJECTNUM id)
 {
-	if (object_index==NULL)
-	{
-		object_index = (OBJECT**)malloc(sizeof(OBJECT*)*object_index_size);
-		memset(object_index,0,sizeof(OBJECT*)*object_index_size);
-		object_linked = (char *)malloc(sizeof(unsigned char)*object_index_size);
-		memset(object_linked,0,sizeof(unsigned char)*object_index_size);
-	}
-	if (id>=object_index_size) /* index needs to grow */
-	{
-		int new_size = (id/object_index_size+1)*object_index_size;
-		object_index = (OBJECT**)realloc(object_index,sizeof(OBJECT*)*new_size);
-//		memset(object_index+object_index_size*sizeof(OBJECT *),0,sizeof(OBJECT*)*(new_size-object_index_size));
-		object_linked = (char *)realloc(object_linked,sizeof(unsigned char)*new_size);
-//		memset(object_linked+object_index_size*sizeof(unsigned char),0,sizeof(unsigned char)*(new_size-object_index_size));
-		object_index_size = new_size;
-	}
-	if (object_index==NULL) { errno = ENOMEM; return FAILED;}
-	/* collision check here */
-	object_index[id] = obj;
-	object_linked[id] = 0;
+	INDEXITEM item = {obj,0};
+	indexmap[id] = item;
 	return SUCCESS;
 }
-/*static*/ OBJECT *load_get_index(OBJECTNUM id)
+
+OBJECT *GldLoader::load_get_index(OBJECTNUM id)
 {
-	if (object_index==NULL || id<0 || id>=object_index_size)
-		return NULL;
-	object_linked[id]++;
-	return object_index[id];
+	INDEXITEM &item = indexmap[id];
+	item.count++;
+	return item.obj;
 }
-static OBJECT *get_next_unlinked(CLASS *oclass)
+
+OBJECT *GldLoader::get_next_unlinked(CLASS *oclass)
 {
-	unsigned int id;
-	if (object_index==NULL)
-		return NULL;
-	for (id=0; id<object_index_size; id++)
+	for ( INDEXMAP::iterator iter = indexmap.begin() ; iter != indexmap.end() ; iter++ )
 	{
-		if (object_linked[id]==0 && object_index[id]!=NULL && object_index[id]->oclass==oclass)
+		INDEXITEM &item = iter->second;
+		if ( item.count == 0 && item.obj != NULL && item.obj->oclass == oclass )
 		{
-			object_linked[id]++;
-			return object_index[id];
+			item.count++;
+			return item.obj;
 		}
 	}
 	return NULL;
 }
-static void free_index(void)
+
+void GldLoader::free_index(void)
 {
-	if (object_index!=NULL)
-		free(object_index);
-	object_index=NULL;
-	object_index_size = 65536;
+	indexmap.clear();
 }
 
-static UNRESOLVED *first_unresolved = NULL;
-/*static*/ UNRESOLVED *add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags)
+GldLoader::UNRESOLVED *GldLoader::add_unresolved(OBJECT *by, PROPERTYTYPE ptype, void *ref, CLASS *oclass, char *id, char *file, unsigned int line, int flags)
 {
 	UNRESOLVED *item = (UNRESOLVED*)malloc(sizeof(UNRESOLVED));
-	if (item==NULL) { errno = ENOMEM; return NULL; }
+	if ( item == NULL ) 
+	{ 
+		errno = ENOMEM; 
+		return NULL; 
+	}
 	item->by = by;
 	item->ptype = ptype;
 	item->ref = ref;
 	item->oclass = oclass;
 	item->id = strdup(id);
-	if (first_unresolved!=NULL && strcmp(first_unresolved->file,file)==0)
+	if ( first_unresolved != NULL && strcmp(first_unresolved->file,file) == 0 )
 	{
 		item->file = first_unresolved->file; // means keep using the same file
 		first_unresolved->file = NULL;
@@ -1002,7 +786,8 @@ static UNRESOLVED *first_unresolved = NULL;
 	first_unresolved = item;
 	return item;
 }
-static int resolve_object(UNRESOLVED *item, const char *filename)
+
+int GldLoader::resolve_object(UNRESOLVED *item, const char *filename)
 {
 	OBJECT *obj;
 	char classname[65];
@@ -1012,9 +797,11 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 	char op[2];
 	char star;
 
-	if(0 == strcmp(item->id, "root"))
+	if ( 0 == strcmp(item->id, "root") )
+	{
 		obj = NULL;
-	else if (sscanf(item->id,"childless:%[^=]=%s",propname,target))
+	}
+	else if ( sscanf(item->id,"childless:%[^=]=%s",propname,target) == 2 )
 	{
 		for ( obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
 		{
@@ -1025,98 +812,101 @@ static int resolve_object(UNRESOLVED *item, const char *filename)
 				break;
 			}
 		}
-		if ( obj==NULL )
+		if ( obj == NULL )
 		{
-			output_error_raw("%s(%d): no childless objects found in %s=%s (parent unresolved)", filename, item->line, propname, target);
+			syntax_error(filename,item->line,"no childless objects found in %s=%s (parent unresolved)", propname, target);
 			return FAILED;
 		}
 	}
-	else if (sscanf(item->id,"%64[^.].%64[^:]:",classname,propname)==2)
+	else if ( sscanf(item->id,"%64[^.].%64[^:]:",classname,propname) == 2 )
 	{
 		const char *value = strchr(item->id,':');
 		FINDLIST *match;
-		if (value++==NULL)
+		if ( value++ == NULL )
 		{
-			output_error_raw("%s(%d): %s reference to %s is missing match value", filename, item->line,
-				format_object(item->by), item->id);
+			syntax_error(filename,item->line,"%s reference to %s is missing match value",
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
 		match = find_objects(FL_NEW,FT_CLASS,SAME,classname,AND,FT_PROPERTY,propname,SAME,value,FT_END);
-		if (match==NULL || match->hit_count==0)
+		if ( match == NULL || match->hit_count == 0 )
 		{
-			output_error_raw("%s(%d): %s reference to %s does not match any existing objects", filename, item->line,
-				format_object(item->by), item->id);
+			syntax_error(filename,item->line,"%s reference to %s does not match any existing objects",
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
-		else if (match->hit_count>1)
+		else if ( match->hit_count > 1 )
 		{
-			output_error_raw("%s(%d): %s reference to %s matches more than one object", filename, item->line,
-				format_object(item->by), item->id);
+			syntax_error(filename,item->line,"%s reference to %s matches more than one object",
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
-		obj=find_first(match);
+		obj = find_first(match);
 	}
-	else if (sscanf(item->id,"%[^:]:id%[+-]%d",classname,op,&id)==3)
+	else if ( sscanf(item->id,"%[^:]:id%[+-]%d",classname,op,&id) == 3 )
 	{
 		CLASS *oclass = class_get_class_from_classname(classname);
 		obj = object_find_by_id(item->by->id + (op[0]=='+'?+1:-1)*id);
-		if ( oclass == NULL || obj==NULL )
+		if ( oclass == NULL || obj == NULL )
 		{
 			obj = object_find_name(item->id);
 			if ( obj == NULL )
 			{
-				output_error_raw("%s(%d): cannot resolve implicit reference from %s to %s", filename, item->line,
-					format_object(item->by), item->id);
+				syntax_error(filename,item->line,"cannot resolve implicit reference from %s to %s",
+					format_object(item->by).c_str(), item->id);
 				return FAILED;
 			}
 		}
 	}
-	else if (sscanf(item->id,global_object_scan,classname,&id)==2)
+	else if ( sscanf(item->id,global_object_scan,classname,&id) == 2 )
 	{
 		obj = load_get_index(id);
 		if ( obj == NULL )
 		{
 			obj = object_find_name(item->id);
 		}
-		if (obj==NULL)
+		if ( obj == NULL )
 		{
-			output_error_raw("%s(%d): cannot resolve explicit reference from %s to %s", filename, item->line,
-				format_object(item->by), item->id);
+			syntax_error(filename,item->line,"cannot resolve explicit reference from %s to %s",
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
-		if ((strcmp(obj->oclass->name,classname)!=0) && (strcmp("id", classname) != 0))
-		{ /* "id:###" is our wildcard.  some converters use it for dangerous simplicity. -mh */
-			output_error_raw("%s(%d): class of reference from %s to %s mismatched", filename, item->line,
-				format_object(item->by), item->id);
+		if ( strcmp(obj->oclass->name,classname) !=0 && strcmp("id", classname) != 0 )
+		{
+			syntax_error(filename,item->line,"class of reference from %s to %s mismatched",
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
 	}
-	else if (sscanf(item->id,"%[^:]:%c",classname,&star)==2 && star=='*')
+	else if ( sscanf(item->id,"%[^:]:%c",classname,&star) == 2 && star == '*' )
 	{
 		CLASS *oclass = class_get_class_from_classname(classname);
 		obj = get_next_unlinked(oclass);
-		if (obj==NULL)
+		if ( obj == NULL )
 		{
-			output_error_raw("%s(%d): cannot resolve last reference from %s to %s", filename, item->line,
-				format_object(item->by), item->id);
+			syntax_error(filename,item->line,"cannot resolve last reference from %s to %s",
+				format_object(item->by).c_str(), item->id);
 			return FAILED;
 		}
 	}
-	else if ((obj=object_find_name(item->id))!=NULL)
+	else if ( (obj=object_find_name(item->id)) != NULL )
 	{
 		/* found it already*/
 	}
 	else
 	{
-		output_error_raw("%s(%d): '%s' not found", filename, item->line, item->id);
+		syntax_error(filename,item->line,"'%s' not found", item->id);
 		return FAILED;
 	}
 	*(OBJECT**)(item->ref) = obj;
-	if ((item->flags&UR_RANKS)==UR_RANKS)
+	if ( (item->flags&UR_RANKS) == UR_RANKS )
+	{
 		object_set_rank(obj,item->by->rank);
+	}
 	return SUCCESS;
 }
-static int resolve_double(UNRESOLVED *item, const char *context)
+
+int GldLoader::resolve_double(UNRESOLVED *item, const char *context)
 {
 	char oname[65];
 	char pname[65];
@@ -1133,7 +923,7 @@ static int resolve_double(UNRESOLVED *item, const char *context)
 		obj = object_find_name(oname);
 		if (obj==NULL)
 		{
-			output_error_raw("%s(%d): object '%s' not found", filename, item->line, oname);
+			syntax_error(filename,item->line,"object '%s' not found", oname);
 			return FAILED;
 		}
 
@@ -1141,7 +931,7 @@ static int resolve_double(UNRESOLVED *item, const char *context)
 		prop = object_get_property(obj,pname,NULL);
 		if (prop==NULL)
 		{
-			output_error_raw("%s(%d): property '%s' not found", filename, item->line, pname);
+			syntax_error(filename,item->line,"property '%s' not found", pname);
 			return FAILED;
 		}
 
@@ -1149,7 +939,7 @@ static int resolve_double(UNRESOLVED *item, const char *context)
 		if ((item->flags&UR_TRANSFORM)==UR_TRANSFORM)
 		{
 			/* find transform that uses this target */
-			while ((xform=transform_getnext(xform))!=NULL)
+			for ( TRANSFORM *xform = transform_getnext(NULL) ; xform != NULL ; xform = transform_getnext(xform) )
 			{
 				/* the reference is to the schedule's source */
 				if (xform==item->ref)
@@ -1157,6 +947,11 @@ static int resolve_double(UNRESOLVED *item, const char *context)
 					ref = &(xform->source);
 					break;
 				}
+			}
+			if ( ref == NULL )
+			{
+				syntax_error(filename,item->line,"transform reference not found");
+				return FAILED;
 			}
 		}
 
@@ -1183,7 +978,7 @@ static int resolve_double(UNRESOLVED *item, const char *context)
 			if (xform) xform->source_type = XS_ENDUSE;
 			break;
 		default:
-			output_error_raw("%s(%d): reference '%s' type is not supported", filename, item->line, item->id);
+			syntax_error(filename,item->line,"reference '%s' type is not supported", item->id);
 			return FAILED;
 		}
 
@@ -1194,7 +989,7 @@ static int resolve_double(UNRESOLVED *item, const char *context)
 	return FAILED;
 }
 
-static STATUS resolve_list(UNRESOLVED *item)
+STATUS GldLoader::resolve_list(UNRESOLVED *item)
 {
 	UNRESOLVED *next;
 	const char *filename = NULL;
@@ -1227,7 +1022,7 @@ static STATUS resolve_list(UNRESOLVED *item)
 				return FAILED;
 			break;
 		default:
-			output_error_raw("%s(%d): unresolved reference to property '%s' uses unsupported type (ptype=%d)", filename, item->line, item->id, item->ptype);
+			syntax_error(filename,item->line,"unresolved reference to property '%s' uses unsupported type (ptype=%d)", item->id, item->ptype);
 			break;
 		}
 		next = item->next;
@@ -1238,20 +1033,52 @@ static STATUS resolve_list(UNRESOLVED *item)
 		free((void*)filename);
 	return SUCCESS;
 }
-/*static*/ STATUS load_resolve_all()
+
+STATUS GldLoader::load_resolve_all(void)
 {
 	STATUS result = resolve_list(first_unresolved);
 	first_unresolved = NULL;
 	return result;
 }
 
-void start_parse(int &mm, int &m, int &n, int &l, int linenum)
+void GldLoader::clear_last_term(void)
+{
+	last_term = NULL;
+}
+
+void GldLoader::set_last_term(const char *p)
+{
+	last_term = p;
+}
+
+void GldLoader::save_last_term(const char *p)
+{
+	if ( last_term != NULL )
+	{
+		size_t len = p-last_term+1;
+		if ( len < last_term_buffer_size || last_term_buffer == NULL )
+		{
+			last_term_buffer = (char*)realloc(last_term_buffer,len);
+			last_term_buffer_size = len;
+		}
+		strncpy(last_term_buffer,last_term,len);
+		last_term_buffer[len] = '\0';
+	}
+}
+
+const char *GldLoader::get_last_term()
+{
+	return last_term ? last_term_buffer : NULL;
+}
+
+void GldLoader::start_parse(int &mm, int &m, int &n, int &l, int linenum)
 {
 	mm = m = n = l = 0;
 	l = linenum;
 }
-#define PARSER const char *_p
-#define START int _mm, _m, _n, _l; start_parse(_mm,_m,_n,_l,linenum);
+
+#define START int _mm, _m, _n, _l; start_parse(_mm,_m,_n,_l,linenum); 
+#define MARK true // (set_last_term(HERE),true)
 #define ACCEPT { _n+=_m; _p+=_m; _m=0; }
 #define HERE (_p+_m)
 #define OR {_m=0;}
@@ -1260,25 +1087,27 @@ void start_parse(int &mm, int &m, int &n, int &l, int linenum)
 #define LITERAL(X) (_mm=literal(HERE,(X)),_m+=_mm,_mm>0)
 #define PEEK(C) (_p[_m]==(C))
 #define TERM(X) (_mm=(X),_m+=_mm,_mm>0)
+#define MARKTERM(X) TERM(X) // (set_last_term(HERE),TERM(X))
 #define COPY(X) {size--; (X)[_n++]=*_p++;}
+#define SAVETERM // save_last_term(HERE);
 #define DONE return _n;
 #define BEGIN_REPEAT {const char *__p=_p; int __mm=_mm, __m=_m, __n=_n, __l=_l; int __ln=linenum;
 #define REPEAT _p=__p;_m=__m; _mm=__mm; _n=__n; _l=__l; linenum=__ln;
 #define END_REPEAT }
 
-static void syntax_error(const char *p)
+void GldLoader::syntax_error_here(const char *p)
 {
 	char context[16], *nl;
 	strncpy(context,p,15);
 	nl = strchr(context,'\n');
 	if (nl!=NULL) *nl='\0'; else context[15]='\0';
 	if (strlen(context)>0)
-		output_error_raw("%s(%d): syntax error at '%s...'", filename, linenum, context);
+		syntax_error(filename,linenum,"syntax error at '%s...'", context);
 	else
-		output_error_raw("%s(%d): syntax error", filename, linenum);
+		syntax_error(filename,linenum,"syntax error");
 }
 
-static int white(PARSER)
+int GldLoader::white(PARSER)
 {
 	int len = 0;
 	for(len = 0; *_p != '\0' && isspace((unsigned char)(*_p)); ++_p){
@@ -1289,21 +1118,7 @@ static int white(PARSER)
 	return len;
 }
 
-#if 0 // unused function
-static int comment(PARSER)
-{
-	int _n = white(_p);
-	if (_p[_n]=='#')
-	{
-		while (_p[_n]!='\n')
-			_n++;
-		linenum++;
-	}
-	return _n;
-}
-#endif
-
-static int pattern(PARSER, const char *pattern, char *result, int size)
+int GldLoader::pattern(PARSER, const char *pattern, char *result, int size)
 {
 	char format[64];
 	START;
@@ -1313,24 +1128,14 @@ static int pattern(PARSER, const char *pattern, char *result, int size)
 	DONE;
 }
 
-#if 0 // usused function
-static int scan(PARSER, char *format, char *result, int size)
-{
-	START;
-	if (sscanf(_p,format,result)==1)
-		_n = (int)strlen(result);
-	DONE;
-}
-#endif
-
-static int literal(PARSER, const char *text)
+int GldLoader::literal(PARSER, const char *text)
 {
 	if (strncmp(_p,text,strlen(text))==0)
 		return (int)strlen(text);
 	return 0;
 }
 
-static int dashed_name(PARSER, char *result, int size)
+int GldLoader::dashed_name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	/* names cannot start with a digit */
@@ -1340,7 +1145,7 @@ static int dashed_name(PARSER, char *result, int size)
 	DONE;
 }
 
-static int name(PARSER, char *result, int size)
+int GldLoader::name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	/* names cannot start with a digit */
@@ -1349,7 +1154,7 @@ static int name(PARSER, char *result, int size)
 	result[_n]='\0';
 	DONE;
 }
-static int namelist(PARSER, char *result, int size)
+int GldLoader::namelist(PARSER, char *result, int size)
 {	/* basic list of names */
 	START;
 	/* names cannot start with a digit */
@@ -1358,7 +1163,7 @@ static int namelist(PARSER, char *result, int size)
 	result[_n]='\0';
 	DONE;
 }
-static int variable_list(PARSER, char *result, int size)
+int GldLoader::variable_list(PARSER, char *result, int size)
 {	/* basic list of variable names */
 	START;
 	/* names cannot start with a digit */
@@ -1368,7 +1173,7 @@ static int variable_list(PARSER, char *result, int size)
 	DONE;
 }
 
-static int property_list(PARSER, char *result, int size)
+int GldLoader::property_list(PARSER, char *result, int size)
 {	/* basic list of variable names */
 	START;
 	/* names cannot start with a digit */
@@ -1378,7 +1183,7 @@ static int property_list(PARSER, char *result, int size)
 	DONE;
 }
 
-static int unitspec(PARSER, UNIT **unit)
+int GldLoader::unitspec(PARSER, UNIT **unit)
 {
 	char result[1024];
 	size_t size = sizeof(result);
@@ -1401,19 +1206,19 @@ static int unitspec(PARSER, UNIT **unit)
 	DONE;
 }
 
-static int unitsuffix(PARSER, UNIT **unit)
+int GldLoader::unitsuffix(PARSER, UNIT **unit)
 {
 	START;
 	if (LITERAL("["))
 	{
 		if (!TERM(unitspec(HERE,unit)))
 		{
-			output_error_raw("%s(%d): missing valid unit after [", filename, linenum);
+			syntax_error(filename,linenum,"missing valid unit after [");
 			REJECT;
 		}
 		if (!LITERAL("]"))
 		{
-			output_error_raw("%s(%d): missing ] after unit '%s'", filename, linenum,(*unit)->name);
+			syntax_error(filename,linenum,"missing ] after unit '%s'",(*unit)->name);
 		}
 		ACCEPT;
 		DONE;
@@ -1422,14 +1227,14 @@ static int unitsuffix(PARSER, UNIT **unit)
 	DONE;
 }
 
-static int nameunit(PARSER,char *result,int size,UNIT **unit)
+int GldLoader::nameunit(PARSER,char *result,int size,UNIT **unit)
 {
 	START;
 	if (TERM(name(HERE,result,size)) && TERM(unitsuffix(HERE,unit))) ACCEPT; DONE;
 	REJECT;
 }
 
-static int dotted_name(PARSER, char *result, int size)
+int GldLoader::dotted_name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='.') COPY(result);
@@ -1437,7 +1242,7 @@ static int dotted_name(PARSER, char *result, int size)
 	DONE;
 }
 
-static int hostname(PARSER, char *result, int size)
+int GldLoader::hostname(PARSER, char *result, int size)
 {	/* full path name */
 	START;
 	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='.' || *_p=='-' || *_p==':' ) COPY(result);
@@ -1445,7 +1250,7 @@ static int hostname(PARSER, char *result, int size)
 	DONE;
 }
 
-static int delim_value(PARSER, char *result, int size, const char *delims)
+int GldLoader::delim_value(PARSER, char *result, int size, const char *delims)
 {
 	/* everything to any of delims */
 	int quote=0;
@@ -1465,7 +1270,8 @@ static int delim_value(PARSER, char *result, int size, const char *delims)
 	result[_n]='\0';
 	return (int)(_p - start);
 }
-static int structured_value(PARSER, char *result, int size)
+
+int GldLoader::structured_value(PARSER, char *result, int size)
 {
 	int depth=0;
 	const char *start=_p;
@@ -1483,7 +1289,7 @@ static int structured_value(PARSER, char *result, int size)
 	return (int)(_p - start);
 }
 
-static int multiline_value(PARSER,char *result,int size)
+int GldLoader::multiline_value(PARSER,char *result,int size)
 {
 	const char *start = _p;
 	const char *end = strstr(_p,"\"\"\"");
@@ -1537,12 +1343,12 @@ static int multiline_value(PARSER,char *result,int size)
 	}
 	else
 	{
-		output_error_raw("%s(%d): multi-line value too long for loader buffer (len %d > size %d)",filename,linenum,len,size);
+		syntax_error(filename,linenum,"multi-line value too long for loader buffer (len %d > size %d)",len,size);
 		return 0;
 	}
 }
 
-static int value(PARSER, char *result, int size)
+int GldLoader::value(PARSER, char *result, int size)
 {
 	/* everything to a semicolon */
 	char delim=';';
@@ -1583,126 +1389,7 @@ static int value(PARSER, char *result, int size)
 	return (int)(_p - start);
 }
 
-#if 0
-static int functional_int(PARSER, int64 *value){
-	char result[256];
-	int size=sizeof(result);
-	double pValue;
-	char32 fname;
-	START;
-//	while (size>1 && isdigit(*_p)) COPY(result);
-//	result[_n]='\0';
-//	*value=atoi64(result);
-	/* copy-pasted from functional */
-	if (LITERAL("random.") && TERM(name(HERE,fname,sizeof(fname))))
-	{
-		RANDOMTYPE rtype = random_type(fname);
-		int nargs = random_nargs(fname);
-		double a;
-		if (rtype==RT_INVALID || nargs==0 || (WHITE,!LITERAL("(")))
-		{
-			output_message("%s(%d): %s is not a valid random distribution", filename,linenum,fname);
-			REJECT;
-		}
-		if (nargs==-1)
-		{
-			if (WHITE,TERM(real_value(HERE,&a)))
-			{
-				double b[1024];
-				int maxb = sizeof(b)/sizeof(b[0]);
-				int n;
-				b[0] = a;
-				for (n=1; n<maxb && (WHITE,LITERAL(",")); n++)
-				{
-					if (WHITE,TERM(real_value(HERE,&b[n])))
-						continue;
-					else
-					{
-						// variable arg list
-						output_message("%s(%d): expected a %s distribution term after ,", filename,linenum, fname);
-						REJECT;
-					}
-				}
-				if (WHITE,LITERAL(")"))
-				{
-					pValue = random_value(rtype,n,b);
-					ACCEPT;
-				}
-				else
-				{
-					output_message("%s(%d): missing ) after %s distribution terms", filename,linenum, fname);
-					REJECT;
-				}
-			}
-			else
-			{
-				output_message("%s(%d): expected first term of %s distribution", filename,linenum, fname);
-				REJECT;
-			}
-		}
-		else 
-		{
-			if (WHITE,TERM(real_value(HERE,&a)))
-			{
-				// fixed arg list
-				double b,c;
-				if (nargs==1)
-				{
-					if (WHITE,LITERAL(")"))
-					{
-						pValue = random_value(rtype,a);
-						ACCEPT;
-					}
-					else
-					{
-						output_message("%s(%d): expected ) after %s distribution term", filename,linenum, fname);
-						REJECT;
-					}
-				}
-				else if (nargs==2)
-				{
-					if ( (WHITE,LITERAL(",")) && (WHITE,TERM(real_value(HERE,&b))) && (WHITE,LITERAL(")")))
-					{
-						pValue = random_value(rtype,a,b);
-						ACCEPT;
-					}
-					else
-					{
-						output_message("%s(%d): missing second %s distribution term and/or )", filename,linenum, fname);
-						REJECT;
-					}
-				}
-				else if (nargs==3)
-				{
-					if ( (WHITE,LITERAL(",")) && (WHITE,TERM(real_value(HERE,&b))) && WHITE,LITERAL(",") && (WHITE,TERM(real_value(HERE,&c))) && (WHITE,LITERAL(")")))
-					{
-						pValue = random_value(rtype,a,b,c);
-						ACCEPT;
-					}
-					else
-					{
-						output_message("%s(%d): missing terms and/or ) in %s distribution ", filename,linenum, fname);
-						REJECT;
-					}
-				}
-				else
-				{
-					output_message("%s(%d): %d terms is not supported", filename,linenum, nargs);
-					REJECT;
-				}
-			}
-			else
-			{
-				output_message("%s(%d): expected first term of %s distribution", filename,linenum, fname);
-				REJECT;
-			}
-		}
-	} // end if "random."
-	return _n;
-}
-#endif
-
-static int integer(PARSER, int64 *value)
+int GldLoader::integer(PARSER, int64 *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -1713,8 +1400,7 @@ static int integer(PARSER, int64 *value)
 	return _n;
 }
 
-
-static int unsigned_integer(PARSER, unsigned int64 *value)
+int GldLoader::unsigned_integer(PARSER, unsigned int64 *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -1725,7 +1411,7 @@ static int unsigned_integer(PARSER, unsigned int64 *value)
 	return _n;
 }
 
-static int integer32(PARSER, int32 *value)
+int GldLoader::integer32(PARSER, int32 *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -1736,7 +1422,7 @@ static int integer32(PARSER, int32 *value)
 	return _n;
 }
 
-static int integer16(PARSER, int16 *value)
+int GldLoader::integer16(PARSER, int16 *value)
 {
 	char result[256];
 	int size=sizeof(result);
@@ -1747,7 +1433,7 @@ static int integer16(PARSER, int16 *value)
 	return _n;
 }
 
-static int real_value(PARSER, double *value)
+int GldLoader::real_value(PARSER, double *value)
 {
 	char result[256];
 	int ndigits=0;
@@ -1768,7 +1454,7 @@ static int real_value(PARSER, double *value)
 	return _n;
 }
 
-static int functional(PARSER, double *pValue)
+int GldLoader::functional(PARSER, double *pValue)
 {
 	char fname[32];
 	START;
@@ -1780,7 +1466,7 @@ static int functional(PARSER, double *pValue)
 		double a;
 		if (rtype==RT_INVALID || nargs==0 || (WHITE,!LITERAL("(")))
 		{
-			output_error_raw("%s(%d): %s is not a valid random distribution", filename,linenum,fname);
+			syntax_error(filename,linenum,"%s is not a valid random distribution",fname);
 			REJECT;
 		}
 		if (nargs==-1)
@@ -1798,7 +1484,7 @@ static int functional(PARSER, double *pValue)
 					else
 					{
 						// variable arg list
-						output_error_raw("%s(%d): expected a %s distribution term after ,", filename,linenum, fname);
+						syntax_error(filename,linenum,"expected a %s distribution term after ,", fname);
 						REJECT;
 					}
 				}
@@ -1809,13 +1495,13 @@ static int functional(PARSER, double *pValue)
 				}
 				else
 				{
-					output_error_raw("%s(%d): missing ) after %s distribution terms", filename,linenum, fname);
+					syntax_error(filename,linenum,"missing ) after %s distribution terms", fname);
 					REJECT;
 				}
 			}
 			else
 			{
-				output_error_raw("%s(%d): expected first term of %s distribution", filename,linenum, fname);
+				syntax_error(filename,linenum,"expected first term of %s distribution", fname);
 				REJECT;
 			}
 		}
@@ -1834,7 +1520,7 @@ static int functional(PARSER, double *pValue)
 					}
 					else
 					{
-						output_error_raw("%s(%d): expected ) after %s distribution term", filename,linenum, fname);
+						syntax_error(filename,linenum,"expected ) after %s distribution term", fname);
 						REJECT;
 					}
 				}
@@ -1847,7 +1533,7 @@ static int functional(PARSER, double *pValue)
 					}
 					else
 					{
-						output_error_raw("%s(%d): missing second %s distribution term and/or )", filename,linenum, fname);
+						syntax_error(filename,linenum,"missing second %s distribution term and/or )", fname);
 						REJECT;
 					}
 				}
@@ -1860,19 +1546,19 @@ static int functional(PARSER, double *pValue)
 					}
 					else
 					{
-						output_error_raw("%s(%d): missing terms and/or ) in %s distribution ", filename,linenum, fname);
+						syntax_error(filename,linenum,"missing terms and/or ) in %s distribution ", fname);
 						REJECT;
 					}
 				}
 				else
 				{
-					output_error_raw("%s(%d): %d terms is not supported", filename,linenum, nargs);
+					syntax_error(filename,linenum,"%d terms is not supported", nargs);
 					REJECT;
 				}
 			}
 			else
 			{
-				output_error_raw("%s(%d): expected first term of %s distribution", filename,linenum, fname);
+				syntax_error(filename,linenum,"expected first term of %s distribution", fname);
 				REJECT;
 			}
 		}
@@ -1887,68 +1573,41 @@ static int functional(PARSER, double *pValue)
 	DONE;
 }
 
-/* Expression rules:
- *	every value is either a double value, or a PT_double object property of the form "this.propname"
- *	valid operators are {+, -, *, /, ^}
- *	every expression begins and ends with parenthesis
- *	every value is followed by an operator or a close parenthesis
- *	every operator is followed by a value or an open parenthesis
- *	every open parenthesis is followed by a value
- *	every close parenthesis is followed by an operator or the end of the expression
- *	parenthesis must be matched
- *	every value or operator must consume trailing whitespace
- * Step one: form the expression list
- * Step two: break the list into a tree
- * Step three: evaluate the tree bottom-up
- *
- *
- *	Dijkstra's Shunting Yard algorithm
- *	ref: wikipedia (sadly)
- *
- *	- read a token
- *	- if the token is a number, add it to the output queue
- *	- if the token is a function token, then push it onto the stack
- *	- if the token is an operator, o1, then:
- *		- while there is an operator, o2, at the top of the stack, and either
- *			- o1 is associative or left-associative and its precedence is less than or equal to that of o2, or
- *			- o1 is right-associative and its precedence is less than that of o2
- *			then pop o2 off the stack and onto the output queue
- *	- if the token is a left parenthesis, then push it onto the stack.
- *	- if the toekn is a right parenthesis:
- *		- until the token at the top is a left parenthesis, pop operators off the stack onto the output queue
- *		- pop the left parenthesis from the stack, but not onto the output queue
- *		- if the token at the top of the stack is a function token, pop it and onto the output queue
- *		- if the stack runs out without finding a left parenthesis, then there are mismatched parentheses
- *	- when there are no more tokens to read:
- *		- while there are still operator tokens on the stack,
- *			- if the operator token is a parenthesis, we have a mismatched parenthesis
- *			- pop the operator onto the queue
- * - FIN
- */
-struct s_rpn {
+struct s_rpn 
+{
 	int op;
 	double val; // if op = 0, check val
 };
 
-double pos(double a)
+static double pos(double a)
 {
 	return a > 0.0 ? a : 0.0;
 }
-double neg(double a)
+
+static double neg(double a)
 {
 	return a < 0.0 ? -a : 0.0;
 }
-double nonzero(double a)
+
+static double nonzero(double a)
 {
 	return a != 0.0;
 }
-struct s_rpn_func {
+
+static double sign(double a)
+{
+	return a < 0.0 ? -1.0 : ( a > 0 ? +1.0 : 0.0);
+}
+
+struct s_rpn_func 
+{
 	const char *name;
 	int args; /* use a mode instead? else assume only doubles */
 	int index;
 	double (*fptr)(double);
 	/* fptr? for now, just to recognize */
-} rpn_map[] = {
+} rpn_map[] = 
+{
 	{"sin", 1, -1, sin},
 	{"cos", 1, -2, cos},
 	{"tan", 1, -3, tan},
@@ -1962,12 +1621,14 @@ struct s_rpn_func {
 	{"log10", 1, -11, log10},
 	{"floor", 1, -12, floor},
 	{"ceil", 1, -13, ceil},
-	{"pos", 1, -14, pos}, // returns only positive values
-	{"neg", 1, -15, neg}, // returns only positive values
+	{"pos", 1, -14, pos}, // clamp positive
+	{"neg", 1, -15, neg}, // clamp negative
 	{"nonzero", 1, -16, nonzero}, // returns 1 if nonzero
+	{"sign",1,-17,sign},
+	{"exp",1,-18,exp},
 };
 
-static int rpnfunc(PARSER, int *val)
+int GldLoader::rpnfunc(PARSER, int *val)
 {
 	int i = 0, count = 0;
 	START;
@@ -1980,10 +1641,6 @@ static int rpnfunc(PARSER, int *val)
 	}
 	return 0;
 }
-
-//static const int OP_END = 0, OP_OPEN = 1, OP_CLOSE = 2, OP_POW = 3,
-//		OP_MULT = 4, OP_MOD = 5, OP_DIV = 6, OP_ADD = 7, OP_SUB = 8;
-//static int OP_SIN = -1, OP_COS = -2, OP_TAN = -3, OP_ABS = -4;
 
 #define OP_END 0
 #define OP_OPEN 1
@@ -2011,7 +1668,8 @@ static int op_prec[] = {0, 0, 0, 3, 2, 2, 2, 1, 1};
 	op_stk[++op_i] = (T);							\
 	++rpn_sz;							
 	
-static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
+int GldLoader::expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj)
+{
 	double val_q[128], tVal;
 	char tname[128]; /* type name for this.prop */
 	char oname[128], pname[128];
@@ -2102,7 +1760,7 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 			OBJECT *nobj = object_find_name(oname);
 			if ( nobj == NULL )
 			{
-				output_error_raw("%s(%d): object not found (object must already exist): %s.%s", filename,linenum, oname, tname);
+				syntax_error(filename,linenum,"object not found (object must already exist): %s.%s", oname, tname);
 				REJECT;
 			}
 			double *valptr = object_get_double_by_name(nobj, tname);
@@ -2116,7 +1774,7 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 			}
 			else if (valptr == NULL)
 			{
-				output_error_raw("%s(%d): invalid property: %s.%s", filename,linenum, oname, tname);
+				syntax_error(filename,linenum,"invalid property: %s.%s", oname, tname);
 				REJECT;
 			}
 			ACCEPT;
@@ -2128,7 +1786,7 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 		} else if ((LITERAL("$") || LITERAL("this.")) && TERM(name(HERE,tname,sizeof(tname)))){
 			double *valptr = object_get_double_by_name(obj, tname);
 			if(valptr == NULL){
-				output_error_raw("%s(%d): invalid property: %s.%s", filename,linenum, obj->oclass->name, tname);
+				syntax_error(filename,linenum,"invalid property: %s.%s", obj->oclass->name, tname);
 				REJECT;
 			}
 			ACCEPT;
@@ -2157,13 +1815,13 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 			}
 			if(otarg == NULL){ // delayed checking
 				// disabled for now
-				output_error_raw("%s(%d): unknown reference: %s.%s", filename, linenum, oname, pname);
+				syntax_error(filename,linenum,"unknown reference: %s.%s", oname, pname);
 				output_error("may be an order issue, delayed reference checking is a todo");
 				REJECT;
 			} else {
 				double *valptr = object_get_double_by_name(otarg, pname);
 				if(valptr == NULL){
-					output_error_raw("%s(%d): invalid property: %s.%s", filename,linenum, oname, pname);
+					syntax_error(filename,linenum,"invalid property: %s.%s", oname, pname);
 					REJECT;
 				}
 				rpn_stk[rpn_i].op = 0;
@@ -2172,7 +1830,7 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 				++rpn_i;
 			}
 		} else { /* oops */
-			output_error_raw("%s(%d): unrecognized token within: %s9", filename,linenum, HERE-2);
+			syntax_error(filename,linenum,"unrecognized token within: %s9", HERE-2);
 			REJECT;
 			/* It looked like an expression.  Give fair warning. */
 		}
@@ -2212,7 +1870,7 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 		} else if(rpn_stk[i].op > 0){ /* binary operator */
 			double popval = val_q[--val_i];
 			if(val_i < 0){
-				output_error_raw("%s(%d): insufficient arguments in equation", filename,linenum, rpn_stk[i].op);
+				syntax_error(filename,linenum,"insufficient arguments in equation", rpn_stk[i].op);
 				REJECT;
 			}
 			switch(rpn_stk[i].op){
@@ -2235,7 +1893,7 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 					val_q[val_i-1] -= popval;
 					break;
 				default:
-					output_error_raw("%s(%d): unrecognized operator index %i (bug!)", filename,linenum, rpn_stk[i].op);
+					syntax_error(filename,linenum,"unrecognized operator index %i (bug!)", rpn_stk[i].op);
 					REJECT;
 			}
 		} else if(rpn_stk[i].op < 0){ /* rpn_func */
@@ -2245,7 +1903,7 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 				if(rpn_map[j].index == rpn_stk[i].op){
 					double popval = val_q[--val_i];
 					if(val_i < 0){
-						output_error_raw("%s(%d): insufficient arguments in equation", filename,linenum, rpn_stk[i].op);
+						syntax_error(filename,linenum,"insufficient arguments in equation", rpn_stk[i].op);
 						REJECT;
 					}
 					val_q[val_i++] = (*rpn_map[j].fptr)(popval);
@@ -2253,21 +1911,21 @@ static int expression(PARSER, double *pValue, UNIT **unit, OBJECT *obj){
 				}
 			}
 			if(j == count){ /* missed */
-				output_error_raw("%s(%d): unrecognized function index %i (bug!)", filename,linenum, rpn_stk[i].op);
+				syntax_error(filename,linenum,"unrecognized function index %i (bug!)", rpn_stk[i].op);
 				REJECT;
 			}
 
 		}
 	}
 	if((val_i > 1)){
-		output_error_raw("%s(%d): too many values in equation!", filename,linenum);
+		syntax_error(filename,linenum,"too many values in equation!");
 		REJECT;
 	}
 	*pValue = val_q[0];
 	DONE;
 }
 
-static int functional_unit(PARSER,double *pValue,UNIT **unit)
+int GldLoader::functional_unit(PARSER,double *pValue,UNIT **unit)
 {
 	START;
 	if TERM(functional(HERE,pValue))
@@ -2281,7 +1939,7 @@ static int functional_unit(PARSER,double *pValue,UNIT **unit)
 	REJECT;
 }
 
-static int complex_value(PARSER, complex *pValue)
+int GldLoader::complex_value(PARSER, complex *pValue)
 {
 	double r, i, m, a;
 	START;
@@ -2333,7 +1991,7 @@ static int complex_value(PARSER, complex *pValue)
 	REJECT;
 }
 
-static int complex_unit(PARSER,complex *pValue,UNIT **unit)
+int GldLoader::complex_unit(PARSER,complex *pValue,UNIT **unit)
 {
 	START;
 	if TERM(complex_value(HERE,pValue))
@@ -2347,7 +2005,7 @@ static int complex_unit(PARSER,complex *pValue,UNIT **unit)
 	REJECT;
 }
 
-static int time_value_seconds(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_seconds(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2357,7 +2015,7 @@ static int time_value_seconds(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_minutes(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_minutes(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2367,7 +2025,7 @@ static int time_value_minutes(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_hours(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_hours(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2377,7 +2035,7 @@ static int time_value_hours(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_days(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_days(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2387,7 +2045,7 @@ static int time_value_days(PARSER, TIMESTAMP *t)
 	REJECT;
 }
 
-static int time_value_datetime(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_datetime(PARSER, TIMESTAMP *t)
 {
 	DATETIME dt;
 	START;
@@ -2417,7 +2075,7 @@ static int time_value_datetime(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-static int time_value_datetimezone(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_datetimezone(PARSER, TIMESTAMP *t)
 {
 	DATETIME dt;
 	START;
@@ -2447,7 +2105,7 @@ static int time_value_datetimezone(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-static int time_value_isodatetime(PARSER, TIMESTAMP *t)
+int GldLoader::time_value_isodatetime(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2467,7 +2125,7 @@ static int time_value_isodatetime(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-static int time_value(PARSER, TIMESTAMP *t)
+int GldLoader::time_value(PARSER, TIMESTAMP *t)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2493,7 +2151,7 @@ static int time_value(PARSER, TIMESTAMP *t)
 	DONE;
 }
 
-double load_latitude(char *buffer)
+double GldLoader::load_latitude(char *buffer)
 {
 	char oname[128], pname[128];
 	double v = convert_to_latitude(buffer);
@@ -2501,12 +2159,12 @@ double load_latitude(char *buffer)
 	{
 		OBJECT *obj = object_find_name(oname);
 		if ( obj==NULL )
-			output_error_raw("%s(%d): '%s' does not refer to an existing object", filename,linenum,buffer);
+			syntax_error(filename,linenum,"'%s' does not refer to an existing object",buffer);
 		return obj->latitude;
 	}
 	else if ( isnan(v) && ( strcmp(buffer,"")!=0 || stricmp(buffer, "none")!=0 ) )
 	{
-		output_error_raw("%s(%d): '%s' is not a valid latitude", filename,linenum,buffer);
+		syntax_error(filename,linenum,"'%s' is not a valid latitude",buffer);
 	}
 	else
 	{
@@ -2515,7 +2173,7 @@ double load_latitude(char *buffer)
 	return v;
 }
 
-double load_longitude(char *buffer)
+double GldLoader::load_longitude(char *buffer)
 {
 	char oname[128], pname[128];
 	double v = convert_to_longitude(buffer);
@@ -2523,12 +2181,12 @@ double load_longitude(char *buffer)
 	{
 		OBJECT *obj = object_find_name(oname);
 		if ( obj==NULL )
-			output_error_raw("%s(%d): '%s' does not refer to an existing object", filename,linenum,buffer);
+			syntax_error(filename,linenum,"'%s' does not refer to an existing object",buffer);
 		return obj->longitude;
 	}
 	else if ( isnan(v) && ( strcmp(buffer,"")!=0 || stricmp(buffer, "none")!=0 ) )
 	{
-		output_error_raw("%s(%d): '%s' is not a valid longitude", filename,linenum,buffer);
+		syntax_error(filename,linenum,"'%s' is not a valid longitude",buffer);
 	}
 	else
 	{
@@ -2537,7 +2195,7 @@ double load_longitude(char *buffer)
 	return v;
 }
 
-static int clock_properties(PARSER)
+int GldLoader::clock_properties(PARSER)
 {
 	TIMESTAMP tsval;
 	char timezone[64];
@@ -2550,13 +2208,13 @@ static int clock_properties(PARSER)
 		{
 			if (realval!=TS_RESOLUTION)
 			{
-				output_error_raw("%s(%d): timestamp resolution %g does not match system resolution %g, this version does not support variable tick", filename, linenum, realval, TS_RESOLUTION);
+				syntax_error(filename,linenum,"timestamp resolution %g does not match system resolution %g, this version does not support variable tick", realval, TS_RESOLUTION);
 				REJECT;
 			}
 			ACCEPT;
 			goto Next;
 		}
-		output_error_raw("%s(%d): expected tick value", filename, linenum);
+		syntax_error(filename,linenum,"expected tick value");
 		REJECT;
 	}
 	OR if (LITERAL("timestamp") && WHITE)
@@ -2568,7 +2226,7 @@ static int clock_properties(PARSER)
 			ACCEPT;
 			goto Next;
 		}
-		output_error_raw("%s(%d): expected time value", filename, linenum);
+		syntax_error(filename,linenum,"expected time value");
 		REJECT;
 	}
 	OR if (LITERAL("starttime") && WHITE)
@@ -2579,7 +2237,7 @@ static int clock_properties(PARSER)
 			ACCEPT;
 			goto Next;
 		}
-		output_error_raw("%s(%d): expected time value", filename, linenum);
+		syntax_error(filename,linenum,"expected time value");
 		REJECT;
 	}
 	OR if (LITERAL("stoptime") && WHITE)
@@ -2590,7 +2248,7 @@ static int clock_properties(PARSER)
 			ACCEPT;
 			goto Next;
 		}
-		output_error_raw("%s(%d): expected time value", filename, linenum);
+		syntax_error(filename,linenum,"expected time value");
 		REJECT;
 	}
 	OR if (LITERAL("timezone") && WHITE)
@@ -2606,18 +2264,18 @@ static int clock_properties(PARSER)
 			ACCEPT;
 			goto Next;
 		}
-		output_error_raw("%s(%d): expected time zone specification", filename, linenum);
+		syntax_error(filename,linenum,"expected time zone specification");
 		REJECT;
 	}
 	OR if (WHITE,LITERAL("}")) {/* don't accept yet */ DONE;}
-	OR { syntax_error(HERE); REJECT; }
+	OR { syntax_error_here(HERE); REJECT; }
 	/* may be repeated */
 Next:
 	if TERM(clock_properties(HERE)) ACCEPT;
 	DONE;
 }
 
-static int pathname(PARSER, char *path, int size)
+int GldLoader::pathname(PARSER, char *path, int size)
 {
 	START;
 	if TERM(pattern(HERE,"[-A-Za-z0-9/\\:_,. ]",path,size)) {ACCEPT;}
@@ -2640,9 +2298,7 @@ static int pathname(PARSER, char *path, int size)
 	{var} embeds the current value of the current object's variable <var>
 
  **/
-static OBJECT *current_object = NULL; /* context object */
-static MODULE *current_module = NULL; /* context module */
-static int expanded_value(const char *text, char *result, int size, const char *delims)
+int GldLoader::expanded_value(const char *text, char *result, int size, const char *delims)
 {
 	int n=0;
 	if (text[n] == '`')
@@ -2653,7 +2309,7 @@ static int expanded_value(const char *text, char *result, int size, const char *
 		{
 			if (size==0)
 			{
-				output_error_raw("%s(%d): string expansion buffer overrun", filename, linenum);
+				syntax_error(filename,linenum,"string expansion buffer overrun");
 				return 0;
 			}
 			if (text[n]=='{')
@@ -2665,13 +2321,13 @@ static int expanded_value(const char *text, char *result, int size, const char *
 
 				if (sscanf(text+n+1,"%255[a-zA-Z0-9_:]",varname)==0)
 				{
-					output_error_raw("%s(%d): expanded string variable syntax error", filename, linenum);
+					syntax_error(filename,linenum,"expanded string variable syntax error");
 					return 0;
 				}
 				n+=(int)strlen(varname)+1;
 				if (text[n]!='}')
 				{
-					output_error_raw("%s(%d): expanded string variable missing closing }", filename, linenum);
+					syntax_error(filename,linenum,"expanded string variable missing closing }");
 					return 0;
 				}
 
@@ -2688,7 +2344,7 @@ static int expanded_value(const char *text, char *result, int size, const char *
 					object_namespace(value,sizeof(value));
 				else if (strcmp(varname,"class")==0)
 					strcpy(value,current_object?current_object->oclass->name:"");
-				else if (strcmp(varname,"gridlabd")==0)
+				else if (strcmp(varname,PACKAGE)==0)
 					strcpy(value,global_execdir);
 				else if (strcmp(varname,"hostname")==0)
 					strcpy(value,global_hostname); 
@@ -2723,14 +2379,14 @@ static int expanded_value(const char *text, char *result, int size, const char *
 				}
 				else
 				{
-					output_error_raw("%s(%d): variable '%s' not found in this context", filename, linenum, varname);
+					syntax_error(filename,linenum,"variable '%s' not found in this context", varname);
 					return 0;
 				}
 
 				/* accept the value */
 				if ((int)strlen(value)>=size)
 				{
-					output_error_raw("%s(%d): string expansion buffer overrun", filename, linenum);
+					syntax_error(filename,linenum,"string expansion buffer overrun");
 					return 0;
 				}
 				strcat(result,value);
@@ -2747,7 +2403,7 @@ static int expanded_value(const char *text, char *result, int size, const char *
 			return n+1;
 		else
 		{
-			output_error_raw("%s(%d): missing terminating ;", filename, linenum);
+			syntax_error(filename,linenum,"missing terminating ;");
 			return 0;
 		}
 	}
@@ -2763,7 +2419,7 @@ static int expanded_value(const char *text, char *result, int size, const char *
 
  **/
 
-static int alternate_value(PARSER, char *value, int size)
+int GldLoader::alternate_value(PARSER, char *value, int size)
 {
 	double test;
 	char value1[1024];
@@ -2779,7 +2435,7 @@ static int alternate_value(PARSER, char *value, int size)
 			{
 				if ((int)strlen(value1)>size)
 				{
-					output_error_raw("%s(%d): alternate value 1 is too large ;", filename, linenum);
+					syntax_error(filename,linenum,"alternate value 1 is too large ;");
 					REJECT;
 				}
 				else
@@ -2792,7 +2448,7 @@ static int alternate_value(PARSER, char *value, int size)
 			{
 				if ((int)strlen(value2)>size)
 				{
-					output_error_raw("%s(%d): alternate value 2 is too large ;", filename, linenum);
+					syntax_error(filename,linenum,"alternate value 2 is too large ;");
 					REJECT;
 				}
 				else
@@ -2804,7 +2460,7 @@ static int alternate_value(PARSER, char *value, int size)
 		}
 		else
 		{
-			output_error_raw("%s(%d): missing or invalid alternate values;", filename, linenum);
+			syntax_error(filename,linenum,"missing or invalid alternate values;");
 			REJECT;
 		}
 		DONE;
@@ -2821,7 +2477,7 @@ static int alternate_value(PARSER, char *value, int size)
 /** Line specs are generated internally to maintain proper filename and line number context. 
 	Line specs are always alone on a line and take the form @pathname;linenum
  **/
-static int line_spec(PARSER)
+int GldLoader::line_spec(PARSER)
 {
 	char fname[1024];
 	int32 lnum;
@@ -2836,7 +2492,7 @@ static int line_spec(PARSER)
 		}
 		else
 		{
-			output_error_raw("%s(%d): @ syntax error", filename, linenum);
+			syntax_error(filename,linenum,"@ syntax error");
 			REJECT; DONE;
 		}
 	}
@@ -2845,7 +2501,7 @@ static int line_spec(PARSER)
 	DONE;
 }
 
-static int clock_block(PARSER)
+int GldLoader::clock_block(PARSER)
 {
 	START;
 	if WHITE ACCEPT;
@@ -2854,7 +2510,7 @@ static int clock_block(PARSER)
 	if LITERAL("{") ACCEPT
 	else
 	{
-		output_error_raw("%s(%d): expected clock block opening {",filename,linenum);
+		syntax_error(filename,linenum,"expected clock block opening {");
 		REJECT;
 	}
 	if WHITE ACCEPT;
@@ -2863,19 +2519,13 @@ static int clock_block(PARSER)
 	if WHITE ACCEPT;
 	if LITERAL("}") ACCEPT else
 	{
-		output_error_raw("%s(%d): expected clock block closing }",filename,linenum);
+		syntax_error(filename,linenum,"expected clock block closing }");
 		REJECT;
-	}
-	if(0 != start_ts[0]){
-		;
-	}
-	if(0 != stop_ts[0]){
-		;
 	}
 	DONE;
 }
 
-static int module_properties(PARSER, MODULE *mod)
+int GldLoader::module_properties(PARSER, MODULE *mod)
 {
 	int64 val;
 	char classname[MAXCLASSNAMELEN];
@@ -2892,7 +2542,7 @@ static int module_properties(PARSER, MODULE *mod)
 			{
 				if (val!=mod->major)
 				{
-					output_error_raw("%s(%d): %s has an incompatible module major version", filename,linenum,mod->name);
+					syntax_error(filename,linenum,"%s has an incompatible module major version",mod->name);
 					REJECT;
 				}
 				ACCEPT;
@@ -2900,13 +2550,13 @@ static int module_properties(PARSER, MODULE *mod)
 			}
 			else
 			{
-				output_error_raw("%s(%d): expected ; after %s module major number", filename,linenum, mod->name);
+				syntax_error(filename,linenum,"expected ; after %s module major number", mod->name);
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): expected %s module major number", filename,linenum, mod->name);
+			syntax_error(filename,linenum,"expected %s module major number", mod->name);
 			REJECT;
 		}
 	}
@@ -2919,7 +2569,7 @@ static int module_properties(PARSER, MODULE *mod)
 			{
 				if (val!=mod->minor)
 				{
-					output_error_raw("%s(%d): %s has an incompatible module minor version", filename,linenum,mod->name);
+					syntax_error(filename,linenum,"%s has an incompatible module minor version",mod->name);
 					REJECT;
 				}
 				ACCEPT;
@@ -2927,13 +2577,13 @@ static int module_properties(PARSER, MODULE *mod)
 			}
 			else
 			{
-				output_error_raw("%s(%d): expected ; after %s module minor number", filename,linenum, mod->name);
+				syntax_error(filename,linenum,"expected ; after %s module minor number", mod->name);
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): expected %s module minor number", filename,linenum, mod->name);
+			syntax_error(filename,linenum,"expected %s module minor number", mod->name);
 			REJECT;
 		}
 	}
@@ -2947,7 +2597,7 @@ static int module_properties(PARSER, MODULE *mod)
 				CLASS *oclass = class_get_class_from_classname(classname);
 				if (oclass==NULL || oclass->module!=mod)
 				{
-					output_error_raw("%s(%d): module '%s' does not implement class '%s'", filename, linenum, mod->name, classname);
+					syntax_error(filename,linenum,"module '%s' does not implement class '%s'", mod->name, classname);
 					REJECT;
 				}
 				ACCEPT;
@@ -2955,13 +2605,13 @@ static int module_properties(PARSER, MODULE *mod)
 			}
 			else
 			{
-				output_error_raw("%s(%d): expected ; after module %s class %s declaration", filename,linenum, mod->name, classname);
+				syntax_error(filename,linenum,"expected ; after module %s class %s declaration", mod->name, classname);
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): missing class name in module %s class declaration", filename,linenum, mod->name);
+			syntax_error(filename,linenum,"missing class name in module %s class declaration", mod->name);
 			REJECT;
 		}
 	}
@@ -2981,31 +2631,31 @@ static int module_properties(PARSER, MODULE *mod)
 				}
 				else
 				{
-					output_error_raw("%s(%d): invalid module %s property '%s'", filename, linenum, mod->name, propname);
+					syntax_error(filename,linenum,"invalid module %s property '%s'", mod->name, propname);
 					REJECT;
 				}
 			}
 			else
 			{
-				output_error_raw("%s(%d): expected ; after module %s property specification", filename, linenum, mod->name);
+				syntax_error(filename,linenum,"expected ; after module %s property specification", mod->name);
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): missing module %s property %s value", filename, linenum, mod->name, propname);
+			syntax_error(filename,linenum,"missing module %s property %s value", mod->name, propname);
 			REJECT;
 		}
 	}
 	OR if LITERAL("}") {/* don't accept yet */ DONE;}
-	OR { syntax_error(HERE); REJECT; }
+	OR { syntax_error_here(HERE); REJECT; }
 	/* may be repeated */
 Next:
 	if TERM(module_properties(HERE,mod)) ACCEPT;
 	DONE;
 }
 
-static int module_block(PARSER)
+int GldLoader::module_block(PARSER)
 {
 	char module_name[64];
 	char fmod[8],mod[54];
@@ -3026,7 +2676,7 @@ static int module_block(PARSER)
 		}
 		else
 		{
-			output_error_raw("%s(%d): %s module '%s' load failed, %s", filename, linenum, fmod, mod,errno?strerror(errno):"(no details)");
+			syntax_error(filename,linenum,"%s module '%s' load failed, %s", fmod, mod,errno?strerror(errno):"(no details)");
 			REJECT;
 		}
 	}
@@ -3041,7 +2691,7 @@ static int module_block(PARSER)
 		}
 		else
 		{
-			output_error_raw("%s(%d): module '%s' load failed, %s", filename, linenum, module_name,errno?strerror(errno):"(no details)");
+			syntax_error(filename,linenum,"module '%s' load failed, %s", module_name,errno?strerror(errno):"(no details)");
 			REJECT;
 		}
 	}
@@ -3051,7 +2701,7 @@ static int module_block(PARSER)
 	if LITERAL("{") ACCEPT
 	else
 	{
-		output_error_raw("%s(%d): expected module %s block opening {", filename, linenum, module_name);
+		syntax_error(filename,linenum,"expected module %s block opening {", module_name);
 		REJECT;
 	}
 	if TERM(module_properties(HERE,module)) ACCEPT else REJECT;
@@ -3059,13 +2709,13 @@ static int module_block(PARSER)
 	if LITERAL("}") ACCEPT
 	else
 	{
-		output_error_raw("%s(%d): expected module %s block closing }", filename, linenum, module_name);
+		syntax_error(filename,linenum,"expected module %s block closing }", module_name);
 		REJECT;
 	}
 	DONE;
 }
 
-static int property_specs(PARSER, KEYWORD **keys)
+int GldLoader::property_specs(PARSER, KEYWORD **keys)
 {
 	char keyname[32];
 	int32 keyvalue;
@@ -3088,7 +2738,7 @@ static int property_specs(PARSER, KEYWORD **keys)
 	DONE;
 }
 
-static int property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
+int GldLoader::property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
 {
 	char type[32];
 	START;
@@ -3098,7 +2748,7 @@ static int property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
 		*ptype = class_get_propertytype_from_typename(type);
 		if (*ptype==PT_void)
 		{
-			output_error_raw("%s(%d): class member %s is not recognized", filename, linenum, type);
+			syntax_error(filename,linenum,"class member %s is not recognized", type);
 			REJECT;
 		}
 		if (WHITE,LITERAL("{"))
@@ -3115,7 +2765,7 @@ static int property_type(PARSER, PROPERTYTYPE *ptype, KEYWORD **keys)
 	DONE;
 }
 
-static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function, const char **ftype, const char **fname)
+int GldLoader::class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function, const char **ftype, const char **fname)
 {
 	char buffer[1024];
 	START;
@@ -3209,13 +2859,13 @@ static int class_intrinsic_function_name(PARSER, CLASS *oclass, int64 *function,
 	}
 	else if TERM(name(HERE,buffer,sizeof(buffer)))
 	{
-		output_error_raw("%s(%d): '%s' is not a recognized intrinsic function", filename,linenum,buffer);
+		syntax_error(filename,linenum,"'%s' is not a recognized intrinsic function",buffer);
 		REJECT;
 	}
 	DONE;
 }
 
-static int argument_list(PARSER, char *args, int size)
+int GldLoader::argument_list(PARSER, char *args, int size)
 {
 	START;
 	if WHITE ACCEPT;
@@ -3232,7 +2882,7 @@ static int argument_list(PARSER, char *args, int size)
 		}
 		else
 		{
-			output_error_raw("%s(%d): unterminated argument list",filename, linenum);
+			syntax_error(filename,linenum,"unterminated argument list");
 			REJECT;
 		}
 	}
@@ -3241,7 +2891,7 @@ static int argument_list(PARSER, char *args, int size)
 	DONE;
 }
 
-static int source_code(PARSER, char *code, int size)
+int GldLoader::source_code(PARSER, char *code, int size)
 {
 	int _n = 0;
 	int nest = 0;
@@ -3255,7 +2905,7 @@ static int source_code(PARSER, char *code, int size)
 			linenum++;
 		if (size==0)
 		{
-			output_error_raw("%s(%d): insufficient buffer space to load code", filename,linenum);
+			syntax_error(filename,linenum,"insufficient buffer space to load code");
 			return 0;
 		}
 		switch(state) {
@@ -3279,7 +2929,7 @@ static int source_code(PARSER, char *code, int size)
 				}
 				else
 				{
-					output_error_raw("%s(%d): unmatched }", filename,linenum);
+					syntax_error(filename,linenum,"unmatched }");
 					return 0;
 				}
 			}
@@ -3304,7 +2954,7 @@ static int source_code(PARSER, char *code, int size)
 			if (c1=='*' && c2=='/')
 			{
 				if (!global_debug_output && global_getvar("noglmrefs",buffer,63)==NULL)
-					sprintf(code+strlen(code),"#line %d \"%s\"\n", linenum,forward_slashes(filename));
+					sprintf(code+strlen(code),"#line %d \"%s\"\n", linenum,forward_slashes(filename).c_str());
 				state = CODE;
 			}
 			break;
@@ -3317,7 +2967,7 @@ static int source_code(PARSER, char *code, int size)
 				state = CODE;
 			else if (c1=='\n')
 			{
-				output_error_raw("%s(%d): unterminated string constant", filename,linenum);
+				syntax_error(filename,linenum,"unterminated string constant");
 				return 0;
 			}
 			COPY(code);
@@ -3327,7 +2977,7 @@ static int source_code(PARSER, char *code, int size)
 				state = CODE;
 			else if (c1=='\n')
 			{
-				output_error_raw("%s(%d): unterminated char constant", filename,linenum);
+				syntax_error(filename,linenum,"unterminated char constant");
 				return 0;
 			}
 			COPY(code);
@@ -3337,11 +2987,11 @@ static int source_code(PARSER, char *code, int size)
 			break;
 		}
 	}
-	output_error_raw("%s(%d): unterminated code block", filename,linenum);
+	syntax_error(filename,linenum,"unterminated code block");
 	return 0;
 }
 
-static int class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, char *code, int size)
+int GldLoader::class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, char *code, int size)
 {
 	const char *fname = NULL;
 	const char *ftype = NULL;
@@ -3367,7 +3017,7 @@ static int class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, cha
 		}
 		else
 		{
-			output_error_raw("%s(%d): intrinsic functions not permitted in static classes", filename, linenum);
+			syntax_error(filename,linenum,"intrinsic functions not permitted in static classes");
 			REJECT;
 		}
 	}
@@ -3376,7 +3026,7 @@ static int class_intrinsic_function(PARSER, CLASS *oclass, int64 *functions, cha
 	DONE;
 }
 
-static int class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, char *arglist, int asize, char *code, int csize)
+int GldLoader::class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, char *arglist, int asize, char *code, int csize)
 {
 	int startline;
 	char buffer[64];
@@ -3395,14 +3045,14 @@ static int class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, 
 			if (global_getvar("noglmrefs",buffer,63)==NULL)
 				append_init("#line %d \"%s\"\n"
 					"\tif ((*(callback->function.define))(oclass,\"%s\",(FUNCTIONADDR)&%s::%s)==NULL) return 0;\n"
-					"/*RESETLINE*/\n", startline, forward_slashes(filename),
+					"/*RESETLINE*/\n", startline, forward_slashes(filename).c_str(),
 					fname,oclass->name,fname);
 
 			ACCEPT;
 		}
 		else
 		{
-			output_error_raw("%s(%d): export functions not permitted in static classes", filename, linenum);
+			syntax_error(filename,linenum,"export functions not permitted in static classes");
 			REJECT;
 		}
 	}
@@ -3411,7 +3061,7 @@ static int class_export_function(PARSER, CLASS *oclass, char *fname, int fsize, 
 	DONE;
 }
 
-static int class_explicit_declaration(PARSER, char *type, int size)//, bool *is_static)
+int GldLoader::class_explicit_declaration(PARSER, char *type, int size)//, bool *is_static)
 {
 	START;
 	if WHITE ACCEPT;
@@ -3449,7 +3099,7 @@ static int class_explicit_declaration(PARSER, char *type, int size)//, bool *is_
 	DONE;
 }
 
-static int class_explicit_definition(PARSER, CLASS *oclass)
+int GldLoader::class_explicit_definition(PARSER, CLASS *oclass)
 {
 	int startline;
 	char type[64];
@@ -3475,19 +3125,19 @@ static int class_explicit_definition(PARSER, CLASS *oclass)
 				}
 				else
 				{
-					output_error_raw("%s(%d): missing ; after code block",filename, linenum);
+					syntax_error(filename,linenum,"missing ; after code block");
 					REJECT;
 				}
 			}
 			else 
 			{
-				output_error_raw("%s(%d): syntax error in code block",filename, linenum);
+				syntax_error(filename,linenum,"syntax error in code block");
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): explicit definitions not permitted in static classes", filename, linenum);
+			syntax_error(filename,linenum,"explicit definitions not permitted in static classes");
 			REJECT;
 		}
 	}
@@ -3496,7 +3146,7 @@ static int class_explicit_definition(PARSER, CLASS *oclass)
 	DONE;
 }
 
-static int class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *fname, int fsize)
+int GldLoader::class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *fname, int fsize)
 {
 	char classname[MAXCLASSNAMELEN+1];
 	START;
@@ -3511,7 +3161,7 @@ static int class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *f
 			CLASS *oclass = class_get_class_from_classname(classname);
 			if (oclass==NULL) 
 			{
-				output_error_raw("%s(%d): class '%s' does not exist", filename, linenum, classname);
+				syntax_error(filename,linenum,"class '%s' does not exist", classname);
 				REJECT;
 			}
 			else
@@ -3523,14 +3173,14 @@ static int class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *f
 				}
 				else
 				{
-					output_error_raw("%s(%d): class '%s' does not define function '%s'", filename, linenum, classname, fname);
+					syntax_error(filename,linenum,"class '%s' does not define function '%s'", classname, fname);
 					REJECT;
 				}
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): external functions not permitted in static classes", filename, linenum);
+			syntax_error(filename,linenum,"external functions not permitted in static classes");
 			REJECT;
 		}
 	}
@@ -3539,7 +3189,7 @@ static int class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *f
 	DONE;
 }
 
-static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize)
+int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize)
 {
 	static char code[65536];
 	char arglist[1024];
@@ -3561,7 +3211,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 		append_global("FUNCTIONADDR %s::%s = NULL;\n",oclass->name,fname);
 		if (global_getvar("noglmrefs",buffer,63)==NULL)
 			append_init("#line %d \"%s\"\n\tif ((%s::%s=gl_get_function(\"%s\",\"%s\"))==NULL) throw \"%s::%s not defined\";\n", 
-				linenum, forward_slashes(filename), oclass->name, fname, 
+				linenum, forward_slashes(filename).c_str(), oclass->name, fname, 
 				eclass->name, fname, eclass->name, fname);
 		append_code("\tstatic FUNCTIONADDR %s;\n",fname);
 		ACCEPT;
@@ -3582,7 +3232,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 		{
 			if (type==PT_void)
 			{
-				output_error_raw("%s(%d): property type %s is not recognized", filename, linenum, type);
+				syntax_error(filename,linenum,"property type %s is not recognized", type);
 				REJECT;
 			}
 			else
@@ -3593,7 +3243,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 						prop = class_add_extended_property(oclass,propname,type,pUnit->name);
 					else
 					{
-						output_error_raw("%s(%d): units not permitted for type %s", filename, linenum, class_get_property_typename(type));
+						syntax_error(filename,linenum,"units not permitted for type %s", class_get_property_typename(type));
 						REJECT;
 					}
 				}
@@ -3606,7 +3256,7 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 					}
 					else
 					{
-						output_error_raw("%s(%d): keys not permitted for type %s", filename, linenum, class_get_property_typename(prop->ptype));
+						syntax_error(filename,linenum,"keys not permitted for type %s", class_get_property_typename(prop->ptype));
 						REJECT;
 					}
 				}
@@ -3628,19 +3278,19 @@ static int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initc
 		}
 		else if (prop->ptype!=type)
 		{
-			output_error_raw("%s(%d): property %s is defined in class %s as type %s", filename, linenum, propname, oclass->name, class_get_property_typename(prop->ptype));
+			syntax_error(filename,linenum,"property %s is defined in class %s as type %s", propname, oclass->name, class_get_property_typename(prop->ptype));
 			REJECT;
 		}
 		ACCEPT;
 	}
 	else if LITERAL("}") {/* don't accept yet */ DONE;}
-	else { syntax_error(HERE); REJECT; }
+	else { syntax_error_here(HERE); REJECT; }
 	/* may be repeated */
 	if TERM(class_properties(HERE,oclass,functions,initcode,initsize)) ACCEPT;
 	DONE;
 }
 
-static int class_block(PARSER)
+int GldLoader::class_block(PARSER)
 {
 	char classname[MAXCLASSNAMELEN+1];
 	CLASS *oclass;
@@ -3675,13 +3325,13 @@ static int class_block(PARSER)
 				}
 				else
 				{
-					output_error_raw("%s(%d): missing inheritance qualifier", filename, linenum);
+					syntax_error(filename,linenum,"missing inheritance qualifier");
 					REJECT;
 					DONE;
 				}
 				if (class_get_class_from_classname(parent)==NULL)
 				{
-					output_error_raw("%s(%d): class %s inherits from undefined class %s", filename, linenum, classname, parent);
+					syntax_error(filename,linenum,"class %s inherits from undefined class %s", classname, parent);
 					REJECT;
 					DONE;
 				}
@@ -3722,13 +3372,13 @@ static int class_block(PARSER)
 			}
 			else
 			{
-				output_error_raw("%s(%d): expected class %s block opening {",filename,linenum,classname);
+				syntax_error(filename,linenum,"expected class %s block opening {",classname);
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): expected class name",filename,linenum);
+			syntax_error(filename,linenum,"expected class name");
 			REJECT;
 		}
 		if (TERM(class_properties(HERE,oclass,&functions,initcode,sizeof(initcode)))) ACCEPT;
@@ -3860,7 +3510,7 @@ static int class_block(PARSER)
 				if (!compile_code(oclass,functions)) REJECT;
 			} else if ( functions!=0 ) { // if module != NULL
 				if(code_used){
-					output_error_raw("%s(%d): intrinsic functions found for compiled class", filename, linenum);
+					syntax_error(filename,linenum,"intrinsic functions found for compiled class");
 					REJECT;
 				}
 			}				
@@ -3868,7 +3518,7 @@ static int class_block(PARSER)
 		}
 		else
 		{
-			output_error_raw("%s(%d): expected closing } after class block", filename, linenum);
+			syntax_error(filename,linenum,"expected closing } after class block");
 			REJECT;
 		}
 	}
@@ -3876,17 +3526,18 @@ static int class_block(PARSER)
 	DONE;
 }
 
-int set_flags(OBJECT *obj, char *propval)
+int GldLoader::set_flags(OBJECT *obj, char *propval)
 {
 	if (convert_to_set(propval,&(obj->flags),object_flag_property())<=0)
 	{
-		output_error_raw("%s(%d): flags of %s:%d %s could not be set to %s", filename, linenum, obj->oclass->name, obj->id, obj->name, propval);
+		syntax_error(filename,linenum,"flags of %s:%d %s could not be set to %s", obj->oclass->name, obj->id, obj->name, propval);
 		return 0;
 	};
 	return 1;
 }
 
-int is_int(PROPERTYTYPE pt){
+int GldLoader::is_int(PROPERTYTYPE pt)
+{
 	if(pt == PT_int16 || pt == PT_int32 || pt == PT_int64){
 		return (int)pt;
 	} else {
@@ -3894,7 +3545,7 @@ int is_int(PROPERTYTYPE pt){
 	}
 }
 
-static int schedule_ref(PARSER, SCHEDULE **sch)
+int GldLoader::schedule_ref(PARSER, SCHEDULE **sch)
 {
 	char name[64];
 	START;
@@ -3909,7 +3560,8 @@ static int schedule_ref(PARSER, SCHEDULE **sch)
 		REJECT;
 	DONE;
 }
-static int property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *from)
+
+int GldLoader::property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *from)
 {
 	FULLNAME oname;
 	char pname[64];
@@ -3933,7 +3585,7 @@ static int property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *fro
 			PROPERTY *prop = object_get_property(obj,pname,NULL);
 			if (prop==NULL)
 			{
-				output_error_raw("%s(%d): property '%s' of object '%s' not found", filename, linenum, oname,pname);
+				syntax_error(filename,linenum,"property '%s' of object '%s' not found", oname,pname);
 				REJECT;
 			}
 			else if (prop->ptype==PT_double)
@@ -3972,7 +3624,7 @@ static int property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *fro
 			}
 			else
 			{
-				output_error_raw("%s(%d): transform '%s.%s' does not reference a double or a double container like a loadshape", filename, linenum, oname,pname);
+				syntax_error(filename,linenum,"transform '%s.%s' does not reference a double or a double container like a loadshape", oname,pname);
 				REJECT;
 			}
 		}
@@ -3982,7 +3634,7 @@ static int property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT *fro
 	DONE;
 }
 
-static int transform_source(PARSER, TRANSFORMSOURCE *xstype, void **source, OBJECT *from)
+int GldLoader::transform_source(PARSER, TRANSFORMSOURCE *xstype, void **source, OBJECT *from)
 {
 	SCHEDULE *sch;
 	START;
@@ -4000,7 +3652,7 @@ static int transform_source(PARSER, TRANSFORMSOURCE *xstype, void **source, OBJE
 	DONE;
 }
 
-static int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *filtername, size_t namesize, OBJECT *from)
+int GldLoader::filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *filtername, size_t namesize, OBJECT *from)
 {
 	char fncname[1024];
 	char varlist[4096];
@@ -4019,7 +3671,7 @@ static int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size
 		}
 		else
 		{
-			output_error_raw("%s(%d): filter name/input too long",filename,linenum);
+			syntax_error(filename,linenum,"filter name/input too long");
 			REJECT;
 		}
 	}
@@ -4030,7 +3682,7 @@ static int filter_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size
 	DONE;
 }
 
-static int external_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *functionname, size_t namesize, OBJECT *from)
+int GldLoader::external_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, size_t srcsize, char *functionname, size_t namesize, OBJECT *from)
 {
 	char fncname[1024];
 	char varlist[4096];
@@ -4048,7 +3700,7 @@ static int external_transform(PARSER, TRANSFORMSOURCE *xstype, char *sources, si
 	REJECT;
 	DONE;
 }
-static int linear_transform(PARSER, TRANSFORMSOURCE *xstype, void **source, double *scale, double *bias, OBJECT *from)
+int GldLoader::linear_transform(PARSER, TRANSFORMSOURCE *xstype, void **source, double *scale, double *bias, OBJECT *from)
 {
 	START;
 	if WHITE ACCEPT;
@@ -4113,22 +3765,7 @@ static int linear_transform(PARSER, TRANSFORMSOURCE *xstype, void **source, doub
 	DONE;
 }
 
-OBJECT *load_get_current_object(void)
-{
-	return current_object;
-}
-MODULE *load_get_current_module(void)
-{
-	return current_module;
-}
-char *makecopy(char *s)
-{
-	char *copy = (char*)malloc(strlen(s)+1);
-	strcpy(copy,s);
-	return copy;
-}
-
-static void json_free(JSONDATA **data)
+void GldLoader::json_free(JSONDATA **data)
 {
 	if ( data==NULL || *data == NULL )
 		return;
@@ -4138,7 +3775,7 @@ static void json_free(JSONDATA **data)
 	free((void*)(*data));
 	*data = NULL;
 }
-static bool json_append(JSONDATA **data, const char *name, size_t namelen, const char *value, size_t valuelen)
+bool GldLoader::json_append(JSONDATA **data, const char *name, size_t namelen, const char *value, size_t valuelen)
 {
 	JSONDATA *next = (JSONDATA*)malloc(sizeof(JSONDATA));
 	if ( next == NULL )
@@ -4166,7 +3803,7 @@ static bool json_append(JSONDATA **data, const char *name, size_t namelen, const
 	IN_MYCONTEXT output_debug("json_append(name='%s',value='%s')",next->name,next->value);
 	return true;
 }
-static int json_data(PARSER,JSONDATA **data)
+int GldLoader::json_data(PARSER,JSONDATA **data)
 {
 	// this parser is for simple json "dict" data only
 	// and will not accept json lists or nested data
@@ -4252,7 +3889,7 @@ static int json_data(PARSER,JSONDATA **data)
 		}
 		else 
 		{
-			output_error_raw("%s(%d): JSON parse error at or near '%20s...'",filename,linenum,HERE);
+			syntax_error(filename,linenum,"JSON parse error at or near '%20s...'",HERE);
 			json_free(data);
 			REJECT;
 		}
@@ -4264,7 +3901,7 @@ static int json_data(PARSER,JSONDATA **data)
 	DONE;
 }
 
-static int json_block(PARSER, OBJECT *obj, const char *propname)
+int GldLoader::json_block(PARSER, OBJECT *obj, const char *propname)
 {
 	JSONDATA *data = NULL;
 	START;
@@ -4276,7 +3913,7 @@ static int json_block(PARSER, OBJECT *obj, const char *propname)
 		}
 		else
 		{
-			output_error_raw("%s(%d): JSON set failed",filename,linenum);
+			syntax_error(filename,linenum,"JSON set failed");
 			REJECT;
 		}
 	}
@@ -4286,8 +3923,8 @@ static int json_block(PARSER, OBJECT *obj, const char *propname)
 	}
 	DONE;
 }
-static int object_block(PARSER, OBJECT *parent, OBJECT **obj);
-static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
+
+int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 {
 	char propname[64];
 	static char propval[65536*10];
@@ -4301,45 +3938,58 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 	UNIT *unit=NULL;
 	OBJECT *subobj=NULL;
 	START;
-	if WHITE ACCEPT;
-	if TERM(line_spec(HERE)) {ACCEPT;}
-	if WHITE ACCEPT;
-	if TERM(object_block(HERE,obj,&subobj)) 
+	if WHITE 
+	{
+		ACCEPT;
+	}
+	if ( TERM(line_spec(HERE)) ) 
+	{
+		ACCEPT;
+	}
+	if WHITE 
+	{
+		ACCEPT;
+	}
+	if ( TERM(object_block(HERE,obj,&subobj)) )
 	{		
-		if (WHITE,LITERAL(";"))
-		{	ACCEPT;}
+		if ( WHITE,LITERAL(";") )
+		{	
+			ACCEPT;
+		}
 		else
 		{
-			output_error_raw("%s(%d): missing ; at end of nested object block", filename, linenum,propname);
+			syntax_error(filename,linenum,"missing ; at end of nested object block",propname);
 			REJECT;
 		}
 			
 	}
-	else if (TERM(dotted_name(HERE,propname,sizeof(propname))) && WHITE)
+	else if ( TERM(dotted_name(HERE,propname,sizeof(propname))) && WHITE )
 	{
 		LOADMETHOD *method = class_get_loadmethod(obj->oclass,propname);
-		if ( method!=NULL )
+		if ( method != NULL )
 		{
-			if ( TERM(value(HERE,propval,sizeof(propval))) )
+			if ( MARKTERM(value(HERE,propval,sizeof(propval))) )
 			{
 				if ( method->call(obj,propval)==1 )
 				{
+					SAVETERM;
 					ACCEPT;
 				}
 				else
 				{
-					output_error_raw("%s(%d): load method '%s/%s::%s' failed on value '%s'", filename, linenum, obj->oclass->module->name,obj->oclass->name,propname,propval);
+					syntax_error(filename,linenum,"load method '%s/%s::%s' failed on value '%s'", obj->oclass->module->name,obj->oclass->name,propname,propval);
 					REJECT;
 				}
 			}
 			else
 			{
-				output_error_raw("%s(%d): unable to parse value for load method '%s/%s::%s'", filename, linenum, obj->oclass->module->name,obj->oclass->name,propname);
+				syntax_error(filename,linenum,"unable to parse value for load method '%s/%s::%s'", obj->oclass->module->name,obj->oclass->name,propname);
 				REJECT;
 			}
 		}
-		else if (TERM(json_block(HERE,obj,propname)))
+		else if ( MARKTERM(json_block(HERE,obj,propname)) )
 		{
+			SAVETERM;
 			ACCEPT;
 		}
 		else {
@@ -4349,19 +3999,23 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 			current_module = obj->oclass->module; /* module context */
 			char targetprop[1024];
 			char targetvalue[1024];
-			if (prop!=NULL && prop->ptype==PT_object && TERM(object_block(HERE,NULL,&subobj)))
+			if ( prop!=NULL && prop->ptype == PT_object && MARKTERM(object_block(HERE,NULL,&subobj)) )
 			{
 				char objname[64];
 				if (subobj->name) strcpy(objname,subobj->name); else sprintf(objname,"%s:%d", subobj->oclass->name,subobj->id);
 				if (object_set_value_by_name(obj,propname,objname))
+				{
+					SAVETERM;
 					ACCEPT
+				}
 				else
 				{
-					output_error_raw("%s(%d): unable to link subobject to property '%s'", filename, linenum,propname);
+					syntax_error(filename,linenum,"unable to link subobject to property '%s'",propname);
 					REJECT;
 				}
 			}
-			else if ( prop==NULL && strcmp(propname,"parent")==0
+			else if ( prop == NULL && strcmp(propname,"parent")==0
+					&& MARK
 					&& (WHITE,LITERAL("childless")) && (WHITE,LITERAL(":"))
 					&& (WHITE,TERM(name(HERE,targetprop,sizeof(targetprop))))
 					&& (WHITE,LITERAL("="))
@@ -4379,105 +4033,128 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				}
 				if ( obj==NULL )
 				{
-					output_error_raw("%s(%d): no childless objects found in %s=%s (immediate)", filename, linenum, targetprop, targetvalue);
+					syntax_error(filename,linenum,"no childless objects found in %s=%s (immediate)", targetprop, targetvalue);
 					REJECT;
 				}
 				else
 				{
+					SAVETERM;
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && LITERAL("inherit"))
+			else if ( prop != NULL && LITERAL("inherit") )
 			{
 				char value[1024];
 				if ( obj->parent==NULL )
 				{
-					output_error_raw("%s(%d): cannot inherit from an parent that hasn't been resolved yet or isn't specified", filename, linenum);
+					syntax_error(filename,linenum,"cannot inherit from an parent that hasn't been resolved yet or isn't specified");
 					REJECT;
 				}
 				else if ( ! object_get_value_by_name(obj->parent,propname,value,sizeof(value)) )
 				{
-					output_error_raw("%s(%d): unable to get value of inherit property '%s'", filename, linenum, propname);
+					syntax_error(filename,linenum,"unable to get value of inherit property '%s'", propname);
 					REJECT;
 				}
 				if ( object_set_value_by_name(obj,propname,value)<=0 )
 				{
-					output_error_raw("%s(%d): unable to set value of inherit property '%s'", filename, linenum, propname);
+					syntax_error(filename,linenum,"unable to set value of inherit property '%s'", propname);
 					REJECT;
 				}
+				// DPC 3/28/20: is SAVE/ACCEPT needed here?
 			}
-			else if (prop!=NULL && prop->ptype==PT_complex && TERM(complex_unit(HERE,&cval,&unit)))
+			else if ( prop != NULL && prop->ptype == PT_complex 
+				&& MARK && TERM(complex_unit(HERE,&cval,&unit)))
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_complex(unit,prop->unit,&cval)==0)
 				{
-					output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
+					syntax_error(filename,linenum,"units of value are incompatible with units of property, cannot convert from %s to %s", unit->name,prop->unit->name);
 					REJECT;
 				}
 				else if (object_set_complex_by_name(obj,propname,cval)==0)
 				{
-					output_error_raw("%s(%d): complex property %s of %s %s could not be set to complex value '%g%+gi'", filename, linenum, propname, format_object(obj), cval.Re(), cval.Im());
+					syntax_error(filename,linenum,"complex property %s of %s %s could not be set to complex value '%g%+gi'", propname, format_object(obj).c_str(), cval.Re(), cval.Im());
 					REJECT;
 				}
 				else
+				{
+					SAVETERM;
 					ACCEPT;
+				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(expression(HERE, &dval, &unit, obj)))
+			else if ( prop != NULL && prop->ptype == PT_double 
+				&& MARK && TERM(expression(HERE, &dval, &unit, obj)))
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 				{
-					output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
+					syntax_error(filename,linenum,"units of value are incompatible with units of property, cannot convert from %s to %s", unit->name,prop->unit->name);
 					REJECT;
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					output_error_raw("%s(%d): double property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
+					syntax_error(filename,linenum,"double property %s of %s %s could not be set to expression evaluating to '%g'", propname, format_object(obj).c_str(), dval);
 					REJECT;
 				}
 				else
+				{
+					SAVETERM;
 					ACCEPT;
+				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_bool && TERM(expression(HERE, &dval, &unit, obj)))
+			else if ( prop != NULL && prop->ptype == PT_bool 
+				&& MARK && TERM(expression(HERE, &dval, &unit, obj)))
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 				{
-					output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
+					syntax_error(filename,linenum,"units of value are incompatible with units of property, cannot convert from %s to %s", unit->name,prop->unit->name);
 					REJECT;
 				}
 				else if (object_set_value_by_name(obj,propname,dval>0?"TRUE":"FALSE")==0)
 				{
-					output_error_raw("%s(%d): double property %s of %s %s could not be set to expression evaluating to '%g'", filename, linenum, propname, format_object(obj), dval);
+					syntax_error(filename,linenum,"double property %s of %s %s could not be set to expression evaluating to '%g'", propname, format_object(obj).c_str(), dval);
 					REJECT;
 				}
 				else
+				{
+					SAVETERM;
 					ACCEPT;
+				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(functional_unit(HERE,&dval,&unit)))
+			else if ( prop != NULL && prop->ptype == PT_double 
+				&& MARK && TERM(functional_unit(HERE,&dval,&unit)) )
 			{
 				if (unit!=NULL && prop->unit!=NULL && strcmp((char *)unit, "") != 0 && unit_convert_ex(unit,prop->unit,&dval)==0)
 				{
-					output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
+					syntax_error(filename,linenum,"units of value are incompatible with units of property, cannot convert from %s to %s", unit->name,prop->unit->name);
 					REJECT;
 				}
 				else if (object_set_double_by_name(obj,propname,dval)==0)
 				{
-					output_error_raw("%s(%d): double property %s of %s %s could not be set to double value '%g' having unit '%s'", filename, linenum, propname, format_object(obj), dval, unit->name);
+					syntax_error(filename,linenum,"double property %s of %s %s could not be set to double value '%g' having unit '%s'", propname, format_object(obj).c_str(), dval, unit->name);
 					REJECT;
 				}
 				else
+				{
+					SAVETERM;
 					ACCEPT;
+				}
 			}
-			else if(prop != NULL && is_int(prop->ptype) && TERM(functional_unit(HERE, &dval, &unit))){
+			else if ( prop != NULL && is_int(prop->ptype) 
+				&& MARK && TERM(functional_unit(HERE, &dval, &unit)) )
+			{
 				int64 ival = 0;
 				int16 ival16 = 0;
 				int32 ival32 = 0;
 				int64 ival64 = 0;
 				int rv = 0;
 
-				if(unit != NULL && prop->unit != NULL && strcmp((char *)(unit), "") != 0 && unit_convert_ex(unit, prop->unit, &dval) == 0){
-					output_error_raw("%s(%d): units of value are incompatible with units of property, cannot convert from %s to %s", filename, linenum, unit->name,prop->unit->name);
+				if ( unit != NULL && prop->unit != NULL && strcmp((char *)(unit), "") != 0 && unit_convert_ex(unit, prop->unit, &dval) == 0 )
+				{
+					syntax_error(filename,linenum,"units of value are incompatible with units of property, cannot convert from %s to %s", unit->name,prop->unit->name);
 					REJECT;
-				} else {
-					switch(prop->ptype){
+				} 
+				else 
+				{
+					switch ( prop->ptype ) {
 						case PT_int16:
 							ival = ival16 = (int16)dval;
 							rv = object_set_int16_by_name(obj, propname, ival16);
@@ -4494,33 +4171,28 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							output_error("function_int operating on a non-integer (we shouldn't be here)");
 							REJECT;
 					} /* end switch */
-					if(rv == 0){
-						output_error_raw("%s(%d): int property %s of %s %s could not be set to integer '%lld'", filename, linenum, propname, format_object(obj), ival);
+					if ( rv == 0 )
+					{
+						syntax_error(filename,linenum,"int property %s of %s %s could not be set to integer '%lld'", propname, format_object(obj).c_str(), ival);
 						REJECT;
-					} else {
+					} 
+					else 
+					{
+						SAVETERM;
 						ACCEPT;
 					}
-#if 0
-				if (object_set_double_by_name(obj,propname,dval)==0)
-				{
-					output_message("%s(%d): property %s of %s %s could not be set to unitless double '%g'", filename, linenum, propname, format_object(obj), dval);
-					REJECT;
-				} else {
-					ACCEPT;
-				}
-#endif
 				} /* end unit_convert_ex else */
 			}
 			else if (prop!=NULL
-				&& ( ( prop->ptype>=PT_double && prop->ptype<=PT_int64 ) || ( prop->ptype>=PT_bool && prop->ptype<=PT_timestamp ) || ( prop->ptype>=PT_float && prop->ptype<=PT_enduse ) )
-				&& TERM(linear_transform(HERE, &xstype, &source,&scale,&bias,obj)))
+				&& ( ( prop->ptype>=PT_double && prop->ptype<=PT_int64 ) || ( prop->ptype>=PT_bool && prop->ptype<=PT_timestamp ) || ( prop->ptype>=PT_float && prop->ptype<=PT_enduse ) )				
+				&& MARK && TERM(linear_transform(HERE, &xstype, &source,&scale,&bias,obj)))
 			{
 				void *target = (void*)((char*)(obj+1) + (int64)prop->addr);
 
 				/* add the transform list */
 				if (!transform_add_linear(xstype,(double*)source,target,scale,bias,obj,prop,(xstype == XS_SCHEDULE ? (SCHEDULE*)source : 0)))
 				{
-					output_error_raw("%s(%d): schedule transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
+					syntax_error(filename,linenum,"schedule transform could not be created - %s", errno?strerror(errno):"(no details)");
 					REJECT;
 				}
 				else if ( source!=NULL )
@@ -4531,10 +4203,12 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						/* source was the unresolved entry, for now it will be the transform itself */
 						first_unresolved->ref = (void*)transform_getnext(NULL);
 
+					SAVETERM;
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(filter_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
+			else if (prop!=NULL && prop->ptype==PT_double 
+				&& MARK && TERM(filter_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
@@ -4547,7 +4221,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				source_obj = (n==1||strcmp(sobj,"this")==0) ? obj : object_find_name(sobj);
 				if ( !source_obj )
 				{
-					output_error_raw("%s(%d): filter source object '%s' not found", filename, linenum, n==1?"this":sobj);
+					syntax_error(filename,linenum,"filter source object '%s' not found", n==1?"this":sobj);
 					REJECT;
 					DONE;
 				}
@@ -4556,7 +4230,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				source_prop = object_get_property(source_obj, n==1?sobj:sprop,NULL);
 				if ( !source_prop )
 				{
-					output_error_raw("%s(%d): filter source property '%s' of object '%s' not found", filename, linenum, n==1?sobj:sprop, n==1?"this":sobj);
+					syntax_error(filename,linenum,"filter source property '%s' of object '%s' not found", n==1?sobj:sprop, n==1?"this":sobj);
 					REJECT;
 					DONE;
 				}
@@ -4564,7 +4238,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				/* add to external transform list */
 				if ( !transform_add_filter(obj,prop,transformname,source_obj,source_prop) )
 				{
-					output_error_raw("%s(%d): filter transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
+					syntax_error(filename,linenum,"filter transform could not be created - %s", errno?strerror(errno):"(no details)");
 					REJECT;
 					DONE;
 				}
@@ -4576,10 +4250,12 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						/* source was the unresolved entry, for now it will be the transform itself */
 						first_unresolved->ref = (void*)transform_getnext(NULL);
 
+					SAVETERM;
 					ACCEPT;
 				}
 			}
-			else if (prop!=NULL && prop->ptype==PT_double && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
+			else if (prop!=NULL && prop->ptype==PT_double 
+				&& MARK && TERM(external_transform(HERE, &xstype, sources, sizeof(sources), transformname, sizeof(transformname), obj)))
 			{
 				// TODO handle more than one source
 				char sobj[64], sprop[64];
@@ -4591,7 +4267,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				source_obj = (n==1||strcmp(sobj,"this")==0) ? obj : object_find_name(sobj);
 				if ( !source_obj )
 				{
-					output_error_raw("%s(%d): transform source object '%s' not found", filename, linenum, n==1?"this":sobj);
+					syntax_error(filename,linenum,"transform source object '%s' not found", n==1?"this":sobj);
 					REJECT;
 					DONE;
 				}
@@ -4600,7 +4276,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				source_prop = object_get_property(source_obj, n==1?sobj:sprop,NULL);
 				if ( !source_prop )
 				{
-					output_error_raw("%s(%d): transform source property '%s' of object '%s' not found", filename, linenum, n==1?sobj:sprop, n==1?"this":sobj);
+					syntax_error(filename,linenum,"transform source property '%s' of object '%s' not found", n==1?sobj:sprop, n==1?"this":sobj);
 					REJECT;
 					DONE;
 				}
@@ -4608,7 +4284,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				/* add to external transform list */
 				if ( !transform_add_external(obj,prop,transformname,source_obj,source_prop) )
 				{
-					output_error_raw("%s(%d): external transform could not be created - %s", filename, linenum, errno?strerror(errno):"(no details)");
+					syntax_error(filename,linenum,"external transform could not be created - %s", errno?strerror(errno):"(no details)");
 					REJECT;
 					DONE;
 				}
@@ -4620,10 +4296,11 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						/* source was the unresolved entry, for now it will be the transform itself */
 						first_unresolved->ref = (void*)transform_getnext(NULL);
 
+					SAVETERM;
 					ACCEPT;
 				}
 			}
-			else if TERM(alternate_value(HERE,propval,sizeof(propval)))
+			else if ( MARKTERM(alternate_value(HERE,propval,sizeof(propval))) )
 			{
 				if (prop==NULL)
 				{
@@ -4634,98 +4311,129 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					{
 						if (add_unresolved(obj,PT_object,(void*)&obj->parent,oclass,propval,filename,linenum,UR_RANKS)==NULL)
 						{
-							output_error_raw("%s(%d): unable to add unresolved reference to parent %s", filename, linenum, propval);
+							syntax_error(filename,linenum,"unable to add unresolved reference to parent %s", propval);
 							REJECT;
 						}
 						else
+						{
+							SAVETERM;
 							ACCEPT;
+						}
 					}
 					else if (strcmp(propname,"rank")==0)
 					{
 						if ((obj->rank = atoi(propval))<0)
 						{
-							output_error_raw("%s(%d): unable to set rank to %s", filename, linenum, propval);
+							syntax_error(filename,linenum,"unable to set rank to %s", propval);
 							REJECT;
 						}
 						else
+						{
+							SAVETERM;
 							ACCEPT;
+						}
 					}
 					else if (strcmp(propname,"clock")==0)
 					{
 						obj->clock = atoi64(propval); // @todo convert_to_timestamp should be used
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"valid_to")==0)
 					{
 						obj->valid_to = atoi64(propval); // @todo convert_to_timestamp should be used
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"schedule_skew")==0)
 					{
 						obj->schedule_skew = atoi64(propval);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"latitude")==0)
 					{
 						obj->latitude = load_latitude(propval);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"longitude")==0)
 					{
 						obj->longitude = load_longitude(propval);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"in")==0 || strcmp(propname,"in_svc")==0)
 					{
 						obj->in_svc = convert_to_timestamp_delta(propval,&obj->in_svc_micro,&obj->in_svc_double);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"out")==0 || strcmp(propname,"out_svc")==0)
 					{
 						obj->out_svc = convert_to_timestamp_delta(propval,&obj->out_svc_micro,&obj->out_svc_double);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"on_init")==0 )
 					{
-						obj->events.init = makecopy(propval);
+						obj->events.init = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_precommit")==0 )
 					{
-						obj->events.precommit = makecopy(propval);
+						obj->events.precommit = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_presync")==0 )
 					{
-						obj->events.presync = makecopy(propval);
+						obj->events.presync = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_sync")==0 )
 					{
-						obj->events.sync = makecopy(propval);
+						obj->events.sync = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_postsync")==0 )
 					{
-						obj->events.postsync = makecopy(propval);
+						obj->events.postsync = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_commit")==0 )
 					{
-						obj->events.commit = makecopy(propval);
+						obj->events.commit = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"on_finalize")==0 )
 					{
-						obj->events.finalize = makecopy(propval);
+						obj->events.finalize = strdup(propval);
+						SAVETERM;
+						ACCEPT;
 					}
 					else if (strcmp(propname,"name")==0)
 					{
 						if (object_set_name(obj,propval)==NULL)
 						{
-							output_error_raw("%s(%d): property name %s could not be used", filename, linenum, propval);
+							syntax_error(filename,linenum,"property name %s could not be used", propval);
 							REJECT;
 						}
 						else
+						{
+							SAVETERM;
 							ACCEPT;
+						}
 					}
 					else if ( strcmp(propname,"heartbeat")==0 )
 					{
 						obj->heartbeat = convert_to_timestamp(propval);
+						SAVETERM;
 						ACCEPT;
 					}
 					else if (strcmp(propname,"groupid")==0){
@@ -4738,7 +4446,10 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							REJECT;
 						}
 						else
-							ACCEPT;
+						{
+							SAVETERM;
+							ACCEPT;							
+						}
 					}
 					else if (strcmp(propname,"library")==0)
 					{
@@ -4747,19 +4458,18 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 							An attempt to use the <b>library</b> GLM directive was made.  Library directives
 							are not supported yet.
 						 */
-						ACCEPT;
-						DONE;
+						REJECT;
 					}
 					else if ( strcmp(propname,"module")==0 )
 					{
 						if ( strcmp(propval,obj->oclass->module->name)!=0 )
 						{
-							output_error("%s(%d): module '%s' does not match module of class '%s.%s'",filename,linenum,propval,obj->oclass->module->name,obj->oclass->name);
+							syntax_error(filename,linenum,"module '%s' does not match module of class '%s.%s'",propval,obj->oclass->module->name,obj->oclass->name);
 							REJECT;
-							DONE;
 						}
 						else
 						{
+							SAVETERM;
 							ACCEPT;
 						}
 					}
@@ -4767,18 +4477,31 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					{
 						if ( sscanf(propval,"%08llX%08llX",obj->guid,obj->guid+1) != 2 )
 						{
-							output_error("%s(%d): guid '%s' is not valid",filename,linenum,propval);
+							syntax_error(filename,linenum,"guid '%s' is not valid",propval);
 							REJECT;
-							DONE;
 						}
 						else
 						{
+							SAVETERM;
+							ACCEPT;
+						}
+					}
+					else if ( strcmp(propname,"rng_state") == 0 )
+					{
+						if ( sscanf(propval,"%d",&obj->rng_state) != 1 )
+						{
+							syntax_error(filename,linenum,"rng_state '%s' is not valid",propval);
+							REJECT;
+						}
+						else
+						{
+							SAVETERM;
 							ACCEPT;
 						}
 					}
 					else
 					{
-						output_error_raw("%s(%d): property %s is not defined in class %s", filename, linenum, propname, oclass->name);
+						syntax_error(filename,linenum,"property %s is not defined in class %s", propname, oclass->name);
 						REJECT;
 					}
 				}
@@ -4786,12 +4509,13 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 				{	void *addr = object_get_addr(obj,propname);
 					if (addr==NULL)
 					{
-						output_error_raw("%s(%d): unable to get %s member %s", filename, linenum, format_object(obj), propname);
+						syntax_error(filename,linenum,"unable to get %s member %s", format_object(obj).c_str(), propname);
 						REJECT;
 					}
 					else
 					{
 						add_unresolved(obj,PT_object,addr,oclass,propval,filename,linenum,UR_NONE);
+						SAVETERM;
 						ACCEPT;
 					}
 				}
@@ -4800,33 +4524,37 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 					int len = object_set_value_by_name(obj,propname,propval);
 					if ( len < (int)strlen(propval) )
 					{
-						output_error_raw("%s(%d): property %s of %s could not be set to value '%s' (only %d bytes read)", filename, linenum, propname, format_object(obj), propval, len);
+						syntax_error(filename,linenum,"property %s of %s could not be set to value '%s' (only %d bytes read)", propname, format_object(obj).c_str(), propval, len);
 						REJECT;
 					}
 					else
 					{
+						SAVETERM;
 						ACCEPT;
 					}
 				}
 				else if ( object_set_value_by_name(obj,propname,propval) == 0 )
 				{
-					output_error_raw("%s(%d): property %s of %s could not be set to value '%s'", filename, linenum, propname, format_object(obj), propval);
+					syntax_error(filename,linenum,"property %s of %s could not be set to value '%s'", propname, format_object(obj).c_str(), propval);
 					REJECT;
 				}
 				else
+				{
 					ACCEPT; // @todo shouldn't this be REJECT?
+				}
 			}
 		}
 		if WHITE ACCEPT;
 		if LITERAL(";") {ACCEPT;}
 		else
 		{
-			output_error_raw("%s(%d): expected ';' at end of property specification", filename,linenum);
+			syntax_error(filename,linenum,"expected ';' at end of property specification");
 			REJECT;
 		}
 	}
 	else if LITERAL("}") {/* don't accept yet */ DONE;}
-	else { syntax_error(HERE); REJECT; }
+	else { syntax_error_here(HERE); REJECT; }
+
 	/* may be repeated */
 	if TERM(object_properties(HERE,oclass,obj))
 	{
@@ -4839,7 +4567,7 @@ static int object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 	DONE;
 }
 
-static int object_name_id(PARSER,char *classname, int64 *id)
+int GldLoader::object_name_id(PARSER,char *classname, int64 *id)
 {
 	START;
 	if WHITE ACCEPT;
@@ -4867,7 +4595,7 @@ static int object_name_id(PARSER,char *classname, int64 *id)
 		REJECT;
 }
 
-static int object_name_id_range(PARSER,char *classname, int64 *from, int64 *to)
+int GldLoader::object_name_id_range(PARSER,char *classname, int64 *from, int64 *to)
 {
 	START;
 	if WHITE ACCEPT;
@@ -4876,13 +4604,13 @@ static int object_name_id_range(PARSER,char *classname, int64 *from, int64 *to)
 	else REJECT;
 	if (TERM(integer(HERE,to))) ACCEPT else
 	{
-		output_error_raw("%s(%d): expected id range end value", filename, linenum);
+		syntax_error(filename,linenum,"expected id range end value");
 		REJECT;
 	}
 	DONE;
 }
 
-static int object_name_id_count(PARSER,char *classname, int64 *count)
+int GldLoader::object_name_id_count(PARSER,char *classname, int64 *count)
 {
 	START;
 	if WHITE ACCEPT;
@@ -4891,13 +4619,13 @@ static int object_name_id_count(PARSER,char *classname, int64 *count)
 	else REJECT;
 	if (TERM(integer(HERE,count))) ACCEPT else
 	{
-		output_error_raw("%s(%d): expected id count", filename, linenum);
+		syntax_error(filename,linenum,"expected id count");
 		REJECT;
 	}
 	DONE;
 }
 
-static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
+int GldLoader::object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 {
 #define NAMEOBJ  /* DPC: not sure what this does, but it doesn't seem to be harmful */
 #ifdef NAMEOBJ
@@ -4917,7 +4645,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 	{
 		if (!object_open_namespace(space))
 		{
-			output_error_raw("%s(%d): namespace %s could not be opened", filename, linenum, space);
+			syntax_error(filename,linenum,"namespace %s could not be opened", space);
 			REJECT;
 		}
 
@@ -4930,7 +4658,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		}
 		else
 		{
-			output_error_raw("%s(%d): namespace %s missing closing }", filename, linenum, space);
+			syntax_error(filename,linenum,"namespace %s missing closing }", space);
 			REJECT;
 		}
 	}
@@ -4943,7 +4671,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 	{
 		if ( schedule_createwait()==FAILED )
 		{
-			output_error_raw("%s(%d): object create cannot proceed when a schedule error persists", filename, linenum);
+			syntax_error(filename,linenum,"object create cannot proceed when a schedule error persists");
 			REJECT;
 		}
 	}
@@ -4954,7 +4682,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		oclass = class_get_class_from_classname(classname);
 		if (oclass==NULL) 
 		{
-			output_error_raw("%s(%d): class '%s' is not known", filename, linenum, classname);
+			syntax_error(filename,linenum,"class '%s' is not known", classname);
 			REJECT;
 		}
 		id2++;
@@ -4966,7 +4694,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		oclass = class_get_class_from_classname(classname);
 		if (oclass==NULL) 
 		{
-			output_error_raw("%s(%d): class '%s' is not known", filename, linenum, classname);
+			syntax_error(filename,linenum,"class '%s' is not known", classname);
 			REJECT;
 		}
 		ACCEPT;
@@ -4976,25 +4704,29 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 		oclass = class_get_class_from_classname(classname);
 		if (oclass==NULL)
 		{
-			output_error_raw("%s(%d): class '%s' is not known", filename, linenum, classname);
+			syntax_error(filename,linenum,"class '%s' is not known", classname);
 			REJECT;
 		}
 		CLASS *aclass = class_get_class_from_classname(classname,oclass);
 		if ( aclass != NULL )
 		{
-			output_error_raw("%s(%d): class '%s' module reference is ambiguous (using '%s' instead of '%s')", filename, linenum, classname,oclass->module ? oclass->module->name : "runtime", aclass->module ? aclass->module->name : "runtime");
+			syntax_error(filename,linenum,"class '%s' module reference is ambiguous (using '%s' instead of '%s')", classname,oclass->module ? oclass->module->name : "runtime", aclass->module ? aclass->module->name : "runtime");
 		}
 		ACCEPT;
 	}
 	else
 	{
-		output_error_raw("%s(%d): expected object id or range", filename, linenum);
+		syntax_error(filename,linenum,"expected object id or range");
 		REJECT;
 	}
 	if WHITE ACCEPT;
-	if (LITERAL("{")) ACCEPT else
+	if ( LITERAL("{") ) 
 	{
-		output_error_raw("%s(%d): expected object block starting {", filename, linenum);
+		ACCEPT 
+	}
+	else
+	{
+		syntax_error(filename,linenum,"expected object block starting {");
 		REJECT;
 	}
 
@@ -5002,28 +4734,28 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 #ifdef NAMEOBJ
 	nameobj.name = classname;
 #endif
-	if (id2==-1) id2=id+1; /* create singleton */
+	if ( id2 == -1 ) id2=id+1; /* create singleton */
 	BEGIN_REPEAT;
-	while (id<id2)
+	while ( id < id2 )
 	{
 		REPEAT;
-		if (oclass->create!=NULL)
+		if ( oclass->create != NULL )
 		{
 #ifdef NAMEOBJ
 			obj = &nameobj;
 #endif
-			if ((*oclass->create)(&obj,parent)==0) 
+			if ( (*oclass->create)(&obj,parent) == 0 ) 
 			{
-				output_error_raw("%s(%d): create failed for object %s:%d", filename, linenum, classname, id);
+				syntax_error(filename,linenum,"create failed for object %s:%d", classname, id);
 				REJECT;
 			}
-			else if (obj==NULL
+			else if ( obj == NULL
 #ifdef NAMEOBJ
-				|| obj==&nameobj
+				|| obj == &nameobj
 #endif
 				) 
 			{
-				output_error_raw("%s(%d): create failed name object %s:%d", filename, linenum, classname, id);
+				syntax_error(filename,linenum,"create failed name object %s:%d", classname, id);
 				REJECT;
 			}
 		}
@@ -5032,28 +4764,31 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 			obj = object_create_single(oclass);
 			if ( obj==NULL )
 			{
-				output_error_raw("%s(%d): create failed for object %s:%d", filename, linenum, classname, id);
+				syntax_error(filename,linenum,"create failed for object %s:%d", classname, id);
 				REJECT;
 			}
 			object_set_parent(obj,parent);
 		}
-		if (id!=-1 && load_set_index(obj,(OBJECTNUM)id)==FAILED)
+		if ( id != -1 && load_set_index(obj,(OBJECTNUM)id) == FAILED )
 		{
-			output_error_raw("%s(%d): unable to index object id number for %s:%d", filename, linenum, classname, id);
+			syntax_error(filename,linenum,"unable to index object id number for %s:%d", classname, id);
 			REJECT;
 		}
-		else if TERM(object_properties(HERE,oclass,obj))
+		else if ( TERM(object_properties(HERE,oclass,obj)) )
 		{
 			ACCEPT;
 		} 
-		else REJECT;
+		else 
+		{
+			REJECT;
+		}
 		if (id==-1) id2--; else id++;
 	}
 	END_REPEAT;
 	if WHITE ACCEPT;
 	if LITERAL("}") ACCEPT else
 	{
-		output_error_raw("%s(%d): expected object block closing }", filename, linenum);
+		syntax_error(filename,linenum,"expected object block closing }");
 		REJECT;
 	}
 	if (subobj) *subobj = obj;
@@ -5063,7 +4798,7 @@ static int object_block(PARSER, OBJECT *parent, OBJECT **subobj)
 	DONE;
 }
 
-static int import(PARSER)
+int GldLoader::import(PARSER)
 {
 	char modname[32];
 	char fname[1024];
@@ -5083,18 +4818,18 @@ static int import(PARSER)
 					MODULE *module = module_find(modname);
 					if (module==NULL)
 					{
-						output_error_raw("%s(%d): module %s not loaded", filename, linenum, modname);
+						syntax_error(filename,linenum,"module %s not loaded", modname);
 						REJECT;
 					}
 					result = module_import(module,fname);
 					if (result < 0)
 					{
-						output_error_raw("%s(%d): %d errors loading importing %s into %s module", filename, linenum, -result, fname, modname);
+						syntax_error(filename,linenum,"%d errors loading importing %s into %s module", -result, fname, modname);
 						REJECT;
 					}
 					else if (result==0)
 					{
-						output_error_raw("%s(%d): module %s load of %s failed; %s", filename, linenum, modname, fname, errno?strerror(errno):"(no details)");
+						syntax_error(filename,linenum,"module %s load of %s failed; %s", modname, fname, errno?strerror(errno):"(no details)");
 						REJECT;
 					}
 					else
@@ -5105,26 +4840,26 @@ static int import(PARSER)
 				}
 				else
 				{
-					output_error_raw("%s(%d): expected ; after module %s import from %s statement", filename, linenum, modname, fname);
+					syntax_error(filename,linenum,"expected ; after module %s import from %s statement", modname, fname);
 					REJECT;
 				}
 			}
 			else
 			{
-				output_error_raw("%s(%d): expected filename after module %s import statement", filename, linenum, modname);
+				syntax_error(filename,linenum,"expected filename after module %s import statement", modname);
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): expected module name after import statement", filename, linenum);
+			syntax_error(filename,linenum,"expected module name after import statement");
 			REJECT;
 		}
 	}
 	DONE
 }
 
-static int export_model(PARSER)
+int GldLoader::export_model(PARSER)
 {
 	char modname[32];
 	char fname[1024];
@@ -5144,20 +4879,20 @@ static int export_model(PARSER)
 					MODULE *module = module_find(modname);
 					if (module==NULL)
 					{
-						output_error_raw("%s(%d): module %s not loaded", filename, linenum, modname);
+						syntax_error(filename,linenum,"module %s not loaded", modname);
 						REJECT;
 					}
 					if ( !load_resolve_all() )
-						output_error_raw("%s(%d): module export encountered before all object names were resolved", filename, linenum, modname);
+						syntax_error(filename,linenum,"module export encountered before all object names were resolved", modname);
 					result = module_export(module,fname);
 					if (result < 0)
 					{
-						output_error_raw("%s(%d): %d errors export %s from %s module", filename, linenum, -result, fname, modname);
+						syntax_error(filename,linenum,"%d errors export %s from %s module", -result, fname, modname);
 						REJECT;
 					}
 					else if (result==0)
 					{
-						output_error_raw("%s(%d): module %s export of %s failed; %s", filename, linenum, modname, fname, errno?strerror(errno):"(no details)");
+						syntax_error(filename,linenum,"module %s export of %s failed; %s", modname, fname, errno?strerror(errno):"(no details)");
 						REJECT;
 					}
 					else
@@ -5168,26 +4903,26 @@ static int export_model(PARSER)
 				}
 				else
 				{
-					output_error_raw("%s(%d): expected ; after module %s export from %s statement", filename, linenum, modname, fname);
+					syntax_error(filename,linenum,"expected ; after module %s export from %s statement", modname, fname);
 					REJECT;
 				}
 			}
 			else
 			{
-				output_error_raw("%s(%d): expected export specification after module %s export statement", filename, linenum, modname);
+				syntax_error(filename,linenum,"expected export specification after module %s export statement", modname);
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): expected module name after import statement", filename, linenum);
+			syntax_error(filename,linenum,"expected module name after import statement");
 			REJECT;
 		}
 	}
 	DONE
 }
 
-static int library(PARSER)
+int GldLoader::library(PARSER)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5206,40 +4941,14 @@ static int library(PARSER)
 		}
 		else
 		{
-			output_error_raw("%s(%d): library syntax error", filename, linenum);
+			syntax_error(filename,linenum,"library syntax error");
 			REJECT;
 		}
 	}
 	REJECT;
 }
 
-#if 0 // unused function
-static int comment_block(PARSER)
-{
-	int startline = linenum;
-	if (_p[0]=='/' && _p[1]=='*')
-	{
-		int result=0;
-		int matched=0;
-		_p+=2;
-		while (_p[0]!='*' && _p[1]=='/')
-		{
-			_p++; result++;
-			if (_p[0]=='\0')
-			{
-				output_error_raw("%s(%d): unterminated C-style comment", filename, startline);
-				return 0;
-			}
-			if (_p[0]=='\n')
-				linenum++;
-		}
-		return matched?result:0;
-	}
-	return 0;
-}
-#endif
-
-static int schedule(PARSER)
+int GldLoader::schedule(PARSER)
 {
 	int startline = linenum;
 	char schedname[64];
@@ -5270,7 +4979,7 @@ static int schedule(PARSER)
 		}
 		else
 		{
-			output_error_raw("%s(%d): schedule '%s' is not valid", filename, startline, schedname);
+			syntax_error(filename,startline,"schedule '%s' is not valid", schedname);
 			REJECT;
 		}
 	}
@@ -5279,7 +4988,7 @@ static int schedule(PARSER)
 	DONE;
 }
 
-static int linkage_term(PARSER,instance *inst)
+int GldLoader::linkage_term(PARSER,::instance *inst)
 {
 	int startline = linenum;
 	char fromobj[64];
@@ -5294,7 +5003,7 @@ static int linkage_term(PARSER,instance *inst)
 	{
 		if ( linkage_create_writer(inst,fromobj,fromvar,toobj,tovar) ) ACCEPT 
 		else {
-			output_error_raw("%s(%d): linkage to write '%s:%s' to '%s:%s' is not valid", filename, startline, fromobj, fromvar, toobj, tovar);
+			syntax_error(filename,startline,"linkage to write '%s:%s' to '%s:%s' is not valid", fromobj, fromvar, toobj, tovar);
 			REJECT;
 		}
 		DONE;
@@ -5305,7 +5014,7 @@ static int linkage_term(PARSER,instance *inst)
 	{
 		if ( linkage_create_reader(inst,fromobj,fromvar,toobj,tovar) ) ACCEPT 
 		else {
-			output_error_raw("%s(%d): linkage to read '%s:%s' from '%s:%s' is not valid", filename, startline, fromobj, fromvar, toobj, tovar);
+			syntax_error(filename,startline,"linkage to read '%s:%s' from '%s:%s' is not valid", fromobj, fromvar, toobj, tovar);
 			REJECT;
 		}
 		DONE;
@@ -5342,13 +5051,13 @@ static int linkage_term(PARSER,instance *inst)
 	}
 	OR
 	{
-		output_error_raw("%s(%d): unrecognized instance term at or after '%.10s...'", filename, startline, HERE);
+		syntax_error(filename,startline,"unrecognized instance term at or after '%.10s...'", HERE);
 		REJECT;
 	}
 	DONE;
 	
 }
-static int instance_block(PARSER)
+int GldLoader::instance_block(PARSER)
 {
 	int startline = linenum;
 	char instance_host[256];
@@ -5356,10 +5065,10 @@ static int instance_block(PARSER)
 	if WHITE ACCEPT;
 	if ( LITERAL("instance") && WHITE && TERM(hostname(HERE,instance_host,sizeof(instance_host))) && (WHITE,LITERAL("{")))
 	{
-		instance *inst = instance_create(instance_host);
+		::instance *inst = instance_create(instance_host);
 		if ( !inst ) 
 		{ 
-			output_error_raw("%s(%d): unable to define an instance on %s", filename, startline, instance_host);
+			syntax_error(filename,startline,"unable to define an instance on %s", instance_host);
 			REJECT; 
 			DONE; 
 		}
@@ -5372,10 +5081,8 @@ static int instance_block(PARSER)
 		REJECT;
 	DONE;
 }
-////////////////////////////////////////////////////////////////////////////////////
-// GUI parser
 
-static int gnuplot(PARSER, GUIENTITY *entity)
+int GldLoader::gnuplot(PARSER, GUIENTITY *entity)
 {
 	char *p = entity->gnuplot;
 	int _n = 0;
@@ -5385,30 +5092,14 @@ static int gnuplot(PARSER, GUIENTITY *entity)
 		*p++ = _p[_n++];
 		if ( p>entity->gnuplot+sizeof(entity->gnuplot) )
 		{
-			output_error_raw("%s(%d): gnuplot script too long", filename, linenum);
+			syntax_error(filename,linenum,"gnuplot script too long");
 			return _n;
 		}
 	}
 	return _n;
 }
 
-#if 0 // unused function
-static int gui_link_globalvar(PARSER, GLOBALVAR **var)
-{
-	char varname[64];
-	START;
-	if (LITERAL("link") && (WHITE,LITERAL(":")) && name(HERE,varname,sizeof(varname)))
-	{
-		*var = global_find(varname);
-		ACCEPT;
-	}
-	else
-		REJECT;
-	DONE;
-}
-#endif
-
-static int gui_entity_parameter(PARSER, GUIENTITY *entity)
+int GldLoader::gui_entity_parameter(PARSER, GUIENTITY *entity)
 {
 	char buffer[1024];
 	char varname[64];
@@ -5439,13 +5130,13 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 			}
 			else
 			{
-				output_error_raw("%s(%d): invalid gui global variable '%s'", filename, linenum,varname);
+				syntax_error(filename,linenum,"invalid gui global variable '%s'",varname);
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gui global variable specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui global variable specification");
 			REJECT;
 		}
 	}
@@ -5462,7 +5153,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gui link object:property specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui link object:property specification");
 			REJECT;
 		}
 	}
@@ -5478,7 +5169,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gui value specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui value specification");
 			REJECT;
 		}
 	}
@@ -5494,7 +5185,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gui value specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui value specification");
 			REJECT;
 		}
 	}
@@ -5510,7 +5201,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gui options specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui options specification");
 			REJECT;
 		}
 	}	OR if LITERAL("unit") 
@@ -5527,13 +5218,13 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 			}
 			else
 			{
-				output_error_raw("%s(%d): invalid gui unit '%s'", filename, linenum, buffer);
+				syntax_error(filename,linenum,"invalid gui unit '%s'", buffer);
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gui unit specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui unit specification");
 			REJECT;
 		}
 		ACCEPT;  
@@ -5550,7 +5241,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gui size specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui size specification");
 			REJECT;
 		}
 		ACCEPT;  
@@ -5567,7 +5258,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gui height specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui height specification");
 			REJECT;
 		}
 		ACCEPT;  
@@ -5584,7 +5275,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gui width specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui width specification");
 			REJECT;
 		}
 		ACCEPT;  
@@ -5603,13 +5294,13 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 			}
 			else
 			{
-				output_error_raw("%s(%d): missing closing } after gnuplot script", filename, linenum);
+				syntax_error(filename,linenum,"missing closing } after gnuplot script");
 				REJECT;
 			}
 		}
 		else
 		{
-			output_error_raw("%s(%d): invalid gnuplot script", filename, linenum);
+			syntax_error(filename,linenum,"invalid gnuplot script");
 			REJECT;
 		}
 	}
@@ -5627,7 +5318,7 @@ static int gui_entity_parameter(PARSER, GUIENTITY *entity)
 	REJECT;
 }
 
-static int gui_entity_action(PARSER, GUIENTITY *parent)
+int GldLoader::gui_entity_action(PARSER, GUIENTITY *parent)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5645,14 +5336,14 @@ static int gui_entity_action(PARSER, GUIENTITY *parent)
 			DONE;
 		}
 		else {
-			output_error_raw("%s(%d): invalid gui action specification", filename, linenum);
+			syntax_error(filename,linenum,"invalid gui action specification");
 			REJECT;
 		}
 	}
 	REJECT;
 }
 
-static int gui_entity_type(PARSER, GUIENTITYTYPE *type)
+int GldLoader::gui_entity_type(PARSER, GUIENTITYTYPE *type)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5678,7 +5369,7 @@ static int gui_entity_type(PARSER, GUIENTITYTYPE *type)
 	REJECT;
 }
 
-static int gui_entity(PARSER, GUIENTITY *parent)
+int GldLoader::gui_entity(PARSER, GUIENTITY *parent)
 {
 	//char buffer[1024];
 	GUIENTITYTYPE type;
@@ -5704,7 +5395,7 @@ static int gui_entity(PARSER, GUIENTITY *parent)
 				if (TERM(gui_entity_parameter(HERE,entity))) { ACCEPT; continue; }
 				if (TERM(gui_entity_action(HERE,entity))) { ACCEPT; continue; }
 				if LITERAL("}") { ACCEPT; break; }
-				output_error_raw("%s(%d): unknown gui entity", filename, linenum);
+				syntax_error(filename,linenum,"unknown gui entity");
 				REJECT;
 			} 
 			DONE;
@@ -5717,7 +5408,7 @@ static int gui_entity(PARSER, GUIENTITY *parent)
 	REJECT;
 }
 
-static int gui(PARSER)
+int GldLoader::gui(PARSER)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5728,7 +5419,7 @@ static int gui(PARSER)
 		{
 			if (gui_wait()==0)
 			{
-				output_error_raw("%s(%d): quit requested by user", filename, linenum);
+				syntax_error(filename,linenum,"quit requested by user");
 				REJECT;
 			}
 			ACCEPT;
@@ -5738,7 +5429,7 @@ static int gui(PARSER)
 	DONE;
 }
 
-static int C_code_block(PARSER, char *buffer, int size)
+int GldLoader::C_code_block(PARSER, char *buffer, int size)
 {
 	int n_curly = 0;
 	int in_quotes = 0;
@@ -5764,11 +5455,10 @@ static int C_code_block(PARSER, char *buffer, int size)
 		if (skip) _n++,*d++=*++_p;
 	} while ( *++_p!='\0' && _n++<size && n_curly>=0 );
 	*--d='\0'; _n--; // don't include the last curly
-//	IN_MYCONTEXT output_debug("*** Begin external 'C' code ***\n%s\n *** End external 'C' code ***\n", buffer);
 	DONE;
 }
 
-static int filter_name(PARSER, char *result, int size)
+int GldLoader::filter_name(PARSER, char *result, int size)
 {
 	START;
 	/* names cannot start with a digit */
@@ -5777,7 +5467,7 @@ static int filter_name(PARSER, char *result, int size)
 	result[_n]='\0';
 	DONE;
 }
-static int double_timestep(PARSER,double *step)
+int GldLoader::double_timestep(PARSER,double *step)
 {
 	START;
 	if ( WHITE,TERM(real_value(HERE,step)) )
@@ -5807,7 +5497,7 @@ static int double_timestep(PARSER,double *step)
 	}
 	DONE;
 }
-static int filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
+int GldLoader::filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 {
 	double x[64];
 	double m = -1;
@@ -5824,7 +5514,7 @@ static int filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 		first = 0;
 		if ( power > 63 )
 		{
-			output_error_raw("%s(%d): filter polynomial order cannot be higher than 63",filename,linenum);
+			syntax_error(filename,linenum,"filter polynomial order cannot be higher than 63");
 			REJECT;
 		}
 		else
@@ -5837,7 +5527,7 @@ static int filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 	}
 	if ( m==-1 )
 	{
-		output_error_raw("%s(%d): invalid polynomial",filename,linenum);
+		syntax_error(filename,linenum,"invalid polynomial");
 		REJECT;
 	}
 	else
@@ -5848,7 +5538,8 @@ static int filter_mononomial(PARSER,char *domain,double *a, unsigned int *n)
 	}
 	DONE;
 }
-static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
+
+int GldLoader::filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 {
 	double x[64]; // maximum 64th order polynomial
 	int m = -1; // order of polynomial
@@ -5870,7 +5561,7 @@ static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 				first = 0;
 				if ( power > 63 )
 				{
-					output_error_raw("%s(%d): filter polynomial order cannot be higher than 63",filename,linenum);
+					syntax_error(filename,linenum,"filter polynomial order cannot be higher than 63");
 					REJECT;
 					break;
 				}
@@ -5886,7 +5577,7 @@ static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 		ACCEPT;
 		if ( m==-1 )
 		{
-			output_error_raw("%s(%d): invalid polynomial",filename,linenum);
+			syntax_error(filename,linenum,"invalid polynomial");
 			REJECT;
 		}
 		else
@@ -5907,7 +5598,7 @@ static int filter_polynomial(PARSER,char *domain,double *a,unsigned int *n)
 	DONE;
 }
 
-static int filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resolution, double *minimum, double *maximum)
+int GldLoader::filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resolution, double *minimum, double *maximum)
 {
 	START;
 	if WHITE ACCEPT;
@@ -5928,13 +5619,13 @@ static int filter_option(PARSER, unsigned int64 *flags, unsigned int64 *resoluti
 	}
 	else
 	{
-		output_error_raw("%s(%d): filter option at or near '%-10.10s' is not recognized", filename, linenum, HERE);
+		syntax_error(filename,linenum,"filter option at or near '%-10.10s' is not recognized", HERE);
 		REJECT;
 	}
 	DONE;
 }
 
-static int filter_block(PARSER)
+int GldLoader::filter_block(PARSER)
 {
 	char tfname[1024];
 	START;
@@ -5963,7 +5654,7 @@ static int filter_block(PARSER)
 				if ( WHITE,LITERAL(")") ) { ACCEPT; }
 				else
 				{
-					output_error_raw("%s(%d): filter '%s' arguments are not valid at or near '%-10.10s'", filename, linenum, tfname, HERE);
+					syntax_error(filename,linenum,"filter '%s' arguments are not valid at or near '%-10.10s'", tfname, HERE);
 					REJECT;
 				}
 
@@ -5973,12 +5664,12 @@ static int filter_block(PARSER)
 				{
 					if ( transfer_function_add(tfname,domain,timestep,timeskew,n,a,m,b)==0 )
 					{
-						output_error_raw("%s(%d): unable to create transfer function'%s(%s)",filename, linenum,tfname,domain);
+						syntax_error(filename,linenum,"unable to create transfer function'%s(%s)",tfname,domain);
 						REJECT;
 					}
 					else if ( transfer_function_constrain(tfname,flags,resolution,minimum,maximum)==0 )
  					{
- 						output_error_raw("%s(%d): unable to constrain transfer function'%s(%s)",filename, linenum,tfname,domain);
+ 						syntax_error(filename,linenum,"unable to constrain transfer function'%s(%s)",tfname,domain);
  						REJECT;
  					}
 					else
@@ -5988,12 +5679,12 @@ static int filter_block(PARSER)
 				}
 				else
 				{
-					output_error_raw("%s(%d): filter transfer function is not valid", filename, linenum);
+					syntax_error(filename,linenum,"filter transfer function is not valid");
 					REJECT;
 				}
 			}
 			else {
-				output_error_raw("%s(%d): only z-domain filters are supported", filename, linenum);
+				syntax_error(filename,linenum,"only z-domain filters are supported");
 				REJECT;
 			}
 		}
@@ -6005,7 +5696,7 @@ static int filter_block(PARSER)
 	DONE;
 }
 
-static int extern_block(PARSER)
+int GldLoader::extern_block(PARSER)
 {
 	char code[65536];
 	char libname[1024];
@@ -6023,7 +5714,7 @@ static int extern_block(PARSER)
 		}
 		else
 		{
-			output_error_raw("%s(%d): missing library name and/or external function list", filename, linenum);
+			syntax_error(filename,linenum,"missing library name and/or external function list");
 			REJECT;
 		}
 		if ( WHITE,LITERAL("{") && (WHITE,(startline=linenum),TERM(C_code_block(HERE,code,sizeof(code)))) && LITERAL("}") ) // C-code block
@@ -6041,13 +5732,13 @@ static int extern_block(PARSER)
 				}
 				else
 				{
-					output_error_raw("%s(%d): unable to load inline functions '%s' from library '%s'", filename, linenum, fnclist, libname);
+					syntax_error(filename,linenum,"unable to load inline functions '%s' from library '%s'", fnclist, libname);
 					REJECT;
 				}
 			}
 			else
 			{
-				output_error_raw("%s(%d): module_compile error encountered (rc=%d)", filename, linenum, rc);
+				syntax_error(filename,linenum,"module_compile error encountered (rc=%d)", rc);
 				REJECT;
 			}
 		}
@@ -6059,7 +5750,7 @@ static int extern_block(PARSER)
 			}
 			else
 			{
-				output_error_raw("%s(%d): unable to load external functions '%s' from library '%s'", filename, linenum, fnclist, libname);
+				syntax_error(filename,linenum,"unable to load external functions '%s' from library '%s'", fnclist, libname);
 				REJECT;
 			}
 		}
@@ -6071,7 +5762,7 @@ static int extern_block(PARSER)
 	DONE;
 }
 
-static int global_declaration(PARSER)
+int GldLoader::global_declaration(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("global") )
@@ -6095,13 +5786,13 @@ static int global_declaration(PARSER)
 				GLOBALVAR *var = global_create(varname,ptype,NULL,PT_SIZE,1,PT_ACCESS,PA_PUBLIC,NULL);
 				if ( var==NULL )
 				{
-					output_error_raw("%s(%d): global '%s %s' cannot be defined", filename, linenum, proptype, varname);
+					syntax_error(filename,linenum,"global '%s %s' cannot be defined", proptype, varname);
 					REJECT;
 				}
 				var->prop->unit = pUnit;
 				if ( class_string_to_property(var->prop, var->prop->addr,pvalue)==0 )
 				{
-					output_error_raw("%s(%d): global '%s %s' cannot be set to '%s'", filename, linenum, proptype, varname, pvalue);
+					syntax_error(filename,linenum,"global '%s %s' cannot be set to '%s'", proptype, varname, pvalue);
 					REJECT;
 				}
 			}
@@ -6113,7 +5804,7 @@ static int global_declaration(PARSER)
 		REJECT;
 }
 
-static int link_declaration(PARSER)
+int GldLoader::link_declaration(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("link") )
@@ -6123,7 +5814,7 @@ static int link_declaration(PARSER)
 		{
 			if ( !link_create(path) )
 			{
-				output_error_raw("%s(%d): unable to link '%s'", filename,linenum,path);
+				syntax_error(filename,linenum,"unable to link '%s'",path);
 				REJECT;
 			}
 		}
@@ -6134,8 +5825,7 @@ static int link_declaration(PARSER)
 		REJECT;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-static int script_directive(PARSER)
+int GldLoader::script_directive(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("script") )
@@ -6147,7 +5837,7 @@ static int script_directive(PARSER)
 			{
 				if ( exec_add_createscript(command)==0 )
 				{
-					output_error_raw("%s(%d): unable to add on_create script '%s'", filename,linenum,command);
+					syntax_error(filename,linenum,"unable to add on_create script '%s'",command);
 					REJECT;
 				}
 				else
@@ -6164,7 +5854,7 @@ static int script_directive(PARSER)
 			{
 				if ( exec_add_initscript(command)==0 )
 				{
-					output_error_raw("%s(%d): unable to add on_init script '%s'", filename,linenum,command);
+					syntax_error(filename,linenum,"unable to add on_init script '%s'",command);
 					REJECT;
 				}
 				else
@@ -6181,7 +5871,7 @@ static int script_directive(PARSER)
 			{
 				if ( exec_add_syncscript(command)==0 )
 				{
-					output_error_raw("%s(%d): unable to add on_sync script '%s'", filename,linenum,command);
+					syntax_error(filename,linenum,"unable to add on_sync script '%s'",command);
 					REJECT;
 				}
 				else
@@ -6198,7 +5888,7 @@ static int script_directive(PARSER)
 			{
 				if ( exec_add_precommitscript(command)==0 )
 				{
-					output_error_raw("%s(%d): unable to add on_precommit script '%s'", filename,linenum,command);
+					syntax_error(filename,linenum,"unable to add on_precommit script '%s'",command);
 					REJECT;
 				}
 				else
@@ -6215,7 +5905,7 @@ static int script_directive(PARSER)
 			{
 				if ( exec_add_commitscript(command)==0 )
 				{
-					output_error_raw("%s(%d): unable to add on_commit script '%s'", filename,linenum,command);
+					syntax_error(filename,linenum,"unable to add on_commit script '%s'",command);
 					REJECT;
 				}
 				else
@@ -6232,7 +5922,7 @@ static int script_directive(PARSER)
 			{
 				if ( exec_add_termscript(command)==0 )
 				{
-					output_error_raw("%s(%d): unable to add on_term script '%s'", filename,linenum,command);
+					syntax_error(filename,linenum,"unable to add on_term script '%s'",command);
 					REJECT;
 				}
 				else
@@ -6249,7 +5939,7 @@ static int script_directive(PARSER)
 			{
 				if ( exec_add_scriptexport(command)==0 )
 				{
-					output_error_raw("%s(%d): unable to export '%s'", filename,linenum,command);
+					syntax_error(filename,linenum,"unable to export '%s'",command);
 					REJECT;
 				}
 				else
@@ -6267,7 +5957,7 @@ static int script_directive(PARSER)
 			rc = system(command);
 			if ( rc!=0 )
 			{
-				output_error_raw("%s(%d): script failed - return code %d", filename, linenum, rc);
+				syntax_error(filename,linenum,"script failed - return code %d", rc);
 				REJECT;
 			}
 			else
@@ -6284,7 +5974,7 @@ static int script_directive(PARSER)
 		REJECT;
 }
 
-static int dump_directive(PARSER)
+int GldLoader::dump_directive(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("dump") )
@@ -6297,7 +5987,7 @@ static int dump_directive(PARSER)
 		{
 			if ( exec_schedule_dump(interval,dumpfile)==0 )
 			{
-				output_error_raw("%s(%d): unable to schedule dump %s at interval %d second", filename,linenum,dumpfile,interval);
+				syntax_error(filename,linenum,"unable to schedule dump %s at interval %d second",dumpfile,interval);
 				REJECT;
 			}
 			else
@@ -6314,8 +6004,7 @@ static int dump_directive(PARSER)
 		REJECT;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-static int modify_directive(PARSER)
+int GldLoader::modify_directive(PARSER)
 {
 	START;
 	if ( WHITE,LITERAL("modify") )
@@ -6328,7 +6017,7 @@ static int modify_directive(PARSER)
 			{
 				if ( object_set_value_by_name(obj,pname,ovalue)<0 )
 				{
-					output_error_raw("%s(%d): modify property '%s' of object '%s' couldn't not be set to '%' ", filename, linenum, pname, oname, ovalue);
+					syntax_error(filename,linenum,"modify property '%s' of object '%s' couldn't not be set to '%' ", pname, oname, ovalue);
 					REJECT;
 				}
 				else
@@ -6338,7 +6027,7 @@ static int modify_directive(PARSER)
 			}
 			else
 			{
-				output_error_raw("%s(%d): modify object '%s' not found", filename, linenum, oname);
+				syntax_error(filename,linenum,"modify object '%s' not found", oname);
 				REJECT;
 			}
 		}
@@ -6348,18 +6037,8 @@ static int modify_directive(PARSER)
 	DONE;
 }
 
-////////////////////////////////////////////////////////////////////////////////////
 
-typedef int (*PARSERCALL)(PARSER);
-struct s_loaderhook {
-	PARSERCALL call;
-	struct s_loaderhook *next;
-};
-typedef struct s_loaderhook LOADERHOOK;
-
-static LOADERHOOK *loaderhooks = NULL;
-
-void loader_addhook(PARSERCALL call)
+void GldLoader::loader_addhook(PARSERCALL call)
 {
 	LOADERHOOK *hook = new LOADERHOOK;
 	if ( hook == NULL )
@@ -6371,8 +6050,7 @@ void loader_addhook(PARSERCALL call)
 	loaderhooks = hook;
 }
 
-typedef int (*LOADERINIT)(void);
-static int loader_hook(PARSER)
+int GldLoader::loader_hook(PARSER)
 {
 	char libname[1024];
 	START;
@@ -6384,7 +6062,7 @@ static int loader_hook(PARSER)
 		snprintf(pathname, sizeof(pathname), "%s" DLEXT, libname);
 		if ( find_file(pathname, NULL, X_OK|R_OK, pathname,sizeof(pathname)) == NULL )
 		{
-			output_error_raw("%s(%d): unable to locate %s in GLPATH=%s", filename, linenum, pathname,getenv("GLPATH")?getenv("GLPATH"):"");
+			syntax_error(filename,linenum,"unable to locate %s in GLPATH=%s", pathname,getenv("GLPATH")?getenv("GLPATH"):"");
 			REJECT;
 		}
 		IN_MYCONTEXT output_debug("loader extension '%s' is using library '%s", libname, pathname);
@@ -6393,8 +6071,8 @@ static int loader_hook(PARSER)
 		void *lib = dlopen(pathname,RTLD_LAZY);
 		if ( lib == NULL )
 		{
-			output_error_raw("%s(%d): extension library '%s' load failed", filename, linenum, pathname);
-			output_error_raw("%s(%d): %s", filename, linenum, dlerror());
+			syntax_error(filename,linenum,"extension library '%s' load failed", pathname);
+			syntax_error(filename,linenum,"%s", dlerror());
 			REJECT;
 		}
 		IN_MYCONTEXT output_debug("loader extension '%s' loaded ok", pathname);
@@ -6406,7 +6084,7 @@ static int loader_hook(PARSER)
 			int rc = init();
 			if ( rc != 0 )
 			{
-				output_error_raw("%s(%d): extension library '%s' init() failed, return code %d", filename, linenum, pathname, rc);
+				syntax_error(filename,linenum,"extension library '%s' init() failed, return code %d", pathname, rc);
 				REJECT;
 			}
 		}
@@ -6416,7 +6094,7 @@ static int loader_hook(PARSER)
 		void *parser = dlsym(lib,"parser");
 	 	if ( parser == NULL )
 	 	{
-			output_error_raw("%s(%d): extension library '%s' does not export a parser function", filename, linenum, pathname);
+			syntax_error(filename,linenum,"extension library '%s' does not export a parser function", pathname);
 			REJECT;
 	 	}
 		IN_MYCONTEXT output_debug("loader extension '%s' parser linked", libname);	
@@ -6461,9 +6139,7 @@ static int loader_hook(PARSER)
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////////
-
-static int gridlabd_file(PARSER)
+int GldLoader::gridlabd_file(PARSER)
 {
 	START;
 	if WHITE {ACCEPT; DONE;}
@@ -6488,11 +6164,15 @@ static int gridlabd_file(PARSER)
 	OR if TERM(modify_directive(HERE)) { ACCEPT; DONE; }
 	OR if TERM(loader_hook(HERE)) { ACCEPT; DONE; }
 	OR if (*(HERE)=='\0') {ACCEPT; DONE;}
-	else REJECT;
+	else
+	{
+		syntax_error_here(HERE);
+		REJECT;
+	}
 	DONE;
 }
 
-int replace_variables(char *to,char *from,int len,int warn)
+int GldLoader::replace_variables(char *to,char *from,int len,int warn)
 {
 	char *p, *e=from;
 	int n = 0;
@@ -6531,7 +6211,7 @@ int replace_variables(char *to,char *from,int len,int warn)
 		else
 		{
 Unterminated:
-			output_error_raw("%s(%d): unterminated variable name %.10p...", filename, linenum, p);
+			syntax_error(filename,linenum,"unterminated variable name %.10p...", p);
 			return 1;
 		}
 	}
@@ -6543,59 +6223,55 @@ Unterminated:
 	}
 	else
 	{
-		output_error_raw("%s(%d): insufficient buffer space to continue", filename, linenum);
+		syntax_error(filename,linenum,"insufficient buffer space to continue");
 		return -1;
 	}
 }
 
-static int suppress = 0;
-static int nesting = 0;
-static int macro_line[64];
-static int process_macro(char *line, int size, char *filename, int linenum);
-static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
+int GldLoader::buffer_read(FILE *fp, char *buffer, char *filename, int size)
 {
 	char line[65536];
 	int n=0;
 	int linenum=0;
 	int startnest = nesting;
-	while (fgets(line,sizeof(line),fp)!=NULL)
+	while ( fgets(line,sizeof(line),fp) != NULL )
 	{
 		int len;
 		char subst[65536];
 
 		/* comments must have preceding whitespace in macros */
-		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
+		char *c = ( ( line[0] != '#' ) ? strstr(line,"//") : strstr(line, " " "//") );
 		linenum++;
-		if (c!=NULL) /* truncate at comment */
-			strcpy(c,"\n");
-		len = (int)strlen(line);
-		if (len>=size-1)
-			return 0;
-
-	
-#ifndef OLDSTYLE
-		/* check for oldstyle file under newstyle parse */
-		if (linenum==1 && strncmp(line,"# ",2)==0)
+		if ( c != NULL ) 
 		{
-			output_error("%s looks like a version 1.x GLM files, please convert this file to new style before loading", filename);
+			/* truncate at comment */
+			strcpy(c,"\n");
+		}
+		len = (int)strlen(line);
+		if ( len >= size-1 )
+		{
 			return 0;
 		}
-#endif
+
 		/* expand variables */
-		if ((len=replace_variables(subst,line,sizeof(subst),suppress==0))>=0)
+		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
+		{
 			strcpy(line,subst);
+		}
 		else
 		{
-			output_error_raw("%s(%d): unable to continue", filename,linenum);
+			syntax_error(filename,linenum,"unable to continue");
 			return -1;
 		}
 
 		/* expand macros */
-		if (strncmp(line,MACRO,strlen(MACRO))==0)
+		if ( line[0] == '#' )
 		{
 			/* macro disables reading */
-			if (process_macro(line,sizeof(line),filename,linenum)==FALSE)
+			if ( process_macro(line,sizeof(line),filename,linenum) == FALSE )
+			{
 				return 0;
+			}
 			len = (int)strlen(line);
 			strcat(buffer,line);
 			buffer += len;
@@ -6604,7 +6280,7 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* if reading is enabled */
-		else if (suppress==0)
+		else if ( suppress == 0 )
 		{
 			strcpy(buffer,subst);
 			buffer+=len;
@@ -6612,70 +6288,232 @@ static int buffer_read(FILE *fp, char *buffer, char *filename, int size)
 			n+=len;
 		}
 	}
-	if (nesting != startnest)
+	if ( nesting != startnest )
 	{
-		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,linenum,MACRO,filename,macro_line[nesting-1]);
-		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
+		syntax_error(filename,linenum,"Unbalanced #if/#endif at %s(%d) ~ started with nestlevel %i, ending %i",filename,macro_line[nesting-1], startnest, nesting);
 		return -1;
 	}
 	return n;
 }
 
-static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
+GldLoader::FORLOOPSTATE GldLoader::for_set_state(GldLoader::FORLOOPSTATE n)
 {
-	char line[10240];
+	const char *str[] = {"FOR_NONE","FOR_BODY","FOR_REPLAY"};
+	FORLOOPSTATE m = forloopstate;
+	forloopstate = n;
+	if ( forloop_verbose ) output_verbose("forloop state changed from '%s' to '%s'",str[(int)m],str[(int)n]);
+	return m;
+}
+
+bool GldLoader::for_is_state(GldLoader::FORLOOPSTATE n)
+{
+	return for_get_state() == n;
+}
+
+// Open a new instance of the forloop machine
+// Returns: 'true' if forloop opened, 'false' if forloop not opened
+bool GldLoader::for_open(const char *var, const char *range)
+{
+	if ( forloop != NULL )
+	{
+		syntax_error(filename,linenum,"nested forloop not supported");
+		return false;
+	}
+	forloop = strdup(range);
+	forvar = strdup(var);
+	if ( forloop_verbose ) output_verbose("beginning forloop on variable '%s' in range [%s]", forvar, forloop);			
+	for_set_state(FOR_BODY);
+	return true;
+}
+
+// Update the global variable of the forloop machine
+// Returns: the next value, or NULL if not remains
+const char * GldLoader::for_setvar(void)
+{
+	const char *value = strtok_r(forvalue==NULL?forloop:NULL," ",&lastfor);
+	if ( value != NULL )
+	{
+		if ( forloop_verbose ) output_verbose("setting for variable '%s' to '%s'",forvar,value);
+		bool old = global_strictnames;
+		global_strictnames = false;
+		global_setvar(forvar,value);
+		global_strictnames = old;
+	}
+	else
+	{
+		if ( forloop_verbose ) output_verbose("no more values for variable '%s' after '%s'",forvar,forvalue);
+	}
+	return value;
+}
+
+// Capture a GLM line to the forloop machine to replay later
+bool GldLoader::for_capture(const char *line)
+{
+	if ( strncmp(line,"#done",5) == 0 )
+	{
+		if ( forloop_verbose ) output_verbose("capture of forloop body done with after %d lines", forbuffer.size());
+		for_set_state(FOR_REPLAY);
+		return false;
+	}
+	else
+	{
+		if ( forloop_verbose ) output_verbose("capturing forloop body line %d as '%s'", forbuffer.size(), line);
+		forbuffer.push_back(std::string(line));
+		forbufferline = forbuffer.end();
+		return true;
+	}
+}
+
+// Replay the next line in the forloop
+const char *GldLoader::for_replay(void)
+{
+	// need to get first/next value in list
+	if ( forbufferline == forbuffer.end() )
+	{
+		if ( forloop_verbose ) output_verbose("end of replay buffer with forloop var '%s'='%s'", forvar,forvalue);
+		forvalue = for_setvar();
+		forbufferline = forbuffer.begin();
+	}
+
+	// no values left
+	if ( forvalue == NULL )
+	{
+		output_verbose("forloop in var '%s' replay complete", forvar, forloop);	
+		if ( forloop ) free(forloop);
+		lastfor = NULL;
+		if ( forvar ) free(forvar);
+		forvalue = NULL;
+		forbuffer.clear();
+		forbufferline = forbuffer.end();
+		for_set_state(FOR_NONE);
+		return NULL;
+	}
+	else
+	{
+		// get next line
+		const char *line = (forbufferline++)->c_str();
+		if ( forloop_verbose ) output_verbose("forloop replaying line '%s' with '%s'='%s'", line,forvar,forvalue);
+		return line;
+	}
+}
+
+
+void GldLoader::load_add_language(const char *name, bool (*parser)(const char*,void*context), void* (*init)(int,const char**))
+{
+	LANGUAGE *item = new LANGUAGE;
+	item->name = strdup(name);
+	item->parser = parser;
+	item->init = init;
+	item->next = language_list;
+	language_list = item;
+}
+
+PyObject *python_loader_module = NULL;
+int GldLoader::set_language(const char *name)
+{
+	if ( name == NULL )
+	{
+		if ( language == NULL )
+		{
+			output_warning("%s(%d): no language set",filename,linenum);
+			return FALSE;
+		}
+		language = NULL;
+		return TRUE;
+	}
+	for ( language = language_list ; language != NULL ; language = language->next  )
+	{
+		if ( strcmp(language->name,name) == 0 )
+		{
+			if ( strcmp(name,"python") == 0 && python_loader_module == NULL )
+			{
+				python_loader_module = (PyObject*)python_loader_init(0,NULL);
+			}
+			return TRUE;
+		}
+	}
+	syntax_error(filename,linenum,"language '%s' not recognized", name);
+	return FALSE;
+}
+
+int GldLoader::buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
+{
+	char line[0x4000];
 	int n = 0, i = 0;
 	int _linenum=0;
 	int startnest = nesting;
 	int bnest = 0, quote = 0;
 	int hassc = 0; // has semicolon
 	int quoteline = 0;
-	while (fgets(line,sizeof(line),fp)!=NULL)
+	while ( for_is_state(FOR_REPLAY) || fgets(line,sizeof(line),fp) != NULL )
 	{
 		int len;
 		char subst[65536];
 
-		/* comments must have preceding whitespace in macros */
-		char *c = line[0]!='#'?strstr(line,COMMENT):strstr(line, " " COMMENT);
-		_linenum++;
-		if (c!=NULL) /* truncate at comment */
-			strcpy(c,"\n");
-		len = (int)strlen(line);
-		if (len>=size-1){
-			output_error("load.c: buffer exhaustion reading %i lines past line %i", _linenum, linenum);
-			if(quote != 0){
-				output_error("look for an unterminated doublequote string on line %i", quoteline);
+		if ( for_is_state(FOR_BODY) && for_capture(line) )
+		{
+			continue;
+		}
+		if ( for_is_state(FOR_REPLAY) )
+		{
+			const char *replay = for_replay();
+			if ( replay )
+			{
+				// load next line
+				strcpy(line,replay);
 			}
-			return 0;
+			else
+			{
+				// done, resume normal processing of input stream
+				continue;
+			}
+		}
+		else 
+		{
+			/* comments must have preceding whitespace in macros */
+			char *c = line[0]!='#'?strstr(line,"//"):strstr(line, " " "//");
+			_linenum++;
+			if ( c != NULL ) /* truncate at comment */
+			{
+				strcpy(c,"\n");
+			}
+			len = (int)strlen(line);
+			if ( len >= size-1 )
+			{
+				output_error("load.c: buffer exhaustion reading %i lines past line %i", _linenum, linenum);
+				if ( quote != 0 )
+				{
+					output_error("look for an unterminated doublequote string on line %i", quoteline);
+				}
+				return 0;
+			}
 		}
 	
-#ifndef OLDSTYLE
-		/* check for oldstyle file under newstyle parse */
-		if (_linenum==1 && strncmp(line,"# ",2)==0)
+		// expand variables
+		if ( (len=replace_variables(subst,line,sizeof(subst),suppress==0)) >= 0 )
 		{
-			output_error("%s looks like a version 1.x GLM files, please convert this file to new style before loading", filename);
-			return 0;
-		}
-#endif
-		/* expand variables */
-		if ((len=replace_variables(subst,line,sizeof(subst),suppress==0))>=0)
 			strcpy(line,subst);
+		}
 		else
 		{
-			output_error_raw("%s(%d): unable to continue", filename,_linenum);
+			syntax_error(filename,_linenum,"unable to continue");
 			return -1;
 		}
 
 		/* expand macros */
-		if (strncmp(line,MACRO,strlen(MACRO))==0)
+		const char *m = line;
+		while ( isspace(*m) ) m++;
+		if ( get_language() || m[0] == '#' )
 		{
 			/* macro disables reading */
-			if (process_macro(line,sizeof(line),filename,linenum + _linenum - 1)==FALSE){
+			if ( process_macro(line,sizeof(line),filename,linenum + _linenum - 1) == FALSE )
+			{
 				return 0;
-			} else {
+			} 
+			else 
+			{
 				++hassc;
 			}
-			//strcat(buffer,line);
 			strcpy(buffer,line);
 			len = (int)strlen(buffer); // include anything else in the buffer, then advance
 			buffer += len;
@@ -6684,69 +6522,85 @@ static int buffer_read_alt(FILE *fp, char *buffer, char *filename, int size)
 		}
 
 		/* if reading is enabled */
-		else if (suppress==0)
+		else if ( suppress == 0 )
 		{
 			strcpy(buffer,subst);
 			buffer+=len;
 			size -= len;
 			n+=len;
-			for(i = 0; i < len; ++i){
-				if(quote == 0){
-					if(subst[i] == '\"'){
+			for ( i = 0 ; i < len ; ++i )
+			{
+				if ( quote == 0 ) 
+				{
+					if ( subst[i] == '\"' )
+					{
 						quoteline = linenum + _linenum - 1;
 						quote = 1;
-					} else if(subst[i] == '{'){
+					} 
+					else if ( subst[i] == '{' )
+					{
 						++bnest;
 						++hassc;
 						// @TODO push context
-					} else if(subst[i] == '}'){
+					} 
+					else if ( subst[i] == '}' ) 
+					{
 						--bnest;
 						// @TODO pop context
-					} else if(subst[i] == ';'){
+					} 
+					else if( subst[i] == ';' )
+					{
 						++hassc;
 					}
-				} else {
-					if(subst[i] == '\"'){
+				} 
+				else 
+				{
+					if ( subst[i] == '\"' )
+					{
 						quote = 0;
 					}
 				}
 			}
-		} else {
+		} 
+		else 
+		{
 			strcpy(buffer,"\n");
 			buffer+=strlen("\n");
 			size -= 1;
 			n += 1;
 		}
-		if(bnest == 0 && hassc > 0 && nesting == startnest){ // make sure we read ALL of an #if block, if possible
+		if ( bnest == 0 && hassc > 0 && nesting == startnest ) // make sure we read ALL of an #if block, if possible
+		{ 
 			/* end of block */
 			return n;
 		}
 
 	}
-	if(quote != 0){
+	if ( quote != 0 )
+	{
 		output_warning("unterminated doublequote string");
 	}
-	if(bnest != 0){
+	if ( bnest != 0 )
+	{
 		output_warning("incomplete loader block");
 	}
-	if (nesting != startnest)
+	if ( nesting != startnest )
 	{
-		//output_message("%s(%d): missing %sendif for #if at %s(%d)", filename,_linenum,MACRO,filename,macro_line[nesting-1]);
-		output_error_raw("%s(%d): Unbalanced %sif/%sendif at %s(%d) ~ started with nestlevel %i, ending %i", filename,_linenum,MACRO,MACRO,filename,macro_line[nesting-1], startnest, nesting);
+		syntax_error(filename,_linenum,"Unbalanced #if/#endif at %s(%d) ~ started with nestlevel %i, ending %i",filename,macro_line[nesting-1], startnest, nesting);
 		return -1;
 	}
 	return n;
 }
 
 
-static int include_file(char *incname, char *buffer, int size, int _linenum)
+int GldLoader::include_file(char *incname, char *buffer, int size, int _linenum)
 {
 	int move = 0;
 	char *p = buffer;
 	int count = 0;
 	char *ext = 0;
 	char *name = 0;
-	STAT stat;
+	struct stat stat;
 	char ff[1024];
 	FILE *fp = 0;
 	char buffer2[20480];
@@ -6764,7 +6618,7 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 	{
 		if (strcmp(incname, list->file) == 0 && !global_reinclude )
 		{
-			output_error_raw("%s(%d): include file has already been included", incname, _linenum);
+			syntax_error(incname,_linenum,"include file has already been included");
 			return 0;
 		}
 	}
@@ -6797,9 +6651,9 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 
 	/* open file */
 	fp = find_file(incname,NULL,R_OK,ff,sizeof(ff)) ? fopen(ff, "rt") : NULL;
-	
+
 	if(fp == NULL){
-		output_error_raw("%s(%d): include file open failed: %s", incname, _linenum, errno?strerror(errno):"(no details)");
+		syntax_error(incname,_linenum,"include file open failed: %s", errno?strerror(errno):"(no details)");
 		return -1;
 	}
 	else
@@ -6807,11 +6661,12 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 		IN_MYCONTEXT output_verbose("include_file(char *incname='%s', char *buffer=0x%p, int size=%d): search of GLPATH='%s' result is '%s'",
 			incname, buffer, size, getenv("GLPATH") ? getenv("GLPATH") : "NULL", ff);
 	}
+	add_depend(incname,ff);
 
 	old_linenum = linenum;
 	linenum = 1;
 
-	if(FSTAT(fileno(fp), &stat) == 0){
+	if(fstat(fileno(fp), &stat) == 0){
 		if(stat.st_mtime > modtime){
 			modtime = stat.st_mtime;
 		}
@@ -6823,7 +6678,7 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 		//	return 0;
 		//}
 	} else {
-		output_error_raw("%s(%d): unable to get size of included file", incname, _linenum);
+		syntax_error(incname,_linenum,"unable to get size of included file");
 		return -1;
 	}
 
@@ -6860,7 +6715,7 @@ static int include_file(char *incname, char *buffer, int size, int _linenum)
 }
 
 /** @return 1 if the variable is autodefined */
-int is_autodef(char *value)
+static int is_autodef(char *value)
 {
 #ifdef WIN32
 	if ( strcmp(value,"WINDOWS")==0 ) return 1;
@@ -6878,12 +6733,8 @@ int is_autodef(char *value)
 	if ( strcmp(value,"MATLAB")==0 ) return 1;
 #endif
 
-#ifdef HAVE_XERCES
-	if ( strcmp(value,"XERCES")==0 ) return 1;
-#endif
-
-#ifdef HAVE_CPPUNIT
-	if ( strcmp(value,"CPPUNIT")==0 ) return 1;
+#ifdef HAVE_PYTHON
+	if ( strcmp(value,"PYTHON")==0 ) return 1;
 #endif
 
 	return 0;
@@ -6892,14 +6743,10 @@ int is_autodef(char *value)
 /* started processes */
 #include "threadpool.h"
 #include "signal.h"
-struct s_threadlist 
+
+void GldLoader::kill_processes(void)
 {
-	pthread_t *data;
-	struct s_threadlist *next;
-} *threadlist = NULL;
-void kill_processes(void)
-{
-	while ( threadlist!=NULL )
+	while ( threadlist != NULL )
 	{
 		struct s_threadlist *next = threadlist->next;
 		int sig = SIGTERM;
@@ -6923,8 +6770,10 @@ void kill_processes(void)
 	}
 }
 
+bool load_import(const char *from, char *to, int len);
+
 /** @return -1 on failure, thread_id on success **/
-void* start_process(const char *cmd)
+void* GldLoader::start_process(const char *cmd)
 {
 	static bool first = true;
 	pthread_t *pThreadInfo = (pthread_t*)malloc(sizeof(pthread_t));
@@ -6933,7 +6782,7 @@ void* start_process(const char *cmd)
 	strcpy(args,cmd);
 	if ( thread==NULL || pThreadInfo==NULL || pthread_create(pThreadInfo,NULL,(void*(*)(void*))system,args)!=0 )
 	{
-		output_error_raw("%s(%d): unable to create thread to start '%s'", filename, linenum, cmd);
+		syntax_error(filename,linenum,"unable to create thread to start '%s'", cmd);
 		return NULL;
 	}
 	else
@@ -6951,44 +6800,33 @@ void* start_process(const char *cmd)
 	return threadlist;
 }
 
-#ifdef WIN32
-/* TODO: move this to a better place */
-char *strsep(char **from, const char *delim) {
-    char *s, *dp, *ret;
-
-    if ((s = *from) == NULL)
-        return NULL;
-
-    ret = s;
-    while (*s != '\0') {
-        /* loop until the end of s, checking against each delimiting character,
-         * if we find a delimiter set **s to '\0' and return our previous token
-         * to the user. */
-        dp = (char *)delim;
-        while (*dp != '\0') {
-            if (*s == *dp) {
-                *s = '\0';
-                *from = s + 1;
-                return ret;
-            }
-            dp++;
-        }
-        s++;
-    }
-    /* end of string case */
-    *from = NULL;
-    return ret;
-}
-#endif
-
 /** @return TRUE/SUCCESS for a successful macro read, FALSE/FAILED on parse error (which halts the loader) */
-static int process_macro(char *line, int size, char *_filename, int linenum)
+int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 {
-#ifndef WIN32
-	char *var, *val, *save;	// used by *nix
-#endif
+	char *var, *val, *save;
 	char buffer[64];
-	if (strncmp(line,MACRO "endif",6)==0)
+	if ( get_language() )
+	{
+		const char *m = line;
+		while ( isspace(*m) ) m++;
+		int status;
+		if ( strncmp(m,"#end",4) == 0 )
+		{
+			status = language->parser(NULL,NULL);
+			set_language(NULL);
+		}
+		else
+		{
+			status = language->parser(line,NULL);
+		}
+		if ( status == true )
+		{
+			strcpy(line,"\n");
+		}
+		return status;
+	}
+	while ( isspace(*line) ) line++; // trim
+	if (strncmp(line,"#endif",6)==0)
 	{
 		if (nesting>0)
 		{
@@ -6997,13 +6835,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			suppress &= ~(1<<nesting);
 		}
 		else{
-			output_error_raw("%s(%d): %sendif is mismatched", filename, linenum,MACRO);
+			syntax_error(filename,linenum,"#endif is mismatched");
 		}
 		strcpy(line,"\n");
 
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "else",5)==0)
+	else if (strncmp(line,"#else",5)==0)
 	{
 		char *term;
 
@@ -7019,19 +6857,19 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strip_right_white(term);
 		if(strlen(term)!=0)
 		{
-			output_error_raw("%s(%d): %selse macro should not contain any terms",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#else macro should not contain any terms");
 			return FALSE;
 		}
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "ifdef",6)==0)
+	else if (strncmp(line,"#ifdef",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sifdef macro missing term",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#ifdef macro missing term");
 			return FALSE;
 		}
 		//if (sscanf(term+1,"%[^\n\r]",value)==1 && global_getvar(value, buffer, 63)==NULL && getenv(value)==NULL)
@@ -7046,14 +6884,14 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "ifexist",8)==0)
+	else if (strncmp(line,"#ifexist",8)==0)
 	{
 		char *term = strchr(line+8,' ');
 		char value[1024];
 		char path[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sifexist macro missing term",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#ifexist macro missing term");
 			return FALSE;
 		}
 		while(isspace((unsigned char)(*term)))
@@ -7073,13 +6911,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "ifndef",7)==0)
+	else if (strncmp(line,"#ifndef",7)==0)
 	{
 		char *term = strchr(line+7,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sifndef macro missing term",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#ifndef macro missing term");
 			return FALSE;
 		}
 		//if (sscanf(term+1,"%[^\n\r]",value)==1 && global_getvar(value, buffer, 63)!=NULL || getenv(value)!=NULL))
@@ -7093,7 +6931,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "if",3)==0)
+	else if (strncmp(line,"#if",3)==0)
 	{
 		char var[32], op[4];
 		const char *value;
@@ -7103,7 +6941,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 				&& sscanf(line+4,"%31[a-zA-Z_0-9_:.] %3[!<>=] %1023[^ \t\n] %1023[^\n]\n",var,op,val,junk) < 3 )
 				|| strcmp(junk,"") != 0 )
 		{
-			output_error_raw("%s(%d): %sif macro statement syntax error", filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#if macro statement syntax error");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7114,7 +6952,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 				value = "";
 			else
 			{
-				output_error_raw("%s(%d): %s is not defined", filename,linenum,var);
+				syntax_error(filename,linenum,"%s is not defined",var);
 				strcpy(line,"\n");
 				return FALSE;
 			}
@@ -7127,7 +6965,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		else if (strcmp(op,"!=")==0) { if (!(strcmp(value,val)!=0)) suppress|=(1<<nesting); }
 		else
 		{
-			output_error_raw("%s(%d): operator %s is not recognized", filename,linenum,op);
+			syntax_error(filename,linenum,"operator %s is not recognized",op);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7146,13 +6984,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 	}
 
 	/* macros that are short for other macros */
-	if ( strncmp(line,MACRO "insert",7)==0 )
+	if ( strncmp(line,"#insert",7)==0 )
 	{
 		char name[1024];
 		char values[1024]="";
 		if ( sscanf(line+7,"%*[ \t]%[^(](%[^)])",name,values)==0 )
 		{
-			output_error_raw("%s(%d): #insert syntax error -- name not found",filename,linenum);
+			syntax_error(filename,linenum,"#insert syntax error -- name not found");
 			return FALSE;
 		}
 		sprintf(line,"#include using(%s) \"%s.glm\"",values,name);
@@ -7164,7 +7002,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 	}
 
 	/* these macros can be suppressed */
-	if (strncmp(line,MACRO "include",8)==0)
+	if (strncmp(line,"#include",8)==0)
 	{
 		char *term = strchr(line+8,' ');
 		char value[1024];
@@ -7172,7 +7010,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		GLOBALVAR *old_stack = NULL;
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sinclude macro missing term",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#include macro missing term");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7187,7 +7025,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			{
 				char var[1024], val[1024];
 				if ( sscanf(token,"%[^=]=%[^\n]",var,val)!=2 )
-					output_error_raw("%s(%d): unabled to set global %s", filename, linenum, token);
+					syntax_error(filename,linenum,"unabled to set global %s", token);
 				else
 					global_push(var,val);
 				global_reinclude = TRUE; // must enable reinclude for this to work more than once
@@ -7204,9 +7042,10 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			strcpy(filename, value);	// use include file name for errors while within context
 			len=(int)include_file(value,line,size,linenum);
 			strcpy(filename, oldfile);	// pop include filename, use calling filename
+			add_depend(filename,value);
 			if (len<0)
 			{
-				output_error_raw("%s(%d): #include failed",filename,linenum);
+				syntax_error(filename,linenum,"#include failed");
 				include_fail = 1;
 				strcpy(line,"\n");
 				if ( old_stack ) global_restore(old_stack);
@@ -7214,7 +7053,6 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			}
 			else
 			{
-//				line+=len; size-=len; // not relevant to the block loader, was already consumed
 				len = sprintf(line,"@%s;%d\n",filename,linenum);
 				line+=len; size-=len;
 				return size>0;
@@ -7273,6 +7111,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			strcpy(filename,tmpname);
 			len = (int)include_file(tmpname,line,size,linenum);
 			strcpy(filename,oldfile);
+			add_depend(filename,tmpname);
 			if ( len<0 )
 			{
 				output_error("%s(%d): unable to include load [%s] from temp file '%s'", filename, linenum, value,tmpname);
@@ -7290,41 +7129,95 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		{
 			char *eol = term+strlen(term)-1;
 			if ( *eol == '\n' ) *eol = '\0';
-			output_error_raw("%s(%d): '#include %s' failed",filename,linenum, term);
+			syntax_error(filename,linenum,"'#include %s' failed", term);
 			strcpy(line,"\n");
 			if ( old_stack ) global_restore(old_stack);
 			return FALSE;
 		}
 	}
-	else if (strncmp(line,MACRO "setenv",7)==0)
+	else if ( strncmp(line, "#output", 7) == 0 )
+	{
+		char name[1024];
+		char options[1024] = "";
+		if ( sscanf(line+7,"%*[ \t]\"%[^\"]\"%*[ \t]%[^\n]",name,options) < 1 )
+		{
+			output_error_raw("%s(%d): #output missing filename",filename,linenum);
+			return FALSE;
+		}
+		save_on_exit(name,options);
+		strcpy(line,"\n");
+		return TRUE;
+	}
+	else if ( strncmp(line, "#input", 6) == 0 )
+	{
+		char name[1024];
+		char options[1024] = "";
+		if ( sscanf(line+6,"%*[ \t]\"%[^\"]\"%*[ \t]%[^\n]",name,options) < 1 )
+		{
+			output_error_raw("%s(%d): #input missing filename",filename,linenum);
+			return FALSE;
+		}
+		char *ext = strrchr(name,'.');
+		char oldvalue[1024] = "";
+		char varname[1024] = "";
+		if ( ext && strcmp(ext,".glm") != 0 )
+		{
+			if ( strcmp(options,"") != 0 )
+			{
+				sprintf(varname,"%s_load_options",ext+1);
+				int old_global_strictnames = global_strictnames;
+				if ( global_isdefined(varname) )
+				{
+					global_getvar(varname,oldvalue,sizeof(oldvalue));
+				}
+				else
+				{
+					global_strictnames = FALSE;
+				}
+				global_setvar(varname,options,NULL);
+				global_strictnames = old_global_strictnames;	
+			}
+		}
+		char glmname[1024];
+		if ( load_import(name,glmname,sizeof(glmname)) == FAILED )
+		{
+			output_error_raw("%s(%d): load of '%s' failed",filename,linenum,glmname);
+			return FALSE;
+		}
+		if ( strcmp(varname,"") != 0 && strcmp(oldvalue,"") != 0)
+		{
+			global_setvar(varname,oldvalue,NULL);
+		}
+		output_verbose("loading converted file '%s'...", glmname);
+		strcpy(line,"\n");
+		return loadall_glm(glmname);
+	}
+	else if (strncmp(line, "#setenv",7)==0)
+
 	{
 		char *term = strchr(line+7,' ');
 		char value[65536];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %ssetenv macro missing term",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#setenv macro missing term");
 			strcpy(line,"\n");
 			return FALSE;
 		}
 		//if (sscanf(term+1,"%[^\n\r]",value)==1)
 		strcpy(value, strip_right_white(term+1));
-#ifdef WIN32
-		putenv(value);
-#else
 		var = strtok_r(value, "=", &save);
                     val = strtok_r(NULL, "=", &save);
                     setenv(var, val, 1);
-#endif
 		strcpy(line,"\n");
 		return SUCCESS;
 	}
-	else if (strncmp(line,MACRO "set",4)==0)
+	else if (strncmp(line,"#set",4)==0)
 	{
 		char *term = strchr(line+4,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sset macro missing term",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#set macro missing term");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7333,7 +7226,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		STATUS result;
 		if (strchr(value,'=')==NULL)
 		{
-			output_error_raw("%s(%d): %sset missing assignment",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#set missing assignment");
 			return FAILED;
 		}
 		else
@@ -7343,27 +7236,27 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			result = global_setvar(value);
 			global_strictnames = strncmp(value,"strictnames=",12)==0 ? global_strictnames : oldstrict;
 			if (result==FAILED)
-				output_error_raw("%s(%d): %sset term not found",filename,linenum,MACRO);
+				syntax_error(filename,linenum,"#set term not found");
 			strcpy(line,"\n");
 			return result==SUCCESS;
 		}
 	}
-	else if (strncmp(line,MACRO "binpath",8)==0)
+	else if (strncmp(line,"#binpath",8)==0)
 	{
 		output_error("#binpath is no longer supported, use PATH environment variable instead");
 		return FALSE;
 	}
-	else if (strncmp(line,MACRO "libpath",8)==0)
+	else if (strncmp(line,"#libpath",8)==0)
 	{
 		output_error("#libpath is no longer supported, use LDFLAGS environment variable instead");
 		return FALSE;
 	}
-	else if (strncmp(line,MACRO "incpath",8)==0)
+	else if (strncmp(line,"#incpath",8)==0)
 	{
 		output_error("#incpath is no longer supported, use CXXFLAGS environment variable instead");
 		return FALSE;
 	}
-	else if (strncmp(line,MACRO "define",7)==0)
+	else if (strncmp(line,"#define",7)==0)
 	{
 		char *term = strchr(line+7,' ');
 		char value[1024];
@@ -7371,7 +7264,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		int oldstrict = global_strictnames;
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sdefine macro missing term",filename,linenum, MACRO);
+			syntax_error(filename,linenum,"#define macro missing term");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7382,17 +7275,17 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		result = global_setvar(value,"\"\""); // extra "" is used in case value is term is empty string
 		global_strictnames = oldstrict;
 		if (result==FAILED)
-			output_error_raw("%s(%d): %sdefine term not found",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#define term not found");
 		strcpy(line,"\n");
 		return result==SUCCESS;
 	}
-	else if (strncmp(line,MACRO "print",6)==0)
+	else if (strncmp(line,"#print",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sprint missing message text",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#print missing message text");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7401,13 +7294,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "verbose",6)==0)
+	else if (strncmp(line,"#verbose",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sprint missing message text",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#print missing message text");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7416,13 +7309,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "error",6)==0)
+	else if (strncmp(line,"#error",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %serror missing expression",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#error missing expression");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7431,13 +7324,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return FALSE;
 	}
-	else if (strncmp(line,MACRO "warning",8)==0)
+	else if (strncmp(line,"#warning",8)==0)
 	{
 		char *term = strchr(line+8,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %swarning missing message text",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#warning missing message text");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7446,13 +7339,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "debug",6)==0)
+	else if (strncmp(line,"#debug",6)==0)
 	{
 		char *term = strchr(line+8,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sdebug missing message text",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#debug missing message text");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7461,13 +7354,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if (strncmp(line,MACRO "system",7)==0)
+	else if (strncmp(line,"#system",7)==0)
 	{
 		char *term = strchr(line+7,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %ssystem missing system call",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#system missing system call");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7476,7 +7369,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		global_return_code = system(value);
 		if( global_return_code==127 || global_return_code==-1 )
 		{
-			output_error_raw("%s(%d): ERROR unable to execute '%s' (status=%d)", filename, linenum, value, global_return_code);
+			syntax_error(filename,linenum,"#system %s -- system('%s') failed with status %d", value, value, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7486,22 +7379,51 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if (strncmp(line,MACRO "exec",5)==0)
+	else if ( strncmp(line,"#command",8) == 0 )
+	{
+		char *command = strchr(line+8,' ');
+		if ( command == NULL )
+		{
+			syntax_error(filename,linenum,"#command missing call");
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		while ( isspace(*command) && *command != '\0' )
+		{
+			command++;
+		}
+		char command_line[1024];
+		sprintf(command_line,"%s/gridlabd-%s",global_execdir,command);
+		output_verbose("executing system(%s)", command_line);
+		global_return_code = my_instance->subcommand("%s",command_line);
+		if( global_return_code != 0 )
+		{
+			syntax_error(filename,linenum,"#command %s -- system('%s') failed with status %d", command, command_line, global_return_code);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
+	else if (strncmp(line,"#exec",5)==0)
 	{
 		char *term = strchr(line+5,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %ssystem missing system call",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#exec missing system call");
 			strcpy(line,"\n");
 			return FALSE;
 		}
 		strcpy(value, strip_right_white(term+1));
 		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
-		global_return_code = system(value);
+		global_return_code = my_instance->subcommand("%s",value);
 		if( global_return_code != 0 )
 		{
-			output_error_raw("%s(%d): ERROR executing system(char *cmd='%s') -> non-zero exit code (status=%d)", filename, linenum, value, global_return_code);
+			syntax_error(filename,linenum,"#exec %s -- system('%s') failed with status %d", value, value, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7511,13 +7433,38 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if (strncmp(line,MACRO "start",6)==0)
+	else if (strncmp(line,"#gridlabd",9)==0)
+	{
+		char *term = strchr(line+9,' ');
+		char value[1024];
+		if (term==NULL)
+		{
+			syntax_error(filename,linenum,"#gridlabd missing command line");
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		strcpy(value, strip_right_white(term+1));
+		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s %s')", filename, linenum, global_execname, value);
+		global_return_code = my_instance->subcommand("%s %s",global_execname,value);
+		if( global_return_code != 0 )
+		{
+			syntax_error(filename,linenum,"#gridlabd %s -- system('%s %s') failed with status %d", value, global_execname, value, global_return_code);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
+	else if (strncmp(line,"#start",6)==0)
 	{
 		char *term = strchr(line+6,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %sstart missing system call",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#start missing system call");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7525,7 +7472,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
 		if( start_process(value)==NULL )
 		{
-			output_error_raw("%s(%d): ERROR unable to start '%s'", filename, linenum, value);
+			syntax_error(filename,linenum,"#start %s -- failed", value);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7535,13 +7482,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			return TRUE;
 		}
 	}
-	else if ( strncmp(line,MACRO "option",7)==0 )
+	else if ( strncmp(line,"#option",7)==0 )
 	{
 		char *term = strchr(line+7,' ');
 		char value[1024];
 		if (term==NULL)
 		{
-			output_error_raw("%s(%d): %soption missing command option name",filename,linenum,MACRO);
+			syntax_error(filename,linenum,"#option missing command option name");
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7549,14 +7496,14 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return cmdarg_runoption(value)>=0;
 	}
-	else if ( strncmp(line,MACRO "wget",5)==0 || strncmp(line,MACRO "curl",5)==0 )
+	else if ( strncmp(line,"#wget",5)==0 || strncmp(line,"#curl",5)==0 )
 	{
 		char url[1024], file[1024];
 		size_t n = sscanf(line+5,"%s %[^\n\r]",url,file);
 		strcpy(line,"\n");
 		if ( n<1 )
 		{
-			output_error_raw("%s(%d): %swget missing url", filename, linenum, MACRO);
+			syntax_error(filename,linenum,"#wget missing url");
 			return FALSE;
 		}
 		else if ( n==1 )
@@ -7564,7 +7511,7 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			char *basename = strrchr(url,'/');
 			if ( basename==NULL )
 			{
-				output_error_raw("%s(%d): unable to extract basename of URL '%s'", filename, linenum, url);
+				syntax_error(filename,linenum,"unable to extract basename of URL '%s'", url);
 				return FALSE;
 			}
 			strncpy(file,basename+1,sizeof(file)-1);
@@ -7578,13 +7525,13 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			output_warning("GldCurl(remote='%s', local='%s') failed: reverting to insecure http_saveas() call", url,file);
 			if ( http_saveas(url,file)==0 )
 			{
-				output_error_raw("%s(%d): unable to save URL '%s' as '%s'", filename, linenum, url, file);
+				syntax_error(filename,linenum,"unable to save URL '%s' as '%s'", url, file);
 				return FALSE;
 			}
 		}
 		return TRUE;
 	}
-	else if ( strncmp(line,MACRO "sleep",6)==0 )
+	else if ( strncmp(line,"#sleep",6)==0 )
 	{
 		int msec = atoi(line+6);
 		IN_MYCONTEXT output_debug("sleeping %.3f seconds...",msec/1000.0);
@@ -7592,18 +7539,101 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 		strcpy(line,"\n");
 		return TRUE;
 	}
-	else if ( strncmp(line,MACRO "on_exit",8) == 0 )
+	else if ( strncmp(line, "#version", 8) == 0 )
+	{
+		int criteria = 0;
+		bool invert = false;
+		char *next = NULL, *last = NULL;
+		bool ok = false;
+		while ( (next=strtok_r(next?NULL:line+9," \t",&last)) )
+		{
+			unsigned int major=0, minor=0, patch=0, build=0;
+			char value1[1024], value2[1024];
+			if ( next[0] == '\0' )
+			{
+				continue;
+			}
+			if ( next[0] == '-' )
+			{
+				if ( strcmp(next,"-lt") == 0 )
+				{
+					criteria = -1;
+					invert = false;					
+				}
+				else if ( strcmp(next,"-le") == 0 )
+				{
+					criteria = +1;
+					invert = true;
+				}
+				else if ( strcmp(next,"-eq") == 0 )
+				{
+					criteria = 0;
+					invert = false;
+				}
+				else if ( strcmp(next,"-ge") == 0 )
+				{
+					criteria = -1;
+					invert = true;					
+				}
+				else if ( strcmp(next,"-gt") == 0 )
+				{
+					criteria = +1;
+					invert = false;
+				}
+				else if ( strcmp(next,"-ne") == 0 )
+				{
+					criteria = 0;
+					invert = true;
+				}
+				else
+				{
+					output_error_raw("%s(%d): version test '%s' is not valid",filename,linenum,next);
+					return FALSE;
+				}
+				continue;
+			}
+			else if ( sscanf(next,"%u.%u.%u",&major,&minor,&patch) > 1 )
+			{
+				sprintf(value1,"%u.%u.%u",global_version_major, global_version_minor, global_version_patch);
+				sprintf(value2,"%u.%u.%u",major,minor,patch);
+			}
+			else if ( sscanf(next,"%u",&build) == 1 )
+			{
+				sprintf(value1,"%06d",global_version_build);
+				sprintf(value2,"%06d",build);
+			}
+			else
+			{
+				sprintf(value1,"%s",global_version_branch);
+				sprintf(value2,"%s",next);
+			}
+			bool test = (strcmp(value1,value2) == criteria);
+			ok |= ( invert ? !test : test);
+			IN_MYCONTEXT output_debug("version check: strcmp('%s','%s') %s %d -> %s, ok is now %s",value1,value2,invert?"!=":"==",criteria,test^invert?"true":"false",ok?"true":"false");
+		}
+		if ( ! ok )
+		{
+			output_error_raw("%s(%d): version '%d.%d.%d-%d-%s' does not satisfy the version requirement",filename,linenum,
+				global_version_major, global_version_minor, global_version_patch, global_version_build, global_version_branch);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		strcpy(line,"\n");
+		return TRUE;
+
+	}
+	else if ( strncmp(line,"#on_exit",8) == 0 )
 	{
 		int xc;
 		char cmd[1024];
 		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
 		{
-			output_error_raw("%s(%d): on_exit syntax error", filename,linenum);
+			output_error_raw("%s(%d): " "#on_exit syntax error", filename,linenum);
 			return FALSE;
 		}
 		else if ( ! my_instance->add_on_exit(xc,cmd) )
 		{
-			output_error_raw("%s(%d): on_exit %d command '%s'", filename,linenum,xc,cmd);
+			output_error_raw("%s(%d): " "#on_exit %d command '%s' failed", filename,linenum,xc,cmd);
 			return FALSE;
 		}
 		else
@@ -7611,6 +7641,39 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 			strcpy(line,"\n");
 			return TRUE;
 		}
+	}
+	else if ( strncmp(line, "#begin",6) == 0 )
+	{
+		char name[256];
+		if ( sscanf(line+7,"%s",name) == 0 )
+		{
+			output_error_raw("%s(%d): " "#begin macro missing language term", filename, linenum);
+			return FALSE;
+		}
+		strcpy(line,"\n");
+		return set_language(name);
+	}
+	else if ( strncmp(line, "#for",4) == 0 )
+	{
+		char var[64], range[1024];
+		if ( sscanf(line+4,"%s in %[^\n]",var,range) == 2 )
+		{
+			strcpy(line,"\n");
+			return for_open(var,range) ? TRUE : FALSE;
+		}
+		else
+		{
+			syntax_error(filename,linenum,"for macro syntax error");
+			return FALSE;
+		}
+	}
+	char cmd[1024];
+	sprintf(cmd,"%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
+	int rc = system(cmd);
+	if ( rc != 127 )
+	{
+		strcpy(line,"\n");
+		return rc==0;
 	}
 	else
 	{
@@ -7624,105 +7687,16 @@ static int process_macro(char *line, int size, char *_filename, int linenum)
 				break;
 			}
 		}
-		output_error_raw("%s(%d): macro command '%s' is not recognized", filename,linenum,tmp);
+		syntax_error(filename,linenum,"%s macro is not recognized",tmp);
 		strcpy(line,"\n");
 		return FALSE;
 	}
 }
 
-STATUS loadall_glm(char *file) /**< a pointer to the first character in the file name string */
-{
-	OBJECT *obj, *first = object_get_first();
-	char *buffer = NULL, *p = NULL;
-	int fsize = 0;
-	STATUS status=FAILED;
-	STAT stat;
-	FILE *fp;
-	int move=0;
-	errno = 0;
-
-	fp = fopen(file,"rt");
-	if (fp==NULL)
-		goto Failed;
-	if (FSTAT(fileno(fp),&stat)==0)
-	{
-		modtime = stat.st_mtime;
-		fsize = stat.st_size;
-		buffer = (char*)malloc(MAXGLMSIZE); /* lots of space */
-	}
-	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
-	if (buffer==NULL)
-	{
-		output_error("unable to allocate buffer for file '%s': %s", file, errno?strerror(errno):"(no details)");
-		errno = ENOMEM;
-		goto Done;
-	}
-	else
-		p=buffer;
-
-	buffer[0] = '\0';
-	if (buffer_read(fp,buffer,file,MAXGLMSIZE)==0)
-	{
-		fclose(fp);
-		goto Failed;
-	}
-	fclose(fp);
-
-	/* reset line counter for parser */
-	linenum = 1;
-	while (*p!='\0')
-	{
-		move = gridlabd_file(p);
-		if (move==0)
-			break;
-		p+=move;
-	}
-	status = (*p=='\0') ? SUCCESS : FAILED;
-	if (status==FAILED)
-	{
-		char *eol = strchr(p,'\n');
-		if (eol!=NULL)
-			*eol='\0';
-		output_error_raw("%s(%d): load failed at or near '%.12s...'", file, linenum,*p=='\0'?"end of line":p);
-		if (p==0)
-			output_error("%s doesn't appear to be a GLM file", file);
-		goto Failed;
-	}
-	else if ((status=load_resolve_all())==FAILED)
-		goto Failed;
-
-	/* establish ranks */
-	for (obj=first?first:object_get_first(); obj!=NULL; obj=obj->next)
-		object_set_parent(obj,obj->parent);
-	IN_MYCONTEXT output_verbose("%d object%s loaded", object_get_count(), object_get_count()>1?"s":"");
-	goto Done;
-Failed:
-	if ( errno != 0 )
-	{
-		output_error("unable to load '%s': %s", file, errno?strerror(errno):"(no details)");
-		/*	TROUBLESHOOT
-			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
-			favor of prior error messages.
-		*/
-	}
-	else if ( exec_getexitcode() != XC_SUCCESS )
-	{
-		output_error("unable to load '%s': %s", file, exec_getexitcodestr());
-		/*	TROUBLESHOOT
-			In most cases, strerror(errno) will claim "No such file or directory".  This claim should be ignored in
-			favor of prior error messages.
-		*/
-	}
-Done:
-	free(buffer);
-	buffer = NULL;
-	free_index();
-	linenum=1; // parser starts at 1
-	return status;
-}
 
 /**/
-STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character in the file name string */
+STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first character in the file name string */
+
 {
 	char file[1024];
 	strcpy(file,fname);
@@ -7732,7 +7706,7 @@ STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character
 	char buffer[20480];
 	int fsize = 0;
 	STATUS status=FAILED;
-	STAT stat;
+	struct stat stat;
 	FILE *fp;
 	int move = 0;
 	errno = 0;
@@ -7740,7 +7714,7 @@ STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character
 	fp = fopen(file,"rt");
 	if (fp==NULL)
 		goto Failed;
-	if (FSTAT(fileno(fp),&stat)==0)
+	if (fstat(fileno(fp),&stat)==0)
 	{
 		modtime = stat.st_mtime;
 		fsize = stat.st_size;
@@ -7750,6 +7724,8 @@ STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character
 		return SUCCESS;
 	}
 	IN_MYCONTEXT output_verbose("file '%s' is %d bytes long", file,fsize);
+	add_depend(filename,file);
+
 	/* removed malloc check since it doesn't malloc any more */
 	buffer[0] = '\0';
 
@@ -7794,7 +7770,7 @@ STATUS loadall_glm_roll(const char *fname) /**< a pointer to the first character
 		if (eol!=NULL){
 			*eol='\0';
 		}
-		output_error_raw("%s(%d): load failed at or near '%.12s...'", file, linenum,*p=='\0'?"end of line":p);
+		syntax_error(file,linenum,"load failed at or near '%.12s...'",*p=='\0'?"end of line":p);
 		if (p==0)
 			output_error("%s doesn't appear to be a GLM file", file);
 		goto Failed;
@@ -7823,7 +7799,7 @@ Done:
 	return status;
 }
 
-TECHNOLOGYREADINESSLEVEL calculate_trl(void)
+TECHNOLOGYREADINESSLEVEL GldLoader::calculate_trl(void)
 {
 	char buffer[1024];
 	CLASS *oclass;
@@ -7848,7 +7824,7 @@ TECHNOLOGYREADINESSLEVEL calculate_trl(void)
 }
 
 /** convert a non-GLM file to GLM, if possible */
-bool load_import(const char *from, char *to, int len)
+bool GldLoader::load_import(const char *from, char *to, int len)
 {
 	const char *ext = strrchr(from,'.');
 	if ( ext == NULL )
@@ -7856,11 +7832,15 @@ bool load_import(const char *from, char *to, int len)
 		output_error("load_import(from='%s',...): invalid extension", from);
 		return false;
 	}
-	char converter_name[1024], converter_path[1024];
-	sprintf(converter_name,"%s2glm.py",ext+1);
-	if ( find_file(converter_name, converter_path, R_OK, converter_path, sizeof(converter_path)) == NULL )
+	else
 	{
-		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext+1);
+		ext++;
+	}
+	char converter_name[1024], converter_path[1024];
+	sprintf(converter_name,"%s2glm.py",ext);
+	if ( find_file(converter_name, NULL, R_OK, converter_path, sizeof(converter_path)) == NULL )
+	{
+		output_error("load_import(from='%s',...): converter %s2glm.py not found", from, ext);
 		return false;
 	}
 	if ( strlen(from) >= (size_t)(len-1) )
@@ -7874,8 +7854,13 @@ bool load_import(const char *from, char *to, int len)
 		strcat(to,".glm");
 	else
 		strcpy(glmext,".glm");
+	char load_options[1024] = "";
+	char load_options_var[64];
+	sprintf(load_options_var,"%s_load_options",ext);
+	global_getvar(load_options_var,load_options,sizeof(load_options));
 	char cmd[4096];
-	sprintf(cmd,"python3 %s -i %s -o %s",converter_path,from,to);
+	sprintf(cmd,"python3 %s -i %s -o %s \"%s\"",converter_path,from,to,load_options);
+	output_verbose("running %s", cmd);
 	int rc = system(cmd);
 	if ( rc != 0 )
 	{
@@ -7885,7 +7870,7 @@ bool load_import(const char *from, char *to, int len)
 	return true;
 }
 
-STATUS load_python(const char *filename)
+STATUS GldLoader::load_python(const char *filename)
 {
 	char cmd[1024];
 	sprintf(cmd,"/usr/local/bin/python3 %s",filename);
@@ -7897,132 +7882,211 @@ STATUS load_python(const char *filename)
 	@todo Rollback the model data if the load failed (ticket #32)
 	@todo Support nested loads and maintain context during subloads (ticket #33)
  **/
-STATUS loadall(const char *fname)
+STATUS GldLoader::loadall(const char *fname)
 {
-	/* if nothing requested only config files are loaded */
-	if ( fname == NULL )
-		return SUCCESS;
-
-	char file[1024] = "";
-	if ( fname )
+	try 
 	{
-		strcpy(file,fname);
-	}
-	char *ext = fname ? strrchr(file,'.') : NULL ;
+		/* if nothing requested only config files are loaded */
+		if ( fname == NULL )
+			return SUCCESS;
 
-	// python script
+		char file[1024] = "";
+		if ( fname )
+		{
+			strcpy(file,fname);
+		}
+		char *ext = fname ? strrchr(file,'.') : NULL ;
+		add_depend(filename,fname);
 
-	if ( ext != NULL && strcmp(ext,".py") == 0 )
-	{
-		return load_python(fname);
-	}
-	// non-glm data file
-	if ( ext != NULL && strcmp(ext,".glm") != 0 )
-	{
-		return load_import(fname,file,sizeof(file)) ? loadall(file) : FAILED;
-	}
-	unsigned int old_obj_count = object_get_count();
-	char conf[1024];
-	static int loaded_files = 0;
-	STATUS load_status = FAILED;
+		// python script
 
-	if ( !inline_code_init() ) return FAILED;
+		if ( ext != NULL && strcmp(ext,".py") == 0 )
+		{
+			return load_python(fname);
+		}
 
-	if(old_obj_count > 1 && global_forbid_multiload){
-		output_error("loadall: only one file load is supported at this time.");
-		return FAILED; /* not what they expected--do not proceed */
-	}
+		// non-glm file
+		if ( ext != NULL && strcmp(ext,".glm") != 0 )
+		{
+			return load_import(fname,file,sizeof(file)) ? loadall_glm(file) : FAILED;
+		}
 
-	/* first time only */
-	if (loaded_files==0)
-	{
-		/* load the gridlabd.conf file */
-		if (find_file("gridlabd.conf",NULL,R_OK,conf,sizeof(conf))==NULL)
-			output_warning("gridlabd.conf was not found");
-			/* TROUBLESHOOT
-				The <code>gridlabd.conf</code> was not found in the <b>GLPATH</b> environment path.
-				This file is always loaded before a GLM file is loaded.
-				Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
-			 */
-		else{
-			strcpy(filename, "gridlabd.conf");
-			if(loadall_glm_roll(conf)==FAILED){
+		// glm file
+		unsigned int old_obj_count = object_get_count();
+		char conf[1024];
+		static int loaded_files = 0;
+		STATUS load_status = FAILED;
+
+		if ( old_obj_count > 1 && global_forbid_multiload )
+		{
+			output_error("loadall: only one file load is supported at this time.");
+			return FAILED; /* not what they expected--do not proceed */
+		}
+
+		/* first time only */
+		if ( loaded_files == 0 ) 
+		{
+			/* load the gridlabd.conf file */
+			if (find_file("gridlabd.conf",NULL,R_OK,conf,sizeof(conf))==NULL)
+			{
+				output_warning("gridlabd.conf was not found");
+				/* TROUBLESHOOT
+					The <code>gridlabd.conf</code> was not found in the <b>GLPATH</b> environment path.
+					This file is always loaded before a GLM file is loaded.
+					Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
+				 */
+			}
+			else
+			{
+				add_depend(fname,"gridlabd.conf");
+				strcpy(filename, "gridlabd.conf");
+				if ( loadall_glm(conf)==FAILED )
+				{
+					return FAILED;
+				}
+			}
+
+			/* load the debugger.conf file */
+			if (global_debug_mode)
+			{
+				char dbg[1024];
+				
+				if (find_file("debugger.conf",NULL,R_OK,dbg,sizeof(dbg))==NULL)
+				{
+					output_warning("debugger.conf was not found");
+					/* TROUBLESHOOT
+						The <code>debugger.conf</code> was not found in the <b>GLPATH</b> environment path.
+						This file is loaded when the debugger is enabled.
+						Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
+					 */
+				}
+				else if (loadall_glm(dbg)==FAILED)
+				{
+					return FAILED;
+				}
+			}
+		}
+
+		/* handle default extension */
+		strcpy(filename,file);
+		if (ext==NULL || ext<file+strlen(file)-5)
+		{
+			ext = filename+strlen(filename);
+			strcat(filename,".glm");
+		}
+
+		/* load the appropriate type of file */
+		if (global_streaming_io_enabled || (ext!=NULL && isdigit(ext[1])) )
+		{
+			FILE *fp = fopen(file,"rb");
+			if (fp==NULL || stream(fp,SF_IN)<0)
+			{
+				output_error("%s: unable to read stream", file);
+				return FAILED;
+			}
+			else
+			{
+				load_status = SUCCESS;
+			}
+		}
+		else if (ext==NULL || strcmp(ext, ".glm")==0)
+		{
+			load_status = loadall_glm(filename);
+		}
+		else
+		{
+			output_error("%s: unable to load unknown file type", filename, ext);
+		}
+
+		/* objects should not be started until all deferred schedules are done */
+		if ( global_threadcount>1 )
+		{
+			if ( schedule_createwait()==FAILED )
+			{
+				syntax_error(filename,linenum,"load failed on schedule error");
 				return FAILED;
 			}
 		}
 
-		/* load the debugger.conf file */
-		if (global_debug_mode)
-		{
-			char dbg[1024];
-			
-			if (find_file("debugger.conf",NULL,R_OK,dbg,sizeof(dbg))==NULL)
-				output_warning("debugger.conf was not found");
-				/* TROUBLESHOOT
-					The <code>debugger.conf</code> was not found in the <b>GLPATH</b> environment path.
-					This file is loaded when the debugger is enabled.
-					Make sure that <b>GLPATH</b> includes the <code>.../etc</code> folder and try again.
-				 */
-			else if (loadall_glm_roll(dbg)==FAILED)
-				return FAILED;
-		}
-	}
+		calculate_trl();
 
-	/* handle default extension */
-	strcpy(filename,file);
-	if (ext==NULL || ext<file+strlen(file)-5)
+		loaded_files++;
+		return load_status;
+	}
+	catch (const char *message)
 	{
-		ext = filename+strlen(filename);
-		strcat(filename,".glm");
+		output_error_raw("%s(%d): %s", filename, linenum, message);
+		return FAILED;
 	}
-
-	/* load the appropriate type of file */
-	if (global_streaming_io_enabled || (ext!=NULL && isdigit(ext[1])) )
+	catch (GldException *error)
 	{
-		FILE *fp = fopen(file,"rb");
-		if (fp==NULL || stream(fp,SF_IN)<0)
-		{
-			output_error("%s: unable to read stream", file);
-			return FAILED;
-		}
-		else
-			load_status = SUCCESS;
+		output_error_raw("%s", error->get_message());
+		delete error;
+		return FAILED;
 	}
-	else if (ext==NULL || strcmp(ext, ".glm")==0)
-		load_status = loadall_glm_roll(filename);
-#ifdef HAVE_XERCES
-	else if(strcmp(ext, ".xml")==0)
-		load_status = loadall_xml(filename);
-#endif
-	else
-		output_error("%s: unable to load unknown file type", filename, ext);
-
-	/* objects should not be started until all deferred schedules are done */
-	if ( global_threadcount>1 )
+	catch (...)
 	{
-		if ( schedule_createwait()==FAILED )
-		{
-			output_error_raw("%s(%d): load failed on schedule error", filename, linenum);
-			return FAILED;
-		}
+		output_error_raw("%s(%d): unknown loader exception caught", filename, linenum);
+		return FAILED;
 	}
-
-	/* handle new objects */
-//	new_obj_count = object_get_count();
-//	if((load_status == FAILED) && (old_obj_count < new_obj_count)){
-//		for(i = old_obj_count+1; i <= new_obj_count; ++i){
-//			object_remove_by_id(i);
-//		}
-//	}
-
-	calculate_trl();
-
-	/* destroy inline code buffers */
-	inline_code_term();
-
-	loaded_files++;
-	return load_status;
 }
 
-/** @} */
+std::string GldLoader::get_depends(const char *format)
+{
+	if ( format == NULL || strcmp(format,"makefile") == 0 )
+	{
+		std::string result = std::string("# generated by gridlabd ") + global_version + "\n\n" 
+			+ "all: " + global_modelname + "\n\n";
+
+		for ( DEPENDENCY_TREE::iterator item = dependency_tree.begin() ; item != dependency_tree.end() ; item++ )
+		{
+			result.append(item->first + ": ");
+			item->second.unique();
+			for ( std::list<std::string>::iterator target = item->second.begin() ; target != item->second.end() ; target++ )
+				result.append(*target + " ");
+			result.append("\n\n");
+		}
+		return result;
+	}
+	else if ( strcmp(format,"json") == 0 )
+	{
+		std::string result = std::string("{\n");
+		for ( DEPENDENCY_TREE::iterator item = dependency_tree.begin() ; item != dependency_tree.end() ; item++ )
+		{
+			if ( item != dependency_tree.begin() )
+				result.append(",\n");
+			result.append("\t\"");
+			result.append(item->first);
+			result.append("\" : [");
+			item->second.unique();
+			for ( std::list<std::string>::iterator target = item->second.begin() ; target != item->second.end() ; target++ )
+			{
+				if ( target != item->second.begin() )
+					result.append(",");
+				result.append("\"");
+				result.append(*target);
+				result.append("\"");
+			}
+			result.append("]");
+		}
+		result.append("\n}\n");
+		return result;
+	}
+	else
+	{
+		throw new GldException("GldLoader::get_depends(format='%s'): invalid format",format);
+	}
+}
+
+void GldLoader::add_depend(const char *filename, const char *dependency)
+{
+	if ( strcmp(filename,"") == 0 )
+		filename = global_modelname;
+
+	std::list<std::string> &item = dependency_tree[filename];
+	if ( strcmp(filename,dependency) != 0 )
+	{
+		item.push_back(dependency);
+	}
+}
 

@@ -1,0 +1,3 @@
+#begin python
+assert(gridlabd.version()["major"] == ${version.major})
+#end

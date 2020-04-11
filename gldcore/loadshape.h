@@ -99,7 +99,7 @@ struct s_loadshape {
 	TIMESTAMP t0;	/**< time of last update (in seconds since epoch) */
 	TIMESTAMP t2;	/**< time of next update (in seconds since epoch) */
 	unsigned int rng_state; /**< state of the random number generator */
-
+		
 	struct s_loadshape *next;	/* next loadshape in list */
 };
 
@@ -115,6 +115,7 @@ TIMESTAMP loadshape_syncall(TIMESTAMP t1);
 
 int loadshape_test(void);
 
+int initial_from_loadshape(char *string,int size,void *data, PROPERTY *prop); /**< convert from a loadshape to a string */
 int convert_from_loadshape(char *string,int size,void *data, PROPERTY *prop); /**< convert from a loadshape to a string */
 int convert_to_loadshape(const char *string, void *data, PROPERTY *prop); /**< convert from a string to a loadshape */
 

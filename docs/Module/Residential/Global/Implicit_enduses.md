@@ -1,0 +1,23 @@
+[[/Module/Residential/Global/Implicit_enduses]] -- Module residential global variable implicit_enduses
+
+# Synopsis
+
+Shell:
+
+~~~
+bash$ gridlabd -D|--define implicit_enduses=<value>
+~~~
+
+GLM:
+
+~~~
+  #set implicit_enduses=<value>
+~~~
+
+# Description
+
+TODO
+
+# See also
+
+* [[/Module/Residential]]

@@ -433,12 +433,15 @@ void GldExec::init_thread_data(void)
 EXITCODE GldExec::setexitcode(EXITCODE xc)
 {
 	EXITCODE oldxc = (EXITCODE)global_exit_code;
-	if ( oldxc != XC_SUCCESS && xc != oldxc )
+	if ( xc != XC_SUCCESS && xc != oldxc )
 	{
-		output_warning("new exitcode %d overwrites existing exitcode %d", xc,oldxc);
+		IN_MYCONTEXT output_debug("new exitcode %d would overwrite existing exitcode %d", xc, oldxc);
+	}
+	else
+	{
+		IN_MYCONTEXT output_debug("exit code %d", xc);
 	}
 	global_exit_code = xc;
-	IN_MYCONTEXT output_debug("exit code %d", xc);
 	return oldxc;
 }
 
@@ -2162,7 +2165,7 @@ STATUS GldExec::exec_start(void)
 	mls_init();
 
 	/* perform object initialization */
-	if (init_all() == FAILED)
+	if ( init_all() == FAILED )
 	{
 		output_error("model initialization failed");
 		/* TROUBLESHOOT
@@ -2174,7 +2177,7 @@ STATUS GldExec::exec_start(void)
 	}
 
 	/* establish rank index if necessary */
-	if (ranks == NULL && setup_ranks() == FAILED)
+	if ( ranks == NULL && setup_ranks() == FAILED )
 	{
 		output_error("ranks setup failed");
 		/* TROUBLESHOOT
@@ -2190,27 +2193,33 @@ STATUS GldExec::exec_start(void)
 	}
 
 	/* run checks */
-	if (global_runchecks)
+	if ( global_runchecks )
+	{
 		return module_checkall() > 0 ? SUCCESS : FAILED ;
+	}
 
 	/* compile only check */
-	if (global_compileonly)
+	if ( global_compileonly )
+	{
 		return SUCCESS;
+	}
 
 	/* enable non-determinism check, if any */
-	if (global_randomseed!=0 && global_threadcount>1)
+	if ( global_randomseed != 0 && global_threadcount > 1 )
+	{
 		global_nondeterminism_warning = 1;
+	}
 
-	if (!global_debug_mode)
+	if ( ! global_debug_mode )
 	{
 		/* schedule progress report event */
-		if (global_show_progress)
+		if ( global_show_progress )
 		{
 			realtime_schedule_event(realtime_now()+1,show_progress);
 		}
 
 		/* set thread count equal to processor count if not passed on command-line */
-		if (global_threadcount == 0)
+		if ( global_threadcount == 0 )
 		{
 			global_threadcount = processor_count();
 			IN_MYCONTEXT output_verbose("using %d helper thread(s)", global_threadcount);
@@ -2222,7 +2231,8 @@ STATUS GldExec::exec_start(void)
 		/* allocate thread synchronization data */
 		init_thread_data();
 		struct thread_data * thread_data = get_thread_data();
-		if (!thread_data) {
+		if ( ! thread_data ) 
+		{
 			output_error("thread memory allocation failed");
 			/* TROUBLESHOOT
 				A thread memory allocation failed.  
@@ -2232,8 +2242,10 @@ STATUS GldExec::exec_start(void)
 		}
 		thread_data->count = global_threadcount;
 		thread_data->data = (struct sync_data *) (thread_data + 1);
-		for (j = 0; j < thread_data->count; j++) 
+		for ( j = 0 ; j < thread_data->count ; j++ )
+		{ 
 			thread_data->data[j].status = SUCCESS;
+		}
 	}
 	else
 	{
@@ -2249,7 +2261,7 @@ STATUS GldExec::exec_start(void)
 	}
 
 	/* realtime startup */
-	if (global_run_realtime>0)
+	if ( global_run_realtime > 0 )
 	{
 		char buffer[64];
 		time_t gtime;
@@ -2257,11 +2269,13 @@ STATUS GldExec::exec_start(void)
 		global_clock = gtime;
 		IN_MYCONTEXT output_verbose("realtime mode requires using now (%s) as starttime", convert_from_timestamp(global_clock,buffer,sizeof(buffer))>0?buffer:"invalid time");
 		if ( global_stoptime<global_clock )
+		{
 			global_stoptime = TS_NEVER;
+		}
 	}
 
 	/*** GET FIRST SIGNAL FROM MASTER HERE ****/
-	if (global_multirun_mode == MRM_SLAVE)
+	if ( global_multirun_mode == MRM_SLAVE )
 	{
 		pthread_cond_broadcast(&mls_inst_signal); // tell slaveproc() it's time to get rolling
 		IN_MYCONTEXT output_debug("GldExec::start(), slave waiting for first time signal");
@@ -2278,8 +2292,10 @@ STATUS GldExec::exec_start(void)
 	/* reset sync event */
 	sync_reset(NULL);
 	sync_set(NULL,global_clock,false);
-	if ( global_stoptime<TS_NEVER )
+	if ( global_stoptime < TS_NEVER )
+	{
 		sync_set(NULL,global_stoptime+1,false);
+	}
 
 	/* signal handler */
 	signal(SIGABRT, exec_sighandler);
@@ -2287,7 +2303,7 @@ STATUS GldExec::exec_start(void)
 	signal(SIGTERM, exec_sighandler);
 
 	/* initialize delta mode */
-	if ( !delta_init() )
+	if ( ! delta_init() )
 	{
 		output_error("delta mode initialization failed");
 		/* TROUBLESHOOT
@@ -2299,15 +2315,17 @@ STATUS GldExec::exec_start(void)
 	// count how many object rank list in one iteration
 	nObjRankList = 0;
 	/* scan the ranks of objects */
-	for (pass = 0; ranks[pass] != NULL; pass++)
+	for ( pass = 0 ; ranks[pass] != NULL ; pass++ )
 	{
 		int i;
 		/* process object in order of rank using index */
-		for (i = PASSINIT(pass); PASSCMP(i, pass); i += PASSINC(pass))
+		for ( i = PASSINIT(pass) ; PASSCMP(i, pass) ; i += PASSINC(pass) )
 		{
 			/* skip empty lists */
-			if (ranks[pass]->ordinal[i] == NULL) 
+			if (ranks[pass]->ordinal[i] == NULL)
+			{
 				continue;
+			}
 			nObjRankList++; // count how many object rank list in one iteration
 		}
 	}
@@ -2328,14 +2346,18 @@ STATUS GldExec::exec_start(void)
 	create_lockdata(nObjRankList);
 
 	// global test mode
-	if ( global_test_mode==TRUE )
+	if ( global_test_mode == TRUE )
+	{
 		return test_exec();
+	}
 
 	/* check for a model */
-	if (object_get_count()==0)
+	if ( object_get_count() == 0 )
+	{
 
 		/* no object -> nothing to do */
 		return SUCCESS;
+	}
 
 	//sjin: GetMachineCycleCount
 	cstart = (clock_t)clock();
@@ -2361,23 +2383,27 @@ STATUS GldExec::exec_start(void)
 
 			/* main loop control */
 			if ( global_clock>=global_mainlooppauseat && global_mainlooppauseat<TS_NEVER )
+			{
 				mls_suspend();
+			}
 
 			rlock_sync();
 			do_checkpoint();
 			runlock_sync();
 
 			/* realtime control of global clock */
-			if (global_run_realtime==0 && global_clock >= global_enter_realtime)
+			if ( global_run_realtime == 0 && global_clock >= global_enter_realtime )
+			{
 				global_run_realtime = 1;
+			}
 
-			if (global_run_realtime>0 && iteration_counter>0)
+			if ( global_run_realtime > 0 && iteration_counter > 0 )
 			{
 				double metric=0;
 #ifdef WIN32
 				struct timeb tv;
 				ftime(&tv);
-				if (1000-tv.millitm >= 0)
+				if ( 1000-tv.millitm >= 0 )
 				{
 					IN_MYCONTEXT output_verbose("waiting %d msec", 1000-tv.millitm);
 					Sleep(1000-tv.millitm );
@@ -2388,14 +2414,16 @@ STATUS GldExec::exec_start(void)
 #else
 				struct timeval tv;
 				gettimeofday(&tv, NULL);
-				if (1000000-tv.tv_usec >= 0)
+				if ( 1000000-tv.tv_usec >= 0 )
 				{
 					IN_MYCONTEXT output_verbose("waiting %d usec", 1000000-tv.tv_usec);
 					usleep(1000000-tv.tv_usec);
 					metric = (1000000-tv.tv_usec)/1000000.0;
 				}
 				else
+				{
 					output_error("simulation failed to keep up with real time");
+				}
 #endif
 				wlock_sync();
 				global_clock += global_run_realtime;
@@ -2421,7 +2449,8 @@ STATUS GldExec::exec_start(void)
 			DT delta_dt = delta_modedesired(&flags);
 			TIMESTAMP t = TS_NEVER;
 			IN_MYCONTEXT output_debug("delta_dt is %d", (int)delta_dt);
-			switch ( delta_dt ) {
+			switch ( delta_dt ) 
+			{
 			case DT_INFINITY: /* no dt -> event mode */
 				global_simulation_mode = SM_EVENT;
 				t = TS_NEVER;
@@ -2440,7 +2469,7 @@ STATUS GldExec::exec_start(void)
 				}
 				else
 				{
-					if (delta_dt==0)	/* Delta mode now */
+					if ( delta_dt == 0 )	/* Delta mode now */
 					{
 						global_simulation_mode = SM_DELTA;
 						t = global_clock;
@@ -2475,12 +2504,14 @@ STATUS GldExec::exec_start(void)
 			sync_reset(NULL);
 
 			/* account for stoptime only if global clock is not already at stoptime */
-			if ( global_clock<=global_stoptime && global_stoptime!=TS_NEVER )
+			if ( global_clock <= global_stoptime && global_stoptime != TS_NEVER )
+			{
 				sync_set(NULL,global_stoptime+1,false);
+			}
 
 			/* synchronize all internal schedules */
 			internal_synctime = syncall_internals(global_clock);
-			if( internal_synctime!=TS_NEVER && absolute_timestamp(internal_synctime)<global_clock )
+			if ( internal_synctime != TS_NEVER && absolute_timestamp(internal_synctime) < global_clock )
 			{
 				// must be able to force reiterations for m/s mode.
 				throw("internal property sync failure");
@@ -2493,26 +2524,27 @@ STATUS GldExec::exec_start(void)
 			sync_set(NULL,internal_synctime,false);
 
 			/* prepare multithreading */
-			if (!global_debug_mode)
+			if ( ! global_debug_mode )
 			{
 				struct thread_data * thread_data = get_thread_data();
-				for (j = 0; j < thread_data->count; j++) {
+				for ( j = 0 ; j < thread_data->count ; j++ ) 
+				{
 					thread_data->data[j].hard_event = 0;
 					thread_data->data[j].step_to = TS_NEVER;
 				}
 			}
 
 			/* run precommit only on first iteration */
-			if (iteration_counter == global_iteration_limit)
+			if ( iteration_counter == global_iteration_limit )
 			{
 				/* run commit scripts, if any */
-				if ( sync_get(NULL)!=global_clock && run_precommitscripts()!=XC_SUCCESS )
+				if ( sync_get(NULL) != global_clock && run_precommitscripts() != XC_SUCCESS )
 				{
 					throw("script precommit failure");
 				}
 			
 				pc_rv = precommit_all(global_clock);
-				if(SUCCESS != pc_rv)
+				if ( SUCCESS != pc_rv )
 				{
 					throw("precommit failure");
 				}
@@ -2520,7 +2552,7 @@ STATUS GldExec::exec_start(void)
 			iObjRankList = -1;
 
 			/* scan the ranks of objects for each pass */
-			for (pass = 0; ranks[pass] != NULL; pass++)
+			for ( pass = 0 ; ranks[pass] != NULL; pass++ )
 			{
 				int i;
 
@@ -2545,22 +2577,24 @@ STATUS GldExec::exec_start(void)
 				}
 
 				/* process object in order of rank using index */
-				for (i = PASSINIT(pass); PASSCMP(i, pass); i += PASSINC(pass))
+				for ( i = PASSINIT(pass) ; PASSCMP(i, pass) ; i += PASSINC(pass) )
 				{
 					/* skip empty lists */
 					if (ranks[pass]->ordinal[i] == NULL) 
+					{
 						continue;
+					}
 
 					iObjRankList ++;
 
-					if (global_debug_mode)
+					if ( global_debug_mode )
 					{
 						LISTITEM *item;
-						for (item=ranks[pass]->ordinal[i]->first; item!=NULL; item=item->next)
+						for ( item=ranks[pass]->ordinal[i]->first ; item!=NULL ; item=item->next )
 						{
 							OBJECT *obj = (OBJECT*)(item->data);
 							// @todo change debug so it uses sync API
-							if (exec_debug(&main_sync,passtype[pass],i,obj)==FAILED)
+							if ( exec_debug(&main_sync,passtype[pass],i,obj) == FAILED )
 							{
 								throw("debugger quit");
 							}
@@ -2569,9 +2603,10 @@ STATUS GldExec::exec_start(void)
 					else
 					{
 						//sjin: if global_threadcount == 1, no pthread multhreading
-						if (global_threadcount == 1) 
+						if ( global_threadcount == 1 ) 
 						{
-							for (ptr = ranks[pass]->ordinal[i]->first; ptr != NULL; ptr=ptr->next) {
+							for ( ptr = ranks[pass]->ordinal[i]->first ; ptr != NULL ; ptr=ptr->next ) 
+							{
 								OBJECT *obj = (OBJECT*)(ptr->data);
 								ss_do_object_sync(0, ptr->data);					
 								
@@ -2585,13 +2620,15 @@ STATUS GldExec::exec_start(void)
 							//printf("\n");
 						} 
 						else 
-						{ //sjin: implement pthreads
+						{ 
+							//sjin: implement pthreads
 							unsigned int n_items,objn=0,n;
 							unsigned int n_obj = ranks[pass]->ordinal[i]->size;
 
 							// Only create threadpool for each object rank list at the first iteration. 
 							// Reuse the threadppol of each object rank list at all other iterations.
-							if (setTP == true) { 
+							if ( setTP == true ) 
+							{ 
 								incr = (int)ceil((float) n_obj / global_threadcount);
 								// if the number of objects is less than or equal to the number of threads, each thread process one object 
 								if (incr <= 1) {
@@ -2599,7 +2636,9 @@ STATUS GldExec::exec_start(void)
 									n_items = 1;
 								// if the number of objects is greater than the number of threads, each thread process the same number of 
 								// objects (incr), except that the last thread may process less objects 
-								} else {
+								} 
+								else 
+								{
 									n_threads[iObjRankList] = (int)ceil((float) n_obj / incr);
 									n_items = incr;
 								}
@@ -2612,27 +2651,34 @@ STATUS GldExec::exec_start(void)
 								thread = (OBJSYNCDATA*)malloc(sizeof(OBJSYNCDATA)*n_threads[iObjRankList]);
 								memset(thread,0,sizeof(OBJSYNCDATA)*n_threads[iObjRankList]);
 								// assign starting obj for each thread
-								for (ptr=ranks[pass]->ordinal[i]->first;ptr!=NULL;ptr=ptr->next)
+								for ( ptr = ranks[pass]->ordinal[i]->first ; ptr != NULL ; ptr = ptr->next )
 								{
 									if (thread[objn].nObj==n_items)
+									{
 										objn++;
-									if (thread[objn].nObj==0) {
+									}
+									if (thread[objn].nObj==0) 
+									{
 										thread[objn].ls=ptr;
 									}
 									thread[objn].nObj++;
 								}
 								// create threads
-								for (n=0; n<n_threads[iObjRankList]; n++) {
+								for ( n=0 ; n < n_threads[iObjRankList] ; n++ ) 
+								{
 									thread[n].ok = true;
 									thread[n].i = iObjRankList;
 									thread[n].main = &instance;
-									if (pthread_create(&(thread[n].pt),NULL,exec_obj_syncproc,&(thread[n]))!=0) {
+									if ( pthread_create(&(thread[n].pt),NULL,exec_obj_syncproc,&(thread[n])) != 0 ) 
+									{
 										output_fatal("obj_sync thread creation failed");
 										thread[n].ok = false;
-									} else
+									} 
+									else
+									{
 										thread[n].n = n;
+									}
 								}
-
 							}
 														
 							// lock access to done count
@@ -2660,8 +2706,9 @@ STATUS GldExec::exec_start(void)
 						}
 
 						struct thread_data * thread_data = get_thread_data();
-						for (j = 0; j < thread_data->count; j++) {
-							if (thread_data->data[j].status == FAILED) 
+						for ( j = 0 ; j < thread_data->count ; j++ ) 
+						{
+							if ( thread_data->data[j].status == FAILED ) 
 							{
 								sync_set(NULL,TS_INVALID,false);
 								throw("synchronization failed");
@@ -2682,17 +2729,15 @@ STATUS GldExec::exec_start(void)
 				}
 
 				/* run all non-schedule transforms */
-				{
-					TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_ALL&(~(XS_SCHEDULE|XS_LOADSHAPE))));
-					sync_set(NULL,st,false);
-				}
+				TIMESTAMP st = transform_syncall(global_clock,(TRANSFORMSOURCE)(XS_ALL&(~(XS_SCHEDULE|XS_LOADSHAPE))));
+				sync_set(NULL,st,false);
 			}
 			setTP = false;
 
-			if (!global_debug_mode)
+			if ( !global_debug_mode )
 			{
 				struct thread_data * thread_data = get_thread_data();
-				for (j = 0; j < thread_data->count; j++) 
+				for ( j = 0 ; j < thread_data->count ; j++ ) 
 				{
 					sync_merge(NULL,&thread_data->data[j]);
 				}
@@ -2705,7 +2750,7 @@ STATUS GldExec::exec_start(void)
 			passes++;
 
 			/**** LOOPED SLAVE PAUSE HERE ****/
-			if(global_multirun_mode == MRM_SLAVE)
+			if ( global_multirun_mode == MRM_SLAVE )
 			{
 				IN_MYCONTEXT output_debug("step_to = %lli", sync_get(NULL));
 				IN_MYCONTEXT output_debug("GldExec::start(), slave waiting for looped time signal");
@@ -2720,19 +2765,19 @@ STATUS GldExec::exec_start(void)
 			}
 
 			/* run sync scripts, if any */
-			if ( run_syncscripts()!=XC_SUCCESS )
+			if ( run_syncscripts() != XC_SUCCESS )
 			{
 				throw("script synchronization failure");
 			}
 
 
 			/* check for clock advance (indicating last pass) */
-			if ( sync_get(NULL)!=global_clock )
+			if ( sync_get(NULL) != global_clock )
 			{
 				OBJECT *obj;
 				TIMESTAMP commit_time = TS_NEVER;
 				commit_time = commit_all(global_clock, sync_get(NULL));
-				if ( absolute_timestamp(commit_time) <= global_clock)
+				if ( absolute_timestamp(commit_time) <= global_clock )
 				{
 					// commit cannot force reiterations, and any event where the time is less than the global clock
 					//  indicates that the object is reporting a failure
@@ -2742,7 +2787,8 @@ STATUS GldExec::exec_start(void)
 						by a more detailed message that explains why it failed.  Follow
 						the guidance for that message and try again.
 					 */
-				} else if( absolute_timestamp(commit_time) < sync_get(NULL) )
+				} 
+				else if ( absolute_timestamp(commit_time) < sync_get(NULL) )
 				{
 					sync_set(NULL,commit_time,false);
 				}
@@ -2759,7 +2805,7 @@ STATUS GldExec::exec_start(void)
 			}
 
 			/* check iteration limit */
-			else if (--iteration_counter == 0)
+			else if ( --iteration_counter == 0 )
 			{
 				sync_set(NULL,TS_INVALID,false);
 				throwf("convergence iteration limit reached at %s (exec)", simtime());
@@ -2772,7 +2818,7 @@ STATUS GldExec::exec_start(void)
 			}
 
 			/* run commit scripts, if any */
-			if ( sync_get(NULL)!=global_clock && run_commitscripts()!=XC_SUCCESS )
+			if ( sync_get(NULL) != global_clock && run_commitscripts() != XC_SUCCESS )
 			{
 				throw("commit script(s) failed");
 			}
@@ -2781,7 +2827,7 @@ STATUS GldExec::exec_start(void)
 			run_dump();
 			
 			/* handle delta mode operation */
-			if ( global_simulation_mode==SM_DELTA && sync_get(NULL)>=global_clock )
+			if ( global_simulation_mode == SM_DELTA && sync_get(NULL) >= global_clock )
 			{
 				DT deltatime = delta_update();
 				if ( deltatime==DT_INVALID )
@@ -2800,9 +2846,17 @@ STATUS GldExec::exec_start(void)
 			}
 
 			/* clock update is the very last chance to change the next time */
-			if(sync_get(NULL) != global_clock){
+			if ( sync_get(NULL) != global_clock )
+			{
 				clock_update_modules();
 			}
+
+			// initialize only stops here
+			if ( global_initializeonly )
+			{
+				break;
+			}
+
 		} // end of while loop
 
 		/* disable signal handler */
@@ -2814,7 +2868,6 @@ STATUS GldExec::exec_start(void)
 			char buffer[64];
 			IN_MYCONTEXT output_verbose("simulation at steady state at %s", convert_from_timestamp(global_clock,buffer,sizeof(buffer))?buffer:"invalid time");
 		}
-
 	}
 	catch (const char *msg)
 	{
@@ -2852,14 +2905,6 @@ STATUS GldExec::exec_start(void)
 		output_error("term script(s) failed");
 	}
 
-	/* deallocate threadpool */
-	if (!global_debug_mode)
-	{
-		struct thread_data * thread_data = get_thread_data();
-		free(thread_data);
-		thread_data = NULL;
-	}
-
 	/* run term calls, if any */
 	int rc = run_termcalls(global_clock);
 	if ( rc < 0 )
@@ -2868,7 +2913,8 @@ STATUS GldExec::exec_start(void)
 	}
 
 	// Destroy mutex and cond
-	for(k=0;k<nObjRankList;k++) {
+	for ( k = 0 ; k < nObjRankList ; k++ ) 
+	{
 		pthread_mutex_destroy(&startlock[k]);
 		pthread_mutex_destroy(&donelock[k]);
 		pthread_cond_destroy(&start[k]);
@@ -2876,7 +2922,7 @@ STATUS GldExec::exec_start(void)
 	}
 
 	/* report performance */
-	if (global_profiler && !sync_isinvalid(NULL) )
+	if ( global_profiler && ! sync_isinvalid(NULL) )
 	{
 		double elapsed_sim = timestamp_to_hours(global_clock)-timestamp_to_hours(global_starttime);
 		double elapsed_wall = (double)(realtime_now()-started_at+1);
@@ -2957,7 +3003,10 @@ STATUS GldExec::exec_start(void)
 	}
 
 	/* terminate links */
-	if ( thread ) free(thread);
+	if ( thread ) 
+	{
+		free(thread);
+	}
 	return sync_getstatus(NULL);
 }
 
@@ -3535,7 +3584,7 @@ EXITCODE GldExec::run_scripts(SIMPLELIST *list)
 		if ( sscanf(item->data,"%[a-z]:%[^\n]",group,call) == 2 && strcmp(group,"system") != 0 )
 		{
 			// special access
-			if ( strcmp(group,"gridlabd") == 0 )
+			if ( strcmp(group,PACKAGE) == 0 )
 			{
 				EXITCODE rc = run_gridlabd_script(call);
 				if ( rc != XC_SUCCESS )

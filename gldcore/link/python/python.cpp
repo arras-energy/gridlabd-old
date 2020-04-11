@@ -50,6 +50,8 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args);
 static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args);
 static PyObject *gridlabd_pstatus(PyObject *self, PyObject *args);
 
+static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args);
+
 static PyMethodDef module_methods[] = {
     {"title", gridlabd_title, METH_VARARGS, "Get the software title"},
     {"version", gridlabd_version, METH_VARARGS, "Get the software version"},
@@ -88,15 +90,16 @@ static PyMethodDef module_methods[] = {
     {"set_value", gridlabd_set_value, METH_VARARGS, "Set a GridLAB-D object property"},
     // utilities
     {"convert_unit", gridlabd_convert_unit, METH_VARARGS, "Convert units of a float, complex or string"},
+    // callbacks
+    {"add_callback", gridlabd_add_callback, METH_VARARGS, "Add external callback for modules"},
     {"pstatus", gridlabd_pstatus, METH_VARARGS, "Read gridlabd process status"},
-
     {NULL, NULL, 0, NULL}
 };
 
 static struct PyModuleDef gridlabd_module_def = {
     PyModuleDef_HEAD_INIT,
-    "gridlabd",   /* name of module */
-    "Python GridLAB-D simulation", /* module documentation, may be NULL */
+    PACKAGE,   /* name of module */
+    "Python " PACKAGE_NAME " simulation", /* module documentation, may be NULL */
     -1,       /* size of per-interpreter state of the module,
                  or -1 if the module keeps state in global variables. */
     module_methods,
@@ -331,6 +334,10 @@ public:
 ///////////////////////////
 PyMODINIT_FUNC PyInit_gridlabd(void)
 {
+    if ( this_module != NULL )
+    {
+        return this_module;
+    }
     this_module = PyModule_Create(&gridlabd_module_def);
     if ( this_module == NULL )
     {
@@ -382,6 +389,7 @@ static PyObject *gridlabd_exception(const char *format, ...)
 //
 extern "C" char **environ;
 static char **saved_environ = NULL;
+#ifndef MAIN_PYTHON
 static void save_environ(void)
 {
     saved_environ = (char**)malloc(sizeof(char*)*1024);
@@ -399,6 +407,7 @@ static void save_environ(void)
     }
     saved_environ[i] = NULL;
 }
+#endif
 static void restore_environ(void)
 {
     if ( saved_environ )
@@ -408,7 +417,7 @@ static void restore_environ(void)
 }
 
 static int argc = 1;
-static const char *argv[1024] = {"gridlabd"};
+static const char *argv[1024] = {PACKAGE};
 static enum {
     GMS_NEW = 0, // module has been newly loaded 
     GMS_COMMAND, // module has received at least one command
@@ -418,6 +427,7 @@ static enum {
     GMS_SUCCESS, // module has completed successfully
     GMS_CANCELLED, // module simulation was cancelled
 } gridlabd_module_status = GMS_NEW;
+#ifndef MAIN_PYTHON
 static const char *gridlabd_module_status_msg[] = {
     "module is new but not received commands yet", // NEW
     "module has received commands but not started yet", // COMMAND
@@ -427,8 +437,9 @@ static const char *gridlabd_module_status_msg[] = {
     "simulation has completed", // SUCCESS
     "simulation was cancelled", // CANCELLED
 };
-static pthread_t main_thread;
 static int return_code = 0;
+#endif
+static pthread_t main_thread;
 
 static PyObject *gridlabd_reset(PyObject *self, PyObject *args)
 {
@@ -465,14 +476,16 @@ static PyObject *gridlabd_command(PyObject *self, PyObject *args)
 }
 
 extern "C" int main_python(int, const char*[]);
+#ifndef MAIN_PYTHON
 static void *gridlabd_main(void *)
 {
     gridlabd_module_status = GMS_RUNNING;
     return_code = main_python(argc,argv);
     gridlabd_module_status = ( return_code==0 ? GMS_SUCCESS : GMS_FAILED );
-    exec_mls_done();
+    if ( my_instance ) exec_mls_done();
     return (void*)&return_code;
 }
+#endif
 
 //
 // >>> gridlabd.create(blockname,blockdata)
@@ -690,6 +703,9 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     }
     if ( strcmp(command,"thread") == 0 || strcmp(command,"pause") == 0 )
     {
+#ifdef MAIN_PYTHON
+        return NULL;
+#else
         PyEval_InitThreads();
         save_environ();
         exec_mls_create();
@@ -718,12 +734,17 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
         {
             return PyLong_FromLong(0);
         }
+#endif
     }
     else if ( strcmp(command, "wait") == 0 )
     {
+#ifdef MAIN_PYTHON
+        return NULL;
+#else
         int code = *(int*)gridlabd_main(NULL);
         output_debug("gridlabd_main(NULL) returned code %d",code);
         return PyErr_Occurred() ? NULL : PyLong_FromLong((long)code);
+#endif
     }
     else
     {
@@ -1552,6 +1573,31 @@ static PyObject *gridlabd_convert_unit(PyObject *self, PyObject *args)
 }
 
 //
+// >>> gridlabd.add_callback(name,object)
+//
+// Returns: float or complex
+//
+int external_callback(void *data,void *args)
+{
+    return -1;
+}
+static PyObject *gridlabd_add_callback(PyObject *self, PyObject *args)
+{
+    const char *name;
+    PyObject *call;
+    restore_environ();
+    if ( ! PyArg_ParseTuple(args,"sO", &name, &call) )
+    {
+        return gridlabd_exception("invalid arguments");
+    }
+    if ( ! PyCallable_Check(call) )
+    {
+        return gridlabd_exception("arg 2 is not callable");
+    }
+    return Py_BuildValue("i",module_add_external_callback(name,external_callback,call));
+}
+
+//
 // >>> gridlabd.pstatus(id)
 //
 static PyObject *getinfo(int id, PROCINFO &info)
@@ -2116,7 +2162,7 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
     python_module.on_term = GET_CALLBACK(term);
 
     PyList_Append(modlist,mod);
-    PyModule_AddObject(mod,"gridlabd",this_module);
+    PyModule_AddObject(mod,PACKAGE,this_module);
 
     return &python_module;
 }

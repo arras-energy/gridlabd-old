@@ -168,15 +168,20 @@ DEPRECATED static KEYWORD gso_keys[] = {
 	{"ORIGINAL",	GSO_ORIGINAL,	NULL},
 };
 DEPRECATED static KEYWORD fso_keys[] = {
-	{"ALL",			FSO_ALL,		fso_keys+1},
-	{"MODULES",		FSO_MODULES,	fso_keys+2},
-	{"PROPERTIES",	FSO_PROPERTIES,	fso_keys+3},
-	{"CLASSES",		FSO_CLASSES,	fso_keys+4},
-	{"GLOBALS",		FSO_GLOBALS,	fso_keys+5},
-	{"OBJECTS",		FSO_OBJECTS,	fso_keys+6},
-	{"SCHEDULES",	FSO_SCHEDULES,	fso_keys+7},
-	{"FILTERS",		FSO_FILTERS,	fso_keys+8},
-	{"SCRIPTS",		FSO_FILTERS,	NULL},
+	{"ALLINITIAL",	FSO_ALLINITIAL,	fso_keys+1},
+	{"ALLMINIMAL",	FSO_ALLMINIMAL,	fso_keys+2},
+	{"ALL",			FSO_ALL,		fso_keys+3},
+	{"MODULES",		FSO_MODULES,	fso_keys+4},
+	{"PROPERTIES",	FSO_PROPERTIES,	fso_keys+5},
+	{"CLASSES",		FSO_CLASSES,	fso_keys+6},
+	{"GLOBALS",		FSO_GLOBALS,	fso_keys+7},
+	{"OBJECTS",		FSO_OBJECTS,	fso_keys+8},
+	{"SCHEDULES",	FSO_SCHEDULES,	fso_keys+9},
+	{"FILTERS",		FSO_FILTERS,	fso_keys+10},
+	{"SCRIPTS",		FSO_SCRIPTS,	fso_keys+11},
+	{"CLOCK",		FSO_CLOCK,		fso_keys+12},
+	{"INITIAL",     FSO_INITIAL,    fso_keys+13},
+	{"MINIMAL",		FSO_MINIMAL,	NULL},
 };
 
 DEPRECATED static struct s_varmap {
@@ -194,6 +199,7 @@ DEPRECATED static struct s_varmap {
 	{"version.patch", PT_int32, &global_version_patch, PA_REFERENCE, "patch number"},
 	{"version.build", PT_int32, &global_version_build, PA_REFERENCE, "build number"},
 	{"version.branch", PT_char256, &global_version_branch, PA_REFERENCE, "branch name"},
+	{"version",	PT_char1024, &global_version, PA_REFERENCE, "full version information"},
 	{"command_line", PT_char1024, &global_command_line, PA_REFERENCE, "command line"},
 	{"environment", PT_char1024, &global_environment, PA_PUBLIC, "operating environment"},
 	{"quiet", PT_bool, &global_quiet_mode, PA_PUBLIC, "quiet output status flag"},
@@ -229,8 +235,8 @@ DEPRECATED static struct s_varmap {
 	{"strictnames", PT_bool, &global_strictnames, PA_PUBLIC, "strict global name enable flag"},
 	{"website", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string (deprecated)"}, /** @todo deprecate use of 'website' */
 	{"urlbase", PT_char1024, &global_urlbase, PA_PUBLIC, "url base string"},
-	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*))random_init},
 	{"randomstate", PT_int32, &global_randomstate, PA_PUBLIC, "random number generator state value", NULL,(void(*)(const char*))random_init},
+	{"randomseed", PT_int32, &global_randomseed, PA_PUBLIC, "random number generator seed value", NULL,(void(*)(const char*))random_init},
 	{"include", PT_char1024, &global_include, PA_REFERENCE, "include folder path"},
 	{"trace", PT_char1024, &global_trace, PA_PUBLIC, "trace function list"},
 	{"gdb_window", PT_bool, &global_gdb_window, PA_PUBLIC, "gdb window enable flag"},
@@ -321,6 +327,7 @@ DEPRECATED static struct s_varmap {
 	{"glm_save_options", PT_set, &global_glm_save_options, PA_PUBLIC, "options to control GLM file save format", gso_keys},
 	{"filesave_options", PT_set, &global_filesave_options, PA_PUBLIC, "control elements saved on output", fso_keys},
 	{"ignore_errors", PT_bool, &global_ignore_errors, PA_PUBLIC, "disable exit on error behavior"},
+	{"keep_progress", PT_bool, &global_keep_progress, PA_PUBLIC, "keep each progress line"},
 	{"allow_variant_aggregates", PT_bool, &global_allow_variant_aggregates, PA_PUBLIC, "permits aggregates to include time-varying criteria"},
 	/* add new global variables here */
 };
@@ -361,7 +368,7 @@ DEPRECATED static void buildtmp(void)
 	if (!(tmp = getenv("TMP")) && !(tmp = getenv("TEMP")))
 		tmp = TMP;
 	user = getenv(USERVAR);
-	snprintf(global_tmp, sizeof(global_tmp), "%s%s%s" PATHSEP "gridlabd",
+	snprintf(global_tmp, sizeof(global_tmp), "%s%s%s" PATHSEP PACKAGE,
 			tmp, (user ? PATHSEP : ""), (user ? user : ""));
 }
 
@@ -379,6 +386,11 @@ STATUS GldGlobals::init(void)
 	global_version_patch = version_patch();
 	global_version_build = version_build();
 	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch));
+	strcpy(global_datadir,global_execdir);
+	char *bin = strstr(global_datadir,"/bin");
+	if ( bin ) *bin = '\0';
+	strcat(global_datadir,"/share/gridlabd");
+	sprintf(global_version,"%d.%d.%d-%d-%s",global_version_major,global_version_minor,global_version_patch,global_version_build,global_version_branch);
 
 	for (i = 0; i < sizeof(map) / sizeof(map[0]); i++){
 		struct s_varmap *p = &(map[i]);
@@ -690,30 +702,30 @@ STATUS GldGlobals::setvar(const char *def, ...) /**< the definition */
 }
 STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 {
-	char name[65]="", value[1024]="";
-	if (sscanf(def,"%[^=]=%[^\r\n]",name,value)<2)
+	char name[65]="", sep[32]="", value[1024]="";
+	if ( sscanf(def,"%64[^ \t=]%31[ \t=]%1023[^\r\n]",name,sep,value) < 3 )
 	{
 		char *v;
 		v = va_arg(ptr,char*);
-		if (v!=NULL) 
+		if ( v != NULL ) 
 		{
 			strncpy(value,v,sizeof(value));
 			if (strcmp(value,v)!=0)
-				output_error("global_setvar(char *name='%s',...): value is too long to store");
+				output_error("GldGlobals::setvar_v(const char *def='%s',...): va_list value is too long to store",def);
 				/* TROUBLESHOOT
 					An attempt to set a global variable failed because the value of the variable
 					was too long.
 				 */
 		}
 	}
-	if (strcmp(name,"")!=0) /* something was defined */
+	if ( strcmp(name,"") != 0 ) /* something was defined */
 	{
 		GLOBALVAR *var = global_find(name);
 		DEPRECATED static LOCKVAR globalvar_lock = 0; // TODO: this is non-reentrant
 		int retval;
-		if (var==NULL)
+		if ( var == NULL )
 		{
-			if (global_strictnames)
+			if ( global_strictnames )
 			{
 				output_error("strict naming prevents implicit creation of %s", name);
 				/* TROUBLESHOOT
@@ -740,8 +752,9 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		wlock(&globalvar_lock);
 		retval = class_string_to_property(var->prop,(void*)var->prop->addr,value);
 		wunlock(&globalvar_lock);
-		if (retval==0){
-			output_error("global_setvar(): unable to set %s to %s",name,value);
+		if ( retval < 0 )
+		{
+			output_error("GldGlobals::setvar_v(const char *def='%s',...): unable to set %s %s %s",def,name,sep,value);
 			/* TROUBLESHOOT
 				The input value was not convertable into the desired type for the input
 				variable.  Check the input range, review the input file, and adjust
@@ -749,8 +762,10 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 			 */
 			return FAILED;
 		}
-		else if (var->callback) 
+		else if ( var->callback ) 
+		{
 			var->callback(var->prop->name);
+		}
 
 		return SUCCESS;
 	}
@@ -766,7 +781,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 }
 
 DEPRECATED static int guid_first=1;
-DEPRECATED char *global_guid(char *buffer, int size)
+DEPRECATED const char *global_guid(char *buffer, int size)
 {
 	if ( size>36 )
 	{
@@ -785,7 +800,7 @@ DEPRECATED char *global_guid(char *buffer, int size)
 		return NULL;
 	}
 }
-DEPRECATED char *global_run(char *buffer, int size)
+DEPRECATED const char *global_run(char *buffer, int size)
 {
 	DEPRECATED static char value[37]="";
 	if ( value[0]=='\0' )
@@ -798,7 +813,7 @@ DEPRECATED char *global_run(char *buffer, int size)
 	else
 		return NULL;
 }
-DEPRECATED char *global_now(char *buffer, int size)
+DEPRECATED const char *global_now(char *buffer, int size)
 {
 	if ( size>32 )
 	{
@@ -813,7 +828,7 @@ DEPRECATED char *global_now(char *buffer, int size)
 		return NULL;
 	}
 }
-DEPRECATED char *global_today(char *buffer, int size)
+DEPRECATED const char *global_today(char *buffer, int size)
 {
 	if ( size>32 )
 	{
@@ -828,7 +843,7 @@ DEPRECATED char *global_today(char *buffer, int size)
 		return NULL;
 	}
 }
-DEPRECATED char *global_urand(char *buffer, int size)
+DEPRECATED const char *global_urand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
@@ -842,7 +857,7 @@ DEPRECATED char *global_urand(char *buffer, int size)
 	}
 
 }
-DEPRECATED char *global_nrand(char *buffer, int size)
+DEPRECATED const char *global_nrand(char *buffer, int size)
 {
 	if ( size > 32 )
 	{
@@ -856,7 +871,7 @@ DEPRECATED char *global_nrand(char *buffer, int size)
 	}
 
 }
-DEPRECATED char *global_true(char *buffer, int size)
+DEPRECATED const char *global_true(char *buffer, int size)
 {
 	if ( size>1 )
 		return strcpy(buffer,"1");
@@ -911,6 +926,80 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	{
 		output_error("global_seq(..., char *name='%s'): sequence spec is invalid",name);
 		return NULL;
+	}
+}
+
+DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
+{
+	// TODO: reimplmenent this so it capture stderr also (see GldMain::subcommand)
+	FILE *fp = popen(command, "r");
+	if ( fp == NULL ) 
+	{
+		output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
+		return strcpy(buffer,"");
+	}
+	char line[1024];
+	int pos = 0;
+	strcpy(buffer,"");
+	while ( fgets(line, sizeof(line)-1, fp) != NULL ) 
+	{
+		int len = strlen(line);
+		if ( pos+len >= size )
+		{
+			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): result too large",buffer,size,command);
+			pclose(fp);
+			return strcpy(buffer,"");
+		}
+		strcpy(buffer+pos,line);
+		pos += len;
+		if ( buffer[pos-1] == '\n' )
+			buffer[pos-1] = ' ';
+	}
+	pclose(fp);
+	return buffer;
+}
+
+DEPRECATED const char *global_range(char *buffer, int size, const char *name)
+{
+	double start = 0.0;
+	double stop = 1.0;
+	double step = 1.0;
+	char delim = ' ';
+	sscanf(name,"RANGE%c%lg,%lg,%lg",&delim,&start,&stop,&step);
+	if ( strchr(" ;,",delim) == NULL )
+	{
+		output_error("global_range(buffer=%x,size=%d,name='%s'): delimiter '%s' is not supported, using space",buffer,size,name,delim);
+		delim = ' ';
+	}
+	int len = 0;
+	char temp[size+100];
+	for ( double value = start ; value <= stop ; value += step )
+	{
+		if ( len > 0 )
+			len += sprintf(temp+len,"%c",delim);
+		len += sprintf(temp+len,"%g",value);
+		if ( len > size )
+		{
+			output_error("global_range(buffer=%x,size=%d,name='%s'): buffer too small, range truncated",buffer,size,name);
+			len = size-1;
+			break;
+		}
+	}
+	return strncpy(buffer,temp,len+1);
+}
+
+DEPRECATED const char *global_python(char *buffer, int size, const char *command)
+{
+	std::string result = python_eval(command);
+	if ( (int)result.size() >= size )
+	{
+		output_error("global_python(buffer=0x%x,int size=%d, command='%s'): result too big for buffer", buffer, size, command);
+		strcpy(buffer,"");
+		return buffer;
+	}
+	else
+	{
+		return strcpy(buffer,result.c_str());
 	}
 }
 
@@ -1125,6 +1214,35 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	return 0;
 }
 
+DEPRECATED const char *global_object_last(char *buffer, int size)
+{
+	OBJECT *obj = object_get_last();
+	if ( obj->name )
+	{
+		return snprintf(buffer,size,"%s",obj->name) < size ? buffer : NULL;
+	}
+	else
+	{
+		return snprintf(buffer,size,"%s:%d",obj->oclass->name,obj->id) < size ? buffer : NULL;
+	}
+}
+
+DEPRECATED const char *global_object_find(char *buffer, int size, const char *spec)
+{
+	// TODO
+	return NULL;
+}
+
+DEPRECATED const char *global_object(const char *type, const char *arg, char *buffer, size_t size)
+{
+	if ( strcmp(type,"last") == 0 )
+		return global_object_last(buffer,size);
+	else if ( strcmp(type,"find") == 0 )
+		return global_object_find(buffer,size,arg);
+	else
+		return NULL;
+}
+
 /** Get the value of a global variable in a safer fashion
 	@return a \e char * pointer to the buffer holding the buffer where we wrote the data,
 		\p NULL if insufficient buffer space or if the \p name was not found.
@@ -1138,7 +1256,7 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	GLOBALVAR *var = NULL;
 	struct {
 		const char *name;
-		char *(*call)(char *buffer,int size);
+		const char *(*call)(char *buffer,int size);
 	} map[] = {
 		{"GUID",global_guid},
 		{"NOW",global_now},
@@ -1160,6 +1278,9 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 #ifdef HAVE_MYSQL
 		//Used specifically to run MYSQL integration autotests
 		{"MYSQL",global_true},
+#endif
+#ifdef HAVE_PYTHON
+		{"PYTHON",global_true},
 #endif
 	};
 	size_t i;	
@@ -1184,12 +1305,42 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	}
 
 	/* sequences */
-	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':')!=NULL )
+	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':') != NULL )
 		return global_seq(buffer,size,name);
 
 	/* expansions */
 	if ( parameter_expansion(buffer,size,name) )
 		return buffer;
+
+	// shells
+	if ( strncmp(name,"SHELL ",6) == 0 )
+		return global_shell(buffer,size,name+6);
+
+	// ranges
+	if ( strncmp(name,"RANGE",5) == 0 && strchr(" ;,",name[5]) != NULL )
+		return global_range(buffer,size,name);
+
+	// python call
+	if ( strncmp(name,"PYTHON ",7) == 0 )
+		return global_python(buffer,size,name+7);
+
+	// object calls
+	struct {
+		const char *name;
+		const char *(*call)(const char *type, const char *arg, char *buffer, size_t size);
+	} cmap[] = 
+	{
+		{"object", global_object},
+	};
+	char p1[64], p2[64], p3[1024]="";
+	if ( sscanf(name,"%[^.].%s %[^\n]",p1,p2,p3) > 1 )
+	{
+		for ( size_t n = 0 ; n < sizeof(cmap)/sizeof(cmap[0]) ; n++ )
+		{
+			if ( strcmp(cmap[n].name,p1) == 0 )
+				return cmap[n].call(p2,p3,buffer,size);
+		}
+	}
 
 	var = global_find(name);
 	if(var == NULL)
@@ -1305,7 +1456,7 @@ size_t GldGlobals::saveall(FILE *fp)
 		if ( strstr(var->prop->name,"::") == NULL
 			&& global_getvar(var->prop->name,buffer,sizeof(buffer)-1) != NULL )
 		{
-			count += fprintf(fp,"#set %s=%s;\n",var->prop->name,buffer);
+			count += fprintf(fp,"#set %s=%s\n",var->prop->name,buffer);
 		}
 	}
 	return count;

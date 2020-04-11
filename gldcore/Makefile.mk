@@ -39,8 +39,6 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/link.cpp gldcore/link.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/list.cpp gldcore/list.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/load.cpp gldcore/load.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/loadshape.cpp gldcore/loadshape.h
-GLD_SOURCES_PLACE_HOLDER += gldcore/load_xml.cpp gldcore/load_xml.h
-GLD_SOURCES_PLACE_HOLDER += gldcore/load_xml_handle.cpp gldcore/load_xml_handle.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/local.cpp gldcore/local.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/lock.cpp gldcore/lock.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/main.cpp gldcore/main.h
@@ -51,6 +49,7 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/object.cpp gldcore/object.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/output.cpp gldcore/output.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/platform.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/property.cpp gldcore/property.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/python_embed.cpp gldcore/python_embed.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/random.cpp gldcore/random.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/realtime.cpp gldcore/realtime.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/sanitize.cpp gldcore/sanitize.h
@@ -67,40 +66,16 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/transform.cpp gldcore/transform.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/unit.cpp gldcore/unit.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/validate.cpp gldcore/validate.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/version.cpp gldcore/version.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/link/python/python.cpp
 
 GLD_SOURCES_EXTRA_PLACE_HOLDER =
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.c gldcore/cmex.h
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/ufile.c gldcore/ufile.h
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
-if HAVE_MINGW
-
-bin_PROGRAMS += gridlabd
-
-gridlabd_CPPFLAGS =
-gridlabd_CPPFLAGS += $(XERCES_CPPFLAGS)
-gridlabd_CPPFLAGS += $(AM_CPPFLAGS)
-
-gridlabd_LDFLAGS =
-gridlabd_LDFLAGS += $(XERCES_LDFLAGS)
-gridlabd_LDFLAGS += $(AM_LDFLAGS)
-
-gridlabd_LDADD =
-gridlabd_LDADD += $(XERCES_LIB)
-gridlabd_LDADD += $(CURSES_LIB)
-gridlabd_LDADD += -ldl
-
-gridlabd_SOURCES =
-gridlabd_SOURCES += $(GLD_SOURCES_PLACE_HOLDER)
-
-EXTRA_gridlabd_SOURCES =
-EXTRA_gridlabd_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
-
-else
-
 bin_PROGRAMS += gridlabd.bin
 
-gridlabd_bin_CPPFLAGS =
+gridlabd_bin_CPPFLAGS = -DMAIN_PYTHON
 gridlabd_bin_CPPFLAGS += $(XERCES_CPPFLAGS)
 gridlabd_bin_CPPFLAGS += $(AM_CPPFLAGS)
 
@@ -119,7 +94,7 @@ gridlabd_bin_SOURCES += $(GLD_SOURCES_PLACE_HOLDER)
 EXTRA_gridlabd_bin_SOURCES =
 EXTRA_gridlabd_bin_SOURCES += $(GLD_SOURCES_EXTRA_PLACE_HOLDER)
 
-endif
+bin_SCRIPTS += gldcore/gridlabd 
 
 GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
 BUILT_SOURCES += gldcore/build.h
@@ -141,11 +116,6 @@ pkginclude_HEADERS += gldcore/schedule.h
 pkginclude_HEADERS += gldcore/test.h
 pkginclude_HEADERS += gldcore/version.h
 
-bin_SCRIPTS += gldcore/gridlabd 
-bin_SCRIPTS += gldcore/gridlabd-weather
-bin_SCRIPTS += gldcore/gridlabd-python
-bin_SCRIPTS += gldcore/gridlabd-library
-
 gridlabddir = $(prefix)/share/gridlabd
 gridlabd_DATA = origin.txt
 
@@ -162,3 +132,8 @@ buildnum: utilities/build_number
 weather:
 	@(echo "Installing weather data manager" && mkdir -p $(prefix)/share/gridlabd/weather && chmod 2777 $(prefix)/share/gridlabd/weather && chmod 1755 $(bindir)/gridlabd-weather)
 	@(echo "Updating weather data index" && export GLD_ETC=$(prefix)/share/gridlabd && $(bindir)/gridlabd-weather fetch_index)
+
+template: # TODO
+
+library: # TODO
+	

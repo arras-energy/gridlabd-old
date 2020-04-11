@@ -72,7 +72,9 @@ ceus::CEUSDATA *ceus::find_file(const char *filename)
 	for ( repo = get_first_file() ; repo != NULL ; repo = get_next_file(repo) ) 
 	{
 		if ( strcmp(filename,repo->filename) == 0 )
+		{
 			return repo;
+		}
 	}
 	return NULL;
 }
@@ -143,7 +145,8 @@ size_t ceus::get_index(TIMESTAMP ts)
 	{
 		dt = gld_clock(ts);
 		unsigned int daytype;
-		switch ( dt.get_weekday() ) {
+		switch ( dt.get_weekday() ) 
+		{
 		case 0:
 			daytype = DT_SUNDAY;
 			break;
@@ -316,13 +319,17 @@ ceus::COMPONENT *ceus::find_component(const char *enduse)
 }
 const char *ceus::get_components(char *buffer, size_t len)
 {
+	if ( initial_components == NULL )
+	{
+		return NULL;
+	}
 	if ( buffer == NULL )
 	{
-		buffer = strdup(initial_components ? initial_components->c_str() : "");
+		buffer = strdup(initial_components!=NULL?initial_components->c_str():"");
 	}
-	else if ( len > 0 && initial_components->length() < len )
+	else if ( len > 0 && initial_components != NULL && initial_components->length() < len )
 	{
-		strcpy(buffer,initial_components ? initial_components->c_str() : "");
+		strcpy(buffer,(initial_components != NULL ? initial_components->c_str() : ""));
 	}
 	else
 	{
@@ -347,14 +354,14 @@ ceus::ceus(MODULE *module)
 
 		defaults = this;
 		if (gl_publish_variable(oclass,
-			PT_double,"floor_area[sf]", get_floor_area_offset(), PT_DESCRIPTION, "building floor area",
-			PT_method,"filename", loadmethod_ceus_filename, PT_DESCRIPTION, "CEUS data file",
-			PT_method,"composition", method_ceus_composition, PT_DESCRIPTION, "load composition specification",
-			PT_double,"total_real_power[W]", get_total_real_power_offset(), PT_DESCRIPTION, "total real power",
-			PT_double,"total_reactive_power[W]", get_total_reactive_power_offset(), PT_DESCRIPTION, "total reactive power",
-			PT_complex,"total_power_A[W]", get_total_power_A_offset(), PT_DESCRIPTION, "total complex power on phase A",
-			PT_complex,"total_power_B[W]", get_total_power_B_offset(), PT_DESCRIPTION, "total complex power on phase B",
-			PT_complex,"total_power_C[W]", get_total_power_C_offset(), PT_DESCRIPTION, "total complex power on phase C",
+			PT_double,"floor_area[sf]", get_floor_area_offset(), PT_REQUIRED, PT_DESCRIPTION, "building floor area",
+			PT_method,"filename", loadmethod_ceus_filename, PT_REQUIRED, PT_DESCRIPTION, "CEUS data file",
+			PT_method,"composition", method_ceus_composition, PT_REQUIRED, PT_DESCRIPTION, "load composition specification",
+			PT_double,"total_real_power[W]", get_total_real_power_offset(), PT_OUTPUT, PT_DESCRIPTION, "total real power",
+			PT_double,"total_reactive_power[W]", get_total_reactive_power_offset(), PT_OUTPUT, PT_DESCRIPTION, "total reactive power",
+			PT_complex,"total_power_A[W]", get_total_power_A_offset(), PT_OUTPUT, PT_DESCRIPTION, "total complex power on phase A",
+			PT_complex,"total_power_B[W]", get_total_power_B_offset(), PT_OUTPUT, PT_DESCRIPTION, "total complex power on phase B",
+			PT_complex,"total_power_C[W]", get_total_power_C_offset(), PT_OUTPUT, PT_DESCRIPTION, "total complex power on phase C",
 			PT_object,"weather",get_weather_offset(), PT_DESCRIPTION, "weather object for temperature and solar gain",
 			PT_object,"tariff",get_tariff_offset(), PT_DESCRIPTION, "tariff object for energy price sensitivity",
 			NULL)<1)
@@ -392,8 +399,6 @@ ceus::ceus(MODULE *module)
 
 int ceus::create(void) 
 {
-
-	memcpy(this,defaults,sizeof(*this));
 	return 1; 
 }
 
@@ -405,10 +410,15 @@ int ceus::init(OBJECT *parent)
 		floor_area = 0.0;
 	}
 	if ( get_parent() == NULL )
+	{
 		warning("parent is not specified -- using default voltages");
-	else {
+	}
+	else 
+	{
 		if ( ! get_parent()->isa("meter") )
+		{
 			warning("parent is not a meter -- using default voltages if necessary");
+		}
 		link_property(voltage_A,get_parent(),"voltage_A");
 		link_property(voltage_B,get_parent(),"voltage_B");
 		link_property(voltage_C,get_parent(),"voltage_C");
@@ -423,10 +433,22 @@ int ceus::init(OBJECT *parent)
 		link_property(shunt_C,get_parent(),"shunt_C");
 		link_property(nominal_voltage,get_parent(),"nominal_voltage");
 	}
-	if ( ! voltage_A ) voltage_A = &default_nominal_voltage_A;
-	if ( ! voltage_B ) voltage_B = &default_nominal_voltage_B;
-	if ( ! voltage_C ) voltage_C = &default_nominal_voltage_C;
-	if ( ! nominal_voltage) nominal_voltage = &default_nominal_voltage;
+	if ( ! voltage_A ) 
+	{
+		voltage_A = &default_nominal_voltage_A;
+	}
+	if ( ! voltage_B ) 
+	{
+		voltage_B = &default_nominal_voltage_B;
+	}
+	if ( ! voltage_C ) 
+	{
+		voltage_C = &default_nominal_voltage_C;
+	}
+	if ( ! nominal_voltage) 
+	{
+		nominal_voltage = &default_nominal_voltage;
+	}
 	if ( weather )
 	{
 		link_property(temperature, weather, temperature_variable_name);
@@ -451,39 +473,52 @@ TIMESTAMP ceus::presync(TIMESTAMP t1)
 {
 	// TODO: this is not ideal, but until node clears the accumulators itself, it has to be done here instead
 	complex P(0,0,J);
-	*power_A = P;
-	*power_B = P;
-	*power_C = P;
+	if ( power_A ) *power_A = P;
+	if ( power_B ) *power_B = P;
+	if ( power_C ) *power_C = P;
 	complex I(0,0,J);
-	*current_A = I;
-	*current_B = I;
-	*current_C = I;
+	if ( current_A ) *current_A = I;
+	if ( current_B ) *current_B = I;
+	if ( current_C ) *current_C = I;
 	complex S(0,0,J);
-	*shunt_A = S;
-	*shunt_B = S;
-	*shunt_C = S;
+	if ( shunt_A ) *shunt_A = S;
+	if ( shunt_B ) *shunt_B = S;
+	if ( shunt_C ) *shunt_C = S;
 	return TS_NEVER;
 }
 double ceus::apply_sensitivity(SENSITIVITY &component, double *variable)
 {
 	if ( variable == NULL || component.slope == 0.0 )
+	{
 		return ( component.range.min + component.range.max ) / 2.0; 
+	}
 	double dir = ( component.slope > 0.0 ? +1.0 : -1.0 );
 	double x = *variable;
-	if ( component.domain.min < component.domain.max ) // domain is valid
+	if ( component.domain.min < component.domain.max ) 
 	{
-		if ( x * dir < component.domain.min * dir ) // below domain min
+		// domain is valid
+		if ( x * dir < component.domain.min * dir ) 
+		{
+			// below domain min
 			x = component.domain.min;
-		else if ( x * dir > component.domain.max * dir ) // above domain max
+		}
+		else if ( x * dir > component.domain.max * dir ) 
+		{
+			// above domain max
 			x = component.domain.max;
+		}
 	}
 	double y = ( x - component.base ) * component.slope + component.intercept;
 	if ( component.range.min < component.range.max )
 	{
 		if ( y < component.range.min )
+		{
 			return component.range.min;
+		}
 		else if ( y > component.range.max )
+		{
 			return component.range.max;
+		}
 	}
 	return y;
 }
@@ -500,7 +535,10 @@ TIMESTAMP ceus::sync(TIMESTAMP t1)
 		double load = get_value(enduse,gl_globalclock,floor_area)/3.0;
 		for ( c = get_first_component() ; c != NULL ; c = get_next_component(c) )
 		{
-			if ( c->data != data ) continue;
+			if ( c->data != data ) 
+			{
+				continue;
+			}
 			double scalar = load * c->fraction / 3.0 ;
 			scalar += apply_sensitivity(c->cooling,temperature);
 			scalar += apply_sensitivity(c->heating,temperature);
@@ -516,17 +554,17 @@ TIMESTAMP ceus::sync(TIMESTAMP t1)
 		}
 	}
 	complex P(Pr,Pi,J);
-	*power_A += P;
-	*power_B += P;
-	*power_C += P;
+	if ( power_A ) *power_A += P;
+	if ( power_B ) *power_B += P;
+	if ( power_C ) *power_C += P;
 	complex I(Ir,Ii,J);
-	*current_A += I;
-	*current_B += I;
-	*current_C += I;
+	if ( current_A ) *current_A += I;
+	if ( current_B ) *current_B += I;
+	if ( current_C ) *current_C += I;
 	complex S = complex(1,0,J)/complex(Zr,Zi,J);
-	*shunt_A += S;
-	*shunt_B += S;
-	*shunt_C += S;
+	if ( shunt_A ) *shunt_A += S;
+	if ( shunt_B ) *shunt_B += S;
+	if ( shunt_C ) *shunt_C += S;
 	total_power_A = ((*voltage_A/(*nominal_voltage)*S + I)*(*voltage_A)/(*nominal_voltage) + P);
 	total_power_B = ((*voltage_B/(*nominal_voltage)*S + I)*(*voltage_B)/(*nominal_voltage) + P);
 	total_power_C = ((*voltage_C/(*nominal_voltage)*S + I)*(*voltage_C)/(*nominal_voltage) + P);
@@ -541,22 +579,28 @@ TIMESTAMP ceus::postsync(TIMESTAMP t1)
 
 int ceus::composition(char *buffer, size_t len)
 {
-	if ( buffer == NULL ) // query
+	if ( buffer == NULL ) 
 	{
+		// query
 		const char *result = get_components();
-		size_t size = strlen(get_components());
-		delete[] result;
+		size_t size = 0;
+		if ( result )
+		{
+			size = strlen(result) + 1;
+			delete[] result;
+		}
 		if ( len == 0 ) // get length
 		{
-			return size+1;
+			return size;
 		}
-		else // check length
+		else 
 		{
-			return size < len;
+			return size <= len;
 		}
 	}
-	else if ( len == 0 ) // read
+	else if ( len == 0 ) 
 	{
+		// read
 		char *tmp = strdup(buffer);
 		char *item = NULL, *last = NULL;
 		while ( (item=strtok_r(item?NULL:tmp,",",&last)) != NULL )
@@ -581,15 +625,20 @@ int ceus::composition(char *buffer, size_t len)
 		}
 		free(tmp);
 		if ( initial_components == NULL )
+		{
 			initial_components = new std::string;
+		}
 		else
+		{
 			*initial_components = *initial_components + ",\n";
+		}
 		*initial_components = *initial_components + buffer;
 		return strlen(buffer); 
 	}
-	else // write
+	else 
 	{
-		return strlen(get_components(buffer,len));
+		const char *result = get_components(buffer,len);
+		return result ? strlen(result) : 0;
 	}
 }
 
@@ -642,11 +691,13 @@ int ceus::filename(char *filename, size_t len)
 	char *item, *last = NULL;
 	typedef enum {DT_STRING, DT_INTEGER, DT_REAL} DATATYPE;
 #define MAXDATA 32
-	struct s_colspec {
+	struct s_colspec 
+	{
 		const char *name;
 		const char *format;
 		DATATYPE type;
-		union {
+		union 
+		{
 			char string[32];
 			int integer;
 			double real;
@@ -701,10 +752,12 @@ int ceus::filename(char *filename, size_t len)
 	// load records
 	char line[1024];
 	size_t count = 0;
-	struct {
+	struct 
+	{
 		char *label;
 		DAYTYPE code;
-	} codes[] = {
+	} codes[] = 
+	{
 		{default_weekday_code,  DT_WEEKDAY},
 		{default_saturday_code, DT_SATURDAY},
 		{default_sunday_code,   DT_SUNDAY},
@@ -714,7 +767,7 @@ int ceus::filename(char *filename, size_t len)
 	{
 		last = NULL;
 		size_t column = 0;
-		while ( (item=strtok_r(last?NULL:line,",\r\n",&last)) != NULL)
+		while ( (item=strtok_r(last?NULL:line,",\r\n",&last)) != NULL )
 		{
 			if ( column == max_column )
 			{
@@ -753,8 +806,6 @@ int ceus::filename(char *filename, size_t len)
 			error("ignore extra data in '%s' after '%s'",(const char*)filename,line);
 			fclose(fp);
 		}
-		// unsigned int month = map[month_ndx].buffer.integer;
-		// unsigned int hour = map[hour_ndx].buffer.integer;
 		for ( n = enduse_ndx ; n < column ; n++ )
 		{
 			map[n].data->data[count] = map[n].buffer.real;

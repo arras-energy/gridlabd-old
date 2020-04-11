@@ -135,6 +135,46 @@ void module_free(void *ptr)
 	wunlock(&malloc_lock);
 }
 
+// external callback support
+struct s_externalcallbacklist {
+	const char *name;
+	EXTERNALCALLBACK call;
+	void *data;
+	struct s_externalcallbacklist *next;
+} *externalcallbacklist = NULL;
+int n_external_callbacks = 0;
+
+// add an external callback handlers
+// returns callback number starting with 0, or -1 on failure
+extern "C" int module_add_external_callback(const char *name, EXTERNALCALLBACK handler, void *data)
+{
+	struct s_externalcallbacklist *callback = new s_externalcallbacklist;
+	if ( callback == NULL )
+	{
+		return -1; // failed
+	}
+	callback->name = strdup(name);
+	callback->call = handler;
+	callback->data = data;
+	callback->next = externalcallbacklist;
+	externalcallbacklist = callback;
+	return n_external_callbacks++;
+}
+
+int call_external_callback(const char *name, void *args)
+{
+	struct s_externalcallbacklist *item;
+	for ( item = externalcallbacklist ; item != NULL; item = item->next )
+	{
+		if ( strcmp(name,item->name) )
+		{
+			return item->call(item->data,args);
+		}
+	}
+	output_error("int call_external_callback(const char *name='%s', void *data=%p): callback not found", name, args);
+	return -1;
+}
+
 /* these are the core functions available to loadable modules
  * the structure is defined in object.h */
 #define MAGIC 0x012BB0B9
@@ -159,7 +199,7 @@ static CALLBACKS callbacks = {
 	{class_define_function,class_get_function},
 	class_define_enumeration_member,
 	class_define_set_member,
-	{object_get_first,object_set_dependent,object_set_parent,object_set_rank,},
+	{object_get_first,object_set_dependent,object_set_parent,object_set_rank,object_get_header_string,},
 	{object_get_property, object_set_value_by_addr,object_get_value_by_addr, object_set_value_by_name,object_get_value_by_name,object_get_reference,object_get_unit,object_get_addr,class_string_to_propertytype,property_compare_basic,property_compare_op,property_get_part,property_getspec},
 	{find_objects,find_next,findlist_copy,findlist_add,findlist_del,findlist_clear,findlist_create},
 	class_find_property,
@@ -198,6 +238,8 @@ static CALLBACKS callbacks = {
 	{transform_getnext,transform_add_linear,transform_add_external,transform_apply},
 	{randomvar_getnext,randomvar_getspec},
 	{version_major,version_minor,version_patch,version_build,version_branch},
+	call_external_callback,
+	{python_embed_import,python_embed_call},
 	MAGIC /* used to check structure */
 };
 CALLBACKS *module_callbacks(void) { return &callbacks; }
@@ -503,14 +545,18 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 		return NULL;
 
 	/* connect intrinsic functions */
-	for (c=mod->oclass; c!=NULL; c=c->next) {
+	for ( c = mod->oclass ; c != NULL ; c = c->next ) 
+	{
 		char fname[1024];
-		struct {
+		struct 
+		{
 			FUNCTIONADDR *func;
 			const char *name;
 			int optional;
-		} map[] = {
+		} map[] = 
+		{
 			{&c->create,"create",FALSE},
+			{&c->destroy,"destroy",TRUE},
 			{&c->init,"init",TRUE},
 			{&c->precommit,"precommit",TRUE},
 			{&c->sync,"sync",TRUE},
@@ -523,25 +569,26 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			{&c->update,"update",TRUE},
 			{&c->heartbeat,"heartbeat",TRUE},
 		};
-		size_t i;
-		for (i=0; i<sizeof(map)/sizeof(map[0]); i++)
+		for ( size_t i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ )
 		{
 			snprintf(fname, sizeof(fname) ,"%s_%s",map[i].name,isforeign?fmod:c->name);
-			if ((*(map[i].func) = (FUNCTIONADDR)DLSYM(hLib,fname))==NULL && !map[i].optional)
+			*(map[i].func) = (FUNCTIONADDR)DLSYM(hLib,fname);
+			if ( *(map[i].func) == NULL && ! map[i].optional )
 			{
-				output_fatal("intrinsic %s is not defined in class %s", fname,file);
+				output_fatal("required intrinsic '%s' is not defined in class '%s'", fname,file);
 				/*	TROUBLESHOOT
 					A required intrinsic function was not found.  Please review and modify the class definition.
 				 */
 				errno=EINVAL;
 				return NULL;
 			}
-			else
+			else if ( ! map[i].optional )
 			{
-				if(!map[i].optional)
-				{
-					IN_MYCONTEXT output_verbose("%s(%d): module '%s' intrinsic %s found", __FILE__, __LINE__, file, fname);
-				}
+				IN_MYCONTEXT output_debug("%s(%d): module '%s' required intrinsic '%s' found", __FILE__, __LINE__, file, fname);
+			}
+			else if ( *(map[i].func) != NULL )
+			{
+				IN_MYCONTEXT output_debug("%s(%d): module '%s' optional intrinsic '%s' found", __FILE__, __LINE__, file, fname);
 			}
 		}
 	}
@@ -1301,6 +1348,10 @@ static int execf(const char *format, /**< format string  */
 		IN_MYCONTEXT output_debug("command: %s",command);
 	}
 	rc = system(command);
+	if ( rc != 0 )
+	{
+		output_error("command [%s] failed, rc = %d", command, rc);
+	}
 	IN_MYCONTEXT output_debug("return code=%d",rc);
 	return rc;
 }
@@ -1319,7 +1370,7 @@ int module_compile(const char *name,	/**< name of library */
 	char ofile[1024];
 	char afile[1024];
 	const char *cc = getenv("CC")?getenv("CC"):CC;
-	const char *ccflags = getenv("CCFLAGS")?getenv("CCFLAGS"):CCFLAGS;
+	const char *ccflags = getenv("CPPFLAGS")?getenv("CPPFLAGS"):CCFLAGS;
 	const char *ldflags = getenv("LDFLAGS")?getenv("LDFLAGS"):LDFLAGS;
 	int rc;
 	size_t codesize = strlen(code), len;
@@ -2439,7 +2490,7 @@ void sched_continuous(void)
 			int n;
 			char line[1024];
 			clear();
-			mvprintw(0,0,"GridLAB-D Process Control - Version %d.%d.%d-%d (%s)",REV_MAJOR,REV_MINOR,REV_PATCH,version_build(),version_branch());
+			mvprintw(0,0,"%s Process Control - Version %d.%d.%d-%d (%s)",PACKAGE_NAME,REV_MAJOR,REV_MINOR,REV_PATCH,version_build(),version_branch());
 			sched_getinfo(-1,line,sizeof(line));
 			mvprintw(2,0,"%s",line);
 			sched_getinfo(-2,line,sizeof(line));
@@ -2578,5 +2629,224 @@ void sched_controller(void)
 	}
 }
 
+void module_help_md(MODULE *mod, CLASS *oclass)
+{
+	if ( oclass )
+	{
+		output_raw("[[/Module/%c%s/%c%s]] -- Class %s\n", toupper(mod->name[0]), mod->name+1, toupper(oclass->name[0]), oclass->name+1, oclass->name);
+	}
+	else
+	{
+		output_raw("[[/Module/%c%s]] -- Module %s\n", toupper(mod->name[0]), mod->name+1, mod->name);
+	}
+
+	output_raw("\n# Synopsis\n");
+	output_raw("GLM:\n");
+	output_raw("~~~\n");
+	bool first = true;
+	GLOBALVAR *global = NULL;
+	char prefix[1024];
+	sprintf(prefix,"%s::",mod->name);
+	if ( oclass == NULL )
+	{
+		while ( (global=global_getnext(global)) != NULL )
+		{
+			if ( strncmp(global->prop->name,prefix,strlen(prefix)) == 0 )
+			{
+				if ( first )
+				{
+					output_raw("  module %s {\n",mod->name);
+				}
+				PROPERTY *prop = global->prop;
+				output_raw("    %s ", prop->name + strlen(prefix));
+				if ( prop->keywords )
+				{
+					output_raw("\"%s",prop->ptype == PT_enumeration ? "{" : "[");
+					for ( KEYWORD *keyword = prop->keywords ; keyword != NULL ; keyword = keyword->next )
+					{
+						if ( keyword != prop->keywords )
+						{
+							output_raw( prop->ptype == PT_enumeration ? "," : (prop->flags&PF_CHARSET?"":"|"));
+						}
+						output_raw("%s",keyword->name);
+					}
+					output_raw("%s\";\n",prop->ptype == PT_enumeration ? "}" : "]");
+				}
+				else if ( prop->unit )
+				{
+					output_raw("\"<%s> %s\";\n", property_getspec(prop->ptype)->xsdname, prop->unit->name);
+				}
+				else
+				{
+					output_raw("\"<%s>\";\n", property_getspec(prop->ptype)->xsdname);
+				}
+				first = false;
+			}
+		}
+		if ( first )
+		{
+			output_raw("  module %s;\n", mod->name);
+		}
+		else
+		{
+			output_raw("  }\n");
+		}
+	}
+	else
+	{
+		output_raw("  object %s {\n", oclass->name);
+		for ( PROPERTY *prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+		{
+			output_raw("    %s ", prop->name);
+			if ( prop->keywords )
+			{
+				output_raw("\"%s",prop->ptype == PT_enumeration ? "{" : "[");
+				for ( KEYWORD *keyword = prop->keywords ; keyword != NULL ; keyword = keyword->next )
+				{
+					if ( keyword != prop->keywords )
+					{
+						output_raw( prop->ptype == PT_enumeration ? "," : (prop->flags&PF_CHARSET?"":"|"));
+					}
+					output_raw("%s",keyword->name);
+				}
+				output_raw("%s\";\n",prop->ptype == PT_enumeration ? "}" : "]");
+			}
+			else if ( prop->unit )
+			{
+				output_raw("\"<%s> %s\";\n", property_getspec(prop->ptype)->xsdname, prop->unit->name);
+			}
+			else
+			{
+				output_raw("\"<%s>\";\n", property_getspec(prop->ptype)->xsdname);
+			}
+		}
+		output_raw("  }\n");
+	}
+	output_raw("~~~\n");
+
+	output_raw("\n# Description\n");
+	output_raw("\nTODO\n");
+
+	if ( oclass )
+	{
+		output_raw("\n## Properties\n");
+		for ( PROPERTY *prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+		{
+			output_raw("\n### `%s`\n",prop->name);
+			output_raw("~~~\n");
+			output_raw("  %s ", property_getspec(prop->ptype)->name);
+			if ( prop->keywords )
+			{
+				output_raw("{");
+				for ( KEYWORD *keyword = prop->keywords ; keyword != NULL ; keyword = keyword->next )
+				{
+					if ( keyword != prop->keywords )
+						output_raw(", ");
+					output_raw("%s",keyword->name);
+				}
+				output_raw("} ");
+			}
+			if ( prop->unit )
+			{
+				output_raw("%s[%s];\n", prop->name, prop->unit);
+			}
+			else
+			{
+				output_raw("%s;\n", prop->name);
+			}
+			output_raw("~~~\n");
+			if ( prop->description )
+			{
+				output_raw("\n%c%s\n", toupper(prop->description[0]), prop->description+1);
+			}
+			else
+			{
+				output_raw("\nTODO\n");
+			}
+		}
+
+		output_raw("\n# Example\n");
+		output_raw("\n~~~\n");
+		output_raw("  object %s {\n", oclass->name);
+		for ( PROPERTY *prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+		{
+			if ( prop->default_value )
+			{
+				output_raw("    %s \"%s\";\n", prop->name, prop->default_value);
+			}
+		}
+		output_raw("  }\n");
+		output_raw("~~~\n");
+	}
+	else
+	{
+		bool first = true;
+		GLOBALVAR *global = NULL;
+		char prefix[1024];
+		sprintf(prefix,"%s::",mod->name);
+		if ( oclass == NULL )
+		{
+			while ( (global=global_getnext(global)) != NULL )
+			{
+				if ( strncmp(global->prop->name,prefix,strlen(prefix)) == 0 )
+				{
+					if ( first )
+					{
+						output_raw("\n## Globals\n");
+					}
+					PROPERTY *prop = global->prop;
+					output_raw("\n### `%s`\n", prop->name + strlen(prefix));
+					output_raw("~~~\n");
+					output_raw("  %s ", prop->name + strlen(prefix));
+					if ( prop->keywords )
+					{
+						output_raw("\"%s",prop->ptype == PT_enumeration ? "{" : "[");
+						for ( KEYWORD *keyword = prop->keywords ; keyword != NULL ; keyword = keyword->next )
+						{
+							if ( keyword != prop->keywords )
+							{
+								output_raw( prop->ptype == PT_enumeration ? "," : (prop->flags&PF_CHARSET?"":"|"));
+							}
+							output_raw("%s",keyword->name);
+						}
+						output_raw("%s\";\n",prop->ptype == PT_enumeration ? "}" : "]");
+					}
+					else if ( prop->unit )
+					{
+						output_raw("\"<%s> %s\";\n", property_getspec(prop->ptype)->xsdname, prop->unit->name);
+					}
+					else
+					{
+						output_raw("\"<%s>\";\n", property_getspec(prop->ptype)->xsdname);
+					}
+					output_raw("~~~\n");
+					if ( prop->description )
+					{
+						output_raw("\n%c%s\n", toupper(prop->description[0]), prop->description+1);
+					}
+					else
+					{
+						output_raw("\nTODO\n");
+					}
+					first = false;
+				}
+			}		
+		}
+	}
+
+	output_raw("\n# See also\n");
+	if ( oclass )
+	{
+		output_raw("* [[/Module/%c%s]]\n",toupper(mod->name[0]), mod->name+1);
+	}
+	else
+	{
+		for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
+		{
+			output_raw("* [[/Module/%c%s/%c%s]]\n", toupper(mod->name[0]), mod->name+1, toupper(oclass->name[0]), oclass->name+1);
+		}
+	}
+	output_raw("\n");
+}
 
 /**@}*/

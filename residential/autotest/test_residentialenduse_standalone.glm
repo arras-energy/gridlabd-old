@@ -22,19 +22,3 @@ object residential_enduse {
 	name res-enduse-basic;
 	shape "type:analog; schedule: weekly; energy: 10 kWh";
 }
-
-// this object should generate a warning message about a missing schedule
-#print Object 'res-enduse-none' should generate a warning about missing schedule
-object residential_enduse {
-	name res-enduse-none;
-	shape "type:analog; energy: 10kWh";
-}
-
-// this object should generate a warning message about a bad parent
-#print Object 'res-enduse-badparent' should generate a warning about its parent
-object residential_enduse {
-	name res-enduse-badparent;
-	parent res-enduse-none;
-	shape "type:analog; schedule: weekly; energy: 10 kWh";
-}
-

@@ -1,22 +1,8 @@
-/** $Id: triplex_meter.cpp 1002 2008-09-29 15:58:23Z d3m998 $
-	Copyright (C) 2008 Battelle Memorial Institute
-	@file triplex_meter.cpp
-	@addtogroup powerflow_triplex_meter Meter
-	@ingroup powerflow
+// File: triplex_meter.cpp
+// Copyright (C) 2008 Battelle Memorial Institute
+// Updated for HiPAS GridLAB-D
+// Copyright (C) 2020 Regents of Leland Stanford Junior University
 
-	Distribution triplex_meter can be either single phase or polyphase triplex_meters.
-	Single phase triplex_meters present three lines to objects
-	- Line 1-G: 120V,
-	- Line 2-G: 120V
-	- Line 3-G: 0V
-	- Line 1-2: 240V
-	- Line 2-3: 120V
-	- Line 1-3: 120V
-
-	Total cumulative energy, instantantenous power and peak demand are triplex_metered.
-
-	@{
- **/
 #include "powerflow.h"
 using namespace std;
 
@@ -286,12 +272,46 @@ TIMESTAMP triplex_meter::sync(TIMESTAMP t0)
 {
 	int TempNodeRef;
 
+ 	//Check for straggler nodes - fix so segfaults don't occur
+ 	if ((prev_NTime==0) && (solver_method == SM_NR))
+ 	{
+ 		//See if we've been initialized yet - links typically do this, but single buses get missed
+ 		if (NR_node_reference == -1)
+ 		{
+ 			//Call the populate routine
+ 			NR_populate();
+ 		}
+ 	}
+
 	//Reliability check
 	if ((fault_check_object != NULL) && (solver_method == SM_NR))	//proper solver fault_check is present (so might need to set flag
 	{
 		if (NR_node_reference==-99)	//Childed
 		{
 			TempNodeRef=*NR_subnode_reference;
+
+ 			//See if our parent was initialized
+ 			if (TempNodeRef == -1)
+ 			{
+ 				//Try to initialize it, for giggles
+ 				node *Temp_Node = OBJECTDATA(SubNodeParent,node);
+
+ 				//Call the initialization
+ 				Temp_Node->NR_populate();
+
+ 				//Pull our reference
+ 				TempNodeRef=*NR_subnode_reference;
+
+ 				//Check it again
+ 				if (TempNodeRef == -1)
+ 				{
+ 					exception("uninitialized parent is causing odd issues - fix your model!");
+ 					/*  TROUBLESHOOT
+ 					A childed triplex_meter object is having issues mapping to its parent node - this typically happens in very odd cases of islanded/orphaned
+ 					topologies that only contain nodes (no links).  Adjust your GLM to work around this issue.
+ 					*/
+ 				}
+ 			}
 		}
 		else	//Normal
 		{
@@ -838,7 +858,7 @@ EXPORT TIMESTAMP sync_triplex_meter(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 			obj->clock = t0;
 			return t1;
 		default:
-			throw "invalid pass request";
+			break;
 		}
 		throw "invalid pass request";
 	}

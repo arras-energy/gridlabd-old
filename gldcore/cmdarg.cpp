@@ -13,6 +13,10 @@
  **/
 
 #include "gldcore.h"
+#include <iostream>
+#include <map>
+
+using namespace std;
 
 SET_MYCONTEXT(DMC_CMDARG)
 
@@ -180,8 +184,14 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 			{
 				printf("%s\t%s %s;", tabs, propname, prop->name);
 			}
-			if (prop->description!=NULL)
-				printf(" // %s%s",prop->flags&PF_DEPRECATED?"(DEPRECATED) ":"",prop->description);
+			char flags[1024] = "";
+			if ( prop->flags&PF_DEPRECATED ) strcat(flags,flags[0]?",":"("),strcat(flags,"DEPRECATED");
+			if ( prop->flags&PF_REQUIRED ) strcat(flags,flags[0]?",":"("),strcat(flags,"REQUIRED");
+			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?",":"("),strcat(flags,"OUTPUT");
+			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?",":"("),strcat(flags,"DYNAMIC");
+			if ( flags[0] ) strcat(flags,") ");
+			if ( flags[0] != '\0' || prop->description != NULL )
+			printf(" // %s%s",flags,prop->description?prop->description:"");
 			printf("\n");
 		}
 	}
@@ -441,6 +451,18 @@ int GldCmdarg::compile(int argc, const char *argv[])
 	global_compileonly = !global_compileonly;
 	return 0;
 }
+
+
+DEPRECATED static int initialize(void *main, int argc, const char *argv[])
+{
+	return ((GldMain*)main)->get_cmdarg()->initialize(argc,argv);
+}
+int GldCmdarg::initialize(int argc, const char *argv[])
+{
+	global_initializeonly = !global_initializeonly;
+	return 0;
+}
+
 DEPRECATED static int license(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->license(argc,argv);
@@ -517,53 +539,129 @@ int GldCmdarg::version(int argc, const char *argv[])
 	{	
 		output_message("%s %s-%d (%s) "
 #if defined MACOSX
-			"DARWIN"
+			"Darwin"
 #else // LINUX
-			"LINUX"
+			"Linux"
 #endif
-			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
+			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BUILD_BRANCH);
 		return 0;
 	}
-	else if ( strcmp(opt,"number" ) == 0 )
+	else if ( strcmp(opt,"number" ) == 0 || strcmp(opt,"version") == 0 )
 	{
 		output_message("%s", PACKAGE_VERSION);
 		return 0;
 	}
-	else if ( strcmp(opt,"build") == 0 )
+	else if ( strcmp(opt,"build") == 0 || strcmp(opt,"build_number") == 0 )
 	{
 		output_message("%d", BUILDNUM);
 		return 0;
 	}
-	else if ( strcmp(opt,"package") == 0 )
+	else if ( strcmp(opt,"package") == 0 || strcmp(opt,"application") == 0 )
 	{
 		output_message("%s", PACKAGE_NAME);
 		return 0;
 	}
 	else if ( strcmp(opt,"branch") == 0 )
 	{
-		output_message("%s", BRANCH);
+		output_message("%s", BUILD_BRANCH);
 		return 0;
 	}
-	else if ( strcmp(opt,"platform") == 0 )
+	else if ( strcmp(opt,"platform") == 0 || strcmp(opt,"system") == 0 )
 	{
 		output_message(
 #if defined MACOSX
-			"DARWIN"
+			"Darwin"
 #else // LINUX
-			"LINUX"
+			"Linux"
 #endif
 		);
 		return 0;
 	}
+	else if ( strcmp(opt,"release") == 0 )
+	{
+		output_message("%s",BUILD_RELEASE);
+		return 0;
+	}
+	else if ( strcmp(opt,"commit") == 0 )
+	{
+		output_message("%s",BUILD_ID);
+		return 0;
+	}
+	else if ( strcmp(opt,"email") == 0 )
+	{
+		output_message("%s",PACKAGE_BUGREPORT);
+		return 0;
+	}
+	else if ( strcmp(opt,"origin") == 0 )
+	{
+		output_message("%s",BUILD_URL);
+		return 0;
+	}
 	else if ( strcmp(opt,"install") == 0 )
 	{
-		output_message("%s_%s-%d_%s_%s-x64_86", PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH, 
-#if defined MACOSX
-			"macos"
-#else // LINUX
-			"linux"
-#endif
-			);
+		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
+		char tmp[1024];
+		strcpy(tmp,global_execdir);
+		char *p = strrchr(tmp,'/');
+		if ( p != NULL && strcmp(p,"/bin") == 0 )
+		{
+			*p = '\0';
+		}
+		output_message("%s", tmp);
+		return 0;
+	}
+	else if ( strcmp(opt,"name") == 0 )
+	{
+		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
+		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		return 0;
+	}
+	else if ( strcmp(opt,"json") == 0 )
+	{
+		bool old = global_suppress_repeat_messages;
+		global_suppress_repeat_messages = false;
+		output_message("{");
+#define OUTPUT(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\",",TAG,VALUE)
+#define OUTPUT_LAST(TAG,FORMAT,VALUE) output_message("\t\"%s\" : \"" FORMAT "\"\n}",TAG,VALUE)
+#define OUTPUT_LIST_START(TAG) output_message("\t\"%s\" : [",TAG)
+#define OUTPUT_LIST_ITEM(VALUE) output_message("\t\t\"%s\",",VALUE)
+#define OUTPUT_LIST_END(VALUE) output_message("\t\t\"%s\"],",VALUE)
+#define OUTPUT_MULTILINE(TAG,VALUE) {\
+		const char *value = VALUE;\
+		char *token=NULL, *last=NULL;\
+		char buffer[strlen(value)+1];\
+		strcpy(buffer,value);\
+		OUTPUT_LIST_START(TAG);\
+		while ( (token=strtok_r(token?NULL:buffer,"\n",&last)) != NULL )\
+		{\
+			OUTPUT_LIST_ITEM(token);\
+		}\
+		OUTPUT_LIST_END("");\
+	}
+		OUTPUT("application","%s",PACKAGE);
+		OUTPUT("version","%s",PACKAGE_VERSION);
+		OUTPUT("build_number","%06d",BUILDNUM);
+		OUTPUT("branch","%s",BRANCH);
+		OUTPUT("package-name","%s",PACKAGE_NAME);
+		OUTPUT("options","%s",BUILD_OPTIONS);
+		OUTPUT_MULTILINE("status",BUILD_STATUS);
+		OUTPUT_MULTILINE("copyright",version_copyright());
+		OUTPUT_MULTILINE("license",legal_license_text());
+		OUTPUT("system","%s",BUILD_SYSTEM);
+		char tmp[1024];
+		strcpy(tmp,global_execdir);
+		char *p = strrchr(tmp,'/');
+		if ( p != NULL && strcmp(p,"/bin") == 0 )
+		{
+			*p = '\0';
+		}
+		OUTPUT("install","%s",tmp);
+		output_message("\t\"name\" : \"%s-%s-%d-%s\",", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
+		OUTPUT("release","%s",BUILD_RELEASE);
+		OUTPUT("commit","%s",BUILD_ID);
+		OUTPUT("email","%s",PACKAGE_BUGREPORT);
+		OUTPUT_LAST("origin","%s",BUILD_URL);
+		global_suppress_repeat_messages = old;
 		return 0;
 	}
 	else
@@ -844,7 +942,13 @@ DEPRECATED static int modhelp(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::modhelp(int argc, const char *argv[])
 {
-	if(argc > 1){
+	const char *options = strchr(argv[0],'=');
+	if ( options != NULL ) 
+	{
+		options++; 
+	}
+	if ( argc > 1 ) 
+	{
 		MODULE *mod = NULL;
 		CLASS *oclass = NULL;
 		argv++;
@@ -873,42 +977,46 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 			}
 
 			/* dump module globals */
-			printf("module %s {\n", mod->name);
-			while ((var=global_getnext(var))!=NULL)
+			if ( ! options )
 			{
-				PROPERTY *prop = var->prop;
-				const char *proptype = class_get_property_typename(prop->ptype);
-				if ( strncmp(var->prop->name,mod->name,strlen(mod->name))!=0 )
-					continue;
-				if ( (prop->access&PA_HIDDEN)==PA_HIDDEN )
-					continue;
-				if (proptype!=NULL)
+				printf("module %s {\n", mod->name);
+				while ((var=global_getnext(var))!=NULL)
 				{
-					if ( prop->unit!=NULL )
+					PROPERTY *prop = var->prop;
+					const char *proptype = class_get_property_typename(prop->ptype);
+					if ( strncmp(var->prop->name,mod->name,strlen(mod->name))!=0 )
+						continue;
+					if ( (prop->access&PA_HIDDEN)==PA_HIDDEN )
+						continue;
+					if (proptype!=NULL)
 					{
-						printf("\t%s %s[%s];", proptype, strrchr(prop->name,':')+1, prop->unit->name);
+						if ( prop->unit!=NULL )
+						{
+							printf("\t%s %s[%s];", proptype, strrchr(prop->name,':')+1, prop->unit->name);
+						}
+						else if (prop->ptype==PT_set || prop->ptype==PT_enumeration)
+						{
+							KEYWORD *key;
+							const char *fmt = ( sizeof(uint64) < sizeof(long long) ? "%s=%lu%s" : "%s=%llu%s");
+							printf("\t%s {", proptype);
+							for (key=prop->keywords; key!=NULL; key=key->next)
+								printf(fmt, key->name, key->value, key->next==NULL?"":", ");
+							printf("} %s;", strrchr(prop->name,':')+1);
+						} 
+						else 
+						{
+							printf("\t%s %s;", proptype, strrchr(prop->name,':')+1);
+						}
+						if (prop->description!=NULL)
+							printf(" // %s%s",prop->flags&PF_DEPRECATED?"(DEPRECATED) ":"",prop->description);
+						printf("\n");
 					}
-					else if (prop->ptype==PT_set || prop->ptype==PT_enumeration)
-					{
-						KEYWORD *key;
-						const char *fmt = ( sizeof(uint64) < sizeof(long long) ? "%s=%lu%s" : "%s=%llu%s");
-						printf("\t%s {", proptype);
-						for (key=prop->keywords; key!=NULL; key=key->next)
-							printf(fmt, key->name, key->value, key->next==NULL?"":", ");
-						printf("} %s;", strrchr(prop->name,':')+1);
-					} 
-					else 
-					{
-						printf("\t%s %s;", proptype, strrchr(prop->name,':')+1);
-					}
-					if (prop->description!=NULL)
-						printf(" // %s%s",prop->flags&PF_DEPRECATED?"(DEPRECATED) ":"",prop->description);
-					printf("\n");
 				}
+				printf("}\n");
 			}
-			printf("}\n");
 		}
-		if(mod == NULL){
+		if ( mod == NULL )
+		{
 			output_fatal("module %s is not found",*argv);
 			/*	TROUBLESHOOT
 				The <b>--modhelp</b> parameter was found on the command line, but
@@ -917,7 +1025,11 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 			*/
 			return FAILED;
 		}
-		if(oclass != NULL)
+		if ( options && strcmp(options,"md") == 0 )
+		{
+			module_help_md(mod,oclass);
+		}
+		else if ( oclass != NULL )
 		{
 			print_class(oclass);
 		}
@@ -1547,10 +1659,8 @@ int GldCmdarg::example(int argc, const char *argv[])
 {
 	MODULE *module;
 	CLASS *oclass;
-	OBJECT *object;
+	PROPERTY *prop;
 	char modname[1024], classname[1024];
-	int n;
-	char buffer[65536];
 	
 	if ( argc < 2 ) 
 	{
@@ -1558,7 +1668,7 @@ int GldCmdarg::example(int argc, const char *argv[])
 		return CMDERR;
 	}
 	
-	n = sscanf(argv[1],"%1023[A-Za-z_]:%1024[A-Za-z_0-9]",modname,classname);
+	int n = sscanf(argv[1],"%1023[A-Za-z_]:%1024[A-Za-z_0-9]",modname,classname);
 	if ( n!=2 )
 	{
 		output_error("--example: %s name is not valid",n==0?"module":"class");
@@ -1576,27 +1686,58 @@ int GldCmdarg::example(int argc, const char *argv[])
 		output_error("--example: class %d is not found", classname);
 		return CMDERR;
 	}
-	object = object_create_single(oclass);
-	if ( object==NULL )
+	output_raw("class %s {\n",oclass->name);
+	bool first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
-		output_error("--example: unable to create example object from class %s", classname);
-		return CMDERR;
+		if ( (prop->flags&PF_REQUIRED) && ! (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// required input properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
 	}
-	global_clock = time(NULL);
-	output_redirect("error",NULL);
-	output_redirect("warning",NULL);
-	if ( !object_init(object) )
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
-		IN_MYCONTEXT output_warning("--example: unable to initialize example object from class %s", classname);
+		if ( ! (prop->flags&PF_REQUIRED) && ! (prop->flags&PF_OUTPUT) && ! (prop->flags&PF_DYNAMIC) && ! (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// optional input properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
 	}
-	if ( object_save(buffer,sizeof(buffer),object)>0 )
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
-		output_raw("%s\n", buffer);
+		if ( ! (prop->flags&PF_DYNAMIC) && (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// dynamic properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
 	}
-	else
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
-		IN_MYCONTEXT output_warning("no output generated for object");
+		if ( (prop->flags&PF_OUTPUT) && ! (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// output properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
 	}
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+	{
+		if ( prop->flags&PF_DEPRECATED )
+		{
+			if ( first ) output_raw("\t// deprecated properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+	}
+	output_raw("}\n");
 	return CMDOK;
 }
 DEPRECATED static int mclassdef(void *main, int argc, const char *argv[])
@@ -1769,6 +1910,39 @@ int GldCmdarg::printenv(int argc, const char *argv[])
 	return system("printenv") == 0 ? 0 : CMDERR;
 }
 
+DEPRECATED static int formats(void *main, int argc, const char *argv[])
+{
+	return ((GldMain*)main)->get_cmdarg()->formats(argc,argv);
+}
+int GldCmdarg::formats(int argc, const char *argv[])
+{
+	cout << "{" << endl;
+
+	cout << "\t\"glm\" : {" << endl;
+	cout << "\t\t\"json\" : {" << endl;
+	cout << "\t\t\t\"run\" : \"" << global_execname << " {inputfile} -o {outputfile}\"" << endl;
+	cout << "\t\t}" << endl;
+	cout << "\t}," << endl;
+
+	// TODO: use a directory listing to get all available converters
+	cout << "\t\"json\" : {" << endl;
+	cout << "\t\t\"glm\" : {" << endl;
+	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2glm.py {inputfile} -o {outputfile}\"" << endl;
+	cout << "\t\t}," << endl;
+	
+	cout << "\t\t\"png\" : {" << endl;
+	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2png.py {inputfile} -o {outputfile}\"" << endl;
+	cout << "\t\t\t\"type\" : [" << endl;
+	cout << "\t\t\t\t\"summary\"," << endl;
+	cout << "\t\t\t\t\"profile\"" << endl;
+	cout << "\t\t\t]" << endl;
+	cout << "\t\t}" << endl;
+	cout << "\t}" << endl;
+	
+	cout << "}" << endl;
+	return 0;
+}
+
 DEPRECATED static int origin(void *main, int argc, const char *argv[])
 {
 	return ((GldMain*)main)->get_cmdarg()->origin(argc,argv);
@@ -1782,7 +1956,7 @@ int GldCmdarg::origin(int argc, const char *argv[])
 		IN_MYCONTEXT output_error("origin file not found");
 		return CMDERR;
 	}
-	fp = fopen(originfile,"r");
+	fp = fopen(originfile,"rt");
 	if ( fp == NULL )
 	{
 		IN_MYCONTEXT output_error("unable to open origin file");
@@ -1868,6 +2042,13 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 	return 0;
 }
 
+DEPRECATED static int depends(void *main, int argc, const char *argv[])
+{
+	const char *format = strchr(argv[0],'=');
+	fprintf(stdout,"%s",my_instance->get_loader()->get_depends(format?format+1:NULL).c_str());
+	return 0;
+}
+
 #include "job.h"
 #include "validate.h"
 
@@ -1908,6 +2089,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"setup",		NULL,	setup,			NULL, "Open simulation setup screen" },
 	{"origin",		NULL,	origin,			NULL, "Display origin information" },
 	{"cite",		NULL,	cite,			NULL, "Print the complete citation for this version"},
+	{"depends",		NULL,	depends,		NULL, "Generate dependency tree"},
 
 	{NULL,NULL,NULL,NULL, "Test processes"},
 	{"dsttest",		NULL,	dsttest,		NULL, "Perform daylight savings rule test" },
@@ -1931,6 +2113,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"xmlstrict",	NULL,	xmlstrict,		NULL, "Toggle strict XML formatting (default is enabled)" },
 	{"xsd",			NULL,	xsd,			"[module[:class]]", "Prints the XSD of a module or class" },
 	{"xsl",			NULL,	xsl,			"module[,module[,...]]]", "Create the XSL file for the module(s) listed" },
+	{"formats",     NULL,   formats,        NULL, "get a list supported file formats"},
 
 	{NULL,NULL,NULL,NULL, "Help"},
 	{"help",		"h",	help,			NULL, "Displays command line help" },
@@ -1950,6 +2133,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"bothstdout",	NULL,	bothstdout,		NULL, "Merges all output on stdout" },
 	{"check_version", NULL,	_check_version,	NULL, "Perform online version check to see if any updates are available" },
 	{"compile",		"C",	compile,		NULL, "Toggles compile-only flags" },
+	{"initialize",	"I",	initialize,		NULL, "Toggles initialize-only flags" },
 	{"environment",	"e",	environment,	"<appname>", "Set the application to use for run environment" },
 	{"output",		"o",	output,			"<file>", "Enables save of output to a file (default is gridlabd.glm)" },
 	{"pause",		NULL,	pauseatexit,	NULL, "Toggles pause-at-exit feature" },
@@ -2119,15 +2303,20 @@ STATUS GldCmdarg::load(int argc,const char *argv[])
 					   in normal more or leaving off the model file name.
 					 */
 				}
-				else {
+				else 
+				{
 					clock_t start = clock();
 
 					/* preserve name of first model only */
 					if (strcmp(global_modelname,"")==0)
+					{
 						strcpy(global_modelname,*argv);
+					}
 
-					if (!loadall(*argv))
+					if ( ! instance->load_file(*argv) )
+					{
 						status = FAILED;
+					}
 					loader_time += clock() - start;
 				}
 			}

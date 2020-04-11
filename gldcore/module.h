@@ -75,6 +75,8 @@ typedef struct s_module_list MODULE;
 
 typedef CLASS *(*LIBINIT)(const CALLBACKS*,void*,int,char*[]);
 
+typedef int (*EXTERNALCALLBACK)(void*,void*);
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -127,8 +129,12 @@ extern "C" {
 	int module_commitall(TIMESTAMP t);
 	void module_termall(void);
 	MODULE *module_get_next(MODULE*);
+	
+	int module_add_external_callback(const char *name, EXTERNALCALLBACK handler, void *data);
 	STATUS sched_getinfo(int n,PROCINFO *pinfo);
 	int sched_getnproc(void);
+
+	void module_help_md(MODULE *mod, CLASS *oclass=NULL);
 
 #ifdef __cplusplus
 }
@@ -137,5 +143,20 @@ extern "C" {
 #ifndef WIN32
 int GetLastError();
 #endif
+
+class GldModule
+{
+
+private:
+
+	MODULE *mod;
+
+public:
+
+	inline GldModule(MODULE *ref) { mod = ref; };
+	inline ~GldModule(void) {};
+
+	inline operator MODULE* (void) { return mod; };
+};
 
 #endif

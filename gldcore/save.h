@@ -17,6 +17,8 @@ extern "C" {
 #endif // __cplusplus
 
 int saveall(const char *);
+void save_on_exit(const char *name, const char *options="");
+void save_outputs(void);
 
 #ifdef __cplusplus
 }

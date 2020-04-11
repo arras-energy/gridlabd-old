@@ -44,7 +44,9 @@ public:
 	};
 	inline int run(void)
 	{
-		return system(command);
+		int rc = system(command);
+		output_debug("onexitcommand(xc=%d,cmd='%s').run() --> exit code %d",exitcode,command,rc);
+		return rc;
 	};
 };
 
@@ -61,6 +63,7 @@ private: // instance variables
 	GldExec exec;
 	GldCmdarg cmdarg;
 	GldGui gui;
+	GldLoader loader;
 public: // public variables
 	LOCKVAR rlock_count;
 	LOCKVAR rlock_spin;
@@ -85,11 +88,17 @@ public:
 	 */
 	inline GldCmdarg *get_cmdarg() { return &cmdarg; };
 
-	/* Method get_gui
+	/* Method: get_gui
 
 		This function returns a reference to the GUI implementation
 	 */
 	inline GldGui *get_gui() { return &gui; };
+
+	/* Method: get_loader
+
+		This function returns a reference the the loader implementation
+	 */
+	inline GldLoader *get_loader() { return &loader; };
 
 private:
 	static unsigned int next_id; // next instance id
@@ -163,7 +172,13 @@ public:
 	// Method: global_saveall
 	inline size_t global_saveall(FILE *fp) { return globals.saveall(fp);};
 
-public:		
+public:
+
+	// Section: Loader access
+	inline bool load_file(const char *filename) { return loader.load(filename); };
+
+public:
+
 	// Section: Globals variable access
 
 	// Method: global_init
@@ -202,6 +217,15 @@ public:
 	// Method: global_push
 	inline void global_push(char *name, char *value) { return globals.push(name,value);};
 
+	/* 	Method: subcommand
+
+		Run the subcommand in the current environment, redirecting output to stdout/stderr.
+
+		Returns:
+		-1	failed to start command
+		>=0 command exit code
+	 */
+	int subcommand(const char *format,...);
 };
 
 DEPRECATED extern GldMain *my_instance; // TODO: move this into main() to make system globally reentrant
