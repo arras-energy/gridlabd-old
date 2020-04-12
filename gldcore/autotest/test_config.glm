@@ -1,4 +1,4 @@
-#input "config.csv" -f config -t config
+#input "../config.csv" -f config -t config
 
 #if ${TEST1} == A
 #print ok

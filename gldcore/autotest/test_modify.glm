@@ -34,5 +34,5 @@ object recorder
 	file "test.csv";
 }
 
-#input "modify.csv" -f modify -t modify
+#input "../modify.csv" -f modify -t modify
 
