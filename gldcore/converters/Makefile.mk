@@ -11,5 +11,5 @@ dist_pkgdata_DATA += gldcore/converters/csv-scada2glm-ceus.py
 dist_pkgdata_DATA += gldcore/converters/csv-ica2glm-ica.py
 dist_pkgdata_DATA += gldcore/converters/zip2glm.py
 dist_pkgdata_DATA += gldcore/converters/json2zip.py
-dist_pkgdata_DATA += gldcore/converters/csv-modify2glm.py
-dist_pkgdata_DATA += gldcore/converters/csv-config2glm.py
+dist_pkgdata_DATA += gldcore/converters/csv-modify2glm-modify.py
+dist_pkgdata_DATA += gldcore/converters/csv-config2glm-config.py
