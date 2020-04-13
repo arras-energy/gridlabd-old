@@ -385,9 +385,9 @@ int GldMain::run_on_exit(int return_code)
 			new_return_code = cmd->run() >> 8;
 			if ( new_return_code != 0 )
 			{
-				output_error("on_exit %d '%s' command failed (return code %d)", cmd->get_exitcode(), cmd->get_command(), new_return_code);
-				exec.setexitcode(EXITCODE(new_return_code));
-				goto Done;
+				output_error("on_exit %d '%s' command failed (return code %d)", cmd->get_exitcode(), cmd->get_command(), rc);
+				exec.setexitcode(XC_RUNERR);
+				return XC_RUNERR;
 			}
 			else
 			{
@@ -589,6 +589,214 @@ static int pcloses(FILE *iop, bool wait=true)
 	}
 	free(cur);
 	return ( pid == -1 ? errno : pstat>>8 );
+}
+
+int GldMain::subcommand(const char *format, ...)
+{
+	char *command;
+	va_list ptr;
+	va_start(ptr,format);
+	if ( vasprintf(&command,format,ptr) < 0 )
+	{
+		output_error("GldMain::subcommand(format='%s',...): memory allocation failed",format);
+		return -1;
+	}
+	va_end(ptr);
+
+	FILE *output = NULL, *error = NULL;
+	int rc = 0;
+	if ( ! popens(command, &output, &error) ) 
+	{
+		output_error("GldMain::subcommand(format='%s',...): unable to run command '%s'",format,command);
+		rc = -1;
+	}
+	else
+	{
+		char line[1024];
+		FILE *output_stream = output_get_stream("output");
+		while ( output && fgets(line, sizeof(line)-1, output) != NULL ) 
+		{
+			fprintf(output_stream,"%s",line);
+		}
+		FILE *error_stream = output_get_stream("error");
+		while ( error && fgets(line, sizeof(line)-1, error) != NULL ) 
+		{
+			fprintf(error_stream,"%s",line);
+		}
+		rc = pcloses(output);
+		if ( rc > 0 )
+		{
+			output_error("GldMain::subcommand(format='%s',...): command '%s' returns code %d",format,command,rc);
+		}
+	}
+	return rc;
+}
+
+#include <sys/param.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <errno.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <paths.h>
+
+static struct pid {
+	FILE *output;
+	FILE *error;
+	pid_t pid;
+	struct pid *next;
+} *pidlist;
+
+extern char **environ;
+
+/*	Function: popens
+	
+	Runs a program and connects its stdout and stderr to the FILEs.
+
+	Returns:
+	-1	failed
+ */
+static int popens(const char *program, FILE **output, FILE **error)
+{
+
+	struct pid * volatile cur;
+	int pdout[2],pderr[2];
+	pid_t pid;
+	if ( output == NULL && error == NULL )
+	{
+		errno = EINVAL;
+		return -1;
+	}
+	const char *argp[] = {getenv("SHELL"), "-c", NULL, NULL};
+	cur = (struct pid*)malloc(sizeof(struct pid));
+	if ( cur == NULL )
+	{
+		return 0;
+	}
+	if ( pipe(pdout) < 0 || pipe(pderr) < 0 ) 
+	{
+		free(cur);
+		return 0;
+	}
+	pid = fork();
+	if ( pid == -1 )
+	{
+		/* error */
+		(void)close(pdout[0]);
+		(void)close(pdout[1]);
+		(void)close(pderr[0]);
+		(void)close(pderr[1]);
+		free(cur);
+		return 0;
+	}
+	else if ( pid == 0 )
+	{
+		/* child writes on 1 */
+		for ( struct pid *pcur = pidlist ; pcur ; pcur = pcur->next )
+		{
+			(void)close(fileno(pcur->output));
+			(void)close(fileno(pcur->error));
+		}
+		if ( output ) 
+		{
+			(void) close(pdout[0]);
+			if ( pdout[1] != STDOUT_FILENO ) 
+			{
+				(void)dup2(pdout[1], STDOUT_FILENO);
+				(void)close(pdout[1]);
+			}
+		}	
+		if ( error )
+		{
+			(void)close(pderr[0]);
+			if ( pderr[1] != STDERR_FILENO ) 
+			{
+				(void)dup2(pderr[1], STDERR_FILENO);
+				(void)close(pderr[1]);
+			}
+		}
+		argp[2] = (char *)program;
+		execve(_PATH_BSHELL, (char *const*)argp, environ);
+		_exit(127);
+	}
+	else
+	{
+		/* parent reads on 0 */
+		if ( output ) 
+		{
+			*output = fdopen(pdout[0], "r");
+			(void)close(pdout[1]);
+		}
+		if ( error ) 
+		{
+			*error = fdopen(pderr[0], "r");
+			(void)close(pderr[1]);
+		}
+		/* Link into list of file descriptors. */
+		cur->output = ( output ? *output : NULL );
+		cur->error = ( error ? *error : NULL );
+		cur->pid =  pid;
+		cur->next = pidlist;
+		pidlist = cur;
+		return 1;
+	}
+}
+
+/*	Function: pcloses
+
+	Waits for the process associated with the stream to terminate and closes its pipes.
+ 
+ 	Returns:
+ 	-1  	if stream is not associated with a `popen3' command, if already closed, or waitpid returns an error.
+ 	status	if ok
+ */
+static int pcloses(FILE *iop, bool wait=true)
+{
+	struct pid *cur, *last;
+	int pstat;
+	pid_t pid;
+	/* Find the appropriate file pointer. */
+	for ( last = NULL, cur = pidlist ; cur ; last = cur, cur = cur->next )
+	{
+		if ( cur->output == iop || cur->error == iop )
+		{
+			break;
+		}
+	}
+	if ( cur == NULL )
+	{
+		return (-1);
+	}
+	if ( ! wait )
+	{
+		if ( cur->output ) (void)fclose(cur->output);
+		if ( cur->error ) (void)fclose(cur->error);
+		kill(cur->pid,SIGHUP);
+		pid = 0;
+	}
+	else
+	{
+		do 
+		{
+			pid = waitpid(cur->pid, &pstat, 0);
+		} while ( pid == -1 && errno == EINTR );
+		if ( cur->output ) (void)fclose(cur->output);
+		if ( cur->error ) (void)fclose(cur->error);
+	}
+
+	/* remove the entry from the linked list */
+	if (last == NULL)
+	{
+		pidlist = cur->next;
+	}
+	else
+	{
+		last->next = cur->next;
+	}
+	free(cur);
+	return ( pid == -1 ? errno : pstat );
 }
 
 int GldMain::subcommand(const char *format, ...)
