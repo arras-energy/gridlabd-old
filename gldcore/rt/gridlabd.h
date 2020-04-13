@@ -1212,6 +1212,7 @@ typedef struct s_callbacks {
 		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, char *opstr);
 		double (*get_part)(OBJECT*,PROPERTY*,char*);
 		PROPERTYSPEC *(*get_spec)(PROPERTYTYPE ptype);
+		bool (*compare_basic_str)(PROPERTY*,PROPERTYCOMPAREOP,void*,const char*,const char*,const char*);
 	} properties;
 	struct {
 		struct s_findlist *(*objects)(struct s_findlist *,...);

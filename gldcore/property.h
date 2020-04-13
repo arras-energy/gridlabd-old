@@ -1601,11 +1601,19 @@ DEPRECATED int property_create(PROPERTY *, void *);
 */
 DEPRECATED bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, const char *part);
 
+/* 	Function: property_compare_basic_str
+
+	Returns: 
+	bool - result of comparison
+*/
+DEPRECATED bool property_compare_basic_str(PROPERTY *prop, PROPERTYCOMPAREOP op, void *x, const char *a, const char *b, const char *part);
+
 /* 	Function: property_compare_op
 
 	Returns: 
 	PROPERTYCOMPAREOP - comparison operator function call
 */
+
 DEPRECATED PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, const char *opstr);
 
 /* 	Function: property_get_type

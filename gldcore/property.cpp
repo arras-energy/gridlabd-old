@@ -319,13 +319,17 @@ PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, const char *opstr)
 bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, const char *part)
 {
 	if ( part==NULL && property_type[ptype].compare[op].fn!=NULL )
+	{
 		return property_type[ptype].compare[op].fn(x,a,b);
+	}
 	else if ( property_type[ptype].get_part!=NULL && part != NULL )
 	{
 		double d = property_type[ptype].get_part ? property_type[ptype].get_part(x,part) : QNAN ;
 		if ( isfinite(d) )
+		{
 			// parts always double (for now)
 			return property_type[PT_double].compare[op].fn((void*)&d,a,b);
+		}
 		else
 		{
 			output_error("part %s is not defined for type %s", part, property_type[ptype].name);
@@ -336,6 +340,27 @@ bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, v
 	{
 		output_warning("property type '%s' does not support comparison operations or parts", property_type[ptype].name);
 		return 0;
+	}
+}
+
+bool property_compare_basic_str(PROPERTY *prop, PROPERTYCOMPAREOP op, void *x, const char *a, const char *b, const char *part)
+{
+	// convert a and b to their respective underlying property values
+	char *xa = new char[property_type[prop->ptype].size];
+	char *xb = new char[property_type[prop->ptype].size];
+	if ( property_read(prop,(void*)xa,a) < 0 )
+	{
+		output_warning("property type '%s' cannot represent value '%s'", property_type[prop->ptype].name,a);
+		return false;
+	}
+	else if ( b != NULL && property_read(prop,(void*)xb,b) < 0 )
+	{
+		output_warning("property type '%s' cannot represent value '%s'", property_type[prop->ptype].name,b);
+		return false;
+	}
+	else
+	{
+		return property_compare_basic(prop->ptype,op,x,(void*)xa,(void*)xb,part);
 	}
 }
 
