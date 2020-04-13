@@ -144,7 +144,7 @@ public:
 
 		Returns: exit code of first failed call, or 0 if all calls succeeded
 	 */
-	int run_on_exit(int return_code = 0);
+	int run_on_exit();
 
 private:	// private methods
 	void set_global_browser(const char *path = NULL);

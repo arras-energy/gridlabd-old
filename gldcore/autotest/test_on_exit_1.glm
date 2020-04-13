@@ -1,3 +1,0 @@
-// this causes the error to be ignored
-#on_exit -1 exit 0
-#error this causes an error that should be ignored

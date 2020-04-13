@@ -8,9 +8,7 @@
 
 # Description
 
-When this macro is encountered, an exit handler is added when the simulation exits with `exitcode`.  Exit handlers are run only when the simulation has completed all post simulation processing and is about to exit.  The exit process is suspended until the result of the exit handler(s) are obtained. The exit code of the exit handler is then used as the exit code of the simulation.  
-
-If multiple exit handlers are specified, they will be called in the order in which they are listed. If an exit handler returns a non-zero exit code, the exit handling sequence is abandoned and the exit code of the simulation is the exit code of the failed handler.  If no errors are encountered, the exit code 0 is used. 
+When this macro is encountered, an exit handler is added when the simulation exits with `exitcode`.  Exit handlers are run only when the simulation has completed all post simulation processing and is about to exit.  The exit process is suspended until the result of the exit handler(s) are obtained.
 
 When the value `-1` is used for the `exitcode`, any non-zero exit condition will trigger the exit handler.
 

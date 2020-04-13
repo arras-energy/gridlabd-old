@@ -13,6 +13,7 @@ COUNTRY="US"
 GITUSER=slacgismo
 GITREPO="gridlabd-weather"
 GITBRANCH="master"
+SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -r1"
 DATADIR="$GLD_ETC/weather/$COUNTRY"
 
 # load the configuration (if any)
@@ -32,6 +33,7 @@ function config()
 		echo "GITBRANCH=\"$GITBRANCH\""
 		echo "CACHEDIR=\"$CACHEDIR\""
 		echo "DATADIR=\"$DATADIR\""
+		echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
 	elif [ "$1" == "reset" ]; then
 		rm -f $CONFIGFILE || (echo "ERROR: unable to reset $CONFIGFILE" > /dev/stderr; exit 1)
 	elif [ "$1" == "set" -a $# == 3 ]; then
@@ -69,8 +71,7 @@ function fetch_index()
 	fi
 	if [ ! -f $INDEX -o -z $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $COUNTRY weather archive from ${GITPROJ}... "
-#		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX || rm -f $INDEX
-		curl -s $GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH/$COUNTRY/.index >$INDEX
+		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$COUNTRY | grep '.tmy3$' > $INDEX || rm -f $INDEX
 		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "weather files found"
 	fi
 	if [ ! -f $INDEX ]; then
