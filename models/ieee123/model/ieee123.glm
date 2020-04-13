@@ -17,6 +17,7 @@
 #set CONFIGFILE=config/local.glm
 #endif
 
+#print "Hello adding this ccode here"
 //
 // Check the configuration
 //
