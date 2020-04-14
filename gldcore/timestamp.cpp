@@ -1276,7 +1276,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 		return (TIMESTAMP)(t+0.5);
 	}
 	else
-		return TS_NEVER;
+		return TS_INVALID;
 }
 
 /** Convert from a string to a timestamp -- delta compatibility
