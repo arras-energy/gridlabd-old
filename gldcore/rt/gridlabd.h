@@ -1075,6 +1075,7 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	int (*to_initial)(char *,int,void*,PROPERTY*); /**< function to get initialization string */
 	int (*create)(void*); /**< the function used to create the property, if any */
 	size_t (*stream)(FILE*,int,void*,PROPERTY*); /**< the function to read data from a stream */
+	int (*string_to_compare)(const char*,void*,PROPERTY*);
 	struct {
 		PROPERTYCOMPAREOP op;
 		char str[16];
