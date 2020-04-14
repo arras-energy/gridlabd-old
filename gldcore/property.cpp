@@ -20,7 +20,7 @@ double complex_get_part(void *x, const char *name);
 PROPERTYSPEC property_type[_PT_LAST] = {
 	{"void", "string", NULL, 0, 0, convert_from_void,convert_to_void},
 	{"double", "decimal", "0.0", sizeof(double), 24, convert_from_double,convert_to_double,initial_from_double,NULL,NULL,convert_to_double,{TCOPS(double)},},
-	{"complex", "string", "0+0i", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,NULL,convert_to_double,{TCOPS(double)},complex_get_part,complex_set_part},
+	{"complex", "string", "0+0i", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,NULL,convert_to_complex,{TCOPS(double)},complex_get_part,complex_set_part},
 	{"enumeration", "string", "0", sizeof(enumeration), 1024, convert_from_enumeration,convert_to_enumeration,NULL,NULL,NULL,convert_to_enumeration,{TCOPS(uint64)},},
 	{"set", "string", "0", sizeof(set), 1024, convert_from_set,convert_to_set,NULL,NULL,NULL,convert_to_set,{TCOPS(uint64)},},
 	{"int16", "integer", "0", sizeof(int16), 6, convert_from_int16,convert_to_int16,NULL,NULL,NULL,convert_to_int16,{TCOPS(uint16)},},
