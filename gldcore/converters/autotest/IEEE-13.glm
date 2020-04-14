@@ -400,7 +400,7 @@ object load {
      constant_power_A 160000+110000j;
      constant_power_B 120000+90000j;
      constant_power_C 120000+90000j;
-     nominal_voltage 480.000;
+     nominal_voltage 240.000;
 }
  
 object load {
