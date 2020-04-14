@@ -1,2 +1,2 @@
-#include "../../../models/IEEE-13.glm"
+#include "../../../../models/IEEE-13.glm"
 #output "json2png_profile.png" -t profile
