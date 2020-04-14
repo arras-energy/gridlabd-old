@@ -3,7 +3,6 @@
 	
 	@file main.c
 	@author David P. Chassin
-
  @{
  **/
 #define _MAIN_C
@@ -54,9 +53,6 @@ int main
 		else
 		{
 			return_code = my_instance->mainloop(argc,argv);
-			int rc = my_instance->run_on_exit();
-			if ( return_code != 0 )
-				return_code = rc;
 		}
 	}
 	catch (const char *msg)
@@ -74,6 +70,7 @@ int main
 		output_error("unknown exception");
 		return_code = XC_EXCEPTION;
 	}
+	return_code = my_instance->run_on_exit(return_code);
 	if ( my_instance != NULL )
 	{
 		delete my_instance;
@@ -319,8 +316,9 @@ int GldMain::add_on_exit(int xc, const char *cmd)
 	}
 }
 
-int GldMain::run_on_exit()
+int GldMain::run_on_exit(int return_code)
 {
+	int new_return_code = return_code;
 	save_outputs();
 
 	/* save the model */
@@ -379,41 +377,50 @@ int GldMain::run_on_exit()
 
 	for ( std::list<onexitcommand>::iterator cmd = exitcommands.begin() ; cmd != exitcommands.end() ; cmd++ )
 	{
-		if ( cmd->get_exitcode() == exec.getexitcode() 
-			|| ( exec.getexitcode() == -1 && cmd->get_exitcode() != 0 ) 
+		if ( cmd->get_exitcode() == return_code 
+			|| ( return_code != 0 && cmd->get_exitcode() == -1 ) 
 			)
 		{
-			int rc = cmd->run();
-			if ( rc != 0 )
+			new_return_code = cmd->run() >> 8;
+			if ( new_return_code != 0 )
 			{
-				output_error("on_exit %d '%s' command failed (return code %d)", cmd->get_exitcode(), cmd->get_command(), rc);
-				return XC_RUNERR;
+				output_error("on_exit %d '%s' command failed (return code %d)", cmd->get_exitcode(), cmd->get_command(), new_return_code);
+				exec.setexitcode(EXITCODE(new_return_code));
+				goto Done;
 			}
 			else
 			{
-				IN_MYCONTEXT output_verbose("running on_exit(%d,'%s') -> code %d", cmd->get_exitcode(), cmd->get_command(), rc);
+				IN_MYCONTEXT output_verbose("running on_exit(%d,'%s') -> code %d", cmd->get_exitcode(), cmd->get_command(), new_return_code);
 			}
 		}
 	}
 
 	for ( std::list<EXITCALL>::iterator call = exitcalls.begin() ; call != exitcalls.end() ; call++ )
 	{
-		int rc = (*call)(exec.getexitcode());
-		if ( rc != 0 )
+		new_return_code = (*call)(return_code);
+		if ( new_return_code != 0 )
 		{
-			output_error("on_exit call failed (return code %d)", rc);
-			return XC_RUNERR;
+			output_error("on_exit call failed (return code %d)", new_return_code);
+			exec.setexitcode(EXITCODE(new_return_code));
+			goto Done;
 		}
 		else
 		{
-			IN_MYCONTEXT output_verbose("exitcall() -> code %d", rc);
+			IN_MYCONTEXT output_verbose("exitcall() -> code %d", new_return_code);
 		}
 	}
 
+Done:
 	/* compute elapsed runtime */
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
-	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
-	return 0;
+	IN_MYCONTEXT output_verbose("exit code %d", new_return_code);
+	// simulation   handler   exitcode
+	// ---------   ---------  --------- 
+	//      0          0          0
+	//      0          Y          Y
+	//      X          0          0
+	//      X          Y          Y       
+	return new_return_code;
 }
 
 #include <sys/param.h>
@@ -438,7 +445,6 @@ extern char **environ;
 /*	Function: popens
 	
 	Runs a program and connects its stdout and stderr to the FILEs.
-
 	Returns:
 	-1	failed
  */
@@ -529,7 +535,6 @@ static int popens(const char *program, FILE **output, FILE **error)
 }
 
 /*	Function: pcloses
-
 	Waits for the process associated with the stream to terminate and closes its pipes.
  
  	Returns:
@@ -580,7 +585,7 @@ static int pcloses(FILE *iop, bool wait=true)
 		last->next = cur->next;
 	}
 	free(cur);
-	return ( pid == -1 ? errno : pstat );
+	return ( pid == -1 ? errno : pstat>>8 );
 }
 
 int GldMain::subcommand(const char *format, ...)
@@ -605,13 +610,15 @@ int GldMain::subcommand(const char *format, ...)
 	else
 	{
 		char line[1024];
+		FILE *output_stream = output_get_stream("output");
 		while ( output && fgets(line, sizeof(line)-1, output) != NULL ) 
 		{
-			output_message(line);
+			fprintf(output_stream,"%s",line);
 		}
+		FILE *error_stream = output_get_stream("error");
 		while ( error && fgets(line, sizeof(line)-1, error) != NULL ) 
 		{
-			output_error(line);
+			fprintf(error_stream,"%s",line);
 		}
 		rc = pcloses(output);
 		if ( rc > 0 )

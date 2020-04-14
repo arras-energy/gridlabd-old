@@ -14,6 +14,7 @@ GLM:
     interval "+0 s";
     filemode "w";
     mode "RECT";
+    version "2";
   }
 ~~~
 
@@ -86,6 +87,13 @@ Sets the file write mode. Use `w` to write a new file each dump. Use `a` to appe
 ~~~
 
 Specify whether to dump complex numbers in polar or rectangular form.
+
+### `version`
+~~~
+  int32 version;
+~~~
+
+Specifies the format version to output. The default is version 2, which omits the comment row when a new timestamp is seen, and adds a `datetime` column to the output.
 
 # Example
 

@@ -55,15 +55,21 @@ switch_coordinator::switch_coordinator(MODULE *module)
 
 		defaults = this;
 		if (gl_publish_variable(oclass,
-			PT_enumeration,"status",get_status_offset(), PT_DESCRIPTION,"switch coordination status",
+			PT_enumeration,"status",get_status_offset(), 
+				PT_DESCRIPTION,"switch coordination status",
 				PT_KEYWORD, "IDLE", (enumeration)SCS_IDLE,
 				PT_KEYWORD, "ARMED", (enumeration)SCS_ARMED,
 				PT_KEYWORD, "TOGGLE", (enumeration)SCS_TOGGLE,
 				PT_KEYWORD, "DIRECT", (enumeration)SCS_DIRECT,
-			PT_method,"arm",get_arm_offset(), PT_DESCRIPTION, "method to arm a switch",
-			PT_method,"disarm",get_disarm_offset(), PT_DESCRIPTION, "method to disarm a switch",
-			PT_method,"connect",get_connect_offset(), PT_DESCRIPTION,"method to connect switches",
-			PT_set,"armed",get_armed_offset(), PT_DESCRIPTION,"set of armed switches",
+			PT_method,"arm",get_arm_offset(), 
+				PT_DESCRIPTION, "method to arm a switch",
+			PT_method,"disarm",get_disarm_offset(), 
+				PT_DESCRIPTION, "method to disarm a switch",
+			PT_method,"connect",get_connect_offset(), 
+				PT_DESCRIPTION,"method to connect switches",
+			PT_set,"armed",get_armed_offset(), 
+				PT_OUTPUT,
+				PT_DESCRIPTION,"set of armed switches",
 				PT_KEYWORD, "NONE", (set)0,
 			NULL)<1){
 				char msg[256];

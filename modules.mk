@@ -9,12 +9,13 @@ include market/Makefile.mk
 include powerflow/Makefile.mk
 include reliability/Makefile.mk
 include residential/Makefile.mk
+include revenue/Makefile.mk
 
 # TODO: deprecating these soon
 include tape_file/Makefile.mk
 include tape/Makefile.mk
 include tape_plot/Makefile.mk
 
-# TODO: removed until 4.2 upgrades are implemented
+# TODO: removed until HiPAS upgrades are implemented
 #include connection/Makefile.mk 
 #include optimize/Makefile.mk 
