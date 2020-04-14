@@ -4,4 +4,4 @@
 
 #include "${DIR:-..}/IEEE-13.glm"
 
-#output "json2png_profile.png" -t profile
+#output "json2csv_profile.csv" -t profile
