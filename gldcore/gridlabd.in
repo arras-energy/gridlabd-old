@@ -269,12 +269,12 @@ HAS_MINGW="@HAS_MINGW@"
 
 HAS_DOCKER="no"
 which docker > /dev/null 2>&1 && HAS_DOCKER="yes"
-if test "x$1" = "x--docker" ; then :
+if test "x$1" = "xdocker" ; then :
   if test "x$HAS_DOCKER" = "xno"; then :
     echo "docker is not installed"
     exit 1
   elif test "x$2" = "xhelp"; then :
-    echo "Syntax: gridlabd --docker <command>"
+    echo "Syntax: gridlabd docker <command>"
     echo "Valid commands:"
     echo "  help             get a list of available docker control commands"
     echo "  enable <image>   enable a docker image as the active image"
@@ -335,17 +335,17 @@ else
   export GLPATH="$pkglibdir:$pkgdatadir:$GLPATH"
 fi
 
-if test "x$1" = "x--gdb" ; then :
+if test "x$1" = "xgdb" ; then :
   shift
   gdb -ex "run $@" $bindir/gridlabd.bin
   exit 0
-elif test "x$1" = "x--lldb" ; then :
+elif test "x$1" = "xlldb" ; then :
   shift
   echo "run $@" > /tmp/gridlabd-$$
   lldb -s /tmp/gridlabd-$$ $bindir/gridlabd.bin
   rm /tmp/gridlabd-$$
   exit 0
-elif test "x$1" = "x--valgrind" ; then :
+elif test "x$1" = "xvalgrind" ; then :
   shift
   if test -z "${VALGRIND_OPTIONS}" ; then :
     echo "warning: VALGRIND_OPTIONS is not set, using default valgrind options"
