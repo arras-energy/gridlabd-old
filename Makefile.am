@@ -296,7 +296,7 @@ libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
 
 install-exec-hook: python-install index
-	cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
+	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
 	@echo ""
@@ -306,7 +306,7 @@ install-exec-hook: python-install index
 	@echo "To run this version directly without using the command path:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd"
 	@echo ""
-	@echo "To make this version the default for all user on this system:"
+	@echo "To make this version the default for all users on this system:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
 
@@ -320,16 +320,20 @@ docker: $(PREFIX)/docker.img
 
 docker-debug: docker/Dockerfile Makefile
 	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_ORIGIN) --build-arg RUN_VALIDATION=no docker
-	mkdir -p $(prefix)
+	@mkdir -p $(prefix)
 	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
 
 $(PREFIX)/docker.img: docker/Dockerfile Makefile
 	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_ORIGIN) --build-arg RUN_VALIDATION=yes docker
-	mkdir -p $(prefix)
+	@mkdir -p $(prefix)
 	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
 
 system: install
-	$(DESTDIR)$(bindir)/gridlabd version set
+	@echo "Setting $$(./build-aux/version.sh --install) to the current system version"
+	@$(DESTDIR)$(bindir)/gridlabd version set
+	@if [ ! "$$(gridlabd --version=install)" == "$$(./build-aux/version.sh --install)" ]; then \
+		echo '*** WARNING : build and install versions differ ***'; \
+	fi
 
 index: weather library template
 
