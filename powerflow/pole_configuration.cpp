@@ -73,7 +73,7 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 				PT_KEYWORD, "PENTA", (enumeration)PTM_PENTA,
 				PT_KEYWORD, "CCA", (enumeration)PTM_CCA,
             NULL) < 1) GL_THROW("unable to publish pole_configuration properties in %s",__FILE__);
-        GLOBALVAR *var = gl_global_create("climate_impact_zone", PT_enumeration, &climate_impact_zone, PT_DESCRIPTION, "pole deterioration climate impact zone", NULL);
+        GLOBALVAR *var = gl_global_create("powerflow::climate_impact_zone", PT_enumeration, &climate_impact_zone, PT_DESCRIPTION, "pole deterioration climate impact zone", NULL);
         if ( ! var )
         	exception("unable to create global climate_impact_zone");
         var->prop->keywords = kw_ciz;
