@@ -27,42 +27,31 @@ int_assert::int_assert(MODULE *module)
 			oclass->trl = TRL_PROVEN;
         
 		if (gl_publish_variable(oclass,
-                                // TO DO:  publish your variables here
-                                PT_enumeration,"status",get_status_offset(),
-                                PT_KEYWORD,"ASSERT_TRUE",(enumeration)ASSERT_TRUE,
-                                PT_KEYWORD,"ASSERT_FALSE",(enumeration)ASSERT_FALSE,
-                                PT_KEYWORD,"ASSERT_NONE",(enumeration)ASSERT_NONE,
-                                PT_enumeration, "once", get_once_offset(),
-                                PT_KEYWORD,"ONCE_FALSE",(enumeration)ONCE_FALSE,
-                                PT_KEYWORD,"ONCE_TRUE",(enumeration)ONCE_TRUE,
-                                PT_KEYWORD,"ONCE_DONE",(enumeration)ONCE_DONE,
-                                PT_enumeration, "within_mode", get_within_mode_offset(),
-                                PT_KEYWORD,"WITHIN_VALUE",(enumeration)IN_ABS,
-                                PT_KEYWORD,"WITHIN_RATIO",(enumeration)IN_RATIO,
-                                PT_int32, "value", get_value_offset(),
-                                PT_int32, "within", get_within_offset(),
-                                PT_char1024, "target", get_target_offset(),
-                                NULL)<1){
+                PT_enumeration,"status",get_status_offset(),PT_DEFAULT,"ASSERT_TRUE",
+	                PT_KEYWORD,"ASSERT_TRUE",(enumeration)ASSERT_TRUE,
+	                PT_KEYWORD,"ASSERT_FALSE",(enumeration)ASSERT_FALSE,
+	                PT_KEYWORD,"ASSERT_NONE",(enumeration)ASSERT_NONE,
+                PT_enumeration, "once", get_once_offset(),
+	                PT_KEYWORD,"ONCE_FALSE",(enumeration)ONCE_FALSE,
+	                PT_KEYWORD,"ONCE_TRUE",(enumeration)ONCE_TRUE,
+	                PT_KEYWORD,"ONCE_DONE",(enumeration)ONCE_DONE,
+                PT_enumeration, "within_mode", get_within_mode_offset(),
+	                PT_KEYWORD,"WITHIN_VALUE",(enumeration)IN_ABS,
+	                PT_KEYWORD,"WITHIN_RATIO",(enumeration)IN_RATIO,
+                PT_int32, "value", get_value_offset(),
+                PT_int32, "within", get_within_offset(),
+                PT_char1024, "target", get_target_offset(),
+                NULL)<1){
             char msg[256];
             sprintf(msg, "unable to publish properties in %s",__FILE__);
             throw msg;
 		}
-        
-		defaults = this;
-		status = ASSERT_TRUE;
-		within = 0;
-		within_mode = IN_ABS;
-		value = 0;
-		once = ONCE_FALSE;
-		once_value = 0;
 	}
 }
 
 /* Object creation is called once for each object that is created by the core */
 int int_assert::create(void)
 {
-	memcpy(this,defaults,sizeof(*this));
-    
 	return 1; /* return 1 on success, 0 on failure */
 }
 

@@ -14,7 +14,8 @@
 #include "weather.h"
 
 /* move this to climate.h */
-typedef struct s_records {
+typedef struct s_records 
+{
 		double low;
 		double low_day;
 		double high;
@@ -22,7 +23,8 @@ typedef struct s_records {
 		double solar;
 } RECORDS;
 
-class weather_reader {
+class weather_reader 
+{
 private:
 protected:
 	FILE *infile;

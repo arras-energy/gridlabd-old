@@ -5,6 +5,9 @@
 
 wchar_t *program = NULL;
 PyObject *main_module = NULL;
+PyObject *gridlabd_module = NULL;
+
+PyMODINIT_FUNC PyInit_gridlabd(void);
 
 void python_embed_init(int argc, const char *argv[])
 {
@@ -15,11 +18,22 @@ void python_embed_init(int argc, const char *argv[])
     if ( main_module == NULL )
     {
         output_error("python_embed_init(argc=%d,argv=[...]: unable to load module __main__ module",argc);
-        throw "python exception";
+        throw "python initialization failied";
     }
+    output_verbose("python initialization ok");
+    const char *import_list[] = {"gridlabd"};
+    if ( python_loader_init(sizeof(import_list)/sizeof(import_list[0]),import_list) == NULL )
+        throw "python initial import failed";
     python_parser("import " PACKAGE);
     python_parser();
-    output_verbose("python initialization ok");
+    gridlabd_module = PyModule_GetDict(PyImport_AddModule(PACKAGE));
+    if ( gridlabd_module == NULL )
+        throw "python module import failed";
+}
+
+void *python_loader_init(int argc, const char **argv)
+{
+    return main_module;
 }
 
 void python_embed_term()
@@ -46,8 +60,12 @@ PyObject *python_embed_import(const char *module, const char *path)
         {
             PyObject *pType, *pValue, *pTraceback;
             PyErr_Fetch(&pType, &pValue, &pTraceback);
-            const char *msg = pValue?PyBytes_AS_STRING(pValue):"PyRun_SimpleString failed with no information";
+            PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
+            PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+            const char *msg = bytes?PyBytes_AS_STRING(bytes):"PyRun_SimpleString failed with no information";
             output_error("python_embed_import(module='%s',path='%s'): %s; string='%s'",module,path,msg,tmp);
+            if ( repr ) Py_XDECREF(repr);
+            if ( bytes ) Py_XDECREF(bytes);
             return NULL;
         }
     }
@@ -57,8 +75,12 @@ PyObject *python_embed_import(const char *module, const char *path)
     { 
         PyObject *pType, *pValue, *pTraceback;
         PyErr_Fetch(&pType, &pValue, &pTraceback);
-        const char *msg = pValue?PyBytes_AS_STRING(pValue):"PyImport_ImportModule failed with no information";
+        PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
+        PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+        const char *msg = bytes?PyBytes_AS_STRING(bytes):"PyImport_ImportModule failed with no information";
         output_error("python_embed_import(module='%s',path='%s'): %s",module,path,msg);
+        if ( repr ) Py_XDECREF(repr);
+        if ( bytes ) Py_XDECREF(bytes);
         return NULL;
     }
     else
@@ -82,7 +104,7 @@ const char *truncate(const char *command)
     return buf;
 }
 
-bool python_embed_call(PyObject *pModule, const char *name)
+bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt, va_list varargs)
 {
     if ( pModule == NULL )
     {
@@ -93,28 +115,75 @@ bool python_embed_call(PyObject *pModule, const char *name)
     PyObject *pFunc = PyObject_GetAttrString(pModule,name);
     if ( pFunc == NULL )
     {
-        PyErr_Print();
-        output_error("python_embed_call(pModule,name='%s'): function not defined",truncate(name));
+        PyObject *pType, *pValue, *pTraceback;
+        PyErr_Fetch(&pType, &pValue, &pTraceback);
+        PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
+        PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+        const char *msg = bytes?PyBytes_AS_STRING(bytes):"function not defined";
+        output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
+        if ( repr ) Py_XDECREF(repr);
+        if ( bytes ) Py_XDECREF(bytes);
         return false;
     }
     if ( ! PyCallable_Check(pFunc) )
     {
-        PyErr_Print();
-        output_error("python_embed_call(name='%s'): function not callable",truncate(name));
-        Py_DECREF(pFunc);
+        PyObject *pType, *pValue, *pTraceback;
+        PyErr_Fetch(&pType, &pValue, &pTraceback);
+        PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
+        PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+        const char *msg = bytes?PyBytes_AS_STRING(bytes):"function not callable";
+        output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
+        if ( repr ) Py_XDECREF(repr);
+        if ( bytes ) Py_XDECREF(bytes);
         return false;
     }
 
-    PyObject *pResult = PyObject_CallObject(pFunc,NULL);
+    PyObject *pGridlabd = PyDict_GetItemString(pModule,"gridlabd");
+    PyObject *pArgs = Py_BuildValue("(O)",pGridlabd?pGridlabd:PyInit_gridlabd());
+    PyObject *pKwargs = vargsfmt ? Py_VaBuildValue(vargsfmt,varargs) : NULL;
+    PyObject *pResult = PyObject_Call(pFunc,pArgs,pKwargs);
+    if ( pGridlabd ) Py_DECREF(pGridlabd);
+    Py_DECREF(pArgs);
     if ( PyErr_Occurred() )
     {
-        PyErr_Print();
+        PyObject *pType, *pValue, *pTraceback;
+        PyErr_Fetch(&pType, &pValue, &pTraceback);
+        if ( pValue )
+        {
+            PyObject *repr = PyObject_Repr(pValue);
+            PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+            const char *msg = bytes ? PyBytes_AS_STRING(bytes) : "function call failed";
+            output_error("python_embed_call(pModule,name='%s'): %s",truncate(name), msg);
+            if ( repr ) Py_XDECREF(repr);
+            if ( bytes ) Py_XDECREF(bytes);
+            PyObject *pContext = PyException_GetContext(pValue);
+            if ( pContext )
+            {
+                PyObject *repr = pContext ? PyObject_Repr(pContext) : NULL;
+                PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+                const char *msg = bytes?PyBytes_AS_STRING(bytes):"function call failed";
+                output_error("python_embed_call(pModule,name='%s'): context is %s",truncate(name), msg);
+                Py_XDECREF(pContext);
+                if ( repr ) Py_XDECREF(repr);
+                if ( bytes ) Py_XDECREF(bytes);
+            }
+            else
+            {
+                output_error("python_embed_call(pModule,name='%s'): context not available",truncate(name));
+            }
+        }
+        else
+        {
+            output_error("python_embed_call(pModule,name='%s'): no error information available",truncate(name));
+        }
+        return false;
     }
-    if ( pResult != NULL )
+    else if ( pResult != NULL )
     {
         Py_DECREF(pResult);
     }
     Py_DECREF(pFunc);
+    if ( pKwargs ) Py_DECREF(pKwargs);
     return true;
 }
 
@@ -208,7 +277,7 @@ std::string python_eval(const char *command)
 //   python_parser(NULL) to parse input buffer
 // Returns true on success, false on failure
 static std::string input_buffer("");
-bool python_parser(const char *line)
+bool python_parser(const char *line, void *context)
 {
     // end input -> run code
     if ( line != NULL )
@@ -217,8 +286,14 @@ bool python_parser(const char *line)
         return true;
     }
 
+    PyObject *module = (PyObject*)context;
+    if ( module == NULL )
+    {
+        module = main_module;
+    }
+
     const char *command = input_buffer.c_str();
-    PyObject *result = PyRun_String(command,Py_file_input,main_module,main_module);
+    PyObject *result = PyRun_String(command,Py_file_input,module,module);
     if ( result == NULL )
     {
         output_error("python_embed_call(parser_module='gridlabd',command='%s') failed",truncate(command));

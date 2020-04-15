@@ -12,7 +12,7 @@ module assert {
 
 # Description
 
-TODO
+The `assert` module support classes that are used to verify that properties have specified values under given conditions.
 
 ## Globals
 

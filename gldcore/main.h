@@ -44,12 +44,13 @@ public:
 	};
 	inline int run(void)
 	{
-		return system(command);
+		int rc = system(command);
+		output_debug("onexitcommand(xc=%d,cmd='%s').run() --> exit code %d",exitcode,command,rc);
+		return rc;
 	};
 };
 
 /*	Class: GldMain
-
 	The GldMain class implement an instance of a GridLAB-D simulation.
  */
 class GldMain {
@@ -69,31 +70,26 @@ public: // public variables
 	LOCKVAR wlock_spin;
 public:
 	/*	Method: get_globals
-
 		This function returns a reference to the global variable list of the instance.
 	 */
 	inline GldGlobals *get_globals() { return &globals; };
 
 	/*	Method: get_exec
-
 		This function returns a reference to the execution control of the instance.
 	 */
 	inline GldExec *get_exec() { return &exec; };
 
 	/*	Method: get_cmdarg
-
 		This function returns a reference to the command line processor of the instance
 	 */
 	inline GldCmdarg *get_cmdarg() { return &cmdarg; };
 
 	/* Method: get_gui
-
 		This function returns a reference to the GUI implementation
 	 */
 	inline GldGui *get_gui() { return &gui; };
 
 	/* Method: get_loader
-
 		This function returns a reference the the loader implementation
 	 */
 	inline GldLoader *get_loader() { return &loader; };
@@ -111,7 +107,6 @@ public:
 	~GldMain(void);
 
 	/*	Method: pause_at_exit
-
 		This function causes the main program to pause when exit() is called.  
 		The message "Press [RETURN] to exit... " is displayed and the user must
 		hit return for the program to complete the exit() call.
@@ -119,30 +114,24 @@ public:
 	static void pause_at_exit(void);
 
 	/*	Method: mainloop
-
 		This function begins processing the main loop of GridLAB-D using the command
 		argument provided.
-
 		The return value is the standard exit code.
-
 		See also: <
 	 */
 	int mainloop(int argc = 0, const char *argv[] = NULL);
 
 	/* 	Method: add_on_exit
-
 		Adds a command to be executed on exit of main
 	 */
 	int add_on_exit(int xc, const char *cmd);
 	int add_on_exit(EXITCALL call);
 
 	/*	Method: run_on_exit
-
 		Runs the on-exit command list for the exit code given
-
 		Returns: exit code of first failed call, or 0 if all calls succeeded
 	 */
-	int run_on_exit();
+	int run_on_exit(int return_code = 0);
 
 private:	// private methods
 	void set_global_browser(const char *path = NULL);
@@ -216,9 +205,7 @@ public:
 	inline void global_push(char *name, char *value) { return globals.push(name,value);};
 
 	/* 	Method: subcommand
-
 		Run the subcommand in the current environment, redirecting output to stdout/stderr.
-
 		Returns:
 		-1	failed to start command
 		>=0 command exit code
