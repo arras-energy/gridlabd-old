@@ -67,7 +67,7 @@ def convert(ifile,ofile,options=[]):
         return
     glmCirc = convertCymeModel(ifile)
     with open(ofile,'w') as f:
-       glmString = sortedWrite(glmCirc)
+       glmString = feeder.sortedWrite(glmCirc)
        f.write(glmString)
 
 verbose_output = False

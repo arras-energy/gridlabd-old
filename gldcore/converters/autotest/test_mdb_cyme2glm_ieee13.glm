@@ -4,4 +4,4 @@
 
 #input "${DIR:-..}/IEEE-13-cyme.mdb" -t cyme
 
-#output "mdb_cyme2csv_profile.csv" -t profile
+#output "mdb_cyme2png_profile.png" -t profile
