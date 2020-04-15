@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# This script will automatically choose the correct build process 
+# given the status of the source tree.
+#
+# Option 1: new build --> autoreconf -isf && ./configure && make ...
+#
+# Option 2: recent build --> make ...
+#
+# Option 3: old build --> make reconfigure && make ...
+#
+
+SOURCE=$(./build-aux/version.sh --install)
+TARGET=$(gridlabd --version=install)
+
+if [ ! -f Makefile ]; then
+	echo "$0: no makefile --> first time build"
+	COMMAND='autoreconf -isf && ./configure && make'
+elif [ "$SOURCE" == "$TARGET" ]; then
+	echo "$0: build and install versions match --> simple rebuild"
+	COMMAND='make'
+else
+	echo "$0: build and install versions do not match --> full rebuild"
+	COMMAND='make reconfigure && make'
+fi
+
+echo "$COMMAND $*"
+echo "$COMMAND $*" | bash

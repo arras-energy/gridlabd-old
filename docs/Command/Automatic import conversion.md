@@ -16,12 +16,28 @@ Some converters require a hint regarding the type of conversion to use.  For exa
 bash$ gridlabd -D mdb_load_options="-t cyme" <model-name>.mdb
 ~~~
 
+## Support File Formats
+
+### ZIP
+
+When a ZIP file is specified as an input file, the contents of the archive are extracted into the same folder as the ZIP file, and the corresponding GLM file is run. If the GLM file is already present, it will be overwritten.
+
 ## Converter Development
 
 Converters use the following calling syntax:
 
 ~~~
 bash$ python3 <ext>2glm.py -i filename.<ext> -o filename.glm [-t <type-option>] [options...]
+~~~
+
+where `<ext>` is the extension that is supported.
+
+# Examples
+
+Extract files in `my-model.zip` and run `my-model.glm`:
+
+~~~
+bash$ gridlabd my-model.zip
 ~~~
 
 # Caveats

@@ -1,0 +1,2 @@
+// this causes an error when no error has been detected
+#on_exit 0 exit 5

@@ -89,55 +89,47 @@ The PDF is $\phi(x) = \left\\{ \frac{1}{\sqrt{2\pi}x\sigma} e^{\frac{(\ln x-\mu)
 exponential(lambda)
 ~~~
 
-The PDF is $\phi(x) = \left\\{ TODO \right.$.
+The PDF is $\phi(x) = \left\\{ \begin{array}{ll} \lambda e^{\lambda x} & x\ge0 \\\\ 0 & x\lt0 \end{array} \right.$.
 
 ## `beta`
 
 ~~~
-beta(<alpha>,<beta>)
+beta(alpha,beta)
 ~~~
 
-The PDF is $\phi(x) = \left\\{ TODO \right.$.
+The PDF is $\phi(x;\alpha,\beta) = \frac{\Gamma(\alpha+\beta)}{\Gamma(\alpha)\Gamma(\beta)}x^{(\alpha-1)}(1-x)^{(\beta-1)}$.
 
 ## `gamma`
 
 ~~~
-gamma(<alpha>,<beta>)
+gamma(alpha,beta)
 ~~~
 
-The PDF is $\phi(x) = \left\\{ TODO \right.$.
+The PDF is $\phi(x;\alpha,\beta) = \frac{1}{\Gamma(\alpha)\beta^\alpha}x^{(\alpha-1)}e^{-x/\beta}$.
 
 ## `weibull`
 
 ~~~
-weibull(<l>,<k>)
+weibull(l,k)
 ~~~
 
-The PDF is $\phi(x) = \left\\{ TODO \right.$.
+The PDF is $\phi(x;k,\lambda) = \frac{k}{\lambda} \left(\frac{x}{\lambda}\right)^{k-1} e^{-\left(\frac{x}{\lambda}\right)^k}$.
 
 ## `rayleigh`
 
 ~~~
-rayleigh(<s>)
+rayleigh(sigma)
 ~~~
 
-The PDF is $\phi(x) = \left\\{ TODO \right.$.
+The PDF is $\phi(x;\sigma) = \frac{xe^-\frac{x^2}{2\sigma^2}}{\sigma^2}$.
 
 ## `triangle`
 
 ~~~
-triangle(<min>,<max>)
+triangle(a,b)
 ~~~
 
-The PDF is $\phi(x) = \left\\{ TODO \right.$.
-
-## `triangle_asy`
-
-~~~
-triangle_asy(<min>,<max>,<center>)
-~~~
-
-The PDF is $\phi(x) = \left\\{ TODO \right.$.
+The PDF is $\phi(x;a,b) = \left\\{ \begin{array}{ll} \frac{4(x-a)}{(b-a)^2} & a \lt x \le (a+b)/2 \\\\ \frac{4(b-x)}{(b-a)^2} & (a+b)/2 < x \le b \\\\ 0 & x \le a\ |\ x \gt b \end{array}\right.$.
 
 # See also
 

@@ -3262,16 +3262,14 @@ PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full)
 
 PROPERTY *object_get_first_property(OBJECT *obj, bool full)
 {
-	for ( CLASS *oclass = obj->oclass ; 
-		oclass != NULL ; 
-		oclass = ( full == true ? oclass->parent : NULL ) )
-	{	
-		if ( oclass->pmap != NULL )
-		{
-			return obj->oclass->pmap;
-		}
+	CLASS *oclass = obj->oclass;
+	PROPERTY *prop = oclass->pmap;
+	while ( prop == NULL && full && oclass->parent != NULL )
+	{
+		oclass = oclass->parent;
+		prop = oclass->pmap;
 	}
-	return NULL;
+	return prop;
 }
 
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full)

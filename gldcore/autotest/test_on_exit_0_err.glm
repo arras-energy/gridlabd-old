@@ -1,0 +1,5 @@
+// this causes the error to be ignored
+#on_exit 0 exit 0
+
+//#option verbose
+#error this causes an error that is not ignored
