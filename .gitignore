@@ -130,3 +130,5 @@ docs/version.tex
 gldcore/autotest/ceus.glm
 gldcore/autotest/ica_test.glm
 gldcore/autotest/test_output_save.csv
+gldcore/autotest/config.glm
+gldcore/autotest/modify.glm

@@ -13,7 +13,7 @@ class g_assert : public gld_object {
 private:
 	TIMESTAMP started;
 public:
-	typedef enum {AS_INIT=0, AS_TRUE=1, AS_FALSE=2, AS_NONE=3} ASSERTSTATUS;
+	typedef enum {AS_NONE=0, AS_TRUE=1, AS_FALSE=2, AS_ERROR=3} ASSERTSTATUS;
 	GL_ATOMIC(enumeration,status); 
 	GL_STRING(char1024,target);		
 	GL_STRING(char32,part);
