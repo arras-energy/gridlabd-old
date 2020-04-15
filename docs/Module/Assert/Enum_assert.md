@@ -14,7 +14,7 @@ GLM:
 
 # Description
 
-TODO
+This class is used to assert enumerate values.
 
 ## Properties
 
