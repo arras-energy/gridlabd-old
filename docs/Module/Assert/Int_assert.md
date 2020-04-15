@@ -17,7 +17,7 @@ GLM:
 
 # Description
 
-TODO
+This class is used to assert integer values.
 
 ## Properties
 
@@ -27,7 +27,7 @@ TODO
   enumeration {ASSERT_NONE, ASSERT_FALSE, ASSERT_TRUE} status;
 ~~~
 
-TODO
+Conditions for the assert checks
 
 ### `once`
 
@@ -35,7 +35,7 @@ TODO
   enumeration {ONCE_DONE, ONCE_TRUE, ONCE_FALSE} once;
 ~~~
 
-TODO
+Conditions for a single assert check
 
 ### `within_mode`
 
@@ -43,23 +43,23 @@ TODO
   enumeration {WITHIN_RATIO, WITHIN_VALUE} within_mode;
 ~~~
 
-TODO
+Method of applying tolerance
 
 ### `value`
 
 ~~~
-  int32 value;
+  double value;
 ~~~
 
-TODO
+Value to assert
 
 ### `within`
 
 ~~~
-  int32 within;
+  double within;
 ~~~
 
-TODO
+Tolerance for a successful assert
 
 ### `target`
 
@@ -67,7 +67,7 @@ TODO
   char1024 target;
 ~~~
 
-TODO
+Property to perform the assert upon
 
 # Example
 

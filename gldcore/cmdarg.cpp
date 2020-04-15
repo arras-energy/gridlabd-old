@@ -525,8 +525,6 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
-	char branch[1024] = BRANCH, *c;
-	for ( c = branch ; c != NULL ; c = strchr(branch,'-') ) if (*c=='-') *c = '_';
 	const char *opt = strchr(argv[0],'=');
 	if ( opt++ == NULL )
 	{
@@ -545,7 +543,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 #else // LINUX
 			"Linux"
 #endif
-			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
+			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BUILD_BRANCH);
 		return 0;
 	}
 	else if ( strcmp(opt,"number" ) == 0 || strcmp(opt,"version") == 0 )
@@ -615,7 +613,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 	else if ( strcmp(opt,"name") == 0 )
 	{
 		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
-		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, branch);
+		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
 	}
 	else if ( strcmp(opt,"json") == 0 )
@@ -650,6 +648,15 @@ int GldCmdarg::version(int argc, const char *argv[])
 		OUTPUT_MULTILINE("copyright",version_copyright());
 		OUTPUT_MULTILINE("license",legal_license_text());
 		OUTPUT("system","%s",BUILD_SYSTEM);
+		char tmp[1024];
+		strcpy(tmp,global_execdir);
+		char *p = strrchr(tmp,'/');
+		if ( p != NULL && strcmp(p,"/bin") == 0 )
+		{
+			*p = '\0';
+		}
+		OUTPUT("install","%s",tmp);
+		output_message("\t\"name\" : \"%s-%s-%d-%s\",", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		OUTPUT("release","%s",BUILD_RELEASE);
 		OUTPUT("commit","%s",BUILD_ID);
 		OUTPUT("email","%s",PACKAGE_BUGREPORT);
