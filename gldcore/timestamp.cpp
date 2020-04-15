@@ -1186,8 +1186,33 @@ int convert_from_deltatime_timestamp(double ts_v, char *buffer, int size)
 		return 0;
 }
 
-/** Convert from a string to a timestamp
- **/
+/*	Function: convert_to_timestamp
+
+	Convert from a string to a timestamp
+
+	Arguments:
+	* value (const char *)
+		The following formats are accepted:
+
+		Standard date/time formats:
+			YYYY-MM-DDThh:mm:ss.sssssssss[+-]zz
+			YYYY-MM-DDThh:mm:ss.sssssssss[+-]zz:zz
+			YYYY-MM-DD hh:mm:ss.sssssssss"Z"
+			YYYY-MM-DD hh:mm:ss.sssssssss zzz
+			YYYY/MM/DD hh:mm:ss.sssssssss zzz
+			MM/DD/YYYY hh:mm:ss.sssssssss zzz
+			DD/MM/YYYY hh:mm:ss.sssssssss zzz
+		Special date/times:
+			"INIT"
+			"NEVER"
+			"NOW"
+		Timestamp/time delta:
+			ssssssssssss[smhd]
+		Time delta (w.r.t "NOW")
+			[+-]ssssssssssss[smhd]
+
+	Returns: TIMESTAMP (seconds since start of Unix epoch)
+ */
 TIMESTAMP convert_to_timestamp(const char *value)
 {
 	/* try date-time format */
@@ -1240,7 +1265,6 @@ TIMESTAMP convert_to_timestamp(const char *value)
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
-	/* @todo support European format date/time using some kind of global flag */
 	else if (strcmp(value,"INIT")==0)
 		return 0;
 	else if (strcmp(value, "NEVER")==0)
@@ -1248,7 +1272,7 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	else if (strcmp(value, "NOW") == 0)
 		return global_clock;
 	else if (isdigit(value[0]))
-	{	/* timestamp format */
+	{	// timestamp format (leading digit) or time different (leading +/-)
 		double t = atof(value);
 		const char *p=value;
 		while (isdigit(*p) || *p=='.') p++;
@@ -1273,10 +1297,12 @@ TIMESTAMP convert_to_timestamp(const char *value)
 			return TS_NEVER;
 			break;
 		}
-		return (TIMESTAMP)(t+0.5);
+		return ( strchr("+-",value[0]) == NULL ? 0 : global_clock) + (TIMESTAMP)(t+0.5);
 	}
 	else
+	{
 		return TS_INVALID;
+	}
 }
 
 /** Convert from a string to a timestamp -- delta compatibility
