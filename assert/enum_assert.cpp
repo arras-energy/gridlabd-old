@@ -27,7 +27,7 @@ enum_assert::enum_assert(MODULE *module)
 
 		if (gl_publish_variable(oclass,
 			// TO DO:  publish your variables here
-			PT_enumeration,"status",get_status_offset(),PT_DESCRIPTION,"Conditions for the assert checks",
+			PT_enumeration,"status",get_status_offset(),PT_DEFAULT,"ASSERT_TRUE",PT_DESCRIPTION,"Conditions for the assert checks",
 				PT_KEYWORD,"ASSERT_TRUE",(enumeration)ASSERT_TRUE,
 				PT_KEYWORD,"ASSERT_FALSE",(enumeration)ASSERT_FALSE,
 				PT_KEYWORD,"ASSERT_NONE",(enumeration)ASSERT_NONE,
@@ -38,18 +38,12 @@ enum_assert::enum_assert(MODULE *module)
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
-
-		defaults = this;
-		status = ASSERT_TRUE;
-		value = 0;
 	}
 }
 
 /* Object creation is called once for each object that is created by the core */
 int enum_assert::create(void) 
 {
-	memcpy(this,defaults,sizeof(*this));
-
 	return 1; /* return 1 on success, 0 on failure */
 }
 

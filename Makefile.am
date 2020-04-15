@@ -15,16 +15,16 @@ ACLOCAL_AMFLAGS = -I m4
 CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
-AM_CPPFLAGS = -Wall -O3 -g
+AM_CPPFLAGS = -Wall
 AM_CPPFLAGS += -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CPPFLAGS += $(GLD_CPPFLAGS)
 
-AM_CFLAGS = -Wall -O3 -g
+AM_CFLAGS = -Wall
 AM_CFLAGS +=  -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CFLAGS += $(PTHREAD_CFLAGS)
 AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
 
-AM_CXXFLAGS = -Wall -O3 -g
+AM_CXXFLAGS = -Wall
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
 AM_CXXFLAGS += -I/usr/include -I/usr/local/include
 AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
@@ -263,7 +263,7 @@ clean-local: python-clean
 	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
 
 distclean-local: python-clean
-	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
+	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh --depends)
 	@rm -rf $(top_srcdir)/autom4te.cache
 	@rm -f $(top_srcdir)/aclocal.m4 
 	@rm -f $(top_srcdir)/autoscan.log
@@ -298,7 +298,7 @@ libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
 
 install-exec-hook: python-install index
-	cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
+	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
 	@echo ""
@@ -308,7 +308,7 @@ install-exec-hook: python-install index
 	@echo "To run this version directly without using the command path:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd"
 	@echo ""
-	@echo "To make this version the default for all user on this system:"
+	@echo "To make this version the default for all users on this system:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
 
@@ -318,8 +318,24 @@ reconfigure: distclean
 reconfigure-debug: distclean
 	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
 
+docker: $(PREFIX)/docker.img
+
+docker-debug: docker/Dockerfile Makefile
+	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_ORIGIN) --build-arg RUN_VALIDATION=no docker
+	@mkdir -p $(prefix)
+	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
+
+$(PREFIX)/docker.img: docker/Dockerfile Makefile
+	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_ORIGIN) --build-arg RUN_VALIDATION=yes docker
+	@mkdir -p $(prefix)
+	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
+
 system: install
-	$(DESTDIR)$(bindir)/gridlabd version set
+	@echo "Setting $$(./build-aux/version.sh --install) to the current system version"
+	@$(DESTDIR)$(bindir)/gridlabd version set
+	@if [ ! "$$(gridlabd --version=install)" == "$$(./build-aux/version.sh --install)" ]; then \
+		echo '*** WARNING : build and install versions differ ***'; \
+	fi
 
 index: weather library template
 

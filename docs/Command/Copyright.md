@@ -8,5 +8,5 @@ bash$ gridlabd --copyright
 
 # Description
 
-Displays copyright.
+Displays the copyright.
 

@@ -1,124 +1,57 @@
-[[/Module/Tape/Recorder]] -- Class recorder
+[[/Module/Tape/Recorder]] -- Record object data to a file
 
 # Synopsis
 
 GLM:
 
 ~~~
-  object recorder {
-    trigger "<string>";
-    file "<string>";
-    filetype "<string>";
-    mode "<string>";
-    multifile "<string>";
-    limit "<integer>";
-    plotcommands "<string>";
-    xdata "<string>";
-    columns "<string>";
-    flush "<integer>";
-    format "<string>";
-    interval "<decimal> s";
-    strftime_format "<string>";
-    property "<string>";
-    output "{SVG,PNG,PDF,JPG,GIF,EPS,SCREEN}";
-    header_units "{NONE,ALL,DEFAULT}";
-    line_units "{NONE,ALL,DEFAULT}";
-  }
+object recorder {
+  // required
+  property "<string>";
+  // optional
+  file "<string>";
+  filetype "<string>";
+  flush "<integer>";
+  interval "<decimal> s";
+  header_units "{NONE,ALL,DEFAULT}";
+  line_units "{NONE,ALL,DEFAULT}";
+  limit "<integer>";
+  mode "<string>";
+  trigger "<string>";
+}
 ~~~
 
 # Description
 
-TODO
+The `recorder` object collects data from its parent's properties and saves it in a CSV file.  The first column is always the date and time of the sample, whose format is specified by the [[/Global/Dateformat]] variable.
 
 ## Properties
 
-### `trigger`
-
-~~~
-  char32 trigger;
-~~~
-
-TODO
+The recorder object uses the following properties to record CSV files.
 
 ### `file`
 
 ~~~
-  char1024 file;
+char1024 file;
 ~~~
 
-TODO
+The `file` property specifies the name of the CSV file in which the data will be stored. The default is the parent object name with a `.csv` extension. Invalid filename characters (e.g., `:`) in the parent object name are converted to underscores.
 
 ### `filetype`
 
 ~~~
-  char8 filetype;
+char8 filetype;
 ~~~
 
-TODO
-
-### `mode`
-
-~~~
-  char32 mode;
-~~~
-
-TODO
-
-### `multifile`
-
-~~~
-  char1024 multifile;
-~~~
-
-TODO
-
-### `limit`
-
-~~~
-  int32 limit;
-~~~
-
-TODO
-
-### `plotcommands`
-
-~~~
-  char1024 plotcommands;
-~~~
-
-TODO
-
-### `xdata`
-
-~~~
-  char32 xdata;
-~~~
-
-TODO
-
-### `columns`
-
-~~~
-  char32 columns;
-~~~
-
-TODO
+The `filetype` property specifies type of file and determines the extension used. The default is `csv`.
 
 ### `flush`
 
 ~~~
-  int32 flush;
+int32 flush;
 ~~~
 
-TODO
-
-### `format`
-
-~~~
-  bool format;
-~~~
-
-TODO
+Specifies how often the output buffer is flushed.  By default the output buffer is flushed to disk when it is full (the size of the buffer is system specific). This default corresponds to the flush value -1. If flush is set to 0, the buffer is flushed every time a record is written. If flush is set to a value greater than 0, the buffer is flushed whenever the condition clock mod flush == 0 is satisfied.
 
 ### `interval`
 
@@ -126,15 +59,55 @@ TODO
   double interval[s];
 ~~~
 
-TODO
+The frequency at which the recorder samples the specified properties, in seconds. A frequency of 0 indicates that they should be read & written every iteration (note, that each timestep often requires multiple iterations, so a frequency of zero may lead to multiple measurements in a timestep). A frequency of -1 indicates that they should be read every timestep, but only written if one or more values change. By default, this is TS_NEVER.
 
-### `strftime_format`
+### `header_units`
 
 ~~~
-  char256 strftime_format;
+  enumeration {NONE, ALL, DEFAULT} header_units;
 ~~~
 
-TODO
+Used to control the appearance of units for the column headers. 
+
+#### `ALL` 
+
+Force the units to be printed for every column, if present. 
+
+#### `NONE` 
+
+Suppress the printing of units on the column header, even if conversions are being made. 
+
+#### `DEFAULT` 
+
+Will only print the units if they are defined in the GLM.
+
+### `limit`
+
+~~~
+  int32 limit;
+~~~
+
+The number of rows to write to the output stream. A non-positive value puts no limit on the file size (use at your own risk). By default, this is 0. The limit is only checked when output non-subsecond value.
+
+### `line_units`
+
+~~~
+  enumeration {NONE, ALL, DEFAULT} line_units;
+~~~
+
+Used to control the appearance of units in the data rows. 
+
+#### `ALL` 
+
+Force the units to be printed for every row entry, if present. 
+
+#### `NONE` 
+
+Suppress the printing of units within the rows, even if conversions are being made. 
+
+#### `DEFAULT` 
+
+Only print the units if they are defined in the GLM for that column.
 
 ### `property`
 
@@ -142,7 +115,7 @@ TODO
 method property;
 ~~~
 
-The `property` field enumerates the targets that will be recorded into the file specified.  The properties must belong to the parent object. When multiple properties are specified they must be separated by commas.  Property may be specified with a unit and a format specification using the syntax:
+The `property` field enumerates the targets that will be recorded into the file specified.  The properties must belong to the parent object. When multiple properties are specified they must be separated by commas.  Properties may be specified with a unit and a format specification using the syntax:
 
 ~~~
 property "<name>[<unit>:<format]";
@@ -176,54 +149,32 @@ When the properties is a `complex`, the format specification must also include o
 
 * `Y`: Imaginary part only
 
-### `output`
+### `trigger`
 
 ~~~
-  enumeration {SVG, PNG, PDF, JPG, GIF, EPS, SCREEN} output;
+char32 trigger;
 ~~~
 
-TODO
-
-### `header_units`
-
-~~~
-  enumeration {NONE, ALL, DEFAULT} header_units;
-~~~
-
-TODO
-
-### `line_units`
-
-~~~
-  enumeration {NONE, ALL, DEFAULT} line_units;
-~~~
-
-TODO
+A short string that contains an equality or inequality and provides a simple trigger that will delay the opening of a recorder until the condition is met for the first property in the list. The first character must be the operator, <, =, or >, and it must be immediately followed by the signed value to compare the property to. An example would be ">+90.0" for the house air temperature. Once the trigger is met, the recorder will read to its limit as normal.
 
 # Example
 
+The following example record the property `property-name` of the object `my-object` into the files `my-file.csv`. It sample the value every 10 seconds, limits the output to 20 records, starts recording when `property-name` is strictly positive, and flushes the buffer every 60 seconds.
+
 ~~~
-  object recorder {
-    trigger "";
-    file "";
-    filetype "";
-    mode "";
-    multifile "";
-    limit "0";
-    plotcommands "";
-    xdata "";
-    columns "";
-    flush "0";
-    format "FALSE";
-    interval "0.0";
-    strftime_format "";
-    output "0";
-    header_units "0";
-    line_units "0";
-  }
+object recorder {
+  parent "my-object";
+  property "property-name";
+  file "my-file.csv";
+  limit 20;
+  flush 60;
+  interval 10;
+  trigger ">0";
+}
 ~~~
 
 # See also
 
 * [[/Module/Tape]]
-
+* [[/Global/Dateformat]]
+* [[/Module/Tape/Global/Csv_data_only]]

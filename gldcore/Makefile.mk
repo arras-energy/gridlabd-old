@@ -66,6 +66,7 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/transform.cpp gldcore/transform.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/unit.cpp gldcore/unit.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/validate.cpp gldcore/validate.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/version.cpp gldcore/version.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/link/python/python.cpp
 
 GLD_SOURCES_EXTRA_PLACE_HOLDER =
 GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/cmex.c gldcore/cmex.h
@@ -74,7 +75,7 @@ GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
 bin_PROGRAMS += gridlabd.bin
 
-gridlabd_bin_CPPFLAGS =
+gridlabd_bin_CPPFLAGS = -DMAIN_PYTHON
 gridlabd_bin_CPPFLAGS += $(XERCES_CPPFLAGS)
 gridlabd_bin_CPPFLAGS += $(AM_CPPFLAGS)
 
