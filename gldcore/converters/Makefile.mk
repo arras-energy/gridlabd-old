@@ -34,3 +34,5 @@ dist_pkgdata_DATA += gldcore/converters/json2txt.py
 
 # json -> zip
 dist_pkgdata_DATA += gldcore/converters/json2zip.py
+dist_pkgdata_DATA += gldcore/converters/csv-modify2glm-modify.py
+dist_pkgdata_DATA += gldcore/converters/csv-config2glm-config.py

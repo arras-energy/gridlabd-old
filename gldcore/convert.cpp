@@ -123,7 +123,7 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 		return strcspn(buffer+4," \t\n");
 	}
 	char unit[256];
-	int n = sscanf(buffer,"%lg%[^ \t\n]",(double*)data,unit);
+	int n = sscanf(buffer,"%lg%s",(double*)data,unit);
 	if ( n == 1 )
 	{
 		return n;
