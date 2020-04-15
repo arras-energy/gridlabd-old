@@ -499,7 +499,7 @@ GLOBAL int global_mainloopstate INIT(MLS_INIT); /**< main loop processing state 
 GLOBAL TIMESTAMP global_mainlooppauseat INIT(TS_NEVER); /**< time at which to pause main loop */
 
 /* Variable:  */
-GLOBAL char global_infourl[1024] INIT("http://gridlab-d.shoutwiki.com/w/index.php?title=Special%3ASearch&fulltext=Search&search="); /**< URL for info calls */
+GLOBAL char global_infourl[1024] INIT("http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&search="); /**< URL for info calls */
 
 /* Variable:  */
 GLOBAL char global_hostname[1024] INIT("localhost"); /**< machine hostname */
