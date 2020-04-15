@@ -574,7 +574,7 @@ void solver_dump(unsigned int &bus_count,
 	{
 		if ( strncmp(model_dump_handler,"python:",7) == 0 )
 		{
-			if ( ! python_call(pModule,model_dump_handler+7) )
+			if ( ! python_call(pModule,model_dump_handler+7,NULL) )
 			{
 				solver_model_log(1,"model_dump_handler failed, rc = FALSE");
 			}

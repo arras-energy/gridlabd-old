@@ -208,7 +208,9 @@ TIMESTAMP enduse_sync(enduse *e, PASSCONFIG pass, TIMESTAMP t1)
 
 		e->t_last = t1;
 	}
-	return (e->shape && e->shape->type != MT_UNKNOWN) ? e->shape->t2 : TS_NEVER;
+	TIMESTAMP rt = (e->shape && e->shape->type != MT_UNKNOWN) ? e->shape->t2 : TS_NEVER;
+	return rt;
+
 }
 
 typedef struct s_endusesyncdata {
@@ -397,20 +399,9 @@ TIMESTAMP enduse_syncall(TIMESTAMP t1)
 
 	enduse_synctime += (clock_t)exec_clock() - ts;
 	return t2;
-
-	/*enduse *e;
-	TIMESTAMP t2 = TS_NEVER;
-	clock_t start = exec_clock();
-	for (e=enduse_list; e!=NULL; e=e->next)
-	{
-		TIMESTAMP t3 = enduse_sync(e,PC_PRETOPDOWN,t1);
-		if (t3<t2) t2 = t3;
-	}
-	enduse_synctime += exec_clock() - start;
-	return t2;*/
 }
 
-int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
+int initial_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 {
 /*
 	loadshape *shape;
@@ -427,14 +418,20 @@ int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
 	int len = 0;
 #define OUTPUT_NZ(X) if (e->X!=0) len+=sprintf(string+len,"%s" #X ": %f", len>0?"; ":"", e->X)
 #define OUTPUT(X) len+=sprintf(string+len,"%s"#X": %g", len>0?"; ":"", e->X);
-#define OUTPUT_NZ_X(X,N) if (e->X!=0) len+=sprintf(string+len,"%s" #N ": %f", len>0?"; ":"", e->X)
-#define OUTPUT_X(X,N) len+=sprintf(string+len,"%s"#N": %g", len>0?"; ":"", e->X);
+#define OUTPUT_NZ_X(X,N) if (e->X!=0) len+=sprintf(string+len,"%s%s: %f", len>0?"; ":"", N, e->X)
+#define OUTPUT_X(X,N) len+=sprintf(string+len,"%s%s: %g", len>0?"; ":"", N, e->X);
 	OUTPUT_NZ(impedance_fraction);
 	OUTPUT_NZ(current_fraction);
 	OUTPUT_NZ(power_fraction);
 	OUTPUT(power_factor);
 	OUTPUT_X(power.Re(),"power.real");
 	OUTPUT_NZ_X(power.Im(),"power.imag");
+	return len;
+}
+
+int convert_from_enduse(char *string,int size,void *data, PROPERTY *prop)
+{
+	int len = convert_from_complex(string,size,data,prop);
 	return len;
 }
 
