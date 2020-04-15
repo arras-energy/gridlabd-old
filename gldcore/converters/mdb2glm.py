@@ -45,12 +45,12 @@ if input_type is None:
     print("ERROR    [mdb2glm.py]: conversion type not specified (-t <type> option is missing)")
     sys.exit(1)
 
-modname = sys.argv[0].replace("mdb2glm.py",f"mdb2glm-{input_type}.py")
+modname = sys.argv[0].replace("mdb2glm.py",f"mdb-{input_type}2glm.py")
 if os.path.exists(modname):
 
     import importlib, copy
     importlib.util.spec_from_file_location(input_type, modname)
-    mod = importlib.import_module(f"mdb2glm-{input_type}")
+    mod = importlib.import_module(f"mdb-{input_type}2glm")
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname
     try:

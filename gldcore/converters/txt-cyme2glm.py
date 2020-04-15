@@ -6,7 +6,7 @@ from datetime import datetime
 config = {"input":"txt", "output":"glm", "type":[]}
 
 def help():
-	return """txt2glm-cyme.py -i|--ifile <input-file>[,<input-file>[,...]] -o|--ofile <output-file>
+	return """txt-cyme2glm.py -i|--ifile <input-file>[,<input-file>[,...]] -o|--ofile <output-file>
     -i|--ifile     : [REQUIRED] txt input file name
     -o|--ofile     : [REQUIRED] glm output file name
     """

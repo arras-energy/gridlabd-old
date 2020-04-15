@@ -30,10 +30,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 from numpy.linalg import inv
 import platform
-from feeder import *
+# from feeder import *
 
 import importlib, copy
-importlib.util.spec_from_file_location("feeder", sys.argv[0].replace("mdb2glm-cyme","feeder"));
+importlib.util.spec_from_file_location("feeder", sys.argv[0].replace("converters/mdb-cyme2glm","rt/feeder"));
 feeder = importlib.import_module("feeder");
 
 m2ft = 1.0 / 0.3048  # Conversion factor for meters to feet
