@@ -58,11 +58,12 @@ class GridlabdModel:
 
 	def load(self,input_file):
 		import importlib
-		importlib.util.spec_from_file_location("cyme", sys.argv[0].replace("mdb-cyme2glm","cyme"));
-		cyme = importlib.import_module("cyme");		
+		importlib.util.spec_from_file_location('cyme', sys.argv[0].replace('mdb-cyme2glm','cyme'));
+		cyme = importlib.import_module('cyme');		
 		data = cyme.dataframe(input_file)
 		self.input_file = input_file
-		self.require("powerflow")
+		self.add_networks(data)
+		self.require('powerflow')
 		self.add_loads(data)
 
 	def save(self,output_file=None):
@@ -73,16 +74,23 @@ class GridlabdModel:
 			fh.write(f"// Date: {datetime.now()}\n")
 			fh.write(f"// User: {os.getenv('USER')}\n")
 			fh.write(f"// Workdir: {os.getenv('PWD')}\n")
+			self.save_modules(fh)
+			self.save_object(fh)
+			fh.write(f"// END OF FILE\n")
+			self.output_file = output_file
 
-			# modules
-			for mod, varlist in self.modules.items():
-				fh.write(f'module {mod}\n')
-				fh.write('{\n')
-				for var,value in varlist.items():
-					fh.write(f'\t{var} {value};\n')
-				fh.write('}\n')
+	def save_modules(self,fh):
+		for mod, varlist in self.modules.items():
+			fh.write(f'module {mod}\n')
+			fh.write('{\n')
+			for var,value in varlist.items():
+				fh.write(f'\t{var} {value};\n')
+			fh.write('}\n')
 
-			for obj, props in self.objects.items():
+	def save_object(self,fh):
+		for network in self.networks:
+			fh.write(f'//\n// NETWORK {network}\n//\n')
+			for obj, props in self.objects[network].items():
 				classname = props['class']
 				fh.write(f'object {classname}\n')
 				fh.write('{\n')
@@ -93,8 +101,6 @@ class GridlabdModel:
 					fh.write(f'\t{name} "{value}";\n')
 				fh.write('}\n')
 
-			fh.write(f"// END OF FILE\n")
-			self.output_file = output_file
 
 	def set_global(self,name,value,module=None):
 		if module == None:
@@ -102,15 +108,21 @@ class GridlabdModel:
 		else:
 			self.modules[module][name] = value
 
+	def add_networks(self,data):
+		self.networks = list(reindex_to_dict(data,'CYMNETWORK',['NetworkId']).keys())
+		for network in self.networks:
+			self.objects[network] = {}
+
 	def add_loads(self,data):
 		load_classes = reindex_to_dict(data,'CYMCONSUMERCLASS',['ConsumerClassId'])
 		loads = reindex_to_dict(data,'CYMCUSTOMERLOAD',['DeviceNumber','Phase'])
 		if loads:
-			for name,load_data in loads.items():
+			for name, load_data in loads.items():
 				obj = {'class':'powerflow.load'};
 				obj["nominal_voltage"] = '120 V';
 				phases = ''
-				for phase,load in load_data.items():
+				for phase, load in load_data.items():
+					network = load['NetworkId']
 					load_phase = phase_map[phase]
 					load_type = load['ConsumerClassId']
 					load_value1 = float(load['LoadValue1'])
@@ -166,10 +178,7 @@ class GridlabdModel:
 							obj[f'impedance_pf_{phase_map[phase]}'] = f'{impedance_factor} pu'
 						phases += load_phase
 				obj['phases'] = ''.join(sorted(set(phases)))
-
-				self.objects[name] = obj
-				# self.write(f'\tphases {phases};')
-				# self.write('}')
+				self.objects[network][name] = obj
 
 def convert(input_file,output_file=None,options=None):
 	glm = GridlabdModel(input_file)
