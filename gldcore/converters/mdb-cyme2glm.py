@@ -3,6 +3,11 @@
 #
 import sys, os
 from datetime import *
+from math import *
+
+# TODO delete when done debugging
+import pprint
+pprint = pprint.PrettyPrinter(indent=4).pprint
 
 # map CYME phases to GLM phases
 phase_map = {
@@ -14,6 +19,25 @@ phase_map = {
 		6:"BC",
 		7:"ABC",
 		}
+
+def reindex_to_dict(df,name,index,orient='index'):
+	if type(df) is dict:
+		keys = df.keys()
+		data = df[name]
+	else:
+		keys = df.index.unique()
+		data = df.loc[(name)]
+	if name in keys:
+		data = data.reset_index().set_index(index[0])
+		if len(index) == 1:
+			return data.to_dict(orient=orient)
+		else:
+			result = {}
+			for key in data.index.unique():
+				result[key] = reindex_to_dict(data,key,index[1:],orient=orient)
+			return result
+	else:
+		return {}
 
 class GridlabdModel:
 	
@@ -35,7 +59,7 @@ class GridlabdModel:
 	def load(self,input_file):
 		import importlib
 		importlib.util.spec_from_file_location("cyme", sys.argv[0].replace("mdb-cyme2glm","cyme"));
-		cyme = importlib.import_module("cyme");
+		cyme = importlib.import_module("cyme");		
 		data = cyme.dataframe(input_file)
 		self.input_file = input_file
 		self.require("powerflow")
@@ -79,45 +103,75 @@ class GridlabdModel:
 			self.modules[module][name] = value
 
 	def add_loads(self,data):
-		if "CYMCUSTOMERLOAD" in data.keys():
-			loads = data['CYMCUSTOMERLOAD'].reset_index()
-			loads.set_index(['DeviceNumber','Phase'],inplace=True)
-			for name in loads.index.levels[0]:
-				load_data = loads.loc[(name)]
+		load_classes = reindex_to_dict(data,'CYMCONSUMERCLASS',['ConsumerClassId'])
+		loads = reindex_to_dict(data,'CYMCUSTOMERLOAD',['DeviceNumber','Phase'])
+		if loads:
+			for name,load_data in loads.items():
 				obj = {'class':'powerflow.load'};
-				# self.write('object powerflow.load {')
-				# self.write(f'\tname "{name}";')
 				obj["nominal_voltage"] = '120 V';
-				# self.write('\tnominal_voltage 120 V;')
 				phases = ''
-				for phase in loads.index.levels[1]:
+				for phase,load in load_data.items():
 					load_phase = phase_map[phase]
-					load = load_data.loc[(phase)]
 					load_type = load['ConsumerClassId']
-					load_value1 = load['LoadValue1']
-					load_value2 = load['LoadValue2']
-					# self.write(f'\t// phase {phase_map[phase]} load type {load_type}')
-					load_map = {
-							'PQ':'constant_power',
-							'I':'constant_current',
-							'Z':'constant_impedance',
-							}
-					if load_phase == "ABC":
-						obj[f'{load_map[load_type]}_A'] = f'{load_value1/3}+{load_value2/3}j'
-						# self.write(f'\t{load_map[load_type]}_A {load_value1/3}+{load_value2/3}j;')
-						# self.write(f'\t{load_map[load_type]}_B {load_value1/3}+{load_value2/3}j;')
-						# self.write(f'\t{load_map[load_type]}_C {load_value1/3}+{load_value2/3}j;')
-					else:
-						obj[f'{load_map[load_type]}_{load_phase}'] = f'{load_value1}+{load_value2}j'
-						# self.write(f'\t{load_map[load_type]}_{load_phase} {load_value1}+{load_value2}j;')
-					phases += load_phase
-				obj["phases"] = ''.join(sorted(set(phases)))
+					load_value1 = float(load['LoadValue1'])
+					load_value2 = float(load['LoadValue2'])
+					load_magnitude = sqrt(load_value1*load_value1+load_value2*load_value2)
+					load_class = load_classes[load_type]
+					power_fraction = float(load_class["ConstantPower"])/100
+					current_fraction = float(load_class["ConstantCurrent"])/100
+					impedance_fraction = float(load_class["ConstantImpedance"])/100
+					power_factor = float(load_class["PowerFactor"])/100
+					ZP = float(load_class["ConstantImpedanceZ_P"])/100
+					ZQ = float(load_class["ConstantImpedanceZ_Q"])/100
+					IP = float(load_class["ConstantCurrentI_P"])/100
+					IQ = float(load_class["ConstantCurrentI_Q"])/100
+					PP = float(load_class["ConstantPowerP_P"])/100
+					PQ = float(load_class["ConstantPowerP_Q"])/100
+					if load_phase == 'ABC': # balanced load
+						obj['base_power_A'] = f'{load_magnitude/3} kW'
+						obj['base_power_B'] = f'{load_magnitude/3} kW'
+						obj['base_power_C'] = f'{load_magnitude/3} kW'
+						if power_fraction > 0:
+							obj['power_fraction_A'] = f'{power_fraction} pu'
+							obj['power_fraction_B'] = f'{power_fraction} pu'
+							obj['power_fraction_C'] = f'{power_fraction} pu'
+							obj['power_pf_A'] = f'{power_factor} pu'
+							obj['power_pf_B'] = f'{power_factor} pu'
+							obj['power_pf_C'] = f'{power_factor} pu'
+						if current_faction > 0:
+							obj['current_fraction_A'] = f'{current_fraction} pu'
+							obj['current_fraction_B'] = f'{current_fraction} pu'
+							obj['current_fraction_C'] = f'{current_fraction} pu'
+							obj['current_pf_A'] = f'{power_factor} pu'
+							obj['current_pf_B'] = f'{power_factor} pu'
+							obj['current_pf_C'] = f'{power_factor} pu'
+						if impedance_fraction > 0:
+							obj['impedance_fraction_A'] = f'{impedance_fraction} pu'
+							obj['impedance_fraction_B'] = f'{impedance_fraction} pu'
+							obj['impedance_fraction_C'] = f'{impedance_fraction} pu'
+							obj['impedance_pf_A'] = f'{power_factor} pu'
+							obj['impedance_pf_B'] = f'{power_factor} pu'
+							obj['impedance_pf_C'] = f'{power_factor} pu'
+						phases += load_phase
+					elif load_magnitude > 0: # unbalanced non-trivial load
+						obj[f'base_power_{phase_map[phase]}'] = f'{load_magnitude} kW'
+						if power_fraction > 0:
+							obj[f'power_fraction_{phase_map[phase]}'] = f'{power_fraction} pu'
+							obj[f'power_pf_{phase_map[phase]}'] = f'{power_factor} pu'
+						if current_fraction > 0:
+							obj[f'current_fraction_{phase_map[phase]}'] = f'{current_fraction} pu'
+							obj[f'pcurrent_pf_{phase_map[phase]}'] = f'{current_factor} pu'
+						if impedance_fraction > 0:
+							obj[f'impedance_fraction_{phase_map[phase]}'] = f'{impedance_fraction} pu'
+							obj[f'impedance_pf_{phase_map[phase]}'] = f'{impedance_factor} pu'
+						phases += load_phase
+				obj['phases'] = ''.join(sorted(set(phases)))
 
 				self.objects[name] = obj
 				# self.write(f'\tphases {phases};')
 				# self.write('}')
 
-def convert(input_file,output_file=None):
+def convert(input_file,output_file=None,options=None):
 	glm = GridlabdModel(input_file)
 	# glm.set_global('solver_method','NR',module='powerflow')
 	glm.save(output_file)

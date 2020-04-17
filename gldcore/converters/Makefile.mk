@@ -48,3 +48,9 @@ dist_pkgdata_DATA += gldcore/converters/json2txt.py
 
 # json -> zip
 dist_pkgdata_DATA += gldcore/converters/json2zip.py
+
+#
+# SUPPORT MODULES
+#
+dist_pkgdata_DATA += gldcore/converters/cyme.py
+
