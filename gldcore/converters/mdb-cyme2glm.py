@@ -29,6 +29,7 @@ nominal_voltage = None
 
 def safename(name):
 	"""Make an object name safe for use by GridLAB-D"""
+	name = str(name)
 	if name[0] >= '0' and name[0] <= '9':
 		return '_'+name
 	else:
@@ -116,64 +117,6 @@ class Model:
 		self.add_sections(data)
 
 	#
-	# EXPORT
-	#
-	def export_glm(self,output_file=None):
-		if output_file == None:
-			output_file = self.input_file.replace('.mdb','.glm')
-		with open(output_file,'w') as fh:
-			self.export_glm_header(fh)
-			self.export_glm_defines(fh)
-			self.export_glm_globals(fh)
-			self.export_glm_modules(fh)
-			self.export_glm_objects(fh)
-			self.export_glm_footer(fh)
-			self.output_file = output_file
-
-	def export_glm_header(self,fh):
-		fh.write(f'// CYME {self.input_file} converted to GLM\n//\n')
-		fh.write(f'// Date: {datetime.now()}\n')
-		fh.write(f'// User: {os.getenv("USER")}\n')
-		fh.write(f'// Workdir: {os.getenv("PWD")}\n//\n')
-
-	def export_glm_modules(self,fh):
-		fh.write('\n//\n// MODULES\n//\n')
-		for mod, varlist in self.modules.items():
-			fh.write(f'module {mod}\n')
-			fh.write('{\n')
-			for var,value in varlist.items():
-				fh.write(f'\t{var} {value};\n')
-			fh.write('}\n')
-
-	def export_glm_defines(self,fh):
-		fh.write('\n//\n// DEFINES\n//\n')
-		for var, value in self.defines.items():
-			if len(var.split('::')) == 1:
-				fh.write(f'#define {var}={value}\n')
-
-	def export_glm_globals(self,fh):
-		fh.write('\n//\n// GLOBALS\n//\n')
-		for var, value in self.globals.items():
-			if len(var.split('::')) == 1:
-				fh.write(f'#set {var}={value}\n')
-
-	def export_glm_objects(self,fh):
-		for network in self.networks:
-			fh.write(f'\n//\n// NETWORK {network}\n//\n')
-			for obj, props in self.objects[network].items():
-				classname = props['class']
-				fh.write(f'object {classname}\n')
-				fh.write('{\n')
-				for name, value in props.items():
-					if name == 'class':
-						continue
-					fh.write(f'\t{name} "{value}";\n')
-				fh.write('}\n')
-
-	def export_glm_footer(self,fh):
-		fh.write(f'\n// END OF FILE\n')
-
-	#
 	# SET
 	#
 	def set_define(self,name,value):
@@ -210,7 +153,7 @@ class Model:
 			self.objects[network] = {}
 		self.headnodes = reindex_to_dict(data,'CYMHEADNODE',['NetworkId'])
 		for network, headnode in self.headnodes.items():
-			self.set_define(f'CYMHEADNODE_{network}',headnode['NodeId'])
+			self.set_define(f'CYMHEADNODE_{network}',safename(headnode['NodeId']))
 		self.nodes = reindex_to_dict(data,'CYMNODE',['NetworkId','NodeId'])
 		self.sections = reindex_to_dict(data,'CYMSECTION',['NetworkId','SectionId'])
 
@@ -354,6 +297,67 @@ class Model:
 			self.add_object(network,obj)
 			count += 1
 		self.set_define('CYMLOADCOUNT',count)
+
+	#
+	# EXPORT
+	#
+	def export_glm(self,output_file=None):
+		if output_file == None:
+			output_file = self.input_file.replace('.mdb','.glm')
+		with open(output_file,'w') as fh:
+			self.export_glm_header(fh)
+			self.export_glm_defines(fh)
+			self.export_glm_globals(fh)
+			self.export_glm_modules(fh)
+			self.export_glm_objects(fh)
+			self.export_glm_footer(fh)
+			self.output_file = output_file
+
+	def export_glm_header(self,fh):
+		fh.write(f'// CYME {self.input_file} converted to GLM\n//\n')
+		fh.write(f'// Date: {datetime.now()}\n')
+		fh.write(f'// User: {os.getenv("USER")}\n')
+		fh.write(f'// Workdir: {os.getenv("PWD")}\n//\n')
+
+	def export_glm_modules(self,fh):
+		fh.write('\n//\n// MODULES\n//\n')
+		for mod, varlist in self.modules.items():
+			fh.write(f'module {mod}\n')
+			fh.write('{\n')
+			for var,value in varlist.items():
+				fh.write(f'\t{var} {value};\n')
+			fh.write('}\n')
+
+	def export_glm_defines(self,fh):
+		fh.write('\n//\n// DEFINES\n//\n')
+		for var, value in self.defines.items():
+			if len(var.split('::')) == 1:
+				fh.write(f'#define {var}={value}\n')
+
+	def export_glm_globals(self,fh):
+		fh.write('\n//\n// GLOBALS\n//\n')
+		for var, value in self.globals.items():
+			if len(var.split('::')) == 1:
+				fh.write(f'#set {var}={value}\n')
+
+	def export_glm_objects(self,fh):
+		for network in self.networks:
+			fh.write(f'\n//\n// NETWORK {network}\n//\n')
+			headnode = self.headnodes[network]
+			for obj, props in self.objects[network].items():
+				if obj == safename(headnode['NodeId']):
+					props['bustype'] = 'SWING'
+				classname = props['class']
+				fh.write(f'object {classname}\n')
+				fh.write('{\n')
+				for name, value in props.items():
+					if name == 'class':
+						continue
+					fh.write(f'\t{name} "{value}";\n')
+				fh.write('}\n')
+
+	def export_glm_footer(self,fh):
+		fh.write(f'\n// END OF FILE\n')
 
 
 def convert(input_file,output_file=None,options={}):
