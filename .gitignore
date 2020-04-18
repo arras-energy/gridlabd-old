@@ -142,3 +142,5 @@ gldcore/link/python/example.png
 models/ieee123/config/local.glm
 gldcore/converters/autotest/IEEE-13-cyme/*
 gridlabd.glm
+gldcore/autotest/config.glm
+gldcore/autotest/modify.glm

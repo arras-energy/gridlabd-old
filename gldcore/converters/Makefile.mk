@@ -53,4 +53,5 @@ dist_pkgdata_DATA += gldcore/converters/json2zip.py
 # SUPPORT MODULES
 #
 dist_pkgdata_DATA += gldcore/converters/cyme.py
-
+dist_pkgdata_DATA += gldcore/converters/csv-modify2glm-modify.py
+dist_pkgdata_DATA += gldcore/converters/csv-config2glm-config.py
