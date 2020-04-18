@@ -182,18 +182,30 @@ class Model:
 		"""
 		for network, sections in self.sections.items():
 			for name, section in copy(sections).items():
-				obj = new_object(class_name='powerflow.link',object_name=safename(name))
-				comment(obj,'CYMSECTION',section)
-				obj['nominal_voltage'] = '${nominal_voltage}'
-				obj['phases'] = phase_map[section['Phase']]
-				obj['from'] = safename(section['FromNodeId'])
-				obj['to'] = safename(section['ToNodeId'])
-				if not obj['from'] in self.objects[network].keys():
-					self.warning(f'ignoring object {name} from node {obj["from"]} not found')
-				elif not obj['to'] in self.objects[network].keys():
-					self.warning(f'ignoring object {name} to node {obj["to"]} not found')
+				if safename(section['ToNodeId']) == name:
+					if name in self.objects.keys():
+						# special case for links that refer to a node by the same name
+						obj[name][parent] = safename(section['FromNodeId'])
+					else:
+						# special for link that should be a node
+						obj = new_object(class_name='powerflow.node',object_name=safename(section['FromNodeId']))
+						comment(obj,'CYMSECTION',section)
+						obj['nominal_voltage'] = '${nominal_voltage}'
+						obj['phases'] = phase_map[section['Phase']]
+						self.add_object(network,obj)
 				else:
-					self.add_object(network,obj)
+					obj = new_object(class_name='powerflow.link',object_name=safename(name))
+					comment(obj,'CYMSECTION',section)
+					obj['nominal_voltage'] = '${nominal_voltage}'
+					obj['phases'] = phase_map[section['Phase']]
+					obj['from'] = safename(section['FromNodeId'])
+					obj['to'] = safename(section['ToNodeId'])
+					if not obj['from'] in self.objects[network].keys():
+						self.warning(f'ignoring object {name} from node {obj["from"]} not found')
+					elif not obj['to'] in self.objects[network].keys():
+						self.warning(f'ignoring object {name} to node {obj["to"]} not found')
+					else:
+						self.add_object(network,obj)
 			self.sections[network] = {}
 
 	def add_overheads(self,data):
@@ -214,11 +226,11 @@ class Model:
 			phases = phase_map[cap_data['Phase']]
 			obj['phases'] = phases
 			if 'A' in phases:
-				obj['capacitor_A'] = f'{cap_data["KVARA"]} kVAR'
+				obj['capacitor_A'] = f'{cap_data["KVARA"]} kVA'
 			if 'B' in phases:
-				obj['capacitor_B'] = f'{cap_data["KVARB"]} kVAR'
+				obj['capacitor_B'] = f'{cap_data["KVARB"]} kVA'
 			if 'C' in phases:
-				obj['capacitor_C'] = f'{cap_data["KVARC"]} kVAR'
+				obj['capacitor_C'] = f'{cap_data["KVARC"]} kVA'
 			obj['phases_connected'] = phases
 			self.add_object(network,obj)
 			count += 1
@@ -304,6 +316,7 @@ class Model:
 	def export_glm(self,output_file=None):
 		if output_file == None:
 			output_file = self.input_file.replace('.mdb','.glm')
+		self.output_file = output_file
 		with open(output_file,'w') as fh:
 			self.export_glm_header(fh)
 			self.export_glm_defines(fh)
@@ -311,13 +324,13 @@ class Model:
 			self.export_glm_modules(fh)
 			self.export_glm_objects(fh)
 			self.export_glm_footer(fh)
-			self.output_file = output_file
 
 	def export_glm_header(self,fh):
+		modify_file = self.output_file.replace(".glm","-modify.glm")
 		fh.write(f'// CYME {self.input_file} converted to GLM\n//\n')
 		fh.write(f'// Date: {datetime.now()}\n')
 		fh.write(f'// User: {os.getenv("USER")}\n')
-		fh.write(f'// Workdir: {os.getenv("PWD")}\n//\n')
+		fh.write(f'// Workdir: {os.getenv("PWD")}\n//\n\n')
 
 	def export_glm_modules(self,fh):
 		fh.write('\n//\n// MODULES\n//\n')
@@ -357,6 +370,9 @@ class Model:
 				fh.write('}\n')
 
 	def export_glm_footer(self,fh):
+		fh.write('\n#ifexist "${modelname/.glm/-modify.glm}"\n')
+		fh.write('#include "${modelname/.glm/-modify.glm}"\n')
+		fh.write('#endif\n')
 		fh.write(f'\n// END OF FILE\n')
 
 
