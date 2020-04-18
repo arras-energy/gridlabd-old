@@ -140,4 +140,5 @@ fault_check.txt
 # specific outputs that should be ignored
 gldcore/link/python/example.png
 models/ieee123/config/local.glm
-gldcore/converters/autotest/IEEE-13-cyme/*.csv
+gldcore/converters/autotest/IEEE-13-cyme/*
+gridlabd.glm
