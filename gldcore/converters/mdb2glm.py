@@ -53,11 +53,12 @@ if os.path.exists(modname):
     mod = importlib.import_module(f"mdb-{input_type}2glm")
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname
-    try:
-        mod.convert(input_name,output_name,options)
-    except Exception as err:
-        print(f"ERROR    [{os.path.basename(modname)}]: {err}");
-        sys.exit(1)
+    # try:
+    #     mod.convert(input_name,output_name,options)
+    # except Exception as err:
+    #     print(f"ERROR    [{os.path.basename(modname)}]: {err}");
+    #     sys.exit(1)
+    mod.convert(input_name,output_name,options)
 
 else:
 

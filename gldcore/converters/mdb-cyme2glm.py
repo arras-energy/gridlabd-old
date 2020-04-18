@@ -25,6 +25,8 @@ phase_map = {
 		7:'ABC',
 		}
 
+nominal_voltage = None
+
 def safename(name):
 	"""Make an object name safe for use by GridLAB-D"""
 	if name[0] >= '0' and name[0] <= '9':
@@ -193,7 +195,10 @@ class Model:
 			self.set_define('CYMSCHEMAVERSION',data['CYMSCHEMAVERSION'].loc[0]['Version'])
 
 	def add_object(self,network,obj):
+		global nominal_voltage
 		name = obj['name']
+		if not nominal_voltage and 'nominal_voltage' in obj.keys():
+			nominal_voltage = obj['nominal_voltage']
 		self.objects[network][name] = obj
 		self.nodes[network].pop(name,None)
 
@@ -354,12 +359,15 @@ class Model:
 def convert(input_file,output_file=None,options={}):
 	model = Model(input_file)
 	model.set_global('solver_method','NR',module='powerflow')
-	for var, value in options.items():
-		model.set_define(var,value)
+	if nominal_voltage:
+		model.set_define('nominal_voltage',nominal_voltage)
+	if options:
+		for var, value in options.items():
+			model.set_define(var,value)
 	model.export_glm(output_file)
 
 if __name__ == '__main__':
 	testfile = 'autotest/IEEE-13-cyme.mdb'
 	if os.path.exists(testfile):
 		config.original_data = True
-		convert(testfile,options={'nominal_voltage':'2401.78 V'})
+		convert(testfile)
