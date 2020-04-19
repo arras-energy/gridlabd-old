@@ -144,3 +144,4 @@ gldcore/converters/autotest/IEEE-13-cyme/*
 gridlabd.glm
 gldcore/autotest/config.glm
 gldcore/autotest/modify.glm
+gldcore/converters/autotest/mdb_cyme2png_profile.png
