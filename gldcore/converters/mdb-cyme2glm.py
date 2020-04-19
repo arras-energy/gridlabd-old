@@ -1,21 +1,30 @@
-#
-# main converter
-#
+"""CYME 'mdb' to GridLAB-D 'glm' converter
+
+
+"""
 import sys, os
 from copy import copy
 from collections import OrderedDict
-from datetime import *
-from math import *
+import datetime as dt
+import math
 
-# TODO delete when done debugging
+# TODO delete uses of print and pprint when done debugging
 import pprint
 pprint = pprint.PrettyPrinter(indent=4).pprint
 
 class config:
-	original_data = False # set to False to leave original data comments out
+	nominal_voltage_name = 'CYMNOMINALVOLTAGE'
+	default_nominal_voltage = "2401.778 V"
+	annotated_model = False # set to False to omit tagged comments
+	issue_tag = '// issue:'
+	table_tag = '// table:'
+	field_tag = '// field:'
+	value_tag = '// value:'
+	phase_tag = '// phase_%s:'
+	solver_method = None
 
 # map CYME phases to GLM phases
-phase_map = {
+cyme_phase_map = {
 		1:'A',
 		2:'B',
 		3:'C',
@@ -25,6 +34,7 @@ phase_map = {
 		7:'ABC',
 		}
 
+# nominal voltage tracking
 nominal_voltage = None
 
 def safename(name):
@@ -64,13 +74,13 @@ def new_object(class_name,object_name):
 
 def comment(obj,table_name,data,phase=None):
 	"""Add the table data as a comment in an object"""
-	if config.original_data:
-		obj['// table:'] = table_name
-		obj['// keys:'] = ','.join(list(map(lambda x:str(x),data.keys())))
+	if config.annotated_model:
+		obj[config.table_tag] = table_name
+		obj[config.field_tag] = ','.join(list(map(lambda x:str(x),data.keys())))
 		if phase == None:
-			obj['// values:'] = ','.join(list(map(lambda x:str(x),data.values())))
+			obj[config.value_tag] = ','.join(list(map(lambda x:str(x),data.values())))
 		else:
-			obj[f'// values/{phase}:'] = ','.join(list(map(lambda x:str(x),data.values())))
+			obj[config.phase_tag%(phase)] = ','.join(list(map(lambda x:str(x),data.values())))
 
 #
 # MODEL
@@ -78,33 +88,46 @@ def comment(obj,table_name,data,phase=None):
 class Model:
 	
 	def __init__(self,input_file=None):
+		"""Initialize a Model
+
+		Parameters:
+			input_file (str)	the MDB file name to load (default None)
+		"""
 		self.modules = {}
 		self.globals = {}
 		self.defines = {}
 		self.objects = {}
+		self.connect = {}
+		self.issues = {}
 		if input_file:
 			self.load(input_file)
 		self.output_file = None
 
 	def warning(self,msg):
+		"""Display a warning message in GridLAB-D style"""
 		print(f'WARNING [{self.input_file}]: {msg}',file=sys.stderr)
 
 	def error(self,msg):
+		"""Display an error message in GridLAB-D style"""
 		print(f'ERROR [{self.input_file}]: {msg}',file=sys.stderr)
 
 	def exception(self,msg):
+		"""Raise an exception in GridLAB-D style"""
 		raise Exception(f'EXCEPTION [{self.input_file}]: {msg}')
 
 	def require(self,module):
+		"""Require a GridLAB-D module"""
 		if not module in self.modules:
 			self.modules[module] = {}
 
 	def load(self,input_file):
+		"""Load CYME model"""
 		import importlib
 		importlib.util.spec_from_file_location('cyme', sys.argv[0].replace('mdb-cyme2glm','cyme'));
 		cyme = importlib.import_module('cyme');		
 		data = cyme.dataframe(input_file)
 		self.input_file = input_file
+		self.set_define('CYMANNOTATEDMODEL',str(config.annotated_model).upper())
 		self.add_globals(data)
 		self.require('powerflow')
 		self.add_networks(data)
@@ -115,18 +138,79 @@ class Model:
 		# links
 		self.add_overheads(data)
 		self.add_sections(data)
+		# set solver method
+		self.set_issuelist(data)
+		self.set_solvermethod(data)
 
 	#
 	# SET
 	#
 	def set_define(self,name,value):
+		"""Define a GLM global (must not be defined)"""
 		self.defines[name] = value
 
 	def set_global(self,name,value,module=None):
+		"""Set a GLM global (must already be defined)"""
 		if module == None:
 			self.globals[name] = value
 		else:
 			self.modules[module][name] = value
+
+	def set_issuelist(self,data):
+		"""Set the CYMISSUES global from the issues found list"""
+		pprint(self.issues)
+		self.set_define('CYMISSUES',' '.join(list(self.issues.keys())))
+
+	def set_solvermethod(self,data):
+		"""Set the solver method based on the graph structure"""
+		if not config.solver_method:
+			config.solver_method = 'FBS'
+			for network in self.networks:
+				graph = self.graph_connect(network)
+				headnode = self.headnodes[network]
+				# TODO change to NR if network is not radial
+		self.set_global('solver_method',config.solver_method,'powerflow')
+
+	#
+	# GRAPH
+	#
+
+	def graph_connect(self,network):
+		"""Graph the connections in a network
+
+		Returns the dict of nodes that are connected to other nodes
+		"""
+		if not network in self.connect.keys():
+
+			# first time requires construction of connectivity graph
+			objects = self.objects[network]
+			graph = {}
+			for name, obj in objects.items():
+				if obj['class'][0:10] == 'powerflow.' and 'from' in obj.keys() and 'to' in obj.keys():
+					from_name = obj['from']
+					to_name = obj['to']
+					print(f'Processing object {name}: {from_name} --> {to_name}')
+					if from_name in objects.keys() and objects[to_name]['class'][0:10] == 'powerflow.':
+						if to_name in self.issues.keys():
+							self.warning(f'object {name} from node {from_name} has an issue: {self.issues[to_name]}')
+						if not from_name in graph.keys():
+							graph[from_name] = set((to_name))
+						else:
+							graph[from_name].add(to_name)
+					else:
+						self.warning(f'object {name} from node {from_name} is not a valid powerflow node')
+					if to_name in objects.keys() and objects[from_name]['class'][0:10] == 'powerflow.':
+						if from_name in self.issues.keys():
+							self.warning(f'object {name} from node {to_name} has an issue: {self.issues[from_name]}')
+						if not to_name in graph.keys():
+							graph[to_name] = set((from_name))
+						else:
+							graph[to_name].add(from_name)
+					else:
+						self.warning(f'object {name} to node {to_name} is not a valid powerflow node')
+			self.connect[network] = graph
+			pprint(self.connect[network])
+		return self.connect[network]
 
 	#
 	# ADD
@@ -138,6 +222,7 @@ class Model:
 			self.set_define('CYMSCHEMAVERSION',data['CYMSCHEMAVERSION'].loc[0]['Version'])
 
 	def add_object(self,network,obj):
+		"""Add object to model"""
 		global nominal_voltage
 		name = obj['name']
 		if not nominal_voltage and 'nominal_voltage' in obj.keys():
@@ -161,17 +246,35 @@ class Model:
 		"""Add nodes to model
 
 		Nodes are removed by add_<type>() methods as objects are processed. 
-		This call adds nodes that have not been picked up by other parts of 
-		the model. These will most likely cause solver errors.
+		This call tracks nodes that have not been picked up by other parts of 
+		the model and reports them as 'unprocessed node' in the issue list. 
+		These are most likely to cause solver errors or incorrect solutions.
 		"""
 		for network, nodes in self.nodes.items():
 			for name, data in copy(nodes).items():
 				obj = new_object(class_name='powerflow.node',object_name=safename(name))
 				comment(obj,'CYMNODE',data)
-				obj['nominal_voltage'] = '${nominal_voltage}'
+				obj['nominal_voltage'] = '${%s}'%(config.nominal_voltage_name)
 				obj['phases'] = 'ABC'
+				self.add_issue(obj,'unprocessed node')
 				self.add_object(network,obj)
 			self.nodes[network] = {}
+
+	def add_issue(self,obj,issue):
+		"""Add an issue to the model's issue list
+
+		Parameters:
+			obj (str)	object name
+			issue (str)	issue description
+
+		If 'config.annotated_model' is True, the issue will also be
+		added to the object's issue list
+		"""
+		if config.annotated_model:
+			if config.issue_tag not in obj.keys():
+				obj[config.issue_tag] = []
+			obj[config.issue_tag].append(issue)
+		self.issues[obj['name']] = issue
 
 	def add_sections(self,data):
 		"""Add sections to model
@@ -190,14 +293,14 @@ class Model:
 						# special for link that should be a node
 						obj = new_object(class_name='powerflow.node',object_name=safename(section['FromNodeId']))
 						comment(obj,'CYMSECTION',section)
-						obj['nominal_voltage'] = '${nominal_voltage}'
-						obj['phases'] = phase_map[section['Phase']]
+						obj['nominal_voltage'] = '${%s}'%(config.nominal_voltage_name)
+						obj['phases'] = cyme_phase_map[section['Phase']]
 						self.add_object(network,obj)
 				else:
 					obj = new_object(class_name='powerflow.link',object_name=safename(name))
 					comment(obj,'CYMSECTION',section)
-					obj['nominal_voltage'] = '${nominal_voltage}'
-					obj['phases'] = phase_map[section['Phase']]
+					obj['nominal_voltage'] = '${%s}'%(config.nominal_voltage_name)
+					obj['phases'] = cyme_phase_map[section['Phase']]
 					obj['from'] = safename(section['FromNodeId'])
 					obj['to'] = safename(section['ToNodeId'])
 					if not obj['from'] in self.objects[network].keys():
@@ -209,11 +312,12 @@ class Model:
 			self.sections[network] = {}
 
 	def add_overheads(self,data):
+		"""Add overhead lines to model"""
 		self.warning('overheads not implemented yet')
 		return
 
 	def add_capacitors(self,data):
-		"""Add capacitor bank object to model"""
+		"""Add capacitors to model"""
 		caps = reindex_to_dict(data,'CYMSHUNTCAPACITOR',['DeviceNumber'])
 		if not caps:
 			return
@@ -223,7 +327,7 @@ class Model:
 			obj = new_object(class_name='powerflow.capacitor',object_name=safename(name))
 			comment(obj,'CYMSHUNTCAPACITOR',cap_data)
 			obj['nominal_voltage'] = f'{cap_data["KVLN"]} kV'
-			phases = phase_map[cap_data['Phase']]
+			phases = cyme_phase_map[cap_data['Phase']]
 			obj['phases'] = phases
 			if 'A' in phases:
 				obj['capacitor_A'] = f'{cap_data["KVARA"]} kVA'
@@ -245,15 +349,15 @@ class Model:
 		count = 0
 		for name, load_data in loads.items():
 			obj = new_object(class_name='powerflow.load',object_name=safename(name))
-			obj['nominal_voltage'] = '${nominal_voltage}'
+			obj['nominal_voltage'] = '${%s}'%(config.nominal_voltage_name)
 			phases = ''
 			for phase, load in load_data.items():
 				network = load['NetworkId']
-				load_phase = phase_map[phase]
+				load_phase = cyme_phase_map[phase]
 				load_type = load['ConsumerClassId']
 				load_value1 = float(load['LoadValue1'])
 				load_value2 = float(load['LoadValue2'])
-				load_magnitude = sqrt(load_value1*load_value1+load_value2*load_value2)
+				load_magnitude = math.sqrt(load_value1*load_value1+load_value2*load_value2)
 				load_class = load_classes[load_type]
 				power_fraction = float(load_class['ConstantPower'])/100
 				current_fraction = float(load_class['ConstantCurrent'])/100
@@ -294,16 +398,16 @@ class Model:
 					phases += load_phase
 				elif load_magnitude > 0: # unbalanced non-trivial load
 					comment(obj,'CYMCUSTOMERLOAD',load,phase=load_phase)
-					obj[f'base_power_{phase_map[phase]}'] = f'{load_magnitude} kW'
+					obj[f'base_power_{cyme_phase_map[phase]}'] = f'{load_magnitude} kW'
 					if power_fraction > 0:
-						obj[f'power_fraction_{phase_map[phase]}'] = f'{power_fraction} pu'
-						obj[f'power_pf_{phase_map[phase]}'] = f'{power_factor} pu'
+						obj[f'power_fraction_{cyme_phase_map[phase]}'] = f'{power_fraction} pu'
+						obj[f'power_pf_{cyme_phase_map[phase]}'] = f'{power_factor} pu'
 					if current_fraction > 0:
-						obj[f'current_fraction_{phase_map[phase]}'] = f'{current_fraction} pu'
-						obj[f'pcurrent_pf_{phase_map[phase]}'] = f'{current_factor} pu'
+						obj[f'current_fraction_{cyme_phase_map[phase]}'] = f'{current_fraction} pu'
+						obj[f'pcurrent_pf_{cyme_phase_map[phase]}'] = f'{current_factor} pu'
 					if impedance_fraction > 0:
-						obj[f'impedance_fraction_{phase_map[phase]}'] = f'{impedance_fraction} pu'
-						obj[f'impedance_pf_{phase_map[phase]}'] = f'{impedance_factor} pu'
+						obj[f'impedance_fraction_{cyme_phase_map[phase]}'] = f'{impedance_fraction} pu'
+						obj[f'impedance_pf_{cyme_phase_map[phase]}'] = f'{impedance_factor} pu'
 					phases += load_phase
 			obj['phases'] = ''.join(sorted(set(phases)))
 			self.add_object(network,obj)
@@ -314,6 +418,7 @@ class Model:
 	# EXPORT
 	#
 	def export_glm(self,output_file=None):
+		"""Export model to GLM"""
 		if output_file == None:
 			output_file = self.input_file.replace('.mdb','.glm')
 		self.output_file = output_file
@@ -326,13 +431,15 @@ class Model:
 			self.export_glm_footer(fh)
 
 	def export_glm_header(self,fh):
+		"""Export GLM header section"""
 		modify_file = self.output_file.replace(".glm","-modify.glm")
 		fh.write(f'// CYME {self.input_file} converted to GLM\n//\n')
-		fh.write(f'// Date: {datetime.now()}\n')
+		fh.write(f'// Date: {dt.datetime.now()}\n')
 		fh.write(f'// User: {os.getenv("USER")}\n')
 		fh.write(f'// Workdir: {os.getenv("PWD")}\n//\n\n')
 
 	def export_glm_modules(self,fh):
+		"""Export GLM modules section"""
 		fh.write('\n//\n// MODULES\n//\n')
 		for mod, varlist in self.modules.items():
 			fh.write(f'module {mod}\n')
@@ -342,18 +449,21 @@ class Model:
 			fh.write('}\n')
 
 	def export_glm_defines(self,fh):
+		"""Export GLM defines section"""
 		fh.write('\n//\n// DEFINES\n//\n')
 		for var, value in self.defines.items():
 			if len(var.split('::')) == 1:
 				fh.write(f'#define {var}={value}\n')
 
 	def export_glm_globals(self,fh):
+		"""Export GLM globals section"""
 		fh.write('\n//\n// GLOBALS\n//\n')
 		for var, value in self.globals.items():
 			if len(var.split('::')) == 1:
 				fh.write(f'#set {var}={value}\n')
 
 	def export_glm_objects(self,fh):
+		"""Export GLM objects section"""
 		for network in self.networks:
 			fh.write(f'\n//\n// NETWORK {network}\n//\n')
 			headnode = self.headnodes[network]
@@ -367,9 +477,17 @@ class Model:
 					if name == 'class':
 						continue
 					fh.write(f'\t{name} "{value}";\n')
+					if name == 'name':
+						fh.write(f'\tgroupid "{network}";\n')
 				fh.write('}\n')
 
 	def export_glm_footer(self,fh):
+		"""Export GLM footer section
+
+		This section include an attempt to load a file names
+		${modelname}-modify.glm if it exists.  This file can be
+		used to apply modifications to the model if desired.
+		"""
 		fh.write('\n#ifexist "${modelname/.glm/-modify.glm}"\n')
 		fh.write('#include "${modelname/.glm/-modify.glm}"\n')
 		fh.write('#endif\n')
@@ -377,10 +495,18 @@ class Model:
 
 
 def convert(input_file,output_file=None,options={}):
+	"""Convert a CYME MDB file to GLM
+
+	Parameters:
+		input_file (str)	input MDB file name
+		output_file (str)	output GLM file name
+		options (dict)		options to define as globals in model
+	"""
 	model = Model(input_file)
-	model.set_global('solver_method','NR',module='powerflow')
 	if nominal_voltage:
-		model.set_define('nominal_voltage',nominal_voltage)
+		model.set_define(config.nominal_voltage_name,nominal_voltage)
+	else:
+		model.set_define(config.nominal_voltage_name,config.default_nominal_voltage)
 	if options:
 		for var, value in options.items():
 			model.set_define(var,value)
@@ -389,5 +515,5 @@ def convert(input_file,output_file=None,options={}):
 if __name__ == '__main__':
 	testfile = 'autotest/IEEE-13-cyme.mdb'
 	if os.path.exists(testfile):
-		config.original_data = True
+		config.annotated_model = True
 		convert(testfile)
