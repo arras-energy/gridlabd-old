@@ -21,6 +21,7 @@ class config:
 	field_tag = '// field:'
 	value_tag = '// value:'
 	phase_tag = '// phase_%s:'
+	swing_tag = '// swing:'
 	solver_method = None
 
 # map CYME phases to GLM phases
@@ -136,8 +137,8 @@ class Model:
 		self.add_loads(data)
 		self.add_nodes(data)
 		# links
-		self.add_overheads(data)
-		self.add_sections(data)
+		self.add_lines(data)
+		self.add_links(data)
 		# set solver method
 		self.set_issuelist(data)
 		self.set_solvermethod(data)
@@ -158,17 +159,40 @@ class Model:
 
 	def set_issuelist(self,data):
 		"""Set the CYMISSUES global from the issues found list"""
-		pprint(self.issues)
 		self.set_define('CYMISSUES',' '.join(list(self.issues.keys())))
 
 	def set_solvermethod(self,data):
-		"""Set the solver method based on the graph structure"""
+		"""Set the solver method based on the graph structure
+
+		If the solver method is not already specified and the network model 
+		contains at least one loop, the solver method is set to 'NR' otherwise 
+		it is set to 'FBS'."""
 		if not config.solver_method:
 			config.solver_method = 'FBS'
+			def set_swing(model,network,obj_name,swingbus=None):
+				"""Sets the swing bus and counts the number of loops below"""
+				if swingbus == None:
+					swingbus = obj_name
+				if not obj_name in model.objects[network]:
+					model.warning(f"graph of network {network} references invalid object {obj_name}")
+					return 0
+				obj = model.objects[network][obj_name]
+				result = 0
+				if not config.swing_tag in obj.keys():
+					obj[config.swing_tag] = swingbus
+				elif not obj[config.swing_tag] == swingbus:
+					model.error(f"object {obj_name} swing bus conflict, trying to set swing to '{swingbus}' when it's already set to '{obj[config.swing_tag]}'")
+				else:
+					result = 1
+				for node in list(model.graph[obj_name]):
+					result += set_swing(model,network,node,swingbus)
+				return result
 			for network in self.networks:
-				graph = self.graph_connect(network)
-				headnode = self.headnodes[network]
-				# TODO change to NR if network is not radial
+				self.graph = self.graph_connect(network)
+				swing_bus = safename(self.headnodes[network]['NodeId'])
+				swing_obj = self.objects[network][swing_bus]['name']
+				if set_swing(self,network,swing_obj) > 0:
+					config.solver_method = 'NR'
 		self.set_global('solver_method',config.solver_method,'powerflow')
 
 	#
@@ -189,10 +213,10 @@ class Model:
 				if obj['class'][0:10] == 'powerflow.' and 'from' in obj.keys() and 'to' in obj.keys():
 					from_name = obj['from']
 					to_name = obj['to']
-					print(f'Processing object {name}: {from_name} --> {to_name}')
+					# print(f'Processing object {name}: {from_name} --> {to_name}')
 					if from_name in objects.keys() and objects[to_name]['class'][0:10] == 'powerflow.':
-						if to_name in self.issues.keys():
-							self.warning(f'object {name} from node {from_name} has an issue: {self.issues[to_name]}')
+						# if to_name in self.issues.keys():
+						# 	self.warning(f'object {name} from node {from_name} has an issue: {self.issues[to_name]}')
 						if not from_name in graph.keys():
 							graph[from_name] = set((to_name))
 						else:
@@ -200,8 +224,8 @@ class Model:
 					else:
 						self.warning(f'object {name} from node {from_name} is not a valid powerflow node')
 					if to_name in objects.keys() and objects[from_name]['class'][0:10] == 'powerflow.':
-						if from_name in self.issues.keys():
-							self.warning(f'object {name} from node {to_name} has an issue: {self.issues[from_name]}')
+						# if from_name in self.issues.keys():
+						# 	self.warning(f'object {name} from node {to_name} has an issue: {self.issues[from_name]}')
 						if not to_name in graph.keys():
 							graph[to_name] = set((from_name))
 						else:
@@ -209,7 +233,7 @@ class Model:
 					else:
 						self.warning(f'object {name} to node {to_name} is not a valid powerflow node')
 			self.connect[network] = graph
-			pprint(self.connect[network])
+			# pprint(self.connect[network])
 		return self.connect[network]
 
 	#
@@ -228,7 +252,10 @@ class Model:
 		if not nominal_voltage and 'nominal_voltage' in obj.keys():
 			nominal_voltage = obj['nominal_voltage']
 		self.objects[network][name] = obj
-		self.nodes[network].pop(name,None)
+		if name in self.nodes[network].keys():
+			self.nodes[network].pop(name,None)
+		if name in self.links[network].keys():
+			self.links[network].pop(name,None)
 
 	def add_networks(self,data):
 		"""Add networks to model"""
@@ -240,7 +267,7 @@ class Model:
 		for network, headnode in self.headnodes.items():
 			self.set_define(f'CYMHEADNODE_{network}',safename(headnode['NodeId']))
 		self.nodes = reindex_to_dict(data,'CYMNODE',['NetworkId','NodeId'])
-		self.sections = reindex_to_dict(data,'CYMSECTION',['NetworkId','SectionId'])
+		self.links = reindex_to_dict(data,'CYMSECTION',['NetworkId','SectionId'])
 
 	def add_nodes(self,data):
 		"""Add nodes to model
@@ -275,16 +302,17 @@ class Model:
 				obj[config.issue_tag] = []
 			obj[config.issue_tag].append(issue)
 		self.issues[obj['name']] = issue
+		self.warning(f"object {obj['name']} -- {issue}")
 
-	def add_sections(self,data):
-		"""Add sections to model
+	def add_links(self,data):
+		"""Add links to model
 
 		Sections are removed by add_<type>() methods as objects are processed.
 		This call adds nodes that have not been picked up by other parts of 
 		the model. These will most likely cause solver errors.
 		"""
-		for network, sections in self.sections.items():
-			for name, section in copy(sections).items():
+		for network, links in self.links.items():
+			for name, section in copy(links).items():
 				if safename(section['ToNodeId']) == name:
 					if name in self.objects.keys():
 						# special case for links that refer to a node by the same name
@@ -309,12 +337,24 @@ class Model:
 						self.warning(f'ignoring object {name} to node {obj["to"]} not found')
 					else:
 						self.add_object(network,obj)
-			self.sections[network] = {}
+			self.links[network] = {}
 
-	def add_overheads(self,data):
+	def add_lines(self,data):
 		"""Add overhead lines to model"""
-		self.warning('overheads not implemented yet')
-		return
+		self.warning('overheads not fully implemented yet')
+		sections = reindex_to_dict(data,'CYMSECTION',['SectionId'])
+		count = 0
+		for name, line_data in sections.items():
+			network = line_data['NetworkId']			
+			obj = new_object(class_name='powerflow.overhead_line',object_name=safename(name))
+			comment(obj,'CYMSECTION',line_data)
+			obj['nominal_voltage'] = '${%s}'%(config.nominal_voltage_name)
+			obj['phases'] = cyme_phase_map[line_data['Phase']]
+			obj['from'] = safename(line_data['FromNodeId'])
+			obj['to'] = safename(line_data['ToNodeId'])
+			self.add_object(network,obj)
+			count += 1
+		self.set_define('CYMSECTION',count)
 
 	def add_capacitors(self,data):
 		"""Add capacitors to model"""
