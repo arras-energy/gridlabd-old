@@ -1,3 +1,3 @@
 // this causes the error to be ignored
-#on_exit -1 exit 0
+#on_exit -1 echo "the error has been caught and will be ignored"
 #error this causes an error that should be ignored
