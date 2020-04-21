@@ -1,5 +1,5 @@
 // this causes the error to be ignored
 #system rm -f ignored.tmp
 #on_exit -1 echo "the error is ignored" > ignored.tmp
-#on_exit 5 test -f ignored.tmp 
+#on_exit 5 test -f ignored.tmp && rm -f ignored.tmp
 #error this causes an error that should be ignored
