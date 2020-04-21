@@ -131,9 +131,7 @@ int saveall(const char *filename)
 			save_options++;
 			buffer[strlen(buffer)-1] = '\0';
 		}
-		sprintf(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
-		output_verbose("system('%s')",converter_command);
-		rc = system(converter_command);
+		rc = my_instance->subcommand(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
 		if ( rc != 0 )
 		{
 			output_error("conversion from '%s' to output file '%s' failed (code %d)", input_name, filename, rc);

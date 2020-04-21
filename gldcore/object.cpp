@@ -1702,7 +1702,7 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 		else
 			sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
 		setenv("OBJECT",buffer,1);
-		return system(event);
+		return my_instance->subcommand("%s",event);
 	}
 }
 
