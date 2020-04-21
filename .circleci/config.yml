@@ -25,7 +25,7 @@ jobs:
             sleep 5
             cd /home/circleci/project
             autoreconf -isf
-            ./configure
+            ./configure 'CXXFLAGS=-O0 -g'
             sudo make -j16 install-validate
       - store_artifacts:
           path: /home/circleci/project/validate.txt
