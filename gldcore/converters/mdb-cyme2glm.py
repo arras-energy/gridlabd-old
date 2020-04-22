@@ -129,6 +129,7 @@ class Model:
 		data = cyme.dataframe(input_file)
 		self.input_file = input_file
 		self.set_define('CYMANNOTATEDMODEL',str(config.annotated_model).upper())
+		self.set_version(data)
 		self.add_globals(data)
 		self.require('powerflow')
 		self.add_networks(data)
@@ -146,6 +147,13 @@ class Model:
 	#
 	# SET
 	#
+	def set_version(self,data):
+		if 'CYMSCHEMAVERSION' in data.keys():
+			self.version = data['CYMSCHEMAVERSION'].loc[0]['Version']
+			self.set_define('CYMSCHEMAVERSION',self.version)
+		else:
+			self.warning("unknown schema version")
+
 	def set_define(self,name,value):
 		"""Define a GLM global (must not be defined)"""
 		self.defines[name] = value
@@ -242,8 +250,6 @@ class Model:
 	def add_globals(self,data):
 		"""Add standard globals to model"""
 		self.set_define('CYMMODELNAME',self.input_file)
-		if 'CYMSCHEMAVERSION' in data.keys():
-			self.set_define('CYMSCHEMAVERSION',data['CYMSCHEMAVERSION'].loc[0]['Version'])
 
 	def add_object(self,network,obj):
 		"""Add object to model"""
@@ -367,13 +373,16 @@ class Model:
 			obj = new_object(class_name='powerflow.capacitor',object_name=safename(name))
 			comment(obj,'CYMSHUNTCAPACITOR',cap_data)
 			obj['nominal_voltage'] = f'{cap_data["KVLN"]} kV'
-			phases = cyme_phase_map[cap_data['Phase']]
-			obj['phases'] = phases
-			if 'A' in phases:
+			if 'Phases' in cap_data.keys():
+				phases = cyme_phase_map[cap_data['Phase']]
+				obj['phases'] = phases
+			else:
+				phases = []
+			if 'A' in phases or cap_data['KVARA'] != '0':
 				obj['capacitor_A'] = f'{cap_data["KVARA"]} kVA'
-			if 'B' in phases:
+			if 'B' in phases or cap_data['KVARB'] != '0':
 				obj['capacitor_B'] = f'{cap_data["KVARB"]} kVA'
-			if 'C' in phases:
+			if 'C' in phases or cap_data['KVARC'] != '0':
 				obj['capacitor_C'] = f'{cap_data["KVARC"]} kVA'
 			obj['phases_connected'] = phases
 			self.add_object(network,obj)
@@ -553,7 +562,7 @@ def convert(input_file,output_file=None,options={}):
 	model.export_glm(output_file)
 
 if __name__ == '__main__':
-	testfile = 'autotest/IEEE-13-cyme.mdb'
+	testfile = 'autotest/IEEE-123-cyme.mdb'
 	if os.path.exists(testfile):
 		config.annotated_model = True
 		convert(testfile)

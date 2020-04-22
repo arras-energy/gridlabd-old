@@ -140,8 +140,8 @@ fault_check.txt
 # specific outputs that should be ignored
 gldcore/link/python/example.png
 models/ieee123/config/local.glm
-gldcore/converters/autotest/IEEE-13-cyme/*
+gldcore/converters/autotest/IEEE-*-cyme/*
 gridlabd.glm
 gldcore/autotest/config.glm
 gldcore/autotest/modify.glm
-gldcore/converters/autotest/mdb_cyme2png_profile.png
+gldcore/converters/autotest/*.png
