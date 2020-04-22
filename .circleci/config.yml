@@ -20,14 +20,23 @@ jobs:
             cmake .
             make
       - run:
+          name: Configure gridlabd
+          command: |
+            cd /home/circleci/project
+            autoreconf -isf
+            ./configure
+      - run:
+          name: Build gridlabd
+          command: |
+            cd /home/circleci/project
+            sudo make -j16 install
+      - run:
           name: Build gridlabd
           command: |
             sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
             sleep 5
             cd /home/circleci/project
-            autoreconf -isf
-            ./configure
-            sudo make -j16 install-validate
+            sudo make validate
       - store_artifacts:
           path: /home/circleci/project/validate.txt
           destination: /gridlabd/validate.txt
