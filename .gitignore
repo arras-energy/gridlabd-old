@@ -146,3 +146,4 @@ gldcore/autotest/config.glm
 gldcore/autotest/modify.glm
 validate.zip.gz
 gldcore/converters/autotest/*.png
+validate.tar.gz
