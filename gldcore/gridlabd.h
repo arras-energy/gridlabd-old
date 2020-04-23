@@ -3324,6 +3324,12 @@ public:
 		return callback->properties.compare_basic(pstruct.prop->ptype,(PROPERTYCOMPAREOP)op,get_addr(),a,b,NULL);
 	};
 
+	// Method: compare_string(enumeration op, char *a, char *b=NULL)
+	inline bool compare_with_string(enumeration op, const char *a, const char *b=NULL, const char *p=NULL)
+	{
+		return callback->properties.compare_basic_str(pstruct.prop,(PROPERTYCOMPAREOP)op,get_addr(),a,b,p);
+	};
+
 	// Method: call(char *buffer, size_t len)
 	inline int call(char *buffer, size_t len) { return (*(pstruct.prop->method))(obj,buffer,len); };
 
