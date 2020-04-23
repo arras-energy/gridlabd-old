@@ -33,20 +33,20 @@ jobs:
       - run:
           name: Validate gridlabd
           command: |
-            sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
+            sudo /usr/bin/influxd run 1>/tmp/influxd.out 2>/tmp/influxd.err &
             sleep 5
             export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:.}
-            gridlabd --validate
+            gridlabd --validate || utilities/save_validation_errors
       - store_artifacts:
           path: /home/circleci/project/validate.txt
-          destination: validate-output.txt
+          destination: validate.txt
       - store_artifacts:
-          path: /home/circleci/project/validate-output.tar.gz
-          destination: validate-output.tar.gz
+          path: /home/circleci/project/validate.tar.gz
+          destination: validate.tar.gz
           when: on_fail
       - store_artifacts:
-          path: /tmp/influxd.log
-          destination: /logs/influxd.log
+          path: /tmp/influxd.out
+          destination: /logs/influxd.out
           when: on_fail
       - store_artifacts:
           path: /tmp/influxd.err
