@@ -66,6 +66,7 @@ char1024 solver_headers =  "timestamp,duration[microsec],iteration,bus_count,bra
 static FILE * nr_profile = NULL;
 bool solver_profile_headers_included = true;
 bool solver_profile_enable = false;
+bool solver_dump_enable = false;
 
 //Initialize the sparse notation
 void sparse_init(SPARSE* sm, int nels, int ncols)
@@ -4009,6 +4010,7 @@ int64 solver_nr(unsigned int bus_count,
 		//Defaulted else - shouldn't exist (or make it this far), but if it does, we're failing anyways
 
 		*bad_computations = true;	//Flag our output as bad
+		solver_dump(bus_count,bus,branch_count,branch,solver_dump_enable);
 		return 0;					//Just return some arbitrary value
 	}
 	else	//Must have converged 

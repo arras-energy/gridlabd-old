@@ -1319,7 +1319,7 @@ int http_run_java(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1377,7 +1377,7 @@ int http_run_perl(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1434,7 +1434,7 @@ int http_run_python(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1495,7 +1495,7 @@ int http_run_r(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1552,7 +1552,7 @@ int http_run_scilab(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1609,7 +1609,7 @@ int http_run_octave(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1669,7 +1669,7 @@ int http_run_gnuplot(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{

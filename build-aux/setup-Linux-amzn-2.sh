@@ -37,3 +37,9 @@ mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 	chmod a+x /usr/local/bin/natural_docs
 fi
 
+# converter support
+pip3 install networkx
+cd /tmp
+curl http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m/mdbtools-0.7.1-3.el7.x86_64.rpm
+rpm -Uvh mdbtools-0.7.1-3.el7.x86_64.rpm
+yum -q install mdbtools -y
