@@ -591,6 +591,7 @@ const char *GldExec::simtime(void)
 
 STATUS GldExec::show_progress(void)
 {
+	global_progress = double(global_clock - global_starttime) / double(global_stoptime - global_starttime);
 	output_progress();
 	/* reschedule report */
 	realtime_schedule_event(realtime_now()+1,show_progress);
