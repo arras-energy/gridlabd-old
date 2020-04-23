@@ -96,11 +96,6 @@ gldcore/build.h
 gldcore/config.h.in~
 gridlabd.bin
 install/
-autotest/test_*/
-*/autotest/test_*/
-*/*/autotest/test_*/
-*/*/*/autotest/test_*/
-validate.txt
 third_party/xerces*/*
 third_party/armadillo-7.800.1.tar.gz
 third_party/mysql-connector-c-6.1.11-linux-glibc2.12-x86_64.tar.gz
@@ -116,19 +111,39 @@ third_party/xerces-c-src_2_8_0.tar
 .DS_Store
 *.json
 output/
-models/ieee123/config/local.glm
 .bash_profile
 *.tmp
-gldcore/link/python/example.png
 *-checkpoint.ipynb
 .*
 *.log
-object_profile.txt
+
+# document processor outputs
 docs/gridlabd.aux
 docs/gridlabd.pdf
 docs/version.tex
+
+# some common autotest output that should be ignored
+validate.txt
+autotest/test_*/
+*/autotest/test_*/
+*/*/autotest/test_*/
+*/*/*/autotest/test_*/
 gldcore/autotest/ceus.glm
 gldcore/autotest/ica_test.glm
 gldcore/autotest/test_output_save.csv
+gldcore/converters/autotest/IEEE-13-cyme.glm
+
+# widely found generic output files
+object_profile.txt
+fault_check.txt
+
+# specific outputs that should be ignored
+gldcore/link/python/example.png
+models/ieee123/config/local.glm
+gldcore/converters/autotest/IEEE-*-cyme/*
+gridlabd.glm
 gldcore/autotest/config.glm
 gldcore/autotest/modify.glm
+validate.zip.gz
+gldcore/converters/autotest/*.png
+validate.tar.gz

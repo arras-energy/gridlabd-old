@@ -24,6 +24,7 @@ public:
 	double phaseA_kVA_rating;     // kVA rating of transformer
 	double phaseB_kVA_rating;     // kVA rating of transformer
 	double phaseC_kVA_rating;     // kVA rating of transformer
+	double phaseN_kVA_rating;
 	complex impedance;				// Series impedance
 	complex impedance1;				// Series impedance (only used when you want to define each individual 
 	complex impedance2;				//    winding seperately

@@ -591,6 +591,7 @@ const char *GldExec::simtime(void)
 
 STATUS GldExec::show_progress(void)
 {
+	global_progress = double(global_clock - global_starttime) / double(global_stoptime - global_starttime);
 	output_progress();
 	/* reschedule report */
 	realtime_schedule_event(realtime_now()+1,show_progress);
@@ -3348,7 +3349,7 @@ void *GldExec::slave_node_proc(void *args)
 		(global_execdir[0] ? global_execdir : ""), (global_execdir[0] ? "\\" : ""), params, id, ippath, filepath);//addrstr, mtr_port, filepath);//,
 	IN_MYCONTEXT output_debug("system(\"%s\")", cmd);
 
-	rv = system(cmd);
+	rv = my_instance->subcommand("%s",cmd);
 #endif
 
 	// cleanup
@@ -3541,7 +3542,7 @@ int GldExec::add_script(SIMPLELIST **list, const char *file)
 
 EXITCODE GldExec::run_system_script(char *call)
 {
-	EXITCODE rc = (EXITCODE)system(call);
+	EXITCODE rc = (EXITCODE)my_instance->subcommand("%s",call);
 	if ( rc != XC_SUCCESS )
 	{
 		output_error("script '%s' return with exit code %d", call,rc);
