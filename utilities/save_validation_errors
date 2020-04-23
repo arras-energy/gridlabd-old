@@ -6,4 +6,4 @@ if [ $# -eq 1 ]; then
 	DIR=$1
 fi
 FILES=`grep '^[ESX]	' ${DIR:-validate.txt} | cut -f3 -d'	' | sed "s:$PWD/::"`
-tar cvfz validate.zip.gz $FILES
+tar cvfz validate.tar.gz $FILES
