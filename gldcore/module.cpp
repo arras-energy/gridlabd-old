@@ -1347,7 +1347,7 @@ static int execf(const char *format, /**< format string  */
 	{
 		IN_MYCONTEXT output_debug("command: %s",command);
 	}
-	rc = system(command);
+	rc = my_instance->subcommand("%s",command);
 	if ( rc != 0 )
 	{
 		output_error("command [%s] failed, rc = %d", command, rc);
