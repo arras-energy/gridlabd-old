@@ -37,7 +37,7 @@ jobs:
             sudo /usr/bin/influxd run 1>/tmp/influxd.out 2>/tmp/influxd.err &
             sleep 5
             export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-${libdir}}
-            gridlabd --validate || utilities/save_validation_errors
+            gridlabd --validate || (utilities/save_validation_errors && fail)
       - store_artifacts:
           path: /home/circleci/project/validate.txt
           destination: validate.txt
