@@ -36,7 +36,7 @@ jobs:
           command: |
             sudo /usr/bin/influxd run 1>/tmp/influxd.log 2>/tmp/influxd.err &
             sleep 5
-            export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:.}
+            export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}
             gridlabd --validate
       - store_artifacts:
           path: /home/circleci/project/validate.txt
