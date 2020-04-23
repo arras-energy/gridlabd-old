@@ -260,6 +260,12 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 	{
 		count = sprintf(temp,global_complex_format,v->Re()*scale,v->Im()*scale,v->Notation()?v->Notation():'i');
 	}
+
+	if ( prop->unit )
+	{
+		count += sprintf(temp+count," %s",prop->unit->name);
+	}
+
 	if ( count < size - 1 )
 	{
 		memcpy(buffer, temp, count);
