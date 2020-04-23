@@ -26,7 +26,6 @@ jobs:
             cd /home/circleci/project
             autoreconf -isf
             ./configure
-            sudo make -j16 install-validate
       - run:
           name: Build gridlabd
           command: |
