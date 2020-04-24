@@ -171,6 +171,7 @@ typedef struct s_callbacks {
 		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, const char *opstr);
 		double (*get_part)(OBJECT*,PROPERTY*,const char*);
 		PROPERTYSPEC *(*get_spec)(PROPERTYTYPE);
+		bool (*compare_basic_str)(PROPERTY*,PROPERTYCOMPAREOP,void*,const char*,const char*,const char*);
 	} properties;
 	struct {
 		struct s_findlist *(*objects)(struct s_findlist *,...);
@@ -424,6 +425,7 @@ const char *object_get_string(OBJECT *pObj, PROPERTY *prop);
 const char *object_get_string_by_name(OBJECT *obj, const char *name);
 FUNCTIONADDR object_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
 const char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz);
+const char *object_property_to_string_x(OBJECT *obj, PROPERTY *prop, char *buffer, int sz);
 const char *object_get_unit(OBJECT *obj, const char *name);
 OBJECTRANK object_set_rank(OBJECT *obj, OBJECTRANK rank);
 

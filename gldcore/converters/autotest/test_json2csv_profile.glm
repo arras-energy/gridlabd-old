@@ -1,0 +1,7 @@
+#ifexist "IEEE-13.glm"
+#define DIR=.
+#endif
+
+#include "${DIR:-..}/IEEE-13.glm"
+
+#output "json2csv_profile.csv" -t profile
