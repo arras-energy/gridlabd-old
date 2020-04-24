@@ -72,6 +72,7 @@ transformer_configuration::transformer_configuration(MODULE *mod) : powerflow_li
 			PT_double, "powerA_rating[kVA]",PADDR(phaseA_kVA_rating),PT_DESCRIPTION,"kVA rating of transformer, phase A",
 			PT_double, "powerB_rating[kVA]",PADDR(phaseB_kVA_rating),PT_DESCRIPTION,"kVA rating of transformer, phase B",
 			PT_double, "powerC_rating[kVA]",PADDR(phaseC_kVA_rating),PT_DESCRIPTION,"kVA rating of transformer, phase C",
+			PT_double, "powerN_rating[kVA]",PADDR(phaseN_kVA_rating),PT_DESCRIPTION,"kVA rating of transformer, neutral",
 			PT_double, "resistance[pu*Ohm]",PADDR(impedance.Re()),PT_DESCRIPTION,"Series impedance, pu, real",
 			PT_double, "reactance[pu*Ohm]",PADDR(impedance.Im()),PT_DESCRIPTION,"Series impedance, pu, imag",
 			PT_complex, "impedance[pu*Ohm]",PADDR(impedance),PT_DESCRIPTION,"Series impedance, pu",

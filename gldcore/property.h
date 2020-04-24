@@ -1436,7 +1436,8 @@ struct s_property_specs
 	int (*string_to_data)(const char *,void*,PROPERTY*); 
 	int (*to_initial)(char *,int,void*,PROPERTY*); 
 	int (*create)(void*);
-	size_t (*stream)(FILE*,int,void*,PROPERTY*); 
+	size_t (*stream)(FILE*,int,void*,PROPERTY*);
+	int (*string_to_compare)(const char*,void*,PROPERTY*);
 	struct {
 		PROPERTYCOMPAREOP op;
 		char str[16];
@@ -1608,11 +1609,19 @@ DEPRECATED int property_create(PROPERTY *, void *);
 */
 DEPRECATED bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, const char *part);
 
+/* 	Function: property_compare_basic_str
+
+	Returns: 
+	bool - result of comparison
+*/
+DEPRECATED bool property_compare_basic_str(PROPERTY *prop, PROPERTYCOMPAREOP op, void *x, const char *a, const char *b, const char *part);
+
 /* 	Function: property_compare_op
 
 	Returns: 
 	PROPERTYCOMPAREOP - comparison operator function call
 */
+
 DEPRECATED PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, const char *opstr);
 
 /* 	Function: property_get_type

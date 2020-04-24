@@ -462,14 +462,7 @@ int class_property_to_string(PROPERTY *prop, /**< the property type */
 	}
 	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST )
 	{
-		int rv = property_write(prop,addr,value,size);
-		if ( rv > 0 && prop->unit != 0 )
-		{
-			strcat(value+rv," ");
-			strcat(value+rv+1,prop->unit->name);
-			rv += (int)(1+strlen(prop->unit->name));
-		}
-		return rv;
+		return property_write(prop,addr,value,size);
 	}
 	else
 	{

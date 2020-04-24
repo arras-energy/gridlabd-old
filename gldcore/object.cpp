@@ -1501,6 +1501,10 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 		errno = ENOENT;
 		return NULL;
 	}
+	return object_property_to_string_x(obj,prop,buffer,sz);
+}
+const char *object_property_to_string_x(OBJECT *obj, PROPERTY *prop, char *buffer, int sz)
+{
 	void *addr = GETADDR(obj,prop); /* warning: cast from pointer to integer of different size */
 	if ( prop->ptype == PT_delegated )
 	{
@@ -1704,7 +1708,7 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 		else
 			sprintf(buffer,"%s:%d",obj->oclass->name,obj->id);
 		setenv("OBJECT",buffer,1);
-		return system(event);
+		return my_instance->subcommand("%s",event);
 	}
 }
 

@@ -1078,6 +1078,7 @@ typedef struct s_property_specs { /**<	the property type conversion specificatio
 	int (*to_initial)(char *,int,void*,PROPERTY*); /**< function to get initialization string */
 	int (*create)(void*); /**< the function used to create the property, if any */
 	size_t (*stream)(FILE*,int,void*,PROPERTY*); /**< the function to read data from a stream */
+	int (*string_to_compare)(const char*,void*,PROPERTY*);
 	struct {
 		PROPERTYCOMPAREOP op;
 		char str[16];
@@ -1215,6 +1216,7 @@ typedef struct s_callbacks {
 		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, char *opstr);
 		double (*get_part)(OBJECT*,PROPERTY*,char*);
 		PROPERTYSPEC *(*get_spec)(PROPERTYTYPE ptype);
+		bool (*compare_basic_str)(PROPERTY*,PROPERTYCOMPAREOP,void*,const char*,const char*,const char*);
 	} properties;
 	struct {
 		struct s_findlist *(*objects)(struct s_findlist *,...);

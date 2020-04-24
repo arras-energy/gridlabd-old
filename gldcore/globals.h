@@ -237,6 +237,9 @@ GLOBAL int global_debug_output INIT(FALSE); /**< Enables debug output */
 /* Variable: global_keep_progress */
 GLOBAL int global_keep_progress INIT(FALSE); /**< Flag to keep progress reports */
 
+/* Variable: global_progress */
+GLOBAL double global_progress INIT(0.0); /**< Progress fraction */
+
 /* Variable: global_iteration_limit */
 GLOBAL unsigned global_iteration_limit INIT(100); /**< The global iteration limit */
 
@@ -666,8 +669,13 @@ GLOBAL bool global_literal_if INIT(true); /**< do not interpret lhs of #if as a 
 
 /* Variable:  */
 GLOBAL bool global_allow_variant_aggregates INIT(false); /* allow aggregates to include time varying results */
+
 /* Variable:  */
 GLOBAL char1024 global_daemon_configfile INIT("gridlabd.cnf"); /**< name of daemon configuration file */
+
+/* Variable: global_server_keepalive */
+GLOBAL bool global_server_keepalive INIT(FALSE); /**< keep server alive after simulation finishes */
+
 typedef enum {
 	DMC_MAIN		= 0x0000000000000001,
 	DMC_CMDARG		= 0x0000000000000002,

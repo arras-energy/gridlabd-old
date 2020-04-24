@@ -331,6 +331,8 @@ DEPRECATED static struct s_varmap {
 	{"python3_binary", PT_char1024, &global_python3_binary, PA_PUBLIC, "binary image for python3"},
 	{"keep_progress", PT_bool, &global_keep_progress, PA_PUBLIC, "keep each progress line"},
 	{"allow_variant_aggregates", PT_bool, &global_allow_variant_aggregates, PA_PUBLIC, "permits aggregates to include time-varying criteria"},
+	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
+	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
 	/* add new global variables here */
 };
 

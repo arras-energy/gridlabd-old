@@ -16,6 +16,7 @@
 #include "gui.h"
 
 #include <list>
+#include <sys/wait.h>
 
 /*	Typedef: EXITCALL */
 typedef int (*EXITCALL)(int);
