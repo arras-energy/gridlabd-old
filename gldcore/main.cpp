@@ -76,6 +76,11 @@ int main
 		delete my_instance;
 		my_instance = NULL;
 	}
+	if ( global_server_keepalive )
+	{
+		int stat;
+		wait(&stat);
+	}
 	return return_code;
 }
 unsigned int GldMain::next_id = 0;
