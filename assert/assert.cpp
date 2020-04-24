@@ -34,12 +34,13 @@ g_assert::g_assert(MODULE *module)
 		defaults = this;
 		if (gl_publish_variable(oclass,
 			PT_enumeration, "status", get_status_offset(), 
-				PT_DEFAULT, "INIT",  
+				PT_DEFAULT, "TRUE",  
 				PT_DESCRIPTION, "desired outcome of assert test",
-				PT_KEYWORD, "INIT", (enumeration)AS_INIT,
+				PT_KEYWORD, "NONE", (enumeration)AS_NONE,
+				PT_KEYWORD, "INIT", (enumeration)AS_NONE,
 				PT_KEYWORD, "TRUE", (enumeration)AS_TRUE,
 				PT_KEYWORD, "FALSE", (enumeration)AS_FALSE,
-				PT_KEYWORD, "NONE", (enumeration)AS_NONE,
+				PT_KEYWORD, "ERROR", (enumeration)AS_ERROR,
 			PT_char1024, "target", get_target_offset(),  
 				PT_REQUIRED,  
 				PT_DESCRIPTION, "the target property to test",
@@ -68,6 +69,7 @@ g_assert::g_assert(MODULE *module)
 			PT_char1024, "group", get_group_offset(),  
 				PT_DESCRIPTION, "a target group specification to use instead of parent object",
 			PT_timestamp, "start", get_start_offset(),  
+				PT_DEFAULT, "INIT",
 				PT_DESCRIPTION, "time to start assertion",
 			PT_timestamp, "stop", get_stop_offset(),  
 				PT_DEFAULT, "NEVER",  
@@ -129,7 +131,6 @@ int g_assert::init(OBJECT *parent)
 			gl_warning("group '%s' contains no objects",get_group());
 		}
 	}
-	set_status(AS_TRUE);
 	return 1;
 }
 
@@ -191,10 +192,16 @@ TIMESTAMP g_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 
 g_assert::ASSERTSTATUS g_assert::evaluate_status(gld_property &target_prop)
 {
-	if ( strcmp(get_part(),"")==0 )
-		return target_prop.compare(relation,get_value(),get_value2()) ? AS_TRUE : AS_FALSE ;
+	const char *a = get_value();
+	const char *b = get_value2();
+	if ( strcmp(get_part(),"") == 0 )
+		return target_prop.compare_with_string(relation,a,b[0]=='\0'?NULL:b) ? AS_TRUE : AS_FALSE ;
 	else
-		return target_prop.compare(relation,get_value(),get_value2(),get_part()) ? AS_TRUE : AS_FALSE ;
+	{
+		double x = atof(a);
+		double y = atof(b);
+		return target_prop.compare(relation,&x,b[0]=='\0'?NULL:&y,get_part()) ? AS_TRUE : AS_FALSE ;
+	}
 }
 
 int g_assert::postnotify(PROPERTY *prop, const char *value)

@@ -123,7 +123,7 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 		return strcspn(buffer+4," \t\n");
 	}
 	char unit[256];
-	int n = sscanf(buffer,"%lg%[^ \t\n]",(double*)data,unit);
+	int n = sscanf(buffer,"%lg%s",(double*)data,unit);
 	if ( n == 1 )
 	{
 		return n;
@@ -260,6 +260,12 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 	{
 		count = sprintf(temp,global_complex_format,v->Re()*scale,v->Im()*scale,v->Notation()?v->Notation():'i');
 	}
+
+	if ( prop->unit )
+	{
+		count += sprintf(temp+count," %s",prop->unit->name);
+	}
+
 	if ( count < size - 1 )
 	{
 		memcpy(buffer, temp, count);
