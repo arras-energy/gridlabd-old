@@ -4,11 +4,11 @@
 #
 # Author: DP Chassin
 #
-# This file can be used to executed commands that alter the environment in
+# This file can be used to execute commands that alter the environment in
 # which gridlabd.bin runs.  There are three locations where this file
 # may be deployed. They will be run this order
 #   /usr/local/share/gridlabd/gridlabd.rc
-#   $HOME/.gridlabd.rc
+#   $HOME/.gridlabd/gridlabd.rc
 #   ./gridlabd.rc
 #
 
@@ -25,7 +25,7 @@ export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-/usr/local/lib/gridlabd}
 # Run the user's RC file, if found
 #
 
-[ -x $HOME/gridlabd.rc ] && source $HOME/gridlabd.rc
+[ -x $HOME/.gridlabd/gridlabd.rc ] && source $HOME/.gridlabd/gridlabd.rc
 
 #
 # Run the local RC file, if found
