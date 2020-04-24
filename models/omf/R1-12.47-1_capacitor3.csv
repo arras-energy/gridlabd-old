@@ -1,0 +1,10 @@
+# file...... R1-12.47-1_capacitor3.csv
+# date...... Fri Feb  7 13:35:44 2020
+# user...... dchassin
+# host...... (null)
+# target.... capacitor 4
+# trigger... (none)
+# interval.. 60
+# limit..... 1440
+# timestamp,switchA,switchB,switchC,voltage_A.real,voltage_A.imag,voltage_B.real,voltage_B.imag,voltage_C.real,voltage_C.imag
+# end of tape
