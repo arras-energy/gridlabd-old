@@ -1,0 +1,38 @@
+
+clock {
+	starttime "2020-01-01 00:00:00";
+	stoptime "2020-01-01 01:00:00";
+}
+class test 
+{
+	double var;
+}
+
+object test
+{
+	name "test";
+	var "1.0";
+}
+
+module assert;
+
+object assert
+{
+	parent "test";
+	target "var";
+	relation "==";
+	value "+2"; // TODO: any form of 2.0 should be allowed, but only "+2" work right now.
+}
+
+module tape;
+
+object recorder
+{
+	parent "test";
+	property "var";
+	interval "30min";
+	file "test.csv";
+}
+
+#input "../modify.csv" -f modify -t modify
+

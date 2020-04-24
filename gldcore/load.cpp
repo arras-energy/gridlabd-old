@@ -312,7 +312,7 @@ STATUS GldLoader::exec(const char *format,...)
 	vsprintf(cmd,format,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("Running '%s' in '%s'", cmd, getcwd(NULL,0));
-	int rc = system(cmd);
+	int rc = my_instance->subcommand(cmd);
 	if ( rc != 0 )
 	{
 		output_error("command [%s] failed, rc=%d",cmd,rc);
@@ -5954,7 +5954,7 @@ int GldLoader::script_directive(PARSER)
 		{
 			int rc;
 			IN_MYCONTEXT output_verbose("running command [%s]", command);
-			rc = system(command);
+			rc = my_instance->subcommand("%s",command);
 			if ( rc!=0 )
 			{
 				syntax_error(filename,linenum,"script failed - return code %d", rc);
@@ -6772,6 +6772,12 @@ void GldLoader::kill_processes(void)
 
 bool load_import(const char *from, char *to, int len);
 
+void *subcommand(void *arg)
+{
+	const char *cmd = (const char*)arg;
+	int64 rc = my_instance->subcommand("%s",cmd);
+	return (void*)rc;
+}
 /** @return -1 on failure, thread_id on success **/
 void* GldLoader::start_process(const char *cmd)
 {
@@ -6780,7 +6786,7 @@ void* GldLoader::start_process(const char *cmd)
 	struct s_threadlist *thread = (struct s_threadlist*)malloc(sizeof(struct s_threadlist));
 	char *args = (char*)malloc(strlen(cmd)+1);
 	strcpy(args,cmd);
-	if ( thread==NULL || pThreadInfo==NULL || pthread_create(pThreadInfo,NULL,(void*(*)(void*))system,args)!=0 )
+	if ( thread==NULL || pThreadInfo==NULL || pthread_create(pThreadInfo,NULL,(void*(*)(void*))subcommand,args)!=0 )
 	{
 		syntax_error(filename,linenum,"unable to create thread to start '%s'", cmd);
 		return NULL;
@@ -7366,8 +7372,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		strcpy(value, strip_right_white(term+1));
 		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
-		global_return_code = system(value);
-		if( global_return_code==127 || global_return_code==-1 )
+		int rc = my_instance->subcommand(value);
+		if( rc == 127 || rc == -1 )
 		{
 			syntax_error(filename,linenum,"#system %s -- system('%s') failed with status %d", value, value, global_return_code);
 			strcpy(line,"\n");
@@ -7692,9 +7698,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			return FALSE;
 		}
 	}
-	char cmd[1024];
-	sprintf(cmd,"%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
-	int rc = system(cmd);
+	int rc = my_instance->subcommand("%s/" PACKAGE "-%s",global_execdir,strchr(line,'#')+1);
 	if ( rc != 127 )
 	{
 		strcpy(line,"\n");
@@ -7883,10 +7887,14 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 	char load_options_var[64];
 	sprintf(load_options_var,"%s_load_options",ext);
 	global_getvar(load_options_var,load_options,sizeof(load_options));
-	char cmd[4096];
-	sprintf(cmd,"python3 %s -i %s -o %s \"%s\"",converter_path,from,to,load_options);
-	output_verbose("running %s", cmd);
-	int rc = system(cmd);
+	char *ptr = load_options;
+	if ( load_options[0] == '"' )
+	{
+		int len = strlen(load_options);
+		load_options[len-1] = '\0';
+		ptr++;
+	}
+	int rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,from,to,ptr);
 	if ( rc != 0 )
 	{
 		output_error("%s: return code %d",converter_path,rc);
@@ -7897,9 +7905,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 
 STATUS GldLoader::load_python(const char *filename)
 {
-	char cmd[1024];
-	sprintf(cmd,"/usr/local/bin/python3 %s",filename);
-	return system(cmd)==0 ? SUCCESS : FAILED ;
+	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
 }
 
 /** Load a file
