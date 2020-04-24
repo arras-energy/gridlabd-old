@@ -15,6 +15,7 @@ int saveglm(const char *filename, FILE *fp);
 int savexml(const char *filename, FILE *fp);
 int savejson(const char *filename, FILE *fp);
 int savexml_strict(const char *filename, FILE *fp);
+int saveomd(const char *filename, FILE *fp);
 
 int saveall(const char *filename)
 {
@@ -29,6 +30,7 @@ int saveall(const char *filename)
 		//{"xml", savexml_strict},
 		{"xml", savexml},
 		{"json", savejson},
+		{"omd", saveomd},
 	};
 	size_t i;
 
@@ -57,43 +59,64 @@ int saveall(const char *filename)
 	}
 	if ( ! known_format )
 	{
-		/* try using python output converter through json */
-		char converter_name[1024];
-		sprintf(converter_name,"json2%s.py",ext);
-		const char *converter_path = find_file(converter_name,NULL,R_OK);
-		if ( ! converter_path )
-		{
-			output_error("saveall: extension '.%s' not a known format", ext);
-			/*	TROUBLESHOOT
-				Only the format extensions ".txt", ".gld", and ".xml" are recognized by
-				GridLAB-D.  Please end the specified output field accordingly, or omit the
-				extension entirely to force use of the default format.
-			*/
-			errno = EINVAL;
-			return 0;
-		}
 		char converter_command[1024];
+		int rc;
+		char converter_name[1024];
 		char input_name[1024];
 		strcpy(input_name,filename);
 		char *in_ext = strrchr(input_name,'.');
 		if ( in_ext == NULL )
 		{
-			output_error("intermediate file '%s' extension not found", input_name);
+			output_error("'%s' extension not found", input_name);
 			errno = EINVAL;
 			return 0;
 		}
-		strcpy(in_ext,".json");
-		set old_fso = global_filesave_options;
-		global_filesave_options = FSO_ALL;
-		fp = fopen(input_name,"wb");
-		if ( fp == NULL )
+		sprintf(converter_name,"glm2%s.py",ext);
+		const char *converter_path = find_file(converter_name,NULL,R_OK);
+		if ( ! converter_path )
 		{
-			output_error("unable to open intermediate file '%s' for writing", input_name);
-			return 0;
+			/* try using python output converter through json */
+			sprintf(converter_name,"json2%s.py",ext);
+			const char *converter_path = find_file(converter_name,NULL,R_OK);
+			if ( ! converter_path )
+			{
+				output_error("saveall: extension '.%s' not a known format", ext);
+				/*	TROUBLESHOOT
+					Only the format extensions ".txt", ".gld", and ".xml" are recognized by
+					GridLAB-D.  Please end the specified output field accordingly, or omit the
+					extension entirely to force use of the default format.
+				*/
+				errno = EINVAL;
+				return 0;
+			}
+			strcpy(in_ext,".json");
+			set old_fso = global_filesave_options;
+			global_filesave_options = FSO_ALL;
+			fp = fopen(input_name,"wb");
+			if ( fp == NULL )
+			{
+				output_error("unable to open intermediate file '%s' for writing", input_name);
+				return 0;
+			}
+			rc = savejson(input_name,fp);
+			fclose(fp);
+			global_filesave_options = old_fso;
 		}
-		int rc = savejson(input_name,fp);
-		fclose(fp);
-		global_filesave_options = old_fso;
+		else
+		{
+			strcpy(in_ext,".glm");
+			set old_fso = global_filesave_options;
+			global_filesave_options = FSO_ALL;
+			fp = fopen(input_name,"wb");
+			if ( fp == NULL )
+			{
+				output_error("unable to open intermediate file '%s' for writing", input_name);
+				return 0;
+			}
+			rc = saveglm(input_name,fp);
+			fclose(fp);
+			global_filesave_options = old_fso;
+		}
 		if ( rc == 0 )
 		{
 			output_error("save to intermediate file '%s' failed (code %d)", input_name, rc);;
@@ -108,12 +131,10 @@ int saveall(const char *filename)
 			save_options++;
 			buffer[strlen(buffer)-1] = '\0';
 		}
-		sprintf(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
-		output_verbose("system('%s')",converter_command);
-		rc = system(converter_command);
+		rc = my_instance->subcommand(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
 		if ( rc != 0 )
 		{
-			output_error("conversion from intermediate file '%s' to output file '%s' failed (code %d)", input_name, filename, rc);
+			output_error("conversion from '%s' to output file '%s' failed (code %d)", input_name, filename, rc);
 			return 0;
 		}
 		struct stat info;
@@ -488,6 +509,71 @@ int savejson(const char *filename, FILE *fp)
 {
 	GldJsonWriter json(filename);
 	return json.write_output(fp);
+}
+
+int saveomd(const char *filename, FILE *fp)
+{
+	int len = 0;
+	len += fprintf(fp,"{\n");
+	len += fprintf(fp,"\t\"links\": [],\n");
+	len += fprintf(fp,"\t\"hiddenLinks\": [],\n");
+	len += fprintf(fp,"\t\"nodes\": [],\n");
+	len += fprintf(fp,"\t\"layoutVars\": {\n");
+	len += fprintf(fp,"\t\t\"theta\": \"0.8\",\n");
+	len += fprintf(fp,"\t\t\"gravity\": \"0.01\",\n");
+	len += fprintf(fp,"\t\t\"friction\": \"0.9\",\n");
+	len += fprintf(fp,"\t\t\"linkStrength\": \"5\",\n");
+	len += fprintf(fp,"\t\t\"linkDistance\": \"5\",\n");
+	len += fprintf(fp,"\t\t\"charge\": \"-5\"\n");
+	len += fprintf(fp,"\t},\n");
+	len += fprintf(fp,"\t\"attachments\": {},\n");
+	len += fprintf(fp,"\t\"tree\": {\n");
+
+	len += fprintf(fp,"\t\t\"-1\" : {\n");
+	len += fprintf(fp,"\t\t\t\"omftype\": \"module\",\n");
+	len += fprintf(fp,"\t\t\t\"argument\": \"generators\"\n");
+	len += fprintf(fp,"\t\t},\n");
+
+	len += fprintf(fp,"\t\t\"-2\" : {\n");
+	len += fprintf(fp,"\t\t\t\"solver_method\": \"NR\",\n");
+	len += fprintf(fp,"\t\t\t\"module\": \"powerflow\"\n");
+	len += fprintf(fp,"\t\t},\n");
+
+	len += fprintf(fp,"\t\t\"-3\" : {\n");
+	len += fprintf(fp,"\t\t\t\"omftype\": \"#set\",\n");
+	len += fprintf(fp,"\t\t\t\"argument\": \"relax_naming_rules=1\"\n");
+	len += fprintf(fp,"\t\t},\n");
+
+	OBJECT *obj;
+	for ( obj = object_get_first() ; obj != NULL ; obj = obj->next )
+	{
+		len += fprintf(fp,"\t\t\"%d\" : {\n",obj->id);
+		len += fprintf(fp,"\t\t\t\"object\" : \"%s\",\n",obj->oclass->name);
+		if ( obj->name )
+		{
+			len += fprintf(fp,"\t\t\t\"name\" : \"%s\",\n",obj->name);
+		}
+		else
+		{
+			len += fprintf(fp,"\t\t\t\"name\" : \"%s:%d\",\n",obj->oclass->name, obj->id);
+		}
+		len += fprintf(fp,"\t\t\t\"object\" : \"%s\"%s\n",obj->oclass->name,object_get_first_property(obj)?",":"");
+		for ( PROPERTY *prop = object_get_first_property(obj) ; prop != NULL ; prop = object_get_next_property(prop) )
+		{
+			char buffer[65536];
+			if ( prop->access != PA_PUBLIC )
+				continue;
+			object_property_to_string_x(obj,prop,buffer,sizeof(buffer));
+			if ( buffer[0] == '"' )
+				len += fprintf(fp,"\t\t\t\"%s\" : %s%s\n",prop->name,buffer,object_get_next_property(prop)==NULL?"":",");
+			else
+				len += fprintf(fp,"\t\t\t\"%s\" : \"%s\"%s\n",prop->name,buffer,object_get_next_property(prop)==NULL?"":",");
+		}
+		len += fprintf(fp,"\t\t}%s\n", obj->next==NULL?"":",");
+	}
+	len += fprintf(fp,"\t}\n");
+	len += fprintf(fp,"}\n");
+	return len;
 }
 
 typedef std::map<std::string,std::string> SAVEMAP;
