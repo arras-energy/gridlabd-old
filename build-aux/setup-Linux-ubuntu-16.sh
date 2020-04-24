@@ -70,3 +70,6 @@ mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 	chmod a+x /usr/local/bin/natural_docs
 fi
 
+# converter support
+pip3 install networkx
+apt-get install mdbtools -y
