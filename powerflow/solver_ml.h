@@ -76,4 +76,9 @@ int64 solver_model_apply(SOLVERMODEL *model,
 						bool *&bad_computations,
 						int64 iterations);
 
+void solver_dump(unsigned int &bus_count,
+				 BUSDATA *&bus,
+				 unsigned int &branch_count,
+				 BRANCHDATA *&branch,
+				 bool allow_generic_dumpfile = false);
 #endif
