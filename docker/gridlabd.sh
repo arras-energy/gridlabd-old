@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 REPO=${REPO:-https://github.com/slacgismo/gridlabd}
