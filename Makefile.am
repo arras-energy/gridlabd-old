@@ -107,7 +107,14 @@ help:
 	@echo "  install        - Install $(PACKAGE) to $(prefix)"
 	@echo "  system         - Build and install $(PACKAGE) to the system folders"
 	@echo "  install-strip  - Same as install, but follow by stripping debug symbols"
+	@echo "  install-clean  - Same as install-system, but runs distclean, autoreconf, and configure first"
+	@echo "  install-system - Same as install, but links target to /usr/local for all system users"
 	@echo "  uninstall      - Erase files installed by 'make install'"
+	@echo ""
+	@echo "Cleaning targets:"
+	@echo "  clean        - Erase from the build tree the files built by 'make all'"
+	@echo "  distclean    - Same as 'make clean' plus erase anything ./configure created"
+	@echo "  mostlyclean  - Erase intermediate files (such as .o files)"
 	@echo ""
 	@echo "Testing targets:"
 	@echo "  validate  - Run the test/validation suite (requires Python)"
@@ -159,11 +166,10 @@ clean-wc:
 	@unset REPLY && read -t 60 -p "Clean working copy (type 'yes' to proceed)? " && test "`echo "$$REPLY" | tr '[:upper:]' '[:lower:]'`" = "yes"
 	. utilities/cleanwc
 
-install-validate: install
-	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (tar cfz validate-output.tar.gz */autotest/test_*/*;exit 1))
+install-validate: install validate
 
 check-local validate: 
-	gridlabd --validate
+	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilties/save_validation_output;exit 1))
 
 scratchdir = scratch
 # XERCES_TARNAME = xerces-c-3.1.1

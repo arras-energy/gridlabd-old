@@ -180,7 +180,7 @@ void *instance_runproc(void *ptr)
 			/* run new instance */
 			sprintf(cmd,"%s/gridlabd %s %s --slave %s:%" FMT_INT64 "x %s &", global_execdir, global_verbose_mode?"--verbose":"", global_debug_output?"--debug":"", global_hostname,inst->cacheid, inst->model);
 			IN_MYCONTEXT output_verbose("starting new instance with command '%s'", cmd);
-			rc = system(cmd);
+			rc = my_instance->subcommand("%s",cmd);
 			break;
 #else
 			output_error("Memory Map (mmap) instance mode only supported under Windows, please use Shared Memory (shmem) instead.");
