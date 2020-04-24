@@ -19,7 +19,7 @@
 # runtime libraries and load-time parser hooks are required.
 #
 
-#export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-/usr/local/lib/gridlabd}
+export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-/usr/local/lib/gridlabd}
 
 #
 # Run the user's RC file, if found

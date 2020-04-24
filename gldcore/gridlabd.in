@@ -354,7 +354,7 @@ elif test "x$1" = "xvalgrind" ; then :
   exit 0
 fi
 
-if text -x "${pkgdatadir}/gridlabd.rc"; then :
+if test -x "${pkgdatadir}/gridlabd.rc"; then :
   source ${pkgdatadir}/gridlabd.rc
 fi
 
