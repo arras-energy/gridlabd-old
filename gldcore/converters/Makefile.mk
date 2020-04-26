@@ -2,11 +2,6 @@
 # INPUT CONVERTERS
 #
 
-# aws -> glm
-dist_pkgdata_DATA += gldcore/converters/aws2glm.py
-dist_pkgdata_DATA += gldcore/converters/aws-s32glm-weather.py
-dist_pkgdata_DATA += gldcore/converters/aws-dataexchange2glm-weather.py
-
 # csv -> glm
 dist_pkgdata_DATA += gldcore/converters/csv2glm.py
 dist_pkgdata_DATA += gldcore/converters/csv-ceus2glm-ceus.py
@@ -16,6 +11,7 @@ dist_pkgdata_DATA += gldcore/converters/csv-scada2glm-rbsa.py
 dist_pkgdata_DATA += gldcore/converters/csv-scada2glm-ceus.py
 dist_pkgdata_DATA += gldcore/converters/csv-ica2glm-ica.py
 dist_pkgdata_DATA += gldcore/converters/csv-onpoint-weather2glm-weather.py
+dist_pkgdata_DATA += gldcore/converters/csv-visualcrossing-weather2glm-weather.py
 
 # mdb -> glm
 dist_pkgdata_DATA += gldcore/converters/mdb2glm.py
