@@ -147,3 +147,8 @@ gldcore/autotest/modify.glm
 validate.zip.gz
 gldcore/converters/autotest/*.png
 validate.tar.gz
+gldcore/converters/autotest/weather_recorder.csv
+gldcore/converters/onpoint_history_postal-code_hour_201801010000-201812312359.csv
+gldcore/converters/onpoint_history_postal-code_hour_201801010000-201812312359.glm
+gldcore/converters/test_data.csv
+gldcore/converters/test_data.glm

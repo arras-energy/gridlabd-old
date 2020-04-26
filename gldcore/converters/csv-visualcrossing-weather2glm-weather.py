@@ -31,9 +31,9 @@ def convert(input,output=None,options={}):
 				csv.write(data.decode('utf-8'))
 		def us_dates(s):
 			return dt.datetime.strptime(s,'%m/%d/%Y %H:%M:%S')
-		data = pd.read_csv(csvname,parse_dates=['Date time'], date_parser=us_dates).fillna(value=0.0)
+		data = pd.read_csv(csvname,dtype=str,parse_dates=['Date time'], date_parser=us_dates).fillna(value=0.0)
 		for key,value in rows.items():
-			data = data[data[key] == value]
+			data = data[data[key] == str(value)]
 		if 'index' in options.keys():
 			data.set_index(options['index'],inplace=True)
 		data = data.filter(list(options['columns'].keys())).rename(mapper=options['columns'],axis='columns')
