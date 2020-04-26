@@ -32,7 +32,6 @@ def convert(input,output=None,options={}):
 		def us_dates(s):
 			return dt.datetime.strptime(s,'%m/%d/%Y %H:%M:%S')
 		data = pd.read_csv(csvname,parse_dates=['Date time'], date_parser=us_dates).fillna(value=0.0)
-		print(data)
 		for key,value in rows.items():
 			data = data[data[key] == value]
 		if 'index' in options.keys():
