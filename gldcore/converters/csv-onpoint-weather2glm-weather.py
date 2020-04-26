@@ -9,6 +9,21 @@ def convert(input,output=None,options={}):
 		output = os.path.basename(input).replace('.csv','.glm')
 	csvname = output.replace('.glm','.csv')
 
+	if 'rows' not in options.keys():
+		options['rows'] = {
+				'country':'US',
+				'postal_code':36101,
+			}
+	if 'columns' not in options.keys():
+		options['columns'] = {
+				'time_valid_utc':'#datetime',
+				'temperature_air_2m_f':'temperature',
+				'humidity_relative_2m_pct':'humidity',
+				'radiation_solar_total_wpm2':'solar_total',
+				'wind_speed_10m_mph':'wind_speed',
+				'wind_direction_10m_deg':'wind_direction',
+			}
+
 	# load and reformat the OnPoint Weather data
 	if not os.path.exists(csvname) or ( 
 			'refresh' in options.keys() and options['refresh'] in [True,'TRUE','always','true'] ):
@@ -17,20 +32,6 @@ def convert(input,output=None,options={}):
 				data = fh.read()
 				csv.write(data.decode('utf-8'))
 
-		if 'rows' not in options.keys():
-			options['rows'] = {
-					'country':'US',
-					'postal_code':36101,
-				}
-		if 'columns' not in options.keys():
-			options['columns'] = {
-					'time_valid_utc':'#datetime',
-					'temperature_air_2m_f':'temperature',
-					'humidity_relative_2m_pct':'humidity',
-					'radiation_solar_total_wpm2':'solar_total',
-					'wind_speed_10m_mph':'wind_speed',
-					'wind_direction_10m_deg':'wind_direction',
-				}
 		data = pd.read_csv(csvname)
 		for key,value in options['rows'].items():
 			data = data[data[key] == value]
