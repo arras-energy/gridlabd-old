@@ -4,7 +4,7 @@ import sys, getopt
 from datetime import datetime 
 import importlib, copy
 
-config = {"input":"csv","output":"glm","from":["ami","scada","onpoint-weather"],"type":["ceus","rbsa","climate"]}
+config = {"input":"aws","output":"glm","from":["s3","dataexchange"],"type":["weather"]}
 
 def help():
     print('Syntax:')
