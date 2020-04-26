@@ -1,15 +1,15 @@
-[[/Converters/Import/Onpoint_weather]] -- AWS DataExchange support for OnPoint weather subscriptions
+[[/Converters/Import/Onpoint_weather]] -- OnPoint weather import
 
 # Synopsis
 
 GLM:
 ~~~
-#input "aws-endpoint-csv" -o <filename>.glm -f onpoint-weather -t weather -p country=<country> -p postal_code=<zipcode>
+#input "<aws-endpoint-csv>" -o <filename>.glm -f onpoint-weather -t weather -p country=<country> -p postal_code=<zipcode>
 ~~~
 
 Shell:
 ~~~
-bash$ gridlabd -D csv_load_options="-o <filename>.glm -f onpoint-weather -t weather  -p country=<country> -p postal_code=<zipcode>" "aws-endpoint-csv" <modelname>.glm 
+bash$ gridlabd -D csv_load_options="-o <filename>.glm -f onpoint-weather -t weather  -p country=<country> -p postal_code=<zipcode>" "<aws-endpoint-csv>" <modelname>.glm 
 ~~~
 
 # Description
