@@ -7869,6 +7869,16 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		load_options[len-1] = '\0';
 		ptr++;
 	}
+	char *out = strncmp(load_options,"-o ",2)==0 ? load_options : strstr(load_options," -o ");
+	if ( out )
+	{	// copy user-specified output glm name
+		while ( isspace(out[0]) ) out++;
+		out = strchr(out,' ');
+		while ( isspace(out[0]) ) out++;
+		strcpy(to,out);
+		out = strchr(out,' ');
+		if ( out ) *out = '\0';
+	}
 	int rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,from,to,ptr);
 	if ( rc != 0 )
 	{
