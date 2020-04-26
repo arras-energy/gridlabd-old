@@ -1,0 +1,8 @@
+
+clock 
+{
+	starttime "2018-01-01 00:00:00";
+	stoptime "2019-01-01 00:00:00";
+}
+
+#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/onpoint_data/onpoint_history_postal-code_hour_201801010000-201812312359.csv" -o weather.glm -f onpoint-weather -t weather
