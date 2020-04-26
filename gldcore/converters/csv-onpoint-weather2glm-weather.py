@@ -9,11 +9,12 @@ def convert(input,output=None,options={}):
 		output = os.path.basename(input).replace('.csv','.glm')
 	csvname = output.replace('.glm','.csv')
 
-	if 'rows' not in options.keys():
-		options['rows'] = {
-				'country':'US',
-				'postal_code':36101,
-			}
+	if 'country' not in options.keys():
+		raise Exception("country not specified in options")
+	if 'postal_code' not in options.keys():
+		raise Exception("country not specified in options")
+	rows = {'country':options['country'], 'postal_code':options['postal_code']}
+
 	if 'columns' not in options.keys():
 		options['columns'] = {
 				'time_valid_utc':'#datetime',
@@ -33,7 +34,7 @@ def convert(input,output=None,options={}):
 				csv.write(data.decode('utf-8'))
 
 		data = pd.read_csv(csvname)
-		for key,value in options['rows'].items():
+		for key,value in rows.items():
 			data = data[data[key] == value]
 		if 'index' in options.keys():
 			data.set_index(options['index'],inplace=True)
@@ -49,6 +50,8 @@ def convert(input,output=None,options={}):
 		glm.write("""
 module tape;
 class weather {
+	char32 country;
+	char32 postal_code;
 	double temperature[degF];
 	double humidity[pu];
 	double solar_total[W/m^2];
@@ -59,6 +62,8 @@ class weather {
 		glm.write(f'object weather\n')
 		glm.write('{\n')
 		glm.write(f'\tname "{name}";\n')
+		glm.write(f'\tcountry "{options["country"]}";\n')
+		glm.write(f'\tpostal_code "{options["postal_code"]}";\n')
 		glm.write(f'\tobject player\n')
 		glm.write('\t{\n')
 		glm.write(f'\t\tfile "{csvname}";\n')		
@@ -70,4 +75,4 @@ class weather {
 
 if __name__ == '__main__':
 	convert('https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/onpoint_data/onpoint_history_postal-code_hour_201801010000-201812312359.csv',
-		options={'refresh':True})
+		options={'refresh':True,'country':'US','postal_code':36101})
