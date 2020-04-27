@@ -97,6 +97,10 @@ elif test "x$1" = "xvalgrind" ; then :
   exit 0
 fi
 
+AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
+  [source ${pkgdatadir}/gridlabd.rc],
+  [])
+
 AS_IF([test -x "${bindir}/gridlabd-$1"],
   ["${bindir}/gridlabd"-$@],
   ["$bindir/gridlabd.bin" "$@"])
