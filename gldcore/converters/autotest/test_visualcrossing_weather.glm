@@ -5,7 +5,7 @@ clock
 	stoptime "2020-01-05 00:00:00";
 }
 
-#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/visualcrossing.csv" -o test_data.glm -f visualcrossing-weather -t weather -p location="Menlo Park, CA"
+#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/visualcrossing.csv" -o test_data.glm -f visualcrossing-weather -t weather -p location="Menlo Park, CA" -p refresh=always
 
 module tape;
 object recorder
