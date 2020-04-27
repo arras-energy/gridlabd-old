@@ -1,0 +1,16 @@
+
+clock 
+{
+	starttime "2018-01-01 00:00:00";
+	stoptime "2019-01-01 00:00:00";
+}
+
+#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/noaa.csv" -o test_data.glm -f onpoint-weather -t weather -p country=US -p postal_code=36101
+
+module tape;
+object recorder
+{
+	parent "test_data";
+	file "weather_recorder.csv";
+	property "temperature,humidity";
+}
