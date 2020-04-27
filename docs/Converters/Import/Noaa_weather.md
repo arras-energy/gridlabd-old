@@ -21,9 +21,11 @@ The converter creates two files using the weather data, a CSV file containing th
 The CSV file is formatted to meet the requirements of a standard `tape.player` object.  The GLM file contains a class declaration for the weather object, defined as follows:
 
 ~~~
-class weather {
+class weather 
+{
+	char32 station_id;
 	double temperature[degF];
-	double humidity[pu];
+	double humidity[%];
 }	
 ~~~
 
