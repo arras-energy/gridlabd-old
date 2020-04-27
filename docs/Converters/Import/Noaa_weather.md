@@ -3,11 +3,13 @@
 # Synopsis
 
 GLM:
+
 ~~~
 #input "<noaa-lcd-download.csv>" -o <filename>.glm -f noaa-weather -t weather -p location=<location>
 ~~~
 
 Shell:
+
 ~~~
 bash$ gridlabd -D csv_load_options="-o <filename>.glm -f noaa-weather -t weather  -p location=<location>" "<noaa-lcd-download.csv>" <modelname>.glm 
 ~~~
@@ -51,7 +53,6 @@ To obtain data from NOAA, request a download from [NOAA LCD Datatools](https://w
 The following example illustrates loading weather data from a test dataset storage on AWS S3.
 
 ~~~
-
 clock 
 {
 	starttime "2018-01-01 00:00:00";
@@ -68,6 +69,7 @@ object recorder
 	property "temperature,humidity";
 }
 ~~~
+
 # See also
 
 * [[/Command/Automatic_import_conversion]]

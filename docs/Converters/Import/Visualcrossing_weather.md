@@ -3,11 +3,13 @@
 # Synopsis
 
 GLM:
+
 ~~~
 #input "<noaa-lcd-download.csv>" -o <filename>.glm -f noaa-weather -t weather -p location=<location>
 ~~~
 
 Shell:
+
 ~~~
 bash$ gridlabd -D csv_load_options="-o <filename>.glm -f noaa-weather -t weather  -p location=<location>" "<noaa-lcd-download.csv>" <modelname>.glm 
 ~~~

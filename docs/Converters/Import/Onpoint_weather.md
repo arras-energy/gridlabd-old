@@ -3,11 +3,13 @@
 # Synopsis
 
 GLM:
+
 ~~~
 #input "<aws-endpoint-csv>" -o <filename>.glm -f onpoint-weather -t weather -p country=<country> -p postal_code=<zipcode>
 ~~~
 
 Shell:
+
 ~~~
 bash$ gridlabd -D csv_load_options="-o <filename>.glm -f onpoint-weather -t weather  -p country=<country> -p postal_code=<zipcode>" "<aws-endpoint-csv>" <modelname>.glm 
 ~~~
