@@ -5,12 +5,12 @@ clock
 	stoptime "2019-01-01 00:00:00";
 }
 
-#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/onpoint_data/onpoint_history_postal-code_hour_201801010000-201812312359.csv" -o my-weather.glm -f onpoint-weather -t weather -p country=US -p postal_code=36101
+#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/onpoint_data/test_data.csv" -o test_data.glm -f onpoint-weather -t weather -p country=US -p postal_code=36101
 
 module tape;
 object recorder
 {
-	parent "my-weather";
+	parent "test_data";
 	file "weather_recorder.csv";
 	property "temperature,humidity,solar_total,wind_speed,wind_direction";
 }

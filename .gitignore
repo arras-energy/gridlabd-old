@@ -152,3 +152,4 @@ gldcore/converters/onpoint_history_postal-code_hour_201801010000-201812312359.cs
 gldcore/converters/onpoint_history_postal-code_hour_201801010000-201812312359.glm
 gldcore/converters/test_data.csv
 gldcore/converters/test_data.glm
+gldcore/converters/autotest/weather_recorder.csv
