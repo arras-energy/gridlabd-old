@@ -42,7 +42,7 @@ def convert(input,output=None,options={}):
 			data = data.filter(list(options['columns'].keys())).rename(mapper=options['columns'],axis='columns')
 			if not 'index' in options.keys():
 				data.set_index(data.columns[0],inplace=True)
-			data.to_csv(csvname)
+			data.dropna().to_csv(csvname)
 	except:
 		os.remove(csvname)
 		raise
@@ -53,17 +53,17 @@ def convert(input,output=None,options={}):
 		with open(output,"w") as glm:
 			glm.write(f'// converted from {input} to {output} on {dt.datetime.now()}\n')
 			glm.write("""
-	module tape;
-	class weather {
-		char32 country;
-		char32 postal_code;
-		double temperature[degF];
-		double humidity[pu];
-		double solar_total[W/m^2];
-		double wind_speed[mph];
-		double wind_direction[degF];
-	}	
-	""")
+module tape;
+class weather {
+	char32 country;
+	char32 postal_code;
+	double temperature[degF];
+	double humidity[pu];
+	double solar_total[W/m^2];
+	double wind_speed[mph];
+	double wind_direction[degF];
+}	
+""")
 			glm.write(f'object weather\n')
 			glm.write('{\n')
 			glm.write(f'\tname "{name}";\n')

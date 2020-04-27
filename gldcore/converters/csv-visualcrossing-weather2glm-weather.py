@@ -39,7 +39,7 @@ def convert(input,output=None,options={}):
 		data = data.filter(list(options['columns'].keys())).rename(mapper=options['columns'],axis='columns')
 		if not 'index' in options.keys():
 			data.set_index(data.columns[0],inplace=True)
-		data.to_csv(csvname)
+		data.dropna().to_csv(csvname)
 
 	# write the GLM results
 	name = csvname.replace('.csv','')

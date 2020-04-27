@@ -37,7 +37,8 @@ def convert(input,output=None,options={}):
 			data = data.filter(list(options['columns'].keys())).rename(mapper=options['columns'],axis='columns')
 			if not 'index' in options.keys():
 				data.set_index(data.columns[0],inplace=True)
-			data.to_csv(csvname)
+			data['temperature'] = pd.Series(data['temperature']).str.rstrip('s')
+			data.dropna().to_csv(csvname)
 	except:
 		os.remove(csvname)
 		raise
@@ -48,13 +49,13 @@ def convert(input,output=None,options={}):
 		with open(output,"w") as glm:
 			glm.write(f'// converted from {input} to {output} on {dt.datetime.now()}\n')
 			glm.write("""
-	module tape;
-	class weather {
-		char32 station_id;
-		double temperature[degF];
-		double humidity[%];
-	}	
-	""")
+module tape;
+class weather {
+	char32 station_id;
+	double temperature[degF];
+	double humidity[%];
+}	
+""")
 			glm.write(f'object weather\n')
 			glm.write('{\n')
 			glm.write(f'\tname "{name}";\n')
