@@ -57,7 +57,7 @@ clock
 	stoptime "2019-01-01 00:00:00";
 }
 
-#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/onpoint_data/onpoint_history_postal-code_hour_201801010000-201812312359.csv" -o my-weather.glm -f onpoint-weather -t weather -p country=US -p postal_code=36101
+#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/onpoint.csv" -o my-weather.glm -f onpoint-weather -t weather -p country=US -p postal_code=36101
 
 module tape;
 object recorder
@@ -71,3 +71,4 @@ object recorder
 # See also
 
 * [[/Command/Automatic_import_conversion]]
+* [OnPoint Weather](https://weathersource.com/products/onpoint-weather/)

@@ -1,4 +1,4 @@
-[[/Converters/Import/Noaa_weather]] -- NOAA weather import
+[[/Converters/Import/Visualcrossing_weather]] -- Visual Crossing weather import
 
 # Synopsis
 
@@ -14,7 +14,7 @@ bash$ gridlabd -D csv_load_options="-o <filename>.glm -f noaa-weather -t weather
 
 # Description
 
-The NOAA weather converter allows you to use a downloaded copy of data from [NOAA LCD Datatools](https://www.ncdc.noaa.gov/cdo-web/datatools/lcd).
+The Visual Crossing weather converter allows you to use a downloaded copy of data from [Visual Crossing](https://www.visualcrossing.com).
 
 The converter creates two files using the weather data, a CSV file containing the actual data, and the GLM file specified by the `-o <filename>.glm` option.
 
@@ -42,31 +42,29 @@ object weather
 }
 ~~~
 
-To obtain data from NOAA, request a download from [NOAA LCD Datatools](https://www.ncdc.noaa.gov/cdo-web/datatools/lcd).
-
 # Example
 
-The following example illustrates loading weather data from a test dataset storage on AWS S3.
+The following example demonstrates loading the Visual Crossing test dataset stored on AWS.
 
 ~~~
-
 clock 
 {
-	starttime "2018-01-01 00:00:00";
-	stoptime "2019-01-01 00:00:00";
+	starttime "2020-01-01 00:00:00";
+	stoptime "2020-01-05 00:00:00";
 }
 
-#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/noaa.csv" -o test_data.glm -f noaa-weather -t weather -p station_id=72594524283
+#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/visualcrossing.csv" -o test_data.glm -f visualcrossing-weather -t weather -p location="Menlo Park, CA"
 
 module tape;
 object recorder
 {
 	parent "test_data";
 	file "weather_recorder.csv";
-	property "temperature,humidity";
+	property "temperature,humidity,wind_speed,opq_sky_cov";
 }
 ~~~
+
 # See also
 
 * [[/Command/Automatic_import_conversion]]
-* [NOAA LCD Datatools](https://www.ncdc.noaa.gov/cdo-web/datatools/lcd)
+* [Visual Crossing Website](https://www.visualcrossing.com)
