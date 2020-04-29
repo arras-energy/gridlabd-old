@@ -11,7 +11,7 @@
 #define DR_WASHER=${DR_WASHER:-off}
 #define DR_DRYER=${DR_DRYER:-off}
 
-#define WEATHER=${WEATHER:-CA-Bakersfield_Meadows_Field_high_wind.tmy3}
+#define WEATHER=${WEATHER:-CA-Bakersfield_Meadows_Field.tmy3}
 
 #define MYSQL_ENABLE=${MYSQL_ENABLE:-off}
 #define HOSTNAME=${HOSTNAME:-localhost}
