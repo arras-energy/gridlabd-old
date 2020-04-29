@@ -92,9 +92,11 @@ schedule output_var {
 	*  20-0 * * * 0;
 }
 
-object climate{
+#weather get WA-Yakima_Air_Terminal.tmy3
+object climate
+{
 	name MyClimate;
-	tmyfile "../WA-Yakima.tmy3";
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
 	object recorder {
 		file climate_out.csv;
 		interval 3600;
