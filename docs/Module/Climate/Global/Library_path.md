@@ -23,5 +23,5 @@ The `library_path` module global specifies the search path climate and weather d
 
 # See also
 
-* [[/GLM/Macro/Weather]]
-* [[/Command/Weather]]
+* [[/GLM/Macro/Passthrough_subcommands]]
+* [[/Subcommand/Weather]]
