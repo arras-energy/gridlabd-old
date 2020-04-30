@@ -354,6 +354,10 @@ elif test "x$1" = "xvalgrind" ; then :
   exit 0
 fi
 
+if test -f "${pkgdatadir}/gridlabd.rc"; then :
+  source ${pkgdatadir}/gridlabd.rc
+fi
+
 if test -x "${bindir}/gridlabd-$1"; then :
   "${bindir}/gridlabd"-$@
 else
