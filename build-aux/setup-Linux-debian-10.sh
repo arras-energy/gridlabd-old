@@ -12,7 +12,7 @@ cd /tmp
 curl -O https://www.python.org/ftp/python/3.7.3/Python-3.7.3.tar.xz
 tar -xf Python-3.7.3.tar.xz
 cd Python-3.7.3
-./configure --enable-optimizations --enable-shared
+./configure --enable-optimizations --enable-shared CXXFLAGS="-fPIC"
 make -j10 altinstall
 cd /usr/local/bin
 ln -s python3.7 python3
