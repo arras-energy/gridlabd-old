@@ -59,7 +59,6 @@ include gldcore/converters/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
 include python_extras/Makefile.mk
-include models/Makefile.mk
 include cloud/Makefile.mk
 
 # approved modules
