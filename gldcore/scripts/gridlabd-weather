@@ -152,7 +152,7 @@ function info()
 	fetch_index
 	first="yes"
 	for f in $(index $1); do
-		if [ -f $DATADIR/$f ]; then
+		if [ -s $DATADIR/$f ]; then
 			if [ "$first" == "yes" ]; then
 				echo "Filepath,Country,StationId,StationName,RegionName,TzOffset,Latitude,Longitude,Elevation"
 				first="no"
