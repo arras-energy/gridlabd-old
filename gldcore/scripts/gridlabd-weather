@@ -140,9 +140,9 @@ function get()
 		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
 			(curl -s $GITFILE/$COUNTRY/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to download $f" > /dev/stderr; rm -f /tmp/$$; exit 1)
-		else
-			echo -n "Refreshing $f... "
-			(curl -s $GITFILE/$COUNTRY/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to refresh $f" > /dev/stderr; rm -f /tmp/$$; exit 1)
+		# else
+		# 	echo -n "Refreshing $f... "
+		# 	(curl -s $GITFILE/$COUNTRY/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (echo "ERROR: unable to refresh $f" > /dev/stderr; rm -f /tmp/$$; exit 1)
 		fi
 	done
 }
