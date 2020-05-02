@@ -15,7 +15,6 @@
 EXPORT_CREATE_C(assert,g_assert);
 EXPORT_INIT_C(assert,g_assert);
 EXPORT_COMMIT_C(assert,g_assert);
-EXPORT_NOTIFY_C(assert,g_assert);
 
 CLASS *g_assert::oclass = NULL;
 g_assert *g_assert::defaults = NULL;
@@ -163,7 +162,7 @@ TIMESTAMP g_assert::commit(TIMESTAMP t1, TIMESTAMP t2)
 				gld_property relation_prop(my(),"relation");
 				gld_keyword *pKeyword = relation_prop.find_keyword(relation);
 				char buf[1024];
-				gl_error("%s: assert failed on %s %s.%s.%s %s %s %s %s", get_name(), status==AS_TRUE?"":"NOT",
+				gl_error("%s: assert failed on %s'%s.%s.%s' '%s' '%s' '%s' '%s'", get_name(), status==AS_TRUE?"":"NOT ",
 					obj?get_object(obj)->get_name():"global variable", get_target(), get_part(), target_prop->to_string(buf,sizeof(buf))?buf:"(void)", pKeyword->get_name(), get_value(), get_value2());
 				return TS_INVALID;
 			}
@@ -202,12 +201,6 @@ g_assert::ASSERTSTATUS g_assert::evaluate_status(gld_property &target_prop)
 		double y = atof(b);
 		return target_prop.compare(relation,&x,b[0]=='\0'?NULL:&y,get_part()) ? AS_TRUE : AS_FALSE ;
 	}
-}
-
-int g_assert::postnotify(PROPERTY *prop, const char *value)
-{
-	// TODO notify handler for changed value
-	return 1;
 }
 
 /** @} **/
