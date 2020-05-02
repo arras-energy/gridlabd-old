@@ -241,36 +241,38 @@ int tmy2_reader::open(const char *file)
 
 	//std::string filenameis;
 	//filenameis = file;
-  is_TMY2 = 0;
-	std::string s = file;
-	std::string delimiter = ".";
-	size_t pos = 0;
-	std::string token;
-	while ((pos = s.find(delimiter)) != std::string::npos) {
-	    token = s.substr(0, pos);
-	    s.erase(0, pos + delimiter.length());
+	is_TMY2 = 0;
+	const char *ext = strrchr(file,'.');
+
+	if ( ext == NULL )
+	{
+		gl_error("tmy2_reader::open(file='%s'): file name missing type extension",file);	
+		return 0;
 	}
 
 	fp = fopen(file, "r");
 
-	if(fp == NULL ) {
-		gl_error("tmy2_reader::open() -- fopen failed on \"%s\"", file);
+	if ( fp == NULL ) 
+	{
+		gl_error("tmy2_reader::open(file='%s') -- fopen failed", file);
 		return 0;
 	}
 
 	// read in the header (use the c code given in the manual)
-	if(fgets(buf,500,fp) ) {
+	if ( fgets(buf,sizeof(buf),fp) != NULL ) {
 
 		//Initialize variables - so comparison functions work better
 		temp_lat_hem[0] = temp_lat_hem[1] = '\0';
 		temp_long_hem[0] = temp_long_hem[1] = '\0';
 
-		if (s == "tmy2") {
+		if ( strcmp(ext,".tmy2") == 0 ) 
+		{
 			sscan_rv = sscanf(buf,"%*s %75s %3s %d %c %d %d %c %d %d %d",data_city,data_state,&tz_offset,temp_lat_hem,&lat_degrees,&lat_minutes,temp_long_hem,&long_degrees,&long_minutes,&elevation);
-      gl_warning("Daylight saving time (DST) is not handled correctly when using TMY2 datasets; please use TMY3 for DST-corrected weather data.");
-      is_TMY2 = 1;
+			gl_warning("daylight saving time (DST) is not handled correctly when using TMY2 datasets; please use TMY3 for DST-corrected weather data.");
+			is_TMY2 = 1;
 		}
-		else if (s == "tmy3") {
+		else if ( strcmp(ext,".tmy3") == 0 )
+		{
 			sscan_rv = sscanf(buf,"%*[^','],%[^','],%[^','],%[^','],%[^','],%[^','],%s",data_city,data_state,tz,tlad,tlod,el);			
 			tz_offset_temp    = atof(tz);
 			lat_degrees_temp  = atof(tlad);
@@ -300,6 +302,12 @@ int tmy2_reader::open(const char *file)
 			long_minutes = fabs(round(frac_degrees*60));
 			long_degrees = fabs((long)long_degrees_temp);
 		}
+		else
+		{
+			gl_error("tmy2_reader::open(file='%s'): unknown TMY file type (extension '%s' is not recognized)", file, ext);
+			return 0;
+		}
+
 		//See if latitude needs negation
 		if ((strcmp(temp_lat_hem,"S")==0) || (strcmp(temp_lat_hem,"s")==0))
 		{
@@ -313,8 +321,10 @@ int tmy2_reader::open(const char *file)
 		}
 
 		return sscan_rv;
-	} else {
-		gl_error("tmy2_reader::open() -- first fgets read nothing");
+	} 
+	else 
+	{
+		gl_error("tmy2_reader::open(file='%s') -- first fgets read nothing", file);
 		return 0; /* fgets didn't read anything */
 	}
 	//return 4;
@@ -327,7 +337,7 @@ int tmy2_reader::open(const char *file)
 int tmy2_reader::next()
 {
 	// read the next line into the buffer using fgets.
-	char *val = fgets(buf,500,fp);
+	char *val = fgets(buf,sizeof(buf),fp);
 
 	if(val != NULL)
 		return 1;
@@ -987,8 +997,13 @@ int climate::init(OBJECT *parent)
 		line++;
 	}
 	file->close();
-	if(strstr(tmyfile, ".tmy2") ) {
-		gl_error("TMY2 files exhibit unpredictable behavior, please use TMY3 file format.");
+	if ( line < 8760 )
+	{
+		gl_error("%s(%d): unable to read a full year of data",tmyfile.get_string(),line);
+	}
+	if ( strstr(tmyfile, ".tmy2") ) 
+	{
+		gl_warning("TMY2 files exhibit unpredictable behavior, please use TMY3 file format.");
 	}
 	/* initialize climate to starttime */
 	presync(gl_globalclock);
