@@ -31,8 +31,10 @@ schedule zippwr {
 	* 23 * * * .29307107017222;
 }
 
-object climate{
-	tmyfile "../WA-Yakima.tmy3";
+#weather get WA-Yakima_Air_Terminal.tmy3
+object climate
+{
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
 }
 
 schedule heatspt{
