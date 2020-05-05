@@ -166,7 +166,7 @@ clean-wc:
 install-validate: install validate
 
 check-local validate: 
-	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilties/save_validation_output;exit 1))
+	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilities/save_validation_output;exit 1))
 
 scratchdir = scratch
 # XERCES_TARNAME = xerces-c-3.1.1

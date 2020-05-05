@@ -17,9 +17,10 @@ clock{
 	stoptime '2001-01-06 05:00:49';
 }
 
-
-object climate{
-	tmyfile "../WA-Yakima.tmy3";
+#weather get WA-Yakima_Air_Terminal.tmy3
+object climate
+{
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
 }
 
 schedule heatspt{
