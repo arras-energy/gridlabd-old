@@ -26,20 +26,16 @@ Options:
     -v|--verbose    output individual differences
 
 Contraints:
-    -C|--class      class constraint
-    -G|--global     global variable constraint   
-    -M|--module     module constraint
     -O|--object     object constraint
-    -P|--property   property constraint
 
     All constraints limit comparisons to those that are included in the
-    constraint, e.g., "class=assert" will only compare "assert" classes, and
-    "object=A*,B*" will only compare objects having names starting A or B.  When
-    multiple groups are specified, the comparison must match all. If the value is
-    preceeded by a hyphen, the group is excluded from the comparison.  Note that
-    inclusion starts with all classes being excluded and exclusion starts with all
-    classes being included. Therefore the two constraints cannot be mixed.  
-""")
+    constraint, e.g., "object=name*" will only compare objects starting with
+    "name", and "object=A*,B*" will only compare objects having names starting A
+    or B.  When multiple groups are specified, the comparison must match all. If
+    the value is preceeded by a hyphen, the group is excluded from the comparison.
+    Note that inclusion starts with all objects being excluded and exclusion
+    starts with all objects being included. Therefore the two constraints cannot
+    be mixed.   """)
 
 def perror(msg,exit=None):
     """Print an error message
@@ -73,16 +69,97 @@ def compare(file1,file2):
     """Compare two files
     """
     try:
-        with open(file1) as fh: f1 = json.load(fh)
-        with open(file2) as fh: f2 = json.load(fh)
+        with open(file1) as fh: json1 = json.load(fh)
+        with open(file2) as fh: json2 = json.load(fh)
     except Exception as err:
         perror(f'{err}',-2)
 
-    if config.glm:
-        poutput(f'// {file1} -> {file2}: compare not implemented')
+    object_list = {}
+    if 'objects' in config.include.keys():
+        if 'objects' in config.exclude.keys():
+            raise Exception("cannot compare both include and exclude objects")
+        if 'object' in config.include:
+            for constraint in config.include['object']:
+                spec = constraint.split('/')
+                if len(spec) == 1:
+                    spec[1] = '*'
+                if len(spec) == 2:
+                    object_list[spec[0]] = spec[1]
+                else:
+                    perror(f'object constraint {constraint} is not valid',-3)
+        else:
+            for name in json1['objects'].keys():
+                object_list[name] = '*'
     else:
-        poutput(f'{file1} -> {file2}: compare not implemented')
-    return 0
+        for name in json1['objects'].keys():
+            object_list[name] = '*'
+        if 'objects' in config.exclude.keys():
+            for name in config.exclude['object'].keys():
+                if name in object_list:
+                    object_list.remove(name)
+    diffs = compare_json(json1,json2,object_list)
+
+    if config.glm:
+        poutput(f'// compare {file1} -> {file2}')
+        for diff in diffs:
+            if diff[0] == '+':
+                spec = diff[1:].split('=')
+                if len(spec) == 2:
+                    poutput(f'modify {spec[0]}={spec[1]};')
+                else:
+                    spec = diff[1:].split('@')
+                    if len(spec) == 2:
+                        poutput(f'object {spec[1]}')
+                        poutput('{')
+                        poutput(f'\tname "{spec[0]}"')
+                        poutput('}')
+            elif diff[0] == '-':
+                spec = diff[1:].split('@')
+                if len(spec) == 2:
+                    poutput(f'#warning delete {spec[0]};')
+                else:
+                    spec = diff[1:].split('=')
+                    if len(spec) == 2:
+                        poutput(f'// reset {spec[0]};')
+    elif config.verbose:
+        poutput(f'# compare {file1} -> {file2}')
+        for diff in diffs:
+            poutput(f'# {diff}')
+    return len(diffs)
+
+def compare_json(file1,file2,object_list):
+    result = []
+    objects1 = file1['objects']
+    objects2 = file2['objects']
+    for name,properties in objects1.items():
+        if name in object_list.keys():
+            for propname,value in properties.items():
+                if name in objects2.keys():
+                    objdata = objects2[name]
+                    found = ( propname in objdata.keys() )
+                    same = ( found and objdata[propname] == value )
+                    if found and not same:
+                        result.append(f'+{name}.{propname}={objdata[propname]}')
+                    elif not found or not same: 
+                        result.append(f'-{name}.{propname}={value}')
+                else:
+                    result.append(f'+{name}')
+                    for propname,value in properties.items():
+                        result.append(f'-{name}.{propname}={value}')
+    for name,properties in objects2.items():
+        if name in object_list.keys():
+            for propname,value in properties.items():
+                if name in objects1.keys():
+                    objdata = objects1[name]
+                    found = ( propname in objdata.keys() )
+                    same = ( found and objdata[propname] == value )
+                    if found and not same:
+                        result.append(f'-{name}.{propname}={objdata[propname]}')
+                    elif not found or not same: 
+                        result.append(f'+{name}.{propname}={value}')
+                else:
+                    result.append(f'+{name}@{properties["class"]}')
+    return sorted(list(set(result)), key=lambda x: x[1:])
 
 def constrain(type=None,value=None):
     """Constrain what is compared
@@ -98,9 +175,8 @@ def constrain(type=None,value=None):
     return
 
 def main():
-    opts,args = getopt.getopt(sys.argv[1:],'ghqvC:G:M:O:P:',
-        ['glm','help','quiet','verbose',
-         'class=','global=','module=','object=','property=',])
+    opts,args = getopt.getopt(sys.argv[1:],'ghqvO:',
+        ['glm','help','quiet','verbose','object='])
 
     if not opts and not args:
         help()
@@ -117,16 +193,8 @@ def main():
             config.quiet = True
         elif opt in ('-v','--verbose'):
             config.verbose = True
-        elif opt in ('-C','--class'):
-            constrain('class',arg)
-        elif opt in ('-G','--global'):
-            constrain('global',arg)
         elif opt in ('-O','--object'):
             constrain('object',arg)
-        elif opt in ('-P','--property'):
-            constrain('property',arg)
-        elif opt in ('-M','--module'):
-            constrain('module',arg)
         else:
             perror(f'{opt} is an invalid option',exit=-1)
 
@@ -140,4 +208,8 @@ def main():
         perror('missing file')
 
 if __name__ == "__main__":
-    main()
+    count = main()
+    if count > 127:
+        exit(127)
+    else:
+        exit(count)
