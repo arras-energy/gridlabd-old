@@ -48,9 +48,10 @@ schedule shading_value {
      * 23 * * 0-6 1.0000;
 }
 
+#weather get CA-Chino_Airport.tmy3
 object climate {
      name "CA-Chino";
-     tmyfile "../CA-Chino_Airport.tmy3";
+     tmyfile "CA-Chino_Airport.tmy3";
    interpolate NONE;
 };
 
