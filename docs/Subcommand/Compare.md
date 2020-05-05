@@ -42,14 +42,19 @@ The `-v` or `--verbose` options enable output of individual differences.
 ## Constraints
 
 Constraints affect how the comparisons are made by limiting comparisons to
-those  that are included in the constraint, e.g., "object=name" will only
-compare the object "name", and "object=name1,name2" will only compare objects 
+those  that are included in the constraint, e.g., "--object=name" will only
+compare the object "name", and "--object=name1,name2" will only compare objects 
 those two objects.  If the value is preceeded by a hyphen, the group is excluded
 from the comparison.  Note that inclusion starts with all classes being
 excluded and exclusion starts with all classes being included. Therefore the
 two constraints cannot be mixed.  
 
 ### `object`
+
+~~~
+#compare -O=NAME1[,...] FILE1 FILE2 ...
+#compare --object=NAME2[,...] FILE1 FILE2 ...
+~~~
 
 The `object` constraint controls which objects are included or excluded from 
 the comparisons.
