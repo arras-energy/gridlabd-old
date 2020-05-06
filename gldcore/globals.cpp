@@ -931,16 +931,29 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	}
 }
 
+extern int popens(const char *program, FILE **output, FILE **error);
+extern int pcloses(FILE *iop, bool wait=true);
+
 DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 {
-	// TODO: reimplmenent this so it capture stderr also (see GldMain::subcommand)
-	FILE *fp = popen(command, "r");
-	if ( fp == NULL ) 
-	{
-		output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
-		return strcpy(buffer,"");
-	}
 	char line[1024];
+	FILE *fp = NULL, *err = NULL;
+	if ( popens(command, &fp, &err) ) 
+	{
+		if ( err == NULL )
+		{
+			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
+		}
+		else
+		{
+			while ( fgets(line,sizeof(line)-1,err) )
+			{
+				output_error("global_shell(buffer=0x%x,size=%d,command='%s'): %s",buffer,size,command,line);
+			}
+			pcloses(fp);
+		}
+		return NULL;
+	}
 	int pos = 0;
 	strcpy(buffer,"");
 	while ( fgets(line, sizeof(line)-1, fp) != NULL ) 
@@ -957,7 +970,7 @@ DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 		if ( buffer[pos-1] == '\n' )
 			buffer[pos-1] = ' ';
 	}
-	pclose(fp);
+	pcloses(fp);
 	return buffer;
 }
 
@@ -1245,6 +1258,20 @@ DEPRECATED const char *global_object(const char *type, const char *arg, char *bu
 		return NULL;
 }
 
+DEPRECATED const char *global_findfile(char *buffer, int size, const char *spec)
+{
+	if ( find_file(spec,NULL,F_OK,buffer,size) == NULL )
+	{
+		if ( size <= 0 )
+		{
+			output_error("global_findfile(buffer=%x,size=%d,spec='%s'): buffer size is invalid");
+			return NULL;
+		}
+		buffer[0] = '\0';
+	}
+	return buffer;
+}
+
 /** Get the value of a global variable in a safer fashion
 	@return a \e char * pointer to the buffer holding the buffer where we wrote the data,
 		\p NULL if insufficient buffer space or if the \p name was not found.
@@ -1325,6 +1352,10 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	// python call
 	if ( strncmp(name,"PYTHON ",7) == 0 )
 		return global_python(buffer,size,name+7);
+
+	// findfile call
+	if ( strncmp(name,"FINDFILE ",9) == 0 )
+		return global_findfile(buffer,size,name+9);
 
 	// object calls
 	struct {
