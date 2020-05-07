@@ -938,7 +938,7 @@ DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 {
 	char line[1024];
 	FILE *fp = NULL, *err = NULL;
-	if ( popens(command, &fp, &err) ) 
+	if ( popens(command, &fp, &err) < 0 ) 
 	{
 		if ( err == NULL )
 		{
@@ -952,7 +952,6 @@ DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 			}
 			pcloses(fp);
 		}
-		return NULL;
 	}
 	int pos = 0;
 	strcpy(buffer,"");
@@ -961,11 +960,13 @@ DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 		int len = strlen(line);
 		if ( pos+len >= size )
 		{
-			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): result too large",buffer,size,command);
-			pclose(fp);
-			return strcpy(buffer,"");
+			output_warning("global_shell(buffer=0x%x,size=%d,command='%s'): result too large, truncating",buffer,size,command);
+			break;
 		}
-		strcpy(buffer+pos,line);
+		else
+		{
+			strcpy(buffer+pos,line);
+		}
 		pos += len;
 		if ( buffer[pos-1] == '\n' )
 			buffer[pos-1] = ' ';
@@ -981,7 +982,7 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 	double step = 1.0;
 	char delim = ' ';
 	sscanf(name,"RANGE%c%lg,%lg,%lg",&delim,&start,&stop,&step);
-	if ( strchr(" ;,",delim) == NULL )
+	if ( strchr(" ;,:",delim) == NULL )
 	{
 		output_error("global_range(buffer=%x,size=%d,name='%s'): delimiter '%s' is not supported, using space",buffer,size,name,delim);
 		delim = ' ';

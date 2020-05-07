@@ -453,7 +453,8 @@ extern char **environ;
 	
 	Runs a program and connects its stdout and stderr to the FILEs.
 	Returns:
-	-1	failed
+		0	success
+		-1	failed (see errno)
  */
 int popens(const char *program, FILE **output, FILE **error)
 {
@@ -469,12 +470,12 @@ int popens(const char *program, FILE **output, FILE **error)
 	cur = (struct pid*)malloc(sizeof(struct pid));
 	if ( cur == NULL )
 	{
-		return 0;
+		return -1;
 	}
 	if ( pipe(pdout) < 0 || pipe(pderr) < 0 ) 
 	{
 		free(cur);
-		return 0;
+		return -1;
 	}
 	pid = fork();
 	if ( pid == -1 )
@@ -485,7 +486,7 @@ int popens(const char *program, FILE **output, FILE **error)
 		(void)close(pderr[0]);
 		(void)close(pderr[1]);
 		free(cur);
-		return 0;
+		return -1;
 	}
 	else if ( pid == 0 )
 	{
@@ -535,7 +536,7 @@ int popens(const char *program, FILE **output, FILE **error)
 		cur->pid =  pid;
 		cur->next = pidlist;
 		pidlist = cur;
-		return 1;
+		return 0;
 	}
 }
 
@@ -607,9 +608,9 @@ int GldMain::subcommand(const char *format, ...)
 
 	FILE *output = NULL, *error = NULL;
 	int rc = 0;
-	if ( ! popens(command, &output, &error) ) 
+	if ( popens(command, &output, &error) < 0 ) 
 	{
-		output_error("GldMain::subcommand(format='%s',...): unable to run command '%s'",format,command);
+		output_error("GldMain::subcommand(format='%s',...): unable to run command '%s' (%s)",format,command,strerror(errno));
 		rc = -1;
 	}
 	else

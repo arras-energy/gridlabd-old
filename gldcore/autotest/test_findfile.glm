@@ -1,2 +1,9 @@
+#weather get Seattle
 
-#print ${SHELL ls}
+#setenv GLPATH=${GLPATH}:${GLPATH}/weather/US
+#define file=${FINDFILE WA-Seattle_Boeing_Field_Isis.tmy3}
+#ifexist ${file}
+#print ${file} found
+#else
+#error weather file not found
+#endif
