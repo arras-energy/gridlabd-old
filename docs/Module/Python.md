@@ -174,6 +174,10 @@ The `command` method sends a command line argument to the gridlabd instance.  Co
 
 Note: that you cannot use `command` after initialization is completed.
 
+## `load(file)`
+
+The `load` method processes a file as if it were passed using the `command(file)` method.  Input files may be `.glm` or `.py` files.  All other file formats are supported provided there is a converter from that format to `.glm` installed in the `/usr/local/share/gridlabd` folder.
+
 ## `start(mode)`
 
 The `start` method completes processing of the command line arguments, initializes the simulation, and starts running the clock. Valid modes are 
@@ -208,33 +212,47 @@ The simulation is resumed with no specified stop time.
 
 Gets a list of items, where item is one of `globals`, `modules`, `classes`, or `objects`.
 
+Note: the `get` command only works after the initialization has started.
+
 ## `get_class(name)`
 
 Gets a description of the class named.
+
+Note: the `get_class` command only works after the initialization has started.
 
 ## `get_object(name)`
 
 Gets a description of the object named.
 
+Note: the `get_object` command only works after the initialization has started.
+
 ## `get_global(name)`
 
 Get the global variable `name`. The value will be a string formatted by GridLAB-D.
+
+Note: the `get_global` command only works after the initialization has started.
 
 ## `set_global(name,value)`
 
 Set the global variable `name` to `value`. The value must be a string that can be interpreted by GridLAB-D.
 
+Note: the `set_global` command only works after the initialization has started.
+
 ## `get_value(name,property)`
 
 Get the value of the property of an object. The value will be a string formatted by GridLAB-D.
+
+Note: the `get_value` command only works after the initialization has started.
 
 ## `set_value(name,property,value)`
 
 Set the value of the property of an object. The value must be a string that can be interpreted by GridLAB-D.
 
+Note: the `set_value` command only works after the initialization has started.
+
 ## `save(file)` 
 
-Saves the full model to the file.  The currently supported formats are `.glm`, `.xml`, and `.json`.  For GLM files, the save content is controlled by the [[/glm_save_options]] global variable.
+Saves the full model to the file.  The currently supported formats are `.glm`, `.xml`, and `.json`.  For GLM files, the save content is controlled by the [[/glm_save_options]] global variable. Other formats are supported if there is a converter from JSON to that format installed in the `/usr/local/share/gridlabd` folder.
 
 # Example
 
