@@ -166,9 +166,13 @@ object my_class {
 
 The return value from the `add` method is the name of the temporary GLM file constructed.  When you are done constructing the GLM file, you can use the `command(glm_name)` method to load the model.
 
+Note: the `add` method is not useful after the simulation is started because you cannot load additional models using `command` after initialization is completed.
+
 ## `command(argument)`
 
 The `command` method sends a command line argument to the gridlabd instance.  Command line arguments are processed immediately in the order they are received.
+
+Note: that you cannot use `command` after initialization is completed.
 
 ## `start(mode)`
 
