@@ -20,7 +20,6 @@ Output streams:
 ~~~
 Simulation control:
 ~~~
-  >>> gridlabd.reset() # TODO
   >>> gridlabd.command(argument)
   >>> gridlabd.start(mode)
   >>> gridlabd.wait()
@@ -43,7 +42,6 @@ Gets:
   >>> gridlabd.get_object(name)
   >>> gridlabd.get_global(name)
   >>> gridlabd.get_value(name,property)
-  >>> gridlabd.get_transform(name) # TODO
   >>> gridlabd.get_schedule(name)
 ~~~
 Sets:
@@ -55,7 +53,6 @@ Units:
 ~~~
   >>> gridlabd.convert_unit(string,to)
   >>> gridlabd.convert_unit(real,from,to)
-  >>> gridlabd.convert_unit(complex,from,to) # TODO
 
 ~~~
 
