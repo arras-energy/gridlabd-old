@@ -61,7 +61,7 @@ Units:
 
 # Description
 
-The [[/python]] module `gridlabd` loads an instance of GridLAB-D into the current instance of python.  Only one instance may be loaded per instance of python.
+The [[/python]] module `gridlabd` loads an instance of GridLAB-D into the current instance of python.  Only one instance of GridLAB-D may be loaded per instance of python.
 
 A `.glm` file may load a Python module to implement event handlers.  The syntax for loading a Python module is the same as that for loading a GridLAB-D module:
 ~~~
@@ -131,66 +131,104 @@ The object event handler are specified in a GLM file as follows:
 
 The module supports the following methods to setup, access and control the simulation. For example list of available methods and variables, see the output of the module `help` command.
 
-## command(argument)
+## `add(block,data)`
+
+The `add` method constructs a GLM directive of type `block` using `data`. The `block` may be one of `clock`, `global`, `module`, `class`, and `object`.  Data is provided as a python `dict` object, with `parameter:value` pairs for each entry in the block.  Generally, the following syntax
+
+~~~
+>>> add('block',{'var1':'value1', 'var2':'value2', ...})
+~~~
+
+results in the following GLM code
+
+~~~
+block {
+  var1 value1;
+  var2 value2;
+  ...
+}
+~~~
+
+Some block use one of the data items specially, e.g.,
+
+~~~
+>>> add('object',{'class':'my_class', 'name':'my_name', ...})
+~~~
+
+result in the code
+
+~~~
+object my_class {
+  name my_name;
+  ...
+}
+~~~
+
+The return value from the `add` method is the name of the temporary GLM file constructed.  When you are done constructing the GLM file, you can use the `command(glm_name)` method to load the model.
+
+## `command(argument)`
 
 The `command` method sends a command line argument to the gridlabd instance.  Command line arguments are processed immediately in the order they are received.
 
-## start(mode)
+## `start(mode)`
 
 The `start` method completes processing of the command line arguments, initializes the simulation, and starts running the clock. Valid modes are 
+
 * `thread`: The simulation starts immediately as a separate thread. The call returns immediately.
+
 * `pause`: The simulation is initialized as a separate thread but does not start. The call returns immediately.
+
 * `wait`: The simulation starts in the same thread. The call does not return until the simulation is done.
 
-## gridlabd.wait()
+## `wait()`
 
 The `wait` method waits for the running simulation to stop.
 
-## gridlabd.cancel() 
+## `cancel()`
 
 The `cancel` method cancels the current simulation.
 
-## gridlabd.pause()
+## `pause()`
 
 The `pause` method immediately pauses the simulation.
 
-## gridlabd.pauseat(datetime)
+## `pauseat(datetime)`
 
 The `pauseat` method pauses the simulation at the specified `datetime`. If the simulation is already paused at an earlier, it resumes automatically until the specified `datetime` is reached.
 
-## gridlabd.resume()
+## `resume()`
 
 The simulation is resumed with no specified stop time.
 
-## gridlabd.get(item)
+## `get(item)`
 
 Gets a list of items, where item is one of `globals`, `modules`, `classes`, or `objects`.
 
-## gridlabd.get_class(name)
+## `get_class(name)`
 
 Gets a description of the class named.
 
-## gridlabd.get_object(name)
+## `get_object(name)`
 
 Gets a description of the object named.
 
-## gridlabd.get_global(name)
+## `get_global(name)`
 
 Get the global variable `name`. The value will be a string formatted by GridLAB-D.
 
-## gridlabd.set_global(name,value) 
+## `set_global(name,value)`
 
 Set the global variable `name` to `value`. The value must be a string that can be interpreted by GridLAB-D.
 
-## gridlabd.get_value(name,property)
+## `get_value(name,property)`
 
 Get the value of the property of an object. The value will be a string formatted by GridLAB-D.
 
-## gridlabd.set_value(name,property,value)
+## `set_value(name,property,value)`
 
 Set the value of the property of an object. The value must be a string that can be interpreted by GridLAB-D.
 
-## gridlabd.save(file) 
+## `save(file)` 
 
 Saves the full model to the file.  The currently supported formats are `.glm`, `.xml`, and `.json`.  For GLM files, the save content is controlled by the [[/glm_save_options]] global variable.
 
