@@ -4,6 +4,8 @@
 
 #include "climate.h"
 
+char1024 climate_library_path = "/usr/local/share/gridlabd/weather/US";
+
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {
 	if (set_callback(fntable)==NULL)
@@ -17,6 +19,8 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new climate(module);
 	new weather(module);
 	new csv_reader(module);
+
+	gl_global_create("climate::library_path",PT_char1024,&climate_library_path,NULL);
 
 	/* always return the first class registered */
 	return climate::oclass;

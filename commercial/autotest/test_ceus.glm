@@ -29,9 +29,10 @@ object meter {
 
 // climate data
 module climate;
+#weather get WA-Yakima_Air_Terminal.tmy3
 object climate {
 	name yakima;
-	tmyfile "../WA-Yakima.tmy3";
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
 }
 
 // tariff data
