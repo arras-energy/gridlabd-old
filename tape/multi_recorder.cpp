@@ -771,39 +771,44 @@ int read_multi_properties(struct recorder *my, OBJECT *obj, RECORDER_MAP *rmap, 
 	for(r = rmap; r != NULL && offset < size - 33; r = r->next)
 	{
 		void *addr = ( r->obj == NULL || r->prop.oclass == NULL ? r->prop.addr : GETADDR(r->obj,&(r->prop)) );
-		if(offset > 0){
+		if ( offset > 0)
+		{
 			strcpy(buffer+offset++,",");
 		}
-		if(r->prop.ptype == PT_double){
-			switch(my->line_units){
-				case LU_ALL:
-					// cascade into 'default', as prop->unit should've been set, if there's a unit available.
-				case LU_DEFAULT:
-					offset+=gl_get_value(r->obj,addr,buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */
-					break;
-				case LU_NONE:
-					// copy value into local value, use fake PROP, feed into gl_get_vaule
-					value = *gl_get_double(r->obj, &(r->prop));
-					value *= r->scale;
-					p2 = gl_get_property(r->obj, r->prop.name,NULL);
-					if(p2 == 0){
-						gl_error("unable to locate %s.%s for LU_NONE", r->obj, r->prop.name);
-						return 0;
-					}
-					if(r->prop.unit != 0 && p2->unit != 0){
-						if(0 == gl_convert_ex(p2->unit, r->prop.unit, &value)){
-							gl_error("unable to convert %s to %s for LU_NONE", r->prop.unit, p2->unit);
-						} else { // converted
-							offset+=gl_get_value(r->obj,&value,buffer+offset,size-offset-1,&fake); /* pointer => int64 */;
-						}
-					} else {
-						offset+=gl_get_value(r->obj,addr,buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */;
-					}
-					break;
-				default:
-					break;
+		if ( r->prop.ptype == PT_double ) 
+		{
+			// copy value into local value, use fake PROP, feed into gl_get_vaule
+			value = *gl_get_double(r->obj, &(r->prop));
+			value *= r->scale;
+			p2 = gl_get_property(r->obj, r->prop.name, NULL);
+			if ( p2 == 0 ) 
+			{
+				gl_error("unable to locate %s.%s for LU_NONE", r->obj, r->prop.name);
+				return 0;
 			}
-		} else {
+			if ( r->prop.unit != 0 && p2->unit != 0 ) 
+			{
+				if ( 0 == gl_convert_ex(p2->unit, r->prop.unit, &value) )
+				{
+					gl_error("unable to convert %s to %s for LU_NONE", r->prop.unit, p2->unit);
+				} 
+				else 
+				{ 
+					// converted
+					offset += gl_get_value(r->obj,&value,buffer+offset,size-offset-1,&fake); /* pointer => int64 */;
+				}
+			} 
+			else 
+			{
+				offset += gl_get_value(r->obj,addr,buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */;
+			}
+			if ( my->line_units != LU_NONE )
+			{
+				offset += snprintf(buffer+offset,size-offset-1," %s",r->prop.unit->name);
+			}
+		} 
+		else 
+		{
 			offset += gl_get_value(r->obj, addr, buffer+offset, size-offset-1, &(r->prop)); /* pointer => int64 */
 		}
 		buffer[offset] = '\0';
