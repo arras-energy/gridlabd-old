@@ -1,4 +1,5 @@
-[[/Module/Python/Tutorial]] -- Python module tutorial
+[[/Module/Python/Tutorial]]
+
 
 # Introduction
 
@@ -15,43 +16,19 @@ When using `python` in a hybrid module structure (b), the command line arguments
 
 When using the `python` module only (c), the command line arguments inlcude only the `python` code. (Automatically converted files can also be used provided they generate a `.py` file that includes the appropriate `gridlabd` module calls.)
 
-# GridLAB-D Module
-
-A GridLAB-D module is used when the command line includes only `.glm` files, e.g.,
-
-~~~
-bash$ gridlabd example.glm
-~~~
-
-When running `python` as a GridLAB-D module, the GLM file must contain a `module` directive to load the python module that implements your `python` code, e.g.,
-
-~~~
-module example_module;
-~~~
-
-In situations where you would like to define module globals for use in the simulation, you can add them to the module globals, e.g.,
-
-~~~
-module example_module
-{
-    example_global "Example";
-}
-~~~
-
-# Hybrid Module
-
-TODO
 
 # Python Module
 
 A Python module is run when it is given on the command file, such as
 
 ~~~
-bash$ gridlabd example.py
+bash$ gridlabd main.py
 ~~~
 
 The structure of this example is shown in Figure 2.
 
 [image:Tutorial_figure_2.png]
 
+The file `main.py` is loaded into the `python` main module.  This file loads the `gridlabd` module, and uses the `command` method to load the GridLAB-D model `model.glm`. 
 
+The model loads the python module that implements that models event handlers. In this example there are two kinds of event handlers.  The first is the global event handler `on_init` that is called when the simulation initializes.  The second is the object event handler `on_commit` that is called whenever the object performs a `commit` operation.
