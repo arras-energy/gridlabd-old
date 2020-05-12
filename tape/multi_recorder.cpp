@@ -802,7 +802,7 @@ int read_multi_properties(struct recorder *my, OBJECT *obj, RECORDER_MAP *rmap, 
 			{
 				offset += gl_get_value(r->obj,addr,buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */;
 			}
-			if ( my->line_units != LU_NONE )
+			if ( my->line_units != LU_NONE && r->prop.unit != NULL )
 			{
 				offset += snprintf(buffer+offset,size-offset-1," %s",r->prop.unit->name);
 			}
