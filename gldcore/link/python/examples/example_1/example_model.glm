@@ -32,3 +32,4 @@ object test {
 	// dispatch commit calls to the python module
 	on_commit "python:example_module.commit";
 }
+

@@ -2,13 +2,15 @@
 
 This is an example of a main Python module that runs a simulation
 and plots the collected data to a PNG file.  This process is completed
-in two parts.
+in three parts.
 
-Part 1 runs the simulation in the 'example.glm' model file. This model
+Part 1 sets up python to collect data from gridlabd.
+
+Part 2 runs the simulation in the 'example.glm' model file. This model
 loads the python module used to handle events in the simulation. It also
 sets the variables used to label the plot when it is done.
 
-Part 2 generates a plot with the data generated and collected in Part 1.
+Part 3 generates a plot with the data generated and collected in Part 1.
 """
 
 import sys
@@ -18,20 +20,24 @@ import matplotlib.pyplot as plt
 import gridlabd
 
 #
-# Part 1 - run the simulation
+# Part 1 - prepare python
+#
+
+# setup the result data
+gridlabd.result = {}
+
+#
+# Part 2 - run the simulation
 #
 
 # construct the command line (gridlabd hasn't started yet)
-gridlabd.command('example.glm')
+gridlabd.command('example_model.glm')
 
 # start gridlabd and wait for it to complete
 gridlabd.start('wait')
 
-# send the final model state to a file
-gridlabd.save('done.json');
-
 #
-# Part 2 - plot the results
+# Part 3 - plot the results
 #
 
 # gather the results collected by on_term
@@ -46,9 +52,7 @@ plt.xlabel(gridlabd.graph_xlabel)
 plt.ylabel(gridlabd.graph_ylabel)
 plt.grid()
 plt.legend()
-modelname = gridlabd.get_global("modelname")
 title_name = gridlabd.graph_title
 plt.title(title_name)
-plt.savefig(modelname.replace(".glm",".png"))
-
+plt.savefig("example.png")
 

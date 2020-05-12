@@ -17,7 +17,6 @@ def on_init(t) :
 	"""
 
 	# setup access to the data collection variable using a new gridlabd module variable
-	gridlabd.result = {}
 	gridlabd.result["t"] = [] # time vector
 	gridlabd.result["x"] = [] # value vector
 	gridlabd.result["n"] = 0 # sample count
