@@ -45,4 +45,9 @@ When the simulation is done, the results are extracted and processed.
 
 The model loads the python module that implements that models event handlers. In this example there are two kinds of event handlers.  The first is the global event handler `on_init()` that is called when the simulation initializes.  The second is the object event handler `commit()` that is called whenever the object performs a `commit` operation.
 
+[code:/gldcore/link/python/examples/example_1/model.glm]
+
 ## `handlers.py`
+
+[code:/gldcore/link/python/examples/example_1/handlers.py]
+
