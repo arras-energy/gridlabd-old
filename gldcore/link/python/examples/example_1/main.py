@@ -31,7 +31,7 @@ gridlabd.result = {}
 #
 
 # construct the command line (gridlabd hasn't started yet)
-gridlabd.command('example_model.glm')
+gridlabd.command('model.glm')
 
 # start gridlabd and wait for it to complete
 gridlabd.start('wait')

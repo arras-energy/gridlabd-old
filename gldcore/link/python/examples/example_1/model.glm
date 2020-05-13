@@ -4,7 +4,7 @@
 // timeseries of lognormal values using the 'on_commit' event handler.
 
 // load the custom python module
-module example_module
+module handlers
 {
 	// set the variables used to create the graph
     graph_title "Example";
@@ -30,6 +30,6 @@ object test {
 	x "type:lognormal(0,1); refresh:5min";
 
 	// dispatch commit calls to the python module
-	on_commit "python:example_module.commit";
+	on_commit "python:handlers.commit";
 }
 

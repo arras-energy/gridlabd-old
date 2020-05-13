@@ -29,6 +29,20 @@ The structure of this example is shown in Figure 2.
 
 [image:Tutorial_figure_2.png]
 
-The file `main.py` is loaded into the `python` main module.  This file loads the `gridlabd` module, and uses the `command` method to load the GridLAB-D model `model.glm`. 
+The following sections explain how these three files generally interact.
 
-The model loads the python module that implements that models event handlers. In this example there are two kinds of event handlers.  The first is the global event handler `on_init` that is called when the simulation initializes.  The second is the object event handler `on_commit` that is called whenever the object performs a `commit` operation.
+## `main.py`
+
+The file `main.py` is loaded into the `python` main module.  After loading the needed Python modules this file loads the `gridlabd` module, sets up the variables used to collect data from the simulation, and uses the `command()` method to load the GridLAB-D model `model.glm` into the simulator, e.g., `command("model.glm")`.
+
+After the model is loaded using the `command()` method, the simulation can be started using the `start()` method.  The most common approach is to wait for the simulation to complete, e.g., using `start("wait")`.
+
+When the simulation is done, the results are extracted and processed.
+
+[code:/gldcore/link/python/examples/example_1/example.py]
+
+## `model.glm`
+
+The model loads the python module that implements that models event handlers. In this example there are two kinds of event handlers.  The first is the global event handler `on_init()` that is called when the simulation initializes.  The second is the object event handler `commit()` that is called whenever the object performs a `commit` operation.
+
+## `handlers.py`
