@@ -1,9 +1,7 @@
-[[/Module/Python/Tutorial]]
 
+The `python` module allows HiPAS GridLAB-D models to be manipulated using Python code, and GridLAB-D simulations of those models to be controlled directly from Python.
 
-# Introduction
-
-The `python` module allow HiPAS GridLAB-D models to be manipulated using Python code, and GridLAB-D simulation of those models to be controlled.
+# Runtime Structure
 
 There are three basic runtime architectures possible when using `python` with `gridlabd` at runtime, as shown in Figure 1. Which architecture you are using will depend on how the command line arguments are given.
 
