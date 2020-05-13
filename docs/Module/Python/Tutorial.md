@@ -39,7 +39,7 @@ After the model is loaded using the `command()` method, the simulation can be st
 
 When the simulation is done, the results are extracted and processed.
 
-[code:/gldcore/link/python/examples/example_1/example.py]
+[code:/gldcore/link/python/examples/example_1/main.py]
 
 ## `model.glm`
 
