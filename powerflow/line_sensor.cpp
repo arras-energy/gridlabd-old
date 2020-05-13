@@ -6,7 +6,7 @@
 //
 //
 
-#include "gismo.h"
+#include "powerflow.h"
 
 EXPORT_CREATE(line_sensor);
 EXPORT_INIT(line_sensor);

@@ -5,7 +5,7 @@
 #ifndef _SWITCHCOORDINATOR_H
 #define _SWITCHCOORDINATOR_H
 
-#include "gismo.h"
+#include "powerflow.h"
 
 DECL_METHOD(switch_coordinator,connect);
 DECL_METHOD(switch_coordinator,arm);
