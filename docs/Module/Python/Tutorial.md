@@ -33,21 +33,29 @@ The following sections explain how these three files generally interact.
 
 ## `main.py`
 
-The file `main.py` is loaded into the `python` main module.  After loading the needed Python modules this file loads the `gridlabd` module, sets up the variables used to collect data from the simulation, and uses the `command()` method to load the GridLAB-D model `model.glm` into the simulator, e.g., `command("model.glm")`.
+The file `main.py` is loaded into the `python` main module.  After loading the needed Python modules this file loads the `gridlabd` module, Part 1 sets up the variables used to collect data from the simulation.
 
-After the model is loaded using the `command()` method, the simulation can be started using the `start()` method.  The most common approach is to wait for the simulation to complete, e.g., using `start("wait")`.
+Part 2 uses the `command()` method to load the GridLAB-D model `model.glm` into the simulator, e.g., `command("model.glm")`. After the model is loaded using the `command()` method, the simulation can be started using the `start()` method.  The most common approach is to wait for the simulation to complete, e.g., using `start("wait")`.
 
-When the simulation is done, the results are extracted and processed.
+In Part 3 the results are extracted and processed when the simulation is done.
 
 [code:/gldcore/link/python/examples/example_1/main.py]
 
 ## `model.glm`
 
-The model loads the python module that implements that models event handlers. In this example there are two kinds of event handlers.  The first is the global event handler `on_init()` that is called when the simulation initializes.  The second is the object event handler `commit()` that is called whenever the object performs a `commit` operation.
+The model loads the python handlers module that implements that model's event handlers. In this example there are two kinds of event handlers.  The first is the global event handler `on_init()` that is implicitly called when the simulation initializes.  The second is the object event handler `commit()` that is called whenever the object performs a `commit` operation. 
+
+Only objects that define an `on_commit` property will call event handlers. To call a python event handler, the syntax must be `python:<module-name>.<handler-name>`. If the colon is omitted, the call will be made to an external python executable, rather than the handlers module.
 
 [code:/gldcore/link/python/examples/example_1/model.glm]
 
 ## `handlers.py`
+
+The handlers module implements all the event handlers used by the model.  In this case, the `on_init(<timestamp>)` handler is called automatically after the objects are initialized when it is defined in the handlers module. During this event, any operations that needs to be completed prior to the start of the simulation can be performed.
+
+The `commit(<object>,<timestamp>)` handler is called for each object the defines `commit` using its `on_commit` property.  During these events data that needs to be collected can gathered from specific object.  Similarly, a `precommit` event can be used to make changes to objects before the next simulation clock update.
+
+Any handler that returns something that evaluates to `False` will halt the simulation.
 
 [code:/gldcore/link/python/examples/example_1/handlers.py]
 

@@ -1,17 +1,15 @@
-""" gldcore/python/link/example.py
+""" gldcore/python/link/examples/example_1/main.py
 
-This is an example of a main Python module that runs a simulation
-and plots the collected data to a PNG file.  This process is completed
-in three parts.
+This is an example of a main Python module that runs a simulation and plots
+the collected data to a PNG file.  This process is completed in three parts.
 
 Part 1 sets up python to collect data from gridlabd.
 
-Part 2 runs the simulation in the 'example.glm' model file. This model
-loads the python module used to handle events in the simulation. It also
-sets the variables used to label the plot when it is done.
+Part 2 runs the simulation in the 'example.glm' model file. This model loads
+the python module used to handle events in the simulation. It also sets the
+variables used to label the plot when it is done.
 
-Part 3 generates a plot with the data generated and collected in Part 1.
-"""
+Part 3 generates a plot with the data generated and collected in Part 1. """
 
 import sys
 assert(sys.version_info.major>2)

@@ -1,6 +1,6 @@
-// gldcore/link/python/example.glm
+// gldcore/link/python/examples/example_1/model.glm
 //
-// This example illustrates how to use a python module to collect a
+// This model illustrates how to use a python module to collect a
 // timeseries of lognormal values using the 'on_commit' event handler.
 
 // load the custom python module
