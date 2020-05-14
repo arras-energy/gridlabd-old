@@ -24,7 +24,7 @@ bash$ gridlabd model.py
 
 The structure of this example is shown in Figure 2.
 
-[image:Tutorial_figure_1.png]
+[image:Tutorial_figure_2.png]
 
 The following sections explain how these three files generally interact.
 
