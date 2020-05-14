@@ -15,8 +15,8 @@ Note, the values below exemplify Small general service to emphasize the structur
 - Demand Charges: $0 
       - Summer and winter breakdown ($ per kW per meter per month)
 - Energy Charges Summer / Winter breakdown ($/kWh): 2-tier system with 49.3 kWh day threshold  
-      - tier 1: 0.19145
-      - tier 2: 0.22582
+  - tier 1: 0.19145
+  - tier 2: 0.22582
 - Other Energy Charges ($/kWh):
   - PPPC 6: 0.00881
   - Taxes and fees7: 0.00088
