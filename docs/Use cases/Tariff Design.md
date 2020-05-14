@@ -9,9 +9,12 @@ Below the tariff structures are outlined.
 ### Bear Valley Electric Service
 
 #### General 
+The general service has a break down of Small (<20 kW monthly maximum demand ) / Medium (20kW - 50 kW  monthly maximum demand) / Large (50kW - 200kW monthly maximum demand)
+Note, the values below exemplify Small general service to emphasize the structure of the tariff design. Medium and large prices and thresholds will vary.
 - Service Charges: $0.450 per meter per day 
 - Demand Charges: $0 
-- Energy Charges ($/kWh): 2-tier system with 49.3 kWh day threshold  
+      - Summer and winter breakdown ($ per kW per meter per month)
+- Energy Charges Summer / Winter breakdown ($/kWh): 2-tier system with 49.3 kWh day threshold  
       - tier 1: 0.19145
       - tier 2: 0.22582
 - Other Energy Charges ($/kWh):
@@ -20,9 +23,34 @@ Below the tariff structures are outlined.
   - MHP BTM Capital Project: 0.00194
   - Fire Hazard Protection: 0.00210
   - Renewable Portfolio Standard: 0.00322
+- Minimum Charge: equal to the Service Charge per meter, per day.
+
+
 [Ref](https://www.bves.com/media/managed/adviceletter373and375/ELEC_SCHEDS_No_A_1_General_Service.pdf)
 
-### Liverty Utilities (a.k.a CalPeco for California Electric Co.)
+#### Time of Use (200kW - 500 kW maximum monthly demand)
+
+- Service Charge per meter, per day: $16.40
+- Demand Charges: 
+      - Monthly non TOU Maximum Demand ($ per kW per meter per month)
+      - Summer month on-peak supply ($ per kW per meter per month)
+      - Summer month on-peak base ($ per kW per meter per month)
+      - Winter month on-peak supply ($ per kW per meter per month)
+      - Winter month on-peak base ($ per kW per meter per month)
+ - Energy Charges ($/kWh)
+      - Summer and Winter break down
+      - On-peak: 0.18542
+      - Mid-peak: 0.16303
+      - Off-peak: 0.14810
+ - Other Energy Charges ($/kWh):
+  - PPPC 6: 0.00881
+  - Taxes and fees7: 0.00088
+  - MHP BTM Capital Project: 0.00194
+  - Fire Hazard Protection: 0.00210
+  - Renewable Portfolio Standard: 0.00322
+- Minimum Charge: equal to the Service Charge per meter, per day + $3.00 per kW multuplied by the Contract Demand
+
+### Liberty Utilities (a.k.a CalPeco for California Electric Co.)
 
 ### Pacific Gas and Electric (PG&E)
 
