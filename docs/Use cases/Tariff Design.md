@@ -52,7 +52,39 @@ Note, the values below exemplify Small general service to emphasize the structur
 
 ### Liberty Utilities (a.k.a CalPeco for California Electric Co.)
 
+
+
 ### Pacific Gas and Electric (PG&E)
+
+#### General
+
+Total Customer Charge Rates
+- Customer Charge Single-phase ($ per meter per day): $0.32854
+- Customer Charge Poly-phase ($ per meter per day): $0.82136
+Total Energy Rates ($/kWh)
+- Summer: $0.28091
+- Winter: $0.22036
+
+#### TOU
+Total Customer Charge Rates
+- Customer Charge Single-phase ($ per meter per day: $0.32854
+- Customer Charge Poly-phase ($ per meter per day): $0.82136 
+Total TOU Energy Rates ($ per kWh) 
+- Peak Summer: $0.29592
+- Part-Peak Summer: $0.27227
+- Off-Peak Summer: $0.24491
+- Part-Peak Winter $0.25166
+- Off-Peak Winter: $0.23075
+PDP Rates (Consecutive Day and Four-Hour Event Option:
+- PDP Charges ($ per kWh)
+      - All Usage During PDP Event: $0.60
+- PDP Credits Energy ($ per kWh) 
+      - Peak Summer: $0.00905
+      - Part-Peak Summer: $0.00905
+      - Off-Peak Summer: $0.00905
+      
+      
+[Small General A-1](https://www.pge.com/tariffs/assets/pdf/tariffbook/ELEC_SCHEDS_A-1.pdf)
 
 ### PacifiCorp
 
