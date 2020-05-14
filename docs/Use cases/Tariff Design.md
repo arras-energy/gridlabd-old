@@ -1,12 +1,26 @@
-# Tariff Design 
+# Tariff Design [TO DO]
 
 This use-case is designed to include a number of tariff structures that IOUs, 
 POUs and CCAs implement to give the user the opportunity to explore a variety of tariff designed for the network in quesiton. 
 Below the tariff structures are outlined.
 
-## Investor Owned Utilities [TO DO]
+## Investor Owned Utilities 
 
 ### Bear Valley Electric Service
+
+#### General 
+- Service Charges: $0.450 per meter per day 
+- Demand Charges: $0 
+- Energy Charges ($/kWh): 2-tier system with 49.3 kWh day threshold  
+      - tier 1: 0.19145
+      - tier 2: 0.22582
+- Other Energy Charges ($/kWh):
+  - PPPC 6: 0.00881
+  - Taxes and fees7: 0.00088
+  - MHP BTM Capital Project: 0.00194
+  - Fire Hazard Protection: 0.00210
+  - Renewable Portfolio Standard: 0.00322
+[Ref](https://www.bves.com/media/managed/adviceletter373and375/ELEC_SCHEDS_No_A_1_General_Service.pdf)
 
 ### Liverty Utilities (a.k.a CalPeco for California Electric Co.)
 
@@ -24,16 +38,9 @@ Below the tariff structures are outlined.
 
 ### City of Anaheim
 
-
 ### Azusa Light and Water
 
-
 ### City of Banning
-176 E. Lincoln Street
-P.O. Box 998
-Banning, CA 92220-0998
-951.922.3260 (tel)
-http://banning.ca.us/index.aspx?nid=57
 
 ### Biggs Municipal Utilities
 
@@ -119,6 +126,58 @@ http://banning.ca.us/index.aspx?nid=57
 
 ### Victorville Municipal Utilities Services
 
+## Rural Electric Cooperatives
+
+### Anza Electric Cooperative, Inc.
+
+### Plumas-Sierra Rural Electric Cooperative
+
+### Surprise Valley Electrification Corporation
+
+### Valley Electric Association, Inc.
+
 ## Community Choice Aggregators 
+### Apple Valley Choice Energy
+
+### Clean Power SF
+
+### Clean Power Alliance
+
+### Desert Community Energy
+
+### Lancaster Choice Energy
+
+### Lancaster Power Authority
+
+### Marin Clean Energy (MCE)
+
+### Metropolitan Water District of So. Cal. (MWD)
+
+### Monterey Bay Community Power
+
+### Peninsula Clean Energy
+
+### Pico Rivera Innovative Municipal Energy
+
+### Pilot Power Group, Inc.
+
+### Pioneer Community Energy
+
+### Rancho Mirage Energy Authority
+
+### Redwood Coast Energy Authority
+
+### San Jacinto Power
+
+### San Jose Clean Energy
+
+### Silicon Valley Clean Energy
+
+### Solana Energy Alliance
+
+###  Clean Power
+
+### Valley Clean Energy
+
 
 *The list of utilities in California is obtained from [ca.gov](https://ww2.energy.ca.gov/almanac/electricity_data/utilities.html)
