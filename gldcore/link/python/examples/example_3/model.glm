@@ -3,8 +3,6 @@
 // This model illustrates how to use a python module to collect a
 // timeseries of lognormal values using the 'on_commit' event handler.
 
-module handlers;
-
 // setup the clock to run only 1 hour
 clock {
 	starttime "2018-01-01 00:00:00";
@@ -32,5 +30,3 @@ object recorder {
     file "x.csv";
     interval "5 min";
 }
-
-

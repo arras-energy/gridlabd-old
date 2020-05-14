@@ -3,7 +3,15 @@
 // This model illustrates how to use a python module to collect a
 // timeseries of lognormal values using the 'on_commit' event handler.
 
-module handlers;
+// load the custom python module
+module handlers
+{
+	// set the variables used to create the graph
+    graph_title "Example";
+    graph_xlabel "Time (hour)";
+    graph_ylabel "Power (MW)";
+    graph_label "Lognormal value";
+}
 
 // setup the clock to run only 1 hour
 clock {
@@ -20,17 +28,8 @@ class test {
 object test {
 	name "example";
 	x "type:lognormal(0,1); refresh:5min";
+
+	// dispatch commit calls to the python module
+	on_commit "python:handlers.commit";
 }
-
-// load the data collection module
-module tape;
-
-// create an object to collect data into CSV
-object recorder {
-    parent "example";
-    property "x";
-    file "x.csv";
-    interval "5 min";
-}
-
 
