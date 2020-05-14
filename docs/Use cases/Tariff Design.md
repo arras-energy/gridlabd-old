@@ -8,7 +8,7 @@ Below the tariff structures are outlined.
 
 ### Bear Valley Electric Service
 
-#### General 
+#### General (Commercial)
 The general service has a break down of Small (<20 kW monthly maximum demand ) / Medium (20kW - 50 kW  monthly maximum demand) / Large (50kW - 200kW monthly maximum demand)
 Note, the values below exemplify Small general service to emphasize the structure of the tariff design. Medium and large prices and thresholds will vary.
 - Service Charges: $0.450 per meter per day 
@@ -50,12 +50,21 @@ Note, the values below exemplify Small general service to emphasize the structur
   - Renewable Portfolio Standard: 0.00322
 - Minimum Charge: equal to the Service Charge per meter, per day + $3.00 per kW multuplied by the Contract Demand
 
+#### Residential 
+
+Total energy rates ($/kWh)
+- Baseline usage: $0.24373
+- 101%-400% Baseline: $0.30672
+- High Usage over 400% baseline: $0.53738
+Delivery Minimum bill amount ($ per meter per day): $0.32854
+California Climate Credit (per household, per semi-annual payment occuring in the April and October bill cycles): $35.73
+
 ### Liberty Utilities (a.k.a CalPeco for California Electric Co.)
 
 
 
 ### Pacific Gas and Electric (PG&E)
-
+[Ref](https://www.pge.com/tariffs/index.page)
 #### General
 
 Total Customer Charge Rates
