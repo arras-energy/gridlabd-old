@@ -5,7 +5,7 @@
 #ifndef _LINESENSOR_H
 #define _LINESENSOR_H
 
-#include "gismo.h"
+#include "powerflow.h"
 
 class line_sensor : public gld_object {
 public:

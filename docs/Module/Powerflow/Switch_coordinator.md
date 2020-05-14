@@ -1,11 +1,11 @@
-[[/Gismo/Switch_coordinator]] -- Manage switches in powerflow module
+[[/Powerflow/Switch_coordinator]] -- Manage switches in powerflow module
 
 # Synopsis
 
 GLM:
 
 ~~~
-  module gismo;
+  module powerflow;
   object switch_coordinator
   {
      name "scheme-name";
