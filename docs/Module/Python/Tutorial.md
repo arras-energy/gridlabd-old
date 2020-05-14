@@ -14,6 +14,13 @@ When using `python` in a hybrid module structure (b), the command line arguments
 
 When using the `python` module only (c), the command line arguments inlcude only the `python` code. (Automatically converted files can also be used provided they generate a `.py` file that includes the appropriate `gridlabd` module calls.)
 
+# GridLAB-D Module
+
+TODO: this method is not fully supported yet.
+
+# Hybrid Module
+
+TODO: this method is not fully supported yet.
 
 # Python Module
 
