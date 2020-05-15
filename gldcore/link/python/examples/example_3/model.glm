@@ -1,4 +1,4 @@
-// gldcore/link/python/examples/example_1/model.glm
+// gldcore/link/python/examples/example_3/model.glm
 //
 // This model illustrates how to use a python module to collect a
 // timeseries of lognormal values using the 'on_commit' event handler.
@@ -21,7 +21,10 @@ object test {
 }
 
 // load the data collection module
-module tape;
+module tape
+{
+    csv_data_only 1;
+}
 
 // create an object to collect data into CSV
 object recorder {
