@@ -14,6 +14,8 @@ When using `python` in a hybrid module structure (b), the command line arguments
 
 When using the `python` module only (c), the command line arguments inlcude only the `python` code. (Automatically converted files can also be used provided they generate a `.py` file that includes the appropriate `gridlabd` module calls.)
 
+---
+
 # GridLAB-D Module
 
 A hybrid module structure is used when it is given on the command file, such as
@@ -25,6 +27,7 @@ bash$ gridlabd model.py
 The structure of this example is shown in Figure 2.
 
 [image:Tutorial_figure_2.png]
+Figure 2: Using a python module in a GridLAB-D model
 
 The following sections explain how these three files generally interact.
 
@@ -46,6 +49,7 @@ Any handler that returns something that evaluates to `False` will halt the simul
 
 [code:/gldcore/link/python/examples/example_1/handlers.py]
 
+---
 
 # Hybrid Module
 
@@ -58,6 +62,7 @@ bash$ gridlabd main.py
 The structure of this example is shown in Figure 3.
 
 [image:Tutorial_figure_3.png]
+Figure 3: Hybrid Python and GridLAB-D modules
 
 The following sections explain how these three files generally interact.
 
@@ -89,6 +94,8 @@ Any handler that returns something that evaluates to `False` will halt the simul
 
 [code:/gldcore/link/python/examples/example_2/handlers.py]
 
+---
+
 # Python Module
 
 A hybrid module structure is used when it is given on the command file, such as
@@ -100,6 +107,7 @@ bash$ gridlabd main.py
 The structure of this example is shown in Figure 4.
 
 [image:Tutorial_figure_4.png]
+Figure 4: Runtime architectures for Python and GridLAB-D
 
 The following sections explain how these three files generally interact.
 
