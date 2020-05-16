@@ -21,14 +21,24 @@ void python_embed_init(int argc, const char *argv[])
         throw "python initialization failied";
     }
     output_verbose("python initialization ok");
-    const char *import_list[] = {"gridlabd"};
-    if ( python_loader_init(sizeof(import_list)/sizeof(import_list[0]),import_list) == NULL )
-        throw "python initial import failed";
-    python_parser("import " PACKAGE);
-    python_parser();
-    gridlabd_module = PyModule_GetDict(PyImport_AddModule(PACKAGE));
-    if ( gridlabd_module == NULL )
-        throw "python module import failed";
+
+    extern PyObject *this_module;
+    if ( this_module == NULL )
+    {
+        const char *import_list[] = {"gridlabd"};
+        if ( python_loader_init(sizeof(import_list)/sizeof(import_list[0]),import_list) == NULL )
+            throw "python initial import failed";
+        python_parser("import " PACKAGE);
+        python_parser();
+        gridlabd_module = PyModule_GetDict(PyImport_AddModule(PACKAGE));
+        if ( gridlabd_module == NULL )
+            throw "python module import failed";
+        this_module = gridlabd_module;
+    }
+    else
+    {
+        gridlabd_module = this_module;
+    }
 }
 
 void *python_loader_init(int argc, const char **argv)
@@ -48,6 +58,7 @@ void python_embed_term()
 
 PyObject *python_embed_import(const char *module, const char *path)
 {
+    // fix module search path
     if ( path != NULL )
     {
         char tmp[1024];
@@ -70,7 +81,18 @@ PyObject *python_embed_import(const char *module, const char *path)
         }
     }
 
-    PyObject *pModule = PyImport_ImportModule(module);
+    // clean up module name for use by import
+    char basename[1024];
+    strcpy(basename,module);
+    char *ext = strrchr(basename,'.');
+    if ( ext != NULL && strcmp(ext,".py") == 0 )
+    {
+        *ext = '\0';
+    }
+    char *dir = strrchr(basename,'/');
+
+    // import module
+    PyObject *pModule = PyImport_ImportModule(dir?dir+1:basename);
     if ( pModule == NULL )
     { 
         PyObject *pType, *pValue, *pTraceback;

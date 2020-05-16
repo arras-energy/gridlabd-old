@@ -261,10 +261,8 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 							   int argc, /**< count of arguments in \p argv */
 							   char *argv[]) /**< arguments passed from the command line */
 {
-	MODULE *mod;
-#ifdef HAVE_PYTHON
 	extern MODULE *python_module_load(const char *, int, char *[]);
-	mod = python_module_load(file,argc,argv);
+	MODULE *mod = python_module_load(file,argc,argv);
 	if ( mod != NULL )
 	{
 		mod->hLib = NULL;
@@ -289,7 +287,6 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 
 		return mod;
 	}
-#endif
 
 	/* check for already loaded */
 	mod = module_find((char *)file);

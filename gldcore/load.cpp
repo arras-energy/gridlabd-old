@@ -7897,7 +7897,13 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 
 STATUS GldLoader::load_python(const char *filename)
 {
-	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
+	extern PyObject *gridlabd_module;
+	if ( gridlabd_module == NULL )
+	{
+		python_embed_init(0,NULL);
+	}
+	return python_embed_import(filename,".") == NULL ? FAILED : SUCCESS;
+//	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
 }
 
 /** Load a file

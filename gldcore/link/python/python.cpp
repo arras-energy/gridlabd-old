@@ -270,7 +270,7 @@ static PyObject *gridlabd_traceback(const char *context=NULL)
 }
 
 static PyObject *gridlabdException;
-static PyObject *this_module = NULL;
+PyObject *this_module = NULL;
 
 class Callback 
 {

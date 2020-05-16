@@ -24,33 +24,21 @@ import gridlabd
 # setup the result data
 gridlabd.result = {}
 
-#
-# Part 2 - run the simulation
-#
-
-# construct the command line (gridlabd hasn't started yet)
-gridlabd.command('model.glm')
-
-# start gridlabd and wait for it to complete
-gridlabd.start('wait')
-
-#
-# Part 3 - plot the results
-#
 
 # gather the results collected by on_term
-t = np.array(gridlabd.result["t"])
-t = t - t[0]
-x = np.array(gridlabd.result["x"])
+def on_term():
+    t = np.array(gridlabd.result["t"])
+    t = t - t[0]
+    x = np.array(gridlabd.result["x"])
 
-# plot the result
-plt.figure()
-plt.plot(t/3600.0,x,label=gridlabd.graph_label)
-plt.xlabel(gridlabd.graph_xlabel)
-plt.ylabel(gridlabd.graph_ylabel)
-plt.grid()
-plt.legend()
-title_name = gridlabd.graph_title
-plt.title(title_name)
-plt.savefig("example.png")
+    # plot the result
+    plt.figure()
+    plt.plot(t/3600.0,x,label=gridlabd.graph_label)
+    plt.xlabel(gridlabd.graph_xlabel)
+    plt.ylabel(gridlabd.graph_ylabel)
+    plt.grid()
+    plt.legend()
+    title_name = gridlabd.graph_title
+    plt.title(title_name)
+    plt.savefig("example.png")
 
