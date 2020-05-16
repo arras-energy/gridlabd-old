@@ -2099,7 +2099,8 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
         errno = ENOENT;
         return NULL;
     }
-    PyObject *mod = PyImport_ImportModule(file);
+    extern PyObject *python_embed_import(const char *module, const char *path);
+    PyObject *mod = python_embed_import(file,".");
 
     if ( mod == NULL)
     {

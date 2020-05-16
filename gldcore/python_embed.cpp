@@ -17,32 +17,23 @@ void python_embed_init(int argc, const char *argv[])
     main_module = PyModule_GetDict(PyImport_AddModule("__main__"));
     if ( main_module == NULL )
     {
-        output_error("python_embed_init(argc=%d,argv=[...]: unable to load module __main__ module",argc);
-        throw "python initialization failied";
+        throw_exception("python_embed_init(argc=%d,argv=(%s,...)): unable to load module __main__ module",argc,argv?argv[0]:"NULL");
     }
-    output_verbose("python initialization ok");
 
-    extern PyObject *this_module;
+    extern PyObject *this_module; // from gldcore/link/python.cpp
     if ( this_module == NULL )
     {
-        const char *import_list[] = {"gridlabd"};
-        if ( python_loader_init(sizeof(import_list)/sizeof(import_list[0]),import_list) == NULL )
-            throw "python initial import failed";
-        python_parser("import " PACKAGE);
-        python_parser();
-        gridlabd_module = PyModule_GetDict(PyImport_AddModule(PACKAGE));
-        if ( gridlabd_module == NULL )
-            throw "python module import failed";
-        this_module = gridlabd_module;
+        PyInit_gridlabd();
     }
-    else
-    {
-        gridlabd_module = this_module;
-    }
+    gridlabd_module = this_module;
 }
 
 void *python_loader_init(int argc, const char **argv)
 {
+    if ( main_module == NULL )
+    {
+        python_embed_init(argc,argv);
+    }
     return main_module;
 }
 

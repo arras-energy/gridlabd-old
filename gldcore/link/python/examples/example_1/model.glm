@@ -23,7 +23,10 @@ object test {
 }
 
 // load the data collection module
-module tape;
+module tape
+{
+    csv_data_only 1;
+}
 
 // create an object to collect data into CSV
 object recorder {

@@ -5,6 +5,8 @@ This module illustrates how to implement handlers for a gridlabd model using a
 module. """
 import datetime
 import csv
+import numpy as np 
+import matplotlib.pyplot as plt
 
 # enable a callback when the module is initialized 
 def on_init(t) :
@@ -18,12 +20,30 @@ def on_init(t) :
 
 	# setup access to the data collection variable using a new gridlabd module
 	# variable
+	gridlabd.result = {}
 	gridlabd.result["t"] = [] # time vector
 	gridlabd.result["x"] = [] # value vector
 	gridlabd.result["n"] = 0 # sample count
 
 	# successful init
 	return True
+
+# gather the results collected by on_term
+def on_term():
+    t = np.array(gridlabd.result["t"])
+    t = t - t[0]
+    x = np.array(gridlabd.result["x"])
+
+    # plot the result
+    plt.figure()
+    plt.plot(t/3600.0,x,label=gridlabd.graph_label)
+    plt.xlabel(gridlabd.graph_xlabel)
+    plt.ylabel(gridlabd.graph_ylabel)
+    plt.grid()
+    plt.legend()
+    title_name = gridlabd.graph_title
+    plt.title(title_name)
+    plt.savefig("example.png")
 
 # handle commit events for a particular object
 def commit(obj,t) :
