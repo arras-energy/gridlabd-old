@@ -4,19 +4,20 @@ import sys, getopt
 from datetime import datetime 
 import importlib, copy
 
-config = {"input":"csv","output":"glm","from":["ami","scada"],"type":["ceus","rbsa"]}
+config = {"input":"csv","output":"glm","from":["ami","scada","onpoint-weather"],"type":["ceus","rbsa","climate"]}
 
 def help():
     print('Syntax:')
-    print('omd2glm.py -i|--ifile <input-file>[,<input-file>[,...]] -o|--ofile <output-file>')
-    print('  -c|--config    : [OPTIONAL] output converter configuration')
-    print('  -i|--ifile     : [REQUIRED] omd input file name.')
-    print('  -o|--ofile     : [REQUIRED] glm output file name.')
-    print('  -f|--from      : [REQUIRED] input csv file type.')
-    print('  -t|--type      : [REQUIRED] output glm object type.')
+    print(f'{config["input"]}2{config["output"]}.py -i|--ifile <input-file>[,<input-file>[,...]] -o|--ofile <output-file> [options ...]')
+    print(f'  -c|--config    : [OPTIONAL] display converter configuration')
+    print(f'  -i|--ifile     : [REQUIRED] {config["input"]} input file name')
+    print(f'  -o|--ofile     : [REQUIRED] {config["output"]} output file name')
+    print(f'  -f|--from      : [REQUIRED] input {config["input"]} data type')
+    print(f'  -t|--type      : [REQUIRED] output {config["output"]} data type')
+    print(f'  -p|--property  : [OPTIONAL] property option')
 
 def error(msg):
-    print(f"ERROR    [csv2glm]: {msg}")
+    print(f'ERROR    [{config["input"]}2{config["output"]}]: {msg}')
     sys.exit(1)
 
 input_file = None
@@ -25,7 +26,7 @@ output_file = None
 output_type = None
 options = {}
 
-opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:p:",["help","config","ifile=","ofile=","type=","from=","property="])
+opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:p:",["help","config","ifile=","ofile=","from=","type=","property="])
 
 if not opts : 
     help()
@@ -53,18 +54,18 @@ for opt, arg in opts:
         error(f"{opt}={arg} is not a valid option");
 
 if input_file == None:
-    error("missing input file")
+    error("missing input file name")
 elif output_file == None:
-    error("missing output file")
+    error("missing output file name")
 elif input_type == None:
-    error("missing input type")
+    error("missing input data type")
 elif output_type == None:
-    error("missing output type")
+    error("missing output data type")
 
-modname = sys.argv[0].replace("csv2glm.py",f"csv-{input_type}2glm-{output_type}.py")
+modname = sys.argv[0].replace(f'{config["input"]}2{config["output"]}.py',f'{config["input"]}-{input_type}2{config["output"]}-{output_type}.py')
 if os.path.exists(modname):
     modspec = importlib.util.spec_from_file_location(output_type, f"{modname}.py")
-    mod = importlib.import_module(f"csv-{input_type}2glm-{output_type}")
+    mod = importlib.import_module(f'{config["input"]}-{input_type}2{config["output"]}-{output_type}')
     mod.convert(input_file,output_file,options)
 else:
     error(f"{modname} not found")

@@ -9,6 +9,8 @@
 
 #include "gldcore.h"
 
+#include <poll.h>
+
 SET_MYCONTEXT(DMC_MAIN)
 
 /** Implements a pause on exit capability for Windows consoles
@@ -451,9 +453,10 @@ extern char **environ;
 	
 	Runs a program and connects its stdout and stderr to the FILEs.
 	Returns:
-	-1	failed
+		0	success
+		-1	failed (see errno)
  */
-static int popens(const char *program, FILE **output, FILE **error)
+int popens(const char *program, FILE **output, FILE **error)
 {
 
 	struct pid * volatile cur;
@@ -464,16 +467,15 @@ static int popens(const char *program, FILE **output, FILE **error)
 		errno = EINVAL;
 		return -1;
 	}
-	const char *argp[] = {getenv("SHELL"), "-c", NULL, NULL};
 	cur = (struct pid*)malloc(sizeof(struct pid));
 	if ( cur == NULL )
 	{
-		return 0;
+		return -1;
 	}
 	if ( pipe(pdout) < 0 || pipe(pderr) < 0 ) 
 	{
 		free(cur);
-		return 0;
+		return -1;
 	}
 	pid = fork();
 	if ( pid == -1 )
@@ -484,7 +486,7 @@ static int popens(const char *program, FILE **output, FILE **error)
 		(void)close(pderr[0]);
 		(void)close(pderr[1]);
 		free(cur);
-		return 0;
+		return -1;
 	}
 	else if ( pid == 0 )
 	{
@@ -512,9 +514,8 @@ static int popens(const char *program, FILE **output, FILE **error)
 				(void)close(pderr[1]);
 			}
 		}
-		argp[2] = (char *)program;
-		execve(_PATH_BSHELL, (char *const*)argp, environ);
-		_exit(127);
+		const char *argp[] = {getenv("SHELL"), "-c", program, NULL};
+		exit ( execve(_PATH_BSHELL, (char *const*)argp, environ) ? 127 : 0 );
 	}
 	else
 	{
@@ -535,7 +536,7 @@ static int popens(const char *program, FILE **output, FILE **error)
 		cur->pid =  pid;
 		cur->next = pidlist;
 		pidlist = cur;
-		return 1;
+		return 0;
 	}
 }
 
@@ -546,7 +547,7 @@ static int popens(const char *program, FILE **output, FILE **error)
  	-1  	if stream is not associated with a `popen3' command, if already closed, or waitpid returns an error.
  	status	if ok
  */
-static int pcloses(FILE *iop, bool wait=true)
+int pcloses(FILE *iop, bool wait=true)
 {
 	struct pid *cur, *last;
 	int pstat;
@@ -607,23 +608,47 @@ int GldMain::subcommand(const char *format, ...)
 
 	FILE *output = NULL, *error = NULL;
 	int rc = 0;
-	if ( ! popens(command, &output, &error) ) 
+	if ( popens(command, &output, &error) < 0 ) 
 	{
-		output_error("GldMain::subcommand(format='%s',...): unable to run command '%s'",format,command);
+		output_error("GldMain::subcommand(format='%s',...): unable to run command '%s' (%s)",format,command,strerror(errno));
 		rc = -1;
 	}
 	else
 	{
-		char line[1024];
 		FILE *output_stream = output_get_stream("output");
-		while ( output && fgets(line, sizeof(line)-1, output) != NULL ) 
-		{
-			fprintf(output_stream,"%s",line);
-		}
 		FILE *error_stream = output_get_stream("error");
-		while ( error && fgets(line, sizeof(line)-1, error) != NULL ) 
+		struct pollfd polldata[3];
+		polldata[0].fd = 1;
+		polldata[0].events = POLLOUT;
+		polldata[1].fd = output ? fileno(output) : 0;
+		polldata[1].events = POLLIN|POLLERR|POLLHUP;
+		polldata[2].fd = error ? fileno(error) : 0;
+		polldata[2].events = POLLIN|POLLERR|POLLHUP;
+		char line[1024];
+		while ( poll(polldata,sizeof(polldata)/sizeof(polldata[0]),-1) > 0 )
 		{
-			fprintf(error_stream,"%s",line);
+			if ( polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP)
+			{
+				break;
+			}
+			if ( polldata[1].revents&POLLERR || polldata[2].revents&POLLERR)
+			{
+				output_error("GldMain::subcommand(command='%s'): pipe error", command);
+				break;
+			}
+			// if ( polldata[0].revents&POLLOUT )
+			// {
+			// 	output_error("GldMain::subcommand(command='%s'): no input", command);
+			// 	break;
+			// }
+			while ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
+			{
+				fprintf(output_stream,"%s",line);
+			}
+			while ( error && polldata[2].revents&POLLIN && fgets(line, sizeof(line)-1, error) != NULL ) 
+			{
+				fprintf(error_stream,"%s",line);
+			}
 		}
 		rc = pcloses(output);
 		if ( rc > 0 )

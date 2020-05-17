@@ -10,6 +10,7 @@ dist_pkgdata_DATA += gldcore/rt/gridlabd.htm
 dist_pkgdata_DATA += gldcore/rt/gridlabd.jpg
 dist_pkgdata_DATA += gldcore/rt/gridlabd.js
 dist_pkgdata_DATA += gldcore/rt/gridlabd.syn
+dist_pkgdata_DATA += gldcore/rt/gridlabd.rc
 dist_pkgdata_DATA += gldcore/rt/mingw.conf
 dist_pkgdata_DATA += gldcore/rt/capacitor_b.png
 dist_pkgdata_DATA += gldcore/rt/capacitor_g.png

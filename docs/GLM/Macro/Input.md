@@ -29,5 +29,5 @@ object meter {
 
 # See also
 
-* [[/GLM/Command/Automatic import conversion.md]]
+* [[/Command/Automatic import conversion.md]]
 * [[/GLM/Macro/Include]]

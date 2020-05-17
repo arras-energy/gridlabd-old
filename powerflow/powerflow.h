@@ -14,6 +14,9 @@
 
 #include "solver_nr.h"
 
+#include "line_sensor.h"
+#include "switch_coordinator.h"
+
 #ifdef _DEBUG
 void print_matrix(complex mat[3][3]);
 #endif
@@ -160,6 +163,8 @@ void schedule_deltamode_start(TIMESTAMP tstart);	/* Anticipated time for a delta
 		#include "switch_object.h"
 			#include "recloser.h"
 			#include "sectionalizer.h"
+			#include "switch_coordinator.h"
+			#include "line_sensor.h"
 		#include "transformer.h"
 		#include "vfd.h"
 	#include "node.h"
