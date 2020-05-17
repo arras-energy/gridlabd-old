@@ -7131,6 +7131,13 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 				return TRUE;
 			}
 		}
+		else if (sscanf(term, "(%[^)])", value) == 1)
+		{
+			/* C include file */
+			IN_MYCONTEXT output_verbose("executing include shell \"%s\"", value);
+			my_instance->subcommand("%s",value);
+			return TRUE;
+		}
 		else
 		{
 			char *eol = term+strlen(term)-1;
