@@ -29,7 +29,8 @@ static void shutdown_now(void)
 		shutdown(sockfd,SHUT_RDWR);
 #endif
 	sockfd = (SOCKET)0;
-	gui_wait_status(GUIACT_HALT);
+	if ( my_instance && my_instance->get_gui() )
+		my_instance->get_gui()->wait_status(GUIACT_HALT);
 	IN_MYCONTEXT output_verbose("server shutdown on exit done");
 }
 
@@ -122,8 +123,8 @@ static void *server_routine(void *arg)
 				output_error("unable to start http response thread");
 			if (global_server_quit_on_close)
 				shutdown_now();
-			else
-				gui_wait_status(GUIACT_NONE);
+			else if ( my_instance && my_instance->get_gui() )
+				my_instance->get_gui()->wait_status(GUIACT_NONE);
 			active = 1;
 		}
 	}
@@ -1186,14 +1187,21 @@ int http_read_request(HTTPCNX *http, char *uri)
  **/
 int http_gui_request(HTTPCNX *http,char *uri)
 {
-	gui_set_html_stream((void*)http,(GUISTREAMFN)http_format);
-	if (gui_html_output_page(uri)>=0)
+	if ( my_instance && my_instance->get_gui() )
 	{
-		http_type(http,"text/html");
-		return 1;
+		my_instance->get_gui()->set_html_stream((void*)http,(GUISTREAMFN)http_format);
+		if ( my_instance->get_gui()->html_output_page(uri) >= 0 )
+		{
+			http_type(http,"text/html");
+			return 1;
+		}
+		else 
+			return 0;
 	}
-	else 
+	else
+	{
 		return 0;
+	}
 }
 
 #ifndef WIN32
@@ -1319,7 +1327,7 @@ int http_run_java(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1377,7 +1385,7 @@ int http_run_perl(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1434,7 +1442,7 @@ int http_run_python(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1495,7 +1503,7 @@ int http_run_r(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1552,7 +1560,7 @@ int http_run_scilab(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1609,7 +1617,7 @@ int http_run_octave(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1669,7 +1677,7 @@ int http_run_gnuplot(HTTPCNX *http,char *uri)
 
 	/* run gnuplot */
 	IN_MYCONTEXT output_verbose("%s", command);
-	if ((rc=system(command))!=0)
+	if ((rc=my_instance->subcommand("%s",command))!=0)
 	{
 		switch (rc)
 		{
@@ -1759,18 +1767,25 @@ int http_kml_request(HTTPCNX *http, char *action)
  **/
 int http_action_request(HTTPCNX *http,char *action)
 {
-	if (gui_post_action(action)==-1)
+	if ( my_instance && my_instance->get_gui() )
 	{
-		http_status(http,HTTP_ACCEPTED);
-		http_type(http,"text/plain");
-		http_format(http,"Goodbye");
-		http_send(http);
-		http_close(http);
-		shutdown_now();
-		return 1;
+		if ( my_instance->get_gui()->post_action(action) == -1 )
+		{
+			http_status(http,HTTP_ACCEPTED);
+			http_type(http,"text/plain");
+			http_format(http,"Goodbye");
+			http_send(http);
+			http_close(http);
+			shutdown_now();
+			return 1;
+		}
+		else
+			return 0;
 	}
 	else
+	{
 		return 0;
+	}
 }
 
 /** Process an incoming main loop control request

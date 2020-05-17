@@ -462,14 +462,7 @@ int class_property_to_string(PROPERTY *prop, /**< the property type */
 	}
 	else if ( prop->ptype > _PT_FIRST && prop->ptype < _PT_LAST )
 	{
-		int rv = property_write(prop,addr,value,size);
-		if ( rv > 0 && prop->unit != 0 )
-		{
-			strcat(value+rv," ");
-			strcat(value+rv+1,prop->unit->name);
-			rv += (int)(1+strlen(prop->unit->name));
-		}
-		return rv;
+		return property_write(prop,addr,value,size);
 	}
 	else
 	{
@@ -898,23 +891,35 @@ int class_define_map(CLASS *oclass, /**< the object class */
 					goto Error;
 				}
 			}
-			else if (proptype==PT_EXTEND)
+			else if ( proptype == PT_EXTEND )
 			{
 				oclass->size += property_type[prop->ptype].size;
 			}
-			else if (proptype==PT_EXTENDBY)
+			else if ( proptype == PT_EXTENDBY) 
 			{
 				oclass->size += va_arg(arg,unsigned int);
 			}
-			else if (proptype==PT_FLAGS)
+			else if ( proptype == PT_FLAGS )
 			{
 				prop->flags |= va_arg(arg,unsigned int);
 			}
-			else if (proptype==PT_DEPRECATED)
+			else if ( proptype == PT_DEPRECATED )
 			{
 				prop->flags |= PF_DEPRECATED;
 			}
-			else if (proptype==PT_UNITS)
+			else if ( proptype == PT_OUTPUT )
+			{
+				prop->flags |= PF_OUTPUT;
+			}
+			else if ( proptype == PT_REQUIRED )
+			{
+				prop->flags |= PF_REQUIRED;
+			}
+			else if ( proptype == PT_DYNAMIC )
+			{
+				prop->flags |= PF_DYNAMIC;
+			}
+			else if ( proptype == PT_UNITS )
 			{
 				char *unitspec = va_arg(arg,char*);
 				try 

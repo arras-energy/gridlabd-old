@@ -15,16 +15,16 @@ ACLOCAL_AMFLAGS = -I m4
 CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
-AM_CPPFLAGS = -Wall -O3 -g
+AM_CPPFLAGS = -Wall
 AM_CPPFLAGS += -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CPPFLAGS += $(GLD_CPPFLAGS)
 
-AM_CFLAGS = -Wall -O3 -g
+AM_CFLAGS = -Wall
 AM_CFLAGS +=  -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CFLAGS += $(PTHREAD_CFLAGS)
 AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
 
-AM_CXXFLAGS = -Wall -O3 -g
+AM_CXXFLAGS = -Wall
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
 AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
 
@@ -105,7 +105,14 @@ help:
 	@echo "  install        - Install $(PACKAGE) to $(prefix)"
 	@echo "  system         - Build and install $(PACKAGE) to the system folders"
 	@echo "  install-strip  - Same as install, but follow by stripping debug symbols"
+	@echo "  install-clean  - Same as install-system, but runs distclean, autoreconf, and configure first"
+	@echo "  install-system - Same as install, but links target to /usr/local for all system users"
 	@echo "  uninstall      - Erase files installed by 'make install'"
+	@echo ""
+	@echo "Cleaning targets:"
+	@echo "  clean        - Erase from the build tree the files built by 'make all'"
+	@echo "  distclean    - Same as 'make clean' plus erase anything ./configure created"
+	@echo "  mostlyclean  - Erase intermediate files (such as .o files)"
 	@echo ""
 	@echo "Testing targets:"
 	@echo "  validate  - Run the test/validation suite (requires Python)"
@@ -157,11 +164,10 @@ clean-wc:
 	@unset REPLY && read -t 60 -p "Clean working copy (type 'yes' to proceed)? " && test "`echo "$$REPLY" | tr '[:upper:]' '[:lower:]'`" = "yes"
 	. utilities/cleanwc
 
-install-validate: install
-	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd --validate || (tar cfz validate-output.tar.gz */autotest/test_*/*;exit 1))
+install-validate: install validate
 
 check-local validate: 
-	gridlabd --validate
+	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilties/save_validation_output;exit 1))
 
 scratchdir = scratch
 # XERCES_TARNAME = xerces-c-3.1.1
@@ -261,7 +267,7 @@ clean-local: python-clean
 	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
 
 distclean-local: python-clean
-	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh)
+	@(cd $(top_srcdir) ; build-aux/clean_dirs.sh --depends)
 	@rm -rf $(top_srcdir)/autom4te.cache
 	@rm -f $(top_srcdir)/aclocal.m4 
 	@rm -f $(top_srcdir)/autoscan.log
@@ -296,7 +302,7 @@ libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
 
 install-exec-hook: python-install index
-	cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
+	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
 	@echo ""
@@ -306,7 +312,7 @@ install-exec-hook: python-install index
 	@echo "To run this version directly without using the command path:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd"
 	@echo ""
-	@echo "To make this version the default for all user on this system:"
+	@echo "To make this version the default for all users on this system:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
 
@@ -316,8 +322,24 @@ reconfigure: distclean
 reconfigure-debug: distclean
 	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
 
+docker: $(PREFIX)/docker.img
+
+docker-debug: docker/Dockerfile Makefile
+	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_ORIGIN) --build-arg RUN_VALIDATION=no docker
+	@mkdir -p $(prefix)
+	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
+
+$(PREFIX)/docker.img: docker/Dockerfile Makefile
+	docker build -f docker/Dockerfile -t $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest --build-arg BRANCH=$(PACKAGE_ORIGIN) --build-arg RUN_VALIDATION=yes docker
+	@mkdir -p $(prefix)
+	docker save $(PACKAGE)/$(PACKAGE_VERSION)-$(PACKAGE_BRANCH):latest -o $(prefix)/docker.img
+
 system: install
-	$(DESTDIR)$(bindir)/gridlabd version set
+	@echo "Setting $$(./build-aux/version.sh --install) to the current system version"
+	@$(DESTDIR)$(bindir)/gridlabd version set
+	@if [ ! "$$(gridlabd --version=install)" == "$$(./build-aux/version.sh --install)" ]; then \
+		echo '*** WARNING : build and install versions differ ***'; \
+	fi
 
 index: weather library template
 

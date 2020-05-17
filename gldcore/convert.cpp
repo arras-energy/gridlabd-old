@@ -66,50 +66,44 @@ int convert_from_double(char *buffer, /**< pointer to the string buffer */
 					    void *data, /**< a pointer to the data */
 					    PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
-	char temp[1025];
-	int count = 0;
-
-	double scale = 1.0;
-	if ( isnan(*(double*)data) )
+	double value = *(double*)data;
+	if ( isnan(value) )
 	{
-		strcpy(buffer,"NAN");
+		strncpy(buffer,"NAN",size);
 		return 3;
 	}
 	else if ( prop->unit != NULL )
 	{
 		/* only do conversion if the target unit differs from the class's unit for that property */
 		PROPERTY *ptmp = (prop->oclass==NULL ? prop : class_find_property(prop->oclass, prop->name));
-		scale = *(double *)data;
 		if ( prop->unit != ptmp->unit && ptmp->unit != NULL ) 
 		{
-			if ( 0 == unit_convert_ex(ptmp->unit, prop->unit, &scale) ) 
+			if ( 0 == unit_convert_ex(ptmp->unit, prop->unit, &value) ) 
 			{
-				output_error("convert_from_double(): unable to convert unit '%s' to '%s' for property '%s' (tape experiment error)", ptmp->unit->name, prop->unit->name, prop->name);
+				output_error("convert_from_double(buffer=%p,size=%d,data=%p,prop=<property:%s>): unable to convert unit '%s' to '%s' for property '%s'", 
+					buffer,size,data,prop?prop->name:"(none)",
+					ptmp->unit->name, prop->unit->name, prop->name);
 				return 0;
 			} 
-			else 
-			{
-				count = sprintf(temp, global_double_format, scale);
-			}
-		} 
-		else 
-		{
-			count = sprintf(temp, global_double_format, *(double *)data);
 		}
 	} 
-	else 
+
+	char temp[1025];
+	int count = sprintf(temp, global_double_format, *(double *)data);
+	if ( prop->unit )
 	{
-		count = sprintf(temp, global_double_format, *(double *)data);
+		count += sprintf(temp+count," %s",prop->unit->name);
 	}
 
-	if (count < size+1 ) 
+	if ( count <= size ) 
 	{
-		memcpy(buffer, temp, count);
-		buffer[count] = 0;
+		strcpy(buffer, temp);
 		return count;
 	} 
 	else 
 	{
+		output_error("convert_from_double(buffer=%p,size=%d,data=%p,prop=<property:%s>): buffer too small, need %d bytes to stored result '%s'", 
+			buffer,size,data,prop?prop->name:"(none)",count,temp);
 		return 0;
 	}
 }
@@ -130,21 +124,88 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 	}
 	char unit[256];
 	int n = sscanf(buffer,"%lg%s",(double*)data,unit);
-	if ( n>1 && prop->unit!=NULL ) /* unit given and unit allowed */
+	if ( n == 1 )
 	{
-		UNIT *from = unit_find(unit);
-		if ( from != prop->unit && unit_convert_ex(from,prop->unit,(double*)data)==0)
+		return n;
+	}
+	else if ( n == 2 )
+	{ 
+		if ( prop->unit == NULL ) 
 		{
-			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit conversion failed", buffer, sizeof(void*), data, prop->name);
+			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit given to unitless property", buffer, sizeof(void*), data, prop->name);
 			/* TROUBLESHOOT 
-			   This error is caused by an attempt to convert a value from a unit that is
-			   incompatible with the unit of the target property.  Check your units and
-			   try again.
+			   This error is caused by an attempt to convert a value with units to a 
+			   target property that has no units.  Check your units and try again.
 		     */
 			return 0;
 		}
+		else
+		{
+			UNIT *from = unit_find(unit);
+			if ( from != prop->unit && unit_convert_ex(from,prop->unit,(double*)data)==0)
+			{
+				output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): unit conversion failed", buffer, sizeof(void*), data, prop->name);
+				/* TROUBLESHOOT 
+				   This error is caused by an attempt to convert a value from a unit that is
+				   incompatible with the unit of the target property.  Check your units and
+				   try again.
+			     */
+				return 0;
+			}
+			else
+			{
+				return 2;
+			}
+		}
 	}
-	return n;
+	else if ( n == 0 ) // simple parsing failed, try transforms
+	{
+		TRANSFORMSOURCE xstype;
+		void *source;
+		double scale, bias;
+		OBJECT *from = object_find_by_addr(data, prop);
+		if ( my_instance->get_loader()->linear_transform(buffer,&xstype,&source,&scale,&bias,from) <= 0)
+		{
+			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): cannot parse transform", buffer, sizeof(void*), data, prop->name);
+			return 0;
+		}
+		else if ( ! transform_add_linear(xstype,(double*)source,data,scale,bias,from,prop,(xstype == XS_SCHEDULE ? (SCHEDULE*)source : 0)) )
+		{
+			output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): cannot parse transform", buffer, sizeof(void*), data, prop->name);
+			return 0;
+		}
+		else
+		{
+			return 1;
+		}
+	}
+	else
+	{
+		output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): internal error", buffer, sizeof(void*), data, prop->name);
+		return 0;
+	}
+}
+
+/** Convert to initial
+	Converts a double to an initialization string that can be read to convert_from_string
+ **/
+int initial_from_double(char *buffer,
+                       int size,
+                       void *data,
+                       PROPERTY *prop)
+{
+	OBJECT *obj = object_find_by_addr(data,prop);
+	TRANSFORM *xform = transform_find(obj,prop);
+	if ( xform != NULL )
+	{	
+		// found a transform for this property
+		return transform_to_string(buffer,size,xform);		
+	}
+	// TODO: check transforms, schedules, etc for this value as a target
+	else
+	{
+		return convert_from_double(buffer,size,data,prop);
+	}
 }
 
 /** Convert from a complex
@@ -162,7 +223,7 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 	complex *v = (complex*)data;
 
 	double scale = 1.0;
-	if ( prop->unit!=NULL )
+	if ( prop && prop->unit!=NULL )
 	{
 
 		/* only do conversion if the target unit differs from the class's unit for that property */
@@ -199,6 +260,12 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 	{
 		count = sprintf(temp,global_complex_format,v->Re()*scale,v->Im()*scale,v->Notation()?v->Notation():'i');
 	}
+
+	if ( prop->unit )
+	{
+		count += sprintf(temp+count," %s",prop->unit->name);
+	}
+
 	if ( count < size - 1 )
 	{
 		memcpy(buffer, temp, count);
@@ -1472,6 +1539,40 @@ int convert_from_method (	char *buffer, /**< a pointer to the string buffer */
 	}
 	int rc = (prop->method)(obj,buffer,size);
 	IN_MYCONTEXT output_debug("gldcore/convert_from_method(buffer='%s', size=%d, object='%s', prop='%s') -> %d", buffer, size, obj->name?obj->name:"(anon)", prop->name, rc);
+	return rc;
+}
+
+/** The method API must support four queries to module method handlers
+
+		method_call(obj,NULL,0) --> returns the size of buffer needed to hold result
+		method_call(obj,NULL,size) --> returns 1 if size is larger than buffer size needed
+		method_call(obj,buffer,0) --> returns 1 if the buffer can be read into the obj
+		method_call(obj,buffer,size) --> returns 1 if the buffer can be written by the obj
+		method_call(obj,MC_EXTRACT,...)
+ **/
+int initial_from_method (	char *buffer, /**< a pointer to the string buffer */
+							int size, /**< the size of the string buffer */
+							void *data, /**< a pointer to the data that is not changed */
+							PROPERTY *prop) /**< a pointer to keywords that are supported */
+{
+	if ( prop == NULL ) 
+	{
+		output_error("gldcore/initial_from_method(): prop is null"); 
+		return -1; 
+	}
+	OBJECT *obj = (OBJECT*)((char*)data-(int64)(prop->addr))-1;
+	if ( buffer == NULL ) 
+	{ 
+		// special request for size of result
+		return prop->method(obj,NULL,0); 
+	}
+	else if ( prop->method(obj,NULL,0) > size ) 
+	{ 
+		output_error("gldcore/initial_from_method(prop='%s'): result is too large to handle with a buffer of size %d", prop->name, size); 
+		return -1; 
+	}
+	int rc = (prop->method)(obj,buffer,size);
+	IN_MYCONTEXT output_debug("gldcore/initial_from_method(buffer='%s', size=%d, object='%s', prop='%s') -> %d", buffer, size, obj->name?obj->name:"(anon)", prop->name, rc);
 	return rc;
 }
 

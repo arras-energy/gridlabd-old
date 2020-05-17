@@ -19,30 +19,30 @@ double complex_get_part(void *x, const char *name);
 /* IMPORTANT: this list must match PROPERTYTYPE enum in property.h */
 PROPERTYSPEC property_type[_PT_LAST] = {
 	{"void", "string", NULL, 0, 0, convert_from_void,convert_to_void},
-	{"double", "decimal", "0.0", sizeof(double), 24, convert_from_double,convert_to_double,NULL,NULL,{TCOPS(double)},},
-	{"complex", "string", "0+0i", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,{TCOPS(double)},complex_get_part,complex_set_part},
-	{"enumeration", "string", "0", sizeof(enumeration), 1024, convert_from_enumeration,convert_to_enumeration,NULL,NULL,{TCOPS(uint64)},},
-	{"set", "string", "0", sizeof(set), 1024, convert_from_set,convert_to_set,NULL,NULL,{TCOPS(uint64)},},
-	{"int16", "integer", "0", sizeof(int16), 6, convert_from_int16,convert_to_int16,NULL,NULL,{TCOPS(uint16)},},
-	{"int32", "integer", "0", sizeof(int32), 12, convert_from_int32,convert_to_int32,NULL,NULL,{TCOPS(uint32)},},
-	{"int64", "integer", "0", sizeof(int64), 24, convert_from_int64,convert_to_int64,NULL,NULL,{TCOPS(uint64)},},
-	{"char8", "string", "", sizeof(char8), 8, convert_from_char8,convert_to_char8,NULL,NULL,{TCOPS(string)},},
-	{"char32", "string", "", sizeof(char32), 32, convert_from_char32,convert_to_char32,NULL,NULL,{TCOPS(string)},},
-	{"char256", "string", "", sizeof(char256), 256, convert_from_char256,convert_to_char256,NULL,NULL,{TCOPS(string)},},
-	{"char1024", "string", "", sizeof(char1024), 1024, convert_from_char1024,convert_to_char1024,NULL,NULL,{TCOPS(string)},},
-	{"object", "string", NULL, sizeof(OBJECT*), 64, convert_from_object,convert_to_object,NULL,NULL,{TCOPB(object)},object_get_part,object_set_part},
+	{"double", "decimal", "0.0", sizeof(double), 24, convert_from_double,convert_to_double,initial_from_double,NULL,NULL,convert_to_double,{TCOPS(double)},},
+	{"complex", "string", "0+0i", sizeof(complex), 48, convert_from_complex,convert_to_complex,NULL,NULL,NULL,convert_to_complex,{TCOPS(double)},complex_get_part,complex_set_part},
+	{"enumeration", "string", "0", sizeof(enumeration), 1024, convert_from_enumeration,convert_to_enumeration,NULL,NULL,NULL,convert_to_enumeration,{TCOPS(uint64)},},
+	{"set", "string", "0", sizeof(set), 1024, convert_from_set,convert_to_set,NULL,NULL,NULL,convert_to_set,{TCOPS(uint64)},},
+	{"int16", "integer", "0", sizeof(int16), 6, convert_from_int16,convert_to_int16,NULL,NULL,NULL,convert_to_int16,{TCOPS(uint16)},},
+	{"int32", "integer", "0", sizeof(int32), 12, convert_from_int32,convert_to_int32,NULL,NULL,NULL,convert_to_int32,{TCOPS(uint32)},},
+	{"int64", "integer", "0", sizeof(int64), 24, convert_from_int64,convert_to_int64,NULL,NULL,NULL,convert_to_int64,{TCOPS(uint64)},},
+	{"char8", "string", "", sizeof(char8), 8, convert_from_char8,convert_to_char8,NULL,NULL,NULL,convert_to_char8,{TCOPS(string)},},
+	{"char32", "string", "", sizeof(char32), 32, convert_from_char32,convert_to_char32,NULL,NULL,NULL,convert_to_char32,{TCOPS(string)},},
+	{"char256", "string", "", sizeof(char256), 256, convert_from_char256,convert_to_char256,NULL,NULL,NULL,convert_to_char256,{TCOPS(string)},},
+	{"char1024", "string", "", sizeof(char1024), 1024, convert_from_char1024,convert_to_char1024,NULL,NULL,NULL,convert_to_char1024,{TCOPS(string)},},
+	{"object", "string", NULL, sizeof(OBJECT*), 64, convert_from_object,convert_to_object,NULL,NULL,NULL,convert_to_object,{TCOPB(object)},object_get_part,object_set_part},
 	{"delegated", "string", NULL, 0, PSZ_DYNAMIC, convert_from_delegated, convert_to_delegated},
-	{"bool", "string", "FALSE", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,{TCOPB(bool)},},
-	{"timestamp", "string", "TS_ZERO", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,{TCOPS(uint64)},timestamp_get_part,timestamp_set_part},
-	{"double_array", "string", "", sizeof(double_array), 1024, convert_from_double_array, convert_to_double_array,double_array_create,NULL,{TCNONE},double_array_get_part,NULL},
-	{"complex_array", "string", "", sizeof(complex_array), 1024, convert_from_complex_array, convert_to_complex_array,complex_array_create,NULL,{TCNONE},complex_array_get_part,NULL},
+	{"bool", "string", "FALSE", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,NULL,convert_to_boolean,{TCOPB(bool)},},
+	{"timestamp", "string", "TS_ZERO", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,NULL,convert_to_timestamp_stub,{TCOPS(uint64)},timestamp_get_part,timestamp_set_part},
+	{"double_array", "string", "", sizeof(double_array), 1024, convert_from_double_array, convert_to_double_array,NULL,double_array_create,NULL,NULL,{TCNONE},double_array_get_part,NULL},
+	{"complex_array", "string", "", sizeof(complex_array), 1024, convert_from_complex_array, convert_to_complex_array,NULL,complex_array_create,NULL,NULL,{TCNONE},complex_array_get_part,NULL},
 	{"real", "decimal", "0.0", sizeof(real), 24, convert_from_real, convert_to_real},
 	{"float", "decimal", "0.0", sizeof(float), 24, convert_from_float, convert_to_float},
-	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, loadshape_create,NULL,{TCOPS(double)},},
-	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, enduse_create,NULL,{TCOPS(double)},enduse_get_part,enduse_set_part},
-	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, randomvar_create,NULL,{TCOPS(double)},random_get_part,random_set_part},
-	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method},
-	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, string_create,NULL,{TCOPS(string)},},
+	{"loadshape", "string", NULL, sizeof(loadshape), 1024, convert_from_loadshape, convert_to_loadshape, initial_from_loadshape,loadshape_create,NULL,convert_to_double,{TCOPS(double)},},
+	{"enduse", "string", NULL, sizeof(enduse), 1024, convert_from_enduse, convert_to_enduse, initial_from_enduse,enduse_create,NULL,convert_to_double,{TCOPS(double)},enduse_get_part,enduse_set_part},
+	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, initial_from_randomvar,randomvar_create,NULL,convert_to_double,{TCOPS(double)},random_get_part,random_set_part},
+	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method,initial_from_method},
+	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, NULL,string_create,NULL,convert_to_string,{TCOPS(string)},},
 };
 
 PROPERTYTYPE property_getfirst_type(void)
@@ -252,39 +252,35 @@ int property_create(PROPERTY *prop, void *addr)
 {
 	if (prop && prop->ptype>_PT_FIRST && prop->ptype<_PT_LAST)
 	{
-		if (property_type[prop->ptype].create)
+		if ( property_type[prop->ptype].create != NULL )
 		{
 			return property_type[prop->ptype].create(addr);
 		}
-		if ( (int)property_type[prop->ptype].size > 0 )
+		else if ( (int)property_type[prop->ptype].size > 0 )
 		{
-			if ( prop->default_value == NULL && property_type[prop->ptype].default_value != NULL )
+			const char *tmp = prop->default_value ? prop->default_value : property_type[prop->ptype].default_value;
+			if ( tmp != NULL )
 			{
-				char tmp[1024];
-				if ( prop->unit )
+				if ( property_read(prop,addr,tmp) == 0 )
 				{
-					sprintf(tmp,"%s %s", property_type[prop->ptype].default_value, prop->unit->name);
+					output_error("property '%s' default value '%s' is invalid", prop->name, tmp);
+					return 0;
 				}
 				else
 				{
-					strcpy(tmp,property_type[prop->ptype].default_value);
-				}
-				prop->default_value = strdup(tmp);
-			}
-			if ( prop->default_value != NULL )
-			{
-				if ( property_read(prop,addr,prop->default_value) == 0 )
-				{
-					output_error("property '%s' default value '%s' is invalid", prop->name, prop->default_value);
-					memset(addr,0,property_type[prop->ptype].size);
+					return 1;
 				}
 			}
 			else
 			{
 				memset(addr,0,property_type[prop->ptype].size);
+				return 1;
 			}
 		}
-		return 1;
+		else // zero-size object
+		{
+			return 1;
+		}
 	}
 	else
 	{
@@ -323,13 +319,17 @@ PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, const char *opstr)
 bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, const char *part)
 {
 	if ( part==NULL && property_type[ptype].compare[op].fn!=NULL )
+	{
 		return property_type[ptype].compare[op].fn(x,a,b);
+	}
 	else if ( property_type[ptype].get_part!=NULL && part != NULL )
 	{
 		double d = property_type[ptype].get_part ? property_type[ptype].get_part(x,part) : QNAN ;
 		if ( isfinite(d) )
+		{
 			// parts always double (for now)
 			return property_type[PT_double].compare[op].fn((void*)&d,a,b);
+		}
 		else
 		{
 			output_error("part %s is not defined for type %s", part, property_type[ptype].name);
@@ -340,6 +340,29 @@ bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, v
 	{
 		output_warning("property type '%s' does not support comparison operations or parts", property_type[ptype].name);
 		return 0;
+	}
+}
+
+bool property_compare_basic_str(PROPERTY *prop, PROPERTYCOMPAREOP op, void *x, const char *a, const char *b, const char *part)
+{
+	// convert a and b to their respective underlying property values
+	char *xa[property_type[prop->ptype].size];
+	char *xb[property_type[prop->ptype].size];
+	if ( property_type[prop->ptype].string_to_compare == NULL )
+		return false;
+	if ( property_type[prop->ptype].string_to_compare(a,(void*)xa,prop) < 0 )
+	{
+		output_warning("property type '%s' cannot compare to value '%s'", property_type[prop->ptype].name,a);
+		return false;
+	}
+	else if ( b != NULL && property_type[prop->ptype].string_to_compare(b,(void*)xb,prop) < 0 )
+	{
+		output_warning("property type '%s' cannot compare to value '%s'", property_type[prop->ptype].name,b);
+		return false;
+	}
+	else
+	{
+		return property_compare_basic(prop->ptype,op,x,(void*)xa,(void*)xb,part);
 	}
 }
 

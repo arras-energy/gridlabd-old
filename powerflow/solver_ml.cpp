@@ -435,7 +435,8 @@ bool solver_model_islast(SOLVERMODEL *model)
 void solver_dump(unsigned int &bus_count,
 				 BUSDATA *&bus,
 				 unsigned int &branch_count,
-				 BRANCHDATA *&branch)
+				 BRANCHDATA *&branch,
+				 bool allow_generic_dumpfile)
 {
 	FILE *fh;
 	const char *bustype[] = {"PQ","PV","SWING","SWING_PG"};
@@ -456,6 +457,9 @@ void solver_dump(unsigned int &bus_count,
 	//
 	// Bus dump
 	//
+	if ( model_busdump == NULL && allow_generic_dumpfile )
+		model_busdump = "busdump.csv";
+	gl_verbose("dumping bus data to '%s'",model_busdump);
 	fh = fopen(model_busdump,"w");
 	if ( fh == NULL )
 	{
@@ -535,6 +539,9 @@ void solver_dump(unsigned int &bus_count,
 	//
 	// Branch dump
 	//
+	if ( model_branchdump == NULL && allow_generic_dumpfile )
+		model_branchdump = "branchdump.csv";
+	gl_verbose("dumping branch data to '%s'",model_branchdump);
 	fh = fopen(model_branchdump,"w");
 	if ( fh == NULL )
 	{
@@ -574,7 +581,7 @@ void solver_dump(unsigned int &bus_count,
 	{
 		if ( strncmp(model_dump_handler,"python:",7) == 0 )
 		{
-			if ( ! python_call(pModule,model_dump_handler+7) )
+			if ( ! python_call(pModule,model_dump_handler+7,NULL) )
 			{
 				solver_model_log(1,"model_dump_handler failed, rc = FALSE");
 			}

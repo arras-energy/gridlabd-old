@@ -171,6 +171,7 @@ typedef struct s_callbacks {
 		PROPERTYCOMPAREOP (*get_compare_op)(PROPERTYTYPE ptype, const char *opstr);
 		double (*get_part)(OBJECT*,PROPERTY*,const char*);
 		PROPERTYSPEC *(*get_spec)(PROPERTYTYPE);
+		bool (*compare_basic_str)(PROPERTY*,PROPERTYCOMPAREOP,void*,const char*,const char*,const char*);
 	} properties;
 	struct {
 		struct s_findlist *(*objects)(struct s_findlist *,...);
@@ -356,7 +357,7 @@ typedef struct s_callbacks {
 	int (*call_external_callback)(const char*, void *);
 	struct {
 		PyObject *(*import)(const char *module, const char *path);
-		bool (*call)(PyObject *pModule, const char *method);
+		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs);
 	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
@@ -424,6 +425,7 @@ const char *object_get_string(OBJECT *pObj, PROPERTY *prop);
 const char *object_get_string_by_name(OBJECT *obj, const char *name);
 FUNCTIONADDR object_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
 const char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz);
+const char *object_property_to_string_x(OBJECT *obj, PROPERTY *prop, char *buffer, int sz);
 const char *object_get_unit(OBJECT *obj, const char *name);
 OBJECTRANK object_set_rank(OBJECT *obj, OBJECTRANK rank);
 
@@ -481,12 +483,14 @@ typedef struct s_jsondata {
 } JSONDATA;
 bool object_set_json(OBJECT *obj, const char *propname, JSONDATA *data);
 
-OBJECT *object_find_by_addr(void *addr);
+OBJECT *object_find_by_addr(void *addr, PROPERTY *prop=NULL);
 PROPERTY *object_get_first_property(OBJECT *obj, bool full=true);
 PROPERTY *object_get_next_property(PROPERTY *prop, bool full=true);
 PROPERTY *object_get_property_by_addr(OBJECT *obj, void *addr, bool full=true);
 void object_destroy(OBJECT *obj);
 void object_destroy_all(void);
+
+const char *object_property_to_initial(OBJECT *obj, const char *name, char *buffer, int sz);
 
 #ifdef __cplusplus
 }

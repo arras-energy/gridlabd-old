@@ -27,10 +27,10 @@
 const char *version_copyright(void)
 {
 	static char buffer[1024];
-	sprintf(buffer,"Copyright (C) 2016-%d, Regents of the Leland Stanford Junior University\nCopyright (C) 2004-%d, Battelle Memorial Institute\nAll Rights Reserved"
+	sprintf(buffer,"Copyright (C) 2016-%d, Regents of the Leland Stanford Junior University\nCopyright (C) 2004-%d, Battelle Memorial Institute\nAll Rights Reserved\n"
+		"\n"
 		"This program comes with ABSOLUTELY NO WARRANTY; for details type `gridlabd --license'.\n"
-    	"This is free software, and you are welcome to redistribute it\n"
-    	"under certain conditions; type `show c' for details.\n"
+    	"This is free software, and you are welcome to redistribute it under certain conditions.\n"
 		, REV_YEAR, REV_YEAR);
 	return buffer;
 }

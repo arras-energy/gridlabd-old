@@ -1,4 +1,4 @@
-FROM centos:8
+FROM slacgismo/gridlabd_dockerhub_base:latest
 
 ENV container docker
 ENV REPO=https://github.com/slacgismo/gridlabd
@@ -7,7 +7,7 @@ RUN echo "Building $BRANCH"
 ENV ENABLE=gismo
 ENV GET_WEATHER=no
 ENV REMOVE_SOURCE=yes
-ENV ENABLE_GDB=no
+ARG RUN_VALIDATION
 ENV LD_LIBRARY_PATH /usr/local/lib
 
 

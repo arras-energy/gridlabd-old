@@ -184,8 +184,14 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 			{
 				printf("%s\t%s %s;", tabs, propname, prop->name);
 			}
-			if (prop->description!=NULL)
-				printf(" // %s%s",prop->flags&PF_DEPRECATED?"(DEPRECATED) ":"",prop->description);
+			char flags[1024] = "";
+			if ( prop->flags&PF_DEPRECATED ) strcat(flags,flags[0]?",":"("),strcat(flags,"DEPRECATED");
+			if ( prop->flags&PF_REQUIRED ) strcat(flags,flags[0]?",":"("),strcat(flags,"REQUIRED");
+			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?",":"("),strcat(flags,"OUTPUT");
+			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?",":"("),strcat(flags,"DYNAMIC");
+			if ( flags[0] ) strcat(flags,") ");
+			if ( flags[0] != '\0' || prop->description != NULL )
+			printf(" // %s%s",flags,prop->description?prop->description:"");
 			printf("\n");
 		}
 	}
@@ -258,7 +264,7 @@ STATUS GldCmdarg::no_cmdargs(void)
 		sprintf(cmd,"%s '%s' & ps -p $! >/dev/null", global_browser, htmlfile);
 #endif
 		IN_MYCONTEXT output_verbose("Starting browser using command [%s]", cmd);
-		if (system(cmd)!=0)
+		if (my_instance->subcommand("%s",cmd)!=0)
 		{
 			output_error("unable to start browser");
 			return FAILED;
@@ -519,8 +525,6 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
-	char branch[1024] = BRANCH, *c;
-	for ( c = branch ; c != NULL ; c = strchr(branch,'-') ) if (*c=='-') *c = '_';
 	const char *opt = strchr(argv[0],'=');
 	if ( opt++ == NULL )
 	{
@@ -539,7 +543,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 #else // LINUX
 			"Linux"
 #endif
-			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH);
+			, PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BUILD_BRANCH);
 		return 0;
 	}
 	else if ( strcmp(opt,"number" ) == 0 || strcmp(opt,"version") == 0 )
@@ -609,7 +613,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 	else if ( strcmp(opt,"name") == 0 )
 	{
 		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
-		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, branch);
+		output_message("%s-%s-%d-%s", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		return 0;
 	}
 	else if ( strcmp(opt,"json") == 0 )
@@ -644,6 +648,15 @@ int GldCmdarg::version(int argc, const char *argv[])
 		OUTPUT_MULTILINE("copyright",version_copyright());
 		OUTPUT_MULTILINE("license",legal_license_text());
 		OUTPUT("system","%s",BUILD_SYSTEM);
+		char tmp[1024];
+		strcpy(tmp,global_execdir);
+		char *p = strrchr(tmp,'/');
+		if ( p != NULL && strcmp(p,"/bin") == 0 )
+		{
+			*p = '\0';
+		}
+		OUTPUT("install","%s",tmp);
+		output_message("\t\"name\" : \"%s-%s-%d-%s\",", PACKAGE, PACKAGE_VERSION, BUILDNUM, BRANCH);
 		OUTPUT("release","%s",BUILD_RELEASE);
 		OUTPUT("commit","%s",BUILD_ID);
 		OUTPUT("email","%s",PACKAGE_BUGREPORT);
@@ -1546,7 +1559,7 @@ int GldCmdarg::info(int argc, const char *argv[])
 		sprintf(cmd,"%s \"%s%s\" & ps -p $! >/dev/null", global_browser, global_infourl, argv[1]);
 #endif
 		IN_MYCONTEXT output_verbose("Starting browser using command [%s]", cmd);
-		if (system(cmd)!=0)
+		if (my_instance->subcommand(cmd)!=0)
 		{
 			output_error("unable to start browser");
 			return CMDERR;
@@ -1674,9 +1687,55 @@ int GldCmdarg::example(int argc, const char *argv[])
 		return CMDERR;
 	}
 	output_raw("class %s {\n",oclass->name);
+	bool first = true;
 	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
 	{
-		output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		if ( (prop->flags&PF_REQUIRED) && ! (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// required input properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+	}
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+	{
+		if ( ! (prop->flags&PF_REQUIRED) && ! (prop->flags&PF_OUTPUT) && ! (prop->flags&PF_DYNAMIC) && ! (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// optional input properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+	}
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+	{
+		if ( ! (prop->flags&PF_DYNAMIC) && (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// dynamic properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+	}
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+	{
+		if ( (prop->flags&PF_OUTPUT) && ! (prop->flags&PF_DEPRECATED) )
+		{
+			if ( first ) output_raw("\t// output properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
+	}
+	first = true;
+	for ( prop = class_get_first_property_inherit(oclass) ; prop != NULL ; prop = class_get_next_property_inherit(prop) )
+	{
+		if ( prop->flags&PF_DEPRECATED )
+		{
+			if ( first ) output_raw("\t// deprecated properties\n");
+			first = false;
+			output_raw("\t%s \"%s\";\n", prop->name, prop->default_value ? prop->default_value : "");
+		}
 	}
 	output_raw("}\n");
 	return CMDOK;
@@ -1848,7 +1907,7 @@ DEPRECATED static int printenv(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::printenv(int argc, const char *argv[])
 {
-	return system("printenv") == 0 ? 0 : CMDERR;
+	return my_instance->subcommand("printenv") == 0 ? 0 : CMDERR;
 }
 
 DEPRECATED static int formats(void *main, int argc, const char *argv[])

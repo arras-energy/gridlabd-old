@@ -1,0 +1,7 @@
+#define TEST_1=yes
+#if TEST_1==yes 
+#debug "Test succeeded"
+#else 
+#error "Literal if test failed"
+#endif
+

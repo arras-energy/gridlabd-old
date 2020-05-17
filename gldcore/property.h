@@ -1100,6 +1100,9 @@ enum e_propertytype {_PT_FIRST=-1,
 	PT_HAS_NOTIFY,
 	PT_HAS_NOTIFY_OVERRIDE,
 	PT_DEFAULT,
+	PT_REQUIRED,
+	PT_OUTPUT,
+	PT_DYNAMIC,
 };
 
 // Define: MAXGLMSIZE
@@ -1267,15 +1270,33 @@ typedef uint32 PROPERTYFLAGS;
  */
 #define PF_EXTENDED 0x0004 
 
-/*	Define: PF_DEPRECATED
-	The property is deprecated (warning will be displayed anytime it is used
+/*	Define: PF_REQUIRED
+	Indicates that the property must be set after creation
+	for initialization to complete correctly
  */
-#define PF_DEPRECATED 0x8000 
+#define PF_REQUIRED 0x0008
+
+/*	Define: PF_OUTPUT
+	Indicates that the property is updating internally and cannot
+	be modified by external sources
+ */
+#define PF_OUTPUT	0x0010
+
+/*	Define: PF_DYNAMIC
+	Indicates that the property can changes in response to changes
+	in other properties
+ */
+#define PF_DYNAMIC	0x0020
 
 /*	Define: PF_DEPRECATED_NONOTICE
 	The property is deprecated but no reference warning is desired
  */
-#define PF_DEPRECATED_NONOTICE 0x04000 
+#define PF_DEPRECATED_NONOTICE 0x4000 
+
+/*	Define: PF_DEPRECATED
+	The property is deprecated (warning will be displayed anytime it is used
+ */
+#define PF_DEPRECATED 0x8000 
 
 /*	Structure: s_property_map
 
@@ -1413,8 +1434,10 @@ struct s_property_specs
 	int csize; 
 	int (*data_to_string)(char *,int,void*,PROPERTY*); 
 	int (*string_to_data)(const char *,void*,PROPERTY*); 
-	int (*create)(void*); 
-	size_t (*stream)(FILE*,int,void*,PROPERTY*); 
+	int (*to_initial)(char *,int,void*,PROPERTY*); 
+	int (*create)(void*);
+	size_t (*stream)(FILE*,int,void*,PROPERTY*);
+	int (*string_to_compare)(const char*,void*,PROPERTY*);
 	struct {
 		PROPERTYCOMPAREOP op;
 		char str[16];
@@ -1579,11 +1602,19 @@ DEPRECATED int property_create(PROPERTY *, void *);
 */
 DEPRECATED bool property_compare_basic(PROPERTYTYPE ptype, PROPERTYCOMPAREOP op, void *x, void *a, void *b, const char *part);
 
+/* 	Function: property_compare_basic_str
+
+	Returns: 
+	bool - result of comparison
+*/
+DEPRECATED bool property_compare_basic_str(PROPERTY *prop, PROPERTYCOMPAREOP op, void *x, const char *a, const char *b, const char *part);
+
 /* 	Function: property_compare_op
 
 	Returns: 
 	PROPERTYCOMPAREOP - comparison operator function call
 */
+
 DEPRECATED PROPERTYCOMPAREOP property_compare_op(PROPERTYTYPE ptype, const char *opstr);
 
 /* 	Function: property_get_type

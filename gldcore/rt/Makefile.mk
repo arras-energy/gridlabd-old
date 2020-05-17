@@ -40,3 +40,4 @@ dist_pkgdata_DATA += gldcore/rt/triplex_meter_b.png
 dist_pkgdata_DATA += gldcore/rt/triplex_meter_g.png
 dist_pkgdata_DATA += gldcore/rt/triplex_meter_k.png
 dist_pkgdata_DATA += gldcore/rt/triplex_meter_r.png
+dist_pkgdata_DATA += gldcore/rt/feeder.py
