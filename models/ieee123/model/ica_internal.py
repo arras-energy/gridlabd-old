@@ -21,46 +21,60 @@ ON_INIT
 2) Creates a general dictionary of properties to check for each class and their thresholds.
 3) Populates a global master dictionary with each object, properties to check, and their thresholds.
 '''
-#import pandas as pd
+import pandas as pd
 
 def on_init(t):
-    print("INITIALIZING!")
-#    #If Option 1, global thresholds will have already been set through csv converter
-#    
-#    #If Option 2, read config file directly into this .py script. Create a global for each entry.
-#    if gridlabd.get_global('ica_option') == 2:
-#        config_globals = pd.read_csv("ica_config.csv")
-#        for index in range(len(config_globals)):
-#            gridlabd.set_global("ica_" + config_globals['Name'].iloc[index],config_globals['Value'].iloc[index])
-#    
-#    #Check whether any ICA-specific globals are percentages instead of fixed values 
-#    global_list = gridlabd.get("globals")
-#    library_list = []    
-#    
-#    #Key = object, Value = dictionary where key = property, value = type
-#    mapping_dict = {'underground_line':{'configuration':1,'rating_summer_continuous':'rating','rating_winter_continuous':'rating'},'overhead_line':{'configuration':1,'rating_summer_continuous':'rating','rating_winter_continuous':'rating'}}
-#    for g in global_list:
-#        if "ica" in g:
-#            val = gridlabd.get_global(g)
-#            #TODO: Check that value makes sense
-#            if "%" in val:
-#                percent = gridlabd.get_global(g).strip('%')/100
-#                global_string = g.split('.')
-#                obj = global_string[0].replace('ica','')
-#                prop = global_string[1]
-#                obj_dict = mapping_dict.get(obj)
-#                if obj_dict.get('configuration') == 0:
-#                    if obj_dict.get(prop) == 'rating':
-#                        pass
-#                    else:
-#                        pass
-#                if obj_dict.get('configuration') == 1:
-#                    if obj_dict.get(prop) == 'rating':
-#                        pass
-#                    else:
-#                        pass
-#                    
-#
+    #If Option 1, global thresholds will have already been set through csv converter
+    #TODO: Add 'ica_' tag to all globals
+    
+    #If Option 2, read config file directly into this .py script. Create a global for each entry.
+    if gridlabd.get_global('ica_option') == 2:
+        config_globals = pd.read_csv("ica_config.csv")
+        for index in range(len(config_globals)):
+            gridlabd.set_global("ica_" + config_globals.iloc[0,index],config_globals.iloc[1,index])
+    
+    #Create a dict of objs where user may have set threshold as a %
+    #RATING: set the threshold as a % of the max rating. DEVIATION: set the threshold as a +-% from the nominal rating.
+    #Note: If an obj is NOT in this dict, that means the user should NOT have input a % as a threshold. 
+    percent_map_dict = {'ica_underground_line':{'configuration':1,'rating_summer_continuous':'rating','rating_winter_continuous':'rating'},\
+                    'ica_overhead_line':{'configuration':1,'rating_summer_continuous':'rating','rating_winter_continuous':'rating'},\
+                    'ica_transformer':{'configuration':1,'power_rating':'rating','powerA_rating':'rating','powerB_rating':'rating','powerC_rating':'rating','primary_voltage':'deviation','secondary_voltage':'deviation'},\
+                    'ica_substation':{'configuration':0,'nominal_voltage':'deviation'},\
+                    'ica_triplex_meter':{'configuration':0,'nominal_voltage':'deviation'},\
+                    'ica_meter':{'configuration':0,'nominal_voltage':'deviation'}}
+    
+    global_list = gridlabd.get("globals")
+    
+    
+    for g in global_list:
+        if 'ica_' in g:
+            val = gridlabd.get_global(g)
+            #TODO: Check that value makes sense
+            if '%' in val:
+                global_string = g.split('.')
+                obj = global_string[0]
+                prop = global_string[1]
+
+                if obj in percent_map_dict.keys():
+                    percent = gridlabd.get_global(g).strip('%')/100    
+                    obj_dict = percent_map_dict.get(obj)
+                    #TODO: Make sure obj names all either do or do not have ica_
+                    if obj_dict.get('configuration') == 0:
+                        lib_prop = gridlabd.get_value(obj,prop)
+                    else:
+                        config = gridlabd.get_value(obj,'configuration')
+                        lib_prop = gridlabd.get_value(config,prop)
+
+                    if obj_dict.get(prop) == 'rating':
+                        gridlabd.set_global(obj,lib_prop*percent)
+                    else:
+                        gridlabd.set_global(obj+'max',lib_prop*(1.0+percent))
+                        gridlabd.set_global(obj+'min',lib_prop*(1.0-percent))
+                            
+                else:
+                    print('%s should not have a percentage as a threshold.' % obj)
+                        
+
 #    
 #    #If the user set any thresholds as percentages, use object libraries to properly define thresholds
 #    if len(library_list) > 0:
@@ -88,25 +102,25 @@ def on_init(t):
 #                #Set max voltage
 #                #Set min voltage
 #                pass
-#            
-#            
-#            
-#            
-#                
-#    
-#    #create a dictionary of properties to check for each class & their thresholds
-#    #example below for a single class:
-#    gen_dict = {'substation':{'current_A':swing_I_thresh,'current_B':swing_I_thresh,'current_C':swing_I_thresh}}
-#
-#    #create master dict
-#    #key = obj; val = dict {property1:thresh1,property2:thresh2}
-#    objects = gridlabd.get("objects")
-#    for obj in objects:
-#        #only get the classes of interest
-#        obj_class = gridlabd.get_object(obj)['class']
-#        if obj_class in gen_dict.keys():
-#            #append to master dict
-#            obj_dict.update({obj:gen_dict.get(obj_class)})
+            
+            
+            
+            
+                
+    
+    #create a dictionary of properties to check for each class & their thresholds
+    #example below for a single class:
+    gen_dict = {'substation':{'current_A':swing_I_thresh,'current_B':swing_I_thresh,'current_C':swing_I_thresh}}
+
+    #create master dict
+    #key = obj; val = dict {property1:thresh1,property2:thresh2}
+    objects = gridlabd.get("objects")
+    for obj in objects:
+        #only get the classes of interest
+        obj_class = gridlabd.get_object(obj)['class']
+        if obj_class in gen_dict.keys():
+            #append to master dict
+            obj_dict.update({obj:gen_dict.get(obj_class)})
 
     return True
     

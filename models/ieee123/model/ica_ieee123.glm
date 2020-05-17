@@ -17,9 +17,9 @@
 #set CONFIGFILE=config/local.glm
 #endif
 
-#ifexist config/ica_config.csv
-#import "config/ica_config.csv"
-#endif
+//#ifexist config/ica_config.csv
+//#import "config/ica_config.csv"
+//#endif
 
 //
 // Check the configuration
