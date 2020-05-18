@@ -99,14 +99,23 @@ public:
 		}
 		else
 		{
-			static size_t len = 0;
+			static int len = 0;
 			char blank[1024] = "";
 			if ( len > 0 )
 			{
+				if ( len >= sizeof(blank) )
+				{
+					len = sizeof(blank)-1;
+				}
 				memset(blank,' ',len);
 				blank[len]='\0';
 			}
-			len = output_raw("%s\rProcessing %s...\r",blank,ptr)-len; 
+			output_raw("%s\r",blank);
+			len = output_raw("Processing %s...\r",ptr)-1; 
+			if ( len < 0 )
+			{
+				len = 0;
+			}	
 		}
 		wlock(); 
 		n_files++;
