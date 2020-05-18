@@ -100,9 +100,12 @@ public:
 		else
 		{
 			static size_t len = 0;
-			char blank[1024];
-			memset(blank,32,len);
-			blank[len]='\0';
+			char blank[1024] = "";
+			if ( len > 0 )
+			{
+				memset(blank,' ',len);
+				blank[len]='\0';
+			}
 			len = output_raw("%s\rProcessing %s...\r",blank,ptr)-len; 
 		}
 		wlock(); 
