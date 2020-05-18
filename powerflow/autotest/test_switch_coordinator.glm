@@ -1,4 +1,4 @@
-// gismo/test_switch_coordinator.glm
+// powerflow/test_switch_coordinator.glm
 // Copyright (C) 2016, Stanford University
 // Author: DP Chassin (dchassin@slac.stanford.edu)
 
@@ -51,7 +51,6 @@ object switch:..4 {
 	};
 }
 
-module gismo;
 object switch_coordinator {
 	name controller_1;
 	connect switch_1;

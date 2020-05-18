@@ -7936,7 +7936,7 @@ STATUS GldLoader::loadall(const char *fname)
 
 		// python script
 
-		if ( ext != NULL && strcmp(ext,".py") == 0 )
+		if ( ext != NULL && ( strcmp(ext,".py") == 0 || strncmp(ext,".py ",4) == 0 || strncmp(ext,".py\t",4) == 0 ) )
 		{
 			return load_python(fname);
 		}

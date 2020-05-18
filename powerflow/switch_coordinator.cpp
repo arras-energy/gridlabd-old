@@ -27,7 +27,7 @@
 // ** switch
 //
 
-#include "gismo.h"
+#include "powerflow.h"
 
 EXPORT_CREATE(switch_coordinator);
 EXPORT_INIT(switch_coordinator);
