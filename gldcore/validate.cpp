@@ -99,23 +99,26 @@ public:
 		}
 		else
 		{
+			static LOCKVAR lock = 0;
 			static int len = 0;
-			char blank[1024] = "";
+			::wlock(&lock);
 			if ( len > 0 )
 			{
-				if ( len >= sizeof(blank) )
+				char blank[1024] = "";
+				if ( len >= (int)sizeof(blank) )
 				{
 					len = sizeof(blank)-1;
 				}
 				memset(blank,' ',len);
 				blank[len]='\0';
+				output_raw("%s\r",blank);
 			}
-			output_raw("%s\r",blank);
 			len = output_raw("Processing %s...\r",ptr)-1; 
 			if ( len < 0 )
 			{
 				len = 0;
-			}	
+			}
+			::wunlock(&lock);
 		}
 		wlock(); 
 		n_files++;
