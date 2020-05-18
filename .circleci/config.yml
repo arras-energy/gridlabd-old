@@ -36,7 +36,7 @@ jobs:
           command: |
             sudo /usr/bin/influxd run 1>/tmp/influxd.out 2>/tmp/influxd.err &
             sleep 5
-            sudo gridlabd -T 0 --validate
+            sudo gridlabd -D keep_progress=TRUE -T 0 --validate
       - run:
            name: Save validation failure data
            command: |
