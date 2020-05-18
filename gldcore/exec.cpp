@@ -510,7 +510,7 @@ int GldExec::init()
 	}
 
 	/* check the stop time */
-	if ( global_stoptime < TS_NEVER && global_stoptime < global_starttime )
+	if ( global_stoptime < global_starttime )
 	{
 		output_error("stop time is before start time");
 		return 0;
