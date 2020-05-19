@@ -8,6 +8,21 @@
 
 #include "solver_nr.h"
 
+//	Typedef: SOLVERPYTHON
+//	Solution data type
+typedef struct s_solver_python SOLVERPYTHON;
+
+//	Enum: e_solverpythonstatus
+//	SPS_INIT - initializing
+//	SPS_READY - ready
+//	SPS_DISABLED - disabled
+//	SPS_FAILED - failed
+enum e_solverpythonstatus {SPS_INIT, SPS_READY, SPS_DISABLED, SPS_FAILED};
+
+//	Typedef: SOLVERPYTHONSTATUS
+//	Solver python status
+typedef enum e_solverpythonstatus SOLVERPYTHONSTATUS;
+
 //	Function: solver_model_init
 //	Initialize the python solver system
 //

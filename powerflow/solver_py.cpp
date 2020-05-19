@@ -11,10 +11,82 @@
 
 #include "solver_py.h"
 
+#define CONFIGLOG "solver_py.log"
+#define CONFIGNAME "solver_py.conf"
+#define CONFIGPATH "/usr/local/share/gridlabd/"
+
+static char1024 solver_py_config = CONFIGPATH CONFIGNAME;
+static const char *solver_python_logfile = CONFIGLOG;
+static int solver_python_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
 static const char *model_busdump = NULL;
 static const char *model_branchdump = NULL;
 static const char *model_dump_handler = NULL;
+static const char *module_import_path = NULL; // path to use when importing modules
+static const char *module_import_name = NULL; // module name to import (python only)
 static PyObject *pModule = NULL;
+
+SOLVERPYTHONSTATUS solver_python_config(
+	const char *localconfig = NULL, 
+	const char *shareconfig = CONFIGPATH CONFIGNAME)
+{
+	SOLVERPYTHONSTATUS status = SPS_INIT;
+	const char *configname = localconfig ? localconfig : (const char*)solver_py_config;
+	FILE *fp = fopen(configname,"r");
+	if ( fp == NULL )
+	{
+		configname = shareconfig;
+		fp = fopen(configname,"r");
+	}
+	if ( fp != NULL )
+	{
+		char line[1024];
+		while ( fgets(line,sizeof(line),fp) != NULL )
+		{
+			char tag[1024],value[1024];
+			if ( sscanf(line,"%s%s",tag,value) == 2 )
+			{
+				if ( tag[0] == '#' )
+				{
+					continue;
+				}
+				else if ( strcmp(tag,"logfile") == 0 )
+				{
+					solver_python_logfile = strdup(value);
+				}
+				else if ( strcmp(tag,"loglevel") == 0 )
+				{
+					solver_python_loglevel = atoi(value);
+				}
+				else if ( strcmp(tag,"busdump") == 0 )
+				{
+					model_busdump = strdup(value);
+				}
+				else if ( strcmp(tag,"branchdump") == 0 )
+				{
+					model_branchdump = strdup(value);
+				}
+				else if ( strcmp(tag,"on_dump") == 0 )
+				{
+					model_dump_handler = strdup(value);
+				}
+				else if ( strcmp(tag,"import") == 0 )
+				{
+					module_import_name = strdup(value);
+				}
+				else if ( strcmp(tag,"import_path") == 0 )
+				{
+					module_import_path = strdup(value);
+				}
+				else
+				{
+					fprintf(stderr,"solver_python_config(configname='%s'): tag '%s' is not valid\n",configname,tag);
+				}
+			}
+		}
+		fclose(fp);
+	}
+	return status;
+}
 
 int solver_python_init(void)
 {
