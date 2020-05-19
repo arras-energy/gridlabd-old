@@ -2,8 +2,6 @@
     Enable modeling of solution to improve performance
  **/
 
-#if defined(SOLVER_PY)
-
 #include "gridlabd.h"
 
 #include <stdlib.h>
@@ -11,25 +9,37 @@
 
 #include "solver_py.h"
 
-#define CONFIGLOG "solver_py.log"
 #define CONFIGNAME "solver_py.conf"
 #define CONFIGPATH "/usr/local/share/gridlabd/"
 
-static char1024 solver_py_config = CONFIGPATH CONFIGNAME;
-static const char *solver_python_logfile = CONFIGLOG;
-static int solver_python_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
+static SOLVERPYTHONSTATUS solver_py_status = SPS_INIT;
+char1024 solver_py_config = CONFIGPATH CONFIGNAME;
 static const char *model_busdump = NULL;
 static const char *model_branchdump = NULL;
 static const char *model_dump_handler = NULL;
 static const char *module_import_path = NULL; // path to use when importing modules
 static const char *module_import_name = NULL; // module name to import (python only)
 static PyObject *pModule = NULL;
+static int solver_python_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
+static FILE *solver_python_logfh = NULL;
 
-SOLVERPYTHONSTATUS solver_python_config(
+void solver_python_log(int level, const char *format, ...)
+{
+	if ( (int)level <= solver_python_loglevel && solver_python_logfh != NULL )
+	{
+		va_list ptr;
+		va_start(ptr,format);
+		vfprintf(solver_python_logfh,format,ptr);
+		fprintf(solver_python_logfh,"\n");
+		fflush(solver_python_logfh);
+		va_end(ptr);
+	}
+}
+
+SOLVERPYTHONSTATUS solver_python_config (
 	const char *localconfig = NULL, 
 	const char *shareconfig = CONFIGPATH CONFIGNAME)
 {
-	SOLVERPYTHONSTATUS status = SPS_INIT;
 	const char *configname = localconfig ? localconfig : (const char*)solver_py_config;
 	FILE *fp = fopen(configname,"r");
 	if ( fp == NULL )
@@ -39,6 +49,7 @@ SOLVERPYTHONSTATUS solver_python_config(
 	}
 	if ( fp != NULL )
 	{
+		SOLVERPYTHONSTATUS status = SPS_READY;
 		char line[1024];
 		while ( fgets(line,sizeof(line),fp) != NULL )
 		{
@@ -51,31 +62,63 @@ SOLVERPYTHONSTATUS solver_python_config(
 				}
 				else if ( strcmp(tag,"logfile") == 0 )
 				{
-					solver_python_logfile = strdup(value);
+					solver_python_logfh = fopen(value,"w");
+					if ( solver_python_logfh )
+					{
+						solver_python_log(0,"solver_python_config(configname='%s'): solver log '%s' opened ok",configname,value);
+					}
+					else
+					{
+						fprintf(stderr,"solver_python_config(configname='%s'): solver log '%s' opened failed (errno=%d, strerror='%s')\n",configname,value,errno,strerror(errno));
+					}
 				}
 				else if ( strcmp(tag,"loglevel") == 0 )
 				{
 					solver_python_loglevel = atoi(value);
+					solver_python_log(0,"solver_python_config(configname='%s'): solver_python_loglevel = %d",configname,solver_python_loglevel);
 				}
 				else if ( strcmp(tag,"busdump") == 0 )
 				{
 					model_busdump = strdup(value);
+					solver_python_log(0,"solver_python_config(configname='%s'): model_busdump = '%s'",configname,model_busdump);
 				}
 				else if ( strcmp(tag,"branchdump") == 0 )
 				{
 					model_branchdump = strdup(value);
+					solver_python_log(0,"solver_python_config(configname='%s'): model_branchdump = '%s'",configname,model_branchdump);
 				}
 				else if ( strcmp(tag,"on_dump") == 0 )
 				{
 					model_dump_handler = strdup(value);
+					solver_python_log(0,"solver_python_config(configname='%s'): model_dump_handler = '%s'",configname,model_dump_handler);
 				}
 				else if ( strcmp(tag,"import") == 0 )
 				{
 					module_import_name = strdup(value);
+					solver_python_log(0,"solver_python_config(configname='%s'): module_import_name = '%s'",configname,module_import_name);
 				}
 				else if ( strcmp(tag,"import_path") == 0 )
 				{
 					module_import_path = strdup(value);
+					solver_python_log(0,"solver_python_config(configname='%s'): module_import_path = '%s'",configname,module_import_path);
+				}
+				else if ( strcmp(tag,"solver") == 0 )
+				{
+					if ( strcmp(value,"enable") == 0 )
+					{
+						status = SPS_READY;
+						solver_python_log(0,"solver_python_config(configname='%s'): solver enabled",configname);
+					}
+					else if ( strcmp(value,"disable") == 0 )
+					{
+						status = SPS_DISABLED;
+						solver_python_log(0,"solver_python_config(configname='%s'): solver disabled",configname);
+					}
+					else
+					{
+						fprintf(stderr,"solver_python_config(configname='%s'): tag '%s' value '%s' is invalid\n",configname,tag,value);
+						status = SPS_FAILED;
+					}
 				}
 				else
 				{
@@ -84,21 +127,58 @@ SOLVERPYTHONSTATUS solver_python_config(
 			}
 		}
 		fclose(fp);
+		fflush(stderr);
+		return status;
 	}
-	return status;
+	else
+	{
+		return SPS_FAILED;
+	}
 }
 
 int solver_python_init(void)
 {
-	return 0;
+	errno = 0;
+	if ( solver_py_status == SPS_INIT )
+	{
+		solver_py_status = solver_python_config();
+		const char *status_text[] = {"INIT","READY","FAILED","DISABLED","UNKNOWN"};
+		if ( (int)solver_py_status >= 0 && (int)solver_py_status < (int)(sizeof(status_text)/sizeof(status_text[0])) )
+		{
+			solver_python_log(0,"solver_python_init(): solver_py_status = SPS_%s",status_text[solver_py_status]);
+		}
+		else
+		{
+			solver_python_log(0,"solver_python_init(): solver_py_status unknown");
+		}
+
+		if ( solver_py_status == SPS_READY )
+		{
+			pModule = python_import(module_import_name,module_import_path);
+			if ( pModule == NULL )
+			{
+				solver_python_log(0,"ERROR: solver_python_init(): module '%s' not found in path '%s'", module_import_name, module_import_name?module_import_name:"");
+			}
+		}
+	}
+	return solver_py_status == SPS_READY ? 0 : ( errno ? errno : -1 );
 }
 
-void solver_python_log(int level, const char *format, ...)
+static PyObject *sync_model(void)
 {
-
+	static PyObject *pModel = NULL;
+	if ( pModel == NULL )
+	{
+		pModel = PyDict_New();		
+		// PyDict_SetItemString(pModel,"bustags",PyList_New(0));
+		// PyDict_SetItemString(pModel,"busdata",PyList_New(0));
+		// PyDict_SetItemString(pModel,"branchtags",PyList_New(0));
+		// PyDict_SetItemString(pModel,"branchdata",PyList_New(0));
+	}
+	return pModel;
 }
 
-int solver_python_prepare (
+int solver_python_solve (
 	unsigned int &bus_count,
 	BUSDATA *&bus,
 	unsigned int &branch_count,
@@ -109,10 +189,39 @@ int solver_python_prepare (
 	bool *bad_computations,
 	int64 &iterations)
 {
-	return -1;
+	if ( pModule )
+	{
+		PyObject *pModel = sync_model();
+		if ( ! python_call(pModule,"solve","N",pModel) )
+		{
+			solver_python_log(1,"solver_python_solve(bus_count=%d,...): solve failed",bus_count);
+			return -1;
+		}
+		else
+		{
+			try
+			{
+				// get result of last call
+				PyObject *py_value = PyDict_GetItemString(pModel,"iterations");
+				long result = PyLong_AsLong(py_value);
+				solver_python_log(0,"solver_python_solve(bus_count=%d,...): result = %d",bus_count,result);
+				return (int)result;
+			}
+			catch (...)
+			{
+				solver_python_log(0,"ERROR: solver_python_solve(bus_count=%d,...): result is not a long value",bus_count);
+				return -1;
+			}
+		}
+	}
+	else
+	{
+		solver_python_log(0,"ERROR: solver_python_solve(bus_count=%d,...): gridlabd module not yet ready",bus_count);
+		return -1;
+	}
 }
 
-void solver_python_post (
+void solver_python_learn (
 	unsigned int bus_count,
 	BUSDATA *bus, 
 	unsigned int branch_count, 
@@ -123,7 +232,14 @@ void solver_python_post (
 	bool *bad_computations,
 	int64 iterations)
 {
-
+	if ( pModule )
+	{
+		PyObject *pModel = sync_model();
+		if ( ! python_call(pModule,"learn","N",pModel) )
+		{
+			solver_python_log(1,"solver_python_solve(bus_count=%d,...): learn failed",bus_count);
+		}
+	}
 }
 
 void solver_dump(unsigned int &bus_count,
@@ -290,5 +406,3 @@ void solver_dump(unsigned int &bus_count,
 		}
 	}
 }
-
-#endif

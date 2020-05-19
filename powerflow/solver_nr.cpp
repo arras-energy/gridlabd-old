@@ -280,7 +280,7 @@ int64 solver_nr(unsigned int bus_count,
 	{
 		if ( solver_python_init() == 0 )
 		{
-			Iteration = solver_python_prepare(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
+			Iteration = solver_python_solve(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
 			if ( Iteration >= 0 )
 			{
 					return Iteration;
@@ -4044,10 +4044,9 @@ int64 solver_nr(unsigned int bus_count,
 	}
 	else	//Must have converged 
 	{
-#if defined(SOLVER_PY)
 		try 
 		{
-			solver_python_post(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
+			solver_python_learn(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
 		}
 		catch (const char *msg)
 		{
@@ -4057,7 +4056,7 @@ int64 solver_nr(unsigned int bus_count,
 		{
 			gl_error("solver_py: solver post failed -- unknown exception");
 		}
-#elif defined SOLVER_ML
+#if defined SOLVER_ML
 		try 
 		{
 			solver_model_new(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);

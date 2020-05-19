@@ -1,206 +1,212 @@
 // $Id: IEEE13-Feb27.glm
-//	Copyright (C) 2011 Battelle Memorial Institute
+//  Copyright (C) 2011 Battelle Memorial Institute
 
 #set iteration_limit=100000;
 
 clock {
-	timezone EST+5EDT;
-	starttime '2000-01-01 00:00:00 EST';
-	stoptime '2000-01-02 00:00:00 EST';
+    timezone EST+5EDT;
+    starttime '2000-01-01 00:00:00 EST';
+    stoptime '2000-01-02 00:00:00 EST';
 }
 
-module powerflow {
-	solver_method NR;
-	line_capacitance true;
+module powerflow 
+{
+    solver_method NR;
+    line_capacitance true;
 #ifdef powerflow::solver_py_config
-    solver_ml_config "../solver_py.conf";
+#ifexist "../solver_py.conf"
+#define DIR=..
 #endif
-	}
+    solver_py_config "${DIR:-.}/solver_py.conf";
+#else
+#warning solver_py not enabled
+#endif
+}
 module assert;
 
 module tape;
 
 // Phase Conductor for 601: 556,500 26/7 ACSR
 object overhead_line_conductor {
-	name olc6010;
-	geometric_mean_radius 0.031300;
-	diameter 0.927 in;
-	resistance 0.185900;
+    name olc6010;
+    geometric_mean_radius 0.031300;
+    diameter 0.927 in;
+    resistance 0.185900;
 }
 
 // Phase Conductor for 602: 4/0 6/1 ACSR
 object overhead_line_conductor {
-	name olc6020;
-	geometric_mean_radius 0.00814;
-	diameter 0.56 in;
-	resistance 0.592000;
+    name olc6020;
+    geometric_mean_radius 0.00814;
+    diameter 0.56 in;
+    resistance 0.592000;
 }
 
 // Phase Conductor for 603, 604, 605: 1/0 ACSR
 object overhead_line_conductor {
-	name olc6030;
-	geometric_mean_radius 0.004460;
-	diameter 0.4 in;
-	resistance 1.120000;
+    name olc6030;
+    geometric_mean_radius 0.004460;
+    diameter 0.4 in;
+    resistance 1.120000;
 }
 
 
 // Phase Conductor for 606: 250,000 AA,CN
 object underground_line_conductor { 
-	 name ulc6060;
-	 outer_diameter 1.290000;
-	 conductor_gmr 0.017100;
-	 conductor_diameter 0.567000;
-	 conductor_resistance 0.410000;
-	 neutral_gmr 0.0020800; 
-	 neutral_resistance 14.87200;  
-	 neutral_diameter 0.0640837;
-	 neutral_strands 13.000000;
-	 insulation_relative_permitivitty 2.3;
-	 shield_gmr 0.000000;
-	 shield_resistance 0.000000;
+     name ulc6060;
+     outer_diameter 1.290000;
+     conductor_gmr 0.017100;
+     conductor_diameter 0.567000;
+     conductor_resistance 0.410000;
+     neutral_gmr 0.0020800; 
+     neutral_resistance 14.87200;  
+     neutral_diameter 0.0640837;
+     neutral_strands 13.000000;
+     insulation_relative_permitivitty 2.3;
+     shield_gmr 0.000000;
+     shield_resistance 0.000000;
 }
 
 // Phase Conductor for 607: 1/0 AA,TS N: 1/0 Cu
 object underground_line_conductor { 
-	 name ulc6070;
-	 outer_diameter 1.060000;
-	 conductor_gmr 0.011100;
-	 conductor_diameter 0.368000;
-	 conductor_resistance 0.970000;
-	 neutral_gmr 0.011100;
-	 neutral_resistance 0.970000; // Unsure whether this is correct
-	 neutral_diameter 0.0640837;
-	 neutral_strands 6.000000;
-	 insulation_relative_permitivitty 2.3;
-	 shield_gmr 0.000000;
-	 shield_resistance 0.000000;
+     name ulc6070;
+     outer_diameter 1.060000;
+     conductor_gmr 0.011100;
+     conductor_diameter 0.368000;
+     conductor_resistance 0.970000;
+     neutral_gmr 0.011100;
+     neutral_resistance 0.970000; // Unsure whether this is correct
+     neutral_diameter 0.0640837;
+     neutral_strands 6.000000;
+     insulation_relative_permitivitty 2.3;
+     shield_gmr 0.000000;
+     shield_resistance 0.000000;
 }
 
 // Overhead line configurations
 object line_spacing {
-	name ls500601;
-	distance_AB 2.5;
-	distance_AC 4.5;
-	distance_BC 7.0;
-	distance_BN 5.656854;
-	distance_AN 4.272002;
-	distance_CN 5.0;
-	distance_AE 28.0;
-	distance_BE 28.0;
-	distance_CE 28.0;
-	distance_NE 24.0;
+    name ls500601;
+    distance_AB 2.5;
+    distance_AC 4.5;
+    distance_BC 7.0;
+    distance_BN 5.656854;
+    distance_AN 4.272002;
+    distance_CN 5.0;
+    distance_AE 28.0;
+    distance_BE 28.0;
+    distance_CE 28.0;
+    distance_NE 24.0;
 }
 
 // Overhead line configurations
 object line_spacing {
-	name ls500602;
-	distance_AC 2.5;
-	distance_AB 4.5;
-	distance_BC 7.0;
-	distance_CN 5.656854;
-	distance_AN 4.272002;
-	distance_BN 5.0;
-	distance_AE 28.0;
-	distance_BE 28.0;
-	distance_CE 28.0;
-	distance_NE 24.0;
+    name ls500602;
+    distance_AC 2.5;
+    distance_AB 4.5;
+    distance_BC 7.0;
+    distance_CN 5.656854;
+    distance_AN 4.272002;
+    distance_BN 5.0;
+    distance_AE 28.0;
+    distance_BE 28.0;
+    distance_CE 28.0;
+    distance_NE 24.0;
 }
 
 object line_spacing {
-	name ls505603;
-	distance_BC 7.0;
-	distance_CN 5.656854;
-	distance_BN 5.0;
-	distance_BE 28.0;
-	distance_CE 28.0;
-	distance_NE 24.0;
+    name ls505603;
+    distance_BC 7.0;
+    distance_CN 5.656854;
+    distance_BN 5.0;
+    distance_BE 28.0;
+    distance_CE 28.0;
+    distance_NE 24.0;
 }
 
 object line_spacing {
-	name ls505604;
-	distance_AC 7.0;
-	distance_AN 5.656854;
-	distance_CN 5.0;
-	distance_AE 28.0;
-	distance_CE 28.0;
-	distance_NE 24.0;
+    name ls505604;
+    distance_AC 7.0;
+    distance_AN 5.656854;
+    distance_CN 5.0;
+    distance_AE 28.0;
+    distance_CE 28.0;
+    distance_NE 24.0;
 }
 
 object line_spacing {
-	name ls510;
-	distance_CN 5.0;
-	distance_CE 28.0;
-	distance_NE 24.0;
+    name ls510;
+    distance_CN 5.0;
+    distance_CE 28.0;
+    distance_NE 24.0;
 }
 
 object line_configuration {
-	name lc601;
-	conductor_A olc6010;
-	conductor_B olc6010;
-	conductor_C olc6010;
-	conductor_N olc6020;
-	spacing ls500601;
+    name lc601;
+    conductor_A olc6010;
+    conductor_B olc6010;
+    conductor_C olc6010;
+    conductor_N olc6020;
+    spacing ls500601;
 }
 
 object line_configuration {
-	name lc602;
-	conductor_A olc6020;
-	conductor_B olc6020;
-	conductor_C olc6020;
-	conductor_N olc6020;
-	spacing ls500602;
+    name lc602;
+    conductor_A olc6020;
+    conductor_B olc6020;
+    conductor_C olc6020;
+    conductor_N olc6020;
+    spacing ls500602;
 }
 
 object line_configuration {
-	name lc603;
-	conductor_B olc6030;
-	conductor_C olc6030;
-	conductor_N olc6030;
-	spacing ls505603;
+    name lc603;
+    conductor_B olc6030;
+    conductor_C olc6030;
+    conductor_N olc6030;
+    spacing ls505603;
 }
 
 object line_configuration {
-	name lc604;
-	conductor_A olc6030;
-	conductor_C olc6030;
-	conductor_N olc6030;
-	spacing ls505604;
+    name lc604;
+    conductor_A olc6030;
+    conductor_C olc6030;
+    conductor_N olc6030;
+    spacing ls505604;
 }
 
 object line_configuration {
-	name lc605;
-	conductor_C olc6030;
-	conductor_N olc6030;
-	spacing ls510;
+    name lc605;
+    conductor_C olc6030;
+    conductor_N olc6030;
+    spacing ls510;
 }
 
 //Underground line configuration
 object line_spacing {
-	 name ls515;
-	 distance_AB 0.500000;
-	 distance_BC 0.500000;
-	 distance_AC 1.000000;
+     name ls515;
+     distance_AB 0.500000;
+     distance_BC 0.500000;
+     distance_AC 1.000000;
 }
 
 object line_spacing {
-	 name ls520;
-	 distance_AN 0.083333;
+     name ls520;
+     distance_AN 0.083333;
 }
 
 object line_configuration {
-	 name lc606;
-	 conductor_A ulc6060;
-	 conductor_B ulc6060;
-	 conductor_C ulc6060;
-	 spacing ls515;
+     name lc606;
+     conductor_A ulc6060;
+     conductor_B ulc6060;
+     conductor_C ulc6060;
+     spacing ls515;
 }
 
 object line_configuration {
-	 name lc607;
-	 conductor_A ulc6070;
-	 conductor_N ulc6070;
-	 spacing ls520;
+     name lc607;
+     conductor_A ulc6070;
+     conductor_N ulc6070;
+     spacing ls520;
 }
 
 // Define line objects
@@ -313,19 +319,19 @@ object node { //633 {
      voltage_B -1200.8886-2080.000j;
      voltage_C -1200.8886+2080.000j;
      nominal_voltage 2401.7771;
-	 object complex_assert {
-		target voltage_A;
-		value 2445.01-2.56d;
-		within 5;
-	 };	 object complex_assert {
-		target voltage_B;
-		value 2498.09-121.77d;
-		within 5;
-	 };	 object complex_assert {
-		target voltage_C;
-		value 2437.32+117.82d;
-		within 5;
-	 };
+     object complex_assert {
+        target voltage_A;
+        value 2445.01-2.56d;
+        within 5;
+     };  object complex_assert {
+        target voltage_B;
+        value 2498.09-121.77d;
+        within 5;
+     };  object complex_assert {
+        target voltage_C;
+        value 2437.32+117.82d;
+        within 5;
+     };
 }
 
 object node { //630 {
@@ -344,19 +350,19 @@ object node { //632 {
      voltage_B -1200.8886-2080.000j;
      voltage_C -1200.8886+2080.000j;
      nominal_voltage 2401.7771;
-	 object complex_assert {
-		target voltage_A;
-		value 2452.21-2.49d;
-		within 5;
-	 };	 object complex_assert {
-		target voltage_B;
-		value 2502.56-121.72d;
-		within 5;
-	 };	 object complex_assert {
-		target voltage_C;
-		value 2443.56+117.83d;
-		within 5;
-	 };
+     object complex_assert {
+        target voltage_A;
+        value 2452.21-2.49d;
+        within 5;
+     };  object complex_assert {
+        target voltage_B;
+        value 2502.56-121.72d;
+        within 5;
+     };  object complex_assert {
+        target voltage_C;
+        value 2443.56+117.83d;
+        within 5;
+     };
 }
 
 object node { //650 {
@@ -367,19 +373,19 @@ object node { //650 {
       voltage_B -1200.8886-2080.000j;
       voltage_C -1200.8886+2080.000j;
       nominal_voltage 2401.7771;
-	 object complex_assert {
-		target voltage_A;
-		value 2401.7771;
-		within 5;
-	 };	 object complex_assert {
-		target voltage_B;
-		value 2401.7771-120.0d;
-		within 5;
-	 };	 object complex_assert {
-		target voltage_C;
-		value 2401.7771+120.0d;
-		within 5;
-	 };
+     object complex_assert {
+        target voltage_A;
+        value 2401.7771;
+        within 5;
+     };  object complex_assert {
+        target voltage_B;
+        value 2401.7771-120.0d;
+        within 5;
+     };  object complex_assert {
+        target voltage_C;
+        value 2401.7771+120.0d;
+        within 5;
+     };
      object recorder {
         property "voltage_A,voltage_B,voltage_C";
         file "voltage.csv";
@@ -394,21 +400,21 @@ object node { //680 {
        voltage_B -1200.8886-2080.000j;
        voltage_C -1200.8886+2080.000j;
        nominal_voltage 2401.7771;
-		object complex_assert {
-			target voltage_A;
-			value 2377.75-5.3d;
-			within 5;
-		};	 
-		object complex_assert {
-			target voltage_B;
-			value 2528.82-122.34dd;
-			within 5;
-		};	
-		object complex_assert {
-			target voltage_C;
-			value 2348.46+116.02d;
-			within 10;  //@note: V_C not exactly matching with IEEE 13-node test feeder
-		};
+        object complex_assert {
+            target voltage_A;
+            value 2377.75-5.3d;
+            within 5;
+        };   
+        object complex_assert {
+            target voltage_B;
+            value 2528.82-122.34dd;
+            within 5;
+        };  
+        object complex_assert {
+            target voltage_C;
+            value 2348.46+116.02d;
+            within 10;  //@note: V_C not exactly matching with IEEE 13-node test feeder
+        };
 }
  
  
@@ -419,16 +425,16 @@ object node { //684 {
       voltage_B -1200.8886-2080.000j;
       voltage_C -1200.8886+2080.000j;
       nominal_voltage 2401.7771;
-	object complex_assert {
-		target voltage_A;
-		value 2373.65-5.32d;
-		within 5;
-	};	 
-	object complex_assert {
-		target voltage_C; 
-		value 2343.65+115.78d;
-		within 5;  
-	};
+    object complex_assert {
+        target voltage_A;
+        value 2373.65-5.32d;
+        within 5;
+    };   
+    object complex_assert {
+        target voltage_C; 
+        value 2343.65+115.78d;
+        within 5;  
+    };
 } 
  
  
@@ -445,21 +451,21 @@ object load { //634 {
      constant_power_B 120000+90000j;
      constant_power_C 120000+90000j;
      nominal_voltage 480.000;
-	object complex_assert {
-		target voltage_A;
-		within 5;
-		value 275-3.23d;
-	};
-	object complex_assert {
-		target voltage_B;
-		within 5;
-		value 283.16-122.22d;
-	};
-	object complex_assert {
-		target voltage_C;
-		within 5;
-		value 276.02+117.34d;
-	};
+    object complex_assert {
+        target voltage_A;
+        within 5;
+        value 275-3.23d;
+    };
+    object complex_assert {
+        target voltage_B;
+        within 5;
+        value 283.16-122.22d;
+    };
+    object complex_assert {
+        target voltage_C;
+        within 5;
+        value 276.02+117.34d;
+    };
 }
  
 object load { //645 {
@@ -470,16 +476,16 @@ object load { //645 {
      voltage_C -1200.8886+2080.000j;
      constant_power_B 170000+125000j;
      nominal_voltage 2401.7771;
-	object complex_assert {
-		target voltage_B;
-		within 5;
-		value 2480.798-121.90d;
-	};
-	object complex_assert {
-		target voltage_C;
-		within 5;
-		value 2439.00+117.86d;
-	};
+    object complex_assert {
+        target voltage_B;
+        within 5;
+        value 2480.798-121.90d;
+    };
+    object complex_assert {
+        target voltage_C;
+        within 5;
+        value 2439.00+117.86d;
+    };
 }
  
 object load { //646 {
@@ -489,16 +495,16 @@ object load { //646 {
      voltage_C -1200.8886+2080.000j;
      constant_impedance_B 56.5993+32.4831j;
      nominal_voltage 2401.7771;
-    	object complex_assert {
-    		target voltage_B;
-    		within 5;
-    		value 2476.47-121.98d;
-    	};
-    	object complex_assert {
-    		target voltage_C;
-    		within 5;
-    		value 2433.96+117.90d;
-	};
+        object complex_assert {
+            target voltage_B;
+            within 5;
+            value 2476.47-121.98d;
+        };
+        object complex_assert {
+            target voltage_C;
+            within 5;
+            value 2433.96+117.90d;
+    };
 }
  
  
@@ -510,11 +516,11 @@ object load { //652 {
      voltage_C -1200.8886+2080.000j;
      constant_impedance_A 31.0501+20.8618j;
      nominal_voltage 2401.7771;
-    	object complex_assert {
-    		target voltage_A;
-    		within 5;
-    		value 2359.74-5.25d;
-    	};
+        object complex_assert {
+            target voltage_A;
+            within 5;
+            value 2359.74-5.25d;
+        };
 }
  
 object load { //671 {
@@ -527,21 +533,21 @@ object load { //671 {
      constant_power_B 385000+220000j;
      constant_power_C 385000+220000j;
      nominal_voltage 2401.7771;
-    	object complex_assert {
-    		target voltage_A;
-    		within 5;
-    		value 2377.76-5.3d;
-    	};
-    	object complex_assert {
-    		target voltage_B;
-    		within 5;
-    		value 2526.67-122.34d;
-    	};
-    	object complex_assert {
-    		target voltage_C;
-    		within 8;
-    		value 2348.46+116.02d;
-	};
+        object complex_assert {
+            target voltage_A;
+            within 5;
+            value 2377.76-5.3d;
+        };
+        object complex_assert {
+            target voltage_B;
+            within 5;
+            value 2526.67-122.34d;
+        };
+        object complex_assert {
+            target voltage_C;
+            within 8;
+            value 2348.46+116.02d;
+    };
 }
  
 object load { //675 {
@@ -557,21 +563,21 @@ object load { //675 {
      constant_impedance_B 0.00-28.8427j;
      constant_impedance_C 0.00-28.8427j;
      nominal_voltage 2401.7771;
-    	object complex_assert {
-    		target voltage_A;
-    		within 5;
-    		value 2362.15-5.56d;
-    	};
-    	object complex_assert {
-    		target voltage_B;
-    		within 5;
-    		value 2534.59-122.52d;
-    	};
-    	object complex_assert {
-    		target voltage_C;
-    		within 8;
-    		value 2343.65+116.03d;
-	};
+        object complex_assert {
+            target voltage_A;
+            within 5;
+            value 2362.15-5.56d;
+        };
+        object complex_assert {
+            target voltage_B;
+            within 5;
+            value 2534.59-122.52d;
+        };
+        object complex_assert {
+            target voltage_C;
+            within 8;
+            value 2343.65+116.03d;
+    };
 }
  
 object load { //692 {
@@ -584,21 +590,21 @@ object load { //692 {
      constant_current_B 0+0j;
      constant_current_C -17.2414+51.8677j;
      nominal_voltage 2401.7771;
-	object complex_assert {
-		target voltage_A;
-		within 5;
-		value 2377.76-5.31d;
-	};
-	object complex_assert {
-		target voltage_B;
-		within 5;
-		value 2526.67-122.34d;
-	};
-	object complex_assert {
-		target voltage_C;
-		within 8;
-		value 2348.22+116.02d;
-	};
+    object complex_assert {
+        target voltage_A;
+        within 5;
+        value 2377.76-5.31d;
+    };
+    object complex_assert {
+        target voltage_B;
+        within 5;
+        value 2526.67-122.34d;
+    };
+    object complex_assert {
+        target voltage_C;
+        within 8;
+        value 2348.22+116.02d;
+    };
 }
  
 object load { //611 {
@@ -610,11 +616,11 @@ object load { //611 {
      constant_current_C -6.5443+77.9524j;
      constant_impedance_C 0.00-57.6854j;         //Shunt Capacitor
      nominal_voltage 2401.7771;
-	object complex_assert {
-		target voltage_C;
-		within 8;
-		value 2338.85+115.78d;
-	};
+    object complex_assert {
+        target voltage_C;
+        within 8;
+        value 2338.85+115.78d;
+    };
 }
  
 // distributed load between node 632 and 671
@@ -657,56 +663,56 @@ object switch {
  
 // Transformer
 object transformer_configuration {
-	name tc400;
-	connect_type WYE_WYE;
-  	install_type PADMOUNT;
-  	power_rating 500;
-  	primary_voltage 4160;
-  	secondary_voltage 480;
-  	resistance 0.011;
-  	reactance 0.02;
+    name tc400;
+    connect_type WYE_WYE;
+    install_type PADMOUNT;
+    power_rating 500;
+    primary_voltage 4160;
+    secondary_voltage 480;
+    resistance 0.011;
+    reactance 0.02;
 }
   
 object transformer {
-  	phases "ABCN";
-  	name transformer_633-634;
-  	from n633;
-  	to l634;
-  	configuration tc400;
+    phases "ABCN";
+    name transformer_633-634;
+    from n633;
+    to l634;
+    configuration tc400;
 }
   
  
 // Regulator
 object regulator_configuration {
-	name regconfig6506321;
-	connect_type 1;
-	band_center 122.000;
-	band_width 2.0;
-	time_delay 30.0;
-	raise_taps 16;
-	lower_taps 16;
-	current_transducer_ratio 700;
-	power_transducer_ratio 20;
-	compensator_r_setting_A 3.0;
-	compensator_r_setting_B 3.0;
-	compensator_r_setting_C 3.0;
-	compensator_x_setting_A 9.0;
-	compensator_x_setting_B 9.0;
-	compensator_x_setting_C 9.0;
-	CT_phase "ABC";
-	PT_phase "ABC";
-	regulation 0.10;
-	Control MANUAL;
-	Type A;
-	tap_pos_A 10;
-	tap_pos_B 8;
-	tap_pos_C 11;
+    name regconfig6506321;
+    connect_type 1;
+    band_center 122.000;
+    band_width 2.0;
+    time_delay 30.0;
+    raise_taps 16;
+    lower_taps 16;
+    current_transducer_ratio 700;
+    power_transducer_ratio 20;
+    compensator_r_setting_A 3.0;
+    compensator_r_setting_B 3.0;
+    compensator_r_setting_C 3.0;
+    compensator_x_setting_A 9.0;
+    compensator_x_setting_B 9.0;
+    compensator_x_setting_C 9.0;
+    CT_phase "ABC";
+    PT_phase "ABC";
+    regulation 0.10;
+    Control MANUAL;
+    Type A;
+    tap_pos_A 10;
+    tap_pos_B 8;
+    tap_pos_C 11;
 }
   
 object regulator {
-	 name fregn650n630;
-	 phases "ABC";
-	 from n650;
-	 to n630;
-	 configuration regconfig6506321;
+     name fregn650n630;
+     phases "ABC";
+     from n650;
+     to n630;
+     configuration regconfig6506321;
 }

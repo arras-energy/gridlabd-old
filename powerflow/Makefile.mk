@@ -1,6 +1,6 @@
 pkglib_LTLIBRARIES += powerflow/powerflow.la 
 
-powerflow_powerflow_la_CPPFLAGS = -DSOLVER_ML
+powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY
 powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/third_party/superLU_MT
 powerflow_powerflow_la_CPPFLAGS += $(AM_CPPFLAGS)
 

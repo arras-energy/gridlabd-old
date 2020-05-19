@@ -106,6 +106,13 @@ const char *truncate(const char *command)
 
 bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt, va_list varargs)
 {
+    static PyObject *last_result = NULL;
+    if ( name == NULL ) 
+    {
+        // expect pModule to be the container for a result of the same type
+        return ( PyDict_Check(pModule) && PyDict_SetItemString(pModule,"result",last_result) == 0 );
+    }
+    
     if ( pModule == NULL )
     {
         output_error("python_embed_call(pModule,name='%s'): no module loaded",truncate(name));
@@ -141,7 +148,11 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
     PyObject *pGridlabd = PyDict_GetItemString(pModule,"gridlabd");
     PyObject *pArgs = Py_BuildValue("(O)",pGridlabd?pGridlabd:PyInit_gridlabd());
     PyObject *pKwargs = vargsfmt ? Py_VaBuildValue(vargsfmt,varargs) : NULL;
-    PyObject *pResult = PyObject_Call(pFunc,pArgs,pKwargs);
+    if ( last_result != NULL )
+    {
+        Py_DECREF(last_result);
+    }
+    last_result = PyObject_Call(pFunc,pArgs,pKwargs);
     if ( pGridlabd ) Py_DECREF(pGridlabd);
     Py_DECREF(pArgs);
     if ( PyErr_Occurred() )
@@ -177,10 +188,6 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
             output_error("python_embed_call(pModule,name='%s'): no error information available",truncate(name));
         }
         return false;
-    }
-    else if ( pResult != NULL )
-    {
-        Py_DECREF(pResult);
     }
     Py_DECREF(pFunc);
     if ( pKwargs ) Py_DECREF(pKwargs);

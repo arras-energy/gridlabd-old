@@ -17,7 +17,7 @@ typedef struct s_solver_python SOLVERPYTHON;
 //	SPS_READY - ready
 //	SPS_DISABLED - disabled
 //	SPS_FAILED - failed
-enum e_solverpythonstatus {SPS_INIT, SPS_READY, SPS_DISABLED, SPS_FAILED};
+enum e_solverpythonstatus {SPS_INIT=0, SPS_READY=1, SPS_DISABLED=2, SPS_FAILED=3};
 
 //	Typedef: SOLVERPYTHONSTATUS
 //	Solver python status
@@ -33,7 +33,7 @@ int solver_python_init(void);
 //	Prepare the python solver system for a solution
 //
 //	Return: iterations runs; negative is solver failed, >=0 on success
-int solver_python_prepare (
+int solver_python_solve (
 	unsigned int &bus_count,
 	BUSDATA *&bus,
 	unsigned int &branch_count,
@@ -46,7 +46,7 @@ int solver_python_prepare (
 
 //	Function: solver_model_apply
 //	Post a solution to the python solver
-void solver_python_post (
+void solver_python_learn (
 	unsigned int bus_count,
 	BUSDATA *bus, 
 	unsigned int branch_count, 
