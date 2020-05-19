@@ -15,7 +15,7 @@
 #define CONFIGPATH "/usr/local/share/gridlabd/"
 
 // default configuration settings
-static char1024 solver_ml_config = CONFIGPATH CONFIGNAME;
+char1024 solver_ml_config = CONFIGPATH CONFIGNAME;
 static double maximum_distance = 0; // 0 is never use solver model, 1e-9 is only when nearly identical
 static const char *solver_model_logfile = CONFIGLOG;
 static int solver_model_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
@@ -154,9 +154,6 @@ void solver_model_stop_timer(SOLVERMODEL *model, bool apply=false)
 
 int solver_model_init(void)
 {
-	gl_global_create("powerflow::solver_ml_config", PT_char1024, &solver_ml_config, PT_DESCRIPTION, "ML solver configuration file location",NULL);
-	gl_global_create("powerflow::solver_dump_enable", PT_bool, &solver_dump_enable, PT_DESCRIPTION, "flag to enable bus/branch dump when solvers fails",NULL);
-
 	solver_model_start_timer();
 	static int solver_model_state = SMS_INIT;
 	switch ( solver_model_status )
