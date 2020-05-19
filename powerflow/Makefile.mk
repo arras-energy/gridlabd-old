@@ -1,6 +1,6 @@
 pkglib_LTLIBRARIES += powerflow/powerflow.la 
 
-powerflow_powerflow_la_CPPFLAGS =
+powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY
 powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/third_party/superLU_MT
 powerflow_powerflow_la_CPPFLAGS += $(AM_CPPFLAGS)
 
@@ -88,6 +88,8 @@ powerflow_powerflow_la_SOURCES += powerflow/solver_nr.cpp
 powerflow_powerflow_la_SOURCES += powerflow/solver_nr.h
 powerflow_powerflow_la_SOURCES += powerflow/solver_ml.cpp
 powerflow_powerflow_la_SOURCES += powerflow/solver_ml.h
+powerflow_powerflow_la_SOURCES += powerflow/solver_py.cpp
+powerflow_powerflow_la_SOURCES += powerflow/solver_py.h
 powerflow_powerflow_la_SOURCES += powerflow/substation.cpp
 powerflow_powerflow_la_SOURCES += powerflow/substation.h
 powerflow_powerflow_la_SOURCES += powerflow/switch_coordinator.cpp 

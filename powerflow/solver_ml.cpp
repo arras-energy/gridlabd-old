@@ -2,6 +2,8 @@
     Enable modeling of solution to improve performance
  **/
 
+#if defined(SOLVER_ML)
+
 #include "gridlabd.h"
 
 #include <stdlib.h>
@@ -13,23 +15,23 @@
 #define CONFIGPATH "/usr/local/share/gridlabd/"
 
 // default configuration settings
-char1024 solver_ml_config = CONFIGPATH CONFIGNAME;
-double maximum_distance = 0; // 0 is never use solver model, 1e-9 is only when nearly identical
-const char *solver_model_logfile = CONFIGLOG;
-int solver_model_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
-size_t maximum_models = 100; // maximum number of models to track
-const char *model_busdump = NULL; // name of bus dumpfile
-const char *model_branchdump = NULL; // name of branch dumpfile
-const char *model_dump_handler = NULL; // name of python solver event handler
-const char *module_import_path = NULL; // path to use when importing modules
-const char *module_import_name = NULL; // module name to import (python only)
+static char1024 solver_ml_config = CONFIGPATH CONFIGNAME;
+static double maximum_distance = 0; // 0 is never use solver model, 1e-9 is only when nearly identical
+static const char *solver_model_logfile = CONFIGLOG;
+static int solver_model_loglevel = -1; // -1=disable, 0 = minimal ... 9 = everything,
+static size_t maximum_models = 100; // maximum number of models to track
+static const char *model_busdump = NULL; // name of bus dumpfile
+static const char *model_branchdump = NULL; // name of branch dumpfile
+static const char *model_dump_handler = NULL; // name of python solver event handler
+static const char *module_import_path = NULL; // path to use when importing modules
+static const char *module_import_name = NULL; // module name to import (python only)
 
-PyObject *pModule = NULL;
-SOLVERMODELSTATUS solver_model_status = SMS_INIT;
-SOLVERMODEL *last = NULL, *first = NULL;
-size_t solver_model_count = 0;
-FILE *solver_model_logfh = NULL;
-struct timeb start;
+static PyObject *pModule = NULL;
+static SOLVERMODELSTATUS solver_model_status = SMS_INIT;
+static SOLVERMODEL *last = NULL, *first = NULL;
+static size_t solver_model_count = 0;
+static FILE *solver_model_logfh = NULL;
+static struct timeb start;
 
 double solver_model_get_maximum_distance(void)
 {
@@ -152,6 +154,9 @@ void solver_model_stop_timer(SOLVERMODEL *model, bool apply=false)
 
 int solver_model_init(void)
 {
+	gl_global_create("powerflow::solver_ml_config", PT_char1024, &solver_ml_config, PT_DESCRIPTION, "ML solver configuration file location",NULL);
+	gl_global_create("powerflow::solver_dump_enable", PT_bool, &solver_dump_enable, PT_DESCRIPTION, "flag to enable bus/branch dump when solvers fails",NULL);
+
 	solver_model_start_timer();
 	static int solver_model_state = SMS_INIT;
 	switch ( solver_model_status )
@@ -645,3 +650,5 @@ int64 solver_model_apply(SOLVERMODEL *model,
 	solver_model_stop_timer(model,true);
 	return model->iterations; 
 }
+
+#endif

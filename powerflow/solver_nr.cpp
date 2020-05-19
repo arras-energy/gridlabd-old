@@ -34,7 +34,12 @@ Initialization after returning to service?
 #include <unistd.h>
 
 #include "solver_nr.h"
+
+#if defined(SOLVER_PY)
+#include "solver_py.h"
+#elif defined  SOLVER_ML
 #include "solver_ml.h"
+#endif
 
 using namespace std;
 
@@ -270,6 +275,27 @@ int64 solver_nr(unsigned int bus_count,
 	//Internal iteration counter - just NR limits
 	int64 Iteration = 0;
 
+#ifdef SOLVER_PY 
+	try 
+	{
+		if ( solver_python_init() == 0 )
+		{
+			Iteration = solver_python_prepare(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,&Iteration);
+			if ( Iteration >= 0 )
+			{
+					return Iteration;
+			}
+		}
+	}
+	catch (const char *msg)
+	{
+		gl_warning("solver_py: model failed -- %s",msg);
+	}
+	catch (...)
+	{
+		gl_warning("solver_py: model failed -- unknown exception");
+	}
+#elif defined  SOLVER_ML
 	// Support solution modeling
 	try 
 	{
@@ -295,6 +321,7 @@ int64 solver_nr(unsigned int bus_count,
 	{
 		gl_warning("solver_ml: model failed -- unknown exception");
 	}
+#endif
 
 	//File pointer for debug outputs
 	FILE *FPoutVal;
@@ -4010,11 +4037,27 @@ int64 solver_nr(unsigned int bus_count,
 		//Defaulted else - shouldn't exist (or make it this far), but if it does, we're failing anyways
 
 		*bad_computations = true;	//Flag our output as bad
+#if defined(SOLVER_PY) || defined(SOLVER_ML)
 		solver_dump(bus_count,bus,branch_count,branch,solver_dump_enable);
+#endif
 		return 0;					//Just return some arbitrary value
 	}
 	else	//Must have converged 
 	{
+#if defined(SOLVER_PY)
+		try 
+		{
+			solver_python_post(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
+		}
+		catch (const char *msg)
+		{
+			gl_error("solver_py: solver post failed -- %s",msg);
+		}
+		catch (...)
+		{
+			gl_error("solver_py: solver post failed -- unknown exception");
+		}
+#elif defined SOLVER_ML
 		try 
 		{
 			solver_model_new(bus_count,bus,branch_count,branch,powerflow_values,powerflow_type,mesh_imped_vals,bad_computations,Iteration);
@@ -4027,6 +4070,7 @@ int64 solver_nr(unsigned int bus_count,
 		{
 			gl_error("solver_ml: model save failed -- unknown exception");
 		}
+#endif
 
 		if ( nr_profile != NULL ) 
 		{	

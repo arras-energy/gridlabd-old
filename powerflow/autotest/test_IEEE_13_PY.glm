@@ -12,8 +12,8 @@ clock {
 module powerflow {
 	solver_method NR;
 	line_capacitance true;
-#ifdef powerflow::solver_ml_config
-    solver_ml_config "../solver_ml.conf";
+#ifdef powerflow::solver_py_config
+    solver_ml_config "../solver_py.conf";
 #endif
 	}
 module assert;
