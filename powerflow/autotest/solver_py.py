@@ -4,30 +4,29 @@ import pandas as pd
 def solve(gridlabd,**kwargs):
     """solve(gridlabd,model)
     
-    Delivers a model to solve.  If the solution is found, then set
-    model['iterations'] to the number of iterations required to obtain
-    the solution.  If the solution is not found, then set model['iterations']
-    to -1.
+    Delivers a model to solve.  
 
-    The following arrays are set
+    The following data is given in kwargs
 
         bustags (dict) - dict of columns names to the column numbers in
                          busdata
 
-        busdata (dict) - dict of bus names to the bus data
+        busdata (dict) - dict of bus id to the bus data
 
         branchtags (dict) - dict of columns names to the columns numbers in
                             branchdata
 
-        branchdata (dict) - dict of branch names to the branch data
+        branchdata (dict) - dict of branch id to the branch data
 
-    Return: None 
+    Return: negative for failure
+            positive for successful iteration count 
+            0 for successful with no iteration done
     """
     print(f"solving at {gridlabd.get_global('clock')} for data {kwargs}")
-    kwargs['iterations'] = 0
+    return -1
 
 def learn(gridlabd,**kwargs):
-    print(f"learning {kwargs}")
+    # print(f"learning {kwargs}")
     return None
 
 def check_dumps(gridlabd):

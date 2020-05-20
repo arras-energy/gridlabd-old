@@ -104,13 +104,17 @@ const char *truncate(const char *command)
     return buf;
 }
 
+// Function: python_embed_call
+// 
+// If pModule is dict and name is null, the varargsfmt is used to store the
+// the result of the last call, i.e., pModule[varargsfmt] = result
 bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt, va_list varargs)
 {
     static PyObject *last_result = NULL;
-    if ( name == NULL ) 
+    if ( name == NULL ) // varargsfmt contains the name of the dict item to set
     {
         // expect pModule to be the container for a result of the same type
-        return ( PyDict_Check(pModule) && PyDict_SetItemString(pModule,"result",last_result) == 0 );
+        return ( PyDict_Check(pModule) && PyDict_SetItemString(pModule,vargsfmt,last_result) == 0 );
     }
     
     if ( pModule == NULL )

@@ -164,17 +164,111 @@ int solver_python_init(void)
 	return solver_py_status == SPS_READY ? 0 : ( errno ? errno : -1 );
 }
 
-static PyObject *sync_model(void)
+size_t n_buscols = 0;
+void set_bustags(PyObject *pModel)
+{
+	PyObject *data = PyDict_New();
+	const char *tag[] = {
+		"id","name","type","phases","origphases","busflags","vbase","mvabase",
+#define POLAR(X) #X "Am", #X "Aa", #X "Bm", #X "Ba", #X "Cm", #X "Ca",
+#define RECT(X)  #X "Ar", #X "Ai", #X "Br", #X "Bi", #X "Cr", #X "Ci",
+#define DELIM ""
+#include "solver_ml_branchdump.h"
+#undef POLAR
+#undef RECT
+#undef DELIM
+		"PA","QA","PB","QB","PC","QC",
+		"YcAAr","YcAAi","YcABr","YcABi","YcACr","YcACi","YcBBr","YcBBi","YcBCr","YcBCu","YcCCr","YcCCi",
+		"YsAAr","YsAAi","YsABr","YsABi","YsACr","YsACi","YsBBr","YsBBi","YsBCr","YsBCi","YsCCr","YsCCi",
+		"YlAr","YlAi","YlBr","YlBi","YlCr","YlCi",
+		"JA0","JA1","JA2",
+		"JB0","JB1","JB2",
+		"JC0","JC1","JC2",
+		"JD0","JD1","JD2",
+	};
+	n_buscols = sizeof(tag)/sizeof(tag[0]);
+	for ( size_t n = 0 ; n < n_buscols ; n++ )
+	{
+		PyDict_SetItemString(data,tag[n],PyLong_FromSize_t(n));
+	}
+	PyDict_SetItemString(pModel,"bustags",data);
+}
+
+size_t n_branchcols = 0;
+void set_branchtags(PyObject *pModel)
+{
+	PyObject *data = PyDict_New();
+	const char *tag[] = {
+		"name","type","phases","origphases","faultphases","from","to","fault_link_below","v_ratio","vratio",
+		"YfromAr","YfromAi","YfromBr","YfromBi","YfromCr","YfromCi",
+		"YtoAr","YtoAi","YtoBr","YtoBi","YtoCr","YtoCi",
+		"YSfromAr","YSfromAi","YSfromBr","YSfromBi","YSfromCr","YSfromCi",
+		"YStoAr","YStoAi","YStoBr","YStoBi,YStoCr","YStoCi",
+	};
+	n_branchcols = sizeof(tag)/sizeof(tag[0]);
+	for ( size_t n = 0 ; n < n_branchcols ; n++ )
+	{
+		PyDict_SetItemString(data,tag[n],PyLong_FromSize_t(n));
+	}
+	PyDict_SetItemString(pModel,"branchtags",data);
+}
+
+void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus)
+{
+	PyObject *data = PyDict_GetItemString(pModel,"busdata");
+	if ( data == NULL )
+	{
+		data = PyList_New(bus_count);
+		for ( size_t n = 0 ; n < bus_count ; n++ )
+		{
+			PyList_SetItem(data,n,PyList_New(n_buscols));
+		}
+		PyDict_SetItemString(pModel,"busdata",data);
+	}
+	for ( size_t n = 0 ; n < bus_count ; n++ )
+	{
+		// TODO update bus
+	}
+}
+
+void sync_branchdata(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&branch)
+{
+	PyObject *data = PyDict_GetItemString(pModel,"branchdata");
+	if ( data == NULL )
+	{
+		data = PyList_New(branch_count);
+		for ( size_t n = 0 ; n < branch_count ; n++ )
+		{
+			PyList_SetItem(data,n,PyList_New(n_branchcols));
+		}
+		PyDict_SetItemString(pModel,"branchdata",data);
+	}
+	for ( size_t n = 0 ; n < branch_count ; n++ )
+	{
+		// TODO update branch
+	}
+}
+
+static PyObject *sync_model(
+	unsigned int &bus_count,
+	BUSDATA *&bus,
+	unsigned int &branch_count,
+	BRANCHDATA *&branch)
 {
 	static PyObject *pModel = NULL;
 	if ( pModel == NULL )
 	{
-		pModel = PyDict_New();		
+		pModel = PyDict_New();	
+		// PyDict_SetItemString(pModel,"iterations",PyLong_FromLong(-10));
+		set_bustags(pModel);
+		set_branchtags(pModel);
 		// PyDict_SetItemString(pModel,"bustags",PyList_New(0));
 		// PyDict_SetItemString(pModel,"busdata",PyList_New(0));
 		// PyDict_SetItemString(pModel,"branchtags",PyList_New(0));
 		// PyDict_SetItemString(pModel,"branchdata",PyList_New(0));
 	}
+	sync_busdata(pModel,bus_count,bus);
+	sync_branchdata(pModel,branch_count,branch);
 	return pModel;
 }
 
@@ -191,33 +285,48 @@ int solver_python_solve (
 {
 	if ( pModule )
 	{
-		PyObject *pModel = sync_model();
-		if ( ! python_call(pModule,"solve","N",pModel) )
+		PyObject *pModel = sync_model(bus_count,bus,branch_count,branch);
+		if ( ! python_call(pModule,"solve","O",pModel) )
 		{
-			solver_python_log(1,"solver_python_solve(bus_count=%d,...): solve failed",bus_count);
-			return -1;
+			solver_python_log(1,"solver_python_solve(bus_count=%d,...): solver failed",bus_count);
+			return -1001;
 		}
 		else
 		{
 			try
 			{
 				// get result of last call
-				PyObject *py_value = PyDict_GetItemString(pModel,"iterations");
-				long result = PyLong_AsLong(py_value);
-				solver_python_log(0,"solver_python_solve(bus_count=%d,...): result = %d",bus_count,result);
-				return (int)result;
+				PyObject *pResult = PyDict_New();
+				python_call(pResult,NULL,"iterations");
+				PyObject *py_value = PyDict_GetItemString(pResult,"iterations");
+				if ( py_value )
+				{
+					long result = PyLong_AsLong(py_value); // -1 if error
+					if ( PyErr_Occurred() )
+					{
+						solver_python_log(0,"solver_python_solve(bus_count=%d,...): result is not valid",bus_count,result);
+						return -1002;
+					}
+					solver_python_log(0,"solver_python_solve(bus_count=%d,...): result = %d",bus_count,result);
+					return (int)result;
+				}
+				else
+				{
+					solver_python_log(0,"solver_python_solve(bus_count=%d,...): result is null",bus_count);
+					return -1003;
+				}
 			}
 			catch (...)
 			{
 				solver_python_log(0,"ERROR: solver_python_solve(bus_count=%d,...): result is not a long value",bus_count);
-				return -1;
+				return -1004;
 			}
 		}
 	}
 	else
 	{
 		solver_python_log(0,"ERROR: solver_python_solve(bus_count=%d,...): gridlabd module not yet ready",bus_count);
-		return -1;
+		return -1005;
 	}
 }
 
@@ -234,8 +343,8 @@ void solver_python_learn (
 {
 	if ( pModule )
 	{
-		PyObject *pModel = sync_model();
-		if ( ! python_call(pModule,"learn","N",pModel) )
+		PyObject *pModel = sync_model(bus_count,bus,branch_count,branch);
+		if ( ! python_call(pModule,"learn","O",pModel) )
 		{
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): learn failed",bus_count);
 		}
