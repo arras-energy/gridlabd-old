@@ -428,7 +428,7 @@ static int *branch_index = NULL;
 
 void copydata(PyObject *data, size_t n, void *source, struct s_map *map, e_dir dir)
 {
-	if ( dir == map->dir )
+	if ( dir & map->dir )
 	{	
 		void *ptr = (void*)((char*)source + map->offset);
 		double x = map->convert ? map->convert(ptr) : *(double*)ptr;
@@ -444,32 +444,40 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 		data = PyList_New(bus_count);
 		for ( size_t n = 0 ; n < bus_count ; n++ )
 		{
-			PyList_SetItem(data,n,PyList_New(python_nbustags));
+			PyObject *busdata = PyList_New(python_nbustags);
+			PyList_SetItem(data,n,busdata);
 		}
 		PyDict_SetItemString(pModel,"busdata",data);
 		bus_index = new int[python_nbustags];
 		memset(bus_index,-1,python_nbustags*sizeof(int));
 		for ( size_t n = 0 ; n < bus_count ; n++ )
 		{
+			PyObject *busdata = PyList_GetItem(data,n);
 			for ( size_t m = 0 ; m < sizeof(busmap)/sizeof(busmap[0]) ; m++ )
 			{
 				int t = strfind(python_nbustags,python_bustags,busmap[m].tag);
 				if ( t >= 0 )
 				{
 					bus_index[t] = m;
-					copydata(data,n,(void*)&bus[n],&busmap[m],ED_INIT);
+					copydata(busdata,n,(void*)&busdata[m],&busmap[m],ED_INIT);
 				}
 			}
 		}
 	}
 	for ( size_t n = 0 ; n < bus_count ; n++ )
 	{
+		PyObject *busdata = PyList_GetItem(data,n);
 		for ( size_t t = 0 ; t < python_nbustags ; t++ )
 		{
 			int m = bus_index[t];
 			if ( m >= 0 )
 			{
-				copydata(data,n,(void*)&bus[n],&busmap[m],ED_OUT);
+				copydata(data,n,(void*)&busdata[n],&busmap[m],ED_OUT);
+			}
+			else if ( m == -1 )
+			{
+				gl_error("sync_busdata(): bus tag '%s' not found", python_bustags[t]);
+				bus_index[t] = -2;
 			}
 		}
 	}
