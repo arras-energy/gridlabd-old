@@ -1,5 +1,7 @@
 import sys
 import pandas as pd 
+import pprint as pp
+pprint = pp.PrettyPrinter(indent=4).pprint
 
 def solve(gridlabd,**kwargs):
     """solve(gridlabd,model)
@@ -22,7 +24,8 @@ def solve(gridlabd,**kwargs):
             positive for successful iteration count 
             0 for successful with no iteration done
     """
-    print(f"solving at {gridlabd.get_global('clock')} for data {kwargs}")
+    print(f"solving at {gridlabd.get_global('clock')}")
+    pprint(kwargs)
     return -1
 
 def learn(gridlabd,**kwargs):
