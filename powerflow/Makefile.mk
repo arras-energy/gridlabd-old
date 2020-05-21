@@ -125,3 +125,5 @@ powerflow_powerflow_la_SOURCES += powerflow/voltdump.cpp
 powerflow_powerflow_la_SOURCES += powerflow/voltdump.h
 powerflow_powerflow_la_SOURCES += powerflow/volt_var_control.cpp
 powerflow_powerflow_la_SOURCES += powerflow/volt_var_control.h
+
+dist_pkgdata_DATA += powerflow/solver_py.conf
