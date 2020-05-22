@@ -85,6 +85,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new fuse(module);
 	new meter(module);
 	new line(module);
+	new line_sensor(module);
 	new line_spacing(module);
     new overhead_line(module);
     new underground_line(module);
@@ -101,6 +102,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new triplex_line(module);
 	new triplex_line_configuration(module);
 	new triplex_line_conductor(module);
+	new switch_coordinator(module);
 	new switch_object(module);
 	new substation(module);
 	new pqload(module);

@@ -2233,7 +2233,14 @@ int GldLoader::clock_properties(PARSER)
 	{
 		if (TERM(time_value(HERE,&tsval)))
 		{
-			global_starttime = tsval;
+			if ( tsval <= global_stoptime )
+			{
+				global_starttime = tsval;
+			}
+			else
+			{
+				syntax_error(filename,linenum,"starttime before stoptime");
+			}
 			ACCEPT;
 			goto Next;
 		}
@@ -2244,7 +2251,14 @@ int GldLoader::clock_properties(PARSER)
 	{
 		if (TERM(time_value(HERE,&tsval)))
 		{
-			global_stoptime = tsval;
+			if ( tsval >= global_starttime )
+			{
+				global_stoptime = tsval;
+			}
+			else
+			{
+				syntax_error(filename,linenum,"stoptime after starttime");
+			}
 			ACCEPT;
 			goto Next;
 		}
@@ -7923,7 +7937,7 @@ STATUS GldLoader::loadall(const char *fname)
 
 		// python script
 
-		if ( ext != NULL && strcmp(ext,".py") == 0 )
+		if ( ext != NULL && ( strcmp(ext,".py") == 0 || strncmp(ext,".py ",4) == 0 || strncmp(ext,".py\t",4) == 0 ) )
 		{
 			return load_python(fname);
 		}

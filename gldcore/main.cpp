@@ -641,11 +641,11 @@ int GldMain::subcommand(const char *format, ...)
 			// 	output_error("GldMain::subcommand(command='%s'): no input", command);
 			// 	break;
 			// }
-			if ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
+			while ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
 			{
 				fprintf(output_stream,"%s",line);
 			}
-			if ( error && polldata[2].revents&POLLIN && fgets(line, sizeof(line)-1, error) != NULL ) 
+			while ( error && polldata[2].revents&POLLIN && fgets(line, sizeof(line)-1, error) != NULL ) 
 			{
 				fprintf(error_stream,"%s",line);
 			}
