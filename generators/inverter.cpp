@@ -7,18 +7,12 @@
  @{
  **/
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <errno.h>
-#include <math.h>
-
-#include "inverter.h"
+#include "generators.h"
 
 //CLASS *inverter::plcass = power_electronics;
 CLASS *inverter::oclass = NULL;
 inverter *inverter::defaults = NULL;
 
-static PASSCONFIG passconfig = PC_BOTTOMUP|PC_POSTTOPDOWN;
 static PASSCONFIG clockpass = PC_BOTTOMUP;
 
 /* Class registration is only called once to register the class with the core */
@@ -592,13 +586,8 @@ int inverter::create(void)
 int inverter::init(OBJECT *parent)
 {
 	OBJECT *obj = OBJECTHDR(this);
-	PROPERTY *pval;
-	bool *dyn_gen_posting;
 	unsigned iindex, jindex;
 	complex filter_impedance;
-	double *nominal_voltage;
-	double *ptemp_double;
-	double temp_double_high, temp_double_low, tdiff, ang_diff;
 	FINDLIST *batteries;
 	OBJECT *objBattery = NULL;
 	int index = 0;
@@ -606,7 +595,7 @@ int inverter::init(OBJECT *parent)
 	double temp_volt_mag;
 	gld_property *temp_property_pointer;
 	gld_property *Frequency_mapped;
-	gld_wlock *test_rlock;
+	gld_wlock test_rlock(obj);
 	bool temp_bool_value;
 	int temp_idx_x, temp_idx_y;
 	complex temp_complex_value;
@@ -674,7 +663,7 @@ int inverter::init(OBJECT *parent)
 
 						//Flag it to true
 						temp_bool_value = true;
-						temp_property_pointer->setp<bool>(temp_bool_value,*test_rlock);
+						temp_property_pointer->setp<bool>(temp_bool_value,test_rlock);
 
 						//Remove it
 						delete temp_property_pointer;
@@ -776,7 +765,7 @@ int inverter::init(OBJECT *parent)
 
 				//Flag it to true
 				temp_bool_value = true;
-				temp_property_pointer->setp<bool>(temp_bool_value,*test_rlock);
+				temp_property_pointer->setp<bool>(temp_bool_value,test_rlock);
 
 				//Remove it
 				delete temp_property_pointer;
@@ -801,7 +790,7 @@ int inverter::init(OBJECT *parent)
 				}
 
 				//Pull the value
-				Frequency_mapped->getp<bool>(temp_bool_value,*test_rlock);
+				Frequency_mapped->getp<bool>(temp_bool_value,test_rlock);
 				
 				//Check the value
 				if (temp_bool_value == false)	//No one has mapped yet, we are volunteered
@@ -818,7 +807,7 @@ int inverter::init(OBJECT *parent)
 
 					//Flag the frequency mapping as having occurred
 					temp_bool_value = true;
-					Frequency_mapped->setp<bool>(temp_bool_value,*test_rlock);
+					Frequency_mapped->setp<bool>(temp_bool_value,test_rlock);
 				}
 				//Default else -- someone else is already mapped, just continue onward
 
@@ -880,7 +869,7 @@ int inverter::init(OBJECT *parent)
 				}
 
 				//Pull down the variable
-				pbus_full_Y_mat->getp<complex_array>(temp_complex_array,*test_rlock);
+				pbus_full_Y_mat->getp<complex_array>(temp_complex_array,test_rlock);
 
 				//See if it is valid
 				if (temp_complex_array.is_valid(0,0) != true)
@@ -891,9 +880,10 @@ int inverter::init(OBJECT *parent)
 					//Zero it, by default
 					for (temp_idx_x=0; temp_idx_x<3; temp_idx_x++)
 					{
+						complex zero(0,0);
 						for (temp_idx_y=0; temp_idx_y<3; temp_idx_y++)
 						{
-							temp_complex_array.set_at(temp_idx_x,temp_idx_y,complex(0.0,0.0));
+							temp_complex_array.set_at(temp_idx_x,temp_idx_y,zero);
 						}
 					}
 				}
@@ -927,7 +917,7 @@ int inverter::init(OBJECT *parent)
 				}
 
 				//Push it back up
-				pbus_full_Y_mat->setp<complex_array>(temp_complex_array,*test_rlock);
+				pbus_full_Y_mat->setp<complex_array>(temp_complex_array,test_rlock);
 
 				// Check the bustype if the inverter parent
 				temp_property_pointer = new gld_property(tmp_obj,"bustype"); // Obtain VSI parent meter bustype
@@ -954,19 +944,24 @@ int inverter::init(OBJECT *parent)
 				// Find if a battery is attached to VSI, if not, give warning
 				// Find all batteries
 				batteries = gl_find_objects(FL_NEW, FT_CLASS, SAME, "battery", FT_END);
-				if(batteries == NULL || batteries->hit_count == 0){
+				if ( batteries == NULL || batteries->hit_count == 0 )
+				{
 					gl_warning("No battery objects were found, but the VSI object exists. Now assume the VSI is attached with infinite input power.");
 					/* TROUBLESHOOT
 					No battery object attached to VSI. In reality, a battery is required for VSI to output enough power.
 					*/
 				}
-				else {
-					while(objBattery = gl_find_next(batteries,objBattery)){
-						if(index >= batteries->hit_count){
+				else 
+				{
+					while ( (objBattery = gl_find_next(batteries,objBattery)) )
+					{
+						if ( index >= (int)batteries->hit_count )
+						{
 							gl_warning("VSI: %s does not find a battery attached to it. Now assume VSI: %s is attached with infinite input power.", (obj->name ? obj->name : "Unnamed"), (obj->name ? obj->name : "Unnamed"));
 							break;
 						}
-						if (strcmp(objBattery->parent->name, obj->name) == 0) {
+						if ( strcmp(objBattery->parent->name, obj->name) == 0 ) 
+						{
 							break;
 						}
 						++index;
@@ -8430,7 +8425,7 @@ complex inverter::complex_exp(double angle)
 }
 
 //Map Complex value
-gld_property *inverter::map_complex_value(OBJECT *obj, char *name)
+gld_property *inverter::map_complex_value(OBJECT *obj, const char *name)
 {
 	gld_property *pQuantity;
 	OBJECT *objhdr = OBJECTHDR(this);
@@ -8453,7 +8448,7 @@ gld_property *inverter::map_complex_value(OBJECT *obj, char *name)
 }
 
 //Map double value
-gld_property *inverter::map_double_value(OBJECT *obj, char *name)
+gld_property *inverter::map_double_value(OBJECT *obj, const char *name)
 {
 	gld_property *pQuantity;
 	OBJECT *objhdr = OBJECTHDR(this);

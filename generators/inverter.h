@@ -9,12 +9,9 @@
 #ifndef _inverter_H
 #define _inverter_H
 
-#include <utility>		//for pair<> in Volt/VAr schedule
-#include <vector>		//for list<> in Volt/VAr schedule
-#include <string> //Ab add
-#include <stdarg.h>
-
-#include "generators.h"
+#ifndef _GENERATORS_H
+#error "this header must be included by generators.h only"
+#endif
 
 EXPORT STATUS preupdate_inverter(OBJECT *obj,TIMESTAMP t0, unsigned int64 delta_time);
 EXPORT SIMULATIONMODE interupdate_inverter(OBJECT *obj, unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val);
@@ -358,7 +355,8 @@ public:
 	double over_voltage_low_viol_time;				//Lowest high voltage threshold violation accumulator
 	double over_voltage_high_viol_time;				//Highest high voltage threshold violation accumulator
 
-	typedef enum {
+	typedef enum e_tripreason 
+	{
 		IEEE_1547_NONE=0,		/**< No trip reason */
 		IEEE_1547_HIGH_OF=1,	/**< High over-frequency level trip */
 		IEEE_1547_LOW_OF=2,		/**< Low over-frequency level trip */
@@ -369,7 +367,7 @@ public:
 		IEEE_1547_HIGH_UV=7,	/**< High under-voltage level trip */
 		IEEE_1547_LOW_OV=8,		/**< Low over-voltage level trip */
 		IEEE_1547_HIGH_OV=9		/**< High over-voltage level trip */
-	};
+	} TRIPREASON;
 
 	enumeration ieee_1547_trip_method;
 
@@ -467,8 +465,8 @@ private:
 	STATUS initalize_IEEE_1547_checks(OBJECT *parent);
 
 	//Map functions
-	gld_property *map_complex_value(OBJECT *obj, char *name);
-	gld_property *map_double_value(OBJECT *obj, char *name);
+	gld_property *map_complex_value(OBJECT *obj, const char *name);
+	gld_property *map_double_value(OBJECT *obj, const char *name);
 	void pull_complex_powerflow_values(void);
 	void reset_complex_powerflow_accumulators(void);
 	void push_complex_powerflow_values(void);
