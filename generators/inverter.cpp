@@ -1225,16 +1225,23 @@ int inverter::init(OBJECT *parent)
 					//std::string tempV = "";
 					tempV = "";
 					tempQ = "";
-					for(int i = 0; i < VoltVArSchedInput.length(); i++)	{
-						if(VoltVArSchedInput[i] != ',')	{
-							if(cntr % 2 == 0)
+					for ( size_t i = 0 ; i < VoltVArSchedInput.length() ; i++ )	
+					{
+						if ( VoltVArSchedInput[i] != ',' )	
+						{
+							if ( cntr % 2 == 0 )
+							{
 								tempV += VoltVArSchedInput[i];
+							}
 							else
+							{
 								tempQ += VoltVArSchedInput[i];
+							}
 						}
 						else
 						{					
-							if(cntr % 2 == 1){
+							if ( cntr % 2 == 1 ) 
+							{
 								VoltVArSched.push_back(std::make_pair (atof(tempV.c_str()),atof(tempQ.c_str())));
 								tempQ = "";
 								tempV = "";
@@ -1262,16 +1269,23 @@ int inverter::init(OBJECT *parent)
 					int cntr = 0;
 					tempf = "";
 					tempP = "";
-					for(int i = 0; i < freq_pwrSchedInput.length(); i++)	{
-						if(freq_pwrSchedInput[i] != ',')	{
-							if(cntr % 2 == 0)
+					for ( size_t i = 0 ; i < freq_pwrSchedInput.length() ; i++ )
+					{
+						if ( freq_pwrSchedInput[i] != ',' )	
+						{
+							if ( cntr % 2 == 0 )
+							{
 								tempf += freq_pwrSchedInput[i];
+							}
 							else
+							{
 								tempP += freq_pwrSchedInput[i];
+							}
 						}
 						else
 						{					
-							if(cntr % 2 == 1) {
+							if ( cntr % 2 == 1 ) 
+							{
 								freq_pwrSched.push_back(std::make_pair (atof(tempf.c_str()),atof(tempP.c_str())));
 								tempf = "";
 								tempP = "";
@@ -2275,7 +2289,6 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 	double ieee_1547_return_value;
 	TIMESTAMP new_ret_value;
 	FUNCTIONADDR test_fxn;
-	bool *gen_dynamic_flag;
 	STATUS fxn_return_status;
 	
 	complex rotate_value;
@@ -2285,7 +2298,7 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 	complex temp_power_val[3];
 
 	complex temp_complex_value;
-	gld_wlock *test_rlock;
+	gld_wlock test_rlock(obj);
 
 	//Assume always want TS_NEVER
 	tret_value = TS_NEVER;
@@ -2448,7 +2461,7 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 							temp_complex_value = complex(P_Out, Q_Out);
 
 							//Push it up
-							pGenerated->setp<complex>(temp_complex_value,*test_rlock);
+							pGenerated->setp<complex>(temp_complex_value,test_rlock);
 
 							//Map the current injection function
 							test_fxn = (FUNCTIONADDR)(gl_get_function(obj->parent,"pwr_current_injection_update_map"));
@@ -2628,8 +2641,6 @@ TIMESTAMP inverter::sync(TIMESTAMP t0, TIMESTAMP t1)
 					}
 					else if(number_of_phases_out == 2) // two-phase connection
 					{
-						OBJECT *obj = OBJECTHDR(this);
-
 						if ( ((phases & 0x01) == 0x01) && phaseA_V_Out.Mag() != 0)
 						{
 							power_val[0] = complex(VA_Out.Mag()*fabs(power_factor),power_factor/fabs(power_factor)*VA_Out.Mag()*sin(acos(power_factor)))/2;;
@@ -3985,13 +3996,11 @@ TIMESTAMP inverter::postsync(TIMESTAMP t0, TIMESTAMP t1)
 	OBJECT *obj = OBJECTHDR(this);
 	TIMESTAMP t2 = TS_NEVER;		//By default, we're done forever!
 	LOAD_FOLLOW_STATUS new_lf_status;
-	PF_REG_STATUS new_pf_reg_status;
+	PF_REG_STATUS new_pf_reg_status = REGULATING;
 	double new_lf_dispatch_power, curr_power_val, diff_power_val;				
-	double new_pf_reg_distpatch_VAR, curr_real_power_val, curr_reactive_power_val, curr_pf, available_VA, new_Q_out, Q_out, Q_required, Q_available, Q_load;
+	double new_pf_reg_distpatch_VAR = 0.0, curr_real_power_val, curr_reactive_power_val, curr_pf, Q_out, Q_available;
 	double scaling_factor, Q_target;
 	complex temp_current_val[3];
-	TIMESTAMP dt;
-	double inputPower;
 	complex temp_complex_value;
 
 	//If we have a meter, reset the accumulators
@@ -5134,6 +5143,7 @@ STATUS inverter::pre_deltaupdate(TIMESTAMP t0, unsigned int64 delta_time)
 //Module-level call
 SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned long dt, unsigned int iteration_count_val)
 {
+	OBJECT *obj = OBJECTHDR(this);
 	double deltat, deltath;
 	unsigned char pass_mod;
 	int indexval;
@@ -5144,12 +5154,10 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 	double power_diff_val;
 	double prev_error_ed;
 	double prev_error_eq;
-	bool deltaConverged = false;
 	bool ramp_change;
-	int i;
+	int i = 0;
 	complex temp_current_val[3];
-	double inputPower;
-	gld_wlock *test_rlock;
+	gld_wlock test_rlock(obj);
 
 	SIMULATIONMODE simmode_return_value = SM_EVENT;
 
@@ -5685,7 +5693,7 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 						// Update the system frequency
 						if (mapped_freq_variable!=NULL)
 						{
-							mapped_freq_variable->setp<double>(VSI_freq,*test_rlock);
+							mapped_freq_variable->setp<double>(VSI_freq,test_rlock);
 						}
 
 						if (VSI_mode == VSI_ISOCHRONOUS) {
@@ -5791,7 +5799,7 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 						// Update the system frequency
 						if (mapped_freq_variable!=NULL)
 						{
-							mapped_freq_variable->setp<double>(VSI_freq,*test_rlock);
+							mapped_freq_variable->setp<double>(VSI_freq,test_rlock);
 						}
 
 						if (VSI_mode == VSI_ISOCHRONOUS) {
@@ -6684,9 +6692,6 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 							pred_state.P_Out[i] = (value_Circuit_V[i] * ~(I_Out[i])).Re();
 							pred_state.Q_Out[i] = (value_Circuit_V[i] * ~(I_Out[i])).Im();
 
-							if (Pref > 0) {
-								int stop_temp = 0;
-							}
 							if (value_Circuit_V[i].Mag() > 0.0)
 							{
 								pred_state.ed[i] = ((~(complex(Pref/3.0, Qref_PI[i])/(value_Circuit_V[i]))) - (~(complex(pred_state.P_Out[i],pred_state.Q_Out[i])/(value_Circuit_V[i])))).Re();
@@ -7567,7 +7572,6 @@ void inverter::update_control_references(void)
 	//FOUR_QUADRANT model (originally written for NAS/CES, altered for PV)
 	double VA_Efficiency, temp_PF, temp_QVal;
 	complex temp_VA, VA_Outref;
-	complex battery_power_out = complex(0,0);
 	OBJECT *obj = OBJECTHDR(this);
 	bool VA_changed = false; // A flag indicating whether VAref is changed due to limitations
 
@@ -7885,7 +7889,7 @@ double inverter::perform_1547_checks(double timestepvalue)
 	bool uv_low_hit, uv_mid_hit, uv_high_hit, ov_low_hit, ov_high_hit;
 	double temp_pu_voltage;
 	double return_time_freq, return_time_volt, return_value;
-	char indexval;
+	unsigned int indexval;
 
 	//By default, we're subject to the whims of deltamode
 	return_time_freq = -1.0;
@@ -8539,8 +8543,9 @@ void inverter::reset_complex_powerflow_accumulators(void)
 //Function to push up all changes of complex properties to powerflow from local variables
 void inverter::push_complex_powerflow_values(void)
 {
+	OBJECT *obj = OBJECTHDR(this);
 	complex temp_complex_val;
-	gld_wlock *test_rlock;
+	gld_wlock test_rlock(obj);
 	int indexval;
 
 	//See which one we are, since that will impact things
@@ -8557,7 +8562,7 @@ void inverter::push_complex_powerflow_values(void)
 			temp_complex_val += value_Line_I[indexval];
 
 			//Push it back up
-			pLine_I[indexval]->setp<complex>(temp_complex_val,*test_rlock);
+			pLine_I[indexval]->setp<complex>(temp_complex_val,test_rlock);
 
 			//**** Power value ***/
 			//Pull current value again, just in case
@@ -8567,7 +8572,7 @@ void inverter::push_complex_powerflow_values(void)
 			temp_complex_val += value_Power[indexval];
 
 			//Push it back up
-			pPower[indexval]->setp<complex>(temp_complex_val,*test_rlock);
+			pPower[indexval]->setp<complex>(temp_complex_val,test_rlock);
 
 			//**** pre-rotated Current value ***/
 			//Pull current value again, just in case
@@ -8577,13 +8582,13 @@ void inverter::push_complex_powerflow_values(void)
 			temp_complex_val += value_Line_unrotI[indexval];
 
 			//Push it back up
-			pLine_unrotI[indexval]->setp<complex>(temp_complex_val,*test_rlock);
+			pLine_unrotI[indexval]->setp<complex>(temp_complex_val,test_rlock);
 
 			if ((VSI_mode == VSI_ISOCHRONOUS) || (VSI_mode == VSI_DROOP))
 			{
 				//**** IGenerated Current value ***/
 				//Direct write, not an accumulator
-				pIGenerated[indexval]->setp<complex>(value_IGenerated[indexval],*test_rlock);
+				pIGenerated[indexval]->setp<complex>(value_IGenerated[indexval],test_rlock);
 			}
 		}
 	}
@@ -8599,7 +8604,7 @@ void inverter::push_complex_powerflow_values(void)
 		temp_complex_val += value_Line12;
 
 		//Push it back up
-		pLine12->setp<complex>(temp_complex_val,*test_rlock);
+		pLine12->setp<complex>(temp_complex_val,test_rlock);
 
 		//**** powert12 value ***/
 		//Pull current value again, just in case
@@ -8609,7 +8614,7 @@ void inverter::push_complex_powerflow_values(void)
 		temp_complex_val += value_Power12;
 
 		//Push it back up
-		pPower12->setp<complex>(temp_complex_val,*test_rlock);
+		pPower12->setp<complex>(temp_complex_val,test_rlock);
 
 		//**** prerotated_12 value ***/
 		//Pull current value again, just in case
@@ -8619,13 +8624,13 @@ void inverter::push_complex_powerflow_values(void)
 		temp_complex_val += value_Line_unrotI[0];
 
 		//Push it back up
-		pLine_unrotI[0]->setp<complex>(temp_complex_val,*test_rlock);
+		pLine_unrotI[0]->setp<complex>(temp_complex_val,test_rlock);
 
 		//**** IGenerated_12 ****/
 		if ((VSI_mode == VSI_ISOCHRONOUS) || (VSI_mode == VSI_DROOP))
 		{
 			//Direct write, not an accumulator
-			pIGenerated[0]->setp<complex>(value_IGenerated[0],*test_rlock);
+			pIGenerated[0]->setp<complex>(value_IGenerated[0],test_rlock);
 		}
 	}
 }
@@ -8646,7 +8651,7 @@ STATUS inverter::updateCurrInjection()
 	double power_diff_val;
 	bool ramp_change;
 	double deltat, temp_time;
-	char idx;
+	unsigned int idx;
 	OBJECT *obj = OBJECTHDR(this);
 
 	if (deltatimestep_running > 0.0)	//Deltamode call

@@ -127,6 +127,8 @@ private:
 	double out_of_violation_time_total;		//Tracking variable to see how long we've been "outside of bad conditions"
 	double prev_time_dbl;					//Tracking variable for GFA functionality
 	double GFA_Update_time;
+	GL_STRUCT(complex_array,full_Y_matrix);
+	GL_STRUCT(complex_array,full_Y_all_matrix);
 
 	//VFD-related items
 	bool VFD_attached;						///< Flag to indicate this is on the to-side of a VFD link
@@ -201,6 +203,8 @@ public:
 	complex voltaged[3];	/// bus voltage differences
 	complex current[3];		/// bus current injection (positive = in)
 	complex pre_rotated_current[3];	/// bus current that has been rotated already for deltamode (direct post to powerflow)
+	complex deltamode_dynamic_current[3];	/// bus current that is pre-rotated, but also has ability to be reset within powerflow
+	complex deltamode_PGenTotal;			/// Bus generated power - used deltamode
 	complex power[3];		/// bus power injection (positive = in)
 	complex shunt[3];		/// bus shunt admittance 
 	complex current_dy[6];	/// bus current injection (positive = in), explicitly specify delta and wye portions
@@ -233,6 +237,7 @@ public:
 public:
 	static CLASS *oclass;
 	static CLASS *pclass;
+	static node *defaults;
 public:
 	node(MODULE *mod);
 	inline node(CLASS *cl=oclass):powerflow_object(cl){};
