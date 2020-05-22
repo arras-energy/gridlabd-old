@@ -22,9 +22,8 @@ static const char *module_import_name = NULL; // module name to import (python o
 static PyObject *pModule = NULL;
 static int solver_python_loglevel = 0; // -1=disable, 0 = minimal ... 9 = everything,
 static FILE *solver_python_logfh = NULL;
-static const char *python_busdata = "id,type,phases,"
-	"vbase,mvabase,origphases,busflags,"
-	"VAm,VAa,VBm,VBa,VCm,VCa,"
+static const char *python_busdata = "type,phases,"
+	"volt_base,mva_base,origphases,"
 	"SAr,SAi,SBr,SBi,SCr,SCi,"
 	"YAr,YAi,YBr,YBi,YCr,YCi,"
 	"IAr,IAi,IBr,IBi,ICr,ICi,"
@@ -34,15 +33,13 @@ static const char *python_busdata = "id,type,phases,"
 	"I_dyAr,I_dyAi,I_dyBr,I_dyBi,I_dyCr,I_dyCi,"
 	"PGenTotalAr,PGenTotalAi,PGenTotalBr,PGenTotalBi,PGenTotalCr,PGenTotalCi,"
 	"DynCurrentAr,DynCurrentAi,DynCurrentBr,DynCurrentBi,DynCurrentCr,DynCurrentCi,"
-	"PA,QA,PB,QB,PC,QC,"
-	"YcAAr,YcAAi,YcABr,YcABi,YcACr,YcACi,"
-	"YcBBr,YcBBi,YcBCr,YcBCu,YcCCr,YcCCi,"
-	"YsAAr,YsAAi,YsABr,YsABi,YsACr,YsACi,"
-	"YsBBr,YsBBi,YsBCr,YsBCi,YsCCr,YsCCi,"
-	"YlAr,YlAi,YlBr,YlBi,YlCr,YlCi,"
-	"JA0,JA1,JA2,JB0,JB1,JB2,JC0,JC1,JC2,JD0,JD1,JD2";
-static const char *python_branchdata = "id,type,phases,from,to,"
-	"origphases,faultphases,link_type,fault_link_below,v_ratio,vratio,"
+	"PLA,QLA,PLB,QLB,PLC,QLC,"
+	"full_YAAr,full_YAAi,full_YABr,full_YABi,full_YACr,full_YACi,full_YBBr,full_YBBi,full_YBCr,full_YBCi,full_YCCr,full_YCCi,"
+	"full_Y_allAAr,full_Y_allAAi,full_Y_allABr,full_Y_allABi,full_Y_allACr,full_Y_allACi,full_Y_allBBr,full_Y_allBBi,full_Y_allBCr,full_Y_allBCi,full_Y_allCCr,full_Y_allCCi,"
+	"full_Y_loadAr,full_Y_loadAi,full_Y_loadBr,full_Y_loadBi,full_Y_loadCr,full_Y_loadCi,"
+	"Jacob_A0,Jacob_A1,Jacob_A2,Jacob_B0,Jacob_B1,Jacob_B2,Jacob_C0,Jacob_C1,Jacob_C2,Jacob_D0,Jacob_D1,Jacob_D2";
+static const char *python_branchdata = "phases,from,to,"
+	"origphases,faultphases,lnk_type,fault_link_below,v_ratio,"
 	"YfromAr,YfromAi,YfromBr,YfromBi,YfromCr,YfromCi,"
 	"YtoAr,YtoAi,YtoBr,YtoBi,YtoCr,YtoCi,"
 	"YSfromAr,YSfromAi,YSfromBr,YSfromBi,YSfromCr,YSfromCi,"
@@ -156,12 +153,12 @@ SOLVERPYTHONSTATUS solver_python_config (
 				else if ( strcmp(tag,"busdata") == 0 )
 				{
 					python_busdata = strdup(value);
-					solver_python_log(1,"solver_python_config(configname='%s'): python_busdata = '%s'",python_busdata);					
+					solver_python_log(1,"solver_python_config(configname='%s'): python_busdata = '%s'",configname,python_busdata);					
 				}
 				else if ( strcmp(tag,"branchdata") == 0 )
 				{
 					python_branchdata = strdup(value);
-					solver_python_log(1,"solver_python_config(configname='%s'): python_branchdata = '%s'",python_branchdata);					
+					solver_python_log(1,"solver_python_config(configname='%s'): python_branchdata = '%s'",configname,python_branchdata);					
 				}
 				else
 				{
@@ -352,28 +349,56 @@ void set_branchtags(PyObject *pModel)
 	PyDict_SetItemString(pModel,"branchtags",data);
 }
 
-double complex_to_mag(void *z)
+void complex_to_mag(double *x, void *z,bool inverse)
 {
-	return ((complex*)z)->Mag();
+	*x = ((complex*)z)->Mag();
 }
 
-double complex_to_arg(void *z)
+void complex_to_arg(double *x, void *z,bool inverse)
 {
-	return ((complex*)z)->Arg();
+	*x = ((complex*)z)->Arg();
 }
 
-double int_to_double(void *c)
+void int_to_double(double *x, void *c,bool inverse)
 {
-	return (double)(*(int*)c);
+	*x = (double)(*(int*)c);
 }
 
-double uchar_to_double(void *c)
+void uchar_to_double(double *x, void *c,bool inverse)
 {
-	return (double)(*(unsigned char*)c);
+	*x = (double)(*(unsigned char*)c);
 }
 
 // bus/branch data mapping
-#define DATA(S,T,X,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t.X),D,C}
+#define DATA(S,T,X,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C}
+#define THREEPHASE_R(B,X,D) \
+	DATA(B,#X "A",X[0],D,NULL), \
+	DATA(B,#X "B",X[1],D,NULL), \
+	DATA(B,#X "C",X[2],D,NULL)
+#define THREEPHASE_C(B,X,D) \
+	DATA(B,#X "Ar",X[0].r,D,NULL), \
+	DATA(B,#X "Ai",X[0].i,D,NULL), \
+	DATA(B,#X "Br",X[1].r,D,NULL), \
+	DATA(B,#X "Bi",X[1].i,D,NULL), \
+	DATA(B,#X "Cr",X[2].r,D,NULL), \
+	DATA(B,#X "Ci",X[2].i,D,NULL)
+#define THREEPHASE_N(B,X,D) \
+	DATA(B,#X "0",X[0],D,NULL), \
+	DATA(B,#X "1",X[0],D,NULL), \
+	DATA(B,#X "2",X[1],D,NULL)
+#define SYMMETRIC_C(B,X,D) \
+	DATA(B,#X "AAr",X[0].r,D,NULL), \
+	DATA(B,#X "AAi",X[0].i,D,NULL), \
+	DATA(B,#X "ABr",X[1].r,D,NULL), \
+	DATA(B,#X "ABi",X[1].i,D,NULL), \
+	DATA(B,#X "ACr",X[2].r,D,NULL), \
+	DATA(B,#X "ACi",X[2].i,D,NULL), \
+	DATA(B,#X "BBr",X[4].r,D,NULL), \
+	DATA(B,#X "BBi",X[4].i,D,NULL), \
+	DATA(B,#X "BCr",X[5].r,D,NULL), \
+	DATA(B,#X "BCi",X[5].i,D,NULL), \
+	DATA(B,#X "CCr",X[8].r,D,NULL), \
+	DATA(B,#X "CCi",X[8].i,D,NULL)
 
 typedef unsigned int e_dir;
 #define ED_INIT 0x01
@@ -386,47 +411,49 @@ static struct s_map
 {
 	const char *tag;
 	int64 offset;
-	size_t size;
+	int64 size;
 	e_dir dir;
-	double (*convert)(void*);
+	void (*convert)(double*,void*,bool);
 } busmap[] = 
 {
 	DATA(bus,"type",type,ED_INIT,int_to_double),
 	DATA(bus,"phases",phases,ED_OUT,uchar_to_double),
 	DATA(bus,"origphases",origphases,ED_INIT,uchar_to_double),
-	DATA(bus,"VAm",V[0],ED_OUT,complex_to_mag),
-	DATA(bus,"VAa",V[0],ED_OUT,complex_to_arg),
-	DATA(bus,"VBm",V[1],ED_OUT,complex_to_mag),
-	DATA(bus,"VBa",V[1],ED_OUT,complex_to_arg),
-	DATA(bus,"VCm",V[2],ED_OUT,complex_to_mag),
-	DATA(bus,"VCa",V[2],ED_OUT,complex_to_arg),
-	DATA(bus,"SAr",S[0].r,ED_OUT,NULL),
-	DATA(bus,"SAi",S[0].i,ED_OUT,NULL),
-	DATA(bus,"SBr",S[1].r,ED_OUT,NULL),
-	DATA(bus,"SBi",S[1].i,ED_OUT,NULL),
-	DATA(bus,"SCr",S[2].r,ED_OUT,NULL),
-	DATA(bus,"SCi",S[2].i,ED_OUT,NULL),
-	DATA(bus,"YAr",Y[0].r,ED_OUT,NULL),
-	DATA(bus,"YAi",Y[0].i,ED_OUT,NULL),
-	DATA(bus,"YBr",Y[1].r,ED_OUT,NULL),
-	DATA(bus,"YBi",Y[1].i,ED_OUT,NULL),
-	DATA(bus,"YCr",Y[2].r,ED_OUT,NULL),
-	DATA(bus,"YCi",Y[2].i,ED_OUT,NULL),
-	DATA(bus,"IAr",I[0].r,ED_OUT,NULL),
-	DATA(bus,"IAi",I[0].i,ED_OUT,NULL),
-	DATA(bus,"IBr",I[1].r,ED_OUT,NULL),
-	DATA(bus,"IBi",I[1].i,ED_OUT,NULL),
-	DATA(bus,"ICr",I[2].r,ED_OUT,NULL),
-	DATA(bus,"ICi",I[2].i,ED_OUT,NULL),
+	DATA(bus,"mva_base",mva_base,ED_INIT,NULL),
+	DATA(bus,"volt_base",volt_base,ED_INIT,NULL),
+	THREEPHASE_C(bus,V,ED_IN|ED_OUT),
+	THREEPHASE_C(bus,S,ED_OUT),
+	THREEPHASE_C(bus,Y,ED_OUT),
+	THREEPHASE_C(bus,I,ED_OUT),
+	THREEPHASE_C(bus,prerot_I,ED_OUT),
+	THREEPHASE_C(bus,S_dy,ED_OUT),
+	THREEPHASE_C(bus,Y_dy,ED_OUT),
+	THREEPHASE_C(bus,I_dy,ED_OUT),
+	THREEPHASE_C(bus,PGenTotal,ED_OUT),
+	THREEPHASE_C(bus,DynCurrent,ED_OUT),
+	THREEPHASE_R(bus,PL,ED_OUT),
+	THREEPHASE_R(bus,QL,ED_OUT),
+	SYMMETRIC_C(bus,full_Y,ED_OUT),
+	SYMMETRIC_C(bus,full_Y_all,ED_OUT),
+	THREEPHASE_C(bus,full_Y_load,ED_OUT),
+	THREEPHASE_N(bus,Jacob_A,ED_OUT),
+	THREEPHASE_N(bus,Jacob_B,ED_OUT),
+	THREEPHASE_N(bus,Jacob_C,ED_OUT),
+	THREEPHASE_N(bus,Jacob_D,ED_OUT),
 }, branchmap[] = 
 {
 	DATA(branch,"phases",phases,ED_OUT,uchar_to_double),
 	DATA(branch,"origphases",origphases,ED_INIT,uchar_to_double),
+	DATA(branch,"faultphases",faultphases,ED_OUT,uchar_to_double),
 	DATA(branch,"from",from,ED_INIT,int_to_double),
 	DATA(branch,"to",to,ED_INIT,int_to_double),
-	DATA(branch,"link_type",lnk_type,ED_INIT,uchar_to_double),
+	DATA(branch,"lnk_type",lnk_type,ED_INIT,uchar_to_double),
 	DATA(branch,"v_ratio",v_ratio,ED_INIT,NULL),
 	DATA(branch,"fault_link_below",fault_link_below,ED_OUT,int_to_double),
+	THREEPHASE_C(branch,Yfrom,ED_OUT),
+	THREEPHASE_C(branch,Yto,ED_OUT),
+	THREEPHASE_C(branch,YSfrom,ED_OUT),
+	THREEPHASE_C(branch,YSto,ED_OUT),
 };
 static int *bus_index = NULL;
 static int *branch_index = NULL;
@@ -435,9 +462,25 @@ void set_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir d
 {
 	if ( dir & map->dir )
 	{	
-		void *ptr = (void*)((char*)source + map->offset);
-		double x = map->convert ? map->convert(ptr) : *(double*)ptr;
-		PyList_SetItem(data,n,PyFloat_FromDouble(x));
+		if ( map->offset >= 0 && map->offset < map->size )
+		{
+			void *ptr = (void*)((char*)source + map->offset);
+			double x;
+			if ( map->convert )
+			{
+				map->convert(&x,ptr,false);
+			}
+			else
+			{
+				x = *(double*)ptr;
+			}
+			PyList_SetItem(data,n,PyFloat_FromDouble(x));
+		}
+		else
+		{
+			PyList_SetItem(data,n,Py_None);
+			Py_INCREF(Py_None);
+		}
 	}
 }
 
@@ -450,41 +493,50 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 		PyDict_SetItemString(pModel,"busdata",busdata);
 		bus_index = new int[python_nbustags];
 		memset(bus_index,-1,python_nbustags*sizeof(int));
-		for ( size_t n = 0 ; n < bus_count ; n++ )
+		for ( size_t m = 0 ; m < sizeof(busmap)/sizeof(busmap[0]) ; m++ )
 		{
+			int t = strfind(python_nbustags,python_bustags,busmap[m].tag);
 			PyObject *data = PyList_New(bus_count);
-			PyList_SetItem(busdata,n,data);
-			for ( size_t m = 0 ; m < sizeof(busmap)/sizeof(busmap[0]) ; m++ )
+			PyList_SetItem(busdata,t,data);
+			if ( t >= 0 )
 			{
-				int t = strfind(python_nbustags,python_bustags,busmap[m].tag);
-				if ( t >= 0 )
+				bus_index[t] = m;
+				for ( size_t n = 0 ; n < bus_count ; n++ )
 				{
-					bus_index[t] = m;
-					set_data(data,n,(void*)&bus[m],&busmap[t],ED_INIT);
+					set_data(data,n,(void*)&bus[m],&busmap[m],ED_INIT);
 				}
+			}
+		}
+		for ( size_t t = 0 ; t < python_nbustags ; t++ )
+		{
+			PyObject *data = PyList_GetItem(busdata,t);
+			if ( data == NULL )
+			{
+				PyList_SetItem(busdata,t,Py_None);
+				Py_INCREF(Py_None);
 			}
 		}
 	}
 	for ( size_t t = 0 ; t < python_nbustags ; t++ )
 	{
-		int n = bus_index[t];
-		if ( n >= 0 && busmap[n].dir != ED_OUT )
+		int m = bus_index[t];
+		if ( m >= 0 && busmap[m].dir != ED_OUT )
 		{
 			continue;
 		}
 		PyObject *data = PyList_GetItem(busdata,t);
-		if ( n >= 0 )
+		if ( m >= 0 )
 		{
-			for ( size_t m = 0 ; m < bus_count ; m++ )
+			for ( size_t n = 0 ; n < bus_count ; n++ )
 			{
-				set_data(data,m,(void*)&bus[n],&busmap[t],ED_OUT);
+				set_data(data,n,(void*)&bus[m],&busmap[m],ED_OUT);
 			}
 		}
-		else if ( n == -1 )
+		else if ( m == -1 )
 		{
-			for ( size_t m = 0 ; m < bus_count ; m++ )
+			for ( size_t n = 0 ; n < bus_count ; n++ )
 			{
-				PyList_SetItem(data,m,Py_None);
+				PyList_SetItem(data,n,Py_None);
 				Py_INCREF(Py_None);
 			}
 			bus_index[t] = -2;
@@ -502,45 +554,54 @@ void sync_branchdata(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&br
 		PyDict_SetItemString(pModel,"branchdata",branchdata);
 		branch_index = new int[python_nbranchtags];
 		memset(branch_index,-1,python_nbranchtags*sizeof(int));
-		for ( size_t n = 0 ; n < branch_count ; n++ )
+		for ( size_t m = 0 ; m < sizeof(branchmap)/sizeof(branchmap[0]) ; m++ )
 		{
-			PyObject *data = PyList_New(branch_count);
-			PyList_SetItem(branchdata,n,data);
-			for ( size_t m = 0 ; m < sizeof(branchmap)/sizeof(branchmap[0]) ; m++ )
+			int t = strfind(python_nbranchtags,python_branchtags,branchmap[m].tag);
+			if ( t >= 0 )
 			{
-				int t = strfind(python_nbranchtags,python_branchtags,branchmap[m].tag);
-				if ( t >= 0 )
+				PyObject *data = PyList_New(branch_count);
+				PyList_SetItem(branchdata,t,data);
+				branch_index[t] = m;
+				for ( size_t n = 0 ; n < branch_count ; n++ )
 				{
-					branch_index[t] = m;
-					set_data(data,n,(void*)&branch[n],&branchmap[t],ED_INIT);
+					set_data(data,n,(void*)&branch[m],&branchmap[m],ED_INIT);
 				}
+			}
+		}
+		for ( size_t t = 0 ; t < python_nbranchtags ; t++ )
+		{
+			PyObject *data = PyList_GetItem(branchdata,t);
+			if ( data == NULL )
+			{
+				PyList_SetItem(branchdata,t,Py_None);
+				Py_INCREF(Py_None);
 			}
 		}
 	}
 	for ( size_t t = 0 ; t < python_nbranchtags ; t++ )
 	{
-		int n = branch_index[t];
-		if ( n >= 0 && branchmap[n].dir != ED_OUT )
+		int m = branch_index[t];
+		if ( m >= 0 && branchmap[m].dir != ED_OUT )
 		{
 			continue;
 		}
 		PyObject *data = PyList_GetItem(branchdata,t);
-		if ( n >= 0 )
+		if ( m >= 0 )
 		{
-			for ( size_t m = 0 ; m < branch_count ; m++ )
+			for ( size_t n = 0 ; n < branch_count ; n++ )
 			{
-				set_data(data,m,(void*)&branch[n],&branchmap[t],ED_OUT);
+				set_data(data,n,(void*)&branch[m],&branchmap[m],ED_OUT);
 			}
 		}
-		else if ( n == -1 )
+		else if ( m == -1 )
 		{
-			for ( size_t m = 0 ; m < branch_count ; m++ )
+			for ( size_t n = 0 ; n < branch_count ; n++ )
 			{
-				PyList_SetItem(data,m,Py_None);
+				PyList_SetItem(data,n,Py_None);
 				Py_INCREF(Py_None);
 			}
 			branch_index[t] = -2;
-			gl_error("%s: bus tag '%s' not found", (const char*)solver_py_config, python_branchtags[t]);
+			gl_error("%s: branch tag '%s' not found", (const char*)solver_py_config, python_branchtags[t]);
 		}
 	}
 }
@@ -556,13 +617,8 @@ static PyObject *sync_model(
 	if ( pModel == NULL )
 	{
 		pModel = PyDict_New();	
-		// PyDict_SetItemString(pModel,"iterations",PyLong_FromLong(-10));
 		set_bustags(pModel);
 		set_branchtags(pModel);
-		// PyDict_SetItemString(pModel,"bustags",PyList_New(0));
-		// PyDict_SetItemString(pModel,"busdata",PyList_New(0));
-		// PyDict_SetItemString(pModel,"branchtags",PyList_New(0));
-		// PyDict_SetItemString(pModel,"branchdata",PyList_New(0));
 	}
 	sync_busdata(pModel,bus_count,bus,dir);
 	sync_branchdata(pModel,branch_count,branch,dir);
