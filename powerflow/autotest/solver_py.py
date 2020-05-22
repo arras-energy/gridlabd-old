@@ -1,7 +1,6 @@
 import sys
 import pandas as pd 
 import pprint as pp
-pprint = pp.PrettyPrinter(indent=4).pprint
 
 def solve(gridlabd,**kwargs):
     """solve(gridlabd,model)
@@ -24,8 +23,16 @@ def solve(gridlabd,**kwargs):
             positive for successful iteration count 
             0 for successful with no iteration done
     """
-    print(f"solving at {gridlabd.get_global('clock')}")
-    pprint(kwargs)
+    # print(f"solving at {gridlabd.get_global('clock')}")
+    # print(kwargs)
+    print(f"Bus tags: {kwargs['bustags']}")
+    print(f"Bus data: {kwargs['busdata']}")
+    # print(f"Branch tags: {kwargs['branchtags']}")
+    # print(f"Branch data: {kwargs['branchdata']}")
+    # try:
+    #     print(type(kwargs['busdata'][0][0]))
+    # except:
+    #     pass
     return -1
 
 def learn(gridlabd,**kwargs):

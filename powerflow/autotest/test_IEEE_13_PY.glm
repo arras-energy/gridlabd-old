@@ -2,6 +2,7 @@
 //  Copyright (C) 2011 Battelle Memorial Institute
 
 #set iteration_limit=100000;
+#set suppress_repeat_messages=FALSE
 
 clock {
     timezone EST+5EDT;
@@ -13,14 +14,10 @@ module powerflow
 {
     solver_method NR;
     line_capacitance true;
-#ifdef powerflow::solver_py_config
 #ifexist "../solver_py.conf"
 #define DIR=..
 #endif
     solver_py_config "${DIR:-.}/solver_py.conf";
-#else
-#warning solver_py not enabled
-#endif
 }
 module assert;
 

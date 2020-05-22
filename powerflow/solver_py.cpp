@@ -374,7 +374,12 @@ double uchar_to_double(void *c)
 
 // bus/branch data mapping
 #define DATA(S,T,X,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t.X),D,C}
-enum e_dir {ED_INIT=0,ED_IN=1,ED_OUT=2,ED_BOTH=3};
+
+typedef unsigned int e_dir;
+#define ED_INIT 0x01
+#define ED_IN   0x02
+#define ED_OUT  0x04
+
 static BUSDATA bus_t;
 static BRANCHDATA branch_t;
 static struct s_map
@@ -426,7 +431,7 @@ static struct s_map
 static int *bus_index = NULL;
 static int *branch_index = NULL;
 
-void copydata(PyObject *data, size_t n, void *source, struct s_map *map, e_dir dir)
+void set_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir dir)
 {
 	if ( dir & map->dir )
 	{	
@@ -441,44 +446,49 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 	PyObject *busdata = PyDict_GetItemString(pModel,"busdata");
 	if ( busdata == NULL )
 	{
-		busdata = PyList_New(bus_count);
-		for ( size_t n = 0 ; n < bus_count ; n++ )
-		{
-			PyObject *data = PyList_New(python_nbustags);
-			PyList_SetItem(busdata,n,data);
-		}
+		busdata = PyList_New(python_nbustags);
 		PyDict_SetItemString(pModel,"busdata",busdata);
 		bus_index = new int[python_nbustags];
 		memset(bus_index,-1,python_nbustags*sizeof(int));
 		for ( size_t n = 0 ; n < bus_count ; n++ )
 		{
-			PyObject *data = PyList_GetItem(busdata,n);
+			PyObject *data = PyList_New(bus_count);
+			PyList_SetItem(busdata,n,data);
 			for ( size_t m = 0 ; m < sizeof(busmap)/sizeof(busmap[0]) ; m++ )
 			{
 				int t = strfind(python_nbustags,python_bustags,busmap[m].tag);
 				if ( t >= 0 )
 				{
 					bus_index[t] = m;
-					copydata(data,n,(void*)&bus[m],&busmap[m],ED_INIT);
+					set_data(data,n,(void*)&bus[m],&busmap[t],ED_INIT);
 				}
 			}
 		}
 	}
-	for ( size_t n = 0 ; n < bus_count ; n++ )
+	for ( size_t t = 0 ; t < python_nbustags ; t++ )
 	{
-		PyObject *data = PyList_GetItem(busdata,n);
-		for ( size_t t = 0 ; t < python_nbustags ; t++ )
+		int n = bus_index[t];
+		if ( n >= 0 && busmap[n].dir != ED_OUT )
 		{
-			int m = bus_index[t];
-			if ( m >= 0 )
+			continue;
+		}
+		PyObject *data = PyList_GetItem(busdata,t);
+		if ( n >= 0 )
+		{
+			for ( size_t m = 0 ; m < bus_count ; m++ )
 			{
-				copydata(data,n,(void*)&bus[n],&busmap[m],ED_OUT);
+				set_data(data,m,(void*)&bus[n],&busmap[t],ED_OUT);
 			}
-			else if ( m == -1 )
+		}
+		else if ( n == -1 )
+		{
+			for ( size_t m = 0 ; m < bus_count ; m++ )
 			{
-				gl_error("%s: bus tag '%s' not found", (const char*)solver_py_config, python_bustags[t]);
-				bus_index[t] = -2;
+				PyList_SetItem(data,m,Py_None);
+				Py_INCREF(Py_None);
 			}
+			bus_index[t] = -2;
+			gl_error("%s: bus tag '%s' not found", (const char*)solver_py_config, python_bustags[t]);
 		}
 	}
 }
@@ -488,44 +498,49 @@ void sync_branchdata(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&br
 	PyObject *branchdata = PyDict_GetItemString(pModel,"branchdata");
 	if ( branchdata == NULL )
 	{
-		branchdata = PyList_New(branch_count);
-		for ( size_t n = 0 ; n < branch_count ; n++ )
-		{
-			PyObject *data = PyList_New(python_nbranchtags);
-			PyList_SetItem(branchdata,n,data);
-		}
+		branchdata = PyList_New(python_nbranchtags);
 		PyDict_SetItemString(pModel,"branchdata",branchdata);
 		branch_index = new int[python_nbranchtags];
 		memset(branch_index,-1,python_nbranchtags*sizeof(int));
 		for ( size_t n = 0 ; n < branch_count ; n++ )
 		{
-			PyObject *data = PyList_GetItem(branchdata,n);
+			PyObject *data = PyList_New(branch_count);
+			PyList_SetItem(branchdata,n,data);
 			for ( size_t m = 0 ; m < sizeof(branchmap)/sizeof(branchmap[0]) ; m++ )
 			{
 				int t = strfind(python_nbranchtags,python_branchtags,branchmap[m].tag);
 				if ( t >= 0 )
 				{
 					branch_index[t] = m;
-					copydata(data,n,(void*)&branch[n],&branchmap[m],ED_INIT);
+					set_data(data,n,(void*)&branch[n],&branchmap[t],ED_INIT);
 				}
 			}
 		}
 	}
-	for ( size_t n = 0 ; n < branch_count ; n++ )
+	for ( size_t t = 0 ; t < python_nbranchtags ; t++ )
 	{
-		PyObject *data = PyList_GetItem(branchdata,n);
-		for ( size_t t = 0 ; t < python_nbranchtags ; t++ )
+		int n = branch_index[t];
+		if ( n >= 0 && branchmap[n].dir != ED_OUT )
 		{
-			int m = branch_index[t];
-			if ( m >= 0 )
+			continue;
+		}
+		PyObject *data = PyList_GetItem(branchdata,t);
+		if ( n >= 0 )
+		{
+			for ( size_t m = 0 ; m < branch_count ; m++ )
 			{
-				copydata(data,n,(void*)&branch[n],&branchmap[m],ED_OUT);
+				set_data(data,m,(void*)&branch[n],&branchmap[t],ED_OUT);
 			}
-			else if ( m == -1 )
+		}
+		else if ( n == -1 )
+		{
+			for ( size_t m = 0 ; m < branch_count ; m++ )
 			{
-				gl_error("%s: branch tag '%s' not found", (const char*)solver_py_config, python_branchtags[t]);
-				branch_index[t] = -2;
+				PyList_SetItem(data,m,Py_None);
+				Py_INCREF(Py_None);
 			}
+			branch_index[t] = -2;
+			gl_error("%s: bus tag '%s' not found", (const char*)solver_py_config, python_branchtags[t]);
 		}
 	}
 }
