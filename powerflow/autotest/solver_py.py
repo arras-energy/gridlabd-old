@@ -25,12 +25,12 @@ def parray(name,values,tagwidth=16,width=8,prec=2,columns=range(5)) :
     print(row)
 
 def pbus(bustags,busdata,tagwidth=16,width=8,prec=2,columns=range(5)):
-    pheading('bus',tagwidth,width,columns)
+    pheading('\nbus',tagwidth,width,columns)
     for tag,key in bustags.items():
         parray(tag,busdata[key],tagwidth,width,prec,columns)
 
 def pbranch(branchtags,branchdata,tagwidth=16,width=8,prec=2,columns=range(5)):
-    pheading('branch',tagwidth,width,columns)
+    pheading('\nbranch',tagwidth,width,columns)
     for tag,key in branchtags.items():
         parray(tag,branchdata[key],tagwidth,width,prec,columns)
 
@@ -59,9 +59,11 @@ def solve(gridlabd,**kwargs):
     busdata = kwargs["busdata"]
     branchtags = kwargs["branchtags"]
     branchdata = kwargs["branchdata"]
-    print(f"\n*** solve at {gridlabd.get_global('clock')} ***\n")
+    print(f"\n*** solve at {gridlabd.get_global('clock')} ***")
     pbus(bustags,busdata,columns=range(10))
     pbranch(branchtags,branchdata,columns=range(10))
+    # VAr = busdata[bustags["VAr"]]
+    # VAr[0] = 0
     return -1
 
 def learn(gridlabd,**kwargs):

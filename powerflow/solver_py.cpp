@@ -349,24 +349,52 @@ void set_branchtags(PyObject *pModel)
 	PyDict_SetItemString(pModel,"branchtags",data);
 }
 
-void complex_to_mag(double *x, void *z,bool inverse)
+void complex_to_mag(double *x, void *z, bool inverse)
 {
-	*x = ((complex*)z)->Mag();
+	if ( inverse )
+	{
+		((complex*)z)->Mag(*x);
+	}
+	else
+	{
+		*x = ((complex*)z)->Mag();
+	}
 }
 
-void complex_to_arg(double *x, void *z,bool inverse)
+void complex_to_arg(double *x, void *z, bool inverse)
 {
-	*x = ((complex*)z)->Arg();
+	if ( inverse )
+	{
+		((complex*)z)->Arg(*x);
+	}
+	else
+	{
+		*x = ((complex*)z)->Arg();
+	}
 }
 
-void int_to_double(double *x, void *c,bool inverse)
+void int_to_double(double *x, void *c, bool inverse)
 {
-	*x = (double)(*(int*)c);
+	if ( inverse )
+	{
+		*(int*)c = (int)(*x);
+	}
+	else
+	{
+		*x = (double)(*(int*)c);
+	}
 }
 
-void uchar_to_double(double *x, void *c,bool inverse)
+void uchar_to_double(double *x, void *c, bool inverse)
 {
-	*x = (double)(*(unsigned char*)c);
+	if ( inverse )
+	{
+		*(unsigned char*)c = (unsigned char)(*x);
+	}
+	else
+	{
+		*x = (double)(*(unsigned char*)c);
+	}
 }
 
 // bus/branch data mapping
@@ -408,6 +436,8 @@ typedef unsigned int e_dir;
 #define ED_IN   0x02
 #define ED_OUT  0x04
 
+// TODO: for performance reasons this should be separate init/in/out arrays
+// alternatively an init, in, and out index can be used to iterate efficiently
 static struct s_map
 {
 	const char *tag;
@@ -461,56 +491,94 @@ static struct s_map
 static int *bus_index = NULL;
 static int *branch_index = NULL;
 
-void set_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir dir)
+void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,void*,bool), bool inverse)
+{
+	PyObject *pValue = PyList_GetItem(data,n);
+	if ( inverse )
+	{
+		if ( pValue && PyFloat_Check(pValue) )
+		{
+			double x = PyFloat_AsDouble(pValue);
+			if ( convert )
+			{
+				convert(&x,ptr,true);
+			}
+			else
+			{
+				*(double*)ptr = x;
+			}
+		}
+	}
+	else
+	{
+		double x = convert ? (convert(&x,ptr,false),x) : *(double*)ptr;
+		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
+		{
+			PyList_SetItem(data,n,PyFloat_FromDouble(x));
+		}
+	}
+}
+
+void sync_complex(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
+{
+	complex **pz = (complex**)ptr;
+	PyObject *pValue = PyList_GetItem(data,n);
+	if ( inverse )
+	{
+		if ( pValue && PyFloat_Check(pValue) )
+		{
+			*(double*)(((char*)(*pz))+offset) = PyFloat_AsDouble(pValue);
+		}
+	}
+	else
+	{
+		double x = *(double*)(((char*)(*pz)) + offset)	;
+		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
+		{
+			PyList_SetItem(data,n,PyFloat_FromDouble(x));
+		}
+	}
+}
+
+void sync_none(PyObject *data, size_t n, bool inverse)
+{
+	if ( ! inverse )
+	{
+		if ( PyList_GetItem(data,n) != Py_None )
+		{
+			PyList_SetItem(data,n,Py_None);
+			Py_INCREF(Py_None);
+		}
+	}
+}
+
+void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir dir)
 {
 	if ( dir & map->dir )
 	{	
 		if ( map->offset >= 0 && map->offset < map->size )
 		{
-			char *ptr = ((char*)source + map->offset);
+			void *ptr = (void*)((char*)source + map->offset);
 			if ( ptr == NULL )
 			{
 				return;
 			}
-			double x;
-			if ( map->convert )
+			if ( ! map->is_ref ) // values are always cast to double
 			{
-				map->convert(&x,(void*)ptr,false);
-				PyList_SetItem(data,n,PyFloat_FromDouble(x));
+				sync_double(data,n,ptr,map->convert,(dir&ED_IN));
 			}
-			else if ( map->is_ref )
+			else if ( *(complex**)ptr != NULL ) // pointers are to complex arrays
 			{
-				if ( *ptr )
-				{
-					complex **pz = (complex**)ptr;
-					if ( *pz )
-					{
-						double *px = (double*)(((char*)(*pz)) + map->ref_offset);
-						x = *px;
-						PyList_SetItem(data,n,PyFloat_FromDouble(x));
-					}
-					else
-					{
-						PyList_SetItem(data,n,Py_None);
-						Py_INCREF(Py_None);
-					}
-				}
-				else
-				{
-					PyList_SetItem(data,n,Py_None);
-					Py_INCREF(Py_None);
-				}
+				sync_complex(data,n,ptr,map->ref_offset,(dir&ED_IN));
 			}
-			else
+			else // everything else if NULL
 			{
-				x = *(double*)ptr;
-				PyList_SetItem(data,n,PyFloat_FromDouble(x));
+				sync_none(data,n,(dir&ED_IN));
 			}
 		}
 		else
 		{
-			PyList_SetItem(data,n,Py_None);
-			Py_INCREF(Py_None);
+			sync_none(data,n,(dir&ED_IN));
 		}
 	}
 }
@@ -536,7 +604,7 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 				bus_index[t] = m;
 				for ( size_t n = 0 ; n < bus_count ; n++ )
 				{
-					set_data(data,n,(void*)&bus[n],&busmap[m],ED_INIT);
+					sync_data(data,n,(void*)&bus[n],&busmap[m],ED_INIT);
 				}
 			}
 		}
@@ -553,24 +621,23 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 	for ( size_t t = 0 ; t < python_nbustags ; t++ )
 	{
 		int m = bus_index[t];
-		if ( m >= 0 && busmap[m].dir != ED_OUT )
-		{
-			continue;
-		}
 		PyObject *data = PyList_GetItem(busdata,t);
 		if ( m >= 0 )
 		{
 			for ( size_t n = 0 ; n < bus_count ; n++ )
 			{
-				set_data(data,n,(void*)&bus[n],&busmap[m],ED_OUT);
+				sync_data(data,n,(void*)&bus[n],&busmap[m],dir);
 			}
 		}
 		else if ( m == -1 )
 		{
-			for ( size_t n = 0 ; n < bus_count ; n++ )
+			if ( dir & (ED_INIT|ED_OUT) )
 			{
-				PyList_SetItem(data,n,Py_None);
-				Py_INCREF(Py_None);
+				for ( size_t n = 0 ; n < bus_count ; n++ )
+				{
+					PyList_SetItem(data,n,Py_None);
+					Py_INCREF(Py_None);
+				}
 			}
 			bus_index[t] = -2;
 			gl_error("%s: bus tag '%s' not found", (const char*)solver_py_config, python_bustags[t]);
@@ -597,7 +664,7 @@ void sync_branchdata(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&br
 				branch_index[t] = m;
 				for ( size_t n = 0 ; n < branch_count ; n++ )
 				{
-					set_data(data,n,(void*)&branch[n],&branchmap[m],ED_INIT);
+					sync_data(data,n,(void*)&branch[n],&branchmap[m],ED_INIT);
 				}
 			}
 		}
@@ -614,24 +681,23 @@ void sync_branchdata(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&br
 	for ( size_t t = 0 ; t < python_nbranchtags ; t++ )
 	{
 		int m = branch_index[t];
-		if ( m >= 0 && branchmap[m].dir != ED_OUT )
-		{
-			continue;
-		}
 		PyObject *data = PyList_GetItem(branchdata,t);
 		if ( m >= 0 )
 		{
 			for ( size_t n = 0 ; n < branch_count ; n++ )
 			{
-				set_data(data,n,(void*)&branch[n],&branchmap[m],ED_OUT);
+				sync_data(data,n,(void*)&branch[n],&branchmap[m],dir);
 			}
 		}
 		else if ( m == -1 )
 		{
-			for ( size_t n = 0 ; n < branch_count ; n++ )
+			if ( dir & (ED_INIT|ED_OUT) )
 			{
-				PyList_SetItem(data,n,Py_None);
-				Py_INCREF(Py_None);
+				for ( size_t n = 0 ; n < branch_count ; n++ )
+				{
+					PyList_SetItem(data,n,Py_None);
+					Py_INCREF(Py_None);
+				}
 			}
 			branch_index[t] = -2;
 			gl_error("%s: branch tag '%s' not found", (const char*)solver_py_config, python_branchtags[t]);
