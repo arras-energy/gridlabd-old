@@ -334,7 +334,7 @@ int solver_python_init(void)
 			solver_python_log(1,"solver_python_init(): solver_py_status unknown");
 		}
 
-		if ( solver_py_status == SPS_READY )
+		if ( solver_py_status == SPS_READY && module_import_name != NULL )
 		{
 			pModule = python_import(module_import_name,module_import_path);
 			if ( pModule == NULL )
