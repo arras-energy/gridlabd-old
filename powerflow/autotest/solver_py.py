@@ -67,12 +67,3 @@ def solve(gridlabd,**kwargs):
 def learn(gridlabd,**kwargs):
     # print(f"learning {kwargs}")
     return None
-
-def check_dumps(gridlabd):
-
-    # print(f"dumping {gridlabd.get_global('modelname')} at {gridlabd.get_global('clock')}")
-    bus = pd.read_csv("solver_bus.csv")
-    assert((bus["EOL"]=="EOL").all())
-
-    branch = pd.read_csv("solver_branch.csv")
-    assert((branch["EOL"]=="EOL").all())
