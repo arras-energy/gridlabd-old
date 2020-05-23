@@ -1,6 +1,7 @@
 import sys
 import pandas as pd 
 import pprint as pp
+pprint = pp.PrettyPrinter(indent=4).pprint
 
 def pheading(label,tagwidth=16,width=8,columns=range(5)):
     heading = f'{label:{tagwidth}}'
@@ -59,13 +60,13 @@ def solve(gridlabd,**kwargs):
     busdata = kwargs["busdata"]
     branchtags = kwargs["branchtags"]
     branchdata = kwargs["branchdata"]
-    print(f"\n*** solve at {gridlabd.get_global('clock')} ***")
-    pbus(bustags,busdata,columns=range(10))
-    pbranch(branchtags,branchdata,columns=range(10))
+    # print(f"\n*** solve at {gridlabd.get_global('clock')} ***")
+    # pbus(bustags,busdata,columns=range(10))
+    # pbranch(branchtags,branchdata,columns=range(10))
     # VAr = busdata[bustags["VAr"]]
     # VAr[0] = 0
     return -1
 
 def learn(gridlabd,**kwargs):
-    # print(f"learning {kwargs}")
+    pprint(kwargs)
     return None
