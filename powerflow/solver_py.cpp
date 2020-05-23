@@ -370,43 +370,44 @@ void uchar_to_double(double *x, void *c,bool inverse)
 }
 
 // bus/branch data mapping
+static BUSDATA bus_t;
+static BRANCHDATA branch_t;
 #define DATA(S,T,X,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C}
+#define DATA_X(S,T,X,R,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
 #define THREEPHASE_R(B,X,D) \
-	DATA(B,#X "A",X[0],D,NULL), \
-	DATA(B,#X "B",X[1],D,NULL), \
-	DATA(B,#X "C",X[2],D,NULL)
+	DATA_X(B,#X "A",X,[0],D,NULL), \
+	DATA_X(B,#X "B",X,[1],D,NULL), \
+	DATA_X(B,#X "C",X,[2],D,NULL)
 #define THREEPHASE_C(B,X,D) \
-	DATA(B,#X "Ar",X[0].r,D,NULL), \
-	DATA(B,#X "Ai",X[0].i,D,NULL), \
-	DATA(B,#X "Br",X[1].r,D,NULL), \
-	DATA(B,#X "Bi",X[1].i,D,NULL), \
-	DATA(B,#X "Cr",X[2].r,D,NULL), \
-	DATA(B,#X "Ci",X[2].i,D,NULL)
+	DATA_X(B,#X "Ar",X,[0].r,D,NULL), \
+	DATA_X(B,#X "Ai",X,[0].i,D,NULL), \
+	DATA_X(B,#X "Br",X,[1].r,D,NULL), \
+	DATA_X(B,#X "Bi",X,[1].i,D,NULL), \
+	DATA_X(B,#X "Cr",X,[2].r,D,NULL), \
+	DATA_X(B,#X "Ci",X,[2].i,D,NULL)
 #define THREEPHASE_N(B,X,D) \
-	DATA(B,#X "0",X[0],D,NULL), \
-	DATA(B,#X "1",X[0],D,NULL), \
-	DATA(B,#X "2",X[1],D,NULL)
+	DATA_X(B,#X "0",X,[0],D,NULL), \
+	DATA_X(B,#X "1",X,[0],D,NULL), \
+	DATA_X(B,#X "2",X,[1],D,NULL)
 #define SYMMETRIC_C(B,X,D) \
-	DATA(B,#X "AAr",X[0].r,D,NULL), \
-	DATA(B,#X "AAi",X[0].i,D,NULL), \
-	DATA(B,#X "ABr",X[1].r,D,NULL), \
-	DATA(B,#X "ABi",X[1].i,D,NULL), \
-	DATA(B,#X "ACr",X[2].r,D,NULL), \
-	DATA(B,#X "ACi",X[2].i,D,NULL), \
-	DATA(B,#X "BBr",X[4].r,D,NULL), \
-	DATA(B,#X "BBi",X[4].i,D,NULL), \
-	DATA(B,#X "BCr",X[5].r,D,NULL), \
-	DATA(B,#X "BCi",X[5].i,D,NULL), \
-	DATA(B,#X "CCr",X[8].r,D,NULL), \
-	DATA(B,#X "CCi",X[8].i,D,NULL)
+	DATA_X(B,#X "AAr",X,[0].r,D,NULL), \
+	DATA_X(B,#X "AAi",X,[0].i,D,NULL), \
+	DATA_X(B,#X "ABr",X,[1].r,D,NULL), \
+	DATA_X(B,#X "ABi",X,[1].i,D,NULL), \
+	DATA_X(B,#X "ACr",X,[2].r,D,NULL), \
+	DATA_X(B,#X "ACi",X,[2].i,D,NULL), \
+	DATA_X(B,#X "BBr",X,[4].r,D,NULL), \
+	DATA_X(B,#X "BBi",X,[4].i,D,NULL), \
+	DATA_X(B,#X "BCr",X,[5].r,D,NULL), \
+	DATA_X(B,#X "BCi",X,[5].i,D,NULL), \
+	DATA_X(B,#X "CCr",X,[8].r,D,NULL), \
+	DATA_X(B,#X "CCi",X,[8].i,D,NULL)
 
 typedef unsigned int e_dir;
 #define ED_INIT 0x01
 #define ED_IN   0x02
 #define ED_OUT  0x04
 
-static BUSDATA bus_t;
-static BRANCHDATA branch_t;
 static struct s_map
 {
 	const char *tag;
@@ -414,6 +415,8 @@ static struct s_map
 	int64 size;
 	e_dir dir;
 	void (*convert)(double*,void*,bool);
+	bool is_ref;
+	int64 ref_offset;
 } busmap[] = 
 {
 	DATA(bus,"type",type,ED_INIT,int_to_double),
@@ -421,7 +424,6 @@ static struct s_map
 	DATA(bus,"origphases",origphases,ED_INIT,uchar_to_double),
 	DATA(bus,"mva_base",mva_base,ED_INIT,NULL),
 	DATA(bus,"volt_base",volt_base,ED_INIT,NULL),
-	THREEPHASE_C(bus,V,ED_IN|ED_OUT),
 	THREEPHASE_C(bus,S,ED_OUT),
 	THREEPHASE_C(bus,Y,ED_OUT),
 	THREEPHASE_C(bus,I,ED_OUT),
@@ -464,17 +466,37 @@ void set_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir d
 	{	
 		if ( map->offset >= 0 && map->offset < map->size )
 		{
-			void *ptr = (void*)((char*)source + map->offset);
+			char *ptr = ((char*)source + map->offset);
+			if ( ptr == NULL )
+			{
+				return;
+			}
 			double x;
 			if ( map->convert )
 			{
-				map->convert(&x,ptr,false);
+				map->convert(&x,(void*)ptr,false);
+				PyList_SetItem(data,n,PyFloat_FromDouble(x));
+			}
+			else if ( map->is_ref )
+			{
+				if ( *ptr )
+				{
+					complex *pz = (complex*)ptr;
+					double *px = (double*)(((char*)pz) + map->ref_offset);
+					x = *px;
+					PyList_SetItem(data,n,PyFloat_FromDouble(x));
+				}
+				else
+				{
+					PyList_SetItem(data,n,Py_None);
+					Py_INCREF(Py_None);
+				}
 			}
 			else
 			{
 				x = *(double*)ptr;
+				PyList_SetItem(data,n,PyFloat_FromDouble(x));
 			}
-			PyList_SetItem(data,n,PyFloat_FromDouble(x));
 		}
 		else
 		{
@@ -495,6 +517,8 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 		memset(bus_index,-1,python_nbustags*sizeof(int));
 		for ( size_t m = 0 ; m < sizeof(busmap)/sizeof(busmap[0]) ; m++ )
 		{
+			printf("busmap %d: {tag:'%s',offset:%lld,size:%lld,dir:%u,is_ref:%d,ref_offset:%lld}\n",
+				(int)m,busmap[m].tag,busmap[m].offset,busmap[m].size,busmap[m].dir,busmap[m].is_ref,busmap[m].ref_offset);
 			int t = strfind(python_nbustags,python_bustags,busmap[m].tag);
 			PyObject *data = PyList_New(bus_count);
 			PyList_SetItem(busdata,t,data);
@@ -503,7 +527,7 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 				bus_index[t] = m;
 				for ( size_t n = 0 ; n < bus_count ; n++ )
 				{
-					set_data(data,n,(void*)&bus[m],&busmap[m],ED_INIT);
+					set_data(data,n,(void*)&bus[n],&busmap[m],ED_INIT);
 				}
 			}
 		}
@@ -529,7 +553,7 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 		{
 			for ( size_t n = 0 ; n < bus_count ; n++ )
 			{
-				set_data(data,n,(void*)&bus[m],&busmap[m],ED_OUT);
+				set_data(data,n,(void*)&bus[n],&busmap[m],ED_OUT);
 			}
 		}
 		else if ( m == -1 )
@@ -564,7 +588,7 @@ void sync_branchdata(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&br
 				branch_index[t] = m;
 				for ( size_t n = 0 ; n < branch_count ; n++ )
 				{
-					set_data(data,n,(void*)&branch[m],&branchmap[m],ED_INIT);
+					set_data(data,n,(void*)&branch[n],&branchmap[m],ED_INIT);
 				}
 			}
 		}
@@ -590,7 +614,7 @@ void sync_branchdata(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&br
 		{
 			for ( size_t n = 0 ; n < branch_count ; n++ )
 			{
-				set_data(data,n,(void*)&branch[m],&branchmap[m],ED_OUT);
+				set_data(data,n,(void*)&branch[n],&branchmap[m],ED_OUT);
 			}
 		}
 		else if ( m == -1 )

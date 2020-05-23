@@ -23,16 +23,12 @@ def solve(gridlabd,**kwargs):
             positive for successful iteration count 
             0 for successful with no iteration done
     """
-    # print(f"solving at {gridlabd.get_global('clock')}")
-    # print(kwargs)
-    print(f"Bus tags: {kwargs['bustags']}")
-    print(f"Bus data: {kwargs['busdata']}")
-    # print(f"Branch tags: {kwargs['branchtags']}")
-    # print(f"Branch data: {kwargs['branchdata']}")
-    # try:
-    #     print(type(kwargs['busdata'][0][0]))
-    # except:
-    #     pass
+    bustags = kwargs["bustags"]
+    busdata = kwargs["busdata"]
+    branchtags = kwargs["branchtags"]
+    branchdata = kwargs["branchdata"]
+    for tag,key in bustags.items():
+        print(f"{tag}: {busdata[key]}")
     return -1
 
 def learn(gridlabd,**kwargs):
