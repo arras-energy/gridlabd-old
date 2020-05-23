@@ -424,6 +424,7 @@ static struct s_map
 	DATA(bus,"origphases",origphases,ED_INIT,uchar_to_double),
 	DATA(bus,"mva_base",mva_base,ED_INIT,NULL),
 	DATA(bus,"volt_base",volt_base,ED_INIT,NULL),
+	THREEPHASE_C(bus,V,ED_INIT|ED_IN|ED_OUT),
 	THREEPHASE_C(bus,S,ED_OUT),
 	THREEPHASE_C(bus,Y,ED_OUT),
 	THREEPHASE_C(bus,I,ED_OUT),
@@ -481,10 +482,18 @@ void set_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir d
 			{
 				if ( *ptr )
 				{
-					complex *pz = (complex*)ptr;
-					double *px = (double*)(((char*)pz) + map->ref_offset);
-					x = *px;
-					PyList_SetItem(data,n,PyFloat_FromDouble(x));
+					complex **pz = (complex**)ptr;
+					if ( *pz )
+					{
+						double *px = (double*)(((char*)(*pz)) + map->ref_offset);
+						x = *px;
+						PyList_SetItem(data,n,PyFloat_FromDouble(x));
+					}
+					else
+					{
+						PyList_SetItem(data,n,Py_None);
+						Py_INCREF(Py_None);
+					}
 				}
 				else
 				{
