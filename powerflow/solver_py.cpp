@@ -526,8 +526,8 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 		memset(bus_index,-1,python_nbustags*sizeof(int));
 		for ( size_t m = 0 ; m < sizeof(busmap)/sizeof(busmap[0]) ; m++ )
 		{
-			printf("busmap %d: {tag:'%s',offset:%lld,size:%lld,dir:%u,is_ref:%d,ref_offset:%lld}\n",
-				(int)m,busmap[m].tag,busmap[m].offset,busmap[m].size,busmap[m].dir,busmap[m].is_ref,busmap[m].ref_offset);
+			// printf("busmap %d: {tag:'%s',offset:%lld,size:%lld,dir:%u,is_ref:%d,ref_offset:%lld}\n",
+			// 	(int)m,busmap[m].tag,busmap[m].offset,busmap[m].size,busmap[m].dir,busmap[m].is_ref,busmap[m].ref_offset);
 			int t = strfind(python_nbustags,python_bustags,busmap[m].tag);
 			PyObject *data = PyList_New(bus_count);
 			PyList_SetItem(busdata,t,data);
