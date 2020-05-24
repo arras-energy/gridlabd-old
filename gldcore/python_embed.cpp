@@ -46,15 +46,29 @@ void python_embed_term()
     output_verbose("python shutdown ok");
 }
 
+void python_reset_stream(PyObject *pModule, const char *stream_name)
+{
+    PyObject *pio = PyImport_ImportModule("io");
+    PyObject *pStringIO = pio ? PyObject_GetAttrString(pio,"StringIO") : NULL;
+    PyObject *pReset = pStringIO ? PyObject_CallObject(pStringIO,NULL) : NULL;
+    if ( pReset )
+    {
+        PyObject_SetAttrString(pModule,stream_name,pReset);
+        Py_DECREF(pReset);
+    }
+    if ( pio ) Py_DECREF(pio);
+    if ( pStringIO ) Py_DECREF(pStringIO);
+}
+
 PyObject *python_embed_import(const char *module, const char *path)
 {
+    char tmp[1024];
     if ( path != NULL )
     {
-        char tmp[1024];
-        int len = snprintf(tmp,sizeof(tmp)-1,"import sys");
+        int len = snprintf(tmp,sizeof(tmp)-1,"import io, sys");
         if ( path != NULL )
         {
-            snprintf(tmp+len,sizeof(tmp)-len-1,"\nsys.path.append('%s')\n",path);
+            len += snprintf(tmp+len,sizeof(tmp)-len-1,"\nsys.path.append('%s')\n",path);
         }
         if ( PyRun_SimpleString(tmp) )
         {
@@ -83,10 +97,10 @@ PyObject *python_embed_import(const char *module, const char *path)
         if ( bytes ) Py_XDECREF(bytes);
         return NULL;
     }
-    else
-    {
-        return pModule;
-    }
+    python_reset_stream(pModule,"error_stream");
+    python_reset_stream(pModule,"output_stream");
+
+    return pModule;
 }
 
 const char *truncate(const char *command)
@@ -192,6 +206,43 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
             output_error("python_embed_call(pModule,name='%s'): no error information available",truncate(name));
         }
         return false;
+    }
+    else
+    {
+        PyObject *pError = PyObject_GetAttrString(pModule,"error_stream");
+        if ( pError )
+        {
+            PyObject *pCall = PyObject_GetAttrString(pError,"getvalue");
+            PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
+            PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
+            const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
+            if ( strcmp(msg,"") != 0 )
+            {
+                output_error("%s: %s", name, msg ? msg : "(python error_stream not available");
+            }
+            if ( pCall ) Py_DECREF(pCall);
+            if ( pValue ) Py_DECREF(pValue);
+            if ( pBytes ) Py_DECREF(pBytes);
+
+            python_reset_stream(pModule,"error_stream");
+        }
+        PyObject *pOutput = PyObject_GetAttrString(pModule,"output_stream");
+        if ( pOutput )
+        {
+            PyObject *pCall = PyObject_GetAttrString(pOutput,"getvalue");
+            PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
+            PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
+            const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
+            if ( strcmp(msg,"") != 0 )
+            {
+                output_raw("%s", msg ? msg : "(python output_stream not available)");
+            }
+            if ( pCall ) Py_DECREF(pCall);
+            if ( pValue ) Py_DECREF(pValue);
+            if ( pBytes ) Py_DECREF(pBytes);
+
+            python_reset_stream(pModule,"output_stream");
+        }
     }
     Py_DECREF(pFunc);
     if ( pKwargs ) Py_DECREF(pKwargs);

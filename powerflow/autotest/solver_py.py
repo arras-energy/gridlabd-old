@@ -1,7 +1,6 @@
-import sys
+import sys, io
 import pandas as pd 
 import pprint as pp
-pprint = pp.PrettyPrinter(indent=4).pprint
 
 def pheading(label,tagwidth=16,width=8,columns=range(5)):
     heading = f'{label:{tagwidth}}'
@@ -68,5 +67,5 @@ def solve(gridlabd,**kwargs):
     return -1
 
 def learn(gridlabd,**kwargs):
-    pprint(kwargs)
+    pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
     return None
