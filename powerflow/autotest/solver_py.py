@@ -55,10 +55,11 @@ def solve(gridlabd,**kwargs):
             positive for successful iteration count 
             0 for successful with no iteration done
     """
-    bustags = kwargs["bustags"]
-    busdata = kwargs["busdata"]
-    branchtags = kwargs["branchtags"]
-    branchdata = kwargs["branchdata"]
+    pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
+    # bustags = kwargs["bustags"]
+    # busdata = kwargs["busdata"]
+    # branchtags = kwargs["branchtags"]
+    # branchdata = kwargs["branchdata"]
     # print(f"\n*** solve at {gridlabd.get_global('clock')} ***")
     # pbus(bustags,busdata,columns=range(10))
     # pbranch(branchtags,branchdata,columns=range(10))
@@ -67,5 +68,5 @@ def solve(gridlabd,**kwargs):
     return -1
 
 def learn(gridlabd,**kwargs):
-    # pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
+    pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
     return None
