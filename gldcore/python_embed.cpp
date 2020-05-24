@@ -50,6 +50,7 @@ void python_reset_stream(PyObject *pModule, const char *stream_name)
 {
     PyObject *pio = PyImport_ImportModule("io");
     PyObject *pStringIO = pio ? PyObject_GetAttrString(pio,"StringIO") : NULL;
+    PyErr_Clear();
     PyObject *pReset = pStringIO ? PyObject_CallObject(pStringIO,NULL) : NULL;
     if ( pReset )
     {
@@ -160,6 +161,7 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
         output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
         if ( repr ) Py_XDECREF(repr);
         if ( bytes ) Py_XDECREF(bytes);
+        Py_DECREF(pFunc);
         return false;
     }
 
@@ -170,6 +172,7 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
     {
         Py_DECREF(last_result);
     }
+    PyErr_Clear();
     last_result = PyObject_Call(pFunc,pArgs,pKwargs);
     if ( pGridlabd ) Py_DECREF(pGridlabd);
     Py_DECREF(pArgs);
@@ -213,6 +216,7 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
         if ( pError )
         {
             PyObject *pCall = PyObject_GetAttrString(pError,"getvalue");
+            PyErr_Clear();
             PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
             PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
             const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
@@ -230,6 +234,7 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
         if ( pOutput )
         {
             PyObject *pCall = PyObject_GetAttrString(pOutput,"getvalue");
+            PyErr_Clear();
             PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
             PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
             const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
@@ -254,7 +259,7 @@ void traceback(const char *command)
     PyObject *err = PyErr_Occurred();
     if ( err == NULL )
     {
-        output_error("python_eval(command='%s'): no error occurred",command);
+        output_error("traceback(command='%s'): no error occurred",command);
         return;
     }
     PyObject *pyth_val, *ptype, *pvalue, *ptraceback;
@@ -262,30 +267,31 @@ void traceback(const char *command)
     Py_DECREF(err);
     if ( ptype == NULL || pvalue == NULL || ptraceback == NULL )
     {
-        output_error("python_eval(command='%s'): no error to fetch",command);
+        output_error("traceback(command='%s'): no error to fetch",command);
         return;
     }
     PyObject *pystr = PyUnicode_AsEncodedString(pvalue,"utf-8","~E~");
     char *str = pystr ? PyBytes_AsString(pystr) : NULL;
     if ( str )
     {
-        output_error("python_eval(command='%s'): python exception caught: %s",command, str);
+        output_error("traceback(command='%s'): python exception caught: %s",command, str);
     }
     PyObject *pyth_module = PyImport_ImportModule("traceback");
     if ( pyth_module == NULL ) 
     {
-        output_error("python_eval(command='%s'): no traceback module available",command);
+        output_error("traceback(command='%s'): no traceback module available",command);
     }
     else
     {
         PyObject *pyth_func = PyObject_GetAttrString(pyth_module, "format_exception");
+        PyErr_Clear();
         if ( pyth_func == NULL )
         {
-            output_error("python_eval(command='%s'): traceback.format_exception() not found",command);
+            output_error("traceback(command='%s'): traceback.format_exception() not found",command);
         }
         else if ( ! PyCallable_Check(pyth_func) )
         {
-            output_error("python_eval(command='%s'): traceback.format_exception() not callable",command);
+            output_error("traceback(command='%s'): traceback.format_exception() not callable",command);
         }
         else if ( (pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, NULL)) != NULL ) 
         {
@@ -293,18 +299,18 @@ void traceback(const char *command)
             const char *str = pystr ? PyBytes_AsString(pystr) : NULL;
             if ( str )
             {
-                output_error("python_eval(command='%s'): traceback follows",command);
+                output_error("traceback(command='%s'): traceback follows",command);
                 output_error_raw("BEGIN TRACEBACK\n%s\nEND TRACEBACK",command,str);
             }
             else
             {
-                output_error("python_eval(command='%s'): no traceback found",command);
+                output_error("traceback(command='%s'): no traceback found",command);
             }
             Py_DECREF(pyth_val);
         }
         else
         {
-            output_error("python_eval(command='%s'): unable to format traceback, arguments follow",command);
+            output_error("traceback(command='%s'): unable to format traceback, arguments follow",command);
             FILE *error = output_get_stream("error");
             output_error_raw("BEGIN TRACEBACK");
             fprintf(error,"function: "); PyObject_Print(pyth_func,error,Py_PRINT_RAW); fprintf(error,"\n");
@@ -358,7 +364,7 @@ bool python_parser(const char *line, void *context)
     PyObject *result = PyRun_String(command,Py_file_input,module,module);
     if ( result == NULL )
     {
-        output_error("python_embed_call(parser_module='gridlabd',command='%s') failed",truncate(command));
+        output_error("python_parser(line='%s',...): command '%s' failed",truncate(line),command);
         traceback(truncate(command));
         input_buffer = "";
         return false;
