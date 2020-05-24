@@ -67,5 +67,6 @@ def solve(gridlabd,**kwargs):
     return -1
 
 def learn(gridlabd,**kwargs):
-    pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
+    sys.stdout = output_stream
+    pp.PrettyPrinter(indent=4).pprint(kwargs)
     return None

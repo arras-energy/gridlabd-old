@@ -45,3 +45,24 @@ Additional learn data available includes the following
   - `Y_Amatrix`
 
 Please see `gldcore/powerflow/solver_nr.h` in the code for details on the meaning and structure of this data.
+
+# Caveat
+
+The standard output and error streams are not automatically redirected to GridLAB-D.  To redirect the standard output and error streams, you must explicitly change them *each time a method is called*.  For example:
+
+~~~
+def solve(gridlabd,**kwargs):
+    print("solve called")
+~~~
+
+sends the message to `sys.stdout` regardless of whether GridLAB-D has redirected that output stream to a file.  In constrast:
+
+~~~
+def solver(gridlabd,**kwargs):
+    sys.stdout = output_stream
+    print("solve called")
+~~~
+
+sends the message to GridLAB-D's output stream, which would capture the output in a file if redirected by the GridLAB-D.
+
+~~~
