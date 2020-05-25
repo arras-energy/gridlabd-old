@@ -69,5 +69,3 @@ def solver(gridlabd,**kwargs):
 ~~~
 
 sends the message to GridLAB-D's output stream, which would capture the output in a file if redirected by the GridLAB-D.
-
-~~~
