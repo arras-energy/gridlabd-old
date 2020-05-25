@@ -57,6 +57,8 @@ static PyObject *pBusdata = NULL;
 static PyObject *pBranchdata = NULL;
 static PyObject *pLearndata = NULL;
 
+FILE *SolverTimer::fp = NULL;
+
 void solver_python_log(int level, const char *format, ...)
 {
 	if ( (int)level <= solver_python_loglevel && solver_python_logfh != NULL )
@@ -168,6 +170,11 @@ SOLVERPYTHONSTATUS solver_python_config (
 				{
 					python_learndata = strdup(value);
 					solver_python_log(1,"solver_python_config(configname='%s'): python_learndata = '%s'",configname,python_learndata);					
+				}
+				else if ( strcmp(tag,"profiler") == 0 )
+				{
+					SolverTimer::open(value);
+					solver_python_log(1,"solver_python_config(configname='%s'): profiler = '%s'",configname,value);					
 				}
 				else
 				{
@@ -768,6 +775,8 @@ int solver_python_solve (
 	bool *bad_computations,
 	int64 &iterations)
 {
+	SolverTimer timer("solve");
+
 	if ( pModule )
 	{
 		PyObject *pModel = sync_model(bus_count,bus,branch_count,branch,ED_OUT);
@@ -1033,6 +1042,7 @@ void solver_python_learn (
 	bool *bad_computations,
 	int64 iterations)
 {
+	SolverTimer timer("learn");
 	if ( pModule )
 	{
 		PyObject *pModel = sync_model(bus_count,bus,branch_count,branch,ED_OUT);

@@ -66,4 +66,36 @@ void solver_dump (
 	BRANCHDATA *&branch,
 	bool allow_generic_dumpfile);
 
+class SolverTimer : GldTimer
+{
+private:
+	static FILE *fp;
+private:
+	const char *tag;
+public:
+	inline SolverTimer(const char *t) : tag(t) 
+	{ 
+		restart(); 
+	};
+	inline ~SolverTimer(void) 
+	{
+		if ( fp )
+		{
+			fprintf(fp,"%lld,%s,%g\n",gl_globalclock,tag,elapsed());
+		}
+	}
+	static void open(const char *filename)
+	{
+		if ( fp )
+		{
+			fclose(fp);
+		}
+		fp = fopen(filename,"w");
+		if ( fp )
+		{
+			fprintf(fp,"timestamp,phase,duration\n");
+		}
+	}
+};
+
 #endif

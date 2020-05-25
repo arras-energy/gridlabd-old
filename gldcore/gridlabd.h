@@ -4121,7 +4121,7 @@ public:
 	inline double elapsed(void) 
 	{ 
 		struct timeval now; 
-		gettimeofday(&start,NULL); 
+		gettimeofday(&now,NULL); 
 		return (now.tv_sec-start.tv_sec) + (now.tv_usec-start.tv_usec)/1.0e6;
 	};
 };

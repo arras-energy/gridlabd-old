@@ -16,6 +16,7 @@ on_dump <method-name>
 busdata <taglist>
 branchdata <taglist>
 learndata <taglist>
+profiler <csv-filename>
 ~~~
 
 # Description
@@ -45,6 +46,10 @@ Additional learn data available includes the following
   - `Y_Amatrix`
 
 Please see `gldcore/powerflow/solver_nr.h` in the code for details on the meaning and structure of this data.
+
+# Profiler
+
+When the `profiler` is specified in the configuration file, the solver records the elapsed time (in seconds) for each phase of the solution at each timestep in the simulation.
 
 # Caveat
 
