@@ -33,7 +33,7 @@ The following sections explain how these three files generally interact.
 
 ## `model.glm`
 
-The file `model.glm` loads the python handlers module, which implements the model's event handlers. In this example there are two kinds of event handlers.  The first is the global event handler `on_init()` that is called by the core solver when the simulation initializes, if it is defined.  The available global event handlers that can be defined are
+The file `model.glm` loads the python handlers module, which implements the model's event handlers. In Figure 2 there are two kinds of event handlers.  The first is the global event handler `on_init(timestamp)` that is called by the core solver when the simulation initializes, if it is defined.  The available global event handlers that can be defined are
 
 - `on_init(timestamp)`: This event handler is called when the simulation is initialized. The value of `timestamp` is the start time of the simulation.
 
@@ -49,7 +49,7 @@ The file `model.glm` loads the python handlers module, which implements the mode
 
 - `on_term(timestamp)`: This is called when the simulation is terminated. The value of `timestamp` is set to the stop time of the simulation, or the time at which the simulation encountered an error, if any.
 
-The second is the object event handler `commit()` that is called whenever the object in which it is specified performs a `commit` operation. Only objects that define an `on_commit` property will call commit event handlers. To call a python event handler, the syntax must be `python:<module-name>.<handler-name>`. If the colon is omitted, the call will be made to an external python executable, rather than the handlers module.
+The second is the object event handler `commit(object,timestamp)` that is called whenever the object in which it is specified performs a `commit` operation. Only objects that define an `on_commit` property will call commit event handlers. To call a python event handler, the syntax must be `python:<module-name>.<handler-name>`. If the colon is omitted, the call will be made to an external python executable, rather than the handlers module.
 
 The following object event handlers are allowed:
 
@@ -75,7 +75,7 @@ The following object event handlers are allowed:
 
 ## `handlers.py`
 
-The `handlers` module implements all the event handlers used by the model.  In this case, the `on_init(<timestamp>)` handler is called automatically after the objects are initialized because it is defined in the `handlers` module. During this event, any operations that needs to be completed prior to the start of the simulation can be performed.
+The `handlers` module implements all the event handlers used by the model.  In Figure 2, the `on_init(<timestamp>)` handler is called automatically after the objects are initialized because it is defined in the `handlers` module. During this event, any operations that needs to be completed prior to the start of the simulation can be performed.
 
 The `commit(object,timestamp)` handler is called for each object that defines the `on_commit` roperty.  During these events data that needs to be collected can gathered from specific object.  Similarly, a `precommit` event can be used to make changes to objects before the next simulation clock update.
 
