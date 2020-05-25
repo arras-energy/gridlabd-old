@@ -77,9 +77,9 @@ The following object event handlers are allowed:
 
 The `handlers` module implements all the event handlers used by the model.  In Figure 2, the `on_init(<timestamp>)` handler is called automatically after the objects are initialized because it is defined in the `handlers` module. During this event, any operations that needs to be completed prior to the start of the simulation can be performed.
 
-The `commit(object,timestamp)` handler is called for each object that defines the `on_commit` roperty.  During these events data that needs to be collected can gathered from specific object.  Similarly, a `precommit` event can be used to make changes to objects before the next simulation clock update.
+The `commit(object,timestamp)` handler is also called for each object that defines the `on_commit` roperty.  During these events data that needs to be collected can gathered from specific object.  Similarly, a `precommit` event can be used to make changes to objects before the next simulation clock update.
 
-Any handler that returns something that evaluates to `False` will halt the simulation.
+Any handler that returns an object that evaluates to `False` will halt the simulation with an error. If the event handlers is associated with a specific object, the error will be attributed to that object.
 
 [code:/gldcore/link/python/examples/example_1/handlers.py]
 
