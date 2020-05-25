@@ -4111,6 +4111,21 @@ inline bool python_call(PyObject *pModule, const char *method, const char *vargs
 	return ok;
 }
 
+class GldTimer 
+{
+private:
+	struct timeval start;
+public:
+	GldTimer(void) { restart(); };
+	inline void restart(void) { gettimeofday(&start,NULL);};
+	inline double elapsed(void) 
+	{ 
+		struct timeval now; 
+		gettimeofday(&start,NULL); 
+		return (now.tv_sec-start.tv_sec) + (now.tv_usec-start.tv_usec)/1.0e6;
+	};
+};
+
 /** @} **/
 #endif
 
