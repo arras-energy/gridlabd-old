@@ -71,8 +71,6 @@ The following object event handlers are allowed:
 
 - `on_term python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation is ready to destroy the object.
 
-[code:/gldcore/link/python/examples/example_1/model.glm]
-
 ## `handlers.py`
 
 The `handlers` module implements all the event handlers used by the model.  In Figure 2, the `on_init(<timestamp>)` handler is called automatically after the objects are initialized because it is defined in the `handlers` module. During this event, any operations that needs to be completed prior to the start of the simulation can be performed.
@@ -80,6 +78,16 @@ The `handlers` module implements all the event handlers used by the model.  In F
 The `commit(object,timestamp)` handler is also called for each object that defines the `on_commit` roperty.  During these events data that needs to be collected can gathered from specific object.  Similarly, a `precommit` event can be used to make changes to objects before the next simulation clock update.
 
 Any handler that returns an object that evaluates to `False` will halt the simulation with an error. If the event handlers is associated with a specific object, the error will be attributed to that object.
+
+## Example
+
+The following example generates a random sequence of numbers in GridLAB-D, records them in a CSV file, and generates a plot of them when the simulation is done.
+
+The model file loads the Python handlers module, sets up the clock, defines the class for the random number generator, defines the test object that generates the random numbers, loads the tape module, and defines the recorder that collects the random number generators into a CSV file.
+
+[code:/gldcore/link/python/examples/example_1/model.glm]
+
+The handlers file defines the `on_term` event handler that loads the resulting CSV file, generates the plot, and saves it in `example.png`.
 
 [code:/gldcore/link/python/examples/example_1/handlers.py]
 
