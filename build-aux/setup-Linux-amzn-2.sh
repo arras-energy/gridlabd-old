@@ -15,13 +15,13 @@ yum -q install libcurl-devel -y
 # python3 support needed as of 4.2
 yum -q install python37 python3-devel python3-tkinter -y
 [ -f /bin/python3 -a ! -f /usr/local/bin/python3 ] && ln -s /bin/python3 /usr/local/bin/python3
-pip3 --quiet install matplotlib pandas mysql-connector Pillow
+pip3 --quiet --user install matplotlib pandas mysql-connector Pillow
 chmod -R a+w /usr/local/lib64/python3.7/site-packages
 
 # mono
 if [ ! -f /usr/bin/mono ]; then
 	rpmkeys --import "http://pool.sks-keyservers.net/pks/lookup?op=get&search=0x3fa7e0328081bff6a14da29aa6a19b38d3d831ef"
-	curl https://download.mono-project.com/repo/centos7-stable.repo | tee /etc/yum.repos.d/mono-centos7-stable.repo
+	curl https://download.mono-project.com/repo/centos7-stable.repo > /etc/yum.repos.d/mono-centos7-stable.repo
 	yum -q install mono-devel -y
 fi
 
@@ -40,6 +40,6 @@ fi
 # converter support
 pip3 install networkx
 cd /tmp
-curl http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m/mdbtools-0.7.1-3.el7.x86_64.rpm
+curl http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m/mdbtools-0.7.1-3.el7.x86_64.rpm > mdbtools-0.7.1-3.el7.x86_64.rpm
 rpm -Uvh mdbtools-0.7.1-3.el7.x86_64.rpm
 yum -q install mdbtools -y
