@@ -2038,4 +2038,5 @@ TODO
 # See also
 
 * [[/Module/Residential]]
+* [ISU Notes on House Model](http://www2.econ.iastate.edu/tesfatsi/GLDETPHouseholdModel.Notes.LTesfatsionSBattula.pdf)
 
