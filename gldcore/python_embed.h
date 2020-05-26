@@ -17,4 +17,7 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
 std::string python_eval(const char *command);
 bool python_parser(const char *line=NULL, void *context = NULL);
 
+// forward declarations to gldcore/link/python.c
+MODULE *python_module_load(const char *, int, const char *[]);
+
 #endif

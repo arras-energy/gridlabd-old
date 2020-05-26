@@ -6747,9 +6747,7 @@ static int is_autodef(char *value)
 	if ( strcmp(value,"MATLAB")==0 ) return 1;
 #endif
 
-#ifdef HAVE_PYTHON
 	if ( strcmp(value,"PYTHON")==0 ) return 1;
-#endif
 
 	return 0;
 }

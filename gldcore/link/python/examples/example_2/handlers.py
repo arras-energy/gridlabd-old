@@ -29,7 +29,7 @@ def on_init(t) :
 	return True
 
 # gather the results collected by on_term
-def on_term():
+def on_term(t):
     t = np.array(gridlabd.result["t"])
     t = t - t[0]
     x = np.array(gridlabd.result["x"])
