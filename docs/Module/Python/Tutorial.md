@@ -18,18 +18,18 @@ When using the `python` module only (c), the command line arguments inlcude only
 
 # GridLAB-D Model
 
-A GridLAB-D model structure is using a command line such as
+A GridLAB-D model structure is used when using a command line such as
 
 ~~~
 bash$ gridlabd model.glm
 ~~~
 
-The structure of this example is shown in Figure 2.
+The structure of this simulation is shown in Figure 2.
 
 [image:Tutorial_figure_2.png]
 Figure 2: Using a python module in a GridLAB-D model
 
-The following sections explain how these three files generally interact.
+The following sections explain how these two files generally interact.
 
 ## `model.glm`
 
@@ -83,9 +83,13 @@ Any handler that returns an object that evaluates to `False` will halt the simul
 
 The following example generates a random sequence of numbers in GridLAB-D, records them in a CSV file, and generates a plot of them when the simulation is done.
 
+### `model.glm`:
+
 The model file loads the Python handlers module, sets up the clock, defines the class for the random number generator, defines the test object that generates the random numbers, loads the tape module, and defines the recorder that collects the random number generators into a CSV file.
 
 [code:/gldcore/link/python/examples/example_1/model.glm]
+
+### `handlers.py`:
 
 The handlers file defines the `on_term` event handler that loads the resulting CSV file, generates the plot, and saves it in `example.png`.
 
@@ -140,34 +144,41 @@ Any handler that returns something that evaluates to `False` will halt the simul
 
 # Python Module
 
-A hybrid module structure is used when it is given on the command file, such as
+A Python module structure is used when a using a command line such as
 
 ~~~
 bash$ gridlabd main.py
 ~~~
 
-The structure of this example is shown in Figure 4.
+The structure of this simulation is shown in Figure 4.
 
 [image:Tutorial_figure_4.png]
-Figure 4: Runtime architectures for Python and GridLAB-D
+Figure 4: Using a GridLAB-D in a Python module
 
-The following sections explain how these three files generally interact.
+The following sections explain how these two files generally interact.
 
 ## `main.py`
 
-The file `main.py` is loaded into the `python` main module.  After loading the needed Python modules this file loads the `gridlabd` module, Part 1 sets up the variables used to collect data from the simulation.
+The file `main.py` loads the `gridlabd` module and uses the `command()` method to load the GridLAB-D model `model.glm` into the simulator. After the model is loaded the simulation can be started using the `start()` method.
 
-Part 2 uses the `command()` method to load the GridLAB-D model `model.glm` into the simulator, e.g., `command("model.glm")`. After the model is loaded using the `command()` method, the simulation can be started using the `start()` method.  The most common approach is to wait for the simulation to complete, e.g., using `start("wait")`.
-
-In Part 3 the results are extracted and processed when the simulation is done.
-
-[code:/gldcore/link/python/examples/example_3/main.py]
 
 ## `model.glm`
 
-The model loads the python handlers module that implements that model's event handlers. In this example there are two kinds of event handlers.  The first is the global event handler `on_init()` that is implicitly called when the simulation initializes.  The second is the object event handler `commit()` that is called whenever the object performs a `commit` operation. 
+The GridLAB-D model defines the objects to be implemented in the simulation. 
 
-Only objects that define an `on_commit` property will call event handlers. To call a python event handler, the syntax must be `python:<module-name>.<handler-name>`. If the colon is omitted, the call will be made to an external python executable, rather than the handlers module.
+## Example
+
+The following example illustrates how to use GridLAB-D in a python module.  
+
+### `main.py`:
+
+The main module imports the required modules, loads the GridLAB-D model, and runs it, waiting for it to complete.  After the simulation is done, the module loads the output data and plots it.
+
+[code:/gldcore/link/python/examples/example_3/main.py]
+
+### `model.glm`:
+
+The model file sets the clock, creates the test class, loads the tape module, and defines the recorder to generate the output data.
 
 [code:/gldcore/link/python/examples/example_3/model.glm]
 
