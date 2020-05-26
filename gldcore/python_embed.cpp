@@ -357,7 +357,7 @@ std::string python_eval(const char *command)
 //   python_parse(<string>) to append <string> to input buffer
 //   python_parser(NULL) to parse input buffer
 // Returns true on success, false on failure
-static std::string input_buffer("");
+static std::string input_buffer("from gridlabd import *\n");
 bool python_parser(const char *line, void *context)
 {
     // end input -> run code
@@ -377,7 +377,7 @@ bool python_parser(const char *line, void *context)
     PyObject *result = PyRun_String(command,Py_file_input,module,module);
     if ( result == NULL )
     {
-        output_error("python_parser(line='%s',...): command '%s' failed",truncate(line),command);
+        output_error("python_parser(NULL,...): command '%s' failed",command);
         traceback(truncate(command));
         input_buffer = "";
         return false;
