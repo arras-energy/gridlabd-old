@@ -1100,8 +1100,8 @@ static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
 
     char value[65536*10] = "";
     ReadLock();
-    int len = object_get_value_by_name(obj,property,value,sizeof(value));
-    if ( len < 0 && object_get_header_string(obj,property,value,sizeof(value)) == NULL )
+    if ( object_property_to_string(obj,property,value,sizeof(value)) == NULL
+        && object_get_header_string(obj,property,value,sizeof(value)) == NULL )
     {
         return gridlabd_exception("object '%s' property '%s' not found", name, property);
     }
