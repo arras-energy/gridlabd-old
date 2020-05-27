@@ -1145,9 +1145,14 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
     return Py_BuildValue("s",previous);
 }
 
-static PROPERTY *get_first_property(OBJECT *obj)
+static PROPERTY *get_first_property(OBJECT *obj, bool inherit=true)
 {
-    return obj->oclass->pmap;
+    CLASS *oclass = obj->oclass;
+    while ( inherit && oclass->pmap == NULL && oclass->parent != NULL )
+    {
+        oclass = oclass->parent;
+    }
+    return oclass->pmap;
 }
 static PROPERTY *get_next_property(PROPERTY *prop,bool inherit=true)
 {
