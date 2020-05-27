@@ -270,7 +270,7 @@ static PyObject *gridlabd_traceback(const char *context=NULL)
 }
 
 static PyObject *gridlabdException;
-static PyObject *this_module = NULL;
+PyObject *this_module = NULL;
 
 class Callback 
 {
@@ -2094,7 +2094,7 @@ int python_module_setvar(const char *varname, const char *value)
     return strlen(value);
 }
 
-MODULE *python_module_load(const char *file, int argc, char *argv[])
+MODULE *python_module_load(const char *file, int argc, const char *argv[])
 {
     char pathname[1024];
     sprintf(pathname,"%s.py",file);
@@ -2104,7 +2104,8 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
         errno = ENOENT;
         return NULL;
     }
-    PyObject *mod = PyImport_ImportModule(file);
+    extern PyObject *python_embed_import(const char *module, const char *path);
+    PyObject *mod = python_embed_import(file,".");
 
     if ( mod == NULL)
     {

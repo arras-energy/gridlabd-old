@@ -17,22 +17,23 @@ void python_embed_init(int argc, const char *argv[])
     main_module = PyModule_GetDict(PyImport_AddModule("__main__"));
     if ( main_module == NULL )
     {
-        output_error("python_embed_init(argc=%d,argv=[...]: unable to load module __main__ module",argc);
-        throw "python initialization failied";
+        throw_exception("python_embed_init(argc=%d,argv=(%s,...)): unable to load module __main__ module",argc,argv?argv[0]:"NULL");
     }
-    output_verbose("python initialization ok");
-    const char *import_list[] = {"gridlabd"};
-    if ( python_loader_init(sizeof(import_list)/sizeof(import_list[0]),import_list) == NULL )
-        throw "python initial import failed";
-    python_parser("import " PACKAGE);
-    python_parser();
-    gridlabd_module = PyModule_GetDict(PyImport_AddModule(PACKAGE));
-    if ( gridlabd_module == NULL )
-        throw "python module import failed";
+
+    extern PyObject *this_module; // from gldcore/link/python.cpp
+    if ( this_module == NULL )
+    {
+        PyInit_gridlabd();
+    }
+    gridlabd_module = this_module;
 }
 
 void *python_loader_init(int argc, const char **argv)
 {
+    if ( main_module == NULL )
+    {
+        python_embed_init(argc,argv);
+    }
     return main_module;
 }
 
@@ -63,6 +64,7 @@ void python_reset_stream(PyObject *pModule, const char *stream_name)
 
 PyObject *python_embed_import(const char *module, const char *path)
 {
+    // fix module search path
     char tmp[1024];
     if ( path != NULL )
     {
@@ -85,7 +87,18 @@ PyObject *python_embed_import(const char *module, const char *path)
         }
     }
 
-    PyObject *pModule = PyImport_ImportModule(module);
+    // clean up module name for use by import
+    char basename[1024];
+    strcpy(basename,module);
+    char *ext = strrchr(basename,'.');
+    if ( ext != NULL && strcmp(ext,".py") == 0 )
+    {
+        *ext = '\0';
+    }
+    char *dir = strrchr(basename,'/');
+
+    // import module
+    PyObject *pModule = PyImport_ImportModule(dir?dir+1:basename);
     if ( pModule == NULL )
     { 
         PyObject *pType, *pValue, *pTraceback;
@@ -344,7 +357,7 @@ std::string python_eval(const char *command)
 //   python_parse(<string>) to append <string> to input buffer
 //   python_parser(NULL) to parse input buffer
 // Returns true on success, false on failure
-static std::string input_buffer("");
+static std::string input_buffer("from gridlabd import *\n");
 bool python_parser(const char *line, void *context)
 {
     // end input -> run code
@@ -364,7 +377,7 @@ bool python_parser(const char *line, void *context)
     PyObject *result = PyRun_String(command,Py_file_input,module,module);
     if ( result == NULL )
     {
-        output_error("python_parser(line='%s',...): command '%s' failed",truncate(line),command);
+        output_error("python_parser(NULL,...): command '%s' failed",command);
         traceback(truncate(command));
         input_buffer = "";
         return false;
