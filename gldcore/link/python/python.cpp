@@ -1098,10 +1098,10 @@ static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
         return gridlabd_exception("object '%s' not found", name);
     }
 
-    char value[65536*10];
+    char value[65536*10] = "";
     ReadLock();
-    int len = object_get_value_by_name(obj,property,value,sizeof(value));
-    if ( len < 0 )
+    if ( object_property_to_string(obj,property,value,sizeof(value)) == NULL
+        && object_get_header_string(obj,property,value,sizeof(value)) == NULL )
     {
         return gridlabd_exception("object '%s' property '%s' not found", name, property);
     }
@@ -1145,9 +1145,14 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
     return Py_BuildValue("s",previous);
 }
 
-static PROPERTY *get_first_property(OBJECT *obj)
+static PROPERTY *get_first_property(OBJECT *obj, bool inherit=true)
 {
-    return obj->oclass->pmap;
+    CLASS *oclass = obj->oclass;
+    while ( inherit && oclass->pmap == NULL && oclass->parent != NULL )
+    {
+        oclass = oclass->parent;
+    }
+    return oclass->pmap;
 }
 static PROPERTY *get_next_property(PROPERTY *prop,bool inherit=true)
 {
