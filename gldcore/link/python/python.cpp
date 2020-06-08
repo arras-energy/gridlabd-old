@@ -2080,11 +2080,7 @@ static bool get_callback(
             return false;
         }
     }
-    else
-    {
-            output_error("%s.py: %s is not defined",file,def);
-            return false;
-    }
+    return false;
 }
 
 int python_module_setvar(const char *varname, const char *value)
