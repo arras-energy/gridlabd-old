@@ -2082,7 +2082,7 @@ static bool get_callback(
     }
     else
     {
-            output_error("%s.py: %s is not found",file,def);
+            output_error("%s.py: %s is not defined",file,def);
             return false;
     }
 }
