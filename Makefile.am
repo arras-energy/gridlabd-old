@@ -59,7 +59,6 @@ include gldcore/converters/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
 include python_extras/Makefile.mk
-include models/Makefile.mk
 include cloud/Makefile.mk
 
 # approved modules
@@ -167,7 +166,7 @@ clean-wc:
 install-validate: install validate
 
 check-local validate: 
-	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilties/save_validation_output;exit 1))
+	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilities/save_validation_output;exit 1))
 
 scratchdir = scratch
 # XERCES_TARNAME = xerces-c-3.1.1
@@ -338,7 +337,7 @@ system: install
 	@echo "Setting $$(./build-aux/version.sh --install) to the current system version"
 	@$(DESTDIR)$(bindir)/gridlabd version set
 	@if [ ! "$$(gridlabd --version=install)" == "$$(./build-aux/version.sh --install)" ]; then \
-		echo '*** WARNING : build and install versions differ ***'; \
+		echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'; \
 	fi
 
 index: weather library template

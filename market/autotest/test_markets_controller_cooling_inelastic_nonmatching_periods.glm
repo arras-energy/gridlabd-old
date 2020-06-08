@@ -77,9 +77,10 @@ schedule clearing_quantities {
 	* 16 * * * 0;
 }
 
+#weather WA-Yakima_Air_Terminal.tmy3
 object climate {
 	name "Yakima WA";
-	tmyfile "../WA-Yakima.tmy3";
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
 }
 
 class auction {

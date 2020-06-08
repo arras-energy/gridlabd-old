@@ -1,6 +1,6 @@
 pkglib_LTLIBRARIES += powerflow/powerflow.la 
 
-powerflow_powerflow_la_CPPFLAGS =
+powerflow_powerflow_la_CPPFLAGS = -DSOLVER_PY
 powerflow_powerflow_la_CPPFLAGS += -I$(top_srcdir)/third_party/superLU_MT
 powerflow_powerflow_la_CPPFLAGS += $(AM_CPPFLAGS)
 
@@ -36,6 +36,8 @@ powerflow_powerflow_la_SOURCES += powerflow/line_configuration.cpp
 powerflow_powerflow_la_SOURCES += powerflow/line_configuration.h
 powerflow_powerflow_la_SOURCES += powerflow/line.cpp
 powerflow_powerflow_la_SOURCES += powerflow/line.h
+powerflow_powerflow_la_SOURCES += powerflow/line_sensor.cpp 
+powerflow_powerflow_la_SOURCES += powerflow/line_sensor.h
 powerflow_powerflow_la_SOURCES += powerflow/line_spacing.cpp
 powerflow_powerflow_la_SOURCES += powerflow/line_spacing.h
 powerflow_powerflow_la_SOURCES += powerflow/link.cpp
@@ -84,10 +86,12 @@ powerflow_powerflow_la_SOURCES += powerflow/series_reactor.cpp
 powerflow_powerflow_la_SOURCES += powerflow/series_reactor.h
 powerflow_powerflow_la_SOURCES += powerflow/solver_nr.cpp
 powerflow_powerflow_la_SOURCES += powerflow/solver_nr.h
-powerflow_powerflow_la_SOURCES += powerflow/solver_ml.cpp
-powerflow_powerflow_la_SOURCES += powerflow/solver_ml.h
+powerflow_powerflow_la_SOURCES += powerflow/solver_py.cpp
+powerflow_powerflow_la_SOURCES += powerflow/solver_py.h
 powerflow_powerflow_la_SOURCES += powerflow/substation.cpp
 powerflow_powerflow_la_SOURCES += powerflow/substation.h
+powerflow_powerflow_la_SOURCES += powerflow/switch_coordinator.cpp 
+powerflow_powerflow_la_SOURCES += powerflow/switch_coordinate.h
 powerflow_powerflow_la_SOURCES += powerflow/switch_object.cpp
 powerflow_powerflow_la_SOURCES += powerflow/switch_object.h
 powerflow_powerflow_la_SOURCES += powerflow/transformer_configuration.cpp
@@ -119,3 +123,5 @@ powerflow_powerflow_la_SOURCES += powerflow/voltdump.cpp
 powerflow_powerflow_la_SOURCES += powerflow/voltdump.h
 powerflow_powerflow_la_SOURCES += powerflow/volt_var_control.cpp
 powerflow_powerflow_la_SOURCES += powerflow/volt_var_control.h
+
+dist_pkgdata_DATA += powerflow/solver_py.conf

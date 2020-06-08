@@ -716,9 +716,7 @@ DEPRECATED static int build_info(void *main, int argc, const char *argv[])
 #ifdef HAVE_NCURSES_H
 				" ncurses"
 #endif
-#ifdef HAVE_PYTHON
 				" python"
-#endif
 #ifdef HAVE_MYSQL
 				" mysql"
 #endif
@@ -752,9 +750,7 @@ DEPRECATED static int build_info(void *main, int argc, const char *argv[])
 #ifdef HAVE_NCURSES_H
 				" ncurses"
 #endif
-#ifdef HAVE_PYTHON
 				" python"
-#endif
 #ifdef HAVE_MYSQL
 				" mysql"
 #endif

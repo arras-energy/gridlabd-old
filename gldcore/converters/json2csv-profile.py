@@ -4,7 +4,7 @@ import sys, getopt
 from datetime import datetime 
 import csv
 
-def convert(input_file,output_file=None):
+def convert(input_file,output_file=None, options={}):
 
 	if output_file == '':
 		if input_file[-5:] == ".json":
