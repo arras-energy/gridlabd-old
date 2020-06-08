@@ -2072,14 +2072,19 @@ static bool get_callback(
         if ( PyCallable_Check(call) )
         {
             PyList_Append(*list,call);
+            return true;
         }
         else 
         {
-            output_error("%s.%s is not callable",file,def);
+            output_error("%s.py: %s is not callable",file,def);
             return false;
         }
     }
-    return true;    
+    else
+    {
+            output_error("%s.py: %s is not found",file,def);
+            return false;
+    }
 }
 
 int python_module_setvar(const char *varname, const char *value)
