@@ -1,0 +1,7 @@
+#ifexist test_compare_1.json
+#define DIR=.
+#else
+#define DIR=..
+#endif
+
+#compare ${DIR}/test_compare_1.json ${DIR}/test_compare_3.json

@@ -2233,7 +2233,14 @@ int GldLoader::clock_properties(PARSER)
 	{
 		if (TERM(time_value(HERE,&tsval)))
 		{
-			global_starttime = tsval;
+			if ( tsval <= global_stoptime )
+			{
+				global_starttime = tsval;
+			}
+			else
+			{
+				syntax_error(filename,linenum,"starttime before stoptime");
+			}
 			ACCEPT;
 			goto Next;
 		}
@@ -2244,7 +2251,14 @@ int GldLoader::clock_properties(PARSER)
 	{
 		if (TERM(time_value(HERE,&tsval)))
 		{
-			global_stoptime = tsval;
+			if ( tsval >= global_starttime )
+			{
+				global_stoptime = tsval;
+			}
+			else
+			{
+				syntax_error(filename,linenum,"stoptime after starttime");
+			}
 			ACCEPT;
 			goto Next;
 		}
@@ -7184,7 +7198,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 				global_strictnames = old_global_strictnames;	
 			}
 		}
-		char glmname[1024];
+		char glmname[1024] = "";
 		if ( load_import(name,glmname,sizeof(glmname)) == FAILED )
 		{
 			output_error_raw("%s(%d): load of '%s' failed",filename,linenum,glmname);
@@ -7862,19 +7876,36 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 	char load_options_var[64];
 	sprintf(load_options_var,"%s_load_options",ext);
 	global_getvar(load_options_var,load_options,sizeof(load_options));
-	char *ptr = load_options;
+	char *unquoted = load_options;
 	if ( load_options[0] == '"' )
 	{
 		int len = strlen(load_options);
 		load_options[len-1] = '\0';
-		ptr++;
+		unquoted++;
 	}
-	int rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,from,to,ptr);
+	char *out = strncmp(unquoted,"-o ",3)==0 ? unquoted : strstr(unquoted," -o ");
+	if ( out )
+	{	// copy user-specified output glm name
+		while ( isspace(out[0]) ) out++;
+		if ( strchr(out,' ') )
+		{
+			strcpy(to,strchr(out,' ')+1);		
+			char *end = strchr(to,' ');
+			if ( end ) *end = '\0';
+		}
+		else
+		{
+			output_warning("-o option filename missing");
+		}
+		output_verbose("changing output to '%s'", to);
+	}
+	int rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,from,to,unquoted);
 	if ( rc != 0 )
 	{
 		output_error("%s: return code %d",converter_path,rc);
 		return false;
 	}
+	output_verbose("GldLoader::load_import(from='%s', to='%s', len=%d) -> OK load_options='%s'",from,to,len,load_options);
 	return true;
 }
 
@@ -7906,7 +7937,7 @@ STATUS GldLoader::loadall(const char *fname)
 
 		// python script
 
-		if ( ext != NULL && strcmp(ext,".py") == 0 )
+		if ( ext != NULL && ( strcmp(ext,".py") == 0 || strncmp(ext,".py ",4) == 0 || strncmp(ext,".py\t",4) == 0 ) )
 		{
 			return load_python(fname);
 		}

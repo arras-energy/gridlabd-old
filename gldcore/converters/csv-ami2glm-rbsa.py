@@ -2,7 +2,7 @@
 """
 import pandas
 
-def convert(input_file, output_file):
+def convert(input_file, output_file, options={}):
     with open(output_file,"w") as glm:
         glm.write("""object rbsa {
     floor_area "0.0";
