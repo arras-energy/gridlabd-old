@@ -270,7 +270,7 @@ static PyObject *gridlabd_traceback(const char *context=NULL)
 }
 
 static PyObject *gridlabdException;
-static PyObject *this_module = NULL;
+PyObject *this_module = NULL;
 
 class Callback 
 {
@@ -1098,10 +1098,10 @@ static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
         return gridlabd_exception("object '%s' not found", name);
     }
 
-    char value[65536*10];
+    char value[65536*10] = "";
     ReadLock();
-    int len = object_get_value_by_name(obj,property,value,sizeof(value));
-    if ( len < 0 )
+    if ( object_property_to_string(obj,property,value,sizeof(value)) == NULL
+        && object_get_header_string(obj,property,value,sizeof(value)) == NULL )
     {
         return gridlabd_exception("object '%s' property '%s' not found", name, property);
     }
@@ -1145,9 +1145,14 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
     return Py_BuildValue("s",previous);
 }
 
-static PROPERTY *get_first_property(OBJECT *obj)
+static PROPERTY *get_first_property(OBJECT *obj, bool inherit=true)
 {
-    return obj->oclass->pmap;
+    CLASS *oclass = obj->oclass;
+    while ( inherit && oclass->pmap == NULL && oclass->parent != NULL )
+    {
+        oclass = oclass->parent;
+    }
+    return oclass->pmap;
 }
 static PROPERTY *get_next_property(PROPERTY *prop,bool inherit=true)
 {
@@ -2090,7 +2095,7 @@ int python_module_setvar(const char *varname, const char *value)
     return strlen(value);
 }
 
-MODULE *python_module_load(const char *file, int argc, char *argv[])
+MODULE *python_module_load(const char *file, int argc, const char *argv[])
 {
     char pathname[1024];
     sprintf(pathname,"%s.py",file);
@@ -2100,7 +2105,8 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
         errno = ENOENT;
         return NULL;
     }
-    PyObject *mod = PyImport_ImportModule(file);
+    extern PyObject *python_embed_import(const char *module, const char *path);
+    PyObject *mod = python_embed_import(file,".");
 
     if ( mod == NULL)
     {

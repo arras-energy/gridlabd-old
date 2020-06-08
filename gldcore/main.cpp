@@ -93,11 +93,11 @@ GldMain::GldMain(int argc, const char *argv[])
 	gui(this),
 	loader(this)
 {
-	python_embed_init(argc,argv);
-
 	id = next_id++;
 	// TODO: remove this when reetrant code is done
 	my_instance = this;
+
+	python_embed_init(argc,argv);
 
 	set_global_browser();
 

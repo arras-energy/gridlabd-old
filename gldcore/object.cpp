@@ -1677,16 +1677,11 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 	char function[1024];
 	if ( sscanf(event,"python:%s",function) ==  1 )
 	{
-#ifdef HAVE_PYTHON
 		// implemented in gldcore/link/python/python.cpp
 		extern int python_event(OBJECT *obj, const char *, long long *);
 		int rv = python_event(obj,function,p_retval) ? 0 : -1;
 		IN_MYCONTEXT output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
 		return rv;
-#else
-		output_error("python system not linked, event '%s' is not callable", event);
-		return -1;
-#endif
 	}
 	else
 	{

@@ -337,7 +337,7 @@ system: install
 	@echo "Setting $$(./build-aux/version.sh --install) to the current system version"
 	@$(DESTDIR)$(bindir)/gridlabd version set
 	@if [ ! "$$(gridlabd --version=install)" == "$$(./build-aux/version.sh --install)" ]; then \
-		echo '*** WARNING : build and install versions differ ***'; \
+		echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'; \
 	fi
 
 index: weather library template
