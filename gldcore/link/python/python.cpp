@@ -704,7 +704,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     if ( strcmp(command,"thread") == 0 || strcmp(command,"pause") == 0 )
     {
 #ifdef MAIN_PYTHON
-        return NULL;
+        return gridlabd_exception("unable to start gridlabd in this module instance");
 #else
         PyEval_InitThreads();
         save_environ();
@@ -739,7 +739,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     else if ( strcmp(command, "wait") == 0 )
     {
 #ifdef MAIN_PYTHON
-        return NULL;
+        return gridlabd_exception("unable to start gridlabd in this module instance");
 #else
         int code = *(int*)gridlabd_main(NULL);
         output_debug("gridlabd_main(NULL) returned code %d",code);
@@ -750,7 +750,6 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("start mode '%s' is not recognized", command);
     }
-    return NULL;
 }
 
 //
