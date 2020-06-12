@@ -72,10 +72,17 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	gl_global_create("powerflow::solver_profile_headers_included", PT_bool, &solver_profile_headers_included,PT_DESCRIPTION, "Flag to include headers in NR solver profile file",NULL);
 	extern char1024 solver_headers;
 	gl_global_create("powerflow::solver_headers", PT_char1024, &solver_headers,PT_DESCRIPTION, "Headers in NR solver profile file",NULL);
+
+	extern char1024 solver_py_config;
+	gl_global_create("powerflow::solver_py_config", PT_char1024, &solver_py_config, PT_DESCRIPTION, "PY solver configuration file location",NULL);
+	gl_global_create("powerflow::solver_dump_enable", PT_bool, &solver_dump_enable, PT_DESCRIPTION, "flag to enable bus/branch dump when solvers fails",NULL);
+
+#if defined(SOLVER_ML)
 	extern char1024 solver_ml_config;
 	gl_global_create("powerflow::solver_ml_config", PT_char1024, &solver_ml_config, PT_DESCRIPTION, "ML solver configuration file location",NULL);
 	gl_global_create("powerflow::solver_dump_enable", PT_bool, &solver_dump_enable, PT_DESCRIPTION, "flag to enable bus/branch dump when solvers fails",NULL);
-	
+#endif
+
 	// register each object class by creating the default instance
 	new powerflow_object(module);
 	new powerflow_library(module);

@@ -97,9 +97,18 @@ public:
 	inline double Mag(double m)  /**< set magnitude */
 	{
 		double old = sqrt(r*r+i*i);
-		r *= m/old;
-		i *= m/old;
-		return m;
+		if ( old > 0 )
+		{
+			r *= m/old;
+			i *= m/old;
+			return m;
+		}
+		else
+		{
+			// assume angle is zero
+			r = m;
+			i = 0;
+		}
 	};
 	inline double Arg(void) const /**< compute angle */
 	{

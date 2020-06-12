@@ -6747,9 +6747,7 @@ static int is_autodef(char *value)
 	if ( strcmp(value,"MATLAB")==0 ) return 1;
 #endif
 
-#ifdef HAVE_PYTHON
 	if ( strcmp(value,"PYTHON")==0 ) return 1;
-#endif
 
 	return 0;
 }
@@ -7144,6 +7142,13 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 				if ( old_stack ) global_restore(old_stack);
 				return TRUE;
 			}
+		}
+		else if (sscanf(term, "(%[^)])", value) == 1)
+		{
+			/* C include file */
+			IN_MYCONTEXT output_verbose("executing include shell \"%s\"", value);
+			my_instance->subcommand("%s",value);
+			return TRUE;
 		}
 		else
 		{
@@ -7911,7 +7916,13 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 
 STATUS GldLoader::load_python(const char *filename)
 {
-	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
+	extern PyObject *gridlabd_module;
+	if ( gridlabd_module == NULL )
+	{
+		python_embed_init(0,NULL);
+	}
+	return python_embed_import(filename,".") == NULL ? FAILED : SUCCESS;
+//	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
 }
 
 /** Load a file
