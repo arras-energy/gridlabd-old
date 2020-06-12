@@ -96,7 +96,7 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef gridlabd_module_def = {
+struct PyModuleDef gridlabd_module_def = {
     PyModuleDef_HEAD_INIT,
     PACKAGE,   /* name of module */
     "Python " PACKAGE_NAME " simulation", /* module documentation, may be NULL */
