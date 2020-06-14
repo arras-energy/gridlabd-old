@@ -1137,18 +1137,18 @@ int GldLoader::literal(PARSER, const char *text)
 
 int GldLoader::quoted_string(PARSER, char *result, int size)
 {
-	START;
-	WHITE;
-	if ( *_p != '"' )
+	int len = 0;
+	while ( isspace(*_p) ) _p++;
+	if ( *_p++ != '"' )
 	{
-		REJECT;
-		DONE;
+		return 0;
 	}
 	else
 	{
+		len++;
 		while ( _p[0] != '"' )
 		{
-			if ( size > 0 )
+			if ( len < size-1 )
 			{
 				if ( _p[0] == '\\' && _p[1] != '\0' )
 				{
@@ -1168,16 +1168,17 @@ int GldLoader::quoted_string(PARSER, char *result, int size)
 				else
 				{
 					*result++ = *_p++;
+					len++;
 				}
 			}
 			else
 			{
-				REJECT;
-				DONE;
+				return 0;
 			}
 		}
-		ACCEPT;
-		DONE;
+		*result++ = '\0';
+		len++;
+		return len;
 	}
 }
 int GldLoader::dashed_name(PARSER, char *result, int size)
