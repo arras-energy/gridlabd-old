@@ -2098,14 +2098,14 @@ MODULE *python_module_load(const char *file, int argc, const char *argv[])
 {
     char pathname[1024];
     sprintf(pathname,"%s.py",file);
-    struct stat sbuf;
-    if ( stat(pathname,&sbuf) )
-    {
-        errno = ENOENT;
-        return NULL;
-    }
+    // struct stat sbuf;
+    // if ( stat(pathname,&sbuf) )
+    // {
+    //     errno = ENOENT;
+    //     return NULL;
+    // }
     extern PyObject *python_embed_import(const char *module, const char *path);
-    PyObject *mod = python_embed_import(file,".");
+    PyObject *mod = python_embed_import(file,global_pythonpath);
 
     if ( mod == NULL)
     {

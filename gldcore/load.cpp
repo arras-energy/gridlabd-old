@@ -8018,7 +8018,7 @@ STATUS GldLoader::load_python(const char *filename)
 	{
 		python_embed_init(0,NULL);
 	}
-	return python_embed_import(filename,".") == NULL ? FAILED : SUCCESS;
+	return python_embed_import(filename,global_pythonpath) == NULL ? FAILED : SUCCESS;
 //	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
 }
 
