@@ -1480,6 +1480,9 @@ void GldGlobals::remote_write(void *local, /** local memory for data */
 
 size_t GldGlobals::saveall(FILE *fp)
 {
+	if ( (global_glm_save_options&GSO_NOGLOBALS) == GSO_NOGLOBALS )
+		return 0;
+	
 	size_t count = 0;
 	GLOBALVAR *var = NULL;
 	char buffer[1024];
@@ -1488,7 +1491,10 @@ size_t GldGlobals::saveall(FILE *fp)
 		if ( strstr(var->prop->name,"::") == NULL
 			&& global_getvar(var->prop->name,buffer,sizeof(buffer)-1) != NULL )
 		{
-			count += fprintf(fp,"#set %s=%s\n",var->prop->name,buffer);
+			count += fprintf(fp,"#ifdef %s\n#define %s=%s\n#else\n#set %s=%s\n#endif\n",
+				var->prop->name,
+				var->prop->name,buffer,
+				var->prop->name,buffer);
 		}
 	}
 	return count;
