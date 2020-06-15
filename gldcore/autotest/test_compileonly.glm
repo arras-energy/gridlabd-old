@@ -15,12 +15,11 @@ class test
     double test;
 }
 
-module assert;
-
-object test:..5
+object test:..100
 {
     test "test*1+0";
 }
 
-#set glm_save_options=ORIGINAL|NOGLOBALS
-#set savefile=test.glm
+#set glm_save_options=ORIGINAL|NOGLOBALS|NOMACROS
+#set filesave_options=ALLINITIAL
+#set savefile=test.json

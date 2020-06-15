@@ -165,6 +165,7 @@ DEPRECATED static KEYWORD gso_keys[] = {
 	{"NOGLOBALS",	GSO_NOGLOBALS,	gso_keys+3},
 	{"NODEFAULTS",	GSO_NODEFAULTS, gso_keys+4},
 	{"NOMACROS",	GSO_NOMACROS,	gso_keys+5},
+	{"NOINTERNALS",	GSO_NOINTERNALS,gso_keys+6},
 	{"ORIGINAL",	GSO_ORIGINAL,	NULL},
 };
 DEPRECATED static KEYWORD fso_keys[] = {
