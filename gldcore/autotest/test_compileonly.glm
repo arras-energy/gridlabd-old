@@ -17,9 +17,8 @@ class test
 
 module assert;
 
-object test
+object test:..5
 {
-    name "test";
     test "test*1+0";
 }
 
