@@ -16,17 +16,17 @@ GLM:
 
 # Description
 
-The value of `csv_data_only` determine whether the legacy comments will be included in CSV output from the `tape` module. Three values are recognized:
+The value of `csv_data_only` determines whether the legacy comments will be included in CSV output from the `tape` module. Three values are recognized:
 
-- 0: this value output the full GridLAB-D CSV file comment header
+- 0: output the full GridLAB-D CSV file comment header
 
-- 1: this value outputs only the CSV data with no header
+- 1: output only the CSV data with no header
 
-- 2: this value outputs a single CSV header line with field names before outputting the CSV data
+- 2: output a single CSV header line with field names before outputting the CSV data
 
 # Caveat
 
-This value is synonymous with the global `tape::csv_header_type`, except that this value is represented as the underlying integer. It is maintained for compatibility with previous version of GridLAB-D where this value could only be 0 or 1. See [[/Module/Tape/Global/Csv_header_type]] for details.
+This global `tape::csv_data_only` is synonymous with the global `tape::csv_header_type`, except that `csv_data_only` is represented as the underlying integer. It is maintained for compatibility with older versions of GridLAB-D where this value could only be 0 or 1. See [[/Module/Tape/Global/Csv_header_type]] for details.
 
 # See also
 

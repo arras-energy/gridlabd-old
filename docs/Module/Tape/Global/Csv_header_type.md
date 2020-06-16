@@ -16,17 +16,17 @@ GLM:
 
 # Description
 
-The value of `csv_header_type` determine the type of header included in CSV output from the `tape` module. Three values are recognized:
+The value of `csv_header_type` determines the type of header included in CSV output from the `tape` module. Three values are recognized:
 
-- FULL: this value output the full GridLAB-D CSV file comment header
+- FULL: output the full GridLAB-D CSV file comment header
 
-- NONE: this value outputs only the CSV data with no header
+- NONE: output only the CSV data with no header
 
-- NAME: this value outputs a single CSV header line with field names before outputting the CSV data
+- NAME: output a single CSV header line with field names before outputting the CSV data
 
 # Caveat
 
-This value is synonymous with the global `tape::csv_data_only`, except that this value is represented as an enumeration. See [[/Module/Tape/Global/csv_data_only]] for details.
+This global `tape::csv_data_only` is synonymous with the global `tape::csv_data_only`, except that `csv_data_only` is represented as an enumeration. See [[/Module/Tape/Global/csv_data_only]] for details.
 
 # See also
 
