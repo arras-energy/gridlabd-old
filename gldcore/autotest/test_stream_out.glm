@@ -2,11 +2,6 @@
 #set suppress_repeat_messages=FALSE
 #set checkpoint_type=SIM
 #set checkpoint_interval=86400
-#setenv GRIDLABD=../../../core
-
-#if debug==TRUE
-#define use_msvc=1
-#endif
 
 module tape;
 
@@ -18,18 +13,16 @@ clock {
 class test {
 	randomvar x[kW];
 	complex y[kVA];
-	intrinsic init(OBJECT *p)
-	{
-		return 1;
-	};
 };
-module assert;
+
+module tape;
 object test:..2 {
 	x "type:uniform(0,1); refresh:1min";
-	object assert {
-		target x;
-		relation inside;
-		lower 0;
-		upper 1;
+	object recorder {
+		property x;
+		file "test.csv";
+		interval -1;
 	};
 }
+
+#on_exit 0 test -f test_stream_out.4 -a "$(sed -n 8650p test.csv)" == "2000-01-07 00:00:00 UTC,0.718811"
