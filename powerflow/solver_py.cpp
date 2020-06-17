@@ -562,17 +562,22 @@ void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,vo
 void sync_complex(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
 {
 	complex **pz = (complex**)ptr;
+	if ( pz == NULL )
+		return;
+	double *px = (double*)(((char*)(*pz))+offset);
+	if ( px == NULL )
+		return;
+	double &x = *px;
 	PyObject *pValue = PyList_GetItem(data,n);
 	if ( inverse )
 	{
 		if ( pValue && PyFloat_Check(pValue) )
 		{
-			*(double*)(((char*)(*pz))+offset) = PyFloat_AsDouble(pValue);
+			x = PyFloat_AsDouble(pValue);
 		}
 	}
 	else
 	{
-		double x = *(double*)(((char*)(*pz)) + offset)	;
 		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
 		{
 			PyList_SetItem(data,n,PyFloat_FromDouble(x));
