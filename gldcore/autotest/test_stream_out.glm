@@ -3,6 +3,7 @@
 #set suppress_repeat_messages=FALSE
 #set checkpoint_type=SIM
 #set checkpoint_interval=86400
+#set randomseed=1
 
 module tape;
 
@@ -26,4 +27,4 @@ object test:..2 {
 	};
 }
 
-#on_exit 0 test -f test_stream_out.4 -a "$(sed -n 8650p test.csv)" == "2000-01-07 00:00:00 UTC,0.718811"
+#on_exit 0 test -f test_stream_out.4 -a "$(sed -n 8650p test.csv)" == "2000-01-07 00:00:00 UTC,0.692688"
