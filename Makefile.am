@@ -300,7 +300,7 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
 
-install-exec-hook: python-install index
+install-exec-hook: index python-install
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
