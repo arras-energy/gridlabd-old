@@ -1,7 +1,7 @@
 import json 
 import os 
 import sys, getopt
-
+import datetime
 
 config = {"input":"json","output":"glm","type":[]}
 
@@ -54,7 +54,9 @@ def convert(ifile,ofile) :
 		
 
 	with open(ofile, "a") as fw : 
-		fw.write("// JSON to GLM Converter Output")
+		fw.write(f"// JSON to GLM Converter Output\n")
+		fw.write(f"// InputFile '{ifile}'\n")
+		fw.write(f"// CreateDate '{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}'\n")
 
 		# clock
 		header_str = '\n' + 'clock {'
@@ -139,28 +141,25 @@ def convert(ifile,ofile) :
 				obj_id_sorted = sorted(obj_id, key=lambda tup: tup[0])
 				id_list,ordered_obj_list= zip(*obj_id_sorted)
 			for obj_id_sorted in ordered_obj_list : 
-				classname = data['objects'][obj_id_sorted]["class"]
-				# header_str = f"\nobject {classname} " + "\n{"
-				# fw.write(header_str)
-				# if ':' in obj_id_sorted : 
-				# 	object_id = data['objects'][obj_id_sorted]['id']
-				# 	new_name = f"{classname}_{object_id}"
-				# else :
-				# 	new_name = obj_id_sorted 
-				# name_str = f"\n\tname \"{new_name}\";" 
-				# fw.write(name_str)
-				fw.write(f"object {classname}")
-				fw.write("{")
-				fw.write(f"name \"obj_id_sorted\";")
+				classname = data['objects'][obj_id_sorted]['class']
+				classdata = data['classes'][classname]
+				# print("CLASSNAME",classname,classdata)
+				fw.write(f"\nobject {classname}")
+				fw.write("\n{")
+				fw.write(f"\n\tname \"{obj_id_sorted.replace(':','_')}\";")
 				for v_id, v_info in data['objects'][obj_id_sorted].items() : 
 					if v_id not in objects_ignore and v_info:
-						v_str = v_info.replace('"', '\\\"')
-						if "\n" in v_info :
+						# print(v_id)
+						if v_id in classdata and type(classdata[v_id]) is 'dict' and classdata[v_id]['type'] == 'object':
+							v_str = v_info.replace(':','_')
+						else:
+							v_str = v_info.replace('"', '\\\"')
+						if '\n' in v_info :
 							var_str = f"\n\t{v_id} \"\"\"{v_str}\"\"\";"
 						else : 
 							val_str = f"\n\t{v_id} \"{v_str}\";"
 						fw.write(val_str)
-				fw.write("}")
+				fw.write("\n}")
 		fw.write('\n')
 
 if __name__ == '__main__':
