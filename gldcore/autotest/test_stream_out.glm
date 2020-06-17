@@ -1,4 +1,5 @@
-// test checkpoints
+// test checkpoint mechanism
+
 #set suppress_repeat_messages=FALSE
 #set checkpoint_type=SIM
 #set checkpoint_interval=86400
