@@ -441,11 +441,12 @@ void uchar_to_double(double *x, void *c, bool inverse)
 static BUSDATA bus_t;
 static BRANCHDATA branch_t;
 #define DATA(S,T,X,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C}
+#define DATA_R(S,T,X,R,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C,false,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
 #define DATA_X(S,T,X,R,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
 #define THREEPHASE_R(B,X,D) \
-	DATA_X(B,#X "A",X,[0],D,NULL), \
-	DATA_X(B,#X "B",X,[1],D,NULL), \
-	DATA_X(B,#X "C",X,[2],D,NULL)
+	DATA_R(B,#X "A",X,[0],D,NULL), \
+	DATA_R(B,#X "B",X,[1],D,NULL), \
+	DATA_R(B,#X "C",X,[2],D,NULL)
 #define THREEPHASE_C(B,X,D) \
 	DATA_X(B,#X "Ar",X,[0].r,D,NULL), \
 	DATA_X(B,#X "Ai",X,[0].i,D,NULL), \
