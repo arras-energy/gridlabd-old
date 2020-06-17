@@ -559,12 +559,12 @@ void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,vo
 	}
 }
 
-void sync_complex(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
+void sync_double_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
 {
-	complex **pz = (complex**)ptr;
-	if ( pz == NULL )
+	double **ppx = (double**)ptr;
+	if ( ppx == NULL )
 		return;
-	double *px = (double*)(((char*)(*pz))+offset);
+	double *px = (double*)(((char*)(*ppx))+offset);
 	if ( px == NULL )
 		return;
 	double &x = *px;
@@ -608,13 +608,13 @@ void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir 
 			{
 				return;
 			}
-			if ( ! map->is_ref ) // values are always cast to double
+			if ( ! map->is_ref ) // values can be converted and have no offset
 			{
 				sync_double(data,n,ptr,map->convert,(dir&ED_IN));
 			}
-			else if ( *(complex**)ptr != NULL ) // pointers are to complex arrays
+			else if ( *(double**)ptr != NULL ) // pointers are never converted but have an offset
 			{
-				sync_complex(data,n,ptr,map->ref_offset,(dir&ED_IN));
+				sync_double_ref(data,n,ptr,map->ref_offset,(dir&ED_IN));
 			}
 			else // everything else if NULL
 			{
