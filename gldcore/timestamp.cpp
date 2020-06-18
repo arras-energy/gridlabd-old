@@ -1220,6 +1220,8 @@ TIMESTAMP convert_to_timestamp(const char *value)
 	double s=0.0;
 	unsigned short tzh=0, tzm=0;
 	char tz[5]="";
+	double t;
+	char unit[4]="s";
 	if (*value=='\'' || *value=='"') value++;
 
 	/* ISO8601 support */
@@ -1265,38 +1267,38 @@ TIMESTAMP convert_to_timestamp(const char *value)
 		strncpy(dt.tz,tz,sizeof(dt.tz));
 		return mkdatetime(&dt);
 	}
-	else if (strcmp(value,"INIT")==0)
+	else if ( strcmp(value,"INIT") == 0 )
 		return 0;
-	else if (strcmp(value, "NEVER")==0)
+	else if ( strcmp(value, "NEVER") == 0 )
 		return TS_NEVER;
-	else if (strcmp(value, "NOW") == 0)
+	else if ( strcmp(value, "NOW") == 0 )
 		return global_clock;
-	else if (isdigit(value[0]))
-	{	// timestamp format (leading digit) or time different (leading +/-)
-		double t = atof(value);
-		const char *p=value;
-		while (isdigit(*p) || *p=='.') p++;
-		switch (*p) {
-		case 's':
-		case 'S':
+	else if ( sscanf(value,"%lg%3s",&t,unit) > 0 )
+	{	if ( strcasecmp(unit,"s") == 0 )
+		{
 			t *= SECOND;
-			break;
-		case 'm':
-		case 'M':
-			t *= MINUTE;
-			break;
-		case 'h':
-		case 'H':
-			t *= HOUR;
-			break;
-		case 'd':
-		case 'D':
-			t *= DAY;
-			break;
-		default:
-			return TS_NEVER;
-			break;
 		}
+		else if ( strcasecmp(unit,"m") == 0 )
+		{
+			t *= MINUTE;
+		}
+		else if ( strcasecmp(unit,"h") == 0 )
+		{
+			t *= HOUR;
+		}
+		else if ( strcasecmp(unit,"d") == 0 )
+		{
+			t *= DAY;
+		}
+		else if ( strcasecmp(unit,"w") == 0 )
+		{
+			t *= 7*DAY;
+		}
+		else
+		{
+			return TS_INVALID;
+		}
+		while ( isspace(*value) ) value++;
 		return ( strchr("+-",value[0]) == NULL ? 0 : global_clock) + (TIMESTAMP)(t+0.5);
 	}
 	else
