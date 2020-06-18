@@ -1677,16 +1677,11 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 	char function[1024];
 	if ( sscanf(event,"python:%s",function) ==  1 )
 	{
-#ifdef HAVE_PYTHON
 		// implemented in gldcore/link/python/python.cpp
 		extern int python_event(OBJECT *obj, const char *, long long *);
 		int rv = python_event(obj,function,p_retval) ? 0 : -1;
 		IN_MYCONTEXT output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
 		return rv;
-#else
-		output_error("python system not linked, event '%s' is not callable", event);
-		return -1;
-#endif
 	}
 	else
 	{
@@ -3233,17 +3228,12 @@ bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
 
 OBJECT *object_find_by_addr(void *addr, PROPERTY *prop)
 {
-	static OBJECT *last_object = NULL; // caching last found
-	for ( OBJECT *obj = last_object ? last_object : first_object ; obj != NULL ; obj = obj->next )
+	for ( OBJECT *obj = first_object ; obj != NULL ; obj = obj->next )
 	{
 		if ( addr >= obj && addr < (char*)(((OBJECT*)obj)+1)+obj->oclass->size )
 		{
 			last_object = obj;
 			return obj;
-		}
-		if ( obj->next == NULL && last_object )
-		{
-			obj = first_object;
 		}
 	}
 	return NULL;

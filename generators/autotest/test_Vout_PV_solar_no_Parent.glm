@@ -23,10 +23,11 @@ module powerflow{
 	default_maximum_voltage_error 1e-9;
 }
 
-
-object climate{
+#weather get WA-Yakima_Air_Terminal.tmy3
+object climate
+{
 	name MyClimate;
-	tmyfile ../WA-Yakima.tmy3;
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
 	object recorder {
 		file climate_out.csv;
 		interval 3600;
