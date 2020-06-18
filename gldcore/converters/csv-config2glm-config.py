@@ -18,6 +18,6 @@ def convert(input_file, output_file, options={}):
         reader = csv.reader(csvfile)
         with open(output_file,"w") as glmfile:
             if "relax" in options.keys():
-                glmfile.write(f"#set strictnames={str(not options['relax']).upper()}")
+                glmfile.write(f"#set strictnames={options['relax']}\n")
             for row in reader:
                 glmfile.write(f"#define {prefix}{row[0]}={row[1]}\n")
