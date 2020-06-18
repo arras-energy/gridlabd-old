@@ -61,7 +61,7 @@ typedef struct s_complex {
 /*	Class: complex
  */
 class complex { 
-private:
+public:
 #endif
 	double r; /**< the real part */
 	double i; /**< the imaginary part */

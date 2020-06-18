@@ -20,7 +20,7 @@ The following languages are currently provide through built-in support.
 
 ### `python`
 
-The Python3 interpreter is linked to the GLM loader automatically when GridLAB-D is built.  The `gridlabd` module is also automatically loaded when the GridLAB-D Python interface is started.  For more information on the `gridlabd` module, see [[/Module/Python]]
+The Python3 interpreter is linked to the GLM loader automatically when GridLAB-D is built.  All the objects in the `gridlabd` module are also automatically import when the GridLAB-D Python interface is started.  For more information on the `gridlabd` module, see [[/Module/Python]].
 
 # Example
 
@@ -28,7 +28,7 @@ The following example outputs the current version information.
 
 ~~~
 #begin python
-gridlabd.output(gridlabd.version())
+output(version())
 #end
 ~~~
 

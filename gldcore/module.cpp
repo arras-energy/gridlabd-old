@@ -259,12 +259,9 @@ size_t module_getcount(void) { return module_count; }
 typedef MODULE *(*LOADER)(const char *, int, const char *[]);
 MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 							   int argc, /**< count of arguments in \p argv */
-							   char *argv[]) /**< arguments passed from the command line */
+							   const char *argv[]) /**< arguments passed from the command line */
 {
-	MODULE *mod;
-#ifdef HAVE_PYTHON
-	extern MODULE *python_module_load(const char *, int, char *[]);
-	mod = python_module_load(file,argc,argv);
+	MODULE *mod = python_module_load(file,argc,argv);
 	if ( mod != NULL )
 	{
 		mod->hLib = NULL;
@@ -289,7 +286,6 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 
 		return mod;
 	}
-#endif
 
 	/* check for already loaded */
 	mod = module_find((char *)file);
@@ -380,11 +376,11 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			{
 				if (strcmp(p->name, fmod)==0)
 				{
-					static char *args[1];
+					static const char *args[1];
 					isforeign = true;
 					if (p->loader!=NULL)
 						/* use external loader */
-						return p->loader(modname,argc,(const char**)argv);
+						return p->loader(modname,argc,argv);
 
 					/* use a module with command args */
 					argv = args;
@@ -516,7 +512,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->clockupdate = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"clock_update");
 	mod->cmdargs = (int(*)(int,const char**))DLSYM(hLib,"cmdargs");
 	mod->kmldump = (int(*)(int(*)(const char*,...),OBJECT*))DLSYM(hLib,"kmldump");
-	mod->subload = (MODULE *(*)(char *, MODULE **, CLASS **, int, char **))DLSYM(hLib, "subload");
+	mod->subload = (MODULE *(*)(char *, MODULE **, CLASS **, int, const char *[]))DLSYM(hLib, "subload");
 	mod->test = (void(*)(int,char*[]))DLSYM(hLib,"test");
 	mod->stream = (STREAMCALL)DLSYM(hLib,"stream");
 	mod->globals = NULL;
