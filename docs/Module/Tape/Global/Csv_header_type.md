@@ -11,7 +11,9 @@ bash$ gridlabd -D|--define csv_header_type={FULL,NONE,NAME}
 GLM:
 
 ~~~
-  #set csv_header_type={FULL,NONE,NAME}
+  module tape {
+    csv_header_type "{FULL|NONE|NAME}";
+  }
 ~~~
 
 # Description
