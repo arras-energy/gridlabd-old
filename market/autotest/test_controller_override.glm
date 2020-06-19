@@ -25,10 +25,12 @@ schedule clear_price {
 	* 0-15 * * * 0.5;
 	* 16-19 * * * 2;
 	* 20-23 * * * 0.5;
-};
+}
+
+#weather get WA-Yakima_Air_Terminal.tmy3
 object climate {
      name "weather";
-     tmyfile "../WA-Yakima.tmy3";
+     tmyfile "WA-Yakima_Air_Terminal.tmy3";
 };
 
 class auction {

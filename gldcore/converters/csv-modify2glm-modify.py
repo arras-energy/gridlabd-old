@@ -2,7 +2,7 @@
 """
 import csv
 
-def convert(input_file, output_file, options):
+def convert(input_file, output_file, options={}):
     with open(input_file,"r") as csvfile:
         reader = csv.reader(csvfile)
         with open(output_file,"w") as glmfile:

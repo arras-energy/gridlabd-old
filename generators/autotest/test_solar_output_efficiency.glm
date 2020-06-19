@@ -19,9 +19,10 @@ module powerflow {
      NR_iteration_limit 50;
 };
 
+#weather get CA-Chino_Airport.tmy3
 object climate {
      name "CA-Chino";
-     tmyfile "../CA-Chino_Airport.tmy3";
+     tmyfile "CA-Chino_Airport.tmy3";
 	 interpolate NONE;
 };
 

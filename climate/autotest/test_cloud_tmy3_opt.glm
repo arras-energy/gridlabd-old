@@ -27,10 +27,10 @@ module residential {
 	ANSI_voltage_check FALSE;
 };
 
-
+#weather get WA-Yakima_Air_Terminal.tmy3
 object climate {
 	name "Yakima";
-	tmyfile "../WA-Yakima.tmy3";
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
 	cloud_model "CUMULUS";
 	interpolate "QUADRATIC";
 	cloud_opacity 0.50;

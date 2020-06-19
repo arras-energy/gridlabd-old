@@ -507,18 +507,33 @@ int GldExec::init()
 	IN_MYCONTEXT output_verbose("using %d helper thread(s)", global_threadcount);
 
 	/* setup clocks */
-	if ( global_starttime==0 )
+	if ( global_starttime == 0 )
+	{
 		global_starttime = realtime_now();
+		if ( global_stoptime == 0 )
+		{
+			global_stoptime = TS_NEVER;
+		}
+	}
+
+	/* check the stop time */
+	if ( global_stoptime < global_starttime )
+	{
+		output_error("stop time is before start time");
+		return 0;
+	}
 
 	/* set the start time */
-	//global_clock = global_starttime + local_tzoffset(global_starttime);
 	global_clock = global_starttime;
 
 	/* save locale for simulation */
 	locale_push();
 
-	if (global_init()==FAILED)
+	if ( global_init() == FAILED )
+	{
 		return 0;
+	}
+
 	return 1;
 }
 

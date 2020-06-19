@@ -31,9 +31,11 @@ module powerflow {
      NR_iteration_limit 100;
 };
 
-object climate{
+#weather get WA-Yakima_Air_Terminal.tmy3
+object climate
+{
 	name NREL_climate;
-	tmyfile "../WA-Yakima.tmy3";
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
 };
 
 

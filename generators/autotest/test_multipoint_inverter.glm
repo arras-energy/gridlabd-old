@@ -46,10 +46,10 @@ schedule shading_value {
      * 23 * * 0-6 1.0000;
 }
 
-
+#weather get WA-Yakima_Air_Terminal.tmy3
 object climate {
      name "WA-Yakima";
-     tmyfile "../WA-Yakima.tmy3";
+     tmyfile "WA-Yakima_Air_Terminal.tmy3";
      interpolate QUADRATIC;
 };
 

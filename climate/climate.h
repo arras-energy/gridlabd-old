@@ -19,6 +19,8 @@
 #include "weather.h"
 #include "weather_reader.h"
 
+extern char1024 climate_library_path;
+
 typedef enum e_compass_ptr {
 	CP_H    = 0,
     CP_N    = 1,
