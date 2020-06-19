@@ -5,7 +5,7 @@
 Shell:
 
 ~~~
-bash$ gridlabd -D|--define csv_header_type={FULL,NONE,NAME}
+bash$ gridlabd -D|--define tape.csv_header_type={FULL,NONE,NAME}
 ~~~
 
 GLM:
