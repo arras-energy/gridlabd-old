@@ -68,7 +68,7 @@ GLM:
     cooling_design_temperature "<decimal> degF";
     heating_design_temperature "<decimal> degF";
     design_peak_solar "<decimal> Btu/h/sf";
-    design_internal_gains "<decimal> W/sf";
+    design_internal_gains "<decimal> Btu/h";
     air_heat_fraction "<decimal> pu";
     mass_solar_gain_fraction "<decimal> pu";
     mass_internal_gain_fraction "<decimal> pu";
@@ -719,7 +719,7 @@ System design solar load
 ### `design_internal_gains`
 
 ~~~
-  double design_internal_gains[W/sf];
+  double design_internal_gains[Btu/h];
 ~~~
 
 System design internal gains

@@ -213,6 +213,11 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	gl_global_create("tape::gnuplot_path",PT_char1024,&tape_gnuplot_path,NULL);
 	gl_global_create("tape::flush_interval",PT_int32,&flush_interval,NULL);
 	gl_global_create("tape::csv_data_only",PT_int32,&csv_data_only,NULL);
+	gl_global_create("tape::csv_header_type",PT_enumeration,&csv_data_only,
+		PT_KEYWORD,"FULL",(enumeration)0,
+		PT_KEYWORD,"NONE",(enumeration)1,
+		PT_KEYWORD,"NAME",(enumeration)2,
+		NULL);
 	gl_global_create("tape::csv_keep_clean",PT_int32,&csv_keep_clean,NULL);
 
 	/* control delta mode */
