@@ -216,7 +216,7 @@ function list()
 function get()
 {
 	fetch_index
-	for f in $(index -f default $1); do
+	for f in $(export FORMAT=default; index $1); do
 		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
 			(curl -s $GITFILE/$ORGANIZATION/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to download $f")
@@ -234,7 +234,7 @@ function info()
 	KEYWORDS="Name,Version,Author,Description,Module"
 	if [ "$FORMAT" == "json" ]; then
 		echo "["
-		for f in $(index -f default $1); do
+		for f in $(export FORMAT=default; index $1); do
 			if [ -f $DATADIR/$f ]; then
 				if [ "$first" == "yes" ]; then
 					first="no"
@@ -258,7 +258,7 @@ function info()
 	elif [ "$FORMAT" == "glm" ]; then
 		echo $(index $1)
 	else
-		for f in $(index $1); do
+		for f in $(export FORMAT=default; index $1); do
 			if [ -f $DATADIR/$f ]; then
 				if [ "$first" == "yes" ]; then
 					echo "Filepath,Organization,$KEYWORDS"
@@ -308,7 +308,7 @@ function copy()
 function delete()
 {
 	fetch_index
-	for f in $(index -f default $1); do
+	for f in $(export FORMAT=default; index $1); do
 		if [ -f $DATADIR/$f ]; then
 			rm -f $DATADIR/$f || error 1 "unable to delete $f"
 		fi
