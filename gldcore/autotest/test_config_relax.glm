@@ -2,7 +2,8 @@
 #define DIR=..
 #endif
 
-#input "${DIR:-.}/config.csv" -f config -t config
+#define TEST1=X
+#input "${DIR:-.}/config.csv" -f config -t config -p relax=FALSE
 
 #if ${TEST1:-X} == A
 #print ok
