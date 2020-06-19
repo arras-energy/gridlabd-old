@@ -512,7 +512,7 @@ AC_SUBST([MYSQL_LIBS])
 AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 
 # Verify python version
-AM_PATH_PYTHON(3.5)
+AM_PATH_PYTHON(3.7)
 HAVE_PYTHON="$(which python3) ($(python3 --version | cut -f2 -d' '))"
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 
