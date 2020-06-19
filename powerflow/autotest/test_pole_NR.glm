@@ -26,9 +26,11 @@ clock {
 	stoptime '2001-01-01 00:00:00';
 }
 
-object climate {
+#weather get CA-Chino_Airport.tmy3
+object climate 
+{
 	name weather;
-	tmyfile ../CA-Chino_Airport.tmy3;
+	tmyfile "CA-Chino_Airport.tmy3";
 }
 
 object pole_configuration {

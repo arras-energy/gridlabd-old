@@ -17,8 +17,9 @@ module residential{
 }
 module climate;
 
+#weather get WA-Yakima_Air_Terminal.tmy3
 object climate {
-	tmyfile "../WA-Yakima.tmy3";
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
 }
 
 class auction {

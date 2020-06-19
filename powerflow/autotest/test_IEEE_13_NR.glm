@@ -1,7 +1,7 @@
 // $Id: IEEE13-Feb27.glm
 //	Copyright (C) 2011 Battelle Memorial Institute
 
-#set iteration_limit=100000;
+#set iteration_limit=100
 
 clock {
 	timezone EST+5EDT;

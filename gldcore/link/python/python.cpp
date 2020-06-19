@@ -96,7 +96,7 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef gridlabd_module_def = {
+struct PyModuleDef gridlabd_module_def = {
     PyModuleDef_HEAD_INIT,
     PACKAGE,   /* name of module */
     "Python " PACKAGE_NAME " simulation", /* module documentation, may be NULL */
@@ -270,7 +270,7 @@ static PyObject *gridlabd_traceback(const char *context=NULL)
 }
 
 static PyObject *gridlabdException;
-static PyObject *this_module = NULL;
+PyObject *this_module = NULL;
 
 class Callback 
 {
@@ -704,7 +704,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     if ( strcmp(command,"thread") == 0 || strcmp(command,"pause") == 0 )
     {
 #ifdef MAIN_PYTHON
-        return NULL;
+        return gridlabd_exception("unable to start gridlabd in this module instance");
 #else
         PyEval_InitThreads();
         save_environ();
@@ -739,7 +739,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     else if ( strcmp(command, "wait") == 0 )
     {
 #ifdef MAIN_PYTHON
-        return NULL;
+        return gridlabd_exception("unable to start gridlabd in this module instance");
 #else
         int code = *(int*)gridlabd_main(NULL);
         output_debug("gridlabd_main(NULL) returned code %d",code);
@@ -750,7 +750,6 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("start mode '%s' is not recognized", command);
     }
-    return NULL;
 }
 
 //
@@ -1098,10 +1097,10 @@ static PyObject *gridlabd_get_value(PyObject *self, PyObject *args)
         return gridlabd_exception("object '%s' not found", name);
     }
 
-    char value[65536*10];
+    char value[65536*10] = "";
     ReadLock();
-    int len = object_get_value_by_name(obj,property,value,sizeof(value));
-    if ( len < 0 )
+    if ( object_property_to_string(obj,property,value,sizeof(value)) == NULL
+        && object_get_header_string(obj,property,value,sizeof(value)) == NULL )
     {
         return gridlabd_exception("object '%s' property '%s' not found", name, property);
     }
@@ -1145,9 +1144,14 @@ static PyObject *gridlabd_set_value(PyObject *self, PyObject *args)
     return Py_BuildValue("s",previous);
 }
 
-static PROPERTY *get_first_property(OBJECT *obj)
+static PROPERTY *get_first_property(OBJECT *obj, bool inherit=true)
 {
-    return obj->oclass->pmap;
+    CLASS *oclass = obj->oclass;
+    while ( inherit && oclass->pmap == NULL && oclass->parent != NULL )
+    {
+        oclass = oclass->parent;
+    }
+    return oclass->pmap;
 }
 static PROPERTY *get_next_property(PROPERTY *prop,bool inherit=true)
 {
@@ -2072,14 +2076,15 @@ static bool get_callback(
         if ( PyCallable_Check(call) )
         {
             PyList_Append(*list,call);
+            return true;
         }
         else 
         {
-            output_error("%s.%s is not callable",file,def);
+            output_error("%s.py: %s is not callable",file,def);
             return false;
         }
     }
-    return true;    
+    return false;
 }
 
 int python_module_setvar(const char *varname, const char *value)
@@ -2089,7 +2094,7 @@ int python_module_setvar(const char *varname, const char *value)
     return strlen(value);
 }
 
-MODULE *python_module_load(const char *file, int argc, char *argv[])
+MODULE *python_module_load(const char *file, int argc, const char *argv[])
 {
     char pathname[1024];
     sprintf(pathname,"%s.py",file);
@@ -2099,7 +2104,8 @@ MODULE *python_module_load(const char *file, int argc, char *argv[])
         errno = ENOENT;
         return NULL;
     }
-    PyObject *mod = PyImport_ImportModule(file);
+    extern PyObject *python_embed_import(const char *module, const char *path);
+    PyObject *mod = python_embed_import(file,".");
 
     if ( mod == NULL)
     {

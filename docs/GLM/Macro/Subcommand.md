@@ -10,7 +10,9 @@ GLM:
 
 # Description
 
-Subcommands may be called directly from within GLM files using by using the macro form of the subcommand.  For details on the syntax, see the syntax of the subcommand.
+All subcommands can be executed by passing through the macro interpreter.  The general syntax takes the macro and prepends `gridlabd-` before calling the subcommand script installed in `/usr/local/share/gridlabd`.
+
+The stdout stream is piped to the GridLAB-D output stream and stderr is piped to the GridLAB-D error stream.
 
 # Example
 
@@ -21,11 +23,15 @@ Subcommands may be called directly from within GLM files using by using the macr
 # See also
 
 * [[/Subcommand/Aws]]
+* [[/Subcommand/Docker]]
+* [[/Subcommand/Gdb]]
 * [[/Subcommand/Git]]
 * [[/Subcommand/Help]]
 * [[/Subcommand/Library]]
+* [[/Subcommand/Lldb]]
 * [[/Subcommand/Manual]]
 * [[/Subcommand/Python]]
+* [[/Subcommand/Valgrind]]
 * [[/Subcommand/Validate]]
 * [[/Subcommand/Version]]
 * [[/Subcommand/Weather]]
