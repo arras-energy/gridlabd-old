@@ -441,11 +441,12 @@ void uchar_to_double(double *x, void *c, bool inverse)
 static BUSDATA bus_t;
 static BRANCHDATA branch_t;
 #define DATA(S,T,X,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C}
+#define DATA_R(S,T,X,R,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C,false,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
 #define DATA_X(S,T,X,R,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
 #define THREEPHASE_R(B,X,D) \
-	DATA_X(B,#X "A",X,[0],D,NULL), \
-	DATA_X(B,#X "B",X,[1],D,NULL), \
-	DATA_X(B,#X "C",X,[2],D,NULL)
+	DATA_R(B,#X "A",X,[0],D,NULL), \
+	DATA_R(B,#X "B",X,[1],D,NULL), \
+	DATA_R(B,#X "C",X,[2],D,NULL)
 #define THREEPHASE_C(B,X,D) \
 	DATA_X(B,#X "Ar",X,[0].r,D,NULL), \
 	DATA_X(B,#X "Ai",X,[0].i,D,NULL), \
@@ -559,20 +560,25 @@ void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,vo
 	}
 }
 
-void sync_complex(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
+void sync_double_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
 {
-	complex **pz = (complex**)ptr;
+	double **ppx = (double**)ptr;
+	if ( ppx == NULL )
+		return;
+	double *px = (double*)(((char*)(*ppx))+offset);
+	if ( px == NULL )
+		return;
+	double &x = *px;
 	PyObject *pValue = PyList_GetItem(data,n);
 	if ( inverse )
 	{
 		if ( pValue && PyFloat_Check(pValue) )
 		{
-			*(double*)(((char*)(*pz))+offset) = PyFloat_AsDouble(pValue);
+			x = PyFloat_AsDouble(pValue);
 		}
 	}
 	else
 	{
-		double x = *(double*)(((char*)(*pz)) + offset)	;
 		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
 		{
 			PyList_SetItem(data,n,PyFloat_FromDouble(x));
@@ -603,13 +609,13 @@ void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir 
 			{
 				return;
 			}
-			if ( ! map->is_ref ) // values are always cast to double
+			if ( ! map->is_ref ) // values can be converted and have no offset
 			{
 				sync_double(data,n,ptr,map->convert,(dir&ED_IN));
 			}
-			else if ( *(complex**)ptr != NULL ) // pointers are to complex arrays
+			else if ( *(double**)ptr != NULL ) // pointers are never converted but have an offset
 			{
-				sync_complex(data,n,ptr,map->ref_offset,(dir&ED_IN));
+				sync_double_ref(data,n,ptr,map->ref_offset,(dir&ED_IN));
 			}
 			else // everything else if NULL
 			{
