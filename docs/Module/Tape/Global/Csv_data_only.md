@@ -5,13 +5,15 @@
 Shell:
 
 ~~~
-bash$ gridlabd -D|--define csv_data_only={0,1,2}
+bash$ gridlabd -D|--define tape.csv_data_only={0,1,2}
 ~~~
 
 GLM:
 
 ~~~
-  #set csv_data_only={0,1,2}
+module tape {
+  csv_data_only {0,1,2};
+}
 ~~~
 
 # Description
