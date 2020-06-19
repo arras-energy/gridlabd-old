@@ -96,7 +96,7 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef gridlabd_module_def = {
+struct PyModuleDef gridlabd_module_def = {
     PyModuleDef_HEAD_INIT,
     PACKAGE,   /* name of module */
     "Python " PACKAGE_NAME " simulation", /* module documentation, may be NULL */
@@ -704,7 +704,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     if ( strcmp(command,"thread") == 0 || strcmp(command,"pause") == 0 )
     {
 #ifdef MAIN_PYTHON
-        return NULL;
+        return gridlabd_exception("unable to start gridlabd in this module instance");
 #else
         PyEval_InitThreads();
         save_environ();
@@ -739,7 +739,7 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     else if ( strcmp(command, "wait") == 0 )
     {
 #ifdef MAIN_PYTHON
-        return NULL;
+        return gridlabd_exception("unable to start gridlabd in this module instance");
 #else
         int code = *(int*)gridlabd_main(NULL);
         output_debug("gridlabd_main(NULL) returned code %d",code);
@@ -750,7 +750,6 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
     {
         return gridlabd_exception("start mode '%s' is not recognized", command);
     }
-    return NULL;
 }
 
 //
@@ -2077,14 +2076,15 @@ static bool get_callback(
         if ( PyCallable_Check(call) )
         {
             PyList_Append(*list,call);
+            return true;
         }
         else 
         {
-            output_error("%s.%s is not callable",file,def);
+            output_error("%s.py: %s is not callable",file,def);
             return false;
         }
     }
-    return true;    
+    return false;
 }
 
 int python_module_setvar(const char *varname, const char *value)
