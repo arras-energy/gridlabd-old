@@ -676,6 +676,16 @@ typedef struct s_loadmethod {
 
 typedef enum {CLASSVALID=0xc44d822e} CLASSMAGIC; ///< this is used to uniquely identify class structure
 
+typedef struct s_eventhandlers {
+	char *init;
+	char *precommit;
+	char *presync;
+	char *sync;
+	char *postsync;
+	char *commit;
+	char *finalize;
+} EVENTHANDLERS;
+
 struct s_class_list {
 	CLASSMAGIC magic;
 	int id;
@@ -709,6 +719,7 @@ struct s_class_list {
 	TECHNOLOGYREADINESSLEVEL trl; // technology readiness level (1-9, 0=unknown)
 	bool has_runtime;	///< flag indicating that a runtime dll, so, or dylib is in use
 	char runtime[1024]; ///< name of file containing runtime dll, so, or dylib
+	struct s_eventhandlers events;
 	CLASS *next;
 };
 
@@ -741,15 +752,7 @@ typedef enum {
 	/* add profile items here */
 	_OPI_NUMITEMS,
 } OBJECTPROFILEITEM;
-typedef struct s_eventhandlers {
-	char *init;
-	char *precommit;
-	char *presync;
-	char *sync;
-	char *postsync;
-	char *commit;
-	char *finalize;
-} EVENTHANDLERS;
+
 struct s_object_list {
 	OBJECTNUM id; /**< object id number; globally unique */
 	CLASS *oclass; /**< object class; determine structure of object data */

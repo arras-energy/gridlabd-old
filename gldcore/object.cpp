@@ -358,6 +358,7 @@ OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 	obj->flags = OF_NONE;
 	obj->rng_state = randwarn(NULL);
 	obj->heartbeat = 0;
+	obj->events = oclass->events;
 	random_key(obj->guid,sizeof(obj->guid)/sizeof(obj->guid[0]));
 
 	object_create_properties(obj,obj->oclass);
