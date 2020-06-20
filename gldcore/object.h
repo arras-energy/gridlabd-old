@@ -79,15 +79,7 @@ typedef enum {
 	/* add profile items here */
 	_OPI_NUMITEMS,
 } OBJECTPROFILEITEM;
-typedef struct s_eventhandlers {
-	char *init;
-	char *precommit;
-	char *presync;
-	char *sync;
-	char *postsync;
-	char *commit;
-	char *finalize;
-} EVENTHANDLERS;
+
 typedef struct s_object_list {
 	OBJECTNUM id; /**< object id number; globally unique */
 	CLASS *oclass; /**< object class; determine structure of object data */

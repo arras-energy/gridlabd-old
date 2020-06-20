@@ -2405,7 +2405,9 @@ STATUS GldExec::exec_start(void)
 			mls_start();
 
 			/* main loop control */
-			if ( global_clock>=global_mainlooppauseat && global_mainlooppauseat<TS_NEVER )
+			if ( global_mainlooppauseat != TS_INVALID 
+					&& global_clock >= global_mainlooppauseat 
+					&& global_mainlooppauseat<TS_NEVER )
 			{
 				mls_suspend();
 			}

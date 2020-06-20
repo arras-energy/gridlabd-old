@@ -117,6 +117,7 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 					  void *data, /**< a pointer to the data */
 					  PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
+	if ( buffer[0] == '\0' ) return 0;
 	if ( ( strchr("+-",buffer[0])==NULL ? strnicmp(buffer,"NAN",3) : strnicmp(buffer+1,"NAN",3) ) == 0 )
 	{
 		*(double*)data = QNAN;
@@ -182,7 +183,7 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 	else
 	{
 		output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): internal error", buffer, sizeof(void*), data, prop->name);
-		return 0;
+		return -1;
 	}
 }
 

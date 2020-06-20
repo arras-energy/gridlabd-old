@@ -787,6 +787,9 @@ GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 /* Variable: global_datadir */
 GLOBAL char1024 global_datadir INIT("");
 
+/* Variable: global_pythonpath */
+GLOBAL char1024 global_pythonpath INIT(".");
+
 #undef GLOBAL
 #undef INIT
 
