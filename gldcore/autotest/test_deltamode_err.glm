@@ -2,7 +2,7 @@
 // Basic deltamode test - just see if it executes for now
 
 #set suppress_repeat_messages=0
-#set profiler=1
+//#set profiler=1
 #set dateformat=US
 
 

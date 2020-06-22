@@ -5,7 +5,7 @@
 //This basically tests what was issue #945
 
 
-#set profiler=1;
+//#set profiler=1;
 clock {
      timezone EST+5EDT;
      starttime '2009-07-01 10:00:00';
