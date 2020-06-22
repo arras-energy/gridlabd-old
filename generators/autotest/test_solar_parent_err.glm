@@ -1,7 +1,7 @@
 // Verifying the solar panel has the right parent. If the solar pannel has a parent, it should be an inverter. Otherwise and error is thrown.
 // This test assumes the soalr panel parent is a transformer, and therfore an error message shold be thrown.
 
-#set profiler=1
+//#set profiler=1
 //#set threadcount=1;
 #set relax_naming_rules=1
 

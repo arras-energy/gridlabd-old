@@ -165,6 +165,7 @@ DEPRECATED static KEYWORD gso_keys[] = {
 	{"NOGLOBALS",	GSO_NOGLOBALS,	gso_keys+3},
 	{"NODEFAULTS",	GSO_NODEFAULTS, gso_keys+4},
 	{"NOMACROS",	GSO_NOMACROS,	gso_keys+5},
+	{"NOINTERNALS",	GSO_NOINTERNALS,gso_keys+6},
 	{"ORIGINAL",	GSO_ORIGINAL,	NULL},
 };
 DEPRECATED static KEYWORD fso_keys[] = {
@@ -331,6 +332,7 @@ DEPRECATED static struct s_varmap {
 	{"allow_variant_aggregates", PT_bool, &global_allow_variant_aggregates, PA_PUBLIC, "permits aggregates to include time-varying criteria"},
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
+	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
 	/* add new global variables here */
 };
 
@@ -1480,6 +1482,9 @@ void GldGlobals::remote_write(void *local, /** local memory for data */
 
 size_t GldGlobals::saveall(FILE *fp)
 {
+	if ( (global_glm_save_options&GSO_NOGLOBALS) == GSO_NOGLOBALS )
+		return 0;
+	
 	size_t count = 0;
 	GLOBALVAR *var = NULL;
 	char buffer[1024];
@@ -1488,7 +1493,10 @@ size_t GldGlobals::saveall(FILE *fp)
 		if ( strstr(var->prop->name,"::") == NULL
 			&& global_getvar(var->prop->name,buffer,sizeof(buffer)-1) != NULL )
 		{
-			count += fprintf(fp,"#set %s=%s\n",var->prop->name,buffer);
+			count += fprintf(fp,"#ifdef %s\n#define %s=%s\n#else\n#set %s=%s\n#endif\n",
+				var->prop->name,
+				var->prop->name,buffer,
+				var->prop->name,buffer);
 		}
 	}
 	return count;

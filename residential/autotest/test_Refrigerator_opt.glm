@@ -12,7 +12,7 @@ clock {
 	stoptime '2000-01-03 23:00:00';
 	timezone EST+5EDT;
 }
-#set profiler=1
+//#set profiler=1
 #set relax_naming_rules=1
 #set savefile=dryer_test.xml
 #define TIME_INT=60

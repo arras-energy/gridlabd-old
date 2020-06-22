@@ -1135,6 +1135,52 @@ int GldLoader::literal(PARSER, const char *text)
 	return 0;
 }
 
+int GldLoader::quoted_string(PARSER, char *result, int size)
+{
+	int len = 0;
+	while ( isspace(*_p) ) _p++;
+	if ( *_p++ != '"' )
+	{
+		return 0;
+	}
+	else
+	{
+		len++;
+		while ( _p[0] != '"' )
+		{
+			if ( len < size-1 )
+			{
+				if ( _p[0] == '\\' && _p[1] != '\0' )
+				{
+					switch ( *++_p )
+					{
+					case 'n':
+						*result++ = '\n';
+						break;
+					case 't':
+						*result++ = '\t';
+						break;
+					default:
+						*result++ = *_p++;
+						break;
+					}
+				}
+				else
+				{
+					*result++ = *_p++;
+					len++;
+				}
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		*result++ = '\0';
+		len++;
+		return len;
+	}
+}
 int GldLoader::dashed_name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
@@ -3203,6 +3249,53 @@ int GldLoader::class_external_function(PARSER, CLASS *oclass, CLASS **eclass,cha
 	DONE;
 }
 
+int GldLoader::class_event_handler(PARSER, CLASS *oclass)
+{
+	char value[1024];
+	START;
+	if WHITE ACCEPT;
+	if ( LITERAL("on_init") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.init = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_precommit") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.precommit = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_presync") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.presync = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_sync") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.sync = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_postsync") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.postsync = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_commit") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.commit = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_finalize") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.finalize = strdup(value);
+		ACCEPT;
+	}
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
+
 int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize)
 {
 	static char code[65536];
@@ -3231,6 +3324,10 @@ int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *i
 		ACCEPT;
 	}
 	else if TERM(class_explicit_definition(HERE, oclass))
+	{
+		ACCEPT;
+	}
+	else if TERM(class_event_handler(HERE, oclass))
 	{
 		ACCEPT;
 	}
@@ -7921,7 +8018,7 @@ STATUS GldLoader::load_python(const char *filename)
 	{
 		python_embed_init(0,NULL);
 	}
-	return python_embed_import(filename,".") == NULL ? FAILED : SUCCESS;
+	return python_embed_import(filename,global_pythonpath) == NULL ? FAILED : SUCCESS;
 //	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
 }
 
