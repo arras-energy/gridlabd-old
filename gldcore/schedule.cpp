@@ -1425,31 +1425,10 @@ int schedule_saveall(FILE *fp,bool user_defined_only)
 	SCHEDULE *sch;
 	for (sch=schedule_list; sch!=NULL; sch=sch->next)
 	{
-		if ( user_defined_only && (sch->flags&SN_USERDEFINED)==0 )
+		if ( ! user_defined_only || (sch->flags&SN_USERDEFINED) == SN_USERDEFINED )
 		{
-			continue;
+			fprintf(fp,"schedule %s {%s}\n",sch->name, sch->definition);
 		}
-		char *c;
-		count += fprintf(fp,"schedule %s {\n\t",sch->name);
-		for ( c = sch->definition ; *c != '\0' ; c++ )
-		{
-			switch (*c) {
-			case ';':
-			case '{':
-			case '}':
-				count += fprintf(fp,"%c\n\t",*c);
-				while ( *c != '\0' && isspace(c[1]) )
-				{
-					c++;
-				}
-				break;
-			default:
-				count++;
-				fputc(*c,fp);
-				break;
-			}
-		}
-		count += fprintf(fp,"%s","\n}\n");
 	}
 	return count;
 }
