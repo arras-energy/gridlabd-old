@@ -1,0 +1,2 @@
+configure:
+	autoreconf -isf && ./configure
