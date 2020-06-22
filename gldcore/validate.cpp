@@ -783,6 +783,7 @@ int validate(void *main, int argc, const char *argv[])
 {
 	size_t i;
 	int redirect_found = 0;
+	global_profiler = TRUE;
 	strcpy(validate_cmdargs,"");
 	for ( i = 1 ; i < (size_t)argc ; i++ )
 	{

@@ -244,6 +244,7 @@ private:
 	int white(PARSER);
 	int pattern(PARSER, const char *pattern, char *result, int size);
 	int literal(PARSER, const char *text);
+	int quoted_string(PARSER,char *result, int size);
 	int dashed_name(PARSER, char *result, int size);
 	int name(PARSER, char *result, int size);
 	int namelist(PARSER, char *result, int size);
@@ -298,6 +299,7 @@ private:
 	int class_explicit_declaration(PARSER, char *type, int size);
 	int class_explicit_definition(PARSER, CLASS *oclass);
 	int class_external_function(PARSER, CLASS *oclass, CLASS **eclass,char *fname, int fsize);
+	int class_event_handler(PARSER, CLASS *oclass);
 	int class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize);
 	int class_block(PARSER);
 	int set_flags(OBJECT *obj, char *propval);
