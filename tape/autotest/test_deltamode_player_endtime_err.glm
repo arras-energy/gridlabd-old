@@ -12,7 +12,7 @@ clock {
 }
 
 #set suppress_repeat_messages=1
-#set profiler=1
+//#set profiler=1
 
 //Deltamode declarations - global values
 #set deltamode_maximumtime=5000000000000	//2 minutes

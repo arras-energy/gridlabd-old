@@ -358,6 +358,7 @@ OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 	obj->flags = OF_NONE;
 	obj->rng_state = randwarn(NULL);
 	obj->heartbeat = 0;
+	obj->events = oclass->events;
 	random_key(obj->guid,sizeof(obj->guid)/sizeof(obj->guid[0]));
 
 	object_create_properties(obj,obj->oclass);
@@ -2279,9 +2280,9 @@ int object_saveall(FILE *fp) /**< the stream to write to */
                 }
                 else if ( (global_glm_save_options&GSO_ORIGINAL)==GSO_ORIGINAL && (xform=transform_has_target(property_addr(obj,prop))) != NULL )
                 {
-                	count += fprintf(fp,"\t%s ", prop->name);
+                	count += fprintf(fp,"\t%s \"", prop->name);
                 	count += transform_write(xform,fp);
-                	count += fprintf(fp,";\n");
+                	count += fprintf(fp,"\";\n");
                 }
                 else if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
 				{

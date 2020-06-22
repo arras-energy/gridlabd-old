@@ -1,5 +1,5 @@
 //Tests multipoint efficiency of inverter model, tested for Xantrex model in this case and validated with NREL's SAM model for the same inverter type
-#set profiler=1;
+//#set profiler=1;
 //#set pauseatexit=1;
 
 clock {

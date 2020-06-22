@@ -266,7 +266,7 @@ int saveglm(const char *filename,FILE *fp)
 	}
 
 	/* save parts */
-	if ( (global_glm_save_options&GSO_NOGLOBALS)==0 && (global_filesave_options&FSO_GLOBALS)==FSO_GLOBALS )
+	if ( (global_filesave_options&FSO_GLOBALS)==FSO_GLOBALS )
 	{
 		count += global_saveall(fp);
 	}
@@ -278,7 +278,7 @@ int saveglm(const char *filename,FILE *fp)
 	{
 		count += class_saveall(fp);
 	}
-	if ( (global_glm_save_options&GSO_NOINTERNALS)==0 && (global_filesave_options&FSO_SCHEDULES) == FSO_SCHEDULES )
+	if ( (global_filesave_options&FSO_SCHEDULES) == FSO_SCHEDULES )
 	{
 		count += schedule_saveall(fp);
 	}

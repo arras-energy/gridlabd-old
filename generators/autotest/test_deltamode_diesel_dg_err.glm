@@ -3,7 +3,7 @@
 // No asserts, just a "did it run without issues"
 
 #set suppress_repeat_messages=0
-#set profiler=1
+//#set profiler=1
 #set dateformat=US
 #define rotor_convergence=0.0001
 

@@ -753,7 +753,7 @@ typedef enum {
 	GSO_NOGLOBALS	= 0x0004,
 	GSO_NODEFAULTS	= 0x0008,
 	GSO_MINIMAL 	= 0x000f,
-	GSO_ORIGINAL	= 0x001f,
+	GSO_ORIGINAL	= 0x0010,
 } GLMSAVEOPTIONS;
 
 /* Variable: */
@@ -786,6 +786,9 @@ GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
 /* Variable: global_datadir */
 GLOBAL char1024 global_datadir INIT("");
+
+/* Variable: global_pythonpath */
+GLOBAL char1024 global_pythonpath INIT(".");
 
 #undef GLOBAL
 #undef INIT

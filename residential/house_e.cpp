@@ -476,7 +476,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"design_peak_solar[Btu/h/sf]", PADDR(design_peak_solar), 
 				PT_DEFAULT,"+0", 
 				PT_DESCRIPTION,"system design solar load",
-			PT_double,"design_internal_gains[W/sf]", PADDR(design_internal_gains), 
+			PT_double,"design_internal_gains[Btu/h]", PADDR(design_internal_gains), 
 				PT_DEFAULT,"+0", 
 				PT_DESCRIPTION,"system design internal gains",
 			PT_double,"air_heat_fraction[pu]", PADDR(air_heat_fraction), 
