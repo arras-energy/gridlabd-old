@@ -68,12 +68,9 @@ PyObject *python_embed_import(const char *module, const char *path)
     char tmp[1024];
     if ( path != NULL )
     {
-        int len = snprintf(tmp,sizeof(tmp)-1,"import io, sys");
-        if ( path != NULL )
-        {
-            len += snprintf(tmp+len,sizeof(tmp)-len-1,"\nsys.path.append('%s')\n",path);
-        }
-        if ( PyRun_SimpleString(tmp) )
+        int len = snprintf(tmp,sizeof(tmp)-1,"import io, sys\nsys.path.extend('%s'.split(':'))\n",path);
+        output_debug("python_embed_import(const char *module='%s', const char *path='%s'): running [%s]",module,path,tmp);
+        if ( len > 0 && PyRun_SimpleString(tmp) )
         {
             PyObject *pType, *pValue, *pTraceback;
             PyErr_Fetch(&pType, &pValue, &pTraceback);

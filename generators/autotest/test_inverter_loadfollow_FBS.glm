@@ -1,5 +1,5 @@
 //Tests tilt functionality of solar panels
-#set profiler=1;
+//#set profiler=1;
 //#set pauseatexit=1;
 
 clock {
