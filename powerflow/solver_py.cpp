@@ -437,12 +437,52 @@ void uchar_to_double(double *x, void *c, bool inverse)
 	}
 }
 
+void ref_to_mag(double *x, void *c, bool inverse)
+{
+	complex *z = (complex*)c;
+	if ( inverse )
+	{
+		z->Mag(*x);
+	}
+	else
+	{
+		*x = z->Mag();
+	}
+}
+
+void ref_to_arg(double *x, void *c, bool inverse)
+{
+	complex *z = (complex*)c;
+	if ( inverse )
+	{
+		z->Arg(*x);
+	}
+	else
+	{
+		*x = z->Arg();
+	}
+}
+
+void ref_to_ang(double *x, void *c, bool inverse)
+{
+	complex *z = (complex*)c;
+	if ( inverse )
+	{
+		z->Ang(*x);
+	}
+	else
+	{
+		*x = z->Ang();
+	}
+}
+
 // bus/branch data mapping
 static BUSDATA bus_t;
 static BRANCHDATA branch_t;
-#define DATA(S,T,X,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C}
-#define DATA_R(S,T,X,R,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C,false,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
-#define DATA_X(S,T,X,R,D,C) {T,(int64)(&(S##_t.X)) - (int64)(&S##_t),sizeof(S##_t),D,C,true,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
+#define DATA(S,T,X,D,C) 		{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C}
+#define DATA_R(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::DOUBLE,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
+#define DATA_X(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::PDOUBLE,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
+#define DATA_C(S,T,X,R,D,C) 	{T, (int64)(&(S##_t.X))-(int64)(&S##_t),sizeof(S##_t),D,C,s_map::PCOMPLEX,(int64)&(S##_t.X R)-(int64)(S##_t.X)}
 #define THREEPHASE_R(B,X,D) \
 	DATA_R(B,#X "A",X,[0],D,NULL), \
 	DATA_R(B,#X "B",X,[1],D,NULL), \
@@ -454,6 +494,16 @@ static BRANCHDATA branch_t;
 	DATA_X(B,#X "Bi",X,[1].i,D,NULL), \
 	DATA_X(B,#X "Cr",X,[2].r,D,NULL), \
 	DATA_X(B,#X "Ci",X,[2].i,D,NULL)
+#define THREEPHASE_M(B,X,D) \
+	DATA_C(B,#X "Am",X,[0],D,ref_to_mag), \
+	DATA_C(B,#X "Aa",X,[0],D,ref_to_arg), \
+	DATA_C(B,#X "Ad",X,[0],D,ref_to_ang), \
+	DATA_C(B,#X "Bm",X,[1],D,ref_to_mag), \
+	DATA_C(B,#X "Ba",X,[1],D,ref_to_arg), \
+	DATA_C(B,#X "Bd",X,[1],D,ref_to_ang), \
+	DATA_C(B,#X "Cm",X,[2],D,ref_to_mag), \
+	DATA_C(B,#X "Ca",X,[2],D,ref_to_arg), \
+	DATA_C(B,#X "Cd",X,[2],D,ref_to_ang)
 #define THREEPHASE_N(B,X,D) \
 	DATA_X(B,#X "0",X,[0],D,NULL), \
 	DATA_X(B,#X "1",X,[0],D,NULL), \
@@ -486,7 +536,11 @@ static struct s_map
 	int64 size;
 	e_dir dir;
 	void (*convert)(double*,void*,bool);
-	bool is_ref;
+	enum {
+		DOUBLE   =0, // value is at offset
+		PDOUBLE  =1, // pointer to value is at offset
+		PCOMPLEX =2, // pointer to value is converted using a method
+	} type;
 	int64 ref_offset;
 } busmap[] = 
 {
@@ -496,6 +550,7 @@ static struct s_map
 	DATA(bus,"mva_base",mva_base,ED_INIT,NULL),
 	DATA(bus,"volt_base",volt_base,ED_INIT,NULL),
 	THREEPHASE_C(bus,V,ED_INIT|ED_IN|ED_OUT),
+	THREEPHASE_M(bus,V,ED_INIT|ED_IN|ED_OUT),
 	THREEPHASE_C(bus,S,ED_OUT),
 	THREEPHASE_C(bus,Y,ED_OUT),
 	THREEPHASE_C(bus,I,ED_OUT),
@@ -586,6 +641,34 @@ void sync_double_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inv
 	}
 }
 
+void sync_complex_ref(PyObject *data, size_t n, void *ptr, void (*convert)(double*,void*,bool), int64 offset, bool inverse)
+{
+	complex **ppz = (complex**)ptr;
+	if ( ppz == NULL )
+		return;
+	complex *pz = (complex*)(((char*)(*ppz))+offset);
+	if ( pz == NULL )
+		return;
+	PyObject *pValue = PyList_GetItem(data,n);
+	if ( inverse )
+	{
+		if ( pValue && PyFloat_Check(pValue) )
+		{
+			double x = PyFloat_AsDouble(pValue);
+			convert(&x,pz,true);
+		}
+	}
+	else
+	{
+		double x;
+		convert(&x,pz,false);
+		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x)
+		{
+			PyList_SetItem(data,n,PyFloat_FromDouble(x));
+		}
+	}
+}
+
 void sync_none(PyObject *data, size_t n, bool inverse)
 {
 	if ( ! inverse )
@@ -609,17 +692,20 @@ void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir 
 			{
 				return;
 			}
-			if ( ! map->is_ref ) // values can be converted and have no offset
+			switch ( map->type )
 			{
+			case s_map::DOUBLE:
 				sync_double(data,n,ptr,map->convert,(dir&ED_IN));
-			}
-			else if ( *(double**)ptr != NULL ) // pointers are never converted but have an offset
-			{
+				break;
+			case s_map::PDOUBLE:
 				sync_double_ref(data,n,ptr,map->ref_offset,(dir&ED_IN));
-			}
-			else // everything else if NULL
-			{
+				break;
+			case s_map::PCOMPLEX:
+				sync_complex_ref(data,n,ptr,map->convert,map->ref_offset,(dir&ED_IN));
+				break;
+			default:
 				sync_none(data,n,(dir&ED_IN));
+				break;
 			}
 		}
 		else
