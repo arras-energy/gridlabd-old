@@ -446,7 +446,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		if ( convert_from_timestamp(obj->clock,buffer,buffer_size) )
 			TUPLE("clock","%s",buffer);
 		if ( obj->valid_to > TS_ZERO && obj->valid_to < TS_NEVER ) TUPLE("valid_to","%llu",(int64)(obj->valid_to));
-		if ( obj->schedule_skew != 0 ) TUPLE("schedule_skew","%llu",obj->schedule_skew);
+		if ( obj->schedule_skew != 0 ) TUPLE("schedule_skew","%lld",obj->schedule_skew);
 		if ( obj->in_svc > TS_ZERO && obj->in_svc < TS_NEVER ) TUPLE("in","%llu",(int64)(obj->in_svc));
 		if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) TUPLE("out","%llu",(int64)(obj->out_svc));
 		TUPLE("rng_state","%llu",(int64)(obj->rng_state));
