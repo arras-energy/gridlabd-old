@@ -22,3 +22,6 @@ pip3 install matplotlib pandas numpy Pillow
 # influxdb
 brew install influxdb
 brew services start influxdb
+
+# subversion cli
+brew install svn
