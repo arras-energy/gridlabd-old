@@ -1,6 +1,7 @@
 import sys, io
 import pandas as pd 
 import pprint as pp
+import datetime as dt
 
 def pheading(label,tagwidth=16,width=8,columns=range(5)):
     heading = f'{label:{tagwidth}}'
@@ -55,18 +56,15 @@ def solve(gridlabd,**kwargs):
             positive for successful iteration count 
             0 for successful with no iteration done
     """
-    pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
-    # bustags = kwargs["bustags"]
-    # busdata = kwargs["busdata"]
-    # branchtags = kwargs["branchtags"]
-    # branchdata = kwargs["branchdata"]
-    # print(f"\n*** solve at {gridlabd.get_global('clock')} ***")
-    # pbus(bustags,busdata,columns=range(10))
-    # pbranch(branchtags,branchdata,columns=range(10))
-    # VAr = busdata[bustags["VAr"]]
-    # VAr[0] = 0
+    branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
+    bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
+    print(branch)
+    print(bus)
     return -1
 
 def learn(gridlabd,**kwargs):
-    pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
+    branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
+    bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
+    print(branch)
+    print(bus)
     return None
