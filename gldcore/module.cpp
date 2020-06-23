@@ -1429,7 +1429,7 @@ int module_compile(const char *name,	/**< name of library */
 	fclose(fp);
 
 	/* compile the code */
-	if ( (rc=execf("%s %s %s -c \"%s\" -o \"%s\" ", cc, mopt, ccflags, cfile, ofile))!=0 )
+	if ( (rc=execf("%s %s %s -fPIC -c \"%s\" -o \"%s\" ", cc, mopt, ccflags, cfile, ofile))!=0 )
 		return rc;
 
 	/* create needed DLL files on windows */
