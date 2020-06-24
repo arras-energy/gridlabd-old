@@ -56,15 +56,23 @@ def solve(gridlabd,**kwargs):
             positive for successful iteration count 
             0 for successful with no iteration done
     """
-    branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
-    bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
-    print(branch)
-    print(bus)
-    return -1
+    if 'options' in kwargs.keys() and 'dump' in kwargs['options']:
+        if kwargs['options']['dump'] == 'dataframe':
+            branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
+            bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
+            print(branch)
+            print(bus)
+        elif kwargs['options']['dump'] == 'pprint':
+            pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
+    return -1 
 
 def learn(gridlabd,**kwargs):
-    branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
-    bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
-    print(branch)
-    print(bus)
+    if 'options' in kwargs.keys() and 'dump' in kwargs['options']:
+        if kwargs['options']['dump'] == 'dataframe':
+            branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
+            bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
+            print(branch)
+            print(bus)
+        elif kwargs['options']['dump'] == 'pprint':
+            pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
     return None
