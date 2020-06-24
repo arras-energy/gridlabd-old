@@ -911,46 +911,23 @@ int solver_python_solve (
 	if ( pModule )
 	{
 		PyObject *pModel = sync_model(bus_count,bus,branch_count,branch,ED_OUT);
-		if ( ! python_call(pModule,"solve","O",pModel) )
+		PyObject *pResult = NULL;
+		if ( ! python_call(pModule,(void*)&pResult,"solve","O",pModel) )
 		{
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): solver failed",bus_count);
 			return -1001;
 		}
-		else
+		if ( pResult && PyLong_Check(pResult) )
 		{
-			try
+			long result = PyLong_AsLong(pResult);
+			if ( result >= 0 )
 			{
-				// get result of last call
-				PyObject *pResult = PyDict_New();
-				python_call(pResult,NULL,"iterations");
-				PyObject *py_value = PyDict_GetItemString(pResult,"iterations");
-				if ( py_value )
-				{
-					long result = PyLong_AsLong(py_value); // -1 if error
-					if ( PyErr_Occurred() )
-					{
-						solver_python_log(1,"solver_python_solve(bus_count=%d,...): result is not valid",bus_count,result);
-						return -1002;
-					}
-					solver_python_log(1,"solver_python_solve(bus_count=%d,...): result = %d",bus_count,result);
-					if ( result >= 0 )
-					{
-						pModel = sync_model(bus_count,bus,branch_count,branch,ED_IN);
-					}
-					return (int)result;
-				}
-				else
-				{
-					solver_python_log(1,"solver_python_solve(bus_count=%d,...): result is null",bus_count);
-					return -1003;
-				}
+				pModel = sync_model(bus_count,bus,branch_count,branch,ED_IN);
 			}
-			catch (...)
-			{
-				solver_python_log(0,"ERROR: solver_python_solve(bus_count=%d,...): result is not a long value",bus_count);
-				return -1004;
-			}
+			return (int)result;
 		}
+		solver_python_log(0,"ERROR: solver_python_solve(bus_count=%d,...): result is not a valid long value",bus_count);
+		return -1002;
 	}
 	else
 	{
@@ -1183,7 +1160,7 @@ void solver_python_learn (
 		PyObject *pSolution = sync_solution(bus_count,powerflow_values,powerflow_type,mesh_imped_values,bad_computations,iterations);
 		PyObject *pLearn = PyDict_Copy(pModel);
 		PyDict_Merge(pModel,pSolution,true);
-		if ( ! python_call(pModule,"learn","O",pLearn) )
+		if ( ! python_call(pModule,NULL,"learn","O",pLearn) )
 		{
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): learn failed",bus_count);
 		}
@@ -1343,7 +1320,7 @@ void solver_dump(unsigned int &bus_count,
 	{
 		if ( strncmp(model_dump_handler,"python:",7) == 0 )
 		{
-			if ( ! python_call(pModule,model_dump_handler+7,NULL) )
+			if ( ! python_call(pModule,NULL,model_dump_handler+7,NULL) )
 			{
 				solver_python_log(0,"ERROR solver_dump(): model_dump_handler failed, rc = FALSE");
 			}

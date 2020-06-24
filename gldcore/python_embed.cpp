@@ -133,13 +133,18 @@ const char *truncate(const char *command)
 // 
 // If pModule is dict and name is null, the varargsfmt is used to store the
 // the result of the last call, i.e., pModule[varargsfmt] = result
-bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt, va_list varargs)
+bool python_embed_call(
+    PyObject *pModule, 
+    const char *name, 
+    const char *vargsfmt, 
+    va_list varargs,
+    void *result)
 {
-    static PyObject *last_result = NULL;
-    if ( name == NULL ) // varargsfmt contains the name of the dict item to set
+    PyObject **pResult = (PyObject **)result;
+    if ( name == NULL ) 
     {
-        // expect pModule to be the container for a result of the same type
-        return ( PyDict_Check(pModule) && PyDict_SetItemString(pModule,vargsfmt,last_result) == 0 );
+        output_error("python_embed_call(pModule,name): name is null");
+        return false;
     }
     
     if ( pModule == NULL )
@@ -178,12 +183,8 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
     PyObject *pGridlabd = PyDict_GetItemString(pModule,"gridlabd");
     PyObject *pArgs = Py_BuildValue("(O)",pGridlabd?pGridlabd:PyInit_gridlabd());
     PyObject *pKwargs = vargsfmt ? Py_VaBuildValue(vargsfmt,varargs) : NULL;
-    if ( last_result != NULL )
-    {
-        Py_DECREF(last_result);
-    }
     PyErr_Clear();
-    last_result = PyObject_Call(pFunc,pArgs,pKwargs);
+    PyObject *return_value = PyObject_Call(pFunc,pArgs,pKwargs);
     if ( pGridlabd ) Py_DECREF(pGridlabd);
     Py_DECREF(pArgs);
     if ( PyErr_Occurred() )
@@ -220,47 +221,53 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
         }
         return false;
     }
-    else
+    assert(return_value!=NULL);
+    PyObject *pError = PyObject_GetAttrString(pModule,"error_stream");
+    if ( pError )
     {
-        PyObject *pError = PyObject_GetAttrString(pModule,"error_stream");
-        if ( pError )
+        PyObject *pCall = PyObject_GetAttrString(pError,"getvalue");
+        PyErr_Clear();
+        PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
+        PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
+        const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
+        if ( strcmp(msg,"") != 0 )
         {
-            PyObject *pCall = PyObject_GetAttrString(pError,"getvalue");
-            PyErr_Clear();
-            PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
-            PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
-            const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
-            if ( strcmp(msg,"") != 0 )
-            {
-                output_error("%s: %s", name, msg ? msg : "(python error_stream not available");
-            }
-            if ( pCall ) Py_DECREF(pCall);
-            if ( pValue ) Py_DECREF(pValue);
-            if ( pBytes ) Py_DECREF(pBytes);
-
-            python_reset_stream(pModule,"error_stream");
+            output_error("%s: %s", name, msg ? msg : "(python error_stream not available");
         }
-        PyObject *pOutput = PyObject_GetAttrString(pModule,"output_stream");
-        if ( pOutput )
+        if ( pCall ) Py_DECREF(pCall);
+        if ( pValue ) Py_DECREF(pValue);
+        if ( pBytes ) Py_DECREF(pBytes);
+
+        python_reset_stream(pModule,"error_stream");
+    }
+    PyObject *pOutput = PyObject_GetAttrString(pModule,"output_stream");
+    if ( pOutput )
+    {
+        PyObject *pCall = PyObject_GetAttrString(pOutput,"getvalue");
+        PyErr_Clear();
+        PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
+        PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
+        const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
+        if ( strcmp(msg,"") != 0 )
         {
-            PyObject *pCall = PyObject_GetAttrString(pOutput,"getvalue");
-            PyErr_Clear();
-            PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
-            PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
-            const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
-            if ( strcmp(msg,"") != 0 )
-            {
-                output_raw("%s", msg ? msg : "(python output_stream not available)");
-            }
-            if ( pCall ) Py_DECREF(pCall);
-            if ( pValue ) Py_DECREF(pValue);
-            if ( pBytes ) Py_DECREF(pBytes);
-
-            python_reset_stream(pModule,"output_stream");
+            output_raw("%s", msg ? msg : "(python output_stream not available)");
         }
+        if ( pCall ) Py_DECREF(pCall);
+        if ( pValue ) Py_DECREF(pValue);
+        if ( pBytes ) Py_DECREF(pBytes);
+
+        python_reset_stream(pModule,"output_stream");
     }
     Py_DECREF(pFunc);
-    if ( pKwargs ) Py_DECREF(pKwargs);
+    if ( pKwargs ) 
+    {
+        Py_DECREF(pKwargs);
+    }
+    if ( pResult != NULL )
+    {
+        *pResult = return_value;
+        Py_INCREF(return_value);
+    }
     return true;
 }
 
