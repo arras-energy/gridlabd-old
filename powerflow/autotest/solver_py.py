@@ -56,6 +56,8 @@ def solve(gridlabd,**kwargs):
             positive for successful iteration count 
             0 for successful with no iteration done
     """
+    sys.stdout = output_stream
+    sys.stderr = error_stream
     if 'options' in kwargs.keys() and 'dump' in kwargs['options']:
         if kwargs['options']['dump'] == 'dataframe':
             branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
@@ -67,6 +69,8 @@ def solve(gridlabd,**kwargs):
     return -1 
 
 def learn(gridlabd,**kwargs):
+    sys.stdout = output_stream
+    sys.stderr = error_stream
     if 'options' in kwargs.keys() and 'dump' in kwargs['options']:
         if kwargs['options']['dump'] == 'dataframe':
             branch = pd.DataFrame(data=kwargs['branchdata'],index=kwargs['branchtags'])
