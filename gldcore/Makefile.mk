@@ -75,7 +75,7 @@ GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
 bin_PROGRAMS += gridlabd.bin
 
-gridlabd_bin_CPPFLAGS = -DMAIN_PYTHON
+gridlabd_bin_CPPFLAGS = -DMAIN_PYTHON -fPIC
 gridlabd_bin_CPPFLAGS += $(XERCES_CPPFLAGS)
 gridlabd_bin_CPPFLAGS += $(AM_CPPFLAGS)
 
@@ -135,5 +135,4 @@ weather:
 
 template: # TODO
 
-library: # TODO
-	
+library: # TODO	

@@ -2,4 +2,3 @@
 #command weather get San_Diego > /dev/null
 #command weather info San_Diego | cut -f2- -d, > San_Diego.csv
 #exec diff -w San_Diego.csv ../test_subcommand_weather.csv > diff.txt
-
