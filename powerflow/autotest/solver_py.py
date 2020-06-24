@@ -62,7 +62,7 @@ def solve(gridlabd,**kwargs):
             bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
             print(branch)
             print(bus)
-        elif kwargs['options']['dump'] == 'pprint':
+        elif kwargs['options']['dump'] == 'pretty':
             pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
     return -1 
 
@@ -73,6 +73,6 @@ def learn(gridlabd,**kwargs):
             bus = pd.DataFrame(data=kwargs['busdata'],index=kwargs['bustags'])
             print(branch)
             print(bus)
-        elif kwargs['options']['dump'] == 'pprint':
+        elif kwargs['options']['dump'] == 'pretty':
             pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
     return None

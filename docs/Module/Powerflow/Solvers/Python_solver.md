@@ -17,13 +17,17 @@ busdata <taglist>
 branchdata <taglist>
 learndata <taglist>
 profiler <csv-filename>
+option <name>=<value>
 ~~~
 
 # Description
 
-The Newton-Raphson (NR) powerflow solver can be configured to share solution data
-with a python module. The configuration file `solver_py.conf` may be changed in the shared folder, or place in the current folder, or added to folder specified in the configuration file.  When solver shares data with a Python module is uses
+The Newton-Raphson (NR) powerflow solver can be configured to share solution data with a python module. The configuration file `solver_py.conf` may be changed in the shared folder, or place in the current folder, or added to folder specified in the configuration file.  When solver shares data with a Python module is uses
 two methods.
+
+The standard configuration parameters are documented in `/usr/local/share/gridlabd/solver_py.conf` where the default solver configuration is stored.
+
+The `option` parameter may be added one or more times, and each `<name>=<value` tuple will be passed to `solve()` and `learn()` in `kwargs['options']` dictionary. These can be used to set custom options to a user-defined implementation of the python solver.  
 
 ## `solve(gridlabd,**kwargs)`
 
