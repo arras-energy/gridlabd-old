@@ -56,6 +56,7 @@ static const char **python_learntags = NULL;
 static PyObject *pBusdata = NULL;
 static PyObject *pBranchdata = NULL;
 static PyObject *pLearndata = NULL;
+static PyObject *pKwargs = NULL;
 
 FILE *SolverTimer::fp = NULL;
 
@@ -69,6 +70,18 @@ void solver_python_log(int level, const char *format, ...)
 		fprintf(solver_python_logfh,"\n");
 		fflush(solver_python_logfh);
 		va_end(ptr);
+	}
+}
+
+void init_kwargs(void)
+{
+	if ( pKwargs == NULL )
+	{
+		pKwargs = PyDict_New();
+		if ( pKwargs )
+		{
+			Py_INCREF(pKwargs);
+		}
 	}
 }
 
@@ -90,7 +103,7 @@ SOLVERPYTHONSTATUS solver_python_config (
 		while ( fgets(line,sizeof(line),fp) != NULL )
 		{
 			char tag[1024],value[1024];
-			if ( sscanf(line,"%s%s",tag,value) == 2 )
+			if ( sscanf(line,"%s%*[ \t]%[^\n]",tag,value) == 2 )
 			{
 				if ( tag[0] == '#' )
 				{
@@ -175,6 +188,27 @@ SOLVERPYTHONSTATUS solver_python_config (
 				{
 					SolverTimer::open(value);
 					solver_python_log(1,"solver_python_config(configname='%s'): profiler = '%s'",configname,value);					
+				}
+				else if ( strcmp(tag,"option") == 0 )
+				{
+					char lhs[1024], rhs[1024];
+					if ( sscanf(value,"%[^=]=%[^\n]",lhs,rhs) == 2 )
+					{
+						PyObject *pValue = Py_BuildValue("z",rhs);
+						init_kwargs();
+						if ( pValue && PyDict_SetItemString(pKwargs,lhs,pValue) != 0 )
+						{
+							fprintf(stderr,"solver_python_config(configname='%s'): option '%s' value '%s' is not valid\n",configname,lhs,rhs);
+						}
+						else
+						{
+							solver_python_log(1,"solver_python_config(configname='%s'): option %s=%s ok",configname,lhs,rhs);					
+						}
+					}
+					else
+					{
+						fprintf(stderr,"solver_python_config(configname='%s'): 'option %s' is not a valid syntax\n",configname,value);
+					}
 				}
 				else
 				{
@@ -853,6 +887,11 @@ static PyObject *sync_model(
 	}
 	sync_busdata(pModel,bus_count,bus,dir);
 	sync_branchdata(pModel,branch_count,branch,dir);
+	if ( pKwargs )
+	{
+		PyDict_SetItemString(pModel,"options",pKwargs);
+		Py_INCREF(pKwargs);
+	}
 	return pModel;
 }
 
