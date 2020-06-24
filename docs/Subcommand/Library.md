@@ -39,7 +39,9 @@ The `library help` subcommand obtains a list of the valid commands.
 
 ~~~
 bash$ gridlabd library help
-Syntax: gridlabd-library <command> [...]
+Syntax: gridlabd-library [options] <command> [...]
+Options:
+  -f|--format <format> Change output format (e.g., json, glm, csv, default)
 Commands:
   help                 Get the list of library subcommands
   index <pattern>      Index of available library data matching <pattern> in archive
