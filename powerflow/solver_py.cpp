@@ -1188,6 +1188,10 @@ void solver_python_learn (
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): learn failed",bus_count);
 		}
 	}
+	if ( model_busdump || model_branchdump )
+	{
+		solver_dump(bus_count,bus,branch_count,branch,false);
+	}
 }
 
 void solver_dump(unsigned int &bus_count,
