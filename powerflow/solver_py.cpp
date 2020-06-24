@@ -879,7 +879,6 @@ int solver_python_solve (
 		}
 		else
 		{
-			pModel = sync_model(bus_count,bus,branch_count,branch,ED_IN);
 			try
 			{
 				// get result of last call
@@ -895,6 +894,10 @@ int solver_python_solve (
 						return -1002;
 					}
 					solver_python_log(1,"solver_python_solve(bus_count=%d,...): result = %d",bus_count,result);
+					if ( result >= 0 )
+					{
+						pModel = sync_model(bus_count,bus,branch_count,branch,ED_IN);
+					}
 					return (int)result;
 				}
 				else
