@@ -8,11 +8,11 @@
 #if ${TEST1:-X} == A
 #print ok
 #else
-#error TEST1 failed
+#error TEST1==${TEST1:-X} failed
 #endif
 
 #if ${TEST2:-X} == B
 #print ok
 #else
-#error TEST2 failed
+#error TEST2==${TEST2:-X} failed
 #endif
