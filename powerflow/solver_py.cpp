@@ -53,7 +53,11 @@ static size_t python_nbranchtags = 0;
 static const char **python_branchtags = NULL;
 static size_t python_nlearntags = 0;
 static const char **python_learntags = NULL;
+static PyObject *pModel = NULL;
+static PyObject *pSolution = NULL;
+static PyObject *pBustags = NULL;
 static PyObject *pBusdata = NULL;
+static PyObject *pBranchtags = NULL;
 static PyObject *pBranchdata = NULL;
 static PyObject *pLearndata = NULL;
 static PyObject *pKwargs = NULL;
@@ -78,10 +82,7 @@ void init_kwargs(void)
 	if ( pKwargs == NULL )
 	{
 		pKwargs = PyDict_New();
-		if ( pKwargs )
-		{
-			Py_INCREF(pKwargs);
-		}
+		Py_INCREF(pKwargs);
 	}
 }
 
@@ -195,6 +196,7 @@ SOLVERPYTHONSTATUS solver_python_config (
 					if ( sscanf(value,"%[^=]=%[^\n]",lhs,rhs) == 2 )
 					{
 						PyObject *pValue = Py_BuildValue("z",rhs);
+						Py_INCREF(pValue);
 						init_kwargs();
 						if ( pValue && PyDict_SetItemString(pKwargs,lhs,pValue) != 0 )
 						{
@@ -278,6 +280,11 @@ void init_bustags(void)
 	{
 		python_bustags[n] = strdup(tags,',',&tags);
 	}
+	if ( pBustags == NULL )
+	{
+		pBustags = PyDict_New();
+		Py_INCREF(pBustags);
+	}
 }
 
 void init_branchtags(void)
@@ -292,6 +299,11 @@ void init_branchtags(void)
 	for ( size_t n = 0 ; n < python_nbranchtags ; n++ )
 	{
 		python_branchtags[n] = strdup(tags,',',&tags);
+	}
+	if ( pBranchtags == NULL )
+	{	
+		pBranchtags = PyDict_New();
+		Py_INCREF(pBranchtags);
 	}
 }
 
@@ -310,6 +322,7 @@ void init_busdata(void)
 			pBusdata = PyList_New(python_nbustags);
 			solver_python_log(1,"init_busid(): bus id = <natural index>");
 		}
+		Py_INCREF(pBusdata);
 		for ( size_t n = 0 ; n < python_nbustags ; n++ )
 		{
 			solver_python_log(1,"init_busid(): bus tag '%s'", python_bustags[n]);
@@ -332,6 +345,7 @@ void init_branchdata(void)
 			pBranchdata = PyList_New(python_nbranchtags);
 			solver_python_log(1,"init_branchid(): branch id = <natural index>");
 		}
+		Py_INCREF(pBranchdata);
 		for ( size_t n = 0 ; n < python_nbranchtags ; n++ )
 		{
 			solver_python_log(1,"init_branchtags(): branch tag '%s'", python_branchtags[n]);
@@ -355,6 +369,7 @@ void init_learndata(void)
 	if ( python_learntags == NULL )
 	{
 		pLearndata = PyDict_New();
+		Py_INCREF(pLearndata);
 		init_learntags();
 	}
 }
@@ -386,6 +401,11 @@ int solver_python_init(void)
 	}
 	if ( solver_py_status == SPS_READY )
 	{
+		if ( pModel == NULL )
+		{
+			pModel = PyDict_New();
+			Py_INCREF(pModel);
+		}
 		if ( pBusdata == NULL )
 		{
 			init_busdata();
@@ -405,22 +425,36 @@ int solver_python_init(void)
 
 void set_bustags(PyObject *pModel)
 {
-	PyObject *data = PyDict_New();
-	for ( size_t n = 0 ; n < python_nbustags ; n++ )
+	PyObject *data = PyDict_GetItemString(pModel,"bustags");
+	if ( data == NULL )
 	{
-		PyDict_SetItemString(data,python_bustags[n],PyLong_FromSize_t(n));
+		data = PyDict_New();
+		Py_INCREF(data);
+		for ( size_t n = 0 ; n < python_nbustags ; n++ )
+		{
+			PyObject *pLong = PyLong_FromSize_t(n);
+			Py_INCREF(pLong);
+			PyDict_SetItemString(data,python_bustags[n],pLong);
+		}
+		PyDict_SetItemString(pModel,"bustags",data);
 	}
-	PyDict_SetItemString(pModel,"bustags",data);
 }
 
 void set_branchtags(PyObject *pModel)
 {
-	PyObject *data = PyDict_New();
-	for ( size_t n = 0 ; n < python_nbranchtags ; n++ )
+	PyObject *data = PyDict_GetItemString(pModel,"branchtags");
+	if ( data == NULL )
 	{
-		PyDict_SetItemString(data,python_branchtags[n],PyLong_FromSize_t(n));
+		data = PyDict_New();
+		Py_INCREF(data);
+		for ( size_t n = 0 ; n < python_nbranchtags ; n++ )
+		{
+			PyObject *pLong = PyLong_FromSize_t(n);
+			Py_INCREF(pLong);
+			PyDict_SetItemString(data,python_branchtags[n],pLong);
+		}
+		PyDict_SetItemString(pModel,"branchtags",data);
 	}
-	PyDict_SetItemString(pModel,"branchtags",data);
 }
 
 void complex_to_mag(double *x, void *z, bool inverse)
@@ -644,7 +678,13 @@ void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,vo
 		double x = convert ? (convert(&x,ptr,false),x) : *(double*)ptr;
 		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
 		{
-			PyList_SetItem(data,n,PyFloat_FromDouble(x));
+			if ( pValue != NULL )
+			{
+				Py_DECREF(pValue);
+			}
+			PyObject *pDouble = PyFloat_FromDouble(x);
+			Py_INCREF(pDouble);
+			PyList_SetItem(data,n,pDouble);
 		}
 	}
 }
@@ -670,7 +710,13 @@ void sync_double_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inv
 	{
 		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
 		{
-			PyList_SetItem(data,n,PyFloat_FromDouble(x));
+			if ( pValue != NULL )
+			{
+				Py_DECREF(pValue);
+			}
+			PyObject *pDouble = PyFloat_FromDouble(x);
+			Py_INCREF(pDouble);
+			PyList_SetItem(data,n,pDouble);
 		}
 	}
 }
@@ -696,9 +742,15 @@ void sync_complex_ref(PyObject *data, size_t n, void *ptr, void (*convert)(doubl
 	{
 		double x;
 		convert(&x,pz,false);
-		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x)
+		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
 		{
-			PyList_SetItem(data,n,PyFloat_FromDouble(x));
+			if ( pValue != NULL )
+			{
+				Py_DECREF(pValue);
+			}
+			PyObject *pDouble = PyFloat_FromDouble(x);
+			Py_INCREF(pDouble);
+			PyList_SetItem(data,n,pDouble);
 		}
 	}
 }
@@ -707,8 +759,13 @@ void sync_none(PyObject *data, size_t n, bool inverse)
 {
 	if ( ! inverse )
 	{
-		if ( PyList_GetItem(data,n) != Py_None )
+		PyObject *pValue = PyList_GetItem(data,n);
+		if ( pValue != Py_None )
 		{
+			if ( pValue != NULL )
+			{
+				Py_DECREF(pValue);
+			}
 			PyList_SetItem(data,n,Py_None);
 			Py_INCREF(Py_None);
 		}
@@ -755,6 +812,7 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 	if ( busdata == NULL )
 	{
 		busdata = PyList_New(python_nbustags);
+		Py_INCREF(busdata);
 		PyDict_SetItemString(pModel,"busdata",busdata);
 		bus_index = new int[python_nbustags];
 		memset(bus_index,-1,python_nbustags*sizeof(int));
@@ -764,6 +822,7 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 			// 	(int)m,busmap[m].tag,busmap[m].offset,busmap[m].size,busmap[m].dir,busmap[m].is_ref,busmap[m].ref_offset);
 			int t = strfind(python_nbustags,python_bustags,busmap[m].tag);
 			PyObject *data = PyList_New(bus_count);
+			Py_INCREF(data);
 			PyList_SetItem(busdata,t,data);
 			if ( t >= 0 )
 			{
@@ -777,6 +836,7 @@ void sync_busdata(PyObject *pModel,unsigned int &bus_count,BUSDATA *&bus,e_dir d
 		for ( size_t t = 0 ; t < python_nbustags ; t++ )
 		{
 			PyObject *data = PyList_GetItem(busdata,t);
+			Py_INCREF(data);
 			if ( data == NULL )
 			{
 				PyList_SetItem(busdata,t,Py_None);
@@ -826,6 +886,7 @@ void sync_branchdata(PyObject *pModel,unsigned int &branch_count,BRANCHDATA *&br
 			if ( t >= 0 )
 			{
 				PyObject *data = PyList_New(branch_count);
+				Py_INCREF(data);
 				PyList_SetItem(branchdata,t,data);
 				branch_index[t] = m;
 				for ( size_t n = 0 ; n < branch_count ; n++ )
@@ -878,19 +939,13 @@ static PyObject *sync_model(
 	BRANCHDATA *&branch,
 	e_dir dir)
 {
-	static PyObject *pModel = NULL;
-	if ( pModel == NULL )
-	{
-		pModel = PyDict_New();	
-		set_bustags(pModel);
-		set_branchtags(pModel);
-	}
+	set_bustags(pModel);
+	set_branchtags(pModel);
 	sync_busdata(pModel,bus_count,bus,dir);
 	sync_branchdata(pModel,branch_count,branch,dir);
 	if ( pKwargs )
 	{
 		PyDict_SetItemString(pModel,"options",pKwargs);
-		Py_INCREF(pKwargs);
 	}
 	return pModel;
 }
@@ -907,33 +962,40 @@ int solver_python_solve (
 	int64 &iterations)
 {
 	SolverTimer timer("solve");
-
+	int result = 0;
 	if ( pModule )
 	{
-		PyObject *pModel = sync_model(bus_count,bus,branch_count,branch,ED_OUT);
+		sync_model(bus_count,bus,branch_count,branch,ED_OUT);
 		PyObject *pResult = NULL;
 		if ( ! python_call(pModule,(void*)&pResult,"solve","O",pModel) )
 		{
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): solver failed",bus_count);
-			return -1001;
+			result = -1001;
 		}
-		if ( pResult && PyLong_Check(pResult) )
+		else if ( pResult && PyLong_Check(pResult) )
 		{
-			long result = PyLong_AsLong(pResult);
+			result = PyLong_AsLong(pResult);
 			if ( result >= 0 )
 			{
-				pModel = sync_model(bus_count,bus,branch_count,branch,ED_IN);
+				sync_model(bus_count,bus,branch_count,branch,ED_IN);
 			}
-			return (int)result;
 		}
-		solver_python_log(0,"ERROR: solver_python_solve(bus_count=%d,...): result is not a valid long value",bus_count);
-		return -1002;
+		else
+		{
+			solver_python_log(0,"ERROR: solver_python_solve(bus_count=%d,...): result is not a valid long value",bus_count);
+			result = -1002;
+		}
+		if ( pResult )
+		{
+			Py_DECREF(pResult);
+		}
 	}
 	else
 	{
 		solver_python_log(0,"ERROR: solver_python_solve(bus_count=%d,...): gridlabd module not yet ready",bus_count);
-		return -1005;
+		result = -1005;
 	}
+	return result;
 }
 
 PyObject *check_dict(PyObject *pObj,const char *name)
@@ -942,6 +1004,7 @@ PyObject *check_dict(PyObject *pObj,const char *name)
 	if ( pDict == NULL )
 	{
 		pDict = PyDict_New();
+		Py_INCREF(pDict);
 		PyDict_SetItemString(pObj,name,pDict); 
 	}
 	return pDict;
@@ -975,6 +1038,7 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		if ( powerflow_values->BA_diag )
 		{
 			PyObject *pData = PyList_New(buscount);
+			Py_INCREF(pData);
 			PyDict_SetItemString(pDict,"BA_diag",pData);
 			for ( size_t n = 0 ; n < buscount ; n++ )
 			{
@@ -986,10 +1050,14 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 					PyList_SetItem(pBus,r,pRow);
 					for ( size_t c = 0 ; c < (size_t)bus.size ; c++ )
 					{
-						PyList_SetItem(pRow,c,Py_BuildValue("(dd)",bus.Y[r][c].r,bus.Y[r][c].i));
+						PyObject *pValue = Py_BuildValue("(dd)",bus.Y[r][c].r,bus.Y[r][c].i);
+						Py_INCREF(pValue);
+						PyList_SetItem(pRow,c,pValue);
 					}
 				}
-				PyList_SetItem(pData,n,Py_BuildValue("(iiO)",bus.row_ind,bus.col_ind,pBus));
+				PyObject *pValue = Py_BuildValue("(iO)",bus.row_ind,pBus);
+				Py_INCREF(pValue);
+				PyList_SetItem(pData,n,pValue);
 			}
 		}
 		else
@@ -1006,10 +1074,13 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		if ( powerflow_values->Y_offdiag_PQ )
 		{
 			PyObject *pData = PyList_New(powerflow_values->size_offdiag_PQ*2);
+			Py_INCREF(pData);
 			PyDict_SetItemString(pDict,"Y_offdiag_PQ",pData);
 			for ( size_t n = 0 ; n < powerflow_values->size_offdiag_PQ*2 ; n++ )
 			{
-				PyList_SetItem(pData,n,Py_BuildValue("(iid)",powerflow_values->Y_offdiag_PQ[n].row_ind,powerflow_values->Y_offdiag_PQ[n].col_ind,powerflow_values->Y_offdiag_PQ[n].Y_value));
+				PyObject *pValue = Py_BuildValue("(iid)",powerflow_values->Y_offdiag_PQ[n].row_ind,powerflow_values->Y_offdiag_PQ[n].col_ind,powerflow_values->Y_offdiag_PQ[n].Y_value);
+				Py_INCREF(pValue);
+				PyList_SetItem(pData,n,pValue);
 			}
 		}
 		else
@@ -1026,10 +1097,13 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		if ( powerflow_values->Y_diag_fixed )
 		{
 			PyObject *pData = PyList_New(powerflow_values->size_diag_fixed*2);
+			Py_INCREF(pData);
 			PyDict_SetItemString(pDict,"Y_diag_fixed",pData);
 			for ( size_t n = 0 ; n < powerflow_values->size_diag_fixed*2 ; n++ )
 			{
-				PyList_SetItem(pData,n,Py_BuildValue("(iid)",powerflow_values->Y_diag_fixed[n].row_ind,powerflow_values->Y_diag_fixed[n].col_ind,powerflow_values->Y_diag_fixed[n].Y_value));
+				PyObject *pValue = Py_BuildValue("(iid)",powerflow_values->Y_diag_fixed[n].row_ind,powerflow_values->Y_diag_fixed[n].col_ind,powerflow_values->Y_diag_fixed[n].Y_value);
+				Py_INCREF(pValue);
+				PyList_SetItem(pData,n,pValue);
 			}
 		}
 		else
@@ -1046,14 +1120,19 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		if ( powerflow_values->Y_Amatrix )
 		{
 			PyObject *pData = PyDict_New();
+			Py_INCREF(pData);
 			PyDict_SetItemString(pDict,"Y_Amatrix",pData);
 			PyObject *pHeap = PyList_New(0);
+			Py_INCREF(pHeap);
 			PyDict_SetItemString(pData,"llheap",pHeap);
 			for ( SP_E *p = powerflow_values->Y_Amatrix->llheap ; p != NULL ; p = p->next )
 			{
-				PyList_Append(pHeap,Py_BuildValue("(id)",p->row_ind,p->value));
+				PyObject *pValue = Py_BuildValue("(id)",p->row_ind,p->value);
+				Py_INCREF(pValue);
+				PyList_Append(pHeap,pValue);
 			}
 			PyObject *pCols = PyList_New(0);
+			Py_INCREF(pCols);
 			PyDict_SetItemString(pData,"cols",pCols);
 			for ( size_t n = 0 ; n < powerflow_values->Y_Amatrix->ncols ; n++ )
 			{ 
@@ -1062,10 +1141,13 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 					continue;
 				}
 				PyObject *pCol = PyList_New(0);
+				Py_INCREF(pCol);
 				PyList_Append(pCols,pCol);
 				for ( SP_E *p = powerflow_values->Y_Amatrix->cols[n] ; p != NULL ; p = p->next )
 				{
-					PyList_Append(pCol,Py_BuildValue("(id)",p->row_ind,p->value));
+					PyObject *pValue = Py_BuildValue("(id)",p->row_ind,p->value);
+					Py_INCREF(pValue);
+					PyList_Append(pCol,pValue);
 				}
 			}
 		}
@@ -1079,7 +1161,9 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 
 void sync_powerflow_type(PyObject *pSolution, NRSOLVERMODE powerflow_type)
 {
-	PyDict_SetItemString(pSolution,"powerflow_type",PyLong_FromLong((long)powerflow_type));
+	PyObject *pLong = PyLong_FromLong((long)powerflow_type);
+	Py_INCREF(pLong);
+	PyDict_SetItemString(pSolution,"powerflow_type",pLong);
 }
 
 void sync_mesh_imped_values(PyObject *pSolution, NR_MESHFAULT_IMPEDANCE *mesh_imped_values)
@@ -1120,9 +1204,11 @@ void sync_bad_computations(PyObject *pSolution, bool *bad_computations)
 	}
 }
 
-void sync_iteration(PyObject *pSolution,int64 iterations)
+void sync_iterations(PyObject *pSolution,int64 iterations)
 {
-	PyDict_SetItemString(pSolution,"iterations",PyLong_FromLong(iterations));
+	PyObject *pLong = PyLong_FromLong(iterations);
+	Py_INCREF(pLong);
+	PyDict_SetItemString(pSolution,"iterations",pLong);
 }
 
 PyObject *sync_solution(
@@ -1133,12 +1219,12 @@ PyObject *sync_solution(
 	bool *bad_computations,
 	int64 iterations)
 {
-	sync_powerflow_values(pLearndata,buscount,powerflow_values);
-	sync_powerflow_type(pLearndata,powerflow_type);
-	sync_mesh_imped_values(pLearndata,mesh_imped_values);
-	sync_bad_computations(pLearndata,bad_computations);
-	sync_iteration(pLearndata,iterations);
-	return pLearndata;
+	sync_bad_computations(pSolution,bad_computations);
+	sync_iterations(pSolution,iterations);
+	sync_powerflow_values(pSolution,buscount,powerflow_values);
+	sync_powerflow_type(pSolution,powerflow_type);
+	sync_mesh_imped_values(pSolution,mesh_imped_values);
+	return pSolution;
 }
 
 
@@ -1156,11 +1242,14 @@ void solver_python_learn (
 	SolverTimer timer("learn");
 	if ( pModule )
 	{
-		PyObject *pModel = sync_model(bus_count,bus,branch_count,branch,ED_OUT);
-		PyObject *pSolution = sync_solution(bus_count,powerflow_values,powerflow_type,mesh_imped_values,bad_computations,iterations);
-		PyObject *pLearn = PyDict_Copy(pModel);
-		PyDict_Merge(pModel,pSolution,true);
-		if ( ! python_call(pModule,NULL,"learn","O",pLearn) )
+		sync_model(bus_count,bus,branch_count,branch,ED_OUT);
+		if ( pSolution == NULL )
+		{
+			pSolution = PyDict_Copy(pModel);
+			Py_INCREF(pSolution);
+		}
+		sync_solution(bus_count,powerflow_values,powerflow_type,mesh_imped_values,bad_computations,iterations);
+		if ( ! python_call(pModule,NULL,"learn","O",pSolution) )
 		{
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): learn failed",bus_count);
 		}
