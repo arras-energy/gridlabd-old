@@ -1042,34 +1042,75 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		|| strfind(python_nlearntags,python_learntags,"powerflow_values.BA_diag") >= 0 )
 	{
 		PyObject *pDict = check_dict(pSolution,"powerflow_values");
-		// TODO this is not done correctly
-		set_dict_value(pDict,"Y_Amatrix",Py_None);
-		// if ( powerflow_values->BA_diag )
-		// {
-		// 	PyObject *pData = PyList_New(buscount);
-		// 	PyDict_SetItemString(pDict,"BA_diag",pData);
-		// 	for ( size_t n = 0 ; n < buscount ; n++ )
-		// 	{
-		// 		Bus_admit &bus = powerflow_values->BA_diag[n];
-		// 		PyObject *pBus = PyList_New(bus.size);
-		// 		for ( size_t r = 0 ; r < (size_t)bus.size ; r++ )
-		// 		{
-		// 			PyObject *pRow = PyList_New(bus.size);
-		// 			PyList_SetItem(pBus,r,pRow);
-		// 			for ( size_t c = 0 ; c < (size_t)bus.size ; c++ )
-		// 			{
-		// 				PyObject *pValue = Py_BuildValue("(dd)",bus.Y[r][c].r,bus.Y[r][c].i);
-		// 				PyList_SetItem(pRow,c,pValue);
-		// 			}
-		// 		}
-		// 		PyObject *pValue = Py_BuildValue("(iO)",bus.row_ind,pBus);
-		// 		PyList_SetItem(pData,n,pValue);
-		// 	}
-		// }
-		// else
-		// {
-		// 	set_dict_value(pDict,"BA_diag",Py_None);
-		// }
+		if ( powerflow_values->BA_diag )
+		{
+			PyObject *pData = PyDict_GetItemString(pDict,"BA_diag");
+			if ( pData == NULL )
+			{
+				pData = PyList_New(buscount);
+				PyDict_SetItemString(pDict,"BA_diag",pData);
+			}
+			for ( size_t n = 0 ; n < buscount ; n++ )
+			{
+				Bus_admit &bus = powerflow_values->BA_diag[n];
+				PyObject *pBus = PyList_GetItem(pData,n);
+				if ( pBus == NULL )
+				{
+					pBus = PyList_New((size_t)bus.size);
+					PyList_SetItem(pData,n,pBus);
+				}
+				for ( size_t r = 0 ; r < (size_t)bus.size ; r++ )
+				{
+					PyObject *pRow = PyList_GetItem(pBus,r);
+					if ( pRow == NULL )
+					{
+						pRow = PyList_New((size_t)bus.size);
+						PyList_SetItem(pBus,r,pRow);
+					}
+					for ( size_t c = 0 ; c < (size_t)bus.size ; c++ )
+					{
+						PyObject *pValue = PyList_GetItem(pRow,c);
+						PyObject *pBusid, *pReal, *pImag;
+						long busid = (long)r;
+						double x = bus.Y[r][c].r;
+						double y = bus.Y[r][c].i;
+						if ( pValue == NULL || ! PyTuple_Check(pValue) || PyTuple_GET_SIZE(pValue) != 3 )
+						{
+							pValue = PyTuple_New(3);
+							PyList_SetItem(pRow,c,pValue);
+							pBusid = PyLong_FromLong(busid);
+							pReal = PyFloat_FromDouble(x);
+							pImag = PyFloat_FromDouble(y);
+							PyTuple_SetItem(pValue,0,pBusid);
+							PyTuple_SetItem(pValue,1,pReal);
+							PyTuple_SetItem(pValue,2,pImag);
+						}
+						else
+						{
+							pBusid = PyTuple_GetItem(pValue,0);
+							pReal = PyTuple_GetItem(pValue,1);
+							pImag = PyTuple_GetItem(pValue,2);
+							if ( PyLong_Check(pBusid) || PyLong_AsLong(pBusid) != busid )
+							{
+								PyTuple_SetItem(pValue,0,PyLong_FromLong(busid));
+							}
+							if ( ! PyFloat_Check(pReal) || PyFloat_AsDouble(pReal) != x )
+							{
+								PyTuple_SetItem(pValue,1,PyFloat_FromDouble(x));
+							}
+							if ( ! PyFloat_Check(pImag) || PyFloat_AsDouble(pImag) != y )
+							{
+								PyTuple_SetItem(pValue,2,PyFloat_FromDouble(y));
+							}
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			set_dict_value(pDict,"BA_diag",Py_None);
+		}
 	}
 
 	if ( strfind(python_nlearntags,python_learntags,"powerflow_values") >= 0
