@@ -29,28 +29,8 @@ static const char *module_import_name = NULL; // module name to import (python o
 static PyObject *pModule = NULL;
 static int solver_python_loglevel = 0; // -1=disable, 0 = minimal ... 9 = everything,
 static FILE *solver_python_logfh = NULL;
-static const char *python_busdata = "type,phases,"
-	"volt_base,mva_base,origphases,"
-	"SAr,SAi,SBr,SBi,SCr,SCi,"
-	"YAr,YAi,YBr,YBi,YCr,YCi,"
-	"IAr,IAi,IBr,IBi,ICr,ICi,"
-	"prerot_IAr,prerot_IAi,prerot_IBr,prerot_IBi,prerot_ICr,prerot_ICi,"
-	"S_dyAr,S_dyAi,S_dyBr,S_dyBi,S_dyCr,S_dyCi,"
-	"Y_dyAr,Y_dyAi,Y_dyBr,Y_dyBi,Y_dyCr,Y_dyCi,"
-	"I_dyAr,I_dyAi,I_dyBr,I_dyBi,I_dyCr,I_dyCi,"
-	"PGenTotalAr,PGenTotalAi,PGenTotalBr,PGenTotalBi,PGenTotalCr,PGenTotalCi,"
-	"DynCurrentAr,DynCurrentAi,DynCurrentBr,DynCurrentBi,DynCurrentCr,DynCurrentCi,"
-	"PLA,QLA,PLB,QLB,PLC,QLC,"
-	"full_YAAr,full_YAAi,full_YABr,full_YABi,full_YACr,full_YACi,full_YBBr,full_YBBi,full_YBCr,full_YBCi,full_YCCr,full_YCCi,"
-	"full_Y_allAAr,full_Y_allAAi,full_Y_allABr,full_Y_allABi,full_Y_allACr,full_Y_allACi,full_Y_allBBr,full_Y_allBBi,full_Y_allBCr,full_Y_allBCi,full_Y_allCCr,full_Y_allCCi,"
-	"full_Y_loadAr,full_Y_loadAi,full_Y_loadBr,full_Y_loadBi,full_Y_loadCr,full_Y_loadCi,"
-	"Jacob_A0,Jacob_A1,Jacob_A2,Jacob_B0,Jacob_B1,Jacob_B2,Jacob_C0,Jacob_C1,Jacob_C2,Jacob_D0,Jacob_D1,Jacob_D2";
-static const char *python_branchdata = "phases,from,to,"
-	"origphases,faultphases,lnk_type,fault_link_below,v_ratio,"
-	"YfromAr,YfromAi,YfromBr,YfromBi,YfromCr,YfromCi,"
-	"YtoAr,YtoAi,YtoBr,YtoBi,YtoCr,YtoCi,"
-	"YSfromAr,YSfromAi,YSfromBr,YSfromBi,YSfromCr,YSfromCi,"
-	"YStoAr,YStoAi,YStoBr,YStoBi,YStoCr,YStoCi";
+static const char *python_busdata = ""; 
+static const char *python_branchdata = "";
 static const char *python_learndata = "";
 static const char *python_busid = NULL;
 static const char *python_branchid = NULL;
@@ -319,6 +299,9 @@ void init_busdata(void)
 	if ( python_bustags == NULL )
 	{
 		init_bustags();
+	}
+	if ( pBusdata == NULL )
+	{
 		if ( python_busid )
 		{
 			pBusdata = PyDict_New();
@@ -342,6 +325,9 @@ void init_branchdata(void)
 	if ( python_branchtags == NULL )
 	{
 		init_branchtags();
+	}
+	if ( pBranchdata == NULL )
+	{
 		if ( python_branchid )
 		{
 			pBranchdata = PyDict_New();
@@ -411,7 +397,11 @@ int solver_python_init(void)
 		if ( pModel == NULL )
 		{
 			pModel = PyDict_New();
-			// Py_INCREF(pModel);
+			if ( pKwargs == NULL )
+			{
+				pKwargs = PyDict_New();
+			}
+			PyDict_SetItemString(pModel,"options",pKwargs);
 		}
 		if ( pBusdata == NULL )
 		{
@@ -424,6 +414,10 @@ int solver_python_init(void)
 		if ( pLearndata == NULL )
 		{
 			init_learndata();
+		}
+		if ( pSolution == NULL )
+		{
+			pSolution = PyDict_Copy(pModel);
 		}
 		return 0;
 	}
@@ -951,10 +945,6 @@ static PyObject *sync_model(
 	set_branchtags(pModel);
 	sync_busdata(pModel,bus_count,bus,dir);
 	sync_branchdata(pModel,branch_count,branch,dir);
-	if ( pKwargs )
-	{
-		PyDict_SetItemString(pModel,"options",pKwargs);
-	}
 	return pModel;
 }
 
@@ -1247,10 +1237,6 @@ void solver_python_learn (
 	if ( pModule )
 	{
 		sync_model(bus_count,bus,branch_count,branch,ED_OUT);
-		if ( pSolution == NULL )
-		{
-			pSolution = PyDict_Copy(pModel);
-		}
 		sync_solution(bus_count,powerflow_values,powerflow_type,mesh_imped_values,bad_computations,iterations);
 		if ( ! python_call(pModule,NULL,"learn","O",pSolution) )
 		{

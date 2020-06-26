@@ -237,7 +237,7 @@ bool python_embed_call(
         if ( pCall ) Py_DECREF(pCall);
         if ( pValue ) Py_DECREF(pValue);
         if ( pBytes ) Py_DECREF(pBytes);
-
+        Py_DECREF(pError);
         python_reset_stream(pModule,"error_stream");
     }
     PyObject *pOutput = PyObject_GetAttrString(pModule,"output_stream");
@@ -255,7 +255,7 @@ bool python_embed_call(
         if ( pCall ) Py_DECREF(pCall);
         if ( pValue ) Py_DECREF(pValue);
         if ( pBytes ) Py_DECREF(pBytes);
-
+        Py_DECREF(pOutput);
         python_reset_stream(pModule,"output_stream");
     }
     Py_DECREF(pFunc);
@@ -266,7 +266,6 @@ bool python_embed_call(
     if ( pResult != NULL )
     {
         *pResult = return_value;
-        Py_INCREF(return_value);
     }
     return true;
 }
