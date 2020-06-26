@@ -9,11 +9,11 @@
 
 #include "solver_py.h"
 
-#undef Py_INCREF
+// #undef Py_INCREF
 // #define Py_INCREF(X) (fprintf(stderr,"Py_INCREF(" #X "=<%p>",X),PyObject_Print(X,stderr,Py_PRINT_RAW),fprintf(stderr,") --> %d\n",(int)++X->ob_refcnt),X->ob_refcnt)
-#define Py_INCREF(X) (X->ob_refcnt++)
-#undef Py_DECREF
-#define Py_DECREF(X) (X->ob_refcnt--)
+// // #define Py_INCREF(X) (X->ob_refcnt++)
+// #undef Py_DECREF
+// // #define Py_DECREF(X) (X->ob_refcnt--)
 // #define Py_DECREF(X) (fprintf(stderr,"Py_DECREF(" #X "=<%p>",X),PyObject_Print(X,stderr,Py_PRINT_RAW),fprintf(stderr,") --> %d\n",(int)--X->ob_refcnt),X->ob_refcnt)
 
 #define CONFIGNAME "solver_py.conf"
@@ -62,6 +62,45 @@ void solver_python_log(int level, const char *format, ...)
 		fflush(solver_python_logfh);
 		va_end(ptr);
 	}
+}
+
+void set_dict_value (
+	PyObject *pObject, 
+	const char *name, 
+	PyObject *pValue, 
+	bool incref=true)
+{
+	PyObject *pOld = PyDict_GetItemString(pObject,name);
+	if ( pValue != pOld )
+	{
+		if ( pOld != NULL )
+		{
+			Py_DECREF(pOld);
+		}
+		PyDict_SetItemString(pObject,name,pValue);
+		if ( incref )
+		{	
+			Py_INCREF(pValue);
+		}
+	}
+}
+
+void set_dict_value (
+	PyObject *pObject, 
+	const char *name, 
+	long value)
+{
+	PyObject *pValue = PyLong_FromLong(value);
+	set_dict_value(pObject,name,pValue);
+}
+
+void set_dict_value (
+	PyObject *pObject, 
+	const char *name, 
+	double value)
+{
+	PyObject *pValue = PyFloat_FromDouble(value);
+	set_dict_value(pObject,name,pValue);
 }
 
 void init_kwargs(void)
@@ -684,8 +723,8 @@ void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,vo
 				Py_DECREF(pValue);
 			}
 			PyObject *pDouble = PyFloat_FromDouble(x);
-			// Py_INCREF(pDouble);
 			PyList_SetItem(data,n,pDouble);
+			Py_INCREF(pDouble);
 		}
 	}
 }
@@ -716,8 +755,8 @@ void sync_double_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inv
 				Py_DECREF(pValue);
 			}
 			PyObject *pDouble = PyFloat_FromDouble(x);
-			// Py_INCREF(pDouble);
 			PyList_SetItem(data,n,pDouble);
+			Py_INCREF(pDouble);
 		}
 	}
 }
@@ -750,8 +789,8 @@ void sync_complex_ref(PyObject *data, size_t n, void *ptr, void (*convert)(doubl
 				Py_DECREF(pValue);
 			}
 			PyObject *pDouble = PyFloat_FromDouble(x);
-			// Py_INCREF(pDouble);
 			PyList_SetItem(data,n,pDouble);
+			Py_INCREF(pDouble);
 		}
 	}
 }
@@ -768,7 +807,7 @@ void sync_none(PyObject *data, size_t n, bool inverse)
 				Py_DECREF(pValue);
 			}
 			PyList_SetItem(data,n,Py_None);
-			// Py_INCREF(Py_None);
+			Py_INCREF(Py_None);
 		}
 	}
 }
@@ -1002,7 +1041,6 @@ PyObject *check_dict(PyObject *pObj,const char *name)
 	if ( pDict == NULL )
 	{
 		pDict = PyDict_New();
-		// Py_INCREF(pDict);
 		PyDict_SetItemString(pObj,name,pDict); 
 	}
 	return pDict;
@@ -1025,8 +1063,7 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		}
 		else
 		{
-			PyDict_SetItemString(pDict,"deltaI_NR",Py_None);
-			Py_INCREF(Py_None);
+			set_dict_value(pDict,"deltaI_NR",Py_None);
 		}
 	}
 
@@ -1060,8 +1097,7 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		}
 		else
 		{
-			PyDict_SetItemString(pDict,"BA_diag",Py_None);
-			Py_INCREF(Py_None);
+			set_dict_value(pDict,"BA_diag",Py_None);
 		}
 	}
 
@@ -1082,8 +1118,7 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		}
 		else
 		{
-			PyDict_SetItemString(pDict,"Y_offdiag_PQ",Py_None);
-			Py_INCREF(Py_None);
+			set_dict_value(pDict,"Y_offdiag_PQ",Py_None);
 		}
 	}
 
@@ -1094,7 +1129,6 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		if ( powerflow_values->Y_diag_fixed )
 		{
 			PyObject *pData = PyList_New(powerflow_values->size_diag_fixed*2);
-			// Py_INCREF(pData);
 			PyDict_SetItemString(pDict,"Y_diag_fixed",pData);
 			for ( size_t n = 0 ; n < powerflow_values->size_diag_fixed*2 ; n++ )
 			{
@@ -1104,8 +1138,7 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		}
 		else
 		{
-			PyDict_SetItemString(pDict,"Y_diag_fixed",Py_None);
-			Py_INCREF(Py_None);
+			set_dict_value(pDict,"Y_diag_fixed",Py_None);
 		}
 	}
 
@@ -1116,10 +1149,8 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		if ( powerflow_values->Y_Amatrix )
 		{
 			PyObject *pData = PyDict_New();
-			// Py_INCREF(pData);
 			PyDict_SetItemString(pDict,"Y_Amatrix",pData);
 			PyObject *pHeap = PyList_New(0);
-			// Py_INCREF(pHeap);
 			PyDict_SetItemString(pData,"llheap",pHeap);
 			for ( SP_E *p = powerflow_values->Y_Amatrix->llheap ; p != NULL ; p = p->next )
 			{
@@ -1127,7 +1158,6 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 				PyList_Append(pHeap,pValue);
 			}
 			PyObject *pCols = PyList_New(0);
-			// Py_INCREF(pCols);
 			PyDict_SetItemString(pData,"cols",pCols);
 			for ( size_t n = 0 ; n < powerflow_values->Y_Amatrix->ncols ; n++ )
 			{ 
@@ -1136,7 +1166,6 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 					continue;
 				}
 				PyObject *pCol = PyList_New(0);
-				// Py_INCREF(pCol);
 				PyList_Append(pCols,pCol);
 				for ( SP_E *p = powerflow_values->Y_Amatrix->cols[n] ; p != NULL ; p = p->next )
 				{
@@ -1147,17 +1176,14 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		}
 		else
 		{
-			PyDict_SetItemString(pDict,"Y_Amatrix",Py_None);
-			Py_INCREF(Py_None);
+			set_dict_value(pDict,"Y_Amatrix",Py_None);
 		}
 	}
 }
 
 void sync_powerflow_type(PyObject *pSolution, NRSOLVERMODE powerflow_type)
 {
-	PyObject *pLong = PyLong_FromLong((long)powerflow_type);
-	// Py_INCREF(pLong);
-	PyDict_SetItemString(pSolution,"powerflow_type",pLong);
+	set_dict_value(pSolution,"powerflow_type",(long)powerflow_type);
 }
 
 void sync_mesh_imped_values(PyObject *pSolution, NR_MESHFAULT_IMPEDANCE *mesh_imped_values)
@@ -1171,8 +1197,7 @@ void sync_mesh_imped_values(PyObject *pSolution, NR_MESHFAULT_IMPEDANCE *mesh_im
 			solver_python_log(0,"WARNING: %s: learndata mesh_imped_values is not supported by this solver", (const char*)solver_py_config);
 			done = true;
 		}
-		PyDict_SetItemString(pSolution,"mesh_imped_values",Py_None);
-		Py_INCREF(Py_None);
+		set_dict_value(pSolution,"mesh_imped_values",Py_None);
 	}
 }
 
@@ -1182,19 +1207,16 @@ void sync_bad_computations(PyObject *pSolution, bool *bad_computations)
 	{
 		if ( *bad_computations )
 		{
-			PyDict_SetItemString(pSolution,"bad_computations",Py_True);
-			Py_INCREF(Py_True);
+			set_dict_value(pSolution,"bad_computations",Py_True);
 		}
 		else
 		{
-			PyDict_SetItemString(pSolution,"bad_computations",Py_False);
-			Py_INCREF(Py_False);
+			set_dict_value(pSolution,"bad_computations",Py_False);
 		}
 	}
 	else
 	{
-		PyDict_SetItemString(pSolution,"bad_computations",Py_None);
-		Py_INCREF(Py_None);
+		set_dict_value(pSolution,"bad_computations",Py_None);
 	}
 }
 
