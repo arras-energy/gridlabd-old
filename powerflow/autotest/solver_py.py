@@ -36,6 +36,8 @@ def solve(gridlabd,**kwargs):
             print(bus)
         elif kwargs['options']['dump'] == 'pretty':
             pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
+        elif kwargs['options']['dump'] == 'print':
+            print(kwargs)
     return -1 
 
 def learn(gridlabd,**kwargs):
@@ -79,4 +81,6 @@ def learn(gridlabd,**kwargs):
             print(bus)
         elif kwargs['options']['dump'] == 'pretty':
             pp.PrettyPrinter(indent=4,stream=output_stream).pprint(kwargs)
+        elif kwargs['options']['dump'] == 'print':
+            print(kwargs)
     return None

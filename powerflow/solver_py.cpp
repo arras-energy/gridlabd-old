@@ -1044,17 +1044,12 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		PyObject *pDict = check_dict(pSolution,"powerflow_values");
 		if ( powerflow_values->BA_diag )
 		{
-			PyObject *pData = PyDict_GetItemString(pDict,"BA_diag");
-			if ( pData == NULL )
-			{
-				pData = PyList_New(buscount);
-				PyDict_SetItemString(pDict,"BA_diag",pData);
-			}
+			PyObject *pData = check_dict(pDict,"BA_diag");
 			for ( size_t n = 0 ; n < buscount ; n++ )
 			{
 				Bus_admit &bus = powerflow_values->BA_diag[n];
 				PyObject *pBus = PyList_GetItem(pData,n);
-				if ( pBus == NULL )
+				if ( pBus == NULL || ! PyList_Check(pBus) || (size_t)PyList_GET_SIZE(pBus) != (size_t)bus.size )
 				{
 					pBus = PyList_New((size_t)bus.size);
 					PyList_SetItem(pData,n,pBus);
@@ -1062,10 +1057,15 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 				for ( size_t r = 0 ; r < (size_t)bus.size ; r++ )
 				{
 					PyObject *pRow = PyList_GetItem(pBus,r);
-					if ( pRow == NULL )
+					if ( pRow == NULL || ! PyList_Check(pRow) || (size_t)PyList_GET_SIZE(pRow) != (size_t)bus.size )
 					{
 						pRow = PyList_New((size_t)bus.size);
 						PyList_SetItem(pBus,r,pRow);
+						for ( size_t c = 0 ; c < (size_t)bus.size ; c++ )
+						{
+							PyList_SET_ITEM(pRow,c,Py_None);
+							Py_INCREF(Py_None);
+						}
 					}
 					for ( size_t c = 0 ; c < (size_t)bus.size ; c++ )
 					{
@@ -1167,33 +1167,32 @@ void sync_powerflow_values(PyObject *pSolution, size_t buscount, NR_SOLVER_STRUC
 		PyObject *pDict = check_dict(pSolution,"powerflow_values");
 		if ( powerflow_values->Y_Amatrix )
 		{
-			// TODO this is not done correctly
-			set_dict_value(pDict,"Y_Amatrix",Py_None);			
-			// PyObject *pData = PyDict_New();
-			// PyDict_SetItemString(pDict,"Y_Amatrix",pData);
-			// PyObject *pHeap = PyList_New(0);
-			// PyDict_SetItemString(pData,"llheap",pHeap);
-			// for ( SP_E *p = powerflow_values->Y_Amatrix->llheap ; p != NULL ; p = p->next )
-			// {
-			// 	PyObject *pValue = Py_BuildValue("(id)",p->row_ind,p->value);
-			// 	PyList_Append(pHeap,pValue);
-			// }
-			// PyObject *pCols = PyList_New(0);
-			// PyDict_SetItemString(pData,"cols",pCols);
-			// for ( size_t n = 0 ; n < powerflow_values->Y_Amatrix->ncols ; n++ )
-			// { 
-			// 	if ( powerflow_values->Y_Amatrix->cols[n] == NULL )
-			// 	{
-			// 		continue;
-			// 	}
-			// 	PyObject *pCol = PyList_New(0);
-			// 	PyList_Append(pCols,pCol);
-			// 	for ( SP_E *p = powerflow_values->Y_Amatrix->cols[n] ; p != NULL ; p = p->next )
-			// 	{
-			// 		PyObject *pValue = Py_BuildValue("(id)",p->row_ind,p->value);
-			// 		PyList_Append(pCol,pValue);
-			// 	}
-			// }
+			PyObject *pData = check_dict(pDict,"Y_Amatrix");
+
+			PyObject *pHeap = PyList_New(0);
+			PyDict_SetItemString(pData,"llheap",pHeap);
+			for ( SP_E *p = powerflow_values->Y_Amatrix->llheap ; p != NULL ; p = p->next )
+			{
+				PyObject *pValue = Py_BuildValue("(id)",p->row_ind,p->value);
+				PyList_Append(pHeap,pValue);
+			}
+
+			PyObject *pCols = PyList_New(0);
+			PyDict_SetItemString(pData,"cols",pCols);
+			for ( size_t n = 0 ; n < powerflow_values->Y_Amatrix->ncols ; n++ )
+			{ 
+				if ( powerflow_values->Y_Amatrix->cols[n] == NULL )
+				{
+					continue;
+				}
+				PyObject *pCol = PyList_New(0);
+				PyList_Append(pCols,pCol);
+				for ( SP_E *p = powerflow_values->Y_Amatrix->cols[n] ; p != NULL ; p = p->next )
+				{
+					PyObject *pValue = Py_BuildValue("(id)",p->row_ind,p->value);
+					PyList_Append(pCol,pValue);
+				}
+			}
 		}
 		else
 		{
