@@ -25,13 +25,39 @@
 
 int csv_data_only = 0; /* enable this option to suppress addition of lines starting with # in CSV */
 int csv_keep_clean = 0; /* enable this option to keep data flushed at end of line */
-EXPORT void set_csv_data_only()
+
+EXPORT void *get_option(const char *name)
 {
-	csv_data_only = 1;
+	struct s_map 
+	{
+		const char *name;
+		void *ptr;
+	} map[] = {
+		{"csv_data_only",(void*)&csv_data_only},
+		{"csv_keep_clean",(void*)&csv_keep_clean},
+	};
+	for ( size_t n = 0 ; n < sizeof(map)/sizeof(map[0]) ; n++ )
+	{
+		if ( strcmp(map[n].name,name) == 0 )
+		{
+			return map[n].ptr;
+		}
+	}
+	return NULL;
 }
-EXPORT void set_csv_keep_clean()
+
+EXPORT void *set_option(const char *name, void *pValue)
 {
-	csv_keep_clean = 1;
+	void *pRef = get_option(name);
+	if ( pRef == (void*)&csv_data_only )
+	{
+		csv_data_only = *(int*)pValue;
+	}
+	else if ( pRef == (void*)&csv_keep_clean )
+	{
+		csv_keep_clean = *(int*)pValue;
+	}
+	return pRef;
 }
 
 /*******************************************************************
