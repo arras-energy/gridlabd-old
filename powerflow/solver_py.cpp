@@ -1279,7 +1279,7 @@ void solver_python_learn (
 	{
 		sync_model(bus_count,bus,branch_count,branch,ED_OUT);
 		sync_solution(bus_count,powerflow_values,powerflow_type,mesh_imped_values,bad_computations,iterations);
-		if ( ! python_call(pModule,NULL,"learn","O",pSolution) )
+		if ( ! python_call(pModule,NULL,"learn","{s:O,s:O}","model",pModel,"solution",pSolution) )
 		{
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): learn failed",bus_count);
 		}
