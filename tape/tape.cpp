@@ -82,24 +82,27 @@ static char1024 tape_gnuplot_path;
 int32 flush_interval = 0;
 int csv_data_only = 0; /* enable this option to suppress addition of lines starting with # in CSV */
 int csv_keep_clean = 0; /* enable this option to keep data flushed at end of line */
-void (*update_csv_data_only)(void)=NULL;
-void (*update_csv_keep_clean)(void)=NULL;
-
-void set_csv_options(void)
-{
-	if (csv_data_only && update_csv_data_only)
-		(*update_csv_data_only)();
-	if (csv_keep_clean && update_csv_keep_clean)
-		(*update_csv_keep_clean)();
-}
 
 typedef int (*OPENFUNC)(void *, char *, char *);
 typedef char *(*READFUNC)(void *, char *, unsigned int);
 typedef int (*WRITEFUNC)(void *, char *, char *);
 typedef int (*REWINDFUNC)(void *);
 typedef void (*CLOSEFUNC)(void *);
-typedef void (*VOIDCALL)(void);
+typedef void *(*SETOPTIONCALL)(const char *name, void *value);
+typedef void *(*GETOPTIONCALL)(const char *name);
 typedef void (*FLUSHFUNC)(void*);
+
+SETOPTIONCALL set_option = NULL;
+GETOPTIONCALL get_option = NULL;
+
+void set_csv_options(void)
+{
+	if (set_option)
+	{
+		set_option("csv_data_only",(void*)&csv_data_only);
+		set_option("csv_keep_clean",(void*)&csv_keep_clean);
+	}
+}
 
 TAPEFUNCS *get_ftable(char *mode){
 	/* check what we've already loaded */
@@ -184,8 +187,8 @@ TAPEFUNCS *get_ftable(char *mode){
 	fptr->next = funcs;
 	funcs = fptr;
 
-	update_csv_data_only = (VOIDCALL)DLSYM(lib,"set_csv_data_only");
-	update_csv_keep_clean = (VOIDCALL)DLSYM(lib,"set_csv_keep_clean");
+	set_option = (SETOPTIONCALL)DLSYM(lib,"set_option");
+	get_option = (GETOPTIONCALL)DLSYM(lib,"get_option");
 	return funcs;
 }
 
