@@ -64,8 +64,8 @@ PROPERTY *player_link_properties(struct player *player, OBJECT *obj, char *prope
 	int64 cid = -1;
 
 	strcpy(list,property_list); /* avoid destroying orginal list */
-	char *last;
-	for (item=strtok_r(list,",",&last); item!=NULL; item=strtok_r(NULL,",",&last))
+	char *last_token;
+	for (item=strtok_r(list,",",&last_token); item!=NULL; item=strtok_r(NULL,",",&last_token))
 	{
 		prop = NULL;
 		target = NULL;

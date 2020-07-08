@@ -1298,7 +1298,7 @@ const char *find_file(const char *name, /**< the name of the file to find */
 				strncpy(buffer,filepath,len);
 				return buffer;
 			}
-			dir = strtok_r(NULL, delim);
+			dir = strtok_r(NULL, delim, &last);
 		}
 	}
 
