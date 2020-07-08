@@ -98,12 +98,13 @@ schedule_list *parse_cron(char *cron_str){
 
 	strcpy(cron_cpy, cron_str);
 
-	mohs = strtok(cron_cpy, " \t\n\r");
-	hods = strtok(NULL, " \t\n\r");
-	doms = strtok(NULL, " \t\n\r");
-	moys = strtok(NULL, " \t\n\r");
-	dows = strtok(NULL, " \t\n\r");
-	vals = strtok(NULL, " \t\n\r");
+	char *last;
+	mohs = strtok_r(cron_cpy, " \t\n\r",&last);
+	hods = strtok_r(NULL, " \t\n\r",&last);
+	doms = strtok_r(NULL, " \t\n\r",&last);
+	moys = strtok_r(NULL, " \t\n\r",&last);
+	dows = strtok_r(NULL, " \t\n\r",&last);
+	vals = strtok_r(NULL, " \t\n\r",&last);
 	
 	if((mohs && hods && doms && moys && dows) == 0){
 		gl_error("Insufficient arguements in cron line \"%s\"", cron_str);
@@ -421,10 +422,11 @@ int schedule::parse_schedule(){
 
 	/* simulate strtok effects, replacing ';' with '\0' and 
 	 *  getting char* to each schedule token. */
-	temp = strtok(sched_buf, ";");
+	char *last;
+	temp = strtok_r(sched_buf, ";",&last);
 	for(i = 0; i < 128 && temp != NULL; ++i){
 		sched_ptr[i] = temp;
-		temp = strtok(NULL, ";");
+		temp = strtok_r(NULL, ";",&last);
 	}
 
 	token_ct = i;
