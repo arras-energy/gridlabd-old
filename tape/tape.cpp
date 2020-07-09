@@ -198,8 +198,10 @@ CDECL int method_multi_recorder_property(OBJECT *obj, char *value, size_t size);
 
 EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 {
-	struct recorder my;
+	struct recorder my1;
 	struct collector my2;
+	struct player my3;
+	struct recorder my4;
 
 	if (set_callback(fntable)==NULL)
 	{
@@ -229,11 +231,23 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	/* register the first class implemented, use SHARE to reveal variables */
 	player_class = gl_register_class((MODULE*)module,"player",sizeof(struct player),PC_PRETOPDOWN); 
 	player_class->trl = TRL_PROVEN;
-	PUBLISH_STRUCT(player,char256,property);
-	PUBLISH_STRUCT(player,char1024,file);
-	PUBLISH_STRUCT(player,char8,filetype);
-	PUBLISH_STRUCT(player,char32,mode);
-	PUBLISH_STRUCT(player,int32,loop);
+	if ( gl_publish_variable(player_class,
+		PT_char256,"property",((char*)&my3.property-(char*)&my3),
+			PT_REQUIRED,
+			PT_DESCRIPTION, "property to play values into",
+		PT_char1024,"file",((char*)&my3.file-(char*)&my3),
+			PT_REQUIRED,
+			PT_DESCRIPTION, "file from which to read values",
+		PT_char8,"filetype",((char*)&my3.filetype-(char*)&my3),
+		PT_char32,"mode",((char*)&my3.mode-(char*)&my3),
+		PT_int32,"loop",((char*)&my3.loop-(char*)&my3),
+			PT_DEFAULT, "0",
+			PT_DESCRIPTION, "number of time to loop the player",
+		NULL) < 1 )
+	{
+		GL_THROW("unable to publish player properties");
+	}
+
 
 	/* register the first class implemented, use SHARE to reveal variables */
 	shaper_class = gl_register_class((MODULE*)module,"shaper",sizeof(struct shaper),PC_PRETOPDOWN); 
@@ -249,23 +263,40 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	/* register the other classes as needed, */
 	recorder_class = gl_register_class((MODULE*)module,"recorder",sizeof(struct recorder),PC_POSTTOPDOWN|PC_OBSERVER);
 	recorder_class->trl = TRL_PROVEN;
-	PUBLISH_STRUCT(recorder,char32,trigger);
-	PUBLISH_STRUCT(recorder,char1024,file);
-	PUBLISH_STRUCT(recorder,char8,filetype);
-	PUBLISH_STRUCT(recorder,char32,mode);
-	PUBLISH_STRUCT(recorder,char1024,multifile);
-	PUBLISH_STRUCT(recorder,int32,limit);
-	PUBLISH_STRUCT(recorder,char1024,plotcommands);
-	PUBLISH_STRUCT(recorder,char32,xdata);
-	PUBLISH_STRUCT(recorder,char32,columns);
-	PUBLISH_STRUCT(recorder,int32,flush);
-	PUBLISH_STRUCT(recorder,bool,format);
 	
 	if(gl_publish_variable(recorder_class,
-		PT_double, "interval[s]", ((char*)&(my.dInterval) - (char *)&my),
-		PT_char256,"strftime_format",((char*)&(my.strftime_format) - (char*)&my),
+		PT_char32, "trigger", ((char*)&(my1.trigger) - (char*)&my1),
+			PT_DEFAULT, "",
+			PT_DESCRIPTION, "condition to trigger recorder",
+		PT_char1024,"file", ((char*)&(my1.file) - (char*)&my1),
+			PT_REQUIRED,
+			PT_DESCRIPTION, "file in which to record data",
+		PT_char8,"filetype", ((char*)&(my1.filetype) - (char*)&my1),
+			PT_DESCRIPTION, "file type to use when storing data",
+		PT_char32,"mode", ((char*)&(my1.mode) - (char*)&my1),
+			PT_DEFAULT, "file",
+			PT_DESCRIPTION, "recorder operating mode",
+		PT_char1024,"multifile", ((char*)&(my1.multifile) - (char*)&my1),
+		PT_int32,"limit", ((char*)&(my1.limit) - (char*)&my1),
+			PT_DEFAULT, "0",
+			PT_DESCRIPTION, "limit on number of rows to record (0=none)",
+		PT_char1024,"plotcommands", ((char*)&(my1.plotcommands) - (char*)&my1),
+		PT_char32,"xdata", ((char*)&(my1.xdata) - (char*)&my1),
+		PT_char32,"columns", ((char*)&(my1.columns) - (char*)&my1),
+		PT_int32,"flush", ((char*)&(my1.flush) - (char*)&my1),
+			PT_DEFAULT, "-1",
+			PT_DESCRIPTION, "row flush mode (-1=when full, 0=every row, >0=interval in seconds)",
+		PT_bool,"format", ((char*)&(my1.format) - (char*)&my1),
+			PT_DEFAULT, "0",
+		PT_double, "interval[s]", ((char*)&(my1.dInterval) - (char *)&my1),
+			PT_DEFAULT, "-1 s",
+			PT_DESCRIPTION, "sampling interval",
+		PT_char256,"strftime_format",((char*)&(my1.strftime_format) - (char*)&my1),
+			PT_DESCRIPTION, "date/time format",
 		PT_method,"property", (size_t)method_recorder_property,
-		PT_enumeration, "output", ((char*)&(my.output) - (char *)&my),
+			PT_REQUIRED,
+			PT_DESCRIPTION, "list of properties to sample",
+		PT_enumeration, "output", ((char*)&(my1.output) - (char *)&my1),
 			PT_KEYWORD, "SCREEN", SCR,
 			PT_KEYWORD, "EPS",    EPS,
 			PT_KEYWORD, "GIF",    GIF,
@@ -273,11 +304,15 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 			PT_KEYWORD, "PDF",    PDF,
 			PT_KEYWORD, "PNG",    PNG,
 			PT_KEYWORD, "SVG",    SVG, 
-		PT_enumeration, "header_units", ((char*)&(my.header_units) - (char *)&my),
+		PT_enumeration, "header_units", ((char*)&(my1.header_units) - (char *)&my1),
+			PT_DESCRIPTION, "header option for output of units",
+			PT_DEFAULT, "DEFAULT",
 			PT_KEYWORD, "DEFAULT", HU_DEFAULT,
 			PT_KEYWORD, "ALL", HU_ALL,
 			PT_KEYWORD, "NONE", HU_NONE,
-		PT_enumeration, "line_units", ((char*)&(my.line_units) - (char *)&my),
+		PT_enumeration, "line_units", ((char*)&(my1.line_units) - (char *)&my1),
+			PT_DESCRIPTION, "inline option for output of units",
+			PT_DEFAULT, "DEFAULT",
 			PT_KEYWORD, "DEFAULT", LU_DEFAULT,
 			PT_KEYWORD, "ALL", LU_ALL,
 			PT_KEYWORD, "NONE", LU_NONE,
@@ -288,19 +323,33 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 	multi_recorder_class = gl_register_class((MODULE*)module,"multi_recorder",sizeof(struct recorder),PC_POSTTOPDOWN|PC_OBSERVER);
 	multi_recorder_class->trl = TRL_QUALIFIED;
 	if(gl_publish_variable(multi_recorder_class,
-		PT_double, "interval[s]", ((char*)&(my.dInterval) - (char *)&my),
+		PT_double, "interval[s]", ((char*)&(my4.dInterval) - (char *)&my4),
+			PT_DEFAULT, "-1 s",
+			PT_DESCRIPTION, "sampling interval",
 		PT_method, "property", (size_t)method_multi_recorder_property,
-		PT_char32, "trigger", ((char*)&(my.trigger) - (char *)&my),
-		PT_char1024, "file", ((char*)&(my.file) - (char *)&my),
-		PT_char8, "filetype", ((char*)&(my.filetype) - (char *)&my),
-		PT_char32, "mode", ((char*)&(my.mode) - (char *)&my),
-		PT_char1024, "multifile", ((char*)&(my.multifile) - (char *)&my),
-		PT_int32, "limit", ((char*)&(my.limit) - (char *)&my),
-		PT_char1024, "plotcommands", ((char*)&(my.plotcommands) - (char *)&my),
-		PT_char32, "xdata", ((char*)&(my.xdata) - (char *)&my),
-		PT_char32, "columns", ((char*)&(my.columns) - (char *)&my),
-        PT_char32, "format", ((char*)&(my.format) - (char *)&my),
-		PT_enumeration, "output", ((char*)&(my.output) - (char *)&my),
+			PT_REQUIRED,
+			PT_DESCRIPTION, "list of properties to sample",
+		PT_char32, "trigger", ((char*)&(my4.trigger) - (char *)&my4),
+			PT_DEFAULT, "",
+			PT_DESCRIPTION, "condition to trigger recorder",
+		PT_char1024, "file", ((char*)&(my4.file) - (char *)&my4),
+			PT_REQUIRED,
+			PT_DESCRIPTION, "file in which to record data",
+		PT_char8, "filetype", ((char*)&(my4.filetype) - (char *)&my4),
+			PT_DESCRIPTION, "file type to use when storing data",
+		PT_char32, "mode", ((char*)&(my4.mode) - (char *)&my4),
+			PT_DEFAULT, "file",
+			PT_DESCRIPTION, "recorder operating mode",
+		PT_char1024, "multifile", ((char*)&(my4.multifile) - (char *)&my4),
+		PT_int32, "limit", ((char*)&(my4.limit) - (char *)&my4),
+			PT_DEFAULT, "0",
+			PT_DESCRIPTION, "limit on number of rows to record (0=none)",
+		PT_char1024, "plotcommands", ((char*)&(my4.plotcommands) - (char *)&my4),
+		PT_char32, "xdata", ((char*)&(my4.xdata) - (char *)&my4),
+		PT_char32, "columns", ((char*)&(my4.columns) - (char *)&my4),
+        PT_char32, "format", ((char*)&(my4.format) - (char *)&my4),
+			PT_DEFAULT, "0",
+		PT_enumeration, "output", ((char*)&(my4.output) - (char *)&my4),
 			PT_KEYWORD, "SCREEN", SCR,
 			PT_KEYWORD, "EPS",    EPS,
 			PT_KEYWORD, "GIF",    GIF,
@@ -308,11 +357,11 @@ EXPORT CLASS *init(CALLBACKS *fntable, void *module, int argc, char *argv[])
 			PT_KEYWORD, "PDF",    PDF,
 			PT_KEYWORD, "PNG",    PNG,
 			PT_KEYWORD, "SVG",    SVG, 
-		PT_enumeration, "header_units", ((char*)&(my.header_units) - (char *)&my),
+		PT_enumeration, "header_units", ((char*)&(my4.header_units) - (char *)&my4),
 			PT_KEYWORD, "DEFAULT", HU_DEFAULT,
 			PT_KEYWORD, "ALL", HU_ALL,
 			PT_KEYWORD, "NONE", HU_NONE,
-		PT_enumeration, "line_units", ((char*)&(my.line_units) - (char *)&my),
+		PT_enumeration, "line_units", ((char*)&(my4.line_units) - (char *)&my4),
 			PT_KEYWORD, "DEFAULT", LU_DEFAULT,
 			PT_KEYWORD, "ALL", LU_ALL,
 			PT_KEYWORD, "NONE", LU_NONE,
