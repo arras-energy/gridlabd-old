@@ -107,6 +107,8 @@ powerflow_object::powerflow_object(MODULE *mod)
 
 		if(gl_publish_variable(oclass,
 			PT_set, "phases", PADDR(phases),
+				PT_REQUIRED,
+				PT_DESCRIPTION,"phases to which this object is connected",
 				PT_KEYWORD, "G", (set)GROUND,
 				PT_KEYWORD, "S", (set)PHASE_S,
 				PT_KEYWORD, "N", (set)PHASE_N,
@@ -115,6 +117,8 @@ powerflow_object::powerflow_object(MODULE *mod)
 				PT_KEYWORD, "B", (set)PHASE_B,
 				PT_KEYWORD, "A", (set)PHASE_A,
 			PT_double,"nominal_voltage[V]",PADDR(nominal_voltage),
+				PT_REQUIRED,
+				PT_DESCRIPTION, "nominal voltage for this object",
 #ifdef SUPPORT_OUTAGES
 			PT_set, "condition", PADDR(condition),
 				PT_KEYWORD, "OPEN", (set)OC_OPEN,
@@ -152,8 +156,6 @@ int powerflow_object::isa(CLASSNAME classname)
 int powerflow_object::create(void)
 {
 	OBJECT *obj = THISOBJECTHDR;
-	phases = NO_PHASE;
-	nominal_voltage = 0.0;
 
 	//Deltamode override flag
 	if (all_powerflow_delta == true)
@@ -163,6 +165,7 @@ int powerflow_object::create(void)
 	condition = OC_NORMAL;
 	solution = PS_NORMAL;
 #endif
+
 	return 1;
 }
 
