@@ -614,7 +614,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 	char objname[128];
 	gl_name_object(obj, objname, 128);
 
-	strcpy(list,property_list); /* avoid destroying orginal list */
+	strcpy(list,property_list?property_list:""); /* avoid destroying orginal list */
 	for ( item = strtok_r(list,", \n", &lastitem); item != NULL; item = strtok_r(NULL,", \n",&lastitem))
 	{
 		char objstr[128] = "";
@@ -845,7 +845,14 @@ EXPORT TIMESTAMP sync_multi_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 
 	if (my->rmap==NULL)
 	{
-		sprintf(buffer,"'%s' contains a property reference that was not found", my->property);
+		if ( my->property )
+		{
+			sprintf(buffer,"property '%s' contains a reference that was not found", my->property);
+		}
+		else
+		{
+			sprintf(buffer,"property reference is missing");
+		}
 		close_multi_recorder(my);
 		my->status = TS_ERROR;
 		goto Error;
