@@ -224,7 +224,8 @@ AGGREGATION *link_aggregates(char *aggregate_list, char *group)
 	AGGREGATION *first=NULL, *last=NULL;
 	char1024 list;
 	strcpy(list,aggregate_list); /* avoid destroying orginal list */
-	for (item=strtok(list,","); item!=NULL; item=strtok(NULL,","))
+	char *last_token;
+	for (item=strtok_r(list,",",&last_token); item!=NULL; item=strtok_r(NULL,",",&last_token))
 	{
 		AGGREGATION *aggr = gl_create_aggregate(item,group);
 		if (aggr!=NULL)

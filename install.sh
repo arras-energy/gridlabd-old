@@ -337,6 +337,7 @@ if [ "$INDEX" == "yes" ]; then
 fi
 if [ "$TEST" == "yes" ]; then
 	export PATH=$INSTALL/bin:$PATH
+	export GLPATH=$INSTALL/share/gridlabd/weather/US
 	export LD_LIBRARY_PATH=.:${LD_LIBRARY_PATH:-.}
 	run $INSTALL/bin/gridlabd -T $NPROC --validate
 fi

@@ -303,7 +303,8 @@ EXPORT void write_default_plot_commands_rec(struct recorder *my, char32 extensio
 		} else {
 			strcpy(list,my->property); /* avoid destroying orginal list */
 			k = 2;
-			for (item=strtok(list,","); item!=NULL; item=strtok(NULL,",")){
+			char *last;
+			for (item=strtok_r(list,",",&last); item!=NULL; item=strtok_r(NULL,",",&last)){
 				if(k == 2){
 					fprintf(my->fp, "plot \'-\' using 1:%i title \'%s\' with lines", k, item);
 					/* only handles one column properly as-is, will be fixed with the tape module update -MH */
