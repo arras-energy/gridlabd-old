@@ -46,32 +46,60 @@ substation::substation(MODULE *mod) : node(mod)
 		if (gl_publish_variable(oclass,
 			PT_INHERIT, "node",
 			//inputs
-			PT_complex, "zero_sequence_voltage[V]", PADDR(seq_mat[0]), PT_DESCRIPTION, "The zero sequence representation of the voltage for the substation object.",
-			PT_complex, "positive_sequence_voltage[V]", PADDR(seq_mat[1]), PT_DESCRIPTION, "The positive sequence representation of the voltage for the substation object.",
-			PT_complex, "negative_sequence_voltage[V]", PADDR(seq_mat[2]), PT_DESCRIPTION, "The negative sequence representation of the voltage for the substation object.",
-			PT_double, "base_power[VA]", PADDR(base_power), PT_DESCRIPTION, "The 3 phase VA power rating of the substation.",
-			PT_double, "power_convergence_value[VA]", PADDR(power_convergence_value), PT_DESCRIPTION, "Default convergence criterion before power is posted to pw_load objects if connected, otherwise ignored",
-			PT_enumeration, "reference_phase", PADDR(reference_phase), PT_DESCRIPTION, "The reference phase for the positive sequence voltage.",
+			PT_complex, "zero_sequence_voltage[V]", PADDR(seq_mat[0]),
+				PT_DESCRIPTION, "The zero sequence representation of the voltage for the substation object.",
+			PT_complex, "positive_sequence_voltage[V]", PADDR(seq_mat[1]),
+				PT_DESCRIPTION, "The positive sequence representation of the voltage for the substation object.",
+			PT_complex, "negative_sequence_voltage[V]", PADDR(seq_mat[2]),
+				PT_DESCRIPTION, "The negative sequence representation of the voltage for the substation object.",
+			PT_double, "base_power[VA]", PADDR(base_power),
+				PT_DESCRIPTION, "The 3 phase VA power rating of the substation.",
+			PT_double, "power_convergence_value[VA]", PADDR(power_convergence_value),
+				PT_DESCRIPTION, "Default convergence criterion before power is posted to pw_load objects if connected, otherwise ignored",
+			PT_enumeration, "reference_phase", PADDR(reference_phase),
+				PT_DEFAULT, "PHASE_A",
+				PT_DESCRIPTION, "The reference phase for the positive sequence voltage.",
 				PT_KEYWORD, "PHASE_A", (enumeration)R_PHASE_A,
 				PT_KEYWORD, "PHASE_B", (enumeration)R_PHASE_B,
 				PT_KEYWORD, "PHASE_C", (enumeration)R_PHASE_C,
-			PT_complex, "transmission_level_constant_power_load[VA]", PADDR(average_transmission_power_load), PT_DESCRIPTION, "the average constant power load to be posted directly to the pw_load object.",
-			PT_complex, "transmission_level_constant_current_load[A]", PADDR(average_transmission_current_load), PT_DESCRIPTION, "the average constant current load at nominal voltage to be posted directly to the pw_load object.",
-			PT_complex, "transmission_level_constant_impedance_load[Ohm]", PADDR(average_transmission_impedance_load), PT_DESCRIPTION, "the average constant impedance load at nominal voltage to be posted directly to the pw_load object.",
-			PT_complex, "distribution_load[VA]", PADDR(distribution_load), PT_DESCRIPTION, "The total load of all three phases at the substation object.",
+			PT_complex, "transmission_level_constant_power_load[VA]", PADDR(average_transmission_power_load),
+				PT_OUTPUT,
+				PT_DESCRIPTION, "the average constant power load to be posted directly to the pw_load object.",
+			PT_complex, "transmission_level_constant_current_load[A]", PADDR(average_transmission_current_load),
+				PT_OUTPUT,
+				PT_DESCRIPTION, "the average constant current load at nominal voltage to be posted directly to the pw_load object.",
+			PT_complex, "transmission_level_constant_impedance_load[Ohm]", PADDR(average_transmission_impedance_load),
+				PT_OUTPUT,
+				PT_DESCRIPTION, "the average constant impedance load at nominal voltage to be posted directly to the pw_load object.",
+			PT_complex, "distribution_load[VA]", PADDR(distribution_load),
+				PT_OUTPUT,
+				PT_DESCRIPTION, "The total load of all three phases at the substation object.",
 			PT_complex, "distribution_power_A[VA]", PADDR(distribution_power_A),
+				PT_OUTPUT,
 			PT_complex, "distribution_power_B[VA]", PADDR(distribution_power_B),
+				PT_OUTPUT,
 			PT_complex, "distribution_power_C[VA]", PADDR(distribution_power_C),
+				PT_OUTPUT,
 			PT_complex, "distribution_voltage_A[V]", PADDR(voltageA),
+				PT_OUTPUT,
 			PT_complex, "distribution_voltage_B[V]", PADDR(voltageB),
+				PT_OUTPUT,
 			PT_complex, "distribution_voltage_C[V]", PADDR(voltageC),
+				PT_OUTPUT,
 			PT_complex, "distribution_voltage_AB[V]", PADDR(voltageAB),
+				PT_OUTPUT,
 			PT_complex, "distribution_voltage_BC[V]", PADDR(voltageBC),
+				PT_OUTPUT,
 			PT_complex, "distribution_voltage_CA[V]", PADDR(voltageCA),
+				PT_OUTPUT,
 			PT_complex, "distribution_current_A[A]", PADDR(current_inj[0]),
+				PT_OUTPUT,
 			PT_complex, "distribution_current_B[A]", PADDR(current_inj[1]),
+				PT_OUTPUT,
 			PT_complex, "distribution_current_C[A]", PADDR(current_inj[2]),
+				PT_OUTPUT,
 			PT_double, "distribution_real_energy[Wh]", PADDR(distribution_real_energy),
+				PT_OUTPUT,
 			//PT_double, "measured_reactive[kVar]", PADDR(measured_reactive), has not implemented yet
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		//Publish deltamode functions
@@ -97,17 +125,6 @@ int substation::isa(CLASSNAME classname)
 int substation::create()
 {
 	int result = node::create();
-	reference_phase = R_PHASE_A;
-	has_parent = 0;
-	seq_mat[0] = 0;
-	seq_mat[1] = 0;
-	seq_mat[2] = 0;
-	volt_A = 0;
-	volt_B = 0;
-	volt_C = 0;
-	base_power = 0;
-	power_convergence_value = 0.0;
-	pTransNominalVoltage = NULL;
 	return result;
 }
 

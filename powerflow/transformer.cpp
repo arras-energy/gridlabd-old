@@ -38,23 +38,41 @@ transformer::transformer(MODULE *mod) : link_object(mod)
 
         if(gl_publish_variable(oclass,
 			PT_INHERIT, "link",
-           	PT_object, "configuration", PADDR(configuration),PT_DESCRIPTION,"Configuration library used for transformer setup",
-			PT_object, "climate", PADDR(climate),PT_DESCRIPTION,"climate object used to describe thermal model ambient temperature",
-			PT_double, "ambient_temperature[degC]", PADDR(amb_temp),PT_DESCRIPTION,"ambient temperature in degrees C",
-			PT_double, "top_oil_hot_spot_temperature[degC]", PADDR(theta_TO),PT_DESCRIPTION,"top-oil hottest-spot temperature, degrees C",
-			PT_double, "winding_hot_spot_temperature[degC]", PADDR(theta_H),PT_DESCRIPTION,"winding hottest-spot temperature, degrees C",
-			PT_double, "percent_loss_of_life", PADDR(life_loss),PT_DESCRIPTION,"the percent loss of life",
-			PT_double, "aging_constant", PADDR(B_age),PT_DESCRIPTION,"the aging rate slope for the transformer insulation",
-			PT_bool, "use_thermal_model", PADDR(use_thermal_model),PT_DESCRIPTION,"boolean to enable use of thermal model",
-			PT_double, "transformer_replacement_count", PADDR(transformer_replacements), PT_DESCRIPTION,"counter of the number times the transformer has been replaced due to lifetime failure",
-			PT_double, "aging_granularity[s]", PADDR(aging_step),PT_DESCRIPTION,"maximum timestep before updating thermal and aging model in seconds",
+           	PT_object, "configuration", PADDR(configuration),
+           		PT_REQUIRED,
+				PT_DESCRIPTION,"Configuration library used for transformer setup",
+
+			PT_object, "climate", PADDR(climate),
+				PT_DESCRIPTION,"climate object used to describe thermal model ambient temperature",
+			PT_double, "ambient_temperature[degC]", PADDR(amb_temp),
+				PT_DESCRIPTION,"ambient temperature in degrees C",
+			PT_double, "top_oil_hot_spot_temperature[degC]", PADDR(theta_TO),
+				PT_DESCRIPTION,"top-oil hottest-spot temperature, degrees C",
+			PT_double, "winding_hot_spot_temperature[degC]", PADDR(theta_H),
+				PT_DESCRIPTION,"winding hottest-spot temperature, degrees C",
+			PT_double, "percent_loss_of_life", PADDR(life_loss),
+				PT_DESCRIPTION,"the percent loss of life",
+			PT_double, "aging_constant", PADDR(B_age),
+				PT_DESCRIPTION,"the aging rate slope for the transformer insulation",
+			PT_bool, "use_thermal_model", PADDR(use_thermal_model),
+				PT_DESCRIPTION,"boolean to enable use of thermal model",
+			PT_double, "transformer_replacement_count", PADDR(transformer_replacements),
+				PT_DESCRIPTION,"counter of the number times the transformer has been replaced due to lifetime failure",
+			PT_double, "aging_granularity[s]", PADDR(aging_step),
+				PT_DESCRIPTION,"maximum timestep before updating thermal and aging model in seconds",
 			//************** TODO -- Figure out if this makes sense to publish it like this *************************/
-			PT_double, "phase_A_primary_flux_value[Wb]", PADDR(flux_vals_inst[0]), PT_DESCRIPTION, "instantaneous magnetic flux in phase A on the primary side of the transformer during saturation calculations",
-			PT_double, "phase_B_primary_flux_value[Wb]", PADDR(flux_vals_inst[1]), PT_DESCRIPTION, "instantaneous magnetic flux in phase B on the primary side of the transformer during saturation calculations",
-			PT_double, "phase_C_primary_flux_value[Wb]", PADDR(flux_vals_inst[2]), PT_DESCRIPTION, "instantaneous magnetic flux in phase C on the primary side of the transformer during saturation calculations",
-			PT_double, "phase_A_secondary_flux_value[Wb]", PADDR(flux_vals_inst[3]), PT_DESCRIPTION, "instantaneous magnetic flux in phase A on the secondary side of the transformer during saturation calculations",
-			PT_double, "phase_B_secondary_flux_value[Wb]", PADDR(flux_vals_inst[4]), PT_DESCRIPTION, "instantaneous magnetic flux in phase B on the secondary side of the transformer during saturation calculations",
-			PT_double, "phase_C_secondary_flux_value[Wb]", PADDR(flux_vals_inst[5]), PT_DESCRIPTION, "instantaneous magnetic flux in phase C on the secondary side of the transformer during saturation calculations",
+			PT_double, "phase_A_primary_flux_value[Wb]", PADDR(flux_vals_inst[0]),
+				PT_DESCRIPTION, "instantaneous magnetic flux in phase A on the primary side of the transformer during saturation calculations",
+			PT_double, "phase_B_primary_flux_value[Wb]", PADDR(flux_vals_inst[1]),
+				PT_DESCRIPTION, "instantaneous magnetic flux in phase B on the primary side of the transformer during saturation calculations",
+			PT_double, "phase_C_primary_flux_value[Wb]", PADDR(flux_vals_inst[2]),
+				PT_DESCRIPTION, "instantaneous magnetic flux in phase C on the primary side of the transformer during saturation calculations",
+			PT_double, "phase_A_secondary_flux_value[Wb]", PADDR(flux_vals_inst[3]),
+				PT_DESCRIPTION, "instantaneous magnetic flux in phase A on the secondary side of the transformer during saturation calculations",
+			PT_double, "phase_B_secondary_flux_value[Wb]", PADDR(flux_vals_inst[4]),
+				PT_DESCRIPTION, "instantaneous magnetic flux in phase B on the secondary side of the transformer during saturation calculations",
+			PT_double, "phase_C_secondary_flux_value[Wb]", PADDR(flux_vals_inst[5]),
+				PT_DESCRIPTION, "instantaneous magnetic flux in phase C on the secondary side of the transformer during saturation calculations",
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 			if (gl_publish_function(oclass,"power_calculation",(FUNCTIONADDR)power_calculation)==NULL)
@@ -86,21 +104,6 @@ int transformer::isa(CLASSNAME classname)
 int transformer::create()
 {
 	int result = link_object::create();
-	configuration = NULL;
-	ptheta_A = NULL;
-	transformer_replacements = 0;
-	phi_base_Pri = 0.0;
-	phi_base_Sec = 0.0;
-	I_base_Pri = 0.0;
-	I_base_Sec = 0.0;
-
-	//Flux values
-	flux_vals_inst[0] = 0.0;
-	flux_vals_inst[1] = 0.0;
-	flux_vals_inst[2] = 0.0;
-	flux_vals_inst[3] = 0.0;
-	flux_vals_inst[4] = 0.0;
-	flux_vals_inst[5] = 0.0;
 
 	return result;
 }

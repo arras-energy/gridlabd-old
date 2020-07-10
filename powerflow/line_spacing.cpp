@@ -24,35 +24,36 @@ line_spacing::line_spacing(MODULE *mod) : powerflow_library(mod)
 			oclass->trl = TRL_PROVEN;
 
         if(gl_publish_variable(oclass,
-			PT_double, "distance_AB[ft]",PADDR(distance_AtoB),   
+			PT_double, "distance_AB[ft]",PADDR(distance_AtoB), 
+				PT_DEFAULT, "0 ft",  
 			PT_double, "distance_BC[ft]",PADDR(distance_BtoC),   
+				PT_DEFAULT, "0 ft",  
 			PT_double, "distance_AC[ft]",PADDR(distance_AtoC),   
+				PT_DEFAULT, "0 ft",  
 			PT_double, "distance_AN[ft]",PADDR(distance_AtoN),   
+				PT_DEFAULT, "0 ft",  
 			PT_double, "distance_BN[ft]",PADDR(distance_BtoN),   
+				PT_DEFAULT, "0 ft",  
 			PT_double, "distance_CN[ft]",PADDR(distance_CtoN),   
-			PT_double, "distance_AE[ft]",PADDR(distance_AtoE), PT_DESCRIPTION, "distance between phase A wire and earth",
-			PT_double, "distance_BE[ft]",PADDR(distance_BtoE), PT_DESCRIPTION, "distance between phase B wire and earth",
-			PT_double, "distance_CE[ft]",PADDR(distance_CtoE), PT_DESCRIPTION, "distance between phase C wire and earth",
-			PT_double, "distance_NE[ft]",PADDR(distance_NtoE), PT_DESCRIPTION, "distance between neutral wire and earth",
+				PT_DEFAULT, "0 ft",  
+			PT_double, "distance_AE[ft]",PADDR(distance_AtoE),
+				PT_DEFAULT, "0 ft",  
+				PT_DESCRIPTION, "distance between phase A wire and earth",
+			PT_double, "distance_BE[ft]",PADDR(distance_BtoE),
+				PT_DEFAULT, "0 ft",  
+				PT_DESCRIPTION, "distance between phase B wire and earth",
+			PT_double, "distance_CE[ft]",PADDR(distance_CtoE),
+				PT_DEFAULT, "0 ft",  
+				PT_DESCRIPTION, "distance between phase C wire and earth",
+			PT_double, "distance_NE[ft]",PADDR(distance_NtoE),
+				PT_DEFAULT, "0 ft",  
+				PT_DESCRIPTION, "distance between neutral wire and earth",
             NULL) < 1) GL_THROW("unable to publish line_spacing properties in %s",__FILE__);
     }
 }
 
 int line_spacing::create()
 {
-    // Set up defaults
-	distance_AtoB = 0.0;
-	distance_BtoC = 0.0;
-	distance_AtoC = 0.0;
-	distance_AtoN = 0.0;
-	distance_BtoN = 0.0;
-	distance_CtoN = 0.0;
-
-	distance_AtoE = 0.0;
-	distance_BtoE = 0.0;
-	distance_CtoE = 0.0;
-	distance_NtoE = 0.0;
-    
 	return 1;
 }
 

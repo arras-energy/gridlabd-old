@@ -27,9 +27,13 @@ recloser::recloser(MODULE *mod) : switch_object(mod)
 
         if(gl_publish_variable(oclass,
 			PT_INHERIT, "switch",
-			PT_double, "retry_time[s]", PADDR(retry_time), PT_DESCRIPTION, "the amount of time in seconds to wait before the recloser attempts to close",
-			PT_double, "max_number_of_tries", PADDR(ntries), PT_DESCRIPTION, "the number of times the recloser will try to close before permanently opening",
-			PT_double, "number_of_tries", PADDR(curr_tries), PT_DESCRIPTION, "Current number of tries recloser has attempted",
+			PT_double, "retry_time[s]", PADDR(retry_time),
+				PT_DESCRIPTION, "the amount of time in seconds to wait before the recloser attempts to close",
+			PT_double, "max_number_of_tries", PADDR(ntries),
+				PT_DESCRIPTION, "the number of times the recloser will try to close before permanently opening",
+			PT_double, "number_of_tries", PADDR(curr_tries),
+				PT_OUTPUT,
+				PT_DESCRIPTION, "Current number of tries recloser has attempted",
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 		if (gl_publish_function(oclass,"change_recloser_state",(FUNCTIONADDR)change_recloser_state)==NULL)
@@ -67,9 +71,6 @@ int recloser::create()
 	phase_C_state = CLOSED;
 
 	prev_SW_time = 0;
-	retry_time = 0;
-	ntries = 0;
-	curr_tries = 0.0;
 	prev_rec_time = 0;
 	return result;
 }
@@ -91,12 +92,16 @@ int recloser::init(OBJECT *parent)
 	}
 
 	if(ntries == 0)
+	{
 		ntries = 3; // seting default to 3 tries
+	}
 	if(retry_time == 0)
 	{
 		retry_time = 1; // setting default to 1 second
 		return_time = 1;
-	} else {
+	} 
+	else 
+	{
 		return_time = (TIMESTAMP)floor(retry_time + 0.5);
 	}
 	return result;

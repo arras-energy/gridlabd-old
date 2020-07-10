@@ -76,23 +76,15 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 		strcpy(my->file,"");
 		strcpy(my->multifile,"");
 		strcpy(my->filetype,"txt");
-		strcpy(my->mode, "file");
 		strcpy(my->delim,",");
-		my->interval = -1; /* transients only */
-		my->dInterval = -1.0;
+		// my->interval = -1;  // transients only 
 		my->last.ts = -1;
 		my->last.ns = -1;
 		strcpy(my->last.value,"");
-		my->limit = 0;
 		my->samples = 0;
 		my->status = TS_INIT;
-		my->trigger[0]='\0';
-		my->format = 0;
 		strcpy(my->plotcommands,"");
 		my->target = NULL;
-		my->header_units = HU_DEFAULT;
-		my->line_units = LU_DEFAULT;
-		my->flush = -1; /* -1 (default): flush when buffer full, 0 flush each line, >0 flush seconds */
 		my->property = NULL;
 		my->property_len = 0;
 		memset(my->output_format,0,sizeof(my->output_format));

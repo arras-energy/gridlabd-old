@@ -37,20 +37,27 @@ fuse::fuse(MODULE *mod) : link_object(mod)
         if(gl_publish_variable(oclass,
 			PT_INHERIT, "link",
 			PT_enumeration, "phase_A_status", PADDR(phase_A_state),
+				PT_DEFAULT, "GOOD",
 				PT_KEYWORD, "BLOWN", (enumeration)BLOWN,
 				PT_KEYWORD, "GOOD", (enumeration)GOOD,
 			PT_enumeration, "phase_B_status", PADDR(phase_B_state),
+				PT_DEFAULT, "GOOD",
 				PT_KEYWORD, "BLOWN", (enumeration)BLOWN,
 				PT_KEYWORD, "GOOD", (enumeration)GOOD,
 			PT_enumeration, "phase_C_status", PADDR(phase_C_state),
+				PT_DEFAULT, "GOOD",
 				PT_KEYWORD, "BLOWN", (enumeration)BLOWN,
 				PT_KEYWORD, "GOOD", (enumeration)GOOD,
 			PT_enumeration, "repair_dist_type", PADDR(restore_dist_type),
+				PT_DEFAULT, "NONE",
 				PT_KEYWORD, "NONE", (enumeration)NONE,
 				PT_KEYWORD, "EXPONENTIAL", (enumeration)EXPONENTIAL,
 			PT_double, "current_limit[A]", PADDR(current_limit),
+				PT_DEFAULT, "9999 A",
 			PT_double, "mean_replacement_time[s]",PADDR(mean_replacement_time),	//Retains compatibility with older files
-			PT_double, "fuse_resistance[Ohm]",PADDR(fuse_resistance), PT_DESCRIPTION,"The resistance value of the fuse when it is not blown.",
+			PT_double, "fuse_resistance[Ohm]",PADDR(fuse_resistance),
+				PT_DEFAULT, "-1 Ohm",
+				PT_DESCRIPTION,"The resistance value of the fuse when it is not blown.",
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 		if (gl_publish_function(oclass,"change_fuse_state",(FUNCTIONADDR)change_fuse_state)==NULL)
@@ -86,9 +93,6 @@ int fuse::create()
 	int result = link_object::create();
 
 	prev_full_status = 0x00;		//Flag as all open initially
-	phase_A_state = GOOD;			//All fuses good by default
-	phase_B_state = GOOD;
-	phase_C_state = GOOD;
 
 	fix_time[0] = TS_NEVER;			//All fix times are NEVER!
 	fix_time[1] = TS_NEVER;
@@ -97,8 +101,6 @@ int fuse::create()
 	phased_fuse_status = 0x00;	//Reset variable
 	faulted_fuse_phases = 0x00;	//No faults at onset
 
-	current_limit = 9999.0;			//Big current!
-	mean_replacement_time = 0.0;	//Flag so it gets populated
 	restore_dist_type = NONE;		//Defaults to no distribution
 
 	current_current_values[0] = current_current_values[1] = current_current_values[2] = 0.0;	//No current by default
@@ -108,8 +110,6 @@ int fuse::create()
 	event_schedule = NULL;
 	eventgen_obj = NULL;
 	event_schedule_map_attempt = false;	//Haven't tried to map yet
-
-	fuse_resistance = -1.0;
 
 	return result;
 }
