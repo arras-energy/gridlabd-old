@@ -202,7 +202,8 @@ void histogram::test_for_complex(char *tprop, char *tpart){
 			gl_error("Unable to resolve complex part for '%s'", property.get_string());
 			return;
 		}
-		strtok(property, "."); /* "quickly" replaces the dot with a space */
+		char *last;
+		strtok_r(property, ".",&last); /* "quickly" replaces the dot with a space */
 	}
 }
 
@@ -330,14 +331,15 @@ int histogram::init(OBJECT *parent)
 		}
 		memset(bin_list, 0, sizeof(BIN) * bin_count);
 		memcpy(bincpy, bins, 1024);
-		cptr = strtok(bincpy, ",\t\r\n\0");
+		char *last;
+		cptr = strtok_r(bincpy, ",\t\r\n\0",&last);
 		if(prop->ptype == PT_complex || prop->ptype == PT_double || prop->ptype == PT_int16 || prop->ptype == PT_int32 || prop->ptype == PT_int64 || prop->ptype == PT_float || prop->ptype == PT_real){
 			for(i = 0; i < bin_count && cptr != NULL; ++i){
 				if(parse_bin_val(cptr, bin_list+i) == 0){
 					gl_error("Histogram unable to parse \'%s\' in %s", cptr, obj->name ? obj->name : "(unnamed histogram)");
 					return 0;
 				}
-				cptr = strtok(NULL, ",\t\r\n\0"); /* minor efficiency gain to use the incremented pointer from parse_bin */
+				cptr = strtok_r(NULL, ",\t\r\n\0",&last); /* minor efficiency gain to use the incremented pointer from parse_bin */
 			}
 		} else if (prop->ptype == PT_enumeration || prop->ptype == PT_set){
 			for(i = 0; i < bin_count && cptr != NULL; ++i){
@@ -345,7 +347,7 @@ int histogram::init(OBJECT *parent)
 					gl_error("Histogram unable to parse \'%s\' in %s", cptr, obj->name ? obj->name : "(unnamed histogram)");
 					return 0;
 				}
-				cptr = strtok(NULL, ",\t\r\n\0"); /* minor efficiency gain to use the incremented pointer from parse_bin */
+				cptr = strtok_r(NULL, ",\t\r\n\0",&last); /* minor efficiency gain to use the incremented pointer from parse_bin */
 			}
 		}
 
