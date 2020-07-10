@@ -318,13 +318,14 @@ static int multi_recorder_open(OBJECT *obj)
 		UNIT *unit = 0;
 		int first = 1;
 		OBJECT *myobj = 0;
+		char *last;
 		switch(my->header_units){
 			case HU_DEFAULT:
 				strcpy(my->out_property, my->property);
 				break;
 			case HU_ALL:
 				strcpy(unit_buffer, my->property);
-				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
+				for(token = strtok_r(unit_buffer, ",", &last); token != NULL; token = strtok_r(NULL, ",",&last)){
 					unit = 0;
 					prop = 0;
 					unitstr[0] = 0;
@@ -423,7 +424,7 @@ static int multi_recorder_open(OBJECT *obj)
 				break;
 			case HU_NONE:
 				strcpy(unit_buffer, my->property);
-				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
+				for(token = strtok_r(unit_buffer, ",",&last); token != NULL; token = strtok_r(NULL, ",",&last)){
 					if(2 == sscanf(token, "%[A-Za-z0-9_:.][%[^]\n,]]", propstr, unitstr)){
 						; // no logic change
 					}
