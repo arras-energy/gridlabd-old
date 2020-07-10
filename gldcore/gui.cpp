@@ -785,17 +785,18 @@ void GldGui::output_html_table(GUIENTITY *entity)
 		else 
 		{
 			char *p = NULL;
+			char *last;
 			if ( row++==0 )
 			{
 				html_output(fp,"<tr>");
-				while ( (p=strtok(p?NULL:header,","))!=NULL )
+				while ( (p=strtok_r(p?NULL:header,",",&last))!=NULL )
 					html_output(fp,"<th>%s</th>", p);
 				html_output(fp,"</tr>\n");
 			}
 			if ( entity->height==0 || row<=entity->height )
 			{
 				html_output(fp,"<tr>");
-				while ( (p=strtok(p?NULL:line,","))!=NULL )
+				while ( (p=strtok_r(p?NULL:line,",",&last))!=NULL )
 					html_output(fp,"<td>%s</td>", p);
 				html_output(fp,"</tr>\n");
 			}

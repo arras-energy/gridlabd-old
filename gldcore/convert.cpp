@@ -571,7 +571,8 @@ int convert_to_set(const char *buffer, /**< a pointer to the string buffer */
 	else
 	{
 		/* process each keyword in the temporary buffer*/
-		for ( ptr = strtok(temp,SETDELIM) ; ptr != NULL ; ptr = strtok(NULL,SETDELIM) )
+		char *last;
+		for ( ptr = strtok_r(temp,SETDELIM,&last) ; ptr != NULL ; ptr = strtok_r(NULL,SETDELIM,&last) )
 		{
 			bool found = false;
 			KEYWORD *key;

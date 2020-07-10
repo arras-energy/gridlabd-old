@@ -971,7 +971,8 @@ int house_e::create()
 		size_t n_eu=0;
 
 		// extract the implicit_enduse list
-		while ((token=strtok(token?NULL:active_enduses,"|"))!=NULL)
+		char *last;
+		while ((token=strtok_r(token?NULL:active_enduses,"|" ,&last))!=NULL)
 			eulist[n_eu++] = token;
 
 		while (n_eu-->0)

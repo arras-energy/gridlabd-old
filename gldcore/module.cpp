@@ -332,10 +332,11 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 
 	/* check for foreign modules */
 	strcpy(buffer,file);
-	fmod = strtok(buffer,"::");
+	char *last;
+	fmod = strtok_r(buffer,"::",&last);
 	if (fmod!=NULL && strcmp(fmod, file) != 0)
 	{
-		char *modname = strtok(NULL,"::");
+		char *modname = strtok_r(NULL,"::",&last);
 		MODULE *parent_mod = module_find(fmod);
 		if(parent_mod == NULL)
 			parent_mod = module_load(fmod, 0, NULL);
