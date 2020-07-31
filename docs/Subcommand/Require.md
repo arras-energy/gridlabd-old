@@ -5,17 +5,19 @@
 GLM:
 
 ~~~
-#require [-v|--verbose] [-r|--requirements <requirements.txt>] [modules ...]
+#require [-v|--verbose] [-r|--requirements filename] [modules ...]
 ~~~
 
 Shell:
 ~~~
-bash$ gridlabd require [-v|--verbose] [-r|--requirements <requirements.txt>] [modules ...]
+bash$ gridlabd require [-v|--verbose] [-r|--requirements filename] [modules ...]
 ~~~
 
 # Description
 
 The `require` subcommand verifies that one or more python modules are installed and/or meet minimum version requirements.
+
+If no options are given, then the current requirements are output.
 
 ## Options
 
@@ -23,7 +25,7 @@ The `require` subcommand verifies that one or more python modules are installed 
 
 Enables verbose output in the event that a module is installed.
 
-### `-r` or `--requirements`
+### `-r filename` or `--requirements filename`
 
 Specifies that a requirements file should be used to specify one or more module version requirements.
 
