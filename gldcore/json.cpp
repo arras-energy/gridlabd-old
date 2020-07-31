@@ -508,10 +508,30 @@ int GldJsonWriter::write_objects(FILE *fp)
             else if ( prop->ptype == PT_complex )
             {
 				complex *c = object_get_complex_quick(obj,prop);
-				if ( prop->unit )
-					len += write(",\n\t\t\t\"%s\": \"%g%+gj %s\"", prop->name, c->Re(), c->Im(), prop->unit->name);
-				else
-					len += write(",\n\t\t\t\"%s\": \"%g%+gj\"", prop->name, c->Re(), c->Im());
+            	switch ( global_json_complex_format )
+            	{
+            	case JCF_LIST:
+					if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": [%g,%g,%s]", prop->name, c->Re(), c->Im(), prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": [%g,%g]", prop->name, c->Re(), c->Im());
+					break;
+            	case JCF_DICT:
+					if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": {\"real\":%g,\"imag\":%g,\"unit\":%s}", prop->name, c->Re(), c->Im(), prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": {\"real\":%g,\"imag\":%g}", prop->name, c->Re(), c->Im());
+					break;
+            	default:
+            		output_warning("global_json_complex_format=%d is not valid, using STRING=0 instead", global_json_complex_format)
+            		// fall through to string formatting
+            	case JCF_STRING:
+					if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": \"%g%+gj %s\"", prop->name, c->Re(), c->Im(), prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": \"%g%+gj\"", prop->name, c->Re(), c->Im());
+					break;
+            	}
             }
             else
             {
