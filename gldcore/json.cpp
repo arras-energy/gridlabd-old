@@ -508,29 +508,44 @@ int GldJsonWriter::write_objects(FILE *fp)
             else if ( prop->ptype == PT_complex )
             {
 				complex *c = object_get_complex_quick(obj,prop);
-            	switch ( global_json_complex_format )
+				const char *xs="real", *ys="imag", *nt="j";
+				double x = c->Re(), y = c->Im();
+				if ( global_json_complex_format&JCF_DEGREES )
+				{
+					x = c->Mag(); xs = "mag";
+					y = c->Ang(); ys = "ang";
+					nt = "d";
+				}
+				else if ( global_json_complex_format&JCF_RADIANS )
+				{
+					x = c->Mag(); xs = "mag";
+					y = c->Arg(); ys = "arg";
+					nt = "r";
+				}
+            	if ( global_json_complex_format&JCF_LIST )
             	{
-            	case JCF_LIST:
 					if ( prop->unit )
-						len += write(",\n\t\t\t\"%s\": [%g,%g,%s]", prop->name, c->Re(), c->Im(), prop->unit->name);
+						len += write(",\n\t\t\t\"%s\": [%g,%g,\"%s\"]", prop->name, x, y, prop->unit->name);
 					else
-						len += write(",\n\t\t\t\"%s\": [%g,%g]", prop->name, c->Re(), c->Im());
-					break;
-            	case JCF_DICT:
+						len += write(",\n\t\t\t\"%s\": [%g,%g]", prop->name, x, y);
+				}
+				else if ( global_json_complex_format&JCF_DICT )
+				{
 					if ( prop->unit )
-						len += write(",\n\t\t\t\"%s\": {\"real\":%g,\"imag\":%g,\"unit\":%s}", prop->name, c->Re(), c->Im(), prop->unit->name);
+						len += write(",\n\t\t\t\"%s\": {\"%s\":%g,\"%s\":%g,\"unit\":\"%s\"}", prop->name, xs, x, ys, y, prop->unit->name);
 					else
-						len += write(",\n\t\t\t\"%s\": {\"real\":%g,\"imag\":%g}", prop->name, c->Re(), c->Im());
-					break;
-            	default:
-            		output_warning("global_json_complex_format=%d is not valid, using STRING=0 instead", global_json_complex_format)
-            		// fall through to string formatting
-            	case JCF_STRING:
+						len += write(",\n\t\t\t\"%s\": {\"%s\":%g,\"%s\":%g}", prop->name, xs, x, ys, y);
+				}
+				else
+				{
+					if ( (global_json_complex_format&0x03) != 0 )
+					{
+						output_warning("global_json_complex_format=%d is not valid, using STRING=0 instead", global_json_complex_format);
+					}
 					if ( prop->unit )
-						len += write(",\n\t\t\t\"%s\": \"%g%+gj %s\"", prop->name, c->Re(), c->Im(), prop->unit->name);
+						len += write(",\n\t\t\t\"%s\": \"%g%+g%s %s\"", prop->name, x, y, nt, prop->unit->name);
 					else
-						len += write(",\n\t\t\t\"%s\": \"%g%+gj\"", prop->name, c->Re(), c->Im());
-					break;
+						len += write(",\n\t\t\t\"%s\": \"%g%+g%s\"", prop->name, x, y, nt);
             	}
             }
             else
