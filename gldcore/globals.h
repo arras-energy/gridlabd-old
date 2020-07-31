@@ -672,6 +672,15 @@ GLOBAL char1024 global_daemon_configfile INIT("gridlabd.cnf"); /**< name of daem
 GLOBAL bool global_server_keepalive INIT(FALSE); /**< keep server alive after simulation finishes */
 
 typedef enum {
+	JCF_STRING = 0,
+	JCF_LIST   = 1,
+	JCF_DICT   = 2,
+} JSONCOMPLEXFORMAT;
+
+/* Variable: global_json_complex_format */
+GLOBAL enumeration global_json_complex_format INIT(JCF_STRING);
+
+typedef enum {
 	DMC_MAIN		= 0x0000000000000001,
 	DMC_CMDARG		= 0x0000000000000002,
 	DMC_LOAD		= 0x0000000000000004,
