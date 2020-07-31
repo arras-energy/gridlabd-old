@@ -10,5 +10,7 @@ object test
     y 1+45d;
 }
 
-#set json_complex_format=DICT
+#set json_complex_format=DICT|RADIANS
 #set savefile=test_complex_format.json
+
+// TODO: verify the output format of x and y
