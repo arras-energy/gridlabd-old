@@ -1,0 +1,15 @@
+#!/bin/bash
+
+OPTIONS="-q"
+
+while [ $# -gt 0 ]; do
+    if [ "$1" == "--requirements" -o "$1" == "-r" ]; then
+        shift 1
+        /usr/local/bin/python3 -m pip $OPTIONS install -r $1
+    elif [ "$1" == "--verbose" -o "$1" == "-v" ]; then
+        OPTIONS=""
+    else
+        /usr/local/bin/python3 -m $1 1>/dev/null 2>&1 || /usr/local/bin/python3 -m pip $OPTIONS install $1
+    fi
+    shift 1
+done
