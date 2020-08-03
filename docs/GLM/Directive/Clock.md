@@ -23,11 +23,11 @@ The `timezone` property sets the time zone for the simulation.  The time zone ma
 
 ## `starttime`
 
-The `starttime` property specifies when the simulation start.  If no time zone is specified, the current time zone is used if it has been specified. Otherwise `UTC` is assumed. If no start time is specified, the current wall clock time is used.
+The `starttime` property specifies when the simulation start.  If no time zone is specified, the current time zone is used if it has been specified. Otherwise `UTC` is assumed. If no start time is specified, the current wall clock time is used. Note, `ISO8601` is supported.
 
 ## `stoptime`
 
-The `stoptime` property specifies when the simulation stops.  If no time zone is specified, the current time zone is used if it has been specified. Otherwise `UTC` is assumed. If no stop time is specified, `NEVER` is used, which means that the simulation will run until a steady state is achieved, if ever.
+The `stoptime` property specifies when the simulation stops.  If no time zone is specified, the current time zone is used if it has been specified. Otherwise `UTC` is assumed. If no stop time is specified, `NEVER` is used, which means that the simulation will run until a steady state is achieved, if ever. Note, `ISO8601` is supported.
 
 # Example
 
@@ -38,6 +38,15 @@ clock {
     timezone "EST+5EDT";
     starttime "2020-01-01 00:00:00 EST";
     stoptime "2021-01-01 00:00:00 EST";
+}
+~~~
+
+Example usage with ISO8601 format.
+~~~
+clock {
+    timezone "EST+5EDT";
+    starttime "2020-01-01T00:00:00-04:00";
+    stoptime "2021-01-01T00:00:00-04:00";
 }
 ~~~
 
