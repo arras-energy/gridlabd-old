@@ -609,12 +609,11 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 {
 	char *item, *lastitem;
 	RECORDER_MAP *first=NULL, *last=NULL, *rmap;
-	char1024 list;
+	char *list = strdup(property_list);
 	complex oblig;
 	char objname[128];
 	gl_name_object(obj, objname, 128);
 
-	strcpy(list,property_list?property_list:""); /* avoid destroying orginal list */
 	for ( item = strtok_r(list,", \n", &lastitem); item != NULL; item = strtok_r(NULL,", \n",&lastitem))
 	{
 		char objstr[128] = "";
@@ -631,6 +630,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 		if ( rmap == NULL )
 		{
 			gl_error("%s -- memory allocation failed", objname);
+			free(list);
 			return NULL;
 		}	
 		memset(rmap, 0, sizeof(RECORDER_MAP));
@@ -673,6 +673,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 				break;
 			default:
 				gl_error("%s: property '%s' is not valid", objname, item);
+				free(list);
 				return NULL;
 			}
 			gl_debug("target object = '%s:%d'", target_obj->oclass->name, target_obj->id);
@@ -755,6 +756,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 			}
 		}
 	}
+	free(list);
 	return first;
 }
 
