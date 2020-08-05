@@ -22,7 +22,7 @@ static const char *module_import_name = NULL; // module name to import (python o
 static PyObject *pModule = NULL;
 static int solver_python_loglevel = 0; // -1=disable, 0 = minimal ... 9 = everything,
 static FILE *solver_python_logfh = NULL;
-static const char *python_busdata = "type,phases,"
+static const char *python_busdata = "name,type,phases,"
 	"volt_base,mva_base,origphases,"
 	"SAr,SAi,SBr,SBi,SCr,SCi,"
 	"YAr,YAi,YBr,YBi,YCr,YCi,"
@@ -389,51 +389,63 @@ void set_branchtags(PyObject *pModel)
 	PyDict_SetItemString(pModel,"branchtags",data);
 }
 
-void complex_to_mag(double *x, void *z, bool inverse)
+void complex_to_mag(void *x, void *z, bool inverse)
 {
 	if ( inverse )
 	{
-		((complex*)z)->Mag(*x);
+		((complex*)z)->Mag(*(double*)x);
 	}
 	else
 	{
-		*x = ((complex*)z)->Mag();
+		*(double*)x = ((complex*)z)->Mag();
 	}
 }
 
-void complex_to_arg(double *x, void *z, bool inverse)
+void complex_to_arg(void *x, void *z, bool inverse)
 {
 	if ( inverse )
 	{
-		((complex*)z)->Arg(*x);
+		((complex*)z)->Arg(*(double*)x);
 	}
 	else
 	{
-		*x = ((complex*)z)->Arg();
+		*(double*)x = ((complex*)z)->Arg();
 	}
 }
 
-void int_to_double(double *x, void *c, bool inverse)
+void int_to_double(void *x, void *c, bool inverse)
 {
 	if ( inverse )
 	{
-		*(int*)c = (int)(*x);
+		*(int*)c = (int)(*(double*)x);
 	}
 	else
 	{
-		*x = (double)(*(int*)c);
+		*(double*)x = (double)(*(int*)c);
 	}
 }
 
-void uchar_to_double(double *x, void *c, bool inverse)
+void uchar_to_double(void *x, void *c, bool inverse)
 {
 	if ( inverse )
 	{
-		*(unsigned char*)c = (unsigned char)(*x);
+		*(unsigned char*)c = (unsigned char)(*(double*)x);
 	}
 	else
 	{
-		*x = (double)(*(unsigned char*)c);
+		*(double*)x = (double)(*(unsigned char*)c);
+	}
+}
+
+void char_to_str(void *c, void *s, bool inverse)
+{
+	if ( inverse )
+	{
+		throw "copy to (const char*) forbidden";
+	}
+	else
+	{
+		*(const char**)c = *(const char**)s;
 	}
 }
 
@@ -485,11 +497,12 @@ static struct s_map
 	int64 offset;
 	int64 size;
 	e_dir dir;
-	void (*convert)(double*,void*,bool);
+	void (*convert)(void*,void*,bool);
 	bool is_ref;
 	int64 ref_offset;
 } busmap[] = 
 {
+	DATA(bus,"name",name,ED_INIT,char_to_str),
 	DATA(bus,"type",type,ED_INIT,int_to_double),
 	DATA(bus,"phases",phases,ED_OUT,uchar_to_double),
 	DATA(bus,"origphases",origphases,ED_INIT,uchar_to_double),
@@ -532,7 +545,7 @@ static struct s_map
 static int *bus_index = NULL;
 static int *branch_index = NULL;
 
-void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,void*,bool), bool inverse)
+void sync_property(PyObject *data, size_t n, void *ptr, void (*convert)(void*,void*,bool), bool inverse)
 {
 	PyObject *pValue = PyList_GetItem(data,n);
 	if ( inverse )
@@ -552,15 +565,41 @@ void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,vo
 	}
 	else
 	{
-		double x = convert ? (convert(&x,ptr,false),x) : *(double*)ptr;
-		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
+		if ( convert == char_to_str )
 		{
-			PyList_SetItem(data,n,PyFloat_FromDouble(x));
+			if ( pValue == NULL ) 
+			{
+				if ( ptr )
+				{
+					const char *x = NULL;
+					convert(&x,ptr,false);
+					PyObject *pUnicode = PyUnicode_FromFormat("%s",*(const char**)ptr);
+					Py_INCREF(pUnicode);
+					PyList_SetItem(data,n,pUnicode);
+				}
+				else
+				{
+					PyList_SetItem(data,n,Py_None);
+					Py_INCREF(Py_None);
+				}
+			}
+			else
+			{
+				// no replacement allowed
+			}
+		}
+		else
+		{
+			double x = convert ? (convert(&x,ptr,false),x) : *(double*)ptr;
+			if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
+			{
+				PyList_SetItem(data,n,PyFloat_FromDouble(x));
+			}
 		}
 	}
 }
 
-void sync_double_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
+void sync_property_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
 {
 	double **ppx = (double**)ptr;
 	if ( ppx == NULL )
@@ -611,11 +650,11 @@ void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir 
 			}
 			if ( ! map->is_ref ) // values can be converted and have no offset
 			{
-				sync_double(data,n,ptr,map->convert,(dir&ED_IN));
+				sync_property(data,n,ptr,map->convert,(dir&ED_IN));
 			}
 			else if ( *(double**)ptr != NULL ) // pointers are never converted but have an offset
 			{
-				sync_double_ref(data,n,ptr,map->ref_offset,(dir&ED_IN));
+				sync_property_ref(data,n,ptr,map->ref_offset,(dir&ED_IN));
 			}
 			else // everything else if NULL
 			{
