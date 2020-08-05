@@ -122,7 +122,7 @@ int switch_coordinator::connect(char *value, size_t len)
 				debug("switch_coordinator::connect(char *name='%s', size_t len=0) -> 0", value);
 				return 0;
 			}
-			if ( n_switches < 32 )
+			if ( n_switches < 63 )
 			{
 				index[n_switches] = new gld_property(obj,"status");
 				if ( index[n_switches]==NULL || ! index[n_switches]->is_valid() )
