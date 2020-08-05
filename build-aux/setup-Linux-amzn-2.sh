@@ -3,6 +3,9 @@
 # Install script for Amazon EC2 instance 
 #
 
+chmod -R 775 /usr/local
+chown -R root:adm /usr/local
+
 # Install needed system tools
 yum -q update -y ; 
 yum -q clean all
