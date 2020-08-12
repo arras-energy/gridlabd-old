@@ -34,43 +34,64 @@ line_configuration::line_configuration(MODULE *mod) : powerflow_library(mod)
 			PT_object, "conductor_N",PADDR(phaseN_conductor),
 			PT_object, "spacing",PADDR(line_spacing),
 			PT_complex, "z11[Ohm/mile]",PADDR(impedance11),
+				PT_DEFAULT, "0+0j",
 			PT_complex, "z12[Ohm/mile]",PADDR(impedance12),
+				PT_DEFAULT, "0+0j",
 			PT_complex, "z13[Ohm/mile]",PADDR(impedance13),
+				PT_DEFAULT, "0+0j",
 			PT_complex, "z21[Ohm/mile]",PADDR(impedance21),
+				PT_DEFAULT, "0+0j",
 			PT_complex, "z22[Ohm/mile]",PADDR(impedance22),
+				PT_DEFAULT, "0+0j",
 			PT_complex, "z23[Ohm/mile]",PADDR(impedance23),
+				PT_DEFAULT, "0+0j",
 			PT_complex, "z31[Ohm/mile]",PADDR(impedance31),
+				PT_DEFAULT, "0+0j",
 			PT_complex, "z32[Ohm/mile]",PADDR(impedance32),
+				PT_DEFAULT, "0+0j",
 			PT_complex, "z33[Ohm/mile]",PADDR(impedance33),
+				PT_DEFAULT, "0+0j",
 			PT_double, "c11[nF/mile]",PADDR(capacitance11),
+				PT_DEFAULT, "0 nF/mile",
 			PT_double, "c12[nF/mile]",PADDR(capacitance12),
+				PT_DEFAULT, "0 nF/mile",
 			PT_double, "c13[nF/mile]",PADDR(capacitance13),
+				PT_DEFAULT, "0 nF/mile",
 			PT_double, "c21[nF/mile]",PADDR(capacitance21),
+				PT_DEFAULT, "0 nF/mile",
 			PT_double, "c22[nF/mile]",PADDR(capacitance22),
+				PT_DEFAULT, "0 nF/mile",
 			PT_double, "c23[nF/mile]",PADDR(capacitance23),
+				PT_DEFAULT, "0 nF/mile",
 			PT_double, "c31[nF/mile]",PADDR(capacitance31),
+				PT_DEFAULT, "0 nF/mile",
 			PT_double, "c32[nF/mile]",PADDR(capacitance32),
+				PT_DEFAULT, "0 nF/mile",
 			PT_double, "c33[nF/mile]",PADDR(capacitance33),
-			PT_double, "rating.summer.continuous[A]", PADDR(summer.continuous),PT_DESCRIPTION,"amp rating in summer, continuous",
-			PT_double, "rating.summer.emergency[A]", PADDR(summer.emergency),PT_DESCRIPTION,"amp rating in summer, short term",
-			PT_double, "rating.winter.continuous[A]", PADDR(winter.continuous),PT_DESCRIPTION,"amp rating in winter, continuous",
-			PT_double, "rating.winter.emergency[A]", PADDR(winter.emergency),PT_DESCRIPTION,"amp rating in winter, short term",
+				PT_DEFAULT, "0 nF/mile",
+			PT_double, "rating.summer.continuous[A]", PADDR(summer.continuous),
+				PT_DEFAULT, "1000 A",
+				PT_DESCRIPTION,"amp rating in summer, continuous",
+			PT_double, "rating.summer.emergency[A]", PADDR(summer.emergency),
+				PT_DEFAULT, "2000 A",
+				PT_DESCRIPTION,"amp rating in summer, short term",
+			PT_double, "rating.winter.continuous[A]", PADDR(winter.continuous),
+				PT_DEFAULT, "1000 A",
+				PT_DESCRIPTION,"amp rating in winter, continuous",
+			PT_double, "rating.winter.emergency[A]", PADDR(winter.emergency),
+				PT_DEFAULT, "2000 A",
+				PT_DESCRIPTION,"amp rating in winter, short term",
             NULL) < 1) GL_THROW("unable to publish line_configuration properties in %s",__FILE__);
     }
 }
 
 int line_configuration::create(void)
 {
-    // Set up defaults
     phaseA_conductor = NULL; 
 	phaseB_conductor = NULL;
 	phaseC_conductor = NULL;
 	phaseN_conductor = NULL;
 	line_spacing = NULL;
-	impedance11 = impedance12 = impedance13 = impedance21 = impedance22 = impedance23 = impedance31 = impedance32 = impedance33 = complex(0,0);
-	capacitance11 = capacitance12 = capacitance13 = capacitance21 = capacitance22 = capacitance23 = capacitance31 = capacitance32 = capacitance33 = 0.0;
-	summer.continuous = winter.continuous = 1000;
-	summer.emergency = winter.emergency = 2000;
 	return 1;
 }
 

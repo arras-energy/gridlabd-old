@@ -76,23 +76,15 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 		strcpy(my->file,"");
 		strcpy(my->multifile,"");
 		strcpy(my->filetype,"txt");
-		strcpy(my->mode, "file");
 		strcpy(my->delim,",");
-		my->interval = -1; /* transients only */
-		my->dInterval = -1.0;
+		// my->interval = -1;  // transients only 
 		my->last.ts = -1;
 		my->last.ns = -1;
 		strcpy(my->last.value,"");
-		my->limit = 0;
 		my->samples = 0;
 		my->status = TS_INIT;
-		my->trigger[0]='\0';
-		my->format = 0;
 		strcpy(my->plotcommands,"");
 		my->target = NULL;
-		my->header_units = HU_DEFAULT;
-		my->line_units = LU_DEFAULT;
-		my->flush = -1; /* -1 (default): flush when buffer full, 0 flush each line, >0 flush seconds */
 		my->property = NULL;
 		my->property_len = 0;
 		memset(my->output_format,0,sizeof(my->output_format));
@@ -578,17 +570,15 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 	UNIT *unit = NULL;
 	PROPERTY *prop;
 	PROPERTY *target;
-	char1024 list;
+	char *list = strdup(property_list);
 	complex oblig;
 	double scale;
 	char256 pstr, ustr;
 	char *cpart = 0;
 	int64 cid = -1;
-	memset(list,0,sizeof(list));
 	int fmt_count = 0;
 	char *last_token;
 
-	strcpy(list,property_list); /* avoid destroying orginal list */
 	for ( item = strtok_s(list,",",&last_token) ; item != NULL ; fmt_count++, item = strtok_s(NULL,",",&last_token) )
 	{
 		prop = NULL;
@@ -611,6 +601,7 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 					|| ( format[2] != '\0' && strchr("ijdrMDRXY",format[2]) == NULL ) )
 				{
 					gl_error("recorder:%d: invalid double/complex format '%s'",format);
+					free(list);
 					return 0;
 				}
 				rec->output_format[fmt_count] = strdup(format);
@@ -621,6 +612,7 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 				if ( unit == NULL )
 				{
 					gl_error("recorder:%d: unable to find unit '%s' for property '%s'",obj->id, (char*)ustr,(char*)pstr);
+					free(list);
 					return NULL;
 				}
 			}
@@ -630,6 +622,7 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 		if ( prop == NULL )
 		{
 			gl_error("recorder:%d: memory allocation failure", obj->id);
+			free(list);
 			return NULL;
 		}
 		
@@ -663,6 +656,7 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 		if ( target == NULL )
 		{
 			gl_error("recorder: property or global '%s' not found", item);
+			free(list);
 			return NULL;
 		}
 
@@ -672,6 +666,7 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 		else if(unit != NULL && 0 == gl_convert_ex(target->unit, unit, &scale))
 		{
 			gl_error("recorder:%d: unable to convert property '%s' units to '%s'", obj->id, item, (char*)ustr);
+			free(list);
 			return NULL;
 		}
 		if (first==NULL) first=prop; else last->next=prop;
@@ -687,6 +682,7 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 			(prop->addr) = (PROPERTYADDR)((int64)(prop->addr) + cid);
 		}
 	}
+	free(list);
 	return first;
 }
 

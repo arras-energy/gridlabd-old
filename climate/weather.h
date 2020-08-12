@@ -19,8 +19,6 @@ public:
 	weather();
 	weather(MODULE *module);
 	int create();
-	void set_defaults();
-	void get_defaults();
 	TIMESTAMP sync(TIMESTAMP t0);
 
 	double temperature; // F

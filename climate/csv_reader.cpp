@@ -357,7 +357,8 @@ int csv_reader::read_line(char *line, int linenum )
 //	OBJECT *my = 0;
 
 	strncpy(buffer, line, 1023);
-	token = strtok(buffer, " ,\t\n\r");
+	char *last;
+	token = strtok_r(buffer, " ,\t\n\r",&last);
 
 	if ( token == 0 ) {
 		return 2; // blank line 
@@ -424,7 +425,7 @@ int csv_reader::read_line(char *line, int linenum )
 		}
 	}
 
-	while ( (token=strtok(NULL, ",\n\r")) != 0 && col < column_ct ) 
+	while ( (token=strtok_r(NULL, ",\n\r",&last)) != 0 && col < column_ct ) 
 	{
 		if ( columns[col]->ptype == PT_double ) 
 		{

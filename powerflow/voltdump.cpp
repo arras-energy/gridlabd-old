@@ -28,18 +28,38 @@ voltdump::voltdump(MODULE *mod)
 
 		// publish the class properties
 		if (gl_publish_variable(oclass,
-			PT_char32,"group",PADDR(group),PT_DESCRIPTION,"the group ID to output data for (all nodes if empty)",
-			PT_timestamp,"runtime",PADDR(runtime),PT_DESCRIPTION,"the time to check voltage data",
-			PT_char256,"filename",PADDR(filename),PT_DESCRIPTION,"the file to dump the voltage data into", // must keep this for compatibility
-			PT_char256,"file",PADDR(filename),PT_DESCRIPTION,"the file to dump the voltage data into", // added 2012-07-10, adds convenience
-			PT_int32,"runcount",PADDR(runcount),PT_ACCESS,PA_REFERENCE,PT_DESCRIPTION,"the number of times the file has been written to",
-			PT_int32,"maxcount",PADDR(maxcount),PT_DESCRIPTION,"the maximum number of times the file is written",
-			PT_enumeration, "mode", PADDR(mode),PT_DESCRIPTION,"dumps the voltages in either polar or rectangular notation",
+			PT_char32,"group",PADDR(group),
+				PT_DESCRIPTION,"the group ID to output data for (all nodes if empty)",
+			PT_timestamp,"runtime",PADDR(runtime),
+				PT_DEFAULT, "NEVER",
+				PT_DESCRIPTION,"the time to check voltage data",
+			PT_char256,"filename",PADDR(filename),
+				PT_REQUIRED,
+				PT_DESCRIPTION,"the file to dump the voltage data into", // must keep this for compatibility
+			PT_char256,"file",PADDR(filename),
+				PT_DEPRECATED,
+				PT_DESCRIPTION,"the file to dump the voltage data into", // added 2012-07-10, adds convenience
+			PT_int32,"runcount",PADDR(runcount),
+				PT_ACCESS, PA_REFERENCE,
+				PT_DEFAULT, "0",
+				PT_DESCRIPTION,"the number of times the file has been written to",
+			PT_int32,"maxcount",PADDR(maxcount),
+				PT_DEFAULT, "-1",
+				PT_DESCRIPTION,"the maximum number of times the file is written",
+			PT_enumeration, "mode", PADDR(mode),
+				PT_DEFAULT, "rect",
+				PT_DESCRIPTION,"dumps the voltages in either polar or rectangular notation",
 				PT_KEYWORD, "rect", (enumeration)VDM_RECT,
 				PT_KEYWORD, "polar", (enumeration)VDM_POLAR,
-			PT_char8, "filemode", PADDR(filemode), PT_DESCRIPTION,"sets the file write mode",
-			PT_int32, "version", PADDR(version), PT_DESCRIPTION, "dump format version",
-			PT_double, "interval[s]", PADDR(interval), PT_DESCRIPTION, "interval at which voltdump runs",
+			PT_char8, "filemode", PADDR(filemode),
+				PT_DEFAULT, "",
+				PT_DESCRIPTION,"sets the file write mode",
+			PT_int32, "version", PADDR(version),
+				PT_DEFAULT, "0",
+				PT_DESCRIPTION, "dump format version",
+			PT_double, "interval[s]", PADDR(interval),
+				PT_DEFAULT, "0 s",
+				PT_DESCRIPTION, "interval at which voltdump runs",
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		
 	}
@@ -49,13 +69,6 @@ voltdump::voltdump(MODULE *mod)
 int voltdump::create(void)
 {
 	group.erase();
-	runtime = TS_NEVER;
-	runcount = 0;
-	maxcount = -1;
-	mode = VDM_RECT;
-	strcpy(filemode,"");
-	interval = 0;
-	version = 0;
 	return 1;
 }
 

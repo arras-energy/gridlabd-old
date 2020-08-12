@@ -61,7 +61,11 @@ line::line(MODULE *mod) : link_object(mod) {
 		if(gl_publish_variable(oclass,
 			PT_INHERIT, "link",
 			PT_object, "configuration",PADDR(configuration),
+				PT_REQUIRED,
+				PT_DESCRIPTION, "reference to library object that describes this line's configuration",
 			PT_double, "length[ft]",PADDR(length),
+				PT_REQUIRED,
+				PT_DESCRIPTION, "length of this line",
 			NULL) < 1) GL_THROW("unable to publish line properties in %s",__FILE__);
 
 		//Publish deltamode functions
@@ -79,9 +83,6 @@ line::line(MODULE *mod) : link_object(mod) {
 int line::create()
 {
 	int result = link_object::create();
-
-	configuration = NULL;
-	length = 0;
 
 	return result;
 }

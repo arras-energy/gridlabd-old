@@ -3,6 +3,9 @@
 # Install script for Amazon EC2 instance 
 #
 
+chmod -R 775 /usr/local
+chown -R root:adm /usr/local
+
 # Install needed system tools
 yum -q update -y ; 
 yum -q clean all
@@ -15,7 +18,11 @@ yum -q install libcurl-devel -y
 # python3 support needed as of 4.2
 yum -q install python37 python3-devel python3-tkinter -y
 [ -f /bin/python3 -a ! -f /usr/local/bin/python3 ] && ln -s /bin/python3 /usr/local/bin/python3
-pip3 --quiet --user install matplotlib pandas mysql-connector Pillow
+[ -f /bin/python3-config -a ! -f /usr/local/bin/python3-config ] && echo '#!/bin/bash
+/bin/python3-config $*' > /usr/local/bin/python3-config
+chmod +x /usr/local/bin/python3-config
+[ ! -f /usr/local/include/python3.7m ] && ln -sf /usr/include/python3.7m /usr/local/include/python3.7m
+/usr/local/bin/python3 -m pip install --quiet --user matplotlib pandas mysql-connector Pillow
 chmod -R a+w /usr/local/lib64/python3.7/site-packages
 
 # mono
@@ -38,8 +45,8 @@ mono /usr/local/natural_docs/NaturalDocs.exe \$*' > /usr/local/bin/natural_docs
 fi
 
 # converter support
-pip3 install networkx
-cd /tmp
-curl http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m/mdbtools-0.7.1-3.el7.x86_64.rpm > mdbtools-0.7.1-3.el7.x86_64.rpm
-rpm -Uvh mdbtools-0.7.1-3.el7.x86_64.rpm
-yum -q install mdbtools -y
+/usr/local/bin/python3 -m pip install --quiet --user networkx 
+# cd /tmp
+# curl http://download-ib01.fedoraproject.org/pub/epel/7/x86_64/Packages/m/mdbtools-0.7.1-3.el7.x86_64.rpm > mdbtools-0.7.1-3.el7.x86_64.rpm
+# rpm -Uvh mdbtools-0.7.1-3.el7.x86_64.rpm
+# yum -q install mdbtools -y

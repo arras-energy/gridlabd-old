@@ -100,7 +100,8 @@ STATUS instance_slave_parse_prop_list(char *line, linkage **root, LINKAGETYPE ty
 
 	IN_MYCONTEXT output_verbose("parser list: \'%s\'", line);
 
-	token = strtok(line, ", \0\n\r");	// @todo should use strtok_r, will change later
+	char *last;
+	token = strtok_r(line, ", \0\n\r", &last);	// @todo should use strtok_r, will change later
 	while(token != 0){
 		tokenct = sscanf(token, "%[A-Za-z0-9_].%[A-Za-z0-9_]", objname, propname);
 		if(2 != tokenct){
@@ -146,7 +147,7 @@ STATUS instance_slave_parse_prop_list(char *line, linkage **root, LINKAGETYPE ty
 		}
 
 		// repeat
-		token = strtok(NULL, ", \0\n\r");
+		token = strtok_r(NULL, ", \0\n\r", &last);
 	}
 	return SUCCESS;
 }

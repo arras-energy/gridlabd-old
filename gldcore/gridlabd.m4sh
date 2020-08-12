@@ -71,7 +71,7 @@ export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
 export PYLDFLAGS="$(/usr/local/bin/python3-config --ldflags)"
-export LIB="-L/usr/local/lib/gridlabd -L/usr/local/lib -L/usr/lib"
+export LIB="-L$libdir -L/usr/local/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
 export PYTHONPATH=.:${GLD_ETC}${PYTHONPATH:+:}${PYTHONPATH}
 

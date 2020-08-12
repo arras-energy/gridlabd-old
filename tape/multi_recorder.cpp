@@ -318,13 +318,14 @@ static int multi_recorder_open(OBJECT *obj)
 		UNIT *unit = 0;
 		int first = 1;
 		OBJECT *myobj = 0;
+		char *last;
 		switch(my->header_units){
 			case HU_DEFAULT:
 				strcpy(my->out_property, my->property);
 				break;
 			case HU_ALL:
 				strcpy(unit_buffer, my->property);
-				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
+				for(token = strtok_r(unit_buffer, ",", &last); token != NULL; token = strtok_r(NULL, ",",&last)){
 					unit = 0;
 					prop = 0;
 					unitstr[0] = 0;
@@ -423,7 +424,7 @@ static int multi_recorder_open(OBJECT *obj)
 				break;
 			case HU_NONE:
 				strcpy(unit_buffer, my->property);
-				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
+				for(token = strtok_r(unit_buffer, ",",&last); token != NULL; token = strtok_r(NULL, ",",&last)){
 					if(2 == sscanf(token, "%[A-Za-z0-9_:.][%[^]\n,]]", propstr, unitstr)){
 						; // no logic change
 					}
@@ -608,12 +609,11 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 {
 	char *item, *lastitem;
 	RECORDER_MAP *first=NULL, *last=NULL, *rmap;
-	char1024 list;
+	char *list = strdup(property_list);
 	complex oblig;
 	char objname[128];
 	gl_name_object(obj, objname, 128);
 
-	strcpy(list,property_list); /* avoid destroying orginal list */
 	for ( item = strtok_r(list,", \n", &lastitem); item != NULL; item = strtok_r(NULL,", \n",&lastitem))
 	{
 		char objstr[128] = "";
@@ -630,6 +630,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 		if ( rmap == NULL )
 		{
 			gl_error("%s -- memory allocation failed", objname);
+			free(list);
 			return NULL;
 		}	
 		memset(rmap, 0, sizeof(RECORDER_MAP));
@@ -672,6 +673,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 				break;
 			default:
 				gl_error("%s: property '%s' is not valid", objname, item);
+				free(list);
 				return NULL;
 			}
 			gl_debug("target object = '%s:%d'", target_obj->oclass->name, target_obj->id);
@@ -754,6 +756,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 			}
 		}
 	}
+	free(list);
 	return first;
 }
 
@@ -844,7 +847,14 @@ EXPORT TIMESTAMP sync_multi_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 
 	if (my->rmap==NULL)
 	{
-		sprintf(buffer,"'%s' contains a property reference that was not found", my->property);
+		if ( my->property )
+		{
+			sprintf(buffer,"property '%s' contains a reference that was not found", my->property);
+		}
+		else
+		{
+			sprintf(buffer,"property reference is missing");
+		}
 		close_multi_recorder(my);
 		my->status = TS_ERROR;
 		goto Error;

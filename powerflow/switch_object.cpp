@@ -33,15 +33,23 @@ switch_object::switch_object(MODULE *mod) : link_object(mod)
         if(gl_publish_variable(oclass,
 			PT_INHERIT, "link",
 			PT_enumeration, "phase_A_state", PADDR(phase_A_state),PT_DESCRIPTION,"Defines the current state of the phase A switch",
+				PT_DEFAULT, "CLOSED",
+				PT_DESCRIPTION, "state of phase A switch",
 				PT_KEYWORD, "OPEN", (enumeration)OPEN,
 				PT_KEYWORD, "CLOSED", (enumeration)CLOSED,
 			PT_enumeration, "phase_B_state", PADDR(phase_B_state),PT_DESCRIPTION,"Defines the current state of the phase B switch",
+				PT_DEFAULT, "CLOSED",
+				PT_DESCRIPTION, "state of phase B switch",
 				PT_KEYWORD, "OPEN", (enumeration)OPEN,
 				PT_KEYWORD, "CLOSED", (enumeration)CLOSED,
 			PT_enumeration, "phase_C_state", PADDR(phase_C_state),PT_DESCRIPTION,"Defines the current state of the phase C switch",
+				PT_DEFAULT, "CLOSED",
+				PT_DESCRIPTION, "state of phase C switch",
 				PT_KEYWORD, "OPEN", (enumeration)OPEN,
 				PT_KEYWORD, "CLOSED", (enumeration)CLOSED,
 			PT_enumeration, "operating_mode", PADDR(switch_banked_mode),PT_DESCRIPTION,"Defines whether the switch operates in a banked or per-phase control mode",
+				PT_DEFAULT, "BANKED",
+				PT_DESCRIPTION, "switch bank operating mode",
 				PT_KEYWORD, "INDIVIDUAL", (enumeration)INDIVIDUAL_SW,
 				PT_KEYWORD, "BANKED", (enumeration)BANKED_SW,
 			PT_double, "switch_resistance[Ohm]",PADDR(switch_resistance), PT_DESCRIPTION,"The resistance value of the switch when it is not blown.",
@@ -80,10 +88,6 @@ int switch_object::create()
 	int result = link_object::create();
 
 	prev_full_status = 0x00;		//Flag as all open initially
-	switch_banked_mode = BANKED_SW;	//Assume operates in banked mode normally
-	phase_A_state = CLOSED;			//All switches closed by default
-	phase_B_state = CLOSED;
-	phase_C_state = CLOSED;
 
 	prev_SW_time = 0;
 

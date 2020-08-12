@@ -29,8 +29,28 @@ static const char *module_import_name = NULL; // module name to import (python o
 static PyObject *pModule = NULL;
 static int solver_python_loglevel = 0; // -1=disable, 0 = minimal ... 9 = everything,
 static FILE *solver_python_logfh = NULL;
-static const char *python_busdata = ""; 
-static const char *python_branchdata = "";
+static const char *python_busdata = "name,type,phases,"
+	"volt_base,mva_base,origphases,"
+	"SAr,SAi,SBr,SBi,SCr,SCi,"
+	"YAr,YAi,YBr,YBi,YCr,YCi,"
+	"IAr,IAi,IBr,IBi,ICr,ICi,"
+	"prerot_IAr,prerot_IAi,prerot_IBr,prerot_IBi,prerot_ICr,prerot_ICi,"
+	"S_dyAr,S_dyAi,S_dyBr,S_dyBi,S_dyCr,S_dyCi,"
+	"Y_dyAr,Y_dyAi,Y_dyBr,Y_dyBi,Y_dyCr,Y_dyCi,"
+	"I_dyAr,I_dyAi,I_dyBr,I_dyBi,I_dyCr,I_dyCi,"
+	"PGenTotalAr,PGenTotalAi,PGenTotalBr,PGenTotalBi,PGenTotalCr,PGenTotalCi,"
+	"DynCurrentAr,DynCurrentAi,DynCurrentBr,DynCurrentBi,DynCurrentCr,DynCurrentCi,"
+	"PLA,QLA,PLB,QLB,PLC,QLC,"
+	"full_YAAr,full_YAAi,full_YABr,full_YABi,full_YACr,full_YACi,full_YBBr,full_YBBi,full_YBCr,full_YBCi,full_YCCr,full_YCCi,"
+	"full_Y_allAAr,full_Y_allAAi,full_Y_allABr,full_Y_allABi,full_Y_allACr,full_Y_allACi,full_Y_allBBr,full_Y_allBBi,full_Y_allBCr,full_Y_allBCi,full_Y_allCCr,full_Y_allCCi,"
+	"full_Y_loadAr,full_Y_loadAi,full_Y_loadBr,full_Y_loadBi,full_Y_loadCr,full_Y_loadCi,"
+	"Jacob_A0,Jacob_A1,Jacob_A2,Jacob_B0,Jacob_B1,Jacob_B2,Jacob_C0,Jacob_C1,Jacob_C2,Jacob_D0,Jacob_D1,Jacob_D2";
+static const char *python_branchdata = "phases,from,to,"
+	"origphases,faultphases,lnk_type,fault_link_below,v_ratio,"
+	"YfromAr,YfromAi,YfromBr,YfromBi,YfromCr,YfromCi,"
+	"YtoAr,YtoAi,YtoBr,YtoBi,YtoCr,YtoCi,"
+	"YSfromAr,YSfromAi,YSfromBr,YSfromBi,YSfromCr,YSfromCi,"
+	"YStoAr,YStoAi,YStoBr,YStoBi,YStoCr,YStoCi";
 static const char *python_learndata = "";
 static const char *python_busid = NULL;
 static const char *python_branchid = NULL;
@@ -486,90 +506,102 @@ void set_branchtags(PyObject *pModel)
 	}
 }
 
-void complex_to_mag(double *x, void *z, bool inverse)
+void complex_to_mag(void *x, void *z, bool inverse)
 {
 	if ( inverse )
 	{
-		((complex*)z)->Mag(*x);
+		((complex*)z)->Mag(*(double*)x);
 	}
 	else
 	{
-		*x = ((complex*)z)->Mag();
+		*(double*)x = ((complex*)z)->Mag();
 	}
 }
 
-void complex_to_arg(double *x, void *z, bool inverse)
+void complex_to_arg(void *x, void *z, bool inverse)
 {
 	if ( inverse )
 	{
-		((complex*)z)->Arg(*x);
+		((complex*)z)->Arg(*(double*)x);
 	}
 	else
 	{
-		*x = ((complex*)z)->Arg();
+		*(double*)x = ((complex*)z)->Arg();
 	}
 }
 
-void int_to_double(double *x, void *c, bool inverse)
+void int_to_double(void *x, void *c, bool inverse)
 {
 	if ( inverse )
 	{
-		*(int*)c = (int)(*x);
+		*(int*)c = (int)(*(double*)x);
 	}
 	else
 	{
-		*x = (double)(*(int*)c);
+		*(double*)x = (double)(*(int*)c);
 	}
 }
 
-void uchar_to_double(double *x, void *c, bool inverse)
+void uchar_to_double(void *x, void *c, bool inverse)
 {
 	if ( inverse )
 	{
-		*(unsigned char*)c = (unsigned char)(*x);
+		*(unsigned char*)c = (unsigned char)(*(double*)x);
 	}
 	else
 	{
-		*x = (double)(*(unsigned char*)c);
+		*(double*)x = (double)(*(unsigned char*)c);
 	}
 }
 
-void ref_to_mag(double *x, void *c, bool inverse)
+void char_to_str(void *c, void *s, bool inverse)
+{
+	if ( inverse )
+	{
+		throw "copy to (const char*) forbidden";
+	}
+	else
+	{
+		*(const char**)c = *(const char**)s;
+	}
+}
+
+void ref_to_mag(void *x, void *c, bool inverse)
 {
 	complex *z = (complex*)c;
 	if ( inverse )
 	{
-		z->Mag(*x);
+		z->Mag(*(double*)x);
 	}
 	else
 	{
-		*x = z->Mag();
+		*(double*)x = z->Mag();
 	}
 }
 
-void ref_to_arg(double *x, void *c, bool inverse)
+void ref_to_arg(void *x, void *c, bool inverse)
 {
 	complex *z = (complex*)c;
 	if ( inverse )
 	{
-		z->Arg(*x);
+		z->Arg(*(double*)x);
 	}
 	else
 	{
-		*x = z->Arg();
+		*(double*)x = z->Arg();
 	}
 }
 
-void ref_to_ang(double *x, void *c, bool inverse)
+void ref_to_ang(void *x, void *c, bool inverse)
 {
 	complex *z = (complex*)c;
 	if ( inverse )
 	{
-		z->Ang(*x);
+		z->Ang(*(double*)x);
 	}
 	else
 	{
-		*x = z->Ang();
+		*(double*)x = z->Ang();
 	}
 }
 
@@ -632,15 +664,17 @@ static struct s_map
 	int64 offset;
 	int64 size;
 	e_dir dir;
-	void (*convert)(double*,void*,bool);
+	void (*convert)(void*,void*,bool);
 	enum {
 		DOUBLE   =0, // value is at offset
 		PDOUBLE  =1, // pointer to value is at offset
 		PCOMPLEX =2, // pointer to value is converted using a method
 	} type;
+	bool is_ref;
 	int64 ref_offset;
 } busmap[] = 
 {
+	DATA(bus,"name",name,ED_INIT,char_to_str),
 	DATA(bus,"type",type,ED_INIT,int_to_double),
 	DATA(bus,"phases",phases,ED_OUT,uchar_to_double),
 	DATA(bus,"origphases",origphases,ED_INIT,uchar_to_double),
@@ -684,7 +718,7 @@ static struct s_map
 static int *bus_index = NULL;
 static int *branch_index = NULL;
 
-void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,void*,bool), bool inverse)
+void sync_property(PyObject *data, size_t n, void *ptr, void (*convert)(void*,void*,bool), bool inverse)
 {
 	PyObject *pValue = PyList_GetItem(data,n);
 	if ( inverse )
@@ -704,20 +738,41 @@ void sync_double(PyObject *data, size_t n, void *ptr, void (*convert)(double*,vo
 	}
 	else
 	{
-		double x = convert ? (convert(&x,ptr,false),x) : *(double*)ptr;
-		if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
+		if ( convert == char_to_str )
 		{
-			if ( pValue != NULL )
+			if ( pValue == NULL ) 
 			{
-				Py_DECREF(pValue);
+				if ( ptr )
+				{
+					const char *x = NULL;
+					convert(&x,ptr,false);
+					PyObject *pUnicode = PyUnicode_FromFormat("%s",*(const char**)ptr);
+					Py_INCREF(pUnicode);
+					PyList_SetItem(data,n,pUnicode);
+				}
+				else
+				{
+					PyList_SetItem(data,n,Py_None);
+					Py_INCREF(Py_None);
+				}
 			}
-			PyObject *pDouble = PyFloat_FromDouble(x);
-			PyList_SetItem(data,n,pDouble);
+			else
+			{
+				// no replacement allowed
+			}
+		}
+		else
+		{
+			double x = convert ? (convert(&x,ptr,false),x) : *(double*)ptr;
+			if ( pValue == NULL || ! PyFloat_Check(pValue) || PyFloat_AsDouble(pValue) != x )
+			{
+				PyList_SetItem(data,n,PyFloat_FromDouble(x));
+			}
 		}
 	}
 }
 
-void sync_double_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
+void sync_property_ref(PyObject *data, size_t n, void *ptr, int64 offset, bool inverse)
 {
 	double **ppx = (double**)ptr;
 	if ( ppx == NULL )
@@ -797,20 +852,17 @@ void sync_data(PyObject *data, size_t n, void *source, struct s_map *map, e_dir 
 			{
 				return;
 			}
-			switch ( map->type )
+			if ( ! map->is_ref )
 			{
-			case s_map::DOUBLE:
-				sync_double(data,n,ptr,map->convert,(dir&ED_IN));
-				break;
-			case s_map::PDOUBLE:
-				sync_double_ref(data,n,ptr,map->ref_offset,(dir&ED_IN));
-				break;
-			case s_map::PCOMPLEX:
-				sync_complex_ref(data,n,ptr,map->convert,map->ref_offset,(dir&ED_IN));
-				break;
-			default:
+				sync_property(data,n,ptr,map->convert,(dir&ED_IN));
+			}
+			else if ( *(double**)ptr != NULL ) // pointers are never converted but have an offset
+			{
+				sync_property_ref(data,n,ptr,map->ref_offset,(dir&ED_IN));
+			}
+			else // everything else if NULL
+			{
 				sync_none(data,n,(dir&ED_IN));
-				break;
 			}
 		}
 		else
