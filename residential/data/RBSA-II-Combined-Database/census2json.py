@@ -25,9 +25,13 @@ property_list_gridlabd_naming = ["Primary Heating Fuel" : {"heating_system_type"
 
 property_dict_gridlabd = {"heating_system_type" : {'RESISTANCE','HEAT_PUMP','GAS','NONE'}, "cooling_system_type" : {'HEAT_PUMP','ELECTRIC','NONE'},
 "gross_wall_area" : {"nan"}, "solar_heatgain_factor" : {"nan"}, "envelope_UA" : {"nan"}, "thermal_storage_present" : {"nan"}, 
+<<<<<<< HEAD
 "design_peak_solar" : {"nan"}, "panel.power" : {"nan"}, "gas_enduses" : {"WATERHEATER|RANGE|DRYER"} }
 
 property_csv_naming = {"RESISTANCE" : {'Electric'}, "HEAT_PUMP" : {'Electric'}, "GAS" : {'Natural Gas'}, "NONE" : {"nan"} "ELECTRIC" : {'Electric'}}
+=======
+"design_peak_solar" : {"nan"}, "panel.power" : {"<string> kVA"}, "gas_enduses" : {"WATERHEATER|RANGE|DRYER"} }
+>>>>>>> f41d6901098de663c22f500e81210a0ab1c913fe
 
 
 config = {"output":"json","type":["all_census_format", "reduced_census_format", "glm_format" ]}
