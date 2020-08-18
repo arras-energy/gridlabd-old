@@ -32,7 +32,7 @@ object triplex_meter
         {
             file "test_cost_total.csv";
             property "total";
-            interval 1 h;
+            interval -1;
         };
     };
 }
