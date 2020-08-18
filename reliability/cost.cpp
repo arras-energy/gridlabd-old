@@ -10,22 +10,24 @@ EXPORT_INIT(cost);
 EXPORT_COMMIT(cost);
 
 static COST cost_data[] = 
-{   // category delay(h) fixed($) variable($/h)
-    {"FOOD",         8.0,   72.00,   0.00 },
-    {"WATER",        1.0,    0.00,   6.25 },
-    {"SEPTIC",      24.0, 1492.00,   0.00 },
-    {"GEN_BASIC",    0.0, 4000.00,  39.00 },
-    {"GEN_COMFORT",  0.0, 4000.00,  83.00 },
-    {"GEN_ALL",      0.0, 8000.00, 222.00 },
-    {"LODGING",     48.0,    0.00,  12.50 },
-    {"BUSINESS",    72.0,    0.00,  10.00 },
-    {"ELDERCARE",   24.0,    0.00,  12.50 },
-    {"AUXHEAT",      1.0,  100.00,   2.00 },
-    {"COOKING",     12.0,  100.00,   1.50 },
-    {"LIGHTING",     0.0,  100.00,   1.50 },
-    {"LOSTWAGES",   48.0,    0.00,  12.00 },
+{   // category     type       delay(h) fixed($) variable($/h)
+    {"FOOD",        CT_FOOD,        8.0,   72.00,   0.00 },
+    {"WATER",       CT_WATER,       1.0,    0.00,   6.25 },
+    {"SEPTIC",      CT_SEPTIC,     24.0, 1492.00,   0.00 },
+    {"GEN_BASIC",   CT_GEN_BASIC,   0.0, 4000.00,  39.00 },
+    {"GEN_COMFORT", CT_GEN_COMFORT, 0.0, 4000.00,  83.00 },
+    {"GEN_ALL",     CT_GEN_ALL,     0.0, 8000.00, 222.00 },
+    {"LODGING",     CT_LODGING,    48.0,    0.00,  12.50 },
+    {"BUSINESS",    CT_BUSINESS,   72.0,    0.00,  10.00 },
+    {"ELDERCARE",   CT_ELDERCARE,  24.0,    0.00,  12.50 },
+    {"HEATING",     CT_HEATING,     1.0,  100.00,   2.00 },
+    {"COOKING",     CT_COOKING,    12.0,  100.00,   1.50 },
+    {"LIGHTS",      CT_LIGHTS,      0.0,  100.00,   1.50 },
+    {"WAGES",       CT_WAGES,      48.0,    0.00,  12.00 },
     { NULL } // sentinel
 };
+
+static set default_cost_type = CT_FOOD|CT_HEATING|CT_COOKING|CT_LIGHTS;
 
 CLASS *cost::oclass = NULL;
 cost *cost::defaults = NULL;
@@ -46,11 +48,43 @@ cost::cost(MODULE *module)
         if ( gl_publish_variable(oclass,
             PT_double,"total[$]",get_total_offset(),
                 PT_OUTPUT,
-                PT_DESCRIPTION,"total cost",
+                PT_DESCRIPTION,"Total cost of outages",
+            PT_set,"type",get_type_offset(),
+                PT_KEYWORD,"FOOD",CT_FOOD,
+                PT_KEYWORD,"WATER",CT_WATER,
+                PT_KEYWORD,"SEPTIC",CT_SEPTIC,
+                PT_KEYWORD,"GEN_BASIC",CT_GEN_BASIC,
+                PT_KEYWORD,"GEN_COMFORT",CT_GEN_COMFORT,
+                PT_KEYWORD,"GEN_ALL",CT_GEN_ALL,
+                PT_KEYWORD,"LODGING",CT_LODGING,
+                PT_KEYWORD,"BUSINESS",CT_BUSINESS,
+                PT_KEYWORD,"ELDERCARE",CT_ELDERCARE,
+                PT_KEYWORD,"HEATING",CT_HEATING,
+                PT_KEYWORD,"COOKING",CT_COOKING,
+                PT_KEYWORD,"LIGHTS",CT_LIGHTS,
+                PT_KEYWORD,"WAGES",CT_WAGES,
+                PT_DESCRIPTION,"Type of costs incurred during outages",
             NULL) < 1 )
         {
             throw "unable to publish cost properties";
         }
+        gl_global_create("default_cost_type",PT_set,&default_cost_type,
+                PT_DESCRIPTION, "Default cost types to include in total cost",
+                PT_KEYWORD,"FOOD",CT_FOOD,
+                PT_KEYWORD,"WATER",CT_WATER,
+                PT_KEYWORD,"SEPTIC",CT_SEPTIC,
+                PT_KEYWORD,"GEN_BASIC",CT_GEN_BASIC,
+                PT_KEYWORD,"GEN_COMFORT",CT_GEN_COMFORT,
+                PT_KEYWORD,"GEN_ALL",CT_GEN_ALL,
+                PT_KEYWORD,"LODGING",CT_LODGING,
+                PT_KEYWORD,"BUSINESS",CT_BUSINESS,
+                PT_KEYWORD,"ELDERCARE",CT_ELDERCARE,
+                PT_KEYWORD,"HEATING",CT_HEATING,
+                PT_KEYWORD,"COOKING",CT_COOKING,
+                PT_KEYWORD,"LIGHTS",CT_LIGHTS,
+                PT_KEYWORD,"WAGES",CT_WAGES,
+                NULL
+            );
         for ( COST *item = cost_data ; item->name != NULL ; item++ )
         {
             char *name;
@@ -75,6 +109,10 @@ int cost::create(void)
 {
     customer_interrupted = NULL;
     interrupted_at = TS_NEVER;
+    if ( type == 0 )
+    {
+        type = default_cost_type;
+    }
     return 1;
 }
 
@@ -103,7 +141,7 @@ TIMESTAMP cost::commit(TIMESTAMP t0, TIMESTAMP t1)
         double duration = ( t0 - interrupted_at ) / 3600.0;
         for ( COST *item = cost_data ; item->name != NULL ; item++ )
         {
-            if ( duration > item->delay )
+            if ( duration > item->delay && (type&item->type) == item->type )
             {
                 total += item->fixed + item->variable * ( duration - item->delay );
             }
