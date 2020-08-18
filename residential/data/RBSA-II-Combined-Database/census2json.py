@@ -20,18 +20,12 @@ property_list_gridlabd = ["Primary Heating Fuel" ,"Primary Cooling System"\
 
 property_list_gridlabd_naming = ["Primary Heating Fuel" : {"heating_system_type"}, "Primary Colling System" : {"cooling_system_type"}, "Total Wall Area" : {"gross_wall_area"},
 "Window Area" : {"solar_heatgain_factor"}, "Whole House UA" : {"envelope_UA"}, "Solar Panels Present" : {"thermal_storage_present"}, "Solar Battery Backup Capacity" : {"design_peak_solar"},
-"Annual Electric Usage )kWh)" : {"panel.power"}, "Annual Gas Usage (Therms)" : {"gas_enduses"}
+"Annual Electric Usage )kWh)" : {"panel.power"}, "Annual Gas Usage (Therms)" : {"gas_enduses"}, {"RESISTANCE" : {'Electric'}, "HEAT_PUMP" : {'Air Source Heat Pump'}, "GAS" : {'Natural Gas'}, "NONE" : {"nan"} "ELECTRIC" : {'Electric'}}
 ]
 
 property_dict_gridlabd = {"heating_system_type" : {'RESISTANCE','HEAT_PUMP','GAS','NONE'}, "cooling_system_type" : {'HEAT_PUMP','ELECTRIC','NONE'},
 "gross_wall_area" : {"nan"}, "solar_heatgain_factor" : {"nan"}, "envelope_UA" : {"nan"}, "thermal_storage_present" : {"nan"}, 
-<<<<<<< HEAD
 "design_peak_solar" : {"nan"}, "panel.power" : {"nan"}, "gas_enduses" : {"WATERHEATER|RANGE|DRYER"} }
-
-property_csv_naming = {"RESISTANCE" : {'Electric'}, "HEAT_PUMP" : {'Electric'}, "GAS" : {'Natural Gas'}, "NONE" : {"nan"} "ELECTRIC" : {'Electric'}}
-=======
-"design_peak_solar" : {"nan"}, "panel.power" : {"<string> kVA"}, "gas_enduses" : {"WATERHEATER|RANGE|DRYER"} }
->>>>>>> f41d6901098de663c22f500e81210a0ab1c913fe
 
 
 config = {"output":"json","type":["all_census_format", "reduced_census_format", "glm_format" ]}
