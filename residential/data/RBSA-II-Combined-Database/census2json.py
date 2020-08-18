@@ -18,9 +18,16 @@ property_list_gridlabd = ["Primary Heating Fuel" ,"Primary Cooling System"\
 "Solar Panels Present","Solar Panels Rated kW","Solar Panels Battery Backup Present","Solar Battery Backup Capacity",\
 "Annual Electric Usage (kWh)","Annual Gas Usage (Therms)"]
 
-property_list_gridlabd_naming = []
+property_list_gridlabd_naming = ["Primary Heating Fuel" : {"heating_system_type"}, "Primary Colling System" : {"cooling_system_type"}, "Total Wall Area" : {"gross_wall_area"},
+"Window Area" : {"solar_heatgain_factor"}, "Whole House UA" : {"envelope_UA"}, "Solar Panels Present" : {"thermal_storage_present"}, "Solar Battery Backup Capacity" : {"design_peak_solar"},
+"Annual Electric Usage )kWh)" : {"panel.power"}, "Annual Gas Usage (Therms)" : {"gas_enduses"}
+]
 
-property_dict_gridlabd = {"heating_system_type" : {'RESISTANCE','HEAT_PUMP','GAS','NONE'}, }
+property_dict_gridlabd = {"heating_system_type" : {'RESISTANCE','HEAT_PUMP','GAS','NONE'}, "cooling_system_type" : {'HEAT_PUMP','ELECTRIC','NONE'},
+"gross_wall_area" : {"nan"}, "solar_heatgain_factor" : {"nan"}, "envelope_UA" : {"nan"}, "thermal_storage_present" : {"nan"}, 
+"design_peak_solar" : {"nan"}, "panel.power" : {"nan"}, "gas_enduses" : {"WATERHEATER|RANGE|DRYER"} }
+
+property_csv_naming = {"RESISTANCE" : {'Electric'}, "HEAT_PUMP" : {'Electric'}, "GAS" : {'Natural Gas'}, "NONE" : {"nan"} "ELECTRIC" : {'Electric'}}
 
 
 config = {"output":"json","type":["all_census_format", "reduced_census_format", "glm_format" ]}
