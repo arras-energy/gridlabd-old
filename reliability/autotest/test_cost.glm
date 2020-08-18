@@ -1,6 +1,4 @@
-
-#option verbose
-#option debug
+// reliability/test_cost.glm
 
 module powerflow;
 module reliability;
