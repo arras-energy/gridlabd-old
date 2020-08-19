@@ -17,8 +17,9 @@ def help():
 def main():
 	filename_json = ''
 	filename_glm = ''
+	json_type = ''
 	try : 
-		opts, args = getopt.getopt(sys.argv[1:],"chi:o:",["config","help","ifile=","ofile=","type="])
+		opts, args = getopt.getopt(sys.argv[1:],"chi:o:t:",["config","help","ifile=","ofile=","type="])
 	except getopt.GetoptError:
 		sys.exit(2)
 	if not opts : 
@@ -41,22 +42,22 @@ def main():
 			error(f"{opt}={arg} is not a valid option")
 
 
-	convert(ifile=filename_json,ofile=filename_glm)
+	convert(ifile=filename_json,ofile=filename_glm,json_type=json_type)
 
-def convert(ifile,ofile) :
-
+def convert(ifile,ofile,json_type) :
 	if os.path.exists(ofile):
 		os.remove(ofile)
 	data = {}
 	objects_ignore = ["id", "class", "rank", "clock", "flags"]
 	globals_ignore = ['clock', 'timezone_locale', 'starttime', 'stoptime','glm_save_options'] # REMOVE glm_save_options when bug is fixed
 	classkeys_ignore = ['object_size', 'trl', 'profiler.numobjs', 'profiler.clocks', 'profiler.count', 'parent']
-
+	house_variables = ['heating_system_type', 'gross_wall_area', 'floor_area', 'envelope_UA']
 
 	with open(ifile,'r') as fr :
 		data = json.load(fr)
-		if json_name == "census2016" :
-			assert(data['data source']=='census2016')
+		if json_type == "census2016" :
+			assert(data['data source']=='census')
+			assert(data['data year']=='2016')
 		else :
 			assert(data['application']=='gridlabd')
 			assert(data['version'] >= '4.0.0')
@@ -68,11 +69,16 @@ def convert(ifile,ofile) :
 		fw.write(f"// InputFile '{ifile}'\n")
 		fw.write(f"// CreateDate '{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S %Z')}'\n")
 
-		if json_name == "census2016" : 
+		if json_type == "census2016" : 
 			fw.write(f"// Converter output for CENSUS 2016 data\n")
 			header_house_str = "\nobject house {"
-			fw.write(header_house_str)
-			fw.write("\n ")
+			for key in data['site ids'] : 
+				fw.write(header_house_str)
+				fw.write('\n' + '\t' + 'name ' + key +';')
+				for prop in data['site ids'][key] : 
+					if prop in house_variables : 
+						fw.write('\n' + '\t' + prop +' ' +data['site ids'][key][prop] +';')
+				fw.write("\n }")
 
 		else : 
 			# clock

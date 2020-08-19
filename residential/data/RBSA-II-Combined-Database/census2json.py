@@ -5,27 +5,28 @@ import sys, getopt
 import pandas as pd
 
 input_file = "SiteOneLine.csv"
-census_dict = {'data source' : 'census', 'data year' : '2016', 'region' : 'pacific northwest'}
-property_list_census = ["Building Category","Building Type","Primary Heating Fuel","Primary Cooling System",\
+
+full_dict = {'data source' : 'census', 'data year' : '2016', 'region' : 'pacific northwest'}
+census_dict = {}
+property_list_census = ["Total Floor Area", "Building Category","Building Type","Primary Heating Fuel","Primary Cooling System",\
 "Electric Vehicles Present","Electric Vehicle Type","Electric Vehicle Qty","Electric Vehicle Charging Station","Electrical Panel Type","Electric Panel Capacity",\
 "Solar Panels Present","Solar Panels Rated kW","Solar Panels Battery Backup Present","Solar Battery Backup Capacity",\
 "Total Wall Area","Window Area","Whole House UA","Audio Equipment Qty","Total Installed Lighting","Dehumidifier Qty","Desktop Qty",\
 "Dishwasher Qty","Dryer Qty","Freezer Qty","Game Console Qty","Laptop Qty","Large Unusual Load Qty","Power Strip Qty","Refrigerator Qty",\
 "Stove/Oven Qty","Television Qty","Thermostat Qty","Washer Qty","Faucet Qty","Showerhead Qty","Annual Electric Usage (kWh)","Annual Gas Usage (Therms)"]
 
-property_list_gridlabd = ["Primary Heating Fuel" ,"Primary Cooling System"\
-"Total Wall Area","Window Area","Whole House UA"\
+property_list_gridlabd = ["Total Floor Area", "Primary Heating Fuel" ,"Primary Cooling System"\
+"Total Wall Area","Whole House UA"\
 "Solar Panels Present","Solar Panels Rated kW","Solar Panels Battery Backup Present","Solar Battery Backup Capacity",\
 "Annual Electric Usage (kWh)","Annual Gas Usage (Therms)"]
 
-property_list_gridlabd_naming = ["Primary Heating Fuel" : {"heating_system_type"}, "Primary Colling System" : {"cooling_system_type"}, "Total Wall Area" : {"gross_wall_area"},
-"Window Area" : {"solar_heatgain_factor"}, "Whole House UA" : {"envelope_UA"}, "Solar Panels Present" : {"thermal_storage_present"}, "Solar Battery Backup Capacity" : {"design_peak_solar"},
-"Annual Electric Usage )kWh)" : {"panel.power"}, "Annual Gas Usage (Therms)" : {"gas_enduses"}, {"RESISTANCE" : {'Electric'}, "HEAT_PUMP" : {'Air Source Heat Pump'}, "GAS" : {'Natural Gas'}, "NONE" : {"nan"} "ELECTRIC" : {'Electric'}}
-]
+property_lookup_table = {'Total Floor Area' : 'floor_area','Primary Heating Fuel' : 'heating_system_type', 'Primary Cooling System' : 'cooling_system_type', 'Total Wall Area' : 'gross_wall_area', \
+'Whole House UA' : 'envelope_UA', 'Solar Panels Present' : 'thermal_storage_present', 'Solar Battery Backup Capacity' : 'design_peak_solar', \
+'Annual Electric Usage (kWh)' : 'panel.power', 'Annual Gas Usage (Therms)' : 'gas_enduses', 'Electric' : 'RESISTANCE', 'Air Source Heat Pump': 'HEAT_PUMP', 'Natural Gas' : 'GAS', 'NONE' : 'NONE', 'Electric' : 'ELECTRIC'}
 
-property_dict_gridlabd = {"heating_system_type" : {'RESISTANCE','HEAT_PUMP','GAS','NONE'}, "cooling_system_type" : {'HEAT_PUMP','ELECTRIC','NONE'},
-"gross_wall_area" : {"nan"}, "solar_heatgain_factor" : {"nan"}, "envelope_UA" : {"nan"}, "thermal_storage_present" : {"nan"}, 
-"design_peak_solar" : {"nan"}, "panel.power" : {"nan"}, "gas_enduses" : {"WATERHEATER|RANGE|DRYER"} }
+property_dict_gridlabd = {"floor_area": "DECIMAL", "heating_system_type" : {'RESISTANCE','HEAT_PUMP','GAS','NONE'}, "cooling_system_type" : {'HEAT_PUMP','ELECTRIC','NONE'}, \
+"gross_wall_area" : "DECIMAL", "solar_heatgain_factor" : "DECIMAL", "envelope_UA" : "DECIMAL", "thermal_storage_present" : "DECIMAL", \
+"design_peak_solar" : "DECIMAL", "panel.power" : "DECIMAL", "gas_enduses" : {"WATERHEATER|RANGE|DRYER"} }
 
 
 config = {"output":"json","type":["all_census_format", "reduced_census_format", "glm_format" ]}
@@ -85,10 +86,26 @@ def convert(ofile,output_type) :
 						if str(col_name) in property_list_census and str(census_df[col_name][item]) != "nan" and str(census_df[col_name][item]) != "Unknown": 
 							census_dict[item][col_name] = str(census_df[col_name][item])
 				elif output_type == "glm_format" : 
-					print("TO DO")
+					if item not in census_dict : 
+						if str(col_name) in property_list_census and str(census_df[col_name][item]) != "nan" and str(census_df[col_name][item]) != "Unknown" and col_name in property_lookup_table.keys():
+							if property_dict_gridlabd[property_lookup_table[col_name]]=="DECIMAL" :
+								census_dict[item]={property_lookup_table[col_name] : str(census_df[col_name][item])}
+							else : 
+								if str(census_df[col_name][item]) in property_lookup_table.keys() :
+									census_dict[item]={property_lookup_table[col_name] : property_lookup_table[str(census_df[col_name][item])]}
+							# census_dict[item]={col_name : property_lookup_table[str(census_df[col_name][item])]}
+					else : 
+						if str(col_name) in property_list_census and str(census_df[col_name][item]) != "nan" and str(census_df[col_name][item]) != "Unknown" and col_name in property_lookup_table.keys(): 
+					# 		census_dict[item][col_name] = str(census_df[col_name][item])
+							if property_dict_gridlabd[property_lookup_table[col_name]]=="DECIMAL"  :
+								census_dict[item][property_lookup_table[col_name]] = str(census_df[col_name][item])
+							else : 
+								if str(census_df[col_name][item]) in property_lookup_table.keys() :
+									census_dict[item][property_lookup_table[col_name]] =  property_lookup_table[str(census_df[col_name][item])]
 
+	full_dict['site ids'] = census_dict 
 	with open(ofile, "w") as outfile:  
-		json.dump(census_dict, outfile, indent=3) 	
+		json.dump(full_dict, outfile, indent=3) 	
 
 
 if __name__ == '__main__':
