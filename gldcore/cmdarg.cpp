@@ -2045,6 +2045,12 @@ DEPRECATED static int depends(void *main, int argc, const char *argv[])
 	return 0;
 }
 
+DEPRECATED static int rusage(void *main, int args, const char *argv[])
+{
+	global_rusage_rate = 1;
+	return 0;
+}
+
 #include "job.h"
 #include "validate.h"
 
@@ -2070,6 +2076,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"verbose",		"v",	verbose,		NULL, "Toggles output of verbose messages" },
 	{"warn",		"w",	warn,			NULL, "Toggles display of warning messages" },
 	{"workdir",		"W",	workdir,		NULL, "Sets the working directory" },
+	{"rusage",      NULL,   rusage,         NULL, "Collect resource usage statistics" },
 	
 	{NULL,NULL,NULL,NULL, "Global, environment and module information"},
 	{"define",		"D",	define,			"<name>=[<module>:]<value>", "Defines or sets a global (or module) variable" },

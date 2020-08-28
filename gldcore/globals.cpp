@@ -342,6 +342,8 @@ DEPRECATED static struct s_varmap {
 	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
 	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
+	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
+	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
 	/* add new global variables here */
 };
 
