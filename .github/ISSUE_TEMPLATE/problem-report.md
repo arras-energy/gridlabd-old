@@ -42,4 +42,10 @@ bash$ gridlabd <your command options...>
 bash$ gdb -batch -ex "backtrace" $(gridlabd --version=install) ./core
 ~~~
 
-(If you are running on macOS, you must use `lldb` instead of `gdb` and use the `frame` command.)
+(If you are running on macOS, you must use `lldb` to do the following.)
+~~~
+bash$ ulimit -c unlimited
+bash$ ls -lt /cores # find the most recent core dump
+bash$ lldb -c /cores/core.<number>
+(lldb) bt -- backtrace
+~~~
