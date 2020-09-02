@@ -1,116 +1,157 @@
-
-'''
-There are 3 ways to set thresholds.
-1) Read the user-inputted value from the config.csv
-    a. Into main .py function using csv converter -OR-
-    b. Directly into this .py file (can tailor csv more, but inaccessible outside)
-2) Read a default values from the config.csv
-
-Load default values first. Load modifies (if necessary). Just different csv files. This is an overwrite, not delete.
-first do input defaults, then input user settings.
-3) Read in defaults based on library properties
-
-These will be TWO choices in the config.csv
-'''
-
-
-
-'''
-ON_INIT
-1) Based on user-selected option, defines thresholds for each parameter.
-2) Creates a general dictionary of properties to check for each class and their thresholds.
-3) Populates a global master dictionary with each object, properties to check, and their thresholds.
-'''
+import re
+import time
+import gridlabd
+import numpy as np
 import pandas as pd
+from pprint import pprint
+from datetime import datetime
+
+ica_dict = {'underground_line_conductor': {'configuration': 0,
+                                            'rating.summer.continuous': 'rating',
+                                           'rating.winter.continuous': 'rating'},
+            'overhead_line_conductor': {'configuration': 0,
+                                        'rating.summer.continuous': 'rating',
+                                        'rating.winter.continuous': 'rating'},
+            'transformer_configuration': {'configuration': 0,
+                                          'power_rating': 'rating',
+                                          'powerA_rating': 'rating',
+                                          'powerB_rating': 'rating',
+                                          'powerC_rating': 'rating',
+                                          'primary_voltage': 'deviation',
+                                          'secondary_voltage': 'deviation'},
+            'regulator_configuration': {'configuration': 0,
+                                        'raise_taps': 'limit',
+                                        'lower_taps': 'limit'},
+            'substation': {'configuration': 0,
+                           'nominal_voltage': 'deviation'},
+            'triplex_meter': {'configuration': 0,
+                              'nominal_voltage': 'deviation'},
+            'meter': {'configuration': 0,
+                      'nominal_voltage': 'deviation'}}
+
+ica_class_list = list(ica_dict.keys())
+
+df = pd.DataFrame(columns = ["ELEMENT", 'ATTRIBUTE', 'VALUE TO COMPARE'])
+
+comp_dict = {}
 
 def on_init(t):
-    print("initializing")
-    #If Option 1, global thresholds will have already been set through csv converter
-    #TODO: Add 'ica_' tag to all globals. Option on converter to set a prefix.
-  
-    #If Option 2, read config file directly into this .py script. Create a global for each entry.
-    # config_globals = pd.read_csv("config/ica_config.csv")
-    # for index in range(len(config_globals)):
-    #     gridlabd.set_global("ica_" + config_globals.iloc[index, 0], str(config_globals.iloc[index, 1]))
-  
-    # #Create a dict of all ICA globals with info on how to find library values
-    # #RATING: set the threshold as a % of the max rating. DEVIATION: set the threshold as a +-% from the nominal rating.
-    # ica_globals_dict = {'ica_underground_line':{'configuration':1, 'rating_summer_continuous':'rating','rating_winter_continuous':'rating'},\
-    #                 'ica_overhead_line':{'configuration':1, 'rating_summer_continuous':'rating', 'rating_winter_continuous':'rating'},\
-    #                 'ica_transformer':{'configuration':1, 'power_rating':'rating', 'powerA_rating':'rating', 'powerB_rating':'rating', 'powerC_rating':'rating', 'primary_voltage':'deviation', 'secondary_voltage':'deviation'},\
-    #                 'ica_regulator':{'configuration':1, 'primary_voltage':'none', 'secondary_voltage':'none'},\
-    #                 'ica_substation':{'configuration':0, 'nominal_voltage':'deviation'},\
-    #                 'ica_triplex_meter':{'configuration':0, 'nominal_voltage':'deviation'},\
-    #                 'ica_meter':{'configuration':0, 'nominal_voltage':'deviation'}}
-   
+    global df
+    date_time = datetime.fromtimestamp(t)
+    date_time = date_time.strftime("%m/%d/%Y, %H:%M:%S")
+    gridlabd_element_list = gridlabd.get("objects")
+    
+    i = 0
 
-    # global_list = gridlabd.get("globals")
-   
-  
-    # for g in global_list:
-    #     #Only consider globals specific to ICA tests
-    #     if 'ica_' in g: #TODO: restrict ica_ to the front of the string
-    #         val = gridlabd.get_global(g)
-    #         #TODO: Check that value makes sense
-    #         #Only consider globals where user has input a %
-    #         if '%' in val: #TODO: restrict to end of string
-    #             #QUESTION: Can you call a property gridlabd.get_value(transformer, power_in.real)? Would need to parse it into something py recognizes. Might be code for this.
-    #             global_string = g.split('.', maxsplit=1)
-    #             obj = global_string[0]
-    #             prop = global_string[1]
+    for element in gridlabd_element_list:
+        element_specs = gridlabd.get_object(element)
+        element_class = element_specs.get('class')
+        for ica_element in ica_class_list:
+            if ica_element == element_class:
+                # print(element, ica_element, element_class, i, date_time)
+                ica_element_attributes = ica_dict[ica_element]
+                # print(ica_element_attributes)
+                i += 1
+                for attribute in ica_element_attributes:
+                    if attribute in element_specs:
+                        # converting data to non_decimal
+                        non_decimal = re.compile(r'[^\d.]+')
 
-    #             percent = gridlabd.get_global(g).strip('%')/100    
-    #             obj_dict = ica_globals_dict.get(obj)
-    #             #TODO: Make sure obj names all either do or do not have ica_
-               
-    #             #First, get the library value of the given property.
-    #             if obj_dict.get('configuration') == 0:
-    #                 #QUESTION: More efficient way than str->float->str?
-    #                 lib_prop = float(gridlabd.get_value(obj, prop))
-                   
-    #             else:
-    #                 config = gridlabd.get_value(obj, 'configuration')
-    #                 lib_prop = float(gridlabd.get_value(config, prop))
+                        if len(element_specs[attribute].split()) >= 2:
+                            simulation_value = element_specs[attribute].split()[0]
+                            simulation_unit = element_specs[attribute].split()[1]
+                        else:
+                            simulation_value = element_specs[attribute].split()[0]
+                            simulation_unit = 'N/A'
+                        simulation_value = float(non_decimal.sub('', element_specs[attribute]))
 
-    #             #Then, modify the threshold to be a % or a +- range of that property.
-    #             if obj_dict.get(prop) == 'rating':
-    #                 gridlabd.set_global(obj, str(lib_prop*percent))
-                   
-    #             elif obj_dict.get(prop) == 'deviation':
-    #                 gridlabd.set_global(obj+'max', str(lib_prop*(1.0+percent)))
-    #                 gridlabd.set_global(obj+'min', str(lib_prop*(1.0-percent)))
-                   
-    #             else:
-    #                 print('%s should not have a percentage as a threshold.' % obj)
+                        # print(i, element, ica_element + '.' + attribute, gridlabd.get_global(ica_element + '.' + attribute))
+                        
+                        # this values come from the 'ica_config_file.csv' that gridlabd already processed
+                        attribute_thresh = gridlabd.get_global(ica_element + '.' + attribute)
+                        
+                        if '%' in attribute_thresh:
+                            attribute_thresh = float(attribute_thresh.strip('%'))/100
+                            if ica_element_attributes[attribute] == 'rating':
+                                comparative_value = simulation_value * attribute_thresh
+                                # print('RATING:' , comparative_value)
+                            elif ica_element_attributes[attribute] == 'deviation':
+                                comparative_value = [simulation_value * (1 + i) for i in [+attribute_thresh, -attribute_thresh]]
+                                # print('MAX:', max(comparative_value))
+                                # print('MIN:', min(comparative_value))
+                            else:
+                                # print('INCONGRUENCE: magnitud with unit')
+                                gridlabd.warning('Element: {}, should not have {} attribute'.format(element,element_class))
+                        elif ica_element_attributes[attribute] == 'limit':
+                            comparative_value = simulation_value
+                            # print('LIMIT:', comparative_value)
+                            
+                        else:
+                            comparative_value = attribute_thresh
 
+                        
+                        result = [element, attribute, comparative_value]
+                        df = df.append(dict(zip(df.columns, result)), ignore_index=True)
+                        
+            else:
+                pass
+    
+    pprint(df)
 
-           
-    # #Get a list of all objects used in model               
-    # objects = gridlabd.get("objects")
-    # #obj_dict will contain all properties/threshold to check for an object 
-    # obj_dict = {}
-    # #master_dict will contain all objects as keys, with associated obj_dicts as values
-    # master_dict = {}
- 
-    # for obj in objects:
-    #     obj_dict.clear()
-    #     obj_class = gridlabd.get_object(obj)['class']
-    #     #Create a list of globals (obj_global_list) that contain this class name
-    #     #For each global, append a key:value (property:threshold) within that obj's dict
-    #     for g in obj_global_list:
-    #         obj_dict.update({'property':'threshold'})
-          
-    #     master_dict.update({obj:obj_dict})
 
     return True
-      
 
-'''
-ON_COMMIT
-For each key in global dictionary, get the value for each property and compare it to the threshold.
-If threshold is exceeded, record the object, property, and value, and exit.
-'''
+
+
+violation_registry = pd.DataFrame(columns = ['ELEMENT',
+                                             'ATTRIBUTE',
+                                             'VALUE TO COMPARE',
+                                             'ACTUAL VALUE',
+                                             'VIOLATION STATUS',
+                                             'TIME OF THE VIOLATION'])
 
 def on_commit(t):
-    return True
+    global violation_registry
+    date_time = datetime.fromtimestamp(t)
+    date_time = date_time.strftime("%m/%d/%Y, %H:%M:%S")
+    elements = df['ELEMENT'].unique()
 
+    for element in elements:
+        element_df = df[df['ELEMENT'] == element]
+        element_attributes = element_df['ATTRIBUTE']
+        for attribute in element_attributes:
+            try:
+                result_value = gridlabd.get_value(element, attribute)
+                non_decimal = re.compile(r'[^\d.]+')
+                
+                # if len(result_value.split()) >= 2:
+                #     result_value = result_value.split()[0]
+                #     result_unit = result_value.split()[1]
+                # else:
+                #     result_value = result_value.split()[0]
+                #     result_unit = 'N/A'
+
+                result_value = float(non_decimal.sub('', result_value))
+
+                value_to_compare = element_df[element_df['ATTRIBUTE'] == attribute]['VALUE TO COMPARE'].values
+                value_to_compare = np.max(value_to_compare[0])
+
+
+                if value_to_compare != 0 and value_to_compare < result_value:
+                    violation_status = True
+                    result = [element, attribute, value_to_compare, result_value, violation_status, date_time]
+                    violation_registry = violation_registry.append(dict(zip(violation_registry.columns, result)), ignore_index=True)
+                    print(result)
+                    new_value = (result_value + value_to_compare) / 2
+                    new_value = round(new_value, 0)
+                    gridlabd.set_value(element, attribute, str(new_value))
+
+            except:
+                raise
+                
+    violation_registry.to_csv('results.csv')
+    for i in range(0,0):
+        time.sleep(1)
+        print(i+1, "\n")
+
+    return gridlabd.NEVER
