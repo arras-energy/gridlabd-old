@@ -1,0 +1,5 @@
+#ifexist ${FILEPATH modelname}/${FILENAME modelname}.${FILETYPE modelname}
+#print path parsing of '${modelname}' ok
+#else
+#error path parsing failed for file '${modelname}''
+#endif
