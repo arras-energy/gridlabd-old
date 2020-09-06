@@ -1326,6 +1326,10 @@ DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
 	{
 		*dir = '\0';
 	}
+	else
+	{
+		strcpy(buffer,".");
+	}
 	return buffer;
 }
 
