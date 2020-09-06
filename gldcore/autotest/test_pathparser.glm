@@ -1,3 +1,10 @@
+#set suppress_repeat_messages=FALSE
+
+#print modelname -> ${modelname}
+#print FILEPATH(modelname) -> ${FILEPATH modelname}
+#print FILENAME(modelname) -> ${FILENAME modelname}
+#print FILETYPE(modelname) -> ${FILETYPE modelname}
+
 #ifexist ${FILEPATH modelname}/${FILENAME modelname}.${FILETYPE modelname}
 #print path parsing of '${modelname}' ok
 #else
