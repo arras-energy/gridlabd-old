@@ -1177,10 +1177,6 @@ static PROPERTY *get_next_property(PROPERTY *prop,bool inherit=true)
 //
 static PyObject *gridlabd_get_class(PyObject *self, PyObject *args)
 {
-    if ( gridlabd_module_status < GMS_RUNNING )
-    {
-        return gridlabd_exception("cannot get unless running");
-    }
     char *name;
     restore_environ();
     if ( ! PyArg_ParseTuple(args,"s", &name) )
