@@ -5,7 +5,7 @@
 GLM:
 
 ~~~
-${FINDFILE variable}
+${FILETYPE variable}
 ~~~
 
 # Description
