@@ -5,7 +5,8 @@
 GLM:
 
 ~~~
-${FILEPATH variable}
+${FILEPATH string}
+${FILEPATH $global}
 ~~~
 
 # Description
@@ -17,7 +18,7 @@ The path portion of a pathname variable is inserted into the GLM file.
 The following example prints the path to the current model file:
 
 ~~~
-#print ${FILEPATH modelname}
+#print ${FILEPATH $modelname}
 ~~~
 
 # See also

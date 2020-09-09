@@ -1289,7 +1289,11 @@ DEPRECATED const char *global_findfile(char *buffer, int size, const char *spec)
 DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
 {
 	char var[1024];
-	if ( global_getvar(spec,var,sizeof(var)-1) == NULL )
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
 	{
 		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
 		return NULL;
@@ -1315,7 +1319,11 @@ DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
 DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
 {
 	char var[1024];
-	if ( global_getvar(spec,var,sizeof(var)-1) == NULL )
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
 	{
 		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
 		return NULL;
@@ -1336,7 +1344,11 @@ DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
 DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
 {
 	char var[1024];
-	if ( global_getvar(spec,var,sizeof(var)-1) == NULL )
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
 	{
 		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
 		return NULL;
@@ -1417,10 +1429,6 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':') != NULL )
 		return global_seq(buffer,size,name);
 
-	/* expansions */
-	if ( parameter_expansion(buffer,size,name) )
-		return buffer;
-
 	// shells
 	if ( strncmp(name,"SHELL ",6) == 0 )
 		return global_shell(buffer,size,name+6);
@@ -1449,6 +1457,9 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	if ( strncmp(name,"FILETYPE ",9) == 0 )
 		return global_filetype(buffer,size,name+9);
 
+	/* expansions */
+	if ( parameter_expansion(buffer,size,name) )
+		return buffer;
 
 	// object calls
 	struct {

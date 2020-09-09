@@ -5,7 +5,8 @@
 GLM:
 
 ~~~
-${FILETYPE variable}
+${FILETYPE string}
+${FILETYPE $global}
 ~~~
 
 # Description
@@ -17,7 +18,7 @@ The file type (i.e., the extension) of a pathname variable is inserted into the 
 The following example prints the extension of the current model file:
 
 ~~~
-#print ${FILETYPE modelname}
+#print ${FILETYPE $modelname}
 ~~~
 
 # See also

@@ -1,11 +1,18 @@
 #set suppress_repeat_messages=FALSE
 
-#print modelname -> ${modelname}
-#print FILEPATH(modelname) -> ${FILEPATH modelname}
-#print FILENAME(modelname) -> ${FILENAME modelname}
-#print FILETYPE(modelname) -> ${FILETYPE modelname}
+#if "${FILEPATH /path/to/file/name.ext}" != "/path/to/file"
+#error FILEPATH /path/to/file/name.ext failed
+#endif
 
-#ifexist ${FILEPATH modelname}/${FILENAME modelname}.${FILETYPE modelname}
+#if "${FILENAME /path/to/file/name.ext}" != "name"
+#error FILENAME /path/to/file/name.ext failed
+#endif
+
+#if "${FILETYPE /path/to/file/name.ext}" != "ext"
+#error FILETYPE /path/to/file/name.ext failed
+#endif
+
+#ifexist ${FILEPATH $modelname}/${FILENAME $modelname}.${FILETYPE $modelname}
 #print path parsing of '${modelname}' ok
 #else
 #error path parsing failed for file '${modelname}''
