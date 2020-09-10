@@ -1392,14 +1392,11 @@ int randomvar_create(void *ptr)
 	{
 		randomvar_list = var;
 	}
-	if ( last == NULL )
-	{
-		last = var;
-	}
-	else
+	if ( last )
 	{
 		last->next = var;
 	}
+	last = var;
 	n_randomvars++;
 	return 1;
 }
@@ -1452,7 +1449,7 @@ TIMESTAMP randomvar_sync(randomvar *var, TIMESTAMP t1)
 
 randomvar *randomvar_getnext(randomvar*var)
 {
-	return var ? randomvar_list : var->next;
+	return var ? var->next : randomvar_list;
 }
 
 size_t randomvar_getspec(char *str, size_t size, const randomvar *var)
@@ -1477,10 +1474,10 @@ TIMESTAMP randomvar_syncall(TIMESTAMP t1)
 {
 	if ( randomvar_list )
 	{
-		randomvar *var;
+		randomvar *var = NULL;
 		TIMESTAMP t2 = TS_NEVER;
 		clock_t ts = (clock_t)exec_clock();
-		for (var=randomvar_list; var!=NULL; var=var->next)
+		while ( (var=randomvar_getnext(var)) != NULL )
 		{
 			TIMESTAMP t3 = randomvar_sync(var,t1);
 			if ( absolute_timestamp(t3)<absolute_timestamp(t2) ) t2 = t3;
