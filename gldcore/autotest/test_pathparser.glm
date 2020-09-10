@@ -1,0 +1,19 @@
+#set suppress_repeat_messages=FALSE
+
+#if "${FILEPATH /path/to/file/name.ext}" != "/path/to/file"
+#error FILEPATH /path/to/file/name.ext failed
+#endif
+
+#if "${FILENAME /path/to/file/name.ext}" != "name"
+#error FILENAME /path/to/file/name.ext failed
+#endif
+
+#if "${FILETYPE /path/to/file/name.ext}" != "ext"
+#error FILETYPE /path/to/file/name.ext failed
+#endif
+
+#ifexist ${FILEPATH $modelname}/${FILENAME $modelname}.${FILETYPE $modelname}
+#print path parsing of '${modelname}' ok
+#else
+#error path parsing failed for file '${modelname}''
+#endif
