@@ -342,6 +342,8 @@ DEPRECATED static struct s_varmap {
 	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
 	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
+	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
+	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
 	/* add new global variables here */
 };
 
@@ -1284,6 +1286,86 @@ DEPRECATED const char *global_findfile(char *buffer, int size, const char *spec)
 	return buffer;
 }
 
+DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	char *dir = strrchr(var,'/');
+	if ( dir == NULL )
+	{
+		dir = var;
+	}
+	else
+	{
+		dir++;
+	}
+	strncpy(buffer,dir,size);
+	char *ext = strrchr(buffer,'.');
+	if ( ext != NULL )
+	{
+		*ext = '\0';
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	strncpy(buffer,var,size);
+	char *dir = strrchr(buffer,'/');
+	if ( dir != NULL )
+	{
+		*dir = '\0';
+	}
+	else
+	{
+		strcpy(buffer,".");
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	char *dir = strrchr(var,'/');
+	char *ext = strrchr(var,'.');
+	if ( ( dir != NULL && ext > dir ) || ext != NULL )
+	{
+		strncpy(buffer,ext+1,size);
+	}
+	else
+	{
+		strcpy(buffer,"");
+	}
+	return buffer;
+}
+
 /** Get the value of a global variable in a safer fashion
 	@return a \e char * pointer to the buffer holding the buffer where we wrote the data,
 		\p NULL if insufficient buffer space or if the \p name was not found.
@@ -1347,10 +1429,6 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':') != NULL )
 		return global_seq(buffer,size,name);
 
-	/* expansions */
-	if ( parameter_expansion(buffer,size,name) )
-		return buffer;
-
 	// shells
 	if ( strncmp(name,"SHELL ",6) == 0 )
 		return global_shell(buffer,size,name+6);
@@ -1366,6 +1444,22 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	// findfile call
 	if ( strncmp(name,"FINDFILE ",9) == 0 )
 		return global_findfile(buffer,size,name+9);
+
+	// path call
+	if ( strncmp(name,"FILEPATH ",9) == 0 )
+		return global_filepath(buffer,size,name+9);
+
+	// name call
+	if ( strncmp(name,"FILENAME ",9) == 0 )
+		return global_filename(buffer,size,name+9);
+
+	// extension call
+	if ( strncmp(name,"FILETYPE ",9) == 0 )
+		return global_filetype(buffer,size,name+9);
+
+	/* expansions */
+	if ( parameter_expansion(buffer,size,name) )
+		return buffer;
 
 	// object calls
 	struct {
