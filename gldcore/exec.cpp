@@ -86,8 +86,55 @@
  **/
 
 #include "gldcore.h"
+#include <sys/resource.h>
 
 SET_MYCONTEXT(DMC_EXEC)
+
+static FILE *rusage_fp = NULL;
+
+static void rusage_report(void)
+{
+	static bool failed = false;
+	if ( rusage_fp == NULL && ! failed )
+	{
+		rusage_fp = fopen((const char*)global_rusage_file,"w");
+		if ( rusage_fp == NULL )
+		{
+			failed = true;
+			output_warning("unable to open '%s' for write access", (const char*)global_rusage_file);
+		}
+		else
+		{
+			fprintf(rusage_fp,"%s","timestamp,utime,stime,maxrss,ixrss,idrss,isrss,minflt,majflt,nswap,inblock,oublock,msgsnd,msgrcv,nsignals,nvcsw,nivcsw\n");
+		}
+	}
+	if ( rusage_fp != NULL )
+	{
+		struct rusage r;
+		if ( getrusage(RUSAGE_SELF,&r) == 0 )
+		{
+			fprintf(rusage_fp,"%lld,"
+				"%ld.%ld,"
+				"%ld.%ld,"
+				"%ld,%ld,%ld,%ld,"
+				"%ld,%ld,%ld,"
+				"%ld,%ld,"
+				"%ld,%ld,"
+				"%ld,%ld,%ld,"
+				"\n",
+				global_clock,
+				(long)(r.ru_utime.tv_sec),(long)(r.ru_utime.tv_usec),
+				(long)(r.ru_stime.tv_sec),(long)(r.ru_stime.tv_usec),
+				r.ru_maxrss, r.ru_ixrss, r.ru_idrss, r.ru_isrss,
+				r.ru_minflt, r.ru_majflt, r.ru_nswap,
+				r.ru_inblock, r.ru_oublock,
+				r.ru_msgsnd, r.ru_msgrcv,
+				r.ru_nsignals, r.ru_nvcsw, r.ru_nivcsw
+				);
+			fflush(rusage_fp);
+		}
+	}
+}
 
 /* TODO: remove these when reentrant code is completed */
 DEPRECATED extern GldMain *my_instance;
@@ -300,8 +347,6 @@ DEPRECATED void exec_wunlock_sync(void)
 {
 	my_instance->get_exec()->wunlock_sync();
 }
-
-
 
 ////////////////////////////////////////////
 // GldExec implementation
@@ -2759,7 +2804,7 @@ STATUS GldExec::exec_start(void)
 			}
 			setTP = false;
 
-			if ( !global_debug_mode )
+			if ( ! global_debug_mode )
 			{
 				struct thread_data * thread_data = get_thread_data();
 				for ( j = 0 ; j < thread_data->count ; j++ ) 
@@ -2769,6 +2814,12 @@ STATUS GldExec::exec_start(void)
 
 				/* report progress */
 				realtime_run_schedule();
+
+				/* report rusage */
+				if ( global_rusage_rate > 0 && ( global_clock % global_rusage_rate ) == 0 )
+				{
+					rusage_report();
+				}
 			}
 
 			/* count number of passes */
