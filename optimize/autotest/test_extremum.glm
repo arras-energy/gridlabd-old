@@ -1,0 +1,58 @@
+module optimize;
+module tape
+{
+	csv_header_type 2;
+}
+module assert;
+
+clock
+{
+	starttime "2020-01-01 00:00:00";
+	stoptime "2020-01-01 01:00:00";
+}
+
+class test
+{
+	double input;
+	double output;
+	double a;
+	double b;
+	double c;
+	intrinsic sync(TIMESTAMP t0, TIMESTAMP t1)
+	{
+		output = (a*input + b)*input + c;
+		return TS_NEVER;
+	};
+}
+
+object test
+{
+	name "test";
+	input 0;
+	a 1;
+	b 1;
+	c 1;
+	object recorder
+	{
+		property "a,b,c,input,output";
+		file ${modelname/.glm/.csv};
+		interval 1;
+	};
+}
+
+object simple
+{
+	goal EXTREMUM;
+	objective "test.output";
+	variable "test.input";
+	delta 0.01;
+	epsilon 0.001;
+}
+
+object double_assert
+{
+	parent "test";
+	target "input";
+	value "-0.5";
+	within "0.001";
+}
