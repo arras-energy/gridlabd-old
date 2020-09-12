@@ -18,4 +18,4 @@ include tape_plot/Makefile.mk
 
 # TODO: removed until HiPAS upgrades are implemented
 #include connection/Makefile.mk 
-#include optimize/Makefile.mk 
+include optimize/Makefile.mk 
