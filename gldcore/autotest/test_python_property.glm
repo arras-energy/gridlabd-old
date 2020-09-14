@@ -1,0 +1,56 @@
+
+#set savefile=gridlabd.json
+
+class test
+{
+	python py_object;
+}
+
+object test
+{
+	name "test_none";
+	py_object None;
+}
+
+object test
+{
+	name "test_0";
+	py_object int(0);
+}
+
+object test
+{
+	name "test_1";
+	py_object int(1);
+}
+
+object test
+{
+	name "test_0.0";
+	py_object float(0.0);
+}
+
+object test
+{
+	name "test_1.23";
+	py_object float(1.23);
+}
+
+object test
+{
+	name "test_str";
+	py_object str('text');
+}
+
+object test
+{
+	name "test_list";
+	py_object list([1,2,3]);
+}
+
+object test
+{
+	name "test_dict";
+	py_object dict(a=1,b=2,c=3);
+}
+
