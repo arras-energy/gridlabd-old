@@ -68,6 +68,6 @@ PyObject *python_property_get_unit(PyObject *self, PyObject *args, PyObject *kwd
 PyObject *python_property_compare(PyObject *a, PyObject *b, int op);
 
 /// Porperty unit conversion
-PyObject *python_property_convert(PyObject *self, PyObject *args, PyObject *kwds);
+PyObject *python_property_convert_unit(PyObject *self, PyObject *args, PyObject *kwds);
 
 #endif

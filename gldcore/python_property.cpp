@@ -19,7 +19,7 @@ static PyMethodDef python_property_methods[] =
     { "rlock", (PyCFunction)python_property_rlock, METH_NOARGS, "Lock the property for reading"},
     { "wlock", (PyCFunction)python_property_wlock, METH_NOARGS, "Lock the property for writing"},
     { "unlock", (PyCFunction)python_property_unlock, METH_NOARGS, "Unlock the property"},
-    { "convert", (PyCFunction)python_property_convert, METH_VARARGS, "Convert a property to a new unit"},
+    { "convert_unit", (PyCFunction)python_property_convert_unit, METH_VARARGS, "Convert a property to a new unit"},
     { NULL } // sentinel for iterators
 };
 
@@ -745,7 +745,7 @@ PyObject *python_property_compare(PyObject *obj1, PyObject *obj2, int op)
     return result;
 }
 
-PyObject *python_property_convert(PyObject *self, PyObject *args, PyObject *kwds)
+PyObject *python_property_convert_unit(PyObject *self, PyObject *args, PyObject *kwds)
 {
     python_property *pyprop = to_python_property(self);
     if ( pyprop->prop->unit == NULL )

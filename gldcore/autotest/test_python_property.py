@@ -68,7 +68,7 @@ def on_term(t):
 
 			for u,v in units.items():
 				if prop.get_name() == u:
-					x = prop.convert(v[1])
+					x = prop.convert_unit(v[1])
 					if x != v[0]:
 						raise Exception(f"unit conversion failed ({x} != {u[0]}")
 		if prop == last:
