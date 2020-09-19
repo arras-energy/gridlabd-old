@@ -34,12 +34,6 @@ void python_embed_term()
 {
     Py_DECREF(main_module);
     Py_DECREF(gridlabd_module);
-    // if ( Py_FinalizeEx() )
-    // {
-    //     output_warning("Py_FinalizeEx() failed");
-    // }
-    // PyMem_RawFree((void*)program);
-    // output_verbose("python shutdown ok");
 }
 
 void python_reset_stream(PyObject *pModule, const char *stream_name)
@@ -385,6 +379,23 @@ bool python_parser(const char *line, void *context)
         input_buffer = "";
         return true;
     }
+}
+
+// Function: convert_from_double
+DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY *prop)
+{
+    PyObject *obj = PyObject_Str(*(PyObject**)data);
+    int len = PyUnicode_GetLength(obj);
+    if ( buffer == NULL )
+    {
+        return len;
+    }
+    if ( len > size )
+    {
+        len = size;
+    }
+    strcpy(buffer,PyUnicode_AsUTF8(obj));
+    return len;
 }
 
 // Function: convert_from_double
