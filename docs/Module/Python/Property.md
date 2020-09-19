@@ -43,29 +43,45 @@ The following example illustrates access to various object property types.
 
 ~~~
 module example;
+#set savefile=gridlabd.json
+clock
+{
+	starttime "2000-01-01 00:00:00";
+	stoptime "2000-02-01 00:00:00";
+}
 class example_class
 {
-	python my_python;
-	int16 my_int16;
-	int32 my_int32;
-	int64 my_int64;
-	double my_double;
-	complex my_complex;
-	char32 my_char32;
-	char256 my_char256;
-	char1024 my_char1024;
-	randomvar my_randomvar;
-	object my_object;
-	double a_speed[m/s];
+	python my_list;
+	complex my_value;
+	char32 my_string;
+	double my_real[m/s];
 }
 object example_class
 {
-	name "example_object"
-	my_python "['test',12.34,{'this':'is,'an':'example'}";
+	name "my_example";
+	my_list "list(['test',12.34,dict(a=123,b=456)])";
+	my_value 1.234+5.6789j;
+	my_string "this is a short string";
+	my_real 100 ft/s;
 }
 ~~~
 
 `example.py`:
 
 ~~~
+import gridlabd
+def on_init(t):
+	for name in ['my_list','my_value','my_string','my_real']:
+		prop = gridlabd.property('my_example',name)
+		print(f"{repr(prop)}={str(prop)}")
+	return True
+~~~
+
+`output`:
+
+~~~
+<gridlabd.property:my_example.my_list>=['test', 12.34, {'a': 123, 'b': 456}]
+<gridlabd.property:my_example.my_value>=+1.234+5.6789j
+<gridlabd.property:my_example.my_string>="this is a short string"
+<gridlabd.property:my_example.my_real>=+30.48 m/s
 ~~~

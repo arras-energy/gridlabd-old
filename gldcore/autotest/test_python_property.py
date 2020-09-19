@@ -20,7 +20,6 @@ convert = {
 
 def on_term(t):
 	for obj in gridlabd.get("objects"):
-		oclass = gridlabd.get_value(obj,"class")
 		prop = gridlabd.property(obj,"py_object")
 		if oclass == "test":
 			prop = gridlabd.property(obj,"py_object")
@@ -60,3 +59,4 @@ def on_term(t):
 			if result != check:
 				raise Exception(f"set failed ('{result}' != '{check}')")
 			prop.unlock()
+			
