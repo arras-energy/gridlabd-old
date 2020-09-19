@@ -1,4 +1,4 @@
-[[/GLM/Module/Python/Property]] -- Direct property access python objects
+[[/Module/Python/Property]] -- Direct property access python objects
 
 # Synopsis
 
