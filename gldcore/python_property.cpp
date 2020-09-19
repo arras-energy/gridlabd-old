@@ -27,22 +27,49 @@ static PyMemberDef python_property_members[] =
     { NULL } // sentinel for iterators
 };
 
+static const char *python_property_doc = PACKAGE ".property" LF
+    LF "Use this object to get direct access to object properties";
+
 PyTypeObject python_property_type = 
 {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = PACKAGE ".property",
-    .tp_basicsize = sizeof(python_property_type),
-    .tp_dealloc = python_property_dealloc,
-    .tp_repr = python_property_repr,
-    .tp_str = python_property_str,
-    .tp_flags = Py_TPFLAGS_DEFAULT,
-    .tp_doc = PACKAGE ".property",
-    .tp_methods = python_property_methods,
-    .tp_members = python_property_members,
-    .tp_descr_get = python_property_get_description,
-    .tp_init = python_property_create,
-    .tp_new = python_property_new,
-    .tp_richcompare = python_property_compare,
+    PACKAGE ".property",             // tp_name 
+    sizeof(python_property_type),    // tp_basicsize 
+    0,                               // tp_itemsize 
+    python_property_dealloc,         // tp_dealloc 
+    0,                               // tp_vectorcall_offset 
+    0,                               // tp_getattr 
+    0,                               // tp_setattr 
+    0,                               // tp_as_async 
+    python_property_repr,            // tp_repr 
+    0,                               // tp_as_number 
+    0,                               // tp_as_sequence 
+    0,                               // tp_as_mapping 
+    0,                               // tp_hash 
+    0,                               // tp_call 
+    python_property_str,             // tp_str 
+    0,                               // tp_getattro 
+    0,                               // tp_setattro 
+    0,                               // tp_as_buffer 
+    Py_TPFLAGS_DEFAULT,              // tp_flags 
+    python_property_doc,             // tp_doc 
+    0,                               // tp_traverse 
+    0,                               // tp_clear 
+    python_property_compare,         // tp_richcompare 
+    0,                               // tp_weaklistoffset 
+    0,                               // tp_iter 
+    0,                               // tp_iternext 
+    python_property_methods,         // tp_methods 
+    python_property_members,         // tp_members 
+    0,                               // tp_getset 
+    0,                               // tp_base 
+    0,                               // tp_dict 
+    python_property_get_description, // tp_descr_get 
+    0,                               // tp_descr_set 
+    0,                               // tp_dictoffset 
+    python_property_create,          // tp_init 
+    0,                               // tp_alloc 
+    python_property_new,             // tp_new 
 };
 
 /// @returns Python object type definition
