@@ -398,23 +398,6 @@ DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY 
     return len;
 }
 
-// Function: convert_from_double
-DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY *prop)
-{
-    PyObject *obj = PyObject_Str(*(PyObject**)data);
-    int len = PyUnicode_GetLength(obj);
-    if ( buffer == NULL )
-    {
-        return len;
-    }
-    if ( len > size )
-    {
-        len = size;
-    }
-    strcpy(buffer,PyUnicode_AsUTF8(obj));
-    return len;
-}
-
 // Function: convert_to_python
 DEPRECATED int convert_to_python(const char *buffer, void *data, PROPERTY *prop)
 {
