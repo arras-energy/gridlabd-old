@@ -34,12 +34,12 @@ void python_embed_term()
 {
     Py_DECREF(main_module);
     Py_DECREF(gridlabd_module);
-    if ( Py_FinalizeEx() )
-    {
-        output_warning("Py_FinalizeEx() failed");
-    }
-    PyMem_RawFree((void*)program);
-    output_verbose("python shutdown ok");
+    // if ( Py_FinalizeEx() )
+    // {
+    //     output_warning("Py_FinalizeEx() failed");
+    // }
+    // PyMem_RawFree((void*)program);
+    // output_verbose("python shutdown ok");
 }
 
 void python_reset_stream(PyObject *pModule, const char *stream_name)
