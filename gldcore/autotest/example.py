@@ -1,7 +1,14 @@
 import gridlabd
 
+prop = None
+
 def on_init(t):
-	for name in ['my_list','my_value','my_string','my_real']:
-		prop = gridlabd.property('my_example',name)
-		print(f"{repr(prop)}={str(prop)}")
+	global prop
+	prop = gridlabd.property('my_example','my_real')
 	return True
+
+def on_sync(t):
+	prop.get_value()
+	# # The above usage is 5-10 times faster than the usage below
+	# gridlabd.get_value('my_example','my_real')
+	return t+10
