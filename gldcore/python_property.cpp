@@ -19,6 +19,7 @@ static PyMethodDef python_property_methods[] =
     { "rlock", (PyCFunction)python_property_rlock, METH_NOARGS, "Lock the property for reading"},
     { "wlock", (PyCFunction)python_property_wlock, METH_NOARGS, "Lock the property for writing"},
     { "unlock", (PyCFunction)python_property_unlock, METH_NOARGS, "Unlock the property"},
+    { "convert", (PyCFunction)python_property_convert, METH_VARARGS, "Convert a property to a new unit"},
     { NULL } // sentinel for iterators
 };
 
@@ -742,4 +743,44 @@ PyObject *python_property_compare(PyObject *obj1, PyObject *obj2, int op)
     }
     Py_INCREF(result);
     return result;
+}
+
+PyObject *python_property_convert(PyObject *self, PyObject *args, PyObject *kwds)
+{
+    python_property *pyprop = to_python_property(self);
+    if ( pyprop->prop->unit == NULL )
+    {
+        PyErr_SetString(PyExc_Exception,"property does have any units");
+        return NULL;
+    }
+    void *addr = property_addr(pyprop->obj,pyprop->prop);
+    const char *value;
+    if ( ! PyArg_ParseTuple(args,"s",&value) )
+    {
+        return NULL;
+    }
+    UNIT *unit = unit_find(value);
+    if ( unit == NULL )
+    {
+        PyErr_SetString(PyExc_Exception,"unit not found");
+        return NULL;
+    }
+    if ( pyprop->prop->ptype == PT_complex )
+    {
+        complex z = *(complex*)addr;
+        if ( unit_convert_complex(pyprop->prop->unit,unit,&z) )
+        {
+            return PyComplex_FromDoubles(z.Re(),z.Im());
+        }
+    }
+    else
+    {
+        double x = *(double*)addr;
+        if ( unit_convert_ex(pyprop->prop->unit,unit,&x) )
+        {
+            return PyFloat_FromDouble(x);
+        }
+    }
+    PyErr_SetString(PyExc_Exception,"unable to convert to specified unit");
+    return NULL;
 }

@@ -18,6 +18,10 @@ convert = {
 	"random" : (lambda r: f"type:{r['type']}; min:{r['min']}; max:{r['max']}; refresh:{r['refresh']}; state:{r['state']}")
 	}
 
+units = {
+	"speed" : [19685.039370078743,"ft/min"]
+}
+
 def on_term(t):
 	last = None
 	for obj in gridlabd.get("objects"):
@@ -61,6 +65,12 @@ def on_term(t):
 			if result != check:
 				raise Exception(f"set failed ('{result}' != '{check}')")
 			prop.unlock()
+
+			for u,v in units.items():
+				if prop.get_name() == u:
+					x = prop.convert(v[1])
+					if x != v[0]:
+						raise Exception(f"unit conversion failed ({x} != {u[0]}")
 		if prop == last:
 			raise Exception("property eq comparison failed unexpectedly")
 		if prop != prop:
