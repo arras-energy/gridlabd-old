@@ -1297,6 +1297,27 @@ int object_set_complex_by_name(OBJECT *obj, PROPERTYNAME name, complex value)
 	return 1;
 }
 
+/// object_get_value
+///
+/// Parameters:
+///   obj - the object from which the property is obtained
+///   prop - the property to obtain
+///   value - the buffer into which the value to be written
+///   size - the size of the buffer into which the value is to be written
+/// 
+/// If `value` is NULL, then the buffer will be created using `malloc()`
+/// and must be `free()`ed when it is not longer needed. The value of `size`
+/// is ignored.
+///
+/// If `size` is 0, then no data is actually copied to the buffer. Instead
+/// the return value is the length of the string needed to contain the value.
+///
+int object_get_value(OBJECT *obj, PROPERTY *prop, char *value, int size)
+{
+	void *addr = (char*)(obj+1) + (int64)(prop->addr);
+	return object_get_value_by_addr(obj,addr,value,size,prop);
+}
+
 /** Get a property value by reference to its physical address
 	@return the number of characters written to the buffer; 0 if failed
  **/

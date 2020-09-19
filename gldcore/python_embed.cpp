@@ -1,13 +1,10 @@
-// python.cpp
+// gldcore/python_embed.h
 
 #include "gldcore.h"
-#include <string.h>
 
-wchar_t *program = NULL;
-PyObject *main_module = NULL;
+static wchar_t *program = NULL;
+static PyObject *main_module = NULL;
 PyObject *gridlabd_module = NULL;
-
-PyMODINIT_FUNC PyInit_gridlabd(void);
 
 void python_embed_init(int argc, const char *argv[])
 {
@@ -19,13 +16,7 @@ void python_embed_init(int argc, const char *argv[])
     {
         throw_exception("python_embed_init(argc=%d,argv=(%s,...)): unable to load module __main__ module",argc,argv?argv[0]:"NULL");
     }
-
-    extern PyObject *this_module; // from gldcore/link/python.cpp
-    if ( this_module == NULL )
-    {
-        PyInit_gridlabd();
-    }
-    gridlabd_module = this_module;
+    gridlabd_module = PyInit_gridlabd();
     Py_INCREF(gridlabd_module);
     Py_INCREF(main_module);
 }
@@ -41,8 +32,8 @@ void *python_loader_init(int argc, const char **argv)
 
 void python_embed_term()
 {
-    Py_DECREF(gridlabd_module);
     Py_DECREF(main_module);
+    Py_DECREF(gridlabd_module);
     if ( Py_FinalizeEx() )
     {
         output_warning("Py_FinalizeEx() failed");
@@ -82,8 +73,8 @@ PyObject *python_embed_import(const char *module, const char *path)
             PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
             const char *msg = bytes?PyBytes_AS_STRING(bytes):"PyRun_SimpleString failed with no information";
             output_error("python_embed_import(module='%s',path='%s'): %s; string='%s'",module,path,msg,tmp);
-            if ( repr ) Py_XDECREF(repr);
-            if ( bytes ) Py_XDECREF(bytes);
+            if ( repr ) Py_DECREF(repr);
+            if ( bytes ) Py_DECREF(bytes);
             return NULL;
         }
     }
@@ -108,8 +99,8 @@ PyObject *python_embed_import(const char *module, const char *path)
         PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
         const char *msg = bytes?PyBytes_AS_STRING(bytes):"PyImport_ImportModule failed with no information";
         output_error("python_embed_import(module='%s',path='%s'): %s",module,path,msg);
-        if ( repr ) Py_XDECREF(repr);
-        if ( bytes ) Py_XDECREF(bytes);
+        if ( repr ) Py_DECREF(repr);
+        if ( bytes ) Py_DECREF(bytes);
         return NULL;
     }
     python_reset_stream(pModule,"error_stream");
@@ -161,8 +152,8 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
         PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
         const char *msg = bytes?PyBytes_AS_STRING(bytes):"function not defined";
         output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
-        if ( repr ) Py_XDECREF(repr);
-        if ( bytes ) Py_XDECREF(bytes);
+        if ( repr ) Py_DECREF(repr);
+        if ( bytes ) Py_DECREF(bytes);
         return false;
     }
     if ( ! PyCallable_Check(pFunc) )
@@ -173,8 +164,8 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
         PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
         const char *msg = bytes?PyBytes_AS_STRING(bytes):"function not callable";
         output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
-        if ( repr ) Py_XDECREF(repr);
-        if ( bytes ) Py_XDECREF(bytes);
+        if ( repr ) Py_DECREF(repr);
+        if ( bytes ) Py_DECREF(bytes);
         Py_DECREF(pFunc);
         return false;
     }
@@ -188,7 +179,6 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
     }
     PyErr_Clear();
     last_result = PyObject_Call(pFunc,pArgs,pKwargs);
-    if ( pGridlabd ) Py_DECREF(pGridlabd);
     Py_DECREF(pArgs);
     if ( PyErr_Occurred() )
     {
@@ -200,8 +190,8 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
             PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
             const char *msg = bytes ? PyBytes_AS_STRING(bytes) : "function call failed";
             output_error("python_embed_call(pModule,name='%s'): %s",truncate(name), msg);
-            if ( repr ) Py_XDECREF(repr);
-            if ( bytes ) Py_XDECREF(bytes);
+            if ( repr ) Py_DECREF(repr);
+            if ( bytes ) Py_DECREF(bytes);
             PyObject *pContext = PyException_GetContext(pValue);
             if ( pContext )
             {
@@ -209,9 +199,9 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
                 PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
                 const char *msg = bytes?PyBytes_AS_STRING(bytes):"function call failed";
                 output_error("python_embed_call(pModule,name='%s'): context is %s",truncate(name), msg);
-                Py_XDECREF(pContext);
-                if ( repr ) Py_XDECREF(repr);
-                if ( bytes ) Py_XDECREF(bytes);
+                Py_DECREF(pContext);
+                if ( repr ) Py_DECREF(repr);
+                if ( bytes ) Py_DECREF(bytes);
             }
             else
             {
@@ -222,6 +212,7 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
         {
             output_error("python_embed_call(pModule,name='%s'): no error information available",truncate(name));
         }
+        Py_DECREF(pFunc);
         return false;
     }
     else
@@ -243,6 +234,7 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
             if ( pBytes ) Py_DECREF(pBytes);
 
             python_reset_stream(pModule,"error_stream");
+            Py_DECREF(pError);
         }
         PyObject *pOutput = PyObject_GetAttrString(pModule,"output_stream");
         if ( pOutput )
@@ -261,6 +253,7 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
             if ( pBytes ) Py_DECREF(pBytes);
 
             python_reset_stream(pModule,"output_stream");
+            Py_DECREF(pOutput);
         }
     }
     Py_DECREF(pFunc);
@@ -333,6 +326,7 @@ void traceback(const char *command)
             fprintf(error,"traceback: "); PyObject_Print(ptraceback,error,Py_PRINT_RAW); fprintf(error,"\n");
             output_error_raw("END TRACEBACK");
         }
+        if ( pyth_func ) Py_DECREF(pyth_func);
     }
 }
 
@@ -348,9 +342,9 @@ std::string python_eval(const char *command)
     PyObject *repr = PyObject_Repr(result);
     PyObject *str = PyUnicode_AsEncodedString(repr,"utf-8","~E~");
     std::string bytes(PyBytes_AS_STRING(str));
-    Py_XDECREF(repr);
-    Py_XDECREF(str);
-    Py_XDECREF(result);
+    Py_DECREF(repr);
+    Py_DECREF(str);
+    Py_DECREF(result);
     return bytes;
 }
 
@@ -387,7 +381,7 @@ bool python_parser(const char *line, void *context)
     }
     else
     {
-        Py_XDECREF(result);
+        Py_DECREF(result);
         input_buffer = "";
         return true;
     }
@@ -396,22 +390,27 @@ bool python_parser(const char *line, void *context)
 // Function: convert_from_double
 DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY *prop)
 {
-    PyObject *raw = PyObject_Str(*(PyObject**)data);
-    PyObject *uni = PyUnicode_AsEncodedString(raw,"utf-8","~E~");
-    std::string bytes(PyBytes_AS_STRING(uni));
-    Py_XDECREF(raw);
-    Py_XDECREF(uni);
-    int len = bytes.length();
-    strncpy(buffer,bytes.c_str(),size-1);
-    return len < size-1 ? len : size-1;
+    PyObject *obj = PyObject_Str(*(PyObject**)data);
+    int len = PyUnicode_GetLength(obj);
+    if ( buffer == NULL )
+    {
+        return len;
+    }
+    if ( len > size )
+    {
+        len = size;
+    }
+    strcpy(buffer,PyUnicode_AsUTF8(obj));
+    return len;
 }
 
-// Function: convert_to_double
+// Function: convert_to_python
 DEPRECATED int convert_to_python(const char *buffer, void *data, PROPERTY *prop)
 {
     PyObject **pObj = (PyObject **)data;
     Py_DECREF(*pObj);
     *pObj = PyRun_String(buffer,Py_eval_input,main_module,main_module);
+    if ( *pObj ) Py_INCREF(*pObj);
     return *pObj ? strlen(buffer) : -1;
 }
 
@@ -430,6 +429,7 @@ DEPRECATED int python_create(void *ptr)
 
 double python_get_part(void *c, const char *name)
 {
+    // TODO dict, list, and complex parts to double
     return QNAN;
 }
 

@@ -1,6 +1,18 @@
 
+#ifexist ../test_python_property.py
+#system cp ../test_python_property.py .
+#endif
+
+clock {
+	starttime "2020-01-01 00:00:00";
+	stoptime "2020-01-02 00:00:00";
+}
+
+module test_python_property;
+
 #set savefile=gridlabd.json
 
+#ifdef NEVER
 class test
 {
 	python py_object;
@@ -8,49 +20,125 @@ class test
 
 object test
 {
-	name "test_none";
 	py_object None;
 }
 
 object test
 {
-	name "test_0";
 	py_object int(0);
 }
 
 object test
 {
-	name "test_1";
 	py_object int(1);
 }
 
 object test
 {
-	name "test_0.0";
 	py_object float(0.0);
 }
 
 object test
 {
-	name "test_1.23";
 	py_object float(1.23);
 }
 
 object test
 {
-	name "test_str";
 	py_object str('text');
 }
 
 object test
 {
-	name "test_list";
-	py_object list([1,2,3]);
+	py_object list([1,(1+2j),3.45,'abc']);
 }
 
 object test
 {
-	name "test_dict";
-	py_object dict(a=1,b=2,c=3);
+	py_object dict(a=2,b=(3+4j),c=4.56,d='def');
+}
+#endif
+
+class check
+{
+	int16 shortint;
+	int32 mediumint;
+	int64 longint;
+	double real;
+	complex realimag;
+	char32 shortstr;
+	char256 mediumstr;
+	char1024 longstr;
+	randomvar random;
+	python py_object;
+	object ref;
+	double speed[m/s];
 }
 
+object check
+{
+	name "shortint";
+	shortint 12;
+}
+
+object check
+{
+	name "mediumint";
+	shortint 13;
+}
+
+object check
+{
+	name "longint";
+	shortint 14;
+}
+
+object check
+{
+	name "real";
+	real 1.234;
+}
+
+object check
+{
+	name "realimag";
+	realimag 1.234+2.345j;
+}
+
+object check
+{
+	name "shortstr";
+	shortstr "this is a short string";
+}
+
+object check
+{
+	name "mediumstr";
+	mediumstr "this is a medium string";
+}
+
+object check
+{
+	name "longstr";
+	longstr "this is a long string";
+}
+
+object check
+{
+	name "random";
+	random "type:normal(100,10); min:90; max:120; refresh:30s";
+}
+
+#ifdef NEVER
+object check
+{
+	name "ref";
+	ref "test:0";
+}
+#endif
+
+object check
+{
+	name "speed";
+	speed 300 ft/min;
+}

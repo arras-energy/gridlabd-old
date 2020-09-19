@@ -8,6 +8,21 @@
 #endif
 
 #include <Python.h>
+#include "structmember.h"
+
+#ifdef DEBUG_REFTRACE // enable this to trace Py_INCREF/Py_DECREF calls
+
+#warning DEBUG_REFTRACE is enabled
+
+#undef Py_INCREF
+#define Py_INCREF(X) fprintf(stderr,__FILE__ ":%d: warning: Py_INCREF(" #X "=%p) -> %d\n", __LINE__, X, (int)++((X)->ob_refcnt))
+
+#undef Py_DECREF
+#define Py_DECREF(X) fprintf(stderr,__FILE__ ":%d: warning: Py_DECREF(" #X "=%p) -> %d\n", __LINE__, X, (int)--((X)->ob_refcnt))
+
+#endif
+
+PyMODINIT_FUNC PyInit_gridlabd(void);
 
 void python_embed_init(int argc, const char *argv[]);
 void *python_loader_init(int argc, const char **argv);
@@ -32,5 +47,36 @@ DEPRECATED int python_create(void *ptr);
 
 double python_get_part(void *c, const char *name);
 
+inline int PyDict_SetItemString(PyObject* obj, const char *key, const char *value) 
+{
+	PyObject *item = Py_BuildValue("s",value);
+	int rc = PyDict_SetItemString(obj,key,item);
+	Py_DECREF(item);
+	return rc;
+}
+
+inline int PyDict_SetItemString(PyObject* obj, const char *key, int value) 
+{
+	PyObject *item = Py_BuildValue("i",value);
+	int rc = PyDict_SetItemString(obj,key,item);
+	Py_DECREF(item);
+	return rc;
+}
+
+inline int PyDict_SetItemString(PyObject* obj, const char *key, unsigned long long value) 
+{
+	PyObject *item = Py_BuildValue("L",value);
+	int rc = PyDict_SetItemString(obj,key,item);
+	Py_DECREF(item);
+	return rc;
+}
+
+inline int PyDict_SetItemString(PyObject* obj, const char *key, double value) 
+{
+	PyObject *item = Py_BuildValue("d",value);
+	int rc = PyDict_SetItemString(obj,key,item);
+	Py_DECREF(item);
+	return rc;
+}
 
 #endif
