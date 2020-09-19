@@ -19,7 +19,9 @@ convert = {
 	}
 
 def on_term(t):
+	last = None
 	for obj in gridlabd.get("objects"):
+		oclass = gridlabd.get_value(obj,"class")
 		prop = gridlabd.property(obj,"py_object")
 		if oclass == "test":
 			prop = gridlabd.property(obj,"py_object")
@@ -59,4 +61,23 @@ def on_term(t):
 			if result != check:
 				raise Exception(f"set failed ('{result}' != '{check}')")
 			prop.unlock()
+		if prop == last:
+			raise Exception("property eq comparison failed unexpectedly")
+		if prop != prop:
+			raise Exception("property ne comparison failed unexpectedly")
+		ok = None
+		try:
+			prop < last
+			prop > last
+			prop <= last
+			prop >= last
+			ok = False
+		except:
+			ok = True
+			pass
+		if ok == None:
+			raise Exception("property lt/le/gt/ge test inconclusive")
+		elif ok == False:
+			raise Exception("property lt/le/gt/ge succeeded unexpectedly")
+		last = prop
 			

@@ -64,4 +64,7 @@ PyObject *python_property_get_name(PyObject *self, PyObject *args, PyObject *kwd
 PyObject *python_property_set_name(PyObject *self, PyObject *args, PyObject *kwds);
 PyObject *python_property_get_unit(PyObject *self, PyObject *args, PyObject *kwds);
 
+/// Property compare
+PyObject *python_property_compare(PyObject *a, PyObject *b, int op);
+
 #endif

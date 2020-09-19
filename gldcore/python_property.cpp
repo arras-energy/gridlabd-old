@@ -42,6 +42,7 @@ PyTypeObject python_property_type =
     .tp_descr_get = python_property_get_description,
     .tp_init = python_property_create,
     .tp_new = python_property_new,
+    .tp_richcompare = python_property_compare,
 };
 
 /// @returns Python object type definition
@@ -690,3 +691,28 @@ PyObject *python_property_get_unit(PyObject *self, PyObject *args, PyObject *kwd
     }
 }
 
+PyObject *python_property_compare(PyObject *obj1, PyObject *obj2, int op)
+{
+    PyObject *result = NULL;
+    python_property *a = to_python_property(obj1);
+    python_property *b = to_python_property(obj2);
+    int c;
+    switch (op)
+    {
+    case Py_EQ: 
+        c = a->obj == b->obj && a->prop == b->prop; 
+        break;
+    case Py_NE: 
+        c = a->obj != b->obj || a->prop != b->prop ; 
+        break;
+    default:
+        result = Py_NotImplemented;
+        break;
+    }
+    if ( result == NULL )
+    {
+        result = c ? Py_True : Py_False;
+    }
+    Py_INCREF(result);
+    return result;
+}
