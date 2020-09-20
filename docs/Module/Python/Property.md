@@ -30,7 +30,7 @@ gridlabd.property.wlock()
 
 # Description
 
-The `property` object provides direct high-performance access to GridLAB-D object properties.  Access is provided through strong-typed accessors that a tired to the GridLAB-D property types.
+The `property` object provides direct high-performance access to GridLAB-D object properties.  Access is provided through strong-typed accessors that are tied to the GridLAB-D property types.
 
 Objects can be identified by number (int) or name (str).  Properties may only be identified by name (str).
 
