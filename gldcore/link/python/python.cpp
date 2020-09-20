@@ -1948,6 +1948,10 @@ extern "C" void on_term(void)
 // dispatch to python module event handler - return 0 on failure, non-zero on success
 int python_event(OBJECT *obj, const char *function, long long *p_retval)
 {
+    if ( modlist == NULL )
+    {
+        return 1;
+    }
     char objname[64];
     if ( obj->name )
         strcpy(objname,obj->name);
