@@ -12,7 +12,6 @@ module test_python_property;
 
 #set savefile=gridlabd.json
 
-#ifdef NEVER
 class test
 {
 	python py_object;
@@ -57,7 +56,6 @@ object test
 {
 	py_object dict(a=2,b=(3+4j),c=4.56,d='def');
 }
-#endif
 
 class check
 {
@@ -129,13 +127,11 @@ object check
 	random "type:normal(100,10); min:90; max:120; refresh:30s";
 }
 
-#ifdef NEVER
 object check
 {
 	name "ref";
 	ref "test:0";
 }
-#endif
 
 object check
 {
