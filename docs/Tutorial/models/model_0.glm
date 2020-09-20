@@ -1,0 +1,9 @@
+clock 
+{
+	timezone "PST+8PDT";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
+#include "meter_0.glm"
+#include "house_0.glm"
+#include "record_0.glm"
