@@ -62,7 +62,7 @@ class example_class
 object example_class
 {
 	name "my_example";
-	my_list "list(['test',12.34,dict(a=123,b=456)])";
+	my_list list(['test',12.34,dict(a=123,b=456)]);
 	my_value 1.234+5.6789j;
 	my_string "this is a short string";
 	my_real 100 ft/s;
