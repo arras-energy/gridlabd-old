@@ -255,23 +255,12 @@ static PyObject *gridlabd_error(PyObject *self, PyObject *args)
 
 static PyObject *gridlabd_traceback(const char *context=NULL)
 {
-    PyErr_Print();
-    PyThreadState *tstate = PyThreadState_GET();
-    if ( tstate != NULL && tstate->frame != NULL )
+    if ( context ) output_error("traceback context is '%s'",context);
+    if ( PyErr_Occurred() ) 
     {
-        PyFrameObject *frame = tstate->frame;
-        output_error("%s python traceback...", context ? context : "(no context)");
-        while ( frame != NULL )
-        {
-            int line = PyCode_Addr2Line(frame->f_code,frame->f_lasti);
-            const char *filename = PyUnicode_AsUTF8(frame->f_code->co_filename);
-            const char *funcname = PyUnicode_AsUTF8(frame->f_code->co_name);
-            output_error("%s(%d): %s", filename, line, funcname);
-            frame = frame->f_back;
-        }
+        PyErr_Print();
     }
     return NULL;
-
 }
 
 static PyObject *gridlabdException;
@@ -1948,10 +1937,6 @@ extern "C" void on_term(void)
 // dispatch to python module event handler - return 0 on failure, non-zero on success
 int python_event(OBJECT *obj, const char *function, long long *p_retval)
 {
-    if ( modlist == NULL )
-    {
-        return 1;
-    }
     char objname[64];
     if ( obj->name )
         strcpy(objname,obj->name);
@@ -1966,13 +1951,16 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
     }
 
     Py_ssize_t n;
-    PyObject *mod;
-    for ( n = 0 ; n < PyList_Size(modlist) ; n++ )
+    PyObject *mod = NULL;
+    if ( modlist != NULL )
     {
-        mod = PyList_GetItem(modlist,n);
-        if ( strcmp(PyModule_GetName(mod),modname) == 0 )
-            break;
-        mod = NULL;
+        for ( n = 0 ; n < PyList_Size(modlist) ; n++ )
+        {
+            mod = PyList_GetItem(modlist,n);
+            if ( strcmp(PyModule_GetName(mod),modname) == 0 )
+                break;
+            mod = NULL;
+        }
     }
     if ( mod == NULL )
     {
@@ -2001,19 +1989,29 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
             Py_DECREF(args);
             if ( p_retval != NULL )
             {
-                if ( ! result || ! PyLong_Check(result) )
+                if ( result )
                 {
-                    output_error("python %s(%s) did not return an integer value as expected",function,objname);
-                    gridlabd_traceback(function);
-                    if ( result ) 
+                    if ( PyLong_Check(result) )
                     {
-                        Py_DECREF(result);
+                        *p_retval = PyLong_AsLong(result);
                     }
+                    else 
+                    {
+                        output_error("python %s(%s) did not return an integer value as expected",function,objname);
+                        Py_DECREF(result);
+                        return 0;
+                    }
+                }
+                else if ( PyErr_Occurred() )
+                {
+                    output_error("python %s(%s) raised an exception",function,objname);
+                    gridlabd_traceback(function);
                     return 0;
                 }
-                else if ( result )
+                else
                 {
-                    *p_retval = PyLong_AsLong(result);
+                    output_error("python %s(%s) returned NULL without setting an error",function,objname);
+                    return 0;
                 }
             }
             if ( result )

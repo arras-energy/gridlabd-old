@@ -31,6 +31,7 @@ PyObject *python_embed_import(const char *module, const char *path=NULL);
 bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt, va_list varargs);
 std::string python_eval(const char *command);
 bool python_parser(const char *line=NULL, void *context = NULL);
+void python_traceback(const char *command);
 
 // forward declarations to gldcore/link/python.c
 MODULE *python_module_load(const char *, int, const char *[]);

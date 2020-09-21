@@ -1,4 +1,4 @@
-// gldcore/python_embed.h
+// gldcore/python_embed.cpp
 
 #include "gldcore.h"
 
@@ -255,72 +255,12 @@ bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt
     return true;
 }
 
-void traceback(const char *command)
+void python_traceback(const char *command)
 {
-    PyObject *err = PyErr_Occurred();
-    if ( err == NULL )
+    output_error("traceback of command '%s'...",command);
+    if ( PyErr_Occurred() ) 
     {
-        output_error("traceback(command='%s'): no error occurred",command);
-        return;
-    }
-    PyObject *pyth_val, *ptype, *pvalue, *ptraceback;
-    PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-    Py_DECREF(err);
-    if ( ptype == NULL || pvalue == NULL || ptraceback == NULL )
-    {
-        output_error("traceback(command='%s'): no error to fetch",command);
-        return;
-    }
-    PyObject *pystr = PyUnicode_AsEncodedString(pvalue,"utf-8","~E~");
-    char *str = pystr ? PyBytes_AsString(pystr) : NULL;
-    if ( str )
-    {
-        output_error("traceback(command='%s'): python exception caught: %s",command, str);
-    }
-    PyObject *pyth_module = PyImport_ImportModule("traceback");
-    if ( pyth_module == NULL ) 
-    {
-        output_error("traceback(command='%s'): no traceback module available",command);
-    }
-    else
-    {
-        PyObject *pyth_func = PyObject_GetAttrString(pyth_module, "format_exception");
-        PyErr_Clear();
-        if ( pyth_func == NULL )
-        {
-            output_error("traceback(command='%s'): traceback.format_exception() not found",command);
-        }
-        else if ( ! PyCallable_Check(pyth_func) )
-        {
-            output_error("traceback(command='%s'): traceback.format_exception() not callable",command);
-        }
-        else if ( (pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, NULL)) != NULL ) 
-        {
-            PyObject *pystr = PyUnicode_AsEncodedString(pyth_val,"utf-8","~E~");
-            const char *str = pystr ? PyBytes_AsString(pystr) : NULL;
-            if ( str )
-            {
-                output_error("traceback(command='%s'): traceback follows",command);
-                output_error_raw("BEGIN TRACEBACK\n%s\nEND TRACEBACK",command,str);
-            }
-            else
-            {
-                output_error("traceback(command='%s'): no traceback found",command);
-            }
-            Py_DECREF(pyth_val);
-        }
-        else
-        {
-            output_error("traceback(command='%s'): unable to format traceback, arguments follow",command);
-            FILE *error = output_get_stream("error");
-            output_error_raw("BEGIN TRACEBACK");
-            fprintf(error,"function: "); PyObject_Print(pyth_func,error,Py_PRINT_RAW); fprintf(error,"\n");
-            fprintf(error,"type: "); PyObject_Print(ptype,error,Py_PRINT_RAW); fprintf(error,"\n");
-            fprintf(error,"value: "); PyObject_Print(pvalue,error,Py_PRINT_RAW); fprintf(error,"\n");
-            fprintf(error,"traceback: "); PyObject_Print(ptraceback,error,Py_PRINT_RAW); fprintf(error,"\n");
-            output_error_raw("END TRACEBACK");
-        }
-        if ( pyth_func ) Py_DECREF(pyth_func);
+        PyErr_Print();
     }
 }
 
@@ -330,7 +270,7 @@ std::string python_eval(const char *command)
     if ( result == NULL )
     {
         output_error("python_eval(command='%s') failed",truncate(command));
-        traceback(truncate(command));
+        python_traceback(truncate(command));
         throw "python exception";
     }
     PyObject *repr = PyObject_Repr(result);
@@ -343,7 +283,7 @@ std::string python_eval(const char *command)
 }
 
 // Parser implementation
-//   python_parse(<string>) to append <string> to input buffer
+//   python_parser(<string>) to append <string> to input buffer
 //   python_parser(NULL) to parse input buffer
 // Returns true on success, false on failure
 static std::string input_buffer("from gridlabd import *\n");
@@ -369,7 +309,7 @@ bool python_parser(const char *line, void *context)
     if ( result == NULL )
     {
         output_error("python_parser(NULL,...): command '%s' failed",command);
-        traceback(truncate(command));
+        python_traceback(truncate(command));
         input_buffer = "";
         return false;
     }
