@@ -28,3 +28,4 @@ def update(obj,t):
 	tstat = thermostats[obj] # get the cached thermostat class
 	tstat.update() # update the thermostat
 	return int((int(t/tstat.ts)+1)*tstat.ts) # return the time of the next thermostat update
+	
