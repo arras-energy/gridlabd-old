@@ -26,6 +26,8 @@ void python_embed_init(int argc, const char *argv[])
         PyInit_gridlabd();
     }
     gridlabd_module = this_module;
+    Py_INCREF(gridlabd_module);
+    Py_INCREF(main_module);
 }
 
 void *python_loader_init(int argc, const char **argv)
@@ -39,6 +41,8 @@ void *python_loader_init(int argc, const char **argv)
 
 void python_embed_term()
 {
+    Py_DECREF(gridlabd_module);
+    Py_DECREF(main_module);
     if ( Py_FinalizeEx() )
     {
         output_warning("Py_FinalizeEx() failed");
@@ -369,9 +373,11 @@ bool python_parser(const char *line, void *context)
     {
         module = main_module;
     }
+    Py_INCREF(module);
 
     const char *command = input_buffer.c_str();
     PyObject *result = PyRun_String(command,Py_file_input,module,module);
+    Py_DECREF(module);
     if ( result == NULL )
     {
         output_error("python_parser(NULL,...): command '%s' failed",command);
@@ -386,3 +392,45 @@ bool python_parser(const char *line, void *context)
         return true;
     }
 }
+
+// Function: convert_from_double
+DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY *prop)
+{
+    PyObject *raw = PyObject_Str(*(PyObject**)data);
+    PyObject *uni = PyUnicode_AsEncodedString(raw,"utf-8","~E~");
+    std::string bytes(PyBytes_AS_STRING(uni));
+    Py_XDECREF(raw);
+    Py_XDECREF(uni);
+    int len = bytes.length();
+    strncpy(buffer,bytes.c_str(),size-1);
+    return len < size-1 ? len : size-1;
+}
+
+// Function: convert_to_double
+DEPRECATED int convert_to_python(const char *buffer, void *data, PROPERTY *prop)
+{
+    PyObject **pObj = (PyObject **)data;
+    Py_DECREF(*pObj);
+    *pObj = PyRun_String(buffer,Py_eval_input,main_module,main_module);
+    return *pObj ? strlen(buffer) : -1;
+}
+
+DEPRECATED int initial_from_python(char *buffer, int size, void *data, PROPERTY *prop)
+{
+    return convert_from_python(buffer,size,data,prop);
+}
+
+DEPRECATED int python_create(void *ptr)
+{
+    PyObject **pObj = (PyObject**)ptr;
+    *pObj = Py_None;
+    Py_INCREF(Py_None);
+    return 1;
+}
+
+double python_get_part(void *c, const char *name)
+{
+    return QNAN;
+}
+
+
