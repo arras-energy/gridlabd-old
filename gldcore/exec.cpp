@@ -94,28 +94,57 @@ static FILE *rusage_fp = NULL;
 
 static void rusage_report(void)
 {
-	static bool failed = false;
-	if ( rusage_fp == NULL && ! failed )
+	struct rusage r;
+	if ( getrusage(RUSAGE_SELF,&r) == 0 )
 	{
-		rusage_fp = fopen((const char*)global_rusage_file,"w");
-		if ( rusage_fp == NULL )
-		{
-			failed = true;
-			output_warning("unable to open '%s' for write access", (const char*)global_rusage_file);
-		}
-		else
-		{
-			fprintf(rusage_fp,"%s","timestamp,utime,stime,maxrss,ixrss,idrss,isrss,minflt,majflt,nswap,inblock,oublock,msgsnd,msgrcv,nsignals,nvcsw,nivcsw\n");
-		}
+		snprintf(global_rusage_data,sizeof(global_rusage_data),
+			"{"
+			"\"utime\" : %ld.%06ld, "
+			"\"stime\" : %ld.%06ld, "
+			"\"maxrss\" : %ld, "
+			"\"ixrss\" : %ld, "
+			"\"idrss\" : %ld, "
+			"\"isrss\" : %ld, "
+			"\"minflt\" : %ld, "
+			"\"majflt\" : %ld, "
+			"\"nswap\" : %ld, "
+			"\"inblock\" : %ld, "
+			"\"oublock\" : %ld, "
+			"\"msgsnd\" : %ld, "
+			"\"msgrcv\" : %ld, "
+			"\"nsignals\" : %ld, "
+			"\"nvcsw\" : %ld, "
+			"\"nivcsw\" : %ld"
+			"}",					
+			(long)(r.ru_utime.tv_sec),(long)(r.ru_utime.tv_usec),
+			(long)(r.ru_stime.tv_sec),(long)(r.ru_stime.tv_usec),
+			r.ru_maxrss, r.ru_ixrss, r.ru_idrss, r.ru_isrss,
+			r.ru_minflt, r.ru_majflt, r.ru_nswap,
+			r.ru_inblock, r.ru_oublock,
+			r.ru_msgsnd, r.ru_msgrcv,
+			r.ru_nsignals, r.ru_nvcsw, r.ru_nivcsw);
 	}
-	if ( rusage_fp != NULL )
+	if ( global_rusage_rate > 0 && ( global_clock % global_rusage_rate ) == 0 )
 	{
-		struct rusage r;
-		if ( getrusage(RUSAGE_SELF,&r) == 0 )
+		static bool failed = false;
+		if ( rusage_fp == NULL && ! failed )
+		{
+			rusage_fp = fopen((const char*)global_rusage_file,"w");
+			if ( rusage_fp == NULL )
+			{
+				failed = true;
+				output_warning("unable to open '%s' for write access", (const char*)global_rusage_file);
+			}
+			else
+			{
+				fprintf(rusage_fp,"%s","timestamp,utime,stime,maxrss,ixrss,idrss,isrss,minflt,majflt,nswap,inblock,oublock,msgsnd,msgrcv,nsignals,nvcsw,nivcsw\n");
+			}
+		}
+		if ( rusage_fp != NULL )
 		{
 			fprintf(rusage_fp,"%lld,"
-				"%ld.%ld,"
-				"%ld.%ld,"
+				"%ld.%06ld,"
+				"%ld.%06ld,"
 				"%ld,%ld,%ld,%ld,"
 				"%ld,%ld,%ld,"
 				"%ld,%ld,"
@@ -2816,10 +2845,7 @@ STATUS GldExec::exec_start(void)
 				realtime_run_schedule();
 
 				/* report rusage */
-				if ( global_rusage_rate > 0 && ( global_clock % global_rusage_rate ) == 0 )
-				{
-					rusage_report();
-				}
+				rusage_report();
 			}
 
 			/* count number of passes */
