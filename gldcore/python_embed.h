@@ -20,4 +20,17 @@ bool python_parser(const char *line=NULL, void *context = NULL);
 // forward declarations to gldcore/link/python.c
 MODULE *python_module_load(const char *, int, const char *[]);
 
+// Function: convert_from_double
+DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY *prop);
+
+// Function: convert_to_double
+DEPRECATED int convert_to_python(const char *buffer, void *data, PROPERTY *prop);
+
+DEPRECATED int initial_from_python(char *buffer, int size, void *data, PROPERTY *prop);
+
+DEPRECATED int python_create(void *ptr);
+
+double python_get_part(void *c, const char *name);
+
+
 #endif
