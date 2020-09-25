@@ -1852,10 +1852,23 @@ int http_control_request(HTTPCNX *http, char *action)
 		http_close(http);
 		exit(XC_SUCCESS);
 	}
-	else if ( strcmp(action,"stop")==0 )
+	else if ( strcmp(action,"stop") == 0 )
 	{
 		output_verbose("main loop stopped");
 		global_stoptime = global_clock;
+	}
+	else if ( strcmp(action,"halt") == 0 )
+	{
+		output_error("main loop halted");
+		global_exit_code = XC_SVRKLL;
+	}
+	else if ( strcmp(action,"kill") == 0 )
+	{
+		output_error("main loop killed");
+		http_status(http,HTTP_OK);
+		http_send(http);
+		http_close(http);
+		_Exit(XC_SVRKLL);
 	}
 	return 0;
 }
