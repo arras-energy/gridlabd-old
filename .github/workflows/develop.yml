@@ -18,7 +18,7 @@ jobs:
       run: autoreconf -isf
     - name: configure
       run: ./configure
-    - name: make
+    - name: build
       run: make -j10 system
     - name: validate
-      run: gridlabd --validate
+      run: gridlabd -D keep_progress=TRUE -T 0 --validate
