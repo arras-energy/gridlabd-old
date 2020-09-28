@@ -1,10 +1,10 @@
-name: develop
+name: validate
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ master develop minor major ]
   pull_request:
-    branches: [ develop ]
+    branches: [ master develop minor major ]
 
 jobs:
   build:
