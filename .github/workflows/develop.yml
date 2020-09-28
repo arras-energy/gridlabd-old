@@ -1,0 +1,33 @@
+name: develop
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    container: slacgismo/gridlabd_dockerhub_base:latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run autoconf
+      run: autoreconf -isf
+    - name: Configure build
+      run: ./configure
+    - name: Build gridlabd
+      run: make -j10 system
+    - name: Validate build
+      run: |
+        gridlabd -D keep_progress=TRUE -T 0 --validate 
+        utilities/save_validation_errors || true
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: validate-result
+        path: |
+          validate.txt
+          validate.tar.gz
