@@ -9,7 +9,9 @@ HTTP:
     GET /control/pause
     GET /control/pause_wait
     GET /control/pauseat=<timestamp>
+    GET /control/halt
     GET /control/shutdown
+    GET /control/kill
     GET /control/stop
 ~~~
 
@@ -66,13 +68,21 @@ Use the `pauseat` message to pause the simulation at a specified time. Note that
 
 Use the `pause_wait` message to pause the simulation at the current time and wait for the mainloop state to acknowledge the pause.
 
+## `halt`
+
+~~~
+    GET /control/halt
+~~~
+
+Use the `halt` message to end the simulation abnormally and process termination sequences. The exit code is 8 (SVRKLL).
+
 ## `shutdown`
 
 ~~~
     GET /control/shutdown
 ~~~
 
-Use the `shutdown` message to immediately shut down the server.
+Use the `shutdown` message to immediately shut down the server without processing termination sequences. The exit code is 0.
 
 ## `stop`
 
@@ -80,7 +90,15 @@ Use the `shutdown` message to immediately shut down the server.
     GET /control/stop
 ~~~
 
-Use the `stop` message to end the simulation normally.
+Use the `stop` message to end the simulation normally and process termination sequences. The exit code is 0.
+
+## `kill`
+
+~~~
+    GET /control/kill
+~~~
+
+Use the `kill` message to end the simulation abnormally without processing termination sequences.  The exit code is 8 (SVRKLL).
 
 # See also
 

@@ -23,4 +23,5 @@ Specifies the rate at which system resource usage data is collected. The default
 
 * [[/Command/Rusage]]
 * [[/Global/Clock]]
+* [[/Global/Rusage_data]]
 * [[/Global/Rusage_file]]

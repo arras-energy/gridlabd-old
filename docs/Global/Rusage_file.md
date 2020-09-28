@@ -22,4 +22,5 @@ Specifies the file in which system resource usage data is collected
 # See also
 
 * [[/Command/Rusage]]
+* [[/Global/Rusage_data]]
 * [[/Global/Rusage_rate]]
