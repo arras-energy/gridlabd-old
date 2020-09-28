@@ -2161,7 +2161,7 @@ int object_property_getsize(OBJECT *obj, PROPERTY *prop)
 int object_saveall(FILE *fp) /**< the stream to write to */
 {
 	unsigned count = 0;
-	char buffer[1024];
+	char buffer[65536];
 
 	count += fprintf(fp, "\n////////////////////////////////////////////////////////\n");
 	count += fprintf(fp, "// objects\n");
@@ -2221,6 +2221,8 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 				count += fprintf(fp, "\tname \"%s\";\n", obj->name);
 			else if ( (global_glm_save_options&GSO_NOINTERNALS)==GSO_NOINTERNALS )
 				count += fprintf(fp, "\tname \"%s:%d\";\n", oclass->name, obj->id);
+			if ( obj->groupid[0] != '\0' )
+				count += fprintf(fp,"\tgroupid \"%s\";\n", (const char*)obj->groupid);
 			if ( (global_glm_save_options&GSO_NOINTERNALS)==0 && convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) )
 				count += fprintf(fp,"\tclock '%s';\n",  buffer);
 			if ( !isnan(obj->latitude) )
@@ -2305,6 +2307,16 @@ int object_saveall(FILE *fp) /**< the stream to write to */
                 	count += transform_write(xform,fp);
                 	count += fprintf(fp,"\";\n");
                 }
+                else if ( (global_filesave_options&FSO_INITIAL) == FSO_INITIAL )
+	        	{
+	        		// initialization value is desired
+	        		const char * value = object_property_to_initial(obj,prop->name, buffer, sizeof(buffer));
+	        		if ( value != NULL && value[0] != '\0' && strcmp(value,"\"\"") != 0 )
+	        		{
+	        			const char *delim = ( value[0] == '"' ? "" : "\"" );
+	        			count += fprintf(fp, "\t%s %s%s%s;\n", prop->name, delim, value, delim);
+	        		}
+	        	}
                 else if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
 				{
 					if ( prop->access != access && (global_glm_save_options&GSO_NOMACROS)==0 )
