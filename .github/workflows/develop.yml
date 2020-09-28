@@ -14,11 +14,20 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: autoconf
+    - name: Run autoconf
       run: autoreconf -isf
-    - name: configure
+    - name: Configure build
       run: ./configure
-    - name: build
+    - name: Build gridlabd
       run: make -j10 system
-    - name: validate
-      run: gridlabd -D keep_progress=TRUE -T 0 --validate
+    - name: Validate build
+      run: |
+        gridlabd -D keep_progress=TRUE -T 0 --validate 
+        utilities/save_validation_errors
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: validate-result
+        path: |
+          validate.txt
+          validate.tar.gz
