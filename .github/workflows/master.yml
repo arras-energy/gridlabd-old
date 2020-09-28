@@ -14,8 +14,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: update
-      run: /usr/local/bin/python3 -m pip install pwlf
     - name: autoconf
       run: autoreconf -isf
     - name: configure
