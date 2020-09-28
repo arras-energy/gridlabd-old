@@ -95,7 +95,11 @@ int convert_from_double(char *buffer, /**< pointer to the string buffer */
 		count += sprintf(temp+count," %s",prop->unit->name);
 	}
 
-	if ( count <= size ) 
+	if ( size == 0 )
+	{
+		return count;
+	}
+	else if ( count <= size ) 
 	{
 		strcpy(buffer, temp);
 		return count;
@@ -267,7 +271,11 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 		count += sprintf(temp+count," %s",prop->unit->name);
 	}
 
-	if ( count < size - 1 )
+	if ( size == 0 )
+	{
+		return count;
+	}
+	else if ( count < size - 1 )
 	{
 		memcpy(buffer, temp, count);
 		buffer[count] = 0;

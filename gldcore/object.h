@@ -420,6 +420,7 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 const char *object_property_to_string_x(OBJECT *obj, PROPERTY *prop, char *buffer, int sz);
 const char *object_get_unit(OBJECT *obj, const char *name);
 OBJECTRANK object_set_rank(OBJECT *obj, OBJECTRANK rank);
+int object_get_value(OBJECT *obj, PROPERTY *prop, char *value, int size);
 
 OBJECT *object_find_by_id(OBJECTNUM id);
 OBJECT *object_get_first(void);
