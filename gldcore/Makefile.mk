@@ -50,6 +50,7 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/output.cpp gldcore/output.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/platform.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/property.cpp gldcore/property.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/python_embed.cpp gldcore/python_embed.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/python_property.cpp gldcore/python_property.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/random.cpp gldcore/random.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/realtime.cpp gldcore/realtime.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/sanitize.cpp gldcore/sanitize.h

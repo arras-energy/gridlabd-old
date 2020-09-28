@@ -805,6 +805,8 @@ GLOBAL int64 global_rusage_rate INIT(0);
 /* Variable: global_rusage_file */
 GLOBAL char1024 global_rusage_file INIT("gridlabd-rusage.csv");
 
+GLOBAL char1024 global_rusage_data INIT("{}");
+
 #undef GLOBAL
 #undef INIT
 
