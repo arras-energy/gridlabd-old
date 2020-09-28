@@ -1,0 +1,23 @@
+name: develop
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: autoconf
+      run: ./autoreconf -isf
+    - name: configure
+      run: ./configure
+    - name: make
+      run: make -j10 system
+    - name: validate
+      run: gridlabd --validate
