@@ -1,0 +1,18 @@
+//#option profile
+//#option rusage
+module example;
+#set savefile=gridlabd.json
+clock
+{
+	starttime "2000-01-01 00:00:00";
+	stoptime "2001-01-01 00:00:00";
+}
+class example_class
+{
+	double my_real[m/s];
+}
+object example_class
+{
+	name "my_example";
+	my_real 100 ft/s;
+}

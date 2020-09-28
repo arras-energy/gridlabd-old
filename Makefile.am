@@ -319,7 +319,7 @@ reconfigure: distclean
 	autoreconf -isf && ./configure
 
 reconfigure-debug: distclean
-	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
+	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
 
 docker: $(PREFIX)/docker.img
 
