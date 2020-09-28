@@ -1,0 +1,24 @@
+name: master
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    container: slacgismo/gridlabd:latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: autoconf
+      run: autoreconf -isf
+    - name: configure
+      run: ./configure
+    - name: build
+      run: make -j10 system
+    - name: validate
+      run: gridlabd -D keep_progress=TRUE -T 0 --validate

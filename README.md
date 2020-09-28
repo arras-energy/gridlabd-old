@@ -1,3 +1,5 @@
+![master](https://github.com/dchassin/gridlabd/workflows/master/badge.svg) ![develop](https://github.com/dchassin/gridlabd/workflows/develop/badge.svg)
+
 The main documentation page for this project is located at http://docs.gridlabd.us/.
 
 ## Important Note
