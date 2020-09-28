@@ -2221,6 +2221,8 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 				count += fprintf(fp, "\tname \"%s\";\n", obj->name);
 			else if ( (global_glm_save_options&GSO_NOINTERNALS)==GSO_NOINTERNALS )
 				count += fprintf(fp, "\tname \"%s:%d\";\n", oclass->name, obj->id);
+			if ( obj->groupid[0] != '\0' )
+				count += fprintf(fp,"\tgroupid \"%s\";\n", (const char*)obj->groupid);
 			if ( (global_glm_save_options&GSO_NOINTERNALS)==0 && convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) )
 				count += fprintf(fp,"\tclock '%s';\n",  buffer);
 			if ( !isnan(obj->latitude) )
