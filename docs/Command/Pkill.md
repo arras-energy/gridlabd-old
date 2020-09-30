@@ -10,16 +10,16 @@ bash$ gridlabd --pkill [<signal>] <processor>
 
 This `--pkill` command line option send a signal to the specified job.  If the signal is omitted, the interrupt (SIGINT=2) signal is sent. The following signals and actions are supported.
 
-| Signal   | Action    | Remarks 
-| -------- | --------- | -------------------------------
-| -SIGINT  | Terminate | Interrupt the job
-| -SIGQUIT | Core dump | Quit the job
-| -SIGTRAP | Core dump | Trace trap the job
-| -SIGABRT | Core dump | Abort the job
-| -SIGKILL | Terminate | Kill the job
-| -SIGTERM | Terminate | Software termination of job
-| -SIGSTOP | Stop job  | Stops the job
-| -SIGCONT | Discarded | Continues the job
+| Signal     | Action    | Remarks 
+| ---------- | --------- | -------------------------------
+| `-SIGINT`  | Terminate | Interrupt the job
+| `-SIGQUIT` | Core dump | Quit the job
+| `-SIGTRAP` | Core dump | Trace trap the job
+| `-SIGABRT` | Core dump | Abort the job
+| `-SIGKILL` | Terminate | Kill the job
+| `-SIGTERM` | Terminate | Software termination of job
+| `-SIGSTOP` | Stop job  | Stops the job
+| `-SIGCONT` | Discarded | Continues the job
 
 Signals can also be given in short form, e.g., `-INT` instead of `-SIGINT` or as a number, e.g., `-2` instead of `-SIGINT`. Note that any signal number is permitted, but only the above signals are supported as a string.
 
