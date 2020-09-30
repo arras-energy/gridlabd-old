@@ -8,7 +8,9 @@ bash$ gridlabd --pkill [<signal>] <processor>
 
 # Description
 
-This `--pkill` command line option send a signal to the specified job.  If the signal is omitted, the interrupt (SIGINT=2) signal is sent. The following signals and actions are supported.
+The `--pkill` command line option sends a signal to the job on the specified processor.  If the signal is omitted, the interrupt (SIGINT=2) signal is sent. 
+
+The following signals and actions are supported.
 
 | Signal     | Action    | Remarks 
 | ---------- | --------- | -------------------------------
