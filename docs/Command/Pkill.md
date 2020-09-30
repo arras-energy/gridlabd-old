@@ -41,3 +41,4 @@ host$ gridlabd --pkill -2 0
 * [[/Command/Pcontrol]]
 * [[/Command/Plist]]
 * [[/Command/Pstatus]]
+* [[/Subcommand/Trace]]
