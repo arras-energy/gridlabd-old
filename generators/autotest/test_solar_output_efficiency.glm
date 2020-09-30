@@ -1,6 +1,6 @@
 // Test power out of the inverter for default single-point efficiency and for multipoint efficiency model
 
-#set profiler=1;
+//#set profiler=1;
 
 clock {
      //timezone PST+8PDT;

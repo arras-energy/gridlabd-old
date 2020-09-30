@@ -25,13 +25,39 @@
 
 int csv_data_only = 0; /* enable this option to suppress addition of lines starting with # in CSV */
 int csv_keep_clean = 0; /* enable this option to keep data flushed at end of line */
-EXPORT void set_csv_data_only()
+
+EXPORT void *get_option(const char *name)
 {
-	csv_data_only = 1;
+	struct s_map 
+	{
+		const char *name;
+		void *ptr;
+	} map[] = {
+		{"csv_data_only",(void*)&csv_data_only},
+		{"csv_keep_clean",(void*)&csv_keep_clean},
+	};
+	for ( size_t n = 0 ; n < sizeof(map)/sizeof(map[0]) ; n++ )
+	{
+		if ( strcmp(map[n].name,name) == 0 )
+		{
+			return map[n].ptr;
+		}
+	}
+	return NULL;
 }
-EXPORT void set_csv_keep_clean()
+
+EXPORT void *set_option(const char *name, void *pValue)
 {
-	csv_keep_clean = 1;
+	void *pRef = get_option(name);
+	if ( pRef == (void*)&csv_data_only )
+	{
+		csv_data_only = *(int*)pValue;
+	}
+	else if ( pRef == (void*)&csv_keep_clean )
+	{
+		csv_keep_clean = *(int*)pValue;
+	}
+	return pRef;
 }
 
 /*******************************************************************
@@ -342,8 +368,9 @@ EXPORT int open_recorder(struct recorder *my, char *fname, char *flags)
 	my->status=TS_OPEN;
 	my->samples=0;
 
-	if (!csv_data_only)
+	switch ( csv_data_only )
 	{
+	case 0:
 		/* put useful header information in file first */
 		fprintf(my->fp,"# file...... %s\n", my->file.get_string());
 		fprintf(my->fp,"# date...... %s", asctime(localtime(&now)));
@@ -361,6 +388,15 @@ EXPORT int open_recorder(struct recorder *my, char *fname, char *flags)
 		fprintf(my->fp,"# interval.. %lld\n", my->interval);
 		fprintf(my->fp,"# limit..... %d\n", my->limit);
 		fprintf(my->fp,"# timestamp,%s\n", (const char*)my->property);
+		break;
+	case 2:
+		// one-line field names header
+		fprintf(my->fp,"timestamp,%s\n", (const char *)my->property);
+		break;
+	case 1:
+	default:
+		// nothing
+		break;
 	}
 
 	return 1;
@@ -408,8 +444,9 @@ EXPORT int open_histogram(histogram *my, char *fname, char *flags)
 	my->t_count = TS_ZERO;
 	my->t_sample = TS_ZERO;
 
-	if (!csv_data_only)
+	switch ( csv_data_only )
 	{
+	case 0:
 		/* put useful header information in file first */
 		fprintf(my->fp,"# file...... %s\n", my->fname.get_string());
 		fprintf(my->fp,"# date...... %s", asctime(localtime(&now)));
@@ -441,7 +478,16 @@ EXPORT int open_histogram(histogram *my, char *fname, char *flags)
 			}
 			fprintf(my->fp, "\n");
 		}
-	}	
+		break;
+	case 2:
+		// one-line field names header
+		fprintf(my->fp,"timestamp,%s\n", (const char *)my->property);
+		break;
+	case 1:
+	default:
+		// nothing
+		break;
+	}
 
 	return 1;
 }
@@ -476,7 +522,6 @@ EXPORT void close_histogram(histogram *my)
  */
 EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 {
-	unsigned int count=0;
 	time_t now=time(NULL);
 
 	my->fp = (strcmp(fname,"-")==0?stdout:fopen(fname,flags));
@@ -492,23 +537,33 @@ EXPORT int open_collector(struct collector *my, char *fname, char *flags)
 	my->type = FT_FILE;
 	my->samples=0;
 
-	if (!csv_data_only)
+	switch ( csv_data_only )
 	{
+	case 0:
 		/* put useful header information in file first */
-		count += fprintf(my->fp,"# file...... %s\n", my->file.get_string());
-		count += fprintf(my->fp,"# date...... %s", asctime(localtime(&now)));
+		fprintf(my->fp,"# file...... %s\n", my->file.get_string());
+		fprintf(my->fp,"# date...... %s", asctime(localtime(&now)));
 #ifdef WIN32
-		count += fprintf(my->fp,"# user...... %s\n", getenv("USERNAME"));
-		count += fprintf(my->fp,"# host...... %s\n", getenv("MACHINENAME"));
+		fprintf(my->fp,"# user...... %s\n", getenv("USERNAME"));
+		fprintf(my->fp,"# host...... %s\n", getenv("MACHINENAME"));
 #else
-		count += fprintf(my->fp,"# user...... %s\n", getenv("USER"));
-		count += fprintf(my->fp,"# host...... %s\n", getenv("HOST"));
+		fprintf(my->fp,"# user...... %s\n", getenv("USER"));
+		fprintf(my->fp,"# host...... %s\n", getenv("HOST"));
 #endif
-		count += fprintf(my->fp,"# group..... %s\n", my->group.get_string());
-		count += fprintf(my->fp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger.get_string());
-		count += fprintf(my->fp,"# interval.. %lld\n", my->interval);
-		count += fprintf(my->fp,"# limit..... %d\n", my->limit);
-		count += fprintf(my->fp,"# property.. timestamp,%s\n", (const char *)my->property);
+		fprintf(my->fp,"# group..... %s\n", my->group.get_string());
+		fprintf(my->fp,"# trigger... %s\n", my->trigger[0]=='\0'?"(none)":my->trigger.get_string());
+		fprintf(my->fp,"# interval.. %lld\n", my->interval);
+		fprintf(my->fp,"# limit..... %d\n", my->limit);
+		fprintf(my->fp,"# property.. timestamp,%s\n", (const char *)my->property);
+		break;
+	case 2:
+		// one-line field names header
+		fprintf(my->fp,"timestamp,%s\n", (const char *)my->property);
+		break;
+	case 1:
+	default:
+		// nothing
+		break;
 	}
 
 	return 1;

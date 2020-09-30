@@ -358,6 +358,7 @@ OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 	obj->flags = OF_NONE;
 	obj->rng_state = randwarn(NULL);
 	obj->heartbeat = 0;
+	obj->events = oclass->events;
 	random_key(obj->guid,sizeof(obj->guid)/sizeof(obj->guid[0]));
 
 	object_create_properties(obj,obj->oclass);
@@ -1296,6 +1297,27 @@ int object_set_complex_by_name(OBJECT *obj, PROPERTYNAME name, complex value)
 	return 1;
 }
 
+/// object_get_value
+///
+/// Parameters:
+///   obj - the object from which the property is obtained
+///   prop - the property to obtain
+///   value - the buffer into which the value to be written
+///   size - the size of the buffer into which the value is to be written
+/// 
+/// If `value` is NULL, then the buffer will be created using `malloc()`
+/// and must be `free()`ed when it is not longer needed. The value of `size`
+/// is ignored.
+///
+/// If `size` is 0, then no data is actually copied to the buffer. Instead
+/// the return value is the length of the string needed to contain the value.
+///
+int object_get_value(OBJECT *obj, PROPERTY *prop, char *value, int size)
+{
+	void *addr = (char*)(obj+1) + (int64)(prop->addr);
+	return object_get_value_by_addr(obj,addr,value,size,prop);
+}
+
 /** Get a property value by reference to its physical address
 	@return the number of characters written to the buffer; 0 if failed
  **/
@@ -1677,16 +1699,11 @@ int object_event(OBJECT *obj, char *event, long long *p_retval=NULL)
 	char function[1024];
 	if ( sscanf(event,"python:%s",function) ==  1 )
 	{
-#ifdef HAVE_PYTHON
 		// implemented in gldcore/link/python/python.cpp
 		extern int python_event(OBJECT *obj, const char *, long long *);
 		int rv = python_event(obj,function,p_retval) ? 0 : -1;
 		IN_MYCONTEXT output_debug("python_event() returns %d, *p_retval = %lld",rv, *p_retval);
 		return rv;
-#else
-		output_error("python system not linked, event '%s' is not callable", event);
-		return -1;
-#endif
 	}
 	else
 	{
@@ -2144,7 +2161,7 @@ int object_property_getsize(OBJECT *obj, PROPERTY *prop)
 int object_saveall(FILE *fp) /**< the stream to write to */
 {
 	unsigned count = 0;
-	char buffer[1024];
+	char buffer[65536];
 
 	count += fprintf(fp, "\n////////////////////////////////////////////////////////\n");
 	count += fprintf(fp, "// objects\n");
@@ -2204,6 +2221,8 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 				count += fprintf(fp, "\tname \"%s\";\n", obj->name);
 			else if ( (global_glm_save_options&GSO_NOINTERNALS)==GSO_NOINTERNALS )
 				count += fprintf(fp, "\tname \"%s:%d\";\n", oclass->name, obj->id);
+			if ( obj->groupid[0] != '\0' )
+				count += fprintf(fp,"\tgroupid \"%s\";\n", (const char*)obj->groupid);
 			if ( (global_glm_save_options&GSO_NOINTERNALS)==0 && convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) )
 				count += fprintf(fp,"\tclock '%s';\n",  buffer);
 			if ( !isnan(obj->latitude) )
@@ -2284,10 +2303,20 @@ int object_saveall(FILE *fp) /**< the stream to write to */
                 }
                 else if ( (global_glm_save_options&GSO_ORIGINAL)==GSO_ORIGINAL && (xform=transform_has_target(property_addr(obj,prop))) != NULL )
                 {
-                	count += fprintf(fp,"\t%s ", prop->name);
+                	count += fprintf(fp,"\t%s \"", prop->name);
                 	count += transform_write(xform,fp);
-                	count += fprintf(fp,";\n");
+                	count += fprintf(fp,"\";\n");
                 }
+                else if ( (global_filesave_options&FSO_INITIAL) == FSO_INITIAL )
+	        	{
+	        		// initialization value is desired
+	        		const char * value = object_property_to_initial(obj,prop->name, buffer, sizeof(buffer));
+	        		if ( value != NULL && value[0] != '\0' && strcmp(value,"\"\"") != 0 )
+	        		{
+	        			const char *delim = ( value[0] == '"' ? "" : "\"" );
+	        			count += fprintf(fp, "\t%s %s%s%s;\n", prop->name, delim, value, delim);
+	        		}
+	        	}
                 else if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
 				{
 					if ( prop->access != access && (global_glm_save_options&GSO_NOMACROS)==0 )
@@ -3233,17 +3262,12 @@ bool object_set_json(OBJECT *obj, PROPERTYNAME propname, JSONDATA *data)
 
 OBJECT *object_find_by_addr(void *addr, PROPERTY *prop)
 {
-	static OBJECT *last_object = NULL; // caching last found
-	for ( OBJECT *obj = last_object ? last_object : first_object ; obj != NULL ; obj = obj->next )
+	for ( OBJECT *obj = first_object ; obj != NULL ; obj = obj->next )
 	{
 		if ( addr >= obj && addr < (char*)(((OBJECT*)obj)+1)+obj->oclass->size )
 		{
 			last_object = obj;
 			return obj;
-		}
-		if ( obj->next == NULL && last_object )
-		{
-			obj = first_object;
 		}
 	}
 	return NULL;

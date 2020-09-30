@@ -21,6 +21,9 @@ dist_pkgdata_DATA += gldcore/converters/mdb-cyme2glm.py
 # omd -> glm
 dist_pkgdata_DATA += gldcore/converters/omd2glm.py
 
+# tmy3 -> glm
+dist_pkgdata_DATA += gldcore/converters/tmy32glm.py
+
 # txt -> glm
 dist_pkgdata_DATA += gldcore/converters/txt2glm.py
 dist_pkgdata_DATA += gldcore/converters/txt-cyme2glm.py

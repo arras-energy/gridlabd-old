@@ -3,7 +3,7 @@
 //Had issues with switch sync and meter sync routines
 //Silent segfault
 
-#set profiler=1
+//#set profiler=1
 clock {
 	timezone EST+5EDT;
 	starttime '2000-01-01 0:00:00';

@@ -222,9 +222,9 @@ AGGREGATION *link_aggregates(char *aggregate_list, char *group)
 {
 	char *item;
 	AGGREGATION *first=NULL, *last=NULL;
-	char1024 list;
-	strcpy(list,aggregate_list); /* avoid destroying orginal list */
-	for (item=strtok(list,","); item!=NULL; item=strtok(NULL,","))
+	char *list = strdup(aggregate_list);
+	char *last_token;
+	for (item=strtok_r(list,",",&last_token); item!=NULL; item=strtok_r(NULL,",",&last_token))
 	{
 		AGGREGATION *aggr = gl_create_aggregate(item,group);
 		if (aggr!=NULL)
@@ -234,9 +234,12 @@ AGGREGATION *link_aggregates(char *aggregate_list, char *group)
 			last=aggr;
 			aggr->next = NULL;
 		}
-		else
+		else {
+			free(list);
 			return NULL; // allowable to have null (zero-length) aggrs, but only give time-varying aggregates
+		}
 	}
+	free(list);
 	return first;
 }
 

@@ -476,7 +476,7 @@ house_e::house_e(MODULE *mod) : residential_enduse(mod)
 			PT_double,"design_peak_solar[Btu/h/sf]", PADDR(design_peak_solar), 
 				PT_DEFAULT,"+0", 
 				PT_DESCRIPTION,"system design solar load",
-			PT_double,"design_internal_gains[W/sf]", PADDR(design_internal_gains), 
+			PT_double,"design_internal_gains[Btu/h]", PADDR(design_internal_gains), 
 				PT_DEFAULT,"+0", 
 				PT_DESCRIPTION,"system design internal gains",
 			PT_double,"air_heat_fraction[pu]", PADDR(air_heat_fraction), 
@@ -971,7 +971,8 @@ int house_e::create()
 		size_t n_eu=0;
 
 		// extract the implicit_enduse list
-		while ((token=strtok(token?NULL:active_enduses,"|"))!=NULL)
+		char *last;
+		while ((token=strtok_r(token?NULL:active_enduses,"|" ,&last))!=NULL)
 			eulist[n_eu++] = token;
 
 		while (n_eu-->0)

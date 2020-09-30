@@ -1,0 +1,17 @@
+#ifexist "../config.csv"
+#define DIR=..
+#endif
+
+#input "${DIR:-.}/config.csv" -f config -t config -p prefix=MY_
+
+#if ${MY_TEST1:-X} == A
+#print ok
+#else
+#error MY_TEST1==${MY_TEST1:-X} failed
+#endif
+
+#if ${MY_TEST2:-X} == B
+#print ok
+#else
+#error MY_TEST2==${MY_TEST2:-X} failed
+#endif

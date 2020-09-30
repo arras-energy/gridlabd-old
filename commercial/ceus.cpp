@@ -370,30 +370,30 @@ ceus::ceus(MODULE *module)
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
-		gl_global_create("default_nominal_voltage_A",PT_complex,&default_nominal_voltage_A,NULL);
-		gl_global_create("default_nominal_voltage_B",PT_complex,&default_nominal_voltage_B,NULL);
-		gl_global_create("default_nominal_voltage_C",PT_complex,&default_nominal_voltage_C,NULL);
-		gl_global_create("default_nominal_voltage",PT_double,&default_nominal_voltage,NULL);
-		gl_global_create("default_weekday_code",PT_char32,&default_weekday_code,NULL);
-		gl_global_create("default_saturday_code",PT_char32,&default_saturday_code,NULL);
-		gl_global_create("default_sunday_code",PT_char32,&default_sunday_code,NULL);
-		gl_global_create("default_holiday_code",PT_char32,&default_holiday_code,NULL);
-		gl_global_create("default_month_heading",PT_char32,&default_month_heading,NULL);
-		gl_global_create("default_daytype_heading",PT_char32,&default_daytype_heading,NULL);
-		gl_global_create("default_hour_heading",PT_char32,&default_hour_heading,NULL);
-		gl_global_create("default_temperature_heating_balance",PT_double,&default_temperature_heating_balance,NULL);
-		gl_global_create("default_temperature_cooling_balance",PT_double,&default_temperature_cooling_balance,NULL);
-		gl_global_create("default_temperature_heating_base",PT_double,&default_temperature_heating_base,NULL);
-		gl_global_create("default_temperature_cooling_base",PT_double,&default_temperature_cooling_base,NULL);
-		gl_global_create("default_temperature_heating_design",PT_double,&default_temperature_heating_design,NULL);
-		gl_global_create("default_temperature_cooling_design",PT_double,&default_temperature_cooling_design,NULL);
-		gl_global_create("default_solargain_base",PT_double,&default_solargain_base,NULL);
-		gl_global_create("default_price_base",PT_double,&default_price_base,NULL);
-		gl_global_create("default_occupancy_base",PT_double,&default_occupancy_base,NULL);
-		gl_global_create("temperature_variable_name",PT_char1024,&temperature_variable_name,NULL);
-		gl_global_create("solargain_variable_name",PT_char1024,&solargain_variable_name,NULL);
-		gl_global_create("price_variable_name",PT_char1024,&price_variable_name,NULL);
-		gl_global_create("occupancy_variable_name",PT_char1024,&occupancy_variable_name,NULL);
+		gl_global_create("commercial::default_nominal_voltage_A",PT_complex,&default_nominal_voltage_A,NULL);
+		gl_global_create("commercial::default_nominal_voltage_B",PT_complex,&default_nominal_voltage_B,NULL);
+		gl_global_create("commercial::default_nominal_voltage_C",PT_complex,&default_nominal_voltage_C,NULL);
+		gl_global_create("commercial::default_nominal_voltage",PT_double,&default_nominal_voltage,NULL);
+		gl_global_create("commercial::default_weekday_code",PT_char32,&default_weekday_code,NULL);
+		gl_global_create("commercial::default_saturday_code",PT_char32,&default_saturday_code,NULL);
+		gl_global_create("commercial::default_sunday_code",PT_char32,&default_sunday_code,NULL);
+		gl_global_create("commercial::default_holiday_code",PT_char32,&default_holiday_code,NULL);
+		gl_global_create("commercial::default_month_heading",PT_char32,&default_month_heading,NULL);
+		gl_global_create("commercial::default_daytype_heading",PT_char32,&default_daytype_heading,NULL);
+		gl_global_create("commercial::default_hour_heading",PT_char32,&default_hour_heading,NULL);
+		gl_global_create("commercial::default_temperature_heating_balance",PT_double,&default_temperature_heating_balance,NULL);
+		gl_global_create("commercial::default_temperature_cooling_balance",PT_double,&default_temperature_cooling_balance,NULL);
+		gl_global_create("commercial::default_temperature_heating_base",PT_double,&default_temperature_heating_base,NULL);
+		gl_global_create("commercial::default_temperature_cooling_base",PT_double,&default_temperature_cooling_base,NULL);
+		gl_global_create("commercial::default_temperature_heating_design",PT_double,&default_temperature_heating_design,NULL);
+		gl_global_create("commercial::default_temperature_cooling_design",PT_double,&default_temperature_cooling_design,NULL);
+		gl_global_create("commercial::default_solargain_base",PT_double,&default_solargain_base,NULL);
+		gl_global_create("commercial::default_price_base",PT_double,&default_price_base,NULL);
+		gl_global_create("commercial::default_occupancy_base",PT_double,&default_occupancy_base,NULL);
+		gl_global_create("commercial::temperature_variable_name",PT_char1024,&temperature_variable_name,NULL);
+		gl_global_create("commercial::solargain_variable_name",PT_char1024,&solargain_variable_name,NULL);
+		gl_global_create("commercial::price_variable_name",PT_char1024,&price_variable_name,NULL);
+		gl_global_create("commercial::occupancy_variable_name",PT_char1024,&occupancy_variable_name,NULL);
 	}
 }
 

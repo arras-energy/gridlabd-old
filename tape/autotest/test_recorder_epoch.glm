@@ -17,7 +17,10 @@ clock {
 //#set minimum_timestep=60;
 //#include "../water_and_setpoint_schedule_v3.glm";
 
-module tape;
+module tape
+{
+     csv_header_type NAME;
+}
 module residential {
      implicit_enduses NONE;
 };

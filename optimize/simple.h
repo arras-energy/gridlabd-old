@@ -14,9 +14,17 @@
 #include "gridlabd.h"
 #include "optimize.h"
 
-typedef enum {OG_EXTREMUM, OG_MINIMUM, OG_MAXIMUM} OBJECTIVEGOAL;
+typedef enum 
+{
+	OG_EXTREMUM = 0, 
+	OG_MINIMUM = 1, 
+	OG_MAXIMUM = 2,
+} OBJECTIVEGOAL;
 
-class simple : public gld_object {
+class simple : public gld_object 
+{
+public:
+	typedef bool (*COMPAREFUNCTION)(double,double);
 protected:
 	OBJECTIVEGOAL goal; // objective goal description
 	char1024 objective; // objective variable name
@@ -36,7 +44,7 @@ private:
 	double *pVariable; // decision variable
 	double *pConstraint; // constraint variable
 	struct {
-		bool (*op)(double,double); // constraint operation
+		COMPAREFUNCTION op; // constraint operation
 		double value; // constraint value
 	} constrain; // describe a constraint
 	bool constraint_broken(double x); // detect constraint
@@ -46,10 +54,10 @@ public:
 	simple(MODULE *module);
 	int create(void);
 	int init(OBJECT *parent);
-	int isa(char *classname);
-	TIMESTAMP presync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP sync(TIMESTAMP t0, TIMESTAMP t1);
-	TIMESTAMP postsync(TIMESTAMP t0, TIMESTAMP t1);
+	int isa(CLASSNAME classname);
+	TIMESTAMP presync(TIMESTAMP t1);
+	inline TIMESTAMP sync(TIMESTAMP t1) { return TS_INVALID; };
+	TIMESTAMP postsync(TIMESTAMP t1);
 public:
 	static CLASS *oclass;
 	static simple *defaults;

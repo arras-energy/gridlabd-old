@@ -4,7 +4,7 @@
 
 #include "climate.h"
 
-char1024 climate_library_path = "/usr/local/share/gridlabd/weather/US";
+char climate_library_path[sizeof(char1024)] = "/usr/local/share/gridlabd/weather/US";
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {
@@ -20,7 +20,11 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new weather(module);
 	new csv_reader(module);
 
-	gl_global_create("climate::library_path",PT_char1024,&climate_library_path,NULL);
+	if ( gl_global_getvar("datadir",climate_library_path,sizeof(climate_library_path)) )
+	{
+		strcat(climate_library_path,"/weather/US");
+	}
+	gl_global_create("climate::library_path",PT_char1024,climate_library_path,NULL);
 
 	/* always return the first class registered */
 	return climate::oclass;

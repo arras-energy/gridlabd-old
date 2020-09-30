@@ -155,3 +155,9 @@ gldcore/converters/test_data.glm
 gldcore/converters/autotest/weather_recorder.csv
 gldcore/converters/noaa.csv
 gldcore/converters/noaa.glm
+gldcore/link/python/examples/example_2/example.png
+gldcore/link/python/examples/example_3/example.png
+gldcore/link/python/examples/example_3/x.csv
+gldcore/link/python/examples/example_1/example.png
+gldcore/link/python/examples/example_1/x.csv
+gldcore/autotest/test.glm

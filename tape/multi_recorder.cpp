@@ -318,13 +318,14 @@ static int multi_recorder_open(OBJECT *obj)
 		UNIT *unit = 0;
 		int first = 1;
 		OBJECT *myobj = 0;
+		char *last;
 		switch(my->header_units){
 			case HU_DEFAULT:
 				strcpy(my->out_property, my->property);
 				break;
 			case HU_ALL:
 				strcpy(unit_buffer, my->property);
-				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
+				for(token = strtok_r(unit_buffer, ",", &last); token != NULL; token = strtok_r(NULL, ",",&last)){
 					unit = 0;
 					prop = 0;
 					unitstr[0] = 0;
@@ -423,7 +424,7 @@ static int multi_recorder_open(OBJECT *obj)
 				break;
 			case HU_NONE:
 				strcpy(unit_buffer, my->property);
-				for(token = strtok(unit_buffer, ","); token != NULL; token = strtok(NULL, ",")){
+				for(token = strtok_r(unit_buffer, ",",&last); token != NULL; token = strtok_r(NULL, ",",&last)){
 					if(2 == sscanf(token, "%[A-Za-z0-9_:.][%[^]\n,]]", propstr, unitstr)){
 						; // no logic change
 					}
@@ -608,12 +609,11 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 {
 	char *item, *lastitem;
 	RECORDER_MAP *first=NULL, *last=NULL, *rmap;
-	char1024 list;
+	char *list = strdup(property_list);
 	complex oblig;
 	char objname[128];
 	gl_name_object(obj, objname, 128);
 
-	strcpy(list,property_list); /* avoid destroying orginal list */
 	for ( item = strtok_r(list,", \n", &lastitem); item != NULL; item = strtok_r(NULL,", \n",&lastitem))
 	{
 		char objstr[128] = "";
@@ -630,6 +630,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 		if ( rmap == NULL )
 		{
 			gl_error("%s -- memory allocation failed", objname);
+			free(list);
 			return NULL;
 		}	
 		memset(rmap, 0, sizeof(RECORDER_MAP));
@@ -672,6 +673,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 				break;
 			default:
 				gl_error("%s: property '%s' is not valid", objname, item);
+				free(list);
 				return NULL;
 			}
 			gl_debug("target object = '%s:%d'", target_obj->oclass->name, target_obj->id);
@@ -754,6 +756,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 			}
 		}
 	}
+	free(list);
 	return first;
 }
 
@@ -762,48 +765,39 @@ int read_multi_properties(struct recorder *my, OBJECT *obj, RECORDER_MAP *rmap, 
 	RECORDER_MAP *r;
 	int offset = 0;
 	int count = 0;
-	double value;
-	PROPERTY *p2 = 0;
-	PROPERTY fake;
-	memset(&fake, 0, sizeof(PROPERTY));
-	fake.ptype = PT_double;
-	fake.unit = 0;
-	for(r = rmap; r != NULL && offset < size - 33; r = r->next)
+	double x;
+	complex z; 
+	for ( r = rmap ; r != NULL && offset < size - 33; r = r->next )
 	{
 		void *addr = ( r->obj == NULL || r->prop.oclass == NULL ? r->prop.addr : GETADDR(r->obj,&(r->prop)) );
-		if(offset > 0){
+		if ( offset > 0)
+		{
 			strcpy(buffer+offset++,",");
 		}
-		if(r->prop.ptype == PT_double){
-			switch(my->line_units){
-				case LU_ALL:
-					// cascade into 'default', as prop->unit should've been set, if there's a unit available.
-				case LU_DEFAULT:
-					offset+=gl_get_value(r->obj,addr,buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */
-					break;
-				case LU_NONE:
-					// copy value into local value, use fake PROP, feed into gl_get_vaule
-					value = *gl_get_double(r->obj, &(r->prop));
-					value *= r->scale;
-					p2 = gl_get_property(r->obj, r->prop.name,NULL);
-					if(p2 == 0){
-						gl_error("unable to locate %s.%s for LU_NONE", r->obj, r->prop.name);
-						return 0;
-					}
-					if(r->prop.unit != 0 && p2->unit != 0){
-						if(0 == gl_convert_ex(p2->unit, r->prop.unit, &value)){
-							gl_error("unable to convert %s to %s for LU_NONE", r->prop.unit, p2->unit);
-						} else { // converted
-							offset+=gl_get_value(r->obj,&value,buffer+offset,size-offset-1,&fake); /* pointer => int64 */;
-						}
-					} else {
-						offset+=gl_get_value(r->obj,addr,buffer+offset,size-offset-1,&(r->prop)); /* pointer => int64 */;
-					}
-					break;
-				default:
-					break;
+		if ( r->prop.ptype == PT_double && ( r->scale != 1.0 || my->line_units == LU_NONE ) )
+		{
+			// copy value into local value, use fake PROP, feed into gl_get_vaule
+			x = *gl_get_double(r->obj, &(r->prop));
+			x *= r->scale;
+			offset += snprintf(buffer+offset,size-offset-1,"%g",x);
+			if ( my->line_units != LU_NONE && r->prop.unit != NULL )
+			{
+				offset += snprintf(buffer+offset,size-offset-1," %s",r->prop.unit->name);
 			}
-		} else {
+		} 
+		else if ( r->prop.ptype == PT_complex && ( r->scale != 1.0 || my->line_units == LU_NONE ) )
+		{
+			// copy value into local value, use fake PROP, feed into gl_get_vaule
+			z = *gl_get_complex(r->obj, &(r->prop));
+			z *= r->scale;
+			offset += snprintf(buffer+offset,size-offset-1,"%g%+g%c",z.Re(),z.Im(),z.Notation());
+			if ( my->line_units != LU_NONE && r->prop.unit != NULL )
+			{
+				offset += snprintf(buffer+offset,size-offset-1," %s",r->prop.unit->name);
+			}
+		} 
+		else 
+		{
 			offset += gl_get_value(r->obj, addr, buffer+offset, size-offset-1, &(r->prop)); /* pointer => int64 */
 		}
 		buffer[offset] = '\0';
@@ -817,7 +811,7 @@ EXPORT TIMESTAMP sync_multi_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	struct recorder *my = OBJECTDATA(obj,struct recorder);
 	typedef enum {NONE='\0', LT='<', EQ='=', GT='>'} COMPAREOP;
 	COMPAREOP comparison;
-	char1024 buffer = "";
+	char buffer[4096] = "";
 	
 	if (my->status==TS_DONE)
 	{
@@ -853,7 +847,14 @@ EXPORT TIMESTAMP sync_multi_recorder(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 
 	if (my->rmap==NULL)
 	{
-		sprintf(buffer,"'%s' contains a property reference that was not found", my->property);
+		if ( my->property )
+		{
+			sprintf(buffer,"property '%s' contains a reference that was not found", my->property);
+		}
+		else
+		{
+			sprintf(buffer,"property reference is missing");
+		}
 		close_multi_recorder(my);
 		my->status = TS_ERROR;
 		goto Error;

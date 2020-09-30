@@ -259,12 +259,9 @@ size_t module_getcount(void) { return module_count; }
 typedef MODULE *(*LOADER)(const char *, int, const char *[]);
 MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 							   int argc, /**< count of arguments in \p argv */
-							   char *argv[]) /**< arguments passed from the command line */
+							   const char *argv[]) /**< arguments passed from the command line */
 {
-	MODULE *mod;
-#ifdef HAVE_PYTHON
-	extern MODULE *python_module_load(const char *, int, char *[]);
-	mod = python_module_load(file,argc,argv);
+	MODULE *mod = python_module_load(file,argc,argv);
 	if ( mod != NULL )
 	{
 		mod->hLib = NULL;
@@ -289,7 +286,6 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 
 		return mod;
 	}
-#endif
 
 	/* check for already loaded */
 	mod = module_find((char *)file);
@@ -336,10 +332,11 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 
 	/* check for foreign modules */
 	strcpy(buffer,file);
-	fmod = strtok(buffer,"::");
+	char *last;
+	fmod = strtok_r(buffer,"::",&last);
 	if (fmod!=NULL && strcmp(fmod, file) != 0)
 	{
-		char *modname = strtok(NULL,"::");
+		char *modname = strtok_r(NULL,"::",&last);
 		MODULE *parent_mod = module_find(fmod);
 		if(parent_mod == NULL)
 			parent_mod = module_load(fmod, 0, NULL);
@@ -380,11 +377,11 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 			{
 				if (strcmp(p->name, fmod)==0)
 				{
-					static char *args[1];
+					static const char *args[1];
 					isforeign = true;
 					if (p->loader!=NULL)
 						/* use external loader */
-						return p->loader(modname,argc,(const char**)argv);
+						return p->loader(modname,argc,argv);
 
 					/* use a module with command args */
 					argv = args;
@@ -516,7 +513,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	mod->clockupdate = (TIMESTAMP(*)(TIMESTAMP))DLSYM(hLib,"clock_update");
 	mod->cmdargs = (int(*)(int,const char**))DLSYM(hLib,"cmdargs");
 	mod->kmldump = (int(*)(int(*)(const char*,...),OBJECT*))DLSYM(hLib,"kmldump");
-	mod->subload = (MODULE *(*)(char *, MODULE **, CLASS **, int, char **))DLSYM(hLib, "subload");
+	mod->subload = (MODULE *(*)(char *, MODULE **, CLASS **, int, const char *[]))DLSYM(hLib, "subload");
 	mod->test = (void(*)(int,char*[]))DLSYM(hLib,"test");
 	mod->stream = (STREAMCALL)DLSYM(hLib,"stream");
 	mod->globals = NULL;
@@ -1433,7 +1430,7 @@ int module_compile(const char *name,	/**< name of library */
 	fclose(fp);
 
 	/* compile the code */
-	if ( (rc=execf("%s %s %s -c \"%s\" -o \"%s\" ", cc, mopt, ccflags, cfile, ofile))!=0 )
+	if ( (rc=execf("%s %s %s -fPIC -c \"%s\" -o \"%s\" ", cc, mopt, ccflags, cfile, ofile))!=0 )
 		return rc;
 
 	/* create needed DLL files on windows */

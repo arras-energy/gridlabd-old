@@ -14,6 +14,7 @@
 
 #include "metrics.h"
 #include "eventgen.h"
+#include "cost.h"
 
 EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 {
@@ -33,6 +34,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 
 	new metrics(module);
 	new eventgen(module);
+	new cost(module);
 
 	/* always return the first class registered */
 	return metrics::oclass;

@@ -36,52 +36,88 @@ capacitor::capacitor(MODULE *mod):node(mod)
 
 		if(gl_publish_variable(oclass,
 			PT_INHERIT, "node",
-			PT_set, "pt_phase", PADDR(pt_phase),PT_DESCRIPTION,"Phase(s) that the PT is on, used as measurement points for control",
+			PT_set, "pt_phase", PADDR(pt_phase),
+				PT_DESCRIPTION,"Phase(s) that the PT is on, used as measurement points for control",
 				PT_KEYWORD, "A",(set)PHASE_A,
 				PT_KEYWORD, "B",(set)PHASE_B,
 				PT_KEYWORD, "C",(set)PHASE_C,
 				PT_KEYWORD, "D",(set)PHASE_D,
 				PT_KEYWORD, "N",(set)PHASE_N,
-			PT_set, "phases_connected", PADDR(phases_connected),PT_DESCRIPTION,"phases capacitors connected to",
+			PT_set, "phases_connected", PADDR(phases_connected),
+				PT_DESCRIPTION,"phases capacitor is connected to",
 				PT_KEYWORD, "A",(set)PHASE_A,
 				PT_KEYWORD, "B",(set)PHASE_B,
 				PT_KEYWORD, "C",(set)PHASE_C,
 				PT_KEYWORD, "D",(set)PHASE_D,
 				PT_KEYWORD, "N",(set)PHASE_N,
-			PT_enumeration, "switchA", PADDR(switchA_state),PT_DESCRIPTION,"capacitor A switch open or close",
+			PT_enumeration, "switchA", PADDR(switchA_state),
+				PT_DEFAULT, "OPEN",
+				PT_DESCRIPTION,"capacitor A switch open or close",
 				PT_KEYWORD, "OPEN", (enumeration)OPEN,
 				PT_KEYWORD, "CLOSED", (enumeration)CLOSED,
-				PT_enumeration, "switchB", PADDR(switchB_state),PT_DESCRIPTION,"capacitor B switch open or close",
+			PT_enumeration, "switchB", PADDR(switchB_state),
+				PT_DEFAULT, "OPEN",
+				PT_DESCRIPTION,"capacitor B switch open or close",
 				PT_KEYWORD, "OPEN", (enumeration)OPEN,
 				PT_KEYWORD, "CLOSED", (enumeration)CLOSED,
-				PT_enumeration, "switchC", PADDR(switchC_state),PT_DESCRIPTION,"capacitor C switch open or close",
+			PT_enumeration, "switchC", PADDR(switchC_state),
+				PT_DEFAULT, "OPEN",
+				PT_DESCRIPTION,"capacitor C switch open or close",
 				PT_KEYWORD, "OPEN", (enumeration)OPEN,
 				PT_KEYWORD, "CLOSED", (enumeration)CLOSED,
-			PT_enumeration, "control", PADDR(control),PT_DESCRIPTION,"control operation strategy",
+			PT_enumeration, "control", PADDR(control),
+				PT_DEFAULT, "MANUAL",
+				PT_DESCRIPTION,"control operation strategy",
 				PT_KEYWORD, "MANUAL", (enumeration)MANUAL,
 				PT_KEYWORD, "VAR", (enumeration)VAR,
 				PT_KEYWORD, "VOLT", (enumeration)VOLT,
 				PT_KEYWORD, "VARVOLT", (enumeration)VARVOLT,
 				PT_KEYWORD, "CURRENT", (enumeration)CURRENT,
-			PT_double, "cap_A_switch_count", PADDR(cap_switchA_count),PT_DESCRIPTION,"number of switch operations on Phase A",
-			PT_double, "cap_B_switch_count", PADDR(cap_switchB_count),PT_DESCRIPTION,"number of switch operations on Phase B",
-			PT_double, "cap_C_switch_count", PADDR(cap_switchC_count),PT_DESCRIPTION,"number of switch operations on Phase C",
-			PT_double, "voltage_set_high[V]", PADDR(voltage_set_high), PT_DESCRIPTION,"Turn off if voltage is above this set point",
-			PT_double, "voltage_set_low[V]", PADDR(voltage_set_low), PT_DESCRIPTION,"Turns on if voltage is below this set point",
-			PT_double, "VAr_set_high[VAr]", PADDR(VAr_set_high),PT_DESCRIPTION,"high VAR set point for VAR control (turn off)",
-			PT_double, "VAr_set_low[VAr]", PADDR(VAr_set_low),PT_DESCRIPTION,"low VAR set point for VAR control (turn on)",
-			PT_double, "current_set_low[A]", PADDR(current_set_low),PT_DESCRIPTION,"high current set point for current control mode (turn on)",
-			PT_double, "current_set_high[A]", PADDR(current_set_high),PT_DESCRIPTION,"low current set point for current control mode (turn off)",
-			PT_double, "capacitor_A[VAr]", PADDR(capacitor_A),PT_DESCRIPTION,"Capacitance value for phase A or phase AB",
-			PT_double, "capacitor_B[VAr]", PADDR(capacitor_B),PT_DESCRIPTION,"Capacitance value for phase B or phase BC",
-			PT_double, "capacitor_C[VAr]", PADDR(capacitor_C),PT_DESCRIPTION,"Capacitance value for phase C or phase CA",
-			PT_double, "cap_nominal_voltage[V]", PADDR(cap_nominal_voltage),PT_DESCRIPTION,"Nominal voltage for the capacitor. Used for calculation of capacitance value",
-			PT_double, "time_delay[s]", PADDR(time_delay),PT_DESCRIPTION,"control time delay",
-			PT_double, "dwell_time[s]", PADDR(dwell_time),PT_DESCRIPTION,"Time for system to remain constant before a state change will be passed",
-			PT_double, "lockout_time[s]", PADDR(lockout_time),PT_DESCRIPTION,"Time for capacitor to remain locked out from further switching operations (VARVOLT control)",
-			PT_object, "remote_sense",PADDR(RemoteSensor),PT_DESCRIPTION,"Remote object for sensing values used for control schemes",
-			PT_object, "remote_sense_B", PADDR(SecondaryRemote),PT_DESCRIPTION,"Secondary Remote object for sensing values used for control schemes (VARVOLT uses two)",
-			PT_enumeration, "control_level", PADDR(control_level),PT_DESCRIPTION,"define bank or individual control",
+			PT_double, "cap_A_switch_count", PADDR(cap_switchA_count),
+				PT_OUTPUT,
+				PT_DEFAULT, "-1",
+				PT_DESCRIPTION,"number of switch operations on Phase A",
+			PT_double, "cap_B_switch_count", PADDR(cap_switchB_count),
+				PT_OUTPUT,
+				PT_DEFAULT, "-1",
+				PT_DESCRIPTION,"number of switch operations on Phase B",
+			PT_double, "cap_C_switch_count", PADDR(cap_switchC_count),
+				PT_OUTPUT,
+				PT_DEFAULT, "-1",
+				PT_DESCRIPTION,"number of switch operations on Phase C",
+			PT_double, "voltage_set_high[V]", PADDR(voltage_set_high),
+				PT_DESCRIPTION,"Turn off if voltage is above this set point",
+			PT_double, "voltage_set_low[V]", PADDR(voltage_set_low),
+				PT_DESCRIPTION,"Turns on if voltage is below this set point",
+			PT_double, "VAr_set_high[VAr]", PADDR(VAr_set_high),
+				PT_DESCRIPTION,"high VAR set point for VAR control (turn off)",
+			PT_double, "VAr_set_low[VAr]", PADDR(VAr_set_low),
+				PT_DESCRIPTION,"low VAR set point for VAR control (turn on)",
+			PT_double, "current_set_low[A]", PADDR(current_set_low),
+				PT_DESCRIPTION,"high current set point for current control mode (turn on)",
+			PT_double, "current_set_high[A]", PADDR(current_set_high),
+				PT_DESCRIPTION,"low current set point for current control mode (turn off)",
+			PT_double, "capacitor_A[VAr]", PADDR(capacitor_A),
+				PT_DESCRIPTION,"Capacitance value for phase A or phase AB",
+			PT_double, "capacitor_B[VAr]", PADDR(capacitor_B),
+				PT_DESCRIPTION,"Capacitance value for phase B or phase BC",
+			PT_double, "capacitor_C[VAr]", PADDR(capacitor_C),
+				PT_DESCRIPTION,"Capacitance value for phase C or phase CA",
+			PT_double, "cap_nominal_voltage[V]", PADDR(cap_nominal_voltage),
+				PT_DESCRIPTION,"Nominal voltage for the capacitor. Used for calculation of capacitance value",
+			PT_double, "time_delay[s]", PADDR(time_delay),
+				PT_DESCRIPTION,"control time delay",
+			PT_double, "dwell_time[s]", PADDR(dwell_time),
+				PT_DESCRIPTION,"Time for system to remain constant before a state change will be passed",
+			PT_double, "lockout_time[s]", PADDR(lockout_time),
+				PT_DESCRIPTION,"Time for capacitor to remain locked out from further switching operations (VARVOLT control)",
+			PT_object, "remote_sense",PADDR(RemoteSensor),
+				PT_DESCRIPTION,"Remote object for sensing values used for control schemes",
+			PT_object, "remote_sense_B", PADDR(SecondaryRemote),
+				PT_DESCRIPTION,"Secondary Remote object for sensing values used for control schemes (VARVOLT uses two)",
+			PT_enumeration, "control_level", PADDR(control_level),
+				PT_DEFAULT, "INDIVIDUAL",
+				PT_DESCRIPTION,"define bank or individual control",
 				PT_KEYWORD, "BANK", (enumeration)BANK,
 				PT_KEYWORD, "INDIVIDUAL", (enumeration)INDIVIDUAL, 
          	NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
@@ -103,12 +139,6 @@ int capacitor::create()
 	int result = node::create();
 		
 	// Set up defaults
-	switchA_state = OPEN;
-	switchB_state = OPEN;
-	switchC_state = OPEN;
-	cap_switchA_count = -1;
-	cap_switchB_count = -1;
-	cap_switchC_count = -1;
 	switchA_state_Next = OPEN;
 	switchB_state_Next = OPEN;
 	switchC_state_Next = OPEN;
@@ -118,26 +148,6 @@ int capacitor::create()
 	switchA_state_Req_Next = OPEN;
 	switchB_state_Req_Next = OPEN;
 	switchC_state_Req_Next = OPEN;
-	control = MANUAL;
-	control_level = INDIVIDUAL;
-	voltage_set_high = 0.0;
-	voltage_set_low = 0.0;
-	VAr_set_high = 0.0;
-	VAr_set_low = 0.0;
-	current_set_low = 0.0;
-	current_set_high = 0.0;
-	time_delay = 0.0;
-	dwell_time = 0.0;
-	lockout_time = 0.0;
-	time_to_change = 0.0;
-	dwell_time_left = 0.0;
-	lockout_time_left_A = 0.0;
-	lockout_time_left_B = 0.0;
-	lockout_time_left_C = 0.0;
-	last_time = 0.0;
-	cap_nominal_voltage = 0.0;
-	RemoteSensor = NULL;
-	SecondaryRemote=NULL;
 	RNode = NULL;
 	RLink = NULL;
 	VArVals[0] = VArVals[1] = VArVals[2] = 0.0;
