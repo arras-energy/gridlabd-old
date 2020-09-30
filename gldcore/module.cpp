@@ -1865,6 +1865,7 @@ void sched_clear(void)
 }
 void sched_pkill(pid_t pid)
 {
+	sched_init(1);
 	if ( process_map!=NULL && process_map[pid].pid!=0 )
 	{
 		kill(process_map[pid].pid, SIGINT);
