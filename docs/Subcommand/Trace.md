@@ -27,6 +27,22 @@ The `debug <job>` start the default system debugger on the specified gridlabd jo
 
 The `dump <job>` command saves a core memory dump file and prints its contents to the screen.
 
+# Pro-Tip
+
+If you build GridLAB-D and disable optimization, you can use the debugger's GUI to get easy inspect all the internal variables while the simulation is running.
+
+~~~
+host$ git clone http://source.gridlabd.us/ gridlabd
+...
+host% autoreconf -isf && ./configure CXXFLAGS='-O0' && make system
+...
+host% gridlabd -D show_progress=FALSE my_model.glm &
+host% gridlabd trace debug 0
+~~~
+
+On macOS you use the LLDB `gui` command to enter the curses-based UI.  On linux you use the `wh` command to enter the curses-based UI.
+
+
 # See also
 
 * [[/Command/Plist]]
