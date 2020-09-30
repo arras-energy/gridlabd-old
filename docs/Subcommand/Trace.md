@@ -45,4 +45,7 @@ On macOS you use the LLDB `gui` command to enter the curses-based UI.  On linux 
 
 # See also
 
+* [[/Command/Pcontrol]]
 * [[/Command/Plist]]
+* [[/Command/Pkill]]
+* [[/Command/Pstatus]]
