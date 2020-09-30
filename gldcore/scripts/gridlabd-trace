@@ -72,7 +72,13 @@ function trace-save ()
 		exit 0
 	fi
 	PID=$(getpid $1)
-	gcore -s -v -c "gridlabd-core.$PID" $PID || exit 3
+	rm -f "gridlabd-core.$PID"
+	if [ "$(uname -s)" == "Darwin" ]; then
+		gcore -s -v -c "gridlabd-core.$PID" $PID || exit 3
+	else
+		core -o "gridlabd-core" $PID || exit 3
+	fi
+	chmod 640 "gridlabd-core.$PID"
 	exit 0
 }
 
@@ -102,12 +108,15 @@ function trace-dump ()
 		exit 0
 	fi
 	PID=$(getpid $1)
-	gcore -s -v -c "gridlabd-core.$PID" $PID || exit 3
+	rm -f "gridlabd-core.$PID"
 	if [ "$(uname -s)" == "Darwin" ]; then
+		gcore -s -v -c "gridlabd-core.$PID" $PID || exit 3
 		lldb $(gridlabd --version=install)/bin/gridlabd.bin -c gridlabd-core.$PID || exit 3
 	else
+		core -o "gridlabd-core" $PID || exit 3
 		gdb $(gridlabd --version=install)/bin/gridlabd.bin --core=gridlabd-core.$PID || exit 3
 	fi
+	chmod 640 "gridlabd-core.$PID"
 	exit 0
 }
 
