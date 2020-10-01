@@ -52,6 +52,15 @@ typedef char FULLNAME[1024]; /** Full object name (including space name) */
 #define OF_VERBOSE		0x00080000  /**< Object flag; disables verbose messages from the object */
 #define OF_SILENT		0x000f0000	/**< Object flag; disables all messages from the object */
 
+typedef struct s_headerdata
+{
+	const char *name;
+	const char *ptype;
+	const char *access;
+	const char *tostr;
+	int size;
+} HEADERDATA;
+
 typedef struct s_namespace {
 	FULLNAME name;
 	struct s_namespace *next;

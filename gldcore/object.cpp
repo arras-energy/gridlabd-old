@@ -98,6 +98,53 @@ KEYWORD oaccess[] = {
 	{"PRIVATE", PA_PRIVATE, NULL},
 };
 
+static const char *header_id_to_string(OBJECT *obj)
+{
+	static char string[32];
+	snprintf(string,sizeof(string),"%lu",obj->id);
+	return string;
+}
+
+#define HDATAX(X,T,S,N) {#X,#T,S,"PROTECTED",N},
+#define HDATA(X,T) HDATAX(X,T,header_##X_to_string,0)
+HEADERDATA headerdata[] = {
+	HDATA(id,int32)
+	HDATA(class,string)
+	HDATA(groupid,char32)
+	HDATA(name,string)
+	HDATA(next,object)
+	HDATA(parent,object)
+	HDATA(child_count,int32)
+	HDATA(rank,int32)
+	HDATA(clock,timestamp)
+	HDATA(valid_to,timestamp)
+	HDATA(schedule_skew,int64)
+	HDATA(latitude,double)
+	HDATA(longitude,double)
+	HDATA(in_svc,timestamp)
+	HDATA(out_svc,timestamp)
+	HDATA(rng_state,int32)
+	HDATA(heartbeat,int64)
+	HDATAX(guid,int64,header_guid_to_string,2)
+	HDATAX(profiler.presync,int32,header_profile_presync_to_string,0)
+	HDATAX(profiler.sync,int32,header_profile_sync_to_string,0)
+	HDATAX(profiler.postsync,int32,header_profile_postsync_to_string,0)
+	HDATAX(profiler.init,int32,header_profile_init_to_string,0)
+	HDATAX(profiler.heartbeat,int32,header_profile_heartbeat_to_string,0)
+	HDATAX(profiler.precommit,int32,header_profile_precommit_to_string,0)
+	HDATAX(profiler.commit,int32,header_profile_commit_to_string,0)
+	HDATAX(profiler.finalize,int32,header_profile_finalize_to_string,0)
+	HDATAX(event.init,int32,header_event_init_to_string,0)
+	HDATAX(event.precommit,int32,header_event_precommit_to_string,0)
+	HDATAX(event.presync,int32,header_event_presync_to_string,0)
+	HDATAX(event.sync,int32,header_event_sync_to_string,0)
+	HDATAX(event.postsync,int32,header_event_postsync_to_string,0)
+	HDATAX(event.commit,int32,header_event_commit_to_string,0)
+	HDATAX(event.finalize,int32,header_event_finalize_to_string,0)
+	HDATA(flags,int64)
+};
+#undef HDATA
+
 PROPERTY *object_access_property(){
 	static PROPERTY flags = {0, "access", PT_enumeration, 1, 8, PA_PUBLIC, NULL, (void*) -4, NULL, oaccess, NULL};
 	
