@@ -62,10 +62,10 @@ schedule fixed_prices {
 	30-44 * * * * 25;
 	45-59 * * * * 112;
 }
-
+#weather get "WA-Yakima.tmy3"
 object climate {
 	name "Yakima WA";
-	tmyfile "WA-Yakima.tmy2";
+	tmyfile "WA-Yakima.tmy3";
 }
 
 object auction {
