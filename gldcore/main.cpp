@@ -615,6 +615,7 @@ int GldMain::subcommand(const char *format, ...)
 	}
 	else
 	{
+		output_verbose("running subcommand '%s'",command);
 		FILE *output_stream = output_get_stream("output");
 		FILE *error_stream = output_get_stream("error");
 		struct pollfd polldata[3];
@@ -655,6 +656,7 @@ int GldMain::subcommand(const char *format, ...)
 		{
 			output_error("GldMain::subcommand(format='%s',...): command '%s' returns code %d",format,command,rc);
 		}
+		output_verbose("subcommand '%s' -> status = %d",command,rc);
 	}
 	return rc;
 }
