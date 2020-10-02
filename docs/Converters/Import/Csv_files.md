@@ -1,4 +1,4 @@
-[[/Converters/Import/CSV_files]] -- CSV file import converters
+[[/Converters/Import/Csv_files]] -- CSV file import converters
 
 # Synopsis
 
