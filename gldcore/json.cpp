@@ -185,9 +185,23 @@ int GldJsonWriter::write_properties(FILE *fp)
 int GldJsonWriter::write_classes(FILE *fp)
 {
 	int len = 0;
-	CLASS *oclass;
+
+	len += write(",\n\t\"header\" : {");
+	for ( HEADERDATA *item = object_headerdata_getfirst() ; item != NULL ; item = object_headerdata_getnext(item) )
+	{
+		if ( item != object_headerdata_getfirst() )
+		{
+			len += write(",");
+		}
+		len += write("\n\t\t\"%s\" : {", item->name);
+		len += write("\n\t\t\t\"type\" : \"%s\",", item->ptype);
+		len += write("\n\t\t\t\"access\" : \"%s\"", item->access);
+		len += write("\n\t\t}");
+	}
+	len += write("\n\t}");
+
 	len += write(",\n\t\"classes\" : {");
-	for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
+	for ( CLASS *oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
 	{
 		PROPERTY *prop;
 		if ( oclass != class_get_first_class() )

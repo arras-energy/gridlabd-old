@@ -57,9 +57,16 @@ typedef struct s_headerdata
 	const char *name;
 	const char *ptype;
 	const char *access;
-	const char *tostr;
+	const char *(*tostr)(struct s_object_list *);
 	int size;
 } HEADERDATA;
+
+HEADERDATA *object_headerdata_getfirst(void);
+HEADERDATA *object_headerdata_getnext(HEADERDATA *item);
+const char *object_headerdata_getname(HEADERDATA *item);
+const char *object_headerdata_getstring(HEADERDATA *item,struct s_object_list *obj);
+const char *object_headerdata_getaccess(HEADERDATA *item);
+const char *object_headerdata_gettype(HEADERDATA *item);
 
 typedef struct s_namespace {
 	FULLNAME name;
@@ -449,7 +456,6 @@ double convert_to_latitude(const char *buffer);
 double convert_to_longitude(const char *buffer);
 
 PROPERTY *object_flag_property(void);
-PROPERTY *object_access_property(void);
 
 NAMESPACE *object_current_namespace(); /**< access the current namespace */
 void object_namespace(char *buffer, int size); /**< get the namespace */
