@@ -52,6 +52,22 @@ typedef char FULLNAME[1024]; /** Full object name (including space name) */
 #define OF_VERBOSE		0x00080000  /**< Object flag; disables verbose messages from the object */
 #define OF_SILENT		0x000f0000	/**< Object flag; disables all messages from the object */
 
+typedef struct s_headerdata
+{
+	const char *name;
+	const char *ptype;
+	const char *access;
+	const char *(*tostr)(struct s_object_list *);
+	int size;
+} HEADERDATA;
+
+HEADERDATA *object_headerdata_getfirst(void);
+HEADERDATA *object_headerdata_getnext(HEADERDATA *item);
+const char *object_headerdata_getname(HEADERDATA *item);
+const char *object_headerdata_getstring(HEADERDATA *item,struct s_object_list *obj);
+const char *object_headerdata_getaccess(HEADERDATA *item);
+const char *object_headerdata_gettype(HEADERDATA *item);
+
 typedef struct s_namespace {
 	FULLNAME name;
 	struct s_namespace *next;
@@ -440,7 +456,6 @@ double convert_to_latitude(const char *buffer);
 double convert_to_longitude(const char *buffer);
 
 PROPERTY *object_flag_property(void);
-PROPERTY *object_access_property(void);
 
 NAMESPACE *object_current_namespace(); /**< access the current namespace */
 void object_namespace(char *buffer, int size); /**< get the namespace */
