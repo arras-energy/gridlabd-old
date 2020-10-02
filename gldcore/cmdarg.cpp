@@ -1500,9 +1500,55 @@ int GldCmdarg::pkill(int argc, const char *argv[])
 {
 	if (argc>0)
 	{
-		argc--;
-		sched_pkill(atoi(*++argv));
-		return 1;
+		int signal = SIGINT;
+		int m = 1;
+		if ( *(argv[1]) == '-' )
+		{
+			signal = 0;
+			if ( ! isdigit(argv[1][1]) )
+			{
+				struct {
+					int signal;
+					const char *shortname;
+					const char *longname;
+				} map[] = {
+					{SIGINT,"-INT","-SIGINT"},
+					{SIGQUIT,"-QUIT","-SIGQUIT"},
+					{SIGTRAP,"-TRAP","-SIGTRAP"},
+					{SIGABRT,"-ABRT","-SIGABRT"},
+					{SIGKILL,"-KILL","-SIGKILL"},
+					{SIGSTOP,"-STOP","-SIGSTOP"},
+					{SIGCONT,"-CONT","-SIGCONT"},
+					{SIGTERM,"-TERM","-SIGTERM"},
+				};
+				for ( size_t n = 0 ; n < sizeof(map)/sizeof(map[0]) ; n++ )
+				{
+					if ( strcmp(map[n].shortname,argv[1]) == 0 || strcmp(map[n].longname,argv[1]) == 0 )
+					{
+						signal = map[n].signal;
+						break;
+					}
+				}
+			}
+			else
+			{
+				signal = atoi(argv[1]+1);
+			}
+			if ( signal == 0 )
+			{
+				output_error("'%s' is an invalid signal",argv[1]);
+				return CMDERR;
+			}
+			argc--;
+			argv++;
+			m++;
+		}
+		if ( ! isdigit(*(argv[1])) )
+		{
+			output_error("'%s' is an invalid processor number",argv[1]);
+		}
+		sched_pkill(atoi(argv[1]),signal);
+		return m;
 	}
 	else
 	{
