@@ -1,3 +1,10 @@
+"""Convert GridLAB-D JSON file to Markdown MD file
+
+The `json2md` converter generates documentation of a GridLAB-D model file.  If the JSON file
+contains objects, then only the classes in use are documented.  If the JSON file contains
+no objects, then all classes in loaded modules are documented.
+
+"""
 import json 
 import os 
 import sys, getopt
@@ -92,11 +99,14 @@ with open(output_file,"w") as md:
 		row()
 
 	# classes
-	active_classes = []
-	for object, properties in objects.items():
-		oclass = properties["class"]
-		if oclass not in active_classes:
-			active_classes.append(oclass)
+	if objects:
+		active_classes = []
+		for object, properties in objects.items():
+			oclass = properties["class"]
+			if oclass not in active_classes:
+				active_classes.append(oclass)
+	else:
+		active_classes = classes.keys()
 	if active_classes:
 		hdr(2,"Classes")
 	for oclass, properties in classes.items():

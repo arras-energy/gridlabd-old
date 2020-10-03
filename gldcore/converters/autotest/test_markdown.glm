@@ -1,14 +1,18 @@
 #option compile
 
-class test
-{
-	randomvar x;
-}
-
-object test
-{
-	x "type:normal(0,1)";
-}
+module assert;
+module climate;
+module commercial;
+module generators;
+module industrial;
+module influxdb;
+module market;
+module optimize;
+module powerflow;
+module reliability;
+module residential;
+module revenue;
+module tape;
 
 #output "test_markdown.md"
 
