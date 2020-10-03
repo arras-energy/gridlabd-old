@@ -1,0 +1,15 @@
+#option compile
+
+class test
+{
+	randomvar x;
+}
+
+object test
+{
+	x "type:normal(0,1)";
+}
+
+#output "test_markdown.md"
+
+// TODO: check markdown output somehow
