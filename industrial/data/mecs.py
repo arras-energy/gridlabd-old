@@ -143,7 +143,9 @@ print(f"Saved {config.mecs_csv} ok")
 nerc = read_csv(config.nerc_csv,converters={"NAICS":int}).set_index("Code")
 print(f"Loaded {config.nerc_csv} ok")
 for row in mecs.iterrows():
-	name = f"MECS_{row[0][1]}_{row[0][0]}"
+	name = f"MECS_{row[0][0]}"
+	if row[0][0] in list(map(lambda x:int(x),list(nerc["NAICS"]))):
+		continue # do not create a duplicate entry
 	nerc.loc[name,"NAICS"] = int(row[0][0])
 	for item, value in dict(
 			DESCRIPTION="Industrial Load Type",
