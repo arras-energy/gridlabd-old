@@ -156,8 +156,10 @@ for row in mecs.iterrows():
 			Z="Z").items():
 		if type(row[1][item]) is float:
 			nerc.loc[name,value] = round(row[1][item],3)
+		elif type(row[1][item]) is str and len(row[1][item]) > 0:
+			nerc.loc[name,value] = row[1][item].replace(',','').strip()
 		else:
-			nerc.loc[name,value] = row[1][item]
+			nerc.loc[name,value] = "NA"
 print(f"Merged ok")
 
 nerc.reset_index().set_index(["NAICS","Code"]).to_csv(config.naics_csv,float_format="%g")
