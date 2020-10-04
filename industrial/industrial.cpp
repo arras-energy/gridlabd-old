@@ -49,6 +49,12 @@ industrial::industrial(MODULE *module)
 			// 	PT_DEFAULT, "0.7 pu",
 			// 	PT_DESCRIPTION, "voltage at which motors will start",
 
+			PT_double, "operating_factor[pu]", get_operating_factor_offset(),
+				PT_DESCRIPTION, "fraction of facility power capacity that is operating"
+
+			PT_double, "operating_capacity[MW]", get_operating_capacity_offset(),
+				PT_DESCRIPTION, "facility power when operating at full capacity",
+
 			PT_double, "total_power[W]", get_total_power_offset(),
 				PT_OUTPUT,
 				PT_DEFAULT, "0 MW",
@@ -104,6 +110,10 @@ int industrial::init(OBJECT *parent)
 
 TIMESTAMP industrial::precommit(TIMESTAMP t1)
 {
+	if ( operating_capacity != 0.0 && operating_factor != 0.0 )
+	{
+		total_power = operating_capacity * operating_factor * 1000.0;
+	}
 	double phase_power = total_power/3;
 	base_load[0]->setp(phase_power);
 	base_load[1]->setp(phase_power);
