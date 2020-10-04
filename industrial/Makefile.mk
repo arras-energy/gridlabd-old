@@ -12,4 +12,3 @@ industrial_industrial_la_SOURCES = industrial/init.cpp
 industrial_industrial_la_SOURCES += industrial/industrial.h industrial/industrial.cpp
 
 dist_pkgdata_DATA += industrial/naics_data_file.csv
-dist_pkgdata_DATA += industrial/mecs_data.csv

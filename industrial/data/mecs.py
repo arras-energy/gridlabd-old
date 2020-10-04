@@ -1,5 +1,19 @@
+"""Create NAICS data file from MECS and NERC data files
+
+Run command:
+
+	host% python3 mecs.py
+	Loaded table 9.1 ok
+	Loaded table 11.1 ok
+	Loaded table 5.1 ok
+	Saved ../mecs_data.csv ok
+	Loaded ../nerc_data.csv ok
+	Merged ok
+	Saved ../naics_data_file.csv ok
+	
+"""
 from openpyxl import load_workbook
-from pandas import DataFrame, concat
+from pandas import DataFrame, concat, read_csv
 
 import config
 
@@ -123,7 +137,28 @@ mecs.index.name = "NAICS"
 mecs.reset_index(inplace=True)
 mecs.set_index(["NAICS","REGION"],inplace=True)
 
-mecs.to_csv(config.output_csv)
-print(f"Saved {config.output_csv} ok")
+mecs.to_csv(config.mecs_csv)
+print(f"Saved {config.mecs_csv} ok")
 
+nerc = read_csv(config.nerc_csv,converters={"NAICS":int}).set_index("Code")
+print(f"Loaded {config.nerc_csv} ok")
+for row in mecs.iterrows():
+	name = f"MECS_{row[0][1]}_{row[0][0]}"
+	nerc.loc[name,"NAICS"] = int(row[0][0])
+	for item, value in dict(
+			DESCRIPTION="Industrial Load Type",
+			A="IA",
+			B="IB",
+			C="IC",
+			D="MD",
+			E="PwrEl",
+			I="I",
+			Z="Z").items():
+		if type(row[1][item]) is float:
+			nerc.loc[name,value] = round(row[1][item],3)
+		else:
+			nerc.loc[name,value] = row[1][item]
+print(f"Merged ok")
 
+nerc.reset_index().set_index(["NAICS","Code"]).to_csv(config.naics_csv,float_format="%g")
+print(f"Saved {config.naics_csv} ok")

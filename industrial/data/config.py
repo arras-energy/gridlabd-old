@@ -13,4 +13,6 @@ enduses = {
 	"Other Nonprocess Use" : {"D":0.1,"Z":0.8,"I":0.1},
 	"End Use Not Reported" : {"D":0.1,"Z":0.8,"I":0.1},
 }
-output_csv = "../mecs_data.csv"
+mecs_csv = "../mecs_data.csv"
+nerc_csv = "../nerc_data.csv"
+naics_csv = "../naics_data_file.csv"
