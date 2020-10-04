@@ -1,0 +1,47 @@
+// test_industial.glm
+// Copyright (C) 2020, Regents of the Leland Stanford Junior University
+
+#set savefile=test_industrial.json
+
+clock
+{
+	timezone "US/CA/San Francisco";
+	starttime "2020-01-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
+}
+
+module tape;
+module powerflow;
+
+object load
+{
+	phases ABCD;
+	nominal_voltage 12.47 kV;
+	name "test";
+	object recorder 
+	{
+		file "test_industrial_variable.csv";
+		property constant_power_A,constant_power_B,constant_power_C,constant_current_A,constant_current_B,constant_current_C,constant_impedance_A,constant_impedance_B,constant_impedance_C;
+		interval 1h;
+	};
+}
+
+module industrial
+{
+	naics_data_file "naics_data_file.csv";
+}
+
+schedule operations
+{
+	* 6-18 * * 1-5 1.0;
+	* 19-5 * * 1-5 0.5;
+	* * * * 6-0 0.2;
+}
+
+object industrial
+{
+	parent "test";
+	naics_code 3254; // pharmaceutical plant
+	operating_capacity 1.0 MW;
+	operating_factor operations*1.0;
+}
