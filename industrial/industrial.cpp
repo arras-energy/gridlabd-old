@@ -50,7 +50,7 @@ industrial::industrial(MODULE *module)
 			// 	PT_DESCRIPTION, "voltage at which motors will start",
 
 			PT_double, "operating_factor[pu]", get_operating_factor_offset(),
-				PT_DESCRIPTION, "fraction of facility power capacity that is operating"
+				PT_DESCRIPTION, "fraction of facility power capacity that is operating",
 
 			PT_double, "operating_capacity[MW]", get_operating_capacity_offset(),
 				PT_DESCRIPTION, "facility power when operating at full capacity",
@@ -149,8 +149,7 @@ naics::naics(const char *filename)
 		{
 			if ( linenum > 1 )
 			{
-				gl_error("%s(%d): %s", filename, linenum, error);
-				break;
+				gl_warning("%s(%d): %s", filename, linenum, error);
 			}
 		}
 	}
