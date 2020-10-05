@@ -1,19 +1,93 @@
-NAICS,Industrial Load Type,Code,IA,IB,IC,MD,PwrEl,Z,I
-0,Industrial - Other,IND_OTH,0.1,0.3,0.3,0,0.2,0.05,0.05
-211,Shale Gas Extraction Plant,IND_SHG,0,0.2,0.4,0,0.4,0,0
-212,Mining,IND_MIN,0.25,0.25,0.3,0,0.2,0,0
-213,Oil Pumping,IND_OIL,0.3,0,0.4,0,0.3,0,0
-2211,Power Plant Auxiliaries,PPA_AUX,0,0.4,0.3,0,0.2,0.05,0.05
-2213,Irrigation and pumping,AGR_IRR,0,0,1,0,0,0,0
-311,Food processing,AGR_PRO,0.6,0,0.25,0,0.05,0.05,0.05
-3221,Paper Mill Kraft Process,IND_PMK,0.1,0.2,0.3,0,0.3,0.05,0.05
-3222,Paper Mill with Refiners,IND_PMT,0.05,0.6,0.15,0,0.15,0.02,0.03
-325,Petro-Chemical Plant,IND_PCH,0.1,0.4,0.3,0,0.15,0.02,0.03
-3311,Steel Mill,IND_SML,0.15,0.35,0.25,0,0.15,0.05,0.05
-3314,Aluminum Smelter,IND_ASM,0.05,0,0.05,0,0.05,0.85,0
-333,Liquified Natural Gas,IND_LNG,0,0.3,0.2,0,0.5,0,0
-334,Semiconductor,IND_SCD,0,0.25,0.3,0,0.4,0,0.05
-336,Car Manufacturing,IND_CAR,0.15,0,0.3,0,0.3,0.1,0.15
-423,Lumber Mill,IND_LMB,0.4,0.2,0.3,0,0,0.05,0.05
-482,Transportation - Rail,IND_RAIL,0,0,0.05,0,0.95,0,0
-518,Server Farm,IND_SRF,0,0,0.1,0,0.9,0,0
+NAICS,Code,Industrial Load Type,IA,IB,IC,MD,PwrEl,Z,I
+339,IND_OTH,Industrial - Other,0.1,0.3,0.3,0,0.2,0.05,0.05
+211,IND_SHG,Shale Gas Extraction Plant,0,0.2,0.4,0,0.4,0,0
+212,IND_MIN,Mining,0.25,0.25,0.3,0,0.2,0,0
+213,IND_OIL,Oil Pumping,0.3,0,0.4,0,0.3,0,0
+2211,PPA_AUX,Power Plant Auxiliaries,0,0.4,0.3,0,0.2,0.05,0.05
+2213,AGR_IRR,Irrigation and pumping,0,0,1,0,0,0,0
+311,AGR_PRO,Food processing,0.6,0,0.25,0,0.05,0.05,0.05
+3221,IND_PMK,Paper Mill Kraft Process,0.1,0.2,0.3,0,0.3,0.05,0.05
+3222,IND_PMT,Paper Mill with Refiners,0.05,0.6,0.15,0,0.15,0.02,0.03
+325,IND_PCH,Petro-Chemical Plant,0.1,0.4,0.3,0,0.15,0.02,0.03
+3311,IND_SML,Steel Mill,0.15,0.35,0.25,0,0.15,0.05,0.05
+3314,IND_ASM,Aluminum Smelter,0.05,0,0.05,0,0.05,0.85,0
+333,IND_LNG,Liquified Natural Gas,0,0.3,0.2,0,0.5,0,0
+334,IND_SCD,Semiconductor,0,0.25,0.3,0,0.4,0,0.05
+336,IND_CAR,Car Manufacturing,0.15,0,0.3,0,0.3,0.1,0.15
+423,IND_LMB,Lumber Mill,0.4,0.2,0.3,0,0,0.05,0.05
+482,IND_RAIL,Transportation - Rail,0,0,0.05,0,0.95,0,0
+518,IND_SRF,Server Farm,0,0,0.1,0,0.9,0,0
+312,MECS_312,Beverage and Tobacco Products,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+313,MECS_313,Textile Mills,0.16,0.34,0.02,0,0.18,0.28,0.02
+314,MECS_314,Textile Product Mills,0.16,0.34,0.02,0,0.18,0.28,0.02
+315,MECS_315,Apparel,0.15,0.294,0.019,0,0.225,0.287,0.025
+316,MECS_316,Leather and Allied Products,0.16,0.34,0.02,0,0.18,0.28,0.02
+321,MECS_321,Wood Products,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+322,MECS_322,Paper,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+323,MECS_323,Printing and Related Support,0.16,0.34,0.02,0,0.18,0.28,0.02
+324,MECS_324,Petroleum and Coal Products,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+326,MECS_326,Plastics and Rubber Products,0.15,0.294,0.019,0,0.225,0.287,0.025
+327,MECS_327,Nonmetallic Mineral Products,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+331,MECS_331,Primary Metals,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+332,MECS_332,Fabricated Metal Products,0.16,0.33,0.02,0.01,0.18,0.27,0.03
+335,MECS_335,Electrical Equip. Appliances and Components,0.16,0.34,0.02,0,0.18,0.28,0.02
+337,MECS_337,Furniture and Related Products,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+3112,MECS_3112,Grain and Oilseed Milling,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+3114,MECS_3114,Fruit and Vegetable Preserving and Specialty Food,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+3115,MECS_3115,Dairy Product,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+3116,MECS_3116,Animal Slaughtering and Processing,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+3121,MECS_3121,Beverages,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+3122,MECS_3122,Tobacco,0.12,0.335,0.015,0.01,0.18,0.31,0.03
+3212,MECS_3212,Veneer Plywood and Engineered Woods,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+3219,MECS_3219,Other Wood Products,0.12,0.335,0.015,0.01,0.18,0.31,0.03
+3254,MECS_3254,Pharmaceuticals and Medicines,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+3312,MECS_3312,Steel Products from Purchased Steel,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+3313,MECS_3313,Alumina and Aluminum,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+3315,MECS_3315,Foundries,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+3364,MECS_3364,Aerospace Product and Parts,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+31131,MECS_31131,Sugar Manufacturing,0.16,0.24,0.02,0.01,0.18,0.36,0.03
+311221,MECS_311221,Wet Corn Milling,0.133,0.372,0.017,0,0.2,0.256,0.022
+321113,MECS_321113,Sawmills,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+321219,MECS_321219,Reconstituted Wood Products,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+322110,MECS_322110,Pulp Mills,0.171,0.193,0.021,0,0.257,0.329,0.029
+322121,MECS_322121,Paper Mills except Newsprint,0.16,0.34,0.02,0,0.18,0.28,0.02
+322122,MECS_322122,Newsprint Mills,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+322130,MECS_322130,Paperboard Mills,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+324110,MECS_324110,Petroleum Refineries,0.145,0.218,0.018,0.018,0.164,0.4,0.036
+324121,MECS_324121,Asphalt Paving Mixture and Block,0.109,0.305,0.014,0.018,0.164,0.355,0.036
+324122,MECS_324122,Asphalt Shingle and Coating Materials,0.16,0.34,0.02,0,0.18,0.28,0.02
+324199,MECS_324199,Other Petroleum and Coal Products,0.171,0.193,0.021,0,0.257,0.329,0.029
+325110,MECS_325110,Petrochemicals,0.178,0.267,0.022,0,0.2,0.311,0.022
+325120,MECS_325120,Industrial Gases,0.178,0.156,0.022,0.011,0.2,0.4,0.033
+325180,MECS_325180,Other Basic Inorganic Chemicals,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+325193,MECS_325193,Ethyl Alcohol,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+325194,MECS_325194,Cyclic Crudes Intermediate and Gum and Wood Chemicals,0.16,0.24,0.02,0.01,0.18,0.36,0.03
+325199,MECS_325199,Other Basic Organic Chemicals,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+325211,MECS_325211,Plastics Materials and Resins,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+325212,MECS_325212,Synthetic Rubber,0.12,0.235,0.015,0.02,0.18,0.39,0.04
+325220,MECS_325220,Artificial and Synthetic Fibers and Filaments,0.12,0.335,0.015,0.01,0.18,0.31,0.03
+325311,MECS_325311,Nitrogenous Fertilizers,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+325312,MECS_325312,Phosphatic Fertilizers,0.171,0.193,0.021,0,0.257,0.329,0.029
+325412,MECS_325412,Pharmaceutical Preparation,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+325992,MECS_325992,Photographic Film Paper Plate and Chemicals,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+327120,MECS_327120,Clay Building Material and Refractories,0.12,0.335,0.015,0.01,0.18,0.31,0.03
+327211,MECS_327211,Flat Glass,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+327212,MECS_327212,Other Pressed and Blown Glass and Glassware,0.16,0.34,0.02,0,0.18,0.28,0.02
+327213,MECS_327213,Glass Containers,0.133,0.372,0.017,0,0.2,0.256,0.022
+327215,MECS_327215,Glass Products from Purchased Glass,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+327310,MECS_327310,Cements,0.109,0.305,0.014,0.018,0.164,0.355,0.036
+327410,MECS_327410,Lime,0.12,0.335,0.015,0.01,0.18,0.31,0.03
+327420,MECS_327420,Gypsum,0.15,0.294,0.019,0,0.225,0.287,0.025
+327993,MECS_327993,Mineral Wool,0.109,0.305,0.014,0.018,0.164,0.355,0.036
+331110,MECS_331110,Iron and Steel Mills and Ferroalloys,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+331314,MECS_331314,Secondary Smelting and Alloying of Aluminum,0.16,0.33,0.02,0.01,0.18,0.27,0.03
+331315,MECS_331315,Aluminum Sheet Plate and Foils,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+331318,MECS_331318,Other Aluminum Rolling Drawing and Extruding,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+331410,MECS_331410,Nonferrous Metal (except Aluminum) Smelting and Refining,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+331511,MECS_331511,Iron Foundries,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+331523,MECS_331523,Nonferrous Metal Die-Casting Foundaries,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+331524,MECS_331524,Aluminum Foundries except Die-Casting,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+334413,MECS_334413,Semiconductors and Related Devices,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+336111,MECS_336111,Automobiles,0.133,0.283,0.017,0.017,0.15,0.367,0.033
+336112,MECS_336112,Light Trucks and Utility Vehicles,0.145,0.309,0.018,0.009,0.164,0.327,0.027
+336411,MECS_336411,Aircraft,0.16,0.24,0.02,0.01,0.18,0.36,0.03
