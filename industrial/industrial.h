@@ -39,6 +39,8 @@ public:
 	GL_ATOMIC(double,start_voltage);
 	GL_ATOMIC(double,total_power);
 	GL_ATOMIC(bool,motor_stalled);
+	GL_ATOMIC(double,operating_factor);
+	GL_ATOMIC(double,operating_capacity);
 
 private:
 
