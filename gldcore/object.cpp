@@ -1933,7 +1933,7 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 		sync_time = plc_time;
 
 	/* compute valid_to time */
-	if(sync_time>TS_MAX)
+	if ( sync_time > TS_MAX )
 		obj->valid_to = TS_NEVER;
 	else
 		obj->valid_to = sync_time; // NOTE, this can be negative
@@ -1999,7 +1999,7 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 		do {
 			/* don't call sync beyond valid horizon */
 			t2 = _object_sync(obj,(ts<(obj->valid_to>0?obj->valid_to:TS_NEVER)?ts:obj->valid_to),pass);	
-		} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER);
+		} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER && t2!=global_clock );
 	}
 
 	/* event handler */
