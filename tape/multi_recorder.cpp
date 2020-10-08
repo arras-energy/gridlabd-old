@@ -576,6 +576,7 @@ EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
 		if ( my->property_len < len )
 		{
 			my->property_len = ((my->property_len+len+1)/BLOCKSIZE+1)*BLOCKSIZE;
+			char *old_value = my->property;
 			my->property = (char*)realloc(my->property,my->property_len);
 			if ( my->property == NULL )
 			{
@@ -583,7 +584,15 @@ EXPORT int method_multi_recorder_property(OBJECT *obj, char *value, size_t size)
 				my->property_len = 0;
 				return 0;
 			}
-			strcpy(my->property,value);
+			if ( old_value )
+			{
+				strcat(my->property,",");
+				strcat(my->property,value);
+			}
+			else
+			{
+				strcpy(my->property,value);
+			}
 		}	
 		else
 		{
