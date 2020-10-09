@@ -185,9 +185,23 @@ int GldJsonWriter::write_properties(FILE *fp)
 int GldJsonWriter::write_classes(FILE *fp)
 {
 	int len = 0;
-	CLASS *oclass;
+
+	len += write(",\n\t\"header\" : {");
+	for ( HEADERDATA *item = object_headerdata_getfirst() ; item != NULL ; item = object_headerdata_getnext(item) )
+	{
+		if ( item != object_headerdata_getfirst() )
+		{
+			len += write(",");
+		}
+		len += write("\n\t\t\"%s\" : {", item->name);
+		len += write("\n\t\t\t\"type\" : \"%s\",", item->ptype);
+		len += write("\n\t\t\t\"access\" : \"%s\"", item->access);
+		len += write("\n\t\t}");
+	}
+	len += write("\n\t}");
+
 	len += write(",\n\t\"classes\" : {");
-	for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
+	for ( CLASS *oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
 	{
 		PROPERTY *prop;
 		if ( oclass != class_get_first_class() )
@@ -259,15 +273,19 @@ int GldJsonWriter::write_classes(FILE *fp)
 			}
 			if ( prop->unit != NULL )
 			{
-				write(",\n\t\t\t\t\"unit\" : \"%s\"",prop->unit->name);
+				len += write(",\n\t\t\t\t\"unit\" : \"%s\"",prop->unit->name);
 			}
 			if ( prop->default_value != NULL )
 			{
 				PROPERTYSPEC *spec = property_getspec(prop->ptype);
 				if ( spec != NULL && prop->default_value != spec->default_value )
 				{	
-					write(",\n\t\t\t\t\"default\" : \"%s\"",prop->default_value);
+					len += write(",\n\t\t\t\t\"default\" : \"%s\"",prop->default_value);
 				}
+			}
+			if ( prop->description != NULL )
+			{
+				len += write(",\n\t\t\t\t\"description\" : \"%s\"",prop->description);
 			}
 			len += write("\n\t\t\t}");
 		}
@@ -598,7 +616,7 @@ int GldJsonWriter::write_output(FILE *fp)
 	int len = 0;
 	json = fp;
 	len += write("{\t\"application\": \"gridlabd\",\n");
-	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,version);
+	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,global_version_patch);
 	if ( (global_filesave_options&FSO_MODULES) == FSO_MODULES )
 	{
 		len += write_modules(fp);

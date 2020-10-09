@@ -13,7 +13,7 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 		return NULL;
 	}
 
-	INIT_MMF(assert);
+	INIT_MMF(industrial);
 
 	new industrial(module);
 

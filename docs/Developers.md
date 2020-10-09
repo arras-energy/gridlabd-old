@@ -1,5 +1,14 @@
 Software developers and engineers are welcome to contribute to HiPAS GridLAB-D. The source code to HiPAS is available to the public through the [GitHub SLAC Gismo GridLAB-D project](https://github.com/slacgismo/gridlabd). 
 
+## Developer Resources
+
+  - [Source code](https://github.com/slacgismo/gridlabd)
+  - [Issues](https://github.com/slacgismo/gridlabd/issues)
+  - [Pull requests](https://github.com/slacgismo/gridlabd/pulls)
+  - [Projects](https://github.com/slacgismo/gridlabd/projects)
+  - [Wiki](https://github.com/slacgismo/gridlabd)
+  - [Team Discussions](https://github.com/slacgismo/teams/gridlab-d/discussions)
+
 Developers should consult the [[/Developer/README]] for information about modifying and contributing to HiPAS GridLAB-D.
 
 # Installing HiPAS GridLAB-D from source code
