@@ -53,7 +53,8 @@ options = {
 	"hyperlinks" : False,
 }
 
-opts, args = getopt.getopt(sys.argv[1:],"hci:o:",["help","config","ifile=","ofile="])
+opts, args = getopt.getopt(sys.argv[1:],"hci:o:",["help","config","ifile=","ofile=",
+	"no_modules","no_globals","no_classes","no_objects","with_classes","with_contents","with_hyperlinks"])
 
 if not opts : 
     help()
@@ -115,6 +116,12 @@ with open(output_file,"w") as md:
 	def hdr(n,str):
 		md.write(f"{'#'*n} {str}\n\n")
 	
+	def link(n):
+		if options["hyperlinks"]:
+			return f"[{n}](#{n.replace(' ','-')}"
+		else:
+			return n
+
 	def get(x,n,y=None):
 		if n in x: return x[n]
 		else: return y
@@ -128,10 +135,11 @@ with open(output_file,"w") as md:
 	# contents
 	if options["contents"]:
 		hdr(2,"Table of Contents")
-		if options["modules"]: line("- Modules")
-		if options["classes"]: line("- Classes")
-		if options["objects"]: line("- Objects")
-		if options["globals"]: line("- Globals")
+		if options["modules"]: line(f"- {link('Modules')})")
+		if options["classes"]: line(f"- {link('Classes')})")
+		if options["objects"]: line(f"- {link('Objects')})")
+		if options["globals"]: line(f"- {link('Global Data')})")
+		line()
 
 	# list modules
 	if modules and options["modules"]:
@@ -178,7 +186,8 @@ with open(output_file,"w") as md:
 			row()
 
 	# objects
-	if options["objects"]:
+	if options["objects"] and objects:
+		hdr(2,"Objects")
 		for name, properties in objects.items():
 			hdr(3,name)
 			row("Property","Value")
