@@ -1996,7 +1996,7 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 	char *event = NULL;
 	if ( obj->oclass->sync != NULL )
 	{
-		int iter = 0;
+		unsigned int iter = 0;
 		TIMESTAMP tt;
 		do {
 			/* don't call sync beyond valid horizon */
