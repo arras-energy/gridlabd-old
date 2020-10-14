@@ -596,10 +596,10 @@ int pcloses(FILE *iop, bool wait=true)
 
 int GldMain::subcommand(const char *format, ...)
 {
-	char *command;
+	char *command = NULL;
 	va_list ptr;
 	va_start(ptr,format);
-	if ( vasprintf(&command,format,ptr) < 0 )
+	if ( vasprintf(&command,format,ptr) < 0 || command == NULL )
 	{
 		output_error("GldMain::subcommand(format='%s',...): memory allocation failed",format);
 		return -1;
@@ -658,6 +658,7 @@ int GldMain::subcommand(const char *format, ...)
 		}
 		output_verbose("subcommand '%s' -> status = %d",command,rc);
 	}
+	free(command);
 	return rc;
 }
 
