@@ -48,28 +48,29 @@ def convert(input,output=None,options={}):
 	try:
 		with open(output,"w") as glm:
 			glm.write(f'// converted from {input} to {output} on {dt.datetime.now()}\n')
-			glm.write("""
-module tape;
-class weather {
-	char32 station_id;
-	double temperature[degF];
-	double humidity[%];
-}	
-""")
-			glm.write(f'object weather\n')
-			glm.write('{\n')
-			glm.write(f'\tname "{name}";\n')
-			glm.write(f'\tstation_id "{options["station_id"]}";\n')
-			glm.write(f'\tobject player\n')
-			glm.write('\t{\n')
-			glm.write(f'\t\tfile "{csvname}";\n')		
-			glm.write(f'\t\tproperty "{",".join(list(options["columns"].values())[1:])}";\n')		
-			glm.write('\t};\n')
-			glm.write('}\n')
+			if not "--use-climate" in options:
+				glm.write("module tape;\n")
+				glm.write("class weather {\n")
+				glm.write("\tchar32 station_id;\n")
+				glm.write("\tdouble temperature[degF];\n")
+				glm.write("\tdouble humidity[%];\n")
+				glm.write("\t}\n")
+				glm.write(f'object weather\n')
+				glm.write('{\n')
+				glm.write(f'\tname "{name}";\n')
+				glm.write(f'\tstation_id "{options["station_id"]}";\n')
+				glm.write(f'\tobject player\n')
+				glm.write('\t{\n')
+				glm.write(f'\t\tfile "{csvname}";\n')		
+				glm.write(f'\t\tproperty "{",".join(list(options["columns"].values())[1:])}";\n')		
+				glm.write('\t};\n')
+				glm.write('}\n')
+			else:
+				raise Exception("climate output not implemented yet")
 	except:
 		os.remove(output)
 		raise
 
-if __name__ == '__main__':
-	convert('https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/noaa.csv',
-		options={'refresh':True,'station_id':'72594524283'})
+	if __name__ == '__main__':
+		convert('https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/noaa.csv',
+			options={'refresh':True,'station_id':'72594524283'})
