@@ -244,7 +244,7 @@ int pole::init(OBJECT *parent)
 	return 1;
 }
 
-TIMESTAMP pole::presync(TIMESTAMP t0)
+TIMESTAMP pole::sync(TIMESTAMP t0)
 {
 	// update pole degradation model
 	if ( install_year > 0 )
@@ -330,14 +330,14 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}
 	
-	TIMESTAMP t1 = node::presync(t0);
+	TIMESTAMP t1 = node::sync(t0);
 	TIMESTAMP t2 = ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
 	return ( t1 > t0 && t2 < t1 ) ? t1 : t2;
 }
 
-TIMESTAMP pole::sync(TIMESTAMP t0)
+TIMESTAMP pole::presync(TIMESTAMP t0)
 {
-	return node::sync(t0);
+	return node::presync(t0);
 }
 
 TIMESTAMP pole::postsync(TIMESTAMP t0)
