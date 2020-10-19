@@ -39,6 +39,7 @@ pole::pole(MODULE *mod) : node(mod)
 			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure",
 			PT_int32, "install_year", PADDR(install_year), PT_DESCRIPTION, "the year of pole was installed",
 			PT_double, "repair_time[h]", PADDR(repair_time), PT_DESCRIPTION, "typical repair time after pole failure",
+			PT_double, "wind_pressure[ft/lb/lb]", PADDR(wind_pressure), PT_DESCRIPTION, "wind pressure on pole",
 			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 		gl_global_create("powerflow::repair_time[h]",PT_double,&default_repair_time,NULL);
 	}
