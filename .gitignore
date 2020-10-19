@@ -161,3 +161,4 @@ gldcore/link/python/examples/example_3/x.csv
 gldcore/link/python/examples/example_1/example.png
 gldcore/link/python/examples/example_1/x.csv
 gldcore/autotest/test.glm
+powerflow/autotest/test_IEEE13_pole_output.csv
