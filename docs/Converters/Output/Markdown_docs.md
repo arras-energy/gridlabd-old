@@ -3,7 +3,7 @@
 # Synopsis
 
 ~~~
-#output "filename.md" [--no_{classes,global,modules,object}|--with_{classes,contents,hyperlinks}]
+#output "filename.md" [--no_{classes,globals,modules,objects}|--with_{classes,contents,hyperlinks}]
 ~~~
 
 # Description
