@@ -241,7 +241,7 @@ TIMESTAMP group_recorder::postsync(TIMESTAMP t0, TIMESTAMP t1){
 		}
 		//Default else -- Normal mode, just do what was done before
 
-		return next_write > gl_globalclock ? next_write : gl_globalclock+1;
+		return next_write;
 	} else {
 		// on-change intervals simply short-circuit
 		return TS_NEVER;
