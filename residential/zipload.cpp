@@ -388,6 +388,10 @@ TIMESTAMP ZIPload::sync(TIMESTAMP t0, TIMESTAMP t1)
 		dt = int(1/R * 3600);
 
 		next_time = t1 + dt;
+		// char ts[64] = "???";
+		// gl_printtime(next_time,ts,sizeof(ts));
+		// fprintf(stdout,"DR_MODE: duty_cycle=%g, period=%g, phase=%g, next_time --> %s\n", duty_cycle, period, phase,ts);
+		// fflush(stdout);
 	}
 
 	// We're in duty cycle mode
@@ -425,6 +429,10 @@ TIMESTAMP ZIPload::sync(TIMESTAMP t0, TIMESTAMP t1)
 					next_time = t1 + (period * 3600) * (1 - phase) + 1;
 				}
 			}
+			// char ts[64] = "???";
+			// gl_printtime(next_time,ts,sizeof(ts));
+			// fprintf(stdout,"OV_NORMAL: duty_cycle=%g, period=%g, phase=%g, next_time --> %s\n", duty_cycle, period, phase,ts);
+			// fflush(stdout);
 			last_duty_cycle = duty_cycle;
 		}
 		else if (this->re_override == OV_OFF) // After release or recovery time
@@ -432,7 +440,7 @@ TIMESTAMP ZIPload::sync(TIMESTAMP t0, TIMESTAMP t1)
 			if (phase <= 1 && t1>=next_time)
 			{
 				this->re_override = OV_NORMAL;
-				next_time = t1;
+				next_time = t1 + (period * 3600) * (1 - fmod(phase,1)) + 1;
 			}
 			else if (t1 >= next_time || next_time == TS_NEVER) // we just came from override ON
 			{
@@ -445,28 +453,18 @@ TIMESTAMP ZIPload::sync(TIMESTAMP t0, TIMESTAMP t1)
 						phase -= 1 * recovery_duty_cycle / duty_cycle * (1 - fmod(phase,1)); // Track everything by the original duty cycle
 					else 
 						phase = 0; //Start over
-
-					/*if (phase < 0)
-					{
-						next_time = t1 + (period * 3600) * (recovery_duty_cycle - 0) + 1;
-						phase = 0;
-					}*/
 				}			
 				else					// ON->OFF
 				{
-					//if (multiplier == 1) // we just transitioned
-					//{
-						//if (phase >= 1 * recovery_duty_cycle / duty_cycle)
-						//	phase -= 1 * recovery_duty_cycle / duty_cycle; // Track everything by the original duty cycle
-						//else if (phase < 1)
-						//	this->re_override = OV_NORMAL;
-					//}
 					multiplier = 0;
 					next_time = t1 + (period * 3600) * (1 - fmod(phase,1)) + 1;
 				}
 			}
 			last_duty_cycle = duty_cycle;
-
+			// char ts[64] = "???";
+			// gl_printtime(next_time,ts,sizeof(ts));
+			// fprintf(stdout,"OV_OFF: duty_cycle=%g, period=%g, phase=%g, next_time --> %s\n", duty_cycle, period, phase,ts);
+			// fflush(stdout);
 		}
 		else // override is ON, so no power
 		{
@@ -488,6 +486,10 @@ TIMESTAMP ZIPload::sync(TIMESTAMP t0, TIMESTAMP t1)
 					last_duty_cycle = 0;
 				}
 			}
+			// char ts[64] = "???";
+			// gl_printtime(next_time,ts,sizeof(ts));
+			// fprintf(stdout,"OV_ON: duty_cycle=%g, period=%g, phase=%g, next_time --> %s\n", duty_cycle, period, phase,ts);
+			// fflush(stdout);
 		}
 		// last_duty_cycle = duty_cycle;
 	}
@@ -579,8 +581,14 @@ TIMESTAMP ZIPload::sync(TIMESTAMP t0, TIMESTAMP t1)
 		load.power_factor = 0.0;
 	}
 
-	if (next_time < t2 && next_time > 0)
+	if ( next_time < t2 && next_time > 0 )
 		t2 = next_time;
+	// char ts0[64], ts1[64], ts2[64];
+	// gl_printtime(t0,ts0,sizeof(ts0));
+	// gl_printtime(t1,ts1,sizeof(ts1));
+	// gl_printtime(t2,ts2,sizeof(ts2));
+	// fprintf(stdout,"ZIPload::sync(t0=%s,t1=%s) --> t2 = %s\n\n", ts0,ts1,ts2);
+	// fflush(stdout);
 	return t2;
 }
 
