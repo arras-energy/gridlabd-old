@@ -1,21 +1,21 @@
 # module.mk -- list of GridLAB-D modules that are considered part of this build
-include assert/Makefile.mk
-include climate/Makefile.mk
-include commercial/Makefile.mk
-include generators/Makefile.mk
-include influxdb/Makefile.mk
-include industrial/Makefile.mk
-include market/Makefile.mk
-include powerflow/Makefile.mk
-include reliability/Makefile.mk
-include residential/Makefile.mk
-include revenue/Makefile.mk
+include module/assert/Makefile.mk
+include module/climate/Makefile.mk
+include module/commercial/Makefile.mk
+include module/generators/Makefile.mk
+include module/industrial/Makefile.mk
+include module/influxdb/Makefile.mk
+include module/market/Makefile.mk
+include module/optimize/Makefile.mk 
+include module/powerflow/Makefile.mk
+include module/reliability/Makefile.mk
+include module/residential/Makefile.mk
+include module/revenue/Makefile.mk
 
 # TODO: deprecating these soon
-include tape_file/Makefile.mk
-include tape/Makefile.mk
-include tape_plot/Makefile.mk
+include module/tape/Makefile.mk
+include module/tape_file/Makefile.mk
+include module/tape_plot/Makefile.mk
 
 # TODO: removed until HiPAS upgrades are implemented
 #include connection/Makefile.mk 
-#include optimize/Makefile.mk 

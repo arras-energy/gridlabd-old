@@ -319,7 +319,7 @@ reconfigure: distclean
 	autoreconf -isf && ./configure
 
 reconfigure-debug: distclean
-	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
+	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
 
 docker: $(PREFIX)/docker.img
 
@@ -358,3 +358,8 @@ developer-html: # TODO
 troubleshooting-html:
 	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/ 
 	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > $(top_srcdir)/documents/html/troubleshooting/index.html )
+
+documents/gridlabd.pdf: documents/gridlabd.glm
+	(cd documents ; gridlabd gridlabd.glm)
+	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
+

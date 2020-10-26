@@ -1,13 +1,10 @@
-// python.cpp
+// gldcore/python_embed.cpp
 
 #include "gldcore.h"
-#include <string.h>
 
-wchar_t *program = NULL;
-PyObject *main_module = NULL;
+static wchar_t *program = NULL;
+static PyObject *main_module = NULL;
 PyObject *gridlabd_module = NULL;
-
-PyMODINIT_FUNC PyInit_gridlabd(void);
 
 void python_embed_init(int argc, const char *argv[])
 {
@@ -19,13 +16,9 @@ void python_embed_init(int argc, const char *argv[])
     {
         throw_exception("python_embed_init(argc=%d,argv=(%s,...)): unable to load module __main__ module",argc,argv?argv[0]:"NULL");
     }
-
-    extern PyObject *this_module; // from gldcore/link/python.cpp
-    if ( this_module == NULL )
-    {
-        PyInit_gridlabd();
-    }
-    gridlabd_module = this_module;
+    gridlabd_module = PyInit_gridlabd();
+    Py_INCREF(gridlabd_module);
+    Py_INCREF(main_module);
 }
 
 void *python_loader_init(int argc, const char **argv)
@@ -39,12 +32,8 @@ void *python_loader_init(int argc, const char **argv)
 
 void python_embed_term()
 {
-    if ( Py_FinalizeEx() )
-    {
-        output_warning("Py_FinalizeEx() failed");
-    }
-    PyMem_RawFree((void*)program);
-    output_verbose("python shutdown ok");
+    Py_DECREF(main_module);
+    Py_DECREF(gridlabd_module);
 }
 
 void python_reset_stream(PyObject *pModule, const char *stream_name)
@@ -78,8 +67,8 @@ PyObject *python_embed_import(const char *module, const char *path)
             PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
             const char *msg = bytes?PyBytes_AS_STRING(bytes):"PyRun_SimpleString failed with no information";
             output_error("python_embed_import(module='%s',path='%s'): %s; string='%s'",module,path,msg,tmp);
-            if ( repr ) Py_XDECREF(repr);
-            if ( bytes ) Py_XDECREF(bytes);
+            if ( repr ) Py_DECREF(repr);
+            if ( bytes ) Py_DECREF(bytes);
             return NULL;
         }
     }
@@ -104,8 +93,8 @@ PyObject *python_embed_import(const char *module, const char *path)
         PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
         const char *msg = bytes?PyBytes_AS_STRING(bytes):"PyImport_ImportModule failed with no information";
         output_error("python_embed_import(module='%s',path='%s'): %s",module,path,msg);
-        if ( repr ) Py_XDECREF(repr);
-        if ( bytes ) Py_XDECREF(bytes);
+        if ( repr ) Py_DECREF(repr);
+        if ( bytes ) Py_DECREF(bytes);
         return NULL;
     }
     python_reset_stream(pModule,"error_stream");
@@ -129,71 +118,149 @@ const char *truncate(const char *command)
     return buf;
 }
 
-void traceback(const char *command)
+// Function: python_embed_call
+// 
+// If pModule is dict and name is null, the varargsfmt is used to store the
+// the result of the last call, i.e., pModule[varargsfmt] = result
+bool python_embed_call(PyObject *pModule, const char *name, const char *vargsfmt, va_list varargs)
 {
-    PyObject *err = PyErr_Occurred();
-    if ( err == NULL )
+    static PyObject *last_result = NULL;
+    if ( name == NULL ) // varargsfmt contains the name of the dict item to set
     {
-        output_error("traceback(command='%s'): no error occurred",command);
-        return;
+        // expect pModule to be the container for a result of the same type
+        return ( PyDict_Check(pModule) && PyDict_SetItemString(pModule,vargsfmt,last_result) == 0 );
     }
-    PyObject *pyth_val, *ptype, *pvalue, *ptraceback;
-    PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-    Py_DECREF(err);
-    if ( ptype == NULL || pvalue == NULL || ptraceback == NULL )
+    
+    if ( pModule == NULL )
     {
-        output_error("traceback(command='%s'): no error to fetch",command);
-        return;
+        output_error("python_embed_call(pModule,name='%s'): no module loaded",truncate(name));
+        return false;
     }
-    PyObject *pystr = PyUnicode_AsEncodedString(pvalue,"utf-8","~E~");
-    char *str = pystr ? PyBytes_AsString(pystr) : NULL;
-    if ( str )
+
+    PyObject *pFunc = PyObject_GetAttrString(pModule,name);
+    if ( pFunc == NULL )
     {
-        output_error("traceback(command='%s'): python exception caught: %s",command, str);
+        PyObject *pType, *pValue, *pTraceback;
+        PyErr_Fetch(&pType, &pValue, &pTraceback);
+        PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
+        PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+        const char *msg = bytes?PyBytes_AS_STRING(bytes):"function not defined";
+        output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
+        if ( repr ) Py_DECREF(repr);
+        if ( bytes ) Py_DECREF(bytes);
+        return false;
     }
-    PyObject *pyth_module = PyImport_ImportModule("traceback");
-    if ( pyth_module == NULL ) 
+    if ( ! PyCallable_Check(pFunc) )
     {
-        output_error("traceback(command='%s'): no traceback module available",command);
+        PyObject *pType, *pValue, *pTraceback;
+        PyErr_Fetch(&pType, &pValue, &pTraceback);
+        PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
+        PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+        const char *msg = bytes?PyBytes_AS_STRING(bytes):"function not callable";
+        output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
+        if ( repr ) Py_DECREF(repr);
+        if ( bytes ) Py_DECREF(bytes);
+        Py_DECREF(pFunc);
+        return false;
     }
-    else
+
+    PyObject *pGridlabd = PyDict_GetItemString(pModule,"gridlabd");
+    PyObject *pArgs = Py_BuildValue("(O)",pGridlabd?pGridlabd:PyInit_gridlabd());
+    PyObject *pKwargs = vargsfmt ? Py_VaBuildValue(vargsfmt,varargs) : NULL;
+    if ( last_result != NULL )
     {
-        PyObject *pyth_func = PyObject_GetAttrString(pyth_module, "format_exception");
-        PyErr_Clear();
-        if ( pyth_func == NULL )
+        Py_DECREF(last_result);
+    }
+    PyErr_Clear();
+    last_result = PyObject_Call(pFunc,pArgs,pKwargs);
+    Py_DECREF(pArgs);
+    if ( PyErr_Occurred() )
+    {
+        PyObject *pType, *pValue, *pTraceback;
+        PyErr_Fetch(&pType, &pValue, &pTraceback);
+        if ( pValue )
         {
-            output_error("traceback(command='%s'): traceback.format_exception() not found",command);
-        }
-        else if ( ! PyCallable_Check(pyth_func) )
-        {
-            output_error("traceback(command='%s'): traceback.format_exception() not callable",command);
-        }
-        else if ( (pyth_val = PyObject_CallFunctionObjArgs(pyth_func, ptype, pvalue, ptraceback, NULL)) != NULL ) 
-        {
-            PyObject *pystr = PyUnicode_AsEncodedString(pyth_val,"utf-8","~E~");
-            const char *str = pystr ? PyBytes_AsString(pystr) : NULL;
-            if ( str )
+            PyObject *repr = PyObject_Repr(pValue);
+            PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+            const char *msg = bytes ? PyBytes_AS_STRING(bytes) : "function call failed";
+            output_error("python_embed_call(pModule,name='%s'): %s",truncate(name), msg);
+            if ( repr ) Py_DECREF(repr);
+            if ( bytes ) Py_DECREF(bytes);
+            PyObject *pContext = PyException_GetContext(pValue);
+            if ( pContext )
             {
-                output_error("traceback(command='%s'): traceback follows",command);
-                output_error_raw("BEGIN TRACEBACK\n%s\nEND TRACEBACK",command,str);
+                PyObject *repr = pContext ? PyObject_Repr(pContext) : NULL;
+                PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+                const char *msg = bytes?PyBytes_AS_STRING(bytes):"function call failed";
+                output_error("python_embed_call(pModule,name='%s'): context is %s",truncate(name), msg);
+                Py_DECREF(pContext);
+                if ( repr ) Py_DECREF(repr);
+                if ( bytes ) Py_DECREF(bytes);
             }
             else
             {
-                output_error("traceback(command='%s'): no traceback found",command);
+                output_error("python_embed_call(pModule,name='%s'): context not available",truncate(name));
             }
-            Py_DECREF(pyth_val);
         }
         else
         {
-            output_error("traceback(command='%s'): unable to format traceback, arguments follow",command);
-            FILE *error = output_get_stream("error");
-            output_error_raw("BEGIN TRACEBACK");
-            fprintf(error,"function: "); PyObject_Print(pyth_func,error,Py_PRINT_RAW); fprintf(error,"\n");
-            fprintf(error,"type: "); PyObject_Print(ptype,error,Py_PRINT_RAW); fprintf(error,"\n");
-            fprintf(error,"value: "); PyObject_Print(pvalue,error,Py_PRINT_RAW); fprintf(error,"\n");
-            fprintf(error,"traceback: "); PyObject_Print(ptraceback,error,Py_PRINT_RAW); fprintf(error,"\n");
-            output_error_raw("END TRACEBACK");
+            output_error("python_embed_call(pModule,name='%s'): no error information available",truncate(name));
         }
+        Py_DECREF(pFunc);
+        return false;
+    }
+    else
+    {
+        PyObject *pError = PyObject_GetAttrString(pModule,"error_stream");
+        if ( pError )
+        {
+            PyObject *pCall = PyObject_GetAttrString(pError,"getvalue");
+            PyErr_Clear();
+            PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
+            PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
+            const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
+            if ( strcmp(msg,"") != 0 )
+            {
+                output_error("%s: %s", name, msg ? msg : "(python error_stream not available");
+            }
+            if ( pCall ) Py_DECREF(pCall);
+            if ( pValue ) Py_DECREF(pValue);
+            if ( pBytes ) Py_DECREF(pBytes);
+
+            python_reset_stream(pModule,"error_stream");
+            Py_DECREF(pError);
+        }
+        PyObject *pOutput = PyObject_GetAttrString(pModule,"output_stream");
+        if ( pOutput )
+        {
+            PyObject *pCall = PyObject_GetAttrString(pOutput,"getvalue");
+            PyErr_Clear();
+            PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
+            PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
+            const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
+            if ( strcmp(msg,"") != 0 )
+            {
+                output_raw("%s", msg ? msg : "(python output_stream not available)");
+            }
+            if ( pCall ) Py_DECREF(pCall);
+            if ( pValue ) Py_DECREF(pValue);
+            if ( pBytes ) Py_DECREF(pBytes);
+
+            python_reset_stream(pModule,"output_stream");
+            Py_DECREF(pOutput);
+        }
+    }
+    Py_DECREF(pFunc);
+    if ( pKwargs ) Py_DECREF(pKwargs);
+    return true;
+}
+
+void python_traceback(const char *command)
+{
+    output_error("traceback of command '%s'...",command);
+    if ( PyErr_Occurred() ) 
+    {
+        PyErr_Print();
     }
 }
 
@@ -257,7 +324,7 @@ bool python_embed_call(
     Py_DECREF(pArgs);
     if ( PyErr_Occurred() )
     {
-        traceback(name);
+        python_traceback(name);
         return false;
     }
     assert(return_value!=NULL);
@@ -315,20 +382,20 @@ std::string python_eval(const char *command)
     if ( result == NULL )
     {
         output_error("python_eval(command='%s') failed",truncate(command));
-        traceback(truncate(command));
+        python_traceback(truncate(command));
         throw "python exception";
     }
     PyObject *repr = PyObject_Repr(result);
     PyObject *str = PyUnicode_AsEncodedString(repr,"utf-8","~E~");
     std::string bytes(PyBytes_AS_STRING(str));
-    Py_XDECREF(repr);
-    Py_XDECREF(str);
-    Py_XDECREF(result);
+    Py_DECREF(repr);
+    Py_DECREF(str);
+    Py_DECREF(result);
     return bytes;
 }
 
 // Parser implementation
-//   python_parse(<string>) to append <string> to input buffer
+//   python_parser(<string>) to append <string> to input buffer
 //   python_parser(NULL) to parse input buffer
 // Returns true on success, false on failure
 static std::string input_buffer("from gridlabd import *\n");
@@ -346,20 +413,70 @@ bool python_parser(const char *line, void *context)
     {
         module = main_module;
     }
+    Py_INCREF(module);
 
     const char *command = input_buffer.c_str();
     PyObject *result = PyRun_String(command,Py_file_input,module,module);
+    Py_DECREF(module);
     if ( result == NULL )
     {
         output_error("python_parser(NULL,...): command '%s' failed",command);
-        traceback(truncate(command));
+        python_traceback(truncate(command));
         input_buffer = "";
         return false;
     }
     else
     {
-        Py_XDECREF(result);
+        Py_DECREF(result);
         input_buffer = "";
         return true;
     }
 }
+
+// Function: convert_from_double
+DEPRECATED int convert_from_python(char *buffer, int size, void *data, PROPERTY *prop)
+{
+    PyObject *obj = PyObject_Str(*(PyObject**)data);
+    int len = PyUnicode_GetLength(obj);
+    if ( buffer == NULL )
+    {
+        return len;
+    }
+    if ( len > size )
+    {
+        len = size;
+    }
+    strcpy(buffer,PyUnicode_AsUTF8(obj));
+    return len;
+}
+
+// Function: convert_to_python
+DEPRECATED int convert_to_python(const char *buffer, void *data, PROPERTY *prop)
+{
+    PyObject **pObj = (PyObject **)data;
+    Py_DECREF(*pObj);
+    *pObj = PyRun_String(buffer,Py_eval_input,main_module,main_module);
+    if ( *pObj ) Py_INCREF(*pObj);
+    return *pObj ? strlen(buffer) : -1;
+}
+
+DEPRECATED int initial_from_python(char *buffer, int size, void *data, PROPERTY *prop)
+{
+    return convert_from_python(buffer,size,data,prop);
+}
+
+DEPRECATED int python_create(void *ptr)
+{
+    PyObject **pObj = (PyObject**)ptr;
+    *pObj = Py_None;
+    Py_INCREF(Py_None);
+    return 1;
+}
+
+double python_get_part(void *c, const char *name)
+{
+    // TODO dict, list, and complex parts to double
+    return QNAN;
+}
+
+

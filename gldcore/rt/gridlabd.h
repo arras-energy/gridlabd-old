@@ -458,6 +458,7 @@ typedef enum {_PT_FIRST=-1,
 	PT_random,		/**< Randomized number */
 	PT_method,		/**< Method interface */
 	PT_string,
+	PT_python,
 #ifdef USE_TRIPLETS
 	PT_triple, /**< triplet of doubles (not supported) */
 	PT_triplex, /**< triplet of complexes (not supported) */
