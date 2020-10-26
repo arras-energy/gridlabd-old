@@ -2499,34 +2499,39 @@ STATUS GldExec::exec_start(void)
 			if ( global_run_realtime > 0 && iteration_counter > 0 )
 			{
 				double metric=0;
-#ifdef WIN32
-				struct timeb tv;
-				ftime(&tv);
-				if ( 1000-tv.millitm >= 0 )
-				{
-					IN_MYCONTEXT output_verbose("waiting %d msec", 1000-tv.millitm);
-					Sleep(1000-tv.millitm );
-					metric = (1000-tv.millitm)/1000.0;
-				}
-				else
-					output_error("simulation failed to keep up with real time");
-#else
 				struct timeval tv;
 				gettimeofday(&tv, NULL);
-				if ( 1000000-tv.tv_usec >= 0 )
+				unsigned int udiff = 1000000 - tv.tv_usec;
+				if ( global_run_realtime == 1 ) // lock onto system clock
 				{
-					IN_MYCONTEXT output_verbose("waiting %d usec", 1000000-tv.tv_usec);
-					usleep(1000000-tv.tv_usec);
-					metric = (1000000-tv.tv_usec)/1000000.0;
+					int diff = global_clock - tv.tv_sec;
+					if ( diff < 0 )
+					{
+						IN_MYCONTEXT output_verbose("skipping %d seconds to catch up", -diff);
+						global_realtime_metric = 0.0;
+					}
+					else if ( diff > 0 )
+					{
+						global_realtime_metric = 1.0;
+						IN_MYCONTEXT output_verbose("sleeping %d seconds to catch up", diff);
+						sleep(diff);
+						gettimeofday(&tv, NULL);
+						udiff = 1000000 - tv.tv_usec;
+					}
+					global_clock = tv.tv_sec + 1;
 				}
 				else
 				{
-					output_error("simulation failed to keep up with real time");
+					global_clock++;
+					metric = (udiff)/1000000.0;
+					global_realtime_metric = global_realtime_metric*realtime_metric_decay + metric*(1-realtime_metric_decay);
 				}
-#endif
+				if ( udiff >= 0 )
+				{
+					IN_MYCONTEXT output_verbose("waiting %d usec to synchronize", udiff);
+					usleep(udiff);
+				}
 				wlock_sync();
-				global_clock += global_run_realtime;
-				global_realtime_metric = global_realtime_metric*realtime_metric_decay + metric*(1-realtime_metric_decay);
 				sync_reset(NULL);
 				sync_set(NULL,global_clock,false);
 				IN_MYCONTEXT output_verbose("realtime clock advancing to %d", (int)global_clock);
