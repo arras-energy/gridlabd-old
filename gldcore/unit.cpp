@@ -484,7 +484,8 @@ void unit_init(void)
 		char envbuf[1024];
 		const char *dir;
 		strcpy(envbuf, glpath);
-		dir = strtok(envbuf, ";");
+		char *last;
+		dir = strtok_r(envbuf, ";", &last);
 		while(dir != NULL){
 			strcpy(filepath, dir);
 			strcat(filepath, "/unitfile.txt");
@@ -492,7 +493,7 @@ void unit_init(void)
 			if (fp != NULL){
 				break;
 			}
-			dir = strtok(NULL, ";");
+			dir = strtok_r(NULL, ";",&last);
 		}
 	}
 

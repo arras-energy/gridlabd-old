@@ -98,10 +98,262 @@ KEYWORD oaccess[] = {
 	{"PRIVATE", PA_PRIVATE, NULL},
 };
 
-PROPERTY *object_access_property(){
-	static PROPERTY flags = {0, "access", PT_enumeration, 1, 8, PA_PUBLIC, NULL, (void*) -4, NULL, oaccess, NULL};
-	
-	return &flags;
+static char header_string[1024] = "";
+
+static const char *header_id_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%lld",(unsigned long long)(obj->id)) > 0 ? header_string : NULL;
+}
+
+static const char *header_class_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%s",obj->oclass->name) > 0 ? header_string : NULL;
+}
+
+static const char *header_groupid_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%s",(const char *)(obj->groupid)) > 0 ? header_string : NULL;
+}
+
+static const char *header_name_to_string(OBJECT *obj)
+{
+	if ( obj->name == NULL )
+	{
+		snprintf(header_string,sizeof(header_string),"%s:%d",obj->oclass->name,obj->id);
+	}
+	else
+	{
+		snprintf(header_string,sizeof(header_string),"%s",obj->name);
+	}
+	return header_string;
+}
+
+static const char *header_next_to_string(OBJECT *obj)
+{
+	return obj->next != NULL ? header_name_to_string(obj->next) : NULL;
+}
+
+static const char *header_parent_to_string(OBJECT *obj)
+{
+	return obj->parent != NULL ? header_name_to_string(obj->parent) : NULL;
+}
+
+static const char *header_child_count_to_string(OBJECT *obj)
+{
+	return obj->child_count != 0 && snprintf(header_string,sizeof(header_string),"%d",obj->child_count) > 0 ? header_string : NULL;
+}
+
+static const char *header_rank_to_string(OBJECT *obj)
+{
+	return obj->rank != 0 && snprintf(header_string,sizeof(header_string),"%d",obj->rank) > 0 ? header_string : NULL;
+}
+
+static const char *header_clock_to_string(OBJECT *obj)
+{
+	return convert_from_timestamp(obj->clock,header_string,sizeof(header_string)) > 0 ? header_string : NULL;	
+}
+
+static const char *header_valid_to_to_string(OBJECT *obj)
+{
+	return convert_from_timestamp(obj->valid_to,header_string,sizeof(header_string)) > 0 ? header_string : NULL;	
+}
+
+static const char *header_schedule_skew_to_string(OBJECT *obj)
+{
+	return obj->schedule_skew != 0 && snprintf(header_string,sizeof(header_string),"%lld",obj->schedule_skew) > 0 ? header_string : NULL;
+}
+
+static const char *header_latitude_to_string(OBJECT *obj)
+{
+	return isfinite(obj->latitude) && snprintf(header_string,sizeof(header_string),"%g",obj->latitude) > 0 ? header_string : NULL;
+}
+
+static const char *header_longitude_to_string(OBJECT *obj)
+{
+	return isfinite(obj->longitude) && snprintf(header_string,sizeof(header_string),"%g",obj->longitude) > 0 ? header_string : NULL;
+}
+
+static const char *header_in_svc_to_string(OBJECT *obj)
+{
+	return obj->in_svc != TS_ZERO && convert_from_timestamp(obj->in_svc,header_string,sizeof(header_string)) > 0 ? header_string : NULL;	
+}
+
+static const char *header_out_svc_to_string(OBJECT *obj)
+{
+	return obj->out_svc != TS_NEVER && convert_from_timestamp(obj->out_svc,header_string,sizeof(header_string)) > 0 ? header_string : NULL;	
+}
+
+static const char *header_rng_state_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%u",obj->rng_state) > 0 ? header_string : NULL;
+}
+
+static const char *header_heartbeat_to_string(OBJECT *obj)
+{
+	return obj->heartbeat != 0 && snprintf(header_string,sizeof(header_string),"%llu",obj->heartbeat) > 0 ? header_string : NULL;
+}
+
+static const char *header_guid_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%llX%llX",obj->guid[0],obj->guid[1]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_presync_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_PRESYNC] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_PRESYNC]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_sync_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_SYNC] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_SYNC]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_postsync_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_POSTSYNC] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_POSTSYNC]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_init_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_INIT] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_INIT]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_heartbeat_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_HEARTBEAT] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_HEARTBEAT]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_precommit_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_PRECOMMIT] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_PRECOMMIT]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_commit_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_COMMIT] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_COMMIT]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_finalize_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_FINALIZE] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_FINALIZE]) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_init_to_string(OBJECT *obj)
+{
+	return obj->events.init && snprintf(header_string,sizeof(header_string),"%s",obj->events.init) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_precommit_to_string(OBJECT *obj)
+{
+	return obj->events.precommit && snprintf(header_string,sizeof(header_string),"%s",obj->events.precommit) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_presync_to_string(OBJECT *obj)
+{
+	return obj->events.presync && snprintf(header_string,sizeof(header_string),"%s",obj->events.presync) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_sync_to_string(OBJECT *obj)
+{
+	return obj->events.sync && snprintf(header_string,sizeof(header_string),"%s",obj->events.sync) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_postsync_to_string(OBJECT *obj)
+{
+	return obj->events.postsync && snprintf(header_string,sizeof(header_string),"%s",obj->events.postsync) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_commit_to_string(OBJECT *obj)
+{
+	return obj->events.commit && snprintf(header_string,sizeof(header_string),"%s",obj->events.commit) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_finalize_to_string(OBJECT *obj)
+{
+	return obj->events.finalize && snprintf(header_string,sizeof(header_string),"%s",obj->events.finalize) > 0 ? header_string : NULL;
+}
+
+static const char *header_flags_to_string(OBJECT *obj)
+{
+	return obj->flags != 0 && snprintf(header_string,sizeof(header_string),"0x%llx",obj->flags) > 0 ? header_string : NULL;
+}
+
+#define HDATAX(X,T,S,N) {#X,T,"PROTECTED",S,N},
+#define HDATA(X,T) HDATAX(X,T,header_##X##_to_string,0)
+HEADERDATA headerdata[] = {
+	HDATA(id,"int32")
+	HDATA(class,"string")
+	HDATA(groupid,"char32")
+	HDATA(name,"string")
+	HDATA(next,"object")
+	HDATA(parent,"object")
+	HDATA(child_count,"int32")
+	HDATA(rank,"int32")
+	HDATA(clock,"timestamp")
+	HDATA(valid_to,"timestamp")
+	HDATA(schedule_skew,"int64")
+	HDATA(latitude,"double")
+	HDATA(longitude,"double")
+	HDATA(in_svc,"timestamp")
+	HDATA(out_svc,"timestamp")
+	HDATA(rng_state,"int32")
+	HDATA(heartbeat,"int64")
+	HDATAX(guid,"int64",header_guid_to_string,2)
+	HDATAX(profiler.presync,"int32",header_profiler_presync_to_string,0)
+	HDATAX(profiler.sync,"int32",header_profiler_sync_to_string,0)
+	HDATAX(profiler.postsync,"int32",header_profiler_postsync_to_string,0)
+	HDATAX(profiler.init,"int32",header_profiler_init_to_string,0)
+	HDATAX(profiler.heartbeat,"int32",header_profiler_heartbeat_to_string,0)
+	HDATAX(profiler.precommit,"int32",header_profiler_precommit_to_string,0)
+	HDATAX(profiler.commit,"int32",header_profiler_commit_to_string,0)
+	HDATAX(profiler.finalize,"int32",header_profiler_finalize_to_string,0)
+	HDATAX(event.init,"string",header_event_init_to_string,0)
+	HDATAX(event.precommit,"string",header_event_precommit_to_string,0)
+	HDATAX(event.presync,"string",header_event_presync_to_string,0)
+	HDATAX(event.sync,"string",header_event_sync_to_string,0)
+	HDATAX(event.postsync,"string",header_event_postsync_to_string,0)
+	HDATAX(event.commit,"string",header_event_commit_to_string,0)
+	HDATAX(event.finalize,"string",header_event_finalize_to_string,0)
+	HDATA(flags,"int64")
+	{NULL} // sentinal
+};
+#undef HDATA
+
+HEADERDATA *object_headerdata_getfirst(void)
+{
+	return headerdata;
+}
+
+HEADERDATA *object_headerdata_getnext(HEADERDATA *item)
+{
+	if ( item[1].name == NULL )
+	{
+		return NULL;
+	}
+	else
+	{
+		return item+1;
+	}
+}
+
+const char *object_headerdata_getname(HEADERDATA *item)
+{
+	return item->name;
+}
+
+const char *object_headerdata_getstring(HEADERDATA *item,OBJECT *obj)
+{
+	return item->tostr(obj);
+}
+
+const char *object_headerdata_getaccess(HEADERDATA *item)
+{
+	return item->access;
+}
+
+const char *object_headerdata_gettype(HEADERDATA *item)
+{
+	return item->ptype;
 }
 
 /* prototypes */
@@ -358,6 +610,7 @@ OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 	obj->flags = OF_NONE;
 	obj->rng_state = randwarn(NULL);
 	obj->heartbeat = 0;
+	obj->events = oclass->events;
 	random_key(obj->guid,sizeof(obj->guid)/sizeof(obj->guid[0]));
 
 	object_create_properties(obj,obj->oclass);
@@ -1296,6 +1549,27 @@ int object_set_complex_by_name(OBJECT *obj, PROPERTYNAME name, complex value)
 	return 1;
 }
 
+/// object_get_value
+///
+/// Parameters:
+///   obj - the object from which the property is obtained
+///   prop - the property to obtain
+///   value - the buffer into which the value to be written
+///   size - the size of the buffer into which the value is to be written
+/// 
+/// If `value` is NULL, then the buffer will be created using `malloc()`
+/// and must be `free()`ed when it is not longer needed. The value of `size`
+/// is ignored.
+///
+/// If `size` is 0, then no data is actually copied to the buffer. Instead
+/// the return value is the length of the string needed to contain the value.
+///
+int object_get_value(OBJECT *obj, PROPERTY *prop, char *value, int size)
+{
+	void *addr = (char*)(obj+1) + (int64)(prop->addr);
+	return object_get_value_by_addr(obj,addr,value,size,prop);
+}
+
 /** Get a property value by reference to its physical address
 	@return the number of characters written to the buffer; 0 if failed
  **/
@@ -1659,7 +1933,7 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 		sync_time = plc_time;
 
 	/* compute valid_to time */
-	if(sync_time>TS_MAX)
+	if ( sync_time > TS_MAX )
 		obj->valid_to = TS_NEVER;
 	else
 		obj->valid_to = sync_time; // NOTE, this can be negative
@@ -1722,10 +1996,19 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 	char *event = NULL;
 	if ( obj->oclass->sync != NULL )
 	{
+		unsigned int iter = 0;
+		TIMESTAMP tt;
 		do {
 			/* don't call sync beyond valid horizon */
 			t2 = _object_sync(obj,(ts<(obj->valid_to>0?obj->valid_to:TS_NEVER)?ts:obj->valid_to),pass);	
-		} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER);
+			if ( iter++ > global_iteration_limit )
+			{
+				output_error("maximum iteration limit reached on valid_to sync update");
+				return TS_INVALID;
+			}
+			tt = ( t2 < 0 ? -t2 : t2 );
+		} while ( tt > global_clock && tt < ts );
+		//} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER );
 	}
 
 	/* event handler */
@@ -2139,7 +2422,7 @@ int object_property_getsize(OBJECT *obj, PROPERTY *prop)
 int object_saveall(FILE *fp) /**< the stream to write to */
 {
 	unsigned count = 0;
-	char buffer[1024];
+	char buffer[65536];
 
 	count += fprintf(fp, "\n////////////////////////////////////////////////////////\n");
 	count += fprintf(fp, "// objects\n");
@@ -2199,6 +2482,8 @@ int object_saveall(FILE *fp) /**< the stream to write to */
 				count += fprintf(fp, "\tname \"%s\";\n", obj->name);
 			else if ( (global_glm_save_options&GSO_NOINTERNALS)==GSO_NOINTERNALS )
 				count += fprintf(fp, "\tname \"%s:%d\";\n", oclass->name, obj->id);
+			if ( obj->groupid[0] != '\0' )
+				count += fprintf(fp,"\tgroupid \"%s\";\n", (const char*)obj->groupid);
 			if ( (global_glm_save_options&GSO_NOINTERNALS)==0 && convert_from_timestamp(obj->clock, buffer, sizeof(buffer)) )
 				count += fprintf(fp,"\tclock '%s';\n",  buffer);
 			if ( !isnan(obj->latitude) )
@@ -2279,10 +2564,20 @@ int object_saveall(FILE *fp) /**< the stream to write to */
                 }
                 else if ( (global_glm_save_options&GSO_ORIGINAL)==GSO_ORIGINAL && (xform=transform_has_target(property_addr(obj,prop))) != NULL )
                 {
-                	count += fprintf(fp,"\t%s ", prop->name);
+                	count += fprintf(fp,"\t%s \"", prop->name);
                 	count += transform_write(xform,fp);
-                	count += fprintf(fp,";\n");
+                	count += fprintf(fp,"\";\n");
                 }
+                else if ( (global_filesave_options&FSO_INITIAL) == FSO_INITIAL )
+	        	{
+	        		// initialization value is desired
+	        		const char * value = object_property_to_initial(obj,prop->name, buffer, sizeof(buffer));
+	        		if ( value != NULL && value[0] != '\0' && strcmp(value,"\"\"") != 0 )
+	        		{
+	        			const char *delim = ( value[0] == '"' ? "" : "\"" );
+	        			count += fprintf(fp, "\t%s %s%s%s;\n", prop->name, delim, value, delim);
+	        		}
+	        	}
                 else if ( object_property_to_string(obj, prop->name, buffer, sizeof(buffer)) != NULL )
 				{
 					if ( prop->access != access && (global_glm_save_options&GSO_NOMACROS)==0 )
