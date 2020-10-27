@@ -222,7 +222,7 @@ apartment::apartment(MODULE *module)
 				PT_DEFAULT,"+3 kW",
 				PT_DESCRIPTION,"maximum power demand of dryers in units",
 			PT_double,"unit_capacity_lights[kW]",get_unit_capacity_lights_offset(),
-				PT_DEFAULT,"+0.1 lW",
+				PT_DEFAULT,"+0.1 kW",
 				PT_DESCRIPTION,"maximum lighting demand in units",
 			PT_double,"unit_capacity_plugs[kW]",get_unit_capacity_plugs_offset(),
 				PT_DEFAULT,"+0.5 kW",
