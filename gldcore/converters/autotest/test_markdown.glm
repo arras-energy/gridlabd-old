@@ -14,6 +14,15 @@ module residential;
 module revenue;
 module tape;
 
-#output "test_markdown.md"
+class test {
+	double x[kW];
+}
+
+object test {
+	name "test_0";
+	x 1.2345 MW;
+}
+
+#output "test_markdown.md" --with_contents --with_hyperlinks
 
 // TODO: check markdown output somehow
