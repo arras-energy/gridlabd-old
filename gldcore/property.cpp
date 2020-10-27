@@ -34,7 +34,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"object", "string", NULL, sizeof(OBJECT*), 64, convert_from_object,convert_to_object,NULL,NULL,NULL,convert_to_object,{TCOPB(object)},object_get_part,object_set_part},
 	{"delegated", "string", NULL, 0, PSZ_DYNAMIC, convert_from_delegated, convert_to_delegated},
 	{"bool", "string", "FALSE", sizeof(bool), 6, convert_from_boolean, convert_to_boolean,NULL,NULL,NULL,convert_to_boolean,{TCOPB(bool)},},
-	{"timestamp", "string", "TS_ZERO", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,NULL,convert_to_timestamp_stub,{TCOPS(uint64)},timestamp_get_part,timestamp_set_part},
+	{"timestamp", "string", "0", sizeof(int64), 32, convert_from_timestamp_stub, convert_to_timestamp_stub,NULL,NULL,NULL,convert_to_timestamp_stub,{TCOPS(uint64)},timestamp_get_part,timestamp_set_part},
 	{"double_array", "string", "", sizeof(double_array), 1024, convert_from_double_array, convert_to_double_array,NULL,double_array_create,NULL,NULL,{TCNONE},double_array_get_part,NULL},
 	{"complex_array", "string", "", sizeof(complex_array), 1024, convert_from_complex_array, convert_to_complex_array,NULL,complex_array_create,NULL,NULL,{TCNONE},complex_array_get_part,NULL},
 	{"real", "decimal", "0.0", sizeof(real), 24, convert_from_real, convert_to_real},
@@ -45,6 +45,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method,initial_from_method},
 	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, NULL,string_create,NULL,convert_to_string,{TCOPS(string)},},
 	{"property","string", NULL, sizeof(OBJECTPROPERTY*), 256, convert_from_propertyref, convert_to_propertyref, propertyref_create,NULL,NULL,{TCNONE},},
+	{"python", "string", "None", sizeof(PyObject**), PSZ_DYNAMIC, convert_from_python, convert_to_python, initial_from_python, python_create,NULL,convert_to_python,{TCNONE},python_get_part,NULL},
 };
 
 PROPERTYTYPE property_getfirst_type(void)

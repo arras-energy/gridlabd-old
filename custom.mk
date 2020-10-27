@@ -1,4 +1,4 @@
-include mysql/Makefile.mk
-include gismo/Makefile.mk
-include transactive/Makefile.mk
-#include powernet/Makefile.mk
+include module/mysql/Makefile.mk
+include module/gismo/Makefile.mk
+include module/transactive/Makefile.mk
+include module/powernet/Makefile.mk

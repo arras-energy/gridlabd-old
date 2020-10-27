@@ -1083,6 +1083,7 @@ enum e_propertytype {_PT_FIRST=-1,
 	PT_method,
 	PT_string,
 	PT_property,
+	PT_python,
 	/* add new property types here - don't forget to add them also to rt/gridlabd.h and property.c */
 #ifdef USE_TRIPLETS
 	PT_triple,

@@ -1,0 +1,24 @@
+clock 
+{
+	timezone "US/CA/Los Angeles";
+	starttime "2020-04-01 00:00:00 PST";
+	stoptime "2021-04-01 00:00:00 PST";
+}
+
+module climate;
+
+#weather get WA-Yakima_Air_Terminal.tmy3
+object climate
+{
+	tmyfile "WA-Yakima_Air_Terminal.tmy3";
+}
+
+module residential 
+{
+	paneldump_interval -1;
+}
+
+object house
+{
+	heating_setpoint "68 degF";
+}

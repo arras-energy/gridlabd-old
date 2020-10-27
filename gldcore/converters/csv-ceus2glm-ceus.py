@@ -2,7 +2,7 @@
 """
 import pandas
 
-def convert(input_file, output_file,options):
+def convert(input_file, output_file, options={}):
     optdata = ""
     for opt, arg in options.items():
         optdata += f"\t{opt} \"{arg}\";\n"

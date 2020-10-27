@@ -51,6 +51,8 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/platform.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/property.cpp gldcore/property.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/python_embed.cpp gldcore/python_embed.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/randomvar.cpp gldcore/randomvar.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/python_property.cpp gldcore/python_property.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/random.cpp gldcore/random.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/realtime.cpp gldcore/realtime.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/sanitize.cpp gldcore/sanitize.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/save.cpp gldcore/save.h
@@ -75,7 +77,7 @@ GLD_SOURCES_EXTRA_PLACE_HOLDER += gldcore/xcore.cpp gldcore/xcore.h
 
 bin_PROGRAMS += gridlabd.bin
 
-gridlabd_bin_CPPFLAGS = -DMAIN_PYTHON
+gridlabd_bin_CPPFLAGS = -DMAIN_PYTHON -fPIC
 gridlabd_bin_CPPFLAGS += $(XERCES_CPPFLAGS)
 gridlabd_bin_CPPFLAGS += $(AM_CPPFLAGS)
 
@@ -135,5 +137,4 @@ weather:
 
 template: # TODO
 
-library: # TODO
-	
+library: # TODO	
