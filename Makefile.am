@@ -15,7 +15,7 @@ ACLOCAL_AMFLAGS = -I m4
 CC = $(PTHREAD_CC)
 CXX = $(PTHREAD_CXX)
 
-AM_CPPFLAGS = -Wall
+AM_CPPFLAGS = -Wall -fPIC
 AM_CPPFLAGS += -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CPPFLAGS += $(GLD_CPPFLAGS)
 
@@ -24,7 +24,7 @@ AM_CFLAGS +=  -I$(top_srcdir)/gldcore -I$(top_srcdir)/build-dir/gldcore
 AM_CFLAGS += $(PTHREAD_CFLAGS)
 AM_CFLAGS += $(GLD_CFLAGS)  -I$(top_srcdir)/build-dir/gldcore
 
-AM_CXXFLAGS = -Wall
+AM_CXXFLAGS = -Wall -fPIC
 AM_CXXFLAGS += $(PTHREAD_CFLAGS)
 AM_CXXFLAGS += -I/usr/include -I/usr/local/include
 AM_CXXFLAGS += $(GLD_CXXFLAGS) -I$(top_srcdir)/build-dir/gldcore
@@ -61,7 +61,6 @@ include gldcore/converters/Makefile.mk
 include gldcore/solvers/Makefile.mk
 include gldcore/scripts/Makefile.mk
 include python_extras/Makefile.mk
-include models/Makefile.mk
 include cloud/Makefile.mk
 
 # approved modules
@@ -169,7 +168,7 @@ clean-wc:
 install-validate: install validate
 
 check-local validate: 
-	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilties/save_validation_output;exit 1))
+	@(export LD_LIBRARY_PATH=.:$${LD_LIBRARY_PATH:-${libdir}}; ${bindir}/gridlabd -D keep_progress=TRUE --validate -D keep_progress=TRUE || (utilities/save_validation_output;exit 1))
 
 scratchdir = scratch
 # XERCES_TARNAME = xerces-c-3.1.1
@@ -303,7 +302,7 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
 
-install-exec-hook: python-install index
+install-exec-hook: index python-install
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
@@ -322,7 +321,7 @@ reconfigure: distclean
 	autoreconf -isf && ./configure
 
 reconfigure-debug: distclean
-	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
+	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
 
 docker: $(PREFIX)/docker.img
 
@@ -340,7 +339,7 @@ system: install
 	@echo "Setting $$(./build-aux/version.sh --install) to the current system version"
 	@$(DESTDIR)$(bindir)/gridlabd version set
 	@if [ ! "$$(gridlabd --version=install)" == "$$(./build-aux/version.sh --install)" ]; then \
-		echo '*** WARNING : build and install versions differ ***'; \
+		echo 'WARNING : build and install versions differ; run `make reconfigure` to fix this problem'; \
 	fi
 
 index: weather library template
@@ -361,3 +360,8 @@ developer-html: # TODO
 troubleshooting-html:
 	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/ 
 	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > $(top_srcdir)/documents/html/troubleshooting/index.html )
+
+documents/gridlabd.pdf: documents/gridlabd.glm
+	(cd documents ; gridlabd gridlabd.glm)
+	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
+

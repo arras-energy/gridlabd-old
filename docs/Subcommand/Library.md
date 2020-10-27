@@ -5,24 +5,24 @@
 Shell:
 
 ~~~
-bash$ gridlabd help
-bash$ gridlabd index <pattern>
-bash$ gridlabd list <pattern>
-bash$ gridlabd get <pattern>
-bash$ gridlabd submit <file>
-bash$ gridlabd delete <pattern>
-bash$ gridlabd info <pattern>
-bash$ gridlabd copy <name> [<file>]
-bash$ gridlabd clean
-bash$ gridlabd open <local>
-bash$ gridlabd session <local> [<pattern>]
-bash$ gridlabd add <local> <pattern>
-bash$ gridlabd save <local> ["<description>"]
-bash$ gridlabd submit <local>
-bash$ gridlabd config show
-bash$ gridlabd config reset
-bash$ gridlabd config get <name>
-bash$ gridlabd config set <name> <value>
+bash$ gridlabd library help
+bash$ gridlabd library index <pattern>
+bash$ gridlabd library list <pattern>
+bash$ gridlabd library get <pattern>
+bash$ gridlabd library submit <file>
+bash$ gridlabd library delete <pattern>
+bash$ gridlabd library info <pattern>
+bash$ gridlabd library copy <name> [<file>]
+bash$ gridlabd library clean
+bash$ gridlabd library open <local>
+bash$ gridlabd library session <local> [<pattern>]
+bash$ gridlabd library add <local> <pattern>
+bash$ gridlabd library save <local> ["<description>"]
+bash$ gridlabd library submit <local>
+bash$ gridlabd library config show
+bash$ gridlabd library config reset
+bash$ gridlabd library config get <name>
+bash$ gridlabd library config set <name> <value>
 ~~~
 
 # Description
@@ -32,14 +32,16 @@ Use the `library` subcommand to manage GridLAB-D's library files.
 ## `help`
 
 ~~~
-  gridlabd help
+  gridlabd library help
 ~~~
 
 The `library help` subcommand obtains a list of the valid commands.
 
 ~~~
 bash$ gridlabd library help
-Syntax: gridlabd-library <command> [...]
+Syntax: gridlabd-library [options] <command> [...]
+Options:
+  -f|--format <format> Change output format (e.g., json, glm, csv, default)
 Commands:
   help                 Get the list of library subcommands
   index <pattern>      Index of available library data matching <pattern> in archive
@@ -72,7 +74,7 @@ Commands:
 The `index` command outputs a list of library files in the archive that match <pattern>.
   
 ~~~
-bash$ gridlabd index wood_pole
+bash$ gridlabd library index wood_pole
 wood_pole.glm
 ~~~
 
@@ -172,3 +174,9 @@ Submit the local working session to the archive for review.
 ~~~
 
 Manage the library manager configuration.
+
+# Script-use example 
+
+~~~
+#library get wood_pole.glm
+~~~~

@@ -1,0 +1,8 @@
+module powerflow;
+object triplex_meter
+{
+	name "meter_1";
+	phases AS;
+	nominal_voltage 120;
+	measured_energy_delta_timestep 1 h;
+}

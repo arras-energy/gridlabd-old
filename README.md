@@ -1,3 +1,5 @@
+![master](https://github.com/dchassin/gridlabd/workflows/master/badge.svg) ![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
+
 The main documentation page for this project is located at http://docs.gridlabd.us/.
 
 ## Important Note
@@ -52,6 +54,14 @@ You may work with a user installation instead of a system installation. Assuming
 - The version number should contain the _branch-name_.  If not, use the `which gridlabd` command to check that the path is correct.
 - You can control whether your local version run the docker image instead of the local install using the `--docker` command-line option.
 - In theory all validate tests of the master should pass. However, sometimes issues arise that aren't caught until after a merge into master.  If you encounter a validation error, please check the issues to see if it has not already been reported.  When reporting such a problem, please include the `--origin` command line option output, the `validate.txt` output, and the output from `uname -a` to assist in reproducing and diagnosing the problem.
+
+## Pro tip
+
+If you accumulate a lot of local branches that no longer exist on the remote repo, you can use the following command to purge them:
+
+~~~
+host% git fetch -p && git branch -vv | awk '/: gone]/{print $1}' | xargs git branch -D
+~~~
 
 ## Citation
 

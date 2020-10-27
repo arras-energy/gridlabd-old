@@ -584,7 +584,8 @@ int convert_to_enduse(const char *string, void *data, PROPERTY *prop)
 	strcpy(buffer,string);
 
 	/* parse tuples separate by semicolon*/
-	while ((token=strtok(token==NULL?buffer:NULL,";"))!=NULL)
+	char *last;
+	while ((token=strtok_r(token==NULL?buffer:NULL,";",&last))!=NULL)
 	{
 		/* colon separate tuple parts */
 		char *param = token;

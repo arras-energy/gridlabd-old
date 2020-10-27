@@ -704,31 +704,31 @@ int _random_specs(RANDOMTYPE type, double a, double b,char *buffer,int size)
 {
 	switch ( type ) {
 	case RT_DEGENERATE:/* ... double value */
-		return sprintf(buffer,"degenerate(%lf)",a);
+		return sprintf(buffer,"degenerate(%lg)",a);
 	case RT_UNIFORM:		/* ... double min, double max */
-		return sprintf(buffer,"uniform(%lf,%lf)",a,b);
+		return sprintf(buffer,"uniform(%lg,%lg)",a,b);
 	case RT_NORMAL:		/* ... double mean, double stdev */
-		return sprintf(buffer,"normal(%lf,%lf)",a,b);
+		return sprintf(buffer,"normal(%lg,%lg)",a,b);
 	case RT_BERNOULLI:	/* ... double p */
-		return sprintf(buffer,"bernoulli(%lf,%lf)",a,b);
+		return sprintf(buffer,"bernoulli(%lg,%lg)",a,b);
 	case RT_SAMPLED: /* ... unsigned n_samples, double samples[n_samples] */
-		return sprintf(buffer,"sampled(%lf,%lf)",a,b);
+		return sprintf(buffer,"sampled(%lg,%lg)",a,b);
 	case RT_PARETO:	/* ... double base, double gamma */
-		return sprintf(buffer,"pareto(%lf,%lf)",a,b);
+		return sprintf(buffer,"pareto(%lg,%lg)",a,b);
 	case RT_LOGNORMAL:	/* ... double gmean, double gsigma */
-		return sprintf(buffer,"lognormal(%lf,%lf)",a,b);
+		return sprintf(buffer,"lognormal(%lg,%lg)",a,b);
 	case RT_EXPONENTIAL: /* ... double lambda */
-		return sprintf(buffer,"exponential(%lf,%lf)",a,b);
+		return sprintf(buffer,"exponential(%lg,%lg)",a,b);
 	case RT_RAYLEIGH: /* ... double sigma */
-		return sprintf(buffer,"rayleigh(%lf,%lf)",a,b);
+		return sprintf(buffer,"rayleigh(%lg,%lg)",a,b);
 	case RT_WEIBULL: /* ... double lambda, double k */
-		return sprintf(buffer,"weibull(%lf,%lf)",a,b);
+		return sprintf(buffer,"weibull(%lg,%lg)",a,b);
 	case RT_GAMMA: /* ... double alpha, double beta */
-		return sprintf(buffer,"gamma(%lf,%lf)",a,b);
+		return sprintf(buffer,"gamma(%lg,%lg)",a,b);
 	case RT_BETA: /* ... double alpha, double beta */
-		return sprintf(buffer,"beta(%lf,%lf)",a,b);
+		return sprintf(buffer,"beta(%lg,%lg)",a,b);
 	case RT_TRIANGLE: /* ... double a, double b */
-		return sprintf(buffer,"triangle(%lf,%lf)",a,b);
+		return sprintf(buffer,"triangle(%lg,%lg)",a,b);
 	default:
 		throw_exception("_random_specs(type=%d,...); type is not valid",type);
 		/* TROUBLESHOOT
@@ -1351,19 +1351,19 @@ int initial_from_randomvar(char *string, int size, void *data, PROPERTY *prop)
 		int len = snprintf(buffer,sizeof(buffer)-1,"type:%s",tmp);
 		if ( var->low != 0.0 && var->low < var->high )
 		{
-			len += snprintf(buffer,sizeof(buffer)-1-len,"; min:%g",var->low);
+			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; min:%g",var->low);
 		}
 		if ( var->high != 0.0 && var->low < var->high )
 		{
-			len += snprintf(buffer,sizeof(buffer)-1-len,"; max:%g",var->high);
+			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; max:%g",var->high);
 		}
 		if ( var->update_rate != 0 )
 		{
-			len += snprintf(buffer,sizeof(buffer)-1-len,"; refresh:%d",var->update_rate);
+			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; refresh:%d",var->update_rate);
 		}
 		if ( (var->flags&RNF_INTEGRATE) == RNF_INTEGRATE )
 		{
-			len += snprintf(buffer,sizeof(buffer)-1-len,"; integrate");
+			len += snprintf(buffer+len,sizeof(buffer)-1-len,"; integrate");
 		}
 		if ( var->correlation != NULL )
 		{
@@ -1371,7 +1371,11 @@ int initial_from_randomvar(char *string, int size, void *data, PROPERTY *prop)
 			len += snprintf(buffer,sizeof(buffer)-1-len,"; correlate:%s.%s*%lg%+lg",
 				tmp, var->correlation->property->name, var->correlation->scale, var->correlation->bias);			
 		}
-		len += snprintf(buffer,sizeof(buffer)-1-len,"; state:%d",var->state);
+		len += snprintf(buffer+len,sizeof(buffer)-1-len,"; state:%u",var->state);
+		if ( string )
+		{
+			strncpy(string,buffer,size);
+		}
 		return len;
 	}
 	else
@@ -1392,14 +1396,11 @@ int randomvar_create(void *ptr)
 	{
 		randomvar_list = var;
 	}
-	if ( last == NULL )
-	{
-		last = var;
-	}
-	else
+	if ( last )
 	{
 		last->next = var;
 	}
+	last = var;
 	n_randomvars++;
 	return 1;
 }
@@ -1452,7 +1453,7 @@ TIMESTAMP randomvar_sync(randomvar *var, TIMESTAMP t1)
 
 randomvar *randomvar_getnext(randomvar*var)
 {
-	return var ? randomvar_list : var->next;
+	return var ? var->next : randomvar_list;
 }
 
 size_t randomvar_getspec(char *str, size_t size, const randomvar *var)
@@ -1477,10 +1478,10 @@ TIMESTAMP randomvar_syncall(TIMESTAMP t1)
 {
 	if ( randomvar_list )
 	{
-		randomvar *var;
+		randomvar *var = NULL;
 		TIMESTAMP t2 = TS_NEVER;
 		clock_t ts = (clock_t)exec_clock();
-		for (var=randomvar_list; var!=NULL; var=var->next)
+		while ( (var=randomvar_getnext(var)) != NULL )
 		{
 			TIMESTAMP t3 = randomvar_sync(var,t1);
 			if ( absolute_timestamp(t3)<absolute_timestamp(t2) ) t2 = t3;
@@ -1504,33 +1505,47 @@ double random_get_part(void *x, const char *name)
 
 int random_set_part(void *x, const char *name, const char *value)
 {
-	// TODO
 	randomvar *v = (randomvar*)x;
-#define SCAN(X,F) if ( strcmp(name,#X)==0 ) { return sscanf(value,F,&(v->X)); }
-	SCAN(value,"%lg");
-	SCAN(a,"%lg");
-	SCAN(b,"%lg");
-	SCAN(low,"%lg");
-	SCAN(high,"%lg");
-	SCAN(state,"%u");
-	SCAN(update_rate,"%u");
-	SCAN(flags,"%u");
-	if ( strcmp(name,"type")==0 )
+#define SCAN(N,X,F) if ( strcmp(name,N) == 0 || strcmp(name,#X)==0 ) { return sscanf(value,F,&(v->X)); }
+	SCAN("value",value,"%lg");
+	SCAN("a",a,"%lg");
+	SCAN("b",b,"%lg");
+	SCAN("min",low,"%lg");
+	SCAN("max",high,"%lg");
+	SCAN("state",state,"%u");
+	SCAN("refresh",update_rate,"%u");
+	SCAN("flags",flags,"%u");
+	if ( strcmp(name,"type") == 0 )
 	{
 		RANDOMTYPE type = random_type(value);
-		if ( type != RT_INVALID )
+		if ( type == RT_INVALID )
+		{
+			char str[1024];
+			double a,b;
+			if ( sscanf(value,"%1023[^(](%lg,%lg)",str,&a,&b) == 3 && (type=random_type(str)) != RT_INVALID )
+			{
+				v->type = type;
+				v->a = a;
+				v->b = b;
+				return 1;
+			}
+			else
+			{
+				IN_MYCONTEXT output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): type is not valid",x,name,value);
+				return 0;
+			}
+		}
+		else
 		{
 			v->type = type;
 			return 1;
 		}
-		else
-		{
-			IN_MYCONTEXT output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): type is not valid",x,name,value);
-			return 0;
-		}
 	}
-	IN_MYCONTEXT output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): name is not valid",x,name,value);
-	return 0;
+	else
+	{
+		IN_MYCONTEXT output_debug("random_set_part(void *x=%p, char *name='%s', char *value='%s'): name is not valid",x,name,value);
+		return 0;
+	}
 }
 
 
