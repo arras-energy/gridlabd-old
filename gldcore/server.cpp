@@ -1873,6 +1873,7 @@ int http_control_request(HTTPCNX *http, char *action)
 			output_verbose("simulation reset");
 			return 0;
 		}
+	}
 	else if ( strcmp(action,"halt") == 0 )
 	{
 		output_error("main loop halted");

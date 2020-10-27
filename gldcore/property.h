@@ -1699,4 +1699,14 @@ int convert_from_string(char *buffer, int len, void *data, PROPERTY *p);
 }
 #endif
 
+typedef struct s_eventhandlers {
+	char *init;
+	char *precommit;
+	char *presync;
+	char *sync;
+	char *postsync;
+	char *commit;
+	char *finalize;
+} EVENTHANDLERS;
+
 #endif //_PROPERTY_H

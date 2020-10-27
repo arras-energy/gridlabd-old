@@ -3624,7 +3624,7 @@ void object_set_initial_randomvar(OBJECT *obj, const char *name, randomvar *valu
 void object_set_initial_filter(OBJECT *obj, const char *name, TRANSFORM *value, UNIT *unit)
 {
 	char buffer[1024];
-	transform_to_string(value,buffer,sizeof(buffer)-1);
+	transform_to_string(buffer,sizeof(buffer)-1,value);
 }
 
 GldObjectInitialValue::GldObjectInitialValue(OBJECT *o, const char *n, const char *v)

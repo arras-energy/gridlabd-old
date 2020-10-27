@@ -130,7 +130,6 @@ TRANSFORM *transform_find(struct s_object_list *obj, PROPERTY *prop);
 int transform_to_string(char *buffer, int size, TRANSFORM *xform);
 int transform_write(TRANSFORM *xform, FILE *fp);
 int transform_saveall(FILE *fp);
-int transform_to_string(TRANSFORM *xfrom, char *buffer, size_t maxlen);
 int transferfunction_to_string(TRANSFERFUNCTION *tf, char *buffer, size_t maxlen);
 bool transform_reset(TRANSFORM *xform=NULL);
 

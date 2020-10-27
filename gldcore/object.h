@@ -98,15 +98,6 @@ typedef enum {
 	/* add profile items here */
 	_OPI_NUMITEMS,
 } OBJECTPROFILEITEM;
-typedef struct s_eventhandlers {
-	char *init;
-	char *precommit;
-	char *presync;
-	char *sync;
-	char *postsync;
-	char *commit;
-	char *finalize;
-} EVENTHANDLERS;
 class GldObjectInitialValue 
 {
 private:
