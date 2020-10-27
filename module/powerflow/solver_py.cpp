@@ -579,30 +579,6 @@ void ref_to_mag(void *x, void *c, bool inverse)
 	}
 }
 
-void complex_to_mag(void *x, void *z, bool inverse)
-{
-	if ( inverse )
-	{
-		((complex*)z)->Mag(*(double*)x);
-	}
-	else
-	{
-		*(double*)x = ((complex*)z)->Mag();
-	}
-}
-
-void complex_to_arg(void *x, void *z, bool inverse)
-{
-	if ( inverse )
-	{
-		((complex*)z)->Arg(*(double*)x);
-	}
-	else
-	{
-		*(double*)x = ((complex*)z)->Arg();
-	}
-}
-
 void ref_to_arg(void *x, void *c, bool inverse)
 {
 	complex *z = (complex*)c;
