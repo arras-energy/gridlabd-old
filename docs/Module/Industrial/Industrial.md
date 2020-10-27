@@ -10,7 +10,7 @@ object industrial
 	naics_code <naics-code>;
 	total_power <power>;
 	power_pf <power-factor>;
-	impedance_pt <power-factor>
+	impedance_pf <power-factor>
 }
 ~~~
 

@@ -16,6 +16,7 @@ GITBRANCH="master"
 SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -rHEAD"
 DATADIR="$GLD_ETC/library/$ORGANIZATION"
 OPENURLCMD='open ${file}'
+FORMAT="default"
 
 # load the configuration (if any)
 CONFIGFILE="$GLD_ETC/gridlabd-library.conf"
@@ -34,15 +35,50 @@ function error()
 function config()
 {
 	if [ $# -eq 0 -o "$1" == "show" ]; then
-		echo "GITHUB=\"$GITHUB\""
-		echo "GITHUBUSERCONTENT=\"$GITHUBUSERCONTENT\""
-		echo "ORGANIZATION=\"$ORGANIZATION\""
-		echo "GITUSER=\"$GITUSER\""
-		echo "GITREPO=\"$GITREPO\""
-		echo "GITBRANCH=\"$GITBRANCH\""
-		echo "CACHEDIR=\"$CACHEDIR\""
-		echo "DATADIR=\"$DATADIR\""
-		echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
+		if [ "$FORMAT" == "json" ]; then
+			echo "{"
+			echo "	\"GITHUB\" : \"$GITHUB\","
+			echo "	\"GITHUBUSERCONTENT\" : \"$GITHUBUSERCONTENT\","
+			echo "	\"ORGANIZATION\" : \"$ORGANIZATION\","
+			echo "	\"GITUSER\" : \"$GITUSER\","
+			echo "	\"GITREPO\" : \"$GITREPO\","
+			echo "	\"GITBRANCH\" : \"$GITBRANCH\","
+			echo "	\"CACHEDIR\" : \"$CACHEDIR\","
+			echo "	\"DATADIR\" : \"$DATADIR\","
+			echo "	\"SVNLSOPTIONS\" : \"$SVNLSOPTIONS\""
+			echo "}"
+		elif [ "$FORMAT" == "glm" ]; then
+			echo "#define LIBRARY_GITHUB=$GITHUB"
+			echo "#define LIBRARY_GITHUBUSERCONTENT=$GITHUBUSERCONTENT"
+			echo "#define LIBRARY_ORGANIZATION=$ORGANIZATION"
+			echo "#define LIBRARY_GITUSER=$GITUSER"
+			echo "#define LIBRARY_GITREPO=$GITREPO"
+			echo "#define LIBRARY_GITBRANCH=$GITBRANCH"
+			echo "#define LIBRARY_CACHEDIR=$CACHEDIR"
+			echo "#define LIBRARY_DATADIR=$DATADIR"
+			echo "#define LIBRARY_SVNLSOPTIONS=$SVNLSOPTIONS"
+		elif [ "$FORMAT" == "csv" ]; then
+			echo "name,value"
+			echo "GITHUB,\"$GITHUB\""
+			echo "GITHUBUSERCONTENT,\"$GITHUBUSERCONTENT\""
+			echo "ORGANIZATION,\"$ORGANIZATION\""
+			echo "GITUSER,\"$GITUSER\""
+			echo "GITREPO,\"$GITREPO\""
+			echo "GITBRANCH,\"$GITBRANCH\""
+			echo "CACHEDIR,\"$CACHEDIR\""
+			echo "DATADIR,\"$DATADIR\""
+			echo "SVNLSOPTIONS,\"$SVNLSOPTIONS\""
+		else
+			echo "GITHUB=\"$GITHUB\""
+			echo "GITHUBUSERCONTENT=\"$GITHUBUSERCONTENT\""
+			echo "ORGANIZATION=\"$ORGANIZATION\""
+			echo "GITUSER=\"$GITUSER\""
+			echo "GITREPO=\"$GITREPO\""
+			echo "GITBRANCH=\"$GITBRANCH\""
+			echo "CACHEDIR=\"$CACHEDIR\""
+			echo "DATADIR=\"$DATADIR\""
+			echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
+		fi
 	elif [ "$1" == "reset" ]; then
 		rm -f $CONFIGFILE || error 1 "unable to reset $CONFIGFILE"
 	elif [ "$1" == "set" -a $# == 3 ]; then
@@ -58,7 +94,7 @@ function config()
 		fi
 		echo $value | cut -f2 -d= | cut -f2 -d\"
 	else
-		echo "'%s' is an invalid config option"
+		echo "'$1' is an invalid config option"
 		exit 1
 	fi
 }
@@ -95,7 +131,9 @@ function help()
 {	
 	if [ $# == 0 ]; then
 		cat <<-END
-			Syntax: gridlabd library <command> [...]
+			Syntax: gridlabd [options] library <command> [...]
+			Options:
+			  -f|--format <format> Change output format (e.g., json, glm, csv, default)
 			Commands:
 			  help                 Get the list of library subcommands
 			  index <pattern>      Index of available library data matching <pattern> in archive
@@ -113,7 +151,7 @@ function help()
 			  save <local> ["<description>"]
 			                       Save the <local> library changes
 			  submit <local>       Submit the saved changes to the library
-			  config show          Show the current configuration
+			  config show          Show the current configuration in environment format
 			         reset         Reset the current configuration
 			         set <N> <V>   Set configuration variable name <N> to value <V>
 			         get <N> <V>   Get configuration variable name <N>
@@ -134,16 +172,41 @@ function index()
 {
 	fetch_index
 	if [ $# -eq 0 ]; then
-		cat $INDEX
+		LIST=$(cat $INDEX)
 	else
-		grep "$1" $INDEX
+		LIST=$(grep "$1" $INDEX)
+	fi
+	if [ "$FORMAT" == "glm" ]; then
+		echo "#define LIBRARY_INDEX=$LIST"
+	elif [ "$FORMAT" == "csv" ]; then
+		echo "filename,pathname"
+		for f in $LIST; do
+			echo "$f,\"$INDEX/$f\""
+		done
+	elif [ "$FORMAT" == "json" ]; then
+		echo "{"
+		first=yes
+		for f in $LIST; do
+			if [ "$first" == "no" ]; then
+				echo ","
+			else
+				first=no
+			fi
+			echo -n "	\"$f\" : \"$INDEX/$f\""
+		done
+		echo ""
+		echo "}"
+	else
+		for f in $LIST; do
+			echo $f
+		done
 	fi
 }
 
 function list()
 {
 	fetch_index
-	for f in $(index $1); do
+	for f in $(export FORMAT=default; index $1); do
 		if [ -f $DATADIR/$f ]; then
 			echo $f
 		fi
@@ -153,7 +216,7 @@ function list()
 function get()
 {
 	fetch_index
-	for f in $(index $1); do
+	for f in $(export FORMAT=default; index $1); do
 		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
 			(curl -s $GITFILE/$ORGANIZATION/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to download $f")
@@ -169,20 +232,47 @@ function info()
 	fetch_index
 	first="yes"
 	KEYWORDS="Name,Version,Author,Description,Module"
-	for f in $(index $1); do
-		if [ -f $DATADIR/$f ]; then
-			if [ "$first" == "yes" ]; then
-				echo "Filepath,Organization,$KEYWORDS"
-				first="no"
+	if [ "$FORMAT" == "json" ]; then
+		echo "["
+		for f in $(export FORMAT=default; index $1); do
+			if [ -f $DATADIR/$f ]; then
+				if [ "$first" == "yes" ]; then
+					first="no"
+				else
+					echo ","
+				fi
+				echo "	{"
+				echo "		\"datadir\" : \"$DATADIR/$f\","
+				for KEY in ${KEYWORDS//,/ }; do
+					VALUE=`grep "^#define LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					echo "		\"$KEY\" : ${VALUE:-None},"
+				done
+				echo "		\"organization\" : \"$ORGANIZATION\""
+				echo -n "	}"
 			fi
-			echo -n "\"$DATADIR/$f\",$ORGANIZATION"
-			for KEY in ${KEYWORDS//,/ }; do
-				VALUE=`grep "^#define LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
-				echo -n ",${VALUE:-\"\"}"
-			done
+		done
+		if [ "$first" == "no" ]; then
 			echo ""
 		fi
-	done
+		echo "]"
+	elif [ "$FORMAT" == "glm" ]; then
+		echo $(index $1)
+	else
+		for f in $(export FORMAT=default; index $1); do
+			if [ -f $DATADIR/$f ]; then
+				if [ "$first" == "yes" ]; then
+					echo "Filepath,Organization,$KEYWORDS"
+					first="no"
+				fi
+				echo -n "$DATADIR/$f,$ORGANIZATION"
+				for KEY in ${KEYWORDS//,/ }; do
+					VALUE=`grep "^#define LIBRARY_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					echo -n ",${VALUE:-\"\"}"
+				done
+				echo ""
+			fi
+		done
+	fi
 }
 
 function copy()
@@ -218,7 +308,7 @@ function copy()
 function delete()
 {
 	fetch_index
-	for f in $(index $1); do
+	for f in $(export FORMAT=default; index $1); do
 		if [ -f $DATADIR/$f ]; then
 			rm -f $DATADIR/$f || error 1 "unable to delete $f"
 		fi
@@ -300,6 +390,11 @@ function add()
 	cd $LIBDIR
 	git add -q $2
 }
+
+if [ "$1" == "-f" -o "$1" == "--format" ]; then
+	FORMAT=$2
+	shift 2
+fi
 
 if [ $# == 0 -o "$1" == "help" ]; then
 	help $2

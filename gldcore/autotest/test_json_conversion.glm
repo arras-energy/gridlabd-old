@@ -11,7 +11,10 @@
 #gridlabd -D SAVEFILE=waterheater_1.csv test_json_conversion.glm
 #gridlabd -D SAVEFILE=waterheater_2.csv -D filesave_options=ALLINITIAL -I test_json_conversion.glm -o test_json_conversion_save.json 
 #gridlabd test_json_conversion_save.json -D filesave_options=ALLINITIAL -o test_json_conversion_final.glm
+#gridlabd test_json_conversion_final.glm
 #exec diff -wq waterheater_1.csv waterheater_2.csv
+//#on_exit -1 rm -f ../test_json_conversion_{final,save}.{glm,json} ../waterheater_[12].csv
+//#on_exit 0 rm -f ../test_json_conversion_{final,save}.{glm,json} ../waterheater_[12].csv
 
 #else // simulation run specifies SAVEFILE
 
@@ -46,12 +49,13 @@ schedule waterheater_demand_prob
 	* 22-4 * * * 0.01;
 }
 
+#weather get WA-Yakima_Air_Terminal.tmy3
 object climate 
 {
   name TX_Houston;
-  tmyfile "../WA-Yakima.tmy3";
+  tmyfile "WA-Yakima_Air_Terminal.tmy3";
   interpolate QUADRATIC;
-};
+}
 
 object triplex_meter
 {

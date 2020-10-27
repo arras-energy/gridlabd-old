@@ -1,0 +1,22 @@
+#!/bin/bash
+
+QUIET="-q"
+
+if [ $# -eq 0 ]; then
+    /usr/local/bin/python3 -m pip freeze
+    exit 0
+fi
+
+while [ $# -gt 0 ]; do
+    if [ "$1" == "--requirements" -o "$1" == "-r" ]; then
+        shift 1
+        /usr/local/bin/python3 -m pip $QUIET install -r $1
+    elif [ "$1" == "--verbose" -o "$1" == "-v" ]; then
+        QUIET=""
+    else
+        /usr/local/bin/python3 -m pip freeze | grep $1 1>/dev/null 2>&1 || /usr/local/bin/python3 -m pip $QUIET install $1 
+        /usr/local/bin/python3 -m pip freeze | grep $1 1>/dev/null 2>&1 || exit 1
+    fi
+    shift 1
+done
+exit 0

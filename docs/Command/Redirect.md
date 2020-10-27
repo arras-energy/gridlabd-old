@@ -10,3 +10,9 @@ bash$ gridlabd --redirect <stream>[:<file>]
 
 Redirects an output to stream to a file (or null).
 
+# Examples 
+
+~~~
+bash$ gridlabd --redirect all
+~~~
+This will redirect all streams to gridlabd.* files
