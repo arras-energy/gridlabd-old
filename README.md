@@ -20,7 +20,7 @@ The following projects are actively contributing to HiPAS GridLAB-D at this time
 
 # User quick start
 
-The preferred method of using SLAC releases of GridLAB-D is to download the SLAC master image from docker hub (see https://cloud.docker.com/u/gridlabd/repository/docker/gridlabd/slac-master).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
+The preferred method for running HiPAS GridLAB-D is to download the SLAC master image from docker hub (see https://cloud.docker.com/u/gridlabd/repository/docker/gridlabd/slac-master).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
 
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 ~~~
@@ -36,31 +36,27 @@ Note that this alias will interfere with the host-based installation.
 
 *Note*: This fork of [GridLAB-D](https://github.com/gridlab-d/gridlab-d) does not support MS Windows directly. You must use docker or a virtual machine running linux.
 
-Normally on Linux and Mac OS X developers you should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. 
+Normally on Linux and Mac OS X developers should use the `install.sh` script to setup the system, perform the initial build, and install GridLAB-D for all users on the system. 
 ~~~
 host% git clone https://github.com/slacgismo/gridlabd gridlabd
 host% gridlabd/install.sh
 ~~~
 
-The `gridlabd` command is added to the `/usr/local/bin` folder, so this folder must be included in the path for all users, e.g., as specified in `/etc/profile` or `/etc/profile.d`.
+To rebuild the source code and install again, use the `make system` command.  You can use parallel builds using the `make -j<nproc> system` command.
 
-You may work with a user installation instead of a system installation. Assuming your development system is ready (see https://github.com/slacgismo/gridlabd/wiki/Install#mac-osx-and-linux for details), you can "quickly" download and build a host-based installation from a branch using the following commands:
+If you have modified the branch name or version information, you must reconfigure your build using the `make reconfigure` command before using `make system`.
 
-~~~
-  host% git clone https://github.com/slacgismo/gridlabd -b _branch-name_ _work-folder_
-  host% cd _work-folder_
-  host% autoreconf -isf
-  host% ./configure --enable-silent-rules --prefix=$PWD/install [_options_]
-  host% make -j install
-  host% export PATH=$PWD/install/bin:$PATH
-  host% gridlabd --version
-  host% gridlabd --validate
-~~~
+Each build of HiPAS GridLAB-D will be installed in `/usr/local/opt/gridlabd`. Links to the active version are added to the `/usr/local/bin` folder, so this folder must be included in the path for all users, e.g., as specified in `/etc/profile` or `/etc/profile.d`. Additional links are created in `/usr/local/lib` and `/usr/local/share`, as needed. 
 
-## Useful configure options
- - `--with-mysql=/usr/local` to enable support for mysql (assuming you install mysql-dev on your system)
- - `CXXFLAGS='-w -O0 -g'` to enable debugging of C++ source code (e.g., module code)
- - `CFLAGS='-w -O0 -g'` to enable debugging of C source code (e.g., core code)
+You may use the `gridlabd version` command to manage which version is active on the system. See the [`gridlabd version`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Version.md) command for details.
+
+If you use `make install` to build only. You may use an inactive build by running the `gridlabd` command of that build instead of the system version.  For example, if you only built `4.2.13-201019-develop` then you can run `/usr/local/opt/gridlabd/4.2.13-201019-develop/bin/gridlabd` to run it instead of the system version.
+
+Before using a build of gridlabd, you should always validate it using `gridlabd --validate` in the root folder of the source tree.
+
+## Building and Debugging
+
+You can configure a debugging version using `make reconfigure-debug`.  When debugging is enabled you can use the [`gridlabd trace`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Trace.md) command and the [`gridlabd gdb`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Gdb.md) (for linux) or [`gridlabd lldb`](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Subcommand&doc=/Subcommand/Lldb.md) (for Mac OSX) commands to debug a simulation.
 
 ## Notes
 - The version number should contain the _branch-name_.  If not, use the `which gridlabd` command to check that the path is correct.
