@@ -1,0 +1,18 @@
+#ifexist "../config.csv"
+#define DIR=..
+#endif
+
+#define TEST1=X
+#input "${DIR:-.}/config.csv" -f config -t config -p relax=FALSE
+
+#if ${TEST1:-X} == A
+#print ok
+#else
+#error TEST1==${TEST1:-X} failed
+#endif
+
+#if ${TEST2:-X} == B
+#print ok
+#else
+#error TEST2==${TEST2:-X} failed
+#endif

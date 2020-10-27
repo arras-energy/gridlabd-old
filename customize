@@ -24,7 +24,7 @@ function help ()
 
 function add ()
 {
-	F="$1/Makefile.mk"
+	F="module/$1/Makefile.mk"
 	if [ -z "$(grep $F $CUSTOMFILE)" ]; then
 		if [ -f $F ]; then
 			echo "include $F" >>$CUSTOMFILE
@@ -39,7 +39,7 @@ function add ()
 
 function delete ()
 {
-	F="$1/Makefile.mk"
+	F="module/$1/Makefile.mk"
 	if [ -z "$(grep $F $CUSTOMFILE)" ]; then
 		if [ -f $F ]; then
 			echo "module $1 is not listed in $CUSTOMFILE"
@@ -54,7 +54,7 @@ function delete ()
 
 function enable ()
 {
-	F="$1/Makefile.mk"
+	F="module/$1/Makefile.mk"
 	if [ -z "$(grep $F $CUSTOMFILE)" ]; then
 		if [ -f $F ]; then
 			echo "module $1 is not listed in $CUSTOMFILE"
@@ -70,7 +70,7 @@ function enable ()
 
 function disable ()
 {
-	F="$1/Makefile.mk"
+	F="module/$1/Makefile.mk"
 	if [ -z "$(grep $F $CUSTOMFILE)" ]; then
 		if [ -f $F ]; then
 			echo "module $1 is not listed in $CUSTOMFILE"
