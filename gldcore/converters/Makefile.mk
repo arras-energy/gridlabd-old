@@ -45,6 +45,9 @@ dist_pkgdata_DATA += gldcore/converters/json2csv-profile.py
 # json -> glm
 dist_pkgdata_DATA += gldcore/converters/json2glm.py
 
+# json -> md
+dist_pkgdata_DATA += gldcore/converters/json2md.py
+
 # json -> png
 dist_pkgdata_DATA += gldcore/converters/json2png.py
 dist_pkgdata_DATA += gldcore/converters/json2png-oneline.py

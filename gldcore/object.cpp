@@ -98,10 +98,262 @@ KEYWORD oaccess[] = {
 	{"PRIVATE", PA_PRIVATE, NULL},
 };
 
-PROPERTY *object_access_property(){
-	static PROPERTY flags = {0, "access", PT_enumeration, 1, 8, PA_PUBLIC, NULL, (void*) -4, NULL, oaccess, NULL};
-	
-	return &flags;
+static char header_string[1024] = "";
+
+static const char *header_id_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%lld",(unsigned long long)(obj->id)) > 0 ? header_string : NULL;
+}
+
+static const char *header_class_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%s",obj->oclass->name) > 0 ? header_string : NULL;
+}
+
+static const char *header_groupid_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%s",(const char *)(obj->groupid)) > 0 ? header_string : NULL;
+}
+
+static const char *header_name_to_string(OBJECT *obj)
+{
+	if ( obj->name == NULL )
+	{
+		snprintf(header_string,sizeof(header_string),"%s:%d",obj->oclass->name,obj->id);
+	}
+	else
+	{
+		snprintf(header_string,sizeof(header_string),"%s",obj->name);
+	}
+	return header_string;
+}
+
+static const char *header_next_to_string(OBJECT *obj)
+{
+	return obj->next != NULL ? header_name_to_string(obj->next) : NULL;
+}
+
+static const char *header_parent_to_string(OBJECT *obj)
+{
+	return obj->parent != NULL ? header_name_to_string(obj->parent) : NULL;
+}
+
+static const char *header_child_count_to_string(OBJECT *obj)
+{
+	return obj->child_count != 0 && snprintf(header_string,sizeof(header_string),"%d",obj->child_count) > 0 ? header_string : NULL;
+}
+
+static const char *header_rank_to_string(OBJECT *obj)
+{
+	return obj->rank != 0 && snprintf(header_string,sizeof(header_string),"%d",obj->rank) > 0 ? header_string : NULL;
+}
+
+static const char *header_clock_to_string(OBJECT *obj)
+{
+	return convert_from_timestamp(obj->clock,header_string,sizeof(header_string)) > 0 ? header_string : NULL;	
+}
+
+static const char *header_valid_to_to_string(OBJECT *obj)
+{
+	return convert_from_timestamp(obj->valid_to,header_string,sizeof(header_string)) > 0 ? header_string : NULL;	
+}
+
+static const char *header_schedule_skew_to_string(OBJECT *obj)
+{
+	return obj->schedule_skew != 0 && snprintf(header_string,sizeof(header_string),"%lld",obj->schedule_skew) > 0 ? header_string : NULL;
+}
+
+static const char *header_latitude_to_string(OBJECT *obj)
+{
+	return isfinite(obj->latitude) && snprintf(header_string,sizeof(header_string),"%g",obj->latitude) > 0 ? header_string : NULL;
+}
+
+static const char *header_longitude_to_string(OBJECT *obj)
+{
+	return isfinite(obj->longitude) && snprintf(header_string,sizeof(header_string),"%g",obj->longitude) > 0 ? header_string : NULL;
+}
+
+static const char *header_in_svc_to_string(OBJECT *obj)
+{
+	return obj->in_svc != TS_ZERO && convert_from_timestamp(obj->in_svc,header_string,sizeof(header_string)) > 0 ? header_string : NULL;	
+}
+
+static const char *header_out_svc_to_string(OBJECT *obj)
+{
+	return obj->out_svc != TS_NEVER && convert_from_timestamp(obj->out_svc,header_string,sizeof(header_string)) > 0 ? header_string : NULL;	
+}
+
+static const char *header_rng_state_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%u",obj->rng_state) > 0 ? header_string : NULL;
+}
+
+static const char *header_heartbeat_to_string(OBJECT *obj)
+{
+	return obj->heartbeat != 0 && snprintf(header_string,sizeof(header_string),"%llu",obj->heartbeat) > 0 ? header_string : NULL;
+}
+
+static const char *header_guid_to_string(OBJECT *obj)
+{
+	return snprintf(header_string,sizeof(header_string),"%llX%llX",obj->guid[0],obj->guid[1]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_presync_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_PRESYNC] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_PRESYNC]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_sync_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_SYNC] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_SYNC]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_postsync_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_POSTSYNC] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_POSTSYNC]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_init_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_INIT] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_INIT]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_heartbeat_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_HEARTBEAT] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_HEARTBEAT]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_precommit_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_PRECOMMIT] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_PRECOMMIT]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_commit_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_COMMIT] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_COMMIT]) > 0 ? header_string : NULL;
+}
+
+static const char *header_profiler_finalize_to_string(OBJECT *obj)
+{
+	return obj->synctime[OPI_FINALIZE] != 0 && snprintf(header_string,sizeof(header_string),"%lu",obj->synctime[OPI_FINALIZE]) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_init_to_string(OBJECT *obj)
+{
+	return obj->events.init && snprintf(header_string,sizeof(header_string),"%s",obj->events.init) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_precommit_to_string(OBJECT *obj)
+{
+	return obj->events.precommit && snprintf(header_string,sizeof(header_string),"%s",obj->events.precommit) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_presync_to_string(OBJECT *obj)
+{
+	return obj->events.presync && snprintf(header_string,sizeof(header_string),"%s",obj->events.presync) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_sync_to_string(OBJECT *obj)
+{
+	return obj->events.sync && snprintf(header_string,sizeof(header_string),"%s",obj->events.sync) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_postsync_to_string(OBJECT *obj)
+{
+	return obj->events.postsync && snprintf(header_string,sizeof(header_string),"%s",obj->events.postsync) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_commit_to_string(OBJECT *obj)
+{
+	return obj->events.commit && snprintf(header_string,sizeof(header_string),"%s",obj->events.commit) > 0 ? header_string : NULL;
+}
+
+static const char *header_event_finalize_to_string(OBJECT *obj)
+{
+	return obj->events.finalize && snprintf(header_string,sizeof(header_string),"%s",obj->events.finalize) > 0 ? header_string : NULL;
+}
+
+static const char *header_flags_to_string(OBJECT *obj)
+{
+	return obj->flags != 0 && snprintf(header_string,sizeof(header_string),"0x%llx",obj->flags) > 0 ? header_string : NULL;
+}
+
+#define HDATAX(X,T,S,N) {#X,T,"PROTECTED",S,N},
+#define HDATA(X,T) HDATAX(X,T,header_##X##_to_string,0)
+HEADERDATA headerdata[] = {
+	HDATA(id,"int32")
+	HDATA(class,"string")
+	HDATA(groupid,"char32")
+	HDATA(name,"string")
+	HDATA(next,"object")
+	HDATA(parent,"object")
+	HDATA(child_count,"int32")
+	HDATA(rank,"int32")
+	HDATA(clock,"timestamp")
+	HDATA(valid_to,"timestamp")
+	HDATA(schedule_skew,"int64")
+	HDATA(latitude,"double")
+	HDATA(longitude,"double")
+	HDATA(in_svc,"timestamp")
+	HDATA(out_svc,"timestamp")
+	HDATA(rng_state,"int32")
+	HDATA(heartbeat,"int64")
+	HDATAX(guid,"int64",header_guid_to_string,2)
+	HDATAX(profiler.presync,"int32",header_profiler_presync_to_string,0)
+	HDATAX(profiler.sync,"int32",header_profiler_sync_to_string,0)
+	HDATAX(profiler.postsync,"int32",header_profiler_postsync_to_string,0)
+	HDATAX(profiler.init,"int32",header_profiler_init_to_string,0)
+	HDATAX(profiler.heartbeat,"int32",header_profiler_heartbeat_to_string,0)
+	HDATAX(profiler.precommit,"int32",header_profiler_precommit_to_string,0)
+	HDATAX(profiler.commit,"int32",header_profiler_commit_to_string,0)
+	HDATAX(profiler.finalize,"int32",header_profiler_finalize_to_string,0)
+	HDATAX(event.init,"string",header_event_init_to_string,0)
+	HDATAX(event.precommit,"string",header_event_precommit_to_string,0)
+	HDATAX(event.presync,"string",header_event_presync_to_string,0)
+	HDATAX(event.sync,"string",header_event_sync_to_string,0)
+	HDATAX(event.postsync,"string",header_event_postsync_to_string,0)
+	HDATAX(event.commit,"string",header_event_commit_to_string,0)
+	HDATAX(event.finalize,"string",header_event_finalize_to_string,0)
+	HDATA(flags,"int64")
+	{NULL} // sentinal
+};
+#undef HDATA
+
+HEADERDATA *object_headerdata_getfirst(void)
+{
+	return headerdata;
+}
+
+HEADERDATA *object_headerdata_getnext(HEADERDATA *item)
+{
+	if ( item[1].name == NULL )
+	{
+		return NULL;
+	}
+	else
+	{
+		return item+1;
+	}
+}
+
+const char *object_headerdata_getname(HEADERDATA *item)
+{
+	return item->name;
+}
+
+const char *object_headerdata_getstring(HEADERDATA *item,OBJECT *obj)
+{
+	return item->tostr(obj);
+}
+
+const char *object_headerdata_getaccess(HEADERDATA *item)
+{
+	return item->access;
+}
+
+const char *object_headerdata_gettype(HEADERDATA *item)
+{
+	return item->ptype;
 }
 
 /* prototypes */
@@ -1681,7 +1933,7 @@ TIMESTAMP _object_sync(OBJECT *obj, /**< the object to synchronize */
 		sync_time = plc_time;
 
 	/* compute valid_to time */
-	if(sync_time>TS_MAX)
+	if ( sync_time > TS_MAX )
 		obj->valid_to = TS_NEVER;
 	else
 		obj->valid_to = sync_time; // NOTE, this can be negative
@@ -1744,10 +1996,19 @@ TIMESTAMP object_sync(OBJECT *obj, /**< the object to synchronize */
 	char *event = NULL;
 	if ( obj->oclass->sync != NULL )
 	{
+		unsigned int iter = 0;
+		TIMESTAMP tt;
 		do {
 			/* don't call sync beyond valid horizon */
 			t2 = _object_sync(obj,(ts<(obj->valid_to>0?obj->valid_to:TS_NEVER)?ts:obj->valid_to),pass);	
-		} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER);
+			if ( iter++ > global_iteration_limit )
+			{
+				output_error("maximum iteration limit reached on valid_to sync update");
+				return TS_INVALID;
+			}
+			tt = ( t2 < 0 ? -t2 : t2 );
+		} while ( tt > global_clock && tt < ts );
+		//} while (t2>0 && ts>(t2<0?-t2:t2) && t2<TS_NEVER );
 	}
 
 	/* event handler */

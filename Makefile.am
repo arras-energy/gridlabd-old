@@ -358,3 +358,8 @@ developer-html: # TODO
 troubleshooting-html:
 	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/ 
 	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > $(top_srcdir)/documents/html/troubleshooting/index.html )
+
+documents/gridlabd.pdf: documents/gridlabd.glm
+	(cd documents ; gridlabd gridlabd.glm)
+	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
+
