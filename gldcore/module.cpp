@@ -332,10 +332,11 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 
 	/* check for foreign modules */
 	strcpy(buffer,file);
-	fmod = strtok(buffer,"::");
+	char *last;
+	fmod = strtok_r(buffer,"::",&last);
 	if (fmod!=NULL && strcmp(fmod, file) != 0)
 	{
-		char *modname = strtok(NULL,"::");
+		char *modname = strtok_r(NULL,"::",&last);
 		MODULE *parent_mod = module_find(fmod);
 		if(parent_mod == NULL)
 			parent_mod = module_load(fmod, 0, NULL);
@@ -1429,7 +1430,7 @@ int module_compile(const char *name,	/**< name of library */
 	fclose(fp);
 
 	/* compile the code */
-	if ( (rc=execf("%s %s %s -c \"%s\" -o \"%s\" ", cc, mopt, ccflags, cfile, ofile))!=0 )
+	if ( (rc=execf("%s %s %s -fPIC -c \"%s\" -o \"%s\" ", cc, mopt, ccflags, cfile, ofile))!=0 )
 		return rc;
 
 	/* create needed DLL files on windows */
@@ -1862,11 +1863,12 @@ void sched_clear(void)
 		}
 	}
 }
-void sched_pkill(pid_t pid)
+void sched_pkill(pid_t pid, int signal)
 {
+	sched_init(1);
 	if ( process_map!=NULL && process_map[pid].pid!=0 )
 	{
-		kill(process_map[pid].pid, SIGINT);
+		kill(process_map[pid].pid, signal);
 	}
 }
 

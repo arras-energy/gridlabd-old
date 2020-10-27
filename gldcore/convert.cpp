@@ -95,7 +95,11 @@ int convert_from_double(char *buffer, /**< pointer to the string buffer */
 		count += sprintf(temp+count," %s",prop->unit->name);
 	}
 
-	if ( count <= size ) 
+	if ( size == 0 )
+	{
+		return count;
+	}
+	else if ( count <= size ) 
 	{
 		strcpy(buffer, temp);
 		return count;
@@ -267,7 +271,11 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 		count += sprintf(temp+count," %s",prop->unit->name);
 	}
 
-	if ( count < size - 1 )
+	if ( size == 0 )
+	{
+		return count;
+	}
+	else if ( count < size - 1 )
 	{
 		memcpy(buffer, temp, count);
 		buffer[count] = 0;
@@ -571,7 +579,8 @@ int convert_to_set(const char *buffer, /**< a pointer to the string buffer */
 	else
 	{
 		/* process each keyword in the temporary buffer*/
-		for ( ptr = strtok(temp,SETDELIM) ; ptr != NULL ; ptr = strtok(NULL,SETDELIM) )
+		char *last;
+		for ( ptr = strtok_r(temp,SETDELIM,&last) ; ptr != NULL ; ptr = strtok_r(NULL,SETDELIM,&last) )
 		{
 			bool found = false;
 			KEYWORD *key;

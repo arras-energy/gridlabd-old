@@ -1211,7 +1211,8 @@ int convert_to_loadshape(const char *string, void *data, PROPERTY *prop)
 	ls->type = MT_UNKNOWN;
 
 	/* parse tuples separate by semicolon*/
-	while ((token=strtok(token==NULL?buffer:NULL,";"))!=NULL)
+	char *last;
+	while ((token=strtok_r(token==NULL?buffer:NULL,";",&last))!=NULL)
 	{
 		/* colon separate tuple parts */
 		char *param = token;
