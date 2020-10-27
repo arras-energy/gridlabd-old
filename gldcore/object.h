@@ -20,7 +20,7 @@
 #include "aggregate.h"
 #include "exception.h"
 #include "globals.h"
-#include "randomvar.h"
+#include "random.h"
 #include "schedule.h"
 #include "transform.h"
 #include "enduse.h"

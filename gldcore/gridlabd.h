@@ -187,7 +187,7 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include "output.h"
 #include "platform.h"
 #include "property.h"
-#include "randomvar.h"
+#include "random.h"
 #include "realtime.h"
 #include "sanitize.h"
 #include "save.h"
