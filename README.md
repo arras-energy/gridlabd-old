@@ -1,10 +1,20 @@
 ![master](https://github.com/dchassin/gridlabd/workflows/master/badge.svg) ![develop](https://github.com/slacgismo/gridlabd/workflows/develop/badge.svg?branch=develop)
 
-The main documentation page for this project is located at http://docs.gridlabd.us/.
+The documentation for this project is located at http://docs.gridlabd.us/.
 
-## Important Note
+This responsitory contains the source code to HiPAS GridLAB-D, which is being developed by SLAC National Accelerator Laboratory for the California Energy Commission under grant [EPC-17-046](https://www.energy.ca.gov/filebrowser/download/1147).  This version of GridLAB-D is intended to be a commercial-grade version of the [US Department of Energy's research version of GridLAB-D developed by Pacific Northwest National Laboratory](https://github.com/gridlab-d/gridlab-d).
 
-This repository is SLAC National Accelerator's version of HiPAS GridLAB-D.  Only SLAC projects may contribute to this repository.  Changes made in this repository will be migrated back to the [original GridLAB-D repository](https://github.com/gridlab-d/gridlab-d) at PNNL's discretion.
+This source code in this repository is being developed in coordination with several other CEC and DOE projects conducted by SLAC and Stanford University.  Only SLAC and Stanford projects may contribute to this repository.  Changes made in this repository will be migrated back to the research version of GridLAB-D at PNNL's discretion.
+
+The following projects are actively contributing to HiPAS GridLAB-D at this time:
+
+  * GLOW (CEC funding, Hitachi America Laboratories lead)
+  * OpenFIDO (CEC funding, SLAC National Accelerator Laboratory lead)
+  * PowerNET (DOE funding, Stanford University lead)
+  * PowerNET with Market (CEC funding, SLAC National Accelerator Laboratory lead)
+  * VADER (DOE funding, SLAC National Accelerator Laboratory lead)
+  * GRIP (DOE funding, SLAC National Accelerator Laboratory lead)
+  * TESS (DOE funding, SLAC National Accelerator Laboratory lead)
 
 # User quick start
 
