@@ -10,7 +10,7 @@ clock{
 	stoptime '2000-01-01 1:00:00';
 }
 
-#set profiler=1
+//#set profiler=1
 //*********************************************
 // modules
 

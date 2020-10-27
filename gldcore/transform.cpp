@@ -638,7 +638,7 @@ int transform_write(TRANSFORM *xform, FILE *fp)
 	char buffer[1024];
 	if ( transform_to_string(buffer,sizeof(buffer)-1,xform) > 0 )
 	{
-		return fprintf(fp,"%s;",buffer);
+		return fprintf(fp,"%s",buffer);
 	}
 	else
 	{

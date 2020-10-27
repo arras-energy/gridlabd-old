@@ -537,6 +537,7 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 	oclass->profiler.numobjs=0;
 	oclass->profiler.count=0;
 	oclass->profiler.clocks=0;
+	memset(&oclass->events,0,sizeof(oclass->events));
 	if (first_class==NULL)
 	{
 		first_class = oclass;

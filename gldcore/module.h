@@ -39,7 +39,7 @@ struct s_module_list {
 	int (*cmdargs)(int,const char**);
 	int (*kmldump)(int(*)(const char*,...),OBJECT*);
 	void (*test)(int argc, char *argv[]);	
-	MODULE *(*subload)(char *, MODULE **, CLASS **, int, char **);
+	MODULE *(*subload)(char *, MODULE **, CLASS **, int, const char **);
 	PROPERTY *globals;
 	void (*term)(void);
 #ifndef STREAM_MODULE
@@ -73,7 +73,7 @@ typedef struct s_procinfo PROCINFO;
 typedef struct s_module_list MODULE;
 #endif
 
-typedef CLASS *(*LIBINIT)(const CALLBACKS*,void*,int,char*[]);
+typedef CLASS *(*LIBINIT)(const CALLBACKS*,void*,int,const char*[]);
 
 typedef int (*EXTERNALCALLBACK)(void*,void*);
 
@@ -84,7 +84,7 @@ extern "C" {
 	int module_get_path(char *buf, int len, MODULE *mod);
 	MODULE *module_find(const char *module_name);
 	MODULE *module_add(MODULE *);
-	MODULE *module_load(const char *file, int argc, char *argv[]);
+	MODULE *module_load(const char *file, int argc, const char *argv[]);
 	void module_list(void);
 	size_t module_getcount(void);
 	const char* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size);
@@ -110,7 +110,7 @@ extern "C" {
 	void sched_clear(void);
 	void sched_print(int flags);
 	void sched_update(TIMESTAMP clock, enumeration status);
-	void sched_pkill(pid_t pid);
+	void sched_pkill(pid_t pid, int signal=SIGINT);
 	void sched_controller(void);
 	unsigned short sched_get_cpuid(unsigned short n);
 	pid_t sched_get_procid();

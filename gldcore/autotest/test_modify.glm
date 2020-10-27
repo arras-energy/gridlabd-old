@@ -5,7 +5,7 @@ clock {
 }
 class test 
 {
-	double var;
+	char32 var; // TODO: this isn't reliable for doubles (see below)
 }
 
 object test
@@ -21,7 +21,7 @@ object assert
 	parent "test";
 	target "var";
 	relation "==";
-	value "+2"; // TODO: any form of 2.0 should be allowed, but only "+2" work right now.
+	value "2.0"; // TODO: any form of 2.0 should be allowed, but only "+2" work right now.
 }
 
 module tape;

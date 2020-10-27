@@ -1288,7 +1288,8 @@ const char *find_file(const char *name, /**< the name of the file to find */
 	if ( glpath != NULL )
 	{
 		strncpy(envbuf, glpath, sizeof(envbuf));
-		dir = strtok(envbuf, delim);
+		char *last;
+		dir = strtok_r(envbuf, delim,&last);
 		while (dir)
 		{
 			snprintf(filepath, sizeof(filepath), "%s%s%s", dir, pathsep, name);
@@ -1297,7 +1298,7 @@ const char *find_file(const char *name, /**< the name of the file to find */
 				strncpy(buffer,filepath,len);
 				return buffer;
 			}
-			dir = strtok(NULL, delim);
+			dir = strtok_r(NULL, delim, &last);
 		}
 	}
 

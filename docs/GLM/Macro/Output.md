@@ -10,7 +10,7 @@ GLM:
 
 # Description
 
-The `#output` macro sets up post-processing when a simulation is completed.  In general, output processing work similarly to input processing insofar as conversion to various file formats are automatically performed using the [[/Command/Automatic import conversion]] subsystem.  Any `options` provided are simply passed through to the file conversion routine.
+The `#output` macro sets up post-processing when a simulation is completed.  In general, output processing work similarly to input processing insofar as conversion to various file formats are automatically performed using the [[/Command/Automatic export conversion]] subsystem.  Any `options` provided are simply passed through to the file conversion routine.
 
 # Example
 
@@ -23,4 +23,4 @@ The following example generates the default tag image for a GridLAB-D model:
 # See also
 
 * [[/GLM/Macro/Input]]
-* [[/Command/Automatic import conversion]]
+* [[/Command/Automatic export conversion]]

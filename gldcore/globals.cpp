@@ -165,6 +165,7 @@ DEPRECATED static KEYWORD gso_keys[] = {
 	{"NOGLOBALS",	GSO_NOGLOBALS,	gso_keys+3},
 	{"NODEFAULTS",	GSO_NODEFAULTS, gso_keys+4},
 	{"NOMACROS",	GSO_NOMACROS,	gso_keys+5},
+	{"NOINTERNALS",	GSO_NOINTERNALS,gso_keys+6},
 	{"ORIGINAL",	GSO_ORIGINAL,	NULL},
 };
 DEPRECATED static KEYWORD fso_keys[] = {
@@ -182,6 +183,13 @@ DEPRECATED static KEYWORD fso_keys[] = {
 	{"CLOCK",		FSO_CLOCK,		fso_keys+12},
 	{"INITIAL",     FSO_INITIAL,    fso_keys+13},
 	{"MINIMAL",		FSO_MINIMAL,	NULL},
+};
+DEPRECATED static KEYWORD jcf_keys[] = {
+	{"STRING",		JCF_STRING,		jcf_keys+1},
+	{"LIST",		JCF_LIST,		jcf_keys+2},
+	{"DICT",		JCF_DICT,		jcf_keys+3},
+	{"DEGREES",		JCF_DEGREES,	jcf_keys+4},
+	{"RADIANS",		JCF_RADIANS,	NULL} 
 };
 
 DEPRECATED static struct s_varmap {
@@ -333,6 +341,13 @@ DEPRECATED static struct s_varmap {
 	{"allow_variant_aggregates", PT_bool, &global_allow_variant_aggregates, PA_PUBLIC, "permits aggregates to include time-varying criteria"},
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
+	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
+	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
+	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
+	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
+	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
+	{"rusage",PT_char1024,&global_rusage_data,PA_PUBLIC,"rusage data"},
+
 	/* add new global variables here */
 };
 
@@ -943,16 +958,28 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	}
 }
 
+extern int popens(const char *program, FILE **output, FILE **error);
+extern int pcloses(FILE *iop, bool wait=true);
+
 DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 {
-	// TODO: reimplmenent this so it capture stderr also (see GldMain::subcommand)
-	FILE *fp = popen(command, "r");
-	if ( fp == NULL ) 
-	{
-		output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
-		return strcpy(buffer,"");
-	}
 	char line[1024];
+	FILE *fp = NULL, *err = NULL;
+	if ( popens(command, &fp, &err) < 0 ) 
+	{
+		if ( err == NULL )
+		{
+			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
+		}
+		else
+		{
+			while ( fgets(line,sizeof(line)-1,err) )
+			{
+				output_error("global_shell(buffer=0x%x,size=%d,command='%s'): %s",buffer,size,command,line);
+			}
+			pcloses(fp);
+		}
+	}
 	int pos = 0;
 	strcpy(buffer,"");
 	while ( fgets(line, sizeof(line)-1, fp) != NULL ) 
@@ -960,16 +987,18 @@ DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 		int len = strlen(line);
 		if ( pos+len >= size )
 		{
-			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): result too large",buffer,size,command);
-			pclose(fp);
-			return strcpy(buffer,"");
+			output_warning("global_shell(buffer=0x%x,size=%d,command='%s'): result too large, truncating",buffer,size,command);
+			break;
 		}
-		strcpy(buffer+pos,line);
+		else
+		{
+			strcpy(buffer+pos,line);
+		}
 		pos += len;
 		if ( buffer[pos-1] == '\n' )
 			buffer[pos-1] = ' ';
 	}
-	pclose(fp);
+	pcloses(fp);
 	return buffer;
 }
 
@@ -980,7 +1009,7 @@ DEPRECATED const char *global_range(char *buffer, int size, const char *name)
 	double step = 1.0;
 	char delim = ' ';
 	sscanf(name,"RANGE%c%lg,%lg,%lg",&delim,&start,&stop,&step);
-	if ( strchr(" ;,",delim) == NULL )
+	if ( strchr(" ;,:",delim) == NULL )
 	{
 		output_error("global_range(buffer=%x,size=%d,name='%s'): delimiter '%s' is not supported, using space",buffer,size,name,delim);
 		delim = ' ';
@@ -1257,6 +1286,100 @@ DEPRECATED const char *global_object(const char *type, const char *arg, char *bu
 		return NULL;
 }
 
+DEPRECATED const char *global_findfile(char *buffer, int size, const char *spec)
+{
+	if ( find_file(spec,NULL,F_OK,buffer,size) == NULL )
+	{
+		if ( size <= 0 )
+		{
+			output_error("global_findfile(buffer=%x,size=%d,spec='%s'): buffer size is invalid");
+			return NULL;
+		}
+		buffer[0] = '\0';
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	char *dir = strrchr(var,'/');
+	if ( dir == NULL )
+	{
+		dir = var;
+	}
+	else
+	{
+		dir++;
+	}
+	strncpy(buffer,dir,size);
+	char *ext = strrchr(buffer,'.');
+	if ( ext != NULL )
+	{
+		*ext = '\0';
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	strncpy(buffer,var,size);
+	char *dir = strrchr(buffer,'/');
+	if ( dir != NULL )
+	{
+		*dir = '\0';
+	}
+	else
+	{
+		strcpy(buffer,".");
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	char *dir = strrchr(var,'/');
+	char *ext = strrchr(var,'.');
+	if ( ( dir != NULL && ext > dir ) || ext != NULL )
+	{
+		strncpy(buffer,ext+1,size);
+	}
+	else
+	{
+		strcpy(buffer,"");
+	}
+	return buffer;
+}
+
 /** Get the value of a global variable in a safer fashion
 	@return a \e char * pointer to the buffer holding the buffer where we wrote the data,
 		\p NULL if insufficient buffer space or if the \p name was not found.
@@ -1293,9 +1416,7 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 		//Used specifically to run MYSQL integration autotests
 		{"MYSQL",global_true},
 #endif
-#ifdef HAVE_PYTHON
 		{"PYTHON",global_true},
-#endif
 	};
 	size_t i;	
 	if(buffer == NULL){
@@ -1322,10 +1443,6 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':') != NULL )
 		return global_seq(buffer,size,name);
 
-	/* expansions */
-	if ( parameter_expansion(buffer,size,name) )
-		return buffer;
-
 	// shells
 	if ( strncmp(name,"SHELL ",6) == 0 )
 		return global_shell(buffer,size,name+6);
@@ -1337,6 +1454,26 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	// python call
 	if ( strncmp(name,"PYTHON ",7) == 0 )
 		return global_python(buffer,size,name+7);
+
+	// findfile call
+	if ( strncmp(name,"FINDFILE ",9) == 0 )
+		return global_findfile(buffer,size,name+9);
+
+	// path call
+	if ( strncmp(name,"FILEPATH ",9) == 0 )
+		return global_filepath(buffer,size,name+9);
+
+	// name call
+	if ( strncmp(name,"FILENAME ",9) == 0 )
+		return global_filename(buffer,size,name+9);
+
+	// extension call
+	if ( strncmp(name,"FILETYPE ",9) == 0 )
+		return global_filetype(buffer,size,name+9);
+
+	/* expansions */
+	if ( parameter_expansion(buffer,size,name) )
+		return buffer;
 
 	// object calls
 	struct {
@@ -1462,6 +1599,9 @@ void GldGlobals::remote_write(void *local, /** local memory for data */
 
 size_t GldGlobals::saveall(FILE *fp)
 {
+	if ( (global_glm_save_options&GSO_NOGLOBALS) == GSO_NOGLOBALS )
+		return 0;
+	
 	size_t count = 0;
 	GLOBALVAR *var = NULL;
 	char buffer[1024];
@@ -1470,7 +1610,10 @@ size_t GldGlobals::saveall(FILE *fp)
 		if ( strstr(var->prop->name,"::") == NULL
 			&& global_getvar(var->prop->name,buffer,sizeof(buffer)-1) != NULL )
 		{
-			count += fprintf(fp,"#set %s=%s\n",var->prop->name,buffer);
+			count += fprintf(fp,"#ifdef %s\n#define %s=%s\n#else\n#set %s=%s\n#endif\n",
+				var->prop->name,
+				var->prop->name,buffer,
+				var->prop->name,buffer);
 		}
 	}
 	return count;

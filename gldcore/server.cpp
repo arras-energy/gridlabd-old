@@ -85,7 +85,7 @@ static void *server_routine(void *arg)
 	static int started = 0;
 	if (started)
 	{
-		output_error("server routine is already running");
+		output_warning("server routine is already running");
 		return NULL;
 	}
 	started = 1;
@@ -112,7 +112,7 @@ static void *server_routine(void *arg)
 			char *saddr = inet_ntoa(cli_addr.sin_addr);
 			if ( !client_allowed(saddr) )
 			{
-				output_error("denying connection from %s on port %d",saddr, cli_addr.sin_port);
+				output_warning("denying connection from %s on port %d",saddr, cli_addr.sin_port);
 				close(newsockfd);
 				continue;
 			}
@@ -120,7 +120,7 @@ static void *server_routine(void *arg)
 			if ( active )
 				pthread_join(thread_id,&result);
 			if ( pthread_create(&thread_id,NULL, http_response,(void*)&newsockfd)!=0 )
-				output_error("unable to start http response thread");
+				output_warning("unable to start http response thread");
 			if (global_server_quit_on_close)
 				shutdown_now();
 			else if ( my_instance && my_instance->get_gui() )
@@ -170,7 +170,7 @@ STATUS server_startup(int argc, const char *argv[])
 	}
 	atexit(shutdown_now);
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) < 0)
-		output_error("setsockopt(SO_REUSEADDR) failed: %s", strerror(GetLastError()));
+		output_warning("setsockopt(SO_REUSEADDR) failed: %s", strerror(GetLastError()));
 	memset(&serv_addr,0,sizeof(serv_addr));
 
 Retry:
@@ -242,7 +242,7 @@ STATUS server_join(void)
 		return *result;	
 	else
 	{
-		output_error("server thread join failed: %s", strerror(GetLastError()));
+		output_warning("server thread join failed: %s", strerror(GetLastError()));
 		return FAILED;
 	}
 }
@@ -392,7 +392,7 @@ static size_t http_rewrite(char *out, const char *in, size_t len, size_t limit)
 				char buffer[1024];
 				if ( global_getvar(name,buffer,sizeof(buffer))==NULL )
 				{
-					output_error("http_rewrite(): '%s' not found", name);
+					output_warning("http_rewrite(): '%s' not found", name);
 				}
 				else
 				{
@@ -446,6 +446,8 @@ static void http_write(HTTPCNX *http, const char *data, size_t len)
 /** Close the HTTPCNX connection after sending content **/
 static void http_close(HTTPCNX *http)
 {
+	if ( http == NULL )
+		return;
 	if (http->len>0)
 		http_send(http);
 #ifdef WIN32
@@ -454,6 +456,7 @@ static void http_close(HTTPCNX *http)
 	close(http->s);
 #endif
 	free(http->buffer);
+	free(http);
 }
 /** Set the response MIME type **/
 static void http_mime(HTTPCNX *http, const char *path)
@@ -473,6 +476,14 @@ static void http_mime(HTTPCNX *http, const char *path)
 		{".glm","text/plain"},
 		{".php","text/plain"},
 		{".json","text/json"},
+		{".csv","text/csv"},
+		{".err","text/plain"},
+		{".pro","text/plain"},
+		{".wrn","text/plain"},
+		{".prg","text/plain"},
+		{".inf","text/plain"},
+		{".out","text/plain"},
+		{".dbg","text/plain"},
 	};
 	size_t n;
 	for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )
@@ -584,7 +595,7 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 		char *p = strchr(uname,']');
 		if ( p!=NULL ) *p='\0';
 		else {
-			output_error("object '%s' property '%s' unit spec in incomplete or invalid", arg1, arg2);
+			output_warning("object '%s' property '%s' unit spec in incomplete or invalid", arg1, arg2);
 			return 0;
 		}
 		*uname++ = '\0';
@@ -606,7 +617,7 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 		/* check spec for conformance */
 		if ( strchr("0123456789",spec[0])==NULL || strchr("aAfFgGeE",spec[1])==NULL )
 		{
-			output_error("object '%s' property '%s' unit format '%s' is invalid (must be [0-9][aAeEfFgG])", arg1, arg2, spec);
+			output_warning("object '%s' property '%s' unit format '%s' is invalid (must be [0-9][aAeEfFgG])", arg1, arg2, spec);
 			return 0;
 		}
 
@@ -614,7 +625,7 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 		unit = unit_find(uname);
 		if ( unit==NULL )
 		{
-			output_error("object '%s' property '%s' unit '%s' not found", arg1, arg2, uname);
+			output_warning("object '%s' property '%s' unit '%s' not found", arg1, arg2, uname);
 			return 0;
 		}
 
@@ -622,12 +633,12 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 		prop = object_get_property(obj,arg2,NULL);
 		if ( prop==NULL )
 		{
-			output_error("object '%s' property '%s' not found", arg1, arg2);
+			output_warning("object '%s' property '%s' not found", arg1, arg2);
 			return 0;
 		}
 		if ( prop->unit==NULL )
 		{
-			output_error("class '%s' property '%s' has no units", obj->oclass->name, prop->name);
+			output_warning("class '%s' property '%s' has no units", obj->oclass->name, prop->name);
 			return 0;
 		}
 
@@ -637,7 +648,7 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 			cvalue = *object_get_complex_quick(obj,prop);
 			if ( !unit_convert_complex(prop->unit,unit,&cvalue) )
 			{
-				output_error("object '%s' property '%s' conversion from '%s' to '%s' failed", arg1, arg2, prop->unit->name, unit);
+				output_warning("object '%s' property '%s' conversion from '%s' to '%s' failed", arg1, arg2, prop->unit->name, unit);
 				return 0;
 			}
 			switch ( spec[2]=='\0' ? cvalue.Notation() : spec[2] ) {
@@ -678,7 +689,7 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 				sprintf(buffer,fmt,cvalue.Im(),uname);
 				break;
 			default:
-				output_error("object '%s' property '%s' complex angle notation '%c' is not valid", arg1, arg2, spec[2]=='\0' ? cvalue.Notation() : spec[3]);
+				output_warning("object '%s' property '%s' complex angle notation '%c' is not valid", arg1, arg2, spec[2]=='\0' ? cvalue.Notation() : spec[3]);
 				return 0;
 			}
 		}
@@ -688,7 +699,7 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 			rvalue = *object_get_double_quick(obj,prop);
 			if ( !unit_convert_ex(prop->unit,unit,&rvalue) )
 			{
-				output_error("object '%s' property '%s' conversion from '%s' to '%s' failed", arg1, arg2, prop->unit->name, unit);
+				output_warning("object '%s' property '%s' conversion from '%s' to '%s' failed", arg1, arg2, prop->unit->name, unit);
 				return 0;
 			}
 			sprintf(buffer,fmt,rvalue,uname);
@@ -696,7 +707,7 @@ int get_value_with_unit(OBJECT *obj, char *arg1, char *arg2, char *buffer, size_
 	}
 	else if ( !object_get_value_by_name(obj,arg2,buffer,len) )
 	{
-		output_error("object '%s' property '%s' not found", arg1, arg2);
+		output_warning("object '%s' property '%s' not found", arg1, arg2);
 		return 0;
 	}
 	return strlen(buffer);
@@ -731,7 +742,7 @@ int http_raw_request(HTTPCNX *http, char *uri)
 		/* find the variable */
 		if (global_getvar(arg1,buffer,sizeof(buffer))==NULL)
 		{
-			output_error("global variable '%s' not found", arg1);
+			output_warning("global variable '%s' not found", arg1);
 			return 0;
 		}
 
@@ -754,21 +765,21 @@ int http_raw_request(HTTPCNX *http, char *uri)
 			obj = object_find_by_id(atoi(id+1));
 		if ( obj==NULL )
 		{
-			output_error("object '%s' not found", arg1);
+			output_warning("object '%s' not found", arg1);
 			return 0;
 		}
 
 		/* post the current value */
 		if ( !get_value_with_unit(obj,arg1,arg2,buffer,sizeof(buffer)) )
 		{
-			output_error("object '%s' property '%s' not found", arg1, arg2);
+			output_warning("object '%s' property '%s' not found", arg1, arg2);
 			return 0;
 		}
 
 		/* assignment, if any */
 		if ( value && !object_set_value_by_name(obj,arg2,value) )
 		{
-			output_error("cannot set object '%s' property '%s' to '%s'", arg1, arg2, value);
+			output_warning("cannot set object '%s' property '%s' to '%s'", arg1, arg2, value);
 			return 0;
 		}
 
@@ -812,7 +823,7 @@ int http_xml_request(HTTPCNX *http,char *uri)
 		/* find the variable */
 		if (global_getvar(arg1,buffer,sizeof(buffer))==NULL)
 		{
-			output_error("global variable '%s' not found", arg1);
+			output_warning("global variable '%s' not found", arg1);
 			return 0;
 		}
 
@@ -837,7 +848,7 @@ int http_xml_request(HTTPCNX *http,char *uri)
 			obj = object_find_by_id(atoi(id+1));
 		if ( obj==NULL )
 		{
-			output_error("object '%s' not found", arg1);
+			output_warning("object '%s' not found", arg1);
 			return 0;
 		}
 
@@ -890,7 +901,7 @@ int http_xml_request(HTTPCNX *http,char *uri)
 			/* assignment, if any */
 			if ( value && !object_set_value_by_name(obj,arg2,value) )
 			{
-				output_error("cannot set object '%s' property '%s' to '%s'", arg1, arg2, value);
+				output_warning("cannot set object '%s' property '%s' to '%s'", arg1, arg2, value);
 				return 0;
 			}
 
@@ -1129,12 +1140,12 @@ int http_modify_request(HTTPCNX *http, char *uri)
 		{
 			OBJECT *obj = object_find_name(oname);
 			if ( obj == NULL )
-				output_error("object '%s' not found", oname);
+				output_warning("object '%s' not found", oname);
 			else if ( object_set_value_by_name(obj,pname,value) <= 0 )
-				output_error("object '%s' property '%s' set to '%s' failed", oname, pname, value);
+				output_warning("object '%s' property '%s' set to '%s' failed", oname, pname, value);
 		} 
 		else
-			output_error("modify syntax error at '%s'", p);
+			output_warning("modify syntax error at '%s'", p);
 		p = strchr(p+1,';');
 		if ( p != NULL ) p++;
 	};
@@ -1157,9 +1168,9 @@ int http_read_request(HTTPCNX *http, char *uri)
 			char value[1024];
 			OBJECT *obj = object_find_name(oname);
 			if ( obj == NULL )	
-				output_error("object '%s' not found", oname);
+				output_warning("object '%s' not found", oname);
 			else if ( object_get_value_by_name(obj,pname,value,sizeof(value)) <= 0 )
-				output_error("object '%s' property '%s' get failed", oname, pname);
+				output_warning("object '%s' property '%s' get failed", oname, pname);
 			else
 			{
 				if ( !first )
@@ -1170,7 +1181,7 @@ int http_read_request(HTTPCNX *http, char *uri)
 			}
 		}
 		else
-			output_error("read syntax error at '%s'", p);
+			output_warning("read syntax error at '%s'", p);
 		p = strchr(p+1,';');
 		if ( p != NULL ) 
 			p++;
@@ -1229,7 +1240,7 @@ int http_copy(HTTPCNX *http, const char *context, const char *source, int cook, 
 	FILE *fp = fopen(source,"rb");
 	if (fp==NULL)
 	{
-		output_error("unable to find %s output '%s': %s", context, source, strerror(errno));
+		output_warning("unable to find %s output '%s': %s", context, source, strerror(errno));
 		return 0;
 	}
 	if ( pos >= 0 )
@@ -1239,7 +1250,7 @@ int http_copy(HTTPCNX *http, const char *context, const char *source, int cook, 
 	len = filelength(fileno(fp)) - pos;
 	if (len<0)
 	{
-		output_error("%s output '%s' not accessible", context, source);
+		output_warning("%s output '%s' not accessible", context, source);
 		fclose(fp);
 		return 0;
 	}
@@ -1253,13 +1264,13 @@ int http_copy(HTTPCNX *http, const char *context, const char *source, int cook, 
 	buffer = (char*)malloc(len);
 	if (buffer==NULL)
 	{
-		output_error("%s output buffer for '%s' not available", context, source);
+		output_warning("%s output buffer for '%s' not available", context, source);
 		fclose(fp);
 		return 0;
 	}
 	if ( fread(buffer,1,len,fp) < len )
 	{
-		output_error("%s output '%s' read failed", context, source);
+		output_warning("%s output '%s' read failed", context, source);
 		free(buffer);
 		fclose(fp);
 		return 0;
@@ -1304,7 +1315,7 @@ int http_run_java(HTTPCNX *http,char *uri)
 	/* find mime and extension */
 	if (mime==NULL)
 	{
-		output_error("Java runtime request does not include mime type");
+		output_warning("Java runtime request does not include mime type");
 		return 0;
 	}
 	else
@@ -1314,7 +1325,7 @@ int http_run_java(HTTPCNX *http,char *uri)
 	/* if not a plot request */
 	if (jar==NULL || strcmp(jar,".jar")!=0)
 	{
-		output_error("Java runtime request does not specify is a Java runtime filename with extension .jar");
+		output_warning("Java runtime request does not specify is a Java runtime filename with extension .jar");
 		return 0;
 	}
 
@@ -1332,10 +1343,10 @@ int http_run_java(HTTPCNX *http,char *uri)
 		switch (rc)
 		{
 		case -1: /* an error occurred */
-			output_error("unable to run java runtime on '%s': %s", uri, strerror(errno));
+			output_warning("unable to run java runtime on '%s': %s", uri, strerror(errno));
 			break;
 		default:
-			output_error("Java runtime return error code %d on '%s'", rc, uri);
+			output_warning("Java runtime return error code %d on '%s'", rc, uri);
 			break;
 		}
 		return 0;
@@ -1362,7 +1373,7 @@ int http_run_perl(HTTPCNX *http,char *uri)
 	/* find mime and extension */
 	if (mime==NULL)
 	{
-		output_error("Perl request does not include mime type");
+		output_warning("Perl request does not include mime type");
 		return 0;
 	}
 	else
@@ -1372,7 +1383,7 @@ int http_run_perl(HTTPCNX *http,char *uri)
 	/* if not a plot request */
 	if (pl==NULL || strcmp(pl,".pl")!=0)
 	{
-		output_error("Perl request does not specify a Perl script filename with extension .pl");
+		output_warning("Perl request does not specify a Perl script filename with extension .pl");
 		return 0;
 	}
 
@@ -1390,10 +1401,10 @@ int http_run_perl(HTTPCNX *http,char *uri)
 		switch (rc)
 		{
 		case -1: /* an error occurred */
-			output_error("unable to run Perl on '%s': %s", uri, strerror(errno));
+			output_warning("unable to run Perl on '%s': %s", uri, strerror(errno));
 			break;
 		default:
-			output_error("Perl return error code %d on '%s'", rc, uri);
+			output_warning("Perl return error code %d on '%s'", rc, uri);
 			break;
 		}
 		return 0;
@@ -1419,7 +1430,7 @@ int http_run_python(HTTPCNX *http,char *uri)
 	/* find mime and extension */
 	if (mime==NULL)
 	{
-		output_error("Python request does not include mime type");
+		output_warning("Python request does not include mime type");
 		return 0;
 	}
 	else
@@ -1429,7 +1440,7 @@ int http_run_python(HTTPCNX *http,char *uri)
 	/* if not a plot request */
 	if (py==NULL || strcmp(py,".py")!=0)
 	{
-		output_error("Python request does not specify a Python script filename with extension .py");
+		output_warning("Python request does not specify a Python script filename with extension .py");
 		return 0;
 	}
 
@@ -1447,10 +1458,10 @@ int http_run_python(HTTPCNX *http,char *uri)
 		switch (rc)
 		{
 		case -1: /* an error occurred */
-			output_error("unable to run Python on '%s': %s", uri, strerror(errno));
+			output_warning("unable to run Python on '%s': %s", uri, strerror(errno));
 			break;
 		default:
-			output_error("Python return error code %d on '%s'", rc, uri);
+			output_warning("Python return error code %d on '%s'", rc, uri);
 			break;
 		}
 		return 0;
@@ -1476,7 +1487,7 @@ int http_run_r(HTTPCNX *http,char *uri)
 	/* find mime and extension */
 	if (mime==NULL)
 	{
-		output_error("R request does not include mime type");
+		output_warning("R request does not include mime type");
 		return 0;
 	}
 	else
@@ -1486,7 +1497,7 @@ int http_run_r(HTTPCNX *http,char *uri)
 	/* if not a plot request */
 	if (r==NULL || strcmp(r,".r")!=0)
 	{
-		output_error("R request does not specify an R script filename with extension .r");
+		output_warning("R request does not specify an R script filename with extension .r");
 		return 0;
 	}
 
@@ -1508,10 +1519,10 @@ int http_run_r(HTTPCNX *http,char *uri)
 		switch (rc)
 		{
 		case -1: /* an error occurred */
-			output_error("unable to run R on '%s': %s", uri, strerror(errno));
+			output_warning("unable to run R on '%s': %s", uri, strerror(errno));
 			break;
 		default:
-			output_error("R return error code %d on '%s'", rc, uri);
+			output_warning("R return error code %d on '%s'", rc, uri);
 			break;
 		}
 		return 0;
@@ -1537,7 +1548,7 @@ int http_run_scilab(HTTPCNX *http,char *uri)
 	/* find mime and extension */
 	if (mime==NULL)
 	{
-		output_error("Scilab request does not include mime type");
+		output_warning("Scilab request does not include mime type");
 		return 0;
 	}
 	else
@@ -1547,7 +1558,7 @@ int http_run_scilab(HTTPCNX *http,char *uri)
 	/* if not a plot request */
 	if (sce==NULL || strcmp(sce,".sce")!=0)
 	{
-		output_error("Scilab request does not specify a Scilab script filename with extension .sce");
+		output_warning("Scilab request does not specify a Scilab script filename with extension .sce");
 		return 0;
 	}
 
@@ -1565,10 +1576,10 @@ int http_run_scilab(HTTPCNX *http,char *uri)
 		switch (rc)
 		{
 		case -1: /* an error occurred */
-			output_error("unable to run Scilab on '%s': %s", uri, strerror(errno));
+			output_warning("unable to run Scilab on '%s': %s", uri, strerror(errno));
 			break;
 		default:
-			output_error("Scilab return error code %d on '%s'", rc, uri);
+			output_warning("Scilab return error code %d on '%s'", rc, uri);
 			break;
 		}
 		return 0;
@@ -1594,7 +1605,7 @@ int http_run_octave(HTTPCNX *http,char *uri)
 	/* find mime and extension */
 	if (mime==NULL)
 	{
-		output_error("Octave request does not include mime type");
+		output_warning("Octave request does not include mime type");
 		return 0;
 	}
 	else
@@ -1604,7 +1615,7 @@ int http_run_octave(HTTPCNX *http,char *uri)
 	/* if not a plot request */
 	if (m==NULL || strcmp(m,".m")!=0)
 	{
-		output_error("Octave request does not specify an Octave script filename with extension .m");
+		output_warning("Octave request does not specify an Octave script filename with extension .m");
 		return 0;
 	}
 
@@ -1622,10 +1633,10 @@ int http_run_octave(HTTPCNX *http,char *uri)
 		switch (rc)
 		{
 		case -1: /* an error occurred */
-			output_error("unable to run R on '%s': %s", uri, strerror(errno));
+			output_warning("unable to run R on '%s': %s", uri, strerror(errno));
 			break;
 		default:
-			output_error("R return error code %d on '%s'", rc, uri);
+			output_warning("R return error code %d on '%s'", rc, uri);
 			break;
 		}
 		return 0;
@@ -1651,7 +1662,7 @@ int http_run_gnuplot(HTTPCNX *http,char *uri)
 	/* find mime and extension */
 	if (mime==NULL)
 	{
-		output_error("gnuplot request does not include mime type");
+		output_warning("gnuplot request does not include mime type");
 		return 0;
 	}
 	else
@@ -1661,7 +1672,7 @@ int http_run_gnuplot(HTTPCNX *http,char *uri)
 	/* if not a plot request */
 	if (plt==NULL || strcmp(plt,".plt")!=0)
 	{
-		output_error("gnuplot request does not specify a plot script filename with extension .plt");
+		output_warning("gnuplot request does not specify a plot script filename with extension .plt");
 		return 0;
 	}
 
@@ -1682,10 +1693,10 @@ int http_run_gnuplot(HTTPCNX *http,char *uri)
 		switch (rc)
 		{
 		case -1: /* an error occurred */
-			output_error("unable to run gnuplot on '%s': %s", uri, strerror(errno));
+			output_warning("unable to run gnuplot on '%s': %s", uri, strerror(errno));
 			break;
 		default:
-			output_error("gnuplot return error code %d on '%s'", rc, uri);
+			output_warning("gnuplot return error code %d on '%s'", rc, uri);
 			break;
 		}
 		return 0;
@@ -1707,7 +1718,7 @@ int http_get_rt(HTTPCNX *http,char *uri)
 		strncpy(filename,uri,sizeof(filename)-1);
 	if (!find_file(filename,NULL,R_OK,fullpath,sizeof(fullpath)))
 	{
-		output_error("runtime file '%s' couldn't be located in GLPATH='%s'", filename,getenv("GLPATH"));
+		output_warning("runtime file '%s' couldn't be located in GLPATH='%s'", filename,getenv("GLPATH"));
 		return 0;
 	}
 	return http_copy(http,"runtime",fullpath,true,pos);
@@ -1721,7 +1732,7 @@ int http_get_rb(HTTPCNX *http,char *uri)
 	char fullpath[1024];
 	if (!find_file(uri,NULL,R_OK,fullpath,sizeof(fullpath)))
 	{
-		output_error("binary file '%s' couldn't be located in GLPATH='%s'", uri,getenv("GLPATH"));
+		output_warning("binary file '%s' couldn't be located in GLPATH='%s'", uri,getenv("GLPATH"));
 		return 0;
 	}
 	return http_copy(http,"runtime",fullpath,false,0);
@@ -1832,7 +1843,7 @@ int http_control_request(HTTPCNX *http, char *action)
 		}
 		else
 		{
-			output_error("control command '%s' has an invalid timestamp", buffer);
+			output_warning("control command '%s' has an invalid timestamp", buffer);
 			return 0;
 		}
 	}
@@ -1844,7 +1855,7 @@ int http_control_request(HTTPCNX *http, char *action)
 		http_close(http);
 		exit(XC_SUCCESS);
 	}
-	else if ( strcmp(action,"stop")==0 )
+	else if ( strcmp(action,"stop") == 0 )
 	{
 		output_verbose("main loop stopped");
 		global_stoptime = global_clock;
@@ -1862,6 +1873,18 @@ int http_control_request(HTTPCNX *http, char *action)
 			output_verbose("simulation reset");
 			return 0;
 		}
+	else if ( strcmp(action,"halt") == 0 )
+	{
+		output_error("main loop halted");
+		global_exit_code = XC_SVRKLL;
+	}
+	else if ( strcmp(action,"kill") == 0 )
+	{
+		output_error("main loop killed");
+		http_status(http,HTTP_OK);
+		http_send(http);
+		http_close(http);
+		_Exit(XC_SVRKLL);
 	}
 	return 0;
 }
@@ -1884,7 +1907,7 @@ int http_favicon(HTTPCNX *http)
 	char fullpath[1024];
 	if ( find_file("favicon.ico",NULL,R_OK,fullpath,sizeof(fullpath))==NULL )
 	{
-		output_error("file 'favicon.ico' not found", fullpath);
+		output_warning("file 'favicon.ico' not found", fullpath);
 		return 0;
 	}
 	return http_copy(http,"icon",fullpath,false,0);
@@ -1896,140 +1919,157 @@ int http_favicon(HTTPCNX *http)
 void *http_response(void *ptr)
 {
 	SOCKET fd = *(SOCKET*)ptr;
-	HTTPCNX *http = http_create(fd);
-	size_t len;
-	int content_length = 0;
-	char *host = NULL;
-	int keep_alive = 0;
-	char *connection = NULL;
-	char *accept = NULL;
-	struct s_map {
-		const char *name;
-		enum {INTEGER,STRING} type;
-		void *value;
-		size_t sz;
-	} map[] = {
-		{"Content-Length", s_map::INTEGER, (void*)&content_length, 0},
-		{"Host", s_map::STRING, (void*)&host, 0},
-		{"Keep-Alive", s_map::INTEGER, (void*)&keep_alive, 0},
-		{"Connection", s_map::STRING, (void*)&connection, 0},
-		{"Accept", s_map::STRING, (void*)&accept, 0},
-	};
+	HTTPCNX *http = NULL;
+	try {
+		http = http_create(fd);
+		size_t len;
+		int content_length = 0;
+		char *host = NULL;
+		int keep_alive = 0;
+		char *connection = NULL;
+		char *accept = NULL;
+		struct s_map {
+			const char *name;
+			enum {INTEGER,STRING} type;
+			void *value;
+			size_t sz;
+		} map[] = {
+			{"Content-Length", s_map::INTEGER, (void*)&content_length, 0},
+			{"Host", s_map::STRING, (void*)&host, 0},
+			{"Keep-Alive", s_map::INTEGER, (void*)&keep_alive, 0},
+			{"Connection", s_map::STRING, (void*)&connection, 0},
+			{"Accept", s_map::STRING, (void*)&accept, 0},
+		};
 
-	while ( (int)(len=recv_data(fd,http->query,sizeof(http->query)))>0 )
-	{
-		/* first term is always the request */
-		char *request = http->query;
-		char method[32];
-		char uri[1024];
-		char version[32];
-		char *p = strchr(http->query,'\r');
-		size_t v;
-		
-		/* initialize the response */
-		http_reset(http);
-
-		/* read the request string */
-		if (sscanf(request,"%s %s %s",method,uri,version)!=3)
+		while ( (int)(len=recv_data(fd,http->query,sizeof(http->query)))>0 )
 		{
-			http_status(http,HTTP_BADREQUEST);
-			output_error("request [%s] is bad", request);
-			http_send(http);
-			break;
-		}
+			/* first term is always the request */
+			char *request = http->query;
+			char method[32];
+			char uri[1024];
+			char version[32];
+			char *p = strchr(http->query,'\r');
+			size_t v;
+			
+			/* initialize the response */
+			http_reset(http);
 
-		/* read the rest of the header */
-		while (p!=NULL && (p=strchr(p,'\r'))!=NULL) 
-		{
- 			*p = '\0';
-			p+=2;
-			for ( v=0 ; v<sizeof(map)/sizeof(map[0]) ; v++ )
+			/* read the request string */
+			if (sscanf(request,"%s %s %s",method,uri,version)!=3)
 			{
-				if (map[v].sz==0) map[v].sz = strlen(map[v].name);
-				if (strnicmp(map[v].name,p,map[v].sz)==0 && strncmp(p+map[v].sz,": ",2)==0)
+				http_status(http,HTTP_BADREQUEST);
+				output_warning("request [%s] is bad", request);
+				http_send(http);
+				break;
+			}
+
+			/* read the rest of the header */
+			while (p!=NULL && (p=strchr(p,'\r'))!=NULL) 
+			{
+	 			*p = '\0';
+				p+=2;
+				for ( v=0 ; v<sizeof(map)/sizeof(map[0]) ; v++ )
 				{
-					if (map[v].type==s_map::INTEGER) { *(int*)(map[v].value) = atoi(p+map[v].sz+2); break; }
-					else if (map[v].type==s_map::STRING) { *(char**)map[v].value = p+map[v].sz+2; break; }
+					if (map[v].sz==0) map[v].sz = strlen(map[v].name);
+					if (strnicmp(map[v].name,p,map[v].sz)==0 && strncmp(p+map[v].sz,": ",2)==0)
+					{
+						if (map[v].type==s_map::INTEGER) { *(int*)(map[v].value) = atoi(p+map[v].sz+2); break; }
+						else if (map[v].type==s_map::STRING) { *(char**)map[v].value = p+map[v].sz+2; break; }
+					}
 				}
 			}
-		}
-		IN_MYCONTEXT output_verbose("%s (host='%s', len=%d, keep-alive=%d)",http->query,host?host:"???",content_length, keep_alive);
+			IN_MYCONTEXT output_verbose("%s (host='%s', len=%d, keep-alive=%d)",http->query,host?host:"???",content_length, keep_alive);
 
-		/* reject anything but a GET */
-		if (stricmp(method,"GET")!=0)
-		{
-			http_status(http,HTTP_METHODNOTALLOWED);
-			/* technically, we should add an Allow entry to the response header */
-			output_error("request [%s %s %s]: '%s' is not an allowed method", method, uri, version, method);
-			http_send(http);
-			break;
-		}
-
-		/* handle request */
-		if ( strcmp(uri,"/favicon.ico")==0 )
-		{
-			if ( http_favicon(http) )
-				http_status(http,HTTP_OK);
-			else
-				http_status(http,HTTP_NOTFOUND);
-			http_send(http);
-		}
-		else {
-			static struct s_map {
-				const char *path;
-				int (*request)(HTTPCNX*,char*);
-				const char *success;
-				const char *failure;
-			} map[] = {
-				/* this is the map of recognize request types */
-				{"/control/",	http_control_request,	HTTP_ACCEPTED, HTTP_NOTFOUND},
-				{"/open/",		http_open_request,		HTTP_ACCEPTED, HTTP_NOTFOUND},
-				{"/raw/",		http_raw_request,		HTTP_OK, HTTP_NOTFOUND},
-				{"/xml/",		http_xml_request,		HTTP_OK, HTTP_NOTFOUND},
-				{"/gui/",		http_gui_request,		HTTP_OK, HTTP_NOTFOUND},
-				{"/output/",	http_output_request,	HTTP_OK, HTTP_NOTFOUND},
-				{"/action/",	http_action_request,	HTTP_ACCEPTED,HTTP_NOTFOUND},
-				{"/rt/",		http_get_rt,			HTTP_OK, HTTP_NOTFOUND},
-				{"/rb/",		http_get_rb,			HTTP_OK, HTTP_NOTFOUND},
-				{"/perl/",		http_run_perl,			HTTP_OK, HTTP_NOTFOUND},
-				{"/gnuplot/",	http_run_gnuplot,		HTTP_OK, HTTP_NOTFOUND},
-				{"/java/",		http_run_java,			HTTP_OK, HTTP_NOTFOUND},
-				{"/python/",	http_run_python,		HTTP_OK, HTTP_NOTFOUND},
-				{"/r/",			http_run_r,				HTTP_OK, HTTP_NOTFOUND},
-				{"/scilab/",	http_run_scilab,		HTTP_OK, HTTP_NOTFOUND},
-				{"/octave/",	http_run_octave,		HTTP_OK, HTTP_NOTFOUND},
-				{"/kml/", 		http_kml_request,		HTTP_OK, HTTP_NOTFOUND},
-				{"/json/",		http_json_request,		HTTP_OK, HTTP_NOTFOUND},
-				{"/find/",	http_find_request,	HTTP_OK, HTTP_NOTFOUND},
-				{"/modify/",	http_modify_request,	HTTP_OK, HTTP_NOTFOUND},
-				{"/read/",	http_read_request,	HTTP_OK, HTTP_NOTFOUND},
-			};
-			size_t n;
-			for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )
+			/* reject anything but a GET */
+			if (stricmp(method,"GET")!=0)
 			{
-				size_t len = strlen(map[n].path);
-				if (strncmp(uri,map[n].path,len)==0)
-				{
-					if ( map[n].request(http,uri+len) )
-						http_status(http,map[n].success);
-					else
-						http_status(http,map[n].failure);
-					http_send(http);
+				http_status(http,HTTP_METHODNOTALLOWED);
+				/* technically, we should add an Allow entry to the response header */
+				output_warning("request [%s %s %s]: '%s' is not an allowed method", method, uri, version, method);
+				http_send(http);
+				break;
+			}
 
-					/* keep-alive not desired*/
-					if (connection && stricmp(connection,"close")==0)
-						break;
-					else
-						continue;
+			/* handle request */
+			if ( strcmp(uri,"/favicon.ico")==0 )
+			{
+				if ( http_favicon(http) )
+					http_status(http,HTTP_OK);
+				else
+					http_status(http,HTTP_NOTFOUND);
+				http_send(http);
+			}
+			else {
+				static struct s_map {
+					const char *path;
+					int (*request)(HTTPCNX*,char*);
+					const char *success;
+					const char *failure;
+				} map[] = {
+					/* this is the map of recognize request types */
+					{"/control/",	http_control_request,	HTTP_ACCEPTED, HTTP_NOTFOUND},
+					{"/open/",		http_open_request,		HTTP_ACCEPTED, HTTP_NOTFOUND},
+					{"/raw/",		http_raw_request,		HTTP_OK, HTTP_NOTFOUND},
+					{"/xml/",		http_xml_request,		HTTP_OK, HTTP_NOTFOUND},
+					{"/gui/",		http_gui_request,		HTTP_OK, HTTP_NOTFOUND},
+					{"/output/",	http_output_request,	HTTP_OK, HTTP_NOTFOUND},
+					{"/action/",	http_action_request,	HTTP_ACCEPTED,HTTP_NOTFOUND},
+					{"/rt/",		http_get_rt,			HTTP_OK, HTTP_NOTFOUND},
+					{"/rb/",		http_get_rb,			HTTP_OK, HTTP_NOTFOUND},
+					{"/perl/",		http_run_perl,			HTTP_OK, HTTP_NOTFOUND},
+					{"/gnuplot/",	http_run_gnuplot,		HTTP_OK, HTTP_NOTFOUND},
+					{"/java/",		http_run_java,			HTTP_OK, HTTP_NOTFOUND},
+					{"/python/",	http_run_python,		HTTP_OK, HTTP_NOTFOUND},
+					{"/r/",			http_run_r,				HTTP_OK, HTTP_NOTFOUND},
+					{"/scilab/",	http_run_scilab,		HTTP_OK, HTTP_NOTFOUND},
+					{"/octave/",	http_run_octave,		HTTP_OK, HTTP_NOTFOUND},
+					{"/kml/", 		http_kml_request,		HTTP_OK, HTTP_NOTFOUND},
+					{"/json/",		http_json_request,		HTTP_OK, HTTP_NOTFOUND},
+					{"/find/",	http_find_request,	HTTP_OK, HTTP_NOTFOUND},
+					{"/modify/",	http_modify_request,	HTTP_OK, HTTP_NOTFOUND},
+					{"/read/",	http_read_request,	HTTP_OK, HTTP_NOTFOUND},
+				};
+				size_t n;
+				for ( n=0 ; n<sizeof(map)/sizeof(map[0]) ; n++ )
+				{
+					size_t len = strlen(map[n].path);
+					if (strncmp(uri,map[n].path,len)==0)
+					{
+						if ( map[n].request(http,uri+len) )
+							http_status(http,map[n].success);
+						else
+							http_status(http,map[n].failure);
+						http_send(http);
+
+						/* keep-alive not desired*/
+						if (connection && stricmp(connection,"close")==0)
+							break;
+						else
+							continue;
+					}
 				}
+				break;
 			}
 			break;
 		}
-		break;
+		http_close(http);
+		IN_MYCONTEXT output_verbose("socket %d closed",http->s);
 	}
-	http_close(http);
-	free(http);
-	IN_MYCONTEXT output_verbose("socket %d closed",http->s);
+	catch (const char *msg)
+	{
+		http_close(http);
+		output_warning("http_response(SOCKET *fd=<socket:%d>): %s",fd, msg);
+	}
+	catch (GldException *exc)
+	{
+		http_close(http);
+		output_warning("http_response(SOCKET *fd=<socket:%d>): %s",fd, exc->get_message());
+	}
+	catch (...)
+	{
+		http_close(http);
+		output_warning("http_response(SOCKET *fd=<socket:%d>): unhandled exception caught",fd);
+	}
 	return 0;
 }
 
