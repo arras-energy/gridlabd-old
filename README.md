@@ -15,6 +15,8 @@ The following projects are actively contributing to HiPAS GridLAB-D at this time
   * VADER (DOE funding, SLAC National Accelerator Laboratory lead)
   * GRIP (DOE funding, SLAC National Accelerator Laboratory lead)
   * TESS (DOE funding, SLAC National Accelerator Laboratory lead)
+  * Advanced Load Modeling (DOE funding, SLAC National Accelerator Laboratory lead)
+  * LoadInsight (DOE funding, SLAC National Accelerator Laboratory lead)
 
 # User quick start
 
