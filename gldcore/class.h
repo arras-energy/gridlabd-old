@@ -194,6 +194,16 @@ typedef enum e_technologyreadinesslevel {
  */
 typedef struct s_module_list MODULE;
 
+typedef struct s_eventhandlers {
+	char *init;
+	char *precommit;
+	char *presync;
+	char *sync;
+	char *postsync;
+	char *commit;
+	char *finalize;
+} EVENTHANDLERS;
+
 /*	Structure: s_class_list
 	magic - magic number
 	name - class name
@@ -290,6 +300,8 @@ struct s_class_list {
 	bool has_runtime;
 	// Field: runtime
 	char runtime[1024];
+	// Field: events
+	struct s_eventhandlers events;
 	// Field: next
 	struct s_class_list *next;
 }; /* CLASS */

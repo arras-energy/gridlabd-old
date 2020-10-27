@@ -671,6 +671,15 @@ GLOBAL char1024 global_daemon_configfile INIT("gridlabd.cnf"); /**< name of daem
 /* Variable: global_server_keepalive */
 GLOBAL bool global_server_keepalive INIT(FALSE); /**< keep server alive after simulation finishes */
 
+/* Variable: global_json_complex_format */
+#define JCF_STRING  0x0000
+#define JCF_LIST    0x0001
+#define JCF_DICT    0x0002
+#define JCF_DEGREES 0x0010
+#define JCF_RADIANS 0x0020
+
+GLOBAL enumeration global_json_complex_format INIT(JCF_STRING);
+
 typedef enum {
 	DMC_MAIN		= 0x0000000000000001,
 	DMC_CMDARG		= 0x0000000000000002,
@@ -753,7 +762,7 @@ typedef enum {
 	GSO_NOGLOBALS	= 0x0004,
 	GSO_NODEFAULTS	= 0x0008,
 	GSO_MINIMAL 	= 0x000f,
-	GSO_ORIGINAL	= 0x001f,
+	GSO_ORIGINAL	= 0x0010,
 } GLMSAVEOPTIONS;
 
 /* Variable: */
@@ -786,6 +795,17 @@ GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
 /* Variable: global_datadir */
 GLOBAL char1024 global_datadir INIT("");
+
+/* Variable: global_pythonpath */
+GLOBAL char1024 global_pythonpath INIT(".");
+
+/* Variable: global_rusage_rate */
+GLOBAL int64 global_rusage_rate INIT(0);
+
+/* Variable: global_rusage_file */
+GLOBAL char1024 global_rusage_file INIT("gridlabd-rusage.csv");
+
+GLOBAL char1024 global_rusage_data INIT("{}");
 
 #undef GLOBAL
 #undef INIT

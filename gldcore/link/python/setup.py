@@ -42,7 +42,7 @@ except:
 		compile_options = None
 if not compile_options :
 	compile_options=['-Wall','-O3','-g']
-compile_options.extend(['-I%s/gldcore'%srcdir,'-Igldcore','-Igldcore/rt',"-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
+compile_options.extend(['-I%s/gldcore'%srcdir,'-Igldcore','-Igldcore/rt',"-fPIC","-DHAVE_CONFIG_H","-DHAVE_PYTHON"])
 
 from distutils.core import setup, Extension
 gridlabd = Extension('gridlabd', 
@@ -92,6 +92,7 @@ gridlabd = Extension('gridlabd',
 		'gldcore/output.cpp',
 		'gldcore/property.cpp',
 		'gldcore/python_embed.cpp',
+		'gldcore/python_property.cpp',
 		'gldcore/random.cpp',
 		'gldcore/realtime.cpp',
 		'gldcore/sanitize.cpp',

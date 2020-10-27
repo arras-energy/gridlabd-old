@@ -93,11 +93,11 @@ GldMain::GldMain(int argc, const char *argv[])
 	gui(this),
 	loader(this)
 {
-	python_embed_init(argc,argv);
-
 	id = next_id++;
 	// TODO: remove this when reetrant code is done
 	my_instance = this;
+
+	python_embed_init(argc,argv);
 
 	set_global_browser();
 
@@ -596,10 +596,10 @@ int pcloses(FILE *iop, bool wait=true)
 
 int GldMain::subcommand(const char *format, ...)
 {
-	char *command;
+	char *command = NULL;
 	va_list ptr;
 	va_start(ptr,format);
-	if ( vasprintf(&command,format,ptr) < 0 )
+	if ( vasprintf(&command,format,ptr) < 0 || command == NULL )
 	{
 		output_error("GldMain::subcommand(format='%s',...): memory allocation failed",format);
 		return -1;
@@ -615,6 +615,7 @@ int GldMain::subcommand(const char *format, ...)
 	}
 	else
 	{
+		output_verbose("running subcommand '%s'",command);
 		FILE *output_stream = output_get_stream("output");
 		FILE *error_stream = output_get_stream("error");
 		struct pollfd polldata[3];
@@ -641,11 +642,11 @@ int GldMain::subcommand(const char *format, ...)
 			// 	output_error("GldMain::subcommand(command='%s'): no input", command);
 			// 	break;
 			// }
-			if ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
+			while ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
 			{
 				fprintf(output_stream,"%s",line);
 			}
-			if ( error && polldata[2].revents&POLLIN && fgets(line, sizeof(line)-1, error) != NULL ) 
+			while ( error && polldata[2].revents&POLLIN && fgets(line, sizeof(line)-1, error) != NULL ) 
 			{
 				fprintf(error_stream,"%s",line);
 			}
@@ -655,7 +656,9 @@ int GldMain::subcommand(const char *format, ...)
 		{
 			output_error("GldMain::subcommand(format='%s',...): command '%s' returns code %d",format,command,rc);
 		}
+		output_verbose("subcommand '%s' -> status = %d",command,rc);
 	}
+	free(command);
 	return rc;
 }
 
