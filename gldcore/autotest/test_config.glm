@@ -1,13 +1,17 @@
-#input "../config.csv" -f config -t config
-
-#if ${TEST1} == A
-#print ok
-#else
-#error TEST1 failed
+#ifexist "../config.csv"
+#define DIR=..
 #endif
 
-#if ${TEST2} == B
+#input "${DIR:-.}/config.csv" -f config -t config
+
+#if ${TEST1:-X} == A
 #print ok
 #else
-#error TEST2 failed
+#error TEST1==${TEST1:-X} failed
+#endif
+
+#if ${TEST2:-X} == B
+#print ok
+#else
+#error TEST2==${TEST2:-X} failed
 #endif

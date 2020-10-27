@@ -99,11 +99,26 @@ public:
 		}
 		else
 		{
-			static size_t len = 0;
-			char blank[1024];
-			memset(blank,32,len);
-			blank[len]='\0';
-			len = output_raw("%s\rProcessing %s...\r",blank,ptr)-len; 
+			static LOCKVAR lock = 0;
+			static int len = 0;
+			::wlock(&lock);
+			if ( len > 0 )
+			{
+				char blank[1024] = "";
+				if ( len >= (int)sizeof(blank) )
+				{
+					len = sizeof(blank)-1;
+				}
+				memset(blank,' ',len);
+				blank[len]='\0';
+				output_raw("%s\r",blank);
+			}
+			len = output_raw("Processing %s...\r",ptr)-1; 
+			if ( len < 0 )
+			{
+				len = 0;
+			}
+			::wunlock(&lock);
 		}
 		wlock(); 
 		n_files++;
@@ -768,6 +783,7 @@ int validate(void *main, int argc, const char *argv[])
 {
 	size_t i;
 	int redirect_found = 0;
+	global_profiler = TRUE;
 	strcpy(validate_cmdargs,"");
 	for ( i = 1 ; i < (size_t)argc ; i++ )
 	{

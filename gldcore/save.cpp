@@ -59,7 +59,6 @@ int saveall(const char *filename)
 	}
 	if ( ! known_format )
 	{
-		char converter_command[1024];
 		int rc;
 		char converter_name[1024];
 		char input_name[1024];
@@ -72,13 +71,12 @@ int saveall(const char *filename)
 			return 0;
 		}
 		sprintf(converter_name,"glm2%s.py",ext);
-		const char *converter_path = find_file(converter_name,NULL,R_OK);
-		if ( ! converter_path )
+		char converter_path[1024];
+		if ( ! find_file(converter_name,NULL,R_OK,converter_path,sizeof(converter_path)) )
 		{
 			/* try using python output converter through json */
 			sprintf(converter_name,"json2%s.py",ext);
-			const char *converter_path = find_file(converter_name,NULL,R_OK);
-			if ( ! converter_path )
+			if ( ! find_file(converter_name,NULL,R_OK,converter_path,sizeof(converter_path)) )
 			{
 				output_error("saveall: extension '.%s' not a known format", ext);
 				/*	TROUBLESHOOT
@@ -131,7 +129,7 @@ int saveall(const char *filename)
 			save_options++;
 			buffer[strlen(buffer)-1] = '\0';
 		}
-		rc = my_instance->subcommand(converter_command,"/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
+		rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
 		if ( rc != 0 )
 		{
 			output_error("conversion from '%s' to output file '%s' failed (code %d)", input_name, filename, rc);
@@ -266,7 +264,7 @@ int saveglm(const char *filename,FILE *fp)
 	}
 
 	/* save parts */
-	if ( (global_glm_save_options&GSO_NOGLOBALS)==0 && (global_filesave_options&FSO_GLOBALS)==FSO_GLOBALS )
+	if ( (global_filesave_options&FSO_GLOBALS)==FSO_GLOBALS )
 	{
 		count += global_saveall(fp);
 	}
@@ -278,7 +276,7 @@ int saveglm(const char *filename,FILE *fp)
 	{
 		count += class_saveall(fp);
 	}
-	if ( (global_glm_save_options&GSO_NOINTERNALS)==0 && (global_filesave_options&FSO_SCHEDULES) == FSO_SCHEDULES )
+	if ( (global_filesave_options&FSO_SCHEDULES) == FSO_SCHEDULES )
 	{
 		count += schedule_saveall(fp);
 	}

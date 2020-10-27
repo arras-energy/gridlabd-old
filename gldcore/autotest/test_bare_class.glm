@@ -12,6 +12,6 @@ object test {
 	object assert {
 		target x;
 		relation "==";
-		value 12.4;
+		value "+12.4";
 	};
 }

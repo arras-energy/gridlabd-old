@@ -71,8 +71,9 @@ export CCFLAGS="${INCLUDE} ${PYCCFLAGS} ${CCFLAGS}"
 export CPPFLAGS="${INCLUDE} ${PYCCFLAGS} ${CPPFLAGS}"
 export CXXFLAGS="${INCLUDE} ${PYCCFLAGS} ${CXXFLAGS}"
 export PYLDFLAGS="$(/usr/local/bin/python3-config --ldflags)"
-export LIB="-L/usr/local/lib/gridlabd -L/usr/local/lib -L/usr/lib"
+export LIB="-L$libdir -L/usr/local/lib -L/usr/lib"
 export LDFLAGS="${LIB} ${PYLDFLAGS} ${LDFLAGS}"
+export PYTHONPATH=.:${GLD_ETC}${PYTHONPATH:+:}${PYTHONPATH}
 
 AS_IF([test "x$GLPATH" = x],
   [export GLPATH="$pkglibdir:$pkgdatadir"],
@@ -96,6 +97,10 @@ elif test "x$1" = "xvalgrind" ; then :
   valgrind ${VALGRIND_OPTIONS} $bindir/gridlabd.bin $@
   exit 0
 fi
+
+AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
+  [. ${pkgdatadir}/gridlabd.rc],
+  [])
 
 AS_IF([test -x "${bindir}/gridlabd-$1"],
   ["${bindir}/gridlabd"-$@],
