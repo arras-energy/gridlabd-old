@@ -362,13 +362,16 @@ apartment::apartment(MODULE *module)
 int apartment::create(void) 
 {
 	solver = NULL;
-	building_outdoor_temperature.from_string("residential::default_outdoor_temperature");
 	return 1; /* return 1 on success, 0 on failure */
 }
 
 int apartment::init(OBJECT *parent)
 {
 	// check for missing values
+	if ( ! building_outdoor_temperature.is_valid() )
+	{
+		building_outdoor_temperature.from_string("residential::default_outdoor_temperature");
+	}
 	if ( building_floors <= 1 )
 	{
 		exception("building_floors must be 1 or more");
