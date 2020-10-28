@@ -674,7 +674,7 @@ int convert_to_string(const char *s, void *data, PROPERTY *p)
 {
 	STRING *str = (STRING*)data;
 	**str = s;
-	return (*str)->size();
+	return (*str)->size()+1;
 }
 
 int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
