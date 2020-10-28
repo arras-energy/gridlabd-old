@@ -88,9 +88,9 @@ public:
 	GL_ATOMIC(double,building_heat_leakage);
 	GL_ATOMIC(double,building_mass_temperature);
 	GL_ATOMIC(double,building_occupancy_factor);
-	gld_property building_outdoor_temperature;
-	gld_property building_outdoor_humidity;
-	gld_property building_solar_gain;
+	GL_ATOMIC(property,building_outdoor_temperature);
+	GL_ATOMIC(property,building_outdoor_humidity);
+	GL_ATOMIC(property,building_solar_gain);
 	GL_ATOMIC(double,building_overdesign_factor);
 	GL_ATOMIC(int16,building_units); // must be set by user
 

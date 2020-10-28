@@ -179,7 +179,7 @@ typedef uint32 enumeration; /* enumerations (any one of a list of values) */
 typedef struct s_object_list* object; /* object references */
 
 // Typedef: property
-typedef struct s_object_property property; /* object property references */
+typedef class gld_property* property; /* object property references */
 
 // Typedef: triplet
 typedef double triplet[3];
@@ -1706,7 +1706,7 @@ int convert_to_string(const char *s, void *data, PROPERTY *p);
  */
 int convert_from_string(char *buffer, int len, void *data, PROPERTY *p);
 
-/*	Function: property_create
+/*	Function: propertyref_create
 
 	Returns:
 	>0 - success
@@ -1715,7 +1715,7 @@ int convert_from_string(char *buffer, int len, void *data, PROPERTY *p);
  */
 int propertyref_create(void *ptr);
 
-/*	Function: convert_to_property
+/*	Function: convert_to_propertyref
 
 	Returns:
 	>0 - success
@@ -1724,7 +1724,7 @@ int propertyref_create(void *ptr);
  */
 int convert_to_propertyref(const char *s, void *data, PROPERTY *p);
 
-/*	Function: convert_from_property
+/*	Function: convert_from_propertyref
 
 	Returns:
 	>0 - success
@@ -1732,6 +1732,15 @@ int convert_to_propertyref(const char *s, void *data, PROPERTY *p);
 	<0 - failure
  */
 int convert_from_propertyref(char *buffer, int len, void *data, PROPERTY *p);
+
+/*	Function: initial_from_propertyref
+
+	Returns:
+	>0 - success
+	=0 - no data
+	<0 - failure
+ */
+int initial_from_propertyref(char *buffer, int len, void *data, PROPERTY *p);
 
 #ifdef __cplusplus
 }

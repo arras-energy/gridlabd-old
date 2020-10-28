@@ -43,7 +43,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, initial_from_randomvar,randomvar_create,NULL,convert_to_double,{TCOPS(double)},random_get_part,random_set_part},
 	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method,initial_from_method},
 	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, NULL,string_create,NULL,convert_to_string,{TCOPS(string)},},
-	{"property", "string", NULL, sizeof(OBJECTPROPERTY*), 256, convert_from_propertyref, convert_to_propertyref, NULL, propertyref_create, NULL, convert_to_propertyref, {TCNONE},        },
+	{"property", "string", NULL, sizeof(OBJECTPROPERTY*), 256, convert_from_propertyref, convert_to_propertyref, initial_from_propertyref, propertyref_create, NULL, convert_to_propertyref, {TCNONE},        },
 	{"python", "string", "None", sizeof(PyObject**), PSZ_DYNAMIC, convert_from_python, convert_to_python, initial_from_python, python_create,NULL,convert_to_python,{TCNONE},python_get_part,NULL},
 };
 
@@ -256,7 +256,24 @@ int property_create(PROPERTY *prop, void *addr)
 	{
 		if ( property_type[prop->ptype].create != NULL )
 		{
-			return property_type[prop->ptype].create(addr);
+			int result = property_type[prop->ptype].create(addr);
+			if ( result != 0 )
+			{
+				const char *tmp = prop->default_value ? prop->default_value : property_type[prop->ptype].default_value;
+				if ( tmp != NULL )
+				{
+					if ( property_read(prop,addr,tmp) == 0 )
+					{
+						output_error("property '%s' default value '%s' is invalid", prop->name, tmp);
+						return 0;
+					}
+					else
+					{
+						return 1;
+					}
+				}
+			}
+			return result;
 		}
 		else if ( (int)property_type[prop->ptype].size > 0 )
 		{
@@ -669,14 +686,16 @@ int convert_from_string(char *buffer, int len, void *data, PROPERTY *p)
 
 int propertyref_create(void *ptr)
 {
-	memset(ptr,0,sizeof(OBJECTPROPERTY));
-	return sizeof(OBJECTPROPERTY);
+	OBJECTPROPERTY **ref = (OBJECTPROPERTY**)ptr;
+	*ref = (OBJECTPROPERTY*)malloc(sizeof(OBJECTPROPERTY));
+	memset(*ref,0,sizeof(OBJECTPROPERTY));
+	return sizeof(OBJECTPROPERTY*);
 }
 
 int convert_to_propertyref(const char *s, void *data, PROPERTY *p)
 {
 	output_debug("convert_to_propertyref(s='%s',data=0x%X,p='%s')",s,data,p?p->name:"<none>");
-	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)data;
+	OBJECTPROPERTY *ref = *(OBJECTPROPERTY**)data;
 	char oname[64];
 	char pname[64];
 	char mname[64];
@@ -685,15 +704,34 @@ int convert_to_propertyref(const char *s, void *data, PROPERTY *p)
 	PROPERTY *prop;
 	int result = -1;
 
-	// attempt to use object reference resolution
-	if ( sscanf(s,"%[^:]:%s",oname,pname) == 2 )
+	// attempt to use global reference resolution
+	const char *global_token = strstr(s,"::");
+	if ( global_token != NULL )
 	{
-		if ( (obj=object_find_name(oname)) != NULL )
+		GLOBALVAR *var = global_find(global_token==s?s+2:s);
+		if ( var != NULL )
+		{
+			ref->obj = NULL;
+			ref->prop = var->prop;
+			ref->part = NULL;
+			return strlen(s);
+		}
+		else
+		{
+			output_error("property reference to global '%s' not found",s);
+			return -1;
+		}
+	}
+
+	// attempt to use object reference resolution
+	else if ( sscanf(s,"%[^:]:%s",oname,pname) == 2 )
+	{
+		if ( (obj=object_find_name(oname)) == NULL )
 		{
 			output_error("object '%s' not found",oname);
 			return -1;
 		}
-		else if ( (prop=object_get_property(obj,pname,NULL)) != NULL )
+		else if ( (prop=object_get_property(obj,pname,NULL)) == NULL )
 		{
 			output_error("property '%s' not found in object '%s'", pname, oname);
 			return -1;
@@ -702,38 +740,25 @@ int convert_to_propertyref(const char *s, void *data, PROPERTY *p)
 		{
 			ref->obj = obj;
 			ref->prop = prop;
-			result = strlen(s);
+			return strlen(s);
 		}
 	}
-
-	// attempt to use module reference resolution
-	else if ( sscanf(s,"%[^:]::%s",mname,vname) == 2 )
+	else if ( data != NULL )
 	{
-		GLOBALVAR *var = global_find(s);
-		result = (var == NULL) ? -1 : property_read(var->prop,data,s);
+		output_error("cannot assign value '%s' through property reference '%s'", s, p->name);
+		return -1;
 	}
-
-	// attempt to use global reference resolution
-	else if ( sscanf(s,":%s",vname) == 1 )
-	{
-		GLOBALVAR *var = global_find(vname);
-		result = (var == NULL) ? -1 : property_read(var->prop,data,s);
-	}
-
-	// assign value to reference
 	else
 	{
-		void *addr = (void *)((char *)(ref->obj + 1) + (int64)(ref->prop->addr));
-		result = object_set_value_by_addr(ref->obj, addr, s, ref->prop);
+		output_error("'%s' is not a invalid property reference", s);
+		return -1;
 	}
-	output_debug("convert_to_propertyref(s='%s',data=0x%X,p='%s') -> %d",s,data,p?p->name:"<none>",result);
-	return result;
 }
 
 int convert_from_propertyref(char *buffer, int len, void *data, PROPERTY *p)
 {
 	output_debug("convert_from_propertyref(buffer=0x%X,len=%d,data=0x%X,p='%s')",buffer,len,data,p?p->name:"<none>");
-	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)data;
+	OBJECTPROPERTY *ref = *(OBJECTPROPERTY**)data;
 	int result = -1;
 	if ( ref->obj == NULL )
 	{
@@ -762,4 +787,23 @@ int convert_from_propertyref(char *buffer, int len, void *data, PROPERTY *p)
 	output_debug("convert_from_propertyref(buffer='%s',len=%d,data=0x%X,p='%s') -> %d",buffer,len,data,p?p->name:"<none>",result);
 	return result;
 }
+
+int initial_from_propertyref(char *buffer, int len, void *data, PROPERTY *p)
+{
+	output_debug("initial_from_propertyref(buffer=0x%X,len=%d,data=0x%X,p='%s')",buffer,len,data,p?p->name:"<none>");
+	OBJECTPROPERTY *ref = (OBJECTPROPERTY*)data;
+	int result = -1;
+	if ( ref->obj == NULL )
+	{
+		// TODO
+		return -1;
+	}
+	else
+	{
+		// object property
+		// TODO
+		return -1;
+	}
+}
+
 // EOF

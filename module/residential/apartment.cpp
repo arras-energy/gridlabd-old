@@ -53,16 +53,17 @@ apartment::apartment(MODULE *module)
 			PT_double,"building_occupancy_factor[pu]",get_building_occupancy_factor_offset(), 
 				PT_DEFAULT,"+0.95 pu", 
 				PT_DESCRIPTION,"fraction of building units that are occupied",
-			PT_property,"building_outdoor_temperature",building_outdoor_temperature.get_offset(this), 
+			PT_property,"building_outdoor_temperature",get_building_outdoor_temperature_offset(), 
+				PT_DEFAULT,"residential::default_outdoor_temperature",
 				PT_DESCRIPTION, "reference to an object containing temperature data",
-			PT_property,"building_outdoor_humidity",building_outdoor_humidity.get_offset(this), 
-				PT_DEFAULT,"residential::default_outdoor_humidity", 
+			PT_property,"building_outdoor_humidity",get_building_outdoor_humidity_offset(), 
+				PT_DEFAULT,"residential::default_humidity", 
 				PT_DESCRIPTION, "reference to an object containing humidity data",
 			PT_double,"building_overdesign_factor[pu]",get_building_overdesign_factor_offset(), 
 				PT_DEFAULT, "+0.5 pu", 
 				PT_DESCRIPTION,"overdesign factor for building systems",
-			PT_property,"building_solar_gain",building_solar_gain.get_offset(this), 
-				PT_DEFAULT,"residential::default_outdoor_solar", 
+			PT_property,"building_solar_gain",get_building_solar_gain_offset(), 
+				PT_DEFAULT,"residential::default_solar", 
 				PT_DESCRIPTION, "reference to an object containing solar data",
 
 			PT_int16,"building_units",get_building_units_offset(), 
@@ -368,10 +369,6 @@ int apartment::create(void)
 int apartment::init(OBJECT *parent)
 {
 	// check for missing values
-	if ( ! building_outdoor_temperature.is_valid() )
-	{
-		building_outdoor_temperature.from_string("residential::default_outdoor_temperature");
-	}
 	if ( building_floors <= 1 )
 	{
 		exception("building_floors must be 1 or more");
@@ -574,20 +571,20 @@ void apartment::update()
 	msolve("set",solver,"dump",solver_enable_dump);
 	msolve("set",solver,"verbose",solver_enable_verbose);
 
-	if ( ! building_outdoor_temperature.is_valid() )
+	if ( ! building_outdoor_temperature->is_valid() )
 	{
-		OBJECT *obj = building_outdoor_temperature.get_object();
-		PROPERTY *prop = building_outdoor_temperature.get_property();
+		OBJECT *obj = building_outdoor_temperature->get_object();
+		PROPERTY *prop = building_outdoor_temperature->get_property();
 		exception("building_outdoor_temperature <object:%p> <property:%p> is not valid",obj,prop);
 	}
 	else
 	{
-		debug("Tout = %g", building_outdoor_temperature.get_double());
+		debug("Tout = %g", building_outdoor_temperature->get_double());
 	}
 
 	// set the heat gain
 	msolve("copy",solver,"q",
-		building_outdoor_temperature.get_double("degF"),
+		building_outdoor_temperature->get_double("degF"),
 		Q_AS + Q_AV + Q_AE,
 		Q_US,
 		Q_CS + Q_CV);
