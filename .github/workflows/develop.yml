@@ -18,6 +18,8 @@ jobs:
       run: autoreconf -isf
     - name: Configure build
       run: ./configure
+    - name: Build libraries
+      run: make libraries
     - name: Build gridlabd
       run: make -j10 system
     - name: Validate build

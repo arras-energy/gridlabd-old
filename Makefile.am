@@ -298,6 +298,7 @@ distclean-local: python-clean
 	@rm -rf $(top_srcdir)/build
 	@rm -rf $(top_srcdir)/documents/html
 	@rm -f $(top_srcdir)/validate.txt
+	@rm -rf $(top_srcdir)/third_party/armadillo-7.800.1
 
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
@@ -319,6 +320,18 @@ install-exec-hook: index python-install
 
 reconfigure: distclean
 	autoreconf -isf && ./configure
+
+libraries: armadillo
+	
+armadillo: third_party/armadillo-7.800.1/Makefile
+
+third_party/armadillo-7.800.1/Makefile: third_party/armadillo-7.800.1/configure
+	@(cd $(top_srcdir)/third_party/armadillo-7.800.1 && ./configure && make install )
+
+third_party/armadillo-7.800.1/configure: third_party/armadillo-7.800.1
+
+third_party/armadillo-7.800.1: third_party/armadillo-7.800.1.tar.gz
+	@(cd $(top_srcdir)/third_party && tar xf armadillo-7.800.1.tar.gz) 
 
 reconfigure-debug: distclean
 	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
