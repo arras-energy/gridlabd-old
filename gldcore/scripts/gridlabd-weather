@@ -135,7 +135,10 @@ function list()
 
 function get()
 {
-	fetch_index
+	if [ -z "$(index $1)" ]; then
+		echo "ERROR: $1 not found"
+		exit 1
+	fi
 	for f in $(index $1); do
 		if [ ! -f $DATADIR/$f ]; then
 			echo -n "Downloading $f... "
