@@ -477,7 +477,7 @@ void MSolver::dump(const char *heading)
 	::dump("q",data->q,N);
 	::dump("T",data->T,N);
 	::dump("Tset",data->Tset,N-1);
-	::dump("u",data->u,N-1);
+	// ::dump("u",data->u,N-1);
 	::dump("a",data->a,1);
 	::dump("umin",data->umin,N-1);
 	::dump("umax",data->umax,N-1);
