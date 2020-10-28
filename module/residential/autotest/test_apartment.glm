@@ -19,6 +19,7 @@ module residential
 // no weather test
 object apartment
 {
+	name "apartment_1";
 	building_floors 5;
 	building_units 100;
 	core_configuration INDOOR|DOUBLE|CONDITIONED;
@@ -31,6 +32,7 @@ global double solar_global[W/m^2] "100 W/m^2";
 
 object apartment
 {
+	name "apartment_2";
 	building_outdoor_temperature "::temperature";
 	building_outdoor_humidity "::humidity";
 	building_solar_gain "::solar_global";
@@ -49,6 +51,7 @@ class weather
 
 object weather
 {
+	name "weather";
 	temperature "59.0 degF";
 	humidity "70%";
 	solar_global "100 W/m^2";
@@ -56,6 +59,7 @@ object weather
 
 object apartment
 {
+	name "apartment_3";
 	building_outdoor_temperature "weather:temperature";
 	building_outdoor_humidity "weather:humidity";
 	building_solar_gain "weather:solar_global";
@@ -68,16 +72,12 @@ object apartment
 
 
 // climate module weather test
-module climate;
-
-object climate
-{
-	name sfo;
-	tmyfile "CA-San_francisco.tmy2";
-}
+#weather get "CA-San_Francisco_Intl_Ap.tmy3"
+#input "CA-San_Francisco_Intl_Ap.tmy3" -p "name=sfo";
 
 object apartment
 {
+	name "apartment_4";
 	weather "sfo";
 	building_floors 5;
 	building_units 100;
