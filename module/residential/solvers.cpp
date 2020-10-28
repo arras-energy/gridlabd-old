@@ -482,8 +482,8 @@ void MSolver::dump(const char *heading)
 	::dump("umin",data->umin,N-1);
 	::dump("umax",data->umax,N-1);
 	cerr << "MSolver internal data:" << endl;
-	::dump("Tbal",data->Tbal,N);
-	::dump("Teq",data->Teq,N);
+	//::dump("Tbal",data->Tbal,N);
+	//::dump("Teq",data->Teq,N);
 	::dump("dT",data->dT,N);
 	::dump("mode",data->mode,N-1);
 	cerr << "MSolver solution data:" << endl;
