@@ -5,7 +5,7 @@ brew update || ruby -e "$(curl -fsSL https://raw.githubusercontent.com/HomeBrew/
 brew doctor
 
 # build tools
-brew install autoconf automake libtool gnu-sed gawk
+brew install autoconf automake libtool gnu-sed gawk armadillo
 [ ! -L /usr/local/bin/sed -o ! "$(readlink /usr/local/bin/sed)" == "/usr/local/bin/gsed" ] && mv /usr/local/bin/sed /usr/local/bin/sed-old
 [ ! -e /usr/local/bin/sed ] && ln -s /usr/local/bin/gsed /usr/local/bin/sed
 
@@ -17,7 +17,7 @@ brew install doxygen
 
 # python3
 brew install python3
-pip3 install matplotlib pandas numpy Pillow
+pip3 install matplotlib pandas numpy Pillow networkx pytz
 
 # influxdb
 brew install influxdb
