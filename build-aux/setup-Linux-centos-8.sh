@@ -1,5 +1,11 @@
 #!/bin/bash
 
+## US English ##
+export LANG=en_US.UTF-8
+export LANGUAGE=en_US.UTF-8
+export LC_COLLATE=C
+export LC_CTYPE=en_US.UTF-8
+
 # Install needed system tools
 yum -q update -y ; 
 yum -q clean all
@@ -11,6 +17,12 @@ yum -q install curl-devel -y
 yum -q install which -y
 yum -q install svn -y
 
+# Install armadillo
+yum install -q epel-release -y 
+yum install -q 'dnf-command(config-manager)' -y
+yum config-manager --set-enabled PowerTools
+yum install -q armadillo-devel -y
+
 # python3 support needed as of 4.2
 yum -q install python3 python36-devel python3-pip python3-tkinter -y
 test -l /usr/local/bin/python3 || ln -sf /usr/bin/python3 /usr/local/bin/python3
@@ -18,11 +30,11 @@ pip3 --quiet install --upgrade pip
 echo '#/bin/bash' > /usr/local/bin/python3-config
 echo '/usr/bin/python3-config $*' >> /usr/local/bin/python3-config
 chmod +x /usr/local/bin/python3-config
-/usr/local/bin/python3 -m pip --quiet install matplotlib pandas mysql-connector Pillow
+/usr/local/bin/python3 -m pip --quiet install matplotlib pandas mysql-connector Pillow networkx pytz
 
 # latex
 if [ ! -x /usr/bin/tex ]; then
-	yum install tex
+	yum -q install tex -y
 fi
 
 # doxygen
