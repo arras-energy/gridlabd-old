@@ -350,6 +350,16 @@ apartment::apartment(MODULE *module)
 				PT_DEFAULT,"FALSE",
 				PT_DESCRIPTION,"enable solver verbose output",
 
+			PT_double,"Q_AS",get_Q_AS_offset(),
+			PT_double,"Q_AV",get_Q_AV_offset(),
+			PT_double,"Q_AE",get_Q_AE_offset(),
+			PT_double,"Q_US",get_Q_US_offset(),
+			PT_double,"Q_CS",get_Q_CS_offset(),
+			PT_double,"Q_CV",get_Q_CV_offset(),
+			PT_double,"Econ",get_Econ_offset(),
+			PT_double,"Tout",get_Tout_offset(),
+			PT_double,"Tret",get_Tret_offset(),
+
 			NULL)<1){
 				char msg[256];
 				sprintf(msg, "unable to publish properties in %s",__FILE__);
@@ -669,9 +679,9 @@ void apartment::update_modes(void)
 
 TIMESTAMP apartment::precommit(TIMESTAMP t1)
 {
-	double dt = t1 - gl_globalclock;
-	debug("current time is %d",gl_globalclock);
-	debug("advancing to %d",t1);
+	double dt = t1 - my()->clock;
+	debug("current time is %d",my()->clock);
+	debug("advancing %g seconds to %d",dt,t1);
 
 	// solve for the state at time t1
 	msolve("solve",solver,dt);

@@ -185,19 +185,19 @@ private:
 	msolver *solver;
 
 	// zone heat gains
-	double Q_AS;	// occupied zone solar heat gain
-	double Q_AV;	// occupied zone ventilation heat gain (loss is negative)
-	double Q_AE;	// occupied zone equipment heat gain
-	double Q_US;	// unoccupied zone solar heat gain
-	double Q_CS;	// core zone solar heat gain
-	double Q_CV;	// core zone ventilation heat gain
+	GL_ATOMIC(double,Q_AS);	// occupied zone solar heat gain
+	GL_ATOMIC(double,Q_AV);	// occupied zone ventilation heat gain (loss is negative)
+	GL_ATOMIC(double,Q_AE);	// occupied zone equipment heat gain
+	GL_ATOMIC(double,Q_US);	// unoccupied zone solar heat gain
+	GL_ATOMIC(double,Q_CS);	// core zone solar heat gain
+	GL_ATOMIC(double,Q_CV);	// core zone ventilation heat gain
 	
 	// modes
-	double Econ; // economizer factor
+	GL_ATOMIC(double,Econ); // economizer factor
 
 	// temperature (w.r.t. apartment setpoint temperature)
-	double Tout;	// outdoor air temperature
-	double Tret; 	// return air temperature
+	GL_ATOMIC(double,Tout);	// outdoor air temperature
+	GL_ATOMIC(double,Tret); 	// return air temperature
 
 public:
 

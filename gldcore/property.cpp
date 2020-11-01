@@ -698,12 +698,9 @@ int convert_to_propertyref(const char *s, void *data, PROPERTY *p)
 	OBJECTPROPERTY *ref = *(OBJECTPROPERTY**)data;
 	char oname[64];
 	char pname[64];
-	char mname[64];
-	char vname[64];
 	OBJECT *obj;
 	PROPERTY *prop;
-	int result = -1;
-
+	
 	// attempt to use global reference resolution
 	const char *global_token = strstr(s,"::");
 	if ( global_token != NULL )
@@ -796,13 +793,13 @@ int initial_from_propertyref(char *buffer, int len, void *data, PROPERTY *p)
 	if ( ref->obj == NULL )
 	{
 		// TODO
-		return -1;
+		return result;
 	}
 	else
 	{
 		// object property
 		// TODO
-		return -1;
+		return result;
 	}
 }
 

@@ -371,10 +371,9 @@ void MSolver::update(bool force)
 		if ( (modified&SU_Q) | force )
 		{
 			if ( enable_debug ) debug("q outdated");
-			q[0] = data->T[0];
-			for ( int i = 1 ; i < N ; i++ )
+			for ( int i = 0 ; i < N ; i++ )
 			{
-				q(i,0) = data->q[i-1];
+				q[i] = data->q[i];
 			}	
 			if ( enable_dump ) ::dump("updating q",q);
 		}
