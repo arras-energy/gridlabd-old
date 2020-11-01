@@ -1,0 +1,93 @@
+#!/usr/local/bin/python3
+"""gridlabd-openfido subcommand
+"""
+
+import sys, os
+
+sys.path.append("/usr/local/src/gridlabd")
+sys.path.append(os.getenv("HOME")+"/.gridlabd")
+sys.path.append(".")
+sys.path.append(sys.argv[0].replace("gldcore/scripts/gridlabd-openfido","python_extras"))
+
+import openfido
+
+def perror(msg,exit=None):
+    """Print an error message
+
+    Error messages are suppressed by the quiet option
+    """
+    if not config.quiet:
+        print(f'ERROR [openfido]: {msg}',file=sys.stderr,flush=True)
+    if exit:
+        sys.exit(exit)
+
+def pwarning(msg,exit=None):
+    """Print a warning message
+
+    Warning messages are suppressed by the quiet option
+    """
+    if not config.quiet:
+        print(f'WARNING [openfido]: {msg}',file=sys.stderr,flush=True)
+    if exit:
+        sys.exit(exit)
+
+def poutput(msg,exit=None):
+    """Print an output message
+
+    Outputs messages are enabled by the verbose option
+    """
+    if config.verbose:
+        print(msg,file=sys.stdout,flush=True)
+    if exit:
+        sys.exit(exit)
+
+# openfido-config import
+try: 
+    import openfido_config as config
+except:
+    # options
+    class config:
+        """Configuration options
+        """
+        verbose = False # print more messages as work is done
+        quiet = False # print fewer messages as work is done
+        orgname = "https://github.com/openfido" # default repo for workflows and pipelines
+        branch = "master" # default branch to use when downloading workflows and pipelines
+        addpath = [],
+        streams = {"output":poutput,"warning":pwarning,"error":perror}
+    pass
+
+sys.path.append(config.cache)
+
+def main():
+    execname = sys.argv[0]
+    n = 1
+    while len(sys.argv) > n and sys.argv[n][0] == '-':
+        if sys.argv[n] in ['-v','--verbose']:
+            config.verbose = True
+        elif sys.argv[n] in ['q','--quiet']:
+            config.quiet = True
+        else:
+            perror(f"command option '{sys.arv[n]}' is not valid")
+        n += 1
+    if len(sys.argv) > n:
+        command = sys.argv[n]
+        if len(sys.argv) > n+1:
+            options = sys.argv[n+1:]
+        else:
+            options = []
+    else:
+        command = "help"
+        options = []
+    if hasattr(openfido,command):
+        try:
+            call = getattr(openfido,command)
+            call(options=options) #,streams=config.streams)
+        except Exception as err:
+            perror(err)
+            pass
+    else:
+        perror(f"'{command}' is not a valid command",exit=1)
+
+if __name__ == "__main__":
+    main()
