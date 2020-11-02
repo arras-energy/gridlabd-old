@@ -11,13 +11,32 @@ sys.path.append(sys.argv[0].replace("gldcore/scripts/gridlabd-openfido","python_
 
 import openfido
 
-def perror(msg,exit=None):
-    """Print an error message
+def poutput(msg,exit=None):
+    """Print an output message
 
-    Error messages are suppressed by the quiet option
+    Outputs messages regardless of quiet or verbose setting
+    """
+    print(msg,file=sys.stdout,flush=True)
+    if exit:
+        sys.exit(exit)
+
+def pverbose(msg,exit=None):
+    """Print a verbose output message
+
+    Outputs messages if verbose is enabled
+    """
+    if config.verbose:
+        print(msg,file=sys.stdout,flush=True)
+    if exit:
+        sys.exit(exit)
+
+def pquiet(msg,exit=None):
+    """Print a quiet output message
+
+    Outputs messages if quiet is not enabled
     """
     if not config.quiet:
-        print(f'ERROR [openfido]: {msg}',file=sys.stderr,flush=True)
+        print(msg,file=sys.stdout,flush=True)
     if exit:
         sys.exit(exit)
 
@@ -31,21 +50,29 @@ def pwarning(msg,exit=None):
     if exit:
         sys.exit(exit)
 
-def poutput(msg,exit=None):
-    """Print an output message
+def perror(msg,exit=None):
+    """Print an error message
 
-    Outputs messages are enabled by the verbose option
+    Error messages are suppressed by the quiet option
     """
-    if config.verbose:
-        print(msg,file=sys.stdout,flush=True)
+    if not config.quiet:
+        print(f'ERROR [openfido]: {msg}',file=sys.stderr,flush=True)
     if exit:
         sys.exit(exit)
 
-# openfido-config import
+default_streams = { "output" :  poutput,
+                    "warning" : pwarning,
+                    "error" :   perror,
+                    "verbose" : pverbose,
+                    "quiet" :   pquiet,
+                    }
+                    
+
+# openfido_config import
 try: 
     import openfido_config as config
 except:
-    # options
+    # default options
     class config:
         """Configuration options
         """
@@ -53,27 +80,36 @@ except:
         quiet = False # print fewer messages as work is done
         orgname = "https://github.com/openfido" # default repo for workflows and pipelines
         branch = "master" # default branch to use when downloading workflows and pipelines
-        addpath = [],
-        streams = {"output":poutput,"warning":pwarning,"error":perror}
+        cache = "/usr/local/share/gridlabd/openfido" # additional path for downloaded modules
     pass
+
+# setup default streams
+if not hasattr(config,"streams"):
+    config.streams = {}
+for name, value in default_streams.items():
+    if not name in config.streams:
+        config.streams[name] = value
+    elif not callable(config.streams[name]):
+        raise Exception(f"config.streams['{name}'] is not callable")
 
 sys.path.append(config.cache)
 
-def main():
-    execname = sys.argv[0]
+def main(*args):
+    """gridlabd-openfido main function"""
+    execname = args[0]
     n = 1
-    while len(sys.argv) > n and sys.argv[n][0] == '-':
-        if sys.argv[n] in ['-v','--verbose']:
+    while len(args) > n and args[n][0] == '-':
+        if args[n] in ['-v','--verbose']:
             config.verbose = True
-        elif sys.argv[n] in ['q','--quiet']:
+        elif args[n] in ['q','--quiet']:
             config.quiet = True
         else:
-            perror(f"command option '{sys.arv[n]}' is not valid")
+            perror(f"command option '{args[n]}' is not valid")
         n += 1
-    if len(sys.argv) > n:
-        command = sys.argv[n]
+    if len(args) > n:
+        command = args[n]
         if len(sys.argv) > n+1:
-            options = sys.argv[n+1:]
+            options = args[n+1:]
         else:
             options = []
     else:
@@ -82,7 +118,7 @@ def main():
     if hasattr(openfido,command):
         try:
             call = getattr(openfido,command)
-            call(options=options) #,streams=config.streams)
+            call(options=options,stream=config.streams)
         except Exception as err:
             perror(err)
             pass
@@ -90,4 +126,4 @@ def main():
         perror(f"'{command}' is not a valid command",exit=1)
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

@@ -7,42 +7,45 @@ Options:
 	-q|--quiet     enables less output
 """
 
-# using leading _ hides modules and globals from main API
-import sys as _sys
-import pydoc as _pydoc
+import sys as sys
+import pydoc as pydoc
+import warnings
 
-def _perror(msg,**kwargs):
-    print(f'ERROR [openfido]: {msg}',file=_sys.stderr,flush=True)
+def _error(msg,exit=None):
+	print(msg,file=sys.stderr)
+	if exit:
+		sys.exit(exit)
+def _silent(msg,exit=None):
+	if exit:
+		sys.exit(exit)
 
-def _pwarning(msg,**kwargs):
-    print(f'WARNING [openfido]: {msg}',file=_sys.stderr,flush=True)
+default_streams = {"output":print, "warning":warnings.warn, "error":_error, "verbose":_silent, "quiet":_silent}
 
-def _poutput(msg,**kwargs):
-    print(msg,file=_sys.stdout,flush=True)
-
-_streams = {"output":_poutput,"warning":_pwarning,"error":_perror}
-
-def help(options=[],streams=_streams):
+def help(options=[], stream=default_streams):
 	"""Syntax: gridlabd openfido help [COMMAND]
 	"""
 	if not options:
-		streams["output"]("Syntax: gridlabd openfido [OPTIONS] COMMAND [...]")
+		stream["output"]("Syntax: gridlabd openfido [OPTIONS] COMMAND [...]")
+		stream["output"]("Commands:")
+		for command in sorted(dir(sys.modules[__name__])):
+			if callable(getattr(sys.modules[__name__],command)) and command[0] != '_':
+				stream["output"](f"  {command}")
 	elif not type(options) is list:
 		raise Exception("help options must be a list")
 	elif len(options) > 1:
 		raise Exception("help is only available on one command at a time")
-	elif hasattr(_sys.modules[__name__],options[0]):
-		call = getattr(_sys.modules[__name__],options[0])
-		streams["output"](_pydoc.render_doc(call,renderer=_pydoc.plaintext))
+	elif hasattr(sys.modules[__name__],options[0]):
+		call = getattr(sys.modules[__name__],options[0])
+		stream["output"](pydoc.render_doc(call,renderer=pydoc.plaintext))
 	else:
 		raise Exception(f"help on '{options[0]}' not available or command not found")
 
-def install(options=[],streams=_streams):
+def install(options=[], stream=default_streams):
 	"""Syntax: gridlabd-openfido [OPTIONS] install WORKFLOW [REPOURL]
 	"""
 	raise Exception("'install' command not implemented")
 
-def run(options=[],streams=_streams):
+def run(options=[], stream=default_streams):
 	"""Syntax: gridlabd-openfido [OPTIONS] run [RUNOPTIONS] INPUTFILES OUTPUTFILES
 
 Run options:
