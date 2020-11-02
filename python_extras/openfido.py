@@ -5,12 +5,49 @@ Syntax: gridlabd-openfido [OPTIONS] COMMAND [...]
 Options:
 	-v|--verbose   enables more output
 	-q|--quiet     enables less output
+
+Authentication methods:
+
+	./github_auth.py file:
+		token=<your-token>
+
+	GITHUB_TOKEN environment variable:
+		% export GITHUB_TOKEN=<your-token>
+
+	$HOME/.github/access-token file:
+		<your-token>
 """
 
-import sys as sys
-import pydoc as pydoc
-import warnings
+import os, sys, pydoc, warnings
+import requests, shutil, importlib
 
+verbose = False # print more messages as work is done
+quiet = False # print fewer messages as work is done
+orgname = "openfido" # default repo for workflows and pipelines
+branch = None # default branch to use when downloading workflows and pipelines
+cache = "/usr/local/share/gridlabd/openfido" # additional path for downloaded modules
+apiurl = "https://api.github.com"
+rawurl = "https://raw.githubusercontent.com"
+giturl = "https://github.com"
+
+# get authorization token
+try:
+	import github_auth as _auth
+except:
+	# template class using environment variable
+	class _auth:
+		token = os.getenv('GITHUB_TOKEN',None)
+	if not _auth.token:
+		# try reading file $HOME/.github/access-token
+		try:
+			token_file = f"{os.getenv('HOME','')}/.github/access-token"
+			_fh = open(token_file,"r")
+			_auth.token = _fh.read()
+		except Exception as exc:
+			pass
+	pass
+
+# default streams
 def _error(msg,exit=None):
 	print(msg,file=sys.stderr)
 	if exit:
@@ -18,9 +55,11 @@ def _error(msg,exit=None):
 def _silent(msg,exit=None):
 	if exit:
 		sys.exit(exit)
-
 default_streams = {"output":print, "warning":warnings.warn, "error":_error, "verbose":_silent, "quiet":_silent}
 
+#
+# HELP FUNCTION
+#
 def help(options=[], stream=default_streams):
 	"""Syntax: gridlabd openfido help [COMMAND]
 	"""
@@ -36,19 +75,164 @@ def help(options=[], stream=default_streams):
 		raise Exception("help is only available on one command at a time")
 	elif hasattr(sys.modules[__name__],options[0]):
 		call = getattr(sys.modules[__name__],options[0])
-		stream["output"](pydoc.render_doc(call,renderer=pydoc.plaintext))
+		text = pydoc.render_doc(call,renderer=pydoc.plaintext).split("\n")[3:]
+		for line in text:
+			stream["output"](line[4:])
 	else:
 		raise Exception(f"help on '{options[0]}' not available or command not found")
 
+#
+# INSTALL FUNCTION
+#
 def install(options=[], stream=default_streams):
-	"""Syntax: gridlabd-openfido [OPTIONS] install WORKFLOW [REPOURL]
+	"""Syntax: gridlabd-openfido [OPTIONS] install [-d|--dryrun] NAME ...
 	"""
-	raise Exception("'install' command not implemented")
+	headers = {}
+	if _auth.token:
+		headers = {"Authorization": f"token {_auth.token.strip()}"}
+	else:
+		stream["verbose"]("using unauthenticated access")
+	data = requests.get(f"{apiurl}/orgs/{orgname}/repos",headers=headers,params={}).json()
+	if not data:
+		raise Exception(f"unable to reach repo list for org '{orgname}' at {apiurl}")
+	elif type(data) != list:
+		raise Exception(f"API error for org '{orgname}' at {apiurl}: response = {data}")
+	if _auth.token:
+		stream["verbose"]("access token ok")
+	repos = dict(zip(list(map(lambda r:r['name'],data)),data))
+	dryrun = os.system
+	failed = []
+	done = []
+	global branch
+	if not branch:
+		branch = "main"
+	for option in options:
+		if option[0] == '-':
+			if option in ['-d','--dry-run']:
+				dryrun = stream["output"]
+			else:
+				raise Exception(f"option '{option}' is invalid")
 
+	for name in options:
+		if name[0] == '-':
+			continue
+		elif not name in repos.keys():
+			stream["error"](f"'{name}' not found in openfido repository")
+			failed.append(name)
+		else:
+			repo = repos[name]
+			url = f"{rawurl}/{orgname}/{name}/{branch}/openfido.json"
+			data = requests.get(url)
+			try:
+				manifest = data.json()
+			except:
+				manifest = None
+			if not manifest:
+				stream["error"](f"manifest read failed: url={url}, status_code={data.status_code}, headers={data.headers}, body=[{data.text}]") 
+			if not "application" in manifest.keys() or manifest["application"] != "openfido":
+				stream["error"](f"tool '{name}' is not an openfido application")
+				failed.append(name)
+			elif not "valid" in manifest.keys() or not manifest["valid"]:
+				stream["warning"](f"tool '{name}' is not valid")
+				failed.append(name)
+			else:
+				if not "version" in manifest.keys():
+					stream["warning"](f"tool '{name}' has no version")
+				if not "tooltype" in manifest.keys() or manifest["tooltype"] not in ("pipeline","workflow"):
+					stream["warning"](f"tool '{name}' type is missing or invalid")
+				stream["verbose"](f"{name}: {manifest['tooltype']} version {manifest['version']} is valid")
+				source = f"{giturl}/{orgname}/{name}"
+				target = f"{cache}/{name}"
+				if os.path.exists(target):
+					stream["warning"](f"'{name}' is already installed")
+					done.append(name)
+				elif os.system(f"git clone -q {source} {target} -b {branch}") != 0:
+					stream["error"](f"unable to clone '{name}' into openfido cache '{cache}'")
+					failed.append(name)
+				else:
+					stream["verbose"](f"'{name}' cloned ok")
+					done.append(name)
+				# TODO: implement installation
+				done.append(name)
+	return {"ok":len(done), "errors":len(failed), "done":done, "failed": failed}
+
+#
+# UPDATE FUNCTION
+#
+def update(options=[], stream=default_streams):
+	"""Syntax: gridlabd-openfido [OPTIONS] update [-d|--dryrun] NAME ...
+	"""
+	dryrun = os.system
+	done = []
+	failed = []
+	for option in options:
+		if option[0] == '-':
+			if option in ['-d','--dry-run']:
+				dryrun = stream["output"]
+			else:
+				raise Exception(f"option '{option}' is invalid")
+	for name in options:
+		if name[0] != '-':
+			if os.path.exists(f"{cache}/{name}"):
+				stream["verbose"](f"updating {cache}/{name}")
+				dryrun(f"cd {cache}/{name} && git pull")
+				done.append(name)
+			else:
+				stream["warning"](f"'{name}' not found")
+				failed.append(name)
+	return {"ok":len(done), "errors":len(failed), "done":done, "failed": failed}
+
+#
+# REMOVE FUNCTION
+#
+def remove(options=[], stream=default_streams):
+	"""Syntax: gridlabd-openfido [OPTIONS] remove [-d|--dryrun] NAME ...
+	"""
+	dryrun = os.system # shutil.rmtree # too chicken to enable it now
+	done = []
+	failed = []
+	for option in options:
+		if option[0] == '-':
+			if option in ['-d','--dry-run']:
+				dryrun = stream["output"]
+			else:
+				raise Exception(f"option '{option}' is invalid")
+	for name in options:
+		if name[0] != '-':
+			if cache[0] != '/':
+				stream["error"](f"too chicken to remove a folder without an absolute path")
+				failed.append(name)
+			elif os.path.exists(f"{cache}/{name}/.git"):
+				stream["verbose"](f"removing {cache}/{name}")
+				dryrun(f"rm -rf '{cache}/{name}'")
+				done.append(name)
+			else:
+				stream["warning"](f"'{name}' not found or not an openfido product")
+				failed.append(name)
+	return {"ok":len(done), "errors":len(failed), "done":done, "failed": failed}
+
+#
+# RUN FUNCTION
+#
 def run(options=[], stream=default_streams):
-	"""Syntax: gridlabd-openfido [OPTIONS] run [RUNOPTIONS] INPUTFILES OUTPUTFILES
-
-Run options:
-	-d|--dry-run	Do not create output files
+	"""Syntax: gridlabd-openfido [OPTIONS] run NAME INPUTFILES [OUTPUTFILES] [RUNOPTIONS...]
 	"""
-	raise Exception("'run' command not implemented")
+	name = options[0]
+	path = f"{cache}/{name}"
+	if not os.path.exists(f"{path}/openfido.json"):
+		raise Exception(f"'{name}' is not a valid openfido product")
+	sys.path.append(f"{cache}/{name}")
+	if not os.path.exists(f"{path}/gridlabd.py"):
+		raise Exception(f"'{name}' does not have a gridlabd module")
+	spec = importlib.util.spec_from_file_location("gridlabd",f"{path}/gridlabd.py")
+	gridlabd = importlib.util.module_from_spec(spec)
+	spec.loader.exec_module(gridlabd)
+	if not hasattr(gridlabd,"main") or not callable(gridlabd.main):
+		raise Exception(f"'{name}/gridlabd.py does not have a callable main")
+	if len(options) == 1: # no inputs
+		raise Exception(f"'{name}' cannot run without inputs")
+	if len(options) == 2: # no outputs
+		options.append("")
+	if len(options) == 3: # no options
+		options.append("")
+	return gridlabd.main(inputs=options[1].split(','),outputs=options[2].split(','),options=options[3:])

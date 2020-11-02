@@ -2,14 +2,16 @@
 """gridlabd-openfido subcommand
 """
 
-import sys, os
+import sys, os, traceback, datetime, inspect
 
-sys.path.append("/usr/local/src/gridlabd")
-sys.path.append(os.getenv("HOME")+"/.gridlabd")
-sys.path.append(".")
 sys.path.append(sys.argv[0].replace("gldcore/scripts/gridlabd-openfido","python_extras"))
+sys.path.append(".")
+sys.path.append(os.getenv("HOME")+"/.gridlabd")
+sys.path.append("/usr/local/src/gridlabd")
 
 import openfido
+
+exit_code = 0
 
 def poutput(msg,exit=None):
     """Print an output message
@@ -26,7 +28,7 @@ def pverbose(msg,exit=None):
     Outputs messages if verbose is enabled
     """
     if config.verbose:
-        print(msg,file=sys.stdout,flush=True)
+        print("  ...",msg,file=sys.stdout,flush=True)
     if exit:
         sys.exit(exit)
 
@@ -59,6 +61,9 @@ def perror(msg,exit=None):
         print(f'ERROR [openfido]: {msg}',file=sys.stderr,flush=True)
     if exit:
         sys.exit(exit)
+    else:
+        global exit_code
+        exit_code = 1
 
 default_streams = { "output" :  poutput,
                     "warning" : pwarning,
@@ -78,9 +83,12 @@ except:
         """
         verbose = False # print more messages as work is done
         quiet = False # print fewer messages as work is done
-        orgname = "https://github.com/openfido" # default repo for workflows and pipelines
-        branch = "master" # default branch to use when downloading workflows and pipelines
+        orgname = "openfido" # default repo for workflows and pipelines
+        branch = None # default branch to use when downloading workflows and pipelines
         cache = "/usr/local/share/gridlabd/openfido" # additional path for downloaded modules
+        apiurl = "https://api.github.com"
+        rawurl = "https://raw.githubusercontent.com"
+        giturl = "https://github.com"
     pass
 
 # setup default streams
@@ -94,6 +102,10 @@ for name, value in default_streams.items():
 
 sys.path.append(config.cache)
 
+# setup openfido
+for key in dir(config):
+    setattr(openfido,"key",getattr(config,key))
+
 def main(*args):
     """gridlabd-openfido main function"""
     execname = args[0]
@@ -101,7 +113,7 @@ def main(*args):
     while len(args) > n and args[n][0] == '-':
         if args[n] in ['-v','--verbose']:
             config.verbose = True
-        elif args[n] in ['q','--quiet']:
+        elif args[n] in ['-q','--quiet']:
             config.quiet = True
         else:
             perror(f"command option '{args[n]}' is not valid")
@@ -109,7 +121,7 @@ def main(*args):
     if len(args) > n:
         command = args[n]
         if len(sys.argv) > n+1:
-            options = args[n+1:]
+            options = list(args[n+1:])
         else:
             options = []
     else:
@@ -118,12 +130,23 @@ def main(*args):
     if hasattr(openfido,command):
         try:
             call = getattr(openfido,command)
-            call(options=options,stream=config.streams)
+            result = call(options=options,stream=config.streams)
+            pverbose(result)
         except Exception as err:
+            if hasattr(config,"traceback_file"):
+                e_type, e_value, e_traceback = sys.exc_info()
+                with open(config.traceback_file,"w") as fh:
+                    print(datetime.datetime.now(),"[ERROR]:",err,file=fh)
+                    frame = inspect.stack()[1]
+                    print(f"  File \"{frame.filename}\", line {frame[0].f_lineno}, in __main__",file=fh)
+                    print(f"    main(*args={args})",file=fh)
+                    traceback.print_tb(e_traceback,limit=None,file=fh)
+                    pverbose(f"traceback written to {config.traceback_file}")
             perror(err)
             pass
     else:
         perror(f"'{command}' is not a valid command",exit=1)
 
 if __name__ == "__main__":
-    main(sys.argv)
+    main(*sys.argv)
+    sys.exit(exit_code)
