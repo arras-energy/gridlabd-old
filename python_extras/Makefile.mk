@@ -7,4 +7,5 @@ dist_pkgdata_DATA += python_extras/volt_dump/voltdump.py
 dist_pkgdata_DATA += python_extras/openfido.py
 
 $(gridlabddir)/openfido/__init__.py: $(gridlabddir)/openfido.py
+	mkdir -p $(gridlabddir)/openfido
 	mv $< $@
