@@ -84,12 +84,13 @@ except:
         verbose = False # print more messages as work is done
         quiet = False # print fewer messages as work is done
         orgname = "openfido" # default repo for workflows and pipelines
-        branch = None # default branch to use when downloading workflows and pipelines
+        branch = "main" # default branch to use when downloading workflows and pipelines
         cache = "/usr/local/share/gridlabd/openfido" # additional path for downloaded modules
         apiurl = "https://api.github.com"
         rawurl = "https://raw.githubusercontent.com"
         giturl = "https://github.com"
-    pass
+        traceback_file = "openfido.err"
+        pass
 
 # setup default streams
 if not hasattr(config,"streams"):

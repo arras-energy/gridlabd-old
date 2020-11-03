@@ -13,5 +13,3 @@ bin_SCRIPTS += gldcore/scripts/gridlabd-trace
 bin_SCRIPTS += gldcore/scripts/gridlabd-validate
 bin_SCRIPTS += gldcore/scripts/gridlabd-version
 bin_SCRIPTS += gldcore/scripts/gridlabd-weather
-
-bin_SCRIPTS += gldcore/scripts/openfido_config.py

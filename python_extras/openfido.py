@@ -21,14 +21,24 @@ Authentication methods:
 import os, sys, pydoc, warnings
 import requests, shutil, importlib
 
+sys.path.append(".")
+sys.path.append(os.getenv("HOME")+"/.gridlabd")
+sys.path.append("/usr/local/share/gridlabd")
+
 verbose = False # print more messages as work is done
 quiet = False # print fewer messages as work is done
 orgname = "openfido" # default repo for workflows and pipelines
-branch = None # default branch to use when downloading workflows and pipelines
+branch = "main" # default branch to use when downloading workflows and pipelines
 cache = "/usr/local/share/gridlabd/openfido" # additional path for downloaded modules
 apiurl = "https://api.github.com"
 rawurl = "https://raw.githubusercontent.com"
 giturl = "https://github.com"
+traceback_file = "openfido.err"
+try:
+	from openfido_config import *
+	print(sys.modules["openfido_config"].__file__,dir(sys.modules[__name__]))
+except:
+	pass
 
 # get authorization token
 try:
@@ -58,6 +68,72 @@ def _silent(msg,exit=None):
 default_streams = {"output":_silent, "warning":warnings.warn, "error":_error, "verbose":_silent, "quiet":_silent}
 command_streams = {"output":print, "warning":warnings.warn, "error":_error, "verbose":_silent, "quiet":_silent}
 
+#
+# CONFIG FUNCTION
+#
+def config(options=[], stream=default_streams):
+	"""Syntax: gridlabd openfido config [show|get VARIABLE|set VARIABLE VALUE|reset [VARIABLE]]
+	"""
+	if len(options) == 0:
+		options = ["show"]
+	if options[0] == "show" and len(options) == 1:
+		result = {
+			"verbose" : verbose,
+			"quiet" : quiet,
+			"orgname" : orgname,
+			"branch" : branch,
+			"cache" : cache,
+			"apiurl" : apiurl,
+			"rawurl" : rawurl,
+			"giturl" : giturl,
+			"traceback_file" : "openfido.err"		
+		}
+		for key,value in result.items():
+			if type(value) is str:
+				stream["output"](f"{key}=\"{value}\"")
+			else:
+				stream["output"](f"{key}={value}")
+		return result
+	elif options[0] == "get" and len(options) == 2:
+		stream["output"](getattr(sys.modules[__name__],options[1]))
+	elif options[0] == "set" and len(options) in (3,4):
+		result = {
+			"verbose" : verbose,
+			"quiet" : quiet,
+			"orgname" : orgname,
+			"branch" : branch,
+			"cache" : cache,
+			"apiurl" : apiurl,
+			"rawurl" : rawurl,
+			"giturl" : giturl,		
+			"traceback_file" : traceback_file
+		}
+		if options[1] in ["-l","--local"]:
+			cfgfile = "./openfido_config.py"
+			options = options[1:]
+		else:
+			cfgfile = os.getenv("HOME")+"/.gridlabd/openfido_config.py"
+		if len(options) < 3:
+			raise Exception(f"missing value")
+		if not options[1] in result.keys():
+			raise Exception(f"'{options[1]}' is not a valid configuration variables")
+		for key, value in result.items():
+			if options[1] == key:
+				if type(value) is str:
+					result[key] = options[2]
+				elif type(value) == type(eval(options[2])):
+					result[key] = eval(options[2])
+				else:
+					raise Exception(f"'{options[2]}' is not a valid type for variable '{key}'")
+		with open(cfgfile,"w") as fh:
+			for key,value in result.items():
+				if type(value) is str:
+					print(f"{key}=\"{value}\"",file=fh)
+				else:
+					print(f"{key}={value}",file=fh)
+		return result
+	else:
+		raise Exception(f"'options={options}' is not valid")
 #
 # HELP FUNCTION
 #
@@ -164,9 +240,6 @@ def install(options=[], stream=default_streams):
 	dryrun = os.system
 	failed = []
 	done = []
-	global branch
-	if not branch:
-		branch = "main"
 	for option in options:
 		if option[0] == '-':
 			if option in ['-d','--dry-run']:
