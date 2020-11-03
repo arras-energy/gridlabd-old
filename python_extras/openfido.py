@@ -64,11 +64,9 @@ def help(options=[], stream=default_streams):
 	"""Syntax: gridlabd openfido help [COMMAND]
 	"""
 	if not options:
-		stream["output"]("Syntax: gridlabd openfido [OPTIONS] COMMAND [...]")
-		stream["output"]("Commands:")
-		for command in sorted(dir(sys.modules[__name__])):
-			if callable(getattr(sys.modules[__name__],command)) and command[0] != '_':
-				stream["output"](f"  {command}")
+		text = pydoc.render_doc(sys.modules[__name__],renderer=pydoc.plaintext).split("\n")
+		for line in text:
+			stream["output"](line)
 	elif not type(options) is list:
 		raise Exception("help options must be a list")
 	elif len(options) > 1:
@@ -82,6 +80,44 @@ def help(options=[], stream=default_streams):
 		raise Exception(f"help on '{options[0]}' not available or command not found")
 
 #
+# LIST FUNCTION
+#
+
+def index(options=[], stream=default_streams):
+	"""Syntax: gridlabd openfido index [PATTERN]
+	"""
+	headers = {}
+	if _auth.token:
+		headers = {"Authorization": f"token {_auth.token.strip()}"}
+	else:
+		stream["verbose"]("using unauthenticated access")
+	url = f"{apiurl}/orgs/{orgname}/repos"
+	data = requests.get(url,headers=headers,params={}).json()
+	if not data:
+		raise Exception(f"unable to reach repo list for org '{orgname}' at {apiurl}")
+	elif not type(data) is list:
+		raise Exception(f"API error for org '{orgname}' at {url}: response ({type(data)}) = {data}")
+	if _auth.token:
+		stream["verbose"]("access token ok")
+	repos = dict(zip(list(map(lambda r:r['name'],data)),data))
+	if len(options) > 0:
+		result = []
+		for option in options:
+			for repo in list(repos.keys()):
+				if repo in result:
+					continue
+				pos = repo.find(option[option[0]=='^':])
+				if pos < 0:
+					continue
+				if option[0] != '^' or pos == 0:
+					result.append(repo)
+	else:
+		result = list(repos.keys())
+	for name in sorted(result):
+		stream["output"](name)
+	return result
+
+#
 # INSTALL FUNCTION
 #
 def install(options=[], stream=default_streams):
@@ -92,11 +128,12 @@ def install(options=[], stream=default_streams):
 		headers = {"Authorization": f"token {_auth.token.strip()}"}
 	else:
 		stream["verbose"]("using unauthenticated access")
-	data = requests.get(f"{apiurl}/orgs/{orgname}/repos",headers=headers,params={}).json()
+	url = f"{apiurl}/orgs/{orgname}/repos"
+	data = requests.get(url,headers=headers,params={}).json()
 	if not data:
 		raise Exception(f"unable to reach repo list for org '{orgname}' at {apiurl}")
-	elif type(data) != list:
-		raise Exception(f"API error for org '{orgname}' at {apiurl}: response = {data}")
+	elif not type(data) is list:
+		raise Exception(f"API error for org '{orgname}' at {url}: response ({type(data)}) = {data}")
 	if _auth.token:
 		stream["verbose"]("access token ok")
 	repos = dict(zip(list(map(lambda r:r['name'],data)),data))
