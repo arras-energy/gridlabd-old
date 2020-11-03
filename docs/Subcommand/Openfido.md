@@ -22,11 +22,26 @@ accepts one of more input files and produces one or more output files.
 
 ## Options
 
+### `-v|--verbose`
+
+Enable extra output
+
+### `-q|--quiet`
+
+Suppress all non-essential output.
+
 ## Patterns
+
+The `index` command matches any OpenFIDO module that contains the pattern.  If the pattern starts with a
+caret then only modules that start with the pattern are matched.
 
 ## Input files
 
+Input files are given as comma-delimited list.
+
 ## Output files
+
+Output files are given as a comma-delimited list.
 
 # Example
 
