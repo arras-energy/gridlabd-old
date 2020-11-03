@@ -5,6 +5,7 @@
 Shell commands:
 ~~~
 host$ gridlabd openfido [OPTIONS] help
+host$ gridlabd openfido [OPTIONS] config [show|get VARIABLE|set VARIABLE VALUE]
 host$ gridlabd openfido [OPTIONS] index [PATTERN]
 host$ gridlabd openfido [OPTIONS] info NAME
 host$ gridlabd openfido [OPTIONS] install [-d|--dry-run] NAME [...]

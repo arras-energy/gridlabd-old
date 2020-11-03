@@ -72,7 +72,7 @@ command_streams = {"output":print, "warning":warnings.warn, "error":_error, "ver
 # CONFIG FUNCTION
 #
 def config(options=[], stream=default_streams):
-	"""Syntax: gridlabd openfido config [show|get VARIABLE|set VARIABLE VALUE|reset [VARIABLE]]
+	"""Syntax: gridlabd openfido config [show|get VARIABLE|set VARIABLE VALUE]
 	"""
 	if len(options) == 0:
 		options = ["show"]
