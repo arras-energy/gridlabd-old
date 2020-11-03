@@ -1,6 +1,6 @@
 """OpenFIDO API for HiPAS GridLAB-D
 
-Syntax: gridlabd-openfido [OPTIONS] COMMAND [...]
+Syntax: gridlabd openfido [OPTIONS] COMMAND [...]
 
 Options:
 	-v|--verbose   enables more output
@@ -55,7 +55,8 @@ def _error(msg,exit=None):
 def _silent(msg,exit=None):
 	if exit:
 		sys.exit(exit)
-default_streams = {"output":print, "warning":warnings.warn, "error":_error, "verbose":_silent, "quiet":_silent}
+default_streams = {"output":_silent, "warning":warnings.warn, "error":_error, "verbose":_silent, "quiet":_silent}
+command_streams = {"output":print, "warning":warnings.warn, "error":_error, "verbose":_silent, "quiet":_silent}
 
 #
 # HELP FUNCTION
@@ -76,13 +77,13 @@ def help(options=[], stream=default_streams):
 		text = pydoc.render_doc(call,renderer=pydoc.plaintext).split("\n")[3:]
 		for line in text:
 			stream["output"](line[4:])
+		return text
 	else:
 		raise Exception(f"help on '{options[0]}' not available or command not found")
 
 #
 # LIST FUNCTION
 #
-
 def index(options=[], stream=default_streams):
 	"""Syntax: gridlabd openfido index [PATTERN]
 	"""
@@ -118,10 +119,33 @@ def index(options=[], stream=default_streams):
 	return result
 
 #
+# INFO FUNCTION
+#
+def info(options=[], stream=default_streams):
+	"""Syntax: gridlabd openfido info NAME
+	"""
+	if len(options) == 0:
+		raise Exception("product name is required")
+	elif len(options) > 1:
+		raise Exception("only one product name is allowed")
+	name = options[0]
+	path = f"{cache}/{name}/__init__.py"
+	if os.path.exists(path):
+		stream["verbose"](f"examining {path}")
+		spec = importlib.util.spec_from_file_location(name,path)
+		module = importlib.util.module_from_spec(spec)
+		spec.loader.exec_module(module)
+		text = pydoc.render_doc(module,renderer=pydoc.plaintext).split("\n")
+		for line in text:
+			stream["output"](line)
+		return text
+
+
+#
 # INSTALL FUNCTION
 #
 def install(options=[], stream=default_streams):
-	"""Syntax: gridlabd-openfido [OPTIONS] install [-d|--dryrun] NAME ...
+	"""Syntax: gridlabd openfido [OPTIONS] install [-d|--dryrun] NAME ...
 	"""
 	headers = {}
 	if _auth.token:
@@ -197,7 +221,7 @@ def install(options=[], stream=default_streams):
 # UPDATE FUNCTION
 #
 def update(options=[], stream=default_streams):
-	"""Syntax: gridlabd-openfido [OPTIONS] update [-d|--dryrun] NAME ...
+	"""Syntax: gridlabd openfido [OPTIONS] update [-d|--dryrun] NAME ...
 	"""
 	dryrun = os.system
 	done = []
@@ -223,7 +247,7 @@ def update(options=[], stream=default_streams):
 # REMOVE FUNCTION
 #
 def remove(options=[], stream=default_streams):
-	"""Syntax: gridlabd-openfido [OPTIONS] remove [-d|--dryrun] NAME ...
+	"""Syntax: gridlabd openfido [OPTIONS] remove [-d|--dryrun] NAME ...
 	"""
 	dryrun = os.system # shutil.rmtree # too chicken to enable it now
 	done = []
@@ -252,24 +276,24 @@ def remove(options=[], stream=default_streams):
 # RUN FUNCTION
 #
 def run(options=[], stream=default_streams):
-	"""Syntax: gridlabd-openfido [OPTIONS] run NAME INPUTFILES [OUTPUTFILES] [RUNOPTIONS...]
+	"""Syntax: gridlabd openfido [OPTIONS] run NAME INPUTFILES [OUTPUTFILES] [RUNOPTIONS...]
 	"""
 	name = options[0]
 	path = f"{cache}/{name}"
 	if not os.path.exists(f"{path}/openfido.json"):
 		raise Exception(f"'{name}' is not a valid openfido product")
 	sys.path.append(f"{cache}/{name}")
-	if not os.path.exists(f"{path}/gridlabd.py"):
-		raise Exception(f"'{name}' does not have a gridlabd module")
-	spec = importlib.util.spec_from_file_location("gridlabd",f"{path}/gridlabd.py")
-	gridlabd = importlib.util.module_from_spec(spec)
-	spec.loader.exec_module(gridlabd)
-	if not hasattr(gridlabd,"main") or not callable(gridlabd.main):
-		raise Exception(f"'{name}/gridlabd.py does not have a callable main")
+	if not os.path.exists(f"{path}/__init__.py"):
+		raise Exception(f"'{name}' is not a openfido module")
+	spec = importlib.util.spec_from_file_location(name,f"{path}/__init__.py")
+	module = importlib.util.module_from_spec(spec)
+	spec.loader.exec_module(module)
+	if not hasattr(module,"main") or not callable(module.main):
+		raise Exception(f"'{name}/__init__.py does not have a callable main")
 	if len(options) == 1: # no inputs
 		raise Exception(f"'{name}' cannot run without inputs")
 	if len(options) == 2: # no outputs
 		options.append("")
 	if len(options) == 3: # no options
 		options.append("")
-	return gridlabd.main(inputs=options[1].split(','),outputs=options[2].split(','),options=options[3:])
+	return module.main(inputs=options[1].split(','),outputs=options[2].split(','),options=options[3:])

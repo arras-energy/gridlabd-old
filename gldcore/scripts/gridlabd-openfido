@@ -7,7 +7,7 @@ import sys, os, traceback, datetime, inspect
 sys.path.append(sys.argv[0].replace("gldcore/scripts/gridlabd-openfido","python_extras"))
 sys.path.append(".")
 sys.path.append(os.getenv("HOME")+"/.gridlabd")
-sys.path.append("/usr/local/src/gridlabd")
+sys.path.append("/usr/local/share/gridlabd")
 
 import openfido
 
