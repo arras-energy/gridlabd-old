@@ -1,0 +1,2 @@
+#openfido -q install filestat
+#openfido run filestat test_config.glm
