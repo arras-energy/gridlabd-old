@@ -36,7 +36,6 @@ giturl = "https://github.com"
 traceback_file = "openfido.err"
 try:
 	from openfido_config import *
-	print(sys.modules["openfido_config"].__file__,dir(sys.modules[__name__]))
 except:
 	pass
 
