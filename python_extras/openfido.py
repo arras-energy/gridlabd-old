@@ -355,23 +355,23 @@ def run(options=[], stream=default_streams):
 	name = options[0]
 	path = f"{cache}/{name}"
 	if not os.path.exists(f"{path}/openfido.json"):
-		raise Exception(f"'{name}' is not a valid openfido product")
+		raise Exception(f"'{cache}/{name}' not found")
 	sys.path.append(f"{cache}/{name}")
 	if not os.path.exists(f"{path}/__init__.py"):
-		raise Exception(f"'{name}' is not a openfido module")
+		raise Exception(f"'{path}/__init__.py' not found")
 	spec = importlib.util.spec_from_file_location(name,f"{path}/__init__.py")
 	module = importlib.util.module_from_spec(spec)
 	spec.loader.exec_module(module)
 	if not hasattr(module,"main") or not callable(module.main):
-		raise Exception(f"'{name}/__init__.py does not have a callable main")
-	inputs = ""
-	outputs = ""
+		raise Exception(f"'{name}/__init__.py' missing callable main")
+	inputs = []
+	outputs = []
 	flags = []
 	for n in range(1,len(options)):
 		if options[n][0] == '-': 
 			flags.append(options[n])
 		elif not inputs:
-			inputs=options[n].split(',')
+			inputs = options[n].split(',')
 		elif not outputs:
 			outputs = options[n].split(',')
 		else:
