@@ -348,8 +348,10 @@ def remove(options=[], stream=default_streams):
 # RUN FUNCTION
 #
 def run(options=[], stream=default_streams):
-	"""Syntax: gridlabd openfido [OPTIONS] run NAME INPUTFILES [OUTPUTFILES] [RUNOPTIONS...]
+	"""Syntax: gridlabd openfido [OPTIONS] run NAME [OPTIONS ...] INPUTFILES [OUTPUTFILES]
 	"""
+	if not options:
+		raise Exception("missing package name")
 	name = options[0]
 	path = f"{cache}/{name}"
 	if not os.path.exists(f"{path}/openfido.json"):
@@ -362,10 +364,16 @@ def run(options=[], stream=default_streams):
 	spec.loader.exec_module(module)
 	if not hasattr(module,"main") or not callable(module.main):
 		raise Exception(f"'{name}/__init__.py does not have a callable main")
-	if len(options) == 1: # no inputs
-		raise Exception(f"'{name}' cannot run without inputs")
-	if len(options) == 2: # no outputs
-		options.append("")
-	if len(options) == 3: # no options
-		options.append("")
-	return module.main(inputs=options[1].split(','),outputs=options[2].split(','),options=options[3:])
+	inputs = ""
+	outputs = ""
+	flags = []
+	for n in range(1,len(options)):
+		if options[n][0] == '-': 
+			flags.append(options[n])
+		elif not inputs:
+			inputs=options[n].split(',')
+		elif not outputs:
+			outputs = options[n].split(',')
+		else:
+			raise Exception(f"option {options[n]} unexpected")
+	return module.main(inputs=inputs,outputs=outputs,options=flags)
