@@ -1,2 +1,1 @@
-#python -m pip uninstall pytz -y 1>/dev/null
 #require pytz
