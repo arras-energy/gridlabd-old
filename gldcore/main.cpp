@@ -618,35 +618,28 @@ int GldMain::subcommand(const char *format, ...)
 		output_verbose("running subcommand '%s'",command);
 		FILE *output_stream = output_get_stream("output");
 		FILE *error_stream = output_get_stream("error");
-		struct pollfd polldata[3];
-		polldata[0].fd = 1;
-		polldata[0].events = POLLOUT;
-		polldata[1].fd = output ? fileno(output) : 0;
+		struct pollfd polldata[2];
+		polldata[0].fd = output ? fileno(output) : 0;
+		polldata[0].events = POLLIN|POLLERR|POLLHUP;
+		polldata[1].fd = error ? fileno(error) : 0;
 		polldata[1].events = POLLIN|POLLERR|POLLHUP;
-		polldata[2].fd = error ? fileno(error) : 0;
-		polldata[2].events = POLLIN|POLLERR|POLLHUP;
 		char line[1024];
 		while ( poll(polldata,sizeof(polldata)/sizeof(polldata[0]),-1) > 0 )
 		{
-			if ( polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP)
+			if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP)
 			{
 				break;
 			}
-			if ( polldata[1].revents&POLLERR || polldata[2].revents&POLLERR)
+			if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR)
 			{
 				output_error("GldMain::subcommand(command='%s'): pipe error", command);
 				break;
 			}
-			// if ( polldata[0].revents&POLLOUT )
-			// {
-			// 	output_error("GldMain::subcommand(command='%s'): no input", command);
-			// 	break;
-			// }
-			while ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
+			while ( output && polldata[0].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
 			{
 				fprintf(output_stream,"%s",line);
 			}
-			while ( error && polldata[2].revents&POLLIN && fgets(line, sizeof(line)-1, error) != NULL ) 
+			while ( error && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, error) != NULL ) 
 			{
 				fprintf(error_stream,"%s",line);
 			}
