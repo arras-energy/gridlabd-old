@@ -515,7 +515,7 @@ int popens(const char *program, FILE **output, FILE **error)
 			}
 		}
 		(void)close(fileno(stdin));
-		const char *argp[] = {getenv("SHELL"), "-c", program, NULL};
+		const char *argp[] = {getenv("SHELL"), "-c", program, "</dev/null", NULL};
 		exit ( execve(_PATH_BSHELL, (char *const*)argp, environ) ? 127 : 0 );
 	}
 	else
@@ -640,7 +640,7 @@ int GldMain::subcommand(const char *format, ...)
 			}
 			if ( polldata[0].revents&POLLOUT )
 			{
-				output_error("GldMain::subcommand(command='%s'): no input", command);
+				output_debug("GldMain::subcommand(command='%s'): no input", command);
 				break;
 			}
 			while ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
