@@ -514,6 +514,7 @@ int popens(const char *program, FILE **output, FILE **error)
 				(void)close(pderr[1]);
 			}
 		}
+		close(fileno(stdin));
 		const char *argp[] = {getenv("SHELL"), "-c", program, NULL};
 		exit ( execve(_PATH_BSHELL, (char *const*)argp, environ) ? 127 : 0 );
 	}
