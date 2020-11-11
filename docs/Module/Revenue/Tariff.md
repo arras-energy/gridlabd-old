@@ -44,7 +44,7 @@ class pgande_residential_tariff {
 	double energy_charge_400[$/kWh];
 	double average_total_rate[$/kWh];
 	double minimum_average_rate_limit[$/kWh];
-	double discount;
+	double discount[$];
 	char256 billing_function;
 }
 object pgande_residential_tariff {
