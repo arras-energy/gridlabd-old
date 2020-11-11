@@ -19,11 +19,11 @@ EXPORT CLASS *init(CALLBACKS *fntable, MODULE *module, int argc, char *argv[])
 	new billing(module);
 	// TODO: add more classes here
 
-	// gl_global_create("revenue::lowincome_discount",PT_double,&lowincome_discount,PT_UNITS,"$",NULL);
-	// gl_global_create("revenue::program_credit",PT_double,&program_credit,PT_UNITS,"$",NULL);
-	// gl_global_create("revenue::program_credit_months",PT_char1024,&program_credit_months,NULL);
-	// gl_global_create("revenue::summer_season_months",PT_char1024,&summer_season_months,NULL);
-	// gl_global_create("revenue::winter_season_months",PT_char1024,&winter_season_months,NULL);
+	gl_global_create("revenue::lowincome_discount",PT_double,&lowincome_discount,PT_UNITS,"$",NULL);
+	gl_global_create("revenue::program_credit",PT_double,&program_credit,PT_UNITS,"$",NULL);
+	gl_global_create("revenue::program_credit_months",PT_char1024,&program_credit_months,NULL);
+	gl_global_create("revenue::summer_season_months",PT_char1024,&summer_season_months,NULL);
+	gl_global_create("revenue::winter_season_months",PT_char1024,&winter_season_months,NULL);
 	gl_global_create("revenue::billing_module",PT_char1024,&billing_module,NULL);
 	gl_global_create("revenue::billing_library",PT_char1024,&billing_library,NULL);
 	gl_global_create("revenue::billing_function",PT_char1024,&billing_function,NULL);

@@ -2,7 +2,6 @@
 //#option verbose
 //#option debug
 #set savefile=test_billing.json
-#set force_compile=TRUE
 
 clock
 {
