@@ -1,16 +1,28 @@
 
 module revenue
 {
-	lowincome_discount -34.8 %;
-	program_credit 27.70 $;
-	program_credit_months [4,10];
-	summer_season_months [6,7,8,9];
-	winter_season_months [1,2,3,4,5,10,11,12];
-	billing_module "test_billing";
+//	lowincome_discount -34.8 %;
+//	program_credit 27.70 $;
+//	program_credit_months [4,10];
+//	summer_season_months [6,7,8,9];
+//	winter_season_months [1,2,3,4,5,10,11,12];
+	billing_module "pgande_billing";
 	billing_library "${TESTDIR:-.}";
 };
 
-object tariff {
+class pgande_residential_tariff {
+	parent tariff;
+	double minimum_daily_charge[$/day];
+	double energy_charge_base[$/kWh];
+	double energy_charge_100[$/kWh];
+	double energy_charge_400[$/kWh];
+	double average_total_rate[$/kWh];
+	double minimum_average_rate_limit[$/kWh];
+	double discount;
+	char256 billing_function;
+}
+
+object pgande_residential_tariff {
 	name "E1";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
@@ -20,7 +32,7 @@ object tariff {
 	average_total_rate 0.25659 $/kWh;
 }
 
-object tariff {
+object pgande_residential_tariff {
 	name "EM";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
@@ -30,7 +42,7 @@ object tariff {
 	average_total_rate 0.25659 $/kWh;
 }
 
-object tariff {
+object pgande_residential_tariff {
 	name "ES";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
@@ -42,7 +54,7 @@ object tariff {
 	average_total_rate 0.25659 $/kWh;
 }
 
-object tariff {
+object pgande_residential_tariff {
 	name "ESR";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
@@ -52,7 +64,7 @@ object tariff {
 	average_total_rate 0.25659 $/kWh;
 }
 
-object tariff {
+object pgande_residential_tariff {
 	name "ET";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
