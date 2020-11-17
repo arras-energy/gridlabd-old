@@ -3,7 +3,7 @@
 # Synopsis
 
 ~~~
-bash$ gridlabd convert [-v|--verbose] [-f|--from TYPE1] FILE1 [-t|--to TYPE2] FILE2
+bash$ gridlabd convert [-v|--verbose] [-f|--from TYPE1] FILE1 [-t|--to TYPE2] FILE2 [OPTIONS]
 ~~~
 
 # Description
