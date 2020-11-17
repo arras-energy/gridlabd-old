@@ -1,5 +1,6 @@
 bin_SCRIPTS += gldcore/scripts/gridlabd-aws
 bin_SCRIPTS += gldcore/scripts/gridlabd-compare
+bin_SCRIPTS += gldcore/scripts/gridlabd-convert
 bin_SCRIPTS += gldcore/scripts/gridlabd-git
 bin_SCRIPTS += gldcore/scripts/gridlabd-help
 bin_SCRIPTS += gldcore/scripts/gridlabd-json-get
