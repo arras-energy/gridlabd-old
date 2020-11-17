@@ -13,6 +13,7 @@ clock
 
 module powerflow;
 module residential;
+module revenue;
 
 #ifexist "../house.glm"
 #define TESTDIR=..
