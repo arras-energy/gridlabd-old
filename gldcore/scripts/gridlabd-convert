@@ -63,13 +63,13 @@ while [ $# -gt 0 ]; do
 		verbose "output file '$FILE2'"
 	else
 		OPTIONS=$OPTIONS $1
-		verbose "option '$1"
+		verbose "option '$1'"
 	fi
 	shift 1
 done
 
 if [ -z "$TYPE1" ]; then
-	NAME=$(basename $TYPE1)
+	NAME=$(basename "${FILE1}")
 	TYPE1=${NAME##*.}
 	verbose "automatic input file type '$TYPE1'"
 fi
@@ -78,7 +78,7 @@ if [ -z "$TYPE1" ]; then
 fi
 
 if [ -z "$TYPE2" ]; then
-	NAME=$(basename $TYPE2)
+	NAME=$(basename "${FILE2}")
 	TYPE2=${NAME##*.}
 	verbose "automatic output file type '$TYPE2'"
 fi
@@ -86,5 +86,5 @@ if [ -z "$TYPE2" ]; then
 	error 1 "no output file type identified (no extension or --to option)"
 fi
 
-verbose "Calling '/usr/local/bin/python3 ${GLD_ETC}/${TYPE1}2${TYPE2}.py -i $FILE1 -o $FILE2 $OPTIONS'"
+verbose "Calling '/usr/local/bin/python3 \"${GLD_ETC}/${TYPE1}2${TYPE2}.py\" -i \"$FILE1\" -o \"$FILE2\" $OPTIONS'"
 /usr/local/bin/python3 "${GLD_ETC}/${TYPE1}2${TYPE2}.py" -i "$FILE1" -o "$FILE2" $OPTIONS
