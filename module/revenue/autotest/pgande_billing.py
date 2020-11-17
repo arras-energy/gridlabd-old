@@ -2,6 +2,8 @@ from datetime import *
 from csv import *
 from dateutil import parser
 
+print('initialization of the billing script')
+
 csvfile = open("billing.csv","w")
 csvwriter = writer(csvfile);
 csvwriter.writerow(["datetime","meter","tariff","billing_days","energy","demand","charges"])
