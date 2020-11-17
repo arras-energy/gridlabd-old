@@ -26,20 +26,20 @@ object pgande_residential_tariff {
 	name "E1";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
-	energy_charge_base 0.23522 $/kWh;
-	energy_charge_100 0.29600 $/kWh;
-	energy_charge_400 0.51860 $/kWh;
-	average_total_rate 0.25659 $/kWh;
+	energy_charge_base 0.21775 $/kWh;
+	energy_charge_100 0.27402 $/kWh;
+	energy_charge_400 0.48009 $/kWh;
+	average_total_rate 0.23298 $/kWh;
 }
 
 object pgande_residential_tariff {
 	name "EM";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
-	energy_charge_base 0.23522 $/kWh;
-	energy_charge_100 0.29600 $/kWh;
-	energy_charge_400 0.51860 $/kWh;
-	average_total_rate 0.25659 $/kWh;
+	energy_charge_base 0.21775 $/kWh;
+	energy_charge_100 0.27402 $/kWh;
+	energy_charge_400 0.48009 $/kWh;
+	average_total_rate 0.23298 $/kWh;
 }
 
 object pgande_residential_tariff {
@@ -47,21 +47,21 @@ object pgande_residential_tariff {
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
 	discount 0.03115 $;
-	minimum_average_rate_limit 0.04892 $/kWh;
-	energy_charge_base 0.23522 $/kWh;
-	energy_charge_100 0.29600 $/kWh;
-	energy_charge_400 0.51860 $/kWh;
-	average_total_rate 0.25659 $/kWh;
+	minimum_average_rate_limit 0.05190 $/kWh;
+	energy_charge_base 0.21775 $/kWh;
+	energy_charge_100 0.27402 $/kWh;
+	energy_charge_400 0.48009 $/kWh;
+	average_total_rate 0.23298 $/kWh;
 }
 
 object pgande_residential_tariff {
 	name "ESR";
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
-	energy_charge_base 0.23522 $/kWh;
-	energy_charge_100 0.29600 $/kWh;
-	energy_charge_400 0.51860 $/kWh;
-	average_total_rate 0.25659 $/kWh;
+	energy_charge_base 0.21775 $/kWh;
+	energy_charge_100 0.27402 $/kWh;
+	energy_charge_400 0.48009 $/kWh;
+	average_total_rate 0.23298 $/kWh;
 }
 
 object pgande_residential_tariff {
@@ -69,9 +69,9 @@ object pgande_residential_tariff {
 	rate_design "Tiered Energy Charges";
 	minimum_daily_charge 0.32854 $/day;
 	discount 0.06181 $;
-	minimum_average_rate_limit 0.04892 $/kWh;
-	energy_charge_base 0.23522 $/kWh;
-	energy_charge_100 0.29600 $/kWh;
-	energy_charge_400 0.51860 $/kWh;
-	average_total_rate 0.25659 $/kWh;
+	minimum_average_rate_limit 0.05190 $/kWh;
+	energy_charge_base 0.21775 $/kWh;
+	energy_charge_100 0.27402 $/kWh;
+	energy_charge_400 0.48009 $/kWh;
+	average_total_rate 0.23298 $/kWh;
 }
