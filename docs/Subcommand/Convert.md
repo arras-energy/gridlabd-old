@@ -12,4 +12,4 @@ The `convert` subcommand performs the file conversions used by the automatic inp
 
 # See also
 
-* [[/Converters]]
+* [[/Converters/README]]
