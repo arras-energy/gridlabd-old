@@ -1,8 +1,13 @@
 from datetime import *
 from csv import *
 from dateutil import parser
+import gridlabd 
+
 
 print('initialization of the billing script')
+
+# Create gloabl list of houses 
+house_obj = []
 
 csvfile = open("billing.csv","w")
 csvwriter = writer(csvfile);
