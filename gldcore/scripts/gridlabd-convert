@@ -27,7 +27,7 @@ function warning ()
 
 function verbose()
 {
-	if [ $VERBOSE ]; then
+	if ( $VERBOSE ); then
 		echo "VERBOSE [convert]: $*" > /dev/stderr
 	fi
 }
