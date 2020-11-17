@@ -5,7 +5,7 @@ FILE2="/dev/stdout"
 TYPE1=""
 TYPE2=""
 VERBOSE=false
-SYNTAX="Syntax: gridlabd convert [-v|--verbose] [-f|--from TYPE1] FILE1 [-t|--to TYPE2] FILE2"
+SYNTAX="Syntax: gridlabd convert [-v|--verbose] [-f|--from TYPE1] FILE1 [-t|--to TYPE2] FILE2 [OPTIONS]"
 
 if [ $# -lt 2 ]; then
 	echo $SYNTAX
