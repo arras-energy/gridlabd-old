@@ -1,2 +1,33 @@
 #!/usr/local/bin/python3
 
+import sys, json
+
+def main(filename):
+	try:
+		with open(filename,"r") as fh:
+			model = json.load(fh)
+			check(model)
+	except Exception as err:
+		error(1,err)
+
+def error(code,msg):
+	print(f"ERROR [check]: {msg}",file=sys.stderr)
+	if code:
+		exit(code)
+
+def warning(msg):
+	print(f"WARNING [check]: {msg}",file=sys.stderr)
+
+def check(model):
+	check_application(model["application"])
+	check_version(model["version"])
+
+def check_application(appname):
+	assert_equal(appname,"gridlabd","application name is not valid")
+
+def assert_equal(a,b,msg):
+	if a != b:
+		warning(f"{msg}: {a} != {b}")
+
+if __name__ == '__main__':
+	main(sys.argv[1])
