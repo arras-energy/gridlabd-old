@@ -16,6 +16,6 @@ object billing
 {
 	meter "meter${ID}";
 	tariff "${TARIFF}";
-	baseline_demand 10.5 kWh/day;
+	baseline_demand 11 kWh/day;
 }
 
