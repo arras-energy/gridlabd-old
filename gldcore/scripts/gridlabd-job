@@ -17,22 +17,51 @@ CFGFILE="gridlabd-config.glm"
 WORKDIR=os.getcwd()
 SCREEN=None
 GLMLIST=[]
+NJOBS=0
+NMSGS=0
 
 def error(code,msg):
-	print(f"ERROR [job]: {msg}",file=sys.stderr)
+	text = f"ERROR [job]: {msg}"
+	global SCREEN
+	if SCREEN and NJOBS > 0:
+		SCREEN.addstr(6+NJOBS+NMSGS,0,text)
+		SCREEN.refresh()
+		NMSGS += 1
+	else:
+		print(text,file=sys.stderr)
 	quit(code)
 
 def warning(msg):
 	if not QUIET:
-		print(f"WARNING [job]: {msg}",file=sys.stderr)
+		text = f"WARNING [job]: {msg}"
+		global SCREEN
+		if SCREEN and NJOBS > 0:
+			SCREEN.addstr(6+NJOBS+NMSGS,0,text)
+			SCREEN.refresh()
+			NMSGS += 1
+		else:
+			print(text,file=sys.stderr)
 
 def verbose(msg):
 	if VERBOSE:
-		print(f"VERBOSE [job]: {msg}",file=sys.stderr)
+		text = f"VERBOSE [job]: {msg}"
+		global SCREEN
+		if SCREEN and NJOBS > 0:
+			SCREEN.addstr(6+NJOBS+NMSGS,0,text)
+			SCREEN.refresh()
+			NMSGS += 1
+		else:
+			print(text,file=sys.stderr)
 
 def output(msg):
 	if not QUIET:
-		print(msg,file=sys.stdout)
+		global SCREEN
+		if SCREEN and NJOBS > 0:
+			SCREEN.addstr(6+NJOBS+NMSGS,0,msg)
+			SCREEN.refresh()
+			NMSGS += 1
+		else:
+			print(msg,file=sys.stdout)
 
 n = 1
 while n < len(sys.argv):
@@ -49,6 +78,7 @@ while n < len(sys.argv):
 		DEBUG=True
 		verbose("debug mode enabled")
 	elif sys.argv[n] in ["-i","--interactive"]:
+		error(1,"interactive mode is not yet supported") # TODO remove this when it does work
 		SCREEN=curses.initscr()
 		verbose("interactive mode enabled")
 	elif sys.argv[n] in ["-j","--jobfile"]:
@@ -68,6 +98,7 @@ while n < len(sys.argv):
 	n+=1
 
 def initscr(jobdata):
+	global SCREEN
 	if SCREEN:
 		curses.noecho()
 		curses.cbreak()
@@ -76,16 +107,40 @@ def initscr(jobdata):
 		SCREEN.addstr(2,0,"Job Status Output Errors")
 		SCREEN.addstr(3,0,"--- ------ ------ ------")
 		for jobid in jobdata.index:
-			SCREEN.addstr(4+jobid,f"{jobid:3d} Pending")
+			SCREEN.addstr(4+jobid,0,f"{jobid:3d} Pending")
+		NJOBS=len(jobdata.index)
 
-def syncscr(stdscr,jobid,result):
-	stdscr.addstr(jobid,0,f"{jobid} {result.args} {result.returncode}")
+def syncscr(jobid,result):
+	global SCREEN
+	if SCREEN:
+		SCREEN.addstr(4+jobid,0,f"{jobid} {result.args} {result.returncode}")
+		SCREEN.refresh()
+	else:
+		output(f"Job {jobid}: return code  {result.returncode}")
+		if result.stdout:
+			output(f"Output:\n{str(result.stdout)}")
+		else:
+			output(f"No output")
+		if result.stderr:
+			output(f"Errors:\n{str(result.stderr)}")
+		else:
+			output(f"No errors")
 
-def termscr(stdscr):
-	curses.nocbreak()
-	stdscr.keypad(False)
-	curses.echo()
-	curses.endwin()
+def waitscr():
+	global SCREEN
+	if SCREEN:
+		return SCREEN.getkey()
+	else:
+		return None
+
+def termscr():
+	global SCREEN
+	if SCREEN:
+		curses.nocbreak()
+		SCREEN.keypad(False)
+		curses.echo()
+		curses.endwin()
+		SCREEN = None
 
 try:
 	verbose(f"changing to '{WORKDIR}'")
@@ -103,27 +158,15 @@ try:
 				print(f"#define {var}={value}",file=cfg)
 		args = ["gridlabd",CFGFILE]
 		args.extend(GLMLIST)
-		verbose(f"running '{args}'")
+		verbose(f"running '{' '.join(args)}'")
 		result = subprocess.run(args,capture_output=True,encoding="utf-8")
-		if SCREEN:
-			syncscr(SCREEN,jobid,result)
-		else:
-			output(f"Job {jobid}: return code  {result.returncode}")
-			if result.stdout:
-				output(f"Output:\n{str(result.stdout)}")
-			else:
-				output(f"No output")
-			if result.stderr:
-				output(f"Errors:\n{str(result.stderr)}")
-			else:
-				output(f"No errors")
-		if SCREEN: SCREEN.refresh()
-	if SCREEN: SCREEN.getkey()
+		syncscr(jobid,result)
+	waitscr()
+	termscr()
 
 except Exception as err:
+	termscr()
 	error(1,err)
 	if DEBUG: 
 		raise
 
-finally:
-	if SCREEN: termscr(SCREEN)
