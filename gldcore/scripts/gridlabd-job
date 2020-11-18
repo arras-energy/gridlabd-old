@@ -1,0 +1,129 @@
+#!/usr/local/bin/python3
+#
+# This script runs multiple jobs as specified by the controlfile.csv, 
+# where the columns are the globals and rows are the job number.
+
+import sys, os
+import pandas as pd
+import subprocess
+import curses
+
+SYNTAX="Syntax: gridlabd job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-i|--interactive] FILE1 ..."
+VERBOSE=False
+QUIET=False
+DEBUG=False
+JOBFILE="gridlabd-job.csv"
+CFGFILE="gridlabd-config.glm"
+WORKDIR=os.getcwd()
+SCREEN=None
+GLMLIST=[]
+
+def error(code,msg):
+	print(f"ERROR [job]: {msg}",file=sys.stderr)
+	quit(code)
+
+def warning(msg):
+	if not QUIET:
+		print(f"WARNING [job]: {msg}",file=sys.stderr)
+
+def verbose(msg):
+	if VERBOSE:
+		print(f"VERBOSE [job]: {msg}",file=sys.stderr)
+
+def output(msg):
+	if not QUIET:
+		print(msg,file=sys.stdout)
+
+n = 1
+while n < len(sys.argv):
+	if sys.argv[n] in ["-h","--help"]:
+		print(SYNTAX,file=sys.stderr)
+		quit(0)
+	elif sys.argv[n] in ["-v","--verbose"]:
+		VERBOSE=True
+		verbose("verbose mode enabled")
+	elif sys.argv[n] in ["-q","--quiet"]:
+		QUIET=True
+		verbose("quiet mode enabled")
+	elif sys.argv[n] in ["-d","--debug"]:
+		DEBUG=True
+		verbose("debug mode enabled")
+	elif sys.argv[n] in ["-i","--interactive"]:
+		SCREEN=curses.initscr()
+		verbose("interactive mode enabled")
+	elif sys.argv[n] in ["-j","--jobfile"]:
+		n+=1
+		JOBFILE=sys.argv[n]
+		verbose(f"using control file {CFGFILE}")
+	elif sys.argv[n] in ["-c","--configfile"]:
+		n+=1
+		CFGFILE=sys.argv[n]
+		verbose(f"using GLM file {GLMFILE}")
+	elif sys.argv[n] in ["-w","--workdir"]:
+		n+=1
+		WORKDIR=sys.argv[n]
+		verbose(f"using working directory {WORKDIR}")
+	else:
+		GLMLIST.append(sys.argv[n])
+	n+=1
+
+def initscr(jobdata):
+	if SCREEN:
+		curses.noecho()
+		curses.cbreak()
+		SCREEN.keypad(True)
+		SCREEN.addstr(0,0,f"GridLAB-D Job Control - {' '.join(GLMLIST)}")
+		SCREEN.addstr(2,0,"Job Status Output Errors")
+		SCREEN.addstr(3,0,"--- ------ ------ ------")
+		for jobid in jobdata.index:
+			SCREEN.addstr(4+jobid,f"{jobid:3d} Pending")
+
+def syncscr(stdscr,jobid,result):
+	stdscr.addstr(jobid,0,f"{jobid} {result.args} {result.returncode}")
+
+def termscr(stdscr):
+	curses.nocbreak()
+	stdscr.keypad(False)
+	curses.echo()
+	curses.endwin()
+
+try:
+	verbose(f"changing to '{WORKDIR}'")
+	os.chdir(WORKDIR)
+	verbose(f"reading '{JOBFILE}'")
+	jobdata = pd.read_csv(JOBFILE)
+	initscr(jobdata)
+	for jobid in jobdata.index:
+		verbose(f"writing '{CFGFILE}'")
+		with open(CFGFILE,"w") as cfg:
+			print(f"// job {jobid} configuration for {GLMLIST}",file=cfg)
+			print(f"#set strictnames=FALSE",file=cfg)
+			for var in jobdata.columns:
+				value = jobdata[var][jobid]
+				print(f"#define {var}={value}",file=cfg)
+		args = ["gridlabd",CFGFILE]
+		args.extend(GLMLIST)
+		verbose(f"running '{args}'")
+		result = subprocess.run(args,capture_output=True,encoding="utf-8")
+		if SCREEN:
+			syncscr(SCREEN,jobid,result)
+		else:
+			output(f"Job {jobid}: return code  {result.returncode}")
+			if result.stdout:
+				output(f"Output:\n{str(result.stdout)}")
+			else:
+				output(f"No output")
+			if result.stderr:
+				output(f"Errors:\n{str(result.stderr)}")
+			else:
+				output(f"No errors")
+		if SCREEN: SCREEN.refresh()
+	if SCREEN: SCREEN.getkey()
+
+except Exception as err:
+	error(1,err)
+	if DEBUG: 
+		raise
+
+finally:
+	if SCREEN: termscr(SCREEN)

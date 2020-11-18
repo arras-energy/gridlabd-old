@@ -1,0 +1,8 @@
+#ifndef TEST1
+#job ${modelname}
+#else
+#set suppress_repeat_messages=FALSE
+#print TEST1=${TEST1}
+#print TEST2=${TEST2}
+#print TEST3=${TEST3}
+#endif
