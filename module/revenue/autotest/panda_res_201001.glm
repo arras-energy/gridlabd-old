@@ -1,10 +1,10 @@
 module revenue
 {
-	lowincome_discount -34.682 %;
-	program_credit 17.87 $;
-	program_credit_months [4,10];
-	summer_season_months [6,7,8,9];
-	winter_season_months [1,2,3,4,5,10,11,12];
+//	lowincome_discount -34.682 %;
+//	program_credit 17.87 $;
+//	program_credit_months [4,10];
+//	summer_season_months [6,7,8,9];
+//	winter_season_months [1,2,3,4,5,10,11,12];
 	billing_module "test_billing";
 	billing_library "${TESTDIR:-.}";
 };
