@@ -1164,7 +1164,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		return 1;
 	}
 
-	/* ${name++} */
+	/* ${name++} and ${name--} */
 	if ( sscanf(spec,"%63[^-+]%63[-+]",name,op)==2 )
 	{
 		GLOBALVAR *var = global_find(name);
@@ -1178,7 +1178,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name op value} */
-	if ( sscanf(spec,"%63[^-+*/%]%63[+-*/%]%d",name,op,&number) == 3 )
+	if ( sscanf(spec,"%63[^-+*/%&?^~]%63[+-*/%]%d",name,op,&number) == 3 )
 	{
 		GLOBALVAR *var = global_find(name);
 		if ( var!=NULL && var->prop->ptype==PT_int32 )
@@ -1189,6 +1189,33 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 			else if ( strcmp(op,"*")==0 ) { snprintf(buffer,size-1,"%d",(*addr)*number); return 1; }
 			else if ( strcmp(op,"/")==0 ) { snprintf(buffer,size-1,"%d",(*addr)/number); return 1; }
 			else if ( strcmp(op,"%")==0 ) { snprintf(buffer,size-1,"%d",(*addr)%number); return 1; }
+			else if ( strcmp(op,"&")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&number); return 1; }
+			else if ( strcmp(op,"|")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|number); return 1; }
+			else if ( strcmp(op,"^")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^number); return 1; }
+			else if ( strcmp(op,"&~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&~number); return 1; }
+			else if ( strcmp(op,"|~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|~number); return 1; }
+			else if ( strcmp(op,"^~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^~number); return 1; }
+		}
+	}
+
+	/* ${~name op value} */
+	if ( sscanf(spec,"~%63[^-+*/%&?^~]%63[+-*/%]%d",name,op,&number) == 3 )
+	{
+		GLOBALVAR *var = global_find(name);
+		if ( var!=NULL && var->prop->ptype==PT_int32 )
+		{
+			int32 *addr = (int32*)var->prop->addr;
+			if ( strcmp(op,"+")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)+number); return 1; }
+			else if ( strcmp(op,"-")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)-number); return 1; }
+			else if ( strcmp(op,"*")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)*number); return 1; }
+			else if ( strcmp(op,"/")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)/number); return 1; }
+			else if ( strcmp(op,"%")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)%number); return 1; }
+			else if ( strcmp(op,"&")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)&number); return 1; }
+			else if ( strcmp(op,"|")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)|number); return 1; }
+			else if ( strcmp(op,"^")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)^number); return 1; }
+			else if ( strcmp(op,"&~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)&~number); return 1; }
+			else if ( strcmp(op,"|~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)|~number); return 1; }
+			else if ( strcmp(op,"^~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)^~number); return 1; }
 		}
 	}
 
