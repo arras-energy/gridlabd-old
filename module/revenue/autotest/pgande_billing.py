@@ -4,23 +4,23 @@ from dateutil import parser
 import gridlabd 
 
 
-print('initialization of the billing script')
 
 # Create gloabl list of houses 
-house_obj = []
+#house_obj = []
 
 csvfile = open("billing.csv","w")
 csvwriter = writer(csvfile);
 csvwriter.writerow(["datetime","meter","tariff","billing_days","energy","demand","charges"])
 
+
 def to_float(x):
-	return float(x.split(' ')[0])
+	return float(x.split(' ')[0])   
 
 def to_datetime(x,format):
 	return parser.parse(x)
 
 def compute_bill(gridlabd,**kwargs):
-
+	print('initialize compute_bill')
 	verbose = gridlabd.get_global("verbose")=="TRUE"
 	global csvwriter
 
@@ -97,5 +97,6 @@ def compute_bill(gridlabd,**kwargs):
 	gridlabd.set_value(bill_name,"energy_charges",str(to_float(bill["energy_charges"])+charges))
 	gridlabd.set_value(bill_name,"total_charges",str(to_float(bill["total_charges"])+charges))
 
-	return
-print('final of the billing script')
+	compute_bill(gridlabd, **kwargs)
+
+
