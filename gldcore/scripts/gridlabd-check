@@ -1,6 +1,14 @@
 #!/usr/local/bin/python3
 
-import sys, json
+import sys, os, json, subprocess
+import operator as op
+import importlib.util as lib
+
+DEBUG=True
+APPLICATION="gridlabd"
+GLOBALS = json.loads(subprocess.run(["gridlabd","--globals=json"],capture_output=True,encoding="utf-8").stdout)
+VERSION_MAJOR=int(GLOBALS["version.major"]["value"])
+VERSION_MINOR=int(GLOBALS["version.minor"]["value"])
 
 def main(filename):
 	try:
@@ -9,6 +17,8 @@ def main(filename):
 			check(model)
 	except Exception as err:
 		error(1,err)
+		if DEBUG:
+			raise
 
 def error(code,msg):
 	print(f"ERROR [check]: {msg}",file=sys.stderr)
@@ -19,15 +29,88 @@ def warning(msg):
 	print(f"WARNING [check]: {msg}",file=sys.stderr)
 
 def check(model):
-	check_application(model["application"])
-	check_version(model["version"])
+	check_application(model)
+	check_version(model)
+	check_globals(model)
+	check_modules(model)
+	check_types(model)
+	check_header(model)
+	check_classes(model)
+	check_schedules(model)
+	check_objects(model)
 
-def check_application(appname):
-	assert_equal(appname,"gridlabd","application name is not valid")
+def check_application(model):
+	if "application" in model.keys():
+		check_value(model["application"],op.eq,APPLICATION,"application name is not valid")
+	else:
+		warning("no application data")
 
-def assert_equal(a,b,msg):
-	if a != b:
-		warning(f"{msg}: {a} != {b}")
+def check_version(model):
+	if "version" in model.keys():
+		info = model["version"].split(".")
+		check_value(int(info[0]),op.ge,VERSION_MAJOR,"gridlabd major version is too old")
+		check_value(int(info[1]),op.ge,VERSION_MINOR,"gridlabd minor version is too old")
+	else:
+		warning("no version data")
+
+def check_globals(model):
+	if "globals" in model.keys():
+		model_globals = model["globals"]
+		for name,specs in GLOBALS.items():
+			if not name in model_globals.keys():
+				warning(f"global '{name}' is missing")
+	else:
+		warning("no global data")
+	return
+
+def check_modules(model):
+	if "modules" in model.keys():
+		for module in model["modules"]:
+			modname = "check_" + module
+			pathname = sys.modules[__name__].__file__.replace("/gridlabd-check","/check_"+module+".py")
+			if os.path.exists(pathname):
+				spec = lib.spec_from_file_location(modname,pathname)
+				if spec:
+					mod = lib.module_from_spec(spec)
+					spec.loader.exec_module(mod)
+					if hasattr(mod,"check"):
+						mod.check(sys.modules[__name__],model)
+					else:
+						warning(f"check_{module}.py does not implement a check() function")
+				else:
+					warning(f"check_{module}.py spec not valid")
+			else:
+				warning(f"check_{module}.py not found ({pathname} not found)")
+	else:
+		warning("no module data")
+	return
+	
+def check_types(model):
+	return
+	
+def check_header(model):
+	return
+
+def check_classes(model):
+	return
+	
+def check_schedules(model):
+	return
+	
+def check_objects(model):
+	return
+
+def check_value(a,rel,b,msg):
+	if not rel(a,b):
+		tag = {
+			op.lt:"<",
+			op.le:"<=",
+			op.eq:"==",
+			op.ne:"!=",
+			op.ge:">=",
+			op.gt:">",
+		}
+		warning(f"{msg} ({a} {tag[rel]} {b} failed)")
 
 if __name__ == '__main__':
 	main(sys.argv[1])
