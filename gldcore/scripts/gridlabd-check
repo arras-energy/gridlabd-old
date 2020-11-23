@@ -1,6 +1,15 @@
 #!/usr/local/bin/python3
 """GridLAB-D model check routines
 
+Syntax:
+	gridlabd check [OPTIONS] FILE ...
+
+Options:
+	-d|--debug     Enable python traceback output when problems are encountered
+	-f|--fix=FILE  Fixes problems (if possible) are writes to the specified file
+	-q|--quiet     Suppress all non-error output
+	-v|--verbose   Enable additional output
+
 The `check` subcommand runs detailed checks on GLM and JSON models.  If the file is GLM, it is loaded and converted 
 to JSON automatically. Any load errors or warning are displayed.
 
@@ -123,7 +132,7 @@ def check_modules(model):
 				else:
 					warning(f"cannot check module '{module}' because module spec not valid")
 			else:
-				warning(f"cannot check module '{module}' because '{pathname}' not found")
+				warning(f"cannot check module '{module}' because '{pathname}' is not found")
 	else:
 		warning("no module data")
 	return
