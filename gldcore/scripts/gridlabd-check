@@ -1,34 +1,77 @@
 #!/usr/local/bin/python3
+"""GridLAB-D model check routines
+
+The `check` subcommand runs detailed checks on GLM and JSON models.  If the file is GLM, it is loaded and converted 
+to JSON automatically. Any load errors or warning are displayed.
+
+The JSON file check is a comprehensive model check system that examines each object and it's relationship to other
+objects in the model.  See the module's check routine for details.
+"""
 
 import sys, os, json, subprocess
 import operator as op
 import importlib.util as lib
 
-DEBUG=True
 APPLICATION="gridlabd"
 GLOBALS = json.loads(subprocess.run(["gridlabd","--globals=json"],capture_output=True,encoding="utf-8").stdout)
 VERSION_MAJOR=int(GLOBALS["version.major"]["value"])
 VERSION_MINOR=int(GLOBALS["version.minor"]["value"])
 
-def main(filename):
-	try:
-		with open(filename,"r") as fh:
-			model = json.load(fh)
-			check(model)
-	except Exception as err:
-		error(1,err)
-		if DEBUG:
-			raise
+class OPTIONS:
+	verbose = False
+	quiet = False
+	debug = False
+	fix = False
+
+def main(args):
+	files = []
+	for item in args:
+		if item in ['-f','--fix']:
+			OPTIONS.fix = True
+		elif item in ['-d','--debug']:
+			OPTIONS.debug = True
+		elif item in ['-v','--verbose']:
+			OPTIONS.verbose = True
+		elif item in ['-q','--quiet']:
+			OPTIONS.quiet = True
+		elif item[-4:] == ".glm":
+			fout = item.replace(".glm",".json")
+			output = subprocess.run(["gridlabd","-C",item,"-o",fout],capture_output=True,encoding="utf-8")
+			if OPTIONS.verbose:
+				print(output.stdout,file=sys.stdout)
+			if output.returncode != 0 or OPTIONS.verbose:
+				print(output.stderr,file=sys.stderr)
+			if output.returncode != 0:
+				raise Exception(f"unable to convert {item} to {fout}")
+			files.append(fout)
+		elif item[-5:] == ".json":
+			files.append(item)
+		else:
+			error(1,f"{item} is not valid")
+	for file in files:
+		try:
+			with open(file,"r") as fh:
+				model = json.load(fh)
+				check(model)
+		except Exception as err:
+			if OPTIONS.debug:
+				raise
+			else:
+				error(1,err)
 
 def error(code,msg):
+	if OPTIONS.debug:
+		raise Exception(msg)
 	print(f"ERROR [check]: {msg}",file=sys.stderr)
 	if code:
 		exit(code)
 
 def warning(msg):
-	print(f"WARNING [check]: {msg}",file=sys.stderr)
+	if not OPTIONS.quiet:
+		print(f"WARNING [check]: {msg}",file=sys.stderr)
 
 def check(model):
+
 	check_application(model)
 	check_version(model)
 	check_globals(model)
@@ -73,14 +116,14 @@ def check_modules(model):
 				if spec:
 					mod = lib.module_from_spec(spec)
 					spec.loader.exec_module(mod)
-					if hasattr(mod,"check"):
-						mod.check(sys.modules[__name__],model)
+					if hasattr(mod,"check") and callable(mod.check):
+						mod.check(sys.modules[__name__],model,options=OPTIONS)
 					else:
-						warning(f"check_{module}.py does not implement a check() function")
+						warning(f"cannot check module '{module}' because '{pathname}' does not implement a callable check() function")
 				else:
-					warning(f"check_{module}.py spec not valid")
+					warning(f"cannot check module '{module}' because module spec not valid")
 			else:
-				warning(f"check_{module}.py not found ({pathname} not found)")
+				warning(f"cannot check module '{module}' because '{pathname}' not found")
 	else:
 		warning("no module data")
 	return
@@ -113,4 +156,4 @@ def check_value(a,rel,b,msg):
 		warning(f"{msg} ({a} {tag[rel]} {b} failed)")
 
 if __name__ == '__main__':
-	main(sys.argv[1])
+	main(sys.argv[1:])
