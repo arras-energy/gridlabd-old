@@ -351,7 +351,12 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	prop->width = property_type[ptype].size;
 	prop->access = PA_PUBLIC;
 	prop->unit = pUnit;
-	prop->addr = (void*)(int64)oclass->size;
+	int64 offset = (int64)oclass->size;
+	for ( CLASS *parent = oclass->parent ; parent != NULL ; parent = parent->parent )
+	{
+		offset += parent->size;
+	}
+	prop->addr = (void*)offset;
 	prop->delegation = NULL;
 	prop->keywords = NULL;
 	prop->description = NULL;
