@@ -8,7 +8,7 @@ PAT=`sed -En 's/#define REV_PATCH ([0-9]+).*/\1/p' $FIL | tr -d '\n'`
 PKG=`sed -En 's/#define PACKAGE "([a-z]+)".*/\1/p' $FIL | tr -d '\n'`
 NAM=`sed -En 's/#define PACKAGE_NAME "([-A-Za-z ]+)".*/\1/p' $FIL | tr -d '\n'`
 NUM=`git log --max-count=1 --pretty=format:"%ai" | cut -c 3,4,6,7,9,10`
-BRA=`git branch | grep '^*' | cut -f2 -d' ' | sed -E 's:[^A-Za-z0-9_]+:_:g'`
+BRA=`git branch --show-current`
 GIT=`git --version | cut -f3 -d' '`
 SYS=`uname`
 HDW=`uname -m`
