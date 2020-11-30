@@ -1,5 +1,8 @@
 #ifndef TEST1
-#job ${modelname}
+#ifexist ../gridlabd-job.csv
+#define TESTDIR=..
+#endif
+#job ${modelname} -j ${TESTDIR:-.}/gridlabd-job.csv
 #else
 #print TEST ${TEST1}: ${TEST2},${TEST3},${TEST4}
 #endif
