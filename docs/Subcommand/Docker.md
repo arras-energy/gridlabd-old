@@ -13,6 +13,30 @@ gridlabd docker status
 
 The `docker` subcommand is used to manage the docker image used to run simulations. The active image is always tagged `gridlabd`.
 
+When enabled, the docker image is run instead of the local system installation.  To run a docker image directly from the command line without enabling it, use the command:
+
+~~~
+docker run -it -v $PWD:$PWD <image-name> gridlabd <options>
+~~~
+
+If you need to enable debugging while running an image, use the command:
+
+~~~
+docker run -it --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $PWD:$PWD <image-name> gridlabd <options>
+~~~
+
+If you need to open a second terminal window on a running docker image, do the following:
+
+~~~
+docker ps
+~~~
+
+Copy the name at the end of the status line describing your gridlabd container. Then run the following command:
+
+~~~
+docker exec -it <container-name> bash
+~~~
+
 ## `enable` <image>
 
 The `enable` subcommand tags the `<image>` as the active image.
