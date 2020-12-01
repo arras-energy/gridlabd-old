@@ -516,7 +516,7 @@ AM_PATH_PYTHON(3.7)
 HAVE_PYTHON="$(/usr/local/bin/python3 --version | cut -f2 -d' ')"
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno"],
-    [PYTHON_LIB="-lpython$(/usr/local/bin/python3 --version | cut -f2 -d' ' | cut f1-2 -d.)"],
+    [PYTHON_LIB="-lpython$(/usr/local/bin/python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)"],
     [PYTHON_LIB=""])
 
 # check for mono
