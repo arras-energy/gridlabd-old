@@ -16,13 +16,13 @@ The `docker` subcommand is used to manage the docker image used to run simulatio
 When enabled, the docker image is run instead of the local system installation.  To run a docker image directly from the command line without enabling it, use the command:
 
 ~~~
-docker run -it -v $PWD:$PWD <image-name> gridlabd <options>
+docker run -itv $PWD:$PWD <image-name> gridlabd <options>
 ~~~
 
 If you need to enable debugging while running an image, use the command:
 
 ~~~
-docker run -it --cap-add=SYS_PTRACE --security-opt seccomp=unconfined -v $PWD:$PWD <image-name> gridlabd <options>
+docker run -itv --cap-add=SYS_PTRACE --security-opt seccomp=unconfined $PWD:$PWD <image-name> gridlabd <options>
 ~~~
 
 If you need to open a second terminal window on a running docker image, do the following:
