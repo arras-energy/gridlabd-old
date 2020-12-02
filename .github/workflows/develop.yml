@@ -14,6 +14,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Debug build problems
+      run: python3-config --cflags && python3-config --ldflags && false
     - name: Run autoconf
       run: autoreconf -isf
     - name: Configure build
