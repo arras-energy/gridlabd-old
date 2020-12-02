@@ -514,9 +514,10 @@ AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 # Verify python version
 AM_PATH_PYTHON(3.7)
 HAVE_PYTHON="$(/usr/local/bin/python3 --version | cut -f2 -d' ')"
+PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
-AS_IF([test "x$HAVE_PYTHON" != "xno"],
-    [PYTHON_LIB="-lpython$(/usr/local/bin/python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)"],
+AS_IF([test "x$HAVE_PYTHON" != "xno" -a -e /usr/local/lib/libpython$PYTHON_VER.dylib],
+    [PYTHON_LIB="-lpython$PYTHON_VER -shared -Wl-undefined,dynamic_lookup"],
     [PYTHON_LIB=""])
 
 # check for mono
@@ -638,7 +639,7 @@ AC_MSG_RESULT([
 ])
 
 CXXFLAGS="$(/usr/local/bin/python3-config --cflags) $CXXFLAGS "
-LDFLAGS="$(/usr/local/bin/python3-config --ldflags) $PYTHON_LIB -shared -Wl-undefined,dynamic_lookup $LDFLAGS "
+LDFLAGS="$(/usr/local/bin/python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])
