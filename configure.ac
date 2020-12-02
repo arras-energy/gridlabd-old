@@ -514,9 +514,10 @@ AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 # Verify python version
 AM_PATH_PYTHON(3.7)
 HAVE_PYTHON="$(/usr/local/bin/python3 --version | cut -f2 -d' ')"
+PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
-AS_IF([test "x$HAVE_PYTHON" != "xno"],
-    [PYTHON_LIB="-lpython$(/usr/local/bin/python3 --version | cut -f2 -d' ' | cut -f1-2 -d.)"],
+AS_IF([test "x$HAVE_PYTHON" != "xno" -a -e /usr/local/lib/libpython$PYTHON_VER.a],
+    [PYTHON_LIB="-lpython$PYTHON_VER"],
     [PYTHON_LIB=""])
 
 # check for mono
