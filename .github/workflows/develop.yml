@@ -23,8 +23,9 @@ jobs:
     - name: Validate build
       run: |
         gridlabd -D keep_progress=TRUE -T 0 --validate || ( utilities/save_validation_errors ; false )
-    - name: Upload artifacts
+    - name: Upload artifacts on failure
       uses: actions/upload-artifact@v2
+      if: failure()
       with:
         name: validate-result
         path: |

@@ -2,6 +2,8 @@ import json
 import os 
 import sys, getopt
 from datetime import datetime 
+import importlib, copy
+from importlib import util
 
 def help():
     print('Syntax:')
@@ -48,8 +50,7 @@ if input_type is None:
 modname = sys.argv[0].replace("mdb2glm.py",f"mdb-{input_type}2glm.py")
 if os.path.exists(modname):
 
-    import importlib, copy
-    importlib.util.spec_from_file_location(input_type, modname)
+    util.spec_from_file_location(input_type, modname)
     mod = importlib.import_module(f"mdb-{input_type}2glm")
     argv = copy.deepcopy(sys.argv)
     argv[0] = modname

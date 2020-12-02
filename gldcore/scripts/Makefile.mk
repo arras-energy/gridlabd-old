@@ -4,6 +4,7 @@ bin_SCRIPTS += gldcore/scripts/gridlabd-convert
 bin_SCRIPTS += gldcore/scripts/gridlabd-git
 bin_SCRIPTS += gldcore/scripts/gridlabd-help
 bin_SCRIPTS += gldcore/scripts/gridlabd-json-get
+bin_SCRIPTS += gldcore/scripts/gridlabd-job
 bin_SCRIPTS += gldcore/scripts/gridlabd-library
 bin_SCRIPTS += gldcore/scripts/gridlabd-manual
 bin_SCRIPTS += gldcore/scripts/gridlabd-python
