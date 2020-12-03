@@ -12,7 +12,6 @@ brew install autoconf automake libtool gnu-sed gawk
 
 # install python3
 brew install python3
-pip3 install matplotlib pandas numpy Pillow
 
 # docs generators
 brew install mono
