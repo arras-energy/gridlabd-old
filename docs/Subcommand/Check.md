@@ -1,0 +1,43 @@
+[[/Subcommand/Check]] -- Subcommand to convert files from one format to another
+
+# Synopsis
+
+~~~
+bash$ gridlabd convert [OPTIONS] FILE …
+~~~
+
+# Description
+
+The `check` subcommand runs detailed checks on GLM and JSON models.  If the file is GLM, it is loaded and converted 
+to JSON automatically. Any load errors or warning are displayed.
+
+The JSON file check is a comprehensive model check system that examines each object and it's relationship to other
+objects in the model.  See the module's check routine for details.
+
+# Options
+
+## `debug`
+~~~
+	-d|--debug
+~~~
+Enable python traceback output when problems are encountered
+## `fix`
+~~~
+	-f|--fix=FILE
+~~~
+Fixes problems (if possible) are writes to the specified file
+## `quiet`
+~~~
+	-q|--quiet
+~~~ 
+Suppress all non-error output
+## `verbose`
+~~~
+	-v|--verbose
+~~~
+Enable additional output
+
+
+# See also
+
+* [[/Converters/README]]
