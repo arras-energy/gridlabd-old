@@ -1,2 +1,2 @@
-#exec gridlabd check ../check_model.glm 
-#on_exit 1 grep -qF "WARNING [check]" $gridlabd.err && echo $?
+#check ../check_model.glm 
+#on_exit 1 grep -qF "WARNING [check]" gridlabd.err && echo $?
