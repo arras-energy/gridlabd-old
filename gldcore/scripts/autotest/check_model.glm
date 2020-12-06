@@ -18,6 +18,6 @@ object climate
 object node { 
       name main;
       phases "ABCN";
-      bustype SWING;
+     // bustype SWING;
       nominal_voltage 2401.7771;
  }
