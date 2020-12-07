@@ -8080,7 +8080,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		}
 		output_verbose("changing output to '%s'", to);
 	}
-	int rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,from,to,unquoted);
+	int rc = my_instance->subcommand("%s %s -i %s -o %s %s",(const char*)global_pythonexec,converter_path,from,to,unquoted);
 	if ( rc != 0 )
 	{
 		output_error("%s: return code %d",converter_path,rc);
@@ -8098,7 +8098,6 @@ STATUS GldLoader::load_python(const char *filename)
 		python_embed_init(0,NULL);
 	}
 	return python_embed_import(filename,global_pythonpath) == NULL ? FAILED : SUCCESS;
-//	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
 }
 
 /** Load a file
