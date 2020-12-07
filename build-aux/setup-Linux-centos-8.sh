@@ -12,13 +12,17 @@ yum -q install which -y
 yum -q install svn -y
 
 # python3 support needed as of 4.2
-yum -q install python3 python36-devel python3-pip python3-tkinter -y
-test -l /usr/local/bin/python3 || ln -sf /usr/bin/python3 /usr/local/bin/python3
-pip3 --quiet install --upgrade pip
-echo '#/bin/bash' > /usr/local/bin/python3-config
-echo '/usr/bin/python3-config $*' >> /usr/local/bin/python3-config
-chmod +x /usr/local/bin/python3-config
-/usr/local/bin/python3 -m pip --quiet install matplotlib pandas mysql-connector Pillow
+cd /usr/local/src
+curl https://www.python.org/ftp/python/3.9.0/Python-3.9.0.tgz | tar xz
+cd Python-3.9.0
+./configure --prefix=/usr/local --enable-optimizations --with-system-ffi --with-computed-gotos --enable-loadable-sqlite-extensions CFLAGS="-fPIC"
+make -j $(nproc)
+make altinstall
+ln -sf /usr/local/bin/python3.9 /usr/local/bin/python3
+ln -sf /usr/local/bin/python3.9-config /usr/local/bin/python3-config
+ln -sf /usr/local/bin/pydoc3.9 /usr/local/bin/pydoc
+ln -sf /usr/local/bin/idle3.9 /usr/local/bin/idle
+ln -sf /usr/local/bin/pip3.9 /usr/local/bin/pip3
 
 # latex
 if [ ! -x /usr/bin/tex ]; then
