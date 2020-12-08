@@ -629,20 +629,6 @@ int GldMain::subcommand(const char *format, ...)
 		char line[1024];
 		while ( poll(polldata,sizeof(polldata)/sizeof(polldata[0]),-1) > 0 )
 		{
-			if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP)
-			{
-				break;
-			}
-			if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR || polldata[2].revents&POLLERR)
-			{
-				output_error("GldMain::subcommand(command='%s'): pipe error", command);
-				break;
-			}
-			if ( polldata[0].revents&POLLOUT )
-			{
-				output_debug("GldMain::subcommand(command='%s'): no input", command);
-				break;
-			}
 			while ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
 			{
 				fprintf(output_stream,"%s",line);
@@ -650,6 +636,21 @@ int GldMain::subcommand(const char *format, ...)
 			while ( error && polldata[2].revents&POLLIN && fgets(line, sizeof(line)-1, error) != NULL ) 
 			{
 				fprintf(error_stream,"%s",line);
+			}
+			if ( polldata[0].revents&POLLOUT )
+			{
+				output_debug("GldMain::subcommand(command='%s'): no input", command);
+				break;
+			}
+			if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP)
+			{
+				output_verbose("GldMain::subcommand(command='%s'): end of output", command);
+				break;
+			}
+			if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR || polldata[2].revents&POLLERR)
+			{
+				output_error("GldMain::subcommand(command='%s'): pipe error", command);
+				break;
 			}
 		}
 		rc = pcloses(output);
