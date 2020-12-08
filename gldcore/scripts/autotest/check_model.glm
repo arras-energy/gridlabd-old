@@ -1,4 +1,5 @@
-#print "model loaded"
+// FYI: this check will not fail when climate check is implemented and `check -s` is used
+
 module powerflow;
 module climate;
 
