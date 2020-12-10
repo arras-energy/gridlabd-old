@@ -514,11 +514,12 @@ AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 # Verify python version
 AM_PATH_PYTHON(3.7)
 HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
+PYTHON_EXEC="$(python3 -c "import os; print(os.path.realpath('$(which python3)'))")"
 PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
 AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
     [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m} -shared -Wl-undefined,dynamic_lookup"],
-    [PYTHON_LIB=""])
+    [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m}"])
 
 # check for mono
 AS_IF([test -z "$(which mono)" ],
@@ -638,7 +639,7 @@ AC_MSG_RESULT([
 -----------------------------------------------------------------------
 ])
 
-CXXFLAGS="$(python3-config --cflags) $CXXFLAGS "
+CXXFLAGS="$(python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
 LDFLAGS="$(python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
