@@ -116,7 +116,8 @@ function fetch_index()
 	fi
 	if [ ! -f $INDEX ]; then
 		echo -n "Downloading ${GITBRANCH} index of $ORGANIZATION template archive from ${GITPROJ}... "
-		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$ORGANIZATION | grep '.*$' > $INDEX || rm -f $INDEX
+#		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$ORGANIZATION | grep '.*$' > $INDEX || rm -f $INDEX
+		curl -s $GITHUBUSERCONTENT/$GITPROJ/branches/$GITBRANCH/$ORGANIZATION/.index >$INDEX
 		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "template files found"
 	fi
 	if [ ! -f $INDEX ]; then
