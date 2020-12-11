@@ -8198,12 +8198,12 @@ STATUS GldLoader::loadall(const char *fname)
 		}
 
 		/* handle default extension */
-		// strcpy(filename,file);
-		// if (ext==NULL || ext<file+strlen(file)-5)
-		// {
-		// 	ext = filename+strlen(filename);
-		// 	strcat(filename,".glm");
-		// }
+		strcpy(filename,file);
+		if ( ext == NULL || ext < file+strlen(file)-5 )
+		{
+			ext = filename+strlen(filename);
+			strcat(filename,".glm");
+		}
 
 		/* load the appropriate type of file */
 		if (global_streaming_io_enabled || (ext!=NULL && isdigit(ext[1])) )
