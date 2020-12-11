@@ -8111,7 +8111,9 @@ STATUS GldLoader::loadall(const char *fname)
 	{
 		/* if nothing requested only config files are loaded */
 		if ( fname == NULL )
+		{
 			return SUCCESS;
+		}
 
 		char file[1024] = "";
 		if ( fname )
@@ -8119,6 +8121,11 @@ STATUS GldLoader::loadall(const char *fname)
 			strcpy(file,fname);
 		}
 		char *ext = fname ? strrchr(file,'.') : NULL ;
+		if ( ext == NULL )
+		{
+			output_error("'%s' is not valid", fname);
+			return FAILED;
+		}
 		add_depend(filename,fname);
 
 		// python script
@@ -8191,12 +8198,12 @@ STATUS GldLoader::loadall(const char *fname)
 		}
 
 		/* handle default extension */
-		strcpy(filename,file);
-		if (ext==NULL || ext<file+strlen(file)-5)
-		{
-			ext = filename+strlen(filename);
-			strcat(filename,".glm");
-		}
+		// strcpy(filename,file);
+		// if (ext==NULL || ext<file+strlen(file)-5)
+		// {
+		// 	ext = filename+strlen(filename);
+		// 	strcat(filename,".glm");
+		// }
 
 		/* load the appropriate type of file */
 		if (global_streaming_io_enabled || (ext!=NULL && isdigit(ext[1])) )
