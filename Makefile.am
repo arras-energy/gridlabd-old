@@ -300,7 +300,7 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
 
-install-exec-hook: index python-install
+install-exec-hook: index python-requirements python-install
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
@@ -315,11 +315,14 @@ install-exec-hook: index python-install
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
 
+python-requirements: requirements.txt
+	@python3 -m pip install -q -r $<
+
 reconfigure: distclean
 	autoreconf -isf && ./configure
 
 reconfigure-debug: distclean
-	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g'
+	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
 
 docker: $(PREFIX)/docker.img
 
@@ -358,3 +361,8 @@ developer-html: # TODO
 troubleshooting-html:
 	@mkdir -p $(top_srcdir)/documents/html/troubleshooting/ 
 	@(cd $(top_srcdir) ; gawk -f utilities/troubleshooting.awk */*.cpp > $(top_srcdir)/documents/html/troubleshooting/index.html )
+
+documents/gridlabd.pdf: documents/gridlabd.glm
+	(cd documents ; gridlabd gridlabd.glm)
+	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
+

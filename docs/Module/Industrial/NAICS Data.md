@@ -15,7 +15,7 @@ module industrial
 
 The NAICS data file contains the load composition for various industrial loads. All motor and power electronic loads are considered to be constant power.
 
-The current data supports the following facilities:
+The current data supports the following NERC-defined facilities:
 
 | NAICS Code | Industrial Load Type       | NERC Code | Motor A | Motor B | Motor C | Motor D | Power Electronics | Constant Impedance | Constant Current |
 | ---------- | -------------------------- | --------- | ------- | ------- | ------- | ------- | ----------------- | ------------------ | ---------------- |
@@ -37,6 +37,8 @@ The current data supports the following facilities:
 | 423        | Lumber Mill                | IND_LMB   | 0.4     | 0.2     | 0.3     | 0       | 0                 | 0.05               | 0.05             |
 | 482        | Transportation - Rail      | IND_RAIL  | 0       | 0       | 0.05    | 0       | 0.95              | 0                  | 0                |
 | 518        | Server Farm                | IND_SRF   | 0       | 0       | 0.1     | 0       | 0.9               | 0                  | 0                |
+
+In addition load compositions from the IEA MECS 2014 data are included. See [EIA 2014 MECS Survey Data](https://www.eia.gov/consumption/manufacturing/data/2014/) Tables 5.1, 9.1, and 11.1 for details.
 
 # See also
 

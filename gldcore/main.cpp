@@ -514,7 +514,8 @@ int popens(const char *program, FILE **output, FILE **error)
 				(void)close(pderr[1]);
 			}
 		}
-		const char *argp[] = {getenv("SHELL"), "-c", program, NULL};
+		(void)close(fileno(stdin));
+		const char *argp[] = {getenv("SHELL"), "-c", program, "</dev/null", NULL};
 		exit ( execve(_PATH_BSHELL, (char *const*)argp, environ) ? 127 : 0 );
 	}
 	else
@@ -596,10 +597,10 @@ int pcloses(FILE *iop, bool wait=true)
 
 int GldMain::subcommand(const char *format, ...)
 {
-	char *command;
+	char *command = NULL;
 	va_list ptr;
 	va_start(ptr,format);
-	if ( vasprintf(&command,format,ptr) < 0 )
+	if ( vasprintf(&command,format,ptr) < 0 || command == NULL )
 	{
 		output_error("GldMain::subcommand(format='%s',...): memory allocation failed",format);
 		return -1;
@@ -615,11 +616,12 @@ int GldMain::subcommand(const char *format, ...)
 	}
 	else
 	{
+		output_verbose("running subcommand '%s'",command);
 		FILE *output_stream = output_get_stream("output");
 		FILE *error_stream = output_get_stream("error");
 		struct pollfd polldata[3];
 		polldata[0].fd = 1;
-		polldata[0].events = POLLOUT;
+		polldata[0].events = POLLOUT|POLLERR|POLLHUP;
 		polldata[1].fd = output ? fileno(output) : 0;
 		polldata[1].events = POLLIN|POLLERR|POLLHUP;
 		polldata[2].fd = error ? fileno(error) : 0;
@@ -627,20 +629,6 @@ int GldMain::subcommand(const char *format, ...)
 		char line[1024];
 		while ( poll(polldata,sizeof(polldata)/sizeof(polldata[0]),-1) > 0 )
 		{
-			if ( polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP)
-			{
-				break;
-			}
-			if ( polldata[1].revents&POLLERR || polldata[2].revents&POLLERR)
-			{
-				output_error("GldMain::subcommand(command='%s'): pipe error", command);
-				break;
-			}
-			// if ( polldata[0].revents&POLLOUT )
-			// {
-			// 	output_error("GldMain::subcommand(command='%s'): no input", command);
-			// 	break;
-			// }
 			while ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
 			{
 				fprintf(output_stream,"%s",line);
@@ -649,13 +637,30 @@ int GldMain::subcommand(const char *format, ...)
 			{
 				fprintf(error_stream,"%s",line);
 			}
+			if ( polldata[0].revents&POLLOUT )
+			{
+				output_debug("GldMain::subcommand(command='%s'): no input", command);
+				break;
+			}
+			if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP)
+			{
+				output_verbose("GldMain::subcommand(command='%s'): end of output", command);
+				break;
+			}
+			if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR || polldata[2].revents&POLLERR)
+			{
+				output_error("GldMain::subcommand(command='%s'): pipe error", command);
+				break;
+			}
 		}
 		rc = pcloses(output);
 		if ( rc > 0 )
 		{
 			output_error("GldMain::subcommand(format='%s',...): command '%s' returns code %d",format,command,rc);
 		}
+		output_verbose("subcommand '%s' -> status = %d",command,rc);
 	}
+	free(command);
 	return rc;
 }
 

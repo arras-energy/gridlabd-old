@@ -1,0 +1,36 @@
+// reliability/test_cost.glm
+
+module powerflow;
+module reliability;
+module tape;
+
+#ifexist "../test_cost_outage.csv"
+#define DIR=..
+#endif
+
+clock 
+{
+    timezone "US/CA/San Francisco";
+    starttime "2020-07-01 00:00:00 PDT";
+    stoptime "2020-07-31 00:00:00 PDT";
+}
+
+object triplex_meter
+{
+    phases "AS";
+    nominal_voltage "120 V";
+    object player
+    {
+        file "${DIR:-.}/test_cost_outage.csv";
+        property "customer_interrupted";
+    };
+    object cost
+    {
+        object recorder
+        {
+            file "test_cost_total.csv";
+            property "total";
+            interval -1;
+        };
+    };
+}

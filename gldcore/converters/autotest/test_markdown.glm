@@ -1,0 +1,28 @@
+#option compile
+
+module assert;
+module climate;
+module commercial;
+module generators;
+module industrial;
+module influxdb;
+module market;
+module optimize;
+module powerflow;
+module reliability;
+module residential;
+module revenue;
+module tape;
+
+class test {
+	double x[kW];
+}
+
+object test {
+	name "test_0";
+	x 1.2345 MW;
+}
+
+#output "test_markdown.md" --with_contents --with_hyperlinks
+
+// TODO: check markdown output somehow
