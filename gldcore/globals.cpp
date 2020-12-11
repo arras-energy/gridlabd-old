@@ -340,8 +340,13 @@ DEPRECATED static struct s_varmap {
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
 	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
+	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd"},
 	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
+	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
+	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
+	{"rusage",PT_char1024,&global_rusage_data,PA_PUBLIC,"rusage data"},
+
 	/* add new global variables here */
 };
 
@@ -1160,7 +1165,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		return 1;
 	}
 
-	/* ${++name} */
+	/* ${name++} and ${name--} */
 	if ( sscanf(spec,"%63[^-+]%63[-+]",name,op)==2 )
 	{
 		GLOBALVAR *var = global_find(name);
@@ -1174,6 +1179,48 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name op value} */
+	if ( sscanf(spec,"%63[^-+*/%&?^~]%63[+-*/%]%d",name,op,&number) == 3 )
+	{
+		GLOBALVAR *var = global_find(name);
+		if ( var!=NULL && var->prop->ptype==PT_int32 )
+		{
+			int32 *addr = (int32*)var->prop->addr;
+			if ( strcmp(op,"+")==0 ) { snprintf(buffer,size-1,"%d",(*addr)+number); return 1; }
+			else if ( strcmp(op,"-")==0 ) { snprintf(buffer,size-1,"%d",(*addr)-number); return 1; }
+			else if ( strcmp(op,"*")==0 ) { snprintf(buffer,size-1,"%d",(*addr)*number); return 1; }
+			else if ( strcmp(op,"/")==0 ) { snprintf(buffer,size-1,"%d",(*addr)/number); return 1; }
+			else if ( strcmp(op,"%")==0 ) { snprintf(buffer,size-1,"%d",(*addr)%number); return 1; }
+			else if ( strcmp(op,"&")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&number); return 1; }
+			else if ( strcmp(op,"|")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|number); return 1; }
+			else if ( strcmp(op,"^")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^number); return 1; }
+			else if ( strcmp(op,"&~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&~number); return 1; }
+			else if ( strcmp(op,"|~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|~number); return 1; }
+			else if ( strcmp(op,"^~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^~number); return 1; }
+		}
+	}
+
+	/* ${~name op value} */
+	if ( sscanf(spec,"~%63[^-+*/%&?^~]%63[+-*/%]%d",name,op,&number) == 3 )
+	{
+		GLOBALVAR *var = global_find(name);
+		if ( var!=NULL && var->prop->ptype==PT_int32 )
+		{
+			int32 *addr = (int32*)var->prop->addr;
+			if ( strcmp(op,"+")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)+number); return 1; }
+			else if ( strcmp(op,"-")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)-number); return 1; }
+			else if ( strcmp(op,"*")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)*number); return 1; }
+			else if ( strcmp(op,"/")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)/number); return 1; }
+			else if ( strcmp(op,"%")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)%number); return 1; }
+			else if ( strcmp(op,"&")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)&number); return 1; }
+			else if ( strcmp(op,"|")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)|number); return 1; }
+			else if ( strcmp(op,"^")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)^number); return 1; }
+			else if ( strcmp(op,"&~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)&~number); return 1; }
+			else if ( strcmp(op,"|~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)|~number); return 1; }
+			else if ( strcmp(op,"^~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)^~number); return 1; }
+		}
+	}
+
+	/* ${name rel value1 ? value2 : value3 } */
 	if ( sscanf(spec,"%63[^!<>=&|~]%63[!<>=&|~]%d?%1023[^:]:%1023s",name,op,&number,yes,no)>=3 )
 	{
 		GLOBALVAR *var = global_find(name);
@@ -1192,7 +1239,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name op= value} */
-	if ( sscanf(spec,"%63[^-+/*%&^|~=]%63[-+/*%&^|~=]%d",name,op,&number)==3 )
+	if ( sscanf(spec,"%63[^-+/*%&^|]%63[-+/*%&^|=~]%d",name,op,&number) == 3 )
 	{
 		GLOBALVAR *var = global_find(name);
 		if ( var!=NULL && var->prop->ptype==PT_int32 )
@@ -1231,7 +1278,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name=string} */
-	if ( sscanf(spec,"%63[A-Za-z0-9_:.]=%s",name,string)==2 )
+	if ( sscanf(spec,"%63[A-Za-z0-9_:.]=%[^\n]",name,string)==2 )
 	{
 		global_setvar(name,string);
 		strncpy(buffer,string,size);
@@ -1280,6 +1327,86 @@ DEPRECATED const char *global_findfile(char *buffer, int size, const char *spec)
 			return NULL;
 		}
 		buffer[0] = '\0';
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	char *dir = strrchr(var,'/');
+	if ( dir == NULL )
+	{
+		dir = var;
+	}
+	else
+	{
+		dir++;
+	}
+	strncpy(buffer,dir,size);
+	char *ext = strrchr(buffer,'.');
+	if ( ext != NULL )
+	{
+		*ext = '\0';
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	strncpy(buffer,var,size);
+	char *dir = strrchr(buffer,'/');
+	if ( dir != NULL )
+	{
+		*dir = '\0';
+	}
+	else
+	{
+		strcpy(buffer,".");
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	char *dir = strrchr(var,'/');
+	char *ext = strrchr(var,'.');
+	if ( ( dir != NULL && ext > dir ) || ext != NULL )
+	{
+		strncpy(buffer,ext+1,size);
+	}
+	else
+	{
+		strcpy(buffer,"");
 	}
 	return buffer;
 }
@@ -1347,10 +1474,6 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':') != NULL )
 		return global_seq(buffer,size,name);
 
-	/* expansions */
-	if ( parameter_expansion(buffer,size,name) )
-		return buffer;
-
 	// shells
 	if ( strncmp(name,"SHELL ",6) == 0 )
 		return global_shell(buffer,size,name+6);
@@ -1366,6 +1489,22 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	// findfile call
 	if ( strncmp(name,"FINDFILE ",9) == 0 )
 		return global_findfile(buffer,size,name+9);
+
+	// path call
+	if ( strncmp(name,"FILEPATH ",9) == 0 )
+		return global_filepath(buffer,size,name+9);
+
+	// name call
+	if ( strncmp(name,"FILENAME ",9) == 0 )
+		return global_filename(buffer,size,name+9);
+
+	// extension call
+	if ( strncmp(name,"FILETYPE ",9) == 0 )
+		return global_filetype(buffer,size,name+9);
+
+	/* expansions */
+	if ( parameter_expansion(buffer,size,name) )
+		return buffer;
 
 	// object calls
 	struct {

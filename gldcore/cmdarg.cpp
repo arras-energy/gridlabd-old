@@ -1172,6 +1172,7 @@ DEPRECATED static int globals(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::globals(int argc, const char *argv[])
 {
+	bool use_json = (strstr(argv[0],"=json")!=NULL);
 	const char *list[65536];
 	int i, n=0;
 	GLOBALVAR *var = NULL;
@@ -1192,16 +1193,43 @@ int GldCmdarg::globals(int argc, const char *argv[])
 	qsort(list,n,sizeof(list[0]),compare);
 
 	/* output sorted array */
+	if ( use_json )
+	{
+		printf("{\n");
+	}
 	for (i=0; i<n; i++)
 	{
 		char buffer[1024];
 		var = global_find(list[i]);
 		if ( (var->prop->access&PA_HIDDEN)==PA_HIDDEN )
 			continue;
-		printf("%s=%s;",var->prop->name,global_getvar(var->prop->name,buffer,sizeof(buffer))?buffer:"(error)");
-		if (var->prop->description || var->prop->flags&PF_DEPRECATED)
-			printf(" // %s%s", (var->prop->flags&PF_DEPRECATED)?"DEPRECATED ":"", var->prop->description?var->prop->description:"");
-		printf("\n");
+		const char *value = global_getvar(var->prop->name,buffer,sizeof(buffer));
+		if ( use_json && value != NULL )
+		{
+			printf("\t\"%s\" : {\n",var->prop->name);
+			if ( value[0] == '"' )
+			{
+				printf("\t\t\"value\" : %s,\n",value);
+			}
+			else
+			{
+				printf("\t\t\"value\" : \"%s\",\n",value);
+			}
+			printf("\t\t\"flags\" : \"%s\",\n",(var->prop->flags&PF_DEPRECATED)?"DEPRECATED":"");
+			printf("\t\t\"description\" : \"%s\"\n",var->prop->description?var->prop->description:"");
+			printf("\t}%s\n",i<n-1?",":"");
+		}
+		else
+		{
+			printf("%s=%s;",var->prop->name,value);
+			if (var->prop->description || var->prop->flags&PF_DEPRECATED)
+				printf(" // %s%s", (var->prop->flags&PF_DEPRECATED)?"DEPRECATED ":"", var->prop->description?var->prop->description:"");
+			printf("\n");
+		}
+	}
+	if ( use_json )
+	{
+		printf("}\n");
 	}
 	return 0;
 }
@@ -1500,9 +1528,55 @@ int GldCmdarg::pkill(int argc, const char *argv[])
 {
 	if (argc>0)
 	{
-		argc--;
-		sched_pkill(atoi(*++argv));
-		return 1;
+		int signal = SIGINT;
+		int m = 1;
+		if ( *(argv[1]) == '-' )
+		{
+			signal = 0;
+			if ( ! isdigit(argv[1][1]) )
+			{
+				struct {
+					int signal;
+					const char *shortname;
+					const char *longname;
+				} map[] = {
+					{SIGINT,"-INT","-SIGINT"},
+					{SIGQUIT,"-QUIT","-SIGQUIT"},
+					{SIGTRAP,"-TRAP","-SIGTRAP"},
+					{SIGABRT,"-ABRT","-SIGABRT"},
+					{SIGKILL,"-KILL","-SIGKILL"},
+					{SIGSTOP,"-STOP","-SIGSTOP"},
+					{SIGCONT,"-CONT","-SIGCONT"},
+					{SIGTERM,"-TERM","-SIGTERM"},
+				};
+				for ( size_t n = 0 ; n < sizeof(map)/sizeof(map[0]) ; n++ )
+				{
+					if ( strcmp(map[n].shortname,argv[1]) == 0 || strcmp(map[n].longname,argv[1]) == 0 )
+					{
+						signal = map[n].signal;
+						break;
+					}
+				}
+			}
+			else
+			{
+				signal = atoi(argv[1]+1);
+			}
+			if ( signal == 0 )
+			{
+				output_error("'%s' is an invalid signal",argv[1]);
+				return CMDERR;
+			}
+			argc--;
+			argv++;
+			m++;
+		}
+		if ( ! isdigit(*(argv[1])) )
+		{
+			output_error("'%s' is an invalid processor number",argv[1]);
+		}
+		sched_pkill(atoi(argv[1]),signal);
+		return m;
 	}
 	else
 	{
@@ -2045,6 +2119,12 @@ DEPRECATED static int depends(void *main, int argc, const char *argv[])
 	return 0;
 }
 
+DEPRECATED static int rusage(void *main, int args, const char *argv[])
+{
+	global_rusage_rate = 1;
+	return 0;
+}
+
 #include "job.h"
 #include "validate.h"
 
@@ -2070,6 +2150,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"verbose",		"v",	verbose,		NULL, "Toggles output of verbose messages" },
 	{"warn",		"w",	warn,			NULL, "Toggles display of warning messages" },
 	{"workdir",		"W",	workdir,		NULL, "Sets the working directory" },
+	{"rusage",      NULL,   rusage,         NULL, "Collect resource usage statistics" },
 	
 	{NULL,NULL,NULL,NULL, "Global, environment and module information"},
 	{"define",		"D",	define,			"<name>=[<module>:]<value>", "Defines or sets a global (or module) variable" },

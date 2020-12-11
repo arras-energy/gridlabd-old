@@ -86,8 +86,84 @@
  **/
 
 #include "gldcore.h"
+#include <sys/resource.h>
 
 SET_MYCONTEXT(DMC_EXEC)
+
+static FILE *rusage_fp = NULL;
+
+static void rusage_report(void)
+{
+	struct rusage r;
+	if ( getrusage(RUSAGE_SELF,&r) == 0 )
+	{
+		snprintf(global_rusage_data,sizeof(global_rusage_data),
+			"{"
+			"\"utime\" : %ld.%06ld, "
+			"\"stime\" : %ld.%06ld, "
+			"\"maxrss\" : %ld, "
+			"\"ixrss\" : %ld, "
+			"\"idrss\" : %ld, "
+			"\"isrss\" : %ld, "
+			"\"minflt\" : %ld, "
+			"\"majflt\" : %ld, "
+			"\"nswap\" : %ld, "
+			"\"inblock\" : %ld, "
+			"\"oublock\" : %ld, "
+			"\"msgsnd\" : %ld, "
+			"\"msgrcv\" : %ld, "
+			"\"nsignals\" : %ld, "
+			"\"nvcsw\" : %ld, "
+			"\"nivcsw\" : %ld"
+			"}",					
+			(long)(r.ru_utime.tv_sec),(long)(r.ru_utime.tv_usec),
+			(long)(r.ru_stime.tv_sec),(long)(r.ru_stime.tv_usec),
+			r.ru_maxrss, r.ru_ixrss, r.ru_idrss, r.ru_isrss,
+			r.ru_minflt, r.ru_majflt, r.ru_nswap,
+			r.ru_inblock, r.ru_oublock,
+			r.ru_msgsnd, r.ru_msgrcv,
+			r.ru_nsignals, r.ru_nvcsw, r.ru_nivcsw);
+	}
+	if ( global_rusage_rate > 0 && ( global_clock % global_rusage_rate ) == 0 )
+	{
+		static bool failed = false;
+		if ( rusage_fp == NULL && ! failed )
+		{
+			rusage_fp = fopen((const char*)global_rusage_file,"w");
+			if ( rusage_fp == NULL )
+			{
+				failed = true;
+				output_warning("unable to open '%s' for write access", (const char*)global_rusage_file);
+			}
+			else
+			{
+				fprintf(rusage_fp,"%s","timestamp,utime,stime,maxrss,ixrss,idrss,isrss,minflt,majflt,nswap,inblock,oublock,msgsnd,msgrcv,nsignals,nvcsw,nivcsw\n");
+			}
+		}
+		if ( rusage_fp != NULL )
+		{
+			fprintf(rusage_fp,"%lld,"
+				"%ld.%06ld,"
+				"%ld.%06ld,"
+				"%ld,%ld,%ld,%ld,"
+				"%ld,%ld,%ld,"
+				"%ld,%ld,"
+				"%ld,%ld,"
+				"%ld,%ld,%ld,"
+				"\n",
+				global_clock,
+				(long)(r.ru_utime.tv_sec),(long)(r.ru_utime.tv_usec),
+				(long)(r.ru_stime.tv_sec),(long)(r.ru_stime.tv_usec),
+				r.ru_maxrss, r.ru_ixrss, r.ru_idrss, r.ru_isrss,
+				r.ru_minflt, r.ru_majflt, r.ru_nswap,
+				r.ru_inblock, r.ru_oublock,
+				r.ru_msgsnd, r.ru_msgrcv,
+				r.ru_nsignals, r.ru_nvcsw, r.ru_nivcsw
+				);
+			fflush(rusage_fp);
+		}
+	}
+}
 
 /* TODO: remove these when reentrant code is completed */
 DEPRECATED extern GldMain *my_instance;
@@ -300,8 +376,6 @@ DEPRECATED void exec_wunlock_sync(void)
 {
 	my_instance->get_exec()->wunlock_sync();
 }
-
-
 
 ////////////////////////////////////////////
 // GldExec implementation
@@ -2425,34 +2499,39 @@ STATUS GldExec::exec_start(void)
 			if ( global_run_realtime > 0 && iteration_counter > 0 )
 			{
 				double metric=0;
-#ifdef WIN32
-				struct timeb tv;
-				ftime(&tv);
-				if ( 1000-tv.millitm >= 0 )
-				{
-					IN_MYCONTEXT output_verbose("waiting %d msec", 1000-tv.millitm);
-					Sleep(1000-tv.millitm );
-					metric = (1000-tv.millitm)/1000.0;
-				}
-				else
-					output_error("simulation failed to keep up with real time");
-#else
 				struct timeval tv;
 				gettimeofday(&tv, NULL);
-				if ( 1000000-tv.tv_usec >= 0 )
+				unsigned int udiff = 1000000 - tv.tv_usec;
+				if ( global_run_realtime == 1 ) // lock onto system clock
 				{
-					IN_MYCONTEXT output_verbose("waiting %d usec", 1000000-tv.tv_usec);
-					usleep(1000000-tv.tv_usec);
-					metric = (1000000-tv.tv_usec)/1000000.0;
+					int diff = global_clock - tv.tv_sec;
+					if ( diff < 0 )
+					{
+						IN_MYCONTEXT output_verbose("skipping %d seconds to catch up", -diff);
+						global_realtime_metric = 0.0;
+					}
+					else if ( diff > 0 )
+					{
+						global_realtime_metric = 1.0;
+						IN_MYCONTEXT output_verbose("sleeping %d seconds to catch up", diff);
+						sleep(diff);
+						gettimeofday(&tv, NULL);
+						udiff = 1000000 - tv.tv_usec;
+					}
+					global_clock = tv.tv_sec + 1;
 				}
 				else
 				{
-					output_error("simulation failed to keep up with real time");
+					global_clock++;
+					metric = (udiff)/1000000.0;
+					global_realtime_metric = global_realtime_metric*realtime_metric_decay + metric*(1-realtime_metric_decay);
 				}
-#endif
+				if ( udiff >= 0 )
+				{
+					IN_MYCONTEXT output_verbose("waiting %d usec to synchronize", udiff);
+					usleep(udiff);
+				}
 				wlock_sync();
-				global_clock += global_run_realtime;
-				global_realtime_metric = global_realtime_metric*realtime_metric_decay + metric*(1-realtime_metric_decay);
 				sync_reset(NULL);
 				sync_set(NULL,global_clock,false);
 				IN_MYCONTEXT output_verbose("realtime clock advancing to %d", (int)global_clock);
@@ -2759,7 +2838,7 @@ STATUS GldExec::exec_start(void)
 			}
 			setTP = false;
 
-			if ( !global_debug_mode )
+			if ( ! global_debug_mode )
 			{
 				struct thread_data * thread_data = get_thread_data();
 				for ( j = 0 ; j < thread_data->count ; j++ ) 
@@ -2769,6 +2848,9 @@ STATUS GldExec::exec_start(void)
 
 				/* report progress */
 				realtime_run_schedule();
+
+				/* report rusage */
+				rusage_report();
 			}
 
 			/* count number of passes */

@@ -1,2 +1,0 @@
-#python -m pip uninstall pwlf -y 1>/dev/null
-#require pwlf

@@ -21,6 +21,9 @@ dist_pkgdata_DATA += gldcore/converters/mdb-cyme2glm.py
 # omd -> glm
 dist_pkgdata_DATA += gldcore/converters/omd2glm.py
 
+# tmy3 -> glm
+dist_pkgdata_DATA += gldcore/converters/tmy32glm.py
+
 # txt -> glm
 dist_pkgdata_DATA += gldcore/converters/txt2glm.py
 dist_pkgdata_DATA += gldcore/converters/txt-cyme2glm.py
@@ -41,6 +44,9 @@ dist_pkgdata_DATA += gldcore/converters/json2csv-profile.py
 
 # json -> glm
 dist_pkgdata_DATA += gldcore/converters/json2glm.py
+
+# json -> md
+dist_pkgdata_DATA += gldcore/converters/json2md.py
 
 # json -> png
 dist_pkgdata_DATA += gldcore/converters/json2png.py

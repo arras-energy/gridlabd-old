@@ -799,6 +799,17 @@ GLOBAL char1024 global_datadir INIT("");
 /* Variable: global_pythonpath */
 GLOBAL char1024 global_pythonpath INIT(".");
 
+/* Variable: global_pythonexec */
+GLOBAL char1024 global_pythonexec INIT(PYTHON_EXEC);
+
+/* Variable: global_rusage_rate */
+GLOBAL int64 global_rusage_rate INIT(0);
+
+/* Variable: global_rusage_file */
+GLOBAL char1024 global_rusage_file INIT("gridlabd-rusage.csv");
+
+GLOBAL char1024 global_rusage_data INIT("{}");
+
 #undef GLOBAL
 #undef INIT
 

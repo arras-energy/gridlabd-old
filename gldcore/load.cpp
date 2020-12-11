@@ -340,6 +340,12 @@ std::string GldLoader::setup_class(CLASS *oclass)
 	snprintf(buffer,sizeof(buffer),"\toclass->size = sizeof(%s);\n", oclass->name);
 	result.append(buffer);
 
+	if ( oclass->parent != NULL )
+	{
+		snprintf(buffer,sizeof(buffer),"\toclass->parent = (*(callback->class_getname(\"%s\")));",oclass->parent->name);
+		result.append(buffer);
+	}
+
 	PROPERTY *prop;
 	for (prop=oclass->pmap; prop!=NULL; prop=prop->next)
 	{
@@ -3296,6 +3302,53 @@ int GldLoader::class_event_handler(PARSER, CLASS *oclass)
 	DONE;
 }
 
+int GldLoader::class_parent_definition(PARSER, CLASS *oclass)
+{
+	char classname[1024];
+	START;
+	if WHITE ACCEPT;
+	if ( LITERAL("parent") )
+	{
+		if WHITE ACCEPT;
+		if ( TERM(name(HERE,classname,sizeof(classname))) ) 
+		{
+			if ( oclass->module != NULL )
+			{
+				syntax_error(filename,linenum,"cannot set parent of class defined in module");
+				REJECT;
+			}
+			else
+			{
+				oclass->parent = class_get_class_from_classname(classname);
+				if ( oclass->parent == NULL )
+				{
+					syntax_error(filename,linenum,"parent class '%s' not found", classname);
+					REJECT;
+				}
+				else if ( WHITE,LITERAL(";") )
+				{
+					ACCEPT;
+				}
+				else
+				{
+					syntax_error(filename,linenum,"missing semicolon after parent class name");
+					REJECT;
+				}
+			}
+		}
+		else
+		{
+			syntax_error(filename,linenum,"missing or invalid parent class name");
+			REJECT;
+		}
+	}
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
+
 int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize)
 {
 	static char code[65536];
@@ -3334,6 +3387,10 @@ int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *i
 	else if TERM(class_export_function(HERE, oclass,fname,sizeof(fname),arglist,sizeof(arglist),code,sizeof(code)))
 	{
 		*functions |= FN_EXPORT;
+		ACCEPT;
+	}
+	else if TERM(class_parent_definition(HERE,oclass) )
+	{
 		ACCEPT;
 	}
 	else if (TERM(property_type(HERE,&type,&keys)) && (WHITE,(TERM(nameunit(HERE,propname,sizeof(propname),&pUnit))||TERM(name(HERE,propname,sizeof(propname))))) && (WHITE,LITERAL(";")) )
@@ -6919,7 +6976,7 @@ void* GldLoader::start_process(const char *cmd)
 int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 {
 	char *var, *val, *save;
-	char buffer[64];
+	char buffer[1024];
 	if ( get_language() )
 	{
 		const char *m = line;
@@ -6987,9 +7044,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			syntax_error(filename,linenum,"#ifdef macro missing term");
 			return FALSE;
 		}
-		//if (sscanf(term+1,"%[^\n\r]",value)==1 && global_getvar(value, buffer, 63)==NULL && getenv(value)==NULL)
 		strcpy(value, strip_right_white(term+1));
-		if ( !is_autodef(value) && global_getvar(value, buffer, 63)==NULL && getenv(value)==NULL){
+		if ( !is_autodef(value) && global_getvar(value, buffer, sizeof(buffer))==NULL && getenv(value)==NULL){
 			suppress |= (1<<nesting);
 		}
 		macro_line[nesting] = linenum;
@@ -7035,9 +7091,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			syntax_error(filename,linenum,"#ifndef macro missing term");
 			return FALSE;
 		}
-		//if (sscanf(term+1,"%[^\n\r]",value)==1 && global_getvar(value, buffer, 63)!=NULL || getenv(value)!=NULL))
 		strcpy(value, strip_right_white(term+1));
-		if(global_getvar(value, buffer, 63)!=NULL || getenv(value)!=NULL){
+		if(global_getvar(value, buffer, sizeof(buffer))!=NULL || getenv(value)!=NULL){
 			suppress |= (1<<nesting);
 		}
 		macro_line[nesting] = linenum;
@@ -7048,36 +7103,36 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if (strncmp(line,"#if",3)==0)
 	{
-		char var[32], op[4];
+		char left[1024], op[4];
 		const char *value;
-		char val[1024], junk[1024]="";
-		if ( ( sscanf(line+4,"%31[a-zA-Z0-9_:.] %3[!<>=] \"%1023[^\"]\" %1023[^\n]\n",var,op,val,junk) < 3
-				&& sscanf(line+4,"%31[a-zA-Z0-9_:.] %3[!<>=] '%1023[^']' %1023[^\n]\n",var,op,val,junk) < 3
-				&& sscanf(line+4,"%31[a-zA-Z_0-9_:.] %3[!<>=] %1023[^ \t\n] %1023[^\n]\n",var,op,val,junk) < 3 )
-				|| strcmp(junk,"") != 0 )
+		char right[1024];
+		if ( sscanf(line+4,"\"%1023[^\"]\" %3[!<>=] \"%1023[^\"]\"",left,op,right) < 3
+			&& sscanf(line+4,"%1023[^!<>= \t] %3[!<>=] \"%1023[^\"]\"",left,op,right) < 3
+			&& sscanf(line+4,"\"%1023[^\"]\" %3[!<>=] %1023s",left,op,right) < 3
+			&& sscanf(line+4,"%1023[^!<>= \t] %3[!<>=] %1023s",left,op,right) < 3 )
 		{
 			syntax_error(filename,linenum,"#if macro statement syntax error");
 			strcpy(line,"\n");
 			return FALSE;
 		}
-		value =  ( global_literal_if ? var : global_getvar(var, buffer, 63) );
+		value =  ( global_literal_if ? left : global_getvar(left, buffer, sizeof(buffer)) );
 		if ( value==NULL )
 		{
 			if ( global_relax_undefined_if )
 				value = "";
 			else
 			{
-				syntax_error(filename,linenum,"%s is not defined",var);
+				syntax_error(filename,linenum,"%s is not defined",left);
 				strcpy(line,"\n");
 				return FALSE;
 			}
 		}
-		if (strcmp(op,"<")==0) { if (!(strcmp(value,val)<0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,">")==0) { if (!(strcmp(value,val)>0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,">=")==0) { if (!(strcmp(value,val)>=0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,"<=")==0) { if (!(strcmp(value,val)<=0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,"==")==0) { if (!(strcmp(value,val)==0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,"!=")==0) { if (!(strcmp(value,val)!=0)) suppress|=(1<<nesting); }
+		if (strcmp(op,"<")==0) { if (!(strcmp(value,right)<0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,">")==0) { if (!(strcmp(value,right)>0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,">=")==0) { if (!(strcmp(value,right)>=0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,"<=")==0) { if (!(strcmp(value,right)<=0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,"==")==0) { if (!(strcmp(value,right)==0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,"!=")==0) { if (!(strcmp(value,right)!=0)) suppress|=(1<<nesting); }
 		else
 		{
 			syntax_error(filename,linenum,"operator %s is not recognized",op);
@@ -7846,7 +7901,6 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 	char file[1024];
 	strcpy(file,fname);
 	OBJECT *obj, *first = object_get_first();
-	//char *buffer = NULL, *p = NULL;
 	char *p = NULL;
 	char buffer[20480];
 	int fsize = 0;
@@ -8026,7 +8080,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		}
 		output_verbose("changing output to '%s'", to);
 	}
-	int rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,from,to,unquoted);
+	int rc = my_instance->subcommand("%s %s -i %s -o %s %s",(const char*)global_pythonexec,converter_path,from,to,unquoted);
 	if ( rc != 0 )
 	{
 		output_error("%s: return code %d",converter_path,rc);
@@ -8044,7 +8098,6 @@ STATUS GldLoader::load_python(const char *filename)
 		python_embed_init(0,NULL);
 	}
 	return python_embed_import(filename,global_pythonpath) == NULL ? FAILED : SUCCESS;
-//	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
 }
 
 /** Load a file

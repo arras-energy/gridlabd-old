@@ -43,6 +43,7 @@ PROPERTYSPEC property_type[_PT_LAST] = {
 	{"randomvar", "string", NULL, sizeof(randomvar), 24, convert_from_randomvar, convert_to_randomvar, initial_from_randomvar,randomvar_create,NULL,convert_to_double,{TCOPS(double)},random_get_part,random_set_part},
 	{"method","string", NULL, 0, PSZ_DYNAMIC, convert_from_method,convert_to_method,initial_from_method},
 	{"string", "string", "", sizeof(STRING), PSZ_AUTO, convert_from_string, convert_to_string, NULL,string_create,NULL,convert_to_string,{TCOPS(string)},},
+	{"python", "string", "None", sizeof(PyObject**), PSZ_DYNAMIC, convert_from_python, convert_to_python, initial_from_python, python_create,NULL,convert_to_python,{TCNONE},python_get_part,NULL},
 };
 
 PROPERTYTYPE property_getfirst_type(void)
