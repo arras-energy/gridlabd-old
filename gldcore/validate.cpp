@@ -665,7 +665,7 @@ static DIRLIST *popdir(void)
 	return item;
 }
 
-void *(run_test_proc)(void *arg)
+void *run_test_proc(void *arg)
 {
 	size_t id = (size_t)arg;
 	IN_MYCONTEXT output_debug("starting run_test_proc id %d", id);
