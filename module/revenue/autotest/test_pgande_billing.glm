@@ -13,6 +13,11 @@ clock
 
 module powerflow;
 module residential;
+module revenue;
+
+module pgande_billing;
+
+
 
 #ifexist "../house.glm"
 #define TESTDIR=..
@@ -21,6 +26,7 @@ module residential;
 #endif
 
 #include "${TESTDIR}/pgande_res_200301.glm"
+
 
 #include using(ID=1,TARIFF=E1) "${TESTDIR}/house.glm"
 #include using(ID=2,TARIFF=EM) "${TESTDIR}/house.glm"

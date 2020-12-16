@@ -1,19 +1,26 @@
 from datetime import *
 from csv import *
 from dateutil import parser
+import gridlabd 
+
+
+
+# Create gloabl list of houses 
+#house_obj = []
 
 csvfile = open("billing.csv","w")
 csvwriter = writer(csvfile);
 csvwriter.writerow(["datetime","meter","tariff","billing_days","energy","demand","charges"])
 
+
 def to_float(x):
-	return float(x.split(' ')[0])
+	return float(x.split(' ')[0])   
 
 def to_datetime(x,format):
 	return parser.parse(x)
 
 def compute_bill(gridlabd,**kwargs):
-
+	print('initialize compute_bill')
 	verbose = gridlabd.get_global("verbose")=="TRUE"
 	global csvwriter
 
@@ -27,7 +34,7 @@ def compute_bill(gridlabd,**kwargs):
 	baseline = to_float(bill["baseline_demand"])
 	tariff = gridlabd.get_object(bill["tariff"])
 	meter = gridlabd.get_object(bill["meter"])
-	energy = to_float(meter["measured_real_energy"])/1000
+	energy = to_float(meter["measured_real_energy"])/1000  # units in kW
 
 	# get duration
 	clock = to_datetime(gridlabd.get_global('clock'),'%Y-%m-%d %H:%M:%S %Z')
@@ -36,7 +43,7 @@ def compute_bill(gridlabd,**kwargs):
 	else:
 		duration = clock - data["lastreading"]
 	data["lastreading"] = clock
-	billing_days = (duration.total_seconds()/86400)
+	billing_days = (duration.total_seconds()/86400) # seconds in a day 
 
 	# compute energy usage
 	if not "lastenergy" in data.keys():
@@ -90,5 +97,6 @@ def compute_bill(gridlabd,**kwargs):
 	gridlabd.set_value(bill_name,"energy_charges",str(to_float(bill["energy_charges"])+charges))
 	gridlabd.set_value(bill_name,"total_charges",str(to_float(bill["total_charges"])+charges))
 
-	return
+	compute_bill(gridlabd, **kwargs)
+
 
