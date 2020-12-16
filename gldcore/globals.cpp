@@ -340,6 +340,7 @@ DEPRECATED static struct s_varmap {
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
 	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
+	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd"},
 	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
@@ -1164,7 +1165,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		return 1;
 	}
 
-	/* ${++name} */
+	/* ${name++} and ${name--} */
 	if ( sscanf(spec,"%63[^-+]%63[-+]",name,op)==2 )
 	{
 		GLOBALVAR *var = global_find(name);
@@ -1178,6 +1179,48 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name op value} */
+	if ( sscanf(spec,"%63[^-+*/%&?^~]%63[+-*/%]%d",name,op,&number) == 3 )
+	{
+		GLOBALVAR *var = global_find(name);
+		if ( var!=NULL && var->prop->ptype==PT_int32 )
+		{
+			int32 *addr = (int32*)var->prop->addr;
+			if ( strcmp(op,"+")==0 ) { snprintf(buffer,size-1,"%d",(*addr)+number); return 1; }
+			else if ( strcmp(op,"-")==0 ) { snprintf(buffer,size-1,"%d",(*addr)-number); return 1; }
+			else if ( strcmp(op,"*")==0 ) { snprintf(buffer,size-1,"%d",(*addr)*number); return 1; }
+			else if ( strcmp(op,"/")==0 ) { snprintf(buffer,size-1,"%d",(*addr)/number); return 1; }
+			else if ( strcmp(op,"%")==0 ) { snprintf(buffer,size-1,"%d",(*addr)%number); return 1; }
+			else if ( strcmp(op,"&")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&number); return 1; }
+			else if ( strcmp(op,"|")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|number); return 1; }
+			else if ( strcmp(op,"^")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^number); return 1; }
+			else if ( strcmp(op,"&~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&~number); return 1; }
+			else if ( strcmp(op,"|~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|~number); return 1; }
+			else if ( strcmp(op,"^~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^~number); return 1; }
+		}
+	}
+
+	/* ${~name op value} */
+	if ( sscanf(spec,"~%63[^-+*/%&?^~]%63[+-*/%]%d",name,op,&number) == 3 )
+	{
+		GLOBALVAR *var = global_find(name);
+		if ( var!=NULL && var->prop->ptype==PT_int32 )
+		{
+			int32 *addr = (int32*)var->prop->addr;
+			if ( strcmp(op,"+")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)+number); return 1; }
+			else if ( strcmp(op,"-")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)-number); return 1; }
+			else if ( strcmp(op,"*")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)*number); return 1; }
+			else if ( strcmp(op,"/")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)/number); return 1; }
+			else if ( strcmp(op,"%")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)%number); return 1; }
+			else if ( strcmp(op,"&")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)&number); return 1; }
+			else if ( strcmp(op,"|")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)|number); return 1; }
+			else if ( strcmp(op,"^")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)^number); return 1; }
+			else if ( strcmp(op,"&~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)&~number); return 1; }
+			else if ( strcmp(op,"|~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)|~number); return 1; }
+			else if ( strcmp(op,"^~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)^~number); return 1; }
+		}
+	}
+
+	/* ${name rel value1 ? value2 : value3 } */
 	if ( sscanf(spec,"%63[^!<>=&|~]%63[!<>=&|~]%d?%1023[^:]:%1023s",name,op,&number,yes,no)>=3 )
 	{
 		GLOBALVAR *var = global_find(name);
@@ -1196,7 +1239,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name op= value} */
-	if ( sscanf(spec,"%63[^-+/*%&^|~=]%63[-+/*%&^|~=]%d",name,op,&number)==3 )
+	if ( sscanf(spec,"%63[^-+/*%&^|]%63[-+/*%&^|=~]%d",name,op,&number) == 3 )
 	{
 		GLOBALVAR *var = global_find(name);
 		if ( var!=NULL && var->prop->ptype==PT_int32 )
@@ -1235,7 +1278,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name=string} */
-	if ( sscanf(spec,"%63[A-Za-z0-9_:.]=%s",name,string)==2 )
+	if ( sscanf(spec,"%63[A-Za-z0-9_:.]=%[^\n]",name,string)==2 )
 	{
 		global_setvar(name,string);
 		strncpy(buffer,string,size);
