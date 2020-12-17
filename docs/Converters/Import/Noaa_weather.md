@@ -5,13 +5,17 @@
 GLM:
 
 ~~~
-#input "<noaa-lcd-download.csv>" -o <filename>.glm -f noaa-weather -t weather -p station_id=<station-id> -p latitude=<latitude> -p longitude=<longitude> -p timezone=<tzinfo> [-p refresh={TRUE,FALSE}]
+#input "<noaa-lcd-download.csv>" -o <filename>.glm -f noaa-weather -t weather 
+       -p station_id=<station-id> -p latitude=<latitude> -p longitude=<longitude> -p timezone=<tzinfo> 
+       [-p refresh={TRUE,FALSE}]
 ~~~
 
 Shell:
 
 ~~~
-bash$ gridlabd -D csv_load_options="-o <filename>.glm -f noaa-weather -t weather -p station_id=<station-id> -p latitude=<latitude> -p longitude=<longitude> -p timezone=<tzinfo> [-p refresh={TRUE,FALSE}]" "<noaa-lcd-download.csv>" <modelname>.glm 
+bash$ gridlabd -D csv_load_options="-o <filename>.glm -f noaa-weather -t weather 
+      -p station_id=<station-id> -p latitude=<latitude> -p longitude=<longitude> -p timezone=<tzinfo> 
+      [-p refresh={TRUE,FALSE}]" "<noaa-lcd-download.csv>" <modelname>.glm 
 ~~~
 
 # Description
