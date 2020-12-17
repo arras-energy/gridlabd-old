@@ -56,6 +56,8 @@ object weather
 
 To obtain data from NOAA, request a download from [NOAA LCD Datatools](https://www.ncdc.noaa.gov/cdo-web/datatools/lcd).  When your data request is fulfilled you may specify the URL emailed to you by NOAA as the input name. However, there is no guarantee that NOAA will preserve the endpoint indefinitely.
 
+The solar calculations are based on the Zhang-Huang model, which estimates the total, direct, and diffuse solar irradiance based on the prevailing weather conditions, time-of-day, and day of year.
+
 # Example
 
 The following example illustrates loading weather data from a test dataset storage on AWS S3.
@@ -82,3 +84,5 @@ object recorder
 
 * [[/Command/Automatic_import_conversion]]
 * [NOAA LCD Datatools](https://www.ncdc.noaa.gov/cdo-web/datatools/lcd)
+* [NOAA LCD Data Dictionary](ftp://ftp.ncdc.noaa.gov/pub/data/cdo/documentation/LCD_documentation.pdf)
+* [Zhang-Huang Solar Model Documentation](https://simulationresearch.lbl.gov/dirpubs/51436.pdf)
