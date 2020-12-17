@@ -1,14 +1,14 @@
+// Test PG&E billing model
 
-//#option verbose
-//#option debug
 #set savefile=test_billing.json
 #set force_compile=TRUE
+#set verbose=TRUE
 
 clock
 {
 	timezone "US/CA/San Francisco";
 	starttime "2020-01-01 00:00:00 PST";
-	stoptime "2020-02-01 00:00:00 PST";
+	stoptime "2021-01-01 00:00:00 PST";
 }
 
 module powerflow;
@@ -17,8 +17,6 @@ module revenue;
 
 module pgande_billing;
 
-
-
 #ifexist "../house.glm"
 #define TESTDIR=..
 #else
@@ -26,7 +24,6 @@ module pgande_billing;
 #endif
 
 #include "${TESTDIR}/pgande_res_200301.glm"
-
 
 #include using(ID=1,TARIFF=E1) "${TESTDIR}/house.glm"
 #include using(ID=2,TARIFF=EM) "${TESTDIR}/house.glm"
