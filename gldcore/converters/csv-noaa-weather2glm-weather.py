@@ -149,6 +149,13 @@ def convert(input,output=None,options={}):
 		if not -180 < longitude < +180:
 			raise "longitude must be between -180 and +180"
 
+	if 'ground_albedo' in options.keys():
+		albedo = float(options["ground_albedo"])
+		if not 0.0 < albedo < 1.0:
+			raise "ground_albedo must be between 0.0 and 1.0"
+	else:
+		albedo = None
+
 	if 'timezone' not in options.keys():
 		raise Exception("timezone not specified")
 	else:
@@ -262,11 +269,14 @@ def convert(input,output=None,options={}):
 				glm.write("\tdouble solar_direct[W/sf];\n")
 				glm.write("\tdouble solar_diffuse[W/sf];\n")
 				glm.write("\tdouble solar_global[W/sf];\n")
+				glm.write("\tdouble ground_reflectivity[pu];\n")
 				glm.write("\t}\n")
 				glm.write(f'object weather\n')
 				glm.write('{\n')
 				glm.write(f'\tname "{name}";\n')
 				glm.write(f'\tstation_id "{options["station_id"]}";\n')
+				if albedo:
+					glm.write(f'\tground_reflectivity {albedo} pu;\n')
 				glm.write(f'\tobject player\n')
 				glm.write('\t{\n')
 				glm.write(f'\t\tfile "{csvname}";\n')		

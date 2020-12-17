@@ -7,7 +7,7 @@ GLM:
 ~~~
 #input "<noaa-lcd-download.csv>" -o <filename>.glm -f noaa-weather -t weather 
        -p station_id=<station-id> -p latitude=<latitude> -p longitude=<longitude> -p timezone=<tzinfo> 
-       [-p refresh={TRUE,FALSE}]
+       [-p ground_albedo=<real>] [-p refresh={TRUE,FALSE}]
 ~~~
 
 Shell:
@@ -15,7 +15,7 @@ Shell:
 ~~~
 bash$ gridlabd -D csv_load_options="-o <filename>.glm -f noaa-weather -t weather 
       -p station_id=<station-id> -p latitude=<latitude> -p longitude=<longitude> -p timezone=<tzinfo> 
-      [-p refresh={TRUE,FALSE}]" "<noaa-lcd-download.csv>" <modelname>.glm 
+      [-p ground_albedo=<real>] [-p refresh={TRUE,FALSE}]" "<noaa-lcd-download.csv>" <modelname>.glm 
 ~~~
 
 # Description
@@ -40,6 +40,7 @@ class weather {
 	double solar_direct[W/sf];
 	double solar_diffuse[W/sf];
 	double solar_global[W/sf];
+	double ground_reflectivity[pu];
 	}	
 ~~~
 
@@ -49,7 +50,7 @@ In addition, the GLM file contains an object declaration for the weather data, w
 object weather
 {
 	name "<csvname>";
-	station_id <station-di>;
+	station_id <station-id>;
 	object player
 	{
 		file "test_data.csv";
@@ -61,6 +62,8 @@ object weather
 To obtain data from NOAA, request a download from [NOAA LCD Datatools](https://www.ncdc.noaa.gov/cdo-web/datatools/lcd).  When your data request is fulfilled you may specify the URL emailed to you by NOAA as the input name. However, there is no guarantee that NOAA will preserve the endpoint indefinitely.
 
 The solar calculations are based on the Zhang-Huang model, which estimates the total, direct, and diffuse solar irradiance based on the prevailing weather conditions, time-of-day, and day of year.
+
+The ground reflectivity may be specified using the `ground_albedo` option. Note that this value is static and does not take into account the effect of accumulated snow on the ground recorded in the NOAA data.
 
 # Example
 
