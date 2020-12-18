@@ -114,12 +114,7 @@ function fetch_index()
 	if [ ! -d $CACHEDIR ]; then
 		mkdir -p $CACHEDIR || error 1 "unable to create $CACHEDIR"
 	fi
-	if [ ! -f $INDEX ]; then
-		echo -n "Downloading ${GITBRANCH} index of $ORGANIZATION template archive from ${GITPROJ}... "
-#		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$ORGANIZATION | grep '.*$' > $INDEX || rm -f $INDEX
-		curl -s $GITHUBUSERCONTENT/$GITPROJ/branches/$GITBRANCH/$ORGANIZATION/.index >$INDEX
-		echo $(wc -l $INDEX | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "template files found"
-	fi
+	curl -sL $GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH/$ORGANIZATION/.index >$INDEX
 	if [ ! -f $INDEX ]; then
 		error 1 "unable to fetch index"
 	fi
@@ -218,13 +213,8 @@ function get()
 {
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
-		if [ ! -f $DATADIR/$f ]; then
-			echo -n "Downloading $f... "
-			(curl -s $GITFILE/$ORGANIZATION/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to download $f")
-		else
-			echo -n "Refreshing $f... "
-			(curl -s $GITFILE/$ORGANIZATION/$f -z $DATADIR/$f > /tmp/$$ && mv /tmp/$$ $DATADIR/$f && echo "done") || (rm -f /tmp/$$; error 1 "unable to refresh $f")
-		fi
+		echo -n "Downloading $f... "
+		(curl -sL $GITFILE/$ORGANIZATION/$f > /tmp/$$ && unzip /tmp/$$ -d $DATADIR && echo "done") || (rm -f /tmp/$$; error 1 "unable to download $f")
 	done
 }
 
