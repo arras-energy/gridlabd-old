@@ -1172,6 +1172,7 @@ DEPRECATED static int globals(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::globals(int argc, const char *argv[])
 {
+	bool use_json = (strstr(argv[0],"=json")!=NULL);
 	const char *list[65536];
 	int i, n=0;
 	GLOBALVAR *var = NULL;
@@ -1192,16 +1193,43 @@ int GldCmdarg::globals(int argc, const char *argv[])
 	qsort(list,n,sizeof(list[0]),compare);
 
 	/* output sorted array */
+	if ( use_json )
+	{
+		printf("{\n");
+	}
 	for (i=0; i<n; i++)
 	{
 		char buffer[1024];
 		var = global_find(list[i]);
 		if ( (var->prop->access&PA_HIDDEN)==PA_HIDDEN )
 			continue;
-		printf("%s=%s;",var->prop->name,global_getvar(var->prop->name,buffer,sizeof(buffer))?buffer:"(error)");
-		if (var->prop->description || var->prop->flags&PF_DEPRECATED)
-			printf(" // %s%s", (var->prop->flags&PF_DEPRECATED)?"DEPRECATED ":"", var->prop->description?var->prop->description:"");
-		printf("\n");
+		const char *value = global_getvar(var->prop->name,buffer,sizeof(buffer));
+		if ( use_json && value != NULL )
+		{
+			printf("\t\"%s\" : {\n",var->prop->name);
+			if ( value[0] == '"' )
+			{
+				printf("\t\t\"value\" : %s,\n",value);
+			}
+			else
+			{
+				printf("\t\t\"value\" : \"%s\",\n",value);
+			}
+			printf("\t\t\"flags\" : \"%s\",\n",(var->prop->flags&PF_DEPRECATED)?"DEPRECATED":"");
+			printf("\t\t\"description\" : \"%s\"\n",var->prop->description?var->prop->description:"");
+			printf("\t}%s\n",i<n-1?",":"");
+		}
+		else
+		{
+			printf("%s=%s;",var->prop->name,value);
+			if (var->prop->description || var->prop->flags&PF_DEPRECATED)
+				printf(" // %s%s", (var->prop->flags&PF_DEPRECATED)?"DEPRECATED ":"", var->prop->description?var->prop->description:"");
+			printf("\n");
+		}
+	}
+	if ( use_json )
+	{
+		printf("}\n");
 	}
 	return 0;
 }

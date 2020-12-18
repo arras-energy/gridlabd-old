@@ -35,41 +35,41 @@ The following sections explain how these two files generally interact.
 
 The file `model.glm` loads the python handlers module, which implements the model's event handlers. In Figure 2 there are two kinds of event handlers.  The first is the global event handler `on_init(timestamp)` that is called by the core solver when the simulation initializes, if it is defined.  The available global event handlers that can be defined are
 
-- `on_init(timestamp)`: This event handler is called when the simulation is initialized. The value of `timestamp` is the start time of the simulation.
+- `on_init(timestamp)`: This event handler is called when the simulation is initialized. The value of `timestamp` is the start time of the simulation. The `on_init` event handler must return `True` on success and `False` on failure.
 
-- `on_precommit(timestamp)`: This event handler is called when the simulation solver is about to begin a series of object sychronization iterations. The value of `timestamp` is the clock time to which the simulation is synchronizing objects.
+- `on_precommit(timestamp)`: This event handler is called when the simulation solver is about to begin a series of object sychronization iterations. The value of `timestamp` is the clock time to which the simulation is synchronizing objects. The `on_precommit` event handler must return a timestamp.  If the time value returned is less than or equal to `timestamp`, the event handler fails.
 
-- `on_presync(timestamp)`: This event handler is called when the simulation is about to begin a solver iteration. The value of `timestamp` is the clock time to which the simulation is synchronizing objects.
+- `on_presync(timestamp)`: This event handler is called when the simulation is about to begin a solver iteration. The value of `timestamp` is the clock time to which the simulation is synchronizing objects. If the time value returned is less than to `timestamp`, the event handler fails. If the time value returned is equal to `timestamp` the solver will iterate again with the same value as `timestamp`.  Returning a time value greater than `timestamp` will cause the solver call the event handler again *no later than* the time value.
 
-- `on_sync(timestamp)`: This event handler is called when the simulation runs a solver iteration. The value of `timestamp` is the clock time to which the simulation is synchronizing objects.
+- `on_sync(timestamp)`: This event handler is called when the simulation runs a solver iteration. The value of `timestamp` is the clock time to which the simulation is synchronizing objects. If the time value returned is equal to `timestamp` the solver will iterate again with the same value as `timestamp`.  Returning a time value greater than `timestamp` will cause the solver call the event handler again *no later than* the time value.
 
-- `on_postsync(timestamp)`: This event handler is called when the simulation has completed a solver iteration. The value of `timestamp` is the clock time to which the simulation is synchronizing objects.
+- `on_postsync(timestamp)`: This event handler is called when the simulation has completed a solver iteration. The value of `timestamp` is the clock time to which the simulation is synchronizing objects. If the time value returned is equal to `timestamp` the solver will iterate again with the same value as `timestamp`.  Returning a time value greater than `timestamp` will cause the solver call the event handler again *no later than* the time value.
 
-- `on_commit(timestamp)`: This event handler is called when the simulation has completed a series of object synchronization iterations. The value of `timestamp` is the clock time to which the simulation is synchronizing objects.
+- `on_commit(timestamp)`: This event handler is called when the simulation has completed a series of object synchronization iterations. The value of `timestamp` is the clock time to which the simulation is synchronizing objects. The `on_precommit` event handler must return a timestamp.  If the time value returned is less than or equal to `timestamp`, the event handler fails.
 
-- `on_term(timestamp)`: This is called when the simulation is terminated. The value of `timestamp` is set to the stop time of the simulation, or the time at which the simulation encountered an error, if any.
+- `on_term(timestamp)`: This is called when the simulation is terminated. The value of `timestamp` is set to the stop time of the simulation, or the time at which the simulation encountered an error, if any. No return value is expected.
 
 The second is the object event handler `commit(object,timestamp)` that is called whenever the object in which it is specified performs a `commit` operation. Only objects that define an `on_commit` property will call commit event handlers. To call a python event handler, the syntax must be `python:<module-name>.<handler-name>`. If the colon is omitted, the call will be made to an external python executable, rather than the handlers module.
 
 The following object event handlers are allowed:
 
-- `on_init python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation is initialized.
+- `on_init python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation is initialized. The return value has the same meaning as the module `on_init` event handler.
 
-- `on_create python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation creates the object.
+- `on_create python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation creates the object. The return value has the same meaning as the module `on_init` event handler.
 
-- `on_precommit python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation starts a clock synchronization on the object.
+- `on_precommit python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation starts a clock synchronization on the object. The return value has the same meaning as the module `on_precommit` event handler.
 
-- `on_presync python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation start a solver iteration on the object.
+- `on_presync python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation start a solver iteration on the object. The return value has the same meaning as the module `on_presync` event handler.
 
-- `on_sync python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation performs a solver iteration on the object.
+- `on_sync python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation performs a solver iteration on the object. The return value has the same meaning as the module `on_sync` event handler.
 
-- `on_postsync python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation ends a solver iteration on the object.
+- `on_postsync python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation ends a solver iteration on the object. The return value has the same meaning as the module `on_postsync` event handler. 
 
-- `on_commit python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation completes a clock synchronization on the object. 
+- `on_commit python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation completes a clock synchronization on the object.  The return value has the same meaning as the module `on_commit` event handler.
 
-- `on_finalize python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation has completed updating the object.
+- `on_finalize python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation has completed updating the object.  The return value has the same meaning as the module `on_term` event handler.
 
-- `on_term python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation is ready to destroy the object.
+- `on_term python:<module>:<handler>;`: Define this object property to call the `handler(object,timestamp)` in the specified `module` when the simulation is ready to destroy the object.  The return value has the same meaning as the module `on_term` event handler.
 
 ## `handlers.py`
 

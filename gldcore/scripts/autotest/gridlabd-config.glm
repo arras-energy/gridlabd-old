@@ -1,0 +1,6 @@
+// job 15 configuration for ['test_job.glm']
+#set strictnames=FALSE
+#define TEST1=15
+#define TEST2=J
+#define TEST3=K
+#define TEST4=L
