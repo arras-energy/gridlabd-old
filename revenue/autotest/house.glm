@@ -9,6 +9,8 @@ object triplex_meter
 object house
 {
 	parent "meter${ID}";
+	//heating_system_type "RESISTANCE";
+
 }
 
 
@@ -16,6 +18,12 @@ object billing
 {
 	meter "meter${ID}";
 	tariff "${TARIFF}";
-	baseline_demand 10.5 kWh/day;
+	baseline_demand 8.2 kWh/day;
+	// User input based on furnace technology 
+	//summer baseline 6.8 kWh/day;
+	//winter baseline 8.5 kWh/day;
+
+
 }
+
 

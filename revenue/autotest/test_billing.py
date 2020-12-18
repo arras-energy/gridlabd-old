@@ -1,6 +1,7 @@
 from datetime import *
 from csv import *
 from dateutil import parser
+import gridlabd 
 
 csvfile = open("billing.csv","w")
 csvwriter = writer(csvfile);
@@ -28,9 +29,13 @@ def compute_bill(gridlabd,**kwargs):
 	tariff = gridlabd.get_object(bill["tariff"])
 	meter = gridlabd.get_object(bill["meter"])
 	energy = to_float(meter["measured_real_energy"])/1000
+	#heating = gridlabd.get_object("house")
+	#print(heating)
+
 
 	# get duration
 	clock = to_datetime(gridlabd.get_global('clock'),'%Y-%m-%d %H:%M:%S %Z')
+
 	if not "lastreading" in data.keys():
 		duration = timedelta(0)
 	else:
@@ -52,7 +57,9 @@ def compute_bill(gridlabd,**kwargs):
 		print(f"Bill '{bill_name}' for meter '{meter_name}' on tariff '{tariff_name}' at time '{clock}':")
 		print(f"  Billing days..... %5.0f    days" % (billing_days))
 		print(f"  Meter reading.... %7.1f  kWh" % (energy))
-	if baseline == 0.0:
+
+	if baseline == 0.0:    
+		
 		if verbose:
 			print(f"  Energy usage..... %7.1f  kWh" % (usage))
 		charges = usage * to_float(tariff["energy_charge_base"])
