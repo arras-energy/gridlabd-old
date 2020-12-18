@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # check environment
-if [ ${GLD_ETC:-none} == none ]; then
+if [ "${GLD_ETC:-none}" == "none" ]; then
 	echo "ERROR: GLD_ETC is not exported from the shell environment"
 	exit 1
 fi
@@ -20,8 +20,8 @@ FORMAT="default"
 
 # load the configuration (if any)
 CONFIGFILE="$GLD_ETC/gridlabd-template.conf"
-if [ -f $CONFIGFILE ]; then
-	source $CONFIGFILE
+if [ -f "$CONFIGFILE" ]; then
+	source "$CONFIGFILE"
 fi
 
 function error()
@@ -80,11 +80,11 @@ function config()
 			echo "SVNLSOPTIONS=\"$SVNLSOPTIONS\""
 		fi
 	elif [ "$1" == "reset" ]; then
-		rm -f $CONFIGFILE || error 1 "unable to reset $CONFIGFILE"
+		rm -f "$CONFIGFILE" || error 1 "unable to reset $CONFIGFILE"
 	elif [ "$1" == "set" -a $# == 3 ]; then
-		echo "$2=\"$3\"" >> $CONFIGFILE
+		echo "$2=\"$3\"" >> "$CONFIGFILE"
 	elif [ "$1" == "get" -a $# == 2 ]; then
-		if [ ! -r $CONFIGFILE ]; then
+		if [ ! -r "$CONFIGFILE" ]; then
 			value=$(config show | grep $2)
 		else
 			value=$(grep ^$2 $CONFIGFILE | tail -n 1)
@@ -108,14 +108,14 @@ INDEX=$CACHEDIR/$COMMIT_ID
 
 function fetch_index()
 {
-	if [ ! -d $DATADIR ]; then
-		mkdir -p $DATADIR || error 1 "unable to create $DATADIR"
+	if [ ! -d "$DATADIR" ]; then
+		mkdir -p "$DATADIR" || error 1 "unable to create $DATADIR"
 	fi
-	if [ ! -d $CACHEDIR ]; then
-		mkdir -p $CACHEDIR || error 1 "unable to create $CACHEDIR"
+	if [ ! -d "$CACHEDIR" ]; then
+		mkdir -p "$CACHEDIR" || error 1 "unable to create $CACHEDIR"
 	fi
-	curl -sL $GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH/$ORGANIZATION/.index >$INDEX
-	if [ ! -f $INDEX ]; then
+	curl -sL "$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH/$ORGANIZATION/.index" >"$INDEX"
+	if [ ! -f "$INDEX" ]; then
 		error 1 "unable to fetch index"
 	fi
 }
@@ -157,8 +157,8 @@ function help()
 
 function clean()
 {
-	rm -rf $CACHEDIR 
-	if [ -d $CACHEDIR ]; then
+	rm -rf "$CACHEDIR" 
+	if [ -d "$CACHEDIR" ]; then
 		error 1 "unable to delete $CACHEDIR"
 	fi
 	fetch_index
@@ -203,7 +203,7 @@ function list()
 {
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
-		if [ -f $DATADIR/$f ]; then
+		if [ -f "$DATADIR/$f" ]; then
 			echo $f
 		fi
 	done
@@ -226,7 +226,7 @@ function info()
 	if [ "$FORMAT" == "json" ]; then
 		echo "["
 		for f in $(export FORMAT=default; index $1); do
-			if [ -f $DATADIR/$f ]; then
+			if [ -f "$DATADIR/$f" ]; then
 				if [ "$first" == "yes" ]; then
 					first="no"
 				else
@@ -235,7 +235,7 @@ function info()
 				echo "	{"
 				echo "		\"datadir\" : \"$DATADIR/$f\","
 				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#define TEMPLATE_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					VALUE=`grep "^#define TEMPLATE_$KEY=" "$DATADIR/$f" | cut -f2 -d=`
 					echo "		\"$KEY\" : ${VALUE:-None},"
 				done
 				echo "		\"organization\" : \"$ORGANIZATION\""
@@ -250,14 +250,14 @@ function info()
 		echo $(index $1)
 	else
 		for f in $(export FORMAT=default; index $1); do
-			if [ -f $DATADIR/$f ]; then
+			if [ -f "$DATADIR/$f" ]; then
 				if [ "$first" == "yes" ]; then
 					echo "Filepath,Organization,$KEYWORDS"
 					first="no"
 				fi
 				echo -n "$DATADIR/$f,$ORGANIZATION"
 				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#define TEMPLATE_$KEY=" $DATADIR/$f | cut -f2 -d=`
+					VALUE=`grep "^#define TEMPLATE_$KEY=" "$DATADIR/$f" | cut -f2 -d=`
 					echo -n ",${VALUE:-\"\"}"
 				done
 				echo ""
@@ -272,36 +272,35 @@ function copy()
 	if [ $# -eq 0 ]; then
 		error 1 "missing template name"
 	fi
-	FROM=$DATADIR/$1
-	if [ ! -r $FROM ]; then
+	FROM="$DATADIR/$1"
+	if [ ! -r "$FROM" ]; then
 		error 2 "$FROM not found"
 	fi
 	TO=$1
 	if [ $# -gt 1 ]; then
 		TO=$2
 	fi
-	if [ -f $TO ]; then
+	if [ -f "$TO" ]; then
 		error 3 "$TO exists"
 	fi
 	if [ $# -eq 1 ]; then
 		cp $FROM $TO || exit 4
 		exit 0
 	fi
-	EXT=${TO##*.}
-	# convert automatically (TODO such that only objects are saved)
-	TMP=/tmp/tmp-$$
-	sed -e '1,$s/^#define TEMPLATE_Module="\(.*\)"/module \1;/' < $FROM > $TMP.glm || exit 5
-	gridlabd -D filesave_options=OBJECTS -D glm_save_options=MINIMAL -C $TMP.glm -o $TMP.$EXT || exit 6
-	cat $TMP.$EXT > $TO || exit 7
-	rm -f $TMP.*
+	EXT="${TO##*.}"
+	TMP="/tmp/tmp-$$"
+	sed -e '1,$s/^#define TEMPLATE_Module="\(.*\)"/module \1;/' < "$FROM" > "$TMP.glm" || exit 5
+	gridlabd -D filesave_options=OBJECTS -D glm_save_options=MINIMAL -C "$TMP.glm" -o "$TMP.$EXT" || exit 6
+	cat "$TMP.$EXT" > "$TO" || exit 7
+	rm -f "$TMP.*"
 }
 
 function delete()
 {
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
-		if [ -f $DATADIR/$f ]; then
-			rm -f $DATADIR/$f || error 1 "unable to delete $f"
+		if [ -f "$DATADIR/$f" ]; then
+			rm -f "$DATADIR/$f" || error 1 "unable to delete $f"
 		fi
 	done
 
@@ -312,13 +311,13 @@ function open()
 	if [ $# -eq 0 ]; then
 		error 1 "missing local template name"
 	fi
-	LIBDIR=$1
-	if [ -d $LIBDIR -a -d $LIBDIR/.git ]; then
-		cd $LIBDIR
+	LIBDIR="$1"
+	if [ -d "$LIBDIR" -a -d "$LIBDIR/.git" ]; then
+		cd "$LIBDIR"
 		git pull -q
 	else
-		git clone -q "$GITPROJ" $LIBDIR
-		cd $LIBDIR
+		git clone -q "$GITPROJ" "$LIBDIR"
+		cd "$LIBDIR"
 	fi
 	if [ ! -d .git ]; then
 		error 3 "$LIBDIR is not a valid git repository (missing $LIDIR/.git)"
@@ -327,7 +326,7 @@ function open()
 	if [ -z "$EMAIL" ]; then
 		error 3 "user.email not set for repository $LIBDIR"
 	fi
-	SESSION=$USER/$(date '+%y%m%d/%H%M%S')
+	SESSION="$USER/$(date '+%y%m%d/%H%M%S')"
 	git checkout -q -b $SESSION
 }
 
@@ -336,8 +335,8 @@ function session()
 	if [ $# -eq 0 ]; then
 		error 1 "missing local template name"
 	fi
-	LIBDIR=$1
-	if [ ! -d $LIBDIR -o ! -d $LIBDIR/.git ]; then
+	LIBDIR="$1"
+	if [ ! -d "$LIBDIR" -o ! -d "$LIBDIR/.git" ]; then
 		error 2 "$LIBDIR is not a valid local template"
 	fi
 	if [ $# -eq 1 ]; then
@@ -352,11 +351,11 @@ function save()
 	if [ $# -eq 0 ]; then
 		error 1 "missing local template name"
 	fi
-	LIBDIR=$1
-	if [ ! -d $LIBDIR/.git ]; then
+	LIBDIR="$1"
+	if [ ! -d "$LIBDIR/.git" ]; then
 		error 2 "$LIBDIR is not a valid git repository (missing $LIDIR/.git)"
 	fi
-	cd $LIBDIR
+	cd "$LIBDIR"
 	if [ $# -eq 1 ]; then
 		$MESSAGE="Save by $USER on $DATE"
 	else
@@ -365,8 +364,8 @@ function save()
 	git commit -a -m "$MESSAGE"
 	git push
 	SESSION=$(git branch | grep '^*' | cut -f2 -d' ')
-	file=$GITPROJ/compare/master...$SESSION
-	eval $OPENURLCMD
+	file="$GITPROJ/compare/master...$SESSION"
+	eval "$OPENURLCMD"
 }
 
 function add()
@@ -374,16 +373,16 @@ function add()
 	if [ $# -eq 0 ]; then
 		error 1 "missing local template name"
 	fi
-	LIBDIR=$1
+	LIBDIR="$1"
 	if [ $# -eq 1 ]; then
 		error 2 "missing file name"
 	fi
-	cd $LIBDIR
-	git add -q $2
+	cd "$LIBDIR"
+	git add -q "$2"
 }
 
 if [ "$1" == "-f" -o "$1" == "--format" ]; then
-	FORMAT=$2
+	FORMAT="$2"
 	shift 2
 fi
 
