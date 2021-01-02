@@ -203,7 +203,7 @@ function list()
 {
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
-		if [ -f "$DATADIR/$f" ]; then
+		if [ -f "$DATADIR/f" ]; then
 			echo $f
 		fi
 	done
@@ -213,8 +213,12 @@ function get()
 {
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
-		echo -n "Downloading $f... "
-		(curl -sL $GITFILE/$ORGANIZATION/$f > /tmp/$$ && unzip /tmp/$$ -d $DATADIR && echo "done") || (rm -f /tmp/$$; error 1 "unable to download $f")
+		echo -n "Installing $f... "
+		TMPFILE=$(mktemp)
+		curl -sL "$GITFILE/$ORGANIZATION/$f.zip" > "$TMPFILE" || error 1 "unable to download $f"
+		unzip -o "$TMPFILE" -d "$DATADIR" || error 1 "unable to unzip $f"
+		rm -f "$TMPFILE"
+		echo "done"
 	done
 }
 
@@ -299,8 +303,8 @@ function delete()
 {
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
-		if [ -f "$DATADIR/$f" ]; then
-			rm -f "$DATADIR/$f" || error 1 "unable to delete $f"
+		if [ -f "$DATADIR/${f/.zip/.glm}" ]; then
+			rm -f "$DATADIR/${f/.zip/}.*" || error 1 "unable to delete $f"
 		fi
 	done
 
