@@ -47,6 +47,8 @@ import pysolar.solar as solar
 
 timezone="+00:00"
 
+# TODO: these values are based on estimates from TMY file for a location
+#       a list of known values is available from a database that can obtained from Claudio
 I0 = 1355.0
 c0 = 0.5598
 c1 = 0.4982
