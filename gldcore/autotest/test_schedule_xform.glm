@@ -1,6 +1,6 @@
 // test schedule transforms
 // test schedule transforms
-
+#print "Processing test_schedule_xform"
 #set randomseed=17
 
 module tape;
@@ -13,8 +13,8 @@ clock {
 }
 
 schedule test_schedule {
-	0-29 * * * * 0
-	30-59 * * * * 1
+	0-29 * * * * 0;
+	30-59 * * * * 1;
 }
 
 class house {
