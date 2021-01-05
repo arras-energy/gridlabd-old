@@ -22,7 +22,7 @@ class house {
 //	int32 my_int32;
 //	enumeration {A=0, B=1, C=2, D=3, E=4} my_enum;
 //	set {A=1, B=2, C=4, D=8} my_set;
-	complex my_complex;
+//	complex my_complex;
 }
 
 object house {
@@ -30,9 +30,9 @@ object house {
 //	my_int32 test_schedule*2.58+1;
 //	my_enum test_schedule*2.58+1;
 //	my_set test_schedule*2.58+1;
-	my_complex test_schedule*2.58+1;
+//	my_complex test_schedule*2.58+1;
 	object recorder {
-		property "my_double,my_complex";
+		property "my_double";
 		file "test_schedule_xform_output.csv";
 	};
 }
