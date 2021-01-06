@@ -711,7 +711,6 @@ static PyObject *gridlabd_start(PyObject *self, PyObject *args)
 #ifdef MAIN_PYTHON
         return gridlabd_exception("unable to start gridlabd in this module instance");
 #else
-        PyEval_InitThreads();
         save_environ();
         exec_mls_create();
         gridlabd_module_status = GMS_STARTED;
@@ -1657,7 +1656,7 @@ extern "C" bool on_init(void)
         if ( PyCallable_Check(call) )
         {
             PyObject *arg = Py_BuildValue("(i)",global_clock);
-            PyObject *result = PyEval_CallObject(call,arg);
+            PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1694,7 +1693,7 @@ extern "C" TIMESTAMP on_precommit(TIMESTAMP t0)
         if ( call && PyCallable_Check(call) )
         {
             PyObject *arg = Py_BuildValue("(i)",t0);
-            PyObject *result = PyEval_CallObject(call,arg);
+            PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1741,7 +1740,7 @@ extern "C" TIMESTAMP on_presync(TIMESTAMP t0)
         if ( call && PyCallable_Check(call) )
         {
             PyObject *arg = Py_BuildValue("(i)",t0);
-            PyObject *result = PyEval_CallObject(call,arg);
+            PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1787,7 +1786,7 @@ extern "C" TIMESTAMP on_sync(TIMESTAMP t0)
         if ( call && PyCallable_Check(call) )
         {
             PyObject *arg = Py_BuildValue("(i)",t0);
-            PyObject *result = PyEval_CallObject(call,arg);
+            PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1833,7 +1832,7 @@ extern "C" TIMESTAMP on_postsync(TIMESTAMP t0)
         if ( call && PyCallable_Check(call) )
         {
             PyObject *arg = Py_BuildValue("(i)",t0);
-            PyObject *result = PyEval_CallObject(call,arg);
+            PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1878,7 +1877,7 @@ extern "C" bool on_commit(TIMESTAMP t)
         if ( call && PyCallable_Check(call) )
         {
             PyObject *arg = Py_BuildValue("(i)",t);
-            PyObject *result = PyEval_CallObject(call,arg);
+            PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1912,7 +1911,7 @@ extern "C" void on_term(void)
         if ( call && PyCallable_Check(call) )
         {
             PyObject *arg = Py_BuildValue("(i)",global_clock);
-            PyObject *result = PyEval_CallObject(call,arg);
+            PyObject *result = PyObject_Call(call,arg,NULL);
             Py_DECREF(arg);
             if ( ! result )
             {
@@ -1985,7 +1984,7 @@ int python_event(OBJECT *obj, const char *function, long long *p_retval)
                 sprintf(name,"%s:%d", obj->oclass->name, obj->id);
             }
             PyObject *args = Py_BuildValue("(si)",obj->name?obj->name:name,global_clock);
-            PyObject *result = PyEval_CallObject(call,args);
+            PyObject *result = PyObject_Call(call,args,NULL);
             Py_DECREF(args);
             if ( p_retval != NULL )
             {
