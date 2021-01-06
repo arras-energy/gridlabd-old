@@ -3,6 +3,10 @@ from csv import *
 from dateutil import parser
 import gridlabd 
 
+csvfile = open("billing.csv","w")
+csvwriter = writer(csvfile);
+csvwriter.writerow(["datetime","meter","tariff","billing_days","energy","demand","charges"])
+
 def to_float(x):
 	return float(x.split(' ')[0])   
 
@@ -28,6 +32,7 @@ def compute_bill(gridlabd,**kwargs):
 
 	# get duration
 	clock = to_datetime(gridlabd.get_global('clock'),'%Y-%m-%d %H:%M:%S %Z')
+
 	if not "lastreading" in data.keys():
 		duration = timedelta(0)
 	else:

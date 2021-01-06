@@ -9,6 +9,8 @@ object triplex_meter
 object house
 {
 	parent "meter${ID}";
+	//heating_system_type "RESISTANCE";
+
 }
 
 object billing 
@@ -16,7 +18,7 @@ object billing
 	name "bill${ID}";
 	meter "meter${ID}";
 	tariff "${TARIFF}";
-	baseline_demand 11 kWh/day;
+	baseline_demand 8.2 kWh/day;
 }
 
 module tape
@@ -30,4 +32,5 @@ object recorder
 	property "billing_days,energy_charges,total_charges,total_bill";
 	interval -1;
 }
+
 
