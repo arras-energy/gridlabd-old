@@ -1,6 +1,5 @@
 // test schedule transforms
 // test schedule transforms
-#print "Processing test_schedule_xform"
 #set randomseed=17
 
 module tape;
