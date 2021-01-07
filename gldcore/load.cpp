@@ -7239,50 +7239,30 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		else if ( sscanf(term, "[%[^]]]", value)==1 )
 		{
-			/* HTTP include */
-			int len=0;
-			char *p;
-			FILE *fp;
-			HTTPRESULT *http = http_read(value,0x40000);
 			char tmpname[1024];
-			if ( http==NULL )
+			snprintf(tmpname,sizeof(tmpname)-1,"url_%08llx.glm",hash(value));
+			try
 			{
-				output_error("%s(%d): unable to include [%s]", filename, linenum, value);
-				if ( old_stack ) global_restore(old_stack);
+				GldCurl(value,tmpname);
+			}
+			catch (const char *errmsg)
+			{
+				output_error("%s(%d): URL include failed, %s",filename,linenum,errmsg);
 				return FALSE;
 			}
-			
-			/* local cache file name */
-			len = sprintf(line,"@%s;%d\n",value,0);
-			size -= len; line += len;
-			strcpy(tmpname,value);
-			for ( p=tmpname ; *p!='\0' ; p++ )
+			catch (...)
 			{
-				if ( isalnum(*p) || *p=='.' || *p=='-' || *p==',' || *p=='_' ) continue;
-				*p = '_';
-			}
-
-			/* copy to local file - TODO check time stamps */
-			if ( access(tmpname,R_OK)!=0 )
-			{
-				fp = fopen(tmpname,"wt");
-				if ( fp==NULL )
-				{
-					output_error("%s(%d): unable to write temp file '%s'", filename, linenum, tmpname);
-					if ( old_stack ) global_restore(old_stack);
-					return FALSE;
-				}
-				fwrite(http->body.data,1,http->body.size,fp);
-				fclose(fp);
+				output_error("%s(%d): URL include failed, unknown exception",filename,linenum);
+				return FALSE;
 			}
 
 			/* load temp file */
 			strcpy(oldfile,filename);
 			strcpy(filename,tmpname);
-			len = (int)include_file(tmpname,line,size,linenum);
+			int len = (int)include_file(tmpname,line,size,linenum);
 			strcpy(filename,oldfile);
 			add_depend(filename,tmpname);
-			if ( len<0 )
+			if ( len < 0 )
 			{
 				output_error("%s(%d): unable to include load [%s] from temp file '%s'", filename, linenum, value,tmpname);
 				if ( old_stack ) global_restore(old_stack);
