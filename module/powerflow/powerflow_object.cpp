@@ -308,6 +308,7 @@ void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, cons
 		{
 			fprintf(violation_fh,"%s,%s:%u,%s,\"%s\"\n",ts,obj->oclass->name,obj->id,vf_name[vf_type&0x0f],message);
 		}
+		fflush(violation_fh);
 	}
 	else
 	{
