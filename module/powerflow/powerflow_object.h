@@ -117,10 +117,11 @@ public:
 	static CLASS *pclass;
 public:
 	static char1024 violation_record;
-	static int violation_count;
-	static int violation_active;
+	static int32 violation_count;
+	static int32 violation_active;
 	static FILE *violation_fh;
-	void add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *format, ...);
+	void add_violation(int vf_type, const char *format, ...);
+	void add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *message);
 	void del_violation(TIMESTAMP t, OBJECT *obj, int vf_type);
 #ifdef SUPPORT_OUTAGES
 	/* is_normal checks whether the current operating condition is normal */

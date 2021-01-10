@@ -262,7 +262,16 @@ int powerflow_object::kmldump(FILE *fp)
 	return 1; /* 1 means output default if it wasn't handled */
 }
 
-void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *format, ...)
+void powerflow_object::add_violation(int vf_type, const char *format, ...)
+{
+	char message[1024];
+	va_list ptr;
+	va_start(ptr,format);
+	vsnprintf(message,sizeof(message)-1,format,ptr);
+	va_end(ptr);
+	add_violation(gl_globalclock,THISOBJECTHDR,vf_type,message);
+}
+void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *message)
 {
 	if ( vf_type == VF_NONE )
 	{
@@ -282,11 +291,6 @@ void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, cons
 		fprintf(violation_fh,"%s\n","timestamp,object,type,description");
 	}
 
-	char message[1024];
-	va_list ptr;
-	va_start(ptr,format);
-	vsnprintf(message,sizeof(message)-1,format,ptr);
-	va_end(ptr);
 	const char *vf_name[] = 
 	{
 		"NONE","CURRENT","VOLTAGE","CURRENT|VOLTAGE","POWER","CURRENT|POWER","VOLTAGE|POWER","CURRENT|VOLTAGE|POWER",
