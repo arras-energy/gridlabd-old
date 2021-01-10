@@ -93,12 +93,20 @@
 #define NF_HASSOURCE	0x0001	///< flag indicates node has a source for voltage */
 #define NF_ISSOURCE		0x0002	///< flag indicates node has a source connected directly to it */
 
+// Violation flags
+#define VF_NONE    0x0000
+#define VF_CURRENT 0x0001
+#define VF_VOLTAGE 0x0002
+#define VF_POWER   0x0004
+#define VF_THERMAL 0x0008
+#define VF_CONTROL 0x0010
+
 class powerflow_object : public gld_object
 {
 public:
 	set phases;				/**< device phases (see PHASE codes) */
 	double nominal_voltage;	/**< nominal voltage */
-	bool violation_detected; /**< a rating or limit was violated */
+	set violation_detected; /**< a rating or limit was violated */
 	char1024 supernode; 	/**< internal reference for hierarchical models */
 #ifdef SUPPORT_OUTAGES
 	set condition;			/**< operating condition (see OC codes) */
@@ -107,6 +115,13 @@ public:
 public:
 	static CLASS *oclass; 
 	static CLASS *pclass;
+public:
+	static char1024 violation_record;
+	static int violation_count;
+	static int violation_active;
+	static FILE *violation_fh;
+	void add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *format, ...);
+	void del_violation(TIMESTAMP t, OBJECT *obj, int vf_type);
 #ifdef SUPPORT_OUTAGES
 	/* is_normal checks whether the current operating condition is normal */
 	inline bool is_normal(void) const { return condition==OC_NORMAL;};
