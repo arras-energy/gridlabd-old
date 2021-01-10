@@ -2834,7 +2834,6 @@ TIMESTAMP link_object::sync(TIMESTAMP t0)
 void link_object::BOTH_link_postsync_fxn(void)
 {
 	double temp_power_check;
-	bool over_limit;
 
 	 // updates published current_in variable
 		read_I_in[0] = current_in[0];
@@ -2857,7 +2856,7 @@ void link_object::BOTH_link_postsync_fxn(void)
 		calculate_power();
 
 	//Perform limit check
-	perform_limit_checks(&temp_power_check, &over_limit);
+	perform_limit_checks(&temp_power_check, &violation_detected);
 }
 
 //Functionalized limit checking, mostly for restoration calls
@@ -2894,7 +2893,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 				*over_limit_value = (temp_power_check - (power_out.Mag()/1000.0))*1000.0;
 
 				//Flag as over
-				*over_limits = true;
+				*over_limits = violation_detected = true;
 			}
 		}//End transformers
 		else	//Must be a line - that's the only other option right now
@@ -2934,7 +2933,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					*over_limit_value += temp_power_check;
 
 					//Flag as over
-					*over_limits = true;
+					*over_limits = violation_detected = true;
 
 				}//End Phase 1 check
 
@@ -2970,7 +2969,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					*over_limit_value += temp_power_check;
 
 					//Flag as over
-					*over_limits = true;
+					*over_limits = violation_detected = true;
 
 				}//End Phase 2 check
 			}//End triplex line check
@@ -3011,7 +3010,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						*over_limit_value += temp_power_check;
 
 						//Flag as over
-						*over_limits = true;
+						*over_limits = violation_detected = true;
 
 					}//End Phase A check
 				}//End has Phase A
@@ -3050,7 +3049,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						*over_limit_value += temp_power_check;
 
 						//Flag as over
-						*over_limits = true;
+						*over_limits = violation_detected = true;
 
 					}//End Phase B check
 				}//End has Phase B
@@ -3089,7 +3088,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						*over_limit_value += temp_power_check;
 
 						//Flag as over
-						*over_limits = true;
+						*over_limits = violation_detected = true;
 
 					}//End Phase C check
 				}//End has Phase C

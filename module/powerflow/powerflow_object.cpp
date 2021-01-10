@@ -119,6 +119,9 @@ powerflow_object::powerflow_object(MODULE *mod)
 			PT_double,"nominal_voltage[V]",PADDR(nominal_voltage),
 				PT_REQUIRED,
 				PT_DESCRIPTION, "nominal voltage for this object",
+			PT_bool,"violation_detected",PADDR(violation_detected),
+				PT_OUTPUT,
+				PT_DESCRIPTION, "rating or limit violation flag",
 #ifdef SUPPORT_OUTAGES
 			PT_set, "condition", PADDR(condition),
 				PT_KEYWORD, "OPEN", (set)OC_OPEN,

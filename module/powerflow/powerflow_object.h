@@ -98,6 +98,7 @@ class powerflow_object : public gld_object
 public:
 	set phases;				/**< device phases (see PHASE codes) */
 	double nominal_voltage;	/**< nominal voltage */
+	bool violation_detected; /**< a rating or limit was violated */
 	char1024 supernode; 	/**< internal reference for hierarchical models */
 #ifdef SUPPORT_OUTAGES
 	set condition;			/**< operating condition (see OC codes) */
