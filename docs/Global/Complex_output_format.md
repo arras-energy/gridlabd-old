@@ -32,10 +32,9 @@ All complex numbers will be formatted using the `<mag>+<angle>d` format.
 
 ## `POLAR_RAD`
 
+All complex numbers will be formatted using the `<mag>+<angle>r` format.
+
 # See also
 
 * [[/Global/Complex_format]]
-
-
-All complex numbers will be formatted using the `<mag>+<angle>r` format.
 
