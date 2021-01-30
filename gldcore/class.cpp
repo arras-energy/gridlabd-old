@@ -289,6 +289,24 @@ bool has_child_class(CLASS *oclass)
 	return false;
 }
 
+void relocate_child_properties(CLASS *oclass, size_t size)
+{
+	printf("relocate_child_properties(CLASS *oclass={name:'%s'}, size_t size=%lu)\n",oclass->name,size);
+	for ( CLASS *c = class_get_first_class() ; c != NULL ; c = c->next )
+	{
+		if ( c->parent == oclass )
+		{
+			for ( PROPERTY *p = class_get_first_property(c) ; p != NULL && p->oclass == c ; p = p->next )
+			{
+				void *ptr = (void*)((size_t)p->addr + size);
+				printf("  moving %s.%s from %p to %p\n",c->name,p->name,p->addr,ptr);
+				p->addr = ptr;
+			}
+			relocate_child_properties(c,size);
+		}
+	}
+}
+
 /** Add an extended property to a class 
     @return the property pointer
  **/
@@ -315,13 +333,6 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 		// will get picked up later
 	}
 
-	if ( has_child_class(oclass) )
-	{
-		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been used to derive another class", oclass->name, name);
-		/* TROUBLESHOOT
-			Once the class has been used to derive another class, it is not possible to change its size in memory.
-		 */
-	}
 	if ( oclass->profiler.numobjs > 0 )
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been instantiated", oclass->name, name);
 		/* TROUBLESHOOT
@@ -366,8 +377,10 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	oclass->size += property_type[ptype].size;
 
 	class_add_property(oclass,prop);
-	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): after adding property first property is %s", oclass->name, name, oclass->pmap->name);
-	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...) -> PROPERTY(<%s:%s>)", oclass->name, name, prop->oclass->name, prop->name);
+	if ( has_child_class(oclass) )
+	{
+		relocate_child_properties(oclass,prop->width);
+	}
 	return prop;
 }
 
