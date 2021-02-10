@@ -218,13 +218,11 @@ function get()
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
 		if [ ! -f "$DATADIR/$f" ]; then
-			echo -n "Downloading $f... "
-			(curl -sL "$GITFILE/$ORGANIZATION/$f" > "/tmp/$$" && mv "/tmp/$$" "$DATADIR/$f" && echo "done") || (rm -f "/tmp/$$"; error 1 "unable to download $f")
-			[ "${f##*.}" == "zip" ] && unzip -qq -o "$f" -d "$DATADIR"
+			echo -n "Downloading $GITFILE/$ORGANIZATION/$f.zip... "
+			(curl -sL "$GITFILE/$ORGANIZATION/$f.zip" > "/tmp/$$" && unzip -q -n -d "$DATADIR/$f" "/tmp/$$" && echo "done") || (rm -f "/tmp/$$"; error 1 "unable to download $f")
 		else
-			echo -n "Refreshing $f... "
-			(curl -sL "$GITFILE/$ORGANIZATION/$f" -z "$DATADIR/$f" > "/tmp/$$" && mv "/tmp/$$" "$DATADIR/$f" && echo "done") || (rm -f "/tmp/$$"; error 1 "unable to refresh $f")
-			[ "${f##*.}" == "zip" ] && unzip -qq -o "$f" -d "$DATADIR"
+			echo -n "Refreshing $GITFILE/$ORGANIZATION/$f.zip... "
+			(curl -sL "$GITFILE/$ORGANIZATION/$f.zip" -z "$DATADIR/$f.zip" > "/tmp/$$" && unzip -q -u -o -d "$DATADIR/$f" "/tmp/$$" && echo "done") || (rm -f "/tmp/$$"; error 1 "unable to refresh $f")
 		fi
 	done
 }
