@@ -115,9 +115,8 @@ function fetch_index()
 		mkdir -p "$CACHEDIR" || error 1 "unable to create $CACHEDIR"
 	fi
 	if [ ! -f "$INDEX" ]; then
-		echo -n "Downloading ${GITBRANCH} index of $ORGANIZATION template archive from ${GITPROJ}... "
-#		svn $SVNLSOPTIONS ls $GITPROJ/branches/$GITBRANCH/$ORGANIZATION | grep '.*$' > $INDEX || rm -f $INDEX
-		curl -sL "$GITHUBUSERCONTENT/$GITPROJ/branches/$GITBRANCH/$ORGANIZATION/.index" >"$INDEX"
+		echo -n "Downloading ${GITBRANCH} index of $ORGANIZATION template archive from ${GITPROJ} (curl -sL $GITFILE/$ORGANIZATION/.index)... "
+		curl -sL "$GITFILE/$ORGANIZATION/.index" >"$INDEX"
 		echo $(wc -l "$INDEX" | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "template files found"
 	fi
 	if [ ! -f "$INDEX" ]; then
