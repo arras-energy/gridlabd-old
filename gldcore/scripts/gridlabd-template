@@ -152,7 +152,13 @@ function help()
 			         get <N> <V>   Get configuration variable name <N>
 			END
 	else
-		pandoc $DATADIR/$1/$1.md -t plain | more
+		for DOC in $(find $DATADIR -name $1.md -print); do
+			if [ -z "$(which ${VIEWER:-pandoc})" ]; then
+				more $DOC
+			else
+				${VIEWER:-pandoc} $DOC -t plain | more
+			fi
+		done
 	fi
 }
 
