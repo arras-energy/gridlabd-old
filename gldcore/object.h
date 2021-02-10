@@ -31,8 +31,10 @@ typedef unsigned short OBJECTSIZE; /** Object data size */
 typedef unsigned int OBJECTNUM; /** Object id number */
 typedef const char * OBJECTNAME; /** Object name */
 typedef char FULLNAME[1024]; /** Full object name (including space name) */
+typedef unsigned long long HASH;
 
 #define PADDR_X(X,T) ((char*)&((T)->X)-(char*)(T))
+HASH hash(OBJECTNAME name);
 
 /* object flags */
 #define OF_NONE			0x00000000	/**< Object flag; none set */

@@ -5,7 +5,12 @@ from datetime import datetime
 import importlib, copy
 from importlib import util
 
-config = {"input":"csv","output":"glm","from":["ami","scada","onpoint-weather"],"type":["ceus","rbsa","climate"]}
+config = {
+    "input" : "csv",
+    "output" : "glm",
+    "from" : ["ami","scada","onpoint-weather"],
+    "type" : ["ceus","rbsa","climate"],
+    }
 
 def help():
     print('Syntax:')
