@@ -4,3 +4,4 @@ pandas==1.1.4
 Pillow==8.0.1
 pytz==2020.4
 pysolar==0.9
+PyGithub=1.54.1
