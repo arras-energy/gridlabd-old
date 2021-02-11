@@ -221,7 +221,7 @@ function get()
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
 		# echo -n "Downloading $GITFILE/$ORGANIZATION/$f.zip... "
-		(curl -sL "$GITFILE/$ORGANIZATION/$f.zip" > "/tmp/$$" && unzip -q -o -d "$DATADIR/$f" "/tmp/$$") || (rm -f "/tmp/$$"; error 1 "unable to download $f")
+		(curl -sL "$GITFILE/$ORGANIZATION/$f.zip" > "/tmp/$$" && unzip -q -o -d "$GLD_ETC/template" "/tmp/$$") || (rm -f "/tmp/$$"; error 1 "unable to download $f")
 	done
 }
 
