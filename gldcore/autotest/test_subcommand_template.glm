@@ -1,0 +1,3 @@
+#template get ica
+#include "ica_analysis.glm"
+module ica_analysis;
