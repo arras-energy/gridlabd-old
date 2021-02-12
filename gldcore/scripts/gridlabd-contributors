@@ -65,7 +65,10 @@ while n < len(sys.argv):
 			separator = value
 		n += 1
 	elif tag in ["-q","--quotes"]:
-		quotes = value
+		if value == None or value == "None":
+			quotes = ""
+		else:
+			quotes = value
 		n += 1
 	elif tag in ["-k","--known"]:
 		known = True
