@@ -55,11 +55,12 @@ if [ $# -gt 0 ]; then
 fi
 
 DEFAULT=-1
-COMMANDS=(autoreconf+-isf ./configure make+${OPTIONS// /+}+system make+${OPTIONS// /+}+install make+${OPTIONS// /+}  make+${OPTIONS// /+}+validate gridlabd+version+list gridlabd+version+set make+${OPTIONS// /+}+clean make+${OPTIONS// /+}+distclean exit)
+COMMANDS=(autoreconf+-isf ./configure make+${OPTIONS// /+}+system make+${OPTIONS// /+}+install make+${OPTIONS// /+} gridlabd+-T+0+--validate gridlabd+version+list gridlabd+version+set make+clean make+distclean exit)
 TESTS=(configure Makefile)
 echo ""
 echo "HiPAS GridLAB-D Build Manager Version 1.0"
 while [ true ]; do
+	export PATH=$SOURCE:/usr/local/bin:/usr/bin:/bin
 	echo ""
 	echo "Main menu"
 	echo "---------"
@@ -79,9 +80,9 @@ while [ true ]; do
 		fi
 	done
 	SOURCE=$(./build-aux/version.sh --install)
-	TARGET=$(gridlabd --version=install)
-	echo "Target version: $TARGET"
+	TARGET=$(gridlabd --version=install 2>/dev/null || echo "(none found)")
 	echo "Configured version: $SOURCE"
+	echo "Target version: $TARGET"
 	if [ "$TARGET" != "$SOURCE" -a $DEFAULT -gt 1 ]; then
 		echo ""
 		echo "WARNING: 'make' will fail when target and source versions do not match; if you have not already done so, command '9' will fix this"
