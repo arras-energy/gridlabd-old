@@ -46,7 +46,7 @@ Use the GitHub access token `<str>`.
 
 # Caveat
 
-This query may be rate-limited by GitHub.  To increase the rate-limit use a github access token on the command line or add your github access token to the file `$HOME/.github/access-token`.
+This query may be rate-limited by GitHub.  To increase the rate-limit use a github access token on the command line or add your github access token to the file `$HOME/.github/access-token`. Note, you may need to create the folder `./github` and file `access-token` within it that contains the github generated token. 
 
 # See also
 
