@@ -5,34 +5,34 @@
 Shell:
 
 ~~~
-bash$ gridlabd help
-bash$ gridlabd index <pattern>
-bash$ gridlabd list <pattern>
-bash$ gridlabd get <pattern>
-bash$ gridlabd submit <file>
-bash$ gridlabd delete <pattern>
-bash$ gridlabd info <pattern>
-bash$ gridlabd copy <name> [<file>]
-bash$ gridlabd clean
-bash$ gridlabd open <local>
-bash$ gridlabd session <local> [<pattern>]
-bash$ gridlabd add <local> <pattern>
-bash$ gridlabd save <local> ["<description>"]
-bash$ gridlabd submit <local>
-bash$ gridlabd config show
-bash$ gridlabd config reset
-bash$ gridlabd config get <name>
-bash$ gridlabd config set <name> <value>
+bash$ gridlabd template help
+bash$ gridlabd template index <pattern>
+bash$ gridlabd template list <pattern>
+bash$ gridlabd template get <pattern>
+bash$ gridlabd template submit <file>
+bash$ gridlabd template delete <pattern>
+bash$ gridlabd template info <pattern>
+bash$ gridlabd template copy <name> [<file>]
+bash$ gridlabd template clean
+bash$ gridlabd template open <local>
+bash$ gridlabd template session <local> [<pattern>]
+bash$ gridlabd template add <local> <pattern>
+bash$ gridlabd template save <local> ["<description>"]
+bash$ gridlabd template submit <local>
+bash$ gridlabd template config show
+bash$ gridlabd template config reset
+bash$ gridlabd template config get <name>
+bash$ gridlabd template config set <name> <value>
 ~~~
 
 # Description
 
-Use the `template` subcommand to manage GridLAB-D's template files.
+Use the `template` subcommand to manage GridLAB-D's template files.  Templates may be either standalone `glm` files, or collections of files stored in `zip` file.  When a collection is used, the convention is to name the `zip` archive using the root of all the template files, e.g., `foo.zip` would contain files named `foo_1.glm`, `foo_2.csv`, and `foo_3.py`.
 
 ## `help`
 
 ~~~
-  gridlabd help
+  gridlabd template help
 ~~~
 
 The `template help` subcommand obtains a list of the valid commands.
@@ -74,7 +74,7 @@ Commands:
 The `index` command outputs a list of template files in the archive that match <pattern>.
   
 ~~~
-bash$ gridlabd index wood_pole
+bash$ gridlabd template index wood_pole
 wood_pole.glm
 ~~~
 
