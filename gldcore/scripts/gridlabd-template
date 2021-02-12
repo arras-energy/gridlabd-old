@@ -135,7 +135,6 @@ function help()
 			  list <pattern>       List of available downloaded template data matching <pattern>
 			  get <pattern>        Download template data matching <pattern> from archive 
 			  delete <pattern>     Delete downloaded template data matching <pattern>
-			  info <pattern>       Get information about template data in <pattern>
 			  copy <name> [<file>] Copy the contents of the template <name> into <file>
 			  clean                Clean up the local cache of the archive index
 			  open <local>         Open an editing session of template in <local>
@@ -210,7 +209,7 @@ function list()
 {
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
-		if [ -f "$DATADIR/$f" ]; then
+		if [ -d "$DATADIR/$f" ]; then
 			echo $f
 		fi
 	done
@@ -223,54 +222,6 @@ function get()
 		# echo -n "Downloading $GITFILE/$ORGANIZATION/$f.zip... "
 		(curl -sL "$GITFILE/$ORGANIZATION/$f.zip" > "/tmp/$$" && unzip -q -o -d "$GLD_ETC/template" "/tmp/$$") || (rm -f "/tmp/$$"; error 1 "unable to download $f")
 	done
-}
-
-function info()
-{
-	fetch_index
-	first="yes"
-	KEYWORDS="NAME,VERSION,AUTHOR,DESCRIPTION,MODULES"
-	if [ "$FORMAT" == "json" ]; then
-		echo "["
-		for f in $(export FORMAT=default; index $1); do
-			if [ -f "$DATADIR/$f" ]; then
-				if [ "$first" == "yes" ]; then
-					first="no"
-				else
-					echo ","
-				fi
-				echo "	{"
-				echo "		\"datadir\" : \"$DATADIR/$f\","
-				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#define TEMPLATE_$KEY=" "$DATADIR/$f" | cut -f2 -d=`
-					echo "		\"$KEY\" : ${VALUE:-None},"
-				done
-				echo "		\"organization\" : \"$ORGANIZATION\""
-				echo -n "	}"
-			fi
-		done
-		if [ "$first" == "no" ]; then
-			echo ""
-		fi
-		echo "]"
-	elif [ "$FORMAT" == "glm" ]; then
-		echo $(index $1)
-	else
-		for f in $(export FORMAT=default; index $1); do
-			if [ -f "$DATADIR/$f" ]; then
-				if [ "$first" == "yes" ]; then
-					echo "Filepath,Organization,$KEYWORDS"
-					first="no"
-				fi
-				echo -n "$DATADIR/$f,$ORGANIZATION"
-				for KEY in ${KEYWORDS//,/ }; do
-					VALUE=`grep "^#define TEMPLATE_$KEY=" "$DATADIR/$f" | cut -f2 -d=`
-					echo -n ",${VALUE:-\"\"}"
-				done
-				echo ""
-			fi
-		done
-	fi
 }
 
 function copy()
@@ -306,8 +257,8 @@ function delete()
 {
 	fetch_index
 	for f in $(export FORMAT=default; index $1); do
-		if [ -f "$DATADIR/$f" ]; then
-			rm -f "$DATADIR/$f" || error 1 "unable to delete $f"
+		if [ -d "$DATADIR/$f" ]; then
+			rm -rf "$DATADIR/$f" || error 1 "unable to delete $f"
 		fi
 	done
 
