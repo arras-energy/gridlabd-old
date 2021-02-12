@@ -34,7 +34,7 @@ Output only the user login id.
 
 ### `-q|--quotes <str>`
 
-Enclose names quote `<str>`.
+Enclose names quote `<str>`. Note, if using `"` define with an escape character as `"\""`
 
 ### `-s|--separate <str>`
 
