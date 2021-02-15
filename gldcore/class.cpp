@@ -289,24 +289,6 @@ bool has_child_class(CLASS *oclass)
 	return false;
 }
 
-void relocate_child_properties(CLASS *oclass, size_t size)
-{
-	printf("relocate_child_properties(CLASS *oclass={name:'%s'}, size_t size=%lu)\n",oclass->name,size);
-	for ( CLASS *c = class_get_first_class() ; c != NULL ; c = c->next )
-	{
-		if ( c->parent == oclass )
-		{
-			for ( PROPERTY *p = class_get_first_property(c) ; p != NULL && p->oclass == c ; p = p->next )
-			{
-				void *ptr = (void*)((size_t)p->addr + size);
-				printf("  moving %s.%s from %p to %p\n",c->name,p->name,p->addr,ptr);
-				p->addr = ptr;
-			}
-			relocate_child_properties(c,size);
-		}
-	}
-}
-
 /** Add an extended property to a class 
     @return the property pointer
  **/
@@ -315,11 +297,6 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
                                       PROPERTYTYPE ptype, /**< the type of the property */
                                       const char *unit)   /**< the unit of the property */
 {
-	// if ( oclass->pmap )
-	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is %s", oclass->name, name, oclass->pmap->name);
-	// else
-	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is (null)", oclass->name, name);
-
 	PROPERTY *prop = (PROPERTY*)malloc(sizeof(PROPERTY));
 	UNIT *pUnit = NULL;
 
@@ -333,11 +310,6 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 		// will get picked up later
 	}
 
-	if ( oclass->profiler.numobjs > 0 )
-		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been instantiated", oclass->name, name);
-		/* TROUBLESHOOT
-			Once the class has been used to instantiate an object, it is not possible to change its size in memory.
-		 */
 	if (prop==NULL)
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): memory allocation failed", oclass->name, name);
 		/* TROUBLESHOOT
@@ -362,25 +334,18 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	prop->width = property_type[ptype].size;
 	prop->access = PA_PUBLIC;
 	prop->unit = pUnit;
-	int64 offset = (int64)oclass->size;
-	for ( CLASS *parent = oclass->parent ; parent != NULL ; parent = parent->parent )
-	{
-		offset += parent->size;
-	}
-	prop->addr = (void*)offset;
 	prop->delegation = NULL;
 	prop->keywords = NULL;
 	prop->description = NULL;
 	prop->next = NULL;
 	prop->flags = PF_EXTENDED;
+	prop->default_value = NULL;
 
+	int64 offset = (int64)oclass->size;
+	prop->addr = (void*)offset;
 	oclass->size += property_type[ptype].size;
 
 	class_add_property(oclass,prop);
-	if ( has_child_class(oclass) )
-	{
-		relocate_child_properties(oclass,prop->width);
-	}
 	return prop;
 }
 
