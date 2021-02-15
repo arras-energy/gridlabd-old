@@ -19,6 +19,8 @@ class powerflow_object
 	char1024 supernode;
 }
 
+#set savefile=gridlabd.json
+
 module assert;
 
 // Phase Conductor for 601: 556,500 26/7 ACSR
