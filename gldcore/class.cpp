@@ -342,7 +342,11 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	prop->default_value = NULL;
 
 	int64 offset = (int64)oclass->size;
-	prop->addr = (void*)offset;
+	for ( CLASS *parent = oclass->parent ; parent != NULL ; parent = parent->parent )
+	{
+		offset += parent->size;
+	}
+	prop->addr = (void*)offset;	prop->addr = (void*)offset;
 	oclass->size += property_type[ptype].size;
 
 	class_add_property(oclass,prop);
