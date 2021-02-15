@@ -14,7 +14,7 @@ module powerflow {
 	line_capacitance true;
 	}
 
-class powerflow_object 
+class node 
 {
 	char1024 supernode;
 }
