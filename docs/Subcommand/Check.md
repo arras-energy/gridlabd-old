@@ -1,9 +1,9 @@
-[[/Subcommand/Check]] -- Subcommand to convert files from one format to another
+[[/Subcommand/Check]] -- Subcommand to perform a detailed check of the validity of a GridLAB-D model
 
 # Synopsis
 
 ~~~
-bash$ gridlabd convert [OPTIONS] FILE …
+bash$ gridlabd check [OPTIONS] FILE …
 ~~~
 
 # Description
@@ -37,7 +37,3 @@ Suppress all non-error output
 ~~~
 Enable additional output
 
-
-# See also
-
-* [[/Converters/README]]
