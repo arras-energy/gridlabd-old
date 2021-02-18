@@ -12,6 +12,13 @@ SET_MYCONTEXT(DMC_GLOBALS)
 
 DEPRECATED static GLOBALVAR *global_varlist = NULL, *lastvar = NULL;
 
+static KEYWORD cnf_keys[] = {
+ 	{"DEFAULT", CNF_DEFAULT, cnf_keys+1},
+ 	{"RECT", CNF_RECT, cnf_keys+2},
+ 	{"POLAR_DEG", CNF_POLAR_DEG, cnf_keys+3},
+ 	{"POLAR_RAD", CNF_POLAR_RAD, NULL},
+ };
+
 DEPRECATED static KEYWORD df_keys[] = {
 	{"ISO", DF_ISO, df_keys+1},
 	{"US", DF_US, df_keys+2},
@@ -233,6 +240,7 @@ DEPRECATED static struct s_varmap {
 	{"stoptime", PT_timestamp, &global_stoptime, PA_PUBLIC, "simulation stop time"},
 	{"double_format", PT_char32, &global_double_format, PA_PUBLIC, "format for writing double values"},
 	{"complex_format", PT_char256, &global_complex_format, PA_PUBLIC, "format for writing complex values"},
+	{"complex_output_format", PT_enumeration, &global_complex_output_format, PA_PUBLIC, "complex output representation", cnf_keys},
 	{"object_format", PT_char32, &global_object_format, PA_PUBLIC, "format for writing anonymous object names"},
 	{"object_scan", PT_char32, &global_object_scan, PA_PUBLIC, "format for reading anonymous object names"},
 	{"object_tree_balance", PT_bool, &global_no_balance, PA_PUBLIC, "object index tree balancing enable flag"},
@@ -340,12 +348,12 @@ DEPRECATED static struct s_varmap {
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
 	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
+	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd"},
 	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
 	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
 	{"rusage",PT_char1024,&global_rusage_data,PA_PUBLIC,"rusage data"},
-
 	/* add new global variables here */
 };
 

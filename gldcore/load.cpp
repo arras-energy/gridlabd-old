@@ -7239,50 +7239,30 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		else if ( sscanf(term, "[%[^]]]", value)==1 )
 		{
-			/* HTTP include */
-			int len=0;
-			char *p;
-			FILE *fp;
-			HTTPRESULT *http = http_read(value,0x40000);
 			char tmpname[1024];
-			if ( http==NULL )
+			snprintf(tmpname,sizeof(tmpname)-1,"url_%08llx.glm",hash(value));
+			try
 			{
-				output_error("%s(%d): unable to include [%s]", filename, linenum, value);
-				if ( old_stack ) global_restore(old_stack);
+				GldCurl(value,tmpname);
+			}
+			catch (const char *errmsg)
+			{
+				output_error("%s(%d): URL include failed, %s",filename,linenum,errmsg);
 				return FALSE;
 			}
-			
-			/* local cache file name */
-			len = sprintf(line,"@%s;%d\n",value,0);
-			size -= len; line += len;
-			strcpy(tmpname,value);
-			for ( p=tmpname ; *p!='\0' ; p++ )
+			catch (...)
 			{
-				if ( isalnum(*p) || *p=='.' || *p=='-' || *p==',' || *p=='_' ) continue;
-				*p = '_';
-			}
-
-			/* copy to local file - TODO check time stamps */
-			if ( access(tmpname,R_OK)!=0 )
-			{
-				fp = fopen(tmpname,"wt");
-				if ( fp==NULL )
-				{
-					output_error("%s(%d): unable to write temp file '%s'", filename, linenum, tmpname);
-					if ( old_stack ) global_restore(old_stack);
-					return FALSE;
-				}
-				fwrite(http->body.data,1,http->body.size,fp);
-				fclose(fp);
+				output_error("%s(%d): URL include failed, unknown exception",filename,linenum);
+				return FALSE;
 			}
 
 			/* load temp file */
 			strcpy(oldfile,filename);
 			strcpy(filename,tmpname);
-			len = (int)include_file(tmpname,line,size,linenum);
+			int len = (int)include_file(tmpname,line,size,linenum);
 			strcpy(filename,oldfile);
 			add_depend(filename,tmpname);
-			if ( len<0 )
+			if ( len < 0 )
 			{
 				output_error("%s(%d): unable to include load [%s] from temp file '%s'", filename, linenum, value,tmpname);
 				if ( old_stack ) global_restore(old_stack);
@@ -8080,7 +8060,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		}
 		output_verbose("changing output to '%s'", to);
 	}
-	int rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,from,to,unquoted);
+	int rc = my_instance->subcommand("%s %s -i %s -o %s %s",(const char*)global_pythonexec,converter_path,from,to,unquoted);
 	if ( rc != 0 )
 	{
 		output_error("%s: return code %d",converter_path,rc);
@@ -8098,7 +8078,6 @@ STATUS GldLoader::load_python(const char *filename)
 		python_embed_init(0,NULL);
 	}
 	return python_embed_import(filename,global_pythonpath) == NULL ? FAILED : SUCCESS;
-//	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
 }
 
 /** Load a file
@@ -8112,7 +8091,9 @@ STATUS GldLoader::loadall(const char *fname)
 	{
 		/* if nothing requested only config files are loaded */
 		if ( fname == NULL )
+		{
 			return SUCCESS;
+		}
 
 		char file[1024] = "";
 		if ( fname )
@@ -8120,6 +8101,11 @@ STATUS GldLoader::loadall(const char *fname)
 			strcpy(file,fname);
 		}
 		char *ext = fname ? strrchr(file,'.') : NULL ;
+		if ( ext == NULL )
+		{
+			output_error("'%s' is not valid", fname);
+			return FAILED;
+		}
 		add_depend(filename,fname);
 
 		// python script
@@ -8193,7 +8179,7 @@ STATUS GldLoader::loadall(const char *fname)
 
 		/* handle default extension */
 		strcpy(filename,file);
-		if (ext==NULL || ext<file+strlen(file)-5)
+		if ( ext == NULL || ext < file+strlen(file)-5 )
 		{
 			ext = filename+strlen(filename);
 			strcat(filename,".glm");
