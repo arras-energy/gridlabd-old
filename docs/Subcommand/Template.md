@@ -27,7 +27,7 @@ bash$ gridlabd template config set <name> <value>
 
 # Description
 
-Use the `template` subcommand to manage GridLAB-D's template files.
+Use the `template` subcommand to manage GridLAB-D's template files.  Templates may be either standalone `glm` files, or collections of files stored in `zip` file.  When a collection is used, the convention is to name the `zip` archive using the root of all the template files, e.g., `foo.zip` would contain files named `foo_1.glm`, `foo_2.csv`, and `foo_3.py`.
 
 ## `help`
 
