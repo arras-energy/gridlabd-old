@@ -297,11 +297,6 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
                                       PROPERTYTYPE ptype, /**< the type of the property */
                                       const char *unit)   /**< the unit of the property */
 {
-	// if ( oclass->pmap )
-	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is %s", oclass->name, name, oclass->pmap->name);
-	// else
-	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is (null)", oclass->name, name);
-
 	PROPERTY *prop = (PROPERTY*)malloc(sizeof(PROPERTY));
 	UNIT *pUnit = NULL;
 
@@ -315,34 +310,35 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 		// will get picked up later
 	}
 
-	if ( has_child_class(oclass) )
-	{
-		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been used to derive another class", oclass->name, name);
-		/* TROUBLESHOOT
-			Once the class has been used to derive another class, it is not possible to change its size in memory.
-		 */
-	}
 	if ( oclass->profiler.numobjs > 0 )
+	{
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been instantiated", oclass->name, name);
 		/* TROUBLESHOOT
 			Once the class has been used to instantiate an object, it is not possible to change its size in memory.
 		 */
-	if (prop==NULL)
+	}
+	if ( prop == NULL )
+	{
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): memory allocation failed", oclass->name, name);
 		/* TROUBLESHOOT
 			The system has run out of memory.  Try making the model smaller and trying again.
 		 */
-	if (ptype<=_PT_FIRST || ptype>=_PT_LAST)
+	}
+	if ( ptype <= _PT_FIRST || ptype >= _PT_LAST )
+	{
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): property type is invalid", oclass->name, name);
 		/* TROUBLESHOOT
 			The function was called with a property type that is not recognized.  This is a bug that should be reported.
 		 */
-	if (unit!=NULL && pUnit==NULL)
+	}
+	if ( unit != NULL && pUnit == NULL )
+	{
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): unit '%s' is not found", oclass->name, name, unit);
 		/* TROUBLESHOOT
 			The function was called with unit that is defined in units file <code>.../etc/unitfile.txt</code>.  Try using a defined unit or adding
 			the desired unit to the units file and try again.
 		 */
+	}
 	memset(prop, 0, sizeof(PROPERTY));
 	prop->oclass = oclass;
 	prop->name = strdup(name);
@@ -351,23 +347,22 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	prop->width = property_type[ptype].size;
 	prop->access = PA_PUBLIC;
 	prop->unit = pUnit;
-	int64 offset = (int64)oclass->size;
-	for ( CLASS *parent = oclass->parent ; parent != NULL ; parent = parent->parent )
-	{
-		offset += parent->size;
-	}
-	prop->addr = (void*)offset;
 	prop->delegation = NULL;
 	prop->keywords = NULL;
 	prop->description = NULL;
 	prop->next = NULL;
 	prop->flags = PF_EXTENDED;
+	prop->default_value = NULL;
 
+	int64 offset = (int64)oclass->size;
+	for ( CLASS *parent = oclass->parent ; parent != NULL ; parent = parent->parent )
+	{
+		offset += parent->size;
+	}
+	prop->addr = (void*)offset;	prop->addr = (void*)offset;
 	oclass->size += property_type[ptype].size;
 
 	class_add_property(oclass,prop);
-	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): after adding property first property is %s", oclass->name, name, oclass->pmap->name);
-	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...) -> PROPERTY(<%s:%s>)", oclass->name, name, prop->oclass->name, prop->name);
 	return prop;
 }
 
