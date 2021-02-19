@@ -107,7 +107,6 @@ public:
 	set phases;				/**< device phases (see PHASE codes) */
 	double nominal_voltage;	/**< nominal voltage */
 	set violation_detected; /**< a rating or limit was violated */
-	char1024 supernode; 	/**< internal reference for hierarchical models */
 #ifdef SUPPORT_OUTAGES
 	set condition;			/**< operating condition (see OC codes) */
 	enumeration solution;	/**< solution code (PS_NORMAL=0, class-specific solution mode code>0) */

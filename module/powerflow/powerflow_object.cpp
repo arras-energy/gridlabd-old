@@ -149,7 +149,6 @@ powerflow_object::powerflow_object(MODULE *mod)
 				PT_KEYWORD, "NORMAL", PS_NORMAL,
 				PT_KEYWORD, "OUTAGE", PS_OUTAGE,
 #endif
-			PT_char1024, "supernode_name", PADDR(supernode),
          	NULL) < 1) GL_THROW("unable to publish powerflow_object properties in %s",__FILE__);
 
 		gl_global_create("powerflow::violation_record", PT_char1024, &violation_record, PT_DESCRIPTION, "file in which to record violations of limits and ratings",NULL);
