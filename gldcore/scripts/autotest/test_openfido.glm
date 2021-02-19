@@ -1,5 +1,1 @@
-#ifexist "/usr/local/bin/docker"
 #openfido run filestat ${modelname} > filestat.csv
-#else
-#warning Cannot test openfido without a local docker server
-#endif
