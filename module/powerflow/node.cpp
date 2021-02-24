@@ -3236,6 +3236,19 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 		return 0; 
 	}
 
+	if ( fabs(pNode->voltage[0]-nominal_voltage)/nominal_voltage > 0.05 )
+	{
+		add_violation(VF_VOLTAGE,"node phase A voltage is outside 5%% ANSI service standard");
+	}
+	if ( fabs(pNode->voltage[1]-nominal_voltage)/nominal_voltage > 0.05 )
+	{
+		add_violation(VF_VOLTAGE,"node phase B voltage is outside 5%% ANSI service standard");
+	}
+	if ( fabs(pNode->voltage[2]-nominal_voltage)/nominal_voltage > 0.05 )
+	{
+		add_violation(VF_VOLTAGE,"node phase C voltage is outside 5%% ANSI service standard");
+	}
+
 }
 
 /**
