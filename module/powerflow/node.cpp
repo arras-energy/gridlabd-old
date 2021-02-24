@@ -3205,6 +3205,19 @@ EXPORT int create_node(OBJECT **obj, OBJECT *parent)
 EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 {
 	node *pNode = OBJECTDATA(obj,node);
+	if ( pNode->has_phase(PHASE_A) && (pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"node phase A voltage is outside 5%% ANSI service standard");
+	}
+	if ( pNode->has_phase(PHASE_B) && (pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"node phase B voltage is outside 5%% ANSI service standard");
+	}
+	if ( pNode->has_phase(PHASE_C) && (pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"node phase C voltage is outside 5%% ANSI service standard");
+	}
+
 	try {
 		// This zeroes out all of the unused phases at each node in the FBS method
 		if (solver_method==SM_FBS)
@@ -3234,19 +3247,6 @@ EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 	{
 		gl_error("%s (node:%d): %s", pNode->get_name(), pNode->get_id(), msg);
 		return 0; 
-	}
-
-	if ( fabs(pNode->voltage[0]-nominal_voltage)/nominal_voltage > 0.05 )
-	{
-		add_violation(VF_VOLTAGE,"node phase A voltage is outside 5%% ANSI service standard");
-	}
-	if ( fabs(pNode->voltage[1]-nominal_voltage)/nominal_voltage > 0.05 )
-	{
-		add_violation(VF_VOLTAGE,"node phase B voltage is outside 5%% ANSI service standard");
-	}
-	if ( fabs(pNode->voltage[2]-nominal_voltage)/nominal_voltage > 0.05 )
-	{
-		add_violation(VF_VOLTAGE,"node phase C voltage is outside 5%% ANSI service standard");
 	}
 
 }
