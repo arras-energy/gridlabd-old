@@ -322,6 +322,7 @@ int link_object::create(void)
 int link_object::init(OBJECT *parent)
 {
 	OBJECT *obj = GETOBJECT(this);
+	violation_watch = violation_watchset&VW_LINK;
 
 	powerflow_object::init(parent);
 
@@ -2882,7 +2883,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 			//Check power - rating is in kVA - just use power_out (tends to be a little more accurate
 			temp_power_check = power_out.Mag() / 1000.0;
 
-			if (temp_power_check > *link_limits[0][0])
+			if ( violation_watchset&VW_LINK && temp_power_check > *link_limits[0][0] )
 			{
 				//Exceeded rating - no emergency ratings for transformers, at this time
 				add_violation(VF_POWER,"transformer is at %.2f%% of its rated power value",(temp_power_check/(*link_limits[0][0])*100.0));
