@@ -16,5 +16,6 @@ When current, voltage, power, thermal, or control ratings or limits are violated
 # See also
 
 * [[/Module/Powerflow]]
-* [[/Module/Powerflow/Global/Violation_record]]
 * [[/Module/Powerflow/Global/Violation_count]]
+* [[/Module/Powerflow/Global/Violation_record]]
+* [[/Module/Powerflow/Global/Violation_watchset]]
