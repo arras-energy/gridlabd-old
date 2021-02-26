@@ -39,5 +39,6 @@ Valid violation types are the set
 # See also
 
 * [[/Module/Powerflow]]
-* [[/Module/Powerflow/Global/Violation_count]]
 * [[/Module/Powerflow/Global/Violation_active]]
+* [[/Module/Powerflow/Global/Violation_count]]
+* [[/Module/Powerflow/Global/Violation_watchset]]

@@ -478,6 +478,7 @@ int node::create(void)
 int node::init(OBJECT *parent)
 {
 	OBJECT *obj = THISOBJECTHDR;
+	violation_watch = violation_watchset&VW_NODE;
 
 	//Put the phase_S check right on the top, since it will apply to both solvers
 	if (has_phase(PHASE_S))
@@ -3205,6 +3206,19 @@ EXPORT int create_node(OBJECT **obj, OBJECT *parent)
 EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 {
 	node *pNode = OBJECTDATA(obj,node);
+	if ( pNode->has_phase(PHASE_A) && (pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"%s phase A voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+	}
+	if ( pNode->has_phase(PHASE_B) && (pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"%s phase B voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+	}
+	if ( pNode->has_phase(PHASE_C) && (pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"%s phase C voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+	}
+
 	try {
 		// This zeroes out all of the unused phases at each node in the FBS method
 		if (solver_method==SM_FBS)
