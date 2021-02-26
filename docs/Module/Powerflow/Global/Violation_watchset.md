@@ -15,6 +15,16 @@ module powerflow
 
 When `violation_watchset` is not `NONE` then if violations are being recorded, the parameter determine which classes of objects are considered when detecting and recording violations.
 
+| Value  | Description 
+| ------ | ----------- 
+| `NONE` | No violations will be detected by the powerflow solver
+| `LOAD` | Load bus voltage violations will be detected
+| `NODE` | All node bus voltage violations will be detected
+| `LINE` | Line current limit violations will be detected 
+| `XFRM` | Transformer thermal limit violation will be detected
+| `VREG` | Voltage regulator control limit violations will be detected
+| `LINK` | All link limit violations will be detected
+
 # See also
 
 * [[/Module/Powerflow]]
