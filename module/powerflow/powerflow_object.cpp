@@ -94,7 +94,7 @@ char1024 powerflow_object::violation_record = "";
 FILE *powerflow_object::violation_fh = NULL;
 int32 powerflow_object::violation_count = 0;
 int32 powerflow_object::violation_active = 0;
-set powerflow_object::violation_watchset = VW_NONE;
+set powerflow_object::violation_watchset = VW_ALL;
 
 powerflow_object::powerflow_object(MODULE *mod)
 {	
@@ -159,6 +159,9 @@ powerflow_object::powerflow_object(MODULE *mod)
 			PT_KEYWORD, "NONE", (set)VW_NONE,
 			PT_KEYWORD, "LOAD", (set)VW_LOAD,
 			PT_KEYWORD, "NODE", (set)VW_NODE,
+			PT_KEYWORD, "LINE", (set)VW_LINE,
+			PT_KEYWORD, "XFRM", (set)VW_XFRM,
+			PT_KEYWORD, "VREG", (set)VW_VREG,
 			PT_KEYWORD, "LINK", (set)VW_LINK,
 			PT_KEYWORD, "ALL", (set)VW_ALL,
 			PT_DESCRIPTION, "object sets to watch for violations",NULL);
