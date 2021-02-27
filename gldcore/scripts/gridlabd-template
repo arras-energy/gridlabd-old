@@ -31,6 +31,11 @@ function error()
 	exit $RC
 }
 
+function warning()
+{
+	echo "WARNING: $*" >/dev/stdout
+}
+
 function config()
 {
 	if [ $# -eq 0 -o "$1" == "show" ]; then
@@ -94,13 +99,6 @@ function config()
 	fi
 }
 
-# set the internal parameters
-CACHEDIR="$DATADIR/.gridlabd-template"
-GITPROJ="$GITHUB/$GITUSER/$GITREPO"
-GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
-COMMIT_ID=$(git ls-remote "$GITPROJ" | grep "$GITBRANCH" | head -n 1 | cut -f1)
-INDEX=$CACHEDIR/$COMMIT_ID
-
 function fetch_index()
 {
 	if [ ! -d "$DATADIR" ]; then
@@ -111,7 +109,7 @@ function fetch_index()
 	fi
 	if [ ! -f "$INDEX" ]; then
 		# echo -n "Downloading ${GITBRANCH} index of $ORGANIZATION template archive from ${GITPROJ} (curl -sL $GITFILE/$ORGANIZATION/.index)... "
-		curl -sL "$GITFILE/$ORGANIZATION/.index" >"$INDEX"
+		curl -sL -f "$GITFILE/$ORGANIZATION/.index" >"$INDEX" || error 2 "index not found"
 		# echo $(wc -l "$INDEX" | sed -e 's/ \+/ /g;s/^ //' | cut -f1 -d' ') "template files found"
 	fi
 	if [ ! -f "$INDEX" ]; then
@@ -129,6 +127,13 @@ function help()
 			Syntax: gridlabd template [options] <command> [...]
 			Options:
 			  -f|--format <format> Change output format (e.g., json, glm, csv, default)
+			  -b|--branch <branch> Change branch from which template is downloaded
+			  -c|--contenturl <url> Change URL from which template is downloaded
+			  -o|--organization <org> Change organization of template
+			  -u|--user <login> Change user name for editing template
+			  -r|--repository <repo> Change repository name of template
+			  -c|--contenturl <url> Change URL for downloading template
+			  -g|--githuburl <url> Change URL for editing template
 			Commands:
 			  help [<name>]        Get the list of template subcommands or help on a template
 			  index <pattern>      Index of available template data matching <pattern> in archive
@@ -218,9 +223,15 @@ function list()
 function get()
 {
 	fetch_index
-	for f in $(export FORMAT=default; index $1); do
-		# echo -n "Downloading $GITFILE/$ORGANIZATION/$f.zip... "
-		(curl -sL "$GITFILE/$ORGANIZATION/$f.zip" > "/tmp/$$" && unzip -q -o -d "$GLD_ETC/template" "/tmp/$$") || (rm -f "/tmp/$$"; error 1 "unable to download $f")
+	for TEMPLATE in $(export FORMAT=default; index $1); do
+		SRCDIR="$GITFILE/$ORGANIZATION/$TEMPLATE"
+		DSTDIR="$GLD_ETC/template/$TEMPLATE"
+		mkdir -p $DSTDIR
+		CATALOG=$(curl -sL -f "$SRCDIR/.catalog" "$DSTDIR" | grep -v '^#' | cut -f1 -d: || error 2 "missing template catalog")
+		for FILE in $CATALOG; do
+			curl -sL -f "$SRCDIR/$FILE" > "$DSTDIR/$FILE" || error 2 "unable to download '$FILE'"
+		done
+		curl -sL -f "$SRCDIR/$TEMPLATE.md" > "$DSTDIR/$TEMPLATE.md"|| warning "not documentation found"
 	done
 }
 
@@ -339,11 +350,50 @@ function add()
 	git add -q "$2"
 }
 
-if [ "$1" == "-f" -o "$1" == "--format" ]; then
-	FORMAT="$2"
-	shift 2
-fi
+while [ "${1:0:1}" == "-" ]; do
+	case "$1" in
+	(-f|--format)
+		FORMAT="$2"
+		shift 2
+		;;
+	(-b|--branch)
+		GITBRANCH="$2"
+		shift 2
+		;;
+	(-o|--organization)
+		ORGANIZATION="$2"
+		shift 2
+		;;
+	(-u|--user)
+		GITUSER="$2"
+		shift 2
+		;;
+	(-r|--repository)
+		GITREPO="$2"
+		shift 2
+		;;
+	(-c|--contenturl)
+		GITHUBUSERCONTENT="$2"
+		shift 2
+		;;
+	(-g|--githuburl)
+		GITHUB="$2"
+		shift 2
+		;;
+	(*)
+		error 1 "option '$1' is not valid"
+		;;
+	esac
+done
 
+# set the internal parameters
+CACHEDIR="$DATADIR/.gridlabd-template"
+GITPROJ="$GITHUB/$GITUSER/$GITREPO"
+GITFILE="$GITHUBUSERCONTENT/$GITUSER/$GITREPO/$GITBRANCH"
+COMMIT_ID=$(git ls-remote "$GITPROJ" | grep "$GITBRANCH" | head -n 1 | cut -f1)
+INDEX=$CACHEDIR/$COMMIT_ID
+
+# process command
 if [ $# == 0 -o "$1" == "help" ]; then
 	help $2
 	exit 0
