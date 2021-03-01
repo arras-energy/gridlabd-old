@@ -41,7 +41,17 @@ The `template help` subcommand obtains a list of the valid commands.
 bash$ gridlabd template help
 Syntax: gridlabd-template [options] <command> [...]
 Options:
-  -f|--format <format> Change output format (e.g., json, glm, csv, default)
+  -b|--branch <branch>      Change branch from which template is downloaded
+  -c|--contenturl <url>     Change URL for downloading template
+  -d|--debug                Enable debugging output
+  -f|--format <format>      Change output format (e.g., json, glm, csv, default)
+  -g|--githuburl <url>      Change URL for editing template
+  -o|--organization <org>   Change organization of template
+  -q|--quiet                Suppress unnecessary output to stderr
+  -qq|--veryquiet           Suppress all output to stderr
+  -r|--repository <repo>    Change repository name of template
+  -u|--user <login>         Change user name for editing template
+  -v|--verbose              Enable verbose output
 Commands:
   help                 Get the list of template subcommands
   index <pattern>      Index of available template data matching <pattern> in archive
