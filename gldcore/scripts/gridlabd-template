@@ -227,7 +227,7 @@ function get()
 		SRCDIR="$GITFILE/$ORGANIZATION/$TEMPLATE"
 		DSTDIR="$GLD_ETC/template/$TEMPLATE"
 		mkdir -p $DSTDIR
-		CATALOG=$(curl -sL -f "$SRCDIR/.catalog" "$DSTDIR" | grep -v '^#' | cut -f1 -d: || error 2 "missing template catalog")
+		CATALOG=$((curl -sL -f "$SRCDIR/.catalog" "$DSTDIR" | grep -v '^#' | cut -f1 -d:) || error 2 "missing template catalog")
 		for FILE in $CATALOG; do
 			curl -sL -f "$SRCDIR/$FILE" > "$DSTDIR/$FILE" || error 2 "unable to download '$FILE'"
 		done
