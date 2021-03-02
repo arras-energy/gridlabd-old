@@ -46,6 +46,10 @@ Input files are given as comma-delimited list.
 
 Output files are given as a comma-delimited list.
 
+## Server 
+
+Note, docker daemon must be running to use the server
+
 # Example
 
 The following command installs the `filestat` pipeline from the OpenFIDO library.
