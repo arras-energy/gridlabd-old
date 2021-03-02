@@ -11,6 +11,8 @@ host$ gridlabd openfido [OPTIONS] info NAME
 host$ gridlabd openfido [OPTIONS] install [-d|--dry-run] NAME [...]
 host$ gridlabd openfido [OPTIONS] remove [-d|--dry-run] NAME [...]
 host$ gridlabd openfido [OPTIONS] run NAME INPUTFILES OUTPUTFILES
+host$ gridlabd openfido [OPTIONS] server [start|stop|restart|status|update|open]
+host$ gridlabd openfido [OPTIONS] show PATTERN ...
 host$ gridlabd openfido [OPTIONS] update [-d|--dry-run] NAME [...]
 ~~~
 
