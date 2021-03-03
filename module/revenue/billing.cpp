@@ -149,7 +149,7 @@ bool billing::is_billing_time(gld_clock &dt0)
 
 void billing::compute_bill(void)
 {
-	if ( ! python_call(python_module,billing_function,"{sssisO}","classname",my()->oclass->name,"id",get_id(),"data",python_data) )
+	if ( ! python_call(python_module,NULL,billing_function,"{sssisO}","classname",my()->oclass->name,"id",get_id(),"data",python_data) )
 	{
 		error("call to %s.%s() failed", (const char*)billing_module, (const char*)billing_function);
 	}
