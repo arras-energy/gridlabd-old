@@ -101,13 +101,23 @@
 #define VF_THERMAL 0x0008
 #define VF_CONTROL 0x0010
 
+// Violation watchsets
+#define VW_NONE 0x0000
+#define VW_LOAD 0x0001
+#define VW_NODE 0x00ff
+#define VW_LINE 0x0100
+#define VW_XFRM	0x0200
+#define VW_VREG 0x0400
+#define VW_LINK 0xff00
+#define VW_ALL  0xffff
+
 class powerflow_object : public gld_object
 {
 public:
 	set phases;				/**< device phases (see PHASE codes) */
 	double nominal_voltage;	/**< nominal voltage */
 	set violation_detected; /**< a rating or limit was violated */
-	char1024 supernode; 	/**< internal reference for hierarchical models */
+	bool violation_watch;   /**< enable violation detection */
 #ifdef SUPPORT_OUTAGES
 	set condition;			/**< operating condition (see OC codes) */
 	enumeration solution;	/**< solution code (PS_NORMAL=0, class-specific solution mode code>0) */
@@ -120,6 +130,7 @@ public:
 	static int32 violation_count;
 	static int32 violation_active;
 	static FILE *violation_fh;
+	static set violation_watchset;
 	void add_violation(int vf_type, const char *format, ...);
 	void add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *message);
 	void del_violation(TIMESTAMP t, OBJECT *obj, int vf_type);

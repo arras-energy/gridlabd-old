@@ -88,6 +88,8 @@ int regulator::create()
 
 int regulator::init(OBJECT *parent)
 {
+	violation_watch = violation_watchset&VW_VREG;
+
 	bool TapInitialValue[3];
 	size_t jindex;
 	int result = link_object::init(parent);

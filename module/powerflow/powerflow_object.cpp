@@ -94,6 +94,7 @@ char1024 powerflow_object::violation_record = "";
 FILE *powerflow_object::violation_fh = NULL;
 int32 powerflow_object::violation_count = 0;
 int32 powerflow_object::violation_active = 0;
+set powerflow_object::violation_watchset = VW_ALL;
 
 powerflow_object::powerflow_object(MODULE *mod)
 {	
@@ -149,12 +150,21 @@ powerflow_object::powerflow_object(MODULE *mod)
 				PT_KEYWORD, "NORMAL", PS_NORMAL,
 				PT_KEYWORD, "OUTAGE", PS_OUTAGE,
 #endif
-			PT_char1024, "supernode_name", PADDR(supernode),
          	NULL) < 1) GL_THROW("unable to publish powerflow_object properties in %s",__FILE__);
 
 		gl_global_create("powerflow::violation_record", PT_char1024, &violation_record, PT_DESCRIPTION, "file in which to record violations of limits and ratings",NULL);
 		gl_global_create("powerflow::violation_count", PT_int32, &violation_count, PT_DESCRIPTION, "count of violations recorded",NULL);
 		gl_global_create("powerflow::violation_active", PT_int32, &violation_active, PT_DESCRIPTION, "count of currently active violations",NULL);
+		gl_global_create("powerflow::violation_watchset", PT_set, &violation_watchset, 
+			PT_KEYWORD, "NONE", (set)VW_NONE,
+			PT_KEYWORD, "LOAD", (set)VW_LOAD,
+			PT_KEYWORD, "NODE", (set)VW_NODE,
+			PT_KEYWORD, "LINE", (set)VW_LINE,
+			PT_KEYWORD, "XFRM", (set)VW_XFRM,
+			PT_KEYWORD, "VREG", (set)VW_VREG,
+			PT_KEYWORD, "LINK", (set)VW_LINK,
+			PT_KEYWORD, "ALL", (set)VW_ALL,
+			PT_DESCRIPTION, "object sets to watch for violations",NULL);
 	}
 }
 
@@ -264,12 +274,15 @@ int powerflow_object::kmldump(FILE *fp)
 
 void powerflow_object::add_violation(int vf_type, const char *format, ...)
 {
-	char message[1024];
-	va_list ptr;
-	va_start(ptr,format);
-	vsnprintf(message,sizeof(message)-1,format,ptr);
-	va_end(ptr);
-	add_violation(gl_globalclock,THISOBJECTHDR,vf_type,message);
+	if ( violation_watch )
+	{
+		char message[1024];
+		va_list ptr;
+		va_start(ptr,format);
+		vsnprintf(message,sizeof(message)-1,format,ptr);
+		va_end(ptr);
+		add_violation(gl_globalclock,THISOBJECTHDR,vf_type,message);
+	}
 }
 void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *message)
 {
