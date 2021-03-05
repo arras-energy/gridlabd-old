@@ -717,7 +717,7 @@ int ppolls(struct s_pipes *pipes, FILE* input_stream, FILE* output_stream, FILE 
 					fclose(pipes->child_input);
 				}
 			}
-			else
+			else if ( pipes->child_input )
 			{
 					// fprintf(stderr,"poll() no input; closing child input\n"); fflush(stderr);
 					fclose(pipes->child_input);
