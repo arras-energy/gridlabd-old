@@ -23,6 +23,7 @@ bash$ gridlabd template config show
 bash$ gridlabd template config reset
 bash$ gridlabd template config get <name>
 bash$ gridlabd template config set <name> <value>
+bash$ gridlabd tempalte defaults <name>
 ~~~
 
 # Description
@@ -183,4 +184,12 @@ Submit the local working session to the archive for review.
   gridlabd template config set <name> <value>
 ~~~
 
-Manage the library manager configuration.
+Change default template subcommand settings.
+
+## `defaults`
+
+~~~
+  gridlabd template defaults <name>
+~~~
+
+Output the default values for template configuration CSV file used by the template `<name>`.
