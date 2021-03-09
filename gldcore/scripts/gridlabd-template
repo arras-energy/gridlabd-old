@@ -397,6 +397,14 @@ function add()
     git add -q "$2"
 }
 
+function defaults()
+{
+    if [ $# -eq 0 ]; then
+        error 1 "missing template name"
+    fi
+    python3 $DATADIR/$1/$1.py --defaults
+}
+
 while [ "${1:0:1}" == "-" ]; do
     case "$1" in
     (-b|--branch)
