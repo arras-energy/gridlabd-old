@@ -164,3 +164,6 @@ gldcore/autotest/test.glm
 gridlabd-core.*
 documents/gridlabd.md
 documents/gridlabd.pdf
+
+terraform.tfstate
+terraform.tfstate.backup
