@@ -1,7 +1,9 @@
 import json 
 import os 
 import sys, getopt
-from datetime import datetime 
+from datetime import datetime
+import importlib, copy
+from importlib import util
 
 def help():
 	print('Syntax:')
@@ -198,7 +200,7 @@ else:
 	if os.path.exists(modname):
 
 		import importlib, copy
-		modspec = importlib.util.spec_from_file_location(output_type, modname)
+		modspec = util.spec_from_file_location(output_type, modname)
 		mod = importlib.import_module("json2png-%s"%output_type)
 		argv = copy.deepcopy(sys.argv)
 		argv[0] = modname

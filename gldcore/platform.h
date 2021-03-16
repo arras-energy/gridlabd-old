@@ -170,5 +170,12 @@
  */
 #define EXPORT DEPRECATED CDECL
 
+/*  Define: PYTHON_EXEC
+		Path to Python executable used to build gridlabd
+ */
+#ifndef PYTHON_EXEC
+#define PYTHON_EXEC "/usr/local/bin/python3"
+#endif
+
 #endif
 /**@}**/
