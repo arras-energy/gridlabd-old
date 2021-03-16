@@ -263,7 +263,7 @@ function get()
     fetch_index
     for TEMPLATE in $(export FORMAT=default; index $1); do
         SRCDIR="$GITFILE/$ORGANIZATION/$TEMPLATE"
-        DSTDIR="$GLD_ETC/template/$TEMPLATE"
+        DSTDIR="$GLD_ETC/template/$ORGANIZATION/$TEMPLATE"
         mkdir -p $DSTDIR
         debug "looking for catalog in $SRCDIR/.catalog"
         CATALOG=$(curl -sL -f "$SRCDIR/.catalog" "$DSTDIR" | grep -v '^#' | cut -f1 -d:) # || error 2 "missing template catalog")
