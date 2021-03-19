@@ -190,6 +190,7 @@ function help()
                      reset         Reset the current configuration
                      set <N> <V>   Set configuration variable name <N> to value <V>
                      get <N> <V>   Get configuration variable name <N>
+              defaults <template>  Show the default values of the template configuration file (if any)
 END
     else
         for DOC in $(find $DATADIR -name $1.md -print); do
@@ -395,6 +396,14 @@ function add()
     fi
     cd "$LIBDIR"
     git add -q "$2"
+}
+
+function defaults()
+{
+    if [ $# -eq 0 ]; then
+        error 1 "missing template name"
+    fi
+    python3 $DATADIR/$1/$1.py --defaults
 }
 
 while [ "${1:0:1}" == "-" ]; do
