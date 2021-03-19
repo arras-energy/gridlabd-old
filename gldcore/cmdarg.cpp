@@ -2119,10 +2119,38 @@ DEPRECATED static int depends(void *main, int argc, const char *argv[])
 	return 0;
 }
 
-DEPRECATED static int rusage(void *main, int args, const char *argv[])
+DEPRECATED static int rusage(void *main, int argc, const char *argv[])
 {
 	global_rusage_rate = 1;
 	return 0;
+}
+
+DEPRECATED static int _template(void *main, int argc, const char *argv[])
+{
+	if ( argc < 2 )
+	{
+		output_error("missing template name");
+		return CMDERR;
+	}
+	char template_glm[1024];
+	const char *organization = getenv("ORGANIZATION");
+	if ( organization == NULL )
+	{
+		output_error("ORGANIZATION is not set in environment");
+		return CMDERR;
+	}
+	char *oldpath = strdup(global_pythonpath);
+	snprintf(global_pythonpath,sizeof(global_pythonpath)-strlen(global_pythonpath)-1,"%s/template/%s/%s",getenv("GLD_ETC"),organization,argv[1]);
+	snprintf(template_glm,sizeof(template_glm)-1,"%s/template/%s/%s/%s.glm",getenv("GLD_ETC"),organization,argv[1],argv[1]);
+	bool result = ((GldMain*)main)->get_loader()->load(template_glm);
+	strcpy(global_pythonpath,oldpath);
+	free(oldpath);
+	if ( ! result ) 
+	{
+		output_error("unable to load template file '%s'", template_glm);
+		return CMDERR;
+	}
+	return 1;
 }
 
 #include "job.h"
@@ -2215,6 +2243,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"output",		"o",	output,			"<file>", "Enables save of output to a file (default is gridlabd.glm)" },
 	{"pause",		NULL,	pauseatexit,	NULL, "Toggles pause-at-exit feature" },
 	{"relax",		NULL,	relax,			NULL, "Allows implicit variable definition when assignments are made" },
+	{"template",	"t",	_template,		NULL, "Load template" },
 
 	{NULL,NULL,NULL,NULL, "Server mode"},
 	{"server",		NULL,	server,			NULL, "Enables the server"},
