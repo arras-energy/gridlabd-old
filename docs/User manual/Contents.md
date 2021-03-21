@@ -1,37 +1,37 @@
 # Table of Contents
 
-## Preface
+## [[Preface]]
 
 ## Part I: Fundamentals
-  - Introduction
-  - Theory
-  - Models
-  - Data
-  - Simulation
-  - Outputs
-  - Inputs
-  - Analysis
+  - [[/User manual/Fundamentals/Introduction]]
+  - [[/User manual/Fundamentals/Theory]]
+  - [[/User manual/Fundamentals/Models]]
+  - [[/User manual/Fundamentals/Data]]
+  - [[/User manual/Fundamentals/Simulation]]
+  - [[/User manual/Fundamentals/Outputs]]
+  - [[/User manual/Fundamentals/Inputs]]
+  - [[/User manual/Fundamentals/Analysis]]
 
 ## Part II: Modules
-  - Introduction
-  - Power systems
-  - Loads
-  - Generators
-  - Reliability
-  - Tariffs
+  - [[/User manual/Modules/Introduction]]
+  - [[/User manual/Modules/Power systems]]
+  - [[/User manual/Modules/Loads]]
+  - [[/User manual/Modules/Generators]]
+  - [[/User manual/Modules/Reliability]]
+  - [[/User manual/Modules/Tariffs]]
 
 ## Part III: Customization
-  - Introduction
-  - Events
-  - Scripts
-  - Converters
-  - Syntax
-  - Documentation
-  - Modules
-  - Classes
+  - [[/User manual/Customization/Introduction]]
+  - [[/User manual/Customization/Events]]
+  - [[/User manual/Customization/Scripts]]
+  - [[/User manual/Customization/Converters]]
+  - [[/User manual/Customization/Syntax]]
+  - [[/User manual/Customization/Documentation]]
+  - [[/User manual/Customization/Modules]]
+  - [[/User manual/Customization/Classes]]
 
 ## Part IV: Use cases
-  - Load electrification impacts
-  - Tariff design
-  - Resilience analysis
-  - Integration capacity analysis
+  - [[/User manual/Use cases/Load electrification impacts]]
+  - [[/User manual/Use cases/Tariff design]]
+  - [[/User manual/Use cases/Resilience analysis]]
+  - [[/User manual/Use cases/Integration capacity analysis]]
