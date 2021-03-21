@@ -5,7 +5,8 @@
 ## Part I: Fundamentals
   - Introduction
   - Theory
-  - Modeling
+  - Models
+  - Data
   - Simulation
   - Outputs
   - Inputs
@@ -28,3 +29,9 @@
   - Documentation
   - Modules
   - Classes
+
+## Part IV: Use cases
+  - Load electrification impacts
+  - Tariff design
+  - Resilience analysis
+  - Integration capacity analysis
