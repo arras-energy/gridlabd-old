@@ -3,7 +3,7 @@
 ## [[/User manual/Preface]]
 
 ## Part I: Fundamentals
-  - [[/User manual/Fundamentals/Introduction]]
+  - [[/User manual/Fundamentals/Introduction~]]
   - [[/User manual/Fundamentals/Theory]]
   - [[/User manual/Fundamentals/Models]]
   - [[/User manual/Fundamentals/Data]]
