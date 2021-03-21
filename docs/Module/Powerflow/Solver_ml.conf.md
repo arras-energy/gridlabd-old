@@ -1,4 +1,4 @@
-[[solver_ml.conf]] -- Machine learning powerflow solver configuration
+[[/Module/Powerflow/solver_ml.conf]] -- Machine learning powerflow solver configuration
 
 # Synopsis
 
@@ -61,4 +61,9 @@ Load `module`.  If loading a Python module, use the syntax `import python:filena
 ## on_dump *command*
 
 Call the method `command` when a bus/branch dump is performed. If the command is defined in a Python module, use the syntax `on_dump python:command`.
+
+# See also
+
+* [[/Module/Powerflow/Global/solver_ml_config]]
+
     
