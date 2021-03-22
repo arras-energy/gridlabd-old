@@ -3,7 +3,7 @@
 
 # WEBSITES = code$(SUFFIX).gridlabd.us docs$(SUFFIX).gridlabd.us www$(SUFFIX).gridlabd.us
 
-aws-deploy: terraform apply -var=version=$(version) -var=branch=$(branch)
+aws-deploy: update_ec2 -n=$(release_name)
 
 # $(WEBSITES) :
 # if HAVE_AWSCLI

@@ -165,5 +165,4 @@ gridlabd-core.*
 documents/gridlabd.md
 documents/gridlabd.pdf
 
-terraform.tfstate
-terraform.tfstate.backup
+aws_variables.sh
