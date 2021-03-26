@@ -20,15 +20,15 @@ The following projects are actively contributing to HiPAS GridLAB-D at this time
 
 # User quick start
 
-The preferred method for running HiPAS GridLAB-D is to download the SLAC master image from docker hub (see https://cloud.docker.com/u/gridlabd/repository/docker/gridlabd/slac-master).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
+The preferred method for running HiPAS GridLAB-D is to download the SLAC master image from docker hub (see https://hub.docker.com/repository/docker/slacgismo/gridlabd).  You must install the docker daemon to use docker images.  See https://www.docker.com/get-started for details.
 
 Once you have installed docker, you may issue the following commands to run GridLAB-D at the command line:
 ~~~
-  host% docker run -it -v $PWD:/model gridlabd/slac-master gridlabd -W /model [load-options] [filename.glm] [run-options] 
+  host% docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model [load-options] [filename.glm] [run-options] 
 ~~~ 
 On many systems, an alias can be used to make this a simple command that resemble the command you would normally issue to run a host-based installation:
 ~~~
-  host% alias gridlabd='docker run -it -v $PWD:/model gridlabd/slac-master gridlabd -W /model'
+  host% alias gridlabd='docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model'
 ~~~
 Note that this alias will interfere with the host-based installation.
 
