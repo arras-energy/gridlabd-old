@@ -28,9 +28,9 @@ Once you have installed docker, you may issue the following commands to run Grid
 ~~~ 
 On many systems, an alias can be used to make this a simple command that resembles the command you would normally issue to run a host-based installation:
 ~~~
-  host% alias gridlabd='docker run -it -v $PWD:/model slacgismo/gridlabd:latest gridlabd -W /model'
+  host% alias gridlabd='docker run -it -v $PWD:/tmp slacgismo/gridlabd:latest gridlabd'
 ~~~
-Note that this alias will interfere with the host-based installation.
+Note that this alias will interfere with any host-based installation. You should use the `gridlabd docker` command to manage the use of docker images concurrently with host-based installations.
 
 # Developer quick start
 
