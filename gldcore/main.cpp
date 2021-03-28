@@ -440,104 +440,172 @@ Done:
 #include <string.h>
 #include <paths.h>
 
-static struct pid {
-	FILE *output;
-	FILE *error;
-	pid_t pid;
-	struct pid *next;
-} *pidlist;
-
 extern char **environ;
 
 /*	Function: popens
 	
-	Runs a program and connects its stdout and stderr to the FILEs.
-	Returns:
-		0	success
-		-1	failed (see errno)
- */
-int popens(const char *program, FILE **output, FILE **error)
-{
+	Runs a program and connects its stdout and stderr to the FILEs. Only the
+	pipes for which file handles are provided are connected.
 
-	struct pid * volatile cur;
-	int pdout[2],pderr[2];
-	pid_t pid;
-	if ( output == NULL && error == NULL )
+	Returns:
+		struct s_pipes*		success
+		NULL				failed (see errno)
+ */
+struct s_pipes *popens(const char *program, FILE **input, FILE **output, FILE **error)
+{
+	// extract base command name from program call
+	char *command = strdup(program);
+
+	// open dummy pipes to protect from accidental use of stdin, stdout, and stderr
+	int t1[2], t2[2];
+	pipe(t1); 
+	pipe(t2);
+
+	// create new pipes
+		int readpipe[2] = {-1,-1}, writepipe[2] = {-1,-1}, errorpipe[2] = {-1,-1};
+	if ( ( input && pipe(writepipe) < 0 ) || ( output && pipe(readpipe) < 0 ) || ( error && pipe(errorpipe) < 0 ) ) 
 	{
-		errno = EINVAL;
-		return -1;
+		output_debug("gldcore/main.cpp:popens(const char *program='%s', FILE **output=%p, FILE **error=%p): %s",program,output,error,
+			"pipe() failed");
+		return NULL;
 	}
-	cur = (struct pid*)malloc(sizeof(struct pid));
-	if ( cur == NULL )
+
+	// close dummy pipes
+	close(t1[0]);
+	close(t1[1]);
+	close(t2[0]);
+	close(t2[1]);
+
+#define READ_END 0
+#define WRITE_END 1
+#define PARENT_READ readpipe[READ_END] // parent read from child stdout
+#define CHILD_WRITE readpipe[WRITE_END] // child write to stdout
+#define CHILD_READ writepipe[READ_END] // child read on stdin
+#define PARENT_WRITE writepipe[WRITE_END] // parent write to child stdin
+#define PARENT_ERROR errorpipe[READ_END] // parent read from child stderr
+#define CHILD_ERROR errorpipe[WRITE_END] // child write to stderr
+
+	// allocate new pipeset structure
+	struct s_pipes *pipes = (struct s_pipes*)malloc(sizeof(struct s_pipes));
+	if ( pipes == NULL )
 	{
-		return -1;
+		output_debug("gldcore/main.cpp:popens(const char *program='%s', FILE **output=%p, FILE **error=%p): %s",program,output,error,
+			"malloc() of 'pipes' failed");
+		return NULL;
 	}
-	if ( pipe(pdout) < 0 || pipe(pderr) < 0 ) 
+
+	// fork child process
+	pipes->child_pid = fork();
+	if ( pipes->child_pid == -1 ) // fork failed
 	{
-		free(cur);
-		return -1;
+		free(pipes);
+		output_debug("gldcore/main.cpp:popens(const char *program='%s', FILE **output=%p, FILE **error=%p): %s",program,output,error,
+			"fork() failed");
+		return NULL;
 	}
-	pid = fork();
-	if ( pid == -1 )
+	else if ( pipes->child_pid == 0 ) // child process
 	{
-		/* error */
-		(void)close(pdout[0]);
-		(void)close(pdout[1]);
-		(void)close(pderr[0]);
-		(void)close(pderr[1]);
-		free(cur);
-		return -1;
-	}
-	else if ( pid == 0 )
-	{
-		/* child writes on 1 */
-		for ( struct pid *pcur = pidlist ; pcur ; pcur = pcur->next )
+		close(PARENT_READ);
+		close(PARENT_WRITE);
+		close(PARENT_ERROR);
+
+		// TODO: this might not work if any of the standard descriptors are closed
+		if ( input && CHILD_READ > 0 )
 		{
-			(void)close(fileno(pcur->output));
-			(void)close(fileno(pcur->error));
-		}
-		if ( output ) 
-		{
-			(void) close(pdout[0]);
-			if ( pdout[1] != STDOUT_FILENO ) 
+			if ( dup2(CHILD_READ,0) < 0 )
 			{
-				(void)dup2(pdout[1], STDOUT_FILENO);
-				(void)close(pdout[1]);
+				output_error("unable to prepare child read end of parent output pipe (errno %d, %s, fd=%d)", errno, strerror(errno), CHILD_READ);
 			}
-		}	
-		if ( error )
-		{
-			(void)close(pderr[0]);
-			if ( pderr[1] != STDERR_FILENO ) 
+		}
+		close(CHILD_READ);
+		if ( output && CHILD_WRITE > 1 ) 
+		{ 
+			if ( dup2(CHILD_WRITE,1) < 0 )
 			{
-				(void)dup2(pderr[1], STDERR_FILENO);
-				(void)close(pderr[1]);
+				output_error("unable to prepare child write end of parent input pipe (errno %d, %s, fd=%d)", errno, strerror(errno), CHILD_WRITE);
 			}
 		}
-		(void)close(fileno(stdin));
-		const char *argp[] = {getenv("SHELL"), "-c", program, "</dev/null", NULL};
-		exit ( execve(_PATH_BSHELL, (char *const*)argp, environ) ? 127 : 0 );
+		close(CHILD_WRITE);
+		if ( error && CHILD_ERROR > 2 ) 
+		{ 
+			if ( dup2(CHILD_ERROR,2) < 0 )
+			{
+				output_error("unable to prepare child write end of parent error pipe (errno %d, %s, fd=%d)", errno, strerror(errno), CHILD_ERROR);
+			}
+		}
+		close(CHILD_ERROR);
+		const int maxargs = 1024;
+		char *argv[maxargs];
+		int n = 0;
+		argv[n++] = strdup("/bin/bash");
+		argv[n++] = strdup("-c");
+		argv[n++] = command;
+		// char *next = NULL, *last = NULL; 
+		// while ( (next=strtok_r(next?NULL:command," ",&last)) != NULL && n < maxargs-5 )
+		// {
+		// 	argv[n++] = next;
+		// }
+		argv[n++] = NULL;
+		execve(argv[0], argv, environ);
+		output_error("unable run command '%s'",program);
+		exit(XC_PRCERR);
 	}
-	else
+	else // parent process
 	{
-		/* parent reads on 0 */
-		if ( output ) 
+		close(CHILD_READ);
+		close(CHILD_WRITE);
+		close(CHILD_ERROR);
+
+		if ( input && PARENT_WRITE >= 0 )
 		{
-			*output = fdopen(pdout[0], "r");
-			(void)close(pdout[1]);
+			pipes->child_input = *input = fdopen(PARENT_WRITE,"w");
+			if ( pipes->child_input == NULL )
+			{
+				output_error("unable to prepare parent write end of child input pipe (errno %d, %s, fd=%d)", errno, strerror(errno), PARENT_READ);
+				free(pipes);
+				free(command);
+				return NULL;
+			}
 		}
-		if ( error ) 
+		else
 		{
-			*error = fdopen(pderr[0], "r");
-			(void)close(pderr[1]);
+			pipes->child_input = NULL;
+			close(PARENT_WRITE);
 		}
-		/* Link into list of file descriptors. */
-		cur->output = ( output ? *output : NULL );
-		cur->error = ( error ? *error : NULL );
-		cur->pid =  pid;
-		cur->next = pidlist;
-		pidlist = cur;
-		return 0;
+		if ( output && PARENT_READ >= 0 )
+		{
+			pipes->child_output = *output = fdopen(PARENT_READ,"r");
+			if ( pipes->child_output == NULL )
+			{
+				output_error("unable to prepare parent read end of child output pipe (errno %d, %s, fd=%d)", errno, strerror(errno), PARENT_READ);
+				free(pipes);
+				free(command);
+				return NULL;
+			}
+		}
+		else
+		{
+			pipes->child_output = NULL;
+			close(PARENT_READ);
+		}
+		if ( error && PARENT_ERROR >= 0 )
+		{
+			pipes->child_error = *error = fdopen(PARENT_ERROR,"r");
+			if ( pipes->child_error == NULL )
+			{
+				output_error("unable to prepare parent read end of child error pipe (errno %d, %s, fd=%d)", errno, strerror(errno), PARENT_READ);
+				free(pipes);
+				free(command);
+				return NULL;
+			}
+		}
+		else
+		{
+			pipes->child_error = NULL;
+			close(PARENT_ERROR);
+		}
+		pipes->child_command = command;
+		return pipes;
 	}
 }
 
@@ -548,52 +616,221 @@ int popens(const char *program, FILE **output, FILE **error)
  	-1  	if stream is not associated with a `popen3' command, if already closed, or waitpid returns an error.
  	status	if ok
  */
-int pcloses(FILE *iop, bool wait=true)
+int pcloses(struct s_pipes *pipes, bool wait)
 {
-	struct pid *cur, *last;
-	int pstat;
-	pid_t pid;
-	/* Find the appropriate file pointer. */
-	for ( last = NULL, cur = pidlist ; cur ; last = cur, cur = cur->next )
+	int pstat = 0;
+	pid_t pid = 0;
+
+	if ( ! wait )
 	{
-		if ( cur->output == iop || cur->error == iop )
+		// immediate terminate of the child
+		if ( pipes->child_input ) (void)fclose(pipes->child_input);
+		if ( pipes->child_output ) (void)fclose(pipes->child_output);
+		if ( pipes->child_error ) (void)fclose(pipes->child_error);
+		kill(pipes->child_pid,SIGHUP);
+	}
+	else
+	{
+		pid = waitpid(pipes->child_pid, &pstat, 0);
+		if ( pipes->child_input ) (void)fclose(pipes->child_input);
+		if ( pipes->child_output ) (void)fclose(pipes->child_output);
+		if ( pipes->child_error ) (void)fclose(pipes->child_error);
+	}
+	free(pipes->child_command);
+	free(pipes);
+	if ( pid == -1 )
+	{
+		return errno;
+	}
+	else if ( WIFEXITED(pstat) )
+	{
+		return WEXITSTATUS(pstat);
+	}
+	else if ( WIFSIGNALED(pstat) )
+	{
+		return -WTERMSIG(pstat);
+	}
+	else
+	{
+		return -127;
+	}
+}
+
+int ppolls(struct s_pipes *pipes, FILE* input_stream, FILE* output_stream, FILE *error_stream)
+{
+	struct pollfd polldata[3];
+	polldata[0].fd = pipes->child_input ? fileno(pipes->child_input) : 0;
+	polldata[0].events = POLLOUT|POLLERR|POLLHUP;
+	polldata[1].fd = pipes->child_output ? fileno(pipes->child_output) : 1;
+	polldata[1].events = POLLIN|POLLERR|POLLHUP;
+	polldata[2].fd = pipes->child_error ? fileno(pipes->child_error) : 2;
+	polldata[2].events = POLLIN|POLLERR|POLLHUP;
+	char line[65536];
+	bool has_error = false;
+	// fprintf(stderr,"poll() starting\n"); fflush(stderr);
+	while ( poll(polldata,sizeof(polldata)/sizeof(polldata[0]),-1) > 0 )
+	{
+		// fprintf(stderr,"poll() ok (input.revents=%x, output.revents=%x, error.revents=%x)\n",polldata[0].revents,polldata[1].revents,polldata[2].revents); fflush(stderr);
+		if ( polldata[1].revents&POLLIN )
 		{
+			// fprintf(stderr,"poll() output line received\n"); fflush(stderr);
+			if ( pipes->child_output )
+			{
+				while ( fgets(line, sizeof(line)-1, pipes->child_output) != NULL ) 
+				{
+					if ( output_stream )
+					{
+						fprintf(output_stream,"%s",line);
+					}
+				}
+			}
+		}
+		if ( polldata[2].revents&POLLIN )
+		{
+			// fprintf(stderr,"poll() error line received\n"); fflush(stderr);
+			if ( pipes->child_error )
+			{
+				while ( fgets(line, sizeof(line)-1, pipes->child_error) != NULL ) 
+				{
+					if ( error_stream )
+					{
+						fprintf(error_stream,"%s",line);
+					}
+				}
+			}
+		}
+		if ( polldata[0].revents&POLLOUT )
+		{
+			// fprintf(stderr,"poll() input line requested\n"); fflush(stderr);
+			if ( input_stream )
+			{
+				while ( fgets(line, sizeof(line)-1, input_stream) != NULL )
+				{
+					if ( pipes->child_input )
+					{
+						fprintf(pipes->child_input,"%s",line);
+					}
+				}
+				if ( feof(input_stream) && pipes->child_input )
+				{
+					// fprintf(stderr,"poll() EOF; closing child input\n"); fflush(stderr);
+					fclose(pipes->child_input);
+				}
+			}
+			else if ( pipes->child_input )
+			{
+					// fprintf(stderr,"poll() no input; closing child input\n"); fflush(stderr);
+					fclose(pipes->child_input);
+			}
+		}
+		if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP )
+		{
+			// fprintf(stderr,"poll() hangup\n"); fflush(stderr);
+			output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
+			break;
+		}
+		if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR || polldata[2].revents&POLLERR )
+		{
+			// fprintf(stderr,"poll() error\n"); fflush(stderr);
+			output_error("GldMain::subcommand(command='%s'): pipe error", pipes->child_command);
+			has_error = true;
+			break;
+		}
+		if ( polldata[0].revents&POLLNVAL )
+		{
+			// fprintf(stderr,"poll() pipe 0 invalid\n"); fflush(stderr);
+			output_error("GldMain::subcommand(command='%s'): input pipe invalid", pipes->child_command);
+			has_error = true;
+			break;
+		}
+		if ( polldata[1].revents&POLLNVAL )
+		{
+			// fprintf(stderr,"poll() pipe 1 invalid\n"); fflush(stderr);
+			output_error("GldMain::subcommand(command='%s'): output pipe invalid", pipes->child_command);
+			has_error = true;
+			break;
+		}
+		if ( polldata[2].revents&POLLNVAL )
+		{
+			// fprintf(stderr,"poll() pipe 2 invalid\n"); fflush(stderr);
+			output_error("GldMain::subcommand(command='%s'): error pipe invalid", pipes->child_command);
+			has_error = true;
 			break;
 		}
 	}
-	if ( cur == NULL )
-	{
-		return (-1);
-	}
-	if ( ! wait )
-	{
-		if ( cur->output ) (void)fclose(cur->output);
-		if ( cur->error ) (void)fclose(cur->error);
-		kill(cur->pid,SIGHUP);
-		pid = 0;
-	}
-	else
-	{
-		do 
-		{
-			pid = waitpid(cur->pid, &pstat, 0);
-		} while ( pid == -1 && errno == EINTR );
-		if ( cur->output ) (void)fclose(cur->output);
-		if ( cur->error ) (void)fclose(cur->error);
-	}
-
-	/* remove the entry from the linked list */
-	if (last == NULL)
-	{
-		pidlist = cur->next;
-	}
-	else
-	{
-		last->next = cur->next;
-	}
-	free(cur);
-	return ( pid == -1 ? errno : pstat>>8 );
+	// fprintf(stderr,"poll() done\n"); fflush(stderr);
+	return has_error;
 }
+
+int ppolls(struct s_pipes *pipes, char *output_buffer, size_t output_size, FILE *error_stream)
+{
+	struct pollfd polldata[2];
+	polldata[0].fd = pipes->child_output ? fileno(pipes->child_output) : 0;
+	polldata[0].events = POLLIN|POLLERR|POLLHUP;
+	polldata[1].fd = pipes->child_error ? fileno(pipes->child_error) : 0;
+	polldata[1].events = POLLIN|POLLERR|POLLHUP;
+	bool has_error = false;
+	char line[65536];
+	size_t len = 0;
+	while ( poll(polldata,sizeof(polldata)/sizeof(polldata[0]),-1) > 0 && len < output_size-1)
+	{
+		if ( pipes->child_output && len < output_size-1 && polldata[0].revents&POLLIN )
+		{ 
+			while ( fgets(line, sizeof(line)-1, pipes->child_output) != NULL ) 
+			{
+				len += snprintf(output_buffer+len,output_size-len-1,"%s",line);
+			}
+			if ( ferror(pipes->child_output) )
+			{
+				output_error("pipe read failed on child stdout (errno=%d %s, fd=%d)\n",errno,strerror(errno),fileno(pipes->child_output)); fflush(stderr);
+			}
+			if ( ! feof(pipes->child_output) )
+			{
+				output_error("pipe read incomplete on child stdout (errno=%d %s, fd=%d)\n",errno,strerror(errno),fileno(pipes->child_output)); fflush(stderr);
+			}
+		}
+		if ( pipes->child_error && error_stream && polldata[1].revents&POLLIN )
+		{
+			while ( fgets(line, sizeof(line)-1, pipes->child_error) != NULL ) 
+			{
+				fprintf(error_stream,"%s",line);
+			}
+			if ( ferror(pipes->child_error) )
+			{
+				output_error("pipe read on child stderr (errno=%d %s, fd=%d)\n",errno,strerror(errno),fileno(pipes->child_error)); fflush(stderr);
+			}
+			if ( ! feof(pipes->child_error) )
+			{
+				output_error("pipe read incomplete on child stderr (errno=%d %s, fd=%d)\n",errno,strerror(errno),fileno(pipes->child_output)); fflush(stderr);
+			}
+		}
+		if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP )
+		{
+			output_verbose("GldMain::subcommand(command='%s'): end of output", pipes->child_command);
+			break;
+		}
+		if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR )
+		{
+			output_error("GldMain::subcommand(command='%s'): pipe error", pipes->child_command);
+			has_error = true;
+			break;
+		}
+		if ( polldata[0].revents&POLLNVAL )
+		{
+			output_error("GldMain::subcommand(command='%s'): output pipe invalid", pipes->child_command);
+			has_error = true;
+			break;
+		}
+		if ( polldata[1].revents&POLLNVAL )
+		{
+			output_error("GldMain::subcommand(command='%s'): error pipe invalid", pipes->child_command);
+			has_error = true;
+			break;
+		}
+	}
+	return has_error;
+}
+
 
 int GldMain::subcommand(const char *format, ...)
 {
@@ -609,7 +846,8 @@ int GldMain::subcommand(const char *format, ...)
 
 	FILE *output = NULL, *error = NULL;
 	int rc = 0;
-	if ( popens(command, &output, &error) < 0 ) 
+	struct s_pipes * pipes = popens(command, NULL, &output, &error);
+	if ( pipes == NULL ) 
 	{
 		output_error("GldMain::subcommand(format='%s',...): unable to run command '%s' (%s)",format,command,strerror(errno));
 		rc = -1;
@@ -619,41 +857,8 @@ int GldMain::subcommand(const char *format, ...)
 		output_verbose("running subcommand '%s'",command);
 		FILE *output_stream = output_get_stream("output");
 		FILE *error_stream = output_get_stream("error");
-		struct pollfd polldata[3];
-		polldata[0].fd = 1;
-		polldata[0].events = POLLOUT|POLLERR|POLLHUP;
-		polldata[1].fd = output ? fileno(output) : 0;
-		polldata[1].events = POLLIN|POLLERR|POLLHUP;
-		polldata[2].fd = error ? fileno(error) : 0;
-		polldata[2].events = POLLIN|POLLERR|POLLHUP;
-		char line[1024];
-		while ( poll(polldata,sizeof(polldata)/sizeof(polldata[0]),-1) > 0 )
-		{
-			while ( output && polldata[1].revents&POLLIN && fgets(line, sizeof(line)-1, output) != NULL ) 
-			{
-				fprintf(output_stream,"%s",line);
-			}
-			while ( error && polldata[2].revents&POLLIN && fgets(line, sizeof(line)-1, error) != NULL ) 
-			{
-				fprintf(error_stream,"%s",line);
-			}
-			if ( polldata[0].revents&POLLOUT )
-			{
-				output_debug("GldMain::subcommand(command='%s'): no input", command);
-				break;
-			}
-			if ( polldata[0].revents&POLLHUP || polldata[1].revents&POLLHUP || polldata[2].revents&POLLHUP)
-			{
-				output_verbose("GldMain::subcommand(command='%s'): end of output", command);
-				break;
-			}
-			if ( polldata[0].revents&POLLERR || polldata[1].revents&POLLERR || polldata[2].revents&POLLERR)
-			{
-				output_error("GldMain::subcommand(command='%s'): pipe error", command);
-				break;
-			}
-		}
-		rc = pcloses(output);
+		ppolls(pipes,NULL,output_stream,error_stream);
+		rc = pcloses(pipes);
 		if ( rc > 0 )
 		{
 			output_error("GldMain::subcommand(format='%s',...): command '%s' returns code %d",format,command,rc);
