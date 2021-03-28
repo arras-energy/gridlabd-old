@@ -143,8 +143,7 @@ if __name__ == "__main__":
 				JOBDATA,
 				])
 			verbose(f"starting pool for {JOBDATA.index}")
-			result = JOBPOOL.map(runjob,JOBDATA.index)
-			print(result)
+			JOBPOOL.map(runjob,JOBDATA.index)
 		else:
 			for jobid in JOBDATA.index:
 				runjob(jobid)
