@@ -32,9 +32,9 @@ Specifies the name of the configuration file to use instead of `gridlabd-config.
 
 Enables debugging output.
 
-### `-i|--interactive`
+### `-T|--threadpool NTHREADS`
 
-Enables interactive display (requires curses library).
+Enables parallel processing of jobs using a threadpool using the specified number of threads.
 
 ### `-j|--jobfile JOBFILE`
 
