@@ -6,6 +6,7 @@
 import sys, os
 import pandas as pd
 import subprocess
+import multiprocessing as mp
 import curses
 
 SYNTAX="Syntax: gridlabd job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-i|--interactive] FILE1 ..."
@@ -15,6 +16,8 @@ DEBUG=False
 JOBFILE="gridlabd-job.csv"
 CFGFILE="gridlabd-config.glm"
 WORKDIR=os.getcwd()
+THREADS=1
+JOBPOOL = None
 SCREEN=None
 GLMLIST=[]
 NJOBS=0
@@ -93,6 +96,14 @@ while n < len(sys.argv):
 		n+=1
 		WORKDIR=sys.argv[n]
 		verbose(f"using working directory {WORKDIR}")
+	elif sys.argv[n] in ["-T","--threadcount"]:
+		n+=1
+		THREADS=int(sys.argv[n])
+		if THREADS == 0:
+			THREADS = mp.cpu_count()
+		elif THREADS > mp.cpu_count():
+			warning(f"request for {THREADS} exceeds maximum {mp.cpu_count()} available")
+		verbose(f"using {THREADS} threads")
 	else:
 		GLMLIST.append(sys.argv[n])
 	n+=1
@@ -142,6 +153,14 @@ def termscr():
 		curses.endwin()
 		SCREEN = None
 
+def runjob(args):
+	if THREADS == 1:
+		return subprocess.run(args,capture_output=True,encoding="utf-8")
+	elif jobpool:
+		raise Exception("job pool not implemented yet")
+	else:
+		raise Exception("no job pool available")
+
 try:
 	verbose(f"changing to '{WORKDIR}'")
 	os.chdir(WORKDIR)
@@ -159,7 +178,7 @@ try:
 		args = ["gridlabd",CFGFILE]
 		args.extend(GLMLIST)
 		verbose(f"running '{' '.join(args)}'")
-		result = subprocess.run(args,capture_output=True,encoding="utf-8")
+		result = runjob(args)
 		syncscr(jobid,result)
 	waitscr()
 	termscr()
