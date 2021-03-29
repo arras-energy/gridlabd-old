@@ -3,7 +3,7 @@
 # Synopsis
 
 ~~~
-bash$ gridlabd convert [OPTIONS] FILE …
+bash$ gridlabd check [OPTIONS] FILE …
 ~~~
 
 # Description
@@ -56,6 +56,3 @@ Enable additional output
 
 Causes warnings to be treated as errors with exit code 1.
 
-# See also
-
-* [[/Converters/README]]
