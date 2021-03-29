@@ -1,3 +1,2 @@
 #check ../check_model.glm 
 module validate_check_model;
-//#on_exit 1 grep -qF "WARNING [check]" gridlabd.err 
