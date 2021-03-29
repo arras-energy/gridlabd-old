@@ -7,6 +7,7 @@
  **/
 
 #include "gldcore.h"
+#include <poll.h>
 
 SET_MYCONTEXT(DMC_GLOBALS)
 
@@ -954,47 +955,25 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	}
 }
 
-extern int popens(const char *program, FILE **output, FILE **error);
-extern int pcloses(FILE *iop, bool wait=true);
-
 DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 {
-	char line[1024];
-	FILE *fp = NULL, *err = NULL;
-	if ( popens(command, &fp, &err) < 0 ) 
+	FILE *out = NULL, *err = NULL;
+	buffer[0] = '\0';
+	struct s_pipes *pipes = popens(command, NULL, &out, &err);
+	if ( pipes == NULL ) 
 	{
-		if ( err == NULL )
+		output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to create pipes",buffer,size,command);
+		return NULL;
+	}
+	ppolls(pipes,buffer,size,output_get_stream("error"));
+	pcloses(pipes);
+	for ( char *c = buffer ; *c != '\0' ; c++ )
+	{
+		if ( *c == '\n' )
 		{
-			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
-		}
-		else
-		{
-			while ( fgets(line,sizeof(line)-1,err) )
-			{
-				output_error("global_shell(buffer=0x%x,size=%d,command='%s'): %s",buffer,size,command,line);
-			}
-			pcloses(fp);
+			*c = ' ';
 		}
 	}
-	int pos = 0;
-	strcpy(buffer,"");
-	while ( fgets(line, sizeof(line)-1, fp) != NULL ) 
-	{
-		int len = strlen(line);
-		if ( pos+len >= size )
-		{
-			output_warning("global_shell(buffer=0x%x,size=%d,command='%s'): result too large, truncating",buffer,size,command);
-			break;
-		}
-		else
-		{
-			strcpy(buffer+pos,line);
-		}
-		pos += len;
-		if ( buffer[pos-1] == '\n' )
-			buffer[pos-1] = ' ';
-	}
-	pcloses(fp);
 	return buffer;
 }
 
