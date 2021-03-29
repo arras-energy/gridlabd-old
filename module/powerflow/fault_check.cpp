@@ -1681,21 +1681,23 @@ void fault_check::reset_alterations_check(void)
 	unsigned int index;
 
 	//Do a check for initialization
-	if (Alteration_Nodes == NULL)
+	if ( Alteration_Nodes == NULL )
 	{
 		allocate_alterations_values(true);
 	}
 
 	//Reset the node - just whether the algorithm has looked at it or not
-	for (index=0; index<NR_bus_count; index++)
-	{
-		Alteration_Nodes[index] = 0;	//Flag as untouched
+	if ( Alteration_Nodes )
+	{	
+		for ( index = 0 ; index < NR_bus_count ; index++ )
+		{
+			Alteration_Nodes[index] = 0;	//Flag as untouched
+		}
 	}
-
 	//If we're in "special" mode, reset the branches too
-	if (reliability_search_mode == false)
+	if ( reliability_search_mode == false && Alteration_Links )
 	{
-		for (index=0; index<NR_branch_count; index++)
+		for ( index = 0 ; index < NR_branch_count ; index++ )
 		{
 			Alteration_Links[index] = 0;	//Flag as untouched
 		}
