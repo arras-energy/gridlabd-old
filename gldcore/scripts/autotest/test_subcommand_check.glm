@@ -1,2 +1,1 @@
-#check ../check_model.glm 
-#on_exit 1 grep -qF "WARNING [check]" gridlabd.err 
+#check ../check_model.glm
