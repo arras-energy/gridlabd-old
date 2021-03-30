@@ -35,3 +35,18 @@
   - [[/User manual/Use cases/Tariff design~]]
   - [[/User manual/Use cases/Resilience analysis~]]
   - [[/User manual/Use cases/Integration capacity analysis~]]
+
+## Appendix A - GLM Language Reference
+  - [[/GLM/Directive/Class~]]
+  - [[/GLM/Directive/Clock~]]
+  - [[/GLM/Directive/Dump~]]
+  - [[/GLM/Directive/Extern~]]
+  - [[/GLM/Directive/Filter~]]
+  - [[/GLM/Directive/Global~]]
+  - [[/GLM/Directive/Loader~]]
+  - [[/GLM/Directive/Modify~]]
+  - [[/GLM/Directive/Module~]]
+  - [[/GLM/Directive/Object~]]
+  - [[/GLM/Directive/Schedule~]]
+  - [[/GLM/Directive/Script~]]
+  
