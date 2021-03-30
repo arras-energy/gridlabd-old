@@ -14,11 +14,11 @@ But the need to study and understand modern energy systems that are far more com
 
 This is accomplished using what has become known as an agent-based model.  Agents are small descriptions of objects that exhibit specific behaviors and interact with other agents over time easily modeled ways.  
 
-## Who needs this book?
+## Who needs this manual?
 
-This is for model developers and simulation users.  It contains the following topics:
+This manual is for model developers and simulation users.  It addresses the following topics:
 
- - Exploring the GridLAB-D Modeling (GLM) language
+ - Learning the GridLAB-D Modeling (GLM) language
 
  - Understanding and using GridLAB-D modules and classes
 
