@@ -1,4 +1,4 @@
-// job 15 configuration for ['test_job.glm']
+// job 15 configuration for ['../gridlabd-job.csv']
 #set strictnames=FALSE
 #define TEST1=15
 #define TEST2=J

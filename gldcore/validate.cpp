@@ -95,7 +95,9 @@ public:
 		}
 		else if ( global_keep_progress )
 		{
+			int old = output_enable_flush(true);
 			output_message("Processing %s...",ptr); 
+			output_enable_flush(old);
 		}
 		else
 		{
@@ -767,7 +769,7 @@ char *encode_result(char *data,size_t sz)
 	return code;
 }
 
-static unsigned long long hash(const char *str)
+static unsigned long long hashcode(const char *str)
 {
 	unsigned long code = 5381;
 	int c;
@@ -1007,7 +1009,7 @@ int validate(void *main, int argc, const char *argv[])
 
 	report_data();
 	report_data("Result code");
-	report_data("%llX",final.get_nfailed()==0?0:hash(encode_result(result_code,next_id)));
+	report_data("%llX",final.get_nfailed()==0?0:hashcode(encode_result(result_code,next_id)));
 	report_newrow();
 
 	report_newrow();

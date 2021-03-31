@@ -40,6 +40,13 @@ static char buffer[65536];
 int overflow=CHECK;
 int flush = 0;
 
+bool output_enable_flush(bool enable)
+{
+	int old = flush;
+	flush = ( enable ? 1 : 0 );
+	return old;
+}
+
 static char prefix[16]="";
 void output_prefix_enable(void)
 {
@@ -705,9 +712,17 @@ int output_message(const char *format,...) /**< \bprintf style argument list */
 		}
 Output:
 		if (redirect.output)
+		{
 			result = fprintf(redirect.output,"%s%s\n", prefix, buffer);
+			if ( flush ) 
+			{
+				fflush(redirect.output);
+			}
+		}
 		else
+		{
 			result = (*printstd)("%s%s\n", prefix, buffer);
+		}
 Unlock:
 		wunlock(&output_lock);
 		return result;
