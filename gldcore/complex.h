@@ -99,7 +99,7 @@ inline DEPRECATED double complex_get_mag(X) { return (sqrt((X).r*(X).r + (X).i*(
 	Parameters:
 	X - complex value
  */
-inline DEPRECATED double complex_get_arg(X) { return ((X).r==0 ? ( (X).i > 0 ? PI/2 : ((X).i<0 ? -PI/2 : 0) ) : ( (X).r>0 ? atan((X).i/(X).r) : PI+atan((X).i/(X).r) )); };
+inline DEPRECATED double complex_get_arg(X) { return atan2(X.i,X.r); };
 
 /* Function: complex_set_rect
 
@@ -266,19 +266,7 @@ public:
 	// Method: Arg
 	inline double Arg(void) const /**< compute angle */
 	{
-		if (r==0)
-		{
-			if (i>0)
-				return PI/2;
-			else if (i==0)
-				return 0;
-			else
-				return -PI/2;
-		}
-		else if (r>0)
-			return atan(i/r);
-		else
-			return PI+atan(i/r);
+		return atan2(i,r);
 	};
 
 	// Method: Ang

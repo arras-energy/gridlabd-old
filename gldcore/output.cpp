@@ -40,6 +40,13 @@ static char buffer[65536];
 int overflow=CHECK;
 int flush = 0;
 
+bool output_enable_flush(bool enable)
+{
+	int old = flush;
+	flush = ( enable ? 1 : 0 );
+	return old;
+}
+
 static char prefix[16]="";
 void output_prefix_enable(void)
 {
@@ -571,6 +578,13 @@ int output_debug(const char *format,...) /**< \bprintf style argument list */
 {
 	if (global_debug_output)
 	{
+		struct timeval tv;
+		gettimeofday(&tv,NULL);
+		struct tm *t = localtime(&tv.tv_sec);
+		char timestamp[256];
+		strftime(timestamp,64,"%Y-%m-%d %H:%M:%S",t);
+		snprintf(timestamp+strlen(timestamp),64,".%06d %s",tv.tv_usec,time_context);
+
 		/* check for repeated message */
 		static char lastfmt[4096] = "";
 		static int count=0;
@@ -591,7 +605,7 @@ int output_debug(const char *format,...) /**< \bprintf style argument list */
 				len = sprintf(buffer,"last debug message was repeated %d times", count);
 				count = 0;
 				if(format == 0) goto Output;
-				else len += sprintf(buffer+len,"\n%sDEBUG [%s] : ", prefix, time_context);
+				else len += sprintf(buffer+len,"\n%sDEBUG [%s] : ", prefix, timestamp);
 			}
 			else if (format==NULL)
 				goto Unlock;
@@ -601,9 +615,9 @@ int output_debug(const char *format,...) /**< \bprintf style argument list */
 		}
 Output:
 		if (redirect.debug)
-			result = fprintf(redirect.debug,"%sDEBUG [%s] : %s\n", prefix, time_context, buffer);
+			result = fprintf(redirect.debug,"%sDEBUG [%s] : %s\n", prefix, timestamp, buffer);
 		else
-			result = (*printerr)("%sDEBUG [%s] : %s\n", prefix, time_context, buffer);
+			result = (*printerr)("%sDEBUG [%s] : %s\n", prefix, timestamp, buffer);
 Unlock:
 		wunlock(&output_lock);
 		return result;
@@ -698,9 +712,17 @@ int output_message(const char *format,...) /**< \bprintf style argument list */
 		}
 Output:
 		if (redirect.output)
+		{
 			result = fprintf(redirect.output,"%s%s\n", prefix, buffer);
+			if ( flush ) 
+			{
+				fflush(redirect.output);
+			}
+		}
 		else
+		{
 			result = (*printstd)("%s%s\n", prefix, buffer);
+		}
 Unlock:
 		wunlock(&output_lock);
 		return result;

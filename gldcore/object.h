@@ -31,8 +31,10 @@ typedef unsigned short OBJECTSIZE; /** Object data size */
 typedef unsigned int OBJECTNUM; /** Object id number */
 typedef const char * OBJECTNAME; /** Object name */
 typedef char FULLNAME[1024]; /** Full object name (including space name) */
+typedef unsigned long long HASH;
 
 #define PADDR_X(X,T) ((char*)&((T)->X)-(char*)(T))
+HASH hash(OBJECTNAME name);
 
 /* object flags */
 #define OF_NONE			0x00000000	/**< Object flag; none set */
@@ -365,7 +367,7 @@ typedef struct s_callbacks {
 	int (*call_external_callback)(const char*, void *);
 	struct {
 		PyObject *(*import)(const char *module, const char *path);
-		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs);
+		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs, void *result);
 	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
