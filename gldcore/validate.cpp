@@ -95,7 +95,9 @@ public:
 		}
 		else if ( global_keep_progress )
 		{
+			int old = output_enable_flush(true);
 			output_message("Processing %s...",ptr); 
+			output_enable_flush(old);
 		}
 		else
 		{
