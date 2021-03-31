@@ -31,6 +31,7 @@ PRINTFUNCTION output_set_stdout(PRINTFUNCTION call);
 PRINTFUNCTION output_set_stderr(PRINTFUNCTION call);
 
 int output_init(int argc, const char *argv[]);
+bool output_enable_flush(bool enable);
 void output_cleanup(void);
 
 void output_prefix_enable(void);
