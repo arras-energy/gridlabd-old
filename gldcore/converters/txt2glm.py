@@ -2,6 +2,8 @@ import json
 import os 
 import sys, getopt
 from datetime import datetime 
+import importlib, copy
+from importlib import util
 
 config = {"input":"txt","output":"glm","type":["cyme"]}
 
@@ -43,8 +45,7 @@ for opt, arg in opts:
 modname = sys.argv[0].replace("txt2glm.py",f"txt2glm-{output_type}.py")
 if os.path.exists(modname):
 
-	import importlib, copy
-	modspec = importlib.util.spec_from_file_location(output_type, modname)
+	modspec = util.spec_from_file_location(output_type, modname)
 	mod = importlib.import_module(f"txt2glm-{output_type}")
 	mod.convert(input_file=input_file,output_file=output_file)
 

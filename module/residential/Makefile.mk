@@ -33,3 +33,5 @@ module_residential_residential_la_SOURCES += module/residential/residential.h
 module_residential_residential_la_SOURCES += module/residential/rbsa2014.h
 module_residential_residential_la_SOURCES += module/residential/elcap1990.h
 module_residential_residential_la_SOURCES += module/residential/elcap2010.h
+
+bin_SCRIPTS += module/residential/check_residential.py

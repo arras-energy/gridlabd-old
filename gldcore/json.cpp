@@ -213,6 +213,10 @@ int GldJsonWriter::write_classes(FILE *fp)
 			TUPLE("parent","%s",oclass->parent->name );
 		}
 		TUPLE("trl","%u",oclass->trl);
+		if ( oclass->module )
+		{
+			TUPLE("module","%s",oclass->module->name);
+		}
 		TUPLE("profiler.numobjs","%u",oclass->profiler.numobjs);
 		TUPLE("profiler.clocks","%llu",oclass->profiler.clocks);
 		TUPLE("profiler.count","%u",oclass->profiler.count);
