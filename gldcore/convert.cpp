@@ -226,6 +226,7 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 	int count = 0;
 	char temp[1025];
 	complex *v = (complex*)data;
+	CNOTATION cplex_output_type = J;
 
 	double scale = 1.0;
 	if ( prop && prop->unit!=NULL )
@@ -247,7 +248,26 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 		}
 	}
 
-	if ( v->Notation() == A )
+	/* Check the format or global override */
+ 	if (global_complex_output_format == CNF_RECT)
+ 	{
+ 		cplex_output_type = J;
+ 	}
+ 	else if (global_complex_output_format == CNF_POLAR_DEG)
+ 	{
+ 		cplex_output_type = A;
+ 	}
+ 	else if (global_complex_output_format == CNF_POLAR_RAD)
+ 	{
+ 		cplex_output_type = R;
+ 	}
+ 	else	/* Must be default - see what the property wants */
+ 	{
+ 		cplex_output_type = v->Notation();
+ 	}
+
+ 	/* Now output appropriately */
+	if ( cplex_output_type == A )
 	{
 		double m = v->Mag()*scale;
 		double a = v->Arg();

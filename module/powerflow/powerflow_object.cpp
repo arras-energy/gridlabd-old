@@ -90,6 +90,11 @@ using namespace std;
 //////////////////////////////////////////////////////////////////////////
 CLASS* powerflow_object::oclass = NULL;
 CLASS* powerflow_object::pclass = NULL;
+char1024 powerflow_object::violation_record = "";
+FILE *powerflow_object::violation_fh = NULL;
+int32 powerflow_object::violation_count = 0;
+int32 powerflow_object::violation_active = 0;
+set powerflow_object::violation_watchset = VW_ALL;
 
 powerflow_object::powerflow_object(MODULE *mod)
 {	
@@ -119,6 +124,15 @@ powerflow_object::powerflow_object(MODULE *mod)
 			PT_double,"nominal_voltage[V]",PADDR(nominal_voltage),
 				PT_REQUIRED,
 				PT_DESCRIPTION, "nominal voltage for this object",
+			PT_set,"violation_detected",PADDR(violation_detected),
+				PT_OUTPUT,
+				PT_KEYWORD, "CONTROL", (set)VF_CONTROL,
+				PT_KEYWORD, "THERMAL", (set)VF_THERMAL,
+				PT_KEYWORD, "POWER", (set)VF_POWER,
+				PT_KEYWORD, "VOLTAGE", (set)VF_VOLTAGE,
+				PT_KEYWORD, "CURRENT", (set)VF_CURRENT,
+				PT_KEYWORD, "NONE", (set)VF_NONE,
+				PT_DESCRIPTION, "rating or limit violation flag",
 #ifdef SUPPORT_OUTAGES
 			PT_set, "condition", PADDR(condition),
 				PT_KEYWORD, "OPEN", (set)OC_OPEN,
@@ -136,10 +150,21 @@ powerflow_object::powerflow_object(MODULE *mod)
 				PT_KEYWORD, "NORMAL", PS_NORMAL,
 				PT_KEYWORD, "OUTAGE", PS_OUTAGE,
 #endif
-			PT_char1024, "supernode_name", PADDR(supernode),
          	NULL) < 1) GL_THROW("unable to publish powerflow_object properties in %s",__FILE__);
 
-		// set defaults
+		gl_global_create("powerflow::violation_record", PT_char1024, &violation_record, PT_DESCRIPTION, "file in which to record violations of limits and ratings",NULL);
+		gl_global_create("powerflow::violation_count", PT_int32, &violation_count, PT_DESCRIPTION, "count of violations recorded",NULL);
+		gl_global_create("powerflow::violation_active", PT_int32, &violation_active, PT_DESCRIPTION, "count of currently active violations",NULL);
+		gl_global_create("powerflow::violation_watchset", PT_set, &violation_watchset, 
+			PT_KEYWORD, "NONE", (set)VW_NONE,
+			PT_KEYWORD, "LOAD", (set)VW_LOAD,
+			PT_KEYWORD, "NODE", (set)VW_NODE,
+			PT_KEYWORD, "LINE", (set)VW_LINE,
+			PT_KEYWORD, "XFRM", (set)VW_XFRM,
+			PT_KEYWORD, "VREG", (set)VW_VREG,
+			PT_KEYWORD, "LINK", (set)VW_LINK,
+			PT_KEYWORD, "ALL", (set)VW_ALL,
+			PT_DESCRIPTION, "object sets to watch for violations",NULL);
 	}
 }
 
@@ -245,6 +270,75 @@ TIMESTAMP powerflow_object::postsync(TIMESTAMP t0)
 int powerflow_object::kmldump(FILE *fp)
 {
 	return 1; /* 1 means output default if it wasn't handled */
+}
+
+void powerflow_object::add_violation(int vf_type, const char *format, ...)
+{
+	if ( violation_watch )
+	{
+		char message[1024];
+		va_list ptr;
+		va_start(ptr,format);
+		vsnprintf(message,sizeof(message)-1,format,ptr);
+		va_end(ptr);
+		add_violation(gl_globalclock,THISOBJECTHDR,vf_type,message);
+	}
+}
+void powerflow_object::add_violation(TIMESTAMP t, OBJECT *obj, int vf_type, const char *message)
+{
+	if ( vf_type == VF_NONE )
+	{
+		del_violation(t,obj,violation_detected);
+		return;
+	}
+	violation_detected |= vf_type;
+	if ( violation_fh == NULL && violation_record[0] != '\0' )
+	{
+		violation_fh = fopen(violation_record,"w");
+		if ( violation_fh == NULL )
+		{
+			gl_error("unable to open violation record file '%s'", (const char*)violation_record);
+			violation_record[0] = '\0';
+			return;
+		}
+		fprintf(violation_fh,"%s\n","timestamp,object,type,description");
+	}
+
+	const char *vf_name[] = 
+	{
+		"NONE","CURRENT","VOLTAGE","CURRENT|VOLTAGE","POWER","CURRENT|POWER","VOLTAGE|POWER","CURRENT|VOLTAGE|POWER",
+		"CONTROL","CONTROL|CURRENT","CONTROL|VOLTAGE","CONTROL|CURRENT|VOLTAGE","CONTROL|POWER","CONTROL|CURRENT|POWER","CONTROL|VOLTAGE|POWER","CONTROL|CURRENT|VOLTAGE|POWER",
+	};
+	if ( violation_fh != NULL )
+	{
+		char ts[64];
+		gl_strftime(t,ts,sizeof(ts)-1);
+		if ( obj->name != NULL )
+		{
+			fprintf(violation_fh,"%s,%s,%s,\"%s\"\n",ts,obj->name,vf_name[vf_type&0x0f],message);
+		}
+		else
+		{
+			fprintf(violation_fh,"%s,%s:%u,%s,\"%s\"\n",ts,obj->oclass->name,obj->id,vf_name[vf_type&0x0f],message);
+		}
+		fflush(violation_fh);
+	}
+	else
+	{
+		if ( obj->name )
+			gl_warning("%s rating/limit violation type %s (%s)",obj->name,vf_name[vf_type&0x0f],message);
+		else
+			gl_warning("%s:%d rating/limit violation type %s (%s)",obj->oclass->name,obj->id,vf_name[vf_type&0x0f],message);			
+	}
+	violation_count++;
+	violation_active++;
+	return;
+}
+
+void powerflow_object::del_violation(TIMESTAMP t, OBJECT *obj, int vf_type)
+{
+	violation_detected &= ~vf_type;
+	violation_active--;
 }
 //////////////////////////////////////////////////////////////////////////
 // IMPLEMENTATION OF CORE LINKAGE: powerflow_object

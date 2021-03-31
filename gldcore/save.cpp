@@ -129,7 +129,7 @@ int saveall(const char *filename)
 			save_options++;
 			buffer[strlen(buffer)-1] = '\0';
 		}
-		rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,input_name,filename,save_options?save_options:"");
+		rc = my_instance->subcommand("%s %s -i %s -o %s %s",(const char*)global_pythonexec,converter_path,input_name,filename,save_options?save_options:"");
 		if ( rc != 0 )
 		{
 			output_error("conversion from '%s' to output file '%s' failed (code %d)", input_name, filename, rc);
@@ -617,7 +617,7 @@ void save_outputs(void)
 		{
 			throw_exception("output file '%s' has no extension", item->first.c_str());
 		}
-		int rc = my_instance->subcommand("/usr/local/bin/python3 %s/%s2%s.py -i %s -o %s %s",(const char*)global_datadir,from+1,to+1,filename,item->first.c_str(),item->second.c_str());
+		int rc = my_instance->subcommand("%s %s/%s2%s.py -i %s -o %s %s",(const char*)global_pythonexec,(const char*)global_datadir,from+1,to+1,filename,item->first.c_str(),item->second.c_str());
 		if ( rc != 0 )
 		{
 			throw_exception("automatic conversion of '%s' to '%s %s' failed with return code %d", filename, item->first.c_str(), item->second.c_str(), rc);

@@ -303,7 +303,7 @@ distclean-local: python-clean
 libtool: $(LIBTOOL_DEPS)
 	$(SHELL) ./config.status libtool > /dev/null
 
-install-exec-hook: index python-install
+install-exec-hook: index python-requirements python-install
 	@cp ${top_srcdir}/{COPYRIGHT,LICENSE} $(prefix)
 	@echo ""
 	@echo "Install complete. Here are some useful commands now:"
@@ -317,6 +317,9 @@ install-exec-hook: index python-install
 	@echo "To make this version the default for all users on this system:"
 	@echo "  $(DESTDIR)$(bindir)/gridlabd version set"
 	@echo ""
+
+python-requirements: requirements.txt
+	@python3 -m pip install -q -r $<
 
 reconfigure: distclean
 	autoreconf -isf && ./configure

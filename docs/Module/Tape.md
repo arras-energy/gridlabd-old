@@ -43,7 +43,7 @@ TODO
   csv_data_only "<integer>";
 ~~~
 
-TODO
+Allows the output of only the data without header. Deafault is `0` or include header, `1` outputs data only.
 
 ### `csv_keep_clean`
 
