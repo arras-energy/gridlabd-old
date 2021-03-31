@@ -745,7 +745,7 @@ void GldExec::do_checkpoint(void)
 		/* checkpoint time lapsed */
 		if ( last_checkpoint + global_checkpoint_interval <= now )
 		{
-			static char fn[1024] = "";
+			static char fn[2048] = "";
 			FILE *fp = NULL;
 
 			/* default checkpoint filename */
@@ -767,7 +767,7 @@ void GldExec::do_checkpoint(void)
 				unlink(fn);
 
 			/* create current checkpoint save filename */
-			sprintf(fn,"%s.%d",global_checkpoint_file,global_checkpoint_seqnum++);
+			snprintf(fn,sizeof(fn)-1,"%s.%d",global_checkpoint_file,global_checkpoint_seqnum++);
 			fp = fopen(fn,"w");
 			if ( fp==NULL )
 				output_error("unable to open checkpoint file '%s' for writing");
