@@ -165,3 +165,4 @@ powerflow/autotest/test_IEEE13_pole_output.csv
 gridlabd-core.*
 documents/gridlabd.md
 documents/gridlabd.pdf
+openfido.err

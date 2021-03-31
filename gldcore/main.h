@@ -21,6 +21,20 @@
 /*	Typedef: EXITCALL */
 typedef int (*EXITCALL)(int);
 
+struct s_pipes {
+	FILE *child_input;
+	FILE *child_output;
+	FILE *child_error;
+	char *child_command;
+	pid_t child_pid;
+};
+struct s_pipes *popens(const char *program, FILE **input, FILE **output, FILE **error);
+int ppolls(struct s_pipes *pipes, FILE* input_stream, FILE* output_stream, FILE *error_stream);
+int ppolls(struct s_pipes *pipes, char *output_buffer, size_t output_size, FILE *error_stream);
+int pcloses(struct s_pipes *pipes, bool wait=true);
+#define READ_END 0
+#define WRITE_END 1
+
 class onexitcommand {
 private:
 	int exitcode;

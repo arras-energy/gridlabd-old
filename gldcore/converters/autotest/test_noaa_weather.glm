@@ -1,16 +1,17 @@
+#require pysolar
 
 clock 
 {
-	starttime "2018-01-01 00:00:00";
-	stoptime "2019-01-01 00:00:00";
+	starttime "2019-01-01 00:00:00";
+	stoptime "2020-01-01 00:00:00";
 }
 
-#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/noaa.csv" -o test_data.glm -f noaa-weather -t weather -p station_id=72594524283 -p refresh=always
+#input "https://s3-us-west-1.amazonaws.com/weather.gridlabd.us/test_data/noaa.csv" -o test_data.glm -f noaa-weather -t weather -p station_id=72594524283 -p refresh=always -p latitude=37.7749 -p longitude=-122.4194 -p timezone=-07:00 
 
 module tape;
 object recorder
 {
 	parent "test_data";
 	file "weather_recorder.csv";
-	property "temperature,humidity";
+	property "temperature,humidity,wind_speed,wind_dir,pressure,rainfall,opq_sky_cov,solar_global,solar_direct,solar_diffuse";
 }
