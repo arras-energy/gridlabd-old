@@ -88,6 +88,8 @@ int regulator::create()
 
 int regulator::init(OBJECT *parent)
 {
+	violation_watch = violation_watchset&VW_VREG;
+
 	bool TapInitialValue[3];
 	size_t jindex;
 	int result = link_object::init(parent);
@@ -828,7 +830,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='A';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the maximum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the maximum tap value",phaseWarn);
 		/*  TROUBLESHOOT
 		The regulator has set its taps such that it is at the maximum setting.  This may indicate
 		a problem with settings, or your system.
@@ -839,7 +841,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='B';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the maximum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the maximum tap value",phaseWarn);
 		//Defined above
 	}
 
@@ -847,7 +849,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='C';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the maximum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the maximum tap value",phaseWarn);
 		//Defined above
 	}
 
@@ -855,7 +857,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='A';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the minimum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the minimum tap value",phaseWarn);
 		/*  TROUBLESHOOT
 		The regulator has set its taps such that it is at the minimum setting.  This may indicate
 		a problem with settings, or your system.
@@ -866,7 +868,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='B';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the minimum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the minimum tap value",phaseWarn);
 		//Defined above
 	}
 
@@ -874,7 +876,7 @@ TIMESTAMP regulator::presync(TIMESTAMP t0)
 	{
 		phaseWarn='C';	//Just so troubleshoot is generic
 
-		gl_warning("Regulator %s has phase %c at the minimum tap value",THISOBJECTHDR->name,phaseWarn);
+		add_violation(VF_CONTROL,"regulator phase %c at the minimum tap value",phaseWarn);
 		//Defined above
 	}
 	if (offnominal_time && (t0 > next_time))

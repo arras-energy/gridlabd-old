@@ -17,6 +17,7 @@ def compute_bill(gridlabd,**kwargs):
 
 	global csvwriter
 	verbose = gridlabd.get_global("verbose")=="TRUE"
+	global csvfile
 
 	# get data
 	classname = kwargs['classname']
@@ -81,6 +82,11 @@ def compute_bill(gridlabd,**kwargs):
 		charges = minimum * billing_days
 	if verbose:
 		gridlabd.output(f"  Energy charges... %8.2f US$" % (charges))
+
+	# output billing record only if charges are non-zero
+	if charges > 0:
+		csvwriter.writerow([clock,meter_name,tariff_name,int(billing_days),round(usage,1),0,round(charges,2)])
+		csvfile.flush()
 
 	# update billing data
 	gridlabd.set_value(bill_name,"total_bill",str(to_float(bill["total_bill"])+charges))

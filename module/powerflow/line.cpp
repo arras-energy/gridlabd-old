@@ -89,8 +89,8 @@ int line::create()
 
 int line::init(OBJECT *parent)
 {
+	violation_watch = violation_watchset&VW_LINE;
 	int result = link_object::init(parent);
-	
 
 	node *pFrom = OBJECTDATA(from,node);
 	node *pTo = OBJECTDATA(to,node);

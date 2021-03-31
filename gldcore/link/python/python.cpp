@@ -2083,12 +2083,15 @@ MODULE *python_module_load(const char *file, int argc, const char *argv[])
 {
     char filename[1024];
     char pathname[1024];
-    sprintf(filename,"%s.py",file);
+    snprintf(filename,sizeof(filename)-1,"%s.py",file);
+    output_verbose("looking for module '%s'",filename);
     if ( ! find_file(filename,global_pythonpath,4,pathname,sizeof(pathname)) )
     {
+        output_debug("python module '%s' not found",filename);
         errno = ENOENT;
         return NULL;
     }
+    output_verbose("loading module '%s'",filename);
     extern PyObject *python_embed_import(const char *module, const char *path);
     PyObject *mod = python_embed_import(file,global_pythonpath);
 

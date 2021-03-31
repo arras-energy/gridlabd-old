@@ -5,13 +5,13 @@
 Shell:
 
 ~~~
-host% gridlabd job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-i|--interactive] FILE1 ...
+host% gridlabd job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-T|--threadcount NTHREADS] FILE1 ...
 ~~~
 
 GLM:
 
 ~~~
-#job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-i|--interactive] FILE1 ...
+#job [-v|--verbose] [-q|--quiet] [-d|--debug] [-j|--jobfile JOBFILE] [-w|--workdir FOLDER] [-c|--configfile CONFIG] [-T|--threadcount NTHREADS] FILE1 ...
 ~~~
 
 # Description
@@ -32,9 +32,9 @@ Specifies the name of the configuration file to use instead of `gridlabd-config.
 
 Enables debugging output.
 
-### `-i|--interactive`
+### `-T|--threadpool NTHREADS`
 
-Enables interactive display (requires curses library).
+Enables parallel processing of jobs using a threadpool using the specified number of threads.
 
 ### `-j|--jobfile JOBFILE`
 
