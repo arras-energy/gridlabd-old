@@ -9,7 +9,7 @@
     tilt_angle "0 deg";
     tilt_direction 0 deg";
     weather "<climate-object>";
-    configurate "<pole-configuration-object>";
+    configuration "<pole-configuration-object>";
     equipment_area "0 sf";
     equipment_height "0 ft":
     install_year "1970";

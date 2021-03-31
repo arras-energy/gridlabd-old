@@ -1,4 +1,4 @@
-[[/Subcommand/Check]] -- Subcommand to convert files from one format to another
+[[/Subcommand/Check]] -- Subcommand to perform a detailed check of the validity of a GridLAB-D model
 
 # Synopsis
 
@@ -17,35 +17,24 @@ objects in the model.  See the module's check routine for details.
 # Options
 
 ## `debug`
-
 ~~~
 	-d|--debug
 ~~~
-
 Enable python traceback output when problems are encountered
-
 ## `fix`
-
 ~~~
 	-f|--fix=FILE
 ~~~
-
 Fixes problems (if possible) are writes to the specified file
-
 ## `quiet`
-
 ~~~
 	-q|--quiet
 ~~~ 
-
 Suppress all non-error output
-
 ## `verbose`
-
 ~~~
 	-v|--verbose
 ~~~
-
 Enable additional output
 
 ## `strict`
@@ -55,4 +44,3 @@ Enable additional output
 ~~~
 
 Causes warnings to be treated as errors with exit code 1.
-
