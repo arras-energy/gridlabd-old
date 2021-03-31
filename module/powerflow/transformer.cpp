@@ -130,6 +130,8 @@ void transformer::fetch_double(double **prop, const char *name, OBJECT *parent){
 
 int transformer::init(OBJECT *parent)
 {
+	violation_watch = violation_watchset&VW_XFRM;
+	
 	int idex;
 
 	if (!configuration)

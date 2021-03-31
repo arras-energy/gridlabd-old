@@ -1851,9 +1851,9 @@ void sched_clear(void)
 	if ( process_map!=NULL )
 	{
 		unsigned int n;
-		for ( n=0 ; n<n_procs ; n++ )
+		for ( n = 0 ; n < n_procs ; n++ )
 		{
-			if (sched_isdefunct(process_map[n].pid) )
+			if ( process_map[n].pid > 0 && sched_isdefunct(process_map[n].pid) )
 			{
 				sched_lock(n);
 				IN_MYCONTEXT output_debug("module.c:sched_clear(): process_map[n].pid %d (proc %d) <- 0", process_map[n].pid, n);
