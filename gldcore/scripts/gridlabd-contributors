@@ -41,7 +41,7 @@ while n < len(sys.argv):
 	else:
 		value = None
 	if tag in ["-h","--help"]:
-		print(f"{sys.argv[0]} [<options>]")
+		print(f"Syntax: gridlabd-contributors [<options>]")
 		print("Options:")
 		print("  -h|--help           get this help list")
 		print("  -k|--known          print known users only")
