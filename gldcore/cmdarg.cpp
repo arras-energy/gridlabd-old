@@ -1172,6 +1172,7 @@ DEPRECATED static int globals(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::globals(int argc, const char *argv[])
 {
+	bool use_json = (strstr(argv[0],"=json")!=NULL);
 	const char *list[65536];
 	int i, n=0;
 	GLOBALVAR *var = NULL;
@@ -1208,16 +1209,43 @@ int GldCmdarg::globals(int argc, const char *argv[])
 	qsort(list,n,sizeof(list[0]),compare);
 
 	/* output sorted array */
+	if ( use_json )
+	{
+		printf("{\n");
+	}
 	for (i=0; i<n; i++)
 	{
 		char buffer[1024];
 		var = global_find(list[i]);
 		if ( (var->prop->access&PA_HIDDEN)==PA_HIDDEN )
 			continue;
-		printf("%s=%s;",var->prop->name,global_getvar(var->prop->name,buffer,sizeof(buffer))?buffer:"(error)");
-		if (var->prop->description || var->prop->flags&PF_DEPRECATED)
-			printf(" // %s%s", (var->prop->flags&PF_DEPRECATED)?"DEPRECATED ":"", var->prop->description?var->prop->description:"");
-		printf("\n");
+		const char *value = global_getvar(var->prop->name,buffer,sizeof(buffer));
+		if ( use_json && value != NULL )
+		{
+			printf("\t\"%s\" : {\n",var->prop->name);
+			if ( value[0] == '"' )
+			{
+				printf("\t\t\"value\" : %s,\n",value);
+			}
+			else
+			{
+				printf("\t\t\"value\" : \"%s\",\n",value);
+			}
+			printf("\t\t\"flags\" : \"%s\",\n",(var->prop->flags&PF_DEPRECATED)?"DEPRECATED":"");
+			printf("\t\t\"description\" : \"%s\"\n",var->prop->description?var->prop->description:"");
+			printf("\t}%s\n",i<n-1?",":"");
+		}
+		else
+		{
+			printf("%s=%s;",var->prop->name,value);
+			if (var->prop->description || var->prop->flags&PF_DEPRECATED)
+				printf(" // %s%s", (var->prop->flags&PF_DEPRECATED)?"DEPRECATED ":"", var->prop->description?var->prop->description:"");
+			printf("\n");
+		}
+	}
+	if ( use_json )
+	{
+		printf("}\n");
 	}
 	return 0;
 }
@@ -2107,10 +2135,38 @@ DEPRECATED static int depends(void *main, int argc, const char *argv[])
 	return 0;
 }
 
-DEPRECATED static int rusage(void *main, int args, const char *argv[])
+DEPRECATED static int rusage(void *main, int argc, const char *argv[])
 {
 	global_rusage_rate = 1;
 	return 0;
+}
+
+DEPRECATED static int _template(void *main, int argc, const char *argv[])
+{
+	if ( argc < 2 )
+	{
+		output_error("missing template name");
+		return CMDERR;
+	}
+	char template_glm[1024];
+	const char *organization = getenv("ORGANIZATION");
+	if ( organization == NULL )
+	{
+		output_error("ORGANIZATION is not set in environment");
+		return CMDERR;
+	}
+	char *oldpath = strdup(global_pythonpath);
+	snprintf(global_pythonpath,sizeof(global_pythonpath)-strlen(global_pythonpath)-1,"%s/template/%s/%s",getenv("GLD_ETC"),organization,argv[1]);
+	snprintf(template_glm,sizeof(template_glm)-1,"%s/template/%s/%s/%s.glm",getenv("GLD_ETC"),organization,argv[1],argv[1]);
+	bool result = ((GldMain*)main)->get_loader()->load(template_glm);
+	strcpy(global_pythonpath,oldpath);
+	free(oldpath);
+	if ( ! result ) 
+	{
+		output_error("unable to load template file '%s'", template_glm);
+		return CMDERR;
+	}
+	return 1;
 }
 
 #include "job.h"
@@ -2203,6 +2259,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"output",		"o",	output,			"<file>", "Enables save of output to a file (default is gridlabd.glm)" },
 	{"pause",		NULL,	pauseatexit,	NULL, "Toggles pause-at-exit feature" },
 	{"relax",		NULL,	relax,			NULL, "Allows implicit variable definition when assignments are made" },
+	{"template",	"t",	_template,		NULL, "Load template" },
 
 	{NULL,NULL,NULL,NULL, "Server mode"},
 	{"server",		NULL,	server,			NULL, "Enables the server"},

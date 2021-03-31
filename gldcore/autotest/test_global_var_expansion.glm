@@ -1,3 +1,38 @@
-global int32 var 1;
-#print var=${++var};
+#set strictnames=FALSE
+#define str=abc
+
+#if ${nostr:-ok} != ok
+#error test failed
+#endif
+
+#if ${str:-ok} != abc
+#error test failed
+#endif
+
+#if ${newstr:=def} != def
+#error test failed
+#elif ${newstr} != def
+#error test failed
+#endif
+
+#if ${str:=def} != abc
+#error test failed
+#endif
+
+global int32 var 10;
+
+#if ${++var} != 11
+#error test failed (var = ${var})
+#endif
+
+#if ${--var} != 10
+#error test failed (var = ${var})
+#endif
+
+#if ${var%6} != 4
+#error test failed (var = ${var})
+#endif
+
+
+
 

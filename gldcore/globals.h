@@ -381,6 +381,14 @@ GLOBAL char global_double_format[32] INIT("%+lg"); /**< the format to use when p
 /* Variable: global_complex_format */
 GLOBAL char global_complex_format[256] INIT("%+lg%+lg%c"); /**< the format to use when processing complex numbers */
 
+typedef enum {
+ 	CNF_DEFAULT, 	/**< complex numbers are left to whatever format the notation flag is set to */
+ 	CNF_RECT,     	/**< complex numbers are forced into rectangular format for outputs */
+ 	CNF_POLAR_DEG, 	/**< complex numbers are forced into polar format with degree angles */
+ 	CNF_POLAR_RAD, 	/**< complex numbers are forced into polar format with radian angles */
+ } COMPLEXCONVERFORMAT; /**< determines the type of run */
+ GLOBAL COMPLEXCONVERFORMAT global_complex_output_format INIT(CNF_DEFAULT);	/**< use whatever the numbers already are */
+
 /* Variable: global_object_format */
 GLOBAL char global_object_format[32] INIT("%s:%d"); 
 
@@ -806,6 +814,9 @@ GLOBAL char1024 global_datadir INIT("");
 
 /* Variable: global_pythonpath */
 GLOBAL char1024 global_pythonpath INIT(".");
+
+/* Variable: global_pythonexec */
+GLOBAL char1024 global_pythonexec INIT(PYTHON_EXEC);
 
 /* Variable: global_rusage_rate */
 GLOBAL int64 global_rusage_rate INIT(0);

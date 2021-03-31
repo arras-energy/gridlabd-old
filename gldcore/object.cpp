@@ -2854,9 +2854,8 @@ typedef struct s_objecttree {
 	struct s_objecttree *next;
 } OBJECTTREE;
 static OBJECTTREE *top[TREESIZE];
-typedef unsigned long long HASH;
 
-static HASH hash(OBJECTNAME name)
+HASH hash(OBJECTNAME name)
 {
 	static HASH A = 55711, B = 45131; //, C = 60083; isn't used but should be in principle
 	HASH h = 18443;
