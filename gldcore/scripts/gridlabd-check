@@ -8,10 +8,11 @@ Options:
 	-d|--debug     Enable python traceback output when problems are encountered
 	-f|--fix=FILE  Fixes problems (if possible) are writes to the specified file
 	-q|--quiet     Suppress all non-error output
+	-s|--strict    Warnings are considered errors
 	-v|--verbose   Enable additional output
 
 The `check` subcommand runs detailed checks on GLM and JSON models.  If the file is GLM, it is loaded and converted 
-to JSON automatically. Any load errors or warning are displayed.
+to JSON automatically. Any load errors or warning are displayed. The exit code is the number of errors encountered.
 
 The JSON file check is a comprehensive model check system that examines each object and it's relationship to other
 objects in the model.  See the module's check routine for details.
@@ -31,8 +32,10 @@ class OPTIONS:
 	quiet = False
 	debug = False
 	fix = False
+	strict = False
 
 def main(args):
+	count = 0
 	files = []
 	for item in args:
 		if item in ['-f','--fix']:
@@ -43,6 +46,8 @@ def main(args):
 			OPTIONS.verbose = True
 		elif item in ['-q','--quiet']:
 			OPTIONS.quiet = True
+		elif item in ['-s','--strict']:
+			OPTIONS.strict = True
 		elif item[-4:] == ".glm":
 			fout = item.replace(".glm",".json")
 			output = subprocess.run(["gridlabd","-C",item,"-o",fout],capture_output=True,encoding="utf-8")
@@ -61,12 +66,13 @@ def main(args):
 		try:
 			with open(file,"r") as fh:
 				model = json.load(fh)
-				check(model)
+				count = check(model)
 		except Exception as err:
 			if OPTIONS.debug:
 				raise
 			else:
 				error(1,err)
+	return count
 
 def error(code,msg):
 	if OPTIONS.debug:
@@ -77,33 +83,42 @@ def error(code,msg):
 
 def warning(msg):
 	if not OPTIONS.quiet:
-		print(f"WARNING [check]: {msg}",file=sys.stderr)
+		if OPTIONS.strict:
+			print(f"ERROR [check]: {msg}",file=sys.stderr)
+		else:
+			print(f"WARNING [check]: {msg}",file=sys.stderr)
 
 def check(model):
-
-	check_application(model)
-	check_version(model)
-	check_globals(model)
-	check_modules(model)
-	check_types(model)
-	check_header(model)
-	check_classes(model)
-	check_schedules(model)
-	check_objects(model)
+	count = 0
+	count += check_application(model)
+	count += check_version(model)
+	count += check_globals(model)
+	count += check_modules(model)
+	count += check_types(model)
+	count += check_header(model)
+	count += check_classes(model)
+	count += check_schedules(model)
+	count += check_objects(model)
+	return count
 
 def check_application(model):
 	if "application" in model.keys():
 		check_value(model["application"],op.eq,APPLICATION,"application name is not valid")
+		return 1
 	else:
 		warning("no application data")
+		return 1
 
 def check_version(model):
 	if "version" in model.keys():
 		info = model["version"].split(".")
-		check_value(int(info[0]),op.ge,VERSION_MAJOR,"gridlabd major version is too old")
-		check_value(int(info[1]),op.ge,VERSION_MINOR,"gridlabd minor version is too old")
+		count = 0
+		count += check_value(int(info[0]),op.ge,VERSION_MAJOR,"gridlabd major version is too old")
+		count += check_value(int(info[1]),op.ge,VERSION_MINOR,"gridlabd minor version is too old")
+		return count
 	else:
 		warning("no version data")
+		return 1
 
 def check_globals(model):
 	if "globals" in model.keys():
@@ -111,9 +126,11 @@ def check_globals(model):
 		for name,specs in GLOBALS.items():
 			if not name in model_globals.keys():
 				warning(f"global '{name}' is missing")
+				return 1
 	else:
 		warning("no global data")
-	return
+		return 1
+	return 0
 
 def check_modules(model):
 	if "modules" in model.keys():
@@ -126,31 +143,35 @@ def check_modules(model):
 					mod = lib.module_from_spec(spec)
 					spec.loader.exec_module(mod)
 					if hasattr(mod,"check") and callable(mod.check):
-						mod.check(sys.modules[__name__],model,options=OPTIONS)
+						return mod.check(sys.modules[__name__],model,options=OPTIONS)
 					else:
 						warning(f"cannot check module '{module}' because '{pathname}' does not implement a callable check() function")
+						return 1
 				else:
 					warning(f"cannot check module '{module}' because module spec not valid")
+					return 1
 			else:
 				warning(f"cannot check module '{module}' because '{pathname}' is not found")
+				return 1
 	else:
 		warning("no module data")
-	return
+		return 1
+	return 0
 	
 def check_types(model):
-	return
+	return 0
 	
 def check_header(model):
-	return
+	return 0
 
 def check_classes(model):
-	return
+	return 0
 	
 def check_schedules(model):
-	return
+	return 0
 	
 def check_objects(model):
-	return
+	return 0
 
 def check_value(a,rel,b,msg):
 	if not rel(a,b):
@@ -163,6 +184,13 @@ def check_value(a,rel,b,msg):
 			op.gt:">",
 		}
 		warning(f"{msg} ({a} {tag[rel]} {b} failed)")
+		return 1
+	else:
+		return 0
 
 if __name__ == '__main__':
-	main(sys.argv[1:])
+	count = main(sys.argv[1:])
+	if OPTIONS.strict:
+		exit(count)
+	else:
+		exit(0)
