@@ -5953,6 +5953,11 @@ int GldLoader::global_declaration(PARSER)
 			if ( (WHITE,TERM(value(HERE,pvalue,sizeof(pvalue)))) )
 			{
 				PROPERTYTYPE ptype = property_get_type(proptype);
+				if ( ptype == PT_void )
+				{
+					syntax_error(filename,linenum,"global '%s' type '%s' is not valid",varname,proptype);
+					REJECT;
+				}
 				GLOBALVAR *var = global_create(varname,ptype,NULL,PT_SIZE,1,PT_ACCESS,PA_PUBLIC,NULL);
 				if ( var==NULL )
 				{
