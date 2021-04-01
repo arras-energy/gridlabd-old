@@ -87,8 +87,8 @@ EXPORT int create_recorder(OBJECT **obj, OBJECT *parent)
 		my->target = NULL;
 		my->property = NULL;
 		my->property_len = 0;
-		memset(my->output_format,0,sizeof(my->output_format));
-		memset(my->output_scalar,0,sizeof(my->output_scalar));
+		memset((void*)my->output_format,0,sizeof(my->output_format));
+		memset((void*)my->output_scalar,0,sizeof(my->output_scalar));
 		return 1;
 	}
 	return 0;
@@ -215,8 +215,8 @@ static int recorder_open(OBJECT *obj)
 			if(0 != fgets(inbuffer, 1024, my->inputfp)){
 				int rep=0;
 				int replen = (int)strlen("# repetition");
-				int len, lenmax = 1024, i = 0;
 				char1024 propstr, shortstr;
+				int len, lenmax = sizeof(propstr), i = 0;
 				PROPERTY *tprop = my->target;
 				gl_verbose("read last buffer");
 				if(strncmp(inbuffer, "# repetition", replen) == 0){
@@ -239,15 +239,16 @@ static int recorder_open(OBJECT *obj)
 						gl_error("multi-run recorder output full property list is larger than the buffer, please start a new file!");
 						break; // will still print everything up to this one
 					}
-					strncpy(propstr+i, shortstr, len+1);
+					strncpy(propstr+i, shortstr, lenmax-1);
 					i += len;
+					lenmax -= len;
 					tprop = tprop->next;
 				}
 				fprintf(my->multifp, "%s%s\n", (char*)inbuffer, (char*)propstr);
 			}
 		} else { /* new file, so write repetition & properties with (0) */
 			char1024 propstr, shortstr;
-			int len, lenmax = 1024, i = 0;
+			int len, lenmax = sizeof(propstr), i = 0;
 			PROPERTY *tprop = my->target;
 			fprintf(my->multifp, "# repetition 0\n");
 			// no string from previous runs to append new props to
@@ -263,8 +264,9 @@ static int recorder_open(OBJECT *obj)
 					gl_error("multi-run recorder output full property list is larger than the buffer, please start a new file!");
 					break; // will still print everything up to this one
 				}
-				strncpy(propstr+i, shortstr, len+1);
+				strncpy(propstr+i, shortstr, lenmax-1);
 				i += len;
+				lenmax -= len;
 				tprop = tprop->next;
 			}
 			fprintf(my->multifp, "%s\n", (char*)propstr);
@@ -456,12 +458,12 @@ static TIMESTAMP recorder_write(OBJECT *obj)
 	// if file based
 	if(my->multifp != NULL){
 		char1024 inbuffer;
-		char1024 outbuffer;
+		char outbuffer[5100];
 		char *lasts = 0;
 		char *in_ts = 0;
 		char *in_tok = 0;
 
-		memset(inbuffer, 0, sizeof(inbuffer));
+		memset((void*)inbuffer, 0, sizeof(inbuffer));
 		
 		if(my->inputfp != NULL){
 			// read line
@@ -495,7 +497,7 @@ static TIMESTAMP recorder_write(OBJECT *obj)
 			if(strcmp(in_ts, ts) != 0){
 				gl_warning("timestamp mismatch between current input line and simulation time");
 			}
-			sprintf(outbuffer, "%s,%s", in_tok, (char*)my->last.value);
+			snprintf(outbuffer,sizeof(outbuffer)-1,"%s,%s", in_tok, (char*)my->last.value);
 		} else { // no input file ~ write normal output
 			strcpy(outbuffer, my->last.value);
 		}
@@ -671,7 +673,7 @@ PROPERTY *link_properties(struct recorder *rec, OBJECT *obj, char *property_list
 		}
 		if (first==NULL) first=prop; else last->next=prop;
 		last=prop;
-		memcpy(prop,target,sizeof(PROPERTY));
+		memcpy((void*)prop,target,sizeof(PROPERTY));
 		prop->unit = unit;
 		if(unit == NULL && rec->line_units == LU_ALL){
 			prop->unit = target->unit;
@@ -694,7 +696,7 @@ CDECL int read_properties(struct recorder *my, OBJECT *obj, PROPERTY *prop, char
 	char tmp[1024];
 	int count = 0;
 	int sz = 0;
-	memset(&fake, 0, sizeof(PROPERTY));
+	memset((void*)&fake, 0, sizeof(PROPERTY));
 	fake.ptype = PT_double;
 	fake.unit = 0;
 	int fmt_count = 0;
@@ -725,8 +727,8 @@ CDECL int read_properties(struct recorder *my, OBJECT *obj, PROPERTY *prop, char
 					gl_error("output format part '%c' is not valid for property %s", part, p->name);
 					return 0;
 				}
-				char fmt[64];
-				sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+				char fmt[100];
+				snprintf(fmt,sizeof(fmt)-1,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
 				double value = (*gl_get_double(obj, p)) * scalar;
 				sz = sprintf(tmp,fmt,value);
 			}
@@ -737,41 +739,41 @@ CDECL int read_properties(struct recorder *my, OBJECT *obj, PROPERTY *prop, char
 					gl_error("output format part required missing complex specifier for property %s", p->name);
 					return 0;
 				}
-				char fmt[64];
+				char fmt[100];
 				complex value = (*gl_get_complex(obj, p)) * scalar;
 				switch ( part )
 				{
 				case 'i':
 				case 'j':
-					sprintf(fmt,"%%.%c%c%%+.%c%c%c%s%s",prec,type,prec,type,part,unit_name?" ":"",unit_name?unit_name:"");
+					snprintf(fmt,sizeof(fmt)-1,"%%.%c%c%%+.%c%c%c%s%s",prec,type,prec,type,part,unit_name?" ":"",unit_name?unit_name:"");
 					sz = sprintf(tmp,fmt,value.Re(),value.Im());
 					break;
 				case 'r':
-					sprintf(fmt,"%%.%c%c%%+.%c%c%c%s%s",prec,type,prec,type,part,unit_name?" ":"",unit_name?unit_name:"");
+					snprintf(fmt,sizeof(fmt)-1,"%%.%c%c%%+.%c%c%c%s%s",prec,type,prec,type,part,unit_name?" ":"",unit_name?unit_name:"");
 					sz = sprintf(tmp,fmt,value.Mag(),value.Arg());
 					break;
 				case 'd':
-					sprintf(fmt,"%%.%c%c%%+.%c%c%c%s%s",prec,type,prec,type,part,unit_name?" ":"",unit_name?unit_name:"");
+					snprintf(fmt,sizeof(fmt)-1,"%%.%c%c%%+.%c%c%c%s%s",prec,type,prec,type,part,unit_name?" ":"",unit_name?unit_name:"");
 					sz = sprintf(tmp,fmt,value.Mag(),value.Ang());
 					break;
 				case 'M':
-					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					snprintf(fmt,sizeof(fmt)-1,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
 					sz = sprintf(tmp,fmt,value.Mag());
 					break;
 				case 'D':
-					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					snprintf(fmt,sizeof(fmt)-1,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
 					sz = sprintf(tmp,fmt,value.Ang());
 					break;
 				case 'R':
-					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					snprintf(fmt,sizeof(fmt)-1,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
 					sz = sprintf(tmp,fmt,value.Arg());
 					break;
 				case 'X':
-					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					snprintf(fmt,sizeof(fmt)-1,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
 					sz = sprintf(tmp,fmt,value.Re());
 					break;
 				case 'Y':
-					sprintf(fmt,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
+					snprintf(fmt,sizeof(fmt)-1,"%%.%c%c%s%s",prec,type,unit_name?" ":"",unit_name?unit_name:"");
 					sz = sprintf(tmp,fmt,value.Im());
 					break;
 				default:
