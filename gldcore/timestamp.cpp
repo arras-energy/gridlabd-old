@@ -308,7 +308,7 @@ int local_datetime(TIMESTAMP ts, DATETIME *dt)
 	dt->nanosecond = (unsigned int)(rem * 1e9);
 
 	/* determine timezone */
-	strncpy(dt->tz, tzvalid ? (dt->is_dst ? tzdst : tzstd) : "GMT", sizeof(dt->tz));
+	memcpy(dt->tz, tzvalid ? (dt->is_dst ? tzdst : tzstd) : "GMT", sizeof(dt->tz));
 
 	/* timezone offset in seconds */
 	dt->tzoffset = (int)(tzoffset - (isdst(dt->timestamp)?3600:0));
@@ -442,7 +442,7 @@ int local_datetime_delta(double tsdbl, DATETIME *dt)
 	dt->nanosecond = (unsigned int)((tsdbl - (double)(ts))*1e9 + 0.5);
 
 	/* determine timezone */
-	strncpy(dt->tz, tzvalid ? (dt->is_dst ? tzdst : tzstd) : "GMT", sizeof(dt->tz));
+	memcpy(dt->tz, tzvalid ? (dt->is_dst ? tzdst : tzstd) : "GMT", sizeof(dt->tz));
 
 	/* timezone offset in seconds */
 	dt->tzoffset = (int)(tzoffset - (isdst(dt->timestamp)?3600:0));
@@ -899,10 +899,10 @@ void load_tzspecs(const char *tz )
 		 */
 	}
 
-	strncpy(current_tzname, pTzname, sizeof(current_tzname));
+	strncpy(current_tzname, pTzname, sizeof(current_tzname)-1);
 	tzoffset = tz_offset(current_tzname);
-	strncpy(tzstd, tz_std(current_tzname), sizeof(tzstd));
-	strncpy(tzdst, tz_dst(current_tzname), sizeof(tzdst));
+	strncpy(tzstd, tz_std(current_tzname), sizeof(tzstd)-1);
+	strncpy(tzdst, tz_dst(current_tzname), sizeof(tzdst)-1);
 
 	if ( find_file(TZFILE, NULL, R_OK,filepath,sizeof(filepath)) == NULL ) {
 		throw_exception("timezone specification file %s not found in GLPATH=%s: %s", TZFILE, getenv("GLPATH"), strerror(errno));
