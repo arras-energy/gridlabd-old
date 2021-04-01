@@ -1,0 +1,11 @@
+# file...... out.csv
+# date...... Thu Apr  1 10:35:29 2021
+# user...... alyona_slac
+# host...... (null)
+# target.... triplex_line_conductor 0
+# trigger... (none)
+# interval.. -1
+# limit..... 0
+# timestamp,rating.summer.emergency
+2021-02-01 11:50:00 PST,+20
+# end of tape
