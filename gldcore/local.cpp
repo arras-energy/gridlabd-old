@@ -33,7 +33,7 @@ void locale_push(void)
 				<a href="http://gridlab-d.svn.sourceforge.net/viewvc/gridlab-d/trunk/core/tzinfo.txt?view=markup">tzinfo.txt</a>
 				file.
 			 */
-		strncpy(locale->tz,tz?tz:"",sizeof(locale->tz));
+		strncpy(locale->tz,tz?tz:"",sizeof(locale->tz)-1);
 		return;
 	}
 }
@@ -48,9 +48,9 @@ void locale_pop(void)
 	else
 	{
 		LOCALE *next = stack;
-		char tz[32];
+		char tz[64];
 		stack = stack->next;
-		sprintf(tz,"TZ=%s",next->tz);
+		snprintf(tz,sizeof(tz)-1,"TZ=%s",next->tz);
 		if (putenv(tz)!=0)
 			output_warning("locale pop failed");
 			/* TROUBLESHOOT
