@@ -514,8 +514,8 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 	{
 		IN_MYCONTEXT output_debug("(proc %d) created test folder '%s'", id, dir);
 	}
-	char out[1024];
-	sprintf(out,"%s/%s.glm",dir,name);
+	char out[1200];
+	snprintf(out,sizeof(out)-1,"%s/%s.glm",dir,name);
 	if ( !copyfile(file,out) )
 	{
 		output_error("(proc %d) run_test(char *file='%s'): unable to copy to test folder %s", id, file, dir);
@@ -612,7 +612,7 @@ static counters run_test(char *file, size_t id, double *elapsed_time=NULL)
 
 /* simple stack to handle directories that need to be processed */
 typedef struct s_dirstack {
-	char name[1024];
+	char name[1200];
 	unsigned short id;
 	struct s_dirstack *next;
 } DIRLIST;
@@ -687,8 +687,8 @@ void *run_test_proc(void *arg)
 			if ( result.get_nsuccess() ) code=2;
 			if ( result.get_nexceptions() ) code=3;
 			result_code[item->id] = code;
-			char buffer[1024];
-			sprintf(buffer,"%s%s%6.1f%s%s",flags[code],report_col,dt,report_col,item->name);
+			char buffer[2048];
+			snprintf(buffer,sizeof(buffer)-1,"%s%s%6.1f%s%s",flags[code],report_col,dt,report_col,item->name);
 			report_data("%s",buffer);
 			report_newrow();
 		}

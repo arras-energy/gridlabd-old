@@ -62,12 +62,12 @@ DEPRECATED STATUS load_module_list(FILE *fd,int* test_mod_num)
 }
 DEPRECATED STATUS GldCmdarg::load_module_list(FILE *fd,int* test_mod_num)
 {
-	char mod_test[100];
+	char mod_test[1024];
 	char line[100];
 	while(fscanf(fd,"%s",line) != EOF)
 	{
 		printf("Line: %s",line);
-		sprintf(mod_test,"mod_test%d=%s",(*test_mod_num)++,line);
+		snprintf(mod_test,sizeof(mod_test)-1,"mod_test%d=%s",(*test_mod_num)++,line);
 		if (global_setvar(mod_test)!=SUCCESS)
 		{
 			output_fatal("Unable to store module name");
@@ -250,18 +250,20 @@ STATUS GldCmdarg::no_cmdargs(void)
 	char htmlfile[1024];
 	if ( global_autostartgui && find_file("gridlabd.htm",NULL,R_OK,htmlfile,sizeof(htmlfile)-1)!=NULL )
 	{
-		char cmd[1024];
+		char cmd[4096];
 
 		/* enter server mode and wait */
 #ifdef WIN32
 		if ( htmlfile[1]!=':' )
-			sprintf(htmlfile,"%s\\gridlabd.htm", global_workdir);
+		{
+			snprintf(htmlfile,sizeof(htmlfile)-1,"%s\\gridlabd.htm", global_workdir);
+		}
 		output_message("opening html page '%s'", htmlfile);
-		sprintf(cmd,"start %s file:///%s", global_browser, htmlfile);
+		snprintf(cmd,sizeof(cmd)-1,"start %s file:///%s", global_browser, htmlfile);
 #elif defined(MACOSX)
-		sprintf(cmd,"open -a %s %s", global_browser, htmlfile);
+		snprintf(cmd,sizeof(cmd)-1,"open -a %s %s", global_browser, htmlfile);
 #else
-		sprintf(cmd,"%s '%s' & ps -p $! >/dev/null", global_browser, htmlfile);
+		snprintf(cmd,sizeof(cmd)-1,"%s '%s' & ps -p $! >/dev/null", global_browser, htmlfile);
 #endif
 		IN_MYCONTEXT output_verbose("Starting browser using command [%s]", cmd);
 		if (my_instance->subcommand("%s",cmd)!=0)
@@ -1462,7 +1464,7 @@ int GldCmdarg::xsl(int argc, const char *argv[])
 				p_args[n_args] = p;
 			}
 		}
-		sprintf(fname,"gridlabd-%d_%d.xsl",global_version_major,global_version_minor);
+		snprintf(fname,sizeof(fname)-1,"gridlabd-%d_%d.xsl",global_version_major,global_version_minor);
 		output_xsl(fname,n_args,(const char**)p_args);
 		free(buffer);
 		return CMDOK;
@@ -1620,13 +1622,13 @@ int GldCmdarg::info(int argc, const char *argv[])
 {
 	if ( argc>1 )
 	{
-		char cmd[1024];
+		char cmd[4096];
 #ifdef WIN32
-		sprintf(cmd,"start %s \"%s%s\"", global_browser, global_infourl, argv[1]);
+		snprintf(cmd,sizeof(cmd)-1,"start %s \"%s%s\"", global_browser, global_infourl, argv[1]);
 #elif defined(MACOSX)
-		sprintf(cmd,"open -a %s \"%s%s\"", global_browser, global_infourl, argv[1]);
+		snprintf(cmd,sizeof(cmd)-1,"open -a %s \"%s%s\"", global_browser, global_infourl, argv[1]);
 #else
-		sprintf(cmd,"%s \"%s%s\" & ps -p $! >/dev/null", global_browser, global_infourl, argv[1]);
+		snprintf(cmd,sizeof(cmd)-1,"%s \"%s%s\" & ps -p $! >/dev/null", global_browser, global_infourl, argv[1]);
 #endif
 		IN_MYCONTEXT output_verbose("Starting browser using command [%s]", cmd);
 		if (my_instance->subcommand(cmd)!=0)
@@ -1864,7 +1866,7 @@ int GldCmdarg::mclassdef(int argc, const char *argv[])
         }
 	
 	/* output the classdef */
-	count = sprintf(buffer,"struct('module','%s','class','%s'", modname, classname);
+	count = snprintf(buffer,sizeof(buffer)-1,"struct('module','%s','class','%s'", modname, classname);
 	for ( prop = oclass->pmap ; prop!=NULL && prop->oclass==oclass ; prop=prop->next )
 	{
 		char temp[1024];
@@ -1875,10 +1877,10 @@ int GldCmdarg::mclassdef(int argc, const char *argv[])
 		}
 		if ( value!=NULL )
 		{
-			count += sprintf(buffer+count, ",...\n\t'%s','%s'", prop->name, value);
+			count += snprintf(buffer+count,sizeof(buffer)-1-count,",...\n\t'%s','%s'", prop->name, value);
 		}
 	}
-	count += sprintf(buffer+count,");\n");
+	count += snprintf(buffer+count,sizeof(buffer)-1-count,");\n");
 	output_raw("%s",buffer);
         return CMDOK;
 }
@@ -2374,7 +2376,7 @@ STATUS GldCmdarg::load(int argc,const char *argv[])
 		{
 			CMDARG arg = main_commands[i];
 			char tmp[1024];
-			sprintf(tmp,"%s=",arg.lopt);
+			snprintf(tmp,sizeof(tmp)-1,"%s=",arg.lopt);
 			if ( ( arg.sopt && strncmp(*argv,"-",1)==0 && strcmp((*argv)+1,arg.sopt)==0 ) 
 			  || ( arg.lopt && strncmp(*argv,"--",2)==0 && strcmp((*argv)+2,arg.lopt)==0 ) 
 			  || ( arg.lopt && strncmp(*argv,"--",2)==0 && strncmp((*argv)+2,tmp,strlen(tmp))==0 ) )

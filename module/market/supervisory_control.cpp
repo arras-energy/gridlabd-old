@@ -50,7 +50,7 @@ supervisory_control::supervisory_control(MODULE *module) {
 				PT_KEYWORD,"VOLTAGE_EXTREMES",(enumeration)SORT_VOLTAGE2,
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
-		memset(this,0,sizeof(supervisory_control));
+		memset((void*)this,0,sizeof(supervisory_control));
 	}
 }
 
@@ -79,7 +79,7 @@ void supervisory_control::fetch_double(double **prop, const char *name, OBJECT *
 /* Object creation is called once for each object that is created by the core */
 int supervisory_control::create(void) 
 {
-	memcpy(this,defaults,sizeof(supervisory_control));
+	memcpy((void*)this,defaults,sizeof(supervisory_control));
 	return 1; /* return 1 on success, 0 on failure */
 }
 

@@ -452,7 +452,7 @@ inverter::inverter(MODULE *module)
 
 			defaults = this;
 
-			memset(this,0,sizeof(inverter));
+			memset((void*)this,0,sizeof(inverter));
 
 			if (gl_publish_function(oclass,	"preupdate_gen_object", (FUNCTIONADDR)preupdate_inverter)==NULL)
 				GL_THROW("Unable to publish inverter deltamode function");
@@ -5790,7 +5790,7 @@ SIMULATIONMODE inverter::inter_deltaupdate(unsigned int64 delta_time, unsigned l
 					}
 
 					// Copy everything back into curr_state, since we'll be back there
-					memcpy(&curr_state, &next_state, sizeof(INV_STATE));
+					memcpy((void*)&curr_state, &next_state, sizeof(INV_STATE));
 
 					simmode_return_value =  SM_DELTA;
 				}
