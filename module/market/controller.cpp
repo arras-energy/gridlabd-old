@@ -167,12 +167,12 @@ controller::controller(MODULE *module){
 				PT_KEYWORD, "FAILURE", (enumeration)CT_FAILURE,
 				PT_KEYWORD, "NULL", (enumeration)CT_NULL,
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
-		memset(this,0,sizeof(controller));
+		memset((void*)this,0,sizeof(controller));
 	}
 }
 
 int controller::create(){
-	memset(this, 0, sizeof(controller));
+	memset((void*)this, 0, sizeof(controller));
 	sprintf((char *)(&avg_target), "avg24");
 	sprintf((char *)(&std_target), "std24");
 	slider_setting_heat = -0.001;
@@ -512,7 +512,7 @@ int controller::init(OBJECT *parent){
 		if(fetch_property(&pClearingType, "proxy_clearing_type", pMarket) == 0) {
 			return 0;
 		}
-		strncpy(market_unit, proxy_mkt_unit, 31);
+		strcpy(market_unit, proxy_mkt_unit);
 		submit = (FUNCTIONADDR)(gl_get_function(pMarket, "submit_bid_state"));
 		if(submit == NULL){
 			char buf[256];
@@ -550,7 +550,7 @@ int controller::init(OBJECT *parent){
 			if(fetch_property(&pClearingType2, "proxy_clearing_type2", pMarket2) == 0) {
 				return 0;
 			}
-			strncpy(market_unit2, proxy_mkt_unit2, 31);
+			strcpy(market_unit2, proxy_mkt_unit2);
 			submit2 = (FUNCTIONADDR)(gl_get_function(pMarket2, "submit_bid_state"));
 			if(submit2 == NULL){
 				char buf[256];

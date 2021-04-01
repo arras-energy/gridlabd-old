@@ -1463,7 +1463,7 @@ size_t randomvar_getspec(char *str, size_t size, const randomvar *var)
 	size_t len;
 	if ( _random_specs(var->type,var->a,var->b,specs,sizeof(specs))<=0 )
 		return 0;
-	len = sprintf(buffer,"state: %u; type: %s; min: %g; max: %g; refresh: %u%s",
+	len = snprintf(buffer,sizeof(buffer)-1,"state: %u; type: %s; min: %g; max: %g; refresh: %u%s",
 		var->state, specs, var->low, var->high, var->update_rate, var->flags&RNF_INTEGRATE ? "; integrate" : "");
 	if ( len > 0 && len<size )
 	{

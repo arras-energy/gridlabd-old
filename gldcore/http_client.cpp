@@ -78,7 +78,7 @@ HTTP* hopen(const char *url, int maxlen)
 	}
 
 	/* format/send request */
-	len = sprintf(request,"GET %s HTTP/1.1\r\nHost: %s:80\r\nUser-Agent: %s/%d.%d\r\nConnection: close\r\n\r\n",PACKAGE_NAME,filespec,hostname,REV_MAJOR,REV_MINOR);
+	len = snprintf(request,sizeof(request)-1,"GET %s HTTP/1.1\r\nHost: %s:80\r\nUser-Agent: %s/%d.%d\r\nConnection: close\r\n\r\n",PACKAGE_NAME,filespec,hostname,REV_MAJOR,REV_MINOR);
 	IN_MYCONTEXT output_debug("sending HTTP message \n%s", request);
 	if ( send(http->sd,request,len,0)<len )
 	{
@@ -347,8 +347,8 @@ void http_get_options(void)
 	char *option=NULL, *last=NULL;
 	while ( (option=global_wget_options.token(option,";",&last))!=NULL )
 	{
-		char name[1024], value[1024];
-		int n = sscanf(option,"%[^:]:%[^\n\r]",name,value);
+		char name[1023], value[1023];
+		int n = sscanf(option,"%1022[^:]:%1022[^\n\r]",name,value);
 		if ( n>0 )
 		{
 			if ( strcmp(name,"maxsize")==0 )
