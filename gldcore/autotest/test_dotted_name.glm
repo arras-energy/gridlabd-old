@@ -1,0 +1,23 @@
+class A {
+	double B; 
+}
+
+module tape; 
+
+object A {
+	name "test_A";
+	B "1000"; 
+	object recorder {
+		file "out.csv";
+		property "B";
+		interval -1;
+	};
+}
+
+modify test_A.B "2000";
+
+#on_exit 0 python3 ../check_dotted_name.py
+
+
+
+
