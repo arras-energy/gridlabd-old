@@ -162,7 +162,7 @@ int unit_scalar(const char *name,int scalar)
 			This is actually triggered by a malloc failure, and the rest of the system is likely unstable.
 		*/
 	}
-	strncpy(ptr->name, name, sizeof(ptr->name));
+	strncpy(ptr->name, name, sizeof(ptr->name)-1);
 	ptr->scalar = scalar;
 	ptr->len = (unsigned char)strlen(ptr->name);
 	ptr->next = scalar_list;

@@ -55,18 +55,12 @@ int metrics_collector_writer::init(OBJECT *parent)
 	}
 
 	// Write seperate json files for meters, triplex_meters, inverters, capacitors, regulators, houses, substation_meter:
-	filename_billing_meter = "billing_meter_";
-	strcat(filename_billing_meter, filename);
-	filename_inverter = "inverter_";
-	strcat(filename_inverter, filename);
-	filename_capacitor = "capacitor_";
-	strcat(filename_capacitor, filename);
-	filename_regulator = "regulator_";
-	strcat(filename_regulator, filename);
-	filename_house = "house_";
-	strcat(filename_house, filename);
-	filename_substation = "substation_";
-	strcat(filename_substation, filename);
+	snprintf(filename_billing_meter,sizeof(filename_billing_meter)-1,"billing_meter_%s",(const char*)filename);
+	snprintf(filename_inverter,sizeof(filename_inverter)-1,"inverter_%s",(const char*)filename);
+	snprintf(filename_capacitor,sizeof(filename_capacitor)-1,"capacitor_%s",(const char*)filename);
+	snprintf(filename_regulator,sizeof(filename_regulator)-1,"regulator_%s",(const char*)filename);
+	snprintf(filename_house,sizeof(filename_house)-1,"house_%s",(const char*)filename);
+	snprintf(filename_substation,sizeof(filename_substation)-1,"substation_%s",(const char*)filename);
 
 	// Check valid metrics_collector output interval
 	interval_length = (int64)(interval_length_dbl);

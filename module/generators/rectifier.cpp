@@ -71,13 +71,7 @@ rectifier::rectifier(MODULE *module)
 			PT_KEYWORD, "S",(set)PHASE_S,
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
-
-
-
-
-
-
-		memset(this,0,sizeof(rectifier));
+		memset((void*)this,0,sizeof(rectifier));
 		/* TODO: set the default values of all properties here */
 	}
 }
@@ -88,7 +82,7 @@ rectifier::rectifier(MODULE *module)
 /* Object creation is called once for each object that is created by the core */
 int rectifier::create(void) 
 {
-	memcpy(this,defaults,sizeof(*this));
+	memcpy((void*)this,defaults,sizeof(*this));
 	/* TODO: set the context-free initial value of properties */
 	return 1; /* return 1 on success, 0 on failure */
 }
