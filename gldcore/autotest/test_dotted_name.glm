@@ -117,7 +117,7 @@ object house {
 	heating_system_type RESISTANCE;
 	cooling_system_type ELECTRIC;
 }
-//modify four_ought_triplex.rating.summer.emergency "500 A";
+modify four_ought_triplex.rating.summer.emergency "500 A";
 //modify SX3086079B_1_house.panel.breaker_amps "100";
 #on_exit 0 python3 ../check_dotted_name.py
 
