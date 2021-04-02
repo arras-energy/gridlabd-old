@@ -1,1 +1,1 @@
-#check -s ../check_model.glm 
+#check --strict ../check_model.glm 

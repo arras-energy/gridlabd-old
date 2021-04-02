@@ -48,7 +48,7 @@ static const char *GetLastErrorMsg(void)
 	char *p;
 	while ( (p=strchr((char*)lpMsgBuf,'\n'))!=NULL ) *p=' ';
 	while ( (p=strchr((char*)lpMsgBuf,'\r'))!=NULL ) *p=' ';
-    sprintf(szBuf, "%s (error code %d)", lpMsgBuf, dw); 
+    snprintf(szBuf,sizeof(szBuf)-1,"%s (error code %d)", lpMsgBuf, dw); 
  
     LocalFree(lpMsgBuf);
 	wunlock(&lock);
@@ -58,7 +58,7 @@ static DIR *opendir(const char *dirname)
 {
 	WIN32_FIND_DATA fd;
 	char search[MAX_PATH];
-	sprintf(search,"%s/*",dirname);
+	snprintf(search,sizeof(search)-1,"%s/*",dirname);
 	HANDLE dh = FindFirstFile(search,&fd);
 	if ( dh==INVALID_HANDLE_VALUE )
 	{
@@ -131,7 +131,7 @@ static int vsystem(const char *fmt, ...)
 	char command[1024];
 	va_list ptr;
 	va_start(ptr,fmt);
-	vsprintf(command,fmt,ptr);
+	vsnprintf(command,sizeof(command)-1,fmt,ptr);
 	va_end(ptr);
 	IN_MYCONTEXT output_debug("calling system('%s')",command);
 	int rc = system(command);
@@ -151,7 +151,7 @@ bool job_destroy_dir(char *name)
 		if ( strcmp(dp->d_name,".")!=0 && strcmp(dp->d_name,"..")!=0 )
 		{
 			char file[1024];
-			sprintf(file,"%s/%s",name,dp->d_name);
+			snprintf(file,sizeof(file)-1,"%s/%s",name,dp->d_name);
 			if ( unlink(file)!=0 )
 			{
 				output_error("destroy_dir(char *name='%s'): unlink('%s') returned '%s'", name, dp->d_name,strerror(errno));
@@ -246,7 +246,7 @@ static bool run_job(char *file, double *elapsed_time=NULL)
 
 /* simple stack to handle directories that need to be processed */
 typedef struct s_jobstack {
-	char name[1024];
+	char name[4097];
 	struct s_jobstack *next;
 } JOBLIST;
 static JOBLIST *jobstack = NULL;
@@ -298,8 +298,8 @@ static size_t process_dir(const char *path)
 	if ( dirp==NULL ) return 0; // nothing to do
 	while ( (dp=readdir(dirp))!=NULL )
 	{
-		char item[1024];
-		sprintf(item,"%s/%s",path,dp->d_name);
+		char item[4096];
+		snprintf(item,sizeof(item)-1,"%s/%s",path,dp->d_name);
 		char *ext = strrchr(dp->d_name,'.');
 		if ( dp->d_name[0]=='.' ) continue; // ignore anything that starts with a dot
 		if ( ext && strcmp(ext,".glm")==0 )
