@@ -43,6 +43,7 @@ varchar::varchar(size_t len)
 	{
 		str = (char*)malloc(len+1);
 		ASSERT(str!=NULL,"varchar::varchar() malloc failed");
+		memset(str,0,len+1);
 		sz = len+1;
 	}
 	else
@@ -177,10 +178,10 @@ int varchar::format(size_t size, const char *fmt, va_list ptr)
 
 void varchar::append(const char *s)
 {
+	size_t len = strlen(str);
 	size_t slen = strlen(s);
-	size_t tlen = strlen(str);
-	resize(tlen+slen+1,true);
-	strcpy(str+slen,s);
+	resize(len+slen+1,true);
+	strcpy(str+len,s);
 	return;
 }
 
