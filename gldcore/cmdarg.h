@@ -7,6 +7,8 @@
 #ifndef _CMDARG_H
 #define _CMDARG_H
 
+#include "varchar.h"
+
 #if ! defined _GLDCORE_H && ! defined _GRIDLABD_H
 #error "this header may only be included from gldcore.h or gridlabd.h"
 #endif
@@ -130,7 +132,7 @@ public:
 	STATUS no_cmdargs(void);
 	STATUS load_module_list(FILE *fd,int* test_mod_num);
 	void modhelp_alpha(PNTREE **ctree, CLASS *oclass);
-	void set_tabs(char *tabs, int tabdepth);
+	void set_tabs(varchar &tabs, int tabdepth);
 	void print_class_d(CLASS *oclass, int tabdepth);
 	void print_class(CLASS *oclass);
 	void print_modhelp_tree(PNTREE *ctree);

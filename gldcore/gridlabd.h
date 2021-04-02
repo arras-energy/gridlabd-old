@@ -201,6 +201,7 @@ typedef enum e_status {FAILED=FALSE, SUCCESS=TRUE} STATUS;
 #include "ufile.h"
 #include "unit.h"
 #include "validate.h"
+#include "varchar.h"
 #include "version.h"
 
 #ifdef DLMAIN

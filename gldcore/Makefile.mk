@@ -66,6 +66,7 @@ GLD_SOURCES_PLACE_HOLDER += gldcore/timestamp.cpp gldcore/timestamp.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/transform.cpp gldcore/transform.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/unit.cpp gldcore/unit.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/validate.cpp gldcore/validate.h
+GLD_SOURCES_PLACE_HOLDER += gldcore/varchar.cpp gldcore/varchar.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/version.cpp gldcore/version.h
 GLD_SOURCES_PLACE_HOLDER += gldcore/link/python/python.cpp
 

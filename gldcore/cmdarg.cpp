@@ -62,12 +62,11 @@ DEPRECATED STATUS load_module_list(FILE *fd,int* test_mod_num)
 }
 DEPRECATED STATUS GldCmdarg::load_module_list(FILE *fd,int* test_mod_num)
 {
-	char mod_test[1024];
-	char line[100];
-	while(fscanf(fd,"%s",line) != EOF)
+	varchar mod_test;
+	varchar line;
+	while(fscanf(fd,"%s",line.resize(100)) != EOF)
 	{
-		printf("Line: %s",line);
-		snprintf(mod_test,sizeof(mod_test)-1,"mod_test%d=%s",(*test_mod_num)++,line);
+		snprintf(mod_test,sizeof(mod_test)-1,"mod_test%d=%s",(*test_mod_num)++,(const char*)line);
 		if (global_setvar(mod_test)!=SUCCESS)
 		{
 			output_fatal("Unable to store module name");
@@ -122,11 +121,11 @@ void GldCmdarg::modhelp_alpha(PNTREE **ctree, CLASS *oclass)
 	}
 }
 
-DEPRECATED void set_tabs(char *tabs, int tabdepth)
+DEPRECATED void set_tabs(varchar &tabs, int tabdepth)
 {
 	my_instance->get_cmdarg()->set_tabs(tabs,tabdepth);
 }
-void GldCmdarg::set_tabs(char *tabs, int tabdepth)
+void GldCmdarg::set_tabs(varchar &tabs, int tabdepth)
 {
 	if(tabdepth > 32){
 		throw_exception("print_class_d: tabdepth > 32, which is mightily deep!");
@@ -150,17 +149,18 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 {
 	PROPERTY *prop;
 	FUNCTION *func;
-	char tabs[33];
+	varchar tabs;
 
 	set_tabs(tabs, tabdepth);
 
-	printf("%sclass %s {\n", tabs, oclass->name);
-	if (oclass->parent){
-		printf("%s\tparent %s;\n", tabs, oclass->parent->name);
+	printf("%sclass %s {\n", (const char*)tabs, oclass->name);
+	if (oclass->parent)
+	{
+		printf("%s\tparent %s;\n", (const char*)tabs, oclass->parent->name);
 		print_class_d(oclass->parent, tabdepth+1);
 	}
 	for (func=oclass->fmap; func!=NULL && func->oclass==oclass; func=func->next)
-		printf( "%s\tfunction %s();\n", tabs, func->name);
+		printf( "%s\tfunction %s();\n", (const char*)tabs, func->name);
 	for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 	{
 		const char *propname = class_get_property_typename(prop->ptype);
@@ -170,19 +170,19 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 				continue;
 			if (prop->unit != NULL)
 			{
-				printf("%s\t%s %s[%s];", tabs, propname, prop->name, prop->unit->name);
+				printf("%s\t%s %s[%s];", (const char*)tabs, propname, prop->name, prop->unit->name);
 			}
 			else if (prop->ptype==PT_set || prop->ptype==PT_enumeration)
 			{
 				KEYWORD *key;
-				printf("%s\t%s {", tabs, propname);
+				printf("%s\t%s {", (const char*)tabs, propname);
 				for (key=prop->keywords; key!=NULL; key=key->next)
 					printf("%s=%" FMT_INT64 "u%s", key->name, (int64)key->value, key->next==NULL?"":", ");
 				printf("} %s;", prop->name);
 			} 
 			else 
 			{
-				printf("%s\t%s %s;", tabs, propname, prop->name);
+				printf("%s\t%s %s;", (const char*)tabs, propname, prop->name);
 			}
 			char flags[1024] = "";
 			if ( prop->flags&PF_DEPRECATED ) strcat(flags,flags[0]?",":"("),strcat(flags,"DEPRECATED");
@@ -195,7 +195,7 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 			printf("\n");
 		}
 	}
-	printf("%s}\n\n", tabs);
+	printf("%s}\n\n", (const char*)tabs);
 }
 
 DEPRECATED void print_class(CLASS *oclass)
