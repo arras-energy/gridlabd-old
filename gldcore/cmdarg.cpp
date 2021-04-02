@@ -185,7 +185,6 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 				printf("%s\t%s %s;", tabs.get_string(), propname, prop->name);
 			}
 			varchar flags(1024);
-			TODO: this does not work correctly
 			if ( prop->flags&PF_DEPRECATED ) strcat(flags,flags[0]?",":"("),strcat(flags,"DEPRECATED");
 			if ( prop->flags&PF_REQUIRED ) strcat(flags,flags[0]?",":"("),strcat(flags,"REQUIRED");
 			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?",":"("),strcat(flags,"OUTPUT");
