@@ -66,7 +66,7 @@ DEPRECATED STATUS GldCmdarg::load_module_list(FILE *fd,int* test_mod_num)
 	varchar line;
 	while(fscanf(fd,"%s",line.resize(100)) != EOF)
 	{
-		snprintf(mod_test,sizeof(mod_test)-1,"mod_test%d=%s",(*test_mod_num)++,(const char*)line);
+		snprintf(mod_test,sizeof(mod_test)-1,"mod_test%d=%s",(*test_mod_num)++,line.get_string());
 		if (global_setvar(mod_test)!=SUCCESS)
 		{
 			output_fatal("Unable to store module name");
@@ -153,14 +153,14 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 
 	set_tabs(tabs, tabdepth);
 
-	printf("%sclass %s {\n", (const char*)tabs, oclass->name);
+	printf("%sclass %s {\n", tabs.get_string(), oclass->name);
 	if (oclass->parent)
 	{
-		printf("%s\tparent %s;\n", (const char*)tabs, oclass->parent->name);
+		printf("%s\tparent %s;\n", tabs.get_string(), oclass->parent->name);
 		print_class_d(oclass->parent, tabdepth+1);
 	}
 	for (func=oclass->fmap; func!=NULL && func->oclass==oclass; func=func->next)
-		printf( "%s\tfunction %s();\n", (const char*)tabs, func->name);
+		printf( "%s\tfunction %s();\n", tabs.get_string(), func->name);
 	for (prop=oclass->pmap; prop!=NULL && prop->oclass==oclass; prop=prop->next)
 	{
 		const char *propname = class_get_property_typename(prop->ptype);
@@ -170,32 +170,32 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 				continue;
 			if (prop->unit != NULL)
 			{
-				printf("%s\t%s %s[%s];", (const char*)tabs, propname, prop->name, prop->unit->name);
+				printf("%s\t%s %s[%s];", tabs.get_string(), propname, prop->name, prop->unit->name);
 			}
 			else if (prop->ptype==PT_set || prop->ptype==PT_enumeration)
 			{
 				KEYWORD *key;
-				printf("%s\t%s {", (const char*)tabs, propname);
+				printf("%s\t%s {", tabs.get_string(), propname);
 				for (key=prop->keywords; key!=NULL; key=key->next)
 					printf("%s=%" FMT_INT64 "u%s", key->name, (int64)key->value, key->next==NULL?"":", ");
 				printf("} %s;", prop->name);
 			} 
 			else 
 			{
-				printf("%s\t%s %s;", (const char*)tabs, propname, prop->name);
+				printf("%s\t%s %s;", tabs.get_string(), propname, prop->name);
 			}
-			char flags[1024] = "";
+			varchar flags(1024);
 			if ( prop->flags&PF_DEPRECATED ) strcat(flags,flags[0]?",":"("),strcat(flags,"DEPRECATED");
 			if ( prop->flags&PF_REQUIRED ) strcat(flags,flags[0]?",":"("),strcat(flags,"REQUIRED");
 			if ( prop->flags&PF_OUTPUT ) strcat(flags,flags[0]?",":"("),strcat(flags,"OUTPUT");
 			if ( prop->flags&PF_DYNAMIC ) strcat(flags,flags[0]?",":"("),strcat(flags,"DYNAMIC");
 			if ( flags[0] ) strcat(flags,") ");
 			if ( flags[0] != '\0' || prop->description != NULL )
-			printf(" // %s%s",flags,prop->description?prop->description:"");
+			printf(" // %s%s",flags.get_string(),prop->description?prop->description:"");
 			printf("\n");
 		}
 	}
-	printf("%s}\n\n", (const char*)tabs);
+	printf("%s}\n\n", tabs.get_string());
 }
 
 DEPRECATED void print_class(CLASS *oclass)
@@ -247,26 +247,26 @@ DEPRECATED static int help(void *main, int argc, const char *argv[]);
 
 STATUS GldCmdarg::no_cmdargs(void)
 {
-	char htmlfile[1024];
-	if ( global_autostartgui && find_file("gridlabd.htm",NULL,R_OK,htmlfile,sizeof(htmlfile)-1)!=NULL )
+	varchar htmlfile(1024);
+	if ( global_autostartgui && find_file("gridlabd.htm",NULL,R_OK,htmlfile.get_string(),htmlfile.get_size()-1)!=NULL )
 	{
-		char cmd[4096];
+		varchar cmd(4096);
 
 		/* enter server mode and wait */
 #ifdef WIN32
 		if ( htmlfile[1]!=':' )
 		{
-			snprintf(htmlfile,sizeof(htmlfile)-1,"%s\\gridlabd.htm", global_workdir);
+			snprintf(htmlfile,htmlfile.get_size()-1,"%s\\gridlabd.htm", global_workdir);
 		}
 		output_message("opening html page '%s'", htmlfile);
-		snprintf(cmd,sizeof(cmd)-1,"start %s file:///%s", global_browser, htmlfile);
+		snprintf(cmd,cmd.get_size()-1,"start %s file:///%s", global_browser, htmlfile.get_string());
 #elif defined(MACOSX)
-		snprintf(cmd,sizeof(cmd)-1,"open -a %s %s", global_browser, htmlfile);
+		snprintf(cmd,cmd.get_size()-1,"open -a %s %s", global_browser, htmlfile.get_string());
 #else
-		snprintf(cmd,sizeof(cmd)-1,"%s '%s' & ps -p $! >/dev/null", global_browser, htmlfile);
+		snprintf(cmd,cmd.get_size()-1,"%s '%s' & ps -p $! >/dev/null", global_browser, htmlfile.get_string());
 #endif
-		IN_MYCONTEXT output_verbose("Starting browser using command [%s]", cmd);
-		if (my_instance->subcommand("%s",cmd)!=0)
+		IN_MYCONTEXT output_verbose("Starting browser using command [%s]", cmd.get_string());
+		if (my_instance->subcommand("%s",cmd.get_string())!=0)
 		{
 			output_error("unable to start browser");
 			return FAILED;
@@ -602,14 +602,14 @@ int GldCmdarg::version(int argc, const char *argv[])
 	else if ( strcmp(opt,"install") == 0 )
 	{
 		// IMPORTANT: this needs to be consistent with Makefile.am, install.sh and build-aux/*.sh
-		char tmp[1024];
+		varchar tmp(1024);
 		strcpy(tmp,global_execdir);
-		char *p = strrchr(tmp,'/');
+		char *p = strrchr(tmp.get_string(),'/');
 		if ( p != NULL && strcmp(p,"/bin") == 0 )
 		{
 			*p = '\0';
 		}
-		output_message("%s", tmp);
+		output_message("%s", tmp.get_string());
 		return 0;
 	}
 	else if ( strcmp(opt,"name") == 0 )
@@ -699,7 +699,8 @@ DEPRECATED static int build_info(void *main, int argc, const char *argv[])
 			}
 		}
 	}
-	char status[]=BUILD_STATUS, *ptr=NULL, *last=NULL;
+	varchar status(BUILD_STATUS); 
+	char *ptr=NULL, *last=NULL;
 	bool old = global_suppress_repeat_messages;
 	global_suppress_repeat_messages = false;
 	switch(format)
@@ -728,7 +729,7 @@ DEPRECATED static int build_info(void *main, int argc, const char *argv[])
 				"\","
 		);
 			output_message("\t\"status\": [");
-			for ( ptr = strtok_r(status,"\n",&last) ; ptr != NULL ; ptr = strtok_r(NULL,"\n",&last) )
+			for ( ptr = strtok_r(status.get_string(),"\n",&last) ; ptr != NULL ; ptr = strtok_r(NULL,"\n",&last) )
 			{
 				if ( strcmp(ptr,"") != 0 )
 				{
@@ -951,9 +952,9 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 		CLASS *oclass = NULL;
 		argv++;
 		argc--;
-		char module_name[1024];
-		char class_name[1024];
-		if ( sscanf(argv[0],"%[^:]:%s",module_name,class_name) == 1 )
+		varchar module_name(1024);
+		varchar class_name(1024);
+		if ( sscanf(argv[0],"%1023[^:]:%1023s",module_name.get_string(),class_name.get_string()) == 1 )
 		{ 
 			// no class
 			mod = module_load(module_name,0,NULL);
@@ -965,7 +966,7 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 			oclass = class_get_class_from_classname(class_name);
 			if ( oclass == NULL ) 
 			{
-				output_fatal("Unable to find class '%s' in module '%s'", class_name, module_name);
+				output_fatal("Unable to find class '%s' in module '%s'", class_name.get_string(), module_name.get_string());
 				/*	TROUBLESHOOT
 					The <b>--modhelp</b> parameter was found on the command line, but
 					if was followed by a class specification that isn't valid.

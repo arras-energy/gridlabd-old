@@ -11,7 +11,7 @@ varchar::varchar()
 	sz = 0;
 }
 
-varchar::varchar(char *src, size_t len)
+varchar::varchar(const char *src, size_t len)
 {
 	if ( src )
 	{
@@ -56,7 +56,7 @@ varchar::varchar(varchar &s)
 {
 	if ( s.str != NULL && s.sz > 0 )
 	{
-		str = strdup(s);
+		str = strdup(s.get_string());
 		ASSERT(str!=NULL,"varchar::varchar() strdup failed");
 		sz = s.sz;
 	}
@@ -179,12 +179,8 @@ void varchar::append(const char *s)
 {
 	size_t slen = strlen(s);
 	size_t tlen = strlen(str);
-	if ( tlen + slen > sz )
-	{
-		char *tmp = (char*)realloc(str,slen+tlen+1);
-		ASSERT(tmp!=NULL,"varchar::append() realloc failed");
-	}
-	strcpy(str+tlen,s);
+	resize(tlen+slen+1,true);
+	strcpy(str+slen,s);
 	return;
 }
 
@@ -196,16 +192,6 @@ void *memset(varchar &dst, int c, size_t len)
 {
 	dst.clear(len,c);
 	return (void*)dst.get_string();
-}
-
-int asprintf(varchar *dst, const char *fmt, ...)
-{
-	*dst = varchar();
-	va_list ptr;
-	va_start(ptr,fmt);
-	size_t len = sprintf(*dst,fmt,ptr);
-	va_end(ptr);
-	return len;
 }
 
 int sprintf(varchar &dst, const char *fmt, ...)
