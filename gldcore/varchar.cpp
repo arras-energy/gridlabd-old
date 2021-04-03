@@ -206,9 +206,17 @@ int sprintf(varchar &dst, const char *fmt, ...)
 
 int snprintf(varchar &dst, size_t sz, const char *fmt, ...)
 {
+	size_t len;
 	va_list ptr;
 	va_start(ptr,fmt);
-	size_t len = dst.format(sz,fmt,ptr);
+	if ( sz < dst.get_size() )
+	{
+		len = vsnprintf(dst.get_string(),sz,fmt,ptr);
+	}
+	else
+	{
+		len = dst.format(sz,fmt,ptr);
+	}
 	va_end(ptr);
 	return len;
 }
