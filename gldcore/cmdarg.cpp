@@ -66,7 +66,7 @@ DEPRECATED STATUS GldCmdarg::load_module_list(FILE *fd,int* test_mod_num)
 	varchar line;
 	while(fscanf(fd,"%s",line.resize(100)) != EOF)
 	{
-		snprintf(mod_test,sizeof(mod_test)-1,"mod_test%d=%s",(*test_mod_num)++,line.get_string());
+		sprintf(mod_test,"mod_test%d=%s",(*test_mod_num)++,line.get_string());
 		if (global_setvar(mod_test)!=SUCCESS)
 		{
 			output_fatal("Unable to store module name");
