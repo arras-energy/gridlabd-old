@@ -24,6 +24,7 @@
 #include "schedule.h"
 #include "transform.h"
 #include "enduse.h"
+#include "varchar.h"
 
 /* this must match property_type list in object.c */
 typedef unsigned int OBJECTRANK; /**< Object rank number */
@@ -434,6 +435,7 @@ complex *object_get_complex_quick(OBJECT *pObj, PROPERTY *prop);
 const char *object_get_string(OBJECT *pObj, PROPERTY *prop);
 const char *object_get_string_by_name(OBJECT *obj, const char *name);
 FUNCTIONADDR object_get_function(CLASSNAME classname, FUNCTIONNAME functionname);
+const char *object_property_to_string(OBJECT *obj, const char *name, varchar &buffer);
 const char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz);
 const char *object_property_to_string_x(OBJECT *obj, PROPERTY *prop, char *buffer, int sz);
 const char *object_get_unit(OBJECT *obj, const char *name);

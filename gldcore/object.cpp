@@ -1763,6 +1763,10 @@ int object_set_dependent(OBJECT *obj, /**< the object to set */
  */
 const char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz)
 {
+	return object_property_to_string(obj,name,buffer.get_string(),buffer.get_size());
+}
+const char *object_property_to_string(OBJECT *obj, const char *name, char *buffer, int sz)
+{
 	PROPERTY *prop = class_find_property(obj->oclass,name);
 	if ( prop == NULL )
 	{
