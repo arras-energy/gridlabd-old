@@ -52,14 +52,14 @@ stubauction::stubauction(MODULE *module)
 				PT_KEYWORD,"DISABLED",(enumeration)CON_DISABLED,
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
-		memset(this,0,sizeof(stubauction));
+		memset((void*)this,0,sizeof(stubauction));
 	}
 }
 
 /* Object creation is called once for each object that is created by the core */
 int stubauction::create(void)
 {
-	memcpy(this,defaults,sizeof(stubauction));
+	memcpy((void*)this,defaults,sizeof(stubauction));
 	lasthr = thishr = -1;
 	verbose = 0;
 	control_mode = CON_NORMAL;

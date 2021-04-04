@@ -168,6 +168,7 @@ typedef struct s_enduse
 	loadshape *shape;
 	TIMESTAMP t_last;
 	// @todo this is obsolete and must be retrofitted with the above values
+	// Don't forget to initialize the data in enduse_create()
 	DEPRECATED struct s_object_list *end_obj;
 	struct s_enduse *next;
 #ifdef _DEBUG

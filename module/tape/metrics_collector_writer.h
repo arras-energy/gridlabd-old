@@ -59,12 +59,12 @@ private:
 	Json::Value ary_capacitors;
 	Json::Value ary_regulators;
 
-	char256 filename_billing_meter;
-	char256 filename_inverter;
-	char256 filename_house;
-	char256 filename_substation;
-	char256 filename_capacitor;
-	char256 filename_regulator;
+	char1024 filename_billing_meter;
+	char1024 filename_inverter;
+	char1024 filename_house;
+	char1024 filename_substation;
+	char1024 filename_capacitor;
+	char1024 filename_regulator;
 
 	TIMESTAMP startTime;
 	TIMESTAMP final_write;

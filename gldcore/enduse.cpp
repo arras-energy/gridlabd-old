@@ -89,7 +89,45 @@ static unsigned int enduse_magic = 0x8c3d7762;
 int enduse_create(void *ptr)
 {
 	enduse *data = (enduse*)ptr;
-	memset(data,0,sizeof(enduse));
+	data->total = 0.0;
+	data->energy = 0.0;
+	data->demand = 0.0;
+	data->config = 0;
+	data->breaker_amps = 0.0;
+	data->admittance = 0.0;
+	data->current = 0.0;
+	data->power = 0.0;
+	for ( unsigned int n = 0 ; n < sizeof(data->motor)/sizeof(data->motor[0]); n++ )
+	{
+		data->motor[n].power = 0.0;
+		data->motor[n].impedance = 0.0;
+		data->motor[n].inertia = 0.0;
+		data->motor[n].v_stall = 0.0;
+		data->motor[n].v_start = 0.0;
+		data->motor[n].v_trip = 0.0;
+		data->motor[n].t_trip = 0.0;
+	}
+	for ( unsigned int n = 0 ; n < sizeof(data->electronic)/sizeof(data->electronic[0]); n++ )
+	{
+		data->electronic[n].power = 0.0;
+		data->electronic[n].inertia = 0.0;
+		data->electronic[n].v_trip = 0.0;
+		data->electronic[n].v_start = 0.0;
+	}
+	data->impedance_fraction = 0.0;
+	data->current_fraction = 0.0;
+	data->power_fraction = 0.0;
+	data->power_factor = 0.0;
+	data->voltage_factor = 0.0;
+	data->heatgain = 0.0;
+	data->cumulative_heatgain = 0.0;
+	data->heatgain_fraction = 0.0;
+	data->gas_fraction = 0.0;
+	data->name = NULL;
+	data->shape = NULL;
+	data->t_last = 0;
+	// @todo this is obsolete and must be retrofitted with the above values
+	data->end_obj = NULL;
 	data->next = enduse_list;
 	enduse_list = data;
 	n_enduses++;

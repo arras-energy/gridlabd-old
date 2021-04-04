@@ -12,7 +12,7 @@ extern int sock_created;
 
 STATUS instance_cnx_mmap(instance *inst){
 #ifdef WIN32
-		char cachename[1024];
+		char cachename[2048];
 		char eventname[64];
 		SECURITY_ATTRIBUTES secAttr = {sizeof(SECURITY_ATTRIBUTES),(LPSECURITY_ATTRIBUTES)NULL,TRUE}; 
 
@@ -26,7 +26,7 @@ STATUS instance_cnx_mmap(instance *inst){
 		}
 
 		/* setup cache */
-		sprintf(cachename,"GLD-%" FMT_INT64 "x",inst->cacheid);
+		snprintf(cachename,sizeof(cachename)-1,"GLD-%" FMT_INT64 "x",inst->cacheid);
 		inst->hMap = OpenFileMapping(FILE_MAP_ALL_ACCESS,FALSE,cachename);
 		if ( !inst->hMap )
 		{
@@ -106,7 +106,7 @@ STATUS instance_cnx_shmem(instance *inst){
 
 STATUS instance_cnx_socket(instance *inst){
 	char cmd[1024];
-	char sendcmd[1024];
+	char sendcmd[4097];
 	INSTANCE_PICKLE pickle;
 	char *colon;
 	int rv, return_addr_sz;
@@ -244,7 +244,7 @@ STATUS instance_cnx_socket(instance *inst){
 
 	// build command
 	// HS_CMD dir file r_port cacheid profile relax debug verbose warn quiet avlbalance
-	sprintf(sendcmd, HS_CMD	"dir=\"%s\" file=\"%s\" port=%d id=%" FMT_INT64 "d %s %s %s %s %s %s %s",
+	snprintf(sendcmd,sizeof(sendcmd)-1, HS_CMD	"dir=\"%s\" file=\"%s\" port=%d id=%" FMT_INT64 "d %s %s %s %s %s %s %s",
 		inst->execdir,
 		inst->model,
 		inst->return_port,
