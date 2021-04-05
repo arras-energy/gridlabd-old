@@ -113,6 +113,11 @@ box = {
 	"W":min(p0["lon"],p1["lon"]),
 	}
 
+def project(data,box,lat,lon):
+	x = int((lon-box["W"])/(box["E"]-box["W"])*data.shape[0])
+	y = int((lat-box["N"])/(box["S"]-box["N"])*data.shape[1])
+	return x,y
+
 def vegetation_data(PATHFILE,MAPFILE,DATAFILE,SHOWPLOT,res):
 
 	def get_values(specs,path):
@@ -127,10 +132,8 @@ def vegetation_data(PATHFILE,MAPFILE,DATAFILE,SHOWPLOT,res):
 		for line in path:
 			p0 = line["p0"]
 			p1 = line["p1"]
-			x0 = int((p0["lon"]-box["W"])/(box["E"]-box["W"])*data.shape[0])
-			y0 = int((p0["lat"]-box["N"])/(box["S"]-box["N"])*data.shape[1])
-			x1 = int((p1["lon"]-box["W"])/(box["E"]-box["W"])*data.shape[0])
-			y1 = int((p1["lat"]-box["N"])/(box["S"]-box["N"])*data.shape[1])
+			x0,y0 = project(data,box,p0["lat"],p0["lon"])
+			x1,y1 = project(data,box,p1["lat"],p1["lon"])
 			dx = x1-x0
 			dy = y1-y0
 			s = 0.0
@@ -204,10 +207,12 @@ def show_area(MAPFILE,res,pos,size):
 	if SHOWPLOT:
 		img.show()
 	data = np.array(img)
-	x0 = int((pos["lon"]-box["W"])/(box["E"]-box["W"])*data.shape[0]) - int(size/res)
-	y0 = int((pos["lat"]-box["N"])/(box["S"]-box["N"])*data.shape[1]) - int(size/res)
-	x1 = int((pos["lon"]-box["W"])/(box["E"]-box["W"])*data.shape[0]) + int(size/res)
-	y1 = int((pos["lat"]-box["N"])/(box["S"]-box["N"])*data.shape[1]) + int(size/res)
+	x0,y0 = project(data,box,pos["lat"],pos["lon"]) 
+	x1,y1 = project(data,box,pos["lat"],pos["lon"])
+	x0 -= int(size/res)
+	y0 -= int(size/res)
+	x1 += int(size/res)
+	y1 += int(size/res)
 	print(f"Original size = {data.shape}, cut region = ({x0},{y0}) - ({x1},{y1})")
 	cut = Image.fromarray(data[x0:x1,y0:y1])
 	cut.show()
