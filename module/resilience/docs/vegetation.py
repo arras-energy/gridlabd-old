@@ -1,4 +1,25 @@
-"""Test vegetation analysis on 230kV powerline example"""
+"""Vegetation analysis
+
+-i|--input PATHFILE -m|--mapfile MAPFILE -o|--output DATAFILE [-s|--show] [-r|--resolution METERS] [-x|--extract POS SIZE]
+
+  -i|--input PATHFILE         input CSV file name (latitude,longitude,...)
+  -m|--mapfile MAPFILE        map image file name (e.g., name.tif)
+  -o|--output DATAFILE        output CSV file name (distance,data,...)
+  -s|--show                   enable display images and plots
+  -r|--resolution METERS      image resolution in meters (default is 10)
+  -x|--extract LAT,LON SIZE   image extraction region (SIZE is in meters)
+
+Example:
+
+To extract the vegetation profile along a path and show the results:
+
+  % vegetation.py -i 230kV_example.csv -m SanMateoCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif -o test.csv --show
+
+To show the area around a location:
+
+  % vegetation.py -m SanMateoCounty-Vegetation-CanopyCover-2020-Summer-00010m.tif -x 37.388364203060945,-122.28791110273086 500
+
+"""
 
 import sys
 from PIL import Image
