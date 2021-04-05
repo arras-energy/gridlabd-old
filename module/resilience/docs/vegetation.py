@@ -164,7 +164,7 @@ def vegetation_data(PATHFILE,MAPFILE,DATAFILE,SHOWPLOT,res):
 				"std":np.round(zz.std(),1),
 				"len":d,
 				"t" : np.arange(tt[0],tt[-1],1.0) + dt,
-				"z": np.array(z),
+				"z": np.array(z).round(3),
 			})
 			dt += d
 		return result
@@ -183,7 +183,7 @@ def vegetation_data(PATHFILE,MAPFILE,DATAFILE,SHOWPLOT,res):
 	data = []
 	for segment in results:
 		data.append(pd.DataFrame({"t":segment["t"],"z":segment["z"]}).set_index("t"))
-	pd.concat(data).to_csv("230kV_example_canopycover.csv")
+	pd.concat(data).to_csv(DATAFILE)
 
 	if SHOWPLOT:
 		import matplotlib.pyplot as plt
