@@ -1,7 +1,9 @@
-import os
+import os, subprocess
 import pandas as pd
 import math
 from PIL import Image
+
+cache_folder = "/tmp"
 
 def get_data(csv_file,resolution=0.13): # default resolution is 1 ft
     """Get elevation data for region around path in CSV file.
@@ -12,17 +14,26 @@ def get_data(csv_file,resolution=0.13): # default resolution is 1 ft
                 latitude,longitude columns must be labeled in first row
     """
     line_data = pd.read_csv(csv_file)
-    tif_file = csv_file.replace(".csv","_elevation.tif")
 
     bottom = math.floor(line_data["latitude"].min())
     top = math.ceil(line_data["latitude"].max())
     left = math.floor(line_data["longitude"].min())
     right = math.ceil(line_data["longitude"].max())
 
-    output = "230kV_example.tif"
-
-    # unfortunately the python API call to elevation.clip does not work correctl
-    os.system(f"eio --product SRTM1 clip -o {tif_file} --bounds {left} {bottom} {right} {top}")
+    tif_file = f"{cache_folder}/elevation_{left}_{bottom}_{right}_{top}_10m.tif"
+    if not os.path.exists(tif_file):
+        # unfortunately the python API call to elevation.clip does not work correctly
+        result = subprocess.run(["eio",
+            "--product","SRTM1",
+            "clip",
+            "-o",tif_file,
+            "--bounds",str(left),str(bottom),str(right),str(top)],
+            capture_output=True)
+        return {
+            "error" : result.returncode,
+            "stderr" : result.stderr,
+            "stdout" : result.stdout,
+        }
     return {
         "filename" : tif_file,
         "left" : left,
@@ -33,5 +44,9 @@ def get_data(csv_file,resolution=0.13): # default resolution is 1 ft
 
 if __name__ == '__main__':
     result = get_data("module/resilience/docs/230kV_example.csv")
-    img = Image.open(result["filename"])
-    img.show()
+    print(result)
+    if "error" in result.keys():
+        print(result["stderr"])
+    else:
+        img = Image.open(result["filename"])
+        img.show()
