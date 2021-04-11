@@ -1,0 +1,284 @@
+#!/usr/local/bin/python3
+"""Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
+
+The geodata command gathers and fuses geographic data. The geodata subcommand
+uses directives that are documented in the DIRECTIVES section below.
+
+In general geodata is used to acquire geographic information at a location or
+along a specified path. This information includes ground elevation, vegetation
+characteristics, weather, census, building, and transportation data.  The
+specific data sets and their origins are described in the DATASETS section
+below.
+
+OPTIONS
+
+  [-v|--verbose]              enable verbose output 
+  [-q|--quiet]                disable normal output 
+  [-s|--silent]               disable error output
+  [-w|--warning]              disable warning output 
+  [-c|--cache FOLDER]         change cache folder 
+  [-C|--config FILE]          change config file
+  [-T|--threadcount THREADS]  change maximum thread count
+
+REMARKS
+
+The default cache folder is /usr/local/share/gridlabd/geodata. The default
+config file $HOME/.gridlabd/geodata-config. The default maximum thread count
+is 1.
+
+DIRECTIVES
+
+The following directives are available:
+
+  config get PARAMETER config set PARAMETER VALUE config show [PATTERN]
+
+    The config directive changes values in the config file.
+
+  location LATITUDE LONGITUDE [ARGUMENTS]
+
+    The location directive performs the geodata operation only at the 
+    location specified. 
+
+  path [-f|--fuse] CSVIN [ARGUMENTS]
+
+    The path directive performs the geodata operation along the path
+    specified in the CSVIN file.  If the [-r|--resoluation METERS] option
+    is used, the data is generated at the specified resolution. Otherwise
+    the data is generated only at the points specified in CSVIN.
+
+ARGUMENTS
+
+All directives support the following arguments
+
+  [-D|--dataset] NAME
+
+    Specifies the dataset from which the geographic information is to be 
+    acquired. See the DATASETS section below for details.
+
+  [-o|--output] CSVOUT
+
+    Normally the output is written to /dev/stdout. When the [-f|--fuse] option is
+    specified, the input file name is used.  When CSVOUT is specified the output
+    data is written to the specified file. If the output file already exists, it
+    is overwritten with the new data.
+
+  [-r|--resolution] METERS
+
+    Specifies the resolution in meters of the data to be generated along the path.
+    If omitted, the output is generated only at the locations listed in the input.
+    This option has no meaning for the location directive.
+
+DATASETS
+
+The following datasets are available. To specify a layer, use the syntax
+"NAME.LAYER".  Multiple datasets and layers may be specified using a
+comma-delimited list.
+
+  Elevation
+
+    The elevation dataset provides 1 arcsecond resolution ground elevation data
+    from the USGS.
+
+  Vegetation
+
+    The vegetation dataset provides 7 layers of data about vegetation.  Available
+    layers are "canopy_cover", "canopy_height", "base_height", "bulk_density",
+    "layer_count", "fuel_density", and "surface_fuels".. You must subscribe to the
+    Forest Observatory service to use this dataset.
+
+  Weather
+
+    The weather dataset provides historical, current, and short term forecasts of
+    dry bulk, wet bulb, solar, and wind data from NOAA.
+
+  Census
+
+    The census dataset provides economic and population data from the US Census
+    Bureau.
+
+  Building
+
+    The building dataset provides build environment data from NREL. Available
+    layers are "building_type" and "building_size".
+
+Transportation
+
+    The transportation dataset provides mobility data from traffic data services.
+    You must subscribe to the TrafficView service to use this dataset.
+
+DEVELOPER API
+
+All directives must be implemented as modules that access two calls. 
+
+  get_path(args): this call is used to acquire data from CSV files listed in args.
+  The CSV files must contain columns name "latitude" and "longitude".  The
+  corresponding dataset must be added and returned as a pandas dataframe.
+
+  get_location(args): this call is used to acquires to acquired data for the points
+  listed in args.  The corresponding dataset must be added and returned as a pandas 
+  dataframe.
+
+"""
+import sys, os
+import pandas as pd
+import importlib
+from importlib import util
+
+NAME = "geodata"
+DIRECTIVES = ["config","location","path"]
+VERBOSE = False
+DEBUG = False
+SILENT = False
+QUIET = False
+DEBUG = False
+CFGFILE = f"os.getenv('HOME')/.gridlabd/geodata.conf"
+MAXTHREADS = 1
+PKGDATA = os.getenv("GLD_ETC")
+DATASET = None
+FUSE = False
+OUTPUT = "/dev/stdout"
+INPUT = "/dev/stdin"
+RESOLUTION = None
+MODULE = None
+
+E_OK = 0
+E_SYNTAX = 1
+E_NOTFOUND = 2
+
+def error(msg,exitcode=None):
+    text = f"ERROR [{NAME}]: {msg}"
+    if DEBUG:
+        raise Exception(text)
+    if not SILENT:
+        print(text,file=sys.stderr,flush=True)
+    if exitcode:
+        exit(exitcode)
+
+def warning(msg):
+    if not QUIET:
+        text = f"WARNING [{NAME}]: {msg}"
+        print(text,file=sys.stderr)
+
+def verbose(msg):
+    if VERBOSE:
+        text = f"VERBOSE [{NAME}]: {msg}"
+        print(text,file=sys.stderr)
+
+def output(msg):
+    if not QUIET:
+        print(msg,file=sys.stdout)
+
+def help(command=None):
+    if command:
+        error(f"command '{command}' not found",E_SYNTAX)
+    else:
+        print(__doc__,file=sys.stdout)
+
+def syntax():
+    print(__doc__.split("\n")[0],file=sys.stdout)
+
+def location(args):
+    return MODULE.get_location(args), OUTPUT
+
+def path(args):
+    return MODULE.get_path(args), OUTPUT
+
+def config(args):
+    error(f"config({args}) is not implemented yet")
+
+def main(argc,argv):
+    n = 1
+    DIRECTIVE = []
+    global PKGDATA
+    if not PKGDATA or not os.path.exists(PKGDATA):
+        warning("package folder '{PKGDATA}' not found, using default /usr/local/share/gridlabd")
+        PKGDATA = "/usr/local/share/gridlabd"
+    while n < len(argv):
+        if argv[n] in ["-h","--help"]:
+            help()
+            exit(E_OK)
+        elif argv[n] in ["-d","--debug"]:
+            global DEBUG
+            DEBUG = True
+            verbose("debug output enabled")
+        elif argv[n] in ["-w","--warning"]:
+            global WARNING
+            WARNING = False
+            verbose("warning output disable")
+        elif argv[n] in ["-v","--verbose"]:
+            global VERBOSE
+            VERBOSE = True
+            verbose("verbose output enabled")
+        elif argv[n] in ["-q","--quiet"]:
+            global QUIET
+            QUIET = True
+            verbose("quiet output enabled")
+        elif argv[n] in ["-s","--silent"]:
+            global SILENT
+            SILENT = True
+            verbose("silent output enabled")
+        elif argv[n] in ["-c","-cache"]:
+            global CACHE
+            n += 1
+            CACHE = argv[n]
+            if not os.path.exists(CACHE):
+                warning(f"cache folder '{CACHE}' does not exist")
+            else:
+                verbose(f"using cache folder '{CACHE}'")
+        elif argv[n] in ["-C","--configfile"]:
+            global CFGFILE
+            n += 1
+            CFGFILE = argv[n]
+            if not os.path.exists(CFGFILE):
+                warning(f"config file '{CFGFILE}' does not exist")
+            else:
+                verbose(f"using GLM file {GLMFILE}")
+        elif argv[n] in ["-f","--fuse"]:
+            global FUSE
+            FUSE=True
+        elif argv[n] in ["-D","--dataset"]:
+            global DATASET
+            n += 1
+            DATASET = argv[n]
+            LOCATION = f"{PKGDATA}/geodata_{DATASET}.py"
+            if not os.path.exists(LOCATION):
+                error(f"dataset '{DATASET}' is not found in '{LOCATION}'",E_NOTFOUND)
+            verbose(f"dataset '{DATASET}' selected")
+            modspec = util.spec_from_file_location(DATASET, LOCATION)
+            global MODULE
+            MODULE = importlib.import_module(f"geodata_{DATASET}")
+            if not MODULE:
+                error(f"unable to import module geodata_{DATASET} from {LOCATION}",E_NOTFOUND)
+            MODULE.geodata = sys.modules[__name__]
+            verbose(dir(MODULE))
+        elif argv[n] in ["-T","--threadcount"]:
+            global MAXTHREADS
+            n += 1
+            MAXTHREADS = int(argv[n])
+            verbose(f"maximum thread count {MAXTHREADS}")
+        elif argv[n] in ["-r","--resolution"]:
+            n += 1
+            RESOLUTION = float(argv[n])
+            verbose(f"resolution is {RESOLUTION} meters")
+        else:
+            DIRECTIVE.append(argv[n])
+        n += 1
+    if len(DIRECTIVE) == 0:
+        syntax()
+        exit(E_SYNTAX)
+    if not DIRECTIVE[0] in DIRECTIVES:
+        error(f"directive '{DIRECTIVE[0]}' is not valid") 
+    if len(DIRECTIVE) == 1:
+        args = []
+    else:
+        args = DIRECTIVE[1:]
+    data, savefile = globals()[DIRECTIVE[0]](args)
+    if type(data) is pd.DataFrame and savefile:
+        data.to_csv(savefile,index=False)
+
+if __name__ == "__main__":
+    try:
+        main(len(sys.argv),sys.argv)
+
+    except Exception as err:
+        error(err)
