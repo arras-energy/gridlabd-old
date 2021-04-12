@@ -110,19 +110,31 @@ DEVELOPER API
 
 All directives must be implemented as modules that provide three methods.
 
-  get_path(args): This call is used to acquire data from CSV files listed in args.
-  The CSV files must contain columns name "latitude" and "longitude".  The
-  corresponding dataset must be added and returned as a pandas dataframe.
+    get_path(args): This call is used to acquire data from CSV files listed in args.
+    The CSV files must contain columns name "latitude" and "longitude".  The
+    corresponding dataset must be added and returned as a pandas dataframe.
 
-  get_location(args): This call is used to acquires to acquired data for the points
-  listed in args.  The corresponding dataset must be added and returned as a pandas
-  dataframe.
+    get_location(args): This call is used to acquires to acquired data for the points
+    listed in args.  The corresponding dataset must be added and returned as a pandas
+    dataframe.
 
-  set_context(module): This call is used to give the dataset module access to the
-  geodata module implementation.  This is necessary to provide the mechanisms for
-  controlling options, message delivery, and access to configuration files.
+    set_context(module): This call is used to give the dataset module access to the
+    geodata module implementation.  This is necessary to provide the mechanisms for
+    controlling options, message delivery, and access to configuration files.
 
-  See geodata_distance.py for a simple example.
+The configuration file is always named "DATASET.cfg". The configuration
+files are loaded in the following order, if found: system, user, local.
+
+    System configurations are stored by default in the gridlabd share folder,
+    which is normally "/usr/local/share/gridlabd", and is always specified by
+    the GLD_ETC environment variable when it is set by the gridlabd script.
+
+    User configurations are stored by default in the "$HOME/.gridlabd/geodata"
+    folder.
+
+    Local configurations are stored by default in the current folder.
+
+See geodata_distance.py for a simple example.
 
 """
 import sys, os
