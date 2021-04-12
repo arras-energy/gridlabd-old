@@ -108,7 +108,7 @@ Transportation
 
 DEVELOPER API
 
-All directives must be implemented as modules that access two calls.
+All directives must be implemented as modules that provide three methods.
 
   get_path(args): This call is used to acquire data from CSV files listed in args.
   The CSV files must contain columns name "latitude" and "longitude".  The
@@ -120,7 +120,9 @@ All directives must be implemented as modules that access two calls.
 
   set_context(module): This call is used to give the dataset module access to the
   geodata module implementation.  This is necessary to provide the mechanisms for
-  controlling whether and where messages are directed, and provide access to options.
+  controlling options, message delivery, and access to configuration files.
+
+  See geodata_distance.py for a simple example.
 
 """
 import sys, os
@@ -279,6 +281,78 @@ def main(argc,argv):
     data, savefile = globals()[DIRECTIVE[0]](args)
     if type(data) is pd.DataFrame and savefile:
         data.to_csv(savefile,index=False)
+
+sharedir = os.getenv("GLD_ETC")
+if not sharedir:
+    sharedir = "/usr/local/share/gridlabd"
+configdata = {}
+configdir = {
+    "system" : sharedir + "/geodata",
+    "user" : os.getenv("HOME") + "/.gridlabd/geodata",
+    "local" : os.getenv("PWD"),
+}
+
+def load_config(context,file):
+    """Read the specified configuration file
+
+    ARGUMENTS
+       dataset (str) Specifies the dataset for which to load the configuration
+       file (str)    Specifies which configuration file to load. Valid values are
+                     "system", "user", "local".
+
+    RETURNS
+       varies       The value of the configuration parameter
+"""
+    global configdata
+    try:
+        fh = open(f"{configdir[file]}/distance.cfg","r")
+        configdata.update(json.load(f"{configdir[file]}/distance.cfg"))
+    except:
+        pass
+
+def get_config(name):
+    """Get a configuration PARAMETER
+
+    ARGUMENTS
+
+        name (str)   Specifies the name of the configuration parameter to get.
+    """
+    global configdata
+    if name in configdata.keys():
+        return configdata[name]
+    else:
+        raise Exception(f"configuration parameter '{name}' does not exist")
+
+def set_config(name,value):
+    """Set a configuration parameter
+
+    ARGUMENTS
+
+        name (str)       Specifies the name of the configuration parameter to
+                         set.
+
+        value (varies)   Specifies the value of the configuration parameter.
+    """
+    global configdata
+    if name in configdata.keys():
+        configdata[name] = value
+    else:
+        raise Exception(f"configuration parameter '{name}' does not exist")
+
+def get_resolution():
+    """Get the current distance resolution, if any
+
+    RETURNS
+
+        None     the resolution is not specified
+
+        float    the resolution in meters
+    """
+    global configdata
+    if RESOLUTION:
+        return RESOLUTION
+    else:
+        return configdata["resolution"]
 
 if __name__ == "__main__":
     try:

@@ -45,93 +45,7 @@ from PIL import Image
 import pandas
 import json
 
-sharedir = os.getenv("GLD_ETC")
-if not sharedir:
-    sharedir = "/usr/local/share/gridlabd"
-
-config = {
-    "resolution" : None,
-}
-
-configdir = {
-    "system" : sharedir + "/geodata",
-    "user" : os.getenv("HOME") + "/.gridlabd/geodata",
-    "local" : os.getenv("PWD"),
-}
-
-elevation_data = {} # in memory holding area for image data
-
-def load_config(file):
-    """Read the specified configuration file
-
-    ARGUMENTS
-       file (str)   Specifies which configuration file to load. Valid values are
-                    "system", "user", "local".
-    RETURNS
-       varies       The value of the configuration parameter
-"""
-    global config
-    try:
-        fh = open(f"{configdir[file]}/distance.cfg","r")
-        config.update(json.load(f"{configdir[file]}/distance.cfg"))
-    except:
-        pass
-
-def save_config(file):
-    """Save the specified configuration file
-
-    ARGUMENTS
-       file (str)   Specifies which configuration file to load. Valid values are
-                    "system", "user", "local".
-
-    RETURNS
-        None
-    """
-    global config
-    fh = open(f"{configdir[file]}/distance.cfg","w")
-    if fh:
-        json.dump(config, f"{configdir[file]}/distance.cfg", indent=4)
-
-def get_config(name):
-    """Get a configuration PARAMETER
-
-    ARGUMENTS
-
-        name (str)   Specifies the name of the configuration parameter to get.
-    """
-    if name in config.keys():
-        return config[name]
-    else:
-        raise Exception(f"configuration parameter '{name}' does not exist")
-
-def set_config(name,value):
-    """Set a configuration parameter
-
-    ARGUMENTS
-
-        name (str)       Specifies the name of the configuration parameter to
-                         set.
-
-        value (varies)   Specifies the value of the configuration parameter.
-    """
-    if name in config.keys():
-        config[name] = value
-    else:
-        raise Exception(f"configuration parameter '{name}' does not exist")
-
-def get_resolution():
-    """Get the current distance resolution, if any
-
-    RETURNS
-
-        None     the resolution is not specified
-
-        float    the resolution in meters
-    """
-    if geodata.RESOLUTION:
-        return geodata.RESOLUTION
-    else:
-        return config["resolution"]
+geodata = None # this will be set by the set_context() call from geodata
 
 def get_distance(pos1, pos2):
     """Compute haversine distance between two locations
@@ -147,37 +61,6 @@ def get_distance(pos1, pos2):
     lon2 = pos2[1]*math.pi/180
     a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
     return 6371e3*(2*np.arctan2(np.sqrt(a),np.sqrt(1-a)))
-
-def get_path(args):
-    """Compute the distances along paths specified in CSV files
-
-    Distances are computed from the previous row of valid CSV data found.  If
-    the resolution is set, the coordinates for each step along the path at the
-    specified resolution are provided.  The last step is always the remaining
-    distance, i.e., the total distance modulo the resolution.
-
-    ARGUMENTS
-        args (str list)   List of CSV files containing paths. The CSV files must
-                          include columns named "latitude" and "longitude".
-
-    RETURNS
-        DataFrame         Pandas dataframe containing the concatenated contents
-                          of the CSV files with the "distance" column added.
-    """
-    paths = []
-    for file in args:
-        distance = []
-        lastpos = None
-        paths.append(pandas.read_csv(file))
-        for lat,lon in zip(paths[-1]["latitude"],paths[-1]["longitude"]):
-            if lastpos:
-                dist = get_distance(lastpos,[lat,lon])
-            else:
-                dist = 0.0
-            lastpos = [lat,lon]
-            distance.append(dist)
-        paths[-1]["distance"] = distance
-    return pandas.concat(paths)
 
 def get_position(pos):
     """Compute the (latitude,longitude) tuple of the position given
@@ -214,7 +97,7 @@ def get_location(args):
     lats = [pos1[0]]
     lons = [pos1[1]]
     dist = [0.0]
-    resolution = get_resolution()
+    resolution = geodata.get_resolution()
     for arg in args[1:]:
         pos2 = get_position(arg)
         d = get_distance(pos1,pos2)
@@ -247,11 +130,36 @@ def get_location(args):
     data.index.names = ["id"]
     return data
 
-geodata = None
-output = print
-warning = print
-error = print
-verbose = print
+def get_path(args):
+    """Compute the distances along paths specified in CSV files
+
+    Distances are computed from the previous row of valid CSV data found.  If
+    the resolution is set, the coordinates for each step along the path at the
+    specified resolution are provided.  The last step is always the remaining
+    distance, i.e., the total distance modulo the resolution.
+
+    ARGUMENTS
+        args (str list)   List of CSV files containing paths. The CSV files must
+                          include columns named "latitude" and "longitude".
+
+    RETURNS
+        DataFrame         Pandas dataframe containing the concatenated contents
+                          of the CSV files with the "distance" column added.
+    """
+    paths = []
+    for file in args:
+        distance = []
+        lastpos = None
+        paths.append(pandas.read_csv(file))
+        for lat,lon in zip(paths[-1]["latitude"],paths[-1]["longitude"]):
+            if lastpos:
+                dist = get_distance(lastpos,[lat,lon])
+            else:
+                dist = 0.0
+            lastpos = [lat,lon]
+            distance.append(dist)
+        paths[-1]["distance"] = distance
+    return pandas.concat(paths)
 
 def set_context(context):
     """Sets the geodata context
@@ -280,14 +188,22 @@ def set_context(context):
     global verbose
     verbose = context.verbose
 
-    load_config("system")
-    load_config("user")
-    load_config("local")
+    context.configdata = {
+        "resolution" : None,
+    }
+    context.load_config("distance","system")
+    context.load_config("distance","user")
+    context.load_config("distance","local")
 
 if __name__ == '__main__':
 
+    output = print
+    warning = print
+    error = print
+    verbose = print
+
     import unittest
-    class TestElevation(unittest.TestCase):
+    class TestGeodata(unittest.TestCase):
         def test_distance(self):
             self.assertEqual(round(get_distance([37.415045141688054,-122.2056472090359],[37.388063971857704,-122.28844288884694]),0),7905.0)
     unittest.main()
