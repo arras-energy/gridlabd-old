@@ -4,10 +4,14 @@ The distance package computes the haversine distance between points on a sphere 
 the points are given in latitude,longitude form, with position east and positive north
 orientation.
 
-VALIDATION
+The 'location' directive accepts a list of positions and computes the distances
+between those positions.  If resolution is specified, then the result is generated
+in increments of that distance.
 
-    The unit test are performed automatically when this module is main.
-
+The 'path' function accepts a list of CSV files containing latitude and
+longtitude coordinates and computes the distances between consecutive positions.
+If resolution is specified, then the result is generated in increments of that
+distance.
 """
 
 import os, sys
