@@ -135,6 +135,8 @@ files are loaded in the following order, if found: system, user, local.
 
     Local configurations are stored by default in the current folder.
 
+Dataset validation is performed using the "unittest" module.
+
 See geodata_distance.py for a simple example.
 """
 import sys, os
@@ -186,15 +188,16 @@ def output(msg):
     if not QUIET:
         print(msg,file=sys.stdout)
 
+python_help = help
 def help(dataset=None):
     if dataset:
         MODULE = load_dataset(dataset)
         if MODULE:
-            print(MODULE.__doc__)
+            python_help(MODULE.__name__)
         else:
             error(f"command '{command}' not found",E_SYNTAX)
     else:
-        print(__doc__,file=sys.stdout)
+        python_help(__name__)
     return None, None
 
 def syntax():
