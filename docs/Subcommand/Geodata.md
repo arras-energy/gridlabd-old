@@ -18,9 +18,9 @@ The geodata command gathers and fuses geographic data. The geodata subcommand us
 
 In general geodata is used to acquire geographic information at a location or along a specified path. This information includes ground elevation, vegetation characteristics, weather, census, building, and transportation data.  The specific data sets and their origins are described in the DATASETS section below.
 
-Some datasets require data acquired from online source. The default cache folder is /usr/local/share/gridlabd/geodata. 
+Some datasets require data acquired from online source. The default cache folder is /usr/local/share/gridlabd/geodata.
 
-System, user, and local configurations may be saved.  The default config file `$HOME/.gridlabd/geodata-config`. 
+System, user, and local configurations may be saved.  The default config file `$HOME/.gridlabd/geodata-config`.
 
 Some datasets may be processes in parallel.  The default maximum thread count is 1.
 
@@ -32,15 +32,19 @@ Enables verbose output.
 
 ## `-q|--quiet`
 
-Disables normal output 
+Disables normal output.
 
 ## `-s|--silent`
 
-Disables error output
+Disables error output.
+
+## `-d|--debug`
+
+Enables debugging output, i.e., errors are exceptions with traceback.
 
 ## `-w|--warning`
 
-Disables warning output 
+Disables warning output.
 
 ## `-c|--cache FOLDER`
 
@@ -82,7 +86,7 @@ The config directive gets, sets, and show values in the config file.
 
 ## `location LATITUDE LONGITUDE [ARGUMENTS]`
 
-The location directive performs the geodata operation only at the  location specified. 
+The location directive performs the geodata operation only at the  location specified.
 
 ## `path CSVIN [ARGUMENTS]`
 
@@ -93,6 +97,11 @@ The path directive performs the geodata operation along the path specified in th
 The following datasets are available. To specify a layer, use the syntax
 "NAME.LAYER".  Multiple datasets and layers may be specified using a
 comma-delimited list.
+
+## `distance`
+
+The distance dataset provides simple distance calculations using the haversine
+formule for `(latitude,longitude)` tuples.
 
 ## `elevation`
 
