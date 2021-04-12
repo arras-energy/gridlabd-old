@@ -76,7 +76,7 @@ def get_location(args):
                         and distances.
     """
     if len(args) < 2:
-        geodata.error(f"{DATASET}.get_location({args}) missing one or more position arguments",geodata.E_SYNTAX)
+        error(f"{DATASET}.get_location({args}) missing one or more position arguments",geodata.E_SYNTAX)
     pos1 = get_position(args[0])
     lats = [pos1[0]]
     lons = [pos1[1]]
@@ -105,14 +105,14 @@ def get_location(args):
             lons.append(pos2[1])
             dist.append(d)
         pos1 = pos2
-    return pandas.DataFrame(
+    result = pandas.DataFrame(
             data={
                 "latitude" : lats,
                 "longitude" : lons,
                 "distance" : dist}
             )
-    data.index.names = ["id"]
-    return data
+    result.index.names = ["id"]
+    return result
 
 def get_path(args):
     """Compute the distances along paths specified in CSV files
@@ -130,20 +130,21 @@ def get_path(args):
         DataFrame         Pandas dataframe containing the concatenated contents
                           of the CSV files with the "distance" column added.
     """
+def get_path(args):
     paths = []
     for file in args:
+        data = None
+        last = None
+        elevation = []
         distance = []
         lastpos = None
         paths.append(pandas.read_csv(file))
-        for lat,lon in zip(paths[-1]["latitude"],paths[-1]["longitude"]):
-            if lastpos:
-                dist = get_distance(lastpos,[lat,lon])
-            else:
-                dist = 0.0
-            lastpos = [lat,lon]
-            distance.append(dist)
-        paths[-1]["distance"] = distance
-    return pandas.concat(paths)
+    path = pandas.concat(paths)
+    lats = path["latitude"].to_list()
+    lons = path["longitude"].to_list()
+    pos = zip(lats,lons)
+    return get_location(list(pos))
+
 
 geodata = None # this will be set by the set_context() call from geodata
 def set_context(context):
@@ -162,21 +163,21 @@ def set_context(context):
     geodata = context
 
     global output
-    output = context.output
+    output = geodata.output
 
     global warning
-    warning = context.warning
+    warning = geodata.warning
 
     global error
-    error = context.error
+    error = geodata.error
 
     global verbose
-    verbose = context.verbose
+    verbose = geodata.verbose
 
-    context.set_config(default_config)
-    context.load_config(DATASET,"system")
-    context.load_config(DATASET,"user")
-    context.load_config(DATASET,"local")
+    geodata.set_config(default_config)
+    geodata.load_config(DATASET,"system")
+    geodata.load_config(DATASET,"user")
+    geodata.load_config(DATASET,"local")
 
 # perform validation tests
 if __name__ == '__main__':
