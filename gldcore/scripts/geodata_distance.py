@@ -30,20 +30,22 @@ configdir = {
     "local" : os.getenv("PWD"),
 }
 
-geodata = None # set by geodata module when it loads this module, provides access to settings
+resolution = None
 elevation_data = {} # in memory holding area for image data
 
 def load_config(file):
     global config
-    fh = open(f"{configdir}/distance.cfg","r")
-    if fh:
-        config = json.load(f"{configdir}/distance.cfg")
+    try:
+        fh = open(f"{configdir[file]}/distance.cfg","r")
+        config = json.load(f"{configdir[file]}/distance.cfg")
+    except:
+        pass
 
 def save_config(file):
     global config
-    fh = open(f"{configdir}/distance.cfg","w")
+    fh = open(f"{configdir[file]}/distance.cfg","w")
     if fh:
-        config = json.dump(f"{configdir}/distance.cfg", indent=4)
+        json.dump(config, f"{configdir[file]}/distance.cfg", indent=4)
 
 def get_config(name):
     if name in config.keys():
@@ -78,12 +80,7 @@ def get_path(args):
             else:
                 dist = 0.0
             lastpos = [lat,lon]
-            if type(r) is float:
-                lat0 = lastpos[0]
-                lon0 = lastpos[1]
-                for lat0
-            else:
-                distance.append(dist)
+            distance.append(dist)
         paths[-1]["distance"] = distance
     return pandas.concat(paths)
 
@@ -93,6 +90,7 @@ def get_position(pos):
     return pos
 
 def get_location(args):
+    global resolution
     if len(args) < 2:
         raise Exception(f"get_location({args}) missing one or more position arguments")
     pos1 = get_position(args[0])
@@ -101,9 +99,26 @@ def get_location(args):
     dist = [0.0]
     for arg in args[1:]:
         pos2 = get_position(arg)
-        lats.append(pos2[0])
-        lons.append(pos2[1])
-        dist.append(get_distance(pos1,pos2))
+        d = get_distance(pos1,pos2)
+        if type(resolution) is float:
+            segs = d/resolution
+            lat = lats[-1]
+            lon = lons[-1]
+            dlat = (pos2[0]-pos1[0])/segs
+            dlon = (pos2[1]-pos1[1])/segs
+            for n in range(int(segs)):
+                lat += dlat
+                lon += dlon
+                lats.append(lat)
+                lons.append(lon)
+                dist.append(resolution)
+            lats.append(pos2[0])
+            lons.append(pos2[1])
+            dist.append(d%resolution)
+        else:
+            lats.append(pos2[0])
+            lons.append(pos2[1])
+            dist.append(d)
         pos1 = pos2
     return pandas.DataFrame(
             data={
@@ -114,26 +129,42 @@ def get_location(args):
     data.index.names = ["id"]
     return data
 
-if geodata: # if loaded by geodata module, use context info
-    output = geodata.output
-    warning = geodata.warning
-    error = geodata.error
+geodata = None
+output = print
+warning = print
+error = print
+verbose = print
+
+def set_context(context):
+    global geodata
+    geodata = context
+
+    global output
+    output = context.output
+
+    global warning
+    warning = context.warning
+
+    global error
+    error = context.error
+
+    global verbose
+    verbose = context.verbose
+
     load_config("system")
     load_config("user")
     load_config("local")
+
+    global resolution
     if geodata.RESOLUTION:
         resolution = geodata.RESOLUTION
     else:
+        global config
         resolution = config["resolution"]
-    if not os.path.exists(config["cachedir"]):
-        os.makedirs(config["cachedir"])
 
-elif __name__ == '__main__':
+if __name__ == '__main__':
+    
     import unittest
-    output = print
-    debug = print
-    warning = print
-    error = print
     class TestElevation(unittest.TestCase):
         def test_distance(self):
             self.assertEqual(round(get_distance([37.415045141688054,-122.2056472090359],[37.388063971857704,-122.28844288884694]),0),7905.0)

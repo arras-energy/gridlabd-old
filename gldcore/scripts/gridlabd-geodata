@@ -249,8 +249,7 @@ def main(argc,argv):
             MODULE = importlib.import_module(f"geodata_{DATASET}")
             if not MODULE:
                 error(f"unable to import module geodata_{DATASET} from {LOCATION}",E_NOTFOUND)
-            MODULE.geodata = sys.modules[__name__]
-            verbose(dir(MODULE))
+            MODULE.set_context(sys.modules[__name__])
         elif argv[n] in ["-T","--threadcount"]:
             global MAXTHREADS
             n += 1
