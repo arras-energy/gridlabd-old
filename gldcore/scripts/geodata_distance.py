@@ -172,15 +172,40 @@ def set_context(context):
     context.load_config("distance","user")
     context.load_config("distance","local")
 
+# perform validation tests
 if __name__ == '__main__':
-
-    output = print
-    warning = print
-    error = print
-    verbose = print
-
     import unittest
-    class TestGeodata(unittest.TestCase):
+    class context:
+        """Fake geodata context to support unit testing"""
+        resolution = None
+        def get_resolution():
+            return context.resolution
+        def set_resolution(x):
+            context.resolution = x
+        output = lambda x: print(f"OUTPUT [unittest]: {x}")
+        warning = lambda x: print(f"WARNING [unittest]: {x}")
+        error = lambda x: print(f"ERROR [unittest]: {x}")
+        verbose = lambda x: print(f"VERBOSE [unittest]: {x}")
+    geodata = context
+    class TestDistance(unittest.TestCase):
+        def test_position(self):
+            self.assertEqual(get_position("37,-122"),[37,-122])
         def test_distance(self):
             self.assertEqual(round(get_distance([37.415045141688054,-122.2056472090359],[37.388063971857704,-122.28844288884694]),0),7905.0)
+        def test_location(self):
+            context.set_resolution(None)
+            self.assertEqual(round(get_location(["37,-122","37,-122.1"])["distance"][1],3),8880.421)
+        def test_location_res(self):
+            context.set_resolution(10.0)
+            self.assertEqual(round(get_location(["37,-122","37,-122.1"])["distance"][1],3),10.0)
+        def test_path(self):
+            context.set_resolution(None)
+            path = get_location(["37,-122","37,-122.1"])
+            path.to_csv("/tmp/test.csv",index=False)
+            self.assertEqual(round(get_path(["/tmp/test.csv"])["distance"][1],3),8880.421)
+        def test_path_res(self):
+            context.set_resolution(10.0)
+            path = get_location(["37,-122","37,-122.1"])
+            path.to_csv("/tmp/test.csv",index=False)
+            self.assertEqual(round(get_path(["/tmp/test.csv"])["distance"][1],3),10.0)
     unittest.main()
