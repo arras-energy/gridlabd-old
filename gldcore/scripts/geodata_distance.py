@@ -14,6 +14,8 @@ If resolution is specified, then the result is generated in increments of that
 distance.
 """
 
+DATASET = "distance"
+
 import os, sys
 import requests
 import math
@@ -69,7 +71,7 @@ def get_location(args):
                         and distances.
     """
     if len(args) < 2:
-        raise Exception(f"get_location({args}) missing one or more position arguments")
+        geodata.error(f"{DATASET}.get_location({args}) missing one or more position arguments",geodata.E_SYNTAX)
     pos1 = get_position(args[0])
     lats = [pos1[0]]
     lons = [pos1[1]]
@@ -168,9 +170,9 @@ def set_context(context):
     context.configdata = {
         "resolution" : None,
     }
-    context.load_config("distance","system")
-    context.load_config("distance","user")
-    context.load_config("distance","local")
+    context.load_config(DATASET,"system")
+    context.load_config(DATASET,"user")
+    context.load_config(DATASET,"local")
 
 # perform validation tests
 if __name__ == '__main__':
@@ -187,7 +189,7 @@ if __name__ == '__main__':
         error = lambda x: print(f"ERROR [unittest]: {x}")
         verbose = lambda x: print(f"VERBOSE [unittest]: {x}")
     geodata = context
-    class TestDistance(unittest.TestCase):
+    class TestDataset(unittest.TestCase):
         def test_position(self):
             self.assertEqual(get_position("37,-122"),[37,-122])
         def test_distance(self):
