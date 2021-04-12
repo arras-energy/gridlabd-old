@@ -4,34 +4,7 @@ The distance package computes the haversine distance between points on a sphere 
 the points are given in latitude,longitude form, with position east and positive north
 orientation.
 
-The get_location() function accepts a list of positions and computes the distances
-between those positions.  If resolution is specified, then the result is generated
-in increments of that distance.
-
-The get_path() function accepts a list of CSV files containing latitude and
-longtitude coordinates and computes the distances between consecutive positions.
-If resolution is specified, then the result is generated in increments of that
-distance.
-
-The set_context() function is used to link the dataset package to the geodata
-module implementation.  This provides access to the options and the message
-routing functions output(), verbose(), warning(), and error().
-
-CONFIGURATION
-
-    The configuration file is always named "distance.cfg". The configuration
-    files are loaded in the following order, if found: system, user, local.
-
-    System configurations are stored by default in the gridlabd share folder,
-    which is normally "/usr/local/share/gridlabd", and is always specified by
-    the GLD_ETC environment variable when it is set by the gridlabd script.
-
-    User configurations are stored by default in the "$HOME/.gridlabd/geodata"
-    folder.
-
-    Local configurations are stored by default in the current folder.
-
-DEVELOPERS
+VALIDATION
 
     The unit test are performed automatically when this module is main.
 
