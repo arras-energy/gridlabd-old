@@ -12,11 +12,11 @@ below.
 
 OPTIONS
 
-  [-v|--verbose]              enable verbose output 
-  [-q|--quiet]                disable normal output 
+  [-v|--verbose]              enable verbose output
+  [-q|--quiet]                disable normal output
   [-s|--silent]               disable error output
-  [-w|--warning]              disable warning output 
-  [-c|--cache FOLDER]         change cache folder 
+  [-w|--warning]              disable warning output
+  [-c|--cache FOLDER]         change cache folder
   [-C|--config FILE]          change config file
   [-T|--threadcount THREADS]  change maximum thread count
 
@@ -36,13 +36,13 @@ The following directives are available:
 
   location LATITUDE LONGITUDE [ARGUMENTS]
 
-    The location directive performs the geodata operation only at the 
-    location specified. 
+    The location directive performs the geodata operation only at the
+    location specified.
 
   path [-f|--fuse] CSVIN [ARGUMENTS]
 
     The path directive performs the geodata operation along the path
-    specified in the CSVIN file.  If the [-r|--resoluation METERS] option
+    specified in the CSVIN file.  If the [-r|--resolution METERS] option
     is used, the data is generated at the specified resolution. Otherwise
     the data is generated only at the points specified in CSVIN.
 
@@ -52,7 +52,7 @@ All directives support the following arguments
 
   [-D|--dataset] NAME
 
-    Specifies the dataset from which the geographic information is to be 
+    Specifies the dataset from which the geographic information is to be
     acquired. See the DATASETS section below for details.
 
   [-o|--output] CSVOUT
@@ -108,17 +108,17 @@ Transportation
 
 DEVELOPER API
 
-All directives must be implemented as modules that access two calls. 
+All directives must be implemented as modules that access two calls.
 
   get_path(args): This call is used to acquire data from CSV files listed in args.
   The CSV files must contain columns name "latitude" and "longitude".  The
   corresponding dataset must be added and returned as a pandas dataframe.
 
   get_location(args): This call is used to acquires to acquired data for the points
-  listed in args.  The corresponding dataset must be added and returned as a pandas 
+  listed in args.  The corresponding dataset must be added and returned as a pandas
   dataframe.
 
-  set_context(module): This call is used to give the dataset module access to the 
+  set_context(module): This call is used to give the dataset module access to the
   geodata module implementation.  This is necessary to provide the mechanisms for
   controlling whether and where messages are directed, and provide access to options.
 
@@ -271,7 +271,7 @@ def main(argc,argv):
         syntax()
         exit(E_SYNTAX)
     if not DIRECTIVE[0] in DIRECTIVES:
-        error(f"directive '{DIRECTIVE[0]}' is not valid") 
+        error(f"directive '{DIRECTIVE[0]}' is not valid")
     if len(DIRECTIVE) == 1:
         args = []
     else:
