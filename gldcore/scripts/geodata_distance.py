@@ -14,8 +14,6 @@ If resolution is specified, then the result is generated in increments of that
 distance.
 """
 
-DATASET = "distance"
-
 import os, sys
 import requests
 import math
@@ -24,7 +22,11 @@ from PIL import Image
 import pandas
 import json
 
-geodata = None # this will be set by the set_context() call from geodata
+DATASET = "distance"
+
+default_config = {
+    "resolution" : None,
+}
 
 def get_distance(pos1, pos2):
     """Compute haversine distance between two locations
@@ -33,6 +35,9 @@ def get_distance(pos1, pos2):
 
         pos1, pos2 (float tuple)   Specifies the two geographic endpoints as a
                                    (latitude,longtitude) tuple
+    RETURNS
+
+        float   The distance between the two points in meters.
     """
     lat1 = pos1[0]*math.pi/180
     lat2 = pos2[0]*math.pi/180
@@ -140,6 +145,7 @@ def get_path(args):
         paths[-1]["distance"] = distance
     return pandas.concat(paths)
 
+geodata = None # this will be set by the set_context() call from geodata
 def set_context(context):
     """Sets the geodata context
 
@@ -167,9 +173,7 @@ def set_context(context):
     global verbose
     verbose = context.verbose
 
-    context.configdata = {
-        "resolution" : None,
-    }
+    context.set_config(default_config)
     context.load_config(DATASET,"system")
     context.load_config(DATASET,"user")
     context.load_config(DATASET,"local")
