@@ -60,7 +60,6 @@ def set_config(name,value):
         raise Exception(f"configuration parameter '{name}' does not exist")
 
 def get_resolution():
-    geodata.output(f"resolution is {geodata.RESOLUTION}")
     if geodata.RESOLUTION:
         return geodata.RESOLUTION
     else:
