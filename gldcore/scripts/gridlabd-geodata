@@ -262,7 +262,7 @@ def main(argc,argv):
         elif argv[n] in ["-D","--dataset"]:
             global DATASET
             n += 1
-            load_dataset(argv[n])
+            load_dataset([argv[n]])
         elif argv[n] in ["-T","--threadcount"]:
             global MAXTHREADS
             n += 1
