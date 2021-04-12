@@ -130,7 +130,6 @@ def get_path(args):
         DataFrame         Pandas dataframe containing the concatenated contents
                           of the CSV files with the "distance" column added.
     """
-def get_path(args):
     paths = []
     for file in args:
         data = None
