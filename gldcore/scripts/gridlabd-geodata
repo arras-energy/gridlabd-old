@@ -110,13 +110,17 @@ DEVELOPER API
 
 All directives must be implemented as modules that access two calls. 
 
-  get_path(args): this call is used to acquire data from CSV files listed in args.
+  get_path(args): This call is used to acquire data from CSV files listed in args.
   The CSV files must contain columns name "latitude" and "longitude".  The
   corresponding dataset must be added and returned as a pandas dataframe.
 
-  get_location(args): this call is used to acquires to acquired data for the points
+  get_location(args): This call is used to acquires to acquired data for the points
   listed in args.  The corresponding dataset must be added and returned as a pandas 
   dataframe.
+
+  set_context(module): This call is used to give the dataset module access to the 
+  geodata module implementation.  This is necessary to provide the mechanisms for
+  controlling whether and where messages are directed, and provide access to options.
 
 """
 import sys, os
