@@ -149,7 +149,7 @@ latitude,longitude,distance
 The following command obtains the coordinates for the points between two locations at 1 km resolution:
 
 ~~~
-% gridlabd geodata -d -D distance location 37.415045141688054,-122.2056472090359 37.388063971857704,-122.28844288884694 -r 1000
+% gridlabd geodata -D distance location 37.415045141688054,-122.2056472090359 37.388063971857704,-122.28844288884694 -r 1000
 latitude,longitude,distance
 37.415045141688054,-122.2056472090359,0.0
 37.4116319816247,-122.21612099166008,1000.0
