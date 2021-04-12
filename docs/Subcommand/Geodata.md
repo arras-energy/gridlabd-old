@@ -90,7 +90,7 @@ The location directive performs the geodata operation only at the  location spec
 
 ## `path CSVIN [ARGUMENTS]`
 
-The path directive performs the geodata operation along the path specified in the CSVIN file.  If the `[-r|--resoluation METERS]` option is used, the data is generated at the specified resolution. Otherwise the data is generated only at the points specified in CSVIN.
+The path directive performs the geodata operation along the path specified in the CSVIN file.  If the `[-r|--resolution METERS]` option is used, the data is generated at the specified resolution. Otherwise the data is generated only at the points specified in CSVIN.
 
 # Datasets
 
@@ -106,7 +106,7 @@ formule for `(latitude,longitude)` tuples.
 ## `elevation`
 
 The elevation dataset provides 1 arcsecond resolution ground elevation data
-from the USGS.
+from the USGS. The default data source is located at `http://geodata.gridlabd.us/elevation/10m`.
 
 ## `vegetation`
 
