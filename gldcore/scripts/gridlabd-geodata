@@ -152,18 +152,28 @@ SILENT = False
 QUIET = False
 DEBUG = False
 CFGFILE = f"os.getenv('HOME')/.gridlabd/geodata.conf"
+GEODATAURL = "http://geodata.gridlabd.us/"
 MAXTHREADS = 1
-PKGDATA = os.getenv("GLD_ETC")
 DATASET = None
 FUSE = False
 OUTPUT = "/dev/stdout"
 INPUT = "/dev/stdin"
 RESOLUTION = None
 MODULE = None
+CONFIGDATA = {}
+PKGDATA = os.getenv("GLD_ETC")
+if not PKGDATA:
+    PKGDATA = "/usr/local/share/gridlabd"
+CONFIGDIR = {
+    "system" : PKGDATA + "/geodata",
+    "user" : os.getenv("HOME") + "/.gridlabd/geodata",
+    "local" : os.getenv("PWD"),
+}
 
 E_OK = 0
 E_SYNTAX = 1
 E_NOTFOUND = 2
+
 
 def error(msg,exitcode=None):
     text = f"ERROR [{NAME}]: {msg}"
@@ -295,16 +305,6 @@ def main(argc,argv):
     if type(data) is pd.DataFrame and savefile:
         data.to_csv(savefile,index=False)
 
-sharedir = os.getenv("GLD_ETC")
-if not sharedir:
-    sharedir = "/usr/local/share/gridlabd"
-configdata = {}
-configdir = {
-    "system" : sharedir + "/geodata",
-    "user" : os.getenv("HOME") + "/.gridlabd/geodata",
-    "local" : os.getenv("PWD"),
-}
-
 def load_dataset(args):
     DATASET=args[0]
     LOCATION = f"{PKGDATA}/geodata_{DATASET}.py"
@@ -330,10 +330,10 @@ def load_config(context,file):
     RETURNS
        varies       The value of the configuration parameter
 """
-    global configdata
+    global CONFIGDATA
     try:
-        fh = open(f"{configdir[file]}/distance.cfg","r")
-        configdata.update(json.load(f"{configdir[file]}/distance.cfg"))
+        fh = open(f"{CONFIGDIR[file]}/distance.cfg","r")
+        CONFIGDATA.update(json.load(f"{CONFIGDIR[file]}/distance.cfg"))
     except:
         pass
 
@@ -344,25 +344,28 @@ def get_config(name):
 
         name (str)   Specifies the name of the configuration parameter to get.
     """
-    global configdata
-    if name in configdata.keys():
-        return configdata[name]
+    global CONFIGDATA
+    if name in CONFIGDATA.keys():
+        return CONFIGDATA[name]
     else:
         error(f"configuration parameter '{name}' does not exist")
 
-def set_config(name,value):
+def set_config(name,value=None):
     """Set a configuration parameter
 
     ARGUMENTS
 
         name (str)       Specifies the name of the configuration parameter to
                          set.
+        name (dict)      Specifies a dictionary of parameters and values to set.
 
         value (varies)   Specifies the value of the configuration parameter.
     """
-    global configdata
-    if name in configdata.keys():
-        configdata[name] = value
+    global CONFIGDATA
+    if type(name) is dict:
+        CONFIGDATA.update(name)
+    elif name in CONFIGDATA.keys():
+        CONFIGDATA[name] = value
     else:
         error(f"configuration parameter '{name}' does not exist")
 
@@ -375,11 +378,11 @@ def get_resolution():
 
         float    the resolution in meters
     """
-    global configdata
+    global CONFIGDATA
     if RESOLUTION:
         return RESOLUTION
     else:
-        return configdata["resolution"]
+        return CONFIGDATA["resolution"]
 
 if __name__ == "__main__":
     main(len(sys.argv),sys.argv)
