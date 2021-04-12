@@ -5,7 +5,8 @@ the points are given in latitude,longitude form, with position east and positive
 orientation.
 
 The get_location() function accepts a list of positions and computes the distances 
-between those positions.  If the resolution 
+between those positions.  If resolution is specified, then the result is generated
+in increments of distance.
 """
 
 import os, sys
@@ -30,7 +31,6 @@ configdir = {
     "local" : os.getenv("PWD"),
 }
 
-resolution = None
 elevation_data = {} # in memory holding area for image data
 
 def load_config(file):
@@ -58,6 +58,13 @@ def set_config(name,value):
         config[name] = value
     else:
         raise Exception(f"configuration parameter '{name}' does not exist")
+
+def get_resolution():
+    geodata.output(f"resolution is {geodata.RESOLUTION}")
+    if geodata.RESOLUTION:
+        return geodata.RESOLUTION
+    else:
+        return config["resolution"]
 
 def get_distance(pos1, pos2):
     """Compute haversine distance between two locations"""
@@ -90,13 +97,13 @@ def get_position(pos):
     return pos
 
 def get_location(args):
-    global resolution
     if len(args) < 2:
         raise Exception(f"get_location({args}) missing one or more position arguments")
     pos1 = get_position(args[0])
     lats = [pos1[0]]
     lons = [pos1[1]]
     dist = [0.0]
+    resolution = get_resolution()
     for arg in args[1:]:
         pos2 = get_position(arg)
         d = get_distance(pos1,pos2)
@@ -154,13 +161,6 @@ def set_context(context):
     load_config("system")
     load_config("user")
     load_config("local")
-
-    global resolution
-    if geodata.RESOLUTION:
-        resolution = geodata.RESOLUTION
-    else:
-        global config
-        resolution = config["resolution"]
 
 if __name__ == '__main__':
     
