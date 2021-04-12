@@ -15,6 +15,7 @@ OPTIONS
   [-v|--verbose]              enable verbose output
   [-q|--quiet]                disable normal output
   [-s|--silent]               disable error output
+  [-d|--debug]                enable debug output
   [-w|--warning]              disable warning output
   [-c|--cache FOLDER]         change cache folder
   [-C|--config FILE]          change config file
@@ -135,7 +136,6 @@ files are loaded in the following order, if found: system, user, local.
     Local configurations are stored by default in the current folder.
 
 See geodata_distance.py for a simple example.
-
 """
 import sys, os
 import pandas as pd
@@ -166,7 +166,7 @@ E_NOTFOUND = 2
 def error(msg,exitcode=None):
     text = f"ERROR [{NAME}]: {msg}"
     if DEBUG:
-        raise Exception(text)
+        raise Exception(msg)
     if not SILENT:
         print(text,file=sys.stderr,flush=True)
     if exitcode:
@@ -186,11 +186,16 @@ def output(msg):
     if not QUIET:
         print(msg,file=sys.stdout)
 
-def help(command=None):
-    if command:
-        error(f"command '{command}' not found",E_SYNTAX)
+def help(dataset=None):
+    if dataset:
+        MODULE = load_dataset(dataset)
+        if MODULE:
+            print(MODULE.__doc__)
+        else:
+            error(f"command '{command}' not found",E_SYNTAX)
     else:
         print(__doc__,file=sys.stdout)
+    return None, None
 
 def syntax():
     print(__doc__.split("\n")[0],file=sys.stdout)
@@ -257,17 +262,7 @@ def main(argc,argv):
         elif argv[n] in ["-D","--dataset"]:
             global DATASET
             n += 1
-            DATASET = argv[n]
-            LOCATION = f"{PKGDATA}/geodata_{DATASET}.py"
-            if not os.path.exists(LOCATION):
-                error(f"dataset '{DATASET}' is not found in '{LOCATION}'",E_NOTFOUND)
-            verbose(f"dataset '{DATASET}' selected")
-            modspec = util.spec_from_file_location(DATASET, LOCATION)
-            global MODULE
-            MODULE = importlib.import_module(f"geodata_{DATASET}")
-            if not MODULE:
-                error(f"unable to import module geodata_{DATASET} from {LOCATION}",E_NOTFOUND)
-            MODULE.set_context(sys.modules[__name__])
+            load_dataset(argv[n])
         elif argv[n] in ["-T","--threadcount"]:
             global MAXTHREADS
             n += 1
@@ -284,12 +279,15 @@ def main(argc,argv):
     if len(DIRECTIVE) == 0:
         syntax()
         exit(E_SYNTAX)
-    if not DIRECTIVE[0] in DIRECTIVES:
-        error(f"directive '{DIRECTIVE[0]}' is not valid")
-    if len(DIRECTIVE) == 1:
+    elif len(DIRECTIVE) == 1:
         args = []
     else:
         args = DIRECTIVE[1:]
+    if DIRECTIVE[0] == "help":
+        help(args)
+        exit(E_OK)
+    elif not DIRECTIVE[0] in DIRECTIVES:
+        error(f"directive '{DIRECTIVE[0]}' is not valid")
     data, savefile = globals()[DIRECTIVE[0]](args)
     if type(data) is pd.DataFrame and savefile:
         data.to_csv(savefile,index=False)
@@ -303,6 +301,20 @@ configdir = {
     "user" : os.getenv("HOME") + "/.gridlabd/geodata",
     "local" : os.getenv("PWD"),
 }
+
+def load_dataset(args):
+    DATASET=args[0]
+    LOCATION = f"{PKGDATA}/geodata_{DATASET}.py"
+    if not os.path.exists(LOCATION):
+        error(f"dataset '{DATASET}' module is not found in '{LOCATION}'",E_NOTFOUND)
+    verbose(f"dataset '{DATASET}' selected")
+    modspec = util.spec_from_file_location(DATASET, LOCATION)
+    global MODULE
+    MODULE = importlib.import_module(f"geodata_{DATASET}")
+    if not MODULE:
+        error(f"unable to import module geodata_{DATASET} from {LOCATION}",E_NOTFOUND)
+    MODULE.set_context(sys.modules[__name__])
+    return MODULE
 
 def load_config(context,file):
     """Read the specified configuration file
@@ -333,7 +345,7 @@ def get_config(name):
     if name in configdata.keys():
         return configdata[name]
     else:
-        raise Exception(f"configuration parameter '{name}' does not exist")
+        error(f"configuration parameter '{name}' does not exist")
 
 def set_config(name,value):
     """Set a configuration parameter
@@ -349,7 +361,7 @@ def set_config(name,value):
     if name in configdata.keys():
         configdata[name] = value
     else:
-        raise Exception(f"configuration parameter '{name}' does not exist")
+        error(f"configuration parameter '{name}' does not exist")
 
 def get_resolution():
     """Get the current distance resolution, if any
@@ -367,8 +379,4 @@ def get_resolution():
         return configdata["resolution"]
 
 if __name__ == "__main__":
-    try:
-        main(len(sys.argv),sys.argv)
-
-    except Exception as err:
-        error(err)
+    main(len(sys.argv),sys.argv)
