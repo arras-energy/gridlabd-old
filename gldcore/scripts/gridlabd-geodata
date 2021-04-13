@@ -12,15 +12,15 @@ below.
 
 OPTIONS
 
-  [-v|--verbose]              enable verbose output
-  [-q|--quiet]                disable normal output
-  [-s|--silent]               disable error output
-  [-d|--debug]                enable debug output
-  [-w|--warning]              disable warning output
   [-c|--cache FOLDER]         change cache folder
   [-C|--config FILE]          change config file
-  [-T|--threadcount THREADS]  change maximum thread count
+  [-d|--debug]                enable debug output
   [-o|--output CSVOUT]        output to CSVOUT
+  [-q|--quiet]                disable normal output
+  [-s|--silent]               disable error output
+  [-T|--threadcount THREADS]  change maximum thread count
+  [-v|--verbose]              enable verbose output
+  [-w|--warning]              disable warning output
 
 REMARKS
 

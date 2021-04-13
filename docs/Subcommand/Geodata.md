@@ -26,26 +26,6 @@ Some datasets may be processes in parallel.  The default maximum thread count is
 
 # Options
 
-## `-v|--verbose`
-
-Enables verbose output.
-
-## `-q|--quiet`
-
-Disables normal output.
-
-## `-s|--silent`
-
-Disables error output.
-
-## `-d|--debug`
-
-Enables debugging output, i.e., errors are exceptions with traceback.
-
-## `-w|--warning`
-
-Disables warning output.
-
 ## `-c|--cache FOLDER`
 
 Changes cache folder.
@@ -54,25 +34,45 @@ Changes cache folder.
 
 Changes config file
 
-## `-T|--threadcount THREADS`
+## `-d|--debug`
 
-Change maximum thread count
+Enables debugging output, i.e., errors are exceptions with traceback.
 
 ## `-D|--dataset NAME`
 
 Specifies the dataset from which the geographic information is to be acquired. See the DATASETS section below for details.
 
+## `[-f|--fuse]`
+
+Enable fusing new data with existing data in the output.
+
 ## `-o|--output CSVOUT`
 
 Normally the output is written to /dev/stdout. When the [-f|--fuse] option is specified, the input file name is used.  When CSVOUT is specified the output data is written to the specified file. If the output file already exists, it is overwritten with the new data.
+
+## `-q|--quiet`
+
+Disables normal output.
 
 ## `-r|--resolution] METERS`
 
 Specifies the resolution in meters of the data to be generated along the path. If omitted, the output is generated only at the locations listed in the input. This option has no meaning for the location directive.
 
-## `[-f|--fuse]`
+## `-s|--silent`
 
-Enable fusing new data with existing data in the output.
+Disables error output.
+
+## `-T|--threadcount THREADS`
+
+Change maximum thread count
+
+## `-v|--verbose`
+
+Enables verbose output.
+
+## `-w|--warning`
+
+Disables warning output.
 
 # Directives
 
