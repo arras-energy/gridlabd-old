@@ -1,0 +1,11 @@
+// test the geodata elevation dataset using a known location elevation
+
+#setenv POS=37.4150,-122.2056
+
+#define ANS=86
+
+#define ELEV=${SHELL gridlabd geodata -D elevation location $POS -f JSON | gridlabd json-get 0 elevation}
+
+#if ${ELEV} != ${ANS}
+    #error Elevation at ${POS} is incorrect: expected ${ANS} meters but got ${ELEV} meters instead
+#endif
