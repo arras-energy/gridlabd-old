@@ -1,7 +1,7 @@
 #!/usr/local/bin/python3
 """Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
 
-The geodata command gathers and fuses geographic data. The geodata subcommand
+The geodata command gathers and joins geographic data. The geodata subcommand
 uses directives that are documented in the DIRECTIVES section below.
 
 In general geodata is used to acquire geographic information at a location or
@@ -41,15 +41,25 @@ The following directives are available:
     The location directive performs the geodata operation only at the
     location specified.
 
-  path [-f|--fuse] [CSVIN] [ARGUMENTS]
+    If the [-r|--resolution METERS] option is used, the data is generated at
+    the specified resolution. Otherwise the data is generated only at the points
+    specified in CSVIN.
+
+  path [-j|--join {inner,outer,left,right}] [CSVIN] [ARGUMENTS]
 
     The path directive performs the geodata operation along the path
-    specified in the CSVIN file.  If CSVIN is omitted, the input is read 
+    specified in the CSVIN file.  If CSVIN is omitted, the input is read
     from `/dev/stdin`, which allows output to `/dev/stdout` to be piped.
 
-    If the [-r|--resolution METERS] option
-    is used, the data is generated at the specified resolution. Otherwise
-    the data is generated only at the points specified in CSVIN.
+    If [-j|--join {inner,outer,left,right}] is specified, the input is joined
+    with the dataset in the manner specified, i.e., "left" uses the input index,
+    "right" uses the dataset's index, "outer" forms the union of both indexes
+    and sorts it, and "inner" forms the intersection of both indexes, preserving
+    the order of the input index.
+
+    If the [-r|--resolution METERS] option is used, the data is generated at
+    the specified resolution. Otherwise the data is generated only at the points
+    specified in CSVIN.
 
 ARGUMENTS
 
@@ -62,10 +72,9 @@ All directives support the following arguments
 
   [-o|--output] CSVOUT
 
-    Normally the output is written to /dev/stdout. When the [-f|--fuse] option is
-    specified, the input file name is used.  When CSVOUT is specified the output
-    data is written to the specified file. If the output file already exists, it
-    is overwritten with the new data.
+    Normally the output is written to /dev/stdout. When CSVOUT is specified the
+    output data is written to the specified file. If the output file already
+    exists, it is overwritten with the new data.
 
   [-r|--resolution] METERS
 
@@ -159,13 +168,13 @@ CFGFILE = f"os.getenv('HOME')/.gridlabd/geodata.conf"
 GEODATAURL = "http://geodata.gridlabd.us/"
 MAXTHREADS = 1
 DATASET = None
-FUSE = False
 OUTPUT = "/dev/stdout"
 INPUT = "/dev/stdin"
 RESOLUTION = None
 MODULE = None
 CONFIGDATA = {}
 PKGDATA = os.getenv("GLD_ETC")
+PATHJOIN = "outer"
 if not PKGDATA:
     PKGDATA = "/usr/local/share/gridlabd"
 CONFIGDIR = {
@@ -275,9 +284,6 @@ def main(argc,argv):
                 warning(f"config file '{CFGFILE}' does not exist")
             else:
                 verbose(f"using GLM file {GLMFILE}")
-        elif argv[n] in ["-f","--fuse"]:
-            global FUSE
-            FUSE=True
         elif argv[n] in ["-D","--dataset"]:
             global DATASET
             n += 1
@@ -297,6 +303,13 @@ def main(argc,argv):
             n += 1
             OUTPUT = argv[n]
             verbose(f"output is set to '{OUTPUT}'")
+        elif argv[n] in ["-j","--join"]:
+            global PATHJOIN
+            n += 1
+            if not argv[n] in ["inner","outer","left","right"]:
+                error(f"path join '{argv[n]}' is not valid",E_SYNTAX)
+            PATHJOIN = argv[n]
+            verbose(f"path join is set to '{PATHJOIN}'")
         else:
             DIRECTIVE.append(argv[n])
         n += 1

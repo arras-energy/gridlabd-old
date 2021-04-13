@@ -14,7 +14,7 @@ Shell:
 
 # Description
 
-The geodata command gathers and fuses geographic data. The geodata subcommand uses directives that are documented in the DIRECTIVES section below.
+The geodata command gathers and joins geographic data. The geodata subcommand uses directives that are documented in the DIRECTIVES section below.
 
 In general geodata is used to acquire geographic information at a location or along a specified path. This information includes ground elevation, vegetation characteristics, weather, census, building, and transportation data.  The specific data sets and their origins are described in the DATASETS section below.
 
@@ -42,13 +42,13 @@ Enables debugging output, i.e., errors are exceptions with traceback.
 
 Specifies the dataset from which the geographic information is to be acquired. See the DATASETS section below for details.
 
-## `[-f|--fuse]`
+## `[-j|--join {inner,outer,left,right}]`
 
-Enable fusing new data with existing data in the output.
+Controls how the dataset is merged with the input path. If [-j|--join {inner,outer,left,right}] is specified, the input is joined with the dataset in the manner specified, i.e., "left" uses the input index, "right" uses the dataset's index, "outer" forms the union of both indexes and sorts it, and "inner" forms the intersection of both indexes, preserving the order of the input index.
 
 ## `-o|--output CSVOUT`
 
-Normally the output is written to /dev/stdout. When the [-f|--fuse] option is specified, the input file name is used.  When CSVOUT is specified the output data is written to the specified file. If the output file already exists, it is overwritten with the new data.
+Normally the output is written to /dev/stdout. When CSVOUT is specified the output data is written to the specified file. If the output file already exists, it is overwritten with the new data.
 
 ## `-q|--quiet`
 

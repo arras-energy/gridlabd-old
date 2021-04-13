@@ -38,7 +38,7 @@ def get_path(args):
     lons = path["longitude"].to_list()
     pos = zip(lats,lons)
     locs = get_location(list(pos)).set_index(["latitude","longitude"])
-    return path.set_index(["latitude","longitude"]).join(locs,how="outer").reset_index()
+    return path.set_index(["latitude","longitude"]).join(locs,how=geodata.PATHJOIN).reset_index()
 
 def get_location(args):
     """Compute the elevations at the locations specified
