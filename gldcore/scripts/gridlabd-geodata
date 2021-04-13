@@ -15,6 +15,7 @@ OPTIONS
   [-c|--cache FOLDER]         change cache folder
   [-C|--config FILE]          change config file
   [-d|--debug]                enable debug output
+  [-j|--join TYPE]            control how dataset joins with input path
   [-o|--output CSVOUT]        output to CSVOUT
   [-q|--quiet]                disable normal output
   [-s|--silent]               disable error output
