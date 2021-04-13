@@ -20,6 +20,7 @@ OPTIONS
   [-c|--cache FOLDER]         change cache folder
   [-C|--config FILE]          change config file
   [-T|--threadcount THREADS]  change maximum thread count
+  [-o|--output CSVOUT]        output to CSVOUT
 
 REMARKS
 
@@ -40,10 +41,13 @@ The following directives are available:
     The location directive performs the geodata operation only at the
     location specified.
 
-  path [-f|--fuse] CSVIN [ARGUMENTS]
+  path [-f|--fuse] [CSVIN] [ARGUMENTS]
 
     The path directive performs the geodata operation along the path
-    specified in the CSVIN file.  If the [-r|--resolution METERS] option
+    specified in the CSVIN file.  If CSVIN is omitted, the input is read 
+    from `/dev/stdin`, which allows output to `/dev/stdout` to be piped.
+
+    If the [-r|--resolution METERS] option
     is used, the data is generated at the specified resolution. Otherwise
     the data is generated only at the points specified in CSVIN.
 
@@ -217,6 +221,8 @@ def location(args):
     return MODULE.get_location(args), OUTPUT
 
 def path(args):
+    if len(args) == 0:
+        args = ["/dev/stdin"]
     return MODULE.get_path(args), OUTPUT
 
 def config(args):
@@ -286,6 +292,11 @@ def main(argc,argv):
             n += 1
             RESOLUTION = float(argv[n])
             verbose(f"resolution is {RESOLUTION} meters")
+        elif argv[n] in ["-o","--output"]:
+            global OUTPUT
+            n += 1
+            OUTPUT = argv[n]
+            verbose(f"output is set to '{OUTPUT}'")
         else:
             DIRECTIVE.append(argv[n])
         n += 1

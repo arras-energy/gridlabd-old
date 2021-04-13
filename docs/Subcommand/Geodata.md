@@ -88,9 +88,11 @@ The config directive gets, sets, and show values in the config file.
 
 The location directive performs the geodata operation only at the  location specified.
 
-## `path CSVIN [ARGUMENTS]`
+## `path [CSVIN] [ARGUMENTS]`
 
-The path directive performs the geodata operation along the path specified in the CSVIN file.  If the `[-r|--resolution METERS]` option is used, the data is generated at the specified resolution. Otherwise the data is generated only at the points specified in CSVIN.
+The path directive performs the geodata operation along the path specified in the CSVIN file.  If CSVIN is omitted, the input is read from `/dev/stdin`, which allows output to `/dev/stdout` to be piped.
+
+If the `[-r|--resolution METERS]` option is used, the data is generated at the specified resolution. Otherwise the data is generated only at the points specified in CSVIN.
 
 # Datasets
 
