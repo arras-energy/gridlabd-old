@@ -93,7 +93,7 @@ comma-delimited list.
 
     The distance dataset calculates the distance between each point and the
     point before it.
-    
+
   Elevation
 
     The elevation dataset provides 1 arcsecond resolution ground elevation data
@@ -121,7 +121,7 @@ comma-delimited list.
     The building dataset provides build environment data from NREL. Available
     layers are "building_type" and "building_size".
 
-Transportation
+  Transportation
 
     The transportation dataset provides mobility data from traffic data services.
     You must subscribe to the TrafficView service to use this dataset.
