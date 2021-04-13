@@ -89,6 +89,11 @@ The following datasets are available. To specify a layer, use the syntax
 "NAME.LAYER".  Multiple datasets and layers may be specified using a
 comma-delimited list.
 
+  Distance
+
+    The distance dataset calculates the distance between each point and the
+    point before it.
+    
   Elevation
 
     The elevation dataset provides 1 arcsecond resolution ground elevation data
