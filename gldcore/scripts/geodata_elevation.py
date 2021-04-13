@@ -108,7 +108,6 @@ def get_location(args):
 def get_rowcol(pos):
     row = 3600-int(math.modf(abs(pos[0]))[0]*3600)
     col = 3600-int(math.modf(abs(pos[1]))[0]*3600)
-    print(f"{pos}: {row}, {col}")
     return row, col
 
 def get_position(pos):
