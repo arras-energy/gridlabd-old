@@ -1,11 +1,33 @@
 // test the geodata elevation dataset using a known location elevation
 
-#setenv POS=37.4150,-122.2056
-
+// test a single location
+#setenv LOC=location 37.4150,-122.2056
 #define ANS=87
+#define RES=${SHELL gridlabd geodata -D elevation $LOC -f RAW}
+#if ${RES} != ${ANS}
+    #error "geodata -D elevation ${LOC}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
+#endif
 
-#define ELEV=${SHELL gridlabd geodata -D elevation location $POS -f JSON | gridlabd json-get 0 elevation}
+// test a straight line between two locations at a specified resolution
+#setenv LOC=location 37.4150,-122.2056 37.3880,-122.2884 -r 1000
+#define ANS=87 93 178 115 106 303 409 602 634
+#define RES=${SHELL gridlabd geodata -D elevation $LOC -f RAW }
+#if ${RES} != ${ANS}
+    #error "geodata -D elevation ${LOC}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
+#endif
 
-#if ${ELEV} != ${ANS}
-    #error Elevation at ${POS} is incorrect: expected ${ANS} meters but got ${ELEV} meters instead
+// test a path
+#setenv LOC=path path_example.csv -f RAW
+#define ANS=88 100 112 111 98 92 79 90 78 80 92 81 103 126 121 106 112 125 126 123 118 106 106 117 172 264 286 322 349 326 443 448 501 573 610 641 632
+#define RES=${SHELL gridlabd geodata -D elevation $LOC -f RAW }
+#if ${RES} != ${ANS}
+    #error "geodata -D elevation ${LOC}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
+#endif
+
+// test a path at a specified resolution
+#setenv LOC=path path_example.csv -f RAW -r 500
+#define ANS=632 547 610 641 573 501 448 443 436 326 349 322 291 286 264 172 117 106 106 118 123 126 125 112 106 121 126 103 81 92 80 78 90 79 92 98 111 112 100 88
+#define RES=${SHELL gridlabd geodata -D elevation $LOC -f RAW }
+#if ${RES} != ${ANS}
+    #error "geodata -D elevation ${LOC}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
 #endif
