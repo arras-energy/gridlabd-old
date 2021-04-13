@@ -77,18 +77,19 @@ def get_location(args):
             d = get_distance(pos1,pos2)
             if type(resolution) is float:
                 segs = d/resolution
-                lat = lats[-1]
-                lon = lons[-1]
-                dlat = (pos2[0]-pos1[0])/segs
-                dlon = (pos2[1]-pos1[1])/segs
-                for n in range(int(segs)):
-                    lat += dlat
-                    lon += dlon
-                    lats.append(lat)
-                    lons.append(lon)
-                    n,e = get_data((lat,lon))
-                    row,col = get_rowcol((lat,lon))
-                    elev.append(e[row][col])
+                if segs > 1:
+                    lat = lats[-1]
+                    lon = lons[-1]
+                    dlat = (pos2[0]-pos1[0])/segs
+                    dlon = (pos2[1]-pos1[1])/segs
+                    for n in range(int(segs)):
+                        lat += dlat
+                        lon += dlon
+                        lats.append(lat)
+                        lons.append(lon)
+                        n,e = get_data((lat,lon))
+                        row,col = get_rowcol((lat,lon))
+                        elev.append(e[row][col])
             lats.append(pos2[0])
             lons.append(pos2[1])
             n,e = get_data(pos2)
