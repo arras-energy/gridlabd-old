@@ -157,6 +157,7 @@ import sys, os
 import pandas as pd
 import importlib
 from importlib import util
+import json
 
 NAME = "geodata"
 DIRECTIVES = ["config","location","path"]
@@ -175,6 +176,7 @@ RESOLUTION = None
 MODULE = None
 CONFIGDATA = {}
 PKGDATA = os.getenv("GLD_ETC")
+FORMAT = "CSV"
 PATHJOIN = "outer"
 if not PKGDATA:
     PKGDATA = "/usr/local/share/gridlabd"
@@ -239,9 +241,11 @@ def config(args):
     error(f"config({args}) is not implemented yet")
 
 def main(argc,argv):
+    global PKGDATA
+    global DATASET
+    global FORMAT
     n = 1
     DIRECTIVE = []
-    global PKGDATA
     if not PKGDATA or not os.path.exists(PKGDATA):
         warning("package folder '{PKGDATA}' not found, using default /usr/local/share/gridlabd")
         PKGDATA = "/usr/local/share/gridlabd"
@@ -286,9 +290,9 @@ def main(argc,argv):
             else:
                 verbose(f"using GLM file {GLMFILE}")
         elif argv[n] in ["-D","--dataset"]:
-            global DATASET
             n += 1
-            load_dataset([argv[n]])
+            DATASET = argv[n]
+            load_dataset([DATASET])
         elif argv[n] in ["-T","--threadcount"]:
             global MAXTHREADS
             n += 1
@@ -311,6 +315,12 @@ def main(argc,argv):
                 error(f"path join '{argv[n]}' is not valid",E_SYNTAX)
             PATHJOIN = argv[n]
             verbose(f"path join is set to '{PATHJOIN}'")
+        elif argv[n] in ["-f","--format"]:
+            n += 1
+            if not argv[n] in ["CSV","RAW","JSON"]:
+                error(f"format '{argv[n]}' is not recognized",E_SYNTAX)
+            FORMAT = argv[n]
+            verbose(f"output format is set to '{FORMAT}'")
         else:
             DIRECTIVE.append(argv[n])
         n += 1
@@ -328,19 +338,29 @@ def main(argc,argv):
         error(f"directive '{DIRECTIVE[0]}' is not valid")
     data, savefile = globals()[DIRECTIVE[0]](args)
     if type(data) is pd.DataFrame and savefile:
-        data.to_csv(savefile,index=False)
+        if FORMAT == "CSV":
+            data.to_csv(savefile,index=False)
+        elif FORMAT == "RAW":
+            print(" ".join(list(map(lambda x:str(x),data[DATASET].to_list()))))
+        elif FORMAT == "JSON":
+            print(data.to_json(orient="records"))
+        else:
+            error(f"format '{FORMAT}' is invalid",E_SYNTAX)
 
 def load_dataset(args):
+    global DATASET
+    global PKGDATA
+    global MODULE
     DATASET=args[0]
-    LOCATION = f"{PKGDATA}/geodata_{DATASET}.py"
-    if not os.path.exists(LOCATION):
-        error(f"dataset '{DATASET}' module is not found in '{LOCATION}'",E_NOTFOUND)
+    location = f"{PKGDATA}/geodata_{DATASET}.py"
+    if not os.path.exists(location):
+        error(f"dataset '{DATASET}' module is not found in '{location}'",E_NOTFOUND)
     verbose(f"dataset '{DATASET}' selected")
-    modspec = util.spec_from_file_location(DATASET, LOCATION)
+    modspec = util.spec_from_file_location(DATASET, location)
     global MODULE
     MODULE = importlib.import_module(f"geodata_{DATASET}")
     if not MODULE:
-        error(f"unable to import module geodata_{DATASET} from {LOCATION}",E_NOTFOUND)
+        error(f"unable to import module geodata_{DATASET} from {location}",E_NOTFOUND)
     MODULE.set_context(sys.modules[__name__])
     return MODULE
 
