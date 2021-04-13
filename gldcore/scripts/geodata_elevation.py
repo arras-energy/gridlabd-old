@@ -104,51 +104,12 @@ def get_location(args):
             )
     result.index.names = ["id"]
     return result
-    # lats = []
-    # lons = []
-    # elev = []
-    # resolution = geodata.get_resolution()
-    # prev = None
-    # for pos in args:
-    #     pos = get_position(pos)
-    #     name,data = get_data(pos)
-    #     if type(resolution) is float:
-    #         if not prev:
-    #             lats.append(pos[0])
-    #             lons.append(pos[1])
-    #             row,col = get_rowcol((pos[0],pos[1]))
-    #             elev.append(data[row][col])
-    #             prev = pos
-    #         else:
-    #             segs = get_distance(prev,pos) / resolution
-    #             lat = pos[0]
-    #             lon = pos[1]
-    #             dlat = (lat-prev[0])/segs
-    #             dlon = (lon-prev[1])/segs
-    #             for n in range(int(segs)):
-    #                 lat += dlat
-    #                 lon += dlon
-    #                 row,col = get_rowcol((lat,lon))
-    #                 lats.append(lat)
-    #                 lons.append(lon)
-    #                 elev.append(data[row][col])
-    #             prev = pos
-    #     else:
-    #         lats.append(pos[0])
-    #         lons.append(pos[1])
-    #         row,col = get_rowcol((lat,lon))
-    #         elev.append(data[row][col])
-    # result = pandas.DataFrame(
-    #         data={
-    #             "latitude" : lats,
-    #             "longitude" : lons,
-    #             "distance" : elev}
-    #         )
-    # result.index.names = ["id"]
-    # return result
 
 def get_rowcol(pos):
-    return int(math.modf(abs(pos[0]))[0]*3600), int(math.modf(abs(pos[1]))[0]*3600)
+    row = 3600-int(math.modf(abs(pos[0]))[0]*3600)
+    col = 3600-int(math.modf(abs(pos[1]))[0]*3600)
+    print(f"{pos}: {row}, {col}")
+    return row, col
 
 def get_position(pos):
     """Compute the (latitude,longitude) tuple of the position given
@@ -195,13 +156,13 @@ def get_name(pos):
     lat = pos[0]
     lon = pos[1]
     if lat < 0:
-        lat = f"{-math.ceil(lat)}S"
+        lat = f"{-math.floor(lat)}S"
     elif lat > 0:
         lat = f"{math.floor(lat)}N"
     else:
         lat = "0"
     if lon < 0:
-        lon = f"{-math.ceil(lon)}W"
+        lon = f"{-math.floor(lon)}W"
     elif lon > 0:
         lon = f"{math.floor(lon)}E"
     else:
