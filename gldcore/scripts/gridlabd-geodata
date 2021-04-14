@@ -159,10 +159,11 @@ Dataset validation is performed using the "unittest" module.
 See geodata_distance.py for a simple example.
 """
 import sys, os
-import pandas as pd
 import importlib
 from importlib import util
 import json
+import math, numpy
+import pandas as pd
 
 NAME = "geodata"
 DIRECTIVES = ["config","location","path"]
@@ -234,16 +235,51 @@ def help(dataset=None):
 def syntax():
     print(__doc__.split("\n")[0],file=sys.stdout)
 
+def ids(data):
+    lats = data["latitude"]
+    lons = data["longitude"]
+    return distance([list(a) for a in zip(lats,lons)])
+
 def location(args):
-    return MODULE.get_location(args), OUTPUT
+    result = MODULE.get_location(args)
+    if "id" not in result.columns:
+        result["id"] = ids(result)
+    return result.set_index("id"), OUTPUT
 
 def path(args):
     if len(args) == 0:
         args = ["/dev/stdin"]
-    return MODULE.get_path(args), OUTPUT
+    result = MODULE.get_path(args)
+    if "id" not in result.columns:
+        result["id"] = ids(result)
+    return result.set_index("id"), OUTPUT
 
 def config(args):
     error(f"config({args}) is not implemented yet")
+
+def distance(path):
+    """Compute haversine distances along a path
+    ARGUMENTS
+
+        path ((lat,lon) tuple) Specifies the path along which the distance is
+                            computed
+
+    RETURNS
+
+        list   The cumulative distances along the path
+    """
+    if len(path) == 0:
+        return []
+    dist = [0.0]
+    pos1 = path[0]
+    for pos2 in path[1:]:
+        lat1 = pos1[0]*math.pi/180
+        lat2 = pos2[0]*math.pi/180
+        lon1 = pos1[1]*math.pi/180
+        lon2 = pos2[1]*math.pi/180
+        a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
+        dist.append(round(6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a))),3))
+    return dist
 
 def main(argc,argv):
     global PKGDATA
@@ -344,7 +380,7 @@ def main(argc,argv):
     data, savefile = globals()[DIRECTIVE[0]](args)
     if type(data) is pd.DataFrame and savefile:
         if FORMAT == "CSV":
-            data.to_csv(savefile,index=False)
+            data.to_csv(savefile)
         elif FORMAT == "RAW":
             print(" ".join(list(map(lambda x:str(x),data[DATASET].to_list()))))
         elif FORMAT == "JSON":

@@ -25,6 +25,23 @@ import json
 elevation_data = {} # in memory holding area for image data
 
 def get_path(args):
+    """Compute the elevations along a path specified in the CSV files
+
+    Elevations are obtained for each CSV file in the args list.  If the
+    resolution is set, the elevations for each step along the path at the
+    specified resolution are provided.
+
+    Multiple CSV files are concatenated. The elevations are added to the
+    columns found in the CSV file. If the elevation column is already
+    present, the previous data is overwritten.
+
+    ARGUMENTS
+        args (str list) List of CSV files to read
+
+    RETURNS
+        DataFrame       Pandas dataframe containing the latitudes, longitudes,
+                        and elevations.
+    """
     paths = []
     for file in args:
         data = None
@@ -33,12 +50,22 @@ def get_path(args):
         distance = []
         lastpos = None
         paths.append(pandas.read_csv(file))
+
     path = pandas.concat(paths)
     lats = path["latitude"].to_list()
     lons = path["longitude"].to_list()
-    pos = list(map(zip(lats,lons)))
-    locs = get_location(pos).set_index(["latitude","longitude"])
-    return path.set_index(["latitude","longitude"]).join(locs,how=geodata.PATHJOIN).reset_index()
+    pos = [list(a) for a in zip(lats,lons)]
+    path["id"] = geodata.distance(pos)
+    path.set_index(["id","latitude","longitude"],inplace=True)
+
+    locs = get_location(pos)
+    lats = locs["latitude"].to_list()
+    lons = locs["longitude"].to_list()
+    pos = [list(a) for a in zip(lats,lons)]
+    locs["id"] = geodata.distance(pos)
+    locs.set_index(["id","latitude","longitude"],inplace=True)
+
+    return path.join(locs,how=geodata.PATHJOIN,sort=True).reset_index()
 
 def get_location(args):
     """Compute the elevations at the locations specified

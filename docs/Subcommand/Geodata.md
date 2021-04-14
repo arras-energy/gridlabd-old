@@ -163,9 +163,3 @@ latitude,longitude,distance
 37.39109469152604,-122.27890961265346,1000.0
 37.388,-122.2884,906.1937312321534
 ~~~
-
-# Caveats
-
-Any operation which join multiple datasets can result in sorting output by
-latitude and longitude.  This includes increasing the resolution, and piping
-the output of one geodata operation into another operation.
