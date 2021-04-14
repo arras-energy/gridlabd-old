@@ -13,6 +13,7 @@ distance.
 """
 
 DATASET = "elevation"
+REPOURL = f"http://geodata.gridlabd.us/{DATASET}/10m"
 
 import os, sys
 import requests
@@ -267,7 +268,7 @@ def set_context(context):
     verbose = geodata.verbose
 
     geodata.set_config({
-        "repourl" : f"http://geodata.gridlabd.us/{DATASET}/10m",
+        "repourl" : REPOURL,
         "resolution" : None,
         "cachedir" : f"{geodata.PKGDATA}/geodata/{DATASET}/10m",
     })
