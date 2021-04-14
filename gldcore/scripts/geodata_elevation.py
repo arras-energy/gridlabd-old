@@ -94,7 +94,23 @@ def get_location(args):
             lons.append(pos2[1])
             n,e = get_data(pos2)
             row,col = get_rowcol(pos2)
-            elev.append(e[row][col])
+
+            # can't interpolate at lower edges of images (rare/small impact)
+            if row == 0 or col == 0:
+                z = e[row][col]
+            # 2-d interpolation
+            else:
+                dy = math.modf(abs(pos2[0]))[0]*3600 - (3600-row)
+                dx = math.modf(abs(pos2[1]))[0]*3600 - (3600-col)
+                z00 = e[row][col]
+                z01 = e[row-1][col]
+                z10 = e[row][col-1]
+                z11 = e[row-1][col-1]
+                z0 = dx*(z10-z00) + z00
+                z1 = dx*(z11-z01) + z01
+                z = dy*(z1-z0) + z0
+                # print(f"{pos2} -> {row},{col} -> {z00} {z01} {z10} {z11} -> {dx} {dy} -> {round(z)}")
+            elev.append(round(z))
             pos1 = pos2
     result = pandas.DataFrame(
             data={
