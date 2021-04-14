@@ -182,10 +182,10 @@ RESOLUTION = None
 MODULE = None
 CONFIGDATA = {}
 PKGDATA = os.getenv("GLD_ETC")
-FORMAT = "CSV"
-PATHJOIN = "outer"
 if not PKGDATA:
     PKGDATA = "/usr/local/share/gridlabd"
+FORMAT = "CSV"
+PATHJOIN = "outer"
 CONFIGDIR = {
     "system" : PKGDATA + "/geodata",
     "user" : os.getenv("HOME") + "/.gridlabd/geodata",
