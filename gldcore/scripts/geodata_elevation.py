@@ -36,8 +36,8 @@ def get_path(args):
     path = pandas.concat(paths)
     lats = path["latitude"].to_list()
     lons = path["longitude"].to_list()
-    pos = zip(lats,lons)
-    locs = get_location(list(pos)).set_index(["latitude","longitude"])
+    pos = list(map(zip(lats,lons)))
+    locs = get_location(pos).set_index(["latitude","longitude"])
     return path.set_index(["latitude","longitude"]).join(locs,how=geodata.PATHJOIN).reset_index()
 
 def get_location(args):
