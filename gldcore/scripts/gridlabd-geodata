@@ -191,6 +191,7 @@ CONFIGDIR = {
     "user" : os.getenv("HOME") + "/.gridlabd/geodata",
     "local" : os.getenv("PWD"),
 }
+IDPRECISION = 3
 
 E_OK = 0
 E_SYNTAX = 1
@@ -278,7 +279,7 @@ def distance(path):
         lon1 = pos1[1]*math.pi/180
         lon2 = pos2[1]*math.pi/180
         a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
-        dist.append(round(6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a))),3))
+        dist.append(round(6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a))),IDPRECISION))
     return dist
 
 def main(argc,argv):
