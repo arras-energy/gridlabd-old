@@ -184,6 +184,7 @@ if __name__ == '__main__':
     class context:
         """Fake geodata context to support unit testing"""
         resolution = None
+        PATHJOIN = "outer"
         def get_resolution():
             return context.resolution
         def set_resolution(x):
@@ -193,7 +194,7 @@ if __name__ == '__main__':
         error = lambda x: print(f"ERROR [unittest]: {x}")
         verbose = lambda x: print(f"VERBOSE [unittest]: {x}")
     geodata = context
-    class TestDataset(unittest.TestCase):
+    class TestDistance(unittest.TestCase):
         def test_position(self):
             self.assertEqual(get_position("37,-122"),[37,-122])
         def test_distance(self):
