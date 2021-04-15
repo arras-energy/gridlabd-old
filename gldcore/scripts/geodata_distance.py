@@ -110,7 +110,8 @@ def get_location(args):
                 "longitude" : lons,
                 "distance" : dist}
             )
-    result.index.names = ["id"]
+    result["id"] = geodata.distance(list(zip(lats,lons)))
+    result.set_index("id")
     return result
 
 def get_path(args):
@@ -140,10 +141,10 @@ def get_path(args):
     path = pandas.concat(paths)
     lats = path["latitude"].to_list()
     lons = path["longitude"].to_list()
-    pos = zip(lats,lons)
-    locs = get_location(list(pos)).set_index(["latitude","longitude"])
-    return path.set_index(["latitude","longitude"]).join(locs,how=geodata.PATHJOIN).reset_index()
-
+    pos = list(zip(lats,lons))
+    path["id"] = geodata.distance(pos)
+    locs = get_location(pos).set_index(["id","latitude","longitude"])
+    return path.set_index(["id","latitude","longitude"]).join(locs,how=geodata.PATHJOIN,rsuffix="_loc").reset_index()
 
 geodata = None # this will be set by the set_context() call from geodata
 def set_context(context):
@@ -181,6 +182,8 @@ def set_context(context):
 # perform validation tests
 if __name__ == '__main__':
     import unittest
+    import numpy
+    IDPRECISION = 3
     class context:
         """Fake geodata context to support unit testing"""
         resolution = None
@@ -193,8 +196,31 @@ if __name__ == '__main__':
         warning = lambda x: print(f"WARNING [unittest]: {x}")
         error = lambda x: print(f"ERROR [unittest]: {x}")
         verbose = lambda x: print(f"VERBOSE [unittest]: {x}")
+        def distance(path):
+            """Compute haversine distances along a path
+            ARGUMENTS
+
+                path ((lat,lon) tuple) Specifies the path along which the distance is
+                                    computed
+
+            RETURNS
+
+                list   The cumulative distances along the path
+            """
+            if len(path) == 0:
+                return []
+            dist = [0.0]
+            pos1 = path[0]
+            for pos2 in path[1:]:
+                lat1 = pos1[0]*math.pi/180
+                lat2 = pos2[0]*math.pi/180
+                lon1 = pos1[1]*math.pi/180
+                lon2 = pos2[1]*math.pi/180
+                a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
+                dist.append(round(6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a))),IDPRECISION))
+            return dist
     geodata = context
-    class TestDistance(unittest.TestCase):
+    class TestDataset(unittest.TestCase):
         def test_position(self):
             self.assertEqual(get_position("37,-122"),[37,-122])
         def test_distance(self):
