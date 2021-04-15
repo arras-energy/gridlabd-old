@@ -24,3 +24,6 @@ dist_pkgdata_DATA += gldcore/scripts/distance.cfg
 
 dist_pkgdata_DATA += gldcore/scripts/geodata_elevation.py
 dist_pkgdata_DATA += gldcore/scripts/elevation.cfg
+
+dist_pkgdata_DATA += gldcore/scripts/geodata_powerline.py
+dist_pkgdata_DATA += gldcore/scripts/powerline.cfg
