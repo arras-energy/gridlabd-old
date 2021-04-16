@@ -12,8 +12,8 @@ The 'path' function accepts a list of CSV files containing addresses and
 computes the locations at each address, or between each address if resolution
 is specified.
 
-Reverse address geocoding is support automatically when the address is provided
-as a comma-separated latitude,longitude pair.
+Reverse address geocoding is supported automatically when the address is
+provided as a comma-separated latitude,longitude pair.
 
 Examples:
 
