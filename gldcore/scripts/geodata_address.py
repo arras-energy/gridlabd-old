@@ -11,6 +11,18 @@ be encoded with all whitespaces as plus signs, e.g.
 The 'path' function accepts a list of CSV files containing addresses and
 computes the locations at each address, or between each address if resolution
 is specified.
+
+Reverse address geocoding is support automatically when the address is provided
+as a comma-separated latitude,longitude pair.
+
+Examples:
+
+% gridlabd geodata -D address location 37.42,-122.20 -f RAW
+Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States
+
+% gridlabd geodata -D 2575+Sand+Hill+Rd,+Menlo+Park,+CA -f RAW
+37.4155,-122.2012
+
 """
 
 import os, sys
@@ -54,7 +66,7 @@ def get_position(addr):
             return [pt.y,pt.x]
         else:
             pt = Point(pos[1],pos[0])
-            result = reverse_geocode(pt,provider=default_config["provider"],user_agent=default_config["user_agent"])
+            result = reverse_geocode([pt],provider=default_config["provider"],user_agent=default_config["user_agent"])
             return result["address"][0]
     except Exception as err:
         geodata.error(f"[{addr}]: {err}")
@@ -82,11 +94,12 @@ def get_location(args):
     addr = []
     for arg in args:
         arg = arg.replace("+"," ")
+        print("ARG ->",arg)
         pos = get_position(arg)
         if type(pos) is str: # reverse
-            tmp = pos
-            pos = [float(arg[0]),float(arg[1])]
-            arg = tmp
+            tmp = list(map(lambda x:float(x),arg.split(",")))
+            arg = pos
+            pos = tmp
         if pos:
             if pos0 and type(resolution) is float:
                 segs = d/resolution
