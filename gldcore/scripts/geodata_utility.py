@@ -331,6 +331,8 @@ def set_context(context):
     geodata.load_config(DATASET,"user")
     geodata.load_config(DATASET,"local")
 
+    os.makedirs(geodata.get_config("cachedir"),exist_ok=True)
+
     global kmlfile
     kmlfile = geodata.get_config("cachedir") + "/geometry.kml"
 
