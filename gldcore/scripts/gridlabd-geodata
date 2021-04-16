@@ -192,6 +192,7 @@ CONFIGDIR = {
     "local" : os.getenv("PWD"),
 }
 IDPRECISION = 3
+GEOPRECISION = 4
 
 E_OK = 0
 E_SYNTAX = 1
@@ -359,7 +360,7 @@ def main(argc,argv):
             verbose(f"path join is set to '{PATHJOIN}'")
         elif argv[n] in ["-f","--format"]:
             n += 1
-            if not argv[n] in ["CSV","RAW","JSON"]:
+            if not argv[n] in ["CSV","RAW","JSON","POS","ID","LAT","LON"]:
                 error(f"format '{argv[n]}' is not recognized",E_SYNTAX)
             FORMAT = argv[n]
             verbose(f"output format is set to '{FORMAT}'")
@@ -386,6 +387,17 @@ def main(argc,argv):
             print(" ".join(list(map(lambda x:str(x),data[DATASET].to_list()))))
         elif FORMAT == "JSON":
             print(data.to_json(orient="records"))
+        elif FORMAT == "POS":
+            lats = data["latitude"].to_list()
+            lons = data["longitude"].to_list()
+            pos = list(zip(lats,lons))
+            print(" ".join(list(map(lambda x:f"{numpy.round(x[0],GEOPRECISION)},{numpy.round(x[1],GEOPRECISION)}",pos))))
+        elif FORMAT == "LAT":
+            print(" ".join(list(map(lambda x:str(x),data["latitude"].to_list()))))
+        elif FORMAT == "LON":
+            print(" ".join(list(map(lambda x:str(x),data["longitude"].to_list()))))
+        elif FORMAT == "ID":
+            print(" ".join(list(map(lambda x:str(x),data.index.to_list()))))
         else:
             error(f"format '{FORMAT}' is invalid",E_SYNTAX)
 
