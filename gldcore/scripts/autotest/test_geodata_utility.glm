@@ -3,5 +3,5 @@
 #define RES=${SHELL gridlabd geodata -D utility location $POS -f RAW}
 #define ANS=PACIFIC GAS & ELECTRIC CO.
 #if ${RES} != ${ANS}
-    #error "geodata -D address location ${ADDR}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
+    #error "geodata -D address location ${ADDR}" is incorrect: expected ${ANS} but got ${RES} instead
 #endif

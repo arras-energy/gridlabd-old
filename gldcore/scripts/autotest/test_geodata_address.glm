@@ -1,13 +1,14 @@
 // test a single location
-#setenv ADDR="2575+Sand+Hill+Rd,+Menlo+Park,+CA"
-#define RES=${SHELL gridlabd geodata -D address location $ADDR -f POS}
+#setenv REQ="2575+Sand+Hill+Rd,+Menlo+Park,+CA"
+#define RES=${SHELL gridlabd geodata -D address location $REQ -f POS}
 #define ANS=37.4155,-122.2012
 #if ${RES} != ${ANS}
-    #error "geodata -D address location ${ADDR}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
+    #error "geodata -D address location ${REQ}" is incorrect: expected ${ANS} but got ${RES} instead
 #endif
 
-#define RES=${SHELL gridlabd geodata -D address location $ANS -f POS}
+#setenv REQ=37.4155,-122.2012
+#define RES=${SHELL gridlabd geodata -D address location $REQ -f RAW}
 #define ANS=Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States
 #if ${RES} != ${ANS}
-    #error "geodata -D address location ${ADDR}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
+    #error "geodata -D address location ${REQ}" is incorrect: expected ${ANS} but got ${RES} instead
 #endif
