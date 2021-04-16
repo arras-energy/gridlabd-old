@@ -42,7 +42,11 @@ Enables debugging output, i.e., errors are exceptions with traceback.
 
 Specifies the dataset from which the geographic information is to be acquired. See the DATASETS section below for details.
 
-## `[-j|--join {inner,outer,left,right}]`
+## `-f|--format {CSV,JSON,RAW,POS,FIELD:NAME}`
+
+Specified the output format.  See `gridlabd geodata help` for details.
+
+## `-j|--join {inner,outer,left,right}`
 
 Controls how the dataset is merged with the input path. If [-j|--join {inner,outer,left,right}] is specified, the input is joined with the dataset in the manner specified, i.e., "left" uses the input index, "right" uses the dataset's index, "outer" forms the union of both indexes and sorts it, and "inner" forms the intersection of both indexes, preserving the order of the input index.
 
