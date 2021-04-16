@@ -137,7 +137,7 @@ def get_location(args):
                 "distance" : dist,
                 }
             )
-    result.index.names = ["id"]
+    result["id"] = geodata.distance(list(zip(lats,lons)))
     return result
 
 def get_path(args):
