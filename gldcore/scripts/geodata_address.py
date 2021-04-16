@@ -94,7 +94,6 @@ def get_location(args):
     addr = []
     for arg in args:
         arg = arg.replace("+"," ")
-        print("ARG ->",arg)
         pos = get_position(arg)
         if type(pos) is str: # reverse
             tmp = list(map(lambda x:float(x),arg.split(",")))
