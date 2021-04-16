@@ -4,7 +4,9 @@ The address package computers the location for an address or list of addresses.
 
 The 'location' directive accepts a list of addresses and computes the location
 at those positions.  If resolution is specified, then the result is generated
-in increments of that distance between each address
+in increments of that distance between each address. Note that addresses must
+be encoded with all whitespaces as plus signs, e.g.
+"2575+Sand+Hill+Rd,+Menlo+Park,+CA".
 
 The 'path' function accepts a list of CSV files containing addresses and
 computes the locations at each address, or between each address if resolution
