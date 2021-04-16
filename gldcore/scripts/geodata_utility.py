@@ -1,29 +1,28 @@
+"""GridLAB-D Geodata Utility Package
+
+The utility package obtains information about utilities and their service
+territories.  The information is collected from Homeland Infrastructure
+Foundation-Level Data (HIFLD) website.  See
+https://hifld-geoplatform.opendata.arcgis.com/datasets/electric-retail-service-territories.
+to details.
+
+The 'location' directive accepts a list of positions and obtains utility data at
+those positions.  If resolution is specified, then the result is generated in
+increments of that distance.
+
+The 'path' function accepts a list of CSV files containing latitude and
+longtitude coordinates and obtain utility information at those positions.
+If resolution is specified, then the result is generated in increments of that
+distance.
+"""
+
 import os, sys
+import math
 import pandas
 import geopandas
 import fiona
 import pickle
-# import requests
-# import math
 import numpy as np
-# from PIL import Image
-# import json
-
-"""GridLAB-D Geodata Distance Package
-
-The distance package computes the haversine distance between points on a sphere where
-the points are given in latitude,longitude form, with position east and positive north
-orientation.
-
-The 'location' directive accepts a list of positions and computes the distances
-between those positions.  If resolution is specified, then the result is generated
-in increments of that distance.
-
-The 'path' function accepts a list of CSV files containing latitude and
-longtitude coordinates and computes the distances between consecutive positions.
-If resolution is specified, then the result is generated in increments of that
-distance.
-"""
 
 DATASET = "utility"
 
