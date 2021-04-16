@@ -1,0 +1,7 @@
+// test geodata utility dataset
+#setenv POS=37.4205,-122.2046
+#define RES=${SHELL gridlabd geodata -D utility location $POS -f RAW}
+#define ANS=PACIFIC GAS & ELECTRIC CO.
+#if ${RES} != ${ANS}
+    #error "geodata -D address location ${ADDR}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
+#endif
