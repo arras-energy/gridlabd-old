@@ -200,5 +200,6 @@ if __name__ == '__main__':
     geodata = context
     class TestAddress(unittest.TestCase):
         def test_address(self):
-            self.assertEqual(get_position("2575 Sand Hill Rd., Menlo Park, CA 94025, USA"),[37.42045725,-122.20456827880435])
+            pos = get_position("2575 Sand Hill Rd., Menlo Park, CA 94025, USA")
+            self.assertEqual([round(pos[0],4),round(pos[1],4)],[37.4205,-122.2046])
     unittest.main()
