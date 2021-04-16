@@ -15,7 +15,9 @@ can be obtained using the template
 
 where <LAT>,<LON> is the integer portion only of the position.  The files are
 delivered at 1 arcsecond resolution, and thus are 3600x3600 pixels with
-elevations presented in meters.  
+elevations presented in meters.
+
+TODO: this script needs to upload the images to the S3 bucket for gridlabd.
 """
 import os, sys
 import requests
