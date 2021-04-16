@@ -22,7 +22,7 @@ import pandas
 import json
 import geopandas as gpd
 from shapely.geometry import Point
-from geopandas.tools import geocode
+from geopandas.tools import geocode, reverse_geocode
 
 DATASET = "address"
 
@@ -42,11 +42,20 @@ def get_position(addr):
         tuple   The position given as a (lat,lon) tuple
     """
     try:
-        pos = geocode([addr],provider=default_config["provider"],user_agent=default_config["user_agent"])
-        if len(pos)==0:
-            raise Exception("address not found")
-        pt = pos.values[0][0]
-        return [pt.y,pt.x]
+        pos = list(map(lambda x:float(x),addr.split(","))) # reverse geocode
+    except:
+        pos = None
+    try:
+        if not pos:
+            pos = geocode([addr],provider=default_config["provider"],user_agent=default_config["user_agent"])
+            if len(pos)==0:
+                raise Exception("address not found")
+            pt = pos.values[0][0]
+            return [pt.y,pt.x]
+        else:
+            pt = Point(pos[1],pos[0])
+            result = reverse_geocode(pt,provider=default_config["provider"],user_agent=default_config["user_agent"])
+            return result["address"][0]
     except Exception as err:
         geodata.error(f"[{addr}]: {err}")
         return None
@@ -74,6 +83,10 @@ def get_location(args):
     for arg in args:
         arg = arg.replace("+"," ")
         pos = get_position(arg)
+        if type(pos) is str: # reverse
+            tmp = pos
+            pos = [float(arg[0]),float(arg[1])]
+            arg = tmp
         if pos:
             if pos0 and type(resolution) is float:
                 segs = d/resolution
@@ -202,4 +215,7 @@ if __name__ == '__main__':
         def test_address(self):
             pos = get_position("2575 Sand Hill Rd., Menlo Park, CA 94025, USA")
             self.assertEqual([round(pos[0],4),round(pos[1],4)],[37.4205,-122.2046])
+        def test_reverse(self):
+            pos = get_position("37.4205,-122.2046")
+            self.assertEqual(pos,"Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States")
     unittest.main()

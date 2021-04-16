@@ -5,3 +5,9 @@
 #if ${RES} != ${ANS}
     #error "geodata -D address location ${ADDR}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
 #endif
+
+#define RES=${SHELL gridlabd geodata -D address location $ANS -f POS}
+#define ANS=Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States
+#if ${RES} != ${ANS}
+    #error "geodata -D address location ${ADDR}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
+#endif
