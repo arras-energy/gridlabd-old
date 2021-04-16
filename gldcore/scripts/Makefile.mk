@@ -27,5 +27,5 @@ dist_pkgdata_DATA += gldcore/scripts/geodata_powerline.py
 dist_pkgdata_DATA += gldcore/scripts/geodata_powerline.cfg
 dist_pkgdata_DATA += gldcore/scripts/geodata_address.py
 dist_pkgdata_DATA += gldcore/scripts/geodata_address.cfg
-
-
+dist_pkgdata_DATA += gldcore/scripts/geodata_utility.py
+dist_pkgdata_DATA += gldcore/scripts/geodata_utility.cfg
