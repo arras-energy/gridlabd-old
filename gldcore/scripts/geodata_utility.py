@@ -7,13 +7,12 @@ https://hifld-geoplatform.opendata.arcgis.com/datasets/electric-retail-service-t
 to details.
 
 The 'location' directive accepts a list of positions and obtains utility data at
-those positions.  If resolution is specified, then the result is generated in
-increments of that distance.
+those positions.
 
 The 'path' function accepts a list of CSV files containing latitude and
 longtitude coordinates and obtain utility information at those positions.
-If resolution is specified, then the result is generated in increments of that
-distance.
+
+Note, the utility package does not support the resolution option.
 """
 
 import os, sys
@@ -23,6 +22,7 @@ import geopandas
 import fiona
 import pickle
 import numpy as np
+from shapely.geometry import Point
 
 DATASET = "utility"
 
@@ -81,7 +81,9 @@ def get_geometry(id):
     return geom["geometry"][id]
 
 def get_utility(pos):
-    return TODO
+    kml = read_kml()
+    result = list(kml[kml.contains(Point(pos[1],pos[0]))==True].index)
+    return result
 
 def get_distance(pos1, pos2):
     """Compute haversine distance between two locations
@@ -130,34 +132,57 @@ def get_location(args):
     """
     if not args:
         error(f"{DATASET}.get_location({args}) missing one or more position arguments",geodata.E_SYNTAX)
-    info = {"latitude":[],"longitude":[],"utility":[]}
+    info = {"latitude":[],"longitude":[],DATASET:[]}
     resolution = geodata.get_resolution()
     pos0 = None
+    keys = read_csv().keys()
+    for key in keys:
+        info[key] = []
     for arg in args:
         pos = get_position(arg)
         id = get_utility(pos)
-        data = get_information(id)
+        if len(id) == 0:
+            data = {}
+        else:
+            if len(id) > 1:
+                warning(f"position {pos} yielded more than one result, using first only")
+            data = get_information(id[0])
         if pos0:
             d = get_distance(pos0,pos)
         else:
             d = 0
-        if type(resolution) is float:
-            segs = d/resolution
-            if segs > 1:
-                lat = info["latitude"][-1]
-                lon = info["longitude"][-1]
-                dlat = (pos0[0]-pos[0])/segs
-                dlon = (pos0[1]-pos[1])/segs
-                for n in range(int(segs)):
-                    lat += dlat
-                    lon += dlon
-                    info["latitude"].append(lat)
-                    info["longitude"].append(lon)
-                    info.update(data)
+        # if type(resolution) is float:
+        #     segs = d/resolution
+        #     if segs > 1:
+        #         lat = info["latitude"][-1]
+        #         lon = info["longitude"][-1]
+        #         dlat = (pos0[0]-pos[0])/segs
+        #         dlon = (pos0[1]-pos[1])/segs
+        #         for n in range(int(segs)):
+        #             lat += dlat
+        #             lon += dlon
+        #             info["latitude"].append(lat)
+        #             info["longitude"].append(lon)
+        #             for key in keys:
+        #                 if key in data.keys():
+        #                     info[key].append(data[key])
+        #                 else:
+        #                     info[key].append("")
+        #             if "NAME" in data.keys():
+        #                 info[DATASET].append(data["NAME"])
+        #             else:
+        #                 info[DATASET].append("")
         info["latitude"].append(pos[0])
         info["longitude"].append(pos[1])
-        info["utility"] = data["NAME"]
-        info.update(data)
+        for key in keys:
+            if key in data.keys():
+                info[key].append(data[key])
+            else:
+                info[key].append("")
+        if "NAME" in data.keys():
+            info[DATASET].append(data["NAME"])
+        else:
+            info[DATASET].append("")
         pos0 = pos
     result = pandas.DataFrame(info)
     result["id"] = geodata.distance(list(zip(info["latitude"],info["longitude"])))
