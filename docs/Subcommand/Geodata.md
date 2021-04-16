@@ -106,39 +106,50 @@ comma-delimited list.
 
 ## `distance`
 
-The distance dataset provides simple distance calculations using the haversine
+The `distance` dataset provides simple distance calculations using the haversine
 formule for `(latitude,longitude)` tuples.
 
 ## `elevation`
 
-The elevation dataset provides 1 arcsecond resolution ground elevation data
+The `elevation` dataset provides 1 arcsecond resolution ground elevation data
 from the USGS. The default data source is located at `http://geodata.gridlabd.us/elevation/10m`.
+
+## `address`
+
+The `address` dataset provides address resolution for the United States. The
+data is obtained from Nominatim using the geocode library.
+
+## `utility`
+
+The `utility` dataset delivers utility service territories and information
+provided by ArcGis for the Homeland Infrastructure Foundation-Level Data
+(HIFLD) website.
 
 ## `vegetation`
 
-The vegetation dataset provides 7 layers of data about vegetation.  Available
+The `vegetation` dataset provides 7 layers of data about vegetation.  Available
 layers are "canopy_cover", "canopy_height", "base_height", "bulk_density",
 "layer_count", "fuel_density", and "surface_fuels".. You must subscribe to the
 Forest Observatory service to use this dataset.
 
 ## `weather`
 
-The weather dataset provides historical, current, and short term forecasts of
+The `weather` dataset provides historical, current, and short term forecasts of
 dry bulk, wet bulb, solar, and wind data from NOAA.
 
 ## `census`
 
-The census dataset provides economic and population data from the US Census
+The `census` dataset provides economic and population data from the US Census
 Bureau.
 
 ## `building`
 
-The building dataset provides build environment data from NREL. Available
+The `building` dataset provides build environment data from NREL. Available
 layers are "building_type" and "building_size".
 
 ## `transportation`
 
-The transportation dataset provides mobility data from traffic data services.
+The `transportation` dataset provides mobility data from traffic data services.
 You must subscribe to the TrafficView service to use this dataset.
 
 # Examples
