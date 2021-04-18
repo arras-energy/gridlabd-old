@@ -360,7 +360,7 @@ if test -f "${pkgdatadir}/gridlabd.rc"; then :
 fi
 
 if test -x "${bindir}/gridlabd-$1"; then :
-  "${bindir}/gridlabd"-$@
+  "${bindir}/gridlabd"-"$@"
 else
   "$bindir/gridlabd.bin" "$@"
 fi
