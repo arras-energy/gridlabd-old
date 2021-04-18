@@ -180,6 +180,7 @@ import math, numpy
 import pandas as pd
 
 NAME = "geodata"
+GEODATA = sys.modules[__name__]
 DIRECTIVES = ["config","location","path"]
 VERBOSE = False
 DEBUG = False
@@ -236,6 +237,10 @@ def output(msg):
     if not QUIET:
         print(msg,file=sys.stdout)
 
+def debug(msg):
+    if DEBUG:
+        print(f"DEBUG [{NAME}]: {msg}", file=sys.stderr)
+
 python_help = help
 def help(dataset=None):
     if dataset:
@@ -256,11 +261,57 @@ def ids(data):
     lons = data["longitude"]
     return distance([list(a) for a in zip(lats,lons)])
 
+def get_data(args):
+    data = pd.DataFrame({DATASET:args})
+    debug(f"get_data(args={args}) -->\n{data}")
+    return data
+def get_options(args):
+    options = MODULE.default_options
+    for arg in args:
+        if arg[0:1] == "--" and len(arg) > 2 and arg[2:] in options.keys():
+            spec = arg[2:]
+            params = spec.split("=")
+            if len(params) == 1:
+                name = params[0]
+                value = True
+            else:
+                name = params[0]
+                value = params[1]
+            options[name] = value
+    debug(f"get_options(args={args}) --> {options}")
+    return options
+
+def get_configuration(args):
+    config = CONFIGDATA
+    config.update(MODULE.default_config)
+    for arg in args:
+        if arg[0:1] == "--" and len(arg) > 2 and arg[2:] in config.keys():
+            spec = arg[2:]
+            params = spec.split("=")
+            if len(params) == 1:
+                name = params[0]
+                value = True
+            else:
+                name = params[0]
+                value = params[1]
+            config[name] = value
+    debug(f"get_configuration(args={args}) --> {config}")
+    return config
+
 def location(args):
-    result = MODULE.get_location(args)
-    if "id" not in result.columns:
-        result["id"] = ids(result)
-    return result.set_index("id"), OUTPUT
+    if hasattr(MODULE,"version") and MODULE.version == 1:
+        data = get_data(args)
+        options = get_options(args)
+        config = get_configuration(args)
+        result = MODULE.apply(data,options,config)
+    else:
+        warning(f"using legacy implementation of {DATASET} package")
+        result = MODULE.get_location(args)
+        if "id" not in result.columns:
+            result["id"] = ids(result)
+        result = result.set_index("id")
+    debug(f"location(args={args}) --> {OUTPUT}\n{result}")
+    return result, OUTPUT
 
 def path(args):
     if len(args) == 0:
@@ -409,7 +460,17 @@ def main(argc,argv):
         elif FORMAT.startswith("FIELD:"):
             specs = FORMAT.split(":")
             try:
-                print(" ".join(list(map(lambda x:str(x),data[specs[1]].to_list()))))
+                columns = []
+                def quote(x):
+                    x = str(x)
+                    if "," in x:
+                        return f"\"{x}\""
+                    else:
+                        return x
+                for field in specs[1].split(","):
+                    columns.append(list(map(lambda x:quote(x),data[field].to_list())))
+                for row in numpy.array(columns).transpose():
+                    print(",".join(row))
             except:
                 error(f"format 'FIELD.{specs[1]}' is invalid or field not found")
         else:
@@ -429,7 +490,8 @@ def load_dataset(args):
     MODULE = importlib.import_module(f"geodata_{DATASET}")
     if not MODULE:
         error(f"unable to import module geodata_{DATASET} from {location}",E_NOTFOUND)
-    MODULE.set_context(sys.modules[__name__])
+    if hasattr(MODULE,"set_context"):
+        MODULE.set_context(sys.modules[__name__])
     return MODULE
 
 def load_config(context,file):

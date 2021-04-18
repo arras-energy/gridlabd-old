@@ -1,0 +1,25 @@
+clock {
+    starttime "2020-01-01 00:00:00";
+    stoptime "2021-01-01 00:00:00";
+}
+module residential;
+class house
+{
+    string address;
+}
+
+object house
+{
+    address "2575 Sand Hill Rd., Menlo Park, CA 94025";
+}
+
+// write house.address to csv
+#write /tmp/write.csv house:latitude,longitude,address
+#write /tmp/write.json house:latitude,longitude,address
+#write /tmp/write.glm house:latitude,longitude,address
+
+// get lat,lon from address and write to csv
+#geodata -D address path /tmp/write.csv >/tmp/read.csv
+
+// read csv as modify
+#read /tmp/read.csv latitude,longitude

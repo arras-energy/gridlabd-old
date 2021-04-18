@@ -48,16 +48,8 @@ bin_SCRIPTS =
 dist_doc_DATA =
 
 # required modules
-include third_party/superLU_MT/Makefile_combined.mk
-include third_party/jsonCpp/Makefile.mk
-include gldcore/link/engine/Makefile.mk
-include gldcore/link/matlab/Makefile.mk
-include gldcore/link/python/Makefile.mk
+include third_party/Makefile.mk
 include gldcore/Makefile.mk
-include gldcore/rt/Makefile.mk
-include gldcore/converters/Makefile.mk
-include gldcore/solvers/Makefile.mk
-include gldcore/scripts/Makefile.mk
 include python_extras/Makefile.mk
 include cloud/Makefile.mk
 
