@@ -1192,7 +1192,7 @@ int GldLoader::dashed_name(PARSER, char *result, int size)
 	START;
 	/* names cannot start with a digit */
 	if (isdigit(*_p)) return 0;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='-') COPY(result);
+	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p=='-' || *_p==':' ) COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -1202,7 +1202,7 @@ int GldLoader::name(PARSER, char *result, int size)
 	START;
 	/* names cannot start with a digit */
 	if (isdigit(*_p)) return 0;
-	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_') COPY(result);
+	while ( (size>1 && isalpha(*_p)) || isdigit(*_p) || *_p=='_' || *_p==':' ) COPY(result);
 	result[_n]='\0';
 	DONE;
 }
@@ -6185,7 +6185,7 @@ int GldLoader::modify_directive(PARSER)
 	if ( WHITE,LITERAL("modify") )
 	{
 		char oname[64], pname[64], ovalue[1024];
-		if ( (WHITE,TERM(name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
+		if ( (WHITE,TERM(name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
 		{
 			OBJECT *obj = object_find_name(oname);
 			if ( obj )
@@ -6977,6 +6977,207 @@ void* GldLoader::start_process(const char *cmd)
 		first = false;
 	}
 	return threadlist;
+}
+
+bool found_in_list(const char *tag, const char* taglist, char delim=',')
+{
+	if ( taglist == NULL || strcmp(taglist,"*") == 0 )
+	{
+		return true; // null taglist implies all tags match
+	}
+	if ( tag == NULL )
+	{
+		return false; // tag cannot match anything but null or "*" taglist
+	}
+	const char *b = strstr(taglist,tag); // begin of match
+	const char *e = b + strlen(tag); // end of match
+	if ( b == NULL )
+	{
+		return false; // not found in taglist
+	}
+	if ( ( b == taglist || b[-1] == delim ) && ( e[0] == delim || e[0] == '\0' ) )
+	{
+		return true; // good match
+	}
+	return e>b && e[-1] == '*'; // no match unless * used
+}
+
+int writefile(char *fname, char *specs)
+{
+	// identify filetype based on extension
+	enum e_filetype {NONE, CSV, JSON, GLM} filetype = NONE;
+	char *ext = strrchr(fname,'.');
+	struct s_map {
+		const char *ext;
+		enum e_filetype type;
+	} map[] = {
+		{".csv",CSV},
+		{".json",JSON},
+		{".glm",GLM},
+	};
+	for ( struct s_map *m = map ; m < map + sizeof(map)/sizeof(map[0]) ; m++ )
+	{
+		if ( ext && strcmp(ext,m->ext) == 0 )
+		{
+			filetype = m->type;
+			break;
+		}
+	}
+	if ( filetype == NONE )
+	{
+		output_error("writefile(char *fname='%s', char *specs='%s'): unknown filetype for extension '%s'",fname,specs,ext);
+	}
+
+
+	// separate class and properties	
+	char *classes = NULL;
+	char *properties = specs;
+	char *colon = strchr(specs,':');
+	if ( colon != NULL )
+	{
+		*colon = '\0';
+		classes = specs;
+		properties = colon+1;
+	}
+
+	// open fname for write
+	FILE *fp = fopen(fname,"w");
+	if ( fp == NULL )
+	{
+		output_error("writefile(char *fname='%s', char *specs='%s'): unable to open file for write",fname,specs);
+		return -1;
+	}
+	else 
+	{
+		switch (filetype)
+		{
+		case CSV:
+			fprintf(fp,"id,class,%s\n",properties);
+			break;
+		case JSON:
+			fprintf(fp,"[\n");
+			break;
+		case GLM:
+			fprintf(fp,"// writefile(char *fname='%s', char *specs='%s')\n// modelname %s\n",fname,specs,global_modelname);
+			break;
+		default:
+			break;
+		}
+	}
+
+	// construct property list
+	const size_t maxprops = 256;
+	char *proplist[maxprops];
+	char *last = NULL, *next = NULL;
+	size_t n_props = 0;
+	while ( (next=strtok_r(next?NULL:properties,",",&last)) != NULL && n_props < maxprops )
+	{
+		proplist[n_props++] = next;
+	}
+	if ( n_props == maxprops )
+	{
+		output_warning("writefile(char *fname='%s', char *specs='%s'): only %d properties can be written for class '%s'",fname,specs,maxprops,classes);
+	}
+
+	// process objects in model
+	int found = 0;
+	for ( OBJECT *obj = object_get_first() ; obj != NULL ; obj = object_get_next(obj) )
+	{
+		if ( found_in_list(obj->oclass->name,classes) )
+		{
+			switch (filetype)
+			{
+			case CSV:
+				fprintf(fp,"%d,\"%s\"",obj->id,obj->oclass->name);
+				break;
+			case JSON:
+				if ( obj->name == NULL )
+				{
+					fprintf(fp,"\t{\n\t\t\"name\" : \"%s:%d\"",obj->oclass->name,obj->id);
+					fprintf(fp,",\n\t\t\"class\" : \"%s\"",obj->oclass->name);
+					fprintf(fp,",\n\t\t\"id\" : \"%d\"",obj->id);
+				}
+				else
+				{
+					fprintf(fp,"\t{\n\t\t\"name\" : \"%s\"",obj->name);
+					fprintf(fp,",\n\t\t\"class\" : \"%s\"",obj->oclass->name);
+					fprintf(fp,",\n\t\t\"id\" : \"%d\"",obj->id);
+				}
+				break;
+			case GLM:
+				break;
+			default:
+				break;
+			}
+			for ( size_t n = 0 ; n < n_props ; n++ )
+			{
+				char value[1024] = "";
+				if ( object_get_value_by_name(obj,proplist[n],value,sizeof(value)-1) < 0 )
+				{
+					output_warning("writefile(char *fname='%s', char *specs='%s'): unable to get value for property '%s' object '%s:%d'",fname,specs,proplist[n],obj->oclass->name,obj->id);
+				}
+				const char *quote = strchr(value,',') != NULL ? "\"" : "";
+				switch (filetype)
+				{
+				case CSV:
+					fprintf(fp,",%s%s%s",quote,value,quote);
+					break;
+				case JSON:
+					fprintf(fp,",\n\t\t\"%s\" : \"%s\"",proplist[n],value);
+					break;
+				case GLM:
+					if ( obj->name == NULL )
+					{
+						fprintf(fp,"modify %s:%d.%s \"%s\";\n",obj->oclass->name,obj->id,proplist[n],value);
+					}
+					else
+					{
+						fprintf(fp,"modify %s.%s \"%s\";\n",obj->name,proplist[n],value);
+					}
+					break;
+				default:
+					break;
+				}
+			}
+			switch (filetype)
+			{
+			case CSV:
+				fprintf(fp,"\n");
+				break;
+			case JSON:
+				fprintf(fp,"\n\t}\n");
+				break;
+			case GLM:
+				break;
+			default:
+				break;
+			}
+			found++;
+		}
+	}
+	switch (filetype)
+	{
+	case CSV:
+		break;
+	case JSON:
+		fprintf(fp,"]\n");
+		break;
+	case GLM:
+		break;
+	default:
+		break;
+	}
+	if ( found == 0 )
+	{
+		output_warning("writefile(char *fname='%s', char *specs='%s'): no matches found for class '%s'",fname,specs,classes);
+	}
+	return found;
+}
+
+int readfile(char *fname, char *specs, char* line, int size)
+{
+	output_warning("readfile(fname='%s',specs='%s',line='%s',size=%d): not implemented yet",fname,specs,line,size);
+	return -1;
 }
 
 /** @return TRUE/SUCCESS for a successful macro read, FALSE/FAILED on parse error (which halts the loader) */
@@ -7853,6 +8054,39 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		else
 		{
 			syntax_error(filename,linenum,"for macro syntax error");
+			return FALSE;
+		}
+	}
+	else if ( strncmp(line, "#write", 6) == 0 )
+	{
+		char fname[1024], specs[1024];
+		if ( sscanf(line+6,"%s %s",fname,specs) == 2)
+		{
+			if ( writefile(fname,specs) < 0 )
+			{
+				syntax_error(filename,linenum,"write macro failed");
+				return FALSE;
+			}
+			strcpy(line,"\n");
+			return TRUE;
+		}
+		else
+		{
+			syntax_error(filename,linenum,"write macro syntax error");
+			return FALSE;
+		}
+	}
+	else if ( strncmp(line, "#read", 5) == 0 )
+	{
+		char fname[1024], specs[1024];
+		if ( sscanf(line+5,"%s %s",fname,specs) == 2)
+		{
+			strcpy(line,"\n");
+			return readfile(fname,specs,line,size-1) >= 0 ? TRUE : FALSE;
+		}
+		else
+		{
+			syntax_error(filename,linenum,"read macro syntax error");
 			return FALSE;
 		}
 	}
