@@ -142,33 +142,36 @@ selected as follows:
 
 DEVELOPER API
 
-All directives must be implemented as modules that provide three methods.
+Packages must implement the following (TODO indicates where your code goes)
 
-    get_path(args): This call is used to acquire data from CSV files listed in args.
-    The CSV files must contain columns name "latitude" and "longitude".  The
-    corresponding dataset must be added and returned as a pandas dataframe.
+    version = 1
 
-    get_location(args): This call is used to acquires to acquired data for the points
-    listed in args.  The corresponding dataset must be added and returned as a pandas
-    dataframe.
+    default_options = {
+        TODO,
+    }
 
-    set_context(module): This call is used to give the dataset module access to the
-    geodata module implementation.  This is necessary to provide the mechanisms for
-    controlling options, message delivery, and access to configuration files.
+    default_config = {
+        TODO,
+    }
 
-The configuration file is always named "DATASET.cfg". The configuration
-files are loaded in the following order, if found: system, user, local.
+    def apply(data, options=default_options, config=default_config):
+        result = TODO
+        return pandas.DataFrame(result)
 
-    System configurations are stored by default in the gridlabd share folder,
-    which is normally "/usr/local/share/gridlabd", and is always specified by
-    the GLD_ETC environment variable when it is set by the gridlabd script.
-
-    User configurations are stored by default in the "$HOME/.gridlabd/geodata"
-    folder.
-
-    Local configurations are stored by default in the current folder.
-
-Dataset validation is performed using the "unittest" module.
+    if __name__ == '__main__':
+        if len(sys.argv) == 1 or sys.argv[1] in ["-h","--help","help"]:
+            print(f"Syntax: {sys.argv[0].split('/')[-1]} [unittest|makeconfig]")
+        elif sys.argv[1] in ["unittest"]:
+            import unittest
+            class TestAddress(unittest.TestCase):
+                def test_1(self):
+                    TODO
+            unittest.main()
+        elif sys.argv[1] in ["makeconfig"]:
+            with open(sys.argv[0].replace(".py",".cfg"),"w") as fh: 
+                json.dump(default_config,fh,indent=4)
+        else:
+            raise Exception(f"'{sys.argv[0]}' is an invalid command option")
 
 See geodata_distance.py for a simple example.
 """
