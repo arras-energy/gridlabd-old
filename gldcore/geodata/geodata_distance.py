@@ -1,17 +1,18 @@
 """GridLAB-D Geodata Distance Package
 
-The distance package computes the haversine distance between points on a sphere where
-the points are given in latitude,longitude form, with position east and positive north
-orientation.
+The distance package computes the shortest distance between consecutive
+positions.  
 
-The 'location' directive accepts a list of positions and computes the distances
-between those positions.  If resolution is specified, then the result is generated
-in increments of that distance.
+OPTIONS
 
-The 'path' function accepts a list of CSV files containing latitude and
-longtitude coordinates and computes the distances between consecutive positions.
-If resolution is specified, then the result is generated in increments of that
-distance.
+    "units=<unit>" specifies the units in which to compute the distance.
+    Valid units are "meters", "m", "kilometers", "km", "miles", "mi", 
+    "yards", "yd", "ft", or "feet". The default is "meters".
+
+CONFIGURATION
+
+    "precision=<int>" specifies the precision with which to measure the
+    distance in the units specified.  The default is 0.
 """
 
 version = 1 # specify API version
@@ -72,7 +73,7 @@ def apply(data, options=default_options, config=default_config):
         pandas.DataFrame
 
             The first (and only) return value is the `data` data frame with either the
-            `address` or `latitude,longitude` fields updated/added.
+            `distance` fields updated/added for consecutive fields.
 
     """
 
