@@ -8,7 +8,7 @@ on:
 jobs:
 
   strategy:
-    max-parallel: 1
+    max-parallel: 1 # forces jobs to run sequentially
 
   build:
     runs-on: ubuntu-latest
