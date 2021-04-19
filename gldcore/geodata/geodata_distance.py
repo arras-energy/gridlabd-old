@@ -49,7 +49,7 @@ units = {
 # Implementation of address package
 #
 def apply(data, options=default_options, config=default_config):
-    """Perform conversion between latitude,longitude and address
+    """Perform distance calculation at locations in data
 
     ARGUMENTS:
 
