@@ -48,7 +48,7 @@ def apply(data, options=default_options, config=default_config):
         data (pandas.DataFrame)
 
             The data frame must contain `latitude` and `longitude` fields at which
-            elevations will be computed.  
+            elevations will be computed.
 
         options (dict)
 
@@ -89,7 +89,7 @@ def apply(data, options=default_options, config=default_config):
         data["elevation"] = (numpy.array(elev) * units[options["units"]]).round(config["precision"])
     except:
         raise Exception(f"unit '{options['units']}' or is not valid")
-    return data 
+    return data
 
 #
 # Elevation data processing
@@ -110,10 +110,8 @@ def get_elevation(args):
                         and elevations.
     """
     pos = get_position(args[0])
-    row,col = get_rowcol((pos[0],pos[1]))
-    lats = [pos[0]]
-    lons = [pos[1]]
-    n,e = get_data(pos)
+    n,e = get_imagedata(pos)
+    row,col = get_rowcol(pos)
     elev = [e[row][col]]
     return evel
 
@@ -213,32 +211,16 @@ def get_imagedata(pos):
 #
 if __name__ == '__main__':
 
-    if len(sys.argv) == 1 or sys.argv[1] in ["-h","--help","help"]:
-        
-        print(f"Syntax: {sys.argv[0].split('/')[-1]} [unittest|makeconfig]")
+    import unittest
 
-    elif sys.argv[1] in ["unittest"]:
+    class TestDistance(unittest.TestCase):
 
-        import unittest
+        def test_distance(self):
+            test = DataFrame({
+                "latitude" : [37.4205,37.5205],
+                "longitude" : [-122.2046,-122.3046],
+                })
+            result = apply(test)
+            self.assertEqual(result["distance"][1],12604.0)
 
-        class TestDistance(unittest.TestCase):
-
-            def test_distance(self):
-                test = DataFrame({
-                    "latitude" : [37.4205,37.5205],
-                    "longitude" : [-122.2046,-122.3046],
-                    })
-                result = apply(test)
-                self.assertEqual(result["distance"][1],12604.0)
-
-        unittest.main()
-
-    elif sys.argv[1] in ["makeconfig"]:
-
-        with open(sys.argv[0].replace(".py",".cfg"),"w") as fh: 
-            json.dump(default_config,fh,indent=4)
-
-    else:
-
-        raise Exception(f"'{sys.argv[0]}' is an invalid command option")
-
+    unittest.main()

@@ -7052,7 +7052,7 @@ int writefile(char *fname, char *specs)
 		switch (filetype)
 		{
 		case CSV:
-			fprintf(fp,"id,class,%s\n",properties);
+			fprintf(fp,"id,class,name,%s\n",properties);
 			break;
 		case JSON:
 			fprintf(fp,"[\n");

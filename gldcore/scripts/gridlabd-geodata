@@ -43,7 +43,7 @@ The following directives are available:
 
     The append directive generates a new column with data from the specified
     dataset. An error occurs if a column exists.
-  
+
   update [ARGUMENTS]
 
     The update directive updates an existing column with data from the specified
@@ -78,16 +78,13 @@ All directives support the following arguments
 
 KEYS
 
-The [-k|--key KEY] options changes how row keys are generated.  
-
-  [-k|--key none]
-
-    No keys are generated and the data is not indexed.  There is no guarantee
-    that the rows will be output in the same order in which they were input.
+The [-k|--key KEY] options changes how row keys are generated. The default is
+no key, in which case there is no guarantee that the rows will be output in the
+same order in which they were input.
 
   [-k|--key location]
 
-    The location key computes geohash codes. Rows are indexed on the key named 
+    The location key computes geohash codes. Rows are indexed on the key named
     "location".
 
   [-k|--key position]
@@ -134,6 +131,10 @@ comma-delimited list.
 
     The transportation dataset provides mobility data from traffic data services.
     You must subscribe to the TrafficView service to use this dataset.
+
+  utility
+
+    The utility data provides data about the utility servicing the locations.
 
   vegetation
 
@@ -188,7 +189,7 @@ Packages must implement the following (TODO indicates where your code goes)
                     TODO
             unittest.main()
         elif sys.argv[1] in ["makeconfig"]:
-            with open(sys.argv[0].replace(".py",".cfg"),"w") as fh: 
+            with open(sys.argv[0].replace(".py",".cfg"),"w") as fh:
                 json.dump(default_config,fh,indent=4)
         else:
             raise Exception(f"'{sys.argv[0]}' is an invalid command option")
@@ -231,6 +232,7 @@ CONFIGDIR = {
 }
 IDPRECISION = 3
 GEOPRECISION = 4
+KEYINDEX = None
 
 E_OK = 0
 E_SYNTAX = 1
@@ -284,6 +286,9 @@ def ids(data):
     lons = data["longitude"]
     return distance([list(a) for a in zip(lats,lons)])
 
+#
+# GEOHASH support
+#
 from math import log10
 
 #  Note: the alphabet in geohash differs from the common base32
@@ -373,6 +378,7 @@ def encode(latitude, longitude, precision=12):
             bit = 0
             ch = 0
     return ''.join(geohash)
+
 def get_latlon(pos):
     try:
         latlon = pos.split(",")
@@ -392,6 +398,23 @@ def set_location(data):
         data.set_index("location",inplace=True)
     except:
         pass
+    return data
+
+def set_position(data):
+    raise Exception("position index not implemented yet")
+
+def set_index(data):
+    debug(f"set_index(data={data})")
+    if data.index.name == KEYINDEX:
+        return data
+    if KEYINDEX == "location":
+        set_location(data)
+    elif KEYINDEX == "position":
+        set_position(data)
+    elif not type(KEYINDEX) is type(None):
+        data.set_index(KEYINDEX,inplace=True)
+    else:
+        data.reset_index(inplace=True)
     return data
 
 def get_args(args):
@@ -422,7 +445,8 @@ def get_args(args):
         else:
             data.append(pd.DataFrame({DATASET:[arg]}))
     data = pd.concat(data)
-    set_location(data)
+    set_index(data)
+    debug(f"get_args(args={args}) -->\n{data}\noptions = {options}\nconfig = {config}")
     return data,options,config
 
 def merge(args):
@@ -433,7 +457,7 @@ def merge(args):
     except Exception as err:
         error(err)
         result = None
-    set_location(result)
+    set_index(data)
     debug(f"  --> {OUTPUT}\n{result}")
     return result, OUTPUT
 
@@ -482,30 +506,7 @@ def main(argc,argv):
         warning("package folder '{PKGDATA}' not found, using default /usr/local/share/gridlabd")
         PKGDATA = "/usr/local/share/gridlabd"
     while n < len(argv):
-        if argv[n] in ["-h","--help"]:
-            help()
-            exit(E_OK)
-        elif argv[n] in ["-d","--debug"]:
-            global DEBUG
-            DEBUG = True
-            verbose("debug output enabled")
-        elif argv[n] in ["-w","--warning"]:
-            global WARNING
-            WARNING = False
-            verbose("warning output disable")
-        elif argv[n] in ["-v","--verbose"]:
-            global VERBOSE
-            VERBOSE = True
-            verbose("verbose output enabled")
-        elif argv[n] in ["-q","--quiet"]:
-            global QUIET
-            QUIET = True
-            verbose("quiet output enabled")
-        elif argv[n] in ["-s","--silent"]:
-            global SILENT
-            SILENT = True
-            verbose("silent output enabled")
-        elif argv[n] in ["-c","-cache"]:
+        if argv[n] in ["-c","-cache"]:
             global CACHE
             n += 1
             CACHE = argv[n]
@@ -521,25 +522,23 @@ def main(argc,argv):
                 warning(f"config file '{CFGFILE}' does not exist")
             else:
                 verbose(f"using GLM file {GLMFILE}")
+        elif argv[n] in ["-d","--debug"]:
+            global DEBUG
+            DEBUG = True
+            verbose("debug output enabled")
         elif argv[n] in ["-D","--dataset"]:
             n += 1
             DATASET = argv[n]
             load_dataset([DATASET])
-        elif argv[n] in ["-T","--threadcount"]:
-            global MAXTHREADS
+        elif argv[n] in ["-f","--format"]:
             n += 1
-            MAXTHREADS = int(argv[n])
-            verbose(f"maximum thread count {MAXTHREADS}")
-        elif argv[n] in ["-r","--resolution"]:
-            global RESOLUTION
-            n += 1
-            RESOLUTION = float(argv[n])
-            verbose(f"resolution is {RESOLUTION} meters")
-        elif argv[n] in ["-o","--output"]:
-            global OUTPUT
-            n += 1
-            OUTPUT = argv[n]
-            verbose(f"output is set to '{OUTPUT}'")
+            if not argv[n] in ["CSV","RAW","JSON","POS"] and not argv[n].startswith("FIELD:"):
+                error(f"format '{argv[n]}' is not recognized",E_SYNTAX)
+            FORMAT = argv[n]
+            verbose(f"output format is set to '{FORMAT}'")
+        elif argv[n] in ["-h","--help"]:
+            help()
+            exit(E_OK)
         elif argv[n] in ["-j","--join"]:
             global PATHJOIN
             n += 1
@@ -547,12 +546,37 @@ def main(argc,argv):
                 error(f"path join '{argv[n]}' is not valid",E_SYNTAX)
             PATHJOIN = argv[n]
             verbose(f"path join is set to '{PATHJOIN}'")
-        elif argv[n] in ["-f","--format"]:
+        elif argv[n] in ["-k","--key"]:
+            global KEYINDEX
             n += 1
-            if not argv[n] in ["CSV","RAW","JSON","POS"] and not argv[n].startswith("FIELD:"):
-                error(f"format '{argv[n]}' is not recognized",E_SYNTAX)
-            FORMAT = argv[n]
-            verbose(f"output format is set to '{FORMAT}'")
+            KEYINDEX = argv[n]
+            verbose(f"key index is set to '{KEYINDEX}'")
+        elif argv[n] in ["-o","--output"]:
+            global OUTPUT
+            n += 1
+            OUTPUT = argv[n]
+            verbose(f"output is set to '{OUTPUT}'")
+        elif argv[n] in ["-q","--quiet"]:
+            global QUIET
+            QUIET = True
+            verbose("quiet output enabled")
+        elif argv[n] in ["-s","--silent"]:
+            global SILENT
+            SILENT = True
+            verbose("silent output enabled")
+        elif argv[n] in ["-T","--threadcount"]:
+            global MAXTHREADS
+            n += 1
+            MAXTHREADS = int(argv[n])
+            verbose(f"maximum thread count {MAXTHREADS}")
+        elif argv[n] in ["-v","--verbose"]:
+            global VERBOSE
+            VERBOSE = True
+            verbose("verbose output enabled")
+        elif argv[n] in ["-w","--warning"]:
+            global WARNING
+            WARNING = False
+            verbose("warning output disable")
         else:
             DIRECTIVE.append(argv[n])
         n += 1

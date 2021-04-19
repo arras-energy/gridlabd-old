@@ -1,12 +1,12 @@
 """GridLAB-D Geodata Distance Package
 
 The distance package computes the shortest distance between consecutive
-positions.  
+positions.
 
 OPTIONS
 
     "units=<unit>" specifies the units in which to compute the distance.
-    Valid units are "meters", "m", "kilometers", "km", "miles", "mi", 
+    Valid units are "meters", "m", "kilometers", "km", "miles", "mi",
     "yards", "yd", "ft", or "feet". The default is "meters".
 
 CONFIGURATION
@@ -56,12 +56,12 @@ def apply(data, options=default_options, config=default_config):
         data (pandas.DataFrame)
 
             The data frame must contain `latitude` and `longitude` fields between which
-            distances will be computed.  
+            distances will be computed.
 
         options (dict)
 
             "units" specifies the units in which distances are measured.  Valid units
-            are ["meters","m"], ["kilometers","km"], ["feet","ft"], ["yards","yd", 
+            are ["meters","m"], ["kilometers","km"], ["feet","ft"], ["yards","yd",
             and ["miles","mi"].
 
         config (dict)
@@ -101,38 +101,23 @@ def apply(data, options=default_options, config=default_config):
             data["distance"] = (numpy.array(dist) * units[options["units"]]).round(config["precision"])
         except:
             raise Exception(f"unit '{options['units']}' is not valid")
-    return data 
+    return data
 
 #
 # Perform validation tests
 #
 if __name__ == '__main__':
 
-    if len(sys.argv) == 1 or sys.argv[1] in ["-h","--help","help"]:
-        
-        print(f"Syntax: {sys.argv[0].split('/')[-1]} [unittest|makeconfig]")
+    import unittest
 
-    elif sys.argv[1] in ["unittest"]:
+    class TestDistance(unittest.TestCase):
 
-        import unittest
+        def test_distance(self):
+            test = DataFrame({
+                "latitude" : [37.4205,37.5205],
+                "longitude" : [-122.2046,-122.3046],
+                })
+            result = apply(test)
+            self.assertEqual(result["distance"][1],12604.0)
 
-        class TestDistance(unittest.TestCase):
-
-            def test_distance(self):
-                test = DataFrame({
-                    "latitude" : [37.4205,37.5205],
-                    "longitude" : [-122.2046,-122.3046],
-                    })
-                result = apply(test)
-                self.assertEqual(result["distance"][1],12604.0)
-
-        unittest.main()
-
-    elif sys.argv[1] in ["makeconfig"]:
-
-        with open(sys.argv[0].replace(".py",".cfg"),"w") as fh: 
-            json.dump(default_config,fh,indent=4)
-
-    else:
-
-        raise Exception(f"'{sys.argv[0]}' is an invalid command option")
+    unittest.main()

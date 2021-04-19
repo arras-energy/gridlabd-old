@@ -5,12 +5,17 @@ clock {
 module residential;
 class house
 {
-    string address;
+    char1024 address;
 }
 
 object house
 {
-    address "2575 Sand Hill Rd., Menlo Park, CA 94025";
+    address "2575 Sand Hill Rd., Menlo Park, CA";
+}
+
+object house
+{
+    address "2000 Broadway, Redwood City, CA";
 }
 
 // write house.address to csv
@@ -19,7 +24,7 @@ object house
 #write /tmp/write.glm house:latitude,longitude,address
 
 // get lat,lon from address and write to csv
-#geodata -D address path /tmp/write.csv >/tmp/read.csv
+#geodata merge -D address /tmp/write.csv --reverse -o /tmp/read.csv
 
 // read csv as modify
-#read /tmp/read.csv latitude,longitude
+#input "/tmp/read.csv" -f dataframe -t modify

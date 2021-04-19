@@ -1,6 +1,6 @@
 """GridLAB-D Geodata Address Resolution Package
 
-The address package resolves addresses and locations.  
+The address package resolves addresses and locations.
 
 EXAMPLES:
 
@@ -45,6 +45,7 @@ default_options = {
 default_config = {
     "provider" : "nominatim",
     "user_agent" : "csv_user_ht",
+    "timeout" : 5,
 }
 
 #
@@ -58,7 +59,7 @@ def apply(data, options=default_options, config=default_config):
         data (pandas.DataFrame)
 
             The data frame must contain either an `address` field or `latitude` and `longitude`
-            fields, according to whether `options["reverse"]` is `True` or `False`.  
+            fields, according to whether `options["reverse"]` is `True` or `False`.
 
         options (dict)
 
@@ -87,8 +88,14 @@ def apply(data, options=default_options, config=default_config):
     if options["reverse"]:
 
         # convert address to lat,lon
+        if data.index.name in ["location","position"]:
+            data.reset_index(inplace=True) # index is not meaningful
         try:
-            pos = geocode(data["address"], provider=config["provider"], user_agent=config["user_agent"])
+            pos = geocode(data["address"],
+                    provider = config["provider"],
+                    user_agent = config["user_agent"],
+                    timeout = config["timeout"],
+                    )
         except:
             pos = None
         if type(pos) == type(None):
@@ -97,7 +104,7 @@ def apply(data, options=default_options, config=default_config):
         data["latitude"] = list(map(lambda p: p.y,pos["geometry"]))
         return data
 
-    else: 
+    else:
 
         # convert lat,lon to address
         try:
@@ -106,50 +113,39 @@ def apply(data, options=default_options, config=default_config):
             pos = None
         if type(pos) == type(None):
             raise Exception("address resolution requires 'latitude' and 'longitude' fields")
-        addr = reverse_geocode(pos, provider=config["provider"], user_agent=config["user_agent"])
+        addr = reverse_geocode(pos,
+                provider = config["provider"],
+                user_agent = config["user_agent"],
+                timeout = config["timeout"],
+                )
         data["address"] = Series(addr["address"],dtype="string").tolist()
-        return data 
+        return data
 
 #
 # Perform validation tests
 #
 if __name__ == '__main__':
 
-    if len(sys.argv) == 1 or sys.argv[1] in ["-h","--help","help"]:
-        
-        print(f"Syntax: {sys.argv[0].split('/')[-1]} [unittest|makeconfig]")
+    import unittest
 
-    elif sys.argv[1] in ["unittest"]:
+    class TestAddress(unittest.TestCase):
 
-        import unittest
+        def test_address(self):
+            test = DataFrame({
+                "address":["2575 Sand Hill Rd., Menlo Park, CA 94025, USA"],
+                })
+            result = apply(test)
+            self.assertEqual(round(result["latitude"][0],6),37.420457)
+            self.assertEqual(round(result["longitude"][0],6),-122.204568)
 
-        class TestAddress(unittest.TestCase):
+        def test_reverse(self):
+            options = default_options
+            options["reverse"] = True
+            test = DataFrame({
+                "latitude" : [37.4205],
+                "longitude" : [-122.2046],
+                })
+            result = apply(test, options)
+            self.assertEqual(result["address"][0],"Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States")
 
-            def test_address(self):
-                test = DataFrame({
-                    "address":["2575 Sand Hill Rd., Menlo Park, CA 94025, USA"],
-                    })
-                result = apply(test)
-                self.assertEqual(round(result["latitude"][0],6),37.420457)
-                self.assertEqual(round(result["longitude"][0],6),-122.204568)
-
-            def test_reverse(self):
-                options = default_options
-                options["reverse"] = True
-                test = DataFrame({
-                    "latitude" : [37.4205],
-                    "longitude" : [-122.2046],
-                    })
-                result = apply(test, options)
-                self.assertEqual(result["address"][0],"Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States")
-
-        unittest.main()
-
-    elif sys.argv[1] in ["makeconfig"]:
-
-        with open(sys.argv[0].replace(".py",".cfg"),"w") as fh: 
-            json.dump(default_config,fh,indent=4)
-
-    else:
-
-        raise Exception(f"'{sys.argv[0]}' is an invalid command option")
+    unittest.main()
