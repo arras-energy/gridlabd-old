@@ -264,56 +264,160 @@ def ids(data):
     lons = data["longitude"]
     return distance([list(a) for a in zip(lats,lons)])
 
-def get_data(args):
-    data = pd.DataFrame({DATASET:args})
-    debug(f"get_data(args={args}) -->\n{data}")
+from math import log10
+
+#  Note: the alphabet in geohash differs from the common base32
+#  alphabet described in IETF's RFC 4648
+#  (http://tools.ietf.org/html/rfc4648)
+__base32 = '0123456789bcdefghjkmnpqrstuvwxyz'
+__decodemap = { }
+for i in range(len(__base32)):
+    __decodemap[__base32[i]] = i
+del i
+
+def decode_exactly(geohash):
+    """
+    Decode the geohash to its exact values, including the error
+    margins of the result.  Returns four float values: latitude,
+    longitude, the plus/minus error for latitude (as a positive
+    number) and the plus/minus error for longitude (as a positive
+    number).
+    """
+    lat_interval, lon_interval = (-90.0, 90.0), (-180.0, 180.0)
+    lat_err, lon_err = 90.0, 180.0
+    is_even = True
+    for c in geohash:
+        cd = __decodemap[c]
+        for mask in [16, 8, 4, 2, 1]:
+            if is_even: # adds longitude info
+                lon_err /= 2
+                if cd & mask:
+                    lon_interval = ((lon_interval[0]+lon_interval[1])/2, lon_interval[1])
+                else:
+                    lon_interval = (lon_interval[0], (lon_interval[0]+lon_interval[1])/2)
+            else:      # adds latitude info
+                lat_err /= 2
+                if cd & mask:
+                    lat_interval = ((lat_interval[0]+lat_interval[1])/2, lat_interval[1])
+                else:
+                    lat_interval = (lat_interval[0], (lat_interval[0]+lat_interval[1])/2)
+            is_even = not is_even
+    lat = (lat_interval[0] + lat_interval[1]) / 2
+    lon = (lon_interval[0] + lon_interval[1]) / 2
+    return lat, lon, lat_err, lon_err
+
+def decode(geohash):
+    """
+    Decode geohash, returning two strings with latitude and longitude
+    containing only relevant digits and with trailing zeroes removed.
+    """
+    lat, lon, lat_err, lon_err = decode_exactly(geohash)
+    # Format to the number of decimals that are known
+    lats = "%.*f" % (max(1, int(round(-log10(lat_err)))) - 1, lat)
+    lons = "%.*f" % (max(1, int(round(-log10(lon_err)))) - 1, lon)
+    if '.' in lats: lats = lats.rstrip('0')
+    if '.' in lons: lons = lons.rstrip('0')
+    return lats, lons
+
+def encode(latitude, longitude, precision=12):
+    """
+    Encode a position given in float arguments latitude, longitude to
+    a geohash which will have the character count precision.
+    """
+    lat_interval, lon_interval = (-90.0, 90.0), (-180.0, 180.0)
+    geohash = []
+    bits = [ 16, 8, 4, 2, 1 ]
+    bit = 0
+    ch = 0
+    even = True
+    while len(geohash) < precision:
+        if even:
+            mid = (lon_interval[0] + lon_interval[1]) / 2
+            if longitude > mid:
+                ch |= bits[bit]
+                lon_interval = (mid, lon_interval[1])
+            else:
+                lon_interval = (lon_interval[0], mid)
+        else:
+            mid = (lat_interval[0] + lat_interval[1]) / 2
+            if latitude > mid:
+                ch |= bits[bit]
+                lat_interval = (mid, lat_interval[1])
+            else:
+                lat_interval = (lat_interval[0], mid)
+        even = not even
+        if bit < 4:
+            bit += 1
+        else:
+            geohash += __base32[ch]
+            bit = 0
+            ch = 0
+    return ''.join(geohash)
+def get_latlon(pos):
+    try:
+        latlon = pos.split(",")
+        lat = float(latlon[0])
+        lon = float(latlon[1])
+        if -90 <= lat <= 90 and -180 <= lon <= 180:
+            debug(f"get_latlon(pos={pos}) --> {lat},{lon}")
+            return lat,lon
+        else:
+            return None, None
+    except:
+        return None, None
+
+def set_location(data):
+    try:
+        data["location"] = list(map(lambda pos: encode(pos[0],pos[1]),zip(data["latitude"],data["longitude"])))
+        data.set_index("location",inplace=True)
+    except:
+        pass
     return data
-def get_options(args):
+
+def get_args(args):
+    data = []
     options = MODULE.default_options
+    config = CONFIGDATA
+    config.update(MODULE.default_config)
     for arg in args:
-        if arg[0:1] == "--" and len(arg) > 2 and arg[2:] in options.keys():
-            spec = arg[2:]
-            params = spec.split("=")
+        lat,lon = get_latlon(arg)
+        if arg[0:2] == "--" and len(arg) > 2 and arg[2:] in config.keys():
+            params = arg[2:].split("=")
+            name = params[0]
+            if len(params) == 1:
+                value = True
+            else:
+                value = params[1]
+            config[name] = value
+        elif arg[0:2] == "--" and len(arg) > 2 and arg[2:] in options.keys():
+            params = arg[2:].split("=")
             if len(params) == 1:
                 name = params[0]
-                value = True
+                value = not options[name]
             else:
                 name = params[0]
                 value = params[1]
             options[name] = value
-    debug(f"get_options(args={args}) --> {options}")
-    return options
-
-def get_configuration(args):
-    config = CONFIGDATA
-    config.update(MODULE.default_config)
-    for arg in args:
-        if arg[0:1] == "--" and len(arg) > 2 and arg[2:] in config.keys():
-            spec = arg[2:]
-            params = spec.split("=")
-            if len(params) == 1:
-                name = params[0]
-                value = True
-            else:
-                name = params[0]
-                value = params[1]
-            config[name] = value
-    debug(f"get_configuration(args={args}) --> {config}")
-    return config
+        elif type(lat) == float and type(lon) == float:
+            data.append(pd.DataFrame({"latitude":[lat],"longitude":[lon]}))
+        elif os.path.exists(arg):
+            data.append(pd.read_csv(arg))
+        else:
+            data.append(pd.DataFrame({DATASET:[arg]}))
+    data = pd.concat(data)
+    set_location(data)
+    return data,options,config
 
 def location(args):
-    if hasattr(MODULE,"version") and MODULE.version == 1:
-        data = get_data(args)
-        options = get_options(args)
-        config = get_configuration(args)
+    data,options,config = get_args(args)
+    debug(f"{DATASET}.apply(data=\n{data}\noptions={options},config={config})")
+    try:
         result = MODULE.apply(data,options,config)
-    else:
-        warning(f"using legacy implementation of {DATASET} package")
-        result = MODULE.get_location(args)
-        if "id" not in result.columns:
-            result["id"] = ids(result)
-        result = result.set_index("id")
-    debug(f"location(args={args}) --> {OUTPUT}\n{result}")
+    except Exception as err:
+        error(err)
+        result = None
+    set_location(result)
+    debug(f"  --> {OUTPUT}\n{result}")
     return result, OUTPUT
 
 def path(args):
