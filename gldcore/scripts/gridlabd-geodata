@@ -17,6 +17,7 @@ OPTIONS
   [-d|--debug]                enable debug output
   [-f|--format FORMAT]        change output format
   [-j|--join TYPE]            control how dataset joins with input path
+  [-k|--key KEY]              change method for generating keys
   [-o|--output CSVOUT]        output to CSVOUT
   [-q|--quiet]                disable normal output
   [-s|--silent]               disable error output
@@ -38,30 +39,21 @@ The following directives are available:
 
     The config directive changes values in the config file.
 
-  location LATITUDE LONGITUDE [ARGUMENTS]
+  append [ARGUMENTS]
 
-    The location directive performs the geodata operation only at the
-    location specified.
+    The append directive generates a new column with data from the specified
+    dataset. An error occurs if a column exists.
+  
+  update [ARGUMENTS]
 
-    If the [-r|--resolution METERS] option is used, the data is generated at
-    the specified resolution. Otherwise the data is generated only at the points
-    specified in CSVIN.
+    The update directive updates an existing column with data from the specified
+    dataset. An error occurs if a column does not exist.
 
-  path [-j|--join {inner,outer,left,right}] [CSVIN] [ARGUMENTS]
+  merge [ARGUMENTS]
 
-    The path directive performs the geodata operation along the path
-    specified in the CSVIN file.  If CSVIN is omitted, the input is read
-    from `/dev/stdin`, which allows output to `/dev/stdout` to be piped.
-
-    If [-j|--join {inner,outer,left,right}] is specified, the input is joined
-    with the dataset in the manner specified, i.e., "left" uses the input index,
-    "right" uses the dataset's index, "outer" forms the union of both indexes
-    and sorts it, and "inner" forms the intersection of both indexes, preserving
-    the order of the input index.
-
-    If the [-r|--resolution METERS] option is used, the data is generated at
-    the specified resolution. Otherwise the data is generated only at the points
-    specified in CSVIN.
+    The merge diretive merges the results from the specified dataset with the
+    data.  If a column exists, it is updated. If a column does not exist, it is
+    created.
 
 ARGUMENTS
 
@@ -84,48 +76,76 @@ All directives support the following arguments
     If omitted, the output is generated only at the locations listed in the input.
     This option has no meaning for the location directive.
 
+KEYS
+
+The [-k|--key KEY] options changes how row keys are generated.  
+
+  [-k|--key none]
+
+    No keys are generated and the data is not indexed.  There is no guarantee
+    that the rows will be output in the same order in which they were input.
+
+  [-k|--key location]
+
+    The location key computes geohash codes. Rows are indexed on the key named 
+    "location".
+
+  [-k|--key position]
+
+    The position key performs a distance calculation with respect to the first
+    entry in the data, thus maintaining the ordering the rows.  Rows are indexed
+    on the key names "position". The default
+
+If the [-r|--resolution METERS] option is used, the keys are generated at
+the specified resolution. The default resolution is 1 meter.
+
 DATASETS
 
 The following datasets are available. To specify a layer, use the syntax
 "NAME.LAYER".  Multiple datasets and layers may be specified using a
 comma-delimited list.
 
-  Distance
+  building
+
+    The building dataset provides build environment data from NREL. Available
+    layers are "building_type" and "building_size".
+
+  census
+
+    The census dataset provides economic and population data from the US Census
+    Bureau.
+
+  distance
 
     The distance dataset calculates the distance between each point and the
     point before it.
 
-  Elevation
+  elevation
 
     The elevation dataset provides 1 arcsecond resolution ground elevation data
     from the USGS.
 
-  Vegetation
+  powerline
+
+    The powerline dataset provides powerline geometry calculations based on
+    the GridLAB-D cable library.
+
+  transportation
+
+    The transportation dataset provides mobility data from traffic data services.
+    You must subscribe to the TrafficView service to use this dataset.
+
+  vegetation
 
     The vegetation dataset provides 7 layers of data about vegetation.  Available
     layers are "canopy_cover", "canopy_height", "base_height", "bulk_density",
     "layer_count", "fuel_density", and "surface_fuels".. You must subscribe to the
     Forest Observatory service to use this dataset.
 
-  Weather
+  weather
 
     The weather dataset provides historical, current, and short term forecasts of
     dry bulk, wet bulb, solar, and wind data from NOAA.
-
-  Census
-
-    The census dataset provides economic and population data from the US Census
-    Bureau.
-
-  Building
-
-    The building dataset provides build environment data from NREL. Available
-    layers are "building_type" and "building_size".
-
-  Transportation
-
-    The transportation dataset provides mobility data from traffic data services.
-    You must subscribe to the TrafficView service to use this dataset.
 
 FORMATS
 
@@ -184,7 +204,7 @@ import pandas as pd
 
 NAME = "geodata"
 GEODATA = sys.modules[__name__]
-DIRECTIVES = ["config","location","path"]
+DIRECTIVES = ["config","update","merge","append"]
 VERBOSE = False
 DEBUG = False
 SILENT = False
@@ -218,7 +238,7 @@ E_NOTFOUND = 2
 
 
 def error(msg,exitcode=None):
-    text = f"ERROR [{NAME}]: {msg}"
+    text = f"ERROR [{NAME}/{DATASET}]: {msg}"
     if DEBUG:
         raise Exception(msg)
     if not SILENT:
@@ -228,12 +248,12 @@ def error(msg,exitcode=None):
 
 def warning(msg):
     if not QUIET:
-        text = f"WARNING [{NAME}]: {msg}"
+        text = f"WARNING [{NAME}/{DATASET}]: {msg}"
         print(text,file=sys.stderr)
 
 def verbose(msg):
     if VERBOSE:
-        text = f"VERBOSE [{NAME}]: {msg}"
+        text = f"VERBOSE [{NAME}/{DATASET}]: {msg}"
         print(text,file=sys.stderr)
 
 def output(msg):
@@ -242,7 +262,7 @@ def output(msg):
 
 def debug(msg):
     if DEBUG:
-        print(f"DEBUG [{NAME}]: {msg}", file=sys.stderr)
+        print(f"DEBUG [{NAME}/{DATASET}]: {msg}", file=sys.stderr)
 
 python_help = help
 def help(dataset=None):
@@ -405,7 +425,7 @@ def get_args(args):
     set_location(data)
     return data,options,config
 
-def location(args):
+def merge(args):
     data,options,config = get_args(args)
     debug(f"{DATASET}.apply(data=\n{data}\noptions={options},config={config})")
     try:
