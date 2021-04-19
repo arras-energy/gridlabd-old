@@ -31,7 +31,7 @@ version = 1 # specify API version
 
 import sys
 import json
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from shapely.geometry import Point
 from geopandas.tools import geocode, reverse_geocode
 
@@ -62,9 +62,9 @@ def apply(data, options=default_options, config=default_config):
 
         options (dict)
 
-            "reverse" (bool) specifies the direction of resolution. Forward resolves 
-            `latitude,longitude` from `address`. Reverse resolves `address` from 
-            `latitude,longitude`. The default is `options["reverse"] = False`, which provides
+            "reverse" (bool) specifies the direction of resolution. Forward resolves `address`
+            from `latitude,longitude` from . Reverse resolves `latitude,longitude`
+            `address` from. The default is `options["reverse"] = False`, which provides
             forward resolution.
 
         config (dict)
@@ -86,19 +86,29 @@ def apply(data, options=default_options, config=default_config):
 
     if options["reverse"]:
 
-        # convert lat,lon to address
-        pts = list(map(lambda xy: Point(xy),list(zip(data["longitude"],data["latitude"]))))
-        addr = reverse_geocode(pts,provider=config["provider"], user_agent = config["user_agent"])
-        data["address"] = addr["address"]
-        return data 
-
-    else: 
-
         # convert address to lat,lon
-        pos = geocode(data["address"],provider=config["provider"], user_agent = config["user_agent"])
+        try:
+            pos = geocode(data["address"], provider=config["provider"], user_agent=config["user_agent"])
+        except:
+            pos = None
+        if type(pos) == type(None):
+            raise Exception("reserve address resolution requires 'address' field")
         data["longitude"] = list(map(lambda p: p.x,pos["geometry"]))
         data["latitude"] = list(map(lambda p: p.y,pos["geometry"]))
         return data
+
+    else: 
+
+        # convert lat,lon to address
+        try:
+            pos = list(map(lambda xy: Point(xy),list(zip(data["longitude"],data["latitude"]))))
+        except:
+            pos = None
+        if type(pos) == type(None):
+            raise Exception("address resolution requires 'latitude' and 'longitude' fields")
+        addr = reverse_geocode(pos, provider=config["provider"], user_agent=config["user_agent"])
+        data["address"] = Series(addr["address"],dtype="string").tolist()
+        return data 
 
 #
 # Perform validation tests
