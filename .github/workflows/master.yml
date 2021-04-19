@@ -1,19 +1,25 @@
 name: master
 
 on:
-  push:
-    branches: [ master ]
+
   pull_request:
     branches: [ master ]
 
 jobs:
-  build:
 
+  strategy:
+    max-parallel: 1
+
+  build:
     runs-on: ubuntu-latest
-    container: slacgismo/gridlabd_dockerhub_base:201217
+    container: hipas/gridlabd_dockerhub_base:201217
 
     steps:
     - uses: actions/checkout@v2
+    - name: Set Git config
+      run: |
+        git config --local user.email "actions@github.com"
+        git config --local user.name "Github Actions"
     - name: Update python3 modules
       run: pip3 install -r requirements.txt
     - name: Install openfido
@@ -29,9 +35,78 @@ jobs:
         gridlabd -D keep_progress=TRUE -T 0 --validate || ( utilities/save_validation_errors ; false )
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
+
       if: failure()
       with:
         name: validate-result
         path: |
           validate.txt
           validate.tar.gz
+
+  release:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+    
+    steps:
+    - name: Create Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # using github repo secrets... see: https://docs.github.com/en/actions/reference/encrypted-secrets
+        RELEASE_NAME: ${{ secrets.RELEASE_NAME }}
+        RELEASE_VERSION: ${{ secrets.RELEASE_VERSION }}
+        RELEASE_BODY: ${{ github.event.pull_request.body }}
+      run: |
+        chmod +x ./create_release.sh
+        ./create_release.sh -v "$RELEASE_VERSION" -n "$RELEASE_NAME" -b "$RELEASE_BODY"
+    - name: Merge master back to dev
+      run: |
+        git fetch --unshallow
+        git checkout develop
+        git pull
+        git merge main -m "Auto-merge master back to develop"
+        git push
+    - name: Update docker tag
+      env:
+        DOCKER_TAG: ${{ secrets.DOCKER_TAG }}
+        DOCKER_USER: ${{ secrets.DOCKER_USER }}
+        DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
+      run: |
+        echo "$DOCKER_PASS" | docker login --username "$DOCKER_USER" --password-stdin
+        docker pull avpeery/helloworld
+        docker tag avpeery/helloworld avpeery/helloworld:${{ env.DOCKER_TAG }}
+        docker push avpeery/helloworld:${{ env.DOCKER_TAG }}
+    - name: Build new AMI for this release
+      env:
+        IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+        REGION: ${{ secrets.AWS_REGION }}
+        TOPIC: ${{ secrets.AWS_TOPIC }}
+        AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
+        AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      run: |
+        chmod +x ./update_ec2.sh
+        ./update_ec2.sh -v "$IMAGE_NAME"
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+    - name: Start GCP instance
+      run:
+        gcloud compute instances start hipas --zone us-west1-b
+    - name: Update GCP VM instance
+      env:
+        IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+      run:
+        gcloud pubsub topics publish hipas-instance-update --message=${{ env.IMAGE_NAME }}
+    - name: Sleep for 30s # wait for update GCP VM instance to complete
+      uses: jakejarvis/wait-action@master
+      with:
+        time: '30s'
+    - name: Stop GCP VM instance
+      run:
+        gcloud compute instances stop hipas --zone us-west1-b
+    - name: Update GCP Image
+      env:
+        IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
+      run:
+        gcloud compute images create ${{ env.IMAGE_NAME }} --source-disk=hipas --source-disk-zone=us-west1-b
