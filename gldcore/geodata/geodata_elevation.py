@@ -12,63 +12,90 @@ If resolution is specified, then the result is generated in increments of that
 distance.
 """
 
-DATASET = "elevation"
-REPOURL = f"http://geodata.gridlabd.us/{DATASET}/10m"
+version = 1 # specify API version
 
-import os, sys
-import requests
-import math
-import numpy as np
-from PIL import Image
-import pandas
+import sys
 import json
+import math, numpy
+from pandas import DataFrame
 
-elevation_data = {} # in memory holding area for image data
+#
+# Defaults
+#
+default_options = {
+    "units" : "meters",
+}
 
-def get_path(args):
-    """Compute the elevations along a path specified in the CSV files
+default_config = {
+    "precision" : 0,
+    "nan_error" : False,
+}
 
-    Elevations are obtained for each CSV file in the args list.  If the
-    resolution is set, the elevations for each step along the path at the
-    specified resolution are provided.
+units = {
+    "m" : 1.0,
+    "meters" : 1.0,
+    "ft" : 3.28083888,
+    "feet" : 3.28083888,
+}
+#
+# Implementation of address package
+#
+def apply(data, options=default_options, config=default_config):
+    """Get the elevation at the locations specified in data
 
-    Multiple CSV files are concatenated. The elevations are added to the
-    columns found in the CSV file. If the elevation column is already
-    present, the previous data is overwritten.
+    ARGUMENTS:
 
-    ARGUMENTS
-        args (str list) List of CSV files to read
+        data (pandas.DataFrame)
 
-    RETURNS
-        DataFrame       Pandas dataframe containing the latitudes, longitudes,
-                        and elevations.
+            The data frame must contain `latitude` and `longitude` fields at which
+            elevations will be computed.  
+
+        options (dict)
+
+            "units" specifies the units in which elevations are measured.  Valid units
+            are ["meters","m"] and ["feet","ft"].
+
+        config (dict)
+
+            There are no configuration options
+
+    RETURNS:
+
+        pandas.DataFrame
+
+            The first (and only) return value is the `data` data frame with either the
+            `distance` fields updated/added for consecutive fields.
+
     """
-    paths = []
-    for file in args:
-        data = None
-        last = None
-        elevation = []
-        distance = []
-        lastpos = None
-        paths.append(pandas.read_csv(file))
 
-    path = pandas.concat(paths)
-    lats = path["latitude"].to_list()
-    lons = path["longitude"].to_list()
-    pos = [list(a) for a in zip(lats,lons)]
-    path["id"] = geodata.distance(pos)
-    path.set_index(["id","latitude","longitude"],inplace=True)
+    # convert lat,lon to address
+    try:
+        path = list(zip(data["longitude"],data["latitude"]))
+    except:
+        path = None
+    if type(path) == type(None):
+        raise Exception("address resolution requires 'latitude' and 'longitude' fields")
+    elev = []
+    for pos in path:
+        try:
+            elev.append(get_elevation(pos))
+        except Exception as err:
+            if config["nan_error"]:
+                elev.append(float("nan"))
+            else:
+                raise
+    try:
+        global units
+        data["elevation"] = (numpy.array(elev) * units[options["units"]]).round(config["precision"])
+    except:
+        raise Exception(f"unit '{options['units']}' or is not valid")
+    return data 
 
-    locs = get_location(pos)
-    lats = locs["latitude"].to_list()
-    lons = locs["longitude"].to_list()
-    pos = [list(a) for a in zip(lats,lons)]
-    locs["id"] = geodata.distance(pos)
-    locs.set_index(["id","latitude","longitude"],inplace=True)
+#
+# Elevation data processing
+#
 
-    return path.join(locs,how=geodata.PATHJOIN,sort=True).reset_index()
-
-def get_location(args):
+def get_elevation(args):
     """Compute the elevations at the locations specified
 
     Elevations are obtained for each entry in the args list.  If the
@@ -82,72 +109,13 @@ def get_location(args):
         DataFrame       Pandas dataframe containing the latitudes, longitudes,
                         and elevations.
     """
-    resolution = geodata.get_resolution()
-    verbose(f"resolution = {resolution} meters")
-    if len(args) < 2:
-        pos = get_position(args[0])
-        row,col = get_rowcol((pos[0],pos[1]))
-        lats = [pos[0]]
-        lons = [pos[1]]
-        n,e = get_data(pos)
-        elev = [e[row][col]]
-        if type(resolution) is float:
-            warning("resolution is ignored when using a single location")
-    else:
-        pos1 = get_position(args[0])
-        n,e = get_data(pos1)
-        row,col = get_rowcol(pos1)
-        lats = [pos1[0]]
-        lons = [pos1[1]]
-        elev = [e[row][col]]
-        for arg in args[1:]:
-            pos2 = get_position(arg)
-            d = get_distance(pos1,pos2)
-            if type(resolution) is float:
-                segs = d/resolution
-                if segs > 1:
-                    lat = lats[-1]
-                    lon = lons[-1]
-                    dlat = (pos2[0]-pos1[0])/segs
-                    dlon = (pos2[1]-pos1[1])/segs
-                    for n in range(int(segs)):
-                        lat += dlat
-                        lon += dlon
-                        lats.append(lat)
-                        lons.append(lon)
-                        n,e = get_data((lat,lon))
-                        row,col = get_rowcol((lat,lon))
-                        elev.append(e[row][col])
-            lats.append(pos2[0])
-            lons.append(pos2[1])
-            n,e = get_data(pos2)
-            row,col = get_rowcol(pos2)
-
-            # can't interpolate at lower edges of images (rare/small impact)
-            if row == 0 or col == 0:
-                z = e[row][col]
-            # 2-d interpolation
-            else:
-                dy = math.modf(abs(pos2[0]))[0]*3600 - (3600-row)
-                dx = math.modf(abs(pos2[1]))[0]*3600 - (3600-col)
-                z00 = e[row][col]
-                z01 = e[row-1][col]
-                z10 = e[row][col-1]
-                z11 = e[row-1][col-1]
-                z0 = dx*(z10-z00) + z00
-                z1 = dx*(z11-z01) + z01
-                z = dy*(z1-z0) + z0
-                # print(f"{pos2} -> {row},{col} -> {z00} {z01} {z10} {z11} -> {dx} {dy} -> {round(z)}")
-            elev.append(round(z))
-            pos1 = pos2
-    result = pandas.DataFrame(
-            data={
-                "latitude" : lats,
-                "longitude" : lons,
-                "elevation" : elev}
-            )
-    result.index.names = ["id"]
-    return result
+    pos = get_position(args[0])
+    row,col = get_rowcol((pos[0],pos[1]))
+    lats = [pos[0]]
+    lons = [pos[1]]
+    n,e = get_data(pos)
+    elev = [e[row][col]]
+    return evel
 
 def get_rowcol(pos):
     row = 3600-int(math.modf(abs(pos[0]))[0]*3600)
@@ -185,7 +153,7 @@ def get_distance(pos1, pos2):
     a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
     return 6371e3*(2*np.arctan2(np.sqrt(a),np.sqrt(1-a)))
 
-def get_name(pos):
+def get_imagename(pos):
     """Get the image name for a location
 
     ARGUMENTS
@@ -212,7 +180,7 @@ def get_name(pos):
         lon = "0"
     return f"{lat}_{lon}"
 
-def get_data(pos):
+def get_imagedata(pos):
     """Get the image data for a location
 
     ARGUMENTS
@@ -224,7 +192,7 @@ def get_data(pos):
         tifname (str)       The name of the image tile used
         elevation (nparray) The elevation data from the image
     """
-    tifname = get_name(pos)
+    tifname = get_imagename(pos)
     if not tifname in elevation_data.keys():
         srcname = f"{geodata.get_config('repourl')}/{tifname}.tif"
         dstname = f"{geodata.get_config('cachedir')}/{tifname}.tif"
@@ -239,48 +207,38 @@ def get_data(pos):
         elevation_data[tifname] = np.array(Image.open(dstname))
     return tifname, elevation_data[tifname]
 
-geodata = None # this will be set by the set_context() call from geodata
-def set_context(context):
-    """Sets the geodata context
 
-    This function must be called to bind the message, configuration, and options
-    specified by the geodata command.
-
-    ARGUMENTS
-        context (module)   Sets the geodata module context.
-
-    RETURNS
-        None
-    """
-    global geodata
-    geodata = context
-
-    global output
-    output = geodata.output
-
-    global warning
-    warning = geodata.warning
-
-    global error
-    error = geodata.error
-
-    global verbose
-    verbose = geodata.verbose
-
-    geodata.set_config({
-        "repourl" : REPOURL,
-        "resolution" : None,
-        "cachedir" : f"{geodata.PKGDATA}/geodata/{DATASET}/10m",
-    })
-    geodata.load_config(DATASET,"system")
-    geodata.load_config(DATASET,"user")
-    geodata.load_config(DATASET,"local")
-    os.makedirs(geodata.get_config("cachedir"),exist_ok=True)
-
+#
+# Perform validation tests
+#
 if __name__ == '__main__':
 
-    import unittest
-    class TestElevation(unittest.TestCase):
-        def test_distance(self):
-            self.assertEqual(round(get_distance([37.415045141688054,-122.2056472090359],[37.388063971857704,-122.28844288884694]),0),7905.0)
-    unittest.main()
+    if len(sys.argv) == 1 or sys.argv[1] in ["-h","--help","help"]:
+        
+        print(f"Syntax: {sys.argv[0].split('/')[-1]} [unittest|makeconfig]")
+
+    elif sys.argv[1] in ["unittest"]:
+
+        import unittest
+
+        class TestDistance(unittest.TestCase):
+
+            def test_distance(self):
+                test = DataFrame({
+                    "latitude" : [37.4205,37.5205],
+                    "longitude" : [-122.2046,-122.3046],
+                    })
+                result = apply(test)
+                self.assertEqual(result["distance"][1],12604.0)
+
+        unittest.main()
+
+    elif sys.argv[1] in ["makeconfig"]:
+
+        with open(sys.argv[0].replace(".py",".cfg"),"w") as fh: 
+            json.dump(default_config,fh,indent=4)
+
+    else:
+
+        raise Exception(f"'{sys.argv[0]}' is an invalid command option")
+
