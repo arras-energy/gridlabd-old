@@ -137,10 +137,19 @@ bool version_check(const char *expression)
 			sprintf(value1,"%s",global_version_branch);
 			sprintf(value2,"%s",next);
 		}
-		bool test = (strcmp(value1,value2) == criteria);
-		ok |= ( invert ? !test : test);
+		int result = strcmp(value1,value2);
+		if ( result > 0)
+		{
+			result = 1;
+		}
+		else if ( result < 0 )
+		{
+			result = -1;
+		}
+		bool test = ( result == criteria);
+		ok |= ( test ^ invert );
+		output_debug("version_check(expression='%s'): strcmp('%s','%s') %s %d -> %s, result is now %s",expression,value1,value2,invert?"!=":"==",criteria,test?"true":"false",ok?"true":"false");
 		done = true;
-		output_debug("version_check(expression='%s'): strcmp('%s','%s') %s %d -> %s, ok is now %s",expression,value1,value2,invert?"!=":"==",criteria,test^invert?"true":"false",ok?"true":"false");
 	}
 	if ( ! done )
 	{
