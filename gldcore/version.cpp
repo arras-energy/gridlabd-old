@@ -5,6 +5,7 @@
 #define _VERSION_C // flag special consideration for this file
 
 #include "gldcore.h"
+#include <string.h>
 
 // SET_MYCONTEXT(DMC_VERSION) // used only if IN_MYCONTEXT is present in this module
 
@@ -57,3 +58,97 @@ const char *version_branch(void)
 	return BRANCH;
 }
 
+bool version_check(const char *expression)
+{
+	char line[strlen(expression)+1];
+	strcpy(line,expression);
+	int criteria = 0;
+	bool invert = false;
+	char *next = NULL, *last = NULL;
+	bool ok = false;
+	bool done = false;
+	while ( (next=strtok_r(next?NULL:line," \t",&last)) )
+	{
+		int major=0, minor=-1, patch=-1, build=0;
+		char value1[1024], value2[1024];
+		if ( next[0] == '\0' )
+		{
+			continue;
+		}
+		if ( next[0] == '-' )
+		{
+			if ( strcmp(next,"-lt") == 0 )
+			{
+				criteria = -1;
+				invert = false;					
+			}
+			else if ( strcmp(next,"-le") == 0 )
+			{
+				criteria = +1;
+				invert = true;
+			}
+			else if ( strcmp(next,"-eq") == 0 )
+			{
+				criteria = 0;
+				invert = false;
+			}
+			else if ( strcmp(next,"-ge") == 0 )
+			{
+				criteria = -1;
+				invert = true;					
+			}
+			else if ( strcmp(next,"-gt") == 0 )
+			{
+				criteria = +1;
+				invert = false;
+			}
+			else if ( strcmp(next,"-ne") == 0 )
+			{
+				criteria = 0;
+				invert = true;
+			}
+			else
+			{
+				output_error("version_check(expression='%s'): expression '%s' is invalid",expression,next);
+				return FALSE;
+			}
+			continue;
+		}
+		else if ( sscanf(next,"%u.%u.%u",&major,&minor,&patch) > 1 )
+		{
+			if ( minor == -1 )
+			{
+				minor = global_version_minor;
+			}
+			if ( patch == -1 )
+			{
+				patch = global_version_patch;
+			}
+			sprintf(value1,"%06u.%06u.%06u",global_version_major, global_version_minor, global_version_patch);
+			sprintf(value2,"%06u.%06u.%06u",major,minor,patch);
+		}
+		else if ( sscanf(next,"%u",&build) == 1 )
+		{
+			sprintf(value1,"%06d",global_version_build);
+			sprintf(value2,"%06d",build);
+		}
+		else
+		{
+			sprintf(value1,"%s",global_version_branch);
+			sprintf(value2,"%s",next);
+		}
+		bool test = (strcmp(value1,value2) == criteria);
+		ok |= ( invert ? !test : test);
+		done = true;
+		output_debug("version_check(expression='%s'): strcmp('%s','%s') %s %d -> %s, ok is now %s",expression,value1,value2,invert?"!=":"==",criteria,test^invert?"true":"false",ok?"true":"false");
+	}
+	if ( ! done )
+	{
+		output_error("version_check(expression='%s'): expression is invalid",expression);
+		return false;
+	}
+	else
+	{
+		return ok;
+	}
+}

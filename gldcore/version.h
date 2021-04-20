@@ -33,6 +33,7 @@ unsigned int version_minor(void);
 unsigned int version_patch(void);
 unsigned int version_build(void);
 const char *version_branch(void);
+bool version_check(const char *expression);
 
 #ifdef __cplusplus
 }
