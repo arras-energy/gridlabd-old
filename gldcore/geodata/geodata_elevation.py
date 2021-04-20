@@ -14,10 +14,12 @@ distance.
 
 version = 1 # specify API version
 
-import sys
+import sys, os
+import requests
 import json
 import math, numpy
-from pandas import DataFrame
+import pandas
+from PIL import Image
 
 #
 # Defaults
@@ -29,6 +31,8 @@ default_options = {
 default_config = {
     "precision" : 0,
     "nan_error" : False,
+    "cachedir" : "/usr/local/share/gridlabd/geodata/elevation/10m",
+    "repourl" : "http://geodata.gridlabd.us/elevation/10m",
 }
 
 units = {
@@ -70,7 +74,7 @@ def apply(data, options=default_options, config=default_config):
 
     # convert lat,lon to address
     try:
-        path = list(zip(data["longitude"],data["latitude"]))
+        path = list(zip(data["latitude"],data["longitude"]))
     except:
         path = None
     if type(path) == type(None):
@@ -78,7 +82,7 @@ def apply(data, options=default_options, config=default_config):
     elev = []
     for pos in path:
         try:
-            elev.append(get_elevation(pos))
+            elev.append(get_elevation(pos,repourl=config["repourl"],cachedir=config["cachedir"]))
         except Exception as err:
             if config["nan_error"]:
                 elev.append(float("nan"))
@@ -95,7 +99,7 @@ def apply(data, options=default_options, config=default_config):
 # Elevation data processing
 #
 
-def get_elevation(args):
+def get_elevation(pos,repourl=default_config["repourl"],cachedir=default_config["cachedir"]):
     """Compute the elevations at the locations specified
 
     Elevations are obtained for each entry in the args list.  If the
@@ -109,11 +113,10 @@ def get_elevation(args):
         DataFrame       Pandas dataframe containing the latitudes, longitudes,
                         and elevations.
     """
-    pos = get_position(args[0])
-    n,e = get_imagedata(pos)
+    n,e = get_imagedata(pos,repourl,cachedir)
     row,col = get_rowcol(pos)
     elev = [e[row][col]]
-    return evel
+    return elev
 
 def get_rowcol(pos):
     row = 3600-int(math.modf(abs(pos[0]))[0]*3600)
@@ -178,7 +181,9 @@ def get_imagename(pos):
         lon = "0"
     return f"{lat}_{lon}"
 
-def get_imagedata(pos):
+elevation_data = {}
+
+def get_imagedata(pos,repourl,cachedir):
     """Get the image data for a location
 
     ARGUMENTS
@@ -191,18 +196,20 @@ def get_imagedata(pos):
         elevation (nparray) The elevation data from the image
     """
     tifname = get_imagename(pos)
+    global elevation_data
+    os.makedirs(cachedir,exist_ok=True)
     if not tifname in elevation_data.keys():
-        srcname = f"{geodata.get_config('repourl')}/{tifname}.tif"
-        dstname = f"{geodata.get_config('cachedir')}/{tifname}.tif"
+        srcname = f"{repourl}/{tifname}.tif"
+        dstname = f"{cachedir}/{tifname}.tif"
         if not os.path.exists(dstname):
             response = requests.get(srcname,stream=True)
             if response.status_code != 200:
-                error(f"'GET {srcname}' --> HTTP error code {response.status_code}",E_NOTFOUND)
+                raise Exception(f"'GET {srcname}' --> HTTP error code {response.status_code}")
             with open(dstname,"wb") as fh:
                 for chunk in response.iter_content(chunk_size=1024*1024):
                     if chunk:
                         fh.write(chunk)
-        elevation_data[tifname] = np.array(Image.open(dstname))
+        elevation_data[tifname] = numpy.array(Image.open(dstname))
     return tifname, elevation_data[tifname]
 
 
@@ -216,7 +223,7 @@ if __name__ == '__main__':
     class TestDistance(unittest.TestCase):
 
         def test_distance(self):
-            test = DataFrame({
+            test = pandas.DataFrame({
                 "latitude" : [37.4205,37.5205],
                 "longitude" : [-122.2046,-122.3046],
                 })
