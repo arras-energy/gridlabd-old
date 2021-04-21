@@ -6,7 +6,7 @@
 
 // test a single location
 #setenv LOC=37.4150,-122.2056
-#define ANS=87
+#define ANS=87.0
 #define RES=${SHELL gridlabd geodata merge -D elevation $LOC -f RAW}
 #if ${RES} != ${ANS}
     #error "geodata merge -D elevation ${LOC}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
@@ -14,7 +14,7 @@
 
 // test a straight line between two locations at a specified resolution
 #setenv LOC=37.4150,-122.2056 37.3880,-122.2884 -r 1000
-#define ANS=87 93 178 115 106 303 409 602 634
+#define ANS=87.0 93.0 178.0 115.0 106.0 303.0 409.0 602.0 634.0
 #define RES=${SHELL gridlabd geodata merge -D elevation $LOC -f RAW }
 #if ${RES} != ${ANS}
     #error "geodata -D elevation ${LOC}" is incorrect: expected ${ANS} meters but got ${RES} meters instead
