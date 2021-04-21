@@ -82,14 +82,14 @@ The [-k|--key KEY] options changes how row keys are generated. The default is
 no key, in which case there is no guarantee that the rows will be output in the
 same order in which they were input.
 
-  [-k|--key location]
+  [-k|--key "location"]
 
-    The location key computes geohash codes. Rows are indexed on the key named
+    The "location" key computes geohash codes. Rows are indexed on the key named
     "location".
 
-  [-k|--key position]
+  [-k|--key "position"]
 
-    The position key performs a distance calculation with respect to the first
+    The "position" key performs a distance calculation with respect to the first
     entry in the data, thus maintaining the ordering the rows.  Rows are indexed
     on the key names "position". The default
 
@@ -396,29 +396,48 @@ def get_latlon(pos):
 def set_location(data):
     try:
         data["location"] = list(map(lambda pos: encode(pos[0],pos[1]),zip(data["latitude"],data["longitude"])))
-        data.set_index("location",inplace=True)
+        return data.set_index("location")
     except:
-        pass
-    return data
+        return data
+
+def set_position(data):
+    """Updates the path position index from the distance column"""
+    if "distance" not in data.columns:
+        data = set_distance(data)
+    data["position"] = pandas.Series(data["distance"]*10**IDPRECISION,dtype="int32")
+    return data.set_index("position").sort_index()
 
 def dataframe_to_table(data):
     table = f"{data}"
     rule = "-"*max(map(lambda x:len(x),table.split("\n")))
     return f"\n{rule}\n{table}\n{rule}\n"
 
-def set_index(data):
-    debug(f"set_index(data={dataframe_to_table(data)})")
-    if data.index.name == KEYINDEX:
-        return data
-    if KEYINDEX == "location":
-        set_location(data)
-    elif KEYINDEX == "position":
-        set_position(data)
-    elif not type(KEYINDEX) is type(None):
-        data.set_index(KEYINDEX,inplace=True)
-    else:
+def set_index(data,index=None,silent=False):
+    if index is None:
+        index = KEYINDEX
+    debug(f"set_index(data={dataframe_to_table(data)},index='{index}',silent={silent})")
+    if index is None:
         data.reset_index(inplace=True)
-    return data
+        data.index.name = "id"
+        return data
+    elif data.index.name == index:
+        return data
+    elif index == "location":
+        return set_location(data)
+    elif index == "position":
+        return set_position(data)
+    elif not type(index) is type(None):
+        columns = index.split(",")
+        try:
+            return data.set_index(columns)
+        except:
+            if not silent:
+                warning(f"unable to set index to '{index}'")
+            return data
+    elif index in data.columns:
+        return data.set_index(index)
+    else:
+        raise Exception("index '{index}' is not valid")
 
 def get_args(args):
     data = []
@@ -446,11 +465,10 @@ def get_args(args):
         elif os.path.exists(arg):
             data.append(pandas.read_csv(arg))
         else:
-            data.append(pandas.DataFrame({DATASET:[arg]}))
+            error(f"'{arg}' is not recognized for the ''{DATASET}'' dataset ",E_SYNTAX)
     data = pandas.concat(data,ignore_index=True)
     if "resolution" in options:
         data = get_path(data,options["resolution"])
-    set_index(data)
     debug(f"get_args(args={args}) -->{dataframe_to_table(data)}options = {options}\nconfig = {config}")
     return data,options,config
 
@@ -462,38 +480,39 @@ def merge(args):
     except Exception as err:
         error(err)
         result = None
-    set_index(data)
+    result = set_index(data)
     debug(f"  --> {OUTPUT}\n{result}")
     return result, OUTPUT
 
-def set_position(data):
-    data["position"] = pandas.Series(data["distance"]*10**IDPRECISION,dtype="int32")
-    return data.set_index("position").sort_index()
+def set_distance(data,resolution=0.0):
+    """Computes the distance and heading from latitude and longitude
 
-def get_path(data,resolution):
-    if resolution < 0.0:
-        error(f"get_path(data={dataframe_to_table(data)},resolution={resolution}): negative resolution is invalid",E_SYNTAX)
-    if resolution == 0.0:
-        return data
+    ARGUMENTS
+
+        data (DataFrame)   The data must contain latitude and longitude columns
+
+        resolution (float) The resolution must be non-negative.  Zero is the
+                           default and means no path waypoints will be added.
+
+    """
     path = {"distance":[],"latitude":[],"longitude":[],"heading":[]}
     last = None
     post = 0.0
     for pos in list(zip(data["latitude"],data["longitude"])):
         lat = pos[0]
         lon = pos[1]
+        segs = 1
         if last:
             dist = get_distance(pos,last)
             head = (270-numpy.arctan2(last[0]-pos[0],last[1]-pos[1])*180/math.pi)%360
-            if resolution < dist:
+            if resolution > 0 and resolution < dist:
                 segs = dist/resolution
-            else:
-                segs = 1
             dlat = (lat-last[0])/segs
             dlon = (lon-last[1])/segs
         else:
             dist = 0.0
             head = float('nan')
-        while dist > resolution:
+        while segs > 1:
             lat += dlat
             lon += dlon
             post += resolution
@@ -502,13 +521,21 @@ def get_path(data,resolution):
             path["latitude"].append(lat)
             path["longitude"].append(lon)
             dist -= resolution
+            segs -= 1
         post += dist
         path["distance"].append(post)
         path["heading"].append(head)
         path["latitude"].append(pos[0])
         path["longitude"].append(pos[1])
         last = pos
-    path = set_position(pandas.DataFrame(path))
+    return pandas.DataFrame(path)
+
+def get_path(data,resolution):
+    """Computes the path position index for path specified by latitude and longitude"""
+    if resolution < 0.0:
+        error(f"get_path(data={dataframe_to_table(data)},resolution={resolution}): negative resolution is invalid",E_SYNTAX)
+    path = set_distance(data,resolution)
+    path = set_position(path)
     joinon = ["position"]
     for other in ["latitude","longitude","location"]:
         if other in data.columns:
@@ -543,6 +570,9 @@ def main(argc,argv):
     global PKGDATA
     global DATASET
     global FORMAT
+    global KEYINDEX
+    global PATHJOIN
+    global CFGFILE
     n = 1
     DIRECTIVE = []
     if not PKGDATA or not os.path.exists(PKGDATA):
