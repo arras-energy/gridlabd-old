@@ -55,14 +55,14 @@ jobs:
           RELEASE_VERSION: ${{ secrets.RELEASE_VERSION }}
           RELEASE_BODY: ${{ github.event.pull_request.body }}
         run: |
-          chmod +x ./create_release.sh
-          ./create_release.sh -v "$RELEASE_VERSION" -n "$RELEASE_NAME" -b "$RELEASE_BODY"
+          chmod +x ./cloud/scripts/release.sh
+          ./cloud/scripts/release.sh -v "$RELEASE_VERSION" -n "$RELEASE_NAME" -b "$RELEASE_BODY"
       - name: Merge master back to dev
         run: |
           git fetch --unshallow
           git checkout develop
           git pull
-          git merge main -m "Auto-merge master back to develop"
+          git merge master -m "Auto-merge master back to develop"
           git push
       - name: Update docker tag
         env:
@@ -82,8 +82,7 @@ jobs:
           AWS_ACCESS_ID: ${{ secrets.AWS_ACCESS_ID }}
           AWS_SECRET_KEY: ${{ secrets.AWS_SECRET_KEY }}
         run: |
-          chmod +x ./update_ec2.sh
-          ./update_ec2.sh -v "$IMAGE_NAME"
+          AWS_ACCESS_KEY_ID="$AWS_ACCESS_ID" AWS_SECRET_ACCESS_KEY="$AWS_SECRET_KEY" aws sns publish --region "$REGION" --topic-arn "$TOPIC" --message "$IMAGE_NAME"
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@master
         with:
