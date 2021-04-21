@@ -468,7 +468,6 @@ def merge(args):
 
 def set_position(data):
     last = None
-    print(data)
     result = data.to_dict(orient="records")
     last = None
     for record in result:
@@ -523,13 +522,13 @@ def get_path(data,resolution):
     for other in ["latitude","longitude","location"]:
         if other in data.columns:
             joinon.append(other)
-    print("joinon =",joinon)
-    print(dataframe_to_table(data))
+    debug(f"joinon = {joinon}")
+    debug(f"data =\n{dataframe_to_table(data)}")
     path = pandas.DataFrame(path)
-    print(dataframe_to_table(path))
+    debug(f"path =\n{dataframe_to_table(path)}")
     #result = data.reset_index().join(path.reset_index(),on=joinon,how=PATHJOIN,sort=True)
     result = data.merge(path,how=PATHJOIN)
-    print(dataframe_to_table(result))
+    debug(f"result =\n{dataframe_to_table(result)}")
     return set_position(result)
 
 def get_distance(pos1,pos2):
