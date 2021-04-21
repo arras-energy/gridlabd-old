@@ -26,6 +26,7 @@ from PIL import Image
 #
 default_options = {
     "units" : "meters",
+    "resolution" : 0.0,
 }
 
 default_config = {
