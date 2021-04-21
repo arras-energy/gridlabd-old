@@ -467,64 +467,54 @@ def merge(args):
     return result, OUTPUT
 
 def set_position(data):
-    last = None
-    result = data.to_dict(orient="records")
-    last = None
-    for record in result:
-        pos = (record["latitude"],record["longitude"])
-        if last:
-            position = get_distance(pos,last)
-            heading = (270-numpy.arctan2(last[0]-pos[0],last[1]-pos[1])*180/math.pi)%360
-        else:
-            heading = float('nan')
-            position = 0.0
-        last = pos
-        record["position"] = round(position,IDPRECISION)
-        record["distance"] = position
-        record["heading"] = heading
-    result = pandas.DataFrame(result).set_index("position")
-    debug(f"get_position(data={dataframe_to_table(data)}) --> {dataframe_to_table(result)}")
-    return result
+    data["position"] = pandas.Series(data["distance"]*10**IDPRECISION,dtype="int32")
+    return data.set_index("position").sort_index()
 
 def get_path(data,resolution):
     if resolution < 0.0:
         error(f"get_path(data={dataframe_to_table(data)},resolution={resolution}): negative resolution is invalid",E_SYNTAX)
     if resolution == 0.0:
         return data
-    path = {"position":[],"latitude":[],"longitude":[]}
+    path = {"distance":[],"latitude":[],"longitude":[],"heading":[]}
     last = None
-    data = set_position(data)
     post = 0.0
     for pos in list(zip(data["latitude"],data["longitude"])):
         lat = pos[0]
         lon = pos[1]
         if last:
             dist = get_distance(pos,last)
-            segs = dist/resolution
+            head = (270-numpy.arctan2(last[0]-pos[0],last[1]-pos[1])*180/math.pi)%360
+            if resolution < dist:
+                segs = dist/resolution
+            else:
+                segs = 1
             dlat = (lat-last[0])/segs
             dlon = (lon-last[1])/segs
         else:
             dist = 0.0
+            head = float('nan')
         while dist > resolution:
             lat += dlat
             lon += dlon
             post += resolution
-            path["position"].append(round(post,IDPRECISION))
+            path["distance"].append(post)
+            path["heading"].append(head)
             path["latitude"].append(lat)
             path["longitude"].append(lon)
             dist -= resolution
         post += dist
-        path["position"].append(round(post,IDPRECISION))
+        path["distance"].append(post)
+        path["heading"].append(head)
         path["latitude"].append(pos[0])
         path["longitude"].append(pos[1])
         last = pos
+    path = set_position(pandas.DataFrame(path))
     joinon = ["position"]
     for other in ["latitude","longitude","location"]:
         if other in data.columns:
             joinon.append(other)
     debug(f"joinon = {joinon}")
     debug(f"data =\n{dataframe_to_table(data)}")
-    path = pandas.DataFrame(path)
     debug(f"path =\n{dataframe_to_table(path)}")
     #result = data.reset_index().join(path.reset_index(),on=joinon,how=PATHJOIN,sort=True)
     result = data.merge(path,how=PATHJOIN)
