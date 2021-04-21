@@ -282,10 +282,10 @@ def help(dataset=None):
 def syntax():
     print(__doc__.split("\n")[0],file=sys.stdout)
 
-def ids(data):
-    lats = data["latitude"]
-    lons = data["longitude"]
-    return distance([list(a) for a in zip(lats,lons)])
+def dataframe_to_table(data):
+    table = f"{data}"
+    rule = "-"*max(map(lambda x:len(x),table.split("\n")))
+    return f"\n{rule}\n{table}\n{rule}\n"
 
 #
 # GEOHASH support
@@ -395,22 +395,24 @@ def get_latlon(pos):
 
 def set_location(data):
     try:
-        data["location"] = list(map(lambda pos: encode(pos[0],pos[1]),zip(data["latitude"],data["longitude"])))
-        return data.set_index("location")
+        result = pandas.DataFrame(data)
+        result["location"] = list(map(lambda pos: encode(pos[0],pos[1]),zip(result["latitude"],result["longitude"])))
+        result.set_index("location",inplace=True)
     except:
-        return data
+        result = data
+    debug(f"set_position(data={dataframe_to_table(data)} --> {dataframe_to_table(result)}")
+    return result
 
 def set_position(data):
     """Updates the path position index from the distance column"""
     if "distance" not in data.columns:
-        data = set_distance(data)
-    data["position"] = pandas.Series(data["distance"]*10**IDPRECISION,dtype="int32")
-    return data.set_index("position").sort_index()
-
-def dataframe_to_table(data):
-    table = f"{data}"
-    rule = "-"*max(map(lambda x:len(x),table.split("\n")))
-    return f"\n{rule}\n{table}\n{rule}\n"
+        result = pandas.DataFrame(data).merge(set_distance(data))
+    else:
+        result = pandas.DataFrame(data)
+    result["position"] = pandas.Series(result["distance"]*10**IDPRECISION,dtype="int32")
+    result = result.set_index("position").sort_index()
+    debug(f"set_position(data={dataframe_to_table(data)} --> {dataframe_to_table(result)}")
+    return result
 
 def set_index(data,index=None,silent=False):
     if index is None:
