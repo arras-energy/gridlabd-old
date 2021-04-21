@@ -70,7 +70,7 @@ All directives support the following arguments
     output data is written to the specified file. If the output file already
     exists, it is overwritten with the new data.
 
-  [-r|--resolution] METERS
+  --resolution METERS
 
     Specifies the resolution in meters of the data to be generated along the path.
     If omitted, the output is generated only at the locations listed in the input.
@@ -93,8 +93,9 @@ same order in which they were input.
     entry in the data, thus maintaining the ordering the rows.  Rows are indexed
     on the key names "position". The default
 
-If the [-r|--resolution METERS] option is used, the keys are generated at
-the specified resolution. The default resolution is 1 meter.
+If the [--resolution METERS] option is used, the keys are generated at
+the specified resolution along the path. The default resolution is 1 meter. This
+is only supported with datasets for which the path option is available.
 
 DATASETS
 
@@ -201,7 +202,7 @@ import importlib
 from importlib import util
 import json
 import math, numpy
-import pandas as pd
+import pandas
 
 NAME = "geodata"
 GEODATA = sys.modules[__name__]
@@ -230,7 +231,7 @@ CONFIGDIR = {
     "user" : os.getenv("HOME") + "/.gridlabd/geodata",
     "local" : os.getenv("PWD"),
 }
-IDPRECISION = 3
+IDPRECISION = 0
 GEOPRECISION = 4
 KEYINDEX = None
 
@@ -400,9 +401,6 @@ def set_location(data):
         pass
     return data
 
-def set_position(data):
-    raise Exception("position index not implemented yet")
-
 def dataframe_to_table(data):
     table = f"{data}"
     rule = "-"*max(map(lambda x:len(x),table.split("\n")))
@@ -444,12 +442,14 @@ def get_args(args):
             else:
                 options[opts[0]] = type(options[opts[0]])(opts[1])
         elif type(lat) == float and type(lon) == float:
-            data.append(pd.DataFrame({"latitude":[lat],"longitude":[lon]}))
+            data.append(pandas.DataFrame({"latitude":[lat],"longitude":[lon]}))
         elif os.path.exists(arg):
-            data.append(pd.read_csv(arg))
+            data.append(pandas.read_csv(arg))
         else:
-            data.append(pd.DataFrame({DATASET:[arg]}))
-    data = pd.concat(data)
+            data.append(pandas.DataFrame({DATASET:[arg]}))
+    data = pandas.concat(data,ignore_index=True)
+    if "resolution" in options:
+        data = get_path(data,options["resolution"])
     set_index(data)
     debug(f"get_args(args={args}) -->{dataframe_to_table(data)}options = {options}\nconfig = {config}")
     return data,options,config
@@ -466,18 +466,73 @@ def merge(args):
     debug(f"  --> {OUTPUT}\n{result}")
     return result, OUTPUT
 
-def path(args):
-    if len(args) == 0:
-        args = ["/dev/stdin"]
-    result = MODULE.get_path(args)
-    if "id" not in result.columns:
-        result["id"] = ids(result)
-    return result.set_index("id"), OUTPUT
+def set_position(data):
+    last = None
+    print(data)
+    result = data.to_dict(orient="records")
+    last = None
+    for record in result:
+        pos = (record["latitude"],record["longitude"])
+        if last:
+            position = get_distance(pos,last)
+            heading = (270-numpy.arctan2(last[0]-pos[0],last[1]-pos[1])*180/math.pi)%360
+        else:
+            heading = float('nan')
+            position = 0.0
+        last = pos
+        record["position"] = round(position,IDPRECISION)
+        record["distance"] = position
+        record["heading"] = heading
+    result = pandas.DataFrame(result).set_index("position")
+    debug(f"get_position(data={dataframe_to_table(data)}) --> {dataframe_to_table(result)}")
+    return result
 
-def config(args):
-    error(f"config({args}) is not implemented yet")
+def get_path(data,resolution):
+    if resolution < 0.0:
+        error(f"get_path(data={dataframe_to_table(data)},resolution={resolution}): negative resolution is invalid",E_SYNTAX)
+    if resolution == 0.0:
+        return data
+    path = {"position":[],"latitude":[],"longitude":[]}
+    last = None
+    data = set_position(data)
+    post = 0.0
+    for pos in list(zip(data["latitude"],data["longitude"])):
+        lat = pos[0]
+        lon = pos[1]
+        if last:
+            dist = get_distance(pos,last)
+            segs = dist/resolution
+            dlat = (lat-last[0])/segs
+            dlon = (lon-last[1])/segs
+        else:
+            dist = 0.0
+        while dist > resolution:
+            lat += dlat
+            lon += dlon
+            post += resolution
+            path["position"].append(round(post,IDPRECISION))
+            path["latitude"].append(lat)
+            path["longitude"].append(lon)
+            dist -= resolution
+        post += dist
+        path["position"].append(round(post,IDPRECISION))
+        path["latitude"].append(pos[0])
+        path["longitude"].append(pos[1])
+        last = pos
+    joinon = ["position"]
+    for other in ["latitude","longitude","location"]:
+        if other in data.columns:
+            joinon.append(other)
+    print("joinon =",joinon)
+    print(dataframe_to_table(data))
+    path = pandas.DataFrame(path)
+    print(dataframe_to_table(path))
+    #result = data.reset_index().join(path.reset_index(),on=joinon,how=PATHJOIN,sort=True)
+    result = data.merge(path,how=PATHJOIN)
+    print(dataframe_to_table(result))
+    return set_position(result)
 
-def distance(path):
+def get_distance(pos1,pos2):
     """Compute haversine distances along a path
     ARGUMENTS
 
@@ -488,18 +543,12 @@ def distance(path):
 
         list   The cumulative distances along the path
     """
-    if len(path) == 0:
-        return []
-    dist = [0.0]
-    pos1 = path[0]
-    for pos2 in path[1:]:
-        lat1 = pos1[0]*math.pi/180
-        lat2 = pos2[0]*math.pi/180
-        lon1 = pos1[1]*math.pi/180
-        lon2 = pos2[1]*math.pi/180
-        a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
-        dist.append(round(6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a))),IDPRECISION))
-    return dist
+    lat1 = pos1[0]*math.pi/180
+    lat2 = pos2[0]*math.pi/180
+    lon1 = pos1[1]*math.pi/180
+    lon2 = pos2[1]*math.pi/180
+    a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
+    return 6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a)))
 
 def main(argc,argv):
     global PKGDATA
@@ -596,9 +645,9 @@ def main(argc,argv):
         help(args)
         exit(E_OK)
     elif not DIRECTIVE[0] in DIRECTIVES:
-        error(f"directive '{DIRECTIVE[0]}' is not valid")
+        error(f"directive '{DIRECTIVE[0]}' is not valid",E_SYNTAX)
     data, savefile = globals()[DIRECTIVE[0]](args)
-    if type(data) is pd.DataFrame and savefile:
+    if type(data) is pandas.DataFrame and savefile:
         if FORMAT == "CSV":
             data.to_csv(savefile)
         elif FORMAT == "RAW":
@@ -625,7 +674,7 @@ def main(argc,argv):
                 for row in numpy.array(columns).transpose():
                     print(",".join(row))
             except:
-                error(f"format 'FIELD.{specs[1]}' is invalid or field not found")
+                error(f"format 'FIELD.{specs[1]}' is invalid or field not found",E_NOTFOUND)
         else:
             error(f"format '{FORMAT}' is invalid",E_SYNTAX)
 
@@ -646,71 +695,6 @@ def load_dataset(args):
     if hasattr(MODULE,"set_context"):
         MODULE.set_context(sys.modules[__name__])
     return MODULE
-
-def load_config(context,file):
-    """Read the specified configuration file
-
-    ARGUMENTS
-       dataset (str) Specifies the dataset for which to load the configuration
-       file (str)    Specifies which configuration file to load. Valid values are
-                     "system", "user", "local".
-
-    RETURNS
-       varies       The value of the configuration parameter
-"""
-    global CONFIGDATA
-    try:
-        fh = open(f"{CONFIGDIR[file]}/distance.cfg","r")
-        CONFIGDATA.update(json.load(f"{CONFIGDIR[file]}/distance.cfg"))
-    except:
-        pass
-
-def get_config(name):
-    """Get a configuration PARAMETER
-
-    ARGUMENTS
-
-        name (str)   Specifies the name of the configuration parameter to get.
-    """
-    global CONFIGDATA
-    if name in CONFIGDATA.keys():
-        return CONFIGDATA[name]
-    else:
-        error(f"configuration parameter '{name}' does not exist")
-
-def set_config(name,value=None):
-    """Set a configuration parameter
-
-    ARGUMENTS
-
-        name (str)       Specifies the name of the configuration parameter to
-                         set.
-        name (dict)      Specifies a dictionary of parameters and values to set.
-
-        value (varies)   Specifies the value of the configuration parameter.
-    """
-    global CONFIGDATA
-    if type(name) is dict:
-        CONFIGDATA.update(name)
-    elif name in CONFIGDATA.keys():
-        CONFIGDATA[name] = value
-    else:
-        error(f"configuration parameter '{name}' does not exist")
-
-def get_resolution():
-    """Get the current distance resolution, if any
-
-    RETURNS
-
-        None     the resolution is not specified
-
-        float    the resolution in meters
-    """
-    global CONFIGDATA
-    if RESOLUTION:
-        return RESOLUTION
-    else:
-        return CONFIGDATA["resolution"]
 
 if __name__ == "__main__":
     main(len(sys.argv),sys.argv)
