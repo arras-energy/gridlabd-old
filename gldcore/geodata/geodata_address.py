@@ -108,7 +108,9 @@ def apply(data, options=default_options, config=default_config):
 
         # convert lat,lon to address
         try:
-            pos = list(map(lambda xy: Point(xy),list(zip(data["longitude"],data["latitude"]))))
+            lats = list(map(lambda x: float(x),data["latitude"]))
+            lons = list(map(lambda x: float(x),data["longitude"]))
+            pos = list(map(lambda xy: Point(xy),list(zip(lons,lats))))
         except:
             pos = None
         if type(pos) == type(None):
