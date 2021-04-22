@@ -88,18 +88,14 @@ def apply(data, options=default_options, config=default_config):
     if options["reverse"]:
 
         # convert address to lat,lon
-        if data.index.name in ["location","position"]:
-            data.reset_index(inplace=True) # index is not meaningful
-        try:
-            pos = geocode(data["address"],
-                    provider = config["provider"],
-                    user_agent = config["user_agent"],
-                    timeout = config["timeout"],
-                    )
-        except:
-            pos = None
-        if type(pos) == type(None):
+        if not "address" in data.columns:
             raise Exception("reserve address resolution requires 'address' field")
+        data.reset_index(inplace=True) # index is not meaningful
+        pos = geocode(data["address"],
+                provider = config["provider"],
+                user_agent = config["user_agent"],
+                timeout = config["timeout"],
+                )
         data["longitude"] = list(map(lambda p: p.x,pos["geometry"]))
         data["latitude"] = list(map(lambda p: p.y,pos["geometry"]))
         return data
