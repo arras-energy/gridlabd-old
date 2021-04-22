@@ -20,11 +20,11 @@ object house
 
 // write house.address to csv
 #write /tmp/write.csv house:latitude,longitude,address
-#write /tmp/write.json house:latitude,longitude,address
-#write /tmp/write.glm house:latitude,longitude,address
 
 // get lat,lon from address and write to csv
-#geodata merge -D address /tmp/write.csv --reverse -o /tmp/read.csv
+#geodata merge -D address /tmp/write.csv --reverse --format GLM:latitude,longitude -o /tmp/read.glm
 
 // read csv as modify
-#input "/tmp/read.csv" -f dataframe -t modify
+#include "/tmp/read.glm"
+
+#set savefile="/tmp/final.glm"
