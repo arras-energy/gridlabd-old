@@ -19,7 +19,7 @@ object house
 }
 
 // write house.address to csv
-#write /tmp/write.csv house:latitude,longitude,address
+#write /tmp/write.csv house:address
 
 // get lat,lon from address and write to csv
 #geodata merge -D address /tmp/write.csv --reverse --format GLM:latitude,longitude -o /tmp/read.glm
@@ -27,4 +27,6 @@ object house
 // read csv as modify
 #include "/tmp/read.glm"
 
-#set savefile="/tmp/final.glm"
+#set savefile="/tmp/final.json"
+
+#on_exit 0 ./geodata_example.sh /tmp/final.json
