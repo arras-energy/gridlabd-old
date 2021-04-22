@@ -109,5 +109,4 @@ jobs:
         env:
           IMAGE_NAME: ${{ secrets.IMAGE_NAME }}
         run:
-          gcloud compute images create ${{ env.IMAGE_NAME }} --source-disk=hipas --source-disk-zone=us-west1-b
-          
+          gcloud compute images create ${{ env.IMAGE_NAME }} --source-disk=hipas --source-disk-zone=us-west1-
