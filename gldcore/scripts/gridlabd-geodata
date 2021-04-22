@@ -19,9 +19,12 @@ OPTIONS
   [-j|--join TYPE]            control how dataset joins with input path
   [-k|--key KEY]              change method for generating keys
   [-o|--output CSVOUT]        output to CSVOUT
+  [--precision=INT]           change precision of distance measurement
   [-q|--quiet]                disable normal output
+  [-r|--resolution=METERS]       change the resolution at which positions are merged
   [-s|--silent]               disable error output
   [-T|--threadcount THREADS]  change maximum thread count
+  [--units UNIT]              change units of distance
   [-v|--verbose]              enable verbose output
   [-w|--warning]              disable warning output
 
@@ -44,11 +47,14 @@ The following directives are available:
     The create directive generates a new data from the specified
     dataset.
 
-  merge [ARGUMENTS]
+  merge [-D|--dataset] NAME [ARGUMENTS]
 
     The merge diretive merges the results from the specified dataset with the
     data.  If a column exists, it is updated. If a column does not exist, it is
     created.
+
+    The -D|--dataset directive specifies the dataset from which the geographic
+    information is to be acquired. See the DATASETS section below for details.
 
 ARGUMENTS
 
@@ -60,22 +66,16 @@ All directives support the following arguments
     Note that by default all fields are string.  Use CSV format inputs to use
     automatic types.
 
-  [-D|--dataset] NAME
+  CSVIN [...]
 
-    Specifies the dataset from which the geographic information is to be
-    acquired. See the DATASETS section below for details.
+    Specifies one or more files from which CSV input is read. If no values or
+    CSV input files are specified, the CSV data input is read from /dev/stdin.
 
   [-o|--output] CSVOUT
 
     Normally the output is written to /dev/stdout. When CSVOUT is specified the
     output data is written to the specified file. If the output file already
     exists, it is overwritten with the new data.
-
-  --resolution METERS
-
-    Specifies the resolution in meters of the data to be generated along the path.
-    If omitted, the output is generated only at the locations listed in the input.
-    This option has no meaning for the location directive.
 
 KEYS
 
@@ -92,11 +92,11 @@ same order in which they were input.
 
     The "position" key performs a distance calculation with respect to the first
     entry in the data, thus maintaining the ordering the rows.  Rows are indexed
-    on the key names "position". The default
+    on the key names "position".
 
-If the [--resolution METERS] option is used, the keys are generated at
-the specified resolution along the path. The default resolution is 1 meter. This
-is only supported with datasets for which the path option is available.
+If the [-r|--resolution METERS] option is used, the keys are generated at
+the specified resolution along the path. The default resolution is None. If
+resolution is specified without a key, then "position" is used.
 
 DATASETS
 
@@ -533,7 +533,7 @@ def set_location(data):
 def set_position(data):
     """Updates the path position index from the distance column"""
     if "distance" not in data.columns:
-        result = pandas.DataFrame(data).merge(set_distance(data))
+        result = pandas.DataFrame(data).merge(set_distance(data),how="outer")
     else:
         result = pandas.DataFrame(data)
     result["position"] = pandas.Series(result["distance"]*10**IDPRECISION,dtype="int32")
@@ -613,8 +613,13 @@ def get_args(args):
         data = pandas.read_csv("/dev/stdin")
     else:
         data = pandas.concat(data,ignore_index=True)
-    if "resolution" in options:
-        data = get_path(data,options["resolution"])
+
+    global RESOLUTION
+    global KEYINDEX
+    if not KEYINDEX and RESOLUTION:
+        KEYINDEX = "position"
+    if KEYINDEX in ["position","location"]:
+        data = set_index(data)
     # debug(f"get_args(args={args}) -->{dataframe_to_table(data)}options = {options}\nconfig = {config}")
     return data,options,config
 
@@ -636,28 +641,29 @@ def merge(args):
         result = None
     else:
         result = set_index(data)
-    # debug(f"  --> {result}")
+    debug(f"merge(args={dataframe_to_table(data)}) -->\ndata = {dataframe_to_table(data)}options = {options}\nconfig = {config}")
     return result
 
 def create(args):
+    if DATASET:
+        raise Exception(f"create directive does not allow or use datasets")
     data,options,config = get_args(args)
-    # debug(f"delete(data={dataframe_to_table(data)}options = {options}\nconfig = {config})")
-    return set_index(data)
+    result = set_index(data)
+    debug(f"create(args={dataframe_to_table(data)}) -->\ndata = {dataframe_to_table(data)}options = {options}\nconfig = {config}")
+    return result
 
-def set_distance(data,resolution=0.0):
+def set_distance(data):
     """Computes the distance and heading from latitude and longitude
 
     ARGUMENTS
 
         data (DataFrame)   The data must contain latitude and longitude columns
 
-        resolution (float) The resolution must be non-negative.  Zero is the
-                           default and means no path waypoints will be added.
-
     """
     path = {"distance":[],"latitude":[],"longitude":[],"heading":[]}
     last = None
     post = 0.0
+    global RESOLUTION
     for pos in list(zip(data["latitude"],data["longitude"])):
         lat = float(pos[0])
         lon = float(pos[1])
@@ -665,8 +671,8 @@ def set_distance(data,resolution=0.0):
         if last:
             dist = get_distance(pos,last)
             head = (270-numpy.arctan2(last[0]-pos[0],last[1]-pos[1])*180/math.pi)%360
-            if resolution > 0 and resolution < dist:
-                segs = dist/resolution
+            if RESOLUTION and RESOLUTION > 0 and RESOLUTION < dist:
+                segs = dist/RESOLUTION
             dlat = (lat-last[0])/segs
             dlon = (lon-last[1])/segs
         else:
@@ -675,12 +681,12 @@ def set_distance(data,resolution=0.0):
         while segs > 1:
             lat += dlat
             lon += dlon
-            post += resolution
+            post += RESOLUTION
             path["distance"].append(post)
             path["heading"].append(head)
             path["latitude"].append(lat)
             path["longitude"].append(lon)
-            dist -= resolution
+            dist -= RESOLUTION
             segs -= 1
         post += dist
         path["distance"].append(post)
@@ -690,12 +696,9 @@ def set_distance(data,resolution=0.0):
         last = pos
     return pandas.DataFrame(path)
 
-def get_path(data,resolution):
+def get_path(data):
     """Computes the path position index for path specified by latitude and longitude"""
-    if resolution < 0.0:
-        error(f"get_path(data={dataframe_to_table(data)},resolution={resolution}): negative resolution is invalid",E_SYNTAX)
-    path = set_distance(data,resolution)
-    path = set_position(path)
+    path = set_position(data)
     joinon = ["position"]
     for other in ["latitude","longitude","location"]:
         if other in data.columns:
@@ -882,6 +885,11 @@ def main(argc,argv):
             global QUIET
             QUIET = True
             verbose("quiet output enabled")
+        elif argv[n] in ["-r","--resolution"]:
+            global RESOLUTION
+            n += 1
+            RESOLUTION = float(argv[n])
+            verbose("path resolution is '{RESOLUTION}' meters")
         elif argv[n] in ["-s","--silent"]:
             global SILENT
             SILENT = True

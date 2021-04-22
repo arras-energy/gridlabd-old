@@ -1,0 +1,41 @@
+// test geodata create and merge directives
+
+#ifexist "../path_example.csv"
+#define DIR=..
+#endif
+
+// geodata create
+#geodata create 37.4205,-122.2046
+#geodata create 37.4205,-122.2046 37.5205,-122.3046
+#geodata create 37.4205,-122.2046 37.5205,-122.3046 -r 1000
+#geodata create 37.4205,-122.2046 37.5205,-122.3046 -k position
+#geodata create 37.4205,-122.2046 37.5205,-122.3046 -k location
+#geodata create 37.4205,-122.2046 37.5205,-122.3046 -k latitude,longitude
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 name=obj2+latitude=37.5205+longitude=-122.3046 -k name
+
+// geodata merge distance from pipe
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 name=obj2+latitude=37.5205+longitude=-122.3046 -k name | gridlabd geodata merge -D distance
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance -k name
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 name=obj2+latitude=37.5205+longitude=-122.3046 -k name | gridlabd geodata merge -D distance -k name
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance -k distance
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 name=obj2+latitude=37.5205+longitude=-122.3046 -k name | gridlabd geodata merge -D distance -k distance
+
+// geodata merge distance
+#geodata merge -D distance 37.4205,-122.2046 37.5205,-122.3046
+#geodata merge -D distance 37.4205,-122.2046 37.5205,-122.3046 -r 1000
+#geodata merge -D distance 37.4205,-122.2046 37.5205,-122.3046 -k position
+#geodata merge -D distance 37.4205,-122.2046 37.5205,-122.3046 -k location
+#geodata merge -D distance 37.4205,-122.2046 37.5205,-122.3046 -k latitude,longitude
+
+// geodata merge distance from file
+#geodata merge -D distance ${DIR:-.}/path_example.csv
+#geodata merge -D distance ${DIR:-.}/path_example.csv -r 100
+#geodata merge -D distance ${DIR:-.}/path_example.csv -k position
+#geodata merge -D distance ${DIR:-.}/path_example.csv -k location
+#geodata merge -D distance ${DIR:-.}/path_example.csv -k latitude,longitude
+
+#ifexist "../test_geodata.txt"
+#on_exit 0 diff ../test_geodata.txt gridlabd.out >/dev/stderr
+#endif
