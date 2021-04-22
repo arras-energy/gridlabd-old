@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REPO=${REPO:-https://github.com/slacgismo/gridlabd}
+REPO=${REPO:-https://github.com/hipas/gridlabd}
 BRANCH=${BRANCH:-master}
 echo "
 #####################################

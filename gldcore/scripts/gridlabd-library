@@ -10,7 +10,7 @@ fi
 GITHUB="https://github.com"
 GITHUBUSERCONTENT="https://raw.githubusercontent.com"
 ORGANIZATION="US/CA/SLAC"
-GITUSER=slacgismo
+GITUSER=hipas
 GITREPO="gridlabd-library"
 GITBRANCH="master"
 SVNLSOPTIONS="--config-option=servers:global:http-timeout=60 --non-interactive -rHEAD"

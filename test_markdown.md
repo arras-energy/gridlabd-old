@@ -3916,7 +3916,7 @@
 | object_scan |  | char32 | PUBLIC |  | %[^:]:%d |
 | object_tree_balance |  | bool | PUBLIC |  | FALSE |
 | kmlfile |  | char1024 | PUBLIC |  |  |
-| kmlhost |  | char1024 | PUBLIC |  | https://raw.githubusercontent.com/slacgismo/gridlabd/master/gldcore/rt |
+| kmlhost |  | char1024 | PUBLIC |  | https://raw.githubusercontent.com/hipas/gridlabd/master/gldcore/rt |
 | modelname |  | char1024 | REFERENCE |  | gldcore/converters/autotest/test_markdown.glm |
 | execdir |  | char1024 | REFERENCE |  | /usr/local/opt/gridlabd/4.2.13-201012-develop_add_markdown_output_options/bin |
 | strictnames |  | bool | PUBLIC |  | TRUE |
@@ -3960,7 +3960,7 @@
 | random_number_generator |  | enumeration | PUBLIC | RNG2 RNG3 | RNG3 |
 | mainloop_state |  | enumeration | PUBLIC | INIT RUNNING PAUSED DONE LOCKED | INIT |
 | pauseat |  | timestamp | PUBLIC |  | NEVER |
-| infourl |  | char1024 | PUBLIC |  | http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&search= |
+| infourl |  | char1024 | PUBLIC |  | http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&search= |
 | hostname |  | char1024 | PUBLIC |  | localhost |
 | hostaddr |  | char32 | PUBLIC |  | 127.0.0.1 |
 | autostart_gui |  | bool | PUBLIC |  | TRUE |

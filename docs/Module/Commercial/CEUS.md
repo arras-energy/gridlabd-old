@@ -47,7 +47,7 @@
 
 # Description
 
-The CEUS commercial building load model is based on the commercial energy use data collected by Itron for the California Energy Commission. The prepared data files for each California forecasting climate zone (FCZ) are available from the GitHub repository https://github.com/slacgismo/ceus_data in the [`loadshape`](https://github.com/slacgismo/ceus_data/tree/master/loadshape) folder.
+The CEUS commercial building load model is based on the commercial energy use data collected by Itron for the California Energy Commission. The prepared data files for each California forecasting climate zone (FCZ) are available from the GitHub repository https://github.com/hipas/ceus_data in the [`loadshape`](https://github.com/hipas/ceus_data/tree/master/loadshape) folder.
 
 The parent object of a building must be a `powerflow meter` object.  In the absence of a suitable parent object, the building will use the global variables `default_nominal_voltage_A`, `default_nominal_voltage_B`, `default_nominal_voltage_C` and `default_nominal_voltage` to determine the voltage.  The solver will update the meter's power demand value when the load changes.
 
@@ -269,4 +269,4 @@ The temperature, price, and solar sensitivity are not implemented by enduse.  Th
 
 * [[/Module/Commercial]]
 * [California Commercial End-use Survey (CEUS) Website](https://www.energy.ca.gov/ceus)
-* [SLAC GISMo CEUS Data Repository](https://github.com/slacgismo/ceus_data)
+* [SLAC GISMo CEUS Data Repository](https://github.com/hipas/ceus_data)

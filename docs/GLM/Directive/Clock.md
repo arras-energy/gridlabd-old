@@ -52,4 +52,4 @@ clock {
 
 # See also
 
-* [share/tzinfo.txt](https://github.com/slacgismo/gridlabd/blob/master/gldcore/tzinfo.txt)
+* [share/tzinfo.txt](https://github.com/hipas/gridlabd/blob/master/gldcore/tzinfo.txt)

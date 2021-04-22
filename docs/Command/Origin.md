@@ -20,13 +20,13 @@ The following is the output for a clean build of a branch
 
 ~~~
 bash$ gridlabd --origin
-# https://github.com/slacgismo/gridlabd/commits/d2fca77b4985e28452e72e259ce6bf77d2d454b1
+# https://github.com/hipas/gridlabd/commits/d2fca77b4985e28452e72e259ce6bf77d2d454b1
 ~~~
 
 The following example includes diff output resulting from local changes to the code
 
 ~~~
-# https://github.com/slacgismo/gridlabd/commits/ff655ab92b650b2373d02b44bf884334d40faf06
+# https://github.com/hipas/gridlabd/commits/ff655ab92b650b2373d02b44bf884334d40faf06
 #  M gldcore/Makefile.mk
 #  M utilities/build_number
 # ?? utilities/update_origin.sh

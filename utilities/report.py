@@ -7,7 +7,7 @@ start = datetime.datetime(now.year,now.month-1,1,0,0,0);
 stop = datetime.datetime(now.year,now.month,1,0,0,0);
 
 # get pulls closed last month
-os.system('curl -s https://api.github.com/repos/slacgismo/gridlabd/pulls\\?state=closed\\&per_page=100\\&sort=updated\\&direction=desc > pulls.json');
+os.system('curl -s https://api.github.com/repos/hipas/gridlabd/pulls\\?state=closed\\&per_page=100\\&sort=updated\\&direction=desc > pulls.json');
 with open("pulls.json","r") as fh:
     pulls = json.load(fh);
     fh.close()
@@ -31,7 +31,7 @@ if os.system('pandoc --listings -o pulls.pdf pulls.md') == 0 :
     os.system('open pulls.pdf');
 
 # get all issues
-os.system('curl -s https://api.github.com/repos/slacgismo/gridlabd/issues\\?state=open\\&per_page=1000\\&sort=created\\&direction=desc > issues.json');
+os.system('curl -s https://api.github.com/repos/hipas/gridlabd/issues\\?state=open\\&per_page=1000\\&sort=created\\&direction=desc > issues.json');
 with open("issues.json","r") as fh:
     issues = json.load(fh);
     fh.close()

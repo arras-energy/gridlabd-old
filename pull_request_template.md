@@ -10,7 +10,7 @@ This PR fixes issue #NUMBER1.
 - [x] List significant code changes
 
 ## Documentation changes
-- [x] [<<<DOCSPEC>>>](http://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=<<<BRANCHNAME>>>&doc=<<<DOCPATHNAME>>>)
+- [x] [<<<DOCSPEC>>>](http://docs.gridlabd.us/index.html?owner=hipas&project=gridlabd&branch=<<<BRANCHNAME>>>&doc=<<<DOCPATHNAME>>>)
 
 ## Test and Validation Notes
 - [x] List changes to existing autotests

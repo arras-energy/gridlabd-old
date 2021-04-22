@@ -1,8 +1,8 @@
-FROM slacgismo/gridlabd_dockerhub_base:210211
+FROM hipas/gridlabd_dockerhub_base:210211
 
 
 ENV container docker
-ENV REPO=https://github.com/slacgismo/gridlabd
+ENV REPO=https://github.com/hipas/gridlabd
 ARG BRANCH
 RUN echo "Building $BRANCH"
 ENV ENABLE=gismo
