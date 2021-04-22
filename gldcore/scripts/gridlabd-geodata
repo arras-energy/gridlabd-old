@@ -513,7 +513,7 @@ def get_latlon(pos):
         lat = float(latlon[0])
         lon = float(latlon[1])
         if -90 <= lat <= 90 and -180 <= lon <= 180:
-            debug(f"get_latlon(pos={pos}) --> {lat},{lon}")
+            # debug(f"get_latlon(pos={pos}) --> {lat},{lon}")
             return lat,lon
         else:
             return None, None
@@ -527,7 +527,7 @@ def set_location(data):
         result.set_index("location",inplace=True)
     except:
         result = data
-    debug(f"set_position(data={dataframe_to_table(data)} --> {dataframe_to_table(result)}")
+    # debug(f"set_position(data={dataframe_to_table(data)} --> {dataframe_to_table(result)}")
     return result
 
 def set_position(data):
@@ -538,13 +538,13 @@ def set_position(data):
         result = pandas.DataFrame(data)
     result["position"] = pandas.Series(result["distance"]*10**IDPRECISION,dtype="int32")
     result = result.set_index("position").sort_index()
-    debug(f"set_position(data={dataframe_to_table(data)} --> {dataframe_to_table(result)}")
+    # debug(f"set_position(data={dataframe_to_table(data)} --> {dataframe_to_table(result)}")
     return result
 
 def set_index(data,index=None,silent=False):
     if index is None:
         index = KEYINDEX
-    debug(f"set_index(data={dataframe_to_table(data)},index='{index}',silent={silent})")
+    # debug(f"set_index(data={dataframe_to_table(data)},index='{index}',silent={silent})")
     if index is None:
         if data.index.name:
             data.reset_index(inplace=True)
@@ -615,27 +615,33 @@ def get_args(args):
         data = pandas.concat(data,ignore_index=True)
     if "resolution" in options:
         data = get_path(data,options["resolution"])
-    debug(f"get_args(args={args}) -->{dataframe_to_table(data)}options = {options}\nconfig = {config}")
+    # debug(f"get_args(args={args}) -->{dataframe_to_table(data)}options = {options}\nconfig = {config}")
     return data,options,config
 
 def merge(args):
     data,options,config = get_args(args)
-    debug(f"{DATASET}.apply(data={dataframe_to_table(data)}options = {options}\nconfig = {config})")
+    # debug(f"{DATASET}.apply(data={dataframe_to_table(data)}options = {options}\nconfig = {config})")
     try:
         result = MODULE.apply(data,options,config)
     except Exception as err:
-        result = str(err)
-    if type(result) is str:
-        error(result)
+        result = err
+    if type(result) is Exception:
+        if DEBUG:
+            import traceback
+            print("Traceback (most recent call last):")
+            traceback.print_tb(result.__traceback__)
+            print(f"Exception: {str(result)}")
+        else:
+            error(str(result))
         result = None
     else:
         result = set_index(data)
-    debug(f"  --> {result}")
+    # debug(f"  --> {result}")
     return result
 
 def create(args):
     data,options,config = get_args(args)
-    debug(f"delete(data={dataframe_to_table(data)}options = {options}\nconfig = {config})")
+    # debug(f"delete(data={dataframe_to_table(data)}options = {options}\nconfig = {config})")
     return set_index(data)
 
 def set_distance(data,resolution=0.0):
@@ -694,12 +700,12 @@ def get_path(data,resolution):
     for other in ["latitude","longitude","location"]:
         if other in data.columns:
             joinon.append(other)
-    debug(f"joinon = {joinon}")
-    debug(f"data =\n{dataframe_to_table(data)}")
-    debug(f"path =\n{dataframe_to_table(path)}")
+    # debug(f"joinon = {joinon}")
+    # debug(f"data =\n{dataframe_to_table(data)}")
+    # debug(f"path =\n{dataframe_to_table(path)}")
     #result = data.reset_index().join(path.reset_index(),on=joinon,how=PATHJOIN,sort=True)
     result = data.merge(path,how=PATHJOIN)
-    debug(f"result =\n{dataframe_to_table(result)}")
+    # debug(f"result =\n{dataframe_to_table(result)}")
     return set_position(result)
 
 def get_distance(pos1,pos2):
