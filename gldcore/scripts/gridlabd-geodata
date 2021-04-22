@@ -39,14 +39,14 @@ The following directives are available:
 
     The config directive changes values in the config file.
 
-  append [ARGUMENTS]
+  create [ARGUMENTS]
 
-    The append directive generates a new column with data from the specified
-    dataset. An error occurs if a column exists.
+    The create directive generates a new data from the specified
+    dataset. 
 
-  update [ARGUMENTS]
+  select [ARGUMENTS]
 
-    The update directive updates an existing column with data from the specified
+    The select directive selects existing columns from the specified
     dataset. An error occurs if a column does not exist.
 
   merge [ARGUMENTS]
@@ -54,6 +54,11 @@ The following directives are available:
     The merge diretive merges the results from the specified dataset with the
     data.  If a column exists, it is updated. If a column does not exist, it is
     created.
+  
+  delete [ARGUMENTS]
+
+    The delete directive removes results found in the specified dataset
+    from the data.  An error occurs if a column does not exist.
 
 ARGUMENTS
 
@@ -206,7 +211,7 @@ import pandas
 
 NAME = "geodata"
 GEODATA = sys.modules[__name__]
-DIRECTIVES = ["config","update","merge","append"]
+DIRECTIVES = ["config","create","merge","select","delete"]
 VERBOSE = False
 DEBUG = False
 SILENT = False
@@ -238,7 +243,6 @@ KEYINDEX = None
 E_OK = 0
 E_SYNTAX = 1
 E_NOTFOUND = 2
-
 
 def error(msg,exitcode=None):
     text = f"ERROR [{NAME}/{DATASET}]: {msg}"
