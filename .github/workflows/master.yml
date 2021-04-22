@@ -16,10 +16,6 @@ jobs:
 
       steps:
       - uses: actions/checkout@v2
-      - name: Set Git config
-        run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "Github Actions"
       - name: Update python3 modules
         run: pip3 install -r requirements.txt
       - name: Install openfido
@@ -44,10 +40,15 @@ jobs:
             validate.tar.gz
 
     release:
-      runs-on: ubuntu-latest
       if: github.event.pull_request.merged == true
-      
+      needs: build
+      runs-on: ubuntu-latest
       steps:
+      - uses: actions/checkout@v2
+      - name: Set Git config
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Github Actions"
       - name: Create Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # using github repo secrets... see: https://docs.github.com/en/actions/reference/encrypted-secrets
