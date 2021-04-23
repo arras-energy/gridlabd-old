@@ -79,7 +79,7 @@ def apply(data, options=default_options, config=default_config):
     except:
         path = None
     if type(path) == type(None):
-        raise Exception("address resolution requires 'latitude' and 'longitude' fields")
+        raise Exception("elevation dataset requires 'latitude' and 'longitude' fields")
     elev = []
     for pos in path:
         try:
