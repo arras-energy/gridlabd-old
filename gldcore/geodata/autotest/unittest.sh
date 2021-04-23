@@ -1,7 +1,4 @@
 #!/bin/bash
-set -e
-set -u
-set -x
 
 DIR=${0/unittest.sh/..}
 for F in $DIR/*.py; do
