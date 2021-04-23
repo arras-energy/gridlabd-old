@@ -221,14 +221,24 @@ if __name__ == '__main__':
 
     import unittest
 
-    class TestDistance(unittest.TestCase):
+    class TestElevation(unittest.TestCase):
 
-        def test_distance(self):
+        def test_elevation_meters(self):
             test = pandas.DataFrame({
                 "latitude" : [37.4205,37.5205],
                 "longitude" : [-122.2046,-122.3046],
                 })
             result = apply(test)
-            self.assertEqual(result["distance"][1],12604.0)
+            self.assertEqual(result["elevation"][0],85.0)
+            self.assertEqual(result["elevation"][1],157.0)
+
+        def test_elevation_feet(self):
+            test = pandas.DataFrame({
+                "latitude" : [37.4205,37.5205],
+                "longitude" : [-122.2046,-122.3046],
+                })
+            result = apply(test,{"units":"feet"})
+            self.assertEqual(result["elevation"][0],279.0)
+            self.assertEqual(result["elevation"][1],515.0)
 
     unittest.main()
