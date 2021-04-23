@@ -363,6 +363,8 @@ IDPRECISION = 0
 GEOPRECISION = 4
 OPTIONS = {}
 CONFIGURATION = {}
+FIELDSEP = ' '
+RECORDSEP = '\n'
 
 E_OK = 0
 E_SYNTAX = 1
@@ -651,7 +653,7 @@ def merge(args):
             error(str(result))
         result = None
     else:
-        result = set_index(data)
+        result = set_index(result)
     debug(f"merge(args={dataframe_to_table(data)}) -->\ndata = {dataframe_to_table(data)}options = {options}\nconfig = {config}")
     return result
 
@@ -671,17 +673,17 @@ def set_distance(data):
     post = 0.0
     global RESOLUTION
     for pos in list(zip(data["latitude"],data["longitude"])):
-        lat = float(pos[0])
-        lon = float(pos[1])
         segs = 1
         if last:
             dist = get_distance(pos,last)
             head = (270-numpy.arctan2(last[0]-pos[0],last[1]-pos[1])*180/math.pi)%360
             if RESOLUTION and RESOLUTION > 0 and RESOLUTION < dist:
                 segs = dist/RESOLUTION
-            dlat = (lat-last[0])/segs
-            dlon = (lon-last[1])/segs
+            dlat = (float(pos[0])-last[0])/segs
+            dlon = (float(pos[1])-last[1])/segs
         else:
+            lat = float(pos[0])
+            lon = float(pos[1])
             dist = 0.0
             head = float('nan')
         while segs > 1:
@@ -751,14 +753,14 @@ def write_raw(data):
     specs = FORMAT.split(":")
     with open(OUTPUT,"w") as fh:
         if len(specs) == 1:
-            print("\n".join(list(map(lambda x:" ".join(x.values()),data.astype('str').to_dict("records")))),file=fh)
+            print(RECORDSEP.join(list(map(lambda x:FIELDSEP.join(x.values()),data.astype('str').to_dict("records")))),file=fh)
         elif specs[1] == "FIELDS":
-            print("\n".join(list(map(lambda x:" ".join(x.keys()),data.astype('str').to_dict("records")))),file=fh)
+            print(RECORDSEP.join(list(map(lambda x:FIELDSEP.join(x.keys()),data.astype('str').to_dict("records")))),file=fh)
         else:
             try:
-                print("\n".join(list(map(lambda x:" ".join(x.values()),data.astype('str')[specs[1].split(",")].to_dict("records")))),file=fh)
+                print(RECORDSEP.join(list(map(lambda x:FIELDSEP.join(x.values()),data.astype('str')[specs[1].split(",")].to_dict("records")))),file=fh)
             except KeyError as err:
-                error("write_raw(): invalid field specified")
+                error("write_raw(): specified field(s) not found in data")
 
 def write_pos(data):
     """Write lat,lon output"""
@@ -934,6 +936,14 @@ def main(argc,argv):
             global WARNING
             WARNING = False
             verbose("warning output disable")
+        elif argv[n].startswith("--fieldsep="):
+            global FIELDSEP
+            FIELDSEP = argv[n].split("=")[1]
+            verbose("field separate is '{FIELDSEP}'")
+        elif argv[n].startswith("--recordsep="):
+            global RECORDSEP
+            RECORDSEP = argv[n].split("=")[1]
+            verbose("record separate is '{RECORDSEP}'")
         else:
             DIRECTIVE.append(argv[n])
         n += 1
