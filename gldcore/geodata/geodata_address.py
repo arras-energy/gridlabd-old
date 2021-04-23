@@ -88,7 +88,8 @@ def apply(data, options=default_options, config=default_config):
     if options["reverse"]:
 
         # convert address to lat,lon
-        if not "address" in data.columns:
+        print(list(data.columns))
+        if not "address" in list(data.columns):
             raise Exception("reserve address resolution requires 'address' field")
         data.reset_index(inplace=True) # index is not meaningful
         pos = geocode(data["address"],
@@ -128,22 +129,20 @@ if __name__ == '__main__':
 
     class TestAddress(unittest.TestCase):
 
-        def test_address(self):
+        def test_address_reverse(self):
             test = DataFrame({
                 "address":["2575 Sand Hill Rd., Menlo Park, CA 94025, USA"],
                 })
-            result = apply(test)
+            result = apply(test,{"reverse":True})
             self.assertEqual(round(result["latitude"][0],6),37.420457)
             self.assertEqual(round(result["longitude"][0],6),-122.204568)
 
-        def test_reverse(self):
-            options = default_options
-            options["reverse"] = True
+        def test_address(self):
             test = DataFrame({
                 "latitude" : [37.4205],
                 "longitude" : [-122.2046],
                 })
-            result = apply(test, options)
+            result = apply(test)
             self.assertEqual(result["address"][0],"Stanford Linear Accelerator Center National Accelerator Laboratory, Sand Hill Road, Menlo Park, San Mateo County, California, 94028, United States")
 
     unittest.main()
