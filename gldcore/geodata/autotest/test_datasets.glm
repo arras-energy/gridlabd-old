@@ -1,5 +1,5 @@
-#ifexist "../autotest.sh"
+#ifexist "../unittest.sh"
 #define DIR=..
 #endif
 
-#exec ${DIR:-.}/autotest.sh
+#exec ${DIR:-.}/unittest.sh
