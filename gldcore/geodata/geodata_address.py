@@ -88,7 +88,6 @@ def apply(data, options=default_options, config=default_config):
     if options["reverse"]:
 
         # convert address to lat,lon
-        print(list(data.columns))
         if not "address" in list(data.columns):
             raise Exception("reserve address resolution requires 'address' field")
         data.reset_index(inplace=True) # index is not meaningful
