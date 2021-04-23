@@ -70,9 +70,9 @@ if __name__ == '__main__':
     class TestPowerline(unittest.TestCase):
 
         def test_linesag(self):
-            self.assertEqual(linesag(),float('nan'))
+            self.assertEqual(linesag(TODO),TODO)
 
         def test_linesway(self):
-            self.assertEqual(linesway(),float('nan'))
+            self.assertEqual(linesway(TODO),TODO)
 
     unittest.main()
