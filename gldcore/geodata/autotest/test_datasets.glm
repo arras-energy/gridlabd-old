@@ -1,0 +1,5 @@
+#ifexist "../autotest.sh"
+#define DIR=..
+#endif
+
+#exec ${DIR:-.}/autotest.sh
