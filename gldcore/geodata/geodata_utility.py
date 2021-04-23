@@ -64,57 +64,72 @@ import fiona
 import pickle
 import numpy as np
 from shapely.geometry import Point
+from haversine import haversine_vector
+
+CACHEDIR = os.getenv("GLD_ETC")
+if not CACHEDIR:
+    CACHEDIR = "/usr/local/share/gridlabd"
+
+REPOURL = os.getenv("REPOURL")
+if not REPOURL:
+    REPOURL = "http://geodata.gridlabd.us"
 
 #
 # Defaults
 #
 default_options = {
+    "fields" : "NAME",
 }
 
 default_config = {
-    "repourl" : "http://geodata.gridlabd.us/utility",
-    "resolution" : 10.0,
-    "cachedir" : "/usr/local/share/gridlabd/geodata/utility",
+    "repourl" : f"{REPOURL}/utility",
+    "kmlrepo" : f"{REPOURL}/utility/geometry.kml",
+    "csvrepo" : f"{REPOURL}/utility/information.csv",
+    "cachedir" : f"{CACHEDIR}/geodata/utility",
+    "kmlfile" : f"{CACHEDIR}/geometry.kml",
+    "csvfile" : f"{CACHEDIR}/information.csv",
 }
 
-kmlfile = None
+#
+# Internal data
+#
 kmldata = None
-csvfile = None
 csvdata = None
-
-TODO = 199 # utility id to use until get_utility works ok
+config = default_config
+options = default_options
 
 def read_kml():
+    """Read KML data from cache, and download from repo if necessary"""
     global kmldata
+    global config
     if type(kmldata) == type(None):
-        if not os.path.exists(kmlfile):
-            verbose("Downloading kml")
+        if not os.path.exists(config["kmlfile"]):
             geopandas.io.file.fiona.drvsupport.supported_drivers['KML'] = 'rw'
-            kmldata = geopandas.read_file(geodata.get_config("repourl")+"/geometry.kml", driver="KML")
-            verbose("Caching kml")
-            with open(kmlfile, "wb") as fh:
+            kmldata = geopandas.read_file(config["kmlrepo"], driver="KML")
+            os.makedirs(config["cachedir"],exist_ok=True)
+            with open(config["kmlfile"], "wb") as fh:
                 pickle.dump(kmldata,fh)
         else:
-            verbose("Reading kml")
-            with open(kmlfile, "rb") as fh:
+            with open(config["kmlfile"], "rb") as fh:
                 kmldata = pickle.load(fh)
     return kmldata
 
 def read_csv():
+    """Read CSV data from cache, and download from repo if necessary"""
     global csvdata
+    global config
     if type(csvdata) == type(None):
-        if not os.path.exists(csvfile):
-            verbose("Downloading csv")
-            csvdata = pandas.read_csv(geodata.get_config("repourl")+"/information.csv",
+        if not os.path.exists(config["csvfile"]):
+            csvdata = pandas.read_csv(config["csvrepo"],
                 na_values=["-999999","NOT AVAILABLE"])
-            verbose("Caching csv")
-            csvdata.to_csv(csvfile)
+            os.makedirs(config["cachedir"],exist_ok=True)
+            csvdata.to_csv(config["csvfile"])
         else:
-            verbose("Reading csv")
-            csvdata = pandas.read_csv(csvfile)
+            csvdata = pandas.read_csv(config["csvfile"])
     return csvdata
 
 def get_information(id,field=None):
+    """Get the utility information dataframe"""
     data = read_csv()
     if field:
         return data[field][id]
@@ -122,105 +137,92 @@ def get_information(id,field=None):
         return data.iloc[id]
 
 def get_geometry(id):
-    data = read_csv()
+    """Get the utility territory geometry"""
     geom = read_kml()
     return geom["geometry"][id]
 
 def get_utility(pos):
-    kml = read_kml()
-    result = list(kml[kml.contains(Point(pos[1],pos[0]))==True].index)
-    return result
+    """Returns the utility id(s) at the given position(s)
 
-def get_distance(pos1, pos2):
-    """Compute haversine distance between two locations
+    ARGUMENT
 
-    ARGUMENTS
+        pos (tuple)   (latitude,longitude) of position
 
-        pos1, pos2 (float tuple)   Specifies the two geographic endpoints as a
-                                   (latitude,longtitude) tuple
-    RETURNS
+        pos (list)    list of (latitude,longitude) positions
 
-        float   The distance between the two points in meters.
+    RETURN
+
+        int           utility id if pos is a tuple
+
+        list          list of utility ids if pos is a list of tuples
     """
-    lat1 = pos1[0]*math.pi/180
-    lat2 = pos2[0]*math.pi/180
-    lon1 = pos1[1]*math.pi/180
-    lon2 = pos2[1]*math.pi/180
-    a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
-    return 6371e3*(2*np.arctan2(np.sqrt(a),np.sqrt(1-a)))
+    kml = read_kml()
+    if type(pos[0]) in (list,tuple): # vector of positions
+        return list(map(lambda x: list(kml[kml.contains(Point(x[1],x[0]))==True].index),pos))
+    else: # singleton
+        return list(kml[kml.contains(Point(pos[1],pos[0]))].index)
 
 def get_position(pos):
     """Compute the (latitude,longitude) tuple of the position given
 
-    ARGUMENTS
+    ARGUMENT
+
         pos (str)   The position given as a comma-delimeted string
+
         pos (tuple) The position given as a (lat,lon) tuple
 
-    RETURNS
+    RETURN
+
         tuple   The position given as a (lat,lon) tuple
     """
     if type(pos) is str:
         return list(map(lambda x: float(x),pos.split(",")))
     return pos
 
-def apply(data, options=default_options, config=default_config):
+def apply(data, user_options=default_options, user_config=default_config):
     """Obtain the utility information for the locations specified"""
-    if not args:
-        error(f"{DATASET}.get_location({args}) missing one or more position arguments",geodata.E_SYNTAX)
-    info = {"latitude":[],"longitude":[],DATASET:[]}
-    resolution = geodata.get_resolution()
-    pos0 = None
-    keys = read_csv().keys()
-    for key in keys:
-        info[key] = []
-    for arg in args:
-        pos = get_position(arg)
+
+    global options
+    options = user_options
+
+    global config
+    config = user_config
+
+    csv_keys = read_csv().keys()
+    info = {"latitude":[],"longitude":[]}
+    if not type(options["fields"]) is str:
+        raise Exception(f"configured fields '{config['fields']}' is not valid")
+    options["fields"] = options["fields"].split(",")
+    for field in options["fields"]:
+        if field not in csv_keys:
+            raise Exception(f"field '{field}' not found in repo '{csvrepo}'")
+        info[field] = []
+    if "latitude" not in data.columns or "longitude" not in data.columns:
+        raise Exception("data must include 'latitude' and 'longitude' columns")
+    for index, row in data.iterrows():
+        pos = get_position((row["latitude"],row["longitude"]))
         id = get_utility(pos)
-        if len(id) == 0:
-            data = {}
-        else:
-            if len(id) > 1:
-                warning(f"position {pos} yielded more than one result, using first only")
-            data = get_information(id[0])
-        if pos0:
-            d = get_distance(pos0,pos)
-        else:
-            d = 0
+        values = get_information(id)
         info["latitude"].append(pos[0])
         info["longitude"].append(pos[1])
-        for key in keys:
-            if key in data.keys():
-                info[key].append(data[key])
-            else:
-                info[key].append("")
-        if "NAME" in data.keys():
-            info[DATASET].append(data["NAME"])
-        else:
-            info[DATASET].append("")
-        pos0 = pos
+        for key in options["fields"]:
+            info[key].extend(values[key].to_list())
     result = pandas.DataFrame(info)
-    result["id"] = geodata.distance(list(zip(info["latitude"],info["longitude"])))
-    result.set_index("id")
     return result
 
 # perform validation tests
 if __name__ == '__main__':
 
     import unittest
-    import numpy
-    IDPRECISION = 3
-    kmlfile = "/usr/local/share/gridlabd/geodata/utility/geometry.kml"
-    csvfile = "/usr/local/share/gridlabd/geodata/utility/information.csv"
-    os.makedirs("/usr/local/share/gridlabd/geodata/utility",exist_ok=True)
 
     class TestDataset(unittest.TestCase):
 
         def test_utility_geometry(self):
-            self.assertEqual(numpy.round(get_geometry(199).area,2),17.74)
-        
+            self.assertEqual(round(get_geometry(199).area,2),17.74)
+
         def test_utility_name(self):
             self.assertEqual(get_information(199,"NAME"),"PACIFIC GAS & ELECTRIC CO.")
-        
+
         def test_utility_information(self):
             self.assertEqual(get_information(199)["NAME"],"PACIFIC GAS & ELECTRIC CO.")
 
