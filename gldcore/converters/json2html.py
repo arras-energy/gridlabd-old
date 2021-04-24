@@ -1,20 +1,180 @@
+"""Convert GLM to HTML Folium interactive map"""
 import os, sys, getopt
 import json 
 import folium
+from folium.plugins import MarkerCluster
 import numpy
 
-icons = {
-    "node" : {"icon":"circle","prefix":"fa"},
-    "load" : {"icon":"angle-double-down","prefix":"fa"},
-    "overhead_line" : {"icon":"bars","prefix":"fa"},
-    "underground_line" : {"icon":"bars","prefix":"fa"},
-    "triplex_line" : {"icon":"grip-lines","prefix":"fa"},
-    "triplex_load" : {"icon":"angle-double-down","prefix":"fa"},
-    "regulator" : {"icon":"adjust","prefix":"fa"},
-    "switch" : {"icon":"square","prefix":"fa"},
-    "transformer" : {"icon":"squarespace","prefix":"fa"},
-    "meter" : {"icon":"clock","prefix":"fa"},
-    "capacitor" : {"icon":"battery-half","prefix":"fa"}
+def main(argv):
+    filename_json = ''
+    filename_html = ''
+    basename = ''
+    output_type = 'oneline'
+    zoomlevel = 'auto'
+    show = False
+    tiles = "OpenStreet"
+    cluster_ok = True
+
+    def help():
+        print('Syntax:')
+        print('json2html.py -i|--ifile <input-name> [-o|--ofile <output-name>] [-z|--zoom <zoomlevel>] [-s|--show] [-t|--tiles <name>')
+        print('  -i|--ifile                 : [REQUIRED] json input file name.')
+        print('  -o|--ofile                 : [OPTIONAL] png output file name (default is <input-name>.png)')
+        print('  -z|--zoom <level>          : [OPTIONAL] map initial zoom level (default is "%s")' % zoomlevel)
+        print('  -s|--show                  : [OPTIONAL] show map in browser (default is "%s")' % show)
+        print('  -t|--tiles <name>          : [OPTIONAL] use alternate map tiles (default is "%s")' % tiles)
+        print('  -c|--cluster               : [OPTIONAL] enable cluster markers (default is "%s")' % cluster_ok)
+
+    try : 
+        opts, args = getopt.getopt(sys.argv[1:],"hi:o:z:st:",["help","ifile=","ofile=","zoomlevel=","show","tiles="])
+    except getopt.GetoptError:
+        sys.exit(2)
+    if not opts : 
+        help()
+        sys.exit(1)
+    for opt, arg in opts:
+        if opt in ("-h","--help"):
+            help()
+            sys.exit(0)
+        elif opt in ("-i", "--ifile"):
+            filename_json = arg
+            if filename_html == '':
+                if filename_json[-5:] == ".json":
+                    basename = filename_json[:-5]
+                else: 
+                    basename = filename_json
+                filename_html = basename + ".html"
+        elif opt in ("-o", "--ofile"):
+            filename_png = arg
+        elif opt in ("-z","--zoomlevel"):
+            zoomlevel = int(arg)
+        elif opt in ("-s","--show"):
+            show = True
+        elif opt in ("-t","--tiles"):
+            tiles = arg
+        else:
+            raise Exception("'%s' is an invalid command line option" % opt)
+
+    with open(filename_json,"r") as f :
+        data = json.load(f)
+        assert(data['application']=='gridlabd')
+        assert(data['version'] >= '4.2.0')
+
+    lats = []
+    lons = []
+    tags = []
+    for name, values in data["objects"].items():
+        try:
+            lat = float(values["latitude"])
+            lon = float(values["longitude"])
+            lats.append(lat)
+            lons.append(lon)
+            tags.append([(lat,lon),name,values])
+        except:
+            pass
+    lats = numpy.array(lats)
+    lons = numpy.array(lons)
+
+    if zoomlevel == "auto":
+        map = folium.Map(location=[lats.mean(),lons.mean()],tile=tiles)
+        try:
+            if cluster_ok:
+                cluster = MarkerCluster().add_to(map)
+            else:
+                cluster = map
+        except Exception as msg:
+            print(f"marker cluster disabled ({msg})")
+            cluster = map
+            pass
+        map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
+    else:
+        map = folium.Map(location=[lats.mean(),lons.mean()],tile=tiles,zoom_start=zoomlevel)
+    for pos, name, tag in tags:
+        popup = get_popup(name,tag)
+        oclass = tag["class"]
+        color = get_color(tag)
+        if icon_prefix in icons.keys():
+            if oclass in icons[icon_prefix].keys():
+                icon = folium.Icon(icon=icons[icon_prefix][oclass],color=color,prefix=icon_prefix)
+            else:
+                icon = None
+        else:
+            icon = folium.Icon(color=color)
+        try:
+            from_name = tag["from"]
+            to_name = tag["to"]
+            from_obj = data["objects"][from_name]
+            lat0 = float(from_obj["latitude"])
+            lon0 = float(from_obj["longitude"])
+            to_obj = data["objects"][to_name]
+            lat1 = float(to_obj["latitude"])
+            lon1 = float(to_obj["longitude"])
+            phases = from_obj["phases"]
+            if tag["class"].startswith("underground"):
+                opacity = 0.3
+            else:
+                opacity = 0.7
+            obj = folium.PolyLine([(lat0,lon0),(lat1,lon1)],color=color,weight=len(phases)*2,opacity=opacity,popup=popup)
+        except:
+            if not icon:
+                print(f"WARNING [json2html]: object '{name}' has no known icon (class '{oclass})'")
+                icon = folium.Icon(color=color)
+            else:
+                obj = folium.Marker(pos,icon=icon,popup=popup)
+        obj.add_to(cluster)
+    map.save(filename_html)
+    if show:
+        os.system(f"open {filename_html}")
+
+icon_prefix = "glyphicon"
+icons = {"fa":
+    {
+        "substation" : "sitemap",
+        "node" : "circle",
+        "load" : "chevron-circle-down",
+        "triplex_load" : "angle-double-down",
+        "regulator" : "adjust",
+        "switch" : "square",
+        "transformer" : "squarespace",
+        "meter" : "clock",
+        "capacitor" : "hockey-puck",
+        "inverter" : "chevron-circle-up",
+        "office" : "building",
+        "apartment" : "hotel",
+        "house" : "home",
+        "evcharger" : "charging-station",
+        "industrial" : "industry",
+        "parking" : "parking",
+        "solar" : "solar-panel",
+        "battery" : "battery-half",
+        "energy-storage" : "battery-empty",
+        "weather" : "wind",
+        "climate" : "sun",
+    },
+    "glyphicon":
+    {
+        "substation" : "glyphicon-th-list",
+        "node" : "glyphicon-record",
+        "load" : "glyphicon-circle-arrow-down",
+        "triplex_load" : "glyphicon-triangle-bottom",
+        "regulator" : "glyphicon-ban-circle",
+        "switch" : "glyphicon-stop",
+        "transformer" : "glyphicon-link",
+        "meter" : "glyphicon-dashboard",
+        "capacitor" : "glyphicon-oil",
+        "inverter" : "chevron-circle-up",
+        "office" : "glyphicon glyphicon-th",
+        "apartment" : "glyphicon-th-large",
+        "house" : "glyphicon-home",
+        "evcharger" : "glyphicon-flash",
+        "industrial" : "glyphicon-home",
+        "parking" : "glyphicon-home",
+        "solar" : "glyphicon-home",
+        "battery" : "glyphicon-home",
+        "energy-storage" : "glyphicon-modal-window",
+        "weather" : "glyphicon-certificate",
+        "climate" : "glyphicon-certificate",
+    },
 }
 voltage_colors = {
     "zero" : "black",
@@ -94,97 +254,15 @@ def get_color(tag):
 
     return "gray"
 
-def main(argv):
-    filename_json = ''
-    filename_html = ''
-    basename = ''
-    output_type = 'oneline'
-    zoomlevel = 'auto'
-    show = False
-    tiles = "OpenStreet"
-
-    def help():
-        print('Syntax:')
-        print('json2html.py -i|--ifile <input-name> [-o|--ofile <output-name>] [-z|--zoom <zoomlevel>] [-s|--show] [-t|--tiles <name>')
-        print('  -i|--ifile                 : [REQUIRED] json input file name.')
-        print('  -o|--ofile                 : [OPTIONAL] png output file name (default is <input-name>.png)')
-        print('  -z|--zoom <level>          : [OPTIONAL] map initial zoom level (default is "%s")' % zoomlevel)
-        print('  -s|--show                  : [OPTIONAL] show map in browser (default is "%s")' % show)
-        print('  -t|--tiles <name>          : [OPTIONAL] use alternate map tiles (default is "%s")' % tiles)
-
-    try : 
-        opts, args = getopt.getopt(sys.argv[1:],"hi:o:z:st:",["help","ifile=","ofile=","zoomlevel=","show","tiles="])
-    except getopt.GetoptError:
-        sys.exit(2)
-    if not opts : 
-        help()
-        sys.exit(1)
-    for opt, arg in opts:
-        if opt in ("-h","--help"):
-            help()
-            sys.exit(0)
-        elif opt in ("-i", "--ifile"):
-            filename_json = arg
-            if filename_html == '':
-                if filename_json[-5:] == ".json":
-                    basename = filename_json[:-5]
-                else: 
-                    basename = filename_json
-                filename_html = basename + ".html"
-        elif opt in ("-o", "--ofile"):
-            filename_png = arg
-        elif opt in ("-z","--zoomlevel"):
-            zoomlevel = int(arg)
-        elif opt in ("-s","--show"):
-            show = True
-        elif opt in ("-t","--tiles"):
-            tiles = arg
-        else:
-            raise Exception("'%s' is an invalid command line option" % opt)
-
-    with open(filename_json,"r") as f :
-        data = json.load(f)
-        assert(data['application']=='gridlabd')
-        assert(data['version'] >= '4.2.0')
-
-    lats = []
-    lons = []
-    tags = []
-    for name, values in data["objects"].items():
-        try:
-            lat = float(values["latitude"])
-            lon = float(values["longitude"])
-            lats.append(lat)
-            lons.append(lon)
-            tags.append([(lat,lon),name,values])
-        except:
-            pass
-    lats = numpy.array(lats)
-    lons = numpy.array(lons)
-
-    if zoomlevel == "auto":
-        map = folium.Map(location=[lats.mean(),lons.mean()],tile=tiles)
-        map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
-    else:
-        map = folium.Map(location=[lats.mean(),lons.mean()],tile=tiles,zoom_start=zoomlevel)
-    for pos, name, tag in tags:
-        style = "<STYLE>#box{overflow:scroll;height:20em}</STYLE>"
-        popup = f"{style}<DIV ID=\"box\"><TABLE><CAPTION>{name}</CAPTION>\n"
-        popup += "<TR><TH><HR/></TH><TD><HR/></TD></TR>"
-        for item, value in tag.items():
-            popup += f"<TR><TH>{item}</TH><TD>{value}</TD></TR>\n"
-        popup += "<TR><TH><HR/></TH><TD><HR/></TD></TR>"
-        popup += f"</TABLE></DIV>\n"
-        oclass = tag["class"]
-        color = get_color(tag)
-        if oclass in icons.keys():
-            icon = folium.Icon(**icons[oclass],color=color)
-        else:
-            icon = folium.Icon(icon="none",color=color)
-        folium.Marker(pos,icon=icon,popup=popup).add_to(map)
-    map.save(filename_html)
-    if show:
-        os.system(f"open {filename_html}")
+def get_popup(name,tag):
+    style = "<STYLE>#box{overflow:scroll;height:20em}</STYLE>"
+    popup = f"{style}<DIV ID=\"box\"><TABLE><CAPTION>{name}</CAPTION>\n"
+    popup += "<TR><TH><HR/></TH><TD><HR/></TD></TR>"
+    for item, value in tag.items():
+        popup += f"<TR><TH>{item}</TH><TD>{value}</TD></TR>\n"
+    popup += "<TR><TH><HR/></TH><TD><HR/></TD></TR>"
+    popup += f"</TABLE></DIV>\n"
+    return popup
 
 if __name__ == '__main__':
     main(sys.argv.extend(["-i","autotest/IEEE-123.json","-s"]))
