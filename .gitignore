@@ -165,4 +165,4 @@ gridlabd-core.*
 documents/gridlabd.md
 documents/gridlabd.pdf
 openfido.err
-gldcore/converters/autotest/IEEE-123.html
+/autotest/*.html

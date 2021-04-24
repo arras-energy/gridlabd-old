@@ -5,35 +5,47 @@ import folium
 from folium.plugins import MarkerCluster
 import numpy
 
+icon_prefix = "glyphicon"
+zoomlevel = 'auto'
+show = False
+tiles = "OpenStreet"
+cluster_ok = True
+
 def main(argv):
+    global icon_prefix
+    global zoomlevel
+    global show
+    global tiles
+    global cluster_ok
+
     filename_json = ''
     filename_html = ''
     basename = ''
-    output_type = 'oneline'
-    zoomlevel = 'auto'
-    show = False
-    tiles = "OpenStreet"
-    cluster_ok = True
 
     def help():
         print('Syntax:')
         print('json2html.py -i|--ifile <input-name> [-o|--ofile <output-name>] [-z|--zoom <zoomlevel>] [-s|--show] [-t|--tiles <name>')
+        print('  -g|--glyphs                : [OPTIONAL] change the folium glyph prefix (default is "%s")' % icon_prefix)
         print('  -i|--ifile                 : [REQUIRED] json input file name.')
+        print('  -c|--cluster               : [OPTIONAL] enable cluster markers (default is "%s")' % cluster_ok)
         print('  -o|--ofile                 : [OPTIONAL] png output file name (default is <input-name>.png)')
-        print('  -z|--zoom <level>          : [OPTIONAL] map initial zoom level (default is "%s")' % zoomlevel)
         print('  -s|--show                  : [OPTIONAL] show map in browser (default is "%s")' % show)
         print('  -t|--tiles <name>          : [OPTIONAL] use alternate map tiles (default is "%s")' % tiles)
-        print('  -c|--cluster               : [OPTIONAL] enable cluster markers (default is "%s")' % cluster_ok)
+        print('  -z|--zoom <level>          : [OPTIONAL] map initial zoom level (default is "%s")' % zoomlevel)
 
     try : 
-        opts, args = getopt.getopt(sys.argv[1:],"hi:o:z:st:",["help","ifile=","ofile=","zoomlevel=","show","tiles="])
+        opts, args = getopt.getopt(sys.argv[1:],"g:hi:o:st:z:",["glyphs=","help","ifile=","ofile=","show","tiles=","zoomlevel="])
     except getopt.GetoptError:
         sys.exit(2)
     if not opts : 
         help()
         sys.exit(1)
     for opt, arg in opts:
-        if opt in ("-h","--help"):
+        if opt in ("-g","--glyphs"):
+            icon_prefix = arg
+            if arg not in icons.keys():
+                raise Exception("glyph '%s' is not a valid folium marker prefix (i.e., %s)" % (arg,", ".join(list(icons.keys()))))
+        elif opt in ("-h","--help"):
             help()
             sys.exit(0)
         elif opt in ("-i", "--ifile"):
@@ -46,12 +58,12 @@ def main(argv):
                 filename_html = basename + ".html"
         elif opt in ("-o", "--ofile"):
             filename_png = arg
-        elif opt in ("-z","--zoomlevel"):
-            zoomlevel = int(arg)
         elif opt in ("-s","--show"):
             show = True
         elif opt in ("-t","--tiles"):
             tiles = arg
+        elif opt in ("-z","--zoomlevel"):
+            zoomlevel = int(arg)
         else:
             raise Exception("'%s' is an invalid command line option" % opt)
 
@@ -126,7 +138,6 @@ def main(argv):
     if show:
         os.system(f"open {filename_html}")
 
-icon_prefix = "glyphicon"
 icons = {"fa":
     {
         "substation" : "sitemap",
