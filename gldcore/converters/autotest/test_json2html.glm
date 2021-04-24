@@ -1,0 +1,18 @@
+
+class node
+{
+    string address;
+}
+
+object node
+{
+    address "2757 Sand Hill Rd., Menlo Park CA";
+    latitude "37.4205";
+    longitude "-122.2047";
+}
+
+#system rm -f test_json2html.html
+
+#output "test_json2html.html"
+
+#on_exit 0 test ! -z test_json2html.html

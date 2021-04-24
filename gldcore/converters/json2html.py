@@ -265,4 +265,4 @@ def get_popup(name,tag):
     return popup
 
 if __name__ == '__main__':
-    main(sys.argv.extend(["-i","autotest/IEEE-123.json","-s"]))
+    main(sys.argv)
