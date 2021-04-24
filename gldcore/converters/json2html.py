@@ -90,7 +90,6 @@ def get_color(tag):
         # print("get_color():",tag["class"],tag["id"],"-->",PH,CA,CB,CC,C0,C1,"-->",color)
         return color
     except Exception as err:
-        print(sys.exc_info())
         pass
 
     return "gray"
