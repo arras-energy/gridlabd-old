@@ -165,4 +165,4 @@ gridlabd-core.*
 documents/gridlabd.md
 documents/gridlabd.pdf
 openfido.err
-/autotest/*.html
+test_*.html
