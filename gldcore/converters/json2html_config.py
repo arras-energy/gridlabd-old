@@ -3,7 +3,7 @@
 #
 # Default values for options
 #
-icon_prefix = 'glyphicon' # --glyphs
+icon_prefix = 'fa' # --glyphs
 zoomlevel = 'auto' # --zoomlevel
 show = False # --show
 tiles = "OpenStreetMap" # --tiles
