@@ -8,12 +8,15 @@ import numpy
 os.putenv(f"PYTHONPATH",sys.argv[0].replace("/json2html.py",""))
 from json2html_config import *
 
+data = {}
+
 def main(argv):
     global icon_prefix
     global zoomlevel
     global show
     global tiles
     global cluster_ok
+    global data
 
     filename_json = ''
     filename_html = ''
@@ -220,7 +223,11 @@ def get_popup(name,tag):
     popup = f"{style}<DIV ID=\"box\"><TABLE><CAPTION>{name}</CAPTION>\n"
     popup += "<TR><TH><HR/></TH><TD><HR/></TD></TR>"
     for item, value in tag.items():
-        popup += f"<TR><TH>{item}</TH><TD>{value}</TD></TR>\n"
+        if item == "class":
+            module = data["classes"][value]["module"]
+            popup += f"<TR><TH>{item}</TH><TD><A TARGET=\"_blank\" HREF=\"https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/{module.title()}/{value.title()}.md\">{value}</A></TD></TR>\n"
+        else:
+            popup += f"<TR><TH>{item}</TH><TD>{value}</TD></TR>\n"
     popup += "<TR><TH><HR/></TH><TD><HR/></TD></TR>"
     popup += f"</TABLE></DIV>\n"
     return popup
