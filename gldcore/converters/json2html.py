@@ -114,7 +114,7 @@ def main(argv):
                 icon = None
         else:
             icon = folium.Icon(color=color)
-        try:
+        try: # attempt to handle as a link
             from_name = tag["from"]
             to_name = tag["to"]
             from_obj = data["objects"][from_name]
@@ -128,14 +128,20 @@ def main(argv):
                 opacity = 0.3
             else:
                 opacity = 0.7
-            obj = folium.PolyLine([(lat0,lon0),(lat1,lon1)],color=color,weight=len(phases)*2,opacity=opacity,popup=popup)
-        except:
+            obj = folium.PolyLine([(lat0,lon0),(lat1,lon1)],color=color,weight=len(phases)*2,opacity=opacity,popup=popup,name=name)
+        except: # apparently not a link, so it's a node or other object
             if not icon:
                 print(f"WARNING [json2html]: object '{name}' has no known icon (class '{oclass})'")
                 icon = folium.Icon(color=color)
             else:
-                obj = folium.Marker(pos,icon=icon,popup=popup)
+                obj = folium.Marker(pos,icon=icon,popup=popup,name=name)
         obj.add_to(cluster)
+    folium.plugins.MousePosition(auto_start=True).add_to(map)
+    folium.plugins.Search(cluster,search_label="name").add_to(map)
+    folium.plugins.Geocoder().add_to(map)
+    folium.plugins.MeasureControl().add_to(map)
+    if zoomtoggle:
+        folium.plugins.ScrollZoomToggler().add_to(map)
     map.save(filename_html)
     if show:
         os.system(f"open {filename_html}")
@@ -216,4 +222,4 @@ def get_popup(name,tag):
     return popup
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv.extend(["-i","autotest/IEEE-123.json","--show"]))

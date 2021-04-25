@@ -8,6 +8,7 @@ zoomlevel = 'auto' # --zoomlevel
 show = False # --show
 tiles = "OpenStreetMap" # --tiles
 cluster_ok = True # --cluster
+zoomtoggle = False
 
 #
 # Tile options
