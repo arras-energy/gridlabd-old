@@ -8,7 +8,14 @@ zoomlevel = 'auto' # --zoomlevel
 show = False # --show
 tiles = "OpenStreetMap" # --tiles
 cluster_ok = True # --cluster
-zoomtoggle = False
+
+#
+# Control options
+mouseposition = 'bottomright' # enables mouse position in lower
+search = 'topleft' # enables to search tool
+geocoder = 'topright' # enable the geocoder search tool
+measurecontrol = None # enable the measurement tool
+zoomtoggle = None # enable the zoom toggle control
 
 #
 # Tile options

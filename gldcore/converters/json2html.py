@@ -136,10 +136,14 @@ def main(argv):
             else:
                 obj = folium.Marker(pos,icon=icon,popup=popup,name=name)
         obj.add_to(cluster)
-    folium.plugins.MousePosition(auto_start=True).add_to(map)
-    folium.plugins.Search(cluster,search_label="name").add_to(map)
-    folium.plugins.Geocoder().add_to(map)
-    folium.plugins.MeasureControl().add_to(map)
+    if mouseposition:
+        folium.plugins.MousePosition(auto_start=True,position=mouseposition).add_to(map)
+    if search:
+        folium.plugins.Search(cluster,search_label="name").add_to(map)
+    if geocoder:
+        folium.plugins.Geocoder().add_to(map)
+    if measurecontrol:
+        folium.plugins.MeasureControl().add_to(map)
     if zoomtoggle:
         folium.plugins.ScrollZoomToggler().add_to(map)
     map.save(filename_html)
