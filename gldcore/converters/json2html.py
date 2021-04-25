@@ -24,24 +24,27 @@ def main(argv):
 
     def help():
         print('Syntax:')
-        print('json2html.py -i|--ifile <input-name> [-o|--ofile <output-name>] [-z|--zoom <zoomlevel>] [-s|--show] [-t|--tiles <name>')
-        print('  -g|--glyphs                : [OPTIONAL] change the folium glyph prefix (default is "%s")' % icon_prefix)
-        print('  -i|--ifile                 : [REQUIRED] json input file name.')
+        print('json2html.py -i|--ifile <input-name> [OPTIONS ...]')
+        print('Options:')
         print('  -c|--cluster               : [OPTIONAL] enable cluster markers (default is "%s")' % cluster_ok)
-        print('  -o|--ofile                 : [OPTIONAL] png output file name (default is <input-name>.png)')
+        print('  -g|--glyphs PREFIX         : [OPTIONAL] change the folium glyph prefix (default is "%s")' % icon_prefix)
+        print('  -i|--ifile NAME            : [REQUIRED] json input file name.')
+        print('  -o|--ofile NAME            : [OPTIONAL] png output file name (default is <input-name>.png)')
         print('  -s|--show                  : [OPTIONAL] show map in browser (default is "%s")' % show)
-        print('  -t|--tiles <name>          : [OPTIONAL] use alternate map tiles (default is "%s")' % tiles)
-        print('  -z|--zoom <level>          : [OPTIONAL] map initial zoom level (default is "%s")' % zoomlevel)
+        print('  -t|--tiles NAME            : [OPTIONAL] use alternate map tiles (default is "%s")' % tiles)
+        print('  -z|--zoom LEVEL            : [OPTIONAL] map initial zoom level (default is "%s")' % zoomlevel)
 
     try : 
-        opts, args = getopt.getopt(sys.argv[1:],"g:hi:o:st:z:",["glyphs=","help","ifile=","ofile=","show","tiles=","zoomlevel="])
+        opts, args = getopt.getopt(sys.argv[1:],"cg:hi:o:st:z:",["cluster","glyphs=","help","ifile=","ofile=","show","tiles=","zoomlevel="])
     except getopt.GetoptError:
         sys.exit(2)
     if not opts : 
         help()
         sys.exit(1)
     for opt, arg in opts:
-        if opt in ("-g","--glyphs"):
+        if opt in ("-c","--cluster"):
+            cluster_ok = False
+        elif opt in ("-g","--glyphs"):
             icon_prefix = arg
             if arg not in icons.keys():
                 raise Exception("glyph '%s' is not a valid folium marker prefix (i.e., %s)" % (arg,", ".join(list(icons.keys()))))
