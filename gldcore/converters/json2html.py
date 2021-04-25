@@ -8,9 +8,14 @@ import numpy
 icon_prefix = "glyphicon"
 zoomlevel = 'auto'
 show = False
-tiles = "OpenStreet"
+tiles = "street"
 cluster_ok = True
 
+map_tiles = {
+    "street" : "OpenStreetMap",
+    "terrain" : "Stamen Terrain",
+    "lineart" : "Stamen Toner",
+}
 def main(argv):
     global icon_prefix
     global zoomlevel
@@ -64,7 +69,9 @@ def main(argv):
         elif opt in ("-s","--show"):
             show = True
         elif opt in ("-t","--tiles"):
-            tiles = arg
+            if not arg in map_tiles.keys():
+                raise Exception(f"'%s' is not a valid map tile (i.e., %s)" % (arg,", ".join(map_tiles.keys())))
+            tiles = map_tiles[arg]
         elif opt in ("-z","--zoomlevel"):
             zoomlevel = int(arg)
         else:
@@ -91,7 +98,7 @@ def main(argv):
     lons = numpy.array(lons)
 
     if zoomlevel == "auto":
-        map = folium.Map(location=[lats.mean(),lons.mean()],tile=tiles)
+        map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles)
         try:
             if cluster_ok:
                 cluster = MarkerCluster().add_to(map)
@@ -103,7 +110,7 @@ def main(argv):
             pass
         map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
     else:
-        map = folium.Map(location=[lats.mean(),lons.mean()],tile=tiles,zoom_start=zoomlevel)
+        map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles,zoom_start=zoomlevel)
     for pos, name, tag in tags:
         popup = get_popup(name,tag)
         oclass = tag["class"]

@@ -26,7 +26,7 @@ Immediately open the HTML file in the default browser.
 
 ### `-t|--tiles TILES`
 
-The output PNG is a oneline diagram of the powerflow network.
+Specifies which background tiles are to be used. Valid values are `street`, `terrain`, `lineart`, 
 
 ### `-z|--zoomlevel LEVEL`
 
