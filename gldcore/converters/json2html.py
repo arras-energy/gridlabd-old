@@ -5,10 +5,13 @@ import folium
 from folium.plugins import MarkerCluster
 import numpy
 
-os.putenv(f"PYTHONPATH",sys.argv[0].replace("/json2html.py",""))
+os.putenv(f'PYTHONPATH',sys.argv[0].replace('/json2html.py',''))
 from json2html_config import *
 
 data = {}
+
+def warning(msg):
+    print(f"WARNING [json2html]: {msg}",file=sys.stderr)
 
 def main(argv):
     global icon_prefix
@@ -23,19 +26,19 @@ def main(argv):
     basename = ''
 
     def help():
-        print('Syntax:')
-        print('json2html.py -i|--ifile <input-name> [OPTIONS ...]')
-        print('Options:')
-        print('  -c|--cluster               : [OPTIONAL] enable cluster markers (default is "%s")' % cluster_ok)
-        print('  -g|--glyphs PREFIX         : [OPTIONAL] change the folium glyph prefix (default is "%s")' % icon_prefix)
-        print('  -i|--ifile NAME            : [REQUIRED] json input file name.')
-        print('  -o|--ofile NAME            : [OPTIONAL] png output file name (default is <input-name>.png)')
-        print('  -s|--show                  : [OPTIONAL] show map in browser (default is "%s")' % show)
-        print('  -t|--tiles NAME            : [OPTIONAL] use alternate map tiles (default is "%s")' % tiles)
-        print('  -z|--zoom LEVEL            : [OPTIONAL] map initial zoom level (default is "%s")' % zoomlevel)
+        print("Syntax:")
+        print("json2html.py -i|--ifile <input-name> [OPTIONS ...]")
+        print("Options:")
+        print("  -c|--cluster               : [OPTIONAL] enable cluster markers (default is '%s')" % cluster_ok)
+        print("  -g|--glyphs PREFIX         : [OPTIONAL] change the folium glyph prefix (default is '%s')" % icon_prefix)
+        print("  -i|--ifile NAME            : [REQUIRED] json input file name.")
+        print("  -o|--ofile NAME            : [OPTIONAL] png output file name (default is input <NAME>.png)")
+        print("  -s|--show                  : [OPTIONAL] show map in browser (default is '%s')" % show)
+        print("  -t|--tiles NAME            : [OPTIONAL] use alternate map tiles (default is '%s')" % tiles)
+        print("  -z|--zoom LEVEL            : [OPTIONAL] map initial zoom level (default is '%s')" % zoomlevel)
 
     try : 
-        opts, args = getopt.getopt(sys.argv[1:],"cg:hi:o:st:z:",["cluster","glyphs=","help","ifile=","ofile=","show","tiles=","zoomlevel="])
+        opts, args = getopt.getopt(sys.argv[1:],"cg:hi:o:st:z:",['cluster',"glyphs=",'help',"ifile=","ofile=",'show',"tiles=","zoomlevel="])
     except getopt.GetoptError:
         sys.exit(2)
     if not opts : 
@@ -72,7 +75,7 @@ def main(argv):
         else:
             raise Exception("'%s' is an invalid command line option" % opt)
 
-    with open(filename_json,"r") as f :
+    with open(filename_json,'r') as f :
         data = json.load(f)
         assert(data['application']=='gridlabd')
         assert(data['version'] >= '4.2.0')
@@ -80,19 +83,21 @@ def main(argv):
     lats = []
     lons = []
     tags = []
-    for name, values in data["objects"].items():
+    for name, values in data['objects'].items():
         try:
-            lat = float(values["latitude"])
-            lon = float(values["longitude"])
+            lat = float(values['latitude'])
+            lon = float(values['longitude'])
             lats.append(lat)
             lons.append(lon)
             tags.append([(lat,lon),name,values])
         except:
+            if "from" in values.keys() and "to" in values.keys():
+                tags.append([None,name,values])
             pass
     lats = numpy.array(lats)
     lons = numpy.array(lons)
 
-    if zoomlevel == "auto":
+    if zoomlevel == 'auto':
         map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles)
         map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
     else:
@@ -103,12 +108,12 @@ def main(argv):
         else:
             cluster = map
     except Exception as msg:
-        print(f"marker cluster disabled ({msg})")
+        warning(f"marker cluster disabled ({msg})")
         cluster = map
         pass
     for pos, name, tag in tags:
         popup = get_popup(name,tag)
-        oclass = tag["class"]
+        oclass = tag['class']
         color = get_color(tag)
         if icon_prefix in icons.keys():
             if oclass in icons[icon_prefix].keys():
@@ -118,23 +123,23 @@ def main(argv):
         else:
             icon = folium.Icon(color=color)
         try: # attempt to handle as a link
-            from_name = tag["from"]
-            to_name = tag["to"]
-            from_obj = data["objects"][from_name]
-            lat0 = float(from_obj["latitude"])
-            lon0 = float(from_obj["longitude"])
-            to_obj = data["objects"][to_name]
-            lat1 = float(to_obj["latitude"])
-            lon1 = float(to_obj["longitude"])
-            phases = from_obj["phases"]
-            if tag["class"].startswith("underground"):
+            from_name = tag['from']
+            from_obj = data['objects'][from_name]
+            lat0 = float(from_obj['latitude'])
+            lon0 = float(from_obj['longitude'])
+            to_name = tag['to']
+            to_obj = data['objects'][to_name]
+            lat1 = float(to_obj['latitude'])
+            lon1 = float(to_obj['longitude'])
+            phases = tag['phases']
+            if tag['class'].startswith('underground'):
                 opacity = 0.3
             else:
                 opacity = 0.7
             obj = folium.PolyLine([(lat0,lon0),(lat1,lon1)],color=color,weight=len(phases)*2,opacity=opacity,popup=popup,name=name)
         except: # apparently not a link, so it's a node or other object
             if not icon:
-                print(f"WARNING [json2html]: object '{name}' has no known icon (class '{oclass})'")
+                warning(f"object '{name}' has no known icon (class '{oclass})'")
                 icon = folium.Icon(color=color)
             else:
                 obj = folium.Marker(pos,icon=icon,popup=popup,name=name)
@@ -142,7 +147,10 @@ def main(argv):
     if mouseposition:
         folium.plugins.MousePosition(auto_start=True,position=mouseposition).add_to(map)
     if search:
-        folium.plugins.Search(cluster,search_label="name").add_to(map)
+        if map != cluster:
+            folium.plugins.Search(cluster,search_label='name').add_to(map)
+        else:
+            warning(f"cannot use search feature with clustering disabled")
     if geocoder:
         folium.plugins.Geocoder().add_to(map)
     if measurecontrol:
@@ -151,85 +159,86 @@ def main(argv):
         folium.plugins.ScrollZoomToggler().add_to(map)
     map.save(filename_html)
     if show:
-        os.system(f"open {filename_html}")
-
+        os.system(f"{show_command} {filename_html}")
 
 def get_voltage_color(V,VN):
     VM = abs(V)/VN
     if VM == 0.0:
-        return voltage_colors["zero"]
+        return voltage_colors['zero']
     elif VM < low_voltage:
-        return voltage_colors["low"]
+        return voltage_colors['low']
     elif VM > high_voltage:
-        return voltage_colors["high"]
+        return voltage_colors['high']
     else:
-        return voltage_colors["normal"]
+        return voltage_colors['normal']
 
 def get_current_color(C,C0,C1):
     CM = abs(C)
     if CM == 0.0:
-        return current_colors["zero"]
+        return current_colors['zero']
     elif CM < C0:
-        return current_colors["normal"]
+        return current_colors['normal']
     elif CM < C1:
-        return current_colors["continuous"]
+        return current_colors['continuous']
     else:
-        return current_colors["emergency"]
+        return current_colors['emergency']
 
 def get_color(tag):
     # try node scheme first
     try:
-        VN = float(tag["nominal_voltage"].split()[0])
-        VA = complex(tag["voltage_A"].split()[0])
-        VB = complex(tag["voltage_B"].split()[0])
-        VC = complex(tag["voltage_C"].split()[0])
-        PH = tag["phases"]
-        color = voltage_colors["normal"]
-        if "A" in PH and color == voltage_colors["normal"]:
+        VN = float(tag['nominal_voltage'].split()[0])
+        VA = complex(tag['voltage_A'].split()[0])
+        VB = complex(tag['voltage_B'].split()[0])
+        VC = complex(tag['voltage_C'].split()[0])
+        PH = tag['phases']
+        color = voltage_colors['normal']
+        if 'A' in PH and color == voltage_colors['normal']:
             color = get_voltage_color(VA,VN)
-        if "B" in PH and color == voltage_colors["normal"]:
+        if 'B' in PH and color == voltage_colors['normal']:
             color = get_voltage_color(VB,VN)
-        if "C" in PH and color == voltage_colors["normal"]:
+        if 'C' in PH and color == voltage_colors['normal']:
             color = get_voltage_color(VC,VN)
-        # print("get_color():",tag["class"],tag["id"],"-->",PH,VA,VB,VC,VN,"-->",color)
+        # print("get_color():",tag['class'],tag['id'],"-->",PH,VA,VB,VC,VN,"-->",color)
         return color
     except:
         pass
 
     # try link scheme
     try:
-        C0 = float(tag["continuous_rating"].split()[0])
-        C1 = float(tag["emergency_rating"].split()[0])
-        CA = complex(tag["current_in_A"].split()[0])
-        CB = complex(tag["current_in_B"].split()[0])
-        CC = complex(tag["current_in_C"].split()[0])
-        PH = tag["phases"]
-        color = current_colors["normal"]
-        if "A" in PH and color == current_colors["normal"]:
+        C0 = float(tag['continuous_rating'].split()[0])
+        C1 = float(tag['emergency_rating'].split()[0])
+        CA = complex(tag['current_in_A'].split()[0])
+        CB = complex(tag['current_in_B'].split()[0])
+        CC = complex(tag['current_in_C'].split()[0])
+        PH = tag['phases']
+        color = current_colors['normal']
+        if 'A' in PH and color == current_colors['normal']:
             color = get_current_color(CA,C0,C1)
-        if "B" in PH and color == current_colors["normal"]:
+        if 'B' in PH and color == current_colors['normal']:
             color = get_current_color(CB,C0,C1)
-        if "C" in PH and color == current_colors["normal"]:
+        if 'C' in PH and color == current_colors['normal']:
             color = get_current_color(CC,C0,C1)
-        # print("get_color():",tag["class"],tag["id"],"-->",PH,CA,CB,CC,C0,C1,"-->",color)
+        # print("get_color():",tag['class'],tag['id'],"-->",PH,CA,CB,CC,C0,C1,"-->",color)
         return color
     except Exception as err:
         pass
 
-    return "gray"
+    return 'gray'
 
 def get_popup(name,tag):
-    style = "<STYLE>#box{overflow:scroll;height:20em}</STYLE>"
-    popup = f"{style}<DIV ID=\"box\"><TABLE><CAPTION>{name}</CAPTION>\n"
-    popup += "<TR><TH><HR/></TH><TD><HR/></TD></TR>"
+    style = '<STYLE>#box{overflow:scroll;height:20em}</STYLE>'
+    popup = f'{style}<DIV ID="box"><TABLE><CAPTION>{name}</CAPTION>\n'
+    popup += '<TR><TH><HR/></TH><TD><HR/></TD></TR>'
     for item, value in tag.items():
+        if item in hidden_properties:
+            continue
         try:
-            module = data["classes"][value]["module"]
-            popup += f"<TR><TH>{item}</TH><TD><A TARGET=\"_blank\" HREF=\"https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/{module.title()}/{value.title()}.md\">{value}</A></TD></TR>\n"
+            module = data['classes'][value]['module']
+            popup += f'<TR><TH>{item}</TH><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/{module.title()}/{value.title()}.md">{value}</A></TD></TR>\n'
         except:
-            popup += f"<TR><TH>{item}</TH><TD>{value}</TD></TR>\n"
-    popup += "<TR><TH><HR/></TH><TD><HR/></TD></TR>"
-    popup += f"</TABLE></DIV>\n"
+            popup += f'<TR><TH>{item}</TH><TD>{value}</TD></TR>\n'
+    popup += '<TR><TH><HR/></TH><TD><HR/></TD></TR>'
+    popup += '</TABLE></DIV>\n'
     return popup
 
 if __name__ == '__main__':
