@@ -3,6 +3,10 @@ class office
 {
     string address;
 }
+class evcharger
+{
+    int16 stations;
+}
 class pole
 {
     string configuration;
@@ -21,6 +25,13 @@ object office
     address "2757 Sand Hill Rd., Menlo Park CA";
     latitude "37.4199";
     longitude "-122.2043";
+}
+
+object evcharger
+{
+    stations 6;
+    latitude "37.42003";
+    longitude "-122.20363";
 }
 
 object pole
@@ -336,6 +347,6 @@ object overhead_line
 
 #system rm -f test_json2html.html
 
-#output "test_json2html.html" -g fa --cluster
+#output "test_json2html.html" --cluster
 
 #on_exit 0 test ! -z test_json2html.html
