@@ -13,6 +13,6 @@ object node
 
 #system rm -f test_json2html.html
 
-#output "test_json2html.html" --show -g glyphicon
+#output "test_json2html.html" -g glyphicon -t lineart -z 15
 
 #on_exit 0 test ! -z test_json2html.html

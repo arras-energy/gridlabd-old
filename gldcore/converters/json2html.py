@@ -91,18 +91,18 @@ def main(argv):
 
     if zoomlevel == "auto":
         map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles)
-        try:
-            if cluster_ok:
-                cluster = MarkerCluster().add_to(map)
-            else:
-                cluster = map
-        except Exception as msg:
-            print(f"marker cluster disabled ({msg})")
-            cluster = map
-            pass
         map.fit_bounds([[lats.min(),lons.min()],[lats.max(),lons.max()]])
     else:
         map = folium.Map(location=[lats.mean(),lons.mean()],tiles=tiles,zoom_start=zoomlevel)
+    try:
+        if cluster_ok:
+            cluster = MarkerCluster().add_to(map)
+        else:
+            cluster = map
+    except Exception as msg:
+        print(f"marker cluster disabled ({msg})")
+        cluster = map
+        pass
     for pos, name, tag in tags:
         popup = get_popup(name,tag)
         oclass = tag["class"]
