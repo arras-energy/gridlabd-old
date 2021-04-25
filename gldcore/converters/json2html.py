@@ -5,17 +5,9 @@ import folium
 from folium.plugins import MarkerCluster
 import numpy
 
-icon_prefix = "glyphicon"
-zoomlevel = 'auto'
-show = False
-tiles = "street"
-cluster_ok = True
+os.putenv(f"PYTHONPATH",sys.argv[0].replace("/json2html.py",""))
+from json2html_config import *
 
-map_tiles = {
-    "street" : "OpenStreetMap",
-    "terrain" : "Stamen Terrain",
-    "lineart" : "Stamen Toner",
-}
 def main(argv):
     global icon_prefix
     global zoomlevel
@@ -148,63 +140,7 @@ def main(argv):
     if show:
         os.system(f"open {filename_html}")
 
-icons = {"fa":
-    {
-        "substation" : "sitemap",
-        "node" : "circle",
-        "load" : "chevron-circle-down",
-        "triplex_load" : "angle-double-down",
-        "regulator" : "adjust",
-        "switch" : "square",
-        "transformer" : "squarespace",
-        "meter" : "clock",
-        "capacitor" : "hockey-puck",
-        "inverter" : "chevron-circle-up",
-        "office" : "building",
-        "apartment" : "hotel",
-        "house" : "home",
-        "evcharger" : "charging-station",
-        "industrial" : "industry",
-        "parking" : "parking",
-        "solar" : "solar-panel",
-        "battery" : "battery-half",
-        "energy-storage" : "battery-empty",
-        "weather" : "wind",
-        "climate" : "sun",
-    },
-    "glyphicon":
-    {
-        "substation" : "glyphicon-th-list",
-        "node" : "glyphicon-record",
-        "load" : "glyphicon-circle-arrow-down",
-        "triplex_load" : "glyphicon-triangle-bottom",
-        "regulator" : "glyphicon-ban-circle",
-        "switch" : "glyphicon-stop",
-        "transformer" : "glyphicon-link",
-        "meter" : "glyphicon-dashboard",
-        "capacitor" : "glyphicon-oil",
-        "inverter" : "chevron-circle-up",
-        "office" : "glyphicon glyphicon-th",
-        "apartment" : "glyphicon-th-large",
-        "house" : "glyphicon-home",
-        "evcharger" : "glyphicon-flash",
-        "industrial" : "glyphicon-home",
-        "parking" : "glyphicon-home",
-        "solar" : "glyphicon-home",
-        "battery" : "glyphicon-home",
-        "energy-storage" : "glyphicon-modal-window",
-        "weather" : "glyphicon-certificate",
-        "climate" : "glyphicon-certificate",
-    },
-}
-voltage_colors = {
-    "zero" : "black",
-    "low" : "blue",
-    "normal" : "lightgreen",
-    "high" : "red"
-}
-low_voltage = 0.95
-high_voltage = 1.05
+
 def get_voltage_color(V,VN):
     VM = abs(V)/VN
     if VM == 0.0:
@@ -216,12 +152,6 @@ def get_voltage_color(V,VN):
     else:
         return voltage_colors["normal"]
 
-current_colors = {
-    "zero" : "black",
-    "normal" : "lightgreen",
-    "continuous" : "yellow",
-    "emergency" : "red",
-}
 def get_current_color(C,C0,C1):
     CM = abs(C)
     if CM == 0.0:
