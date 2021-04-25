@@ -8362,12 +8362,6 @@
 				"access" : "PUBLIC",
 				"unit" : "h",
 				"description" : "typical repair time after pole failure"
-			},
-			"wind_pressure" : {
-				"type" : "double",
-				"access" : "PUBLIC",
-				"unit" : "ft/lb/lb",
-				"description" : "wind pressure on pole"
 			}
 		},
 		"pole_configuration" : {
@@ -16697,1921 +16691,6 @@
 		}
 	},
 	"globals" : {
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
-		"COUNT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2"
-		},
-		"PHASE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "C"
-		},
-		"LOADID" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "114"
-		},
-		"AREA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "E"
-		},
 		"version.major" : {
 			"type" : "int32",
 			"access" : "REFERENCE",
@@ -18630,22 +16709,22 @@
 		"version.build" : {
 			"type" : "int32",
 			"access" : "REFERENCE",
-			"value" : "210423"
+			"value" : "210424"
 		},
 		"version.branch" : {
 			"type" : "char256",
 			"access" : "REFERENCE",
-			"value" : "develop_geodata_subcommand"
+			"value" : "develop_add_converter_html"
 		},
 		"version" : {
 			"type" : "char1024",
 			"access" : "REFERENCE",
-			"value" : "4.2.20-210423-develop_geodata_subcommand"
+			"value" : "4.2.20-210424-develop_add_converter_html"
 		},
 		"command_line" : {
 			"type" : "char1024",
 			"access" : "REFERENCE",
-			"value" : "/usr/local/opt/gridlabd/4.2.20-210423-develop_geodata_subcommand/bin/gridlabd.bin -C model/ieee123.glm -o ieee123.json"
+			"value" : "/usr/local/opt/gridlabd/4.2.20-210424-develop_add_converter_html/bin/gridlabd.bin -C IEEE-123.glm -o IEEE-123.html -D html_save_options=--show"
 		},
 		"environment" : {
 			"type" : "char1024",
@@ -18695,7 +16774,7 @@
 		"workdir" : {
 			"type" : "char1024",
 			"access" : "REFERENCE",
-			"value" : "/Users/david/Documents/GitHub/slacgismo/gridlabd-models/ieee123"
+			"value" : "/Users/dchassin/github/gridlabd/gldcore/converters/autotest"
 		},
 		"dumpfile" : {
 			"type" : "char1024",
@@ -18705,7 +16784,7 @@
 		"savefile" : {
 			"type" : "char1024",
 			"access" : "PUBLIC",
-			"value" : "ieee123.json"
+			"value" : "IEEE-123.html"
 		},
 		"dumpall" : {
 			"type" : "bool",
@@ -18806,12 +16885,12 @@
 		"modelname" : {
 			"type" : "char1024",
 			"access" : "REFERENCE",
-			"value" : "model/ieee123.glm"
+			"value" : "IEEE-123.glm"
 		},
 		"execdir" : {
 			"type" : "char1024",
 			"access" : "REFERENCE",
-			"value" : "/usr/local/opt/gridlabd/4.2.20-210423-develop_geodata_subcommand/bin"
+			"value" : "/usr/local/opt/gridlabd/4.2.20-210424-develop_add_converter_html/bin"
 		},
 		"strictnames" : {
 			"type" : "bool",
@@ -18831,12 +16910,12 @@
 		"randomstate" : {
 			"type" : "int32",
 			"access" : "PUBLIC",
-			"value" : "-3258282"
+			"value" : "-2073579664"
 		},
 		"randomseed" : {
 			"type" : "int32",
 			"access" : "PUBLIC",
-			"value" : "-3258282"
+			"value" : "-2073579664"
 		},
 		"include" : {
 			"type" : "char1024",
@@ -18856,7 +16935,7 @@
 		"tmp" : {
 			"type" : "char1024",
 			"access" : "PUBLIC",
-			"value" : "/Users/david/.gridlabd/tmp"
+			"value" : "/Users/dchassin/.gridlabd/tmp"
 		},
 		"force_compile" : {
 			"type" : "int32",
@@ -19272,7 +17351,7 @@
 		"exename" : {
 			"type" : "char1024",
 			"access" : "REFERENCE",
-			"value" : "/usr/local/opt/gridlabd/4.2.20-210423-develop_geodata_subcommand/bin/gridlabd.bin"
+			"value" : "/usr/local/opt/gridlabd/4.2.20-210424-develop_add_converter_html/bin/gridlabd.bin"
 		},
 		"wget_options" : {
 			"type" : "char1024",
@@ -19302,7 +17381,7 @@
 		"allow_reinclude" : {
 			"type" : "bool",
 			"access" : "PUBLIC",
-			"value" : "TRUE"
+			"value" : "FALSE"
 		},
 		"output_message_context" : {
 			"type" : "set",
@@ -19467,12 +17546,12 @@
 		"pythonexec" : {
 			"type" : "char1024",
 			"access" : "REFERENCE",
-			"value" : "/usr/local/Cellar/python@3.9/3.9.2_4/Frameworks/Python.framework/Versions/3.9/bin/python3.9"
+			"value" : "/usr/local/Cellar/python@3.9/3.9.4/Frameworks/Python.framework/Versions/3.9/bin/python3.9"
 		},
 		"datadir" : {
 			"type" : "char1024",
 			"access" : "PUBLIC",
-			"value" : "/usr/local/opt/gridlabd/4.2.20-210423-develop_geodata_subcommand/share/gridlabd"
+			"value" : "/usr/local/opt/gridlabd/4.2.20-210424-develop_add_converter_html/share/gridlabd"
 		},
 		"json_complex_format" : {
 			"type" : "set",
@@ -19501,141 +17580,6 @@
 			"access" : "PUBLIC",
 			"value" : "{}"
 		},
-		"DOCROOT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "/ieee123"
-		},
-		"NAME" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "ieee123.glm"
-		},
-		"PORT" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "3306"
-		},
-		"TIMEZONE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "US/CA/Los Angeles"
-		},
-		"LOADS" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "on"
-		},
-		"SOLAR" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"DR_HVAC" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"DR_WATERHEATER" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"DR_DISHWASHER" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"DR_WASHER" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"DR_DRYER" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"WEATHER" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "CA-Bakersfield_Meadows_Field_high_wind.tmy3"
-		},
-		"MYSQL_ENABLE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"HOSTNAME" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "localhost"
-		},
-		"MYSQLHOST" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "localhost"
-		},
-		"MYSQL_NAME" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "ieee123"
-		},
-		"MYSQL_SCADA" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"MYSQL_AMI" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"MYSQL_MODEL" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"MYSQL_GRAPH" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"POLE_TYPE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "node"
-		},
-		"VOLTDUMP" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "all"
-		},
-		"CURRDUMP" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "off"
-		},
-		"CONFIGFILE" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "config/local.glm"
-		},
-		"STARTTIME" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2018-03-01 00:00:00 PST"
-		},
-		"STOPTIME" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2018-03-03 04:15:00 PST"
-		},
-		"STARTRECORDTIME" : {
-			"type" : "char1024",
-			"access" : "PUBLIC",
-			"value" : "2018-03-03 00:00:00 PST"
-		},
 		"climate::message_flags" : {
 			"type" : "set",
 			"keywords" : {
@@ -19650,7 +17594,7 @@
 		"climate::library_path" : {
 			"type" : "char1024",
 			"access" : "PUBLIC",
-			"value" : "/usr/local/opt/gridlabd/4.2.20-210423-develop_geodata_subcommand/share/gridlabd/weather/US"
+			"value" : "/usr/local/opt/gridlabd/4.2.20-210424-develop_add_converter_html/share/gridlabd/weather/US"
 		},
 		"powerflow::message_flags" : {
 			"type" : "set",
@@ -20221,15 +18165,10 @@
 			"access" : "PUBLIC",
 			"value" : "occupancy_fraction"
 		},
-		"SEQ_CUSTID" : {
-			"type" : "int32",
-			"access" : "PUBLIC",
-			"value" : "0"
-		},
-		"NHOUSES" : {
+		"html_save_options" : {
 			"type" : "char1024",
 			"access" : "PUBLIC",
-			"value" : "0"
+			"value" : "--show"
 		}
 	},
 	"schedules" : {
@@ -20243,13 +18182,13 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "16807",
-			"guid" : "278A0B827A1277027497C0E1F2156904",
+			"guid" : "491F7FAB7E632B4F",
 			"flags" : "0xc0100",
 			"solar_elevation": "-1.10224 rad",
 			"solar_azimuth": "0.867987 rad",
 			"solar_zenith": "2.67304 rad",
 			"city": "",
-			"tmyfile": "data/CA-Bakersfield_Meadows_Field_high_wind.tmy3",
+			"tmyfile": "IEEE-123.tmy3",
 			"temperature": "43.882 degF",
 			"humidity": "0.74 pu",
 			"solar_flux": "0 W/sf",
@@ -20301,7 +18240,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "282475249",
-			"guid" : "27F6DE107E4EA9B3247D04E7737F5635",
+			"guid" : "7EF63361B99E8EA0",
 			"flags" : "0x100",
 			"geometric_mean_radius": "0.0244 ft",
 			"resistance": "0.306 Ohm/mile",
@@ -20317,7 +18256,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1622650073",
-			"guid" : "3EE86C6FEFFBCBEA40E145A99395639A",
+			"guid" : "20864657BE192D4F",
 			"flags" : "0x100",
 			"geometric_mean_radius": "0.00814 ft",
 			"resistance": "0.592 Ohm/mile",
@@ -20333,7 +18272,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "984943658",
-			"guid" : "5E13BAE12C494FD52E150D45A7C84238",
+			"guid" : "37775A92D923AA1C",
 			"flags" : "0x100",
 			"geometric_mean_radius": "0.00446 ft",
 			"resistance": "1.12 Ohm/mile",
@@ -20349,7 +18288,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1144108930",
-			"guid" : "6C756C5FA1CB11F5471737D52F53DD11",
+			"guid" : "107376A587F80584",
 			"flags" : "0x100",
 			"outer_diameter": "1.06 in",
 			"conductor_gmr": "0.0111 ft",
@@ -20375,7 +18314,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "470211272",
-			"guid" : "47CE1BCAC1C1A011DF28835CAB9A792",
+			"guid" : "24EB6F344FAB4683",
 			"flags" : "0x100",
 			"distance_AB": "2.5 ft",
 			"distance_BC": "4.5 ft",
@@ -20394,7 +18333,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "101027544",
-			"guid" : "3017B04748C3E3C21458376D33043C0",
+			"guid" : "412DFA5F6CDA1ACE",
 			"flags" : "0x100",
 			"distance_AB": "4.5 ft",
 			"distance_BC": "7 ft",
@@ -20413,7 +18352,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1457850878",
-			"guid" : "6BC82884C147BAE328B24C512055DF3A",
+			"guid" : "5B7BA46316F86157",
 			"flags" : "0x100",
 			"distance_AB": "7 ft",
 			"distance_BC": "2.5 ft",
@@ -20432,7 +18371,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1458777923",
-			"guid" : "25A30C4DAB988FB123F23C2533C1FD86",
+			"guid" : "52F73122D9506B8A",
 			"flags" : "0x100",
 			"distance_AB": "4.5 ft",
 			"distance_BC": "2.5 ft",
@@ -20451,7 +18390,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2007237709",
-			"guid" : "66C647DBFDA9E159325B5B176910E6F1",
+			"guid" : "3F0329EED615C3E",
 			"flags" : "0x100",
 			"distance_AB": "2.5 ft",
 			"distance_BC": "7 ft",
@@ -20470,7 +18409,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "823564440",
-			"guid" : "21C4A891B61C5C4E427F9CB2F1B69E16",
+			"guid" : "19FB6B23C944322D",
 			"flags" : "0x100",
 			"distance_AB": "2.5 ft",
 			"distance_BC": "4.5 ft",
@@ -20489,7 +18428,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1115438165",
-			"guid" : "58D866C058367E323BFEAA74B42F8BB",
+			"guid" : "63EE791B9D3D626D",
 			"flags" : "0x100",
 			"distance_AB": "0 ft",
 			"distance_BC": "0 ft",
@@ -20508,7 +18447,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1784484492",
-			"guid" : "40D459E11898B7E56D848AFE876942F4",
+			"guid" : "5C2137E84362EEF1",
 			"flags" : "0x100",
 			"distance_AB": "7 ft",
 			"distance_BC": "0 ft",
@@ -20527,7 +18466,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "74243042",
-			"guid" : "C5116AD6B86E4219DA538724A8F50E",
+			"guid" : "221B5563EC6AA24F",
 			"flags" : "0x100",
 			"distance_AB": "0 ft",
 			"distance_BC": "0 ft",
@@ -20546,7 +18485,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "114807987",
-			"guid" : "47BFEE83EF6654352B385FA85E69383F",
+			"guid" : "70F7490B1C9BCB1C",
 			"flags" : "0x100",
 			"distance_AB": "0 ft",
 			"distance_BC": "0 ft",
@@ -20565,7 +18504,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1137522503",
-			"guid" : "3AD8855C59F603EA7F30A263C3F275F0",
+			"guid" : "39BD413313CDBCB6",
 			"flags" : "0x100",
 			"distance_AB": "0 ft",
 			"distance_BC": "0 ft",
@@ -20584,7 +18523,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1441282327",
-			"guid" : "36E52EEEF260F71029C7B1D28CDF1110",
+			"guid" : "2389A8FD83A79F76",
 			"flags" : "0x100",
 			"distance_AB": "0.5 ft",
 			"distance_BC": "0.5 ft",
@@ -20603,7 +18542,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "16531729",
-			"guid" : "5FD2D0DD262F835A5F328DC68A326844",
+			"guid" : "6A3426AADEDB8F1F",
 			"flags" : "0x100",
 			"conductor_A": "olc301c",
 			"conductor_B": "olc301c",
@@ -20639,7 +18578,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "823378840",
-			"guid" : "6EF75295AC7A23DFBBBE6E7BB1C0E7F",
+			"guid" : "364805BCD48FF821",
 			"flags" : "0x100",
 			"conductor_A": "olc301c",
 			"conductor_B": "olc301c",
@@ -20675,7 +18614,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "143542612",
-			"guid" : "47416B5A0C1C98C843988FE4745CCB23",
+			"guid" : "5AF7F45F930019D0",
 			"flags" : "0x100",
 			"conductor_A": "olc301c",
 			"conductor_B": "olc301c",
@@ -20711,7 +18650,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "896544303",
-			"guid" : "47D7A8903B16DBF82E57464EB1244B43",
+			"guid" : "68E5CFA4341D8681",
 			"flags" : "0x100",
 			"conductor_A": "olc301c",
 			"conductor_B": "olc301c",
@@ -20747,7 +18686,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1474833169",
-			"guid" : "78149FD7E9C99B607BC6E4538CD423AD",
+			"guid" : "366CEE193F4A937B",
 			"flags" : "0x100",
 			"conductor_A": "olc301c",
 			"conductor_B": "olc301c",
@@ -20783,7 +18722,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1264817709",
-			"guid" : "797B347A15B1D12249F5513A0C1E2601",
+			"guid" : "6035EC1D7367D74C",
 			"flags" : "0x100",
 			"conductor_A": "olc301c",
 			"conductor_B": "olc301c",
@@ -20819,7 +18758,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1998097157",
-			"guid" : "2E7EABAD45F803052E2929CA44E79087",
+			"guid" : "56CD719513B96B3A",
 			"flags" : "0x100",
 			"conductor_A": "olc301c",
 			"conductor_B": "",
@@ -20855,7 +18794,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1817129560",
-			"guid" : "36C8FF195D4FAC4D4C6E1E5F9BCD1071",
+			"guid" : "500DBC66BB4070D2",
 			"flags" : "0x100",
 			"conductor_A": "olc301c",
 			"conductor_B": "olc301c",
@@ -20891,7 +18830,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1131570933",
-			"guid" : "43D2714333C1E15C139967EA36433105",
+			"guid" : "6503EF4440DD36F3",
 			"flags" : "0x100",
 			"conductor_A": "olc309",
 			"conductor_B": "",
@@ -20927,7 +18866,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "197493099",
-			"guid" : "5A79DB2A33EF74354D7079B2E831A4CE",
+			"guid" : "472538527FD7A16C",
 			"flags" : "0x100",
 			"conductor_A": "",
 			"conductor_B": "olc309",
@@ -20963,7 +18902,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1404280278",
-			"guid" : "58677ED8FE010C663CB738F3CC7FF5E8",
+			"guid" : "498CD70DDF4DB1DC",
 			"flags" : "0x100",
 			"conductor_A": "",
 			"conductor_B": "",
@@ -20999,7 +18938,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "893351816",
-			"guid" : "5F85E219C205D5E7CE788305EE4EDB5",
+			"guid" : "7CF7DD093C0D39C6",
 			"flags" : "0x100",
 			"conductor_A": "ulc312",
 			"conductor_B": "ulc312",
@@ -21035,7 +18974,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1505795335",
-			"guid" : "1F7329421AD62664414ED78A56A0A056",
+			"guid" : "4F5739075F2FB7ED",
 			"flags" : "0x100",
 			"connect_type": "DELTA_DELTA",
 			"install_type": "PADMOUNT",
@@ -21084,7 +19023,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1954899097",
-			"guid" : "1241CCDD6087A0A86B57AF9CA8AA8E0C",
+			"guid" : "19F2FC4751E26F71",
 			"flags" : "0x100",
 			"connect_type": "DELTA_GWYE",
 			"install_type": "PADMOUNT",
@@ -21133,7 +19072,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1636807826",
-			"guid" : "2CF27AA7E7334ACB39B5D07A00906957",
+			"guid" : "58A4DA3CFF9EBCDB",
 			"flags" : "0x100",
 			"connect_type": "WYE_WYE",
 			"band_center": "2400 V",
@@ -21167,7 +19106,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "563613512",
-			"guid" : "32C5BC7A83373122C3E8235A6F22D8A",
+			"guid" : "2FBB949285FED2ED",
 			"flags" : "0x100",
 			"connect_type": "WYE_WYE",
 			"band_center": "2400 V",
@@ -21201,7 +19140,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "101929267",
-			"guid" : "257EB53EAA4323986229187134A10FAC",
+			"guid" : "5E77D71CE5685AA2",
 			"flags" : "0x100",
 			"connect_type": "WYE_WYE",
 			"band_center": "2400 V",
@@ -21235,7 +19174,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1580723810",
-			"guid" : "2A422705B55987C852746E8699514A5B",
+			"guid" : "404A3916B2F5B8DC",
 			"flags" : "0x100",
 			"connect_type": "WYE_WYE",
 			"band_center": "2400 V",
@@ -21272,7 +19211,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "704877633",
-			"guid" : "30372A1961065164483545BEE5098249",
+			"guid" : "2EA41FD6AF04B6A0",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -21326,7 +19265,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1358580979",
-			"guid" : "71AEB43F56A3E1F7468DF318EB073E23",
+			"guid" : "608FD349512FCF7",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -21380,7 +19319,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1624379149",
-			"guid" : "A9B23DBD1C1AFC7620CAE1B3D6B1E32",
+			"guid" : "C52E9DBEAF286B76",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -21434,7 +19373,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2128236579",
-			"guid" : "310BF65A7CC55B767734163F2872C578",
+			"guid" : "29EEF4316DA20FC3",
 			"flags" : "0x100",
 			"zero_sequence_voltage": "0+0j V",
 			"positive_sequence_voltage": "0+0j V",
@@ -21512,7 +19451,7 @@
 			"rank" : "3",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "784558821",
-			"guid" : "1E6CA578677E40466FEB285E3C505760",
+			"guid" : "773A93D4C85E8042",
 			"flags" : "0x100",
 			"measured_real_energy": "0 Wh",
 			"measured_real_energy_delta": "0 Wh",
@@ -21636,7 +19575,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "530511967",
-			"guid" : "6A525AC28301642E238FE1C99CA914BB",
+			"guid" : "5BCBAEB1B1C32589",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -21690,7 +19629,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2110010672",
-			"guid" : "798FBCFF558D5C0F7793249B4AE3773",
+			"guid" : "1558FEDAAA187F34",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -21744,7 +19683,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1551901393",
-			"guid" : "364B8ED2A1A1CF517FA0A2D216DFA86E",
+			"guid" : "377052399DD5BD7B",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -21798,7 +19737,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1617819336",
-			"guid" : "7E92A4A83110FF129293A38375B1F6F",
+			"guid" : "5B37C16D3701D7DE",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -21852,7 +19791,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1399125485",
-			"guid" : "7371189D0D72B10C72A0AD7457EBD625",
+			"guid" : "5DE6F99110BAB54",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -21906,7 +19845,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "156091745",
-			"guid" : "6F4219CFBE676A983F95CCF66491C3F1",
+			"guid" : "3ED768459717E18",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -21960,7 +19899,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1356425228",
-			"guid" : "46D0E3A51F4A3C4E2F646490A7D7399E",
+			"guid" : "FD8AD92FD245726",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22014,7 +19953,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1899894091",
-			"guid" : "6D24B354B8BE8D0D68E3676A25890B49",
+			"guid" : "7C882B1266D3F405",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22068,7 +20007,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "585640194",
-			"guid" : "4EE881A2038C3CA16BB45881350F703",
+			"guid" : "2F75DBEFD4680095",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22122,7 +20061,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "937186357",
-			"guid" : "16BB3CB44986D5786A23AC634DC894B0",
+			"guid" : "4DCED5337F13A352",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22176,7 +20115,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1646035001",
-			"guid" : "688ADF45719C709653CCB807D1312D0E",
+			"guid" : "644DE1E7B85028A8",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22230,7 +20169,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1025921153",
-			"guid" : "5AB5909C7A01DCC02CACBE5124CF2B61",
+			"guid" : "723DA27DB429F0ED",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22284,7 +20223,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "510616708",
-			"guid" : "65B92CEBEB6F9DFB627961B54FEDD452",
+			"guid" : "41326B1069D7465D",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22338,7 +20277,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "590357944",
-			"guid" : "2522A952D8AA1D2E25847D0A577B616A",
+			"guid" : "6A5CCFF969946228",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22392,7 +20331,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "771515668",
-			"guid" : "1688BB6804FA729F2FC1BE026B34D276",
+			"guid" : "4C17641ADA8D18A3",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22446,7 +20385,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "357571490",
-			"guid" : "553FF6A94D105A06B7678AD1940C72",
+			"guid" : "4485A0A3DBE11F36",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22500,7 +20439,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1044788124",
-			"guid" : "4008CC833B69C3B6418B9E5494E5F3B",
+			"guid" : "47F2417F4BD322F9",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22554,7 +20493,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1927702196",
-			"guid" : "35BC7C8FE20C270B1ABCE1AEFF51C093",
+			"guid" : "5BC1962A80194C8A",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22608,7 +20547,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1952509530",
-			"guid" : "3CF95908A634AB2167CF139360AED7CB",
+			"guid" : "209B5A53C248B323",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22662,7 +20601,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "130060903",
-			"guid" : "65D4C24023B2B90629D69DF9F6CB5568",
+			"guid" : "68AE9DB96B5BF7DD",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22716,7 +20655,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1942727722",
-			"guid" : "14FEC6D6A37F310671703E492577AF3B",
+			"guid" : "58AD16FC4158F122",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22770,7 +20709,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1083454666",
-			"guid" : "25F18490606AB0F3496FEB4A097CCC76",
+			"guid" : "445BF0A2423A8467",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22824,7 +20763,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1108728549",
-			"guid" : "352C9858F2AFFF516E218A05DEED8450",
+			"guid" : "5962B3F64EBA6C6E",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22878,7 +20817,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "685118024",
-			"guid" : "552FB8E97D9D85AF757DA6B33DDB6B55",
+			"guid" : "3D286937306866D3",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22932,7 +20871,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2118797801",
-			"guid" : "5F118BE6CA63C62C23FE4F4D24FA9BE3",
+			"guid" : "47958913DE11D361",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -22986,7 +20925,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1060806853",
-			"guid" : "714958BFC2FD20F853DF911F30AA111E",
+			"guid" : "5DA90B7368136356",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23040,7 +20979,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "571540977",
-			"guid" : "418FB0CEC8466DA86E81DEE985BA1F3E",
+			"guid" : "681141AAC39C8D3C",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23094,7 +21033,7 @@
 			"rank" : "6",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "194847408",
-			"guid" : "287C78672608A0441BEC91DDEACD834",
+			"guid" : "58281CEA96F040F3",
 			"flags" : "0x100",
 			"bustype": "SWING",
 			"busflags": "HASSOURCE",
@@ -23148,7 +21087,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2035308228",
-			"guid" : "3FB8F013707D986C74DDF5A1D2E13E87",
+			"guid" : "748DC081516F967B",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23202,7 +21141,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "158374933",
-			"guid" : "D6971BFDD85C30E4AEF28A4D60274CD",
+			"guid" : "344B4DF5523DBFDE",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23256,7 +21195,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1075260298",
-			"guid" : "9B28922B54CE0153A5C7408975CE6AB",
+			"guid" : "1471CD59B92EC593",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23310,7 +21249,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "824938981",
-			"guid" : "4CF2E300BCF9C2532B4E46D04FB656D0",
+			"guid" : "666B6D7C754A8EC6",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23364,7 +21303,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "595028635",
-			"guid" : "679342AC06727F1C68C61A3334BB078A",
+			"guid" : "641EE539878F0DA5",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23418,7 +21357,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1962408013",
-			"guid" : "461A4174D83C3A7F7A22DD9FB130656E",
+			"guid" : "63FF32BB79DB5E15",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23472,7 +21411,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1137623865",
-			"guid" : "16440F4A68AA32FD34BC077428A90387",
+			"guid" : "58673220C2E2313",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23526,7 +21465,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "997389814",
-			"guid" : "63E7C03DEEE8B39A1F7D53AEF5DA1E3C",
+			"guid" : "61B21172C34E1381",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23580,7 +21519,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2020739063",
-			"guid" : "1660E64C15516D3C3C17BE2FFA8F325F",
+			"guid" : "670CFECC2BFA4439",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23634,7 +21573,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "107554536",
-			"guid" : "19414B091FDC44E7339B2A0880671D06",
+			"guid" : "53A41F9CE084A433",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23688,7 +21627,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1635339425",
-			"guid" : "4D13907921B74AA13E4B6B7C50E86317",
+			"guid" : "3BFC746ECDD110C2",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23742,7 +21681,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1654001669",
-			"guid" : "5ED354E164CF98BA68410DD4D484CD33",
+			"guid" : "52450A27C3600CAE",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23796,7 +21735,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1777724115",
-			"guid" : "56FE28C8AEBE47FBEC83302AEECA059",
+			"guid" : "308423F71173A287",
 			"flags" : "0x100",
 			"bustype": "PQ",
 			"busflags": "HASSOURCE",
@@ -23850,7 +21789,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "269220094",
-			"guid" : "12E73AE155A99A101C1E4E23B84B10FE",
+			"guid" : "71393DB18057EFEF",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -24014,7 +21953,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "34075629",
-			"guid" : "6D101128204A7C1721563EAA59EB034E",
+			"guid" : "3155D9E533D9D678",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -24178,7 +22117,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1478446501",
-			"guid" : "1B4CFAF5B4292631782B75A03DA90569",
+			"guid" : "6834034E15DAFE54",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -24342,7 +22281,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1864546517",
-			"guid" : "3B6C1B37DCD149001076525EE6DCCF03",
+			"guid" : "4613D132ADA569A4",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -24506,7 +22445,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1351934195",
-			"guid" : "2931FEA03F57192F770CC8673405AAE2",
+			"guid" : "6DDE514DBBE9E220",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -24670,7 +22609,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1581030105",
-			"guid" : "A48A50B14C602767DC6A3CEEFF010BE",
+			"guid" : "70BB016A888053AC",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "20000+10000j VA",
@@ -24834,7 +22773,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1557810404",
-			"guid" : "7F0AB9BA4EF5D5A6366F65B181AE71EF",
+			"guid" : "24AE0FE33B91E2DB",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -24998,7 +22937,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2146319451",
-			"guid" : "18CA69EC122AFE4A2C5CB63071F2A10F",
+			"guid" : "28796EAB26AF97B3",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -25162,7 +23101,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1908194298",
-			"guid" : "1868DD30B71F550B726ACD97E54FA25C",
+			"guid" : "79D19205CE5E085C",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -25326,7 +23265,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "500782188",
-			"guid" : "9EBC7189007B3763527F9F851D2D1E2",
+			"guid" : "5494FB261A861543",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -25490,7 +23429,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "657821123",
-			"guid" : "13E3DDBC73AC1D57ADF8AE19F7FA3EA",
+			"guid" : "560202185E903A1",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -25654,7 +23593,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "753799505",
-			"guid" : "4356348199E029C73553F0A48A32567A",
+			"guid" : "22C4BA826FED3BE8",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -25818,7 +23757,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1102246882",
-			"guid" : "3EF28EB59BC5E4AC72DAC0B18447EC98",
+			"guid" : "7182B33B50F33B7F",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -25982,7 +23921,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1269406752",
-			"guid" : "1E48B1887363A9BD56A4947280D7D8FE",
+			"guid" : "3566607D2D1CAF57",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -26146,7 +24085,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1816731566",
-			"guid" : "23CF90BE1D504C1569EF5C50F48A631C",
+			"guid" : "139FC3636B918ED",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -26310,7 +24249,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "884936716",
-			"guid" : "4A6FE5C80798387011D9C429042955AD",
+			"guid" : "555897A01E13D4C0",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -26474,7 +24413,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1807130337",
-			"guid" : "79555495C0808BC95F9FAAEE3F9F0491",
+			"guid" : "643EC96A3EDA9014",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -26638,7 +24577,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "578354438",
-			"guid" : "42CDB5CC60B69E0AB0872CF70C42FC4",
+			"guid" : "45DA6C14E80B92CD",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -26802,7 +24741,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "892053144",
-			"guid" : "54E471C6F35A5B8E60B2135FECBCAE38",
+			"guid" : "3A13AC7D62FF47",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -26966,7 +24905,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1153851501",
-			"guid" : "34950BD9A767E16268065B6D7EE57A0D",
+			"guid" : "1A6D8A4BE51421FA",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -27130,7 +25069,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1004844897",
-			"guid" : "7E3A1177DD15E7686E9CB3D26C85B8A9",
+			"guid" : "3AD607813D94BF26",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -27294,7 +25233,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "616783871",
-			"guid" : "380A94A02A61B93DBEF8D737F08F7F",
+			"guid" : "6EB611D247848EB5",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -27458,7 +25397,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "382955828",
-			"guid" : "455A2D1B39C320A920DAA3A7B27C90F2",
+			"guid" : "670EDD5755BDC9DD",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -27622,7 +25561,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "330111137",
-			"guid" : "3B65300AEDE7C68C4997815E93F2FD53",
+			"guid" : "6059BC09576457D",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -27742,7 +25681,7 @@
 			"voltage_B": "-1200.89-2080j V",
 			"voltage_C": "-1200.89+2080j V",
 			"voltage_AB": "3602.67+2080j V",
-			"voltage_BC": "0-4160j V",
+			"voltage_BC": "0+0j V",
 			"voltage_CA": "-3602.67+2080j V",
 			"mean_repair_time": "0 s",
 			"frequency_measure_type": "NONE",
@@ -27786,7 +25725,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1227619358",
-			"guid" : "3A6761407DB019987054991836A02DEC",
+			"guid" : "8F8B18E34A7D8C04",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -27950,7 +25889,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1723153177",
-			"guid" : "7FAFD5F4433E6D7C57D1A69C3F23E543",
+			"guid" : "2AE016DEC4C1A15",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -28114,7 +26053,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "70982397",
-			"guid" : "27871442C1077475CBCB30ADEC15FAB",
+			"guid" : "755F952A7A25C316",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -28278,7 +26217,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1147722294",
-			"guid" : "7A1AEF1E83A33075FE7D92B075D2A03",
+			"guid" : "4594939D3C324670",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -28442,7 +26381,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1070477904",
-			"guid" : "2CC3B117F31D94511BEB26C150235BDD",
+			"guid" : "7E83E766299D09A8",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "20000+10000j VA",
@@ -28606,7 +26545,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2051621609",
-			"guid" : "588821022EAB1BCEDECD06B71AB2782",
+			"guid" : "6361299EAB99C2E4",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -28770,7 +26709,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1606946231",
-			"guid" : "5DE3B601D62416B9434891A428E93418",
+			"guid" : "78F58A6E61752D59",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -28934,7 +26873,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1190959745",
-			"guid" : "6D259063ABF5F47017F01640F7B25B60",
+			"guid" : "34B54D11B2C09022",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "20000+10000j VA",
@@ -29098,7 +27037,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1912844175",
-			"guid" : "4254575E42902A1A5B23AF04A1AE63A6",
+			"guid" : "32774C209A9D4FCE",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -29262,7 +27201,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1341853635",
-			"guid" : "3A879440F081575A6A5A56D26D4A4958",
+			"guid" : "4B5FF9B63F2F37C2",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -29426,7 +27365,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1808266298",
-			"guid" : "1705765E3298D27C2C1431D516E8F4FB",
+			"guid" : "3ADE42D6F00E2786",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "35000+25000j VA",
@@ -29590,7 +27529,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "343098142",
-			"guid" : "26F25F79C73D1B774E4D344D0DF764DD",
+			"guid" : "7291A9EF2176C226",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -29754,7 +27693,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "456880399",
-			"guid" : "3243ABC315C6DA71165F8267FA7AA6C3",
+			"guid" : "5EF2DE14EE474F99",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "20000+10000j VA",
@@ -29918,7 +27857,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1534827968",
-			"guid" : "52BA1D617D1DC0886A055EA1B259FBAF",
+			"guid" : "3C21500E753CBEE6",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -30082,7 +28021,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "280090412",
-			"guid" : "69A326A1EC5DE93D3512038AD2B5F46",
+			"guid" : "354A6B586ACB82A3",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -30246,7 +28185,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "195400260",
-			"guid" : "13260285B0A6C91B7B3AAF3FADBE626D",
+			"guid" : "7FA20FEAC3D314B7",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -30410,7 +28349,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "589673557",
-			"guid" : "59D61F25AAFACD7EA267A5C02E71D7",
+			"guid" : "1D33CED5E3AA05E8",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -30574,7 +28513,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "6441594",
-			"guid" : "7F4FD15F295D4E862B7A08E0D39D13C3",
+			"guid" : "110E26CC8086AFAE",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -30738,7 +28677,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "889688008",
-			"guid" : "70949D4C65F3876B65D27BAC1E98061F",
+			"guid" : "F88302BE70113B76",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -30902,7 +28841,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "57716395",
-			"guid" : "6F00931E3750C9635E91BB422511A6C3",
+			"guid" : "293D139D3FCB3CA8",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "20000+10000j VA",
@@ -31066,7 +29005,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1524325968",
-			"guid" : "187453ACC4EB189F638F13B89EF61C6C",
+			"guid" : "21995B3926E14C9",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -31230,7 +29169,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2014119113",
-			"guid" : "4B96446A1A9B1E8B5AE22AE4A666DE6E",
+			"guid" : "3ADC157084B20E21",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -31394,7 +29333,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "515204530",
-			"guid" : "66D04E293E4E568D5D0CED537CA299E6",
+			"guid" : "1A0794C5BA96F781",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -31558,7 +29497,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "388471006",
-			"guid" : "12DF361CF2D575562BCD7CC9DC80FA9A",
+			"guid" : "305A1DC79E84D834",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -31678,7 +29617,7 @@
 			"voltage_B": "-1200.89-2080j V",
 			"voltage_C": "-1200.89+2080j V",
 			"voltage_AB": "3602.67+2080j V",
-			"voltage_BC": "0-4160j V",
+			"voltage_BC": "0+0j V",
 			"voltage_CA": "-3602.67+2080j V",
 			"mean_repair_time": "0 s",
 			"frequency_measure_type": "NONE",
@@ -31722,7 +29661,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "681910962",
-			"guid" : "2BA434BE9AD249E46B69A1E53979B896",
+			"guid" : "77A4A354AA76F9C",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -31886,7 +29825,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1904797942",
-			"guid" : "6BFEE1FFB6AC9DA61E0A0639727B47A3",
+			"guid" : "7A5C450183E0C604",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "20000+10000j VA",
@@ -32050,7 +29989,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1400285365",
-			"guid" : "436EE23D40ECB0336B10A08467331557",
+			"guid" : "4A56CBDDEBDD9149",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -32214,7 +30153,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "322842082",
-			"guid" : "2E43F395B356F71A360A407F8710DFDD",
+			"guid" : "202F7CAA38021382",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "20000+10000j VA",
@@ -32378,7 +30317,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1463179852",
-			"guid" : "B0D0F02C86BC4D373130BA5D8EE6E87",
+			"guid" : "3DF2828264F765F8",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -32542,7 +30481,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "828530767",
-			"guid" : "3A1544D113FF216F5B00AB22280BE6",
+			"guid" : "26BD4DA110A55C38",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -32706,7 +30645,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "832633821",
-			"guid" : "55A4CFCB55CDB5CA16913AE2BCB01DF6",
+			"guid" : "37238F66A1B90835",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -32870,7 +30809,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1073185695",
-			"guid" : "3CA8EDDF1666CFF1C02B34E52566DF6",
+			"guid" : "7814E3D270BE1DA2",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -33034,7 +30973,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "316824712",
-			"guid" : "4476A85E3DF0F2D45011A0B81CF7A7DC",
+			"guid" : "624367569274FA4C",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -33154,7 +31093,7 @@
 			"voltage_B": "-1200.89-2080j V",
 			"voltage_C": "-1200.89+2080j V",
 			"voltage_AB": "3602.67+2080j V",
-			"voltage_BC": "0-4160j V",
+			"voltage_BC": "0+0j V",
 			"voltage_CA": "-3602.67+2080j V",
 			"mean_repair_time": "0 s",
 			"frequency_measure_type": "NONE",
@@ -33198,7 +31137,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1260973671",
-			"guid" : "308B8ED5695B7A9C5EE15C4772424049",
+			"guid" : "5CDC0C709636ECD1",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -33362,7 +31301,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1815859901",
-			"guid" : "60C9F25D716E56F276E4D4494A13AF2C",
+			"guid" : "143E78989383501C",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -33526,7 +31465,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1267248590",
-			"guid" : "25345E883E2BD66C74111A6D165288FA",
+			"guid" : "477F0403A9B2A139",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -33690,7 +31629,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2051724831",
-			"guid" : "57C657F7302622551E857F1AABC21976",
+			"guid" : "5D742BA59CBFFDD7",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -33854,7 +31793,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1194314738",
-			"guid" : "6730C1407E2AA5EC5447EF5E220E1A3F",
+			"guid" : "7409592282283079",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -34018,7 +31957,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "318153057",
-			"guid" : "385622B784C48B0A3FFAEED87AB6EEFE",
+			"guid" : "2E9657EB7916AD16",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -34182,7 +32121,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2111631616",
-			"guid" : "2F5E2473B337E38778318B4385987ABA",
+			"guid" : "4A08234030588AF7",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -34346,7 +32285,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "877819790",
-			"guid" : "13041E3308430DCED320B0CE1FFEC08",
+			"guid" : "6F86EC8685F35D6F",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -34510,7 +32449,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "304555640",
-			"guid" : "EF0148B1A3DC2B724D8DC7F2355D984",
+			"guid" : "606B4D5DD247CD7F",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -34674,7 +32613,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1213110679",
-			"guid" : "5BDFCEDE6D5187994E666EED08941536",
+			"guid" : "683A8D107ACEA729",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -34838,7 +32777,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "541437335",
-			"guid" : "649E5AD62AE00D131FE237F5D35FFE2",
+			"guid" : "365B4D22EB4A1A45",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -35002,7 +32941,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1049077006",
-			"guid" : "6E57BCB853FF1786297B670A82D646FE",
+			"guid" : "5B97E24FB8A87ED4",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -35166,7 +33105,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "996497972",
-			"guid" : "6DDD506D75FF39732A7F4A74CA685D0B",
+			"guid" : "1C49DC0898BC0FBB",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -35330,7 +33269,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2063936098",
-			"guid" : "131D921AE510F01F335D9324AC130E78",
+			"guid" : "34585F00A189506C",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -35494,7 +33433,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "270649095",
-			"guid" : "1113C291C72826C726B1411194B7BE15",
+			"guid" : "5B6EF13E9B3FB865",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -35658,7 +33597,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "428975319",
-			"guid" : "6806CE6CB59F83F32B63EBD567F6FD33",
+			"guid" : "23E7389677FF1035",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -35822,7 +33761,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "685583454",
-			"guid" : "5B2523D7AA3EF53740C61C4FFE122CE5",
+			"guid" : "40AE949EC5113537",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -35986,7 +33925,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1351345223",
-			"guid" : "9E7CCF0727F2C9140B0EC5ECC1F54B5",
+			"guid" : "134053F346A2C58F",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -36150,7 +34089,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "272112289",
-			"guid" : "75FCCEB033C72939328BA278E1F2E5F",
+			"guid" : "3A196E4C28ED97DA",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -36314,7 +34253,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1398556760",
-			"guid" : "6078DF76D3D4F13C418DA067318AFC82",
+			"guid" : "45D4E6304F936459",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -36478,7 +34417,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1334948905",
-			"guid" : "3B167D0220596D3A30DAA95A679F83BF",
+			"guid" : "32356285D83D93C7",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -36642,7 +34581,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1724586126",
-			"guid" : "6C343D285893EE3714D255B72E254B31",
+			"guid" : "E61895A83F6586F2",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -36806,7 +34745,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "532236123",
-			"guid" : "5662E8E4441A0C4547DC152C45FC4FF9",
+			"guid" : "237EB6FE374129E3",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -36970,7 +34909,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1023129506",
-			"guid" : "7635853C49E74DB95D3DB1FEF63F0195",
+			"guid" : "75DD8534837F421E",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "40000+20000j VA",
@@ -37134,7 +35073,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "836045813",
-			"guid" : "7B20E164023140DC1D857526A2DA8FB4",
+			"guid" : "5B7256614C3EB676",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "20000+10000j VA",
@@ -37298,7 +35237,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "436476770",
-			"guid" : "21995C486C9B3C926D7EC8EA6130D80",
+			"guid" : "344A0BF1A3E3A81D",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -37462,7 +35401,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "60935238",
-			"guid" : "AC493434C4A241474E8C0D383652F96",
+			"guid" : "53D3E39FC23AEEA5",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "0+0j VA",
@@ -37626,7 +35565,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1936329094",
-			"guid" : "61E27663978623A97E55EC1AF33E29F0",
+			"guid" : "5BA12AF9805E7915",
 			"flags" : "0x100",
 			"load_class": "U",
 			"constant_power_A": "20000+10000j VA",
@@ -37789,7 +35728,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "915896220",
-			"guid" : "DD2C5B5AA1CBE6B6F31E7806E0D6BB6",
+			"guid" : "2A860CC4C88BE2E",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "175 ft",
@@ -37841,7 +35780,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "304987844",
-			"guid" : "4BD0170E892520FC52720881C64D39F4",
+			"guid" : "14AA2FA9913E9168",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "250 ft",
@@ -37893,7 +35832,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2034712366",
-			"guid" : "5EC1CB21C8ED2FF336074C0507DD6B43",
+			"guid" : "5B7031B0524DBCB0",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "300 ft",
@@ -37945,7 +35884,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "881140534",
-			"guid" : "5247A2D010FB58C27F58307A3C33EEB5",
+			"guid" : "4DE040124B4F9AF3",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "200 ft",
@@ -37997,7 +35936,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "281725226",
-			"guid" : "66DAE5E712FEF61F3FEA0476DA09BD18",
+			"guid" : "1C591ED4A1E0CA97",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "325 ft",
@@ -38049,7 +35988,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1901915394",
-			"guid" : "1DAE268A781FBD8163F6336D8FC7A770",
+			"guid" : "3C4FE7BB4765D305",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "250 ft",
@@ -38101,7 +36040,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "197941363",
-			"guid" : "4D19E114CF2081F2E959DF3BF703F82",
+			"guid" : "3ACB9BFAEC78615C",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "200 ft",
@@ -38153,7 +36092,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "348318738",
-			"guid" : "484B4BADCEF4E5E36169EF1A6B4FDD30",
+			"guid" : "E775859F1EBA8285",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "225 ft",
@@ -38205,7 +36144,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "152607844",
-			"guid" : "77099D32482FEF4D475C24567A1A5346",
+			"guid" : "5BF28EFA49815927",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "225 ft",
@@ -38257,7 +36196,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "784559590",
-			"guid" : "3C2AE6FFE8ACD9ED2455216E21EEFD07",
+			"guid" : "31291E9A423ADE9D",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "300 ft",
@@ -38309,7 +36248,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "543436550",
-			"guid" : "3BA950F57C83CB5858D2E08F0AE4B66",
+			"guid" : "7E7C728323D539F",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "425 ft",
@@ -38361,7 +36300,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "290145159",
-			"guid" : "72F61B5B9EB8767C184B9E3951348824",
+			"guid" : "6680AE0FA4B30523",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "150 ft",
@@ -38413,7 +36352,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1681808623",
-			"guid" : "284C3E0BD585166E46D0ABAF9406FE92",
+			"guid" : "1E79E0D8E525142D",
 			"flags" : "0x100",
 			"configuration": "lc302",
 			"length": "825 ft",
@@ -38465,7 +36404,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "977764947",
-			"guid" : "77DCD070DC55B8C16523A8E96AA67FEC",
+			"guid" : "6E470DFEEE17DCB6",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "250 ft",
@@ -38517,7 +36456,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "750597385",
-			"guid" : "377399D6672AC29C51883BF76C9CA3A9",
+			"guid" : "5B3AF291618C640F",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "250 ft",
@@ -38569,7 +36508,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "971307217",
-			"guid" : "B6D3D82F200547C56613252A51AE054",
+			"guid" : "1CFC9FED311B8C23",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "375 ft",
@@ -38621,7 +36560,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1737195272",
-			"guid" : "59B36A2B37623D787532C34C501D0110",
+			"guid" : "7F333154EB0B456A",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "350 ft",
@@ -38673,7 +36612,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2000755539",
-			"guid" : "497A4828B10A579AC92BA75D662B583",
+			"guid" : "5FD896DF17D22418",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "250 ft",
@@ -38725,7 +36664,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1399399247",
-			"guid" : "309316110DB638CC4C307A8BED1A908",
+			"guid" : "49DBDEA724EECA85",
 			"flags" : "0x100",
 			"configuration": "lc302",
 			"length": "300 ft",
@@ -38777,7 +36716,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "462242385",
-			"guid" : "30F8770BCF06D16158AF9629B4AAA1AA",
+			"guid" : "6BEDBB4D435BF96D",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "325 ft",
@@ -38829,7 +36768,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1459413496",
-			"guid" : "5B6C6A854AA0D22B6B0D103EE92DF56A",
+			"guid" : "5B884E9755E43AC2",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "525 ft",
@@ -38881,7 +36820,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1951894885",
-			"guid" : "6DDC38A9114FA681217758F3000A9C1D",
+			"guid" : "5F2B996E5CC9F7F8",
 			"flags" : "0x100",
 			"configuration": "lc302",
 			"length": "250 ft",
@@ -38933,7 +36872,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "537140623",
-			"guid" : "364AD337474233D03919094E5D4F6A7C",
+			"guid" : "2356168EA35855FE",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "550 ft",
@@ -38985,7 +36924,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1848682420",
-			"guid" : "44FF3E16C089B3D332D622B71409F83A",
+			"guid" : "B208F9DDABC33D33",
 			"flags" : "0x100",
 			"configuration": "lc302",
 			"length": "275 ft",
@@ -39037,7 +36976,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1012028144",
-			"guid" : "6AC8874EBCA0A94CE8C6BD5DC7D4EDB",
+			"guid" : "2F00D00594F98957",
 			"flags" : "0x100",
 			"configuration": "lc307",
 			"length": "350 ft",
@@ -39089,7 +37028,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1086531968",
-			"guid" : "1F9A9BAE41CDCE357439180610D68F7",
+			"guid" : "2EAE4D249AE0274F",
 			"flags" : "0x100",
 			"configuration": "lc302",
 			"length": "200 ft",
@@ -39141,7 +37080,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1289335735",
-			"guid" : "32F66A22B36BCBFF3C042954D8A65A19",
+			"guid" : "3CC32F4C6046C083",
 			"flags" : "0x100",
 			"configuration": "lc307",
 			"length": "275 ft",
@@ -39193,7 +37132,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1755699915",
-			"guid" : "4707D20EC5C02E801B1B173C4DE92B9E",
+			"guid" : "3CE75B0961583D83",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "225 ft",
@@ -39245,7 +37184,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1623161625",
-			"guid" : "2E345FFE7B3946147F7A9B9819DFAB07",
+			"guid" : "6F402E457C003B2D",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "500 ft",
@@ -39297,7 +37236,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "992663534",
-			"guid" : "1EE758633CEF4B291A09737A01573183",
+			"guid" : "75F198B8606BCEEC",
 			"flags" : "0x100",
 			"configuration": "lc302",
 			"length": "300 ft",
@@ -39349,7 +37288,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2043046042",
-			"guid" : "2816D6E62A4BAA003A9FF86B0BE2A9E2",
+			"guid" : "3590B27FBB576F24",
 			"flags" : "0x100",
 			"configuration": "lc302",
 			"length": "350 ft",
@@ -39401,7 +37340,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1358796011",
-			"guid" : "30B95399426C143836601135937525B2",
+			"guid" : "31E26CE347CD1513",
 			"flags" : "0x100",
 			"configuration": "lc302",
 			"length": "200 ft",
@@ -39453,7 +37392,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "943454679",
-			"guid" : "3140434C24C8ABF1341095B3399DDD0",
+			"guid" : "6811DB3B33385F1E",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "300 ft",
@@ -39505,7 +37444,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1771024152",
-			"guid" : "75DE4EE64BC147F91A7D08832753BECC",
+			"guid" : "3DA36A215C466BB4",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "100 ft",
@@ -39557,7 +37496,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1479575244",
-			"guid" : "6A4A50DB2C7D65326DA6E77D4C8E0F6A",
+			"guid" : "186E71A322264669",
 			"flags" : "0x100",
 			"configuration": "lc308",
 			"length": "650 ft",
@@ -39609,7 +37548,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1507977295",
-			"guid" : "51DADC99EEC7B999642884616C5A3231",
+			"guid" : "29CF27C3172F7503",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "250 ft",
@@ -39661,7 +37600,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2119878818",
-			"guid" : "609B872C7829C13B70EE7B298E7907D2",
+			"guid" : "17585A0F27588836",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "300 ft",
@@ -39713,7 +37652,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2049590396",
-			"guid" : "6C347CCC4D15E64259F24C7307E758F5",
+			"guid" : "6B920E8ECDD171B8",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "250 ft",
@@ -39765,7 +37704,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1828087692",
-			"guid" : "5D5022955322B02345737FBA9AB6F744",
+			"guid" : "6D7AA7867C890589",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "325 ft",
@@ -39817,7 +37756,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "621301815",
-			"guid" : "2C539836C78C6C7BA9632BC66BE78C5",
+			"guid" : "2F8DD97FE1191B42",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "325 ft",
@@ -39869,7 +37808,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1154112991",
-			"guid" : "614E0D7C4BA1DE01D2BCB5291CDF17F",
+			"guid" : "91E5727F9A59B4F5",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "250 ft",
@@ -39921,7 +37860,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1104740033",
-			"guid" : "37604EDA79DF7D52365A256B7688B0C9",
+			"guid" : "3EAF8A7FF4E625CE",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "500 ft",
@@ -39973,7 +37912,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "222122669",
-			"guid" : "300781EBBFD2852316029A93D0EA10E3",
+			"guid" : "601306DAA0646650",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "200 ft",
@@ -40025,7 +37964,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "889119397",
-			"guid" : "5029DAD7FDFAFF5D626EA488C756BFF2",
+			"guid" : "551B932DAFAFC8E7",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "200 ft",
@@ -40077,7 +38016,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1238489553",
-			"guid" : "4499BCBE5A515E874642A062D760F793",
+			"guid" : "3388C0266FD2F58E",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "250 ft",
@@ -40129,7 +38068,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1882410547",
-			"guid" : "78FB4719F79F3DC2764A5BC9951D134C",
+			"guid" : "4B07F1A081E0BB8D",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "300 ft",
@@ -40181,7 +38120,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "944975825",
-			"guid" : "186E67F28CABE02942ED99B0D42E71F2",
+			"guid" : "55F196E0FFB31F05",
 			"flags" : "0x100",
 			"configuration": "lc304",
 			"length": "150 ft",
@@ -40233,7 +38172,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1567121210",
-			"guid" : "37853A21E7C800244311A03E39484DC3",
+			"guid" : "6F990122F587EEF1",
 			"flags" : "0x100",
 			"configuration": "lc304",
 			"length": "250 ft",
@@ -40285,7 +38224,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1866729662",
-			"guid" : "143A969CF951A5971F252A5B7EF57F",
+			"guid" : "52DFDBF76419D0EA",
 			"flags" : "0x100",
 			"configuration": "lc304",
 			"length": "250 ft",
@@ -40337,7 +38276,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1536830211",
-			"guid" : "5AB994C8C84EC04054F29228841A6528",
+			"guid" : "75CABEEF5A174BD",
 			"flags" : "0x100",
 			"configuration": "lc304",
 			"length": "250 ft",
@@ -40389,7 +38328,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1719533808",
-			"guid" : "FA569023C4514D36B6F9F03C41740C4",
+			"guid" : "58EAA422D8E9F436",
 			"flags" : "0x100",
 			"configuration": "lc304",
 			"length": "500 ft",
@@ -40441,7 +38380,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1517273377",
-			"guid" : "22ACA4FAEF38F8EA6E84A2A17E4051EB",
+			"guid" : "534542F7FDBDD51E",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "200 ft",
@@ -40493,7 +38432,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1592822761",
-			"guid" : "3E2651654290B578204EC0B4ACF37959",
+			"guid" : "458962BBB542C36B",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "125 ft",
@@ -40545,7 +38484,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "41000625",
-			"guid" : "2A74AC74BA6AF6ABE283D6A125D51D7",
+			"guid" : "71472C9F617C2E44",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "275 ft",
@@ -40597,7 +38536,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1902737335",
-			"guid" : "DEA8CB129C6AF721664C4B82AAAA443",
+			"guid" : "32F65864270F3674",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "350 ft",
@@ -40649,7 +38588,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1127401868",
-			"guid" : "74077B8B83012EE45D6956AC1E6D387C",
+			"guid" : "F7EC37E5BF4EB776",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "275 ft",
@@ -40701,7 +38640,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "994977995",
-			"guid" : "58AC8F4C2770A33029F8CE511D05EA29",
+			"guid" : "680C95DA367ED508",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "250 ft",
@@ -40753,7 +38692,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "140002776",
-			"guid" : "7620DFE058F05C426A5D9CAD6D5C31CE",
+			"guid" : "38EC8C233752F4A1",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "750 ft",
@@ -40805,7 +38744,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1532062767",
-			"guid" : "469C25D2F8BE64035E4655402C76CF0C",
+			"guid" : "A2B52AC9197E27D4",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "250 ft",
@@ -40857,7 +38796,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1049997439",
-			"guid" : "C1CA73406652D71B030D9C187CBC21",
+			"guid" : "2AC410CE5C410049",
 			"flags" : "0x100",
 			"configuration": "lc305",
 			"length": "550 ft",
@@ -40909,7 +38848,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1433829874",
-			"guid" : "433B09CC59CE4EEE39E9558EEF8D7ABC",
+			"guid" : "711157FD9F9088F7",
 			"flags" : "0x100",
 			"configuration": "lc312",
 			"length": "250 ft",
@@ -40961,7 +38900,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1464689331",
-			"guid" : "27D7F613DB5E48C34AA5B14DD1010AC8",
+			"guid" : "D499E36597D24643",
 			"flags" : "0x100",
 			"configuration": "lc312",
 			"length": "175 ft",
@@ -41013,7 +38952,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "428540556",
-			"guid" : "643BAA7E054DAD3E1D310347B886EC50",
+			"guid" : "7CC13F405C7D1738",
 			"flags" : "0x100",
 			"configuration": "lc312",
 			"length": "350 ft",
@@ -41065,7 +39004,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1968456301",
-			"guid" : "2591B2A0C1180C19413536F391971DBF",
+			"guid" : "5EB4B4407340B073",
 			"flags" : "0x100",
 			"configuration": "lc312",
 			"length": "425 ft",
@@ -41117,7 +39056,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1859468872",
-			"guid" : "2261E998BBFF65D2728CC2398ACB8F95",
+			"guid" : "4D5E45067CAF80E7",
 			"flags" : "0x100",
 			"configuration": "lc312",
 			"length": "325 ft",
@@ -41169,7 +39108,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1911300560",
-			"guid" : "21CEC35215A914CF34B236E937B82D6E",
+			"guid" : "700EEACB3ADA1603",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "200 ft",
@@ -41221,7 +39160,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1168120094",
-			"guid" : "44648C08D416F3AA18DF21BBB868382B",
+			"guid" : "3D0E6FA9584231B4",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "275 ft",
@@ -41273,7 +39212,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "298918984",
-			"guid" : "312FE1B3CF5FD2BB6483D86A8564606F",
+			"guid" : "54100A66AE152E2E",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "250 ft",
@@ -41325,7 +39264,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "967113755",
-			"guid" : "5BCE1EA8D0DD82C267EC9C60A79160B6",
+			"guid" : "7BDACA1D1E98E6E0",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "275 ft",
@@ -41377,7 +39316,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2124639789",
-			"guid" : "5A5CC12368513A5C5ED89B5D0A6D217C",
+			"guid" : "200719195EC43C15",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "325 ft",
@@ -41429,7 +39368,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "462851407",
-			"guid" : "33D90F09822813BD2EACDBC940271AB1",
+			"guid" : "2D8A72A7D1E2F4E8",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "275 ft",
@@ -41481,7 +39420,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "957828015",
-			"guid" : "31DC499311EEA345400E0604761A362C",
+			"guid" : "5EB41B18225156D7",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "275 ft",
@@ -41533,7 +39472,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "678030193",
-			"guid" : "1251B8312BCD6645BB34052812B52DA",
+			"guid" : "698B3DA58A8E2C79",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "200 ft",
@@ -41585,7 +39524,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1105222769",
-			"guid" : "77F9A64CB0543EE93C0AF6C8D08D5C1E",
+			"guid" : "15264797C91EF051",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "350 ft",
@@ -41637,7 +39576,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1893015680",
-			"guid" : "2A762357352872A07F916CE0BE4F0AF3",
+			"guid" : "7CCCAC4582D6DC6B",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "400 ft",
@@ -41689,7 +39628,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "944303455",
-			"guid" : "189FE8A61E00522F519B59FA1C5F3F13",
+			"guid" : "39A1716E5E1B28DE",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "400 ft",
@@ -41741,7 +39680,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1004016855",
-			"guid" : "21D93CA7E0AA8332192E969A05636115",
+			"guid" : "4D9AF7496A437360",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "700 ft",
@@ -41793,7 +39732,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1732267506",
-			"guid" : "6D3BFED2372F03157DA038AE003B9B6",
+			"guid" : "7C7963F76E38E4EF",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "100 ft",
@@ -41845,7 +39784,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "784170963",
-			"guid" : "73C3C058B34F4B01C2C58AF2BE67895",
+			"guid" : "418AEDC68119E08C",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "225 ft",
@@ -41897,7 +39836,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "454233502",
-			"guid" : "209FBE942D59AFBF158C6CCF175E1AC5",
+			"guid" : "42F5F3BAD8021482",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "475 ft",
@@ -41949,7 +39888,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2145586676",
-			"guid" : "1B7401C2F3C8F181147CC0B04828DD9",
+			"guid" : "54D67EBFBF5625D6",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "475 ft",
@@ -42001,7 +39940,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "329863108",
-			"guid" : "14DAC3FEA2D4C5BF527C16410D362A1F",
+			"guid" : "342E8335A2FA64ED",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "250 ft",
@@ -42053,7 +39992,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1353963249",
-			"guid" : "4C49276A0AE1A07D30B5A3233C83E88A",
+			"guid" : "169B0DB22F2ED65A",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "675 ft",
@@ -42105,7 +40044,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1323602331",
-			"guid" : "2B22E4400E358E4552E44D3F9CC3AF6D",
+			"guid" : "37EFBB945F2FD0BA",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "250 ft",
@@ -42157,7 +40096,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1277844",
-			"guid" : "41528478CA082B20568809AC615F24A1",
+			"guid" : "700B31B2266811E",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "475 ft",
@@ -42209,7 +40148,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1887638",
-			"guid" : "4DADF455E5CF7FE6CC315C95B197174",
+			"guid" : "479539808CB600C2",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "450 ft",
@@ -42261,7 +40200,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1660760808",
-			"guid" : "5ADCE71F935042CE310908688E2A92C5",
+			"guid" : "36F77FCE2C09907C",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "175 ft",
@@ -42313,7 +40252,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1561939997",
-			"guid" : "1B91A3D0134489276746F84428BDF3CF",
+			"guid" : "70EEEDD28B31C36D",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "275 ft",
@@ -42365,7 +40304,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "685428651",
-			"guid" : "2C2C10098C91616391E2CD241363459",
+			"guid" : "4B5B4005B4CEB293",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "225 ft",
@@ -42417,7 +40356,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "897054849",
-			"guid" : "16AA2B9A2F0E06F21421733EAB160278",
+			"guid" : "6B1DF255914A113D",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "225 ft",
@@ -42469,7 +40408,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1465645203",
-			"guid" : "2F5487F7CC195E714A334F0D96FA9B0",
+			"guid" : "19B5ED234329FE32",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "300 ft",
@@ -42521,7 +40460,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1461495731",
-			"guid" : "337290AE03D3047D12F5D1232DFBEAB6",
+			"guid" : "1D72928B2C33F531",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "225 ft",
@@ -42573,7 +40512,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "440796531",
-			"guid" : "78338ACED5E51C4242D27F083BE3FA54",
+			"guid" : "EE4DF88AEE79C627",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "275 ft",
@@ -42625,7 +40564,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1796198014",
-			"guid" : "2AE83AD8DA1081103EAA22036D1BAF4E",
+			"guid" : "78544867C71BACE6",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "300 ft",
@@ -42677,7 +40616,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1522395419",
-			"guid" : "1D31FA08955E4B8E329DFD6721522578",
+			"guid" : "E0BCBF05C89B2597",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "200 ft",
@@ -42729,7 +40668,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1779636775",
-			"guid" : "6E6C9F7D0B8DA6CD44D41954C59F3545",
+			"guid" : "196D13BAC155365D",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "275 ft",
@@ -42781,7 +40720,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "203042009",
-			"guid" : "5F34E49BA7B6ECDC73106E1D8BA4F4A3",
+			"guid" : "486DD625E0EC4F23",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "550 ft",
@@ -42833,7 +40772,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "175530180",
-			"guid" : "1D9FC0515ED5493067118FB24F8F322A",
+			"guid" : "69EA5DAA64F76B13",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "300 ft",
@@ -42885,7 +40824,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1640687929",
-			"guid" : "B11E8AB77B13064DB296BAE36A30C6",
+			"guid" : "5750F7C36CAAD331",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "800 ft",
@@ -42937,7 +40876,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1351995223",
-			"guid" : "5E463E23AABFCBCF6667689A5F5BAC66",
+			"guid" : "2AA3D3FEC80446C3",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "225 ft",
@@ -42989,7 +40928,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "459244054",
-			"guid" : "16735857551B52EA1AE3441D3D5137C4",
+			"guid" : "77DD7AFD7FA008E4",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "275 ft",
@@ -43041,7 +40980,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "458588260",
-			"guid" : "7626BF8C41D862A178A89C2CEF5FA5A6",
+			"guid" : "57AF335732458ED3",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "325 ft",
@@ -43093,7 +41032,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "174076737",
-			"guid" : "2EB49273143B54D2603ECE1B47BF215F",
+			"guid" : "48FD495C64830E19",
 			"flags" : "0x100",
 			"configuration": "lc311",
 			"length": "700 ft",
@@ -43145,7 +41084,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "834991545",
-			"guid" : "6E76BC5A6176E8927D024EE715E4185",
+			"guid" : "39ED89296D930DDE",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "225 ft",
@@ -43197,7 +41136,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2044747317",
-			"guid" : "19C04F3EB56B9C3B48F6DF54602F9D67",
+			"guid" : "6B3BCE78F43F9E2D",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "325 ft",
@@ -43249,7 +41188,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2034837525",
-			"guid" : "4BF339500417A8B27B63918C87F92944",
+			"guid" : "728F01E0F6D8F1BE",
 			"flags" : "0x100",
 			"configuration": "lc310",
 			"length": "575 ft",
@@ -43301,7 +41240,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "837204200",
-			"guid" : "48F7A134948D0BC7183B40F250D51064",
+			"guid" : "62A62EC4218F4348",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "450 ft",
@@ -43353,7 +41292,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "578134256",
-			"guid" : "3A56D0CBF6D15E2B4BD2FA92284C124D",
+			"guid" : "11F891A2BD8B8148",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "1000 ft",
@@ -43405,7 +41344,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1486421564",
-			"guid" : "7E0A69C3A086B85735946A56360AC581",
+			"guid" : "1AAE923ECC791CD5",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "300 ft",
@@ -43457,7 +41396,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "609960597",
-			"guid" : "629EC3A2130428531FD51C32A3484779",
+			"guid" : "9C9103EB1B6F1A25",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "575 ft",
@@ -43509,7 +41448,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1668306648",
-			"guid" : "61DB020B1AC70931734494F00BC626DA",
+			"guid" : "6C0443415DCF13EE",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "125 ft",
@@ -43561,7 +41500,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1683337704",
-			"guid" : "74BAD6DABAB7070B73D05403175861F8",
+			"guid" : "19E20DC7328525CE",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "525 ft",
@@ -43613,7 +41552,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "907225550",
-			"guid" : "6D60D79D5EC687E42EA813EE63330594",
+			"guid" : "47D6132AA9A71A22",
 			"flags" : "0x100",
 			"configuration": "lc309",
 			"length": "325 ft",
@@ -43665,7 +41604,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "605925150",
-			"guid" : "45DD21C9B8A809C94B3042BDC9BEA568",
+			"guid" : "59048FAC27DB637E",
 			"flags" : "0x100",
 			"configuration": "lc304",
 			"length": "375 ft",
@@ -43717,7 +41656,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "416541976",
-			"guid" : "47EBD4731879F982A95B005C019551A",
+			"guid" : "10EEE7579FBB3430",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "400 ft",
@@ -43769,7 +41708,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "24301412",
-			"guid" : "385AC0D923F738516BCDD1FEE82F0E42",
+			"guid" : "77EB11261FA34190",
 			"flags" : "0x100",
 			"configuration": "lc301",
 			"length": "400 ft",
@@ -43821,7 +41760,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "411938554",
-			"guid" : "22F0AFC319083E893BDC72B1E71F074",
+			"guid" : "90FC77D355323FB4",
 			"flags" : "0x100",
 			"configuration": "lc306",
 			"length": "350 ft",
@@ -43873,7 +41812,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2111482797",
-			"guid" : "6588DC490B795FA423485E08323D75FA",
+			"guid" : "6015EC1816768701",
 			"flags" : "0x100",
 			"configuration": "lc303",
 			"length": "250 ft",
@@ -43925,7 +41864,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "524102504",
-			"guid" : "7B20CE803BE4ABC31F09F05D1FD45790",
+			"guid" : "7D5BD8CE2A4F8696",
 			"flags" : "0x100",
 			"configuration": "tc500",
 			"climate": "",
@@ -43991,7 +41930,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1760348381",
-			"guid" : "699EC2ED6953E5B4766DC3830AF69945",
+			"guid" : "4D717A9B2076DA9C",
 			"flags" : "0x100",
 			"configuration": "rc501",
 			"tap_A": "0",
@@ -44050,7 +41989,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "293034748",
-			"guid" : "670A486848ACD1AD71FDE35961110B33",
+			"guid" : "46EC5A827E1E618",
 			"flags" : "0x100",
 			"configuration": "rc502",
 			"tap_A": "-1",
@@ -44109,7 +42048,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "855007065",
-			"guid" : "3195D8EBDE724BD41A901134723B255B",
+			"guid" : "33F2BBAECC55632",
 			"flags" : "0x100",
 			"configuration": "rc503",
 			"tap_A": "0",
@@ -44168,7 +42107,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1290659378",
-			"guid" : "B1FFC91E581BB415196465778CE637",
+			"guid" : "7960CAAAED062838",
 			"flags" : "0x100",
 			"configuration": "rc504",
 			"tap_A": "8",
@@ -44227,7 +42166,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "379847699",
-			"guid" : "2B0B1A7CB60776FA18F19DCC665BBB1E",
+			"guid" : "72F3CC398926473B",
 			"flags" : "0x100",
 			"phase_A_state": "CLOSED",
 			"phase_B_state": "CLOSED",
@@ -44282,7 +42221,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1778878209",
-			"guid" : "B1D8F05278B8B101035F40716DF1965",
+			"guid" : "76B9D0E9A2031428",
 			"flags" : "0x100",
 			"phase_A_state": "CLOSED",
 			"phase_B_state": "CLOSED",
@@ -44337,7 +42276,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "338725129",
-			"guid" : "361CF2B0B10C9F067C1A419C2D95DB2F",
+			"guid" : "3511C34AE1398AA2",
 			"flags" : "0x100",
 			"phase_A_state": "OPEN",
 			"phase_B_state": "OPEN",
@@ -44392,7 +42331,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "2121578553",
-			"guid" : "30FAB18992730B1010E302CADE45E25A",
+			"guid" : "537FD3573E39A8B1",
 			"flags" : "0x100",
 			"phase_A_state": "CLOSED",
 			"phase_B_state": "CLOSED",
@@ -44447,7 +42386,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "552265483",
-			"guid" : "3949262D19CE4502673E745B078C0695",
+			"guid" : "34100357D64AF2CA",
 			"flags" : "0x100",
 			"phase_A_state": "CLOSED",
 			"phase_B_state": "CLOSED",
@@ -44502,7 +42441,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "501650447",
-			"guid" : "65B8604F1FFB51803ACE69034E2B955C",
+			"guid" : "473E1A9757F6D271",
 			"flags" : "0x100",
 			"phase_A_state": "CLOSED",
 			"phase_B_state": "CLOSED",
@@ -44557,7 +42496,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "218264607",
-			"guid" : "375391E59F4CF94A779A0EE0C6C90AA8",
+			"guid" : "69396EBC129A29A6",
 			"flags" : "0x100",
 			"phase_A_state": "OPEN",
 			"phase_B_state": "OPEN",
@@ -44612,7 +42551,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "471180773",
-			"guid" : "5C50D2C1CF599B91221FE281659300AC",
+			"guid" : "7535D5F1D759F680",
 			"flags" : "0x100",
 			"phase_A_state": "CLOSED",
 			"phase_B_state": "CLOSED",
@@ -44668,7 +42607,7 @@
 			"rank" : "3",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1363045322",
-			"guid" : "471F7DE578E3FAA44FD670EDD239EDB0",
+			"guid" : "B88708B1CFE78592",
 			"flags" : "0x100",
 			"pt_phase": "",
 			"phases_connected": "CBA",
@@ -44747,7 +42686,7 @@
 			"rank" : "3",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1494664305",
-			"guid" : "4E8AE03B3CDFB1B57FD54E5A67B9853B",
+			"guid" : "396278B34271E392",
 			"flags" : "0x100",
 			"pt_phase": "",
 			"phases_connected": "A",
@@ -44826,7 +42765,7 @@
 			"rank" : "3",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1706755176",
-			"guid" : "4D92440B51A801B82D62CADE0EB5B0E9",
+			"guid" : "108889488049F074",
 			"flags" : "0x100",
 			"pt_phase": "",
 			"phases_connected": "B",
@@ -44905,7 +42844,7 @@
 			"rank" : "3",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1495170053",
-			"guid" : "2BE198CFC151D271702A72AE497B55BF",
+			"guid" : "DD177A5AC6B29BC1",
 			"flags" : "0x100",
 			"pt_phase": "",
 			"phases_connected": "C",
@@ -44982,7 +42921,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1616927224",
-			"guid" : "59740ACB7C00ABE767DC4B7E3086C9D0",
+			"guid" : "5F388FAA7ADF840F",
 			"flags" : "0x100",
 			"bustype": "SWING",
 			"busflags": "HASSOURCE",
@@ -45034,7 +42973,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1437784630",
-			"guid" : "1A61D1FE998D4BD4AF3045C46D95ED6",
+			"guid" : "7C2D95A02EB64D9B",
 			"flags" : "0x100",
 			"bustype": "SWING",
 			"busflags": "HASSOURCE",
@@ -45086,7 +43025,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1360280366",
-			"guid" : "15053E9ED1DF9AD3A67F1B4F4CD3B15",
+			"guid" : "14EB6560B6227975",
 			"flags" : "0x100",
 			"bustype": "SWING",
 			"busflags": "HASSOURCE",
@@ -45138,7 +43077,7 @@
 			"rank" : "4",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "121205400",
-			"guid" : "298A678695F4830835FEB2C92089B778",
+			"guid" : "1FA35A56F4932980",
 			"flags" : "0x100",
 			"bustype": "SWING",
 			"busflags": "HASSOURCE",
@@ -45189,7 +43128,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1284660444",
-			"guid" : "23501F43806A8B413713C24FC3261EE1",
+			"guid" : "3C22DFCC8606C033",
 			"flags" : "0x100",
 			"phase_A_state": "OPEN",
 			"phase_B_state": "OPEN",
@@ -45242,7 +43181,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "487495370",
-			"guid" : "172DF012D1EA7C461174F796815EA94F",
+			"guid" : "48C49D098E7EF97B",
 			"flags" : "0x100",
 			"phase_A_state": "OPEN",
 			"phase_B_state": "OPEN",
@@ -45295,7 +43234,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "684570285",
-			"guid" : "67236184032A8BEA443A21BE36FD71F7",
+			"guid" : "5572A4C0307E829F",
 			"flags" : "0x100",
 			"phase_A_state": "OPEN",
 			"phase_B_state": "OPEN",
@@ -45348,7 +43287,7 @@
 			"rank" : "1",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1502883016",
-			"guid" : "64DA602F361A8545E376A770BCEF600",
+			"guid" : "2361E34FDC749C9",
 			"flags" : "0x100",
 			"phase_A_state": "OPEN",
 			"phase_B_state": "OPEN",
@@ -45401,7 +43340,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "252193898",
-			"guid" : "61D88EF487D712AA3DE11DA113C8A65",
+			"guid" : "1262BB46BD11E8C3",
 			"flags" : "0x100",
 			"connect_type": "SINGLE_PHASE_CENTER_TAPPED",
 			"install_type": "POLETOP",
@@ -45451,7 +43390,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1637608155",
-			"guid" : "7FD442C724F55713E4358D68F89D532",
+			"guid" : "3E6F53D168013750",
 			"flags" : "0xc0100",
 			"measured_phase": "A",
 			"measured_voltage": "0+0j V",
@@ -45467,7 +43406,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1129841133",
-			"guid" : "3BC2FA2781C197AD50E139D11ACF2AB",
+			"guid" : "224B905BCC3CF7C2",
 			"flags" : "0xc0100",
 			"measured_phase": "A",
 			"measured_voltage": "0+0j V",
@@ -45483,7 +43422,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1189515557",
-			"guid" : "564696966833B2E62F0F61ADE6D79A64",
+			"guid" : "55E3FD0FA2894500",
 			"flags" : "0xc0100",
 			"measured_phase": "A",
 			"measured_voltage": "0+0j V",
@@ -45499,7 +43438,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1262696576",
-			"guid" : "3854C6C428811C101F416CE2387FC880",
+			"guid" : "71392FACF71EB817",
 			"flags" : "0xc0100",
 			"measured_phase": "A",
 			"measured_voltage": "0+0j V",
@@ -45515,7 +43454,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "707953178",
-			"guid" : "21007F3F6791F6951DEBD52DFC2A4511",
+			"guid" : "3E96301C46070442",
 			"flags" : "0xc0100",
 			"measured_phase": "A",
 			"measured_voltage": "0+0j V",
@@ -45531,7 +43470,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1509658266",
-			"guid" : "53050A36B831457B7922DEFCB9912",
+			"guid" : "38C7706436BCB983",
 			"flags" : "0xc0100",
 			"measured_phase": "B",
 			"measured_voltage": "0+0j V",
@@ -45547,7 +43486,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "307187357",
-			"guid" : "4CB62ED6DB811E537662989377A890DD",
+			"guid" : "5420AF6199D8F802",
 			"flags" : "0xc0100",
 			"measured_phase": "B",
 			"measured_voltage": "0+0j V",
@@ -45563,7 +43502,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "347221711",
-			"guid" : "C2CE4DC7D24B5AB30DD74629D133A6D",
+			"guid" : "4305D5D8D3C4FBF6",
 			"flags" : "0xc0100",
 			"measured_phase": "B",
 			"measured_voltage": "0+0j V",
@@ -45579,7 +43518,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1042227878",
-			"guid" : "38451836F16EE27A974DE29490613F",
+			"guid" : "48BE715527BC2D3F",
 			"flags" : "0xc0100",
 			"measured_phase": "B",
 			"measured_voltage": "0+0j V",
@@ -45595,7 +43534,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1847320614",
-			"guid" : "14E333CCDF1C329843A8728D1AC0BBA1",
+			"guid" : "3F53E4545DD67B4B",
 			"flags" : "0xc0100",
 			"measured_phase": "B",
 			"measured_voltage": "0+0j V",
@@ -45611,7 +43550,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1746474819",
-			"guid" : "77FBEF9DFCEF23EB35AA7F9C9ED020AF",
+			"guid" : "372EB74872AF318",
 			"flags" : "0xc0100",
 			"measured_phase": "C",
 			"measured_voltage": "0+0j V",
@@ -45627,7 +43566,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1195795737",
-			"guid" : "60E5D09E1501FFE92F7AF9A99A5297F",
+			"guid" : "945A9DD2B26C4278",
 			"flags" : "0xc0100",
 			"measured_phase": "C",
 			"measured_voltage": "0+0j V",
@@ -45643,7 +43582,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1586983133",
-			"guid" : "39FAC26E86B222A0181290889886D648",
+			"guid" : "5690381F70EA03B7",
 			"flags" : "0xc0100",
 			"measured_phase": "C",
 			"measured_voltage": "0+0j V",
@@ -45659,7 +43598,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "678620591",
-			"guid" : "5772E99FD85363B68F48C1B6A7D092A",
+			"guid" : "417F3AE3DFE6F728",
 			"flags" : "0xc0100",
 			"measured_phase": "C",
 			"measured_voltage": "0+0j V",
@@ -45675,7 +43614,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "290623720",
-			"guid" : "7D94BCFAB4931B8C4E022F74876291FE",
+			"guid" : "30451F0D1A7E1068",
 			"flags" : "0xc0100",
 			"measured_phase": "C",
 			"measured_voltage": "0+0j V",
@@ -45690,7 +43629,7 @@
 			"rank" : "0",
 			"clock" : "2018-03-01 00:00:00 PST",
 			"rng_state" : "1135048762",
-			"guid" : "342852B1E3D0AE6A4E7104042F669BC0",
+			"guid" : "1899E3117DD8D549",
 			"flags" : "0xc0100",
 			"status": "ARMED",
 			"arm": "",
