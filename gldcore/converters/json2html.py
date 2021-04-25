@@ -232,11 +232,13 @@ def get_popup(name,tag):
     for item, value in tag.items():
         if item in hidden_properties:
             continue
+        label = item.title().replace("_","&nbsp;")
         try:
             module = data['classes'][value]['module']
-            popup += f'<TR><TH>{item}</TH><TD><A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/{module.title()}/{value.title()}.md">{value}</A></TD></TR>\n'
+            value = f'<A TARGET="_blank" HREF="https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Module/Powerflow&doc=/Module/{module.title()}/{value.title()}.md">{value}</A>'
         except:
-            popup += f'<TR><TH>{item}</TH><TD>{value}</TD></TR>\n'
+            pass
+        popup += f'<TR><TH>{label}</TH><TD>&nbsp;</TD><TD>{value}</TD></TR>\n'
     popup += '<TR><TH><HR/></TH><TD><HR/></TD></TR>'
     popup += '</TABLE></DIV>\n'
     return popup
