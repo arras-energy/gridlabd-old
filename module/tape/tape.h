@@ -95,16 +95,16 @@ struct player {
 	struct {
 		TIMESTAMP ts;
 		int64 ns;
-		char1024 value;
+		char value[5000];
 	} next;
 	struct {
 		TIMESTAMP ts;
 		TIMESTAMP ns;
-		char1024 value;
+		char value[5000];
 	} delta_track;	/* Added for deltamode fixes */
 	PROPERTY *target;
 	TAPEOPS *ops;
-	char lasterr[1024];
+	char lasterr[2048];
 }; /**< a player item */
 /** @}
 	@addtogroup shaper
@@ -135,7 +135,7 @@ struct shaper {
 		/** add handles for other type of sources as needed */
 	};
 	TAPESTATUS status;
-	char lasterr[1024];
+	char lasterr[2048];
 	int16 interval;	/* the interval over which events is counted (usually 24) */
 	int16 step;		/* the duration of a single step in the shape integral (usually 3600s) */
 	double scale;	/* the scaling of the shape over the interval */
@@ -189,7 +189,7 @@ struct recorder {
 	struct {
 		TIMESTAMP ts;
 		int64 ns;
-		char1024 value;
+		char value[5000];
 	} last;
 	int32 samples;
 	PROPERTY *target;
@@ -232,7 +232,7 @@ struct collector {
 	char8 delim;
 	struct {
 		TIMESTAMP ts;
-		char1024 value;
+		char value[5000];
 	} last;
 	int32 samples;
 	AGGREGATION *aggr;

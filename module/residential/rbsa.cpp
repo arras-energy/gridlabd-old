@@ -56,7 +56,7 @@ rbsa::RBSADATA *rbsa::add_file(const char *filename)
 	RBSADATA *repo = (RBSADATA*)malloc(sizeof(RBSADATA));
 	if ( repo != NULL ) 
 	{
-		memset(repo,0,sizeof(RBSADATA));
+		memset((void*)repo,0,sizeof(RBSADATA));
 		repo->filename = strdup(filename);
 		repo->next_file = repository;
 		repository = repo;
@@ -99,7 +99,7 @@ rbsa::RBSADATA * rbsa::add_enduse(RBSADATA *repo, const char *enduse)
 	if ( repo->enduse != NULL ) // this is aleady in use
 	{
 		RBSADATA *item = (RBSADATA*)malloc(sizeof(RBSADATA));
-		memset(item,0,sizeof(RBSADATA));
+		memset((void*)item,0,sizeof(RBSADATA));
 		item->filename = repo->filename;
 		item->next_file = repo->next_file;
 		repo->next_enduse = item;
@@ -207,7 +207,7 @@ rbsa::COMPONENT *rbsa::add_component(const char *enduse, const char *composition
 	}
 
 	COMPONENT *c = (COMPONENT*)malloc(sizeof(COMPONENT));
-	memset(c,0,sizeof(COMPONENT));
+	memset((void*)c,0,sizeof(COMPONENT));
 	c->fraction = 1.0;
 	c->data = data;
 	char *buffer = strdup(composition);
@@ -382,7 +382,7 @@ rbsa::rbsa(MODULE *module)
 int rbsa::create(void) 
 {
 
-	memcpy(this,defaults,sizeof(*this));
+	memcpy((void*)this,defaults,sizeof(*this));
 	return 1; 
 }
 

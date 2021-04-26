@@ -292,8 +292,8 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	char buffer[FILENAME_MAX+1];
 	char *fmod;
 	bool isforeign = false;
-	char pathname[1024];
-	char tpath[1024];
+	char pathname[2048];
+	char tpath[4096];
 #ifdef WIN32
 	char from='/', to='\\';
 #else
@@ -413,12 +413,12 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 	}
 
 	/* locate the module */
-	snprintf(pathname, sizeof(pathname), "%s" DLEXT, file);
+	snprintf(pathname, sizeof(pathname)-1, "%s" DLEXT, file);
 
 	if(find_file(pathname, NULL, X_OK|R_OK, tpath,sizeof(tpath)) == NULL)
 	{
 		IN_MYCONTEXT output_verbose("unable to locate %s in GLPATH, using library loader instead", pathname);
-		strncpy(tpath,pathname,sizeof(tpath));
+		strncpy(tpath,pathname,sizeof(tpath)-1);
 	}
 	else
 	{
@@ -427,10 +427,10 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 		struct stat buf;
 		if (tpath[0]!='/' && stat(tpath,&buf)==0) 
 		{
-			char buffer[1024];
+			char buffer[5000];
 
 			/* add ./ to the beginning of the path */
-			sprintf(buffer,"./%s", tpath);
+			snprintf(buffer,sizeof(buffer)-1,"./%s", tpath);
 			strcpy(tpath,buffer);
 		}
 #endif
@@ -568,7 +568,7 @@ MODULE *module_load(const char *file, /**< module filename, searches \p PATH */
 		};
 		for ( size_t i = 0 ; i < sizeof(map)/sizeof(map[0]) ; i++ )
 		{
-			snprintf(fname, sizeof(fname) ,"%s_%s",map[i].name,isforeign?fmod:c->name);
+			snprintf(fname, sizeof(fname)-1 ,"%s_%s",map[i].name,isforeign?fmod:c->name);
 			*(map[i].func) = (FUNCTIONADDR)DLSYM(hLib,fname);
 			if ( *(map[i].func) == NULL && ! map[i].optional )
 			{
@@ -659,7 +659,7 @@ static void _module_list (char *path)
 	/* open directory */
 	IN_MYCONTEXT output_debug("module_list(char *path='%s')", path);
 #ifdef WIN32
-	sprintf(search,"%s\\*.dll",path);
+	snprintf(search,sizeof(search)-1,"%s\\*.dll",path);
 	hFind=FindFirstFile(search,&sFind);
 	if ( hFind==INVALID_HANDLE_VALUE )
 		return;
@@ -760,15 +760,15 @@ int module_setvar(MODULE *mod, const char *varname, const char *value)
 {
 	if ( mod->setvar != NULL && mod->setvar(varname,value)>0 )
 		return 1;
-	char modvarname[1024];
-	sprintf(modvarname,"%s::%s",mod->name,varname);
+	char modvarname[2000];
+	snprintf(modvarname,sizeof(modvarname)-1,"%s::%s",mod->name,varname);
 	return global_setvar(modvarname,value)==SUCCESS;
 }
 
 const char* module_getvar(MODULE *mod, const char *varname, char *value, unsigned int size)
 {
-	char modvarname[1024];
-	sprintf(modvarname,"%s::%s",mod->name,varname);
+	char modvarname[2000];
+	snprintf(modvarname,sizeof(modvarname)-1,"%s::%s",mod->name,varname);
 	return global_getvar(modvarname,value,size);
 }
 
@@ -778,12 +778,12 @@ void* module_getvar_old(MODULE *mod, const char *varname, char *value, unsigned 
 	{
 		if (strcmp(varname,"major")==0)
 		{
-			sprintf(value,"%d",mod->major);
+			snprintf(value,sizeof(value)-1,"%d",mod->major);
 			return value;
 		}
 		else if (strcmp(varname,"minor")==0)
 		{
-			sprintf(value,"%d",mod->minor);
+			snprintf(value,sizeof(value)-1,"%d",mod->minor);
 			return value;
 		}
 		else
@@ -795,9 +795,9 @@ void* module_getvar_old(MODULE *mod, const char *varname, char *value, unsigned 
 
 void* module_getvar_addr(MODULE *mod, const char *varname)
 {
-	char modvarname[1024];
+	char modvarname[2049];
 	GLOBALVAR *var;
-	sprintf(modvarname,"%s::%s",mod->name,varname);
+	snprintf(modvarname,sizeof(modvarname)-1,"%s::%s",mod->name,varname);
 	var = global_find(modvarname);
 	if (var!=NULL)
 		return var->prop->addr;
@@ -856,10 +856,10 @@ int module_saveall_xml(FILE *fp){
 	char1024 buffer;
 
 	for (mod = first_module; mod != NULL; mod = mod->next){
-		char tname[67];
+		char tname[2000];
 		size_t tlen;
 		gvptr = global_getnext(NULL);
-		sprintf(tname, "%s::", mod->name);
+		snprintf(tname,sizeof(tname)-1, "%s::", mod->name);
 		tlen = strlen(tname);
 		count += fprintf(fp, "\t<module type=\"%s\" ", mod->name);
 		if (mod->major > 0){
@@ -902,7 +902,7 @@ int module_saveobj_xml(FILE *fp, MODULE *mod){ /**< the stream to write to */
 		if(obj->name != NULL){
 			strcpy(oname, obj->name);
 		} else {
-			sprintf(oname, "%s:%i", obj->oclass->name, obj->id);
+			snprintf(oname,sizeof(oname)-1, "%s:%i", obj->oclass->name, obj->id);
 		}
 		if ((oclass == NULL) || (obj->oclass != oclass))
 			oclass = obj->oclass;
@@ -913,7 +913,7 @@ int module_saveobj_xml(FILE *fp, MODULE *mod){ /**< the stream to write to */
 			if(obj->parent->name != NULL){
 				strcpy(oname, obj->parent->name);
 			} else {
-				sprintf(oname, "%s:%i", obj->parent->oclass->name, obj->parent->id);
+				snprintf(oname,sizeof(oname)-1, "%s:%i", obj->parent->oclass->name, obj->parent->id);
 			}
 			count += fprintf(fp,"\t\t\t<parent>%s</parent>\n", oname);
 		} else {
@@ -1337,7 +1337,7 @@ static int execf(const char *format, /**< format string  */
 	int rc;
 	va_list ptr;
 	va_start(ptr,format);
-	vsprintf(command,format,ptr); /* note the lack of check on buffer overrun */
+	vsnprintf(command,sizeof(command)-1,format,ptr); /* note the lack of check on buffer overrun */
 	va_end(ptr);
 	if (cc_verbose || global_verbose_mode ) output_message(command);
 	else
@@ -1375,7 +1375,7 @@ int module_compile(const char *name,	/**< name of library */
 	char srcfile[1024];
 	char mopt[8] = "";
 #ifdef WIN32
-	snprintf(mopt,sizeof(mopt),"-m%d",sizeof(void*)*8);
+	snprintf(mopt,sizeof(mopt)-1,"-m%d",sizeof(void*)*8);
 #endif
 
 	/* normalize source file name */
@@ -1402,9 +1402,9 @@ int module_compile(const char *name,	/**< name of library */
 	cc_keepwork = (flags&MC_KEEPWORK);
 
 	/* construct the file names */
-	snprintf(cfile,sizeof(cfile),"%s.c",name);
-	snprintf(ofile,sizeof(ofile),"%s.o",name);
-	snprintf(afile,sizeof(afile),"%s" DLEXT,name);
+	snprintf(cfile,sizeof(cfile)-1,"%s.c",name);
+	snprintf(ofile,sizeof(ofile)-1,"%s.o",name);
+	snprintf(afile,sizeof(afile)-1,"%s" DLEXT,name);
 
 	/* create the C source file */
 	if ( (fp=fopen(cfile,"wt"))==NULL)
@@ -1537,9 +1537,9 @@ int module_load_function_list(const char *libname, const char *fnclist)
 
 	/* load the library */
 	if ( strchr(libname,'/')==NULL )
-		snprintf(libpath,sizeof(libpath),"./%s" DLEXT, libname);
+		snprintf(libpath,sizeof(libpath)-1,"./%s" DLEXT, libname);
 	else
-		snprintf(libpath,sizeof(libpath),"%s" DLEXT, libname);
+		snprintf(libpath,sizeof(libpath)-1,"%s" DLEXT, libname);
 
 	lib = DLLOAD(libpath);
 #ifdef WIN32
@@ -1851,9 +1851,9 @@ void sched_clear(void)
 	if ( process_map!=NULL )
 	{
 		unsigned int n;
-		for ( n=0 ; n<n_procs ; n++ )
+		for ( n = 0 ; n < n_procs ; n++ )
 		{
-			if (sched_isdefunct(process_map[n].pid) )
+			if ( process_map[n].pid > 0 && sched_isdefunct(process_map[n].pid) )
 			{
 				sched_lock(n);
 				IN_MYCONTEXT output_debug("module.c:sched_clear(): process_map[n].pid %d (proc %d) <- 0", process_map[n].pid, n);
@@ -1961,13 +1961,13 @@ int sched_getinfo(int n,char *buf, size_t sz)
 				/* compute elapsed time */
 				h = (int)(s/3600); s=s%3600;
 				m = (int)(s/60); s=s%60;
-				if ( h>0 ) sprintf(t,"%4d:%02d:%02d",h,m,(int)s);
-				else if ( m>0 ) sprintf(t,"     %2d:%02d",m,(int)s);
-				else sprintf(t,"       %2ds", (int)s);
+				if ( h>0 ) snprintf(t,sizeof(t)-1,"%4d:%02d:%02d",h,m,(int)s);
+				else if ( m>0 ) snprintf(t,sizeof(t)-1,"     %2d:%02d",m,(int)s);
+				else snprintf(t,sizeof(t)-1,"       %2ds", (int)s);
 			}
 			else if ( process_map[n].stoptime!=TS_NEVER )
 			{
-				sprintf(t,"%.0f%%",100.0*(process_map[n].progress - process_map[n].starttime)/(process_map[n].stoptime-process_map[n].starttime));
+				snprintf(t,sizeof(t)-1,"%.0f%%",100.0*(process_map[n].progress - process_map[n].starttime)/(process_map[n].stoptime-process_map[n].starttime));
 			}
 		}
 
@@ -1999,10 +1999,10 @@ int sched_getinfo(int n,char *buf, size_t sz)
 		}
 
 		/* print info */
-		sz = sprintf(buf,"%4d %5d %10s %-7s %-23s %s", n, process_map[n].pid, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
+		sz = snprintf(buf,sz,"%4d %5d %10s %-7s %-23s %s", n, process_map[n].pid, t, status, process_map[n].progress==TS_ZERO?"INIT":ts, name);
 	}
 	else
-		sz = sprintf(buf,"%4d   -", n);
+		sz = snprintf(buf,sz,"%4d   -", n);
 	sched_unlock(n);
 	return (int)sz;
 }
@@ -2060,16 +2060,16 @@ void sched_print(int flags) /* flag=0 for single listing, flag=1 for continuous 
 		unsigned int n;
 		if ( flags==1 )
 		{
-			sched_getinfo(-1,line,sizeof(line));
+			sched_getinfo(-1,line,sizeof(line)-1);
 			printf("%s\n",line);
-			sched_getinfo(-2,line,sizeof(line));
+			sched_getinfo(-2,line,sizeof(line)-1);
 			printf("%s\n",line);
 		}
 		for ( n=0 ; n<n_procs ; n++ )
 		{
 			if ( process_map[n].pid!=0 || flags==1 )
 			{
-				if ( sched_getinfo(n,line,sizeof(line))>0 )
+				if ( sched_getinfo(n,line,sizeof(line)-1)>0 )
 					printf("%s\n",line);
 				else
 					printf("%4d (error)\n",n);
@@ -2489,19 +2489,19 @@ void sched_continuous(void)
 			char line[1024];
 			clear();
 			mvprintw(0,0,"%s Process Control - Version %d.%d.%d-%d (%s)",PACKAGE_NAME,REV_MAJOR,REV_MINOR,REV_PATCH,version_build(),version_branch());
-			sched_getinfo(-1,line,sizeof(line));
+			sched_getinfo(-1,line,sizeof(line)-1);
 			mvprintw(2,0,"%s",line);
-			sched_getinfo(-2,line,sizeof(line));
+			sched_getinfo(-2,line,sizeof(line)-1);
 			mvprintw(3,0,"%s",line);
 			for ( n=0 ; n<n_procs ; n++ )
 			{
 				if ( sched_getinfo(n,line,sizeof(line))<0 )
-					sprintf(message,"ERROR: unable to read process %d", n);
+					snprintf(message,sizeof(message)-1,"ERROR: unable to read process %d", n);
 				if ( n==sel ) attron(A_BOLD);
 				mvprintw(n+4,0,"%s",line);
 				if ( n==sel ) attroff(A_BOLD);
 			}
-			sched_getinfo(-3,line,sizeof(line));
+			sched_getinfo(-3,line,sizeof(line)-1);
 			mvprintw(n_procs+5,0,"%s",line);
 			tb = localtime(&now);
 			strftime(ts,sizeof(ts),"%Y/%m/%d %H:%M:%S",tb);
@@ -2512,13 +2512,13 @@ void sched_continuous(void)
 		switch (c) {
 		case KEY_UP:
 			if ( sel>0 ) sel--;
-			sprintf(message,"Process %d selected", sel);
+			snprintf(message,sizeof(message)-1,"Process %d selected", sel);
 			refresh_count=0;
 			break;
 		case KEY_DOWN:
 			if ( sel<n_procs-1 ) sel++;
 			refresh_count=0;
-			sprintf(message,"Process %d selected", sel);
+			snprintf(message,sizeof(message)-1,"Process %d selected", sel);
 			break;
 		case 'q':
 		case 'Q':
@@ -2527,25 +2527,25 @@ void sched_continuous(void)
 		case 'k':
 		case 'K':
 			sched_pkill(sel);
-			sprintf(message,"Kill signal sent to process %d",sel);
+			snprintf(message,sizeof(message)-1,"Kill signal sent to process %d",sel);
 			refresh_count=0;
 			break;
 		case 'c':
 		case 'C':
 			sched_clear();
-			sprintf(message,"Defunct processes cleared ok");
+			snprintf(message,sizeof(message)-1,"Defunct processes cleared ok");
 			refresh_count=0;
 			break;
 		case 'r':
 		case 'R':
 			show_progress = 0;
-			sprintf(message,"Runtime display selected");
+			snprintf(message,sizeof(message)-1,"Runtime display selected");
 			refresh_count = 0;
 			break;
 		case 'p':
 		case 'P':
 			show_progress = 1;
-			sprintf(message,"Progress display selected");
+			snprintf(message,sizeof(message)-1,"Progress display selected");
 			refresh_count = 0;
 			break;
 		default:
@@ -2643,8 +2643,8 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 	output_raw("~~~\n");
 	bool first = true;
 	GLOBALVAR *global = NULL;
-	char prefix[1024];
-	sprintf(prefix,"%s::",mod->name);
+	char prefix[2000];
+	snprintf(prefix,sizeof(prefix)-1,"%s::",mod->name);
 	if ( oclass == NULL )
 	{
 		while ( (global=global_getnext(global)) != NULL )
@@ -2780,8 +2780,8 @@ void module_help_md(MODULE *mod, CLASS *oclass)
 	{
 		bool first = true;
 		GLOBALVAR *global = NULL;
-		char prefix[1024];
-		sprintf(prefix,"%s::",mod->name);
+		char prefix[2000];
+		snprintf(prefix,sizeof(prefix)-1,"%s::",mod->name);
 		if ( oclass == NULL )
 		{
 			while ( (global=global_getnext(global)) != NULL )

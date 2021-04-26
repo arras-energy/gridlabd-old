@@ -7,10 +7,18 @@
  **/
 
 #include "gldcore.h"
+#include <poll.h>
 
 SET_MYCONTEXT(DMC_GLOBALS)
 
 DEPRECATED static GLOBALVAR *global_varlist = NULL, *lastvar = NULL;
+
+static KEYWORD cnf_keys[] = {
+ 	{"DEFAULT", CNF_DEFAULT, cnf_keys+1},
+ 	{"RECT", CNF_RECT, cnf_keys+2},
+ 	{"POLAR_DEG", CNF_POLAR_DEG, cnf_keys+3},
+ 	{"POLAR_RAD", CNF_POLAR_RAD, NULL},
+ };
 
 DEPRECATED static KEYWORD df_keys[] = {
 	{"ISO", DF_ISO, df_keys+1},
@@ -233,6 +241,7 @@ DEPRECATED static struct s_varmap {
 	{"stoptime", PT_timestamp, &global_stoptime, PA_PUBLIC, "simulation stop time"},
 	{"double_format", PT_char32, &global_double_format, PA_PUBLIC, "format for writing double values"},
 	{"complex_format", PT_char256, &global_complex_format, PA_PUBLIC, "format for writing complex values"},
+	{"complex_output_format", PT_enumeration, &global_complex_output_format, PA_PUBLIC, "complex output representation", cnf_keys},
 	{"object_format", PT_char32, &global_object_format, PA_PUBLIC, "format for writing anonymous object names"},
 	{"object_scan", PT_char32, &global_object_scan, PA_PUBLIC, "format for reading anonymous object names"},
 	{"object_tree_balance", PT_bool, &global_no_balance, PA_PUBLIC, "object index tree balancing enable flag"},
@@ -346,7 +355,6 @@ DEPRECATED static struct s_varmap {
 	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
 	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
 	{"rusage",PT_char1024,&global_rusage_data,PA_PUBLIC,"rusage data"},
-
 	/* add new global variables here */
 };
 
@@ -403,7 +411,7 @@ STATUS GldGlobals::init(void)
 	global_version_minor = version_minor();
 	global_version_patch = version_patch();
 	global_version_build = version_build();
-	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch));
+	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch)-1);
 	strcpy(global_datadir,global_execdir);
 	char *bin = strstr(global_datadir,"/bin");
 	if ( bin ) *bin = '\0';
@@ -557,7 +565,7 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 					 */
 				}
 				key->next = prop->keywords;
-				strncpy(key->name, keyword, sizeof(key->name));
+				strncpy(key->name, keyword, sizeof(key->name)-1);
 				key->value = keyvalue;
 				prop->keywords = key;
 			} 
@@ -574,7 +582,7 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 					 */
 				}
 				key->next = prop->keywords;
-				strncpy(key->name, keyword, sizeof(key->name));
+				strncpy(key->name, keyword, sizeof(key->name)-1);
 				key->value = keyvalue;
 				prop->keywords = key;
 			} 
@@ -727,7 +735,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		v = va_arg(ptr,char*);
 		if ( v != NULL ) 
 		{
-			strncpy(value,v,sizeof(value));
+			strncpy(value,v,sizeof(value)-1);
 			if (strcmp(value,v)!=0)
 				output_error("GldGlobals::setvar_v(const char *def='%s',...): va_list value is too long to store",def);
 				/* TROUBLESHOOT
@@ -947,47 +955,25 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	}
 }
 
-extern int popens(const char *program, FILE **output, FILE **error);
-extern int pcloses(FILE *iop, bool wait=true);
-
 DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 {
-	char line[1024];
-	FILE *fp = NULL, *err = NULL;
-	if ( popens(command, &fp, &err) < 0 ) 
+	FILE *out = NULL, *err = NULL;
+	buffer[0] = '\0';
+	struct s_pipes *pipes = popens(command, NULL, &out, &err);
+	if ( pipes == NULL ) 
 	{
-		if ( err == NULL )
+		output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to create pipes",buffer,size,command);
+		return NULL;
+	}
+	ppolls(pipes,buffer,size,output_get_stream("error"));
+	pcloses(pipes);
+	for ( char *c = buffer ; *c != '\0' ; c++ )
+	{
+		if ( *c == '\n' )
 		{
-			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
-		}
-		else
-		{
-			while ( fgets(line,sizeof(line)-1,err) )
-			{
-				output_error("global_shell(buffer=0x%x,size=%d,command='%s'): %s",buffer,size,command,line);
-			}
-			pcloses(fp);
+			*c = ' ';
 		}
 	}
-	int pos = 0;
-	strcpy(buffer,"");
-	while ( fgets(line, sizeof(line)-1, fp) != NULL ) 
-	{
-		int len = strlen(line);
-		if ( pos+len >= size )
-		{
-			output_warning("global_shell(buffer=0x%x,size=%d,command='%s'): result too large, truncating",buffer,size,command);
-			break;
-		}
-		else
-		{
-			strcpy(buffer+pos,line);
-		}
-		pos += len;
-		if ( buffer[pos-1] == '\n' )
-			buffer[pos-1] = ' ';
-	}
-	pcloses(fp);
 	return buffer;
 }
 
@@ -1117,7 +1103,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 			strncpy(buffer,temp,size);
 			strncpy(buffer+start,string,size-start);
 			strncpy(buffer+start+strlen(string),temp+start+strlen(pattern),size-start-strlen(string));
-			strncpy(temp,buffer,sizeof(temp));
+			strncpy(temp,buffer,sizeof(temp)-1);
 		}
 		return 1;
 	}

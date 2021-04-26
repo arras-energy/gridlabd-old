@@ -14,7 +14,7 @@ using namespace std;
 
 SCHED_LIST *new_slist(){
 	SCHED_LIST *l = (SCHED_LIST *)gl_malloc(sizeof(SCHED_LIST));
-	memset(l, 0, sizeof(SCHED_LIST));
+	memset((void*)l, 0, sizeof(SCHED_LIST));
 	return l;
 }
 
@@ -104,7 +104,7 @@ pqload::pqload(MODULE *mod) : load(mod)
 				GL_THROW("unable to publish properties in %s",__FILE__);
 		}
 	defaults = this;
-	memset(this,0,sizeof(pqload));
+	memset((void*)this,0,sizeof(pqload));
 	input[5] = 1.0; /* constant term */
 	//imped_p[5] = 0;
 	strcpy(schedule, "* * * * *:1.0;");
@@ -159,7 +159,7 @@ int pqload::create(void)
 {
 	int res = 0;
 	
-	memcpy(this, defaults, sizeof(pqload));
+	memcpy((void*)this, defaults, sizeof(pqload));
 
 	res = node::create();
 

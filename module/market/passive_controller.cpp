@@ -201,7 +201,7 @@ passive_controller::passive_controller(MODULE *mod)
 		{
 				GL_THROW("unable to publish properties in %s",__FILE__);
 		}
-		memset(this,0,sizeof(passive_controller));
+		memset((void*)this,0,sizeof(passive_controller));
 	}
 }
 
@@ -251,7 +251,7 @@ void passive_controller::fetch_int(int **prop, const char *name, OBJECT *parent)
 
 int passive_controller::create()
 {
-	memset(this, 0, sizeof(passive_controller));
+	memset((void*)this, 0, sizeof(passive_controller));
 	sensitivity = 1.0;
 	comfort_level = 1.0;
 	zipLoadParent = false;

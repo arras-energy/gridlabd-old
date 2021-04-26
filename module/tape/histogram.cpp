@@ -56,10 +56,10 @@ histogram::histogram(MODULE *mod)
 			PT_int32, "limit", PADDR(limit),PT_DESCRIPTION,"the number of samples to write",
             NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
-		memset(filename, 0, 1025);
-		memset(group, 0, 1025);
-		memset(bins, 0, 1025);
-		memset(property, 0, 33);
+		memset((void*)filename, 0, sizeof(filename));
+		memset((void*)group, 0, sizeof(group));
+		memset((void*)bins, 0, sizeof(bins));
+		memset((void*)property, 0, sizeof(property));
 		min = 0;
 		max = -1;
 		bin_count = -1;
@@ -78,7 +78,7 @@ histogram::histogram(MODULE *mod)
 
 int histogram::create()
 {
-	memcpy(this, defaults, sizeof(histogram));
+	memcpy((void*)this, defaults, sizeof(histogram));
 	return 1;
 }
 

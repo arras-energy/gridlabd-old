@@ -513,9 +513,9 @@ const char *object_get_unit(OBJECT *obj, const char *name)
 	LOCKVAR unitlock = 0;
 	PROPERTY *prop = object_get_property(obj, name,NULL);
 	
-	if(prop == NULL){
-		char *buffer = (char *)malloc(64);
-		memset(buffer, 0, 64);
+	if(prop == NULL)
+	{
+		static char buffer[64];
 		throw_exception("property '%s' not found in object '%s'", name, object_name(obj, buffer, 63));
 		/* TROUBLESHOOT
 			The property for which the unit was requested does not exist.  
@@ -588,7 +588,7 @@ OBJECT *object_create_single(CLASS *oclass) /**< the class of the object */
 			The system has run out of memory and is unable to create the object requested.  Try freeing up system memory and try again.
 		 */
 	}
-	memset(obj, 0, sz+oclass->size);
+	memset((void*)obj, 0, sz+oclass->size);
 
 	obj->id = next_object_id++;
 	obj->oclass = oclass;
@@ -2848,9 +2848,8 @@ typedef struct s_objecttree {
 	struct s_objecttree *next;
 } OBJECTTREE;
 static OBJECTTREE *top[TREESIZE];
-typedef unsigned long long HASH;
 
-static HASH hash(OBJECTNAME name)
+HASH hash(OBJECTNAME name)
 {
 	static HASH A = 55711, B = 45131; //, C = 60083; isn't used but should be in principle
 	HASH h = 18443;
@@ -3202,7 +3201,7 @@ int object_open_namespace(const char *space)
 		 */
 		return 0;
 	}
-	strncpy(ns->name,space,sizeof(ns->name));
+	strncpy(ns->name,space,sizeof(ns->name)-1);
 	ns->next = current_namespace;
 	current_namespace = ns;
 	return 1;
@@ -3302,7 +3301,7 @@ FORECAST *forecast_create(OBJECT *obj, const char *specs)
 		   memory or a problem with the memory allocation system.  Free up system
 		   memory, reducing the complexity and/or size of the model and try again.
 		 */
-	memset(fc,0,sizeof(FORECAST));
+	memset((void*)fc,0,sizeof(FORECAST));
 
 	/* add to current list of forecasts */
 	fc->next = obj->forecast;

@@ -1,4 +1,4 @@
-/* File: version.h 
+/* File: version.h
    Copyright (C) 2008, Pacific Northwest National Laboratory
  */
 
