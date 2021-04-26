@@ -52,7 +52,4 @@ This is the minimum loadable GLM model. It is a combination of `NOINTERNALS`, `N
 bash$ gridlabd -D glm_save_options=MINIMAL model.glm -o model_single_file.glm
 ~~~
 
-# See also
-
-* [[/Global/Json_save_options]]
 

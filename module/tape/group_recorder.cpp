@@ -45,12 +45,12 @@ group_recorder::group_recorder(MODULE *mod){
 			GL_THROW("Unable to publish deltamode postupdate function for group_recorder");
 
 		defaults = this;
-		memset(this, 0, sizeof(group_recorder));
+		memset((void*)this, 0, sizeof(group_recorder));
     }
 }
 
 int group_recorder::create(){
-	memcpy(this, defaults, sizeof(group_recorder));
+	memcpy((void*)this, defaults, sizeof(group_recorder));
 	deltamode_gr = false;
 	return 1;
 }
@@ -386,31 +386,41 @@ int group_recorder::write_header()
 		return 0; // serious problem
 	}
 
+	extern int csv_data_only;
 	// write model file name
-	if(0 > fprintf(rec_file,"# file...... %s\n", filename.get_string())){ return 0; }
-	if(0 > fprintf(rec_file,"# date...... %s", asctime(localtime(&now)))){ return 0; }
-#ifdef WIN32
-	if(0 > fprintf(rec_file,"# user...... %s\n", getenv("USERNAME"))){ return 0; }
-	if(0 > fprintf(rec_file,"# host...... %s\n", getenv("MACHINENAME"))){ return 0; }
-#else
-	if(0 > fprintf(rec_file,"# user...... %s\n", getenv("USER"))){ return 0; }
-	if(0 > fprintf(rec_file,"# host...... %s\n", getenv("HOST"))){ return 0; }
-#endif
-	if(0 > fprintf(rec_file,"# group..... %s\n", group_def.get_string())){ return 0; }
-	if(0 > fprintf(rec_file,"# property.. %s\n", property_name.get_string())){ return 0; }
-	if(0 > fprintf(rec_file,"# limit..... %d\n", limit)){ return 0; }
-	if(0 > fprintf(rec_file,"# interval.. %lld\n", write_interval)){ return 0; }
+	if ( csv_data_only == 0 )
+	{
+		if ( 0 > fprintf(rec_file,"# file...... %s\n", filename.get_string()) ) { return 0; }
+		if ( 0 > fprintf(rec_file,"# date...... %s", asctime(localtime(&now))) ) { return 0; }
+		if ( 0 > fprintf(rec_file,"# user...... %s\n", getenv("USER")) ) { return 0; }
+		if ( 0 > fprintf(rec_file,"# host...... %s\n", getenv("HOST")) ) { return 0; }
+		if ( 0 > fprintf(rec_file,"# group..... %s\n", group_def.get_string()) ) { return 0; }
+		if ( 0 > fprintf(rec_file,"# property.. %s\n", property_name.get_string()) ) { return 0; }
+		if ( 0 > fprintf(rec_file,"# limit..... %d\n", limit) ) { return 0; }
+		if ( 0 > fprintf(rec_file,"# interval.. %lld\n", write_interval) ) { return 0; }
+		if ( 0 > fprintf(rec_file,"# timestamp") ) { return 0; }
+	}
+	else if ( csv_data_only == 2 )
+	{
+		if ( 0 > fprintf(rec_file,"timestamp") ) { return 0; }
+	}
 
 	// write list of properties
-	if(0 > fprintf(rec_file, "# timestamp")){ return 0; }
-	for(qol = obj_list; qol != 0; qol = qol->next){
-		if(0 != qol->obj->name){
-			if(0 > fprintf(rec_file, ",%s", qol->obj->name)){ return 0; }
-		} else {
-			if(0 > fprintf(rec_file, ",%s:%i", qol->obj->oclass->name, qol->obj->id)){ return 0; }
+	if ( csv_data_only != 1 )
+	{
+		for ( qol = obj_list ; qol != 0 ; qol = qol->next )
+		{
+			if ( 0 != qol->obj->name ) 
+			{
+				if ( 0 > fprintf(rec_file, ",%s", qol->obj->name) ) { return 0; }
+			} 
+			else 
+			{
+				if ( 0 > fprintf(rec_file, ",%s:%i", qol->obj->oclass->name, qol->obj->id) ) { return 0; }
+			}
 		}
+		if ( 0 > fprintf(rec_file, "\n") ) { return 0; }
 	}
-	if(0 > fprintf(rec_file, "\n")){ return 0; }
 	return 1;
 }
 
@@ -443,7 +453,7 @@ int group_recorder::read_line()
 		if(0 == line_buffer){
 			return 0;
 		}
-		memset(line_buffer, 0, line_size);
+		memset((void*)line_buffer, 0, line_size);
 		if(-1 == write_interval){ // 'on change', will need second buffer
 			prev_line_buffer = (char *)malloc(line_size);
 			if(0 == prev_line_buffer){
@@ -453,7 +463,7 @@ int group_recorder::read_line()
 				*/
 				return 0;
 			}
-			memset(prev_line_buffer, 0, line_size);
+			memset((void*)prev_line_buffer, 0, line_size);
 		}
 	}
 
@@ -463,7 +473,7 @@ int group_recorder::read_line()
 		prev_line_buffer = line_buffer;
 		line_buffer = swap_ptr;
 	}
-	memset(line_buffer, 0, line_size);
+	memset((void*)line_buffer, 0, line_size);
 	for(curr = obj_list; curr != 0; curr = curr->next){
 		// GETADDR is a macro defined in object.h
 		if(curr->prop.ptype == PT_complex && complex_part != CP_NONE){

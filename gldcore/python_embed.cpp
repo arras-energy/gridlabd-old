@@ -108,7 +108,7 @@ const char *truncate(const char *command)
     while ( isspace(*command) ) command++;
     static char buf[20];
     memset(buf,0,sizeof(buf));
-    strncpy(buf,command,sizeof(buf));
+    strncpy(buf,command,sizeof(buf)-1);
     char *eol = strchr(buf,'\n');
     if ( eol ) *eol = '\0';
     if ( buf[sizeof(buf)-1] != '\0' ) 
@@ -262,6 +262,118 @@ void python_traceback(const char *command)
     {
         PyErr_Print();
     }
+}
+
+// Function: python_embed_call
+// 
+// If pModule is dict and name is null, the varargsfmt is used to store the
+// the result of the last call, i.e., pModule[varargsfmt] = result
+bool python_embed_call(
+    PyObject *pModule, 
+    const char *name, 
+    const char *vargsfmt, 
+    va_list varargs,
+    void *result)
+{
+    PyObject **pResult = (PyObject **)result;
+    if ( name == NULL ) 
+    {
+        output_error("python_embed_call(pModule,name): name is null");
+        return false;
+    }
+    
+    if ( pModule == NULL )
+    {
+        output_error("python_embed_call(pModule,name='%s'): no module loaded",truncate(name));
+        return false;
+    }
+
+    PyObject *pFunc = PyObject_GetAttrString(pModule,name);
+    if ( pFunc == NULL )
+    {
+        PyObject *pType, *pValue, *pTraceback;
+        PyErr_Fetch(&pType, &pValue, &pTraceback);
+        PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
+        PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+        const char *msg = bytes?PyBytes_AS_STRING(bytes):"function not defined";
+        output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
+        if ( repr ) Py_XDECREF(repr);
+        if ( bytes ) Py_XDECREF(bytes);
+        return false;
+    }
+    if ( ! PyCallable_Check(pFunc) )
+    {
+        PyObject *pType, *pValue, *pTraceback;
+        PyErr_Fetch(&pType, &pValue, &pTraceback);
+        PyObject *repr = pValue ? PyObject_Repr(pValue) : NULL;
+        PyObject *bytes = repr ? PyUnicode_AsEncodedString(repr, "utf-8", "~E~") : NULL;
+        const char *msg = bytes?PyBytes_AS_STRING(bytes):"function not callable";
+        output_error("python_embed_call(pModule,name='%s'): %s ",truncate(name), msg);
+        if ( repr ) Py_XDECREF(repr);
+        if ( bytes ) Py_XDECREF(bytes);
+        Py_DECREF(pFunc);
+        return false;
+    }
+
+    PyObject *pGridlabd = PyDict_GetItemString(pModule,"gridlabd");
+    PyObject *pArgs = Py_BuildValue("(O)",pGridlabd?pGridlabd:PyInit_gridlabd());
+    PyObject *pKwargs = vargsfmt ? Py_VaBuildValue(vargsfmt,varargs) : NULL;
+    PyErr_Clear();
+    PyObject *return_value = PyObject_Call(pFunc,pArgs,pKwargs);
+    if ( pGridlabd ) Py_DECREF(pGridlabd);
+    Py_DECREF(pArgs);
+    if ( PyErr_Occurred() )
+    {
+        python_traceback(name);
+        return false;
+    }
+    assert(return_value!=NULL);
+    PyObject *pError = PyObject_GetAttrString(pModule,"error_stream");
+    if ( pError )
+    {
+        PyObject *pCall = PyObject_GetAttrString(pError,"getvalue");
+        PyErr_Clear();
+        PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
+        PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
+        const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
+        if ( strcmp(msg,"") != 0 )
+        {
+            output_error("%s: %s", name, msg ? msg : "(python error_stream not available");
+        }
+        if ( pCall ) Py_DECREF(pCall);
+        if ( pValue ) Py_DECREF(pValue);
+        if ( pBytes ) Py_DECREF(pBytes);
+        Py_DECREF(pError);
+        python_reset_stream(pModule,"error_stream");
+    }
+    PyObject *pOutput = PyObject_GetAttrString(pModule,"output_stream");
+    if ( pOutput )
+    {
+        PyObject *pCall = PyObject_GetAttrString(pOutput,"getvalue");
+        PyErr_Clear();
+        PyObject *pValue = pCall && PyCallable_Check(pCall) ? PyObject_CallObject(pCall,NULL) : NULL;
+        PyObject *pBytes = pValue && PyUnicode_Check(pValue) ? PyUnicode_AsEncodedString(pValue, "utf-8", "~E~") : NULL;
+        const char *msg = pBytes ? PyBytes_AS_STRING(pBytes): NULL;
+        if ( strcmp(msg,"") != 0 )
+        {
+            output_raw("%s", msg ? msg : "(python output_stream not available)");
+        }
+        if ( pCall ) Py_DECREF(pCall);
+        if ( pValue ) Py_DECREF(pValue);
+        if ( pBytes ) Py_DECREF(pBytes);
+        Py_DECREF(pOutput);
+        python_reset_stream(pModule,"output_stream");
+    }
+    Py_DECREF(pFunc);
+    if ( pKwargs ) 
+    {
+        Py_DECREF(pKwargs);
+    }
+    if ( pResult != NULL )
+    {
+        *pResult = return_value;
+    }
+    return true;
 }
 
 std::string python_eval(const char *command)

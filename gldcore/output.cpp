@@ -40,6 +40,13 @@ static char buffer[65536];
 int overflow=CHECK;
 int flush = 0;
 
+bool output_enable_flush(bool enable)
+{
+	int old = flush;
+	flush = ( enable ? 1 : 0 );
+	return old;
+}
+
 static char prefix[16]="";
 void output_prefix_enable(void)
 {
@@ -574,9 +581,10 @@ int output_debug(const char *format,...) /**< \bprintf style argument list */
 		struct timeval tv;
 		gettimeofday(&tv,NULL);
 		struct tm *t = localtime(&tv.tv_sec);
-		char timestamp[256];
+		char timestamp[1024];
 		strftime(timestamp,64,"%Y-%m-%d %H:%M:%S",t);
-		snprintf(timestamp+strlen(timestamp),64,".%06d %s",tv.tv_usec,time_context);
+		int len = strlen(timestamp);
+		snprintf(timestamp+len,sizeof(timestamp)-len-1,".%06u %s",(unsigned int)tv.tv_usec,time_context);
 
 		/* check for repeated message */
 		static char lastfmt[4096] = "";
@@ -705,9 +713,17 @@ int output_message(const char *format,...) /**< \bprintf style argument list */
 		}
 Output:
 		if (redirect.output)
+		{
 			result = fprintf(redirect.output,"%s%s\n", prefix, buffer);
+			if ( flush ) 
+			{
+				fflush(redirect.output);
+			}
+		}
 		else
+		{
 			result = (*printstd)("%s%s\n", prefix, buffer);
+		}
 Unlock:
 		wunlock(&output_lock);
 		return result;

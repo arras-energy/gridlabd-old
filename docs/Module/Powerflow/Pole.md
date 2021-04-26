@@ -9,7 +9,7 @@
     tilt_angle "0 deg";
     tilt_direction 0 deg";
     weather "<climate-object>";
-    configurate "<pole-configuration-object>";
+    configuration "<pole-configuration-object>";
     equipment_area "0 sf";
     equipment_height "0 ft":
     install_year "1970";
@@ -173,7 +173,7 @@ Wind speed at pole failure.
 
 # Model
 
-The pole failure model is described in [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/master/powerflow/docs/pole_loading.pdf). 
+The pole failure model is described in [Pole Loading Model](https://github.com/slacgismo/gridlabd/raw/master/module/powerflow/docs/pole_loading.pdf). 
 
 The pole reaches end of life status based on a degradation rate that is defined by minimum shell thickness of 2". See [Pole Degradation Model](https://www.sciencedirect.com/science/article/pii/S0167473005000457) details.
 

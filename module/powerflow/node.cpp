@@ -419,12 +419,12 @@ int node::create(void)
 	LoadHistTermL = NULL;
 	LoadHistTermC = NULL;
 
-	memset(voltage,0,sizeof(voltage));
-	memset(voltaged,0,sizeof(voltaged));
-	memset(current,0,sizeof(current));
-	memset(pre_rotated_current,0,sizeof(pre_rotated_current));
-	memset(power,0,sizeof(power));
-	memset(shunt,0,sizeof(shunt));
+	memset((void*)voltage,0,sizeof(voltage));
+	memset((void*)voltaged,0,sizeof(voltaged));
+	memset((void*)current,0,sizeof(current));
+	memset((void*)pre_rotated_current,0,sizeof(pre_rotated_current));
+	memset((void*)power,0,sizeof(power));
+	memset((void*)shunt,0,sizeof(shunt));
 
 	current_dy[0] = current_dy[1] = current_dy[2] = complex(0.0,0.0);
 	current_dy[3] = current_dy[4] = current_dy[5] = complex(0.0,0.0);
@@ -478,6 +478,7 @@ int node::create(void)
 int node::init(OBJECT *parent)
 {
 	OBJECT *obj = THISOBJECTHDR;
+	violation_watch = violation_watchset&VW_NODE;
 
 	//Put the phase_S check right on the top, since it will apply to both solvers
 	if (has_phase(PHASE_S))
@@ -3205,6 +3206,19 @@ EXPORT int create_node(OBJECT **obj, OBJECT *parent)
 EXPORT TIMESTAMP commit_node(OBJECT *obj, TIMESTAMP t1, TIMESTAMP t2)
 {
 	node *pNode = OBJECTDATA(obj,node);
+	if ( pNode->has_phase(PHASE_A) && (pNode->voltage[0].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"%s phase A voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+	}
+	if ( pNode->has_phase(PHASE_B) && (pNode->voltage[1].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"%s phase B voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+	}
+	if ( pNode->has_phase(PHASE_C) && (pNode->voltage[2].Mag()-pNode->nominal_voltage)/pNode->nominal_voltage > 0.05 )
+	{
+		pNode->add_violation(VF_VOLTAGE,"%s phase C voltage is outside 5%% ANSI service standard", pNode->oclass->name);
+	}
+
 	try {
 		// This zeroes out all of the unused phases at each node in the FBS method
 		if (solver_method==SM_FBS)
@@ -4191,7 +4205,7 @@ SIMULATIONMODE node::inter_deltaupdate_node(unsigned int64 delta_time, unsigned 
 		if (fmeas_type != FM_NONE)
 		{
 			//Copy the tracker value
-			memcpy(&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
+			memcpy((void*)&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
 		}
 	}
 
@@ -4595,7 +4609,7 @@ void node::init_freq_dynamics(void)
 	}//End FOR loop
 
 	//Copy into current, since we may have already just done this
-	memcpy(&curr_freq_state,&prev_freq_state,sizeof(FREQM_STATES));
+	memcpy((void*)&curr_freq_state,&prev_freq_state,sizeof(FREQM_STATES));
 }
 
 //Function to perform the GFA-type responses
