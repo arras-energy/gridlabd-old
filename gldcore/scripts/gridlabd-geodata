@@ -13,7 +13,8 @@ below.
 OPTIONS
 
   [-c|--cache FOLDER]         change cache folder
-  [-C|--config FILE]          change config file
+  [-C|--config [+]FILE]       load config file (use '+' appends to current
+                              configuration)
   [-d|--debug]                enable debug output, including error traceback
   [-f|--format FORMAT]        change output format
   [-j|--join TYPE]            control how dataset joins with input path
@@ -21,7 +22,8 @@ OPTIONS
   [-o|--output CSVOUT]        output to CSVOUT
   [--precision=INT]           change precision of distance measurement
   [-q|--quiet]                disable normal output
-  [-r|--resolution=METERS]       change the resolution at which positions are merged
+  [-r|--resolution=METERS]    change the resolution at which positions are
+                              merged
   [-s|--silent]               disable error output
   [-T|--threadcount THREADS]  change maximum thread count
   [--units UNIT]              change units of distance
@@ -38,9 +40,15 @@ DIRECTIVES
 
 The following directives are available:
 
-  config get PARAMETER config set PARAMETER VALUE config show [PATTERN]
+  config get PARAMETER
+  config set [SCOPE:]PARAMETER VALUE
+  config unset [SCOPE:]PARAMETER
+  config show
 
-    The config directive changes values in the config file.
+    The config directive changes values in the config file. Valid scopes are
+    "system", "user", or "local", which determines where the configuration
+    values are stored, e.g., "$GLD_ETC/geodata/geodata.conf",
+    "$HOME/.gridlabd/geodata.conf", or "./geodata.conf", respectively.
 
   create [ARGUMENTS]
 
@@ -353,6 +361,7 @@ if not PKGDATA:
     PKGDATA = "/usr/local/share/gridlabd"
 FORMAT = "CSV"
 PATHJOIN = "outer"
+CONFIGFILE = "geodata.conf"
 CONFIGDIR = {
     "system" : PKGDATA + "/geodata",
     "user" : os.getenv("HOME") + "/.gridlabd/geodata",
@@ -365,7 +374,6 @@ RESOLUTION = None
 IDPRECISION = 0
 GEOPRECISION = 4
 OPTIONS = {}
-CONFIGURATION = {}
 FIELDSEP = ' '
 RECORDSEP = '\n'
 
@@ -638,7 +646,7 @@ def get_args(args):
     if KEYINDEX in ["position","location"]:
         data = set_index(data)
     OPTIONS = options
-    CONFIGURATION = config
+    CONFIGDATA = config
     return data,options,config
 
 def merge(args):
@@ -819,13 +827,125 @@ def load_dataset(args):
         MODULE.set_context(sys.modules[__name__])
     return MODULE
 
-def load_config():
-    return DEFAULT
+def load_config(file=None,groups=[],inplace=False):
+    global CONFIGDATA
+    global CONFIGDIR
+    config = CONFIGDATA
+    if not file:
+        if not groups:
+            groups = CONFIGDIR.keys()
+        for dir in groups:
+            try:
+                configfile = f'{CONFIGDIR[dir]}/{CONFIGFILE}'
+                verbose(f"loading {configfile}")
+                with open(configfile,'r') as fh:
+                    config.update(json.load(fh))
+            except:
+                pass
+    else:
+        if file[0] == "+" and len(file) > 1:
+            file = file[1:]
+        elif file[0] != "+":
+            config = {}
+        verbose(f"loading {file}")
+        with open(file,'r') as fh:
+            config.update(json.load(fh))
+    if inplace:
+        CONFIGDATA = config
+    return config
+
+def set_config(name,value):
+    specs = name.split(":")
+    if len(specs) > 1:
+        dir = specs[0]
+        if not dir in CONFIGDIR.keys():
+            raise Exception(f"{dir} configuration directory is invalid")
+        name = ':'.join(specs[1:])
+    else:
+        name = specs[0]
+        dir = 'local'
+    configfile = f'{CONFIGDIR[dir]}/{CONFIGFILE}'
+    try:
+        with open(configfile,'r') as fh:
+            config = json.load(fh)
+    except:
+        warning(f"config file '{configfile}' is not found")
+        config = {}
+    config[name] = value
+    with open(configfile,'w') as fh:
+        print(json.dumps(config),file=fh)
+
+def unset_config(name):
+    specs = name.split(":")
+    if len(specs) > 1:
+        dir = specs[0]
+        if not dir in CONFIGDIR.keys():
+            raise Exception(f"{dir} configuration directory is invalid")
+        name = ':'.join(specs[1:])
+    else:
+        name = specs[0]
+        dir = 'local'
+    configfile = f'{CONFIGDIR[dir]}/{CONFIGFILE}'
+    try:
+        with open(configfile,'r') as fh:
+            config = json.load(fh)
+    except:
+        warning(f"config file '{configfile}' is not found")
+        config = {}
+        pass
+    try:
+        del config[name]
+    except:
+        warning(f"config variable '{name}' not found in '{configfile}'")
+        pass
+    with open(configfile,'w') as fh:
+        print(json.dumps(config),file=fh)
+
+def get_config(name):
+    return CONFIGDATA[name]
+
+def save_config(config=None):
+    if config == None:
+        config = CONFIGDATA
+    raise Exception(f"set_config(): not implemented")
+
+def show_config(config={},groups=[],format="RAW"):
+    if not config:
+        config = load_config(groups)
+    if format == "RAW":
+        for tag, value in config.items():
+            print(f"{tag}='{value}'")
+    elif format == "JSON":
+        print(json.dumps(config,indent=4),file=sys.stdout)
+    elif format == "GLM":
+        for tag, value in config.items():
+            print(f"#define {tag}='{value}'")
+    else:
+        raise Exception(f"show_config(): format '{format}' is not valid")
+
 def config(args):
     """Configuration directive implementation"""
-    global CONFIGURATION
+    global CONFIGDATA
     if args[0] == "show":
-        print(CONFIGURATION)
+        if len(args) > 1:
+            show_config(CONFIGDATA,groups=args[1:])
+        else:
+            show_config(CONFIGDATA)
+    elif args[0] == "set":
+        if len(args) > 2:
+            set_config(*args[1:])
+        else:
+            error(f"config(args={args}): set missing arguments")
+    elif args[0] == "unset":
+        if len(args) > 1:
+            unset_config(*args[1:])
+        else:
+            error(f"config(args={args}): unset missing arguments")
+    elif args[0] == "get":
+        if len(args) > 1:
+            print(get_config(*args[1:]))
+        else:
+            error(f"config(args={args}): get missing argument")
     else:
         error(f"config(args={args}): invalid config options")
 
@@ -842,6 +962,7 @@ def main(argc,argv):
     if not PKGDATA or not os.path.exists(PKGDATA):
         warning("package folder '{PKGDATA}' not found, using default /usr/local/share/gridlabd")
         PKGDATA = "/usr/local/share/gridlabd"
+    load_config(inplace=True)
     while n < len(argv):
         if argv[n] in ["-c","-cache"]:
             global CACHE
@@ -855,10 +976,7 @@ def main(argc,argv):
             global CFGFILE
             n += 1
             CFGFILE = argv[n]
-            if not os.path.exists(CFGFILE):
-                warning(f"config file '{CFGFILE}' does not exist")
-            else:
-                verbose(f"using GLM file {GLMFILE}")
+            load_config(CFGFILE,inplace=True)
         elif argv[n] in ["-d","--debug"]:
             global DEBUG
             DEBUG = True
