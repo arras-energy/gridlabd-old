@@ -20,9 +20,9 @@ dnl m4 magic from Eric Blake <e...@byu.net>
 dnl autoconf 2.63 does not have m4_esyscmd_s
 m4_define([m4_chomp_all],
 [m4_format([[%.*s]], m4_bregexp(m4_translit([[$1]], [
-/], [/ ]), [/*$]), [$1])])  
+/], [/ ]), [/*$]), [$1])])
 
-m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])     
+m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])
 
 
 m4_define([sbuild_m4_chomp],
@@ -491,11 +491,11 @@ AS_IF([test -n "$DX_DOXYGEN"],
 AM_CONDITIONAL([HAVE_DOXYGEN], [test ! "x$HAVE_DOXYGEN" = "xno"])
 
 # Check for mysql
-AS_IF([test -f /usr/local/include/mysql.h -a /usr/local/lib/libmysqlclient.a ],
+AS_IF([test -f /usr/local/include/mysql/mysql.h -a /usr/local/lib/libmysqlclient.a ],
     [MYSQL="/usr/local"],
     [MYSQL="no"])
 AS_IF([test "x$MYSQL" != "xno"],
-	[MYSQL_CPPFLAGS="'-I$MYSQL/include'"
+	[MYSQL_CPPFLAGS="'-I$MYSQL/include/mysql'"
 		AS_CASE([$host],
 			[*mingw*], [MYSQL_LDFLAGS="'-L$MYSQL/lib'"
 				MYSQL_LIBS="-lmysql"],
@@ -512,9 +512,14 @@ AC_SUBST([MYSQL_LIBS])
 AM_CONDITIONAL([HAVE_MYSQL], [test ! "x$HAVE_MYSQL" = "xno"])
 
 # Verify python version
-AM_PATH_PYTHON(3.5)
-HAVE_PYTHON="$(which python3) ($(python3 --version | cut -f2 -d' '))"
+AM_PATH_PYTHON(3.7)
+HAVE_PYTHON="$(python3 --version | cut -f2 -d' ')"
+PYTHON_EXEC="$(python3 -c "import os; print(os.path.realpath('$(which python3)'))")"
+PYTHON_VER=$(echo $HAVE_PYTHON | cut -f1-2 -d.)
 AM_CONDITIONAL([HAVE_PYTHON], [test ! "x$HAVE_PYTHON" = "xno"])
+AS_IF([test "x$HAVE_PYTHON" != "xno" -a "$(uname)" == "Darwin" ],
+    [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m} -shared -Wl-undefined,dynamic_lookup"],
+    [PYTHON_LIB="-lpython${PYTHON_VER/3.7/3.7m}"])
 
 # check for mono
 AS_IF([test -z "$(which mono)" ],
@@ -574,7 +579,7 @@ AC_MSG_RESULT([
 
   HiPAS GridLAB-D Automatic configuration:
 
-    Package: .................... $PACKAGE 
+    Package: .................... $PACKAGE
     Version: .................... $VERSION
     Branch: ..................... $PACKAGE_ORIGIN
     Install prefix: ............. ${DSTDIR/^$PWD/.}
@@ -634,8 +639,8 @@ AC_MSG_RESULT([
 -----------------------------------------------------------------------
 ])
 
-CXXFLAGS="$(/usr/local/bin/python3-config --cflags) $CXXFLAGS "
-LDFLAGS="$(/usr/local/bin/python3-config --ldflags) $LDFLAGS "
+CXXFLAGS="$(python3-config --cflags) $CXXFLAGS -D PYTHON_EXEC='\"$PYTHON_EXEC\"'"
+LDFLAGS="$(python3-config --ldflags) $PYTHON_LIB $LDFLAGS "
 
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([gridlabd.spec])

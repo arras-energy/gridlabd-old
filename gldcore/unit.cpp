@@ -162,7 +162,7 @@ int unit_scalar(const char *name,int scalar)
 			This is actually triggered by a malloc failure, and the rest of the system is likely unstable.
 		*/
 	}
-	strncpy(ptr->name, name, sizeof(ptr->name));
+	strncpy(ptr->name, name, sizeof(ptr->name)-1);
 	ptr->scalar = scalar;
 	ptr->len = (unsigned char)strlen(ptr->name);
 	ptr->next = scalar_list;
@@ -484,7 +484,8 @@ void unit_init(void)
 		char envbuf[1024];
 		const char *dir;
 		strcpy(envbuf, glpath);
-		dir = strtok(envbuf, ";");
+		char *last;
+		dir = strtok_r(envbuf, ";", &last);
 		while(dir != NULL){
 			strcpy(filepath, dir);
 			strcat(filepath, "/unitfile.txt");
@@ -492,7 +493,7 @@ void unit_init(void)
 			if (fp != NULL){
 				break;
 			}
-			dir = strtok(NULL, ";");
+			dir = strtok_r(NULL, ";",&last);
 		}
 	}
 

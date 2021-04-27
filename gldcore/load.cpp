@@ -340,6 +340,12 @@ std::string GldLoader::setup_class(CLASS *oclass)
 	snprintf(buffer,sizeof(buffer),"\toclass->size = sizeof(%s);\n", oclass->name);
 	result.append(buffer);
 
+	if ( oclass->parent != NULL )
+	{
+		snprintf(buffer,sizeof(buffer),"\toclass->parent = (*(callback->class_getname(\"%s\")));",oclass->parent->name);
+		result.append(buffer);
+	}
+
 	PROPERTY *prop;
 	for (prop=oclass->pmap; prop!=NULL; prop=prop->next)
 	{
@@ -363,7 +369,7 @@ int GldLoader::write_file(FILE *fp, const char *data, ...)
 	char *b;
 	va_list ptr;
 	va_start(ptr,data);
-	vsprintf(buffer,data,ptr);
+	vsnprintf(buffer,sizeof(buffer)-1,data,ptr);
 	va_end(ptr);
 	while ( (c=strstr(d,"/*RESETLINE*/\n")) != NULL )
 	{
@@ -471,7 +477,7 @@ STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 	{
 		if ( getenv("GRIDLABD") )
 		{
-			strncpy(global_include,getenv("GRIDLABD"),sizeof(global_include));
+			strncpy(global_include,getenv("GRIDLABD"),sizeof(global_include)-1);
 			IN_MYCONTEXT output_verbose("global_include is not set, assuming value of GRIDLABD variable '%s'", global_include);
 		}
 		else
@@ -493,17 +499,17 @@ STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 		FILE *fp;
 		struct stat stat;
 		int outdated = true;
-		char cfile[1024];
-		char ofile[1024];
-		char afile[1024];
-		char file[1024];
-		char tmp[1024];
-		char tbuf[1024];
+		char cfile[4097];
+		char ofile[4097];
+		char afile[4097];
+		char file[4097];
+		char tmp[1025];
+		char tbuf[1025];
 		size_t ifs_off = 0;
 		INCLUDELIST *lptr = 0;
 
 		/* build class implementation files */
-		strncpy(tmp, global_tmp, sizeof(tmp));
+		strncpy(tmp, global_tmp, sizeof(tmp)-1);
 		if ( mkdirs(tmp) ) 
 		{
 			errno = 0;
@@ -513,10 +519,10 @@ STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 		{
 			strcat(tmp,"/");
 		}
-		sprintf(cfile,"%s%s.cpp", (use_msvc||global_gdb||global_gdb_window)?"":tmp,oclass->name);
-		sprintf(ofile,"%s%s.%s", (use_msvc||global_gdb||global_gdb_window)?"":tmp,oclass->name, use_msvc?"obj":"o");
-		sprintf(file,"%s%s", (use_msvc||global_gdb||global_gdb_window)?"":tmp, oclass->name);
-		sprintf(afile, "%s" DLEXT , oclass->name);
+		snprintf(cfile,sizeof(cfile)-1,"%s%s.cpp", (use_msvc||global_gdb||global_gdb_window)?"":tmp,oclass->name);
+		snprintf(ofile,sizeof(ofile)-1,"%s%s.%s", (use_msvc||global_gdb||global_gdb_window)?"":tmp,oclass->name, use_msvc?"obj":"o");
+		snprintf(file,sizeof(file)-1,"%s%s", (use_msvc||global_gdb||global_gdb_window)?"":tmp, oclass->name);
+		snprintf(afile,sizeof(afile)-1,"%s" DLEXT , oclass->name);
 
 		/* peek at library file */
 		fp = fopen(afile,"r");
@@ -566,7 +572,7 @@ STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 			ifs_off = 0;
 			for ( lptr = header_list ; lptr != 0; lptr = lptr->next )
 			{
-				sprintf(include_file_str+ifs_off, "#include \"%s\"\n;", lptr->file);
+				snprintf(include_file_str+ifs_off, sizeof(include_file_str)-ifs_off-1, "#include \"%s\"\n;", lptr->file);
 				ifs_off+=strlen(lptr->file)+13;
 			}
 			if ( write_file(fp,"/* automatically generated from %s */\n\n"
@@ -621,12 +627,12 @@ STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 #define DEFAULT_CXX "g++"
 #define DEFAULT_CXXFLAGS ""
 #define DEFAULT_LDFLAGS ""
-			char execstr[1024];
-			char ldstr[1024];
+			char execstr[65537];
+			char ldstr[65537];
 			char mopt[8]="";
 			const char *libs = "-lstdc++";
 
-			sprintf(execstr, "%s %s %s %s %s -fPIC -c \"%s\" -o \"%s\"",
+			snprintf(execstr,sizeof(execstr)-1, "%s %s %s %s %s -fPIC -c \"%s\" -o \"%s\"",
 					getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
 					global_warn_mode?"-w":"",
 					global_debug_output?"-g -O0":"-O0",
@@ -650,7 +656,7 @@ STATUS GldLoader::compile_code(CLASS *oclass, int64 functions)
 
 			/* link new runtime module */
 			IN_MYCONTEXT output_verbose("linking inline code from '%s'", ofile);
-			sprintf(ldstr, "%s %s %s %s -shared -Wl,\"%s\" -o \"%s\" %s",
+			snprintf(ldstr,sizeof(ldstr)-1, "%s %s %s %s -shared -Wl,\"%s\" -o \"%s\" %s",
 					getenv("CXX")?getenv("CXX"):DEFAULT_CXX,
 					mopt,
 					global_debug_output?"-g -O0":"",
@@ -1122,7 +1128,7 @@ int GldLoader::pattern(PARSER, const char *pattern, char *result, int size)
 {
 	char format[64];
 	START;
-	sprintf(format,"%%%s",pattern);
+	snprintf(format,sizeof(format)-1,"%%%s",pattern);
 	if (sscanf(_p,format,result)==1)
 		_n = (int)strlen(result);
 	DONE;
@@ -1135,6 +1141,52 @@ int GldLoader::literal(PARSER, const char *text)
 	return 0;
 }
 
+int GldLoader::quoted_string(PARSER, char *result, int size)
+{
+	int len = 0;
+	while ( isspace(*_p) ) _p++;
+	if ( *_p++ != '"' )
+	{
+		return 0;
+	}
+	else
+	{
+		len++;
+		while ( _p[0] != '"' )
+		{
+			if ( len < size-1 )
+			{
+				if ( _p[0] == '\\' && _p[1] != '\0' )
+				{
+					switch ( *++_p )
+					{
+					case 'n':
+						*result++ = '\n';
+						break;
+					case 't':
+						*result++ = '\t';
+						break;
+					default:
+						*result++ = *_p++;
+						break;
+					}
+				}
+				else
+				{
+					*result++ = *_p++;
+					len++;
+				}
+			}
+			else
+			{
+				return 0;
+			}
+		}
+		*result++ = '\0';
+		len++;
+		return len;
+	}
+}
 int GldLoader::dashed_name(PARSER, char *result, int size)
 {	/* basic name */
 	START;
@@ -2365,11 +2417,11 @@ int GldLoader::expanded_value(const char *text, char *result, int size, const ch
 				else if (strcmp(varname,"hostaddr")==0)
 					strcpy(value,global_hostaddr); 
 				else if (strcmp(varname,"cpu")==0)
-					sprintf(value,"%d",sched_get_cpuid(0)); 
+					snprintf(value,sizeof(value)-1,"%d",sched_get_cpuid(0)); 
 				else if (strcmp(varname,"pid")==0)
-					sprintf(value,"%d",sched_get_procid()); 
+					snprintf(value,sizeof(value)-1,"%d",sched_get_procid()); 
 				else if (strcmp(varname,"port")==0)
-					sprintf(value,"%d",global_server_portnum);
+					snprintf(value,sizeof(value)-1,"%d",global_server_portnum);
 				else if (strcmp(varname,"mastername")==0)
 					strcpy(value,"localhost"); /* @todo copy actual master name */
 				else if (strcmp(varname,"masteraddr")==0)
@@ -2379,7 +2431,7 @@ int GldLoader::expanded_value(const char *text, char *result, int size, const ch
 				else if (strcmp(varname,"id")==0)
 				{
 					if (current_object)
-						sprintf(value,"%d",current_object->id);
+						snprintf(value,sizeof(value)-1,"%d",current_object->id);
 					else
 						strcpy(value,"");
 				}
@@ -2683,7 +2735,7 @@ int GldLoader::module_block(PARSER)
 	/* foreign module */
 	if (TERM(name(HERE,fmod,sizeof(fmod))) && LITERAL("::") && TERM(name(HERE,mod,sizeof(mod))))
 	{
-		sprintf(module_name,"%s::%s",fmod,mod);
+		snprintf(module_name,sizeof(module_name)-1,"%s::%s",fmod,mod);
 		if ((module=module_load(module_name,0,NULL))!=NULL)
 		{
 			ACCEPT;
@@ -2967,8 +3019,9 @@ int GldLoader::source_code(PARSER, char *code, int size)
 		case COMMENTBLOCK:
 			if (c1=='*' && c2=='/')
 			{
+				int len = strlen(code);
 				if (!global_debug_output && global_getvar("noglmrefs",buffer,63)==NULL)
-					sprintf(code+strlen(code),"#line %d \"%s\"\n", linenum,forward_slashes(filename).c_str());
+					snprintf(code+len,size-len-1,"#line %d \"%s\"\n", linenum,forward_slashes(filename).c_str());
 				state = CODE;
 			}
 			break;
@@ -3203,6 +3256,100 @@ int GldLoader::class_external_function(PARSER, CLASS *oclass, CLASS **eclass,cha
 	DONE;
 }
 
+int GldLoader::class_event_handler(PARSER, CLASS *oclass)
+{
+	char value[1024];
+	START;
+	if WHITE ACCEPT;
+	if ( LITERAL("on_init") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.init = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_precommit") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.precommit = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_presync") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.presync = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_sync") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.sync = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_postsync") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.postsync = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_commit") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.commit = strdup(value);
+		ACCEPT;
+	}
+	else if ( LITERAL("on_finalize") && (WHITE,TERM(quoted_string(HERE,value,sizeof(value)))) && (WHITE,LITERAL(";")) )
+	{
+		oclass->events.finalize = strdup(value);
+		ACCEPT;
+	}
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
+
+int GldLoader::class_parent_definition(PARSER, CLASS *oclass)
+{
+	char classname[1024];
+	START;
+	if WHITE ACCEPT;
+	if ( LITERAL("parent") )
+	{
+		if WHITE ACCEPT;
+		if ( TERM(name(HERE,classname,sizeof(classname))) ) 
+		{
+			if ( oclass->module != NULL )
+			{
+				syntax_error(filename,linenum,"cannot set parent of class defined in module");
+				REJECT;
+			}
+			else
+			{
+				oclass->parent = class_get_class_from_classname(classname);
+				if ( oclass->parent == NULL )
+				{
+					syntax_error(filename,linenum,"parent class '%s' not found", classname);
+					REJECT;
+				}
+				else if ( WHITE,LITERAL(";") )
+				{
+					ACCEPT;
+				}
+				else
+				{
+					syntax_error(filename,linenum,"missing semicolon after parent class name");
+					REJECT;
+				}
+			}
+		}
+		else
+		{
+			syntax_error(filename,linenum,"missing or invalid parent class name");
+			REJECT;
+		}
+	}
+	else
+	{
+		REJECT;
+	}
+	DONE;
+}
+
 int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *initcode, int initsize)
 {
 	static char code[65536];
@@ -3234,9 +3381,17 @@ int GldLoader::class_properties(PARSER, CLASS *oclass, int64 *functions, char *i
 	{
 		ACCEPT;
 	}
+	else if TERM(class_event_handler(HERE, oclass))
+	{
+		ACCEPT;
+	}
 	else if TERM(class_export_function(HERE, oclass,fname,sizeof(fname),arglist,sizeof(arglist),code,sizeof(code)))
 	{
 		*functions |= FN_EXPORT;
+		ACCEPT;
+	}
+	else if TERM(class_parent_definition(HERE,oclass) )
+	{
 		ACCEPT;
 	}
 	else if (TERM(property_type(HERE,&type,&keys)) && (WHITE,(TERM(nameunit(HERE,propname,sizeof(propname),&pUnit))||TERM(name(HERE,propname,sizeof(propname))))) && (WHITE,LITERAL(";")) )
@@ -3589,8 +3744,8 @@ int GldLoader::property_ref(PARSER, TRANSFORMSOURCE *xstype, void **ref, OBJECT 
 		if (obj==NULL)
 		{
 			// add to unresolved list
-			char id[1024];
-			sprintf(id,"%s.%s",oname,pname);
+			char id[4096];
+			snprintf(id,sizeof(id)-1,"%s.%s",oname,pname);
 			*ref = (void*)add_unresolved(from,PT_double,NULL,from->oclass,id,filename,linenum,UR_TRANSFORM);
 			ACCEPT;
 		}
@@ -4016,7 +4171,7 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 			if ( prop!=NULL && prop->ptype == PT_object && MARKTERM(object_block(HERE,NULL,&subobj)) )
 			{
 				char objname[64];
-				if (subobj->name) strcpy(objname,subobj->name); else sprintf(objname,"%s:%d", subobj->oclass->name,subobj->id);
+				if (subobj->name) strcpy(objname,subobj->name); else snprintf(objname,sizeof(objname)-1,"%s:%d", subobj->oclass->name,subobj->id);
 				if (object_set_value_by_name(obj,propname,objname))
 				{
 					SAVETERM;
@@ -4450,8 +4605,9 @@ int GldLoader::object_properties(PARSER, CLASS *oclass, OBJECT *obj)
 						SAVETERM;
 						ACCEPT;
 					}
-					else if (strcmp(propname,"groupid")==0){
-						strncpy(obj->groupid, propval, sizeof(obj->groupid));
+					else if (strcmp(propname,"groupid")==0)
+					{
+						memcpy(obj->groupid, propval, sizeof(obj->groupid));
 					}
 					else if (strcmp(propname,"flags")==0)
 					{
@@ -5130,7 +5286,7 @@ int GldLoader::gui_entity_parameter(PARSER, GUIENTITY *entity)
 		{
 			char fullname[256];
 			ACCEPT;
-			sprintf(fullname,"%s::%s",modname,varname);
+			snprintf(fullname,sizeof(fullname)-1,"%s::%s",modname,varname);
 			gui_set_variablename(entity,fullname);
 			DONE;
 		}
@@ -5797,6 +5953,11 @@ int GldLoader::global_declaration(PARSER)
 			if ( (WHITE,TERM(value(HERE,pvalue,sizeof(pvalue)))) )
 			{
 				PROPERTYTYPE ptype = property_get_type(proptype);
+				if ( ptype == PT_void )
+				{
+					syntax_error(filename,linenum,"global '%s' type '%s' is not valid",varname,proptype);
+					REJECT;
+				}
 				GLOBALVAR *var = global_create(varname,ptype,NULL,PT_SIZE,1,PT_ACCESS,PA_PUBLIC,NULL);
 				if ( var==NULL )
 				{
@@ -6072,8 +6233,8 @@ int GldLoader::loader_hook(PARSER)
 	if ( LITERAL("extension") && WHITE && name(HERE,libname,sizeof(libname)) )
 	{
 		// find the library
-		char pathname[1024];
-		snprintf(pathname, sizeof(pathname), "%s" DLEXT, libname);
+		char pathname[2048];
+		snprintf(pathname, sizeof(pathname)-1, "%s" DLEXT, libname);
 		if ( find_file(pathname, NULL, X_OK|R_OK, pathname,sizeof(pathname)) == NULL )
 		{
 			syntax_error(filename,linenum,"unable to locate %s in GLPATH=%s", pathname,getenv("GLPATH")?getenv("GLPATH"):"");
@@ -6747,9 +6908,7 @@ static int is_autodef(char *value)
 	if ( strcmp(value,"MATLAB")==0 ) return 1;
 #endif
 
-#ifdef HAVE_PYTHON
 	if ( strcmp(value,"PYTHON")==0 ) return 1;
-#endif
 
 	return 0;
 }
@@ -6824,7 +6983,7 @@ void* GldLoader::start_process(const char *cmd)
 int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 {
 	char *var, *val, *save;
-	char buffer[64];
+	char buffer[1024];
 	if ( get_language() )
 	{
 		const char *m = line;
@@ -6892,9 +7051,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			syntax_error(filename,linenum,"#ifdef macro missing term");
 			return FALSE;
 		}
-		//if (sscanf(term+1,"%[^\n\r]",value)==1 && global_getvar(value, buffer, 63)==NULL && getenv(value)==NULL)
 		strcpy(value, strip_right_white(term+1));
-		if ( !is_autodef(value) && global_getvar(value, buffer, 63)==NULL && getenv(value)==NULL){
+		if ( !is_autodef(value) && global_getvar(value, buffer, sizeof(buffer))==NULL && getenv(value)==NULL){
 			suppress |= (1<<nesting);
 		}
 		macro_line[nesting] = linenum;
@@ -6940,9 +7098,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			syntax_error(filename,linenum,"#ifndef macro missing term");
 			return FALSE;
 		}
-		//if (sscanf(term+1,"%[^\n\r]",value)==1 && global_getvar(value, buffer, 63)!=NULL || getenv(value)!=NULL))
 		strcpy(value, strip_right_white(term+1));
-		if(global_getvar(value, buffer, 63)!=NULL || getenv(value)!=NULL){
+		if(global_getvar(value, buffer, sizeof(buffer))!=NULL || getenv(value)!=NULL){
 			suppress |= (1<<nesting);
 		}
 		macro_line[nesting] = linenum;
@@ -6953,36 +7110,36 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if (strncmp(line,"#if",3)==0)
 	{
-		char var[32], op[4];
+		char left[1024], op[4];
 		const char *value;
-		char val[1024], junk[1024]="";
-		if ( ( sscanf(line+4,"%31[a-zA-Z0-9_:.] %3[!<>=] \"%1023[^\"]\" %1023[^\n]\n",var,op,val,junk) < 3
-				&& sscanf(line+4,"%31[a-zA-Z0-9_:.] %3[!<>=] '%1023[^']' %1023[^\n]\n",var,op,val,junk) < 3
-				&& sscanf(line+4,"%31[a-zA-Z_0-9_:.] %3[!<>=] %1023[^ \t\n] %1023[^\n]\n",var,op,val,junk) < 3 )
-				|| strcmp(junk,"") != 0 )
+		char right[1024];
+		if ( sscanf(line+4,"\"%1023[^\"]\" %3[!<>=] \"%1023[^\"]\"",left,op,right) < 3
+			&& sscanf(line+4,"%1023[^!<>= \t] %3[!<>=] \"%1023[^\"]\"",left,op,right) < 3
+			&& sscanf(line+4,"\"%1023[^\"]\" %3[!<>=] %1023s",left,op,right) < 3
+			&& sscanf(line+4,"%1023[^!<>= \t] %3[!<>=] %1023s",left,op,right) < 3 )
 		{
 			syntax_error(filename,linenum,"#if macro statement syntax error");
 			strcpy(line,"\n");
 			return FALSE;
 		}
-		value =  ( global_literal_if ? var : global_getvar(var, buffer, 63) );
+		value =  ( global_literal_if ? left : global_getvar(left, buffer, sizeof(buffer)) );
 		if ( value==NULL )
 		{
 			if ( global_relax_undefined_if )
 				value = "";
 			else
 			{
-				syntax_error(filename,linenum,"%s is not defined",var);
+				syntax_error(filename,linenum,"%s is not defined",left);
 				strcpy(line,"\n");
 				return FALSE;
 			}
 		}
-		if (strcmp(op,"<")==0) { if (!(strcmp(value,val)<0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,">")==0) { if (!(strcmp(value,val)>0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,">=")==0) { if (!(strcmp(value,val)>=0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,"<=")==0) { if (!(strcmp(value,val)<=0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,"==")==0) { if (!(strcmp(value,val)==0)) suppress|=(1<<nesting); }
-		else if (strcmp(op,"!=")==0) { if (!(strcmp(value,val)!=0)) suppress|=(1<<nesting); }
+		if (strcmp(op,"<")==0) { if (!(strcmp(value,right)<0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,">")==0) { if (!(strcmp(value,right)>0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,">=")==0) { if (!(strcmp(value,right)>=0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,"<=")==0) { if (!(strcmp(value,right)<=0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,"==")==0) { if (!(strcmp(value,right)==0)) suppress|=(1<<nesting); }
+		else if (strcmp(op,"!=")==0) { if (!(strcmp(value,right)!=0)) suppress|=(1<<nesting); }
 		else
 		{
 			syntax_error(filename,linenum,"operator %s is not recognized",op);
@@ -7013,7 +7170,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			syntax_error(filename,linenum,"#insert syntax error -- name not found");
 			return FALSE;
 		}
-		sprintf(line,"#include using(%s) \"%s.glm\"",values,name);
+		snprintf(line,size-1,"#include using(%s) \"%s.glm\"",values,name);
 		/* fall through to normal parsing of macros */
 	}
 	else /* add other macro macros here */
@@ -7056,7 +7213,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			++term;
 		if (sscanf(term,"\"%[^\"]\"",value)==1)
 		{
-			int len = sprintf(line,"@%s;%d\n",value,0);
+			int len = snprintf(line,size-1,"@%s;%d\n",value,0);
 			line+=len; size-=len;
 			strcpy(oldfile, filename);	// push old filename
 			strcpy(filename, value);	// use include file name for errors while within context
@@ -7073,7 +7230,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			}
 			else
 			{
-				len = sprintf(line,"@%s;%d\n",filename,linenum);
+				len = snprintf(line,size-1,"@%s;%d\n",filename,linenum);
 				line+=len; size-=len;
 				return size>0;
 			}
@@ -7089,50 +7246,30 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		}
 		else if ( sscanf(term, "[%[^]]]", value)==1 )
 		{
-			/* HTTP include */
-			int len=0;
-			char *p;
-			FILE *fp;
-			HTTPRESULT *http = http_read(value,0x40000);
 			char tmpname[1024];
-			if ( http==NULL )
+			snprintf(tmpname,sizeof(tmpname)-1,"url_%08llx.glm",hash(value));
+			try
 			{
-				output_error("%s(%d): unable to include [%s]", filename, linenum, value);
-				if ( old_stack ) global_restore(old_stack);
+				GldCurl(value,tmpname);
+			}
+			catch (const char *errmsg)
+			{
+				output_error("%s(%d): URL include failed, %s",filename,linenum,errmsg);
 				return FALSE;
 			}
-			
-			/* local cache file name */
-			len = sprintf(line,"@%s;%d\n",value,0);
-			size -= len; line += len;
-			strcpy(tmpname,value);
-			for ( p=tmpname ; *p!='\0' ; p++ )
+			catch (...)
 			{
-				if ( isalnum(*p) || *p=='.' || *p=='-' || *p==',' || *p=='_' ) continue;
-				*p = '_';
-			}
-
-			/* copy to local file - TODO check time stamps */
-			if ( access(tmpname,R_OK)!=0 )
-			{
-				fp = fopen(tmpname,"wt");
-				if ( fp==NULL )
-				{
-					output_error("%s(%d): unable to write temp file '%s'", filename, linenum, tmpname);
-					if ( old_stack ) global_restore(old_stack);
-					return FALSE;
-				}
-				fwrite(http->body.data,1,http->body.size,fp);
-				fclose(fp);
+				output_error("%s(%d): URL include failed, unknown exception",filename,linenum);
+				return FALSE;
 			}
 
 			/* load temp file */
 			strcpy(oldfile,filename);
 			strcpy(filename,tmpname);
-			len = (int)include_file(tmpname,line,size,linenum);
+			int len = (int)include_file(tmpname,line,size,linenum);
 			strcpy(filename,oldfile);
 			add_depend(filename,tmpname);
-			if ( len<0 )
+			if ( len < 0 )
 			{
 				output_error("%s(%d): unable to include load [%s] from temp file '%s'", filename, linenum, value,tmpname);
 				if ( old_stack ) global_restore(old_stack);
@@ -7140,10 +7277,17 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 			}
 			else
 			{
-				sprintf(line+len,"@%s;%d\n",filename,linenum);
+				snprintf(line+len,size-len-1,"@%s;%d\n",filename,linenum);
 				if ( old_stack ) global_restore(old_stack);
 				return TRUE;
 			}
+		}
+		else if (sscanf(term, "(%[^)])", value) == 1)
+		{
+			/* C include file */
+			IN_MYCONTEXT output_verbose("executing include shell \"%s\"", value);
+			my_instance->subcommand("%s",value);
+			return TRUE;
 		}
 		else
 		{
@@ -7184,7 +7328,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		{
 			if ( strcmp(options,"") != 0 )
 			{
-				sprintf(varname,"%s_load_options",ext+1);
+				snprintf(varname,sizeof(varname)-1,"%s_load_options",ext+1);
 				int old_global_strictnames = global_strictnames;
 				if ( global_isdefined(varname) )
 				{
@@ -7412,8 +7556,8 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		{
 			command++;
 		}
-		char command_line[1024];
-		sprintf(command_line,"%s/gridlabd-%s",global_execdir,command);
+		char command_line[4096];
+		snprintf(command_line,sizeof(command_line)-1,"%s/gridlabd-%s",global_execdir,command);
 		output_verbose("executing system(%s)", command_line);
 		global_return_code = my_instance->subcommand("%s",command_line);
 		if( global_return_code != 0 )
@@ -7444,6 +7588,31 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		if( global_return_code != 0 )
 		{
 			syntax_error(filename,linenum,"#exec %s -- system('%s') failed with status %d", value, value, global_return_code);
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		else
+		{
+			strcpy(line,"\n");
+			return TRUE;
+		}
+	}
+	else if (strncmp(line,"#exec",5)==0)
+	{
+		char *term = strchr(line+5,' ');
+		char value[1024];
+		if (term==NULL)
+		{
+			syntax_error(filename,linenum,"#system missing system call");
+			strcpy(line,"\n");
+			return FALSE;
+		}
+		strcpy(value, strip_right_white(term+1));
+		IN_MYCONTEXT output_debug("%s(%d): executing system(char *cmd='%s')", filename, linenum, value);
+		global_return_code = system(value);
+		if( global_return_code != 0 )
+		{
+			syntax_error(filename,linenum,"error executing system(char *cmd='%s') -> non-zero exit code (status=%d)", value, global_return_code);
 			strcpy(line,"\n");
 			return FALSE;
 		}
@@ -7561,79 +7730,9 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if ( strncmp(line, "#version", 8) == 0 )
 	{
-		int criteria = 0;
-		bool invert = false;
-		char *next = NULL, *last = NULL;
-		bool ok = false;
-		while ( (next=strtok_r(next?NULL:line+9," \t",&last)) )
+		if ( ! version_check(line+9) )
 		{
-			unsigned int major=0, minor=0, patch=0, build=0;
-			char value1[1024], value2[1024];
-			if ( next[0] == '\0' )
-			{
-				continue;
-			}
-			if ( next[0] == '-' )
-			{
-				if ( strcmp(next,"-lt") == 0 )
-				{
-					criteria = -1;
-					invert = false;					
-				}
-				else if ( strcmp(next,"-le") == 0 )
-				{
-					criteria = +1;
-					invert = true;
-				}
-				else if ( strcmp(next,"-eq") == 0 )
-				{
-					criteria = 0;
-					invert = false;
-				}
-				else if ( strcmp(next,"-ge") == 0 )
-				{
-					criteria = -1;
-					invert = true;					
-				}
-				else if ( strcmp(next,"-gt") == 0 )
-				{
-					criteria = +1;
-					invert = false;
-				}
-				else if ( strcmp(next,"-ne") == 0 )
-				{
-					criteria = 0;
-					invert = true;
-				}
-				else
-				{
-					output_error_raw("%s(%d): version test '%s' is not valid",filename,linenum,next);
-					return FALSE;
-				}
-				continue;
-			}
-			else if ( sscanf(next,"%u.%u.%u",&major,&minor,&patch) > 1 )
-			{
-				sprintf(value1,"%u.%u.%u",global_version_major, global_version_minor, global_version_patch);
-				sprintf(value2,"%u.%u.%u",major,minor,patch);
-			}
-			else if ( sscanf(next,"%u",&build) == 1 )
-			{
-				sprintf(value1,"%06d",global_version_build);
-				sprintf(value2,"%06d",build);
-			}
-			else
-			{
-				sprintf(value1,"%s",global_version_branch);
-				sprintf(value2,"%s",next);
-			}
-			bool test = (strcmp(value1,value2) == criteria);
-			ok |= ( invert ? !test : test);
-			IN_MYCONTEXT output_debug("version check: strcmp('%s','%s') %s %d -> %s, ok is now %s",value1,value2,invert?"!=":"==",criteria,test^invert?"true":"false",ok?"true":"false");
-		}
-		if ( ! ok )
-		{
-			output_error_raw("%s(%d): version '%d.%d.%d-%d-%s' does not satisfy the version requirement",filename,linenum,
+			syntax_error(filename,linenum,"version '%d.%d.%d-%d-%s' does not satisfy the version requirement",
 				global_version_major, global_version_minor, global_version_patch, global_version_build, global_version_branch);
 			strcpy(line,"\n");
 			return FALSE;
@@ -7648,12 +7747,12 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		char cmd[1024];
 		if ( sscanf(line+8,"%d %1023[^\n]",&xc,cmd) < 2 )
 		{
-			output_error_raw("%s(%d): " "#on_exit syntax error", filename,linenum);
+			syntax_error(filename,linenum,"#on_exit syntax error");
 			return FALSE;
 		}
 		else if ( ! my_instance->add_on_exit(xc,cmd) )
 		{
-			output_error_raw("%s(%d): " "#on_exit %d command '%s' failed", filename,linenum,xc,cmd);
+			syntax_error(filename,linenum,"#on_exit %d command '%s' failed", xc,cmd);
 			return FALSE;
 		}
 		else
@@ -7667,7 +7766,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 		char name[256];
 		if ( sscanf(line+7,"%s",name) == 0 )
 		{
-			output_error_raw("%s(%d): " "#begin macro missing language term", filename, linenum);
+			syntax_error(filename,linenum,"#begin macro missing language term");
 			return FALSE;
 		}
 		strcpy(line,"\n");
@@ -7719,7 +7818,6 @@ STATUS GldLoader::loadall_glm(const char *fname) /**< a pointer to the first cha
 	char file[1024];
 	strcpy(file,fname);
 	OBJECT *obj, *first = object_get_first();
-	//char *buffer = NULL, *p = NULL;
 	char *p = NULL;
 	char buffer[20480];
 	int fsize = 0;
@@ -7899,7 +7997,7 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 		}
 		output_verbose("changing output to '%s'", to);
 	}
-	int rc = my_instance->subcommand("/usr/local/bin/python3 %s -i %s -o %s %s",converter_path,from,to,unquoted);
+	int rc = my_instance->subcommand("%s %s -i %s -o %s %s",(const char*)global_pythonexec,converter_path,from,to,unquoted);
 	if ( rc != 0 )
 	{
 		output_error("%s: return code %d",converter_path,rc);
@@ -7911,7 +8009,12 @@ bool GldLoader::load_import(const char *from, char *to, int len)
 
 STATUS GldLoader::load_python(const char *filename)
 {
-	return my_instance->subcommand("/usr/local/bin/python3 %s",filename) == 0 ? SUCCESS : FAILED;
+	extern PyObject *gridlabd_module;
+	if ( gridlabd_module == NULL )
+	{
+		python_embed_init(0,NULL);
+	}
+	return python_embed_import(filename,global_pythonpath) == NULL ? FAILED : SUCCESS;
 }
 
 /** Load a file
@@ -7925,7 +8028,9 @@ STATUS GldLoader::loadall(const char *fname)
 	{
 		/* if nothing requested only config files are loaded */
 		if ( fname == NULL )
+		{
 			return SUCCESS;
+		}
 
 		char file[1024] = "";
 		if ( fname )
@@ -7933,6 +8038,11 @@ STATUS GldLoader::loadall(const char *fname)
 			strcpy(file,fname);
 		}
 		char *ext = fname ? strrchr(file,'.') : NULL ;
+		if ( ext == NULL )
+		{
+			output_error("'%s' is not valid", fname);
+			return FAILED;
+		}
 		add_depend(filename,fname);
 
 		// python script
@@ -8006,7 +8116,7 @@ STATUS GldLoader::loadall(const char *fname)
 
 		/* handle default extension */
 		strcpy(filename,file);
-		if (ext==NULL || ext<file+strlen(file)-5)
+		if ( ext == NULL || ext < file+strlen(file)-5 )
 		{
 			ext = filename+strlen(filename);
 			strcat(filename,".glm");

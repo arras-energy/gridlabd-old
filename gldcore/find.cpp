@@ -274,7 +274,7 @@ FINDLIST *find_objects(FINDLIST *start, ...)
 	if (start==FL_GROUP)
 	{
 		FINDPGM *pgm;
-		va_list(ptr);
+		va_list ptr;
 		va_start(ptr,start);
 		pgm = find_pgm_new(va_arg(ptr,char*));
 		if (pgm!=NULL){
@@ -289,7 +289,7 @@ FINDLIST *find_objects(FINDLIST *start, ...)
 	for (obj=object_get_first(); obj!=NULL; obj=obj->next)
 	{
 		FINDTYPE ftype;
-		va_list(ptr);
+		va_list ptr;
 		va_start(ptr,start);
 		while ((ftype=(FINDTYPE)va_arg(ptr,int)) != FT_END)
 		{
@@ -1287,8 +1287,9 @@ const char *find_file(const char *name, /**< the name of the file to find */
 	/* locate unit file on GLPATH if not found locally */
 	if ( glpath != NULL )
 	{
-		strncpy(envbuf, glpath, sizeof(envbuf));
-		dir = strtok(envbuf, delim);
+		strncpy(envbuf, glpath, sizeof(envbuf)-1);
+		char *last;
+		dir = strtok_r(envbuf, delim,&last);
 		while (dir)
 		{
 			snprintf(filepath, sizeof(filepath), "%s%s%s", dir, pathsep, name);
@@ -1297,7 +1298,7 @@ const char *find_file(const char *name, /**< the name of the file to find */
 				strncpy(buffer,filepath,len);
 				return buffer;
 			}
-			dir = strtok(NULL, delim);
+			dir = strtok_r(NULL, delim, &last);
 		}
 	}
 

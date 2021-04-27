@@ -1,0 +1,22 @@
+// gridlabd.glm
+//
+// This GLM file is used to generate a complete data dictionary for the support modules
+//
+
+#option compile
+
+module assert;
+module climate;
+module commercial;
+module generators;
+module industrial;
+module influxdb;
+module market;
+module optimize;
+module powerflow;
+module reliability;
+module residential;
+module revenue;
+module tape;
+
+#output "gridlabd.md"

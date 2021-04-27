@@ -31,8 +31,10 @@ typedef unsigned short OBJECTSIZE; /** Object data size */
 typedef unsigned int OBJECTNUM; /** Object id number */
 typedef const char * OBJECTNAME; /** Object name */
 typedef char FULLNAME[1024]; /** Full object name (including space name) */
+typedef unsigned long long HASH;
 
 #define PADDR_X(X,T) ((char*)&((T)->X)-(char*)(T))
+HASH hash(OBJECTNAME name);
 
 /* object flags */
 #define OF_NONE			0x00000000	/**< Object flag; none set */
@@ -51,6 +53,22 @@ typedef char FULLNAME[1024]; /** Full object name (including space name) */
 #define OF_DEBUG		0x00040000  /**< Object flag; disables debug messages from the object */
 #define OF_VERBOSE		0x00080000  /**< Object flag; disables verbose messages from the object */
 #define OF_SILENT		0x000f0000	/**< Object flag; disables all messages from the object */
+
+typedef struct s_headerdata
+{
+	const char *name;
+	const char *ptype;
+	const char *access;
+	const char *(*tostr)(struct s_object_list *);
+	int size;
+} HEADERDATA;
+
+HEADERDATA *object_headerdata_getfirst(void);
+HEADERDATA *object_headerdata_getnext(HEADERDATA *item);
+const char *object_headerdata_getname(HEADERDATA *item);
+const char *object_headerdata_getstring(HEADERDATA *item,struct s_object_list *obj);
+const char *object_headerdata_getaccess(HEADERDATA *item);
+const char *object_headerdata_gettype(HEADERDATA *item);
 
 typedef struct s_namespace {
 	FULLNAME name;
@@ -79,15 +97,7 @@ typedef enum {
 	/* add profile items here */
 	_OPI_NUMITEMS,
 } OBJECTPROFILEITEM;
-typedef struct s_eventhandlers {
-	char *init;
-	char *precommit;
-	char *presync;
-	char *sync;
-	char *postsync;
-	char *commit;
-	char *finalize;
-} EVENTHANDLERS;
+
 typedef struct s_object_list {
 	OBJECTNUM id; /**< object id number; globally unique */
 	CLASS *oclass; /**< object class; determine structure of object data */
@@ -357,7 +367,7 @@ typedef struct s_callbacks {
 	int (*call_external_callback)(const char*, void *);
 	struct {
 		PyObject *(*import)(const char *module, const char *path);
-		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs);
+		bool (*call)(PyObject *pModule, const char *method, const char *vargsfmt, va_list varargs, void *result);
 	} python;
 	long unsigned int magic; /* used to check structure alignment */
 } CALLBACKS; /**< core callback function table */
@@ -428,6 +438,7 @@ const char *object_property_to_string(OBJECT *obj, const char *name, char *buffe
 const char *object_property_to_string_x(OBJECT *obj, PROPERTY *prop, char *buffer, int sz);
 const char *object_get_unit(OBJECT *obj, const char *name);
 OBJECTRANK object_set_rank(OBJECT *obj, OBJECTRANK rank);
+int object_get_value(OBJECT *obj, PROPERTY *prop, char *value, int size);
 
 OBJECT *object_find_by_id(OBJECTNUM id);
 OBJECT *object_get_first(void);
@@ -447,7 +458,6 @@ double convert_to_latitude(const char *buffer);
 double convert_to_longitude(const char *buffer);
 
 PROPERTY *object_flag_property(void);
-PROPERTY *object_access_property(void);
 
 NAMESPACE *object_current_namespace(); /**< access the current namespace */
 void object_namespace(char *buffer, int size); /**< get the namespace */

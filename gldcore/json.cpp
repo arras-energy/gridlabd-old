@@ -185,9 +185,23 @@ int GldJsonWriter::write_properties(FILE *fp)
 int GldJsonWriter::write_classes(FILE *fp)
 {
 	int len = 0;
-	CLASS *oclass;
+
+	len += write(",\n\t\"header\" : {");
+	for ( HEADERDATA *item = object_headerdata_getfirst() ; item != NULL ; item = object_headerdata_getnext(item) )
+	{
+		if ( item != object_headerdata_getfirst() )
+		{
+			len += write(",");
+		}
+		len += write("\n\t\t\"%s\" : {", item->name);
+		len += write("\n\t\t\t\"type\" : \"%s\",", item->ptype);
+		len += write("\n\t\t\t\"access\" : \"%s\"", item->access);
+		len += write("\n\t\t}");
+	}
+	len += write("\n\t}");
+
 	len += write(",\n\t\"classes\" : {");
-	for ( oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
+	for ( CLASS *oclass = class_get_first_class() ; oclass != NULL ; oclass = oclass->next )
 	{
 		PROPERTY *prop;
 		if ( oclass != class_get_first_class() )
@@ -199,6 +213,10 @@ int GldJsonWriter::write_classes(FILE *fp)
 			TUPLE("parent","%s",oclass->parent->name );
 		}
 		TUPLE("trl","%u",oclass->trl);
+		if ( oclass->module )
+		{
+			TUPLE("module","%s",oclass->module->name);
+		}
 		TUPLE("profiler.numobjs","%u",oclass->profiler.numobjs);
 		TUPLE("profiler.clocks","%llu",oclass->profiler.clocks);
 		TUPLE("profiler.count","%u",oclass->profiler.count);
@@ -259,15 +277,19 @@ int GldJsonWriter::write_classes(FILE *fp)
 			}
 			if ( prop->unit != NULL )
 			{
-				write(",\n\t\t\t\t\"unit\" : \"%s\"",prop->unit->name);
+				len += write(",\n\t\t\t\t\"unit\" : \"%s\"",prop->unit->name);
 			}
 			if ( prop->default_value != NULL )
 			{
 				PROPERTYSPEC *spec = property_getspec(prop->ptype);
 				if ( spec != NULL && prop->default_value != spec->default_value )
 				{	
-					write(",\n\t\t\t\t\"default\" : \"%s\"",prop->default_value);
+					len += write(",\n\t\t\t\t\"default\" : \"%s\"",prop->default_value);
 				}
+			}
+			if ( prop->description != NULL )
+			{
+				len += write(",\n\t\t\t\t\"description\" : \"%s\"",prop->description);
 			}
 			len += write("\n\t\t\t}");
 		}
@@ -446,7 +468,7 @@ int GldJsonWriter::write_objects(FILE *fp)
 		if ( convert_from_timestamp(obj->clock,buffer,buffer_size) )
 			TUPLE("clock","%s",buffer);
 		if ( obj->valid_to > TS_ZERO && obj->valid_to < TS_NEVER ) TUPLE("valid_to","%llu",(int64)(obj->valid_to));
-		if ( obj->schedule_skew != 0 ) TUPLE("schedule_skew","%llu",obj->schedule_skew);
+		if ( obj->schedule_skew != 0 ) TUPLE("schedule_skew","%lld",obj->schedule_skew);
 		if ( obj->in_svc > TS_ZERO && obj->in_svc < TS_NEVER ) TUPLE("in","%llu",(int64)(obj->in_svc));
 		if ( obj->out_svc > TS_ZERO && obj->out_svc < TS_NEVER ) TUPLE("out","%llu",(int64)(obj->out_svc));
 		TUPLE("rng_state","%llu",(int64)(obj->rng_state));
@@ -508,10 +530,45 @@ int GldJsonWriter::write_objects(FILE *fp)
             else if ( prop->ptype == PT_complex )
             {
 				complex *c = object_get_complex_quick(obj,prop);
-				if ( prop->unit )
-					len += write(",\n\t\t\t\"%s\": \"%g%+gj %s\"", prop->name, c->Re(), c->Im(), prop->unit->name);
+				const char *xs="real", *ys="imag", *nt="j";
+				double x = c->Re(), y = c->Im();
+				if ( global_json_complex_format&JCF_DEGREES )
+				{
+					x = c->Mag(); xs = "mag";
+					y = c->Ang(); ys = "ang";
+					nt = "d";
+				}
+				else if ( global_json_complex_format&JCF_RADIANS )
+				{
+					x = c->Mag(); xs = "mag";
+					y = c->Arg(); ys = "arg";
+					nt = "r";
+				}
+            	if ( global_json_complex_format&JCF_LIST )
+            	{
+					if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": [%g,%g,\"%s\"]", prop->name, x, y, prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": [%g,%g]", prop->name, x, y);
+				}
+				else if ( global_json_complex_format&JCF_DICT )
+				{
+					if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": {\"%s\":%g,\"%s\":%g,\"unit\":\"%s\"}", prop->name, xs, x, ys, y, prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": {\"%s\":%g,\"%s\":%g}", prop->name, xs, x, ys, y);
+				}
 				else
-					len += write(",\n\t\t\t\"%s\": \"%g%+gj\"", prop->name, c->Re(), c->Im());
+				{
+					if ( (global_json_complex_format&0x03) != 0 )
+					{
+						output_warning("global_json_complex_format=%d is not valid, using STRING=0 instead", global_json_complex_format);
+					}
+					if ( prop->unit )
+						len += write(",\n\t\t\t\"%s\": \"%g%+g%s %s\"", prop->name, x, y, nt, prop->unit->name);
+					else
+						len += write(",\n\t\t\t\"%s\": \"%g%+g%s\"", prop->name, x, y, nt);
+            	}
             }
             else
             {
@@ -563,7 +620,7 @@ int GldJsonWriter::write_output(FILE *fp)
 	int len = 0;
 	json = fp;
 	len += write("{\t\"application\": \"gridlabd\",\n");
-	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,version);
+	len += write("\t\"version\" : \"%u.%u.%u\"",global_version_major,global_version_minor,global_version_patch);
 	if ( (global_filesave_options&FSO_MODULES) == FSO_MODULES )
 	{
 		len += write_modules(fp);

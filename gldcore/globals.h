@@ -376,6 +376,14 @@ GLOBAL char global_double_format[32] INIT("%+lg"); /**< the format to use when p
 /* Variable: global_complex_format */
 GLOBAL char global_complex_format[256] INIT("%+lg%+lg%c"); /**< the format to use when processing complex numbers */
 
+typedef enum {
+ 	CNF_DEFAULT, 	/**< complex numbers are left to whatever format the notation flag is set to */
+ 	CNF_RECT,     	/**< complex numbers are forced into rectangular format for outputs */
+ 	CNF_POLAR_DEG, 	/**< complex numbers are forced into polar format with degree angles */
+ 	CNF_POLAR_RAD, 	/**< complex numbers are forced into polar format with radian angles */
+ } COMPLEXCONVERFORMAT; /**< determines the type of run */
+ GLOBAL COMPLEXCONVERFORMAT global_complex_output_format INIT(CNF_DEFAULT);	/**< use whatever the numbers already are */
+
 /* Variable: global_object_format */
 GLOBAL char global_object_format[32] INIT("%s:%d"); 
 
@@ -671,6 +679,15 @@ GLOBAL char1024 global_daemon_configfile INIT("gridlabd.cnf"); /**< name of daem
 /* Variable: global_server_keepalive */
 GLOBAL bool global_server_keepalive INIT(FALSE); /**< keep server alive after simulation finishes */
 
+/* Variable: global_json_complex_format */
+#define JCF_STRING  0x0000
+#define JCF_LIST    0x0001
+#define JCF_DICT    0x0002
+#define JCF_DEGREES 0x0010
+#define JCF_RADIANS 0x0020
+
+GLOBAL enumeration global_json_complex_format INIT(JCF_STRING);
+
 typedef enum {
 	DMC_MAIN		= 0x0000000000000001,
 	DMC_CMDARG		= 0x0000000000000002,
@@ -753,7 +770,7 @@ typedef enum {
 	GSO_NOGLOBALS	= 0x0004,
 	GSO_NODEFAULTS	= 0x0008,
 	GSO_MINIMAL 	= 0x000f,
-	GSO_ORIGINAL	= 0x001f,
+	GSO_ORIGINAL	= 0x0010,
 } GLMSAVEOPTIONS;
 
 /* Variable: */
@@ -786,6 +803,20 @@ GLOBAL set global_filesave_options INIT(FSO_ALL); 		/**< save options */
 
 /* Variable: global_datadir */
 GLOBAL char1024 global_datadir INIT("");
+
+/* Variable: global_pythonpath */
+GLOBAL char1024 global_pythonpath INIT(".");
+
+/* Variable: global_pythonexec */
+GLOBAL char1024 global_pythonexec INIT(PYTHON_EXEC);
+
+/* Variable: global_rusage_rate */
+GLOBAL int64 global_rusage_rate INIT(0);
+
+/* Variable: global_rusage_file */
+GLOBAL char1024 global_rusage_file INIT("gridlabd-rusage.csv");
+
+GLOBAL char1024 global_rusage_data INIT("{}");
 
 #undef GLOBAL
 #undef INIT
