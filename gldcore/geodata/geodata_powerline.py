@@ -58,8 +58,8 @@ def linesway(**kwargs):
 
 def apply(data,options=default_options,config=default_config):
     result = pandas.DataFrame(data)
-    result["linesag"] = linesag(data)
-    result["linesway"] = linesway(data)
+    result["linesag"] = linesag(data=data)
+    result["linesway"] = linesway(data=data)
     return result
 
 # perform validation tests
