@@ -99,7 +99,7 @@ bin_SCRIPTS += gldcore/gridlabd
 
 GLD_SOURCES_PLACE_HOLDER += gldcore/build.h
 BUILT_SOURCES += gldcore/build.h
-CLEANFILES += gldcore/build.h origin.txt
+CLEANFILES += $(top_srcdir)gldcore/build.h origin.txt
 
 pkginclude_HEADERS =
 pkginclude_HEADERS += gldcore/build.h
@@ -128,7 +128,7 @@ gldcore/build.h: buildnum
 
 buildnum: utilities/build_number
 	@/bin/bash -c "source $(top_srcdir)/utilities/build_number $(top_srcdir) gldcore/build.h"
-	@/bin/bash -c "source utilities/update_origin.sh" > origin.txt
+	@/bin/bash -c "source $(top_srcdir)/utilities/update_origin.sh" > origin.txt
 
 weather:
 	@(echo "Installing weather data manager" && mkdir -p $(prefix)/share/gridlabd/weather && chmod 2777 $(prefix)/share/gridlabd/weather && chmod 1755 $(bindir)/gridlabd-weather)
