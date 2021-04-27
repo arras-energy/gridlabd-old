@@ -37,5 +37,5 @@
 #geodata merge -D distance ${DIR:-.}/path_example.csv -k latitude,longitude
 
 #ifexist "../test_geodata.txt"
-#on_exit 0 diff ../test_geodata.txt gridlabd.out >/dev/stderr
+#on_exit 0 diff ../test_geodata.txt gridlabd.out >>gridlabd.err
 #endif
