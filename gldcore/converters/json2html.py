@@ -136,7 +136,12 @@ def main(argv):
                 opacity = 0.3
             else:
                 opacity = 0.7
-            obj = folium.PolyLine([(lat0,lon0),(lat1,lon1)],color=color,weight=len(phases)*2,opacity=opacity,popup=popup,name=name)
+            pos0 = (lat0,lon0)
+            pos1 = (lat1,lon1)
+            if pos0 != pos1:
+                obj = folium.PolyLine([pos0,pos1],color=color,weight=len(phases)*2,opacity=opacity,popup=popup,name=name)
+            else:
+                obj = folium.Marker(pos,icon=icon,popup=popup,name=name)
         except: # apparently not a link, so it's a node or other object
             if not icon:
                 warning(f"object '{name}' has no known icon (class '{oclass})'")
