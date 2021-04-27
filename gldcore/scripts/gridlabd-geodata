@@ -176,6 +176,9 @@ selected as follows:
                     not raise a KeyError exception or error message. This is
                     because CSV tables may contain multiple classes with some
                     columns that are not defined for every class.
+  TABLE[:<fields>]  fields are output as a human readable table.  Note that if
+                    too many columns or rows will be output, then intermediate
+                    values will be suppressed and replaced with ellipses.
 
 DEVELOPER API
 
@@ -559,8 +562,12 @@ def set_position(data):
 
 def set_index(data,index=None,silent=False):
     """Set the specified index on the data"""
+
+    global KEYINDEX
     if index is None:
         index = KEYINDEX
+
+    global RESOLUTION
     if RESOLUTION and index != "position":
         warning(f"using index '{index}' cannot be used with '--resolution={RESOLUTION}' option")
     if index is None:
@@ -592,9 +599,16 @@ def set_index(data,index=None,silent=False):
 
 def get_args(args):
     """Get the arguments, options, and configuration"""
+
     data = []
+
+    global DEFAULTOPTIONS
     options = DEFAULTOPTIONS
+
+    global CONFIGDATA
     config = CONFIGDATA
+
+    global MODULE
     if MODULE:
         options.update(MODULE.default_options)
         config.update(MODULE.default_config)
@@ -624,6 +638,7 @@ def get_args(args):
             for item in items:
                 specs = item.split("=")
                 if len(specs) == 1:
+                    global DATASET
                     if DATASET is None:
                         error(f"'{arg}' is not recognized without a dataset ",E_SYNTAX)
                     else:
@@ -645,6 +660,8 @@ def get_args(args):
         KEYINDEX = "position"
     if KEYINDEX in ["position","location"]:
         data = set_index(data)
+
+    global OPTIONS
     OPTIONS = options
     CONFIGDATA = config
     return data,options,config
@@ -656,7 +673,7 @@ def merge(args):
         result = MODULE.apply(data,options,config)
     except Exception as err:
         result = err
-    if type(result) is Exception:
+    if type(result) in [Exception,TypeError] :
         if DEBUG:
             import traceback
             print("Traceback (most recent call last):")
@@ -665,8 +682,11 @@ def merge(args):
         else:
             error(str(result))
         result = None
-    else:
+    elif type(result) is pandas.DataFrame:
         result = set_index(result)
+    else:
+        warning(f"merge result is a recognized object type (type is '{type(result)}')")
+        result = None
     debug(f"merge(args='{args}') --> data = {dataframe_to_table(result)}options = {json.dumps(options,indent=4)}\nconfig = {json.dumps(config,indent=4)}")
     return result
 
@@ -807,6 +827,13 @@ def write_glm(data):
                         print(f"\t{prop} \"{value}\";",file=fh)
             if not modify:
                 print("}",file=fh)
+
+def write_table(data):
+    specs = FORMAT.split(":")
+    if len(specs) == 1:
+        print(data)
+    else:
+        print(data[specs[1].split(",")])
 
 def load_dataset(args):
     """Load the specified dataset implementation"""
@@ -987,7 +1014,7 @@ def main(argc,argv):
             load_dataset([DATASET])
         elif argv[n] in ["-f","--format"]:
             n += 1
-            if not argv[n].split(":")[0] in ["CSV","RAW","JSON","POS","GLM","FIELD","POS"]:
+            if not argv[n].split(":")[0] in ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE"]:
                 error(f"format '{argv[n]}' is not recognized",E_SYNTAX)
             FORMAT = argv[n]
             verbose(f"output format is set to '{FORMAT}'")
@@ -1077,6 +1104,8 @@ def main(argc,argv):
             write_glm(data)
         elif FORMAT == "POS":
             write_pos(data)
+        elif FORMAT == "TABLE" or FORMAT.startswith("TABLE:"):
+            write_table(data)
         else:
             error(f"format '{FORMAT}' is invalid",E_SYNTAX)
 
