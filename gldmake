@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# This script will automatically choose the correct build process 
+# This script will automatically choose the correct build process
 # given the status of the source tree.
 #
 # Option 1: new build --> autoreconf -isf && ./configure && make ...
@@ -13,9 +13,17 @@
 SOURCE=$(./build-aux/version.sh --install)
 TARGET=$(gridlabd --version=install)
 
+if [ ! -x "./$(basename $0)" ]; then
+    echo "ERROR: gldmake must be run from the top source directory"
+    exit 1
+fi
+
+mkdir -p build
+cd build
+
 if [ ! -f Makefile ]; then
 	echo "$0: no makefile --> first time build"
-	COMMAND='autoreconf -isf && ./configure && make'
+	COMMAND='(cd ..;autoreconf -isf) && ../configure && make'
 elif [ "$SOURCE" == "$TARGET" ]; then
 	echo "$0: build and install versions match --> simple rebuild"
 	COMMAND='make'
