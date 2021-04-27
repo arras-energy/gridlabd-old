@@ -294,6 +294,8 @@ distclean-local: python-clean
 	@rm -f $(top_srcdir)/gridlabd.spec
 	@rm -f $(top_srcdir)/gridlabd.bin origin.txt
 	@rm -rf $(top_srcdir)/build
+	@rm -rf $(top_srcdir)/gldcore/config.h.in
+	@rm -rf $(top_srcdir)/gldcore/build.h
 	@rm -rf $(top_srcdir)/documents/html
 	@rm -f $(top_srcdir)/validate.txt
 
