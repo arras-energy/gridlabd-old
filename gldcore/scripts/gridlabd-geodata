@@ -177,7 +177,7 @@ selected as follows:
                     because CSV tables may contain multiple classes with some
                     columns that are not defined for every class.
 
-  TABLE[:[*][<fields>]]  
+  TABLE[:[*][<fields>]]
                     fields are output as a human readable table.  Note that if
                     too many columns or rows will be output, then intermediate
                     values will be suppressed and replaced with ellipses unless
@@ -345,6 +345,7 @@ import json
 import math, numpy
 import pandas
 import haversine
+import geopandas
 
 NAME = "geodata"
 GEODATA = sys.modules[__name__]
@@ -847,6 +848,16 @@ def write_table(data):
     else:
         print(data[specs[1].split(",")])
 
+def write_plot(data):
+    if "geometry" not in data.columns:
+        raise Exception(f"write_plot(): cannot plot data without geometry field")
+    specs = FORMAT.split(":")
+    if len(specs) == 1:
+        fig = geopandas.geopandas(data).plot()
+        fig.saveplot(OUTPUT)
+    else:
+        raise Exception(f"write_plot(): format '{FORMAT}' is not valid")
+
 def load_dataset(args):
     """Load the specified dataset implementation"""
     global DATASET
@@ -1026,7 +1037,7 @@ def main(argc,argv):
             load_dataset([DATASET])
         elif argv[n] in ["-f","--format"]:
             n += 1
-            if not argv[n].split(":")[0] in ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE"]:
+            if not argv[n].split(":")[0] in ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE","PLOT"]:
                 error(f"format '{argv[n]}' is not recognized",E_SYNTAX)
             FORMAT = argv[n]
             verbose(f"output format is set to '{FORMAT}'")
@@ -1118,6 +1129,8 @@ def main(argc,argv):
             write_pos(data)
         elif FORMAT == "TABLE" or FORMAT.startswith("TABLE:"):
             write_table(data)
+        elif FORMAT == "PLOT" or FORMAT.startswith("PLOT:"):
+            write_plot(data)
         else:
             error(f"format '{FORMAT}' is invalid",E_SYNTAX)
 
