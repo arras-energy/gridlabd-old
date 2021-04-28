@@ -172,7 +172,7 @@ selected as follows:
   RAW[:<fields>]    fields are output as a raw string
 
   GLM[:[@]<fields>] fields are output as GLM objects. If @ included, output is
-                    is GLM modify statements. Note that invalid fields name do
+                    is GLM modify statements. Note that invalid field names do
                     not raise a KeyError exception or error message. This is
                     because CSV tables may contain multiple classes with some
                     columns that are not defined for every class.
