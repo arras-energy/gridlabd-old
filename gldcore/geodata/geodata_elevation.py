@@ -45,7 +45,7 @@ units = {
 #
 # Implementation of address package
 #
-def apply(data, options=default_options, config=default_config):
+def apply(data, options=default_options, config=default_config, warning=print):
     """Get the elevation at the locations specified in data
 
     ARGUMENTS:

@@ -95,37 +95,37 @@ default_config = {
 #
 kmldata = None
 csvdata = None
-config = default_config
-options = default_options
+CONFIG = default_config
+OPTIONS = default_options
 
 def read_kml():
     """Read KML data from cache, and download from repo if necessary"""
     global kmldata
-    global config
+    global CONFIG
     if type(kmldata) == type(None):
-        if not os.path.exists(config["kmlfile"]):
+        if not os.path.exists(CONFIG["kmlfile"]):
             geopandas.io.file.fiona.drvsupport.supported_drivers['KML'] = 'rw'
-            kmldata = geopandas.read_file(config["kmlrepo"], driver="KML")
-            os.makedirs(config["cachedir"],exist_ok=True)
-            with open(config["kmlfile"], "wb") as fh:
+            kmldata = geopandas.read_file(CONFIG["kmlrepo"], driver="KML")
+            os.makedirs(CONFIG["cachedir"],exist_ok=True)
+            with open(CONFIG["kmlfile"], "wb") as fh:
                 pickle.dump(kmldata,fh)
         else:
-            with open(config["kmlfile"], "rb") as fh:
+            with open(CONFIG["kmlfile"], "rb") as fh:
                 kmldata = pickle.load(fh)
     return kmldata
 
 def read_csv():
     """Read CSV data from cache, and download from repo if necessary"""
     global csvdata
-    global config
+    global CONFIG
     if type(csvdata) == type(None):
-        if not os.path.exists(config["csvfile"]):
-            csvdata = pandas.read_csv(config["csvrepo"],
+        if not os.path.exists(CONFIG["csvfile"]):
+            csvdata = pandas.read_csv(CONFIG["csvrepo"],
                 na_values=["-999999","NOT AVAILABLE"])
-            os.makedirs(config["cachedir"],exist_ok=True)
-            csvdata.to_csv(config["csvfile"])
+            os.makedirs(CONFIG["cachedir"],exist_ok=True)
+            csvdata.to_csv(CONFIG["csvfile"])
         else:
-            csvdata = pandas.read_csv(config["csvfile"])
+            csvdata = pandas.read_csv(CONFIG["csvfile"])
     return csvdata
 
 def get_information(id,field=None):
@@ -179,19 +179,19 @@ def get_position(pos):
         return list(map(lambda x: float(x),pos.split(",")))
     return pos
 
-def apply(data, user_options=default_options, user_config=default_config):
+def apply(data, options=default_options, config=default_config, warning=print):
     """Obtain the utility information for the locations specified"""
 
-    global options
-    options = user_options
+    global CONFIG
+    CONFIG = config
 
-    global config
-    config = user_config
-
+    global OPTIONS
+    OPTIONS = options
+    
     csv_keys = read_csv().keys()
     info = {"latitude":[],"longitude":[]}
     if not type(options["fields"]) is str:
-        raise Exception(f"configured fields '{config['fields']}' is not valid")
+        raise Exception(f"configured fields '{CONFIG['fields']}' is not valid")
     options["fields"] = options["fields"].split(",")
     for field in options["fields"]:
         if field not in csv_keys:

@@ -673,7 +673,7 @@ def merge(args):
     """Merge directive implementation"""
     data,options,config = get_args(args)
     try:
-        result = MODULE.apply(data,options,config)
+        result = MODULE.apply(data,options,config,warning)
     except Exception as err:
         result = err
     if type(result) in [Exception,TypeError] :
@@ -839,7 +839,7 @@ def write_table(data):
         pandas.set_option('display.max_rows', None)
         pandas.set_option('display.max_columns', None)
         pandas.set_option('display.width', None)
-        pandas.set_option('display.max_colwidth', -1)
+        pandas.set_option('display.max_colwidth', None)
         if len(specs[1]) > 1:
             print(data[specs[1][1:].split(",")])
         else:

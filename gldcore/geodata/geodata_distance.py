@@ -48,7 +48,7 @@ units = {
 #
 # Implementation of address package
 #
-def apply(data, options=default_options, config=default_config):
+def apply(data, options=default_options, config=default_config, warning=print):
     """Perform distance calculation at locations in data
 
     ARGUMENTS:

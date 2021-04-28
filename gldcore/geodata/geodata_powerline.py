@@ -56,8 +56,9 @@ def linesag(**kwargs):
 def linesway(**kwargs):
     return TODO
 
-def apply(data,options=default_options,config=default_config):
+def apply(data,options=default_options,config=default_config, warning=print):
     result = pandas.DataFrame(data)
+    warning("powerline package is not fully implemented")
     result["linesag"] = linesag(data=data)
     result["linesway"] = linesway(data=data)
     return result

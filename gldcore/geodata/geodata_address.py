@@ -51,7 +51,7 @@ default_config = {
 #
 # Implementation of address package
 #
-def apply(data, options=default_options, config=default_config):
+def apply(data, options=default_options, config=default_config, warning=print):
     """Perform conversion between latitude,longitude and address
 
     ARGUMENTS:
