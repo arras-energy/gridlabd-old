@@ -42,7 +42,7 @@ from PIL import Image
 import pandas
 import json
 
-TODO=float('nan')
+TODO = float('nan')
 
 default_options = {
 }
@@ -57,7 +57,7 @@ def linesag(**kwargs):
     # Solve
     #
     #   sqrt(s**2-v**2) == 2*a*sinh(H/2/a)
-    #  
+    #
     # for a, where:
     #
     #   a is the parameter of the catenary equation y = a*cosh(x/a)
@@ -68,11 +68,11 @@ def linesag(**kwargs):
     # This requires a numerical method
     #
     # See https://en.wikipedia.org/wiki/Catenary
-    # 
+    #
     return TODO
 
 def linesway(**kwargs):
-    # 
+    #
     # Linesway
     #
     # TODO
@@ -104,14 +104,14 @@ def linegallop(**kwargs):
     #  1) Detuning pendulum
     #  2) Airflow spoiler
     #
-    return TODO  
+    return TODO
 
 def apply(data,options=default_options,config=default_config, warning=print):
     result = pandas.DataFrame(data)
 
     warning("powerline package is not fully implemented")
 
-    result["linesag"] = linesag(data=data)    
+    result["linesag"] = linesag(data=data)
     result["linesway"] = linesway(data=data)
     result["linegallop"] = lineheave(data=data)
     return result
@@ -124,12 +124,12 @@ if __name__ == '__main__':
     class TestPowerline(unittest.TestCase):
 
         def test_linesag(self):
-            self.assertEqual(linesag(TODO),TODO)
+            self.assertTrue(math.isnan(linesag(data=TODO)))
 
         def test_linesway(self):
-            self.assertEqual(linesway(TODO),TODO)
+            self.assertTrue(math.isnan(linesway(data=TODO)))
 
         def test_linegallop(self):
-            self.assertEqual(linegallop(TODO),TODO)
+            self.assertTrue(math.isnan(linegallop(data=TODO)))
 
     unittest.main()
