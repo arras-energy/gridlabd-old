@@ -382,13 +382,13 @@ int GldMain::run_on_exit(int return_code)
 	IN_MYCONTEXT output_verbose("elapsed runtime %d seconds", realtime_runtime());
 	IN_MYCONTEXT output_verbose("exit code %d", exec.getexitcode());
 
-    output_flushall();
 	for ( std::list<onexitcommand>::iterator cmd = exitcommands.begin() ; cmd != exitcommands.end() ; cmd++ )
 	{
 		if ( cmd->get_exitcode() == return_code
 			|| ( return_code != 0 && cmd->get_exitcode() == -1 )
 			)
 		{
+		    output_flushall();
 			new_return_code = cmd->run() >> 8;
 			if ( new_return_code != 0 )
 			{
@@ -405,6 +405,7 @@ int GldMain::run_on_exit(int return_code)
 
 	for ( std::list<EXITCALL>::iterator call = exitcalls.begin() ; call != exitcalls.end() ; call++ )
 	{
+	    output_flushall();
 		new_return_code = (*call)(return_code);
 		if ( new_return_code != 0 )
 		{
