@@ -51,16 +51,69 @@ default_config = {
 }
 
 def linesag(**kwargs):
+    #
+    # Linesag
+    #
+    # Solve
+    #
+    #   sqrt(s**2-v**2) == 2*a*sinh(H/2/a)
+    #  
+    # for a, where:
+    #
+    #   a is the parameter of the catenary equation y = a*cosh(x/a)
+    #   H is the horizontal distance (from data["distance"])
+    #   v is the vertical distance (from data["elevation"])
+    #   s is the length of the cable (from data["cablelen"])
+    #
+    # This requires a numerical method
+    #
+    # See https://en.wikipedia.org/wiki/Catenary
+    # 
     return TODO
 
 def linesway(**kwargs):
+    # 
+    # Linesway
+    #
+    # TODO
+    #
     return TODO
+
+def linegallop(**kwargs):
+    #
+    # Galloping due to icing effect
+    #
+    # Frequency calculation
+    #
+    #   F (Hz) = sqrt(T*g/W) * 0.5*n/L
+    #
+    # where:
+    #
+    #   T = conductor tension (N)
+    #   g = 9.81 m/s^2 (gravitational acceleration)
+    #   W = conductor weight (N/m)
+    #   L = conductor length
+    #   n = standing wave node count (>=1)
+    #
+    # See https://preformed.com/images/pdfs/Energy/Transmission/Motion_Control/Air_Flow_Spoiler/Conductor_Galloping_Basics-EN-ML-1166.pdf
+    #
+    # Magnitude calculation
+    #
+    # Mitigation strategies
+    #
+    #  1) Detuning pendulum
+    #  2) Airflow spoiler
+    #
+    return TODO  
 
 def apply(data,options=default_options,config=default_config, warning=print):
     result = pandas.DataFrame(data)
+
     warning("powerline package is not fully implemented")
-    result["linesag"] = linesag(data=data)
+
+    result["linesag"] = linesag(data=data)    
     result["linesway"] = linesway(data=data)
+    result["linegallop"] = lineheave(data=data)
     return result
 
 # perform validation tests
@@ -75,5 +128,8 @@ if __name__ == '__main__':
 
         def test_linesway(self):
             self.assertEqual(linesway(TODO),TODO)
+
+        def test_linegallop(self):
+            self.assertEqual(linegallop(TODO),TODO)
 
     unittest.main()
