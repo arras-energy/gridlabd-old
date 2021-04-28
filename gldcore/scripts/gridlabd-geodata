@@ -176,9 +176,12 @@ selected as follows:
                     not raise a KeyError exception or error message. This is
                     because CSV tables may contain multiple classes with some
                     columns that are not defined for every class.
-  TABLE[:<fields>]  fields are output as a human readable table.  Note that if
+
+  TABLE[:[*][<fields>]]  
+                    fields are output as a human readable table.  Note that if
                     too many columns or rows will be output, then intermediate
-                    values will be suppressed and replaced with ellipses.
+                    values will be suppressed and replaced with ellipses unless
+                    the field string starts with '*'.
 
 DEVELOPER API
 
@@ -832,6 +835,15 @@ def write_table(data):
     specs = FORMAT.split(":")
     if len(specs) == 1:
         print(data)
+    elif specs[1][0] == '*':
+        pandas.set_option('display.max_rows', None)
+        pandas.set_option('display.max_columns', None)
+        pandas.set_option('display.width', None)
+        pandas.set_option('display.max_colwidth', -1)
+        if len(specs[1]) > 1:
+            print(data[specs[1][1:].split(",")])
+        else:
+            print(data)
     else:
         print(data[specs[1].split(",")])
 
