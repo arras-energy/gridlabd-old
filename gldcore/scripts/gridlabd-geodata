@@ -677,7 +677,7 @@ def merge(args):
         result = MODULE.apply(data,options,config,warning)
     except Exception as err:
         result = err
-    if type(result) in [Exception,TypeError] :
+    if issubclass(type(result),Exception) :
         if DEBUG:
             import traceback
             print("Traceback (most recent call last):")
@@ -689,7 +689,7 @@ def merge(args):
     elif type(result) is pandas.DataFrame:
         result = set_index(result)
     else:
-        warning(f"merge result is a recognized object type (type is '{type(result)}')")
+        warning(f"merge result is not a recognized object type (type is '{type(result)}')")
         result = None
     debug(f"merge(args='{args}') --> data = {dataframe_to_table(result)}options = {json.dumps(options,indent=4)}\nconfig = {json.dumps(config,indent=4)}")
     return result
