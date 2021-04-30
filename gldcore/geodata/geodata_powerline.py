@@ -388,12 +388,13 @@ def linesway(data):
     data['linesway'] = float('nan') # default result
 
     if not 'wind_speed' in data.columns:
-        data['linesway'] = 0.0
-        return data
+        data['linesway'] = float('nan')
+        return data['linesway']
 
+    WARNING("linesway not implemented yet")
     data['linesway'] = TODO() # default result
 
-    return data
+    return data['linesway']
 
 def linegallop(data):
     """TODO"""
@@ -424,12 +425,13 @@ def linegallop(data):
     data['linegallop'] = float('nan') # default result
 
     if not 'ica_thickness' in data.columns:
-        data['linegallop'] = 0.0
-        return data
+        data['linegallop'] = float('nan')
+        return data['linegallop']
 
+    WARNING("linegallop not implemented yet")
     data['linegallop'] = TODO() # default result
 
-    return data
+    return data['linegallop']
 
 def apply(data, options=default_options, config=default_config, warning=print):
     global CABLETYPES
@@ -441,9 +443,18 @@ def apply(data, options=default_options, config=default_config, warning=print):
     OPTIONS = options
     global CONFIG
     CONFIG = config
-    result["linesag"] = linesag(data)
-    result["linesway"] = linesway(data)
-    result["linegallop"] = linegallop(data)
+    try:
+        result["linesag"] = linesag(data)
+    except Exception as err:
+        WARNING(f"linesag data unavailable: {err}")
+    try:
+        result["linesway"] = linesway(data)
+    except Exception as err:
+        WARNING(f"linesway data unavailable: {err}")
+    try:
+        result["linegallop"] = linegallop(data)
+    except Exception as err:
+        warning(f"linegallop data unavailable: {err}")
     return result
 
 # perform validation tests
@@ -460,8 +471,6 @@ if __name__ == '__main__':
         'horizontal_spacing' : [20.0,18.0,],
         'pole_height' : [18,20],
         'elevation' : [88.45,99.125],
-        'anchor' : [250,125],
-        'anchor_dir' : ['to 2',''],
         'cable_type' : ['TACSR/AC 610mm^2',None],
     })
 
