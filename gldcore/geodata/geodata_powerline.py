@@ -1,34 +1,92 @@
 """GridLAB-D Geodata Powerline Package
 
 The powerline package computes geographic information about powerlines, such as
-line sag and line sway.
+line sag, line sway, and line gallop.
 
-The 'location' directive accepts a list of pole locations and computes the line
-properties at those locations, which are nominally trivial. If resolution is
-specified, then the line properties are generated in increments of that distance
-between the specified pole locations.
+All powerline package calculations require the following data:
 
-The 'path' function accepts a list of CSV files containing latitude and
-longtitude for the pole locations. If resolution is specified, then the result
-is generated in increments of that distance.
+    latitude - required column in the data
 
-To compute "linesag" and "linesway", the following parameters must be provided
-either on the command line or as columns in the CSV file.
+        The latitude is specified as a float with positive north and negative
+        south orientation.
 
-  "cable_type"   This property is required to obtain the cable's physical
+    longitude - required column in the data
 
-  "wind_speed"   Optional. If omitted, the windspeed is assumed to be 0.
-  "wind_direction"     Optional. Required if windspeed is given.
-  "air_temperature" Optional. If omitted, the temperature is assumed to be 10C.
-  "powerflow"   Optional. If omitted, the powerflow is assumed to be 0MW.
-  "elevation"   Optional. If omitted, the pole elevations are assumed to be 0.
+        The longitude is specified as a float with position east and negative
+        west orientation.
 
-The values of "linesag" are given with respect to the first pole elevation in a
-pole pair vertically in meters. The values of "linesway" are given with respect
-to the line from pole to pole, horizontally in meters.  If the "linesway" is
-non-zero, the "linesag" will be computed according to the formula
+    pole_height - required column in the data
+
+        The pole height is specified in meters.
+
+    cable_type - required either in the data or provided in the options
+
+        The cable types are listed in the file geodata_powerline_cabletypes.csv
+        located in the GridLAB-D shared geodata folder, which is by default
+        /usr/local/share/gridlabd/geodata.
+
+    distance - optional column in the data, if absent it will be computed
+
+        The distance between from the first pole in the data series.
+
+    heading - optional column in the data, if absent it will computed
+
+        The heading from the last pole encountered in the data series.
+
+In addition, the following optional values are supported:
+
+    elevation - optional column in the data, by default 0.0
+
+    powerflow - optional column in the data, by default 0.0, may be provided in
+        the options
+
+    wind_speed - optional column in the data, by default 0.0, may be provided in
+        the options
+
+    wind_direction - optional column in the data, by default 0.0, may be
+        provided in the options
+
+    air_temperature - optional column in the data, by default 30 degC, may be
+        provided in the options
+
+    global_horizontal_irradiance - optional column in the data, by default
+        1000.0 W/m^2, may be provided in the options
+
+    ground_reflectance - optional column in the data, by default 0.3 pu, may be
+        provided in the options
+
+    ice_density - optional column in the data, by default 915.0 kg/m^3, may be
+        provided in the options
+
+    ice_thickness - optional column in the data, by default 0.0, may be
+        provided in the options
+
+The follows options may also be set:
+
+    nominal_temperature - the temperature at which line loads are based, by
+        default 15.0 degC.
+
+LINE SAG
+
+Line sag is the drop in line elevation above ground resulting from a
+combination of the line weight, line elasticity, and line temperature. Note
+that line sag may be affected by line sway (see below) insofar as line elevation
+about ground is reduced as line sway is increased.
+
+If the line sway is non-zero, the line sag will be computed according to the
+formula
 
   linesag(linesway)^2 = linesag(0)^2 - linesway^2
+
+LINE SWAY
+
+Line sway is the lateral displacement of the line as a result of lateral wind
+forces on the line.
+
+LINE GALLOP
+
+Line gallop is a vertical multi-nodal oscillation of a line resulting from the
+asymetric build up of ice on the line.
 
 """
 
