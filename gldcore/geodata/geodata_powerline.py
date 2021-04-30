@@ -352,7 +352,7 @@ def linesag(data):
             continue
 
         # TODO: back calculate intermediate values
-        dt, line['linesag'] = get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
+        line['linesag'] = get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
             power_flow,global_horizontal_irradiance,ground_reflectance,
             ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
         line_data = []
@@ -439,7 +439,7 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
         sag_elevation = z0-sag0*cos(sag_angle)
         dt = get_distance(p0,[p0[1]+d0_hori*(p1[0]-p0[0])/d_hori,p0[1]+d0_hori*(p1[1]-p0[1])/d_hori])
-    return dt, sag_elevation
+    return sag_elevation
 
 def linesway(data):
     """TODO"""
