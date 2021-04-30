@@ -171,7 +171,7 @@ def get_air_properties(temp):
     return specific_mass_temp, thermal_conductivity_temp, dynamic_viscosity_temp
 
 hold_values = {}
-def hold0(name,value=None,reset=False):
+def hold0(name,value=None):
     """Perform zero-order hold of value
 
     Returns the previous value of the named variable if curretn value is None.
@@ -181,21 +181,19 @@ def hold0(name,value=None,reset=False):
 
         name (str)      variable name
 
-        value (object)  hold value (None for hold value)
-
-        reset (bool)    boolean to force reset value to None
+        value (object)  hold value (None for hold value), or 'init' to use
+                        set to initial value of OPTIONS
 
     RETURNS
 
         object          current value or hold value
     """
     global hold_values
-    if value != None:
+    if value == 'init':
+        hold_values[name] = OPTIONS[name]
+    elif value != None:
         hold_values[name] = value
         return value
-    elif reset:
-        hold_values[name] = value
-        return None
     elif not name in hold_values.keys():
         WARNING(f"unable to get initial value of {name}")
         return None
@@ -273,14 +271,15 @@ def linesag(data):
     data['linesag'] = float('nan') # default result
 
     # read cable specs from cable type
-    if 'cable_type' not in data.columns:
+    global OPTIONS
+    if not 'cable_type' in data.columns and not 'cable_type' in OPTIONS.keys():
         WARNING("cannot compute line sag without any cable type")
-        return data
+        return data['linesag']
 
     # read optional initial hold values
     for name,value in OPTIONS.items():
         if not name in data.columns:
-            hold0(name,value,reset=True)
+            hold0(name,'init')
     air_temperature = hold0('air_temperature')
     wind_speed = hold0('wind_speed')
     wind_direction = hold0('wind_direction')
@@ -289,7 +288,7 @@ def linesag(data):
     global_horizontal_irradiance = hold0('global_horizontal_irradiance')
     ground_reflectance = hold0('ground_reflectance')
     ice_density = hold0('ice_density')
-    cable_type = hold0('cable_type',reset=True)
+    cable_type = hold0('cable_type')
 
     # check lat,lon
     if not 'latitude' in data.columns or not 'longitude' in data.columns:
@@ -298,14 +297,19 @@ def linesag(data):
 
     # TODO: vectorize this loop
     p1 = None
-    z1 = None
+    z1 = []
     line_data = []
+    line_sags = []
     for id,line in data.iterrows():
         if 'cable_type' in data.columns:
             cable_type = hold0('cable_type',line['cable_type'])
-        if cable_type not in CABLETYPES.index:
+        global CABLETYPES
+        if not cable_type:
+            WARNING(f"cable type not specified")
+            return data['linesag']
+        elif not cable_type in CABLETYPES.index:
             WARNING(f"cable type '{cable_type}' not found")
-            return data
+            return data['linesag']
         else:
             cable = CABLETYPES.loc[cable_type]
 
@@ -337,7 +341,7 @@ def linesag(data):
         if 'elevation' in data.columns and 'pole_height' in data.columns:
             z0 = line['elevation'] + line['pole_height']
         else:
-            z0 = None
+            z0 = 0.0
 
         # distance
         p0 = [line['latitude'],line['longitude']]
@@ -345,24 +349,28 @@ def linesag(data):
             d_hori = line['distance']
         elif p1 != None:
             d_hori = get_distance(p0,p1)
+            # TODO: back calculate intermediate values
+            for zz, ln in zip(z1,line_data):
+                ln['linesag'] = get_sag_value(d_hori,line,cable,p0,p1,z0,zz,
+                    power_flow,global_horizontal_irradiance,ground_reflectance,
+                    ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
+            line_data = []
+            z1 = []
         else:
-            p1 = p0
-            z1 = z0
+            p1.append(p0)
+            z1.append(z0)
             line_data.append(line)
             continue
 
-        # TODO: back calculate intermediate values
-        line['linesag'] = get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
-            power_flow,global_horizontal_irradiance,ground_reflectance,
-            ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
-        line_data = []
 
-    return data
+
+    return data['linesag']
 
 def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         power_flow,global_horizontal_irradiance,ground_reflectance,
         ice_thickness,wind_direction,air_temperature,wind_speed,ice_density):
     """Calculate line sag values"""
+    global OPTIONS
     d_vert = abs(z0-z1)
     k_init = get_line_tension_coefficient(d_hori)
     span = sqrt(d_hori*d_hori + d_vert*d_vert)
@@ -492,27 +500,24 @@ def linegallop(data):
     return data['linegallop']
 
 def apply(data, options=default_options, config=default_config, warning=print):
+
     global CABLETYPES
     CABLETYPES = pandas.read_csv(config['cabletype_file'],index_col='id')
-    result = pandas.DataFrame(data)
+
     global WARNING
     WARNING = warning
+
     global OPTIONS
     OPTIONS = options
+
     global CONFIG
     CONFIG = config
-    try:
-        result["linesag"] = linesag(data)
-    except Exception as err:
-        WARNING(f"linesag data unavailable: {err}")
-    try:
-        result["linesway"] = linesway(data)
-    except Exception as err:
-        WARNING(f"linesway data unavailable: {err}")
-    try:
-        result["linegallop"] = linegallop(data)
-    except Exception as err:
-        warning(f"linegallop data unavailable: {err}")
+
+    result = pandas.DataFrame(data)
+    result["linesag"] = linesag(data)
+    result["linesway"] = linesway(data)
+    result["linegallop"] = linegallop(data)
+
     return result
 
 # perform validation tests
