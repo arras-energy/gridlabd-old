@@ -37,7 +37,7 @@ controller_dg::controller_dg(MODULE *mod)
 
 		defaults = this;
 
-		memset(this,0,sizeof(controller_dg));
+		memset((void*)this,0,sizeof(controller_dg));
 
 		if (gl_publish_function(oclass,	"interupdate_controller_object", (FUNCTIONADDR)interupdate_controller_dg)==NULL)
 			GL_THROW("Unable to publish controller_dg deltamode function");
@@ -550,7 +550,7 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 			prev_Vset_val[index] = ctrlGen[index]->curr_state->Vset_ref;
 
 			// Replicate curr_state into next
-			memcpy(ctrlGen[index]->next_state,ctrlGen[index]->curr_state,sizeof(CTRL_VARS));
+			memcpy((void*)ctrlGen[index]->next_state,ctrlGen[index]->curr_state,sizeof(CTRL_VARS));
 		}
 
 	} // End first pass and timestep of deltamode (initial condition stuff)
@@ -604,7 +604,7 @@ SIMULATIONMODE controller_dg::inter_deltaupdate(unsigned int64 delta_time, unsig
 			pDG[index]->gen_base_set_vals.vset = ctrlGen[index]->next_state->Vset_ctrl;
 
 			// Copy everything back into curr_state, since we'll be back there
-			memcpy(ctrlGen[index]->curr_state,ctrlGen[index]->next_state,sizeof(CTRL_VARS));
+			memcpy((void*)ctrlGen[index]->curr_state,ctrlGen[index]->next_state,sizeof(CTRL_VARS));
 
 			// Check convergence - pick the max difference
 			temp_double = fmax(temp_double, fabs(ctrlGen[index]->curr_state->Pref_ctrl - prev_Pref_val[index]));

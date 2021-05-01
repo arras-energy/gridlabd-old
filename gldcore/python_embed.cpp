@@ -108,7 +108,7 @@ const char *truncate(const char *command)
     while ( isspace(*command) ) command++;
     static char buf[20];
     memset(buf,0,sizeof(buf));
-    strncpy(buf,command,sizeof(buf));
+    strncpy(buf,command,sizeof(buf)-1);
     char *eol = strchr(buf,'\n');
     if ( eol ) *eol = '\0';
     if ( buf[sizeof(buf)-1] != '\0' ) 

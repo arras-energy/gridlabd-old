@@ -2895,7 +2895,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 				*over_limit_value = (temp_power_check - (power_out.Mag()/1000.0))*1000.0;
 
 				//Flag as over
-				*over_limits = violation_detected = true;
+				*over_limits = (violation_detected = true);
 			}
 		}//End transformers
 		else	//Must be a line - that's the only other option right now
@@ -2935,7 +2935,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					*over_limit_value += temp_power_check;
 
 					//Flag as over
-					*over_limits = violation_detected = true;
+					*over_limits = (violation_detected = true);
 
 				}//End Phase 1 check
 
@@ -2971,7 +2971,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 					*over_limit_value += temp_power_check;
 
 					//Flag as over
-					*over_limits = violation_detected = true;
+					*over_limits = (violation_detected = true);
 
 				}//End Phase 2 check
 			}//End triplex line check
@@ -3012,7 +3012,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						*over_limit_value += temp_power_check;
 
 						//Flag as over
-						*over_limits = violation_detected = true;
+						*over_limits = (violation_detected = true);
 
 					}//End Phase A check
 				}//End has Phase A
@@ -3051,7 +3051,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						*over_limit_value += temp_power_check;
 
 						//Flag as over
-						*over_limits = violation_detected = true;
+						*over_limits = (violation_detected = true);
 
 					}//End Phase B check
 				}//End has Phase B
@@ -3090,7 +3090,7 @@ void link_object::perform_limit_checks(double *over_limit_value, bool *over_limi
 						*over_limit_value += temp_power_check;
 
 						//Flag as over
-						*over_limits = violation_detected = true;
+						*over_limits = (violation_detected = true);
 
 					}//End Phase C check
 				}//End has Phase C
