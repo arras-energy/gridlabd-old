@@ -23,7 +23,7 @@ stub_bidder::stub_bidder(MODULE *module)
 				NULL)<1) 
 			GL_THROW("unable to publish properties in %s",__FILE__);
 		
-		memset(this,0,sizeof(stub_bidder));
+		memset((void*)this,0,sizeof(stub_bidder));
 	}
 }
 

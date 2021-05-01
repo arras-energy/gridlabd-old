@@ -64,12 +64,12 @@ violation_recorder::violation_recorder(MODULE *mod){
 		}
         // TODO set defaults here
 		defaults = this;
-		memset(this, 0, sizeof(violation_recorder));
+		memset((void*)this, 0, sizeof(violation_recorder));
     }
 }
 
 int violation_recorder::create(){
-	memcpy(this, defaults, sizeof(violation_recorder));
+	memcpy((void*)this, defaults, sizeof(violation_recorder));
 	strict = false;
 	return 1;
 }
