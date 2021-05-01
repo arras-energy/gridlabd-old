@@ -6,3 +6,4 @@ pytz==2020.4
 pysolar==0.9
 PyGithub==1.54.1
 docker==4.4.4
+folium==0.12.1
