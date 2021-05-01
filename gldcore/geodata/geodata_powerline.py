@@ -356,22 +356,27 @@ def linesag(data):
                 p0 = [line['latitude'],line['longitude']]
                 d0 = 0.0
                 z0 = elevation + line['pole_height']
-                data.loc[id,'linesag'] = z0
+                data.loc[id,'linesag'] = z0 - elevation
 
             else: # end of a line segment
 
                 p1 = [line['latitude'],line['longitude']]
                 d1 = get_distance(p0,p1)
                 z1 = elevation + line['pole_height']
-                data.loc[id,'linesag'] = z1
+                data.loc[id,'linesag'] = z1 - elevation
 
                 # compute linesag at waypoints
                 for n,l in ld.items():
                     p = [l['latitude'],l['longitude']]
                     d_hori = get_distance(p0,p)
+                    try:
+                        elevation = l['elevation']
+                    except:
+                        pass
                     data.loc[n,'linesag'] = get_sag_value(d_hori,line,cable,p0,p,z0,z1,
                         power_flow,global_horizontal_irradiance,ground_reflectance,
-                        ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
+                        ice_thickness,wind_direction,air_temperature,wind_speed,ice_density) \
+                        - elevation
 
                 # reset for next segment
                 p0 = p1
@@ -567,7 +572,7 @@ if __name__ == '__main__':
 
         def test_linesag(self):
             result = linesag(pandas.DataFrame(data))
-            self.assertEqual(result.to_list(),[106.45, 106.07184131641043, 119.125])
+            self.assertEqual(result.round(1).to_list(),[18.0, 12.3, 20.0])
 
         def test_linesway(self):
             result = linesway(pandas.DataFrame(data))
