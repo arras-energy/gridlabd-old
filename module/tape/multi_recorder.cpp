@@ -262,8 +262,9 @@ static int multi_recorder_open(OBJECT *obj)
 						gl_error("multirecorder: multi-run recorder output full property list is larger than the buffer, please start a new file!");
 						break; // will still print everything up to this one
 					}
-					strncpy(propstr+i, shortstr, len+1);
+					strncpy(propstr+i, shortstr, lenmax-1);
 					i += len;
+					lenmax -= len;
 					tprop = tprop->next;
 				}
 				fprintf(my->multifp, "%s%s\n", (char*)inbuffer, (char*)propstr);
@@ -277,7 +278,7 @@ static int multi_recorder_open(OBJECT *obj)
 			PROPERTY *tprop = my->target;
 			fprintf(my->multifp, "# repetition 0\n");
 			// no string from previous runs to append new props to
-			sprintf(propstr, "# timestamp");
+			strcpy(propstr, "# timestamp");
 			len = (int)strlen(propstr);
 			lenmax-=len;
 			i = len;
@@ -289,8 +290,9 @@ static int multi_recorder_open(OBJECT *obj)
 					gl_error("multirecorder: multi-run recorder output full property list is larger than the buffer, please start a new file!");
 					break; // will still print everything up to this one
 				}
-				strncpy(propstr+i, shortstr, len+1);
+				strncpy(propstr+i, shortstr, lenmax);
 				i += len;
+				lenmax -= len;
 				tprop = tprop->next;
 			}
 			fprintf(my->multifp, "%s\n", (char*)propstr);
@@ -509,12 +511,12 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 	// if file based
 	if(my->multifp != NULL){
 		char1024 inbuffer;
-		char1024 outbuffer;
+		char outbuffer[5100];
 		char *lasts = 0;
 		char *in_ts = 0;
 		char *in_tok = 0;
 
-		memset(inbuffer, 0, sizeof(inbuffer));
+		memset((void*)inbuffer, 0, sizeof(inbuffer));
 		
 		if(my->inputfp != NULL){
 			// read line
@@ -548,7 +550,7 @@ static TIMESTAMP multi_recorder_write(OBJECT *obj)
 			if(strcmp(in_ts, ts) != 0){
 				gl_warning("multirecorder: timestamp mismatch between current input line and simulation time");
 			}
-			sprintf(outbuffer, "%s,%s", in_tok, (char*)(my->last.value));
+			snprintf(outbuffer,sizeof(outbuffer)-1,"%s,%s", in_tok, (char*)(my->last.value));
 		} else { // no input file ~ write normal output
 			strcpy(outbuffer, my->last.value);
 		}
@@ -642,7 +644,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 			free(list);
 			return NULL;
 		}	
-		memset(rmap, 0, sizeof(RECORDER_MAP));
+		memset((void*)rmap, 0, sizeof(RECORDER_MAP));
 
 		if ( strlen(item)>0 && strstr(item,"::") != NULL )
 		{
@@ -739,7 +741,7 @@ RECORDER_MAP *link_multi_properties(OBJECT *obj, char *property_list)
 			}
 			last = rmap;
 			rmap->obj = target_obj;
-			memcpy(&(rmap->prop), target_prop, sizeof(PROPERTY));
+			memcpy((void*)&(rmap->prop), target_prop, sizeof(PROPERTY));
 			rmap->prop.next = NULL; // unlink from main property list
 			rmap->prop.unit = unit;
 			rmap->scale = scale;

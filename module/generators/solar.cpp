@@ -134,7 +134,7 @@ solar::solar(MODULE *module)
 			GL_THROW("Unable to publish solar deltamode function");
 
 		defaults = this;
-		memset(this,0,sizeof(solar));
+		memset((void*)this,0,sizeof(solar));
 
 	}
 }
