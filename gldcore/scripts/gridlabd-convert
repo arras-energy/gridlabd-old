@@ -68,7 +68,7 @@ while n < len(sys.argv):
 	elif not OUTPUTFILE:
 		OUTPUTFILE = sys.argv[n]
 	else:
-		specs = sys.argv[n].split()
+		specs = sys.argv[n].split('=')
 		if len(specs) == 1:
 			OPTIONS[specs[0]] = None
 		else:
