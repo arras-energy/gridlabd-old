@@ -195,7 +195,7 @@ battery::battery(MODULE *module)
 				PT_DESCRIPTION, "INTERNAL BATTERY MODEL: the reserve state of charge the battery can reach.",
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = NULL;
-		memset(this,0,sizeof(battery));
+		memset((void*)this,0,sizeof(battery));
 
 		if (gl_publish_function(oclass,	"preupdate_battery_object", (FUNCTIONADDR)preupdate_battery)==NULL)
 			GL_THROW("Unable to publish battery deltamode function");

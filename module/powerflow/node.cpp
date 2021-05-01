@@ -419,12 +419,12 @@ int node::create(void)
 	LoadHistTermL = NULL;
 	LoadHistTermC = NULL;
 
-	memset(voltage,0,sizeof(voltage));
-	memset(voltaged,0,sizeof(voltaged));
-	memset(current,0,sizeof(current));
-	memset(pre_rotated_current,0,sizeof(pre_rotated_current));
-	memset(power,0,sizeof(power));
-	memset(shunt,0,sizeof(shunt));
+	memset((void*)voltage,0,sizeof(voltage));
+	memset((void*)voltaged,0,sizeof(voltaged));
+	memset((void*)current,0,sizeof(current));
+	memset((void*)pre_rotated_current,0,sizeof(pre_rotated_current));
+	memset((void*)power,0,sizeof(power));
+	memset((void*)shunt,0,sizeof(shunt));
 
 	current_dy[0] = current_dy[1] = current_dy[2] = complex(0.0,0.0);
 	current_dy[3] = current_dy[4] = current_dy[5] = complex(0.0,0.0);
@@ -4205,7 +4205,7 @@ SIMULATIONMODE node::inter_deltaupdate_node(unsigned int64 delta_time, unsigned 
 		if (fmeas_type != FM_NONE)
 		{
 			//Copy the tracker value
-			memcpy(&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
+			memcpy((void*)&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
 		}
 	}
 
@@ -4609,7 +4609,7 @@ void node::init_freq_dynamics(void)
 	}//End FOR loop
 
 	//Copy into current, since we may have already just done this
-	memcpy(&curr_freq_state,&prev_freq_state,sizeof(FREQM_STATES));
+	memcpy((void*)&curr_freq_state,&prev_freq_state,sizeof(FREQM_STATES));
 }
 
 //Function to perform the GFA-type responses

@@ -72,7 +72,7 @@ EXPORT int open_player(struct player *my, char *fname, char *flags)
 	my->fp = (strcmp(fname,"-")==0?stdin:(ff?fopen(ff,flags):NULL));
 	if (my->fp==NULL)
 	{
-		sprintf(my->lasterr, "player file %s: %s", fname, strerror(errno));
+		snprintf(my->lasterr,sizeof(my->lasterr)-1, "player file %s: %s", fname, strerror(errno));
 		my->status = TS_DONE;
 		return 0;
 	}
@@ -113,7 +113,7 @@ static int setmap(char *spec, unsigned char *map, int size)
 {
 	char *p=spec;
 	int last=-1;
-	memset(map,0,MAPSIZE(size));
+	memset((void*)map,0,MAPSIZE(size));
 	while (*p!='\0')
 	{
 		if (*p=='*')
@@ -203,7 +203,7 @@ EXPORT int open_shaper(struct shaper *my, char *fname, char *flags)
 	char *ff = fname;
 
 	/* clear everything */
-	memset(scale,0,sizeof(scale));
+	memset((void*)scale,0,sizeof(scale));
 	linenum=0; 
 	file=fname;
 
@@ -211,7 +211,7 @@ EXPORT int open_shaper(struct shaper *my, char *fname, char *flags)
 	my->fp = (strcmp(fname,"-")==0?stdin:(ff?fopen(ff,flags):NULL));
 	if (my->fp==NULL)
 	{
-		sprintf(my->lasterr, "shaper file %s: %s", fname, strerror(errno));
+		snprintf(my->lasterr,sizeof(my->lasterr)-1, "shaper file %s: %s", fname, strerror(errno));
 		goto Error;
 	}
 	my->status=TS_OPEN;
@@ -219,7 +219,7 @@ EXPORT int open_shaper(struct shaper *my, char *fname, char *flags)
 	/* TODO: these should be read from the shape file, or better yet, inferred from it */
 	my->step = 3600; /* default interval step is one hour */
 	my->interval = 24; /* default unint shape integrated over one day */
-	memset(my->shape,0,sizeof(my->shape));
+	memset((void*)my->shape,0,sizeof(my->shape));
 	/* load the file into the shape */
 	while (fgets(line,sizeof(line),my->fp)!=NULL)
 	{
@@ -234,37 +234,37 @@ EXPORT int open_shaper(struct shaper *my, char *fname, char *flags)
 			int h, d, m, w;
 			if (sscanf(line,"%s %s %s %s %[^,],%[^,\n]",min,hour,day,month,weekday,value)<6)
 			{
-				sprintf(my->lasterr, "%s(%d) : shape '%s' missing specification '%s'", file, linenum, group, line);
+				snprintf(my->lasterr,sizeof(my->lasterr)-1, "%s(%d) : shape '%s' missing specification '%s'", file, linenum, group, line);
 				goto Error;
 			}
 			/* minutes are ignored right now */
 			if (min[0]!='*') //gl_warning
 			{
-				sprintf(my->lasterr, "%s(%d) : minutes are ignored in '%s'", file, linenum, line);
+				snprintf(my->lasterr,sizeof(my->lasterr)-1, "%s(%d) : minutes are ignored in '%s'", file, linenum, line);
 				goto Error;
 			}
 			hours=hourmap(hour);
 			if (hours==NULL)
 			{
-				sprintf(my->lasterr,"%s(%d): hours in '%s' not valid", file, linenum, line);
+				snprintf(my->lasterr,sizeof(my->lasterr)-1,"%s(%d): hours in '%s' not valid", file, linenum, line);
 				goto Error;
 			}
 			days=daymap(day);
 			if (days==NULL)
 			{
-				sprintf(my->lasterr,"%s(%d): days in '%s' not valid", file, linenum, line);
+				snprintf(my->lasterr,sizeof(my->lasterr)-1,"%s(%d): days in '%s' not valid", file, linenum, line);
 				goto Error;
 			}
 			months=monthmap(month);
 			if (months==NULL)
 			{
-				sprintf(my->lasterr,"%s(%d): months in '%s' not valid", file, linenum, line);
+				snprintf(my->lasterr,sizeof(my->lasterr)-1,"%s(%d): months in '%s' not valid", file, linenum, line);
 				goto Error;
 			}
 			weekdays=weekdaymap(weekday);
 			if (weekdays==NULL)
 			{
-				sprintf(my->lasterr,"%s(%d): weekdays in '%s' not valid", file, linenum, line);
+				snprintf(my->lasterr,sizeof(my->lasterr)-1,"%s(%d): weekdays in '%s' not valid", file, linenum, line);
 				goto Error;
 			}
 			load = (float)atof(value);

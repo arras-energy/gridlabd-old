@@ -1006,7 +1006,7 @@ int house_e::create()
 						return FAILED;
 					}
 					IMPLICITENDUSE *item = (IMPLICITENDUSE*)gl_malloc(sizeof(IMPLICITENDUSE));
-					memset(item,0,sizeof(IMPLICITENDUSE));
+					memset((void*)item,0,sizeof(IMPLICITENDUSE));
 					gl_enduse_create(&(item->load));
 					item->load.shape = gl_loadshape_create(sched);
 					if (gl_set_value_by_type(PT_loadshape,item->load.shape,eu->shape)==0)
@@ -2098,7 +2098,7 @@ CIRCUIT *house_e::attach(OBJECT *obj, ///< object to attach
 	c->smartfuse->vMax = 1.05;
 
 	// initialize measurements
-	memset(c->measurement,0,sizeof(c->measurement));
+	memset((void*)c->measurement,0,sizeof(c->measurement));
 
 	return c;
 }

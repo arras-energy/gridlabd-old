@@ -20,9 +20,9 @@ dnl m4 magic from Eric Blake <e...@byu.net>
 dnl autoconf 2.63 does not have m4_esyscmd_s
 m4_define([m4_chomp_all],
 [m4_format([[%.*s]], m4_bregexp(m4_translit([[$1]], [
-/], [/ ]), [/*$]), [$1])])  
+/], [/ ]), [/*$]), [$1])])
 
-m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])     
+m4_define([m4_esyscmd_s], [m4_chomp_all(m4_esyscmd([$1]))])
 
 
 m4_define([sbuild_m4_chomp],
@@ -496,11 +496,11 @@ AS_IF([test -f /usr/include/armadillo -o -f /usr/local/include/armadillo ],
     [HAVE_ARMA="no (required)"])
 
 # Check for mysql
-AS_IF([test -f /usr/local/include/mysql.h -a /usr/local/lib/libmysqlclient.a ],
+AS_IF([test -f /usr/local/include/mysql/mysql.h -a /usr/local/lib/libmysqlclient.a ],
     [MYSQL="/usr/local"],
     [MYSQL="no"])
 AS_IF([test "x$MYSQL" != "xno"],
-	[MYSQL_CPPFLAGS="'-I$MYSQL/include'"
+	[MYSQL_CPPFLAGS="'-I$MYSQL/include/mysql'"
 		AS_CASE([$host],
 			[*mingw*], [MYSQL_LDFLAGS="'-L$MYSQL/lib'"
 				MYSQL_LIBS="-lmysql"],
@@ -584,7 +584,7 @@ AC_MSG_RESULT([
 
   HiPAS GridLAB-D Automatic configuration:
 
-    Package: .................... $PACKAGE 
+    Package: .................... $PACKAGE
     Version: .................... $VERSION
     Branch: ..................... $PACKAGE_ORIGIN
     Install prefix: ............. ${DSTDIR/^$PWD/.}
