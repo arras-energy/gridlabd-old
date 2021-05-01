@@ -588,7 +588,7 @@ SIMULATIONMODE motor::inter_deltaupdate(unsigned int64 delta_time, unsigned long
 	if ((iteration_count_val==0) && (interupdate_pos == false) && (fmeas_type != FM_NONE)) 
 	{
 		//Update frequency calculation values (if needed)
-		memcpy(&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
+		memcpy((void*)&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
 	}
 
 	//In the first call we need to initilize the dynamic model

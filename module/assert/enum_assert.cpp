@@ -35,7 +35,7 @@ enum_assert::enum_assert(MODULE *module)
 			PT_char1024, "target", get_target_offset(),PT_DESCRIPTION,"Property to perform the assert upon",	
 			NULL)<1){
 				char msg[256];
-				sprintf(msg, "unable to publish properties in %s",__FILE__);
+				snprintf(msg,sizeof(msg)-1, "unable to publish properties in %s",__FILE__);
 				throw msg;
 		}
 	}
@@ -109,7 +109,7 @@ EXPORT SIMULATIONMODE update_enum_assert(OBJECT *obj, TIMESTAMP t0, unsigned int
 {
 	char buff[64];
 	char dateformat[8]="";
-	char error_output_buff[1024];
+	char error_output_buff[4000];
 	char datebuff[64];
 	enum_assert *da = OBJECTDATA(obj,enum_assert);
 	DATETIME delta_dt_val;
@@ -159,16 +159,16 @@ EXPORT SIMULATIONMODE update_enum_assert(OBJECT *obj, TIMESTAMP t0, unsigned int
 
 					//Output date appropriately
 					if ( strcmp(dateformat,"ISO")==0)
-						sprintf(datebuff,"ERROR    [%04d-%02d-%02d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.year,delta_dt_val.month,delta_dt_val.day,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%04d-%02d-%02d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.year,delta_dt_val.month,delta_dt_val.day,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else if ( strcmp(dateformat,"US")==0)
-						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.month,delta_dt_val.day,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.month,delta_dt_val.day,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else if ( strcmp(dateformat,"EURO")==0)
-						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else
-						sprintf(datebuff,"ERROR    %.09f : ",del_clock);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    %.09f : ",del_clock);
 
 					//Actual error part
-					sprintf(error_output_buff,"Assert failed on %s - %s (%d) did not match %d",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_value());
+					snprintf(error_output_buff,sizeof(error_output_buff)-1,"Assert failed on %s - %s (%d) did not match %d",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_value());
 
 					//Send it out
 					gl_output("%s%s",datebuff,error_output_buff);
@@ -202,16 +202,16 @@ EXPORT SIMULATIONMODE update_enum_assert(OBJECT *obj, TIMESTAMP t0, unsigned int
 
 					//Output date appropriately
 					if ( strcmp(dateformat,"ISO")==0)
-						sprintf(datebuff,"ERROR    [%04d-%02d-%02d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.year,delta_dt_val.month,delta_dt_val.day,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%04d-%02d-%02d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.year,delta_dt_val.month,delta_dt_val.day,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else if ( strcmp(dateformat,"US")==0)
-						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.month,delta_dt_val.day,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.month,delta_dt_val.day,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else if ( strcmp(dateformat,"EURO")==0)
-						sprintf(datebuff,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    [%02d-%02d-%04d %02d:%02d:%02d.%.06d %s] : ",delta_dt_val.day,delta_dt_val.month,delta_dt_val.year,delta_dt_val.hour,delta_dt_val.minute,delta_dt_val.second,del_microseconds,delta_dt_val.tz);
 					else
-						sprintf(datebuff,"ERROR    %.09f : ",del_clock);
+						snprintf(datebuff,sizeof(datebuff)-1,"ERROR    %.09f : ",del_clock);
 
 					//Actual error part
-					sprintf(error_output_buff,"Assert failed on %s - %s (%d) did not match %d",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_value());
+					snprintf(error_output_buff,sizeof(error_output_buff)-1,"Assert failed on %s - %s (%d) did not match %d",gl_name(obj->parent, buff, 64),da->get_target(), *x, da->get_value());
 
 					//Send it out
 					gl_output("%s%s",datebuff,error_output_buff);
