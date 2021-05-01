@@ -94,7 +94,7 @@ version = 1
 
 import os, sys
 import requests
-from math import cos, sin, atan2, pi, sqrt, atan
+from math import cos, sin, atan2, pi, sqrt, atan, isnan
 from scipy.interpolate import interp1d
 import numpy as np
 from PIL import Image
@@ -119,6 +119,7 @@ default_options = {
     "ice_density" : 915.0, # kg/m^3
     "nominal_temperature" : 15.0, # degC - temperature at which line loads are based
     "cable_type" : '', # cable type
+    "elevation" : 0.0, # default elevation (0.0 = sea level)
 }
 
 default_config = {
@@ -195,7 +196,6 @@ def hold0(name,value=None):
         hold_values[name] = value
         return value
     elif not name in hold_values.keys():
-        WARNING(f"unable to get initial value of {name}")
         return None
     else:
         return hold_values[name]
@@ -293,6 +293,7 @@ def linesag(data):
     ground_reflectance = hold0('ground_reflectance')
     ice_density = hold0('ice_density')
     cable_type = hold0('cable_type')
+    elevation = hold0('elevation')
 
     # check lat,lon
     if not 'latitude' in data.columns or not 'longitude' in data.columns:
@@ -300,11 +301,12 @@ def linesag(data):
         return data
 
     # TODO: vectorize this loop
-    p1 = None
-    z1 = []
-    line_data = []
-    line_sags = []
-    for id,line in data.iterrows():
+    p0 = None # start pole lat,lon
+    p1 = None # end pole lat,lon
+    z0 = None # start pole sag (elevation+height)
+    z1 = None # end pole sag height (elevation+height)
+    ld = {} # line data at waypoints
+    for id, line in data.iterrows():
         if 'cable_type' in data.columns:
             cable_type = hold0('cable_type',line['cable_type'])
         global CABLETYPES
@@ -342,31 +344,52 @@ def linesag(data):
             ground_reflectance = hold0('ground_reflectance',line['ground_reflectance'])
 
         # elevation
-        if 'elevation' in data.columns and 'pole_height' in data.columns:
-            z0 = line['elevation'] + line['pole_height']
+        if 'elevation' in data.columns:
+            elevation = hold0('elevation',line['elevation'])
+
+        # pole height - only present for pole, absent at waypoints
+        # breakpoint()
+        if 'pole_height' in data.columns and not isnan(line['pole_height']):
+
+            if not p0: # start of a line segment
+
+                p0 = [line['latitude'],line['longitude']]
+                d0 = 0.0
+                z0 = elevation + line['pole_height']
+                data.loc[id,'linesag'] = z0
+
+            else: # end of a line segment
+
+                p1 = [line['latitude'],line['longitude']]
+                d1 = get_distance(p0,p1)
+                z1 = elevation + line['pole_height']
+                data.loc[id,'linesag'] = z1
+
+                # compute linesag at waypoints
+                for n,l in ld.items():
+                    p = [l['latitude'],l['longitude']]
+                    d_hori = get_distance(p0,p)
+                    data.loc[n,'linesag'] = get_sag_value(d_hori,line,cable,p0,p,z0,z1,
+                        power_flow,global_horizontal_irradiance,ground_reflectance,
+                        ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
+
+                # reset for next segment
+                p0 = p1
+                z0 = z1
+                ld = {}
+
+        elif p0: # continue a line segment
+
+            # end last segment
+            ld[id] = line
+
         else:
-            z0 = 0.0
 
-        # distance
-        p0 = [line['latitude'],line['longitude']]
-        if 'distance' in data.columns:
-            d_hori = line['distance']
-        elif p1 != None:
-            d_hori = get_distance(p0,p1)
-            # TODO: back calculate intermediate values
-            for zz, ln in zip(z1,line_data):
-                ln['linesag'] = get_sag_value(d_hori,line,cable,p0,p1,z0,zz,
-                    power_flow,global_horizontal_irradiance,ground_reflectance,
-                    ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
-            line_data = []
-            z1 = []
-        else:
-            p1.append(p0)
-            z1.append(z0)
-            line_data.append(line)
-            continue
+            WARNING("ignoring waypoints before first pole")
 
 
+    if ld:
+        WARNING("ignoring waypoints after last pole")
 
     return data['linesag']
 
@@ -455,10 +478,9 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
 
 def linesway(data):
     """TODO"""
-    data['linesway'] = float('nan') # default result
+    data['linesway'] = 0.0 # default result
 
-    if not 'wind_speed' in data.columns:
-        data['linesway'] = float('nan')
+    if not 'wind_speed' in data.columns or not 'wind_direction' in data.columns:
         return data['linesway']
 
     WARNING("linesway not implemented yet")
@@ -494,10 +516,9 @@ def linegallop(data):
     #
     # Source: https://preformed.com/images/pdfs/Energy/Transmission/Motion_Control/Air_Flow_Spoiler/Conductor_Galloping_Basics-EN-ML-1166.pdf
     #
-    data['linegallop'] = float('nan') # default result
+    data['linegallop'] = 0.0 # default result
 
-    if not 'ica_thickness' in data.columns:
-        data['linegallop'] = float('nan')
+    if not 'ice_thickness' in data.columns:
         return data['linegallop']
 
     WARNING("linegallop not implemented yet")
@@ -533,28 +554,27 @@ if __name__ == '__main__':
 
     CABLETYPES = pandas.read_csv(sys.argv[0].replace('geodata_powerline.py','geodata_powerline_cabletypes.csv'),index_col='id')
 
+    NA = float('nan')
     data = pandas.DataFrame({
-        'latitude' : [37.41504514,37.41469802,],
-        'longitude' : [-122.2056472,-122.2084875,],
-        'pole_configuration' : ['flat 3','side T'],
-        'horizontal_spacing' : [20.0,18.0,],
-        'pole_height' : [18,20],
-        'elevation' : [88.45,99.125],
-        'cable_type' : ['TACSR/AC 610mm^2',None],
+        'latitude' : [37.41504514,37.41487158,37.41469802],
+        'longitude' : [-122.2056472,-122.20706735,-122.2084875],
+        'pole_height' : [18,NA,20],
+        'elevation' : [88.45,93.7875,99.125],
+        'cable_type' : ['TACSR/AC 610mm^2',None,None],
     })
 
     class TestPowerline(unittest.TestCase):
 
         def test_linesag(self):
             result = linesag(pandas.DataFrame(data))
-            self.assertEqual(result['linesag'].to_list(),[0,0])
+            self.assertEqual(result.to_list(),[106.45, 106.07184131641043, 119.125])
 
         def test_linesway(self):
             result = linesway(pandas.DataFrame(data))
-            self.assertEqual(result['linesway'].to_list(),[0,0])
+            self.assertEqual(result.to_list(),[0,0,0])
 
         def test_linegallop(self):
             result = linegallop(pandas.DataFrame(data))
-            self.assertEqual(result['linegallop'].to_list(),[0,0])
+            self.assertEqual(result.to_list(),[0,0,0])
 
     unittest.main()
