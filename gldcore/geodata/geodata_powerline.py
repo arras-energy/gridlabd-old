@@ -268,6 +268,10 @@ def linesag(data):
                     cause of the "nan" value(s).
     """
 
+    # Sources:
+    #  https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5795940/
+    #
+
     data['linesag'] = float('nan') # default result
 
     # read cable specs from cable type
@@ -487,6 +491,8 @@ def linegallop(data):
     #
     #  1) Detuning pendulum
     #  2) Airflow spoiler
+    #
+    # Source: https://preformed.com/images/pdfs/Energy/Transmission/Motion_Control/Air_Flow_Spoiler/Conductor_Galloping_Basics-EN-ML-1166.pdf
     #
     data['linegallop'] = float('nan') # default result
 
