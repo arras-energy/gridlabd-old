@@ -1,7 +1,9 @@
 import json 
 import os 
 import sys, getopt
-from datetime import datetime 
+from datetime import datetime
+import importlib, copy
+from importlib import util
 
 def help():
 	print('Syntax:')
@@ -65,10 +67,25 @@ with open(filename_json,"r") as f :
 	assert(data['application']=='gridlabd')
 	assert(data['version'] >= '4.2.0')
 
+if output_type == 'csvplot':
+
+	import pandas as pd
+	import matplotlib.pyplot as plt
+	csv = pd.read_csv(filename_png.replace('.png','.csv'),index_col='timestamp')
+	ax = csv.plot(figsize=(7,7))
+	ax.set_xticklabels(ax.get_xticklabels(),rotation='vertical')
+	ax.grid()
+	ax.legend()
+	ax.set_title(filename_png)
+	plt.margins(0.2)
+	plt.subplots_adjust(bottom=0.3)
+	plt.savefig(filename_png)
+
+
 #
 # -t summary
 #
-if output_type == 'summary':
+elif output_type == 'summary':
 
 	filename = data["globals"]["modelname"]["value"]
 	from PIL import Image, ImageDraw, ImageFont
@@ -183,7 +200,7 @@ else:
 	if os.path.exists(modname):
 
 		import importlib, copy
-		modspec = importlib.util.spec_from_file_location(output_type, modname)
+		modspec = util.spec_from_file_location(output_type, modname)
 		mod = importlib.import_module("json2png-%s"%output_type)
 		argv = copy.deepcopy(sys.argv)
 		argv[0] = modname

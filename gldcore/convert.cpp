@@ -95,7 +95,11 @@ int convert_from_double(char *buffer, /**< pointer to the string buffer */
 		count += sprintf(temp+count," %s",prop->unit->name);
 	}
 
-	if ( count <= size ) 
+	if ( size == 0 )
+	{
+		return count;
+	}
+	else if ( count <= size ) 
 	{
 		strcpy(buffer, temp);
 		return count;
@@ -117,6 +121,7 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 					  void *data, /**< a pointer to the data */
 					  PROPERTY *prop) /**< a pointer to keywords that are supported */
 {
+	if ( buffer[0] == '\0' ) return 0;
 	if ( ( strchr("+-",buffer[0])==NULL ? strnicmp(buffer,"NAN",3) : strnicmp(buffer+1,"NAN",3) ) == 0 )
 	{
 		*(double*)data = QNAN;
@@ -182,7 +187,7 @@ int convert_to_double(const char *buffer, /**< a pointer to the string buffer */
 	else
 	{
 		output_error("convert_to_double(const char *buffer='%s', void *data=0x%*p, PROPERTY *prop={name='%s',...}): internal error", buffer, sizeof(void*), data, prop->name);
-		return 0;
+		return -1;
 	}
 }
 
@@ -221,6 +226,7 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 	int count = 0;
 	char temp[1025];
 	complex *v = (complex*)data;
+	CNOTATION cplex_output_type = J;
 
 	double scale = 1.0;
 	if ( prop && prop->unit!=NULL )
@@ -242,7 +248,26 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 		}
 	}
 
-	if ( v->Notation() == A )
+	/* Check the format or global override */
+ 	if (global_complex_output_format == CNF_RECT)
+ 	{
+ 		cplex_output_type = J;
+ 	}
+ 	else if (global_complex_output_format == CNF_POLAR_DEG)
+ 	{
+ 		cplex_output_type = A;
+ 	}
+ 	else if (global_complex_output_format == CNF_POLAR_RAD)
+ 	{
+ 		cplex_output_type = R;
+ 	}
+ 	else	/* Must be default - see what the property wants */
+ 	{
+ 		cplex_output_type = v->Notation();
+ 	}
+
+ 	/* Now output appropriately */
+	if ( cplex_output_type == A )
 	{
 		double m = v->Mag()*scale;
 		double a = v->Arg();
@@ -266,7 +291,11 @@ int convert_from_complex(char *buffer, /**< pointer to the string buffer */
 		count += sprintf(temp+count," %s",prop->unit->name);
 	}
 
-	if ( count < size - 1 )
+	if ( size == 0 )
+	{
+		return count;
+	}
+	else if ( count < size - 1 )
 	{
 		memcpy(buffer, temp, count);
 		buffer[count] = 0;
@@ -570,7 +599,8 @@ int convert_to_set(const char *buffer, /**< a pointer to the string buffer */
 	else
 	{
 		/* process each keyword in the temporary buffer*/
-		for ( ptr = strtok(temp,SETDELIM) ; ptr != NULL ; ptr = strtok(NULL,SETDELIM) )
+		char *last;
+		for ( ptr = strtok_r(temp,SETDELIM,&last) ; ptr != NULL ; ptr = strtok_r(NULL,SETDELIM,&last) )
 		{
 			bool found = false;
 			KEYWORD *key;
@@ -956,7 +986,7 @@ int convert_to_object(const char *buffer, /**< a pointer to the string buffer */
 		*target = NULL;
 		return 1;
 	}
-	else if ( sscanf(buffer,"\"%[^\"]\"",oname) == 1 || (strchr(buffer,':') == NULL && strncpy(oname,buffer,sizeof(oname))) )
+	else if ( sscanf(buffer,"\"%[^\"]\"",oname) == 1 || (strchr(buffer,':') == NULL && strncpy(oname,buffer,sizeof(oname)-1)) )
 	{
 		oname[sizeof(oname)-1]='\0'; /* terminate unterminated string */
 		*target = object_find_name(oname);
@@ -1471,7 +1501,7 @@ int convert_to_struct(const char *buffer, void *data, PROPERTY *structure)
 	{
 		return -1;
 	}
-	strncpy(temp,buffer+1,sizeof(temp));
+	strncpy(temp,buffer+1,sizeof(temp)-1);
 	char *item = NULL;
 	char *last = NULL;
 	while ( (item=strtok_s(item?NULL:temp,";",&last)) != NULL )

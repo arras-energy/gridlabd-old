@@ -1,0 +1,28 @@
+// file: gldcore/autotest/test_rusage.glm
+
+#option rusage
+
+#if ${rusage_rate} != 1
+#error "#option rusage failed"
+#endif
+
+#set rusage_rate=60
+#set rusage_file=test_rusage.csv
+
+clock
+{
+    starttime "2020-01-01 00:00:00";
+    stoptime "2021-01-01 00:00:00";
+}
+
+class test
+{
+    randomvar x;
+}
+
+object test
+{
+    x "type:normal(0,1); refresh:1min";
+}
+
+#on_exit 0 test -s test_rusage.csv

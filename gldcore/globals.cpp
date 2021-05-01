@@ -7,10 +7,18 @@
  **/
 
 #include "gldcore.h"
+#include <poll.h>
 
 SET_MYCONTEXT(DMC_GLOBALS)
 
 DEPRECATED static GLOBALVAR *global_varlist = NULL, *lastvar = NULL;
+
+static KEYWORD cnf_keys[] = {
+ 	{"DEFAULT", CNF_DEFAULT, cnf_keys+1},
+ 	{"RECT", CNF_RECT, cnf_keys+2},
+ 	{"POLAR_DEG", CNF_POLAR_DEG, cnf_keys+3},
+ 	{"POLAR_RAD", CNF_POLAR_RAD, NULL},
+ };
 
 DEPRECATED static KEYWORD df_keys[] = {
 	{"ISO", DF_ISO, df_keys+1},
@@ -165,6 +173,7 @@ DEPRECATED static KEYWORD gso_keys[] = {
 	{"NOGLOBALS",	GSO_NOGLOBALS,	gso_keys+3},
 	{"NODEFAULTS",	GSO_NODEFAULTS, gso_keys+4},
 	{"NOMACROS",	GSO_NOMACROS,	gso_keys+5},
+	{"NOINTERNALS",	GSO_NOINTERNALS,gso_keys+6},
 	{"ORIGINAL",	GSO_ORIGINAL,	NULL},
 };
 DEPRECATED static KEYWORD fso_keys[] = {
@@ -182,6 +191,13 @@ DEPRECATED static KEYWORD fso_keys[] = {
 	{"CLOCK",		FSO_CLOCK,		fso_keys+12},
 	{"INITIAL",     FSO_INITIAL,    fso_keys+13},
 	{"MINIMAL",		FSO_MINIMAL,	NULL},
+};
+DEPRECATED static KEYWORD jcf_keys[] = {
+	{"STRING",		JCF_STRING,		jcf_keys+1},
+	{"LIST",		JCF_LIST,		jcf_keys+2},
+	{"DICT",		JCF_DICT,		jcf_keys+3},
+	{"DEGREES",		JCF_DEGREES,	jcf_keys+4},
+	{"RADIANS",		JCF_RADIANS,	NULL} 
 };
 
 DEPRECATED static struct s_varmap {
@@ -225,6 +241,7 @@ DEPRECATED static struct s_varmap {
 	{"stoptime", PT_timestamp, &global_stoptime, PA_PUBLIC, "simulation stop time"},
 	{"double_format", PT_char32, &global_double_format, PA_PUBLIC, "format for writing double values"},
 	{"complex_format", PT_char256, &global_complex_format, PA_PUBLIC, "format for writing complex values"},
+	{"complex_output_format", PT_enumeration, &global_complex_output_format, PA_PUBLIC, "complex output representation", cnf_keys},
 	{"object_format", PT_char32, &global_object_format, PA_PUBLIC, "format for writing anonymous object names"},
 	{"object_scan", PT_char32, &global_object_scan, PA_PUBLIC, "format for reading anonymous object names"},
 	{"object_tree_balance", PT_bool, &global_no_balance, PA_PUBLIC, "object index tree balancing enable flag"},
@@ -331,6 +348,13 @@ DEPRECATED static struct s_varmap {
 	{"allow_variant_aggregates", PT_bool, &global_allow_variant_aggregates, PA_PUBLIC, "permits aggregates to include time-varying criteria"},
 	{"progress", PT_double, &global_progress, PA_REFERENCE, "computed progress based on clock, start, and stop times"},
 	{"server_keepalive", PT_bool, &global_server_keepalive, PA_PUBLIC, "flag to keep server alive after simulation is complete"},
+	{"pythonpath",PT_char1024,&global_pythonpath,PA_PUBLIC,"folder to append to python module search path"},
+	{"pythonexec",PT_char1024,&global_pythonexec,PA_REFERENCE,"python executable used to build gridlabd"},
+	{"datadir",PT_char1024,&global_datadir,PA_PUBLIC,"folder in which share data is stored"},
+	{"json_complex_format",PT_set,&global_json_complex_format,PA_PUBLIC,"JSON complex number format",jcf_keys},
+	{"rusage_file",PT_char1024,&global_rusage_file,PA_PUBLIC,"file in which resource usage data is collected"},
+	{"rusage_rate",PT_int64,&global_rusage_rate,PA_PUBLIC,"rate at which resource usage data is collected (in seconds)"},
+	{"rusage",PT_char1024,&global_rusage_data,PA_PUBLIC,"rusage data"},
 	/* add new global variables here */
 };
 
@@ -387,7 +411,7 @@ STATUS GldGlobals::init(void)
 	global_version_minor = version_minor();
 	global_version_patch = version_patch();
 	global_version_build = version_build();
-	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch));
+	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch)-1);
 	strcpy(global_datadir,global_execdir);
 	char *bin = strstr(global_datadir,"/bin");
 	if ( bin ) *bin = '\0';
@@ -541,7 +565,7 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 					 */
 				}
 				key->next = prop->keywords;
-				strncpy(key->name, keyword, sizeof(key->name));
+				strncpy(key->name, keyword, sizeof(key->name)-1);
 				key->value = keyvalue;
 				prop->keywords = key;
 			} 
@@ -558,7 +582,7 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 					 */
 				}
 				key->next = prop->keywords;
-				strncpy(key->name, keyword, sizeof(key->name));
+				strncpy(key->name, keyword, sizeof(key->name)-1);
 				key->value = keyvalue;
 				prop->keywords = key;
 			} 
@@ -711,7 +735,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		v = va_arg(ptr,char*);
 		if ( v != NULL ) 
 		{
-			strncpy(value,v,sizeof(value));
+			strncpy(value,v,sizeof(value)-1);
 			if (strcmp(value,v)!=0)
 				output_error("GldGlobals::setvar_v(const char *def='%s',...): va_list value is too long to store",def);
 				/* TROUBLESHOOT
@@ -931,47 +955,25 @@ DEPRECATED const char *global_seq(char *buffer, int size, const char *name)
 	}
 }
 
-extern int popens(const char *program, FILE **output, FILE **error);
-extern int pcloses(FILE *iop, bool wait=true);
-
 DEPRECATED const char *global_shell(char *buffer, int size, const char *command)
 {
-	char line[1024];
-	FILE *fp = NULL, *err = NULL;
-	if ( popens(command, &fp, &err) < 0 ) 
+	FILE *out = NULL, *err = NULL;
+	buffer[0] = '\0';
+	struct s_pipes *pipes = popens(command, NULL, &out, &err);
+	if ( pipes == NULL ) 
 	{
-		if ( err == NULL )
+		output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to create pipes",buffer,size,command);
+		return NULL;
+	}
+	ppolls(pipes,buffer,size,output_get_stream("error"));
+	pcloses(pipes);
+	for ( char *c = buffer ; *c != '\0' ; c++ )
+	{
+		if ( *c == '\n' )
 		{
-			output_error("global_shell(buffer=0x%x,size=%d,command='%s'): unable to run command",buffer,size,command);
-		}
-		else
-		{
-			while ( fgets(line,sizeof(line)-1,err) )
-			{
-				output_error("global_shell(buffer=0x%x,size=%d,command='%s'): %s",buffer,size,command,line);
-			}
-			pcloses(fp);
+			*c = ' ';
 		}
 	}
-	int pos = 0;
-	strcpy(buffer,"");
-	while ( fgets(line, sizeof(line)-1, fp) != NULL ) 
-	{
-		int len = strlen(line);
-		if ( pos+len >= size )
-		{
-			output_warning("global_shell(buffer=0x%x,size=%d,command='%s'): result too large, truncating",buffer,size,command);
-			break;
-		}
-		else
-		{
-			strcpy(buffer+pos,line);
-		}
-		pos += len;
-		if ( buffer[pos-1] == '\n' )
-			buffer[pos-1] = ' ';
-	}
-	pcloses(fp);
 	return buffer;
 }
 
@@ -1101,7 +1103,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 			strncpy(buffer,temp,size);
 			strncpy(buffer+start,string,size-start);
 			strncpy(buffer+start+strlen(string),temp+start+strlen(pattern),size-start-strlen(string));
-			strncpy(temp,buffer,sizeof(temp));
+			strncpy(temp,buffer,sizeof(temp)-1);
 		}
 		return 1;
 	}
@@ -1149,7 +1151,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 		return 1;
 	}
 
-	/* ${++name} */
+	/* ${name++} and ${name--} */
 	if ( sscanf(spec,"%63[^-+]%63[-+]",name,op)==2 )
 	{
 		GLOBALVAR *var = global_find(name);
@@ -1163,6 +1165,48 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name op value} */
+	if ( sscanf(spec,"%63[^-+*/%&?^~]%63[+-*/%]%d",name,op,&number) == 3 )
+	{
+		GLOBALVAR *var = global_find(name);
+		if ( var!=NULL && var->prop->ptype==PT_int32 )
+		{
+			int32 *addr = (int32*)var->prop->addr;
+			if ( strcmp(op,"+")==0 ) { snprintf(buffer,size-1,"%d",(*addr)+number); return 1; }
+			else if ( strcmp(op,"-")==0 ) { snprintf(buffer,size-1,"%d",(*addr)-number); return 1; }
+			else if ( strcmp(op,"*")==0 ) { snprintf(buffer,size-1,"%d",(*addr)*number); return 1; }
+			else if ( strcmp(op,"/")==0 ) { snprintf(buffer,size-1,"%d",(*addr)/number); return 1; }
+			else if ( strcmp(op,"%")==0 ) { snprintf(buffer,size-1,"%d",(*addr)%number); return 1; }
+			else if ( strcmp(op,"&")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&number); return 1; }
+			else if ( strcmp(op,"|")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|number); return 1; }
+			else if ( strcmp(op,"^")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^number); return 1; }
+			else if ( strcmp(op,"&~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)&~number); return 1; }
+			else if ( strcmp(op,"|~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)|~number); return 1; }
+			else if ( strcmp(op,"^~")==0 ) { snprintf(buffer,size-1,"%d",(*addr)^~number); return 1; }
+		}
+	}
+
+	/* ${~name op value} */
+	if ( sscanf(spec,"~%63[^-+*/%&?^~]%63[+-*/%]%d",name,op,&number) == 3 )
+	{
+		GLOBALVAR *var = global_find(name);
+		if ( var!=NULL && var->prop->ptype==PT_int32 )
+		{
+			int32 *addr = (int32*)var->prop->addr;
+			if ( strcmp(op,"+")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)+number); return 1; }
+			else if ( strcmp(op,"-")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)-number); return 1; }
+			else if ( strcmp(op,"*")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)*number); return 1; }
+			else if ( strcmp(op,"/")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)/number); return 1; }
+			else if ( strcmp(op,"%")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)%number); return 1; }
+			else if ( strcmp(op,"&")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)&number); return 1; }
+			else if ( strcmp(op,"|")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)|number); return 1; }
+			else if ( strcmp(op,"^")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)^number); return 1; }
+			else if ( strcmp(op,"&~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)&~number); return 1; }
+			else if ( strcmp(op,"|~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)|~number); return 1; }
+			else if ( strcmp(op,"^~")==0 ) { snprintf(buffer,size-1,"%d",~(*addr)^~number); return 1; }
+		}
+	}
+
+	/* ${name rel value1 ? value2 : value3 } */
 	if ( sscanf(spec,"%63[^!<>=&|~]%63[!<>=&|~]%d?%1023[^:]:%1023s",name,op,&number,yes,no)>=3 )
 	{
 		GLOBALVAR *var = global_find(name);
@@ -1181,7 +1225,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name op= value} */
-	if ( sscanf(spec,"%63[^-+/*%&^|~=]%63[-+/*%&^|~=]%d",name,op,&number)==3 )
+	if ( sscanf(spec,"%63[^-+/*%&^|]%63[-+/*%&^|=~]%d",name,op,&number) == 3 )
 	{
 		GLOBALVAR *var = global_find(name);
 		if ( var!=NULL && var->prop->ptype==PT_int32 )
@@ -1220,7 +1264,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 	}
 
 	/* ${name=string} */
-	if ( sscanf(spec,"%63[A-Za-z0-9_:.]=%s",name,string)==2 )
+	if ( sscanf(spec,"%63[A-Za-z0-9_:.]=%[^\n]",name,string)==2 )
 	{
 		global_setvar(name,string);
 		strncpy(buffer,string,size);
@@ -1273,6 +1317,86 @@ DEPRECATED const char *global_findfile(char *buffer, int size, const char *spec)
 	return buffer;
 }
 
+DEPRECATED const char *global_filename(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	char *dir = strrchr(var,'/');
+	if ( dir == NULL )
+	{
+		dir = var;
+	}
+	else
+	{
+		dir++;
+	}
+	strncpy(buffer,dir,size);
+	char *ext = strrchr(buffer,'.');
+	if ( ext != NULL )
+	{
+		*ext = '\0';
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filepath(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	strncpy(buffer,var,size);
+	char *dir = strrchr(buffer,'/');
+	if ( dir != NULL )
+	{
+		*dir = '\0';
+	}
+	else
+	{
+		strcpy(buffer,".");
+	}
+	return buffer;
+}
+
+DEPRECATED const char *global_filetype(char *buffer, int size, const char *spec)
+{
+	char var[1024];
+	if ( spec[0] != '$' )
+	{
+		strncpy(var,spec,sizeof(var)-1);
+	}
+	else if ( global_getvar(spec+1,var,sizeof(var)-1) == NULL )
+	{
+		output_error("global_filename(buffer=%x,size=%d,spec='%s'): global '%s' is not found");
+		return NULL;
+	}
+	char *dir = strrchr(var,'/');
+	char *ext = strrchr(var,'.');
+	if ( ( dir != NULL && ext > dir ) || ext != NULL )
+	{
+		strncpy(buffer,ext+1,size);
+	}
+	else
+	{
+		strcpy(buffer,"");
+	}
+	return buffer;
+}
+
 /** Get the value of a global variable in a safer fashion
 	@return a \e char * pointer to the buffer holding the buffer where we wrote the data,
 		\p NULL if insufficient buffer space or if the \p name was not found.
@@ -1309,9 +1433,7 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 		//Used specifically to run MYSQL integration autotests
 		{"MYSQL",global_true},
 #endif
-#ifdef HAVE_PYTHON
 		{"PYTHON",global_true},
-#endif
 	};
 	size_t i;	
 	if(buffer == NULL){
@@ -1338,10 +1460,6 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	if ( strncmp(name,"SEQ_",4)==0 && strchr(name,':') != NULL )
 		return global_seq(buffer,size,name);
 
-	/* expansions */
-	if ( parameter_expansion(buffer,size,name) )
-		return buffer;
-
 	// shells
 	if ( strncmp(name,"SHELL ",6) == 0 )
 		return global_shell(buffer,size,name+6);
@@ -1357,6 +1475,22 @@ const char *GldGlobals::getvar(const char *name, char *buffer, size_t size)
 	// findfile call
 	if ( strncmp(name,"FINDFILE ",9) == 0 )
 		return global_findfile(buffer,size,name+9);
+
+	// path call
+	if ( strncmp(name,"FILEPATH ",9) == 0 )
+		return global_filepath(buffer,size,name+9);
+
+	// name call
+	if ( strncmp(name,"FILENAME ",9) == 0 )
+		return global_filename(buffer,size,name+9);
+
+	// extension call
+	if ( strncmp(name,"FILETYPE ",9) == 0 )
+		return global_filetype(buffer,size,name+9);
+
+	/* expansions */
+	if ( parameter_expansion(buffer,size,name) )
+		return buffer;
 
 	// object calls
 	struct {
@@ -1482,6 +1616,9 @@ void GldGlobals::remote_write(void *local, /** local memory for data */
 
 size_t GldGlobals::saveall(FILE *fp)
 {
+	if ( (global_glm_save_options&GSO_NOGLOBALS) == GSO_NOGLOBALS )
+		return 0;
+	
 	size_t count = 0;
 	GLOBALVAR *var = NULL;
 	char buffer[1024];
@@ -1490,7 +1627,10 @@ size_t GldGlobals::saveall(FILE *fp)
 		if ( strstr(var->prop->name,"::") == NULL
 			&& global_getvar(var->prop->name,buffer,sizeof(buffer)-1) != NULL )
 		{
-			count += fprintf(fp,"#set %s=%s\n",var->prop->name,buffer);
+			count += fprintf(fp,"#ifdef %s\n#define %s=%s\n#else\n#set %s=%s\n#endif\n",
+				var->prop->name,
+				var->prop->name,buffer,
+				var->prop->name,buffer);
 		}
 	}
 	return count;

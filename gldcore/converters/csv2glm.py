@@ -3,8 +3,14 @@ import os
 import sys, getopt
 from datetime import datetime 
 import importlib, copy
+from importlib import util
 
-config = {"input":"csv","output":"glm","from":["ami","scada","onpoint-weather"],"type":["ceus","rbsa","climate"]}
+config = {
+    "input" : "csv",
+    "output" : "glm",
+    "from" : ["ami","scada","onpoint-weather"],
+    "type" : ["ceus","rbsa","climate"],
+    }
 
 def help():
     print('Syntax:')
@@ -64,7 +70,7 @@ elif output_type == None:
 
 modname = sys.argv[0].replace(f'{config["input"]}2{config["output"]}.py',f'{config["input"]}-{input_type}2{config["output"]}-{output_type}.py')
 if os.path.exists(modname):
-    modspec = importlib.util.spec_from_file_location(output_type, f"{modname}.py")
+    modspec = util.spec_from_file_location(output_type, f"{modname}.py")
     mod = importlib.import_module(f'{config["input"]}-{input_type}2{config["output"]}-{output_type}')
     mod.convert(input_file,output_file,options)
 else:

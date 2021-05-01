@@ -297,11 +297,6 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
                                       PROPERTYTYPE ptype, /**< the type of the property */
                                       const char *unit)   /**< the unit of the property */
 {
-	// if ( oclass->pmap )
-	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is %s", oclass->name, name, oclass->pmap->name);
-	// else
-	// 	output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): before adding property first property is (null)", oclass->name, name);
-
 	PROPERTY *prop = (PROPERTY*)malloc(sizeof(PROPERTY));
 	UNIT *pUnit = NULL;
 
@@ -315,34 +310,35 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 		// will get picked up later
 	}
 
-	if ( has_child_class(oclass) )
-	{
-		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been used to derive another class", oclass->name, name);
-		/* TROUBLESHOOT
-			Once the class has been used to derive another class, it is not possible to change its size in memory.
-		 */
-	}
 	if ( oclass->profiler.numobjs > 0 )
+	{
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): cannot add new properties after class has been instantiated", oclass->name, name);
 		/* TROUBLESHOOT
 			Once the class has been used to instantiate an object, it is not possible to change its size in memory.
 		 */
-	if (prop==NULL)
+	}
+	if ( prop == NULL )
+	{
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): memory allocation failed", oclass->name, name);
 		/* TROUBLESHOOT
 			The system has run out of memory.  Try making the model smaller and trying again.
 		 */
-	if (ptype<=_PT_FIRST || ptype>=_PT_LAST)
+	}
+	if ( ptype <= _PT_FIRST || ptype >= _PT_LAST )
+	{
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): property type is invalid", oclass->name, name);
 		/* TROUBLESHOOT
 			The function was called with a property type that is not recognized.  This is a bug that should be reported.
 		 */
-	if (unit!=NULL && pUnit==NULL)
+	}
+	if ( unit != NULL && pUnit == NULL )
+	{
 		throw_exception("class_add_extended_property(oclass='%s', name='%s', ...): unit '%s' is not found", oclass->name, name, unit);
 		/* TROUBLESHOOT
 			The function was called with unit that is defined in units file <code>.../etc/unitfile.txt</code>.  Try using a defined unit or adding
 			the desired unit to the units file and try again.
 		 */
+	}
 	memset(prop, 0, sizeof(PROPERTY));
 	prop->oclass = oclass;
 	prop->name = strdup(name);
@@ -351,18 +347,22 @@ PROPERTY *class_add_extended_property(CLASS *oclass,      /**< the class to whic
 	prop->width = property_type[ptype].size;
 	prop->access = PA_PUBLIC;
 	prop->unit = pUnit;
-	prop->addr = (void*)(int64)oclass->size;
 	prop->delegation = NULL;
 	prop->keywords = NULL;
 	prop->description = NULL;
 	prop->next = NULL;
 	prop->flags = PF_EXTENDED;
+	prop->default_value = NULL;
 
+	int64 offset = (int64)oclass->size;
+	for ( CLASS *parent = oclass->parent ; parent != NULL ; parent = parent->parent )
+	{
+		offset += parent->size;
+	}
+	prop->addr = (void*)offset;	prop->addr = (void*)offset;
 	oclass->size += property_type[ptype].size;
 
 	class_add_property(oclass,prop);
-	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...): after adding property first property is %s", oclass->name, name, oclass->pmap->name);
-	// output_debug("class_add_extended_property(oclass=<%s>, name='%s', ...) -> PROPERTY(<%s:%s>)", oclass->name, name, prop->oclass->name, prop->name);
 	return prop;
 }
 
@@ -537,6 +537,7 @@ CLASS *class_register(MODULE *module,        /**< the module that implements the
 	oclass->profiler.numobjs=0;
 	oclass->profiler.count=0;
 	oclass->profiler.clocks=0;
+	memset(&oclass->events,0,sizeof(oclass->events));
 	if (first_class==NULL)
 	{
 		first_class = oclass;
@@ -945,7 +946,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			else if(proptype == PT_HAS_NOTIFY || proptype == PT_HAS_NOTIFY_OVERRIDE)
 			{
 				char notify_fname[128];
-				sprintf(notify_fname, "notify_%s_%s", prop->oclass->name, prop->name);
+				snprintf(notify_fname,sizeof(notify_fname)-1,"notify_%s_%s", prop->oclass->name, prop->name);
 				prop->notify = (FUNCTIONADDR)DLSYM(prop->oclass->module->hLib, notify_fname);
 				if(prop->notify == 0){
 					errno = EINVAL;
@@ -962,7 +963,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			{
 				char tcode[32];
 				const char *ptypestr=class_get_property_typename(proptype);
-				sprintf(tcode,"%d",proptype);
+				snprintf(tcode,sizeof(tcode)-1,"%d",proptype);
 				if (strcmp(ptypestr,"//UNDEF//")==0)
 					ptypestr = tcode;
 				errno = EINVAL;
@@ -1090,7 +1091,7 @@ int class_define_enumeration_member(CLASS *oclass, /**< pointer to the class whi
 	KEYWORD *key = (KEYWORD*)malloc(sizeof(KEYWORD));
 	if (prop==NULL || key==NULL) return 0;
 	key->next = prop->keywords;
-	strncpy(key->name,member,sizeof(key->name));
+	strncpy(key->name,member,sizeof(key->name)-1);
 	key->value = value;
 	prop->keywords = key;
 	return 1;
@@ -1109,7 +1110,7 @@ int class_define_set_member(CLASS *oclass, /**< pointer to the class which imple
 	if (prop->keywords==NULL)
 		prop->flags |= PF_CHARSET; /* enable single character keywords until a long keyword is defined */
 	key->next = prop->keywords;
-	strncpy(key->name,member,sizeof(key->name));
+	strncpy(key->name,member,sizeof(key->name)-1);
 	key->name[sizeof(key->name)-1]='\0'; /* null terminate name in case is was too long for strncpy */
 	if (strlen(key->name)>1 && (prop->flags&PF_CHARSET)) /* long keyword detected */
 		prop->flags ^= PF_CHARSET; /* disable single character keywords */
@@ -1422,7 +1423,7 @@ static int buffer_write(char *buffer, /**< buffer into which string is written *
 		return 0;
 
 	va_start(ptr,format);
-	count = vsprintf(temp, format, ptr);
+	count = vsnprintf(temp, sizeof(temp)-1, format, ptr);
 	va_end(ptr);
 
 	if(count < len){
