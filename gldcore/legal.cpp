@@ -86,7 +86,6 @@ STATUS legal_notice(void)
  **/
 const char *legal_license_text(void)
 {
-
 	char tmp[1024];
 	strcpy(tmp,global_execdir);
 	char *p = strrchr(tmp,'/');
@@ -94,13 +93,14 @@ const char *legal_license_text(void)
 	{
 		*p = '\0';
 	}
-	char license_filename[1024];
-	sprintf(license_filename,"%s/LICENSE",tmp);
+	char license_filename[2048];
+	snprintf(license_filename,sizeof(license_filename)-1,"%s/LICENSE",tmp);
 	FILE *fp = fopen(license_filename,"r");
 	if ( fp == NULL )
 	{
-		sprintf(tmp,"file '%s' not found", license_filename);
-		return strdup(tmp);
+		char *errmsg;
+		asprintf(&errmsg,"file '%s' not found", license_filename);
+		return strdup(errmsg);
 	}
 	static char license_text[65536];
 	license_text[fread(license_text,1,sizeof(license_text)-1,fp)] = '\0';
@@ -170,7 +170,7 @@ void *check_version_proc(void *ptr)
 	}
 
 	/* read version data */
-	sprintf(target,"%d.%d:",version_major(),version_minor());
+	snprintf(target,sizeof(target)-1,"%d.%d:",version_major(),version_minor());
 	pv = strstr(result->body.data,target);
 	if ( pv==NULL )
 	{

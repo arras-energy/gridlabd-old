@@ -365,9 +365,22 @@ size_t stream(void *ptr, ///< pointer to buffer
 	}
 	throw;
 }
-void stream(const char *s,size_t max=0) { char t[1024]; strncpy(t,s,sizeof(t)); stream((void*)t,max?max:strlen(s),true,(void*)s); }
-void stream(char *s,size_t max=0) { stream((void*)s,max?max:strlen(s),true); }
-template<class T> void stream(T &v) { stream(&v,sizeof(T)); }
+void stream(const char *s,size_t max=0) 
+{ 
+	char t[1024]; 
+	strncpy(t,s,sizeof(t)-1); 
+	stream((void*)t,max?max:strlen(s),true,(void*)s); 
+}
+
+void stream(char *s,size_t max=0) 
+{ 
+	stream((void*)s,max?max:strlen(s),true); 
+}
+
+template<class T> void stream(T &v) 
+{ 
+	stream(&v,sizeof(T)); 
+}
 
 // module stream
 void stream(MODULE *mod)
@@ -465,7 +478,11 @@ void stream(OBJECT *obj)
 		char oname[64]; if ( obj ) strcpy(oname,obj->name?obj->name:"");
 		stream(oname,sizeof(oname));
 
-		OBJECT *data=(OBJECT*)malloc(size); if ( obj ) memcpy(data,obj,size);
+		OBJECT *data=(OBJECT*)malloc(size); 
+		if ( obj ) 
+		{
+			memcpy((void*)data,obj,size);
+		}
 		stream(data,size);
 
 		// TODO forecast and namespace

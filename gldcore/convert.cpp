@@ -986,7 +986,7 @@ int convert_to_object(const char *buffer, /**< a pointer to the string buffer */
 		*target = NULL;
 		return 1;
 	}
-	else if ( sscanf(buffer,"\"%[^\"]\"",oname) == 1 || (strchr(buffer,':') == NULL && strncpy(oname,buffer,sizeof(oname))) )
+	else if ( sscanf(buffer,"\"%[^\"]\"",oname) == 1 || (strchr(buffer,':') == NULL && strncpy(oname,buffer,sizeof(oname)-1)) )
 	{
 		oname[sizeof(oname)-1]='\0'; /* terminate unterminated string */
 		*target = object_find_name(oname);
@@ -1501,7 +1501,7 @@ int convert_to_struct(const char *buffer, void *data, PROPERTY *structure)
 	{
 		return -1;
 	}
-	strncpy(temp,buffer+1,sizeof(temp));
+	strncpy(temp,buffer+1,sizeof(temp)-1);
 	char *item = NULL;
 	char *last = NULL;
 	while ( (item=strtok_s(item?NULL:temp,";",&last)) != NULL )

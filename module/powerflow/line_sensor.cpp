@@ -54,13 +54,13 @@ line_sensor::line_sensor(MODULE *module)
 				throw msg;
 		}
 
-		memset(this,0,sizeof(line_sensor));
+		memset((void*)this,0,sizeof(line_sensor));
 	}
 }
 
 int line_sensor::create(void)
 {
-	memcpy(this,defaults,sizeof(*this));
+	memcpy((void*)this,defaults,sizeof(*this));
 
 	return 1; /* return 1 on success, 0 on failure */
 }
