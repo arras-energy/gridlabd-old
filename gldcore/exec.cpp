@@ -745,7 +745,7 @@ void GldExec::do_checkpoint(void)
 		/* checkpoint time lapsed */
 		if ( last_checkpoint + global_checkpoint_interval <= now )
 		{
-			static char fn[1024] = "";
+			static char fn[2048] = "";
 			FILE *fp = NULL;
 
 			/* default checkpoint filename */
@@ -767,7 +767,7 @@ void GldExec::do_checkpoint(void)
 				unlink(fn);
 
 			/* create current checkpoint save filename */
-			sprintf(fn,"%s.%d",global_checkpoint_file,global_checkpoint_seqnum++);
+			snprintf(fn,sizeof(fn)-1,"%s.%d",global_checkpoint_file,global_checkpoint_seqnum++);
 			fp = fopen(fn,"w");
 			if ( fp==NULL )
 				output_error("unable to open checkpoint file '%s' for writing");
@@ -3032,11 +3032,11 @@ STATUS GldExec::exec_start(void)
 	if ( global_profiler && ! sync_isinvalid(NULL) )
 	{
 		double elapsed_sim = timestamp_to_hours(global_clock)-timestamp_to_hours(global_starttime);
-		double elapsed_wall = (double)(realtime_now()-started_at+1);
+		clock_t loader_time = get_instance()->get_cmdarg()->get_loader_time();
+		double elapsed_wall = (double)(realtime_now()-started_at+loader_time);
 		double sync_time = 0;
 		double sim_speed = object_get_count()/1000.0*elapsed_sim/elapsed_wall;
 
-		clock_t loader_time = get_instance()->get_cmdarg()->get_loader_time();
 		extern clock_t instance_synctime;
 		extern clock_t randomvar_synctime;
 		extern clock_t schedule_synctime;

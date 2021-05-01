@@ -314,7 +314,7 @@ int GldGui::is_action(GUIENTITY *entity)
 /* SET OPERATIONS */
 void GldGui::set_srcref(GUIENTITY *entity, char *filename, int linenum)
 {
-	sprintf(entity->srcref,"%s(%d)", filename, linenum);
+	snprintf(entity->srcref,sizeof(entity->srcref)-1,"%s(%d)", filename, linenum);
 }
 void GldGui::set_type(GUIENTITY *entity, GUIENTITYTYPE type)
 {
@@ -322,21 +322,21 @@ void GldGui::set_type(GUIENTITY *entity, GUIENTITYTYPE type)
 }
 void GldGui::set_value(GUIENTITY *entity, char *value)
 {
-	strncpy(entity->value,value,sizeof(entity->value));
+	strncpy(entity->value,value,sizeof(entity->value)-1);
 }
 void GldGui::set_variablename(GUIENTITY *entity, char *globalname)
 {
-	strncpy(entity->globalname,globalname,sizeof(entity->globalname));
+	strncpy(entity->globalname,globalname,sizeof(entity->globalname)-1);
 }
 void GldGui::set_objectname(GUIENTITY *entity, char *objectname)
 {
 	entity->data = NULL;
-	strncpy(entity->objectname,objectname,sizeof(entity->objectname));
+	strncpy(entity->objectname,objectname,sizeof(entity->objectname)-1);
 }
 void GldGui::set_propertyname(GUIENTITY *entity, char *propertyname)
 {
 	entity->data = NULL;
-	strncpy(entity->propertyname,propertyname,sizeof(entity->propertyname));
+	strncpy(entity->propertyname,propertyname,sizeof(entity->propertyname)-1);
 }
 void GldGui::set_span(GUIENTITY *entity, int span)
 {
@@ -356,22 +356,22 @@ void GldGui::set_parent(GUIENTITY *entity, GUIENTITY *parent)
 }
 void GldGui::set_source(GUIENTITY *entity, char *source)
 {
-	strncpy(entity->source,source,sizeof(entity->source));
+	strncpy(entity->source,source,sizeof(entity->source)-1);
 }
 void GldGui::set_options(GUIENTITY *entity, char *options)
 {
-	strncpy(entity->options,options,sizeof(entity->options));
+	strncpy(entity->options,options,sizeof(entity->options)-1);
 }
 void GldGui::set_wait(GUIENTITY *entity, char *wait)
 {
-	strncpy(entity->wait_for,wait,sizeof(entity->wait_for));
+	strncpy(entity->wait_for,wait,sizeof(entity->wait_for)-1);
 }
 
 /* GET OPERATIONS */
 char *GldGui::get_dump(GUIENTITY *entity)
 {
-	static char buffer[1024];
-	sprintf(buffer,"{type=%s,srcref='%s',value='%s',globalname='%s',object='%s',property='%s',action='%s',span=%d}",
+	static char buffer[4096];
+	snprintf(buffer,sizeof(buffer)-1,"{type=%s,srcref='%s',value='%s',globalname='%s',object='%s',property='%s',action='%s',span=%d}",
 		get_typename(entity), entity->srcref, entity->value, entity->globalname, entity->objectname, entity->propertyname, entity->action, entity->span);
 	return buffer;
 }
@@ -396,26 +396,26 @@ char *GldGui::get_value(GUIENTITY *entity)
 		else if (strcmp(entity->propertyname,"parent")==0)
 			strcpy(entity->value,obj->parent?object_name(obj->parent, buffer, 63):"");
 		else if (strcmp(entity->propertyname,"rank")==0)
-			sprintf(entity->value,"%d",obj->rank);
+			snprintf(entity->value,sizeof(entity->value)-1,"%d",obj->rank);
 		else if (strcmp(entity->propertyname,"clock")==0)
-			convert_from_timestamp(obj->clock,entity->value,sizeof(entity->value));
+			convert_from_timestamp(obj->clock,entity->value,sizeof(entity->value)-1);
 		else if (strcmp(entity->propertyname,"valid_to")==0)
-			convert_from_timestamp(obj->valid_to,entity->value,sizeof(entity->value));
+			convert_from_timestamp(obj->valid_to,entity->value,sizeof(entity->value)-1);
 		else if (strcmp(entity->propertyname,"in_svc")==0)
-			convert_from_timestamp(obj->in_svc,entity->value,sizeof(entity->value));
+			convert_from_timestamp(obj->in_svc,entity->value,sizeof(entity->value)-1);
 		else if (strcmp(entity->propertyname,"out_svc")==0)
-			convert_from_timestamp(obj->out_svc,entity->value,sizeof(entity->value));
+			convert_from_timestamp(obj->out_svc,entity->value,sizeof(entity->value)-1);
 		else if (strcmp(entity->propertyname,"latitude")==0)
-			convert_from_latitude(obj->latitude,entity->value,sizeof(entity->value));
+			convert_from_latitude(obj->latitude,entity->value,sizeof(entity->value)-1);
 		else if (strcmp(entity->propertyname,"longitude")==0)
-			convert_from_longitude(obj->longitude,entity->value,sizeof(entity->value));
-		else if (!object_get_value_by_name(obj,entity->propertyname,entity->value,sizeof(entity->value)))
+			convert_from_longitude(obj->longitude,entity->value,sizeof(entity->value)-1);
+		else if (!object_get_value_by_name(obj,entity->propertyname,entity->value,sizeof(entity->value)-1))
 			output_error_raw("%s: ERROR: %s refers to a non-existent property '%s'", entity->srcref, get_typename(entity), entity->propertyname);
 	}
 	else if (get_variable(entity))
 	{
 		entity->var = global_find(entity->globalname);
-		global_getvar(entity->globalname,entity->value,sizeof(entity->value));
+		global_getvar(entity->globalname,entity->value,sizeof(entity->value)-1);
 	}
 	else if (get_environment(entity))
 		strcpy(entity->value,entity->env);
@@ -442,7 +442,7 @@ const char *GldGui::get_name(GUIENTITY *entity)
 	if (get_object(entity))
 	{
 		static char buffer[1024];
-		sprintf(buffer,"%s.%s", entity->objectname, entity->propertyname); 
+		snprintf(buffer,sizeof(buffer)-1,"%s.%s", entity->objectname, entity->propertyname); 
 		return buffer;
 	}
 	else if (get_variable(entity))
@@ -573,7 +573,7 @@ void GldGui::cmd_prompt(GUIENTITY *parent)
 Retry:
 	fprintf(stdout,"\n%s> [%s] ",label, get_value(entity));
 	fflush(stdout);
-	if ( fgets(buffer,sizeof(buffer),stdin) == NULL )
+	if ( fgets(buffer,sizeof(buffer)-1,stdin) == NULL )
 		output_error("GldGui::cmd_prompt read failed");
 	buffer[strlen(buffer)-1]='\0';
 	if (strcmp(buffer,"")==0)
@@ -592,7 +592,7 @@ Retry:
 	{
 #ifdef WIN32
 		char env[1024];
-		sprintf(env,"%s=%s",entity->env,buffer);
+		snprintf(env,sizeof(env)-1,"%s=%s",entity->env,buffer);
 		putenv(env);
 #else
 		setenv(entity->env,buffer,1);
@@ -640,7 +640,7 @@ void GldGui::cmd_menu(GUIENTITY *parent)
 Retry:
 		fprintf(stdout,"\nGLM> [%d] ",ans<item?ans+1:0);
 		fflush(stdout);
-		if ( fgets(buffer,sizeof(buffer),stdin) == NULL )
+		if ( fgets(buffer,sizeof(buffer)-1,stdin) == NULL )
 			output_error("GldGui::cmd_menu read failed");
 		buffer[strlen(buffer)-1]='\0';
 		ans = atoi(buffer);
@@ -739,23 +739,23 @@ void GldGui::output_html_textarea(GUIENTITY *entity)
 	size_t len;
 	char rows[32]="";
 	char cols[32]="";
-	if (entity->height>0) sprintf(rows," rows=\"%d\"",entity->height);
-	if (entity->width>0) sprintf(cols," cols=\"%d\"",entity->width);
+	if (entity->height>0) snprintf(rows,sizeof(rows)-1," rows=\"%d\"",entity->height);
+	if (entity->width>0) snprintf(cols,sizeof(cols)-1," cols=\"%d\"",entity->width);
 	html_output(fp,"<textarea class=\"browse\"%s%s >\n",rows,cols);
 	if (src==NULL)
 	{
 		html_output(fp,"***'%s' is not found: %s***",entity->source,strerror(errno));
 		goto Done;
 	}
-	len = fread(buffer,1,sizeof(buffer),src);
+	len = fread(buffer,1,sizeof(buffer)-1,src);
 	if ( len<0 )
 		html_output(fp,"***'%s' read failed: %s***",entity->source,strerror(errno));
-	else if (len<sizeof(buffer))
+	else if (len<sizeof(buffer)-1)
 	{
 		buffer[len]='\0';
 		html_output(fp,"%s",buffer);
 	}
-	if ( len>=sizeof(buffer) )
+	if ( len>=sizeof(buffer)-1 )
 		html_output(fp,"\n***file truncated***");
 Done:
 	html_output(fp,"</textarea>\n");
@@ -773,14 +773,14 @@ void GldGui::output_html_table(GUIENTITY *entity)
 		html_output(fp,"***'%s' is not found: %s***",entity->source,strerror(errno));
 		goto Done;
 	}
-	while ( fgets(line,sizeof(line),src)!=NULL )
+	while ( fgets(line,sizeof(line)-1,src)!=NULL )
 	{
 		char *eol = strchr(line,'\n');
 		if (eol) *eol='\0';
 		if ( line[0]=='#' )
 		{
 			if ( row==0 )
-				strncpy(header,line+1,sizeof(header));
+				strncpy(header,line+1,sizeof(header)-1);
 		}
 		else 
 		{
@@ -810,23 +810,23 @@ Done:
 
 void GldGui::output_html_graph(GUIENTITY *entity)
 {
-	char script[1024];
-	char command[1024];
-	char image[1024];
+	char script[2048];
+	char command[4096];
+	char image[2048];
 	char height[32]="";
 	char width[32]="";
 	FILE *plot=NULL;
 
 	/* setup gnuplot command */
-	sprintf(script,"%s.plt",entity->source);
+	snprintf(script,sizeof(script)-1,"%s.plt",entity->source);
 #ifdef WIN32
-	sprintf(command,"start wgnuplot %s",script);
+	snprintf(command,sizeof(command)-1,"start wgnuplot %s",script);
 #else
-	sprintf(command,"gnuplot %s",script);
+	snprintf(command,sizeof(command)-1,"gnuplot %s",script);
 #endif
-	sprintf(image,"%s.png",entity->source);
-	if (entity->width>0) sprintf(width," width=\"%d\"", entity->width);
-	if (entity->height>0) sprintf(height, " height=\"%d\"", entity->height);
+	snprintf(image,sizeof(image)-1,"%s.png",entity->source);
+	if (entity->width>0) snprintf(width,sizeof(width)-1," width=\"%d\"", entity->width);
+	if (entity->height>0) snprintf(height,sizeof(height)-1," height=\"%d\"", entity->height);
 
 	/* generate script */
 	plot = fopen(script,"w");
@@ -958,7 +958,7 @@ void GldGui::entity_html_content(GUIENTITY *entity)
 			KEYWORD *key = NULL;
 			const char *multiple = (prop->ptype==PT_set?"multiple":"");
 			char size[64] = "";
-			if (entity->size>0) sprintf(size,"size=\"%d\"",entity->size);
+			if (entity->size>0) snprintf(size,sizeof(size)-1,"size=\"%d\"",entity->size);
 			if (!entity->parent || get_type(entity->parent)!=GUI_SPAN) newcol(entity);
 			html_output(fp,"<select class=\"%s\" name=\"%s\" %s %s onchange=\"update_%s(this)\">\n", ptype, get_name(entity),multiple,size,ptype);
 			for (key=prop->keywords; key!=NULL; key=key->next)
@@ -1053,7 +1053,7 @@ void GldGui::html_output_children(GUIENTITY *entity)
 void GldGui::include_element(const char *tag, const char *options, const char *file)
 {
 	char path[1024];
-	if (!find_file(file,NULL,R_OK,path,sizeof(path)))
+	if (!find_file(file,NULL,R_OK,path,sizeof(path)-1))
 		output_error("unable to find '%s'", file);
 	else
 	{
@@ -1063,7 +1063,7 @@ void GldGui::include_element(const char *tag, const char *options, const char *f
 		else
 		{
 			char buffer[65536];
-			size_t len = fread(buffer,1,sizeof(buffer),fin);
+			size_t len = fread(buffer,1,sizeof(buffer)-1,fin);
 			if (len>=0)
 			{
 				buffer[len]='\0';
@@ -1223,13 +1223,13 @@ size_t GldGui::glm_write_all(FILE *fp)
 STATUS GldGui::startup(int argc, const char *argv[])
 {
 	static int started = 0;
-	char cmd[1024];
+	char cmd[2048];
 	if (started)
 		return SUCCESS;
 #ifdef WIN32
-	sprintf(cmd,"start %s http://localhost:%d/gui/", global_browser, global_server_portnum);
+	snprintf(cmd,sizeof(cmd)-1,"start %s http://localhost:%d/gui/", global_browser, global_server_portnum);
 #else
-	sprintf(cmd,"%s http://localhost:%d/gui/ & ps -p $! >/dev/null", global_browser, global_server_portnum);
+	snprintf(cmd,sizeof(cmd)-1,"%s http://localhost:%d/gui/ & ps -p $! >/dev/null", global_browser, global_server_portnum);
 #endif
 	if (system(cmd)!=0)
 	{
