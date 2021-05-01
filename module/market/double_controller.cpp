@@ -81,12 +81,12 @@ double_controller::double_controller(MODULE *module)
 			PT_double, "stdev_price", PADDR(stdev_price),
 			
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
-		memset(this,0,sizeof(double_controller));
+		memset((void*)this,0,sizeof(double_controller));
 	}
 }
 
 int double_controller::create( ) {
-	memset(this, 0, sizeof(double_controller));
+	memset((void*)this, 0, sizeof(double_controller));
 	sprintf(avg_target, "avg24");
 	sprintf(std_target, "std24");
 	controller_bid.rebid = false;

@@ -200,7 +200,7 @@ auction::auction(MODULE *module)
 		gl_publish_function(oclass, "register_participant", (FUNCTIONADDR)register_participant);
 		defaults = this;
 //		immediate = 1;
-		memset(this,0,sizeof(auction));
+		memset((void*)this,0,sizeof(auction));
 	}
 }
 
@@ -215,7 +215,7 @@ int auction::create(void)
 {
 	STATISTIC *stat;
 	double val = -1.0;
-	memcpy(this,defaults,sizeof(auction));
+	memcpy((void*)this,defaults,sizeof(auction));
 	lasthr = thishr = -1;
 	verbose = 0;
 	use_future_mean_price = 0;
@@ -381,7 +381,7 @@ int auction::init(OBJECT *parent)
 	latency_count = (uint32)(latency / period + 2);
 	latency_stride = sizeof(MARKETFRAME) + statistic_count * sizeof(double);
 	framedata = (MARKETFRAME *)malloc(latency_stride * latency_count);
-	memset(framedata, 0, latency_stride * latency_count);
+	memset((void*)framedata, 0, latency_stride * latency_count);
 	for(i = 0; i < latency_count; ++i){
 		MARKETFRAME *frameptr;
 		int64 addr = latency_stride * i + (int64)framedata;
@@ -463,7 +463,7 @@ int auction::init_statistics()
 	PROPERTY *prop = oclass->pmap;
 	for(prop = oclass->pmap; prop != NULL; prop = prop->next){
 		char frame[32], price[32], stat[32], period[32], period_unit[32];
-		memset(&statprop, 0, sizeof(STATISTIC));
+		memset((void*)&statprop, 0, sizeof(STATISTIC));
 		period_unit[0] = 0;
 		if(sscanf(prop->name, "%[^\n_]_%[^\n_]_%[^\n_]_%[0-9]%[A-Za-z]", frame, price, stat, period, period_unit) >= 4){
 			if(strcmp(price, "price") != 0){
@@ -508,7 +508,7 @@ int auction::init_statistics()
 			} // months and years are of varying length
 			// enqueue a new STATPROP instance
 			sp = (STATISTIC *)malloc(sizeof(STATISTIC));
-			memcpy(sp, &statprop, sizeof(STATISTIC));
+			memcpy((void*)sp, &statprop, sizeof(STATISTIC));
 			strcpy(sp->statname, prop->name);
 			sp->prop = prop;
 			sp->value = 0;
@@ -526,8 +526,8 @@ int auction::init_statistics()
 			}
 		}
 	}
-	memset(&cleared_frame, 0, latency_stride);
-	memset(&current_frame, 0, latency_stride);
+	memset((void*)&cleared_frame, 0, latency_stride);
+	memset((void*)&current_frame, 0, latency_stride);
 	return 1;
 }
 
@@ -726,7 +726,7 @@ TIMESTAMP auction::pop_market_frame(TIMESTAMP t1)
 	}
 	// valid, time-applicable data
 	// ~ copy current data to past_frame
-	memcpy(&past_frame, &current_frame, sizeof(MARKETFRAME)); // not copying lagging stats
+	memcpy((void*)&past_frame, &current_frame, sizeof(MARKETFRAME)); // not copying lagging stats
 	// ~ copy new data in
 	current_frame.market_id = frame->market_id;
 	current_frame.start_time = frame->start_time;
@@ -874,7 +874,7 @@ void auction::clear_market(void)
 	extern double bid_offset;
 	double cap_ref_unrep = 0.0;
 
-	memset(&unresponsive, 0, sizeof(unresponsive));
+	memset((void*)&unresponsive, 0, sizeof(unresponsive));
 
 	/* handle unbidding capacity */
 	if(capacity_reference_property != NULL && special_mode != MD_FIXED_BUYER){
@@ -1416,7 +1416,7 @@ void auction::clear_market(void)
 	} 
 	else 
 	{
-		memcpy(&past_frame, &current_frame, sizeof(MARKETFRAME)); // just the frame
+		memcpy((void*)&past_frame, &current_frame, sizeof(MARKETFRAME)); // just the frame
 		// ~ copy new data in
 		current_frame.market_id = cleared_frame.market_id;
 		current_frame.start_time = cleared_frame.start_time;

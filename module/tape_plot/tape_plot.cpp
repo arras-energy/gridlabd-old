@@ -495,7 +495,7 @@ EXPORT void close_recorder(struct recorder *my)
 		strcpy(gnuplot,plotcmd);
 	char fname[sizeof(char32)];
 	char type[sizeof(char32)];
-	char command[sizeof(char1024)];
+	char command[4096];
 
 	my->status = TS_DONE;
 
@@ -507,7 +507,7 @@ EXPORT void close_recorder(struct recorder *my)
 		fprintf(my->fp,"# end of tape\n");
 		fclose(my->fp);
 		sscanf(my->file,"%32[^:]:%32[^:]",type,fname);
-		sprintf(command,"%s %s", gnuplot, fname);
+		snprintf(command,sizeof(command)-1,"%s %s", gnuplot, fname);
 		system( command );
 	}
  	my->fp = NULL;

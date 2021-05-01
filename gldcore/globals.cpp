@@ -411,7 +411,7 @@ STATUS GldGlobals::init(void)
 	global_version_minor = version_minor();
 	global_version_patch = version_patch();
 	global_version_build = version_build();
-	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch));
+	strncpy(global_version_branch,version_branch(),sizeof(global_version_branch)-1);
 	strcpy(global_datadir,global_execdir);
 	char *bin = strstr(global_datadir,"/bin");
 	if ( bin ) *bin = '\0';
@@ -565,7 +565,7 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 					 */
 				}
 				key->next = prop->keywords;
-				strncpy(key->name, keyword, sizeof(key->name));
+				strncpy(key->name, keyword, sizeof(key->name)-1);
 				key->value = keyvalue;
 				prop->keywords = key;
 			} 
@@ -582,7 +582,7 @@ GLOBALVAR *GldGlobals::create_v(const char *name, va_list arg)
 					 */
 				}
 				key->next = prop->keywords;
-				strncpy(key->name, keyword, sizeof(key->name));
+				strncpy(key->name, keyword, sizeof(key->name)-1);
 				key->value = keyvalue;
 				prop->keywords = key;
 			} 
@@ -735,7 +735,7 @@ STATUS GldGlobals::setvar_v(const char *def, va_list ptr) /**< the definition */
 		v = va_arg(ptr,char*);
 		if ( v != NULL ) 
 		{
-			strncpy(value,v,sizeof(value));
+			strncpy(value,v,sizeof(value)-1);
 			if (strcmp(value,v)!=0)
 				output_error("GldGlobals::setvar_v(const char *def='%s',...): va_list value is too long to store",def);
 				/* TROUBLESHOOT
@@ -1103,7 +1103,7 @@ bool GldGlobals::parameter_expansion(char *buffer, size_t size, const char *spec
 			strncpy(buffer,temp,size);
 			strncpy(buffer+start,string,size-start);
 			strncpy(buffer+start+strlen(string),temp+start+strlen(pattern),size-start-strlen(string));
-			strncpy(temp,buffer,sizeof(temp));
+			strncpy(temp,buffer,sizeof(temp)-1);
 		}
 		return 1;
 	}
