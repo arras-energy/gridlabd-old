@@ -72,7 +72,7 @@ while n < len(sys.argv):
 		if len(specs) == 1:
 			OPTIONS[specs[0]] = None
 		else:
-			OPTIONS[specs[0]] = specs[1:]
+			OPTIONS[specs[0]] = '='.join(specs[1:])
 	n += 1
 
 if not INPUTFILE:
