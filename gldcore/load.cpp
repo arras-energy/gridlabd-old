@@ -6185,7 +6185,7 @@ int GldLoader::modify_directive(PARSER)
 	if ( WHITE,LITERAL("modify") )
 	{
 		char oname[64], pname[64], ovalue[1024];
-		if ( (WHITE,TERM(name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
+		if ( (WHITE,TERM(name(HERE,oname,sizeof(oname)))) && LITERAL(".") && TERM(dotted_name(HERE,pname,sizeof(pname))) && (WHITE,TERM(value(HERE,ovalue,sizeof(ovalue)))) && LITERAL(";") )
 		{
 			OBJECT *obj = object_find_name(oname);
 			if ( obj )
@@ -7730,77 +7730,7 @@ int GldLoader::process_macro(char *line, int size, char *_filename, int linenum)
 	}
 	else if ( strncmp(line, "#version", 8) == 0 )
 	{
-		int criteria = 0;
-		bool invert = false;
-		char *next = NULL, *last = NULL;
-		bool ok = false;
-		while ( (next=strtok_r(next?NULL:line+9," \t",&last)) )
-		{
-			unsigned int major=0, minor=0, patch=0, build=0;
-			char value1[1024], value2[1024];
-			if ( next[0] == '\0' )
-			{
-				continue;
-			}
-			if ( next[0] == '-' )
-			{
-				if ( strcmp(next,"-lt") == 0 )
-				{
-					criteria = -1;
-					invert = false;					
-				}
-				else if ( strcmp(next,"-le") == 0 )
-				{
-					criteria = +1;
-					invert = true;
-				}
-				else if ( strcmp(next,"-eq") == 0 )
-				{
-					criteria = 0;
-					invert = false;
-				}
-				else if ( strcmp(next,"-ge") == 0 )
-				{
-					criteria = -1;
-					invert = true;					
-				}
-				else if ( strcmp(next,"-gt") == 0 )
-				{
-					criteria = +1;
-					invert = false;
-				}
-				else if ( strcmp(next,"-ne") == 0 )
-				{
-					criteria = 0;
-					invert = true;
-				}
-				else
-				{
-					syntax_error(filename,linenum,"version test '%s' is not valid",next);
-					return FALSE;
-				}
-				continue;
-			}
-			else if ( sscanf(next,"%u.%u.%u",&major,&minor,&patch) > 1 )
-			{
-				sprintf(value1,"%u.%u.%u",global_version_major, global_version_minor, global_version_patch);
-				sprintf(value2,"%u.%u.%u",major,minor,patch);
-			}
-			else if ( sscanf(next,"%u",&build) == 1 )
-			{
-				sprintf(value1,"%06d",global_version_build);
-				sprintf(value2,"%06d",build);
-			}
-			else
-			{
-				sprintf(value1,"%s",global_version_branch);
-				sprintf(value2,"%s",next);
-			}
-			bool test = (strcmp(value1,value2) == criteria);
-			ok |= ( invert ? !test : test);
-			IN_MYCONTEXT output_debug("version check: strcmp('%s','%s') %s %d -> %s, ok is now %s",value1,value2,invert?"!=":"==",criteria,test^invert?"true":"false",ok?"true":"false");
-		}
-		if ( ! ok )
+		if ( ! version_check(line+9) )
 		{
 			syntax_error(filename,linenum,"version '%d.%d.%d-%d-%s' does not satisfy the version requirement",
 				global_version_major, global_version_minor, global_version_patch, global_version_build, global_version_branch);
