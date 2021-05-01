@@ -879,7 +879,7 @@ SIMULATIONMODE meter::inter_deltaupdate_meter(unsigned int64 delta_time, unsigne
 		if (fmeas_type != FM_NONE)
 		{
 			//Copy the tracker value
-			memcpy(&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
+			memcpy((void*)&prev_freq_state,&curr_freq_state,sizeof(FREQM_STATES));
 		}
 	}
 

@@ -45,12 +45,12 @@ group_recorder::group_recorder(MODULE *mod){
 			GL_THROW("Unable to publish deltamode postupdate function for group_recorder");
 
 		defaults = this;
-		memset(this, 0, sizeof(group_recorder));
+		memset((void*)this, 0, sizeof(group_recorder));
     }
 }
 
 int group_recorder::create(){
-	memcpy(this, defaults, sizeof(group_recorder));
+	memcpy((void*)this, defaults, sizeof(group_recorder));
 	deltamode_gr = false;
 	return 1;
 }
@@ -453,7 +453,7 @@ int group_recorder::read_line()
 		if(0 == line_buffer){
 			return 0;
 		}
-		memset(line_buffer, 0, line_size);
+		memset((void*)line_buffer, 0, line_size);
 		if(-1 == write_interval){ // 'on change', will need second buffer
 			prev_line_buffer = (char *)malloc(line_size);
 			if(0 == prev_line_buffer){
@@ -463,7 +463,7 @@ int group_recorder::read_line()
 				*/
 				return 0;
 			}
-			memset(prev_line_buffer, 0, line_size);
+			memset((void*)prev_line_buffer, 0, line_size);
 		}
 	}
 
@@ -473,7 +473,7 @@ int group_recorder::read_line()
 		prev_line_buffer = line_buffer;
 		line_buffer = swap_ptr;
 	}
-	memset(line_buffer, 0, line_size);
+	memset((void*)line_buffer, 0, line_size);
 	for(curr = obj_list; curr != 0; curr = curr->next){
 		// GETADDR is a macro defined in object.h
 		if(curr->prop.ptype == PT_complex && complex_part != CP_NONE){

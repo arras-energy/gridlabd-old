@@ -38,7 +38,7 @@ metrics_collector::metrics_collector(MODULE *mod){
 			NULL) < 1) GL_THROW("unable to publish properties in %s",__FILE__);
 
 		defaults = this;
-		memset(this, 0, sizeof(metrics_collector));
+		memset((void*)this, 0, sizeof(metrics_collector));
     }
 }
 
@@ -48,7 +48,7 @@ int metrics_collector::isa(char *classname){
 
 int metrics_collector::create(){
 
-	memcpy(this, defaults, sizeof(metrics_collector));
+	memcpy((void*)this, defaults, sizeof(metrics_collector));
 
 	// Give default values to parameters related to triplex_meter
 	real_power_array = NULL;

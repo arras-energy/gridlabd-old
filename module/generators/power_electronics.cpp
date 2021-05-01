@@ -157,7 +157,7 @@ power_electronics::power_electronics(MODULE *module)
 				PT_KEYWORD, "S",(set)PHASE_S,
 			NULL)<1) GL_THROW("unable to publish properties in %s",__FILE__);
 		defaults = this;
-		memset(this,0,sizeof(power_electronics));
+		memset((void*)this,0,sizeof(power_electronics));
 		/* TODO: set the default values of all properties here */
 	}
 }
@@ -378,7 +378,7 @@ double power_electronics::calculate_frequency_loss(double frequency, double Rtot
 /* Object creation is called once for each object that is created by the core */
 int power_electronics::create(void) 
 {
-	memcpy(this,defaults,sizeof(*this));
+	memcpy((void*)this,defaults,sizeof(*this));
 	/* TODO: set the context-free initial value of properties */
 	return 1; /* return 1 on success, 0 on failure */
 }

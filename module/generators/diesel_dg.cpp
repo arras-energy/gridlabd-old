@@ -408,7 +408,7 @@ diesel_dg::diesel_dg(MODULE *module)
 
 		defaults = this;
 
-		memset(this,0,sizeof(diesel_dg));
+		memset((void*)this,0,sizeof(diesel_dg));
 
 		if (gl_publish_function(oclass,	"interupdate_gen_object", (FUNCTIONADDR)interupdate_diesel_dg)==NULL)
 			GL_THROW("Unable to publish diesel_dg deltamode function");
@@ -2083,7 +2083,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 		prev_rotor_speed_val = curr_state.omega;
 
 		//Replicate curr_state into next
-		memcpy(&next_state,&curr_state,sizeof(MAC_STATES));
+		memcpy((void*)&next_state,&curr_state,sizeof(MAC_STATES));
 
 	}//End first pass and timestep of deltamode (initial condition stuff)
 	else if (iteration_count_val == 0)	//Not first run, just first run of this timestep
@@ -3035,7 +3035,7 @@ SIMULATIONMODE diesel_dg::inter_deltaupdate(unsigned int64 delta_time, unsigned 
 		IGenerated[2] = next_state.EintVal[2]*YS1*omega_pu;
 
 		//Copy everything back into curr_state, since we'll be back there
-		memcpy(&curr_state,&next_state,sizeof(MAC_STATES));
+		memcpy((void*)&curr_state,&next_state,sizeof(MAC_STATES));
 
 		//Check convergence
 		temp_double = fabs(curr_state.omega - prev_rotor_speed_val);

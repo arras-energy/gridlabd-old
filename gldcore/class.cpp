@@ -946,7 +946,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			else if(proptype == PT_HAS_NOTIFY || proptype == PT_HAS_NOTIFY_OVERRIDE)
 			{
 				char notify_fname[128];
-				sprintf(notify_fname, "notify_%s_%s", prop->oclass->name, prop->name);
+				snprintf(notify_fname,sizeof(notify_fname)-1,"notify_%s_%s", prop->oclass->name, prop->name);
 				prop->notify = (FUNCTIONADDR)DLSYM(prop->oclass->module->hLib, notify_fname);
 				if(prop->notify == 0){
 					errno = EINVAL;
@@ -963,7 +963,7 @@ int class_define_map(CLASS *oclass, /**< the object class */
 			{
 				char tcode[32];
 				const char *ptypestr=class_get_property_typename(proptype);
-				sprintf(tcode,"%d",proptype);
+				snprintf(tcode,sizeof(tcode)-1,"%d",proptype);
 				if (strcmp(ptypestr,"//UNDEF//")==0)
 					ptypestr = tcode;
 				errno = EINVAL;
@@ -1091,7 +1091,7 @@ int class_define_enumeration_member(CLASS *oclass, /**< pointer to the class whi
 	KEYWORD *key = (KEYWORD*)malloc(sizeof(KEYWORD));
 	if (prop==NULL || key==NULL) return 0;
 	key->next = prop->keywords;
-	strncpy(key->name,member,sizeof(key->name));
+	strncpy(key->name,member,sizeof(key->name)-1);
 	key->value = value;
 	prop->keywords = key;
 	return 1;
@@ -1110,7 +1110,7 @@ int class_define_set_member(CLASS *oclass, /**< pointer to the class which imple
 	if (prop->keywords==NULL)
 		prop->flags |= PF_CHARSET; /* enable single character keywords until a long keyword is defined */
 	key->next = prop->keywords;
-	strncpy(key->name,member,sizeof(key->name));
+	strncpy(key->name,member,sizeof(key->name)-1);
 	key->name[sizeof(key->name)-1]='\0'; /* null terminate name in case is was too long for strncpy */
 	if (strlen(key->name)>1 && (prop->flags&PF_CHARSET)) /* long keyword detected */
 		prop->flags ^= PF_CHARSET; /* disable single character keywords */
@@ -1423,7 +1423,7 @@ static int buffer_write(char *buffer, /**< buffer into which string is written *
 		return 0;
 
 	va_start(ptr,format);
-	count = vsprintf(temp, format, ptr);
+	count = vsnprintf(temp, sizeof(temp)-1, format, ptr);
 	va_end(ptr);
 
 	if(count < len){

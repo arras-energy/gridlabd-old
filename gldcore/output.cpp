@@ -581,9 +581,10 @@ int output_debug(const char *format,...) /**< \bprintf style argument list */
 		struct timeval tv;
 		gettimeofday(&tv,NULL);
 		struct tm *t = localtime(&tv.tv_sec);
-		char timestamp[256];
+		char timestamp[1024];
 		strftime(timestamp,64,"%Y-%m-%d %H:%M:%S",t);
-		snprintf(timestamp+strlen(timestamp),64,".%06d %s",tv.tv_usec,time_context);
+		int len = strlen(timestamp);
+		snprintf(timestamp+len,sizeof(timestamp)-len-1,".%06u %s",(unsigned int)tv.tv_usec,time_context);
 
 		/* check for repeated message */
 		static char lastfmt[4096] = "";
