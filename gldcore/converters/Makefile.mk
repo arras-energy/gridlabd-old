@@ -43,6 +43,10 @@ dist_pkgdata_DATA += gldcore/converters/glm2omd.py
 dist_pkgdata_DATA += gldcore/converters/json2csv.py
 dist_pkgdata_DATA += gldcore/converters/json2csv-profile.py
 
+# json -> html
+dist_pkgdata_DATA += gldcore/converters/json2html.py
+dist_pkgdata_DATA += gldcore/converters/json2html_config.py
+
 # json -> glm
 dist_pkgdata_DATA += gldcore/converters/json2glm.py
 
