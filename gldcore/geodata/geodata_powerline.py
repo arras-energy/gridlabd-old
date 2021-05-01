@@ -425,10 +425,11 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     diameter = cable['diameter']
     Q_S_constant = k_a*(diameter+2*ice_thickness)*(1+k_g)*GHI
 
-    if not 'heading' in data.columns:
-        line_angle = 180*atan2(p1[0]-p0[0],p1[1]-p0[1])/np.pi
-    else:
+    try:
         line_angle = line['heading']
+    except:
+        line_angle = 180*atan2(p1[0]-p0[0],p1[1]-p0[1])/np.pi
+
     phi = (wind_direction - line_angle)*np.pi/180
     k_angle = 1.194 - cos(phi) + 0.194*cos(2*phi) + 0.368*sin(2*phi)
     air_mass, k_f, air_viscosity = get_air_properties(air_temperature)
