@@ -618,24 +618,32 @@ def get_args(args):
         config.update(MODULE.default_config)
     for arg in args:
         lat,lon = get_latlon(arg)
-        if arg[0:2] == "--" and len(arg) > 2:
+        opts = [None]
+        if type(lat) is float and type(lon) is float:
+            verbose(f"arg={arg} --> lat,lon = {lat,lon}")        
+        elif arg[0:2] == "--" and len(arg) > 2:
             opts = arg[2:].split("=")
-        else:
-            opts = [None]
+            verbose(f"arg={arg} --> option {opts} accepted")
         if opts[0] in config.keys():
             if len(opts) == 1:
                 config[opts[0]] = not config[opts[0]]
+                verbose(f"arg={arg} --> config[{opts[0]}] = {not config[opts[0]]}")
             else:
                 config[opts[0]] = type(config[opts[0]])(opts[1])
+                verbose(f"arg={arg} --> config[{opts[0]}] = {config[opts[0]]}")
         elif opts[0] in options.keys():
             if len(opts) == 1:
                 options[opts[0]] = not options[opts[0]]
+                verbose(f"arg={arg} --> options[{opts[0]}] = {not options[opts[0]]}")
             else:
                 options[opts[0]] = type(options[opts[0]])(opts[1])
+                verbose(f"arg={arg} --> options[{opts[0]}] = {options[opts[0]]}")
         elif type(lat) == float and type(lon) == float:
             data.append(pandas.DataFrame({"latitude":[lat],"longitude":[lon]}))
+            verbose(f"arg={arg} --> append {len(data[-1])} rows from args")
         elif os.path.exists(arg):
             data.append(pandas.read_csv(arg))
+            verbose(f"arg={arg} --> append {len(data[-1])} rows from file")
         else:
             items = arg.split("+")
             values = {}
@@ -650,24 +658,30 @@ def get_args(args):
                 else:
                     values[specs[0]] = [specs[1]]
             data.append(pandas.DataFrame(values))
+            verbose(f"arg={arg} --> append {len(data[-1])} rows from string")
     if not data:
         data = pandas.read_csv("/dev/stdin")
+        verbose(f"no data; reading data from /dev/stdin")
     else:
         data = pandas.concat(data,ignore_index=True)
+        verbose(f"{len(data)} rows total received")
     if not "id" in data.columns:
         data["id"] = range(len(data))
         data = data.astype({"id":"int32"})
-
+        verbose(f"creating row index")
     global RESOLUTION
     global KEYINDEX
     if not KEYINDEX and RESOLUTION:
         KEYINDEX = "position"
-    if KEYINDEX in ["position","location"]:
+    if KEYINDEX in ["position","location","id"]:
         data = set_index(data)
-
+        verbose(f"setting index to {KEYINDEX}")
     global OPTIONS
     OPTIONS = options
     CONFIGDATA = config
+    verbose(f"data = {dataframe_to_table(data)}")
+    verbose(f"options = {json.dumps(options,indent=4)}")
+    verbose(f"config = {json.dumps(config,indent=4)}")
     return data,options,config
 
 def merge(args):
