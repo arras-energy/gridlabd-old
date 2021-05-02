@@ -183,6 +183,10 @@ selected as follows:
                     values will be suppressed and replaced with ellipses unless
                     the field string starts with '*'.
 
+  PLOT[:<fields>]   fields are plotted to a matplotlib figure.  Fields may be one
+                    'location', 'position', or 'geometry', which plot points, lines,
+                    and areas, respectively.
+
 DEVELOPER API
 
 Packages must implement the following (TODO indicates where your code goes)
@@ -346,6 +350,7 @@ import math, numpy
 import pandas
 import haversine
 import geopandas
+import matplotlib.pyplot as plt
 
 NAME = "geodata"
 GEODATA = sys.modules[__name__]
@@ -376,6 +381,19 @@ CONFIGDIR = {
 }
 KEYINDEX = None
 DEFAULTOPTIONS = {
+    "plot" : {
+    },
+    "savefig" : {
+        "dpi" : 300,
+        "facecolor" : "w",
+        "edgecolor" : "k",
+        "orientation" : "landscape",
+        "format" : "png",
+        "transparent" : False,
+        "bbox_inches" : None,
+        "pad_inches" : 0.1,
+        "metadata" : None,
+    },
 }
 RESOLUTION = None
 IDPRECISION = 0
@@ -387,6 +405,9 @@ RECORDSEP = '\n'
 E_OK = 0
 E_SYNTAX = 1
 E_NOTFOUND = 2
+E_MISSING = 3
+E_INVALID = 4
+E_NOTIMPLEMENTED = 9
 
 def error(msg,exitcode=None):
     text = f"ERROR [{NAME}/{DATASET}]: {msg}"
@@ -863,14 +884,43 @@ def write_table(data):
         print(data[specs[1].split(",")])
 
 def write_plot(data):
-    if "geometry" not in data.columns:
-        raise Exception(f"write_plot(): cannot plot data without geometry field")
     specs = FORMAT.split(":")
     if len(specs) == 1:
-        fig = geopandas.geopandas(data).plot()
-        fig.saveplot(OUTPUT)
-    else:
-        raise Exception(f"write_plot(): format '{FORMAT}' is not valid")
+        specs.append("geometry")
+    ax = None
+    for field in specs[1].split(','):
+        if field == 'geometry':
+            if 'geometry' in data.columns:
+                geodata = geopandas.GeoDataFrame(data,geometry=data['geometry'])
+            else:
+                error("geometry not in plot data",E_MISSING)
+        elif field == 'location':
+            if 'latitude' in data.columns and 'longitude' in data.columns:
+                points = geopandas.points_from_xy(data['longitude'],data['latitude'])
+                geodata = geopandas.GeoDataFrame(data,geometry=points)
+            else:
+                error("latitude/longitude not in plot data",E_MISSING)
+        elif field == 'position':
+            if 'latitude' in data.columns and 'longitude' in data.columns:
+                points = geopandas.points_from_xy(data['longitude'],data['latitude'])
+                error("unable to convert points to paths")
+                path = points # TODO
+                geodata = geopandas.GeoDataFrame(data,geometry=path)
+            else:
+                error("position not in plot data",E_MISSING)
+        else:
+            error(f"PLOT field '{field}' is not valid",E_SYNTAX)
+        if ax:
+            geodata.plot(ax=ax,**OPTIONS['plot'])
+        else:
+            ax = geodata.plot(**OPTIONS['plot'])
+    try:
+        if OUTPUT == "/dev/stdout":
+            plt.show()
+        else:
+            plt.savefig(OUTPUT,**OPTIONS['savefig'])
+    except Exception as err:
+        error(f"write_plot(): {err}",E_INVALID)
 
 def load_dataset(args):
     """Load the specified dataset implementation"""
