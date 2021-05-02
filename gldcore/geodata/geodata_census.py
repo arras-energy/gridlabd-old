@@ -216,7 +216,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     else:
 
-        raise Exception("no census dataset option specified")
+        raise Exception("no census dataset option specified, e.g., --state, --zipcode, or --tract")
 
 
 def get_states(match="STUSPS",value=None,contains=None,config=default_config):
