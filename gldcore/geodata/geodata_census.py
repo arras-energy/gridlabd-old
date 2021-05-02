@@ -1,9 +1,31 @@
-"""
+"""GridLAB-D US Geodata Census Package
+
+The census geodata package delivery US census data by zipcode or census tract.  The following
+data is available:
+
+    index
+    REGION
+    DIVISION
+    STATEFP
+    STATENS
+    GEOID
+    STUSPS
+    NAME
+    LSAD
+    MTFCC
+    FUNCSTAT
+    ALAND
+    AWATER
+    INTPTLAT
+    INTPTLON
+    geometry
+
 """
 
 version = 1
 
 import os
+import pandas
 import geopandas
 import urllib.request
 import pickle
@@ -11,7 +33,9 @@ from shapely.geometry import Point
 
 default_options = {
     "zipcode" : False,
-    "state" : True,
+    "state" : False,
+    "tract" : False,
+    "fields" : "STUSPS",
 }
 
 default_config = {
@@ -30,8 +54,7 @@ default_config = {
     "batch_address_resolution" : "https://geocoding.geo.census.gov/geocoder/returntype/addressbatch",
 }
 
-state_tract_codes =
-{
+state_tract_codes = {
     '01':'AL',
     '02':'AK',
     '04':'AZ',
@@ -140,14 +163,42 @@ state_zipcode0 = {
     'WV':	'2',
     'WY':	'8',
 }
+
 def apply(data, options=default_options, config=default_config, warning=print):
+
+    os.makedirs(config['cachedir'],exist_ok=True)
+
 
     if options["state"]:
 
         # get state data
-        states = get_states()
+        result = []
+        for id, row in data.iterrows():
+            if 'state' in data.columns:
+                result.append(get_states(value=row['state']))
+            elif 'latitude' in data.columns or 'longitude' in data.columns:
+                pos = Point(float(row.loc['longitude']),float(row.loc['latitude']))
+                result.append(get_states(contains=pos))
+            else:    
+                raise Exception("unable to process census data with latitude and longitude columns")
+            # print(id,result)
+            # for field in options['fields'].split(","):
+            #     try:
+            #         data.loc[id,field] = result[id,field]
+            #     except Exception as msg:
+            #         raise Exception(f"unable to get field '{field}' from row '{id}' of state census data: {msg}")
+        result = pandas.concat(result,ignore_index=True)
+        if 'fields' not in options or not options['fields'] or options['fields'] == '*':
+            fieldlist = result.columns.to_list()
+        else:
+            fieldlist = options['fields'].split(',')
+        for field in fieldlist:
+            if field not in result.columns:
+                raise Exception(f"field '{field}' is not found in census data")
+        data[fieldlist] = result[fieldlist]
+        return data
 
-    if options["zipcode"]:
+    elif options["zipcode"]:
 
         # get zipcode data
         zipcodes = []
@@ -156,10 +207,17 @@ def apply(data, options=default_options, config=default_config, warning=print):
             zipcodes.append(get_zipcodes(digit))
         zipcodes = pandas.concat(zipcodes)
 
+        return zipcodes
 
+    elif options["tract"]:
 
-    warning("census geodata package is not implemented yet")
-    return DataFrame()
+        warning("census tract is not implemented yet")
+        return data
+
+    else:
+
+        raise Exception("no census dataset option specified")
+
 
 def get_states(match="STUSPS",value=None,contains=None,config=default_config):
     """Get state geodata
@@ -289,6 +347,8 @@ if __name__ == '__main__':
 
     import unittest
 
+    os.makedirs(default_config['cachedir'],exist_ok=True)
+
     class TestStates(unittest.TestCase):
 
         def test_state_contains(self):
@@ -304,8 +364,8 @@ if __name__ == '__main__':
 
         def test_zipcode(self):
             result = get_zipcodes(zipcode=94025)
-            lat = result["INTPTLAT10"][0]
-            lon = result["INTPTLON10"][0]
+            lat = result['INTPTLAT10'][0]
+            lon = result['INTPTLON10'][0]
             self.assertEqual((lat,lon),('+37.4563924','-122.1736012'))
 
         def test_zipcode_startswith(self):
