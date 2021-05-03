@@ -104,6 +104,11 @@ be lost.
     entry in the data, thus maintaining the ordering the rows.  Rows are indexed
     on the key names "position".
 
+  [-k|--key "uuid"]
+
+    The "uuid" key generates a universally unique identifier for each record.
+    Rows are indexed on the key name "uuid".
+
 If the [-r|--resolution METERS] option is used, the keys are generated at
 the specified resolution along the path. The default resolution is None. If
 resolution is specified without a key, then "position" is used.
@@ -351,6 +356,7 @@ import pandas
 import haversine
 import geopandas
 import matplotlib.pyplot as plt
+import uuid
 
 NAME = "geodata"
 GEODATA = sys.modules[__name__]
@@ -401,6 +407,16 @@ GEOPRECISION = 4
 OPTIONS = {}
 FIELDSEP = ' '
 RECORDSEP = '\n'
+COLUMNNAMES = {
+    'ID' : "id",
+    'UUID' : "uuid",
+    'LAT' : "latitude",
+    'LON' : "longitude",
+    'DIST' : "distance",
+    'HEAD' : "heading",
+    'LOC' : "location",
+    'POS' : "position",
+}
 
 E_OK = 0
 E_SYNTAX = 1
@@ -569,21 +585,26 @@ def set_location(data):
     """Update the location index on the data"""
     try:
         result = pandas.DataFrame(data)
-        result["location"] = list(map(lambda pos: encode(float(pos[0]),float(pos[1])),zip(result["latitude"],result["longitude"])))
-        result.set_index("location",inplace=True)
+        result[COLUMNNAMES['LOC']] = list(map(lambda pos: encode(float(pos[0]),float(pos[1])),zip(result[COLUMNNAMES['LAT']],result[COLUMNNAMES['LON']])))
+        result.set_index(COLUMNNAMES['LOC'],inplace=True)
     except:
         result = data
     return result
 
 def set_position(data):
     """Update the path position index from the distance column"""
-    if "distance" not in data.columns:
+    if COLUMNNAMES['DIST'] not in data.columns:
         result = pandas.DataFrame(data).merge(set_distance(data),how="outer")
     else:
         result = pandas.DataFrame(data)
-    result["position"] = pandas.Series(result["distance"]*10**IDPRECISION,dtype="int32")
-    result = result.set_index("position").sort_index()
+    result[COLUMNNAMES['POS']] = pandas.Series(result[COLUMNNAMES['DIST']]*10**IDPRECISION,dtype="int32")
+    result = result.set_index(COLUMNNAMES['POS']).sort_index()
     return result
+
+def set_uuid(data):
+    if COLUMNNAMES['UUID'] not in data.columns:
+        data[COLUMNNAMES['UUID']] = list(map(lambda x:uuid.uuid4().hex, range(len(data))))
+    return data.set_index(COLUMNNAMES['UUID'])
 
 def set_index(data,index=None,silent=False):
     """Set the specified index on the data"""
@@ -593,22 +614,24 @@ def set_index(data,index=None,silent=False):
         index = KEYINDEX
 
     global RESOLUTION
-    if RESOLUTION and index != "position":
+    if RESOLUTION and index != COLUMNNAMES['POS']:
         warning(f"using index '{index}' cannot be used with '--resolution={RESOLUTION}' option")
     if index is None:
         if data.index.name:
             data.reset_index(inplace=True)
-        if "id" in data.columns:
-            data.set_index("id",inplace=True)
+        if COLUMNNAMES['ID'] in data.columns:
+            data.set_index(COLUMNNAMES['ID'],inplace=True)
         else:
-            data.index.name = "id"
+            data.index.name = COLUMNNAMES['ID']
         return data
     elif data.index.name == index:
         return data
-    elif index == "location":
+    elif index == COLUMNNAMES['LOC']:
         return set_location(data)
-    elif index == "position":
+    elif index == COLUMNNAMES['POS']:
         return set_position(data)
+    elif index == COLUMNNAMES['UUID']:
+        return set_uuid(data)
     elif not type(index) is type(None):
         columns = index.split(",")
         try:
@@ -641,7 +664,7 @@ def get_args(args):
         lat,lon = get_latlon(arg)
         opts = [None]
         if type(lat) is float and type(lon) is float:
-            verbose(f"arg={arg} --> lat,lon = {lat,lon}")        
+            verbose(f"arg={arg} --> lat,lon = {lat,lon}")
         elif arg[0:2] == "--" and len(arg) > 2:
             opts = arg[2:].split("=")
             verbose(f"arg={arg} --> option {opts} accepted")
@@ -660,7 +683,7 @@ def get_args(args):
                 options[opts[0]] = type(options[opts[0]])(opts[1])
                 verbose(f"arg={arg} --> options[{opts[0]}] = {options[opts[0]]}")
         elif type(lat) == float and type(lon) == float:
-            data.append(pandas.DataFrame({"latitude":[lat],"longitude":[lon]}))
+            data.append(pandas.DataFrame({COLUMNNAMES['LAT']:[lat],COLUMNNAMES['LON']:[lon]}))
             verbose(f"arg={arg} --> append {len(data[-1])} rows from args")
         elif os.path.exists(arg):
             data.append(pandas.read_csv(arg))
@@ -686,15 +709,15 @@ def get_args(args):
     else:
         data = pandas.concat(data,ignore_index=True)
         verbose(f"{len(data)} rows total received")
-    if not "id" in data.columns:
-        data["id"] = range(len(data))
-        data = data.astype({"id":"int32"})
+    if not COLUMNNAMES['ID'] in data.columns:
+        data[COLUMNNAMES['ID']] = range(len(data))
+        data = data.astype({COLUMNNAMES['ID']:"int32"})
         verbose(f"creating row index")
     global RESOLUTION
     global KEYINDEX
     if not KEYINDEX and RESOLUTION:
-        KEYINDEX = "position"
-    if KEYINDEX in ["position","location","id"]:
+        KEYINDEX = COLUMNNAMES['POS']
+    if KEYINDEX in [COLUMNNAMES['POS'],COLUMNNAMES['LOC'],COLUMNNAMES['ID']]:
         data = set_index(data)
         verbose(f"setting index to {KEYINDEX}")
     global OPTIONS
@@ -740,11 +763,11 @@ def create(args):
 
 def set_distance(data):
     """Computes the distance and heading from latitude and longitude"""
-    path = {"distance":[],"latitude":[],"longitude":[],"heading":[]}
+    path = {COLUMNNAMES['DIST']:[],COLUMNNAMES['LAT']:[],COLUMNNAMES['LON']:[],COLUMNNAMES['HEAD']:[]}
     last = None
     post = 0.0
     global RESOLUTION
-    for pos in list(zip(data["latitude"],data["longitude"])):
+    for pos in list(zip(data[COLUMNNAMES['LAT']],data[COLUMNNAMES['LON']])):
         segs = 1
         p0 = float(pos[0])
         p1 = float(pos[1])
@@ -764,25 +787,25 @@ def set_distance(data):
             lat += dlat
             lon += dlon
             post += RESOLUTION
-            path["distance"].append(post)
-            path["heading"].append(head)
-            path["latitude"].append(lat)
-            path["longitude"].append(lon)
+            path[COLUMNNAMES['DIST']].append(post)
+            path[COLUMNNAMES['HEAD']].append(head)
+            path[COLUMNNAMES['LAT']].append(lat)
+            path[COLUMNNAMES['LON']].append(lon)
             dist -= RESOLUTION
             segs -= 1
         post += dist
-        path["distance"].append(post)
-        path["heading"].append(head)
-        path["latitude"].append(pos[0])
-        path["longitude"].append(pos[1])
+        path[COLUMNNAMES['DIST']].append(post)
+        path[COLUMNNAMES['HEAD']].append(head)
+        path[COLUMNNAMES['LAT']].append(pos[0])
+        path[COLUMNNAMES['LON']].append(pos[1])
         last = [p0,p1]
     return pandas.DataFrame(path)
 
 def get_path(data):
     """Computes the path position index for path specified by latitude and longitude"""
     path = set_position(data)
-    joinon = ["position"]
-    for other in ["latitude","longitude","location"]:
+    joinon = [COLUMNNAMES['POS']]
+    for other in [COLUMNNAMES['LAT'],COLUMNNAMES['LON'],COLUMNNAMES['LOC'],COLUMNNAMES['UUID']]:
         if other in data.columns:
             joinon.append(other)
     result = data.merge(path,how=PATHJOIN)
@@ -819,7 +842,7 @@ def write_raw(data):
 
 def write_pos(data):
     """Write lat,lon output"""
-    data.to_csv(OUTPUT,columns=["latitude","longitude"],header=False,index=False,float_format=f"%.{GEOPRECISION}f")
+    data.to_csv(OUTPUT,columns=[COLUMNNAMES['LAT'],COLUMNNAMES['LON']],header=False,index=False,float_format=f"%.{GEOPRECISION}f")
 
 def write_json(data):
     """Write JSON output"""
@@ -857,7 +880,7 @@ def write_glm(data):
                 print("{",file=fh)
                 print("\tname \"{row['name']}\";",file=fh)
             for prop, value in row.items():
-                if prop in ["id","class","name"]:
+                if prop in [COLUMNNAMES['ID'],"class","name"]:
                     continue
                 elif not columns or prop in columns:
                     if modify:
