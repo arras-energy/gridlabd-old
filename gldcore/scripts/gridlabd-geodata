@@ -211,19 +211,11 @@ Packages must implement the following (TODO indicates where your code goes)
         return pandas.DataFrame(result)
 
     if __name__ == '__main__':
-        if len(sys.argv) == 1 or sys.argv[1] in ["-h","--help","help"]:
-            print(f"Syntax: {sys.argv[0].split('/')[-1]} [unittest|makeconfig]")
-        elif sys.argv[1] in ["unittest"]:
-            import unittest
-            class TestAddress(unittest.TestCase):
-                def test_1(self):
-                    TODO
-            unittest.main()
-        elif sys.argv[1] in ["makeconfig"]:
-            with open(sys.argv[0].replace(".py",".cfg"),"w") as fh:
-                json.dump(default_config,fh,indent=4)
-        else:
-            raise Exception(f"'{sys.argv[0]}' is an invalid command option")
+        import unittest
+        class TestAddress(unittest.TestCase):
+            def test_1(self):
+                TODO
+        unittest.main()
 
 See geodata_distance.py for a simple example of a dataset implementation.
 
