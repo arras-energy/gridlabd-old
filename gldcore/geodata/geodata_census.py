@@ -30,6 +30,7 @@ import geopandas
 import urllib.request
 import pickle
 from shapely.geometry import Point
+import censusdata
 
 default_options = {
     "zipcode" : False,
@@ -179,7 +180,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
             elif 'latitude' in data.columns or 'longitude' in data.columns:
                 pos = Point(float(row.loc['longitude']),float(row.loc['latitude']))
                 result.append(get_states(contains=pos))
-            else:    
+            else:
                 raise Exception("unable to process census data with latitude and longitude columns")
             # print(id,result)
             # for field in options['fields'].split(","):
