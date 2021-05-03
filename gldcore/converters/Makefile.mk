@@ -2,6 +2,8 @@
 # INPUT CONVERTERS
 #
 
+python_requirements += gldcore/converters/requirements.txt
+
 # csv -> glm
 dist_pkgdata_DATA += gldcore/converters/csv2glm.py
 dist_pkgdata_DATA += gldcore/converters/csv-ceus2glm-ceus.py

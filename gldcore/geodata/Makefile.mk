@@ -8,3 +8,5 @@ dist_pkgdata_DATA += gldcore/geodata/geodata_powerline_cabletypes.csv
 dist_pkgdata_DATA += gldcore/geodata/geodata_utility.py
 # dist_pkgdata_DATA += gldcore/geodata/geodata_vegetation.py
 # dist_pkgdata_DATA += gldcore/geodata/geodata_weather.py
+
+python_requirements += gldcore/geodata/requirements.txt

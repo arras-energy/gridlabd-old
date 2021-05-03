@@ -18,3 +18,5 @@ bin_SCRIPTS += gldcore/scripts/gridlabd-trace
 bin_SCRIPTS += gldcore/scripts/gridlabd-validate
 bin_SCRIPTS += gldcore/scripts/gridlabd-version
 bin_SCRIPTS += gldcore/scripts/gridlabd-weather
+
+python_requirements += gldcore/scripts/requirements.txt
