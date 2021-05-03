@@ -200,7 +200,7 @@ int switch_object::init(OBJECT *parent)
 			//Initial check, make sure stays open
 			if (status == LS_OPEN)
 			{
-				phase_A_state = phase_B_state = phase_C_state = CLOSED;	//Set all to open - phase checks will sort it out
+				phase_A_state = phase_B_state = phase_C_state = OPEN;	//Set all to open - phase checks will sort it out
 			}
 			else
 			{

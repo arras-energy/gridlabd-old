@@ -166,3 +166,6 @@ gridlabd-core.*
 documents/gridlabd.md
 documents/gridlabd.pdf
 openfido.err
+test_*.html
+gldcore/converters/autotest/IEEE-123.html
+gldcore/converters/autotest/solver_nr_profile.csv
