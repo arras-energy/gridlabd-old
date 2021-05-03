@@ -408,6 +408,8 @@ OPTIONS = {}
 FIELDSEP = ' '
 RECORDSEP = '\n'
 COLUMNNAMES = {
+    # although configurable, changing these is not recommeded because the
+    # packages don't have visibility to this list (yet)
     'ID' : "id",
     'UUID' : "uuid",
     'LAT' : "latitude",
