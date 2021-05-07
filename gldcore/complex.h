@@ -425,70 +425,70 @@ public:
 	};
 
 	// Method: operator +
-	inline complex operator + (double y) /**< double sum */
+	inline complex operator + (double y) const /**< double sum */
 	{
 		complex x(*this);
 		return x+=y;
 	};
 
 	// Method: operator -
-	inline complex operator - (double y) /**< double subtract */
+	inline complex operator - (double y) const /**< double subtract */
 	{
 		complex x(*this);
 		return x-=y;
 	};
 
 	// Method: operator *
-	inline complex operator * (double y) /**< double multiply */
+	inline complex operator * (double y) const /**< double multiply */
 	{
 		complex x(*this);
 		return x*=y;
 	};
 
 	// Method: operator /
-	inline complex operator / (double y) /**< double divide */
+	inline complex operator / (double y) const /**< double divide */
 	{
 		complex x(*this);
 		return x/=y;
 	};
 
 	// Method: operator ^
-	inline complex operator ^ (double y) /**< double power */
+	inline complex operator ^ (double y) const /**< double power */
 	{
 		complex x(*this);
 		return x^=y;
 	};
 
 	// Method: operator +
-	inline complex operator + (complex y) /**< complex sum */
+	inline complex operator + (const complex &y) const /**< complex sum */
 	{
 		complex x(*this);
 		return x+=y;
 	};
 
 	// Method: operator -
-	inline complex operator - (complex y) /**< complex subtract */
+	inline complex operator - (const complex &y) const /**< complex subtract */
 	{
 		complex x(*this);
 		return x-=y;
 	};
 
 	// Method: operator *
-	inline complex operator * (complex y) /**< complex multiply */
+	inline complex operator * (const complex &y) const /**< complex multiply */
 	{
 		complex x(*this);
 		return x*=y;
 	};
 
 	// Method: operator /
-	inline complex operator / (complex y) /**< complex divide */
+	inline complex operator / (const complex &y) const /**< complex divide */
 	{
 		complex x(*this);
 		return x/=y;
 	};
 
 	// Method: operator ^
-	inline complex operator ^ (complex y) /**< complex power */
+	inline complex operator ^ (const complex &y) const /**< complex power */
 	{
 		complex x(*this);
 		return x^=y;
