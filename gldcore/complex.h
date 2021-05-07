@@ -181,7 +181,7 @@ public:
 	
 	// Method: operator =
 	// Copy complex values
-	inline complex &operator = (complex x) 
+	inline complex &operator = (const complex &x) 
 	{
 		r = x.r; 
 		i = x.i; 
@@ -330,13 +330,13 @@ public:
 	};
 
 	// Method: operator -
-	inline complex operator - (void) /**< change sign */
+	inline complex operator - (void) const /**< change sign */
 	{
 		return complex(-r,-i,f);
 	};
 
 	// Method: operator ~
-	inline complex operator ~ (void) /**< complex conjugate */
+	inline complex operator ~ (void) const /**< complex conjugate */
 	{ 
 		return complex(r,-i,f);
 	};
@@ -381,7 +381,7 @@ public:
 	};
 
 	// Method: operator +=
-	inline complex &operator += (complex x) /**< add a complex number */
+	inline complex &operator += (const complex &x) /**< add a complex number */
 	{
 		r += x.r; 
 		i += x.i; 
@@ -389,7 +389,7 @@ public:
 	};
 
 	// Method: operator -=
-	inline complex &operator -= (complex x)  /**< subtract a complex number */
+	inline complex &operator -= (const complex &x)  /**< subtract a complex number */
 	{
 		r -= x.r; 
 		i -= x.i; 
@@ -397,7 +397,7 @@ public:
 	};
 
 	// Method: operator *=
-	inline complex &operator *= (complex x)  /**< multip[le by a complex number */
+	inline complex &operator *= (const complex &x)  /**< multip[le by a complex number */
 	{
 		double pr=r; 
 		r = pr * x.r - i * x.i; 
@@ -406,7 +406,7 @@ public:
 	};
 
 	// Method: operator /=
-	inline complex &operator /= (complex y)  /**< divide by a complex number */
+	inline complex &operator /= (const complex &y)  /**< divide by a complex number */
 	{
 		double xr=r;
 		double a = y.r*y.r+y.i*y.i;
@@ -416,7 +416,7 @@ public:
 	};
 
 	// Method: operator ^=
-	inline complex &operator ^= (complex x) /**< raise to a complex power */
+	inline complex &operator ^= (const complex &x) /**< raise to a complex power */
 	{ 
 		double lm = log(Mag()), a = Arg(), b = exp(x.r*lm-x.i*a), c = x.r*a+x.i*lm; 
 		r = (b*cos(c)); 
@@ -511,54 +511,54 @@ public:
 
 	// Method: operator ==
 	// Compare magnitude
-	inline bool operator == (double m)	{ return Mag()==m; };
+	inline bool operator == (double m) const { return Mag()==m; };
 
 	// Method: operator !=
 	// Compare magnitude
-	inline bool operator != (double m)	{ return Mag()!=m; };
+	inline bool operator != (double m) const { return Mag()!=m; };
 
 	// Method: operator <
 	// Compare magnitude
-	inline bool operator < (double m)	{ return Mag()<m; };
+	inline bool operator < (double m) const { return Mag()<m; };
 
 	// Method: operator <=
 	// Compare magnitude
-	inline bool operator <= (double m)	{ return Mag()<=m; };
+	inline bool operator <= (double m) const { return Mag()<=m; };
 
 	// Method: 
 	// Compare magnitude
-	inline bool operator > (double m)	{ return Mag()>m; };
+	inline bool operator > (double m) const { return Mag()>m; };
 
 	// Method: operator >=
 	// Compare magnitude
-	inline bool operator >= (double m)	{ return Mag()>=m; };
+	inline bool operator >= (double m) const { return Mag()>=m; };
 
 	// Method: operator ==
 	// Compare angle
-	inline bool operator == (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)==0.0;};
+	inline bool operator == (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)==0.0;};
 
 	// Method: operator !=
 	// Compare angle
-	inline bool operator != (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)!=0.0;};
+	inline bool operator != (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)!=0.0;};
 
 	// Method: operator <
 	// Compare angle
-	inline bool operator < (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)<PI;};
+	inline bool operator < (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)<PI;};
 
 	// Method: operator <=
 	// Compare angle
-	inline bool operator <= (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)<=PI;};
+	inline bool operator <= (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)<=PI;};
 
 	// Method: operator >
 	// Compare angle
-	inline bool operator > (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)>PI;};
+	inline bool operator > (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)>PI;};
 
 	// Method: operator >=
 	// Compare angle
-	inline bool operator >= (complex y)	{ return fmod(y.Arg()-Arg(),2*PI)>=PI;};
+	inline bool operator >= (const complex &y) const { return fmod(y.Arg()-Arg(),2*PI)>=PI;};
 
 	// Method: IsFinite
-	inline bool IsFinite(void) { return isfinite(r) && isfinite(i); };
+	inline bool IsFinite(void) const { return isfinite(r) && isfinite(i); };
 };
 #endif
 
