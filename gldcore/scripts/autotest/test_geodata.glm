@@ -4,7 +4,7 @@
 #define DIR=..
 #endif
 
-#option redirect output:gridlabd.out
+#option redirect output:/tmp/gridlabd.out
 
 // geodata create
 #geodata create 37.4205,-122.2046
@@ -39,5 +39,5 @@
 #geodata merge -D distance ${DIR:-.}/path_example.csv -k latitude,longitude
 
 #ifexist "${DIR:-.}/test_geodata.txt"
-#on_exit 0 diff ${DIR:-.}/test_geodata.txt gridlabd.out >/dev/stderr
+#on_exit 0 diff ${DIR:-.}/test_geodata.txt /tmp/gridlabd.out >/dev/stderr
 #endif
