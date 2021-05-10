@@ -738,7 +738,7 @@ def merge(args):
         else:
             error(str(result))
         result = None
-    elif type(result) is pandas.DataFrame:
+    elif type(result) in [pandas.DataFrame,geopandas.GeoDataFrame]:
         result = set_index(result)
     else:
         warning(f"merge result is not a recognized object type (type is '{type(result)}')")
