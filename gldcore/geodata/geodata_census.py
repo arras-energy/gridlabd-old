@@ -36,7 +36,8 @@ default_options = {
     "zipcode" : False,
     "state" : False,
     "tract" : False,
-    "fields" : "STUSPS",
+    "state_fields" : "STUSPS",
+    "zipcode_fields" : "ZCTA5CE10",
 }
 
 default_config = {
@@ -169,7 +170,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     os.makedirs(config['cachedir'],exist_ok=True)
 
-
+    fieldlist = []
     if options["state"]:
 
         # get state data
@@ -177,49 +178,48 @@ def apply(data, options=default_options, config=default_config, warning=print):
         for id, row in data.iterrows():
             if 'state' in data.columns:
                 result.append(get_states(value=row['state']))
-            elif 'latitude' in data.columns or 'longitude' in data.columns:
+            elif 'latitude' in data.columns and 'longitude' in data.columns:
                 pos = Point(float(row.loc['longitude']),float(row.loc['latitude']))
                 result.append(get_states(contains=pos))
             else:
-                raise Exception("unable to process census data with latitude and longitude columns")
-            # print(id,result)
-            # for field in options['fields'].split(","):
-            #     try:
-            #         data.loc[id,field] = result[id,field]
-            #     except Exception as msg:
-            #         raise Exception(f"unable to get field '{field}' from row '{id}' of state census data: {msg}")
-        result = pandas.concat(result,ignore_index=True)
-        if 'fields' not in options or not options['fields'] or options['fields'] == '*':
-            fieldlist = result.columns.to_list()
+                raise Exception("unable to process state data without latitude and longitude columns")
+        if options['state_fields'] == '*':
+            fieldlist.extend(result.columns.to_list())
         else:
-            fieldlist = options['fields'].split(',')
-        for field in fieldlist:
-            if field not in result.columns:
-                raise Exception(f"field '{field}' is not found in census data")
-        data[fieldlist] = result[fieldlist]
-        return data
+            fieldlist.extend(options['state_fields'].split(','))
 
-    elif options["zipcode"]:
+    if options["zipcode"]:
+
+        if not 'latitude' in data.columns or not 'longitude' in data.columns:
+            raise Exception("unable to process zipcode data without latitude and longitude columns")
+
 
         # get zipcode data
-        zipcodes = []
-        global state_zipcode0
-        for digit in state_zipcode0[state]:
-            zipcodes.append(get_zipcodes(digit))
-        zipcodes = pandas.concat(zipcodes)
+        result = []
+        for id, row in data.iterrows():
+            pos = Point(float(row.loc['longitude']),float(row.loc['latitude']))
+            state = get_states(contains=pos)['STUSPS'][0]
+            global state_zipcode0
+            for digit in state_zipcode0[state]:
+                result.append(get_zipcodes(digit,contains=pos))
+        if options['zipcode_fields'] == '*':
+            fieldlist.extend(result.columns.to_list())
+        else:
+            fieldlist.extend(options['zipcode_fields'].split(','))
 
-        return zipcodes
-
-    elif options["tract"]:
+    if options["tract"]:
 
         warning("census tract is not implemented yet")
         return data
 
-    else:
+    result = pandas.concat(result,ignore_index=True)  
+    for field in fieldlist:
+        if field not in result.columns:
+            raise Exception(f"field '{field}' is not found in census data")
+        data[field] = result[field]
+    return data
 
-        raise Exception("no census dataset option specified, e.g., --state, --zipcode, or --tract")
-
-
+state_data = {}
 def get_states(match="STUSPS",value=None,contains=None,config=default_config):
     """Get state geodata
 
@@ -247,101 +247,108 @@ def get_states(match="STUSPS",value=None,contains=None,config=default_config):
 
         DataFrame   Geopandas dataframe containing state geodata
     """
-    states_url = f"{config['urladdr']}/STATE/{config['states_filename']}"
-    states_file = f"{config['cachedir']}/states"
+    global state_data
+    if not state_data:
+        states_url = f"{config['urladdr']}/STATE/{config['states_filename']}"
+        states_file = f"{config['cachedir']}/states"
 
-    if not os.path.exists(states_file+".zip"):
+        if not os.path.exists(states_file+".zip"):
 
-        # download from TIGER repo
-        with urllib.request.urlopen(states_url) as resp, open(states_file+".zip", "wb") as f:
-            try:
-                f.write(resp.read())
-            except:
-                os.remove(states_file)
+            # TODO: manage multiple simultaneous requests, i.e., wait for download to finish
+            # download from TIGER repo
+            with urllib.request.urlopen(states_url) as resp, open(states_file+".zip", "wb") as f:
+                try:
+                    f.write(resp.read())
+                except:
+                    os.remove(states_file)
 
-    if not os.path.exists(f"{states_file}.gdf"):
+        if not os.path.exists(f"{states_file}.gdf"):
 
-        # cache file is not available
-        states = geopandas.read_file(f"zip://{states_file}.zip")
-        with open(f"{states_file}.gdf","wb") as f: pickle.dump(states,f)
+            # cache file is not available
+            state_data = geopandas.read_file(f"zip://{states_file}.zip")
+            with open(f"{states_file}.gdf","wb") as f: pickle.dump(states,f)
 
-    else:
+        else:
 
-        # cache file is available
-        with open(f"{states_file}.gdf","rb") as f: states = pickle.load(f)
+            # cache file is available
+            with open(f"{states_file}.gdf","rb") as f: state_data = pickle.load(f)
 
     if contains:
 
         # search based on Point
-        return states[states.contains(contains)].reset_index()
+        return state_data[state_data.contains(contains)].reset_index()
 
     elif value:
 
         # search based on matched value (by default STUSPS)
-        return states[states[match]==value].reset_index()
+        return state_data[state_data[match]==value].reset_index()
 
     else:
 
         # no search - return everything
-        return states
+        return state_data
 
+zipcode_data = {}
 def get_zipcodes(zipcode=None,contains=None,config=default_config):
     """Get zipcode geodata
     """
-    zipcode_url = f"{config['urladdr']}/ZCTA5/{config['zipcode_filename']}"
-    zipcode_file = f"{config['cachedir']}/zipcodes"
+    global zipcode_data
+    if not zipcode_data:
+        zipcode_url = f"{config['urladdr']}/ZCTA5/{config['zipcode_filename']}"
+        zipcode_file = f"{config['cachedir']}/zipcodes"
 
-    if not os.path.exists(zipcode_file+".zip"):
+        if not os.path.exists(zipcode_file+".zip"):
 
-        # download from TIGER repo
-        with urllib.request.urlopen(zipcode_url) as resp, open(zipcode_file+".zip", "wb") as f:
-            try:
-                f.write(resp.read())
-            except:
-                os.remove(zipcode_file)
+            # TODO: manage multiple simultaneous requests, i.e., wait for download to finish
+            # download from TIGER repo
+            with urllib.request.urlopen(zipcode_url) as resp, open(zipcode_file+".zip", "wb") as f:
+                try:
+                    f.write(resp.read())
+                except:
+                    os.remove(zipcode_file)
 
-    if zipcode != None:
+        if zipcode != None:
 
-        # regional zipcode file is ok to use
-        digit = str(zipcode)[0]
-        if not os.path.exists(f"{zipcode_file}{digit}.gdf"):
+            # regional zipcode file is ok to use
+            digit = str(zipcode)[0]
+            if not os.path.exists(f"{zipcode_file}{digit}.gdf"):
 
-            # cache file is not available
-            zipcodes = geopandas.read_file(f"zip://{zipcode_file}.zip")
-            zipcodes = zipcodes[zipcodes["GEOID10"].str[0]==digit]
-            with open(f"{zipcode_file}{digit}.gdf","wb") as f: pickle.dump(zipcodes,f)
-        else:
+                # cache file is not available
+                zipcode_data = geopandas.read_file(f"zip://{zipcode_file}.zip")
+                zipcode_data = zipcode_data[zipcode_data["GEOID10"].str[0]==digit]
+                with open(f"{zipcode_file}{digit}.gdf","wb") as f: pickle.dump(zipcode_data,f)
+            else:
 
-            # cache file is available
-            with open(f"{zipcode_file}{digit}.gdf","rb") as f: zipcodes = pickle.load(f)
-
-    else:
-
-        # must use national zipcode file
-        if not os.path.exists(f"{zipcode_file}.gdf"):
-
-            # cache file is not available
-            zipcodes = geopandas.read_file(f"zip://{zipcode_file}.zip")
-            with open(f"{zipcode_file}.gdf","wb") as f: pickle.dump(zipcodes,f)
+                # cache file is available
+                with open(f"{zipcode_file}{digit}.gdf","rb") as f: zipcode_data = pickle.load(f)
 
         else:
 
-            # cache file is available
-            with open(f"{zipcode_file}.gdf","rb") as f: zipcodes = pickle.load(f)
+            # must use national zipcode file
+            if not os.path.exists(f"{zipcode_file}.gdf"):
+
+                # cache file is not available
+                zipcode_data = geopandas.read_file(f"zip://{zipcode_file}.zip")
+                with open(f"{zipcode_file}.gdf","wb") as f: pickle.dump(zipcode_data,f)
+
+            else:
+
+                # cache file is available
+                with open(f"{zipcode_file}.gdf","rb") as f: zipcode_data = pickle.load(f)
 
     if contains:
 
         # search for zipcode based on geopandas Point
-        return zipcodes[zipcodes.contains(contains)].reset_index()
+        return zipcode_data[zipcode_data.contains(contains)].reset_index()
 
     elif zipcode:
 
         # search for zipcode based on zipcode given
-        return zipcodes[zipcodes["GEOID10"].str.startswith(str(zipcode))].reset_index()
+        return zipcode_data[zipcode_data["GEOID10"].str.startswith(str(zipcode))].reset_index()
     else:
 
         # no search - return everything
-        return zipcodes
+        return zipcode_data
 
 # perform validation tests
 if __name__ == '__main__':
