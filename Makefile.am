@@ -310,7 +310,7 @@ install-exec-hook: index python-requirements python-install
 	@echo ""
 
 python-requirements: $(python_requirements)
-	@python3 -m pip install -q -r $<
+	cat $(python_requirements) | python3 -m pip install -q -r /dev/stdin
 
 reconfigure: distclean
 	autoreconf -isf && ./configure
