@@ -33,11 +33,9 @@ from shapely.geometry import Point
 import censusdata
 
 default_options = {
-    "zipcode" : False,
-    "state" : False,
-    "tract" : False,
     "state_fields" : "STUSPS",
     "zipcode_fields" : "ZCTA5CE10",
+    "tract_fields" : "",
 }
 
 default_config = {
@@ -170,10 +168,10 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     os.makedirs(config['cachedir'],exist_ok=True)
 
-    fieldlist = []
-    if options["state"]:
+    if options["state_fields"]:
 
         # get state data
+        fieldlist = []
         result = []
         for id, row in data.iterrows():
             if 'state' in data.columns:
@@ -183,18 +181,24 @@ def apply(data, options=default_options, config=default_config, warning=print):
                 result.append(get_states(contains=pos))
             else:
                 raise Exception("unable to process state data without latitude and longitude columns")
+        result = pandas.concat(result,ignore_index=True)  
         if options['state_fields'] == '*':
             fieldlist.extend(result.columns.to_list())
         else:
             fieldlist.extend(options['state_fields'].split(','))
+        for field in fieldlist:
+            if field not in result.columns:
+                raise Exception(f"field '{field}' is not found in state data")
+            data[field] = result[field]
 
-    if options["zipcode"]:
+    if options["zipcode_fields"]:
 
         if not 'latitude' in data.columns or not 'longitude' in data.columns:
             raise Exception("unable to process zipcode data without latitude and longitude columns")
 
 
         # get zipcode data
+        fieldlist = []
         result = []
         for id, row in data.iterrows():
             pos = Point(float(row.loc['longitude']),float(row.loc['latitude']))
@@ -202,24 +206,24 @@ def apply(data, options=default_options, config=default_config, warning=print):
             global state_zipcode0
             for digit in state_zipcode0[state]:
                 result.append(get_zipcodes(digit,contains=pos))
+        result = pandas.concat(result,ignore_index=True)  
         if options['zipcode_fields'] == '*':
             fieldlist.extend(result.columns.to_list())
         else:
             fieldlist.extend(options['zipcode_fields'].split(','))
+        for field in fieldlist:
+            if field not in result.columns:
+                raise Exception(f"field '{field}' is not found in zipcode data")
+            data[field] = result[field]
 
-    if options["tract"]:
+    if options["tract_fields"]:
 
         warning("census tract is not implemented yet")
         return data
 
-    result = pandas.concat(result,ignore_index=True)  
-    for field in fieldlist:
-        if field not in result.columns:
-            raise Exception(f"field '{field}' is not found in census data")
-        data[field] = result[field]
     return data
 
-state_data = {}
+state_data = None
 def get_states(match="STUSPS",value=None,contains=None,config=default_config):
     """Get state geodata
 
@@ -248,7 +252,7 @@ def get_states(match="STUSPS",value=None,contains=None,config=default_config):
         DataFrame   Geopandas dataframe containing state geodata
     """
     global state_data
-    if not state_data:
+    if type(state_data) == type(None):
         states_url = f"{config['urladdr']}/STATE/{config['states_filename']}"
         states_file = f"{config['cachedir']}/states"
 
@@ -288,12 +292,12 @@ def get_states(match="STUSPS",value=None,contains=None,config=default_config):
         # no search - return everything
         return state_data
 
-zipcode_data = {}
+zipcode_data = None
 def get_zipcodes(zipcode=None,contains=None,config=default_config):
     """Get zipcode geodata
     """
     global zipcode_data
-    if not zipcode_data:
+    if type(zipcode_data) == type(None):
         zipcode_url = f"{config['urladdr']}/ZCTA5/{config['zipcode_filename']}"
         zipcode_file = f"{config['cachedir']}/zipcodes"
 
