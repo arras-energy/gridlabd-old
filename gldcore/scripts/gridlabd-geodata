@@ -351,6 +351,7 @@ import matplotlib.pyplot as plt
 import uuid
 
 NAME = "geodata"
+VERSION = "0.0.0"
 GEODATA = sys.modules[__name__]
 DIRECTIVES = ["config","create","merge"]
 VERBOSE = False
@@ -380,6 +381,18 @@ CONFIGDIR = {
 KEYINDEX = None
 DEFAULTOPTIONS = {
     "plot" : {
+        "figsize" : [7.0,5.0],
+        "cmap" : "",
+        "categorical" : False,
+        "legend" : False,
+        "scheme" : "",
+        "k" : 5,
+        "vmin" : float('nan'),
+        "vmax" : float('nan'),
+        "aspect" : 'auto',
+    },
+    "show" : {
+        "block" : True,
     },
     "savefig" : {
         "dpi" : 300,
@@ -388,9 +401,14 @@ DEFAULTOPTIONS = {
         "orientation" : "landscape",
         "format" : "png",
         "transparent" : False,
-        "bbox_inches" : None,
+        "bbox_inches" : 0.25,
         "pad_inches" : 0.1,
-        "metadata" : None,
+        "metadata" : json.dumps(
+            {
+                "application" : "gridlabd-geodata",
+                "version" : VERSION,
+            }
+        ),
     },
 }
 RESOLUTION = None
@@ -639,6 +657,48 @@ def set_index(data,index=None,silent=False):
     else:
         error("index '{index}' is not valid")
 
+def get_subvalue(name,data):
+    if type(name) is list:
+        if len(name) > 1:
+            result = get_subvalue(name[1:],data[name[0]])
+        else:
+            result = data[name[0]]
+    else:
+        result = data[name]
+    return result
+
+def set_subvalue(name,data,value):
+    if type(name) is list:
+        if len(name) > 1:
+            result = set_subvalue(name[1],data[name[0]],value)
+        else:
+            result = data[name[0]]
+            data[name[0]] = value
+    else:
+        result = data[name]
+        data[name] = value
+    return result
+
+def set_value(arg,data,tags=[]):
+    try:
+        specs = arg.split('=')
+        tags = specs[0].split('.')
+        if len(specs) == 1: # boolean flags
+            value = not get_subvalue(tags,data)
+        else: # typed value
+            value = '='.join(specs[1:])
+            default = get_subvalue(tags,data)
+            value_type = type(default)
+            if value_type == type(None):
+                raise Exception(f"the type/class of '{default.__repr__()}' is not permitted for config or option {'.'.join(tags).__repr__()}, try using an empty string for the default")
+            value = value_type(value)
+        set_subvalue(tags,data,value)
+        result = True
+    except:
+        raise
+        result = False
+    return result
+
 def get_args(args):
     """Get the arguments, options, and configuration"""
 
@@ -657,25 +717,25 @@ def get_args(args):
     for arg in args:
         lat,lon = get_latlon(arg)
         opts = [None]
-        if type(lat) is float and type(lon) is float:
-            verbose(f"arg={arg} --> lat,lon = {lat,lon}")
-        elif arg[0:2] == "--" and len(arg) > 2:
+        if arg[0:2] == "--" and len(arg) > 2:
             opts = arg[2:].split("=")
             verbose(f"arg={arg} --> option {opts} accepted")
-        if opts[0] in config.keys():
-            if len(opts) == 1:
-                config[opts[0]] = not config[opts[0]]
-                verbose(f"arg={arg} --> config[{opts[0]}] = {not config[opts[0]]}")
-            else:
-                config[opts[0]] = type(config[opts[0]])(opts[1])
-                verbose(f"arg={arg} --> config[{opts[0]}] = {config[opts[0]]}")
-        elif opts[0] in options.keys():
-            if len(opts) == 1:
-                options[opts[0]] = not options[opts[0]]
-                verbose(f"arg={arg} --> options[{opts[0]}] = {not options[opts[0]]}")
-            else:
-                options[opts[0]] = type(options[opts[0]])(opts[1])
-                verbose(f"arg={arg} --> options[{opts[0]}] = {options[opts[0]]}")
+            if not set_value(arg[2:],options) and not set_value(arg[2:],config):
+                error(f"config/option '{arg}' is not valid")
+        # if opts[0] in config.keys():
+        #     if len(opts) == 1:
+        #         config[opts[0]] = not config[opts[0]]
+        #         verbose(f"arg={arg} --> config[{opts[0]}] = {not config[opts[0]]}")
+        #     else:
+        #         config[opts[0]] = type(config[opts[0]])(opts[1])
+        #         verbose(f"arg={arg} --> config[{opts[0]}] = {config[opts[0]]}")
+        # elif opts[0] in options.keys():
+        #     if len(opts) == 1:
+        #         options[opts[0]] = not options[opts[0]]
+        #         verbose(f"arg={arg} --> options[{opts[0]}] = {not options[opts[0]]}")
+        #     else:
+        #         options[opts[0]] = type(options[opts[0]])(opts[1])
+        #         verbose(f"arg={arg} --> options[{opts[0]}] = {options[opts[0]]}")
         elif type(lat) == float and type(lon) == float:
             data.append(pandas.DataFrame({COLUMNNAMES['LAT']:[lat],COLUMNNAMES['LON']:[lon]}))
             verbose(f"arg={arg} --> append {len(data[-1])} rows from args")
@@ -933,7 +993,7 @@ def write_plot(data):
             ax = geodata.plot(**OPTIONS['plot'])
     try:
         if OUTPUT == "/dev/stdout":
-            plt.show()
+            plt.show(**OPTIONS['show'])
         else:
             plt.savefig(OUTPUT,**OPTIONS['savefig'])
     except Exception as err:
