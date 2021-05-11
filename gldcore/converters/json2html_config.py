@@ -1,4 +1,4 @@
-"""Configuration file for JSON to HTML converter"""
+'''Configuration file for JSON to HTML converter'''
 
 #
 # Default values for options
@@ -6,7 +6,7 @@
 icon_prefix = 'fa' # --glyphs
 zoomlevel = 'auto' # --zoomlevel
 show = False # --show
-tiles = "OpenStreetMap" # --tiles
+tiles = 'OpenStreetMap' # --tiles
 cluster_ok = True # --cluster
 
 #
@@ -21,9 +21,9 @@ zoomtoggle = None # enable the zoom toggle control
 # Tile options
 #
 map_tiles = {
-    "street" : 'OpenStreetMap',
-    "terrain" : 'Stamen Terrain',
-    "lineart" : 'Stamen Toner',
+    'street' : 'OpenStreetMap',
+    'terrain' : 'Stamen Terrain',
+    'lineart' : 'Stamen Toner',
 }
 
 #
@@ -33,51 +33,51 @@ icons = {'fa': # See https://fontawesome.com/icons?d=gallery&p=1&m=free for avai
     {
         'substation' : 'sitemap',
         'node' : 'circle',
-        'pole' : 'cross',
-        'load' : "chevron-circle-down",
-        "triplex_load" : "angle-double-down",
+        'pole' : 'fa-cny',
+        'load' : 'chevron-circle-down',
+        'triplex_load' : 'angle-double-down',
         'regulator' : 'adjust',
         'switch' : 'square',
         'transformer' : 'squarespace',
         'meter' : 'clock',
-        'capacitor' : "hockey-puck",
-        'inverter' : "chevron-circle-up",
+        'capacitor' : 'hockey-puck',
+        'inverter' : 'chevron-circle-up',
         'office' : 'building',
         'apartment' : 'hotel',
         'house' : 'home',
-        'evcharger' : "charging-station",
+        'evcharger' : 'fa-flash',
         'industrial' : 'industry',
         'parking' : 'parking',
-        'solar' : "solar-panel",
-        'battery' : "battery-half",
-        "energy-storage" : "battery-empty",
+        'solar' : 'solar-panel',
+        'battery' : 'battery-half',
+        'energy-storage' : 'battery-empty',
         'weather' : 'wind',
         'climate' : 'sun',
     },
-    'glyphicon': # See https://getbootstrap.com/docs/3.3/components/ for available icons
+    'glyphicon': # See https://getbootstrap.com/docs/3.2/components/ for available icons
     {
-        'substation' : "glyphicon-th-list",
-        'node' : "glyphicon-record",
-        'pole' : "glyphicon-text-size",
-        'load' : "glyphicon-circle-arrow-down",
-        "triplex_load" : "glyphicon-triangle-bottom",
-        'regulator' : "glyphicon-ban-circle",
-        'switch' : "glyphicon-stop",
-        'transformer' : "glyphicon-link",
-        'meter' : "glyphicon-dashboard",
-        'capacitor' : "glyphicon-oil",
-        'inverter' : "chevron-circle-up",
-        'office' : "glyphicon glyphicon-th",
-        'apartment' : "glyphicon-th-large",
-        'house' : "glyphicon-home",
-        'evcharger' : "glyphicon-flash",
-        'industrial' : "glyphicon-home",
-        'parking' : "glyphicon-home",
-        'solar' : "glyphicon-home",
-        'battery' : "glyphicon-home",
-        "energy-storage" : "glyphicon-modal-window",
-        'weather' : "glyphicon-certificate",
-        'climate' : "glyphicon-certificate",
+        'substation' : 'glyphicon-th-list',
+        'node' : 'glyphicon-record',
+        'pole' : 'glyphicon-text-size',
+        'load' : 'glyphicon-circle-arrow-down',
+        'triplex_load' : 'glyphicon-triangle-bottom',
+        'regulator' : 'glyphicon-ban-circle',
+        'switch' : 'glyphicon-stop',
+        'transformer' : 'glyphicon-link',
+        'meter' : 'glyphicon-dashboard',
+        'capacitor' : 'glyphicon-oil',
+        'inverter' : 'chevron-circle-up',
+        'office' : 'glyphicon glyphicon-th',
+        'apartment' : 'glyphicon-th-large',
+        'house' : 'glyphicon-home',
+        'evcharger' : 'glyphicon-flash',
+        'industrial' : 'glyphicon-home',
+        'parking' : 'glyphicon-home',
+        'solar' : 'glyphicon-home',
+        'battery' : 'glyphicon-home',
+        "energy-storage" : 'glyphicon-modal-window',
+        'weather' : 'glyphicon-certificate',
+        'climate' : 'glyphicon-certificate',
     },
 }
 
@@ -110,7 +110,7 @@ current_colors = {
 #
 # Hidden properties
 #
-hidden_properties = ['rank','clock',"rng_state",'flags']
+hidden_properties = ['rank','clock','rng_state','flags']
 
 #
 # Show command used to open the browser
