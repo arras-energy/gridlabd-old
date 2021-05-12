@@ -419,7 +419,7 @@ DEFAULTOPTIONS = {
 }
 RESOLUTION = None
 IDPRECISION = 0
-GEOPRECISION = 4
+GEOPRECISION = 5
 OPTIONS = {}
 FIELDSEP = ' '
 RECORDSEP = '\n'
@@ -877,6 +877,8 @@ def get_distance(pos1,pos2):
 def write_csv(data):
     """Write to CSV with headers"""
     specs = FORMAT.split(":")
+    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
+    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     if len(specs) == 1:
         data.to_csv(OUTPUT)
     else:
@@ -888,6 +890,8 @@ def write_csv(data):
 def write_raw(data):
     """Write raw output"""
     specs = FORMAT.split(":")
+    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
+    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     with open(OUTPUT,"w") as fh:
         if len(specs) == 1:
             print(RECORDSEP.join(list(map(lambda x:FIELDSEP.join(x.values()),data.astype('str').to_dict("records")))),file=fh)
@@ -906,6 +910,8 @@ def write_pos(data):
 def write_json(data):
     """Write JSON output"""
     specs = FORMAT.split(":")
+    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
+    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     with open(OUTPUT,"w") as fh:
         if len(specs) == 1:
             print(data.to_json(orient="records"),file=fh)
@@ -918,6 +924,8 @@ def write_json(data):
 def write_glm(data):
     """Write GLM output"""
     specs = FORMAT.split(":")
+    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
+    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     if len(specs) == 1:
         columns = data.columns.to_list()
     else:
@@ -951,6 +959,8 @@ def write_glm(data):
 
 def write_table(data):
     specs = FORMAT.split(":")
+    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
+    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     if len(specs) == 1:
         print(data)
     elif specs[1][0] == '*':
