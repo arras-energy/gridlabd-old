@@ -181,7 +181,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
                 result.append(get_states(contains=pos))
             else:
                 raise Exception("unable to process state data without latitude and longitude columns")
-        result = pandas.concat(result,ignore_index=True)  
+        result = pandas.concat(result,ignore_index=True)
         if options['state_fields'] == '*':
             fieldlist.extend(result.columns.to_list())
         else:
@@ -206,7 +206,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
             global state_zipcode0
             for digit in state_zipcode0[state]:
                 result.append(get_zipcodes(digit,contains=pos))
-        result = pandas.concat(result,ignore_index=True)  
+        result = pandas.concat(result,ignore_index=True)
         if options['zipcode_fields'] == '*':
             fieldlist.extend(result.columns.to_list())
         else:
@@ -298,6 +298,7 @@ def get_zipcodes(zipcode=None,contains=None,config=default_config):
     """
     global zipcode_data
     if type(zipcode_data) == type(None):
+
         zipcode_url = f"{config['urladdr']}/ZCTA5/{config['zipcode_filename']}"
         zipcode_file = f"{config['cachedir']}/zipcodes"
 
@@ -343,16 +344,20 @@ def get_zipcodes(zipcode=None,contains=None,config=default_config):
     if contains:
 
         # search for zipcode based on geopandas Point
-        return zipcode_data[zipcode_data.contains(contains)].reset_index()
+        result = zipcode_data[zipcode_data.contains(contains)].reset_index()
 
     elif zipcode:
 
         # search for zipcode based on zipcode given
-        return zipcode_data[zipcode_data["GEOID10"].str.startswith(str(zipcode))].reset_index()
+        result = zipcode_data[zipcode_data["GEOID10"].str.startswith(str(zipcode))].reset_index()
     else:
 
         # no search - return everything
-        return zipcode_data
+        result = zipcode_data
+
+    with open(f"{config['cachedir']}/zipcode_result.last","w") as f: pickle.dump(result,f)
+
+    return result
 
 # perform validation tests
 if __name__ == '__main__':
