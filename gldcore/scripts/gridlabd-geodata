@@ -410,6 +410,12 @@ DEFAULTOPTIONS = {
             }
         ),
     },
+    "table" : {
+        "max_rows" : 10,
+        "max_columns" : 10,
+        "width" : 100,
+        "max_colwidth" : 10,
+    }
 }
 RESOLUTION = None
 IDPRECISION = 0
@@ -695,7 +701,6 @@ def set_value(arg,data,tags=[]):
         set_subvalue(tags,data,value)
         result = True
     except:
-        raise
         result = False
     return result
 
@@ -750,7 +755,7 @@ def get_args(args):
                 if len(specs) == 1:
                     global DATASET
                     if DATASET is None:
-                        error(f"'{arg}' is not recognized without a dataset ",E_SYNTAX)
+                        error(f"'{arg}' is not recognized",E_SYNTAX)
                     else:
                         values[DATASET] = [specs[0]]
                 else:
@@ -949,10 +954,10 @@ def write_table(data):
     if len(specs) == 1:
         print(data)
     elif specs[1][0] == '*':
-        pandas.set_option('display.max_rows', None)
-        pandas.set_option('display.max_columns', None)
-        pandas.set_option('display.width', None)
-        pandas.set_option('display.max_colwidth', None)
+        pandas.set_option('display.max_rows', DEFAULTOPTIONS['table']['max_rows'])
+        pandas.set_option('display.max_columns', DEFAULTOPTIONS['table']['max_columns'])
+        pandas.set_option('display.width', DEFAULTOPTIONS['table']['width'])
+        pandas.set_option('display.max_colwidth', DEFAULTOPTIONS['table']['max_colwidth'])
         if len(specs[1]) > 1:
             print(data[specs[1][1:].split(",")])
         else:
