@@ -100,7 +100,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
             global units
             data["distance"] = (numpy.array(dist) * units[options["units"]]).round(config["precision"])
         except:
-            raise Exception(f"unit '{options['units']}' is not valid")
+            raise Exception(f"unit '{options['units']}' is not recognized")
     return data
 
 #
