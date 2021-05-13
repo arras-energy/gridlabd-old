@@ -79,6 +79,7 @@ if not REPOURL:
 #
 default_options = {
     "fields" : "NAME",
+    "geometry" : False,
 }
 
 default_config = {
@@ -139,7 +140,10 @@ def get_information(id,field=None):
 def get_geometry(id):
     """Get the utility territory geometry"""
     geom = read_kml()
-    return geom["geometry"][id]
+    result = geom[id]
+    print(f"get_geometry(id={id.__repr__()}) --> {result}")
+    result.plot()
+    return result
 
 def get_utility(pos):
     """Returns the utility id(s) at the given position(s)
@@ -187,7 +191,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     global OPTIONS
     OPTIONS = options
-    
+
     csv_keys = read_csv().keys()
     info = {"latitude":[],"longitude":[]}
     if not type(options["fields"]) is str:
@@ -195,10 +199,12 @@ def apply(data, options=default_options, config=default_config, warning=print):
     options["fields"] = options["fields"].split(",")
     for field in options["fields"]:
         if field not in csv_keys:
-            raise Exception(f"field '{field}' not found in repo '{csvrepo}'")
+            raise Exception(f"field '{field}' not found in repo '{CONFIG['csvrepo']}'")
         info[field] = []
     if "latitude" not in data.columns or "longitude" not in data.columns:
         raise Exception("data must include 'latitude' and 'longitude' columns")
+    if options["geometry"]:
+        info["geometry"] = []
     for index, row in data.iterrows():
         pos = get_position((row["latitude"],row["longitude"]))
         id = get_utility(pos)
@@ -207,6 +213,8 @@ def apply(data, options=default_options, config=default_config, warning=print):
         info["longitude"].append(pos[1])
         for key in options["fields"]:
             info[key].extend(values[key].to_list())
+        if options["geometry"]:
+            info["geometry"].append(get_geometry(id))
     result = pandas.DataFrame(info)
     return result
 
