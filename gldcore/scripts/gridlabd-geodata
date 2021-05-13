@@ -401,25 +401,29 @@ DEFAULTOPTIONS = {
         "orientation" : "landscape",
         "format" : "png",
         "transparent" : False,
-        "bbox_inches" : 0.25,
+        # "bbox_inches" : 0.25,
         "pad_inches" : 0.1,
-        "metadata" : json.dumps(
-            {
-                "application" : "gridlabd-geodata",
-                "version" : VERSION,
-            }
-        ),
+        # "metadata" : json.dumps(
+        #     {
+        #         "application" : "gridlabd-geodata",
+        #         "version" : VERSION,
+        #     }
+        # ),
     },
     "table" : {
         "max_rows" : 10,
         "max_columns" : 10,
         "width" : 100,
         "max_colwidth" : 10,
-    }
+    },
+    "precision" : {
+        "distance" : 2,
+        "heading" : 1,
+        "geolocation" : 5,
+        "id" : 0,
+    },
+    "resolution" : 0,
 }
-RESOLUTION = None
-IDPRECISION = 0
-GEOPRECISION = 5
 OPTIONS = {}
 FIELDSEP = ' '
 RECORDSEP = '\n'
@@ -615,7 +619,7 @@ def set_position(data):
         result = pandas.DataFrame(data).merge(set_distance(data),how="outer")
     else:
         result = pandas.DataFrame(data)
-    result[COLUMNNAMES['POS']] = pandas.Series(result[COLUMNNAMES['DIST']]*10**IDPRECISION,dtype="int32")
+    result[COLUMNNAMES['POS']] = pandas.Series(result[COLUMNNAMES['DIST']]*10**OPTIONS["precision"]["id"],dtype="int32")
     result = result.set_index(COLUMNNAMES['POS']).sort_index()
     return result
 
@@ -631,9 +635,14 @@ def set_index(data,index=None,silent=False):
     if index is None:
         index = KEYINDEX
 
-    global RESOLUTION
-    if RESOLUTION and index != COLUMNNAMES['POS']:
-        warning(f"using index '{index}' cannot be used with '--resolution={RESOLUTION}' option")
+    global COLUMNNAMES
+    global OPTIONS
+    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: round(x,OPTIONS["precision"]["geolocation"]))
+    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: round(x,OPTIONS["precision"]["geolocation"]))
+
+    global OPTIONS
+    if OPTIONS["resolution"] and index != COLUMNNAMES['POS']:
+        warning(f"using index '{index}' cannot be used with '--resolution={OPTIONS['resolution']}' option")
     if index is None:
         if data.index.name:
             data.reset_index(inplace=True)
@@ -727,20 +736,6 @@ def get_args(args):
             verbose(f"arg={arg} --> option {opts} accepted")
             if not set_value(arg[2:],options) and not set_value(arg[2:],config):
                 error(f"config/option '{arg}' is not valid")
-        # if opts[0] in config.keys():
-        #     if len(opts) == 1:
-        #         config[opts[0]] = not config[opts[0]]
-        #         verbose(f"arg={arg} --> config[{opts[0]}] = {not config[opts[0]]}")
-        #     else:
-        #         config[opts[0]] = type(config[opts[0]])(opts[1])
-        #         verbose(f"arg={arg} --> config[{opts[0]}] = {config[opts[0]]}")
-        # elif opts[0] in options.keys():
-        #     if len(opts) == 1:
-        #         options[opts[0]] = not options[opts[0]]
-        #         verbose(f"arg={arg} --> options[{opts[0]}] = {not options[opts[0]]}")
-        #     else:
-        #         options[opts[0]] = type(options[opts[0]])(opts[1])
-        #         verbose(f"arg={arg} --> options[{opts[0]}] = {options[opts[0]]}")
         elif type(lat) == float and type(lon) == float:
             data.append(pandas.DataFrame({COLUMNNAMES['LAT']:[lat],COLUMNNAMES['LON']:[lon]}))
             verbose(f"arg={arg} --> append {len(data[-1])} rows from args")
@@ -772,14 +767,13 @@ def get_args(args):
         data[COLUMNNAMES['ID']] = range(len(data))
         data = data.astype({COLUMNNAMES['ID']:"int32"})
         verbose(f"creating row index")
-    global RESOLUTION
+    global OPTIONS
     global KEYINDEX
-    if not KEYINDEX and RESOLUTION:
+    if not KEYINDEX and "resolution" in OPTIONS.keys() and OPTIONS["resolution"]:
         KEYINDEX = COLUMNNAMES['POS']
     if KEYINDEX in [COLUMNNAMES['POS'],COLUMNNAMES['LOC'],COLUMNNAMES['ID']]:
         data = set_index(data)
         verbose(f"setting index to {KEYINDEX}")
-    global OPTIONS
     OPTIONS = options
     CONFIGDATA = config
     verbose(f"data = {dataframe_to_table(data)}")
@@ -825,7 +819,7 @@ def set_distance(data):
     path = {COLUMNNAMES['DIST']:[],COLUMNNAMES['LAT']:[],COLUMNNAMES['LON']:[],COLUMNNAMES['HEAD']:[]}
     last = None
     post = 0.0
-    global RESOLUTION
+    global OPTIONS
     for pos in list(zip(data[COLUMNNAMES['LAT']],data[COLUMNNAMES['LON']])):
         segs = 1
         p0 = float(pos[0])
@@ -833,8 +827,8 @@ def set_distance(data):
         if last:
             dist = get_distance(pos,last)
             head = (270-numpy.arctan2(last[0]-p0,last[1]-p1)*180/math.pi)%360
-            if RESOLUTION and RESOLUTION > 0 and RESOLUTION < dist:
-                segs = dist/RESOLUTION
+            if OPTIONS["resolution"] and OPTIONS["resolution"] > 0 and OPTIONS["resolution"] < dist:
+                segs = dist/OPTIONS["resolution"]
             dlat = (p0-last[0])/segs
             dlon = (p1-last[1])/segs
         else:
@@ -845,16 +839,16 @@ def set_distance(data):
         while segs > 1:
             lat += dlat
             lon += dlon
-            post += RESOLUTION
-            path[COLUMNNAMES['DIST']].append(post)
-            path[COLUMNNAMES['HEAD']].append(head)
+            post += OPTIONS["resolution"]
+            path[COLUMNNAMES['DIST']].append(round(post,OPTIONS["precision"]["distance"]))
+            path[COLUMNNAMES['HEAD']].append(round(head,OPTIONS["precision"]["heading"]))
             path[COLUMNNAMES['LAT']].append(lat)
             path[COLUMNNAMES['LON']].append(lon)
-            dist -= RESOLUTION
+            dist -= OPTIONS["resolution"]
             segs -= 1
         post += dist
-        path[COLUMNNAMES['DIST']].append(post)
-        path[COLUMNNAMES['HEAD']].append(head)
+        path[COLUMNNAMES['DIST']].append(round(post,OPTIONS["precision"]["distance"]))
+        path[COLUMNNAMES['HEAD']].append(round(head,OPTIONS["precision"]["heading"]))
         path[COLUMNNAMES['LAT']].append(pos[0])
         path[COLUMNNAMES['LON']].append(pos[1])
         last = [p0,p1]
@@ -877,8 +871,6 @@ def get_distance(pos1,pos2):
 def write_csv(data):
     """Write to CSV with headers"""
     specs = FORMAT.split(":")
-    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
-    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     if len(specs) == 1:
         data.to_csv(OUTPUT)
     else:
@@ -890,8 +882,6 @@ def write_csv(data):
 def write_raw(data):
     """Write raw output"""
     specs = FORMAT.split(":")
-    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
-    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     with open(OUTPUT,"w") as fh:
         if len(specs) == 1:
             print(RECORDSEP.join(list(map(lambda x:FIELDSEP.join(x.values()),data.astype('str').to_dict("records")))),file=fh)
@@ -905,13 +895,11 @@ def write_raw(data):
 
 def write_pos(data):
     """Write lat,lon output"""
-    data.to_csv(OUTPUT,columns=[COLUMNNAMES['LAT'],COLUMNNAMES['LON']],header=False,index=False,float_format=f"%.{GEOPRECISION}f")
+    data.to_csv(OUTPUT,columns=[COLUMNNAMES['LAT'],COLUMNNAMES['LON']],header=False,index=False,float_format=f"%.{OPTIONS['precision']['geolocation']}f")
 
 def write_json(data):
     """Write JSON output"""
     specs = FORMAT.split(":")
-    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
-    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     with open(OUTPUT,"w") as fh:
         if len(specs) == 1:
             print(data.to_json(orient="records"),file=fh)
@@ -924,8 +912,6 @@ def write_json(data):
 def write_glm(data):
     """Write GLM output"""
     specs = FORMAT.split(":")
-    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
-    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     if len(specs) == 1:
         columns = data.columns.to_list()
     else:
@@ -959,15 +945,13 @@ def write_glm(data):
 
 def write_table(data):
     specs = FORMAT.split(":")
-    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: f'%.{GEOPRECISION}f' % x)
-    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: f'%.{GEOPRECISION}f' % x)
     if len(specs) == 1:
         print(data)
     elif specs[1][0] == '*':
-        pandas.set_option('display.max_rows', DEFAULTOPTIONS['table']['max_rows'])
-        pandas.set_option('display.max_columns', DEFAULTOPTIONS['table']['max_columns'])
-        pandas.set_option('display.width', DEFAULTOPTIONS['table']['width'])
-        pandas.set_option('display.max_colwidth', DEFAULTOPTIONS['table']['max_colwidth'])
+        pandas.set_option('display.max_rows', OPTIONS['table']['max_rows'])
+        pandas.set_option('display.max_columns', OPTIONS['table']['max_columns'])
+        pandas.set_option('display.width', OPTIONS['table']['width'])
+        pandas.set_option('display.max_colwidth', OPTIONS['table']['max_colwidth'])
         if len(specs[1]) > 1:
             print(data[specs[1][1:].split(",")])
         else:
@@ -1163,6 +1147,7 @@ def main(argc,argv):
     global PATHJOIN
     global CFGFILE
     global OUTPUT
+    global OPTIONS
     n = 1
     DIRECTIVE = []
     if not PKGDATA or not os.path.exists(PKGDATA):
@@ -1218,19 +1203,22 @@ def main(argc,argv):
             OUTPUT = argv[n]
             verbose(f"output is set to '{OUTPUT}'")
         elif argv[n] in ["-p","--precision"]:
-            global GEOPRECISION
             n += 1
-            GEOPRECISION = argv[n]
-            verbose(f"geoprecision is set to '{GEOPRECISION}'")
+            try:
+                OPTIONS["precision"]["geolocation"] = int(argv[n])
+            except:
+                error(f"geoprecision '{argv[n]}' is not a valid integer")
+            if OPTIONS["precision"]["geolocation"] < 0:
+                error(f"geoprecision must be zero or positive integer")
+            verbose(f"geoprecision is set to '{OPTIONS['precision']['geolocation']}'")
         elif argv[n] in ["-q","--quiet"]:
             global QUIET
             QUIET = True
             verbose("quiet output enabled")
         elif argv[n] in ["-r","--resolution"]:
-            global RESOLUTION
             n += 1
-            RESOLUTION = float(argv[n])
-            verbose("path resolution is '{RESOLUTION}' meters")
+            OPTIONS["resolution"] = float(argv[n])
+            verbose("path resolution is '{OPTIONS['resolution']}' meters")
         elif argv[n] in ["-s","--silent"]:
             global SILENT
             SILENT = True
