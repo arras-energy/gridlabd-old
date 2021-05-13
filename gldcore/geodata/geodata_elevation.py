@@ -3,13 +3,10 @@
 The elevation geodata package obtains the elevation of locations.
 
 The 'location' directive accepts a list of positions and computes the elevations
-at those positions.  If resolution is specified, then the result is generated
-in increments of that distance.
+at those positions.
 
 The 'path' function accepts a list of CSV files containing latitude and
 longtitude coordinates and computes the elevations at consecutive positions.
-If resolution is specified, then the result is generated in increments of that
-distance.
 """
 
 version = 1 # specify API version
@@ -26,11 +23,12 @@ from PIL import Image
 #
 default_options = {
     "units" : "meters",
-    "resolution" : 0.0,
+    "precision" : {
+        "elevation" : 0
+    }
 }
 
 default_config = {
-    "precision" : 0,
     "nan_error" : False,
     "cachedir" : "/usr/local/share/gridlabd/geodata/elevation/10m",
     "repourl" : "http://geodata.gridlabd.us/elevation/10m",
@@ -90,10 +88,15 @@ def apply(data, options=default_options, config=default_config, warning=print):
             else:
                 raise
     try:
-        global units
-        data["elevation"] = (numpy.array(elev) * units[options["units"]]).round(config["precision"])
+        precision = int(options["precision"]["elevation"])
     except:
+        warning("elevation precision not found in options")
+        precision = 0
+    global units
+    if "units" not in options.keys() or options["units"] not in units.keys():
         raise Exception(f"unit '{options['units']}' or is not valid")
+    unit = units[options["units"]]
+    data["elevation"] = (numpy.array(elev) * unit).round(precision)
     return data
 
 #
