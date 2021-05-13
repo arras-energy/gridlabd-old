@@ -1,4 +1,4 @@
-'''Configuration file for JSON to HTML converter'''
+"""Configuration file for JSON to HTML converter"""
 
 #
 # Default values for options
