@@ -30,7 +30,6 @@ default_options = {
 }
 
 default_config = {
-    "precision" : 0,
 }
 
 units = {
@@ -98,7 +97,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
             dist.append(6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a))))
         try:
             global units
-            data["distance"] = (numpy.array(dist) * units[options["units"]]).round(config["precision"])
+            data["distance"] = (numpy.array(dist) * units[options["units"]]).round(options["precision"]["distance"])
         except:
             raise Exception(f"unit '{options['units']}' is not recognized")
     return data
