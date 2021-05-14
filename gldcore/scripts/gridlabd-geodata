@@ -424,6 +424,13 @@ DEFAULTOPTIONS = {
         "id" : 0,
     },
     "resolution" : 0,
+    "json" : {
+        "orient" : "index",
+        "data_format" : "iso",
+        "double_precision" : 10,
+        "force_ascii" : True,
+        "date_unit" : "s",
+    },
 }
 OPTIONS = {}
 FIELDSEP = ' '
@@ -926,13 +933,16 @@ def write_pos(data):
 
 def write_json(data):
     """Write JSON output"""
+    global FORMAT
     specs = FORMAT.split(":")
+    global OUTPUT
     with open(OUTPUT,"w") as fh:
+        global OPTIONS
         if len(specs) == 1:
-            print(data.to_json(orient="records"),file=fh)
+            print(data.to_json(orient=OPTIONS["json"]["orient"]),file=fh)
         else:
             try:
-                print(data[specs[1].split(",")].to_json(orient="records"),file=fh)
+                print(data[specs[1].split(",")].to_json(orient=OPTIONS["json_orient"]),file=fh)
             except KeyError as err:
                 error("write_json(): invalid field specified",E_INVALID)
 
