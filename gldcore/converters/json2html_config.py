@@ -29,7 +29,7 @@ map_tiles = {
 #
 # Icon glyphs for object classes
 #
-icons = {'fa': # See https://fontawesome.com/icons?d=gallery&p=1&m=free for available icons
+icons = {'fa': # See https://fontawesome.com/v4.7.0/icons/ for available icons
     {
         'substation' : 'sitemap',
         'node' : 'circle',
@@ -54,7 +54,7 @@ icons = {'fa': # See https://fontawesome.com/icons?d=gallery&p=1&m=free for avai
         'weather' : 'cloud',
         'climate' : 'sun-o',
     },
-    'glyphicon': # See https://getbootstrap.com/docs/3.2/components/ for available icons
+    'glyphicon': # See https://bootstrapdocs.com/v3.2.0/docs/components/ for available icons
     {
         'substation' : 'glyphicon-th-list',
         'node' : 'glyphicon-record',
