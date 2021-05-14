@@ -1174,7 +1174,7 @@ def main(argc,argv):
     global PATHJOIN
     global CFGFILE
     global OUTPUT
-    global OPTIONS
+    global DEFAULTOPTIONS
     n = 1
     DIRECTIVE = []
     if not PKGDATA or not os.path.exists(PKGDATA):
@@ -1244,20 +1244,18 @@ def main(argc,argv):
             verbose(f"output is set to '{OUTPUT}'")
         elif argv[n] in ["-p","--precision"]:
             n += 1
-            try:
-                OPTIONS["precision"]["geolocation"] = int(argv[n])
-            except:
-                error(f"geoprecision '{argv[n]}' is not a valid integer",E_INVALID)
-            if OPTIONS["precision"]["geolocation"] < 0:
+            if not set_value(f"precision.geolocation={argv[n]}",DEFAULTOPTIONS):
+                error(f"precision '{argv[n]}' is not a valid value",E_INVALID)
+            if DEFAULTOPTIONS["precision"]["geolocation"] < 0:
                 error(f"geoprecision must be zero or positive integer",E_INVALID)
-            verbose(f"geoprecision is set to '{OPTIONS['precision']['geolocation']}'")
+            verbose(f"geoprecision is set to '{DEFAULTOPTIONS['precision']['geolocation']}'")
         elif argv[n] in ["-q","--quiet"]:
             global QUIET
             QUIET = True
             verbose("quiet output enabled")
         elif argv[n] in ["-r","--resolution"]:
             n += 1
-            OPTIONS["resolution"] = float(argv[n])
+            DEFAULTOPTIONS["resolution"] = float(argv[n])
             verbose("path resolution is '{OPTIONS['resolution']}' meters")
         elif argv[n] in ["-s","--silent"]:
             global SILENT
