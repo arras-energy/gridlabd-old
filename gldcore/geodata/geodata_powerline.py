@@ -273,6 +273,7 @@ def linesag(data):
     #
 
     data['linesag'] = float('nan') # default result
+    result = data['linesag'].to_dict()
 
     # read cable specs from cable type
     global OPTIONS
@@ -298,7 +299,7 @@ def linesag(data):
     # check lat,lon
     if not 'latitude' in data.columns or not 'longitude' in data.columns:
         WARNING("cannot compute line sag without latitude and longitude fields")
-        return data
+        return data['linesag']
 
     # TODO: vectorize this loop
     p0 = None # start pole lat,lon
@@ -312,10 +313,10 @@ def linesag(data):
         global CABLETYPES
         if not cable_type:
             WARNING(f"cable type not specified")
-            return data['linesag']
+            break
         elif not cable_type in CABLETYPES.index:
             WARNING(f"cable type '{cable_type}' not found")
-            return data['linesag']
+            break
         else:
             cable = CABLETYPES.loc[cable_type]
 
@@ -356,14 +357,16 @@ def linesag(data):
                 p0 = [line['latitude'],line['longitude']]
                 d0 = 0.0
                 z0 = elevation + line['pole_height']
-                data.loc[id,'linesag'] = z0 - elevation
+                sag = z0 - elevation
+                result[id] = sag
 
             else: # end of a line segment
 
                 p1 = [line['latitude'],line['longitude']]
                 d1 = get_distance(p0,p1)
                 z1 = elevation + line['pole_height']
-                data.loc[id,'linesag'] = z1 - elevation
+                sag = z1 - elevation
+                result[id] = sag
 
                 # compute linesag at waypoints
                 for n,l in ld.items():
@@ -373,15 +376,17 @@ def linesag(data):
                         elevation = l['elevation']
                     except:
                         pass
-                    data.loc[n,'linesag'] = get_sag_value(d_hori,line,cable,p0,p,z0,z1,
+                    sag = get_sag_value(d_hori,line,cable,p0,p,z0,z1,
                         power_flow,global_horizontal_irradiance,ground_reflectance,
                         ice_thickness,wind_direction,air_temperature,wind_speed,ice_density) \
                         - elevation
+                    result[n] = sag
 
                 # reset for next segment
                 p0 = p1
                 z0 = z1
                 ld = {}
+
 
         elif p0: # continue a line segment
 
@@ -396,7 +401,7 @@ def linesag(data):
     if ld:
         WARNING("ignoring waypoints after last pole")
 
-    return data['linesag']
+    return pandas.DataFrame(result.values(),index=result.keys())
 
 def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         power_flow,global_horizontal_irradiance,ground_reflectance,
@@ -461,7 +466,7 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     coef_thermal = cable['thermal_expansion']
     H_load_second = (unit_weight*d_hori)**2 *area*elasticity/(24*H_init**2)-H_init+(temp_load-temp_init)*coef_thermal*area*elasticity
     H_load_constant = -(total_unit_weight*d_hori)**2 *area*elasticity/24
-    coef_H = [1, H_load_second, 0.0, H_load_constant]
+    coef_H = [1, float(H_load_second), 0.0, float(H_load_constant)]
     r = np.roots(coef_H)
     r = r[~np.iscomplex(r)]
     H_load = np.absolute(r[r > 0.0])
@@ -480,7 +485,9 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
         sag_elevation = z0-sag0*cos(sag_angle)
         dt = get_distance(p0,[p0[1]+d0_hori*(p1[0]-p0[0])/d_hori,p0[1]+d0_hori*(p1[1]-p0[1])/d_hori])
-    return sag_elevation
+    result = sag_elevation[0]
+    # print(f"get_sag_value(d_hori={round(d_hori).__repr__()},p0={p0.__repr__()},p1={p1.__repr__()},z0={z0.__repr__()},z1={z1.__repr__()},...) --> {result}")
+    return result
 
 def linesway(data):
     """TODO"""
