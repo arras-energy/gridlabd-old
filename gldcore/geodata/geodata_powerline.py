@@ -312,10 +312,10 @@ def linesag(data):
             cable_type = hold0('cable_type',line['cable_type'])
         global CABLETYPES
         if not cable_type:
-            WARNING(f"cable type not specified")
+            WARNING(f"cable_type not specified")
             break
         elif not cable_type in CABLETYPES.index:
-            WARNING(f"cable type '{cable_type}' not found")
+            WARNING(f"cable_type={cable_type.__repr__()} not found")
             break
         else:
             cable = CABLETYPES.loc[cable_type]
