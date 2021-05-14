@@ -640,7 +640,6 @@ def set_index(data,index=None,silent=False):
     data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: round(x,OPTIONS["precision"]["geolocation"]))
     data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: round(x,OPTIONS["precision"]["geolocation"]))
 
-    global OPTIONS
     if OPTIONS["resolution"] and index != COLUMNNAMES['POS']:
         warning(f"using index '{index}' cannot be used with '--resolution={OPTIONS['resolution']}' option")
     if index is None:
@@ -687,11 +686,13 @@ def set_subvalue(name,data,value):
         if len(name) > 1:
             result = set_subvalue(name[1],data[name[0]],value)
         else:
-            result = data[name[0]]
-            data[name[0]] = value
+            result = set_subvalue(name[0],data,value)
     else:
         result = data[name]
-        data[name] = value
+        if type(result) is dict:
+            data.update({name:value})
+        else:
+            data[name] = value
     return result
 
 def set_value(arg,data,tags=[]):
@@ -704,14 +705,33 @@ def set_value(arg,data,tags=[]):
             value = '='.join(specs[1:])
             default = get_subvalue(tags,data)
             value_type = type(default)
-            if value_type == type(None):
+            if value_type is type(None):
                 raise Exception(f"the type/class of '{default.__repr__()}' is not permitted for config or option {'.'.join(tags).__repr__()}, try using an empty string for the default")
-            value = value_type(value)
+            elif value_type is list:
+                items = value.split(',')
+                value = []
+                if len(items) != len(default):
+                    raise Exception(f"the length of {value} is not the same as the length of {arg}")
+                for n in range(len(items)):
+                    value_type = type(default[n])
+                    value.append(value_type(items[n]))
+            else:
+                value = value_type(value)
         set_subvalue(tags,data,value)
         result = True
     except:
         result = False
     return result
+
+def update_values(arg,data):
+    """Updates config or option values from data"""
+    for key,value in data.items():
+        if key in arg.keys():
+            if type(arg[key]) is dict:
+                arg[key].update(value)
+                continue
+        arg[key] = value
+    return arg
 
 def get_args(args):
     """Get the arguments, options, and configuration"""
@@ -721,13 +741,16 @@ def get_args(args):
     global DEFAULTOPTIONS
     options = DEFAULTOPTIONS
 
+    global OPTIONS
+    update_values(options,OPTIONS)
+
     global CONFIGDATA
     config = CONFIGDATA
 
     global MODULE
     if MODULE:
-        options.update(MODULE.default_options)
-        config.update(MODULE.default_config)
+        update_values(options,MODULE.default_options)
+        update_values(config,MODULE.default_config)
     for arg in args:
         lat,lon = get_latlon(arg)
         opts = [None]
@@ -767,18 +790,19 @@ def get_args(args):
         data[COLUMNNAMES['ID']] = range(len(data))
         data = data.astype({COLUMNNAMES['ID']:"int32"})
         verbose(f"creating row index")
-    global OPTIONS
+
+    OPTIONS.update(options)
+    CONFIGDATA.update(config)
+
     global KEYINDEX
     if not KEYINDEX and "resolution" in OPTIONS.keys() and OPTIONS["resolution"]:
         KEYINDEX = COLUMNNAMES['POS']
     if KEYINDEX in [COLUMNNAMES['POS'],COLUMNNAMES['LOC'],COLUMNNAMES['ID']]:
         data = set_index(data)
         verbose(f"setting index to {KEYINDEX}")
-    OPTIONS = options
-    CONFIGDATA = config
     verbose(f"data = {dataframe_to_table(data)}")
-    verbose(f"options = {json.dumps(options,indent=4)}")
-    verbose(f"config = {json.dumps(config,indent=4)}")
+    verbose(f"options = {json.dumps(OPTIONS,indent=4)}")
+    verbose(f"config = {json.dumps(CONFIGDATA,indent=4)}")
     return data,options,config
 
 def merge(args):
