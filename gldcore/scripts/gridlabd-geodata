@@ -969,13 +969,13 @@ def write_glm(data):
 
 def write_table(data):
     specs = FORMAT.split(":")
+    pandas.set_option('display.max_rows', OPTIONS['table']['max_rows'])
+    pandas.set_option('display.max_columns', OPTIONS['table']['max_columns'])
+    pandas.set_option('display.width', OPTIONS['table']['width'])
+    pandas.set_option('display.max_colwidth', OPTIONS['table']['max_colwidth'])
     if len(specs) == 1:
         print(data)
     elif specs[1][0] == '*':
-        pandas.set_option('display.max_rows', OPTIONS['table']['max_rows'])
-        pandas.set_option('display.max_columns', OPTIONS['table']['max_columns'])
-        pandas.set_option('display.width', OPTIONS['table']['width'])
-        pandas.set_option('display.max_colwidth', OPTIONS['table']['max_colwidth'])
         if len(specs[1]) > 1:
             print(data[specs[1][1:].split(",")])
         else:
@@ -1196,6 +1196,19 @@ def main(argc,argv):
             global DEBUG
             DEBUG = True
             verbose("debug output enabled")
+
+            import traceback
+            import warnings
+            import sys
+
+            def warn_with_traceback(message, category, filename, lineno, file=None, line=None):
+
+                log = file if hasattr(file,'write') else sys.stderr
+                traceback.print_stack(file=log)
+                log.write(warnings.formatwarning(message, category, filename, lineno, line))
+
+            warnings.showwarning = warn_with_traceback
+
         elif argv[n] in ["-D","--dataset"]:
             n += 1
             DATASET = argv[n]
