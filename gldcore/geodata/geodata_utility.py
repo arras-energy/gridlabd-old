@@ -140,9 +140,9 @@ def get_information(id,field=None):
 def get_geometry(id):
     """Get the utility territory geometry"""
     geom = read_kml()
-    result = geom[id]
-    print(f"get_geometry(id={id.__repr__()}) --> {result}")
-    result.plot()
+    result = geom["geometry"][id]
+    # print(f"get_geometry(id={id.__repr__()}) --> {result}")
+    # result.plot()
     return result
 
 def get_utility(pos):
@@ -214,7 +214,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
         for key in options["fields"]:
             info[key].extend(values[key].to_list())
         if options["geometry"]:
-            info["geometry"].append(get_geometry(id))
+            info["geometry"].extend(get_geometry(id).to_list())
     result = pandas.DataFrame(info)
     return result
 
