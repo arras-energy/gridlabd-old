@@ -743,6 +743,18 @@ def update_values(arg,data):
         arg[key] = value
     return arg
 
+def show_values(data,root=[]):
+    for key, value in data.items():
+        from copy import copy
+        base = copy(root)
+        base.append(key)
+        if type(value) is dict:
+            show_values(value,base)
+        elif type(value) is list:
+            print(f"{'.'.join(base)}={'.'.join(list(map(lambda x: str(x),value)))}")
+        else:
+            print(f"{'.'.join(base)}={value.__repr__()}")
+
 def get_args(args):
     """Get the arguments, options, and configuration"""
 
@@ -1305,6 +1317,12 @@ def main(argc,argv):
             global RECORDSEP
             RECORDSEP = argv[n].split("=")[1]
             verbose("record separate is '{RECORDSEP}'")
+        elif argv[n] == "--show_options":
+            show_values(DEFAULTOPTIONS)
+            exit(E_OK)
+        elif argv[n] == "--show_config":
+            show_values(CONFIGDATA)
+            exit(E_OK)
         else:
             DIRECTIVE.append(argv[n])
         n += 1
@@ -1342,9 +1360,4 @@ def main(argc,argv):
             error(f"format '{FORMAT}' is invalid",E_SYNTAX)
 
 if __name__ == "__main__":
-    try:
-        main(len(sys.argv),sys.argv)
-    except:
-        print(OPTIONS)
-        print(CONFIGDATA)
-        raise
+    main(len(sys.argv),sys.argv)
