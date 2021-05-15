@@ -4,7 +4,7 @@
 
 GLM:
 ~~~
-#geodata OPTIONS DIRECTIVE [ARGUMENTS]
+#geodata OPTIONS DIRECTIVE [LOCATION|DATAFILE ...] [ARGUMENTS]
 ~~~
 
 Shell:
@@ -26,10 +26,6 @@ Some datasets may be processes in parallel.  The default maximum thread count is
 
 # Options
 
-## `-c|--cache FOLDER`
-
-Changes cache folder.
-
 ## `-C|--config FILE`
 
 Changes config file
@@ -42,7 +38,7 @@ Enables debugging output, i.e., errors are exceptions with traceback.
 
 Specifies the dataset from which the geographic information is to be acquired. See the DATASETS section below for details.
 
-## `-f|--format {CSV,JSON,RAW,POS,FIELD:NAME}`
+## `-f|--format {CSV,JSON,RAW,POS,TABLE,GLM,GDF,XLSX}[:FIELDS]`
 
 Specified the output format.  See `gridlabd geodata help` for details.
 
@@ -53,10 +49,6 @@ Controls how the dataset is merged with the input path. If [-j|--join {inner,out
 ## `-o|--output CSVOUT`
 
 Normally the output is written to /dev/stdout. When CSVOUT is specified the output data is written to the specified file. If the output file already exists, it is overwritten with the new data.
-
-## `-q|--quiet`
-
-Disables normal output.
 
 ## `-r|--resolution] METERS`
 
@@ -87,16 +79,6 @@ The following directives are available:
 ## `config show [PATTERN]`
 
 The config directive gets, sets, and show values in the config file.
-
-## `location LATITUDE LONGITUDE [ARGUMENTS]`
-
-The location directive performs the geodata operation only at the  location specified.
-
-## `path [CSVIN] [ARGUMENTS]`
-
-The path directive performs the geodata operation along the path specified in the CSVIN file.  If CSVIN is omitted, the input is read from `/dev/stdin`, which allows output to `/dev/stdout` to be piped.
-
-If the `[-r|--resolution METERS]` option is used, the data is generated at the specified resolution. Otherwise the data is generated only at the points specified in CSVIN.
 
 # Datasets
 
