@@ -383,10 +383,7 @@ CONFIG = {
     "uuid_type" : 4, # valid UUID key type values are 1 (host, seq, time) and 4 (random)
 }
 
-MAXTHREADS = 1 # TODO move to options
-CONFIGFILE = "geodata.conf" # TODO move to options
-FIELDSEP = ' '  # TODO move to options
-RECORDSEP = '\n' # TODO move to options
+CONFIGFILE = "geodata.conf" 
 OPTIONS = {
     "verbose" : False,
     "debug" : False,
@@ -395,9 +392,10 @@ OPTIONS = {
     "warning" : True,
     "key_index" : "",
     "max_threads" : 1,
-    "config_file" : f"os.getenv('HOME')/.gridlabd/{CONFIGFILE}",
+    "config_file" : CONFIGFILE,
     "field_separator" : " ",
-    "record_separate" : "\n",
+    "record_separator" : "\n",
+    "input_delimiter" : ",",
     "plot" : {
         "figsize" : [7.0,5.0],
         "cmap" : "",
@@ -630,7 +628,7 @@ def set_position(data):
         result = pandas.DataFrame(data).merge(set_distance(data),how="outer")
     else:
         result = pandas.DataFrame(data)
-    result[CONFIG['column_names']['POS']] = pandas.Series(result[CONFIG['column_names']['DIST']]*10**OPTIONS["precision"]["id"],dtype="int32")
+    result[CONFIG['column_names']['POS']] = pandas.Series(result[CONFIG['column_names']['DIST']]*10**OPTIONS['precision']["id"],dtype="int32")
     result = result.set_index(CONFIG['column_names']['POS']).sort_index()
     return result
 
@@ -650,10 +648,10 @@ def set_index(data,index=None,silent=False):
         index = OPTIONS['key_index']
 
     global CONFIG
-    data[CONFIG['column_names']['LAT']] = data[CONFIG['column_names']['LAT']].map(lambda x: round(float(x),OPTIONS["precision"]["geolocation"]))
-    data[CONFIG['column_names']['LON']] = data[CONFIG['column_names']['LON']].map(lambda x: round(float(x),OPTIONS["precision"]["geolocation"]))
+    data[CONFIG['column_names']['LAT']] = data[CONFIG['column_names']['LAT']].map(lambda x: round(float(x),OPTIONS['precision']["geolocation"]))
+    data[CONFIG['column_names']['LON']] = data[CONFIG['column_names']['LON']].map(lambda x: round(float(x),OPTIONS['precision']["geolocation"]))
 
-    if OPTIONS["resolution"] and index != CONFIG['column_names']['POS']:
+    if OPTIONS['resolution'] and index != CONFIG['column_names']['POS']:
         warning(f"using index '{index}' cannot be used with '--resolution={OPTIONS['resolution']}' option")
     if not index:
         if data.index.name:
@@ -764,32 +762,34 @@ def get_args(args):
     data = []
 
     global OPTIONS
-    options = OPTIONS
-    update_values(options,OPTIONS)
-
     global CONFIG
-    config = CONFIG
-
     global MODULE
     if MODULE:
-        update_values(options,MODULE.default_options)
-        update_values(config,MODULE.default_config)
+        update_values(OPTIONS,MODULE.default_options)
+        update_values(CONFIG,MODULE.default_config)
     for arg in args:
         lat,lon = get_latlon(arg)
         opts = [None]
         if arg[0:2] == "--" and len(arg) > 2:
             opts = arg[2:].split("=")
             verbose(f"arg={arg} --> option {opts} accepted")
-            if not set_value(arg[2:],options) and not set_value(arg[2:],config):
+            if not set_value(arg[2:],OPTIONS) and not set_value(arg[2:],CONFIG):
                 error(f"config/option '{arg}' is not valid",E_INVALID)
         elif type(lat) == float and type(lon) == float:
             data.append(pandas.DataFrame({CONFIG['column_names']['LAT']:[lat],CONFIG['column_names']['LON']:[lon]}))
             verbose(f"arg={arg} --> append {len(data[-1])} rows from args")
         elif os.path.exists(arg):
-            data.append(pandas.read_csv(arg))
+            if arg.endswith(".csv"):
+                data.append(pandas.read_csv(arg))
+            elif arg.endswith(".json"):
+                data.append(pandas.read_json(arg,orient=OPTIONS['json']["orient"]))
+            elif arg.endswith(".xlsx"):
+                data.append(pandas.read_excel(arg))
+            else:
+                error(f"file '{arg}' is not a known format (unknown extension)",E_INVALID)
             verbose(f"arg={arg} --> append {len(data[-1])} rows from file")
         else:
-            items = arg.split("+")
+            items = arg.split(OPTIONS['input_delimiter'])
             values = {}
             for item in items:
                 specs = item.split("=")
@@ -814,10 +814,7 @@ def get_args(args):
         data = data.astype({CONFIG['column_names']['ID']:"int32"})
         verbose(f"creating row index")
 
-    OPTIONS.update(options)
-    CONFIG.update(config)
-
-    if not OPTIONS['key_index'] and "resolution" in OPTIONS.keys() and OPTIONS["resolution"]:
+    if not OPTIONS['key_index'] and "resolution" in OPTIONS.keys() and OPTIONS['resolution']:
         OPTIONS['key_index'] = CONFIG['column_names']['POS']
     if OPTIONS['key_index'] in [CONFIG['column_names']['POS'],CONFIG['column_names']['LOC'],CONFIG['column_names']['ID']]:
         data = set_index(data)
@@ -825,7 +822,7 @@ def get_args(args):
     verbose(f"data = {dataframe_to_table(data)}")
     verbose(f"options = {json.dumps(OPTIONS,indent=4)}")
     verbose(f"config = {json.dumps(CONFIG,indent=4)}")
-    return data,options,config
+    return data,OPTIONS,CONFIG
 
 def merge(args):
     """Merge directive implementation"""
@@ -873,8 +870,8 @@ def set_distance(data):
         if last:
             dist = get_distance(pos,last)
             head = (270-numpy.arctan2(last[0]-p0,last[1]-p1)*180/math.pi)%360
-            if OPTIONS["resolution"] and OPTIONS["resolution"] > 0 and OPTIONS["resolution"] < dist:
-                segs = dist/OPTIONS["resolution"]
+            if OPTIONS['resolution'] and OPTIONS['resolution'] > 0 and OPTIONS['resolution'] < dist:
+                segs = dist/OPTIONS['resolution']
             dlat = (p0-last[0])/segs
             dlon = (p1-last[1])/segs
         else:
@@ -885,16 +882,16 @@ def set_distance(data):
         while segs > 1:
             lat += dlat
             lon += dlon
-            post += OPTIONS["resolution"]
-            path[CONFIG['column_names']['DIST']].append(round(post,OPTIONS["precision"]["distance"]))
-            path[CONFIG['column_names']['HEAD']].append(round(head,OPTIONS["precision"]["heading"]))
+            post += OPTIONS['resolution']
+            path[CONFIG['column_names']['DIST']].append(round(post,OPTIONS['precision']["distance"]))
+            path[CONFIG['column_names']['HEAD']].append(round(head,OPTIONS['precision']["heading"]))
             path[CONFIG['column_names']['LAT']].append(lat)
             path[CONFIG['column_names']['LON']].append(lon)
-            dist -= OPTIONS["resolution"]
+            dist -= OPTIONS['resolution']
             segs -= 1
         post += dist
-        path[CONFIG['column_names']['DIST']].append(round(post,OPTIONS["precision"]["distance"]))
-        path[CONFIG['column_names']['HEAD']].append(round(head,OPTIONS["precision"]["heading"]))
+        path[CONFIG['column_names']['DIST']].append(round(post,OPTIONS['precision']["distance"]))
+        path[CONFIG['column_names']['HEAD']].append(round(head,OPTIONS['precision']["heading"]))
         path[CONFIG['column_names']['LAT']].append(pos[0])
         path[CONFIG['column_names']['LON']].append(pos[1])
         last = [p0,p1]
@@ -930,12 +927,12 @@ def write_raw(data):
     specs = CONFIG['output_format'].split(":")
     with open(OUTPUT,"w") as fh:
         if len(specs) == 1:
-            print(RECORDSEP.join(list(map(lambda x:FIELDSEP.join(x.values()),data.astype('str').to_dict("records")))),file=fh)
+            print(OPTIONS['record_separator'].join(list(map(lambda x:OPTIONS['field_separator'].join(x.values()),data.astype('str').to_dict("records")))),file=fh)
         elif specs[1] == "FIELDS":
-            print(RECORDSEP.join(list(map(lambda x:FIELDSEP.join(x.keys()),data.astype('str').to_dict("records")))),file=fh)
+            print(OPTIONS['record_separator'].join(list(map(lambda x:OPTIONS['field_separator'].join(x.keys()),data.astype('str').to_dict("records")))),file=fh)
         else:
             try:
-                print(RECORDSEP.join(list(map(lambda x:FIELDSEP.join(x.values()),data.astype('str')[specs[1].split(",")].to_dict("records")))),file=fh)
+                print(OPTIONS['record_separator'].join(list(map(lambda x:OPTIONS['field_separator'].join(x.values()),data.astype('str')[specs[1].split(",")].to_dict("records")))),file=fh)
             except KeyError as err:
                 error("write_raw(): specified field(s) not found in data",E_INVALID)
 
@@ -951,10 +948,10 @@ def write_json(data):
     with open(OUTPUT,"w") as fh:
         global OPTIONS
         if len(specs) == 1:
-            print(data.to_json(orient=OPTIONS["json"]["orient"]),file=fh)
+            print(data.to_json(orient=OPTIONS['json']["orient"]),file=fh)
         else:
             try:
-                print(data[specs[1].split(",")].to_json(orient=OPTIONS["json_orient"]),file=fh)
+                print(data[specs[1].split(",")].to_json(orient=OPTIONS['json_orient']),file=fh)
             except KeyError as err:
                 error("write_json(): invalid field specified",E_INVALID)
 
@@ -1059,6 +1056,17 @@ def write_plot(data):
             plt.savefig(OUTPUT,**OPTIONS['savefig'])
     except Exception as err:
         error(f"write_plot(): {err}",E_INVALID)
+def write_xlsx(data):
+    global CONFIG
+    specs = CONFIG['output_format'].split(":")
+    global OUTPUT
+    if len(specs) == 1:
+        data.to_excel(OUTPUT)
+    else:
+        try:
+            data[specs[1].split(",")].to_excel(OUTPUT)
+        except KeyError as err:
+            error("write_excel(): invalid field specified",E_INVALID)
 
 def load_dataset(args):
     """Load the specified dataset implementation"""
@@ -1227,8 +1235,7 @@ def main(argc,argv):
             n += 1
             if not os.path.exists(argv[n]):
                 error(f"config file '{argv[n]}' not found",E_NOTFOUND)
-            OPTIONS["config_file"] = argv[n]
-            load_config(OPTIONS["config_file"],inplace=True)
+            with open(argv[n],'r') as fh: update_values(OPTIONS,json.load(fh))
         elif argv[n] in ["-d","--debug"]:
             OPTIONS['debug'] = True
             verbose("debug output enabled")
@@ -1251,7 +1258,7 @@ def main(argc,argv):
             load_dataset([DATASET])
         elif argv[n] in ["-f","--format"]:
             n += 1
-            if not argv[n].split(":")[0] in ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE","PLOT","GDF"]:
+            if not argv[n].split(":")[0] in ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE","PLOT","GDF","XLSX"]:
                 error(f"format '{argv[n]}' is not recognized",E_SYNTAX)
             CONFIG['output_format'] = argv[n]
             verbose(f"output format is set to '{CONFIG['output_format']}'")
@@ -1277,7 +1284,7 @@ def main(argc,argv):
             n += 1
             if not set_value(f"precision.geolocation={argv[n]}",OPTIONS):
                 error(f"precision '{argv[n]}' is not a valid value",E_INVALID)
-            if OPTIONS["precision"]["geolocation"] < 0:
+            if OPTIONS['precision']["geolocation"] < 0:
                 error(f"geoprecision must be zero or positive integer",E_INVALID)
             verbose(f"geoprecision is set to '{OPTIONS['precision']['geolocation']}'")
         elif argv[n] in ["-q","--quiet"]:
@@ -1285,16 +1292,17 @@ def main(argc,argv):
             verbose("quiet output enabled")
         elif argv[n] in ["-r","--resolution"]:
             n += 1
-            OPTIONS["resolution"] = float(argv[n])
+            OPTIONS['resolution'] = float(argv[n])
             verbose("path resolution is '{OPTIONS['resolution']}' meters")
         elif argv[n] in ["-s","--silent"]:
             OPTIONS['silent'] = True
             verbose("silent output enabled")
         elif argv[n] in ["-T","--threadcount"]:
-            global MAXTHREADS
             n += 1
-            MAXTHREADS = int(argv[n])
-            verbose(f"maximum thread count '{MAXTHREADS}'")
+            OPTIONS['maxthreads'] = int(argv[n])
+            if OPTIONS['maxthreads'] < 0:
+                error("maximum thread count must non-negative",E_INVALID)
+            verbose(f"maximum thread count '{OPTIONS['maxthreads']}'")
         elif argv[n] in ["-v","--verbose"]:
             OPTIONS['verbose'] = True
             verbose("verbose output enabled")
@@ -1302,13 +1310,11 @@ def main(argc,argv):
             OPTIONS['warning'] = False
             verbose("warning output disable")
         elif argv[n].startswith("--fieldsep="):
-            global FIELDSEP
-            FIELDSEP = argv[n].split("=")[1]
-            verbose("field separate is '{FIELDSEP}'")
+            OPTIONS['field_separator'] = argv[n].split("=")[1]
+            verbose("field separate is '{OPTIONS['field_separator']}'")
         elif argv[n].startswith("--recordsep="):
-            global RECORDSEP
-            RECORDSEP = argv[n].split("=")[1]
-            verbose("record separate is '{RECORDSEP}'")
+            OPTIONS['record_separator'] = argv[n].split("=")[1]
+            verbose("record separate is '{OPTIONS['record_separator']}'")
         elif argv[n] == "--show_options":
             show_values(OPTIONS)
             exit(E_OK)
@@ -1348,6 +1354,8 @@ def main(argc,argv):
             write_plot(data)
         elif CONFIG['output_format'] == "GDF" or CONFIG['output_format'].startswith("GDF:"):
             write_gdf(data)
+        elif CONFIG['output_format'] == "XLSX" or CONFIG['output_format'].startswith("XLSX:"):
+            write_xlsx(data)
         else:
             error(f"format '{CONFIG['output_format']}' is invalid",E_SYNTAX)
 
