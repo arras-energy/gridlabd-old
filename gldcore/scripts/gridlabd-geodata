@@ -354,33 +354,50 @@ NAME = "geodata"
 VERSION = "0.0.0"
 GEODATA = sys.modules[__name__]
 DIRECTIVES = ["config","create","merge"]
-VERBOSE = False
-DEBUG = False
-SILENT = False
-QUIET = False
-DEBUG = False
-WARNING = True
-CFGFILE = f"os.getenv('HOME')/.gridlabd/geodata.conf"
-GEODATAURL = "http://geodata.gridlabd.us/"
-MAXTHREADS = 1
 DATASET = None
 OUTPUT = "/dev/stdout"
 INPUT = "/dev/stdin"
 MODULE = None
-CONFIGDATA = {}
 PKGDATA = os.getenv("GLD_ETC")
 if not PKGDATA:
     PKGDATA = "/usr/local/share/gridlabd"
-FORMAT = "CSV"
-PATHJOIN = "outer"
-CONFIGFILE = "geodata.conf"
 CONFIGDIR = {
     "system" : PKGDATA + "/geodata",
     "user" : os.getenv("HOME") + "/.gridlabd/geodata",
     "local" : os.getenv("PWD"),
 }
-KEYINDEX = None
-DEFAULTOPTIONS = {
+CONFIG = {
+    "geodata_url" : "http://geodata.gridlabd.us/",
+    "output_format" : "CSV",
+    "path_join" : "outer",
+    "column_names" : {
+        'ID' : "id",
+        'UUID' : "uuid",
+        'LAT' : "latitude",
+        'LON' : "longitude",
+        'DIST' : "distance",
+        'HEAD' : "heading",
+        'LOC' : "location",
+        'POS' : "position",
+    },
+    "uuid_type" : 4, # valid UUID key type values are 1 (host, seq, time) and 4 (random)
+}
+
+MAXTHREADS = 1 # TODO move to options
+CONFIGFILE = "geodata.conf" # TODO move to options
+FIELDSEP = ' '  # TODO move to options
+RECORDSEP = '\n' # TODO move to options
+OPTIONS = {
+    "verbose" : False,
+    "debug" : False,
+    "silent" : False,
+    "quiet" : False,
+    "warning" : True,
+    "key_index" : "",
+    "max_threads" : 1,
+    "config_file" : f"os.getenv('HOME')/.gridlabd/{CONFIGFILE}",
+    "field_separator" : " ",
+    "record_separate" : "\n",
     "plot" : {
         "figsize" : [7.0,5.0],
         "cmap" : "",
@@ -402,20 +419,13 @@ DEFAULTOPTIONS = {
         "orientation" : "landscape",
         "format" : "png",
         "transparent" : False,
-        # "bbox_inches" : 0.25,
         "pad_inches" : 0.1,
-        # "metadata" : json.dumps(
-        #     {
-        #         "application" : "gridlabd-geodata",
-        #         "version" : VERSION,
-        #     }
-        # ),
     },
     "table" : {
         "max_rows" : 10,
         "max_columns" : 10,
-        "width" : 100,
-        "max_colwidth" : 10,
+        "width" : 80,
+        "max_colwidth" : 16,
     },
     "precision" : {
         "distance" : 2,
@@ -432,21 +442,6 @@ DEFAULTOPTIONS = {
         "date_unit" : "s",
     },
 }
-OPTIONS = {}
-FIELDSEP = ' '
-RECORDSEP = '\n'
-COLUMNNAMES = {
-    # although configurable, changing these is not recommeded because the
-    # packages don't have visibility to this list (yet)
-    'ID' : "id",
-    'UUID' : "uuid",
-    'LAT' : "latitude",
-    'LON' : "longitude",
-    'DIST' : "distance",
-    'HEAD' : "heading",
-    'LOC' : "location",
-    'POS' : "position",
-}
 
 E_OK = 0
 E_SYNTAX = 1
@@ -456,36 +451,42 @@ E_INVALID = 4
 E_FAILED = 5
 E_NOTIMPLEMENTED = 9
 
+def format_message(type,msg):
+    if DATASET:
+        return f"{type} [{NAME}/{DATASET}]: {msg}"
+    else:
+        return f"{type} [{NAME}]: {msg}"
+
 def error(msg,exitcode=None):
-    text = f"ERROR [{NAME}/{DATASET}]: {msg}"
-    if DEBUG:
+    if OPTIONS['debug']:
         raise Exception(msg)
-    if not SILENT:
-        print(text,file=sys.stderr,flush=True)
+    if not OPTIONS['silent']:
+        print(format_message("ERROR",msg),file=sys.stderr,flush=True)
     if exitcode:
         exit(exitcode)
 
-lastmsg = None
+last_warning = None
+warning_count = 0
 def warning(msg):
-    global lastmsg
-    global WARNING
-    if lastmsg != msg and WARNING:
-        text = f"WARNING [{NAME}/{DATASET}]: {msg}"
-        print(text,file=sys.stderr)
-        lastmsg = msg
+    global last_warning
+    if last_warning != msg and OPTIONS['warning']:
+        print(format_message("WARNING",msg),file=sys.stderr,flush=True)
+        last_warning = msg
+        warning_count = 1
+    elif last_warning == msg:
+        warning_count += 1
 
 def verbose(msg):
-    if VERBOSE:
-        text = f"VERBOSE [{NAME}/{DATASET}]: {msg}"
-        print(text,file=sys.stderr)
+    if OPTIONS['verbose']:
+        print(format_message("VERBOSE",msg),file=sys.stderr,flush=True)
 
 def output(msg):
-    if not QUIET:
+    if not OPTIONS['quiet']:
         print(msg,file=sys.stdout)
 
 def debug(msg):
-    if DEBUG:
-        print(f"DEBUG [{NAME}/{DATASET}]: {msg}", file=sys.stderr)
+    if OPTIONS['debug']:
+        print(format_message("DEBUG",msg),file=sys.stderr,flush=True)
 
 python_help = help
 def help(dataset=None):
@@ -617,56 +618,58 @@ def set_location(data):
     """Update the location index on the data"""
     try:
         result = pandas.DataFrame(data)
-        result[COLUMNNAMES['LOC']] = list(map(lambda pos: encode(float(pos[0]),float(pos[1])),zip(result[COLUMNNAMES['LAT']],result[COLUMNNAMES['LON']])))
-        result.set_index(COLUMNNAMES['LOC'],inplace=True)
+        result[CONFIG['column_names']['LOC']] = list(map(lambda pos: encode(float(pos[0]),float(pos[1])),zip(result[CONFIG['column_names']['LAT']],result[CONFIG['column_names']['LON']])))
+        result.set_index(CONFIG['column_names']['LOC'],inplace=True)
     except:
         result = data
     return result
 
 def set_position(data):
     """Update the path position index from the distance column"""
-    if COLUMNNAMES['DIST'] not in data.columns:
+    if CONFIG['column_names']['DIST'] not in data.columns:
         result = pandas.DataFrame(data).merge(set_distance(data),how="outer")
     else:
         result = pandas.DataFrame(data)
-    result[COLUMNNAMES['POS']] = pandas.Series(result[COLUMNNAMES['DIST']]*10**OPTIONS["precision"]["id"],dtype="int32")
-    result = result.set_index(COLUMNNAMES['POS']).sort_index()
+    result[CONFIG['column_names']['POS']] = pandas.Series(result[CONFIG['column_names']['DIST']]*10**OPTIONS["precision"]["id"],dtype="int32")
+    result = result.set_index(CONFIG['column_names']['POS']).sort_index()
     return result
 
 def set_uuid(data):
-    if COLUMNNAMES['UUID'] not in data.columns:
-        data[COLUMNNAMES['UUID']] = list(map(lambda x:uuid.uuid4().hex, range(len(data))))
-    return data.set_index(COLUMNNAMES['UUID'])
+    if CONFIG['column_names']['UUID'] not in data.columns:
+        try:
+            data[CONFIG['column_names']['UUID']] = list(map(lambda x: getattr(uuid,f"uuid{CONFIG['uuid_type']}")().hex, range(len(data))))
+        except Exception as err:
+            error(f"uuid key generation error ({err})",E_INVALID)
+    return data.set_index(CONFIG['column_names']['UUID'])
 
 def set_index(data,index=None,silent=False):
     """Set the specified index on the data"""
 
-    global KEYINDEX
-    if index is None:
-        index = KEYINDEX
-
-    global COLUMNNAMES
     global OPTIONS
-    data[COLUMNNAMES['LAT']] = data[COLUMNNAMES['LAT']].map(lambda x: round(float(x),OPTIONS["precision"]["geolocation"]))
-    data[COLUMNNAMES['LON']] = data[COLUMNNAMES['LON']].map(lambda x: round(float(x),OPTIONS["precision"]["geolocation"]))
+    if not index:
+        index = OPTIONS['key_index']
 
-    if OPTIONS["resolution"] and index != COLUMNNAMES['POS']:
+    global CONFIG
+    data[CONFIG['column_names']['LAT']] = data[CONFIG['column_names']['LAT']].map(lambda x: round(float(x),OPTIONS["precision"]["geolocation"]))
+    data[CONFIG['column_names']['LON']] = data[CONFIG['column_names']['LON']].map(lambda x: round(float(x),OPTIONS["precision"]["geolocation"]))
+
+    if OPTIONS["resolution"] and index != CONFIG['column_names']['POS']:
         warning(f"using index '{index}' cannot be used with '--resolution={OPTIONS['resolution']}' option")
-    if index is None:
+    if not index:
         if data.index.name:
             data.reset_index(inplace=True)
-        if COLUMNNAMES['ID'] in data.columns:
-            data.set_index(COLUMNNAMES['ID'],inplace=True)
+        if CONFIG['column_names']['ID'] in data.columns:
+            data.set_index(CONFIG['column_names']['ID'],inplace=True)
         else:
-            data.index.name = COLUMNNAMES['ID']
+            data.index.name = CONFIG['column_names']['ID']
         return data
     elif data.index.name == index:
         return data
-    elif index == COLUMNNAMES['LOC']:
+    elif index == CONFIG['column_names']['LOC']:
         return set_location(data)
-    elif index == COLUMNNAMES['POS']:
+    elif index == CONFIG['column_names']['POS']:
         return set_position(data)
-    elif index == COLUMNNAMES['UUID']:
+    elif index == CONFIG['column_names']['UUID']:
         return set_uuid(data)
     elif not type(index) is type(None):
         columns = index.split(",")
@@ -760,14 +763,12 @@ def get_args(args):
 
     data = []
 
-    global DEFAULTOPTIONS
-    options = DEFAULTOPTIONS
-
     global OPTIONS
+    options = OPTIONS
     update_values(options,OPTIONS)
 
-    global CONFIGDATA
-    config = CONFIGDATA
+    global CONFIG
+    config = CONFIG
 
     global MODULE
     if MODULE:
@@ -782,7 +783,7 @@ def get_args(args):
             if not set_value(arg[2:],options) and not set_value(arg[2:],config):
                 error(f"config/option '{arg}' is not valid",E_INVALID)
         elif type(lat) == float and type(lon) == float:
-            data.append(pandas.DataFrame({COLUMNNAMES['LAT']:[lat],COLUMNNAMES['LON']:[lon]}))
+            data.append(pandas.DataFrame({CONFIG['column_names']['LAT']:[lat],CONFIG['column_names']['LON']:[lon]}))
             verbose(f"arg={arg} --> append {len(data[-1])} rows from args")
         elif os.path.exists(arg):
             data.append(pandas.read_csv(arg))
@@ -808,23 +809,22 @@ def get_args(args):
     else:
         data = pandas.concat(data,ignore_index=True)
         verbose(f"{len(data)} rows total received")
-    if not COLUMNNAMES['ID'] in data.columns:
-        data[COLUMNNAMES['ID']] = range(len(data))
-        data = data.astype({COLUMNNAMES['ID']:"int32"})
+    if not CONFIG['column_names']['ID'] in data.columns:
+        data[CONFIG['column_names']['ID']] = range(len(data))
+        data = data.astype({CONFIG['column_names']['ID']:"int32"})
         verbose(f"creating row index")
 
     OPTIONS.update(options)
-    CONFIGDATA.update(config)
+    CONFIG.update(config)
 
-    global KEYINDEX
-    if not KEYINDEX and "resolution" in OPTIONS.keys() and OPTIONS["resolution"]:
-        KEYINDEX = COLUMNNAMES['POS']
-    if KEYINDEX in [COLUMNNAMES['POS'],COLUMNNAMES['LOC'],COLUMNNAMES['ID']]:
+    if not OPTIONS['key_index'] and "resolution" in OPTIONS.keys() and OPTIONS["resolution"]:
+        OPTIONS['key_index'] = CONFIG['column_names']['POS']
+    if OPTIONS['key_index'] in [CONFIG['column_names']['POS'],CONFIG['column_names']['LOC'],CONFIG['column_names']['ID']]:
         data = set_index(data)
-        verbose(f"setting index to {KEYINDEX}")
+        verbose(f"setting index to {OPTIONS['key_index']}")
     verbose(f"data = {dataframe_to_table(data)}")
     verbose(f"options = {json.dumps(OPTIONS,indent=4)}")
-    verbose(f"config = {json.dumps(CONFIGDATA,indent=4)}")
+    verbose(f"config = {json.dumps(CONFIG,indent=4)}")
     return data,options,config
 
 def merge(args):
@@ -835,7 +835,7 @@ def merge(args):
     except Exception as err:
         result = err
     if issubclass(type(result),Exception) :
-        if DEBUG:
+        if OPTIONS['debug']:
             import traceback
             print("Traceback (most recent call last):")
             traceback.print_tb(result.__traceback__)
@@ -862,11 +862,11 @@ def create(args):
 
 def set_distance(data):
     """Computes the distance and heading from latitude and longitude"""
-    path = {COLUMNNAMES['DIST']:[],COLUMNNAMES['LAT']:[],COLUMNNAMES['LON']:[],COLUMNNAMES['HEAD']:[]}
+    path = {CONFIG['column_names']['DIST']:[],CONFIG['column_names']['LAT']:[],CONFIG['column_names']['LON']:[],CONFIG['column_names']['HEAD']:[]}
     last = None
     post = 0.0
     global OPTIONS
-    for pos in list(zip(data[COLUMNNAMES['LAT']],data[COLUMNNAMES['LON']])):
+    for pos in list(zip(data[CONFIG['column_names']['LAT']],data[CONFIG['column_names']['LON']])):
         segs = 1
         p0 = float(pos[0])
         p1 = float(pos[1])
@@ -886,28 +886,28 @@ def set_distance(data):
             lat += dlat
             lon += dlon
             post += OPTIONS["resolution"]
-            path[COLUMNNAMES['DIST']].append(round(post,OPTIONS["precision"]["distance"]))
-            path[COLUMNNAMES['HEAD']].append(round(head,OPTIONS["precision"]["heading"]))
-            path[COLUMNNAMES['LAT']].append(lat)
-            path[COLUMNNAMES['LON']].append(lon)
+            path[CONFIG['column_names']['DIST']].append(round(post,OPTIONS["precision"]["distance"]))
+            path[CONFIG['column_names']['HEAD']].append(round(head,OPTIONS["precision"]["heading"]))
+            path[CONFIG['column_names']['LAT']].append(lat)
+            path[CONFIG['column_names']['LON']].append(lon)
             dist -= OPTIONS["resolution"]
             segs -= 1
         post += dist
-        path[COLUMNNAMES['DIST']].append(round(post,OPTIONS["precision"]["distance"]))
-        path[COLUMNNAMES['HEAD']].append(round(head,OPTIONS["precision"]["heading"]))
-        path[COLUMNNAMES['LAT']].append(pos[0])
-        path[COLUMNNAMES['LON']].append(pos[1])
+        path[CONFIG['column_names']['DIST']].append(round(post,OPTIONS["precision"]["distance"]))
+        path[CONFIG['column_names']['HEAD']].append(round(head,OPTIONS["precision"]["heading"]))
+        path[CONFIG['column_names']['LAT']].append(pos[0])
+        path[CONFIG['column_names']['LON']].append(pos[1])
         last = [p0,p1]
     return pandas.DataFrame(path)
 
 def get_path(data):
     """Computes the path position index for path specified by latitude and longitude"""
     path = set_position(data)
-    joinon = [COLUMNNAMES['POS']]
-    for other in [COLUMNNAMES['LAT'],COLUMNNAMES['LON'],COLUMNNAMES['LOC'],COLUMNNAMES['UUID']]:
+    joinon = [CONFIG['column_names']['POS']]
+    for other in [CONFIG['column_names']['LAT'],CONFIG['column_names']['LON'],CONFIG['column_names']['LOC'],CONFIG['column_names']['UUID']]:
         if other in data.columns:
             joinon.append(other)
-    result = data.merge(path,how=PATHJOIN)
+    result = data.merge(path,how=CONFIG['path_join'])
     return set_position(result)
 
 def get_distance(pos1,pos2):
@@ -916,7 +916,7 @@ def get_distance(pos1,pos2):
 
 def write_csv(data):
     """Write to CSV with headers"""
-    specs = FORMAT.split(":")
+    specs = CONFIG['output_format'].split(":")
     if len(specs) == 1:
         data.to_csv(OUTPUT)
     else:
@@ -927,7 +927,7 @@ def write_csv(data):
 
 def write_raw(data):
     """Write raw output"""
-    specs = FORMAT.split(":")
+    specs = CONFIG['output_format'].split(":")
     with open(OUTPUT,"w") as fh:
         if len(specs) == 1:
             print(RECORDSEP.join(list(map(lambda x:FIELDSEP.join(x.values()),data.astype('str').to_dict("records")))),file=fh)
@@ -941,12 +941,12 @@ def write_raw(data):
 
 def write_pos(data):
     """Write lat,lon output"""
-    data.to_csv(OUTPUT,columns=[COLUMNNAMES['LAT'],COLUMNNAMES['LON']],header=False,index=False,float_format=f"%.{OPTIONS['precision']['geolocation']}f")
+    data.to_csv(OUTPUT,columns=[CONFIG['column_names']['LAT'],CONFIG['column_names']['LON']],header=False,index=False,float_format=f"%.{OPTIONS['precision']['geolocation']}f")
 
 def write_json(data):
     """Write JSON output"""
-    global FORMAT
-    specs = FORMAT.split(":")
+    global CONFIG
+    specs = CONFIG['output_format'].split(":")
     global OUTPUT
     with open(OUTPUT,"w") as fh:
         global OPTIONS
@@ -960,7 +960,7 @@ def write_json(data):
 
 def write_glm(data):
     """Write GLM output"""
-    specs = FORMAT.split(":")
+    specs = CONFIG['output_format'].split(":")
     if len(specs) == 1:
         columns = data.columns.to_list()
     else:
@@ -982,7 +982,7 @@ def write_glm(data):
                 print("{",file=fh)
                 print("\tname \"{row['name']}\";",file=fh)
             for prop, value in row.items():
-                if prop in [COLUMNNAMES['ID'],"class","name"]:
+                if prop in [CONFIG['column_names']['ID'],"class","name"]:
                     continue
                 elif not columns or prop in columns:
                     if modify:
@@ -993,7 +993,7 @@ def write_glm(data):
                 print("}",file=fh)
 
 def write_table(data):
-    specs = FORMAT.split(":")
+    specs = CONFIG['output_format'].split(":")
     pandas.set_option('display.max_rows', OPTIONS['table']['max_rows'])
     pandas.set_option('display.max_columns', OPTIONS['table']['max_columns'])
     pandas.set_option('display.width', OPTIONS['table']['width'])
@@ -1009,7 +1009,7 @@ def write_table(data):
         print(data[specs[1].split(",")])
 
 def write_gdf(data):
-    specs = FORMAT.split(":")
+    specs = CONFIG['output_format'].split(":")
     if len(specs) == 1:
         columns = data.columns
     else:
@@ -1022,7 +1022,7 @@ def write_gdf(data):
     gdf.to_file(OUTPUT)
 
 def write_plot(data):
-    specs = FORMAT.split(":")
+    specs = CONFIG['output_format'].split(":")
     if len(specs) == 1:
         specs.append("geometry")
     ax = None
@@ -1080,9 +1080,9 @@ def load_dataset(args):
     return MODULE
 
 def load_config(file=None,groups=[],inplace=False):
-    global CONFIGDATA
+    global CONFIG
     global CONFIGDIR
-    config = CONFIGDATA
+    config = CONFIG
     if not file:
         if not groups:
             groups = CONFIGDIR.keys()
@@ -1099,11 +1099,13 @@ def load_config(file=None,groups=[],inplace=False):
             file = file[1:]
         elif file[0] != "+":
             config = {}
+        if not os.path.exists(file):
+            error(f"config file '{file}' does not exist",E_NOTFOUND)
         verbose(f"loading {file}")
         with open(file,'r') as fh:
             config.update(json.load(fh))
     if inplace:
-        CONFIGDATA = config
+        CONFIG = config
     return config
 
 def set_config(name,value):
@@ -1154,11 +1156,11 @@ def unset_config(name):
         print(json.dumps(config),file=fh)
 
 def get_config(name):
-    return CONFIGDATA[name]
+    return CONFIG[name]
 
 def save_config(config=None):
     if config == None:
-        config = CONFIGDATA
+        config = CONFIG
     raise Exception(f"set_config(): not implemented")
 
 def show_config(config={},groups=[],format="RAW"):
@@ -1177,12 +1179,12 @@ def show_config(config={},groups=[],format="RAW"):
 
 def config(args):
     """Configuration directive implementation"""
-    global CONFIGDATA
+    global CONFIG
     if args[0] == "show":
         if len(args) > 1:
-            show_config(CONFIGDATA,groups=args[1:])
+            show_config(CONFIG,groups=args[1:])
         else:
-            show_config(CONFIGDATA)
+            show_config(CONFIG)
     elif args[0] == "set":
         if len(args) > 2:
             set_config(*args[1:])
@@ -1204,12 +1206,8 @@ def config(args):
 def main(argc,argv):
     global PKGDATA
     global DATASET
-    global FORMAT
-    global KEYINDEX
-    global PATHJOIN
-    global CFGFILE
     global OUTPUT
-    global DEFAULTOPTIONS
+    global OPTIONS
     n = 1
     DIRECTIVE = []
     if not PKGDATA or not os.path.exists(PKGDATA):
@@ -1226,13 +1224,13 @@ def main(argc,argv):
             else:
                 verbose(f"using cache folder '{CACHE}'")
         elif argv[n] in ["-C","--configfile"]:
-            global CFGFILE
             n += 1
-            CFGFILE = argv[n]
-            load_config(CFGFILE,inplace=True)
+            if not os.path.exists(argv[n]):
+                error(f"config file '{argv[n]}' not found",E_NOTFOUND)
+            OPTIONS["config_file"] = argv[n]
+            load_config(OPTIONS["config_file"],inplace=True)
         elif argv[n] in ["-d","--debug"]:
-            global DEBUG
-            DEBUG = True
+            OPTIONS['debug'] = True
             verbose("debug output enabled")
 
             import traceback
@@ -1255,23 +1253,21 @@ def main(argc,argv):
             n += 1
             if not argv[n].split(":")[0] in ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE","PLOT","GDF"]:
                 error(f"format '{argv[n]}' is not recognized",E_SYNTAX)
-            FORMAT = argv[n]
-            verbose(f"output format is set to '{FORMAT}'")
+            CONFIG['output_format'] = argv[n]
+            verbose(f"output format is set to '{CONFIG['output_format']}'")
         elif argv[n] in ["-h","--help"]:
             help()
             exit(E_OK)
         elif argv[n] in ["-j","--join"]:
-            global PATHJOIN
             n += 1
             if not argv[n] in ["inner","outer","left","right"]:
                 error(f"path join '{argv[n]}' is not valid",E_SYNTAX)
-            PATHJOIN = argv[n]
-            verbose(f"path join is set to '{PATHJOIN}'")
+            CONFIG['path_join'] = argv[n]
+            verbose(f"path join is set to '{CONFIG['path_join']}'")
         elif argv[n] in ["-k","--key"]:
-            global KEYINDEX
             n += 1
-            KEYINDEX = argv[n]
-            verbose(f"key index is set to '{KEYINDEX}'")
+            OPTIONS['key_index'] = argv[n]
+            verbose(f"key index is set to '{OPTIONS['key_index']}'")
         elif argv[n] in ["-o","--output"]:
             global OUTPUT
             n += 1
@@ -1279,22 +1275,20 @@ def main(argc,argv):
             verbose(f"output is set to '{OUTPUT}'")
         elif argv[n] in ["-p","--precision"]:
             n += 1
-            if not set_value(f"precision.geolocation={argv[n]}",DEFAULTOPTIONS):
+            if not set_value(f"precision.geolocation={argv[n]}",OPTIONS):
                 error(f"precision '{argv[n]}' is not a valid value",E_INVALID)
-            if DEFAULTOPTIONS["precision"]["geolocation"] < 0:
+            if OPTIONS["precision"]["geolocation"] < 0:
                 error(f"geoprecision must be zero or positive integer",E_INVALID)
-            verbose(f"geoprecision is set to '{DEFAULTOPTIONS['precision']['geolocation']}'")
+            verbose(f"geoprecision is set to '{OPTIONS['precision']['geolocation']}'")
         elif argv[n] in ["-q","--quiet"]:
-            global QUIET
-            QUIET = True
+            OPTIONS['quiet'] = True
             verbose("quiet output enabled")
         elif argv[n] in ["-r","--resolution"]:
             n += 1
-            DEFAULTOPTIONS["resolution"] = float(argv[n])
+            OPTIONS["resolution"] = float(argv[n])
             verbose("path resolution is '{OPTIONS['resolution']}' meters")
         elif argv[n] in ["-s","--silent"]:
-            global SILENT
-            SILENT = True
+            OPTIONS['silent'] = True
             verbose("silent output enabled")
         elif argv[n] in ["-T","--threadcount"]:
             global MAXTHREADS
@@ -1302,12 +1296,10 @@ def main(argc,argv):
             MAXTHREADS = int(argv[n])
             verbose(f"maximum thread count '{MAXTHREADS}'")
         elif argv[n] in ["-v","--verbose"]:
-            global VERBOSE
-            VERBOSE = True
+            OPTIONS['verbose'] = True
             verbose("verbose output enabled")
         elif argv[n] in ["-w","--warning"]:
-            global WARNING
-            WARNING = False
+            OPTIONS['warning'] = False
             verbose("warning output disable")
         elif argv[n].startswith("--fieldsep="):
             global FIELDSEP
@@ -1318,10 +1310,10 @@ def main(argc,argv):
             RECORDSEP = argv[n].split("=")[1]
             verbose("record separate is '{RECORDSEP}'")
         elif argv[n] == "--show_options":
-            show_values(DEFAULTOPTIONS)
+            show_values(OPTIONS)
             exit(E_OK)
         elif argv[n] == "--show_config":
-            show_values(CONFIGDATA)
+            show_values(CONFIG)
             exit(E_OK)
         else:
             DIRECTIVE.append(argv[n])
@@ -1340,24 +1332,26 @@ def main(argc,argv):
         error(f"directive '{DIRECTIVE[0]}' is not valid",E_SYNTAX)
     data = globals()[DIRECTIVE[0]](args)
     if type(data) is pandas.DataFrame:
-        if FORMAT == "CSV" or FORMAT.startswith("CSV:"):
+        if CONFIG['output_format'] == "CSV" or CONFIG['output_format'].startswith("CSV:"):
             write_csv(data)
-        elif FORMAT == "RAW" or FORMAT.startswith("RAW:"):
+        elif CONFIG['output_format'] == "RAW" or CONFIG['output_format'].startswith("RAW:"):
             write_raw(data)
-        elif FORMAT == "JSON" or FORMAT.startswith("JSON:"):
+        elif CONFIG['output_format'] == "JSON" or CONFIG['output_format'].startswith("JSON:"):
             write_json(data)
-        elif FORMAT == "GLM" or FORMAT.startswith("GLM:"):
+        elif CONFIG['output_format'] == "GLM" or CONFIG['output_format'].startswith("GLM:"):
             write_glm(data)
-        elif FORMAT == "POS":
+        elif CONFIG['output_format'] == "POS":
             write_pos(data)
-        elif FORMAT == "TABLE" or FORMAT.startswith("TABLE:"):
+        elif CONFIG['output_format'] == "TABLE" or CONFIG['output_format'].startswith("TABLE:"):
             write_table(data)
-        elif FORMAT == "PLOT" or FORMAT.startswith("PLOT:"):
+        elif CONFIG['output_format'] == "PLOT" or CONFIG['output_format'].startswith("PLOT:"):
             write_plot(data)
-        elif FORMAT == "GDF" or FORMAT.startswith("GDF:"):
+        elif CONFIG['output_format'] == "GDF" or CONFIG['output_format'].startswith("GDF:"):
             write_gdf(data)
         else:
-            error(f"format '{FORMAT}' is invalid",E_SYNTAX)
+            error(f"format '{CONFIG['output_format']}' is invalid",E_SYNTAX)
 
 if __name__ == "__main__":
     main(len(sys.argv),sys.argv)
+    if warning_count > 1:
+        warning(f"last warning occurred {warning_count} times")

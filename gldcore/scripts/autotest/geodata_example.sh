@@ -2,7 +2,7 @@
 
 echo "Checking savefile $1..."
 
-CHECKLIST="house:0.latitude=37.415463 house:0.longitude=-122.201176 house:1.latitude=37.486807 house:1.longitude=-122.226587"
+CHECKLIST="house:0.latitude=37.415460 house:0.longitude=-122.201180 house:1.latitude=37.486810 house:1.longitude=-122.226590"
 for CHECK in $CHECKLIST; do
     NAMEPROP=$(echo $CHECK | cut -f1 -d=)
     EXPECT=$(echo $CHECK | cut -f2 -d=)
