@@ -403,7 +403,7 @@ OPTIONS = {
     "config_file" : CONFIGFILE,
     "field_separator" : " ",
     "record_separator" : "\n",
-    "input_delimiter" : ",",
+    "input_delimiter" : "+",
     "warning_as_error" : False,
     "plot" : {
         "figsize" : [7.0,5.0],
@@ -858,7 +858,7 @@ def merge(args):
     else:
         warning(f"merge result is not a recognized object type (type is '{type(result)}')")
         result = None
-    debug(f"merge(args='{args}') --> data = {dataframe_to_table(result)}options = {json.dumps(options,indent=4)}\nconfig = {json.dumps(config,indent=4)}")
+    debug(f"merge(args={args.__repr__()}) --> data = {dataframe_to_table(result)}options = {json.dumps(options,indent=4)}\nconfig = {json.dumps(config,indent=4)}")
     return result
 
 def create(args):
@@ -1069,7 +1069,7 @@ def write_plot(data):
             plt.savefig(OUTPUT,**OPTIONS['savefig'])
     except Exception as err:
         error(f"write_plot(): {err}",E_INVALID)
-        
+
 def write_xlsx(data):
     global CONFIG
     specs = CONFIG['output_format'].split(":")

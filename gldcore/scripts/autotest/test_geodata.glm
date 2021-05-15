@@ -13,16 +13,16 @@
 #geodata create 37.4205,-122.2046 37.5205,-122.3046 -k position
 #geodata create 37.4205,-122.2046 37.5205,-122.3046 -k location
 #geodata create 37.4205,-122.2046 37.5205,-122.3046 -k latitude,longitude
-#geodata create name=obj1,latitude=37.4205,longitude=-122.2046 37.5205,-122.3046 -k name
-#geodata create name=obj1,latitude=37.4205,longitude=-122.2046 name=obj2,latitude=37.5205,longitude=-122.3046 -k name
+#geodata create name=obj1+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name 
+#geodata create name=obj2+latitude=37.4205+longitude=-122.2046 name=obj3+latitude=37.5205+longitude=-122.3046 -k name 
 
 // geodata merge distance from pipe
-#geodata create name=obj1,latitude=37.4205,longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance
-#geodata create name=obj1,latitude=37.4205,longitude=-122.2046 name=obj2+latitude=37.5205,longitude=-122.3046 -k name | gridlabd geodata merge -D distance
-#geodata create name=obj1,latitude=37.4205,longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance -k name
-#geodata create name=obj1,latitude=37.4205,longitude=-122.2046 name=obj2+latitude=37.5205,longitude=-122.3046 -k name | gridlabd geodata merge -D distance -k name
-#geodata create name=obj1,latitude=37.4205,longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance -k distance
-#geodata create name=obj1,latitude=37.4205,longitude=-122.2046 name=obj2,latitude=37.5205,longitude=-122.3046 -k name | gridlabd geodata merge -D distance -k distance
+#geodata create name=obj4+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance
+#geodata create name=obj5+latitude=37.4205+longitude=-122.2046 name=obj6+latitude=37.5205+longitude=-122.3046 -k name | gridlabd geodata merge -D distance
+#geodata create name=obj7+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance -k name
+#geodata create name=obj8+latitude=37.4205+longitude=-122.2046 name=obj9+latitude=37.5205+longitude=-122.3046 -k name | gridlabd geodata merge -D distance -k name
+#geodata create name=obj10+latitude=37.4205+longitude=-122.2046 37.5205,-122.3046 -k name | gridlabd geodata merge -D distance -k distance
+#geodata create name=obj11+latitude=37.4205+longitude=-122.2046 name=obj12+latitude=37.5205+longitude=-122.3046 -k name | gridlabd geodata merge -D distance -k distance
 
 // geodata merge distance
 #geodata merge -D distance 37.4205,-122.2046 37.5205,-122.3046
