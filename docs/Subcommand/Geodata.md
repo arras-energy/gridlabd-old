@@ -26,7 +26,7 @@ Some datasets may be processes in parallel.  The default maximum thread count is
 
 # Options
 
-## `-C|--config FILE`
+## `-C|--configfile FILE`
 
 Changes config file
 
@@ -42,25 +42,45 @@ Specifies the dataset from which the geographic information is to be acquired. S
 
 Specified the output format.  See `gridlabd geodata help` for details.
 
+## `--fieldsep STRING`
+
+Set the RAW output field separator.
+
 ## `-j|--join {inner,outer,left,right}`
 
 Controls how the dataset is merged with the input path. If [-j|--join {inner,outer,left,right}] is specified, the input is joined with the dataset in the manner specified, i.e., "left" uses the input index, "right" uses the dataset's index, "outer" forms the union of both indexes and sorts it, and "inner" forms the intersection of both indexes, preserving the order of the input index.
+
+## `-k|--key FIELD1[,FIELD2[,...]]`
+
+Set the index to the specified field(s).
 
 ## `-o|--output CSVOUT`
 
 Normally the output is written to /dev/stdout. When CSVOUT is specified the output data is written to the specified file. If the output file already exists, it is overwritten with the new data.
 
-## `-r|--resolution] METERS`
+## `-p|--precision DIGITS`
+
+Set the latitude and longitude precision. The default is 5, which is about 1 meter.
+
+## `-r|--resolution METERS`
 
 Specifies the resolution in meters of the data to be generated along the path. If omitted, the output is generated only at the locations listed in the input. This option has no meaning for the location directive.
+
+## `--recordsep STRING`
+
+Set the RAW output record separator.
 
 ## `-s|--silent`
 
 Disables error output.
 
-## `-T|--threadcount THREADS`
+## `--show_config`
 
-Change maximum thread count
+Displays the current configuration values.
+
+## `--show_options`
+
+Displays the current option values.
 
 ## `-v|--verbose`
 
