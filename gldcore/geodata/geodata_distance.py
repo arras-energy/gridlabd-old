@@ -27,6 +27,7 @@ from pandas import DataFrame
 #
 default_options = {
     "units" : "meters",
+    "relative" : False, 
 }
 
 default_config = {
@@ -89,6 +90,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
     else:
         dist = [0.0]
         pos1 = path[0]
+        last = 0.0
         if config["method"] == "haversine":
             for pos2 in path[1:]:
                 lat1 = pos1[0]*math.pi/180
@@ -96,7 +98,12 @@ def apply(data, options=default_options, config=default_config, warning=print):
                 lon1 = pos1[1]*math.pi/180
                 lon2 = pos2[1]*math.pi/180
                 a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
-                dist.append(6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a))))
+                d = 6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a)))
+                if options["relative"]:
+                    dist.append(d-last)
+                    last = d
+                else:
+                    dist.append(d)
         else:
             raise Exception(f"method '{config[method]}' is not recognized")
         try:

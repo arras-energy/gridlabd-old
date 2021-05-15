@@ -361,6 +361,9 @@ MODULE = None
 PKGDATA = os.getenv("GLD_ETC")
 if not PKGDATA:
     PKGDATA = "/usr/local/share/gridlabd"
+VALID_FORMATS = ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE","PLOT","GDF","XLSX"]
+
+CONFIGFILE = "geodata.conf" 
 CONFIGDIR = {
     "system" : PKGDATA + "/geodata",
     "user" : os.getenv("HOME") + "/.gridlabd/geodata",
@@ -383,7 +386,6 @@ CONFIG = {
     "uuid_type" : 4, # valid UUID key type values are 1 (host, seq, time) and 4 (random)
 }
 
-CONFIGFILE = "geodata.conf" 
 OPTIONS = {
     "verbose" : False,
     "debug" : False,
@@ -426,7 +428,7 @@ OPTIONS = {
         "max_colwidth" : 16,
     },
     "precision" : {
-        "distance" : 2,
+        "distance" : 0,
         "heading" : 1,
         "geolocation" : 5,
         "id" : 0,
@@ -1258,7 +1260,7 @@ def main(argc,argv):
             load_dataset([DATASET])
         elif argv[n] in ["-f","--format"]:
             n += 1
-            if not argv[n].split(":")[0] in ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE","PLOT","GDF","XLSX"]:
+            if not argv[n].split(":")[0] in VALID_FORMATS:
                 error(f"format '{argv[n]}' is not recognized",E_SYNTAX)
             CONFIG['output_format'] = argv[n]
             verbose(f"output format is set to '{CONFIG['output_format']}'")
