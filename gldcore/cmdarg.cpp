@@ -527,6 +527,15 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
+	if ( argv[0][9] == '=' && argv[0][10] == '-' )
+	{
+		if ( version_check(argv[0]+10) )
+		{
+			return CMDOK;
+		} 
+		output_error("version '%s' does not satisfy the version requirement '%s'",VERSION,argv[0]+10);
+		return CMDERR;
+	}
 	const char *opt = strchr(argv[0],'=');
 	if ( opt++ == NULL )
 	{
