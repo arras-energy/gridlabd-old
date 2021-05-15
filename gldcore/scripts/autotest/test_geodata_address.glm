@@ -1,7 +1,7 @@
 // test a single location
 #setenv REQ="2575 Sand Hill Rd, Menlo Park, CA"
 #define RES=${SHELL gridlabd geodata merge -D address "$REQ" --reverse -f POS}
-#define ANS=37.4155,-122.2012
+#define ANS=37.41546,-122.20118
 #if ${RES} != ${ANS}
     #error "geodata -D address merge ${REQ}" is incorrect: expected ${ANS} but got ${RES} instead
 #endif
