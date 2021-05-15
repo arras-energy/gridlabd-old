@@ -380,6 +380,7 @@ CONFIG = {
         'LOC' : "location",
         'POS' : "position",
     },
+    "uuid_type" : 4, # valid UUID key type values are 1 (host, seq, time) and 4 (random)
 }
 
 MAXTHREADS = 1 # TODO move to options
@@ -394,7 +395,7 @@ OPTIONS = {
     "warning" : True,
     "key_index" : "",
     "max_threads" : 1,
-    "config_file" : f"os.getenv('HOME')/.gridlabd/geodata.conf",
+    "config_file" : f"os.getenv('HOME')/.gridlabd/{CONFIGFILE}",
     "field_separator" : " ",
     "record_separate" : "\n",
     "plot" : {
@@ -450,36 +451,34 @@ E_INVALID = 4
 E_FAILED = 5
 E_NOTIMPLEMENTED = 9
 
-def error(msg,exitcode=None):
+def format_message(type,msg):
     if DATASET:
-        text = f"ERROR [{NAME}/{DATASET}]: {msg}"
+        return f"{type} [{NAME}/{DATASET}]: {msg}"
     else:
-        text = f"ERROR [{NAME}]: {msg}"
+        return f"{type} [{NAME}]: {msg}"
+
+def error(msg,exitcode=None):
     if OPTIONS['debug']:
         raise Exception(msg)
     if not OPTIONS['silent']:
-        print(text,file=sys.stderr,flush=True)
+        print(format_message("ERROR",msg),file=sys.stderr,flush=True)
     if exitcode:
         exit(exitcode)
 
-lastmsg = None
+last_warning = None
+warning_count = 0
 def warning(msg):
-    global lastmsg
-    if lastmsg != msg and OPTIONS['warning']:
-        if DATASET:
-            text = f"WARNING [{NAME}/{DATASET}]: {msg}"
-        else:
-            text = f"WARNING [{NAME}]: {msg}"
-        print(text,file=sys.stderr)
-        lastmsg = msg
+    global last_warning
+    if last_warning != msg and OPTIONS['warning']:
+        print(format_message("WARNING",msg),file=sys.stderr,flush=True)
+        last_warning = msg
+        warning_count = 1
+    elif last_warning == msg:
+        warning_count += 1
 
 def verbose(msg):
     if OPTIONS['verbose']:
-        if DATASET:
-            text = f"VERBOSE [{NAME}/{DATASET}]: {msg}"
-        else:
-            text = f"VERBOSE [{NAME}/]: {msg}"
-        print(text,file=sys.stderr)
+        print(format_message("VERBOSE",msg),file=sys.stderr,flush=True)
 
 def output(msg):
     if not OPTIONS['quiet']:
@@ -487,10 +486,7 @@ def output(msg):
 
 def debug(msg):
     if OPTIONS['debug']:
-        if DATASET:
-            print(f"DEBUG [{NAME}/{DATASET}]: {msg}", file=sys.stderr)
-        else:
-            print(f"DEBUG [{NAME}]: {msg}", file=sys.stderr)
+        print(format_message("DEBUG",msg),file=sys.stderr,flush=True)
 
 python_help = help
 def help(dataset=None):
@@ -640,7 +636,10 @@ def set_position(data):
 
 def set_uuid(data):
     if CONFIG['column_names']['UUID'] not in data.columns:
-        data[CONFIG['column_names']['UUID']] = list(map(lambda x:uuid.uuid4().hex, range(len(data))))
+        try:
+            data[CONFIG['column_names']['UUID']] = list(map(lambda x: getattr(uuid,f"uuid{CONFIG['uuid_type']}")().hex, range(len(data))))
+        except Exception as err:
+            error(f"uuid key generation error ({err})",E_INVALID)
     return data.set_index(CONFIG['column_names']['UUID'])
 
 def set_index(data,index=None,silent=False):
@@ -1354,3 +1353,5 @@ def main(argc,argv):
 
 if __name__ == "__main__":
     main(len(sys.argv),sys.argv)
+    if warning_count > 1:
+        warning(f"last warning occurred {warning_count} times")
