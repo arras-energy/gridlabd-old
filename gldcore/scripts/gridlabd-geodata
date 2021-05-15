@@ -382,12 +382,6 @@ CONFIG = {
     },
 }
 
-VERBOSE = False # TODO move to options
-DEBUG = False # TODO move to options
-SILENT = False # TODO move to options
-QUIET = False # TODO move to options
-WARNING = True # TODO move to options
-KEYINDEX = None # TODO move to options
 MAXTHREADS = 1 # TODO move to options
 CONFIGFILE = "geodata.conf" # TODO move to options
 FIELDSEP = ' '  # TODO move to options
@@ -429,8 +423,8 @@ OPTIONS = {
     "table" : {
         "max_rows" : 10,
         "max_columns" : 10,
-        "width" : 100,
-        "max_colwidth" : 10,
+        "width" : 80,
+        "max_colwidth" : 16,
     },
     "precision" : {
         "distance" : 2,
@@ -461,9 +455,9 @@ def error(msg,exitcode=None):
         text = f"ERROR [{NAME}/{DATASET}]: {msg}"
     else:
         text = f"ERROR [{NAME}]: {msg}"
-    if DEBUG:
+    if OPTIONS['debug']:
         raise Exception(msg)
-    if not SILENT:
+    if not OPTIONS['silent']:
         print(text,file=sys.stderr,flush=True)
     if exitcode:
         exit(exitcode)
@@ -471,24 +465,32 @@ def error(msg,exitcode=None):
 lastmsg = None
 def warning(msg):
     global lastmsg
-    global WARNING
-    if lastmsg != msg and WARNING:
-        text = f"WARNING [{NAME}/{DATASET}]: {msg}"
+    if lastmsg != msg and OPTIONS['warning']:
+        if DATASET:
+            text = f"WARNING [{NAME}/{DATASET}]: {msg}"
+        else:
+            text = f"WARNING [{NAME}]: {msg}"
         print(text,file=sys.stderr)
         lastmsg = msg
 
 def verbose(msg):
-    if VERBOSE:
-        text = f"VERBOSE [{NAME}/{DATASET}]: {msg}"
+    if OPTIONS['verbose']:
+        if DATASET:
+            text = f"VERBOSE [{NAME}/{DATASET}]: {msg}"
+        else:
+            text = f"VERBOSE [{NAME}/]: {msg}"
         print(text,file=sys.stderr)
 
 def output(msg):
-    if not QUIET:
+    if not OPTIONS['quiet']:
         print(msg,file=sys.stdout)
 
 def debug(msg):
-    if DEBUG:
-        print(f"DEBUG [{NAME}/{DATASET}]: {msg}", file=sys.stderr)
+    if OPTIONS['debug']:
+        if DATASET:
+            print(f"DEBUG [{NAME}/{DATASET}]: {msg}", file=sys.stderr)
+        else:
+            print(f"DEBUG [{NAME}]: {msg}", file=sys.stderr)
 
 python_help = help
 def help(dataset=None):
@@ -644,18 +646,17 @@ def set_uuid(data):
 def set_index(data,index=None,silent=False):
     """Set the specified index on the data"""
 
-    global KEYINDEX
-    if index is None:
-        index = KEYINDEX
+    global OPTIONS
+    if not index:
+        index = OPTIONS['key_index']
 
     global CONFIG
-    global OPTIONS
     data[CONFIG['column_names']['LAT']] = data[CONFIG['column_names']['LAT']].map(lambda x: round(float(x),OPTIONS["precision"]["geolocation"]))
     data[CONFIG['column_names']['LON']] = data[CONFIG['column_names']['LON']].map(lambda x: round(float(x),OPTIONS["precision"]["geolocation"]))
 
     if OPTIONS["resolution"] and index != CONFIG['column_names']['POS']:
         warning(f"using index '{index}' cannot be used with '--resolution={OPTIONS['resolution']}' option")
-    if index is None:
+    if not index:
         if data.index.name:
             data.reset_index(inplace=True)
         if CONFIG['column_names']['ID'] in data.columns:
@@ -817,12 +818,11 @@ def get_args(args):
     OPTIONS.update(options)
     CONFIG.update(config)
 
-    global KEYINDEX
-    if not KEYINDEX and "resolution" in OPTIONS.keys() and OPTIONS["resolution"]:
-        KEYINDEX = CONFIG['column_names']['POS']
-    if KEYINDEX in [CONFIG['column_names']['POS'],CONFIG['column_names']['LOC'],CONFIG['column_names']['ID']]:
+    if not OPTIONS['key_index'] and "resolution" in OPTIONS.keys() and OPTIONS["resolution"]:
+        OPTIONS['key_index'] = CONFIG['column_names']['POS']
+    if OPTIONS['key_index'] in [CONFIG['column_names']['POS'],CONFIG['column_names']['LOC'],CONFIG['column_names']['ID']]:
         data = set_index(data)
-        verbose(f"setting index to {KEYINDEX}")
+        verbose(f"setting index to {OPTIONS['key_index']}")
     verbose(f"data = {dataframe_to_table(data)}")
     verbose(f"options = {json.dumps(OPTIONS,indent=4)}")
     verbose(f"config = {json.dumps(CONFIG,indent=4)}")
@@ -836,7 +836,7 @@ def merge(args):
     except Exception as err:
         result = err
     if issubclass(type(result),Exception) :
-        if DEBUG:
+        if OPTIONS['debug']:
             import traceback
             print("Traceback (most recent call last):")
             traceback.print_tb(result.__traceback__)
@@ -1207,7 +1207,6 @@ def config(args):
 def main(argc,argv):
     global PKGDATA
     global DATASET
-    global KEYINDEX
     global OUTPUT
     global OPTIONS
     n = 1
@@ -1232,8 +1231,7 @@ def main(argc,argv):
             OPTIONS["config_file"] = argv[n]
             load_config(OPTIONS["config_file"],inplace=True)
         elif argv[n] in ["-d","--debug"]:
-            global DEBUG
-            DEBUG = True
+            OPTIONS['debug'] = True
             verbose("debug output enabled")
 
             import traceback
@@ -1268,10 +1266,9 @@ def main(argc,argv):
             CONFIG['path_join'] = argv[n]
             verbose(f"path join is set to '{CONFIG['path_join']}'")
         elif argv[n] in ["-k","--key"]:
-            global KEYINDEX
             n += 1
-            KEYINDEX = argv[n]
-            verbose(f"key index is set to '{KEYINDEX}'")
+            OPTIONS['key_index'] = argv[n]
+            verbose(f"key index is set to '{OPTIONS['key_index']}'")
         elif argv[n] in ["-o","--output"]:
             global OUTPUT
             n += 1
@@ -1285,16 +1282,14 @@ def main(argc,argv):
                 error(f"geoprecision must be zero or positive integer",E_INVALID)
             verbose(f"geoprecision is set to '{OPTIONS['precision']['geolocation']}'")
         elif argv[n] in ["-q","--quiet"]:
-            global QUIET
-            QUIET = True
+            OPTIONS['quiet'] = True
             verbose("quiet output enabled")
         elif argv[n] in ["-r","--resolution"]:
             n += 1
             OPTIONS["resolution"] = float(argv[n])
             verbose("path resolution is '{OPTIONS['resolution']}' meters")
         elif argv[n] in ["-s","--silent"]:
-            global SILENT
-            SILENT = True
+            OPTIONS['silent'] = True
             verbose("silent output enabled")
         elif argv[n] in ["-T","--threadcount"]:
             global MAXTHREADS
@@ -1302,12 +1297,10 @@ def main(argc,argv):
             MAXTHREADS = int(argv[n])
             verbose(f"maximum thread count '{MAXTHREADS}'")
         elif argv[n] in ["-v","--verbose"]:
-            global VERBOSE
-            VERBOSE = True
+            OPTIONS['verbose'] = True
             verbose("verbose output enabled")
         elif argv[n] in ["-w","--warning"]:
-            global WARNING
-            WARNING = False
+            OPTIONS['warning'] = False
             verbose("warning output disable")
         elif argv[n].startswith("--fieldsep="):
             global FIELDSEP
