@@ -398,6 +398,7 @@ OPTIONS = {
     "field_separator" : " ",
     "record_separator" : "\n",
     "input_delimiter" : ",",
+    "warning_as_error" : False,
     "plot" : {
         "figsize" : [7.0,5.0],
         "cmap" : "",
@@ -449,6 +450,7 @@ E_NOTFOUND = 2
 E_MISSING = 3
 E_INVALID = 4
 E_FAILED = 5
+E_WARNING = 8
 E_NOTIMPLEMENTED = 9
 
 def format_message(type,msg):
@@ -469,6 +471,8 @@ last_warning = None
 warning_count = 0
 def warning(msg):
     global last_warning
+    if OPTIONS["warning_as_error"]:
+        error(msg,E_WARNING)
     if last_warning != msg and OPTIONS['warning']:
         print(format_message("WARNING",msg),file=sys.stderr,flush=True)
         last_warning = msg
@@ -754,9 +758,9 @@ def show_values(data,root=[]):
         if type(value) is dict:
             show_values(value,base)
         elif type(value) is list:
-            print(f"{'.'.join(base)}={'.'.join(list(map(lambda x: str(x),value)))}")
+            print(f"--{'.'.join(base)}={'.'.join(list(map(lambda x: str(x),value)))}")
         else:
-            print(f"{'.'.join(base)}={value.__repr__()}")
+            print(f"--{'.'.join(base)}={value.__repr__()}")
 
 def get_args(args):
     """Get the arguments, options, and configuration"""
