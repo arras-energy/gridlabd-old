@@ -5,14 +5,14 @@ positions.
 
 OPTIONS
 
-    "units=<unit>" specifies the units in which to compute the distance.
+    "--units=<unit>" specifies the units in which to compute the distance.
     Valid units are "meters", "m", "kilometers", "km", "miles", "mi",
     "yards", "yd", "ft", or "feet". The default is "meters".
 
 CONFIGURATION
 
-    "precision=<int>" specifies the precision with which to measure the
-    distance in the units specified.  The default is 0.
+    "--method=haversine" specifies the method used to calculate distances.
+    The default 'haversine' method calculates great circle distances.
 """
 
 version = 1 # specify API version
@@ -30,9 +30,10 @@ default_options = {
 }
 
 default_config = {
+    "method" : "haversine",
 }
 
-units = {
+valid_units = {
     "m" : 1.0,
     "meters" : 1.0,
     "km" : 1e-3,
@@ -88,16 +89,19 @@ def apply(data, options=default_options, config=default_config, warning=print):
     else:
         dist = [0.0]
         pos1 = path[0]
-        for pos2 in path[1:]:
-            lat1 = pos1[0]*math.pi/180
-            lat2 = pos2[0]*math.pi/180
-            lon1 = pos1[1]*math.pi/180
-            lon2 = pos2[1]*math.pi/180
-            a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
-            dist.append(6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a))))
+        if config["method"] == "haversine":
+            for pos2 in path[1:]:
+                lat1 = pos1[0]*math.pi/180
+                lat2 = pos2[0]*math.pi/180
+                lon1 = pos1[1]*math.pi/180
+                lon2 = pos2[1]*math.pi/180
+                a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
+                dist.append(6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a))))
+        else:
+            raise Exception(f"method '{config[method]}' is not recognized")
         try:
-            global units
-            data["distance"] = (numpy.array(dist) * units[options["units"]]).round(options["precision"]["distance"])
+            global valid_units
+            data["distance"] = (numpy.array(dist) * valid_units[options["units"]]).round(options["precision"]["distance"])
         except:
             raise Exception(f"unit '{options['units']}' is not recognized")
     return data
