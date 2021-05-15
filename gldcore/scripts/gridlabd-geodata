@@ -12,18 +12,21 @@ below.
 
 OPTIONS
 
-  [-c|--cache FOLDER]         change cache folder
   [-C|--config [+]FILE]       load config file (use '+' appends to current
                               configuration)
   [-d|--debug]                enable debug output, including error traceback
   [-f|--format FORMAT]        change output format
+  [--fieldsep STRING]         set the RAW output field separator
   [-j|--join TYPE]            control how dataset joins with input path
   [-k|--key KEY]              change method for generating keys
   [-o|--output CSVOUT]        output to CSVOUT
-  [--precision=INT]           change precision of distance measurement
-  [-r|--resolution=METERS]    change the resolution at which positions are
+  [-p|--precision INT]        change precision of location values
+  [-r|--resolution METERS]    change the resolution at which positions are
                               merged
+  [--recordsep STRING]        change the RAW output record separator
   [-s|--silent]               disable error output
+  [--show_config]             display the current configuration
+  [--show_options]            display the current options
   [-T|--threadcount THREADS]  change maximum thread count
   [--units UNIT]              change units of distance
   [-v|--verbose]              enable verbose output
@@ -1318,11 +1321,13 @@ def main(argc,argv):
         elif argv[n] in ["-w","--warning"]:
             OPTIONS['warning'] = False
             verbose("warning output disable")
-        elif argv[n].startswith("--fieldsep="):
-            OPTIONS['field_separator'] = argv[n].split("=")[1]
+        elif argv[n] == "--fieldsep":
+            n += 1
+            OPTIONS['field_separator'] = argv[n]
             verbose("field separate is '{OPTIONS['field_separator']}'")
-        elif argv[n].startswith("--recordsep="):
-            OPTIONS['record_separator'] = argv[n].split("=")[1]
+        elif argv[n] == "--recordsep":
+            n += 1
+            OPTIONS['record_separator'] = argv[n]
             verbose("record separate is '{OPTIONS['record_separator']}'")
         elif argv[n] == "--show_options":
             show_values(OPTIONS)
