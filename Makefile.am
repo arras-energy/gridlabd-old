@@ -313,10 +313,10 @@ python-requirements: $(python_requirements)
 	cat $(python_requirements) | python3 -m pip install -q -r /dev/stdin
 
 reconfigure: distclean
-	autoreconf -isf && ./configure
+	autoreconf -isf && ./configure --quiet
 
 reconfigure-debug: distclean
-	autoreconf -isf && ./configure 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
+	autoreconf -isf && ./configure --quiet 'CXXFLAGS=-O0 -g $(CXXFLAGS)'
 
 docker: $(PREFIX)/docker.img
 
