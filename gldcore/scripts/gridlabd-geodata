@@ -21,7 +21,6 @@ OPTIONS
   [-k|--key KEY]              change method for generating keys
   [-o|--output CSVOUT]        output to CSVOUT
   [--precision=INT]           change precision of distance measurement
-  [-q|--quiet]                disable normal output
   [-r|--resolution=METERS]    change the resolution at which positions are
                               merged
   [-s|--silent]               disable error output
@@ -191,6 +190,10 @@ selected as follows:
   PLOT[:<fields>]   fields are plotted to a matplotlib figure.  Fields may be one
                     'location', 'position', or 'geometry', which plot points, lines,
                     and areas, respectively.
+  
+  XLSX[:<fields>]   outputs the data as an Excel spreadsheet.
+
+  GDF[:<fields>]    outputs the data as a GeoPandas file.
 
 DEVELOPER API
 
