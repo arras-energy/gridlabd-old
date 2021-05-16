@@ -1,20 +1,17 @@
 
 <div class="cell markdown">
 
-# GridLAB-D GeoData Subcommand
-
-As of version 4.2.21, HiPAS GridLAB-D supports the handling of
-geographic data.
-
-This command checks the version of GridLAB-D and loads the python module
-we will use.
+This document is generated from a Jupyter notebook. As of version
+4.2.21, HiPAS GridLAB-D supports the handling of geographic data.  
+The following command checks the version of GridLAB-D and loads the
+python needed modules.
 
 </div>
 
 <div class="cell code" execution_count="1">
 
 ``` python
-!gridlabd --version='-ge 4.2.21'
+bash% gridlabd --version='-ge 4.2.21'
 from IPython.display import Image
 import pandas, geopandas
 ```
@@ -63,7 +60,7 @@ entity with the approximate location of SLAC's main gate.
 <div class="cell code" execution_count="2">
 
 ``` python
-!gridlabd geodata create 37.415,-122.20
+bash% gridlabd geodata create 37.415,-122.20
 ```
 
 <div class="output stream stdout">
@@ -85,7 +82,7 @@ for example:
 <div class="cell code" execution_count="3">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.21
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.21
 ```
 
 <div class="output stream stdout">
@@ -108,7 +105,7 @@ such as this example CSV file:
 <div class="cell code" execution_count="4">
 
 ``` python
-!head -n 4 path_example.csv
+bash% head -n 4 path_example.csv
 ```
 
 <div class="output stream stdout">
@@ -131,7 +128,7 @@ To use this file, the following command can be used:
 <div class="cell code" execution_count="5">
 
 ``` python
-!gridlabd geodata create path_example.csv | head -n 4
+bash% gridlabd geodata create path_example.csv | head -n 4
 ```
 
 <div class="output stream stdout">
@@ -163,7 +160,7 @@ If no location information is given, then the geodata is read from
 <div class="cell code" execution_count="6">
 
 ``` python
-!head -n 4 path_example.csv | cut -f1-2 -d, | gridlabd geodata create
+bash% head -n 4 path_example.csv | cut -f1-2 -d, | gridlabd geodata create
 ```
 
 <div class="output stream stdout">
@@ -187,7 +184,7 @@ e.g.,
 <div class="cell code" execution_count="7">
 
 ``` python
-!gridlabd geodata create name=obj1+latitude=37.4205+longitude=-122.2046 name=obj2+latitude=37.5205+longitude=-122.3046
+bash% gridlabd geodata create name=obj1+latitude=37.4205+longitude=-122.2046 name=obj2+latitude=37.5205+longitude=-122.3046
 ```
 
 <div class="output stream stdout">
@@ -210,7 +207,7 @@ using the `--input_delimiter=STRING` option, e.g.,
 <div class="cell code" execution_count="8">
 
 ``` python
-!gridlabd geodata create --input_delimiter=',' 'name=obj1,latitude=37.4205,longitude=-122.2046' 'name=obj2,latitude=37.5205,longitude=-122.3046'
+bash% gridlabd geodata create --input_delimiter=',' 'name=obj1,latitude=37.4205,longitude=-122.2046' 'name=obj2,latitude=37.5205,longitude=-122.3046'
 ```
 
 <div class="output stream stdout">
@@ -258,7 +255,7 @@ the precision with which latitudes and longitudes are output using the
 <div class="cell code" execution_count="9">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -p 4
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -p 4
 ```
 
 <div class="output stream stdout">
@@ -282,7 +279,7 @@ can also be set using the direct option set syntax, e.g.,
 <div class="cell code" execution_count="10">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 --precision.geolocation=4
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 --precision.geolocation=4
 ```
 
 <div class="output stream stdout">
@@ -306,7 +303,7 @@ this to any string using the `--fieldsep STRING` option, e.g.,
 <div class="cell code" execution_count="11">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RAW --fieldsep ','
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RAW --fieldsep ','
 ```
 
 <div class="output stream stdout">
@@ -337,7 +334,7 @@ e.g.,
 <div class="cell code" execution_count="12">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RAW --fieldsep ',' --recordsep ';'
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RAW --fieldsep ',' --recordsep ';'
 ```
 
 <div class="output stream stdout">
@@ -387,7 +384,7 @@ the `set` option
 <div class="cell code" execution_count="13">
 
 ``` python
-!gridlabd geodata config set name local_value
+bash% gridlabd geodata config set name local_value
 ```
 
 <div class="output stream stdout">
@@ -414,7 +411,7 @@ To get the value, use the `get` option:
 <div class="cell code" execution_count="14">
 
 ``` python
-!gridlabd geodata config get name
+bash% gridlabd geodata config get name
 ```
 
 <div class="output stream stdout">
@@ -434,7 +431,7 @@ To show all the configuration values, use the `show` option:
 <div class="cell code" execution_count="15">
 
 ``` python
-!gridlabd geodata config show
+bash% gridlabd geodata config show
 ```
 
 <div class="output stream stdout">
@@ -459,8 +456,8 @@ To set a user configuration, use the `user.` prefix, e.g.,
 <div class="cell code" execution_count="16">
 
 ``` python
-!gridlabd geodata config set user.name user_value
-!gridlabd geodata config show
+bash% gridlabd geodata config set user.name user_value
+bash% gridlabd geodata config show
 ```
 
 <div class="output stream stdout">
@@ -486,8 +483,8 @@ The same syntax is used for system configuration values, e.g.,
 <div class="cell code" execution_count="17">
 
 ``` python
-!gridlabd geodata config set system.name system_value
-!gridlabd geodata config show
+bash% gridlabd geodata config set system.name system_value
+bash% gridlabd geodata config show
 ```
 
 <div class="output stream stdout">
@@ -514,8 +511,8 @@ To remove a value, use the `unset` option, e.g.,
 <div class="cell code" execution_count="18">
 
 ``` python
-!gridlabd geodata config unset name
-!gridlabd geodata config show
+bash% gridlabd geodata config unset name
+bash% gridlabd geodata config show
 ```
 
 <div class="output stream stdout">
@@ -542,7 +539,7 @@ To remove all the local configuration values, simply delete the
 <div class="cell code" execution_count="19">
 
 ``` python
-!rm geodata.conf
+bash% rm geodata.conf
 ```
 
 </div>
@@ -561,7 +558,7 @@ can be explicitly specified as follows:
 <div class="cell code" execution_count="20">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f CSV
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f CSV
 ```
 
 <div class="output stream stdout">
@@ -584,7 +581,7 @@ JSON output looks like this:
 <div class="cell code" execution_count="21">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f JSON
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f JSON
 ```
 
 <div class="output stream stdout">
@@ -606,7 +603,7 @@ e.g.,
 <div class="cell code" execution_count="22">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f JSON --json.orient=table
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f JSON --json.orient=table
 ```
 
 <div class="output stream stdout">
@@ -635,7 +632,7 @@ RAW output is generated as follows
 <div class="cell code" execution_count="23">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RAW
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RAW
 ```
 
 <div class="output stream stdout">
@@ -657,7 +654,7 @@ TABLE output is generated for easy reading:
 <div class="cell code" execution_count="24">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE
 ```
 
 <div class="output stream stdout">
@@ -681,7 +678,7 @@ Output formats typically can include an ordered field list, such as
 <div class="cell code" execution_count="25">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RAW:longitude,latitude --fieldsep ,
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f RAW:longitude,latitude --fieldsep ,
 ```
 
 <div class="output stream stdout">
@@ -707,7 +704,7 @@ in the examples so far. This key can be explicitly specified as follows:
 <div class="cell code" execution_count="26">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k id
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k id
 ```
 
 <div class="output stream stdout">
@@ -730,7 +727,7 @@ The `location` key generates a geohash code:
 <div class="cell code" execution_count="27">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k location
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k location
 ```
 
 <div class="output stream stdout">
@@ -755,7 +752,7 @@ and a heading column are also generated.
 <div class="cell code" execution_count="28">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k position
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k position
 ```
 
 <div class="output stream stdout">
@@ -778,7 +775,7 @@ Any field or set of fields may be used for indexing, e.g.,
 <div class="cell code" execution_count="29">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k latitude,longitude
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k latitude,longitude
 ```
 
 <div class="output stream stdout">
@@ -802,7 +799,7 @@ special `uuid` key, e.g.,
 <div class="cell code" execution_count="30">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uuid
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uuid
 ```
 
 <div class="output stream stdout">
@@ -827,7 +824,7 @@ sequence number, and time, e.g.,
 <div class="cell code" execution_count="31">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uuid --uuid_type=1
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uuid --uuid_type=1
 ```
 
 <div class="output stream stdout">
@@ -854,7 +851,7 @@ following syntax:
 <div class="cell code" execution_count="32">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 250 -f TABLE
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 250 -f TABLE
 ```
 
 <div class="output stream stdout">
@@ -885,7 +882,7 @@ This is equivalent to setting the `resolution` option value, e.g.,
 <div class="cell code" execution_count="33">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 --resolution=250 -f TABLE
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 --resolution=250 -f TABLE
 ```
 
 <div class="output stream stdout">
@@ -926,7 +923,7 @@ location is indexing is desired, e.g.,
 <div class="cell code" execution_count="34">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 250 | gridlabd geodata create -k location -f TABLE
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 250 | gridlabd geodata create -k location -f TABLE
 ```
 
 <div class="output stream stdout">
@@ -960,8 +957,8 @@ written to a file using the `-o` or `--output` option, e.g.,
 <div class="cell code" execution_count="35">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -o /tmp/test.csv
-!cat /tmp/test.csv
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -o /tmp/test.csv
+bash% cat /tmp/test.csv
 ```
 
 <div class="output stream stdout">
@@ -986,7 +983,7 @@ automatically created from the latitude and longitude fields, e.g.,
 <div class="cell code" execution_count="36">
 
 ``` python
-!gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -o /tmp/test.gdf -f GDF
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -o /tmp/test.gdf -f GDF
 geopandas.read_file("/tmp/test.gdf")
 ```
 
@@ -1026,7 +1023,7 @@ the series.
 <div class="cell code" execution_count="37">
 
 ``` python
-!gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21
 ```
 
 <div class="output stream stdout">
@@ -1050,7 +1047,7 @@ series using the `--relative` options, e.g.,
 <div class="cell code" execution_count="38" scrolled="true">
 
 ``` python
-!gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --relative
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --relative
 ```
 
 <div class="output stream stdout">
@@ -1075,7 +1072,7 @@ For example, the following calculates the distances in feet:
 <div class="cell code" execution_count="39">
 
 ``` python
-!gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet
 ```
 
 <div class="output stream stdout">
@@ -1099,7 +1096,7 @@ decimals. Thus the distance in `km` is rounded:
 <div class="cell code" execution_count="40">
 
 ``` python
-!gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=km # precision too low
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=km # precision too low
 ```
 
 <div class="output stream stdout">
@@ -1122,7 +1119,7 @@ The precision can be changed when necessary, e.g.,
 <div class="cell code" execution_count="41">
 
 ``` python
-!gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=km --precision.distance=2
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=km --precision.distance=2
 ```
 
 <div class="output stream stdout">
@@ -1150,7 +1147,7 @@ To obtain the address at a location, use the following command
 <div class="cell code" execution_count="42">
 
 ``` python
-!gridlabd geodata merge -D address 37.420,-122.20
+bash% gridlabd geodata merge -D address 37.420,-122.20
 ```
 
 <div class="output stream stdout">
@@ -1171,7 +1168,7 @@ To find the latitude and longitude of an address, use the command:
 <div class="cell code" execution_count="43">
 
 ``` python
-!gridlabd geodata merge -D address --reverse "2575 Sand Hill Rd, Menlo Park CA 94025"
+bash% gridlabd geodata merge -D address --reverse "2575 Sand Hill Rd, Menlo Park CA 94025"
 ```
 
 <div class="output stream stdout">
@@ -1194,7 +1191,7 @@ sufficient for proper resolution, but provides a location nonetheless:
 <div class="cell code" execution_count="44">
 
 ``` python
-!gridlabd geodata merge -D address --reverse "Main St." # insufficient information for accurate results
+bash% gridlabd geodata merge -D address --reverse "Main St." # insufficient information for accurate results
 ```
 
 <div class="output stream stdout">
@@ -1216,7 +1213,7 @@ address from an unofficial but complete address:
 <div class="cell code" execution_count="45">
 
 ``` python
-!gridlabd geodata merge -D address --reverse "2575 Sand Hill Rd, Menlo Park CA" | gridlabd geodata merge -D address
+bash% gridlabd geodata merge -D address --reverse "2575 Sand Hill Rd, Menlo Park CA" | gridlabd geodata merge -D address
 ```
 
 <div class="output stream stdout">
@@ -1239,7 +1236,7 @@ Elevation data can be obtained using the `elevation` data set, e.g.,
 <div class="cell code" execution_count="46">
 
 ``` python
-!gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21
+bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21
 ```
 
 <div class="output stream stdout">
@@ -1263,7 +1260,7 @@ options, e.g.,
 <div class="cell code" execution_count="47">
 
 ``` python
-!gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet
+bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet
 ```
 
 <div class="output stream stdout">
@@ -1288,7 +1285,7 @@ The precision of the elevations can be specified as well, e.g.,
 <div class="cell code" execution_count="48">
 
 ``` python
-!gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --precision.elevation=2 --units=feet
+bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --precision.elevation=2 --units=feet
 ```
 
 <div class="output stream stdout">
@@ -1318,7 +1315,7 @@ The name of the utility at a location is the default data result, e.g.,
 <div class="cell code" execution_count="49">
 
 ``` python
-!gridlabd geodata merge -D utility 37.420,-122.20 
+bash% gridlabd geodata merge -D utility 37.420,-122.20 
 ```
 
 <div class="output stream stdout">
@@ -1345,7 +1342,7 @@ and the year for which the data is obtained, use the command
 <div class="cell code" execution_count="50">
 
 ``` python
-!gridlabd geodata merge -D utility 37.420,-122.20 --fields=WINTR_PEAK,SUMMR_PEAK,CUSTOMERS,YEAR
+bash% gridlabd geodata merge -D utility 37.420,-122.20 --fields=WINTR_PEAK,SUMMR_PEAK,CUSTOMERS,YEAR
 ```
 
 <div class="output stream stdout">
@@ -1368,13 +1365,13 @@ specified, e.g.,
 <div class="cell code" execution_count="51">
 
 ``` python
-!gridlabd geodata merge -D utility 37.420,-122.20 --geometry -f PLOT -o /tmp/utility.png --plot.figsize=10,5
+bash% gridlabd geodata merge -D utility 37.420,-122.20 --geometry -f PLOT -o /tmp/utility.png --plot.figsize=10,5
 Image("/tmp/utility.png")
 ```
 
 <div class="output execute_result" execution_count="51">
 
-![](1f3dc876b6d8f3e42eebe70dba2d97e427eb4b79.png)
+bash% [](1f3dc876b6d8f3e42eebe70dba2d97e427eb4b79.png)
 
 </div>
 
@@ -1420,7 +1417,7 @@ cable type can be given on the command line, e.g.,
 <div class="cell code" execution_count="52" scrolled="false">
 
 ``` python
-!gridlabd geodata merge -D powerline path_example.csv --cable_type="TACSR/AC 610mm^2" -r 250 -f TABLE:linesag
+bash% gridlabd geodata merge -D powerline path_example.csv --cable_type="TACSR/AC 610mm^2" -r 250 -f TABLE:linesag
 ```
 
 <div class="output stream stdout">
@@ -1521,7 +1518,7 @@ warning is output and the requested values are not calculated, e.g.,
 <div class="cell code" execution_count="55">
 
 ``` python
-!gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag # missing cable type
+bash% gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag # missing cable type
 ```
 
 <div class="output stream stdout">
@@ -1550,7 +1547,7 @@ warning is output and the requested values are not calculated, e.g.,
 <div class="cell code" execution_count="56">
 
 ``` python
-!gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag --cable_type="My cabletype" # bad cable type
+bash% gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag --cable_type="My cabletype" # bad cable type
 ```
 
 <div class="output stream stdout">
@@ -1589,7 +1586,7 @@ You can obtain help using the `help` directive, e.g.,
 <div class="cell code" execution_count="57" scrolled="false">
 
 ``` python
-!gridlabd geodata help | head -n 10
+bash% gridlabd geodata help | head -n 10
 ```
 
 <div class="output stream stdout">
@@ -1612,7 +1609,7 @@ You can obtain help using the `help` directive, e.g.,
 <div class="cell code" execution_count="58">
 
 ``` python
-!gridlabd geodata help distance | head -n 10
+bash% gridlabd geodata help distance | head -n 10
 ```
 
 <div class="output stream stdout">
@@ -1656,7 +1653,7 @@ about the stages of processing, e.g.,
 <div class="cell code" execution_count="59">
 
 ``` python
-!gridlabd geodata merge -D distance 37,-122 38,-122 -v --units=km --precision.distance=3
+bash% gridlabd geodata merge -D distance 37,-122 38,-122 -v --units=km --precision.distance=3
 ```
 
 <div class="output stream stdout">
@@ -1778,7 +1775,7 @@ returning an error condition, e.g.,
 <div class="cell code" execution_count="60">
 
 ``` python
-!gridlabd geodata merge -D distance 37,-122 38,-122 --badoption -s || echo "Exit code $?"
+bash% gridlabd geodata merge -D distance 37,-122 38,-122 --badoption -s || echo "Exit code $?"
 ```
 
 <div class="output stream stdout">
@@ -1804,7 +1801,7 @@ The `-w` or `--warning` option suppresses warning messages, e.g.,
 <div class="cell code" execution_count="61">
 
 ``` python
-!gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location -w
+bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location -w
 ```
 
 <div class="output stream stdout">
@@ -1827,7 +1824,7 @@ If an error is desired instead of a warning, use the
 <div class="cell code" execution_count="62">
 
 ``` python
-!gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location --warning_as_error # key warning is an error
+bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location --warning_as_error # key warning is an error
 ```
 
 <div class="output stream stdout">
@@ -1855,7 +1852,7 @@ error occurred. For example, the following command has an invalid
 <div class="cell code" execution_count="63">
 
 ``` python
-!gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs
+bash% gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs
 ```
 
 <div class="output stream stdout">
@@ -1878,7 +1875,7 @@ configuration is also output after the traceback information.
 <div class="cell code" execution_count="64">
 
 ``` python
-!gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs -d # invalid unit
+bash% gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs -d # invalid unit
 ```
 
 <div class="output stream stdout">
@@ -2005,7 +2002,7 @@ The current `geodata` configuration values are obtained using the
 <div class="cell code" execution_count="65">
 
 ``` python
-!gridlabd geodata --show_config
+bash% gridlabd geodata --show_config
 ```
 
 <div class="output stream stdout">
@@ -2044,7 +2041,7 @@ for options, e.g.,
 <div class="cell code" execution_count="66">
 
 ``` python
-!gridlabd geodata --show_options
+bash% gridlabd geodata --show_options
 ```
 
 <div class="output stream stdout">
