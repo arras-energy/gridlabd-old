@@ -2,9 +2,8 @@
 <div class="cell markdown">
 
 This document is generated from a Jupyter notebook. As of version
-4.2.21, HiPAS GridLAB-D supports the handling of geographic data.  
-The following command checks the version of GridLAB-D and loads the
-python needed modules.
+4.2.21, HiPAS GridLAB-D supports the handling of geographic data. The
+following command checks the version of GridLAB-D.
 
 </div>
 
@@ -12,8 +11,6 @@ python needed modules.
 
 ``` python
 bash% gridlabd --version='-ge 4.2.21'
-from IPython.display import Image
-import pandas, geopandas
 ```
 
 </div>
@@ -980,14 +977,28 @@ automatically created from the latitude and longitude fields, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="36">
+<div class="cell code" execution_count="1">
 
 ``` python
 bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -o /tmp/test.gdf -f GDF
+```
+
+</div>
+
+<div class="cell markdown">
+
+The following python code can be used to load the output file:
+
+</div>
+
+<div class="cell code" execution_count="7">
+
+``` python
+import geopandas
 geopandas.read_file("/tmp/test.gdf")
 ```
 
-<div class="output execute_result" execution_count="36">
+<div class="output execute_result" execution_count="7">
 
        id  latitude  longitude                     geometry
     0   0     37.41    -122.20  POINT (-122.20000 37.41000)
@@ -1362,14 +1373,29 @@ specified, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="51">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D utility 37.420,-122.20 --geometry -f PLOT -o /tmp/utility.png --plot.figsize=10,5
+```
+
+</div>
+
+<div class="cell markdown">
+
+The following python code can be used to display the image in a Jupyter
+notebook.
+
+</div>
+
+<div class="cell code" execution_count="5">
+
+``` python
+from IPython.display import Image
 Image("/tmp/utility.png")
 ```
 
-<div class="output execute_result" execution_count="51">
+<div class="output execute_result" execution_count="5">
 
 bash% [](1f3dc876b6d8f3e42eebe70dba2d97e427eb4b79.png)
 
@@ -1449,9 +1475,10 @@ which contains the following fields:
 
 </div>
 
-<div class="cell code" execution_count="53">
+<div class="cell code" execution_count="8">
 
 ``` python
+import pandas
 print("\n".join(pandas.read_csv("../geodata_powerline_cabletypes.csv").columns.to_list()))
 ```
 
@@ -2120,7 +2147,13 @@ can be performed on a GLM object.
 
 </div>
 
-<div class="cell raw">
+<div class="cell markdown">
+
+    module residential;
+    class house
+    {
+        char1024 address;
+    }
 
 </div>
 
@@ -2137,7 +2170,12 @@ The `class` declaration adds the `address` field to the definition of
 
 </div>
 
-<div class="cell raw">
+<div class="cell markdown">
+
+    object 
+    {
+        address "2575 Sand Hill Rd., Menlo Park, CA, 94025";
+    }
 
 </div>
 
@@ -2147,7 +2185,9 @@ The `class` declaration adds the `address` field to the definition of
 
 </div>
 
-<div class="cell raw">
+<div class="cell markdown">
+
+    #write /tmp/house_address.csv house:address
 
 </div>
 
@@ -2158,7 +2198,10 @@ only the `address` fields, which looks like this:
 
 </div>
 
-<div class="cell raw">
+<div class="cell markdown">
+
+    id,class,name,address
+    0,house,"house:0","2575 Sand Hill Rd., Menlo Park, CA"
 
 </div>
 
@@ -2168,7 +2211,9 @@ only the `address` fields, which looks like this:
 
 </div>
 
-<div class="cell raw">
+<div class="cell markdown">
+
+    #geodata merge -D address /tmp/house_address.csv --reverse --format GLM:@latitude,longitude -o /tmp/house_latlon.glm
 
 </div>
 
@@ -2185,7 +2230,10 @@ file looks like this:
 
 </div>
 
-<div class="cell raw">
+<div class="cell markdown">
+
+    modify house:0.longitude "-122.20118";
+    modify house:0.latitude "37.41546";
 
 </div>
 
@@ -2195,7 +2243,9 @@ file looks like this:
 
 </div>
 
-<div class="cell raw">
+<div class="cell markdown">
+
+    #include /tmp/house_latlon.glm
 
 </div>
 
