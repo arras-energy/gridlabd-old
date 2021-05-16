@@ -49,6 +49,8 @@ dist_doc_DATA =
 
 python_requirements = $(top_srcdir)/requirements.txt
 
+docs_targets =
+
 # required modules
 include third_party/Makefile.mk
 include gldcore/Makefile.mk
@@ -359,3 +361,5 @@ troubleshooting-html:
 documents/gridlabd.pdf: documents/gridlabd.glm
 	(cd documents ; gridlabd gridlabd.glm)
 	pandoc -V geometry:landscape documents/gridlabd.md -o documents/gridlabd.pdf
+
+docs: $(docs_targets)
