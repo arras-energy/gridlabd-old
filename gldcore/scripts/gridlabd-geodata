@@ -670,9 +670,7 @@ def set_index(data,index=None,silent=False):
         warning(f"using index '{index}' cannot be used with '--resolution={OPTIONS['resolution']}' option")
     if OPTIONS['resolution_id'] and CONFIG['column_names']['ID'] in data.columns and CONFIG['column_names']['DIST'] in data.columns:
         d = data[CONFIG['column_names']['DIST']].max()
-        n = data[CONFIG['column_names']['ID']].max()
-        na = data.index[data[CONFIG['column_names']['ID']].isna()]
-        data.loc[na,CONFIG['column_names']['ID']] = data.loc[na,CONFIG['column_names']['DIST']]/d*n.round(OPTIONS['precision']['resolution_id'])
+        data[CONFIG['column_names']['ID']] = (data[CONFIG['column_names']['DIST']]/d).round(OPTIONS['precision']['resolution_id'])
     if not index:
         if data.index.name:
             data.reset_index(inplace=True)
