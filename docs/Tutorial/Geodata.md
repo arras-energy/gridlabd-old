@@ -920,7 +920,7 @@ To assign key values to the generated positions, use `--resolution_id` options, 
 
 </div>
 
-<div class="cell code" execution_count="20">
+<div class="cell code" execution_count="24">
 
 ``` python
 bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE -r 250  --resolution_id
@@ -928,32 +928,18 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TA
 
 <div class="output stream stdout">
 
-    0 latitude      37.41
-    longitude   -122.20
-    id             0.00
-    distance       0.00
-    heading         NaN
-    Name: 0, dtype: float64
-    250 latitude      37.41225
-    longitude   -122.20000
-    id                 NaN
-    distance     250.00000
-    heading        0.00000
-    Name: 250, dtype: float64
-    Traceback (most recent call last):
-      File "/usr/local/opt/gridlabd/4.2.21-210515-develop_geodata_subcommand/bin/gridlabd-geodata", line 1388, in <module>
-        main(len(sys.argv),sys.argv)
-      File "/usr/local/opt/gridlabd/4.2.21-210515-develop_geodata_subcommand/bin/gridlabd-geodata", line 1364, in main
-        data = globals()[DIRECTIVE[0]](args)
-      File "/usr/local/opt/gridlabd/4.2.21-210515-develop_geodata_subcommand/bin/gridlabd-geodata", line 878, in create
-        result = set_index(data)
-      File "/usr/local/opt/gridlabd/4.2.21-210515-develop_geodata_subcommand/bin/gridlabd-geodata", line 677, in set_index
-        data.iloc[id,CONFIG['column_names']['ID']] = row[CONFIG['column_names']['DIST']]/d*n.round(OPTIONS['precision']['resolution_id'])
-      File "/usr/local/lib/python3.9/site-packages/pandas/core/indexing.py", line 667, in __setitem__
-        self._has_valid_setitem_indexer(key)
-      File "/usr/local/lib/python3.9/site-packages/pandas/core/indexing.py", line 1394, in _has_valid_setitem_indexer
-        raise IndexError("iloc cannot enlarge its target object")
-    IndexError: iloc cannot enlarge its target object
+              latitude  longitude        id  distance  heading
+    position                                                  
+    0         37.41000 -122.20000  0.000000       0.0      NaN
+    250       37.41225 -122.20000  0.250627     250.0      0.0
+    500       37.41450 -122.20000  0.501253     500.0      0.0
+    750       37.41674 -122.20000  0.751880     750.0      0.0
+    1000      37.41899 -122.20000  1.002506    1000.0      0.0
+    1112      37.42000 -122.20000  1.000000    1112.0      0.0
+    1362      37.41899 -122.20283  1.365414    1362.0    270.0
+    1612      37.41899 -122.20566  1.616040    1612.0    270.0
+    1862      37.41899 -122.20849  1.866667    1862.0    270.0
+    1995      37.42000 -122.21000  2.000000    1995.0    270.0
 
 </div>
 
