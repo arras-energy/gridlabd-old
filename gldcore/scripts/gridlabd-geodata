@@ -193,7 +193,7 @@ selected as follows:
   PLOT[:<fields>]   fields are plotted to a matplotlib figure.  Fields may be one
                     'location', 'position', or 'geometry', which plot points, lines,
                     and areas, respectively.
-  
+
   XLSX[:<fields>]   outputs the data as an Excel spreadsheet.
 
   GDF[:<fields>]    outputs the data as a GeoPandas file.
@@ -369,7 +369,7 @@ if not PKGDATA:
     PKGDATA = "/usr/local/share/gridlabd"
 VALID_FORMATS = ["CSV","RAW","JSON","POS","GLM","FIELD","POS","TABLE","PLOT","GDF","XLSX"]
 
-CONFIGFILE = "geodata.conf" 
+CONFIGFILE = "geodata.conf"
 CONFIGDIR = {
     "system" : PKGDATA + "/geodata",
     "user" : os.getenv("HOME") + "/.gridlabd/geodata",
@@ -439,8 +439,10 @@ OPTIONS = {
         "heading" : 1,
         "geolocation" : 5,
         "id" : 0,
+        "resolution_id" : 3,
     },
     "resolution" : 0,
+    "resolution_id" : False,
     "json" : {
         "orient" : "index",
         "data_format" : "iso",
@@ -666,6 +668,11 @@ def set_index(data,index=None,silent=False):
 
     if OPTIONS['resolution'] and index != CONFIG['column_names']['POS']:
         warning(f"using index '{index}' cannot be used with '--resolution={OPTIONS['resolution']}' option")
+    if OPTIONS['resolution_id'] and CONFIG['column_names']['ID'] in data.columns and CONFIG['column_names']['DIST'] in data.columns:
+        d = data[CONFIG['column_names']['DIST']].max()
+        n = data[CONFIG['column_names']['ID']].max()
+        na = data.index[data[CONFIG['column_names']['ID']].isna()]
+        data.loc[na,CONFIG['column_names']['ID']] = data.loc[na,CONFIG['column_names']['DIST']]/d*n.round(OPTIONS['precision']['resolution_id'])
     if not index:
         if data.index.name:
             data.reset_index(inplace=True)

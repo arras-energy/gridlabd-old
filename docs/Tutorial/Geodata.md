@@ -910,6 +910,57 @@ the distance from the first point. The use of other keys is not
 supported. In addition, any waypoint added in the process is not
 assigned a row `id` in order to protect the original row ids.
 
+</div>
+
+<div class="cell code">
+
+``` python
+To assign key values to the generated positions, use `--resolution_id` options, e.g.,
+```
+
+</div>
+
+<div class="cell code" execution_count="20">
+
+``` python
+bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE -r 250  --resolution_id
+```
+
+<div class="output stream stdout">
+
+    0 latitude      37.41
+    longitude   -122.20
+    id             0.00
+    distance       0.00
+    heading         NaN
+    Name: 0, dtype: float64
+    250 latitude      37.41225
+    longitude   -122.20000
+    id                 NaN
+    distance     250.00000
+    heading        0.00000
+    Name: 250, dtype: float64
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.21-210515-develop_geodata_subcommand/bin/gridlabd-geodata", line 1388, in <module>
+        main(len(sys.argv),sys.argv)
+      File "/usr/local/opt/gridlabd/4.2.21-210515-develop_geodata_subcommand/bin/gridlabd-geodata", line 1364, in main
+        data = globals()[DIRECTIVE[0]](args)
+      File "/usr/local/opt/gridlabd/4.2.21-210515-develop_geodata_subcommand/bin/gridlabd-geodata", line 878, in create
+        result = set_index(data)
+      File "/usr/local/opt/gridlabd/4.2.21-210515-develop_geodata_subcommand/bin/gridlabd-geodata", line 677, in set_index
+        data.iloc[id,CONFIG['column_names']['ID']] = row[CONFIG['column_names']['DIST']]/d*n.round(OPTIONS['precision']['resolution_id'])
+      File "/usr/local/lib/python3.9/site-packages/pandas/core/indexing.py", line 667, in __setitem__
+        self._has_valid_setitem_indexer(key)
+      File "/usr/local/lib/python3.9/site-packages/pandas/core/indexing.py", line 1394, in _has_valid_setitem_indexer
+        raise IndexError("iloc cannot enlarge its target object")
+    IndexError: iloc cannot enlarge its target object
+
+</div>
+
+</div>
+
+<div class="cell markdown">
+
 The index can be changed with the `-k` or `--key` options using a pipe.
 Sometimes this is necessary when one option used implicitly precludes
 the use of a desired key, such as when path resolution is used but
@@ -1305,6 +1356,38 @@ bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-
     0,37.41,-122.2,190.29
     1,37.42,-122.2,249.34
     2,37.42,-122.21,344.49
+
+</div>
+
+</div>
+
+<div class="cell markdown">
+
+When using waypoints, the elevations are calculated along the path,
+e.g.,
+
+</div>
+
+<div class="cell code" execution_count="5">
+
+``` python
+bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 250 -f TABLE
+```
+
+<div class="output stream stdout">
+
+              latitude  longitude   id  distance  heading  elevation
+    position                                                        
+    0         37.41000 -122.20000  0.0       0.0      NaN       58.0
+    250       37.41225 -122.20000  NaN     250.0      0.0       63.0
+    500       37.41450 -122.20000  NaN     500.0      0.0       74.0
+    750       37.41674 -122.20000  NaN     750.0      0.0       76.0
+    1000      37.41899 -122.20000  NaN    1000.0      0.0       97.0
+    1112      37.42000 -122.20000  1.0    1112.0      0.0       76.0
+    1362      37.41899 -122.20283  NaN    1362.0    270.0       82.0
+    1612      37.41899 -122.20566  NaN    1612.0    270.0       92.0
+    1862      37.41899 -122.20849  NaN    1862.0    270.0      103.0
+    1995      37.42000 -122.21000  2.0    1995.0    270.0      105.0
 
 </div>
 
