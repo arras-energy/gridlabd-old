@@ -106,7 +106,7 @@ int pole::init(OBJECT *parent)
 	if ( configuration == NULL || ! gl_object_isa(configuration,"pole_configuration") )
 	{
 		gl_error("configuration is not set to a pole_configuration object");
-		return 0;		
+		return 0;
 	}
 	config = OBJECTDATA(configuration,pole_configuration);
 
@@ -165,8 +165,8 @@ int pole::init(OBJECT *parent)
 	}
 
 	// calculation resisting moment
-	resisting_moment = 0.008186 
-		* config->strength_factor_250b_wood 
+	resisting_moment = 0.008186
+		* config->strength_factor_250b_wood
 		* config->fiber_strength
 		* ( config->ground_diameter * config->ground_diameter * config->ground_diameter);
 	gl_verbose("resisting moment %.0f ft*lb",resisting_moment);
@@ -258,7 +258,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 
 	// calculation resisting moment
 	resisting_moment = 0.008186 // constant * pi^3
-		* config->strength_factor_250b_wood 
+		* config->strength_factor_250b_wood
 		* config->fiber_strength
 		* (( config->ground_diameter * config->ground_diameter * config->ground_diameter)
 			- (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
@@ -271,7 +271,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 	{
 		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 		{
-			wire->line->link_fault_off(&wire->fault,wire->fault_type,&wire->data);
+			wire->line->status = LS_CLOSED;
 		}
 		gl_debug("pole repaired");
 		tilt_angle = 0.0;
@@ -292,7 +292,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 
 		wire_load = 0.0;
 		wire_moment = 0.0;
-		wire_tension = 0.0;	
+		wire_tension = 0.0;
 		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 		{
 			double load = wind_pressure * (wire->diameter+2*ice_thickness)/12;
@@ -308,7 +308,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 			susceptibility = 2*(pole_moment+equipment_moment+wire_moment)/resisting_moment/(*wind_speed)/(0.00256)/(2.24);
 		else
 			susceptibility = 0.0;
-		gl_verbose("%s: wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, stress %.0f%%", 
+		gl_verbose("%s: wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, stress %.0f%%",
 			(const char*)(dt.get_string()), wind_pressure, pole_moment, equipment_moment, wire_moment, pole_stress*100);
 		pole_status = ( pole_stress < 1.0 ? PS_OK : PS_FAILED );
 		if ( pole_status == PS_FAILED )
@@ -318,7 +318,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 			for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 			{
 				wire->repair = repair_time*3600;
-				wire->line->link_fault_on(&wire->protection,wire->fault_type,&wire->fault,&wire->repair,&wire->data);
+				wire->line->status = LS_OPEN;
 			}
 		}
 		last_wind_speed = *wind_speed;
@@ -328,7 +328,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}
-	
+
 	TIMESTAMP t1 = node::presync(t0);
 	TIMESTAMP t2 = ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
 	return ( t1 > t0 && t2 < t1 ) ? t1 : t2;
@@ -365,7 +365,7 @@ EXPORT int create_pole(OBJECT **obj, OBJECT *parent)
 
 EXPORT int init_pole(OBJECT *obj)
 {
-    try 
+    try
     {
         pole *my = OBJECTDATA(obj,pole);
         return my->init(obj->parent);
@@ -383,7 +383,7 @@ EXPORT TIMESTAMP sync_pole(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
 	try {
 		pole *pObj = OBJECTDATA(obj,pole);
 		TIMESTAMP t1 = TS_NEVER;
-		switch ( pass ) 
+		switch ( pass )
 		{
 		case PC_PRETOPDOWN:
 			return pObj->presync(t0);
