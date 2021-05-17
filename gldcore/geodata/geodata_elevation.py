@@ -1,12 +1,6 @@
 """GridLAB-D Geodata Elevation Package
 
 The elevation geodata package obtains the elevation of locations.
-
-The 'location' directive accepts a list of positions and computes the elevations
-at those positions.
-
-The 'path' function accepts a list of CSV files containing latitude and
-longtitude coordinates and computes the elevations at consecutive positions.
 """
 
 version = 1 # specify API version
