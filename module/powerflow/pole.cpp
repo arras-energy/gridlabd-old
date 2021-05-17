@@ -272,6 +272,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
 		{
 			wire->line->status = LS_CLOSED;
+            NR_admit_change = true;
 		}
 		gl_debug("pole repaired");
 		tilt_angle = 0.0;
@@ -319,6 +320,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 			{
 				wire->repair = repair_time*3600;
 				wire->line->status = LS_OPEN;
+                NR_admit_change = true;
 			}
 		}
 		last_wind_speed = *wind_speed;
