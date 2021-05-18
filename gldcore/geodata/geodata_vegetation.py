@@ -30,7 +30,7 @@ default_config = {
     "nan_error" : False,
     "cachedir" : "/usr/local/share/gridlabd/geodata/vegetation",
     "repourl" : "http://geodata.gridlabd.us/vegetation",
-    "layers" : "cover,density,base",
+    "layers" : ["canopy_base","canopy_cover","canopy_height"],
 }
 
 #
@@ -78,15 +78,6 @@ def apply(data, options=default_options, config=default_config, warning=print):
         path = None
     if type(path) == type(None):
         raise Exception("vegetation dataset requires 'latitude' and 'longitude' fields")
-    elev = []
-    for pos in path:
-        try:
-            elev.append(get_vegetation(pos,repourl=config["repourl"],cachedir=config["cachedir"]))
-        except Exception as err:
-            if config["nan_error"]:
-                elev.append(float("nan"))
-            else:
-                raise
     try:
         precision = int(options["precision"]["vegetation"])
     except:
@@ -95,11 +86,28 @@ def apply(data, options=default_options, config=default_config, warning=print):
     global units
     if "units" not in options.keys() or options["units"] not in units.keys():
         raise Exception(f"unit '{options['units']}' or is not valid")
-    unit = units[options["units"]]
-    data["vegetation"] = (numpy.array(elev) * unit).round(precision)
+    unit = float(units[options["units"]])
+    result = {}
+    for pos in path:
+        try:
+            values = get_vegetation(pos,repourl=config["repourl"],cachedir=config["cachedir"],layers=config["layers"])
+            print(values)
+            for key, value in values.items():
+                value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
+                if key in result.keys():
+                    result[key].extend(value)
+                else:
+                    result[key] = value
+        except Exception as err:
+            if config["nan_error"]:
+                elev.append(float("nan"))
+            else:
+                raise
+    for key, values in result.items():
+        data[key] = values
     return data
 
-def get_vegetation(pos,repourl=default_config["repourl"],cachedir=default_config["cachedir"]):
+def get_vegetation(pos,repourl=default_config["repourl"],cachedir=default_config["cachedir"],layers=default_config["layers"]):
     """Compute the vegetation at the locations specified
 
     Elevations are obtained for each entry in the args list.  If the
@@ -113,7 +121,7 @@ def get_vegetation(pos,repourl=default_config["repourl"],cachedir=default_config
         layer_data (dict)   Layer vegetation data
     """
     result = {}
-    for layer in valid_layers:
+    for layer in layers:
         name,data = get_imagedata(layer,pos,repourl,cachedir)
         row,col = get_rowcol(pos,data)
         result[layer] = [data[row][col]]
@@ -204,7 +212,7 @@ def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year']):
     """
     tifname = get_imagename(layer,pos)
     global vegetation_data
-    os.makedirs(cachedir,exist_ok=True)
+    os.makedirs(f"{cachedir}/{year}/{layer}",exist_ok=True)
     if not tifname in vegetation_data.keys():
         srcname = f"{repourl}/{year}/{tifname}.tif"
         dstname = f"{cachedir}/{year}/{tifname}.tif"
