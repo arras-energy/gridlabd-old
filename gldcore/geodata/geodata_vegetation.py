@@ -91,7 +91,6 @@ def apply(data, options=default_options, config=default_config, warning=print):
     for pos in path:
         try:
             values = get_vegetation(pos,repourl=config["repourl"],cachedir=config["cachedir"],layers=config["layers"])
-            print(values)
             for key, value in values.items():
                 value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
                 if key in result.keys():
