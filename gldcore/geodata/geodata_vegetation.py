@@ -241,19 +241,22 @@ if __name__ == '__main__':
                 "latitude" : [37.4205,37.5205],
                 "longitude" : [-122.2046,-122.3046],
                 })
+            default_options.update({"units":"meters"})
             result = apply(test)
-            self.assertEqual(result["vegetation_cover"],TODO)
-            self.assertEqual(result["vegetation_height"],TODO)
-            self.assertEqual(result["vegetation_base"],TODO)
+            self.assertEqual(result["canopy_cover"][0],85)
+            self.assertEqual(result["canopy_height"][0],85)
+            self.assertEqual(result["canopy_base"][0],85)
 
         def test_vegetation_feet(self):
             test = pandas.DataFrame({
                 "latitude" : [37.4205,37.5205],
                 "longitude" : [-122.2046,-122.3046],
                 })
-            result = apply(test,{"units":"feet"})
-            self.assertEqual(result["vegetation_cover"],TODO)
-            self.assertEqual(result["vegetation_height"],TODO)
-            self.assertEqual(result["vegetation_base"],TODO)
+            default_options.update({"units":"feet"})
+            result = apply(test,default_options)
+
+            self.assertEqual(result["canopy_cover"][0],279)
+            self.assertEqual(result["canopy_height"][0],279)
+            self.assertEqual(result["canopy_base"][0],279)
 
     unittest.main()
