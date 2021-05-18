@@ -13,7 +13,7 @@ import pandas
 from PIL import Image
 
 #
-# Defaults
+# Default options can be set from the command line only
 #
 default_options = {
     "units" : "meters",
@@ -23,14 +23,19 @@ default_options = {
     "year" : 2020,
 }
 
+#
+# Default configuration can be set using `config set` or from command line
+#
 default_config = {
     "nan_error" : False,
     "cachedir" : "/usr/local/share/gridlabd/geodata/vegetation",
     "repourl" : "http://geodata.gridlabd.us/vegetation",
+    "layers" : "cover,density,base",
 }
 
-valid_layers = ["cover","density","base"]
-
+#
+# Valid height units
+#
 units = {
     "m" : 1.0,
     "meters" : 1.0,
@@ -109,15 +114,18 @@ def get_vegetation(pos,repourl=default_config["repourl"],cachedir=default_config
     """
     result = {}
     for layer in valid_layers:
-        n,e = get_imagedata(layer,pos,repourl,cachedir)
-        row,col = get_rowcol(pos)
-        result[layer] = [e[row][col]]
+        name,data = get_imagedata(layer,pos,repourl,cachedir)
+        row,col = get_rowcol(pos,data)
+        result[layer] = [data[row][col]]
 
     return result
 
-def get_rowcol(pos):
-    row = 3600-int(math.modf(abs(pos[0]))[0]*3600)
-    col = 3600-int(math.modf(abs(pos[1]))[0]*3600)
+def get_rowcol(pos,data):
+    """Get the row and column location in a 1 degree^2 image tile"""
+    height = len(data)
+    width = len(data[0])
+    row = height-int(math.modf(abs(pos[0]))[0]*height)
+    col = width-int(math.modf(abs(pos[1]))[0]*width)
     return row, col
 
 def get_position(pos):
@@ -227,8 +235,9 @@ if __name__ == '__main__':
                 "longitude" : [-122.2046,-122.3046],
                 })
             result = apply(test)
-            self.assertEqual(result["vegetation"][0],85.0)
-            self.assertEqual(result["vegetation"][1],157.0)
+            self.assertEqual(result["vegetation_cover"],TODO)
+            self.assertEqual(result["vegetation_height"],TODO)
+            self.assertEqual(result["vegetation_base"],TODO)
 
         def test_vegetation_feet(self):
             test = pandas.DataFrame({
@@ -236,7 +245,8 @@ if __name__ == '__main__':
                 "longitude" : [-122.2046,-122.3046],
                 })
             result = apply(test,{"units":"feet"})
-            self.assertEqual(result["vegetation"][0],279.0)
-            self.assertEqual(result["vegetation"][1],515.0)
+            self.assertEqual(result["vegetation_cover"],TODO)
+            self.assertEqual(result["vegetation_height"],TODO)
+            self.assertEqual(result["vegetation_base"],TODO)
 
     unittest.main()
