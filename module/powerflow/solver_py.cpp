@@ -1025,8 +1025,6 @@ int solver_python_solve (
 	{
 		sync_model(bus_count,bus,branch_count,branch,ED_OUT);
 		PyObject *pResult = NULL;
-        extern bool NR_admit_change;
-        PyDict_SetItemString(pModel,"topology_change",PyBool_FromLong(NR_admit_change?1:0));
 		if ( ! python_call(pModule,(void*)&pResult,"solve","O",pModel) )
 		{
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): solver failed",bus_count);
