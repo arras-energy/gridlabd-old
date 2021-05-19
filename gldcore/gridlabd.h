@@ -654,9 +654,9 @@ inline DEPRECATED CLASS *gl_register_class(MODULE *mod,const char *name,size_t s
 inline DEPRECATED bool gl_object_isa(OBJECT *obj, /**< object to test */
 						  const char *type,
 						  const char *modname=NULL) /**< type to test */
-{	bool rv = (*callback->object_isa)(obj,type)!=0;
-	bool mv = modname ? obj->oclass->module == (*callback->module_find)(modname) : true;
-	return (rv && mv);}
+{	
+	return (*callback->object_isa)(obj,type,modname)!=0;
+}
 
 #else
 
@@ -2932,7 +2932,7 @@ public:
 	inline OBJECTRANK set_rank(unsigned int r) { return callback->object.set_rank(my(),r); };
 
 	// Method: isa
-	inline bool isa(const char *type) { return callback->object_isa(my(),type) ? true : false; };
+	inline bool isa(const char *type, const char *module = NULL) { return callback->object_isa(my(),type,module) ? true : false; };
 
 	// Method: is_valid
 	inline bool is_valid(void) { return my()!=NULL && my()==THISOBJECTHDR; };
