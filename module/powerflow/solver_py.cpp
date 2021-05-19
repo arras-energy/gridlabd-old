@@ -68,6 +68,7 @@ static PyObject *pBranchtags = NULL;
 static PyObject *pBranchdata = NULL;
 static PyObject *pLearndata = NULL;
 static PyObject *pKwargs = NULL;
+static double topology_hash_resolution = 0.00001; // sensitivity of topology change hashcode
 
 FILE *SolverTimer::fp = NULL;
 
@@ -235,6 +236,11 @@ SOLVERPYTHONSTATUS solver_python_config (
 					SolverTimer::open(value);
 					solver_python_log(1,"solver_python_config(configname='%s'): profiler = '%s'",configname,value);
 				}
+                else if ( strcmp(tag,"topology_hash_resolution") == 0 )
+                {
+                    topology_hash_resolution = atof(value);
+                    solver_python_log(1,"solver_python_config(configname='%s'): topology_hash_resolution = '%lg'",configname,topology_hash_resolution);
+                }
 				else if ( strcmp(tag,"option") == 0 )
 				{
 					char lhs[1024], rhs[1024];
@@ -1008,12 +1014,22 @@ static PyObject *sync_model(
 	return pModel;
 }
 
-char *get_linkhash(unsigned int branch_count, BRANCHDATA *&branch, bool changed=true)
+unsigned long long get_linkhash(unsigned int branch_count, BRANCHDATA *&branch, bool changed=true)
 {
-    static char *hashcode = "";
+    static unsigned long long hashcode = 0;
     if ( changed )
     {
-        // TODO
+        static unsigned long long A = 55711, B = 45131; //, C = 60083; isn't used but should be in principle
+        hashcode = 18443;
+        for ( unsigned int n = 0 ; n < branch_count ; n++ )
+        {
+            #define CODE(x) (int64)(x/topology_hash_resolution)
+            #define HASH(x) hashcode=((hashcode*A)^(CODE(x[0].r)*B));hashcode=((hashcode*A)^(CODE(x[1].r)*B)),hashcode=((hashcode*A)^(CODE(x[2].r)*B));hashcode=((hashcode*A)^(CODE(x[0].i)*B));hashcode=((hashcode*A)^(CODE(x[1].i)*B)),hashcode=((hashcode*A)^(CODE(x[2].i)*B));
+            HASH(branch[n].Yfrom)
+            HASH(branch[n].Yto)
+            HASH(branch[n].YSfrom)
+            HASH(branch[n].YSto)
+    	}
     }
     return hashcode;
 }
@@ -1036,7 +1052,7 @@ int solver_python_solve (
 		sync_model(bus_count,bus,branch_count,branch,ED_OUT);
 		PyObject *pResult = NULL;
         extern bool NR_admit_change;
-        PyDict_SetItemString(pModel,"topology_hashcode",get_linkhash(branch_count,branch,NR_admit_change));
+        PyDict_SetItemString(pModel,"topology_hashcode",PyLong_FromLong(get_linkhash(branch_count,branch,NR_admit_change)));
 		if ( ! python_call(pModule,(void*)&pResult,"solve","O",pModel) )
 		{
 			solver_python_log(1,"solver_python_solve(bus_count=%d,...): solver failed",bus_count);
