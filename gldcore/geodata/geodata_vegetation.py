@@ -76,7 +76,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
     """
 
     if not config["vegetation.username"] and not config["vegetation.password"]:
-        warning(f"'vegetation.username' not specified, only static {options['year']} data is available to unregistered users")
+        warning(f"'vegetation.username' not specified, only static {options['year']} data is available to unregistered users (see {config['repourl']} to register)")
 
     # convert lat,lon to address
     try:
