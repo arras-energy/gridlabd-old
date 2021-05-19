@@ -30,9 +30,11 @@ default_config = {
     "nan_error" : False,
     "cachedir" : "/usr/local/share/gridlabd/geodata/vegetation",
     "repourl" : "http://geodata.gridlabd.us/vegetation",
-    "layers" : ["canopy_base","canopy_cover","canopy_height"],
+    "layers" : ["base","cover","canopy_height"],
+    "layer_units" : {"base":"m","cover":"%","canopy_height":"m"},
     "vegetation.username" : "",
     "vegetation.password" : "",
+    "maximum_image_size" : 2000000000,
 }
 
 #
@@ -74,7 +76,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
     """
 
     if not config["vegetation.username"] and not config["vegetation.password"]:
-        raise Exception("vegetation username or password not set")
+        warning(f"'vegetation.username' not specified, only static {options['year']} data is available to unregistered users")
 
     # convert lat,lon to address
     try:
@@ -97,7 +99,8 @@ def apply(data, options=default_options, config=default_config, warning=print):
         try:
             values = get_vegetation(pos,repourl=config["repourl"],cachedir=config["cachedir"],layers=config["layers"])
             for key, value in values.items():
-                value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
+                if config["layer_units"][key] == "m":
+                    value = list(map(lambda x:round(float(x)*unit,int(precision)),value))
                 if key in result.keys():
                     result[key].extend(value)
                 else:
@@ -205,7 +208,7 @@ def get_imagename(layer,pos):
 
 vegetation_data = {}
 
-def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year']):
+def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year'],maximum_image_size=default_config['maximum_image_size']):
     """Get the image data for a location
 
     ARGUMENTS
@@ -232,6 +235,7 @@ def get_imagedata(layer,pos,repourl,cachedir,year=default_options['year']):
                 for chunk in response.iter_content(chunk_size=1024*1024):
                     if chunk:
                         fh.write(chunk)
+        Image.MAX_IMAGE_PIXELS = maximum_image_size
         vegetation_data[tifname] = numpy.array(Image.open(dstname))
     return tifname, vegetation_data[tifname]
 
@@ -252,9 +256,9 @@ if __name__ == '__main__':
                 })
             default_options.update({"units":"meters"})
             result = apply(test)
-            self.assertEqual(result["canopy_cover"][0],85)
+            self.assertEqual(result["cover"][0],42)
             self.assertEqual(result["canopy_height"][0],85)
-            self.assertEqual(result["canopy_base"][0],85)
+            self.assertEqual(result["base"][0],2)
 
         def test_vegetation_feet(self):
             test = pandas.DataFrame({
@@ -264,8 +268,8 @@ if __name__ == '__main__':
             default_options.update({"units":"feet"})
             result = apply(test,default_options)
 
-            self.assertEqual(result["canopy_cover"][0],279)
+            self.assertEqual(result["cover"][0],42)
             self.assertEqual(result["canopy_height"][0],279)
-            self.assertEqual(result["canopy_base"][0],279)
+            self.assertEqual(result["base"][0],7)
 
     unittest.main()
