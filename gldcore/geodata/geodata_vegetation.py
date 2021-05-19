@@ -32,8 +32,10 @@ default_config = {
     "repourl" : "http://geodata.gridlabd.us/vegetation",
     "layers" : ["base","cover","height"],
     "layer_units" : {"base":"m","cover":"%","height":"m"},
-    "vegetation.username" : "",
-    "vegetation.password" : "",
+    "vegetation" : {
+        "username" : "",
+        "password" : "",
+    },
     "maximum_image_size" : 2000000000,
 }
 
