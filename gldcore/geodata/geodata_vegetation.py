@@ -30,8 +30,8 @@ default_config = {
     "nan_error" : False,
     "cachedir" : "/usr/local/share/gridlabd/geodata/vegetation",
     "repourl" : "http://geodata.gridlabd.us/vegetation",
-    "layers" : ["base","cover","canopy_height"],
-    "layer_units" : {"base":"m","cover":"%","canopy_height":"m"},
+    "layers" : ["base","cover","height"],
+    "layer_units" : {"base":"m","cover":"%","height":"m"},
     "vegetation.username" : "",
     "vegetation.password" : "",
     "maximum_image_size" : 2000000000,
@@ -257,7 +257,7 @@ if __name__ == '__main__':
             default_options.update({"units":"meters"})
             result = apply(test)
             self.assertEqual(result["cover"][0],42)
-            self.assertEqual(result["canopy_height"][0],85)
+            self.assertEqual(result["height"][0],6)
             self.assertEqual(result["base"][0],2)
 
         def test_vegetation_feet(self):
@@ -269,7 +269,7 @@ if __name__ == '__main__':
             result = apply(test,default_options)
 
             self.assertEqual(result["cover"][0],42)
-            self.assertEqual(result["canopy_height"][0],279)
+            self.assertEqual(result["height"][0],20)
             self.assertEqual(result["base"][0],7)
 
     unittest.main()
