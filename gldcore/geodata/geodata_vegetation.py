@@ -31,6 +31,8 @@ default_config = {
     "cachedir" : "/usr/local/share/gridlabd/geodata/vegetation",
     "repourl" : "http://geodata.gridlabd.us/vegetation",
     "layers" : ["canopy_base","canopy_cover","canopy_height"],
+    "vegetation.username" : "",
+    "vegetation.password" : "",
 }
 
 #
@@ -71,6 +73,9 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     """
 
+    if not config["vegetation.username"] and not config["vegetation.password"]:
+        raise Exception("vegetation username or password not set")
+
     # convert lat,lon to address
     try:
         path = list(zip(data["latitude"],data["longitude"]))
@@ -106,7 +111,11 @@ def apply(data, options=default_options, config=default_config, warning=print):
         data[key] = values
     return data
 
-def get_vegetation(pos,repourl=default_config["repourl"],cachedir=default_config["cachedir"],layers=default_config["layers"]):
+def get_vegetation(pos,
+        repourl = default_config["repourl"],
+        cachedir = default_config["cachedir"],
+        layers = default_config["layers"],
+        year = default_options["year"]):
     """Compute the vegetation at the locations specified
 
     Elevations are obtained for each entry in the args list.  If the
@@ -121,7 +130,7 @@ def get_vegetation(pos,repourl=default_config["repourl"],cachedir=default_config
     """
     result = {}
     for layer in layers:
-        name,data = get_imagedata(layer,pos,repourl,cachedir)
+        name,data = get_imagedata(layer,pos,repourl,cachedir,year)
         row,col = get_rowcol(pos,data)
         result[layer] = [data[row][col]]
 

@@ -1418,6 +1418,84 @@ bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-
 
 <div class="cell markdown">
 
+## Vegetation
+
+Vegetation data can be obtained using the `vegetation` dataset. This
+dataset includes information from the California Forest Observatory
+about canopy cover, height, and base. To access this data you must
+subscribe to the service at <https://forestobservatory.com>. To register
+you username and password, you must configure the dataset using the
+following command:
+
+</div>
+
+<div class="cell code" execution_count="114">
+
+``` python
+bash% gridlabd geodata config set -w vegetation.username name@example.com
+bash% gridlabd geodata config set vegetation.password password5839
+```
+
+</div>
+
+<div class="cell markdown">
+
+When you are registered you can merge vegetation data for geographic
+locations, e.g.,
+
+</div>
+
+<div class="cell code" execution_count="115">
+
+``` python
+bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 -d --vegetation.username=name@example.com --vegetation.password=password5839
+```
+
+<div class="output stream stdout">
+
+    Traceback (most recent call last):
+      File "/usr/local/opt/gridlabd/4.2.21-210518-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 1384, in <module>
+        main(len(sys.argv),sys.argv)
+      File "/usr/local/opt/gridlabd/4.2.21-210518-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 1360, in main
+        data = globals()[DIRECTIVE[0]](args)
+      File "/usr/local/opt/gridlabd/4.2.21-210518-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 847, in merge
+        data,options,config = get_args(args)
+      File "/usr/local/opt/gridlabd/4.2.21-210518-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 795, in get_args
+        error(f"config/option '{arg}' is not valid",E_INVALID)
+      File "/usr/local/opt/gridlabd/4.2.21-210518-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 472, in error
+        raise Exception(msg)
+    Exception: config/option '--vegetation.username=name@example.com' is not valid
+
+</div>
+
+</div>
+
+<div class="cell markdown">
+
+Vegetation data is always associated with a year, which is specified by
+the `year` option, i.e.,
+
+</div>
+
+<div class="cell code" execution_count="101">
+
+``` python
+bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --year=2020
+```
+
+<div class="output stream stdout">
+
+    id,latitude,longitude,canopy_base,canopy_cover,canopy_height
+    0,37.41,-122.2,58.0,58.0,58.0
+    1,37.42,-122.2,76.0,76.0,76.0
+    2,37.42,-122.21,105.0,105.0,105.0
+
+</div>
+
+</div>
+
+<div class="cell markdown">
+
 ## Utility
 
 Utility data can be obtained using the `utility` dataset. This dataset
