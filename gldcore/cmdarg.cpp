@@ -6,7 +6,7 @@
 	@ingroup core
 
 	The command-line argument processing module processes arguments as they are encountered.
-	
+
 	Use the --help command line option to obtain a list of valid options.
 
  @{
@@ -92,9 +92,9 @@ void GldCmdarg::modhelp_alpha(PNTREE **ctree, CLASS *oclass)
 {
 	int cmpval = 0;
 	PNTREE *targ = *ctree;
-	
+
 	cmpval = strcmp(oclass->name, targ->name);
-	
+
 	if(cmpval == 0){
 		; /* exception? */
 	} if(cmpval < 0){ /*  class < root ~ go left */
@@ -131,7 +131,7 @@ void GldCmdarg::set_tabs(char *tabs, int tabdepth)
 	if(tabdepth > 32){
 		throw_exception("print_class_d: tabdepth > 32, which is mightily deep!");
 		/* TROUBLESHOOT
-			This means that there is very deep nesting and this is unexpected.  
+			This means that there is very deep nesting and this is unexpected.
 			This suggests a problem with the internal model and should be reported.
 		 */
 	} else {
@@ -179,8 +179,8 @@ void GldCmdarg::print_class_d(CLASS *oclass, int tabdepth)
 				for (key=prop->keywords; key!=NULL; key=key->next)
 					printf("%s=%" FMT_INT64 "u%s", key->name, (int64)key->value, key->next==NULL?"":", ");
 				printf("} %s;", prop->name);
-			} 
-			else 
+			}
+			else
 			{
 				printf("%s\t%s %s;", tabs, propname, prop->name);
 			}
@@ -234,11 +234,11 @@ DEPRECATED static int compare(const void *a, const void *b)
 DEPRECATED static int help(void *main, int argc, const char *argv[]);
 
 /************************************************************************/
-/* COMMAND LINE PARSING ROUTINES 
+/* COMMAND LINE PARSING ROUTINES
  *
  * All cmdline parsing routines must use the prototype int (*)(int,char *[])
  *
- * The return value must be the number of args processed (excluding primary 
+ * The return value must be the number of args processed (excluding primary
  * one). A return value of CMDOK indicates that processing must stop immediately
  * and the return status is the current status.  A return value of CMDERR indicates
  * that processing must stop immediately and FAILED status is returned.
@@ -538,7 +538,7 @@ int GldCmdarg::version(int argc, const char *argv[])
 		return 0;
 	}
 	else if ( strcmp(opt,"all" ) == 0 )
-	{	
+	{
 		output_message("%s %s-%d (%s) "
 #if defined MACOSX
 			"Darwin"
@@ -763,7 +763,7 @@ DEPRECATED static int build_info(void *main, int argc, const char *argv[])
 			output_message("status: %s", BUILD_STATUS);
 			break;
 	}
-	global_suppress_repeat_messages = old;		
+	global_suppress_repeat_messages = old;
 
 	return parsed;
 }
@@ -941,11 +941,11 @@ DEPRECATED static int modhelp(void *main, int argc, const char *argv[])
 int GldCmdarg::modhelp(int argc, const char *argv[])
 {
 	const char *options = strchr(argv[0],'=');
-	if ( options != NULL ) 
+	if ( options != NULL )
 	{
-		options++; 
+		options++;
 	}
-	if ( argc > 1 ) 
+	if ( argc > 1 )
 	{
 		MODULE *mod = NULL;
 		CLASS *oclass = NULL;
@@ -954,16 +954,16 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 		char module_name[1024];
 		char class_name[1024];
 		if ( sscanf(argv[0],"%[^:]:%s",module_name,class_name) == 1 )
-		{ 
+		{
 			// no class
 			mod = module_load(module_name,0,NULL);
-		} 
-		else 
+		}
+		else
 		{
 			GLOBALVAR *var=NULL;
 			mod = module_load(module_name,0,NULL);
 			oclass = class_get_class_from_classname(class_name);
-			if ( oclass == NULL ) 
+			if ( oclass == NULL )
 			{
 				output_fatal("Unable to find class '%s' in module '%s'", class_name, module_name);
 				/*	TROUBLESHOOT
@@ -1000,8 +1000,8 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 							for (key=prop->keywords; key!=NULL; key=key->next)
 								printf(fmt, key->name, key->value, key->next==NULL?"":", ");
 							printf("} %s;", strrchr(prop->name,':')+1);
-						} 
-						else 
+						}
+						else
 						{
 							printf("\t%s %s;", proptype, strrchr(prop->name,':')+1);
 						}
@@ -1039,18 +1039,18 @@ int GldCmdarg::modhelp(int argc, const char *argv[])
 
 			oclass=class_get_first_class();
 			ctree = (PNTREE *)malloc(sizeof(PNTREE));
-			
+
 			if(ctree == NULL){
 				throw_exception("--modhelp: malloc failure");
 				/* TROUBLESHOOT
 					The memory allocation needed for module help to function has failed.  Try freeing up system memory and try again.
 				 */
 			}
-			
+
 			ctree->name = oclass->name;
 			ctree->oclass = oclass;
 			ctree->left = ctree->right = 0;
-			
+
 			for(; oclass != NULL; oclass = oclass->next){
 				modhelp_alpha(&ctree, oclass);
 				//print_class(oclass);
@@ -1089,7 +1089,7 @@ int GldCmdarg::modtest(int argc, const char *argv[])
 				if was followed by a module specification that isn't valid.
 				Verify that the module exists in GridLAB-D's <b>lib</b> folder.
 			*/
-		else 
+		else
 		{
 			argv++;argc--;
 			if (mod->test==NULL)
@@ -1107,7 +1107,7 @@ int GldCmdarg::modtest(int argc, const char *argv[])
 				mod->test(0,NULL);
 				output_test("*** modtest of %s ended ***", argv[0]);
 			}
-		}			
+		}
 	}
 	else
 	{
@@ -1276,7 +1276,7 @@ int GldCmdarg::redirect(int argc, const char *argv[])
 			{
 				output_fatal("redirection of %s to '%s' failed: %s",buffer,p, strerror(errno));
 				/*	TROUBLESHOOT
-					An attempt to redirect a standard stream from the 
+					An attempt to redirect a standard stream from the
 					command line using <b>--redirect <i>stream</i>:<i>destination</i></b>
 					has failed.  The message should provide an indication of why the
 					attempt failed. The remedy will depend on the nature of the problem.
@@ -1288,11 +1288,11 @@ int GldCmdarg::redirect(int argc, const char *argv[])
 		{
 				output_fatal("default redirection of %s failed: %s",buffer, strerror(errno));
 				/*	TROUBLESHOOT
-					An attempt to close a standard stream from the 
+					An attempt to close a standard stream from the
 					command line using <b>--redirect <i>stream</i></b>
 					has failed.  The message should provide an indication of why the
 					attempt failed. The remedy will depend on the nature of the problem.
-					
+
 				 */
 				return FAILED;
 		}
@@ -1733,13 +1733,13 @@ int GldCmdarg::example(int argc, const char *argv[])
 	CLASS *oclass;
 	PROPERTY *prop;
 	char modname[1024], classname[1024];
-	
-	if ( argc < 2 ) 
+
+	if ( argc < 2 )
 	{
 		output_error("--example requires a module:class argument");
 		return CMDERR;
 	}
-	
+
 	int n = sscanf(argv[1],"%1023[A-Za-z_]:%1024[A-Za-z_0-9]",modname,classname);
 	if ( n!=2 )
 	{
@@ -1864,7 +1864,7 @@ int GldCmdarg::mclassdef(int argc, const char *argv[])
         {
                 IN_MYCONTEXT output_warning("--mclassdef: unable to initialize mclassdef object from class %s", classname);
         }
-	
+
 	/* output the classdef */
 	count = snprintf(buffer,sizeof(buffer)-1,"struct('module','%s','class','%s'", modname, classname);
 	for ( prop = oclass->pmap ; prop!=NULL && prop->oclass==oclass ; prop=prop->next )
@@ -2001,7 +2001,7 @@ int GldCmdarg::formats(int argc, const char *argv[])
 	cout << "\t\t\"glm\" : {" << endl;
 	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2glm.py {inputfile} -o {outputfile}\"" << endl;
 	cout << "\t\t}," << endl;
-	
+
 	cout << "\t\t\"png\" : {" << endl;
 	cout << "\t\t\t\"run\" : \"" << global_datadir << "/json2png.py {inputfile} -o {outputfile}\"" << endl;
 	cout << "\t\t\t\"type\" : [" << endl;
@@ -2010,7 +2010,7 @@ int GldCmdarg::formats(int argc, const char *argv[])
 	cout << "\t\t\t]" << endl;
 	cout << "\t\t}" << endl;
 	cout << "\t}" << endl;
-	
+
 	cout << "}" << endl;
 	return 0;
 }
@@ -2108,7 +2108,7 @@ DEPRECATED static int cite(void *main, int argc, const char *argv[])
 	const char *Month[] = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"};
 	output_message("Chassin, D.P., et al., \"%s %s-%d (%s)"
 		" %s\" (%d) [online]."
-		" Available at %s. Accessed %s. %d, %d", 
+		" Available at %s. Accessed %s. %d, %d",
 		PACKAGE_NAME, PACKAGE_VERSION, BUILDNUM, BRANCH,
 		platform, year, url, Month[month-1], day, year);
 	return 0;
@@ -2125,6 +2125,12 @@ DEPRECATED static int rusage(void *main, int argc, const char *argv[])
 {
 	global_rusage_rate = 1;
 	return 0;
+}
+
+DEPRECATED static int nprocs(void *main, int argc, const char *argv[])
+{
+    fprintf(stdout,"%d\n",processor_count());
+    return 0;
 }
 
 DEPRECATED static int _template(void *main, int argc, const char *argv[])
@@ -2147,7 +2153,7 @@ DEPRECATED static int _template(void *main, int argc, const char *argv[])
 	bool result = ((GldMain*)main)->get_loader()->load(template_glm);
 	strcpy(global_pythonpath,oldpath);
 	free(oldpath);
-	if ( ! result ) 
+	if ( ! result )
 	{
 		output_error("unable to load template file '%s'", template_glm);
 		return CMDERR;
@@ -2181,7 +2187,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"warn",		"w",	warn,			NULL, "Toggles display of warning messages" },
 	{"workdir",		"W",	workdir,		NULL, "Sets the working directory" },
 	{"rusage",      NULL,   rusage,         NULL, "Collect resource usage statistics" },
-	
+
 	{NULL,NULL,NULL,NULL, "Global, environment and module information"},
 	{"define",		"D",	define,			"<name>=[<module>:]<value>", "Defines or sets a global (or module) variable" },
 	{"globals",		NULL,	globals,		NULL, "Displays a sorted list of all global variables" },
@@ -2206,7 +2212,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"locktest",	NULL,	locktest,		NULL, "Perform memory locking test" },
 	{"modtest",		NULL,	modtest,		"<module>", "Perform test function provided by module" },
 	{"randtest",	NULL,	randtest,		NULL, "Perform random number generator test" },
-	{"scheduletest", NULL,	scheduletest,	NULL, "Perform schedule pseudo-object test" },	
+	{"scheduletest", NULL,	scheduletest,	NULL, "Perform schedule pseudo-object test" },
 	{"test",		NULL,	test,			"<module>", "Perform unit test of module (deprecated)" },
 	{"testall",		NULL,	testall,		"=<filename>", "Perform tests of modules listed in file" },
 	{"unitstest",	NULL,	unitstest,		NULL, "Perform unit conversion system test" },
@@ -2234,6 +2240,7 @@ DEPRECATED static CMDARG main_commands[] = {
 	{"pidfile",		NULL,	pidfile,		"[=<filename>]", "Set the process ID file (default is gridlabd.pid)" },
 	{"threadcount", "T",	threadcount,	"<n>", "Set the maximum number of threads allowed" },
 	{"job",			NULL,	job,			"...", "Start a job"},
+    {"nprocs",      NULL,   nprocs,         "Display the number of processors available to run jobs"},
 
 	{NULL,NULL,NULL,NULL, "System options"},
 	{"avlbalance",	NULL,	avlbalance,		NULL, "Toggles automatic balancing of object index" },
@@ -2316,10 +2323,10 @@ int GldCmdarg::help(int argc, const char *argv[])
 			output_message("%s", arg.desc);
 			output_message("%s", buffer);
 		}
-		else 
+		else
 		{
 			char buffer[1024] = "  ";
-			if ( arg.lopt ) 
+			if ( arg.lopt )
 			{
 				strcat(buffer,"--");
 				strcat(buffer,arg.lopt);
@@ -2377,8 +2384,8 @@ STATUS GldCmdarg::load(int argc,const char *argv[])
 			CMDARG arg = main_commands[i];
 			char tmp[1024];
 			snprintf(tmp,sizeof(tmp)-1,"%s=",arg.lopt);
-			if ( ( arg.sopt && strncmp(*argv,"-",1)==0 && strcmp((*argv)+1,arg.sopt)==0 ) 
-			  || ( arg.lopt && strncmp(*argv,"--",2)==0 && strcmp((*argv)+2,arg.lopt)==0 ) 
+			if ( ( arg.sopt && strncmp(*argv,"-",1)==0 && strcmp((*argv)+1,arg.sopt)==0 )
+			  || ( arg.lopt && strncmp(*argv,"--",2)==0 && strcmp((*argv)+2,arg.lopt)==0 )
 			  || ( arg.lopt && strncmp(*argv,"--",2)==0 && strncmp((*argv)+2,tmp,strlen(tmp))==0 ) )
 			{
 				int n = arg.call(instance,argc,argv);
@@ -2406,12 +2413,12 @@ STATUS GldCmdarg::load(int argc,const char *argv[])
 				{
 					IN_MYCONTEXT output_warning("file '%s' ignored in test mode", *argv);
 					/* TROUBLESHOOT
-					   This warning is caused by an attempt to read an input file in self-test mode.  
+					   This warning is caused by an attempt to read an input file in self-test mode.
 					   The use of self-test model precludes reading model files.  Try running the system
 					   in normal more or leaving off the model file name.
 					 */
 				}
-				else 
+				else
 				{
 					clock_t start = clock();
 
@@ -2442,7 +2449,7 @@ STATUS GldCmdarg::load(int argc,const char *argv[])
 					 */
 					status = FAILED;
 				}
-			}			
+			}
 		}
 	}
 	return status;
