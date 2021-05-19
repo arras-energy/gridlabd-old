@@ -1,9 +1,36 @@
 
 <div class="cell markdown">
 
-This document is generated from a Jupyter notebook. As of version
-4.2.21, HiPAS GridLAB-D supports the handling of geographic data. The
-following command checks the version of GridLAB-D.
+# GridLAB-D Geodata Subcommand Tutorial
+
+</div>
+
+<div class="cell markdown">
+
+<center>Document Metadata</center>
+
+| Name    | Value                                                                                                                          |
+|:--------|:-------------------------------------------------------------------------------------------------------------------------------|
+| Type    | Jupyter notebook                                                                                                               |
+| Name    | Geodata.ipynb                                                                                                                  |
+| Source  | <https://github.com/slacgismo/gridlabd/blob/master/gldcore/geodata/docs/Geodata.ipynb>                                         |
+| Target  | <https://docs.gridlabd.us/index.html?owner=slacgismo&project=gridlabd&branch=master&folder=/Tutorial&doc=/Tutorial/Geodata.md> |
+| Author  | David P. Chassin (<dchassin@slac.stanford.edu>)                                                                                |
+| Updated | 19 May 2021                                                                                                                    |
+
+</div>
+
+<div class="cell markdown">
+
+As of version 4.2.21, HiPAS GridLAB-D supports the handling of
+geographic data. This document provides a tutorial for using the
+`geodata` subcommand in GridLAB-D.
+
+</div>
+
+<div class="cell markdown">
+
+The following command checks the version of GridLAB-D.
 
 </div>
 
