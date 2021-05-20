@@ -63,3 +63,7 @@ object multi_recorder {
 	property "weather:wind_speed,pole1:pole_stress,pole1:susceptibility, pole1:total_moment, pole1:resisting_moment, pole2:pole_stress,pole2:susceptibility, pole1:critical_wind_speed, pole2:critical_wind_speed, pole2:total_moment, pole2:resisting_moment";
 	file test_pole.csv;
 }
+
+#ifexist "../test_pole.csv"
+#on_exit 0 diff -q test_pole.csv ../test_pole.csv
+#endif
