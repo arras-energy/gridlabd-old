@@ -6,7 +6,7 @@ This converter allows for any arbitrary object to be imported via CSV-formatted 
 
 # Description
 
-Any arbitrary objects can be listed in a CSV file and convertered to GLM-formatted object. The `class` can either be defined through `options` or specified directly in the CSV. The table format is as below : 
+Any arbitrary objects can be listed in a CSV file and convertered to GLM-formatted object. The table format is as below : 
 
 class | name | tilt_angle | tilt_direction | weather | configuration | equipment_area | equipment_height | install_year	| repair_time | latitude | longitude | phases | nominal_voltage | tmyfile
 --- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |---
@@ -19,12 +19,14 @@ Sample usage within GLM
 #input "input_file.csv" -f "table" -t "object" 
 ~~~
 
-If you'd like to omit the class in the table you can specify it in the input command line instead as 
+The `class` can either be defined through `options` or specified directly in the CSV. If you'd like to omit the class in the table you can specify it in the input command line instead as 
 
 ~~~
 #input "input_file.csv" -f "table" -t "object" -C "pole"
 ~~~
-The caveat with doing so is that all the objects specified in the CSV must match the class specified in the input command. The code will overwrite this specification if the class is specified in the file. You can also omit the names and the function will autopopulate the object in the format as `<class_name>_<row_number>`
+The function will overwrite the `class` specification if the class is already specified in the file. 
+
+The object names can be omitted and the function will autopopulate the object in the format as `<class_name>_<row_number>`
 
 This will generate an "input_file.glm" and automatically include the objects within the model. 
 
