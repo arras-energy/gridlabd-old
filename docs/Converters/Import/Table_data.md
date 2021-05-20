@@ -12,7 +12,7 @@ class | name | tilt_angle | tilt_direction | weather | configuration | equipment
 --- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |--- |--- |--- |---
 pole | pole1 | 5 deg | 270	| weather | WOOD-C-45/5 | | | 1990 | 1 h | 37.4275 | 122.1697 | ABC | 12470
 pole | pole2 | 8 deg | 270	| weather | WOOD-C-45/5 | | | 2000 | 8 h | 37.127 | 122.1646 | ABC | 12470
-climate | weather | | 	|  |  | | |  |  |  |  |  | CA-Chino_Airport.tmy3
+climate | weather | | 	|  |  | | |  |  |  |  |  | | CA-Chino_Airport.tmy3
 
 Sample usage within GLM
 ~~~
@@ -24,7 +24,7 @@ If you'd like to omit the class in the table you can specify it in the input com
 ~~~
 #input "input_file.csv" -f "table" -t "object" -C "pole"
 ~~~
-The caveat with doing so is that all the objects specified in the CSV must match the class specified in the input command. The code will overwrite this specification if the class is specified in the file.
+The caveat with doing so is that all the objects specified in the CSV must match the class specified in the input command. The code will overwrite this specification if the class is specified in the file. You can also omit the names and the function will autopopulate the object in the format as `<class_name>_<row_number>`
 
 This will generate an "input_file.glm" and automatically include the objects within the model. 
 
