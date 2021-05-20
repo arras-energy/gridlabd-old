@@ -2,6 +2,11 @@
 """
 import csv
 import re
+import sys, getopt
+
+def error(msg):
+    print(f'ERROR   {msg}')
+    sys.exit(1)
 
 def convert (p_configuration_in, p_configuration_out, options={} ) : 
 	with open(p_configuration_in, newline='') as csvfile:
@@ -13,8 +18,9 @@ def convert (p_configuration_in, p_configuration_out, options={} ) :
 			if i == 0 : 
 				headers = row
 			else : 
+				if not row[0] and not options : 
+					error("No class name found, please edit your CSV to include class or add -C <class name> to your input command")
 				if not row[0] : 
-					print(options)
 					p_config_out.write(f"object {options['class']} ")
 					class_name = options['class']
 				if row[0] : 
