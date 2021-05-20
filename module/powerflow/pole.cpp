@@ -127,7 +127,7 @@ int pole::init(OBJECT *parent)
 	// configuration
 	if ( configuration == NULL || ! gl_object_isa(configuration,"pole_configuration") )
 	{
-		gl_error("configuration is not set to a pole_configuration object");
+		error("configuration is not set to a pole_configuration object");
 		return 0;
 	}
 	config = OBJECTDATA(configuration,pole_configuration);
@@ -145,7 +145,7 @@ int pole::init(OBJECT *parent)
 		}
 		else
 		{
-			throw "pole::default_repair_time must be positive";
+			exception("pole::default_repair_time must be positive");
 		}
 	}
 
@@ -157,45 +157,45 @@ int pole::init(OBJECT *parent)
         gld_property *wind_gusts_ref = new gld_property(get_object(weather),"wind_gusts");
         if ( ! wind_speed_ref->is_valid() )
         {
-            gl_warning("weather data does not include wind speed, using local wind speed only");
+            warning("weather data does not include wind %s, using local wind data only","speed");
             delete wind_speed_ref;
             wind_speed_ref = NULL;
         }
         else if ( wind_speed != 0.0 )
         {
-            gl_warning("weather data will overwrite local wind speed data");
+            warning("weather data will overwrite local wind %s data","speed");
         }
         if ( ! wind_direction_ref->is_valid() )
         {
-            gl_warning("weather data does not include wind direction, using local wind direction only");
+            warning("weather data does not include wind %s, using local wind data only","direction");
             delete wind_speed_ref;
             wind_direction_ref = NULL;
         }
         else if ( wind_direction != 0.0 )
         {
-            gl_warning("weather data will overwrite local wind direction data");
+            warning("weather data will overwrite local wind %s data","direction");
         }
         if ( ! wind_gusts_ref->is_valid() )
         {
-            gl_warning("weather data does not include wind gusts, using local wind gusts only");
+            warning("weather data does not include wind %s, using local wind data only","gusts");
             delete wind_gusts_ref;
             wind_gusts_ref = NULL;
         }
         else if ( wind_gusts != 0.0 )
         {
-            gl_warning("weather data will overwrite local wind gusts data");
+            warning("weather data will overwrite local wind %s data","gusts");
         }
     }
 
 	// tilt
 	if ( tilt_angle < 0 || tilt_angle > 90 )
 	{
-		gl_error("pole tilt angle is not between and 0 and 90 degrees");
+		error("pole tilt angle is not between and 0 and 90 degrees");
 		return 0;
 	}
 	if ( tilt_direction < 0 || tilt_direction >= 360 )
 	{
-		gl_error("pole tilt direction is not between 0 and 360 degrees");
+		error("pole tilt direction is not between 0 and 360 degrees");
 		return 0;
 	}
 
@@ -204,7 +204,7 @@ int pole::init(OBJECT *parent)
 		* config->strength_factor_250b_wood
 		* config->fiber_strength
 		* ( config->ground_diameter * config->ground_diameter * config->ground_diameter);
-	gl_verbose("resisting moment %.0f ft*lb",resisting_moment);
+	verbose("resisting moment %.0f ft*lb",resisting_moment);
 
 	// collect wire data
 	static FINDLIST *all_ohls = NULL;
@@ -221,17 +221,17 @@ int pole::init(OBJECT *parent)
 			line_configuration *line_config = OBJECTDATA(line->configuration,line_configuration);
 			if ( line_config == NULL )
 			{
-				gl_warning("line %s has no line configuration--skipping",line->get_name());
+				warning("line %s has no line configuration--skipping",line->get_name());
 				break;
 			}
 			line_spacing *spacing = OBJECTDATA(line_config->line_spacing,line_spacing);
 			if ( spacing == NULL )
 			{
-				gl_warning("line configure %s has no line spacing data--skipping",line_config->get_name());
+				warning("line configure %s has no line spacing data--skipping",line_config->get_name());
 				break;
 			}
 			if ( line->length == 0.0 )
-				gl_warning("wire has no length--wire moment will not be calculated");
+				warning("wire has no length--wire moment will not be calculated");
 			overhead_line_conductor *phaseA = OBJECTDATA(line_config->phaseA_conductor,overhead_line_conductor);
 			if ( phaseA != NULL )
 				add_wire(line,spacing->distance_AtoE,phaseA->cable_diameter,0.0,4430,line->length/2);
@@ -244,12 +244,12 @@ int pole::init(OBJECT *parent)
 			overhead_line_conductor *phaseN = OBJECTDATA(line_config->phaseN_conductor,overhead_line_conductor);
 			if ( phaseN != NULL )
 				add_wire(line,spacing->distance_NtoE,phaseN->cable_diameter,0.0,2190,line->length/2);
-			gl_verbose("found link %s",(const char*)(line->get_name()));
+			verbose("found link %s",(const char*)(line->get_name()));
 		}
 	}
 	if ( wire_data == NULL )
 	{
-		gl_warning("no wire data found--wire loading is not included");
+		warning("no wire data found--wire loading is not included");
 	}
 	is_deadend = ( n_lines < 2 );
 
@@ -273,7 +273,7 @@ int pole::init(OBJECT *parent)
 	pole_stress_polynomial_c = wire_tension;
 
 	if ( install_year > gl_globalclock )
-		gl_warning("pole install year in the future are assumed to be current time");
+		warning("pole install year in the future are assumed to be current time");
 
 	return 1;
 }
@@ -318,11 +318,6 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 
 	if ( pole_status == PS_FAILED && (gl_globalclock-down_time)/3600.0 > repair_time )
 	{
-		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
-		{
-			wire->line->status = LS_CLOSED;
-            NR_admit_change = true;
-		}
 		gl_debug("pole repaired");
 		tilt_angle = 0.0;
 		tilt_direction = 0.0;
@@ -332,7 +327,6 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 	}
 	if ( pole_status == PS_OK && last_wind_speed != wind_speed )
 	{
-
 		gld_clock dt;
 		wind_pressure = 0.00256*2.24 * (wind_speed)*(wind_speed); //2.24 account for m/s to mph conversion
 		critical_wind_speed = 0.0;
@@ -349,7 +343,6 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 			wire_load += load;
 			wire_moment += wire->span * load * wire->height * config->overload_factor_transverse_wire;
 			wire_tension += wire->tension * config->overload_factor_transverse_wire * sin(tilt_angle/2) * wire->height;
-
 		}
 
 		total_moment = pole_moment + equipment_moment + wire_moment + wire_tension;
@@ -358,19 +351,13 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 			susceptibility = 2*(pole_moment+equipment_moment+wire_moment)/resisting_moment/(wind_speed)/(0.00256)/(2.24);
 		else
 			susceptibility = 0.0;
-		gl_verbose("%s: wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, stress %.0f%%",
+		verbose("%s: wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, stress %.0f%%",
 			(const char*)(dt.get_string()), wind_pressure, pole_moment, equipment_moment, wire_moment, pole_stress*100);
 		pole_status = ( pole_stress < 1.0 ? PS_OK : PS_FAILED );
 		if ( pole_status == PS_FAILED )
 		{
-			gl_debug("pole failed at %.0f%% loading, time to repair is %g h",pole_stress*100,repair_time);
+			debug("pole failed at %.0f%% loading, time to repair is %g h",pole_stress*100,repair_time);
 			down_time = gl_globalclock;
-			for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
-			{
-				wire->repair = repair_time*3600;
-				wire->line->status = LS_OPEN;
-                NR_admit_change = true;
-			}
 		}
 		last_wind_speed = wind_speed;
 
