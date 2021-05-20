@@ -30,7 +30,7 @@ object pole
 
 The pole object models poles in powerflow network. The current pole object models pole failure by overstress at the base the pole from wind pressure on the equipment, wire, and tilt.  The model does not model failures from ice loading on the lines or from foundation failure.
 
-Generally, any link object in a powerflow model can be mounted on a pole by creating a `pole_mount` object that uses the pole as a parent, and providing just the `weather` and `pole_configuration` object references. The `pole_mount` object specifies the position, size, and weight of the equipment on the pole for the purpose of wind cross-section.
+Generally, any link object in a powerflow model can be mounted on a pole by creating a `pole_mount` object that uses the pole as a parent, and providing just the `weather` and `pole_configuration` object references to the pole. The `pole_mount` object specifies the position, size, and weight of the equipment on the pole to model the effect of wind give the aerodynamic cross-section.
 
 ## Properties
 
