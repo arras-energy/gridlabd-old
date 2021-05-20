@@ -701,9 +701,14 @@ object regulator {
 	 configuration regconfig6506321;
 }
 
+object pole_configuration
+{
+    name "test_pole";
+}
 object pole
 {
     name "pole1";
+    configuration "test_pole";
     object pole_mount {
         equipment fregn650n630;
     };
