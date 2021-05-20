@@ -86,13 +86,22 @@ int pole_mount::init(OBJECT *parent)
 
 TIMESTAMP pole_mount::presync(TIMESTAMP t0)
 {
+    extern bool NR_admit_change;
     switch ( pole_status->get_enumeration() )
     {
     case pole::PS_OK:
-        equipment_status->setp((enumeration)LS_CLOSED);
+        if ( equipment_status->get_enumeration() != LS_CLOSED )
+        {
+            equipment_status->setp((enumeration)LS_CLOSED);
+            NR_admit_change = true;
+        }
         break;
     case pole::PS_FAILED:
-        equipment_status->setp((enumeration)LS_OPEN);
+        if ( equipment_status->get_enumeration() != LS_OPEN )
+        {
+            equipment_status->setp((enumeration)LS_OPEN);
+            NR_admit_change = true;
+        }
         break;
     default:
         error("pole_status %d is not valid",(int)pole_status->get_enumeration());
