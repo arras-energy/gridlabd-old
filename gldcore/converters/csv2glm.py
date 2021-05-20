@@ -20,6 +20,7 @@ def help():
     print(f'  -o|--ofile     : [REQUIRED] {config["output"]} output file name')
     print(f'  -f|--from      : [REQUIRED] input {config["input"]} data type')
     print(f'  -t|--type      : [REQUIRED] output {config["output"]} data type')
+    print(f'  -p|--property  : [OPTIONAL] property option')
     print(f'  -C|--class     : [OPTIONAL] optional specification for class definition in the table converter')
 
 def error(msg):
@@ -32,7 +33,7 @@ output_file = None
 output_type = None
 options = {}
 
-opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:C:",["help","config","ifile=","ofile=","from=","type=","class="])
+opts, args = getopt.getopt(sys.argv[1:],"hci:o:f:t:p:C:",["help","config","ifile=","ofile=","from=","type=","property=","class="])
 
 if not opts : 
     help()
@@ -53,6 +54,9 @@ for opt, arg in opts:
         input_type = arg.strip()
     elif opt in ("-t","--type"):
         output_type = arg.strip()
+    elif opt in ("-p","--property"):
+        prop = arg.split("=")
+        options[prop[0]] = prop[1]
     elif opt in ("-C","--class"):
         options["class"] = arg.strip()
     else:
