@@ -50,11 +50,11 @@ for opt, arg in opts:
     elif opt in ("-o", "--ofile"):
         output_file = arg.strip()
     elif opt in ("-f","--from"):
-        input_type = arg.strip();
+        input_type = arg.strip()
     elif opt in ("-t","--type"):
-        output_type = arg.strip();
+        output_type = arg.strip()
     elif opt in ("-C","--class"):
-        options["class"] = arg
+        options["class"] = arg.strip()
     else:
         error(f"{opt}={arg} is not a valid option");
 
