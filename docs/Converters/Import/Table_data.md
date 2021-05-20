@@ -22,7 +22,7 @@ Sample usage within GLM
 The `class` can either be defined through `options` or specified directly in the CSV. If you'd like to omit the class in the table you can specify it in the input command line instead as 
 
 ~~~
-#input "input_file.csv" -f "table" -t "object" -C "pole"
+#input "input_file.csv" -f "table" -t "object" -C "powerflow.pole"
 ~~~
 The function will overwrite the `class` specification if the class is already specified in the file. 
 
