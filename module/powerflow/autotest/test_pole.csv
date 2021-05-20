@@ -1,11 +1,4 @@
-# file...... test_pole.csv
-# date...... Thu May 20 12:06:06 2021
-# user...... dchassin
-# host...... (null)
-# trigger... (none)
-# interval.. 3600
-# limit..... 0
-# timestamp,weather:wind_speed,pole1:pole_stress,pole1:susceptibility, pole1:total_moment, pole1:resisting_moment, pole2:pole_stress,pole2:susceptibility, pole1:critical_wind_speed, pole2:critical_wind_speed, pole2:total_moment, pole2:resisting_moment
+timestamp,weather:wind_speed,pole1:pole_stress,pole1:susceptibility, pole1:total_moment, pole1:resisting_moment, pole2:pole_stress,pole2:susceptibility, pole1:critical_wind_speed, pole2:critical_wind_speed, pole2:total_moment, pole2:resisting_moment
 2020-01-01 00:00:00 PST,+3.1,+0,+0,+0,+61722.3,+0,+0,+109.658,+109.658,+0,+61722.3
 2020-01-01 01:00:00 PST,+0,+0,+0,+0,+61722.3,+0,+0,+109.658,+109.658,+0,+61722.3
 2020-01-01 02:00:00 PST,+0,+0,+0,+0,+61722.3,+0,+0,+109.658,+109.658,+0,+61722.3

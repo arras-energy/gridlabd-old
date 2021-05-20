@@ -6,48 +6,6 @@ clock {
 }
 
 ///////////////////////////////////////
-// network model
-///////////////////////////////////////
-
-module powerflow;
-object node
-{
-    name node1;
-    phases ABC;
-    nominal_voltage 12470;
-}
-object node {
-    name node2;
-    phases ABC;
-    nominal_voltage 12470;
-}
-object overhead_line_conductor {
-	name conductor1;
-	diameter 0.5 in;
-}
-object line_spacing {
-	name spacing1;
-	distance_AE 30;
-	distance_BE 35;
-	distance_CE 40;
-}
-object line_configuration {
-	name linetype1;
-	spacing spacing1;
-	conductor_A conductor1;
-	conductor_B conductor1;
-	conductor_C conductor1;
-}
-object overhead_line {
-    name oh_node1_node2;
-	phases ABC;
-	from node1;
-	to node2;
-	length 500 ft;
-	configuration linetype1;
-}
-
-///////////////////////////////////////
 // weather model
 ///////////////////////////////////////
 
@@ -61,6 +19,7 @@ object climate {
 ///////////////////////////////////////
 // pole model
 ///////////////////////////////////////
+module powerflow;
 
 object pole_configuration {
 	name "WOOD-C-45/5";
@@ -80,10 +39,6 @@ object pole {
     tilt_angle 5 deg;
     tilt_direction 270;
     install_year 1990;
-    object pole_mount
-    {
-        equipment oh_node1_node2;
-    };
 };
 
 object pole {
@@ -93,17 +48,16 @@ object pole {
 	tilt_angle 8 deg;
 	tilt_direction 270;
 	install_year 2000;
-    object pole_mount
-    {
-        equipment oh_node1_node2;
-    };
 }
 
 ///////////////////////////////////////
 // recorder model
 ///////////////////////////////////////
 
-module tape;
+module tape
+{
+    csv_header_type NAME;
+}
 object multi_recorder {
 	interval 3600;
 	property "weather:wind_speed,pole1:pole_stress,pole1:susceptibility, pole1:total_moment, pole1:resisting_moment, pole2:pole_stress,pole2:susceptibility, pole1:critical_wind_speed, pole2:critical_wind_speed, pole2:total_moment, pole2:resisting_moment";
