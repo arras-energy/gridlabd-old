@@ -1,5 +1,5 @@
 // powerflow/pole.h
-// Copyright (C) 2018, Stanford University
+// Copyright (C) 2018, Regents of the Leland Stanford Junior University
 
 #ifndef _POLE_H
 #define _POLE_H
@@ -23,7 +23,7 @@ typedef struct s_wiredata {
 	TIMESTAMP repair; // fault repair time
 	char data[32]; // extra data space
 } WIREDATA;
-class pole : public node
+class pole : gld_object
 {
 public:
 	inline void add_wire(overhead_line *line, double height, double diameter, double heading, double tension, double span) {
@@ -45,9 +45,10 @@ public:
 public:
 	static CLASS *oclass;
 	static CLASS *pclass;
+    static pole *defaults;
 public:
 	enum {PT_WOOD=0, PT_STEEL=1, PT_CONCRETE=2};
-	enum {PS_OK=0, PS_FAILED=1,};
+	enum {PS_OK=0, PS_FAILED=1};
 	enumeration pole_status;
 	double tilt_angle;
 	double tilt_direction;
@@ -58,6 +59,12 @@ public:
 	double degradation_rate;
 	int install_year; // year pole was installed
 	double repair_time;
+    GL_ATOMIC(double,wind_speed);
+    GL_ATOMIC(double,wind_direction);
+    GL_ATOMIC(double,wind_gusts);
+    gld_property *wind_speed_ref;
+	gld_property *wind_direction_ref;
+	gld_property *wind_gusts_ref;
 private:
 	double ice_thickness;
 	double resisting_moment; 	// (see Section B)
@@ -83,14 +90,10 @@ private:
 private:
 	class pole_configuration *config;
 	double last_wind_speed;
-	double *wind_speed;
-	double *wind_direction;
-	double *wind_gust;
 	std::list<WIREDATA> *wire_data;
 	TIMESTAMP down_time;
 public:
 	pole(MODULE *);
-	int isa(char *);
 	int create(void);
 	int init(OBJECT *);
 	TIMESTAMP presync(TIMESTAMP);
@@ -99,4 +102,3 @@ public:
 };
 
 #endif // _POLE_H
-

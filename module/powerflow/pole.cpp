@@ -1,58 +1,85 @@
 // powerflow/pole.cpp
-// Copyright (C) 2018, Stanford University
+// Copyright (C) 2018, Regents of the Leland Stanford Junior University
 
 #include "powerflow.h"
 using namespace std;
 
+EXPORT_CREATE(pole)
+EXPORT_INIT(pole)
+EXPORT_SYNC(pole)
+
 CLASS *pole::oclass = NULL;
 CLASS *pole::pclass = NULL;
+pole *pole::defaults = NULL;
 
 static double default_repair_time = 24.0;
 
-pole::pole(MODULE *mod) : node(mod)
+pole::pole(MODULE *mod)
 {
 	if ( oclass == NULL )
 	{
 		pclass = node::oclass;
-		oclass = gl_register_class(mod,"pole",sizeof(pole),PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN|PC_UNSAFE_OVERRIDE_OMIT|PC_AUTOLOCK);
+		oclass = gl_register_class(mod,"pole",sizeof(pole),PC_PRETOPDOWN|PC_UNSAFE_OVERRIDE_OMIT|PC_AUTOLOCK);
 		if ( oclass == NULL )
 			throw "unable to register class pole";
 		oclass->trl = TRL_PROTOTYPE;
 		if ( gl_publish_variable(oclass,
-			PT_INHERIT, "node",
+
 			PT_enumeration, "pole_status", PADDR(pole_status), PT_DESCRIPTION, "pole status",
 				PT_KEYWORD, "OK", (enumeration)PS_OK,
 				PT_KEYWORD, "FAILED", (enumeration)PS_FAILED,
-			PT_double, "tilt_angle[rad]", PADDR(tilt_angle), PT_DESCRIPTION, "tilt angle of pole",
-			PT_double, "tilt_direction[deg]", PADDR(tilt_direction), PT_DESCRIPTION, "tilt direction of pole",
-			PT_object, "weather", PADDR(weather), PT_DESCRIPTION, "weather data",
-			PT_object, "configuration", PADDR(configuration), PT_DESCRIPTION, "configuration data",
-			PT_double, "equipment_area[sf]", PADDR(equipment_area), PT_DESCRIPTION, "equipment cross sectional area",
-			PT_double, "equipment_height[ft]", PADDR(equipment_height), PT_DESCRIPTION, "equipment height on pole",
-			PT_double, "pole_stress[pu]", PADDR(pole_stress), PT_DESCRIPTION, "ratio of actual stress to critical stress",
-			PT_double, "pole_stress_polynomial_a[ft*lb]", PADDR(pole_stress_polynomial_a), PT_DESCRIPTION, "constant a of the pole stress polynomial function",
-			PT_double, "pole_stress_polynomial_b[ft*lb]", PADDR(pole_stress_polynomial_b), PT_DESCRIPTION, "constant b of the pole stress polynomial function",
-			PT_double, "pole_stress_polynomial_c[ft*lb]", PADDR(pole_stress_polynomial_c), PT_DESCRIPTION, "constant c of the pole stress polynomial function",
-			PT_double, "susceptibility[pu*s/m]", PADDR(susceptibility), PT_DESCRIPTION, "susceptibility of pole to wind stress (derivative of pole stress w.r.t wind speed)",
-			PT_double, "total_moment[ft*lb]", PADDR(total_moment), PT_DESCRIPTION, "the total moment on the pole.",
-			PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
-			PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure",
-			PT_int32, "install_year", PADDR(install_year), PT_DESCRIPTION, "the year of pole was installed",
-			PT_double, "repair_time[h]", PADDR(repair_time), PT_DESCRIPTION, "typical repair time after pole failure",
-			NULL) < 1 ) throw "unable to publish properties in " __FILE__;
+
+            PT_double, "tilt_angle[rad]", PADDR(tilt_angle), PT_DESCRIPTION, "tilt angle of pole",
+
+            PT_double, "tilt_direction[deg]", PADDR(tilt_direction), PT_DESCRIPTION, "tilt direction of pole",
+
+            PT_object, "weather", PADDR(weather), PT_DESCRIPTION, "weather data",
+
+            PT_object, "configuration", PADDR(configuration), PT_DESCRIPTION, "configuration data",
+
+            PT_double, "equipment_area[sf]", PADDR(equipment_area), PT_DESCRIPTION, "equipment cross sectional area",
+
+            PT_double, "equipment_height[ft]", PADDR(equipment_height), PT_DESCRIPTION, "equipment height on pole",
+
+            PT_double, "pole_stress[pu]", PADDR(pole_stress), PT_DESCRIPTION, "ratio of actual stress to critical stress",
+
+            PT_double, "pole_stress_polynomial_a[ft*lb]", PADDR(pole_stress_polynomial_a), PT_DESCRIPTION, "constant a of the pole stress polynomial function",
+
+            PT_double, "pole_stress_polynomial_b[ft*lb]", PADDR(pole_stress_polynomial_b), PT_DESCRIPTION, "constant b of the pole stress polynomial function",
+
+            PT_double, "pole_stress_polynomial_c[ft*lb]", PADDR(pole_stress_polynomial_c), PT_DESCRIPTION, "constant c of the pole stress polynomial function",
+
+            PT_double, "susceptibility[pu*s/m]", PADDR(susceptibility), PT_DESCRIPTION, "susceptibility of pole to wind stress (derivative of pole stress w.r.t wind speed)",
+
+            PT_double, "total_moment[ft*lb]", PADDR(total_moment), PT_DESCRIPTION, "the total moment on the pole.",
+
+            PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
+
+            PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure",
+
+            PT_int32, "install_year", PADDR(install_year), PT_DESCRIPTION, "the year of pole was installed",
+
+            PT_double, "repair_time[h]", PADDR(repair_time), PT_DESCRIPTION, "typical repair time after pole failure",
+
+            PT_double, "wind_speed[m/s]", get_wind_speed_offset(),
+                PT_DEFAULT, "0 m/s",
+                PT_DESCRIPTION, "local wind speed",
+
+            PT_double, "wind_direction[deg]", get_wind_direction_offset(),
+                PT_DEFAULT, "0 deg",
+                PT_DESCRIPTION, "local wind direction",
+
+            PT_double, "wind_gusts[m/s]", get_wind_gusts_offset(),
+                PT_DEFAULT, "0 m/s",
+                PT_DESCRIPTION, "local wind gusts",
+
+            NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 		gl_global_create("powerflow::repair_time[h]",PT_double,&default_repair_time,NULL);
 	}
 }
 
-int pole::isa(char *classname)
-{
-	return strcmp(classname,"pole")==0 || node::isa(classname);
-}
-
 int pole::create(void)
 {
-	int res = node::create();
-
 	pole_status = PS_OK;
 	tilt_angle = 0.0;
 	tilt_direction = 0.0;
@@ -81,9 +108,6 @@ int pole::create(void)
 
 	config = NULL;
 	last_wind_speed = 0.0;
-	wind_speed = NULL;
-	wind_direction = NULL;
-	wind_gust = NULL;
 	last_wind_speed = 0.0;
 	wire_data = new std::list<WIREDATA>;
 	down_time = TS_NEVER;
@@ -93,14 +117,12 @@ int pole::create(void)
 	current_hollow_diameter = 0.0;
 	repair_time = 0.0;
 
-	return res;
+	return 1;
 }
 
 int pole::init(OBJECT *parent)
 {
 	OBJECT *my = THISOBJECTHDR;
-	if ( ! node::init(parent) )
-		return 0;
 
 	// configuration
 	if ( configuration == NULL || ! gl_object_isa(configuration,"pole_configuration") )
@@ -127,6 +149,44 @@ int pole::init(OBJECT *parent)
 		}
 	}
 
+    // weather check
+    if ( weather )
+    {
+        gld_property *wind_speed_ref = new gld_property(get_object(weather),"wind_speed");
+        gld_property *wind_direction_ref = new gld_property(get_object(weather),"wind_direction");
+        gld_property *wind_gusts_ref = new gld_property(get_object(weather),"wind_gusts");
+        if ( ! wind_speed_ref->is_valid() )
+        {
+            gl_warning("weather data does not include wind speed, using local wind speed only");
+            delete wind_speed_ref;
+            wind_speed_ref = NULL;
+        }
+        else if ( wind_speed != 0.0 )
+        {
+            gl_warning("weather data will overwrite local wind speed data");
+        }
+        if ( ! wind_direction_ref->is_valid() )
+        {
+            gl_warning("weather data does not include wind direction, using local wind direction only");
+            delete wind_speed_ref;
+            wind_direction_ref = NULL;
+        }
+        else if ( wind_direction != 0.0 )
+        {
+            gl_warning("weather data will overwrite local wind direction data");
+        }
+        if ( ! wind_gusts_ref->is_valid() )
+        {
+            gl_warning("weather data does not include wind gusts, using local wind gusts only");
+            delete wind_gusts_ref;
+            wind_gusts_ref = NULL;
+        }
+        else if ( wind_gusts != 0.0 )
+        {
+            gl_warning("weather data will overwrite local wind gusts data");
+        }
+    }
+
 	// tilt
 	if ( tilt_angle < 0 || tilt_angle > 90 )
 	{
@@ -136,31 +196,6 @@ int pole::init(OBJECT *parent)
 	if ( tilt_direction < 0 || tilt_direction >= 360 )
 	{
 		gl_error("pole tilt direction is not between 0 and 360 degrees");
-		return 0;
-	}
-
-	// weather
-	if ( weather == NULL || ! gl_object_isa(weather,"climate") )
-	{
-		gl_error("weather is not set to a climate object");
-		return 0;
-	}
-	wind_speed = (double*)gl_get_addr(weather,"wind_speed");
-	if ( wind_speed == NULL )
-	{
-		gl_error("weather object does not provide wind speed data");
-		return 0;
-	}
-	wind_direction = (double*)gl_get_addr(weather,"wind_dir");
-	if ( wind_direction == NULL )
-	{
-		gl_error("weather object does not provide wind direction data");
-		return 0;
-	}
-	wind_gust = (double*)gl_get_addr(weather,"wind_gust");
-	if ( wind_gust == NULL )
-	{
-		gl_error("weather object does not provide wind gust data");
 		return 0;
 	}
 
@@ -264,6 +299,20 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 			- (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
 	verbose("resisting moment %.0f ft*lb",resisting_moment);
 
+    // wind data
+    if ( wind_speed_ref )
+    {
+        wind_speed = wind_speed_ref->get_double();
+    }
+    if ( wind_direction_ref )
+    {
+        wind_direction = wind_direction_ref->get_double();
+    }
+    if ( wind_gusts_ref )
+    {
+        wind_gusts = wind_gusts_ref->get_double();
+    }
+
 	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 
@@ -281,11 +330,11 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		install_year = 1970 + (unsigned int)(t0/86400/365.24);
 
 	}
-	if ( pole_status == PS_OK && last_wind_speed != *wind_speed )
+	if ( pole_status == PS_OK && last_wind_speed != wind_speed )
 	{
 
 		gld_clock dt;
-		wind_pressure = 0.00256*2.24 * (*wind_speed)*(*wind_speed); //2.24 account for m/s to mph conversion
+		wind_pressure = 0.00256*2.24 * (wind_speed)*(wind_speed); //2.24 account for m/s to mph conversion
 		critical_wind_speed = 0.0;
 		double pole_height = config->pole_length - config->pole_depth;
 		pole_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
@@ -305,8 +354,8 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 
 		total_moment = pole_moment + equipment_moment + wire_moment + wire_tension;
 		pole_stress = total_moment/resisting_moment;
-		if ( (*wind_speed) > 0 )
-			susceptibility = 2*(pole_moment+equipment_moment+wire_moment)/resisting_moment/(*wind_speed)/(0.00256)/(2.24);
+		if ( wind_speed > 0.0 )
+			susceptibility = 2*(pole_moment+equipment_moment+wire_moment)/resisting_moment/(wind_speed)/(0.00256)/(2.24);
 		else
 			susceptibility = 0.0;
 		gl_verbose("%s: wind %4.1f psi, pole %4.0f ft*lb, equipment %4.0f ft*lb, wires %4.0f ft*lb, stress %.0f%%",
@@ -323,7 +372,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
                 NR_admit_change = true;
 			}
 		}
-		last_wind_speed = *wind_speed;
+		last_wind_speed = wind_speed;
 
 		pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
@@ -331,73 +380,15 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}
 
-	TIMESTAMP t1 = node::presync(t0);
-	TIMESTAMP t2 = ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
-	return ( t1 > t0 && t2 < t1 ) ? t1 : t2;
+	return ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
 }
 
 TIMESTAMP pole::sync(TIMESTAMP t0)
 {
-	return node::sync(t0);
+	return TS_NEVER;
 }
 
 TIMESTAMP pole::postsync(TIMESTAMP t0)
 {
-	return node::postsync(t0);
-}
-
-EXPORT int create_pole(OBJECT **obj, OBJECT *parent)
-{
-   try
-    {
-        *obj = gl_create_object(pole::oclass);
-        if (*obj!=NULL)
-        {
-            pole *my = OBJECTDATA(*obj,pole);
-            gl_set_parent(*obj,parent);
-            return my->create();
-        }
-        else
-        {
-            return 0;
-        }
-    }
-    CREATE_CATCHALL(pole);
-}
-
-EXPORT int init_pole(OBJECT *obj)
-{
-    try
-    {
-        pole *my = OBJECTDATA(obj,pole);
-        return my->init(obj->parent);
-    }
-    INIT_CATCHALL(pole);
-}
-
-EXPORT int isa_pole(OBJECT *obj, char *classname)
-{
-	return OBJECTDATA(obj,pole)->isa(classname);
-}
-
-EXPORT TIMESTAMP sync_pole(OBJECT *obj, TIMESTAMP t0, PASSCONFIG pass)
-{
-	try {
-		pole *pObj = OBJECTDATA(obj,pole);
-		TIMESTAMP t1 = TS_NEVER;
-		switch ( pass )
-		{
-		case PC_PRETOPDOWN:
-			return pObj->presync(t0);
-		case PC_BOTTOMUP:
-			return pObj->sync(t0);
-		case PC_POSTTOPDOWN:
-			t1 = pObj->postsync(t0);
-			obj->clock = t0;
-			return t1;
-		default:
-			throw "invalid pass request";
-		}
-	}
-	SYNC_CATCHALL(pole);
+	return TS_NEVER;
 }
