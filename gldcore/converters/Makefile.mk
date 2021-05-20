@@ -13,6 +13,7 @@ dist_pkgdata_DATA += gldcore/converters/csv-ica2glm-ica.py
 dist_pkgdata_DATA += gldcore/converters/csv-noaa-weather2glm-weather.py
 dist_pkgdata_DATA += gldcore/converters/csv-onpoint-weather2glm-weather.py
 dist_pkgdata_DATA += gldcore/converters/csv-visualcrossing-weather2glm-weather.py
+dist_pkgdata_DATA += gldcore/converters/csv-table2glm-object.py
 
 # mdb -> glm
 dist_pkgdata_DATA += gldcore/converters/mdb2glm.py
