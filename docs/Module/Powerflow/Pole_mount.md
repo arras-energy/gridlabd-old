@@ -19,14 +19,22 @@ object pole_mount
 # Description
 
 The pole mount object attaches powerflow link objects to pole objects.  The
-parent of a pole mount must be the pole on which the equipment is mounted.
+parent of a `pole_mount` must be the `pole` object on which the equipment is
+mounted.
 
 # Example
 
-The following example illustrates attaching an overhead line to a pole.
+The following example illustrates mounting an overhead line on a pole.
 
 ~~~
 module powerflow;
+object overhead_line
+{
+    name "line123";
+    phases ABC;
+    nominal_voltage 12.47 kV;
+    // etc...
+}
 object pole
 {
     name "pole123";
