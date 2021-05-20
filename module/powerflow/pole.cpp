@@ -25,41 +25,33 @@ pole::pole(MODULE *mod)
 		oclass->trl = TRL_PROTOTYPE;
 		if ( gl_publish_variable(oclass,
 
-			PT_enumeration, "status", PADDR(pole_status), PT_DESCRIPTION, "pole status",
-				PT_KEYWORD, "OK", (enumeration)PS_OK,
-				PT_KEYWORD, "FAILED", (enumeration)PS_FAILED,
+			PT_enumeration, "status", get_pole_status_offset(),
+                PT_KEYWORD, "OK", (enumeration)PS_OK,
+                PT_KEYWORD, "FAILED", (enumeration)PS_FAILED,
+                PT_DEFAULT, "OK",
+                PT_DESCRIPTION, "pole status",
 
-            PT_double, "tilt_angle[rad]", PADDR(tilt_angle), PT_DESCRIPTION, "tilt angle of pole",
+            PT_double, "tilt_angle[rad]", get_tilt_angle_offset(),
+                PT_DEFAULT, "0.0 deg",
+                PT_DESCRIPTION, "tilt angle of pole",
 
-            PT_double, "tilt_direction[deg]", PADDR(tilt_direction), PT_DESCRIPTION, "tilt direction of pole",
+            PT_double, "tilt_direction[deg]", get_tilt_direction_offset(),
+                PT_DEFAULT, "0.0 deg",
+                PT_DESCRIPTION, "tilt direction of pole",
 
-            PT_object, "weather", PADDR(weather), PT_DESCRIPTION, "weather data",
+            PT_object, "weather", get_weather_offset(),
+                PT_DESCRIPTION, "weather data",
 
-            PT_object, "configuration", PADDR(configuration), PT_DESCRIPTION, "configuration data",
+            PT_object, "configuration", get_configuration_offset(),
+                PT_REQUIRED,
+                PT_DESCRIPTION, "configuration data",
 
-            PT_double, "equipment_area[sf]", PADDR(equipment_area), PT_DESCRIPTION, "equipment cross sectional area",
+            PT_int32, "install_year", PADDR(install_year),
+                PT_REQUIRED,
+                PT_DESCRIPTION, "the year of pole was installed",
 
-            PT_double, "equipment_height[ft]", PADDR(equipment_height), PT_DESCRIPTION, "equipment height on pole",
-
-            PT_double, "pole_stress[pu]", PADDR(pole_stress), PT_DESCRIPTION, "ratio of actual stress to critical stress",
-
-            PT_double, "pole_stress_polynomial_a[ft*lb]", PADDR(pole_stress_polynomial_a), PT_DESCRIPTION, "constant a of the pole stress polynomial function",
-
-            PT_double, "pole_stress_polynomial_b[ft*lb]", PADDR(pole_stress_polynomial_b), PT_DESCRIPTION, "constant b of the pole stress polynomial function",
-
-            PT_double, "pole_stress_polynomial_c[ft*lb]", PADDR(pole_stress_polynomial_c), PT_DESCRIPTION, "constant c of the pole stress polynomial function",
-
-            PT_double, "susceptibility[pu*s/m]", PADDR(susceptibility), PT_DESCRIPTION, "susceptibility of pole to wind stress (derivative of pole stress w.r.t wind speed)",
-
-            PT_double, "total_moment[ft*lb]", PADDR(total_moment), PT_DESCRIPTION, "the total moment on the pole.",
-
-            PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment), PT_DESCRIPTION, "the resisting moment on the pole.",
-
-            PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed), PT_DESCRIPTION, "wind speed at pole failure",
-
-            PT_int32, "install_year", PADDR(install_year), PT_DESCRIPTION, "the year of pole was installed",
-
-            PT_double, "repair_time[h]", PADDR(repair_time), PT_DESCRIPTION, "typical repair time after pole failure",
+            PT_double, "repair_time[h]", PADDR(repair_time),
+                PT_DESCRIPTION, "typical repair time after pole failure",
 
             PT_double, "wind_speed[m/s]", get_wind_speed_offset(),
                 PT_DEFAULT, "0 m/s",
@@ -73,6 +65,37 @@ pole::pole(MODULE *mod)
                 PT_DEFAULT, "0 m/s",
                 PT_DESCRIPTION, "local wind gusts",
 
+            PT_double, "pole_stress[pu]", PADDR(pole_stress),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "ratio of actual stress to critical stress",
+
+            PT_double, "pole_stress_polynomial_a[ft*lb]", PADDR(pole_stress_polynomial_a),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "constant a of the pole stress polynomial function",
+            PT_double, "pole_stress_polynomial_b[ft*lb]", PADDR(pole_stress_polynomial_b),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "constant b of the pole stress polynomial function",
+
+            PT_double, "pole_stress_polynomial_c[ft*lb]", PADDR(pole_stress_polynomial_c),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "constant c of the pole stress polynomial function",
+
+            PT_double, "susceptibility[pu*s/m]", PADDR(susceptibility),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "susceptibility of pole to wind stress (derivative of pole stress w.r.t wind speed)",
+
+            PT_double, "total_moment[ft*lb]", PADDR(total_moment),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "the total moment on the pole.",
+
+            PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "the resisting moment on the pole.",
+
+            PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed),
+                PT_OUTPUT,
+                PT_DESCRIPTION, "wind speed at pole failure",
+
             NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 		gl_global_create("powerflow::repair_time[h]",PT_double,&default_repair_time,NULL);
 	}
@@ -80,14 +103,6 @@ pole::pole(MODULE *mod)
 
 int pole::create(void)
 {
-	pole_status = PS_OK;
-	tilt_angle = 0.0;
-	tilt_direction = 0.0;
-	weather = NULL;
-	configuration = NULL;
-	equipment_area = 0.0;
-	equipment_height = 0.0;
-
 	ice_thickness = 0.0;
 	resisting_moment = 0.0;
 	pole_moment = 0.0;
@@ -109,21 +124,14 @@ int pole::create(void)
 	config = NULL;
 	last_wind_speed = 0.0;
 	last_wind_speed = 0.0;
-	wire_data = new std::list<WIREDATA>;
 	down_time = TS_NEVER;
-	equipment_area = 0.0;
-	equipment_height = 0.0;
-	install_year = 0;
 	current_hollow_diameter = 0.0;
-	repair_time = 0.0;
 
 	return 1;
 }
 
 int pole::init(OBJECT *parent)
 {
-	OBJECT *my = THISOBJECTHDR;
-
 	// configuration
 	if ( configuration == NULL || ! gl_object_isa(configuration,"pole_configuration") )
 	{
@@ -206,68 +214,21 @@ int pole::init(OBJECT *parent)
 		* ( config->ground_diameter * config->ground_diameter * config->ground_diameter);
 	verbose("resisting moment %.0f ft*lb",resisting_moment);
 
-	// collect wire data
-	static FINDLIST *all_ohls = NULL;
-	if ( all_ohls == NULL )
-		all_ohls = gl_find_objects(FL_NEW,FT_CLASS,SAME,"overhead_line",FT_END);
-	OBJECT *obj = NULL;
-	int n_lines = 0;
-	while ( ( obj = gl_find_next(all_ohls,obj) ) != NULL )
-	{
-		overhead_line *line = OBJECTDATA(obj,overhead_line);
-		if ( line->from == my || line->to == my )
-		{
-			n_lines++;
-			line_configuration *line_config = OBJECTDATA(line->configuration,line_configuration);
-			if ( line_config == NULL )
-			{
-				warning("line %s has no line configuration--skipping",line->get_name());
-				break;
-			}
-			line_spacing *spacing = OBJECTDATA(line_config->line_spacing,line_spacing);
-			if ( spacing == NULL )
-			{
-				warning("line configure %s has no line spacing data--skipping",line_config->get_name());
-				break;
-			}
-			if ( line->length == 0.0 )
-				warning("wire has no length--wire moment will not be calculated");
-			overhead_line_conductor *phaseA = OBJECTDATA(line_config->phaseA_conductor,overhead_line_conductor);
-			if ( phaseA != NULL )
-				add_wire(line,spacing->distance_AtoE,phaseA->cable_diameter,0.0,4430,line->length/2);
-			overhead_line_conductor *phaseB = OBJECTDATA(line_config->phaseB_conductor,overhead_line_conductor);
-			if ( phaseB != NULL )
-				add_wire(line,spacing->distance_BtoE,phaseB->cable_diameter,0.0,4430,line->length/2);
-			overhead_line_conductor *phaseC = OBJECTDATA(line_config->phaseC_conductor,overhead_line_conductor);
-			if ( phaseC != NULL )
-				add_wire(line,spacing->distance_CtoE,phaseC->cable_diameter,0.0,4430,line->length/2);
-			overhead_line_conductor *phaseN = OBJECTDATA(line_config->phaseN_conductor,overhead_line_conductor);
-			if ( phaseN != NULL )
-				add_wire(line,spacing->distance_NtoE,phaseN->cable_diameter,0.0,2190,line->length/2);
-			verbose("found link %s",(const char*)(line->get_name()));
-		}
-	}
-	if ( wire_data == NULL )
-	{
-		warning("no wire data found--wire loading is not included");
-	}
-	is_deadend = ( n_lines < 2 );
-
 	wire_load = 0.0;
 	wire_moment = 0.0;
 	wire_tension = 0.0;
 	wire_load_nowind = 0.0;
 	wire_moment_nowind = 0.0;
 	double pole_height = config->pole_length - config->pole_depth;
-	for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
-	{
-		double load_nowind = (wire->diameter+2*ice_thickness)/12;
-		wire_load_nowind += load_nowind;
-		wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
-	}
+	// for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
+	// {
+	// 	double load_nowind = (wire->diameter+2*ice_thickness)/12;
+	// 	wire_load_nowind += load_nowind;
+	// 	wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
+	// }
 
 	pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
-	equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
+	// equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
 	pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
 	pole_stress_polynomial_b = 0.0;
 	pole_stress_polynomial_c = wire_tension;
@@ -332,18 +293,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		critical_wind_speed = 0.0;
 		double pole_height = config->pole_length - config->pole_depth;
 		pole_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
-		equipment_moment = wind_pressure * equipment_area * equipment_height * config->overload_factor_transverse_general;
-
-		wire_load = 0.0;
-		wire_moment = 0.0;
-		wire_tension = 0.0;
-		for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
-		{
-			double load = wind_pressure * (wire->diameter+2*ice_thickness)/12;
-			wire_load += load;
-			wire_moment += wire->span * load * wire->height * config->overload_factor_transverse_wire;
-			wire_tension += wire->tension * config->overload_factor_transverse_wire * sin(tilt_angle/2) * wire->height;
-		}
+		// equipment_moment = wind_pressure * equipment_area * equipment_height * config->overload_factor_transverse_general;
 
 		total_moment = pole_moment + equipment_moment + wire_moment + wire_tension;
 		pole_stress = total_moment/resisting_moment;
@@ -362,7 +312,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		last_wind_speed = wind_speed;
 
 		pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
-		equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
+		// equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
 		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}

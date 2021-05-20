@@ -343,7 +343,6 @@ object pole {
 	 configuration "WOOD-C-45/5";
 	 tilt_angle 5 deg;
 	 tilt_direction 270;
-	 equipment_area 4 sf;
 }
 
 object node {
