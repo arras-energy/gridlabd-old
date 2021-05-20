@@ -25,7 +25,7 @@ pole::pole(MODULE *mod)
 		oclass->trl = TRL_PROTOTYPE;
 		if ( gl_publish_variable(oclass,
 
-			PT_enumeration, "pole_status", PADDR(pole_status), PT_DESCRIPTION, "pole status",
+			PT_enumeration, "status", PADDR(pole_status), PT_DESCRIPTION, "pole status",
 				PT_KEYWORD, "OK", (enumeration)PS_OK,
 				PT_KEYWORD, "FAILED", (enumeration)PS_FAILED,
 

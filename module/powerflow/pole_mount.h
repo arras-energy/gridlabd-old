@@ -21,10 +21,16 @@ public:
     GL_ATOMIC(double,direction);
     GL_ATOMIC(double,weight);
     GL_ATOMIC(double,area);
+private:
+    gld_property *pole_status;
+    gld_property *equipment_status;
 public:
 	pole_mount(MODULE *);
 	int create(void);
 	int init(OBJECT *);
+    TIMESTAMP presync(TIMESTAMP);
+    TIMESTAMP sync(TIMESTAMP);
+	TIMESTAMP postsync(TIMESTAMP);
 };
 
 #endif // _POLEMOUNT_H
