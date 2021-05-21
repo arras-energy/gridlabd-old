@@ -2214,15 +2214,34 @@ STATUS object_finalize(OBJECT *obj)
 /** Tests the type of an object
  **/
 int object_isa(OBJECT *obj, /**< the object to test */
-			   const char *type){ /**< the type of test */
-	if(obj == 0){
+			   const char *type,
+			   const char *module) /**< the type of test */
+{
+	if ( obj == NULL )
+	{
 		return 0;
 	}
-	if(strcmp(obj->oclass->name,type) == 0){
+	if ( strcmp(obj->oclass->name,type) == 0 )
+	{
 		return 1;
-	} else if(obj->oclass->isa){
-		return (int)obj->oclass->isa(obj, type);
-	} else {
+	} 
+	else if ( obj->oclass->isa ) 
+	{
+		if ( obj->oclass->isa(obj, type) == 0 )
+		{
+			return 0;
+		}
+		else if ( module == NULL || strcmp(obj->oclass->module->name,module) == 0 )
+		{
+			return 1;
+		}
+		else
+		{
+			return 0;
+		}
+	} 
+	else 
+	{
 		return 0;
 	}
 }
