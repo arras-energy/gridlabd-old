@@ -21,13 +21,14 @@ import sys
 import json
 import math, numpy
 from pandas import DataFrame
+import haversine
 
 #
 # Defaults
 #
 default_options = {
     "units" : "meters",
-    "relative" : False, 
+    "relative" : False,
 }
 
 default_config = {
@@ -80,35 +81,40 @@ def apply(data, options=default_options, config=default_config, warning=print):
 
     # convert lat,lon to address
     try:
-        path = list(zip(data["longitude"],data["latitude"]))
-    except:
+        path = list(zip(data[config["column_names"]["LAT"]],data[config["column_names"]["LON"]],data[config["column_names"]["ID"]]))
+    except Exception as err:
         path = None
     if type(path) == type(None):
-        raise Exception("address resolution requires 'latitude' and 'longitude' fields")
+        raise Exception("distance calculation requires 'latitude', 'longitude', and 'id' fields")
     if len(path) == 0:
         dist = []
     else:
         dist = [0.0]
         pos1 = path[0]
-        last = 0.0
+        lat1 = pos1[0]
+        lon1 = pos1[1]
         if config["method"] == "haversine":
             for pos2 in path[1:]:
-                lat1 = pos1[0]*math.pi/180
-                lat2 = pos2[0]*math.pi/180
-                lon1 = pos1[1]*math.pi/180
-                lon2 = pos2[1]*math.pi/180
-                a = math.sin((lat2-lat1)/2)**2+math.cos(lat1)*math.cos(lat2)*math.sin((lon2-lon1)/2)**2
-                d = 6371e3*(2*numpy.arctan2(numpy.sqrt(a),numpy.sqrt(1-a)))
+                id = pos2[2]
+                lat2 = pos2[0]
+                lon2 = pos2[1]
+                d = haversine.haversine([lat1,lon1],[lat2,lon2],unit=haversine.Unit.METERS)
                 if options["relative"]:
-                    dist.append(d-last)
-                    last = d
+                    if math.isnan(id):
+                        dist.append(d)
+                    else:
+                        lat1 = lat2
+                        lon1 = lon2
+                        dist.append(0.0)
                 else:
-                    dist.append(d)
+                    lat1 = lat2
+                    lon1 = lon2
+                    dist.append(d+dist[-1])
         else:
             raise Exception(f"method '{config[method]}' is not recognized")
         try:
             global valid_units
-            data["distance"] = (numpy.array(dist) * valid_units[options["units"]]).round(options["precision"]["distance"])
+            data[config["column_names"]["DIST"]] = (numpy.array(dist) * valid_units[options["units"]]).round(options["precision"]["distance"])
         except:
             raise Exception(f"unit '{options['units']}' is not recognized")
     return data
