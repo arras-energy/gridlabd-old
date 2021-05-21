@@ -892,8 +892,8 @@ def set_distance(data):
                 segs = dist/OPTIONS['resolution']
                 dlat = (p0-last[0])/segs
                 dlon = (p1-last[1])/segs
-            else:
-                dist = 0.0
+                lat = last[0]
+                lon = last[1]
         else:
             lat = p0
             lon = p1
