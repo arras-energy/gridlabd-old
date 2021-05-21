@@ -527,6 +527,15 @@ DEPRECATED static int version(void *main, int argc, const char *argv[])
 }
 int GldCmdarg::version(int argc, const char *argv[])
 {
+	if ( argv[0][9] == '=' && argv[0][10] == '-' )
+	{
+		if ( version_check(argv[0]+10) )
+		{
+			return CMDOK;
+		} 
+		output_error("version '%s' does not satisfy the version requirement '%s'",VERSION,argv[0]+10);
+		return CMDERR;
+	}
 	const char *opt = strchr(argv[0],'=');
 	if ( opt++ == NULL )
 	{
@@ -2274,14 +2283,17 @@ DEPRECATED static CMDARG main_commands[] = {
 
 int GldCmdarg::runoption(const char *value)
 {
-	int i, n;
-	char option[64], params[1024]="";
-	if ( (n=sscanf(value,"%63s %1023[^\n]", option,params))>0 )
+	int i;
+	char buffer[1024];
+	strcpy(buffer,value);
+	int m = strcspn(buffer," \t");
+	char *args[2] = {buffer,buffer[m]=='\0'?NULL:buffer+m+1};
+	buffer[m] = '\0';
+	for ( i=0 ; i<(int)(sizeof(main_commands)/sizeof(main_commands[0])) ; i++ )
 	{
-		for ( i=0 ; i<(int)(sizeof(main_commands)/sizeof(main_commands[0])) ; i++ )
+		if ( main_commands[i].lopt!=NULL && strcmp(main_commands[i].lopt,args[0])==0 )
 		{
-			if ( main_commands[i].lopt!=NULL && strcmp(main_commands[i].lopt,option)==0 )
-				return main_commands[i].call(instance,n,(const char**)&params);
+			return main_commands[i].call(instance,args[1]==NULL?1:2,(const char**)args);
 		}
 	}
 	return 0;
