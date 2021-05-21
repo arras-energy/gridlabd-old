@@ -9,7 +9,7 @@ function error()
 }
 
 case "$1" in
---dryrun) 
+--dryrun)
 	ACTION="echo"
 	shift 1
 	;;
@@ -140,10 +140,40 @@ function version-delete()
 function version-list()
 {
 	if [ $# -eq 0 ]; then
-		basename /usr/local/opt/gridlabd/* | grep -v '^current$'
-	else
-		basename /usr/local/opt/gridlabd/*$1*
+        for D in $(basename /usr/local/opt/gridlabd/*); do
+            if [ "$D" != "current" -a -x "/usr/local/opt/gridlabd/$D/bin/gridlabd.bin" ]; then
+                echo $D
+            fi
+        done
+	elif [ "$1" == "-l" ]; then
+        longlist $2
+    else
+        for D in $(basename /usr/local/opt/gridlabd/*$1*); do
+            if [ "$D" != "current" -a -x "/usr/local/opt/gridlabd/$D/bin/gridlabd.bin" ]; then
+                echo $D
+            fi
+        done
 	fi
+}
+
+function longlist()
+{
+    if [ $# -eq 0 ]; then
+		LIST=$(basename /usr/local/opt/gridlabd/* | grep -v '^current$')
+	else
+		LIST=$(basename /usr/local/opt/gridlabd/*$1*)
+	fi
+    echo "total$(du -sh /usr/local/opt/gridlabd | cut -c1-4)"
+    for D in $LIST; do
+        if [ -x "/usr/local/opt/gridlabd/$D/bin/gridlabd.bin" ]; then
+            NAME=$(basename $D)
+            VERSION=$(echo $NAME | cut -f1 -d-)
+            BUILD=$(echo $NAME | cut -f2 -d-)
+            BRANCH=$(echo $NAME | cut -f3 -d-)
+            SIZE=$(du -sh /usr/local/opt/gridlabd/$D | cut -c1-4)
+            echo "$VERSION $BUILD $SIZE $BRANCH"
+        fi
+    done
 }
 
 if [ $# -eq 0 ]; then
