@@ -1,11 +1,9 @@
-"""TODO"""
+"""Generate 1/10 deg tile from 1 deg tiles for North America vegetation data"""
 import os
 import requests
 import math
 from PIL import Image
 import numpy
-
-vegetation_data = {}
 
 default_options = {
     "year" : 2020,
@@ -60,65 +58,67 @@ def get_imagedata(layer, pos, scale, repourl, cachedir,
         vegetation (nparray) The vegetation data from the image
     """
     tifname = get_imagename(layer,pos,scale)
-    global vegetation_data
     os.makedirs(f"{cachedir}/{year}/{layer}",exist_ok=True)
-    if not tifname in vegetation_data.keys():
-        srcname = f"{repourl}/{year}/{tifname}.tif"
-        dstname = f"{cachedir}/{year}/{tifname}.tif"
-        if not os.path.exists(dstname):
-            print(f"Downloading {year}/{tifname}.tif...",flush=True)
-            response = requests.get(srcname,stream=True)
-            if response.status_code != 200:
-                raise Exception(f"'GET {srcname}' --> HTTP error code {response.status_code}")
-            try:
-                with open(dstname,"wb") as fh:
-                    for chunk in response.iter_content(chunk_size=10*1024*1024):
-                        if chunk:
-                            fh.write(chunk)
-            except:
-                os.remove(dstname)
-        Image.MAX_IMAGE_PIXELS = maximum_image_size
-        img = Image.open(dstname)
-        data = numpy.array(img)
+    srcname = f"{repourl}/{year}/{tifname}.tif"
+    dstname = f"{cachedir}/{year}/{tifname}.tif"
+    if not os.path.exists(dstname):
+        print(f"Downloading {year}/{tifname}.tif...",flush=True)
+        response = requests.get(srcname,stream=True)
+        if response.status_code != 200:
+            raise Exception(f"'GET {srcname}' --> HTTP error code {response.status_code}")
         try:
-            if len(data) != 3600/scale:
-                print(f"WARNING: {year}/{tifname}.tif is not the correct size for scale={scale}, size={len(data)}x{len(data[0])}",flush=True)
+            with open(dstname,"wb") as fh:
+                for chunk in response.iter_content(chunk_size=10*1024*1024):
+                    if chunk:
+                        fh.write(chunk)
         except:
             os.remove(dstname)
-            if not_again:
-                print(f"ERROR: {year}/{tifname}.tif is not a valid vegetation data file",flush=True)
-                raise
-            else:
-                pass
-                return get_imagedata(layer,pos,scale,repourl,cachedir,year,maximum_image_size,notagain=True)
-        vegetation_data[tifname] = data
-    return tifname, vegetation_data[tifname]
+    Image.MAX_IMAGE_PIXELS = maximum_image_size
+    img = Image.open(dstname)
+    data = numpy.array(img)
+    try:
+        if len(data) != 3600/scale:
+            print(f"WARNING: {year}/{tifname}.tif is not the correct size for scale={scale}, size={len(data)}x{len(data[0])}",flush=True)
+    except:
+        os.remove(dstname)
+        if not_again:
+            print(f"ERROR: {year}/{tifname}.tif is not a valid vegetation data file",flush=True)
+            raise
+        else:
+            pass
+            return get_imagedata(layer,pos,scale,repourl,cachedir,year,maximum_image_size,notagain=True)
+    return tifname, data
 
+lat_range = range(25,50)
+lon_range = range(-135,-65)
 for layer in ["base","cover","height"]:
-    lat = 37.0
-    lon = -123.0
-    print(f"Processing {layer}...",flush=True)
-    name,tile = get_imagedata(layer, pos = (37.420457,-122.204568), scale = 1.0,
-            repourl = "http://geodata.gridlabd.us/vegetation",
-            cachedir = "/usr/local/share/gridlabd/geodata/vegetation")
-    width = len(tile)
-    height = len(tile[0])
-    missing = 0
-    for row in range(height):
-        missing += len(numpy.where(tile[row]==255))
-    if missing > 0:
-        print(f"WARNING: missing data found in {name}.tif")
-    for row in range(10):
-        for col in range(10):
-            slat = lat+row/10
-            slon = lon+col/10
-            name = get_imagename(layer, pos=(slat,slon), scale=0.1)
-            print(f"Saving {name}.tif...",flush=True)
-            left = int(col*width/10)
-            right = int(left+width/10+1)
-            bottom = int(row*height/10)
-            top = int(bottom+height/10+1)
-            # print(f"{name}: left={left}, right={right}, bottom={bottom}, top={top}")
-            img = Image.fromarray(tile[left:right,bottom:top])
-            img.save(f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif")
+    for lat in lat_range:
+        for lon in lon_range:
+            name = get_imagename(layer,pos=(lat,lon),scale=1.0)
+            if not os.path.exists(f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif"):
+                continue
+            print(f"Processing {layer}...",flush=True)
+            name,tile = get_imagedata(layer, pos = (37.420457,-122.204568), scale = 1.0,
+                    repourl = "http://geodata.gridlabd.us/vegetation",
+                    cachedir = "/usr/local/share/gridlabd/geodata/vegetation")
+            width = len(tile)
+            height = len(tile[0])
+            missing = 0
+            for row in range(height):
+                missing += len(numpy.where(tile[row]==255))
+            if missing > 0:
+                print(f"WARNING: missing data found in {name}.tif")
+            for row in range(10):
+                for col in range(10):
+                    slat = lat+row/10
+                    slon = lon+col/10
+                    name = get_imagename(layer, pos=(slat,slon), scale=0.1)
+                    print(f"Saving {name}.tif...",flush=True)
+                    left = int(col*width/10)
+                    right = int(left+width/10+1)
+                    bottom = int(row*height/10)
+                    top = int(bottom+height/10+1)
+                    # print(f"{name}: left={left}, right={right}, bottom={bottom}, top={top}")
+                    img = Image.fromarray(tile[left:right,bottom:top])
+                    img.save(f"/usr/local/share/gridlabd/geodata/vegetation/2020/{name}.tif")
 
