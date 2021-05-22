@@ -49,6 +49,21 @@ units = {
     "feet" : 3.28083888,
 }
 
+def process_base(data):
+    return data
+
+def process_cover(data):
+    return data/100.0
+
+def process_height(data):
+    return data
+
+layer_process = {
+    "base" : process_base,
+    "cover" : process_cover,
+    "height" : process_height,
+}
+
 def apply(data, options=default_options, config=default_config, warning=print):
     """Get the vegetation at the locations specified in data
 
@@ -136,6 +151,7 @@ def get_vegetation(pos,
     result = {}
     for layer in layers:
         name,data = get_imagedata(layer,pos,repourl,cachedir,year)
+        data = layer_process[layer](data)
         row,col = get_rowcol(pos,data)
         result[layer] = [data[row][col]]
 
