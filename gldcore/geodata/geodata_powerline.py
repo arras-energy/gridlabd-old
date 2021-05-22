@@ -100,6 +100,7 @@ import numpy as np
 from PIL import Image
 import pandas
 import json
+from IPython.display import display
 
 def TODO(value=float('nan')):
     """TODO default function -- this should never be called in the final product"""
@@ -274,7 +275,6 @@ def linesag(data):
 
     data['linesag'] = float('nan') # default result
     result = data['linesag'].to_dict()
-
     # read cable specs from cable type
     global OPTIONS
     if not 'cable_type' in data.columns and not 'cable_type' in OPTIONS.keys():
@@ -371,15 +371,15 @@ def linesag(data):
                 # compute linesag at waypoints
                 for n,l in ld.items():
                     p = [l['latitude'],l['longitude']]
-                    d_hori = get_distance(p0,p)
+                    d_hori = get_distance(p0,p1)
                     try:
                         elevation = l['elevation']
                     except:
                         pass
                     sag = get_sag_value(d_hori,line,cable,p0,p,z0,z1,
                         power_flow,global_horizontal_irradiance,ground_reflectance,
-                        ice_thickness,wind_direction,air_temperature,wind_speed,ice_density) \
-                        - elevation
+                        ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
+                    sag = sag - elevation
                     result[n] = sag
 
                 # reset for next segment
@@ -389,7 +389,6 @@ def linesag(data):
 
 
         elif p0: # continue a line segment
-
             # end last segment
             ld[id] = line
 
@@ -406,6 +405,7 @@ def linesag(data):
 def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
         power_flow,global_horizontal_irradiance,ground_reflectance,
         ice_thickness,wind_direction,air_temperature,wind_speed,ice_density):
+    # p1 is the location (lat, lon) of interested point, while p0 is the previous pole
     """Calculate line sag values"""
     global OPTIONS
     d_vert = abs(z0-z1)
@@ -473,18 +473,19 @@ def get_sag_value(d_hori,line,cable,p0,p1,z0,z1,
     #
     sag_load = total_unit_weight*span*span/(8*H_load)
     sag_angle = atan(wind_unit_weight/(ice_unit_weight+unit_weight))
+    C_catenary = H_load / (ice_unit_weight+unit_weight)
     if z0 > z1:
         d0_hori = d_hori*(1+d_vert/(4*sag_load))/2
-        d1_hori = d_hori - d0_hori
-        sag1 = total_unit_weight*d1_hori**2 /(2*H_load)
-        sag_elevation = z1-sag1*cos(sag_angle)
-        dt = get_distance(p0,[p0[0]+d0_hori*(p1[0]-p0[0])/d_hori,p0[1]+d0_hori*(p1[1]-p0[1])/d_hori])
+        sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
+        dt = get_distance(p0,p1)
+        sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
+        sag_elevation = z0 - sag0_cosh*cos(sag_angle)
     else:
         d0_hori = d_hori*(1-d_vert/(4*sag_load))/2
-        d1_hori = d_hori - d0_hori
         sag0 = total_unit_weight*d0_hori**2 /(2*H_load)
-        sag_elevation = z0-sag0*cos(sag_angle)
-        dt = get_distance(p0,[p0[1]+d0_hori*(p1[0]-p0[0])/d_hori,p0[1]+d0_hori*(p1[1]-p0[1])/d_hori])
+        dt = get_distance(p0,p1)
+        sag0_cosh = sag0 - C_catenary*(np.cosh((dt-d0_hori)/C_catenary)-1)
+        sag_elevation = z0 - sag0_cosh*cos(sag_angle)
     result = sag_elevation[0]
     # print(f"get_sag_value(d_hori={round(d_hori).__repr__()},p0={p0.__repr__()},p1={p1.__repr__()},z0={z0.__repr__()},z1={z1.__repr__()},...) --> {result}")
     return result
