@@ -76,7 +76,7 @@ int pole_mount::init(OBJECT *parent)
     }
     else
     {
-        equipment_is_line = get_object(get_equipment())->isa("line")
+        equipment_is_line = get_object(get_equipment())->isa("line");
     }
 
     pole_status = new gld_property(parent,"status");
@@ -134,14 +134,14 @@ TIMESTAMP pole_mount::presync(TIMESTAMP t0)
 TIMESTAMP pole_mount::sync(TIMESTAMP t0)
 {
     //  - pole_mount    update moment accumulators
-    // TODO
 
-    // for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
-	// {
-	// 	double load_nowind = (wire->diameter+2*ice_thickness)/12;
-	// 	wire_load_nowind += load_nowind;
-	// 	wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
-	// }
+    if ( equipment_is_line )
+    {
+        pole *parent_pole = (pole*)GETOBJECTDATA(parent);
+		// double load_nowind = (wire->diameter+2*ice_thickness)/12;
+		// wire_load_nowind += load_nowind;
+		// wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
+	}
 
     return TS_NEVER;
 }

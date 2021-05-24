@@ -103,5 +103,5 @@ AS_IF([test -f "${pkgdatadir}/gridlabd.rc"],
   [])
 
 AS_IF([test -x "${bindir}/gridlabd-$1"],
-  ["${bindir}/gridlabd"-$@],
+  ["${bindir}/gridlabd"-"$@""],
   ["$bindir/gridlabd.bin" "$@"])

@@ -2,6 +2,8 @@
 # INPUT CONVERTERS
 #
 
+python_requirements += gldcore/converters/requirements.txt
+
 # csv -> glm
 dist_pkgdata_DATA += gldcore/converters/csv2glm.py
 dist_pkgdata_DATA += gldcore/converters/csv-ceus2glm-ceus.py
@@ -12,6 +14,7 @@ dist_pkgdata_DATA += gldcore/converters/csv-scada2glm-ceus.py
 dist_pkgdata_DATA += gldcore/converters/csv-ica2glm-ica.py
 dist_pkgdata_DATA += gldcore/converters/csv-noaa-weather2glm-weather.py
 dist_pkgdata_DATA += gldcore/converters/csv-onpoint-weather2glm-weather.py
+dist_pkgdata_DATA += gldcore/converters/csv-table2glm-library.py
 dist_pkgdata_DATA += gldcore/converters/csv-visualcrossing-weather2glm-weather.py
 dist_pkgdata_DATA += gldcore/converters/csv-table2glm-object.py
 
