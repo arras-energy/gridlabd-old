@@ -35,7 +35,6 @@ private:
 	gld_property *wind_direction_ref;
 	gld_property *wind_gusts_ref;
 private:
-	double ice_thickness;
 	double resisting_moment; 	// (see Section B)
 	double pole_moment;		// (see Section D)
 	double pole_moment_nowind; // wire moment without the wind component for wind speed at failure calc
@@ -64,6 +63,7 @@ public:
 	pole(MODULE *);
 	int create(void);
 	int init(OBJECT *);
+    TIMESTAMP precommit(TIMESTAMP);
 	TIMESTAMP presync(TIMESTAMP);
 	TIMESTAMP sync(TIMESTAMP);
 	TIMESTAMP postsync(TIMESTAMP);
