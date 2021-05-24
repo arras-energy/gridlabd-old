@@ -55,6 +55,7 @@ private:
 	double critical_wind_speed;
 	bool is_deadend;
 	double current_hollow_diameter;
+    void reset_accumulators();
 private:
 	class pole_configuration *config;
 	double last_wind_speed;
@@ -67,6 +68,7 @@ public:
 	TIMESTAMP presync(TIMESTAMP);
 	TIMESTAMP sync(TIMESTAMP);
 	TIMESTAMP postsync(TIMESTAMP);
+    TIMESTAMP commit(TIMESTAMP,TIMESTAMP);
 };
 
 #endif // _POLE_H

@@ -1,5 +1,28 @@
 // powerflow/pole.cpp
 // Copyright (C) 2018, Regents of the Leland Stanford Junior University
+//
+// Processing sequence for pole failure analysis:
+//
+// Commit (random):
+//  - pole          update weather/degredation/resisting moment
+//  - pole_mount    get initial equipment status
+//
+// Presync (top-down):
+//  - pole          initialize moment accumulators,
+//  - pole_mount    set interim equipment status
+//
+// Sync (bottom-up)
+//  - pole_mount    update moment accumulators
+//  - pole          (nop)
+//
+// Postsync (top-down):
+//  - pole          calculate total moment and failure status
+//  - pole_mount    set interim equipment status
+//
+// Commit (random):
+//  - pole          finalize pole status
+//  - pole_mount    finalize equipment status
+//
 
 #include "powerflow.h"
 using namespace std;
@@ -8,6 +31,7 @@ EXPORT_CREATE(pole)
 EXPORT_INIT(pole)
 EXPORT_PRECOMMIT(pole)
 EXPORT_SYNC(pole)
+EXPORT_COMMIT(pole)
 
 CLASS *pole::oclass = NULL;
 CLASS *pole::pclass = NULL;
@@ -20,7 +44,7 @@ pole::pole(MODULE *mod)
 	if ( oclass == NULL )
 	{
 		pclass = node::oclass;
-		oclass = gl_register_class(mod,"pole",sizeof(pole),PC_PRETOPDOWN|PC_UNSAFE_OVERRIDE_OMIT|PC_AUTOLOCK);
+		oclass = gl_register_class(mod,"pole",sizeof(pole),PC_PRETOPDOWN|PC_BOTTOMUP|PC_POSTTOPDOWN|PC_UNSAFE_OVERRIDE_OMIT|PC_AUTOLOCK);
 		if ( oclass == NULL )
 			throw "unable to register class pole";
 		oclass->trl = TRL_PROTOTYPE;
@@ -118,9 +142,9 @@ pole::pole(MODULE *mod)
 	}
 }
 
-int pole::create(void)
+void pole::reset_accumulators()
 {
-	resisting_moment = 0.0;
+    resisting_moment = 0.0;
 	pole_moment = 0.0;
     pole_moment_nowind = 0.0;
 	equipment_moment = 0.0;
@@ -132,18 +156,21 @@ int pole::create(void)
 	wind_pressure = 0.0;
 	wire_tension = 0.0;
 	pole_stress = 0.0;
-	susceptibility = 0.0;
-	total_moment = 0.0;
-	critical_wind_speed = 0.0;
+    total_moment = 0.0;
+    critical_wind_speed = 0.0;
+    susceptibility = 0.0;
+}
+
+int pole::create(void)
+{
 	configuration = NULL;
 	is_deadend = FALSE;
-
 	config = NULL;
 	last_wind_speed = 0.0;
 	last_wind_speed = 0.0;
 	down_time = TS_NEVER;
 	current_hollow_diameter = 0.0;
-
+    reset_accumulators();
 	return 1;
 }
 
@@ -232,18 +259,8 @@ int pole::init(OBJECT *parent)
 	verbose("resisting moment %.0f ft*lb",resisting_moment);
 
 	double pole_height = config->pole_length - config->pole_depth;
-	// for ( std::list<WIREDATA>::iterator wire = wire_data->begin() ; wire != wire_data->end() ; wire++ )
-	// {
-	// 	double load_nowind = (wire->diameter+2*ice_thickness)/12;
-	// 	wire_load_nowind += load_nowind;
-	// 	wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
-	// }
 
 	pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
-	// equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
-	pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
-	pole_stress_polynomial_b = 0.0;
-	pole_stress_polynomial_c = wire_tension;
 
 	if ( install_year > gl_globalclock )
 		warning("pole install year in the future are assumed to be current time");
@@ -286,30 +303,33 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         wind_gusts = wind_gusts_ref->get_double();
     }
 
-    // reset accumulators for pole_mount inputs during presync
-    resisting_moment = 0.0;
-	pole_moment = 0.0;
-    pole_moment_nowind = 0.0;
-	equipment_moment = 0.0;
-	equipment_moment_nowind = 0.0;
-	wire_load = 0.0;
-	wire_load_nowind = 0.0;
-	wire_moment = 0.0;
-	wire_moment_nowind = 0.0;
-	wind_pressure = 0.0;
-	wire_tension = 0.0;
-	pole_stress = 0.0;
-	total_moment = 0.0;
-	critical_wind_speed = 0.0;
     return TS_NEVER;
 }
 
 TIMESTAMP pole::presync(TIMESTAMP t0)
 {
+    reset_accumulators();
+
+    // equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
+	pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
+	pole_stress_polynomial_b = 0.0;
+	pole_stress_polynomial_c = wire_tension;
 	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 
-	if ( pole_status == PS_FAILED && (gl_globalclock-down_time)/3600.0 > repair_time )
+	return ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
+}
+
+TIMESTAMP pole::sync(TIMESTAMP t0)
+{
+    //  - pole          (nop)
+	return TS_NEVER;
+}
+
+TIMESTAMP pole::postsync(TIMESTAMP t0)
+{
+    //  - pole          calculate total moment and failure status
+    if ( pole_status == PS_FAILED && (gl_globalclock-down_time)/3600.0 > repair_time )
 	{
 		gl_debug("pole repaired");
 		tilt_angle = 0.0;
@@ -349,15 +369,12 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}
 
-	return ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
-}
-
-TIMESTAMP pole::sync(TIMESTAMP t0)
-{
 	return TS_NEVER;
 }
 
-TIMESTAMP pole::postsync(TIMESTAMP t0)
+TIMESTAMP pole::commit(TIMESTAMP t1, TIMESTAMP t2)
 {
+    //  - pole          finalize pole status
+    // TODO
 	return TS_NEVER;
 }

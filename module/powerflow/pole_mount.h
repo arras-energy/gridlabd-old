@@ -24,13 +24,16 @@ public:
 private:
     gld_property *pole_status;
     gld_property *equipment_status;
+    bool equipment_is_line;
 public:
 	pole_mount(MODULE *);
 	int create(void);
 	int init(OBJECT *);
+    TIMESTAMP precommit(TIMESTAMP);
     TIMESTAMP presync(TIMESTAMP);
     TIMESTAMP sync(TIMESTAMP);
 	TIMESTAMP postsync(TIMESTAMP);
+    TIMESTAMP commit(TIMESTAMP,TIMESTAMP);
 };
 
 #endif // _POLEMOUNT_H
