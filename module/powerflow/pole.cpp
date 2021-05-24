@@ -37,6 +37,9 @@ CLASS *pole::oclass = NULL;
 CLASS *pole::pclass = NULL;
 pole *pole::defaults = NULL;
 
+static char32 wind_speed_name = "wind_speed";
+static char32 wind_dir_name = "wind_dir";
+static char32 wind_gust_name = "wind_gust";
 static double default_repair_time = 24.0;
 
 pole::pole(MODULE *mod)
@@ -139,24 +142,26 @@ pole::pole(MODULE *mod)
 
             NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 		gl_global_create("powerflow::repair_time[h]",PT_double,&default_repair_time,NULL);
+        gl_global_create("powerflow::wind_speed_name",PT_char32,&wind_speed_name,NULL);
+        gl_global_create("powerflow::wind_dir_name",PT_char32,&wind_dir_name,NULL);
+        gl_global_create("powerflow::wind_gust_name",PT_char32,&wind_gust_name,NULL);
 	}
 }
 
 void pole::reset_accumulators()
 {
-    resisting_moment = 0.0;
-	pole_moment = 0.0;
-    pole_moment_nowind = 0.0;
 	equipment_moment = 0.0;
 	equipment_moment_nowind = 0.0;
 	wire_load = 0.0;
 	wire_load_nowind = 0.0;
 	wire_moment = 0.0;
 	wire_moment_nowind = 0.0;
-	wind_pressure = 0.0;
 	wire_tension = 0.0;
-	pole_stress = 0.0;
     total_moment = 0.0;
+    wind_pressure = 0.0;
+    pole_moment = 0.0;
+    pole_moment_nowind = 0.0;
+    pole_stress = 0.0;
     critical_wind_speed = 0.0;
     susceptibility = 0.0;
 }
@@ -171,6 +176,9 @@ int pole::create(void)
 	down_time = TS_NEVER;
 	current_hollow_diameter = 0.0;
     reset_accumulators();
+    wind_speed_ref = NULL;
+    wind_direction_ref = NULL;
+    wind_gusts_ref = NULL;
 	return 1;
 }
 
@@ -204,12 +212,10 @@ int pole::init(OBJECT *parent)
     // weather check
     if ( weather )
     {
-        gld_property *wind_speed_ref = new gld_property(get_object(weather),"wind_speed");
-        gld_property *wind_direction_ref = new gld_property(get_object(weather),"wind_direction");
-        gld_property *wind_gusts_ref = new gld_property(get_object(weather),"wind_gusts");
+        wind_speed_ref = new gld_property(weather,(const char*)wind_speed_name);
         if ( ! wind_speed_ref->is_valid() )
         {
-            warning("weather data does not include wind %s, using local wind data only","speed");
+            warning("weather data does not include %s, using local wind %s data only",(const char*)wind_speed_name,"speed");
             delete wind_speed_ref;
             wind_speed_ref = NULL;
         }
@@ -217,19 +223,23 @@ int pole::init(OBJECT *parent)
         {
             warning("weather data will overwrite local wind %s data","speed");
         }
+
+        wind_direction_ref = new gld_property(weather,(const char*)wind_dir_name);
         if ( ! wind_direction_ref->is_valid() )
         {
-            warning("weather data does not include wind %s, using local wind data only","direction");
-            delete wind_speed_ref;
+            warning("weather data does not include %s, using local wind %s data only",(const char*)wind_dir_name,"direction");
+            delete wind_direction_ref;
             wind_direction_ref = NULL;
         }
         else if ( wind_direction != 0.0 )
         {
             warning("weather data will overwrite local wind %s data","direction");
         }
+
+        wind_gusts_ref = new gld_property(weather,(const char*)wind_gust_name);
         if ( ! wind_gusts_ref->is_valid() )
         {
-            warning("weather data does not include wind %s, using local wind data only","gusts");
+            warning("weather data does not include %s, using local wind %s data only",(const char*)wind_gust_name,"gusts");
             delete wind_gusts_ref;
             wind_gusts_ref = NULL;
         }
@@ -270,6 +280,8 @@ int pole::init(OBJECT *parent)
 
 TIMESTAMP pole::precommit(TIMESTAMP t0)
 {
+    resisting_moment = 0.0;
+
     // update pole degradation model
 	if ( install_year > 0 )
 	{
@@ -289,6 +301,11 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
 			- (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
 	verbose("resisting moment %.0f ft*lb",resisting_moment);
 
+    return TS_NEVER;
+}
+
+TIMESTAMP pole::presync(TIMESTAMP t0)
+{
     // wind data
     if ( wind_speed_ref )
     {
@@ -303,19 +320,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         wind_gusts = wind_gusts_ref->get_double();
     }
 
-    return TS_NEVER;
-}
-
-TIMESTAMP pole::presync(TIMESTAMP t0)
-{
     reset_accumulators();
-
-    // equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
-	pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
-	pole_stress_polynomial_b = 0.0;
-	pole_stress_polynomial_c = wire_tension;
-	double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
-	critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 
 	return ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
 }
@@ -342,7 +347,6 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
 	{
 		gld_clock dt;
 		wind_pressure = 0.00256*2.24 * (wind_speed)*(wind_speed); //2.24 account for m/s to mph conversion
-		critical_wind_speed = 0.0;
 		double pole_height = config->pole_length - config->pole_depth;
 		pole_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		// equipment_moment = wind_pressure * equipment_area * equipment_height * config->overload_factor_transverse_general;
@@ -368,6 +372,11 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
 		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}
+
+    // equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
+	pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
+	pole_stress_polynomial_b = 0.0;
+	pole_stress_polynomial_c = wire_tension;
 
 	return TS_NEVER;
 }

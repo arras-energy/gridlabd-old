@@ -137,7 +137,8 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
 
     if ( equipment_is_line )
     {
-        pole *parent_pole = (pole*)GETOBJECTDATA(parent);
+        pole *parent_pole = OBJECTDATA(my()->parent,pole);
+        warning("unable to update pole %s with line loading data",parent_pole->get_name());
 		// double load_nowind = (wire->diameter+2*ice_thickness)/12;
 		// wire_load_nowind += load_nowind;
 		// wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;

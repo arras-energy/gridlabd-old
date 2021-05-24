@@ -10,7 +10,7 @@
 
 #include <list>
 
-class pole : gld_object
+class pole : public gld_object
 {
 public:
 	static CLASS *oclass;
