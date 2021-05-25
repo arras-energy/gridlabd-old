@@ -143,6 +143,12 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
 		// wire_load_nowind += load_nowind;
 		// wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
 	}
+    else
+    {
+        // TODO
+        // equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
+        // equipment_moment = wind_pressure * equipment_area * equipment_height * config->overload_factor_transverse_general;
+    }
 
     return TS_NEVER;
 }

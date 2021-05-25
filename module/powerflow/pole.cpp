@@ -59,7 +59,7 @@ pole::pole(MODULE *mod)
                 PT_DEFAULT, "OK",
                 PT_DESCRIPTION, "pole status",
 
-            PT_double, "tilt_angle[rad]", get_tilt_angle_offset(),
+            PT_double, "tilt_angle[deg]", get_tilt_angle_offset(),
                 PT_DEFAULT, "0.0 deg",
                 PT_DESCRIPTION, "tilt angle of pole",
 
@@ -352,7 +352,12 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
             double D1_3 = config->top_diameter*config->top_diameter*config->top_diameter/1728;
             double D0_3 = config->ground_diameter*config->ground_diameter*config->ground_diameter/1728;
             double H_4 = pole_height*pole_height*pole_height*pole_height;
-            pole_moment = config->material_density/48*PI*H_4*9.8*sin(tilt_angle)*(D1_3-D0_3)*cos(tilt_angle);
+            pole_moment = PI/96*config->material_density*H_4*9.8*sin(tilt_angle/180*PI)*abs(D0_3-D1_3) * 0.13/3.28; // convert metric parts to english
+            // // crude calculation that should be close to above results for small tilt angles
+            // double r0 = config->top_diameter/2;
+            // double r1 = config->ground_diameter/2;
+            // double r2 = (r0+r1)/2;
+            // pole_moment = (0.5*sin(tilt_angle/180*PI)*pole_height)*(config->material_density*PI*(r2*r2)*9.8*pole_height);
         }
         else
         {

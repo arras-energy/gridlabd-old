@@ -37,10 +37,15 @@ The following creates a CSV file and prints it in human readable table format:
 import sys, os
 import pandas
 
-pandas.set_option("display.max_rows",None)
-pandas.set_option("display.width",None)
-pandas.set_option("display.max_columns",None)
-pandas.set_option("display.max_colwidth",None)
+sys.path.append(f".")
+sys.path.append(f"{os.getenv('HOME')}/.gridlabd")
+sys.path.append(f"{os.getenv('GLD_ETC')}/gridlabd")
+try:
+    import gridlabd_pandas_config
+    for option, value in gridlabd_pandas_config.pandas_options.items():
+        pandas.set_option(option,value)
+except ModuleNotFoundError:
+    pass
 
 read_opts = {}
 read_function = pandas.read_csv
