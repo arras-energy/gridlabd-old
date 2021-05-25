@@ -58,6 +58,7 @@ public: // wood pole model parameters
 	double wire_height_P;
 	double wire_height_T;
 	double degradation_rate;
+    double material_density;
 	typedef enum {
 		PTM_NONE = 0,
 		PTM_CREOSOTE = 1,

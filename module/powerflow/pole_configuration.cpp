@@ -72,6 +72,9 @@ pole_configuration::pole_configuration(MODULE *mod) : powerflow_library(mod)
 				PT_KEYWORD, "CREOSOTE", (enumeration)PTM_CREOSOTE,
 				PT_KEYWORD, "PENTA", (enumeration)PTM_PENTA,
 				PT_KEYWORD, "CCA", (enumeration)PTM_CCA,
+            PT_double, "material_density[lb/cf]", PADDR(material_density),
+                PT_DEFAULT, "35 lb/cf",
+                PT_DESCRIPTION, "pole material density",
             NULL) < 1) GL_THROW("unable to publish pole_configuration properties in %s",__FILE__);
         GLOBALVAR *var = gl_global_create("powerflow::climate_impact_zone", PT_enumeration, &climate_impact_zone, PT_DESCRIPTION, "pole deterioration climate impact zone", NULL);
         if ( ! var )
