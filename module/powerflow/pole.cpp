@@ -301,7 +301,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
 			- (current_hollow_diameter * current_hollow_diameter * current_hollow_diameter));
 	verbose("resisting moment %.0f ft*lb",resisting_moment);
 
-    return TS_NEVER;
+    return ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
 }
 
 TIMESTAMP pole::presync(TIMESTAMP t0)
@@ -322,7 +322,7 @@ TIMESTAMP pole::presync(TIMESTAMP t0)
 
     reset_accumulators();
 
-	return ( pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER );
+	return TS_NEVER;
 }
 
 TIMESTAMP pole::sync(TIMESTAMP t0)
@@ -341,15 +341,29 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
 		tilt_direction = 0.0;
 		pole_status = PS_OK;
 		install_year = 1970 + (unsigned int)(t0/86400/365.24);
-
 	}
 	if ( pole_status == PS_OK && last_wind_speed != wind_speed )
 	{
 		gld_clock dt;
 		wind_pressure = 0.00256*2.24 * (wind_speed)*(wind_speed); //2.24 account for m/s to mph conversion
 		double pole_height = config->pole_length - config->pole_depth;
-		pole_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
-		// equipment_moment = wind_pressure * equipment_area * equipment_height * config->overload_factor_transverse_general;
+        if ( tilt_angle > 0.0 )
+        {
+            double D1_3 = config->top_diameter*config->top_diameter*config->top_diameter/1728;
+            double D0_3 = config->ground_diameter*config->ground_diameter*config->ground_diameter/1728;
+            double H_4 = pole_height*pole_height*pole_height*pole_height;
+            pole_moment = config->material_density/48*PI*H_4*9.8*sin(tilt_angle)*(D1_3-D0_3)*cos(tilt_angle);
+        }
+        else
+        {
+            pole_moment = 0.0;
+        }
+        if ( wind_pressure > 0.0 )
+        {
+            double beta = (tilt_direction-wind_direction)/180*PI; // wind angle on pole
+            double wind_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter/12+2*config->top_diameter/12)/72 * config->overload_factor_transverse_general;
+            pole_moment = abs(pole_moment + abs(wind_moment*sin(beta)) + wind_moment*cos(beta));
+        }
 
 		total_moment = pole_moment + equipment_moment + wire_moment + wire_tension;
 		pole_stress = total_moment/resisting_moment;
@@ -367,13 +381,11 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
 		}
 		last_wind_speed = wind_speed;
 
-		pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
-		// equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
+        pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
 	}
 
-    // equipment_moment_nowind = equipment_area * equipment_height * config->overload_factor_transverse_general;
 	pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
 	pole_stress_polynomial_b = 0.0;
 	pole_stress_polynomial_c = wire_tension;
