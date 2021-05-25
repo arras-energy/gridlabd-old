@@ -357,7 +357,7 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
             // double r0 = config->top_diameter/2;
             // double r1 = config->ground_diameter/2;
             // double r2 = (r0+r1)/2;
-            // pole_moment = (0.5*sin(tilt_angle/180*PI)*pole_height)*(config->material_density*PI*(r2*r2)*9.8*pole_height);
+            // pole_moment = (0.5*sin(tilt_angle/180*PI)*pole_height)*(config->material_density*PI*(r2*r2)*9.8*pole_height) * 0.13/3.28;
         }
         else
         {
