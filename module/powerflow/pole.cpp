@@ -367,7 +367,9 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
         {
             double beta = (tilt_direction-wind_direction)/180*PI; // wind angle on pole
             double wind_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter/12+2*config->top_diameter/12)/72 * config->overload_factor_transverse_general;
-            pole_moment = abs(pole_moment + abs(wind_moment*sin(beta)) + wind_moment*cos(beta));
+            double x = pole_moment + wind_moment*cos(beta);
+            double y = wind_moment*sin(beta);
+            pole_moment = sqrt(x*x+y*y);
         }
 
 		total_moment = pole_moment + equipment_moment + wire_moment + wire_tension;
