@@ -377,6 +377,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         }
         verbose("pole_moment = %g ft.lb (tilt moment)",pole_moment);
 
+        // TODO: this needs to be moved to commit in order to consider equipment and wire wind susceptibility
         wind_pressure = 0.00256*2.24 * (wind_speed)*(wind_speed); //2.24 account for m/s to mph conversion
         pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
@@ -412,8 +413,10 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
 
 TIMESTAMP pole::presync(TIMESTAMP t0)
 {
-    reset_sync_accumulators();
-
+    if ( recalc )
+    {
+        reset_sync_accumulators();
+    }
 	return TS_NEVER;
 }
 
@@ -455,12 +458,14 @@ TIMESTAMP pole::postsync(TIMESTAMP t0)
             verbose("down_time = %lld", down_time);
         }
 
+        // M = a * V^2 + b * V + c
         pole_stress_polynomial_a = pole_moment_nowind+equipment_moment_nowind+wire_moment_nowind;
         pole_stress_polynomial_b = 0.0;
         pole_stress_polynomial_c = wire_tension;
 
         TIMESTAMP next_event = pole_status == PS_FAILED ? down_time + (int)(repair_time*3600) : TS_NEVER;
         verbose("next_event = %lld", next_event);
+        recalc = false;
         return next_event;
 	}
     else
@@ -474,7 +479,6 @@ TIMESTAMP pole::commit(TIMESTAMP t1, TIMESTAMP t2)
 {
     //  - pole          finalize pole status
     // TODO
-    recalc = false;
     verbose("clearing pole recalculation flag");
 	return TS_NEVER;
 }
