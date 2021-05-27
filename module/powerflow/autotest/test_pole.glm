@@ -21,6 +21,17 @@ object climate {
 ///////////////////////////////////////
 module powerflow;
 
+class equipment
+{
+    enumeration {FAILED=0, OK=1} status;
+}
+
+object equipment
+{
+    name device1;
+    status OK;
+}
+
 object pole_configuration {
 	name "WOOD-C-45/5";
 	pole_type WOOD;
@@ -39,6 +50,12 @@ object pole {
     tilt_angle 5 deg;
     tilt_direction 270;
     install_year 1990;
+    object pole_mount {
+        equipment device1;
+        weight 250 lb;
+        area 4 sf;
+        height 35 ft;
+    };
 };
 
 object pole {
@@ -46,8 +63,20 @@ object pole {
 	weather weather;
 	configuration "WOOD-C-45/5";
 	tilt_angle 8 deg;
-	tilt_direction 270;
+	tilt_direction 180;
 	install_year 2000;
+    object pole_mount {
+        equipment device2;
+        weight 250 lb;
+        area 4 sf;
+        height 35 ft;
+    };
+}
+
+object equipment
+{
+    name device2;
+    status OK;
 }
 
 ///////////////////////////////////////
@@ -60,7 +89,13 @@ module tape
 }
 object multi_recorder {
 	interval 3600;
-	property "weather:wind_speed,pole1:pole_stress,pole1:susceptibility, pole1:total_moment, pole1:resisting_moment, pole2:pole_stress,pole2:susceptibility, pole1:critical_wind_speed, pole2:critical_wind_speed, pole2:total_moment, pole2:resisting_moment";
+	property "weather:wind_speed, weather:wind_dir";
+#for POLE in ${FIND class=pole}
+    property "${POLE}:tilt_angle, ${POLE}:tilt_direction";
+    property "${POLE}:pole_stress, ${POLE}:total_moment, ${POLE}:resisting_moment";
+    property "${POLE}:susceptibility, ${POLE}:status";
+    property "${POLE/pole/device}:status";
+#done
 	file test_pole.csv;
 }
 

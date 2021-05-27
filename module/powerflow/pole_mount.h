@@ -22,6 +22,8 @@ public:
     GL_ATOMIC(double,weight);
     GL_ATOMIC(double,area);
 private:
+    double equipment_moment;
+    double equipment_moment_nowind;
     gld_property *pole_status;
     gld_property *equipment_status;
     bool equipment_is_line;
