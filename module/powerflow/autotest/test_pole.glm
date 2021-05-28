@@ -11,6 +11,7 @@ clock {
 ///////////////////////////////////////
 
 module climate;
+
 #weather get CA-Chino_Airport.tmy3
 object climate {
 	name weather;
@@ -20,7 +21,71 @@ object climate {
 ///////////////////////////////////////
 // pole model
 ///////////////////////////////////////
+
 module powerflow;
+
+object overhead_line_conductor
+{
+	name conductor;
+	geometric_mean_radius 0.031300;
+	diameter 0.927 in;
+	resistance 0.185900;
+}
+
+object line_spacing
+{
+	name spacing;
+	distance_AB 2.5;
+	distance_AC 4.5;
+	distance_BC 7.0;
+	distance_BN 5.656854;
+	distance_AN 4.272002;
+	distance_CN 5.0;
+	distance_AE 28.0;
+	distance_BE 28.0;
+	distance_CE 28.0;
+	distance_NE 24.0;
+}
+
+object line_configuration
+{
+	name configuration;
+	conductor_A conductor;
+	conductor_B conductor;
+	conductor_C conductor;
+	conductor_N conductor;
+	spacing spacing;
+}
+
+object overhead_line
+{
+     phases "ABCN";
+     name line_1_2;
+     from node1;
+     to node2;
+     length 500;
+     configuration configuration;
+}
+
+object node
+{
+     name node1;
+     bustype SWING;
+     phases "ABCN";
+     nominal_voltage 2400;
+}
+
+object node
+{
+     name node2;
+     bustype PQ;
+     phases "ABCN";
+     nominal_voltage 2400;
+}
+
+///////////////////////////////////////
+// pole model
+///////////////////////////////////////
 
 class equipment
 {
@@ -57,6 +122,11 @@ object pole {
         area 4 sf;
         height 35 ft;
     };
+    object pole_mount
+    {
+        equipment line_1_2;
+        pole_spacing 300 ft;
+    };
 };
 
 object pole {
@@ -66,11 +136,17 @@ object pole {
 	tilt_angle 8 deg;
 	tilt_direction 180;
 	install_year 2000;
-    object pole_mount {
+    object pole_mount
+    {
         equipment device2;
         weight 250 lb;
         area 4 sf;
         height 35 ft;
+    };
+    object pole_mount
+    {
+        equipment line_1_2;
+        pole_spacing 300 ft;
     };
 }
 

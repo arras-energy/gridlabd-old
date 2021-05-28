@@ -49,7 +49,11 @@ pole_mount::pole_mount(MODULE *mod)
             PT_double, "weight[lb]", get_weight_offset(),
                 PT_DEFAULT, "0.0 lb",
                 PT_DESCRIPTION, "weight of equipment mounted",
-                NULL)<1)
+
+            PT_double, "pole_spacing[ft]", get_pole_spacing_offset(),
+                PT_DESCRIPTION, "Mean spacing between poles adjacent",
+
+            NULL)<1)
         {
 			char msg[256];
 			sprintf(msg, "unable to publish properties in %s",__FILE__);
@@ -91,6 +95,54 @@ int pole_mount::init(OBJECT *parent)
         error("equipment status property is not valid");
     }
 
+    if ( equipment_is_line )
+    {
+        class overhead_line *line = OBJECTDATA(get_equipment(),class overhead_line);
+        verbose("overhead_line = %s",get_equipment()->name);
+        class line_configuration *config = OBJECTDATA(line->configuration,class line_configuration);
+        verbose("line_configuration = %s",line->configuration);
+        class line_spacing *spacing = OBJECTDATA(config->line_spacing,class line_spacing);
+        verbose("line_spacing = %s",config->line_spacing);
+        class overhead_line_conductor *conductor[] = {
+            OBJECTDATA(config->phaseA_conductor,class overhead_line_conductor),
+            OBJECTDATA(config->phaseB_conductor,class overhead_line_conductor),
+            OBJECTDATA(config->phaseC_conductor,class overhead_line_conductor),
+            OBJECTDATA(config->phaseN_conductor,class overhead_line_conductor)};
+        verbose("overhead_line_conductor = {A:%s, B:%s, C:%s, N:%s}",config->phaseA_conductor,config->phaseB_conductor,config->phaseC_conductor,config->phaseN_conductor);
+        line_moment = (
+            spacing->distance_AtoE * conductor[0]->get_cable_weight() +
+            spacing->distance_BtoE * conductor[1]->get_cable_weight() +
+            spacing->distance_CtoE * conductor[2]->get_cable_weight() +
+            spacing->distance_NtoE * conductor[3]->get_cable_weight() ) * pole_spacing;
+        verbose("line_moment = %g ft.lb",line_moment);
+        weight = (
+            conductor[0]->get_cable_weight() +
+            conductor[1]->get_cable_weight() +
+            conductor[2]->get_cable_weight() +
+            conductor[3]->get_cable_weight() ) * pole_spacing;
+        verbose("weight = %g lbs",weight);
+        double wind_load = (
+            conductor[0]->cable_diameter +
+            conductor[1]->cable_diameter +
+            conductor[2]->cable_diameter +
+            conductor[3]->cable_diameter +
+            8*line->get_ice_thickness() ) / 12;
+        verbose("wind_load = %g lb/ft",wind_load);
+        pole *mount = OBJECTDATA(my()->parent,pole);
+        pole_configuration *pole_config = OBJECTDATA(mount->get_configuration(),pole_configuration);
+        line_moment_nowind = wind_load * pole_spacing *pole_config->overload_factor_transverse_wire;
+        verbose("load_moment_nowind = %g ft.lb.s/m", line_moment_nowind);
+        double strength = conductor[0]->get_cable_strength()
+            + conductor[1]->get_cable_strength()
+            + conductor[2]->get_cable_strength()
+            + conductor[3]->get_cable_strength();
+        verbose("strength = %g lb", strength);
+        tension = 2 * strength * pole_config->overload_factor_transverse_wire * sin(angle/2) * height;
+        verbose("tension = %g ft.lb",tension);
+        line_load_nowind = 0.0; // TODO
+        verbose("line_load_nowind = %g ft.lb.s/m (TODO)",tension);
+    }
+
 	return 1;
 }
 
@@ -125,9 +177,11 @@ TIMESTAMP pole_mount::precommit(TIMESTAMP t0)
     if ( equipment_is_line )
     {
         warning("unable to update pole %s with line loading data",mount->get_name());
-		// double load_nowind = (wire->diameter+2*ice_thickness)/12;
-		// wire_load_nowind += load_nowind;
-		// wire_moment_nowind += wire->span * load_nowind * wire->height * config->overload_factor_transverse_wire;
+        mount->set_wire_load(mount->get_wire_load() + weight);
+        mount->set_wire_load_nowind(mount->get_wire_load_nowind() + line_load_nowind);
+        mount->set_wire_moment(mount->get_wire_moment() + weight*height);
+        mount->set_wire_moment_nowind(mount->get_wire_moment_nowind() + line_moment_nowind);
+        mount->set_wire_tension(mount->get_wire_tension() + tension);
 	}
     else
     {
@@ -155,21 +209,28 @@ TIMESTAMP pole_mount::sync(TIMESTAMP t0)
     pole *mount = OBJECTDATA(my()->parent,pole);
     if ( mount->recalc )
     {
-        verbose("%s recalculation flag set",my()->parent->name);
-        verbose("equipment_moment = %g ft.lb",equipment_moment);
-        verbose("equipment_moment_nowind = %g ft.lb",equipment_moment_nowind);
-        mount->set_equipment_moment_nowind(mount->get_equipment_moment_nowind()+equipment_moment_nowind);
-        double alpha = mount->get_tilt_angle()*PI/180;
-        verbose("alpha = %g rad",alpha);
-        double beta = (mount->get_tilt_direction()-direction)*PI/180;
-        verbose("beta = %g rad",beta);
-        double x = mount->get_equipment_moment() + height*sin(alpha)*weight + equipment_moment*cos(beta);
-        verbose("x = %g ft.lb",x);
-        double y = equipment_moment*sin(beta);
-        verbose("y = %g ft.lb",y);
-        double moment = sqrt(x*x+y*y);
-        verbose("moment = %g deg",moment);
-        mount->set_equipment_moment(moment);
+        if ( equipment_is_line )
+        {
+            // TODO
+        }
+        else
+        {
+            verbose("%s recalculation flag set",my()->parent->name);
+            verbose("equipment_moment = %g ft.lb",equipment_moment);
+            verbose("equipment_moment_nowind = %g ft.lb",equipment_moment_nowind);
+            mount->set_equipment_moment_nowind(mount->get_equipment_moment_nowind()+equipment_moment_nowind);
+            double alpha = mount->get_tilt_angle()*PI/180;
+            verbose("alpha = %g rad",alpha);
+            double beta = (mount->get_tilt_direction()-direction)*PI/180;
+            verbose("beta = %g rad",beta);
+            double x = mount->get_equipment_moment() + height*sin(alpha)*weight + equipment_moment*cos(beta);
+            verbose("x = %g ft.lb",x);
+            double y = equipment_moment*sin(beta);
+            verbose("y = %g ft.lb",y);
+            double moment = sqrt(x*x+y*y);
+            verbose("moment = %g deg",moment);
+            mount->set_equipment_moment(moment);
+        }
     }
     else
     {

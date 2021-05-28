@@ -21,12 +21,18 @@ public:
     GL_ATOMIC(double,direction);
     GL_ATOMIC(double,weight);
     GL_ATOMIC(double,area);
+    GL_ATOMIC(double,pole_spacing);
+    GL_ATOMIC(double,angle);
 private:
     double equipment_moment;
     double equipment_moment_nowind;
     gld_property *pole_status;
     gld_property *equipment_status;
     bool equipment_is_line;
+    double line_load_nowind;
+    double line_moment;
+    double line_moment_nowind;
+    double tension;
 public:
 	pole_mount(MODULE *);
 	int create(void);
