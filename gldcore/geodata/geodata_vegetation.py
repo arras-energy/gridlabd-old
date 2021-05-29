@@ -208,8 +208,8 @@ def get_imagename(layer,pos):
 
         tifname (str)       The name of the image tile used
     """
-    lat = pos[0]
-    lon = pos[1]
+    lat = pos[0]*10
+    lon = pos[1]*10
     if lat < 0:
         lat = f"{-math.floor(lat)}S"
     elif lat > 0:
