@@ -50,6 +50,7 @@ public:
 	GL_ATOMIC(double, critical_wind_speed);
 	GL_ATOMIC(bool, is_deadend);
 	GL_ATOMIC(double, current_hollow_diameter);
+	GL_ATOMIC(double, guy_height);
 private:
     gld_property *wind_speed_ref;
 	gld_property *wind_direction_ref;
@@ -62,7 +63,8 @@ private:
 	double last_wind_speed;
 	TIMESTAMP down_time;
 public:
-    bool recalc;
+	double height; // effective pole height for moment calculations
+    bool recalc; // flag for recalculation
 public:
 	pole(MODULE *);
 	int create(void);

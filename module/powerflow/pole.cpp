@@ -74,11 +74,11 @@ pole::pole(MODULE *mod)
                 PT_REQUIRED,
                 PT_DESCRIPTION, "configuration data",
 
-            PT_int32, "install_year", PADDR(install_year),
+            PT_int32, "install_year", get_install_year_offset(),
                 PT_REQUIRED,
                 PT_DESCRIPTION, "the year of pole was installed",
 
-            PT_double, "repair_time[h]", PADDR(repair_time),
+            PT_double, "repair_time[h]", get_repair_time_offset(),
                 PT_DESCRIPTION, "typical repair time after pole failure",
 
             PT_double, "wind_speed[m/s]", get_wind_speed_offset(),
@@ -93,52 +93,56 @@ pole::pole(MODULE *mod)
                 PT_DEFAULT, "0 m/s",
                 PT_DESCRIPTION, "local wind gusts",
 
-            PT_double, "pole_stress[pu]", PADDR(pole_stress),
+            PT_double, "pole_stress[pu]", get_pole_stress_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "ratio of actual stress to critical stress",
 
-            PT_double, "pole_stress_polynomial_a[ft*lb]", PADDR(pole_stress_polynomial_a),
+            PT_double, "pole_stress_polynomial_a[ft*lb]", get_pole_stress_polynomial_a_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "constant a of the pole stress polynomial function",
-            PT_double, "pole_stress_polynomial_b[ft*lb]", PADDR(pole_stress_polynomial_b),
+            PT_double, "pole_stress_polynomial_b[ft*lb]", get_pole_stress_polynomial_b_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "constant b of the pole stress polynomial function",
 
-            PT_double, "pole_stress_polynomial_c[ft*lb]", PADDR(pole_stress_polynomial_c),
+            PT_double, "pole_stress_polynomial_c[ft*lb]", get_pole_stress_polynomial_c_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "constant c of the pole stress polynomial function",
 
-            PT_double, "susceptibility[pu*s/m]", PADDR(susceptibility),
+            PT_double, "susceptibility[pu*s/m]", get_susceptibility_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "susceptibility of pole to wind stress (derivative of pole stress w.r.t wind speed)",
 
-            PT_double, "total_moment[ft*lb]", PADDR(total_moment),
+            PT_double, "total_moment[ft*lb]", get_total_moment_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "the total moment on the pole",
 
-            PT_double, "resisting_moment[ft*lb]", PADDR(resisting_moment),
+            PT_double, "resisting_moment[ft*lb]", get_resisting_moment_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "the resisting moment on the pole",
 
-            PT_double, "pole_moment[ft*lb]", PADDR(pole_moment),
+            PT_double, "pole_moment[ft*lb]", get_pole_moment_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "the moment of the pole",
 
-            PT_double, "pole_moment_nowind[ft*lb]", PADDR(pole_moment_nowind),
+            PT_double, "pole_moment_nowind[ft*lb]", get_pole_moment_nowind_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "the moment of the pole without wind",
 
-            PT_double, "equipment_moment[ft*lb]", PADDR(equipment_moment),
+            PT_double, "equipment_moment[ft*lb]", get_equipment_moment_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "the moment of the equipment",
 
-            PT_double, "equipment_moment_nowind[ft*lb]", PADDR(equipment_moment_nowind),
+            PT_double, "equipment_moment_nowind[ft*lb]", get_equipment_moment_nowind_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "the moment of the equipment without wind",
 
-            PT_double, "critical_wind_speed[m/s]", PADDR(critical_wind_speed),
+            PT_double, "critical_wind_speed[m/s]", get_critical_wind_speed_offset(),
                 PT_OUTPUT,
                 PT_DESCRIPTION, "wind speed at pole failure",
+
+            PT_double, "guy_height[ft]", get_guy_height_offset(),
+                PT_DEFAULT, "0 ft",
+                PT_DESCRIPTION, "guy wire attachment height",
 
             NULL) < 1 ) throw "unable to publish properties in " __FILE__;
 		gl_global_create("powerflow::repair_time[h]",PT_double,&default_repair_time,NULL);
@@ -283,17 +287,22 @@ int pole::init(OBJECT *parent)
 	}
     verbose("tilt_direction = %g deg",tilt_direction);
 
+    // effective pole height
+    height = config->pole_length - config->pole_depth - guy_height;
+    verbose("height = %g ft",height);
+
 	// calculation resisting moment
+    double diameter = config->ground_diameter 
+        - height/(config->pole_length - config->pole_depth)
+            *(config->ground_diameter-config->top_diameter);
 	resisting_moment = 0.008186
 		* config->strength_factor_250b_wood
 		* config->fiber_strength
-		* ( config->ground_diameter * config->ground_diameter * config->ground_diameter);
+		* ( diameter * diameter * diameter);
 	verbose("resisting_moment = %.0f ft*lb",resisting_moment);
 
-    // pole moment per unit of wind pressue
-	double pole_height = config->pole_length - config->pole_depth;
-    verbose("pole_height = %g ft",pole_height);
-	pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
+    // pole moment per unit of wind pressure
+	pole_moment_nowind = height * height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
     verbose("pole_moment_nowind = %g ft.lb",pole_moment_nowind);
 
     // check install year
@@ -363,15 +372,13 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
 	{
         verbose("wind_speed = %g m/s",wind_speed);
         verbose("wind speed change requires update of pole analysis");
-		double pole_height = config->pole_length - config->pole_depth;
-        verbose("pole_height = %g ft",pole_height);
 
         if ( tilt_angle > 0.0 )
         {
             const double D1 = config->top_diameter/12;
             const double D0 = config->ground_diameter/12;
             const double DD = (D0-D1) / 2;
-            const double H = pole_height;
+            const double H = height;
             const double rho = config->material_density;
             pole_moment += 0.125 * rho * PI * (H*H) * (D0*D0 - DD*DD) * sin(tilt_angle/180*PI);
         }
@@ -379,7 +386,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
 
         // TODO: this needs to be moved to commit in order to consider equipment and wire wind susceptibility
         wind_pressure = 0.00256*2.24 * (wind_speed)*(wind_speed); //2.24 account for m/s to mph conversion
-        pole_moment_nowind = pole_height * pole_height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
+        pole_moment_nowind = height * height * (config->ground_diameter+2*config->top_diameter)/72 * config->overload_factor_transverse_general;
 		double wind_pressure_failure = (resisting_moment - wire_tension) / (pole_moment_nowind + equipment_moment_nowind + wire_moment_nowind);
 		critical_wind_speed = sqrt(wind_pressure_failure / (0.00256 * 2.24));
         verbose("wind_pressure = %g psi",wind_pressure); // TODO: units?
@@ -393,7 +400,7 @@ TIMESTAMP pole::precommit(TIMESTAMP t0)
         {
             double beta = (tilt_direction-wind_direction)/180*PI; // wind angle on pole
             verbose("wind_angle = %g rad",beta);
-            wind_moment = wind_pressure * pole_height * pole_height * (config->ground_diameter/12+2*config->top_diameter/12)/72 * config->overload_factor_transverse_general;
+            wind_moment = wind_pressure * height * height * (config->ground_diameter/12+2*config->top_diameter/12)/72 * config->overload_factor_transverse_general;
             double x = pole_moment + wind_moment*cos(beta);
             verbose("x = %g ft.lb",x);
             double y = wind_moment*sin(beta);
