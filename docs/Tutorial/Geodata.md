@@ -830,9 +830,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uu
 <div class="output stream stdout">
 
     uuid,latitude,longitude,id
-    03e44f87675441178a6a675ccc066aa1,37.41,-122.2,0
-    815642a94b9649cfa96f174dda71e214,37.42,-122.2,1
-    9333825a5ef044f0b9cc5dec8b2a03f3,37.42,-122.21,2
+    78f04836df4640ebb749c66bce9bb582,37.41,-122.2,0
+    c521b672beda4ba19fe488a78ab1968d,37.42,-122.2,1
+    7804eb546242413cbf4fb328283ead76,37.42,-122.21,2
 
 </div>
 
@@ -855,9 +855,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uu
 <div class="output stream stdout">
 
     uuid,latitude,longitude,id
-    98be9e06ba5711eba3ffacde48001122,37.41,-122.2,0
-    98be9ed8ba5711eba3ffacde48001122,37.42,-122.2,1
-    98be9f00ba5711eba3ffacde48001122,37.42,-122.21,2
+    0fa12e1cc0fc11ebac6facde48001122,37.41,-122.2,0
+    0fa12eeec0fc11ebac6facde48001122,37.42,-122.2,1
+    0fa12f20c0fc11ebac6facde48001122,37.42,-122.21,2
 
 </div>
 
@@ -889,9 +889,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 25
     750       37.41674 -122.20000  NaN     750.0      0.0
     1000      37.41899 -122.20000  NaN    1000.0      0.0
     1112      37.42000 -122.20000  1.0    1112.0      0.0
-    1362      37.41899 -122.20283  NaN    1362.0    270.0
-    1612      37.41899 -122.20566  NaN    1612.0    270.0
-    1862      37.41899 -122.20849  NaN    1862.0    270.0
+    1362      37.42000 -122.20283  NaN    1362.0    270.0
+    1612      37.42000 -122.20566  NaN    1612.0    270.0
+    1862      37.42000 -122.20849  NaN    1862.0    270.0
     1995      37.42000 -122.21000  2.0    1995.0    270.0
 
 </div>
@@ -920,9 +920,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 --res
     750       37.41674 -122.20000  NaN     750.0      0.0
     1000      37.41899 -122.20000  NaN    1000.0      0.0
     1112      37.42000 -122.20000  1.0    1112.0      0.0
-    1362      37.41899 -122.20283  NaN    1362.0    270.0
-    1612      37.41899 -122.20566  NaN    1612.0    270.0
-    1862      37.41899 -122.20849  NaN    1862.0    270.0
+    1362      37.42000 -122.20283  NaN    1362.0    270.0
+    1612      37.42000 -122.20566  NaN    1612.0    270.0
+    1862      37.42000 -122.20849  NaN    1862.0    270.0
     1995      37.42000 -122.21000  2.0    1995.0    270.0
 
 </div>
@@ -963,9 +963,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TA
     750       37.41674 -122.20000  0.376     750.0      0.0
     1000      37.41899 -122.20000  0.501    1000.0      0.0
     1112      37.42000 -122.20000  0.557    1112.0      0.0
-    1362      37.41899 -122.20283  0.683    1362.0    270.0
-    1612      37.41899 -122.20566  0.808    1612.0    270.0
-    1862      37.41899 -122.20849  0.933    1862.0    270.0
+    1362      37.42000 -122.20283  0.683    1362.0    270.0
+    1612      37.42000 -122.20566  0.808    1612.0    270.0
+    1862      37.42000 -122.20849  0.933    1862.0    270.0
     1995      37.42000 -122.21000  1.000    1995.0    270.0
 
 </div>
@@ -1001,9 +1001,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TA
     750       37.41674 -122.20000  0.37594     750.0      0.0
     1000      37.41899 -122.20000  0.50125    1000.0      0.0
     1112      37.42000 -122.20000  0.55739    1112.0      0.0
-    1362      37.41899 -122.20283  0.68271    1362.0    270.0
-    1612      37.41899 -122.20566  0.80802    1612.0    270.0
-    1862      37.41899 -122.20849  0.93333    1862.0    270.0
+    1362      37.42000 -122.20283  0.68271    1362.0    270.0
+    1612      37.42000 -122.20566  0.80802    1612.0    270.0
+    1862      37.42000 -122.20849  0.93333    1862.0    270.0
     1995      37.42000 -122.21000  1.00000    1995.0    270.0
 
 </div>
@@ -1035,9 +1035,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 25
     9q9hg788m9gu       750  37.41674 -122.20000  NaN     750.0      0.0
     9q9hg7btmt7c      1000  37.41899 -122.20000  NaN    1000.0      0.0
     9q9hgk0em9ef      1112  37.42000 -122.20000  1.0    1112.0      0.0
-    9q9hg5yt7tm9      1362  37.41899 -122.20283  NaN    1362.0    270.0
-    9q9hg5ut3tr3      1612  37.41899 -122.20566  NaN    1612.0    270.0
-    9q9hg5fmrv31      1862  37.41899 -122.20849  NaN    1862.0    270.0
+    9q9hghne79td      1362  37.42000 -122.20283  NaN    1362.0    270.0
+    9q9hghhe39x6      1612  37.42000 -122.20566  NaN    1612.0    270.0
+    9q9hgh47rc94      1862  37.42000 -122.20849  NaN    1862.0    270.0
     9q9hgh17k9e4      1995  37.42000 -122.21000  2.0    1995.0    270.0
 
 </div>
@@ -1136,15 +1136,16 @@ the series.
 <div class="cell code" execution_count="41">
 
 ``` python
-bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,distance
-    0,37.41,-122.2,0.0
-    1,37.42,-122.2,1112.0
-    2,37.42,-122.21,1995.0
+        latitude  longitude  distance
+    id                               
+    0      37.41    -122.20       0.0
+    1      37.42    -122.20    1112.0
+    2      37.42    -122.21    1995.0
 
 </div>
 
@@ -1160,15 +1161,16 @@ series using the `--relative` options, e.g.,
 <div class="cell code" execution_count="42" scrolled="true">
 
 ``` python
-bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --relative
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --relative -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,distance
-    0,37.41,-122.2,0.0
-    1,37.42,-122.2,0.0
-    2,37.42,-122.21,0.0
+        latitude  longitude  distance
+    id                               
+    0      37.41    -122.20       0.0
+    1      37.42    -122.20       0.0
+    2      37.42    -122.21       0.0
 
 </div>
 
@@ -1185,15 +1187,16 @@ For example, the following calculates the distances in feet:
 <div class="cell code" execution_count="43">
 
 ``` python
-bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,distance
-    0,37.41,-122.2,0.0
-    1,37.42,-122.2,3648.0
-    2,37.42,-122.21,6545.0
+        latitude  longitude  distance
+    id                               
+    0      37.41    -122.20       0.0
+    1      37.42    -122.20    3648.0
+    2      37.42    -122.21    6545.0
 
 </div>
 
@@ -1209,15 +1212,16 @@ decimals. Thus the distance in `km` is rounded:
 <div class="cell code" execution_count="44">
 
 ``` python
-bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=km # precision too low
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=km -f TABLE # precision too low
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,distance
-    0,37.41,-122.2,0.0
-    1,37.42,-122.2,1.0
-    2,37.42,-122.21,2.0
+        latitude  longitude  distance
+    id                               
+    0      37.41    -122.20       0.0
+    1      37.42    -122.20       1.0
+    2      37.42    -122.21       2.0
 
 </div>
 
@@ -1232,15 +1236,16 @@ The precision can be changed when necessary, e.g.,
 <div class="cell code" execution_count="45">
 
 ``` python
-bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=km --precision.distance=2
+bash% gridlabd geodata merge -D distance 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=km --precision.distance=2 -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,distance
-    0,37.41,-122.2,0.0
-    1,37.42,-122.2,1.11
-    2,37.42,-122.21,2.0
+        latitude  longitude  distance
+    id                               
+    0      37.41    -122.20      0.00
+    1      37.42    -122.20      1.11
+    2      37.42    -122.21      2.00
 
 </div>
 
@@ -1269,9 +1274,9 @@ bash% gridlabd geodata -D distance merge 37.410,-122.20 37.420,-122.20 37.420,-1
     750       37.41674 -122.20000  NaN     750.0      0.0
     1000      37.41899 -122.20000  NaN    1000.0      0.0
     1112      37.42000 -122.20000  1.0       0.0      0.0
-    1362      37.41899 -122.20283  NaN     274.0    270.0
-    1612      37.41899 -122.20566  NaN     512.0    270.0
-    1862      37.41899 -122.20849  NaN     758.0    270.0
+    1362      37.42000 -122.20283  NaN     250.0    270.0
+    1612      37.42000 -122.20566  NaN     500.0    270.0
+    1862      37.42000 -122.20849  NaN     750.0    270.0
     1995      37.42000 -122.21000  2.0       0.0    270.0
 
 </div>
@@ -1381,15 +1386,16 @@ Elevation data can be obtained using the `elevation` data set, e.g.,
 <div class="cell code" execution_count="51">
 
 ``` python
-bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21
+bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,elevation
-    0,37.41,-122.2,58.0
-    1,37.42,-122.2,76.0
-    2,37.42,-122.21,105.0
+        latitude  longitude  elevation
+    id                                
+    0      37.41    -122.20       58.0
+    1      37.42    -122.20       76.0
+    2      37.42    -122.21      105.0
 
 </div>
 
@@ -1405,15 +1411,16 @@ options, e.g.,
 <div class="cell code" execution_count="52">
 
 ``` python
-bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet
+bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,elevation
-    0,37.41,-122.2,190.0
-    1,37.42,-122.2,249.0
-    2,37.42,-122.21,344.0
+        latitude  longitude  elevation
+    id                                
+    0      37.41    -122.20      190.0
+    1      37.42    -122.20      249.0
+    2      37.42    -122.21      344.0
 
 </div>
 
@@ -1430,15 +1437,16 @@ The precision of the elevations can be specified as well, e.g.,
 <div class="cell code" execution_count="53">
 
 ``` python
-bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --precision.elevation=2 --units=feet
+bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --precision.elevation=2 --units=feet -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,elevation
-    0,37.41,-122.2,190.29
-    1,37.42,-122.2,249.34
-    2,37.42,-122.21,344.49
+        latitude  longitude  elevation
+    id                                
+    0      37.41    -122.20     190.29
+    1      37.42    -122.20     249.34
+    2      37.42    -122.21     344.49
 
 </div>
 
@@ -1467,9 +1475,9 @@ bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-
     750       37.41674 -122.20000  NaN     750.0      0.0       76.0
     1000      37.41899 -122.20000  NaN    1000.0      0.0       97.0
     1112      37.42000 -122.20000  1.0    1112.0      0.0       76.0
-    1362      37.41899 -122.20283  NaN    1362.0    270.0       82.0
-    1612      37.41899 -122.20566  NaN    1612.0    270.0       92.0
-    1862      37.41899 -122.20849  NaN    1862.0    270.0      103.0
+    1362      37.42000 -122.20283  NaN    1362.0    270.0       85.0
+    1612      37.42000 -122.20566  NaN    1612.0    270.0       91.0
+    1862      37.42000 -122.20849  NaN    1862.0    270.0      103.0
     1995      37.42000 -122.21000  2.0    1995.0    270.0      105.0
 
 </div>
@@ -1489,7 +1497,7 @@ following command:
 
 </div>
 
-<div class="cell code" execution_count="1">
+<div class="cell code" execution_count="55">
 
 ``` python
 bash% gridlabd geodata config set -w vegetation.username name@example.com
@@ -1505,18 +1513,19 @@ locations, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="2">
+<div class="cell code" execution_count="56">
 
 ``` python
-bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21
+bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,base,cover,height
-    0,37.41,-122.2,1.0,0.05,0.0
-    1,37.42,-122.2,1.0,0.18,3.0
-    2,37.42,-122.21,1.0,0.75,4.0
+        latitude  longitude   base  cover  height
+    id                                           
+    0      37.41    -122.20   11.0   2.08    11.0
+    1      37.42    -122.20  120.0   2.11    15.0
+    2      37.42    -122.21    2.0   0.01     0.0
 
 </div>
 
@@ -1532,15 +1541,16 @@ the `year` option, i.e.,
 <div class="cell code" execution_count="57">
 
 ``` python
-bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --year=2020
+bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --year=2020 -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,base,cover,height
-    0,37.41,-122.2,1.0,5,0.0
-    1,37.42,-122.2,1.0,18,3.0
-    2,37.42,-122.21,1.0,75,4.0
+        latitude  longitude   base  cover  height
+    id                                           
+    0      37.41    -122.20   11.0   2.08    11.0
+    1      37.42    -122.20  120.0   2.11    15.0
+    2      37.42    -122.21    2.0   0.01     0.0
 
 </div>
 
@@ -1562,13 +1572,14 @@ The name of the utility at a location is the default data result, e.g.,
 <div class="cell code" execution_count="58">
 
 ``` python
-bash% gridlabd geodata merge -D utility 37.420,-122.20 
+bash% gridlabd geodata merge -D utility 37.420,-122.20 -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,NAME
-    0,37.42,-122.2,PACIFIC GAS & ELECTRIC CO.
+        latitude  longitude             NAME
+    id                                      
+    0      37.42     -122.2  PACIFIC GAS ...
 
 </div>
 
@@ -1589,13 +1600,14 @@ and the year for which the data is obtained, use the command
 <div class="cell code" execution_count="59">
 
 ``` python
-bash% gridlabd geodata merge -D utility 37.420,-122.20 --fields=WINTR_PEAK,SUMMR_PEAK,CUSTOMERS,YEAR
+bash% gridlabd geodata merge -D utility 37.420,-122.20 --fields=WINTR_PEAK,SUMMR_PEAK,CUSTOMERS,YEAR -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    id,latitude,longitude,WINTR_PEAK,SUMMR_PEAK,CUSTOMERS,YEAR
-    0,37.42,-122.2,12624.0,17263.0,5471786.0,2018.0
+        latitude  longitude  WINTR_PEAK  SUMMR_PEAK  CUSTOMERS    YEAR
+    id                                                                
+    0      37.42     -122.2     12624.0     17263.0  5471786.0  2018.0
 
 </div>
 
@@ -1684,19 +1696,19 @@ bash% gridlabd geodata merge -D powerline path_example.csv --cable_type="TACSR/A
 
 <div class="output stream stdout">
 
-                 linesag
-    position            
-    0          15.000000
-    250         4.016087
-    254        15.000000
-    428        15.000000
-    595        15.000000
-    ...              ...
-    7593       15.000000
-    7840       15.000000
-    8090     -483.425003
-    8340     -454.023317
-    8583       15.000000
+                linesag
+    position           
+    0         15.000000
+    250       14.360078
+    254       15.000000
+    428       15.000000
+    595       15.000000
+    ...             ...
+    7593      15.000000
+    7840      15.000000
+    8090     -31.180261
+    8340     -30.563203
+    8583      15.000000
     
     [49 rows x 1 columns]
 
@@ -1829,7 +1841,7 @@ bash% gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag --ca
     34      NaN
     35      NaN
     36      NaN
-    
+
     [37 rows x 1 columns]
 
 </div>
@@ -2068,14 +2080,15 @@ The `-w` or `--warning` option suppresses warning messages, e.g.,
 <div class="cell code" execution_count="71">
 
 ``` python
-bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location -w
+bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location -w -f TABLE
 ```
 
 <div class="output stream stdout">
 
-    location,latitude,longitude,id,distance
-    9q94rzdk9gyt,37.0,-122.0,0,0.0
-    9qc0pvdq1cqt,38.0,-122.0,1,111195.0
+                  latitude  longitude  id  distance
+    location                                       
+    9q94rzdk9gyt      37.0     -122.0   0       0.0
+    9qc0pvdq1cqt      38.0     -122.0   1  111195.0
 
 </div>
 
@@ -2148,9 +2161,9 @@ bash% gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs -d # i
 <div class="output stream stdout">
 
     Traceback (most recent call last):
-      File "/usr/local/opt/gridlabd/4.2.21-210519-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 849, in merge
+      File "/usr/local/opt/gridlabd/4.2.21-210527-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 849, in merge
         result = MODULE.apply(data,options,config,warning)
-      File "/usr/local/opt/gridlabd/4.2.21-210519-develop_add_vegetation_geodata/share/gridlabd/geodata_distance.py", line 119, in apply
+      File "/usr/local/opt/gridlabd/4.2.21-210527-develop_add_vegetation_geodata/share/gridlabd/geodata_distance.py", line 119, in apply
         raise Exception(f"unit '{options['units']}' is not recognized")
     Exception: unit 'furlongs' is not recognized
     DEBUG [geodata/distance]: merge(args=['37,-122', '38,-122', '--units=furlongs']) --> data = 
@@ -2569,10 +2582,11 @@ dataset.
 
 </div>
 
-<div class="cell code" execution_count="99" scrolled="false">
+<div class="cell code" execution_count="79" scrolled="false">
 
 ``` python
-bash% gridlabd geodata merge -D elevation path_example.csv -r 250 | gridlabd geodata merge -D distance -f TABLE --relative --table.width=999 --table.max_rows=999
+bash% gridlabd geodata merge -D elevation path_example.csv -r 250 \
+| gridlabd geodata merge -D distance -f TABLE --relative --table.width=999 --table.max_rows=999
 ```
 
 <div class="output stream stdout">
@@ -2581,61 +2595,129 @@ bash% gridlabd geodata merge -D elevation path_example.csv -r 250 | gridlabd geo
     id                                                                                          
     0.0          0  37.41505 -122.20565         flat3         15.0       0.0      NaN       88.0
     NaN        250  37.41471 -122.20845           NaN          NaN     250.0    263.0      100.0
-    2.0        254  37.41445 -122.21044         sideT         15.0       0.0    262.7      112.0
-    3.0        254  37.41422 -122.21231         sideT         15.0       0.0    263.0      111.0
-    4.0        254  37.41398 -122.21427         sideT         15.0       0.0    263.0       98.0
-    5.0        254  37.41370 -122.21657         sideT         15.0       0.0    263.1       92.0
-    6.0        254  37.41348 -122.21827         sideT         15.0       0.0    262.6       79.0
-    7.0        254  37.41321 -122.22048         sideT         15.0       0.0    263.0       90.0
-    8.0        254  37.41298 -122.22232         sideT         15.0       0.0    262.9       78.0
-    9.0        254  37.41271 -122.22456         sideT         15.0       0.0    263.1       80.0
     1.0        254  37.41470 -122.20849         sideT         15.0       0.0    263.0      100.0
-    10.0       504  37.41236 -122.22736         sideT         15.0       0.0    262.9       92.0
-    11.0       504  37.41211 -122.22940         sideT         15.0       0.0    263.0       81.0
-    12.0       504  37.41181 -122.23184         3pole         15.0       0.0    263.0      103.0
-    NaN        504  37.41436 -122.21124           NaN          NaN    1841.0    262.9      117.0
-    NaN        754  37.41312 -122.21361           NaN          NaN    1617.0    242.5      109.0
-    14.0       881  37.40912 -122.23771         2pole         15.0       0.0    250.2      121.0
-    13.0       881  37.40995 -122.23541         3pole         15.0       0.0    242.5      126.0
-    NaN       1131  37.41218 -122.21618           NaN          NaN    1716.0    249.9       95.0
-    17.0      1208  37.40644 -122.24503         3pole         15.0       0.0    249.7      125.0
-    18.0      1208  37.40562 -122.24443         vert3         15.0       0.0    143.8      126.0
-    19.0      1208  37.40456 -122.24418         vert3         15.0       0.0    166.7      123.0
-    20.0      1208  37.40339 -122.24429         vert3         15.0       0.0    185.4      118.0
-    21.0      1208  37.40249 -122.24468         vert3         15.0       0.0    203.4      106.0
-    22.0      1208  37.40136 -122.24566         vert3         15.0       0.0    220.9      106.0
-    15.0      1208  37.40789 -122.24107         2pole         15.0       0.0    249.9      106.0
-    16.0      1208  37.40715 -122.24311         2pole         15.0       0.0    250.1      112.0
-    NaN       1458  37.41115 -122.21869           NaN          NaN    2202.0    247.6       79.0
-    24.0      1567  37.39966 -122.25113         2pole         15.0       0.0    263.6      172.0
-    23.0      1567  37.39987 -122.24927         3pole         15.0       0.0    247.6      117.0
-    NaN       1817  37.41099 -122.22152           NaN          NaN    2745.0    266.8       69.0
-    26.0      2023  37.39928 -122.25795         3pole         15.0       0.0    266.9      286.0
-    25.0      2023  37.39937 -122.25627         2pole         15.0       0.0    266.8      264.0
-    NaN       2273  37.41079 -122.22433           NaN          NaN    3094.0    266.0      143.0
-    NaN       2523  37.41059 -122.22715           NaN          NaN    2859.0    266.0       92.0
-    28.0      2603  37.39871 -122.26610         2pole         15.0       0.0    266.1      349.0
-    27.0      2603  37.39882 -122.26449         3pole         15.0       0.0    266.0      322.0
-    29.0      2603  37.39861 -122.26757         3pole         15.0       0.0    266.1      326.0
-    NaN       2853  37.40865 -122.22859           NaN          NaN    3620.0    216.5      172.0
-    NaN       3103  37.40671 -122.23002           NaN          NaN    3437.0    216.5      173.0
-    35.0      3135  37.39171 -122.28139         3pole         15.0       0.0    272.1      640.0
-    34.0      3135  37.39161 -122.27860         2pole         15.0       0.0    258.5      610.0
-    33.0      3135  37.39190 -122.27717         2pole         15.0       0.0    257.9      573.0
-    32.0      3135  37.39248 -122.27446         2pole         15.0       0.0    257.7      501.0
-    31.0      3135  37.39306 -122.27180         3pole         15.0       0.0    219.5      448.0
-    30.0      3135  37.39448 -122.27063         3pole         15.0       0.0    216.5      443.0
-    NaN       3385  37.40549 -122.23240           NaN          NaN    3592.0    242.6      169.0
-    NaN       3635  37.40426 -122.23477           NaN          NaN    3349.0    242.6      125.0
-    36.0      3879  37.38806 -122.28844         tower         15.0       0.0    242.6      632.0
+    2.0        428  37.41445 -122.21044         sideT         15.0       0.0    262.7      112.0
+    3.0        595  37.41422 -122.21231         sideT         15.0       0.0    263.0      111.0
+    4.0        771  37.41398 -122.21427         sideT         15.0       0.0    263.0       98.0
+    5.0        976  37.41370 -122.21657         sideT         15.0       0.0    263.1       92.0
+    6.0       1128  37.41348 -122.21827         sideT         15.0       0.0    262.6       79.0
+    7.0       1326  37.41321 -122.22048         sideT         15.0       0.0    263.0       90.0
+    8.0       1490  37.41298 -122.22232         sideT         15.0       0.0    262.9       78.0
+    9.0       1690  37.41271 -122.22456         sideT         15.0       0.0    263.1       80.0
+    NaN       1940  37.41236 -122.22736           NaN          NaN     250.0    262.9       92.0
+    10.0      1941  37.41236 -122.22736         sideT         15.0       0.0    262.9       92.0
+    11.0      2123  37.41211 -122.22940         sideT         15.0       0.0    263.0       81.0
+    12.0      2341  37.41181 -122.23184         3pole         15.0       0.0    263.0      103.0
+    NaN       2591  37.41058 -122.23421           NaN          NaN     250.0    242.5       83.0
+    13.0      2718  37.40995 -122.23541         3pole         15.0       0.0    242.5      126.0
+    14.0      2941  37.40912 -122.23771         2pole         15.0       0.0    250.2      121.0
+    NaN       3191  37.40818 -122.24028           NaN          NaN     250.0    249.9       92.0
+    15.0      3268  37.40789 -122.24107         2pole         15.0       0.0    249.9      106.0
+    16.0      3466  37.40715 -122.24311         2pole         15.0       0.0    250.1      112.0
+    17.0      3653  37.40644 -122.24503         3pole         15.0       0.0    249.7      125.0
+    18.0      3759  37.40562 -122.24443         vert3         15.0       0.0    143.8      126.0
+    19.0      3878  37.40456 -122.24418         vert3         15.0       0.0    166.7      123.0
+    20.0      4009  37.40339 -122.24429         vert3         15.0       0.0    185.4      118.0
+    21.0      4115  37.40249 -122.24468         vert3         15.0       0.0    203.4      106.0
+    22.0      4267  37.40136 -122.24566         vert3         15.0       0.0    220.9      106.0
+    NaN       4517  37.40032 -122.24817           NaN          NaN     250.0    247.6      106.0
+    23.0      4627  37.39987 -122.24927         3pole         15.0       0.0    247.6      117.0
+    24.0      4793  37.39966 -122.25113         2pole         15.0       0.0    263.6      172.0
+    NaN       5043  37.39950 -122.25395           NaN          NaN     250.0    266.8      206.0
+    25.0      5248  37.39937 -122.25627         2pole         15.0       0.0    266.8      264.0
+    26.0      5397  37.39928 -122.25795         3pole         15.0       0.0    266.9      286.0
+    NaN       5647  37.39908 -122.26077           NaN          NaN     250.0    266.0      212.0
+    NaN       5897  37.39888 -122.26359           NaN          NaN     500.0    266.0      291.0
+    27.0      5977  37.39882 -122.26449         3pole         15.0       0.0    266.0      322.0
+    28.0      6119  37.39871 -122.26610         2pole         15.0       0.0    266.1      349.0
+    29.0      6250  37.39861 -122.26757         3pole         15.0       0.0    266.1      326.0
+    NaN       6500  37.39667 -122.26901           NaN          NaN     250.0    216.5      342.0
+    NaN       6750  37.39473 -122.27044           NaN          NaN     500.0    216.5      436.0
+    30.0      6783  37.39448 -122.27063         3pole         15.0       0.0    216.5      443.0
+    31.0      6971  37.39306 -122.27180         3pole         15.0       0.0    219.5      448.0
+    32.0      7215  37.39248 -122.27446         2pole         15.0       0.0    257.7      501.0
+    33.0      7463  37.39190 -122.27717         2pole         15.0       0.0    257.9      573.0
+    34.0      7593  37.39161 -122.27860         2pole         15.0       0.0    258.5      610.0
+    35.0      7840  37.39171 -122.28139         3pole         15.0       0.0    272.1      640.0
+    NaN       8090  37.39048 -122.28376           NaN          NaN     250.0    242.6      540.0
+    NaN       8340  37.38926 -122.28613           NaN          NaN     500.0    242.6      547.0
+    36.0      8583  37.38806 -122.28844         tower         15.0       0.0    242.6      632.0
 
 </div>
 
 </div>
 
-<div class="cell code">
+<div class="cell markdown">
+
+# Example 3
+
+Ths following example illustrates merging elevation, vegetation, and
+powerline data.
+
+</div>
+
+<div class="cell code" execution_count="80">
 
 ``` python
+bash% gridlabd geodata merge -D elevation path_example.csv -r 250 \
+| gridlabd geodata merge -D powerline --cable_type="TACSR/AC 610mm^2" \
+| gridlabd geodata merge -D vegetation -f TABLE:position,pole_height,linesag,base,cover,height --table.width=999 --table.max_rows=999
 ```
+
+<div class="output stream stdout">
+
+          position  pole_height    linesag  base  cover  height
+    id                                                         
+    0.0          0         15.0  15.000000   2.0   0.68    14.0
+    NaN        250          NaN  14.231334   2.0   0.09     1.0
+    1.0        254         15.0  15.000000   2.0   0.09     1.0
+    2.0        428         15.0  15.000000   2.0   0.31     1.0
+    3.0        595         15.0  15.000000   2.0   0.51     1.0
+    4.0        771         15.0  15.000000   2.0   0.68    17.0
+    5.0        976         15.0  15.000000   2.0   0.06     1.0
+    6.0       1128         15.0  15.000000   2.0   0.50     4.0
+    7.0       1326         15.0  15.000000   2.0   0.68    16.0
+    8.0       1490         15.0  15.000000   2.0   0.62    12.0
+    9.0       1690         15.0  15.000000   1.0   0.04     1.0
+    NaN       1940          NaN  15.046841   2.0   0.29     4.0
+    10.0      1941         15.0  15.000000   2.0   0.29     4.0
+    11.0      2123         15.0  15.000000   2.0   0.07     2.0
+    12.0      2341         15.0  15.000000   2.0   0.15     1.0
+    NaN       2591          NaN  32.581110   1.0   0.18     5.0
+    13.0      2718         15.0  15.000000   1.0   0.40     6.0
+    14.0      2941         15.0  15.000000   1.0   0.42     5.0
+    NaN       3191          NaN  20.995575   2.0   0.15     4.0
+    15.0      3268         15.0  15.000000   2.0   0.14     1.0
+    16.0      3466         15.0  15.000000   0.0   0.32     1.0
+    17.0      3653         15.0  15.000000   1.0   0.09     1.0
+    18.0      3759         15.0  15.000000   1.0   0.12     1.0
+    19.0      3878         15.0  15.000000   2.0   0.11     2.0
+    20.0      4009         15.0  15.000000   2.0   0.31     3.0
+    21.0      4115         15.0  15.000000   2.0   0.16     1.0
+    22.0      4267         15.0  15.000000   3.0   0.15     1.0
+    NaN       4517          NaN   7.072264   2.0   0.56     7.0
+    23.0      4627         15.0  15.000000   0.0   0.36    11.0
+    24.0      4793         15.0  15.000000   1.0   0.51     7.0
+    NaN       5043          NaN   3.881127   1.0   0.65     8.0
+    25.0      5248         15.0  15.000000   1.0   0.31     8.0
+    26.0      5397         15.0  15.000000   1.0   0.27    11.0
+    NaN       5647          NaN  68.643750   1.0   0.38     7.0
+    NaN       5897          NaN  23.773773   2.0   0.80    16.0
+    27.0      5977         15.0  15.000000   2.0   0.79    21.0
+    28.0      6119         15.0  15.000000   2.0   0.52    12.0
+    29.0      6250         15.0  15.000000   2.0   0.60    14.0
+    NaN       6500          NaN  19.266495   1.0   0.80    18.0
+    NaN       6750          NaN   3.877685   1.0   0.45     4.0
+    30.0      6783         15.0  15.000000   1.0   0.45     4.0
+    31.0      6971         15.0  15.000000   2.0   0.79    27.0
+    32.0      7215         15.0  15.000000   1.0   0.81    25.0
+    33.0      7463         15.0  15.000000   1.0   0.84    23.0
+    34.0      7593         15.0  15.000000   1.0   0.67    20.0
+    35.0      7840         15.0  15.000000   1.0   0.72    16.0
+    NaN       8090          NaN  66.122367   2.0   0.64    16.0
+    NaN       8340          NaN  57.019287   2.0   0.68    21.0
+    36.0      8583         15.0  15.000000   2.0   0.56     9.0
+
+</div>
 
 </div>
