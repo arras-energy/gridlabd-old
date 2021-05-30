@@ -121,6 +121,9 @@ default_options = {
     "nominal_temperature" : 15.0, # degC - temperature at which line loads are based
     "cable_type" : '', # cable type
     "elevation" : 0.0, # default elevation (0.0 = sea level)
+    "precision" : {
+        "linesag" : 1,
+    },
 }
 
 default_config = {
@@ -380,7 +383,7 @@ def linesag(data):
                         power_flow,global_horizontal_irradiance,ground_reflectance,
                         ice_thickness,wind_direction,air_temperature,wind_speed,ice_density)
                     sag = sag - elevation
-                    result[n] = sag
+                    result[n] = round(sag,OPTIONS["precision"]["linesag"])
 
                 # reset for next segment
                 p0 = p1
