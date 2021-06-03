@@ -124,6 +124,10 @@ default_options = {
     "precision" : {
         "linesag" : 1,
     },
+    "margin" : {
+        "vertical" : 2.0,
+        "horizontal" : 2.0,
+    },
 }
 
 default_config = {
@@ -543,6 +547,12 @@ def linegallop(data):
 
     return data['linegallop']
 
+def contact(data, options=default_options, config=default_config, warning=print):
+
+    contact = ( data['linesag'] - data['height'] < options['margin']['vertical'] ) * data['cover']
+
+    return contact
+
 def apply(data, options=default_options, config=default_config, warning=print):
 
     global CABLETYPES
@@ -561,6 +571,7 @@ def apply(data, options=default_options, config=default_config, warning=print):
     result["linesag"] = linesag(data)
     result["linesway"] = linesway(data)
     result["linegallop"] = linegallop(data)
+    result["contact"] = contact(result)
 
     return result
 
