@@ -125,9 +125,9 @@ bash% head -n 4 path_example.csv
 <div class="output stream stdout">
 
     latitude,longitude,configuration,pole_height
-    37.415045141688054,-122.2056472090359,flat3,15.0
-    37.414698020593065,-122.20848749028133,sideT,15.0
-    37.414454093051745,-122.21044282065421,sideT,15.0
+    37.415045141688054,-122.2056472090359,flat3,18.0
+    37.414698020593065,-122.20848749028133,sideT,20.0
+    37.414454093051745,-122.21044282065421,sideT,21.0
 
 </div>
 
@@ -148,9 +148,9 @@ bash% gridlabd geodata create path_example.csv | head -n 4
 <div class="output stream stdout">
 
     id,latitude,longitude,configuration,pole_height
-    0,37.41505,-122.20565,flat3,15.0
-    1,37.4147,-122.20849,sideT,15.0
-    2,37.41445,-122.21044,sideT,15.0
+    0,37.41505,-122.20565,flat3,18.0
+    1,37.4147,-122.20849,sideT,20.0
+    2,37.41445,-122.21044,sideT,21.0
 
 </div>
 
@@ -830,9 +830,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uu
 <div class="output stream stdout">
 
     uuid,latitude,longitude,id
-    411455ae491e46b084f553cae4d8293c,37.41,-122.2,0
-    1cf918a372d943be8ef1539fafddcab5,37.42,-122.2,1
-    8d56c82786ae4fe3940fa3e107b96e63,37.42,-122.21,2
+    46b1370dc30e40b8b03cf470ac29ca28,37.41,-122.2,0
+    0e3e2e3c698246999b668a1ca32d297f,37.42,-122.2,1
+    946b1b3d852c4223972c5df0dc02b025,37.42,-122.21,2
 
 </div>
 
@@ -855,9 +855,9 @@ bash% gridlabd geodata create 37.410,-122.20 37.420,-122.20 37.420,-122.21 -k uu
 <div class="output stream stdout">
 
     uuid,latitude,longitude,id
-    62faf294c49111eb9a53989e633f97ae,37.41,-122.2,0
-    62faf366c49111eb9a53989e633f97ae,37.42,-122.2,1
-    62faf398c49111eb9a53989e633f97ae,37.42,-122.21,2
+    2e8d7918c4bf11eb9c0e989e633f97ae,37.41,-122.2,0
+    2e8d7a6cc4bf11eb9c0e989e633f97ae,37.42,-122.2,1
+    2e8d7a9ec4bf11eb9c0e989e633f97ae,37.42,-122.21,2
 
 </div>
 
@@ -1408,21 +1408,11 @@ options, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="52">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --units=feet -f TABLE
 ```
-
-<div class="output stream stdout">
-
-        latitude  longitude  elevation
-    id                                
-    0      37.41    -122.20      190.0
-    1      37.42    -122.20      249.0
-    2      37.42    -122.21      344.0
-
-</div>
 
 </div>
 
@@ -1434,21 +1424,11 @@ The precision of the elevations can be specified as well, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="53">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --precision.elevation=2 --units=feet -f TABLE
 ```
-
-<div class="output stream stdout">
-
-        latitude  longitude  elevation
-    id                                
-    0      37.41    -122.20     190.29
-    1      37.42    -122.20     249.34
-    2      37.42    -122.21     344.49
-
-</div>
 
 </div>
 
@@ -1459,28 +1439,11 @@ e.g.,
 
 </div>
 
-<div class="cell code" execution_count="54">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D elevation 37.410,-122.20 37.420,-122.20 37.420,-122.21 -r 250 -f TABLE
 ```
-
-<div class="output stream stdout">
-
-              latitude  longitude   id  distance  heading  elevation
-    position                                                        
-    0         37.41000 -122.20000  0.0       0.0      NaN       58.0
-    250       37.41225 -122.20000  NaN     250.0      0.0       63.0
-    500       37.41450 -122.20000  NaN     500.0      0.0       74.0
-    750       37.41674 -122.20000  NaN     750.0      0.0       76.0
-    1000      37.41899 -122.20000  NaN    1000.0      0.0       97.0
-    1112      37.42000 -122.20000  1.0    1112.0      0.0       76.0
-    1362      37.42000 -122.20283  NaN    1362.0    270.0       85.0
-    1612      37.42000 -122.20566  NaN    1612.0    270.0       91.0
-    1862      37.42000 -122.20849  NaN    1862.0    270.0      103.0
-    1995      37.42000 -122.21000  2.0    1995.0    270.0      105.0
-
-</div>
 
 </div>
 
@@ -1497,7 +1460,7 @@ following command:
 
 </div>
 
-<div class="cell code" execution_count="55">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata config set -w vegetation.username name@example.com
@@ -1513,21 +1476,11 @@ locations, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="56">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 -f TABLE
 ```
-
-<div class="output stream stdout">
-
-        latitude  longitude  base  cover  height
-    id                                          
-    0      37.41    -122.20   2.0   0.17    11.0
-    1      37.42    -122.20   1.0   0.18    15.0
-    2      37.42    -122.21   2.0   0.01     0.0
-
-</div>
 
 </div>
 
@@ -1538,21 +1491,11 @@ the `year` option, i.e.,
 
 </div>
 
-<div class="cell code" execution_count="57">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D vegetation 37.410,-122.20 37.420,-122.20 37.420,-122.21 --year=2020 -f TABLE
 ```
-
-<div class="output stream stdout">
-
-        latitude  longitude  base  cover  height
-    id                                          
-    0      37.41    -122.20   2.0   0.17    11.0
-    1      37.42    -122.20   1.0   0.18    15.0
-    2      37.42    -122.21   2.0   0.01     0.0
-
-</div>
 
 </div>
 
@@ -1569,19 +1512,11 @@ The name of the utility at a location is the default data result, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="58">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D utility 37.420,-122.20 -f TABLE
 ```
-
-<div class="output stream stdout">
-
-        latitude  longitude             NAME
-    id                                      
-    0      37.42     -122.2  PACIFIC GAS ...
-
-</div>
 
 </div>
 
@@ -1597,19 +1532,11 @@ and the year for which the data is obtained, use the command
 
 </div>
 
-<div class="cell code" execution_count="59">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D utility 37.420,-122.20 --fields=WINTR_PEAK,SUMMR_PEAK,CUSTOMERS,YEAR -f TABLE
 ```
-
-<div class="output stream stdout">
-
-        latitude  longitude  WINTR_PEAK  SUMMR_PEAK  CUSTOMERS    YEAR
-    id                                                                
-    0      37.42     -122.2     12624.0     17263.0  5471786.0  2018.0
-
-</div>
 
 </div>
 
@@ -1621,7 +1548,7 @@ specified, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="60">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D utility 37.420,-122.20 --geometry -f PLOT -o /tmp/utility.png --plot.figsize=10,5
@@ -1636,18 +1563,12 @@ notebook.
 
 </div>
 
-<div class="cell code" execution_count="61">
+<div class="cell code">
 
 ``` python
 from IPython.display import Image
 Image("/tmp/utility.png")
 ```
-
-<div class="output execute_result" execution_count="61">
-
-bash% [](1f3dc876b6d8f3e42eebe70dba2d97e427eb4b79.png)
-
-</div>
 
 </div>
 
@@ -1688,31 +1609,11 @@ cable type can be given on the command line, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="62" scrolled="false">
+<div class="cell code" scrolled="false">
 
 ``` python
 bash% gridlabd geodata merge -D powerline path_example.csv --cable_type="TACSR/AC 610mm^2" -r 250 -f TABLE:linesag
 ```
-
-<div class="output stream stdout">
-
-              linesag
-    position         
-    0            15.0
-    250          14.4
-    254          15.0
-    428          15.0
-    595          15.0
-    ...           ...
-    7593         15.0
-    7840         15.0
-    8090        -31.2
-    8340        -30.6
-    8583         15.0
-    
-    [49 rows x 1 columns]
-
-</div>
 
 </div>
 
@@ -1723,30 +1624,12 @@ which contains the following fields:
 
 </div>
 
-<div class="cell code" execution_count="63">
+<div class="cell code">
 
 ``` python
 import pandas
 print("\n".join(pandas.read_csv("../geodata_powerline_cabletypes.csv").columns.to_list()))
 ```
-
-<div class="output stream stdout">
-
-    id
-    diameter
-    unit_weight
-    rated_tensile_strength
-    elasticity
-    thermal_expansion
-    conductor_crosssection_area
-    resistivity
-    nominal_resistance
-    nomimal_temperature
-    voltage_rating
-    reflectivity
-    emissivity
-
-</div>
 
 </div>
 
@@ -1756,30 +1639,11 @@ The first record contains the following values
 
 </div>
 
-<div class="cell code" execution_count="64">
+<div class="cell code">
 
 ``` python
 pandas.read_csv("../geodata_powerline_cabletypes.csv",nrows=1).transpose()
 ```
-
-<div class="output execute_result" execution_count="64">
-
-                                                0
-    id                           TACSR/AC 610mm^2
-    diameter                               0.0342
-    unit_weight                             21.56
-    rated_tensile_strength                72000.0
-    elasticity                      71800000000.0
-    thermal_expansion                    0.000021
-    conductor_crosssection_area          0.000692
-    resistivity                            0.0039
-    nominal_resistance                   0.000046
-    nomimal_temperature                      15.0
-    voltage_rating                       230000.0
-    reflectivity                              0.5
-    emissivity                                0.6
-
-</div>
 
 </div>
 
@@ -1790,61 +1654,19 @@ warning is output and the requested values are not calculated, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="65">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag # missing cable type
 ```
 
-<div class="output stream stdout">
-
-    WARNING [geodata/powerline]: cable_type not specified
-        linesag
-    id         
-    0       NaN
-    1       NaN
-    2       NaN
-    3       NaN
-    4       NaN
-    ..      ...
-    32      NaN
-    33      NaN
-    34      NaN
-    35      NaN
-    36      NaN
-
-    [37 rows x 1 columns]
-
 </div>
 
-</div>
-
-<div class="cell code" execution_count="66">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D powerline path_example.csv -f TABLE:linesag --cable_type="My cabletype" # bad cable type
 ```
-
-<div class="output stream stdout">
-
-    WARNING [geodata/powerline]: cable_type='My cabletype' not found
-        linesag
-    id         
-    0       NaN
-    1       NaN
-    2       NaN
-    3       NaN
-    4       NaN
-    ..      ...
-    32      NaN
-    33      NaN
-    34      NaN
-    35      NaN
-    36      NaN
-
-    [37 rows x 1 columns]
-
-</div>
 
 </div>
 
@@ -1858,49 +1680,19 @@ You can obtain help using the `help` directive, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="67" scrolled="false">
+<div class="cell code" scrolled="false">
 
 ``` python
 bash% gridlabd geodata help | head -n 10
 ```
 
-<div class="output stream stdout">
-
-    Help on module __main__:
-    
-    NAME
-        __main__ - Syntax: gridlabd geodata OPTIONS DIRECTIVE [ARGUMENTS]
-    
-    DESCRIPTION
-        The geodata command gathers and joins geographic data. The geodata subcommand
-        uses directives that are documented in the DIRECTIVES section below.
-        
-        In general geodata is used to acquire geographic information at a location or
-
 </div>
 
-</div>
-
-<div class="cell code" execution_count="68">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata help distance | head -n 10
 ```
-
-<div class="output stream stdout">
-
-    Help on module geodata_distance:
-    
-    NAME
-        geodata_distance - GridLAB-D Geodata Distance Package
-    
-    DESCRIPTION
-        The distance package computes the shortest distance between consecutive
-        positions.
-        
-        OPTIONS
-
-</div>
 
 </div>
 
@@ -1925,116 +1717,11 @@ about the stages of processing, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="69">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 -v --units=km --precision.distance=3
 ```
-
-<div class="output stream stdout">
-
-    VERBOSE [geodata/distance]: verbose output enabled
-    VERBOSE [geodata/distance]: arg=37,-122 --> append 1 rows from args
-    VERBOSE [geodata/distance]: arg=38,-122 --> append 1 rows from args
-    VERBOSE [geodata/distance]: arg=--units=km --> option ['units', 'km'] accepted
-    VERBOSE [geodata/distance]: arg=--precision.distance=3 --> option ['precision.distance', '3'] accepted
-    VERBOSE [geodata/distance]: 2 rows total received
-    VERBOSE [geodata/distance]: creating row index
-    VERBOSE [geodata/distance]: data = 
-    --------------------------
-       latitude  longitude  id
-    0      37.0     -122.0   0
-    1      38.0     -122.0   1
-    --------------------------
-
-    VERBOSE [geodata/distance]: options = {
-        "verbose": true,
-        "debug": false,
-        "silent": false,
-        "quiet": false,
-        "warning": true,
-        "key_index": "",
-        "max_threads": 1,
-        "config_file": "geodata.conf",
-        "field_separator": " ",
-        "record_separator": "\n",
-        "input_delimiter": "+",
-        "warning_as_error": false,
-        "plot": {
-            "figsize": [
-                7.0,
-                5.0
-            ],
-            "cmap": "",
-            "categorical": false,
-            "legend": false,
-            "scheme": "",
-            "k": 5,
-            "vmin": NaN,
-            "vmax": NaN,
-            "aspect": "auto"
-        },
-        "show": {
-            "block": true
-        },
-        "savefig": {
-            "dpi": 300,
-            "facecolor": "w",
-            "edgecolor": "k",
-            "orientation": "landscape",
-            "format": "png",
-            "transparent": false,
-            "pad_inches": 0.1
-        },
-        "table": {
-            "max_rows": 10,
-            "max_columns": 10,
-            "width": 80,
-            "max_colwidth": 16
-        },
-        "precision": {
-            "distance": 3,
-            "heading": 1,
-            "geolocation": 5,
-            "id": 0,
-            "resolution_id": 3
-        },
-        "resolution": 0,
-        "resolution_id": false,
-        "json": {
-            "orient": "index",
-            "data_format": "iso",
-            "double_precision": 10,
-            "force_ascii": true,
-            "date_unit": "s"
-        },
-        "units": "km",
-        "relative": false
-    }
-    VERBOSE [geodata/distance]: config = {
-        "geodata_url": "http://geodata.gridlabd.us/",
-        "output_format": "CSV",
-        "path_join": "outer",
-        "column_names": {
-            "ID": "id",
-            "UUID": "uuid",
-            "LAT": "latitude",
-            "LON": "longitude",
-            "DIST": "distance",
-            "HEAD": "heading",
-            "LOC": "location",
-            "POS": "position"
-        },
-        "uuid_type": 4,
-        "vegetation.username": "name@example.com",
-        "vegetation.password": "password5839",
-        "method": "haversine"
-    }
-    id,latitude,longitude,distance
-    0,37.0,-122.0,0.0
-    1,38.0,-122.0,111.195
-
-</div>
 
 </div>
 
@@ -2051,17 +1738,11 @@ returning an error condition, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="70">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 --badoption -s || echo "Exit code $?"
 ```
-
-<div class="output stream stdout">
-
-    Exit code 4
-
-</div>
 
 </div>
 
@@ -2077,20 +1758,11 @@ The `-w` or `--warning` option suppresses warning messages, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="71">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location -w -f TABLE
 ```
-
-<div class="output stream stdout">
-
-                  latitude  longitude  id  distance
-    location                                       
-    9q94rzdk9gyt      37.0     -122.0   0       0.0
-    9qc0pvdq1cqt      38.0     -122.0   1  111195.0
-
-</div>
 
 </div>
 
@@ -2101,17 +1773,11 @@ If an error is desired instead of a warning, use the
 
 </div>
 
-<div class="cell code" execution_count="72">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 -r 100 -k location --warning_as_error # key warning is an error
 ```
-
-<div class="output stream stdout">
-
-    ERROR [geodata/distance]: using index 'location' cannot be used with '--resolution=100.0' option
-
-</div>
 
 </div>
 
@@ -2129,17 +1795,11 @@ error occurred. For example, the following command has an invalid
 
 </div>
 
-<div class="cell code" execution_count="73">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs
 ```
-
-<div class="output stream stdout">
-
-    ERROR [geodata/distance]: unit 'furlongs' is not recognized
-
-</div>
 
 </div>
 
@@ -2152,109 +1812,11 @@ configuration is also output after the traceback information.
 
 </div>
 
-<div class="cell code" execution_count="74">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata merge -D distance 37,-122 38,-122 --units=furlongs -d # invalid unit
 ```
-
-<div class="output stream stdout">
-
-    Traceback (most recent call last):
-      File "/usr/local/opt/gridlabd/4.2.21-210530-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 849, in merge
-        result = MODULE.apply(data,options,config,warning)
-      File "/usr/local/opt/gridlabd/4.2.21-210530-develop_add_vegetation_geodata/share/gridlabd/geodata_distance.py", line 119, in apply
-        raise Exception(f"unit '{options['units']}' is not recognized")
-    Exception: unit 'furlongs' is not recognized
-    DEBUG [geodata/distance]: merge(args=['37,-122', '38,-122', '--units=furlongs']) --> data = 
-    ----
-    None
-    ----
-    options = {
-        "verbose": false,
-        "debug": true,
-        "silent": false,
-        "quiet": false,
-        "warning": true,
-        "key_index": "",
-        "max_threads": 1,
-        "config_file": "geodata.conf",
-        "field_separator": " ",
-        "record_separator": "\n",
-        "input_delimiter": "+",
-        "warning_as_error": false,
-        "plot": {
-            "figsize": [
-                7.0,
-                5.0
-            ],
-            "cmap": "",
-            "categorical": false,
-            "legend": false,
-            "scheme": "",
-            "k": 5,
-            "vmin": NaN,
-            "vmax": NaN,
-            "aspect": "auto"
-        },
-        "show": {
-            "block": true
-        },
-        "savefig": {
-            "dpi": 300,
-            "facecolor": "w",
-            "edgecolor": "k",
-            "orientation": "landscape",
-            "format": "png",
-            "transparent": false,
-            "pad_inches": 0.1
-        },
-        "table": {
-            "max_rows": 10,
-            "max_columns": 10,
-            "width": 80,
-            "max_colwidth": 16
-        },
-        "precision": {
-            "distance": 0,
-            "heading": 1,
-            "geolocation": 5,
-            "id": 0,
-            "resolution_id": 3
-        },
-        "resolution": 0,
-        "resolution_id": false,
-        "json": {
-            "orient": "index",
-            "data_format": "iso",
-            "double_precision": 10,
-            "force_ascii": true,
-            "date_unit": "s"
-        },
-        "units": "furlongs",
-        "relative": false
-    }
-    config = {
-        "geodata_url": "http://geodata.gridlabd.us/",
-        "output_format": "CSV",
-        "path_join": "outer",
-        "column_names": {
-            "ID": "id",
-            "UUID": "uuid",
-            "LAT": "latitude",
-            "LON": "longitude",
-            "DIST": "distance",
-            "HEAD": "heading",
-            "LOC": "location",
-            "POS": "position"
-        },
-        "uuid_type": 4,
-        "vegetation.username": "name@example.com",
-        "vegetation.password": "password5839",
-        "method": "haversine"
-    }
-
-</div>
 
 </div>
 
@@ -2283,30 +1845,11 @@ The current `geodata` configuration values are obtained using the
 
 </div>
 
-<div class="cell code" execution_count="75">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata --show_config
 ```
-
-<div class="output stream stdout">
-
-    --geodata_url='http://geodata.gridlabd.us/'
-    --output_format='CSV'
-    --path_join='outer'
-    --column_names.ID='id'
-    --column_names.UUID='uuid'
-    --column_names.LAT='latitude'
-    --column_names.LON='longitude'
-    --column_names.DIST='distance'
-    --column_names.HEAD='heading'
-    --column_names.LOC='location'
-    --column_names.POS='position'
-    --uuid_type=4
-    --vegetation.username='name@example.com'
-    --vegetation.password='password5839'
-
-</div>
 
 </div>
 
@@ -2324,61 +1867,11 @@ for options, e.g.,
 
 </div>
 
-<div class="cell code" execution_count="76">
+<div class="cell code">
 
 ``` python
 bash% gridlabd geodata --show_options
 ```
-
-<div class="output stream stdout">
-
-    --verbose=False
-    --debug=False
-    --silent=False
-    --quiet=False
-    --warning=True
-    --key_index=''
-    --max_threads=1
-    --config_file='geodata.conf'
-    --field_separator=' '
-    --record_separator='\n'
-    --input_delimiter='+'
-    --warning_as_error=False
-    --plot.figsize=7.0.5.0
-    --plot.cmap=''
-    --plot.categorical=False
-    --plot.legend=False
-    --plot.scheme=''
-    --plot.k=5
-    --plot.vmin=nan
-    --plot.vmax=nan
-    --plot.aspect='auto'
-    --show.block=True
-    --savefig.dpi=300
-    --savefig.facecolor='w'
-    --savefig.edgecolor='k'
-    --savefig.orientation='landscape'
-    --savefig.format='png'
-    --savefig.transparent=False
-    --savefig.pad_inches=0.1
-    --table.max_rows=10
-    --table.max_columns=10
-    --table.width=80
-    --table.max_colwidth=16
-    --precision.distance=0
-    --precision.heading=1
-    --precision.geolocation=5
-    --precision.id=0
-    --precision.resolution_id=3
-    --resolution=0
-    --resolution_id=False
-    --json.orient='index'
-    --json.data_format='iso'
-    --json.double_precision=10
-    --json.force_ascii=True
-    --json.date_unit='s'
-
-</div>
 
 </div>
 
@@ -2526,47 +2019,20 @@ resolve the geolocation of a house using its address.
 
 </div>
 
-<div class="cell code" execution_count="77">
+<div class="cell code">
 
 ``` python
 bash% cat example.glm
 ```
 
-<div class="output stream stdout">
-
-    module residential;
-    class house
-    {
-        char1024 address;
-    }
-    
-    object house
-    {
-        name "Building_53";
-        address "2575 Sand Hill Rd., Menlo Park, CA";
-    }
-    #write /tmp/address.csv house:address
-    #geodata merge -D address /tmp/address.csv --reverse --format GLM:@latitude,longitude -o /tmp/latlon.glm
-    #include "/tmp/latlon.glm"
-
 </div>
 
-</div>
-
-<div class="cell code" execution_count="78">
+<div class="cell code">
 
 ``` python
 bash% gridlabd -I -w example.glm -o /tmp/example.json
 bash% gridlabd json-get objects Building_53 </tmp/example.json | awk '/latitude|longitude|address/{print$0;}'
 ```
-
-<div class="output stream stdout">
-
-        "latitude": "37.415460",
-        "longitude": "-122.201180",
-        "address": "2575 Sand Hill Rd., Menlo Park, CA",
-
-</div>
 
 </div>
 
@@ -2582,68 +2048,12 @@ dataset.
 
 </div>
 
-<div class="cell code" execution_count="84" scrolled="false">
+<div class="cell code" scrolled="false">
 
 ``` python
 bash% gridlabd geodata merge -D elevation path_example.csv -r 250 \
 | gridlabd geodata merge -D distance -f TABLE --relative --table.width=999 --table.max_rows=999
 ```
-
-<div class="output stream stdout">
-
-          position  latitude  longitude configuration  pole_height  distance  heading  elevation
-    id                                                                                          
-    0.0          0  37.41505 -122.20565         flat3         18.0       0.0      NaN       88.0
-    NaN        250  37.41471 -122.20845           NaN          NaN     250.0    263.0      100.0
-    1.0        254  37.41470 -122.20849         sideT         20.0       0.0    263.0      100.0
-    2.0        428  37.41445 -122.21044         sideT         21.0       0.0    262.7      112.0
-    3.0        595  37.41422 -122.21231         sideT         18.0       0.0    263.0      111.0
-    4.0        771  37.41398 -122.21427         sideT         20.0       0.0    263.0       98.0
-    5.0        976  37.41370 -122.21657         sideT         18.0       0.0    263.1       92.0
-    6.0       1128  37.41348 -122.21827         sideT         21.0       0.0    262.6       79.0
-    7.0       1326  37.41321 -122.22048         sideT         18.0       0.0    263.0       90.0
-    8.0       1490  37.41298 -122.22232         sideT         16.0       0.0    262.9       78.0
-    9.0       1690  37.41271 -122.22456         sideT         21.0       0.0    263.1       80.0
-    NaN       1940  37.41236 -122.22736           NaN          NaN     250.0    262.9       92.0
-    10.0      1941  37.41236 -122.22736         sideT         18.0       0.0    262.9       92.0
-    11.0      2123  37.41211 -122.22940         sideT         19.0       0.0    263.0       81.0
-    12.0      2341  37.41181 -122.23184         3pole         15.0       0.0    263.0      103.0
-    NaN       2591  37.41058 -122.23421           NaN          NaN     250.0    242.5       83.0
-    13.0      2718  37.40995 -122.23541         3pole         16.0       0.0    242.5      126.0
-    14.0      2941  37.40912 -122.23771         2pole         15.0       0.0    250.2      121.0
-    NaN       3191  37.40818 -122.24028           NaN          NaN     250.0    249.9       92.0
-    15.0      3268  37.40789 -122.24107         2pole         17.0       0.0    249.9      106.0
-    16.0      3466  37.40715 -122.24311         2pole         15.0       0.0    250.1      112.0
-    17.0      3653  37.40644 -122.24503         3pole         17.0       0.0    249.7      125.0
-    18.0      3759  37.40562 -122.24443         vert3         17.0       0.0    143.8      126.0
-    19.0      3878  37.40456 -122.24418         vert3         20.0       0.0    166.7      123.0
-    20.0      4009  37.40339 -122.24429         vert3         20.0       0.0    185.4      118.0
-    21.0      4115  37.40249 -122.24468         vert3         20.0       0.0    203.4      106.0
-    22.0      4267  37.40136 -122.24566         vert3         22.0       0.0    220.9      106.0
-    NaN       4517  37.40032 -122.24817           NaN          NaN     250.0    247.6      106.0
-    23.0      4627  37.39987 -122.24927         3pole         16.0       0.0    247.6      117.0
-    24.0      4793  37.39966 -122.25113         2pole         18.0       0.0    263.6      172.0
-    NaN       5043  37.39950 -122.25395           NaN          NaN     250.0    266.8      206.0
-    25.0      5248  37.39937 -122.25627         2pole         22.0       0.0    266.8      264.0
-    26.0      5397  37.39928 -122.25795         3pole         15.0       0.0    266.9      286.0
-    NaN       5647  37.39908 -122.26077           NaN          NaN     250.0    266.0      212.0
-    NaN       5897  37.39888 -122.26359           NaN          NaN     500.0    266.0      291.0
-    27.0      5977  37.39882 -122.26449         3pole         18.0       0.0    266.0      322.0
-    28.0      6119  37.39871 -122.26610         2pole         15.0       0.0    266.1      349.0
-    29.0      6250  37.39861 -122.26757         3pole         18.0       0.0    266.1      326.0
-    NaN       6500  37.39667 -122.26901           NaN          NaN     250.0    216.5      342.0
-    NaN       6750  37.39473 -122.27044           NaN          NaN     500.0    216.5      436.0
-    30.0      6783  37.39448 -122.27063         3pole         21.0       0.0    216.5      443.0
-    31.0      6971  37.39306 -122.27180         3pole         21.0       0.0    219.5      448.0
-    32.0      7215  37.39248 -122.27446         2pole         17.0       0.0    257.7      501.0
-    33.0      7463  37.39190 -122.27717         2pole         21.0       0.0    257.9      573.0
-    34.0      7593  37.39161 -122.27860         2pole         23.0       0.0    258.5      610.0
-    35.0      7840  37.39171 -122.28139         3pole         16.0       0.0    272.1      640.0
-    NaN       8090  37.39048 -122.28376           NaN          NaN     250.0    242.6      540.0
-    NaN       8340  37.38926 -122.28613           NaN          NaN     500.0    242.6      547.0
-    36.0      8583  37.38806 -122.28844         tower         23.0       0.0    242.6      632.0
-
-</div>
 
 </div>
 
@@ -2656,54 +2066,13 @@ powerline data.
 
 </div>
 
-<div class="cell code" execution_count="95" scrolled="false">
+<div class="cell code" scrolled="false">
 
 ``` python
 bash% gridlabd geodata merge -D elevation path_example.csv -r 250 --resolution_id \
 | gridlabd geodata merge -D vegetation \
-| gridlabd geodata merge -D powerline --cable_type="TACSR/AC 610mm^2" --margin.vertical=10 -f TABLE:latitude,longitude,pole_height,elevation,linesag,cover,height,contact --table.width=999 --table.max_rows=999
+| gridlabd geodata merge -D powerline --cable_type="TACSR/AC 610mm^2" --margin.vertical=0 -f TABLE:latitude,longitude,pole_height,elevation,linesag,cover,height,contact --table.width=999 --table.max_rows=999
 ```
-
-<div class="output stream stdout">
-
-    Traceback (most recent call last):
-      File "/usr/local/opt/gridlabd/4.2.21-210530-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 1386, in <module>
-        main(len(sys.argv),sys.argv)
-      File "/usr/local/opt/gridlabd/4.2.21-210530-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 1279, in main
-        load_dataset([DATASET])
-      File "/usr/local/opt/gridlabd/4.2.21-210530-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 1104, in load_dataset
-        MODULE = importlib.import_module(f"geodata_{DATASET}")
-      File "/usr/local/Cellar/python@3.9/3.9.5/Frameworks/Python.framework/Versions/3.9/lib/python3.9/importlib/__init__.py", line 127, in import_module
-        return _bootstrap._gcd_import(name[level:], package, level)
-      File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
-      File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
-      File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
-      File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
-      File "<frozen importlib._bootstrap_external>", line 851, in exec_module
-      File "<frozen importlib._bootstrap_external>", line 988, in get_code
-      File "<frozen importlib._bootstrap_external>", line 918, in source_to_code
-      File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
-      File "/usr/local/opt/gridlabd/4.2.21-210530-develop_add_vegetation_geodata/share/gridlabd/geodata_powerline.py", line 576
-        return result
-    IndentationError: unexpected indent
-    BrokenPipeError: [Errno 32] Broken pipe
-
-    During handling of the above exception, another exception occurred:
-
-    Traceback (most recent call last):
-      File "/usr/local/opt/gridlabd/4.2.21-210530-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 1386, in <module>
-        main(len(sys.argv),sys.argv)
-      File "/usr/local/opt/gridlabd/4.2.21-210530-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 1365, in main
-        write_csv(data)
-      File "/usr/local/opt/gridlabd/4.2.21-210530-develop_add_vegetation_geodata/bin/gridlabd-geodata", line 938, in write_csv
-        data.to_csv(OUTPUT)
-      File "/usr/local/lib/python3.9/site-packages/pandas/core/generic.py", line 3170, in to_csv
-        formatter.save()
-      File "/usr/local/lib/python3.9/site-packages/pandas/io/formats/csvs.py", line 227, in save
-        f.close()
-    BrokenPipeError: [Errno 32] Broken pipe
-
-</div>
 
 </div>
 
