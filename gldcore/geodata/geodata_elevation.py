@@ -133,6 +133,7 @@ def get_elevation(pos,repourl=default_config["repourl"],cachedir=default_config[
     return [dy*e1 + (1-dy)*e0]
 
 def get_rowcol(pos):
+    """Find the row and column index of a pixel for a position"""
     row = 3600-int(math.modf(abs(pos[0]))[0]*3600)
     col = 3600-int(math.modf(abs(pos[1]))[0]*3600)
     return row, col
